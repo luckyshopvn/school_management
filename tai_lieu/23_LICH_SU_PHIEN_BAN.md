@@ -16,6 +16,39 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.26.2 – 2026-10-09
+
+- Phạm vi thay đổi: DT-01 phần 1, phần lõi dịch vụ định danh.
+- Chức năng mới: đăng nhập bằng mật khẩu, làm mới phiên, đăng xuất, đổi mật khẩu, đọc tài khoản và quyền hiện hành; tạo tài khoản quản trị nền tảng đầu tiên bằng lệnh.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: cơ sở dữ liệu định danh có bảy bảng mới, 19 vai trò và 55 mã quyền.
+- Thay đổi API: năm điểm cuối nhóm `auth`; `17` ghi giao kèo chi tiết.
+- Rủi ro: không.
+- Khả năng tương thích: chưa có bên gọi nên không ảnh hưởng.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-01-phan-1`; chạy ngược tệp thay đổi cấu trúc 0003, 0002 của cơ sở dữ liệu định danh.
+
+### Phiên bản 0.26.1 – 2026-10-09
+
+- Phạm vi thay đổi: YCTD-35, chốt giá trị cho dịch vụ định danh.
+- Chức năng mới: không.
+- Lỗi đã sửa: BM-03, BM-04 chưa có giá trị cụ thể; chưa có quy ước mã quyền.
+- Thay đổi dữ liệu: thêm `security_events`, `users.locked_until`.
+- Thay đổi API: không.
+- Rủi ro: không.
+- Khả năng tương thích: không ảnh hưởng.
+- Phương án quay lui: khôi phục các tài liệu nêu ở YCTD-35 về phiên bản trước.
+
+### Phiên bản 0.26.0 – 2026-10-09
+
+- Phạm vi thay đổi: YCTD-34, chia lại đợt DT-01 và DT-02; QĐ-20 đến QĐ-22.
+- Chức năng mới: không.
+- Lỗi đã sửa: DT-01 yêu cầu đăng nhập được trong khi dịch vụ định danh xếp ở đợt sau.
+- Thay đổi dữ liệu: tài khoản `api_service` có quyền tạo cơ sở dữ liệu.
+- Thay đổi API: không.
+- Rủi ro: máy chủ API phụ thuộc dịch vụ định danh ở mọi yêu cầu; dịch vụ định danh dừng thì máy chủ API từ chối yêu cầu.
+- Khả năng tương thích: không ảnh hưởng.
+- Phương án quay lui: khôi phục các tài liệu nêu ở YCTD-34 về phiên bản trước.
+
 ### Phiên bản 0.25.5 – 2026-10-09
 
 - Phạm vi thay đổi: hoàn thành đợt DT-00 (M01-3), qua cổng CG-08; mã nguồn gộp vào nhánh `main`.

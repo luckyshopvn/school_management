@@ -14,6 +14,49 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-09 — DT-01 phần 1: phần lõi dịch vụ định danh
+
+#### Công việc đã thực hiện
+
+- Eric duyệt thiết kế phần 1. Viết trên nhánh `dt-01-phan-1`.
+- Cơ sở dữ liệu định danh: tệp thay đổi cấu trúc `0002_create_account_tables` tạo `users`, `roles`, `permissions`, `role_permissions`, `user_roles`, `sessions`, `security_events`; `0003_seed_roles_and_permissions` tạo 19 vai trò và 55 mã quyền theo ma trận ở `08` mục 3.
+- Dịch vụ định danh: `login`, `refresh`, `logout`, `change-password`, `me`; băm mật khẩu argon2id; mã phiên ký Ed25519; mã làm mới đổi mới sau mỗi lần làm mới; tạm khóa 15 phút sau 5 lần sai; giới hạn 10 yêu cầu đăng nhập mỗi phút trên một địa chỉ mạng; mô hình lỗi kèm mã tương quan.
+- Lệnh `create-platform-administrator` tạo tài khoản VT-01 đầu tiên; lệnh `generate-token-keys` sinh cặp khóa ký mã phiên.
+- Kết quả: 19/19 kiểm thử của dịch vụ định danh đạt, gồm CTC-DD-001 đến 004, 007, 008, 009, 031 đến 034, 043; toàn bộ 24 kiểm thử của dự án đạt; kiểm tra kiểu, quy tắc viết mã, định dạng đạt.
+
+#### Quyết định
+
+- Không có quyết định mới ngoài YCTD-35.
+
+#### Thay đổi
+
+- `17` ghi giao kèo nhóm điểm cuối xác thực; xem `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.26.2.
+
+#### Vấn đề tồn đọng
+
+- Kiểm thử để lại tài khoản kiểm thử trong cơ sở dữ liệu định danh của môi trường phát triển.
+- Chưa commit, chờ Eric đồng ý.
+
+### 2026-10-09 — Kế hoạch đợt DT-01
+
+#### Công việc đã thực hiện
+
+- Đọc tài liệu cho đợt DT-01, phát hiện DT-01 phụ thuộc phần lõi dịch vụ định danh ở DT-02; trình Eric cách chia sáu phần.
+
+#### Quyết định
+
+- Gộp phần lõi dịch vụ định danh vào DT-01, làm theo sáu phần (YCTD-34) – người quyết định: Eric.
+- QĐ-20, QĐ-21, QĐ-22 – người quyết định: Eric.
+- Mật khẩu tối thiểu 8 ký tự có chữ và số; sai 5 lần tạm khóa 15 phút rồi tự mở; mã quyền theo phân hệ và hành động; tài khoản đầu tiên là VT-01 (YCTD-35) – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-34, YCTD-35 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.26.0 đến 0.26.1.
+
+#### Vấn đề tồn đọng
+
+- Việc tiếp theo: trình thiết kế chi tiết DT-01 phần 1.
+
 ### 2026-10-09 — Qua cổng CG-08
 
 #### Công việc đã thực hiện

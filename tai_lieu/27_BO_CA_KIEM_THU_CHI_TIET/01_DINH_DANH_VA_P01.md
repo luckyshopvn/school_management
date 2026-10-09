@@ -1,7 +1,7 @@
 # 27.1. BỘ CA KIỂM THỬ CHI TIẾT — DỊCH VỤ ĐỊNH DANH VÀ P01
 
 - Mô tả: Ca kiểm thử chi tiết cho dịch vụ định danh (Q-125, Q-126) và các chức năng giai đoạn 1 của phân hệ P01 Nền tảng, đơn vị và phân quyền (việc N21, Q-105).
-- Phiên bản: 1.2
+- Phiên bản: 1.4
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -53,15 +53,15 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
-| CTC-DD-001 | P19-06 | XT-01, BM-01 | LT-02 | Cao | Tài khoản NS-A đang hoạt động | Gọi `POST /api/v1/auth/login` bằng số điện thoại và mật khẩu đúng | Trả mã phiên và mã làm mới; `GET /api/v1/auth/me` trả đúng vai trò VT-06 và đơn vị PH-A | | Chưa chạy |
-| CTC-DD-002 | P19-06 | XT-01 | LT-02 | Trung bình | Tài khoản NS-A có tên đăng nhập | Đăng nhập bằng tên đăng nhập và mật khẩu đúng | Đăng nhập thành công như CTC-DD-001 | | Chưa chạy |
-| CTC-DD-003 | P19-06 | XT-01, BM-29 | LT-02 | Cao | Tài khoản NS-A | Đăng nhập với mật khẩu sai | Trả `ERR_UNAUTHENTICATED`, không cấp phiên; phản hồi không chứa thông tin nội bộ | | Chưa chạy |
-| CTC-DD-004 | P19-06 | XT-05, BM-04, BM-36, CT-006 | LT-02 | Cao | Tài khoản NS-A, đếm sai bằng 0 | Đăng nhập sai 5 lần liên tiếp, rồi đăng nhập đúng | Lần đúng bị từ chối vì tài khoản tạm khóa; thông báo liên hệ nhà trường; nhật ký bảo mật ghi 5 lần sai theo tài khoản và địa chỉ mạng | | Chưa chạy |
+| CTC-DD-001 | P19-06 | XT-01, BM-01 | LT-02 | Cao | Tài khoản NS-A đang hoạt động | Gọi `POST /api/v1/auth/login` bằng số điện thoại và mật khẩu đúng | Trả mã phiên và mã làm mới; `GET /api/v1/auth/me` trả đúng vai trò VT-06 và đơn vị PH-A | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-DD-002 | P19-06 | XT-01 | LT-02 | Trung bình | Tài khoản NS-A có tên đăng nhập | Đăng nhập bằng tên đăng nhập và mật khẩu đúng | Đăng nhập thành công như CTC-DD-001 | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-DD-003 | P19-06 | XT-01, BM-29 | LT-02 | Cao | Tài khoản NS-A | Đăng nhập với mật khẩu sai | Trả `ERR_UNAUTHENTICATED`, không cấp phiên; phản hồi không chứa thông tin nội bộ | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-DD-004 | P19-06 | XT-05, BM-04, BM-36, CT-006, YCTD-35 | LT-02 | Cao | Tài khoản NS-A, đếm sai bằng 0 | Đăng nhập sai 5 lần liên tiếp, rồi đăng nhập đúng; sau 15 phút đăng nhập đúng lần nữa | Lần đúng đầu tiên bị từ chối vì tài khoản tạm khóa, thông báo thử lại sau 15 phút; sau 15 phút đăng nhập thành công; nhật ký bảo mật ghi 5 lần sai theo tài khoản và địa chỉ mạng | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-DD-005 | P19-06 | BR-05 | LT-02 | Cao | Hợp đồng của NS-A đã chấm dứt, tài khoản đã khóa | Đăng nhập bằng thông tin đúng | Bị từ chối; tài khoản vẫn tồn tại, lịch sử thao tác còn nguyên | | Chưa chạy |
 | CTC-DD-006 | P19-06 | PQ-07, BM-09 | LT-02 | Trung bình | Tài khoản GV-A1 không đăng nhập 91 ngày | Đăng nhập bằng thông tin đúng | Bị từ chối, tài khoản ở trạng thái tạm khóa, cần kích hoạt lại | | Chưa chạy |
-| CTC-DD-007 | P19-06 | AC-209, BM-68, CT-165 | LT-02 | Cao | KTV có ngày hết hiệu lực là hôm qua | Đăng nhập bằng thông tin đúng | Bị từ chối; tài khoản ở trạng thái khóa | | Chưa chạy |
-| CTC-DD-008 | P19-06 | KT-07, BM-26 | LT-02 | Trung bình | Không | Gửi liên tục yêu cầu đăng nhập vượt giới hạn tần suất | Trả `ERR_RATE_LIMIT` kèm thời gian chờ | | Chưa chạy |
-| CTC-DD-009 | P19-06 | XT-04, BM-02 | LT-05 | Cao | Hai tài khoản đặt cùng một mật khẩu | Đọc bảng `users` trong cơ sở dữ liệu định danh | Không có mật khẩu bản rõ; hai giá trị băm khác nhau vì có muối; thuật toán là thuật toán băm mật khẩu chuyên dụng | | Chưa chạy |
+| CTC-DD-007 | P19-06 | AC-209, BM-68, CT-165 | LT-02 | Cao | KTV có ngày hết hiệu lực là hôm qua | Đăng nhập bằng thông tin đúng | Bị từ chối; tài khoản ở trạng thái khóa | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-DD-008 | P19-06 | KT-07, BM-26 | LT-02 | Trung bình | Không | Gửi liên tục yêu cầu đăng nhập vượt giới hạn tần suất | Trả `ERR_RATE_LIMIT` kèm thời gian chờ | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-DD-009 | P19-06 | XT-04, BM-02 | LT-05 | Cao | Hai tài khoản đặt cùng một mật khẩu | Đọc bảng `users` trong cơ sở dữ liệu định danh | Không có mật khẩu bản rõ; hai giá trị băm khác nhau vì có muối; thuật toán là thuật toán băm mật khẩu chuyên dụng | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
 
 ### 3.2. Mật khẩu mặc định của phụ huynh
 
@@ -99,16 +99,16 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 | CTC-DD-028 | Bỏ ngày 09/10/2026: không dùng xác thực hai lớp (YCTD-31) | — | — | — | — | — | — | — | Không áp dụng |
 | CTC-DD-029 | Bỏ ngày 09/10/2026: không dùng xác thực hai lớp (YCTD-31) | — | — | — | — | — | — | — | Không áp dụng |
 | CTC-DD-030 | Bỏ ngày 09/10/2026: không dùng xác thực hai lớp (YCTD-31) | — | — | — | — | — | — | — | Không áp dụng |
-| CTC-DD-043 | P19-06 | XT-07, YCTD-31 | LT-02 | Cao | Tài khoản HT, PHT-A, KTT, QTNT | Đăng nhập từng tài khoản bằng mật khẩu đúng; gọi `POST /api/v1/auth/verify-otp` | Mỗi lần đăng nhập được cấp phiên đầy đủ, không yêu cầu mã xác thực hai lớp; điểm cuối xác thực hai lớp không còn dùng | | Chưa chạy |
+| CTC-DD-043 | P19-06 | XT-07, YCTD-31 | LT-02 | Cao | Tài khoản HT, PHT-A, KTT, QTNT | Đăng nhập từng tài khoản bằng mật khẩu đúng; gọi `POST /api/v1/auth/verify-otp` | Mỗi lần đăng nhập được cấp phiên đầy đủ, không yêu cầu mã xác thực hai lớp; điểm cuối xác thực hai lớp không còn dùng | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
 
 ### 3.5. Phiên làm việc
 
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
-| CTC-DD-031 | P19-06 | XT-02, Q-120 | LT-02 | Cao | NS-A vừa đăng nhập | Gọi điểm cuối nghiệp vụ sau 16 phút bằng mã phiên cũ; gọi `POST /api/v1/auth/refresh` | Lần đầu trả `ERR_UNAUTHENTICATED`; làm mới thành công và mã phiên mới dùng được | | Chưa chạy |
-| CTC-DD-032 | P19-06 | XT-02, Q-120 | LT-02 | Cao | NS-A đăng nhập trên cổng quản trị | Làm mới bằng mã làm mới sau 8 giờ 1 phút | Bị từ chối, phải đăng nhập lại | | Chưa chạy |
-| CTC-DD-033 | P19-06 | XT-02, Q-120 | LT-02 | Trung bình | GV-A1 và PH-1 đăng nhập trên ứng dụng | Làm mới sau 29 ngày; làm mới sau 30 ngày 1 phút | Lần đầu thành công; lần sau bị từ chối | | Chưa chạy |
-| CTC-DD-034 | P19-06 | BM-05 | LT-02 | Cao | NS-A đang có phiên | Gọi `POST /api/v1/auth/logout`, rồi làm mới bằng mã làm mới cũ | Làm mới bị từ chối | | Chưa chạy |
+| CTC-DD-031 | P19-06 | XT-02, Q-120 | LT-02 | Cao | NS-A vừa đăng nhập | Gọi điểm cuối nghiệp vụ sau 16 phút bằng mã phiên cũ; gọi `POST /api/v1/auth/refresh` | Lần đầu trả `ERR_UNAUTHENTICATED`; làm mới thành công và mã phiên mới dùng được | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-DD-032 | P19-06 | XT-02, Q-120 | LT-02 | Cao | NS-A đăng nhập trên cổng quản trị | Làm mới bằng mã làm mới sau 8 giờ 1 phút | Bị từ chối, phải đăng nhập lại | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-DD-033 | P19-06 | XT-02, Q-120 | LT-02 | Trung bình | GV-A1 và PH-1 đăng nhập trên ứng dụng | Làm mới sau 29 ngày; làm mới sau 30 ngày 1 phút | Lần đầu thành công; lần sau bị từ chối | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-DD-034 | P19-06 | BM-05 | LT-02 | Cao | NS-A đang có phiên | Gọi `POST /api/v1/auth/logout`, rồi làm mới bằng mã làm mới cũ | Làm mới bị từ chối | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-DD-035 | P01-07 | AC-05, PQ-04, BM-14, BM-56, CT-005 | LT-04 | Cao | QL-A đang có phiên, đang có quyền duyệt hồ sơ trẻ | HT thu hồi vai trò VT-03 của QL-A; QL-A gửi ngay yêu cầu duyệt hồ sơ | Bị từ chối ngay, không chờ phiên hết hạn; mã làm mới cũ bị thu hồi | | Chưa chạy |
 | CTC-DD-036 | P01-06 | PQ-04 | LT-04 | Cao | GV-A1 đang có phiên | HT khóa tài khoản GV-A1; GV-A1 gửi yêu cầu kế tiếp | Bị từ chối ngay | | Chưa chạy |
 | CTC-DD-037 | P19-06 | XT-06, AC-146, BM-58, CT-102 | LT-02 | Cao | Không | Gửi yêu cầu thay đổi dữ liệu tới máy chủ API kèm mã phiên sửa chữ ký, và kèm mã phiên hợp lệ | Mã sửa chữ ký bị từ chối; mã hợp lệ được xử lý sau khi kiểm tra | | Chưa chạy |

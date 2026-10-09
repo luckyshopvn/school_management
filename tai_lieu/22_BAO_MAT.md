@@ -1,7 +1,7 @@
 # 22. BẢO MẬT
 
 - Mô tả: Xác thực, phân quyền, phiên làm việc, kiểm tra dữ liệu đầu vào, bảo mật API, truy cập dữ liệu.
-- Phiên bản: 1.2
+- Phiên bản: 1.3
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -20,8 +20,8 @@
 |---|---|
 | BM-01 | Đăng nhập bằng số điện thoại hoặc tên đăng nhập kèm mật khẩu; phụ huynh có thêm cách đăng nhập bằng mã một lần gửi qua tin nhắn |
 | BM-02 | Mật khẩu lưu dưới dạng băm có muối, dùng thuật toán băm mật khẩu chuyên dụng, không dùng hàm băm thông thường |
-| BM-03 | Yêu cầu độ dài và độ phức tạp tối thiểu của mật khẩu |
-| BM-04 | Giới hạn số lần đăng nhập sai, tạm khóa tài khoản theo cấu hình |
+| BM-03 | Mật khẩu tối thiểu 8 ký tự, có cả chữ và số (YCTD-35) |
+| BM-04 | Sai mật khẩu 5 lần liên tiếp thì tạm khóa tài khoản 15 phút, hết thời gian tự mở (YCTD-35) |
 | BM-05 | Mã phiên ngắn hạn kèm mã làm mới; mã làm mới thu hồi được khi đăng xuất hoặc khi phát hiện bất thường. Mã phiên hết hạn sau 15 phút; mã làm mới hết hạn sau 8 giờ với cổng quản trị và 30 ngày với ứng dụng giáo viên, ứng dụng phụ huynh (Q-120) |
 | BM-06 | Bỏ ngày 09/10/2026: không dùng xác thực hai lớp (YCTD-31); rủi ro chiếm tài khoản của vai trò phê duyệt được giảm bằng BM-03, BM-04, BM-36, BM-56 (RR-15) |
 | BM-07 | Tài khoản phụ huynh mới bắt buộc đổi mật khẩu ở lần đăng nhập đầu bằng mật khẩu; tài khoản vừa được đặt lại mật khẩu (P01-06) bắt buộc đổi mật khẩu ở lần đăng nhập kế tiếp (Q-148) |

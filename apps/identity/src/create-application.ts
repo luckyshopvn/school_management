@@ -1,11 +1,23 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import type { INestApplication } from '@nestjs/common';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { API_VERSION_PREFIX } from '@school-management/shared';
 import { ApplicationModule } from './application.module.js';
+import { Clock, SystemClock } from './common/clock.js';
+import type { IdentityConfiguration } from './common/configuration.js';
+import { ErrorFilter } from './common/error.filter.js';
 
-export async function createApplication(): Promise<INestApplication> {
-  const application = await NestFactory.create(ApplicationModule, { logger: ['error', 'warn'] });
+export async function createApplication(
+  configuration: IdentityConfiguration,
+  clock: Clock = new SystemClock(),
+): Promise<INestApplication> {
+  const application = await NestFactory.create<NestExpressApplication>(
+    ApplicationModule.register(configuration, clock),
+    { logger: ['error', 'warn'] },
+  );
   application.setGlobalPrefix(API_VERSION_PREFIX.slice(1));
+  application.useGlobalFilters(new ErrorFilter());
+  application.enableShutdownHooks();
   return application;
 }

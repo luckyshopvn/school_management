@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.6
+- Phiên bản: 1.7
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -17,7 +17,7 @@
 7. Mã chứng từ như số phiếu thu, số phiếu chi, mã hóa đơn sinh theo quy tắc của từng đơn vị, có ràng buộc duy nhất theo đơn vị và kỳ.
 8. Đơn vị tổ chức lưu trong bảng `org_units` thành cây không giới hạn cấp; `unit_type` là nhãn cấp; quan hệ cha con bằng `parent_id` tự tham chiếu; đơn vị gốc có `parent_id` trống.
 9. Mỗi năm học một cơ sở dữ liệu nghiệp vụ (QĐ-15). Có ba loại cơ sở dữ liệu:
-   - Cơ sở dữ liệu định danh, không theo năm học: `users`, `roles`, `permissions`, `role_permissions`, `user_roles`, `sessions`, `one_time_codes`, `api_clients`.
+   - Cơ sở dữ liệu định danh, không theo năm học: `users`, `roles`, `permissions`, `role_permissions`, `user_roles`, `sessions`, `one_time_codes`, `api_clients`, `security_events` (YCTD-35).
    - Cơ sở dữ liệu hệ thống của máy chủ API, không theo năm học: `academic_year_databases` (QĐ-17), `academic_years`, `academic_terms`, `school_weeks` (YCTD-30).
    - Cơ sở dữ liệu năm học: mọi bảng còn lại.
 10. Khi mở năm học mới, dữ liệu chuyển sang giữ nguyên mã định danh (`id`) của đơn vị, trẻ, phụ huynh, nhân sự, danh mục và tài khoản quỹ, để phân quyền ở cơ sở dữ liệu định danh và báo cáo nhiều năm tham chiếu đúng.
@@ -32,13 +32,14 @@
 | school_weeks | Tuần học tự đánh số (BR-91) | academic_year_id, week_no, start_date, end_date, is_off (tuần nghỉ), note |
 | departments | Phòng ban | org_unit_id, parent_id, name, status |
 | job_titles | Chức danh | org_unit_id, name, level, status |
-| users | Tài khoản đăng nhập | full_name, phone (duy nhất), username (duy nhất), password_hash, status, last_login_at, failed_login_count, must_change_password, valid_until (bắt buộc với VT-20) |
+| users | Tài khoản đăng nhập | full_name, phone (duy nhất), username (duy nhất), password_hash, status, last_login_at, failed_login_count, locked_until (hết hạn tạm khóa do sai mật khẩu, YCTD-35), must_change_password, valid_until (bắt buộc với VT-20) |
 | roles | Vai trò | code (duy nhất), name, is_system |
 | permissions | Quyền theo chức năng | code (duy nhất), module_code, description |
 | role_permissions | Gán quyền cho vai trò | role_id, permission_id |
 | user_roles | Gán vai trò cho tài khoản | user_id, role_id, org_unit_id (cho phép trống nghĩa là toàn trường; tham chiếu theo mã, không có khóa ngoại vì nằm khác cơ sở dữ liệu) |
 | sessions | Phiên đăng nhập và mã làm mới | user_id, channel, refresh_token_hash, issued_at, expires_at, revoked_at, ip_address, user_agent |
 | one_time_codes | Mã một lần đăng nhập của phụ huynh | user_id, phone, purpose (đăng nhập; xác thực hai lớp đã bỏ theo YCTD-31), code_hash, expires_at, attempt_count, used_at, sent_count |
+| security_events | Nhật ký bảo mật của dịch vụ định danh: đăng nhập sai, tạm khóa, làm mới bằng mã đã thu hồi (BM-36, YCTD-35) | event_type, user_id (trống khi không tìm thấy tài khoản), login_identifier, ip_address, created_at |
 | settings | Cấu hình theo đơn vị | org_unit_id, key, value, value_type |
 | audit_logs | Nhật ký thao tác | actor_user_id, org_unit_id, entity_name, entity_id, action, before_data, after_data, ip_address, created_at |
 | data_access_logs | Nhật ký truy cập dữ liệu nhạy cảm | actor_user_id, api_client_id (khi đối tác đọc qua API), entity_name, entity_id, scope, record_count, purpose, created_at |

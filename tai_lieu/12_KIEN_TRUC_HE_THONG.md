@@ -1,7 +1,7 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, thành phần, xác thực, phân quyền, lưu trữ tệp, ghi nhật ký, giám sát, sao lưu, phục hồi, triển khai.
-- Phiên bản: 1.5
+- Phiên bản: 1.7
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -110,8 +110,8 @@ Xác thực do dịch vụ định danh đảm nhiệm, tách khỏi máy chủ 
 | XT-02 | Cấp phiên ngắn hạn kèm mã làm mới; mã làm mới thu hồi được khi cần. Mã phiên hết hạn sau 15 phút; mã làm mới hết hạn sau 8 giờ với cổng quản trị, 30 ngày với ứng dụng giáo viên và phụ huynh |
 | XT-03 | Tài khoản phụ huynh tạo với mật khẩu mặc định chung do nhà trường cấu hình; bắt buộc đổi mật khẩu ở lần đăng nhập đầu |
 | XT-04 | Mật khẩu lưu dưới dạng băm có muối, không lưu bản rõ |
-| XT-05 | Giới hạn số lần đăng nhập sai và tạm khóa theo cấu hình |
-| XT-06 | Mọi yêu cầu thay đổi dữ liệu đều kiểm tra phiên còn hiệu lực; máy chủ API kiểm tra mã phiên với dịch vụ định danh hoặc kiểm tra chữ ký của mã |
+| XT-05 | Sai mật khẩu 5 lần liên tiếp thì tạm khóa tài khoản 15 phút rồi tự mở; giới hạn 10 yêu cầu đăng nhập mỗi phút trên một địa chỉ mạng (YCTD-35) |
+| XT-06 | Mọi yêu cầu tới máy chủ API nghiệp vụ đều kiểm tra phiên còn hiệu lực: kiểm tra chữ ký của mã bằng khóa công khai, sau đó hỏi dịch vụ định danh vai trò và quyền hiện hành qua `GET /api/v1/auth/me` (QĐ-20, QĐ-22) |
 | XT-07 | Bỏ ngày 09/10/2026: không dùng xác thực hai lớp (YCTD-31); Hiệu trưởng, Phó Hiệu trưởng, kế toán trưởng và quản trị nền tảng đăng nhập bằng mật khẩu như các vai trò khác |
 | XT-08 | Dịch vụ định danh phát hành mã có thời hạn ngắn; máy chủ API nghiệp vụ không lưu mật khẩu và không tự xác thực mật khẩu |
 | XT-09 | Mã một lần gồm sáu chữ số, hết hạn sau số phút cấu hình, chỉ dùng một lần, giới hạn số lần gửi và số lần nhập sai; cần nhà cung cấp tin nhắn (việc T1) |
@@ -232,6 +232,9 @@ Thứ tự dựng (YCTD-32): môi trường phát triển chạy Docker trên m�
 | QĐ-17 | Bảng không theo năm học: khóa API đối tác đặt ở cơ sở dữ liệu định danh; danh sách cơ sở dữ liệu năm học đặt ở một cơ sở dữ liệu hệ thống riêng của máy chủ API; khi mở năm học giữ nguyên mã định danh của bản ghi chuyển sang | Đã chốt ngày 2026-10-09 |
 | QĐ-18 | Truy cập dữ liệu và chạy tệp thay đổi cấu trúc dùng Kysely trên PostgreSQL (YCTD-33) | Đã chốt ngày 2026-10-09 |
 | QĐ-19 | Nhánh `main` được bảo vệ; mỗi việc làm trên một nhánh riêng, gộp vào `main` qua yêu cầu gộp khi kiểm thử đạt và Eric duyệt (YCTD-33) | Đã chốt ngày 2026-10-09 |
+| QĐ-20 | Máy chủ API hỏi dịch vụ định danh vai trò và quyền hiện hành ở mọi yêu cầu, không lưu bộ nhớ đệm, để thu hồi quyền có hiệu lực ngay (PQ-04, YCTD-34) | Đã chốt ngày 2026-10-09 |
+| QĐ-21 | Tài khoản kết nối của máy chủ API có quyền tạo cơ sở dữ liệu để mở năm học; không có quyền quản trị toàn hệ thống (YCTD-34) | Đã chốt ngày 2026-10-09 |
+| QĐ-22 | Mã phiên ký bằng khóa bất đối xứng Ed25519; dịch vụ định danh giữ khóa bí mật, máy chủ API chỉ giữ khóa công khai (YCTD-34) | Đã chốt ngày 2026-10-09 |
 
 ## 14. Chưa xác minh được
 
