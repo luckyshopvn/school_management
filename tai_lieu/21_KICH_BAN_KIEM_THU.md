@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.9
+- Phiên bản: 1.10
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -159,11 +159,11 @@
 | Mã | Chức năng | Dữ liệu đầu vào | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|
 | CT-091 | Tạo Trường chính | Tài khoản Hiệu trưởng | Tạo được đơn vị cấp cao nhất, đơn vị cha trống | | Chưa chạy |
-| CT-092 | Đổi đơn vị cha tạo vòng lặp | Đơn vị A là cha của B, đổi cha của A thành B | Trả lỗi tạo vòng lặp | | Chưa chạy |
-| CT-093 | Xem cây đơn vị nhiều cấp | Tài khoản Hiệu trưởng | Thấy đủ nhiều cấp, mỗi đơn vị nằm đúng dưới đơn vị cha | | Chưa chạy |
+| CT-092 | Tạo đơn vị dưới đơn vị cấp 2 | Tạo đơn vị có đơn vị cha là một Điểm trường (YCTD-38) | Trả lỗi vi phạm BR-01 vì cây chỉ có hai cấp | | Chưa chạy |
+| CT-093 | Xem cây đơn vị hai cấp | Tài khoản Hiệu trưởng | Thấy Trường chính và các đơn vị cấp 2 kèm loại; lọc được theo loại (YCTD-38) | | Chưa chạy |
 | CT-094 | Xếp trẻ vào lớp thuộc Điểm trường | Trẻ mới và lớp của Điểm trường | Đơn vị của trẻ được ghi là Điểm trường đó | | Chưa chạy |
 | CT-095 | Phạm vi cấp trên bao gồm cấp dưới | Tài khoản gán ở Trường chính, truy vấn Điểm trường trực thuộc | Được phép trả dữ liệu | | Chưa chạy |
-| CT-096 | Phạm vi cấp dưới không bao gồm cấp trên | Tài khoản gán ở Điểm trường A, truy vấn Phân hiệu chứa A | Trả lỗi không có quyền | | Chưa chạy |
+| CT-096 | Phạm vi đơn vị cấp 2 không gồm đơn vị khác | Tài khoản gán ở Điểm trường A, truy vấn Trường chính và Phân hiệu (YCTD-38) | Trả lỗi không có quyền | | Chưa chạy |
 | CT-097 | Phó Hiệu trưởng duyệt dưới hạn mức | Phiếu chi có giá trị dưới hạn mức | Phiếu chi được duyệt | | Chưa chạy |
 | CT-098 | Phó Hiệu trưởng duyệt bằng hạn mức | Phiếu chi có giá trị bằng hạn mức | Bị từ chối, yêu cầu chuyển lên Hiệu trưởng | | Chưa chạy |
 | CT-099 | Người lập tự phê duyệt chứng từ của mình | Phiếu chi do chính người phê duyệt lập | Bị từ chối | | Chưa chạy |

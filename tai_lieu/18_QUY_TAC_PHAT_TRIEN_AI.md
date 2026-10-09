@@ -1,7 +1,7 @@
 # 18. QUY TẮC PHÁT TRIỂN AI
 
 - Mô tả: Các quy tắc AI phải tuân thủ trong dự án này.
-- Phiên bản: 1.0
+- Phiên bản: 1.1
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -62,7 +62,7 @@
 | AI-30 | Khi phát hiện thiết kế xung đột với nghiệp vụ thật hoặc với tài liệu khác, phải nói ra ngay, không làm theo cho xong |
 | AI-31 | Khi có nhiều phương án, phải trình bày ưu điểm và nhược điểm của từng phương án, không tự chọn thay người quyết định |
 | AI-32 | Trước khi triển khai, phải xác nhận phạm vi với người yêu cầu |
-| AI-33 | Đơn vị tổ chức là cây không giới hạn cấp; không viết mã giả định số cấp cố định |
+| AI-33 | Đơn vị tổ chức là cây hai cấp: Trường chính; Phân hiệu, Điểm trường trực thuộc (QĐ-23); phạm vi quyền theo đúng đơn vị được gán, gán ở Trường chính là toàn trường |
 | AI-34 | Tầng giao diện không truy cập cơ sở dữ liệu và không chứa quy tắc nghiệp vụ; mọi thao tác dữ liệu đi qua máy chủ API nghiệp vụ |
 | AI-35 | Không lưu mật khẩu và không tự xác thực mật khẩu ở máy chủ API nghiệp vụ; việc đó thuộc dịch vụ định danh |
 | AI-36 | Phê duyệt theo hạn mức phải kiểm tra ở máy chủ; không tin giá trị hạn mức hay cấp phê duyệt do giao diện gửi lên |

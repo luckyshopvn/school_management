@@ -30,6 +30,7 @@ export interface ApiTestEnvironment {
   systemDatabaseUrl: string;
   schoolYearDatabasePrefix: string;
   loginAs(roleCode: string, orgUnitId: string | null, mustChangePassword?: boolean): Promise<LoggedInUser>;
+  loginWithRoles(roles: Array<{ roleCode: string; orgUnitId: string | null }>): Promise<LoggedInUser>;
   close(): Promise<void>;
 }
 
@@ -65,6 +66,22 @@ export async function startApiTestEnvironment(
   await api.listen(0);
   const system = createDatabase<SystemDatabase>(systemDatabaseUrl);
 
+  async function login(
+    roles: Array<{ roleCode: string; orgUnitId: string | null }>,
+    mustChangePassword: boolean,
+  ): Promise<LoggedInUser> {
+    const user = await createTestUser(identity.database, { roles, mustChangePassword });
+    const response = await postJson(`${identity.baseUrl}/auth/login`, {
+      login: user.username,
+      password: user.password,
+      channel: 'portal',
+    });
+    if (response.status !== 200) {
+      throw new Error(`Đăng nhập kiểm thử thất bại: ${response.status}`);
+    }
+    return { userId: user.id, accessToken: response.body.access_token as string };
+  }
+
   return {
     identity,
     api,
@@ -72,17 +89,11 @@ export async function startApiTestEnvironment(
     system,
     systemDatabaseUrl,
     schoolYearDatabasePrefix,
-    async loginAs(roleCode, orgUnitId, mustChangePassword = false) {
-      const user = await createTestUser(identity.database, { roles: [{ roleCode, orgUnitId }], mustChangePassword });
-      const response = await postJson(`${identity.baseUrl}/auth/login`, {
-        login: user.username,
-        password: user.password,
-        channel: 'portal',
-      });
-      if (response.status !== 200) {
-        throw new Error(`Đăng nhập kiểm thử thất bại: ${response.status}`);
-      }
-      return { userId: user.id, accessToken: response.body.access_token as string };
+    loginAs(roleCode, orgUnitId, mustChangePassword = false) {
+      return login([{ roleCode, orgUnitId }], mustChangePassword);
+    },
+    loginWithRoles(roles) {
+      return login(roles, false);
     },
     async close() {
       await api.close();
@@ -112,4 +123,32 @@ export async function sendJson(
   });
   const text = await response.text();
   return { status: response.status, body: text ? JSON.parse(text) : {} };
+}
+
+// Tạo và mở một năm học để các kiểm thử cần năm học đang dùng
+export async function openTestAcademicYear(
+  environment: ApiTestEnvironment,
+  accessToken: string,
+  name: string,
+  calendar: unknown,
+): Promise<string> {
+  const created = await sendJson('POST', `${environment.baseUrl}/academic-years`, accessToken, { name });
+  if (created.status !== 201) {
+    throw new Error(`Tạo năm học thất bại: ${JSON.stringify(created.body)}`);
+  }
+  const academicYearId = created.body.id as string;
+  const saved = await sendJson(
+    'PUT',
+    `${environment.baseUrl}/academic-years/${academicYearId}/calendar`,
+    accessToken,
+    calendar,
+  );
+  if (saved.status !== 200) {
+    throw new Error(`Lưu lịch thất bại: ${JSON.stringify(saved.body)}`);
+  }
+  const opened = await sendJson('POST', `${environment.baseUrl}/academic-years/${academicYearId}/open`, accessToken);
+  if (opened.status !== 200) {
+    throw new Error(`Mở năm học thất bại: ${JSON.stringify(opened.body)}`);
+  }
+  return academicYearId;
 }

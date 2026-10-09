@@ -17,4 +17,5 @@ export interface HealthResponse {
 export const PERMISSION_CODES = {
   accountManage: 'P01.account.manage',
   academicYearManage: 'P01.academic-year.manage',
+  orgUnitManage: 'P01.org-unit.manage',
 } as const;

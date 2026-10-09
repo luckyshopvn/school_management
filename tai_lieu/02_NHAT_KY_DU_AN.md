@@ -14,6 +14,47 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-09 — DT-01 phần 4: cây đơn vị hai cấp
+
+#### Công việc đã thực hiện
+
+- Eric duyệt YCTD-38 và thiết kế phần 4. Viết trên nhánh `dt-01-phan-4`.
+- Cơ sở dữ liệu năm học: `0002_create_org_units_and_audit_logs` tạo `org_units` có ràng buộc một Trường chính, đơn vị cấp 2 chỉ trực thuộc Trường chính ở tầng dữ liệu, và `audit_logs`. Cơ sở dữ liệu định danh: `0005_add_org_unit_permission` thêm `P01.org-unit.manage` cho VT-02.
+- Máy chủ API: tạo, sửa, ngừng sử dụng đơn vị; cây và danh sách phẳng lọc theo loại; ghi nhật ký thao tác; bước chuyển cây đơn vị khi mở năm học, giữ nguyên mã định danh; lớp đơn vị của phân quyền: gán ở Trường chính là toàn trường, gán ở đơn vị cấp 2 chỉ có đơn vị đó.
+- Cổng quản trị: MH-32 Cây đơn vị, dạng cây và danh sách phẳng.
+- Kết quả: máy chủ API 41/41 (gồm CTC-P01-001 đến 005, 007, 008, 012 và lớp đơn vị theo CTC-P01-009 đến 011 với điểm cuối kiểm thử), dịch vụ định danh 20/20, cơ sở dữ liệu 3/3, tiến trình chạy nền 1/1, kiểm thử giao diện 7/7.
+
+#### Quyết định
+
+- Không có quyết định mới ngoài YCTD-38.
+
+#### Thay đổi
+
+- `17` ghi giao kèo nhóm điểm cuối cây đơn vị; xem `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.27.1.
+
+#### Vấn đề tồn đọng
+
+- CTC-P01-009 đến 011 kiểm lại với danh sách lớp và trẻ ở DT-03.
+- Chưa commit, chờ Eric đồng ý.
+
+### 2026-10-09 — Thiết kế DT-01 phần 4: cây đơn vị
+
+#### Công việc đã thực hiện
+
+- Trình thiết kế phần 4; Eric cho biết trường chỉ có hai cấp; đánh giá ảnh hưởng và trình YCTD-38.
+
+#### Quyết định
+
+- Cây đơn vị hai cấp, cấp 2 chọn loại Phân hiệu hoặc Điểm trường, Trường chính có lớp, nhãn cố định; chặn ngừng sử dụng đơn vị còn đơn vị con đang hoạt động (YCTD-38) – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-38 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.27.0.
+
+#### Vấn đề tồn đọng
+
+- Viết mã phần 4.
+
 ### 2026-10-09 — DT-01 phần 3: năm học
 
 #### Công việc đã thực hiện

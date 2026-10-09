@@ -14,3 +14,4 @@ export type {
   AcademicYearStatus,
   SystemDatabase,
 } from '../system/schema.js';
+export type { AuditLogsTable, OrgUnitStatus, OrgUnitType, SchoolYearDatabase } from '../school-year/schema.js';

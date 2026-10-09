@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.8
+- Phiên bản: 1.9
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -15,7 +15,7 @@
 5. Mọi số tiền lưu kiểu số thập phân có hai chữ số phần thập phân, đơn vị đồng.
 6. Mọi mốc thời gian lưu theo giờ Việt Nam kèm múi giờ; trường chỉ ghi ngày dùng kiểu ngày.
 7. Mã chứng từ như số phiếu thu, số phiếu chi, mã hóa đơn sinh theo quy tắc của từng đơn vị, có ràng buộc duy nhất theo đơn vị và kỳ.
-8. Đơn vị tổ chức lưu trong bảng `org_units` thành cây không giới hạn cấp; `unit_type` là nhãn cấp; quan hệ cha con bằng `parent_id` tự tham chiếu; đơn vị gốc có `parent_id` trống.
+8. Đơn vị tổ chức lưu trong bảng `org_units` thành cây hai cấp (QĐ-23); `unit_type` là loại đơn vị; Trường chính có `parent_id` trống, Phân hiệu và Điểm trường có `parent_id` là Trường chính.
 9. Mỗi năm học một cơ sở dữ liệu nghiệp vụ (QĐ-15). Có ba loại cơ sở dữ liệu:
    - Cơ sở dữ liệu định danh, không theo năm học: `users`, `roles`, `permissions`, `role_permissions`, `user_roles`, `sessions`, `one_time_codes`, `api_clients`, `security_events` (YCTD-35).
    - Cơ sở dữ liệu hệ thống của máy chủ API, không theo năm học: `academic_year_databases` (QĐ-17), `academic_years`, `academic_terms`, `school_weeks` (YCTD-30).
@@ -26,7 +26,7 @@
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| org_units | Đơn vị tổ chức nhiều cấp của trường | code (duy nhất), name, unit_type (nhãn cấp, mặc định truong_chinh, phan_hieu, diem_truong, cấu hình được), parent_id (trỏ tới org_units.id, trống với Trường chính), address, phone, manager_user_id, status |
+| org_units | Đơn vị tổ chức hai cấp của trường (QĐ-23) | code (duy nhất), name, unit_type (truong_chinh, phan_hieu, diem_truong; cố định), parent_id (trỏ tới org_units.id, trống với Trường chính), address, phone, manager_user_id, status |
 | academic_years | Năm học, một lịch chung toàn trường, lưu ở cơ sở dữ liệu hệ thống | name, start_date, end_date, school_days_of_week (mặc định thứ hai đến thứ sáu), status (chưa mở, đang dùng, đã đóng; chỉ một năm đang dùng, BR-93) |
 | academic_terms | Học kỳ và kỳ hè của năm học (BR-91) | academic_year_id, term_type (học kỳ 1, học kỳ 2, kỳ hè), start_date, end_date |
 | school_weeks | Tuần học tự đánh số (BR-91) | academic_year_id, week_no, start_date, end_date, is_off (tuần nghỉ), note |
@@ -53,7 +53,7 @@
 | rooms | Phòng học | org_unit_id, code, name, capacity, status |
 | grade_levels | Bậc học | code (duy nhất), name, age_from, age_to, order_no, status |
 
-Ràng buộc: `org_units.parent_id` trỏ tới `org_units.id`, trống với đơn vị gốc. Cây không giới hạn cấp; hệ thống chặn tạo vòng lặp khi đổi đơn vị cha. Kiểm tra ở tầng ứng dụng và ở tầng dữ liệu nếu hệ quản trị cho phép.
+Ràng buộc: `org_units.parent_id` trỏ tới `org_units.id`. Chỉ một đơn vị `truong_chinh`, có `parent_id` trống; đơn vị `phan_hieu`, `diem_truong` có `parent_id` là Trường chính. Kiểm tra ở tầng ứng dụng và ở tầng dữ liệu (YCTD-38).
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 

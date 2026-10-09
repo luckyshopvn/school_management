@@ -1,7 +1,9 @@
 import type { Migration } from 'kysely/migration';
 import { migration as setTimezone } from './migrations/0001_set_timezone.js';
+import { migration as createOrgUnitsAndAuditLogs } from './migrations/0002_create_org_units_and_audit_logs.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
   '0001_set_timezone': setTimezone,
+  '0002_create_org_units_and_audit_logs': createOrgUnitsAndAuditLogs,
 };

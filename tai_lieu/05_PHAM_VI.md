@@ -1,7 +1,7 @@
 # 05. PHẠM VI
 
 - Mô tả: Phạm vi trong, phạm vi ngoài, chức năng bắt buộc, chức năng ưu tiên, chức năng để giai đoạn sau, giới hạn của phiên bản.
-- Phiên bản: 1.3
+- Phiên bản: 1.4
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -53,7 +53,7 @@ Giai đoạn 1 phải chạy được thật, có dữ liệu thật và đượ
 
 | Mã | Nội dung | Phân hệ |
 |---|---|---|
-| G1-01 | Cây đơn vị không giới hạn cấp, tên cấp mặc định Trường chính, Phân hiệu, Điểm trường; năm học; phòng ban, chức danh; cấu hình tham số và hạn mức phê duyệt | P01 |
+| G1-01 | Cây đơn vị hai cấp: Trường chính; Phân hiệu, Điểm trường trực thuộc (QĐ-23); năm học; phòng ban, chức danh; cấu hình tham số và hạn mức phê duyệt | P01 |
 | G1-02 | Dịch vụ định danh: tài khoản, vai trò, quyền, phạm vi đơn vị, đăng nhập và phiên | P01 |
 | G1-03 | Hồ sơ trẻ, hồ sơ phụ huynh, lớp học, phân lớp, chuyển lớp, chuyển đơn vị, thôi học và quyết toán, đồng ý sử dụng hình ảnh | P02 |
 | G1-04 | Điểm danh một lần mỗi ngày, báo vắng, đón trả trẻ, nhật ký của bé, ghi nhận ăn, ngủ, vệ sinh, chốt điểm danh ngày | P04 |

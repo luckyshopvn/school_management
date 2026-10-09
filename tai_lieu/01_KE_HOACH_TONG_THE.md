@@ -1,7 +1,7 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.4
+- Phiên bản: 1.5
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -47,7 +47,7 @@ Bốn câu kiểm soát của quy trình, áp dụng cho mọi cổng trong tài
 
 ## 3. Sản phẩm và các mốc phát hành
 
-Sản phẩm: School Management, hệ thống quản lý trường mầm non cho một trường công lập có cây đơn vị không giới hạn cấp, tên cấp mặc định Trường chính, Phân hiệu, Điểm trường. Gồm cổng quản trị trên trình duyệt, ứng dụng giáo viên và ứng dụng phụ huynh; một máy chủ giao diện lập trình ứng dụng nghiệp vụ và một dịch vụ định danh độc lập; cơ sở dữ liệu định danh, cơ sở dữ liệu hệ thống và mỗi năm học một cơ sở dữ liệu; API chỉ đọc cho đối tác.
+Sản phẩm: School Management, hệ thống quản lý trường mầm non cho một trường công lập có cây đơn vị hai cấp: Trường chính và các Phân hiệu, Điểm trường trực thuộc (QĐ-23). Gồm cổng quản trị trên trình duyệt, ứng dụng giáo viên và ứng dụng phụ huynh; một máy chủ giao diện lập trình ứng dụng nghiệp vụ và một dịch vụ định danh độc lập; cơ sở dữ liệu định danh, cơ sở dữ liệu hệ thống và mỗi năm học một cơ sở dữ liệu; API chỉ đọc cho đối tác.
 
 | Mốc | Nội dung | Giai đoạn quy trình | Trạng thái |
 |---|---|---|---|
@@ -55,6 +55,8 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.2.0 | Bốn thay đổi: Ban Giám hiệu, nhiều cấp đơn vị, tách giao diện và máy chủ, dịch vụ định danh | 01 đến 07 | Đã có |
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
+| 0.27.1 | DT-01 phần 4: cây đơn vị hai cấp, nhật ký thao tác | 09 | Đã có |
+| 0.27.0 | Cây đơn vị hai cấp, nhãn cố định (YCTD-38) | 01 đến 08 | Đã có |
 | 0.26.6 | DT-01 phần 3: năm học, lịch năm học, mở năm học | 09 | Đã có |
 | 0.26.5 | Mở năm học mới là đóng năm cũ, sửa lịch tới khi đóng, quyền `P01.academic-year.manage` (YCTD-37) | 01 đến 08 | Đã có |
 | 0.26.4 | DT-01 phần 2: máy chủ API kiểm tra mã phiên và quyền, màn hình đăng nhập | 09 | Đã có |
@@ -210,7 +212,7 @@ Việc cần làm: không còn; ba kênh và cách chia màn hình đã phê duy
 
 Nội dung: thực thể, trường, kiểu, khóa, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu; điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
 
-Đầu ra: `16_CO_SO_DU_LIEU.md` với 162 bảng dự kiến, bảng `org_units` nhiều cấp và cột `org_unit_id`; `17_DAC_TA_API.md` với quy ước 8 và 9 về hai dịch vụ phục vụ và giao diện không truy cập cơ sở dữ liệu; ba loại cơ sở dữ liệu theo `QĐ-15`, `QĐ-17`.
+Đầu ra: `16_CO_SO_DU_LIEU.md` với 162 bảng dự kiến, bảng `org_units` hai cấp (QĐ-23) và cột `org_unit_id`; `17_DAC_TA_API.md` với quy ước 8 và 9 về hai dịch vụ phục vụ và giao diện không truy cập cơ sở dữ liệu; ba loại cơ sở dữ liệu theo `QĐ-15`, `QĐ-17`.
 
 Cổng CG-07 đạt khi: bao phủ toàn bộ dữ liệu cần thiết; quan hệ rõ; có kiểm tra dữ liệu; giao kèo giao diện lập trình rõ; phân quyền truy cập dữ liệu đã xác định.
 
@@ -267,7 +269,7 @@ Quy tắc bắt buộc: không thực hiện thay đổi trực tiếp trên h�
 | Đợt | Nội dung | Phân hệ | Việc | Phụ thuộc | Điều kiện ra |
 |---|---|---|---|---|---|
 | DT-00 | Nền móng kỹ thuật: kho mã nguồn GitHub, cấu trúc dự án nhiều gói, môi trường phát triển chạy Docker trên máy cục bộ, khuôn khổ kiểm thử, tích hợp liên tục chỉ chạy kiểm thử (YCTD-32), cơ sở dữ liệu định danh, hệ thống và theo năm học (`QĐ-15`, `QĐ-17`, `QU-11`) | Toàn dự án | `M01-3` | CG-08 | Dựng được môi trường trống, chạy được một kiểm thử mẫu |
-| DT-01 | Nền tảng và phần lõi dịch vụ định danh, làm theo sáu phần (YCTD-34): (1) tài khoản, vai trò, quyền, đăng nhập bằng mật khẩu, làm mới phiên, đăng xuất, đổi mật khẩu, khóa khi sai nhiều lần, tạo tài khoản quản trị đầu tiên; (2) máy chủ API kiểm tra mã phiên và quyền ở mọi yêu cầu; (3) năm học, học kỳ, tuần học (G1-20), mở năm học tạo cơ sở dữ liệu năm học; (4) cây đơn vị nhiều cấp; (5) quản lý tài khoản, vai trò, ma trận quyền; (6) cấu hình theo đơn vị, nhật ký thao tác, phòng ban, chức danh, danh mục, phòng học, bậc học, hạn mức phê duyệt | P01 | `M01`, `M01-2` | DT-00 | Đăng nhập được, phân quyền ba lớp chạy đúng |
+| DT-01 | Nền tảng và phần lõi dịch vụ định danh, làm theo sáu phần (YCTD-34): (1) tài khoản, vai trò, quyền, đăng nhập bằng mật khẩu, làm mới phiên, đăng xuất, đổi mật khẩu, khóa khi sai nhiều lần, tạo tài khoản quản trị đầu tiên; (2) máy chủ API kiểm tra mã phiên và quyền ở mọi yêu cầu; (3) năm học, học kỳ, tuần học (G1-20), mở năm học tạo cơ sở dữ liệu năm học; (4) cây đơn vị hai cấp (QĐ-23); (5) quản lý tài khoản, vai trò, ma trận quyền; (6) cấu hình theo đơn vị, nhật ký thao tác, phòng ban, chức danh, danh mục, phòng học, bậc học, hạn mức phê duyệt | P01 | `M01`, `M01-2` | DT-00 | Đăng nhập được, phân quyền ba lớp chạy đúng |
 | DT-02 | Dịch vụ định danh, phần dành cho phụ huynh: mã một lần, kích hoạt tài khoản bằng mật khẩu mặc định (YCTD-34) | P01 | `M01-2` | DT-01 | Cấp mã một lần cho phụ huynh, phụ huynh kích hoạt được tài khoản |
 | DT-03 | Hồ sơ trẻ, phụ huynh, lớp học, phân lớp; nhập Excel phần trẻ, phụ huynh, lớp (G1-15); nhập mã định danh của Bộ (G1-18) | P02 | `M02` | DT-01 | Tiếp nhận được một trẻ thật theo `QT-01` |
 | DT-04 | Điểm danh, báo vắng, đón trả trẻ | P04 | `M04` | DT-03 | Điểm danh đúng theo `QT-02` |

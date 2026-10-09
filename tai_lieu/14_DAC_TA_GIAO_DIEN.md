@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.4
+- Phiên bản: 1.5
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -77,7 +77,7 @@ flowchart TD
 | MH-29 | Báo cáo hợp nhất nhiều đơn vị | VT-02, VT-15, VT-19 |
 | MH-30 | Tài khoản, vai trò, quyền, cấu hình đơn vị | VT-02, VT-03 |
 | MH-31 | Nhật ký thao tác | VT-02, VT-03 |
-| MH-32 | Cây đơn vị tổ chức không giới hạn cấp, dạng cây và danh sách phẳng | VT-02 |
+| MH-32 | Cây đơn vị tổ chức hai cấp, dạng cây và danh sách phẳng lọc theo loại (YCTD-38) | VT-02 |
 | MH-33 | Hạn mức phê duyệt theo đơn vị và loại chứng từ | VT-02 |
 | MH-34 | Danh mục phòng học và bậc học | VT-02, VT-03 |
 | MH-35 | Đồ bị mất của trẻ | VT-03 |

@@ -1,7 +1,7 @@
 # 20. KẾ HOẠCH KIỂM THỬ
 
 - Mô tả: Phạm vi kiểm thử, các lớp kiểm thử, môi trường kiểm thử, dữ liệu kiểm thử, tiêu chí đạt.
-- Phiên bản: 1.2
+- Phiên bản: 1.3
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -27,7 +27,7 @@
 | PV-07 | Giảng dạy, y tế, bếp, kho | Giai đoạn 2 |
 | PV-08 | Hoạt động, nội dung, tương tác, công việc và đánh giá, đồ bị mất, tuyển sinh, tuyển dụng | Giai đoạn 2 và 3 |
 | PV-09 | Báo cáo và bảng điều khiển | Giai đoạn 1 và 2 |
-| PV-10 | Cây đơn vị nhiều cấp và phạm vi dữ liệu theo cấp | Giai đoạn 1 |
+| PV-10 | Cây đơn vị hai cấp và phạm vi dữ liệu theo đơn vị được gán (QĐ-23) | Giai đoạn 1 |
 | PV-11 | Phân cấp phê duyệt theo hạn mức | Giai đoạn 1 |
 | PV-12 | Ranh giới giao diện và máy chủ, dịch vụ định danh độc lập | Giai đoạn 1 |
 | PV-13 | API chỉ đọc cho đối tác: cấp và thu hồi khóa, giới hạn phạm vi, nhật ký đọc dữ liệu cá nhân (QĐ-16) | Giai đoạn 1 |
@@ -61,7 +61,7 @@ Không dùng dữ liệu thật của trẻ trên môi trường thử nghiệm.
 
 | Mã | Bộ dữ liệu | Nội dung |
 |---|---|---|
-| DL-01 | Danh mục nền | Một Trường chính, hai Phân hiệu, ba Điểm trường, có lớp ở mọi cấp (GD-79); hai năm học; mười hai phòng ban, hai mươi chức danh |
+| DL-01 | Danh mục nền | Một Trường chính, hai Phân hiệu, ba Điểm trường đều trực thuộc Trường chính, có lớp ở cả hai cấp (GD-79, QĐ-23); hai năm học; mười hai phòng ban, hai mươi chức danh |
 | DL-02 | Trẻ và phụ huynh | Năm trăm trẻ, bảy trăm phụ huynh, có trường hợp nhiều con và trẻ con nhân viên |
 | DL-03 | Lớp và phân lớp | Ba mươi lớp, có lớp đủ sĩ số và lớp còn chỗ |
 | DL-04 | Điểm danh | Ba tháng điểm danh có đủ trường hợp: đi đủ, nghỉ có báo, nghỉ không báo, đi muộn, ngày học bù thứ 7 toàn trường (BR-84) |

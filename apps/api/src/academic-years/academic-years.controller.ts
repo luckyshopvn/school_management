@@ -1,16 +1,13 @@
-import { Body, Controller, Get, HttpCode, Param, ParseUUIDPipe, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Patch, Post, Put } from '@nestjs/common';
 import { validationError, type FieldError } from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
+import { uuidParameter } from '../common/uuid-parameter.js';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { AcademicYearsService } from './academic-years.service.js';
 import { parseCalendar } from './calendar.js';
 
 type RequestBody = Record<string, unknown> | undefined;
-
-const academicYearIdPipe = new ParseUUIDPipe({
-  exceptionFactory: () => validationError([{ field: 'id', message: 'Mã năm học không hợp lệ' }]),
-});
 
 function parseWeekChanges(body: RequestBody): Array<{ week_no: number; is_off: boolean; note: string | null }> {
   const weeks = body?.weeks;
@@ -59,14 +56,14 @@ export class AcademicYearsController {
   }
 
   @Get(':id/calendar')
-  readCalendar(@Param('id', academicYearIdPipe) academicYearId: string) {
+  readCalendar(@Param('id', uuidParameter('Mã năm học không hợp lệ')) academicYearId: string) {
     return this.academicYearsService.readCalendar(academicYearId);
   }
 
   @Put(':id/calendar')
   @RequirePermission(PERMISSION_CODES.academicYearManage)
   saveCalendar(
-    @Param('id', academicYearIdPipe) academicYearId: string,
+    @Param('id', uuidParameter('Mã năm học không hợp lệ')) academicYearId: string,
     @Body() body: RequestBody,
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
@@ -78,20 +75,26 @@ export class AcademicYearsController {
   }
 
   @Get(':id/weeks')
-  listWeeks(@Param('id', academicYearIdPipe) academicYearId: string) {
+  listWeeks(@Param('id', uuidParameter('Mã năm học không hợp lệ')) academicYearId: string) {
     return this.academicYearsService.listWeeks(academicYearId);
   }
 
   @Patch(':id/weeks')
   @RequirePermission(PERMISSION_CODES.academicYearManage)
-  updateWeeks(@Param('id', academicYearIdPipe) academicYearId: string, @Body() body: RequestBody) {
+  updateWeeks(
+    @Param('id', uuidParameter('Mã năm học không hợp lệ')) academicYearId: string,
+    @Body() body: RequestBody,
+  ) {
     return this.academicYearsService.updateWeeks(academicYearId, parseWeekChanges(body));
   }
 
   @Post(':id/open')
   @HttpCode(200)
   @RequirePermission(PERMISSION_CODES.academicYearManage)
-  open(@Param('id', academicYearIdPipe) academicYearId: string, @AuthenticatedUser() currentUser: CurrentUser) {
+  open(
+    @Param('id', uuidParameter('Mã năm học không hợp lệ')) academicYearId: string,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
     return this.academicYearsService.openAcademicYear(academicYearId, currentUser.id);
   }
 }

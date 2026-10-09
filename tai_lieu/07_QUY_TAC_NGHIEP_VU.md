@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.8
+- Phiên bản: 1.9
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -14,8 +14,8 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 
 | Mã | Quy tắc |
 |---|---|
-| BR-01 | Đơn vị tổ chức xếp thành cây không giới hạn cấp: mỗi đơn vị có tối đa một đơn vị cha, đơn vị gốc không có cha, không được tạo vòng lặp. Nhãn cấp mặc định là Trường chính, Phân hiệu, Điểm trường và cấu hình được. Mọi dữ liệu nghiệp vụ đều thuộc một đơn vị. Người dùng chỉ thấy dữ liệu thuộc các đơn vị được gán và các đơn vị con, trừ Hiệu trưởng, cán bộ quản lý cấp trên và kiểm toán viên ở phạm vi toàn trường theo quyền của từng vai trò. Quản trị nền tảng chỉ thao tác cấu hình kỹ thuật, không xem dữ liệu nghiệp vụ |
-| BR-02 | Một lớp thuộc đúng một đơn vị ở một cấp bất kỳ trong nhiều cấp và một năm học. Mọi cấp đều có thể có lớp. Lớp không bị xóa khi kết thúc năm học, chỉ chuyển sang trạng thái đã đóng |
+| BR-01 | Đơn vị tổ chức xếp thành cây hai cấp (QĐ-23, YCTD-38): cấp 1 là Trường chính, chỉ có một đơn vị, không có đơn vị cha; cấp 2 là Phân hiệu hoặc Điểm trường, mỗi đơn vị chọn một loại và trực thuộc thẳng Trường chính. Nhãn cấp cố định, không đổi được. Mọi dữ liệu nghiệp vụ đều thuộc một đơn vị. Người được gán ở Trường chính có phạm vi toàn trường; người được gán ở đơn vị cấp 2 chỉ thấy dữ liệu của đơn vị đó. Hiệu trưởng, cán bộ quản lý cấp trên và kiểm toán viên ở phạm vi toàn trường theo quyền của từng vai trò. Quản trị nền tảng chỉ thao tác cấu hình kỹ thuật, không xem dữ liệu nghiệp vụ. Không ngừng sử dụng được đơn vị còn đơn vị con đang hoạt động |
+| BR-02 | Một lớp thuộc đúng một đơn vị ở cấp 1 hoặc cấp 2 và một năm học. Cả hai cấp đều có thể có lớp. Lớp không bị xóa khi kết thúc năm học, chỉ chuyển sang trạng thái đã đóng |
 | BR-03 | Một trẻ thuộc đúng một lớp tại một thời điểm. Đơn vị của trẻ là đơn vị của lớp trẻ đang học (QĐ-14). Lịch sử chuyển lớp được ghi lại, không ghi đè |
 | BR-04 | Sĩ số tối đa của lớp do đơn vị quản lý lớp cấu hình. Vượt sĩ số thì hệ thống cảnh báo và yêu cầu quản lý đơn vị xác nhận |
 | BR-05 | Tài khoản nhân sự nghỉ việc bị khóa ngay khi hợp đồng chấm dứt, không xóa để giữ lịch sử |

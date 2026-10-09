@@ -11,6 +11,19 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-38: Cây đơn vị hai cấp – 2026-10-09
+
+- Lý do: Eric cho biết trường chỉ có hai cấp: Trường chính và các Phân hiệu, Điểm trường; trước đó QĐ-14 ghi cây không giới hạn cấp.
+- Nội dung thay đổi: QĐ-23 thay QĐ-14: cấp 1 là Trường chính duy nhất; cấp 2 là Phân hiệu hoặc Điểm trường, chọn loại cho từng đơn vị, trực thuộc thẳng Trường chính; nhãn cố định; cả hai cấp có lớp. Phạm vi quyền theo đúng đơn vị được gán, gán ở Trường chính là toàn trường. Không ngừng sử dụng được đơn vị còn đơn vị con đang hoạt động. Thêm PQ-12 và quyền `P01.org-unit.manage` chỉ VT-02 có. Dữ liệu kiểm thử: ba Điểm trường trực thuộc TC; tài khoản phạm vi "nhóm A" gán ở PH-A, ĐT-A1, ĐT-A2. CTC-P01-006 không áp dụng.
+- Thành phần bị ảnh hưởng: `01`, `03`, `04`, `05`, `06`, `07`, `08`, `10`, `11`, `12`, `14`, `16`, `17`, `18`, `19`, `20`, `21`, `27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md`, `02_P02_VA_P04.md`, `04_P06.md`, `index.md`.
+- Dữ liệu bị ảnh hưởng: `org_units.unit_type` chỉ ba giá trị cố định; không cần đường dẫn phân cấp.
+- API bị ảnh hưởng: `org-units` chặn tạo đơn vị dưới đơn vị cấp 2.
+- Giao diện bị ảnh hưởng: MH-32 thành cây hai cấp, lọc theo loại.
+- Quyền bị ảnh hưởng: gán ở một Phân hiệu không còn bao gồm Điểm trường; VT-15 và VT-03 không quản lý đơn vị dù có `P01.edit`.
+- Ảnh hưởng chức năng cũ: chưa có mã cây đơn vị nên không ảnh hưởng.
+- Kiểm thử cần thực hiện: CTC-P01-001 đến 005, 007, 008, 012; 009 đến 011 khi có lớp và trẻ.
+- Trạng thái: Đã triển khai
+
 ### YCTD-37: Mở năm học mới là đóng năm cũ – 2026-10-09
 
 - Lý do: AC-194 và CB-10 ghi mở năm mới thì năm cũ chỉ đọc, trong khi BR-89 và CTC-P01-096 đến 098 ngụ ý năm cũ còn ghi được tới khi đóng riêng; nếu năm cũ vẫn ghi được thì thu nợ của trẻ đang học có thể ghi trùng ở hai năm.

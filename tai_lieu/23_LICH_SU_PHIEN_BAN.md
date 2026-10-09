@@ -16,6 +16,28 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.27.1 – 2026-10-09
+
+- Phạm vi thay đổi: DT-01 phần 4, cây đơn vị hai cấp.
+- Chức năng mới: quản lý cây đơn vị, nhật ký thao tác, lớp đơn vị của phân quyền, màn hình Cây đơn vị.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: `org_units`, `audit_logs` ở cơ sở dữ liệu năm học; mã quyền `P01.org-unit.manage`.
+- Thay đổi API: nhóm điểm cuối `org-units`.
+- Rủi ro: không.
+- Khả năng tương thích: chưa có bên gọi nên không ảnh hưởng.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-01-phan-4`; chạy ngược tệp thay đổi cấu trúc 0002 của cơ sở dữ liệu năm học và 0005 của cơ sở dữ liệu định danh.
+
+### Phiên bản 0.27.0 – 2026-10-09
+
+- Phạm vi thay đổi: YCTD-38, cây đơn vị hai cấp.
+- Chức năng mới: không.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: `org_units.unit_type` ba giá trị cố định.
+- Thay đổi API: không thêm điểm cuối; quy tắc của `org-units` đổi theo cây hai cấp.
+- Rủi ro: phạm vi quyền thu hẹp: gán ở Phân hiệu không còn gồm Điểm trường.
+- Khả năng tương thích: chưa có mã cây đơn vị nên không ảnh hưởng.
+- Phương án quay lui: khôi phục các tài liệu nêu ở YCTD-38 về phiên bản trước.
+
 ### Phiên bản 0.26.6 – 2026-10-09
 
 - Phạm vi thay đổi: DT-01 phần 3, năm học.

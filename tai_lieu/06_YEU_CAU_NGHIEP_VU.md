@@ -1,7 +1,7 @@
 # 06. YÊU CẦU NGHIỆP VỤ
 
 - Mô tả: Nhóm người dùng, quy trình chính, quy trình phụ, quy trình ngoại lệ, điều kiện bắt đầu, điều kiện kết thúc, dữ liệu nghiệp vụ.
-- Phiên bản: 1.0
+- Phiên bản: 1.1
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -107,7 +107,7 @@ Các quy trình dưới đây được đặc tả chi tiết trong thư mục `
 
 ## 6. Điều kiện bắt đầu và kết thúc
 
-**Điều kiện bắt đầu của toàn trường:** cây đơn vị không giới hạn cấp (QĐ-14) đã được cấu hình; năm học, lớp học, biểu phí và danh mục dùng chung đã được cấu hình; tài khoản nhân sự đã được cấp và gán phạm vi đơn vị.
+**Điều kiện bắt đầu của toàn trường:** cây đơn vị hai cấp (QĐ-23) đã được cấu hình; năm học, lớp học, biểu phí và danh mục dùng chung đã được cấu hình; tài khoản nhân sự đã được cấp và gán phạm vi đơn vị.
 
 **Điều kiện bắt đầu của một trẻ:** có hồ sơ trẻ đã được duyệt, có ít nhất một phụ huynh liên hệ, đã được phân vào một lớp của một đơn vị, đã có bản đăng ký dịch vụ cho kỳ hiện tại.
 
@@ -119,7 +119,7 @@ Các quy trình dưới đây được đặc tả chi tiết trong thư mục `
 
 | Nhóm dữ liệu | Thực thể chính |
 |---|---|
-| Tổ chức | Cây đơn vị không giới hạn cấp, tên cấp mặc định Trường chính, Phân hiệu, Điểm trường; phòng ban, chức danh, năm học, lịch nghỉ thứ bảy và lịch học bù |
+| Tổ chức | Cây đơn vị hai cấp: Trường chính; Phân hiệu, Điểm trường trực thuộc (QĐ-23); phòng ban, chức danh, năm học, lịch nghỉ thứ bảy và lịch học bù |
 | Con người | Trẻ, phụ huynh, nhân sự, ứng viên tuyển dụng |
 | Học tập | Lớp, phân lớp, bài học, giáo án, thời khóa biểu, kế hoạch, tiến độ |
 | Chăm sóc | Điểm danh, báo vắng, nhật ký của bé, đón trả trẻ, hồ sơ sức khỏe, dặn thuốc |

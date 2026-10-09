@@ -33,7 +33,7 @@
 | 21 | [21_KICH_BAN_KIEM_THU.md](21_KICH_BAN_KIEM_THU.md) | Kịch bản kiểm thử | CT-001 đến CT-188 | 10 Kiểm thử | Đã phê duyệt |
 | 22 | [22_BAO_MAT.md](22_BAO_MAT.md) | Bảo mật | BM-01 đến BM-70 | 10 Kiểm thử | Đã phê duyệt |
 | 23 | [23_LICH_SU_PHIEN_BAN.md](23_LICH_SU_PHIEN_BAN.md) | Lịch sử phiên bản | Các phiên bản từ 0.1.0 | 11 Nghiệm thu và phát hành | Đang cập nhật |
-| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-37, đánh giá ảnh hưởng | 12 Vận hành và cải tiến | Đang cập nhật |
+| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-38, đánh giá ảnh hưởng | 12 Vận hành và cải tiến | Đang cập nhật |
 | 25 | [25_QUY_TRINH_NGHIEP_VU/](25_QUY_TRINH_NGHIEP_VU/) | Quy trình nghiệp vụ | Mười đặc tả QT-01 đến QT-10 và phiếu yêu cầu trống | 03 Phân tích nghiệp vụ | Đã phê duyệt |
 | 26 | [26_SO_DO_CHUC_NANG/](26_SO_DO_CHUC_NANG/) | Sơ đồ chức năng gốc | Tám ảnh sơ đồ chức năng do Eric gửi, nguồn đầu vào của bộ tài liệu | 01 Xác định ý tưởng | Tài liệu nguồn |
 | 27 | [27_BO_CA_KIEM_THU_CHI_TIET/](27_BO_CA_KIEM_THU_CHI_TIET/) | Bộ ca kiểm thử chi tiết | Ca kiểm thử chi tiết theo việc N21, mã CTC-..., năm đợt, 453 ca, 6 ca không áp dụng | 10 Kiểm thử | Đã phê duyệt |
@@ -84,7 +84,7 @@ Mã quy trình dạng `QT-nn`, đánh số tăng dần, không tái sử dụng 
 | Cổng kiểm soát chất lượng | 12 | Từ CG-01 đến CG-12, xem `01_KE_HOACH_TONG_THE.md` |
 | Đợt xây dựng | 12 | Từ DT-00 đến DT-11, xem `01_KE_HOACH_TONG_THE.md` |
 | Rủi ro đã ghi nhận | 14 | Từ RR-01 đến RR-14, xem `01_KE_HOACH_TONG_THE.md` |
-| Yêu cầu thay đổi | 37 | Từ YCTD-01 đến YCTD-37, xem `24_YEU_CAU_THAY_DOI.md` |
+| Yêu cầu thay đổi | 38 | Từ YCTD-01 đến YCTD-38, xem `24_YEU_CAU_THAY_DOI.md` |
 
 ## Quyết định đã chốt
 
@@ -93,7 +93,7 @@ Mã quy trình dạng `QT-nn`, đánh số tăng dần, không tái sử dụng 
 | 2026-10-09 | Bộ tài liệu theo cấu trúc Vibecoding_Flow, đặt tại `tai_lieu/` | `24_YEU_CAU_THAY_DOI.md` YCTD-01 |
 | 2026-10-09 | Chỉ Ban Giám hiệu phê duyệt chứng từ theo hạn mức; kế toán, kế toán trưởng và quản lý đơn vị không phê duyệt; Hiệu trưởng phê duyệt chốt kỳ tài chính; Ban Giám hiệu phê duyệt mở lại kỳ công | `24_YEU_CAU_THAY_DOI.md` YCTD-02 và YCTD-04, `07_QUY_TAC_NGHIEP_VU.md` mục 12.1 |
 | 2026-10-09 | Bán trú bắt buộc; đăng ký trễ do Ban Giám hiệu duyệt; trẻ nhận diện bằng số định danh và mã ngành; tài khoản phụ huynh dùng mật khẩu mặc định chung | `24_YEU_CAU_THAY_DOI.md` YCTD-15 |
-| 2026-10-09 | Cây đơn vị không giới hạn cấp; mỗi năm học một cơ sở dữ liệu; API chỉ đọc cho đối tác ở giai đoạn 1 | `12_KIEN_TRUC_HE_THONG.md` QĐ-14, QĐ-15, QĐ-16 |
+| 2026-10-09 | Cây đơn vị không giới hạn cấp, đã thay bằng cây hai cấp (QĐ-23); mỗi năm học một cơ sở dữ liệu; API chỉ đọc cho đối tác ở giai đoạn 1 | `12_KIEN_TRUC_HE_THONG.md` QĐ-14, QĐ-15, QĐ-16 |
 | 2026-10-09 | Bỏ phân hệ xe đưa đón và vai trò VT-13; thêm VT-16 đến VT-20; tiền làm thêm giờ tối đa 1 giờ mỗi ngày; AI phải xin xác nhận trước mọi thay đổi mã nguồn | `24_YEU_CAU_THAY_DOI.md` YCTD-14 |
 | 2026-10-09 | Bỏ ứng lương, lương trả một lần mỗi tháng; quỹ tiền mặt không âm bắt buộc; đồng ý hình ảnh trên ứng dụng hoặc giấy ký tay; lưu và che số định danh của trẻ | `24_YEU_CAU_THAY_DOI.md` YCTD-13 |
 | 2026-10-09 | Nhập dữ liệu ban đầu từ Excel; thanh toán trực tuyến bằng mã QR ở giai đoạn 1; luôn trả đủ, không thu một phần; Zalo ở giai đoạn 3 | `10_YEU_CAU_CHUC_NANG.md` P01-13, P06-11; `07_QUY_TAC_NGHIEP_VU.md` BR-31 |
@@ -120,7 +120,7 @@ Mã quy trình dạng `QT-nn`, đánh số tăng dần, không tái sử dụng 
 
 | Thuật ngữ | Nghĩa trong bộ tài liệu này |
 |---|---|
-| Đơn vị | Đơn vị tổ chức nói chung, là một nút trong cây đơn vị không giới hạn cấp |
+| Đơn vị | Đơn vị tổ chức nói chung: Trường chính, Phân hiệu hoặc Điểm trường trong cây hai cấp (QĐ-23) |
 | Trường chính | Nhãn mặc định của đơn vị gốc, không có đơn vị cha |
 | Phân hiệu | Nhãn mặc định của đơn vị cấp giữa |
 | Điểm trường | Nhãn mặc định của đơn vị cấp dưới; nhãn cấp cấu hình được |

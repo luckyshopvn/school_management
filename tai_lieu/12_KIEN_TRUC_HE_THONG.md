@@ -1,7 +1,7 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, thành phần, xác thực, phân quyền, lưu trữ tệp, ghi nhật ký, giám sát, sao lưu, phục hồi, triển khai.
-- Phiên bản: 1.7
+- Phiên bản: 1.8
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -98,7 +98,7 @@ Ba phương án, chọn theo mức độ tách biệt dữ liệu và chi phí v
 
 Theo QĐ-15, mỗi năm học có một cơ sở dữ liệu nghiệp vụ riêng. Khi mở năm học mới, hệ thống tạo cơ sở dữ liệu năm học và chuyển sang dữ liệu dùng chung: cây đơn vị, trẻ đang học, phụ huynh, nhân sự, hợp đồng còn hiệu lực, danh mục, cấu hình, số dư công nợ chưa tất toán, số dư quỹ và tài khoản. Cơ sở dữ liệu năm học đã đóng chuyển sang chỉ đọc. Báo cáo nhiều năm đọc từ nhiều cơ sở dữ liệu năm học.
 
-Quy tắc phạm vi đơn vị: người dùng được gán vào một đơn vị ở cấp bất kỳ thì có quyền truy cập đơn vị đó và mọi đơn vị cấp dưới trực thuộc. Cơ chế này thực hiện bằng đường dẫn phân cấp của `org_units`, không lặp lại bản ghi gán cho từng đơn vị con.
+Quy tắc phạm vi đơn vị (QĐ-23): người dùng được gán ở Trường chính có quyền toàn trường; người dùng được gán ở một Phân hiệu hoặc Điểm trường chỉ có quyền ở đơn vị đó. Người cần quyền ở nhiều đơn vị cấp 2 được gán ở từng đơn vị.
 
 ## 4. Xác thực
 
@@ -226,7 +226,7 @@ Thứ tự dựng (YCTD-32): môi trường phát triển chạy Docker trên m�
 | QĐ-11 | Bộ công nghệ TypeScript, NestJS, React kèm Vite, PostgreSQL, Redis, Docker theo `13_CONG_NGHE_SU_DUNG.md` mục 2 | Đã chốt ngày 2026-10-09 |
 | QĐ-12 | Hạ tầng thuê máy chủ đám mây của nhà cung cấp trong nước; dữ liệu lưu tại Việt Nam | Đã chốt ngày 2026-10-09 |
 | QĐ-13 | Mã nguồn quản lý bằng Git trên GitHub, kho riêng; tích hợp và triển khai tự động dựng ngay từ đợt DT-00 | Đã chốt ngày 2026-10-09 |
-| QĐ-14 | Đơn vị tổ chức là cây không giới hạn cấp; nhãn mặc định Trường chính, Phân hiệu, Điểm trường; đơn vị ở cấp nào cũng có thể có lớp; trẻ gắn với đơn vị của lớp trẻ đang học | Đã chốt ngày 2026-10-09 |
+| QĐ-14 | Đơn vị tổ chức là cây không giới hạn cấp; nhãn mặc định Trường chính, Phân hiệu, Điểm trường; đơn vị ở cấp nào cũng có thể có lớp; trẻ gắn với đơn vị của lớp trẻ đang học | Thay bằng QĐ-23 ngày 2026-10-09 |
 | QĐ-15 | Mỗi năm học một cơ sở dữ liệu nghiệp vụ; trong mỗi cơ sở dữ liệu vẫn tách đơn vị bằng `org_unit_id` theo phương án A; dịch vụ định danh dùng một cơ sở dữ liệu riêng không theo năm học | Đã chốt ngày 2026-10-09 |
 | QĐ-16 | Mở API chỉ đọc cho đối tác ngay giai đoạn 1, xác thực bằng khóa riêng có phạm vi dữ liệu | Đã chốt ngày 2026-10-09 |
 | QĐ-17 | Bảng không theo năm học: khóa API đối tác đặt ở cơ sở dữ liệu định danh; danh sách cơ sở dữ liệu năm học đặt ở một cơ sở dữ liệu hệ thống riêng của máy chủ API; khi mở năm học giữ nguyên mã định danh của bản ghi chuyển sang | Đã chốt ngày 2026-10-09 |
@@ -235,6 +235,7 @@ Thứ tự dựng (YCTD-32): môi trường phát triển chạy Docker trên m�
 | QĐ-20 | Máy chủ API hỏi dịch vụ định danh vai trò và quyền hiện hành ở mọi yêu cầu, không lưu bộ nhớ đệm, để thu hồi quyền có hiệu lực ngay (PQ-04, YCTD-34) | Đã chốt ngày 2026-10-09 |
 | QĐ-21 | Tài khoản kết nối của máy chủ API có quyền tạo cơ sở dữ liệu để mở năm học; không có quyền quản trị toàn hệ thống (YCTD-34) | Đã chốt ngày 2026-10-09 |
 | QĐ-22 | Mã phiên ký bằng khóa bất đối xứng Ed25519; dịch vụ định danh giữ khóa bí mật, máy chủ API chỉ giữ khóa công khai (YCTD-34) | Đã chốt ngày 2026-10-09 |
+| QĐ-23 | Đơn vị tổ chức là cây hai cấp: cấp 1 là Trường chính, chỉ một đơn vị; cấp 2 là Phân hiệu hoặc Điểm trường, chọn loại cho từng đơn vị, trực thuộc thẳng Trường chính; nhãn cố định; cả hai cấp có lớp; trẻ gắn với đơn vị của lớp trẻ đang học (YCTD-38) | Đã chốt ngày 2026-10-09 |
 
 ## 14. Chưa xác minh được
 
