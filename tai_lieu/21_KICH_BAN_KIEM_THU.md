@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.8
+- Phiên bản: 1.9
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -259,7 +259,7 @@
 | CT-174 | P10-12 | Giáo viên ghi nhiệt độ trẻ A; phụ huynh trẻ A và trẻ B mở ứng dụng | Phụ huynh trẻ A thấy, phụ huynh trẻ B không thấy | | Chưa chạy |
 | CT-175 | P10-07 | Phụ huynh bấm đã biết sự kiện y tế | Y tế thấy đã xác nhận kèm thời điểm; không có lần nhắc lại nào | | Chưa chạy |
 | CT-176 | P01-06 | Đặt lại mật khẩu cho giáo viên, giáo viên đăng nhập bằng mật khẩu mới | Chỉ vào được màn hình đổi mật khẩu | | Chưa chạy |
-| CT-177 | P01-02 | Đóng năm học khi còn trẻ đã thôi học nợ 500 000 | Bị chặn, liệt kê trẻ còn nợ | | Chưa chạy |
+| CT-177 | P01-02 | Mở năm học mới khi năm đang dùng còn trẻ đã thôi học nợ 500 000 (YCTD-37) | Bị chặn, liệt kê trẻ còn nợ | | Chưa chạy |
 | CT-178 | P05-05 | Chạy tính học phí khi lớp L-A1 còn hai ngày chưa chốt điểm danh | Bị chặn, liệt kê lớp và ngày | | Chưa chạy |
 | CT-179 | P06-02 | Thủ quỹ lập phiếu thu tiền mặt và chọn hóa đơn | Hóa đơn đã thu đủ, quỹ tăng | | Chưa chạy |
 | CT-180 | P08-06 | Tính bảng lương tháng 10 khi bảng công tháng 9 chưa chốt | Bị chặn, liệt kê đơn vị chưa chốt | | Chưa chạy |

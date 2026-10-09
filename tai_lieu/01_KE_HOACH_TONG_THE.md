@@ -55,6 +55,8 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.2.0 | Bốn thay đổi: Ban Giám hiệu, nhiều cấp đơn vị, tách giao diện và máy chủ, dịch vụ định danh | 01 đến 07 | Đã có |
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
+| 0.26.6 | DT-01 phần 3: năm học, lịch năm học, mở năm học | 09 | Đã có |
+| 0.26.5 | Mở năm học mới là đóng năm cũ, sửa lịch tới khi đóng, quyền `P01.academic-year.manage` (YCTD-37) | 01 đến 08 | Đã có |
 | 0.26.4 | DT-01 phần 2: máy chủ API kiểm tra mã phiên và quyền, màn hình đăng nhập | 09 | Đã có |
 | 0.26.3 | Cookie httpOnly cho mã làm mới, gói `packages/server`, điều hướng dọc, MH-47 và MH-48 (YCTD-36) | 01 đến 08 | Đã có |
 | 0.26.2 | DT-01 phần 1: phần lõi dịch vụ định danh | 09 | Đã có |

@@ -1,6 +1,7 @@
 // Mã dùng chung của hai dịch vụ máy chủ; giao diện không được dùng gói này (YCTD-36)
 export {
   ApplicationError,
+  ruleViolationError,
   STATUS_BY_ERROR_CODE,
   unauthenticatedError,
   validationError,

@@ -27,12 +27,14 @@ export class ErrorFilter implements ExceptionFilter {
     let message = 'Hệ thống gặp lỗi, vui lòng thử lại sau';
     let details: ApplicationError['details'] = [];
     let retryAfterSeconds: number | undefined;
+    let ruleCode: string | undefined;
 
     if (exception instanceof ApplicationError) {
       code = exception.code;
       message = exception.message;
       details = exception.details;
       retryAfterSeconds = exception.retryAfterSeconds;
+      ruleCode = exception.ruleCode;
     } else if (exception instanceof HttpException && ERROR_CODE_BY_HTTP_STATUS[exception.getStatus()]) {
       code = ERROR_CODE_BY_HTTP_STATUS[exception.getStatus()] ?? 'ERR_INTERNAL';
       message = code === 'ERR_NOT_FOUND' ? 'Không tìm thấy' : 'Yêu cầu không hợp lệ';
@@ -53,6 +55,7 @@ export class ErrorFilter implements ExceptionFilter {
         message,
         details,
         ...(retryAfterSeconds !== undefined ? { retry_after_seconds: retryAfterSeconds } : {}),
+        ...(ruleCode !== undefined ? { rule_code: ruleCode } : {}),
         correlation_id: correlationId,
       },
     });

@@ -11,6 +11,19 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-37: Mở năm học mới là đóng năm cũ – 2026-10-09
+
+- Lý do: AC-194 và CB-10 ghi mở năm mới thì năm cũ chỉ đọc, trong khi BR-89 và CTC-P01-096 đến 098 ngụ ý năm cũ còn ghi được tới khi đóng riêng; nếu năm cũ vẫn ghi được thì thu nợ của trẻ đang học có thể ghi trùng ở hai năm.
+- Nội dung thay đổi: thêm BR-93, mỗi thời điểm chỉ một năm học đang dùng; mở năm mới gồm kiểm tra BR-89, tạo cơ sở dữ liệu, chuyển dữ liệu, chuyển năm cũ sang đã đóng và chỉ đọc; bỏ điểm cuối đóng năm học riêng; BR-89 chuyển từ chặn đóng sang chặn mở; lịch năm học sửa được cho tới khi đóng, sửa ngày thì đánh số lại tuần và giữ cờ nghỉ; thêm PQ-11 và quyền `P01.academic-year.manage` chỉ VT-02 có.
+- Thành phần bị ảnh hưởng: `01`, `07`, `08`, `10`, `11`, `16`, `17`, `21`, `27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md`, `index.md`.
+- Dữ liệu bị ảnh hưởng: `academic_years.status` có ba giá trị; thêm mã quyền mới trong cơ sở dữ liệu định danh.
+- API bị ảnh hưởng: bỏ `POST /api/v1/academic-years/{id}/close`; `open` đóng năm đang dùng.
+- Giao diện bị ảnh hưởng: MH-43 không có nút đóng năm học.
+- Quyền bị ảnh hưởng: VT-15 và VT-03 không quản lý năm học dù có `P01.edit`.
+- Ảnh hưởng chức năng cũ: chưa có mã năm học nên không ảnh hưởng.
+- Kiểm thử cần thực hiện: CTC-P01-013, 018, 019, 099 đến 104; 014 đến 017, 096 đến 098 khi có dữ liệu trẻ và công nợ.
+- Trạng thái: Đã triển khai
+
 ### YCTD-36: Thiết kế DT-01 phần 2 – 2026-10-09
 
 - Lý do: thiết kế phần 2 cần chốt nơi lưu mã làm mới trên trình duyệt, nơi đặt mã dùng chung của hai dịch vụ máy chủ, cách điều hướng của cổng quản trị đang mâu thuẫn trong `14`, và màn hình đăng nhập chưa có trong `14`.

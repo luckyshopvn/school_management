@@ -16,7 +16,7 @@
 | 04 | [04_TONG_QUAN_DU_AN.md](04_TONG_QUAN_DU_AN.md) | Tổng quan dự án | Vấn đề, mục tiêu, đối tượng, yêu cầu cấp cao | 01 Xác định ý tưởng | Đã phê duyệt |
 | 05 | [05_PHAM_VI.md](05_PHAM_VI.md) | Phạm vi | Mười chín phân hệ, phạm vi trong và ngoài, ba giai đoạn sản phẩm | 02 Xác định phạm vi | Đã phê duyệt |
 | 06 | [06_YEU_CAU_NGHIEP_VU.md](06_YEU_CAU_NGHIEP_VU.md) | Yêu cầu nghiệp vụ | Nhóm người dùng, nghiệp vụ, quy trình chính, phụ, ngoại lệ | 03 Phân tích nghiệp vụ | Đã phê duyệt |
-| 07 | [07_QUY_TAC_NGHIEP_VU.md](07_QUY_TAC_NGHIEP_VU.md) | Quy tắc nghiệp vụ | BR-01 đến BR-85, chuyển trạng thái, phân cấp phê duyệt | 03 Phân tích nghiệp vụ | Đã phê duyệt |
+| 07 | [07_QUY_TAC_NGHIEP_VU.md](07_QUY_TAC_NGHIEP_VU.md) | Quy tắc nghiệp vụ | BR-01 đến BR-93, chuyển trạng thái, phân cấp phê duyệt | 03 Phân tích nghiệp vụ | Đã phê duyệt |
 | 08 | [08_VAI_TRO_NGUOI_DUNG.md](08_VAI_TRO_NGUOI_DUNG.md) | Vai trò người dùng | VT-01 đến VT-20 (VT-13 đã bỏ), ma trận quyền, phân cấp phê duyệt | 03 Phân tích nghiệp vụ | Đã phê duyệt |
 | 09 | [09_LUONG_NGHIEP_VU.md](09_LUONG_NGHIEP_VU.md) | Luồng nghiệp vụ | Bản đồ luồng, điểm nối, luồng phụ và ngoại lệ | 03 Phân tích nghiệp vụ | Đã phê duyệt |
 | 10 | [10_YEU_CAU_CHUC_NANG.md](10_YEU_CAU_CHUC_NANG.md) | Yêu cầu chức năng | 171 mã chức năng, 161 còn hiệu lực, và yêu cầu phi chức năng | 04 Đặc tả yêu cầu | Đã phê duyệt |
@@ -33,7 +33,7 @@
 | 21 | [21_KICH_BAN_KIEM_THU.md](21_KICH_BAN_KIEM_THU.md) | Kịch bản kiểm thử | CT-001 đến CT-188 | 10 Kiểm thử | Đã phê duyệt |
 | 22 | [22_BAO_MAT.md](22_BAO_MAT.md) | Bảo mật | BM-01 đến BM-70 | 10 Kiểm thử | Đã phê duyệt |
 | 23 | [23_LICH_SU_PHIEN_BAN.md](23_LICH_SU_PHIEN_BAN.md) | Lịch sử phiên bản | Các phiên bản từ 0.1.0 | 11 Nghiệm thu và phát hành | Đang cập nhật |
-| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-36, đánh giá ảnh hưởng | 12 Vận hành và cải tiến | Đang cập nhật |
+| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-37, đánh giá ảnh hưởng | 12 Vận hành và cải tiến | Đang cập nhật |
 | 25 | [25_QUY_TRINH_NGHIEP_VU/](25_QUY_TRINH_NGHIEP_VU/) | Quy trình nghiệp vụ | Mười đặc tả QT-01 đến QT-10 và phiếu yêu cầu trống | 03 Phân tích nghiệp vụ | Đã phê duyệt |
 | 26 | [26_SO_DO_CHUC_NANG/](26_SO_DO_CHUC_NANG/) | Sơ đồ chức năng gốc | Tám ảnh sơ đồ chức năng do Eric gửi, nguồn đầu vào của bộ tài liệu | 01 Xác định ý tưởng | Tài liệu nguồn |
 | 27 | [27_BO_CA_KIEM_THU_CHI_TIET/](27_BO_CA_KIEM_THU_CHI_TIET/) | Bộ ca kiểm thử chi tiết | Ca kiểm thử chi tiết theo việc N21, mã CTC-..., năm đợt, 453 ca, 6 ca không áp dụng | 10 Kiểm thử | Đã phê duyệt |
@@ -75,7 +75,7 @@ Mã quy trình dạng `QT-nn`, đánh số tăng dần, không tái sử dụng 
 | Quy trình nghiệp vụ đã đặc tả | 10 | Đủ mười lăm mục theo khuôn đặc tả |
 | Chức năng đã liệt kê | 161 | 171 mã; P08-05, P11-01 đến P11-07, P17-09, P17-15 đã bỏ |
 | Tiêu chí nghiệm thu đã viết | 232 | Từ AC-01 đến AC-232; AC-42, AC-53 đến AC-57, AC-171 đã bỏ; AC-94 đến AC-134 nằm trong các đặc tả quy trình |
-| Quy tắc nghiệp vụ đã xác định | 85 | Từ BR-01 đến BR-85; BR-27, BR-42, BR-54, BR-55, BR-57 đã bỏ |
+| Quy tắc nghiệp vụ đã xác định | 93 | Từ BR-01 đến BR-93; BR-27, BR-42, BR-54, BR-55, BR-57 đã bỏ |
 | Giả định đã ghi nhận | 92 | Từ GD-01 đến GD-92; mọi giả định đã được xác nhận hoặc ghi không còn hiệu lực ngày 09/10/2026 |
 | Câu hỏi mở chờ trả lời | 0 | Đã cấp mã đến Q-156; mọi câu đã được trả lời ngày 09/10/2026 |
 | Bảng dữ liệu dự kiến | 162 | Xem `16_CO_SO_DU_LIEU.md`; tám bảng xe đưa đón và bảng `meal_registrations` đã gỡ |
@@ -84,7 +84,7 @@ Mã quy trình dạng `QT-nn`, đánh số tăng dần, không tái sử dụng 
 | Cổng kiểm soát chất lượng | 12 | Từ CG-01 đến CG-12, xem `01_KE_HOACH_TONG_THE.md` |
 | Đợt xây dựng | 12 | Từ DT-00 đến DT-11, xem `01_KE_HOACH_TONG_THE.md` |
 | Rủi ro đã ghi nhận | 14 | Từ RR-01 đến RR-14, xem `01_KE_HOACH_TONG_THE.md` |
-| Yêu cầu thay đổi | 36 | Từ YCTD-01 đến YCTD-36, xem `24_YEU_CAU_THAY_DOI.md` |
+| Yêu cầu thay đổi | 37 | Từ YCTD-01 đến YCTD-37, xem `24_YEU_CAU_THAY_DOI.md` |
 
 ## Quyết định đã chốt
 

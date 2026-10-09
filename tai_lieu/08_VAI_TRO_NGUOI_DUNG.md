@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.5
+- Phiên bản: 1.6
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -105,6 +105,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-08 | Phụ huynh không tự đổi số điện thoại đăng nhập; muốn đổi phải gửi yêu cầu để nhà trường xác nhận |
 | PQ-09 | Mã quyền có dạng `<phân hệ>.<hành động>`: `view` ứng với X, `edit` ứng với S, `approve` ứng với D; Q gồm cả ba. Giới hạn chi tiết trong ghi chú của ma trận mục 3 kiểm tra trong mã nghiệp vụ (YCTD-35) |
 | PQ-10 | VT-01 có thêm quyền `P01.account.manage`: tạo tài khoản, khóa, mở khóa, đặt lại mật khẩu, gán vai trò (P01-06, P01-07); không xem dữ liệu nghiệp vụ. Tài khoản đầu tiên của hệ thống là VT-01, tạo bằng lệnh trên máy chủ (YCTD-35) |
+| PQ-11 | Quyền `P01.academic-year.manage` chỉ VT-02 có: tạo năm học, lưu lịch năm học, đánh dấu tuần nghỉ, mở năm học mới (BR-91, BR-93). Mọi người đã đăng nhập đều xem được lịch năm học (YCTD-37) |
 
 ## 5. Phân cấp phê duyệt
 

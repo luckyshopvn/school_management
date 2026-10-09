@@ -1,7 +1,7 @@
 # 27.1. BỘ CA KIỂM THỬ CHI TIẾT — DỊCH VỤ ĐỊNH DANH VÀ P01
 
 - Mô tả: Ca kiểm thử chi tiết cho dịch vụ định danh (Q-125, Q-126) và các chức năng giai đoạn 1 của phân hệ P01 Nền tảng, đơn vị và phân quyền (việc N21, Q-105).
-- Phiên bản: 1.5
+- Phiên bản: 1.7
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -145,22 +145,22 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
-| CTC-P01-013 | P01-02 | P01-02 | LT-02 | Cao | Không | HT tạo năm học 2027–2028 với ngày bắt đầu và kết thúc | Năm học ở trạng thái chưa mở | | Chưa chạy |
+| CTC-P01-013 | P01-02 | P01-02 | LT-02 | Cao | Không | HT tạo năm học 2027–2028 với ngày bắt đầu và kết thúc | Năm học ở trạng thái chưa mở | Kiểm thử tự động `apps/api/src/academic-years/academic-years.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-P01-014 | P01-02 | AC-194, QĐ-15, QĐ-17, CT-150 | LT-05 | Cao | Năm 2026–2027 đang dùng theo DL-11, có trẻ đang học và công nợ chưa tất toán | HT gọi `POST /api/v1/academic-years/{id}/open` cho 2027–2028 | Có cơ sở dữ liệu năm mới gồm trẻ đang học, phụ huynh, nhân sự, danh mục, cấu hình, số dư công nợ chưa tất toán; mã định danh của mọi bản ghi chuyển sang giữ nguyên | | Chưa chạy |
 | CTC-P01-015 | P01-02 | AC-194, QĐ-17 | LT-05 | Cao | Sau CTC-P01-014 | So sánh mã định danh của 20 trẻ ngẫu nhiên giữa hai cơ sở dữ liệu | Trùng khớp hoàn toàn | | Chưa chạy |
 | CTC-P01-016 | P01-02 | P01-02, QĐ-15 | LT-02 | Cao | Năm 2026–2027 đã đóng | Gửi yêu cầu sửa một hồ sơ trẻ của năm 2026–2027 | Bị từ chối vì cơ sở dữ liệu năm cũ chỉ đọc; đọc vẫn được | | Chưa chạy |
 | CTC-P01-017 | P01-02 | GD-90 | LT-05 | Trung bình | Sau CTC-P01-014 | Mở lịch sử lớp của một trẻ ở năm mới và ở năm cũ | Năm mới có lịch sử lớp gần nhất; năm cũ có lịch sử đầy đủ | | Chưa chạy |
-| CTC-P01-018 | P01-02 | P01-02 | LT-04 | Cao | QL-A | Gọi mở năm học và đóng năm học | Cả hai trả `ERR_FORBIDDEN` | | Chưa chạy |
+| CTC-P01-018 | P01-02 | P01-02, PQ-11 | LT-04 | Cao | QL-A, PHT-A | Gọi tạo năm học và mở năm học | Đều trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/academic-years/academic-years.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-P01-019 | P01-02 | QU-11 | LT-02 | Trung bình | Năm cũ đã đóng, có thay đổi cấu trúc dữ liệu mới | Chạy công cụ thay đổi cấu trúc dữ liệu | Chỉ cơ sở dữ liệu năm đang dùng được thay đổi; năm đã đóng giữ phiên bản cấu trúc cũ và vẫn đọc được | | Chưa chạy |
-| CTC-P01-096 | P01-02 | AC-221, BR-89, Q-149, CT-177 | LT-02 | Cao | Năm 2026–2027 có trẻ T9 đã thôi học còn nợ 500 000 | HT gọi `POST /api/v1/academic-years/{id}/close` | Trả `ERR_RULE_VIOLATION` kèm mã BR-89 và danh sách trẻ còn nợ; năm học vẫn mở | | Chưa chạy |
-| CTC-P01-097 | P01-02 | BR-89, Q-149 | LT-02 | Cao | Như CTC-P01-096 | KT-A lập phiếu thu đủ 500 000 cho T9; HT đóng năm học | Đóng thành công; cơ sở dữ liệu năm cũ chỉ đọc | | Chưa chạy |
+| CTC-P01-096 | P01-02 | AC-221, BR-89, Q-149, CT-177, YCTD-37 | LT-02 | Cao | Năm 2026–2027 đang dùng có trẻ T9 đã thôi học còn nợ 500 000 | HT gọi `POST /api/v1/academic-years/{id}/open` cho 2027–2028 | Trả `ERR_RULE_VIOLATION` kèm mã BR-89 và danh sách trẻ còn nợ; không tạo cơ sở dữ liệu mới; 2026–2027 vẫn đang dùng | | Chưa chạy |
+| CTC-P01-097 | P01-02 | BR-89, BR-93, Q-149, YCTD-37 | LT-02 | Cao | Như CTC-P01-096 | KT-A lập phiếu thu đủ 500 000 cho T9; HT mở 2027–2028 | Mở thành công; 2026–2027 chuyển sang đã đóng, cơ sở dữ liệu chỉ đọc | | Chưa chạy |
 | CTC-P01-098 | P01-02 | AC-194, BR-89 | LT-05 | Cao | Năm 2026–2027 có trẻ T9 đã thôi học còn nợ và trẻ T1 đang học còn nợ | Mở năm 2027–2028 | T1 và số dư công nợ của T1 chuyển sang năm mới; T9 và công nợ của T9 không chuyển | | Chưa chạy |
-| CTC-P01-099 | P01-02 | AC-228, BR-91, CT-184 | LT-02 | Cao | Năm học 2026–2027 chưa có lịch | HT lưu học kỳ 1 từ 05/09/2026 đến 15/01/2027, học kỳ 2 từ 18/01/2027 đến 25/05/2027, kỳ hè từ 01/06/2027 đến 31/07/2027, ngày học thứ hai đến thứ sáu | Lưu được; danh sách tuần đánh số liên tục từ tuần chứa 05/09/2026 đến hết kỳ hè | | Chưa chạy |
-| CTC-P01-100 | P01-02 | AC-228, BR-91 | LT-02 | Cao | Không | Lưu lịch có học kỳ 1 kết thúc 20/01/2027, học kỳ 2 bắt đầu 18/01/2027 | Trả `ERR_VALIDATION` | | Chưa chạy |
-| CTC-P01-101 | P01-02 | BR-91 | LT-02 | Trung bình | Không | Lưu kỳ hè bắt đầu 20/05/2027, trước khi học kỳ 2 kết thúc | Trả `ERR_VALIDATION` | | Chưa chạy |
-| CTC-P01-102 | P01-02 | AC-229, BR-91 | LT-02 | Cao | Lịch của CTC-P01-099 | HT đánh dấu tuần chứa ngày 08/02/2027 là tuần nghỉ Tết qua `PATCH /api/v1/academic-years/{id}/weeks` | Tuần đó có cờ nghỉ; số tuần không đổi | | Chưa chạy |
-| CTC-P01-103 | P01-02 | BR-91, YCTD-30 | LT-04 | Cao | QL-A, PHT-A | Gọi `PUT /api/v1/academic-years/{id}/calendar` | Cả hai trả `ERR_FORBIDDEN` vì lịch chung toàn trường do Hiệu trưởng lập | | Chưa chạy |
-| CTC-P01-104 | P01-02 | YCTD-30, QĐ-17 | LT-05 | Trung bình | Năm 2027–2028 đã tạo, chưa mở | HT lưu lịch năm 2027–2028; đọc lịch | Lịch lưu ở cơ sở dữ liệu hệ thống và đọc được trước khi mở năm học | | Chưa chạy |
+| CTC-P01-099 | P01-02 | AC-228, BR-91, CT-184 | LT-02 | Cao | Năm học 2026–2027 chưa có lịch | HT lưu học kỳ 1 từ 05/09/2026 đến 15/01/2027, học kỳ 2 từ 18/01/2027 đến 25/05/2027, kỳ hè từ 01/06/2027 đến 31/07/2027, ngày học thứ hai đến thứ sáu | Lưu được; danh sách tuần đánh số liên tục từ tuần chứa 05/09/2026 đến hết kỳ hè | Kiểm thử tự động `apps/api/src/academic-years/academic-years.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-P01-100 | P01-02 | AC-228, BR-91 | LT-02 | Cao | Không | Lưu lịch có học kỳ 1 kết thúc 20/01/2027, học kỳ 2 bắt đầu 18/01/2027 | Trả `ERR_VALIDATION` | Kiểm thử tự động `apps/api/src/academic-years/academic-years.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-P01-101 | P01-02 | BR-91 | LT-02 | Trung bình | Không | Lưu kỳ hè bắt đầu 20/05/2027, trước khi học kỳ 2 kết thúc | Trả `ERR_VALIDATION` | Kiểm thử tự động `apps/api/src/academic-years/academic-years.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-P01-102 | P01-02 | AC-229, BR-91 | LT-02 | Cao | Lịch của CTC-P01-099 | HT đánh dấu tuần chứa ngày 08/02/2027 là tuần nghỉ Tết qua `PATCH /api/v1/academic-years/{id}/weeks` | Tuần đó có cờ nghỉ; số tuần không đổi | Kiểm thử tự động `apps/api/src/academic-years/academic-years.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-P01-103 | P01-02 | BR-91, YCTD-30 | LT-04 | Cao | QL-A, PHT-A | Gọi `PUT /api/v1/academic-years/{id}/calendar` | Cả hai trả `ERR_FORBIDDEN` vì lịch chung toàn trường do Hiệu trưởng lập | Kiểm thử tự động `apps/api/src/academic-years/academic-years.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-P01-104 | P01-02 | YCTD-30, QĐ-17 | LT-05 | Trung bình | Năm 2027–2028 đã tạo, chưa mở | HT lưu lịch năm 2027–2028; đọc lịch | Lịch lưu ở cơ sở dữ liệu hệ thống và đọc được trước khi mở năm học | Kiểm thử tự động `apps/api/src/academic-years/academic-years.test.ts` đạt ngày 09/10/2026 | Đạt |
 
 ### 4.3. P01-03 Phòng ban và P01-04 Chức danh
 

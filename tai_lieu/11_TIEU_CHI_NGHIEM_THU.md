@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.9
+- Phiên bản: 1.10
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -293,7 +293,7 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-218 | Cho giáo viên chủ nhiệm ghi nhiệt độ và tình trạng của trẻ A trong ngày / Khi phụ huynh trẻ A mở ứng dụng / Thì thấy bản ghi chăm sóc của con; phụ huynh trẻ khác không thấy (BR-87) |
 | AC-219 | Cho sự kiện y tế đã thông báo phụ huynh / Khi phụ huynh bấm đã biết / Thì y tế và giáo viên chủ nhiệm thấy trạng thái đã xác nhận kèm thời điểm; khi chưa bấm thì thấy chưa xác nhận và hệ thống không nhắc lại (BR-88) |
 | AC-220 | Cho tài khoản vừa được Hiệu trưởng đặt lại mật khẩu / Khi người dùng đăng nhập bằng mật khẩu mới được cấp / Thì chỉ vào được màn hình đổi mật khẩu cho tới khi đổi xong (Q-148) |
-| AC-221 | Cho năm học còn một trẻ đã thôi học có công nợ chưa tất toán / Khi Hiệu trưởng đóng năm học / Thì hệ thống chặn và liệt kê trẻ còn nợ (BR-89) |
+| AC-221 | Cho năm học đang dùng còn một trẻ đã thôi học có công nợ chưa tất toán / Khi Hiệu trưởng mở năm học mới / Thì hệ thống chặn, liệt kê trẻ còn nợ và năm đang dùng vẫn ghi được (BR-89, YCTD-37) |
 | AC-222 | Cho kỳ còn lớp có ngày chưa chốt điểm danh / Khi kế toán chạy tính học phí kỳ / Thì hệ thống chặn và liệt kê lớp, ngày chưa chốt (Q-151) |
 | AC-223 | Cho thủ quỹ và một hóa đơn còn phải nộp 1 000 000 / Khi thủ quỹ lập phiếu thu tiền mặt 1 000 000 và chọn hóa đơn đó / Thì hóa đơn ở trạng thái đã thu đủ và quỹ tiền mặt tăng 1 000 000 (Q-152) |
 | AC-224 | Cho bảng công tháng 9 của một đơn vị chưa chốt / Khi kế toán tính bảng lương tháng 10 / Thì hệ thống chặn và liệt kê đơn vị chưa chốt công (BR-43) |

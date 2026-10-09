@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.10
+- Phiên bản: 1.12
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -90,8 +90,17 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | GET, POST | /api/v1/academic-years | Danh sách và tạo năm học kèm lịch năm học |
 | GET, PUT | /api/v1/academic-years/{id}/calendar | Đọc và lưu học kỳ, kỳ hè, ngày học trong tuần; hệ thống tự đánh số tuần (BR-91) |
 | GET, PATCH | /api/v1/academic-years/{id}/weeks | Danh sách tuần; đánh dấu hoặc bỏ đánh dấu tuần nghỉ |
-| POST | /api/v1/academic-years/{id}/open | Mở năm học: tạo cơ sở dữ liệu năm học và chuyển dữ liệu dùng chung |
-| POST | /api/v1/academic-years/{id}/close | Đóng năm học, chuyển cơ sở dữ liệu sang chỉ đọc |
+| POST | /api/v1/academic-years/{id}/open | Mở năm học: kiểm tra BR-89, tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung, chuyển năm đang dùng sang đã đóng và chỉ đọc (BR-93) |
+| POST | /api/v1/academic-years/{id}/close | Bỏ ngày 09/10/2026: gộp vào mở năm học mới (YCTD-37) |
+
+Giao kèo của nhóm điểm cuối năm học (DT-01 phần 3):
+
+1. `POST /academic-years` nhận `name`; năm học mới có `status` là `draft` (chưa mở). `status` khác là `open` (đang dùng), `closed` (đã đóng).
+2. `PUT /academic-years/{id}/calendar` nhận `first_term`, `second_term`, `summer_term` (có thể trống), mỗi kỳ gồm `start_date`, `end_date` dạng `YYYY-MM-DD`; `school_days_of_week` là danh sách số từ 1 (thứ hai) đến 7 (chủ nhật), mặc định 1 đến 5. Lưu lịch thì đánh số lại tuần; tuần tính từ thứ hai đến chủ nhật.
+3. `PATCH /academic-years/{id}/weeks` nhận `weeks`, mỗi phần tử gồm `week_no`, `is_off`, `note`.
+4. Năm học đã đóng không sửa được lịch và tuần, trả `ERR_RULE_VIOLATION` mã BR-91. Mở năm học trả `ERR_RULE_VIOLATION` mã BR-93 khi năm học không ở `draft`, chưa có lịch, hoặc bắt đầu không sau ngày kết thúc của năm đang dùng; mã BR-89 khi còn trẻ đã thôi học có công nợ.
+5. Phản hồi `ERR_RULE_VIOLATION` có trường `rule_code` là mã quy tắc bị vi phạm.
+6. Các điểm cuối đọc dùng được với mọi người đã đăng nhập; các điểm cuối ghi cần `P01.academic-year.manage` (PQ-11).
 | GET, POST | /api/v1/departments | Danh sách và tạo phòng ban |
 | GET, POST | /api/v1/job-titles | Danh sách và tạo chức danh |
 | GET, POST | /api/v1/users | Danh sách và tạo tài khoản |

@@ -28,6 +28,18 @@ export function AppShell({ children }: { children: ReactNode }) {
             </Link>
           </li>
         </ul>
+        <span className="px-3 text-label font-semibold text-text-muted">THIẾT LẬP</span>
+        <ul className="flex flex-col gap-1">
+          <li>
+            <Link
+              to="/academic-years"
+              className="block rounded-lg px-3 py-2 text-label font-medium text-text hover:bg-selected"
+              activeProps={{ className: 'bg-selected' }}
+            >
+              Năm học
+            </Link>
+          </li>
+        </ul>
       </nav>
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-end gap-4 border-b border-border bg-card px-6 py-3">

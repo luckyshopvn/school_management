@@ -1,12 +1,24 @@
 import { existsSync } from 'node:fs';
 import { defineConfig, devices } from '@playwright/test';
+import { replaceDatabaseName } from '@school-management/database';
+import {
+  E2E_API_PORT,
+  E2E_IDENTITY_PORT,
+  E2E_PORTAL_PORT,
+  E2E_SCHOOL_YEAR_DATABASE_PREFIX,
+  E2E_SYSTEM_DATABASE_NAME,
+} from './e2e-environment.mjs';
 
-// Kiểm thử giao diện chạy trên dịch vụ định danh, máy chủ API và cổng quản trị thật (YCTD-36)
+// Kiểm thử giao diện chạy trên dịch vụ định danh, máy chủ API và cổng quản trị thật (YCTD-36);
+// cơ sở dữ liệu hệ thống riêng do e2e-setup.mjs chuẩn bị trước mỗi lần chạy
 if (existsSync('../.env')) {
   process.loadEnvFile('../.env');
 }
 
 const isContinuousIntegration = Boolean(process.env.CI);
+const identityBaseUrl = `http://localhost:${E2E_IDENTITY_PORT}`;
+const apiBaseUrl = `http://localhost:${E2E_API_PORT}`;
+const systemDatabaseUrl = replaceDatabaseName(process.env.SYSTEM_DATABASE_URL ?? '', E2E_SYSTEM_DATABASE_NAME);
 
 export default defineConfig({
   testDir: './e2e',
@@ -16,25 +28,30 @@ export default defineConfig({
   retries: 0,
   reporter: isContinuousIntegration ? 'github' : 'list',
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: `http://localhost:${E2E_PORTAL_PORT}`,
     trace: 'retain-on-failure',
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: [
     {
       command: 'node ../apps/identity/dist/main.js',
-      url: 'http://localhost:3001/api/v1/health',
-      reuseExistingServer: !isContinuousIntegration,
+      url: `${identityBaseUrl}/api/v1/health`,
+      env: { IDENTITY_PORT: String(E2E_IDENTITY_PORT) },
     },
     {
       command: 'node ../apps/api/dist/main.js',
-      url: 'http://localhost:3000/api/v1/health',
-      reuseExistingServer: !isContinuousIntegration,
+      url: `${apiBaseUrl}/api/v1/health`,
+      env: {
+        API_PORT: String(E2E_API_PORT),
+        IDENTITY_BASE_URL: identityBaseUrl,
+        SYSTEM_DATABASE_URL: systemDatabaseUrl,
+        SCHOOL_YEAR_DATABASE_PREFIX: E2E_SCHOOL_YEAR_DATABASE_PREFIX,
+      },
     },
     {
-      command: 'pnpm --filter @school-management/portal exec vite --port 5173 --strictPort',
-      url: 'http://localhost:5173',
-      reuseExistingServer: !isContinuousIntegration,
+      command: `pnpm --filter @school-management/portal exec vite --port ${E2E_PORTAL_PORT} --strictPort`,
+      url: `http://localhost:${E2E_PORTAL_PORT}`,
+      env: { IDENTITY_BASE_URL: identityBaseUrl, API_BASE_URL: apiBaseUrl },
     },
   ],
 });
