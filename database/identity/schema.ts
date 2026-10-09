@@ -89,7 +89,15 @@ export interface IdentityAuditLogsTable {
   before_data: ColumnType<unknown, string | null, string | null>;
   after_data: ColumnType<unknown, string | null, string | null>;
   ip_address: string | null;
+  actor_name: string | null;
   created_at: CreatedTimestamp;
+}
+
+export interface IdentitySettingsTable {
+  key: string;
+  value: ColumnType<unknown, string, string>;
+  updated_at: UpdatedTimestamp;
+  updated_by: string | null;
 }
 
 export interface IdentityDatabase {
@@ -101,4 +109,5 @@ export interface IdentityDatabase {
   sessions: SessionsTable;
   security_events: SecurityEventsTable;
   identity_audit_logs: IdentityAuditLogsTable;
+  identity_settings: IdentitySettingsTable;
 }

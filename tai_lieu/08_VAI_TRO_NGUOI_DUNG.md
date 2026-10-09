@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.8
+- Phiên bản: 1.9
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -101,7 +101,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-04 | Thu hồi quyền có hiệu lực ngay tại yêu cầu kế tiếp; hệ thống không chờ phiên làm việc hết hạn |
 | PQ-05 | Mọi thay đổi về vai trò và quyền phải ghi nhật ký thao tác kèm người thực hiện, thời điểm, giá trị trước và giá trị sau |
 | PQ-06 | Nhà trường tạo tài khoản cho mọi phụ huynh có số điện thoại trong hồ sơ, với mật khẩu mặc định chung; phụ huynh bắt buộc đổi mật khẩu ở lần đăng nhập đầu |
-| PQ-07 | Tài khoản không dùng quá số ngày cấu hình thì bị tạm khóa và phải kích hoạt lại |
+| PQ-07 | Tài khoản không đăng nhập quá số ngày cấu hình (mặc định 90, Hiệu trưởng sửa trên cổng quản trị) thì bị tạm khóa ở lần đăng nhập kế tiếp và phải được mở khóa lại (YCTD-40) |
 | PQ-08 | Phụ huynh không tự đổi số điện thoại đăng nhập; muốn đổi phải gửi yêu cầu để nhà trường xác nhận |
 | PQ-09 | Mã quyền có dạng `<phân hệ>.<hành động>`: `view` ứng với X, `edit` ứng với S, `approve` ứng với D; Q gồm cả ba. Giới hạn chi tiết trong ghi chú của ma trận mục 3 kiểm tra trong mã nghiệp vụ (YCTD-35) |
 | PQ-10 | VT-01 có thêm quyền `P01.account.manage`: tạo tài khoản, khóa, mở khóa, đặt lại mật khẩu, gán vai trò (P01-06, P01-07); không xem dữ liệu nghiệp vụ. Tài khoản đầu tiên của hệ thống là VT-01, tạo bằng lệnh trên máy chủ (YCTD-35) |
@@ -109,6 +109,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-12 | Quyền `P01.org-unit.manage` chỉ VT-02 có: tạo, sửa, ngừng sử dụng đơn vị (P01-01). Mọi người đã đăng nhập đều xem được cây đơn vị (YCTD-38) |
 | PQ-13 | Quản lý tài khoản (P01-06, P01-07, YCTD-39): VT-01 và VT-02 có `P01.account.manage`, tạo và quản lý mọi tài khoản, gán và gỡ vai trò, tạo vai trò, sửa ma trận quyền. VT-03 có `P01.account.manage-in-unit`: tạo tài khoản với mọi vai trò trừ VT-01, VT-02, chỉ trong các đơn vị được gán; khóa, mở khóa, đặt lại mật khẩu tài khoản có mọi vai trò nằm trong đơn vị của mình; không gán, gỡ vai trò sau khi tạo (CTC-P01-042). VT-15 không quản lý tài khoản |
 | PQ-14 | Đặt lại mật khẩu thì hệ thống sinh mật khẩu tạm, hiển thị một lần cho người đặt lại; người được đặt lại bắt buộc đổi ở lần đăng nhập kế tiếp (BM-07, YCTD-39) |
+| PQ-15 | Quyền `P01.setting.manage`: VT-02 sửa cấu hình mọi đơn vị và cấu hình chung toàn trường, VT-03 sửa cấu hình của đơn vị được gán; VT-15 và vai trò khác chỉ xem cấu hình của đơn vị trong phạm vi (P01-08, YCTD-40) |
 
 ## 5. Phân cấp phê duyệt
 

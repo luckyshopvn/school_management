@@ -15,6 +15,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canManageAllAccounts = useHasPermission(PERMISSION_CODES.accountManage);
   const canManageAccountsInUnit = useHasPermission(PERMISSION_CODES.accountManageInUnit);
   const canSeeAccounts = canManageAllAccounts || canManageAccountsInUnit;
+  const canViewPlatform = useHasPermission('P01.view');
+  const canManageSettings = useHasPermission(PERMISSION_CODES.settingManage);
 
   return (
     <div className="flex min-h-screen">
@@ -75,6 +77,28 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </Link>
               </li>
             </>
+          ) : null}
+          {canViewPlatform || canManageSettings ? (
+            <li>
+              <Link
+                to="/settings"
+                className="block rounded-lg px-3 py-2 text-label font-medium text-text hover:bg-selected"
+                activeProps={{ className: 'bg-selected' }}
+              >
+                Cấu hình
+              </Link>
+            </li>
+          ) : null}
+          {canViewPlatform ? (
+            <li>
+              <Link
+                to="/audit-logs"
+                className="block rounded-lg px-3 py-2 text-label font-medium text-text hover:bg-selected"
+                activeProps={{ className: 'bg-selected' }}
+              >
+                Nhật ký thao tác
+              </Link>
+            </li>
           ) : null}
         </ul>
       </nav>

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { OrgUnitStatus, OrgUnitType } from '@school-management/database';
 import { ApplicationError, Clock, ruleViolationError } from '@school-management/server';
-import { writeAuditLog } from '../common/audit-log.js';
+import { writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 
 // Cây đơn vị hai cấp: Trường chính; Phân hiệu, Điểm trường trực thuộc (BR-01, QĐ-23)
@@ -35,11 +35,6 @@ export type OrgUnitChanges = Partial<Omit<OrgUnitInput, 'unit_type'>> & {
   unit_type?: OrgUnitType;
   status?: OrgUnitStatus;
 };
-
-export interface ChangeOrigin {
-  actorUserId: string;
-  ipAddress: string | null;
-}
 
 const COLUMNS = [
   'id',
@@ -127,14 +122,13 @@ export class OrgUnitsService {
         .returning(COLUMNS)
         .executeTakeFirstOrThrow();
       await writeAuditLog(transaction, {
-        actorUserId: origin.actorUserId,
+        origin,
         orgUnitId: created.id,
         entityName: 'org_units',
         entityId: created.id,
         action: 'create',
         before: null,
         after: created,
-        ipAddress: origin.ipAddress,
       });
       return created;
     });
@@ -198,14 +192,13 @@ export class OrgUnitsService {
         .returning(COLUMNS)
         .executeTakeFirstOrThrow();
       await writeAuditLog(transaction, {
-        actorUserId: origin.actorUserId,
+        origin,
         orgUnitId,
         entityName: 'org_units',
         entityId: orgUnitId,
         action: 'update',
         before: existing,
         after: updated,
-        ipAddress: origin.ipAddress,
       });
       return updated;
     });

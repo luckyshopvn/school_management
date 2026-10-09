@@ -33,10 +33,23 @@ export interface AuditLogsTable {
   before_data: JsonValue;
   after_data: JsonValue;
   ip_address: string | null;
+  actor_name: string | null;
   created_at: CreatedTimestamp;
+}
+
+export interface SettingsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  key: string;
+  value: ColumnType<unknown, string, string>;
+  value_type: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+  updated_by: string | null;
 }
 
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
+  settings: SettingsTable;
 }

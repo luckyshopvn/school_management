@@ -9,6 +9,7 @@ import {
   type AccessTokenClaims,
 } from '@school-management/server';
 import { Infrastructure } from '../common/infrastructure.js';
+import { IdentitySettingsService } from '../settings/identity-settings.service.js';
 import { checkPasswordPolicy, hashPassword, placeholderPasswordHash, verifyPassword } from './password.js';
 import { createRefreshToken, hashRefreshToken, readSessionIdFromRefreshToken, TokenService } from './token.service.js';
 
@@ -62,6 +63,7 @@ export class AuthenticationService {
     private readonly infrastructure: Infrastructure,
     private readonly tokenService: TokenService,
     private readonly clock: Clock,
+    private readonly identitySettings: IdentitySettingsService,
   ) {}
 
   private get database() {
@@ -111,6 +113,21 @@ export class AuthenticationService {
       await this.registerFailedLogin(user.id, user.failed_login_count, now);
       await this.recordSecurityEvent('login_failed', user.id, loginIdentifier, origin.ipAddress);
       throw unauthenticatedError(INVALID_CREDENTIALS_MESSAGE);
+    }
+
+    // Không đăng nhập quá số ngày cấu hình thì tạm khóa, phải được mở khóa lại (PQ-07, BM-09)
+    const lockDays = await this.identitySettings.accountInactivityLockDays();
+    const lastActivity = user.last_login_at ?? user.created_at;
+    if (now.getTime() - lastActivity.getTime() > lockDays * 24 * 60 * 60 * 1000) {
+      await this.database
+        .updateTable('users')
+        .set({ status: 'locked', updated_at: now })
+        .where('id', '=', user.id)
+        .execute();
+      await this.recordSecurityEvent('login_rejected_inactive', user.id, loginIdentifier, origin.ipAddress);
+      throw unauthenticatedError(
+        `Tài khoản bị tạm khóa vì không đăng nhập quá ${lockDays} ngày, vui lòng liên hệ nhà trường`,
+      );
     }
 
     await this.database

@@ -122,6 +122,40 @@ export class AccountsController {
     return this.accountsService.list(callerOf(request), listQuery);
   }
 
+  @Get('audit-logs')
+  auditLogs(@Req() request: AuthenticatedRequest, @Query() query: Record<string, string | undefined>) {
+    const errors: FieldError[] = [];
+    const page = Number(query.page ?? 1);
+    const pageSize = Number(query.page_size ?? 20);
+    if (!Number.isInteger(page) || page < 1) {
+      errors.push({ field: 'page', message: 'Số trang bắt đầu từ 1' });
+    }
+    if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 100) {
+      errors.push({ field: 'page_size', message: 'Cỡ trang từ 1 đến 100' });
+    }
+    for (const field of ['entity_id', 'actor_user_id'] as const) {
+      if (query[field] && !UUID_PATTERN.test(query[field] ?? '')) {
+        errors.push({ field, message: 'Mã không hợp lệ' });
+      }
+    }
+    for (const field of ['from_date', 'to_date'] as const) {
+      if (query[field] && !DATE_PATTERN.test(query[field] ?? '')) {
+        errors.push({ field, message: 'Ngày dạng YYYY-MM-DD' });
+      }
+    }
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.accountsService.listAuditLogs(callerOf(request), {
+      entity_id: query.entity_id,
+      actor_user_id: query.actor_user_id,
+      from_date: query.from_date,
+      to_date: query.to_date,
+      page,
+      page_size: pageSize,
+    });
+  }
+
   @Get(':id')
   get(@Req() request: AuthenticatedRequest, @Param('id', uuidParameter('id')) userId: string) {
     return this.accountsService.get(callerOf(request), userId);

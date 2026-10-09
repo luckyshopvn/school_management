@@ -1,7 +1,7 @@
 # 09. LUỒNG NGHIỆP VỤ
 
 - Mô tả: Tổng quan các luồng nghiệp vụ chính, luồng phụ, luồng ngoại lệ. Liên kết tới thư mục 25_QUY_TRINH_NGHIEP_VU cho phần chi tiết từng quy trình.
-- Phiên bản: 1.2
+- Phiên bản: 1.3
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -111,12 +111,12 @@ Bảng dưới chỉ để tham khảo. Hệ thống không chia mốc trong ng�
 | Đầu ngày | Giáo viên điểm danh trong ngày; y tế nhận thuốc | VT-07, VT-09 |
 | Trong ngày | Giáo viên ghi nhật ký, đăng hoạt động; bếp chốt suất ăn; kế toán thu học phí | VT-07, VT-10, VT-04 |
 | Cuối ngày | Giáo viên chốt điểm danh, bàn giao trẻ; bảo vệ xác nhận người đón tại cổng | VT-07, VT-18 |
-| Cuối tháng | Nhân sự chốt công; kế toán tính học phí, phát hành khoản phải thu, lập bảng lương | VT-06, VT-04 |
+| Mùng 1 tháng sau | Nhân sự chốt công tháng trước; kế toán chốt và tính học phí, phát hành khoản phải thu, lập bảng lương (YCTD-41) | VT-06, VT-04 |
 
 ## 7. Chưa xác minh được
 
 1. Thời khóa biểu thật trong ngày của một lớp mầm non: không có tài liệu. Đã tìm trong: tám ảnh sơ đồ chức năng và danh sách tính năng.
-2. Đã có câu trả lời: chốt công và chốt học phí mặc định vào ngày cuối tháng, cấu hình được theo đơn vị (Q-25).
+2. Đã có câu trả lời: chốt công và chốt học phí mặc định vào ngày cuối tháng, cấu hình được theo đơn vị (Q-25). Từ ngày 09/10/2026 thay bằng: chốt học phí mặc định mùng 1 tháng sau, cấu hình được; chốt công cố định mùng 1 tháng sau (YCTD-41).
 3. Đã có câu trả lời: phiếu chi do Ban Giám hiệu duyệt theo hạn mức (BR-77); mức hạn mức cấu hình sau (Q-26, Q-112).
 4. Đã bỏ ngày 09/10/2026: trường không có xe đưa đón.
 

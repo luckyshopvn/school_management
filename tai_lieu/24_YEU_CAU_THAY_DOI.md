@@ -11,6 +11,32 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-41: Ngày chốt học phí và ngày chốt công – 2026-10-09
+
+- Lý do: Eric cho biết ngày chốt học phí là mùng 1 của tháng tiếp theo; trước đó tài liệu ghi chốt học phí và chốt công mặc định ngày cuối tháng (Q-25).
+- Nội dung thay đổi: ngày chốt học phí mặc định mùng 1 tháng sau, đơn vị vẫn cấu hình được; ngày chốt công cố định mùng 1 tháng sau, bỏ khỏi cấu hình theo đơn vị.
+- Thành phần bị ảnh hưởng: `01`, `09`, `10`, `QT-06`, `27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md`, `index.md`; mã nguồn danh mục cấu hình.
+- Dữ liệu bị ảnh hưởng: mục cấu hình `attendance_closing_day` bỏ; `tuition_closing_day` có thêm giá trị `next_month_first` làm mặc định.
+- API bị ảnh hưởng: `GET /settings` không còn mục ngày chốt công.
+- Giao diện bị ảnh hưởng: màn hình Cấu hình.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: phần 6a chưa gộp nên chỉ sửa trên nhánh đang làm.
+- Kiểm thử cần thực hiện: CTC-P01-044, 045.
+- Trạng thái: Đã triển khai
+
+### YCTD-40: Cấu hình theo đơn vị và tự khóa tài khoản – 2026-10-09
+
+- Lý do: thiết kế DT-01 phần 6a cần giá trị mặc định, cách kế thừa, người sửa cấu hình và nơi cấu hình số ngày tự khóa; tài liệu chưa ghi.
+- Nội dung thay đổi: chỉ ngày chốt học phí, ngày chốt công và mốc nhắc nợ có mặc định; các mục khác để trống, bắt buộc nhà trường cấu hình; đơn vị chưa cấu hình lấy giá trị của Trường chính rồi mặc định; thêm PQ-15 và quyền `P01.setting.manage` cho VT-02, VT-03; số ngày tự khóa (PQ-07) mặc định 90, Hiệu trưởng sửa trên cổng, lưu ở bảng mới `identity_settings`; mật khẩu mặc định của phụ huynh làm ở DT-02.
+- Thành phần bị ảnh hưởng: `01`, `08`, `10`, `16`, `index.md`.
+- Dữ liệu bị ảnh hưởng: bảng `settings` ở cơ sở dữ liệu năm học, `identity_settings` ở cơ sở dữ liệu định danh; mã quyền mới.
+- API bị ảnh hưởng: `GET`, `PUT /api/v1/settings`; điểm cuối cấu hình của dịch vụ định danh.
+- Giao diện bị ảnh hưởng: màn hình cấu hình trong MH-30; MH-31.
+- Quyền bị ảnh hưởng: VT-15 chỉ xem cấu hình.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: CTC-P01-044 đến 048, 051, 053, 054; CTC-DD-006.
+- Trạng thái: Đã triển khai
+
 ### YCTD-39: Phân quyền quản lý tài khoản – 2026-10-09
 
 - Lý do: thiết kế DT-01 phần 5 cần chốt ai tạo tài khoản, VT-03 được cấp vai trò nào, ai sửa ma trận quyền, cách đặt lại mật khẩu; tài liệu chỉ ghi VT-02, VT-03 cho P01-06 trong khi ma trận cho VT-15 quyền S ở P01.

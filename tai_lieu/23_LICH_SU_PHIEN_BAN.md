@@ -16,6 +16,39 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.27.6 – 2026-10-09
+
+- Phạm vi thay đổi: YCTD-41, ngày chốt học phí và ngày chốt công.
+- Chức năng mới: không.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: bỏ mục cấu hình `attendance_closing_day`; mặc định `tuition_closing_day` là `next_month_first`.
+- Thay đổi API: `GET /settings` không còn mục ngày chốt công.
+- Rủi ro: không.
+- Khả năng tương thích: phần 6a chưa phát hành nên không ảnh hưởng.
+- Phương án quay lui: khôi phục các tài liệu nêu ở YCTD-41 và danh mục cấu hình về phiên bản trước.
+
+### Phiên bản 0.27.5 – 2026-10-09
+
+- Phạm vi thay đổi: DT-01 phần 6a, cấu hình theo đơn vị và nhật ký thao tác.
+- Chức năng mới: cấu hình theo đơn vị có kế thừa; tra nhật ký thao tác; tự khóa tài khoản lâu không đăng nhập; màn hình Cấu hình, Nhật ký thao tác.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: `settings`, `identity_settings`, cột `actor_name` ở hai bảng nhật ký; mã quyền `P01.setting.manage`.
+- Thay đổi API: `GET`, `PUT /settings`; `GET /audit-logs`; `GET`, `PUT /auth/settings`; `GET /users/audit-logs`.
+- Rủi ro: không.
+- Khả năng tương thích: không ảnh hưởng.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-01-phan-6a`; chạy ngược tệp thay đổi cấu trúc 0003 của cơ sở dữ liệu năm học và 0007 của cơ sở dữ liệu định danh.
+
+### Phiên bản 0.27.4 – 2026-10-09
+
+- Phạm vi thay đổi: YCTD-40, cấu hình theo đơn vị và tự khóa tài khoản.
+- Chức năng mới: không.
+- Lỗi đã sửa: P01-08 chưa có giá trị mặc định, cách kế thừa và người sửa thống nhất với ma trận quyền.
+- Thay đổi dữ liệu: `identity_settings`; mã quyền `P01.setting.manage`.
+- Thay đổi API: không.
+- Rủi ro: chức năng dùng cấu hình chưa có giá trị phải báo thiếu cấu hình.
+- Khả năng tương thích: không ảnh hưởng.
+- Phương án quay lui: khôi phục các tài liệu nêu ở YCTD-40 về phiên bản trước.
+
 ### Phiên bản 0.27.3 – 2026-10-09
 
 - Phạm vi thay đổi: DT-01 phần 5, tài khoản, vai trò, quyền.

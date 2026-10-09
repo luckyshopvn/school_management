@@ -12,7 +12,11 @@ import { IdentityClient } from './authentication/identity-client.js';
 import { API_CONFIGURATION, type ApiConfiguration } from './common/configuration.js';
 import { CurrentSchoolYearResolver } from './common/current-school-year.js';
 import { Databases } from './common/databases.js';
+import { AuditLogsController } from './audit-logs/audit-logs.controller.js';
 import { HealthController } from './health.controller.js';
+import { settingsTransitionStep } from './settings/settings-transition.js';
+import { SettingsController } from './settings/settings.controller.js';
+import { SettingsService } from './settings/settings.service.js';
 import { OrganizationScopes } from './organization/organization-scopes.js';
 import { orgUnitsTransitionStep } from './organization/org-units-transition.js';
 import { OrgUnitsController } from './organization/org-units.controller.js';
@@ -31,6 +35,8 @@ export class ApplicationModule {
         HealthController,
         AcademicYearsController,
         OrgUnitsController,
+        SettingsController,
+        AuditLogsController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -42,12 +48,13 @@ export class ApplicationModule {
         // Các phân hệ thêm bước chuyển năm học vào danh sách này khi được xây dựng (BR-93)
         {
           provide: ACADEMIC_YEAR_TRANSITION_STEPS,
-          useValue: [orgUnitsTransitionStep, ...(options.transitionSteps ?? [])],
+          useValue: [orgUnitsTransitionStep, settingsTransitionStep, ...(options.transitionSteps ?? [])],
         },
         AcademicYearsService,
         CurrentSchoolYearResolver,
         OrganizationScopes,
         OrgUnitsService,
+        SettingsService,
       ],
     };
   }

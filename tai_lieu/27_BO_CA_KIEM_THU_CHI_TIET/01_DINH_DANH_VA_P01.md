@@ -1,7 +1,7 @@
 # 27.1. BỘ CA KIỂM THỬ CHI TIẾT — DỊCH VỤ ĐỊNH DANH VÀ P01
 
 - Mô tả: Ca kiểm thử chi tiết cho dịch vụ định danh (Q-125, Q-126) và các chức năng giai đoạn 1 của phân hệ P01 Nền tảng, đơn vị và phân quyền (việc N21, Q-105).
-- Phiên bản: 1.10
+- Phiên bản: 1.12
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -60,7 +60,7 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 | CTC-DD-003 | P19-06 | XT-01, BM-29 | LT-02 | Cao | Tài khoản NS-A | Đăng nhập với mật khẩu sai | Trả `ERR_UNAUTHENTICATED`, không cấp phiên; phản hồi không chứa thông tin nội bộ | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-DD-004 | P19-06 | XT-05, BM-04, BM-36, CT-006, YCTD-35 | LT-02 | Cao | Tài khoản NS-A, đếm sai bằng 0 | Đăng nhập sai 5 lần liên tiếp, rồi đăng nhập đúng; sau 15 phút đăng nhập đúng lần nữa | Lần đúng đầu tiên bị từ chối vì tài khoản tạm khóa, thông báo thử lại sau 15 phút; sau 15 phút đăng nhập thành công; nhật ký bảo mật ghi 5 lần sai theo tài khoản và địa chỉ mạng | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-DD-005 | P19-06 | BR-05 | LT-02 | Cao | Hợp đồng của NS-A đã chấm dứt, tài khoản đã khóa | Đăng nhập bằng thông tin đúng | Bị từ chối; tài khoản vẫn tồn tại, lịch sử thao tác còn nguyên | | Chưa chạy |
-| CTC-DD-006 | P19-06 | PQ-07, BM-09 | LT-02 | Trung bình | Tài khoản GV-A1 không đăng nhập 91 ngày | Đăng nhập bằng thông tin đúng | Bị từ chối, tài khoản ở trạng thái tạm khóa, cần kích hoạt lại | | Chưa chạy |
+| CTC-DD-006 | P19-06 | PQ-07, BM-09 | LT-02 | Trung bình | Tài khoản GV-A1 không đăng nhập 91 ngày | Đăng nhập bằng thông tin đúng | Bị từ chối, tài khoản ở trạng thái tạm khóa, cần kích hoạt lại | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-DD-007 | P19-06 | AC-209, BM-68, CT-165 | LT-02 | Cao | KTV có ngày hết hiệu lực là hôm qua | Đăng nhập bằng thông tin đúng | Bị từ chối; tài khoản ở trạng thái khóa | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-DD-008 | P19-06 | KT-07, BM-26 | LT-02 | Trung bình | Không | Gửi liên tục yêu cầu đăng nhập vượt giới hạn tần suất | Trả `ERR_RATE_LIMIT` kèm thời gian chờ | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-DD-009 | P19-06 | XT-04, BM-02 | LT-05 | Cao | Hai tài khoản đặt cùng một mật khẩu | Đọc bảng `users` trong cơ sở dữ liệu định danh | Không có mật khẩu bản rõ; hai giá trị băm khác nhau vì có muối; thuật toán là thuật toán băm mật khẩu chuyên dụng | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
@@ -212,22 +212,22 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
-| CTC-P01-044 | P01-08 | P01-08 | LT-02 | Trung bình | PH-A chưa cấu hình | Đọc cấu hình của PH-A | Ngày chốt học phí và ngày chốt công là ngày cuối tháng; mốc nhắc nợ 3, 7, 15 ngày | | Chưa chạy |
-| CTC-P01-045 | P01-08 | AC-06 | LT-02 | Cao | Không | QL-A đặt ngày chốt học phí của PH-A là ngày 25; KT-A đọc cấu hình | KT-A thấy ngày 25 | | Chưa chạy |
-| CTC-P01-046 | P01-08 | P01-08, PQ-03 | LT-04 | Cao | QL-A | Ghi cấu hình của PH-B | Trả `ERR_FORBIDDEN` | | Chưa chạy |
-| CTC-P01-047 | P01-08 | P01-08 | LT-04 | Trung bình | KT-A | Ghi cấu hình của PH-A | Trả `ERR_FORBIDDEN` | | Chưa chạy |
-| CTC-P01-048 | P01-08 | BR-34 | LT-02 | Cao | Cấu hình của PH-A | Tìm cách tắt kiểm tra số dư quỹ tiền mặt | Không có tham số này; số dư quỹ tiền mặt luôn được kiểm tra | | Chưa chạy |
+| CTC-P01-044 | P01-08 | P01-08, YCTD-41 | LT-02 | Trung bình | PH-A chưa cấu hình | Đọc cấu hình của PH-A | Ngày chốt học phí là mùng 1 tháng sau; không có mục ngày chốt công vì cố định mùng 1 tháng sau; mốc nhắc nợ 3, 7, 15 ngày | Kiểm thử tự động `apps/api/src/settings/settings.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-P01-045 | P01-08 | AC-06 | LT-02 | Cao | Không | QL-A đặt ngày chốt học phí của PH-A là ngày 25; KT-A đọc cấu hình | KT-A thấy ngày 25 | Kiểm thử tự động `apps/api/src/settings/settings.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-P01-046 | P01-08 | P01-08, PQ-03 | LT-04 | Cao | QL-A | Ghi cấu hình của PH-B | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/settings/settings.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-P01-047 | P01-08 | P01-08 | LT-04 | Trung bình | KT-A | Ghi cấu hình của PH-A | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/settings/settings.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-P01-048 | P01-08 | BR-34 | LT-02 | Cao | Cấu hình của PH-A | Tìm cách tắt kiểm tra số dư quỹ tiền mặt | Không có tham số này; số dư quỹ tiền mặt luôn được kiểm tra | Kiểm thử tự động `apps/api/src/settings/settings.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-P01-049 | P01-08 | BR-34; chạy khi có P06-06 ở giai đoạn 2 | LT-02 | Thấp | Tài khoản ngân hàng của PH-A có số dư 1 000 000 | Tắt kiểm tra số dư tài khoản ngân hàng; lập phiếu chi 2 000 000 từ tài khoản ngân hàng; bật lại và lập lại | Khi tắt thì không bị chặn vì số dư; khi bật thì bị chặn | | Chưa chạy |
 | CTC-P01-050 | P01-08 | BR-04, CT-011 | LT-02 | Trung bình | QL-A đặt sĩ số tối đa của PH-A là 20; một lớp đang có 20 trẻ | Phân thêm trẻ thứ 21 vào lớp | Hệ thống cảnh báo và yêu cầu quản lý đơn vị xác nhận | | Chưa chạy |
-| CTC-P01-051 | P01-08 | PCF-05 | LT-05 | Trung bình | Không | Sau CTC-P01-045 mở nhật ký thao tác | Có bản ghi đổi ngày chốt kèm giá trị trước và sau | | Chưa chạy |
+| CTC-P01-051 | P01-08 | PCF-05 | LT-05 | Trung bình | Không | Sau CTC-P01-045 mở nhật ký thao tác | Có bản ghi đổi ngày chốt kèm giá trị trước và sau | Kiểm thử tự động `apps/api/src/settings/settings.test.ts` đạt ngày 09/10/2026 | Đạt |
 
 ### 4.8. P01-09 Nhật ký thao tác và nhật ký truy cập
 
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
 | CTC-P01-052 | P01-09 | BR-35 | LT-05 | Cao | Một hóa đơn đã phát hành | Lập phiếu điều chỉnh hóa đơn; tra nhật ký theo đối tượng | Có bản ghi người thực hiện, thời điểm, giá trị trước và sau | | Chưa chạy |
-| CTC-P01-053 | P01-09 | P01-09, PQ-03 | LT-04 | Cao | QL-A | Gọi `GET /api/v1/audit-logs` không lọc | Chỉ trả nhật ký của PH-A và các đơn vị trực thuộc | | Chưa chạy |
-| CTC-P01-054 | P01-09 | P01-09 | LT-04 | Cao | GV-A1 | Gọi `GET /api/v1/audit-logs` | Trả `ERR_FORBIDDEN` | | Chưa chạy |
+| CTC-P01-053 | P01-09 | P01-09, PQ-03 | LT-04 | Cao | QL-A | Gọi `GET /api/v1/audit-logs` không lọc | Chỉ trả nhật ký của PH-A (QĐ-23) | Kiểm thử tự động `apps/api/src/settings/settings.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-P01-054 | P01-09 | P01-09 | LT-04 | Cao | GV-A1 | Gọi `GET /api/v1/audit-logs` | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/settings/settings.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-P01-055 | P01-09 | BR-73 | LT-05 | Cao | PH-A bật ghi nhật ký truy cập | KT-A đọc chi tiết tài chính của một trẻ; tra `GET /api/v1/data-access-logs` | Có bản ghi người đọc, thời điểm, đối tượng | | Chưa chạy |
 | CTC-P01-056 | P01-09 | BR-73 | LT-05 | Trung bình | PH-A tắt ghi nhật ký truy cập | Lặp lại CTC-P01-055 | Không có bản ghi mới cho lần đọc này | | Chưa chạy |
 | CTC-P01-057 | P01-09 | BR-73, BR-81, AC-193 | LT-05 | Cao | PH-A tắt ghi nhật ký truy cập | QL-A xem đầy đủ số định danh cá nhân của một trẻ | Vẫn có bản ghi vì trường hợp này luôn ghi, không tắt được | | Chưa chạy |

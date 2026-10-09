@@ -3,6 +3,8 @@ import { AccountsController, RolesController } from './accounts/accounts.control
 import { AccountsService } from './accounts/accounts.service.js';
 import { ApiOrganizationDirectory, OrganizationDirectory } from './accounts/organization-directory.js';
 import { RolesService } from './accounts/roles.service.js';
+import { IdentitySettingsController } from './settings/identity-settings.controller.js';
+import { IdentitySettingsService } from './settings/identity-settings.service.js';
 import { AccessTokenGuard } from './authentication/access-token.guard.js';
 import { AuthenticationController } from './authentication/authentication.controller.js';
 import { AuthenticationService } from './authentication/authentication.service.js';
@@ -22,7 +24,13 @@ export class ApplicationModule {
   ): DynamicModule {
     return {
       module: ApplicationModule,
-      controllers: [HealthController, AuthenticationController, AccountsController, RolesController],
+      controllers: [
+        HealthController,
+        AuthenticationController,
+        IdentitySettingsController,
+        AccountsController,
+        RolesController,
+      ],
       providers: [
         { provide: IDENTITY_CONFIGURATION, useValue: configuration },
         { provide: Clock, useValue: clock },
@@ -36,6 +44,7 @@ export class ApplicationModule {
           : { provide: OrganizationDirectory, useClass: ApiOrganizationDirectory },
         AccountsService,
         RolesService,
+        IdentitySettingsService,
       ],
     };
   }
