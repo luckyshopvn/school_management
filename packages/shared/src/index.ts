@@ -19,6 +19,7 @@ export const PERMISSION_CODES = {
   accountManageInUnit: 'P01.account.manage-in-unit',
   academicYearManage: 'P01.academic-year.manage',
   orgUnitManage: 'P01.org-unit.manage',
+  settingManage: 'P01.setting.manage',
 } as const;
 
 // Vai trò không gắn đơn vị, phạm vi toàn trường (PQ-03)

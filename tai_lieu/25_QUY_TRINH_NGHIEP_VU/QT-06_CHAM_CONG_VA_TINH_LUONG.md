@@ -3,7 +3,7 @@
 | Mục | Giá trị |
 |-----|---------|
 | Dự án | School Management - Hệ thống quản lý trường mầm non |
-| Phiên bản | 1.5 - 2026-10-09 |
+| Phiên bản | 1.6 - 2026-10-09 |
 | Trạng thái | Đã phê duyệt |
 | Người phê duyệt | Eric, ngày 2026-10-09 |
 | Người yêu cầu | Eric |
@@ -12,7 +12,7 @@
 
 ## 1. Tóm tắt
 
-Nhân sự ghi nhận chấm công hằng ngày, nhân sự gửi đơn xin nghỉ phép và quản lý trực tiếp duyệt. Cuối tháng, nhân sự chốt bảng công. Đầu tháng M, kế toán tính bảng lương trả trước của tháng M gồm lương hợp đồng, phụ cấp cố định, thưởng, khấu trừ cố định, cộng trừ phần điều chỉnh theo bảng công đã chốt của tháng M−1 (ngày không hưởng lương, tiền làm thêm giờ, phụ cấp và khấu trừ theo ngày công). Lương trả một lần mỗi tháng, không đợi chốt công của tháng đó; nhà trường không cho ứng lương. Nhân sự nghỉ việc được lập bảng quyết toán cuối cùng (YCTD-29).
+Nhân sự ghi nhận chấm công hằng ngày, nhân sự gửi đơn xin nghỉ phép và quản lý trực tiếp duyệt. Ngày mùng 1 tháng sau, nhân sự chốt bảng công của tháng trước; ngày chốt công cố định, không cấu hình (YCTD-41). Đầu tháng M, kế toán tính bảng lương trả trước của tháng M gồm lương hợp đồng, phụ cấp cố định, thưởng, khấu trừ cố định, cộng trừ phần điều chỉnh theo bảng công đã chốt của tháng M−1 (ngày không hưởng lương, tiền làm thêm giờ, phụ cấp và khấu trừ theo ngày công). Lương trả một lần mỗi tháng, không đợi chốt công của tháng đó; nhà trường không cho ứng lương. Nhân sự nghỉ việc được lập bảng quyết toán cuối cùng (YCTD-29).
 
 ## 2. Tác nhân và quyền
 

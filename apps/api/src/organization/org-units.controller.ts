@@ -6,7 +6,8 @@ import type { Request } from 'express';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
-import { OrgUnitsService, type ChangeOrigin, type OrgUnitChanges, type OrgUnitInput } from './org-units.service.js';
+import { originOf } from '../common/audit-log.js';
+import { OrgUnitsService, type OrgUnitChanges, type OrgUnitInput } from './org-units.service.js';
 
 type RequestBody = Record<string, unknown> | undefined;
 
@@ -56,10 +57,6 @@ function readUnitType(value: unknown, errors: FieldError[]): OrgUnitType | undef
     return undefined;
   }
   return value as OrgUnitType;
-}
-
-function originOf(request: Request, currentUser: CurrentUser): ChangeOrigin {
-  return { actorUserId: currentUser.id, ipAddress: request.ip ?? null };
 }
 
 // Cây đơn vị hai cấp (P01-01); mọi người đã đăng nhập xem được, chỉ VT-02 sửa được (PQ-12)

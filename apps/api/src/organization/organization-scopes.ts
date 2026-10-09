@@ -9,7 +9,31 @@ export class OrganizationScopes {
   constructor(private readonly currentSchoolYear: CurrentSchoolYearResolver) {}
 
   async resolve(currentUser: CurrentUser, permissionCode: string): Promise<OrganizationScope> {
-    const assigned = currentUser.organizationScope(permissionCode);
+    return this.widenAtRoot(currentUser.organizationScope(permissionCode));
+  }
+
+  // Phạm vi theo mọi vai trò của người dùng, dùng cho dữ liệu ai trong đơn vị cũng được xem như cấu hình
+  async resolveAnyRole(currentUser: CurrentUser): Promise<OrganizationScope> {
+    const assignments = currentUser.description.assignments;
+    if (assignments.some((assignment) => assignment.org_unit_id === null)) {
+      return { wholeSchool: true, orgUnitIds: [] };
+    }
+    return this.widenAtRoot({
+      wholeSchool: false,
+      orgUnitIds: [
+        ...new Set(assignments.map((assignment) => assignment.org_unit_id).filter((id): id is string => id !== null)),
+      ],
+    });
+  }
+
+  async assertCanAccessAnyRole(currentUser: CurrentUser, orgUnitId: string): Promise<void> {
+    const scope = await this.resolveAnyRole(currentUser);
+    if (!scope.wholeSchool && !scope.orgUnitIds.includes(orgUnitId)) {
+      throw new ApplicationError('ERR_FORBIDDEN', 'Đơn vị này nằm ngoài phạm vi của bạn');
+    }
+  }
+
+  private async widenAtRoot(assigned: OrganizationScope): Promise<OrganizationScope> {
     if (assigned.wholeSchool || assigned.orgUnitIds.length === 0) {
       return assigned;
     }

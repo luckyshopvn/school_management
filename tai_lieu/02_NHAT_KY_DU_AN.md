@@ -14,6 +14,66 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-09 — Ngày chốt học phí và chốt công
+
+#### Công việc đã thực hiện
+
+- Eric cho biết ngày chốt học phí là mùng 1 tháng sau; hỏi lại hai điểm và sửa tài liệu, mã nguồn phần 6a.
+
+#### Quyết định
+
+- Chốt học phí mặc định mùng 1 tháng sau, vẫn cấu hình được; chốt công cố định mùng 1 tháng sau (YCTD-41) – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-41 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.27.6.
+
+#### Vấn đề tồn đọng
+
+- Chưa commit, chờ Eric đồng ý.
+
+### 2026-10-09 — DT-01 phần 6a: cấu hình và nhật ký thao tác
+
+#### Công việc đã thực hiện
+
+- Eric duyệt thiết kế phần 6a. Viết trên nhánh `dt-01-phan-6a`.
+- Cơ sở dữ liệu: năm học có `settings` và cột `audit_logs.actor_name`; định danh có `identity_settings`, cột `identity_audit_logs.actor_name`, quyền `P01.setting.manage` cho VT-02, VT-03.
+- Máy chủ API: danh mục mười mục cấu hình, kế thừa đơn vị, Trường chính, mặc định; ghi nhật ký; chuyển cấu hình khi mở năm học; tra nhật ký thao tác theo phạm vi đơn vị.
+- Dịch vụ định danh: số ngày tự khóa đọc, sửa trên cổng; khóa tài khoản lâu không đăng nhập ở lần đăng nhập kế tiếp; tra nhật ký tài khoản và quyền.
+- Cổng quản trị: màn hình Cấu hình và MH-31 Nhật ký thao tác, nhật ký chỉ hiện các trường thay đổi.
+- Kết quả: máy chủ API 64/64 (gồm CTC-P01-044 đến 048, 051, 053, 054), dịch vụ định danh 21/21 (gồm CTC-DD-006), cơ sở dữ liệu 3/3, tiến trình chạy nền 1/1, kiểm thử giao diện 12/12.
+
+#### Quyết định
+
+- Không có quyết định mới ngoài YCTD-40.
+
+#### Thay đổi
+
+- `17` ghi giao kèo cấu hình và nhật ký; xem `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.27.5.
+
+#### Vấn đề tồn đọng
+
+- CTC-P01-049, 050, 052, 055 đến 058 cần dữ liệu tài chính, lớp, hóa đơn và nhật ký truy cập ở các đợt sau.
+- Chưa commit, chờ Eric đồng ý.
+
+### 2026-10-09 — Thiết kế DT-01 phần 6a: cấu hình và nhật ký
+
+#### Công việc đã thực hiện
+
+- Trình thiết kế phần 6a và bốn câu hỏi về cấu hình.
+
+#### Quyết định
+
+- Cấu hình chưa có mặc định trong tài liệu để trống, bắt buộc cấu hình; kế thừa từ Trường chính; VT-02, VT-03 sửa cấu hình; số ngày tự khóa mặc định 90, Hiệu trưởng sửa trên cổng (YCTD-40) – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-40 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.27.4.
+
+#### Vấn đề tồn đọng
+
+- Chờ Eric duyệt thiết kế phần 6a.
+
 ### 2026-10-09 — DT-01 phần 5: tài khoản, vai trò, quyền
 
 #### Công việc đã thực hiện

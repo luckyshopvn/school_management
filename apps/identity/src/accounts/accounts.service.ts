@@ -162,6 +162,58 @@ export class AccountsService {
     };
   }
 
+  // Nhật ký tài khoản và quyền chỉ VT-01, VT-02 xem (P01-09, YCTD-40)
+  async listAuditLogs(
+    caller: CallerContext,
+    query: {
+      entity_id?: string;
+      actor_user_id?: string;
+      from_date?: string;
+      to_date?: string;
+      page: number;
+      page_size: number;
+    },
+  ) {
+    const { authority } = await this.authority(caller);
+    if (!authority.manageAll) {
+      throw forbidden('Chỉ Hiệu trưởng và quản trị nền tảng xem được nhật ký tài khoản và quyền');
+    }
+    let selection = this.database.selectFrom('identity_audit_logs');
+    if (query.entity_id) {
+      selection = selection.where('entity_id', '=', query.entity_id);
+    }
+    if (query.actor_user_id) {
+      selection = selection.where('actor_user_id', '=', query.actor_user_id);
+    }
+    if (query.from_date) {
+      selection = selection.where('created_at', '>=', new Date(`${query.from_date}T00:00:00+07:00`));
+    }
+    if (query.to_date) {
+      selection = selection.where(
+        'created_at',
+        '<',
+        new Date(new Date(`${query.to_date}T00:00:00+07:00`).getTime() + 86_400_000),
+      );
+    }
+    const total = Number(
+      (await selection.select((expression) => expression.fn.countAll<string>().as('count')).executeTakeFirstOrThrow())
+        .count,
+    );
+    const items = await selection
+      .selectAll()
+      .orderBy('created_at', 'desc')
+      .limit(query.page_size)
+      .offset((query.page - 1) * query.page_size)
+      .execute();
+    return {
+      items,
+      page: query.page,
+      page_size: query.page_size,
+      total,
+      total_pages: Math.max(1, Math.ceil(total / query.page_size)),
+    };
+  }
+
   async get(caller: CallerContext, userId: string): Promise<AccountView> {
     const { authority } = await this.authority(caller);
     const { view, assignments } = await this.findAccount(userId);

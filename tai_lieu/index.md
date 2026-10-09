@@ -33,7 +33,7 @@
 | 21 | [21_KICH_BAN_KIEM_THU.md](21_KICH_BAN_KIEM_THU.md) | Kịch bản kiểm thử | CT-001 đến CT-188 | 10 Kiểm thử | Đã phê duyệt |
 | 22 | [22_BAO_MAT.md](22_BAO_MAT.md) | Bảo mật | BM-01 đến BM-70 | 10 Kiểm thử | Đã phê duyệt |
 | 23 | [23_LICH_SU_PHIEN_BAN.md](23_LICH_SU_PHIEN_BAN.md) | Lịch sử phiên bản | Các phiên bản từ 0.1.0 | 11 Nghiệm thu và phát hành | Đang cập nhật |
-| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-39, đánh giá ảnh hưởng | 12 Vận hành và cải tiến | Đang cập nhật |
+| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-41, đánh giá ảnh hưởng | 12 Vận hành và cải tiến | Đang cập nhật |
 | 25 | [25_QUY_TRINH_NGHIEP_VU/](25_QUY_TRINH_NGHIEP_VU/) | Quy trình nghiệp vụ | Mười đặc tả QT-01 đến QT-10 và phiếu yêu cầu trống | 03 Phân tích nghiệp vụ | Đã phê duyệt |
 | 26 | [26_SO_DO_CHUC_NANG/](26_SO_DO_CHUC_NANG/) | Sơ đồ chức năng gốc | Tám ảnh sơ đồ chức năng do Eric gửi, nguồn đầu vào của bộ tài liệu | 01 Xác định ý tưởng | Tài liệu nguồn |
 | 27 | [27_BO_CA_KIEM_THU_CHI_TIET/](27_BO_CA_KIEM_THU_CHI_TIET/) | Bộ ca kiểm thử chi tiết | Ca kiểm thử chi tiết theo việc N21, mã CTC-..., năm đợt, 453 ca, 6 ca không áp dụng | 10 Kiểm thử | Đã phê duyệt |
@@ -84,7 +84,7 @@ Mã quy trình dạng `QT-nn`, đánh số tăng dần, không tái sử dụng 
 | Cổng kiểm soát chất lượng | 12 | Từ CG-01 đến CG-12, xem `01_KE_HOACH_TONG_THE.md` |
 | Đợt xây dựng | 12 | Từ DT-00 đến DT-11, xem `01_KE_HOACH_TONG_THE.md` |
 | Rủi ro đã ghi nhận | 14 | Từ RR-01 đến RR-14, xem `01_KE_HOACH_TONG_THE.md` |
-| Yêu cầu thay đổi | 39 | Từ YCTD-01 đến YCTD-39, xem `24_YEU_CAU_THAY_DOI.md` |
+| Yêu cầu thay đổi | 41 | Từ YCTD-01 đến YCTD-41, xem `24_YEU_CAU_THAY_DOI.md` |
 
 ## Quyết định đã chốt
 
@@ -100,7 +100,7 @@ Mã quy trình dạng `QT-nn`, đánh số tăng dần, không tái sử dụng 
 | 2026-10-09 | Hiệu trưởng và kế toán trưởng cùng nghiệm thu; quản lý đơn vị không xem bảng lương | `01_KE_HOACH_TONG_THE.md` mục 7; `08_VAI_TRO_NGUOI_DUNG.md` ghi chú 9 |
 | 2026-10-09 | Hạ tầng đám mây trong nước; mã nguồn trên GitHub kèm tích hợp và triển khai tự động | `12_KIEN_TRUC_HE_THONG.md` QĐ-12, QĐ-13 |
 | 2026-10-09 | Ứng dụng phụ huynh và giáo viên dạng web ở giai đoạn 1; phụ huynh đăng nhập bằng mật khẩu hoặc mã một lần | `12_KIEN_TRUC_HE_THONG.md` QĐ-04, XT-01, XT-09 |
-| 2026-10-09 | Điểm danh một lần mỗi ngày; chốt công và học phí mặc định ngày cuối tháng; chặn đăng ký dịch vụ khi nợ quá hạn cấu hình theo đơn vị | `07_QUY_TAC_NGHIEP_VU.md` BR-12, BR-33; `10_YEU_CAU_CHUC_NANG.md` P01-08 |
+| 2026-10-09 | Điểm danh một lần mỗi ngày; chốt công và học phí mặc định ngày cuối tháng, đã thay bằng mùng 1 tháng sau (YCTD-41); chặn đăng ký dịch vụ khi nợ quá hạn cấu hình theo đơn vị | `07_QUY_TAC_NGHIEP_VU.md` BR-12, BR-33; `10_YEU_CAU_CHUC_NANG.md` P01-08 |
 | 2026-10-09 | Phương án lưu trữ A: một cơ sở dữ liệu, tách bằng cột `org_unit_id` | `12_KIEN_TRUC_HE_THONG.md` QĐ-02 |
 | 2026-10-09 | Bộ công nghệ TypeScript, NestJS, React kèm Vite, PostgreSQL, Redis, Docker | `12_KIEN_TRUC_HE_THONG.md` QĐ-11 |
 | 2026-10-09 | Học phí giữa tháng tính theo ngày học thực tế; tiền ăn tính theo ngày ăn thực tế; biểu phí dùng chung toàn trường | `07_QUY_TAC_NGHIEP_VU.md` BR-14, BR-17, BR-23 |

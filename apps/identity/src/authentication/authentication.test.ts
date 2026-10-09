@@ -114,6 +114,24 @@ describe('Dịch vụ định danh: đăng nhập và phiên', () => {
     assert.equal(unlocked.status, 200);
   });
 
+  it('CTC-DD-006: không đăng nhập 91 ngày thì bị từ chối và tài khoản chuyển sang tạm khóa (PQ-07)', async () => {
+    const teacher = await createTestUser(context.database, { roles: [{ roleCode: 'VT-07', orgUnitId: branchA }] });
+    await context.database
+      .updateTable('users')
+      .set({ last_login_at: new Date(context.clock.now().getTime() - 91 * 24 * 60 * 60 * 1000) })
+      .where('id', '=', teacher.id)
+      .execute();
+    const response = await login(context, teacher.phone, teacher.password);
+    assert.equal(response.status, 401);
+    assert.match(String((response.body.error as Record<string, unknown>).message), /không đăng nhập quá 90 ngày/);
+    const user = await context.database
+      .selectFrom('users')
+      .select('status')
+      .where('id', '=', teacher.id)
+      .executeTakeFirstOrThrow();
+    assert.equal(user.status, 'locked');
+  });
+
   it('CTC-DD-007: tài khoản có ngày hết hiệu lực là hôm qua bị từ chối và chuyển sang khóa', async () => {
     const yesterday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(
       new Date(context.clock.now().getTime() - 24 * 60 * 60 * 1000),
