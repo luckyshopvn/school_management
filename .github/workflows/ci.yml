@@ -1,0 +1,55 @@
+# Tích hợp liên tục: chỉ kiểm tra và kiểm thử, chưa triển khai (YCTD-32)
+name: Kiem thu
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  kiem-thu:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_PASSWORD: ci_quan_tri
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPASSWORD: ci_quan_tri
+      POSTGRES_USER: postgres
+      IDENTITY_DATABASE_PASSWORD: ci_dinh_danh
+      API_DATABASE_PASSWORD: ci_may_chu_api
+      IDENTITY_DATABASE_URL: postgres://identity_service:ci_dinh_danh@localhost:5432/school_identity
+      SYSTEM_DATABASE_URL: postgres://api_service:ci_may_chu_api@localhost:5432/school_system
+      SCHOOL_YEAR_DATABASE_URL: postgres://api_service:ci_may_chu_api@localhost:5432/school_year_2026_2027
+      REDIS_URL: redis://localhost:6379
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: sh docker/postgres/create-databases.sh
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm build
+      - run: pnpm typecheck
+      - run: pnpm database:migrate
+      - run: pnpm test
