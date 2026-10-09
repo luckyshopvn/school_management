@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 
-// MH-32 Cây đơn vị hai cấp (P01-01, QĐ-23). Chạy sau academic-years.spec.ts, khi năm học 2026–2027 đang dùng.
+// MH-32 Cây đơn vị hai cấp (P01-01, QĐ-23). Chạy sau 02-academic-years.spec.ts, khi năm học 2026–2027 đang dùng.
 const database = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 
 test.afterAll(async () => {

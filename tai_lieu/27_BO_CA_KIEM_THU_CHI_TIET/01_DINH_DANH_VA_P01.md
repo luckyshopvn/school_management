@@ -1,7 +1,7 @@
 # 27.1. BỘ CA KIỂM THỬ CHI TIẾT — DỊCH VỤ ĐỊNH DANH VÀ P01
 
 - Mô tả: Ca kiểm thử chi tiết cho dịch vụ định danh (Q-125, Q-126) và các chức năng giai đoạn 1 của phân hệ P01 Nền tảng, đơn vị và phân quyền (việc N21, Q-105).
-- Phiên bản: 1.9
+- Phiên bản: 1.10
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -111,7 +111,7 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 | CTC-DD-032 | P19-06 | XT-02, Q-120 | LT-02 | Cao | NS-A đăng nhập trên cổng quản trị | Làm mới bằng mã làm mới sau 8 giờ 1 phút | Bị từ chối, phải đăng nhập lại | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-DD-033 | P19-06 | XT-02, Q-120 | LT-02 | Trung bình | GV-A1 và PH-1 đăng nhập trên ứng dụng | Làm mới sau 29 ngày; làm mới sau 30 ngày 1 phút | Lần đầu thành công; lần sau bị từ chối | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-DD-034 | P19-06 | BM-05 | LT-02 | Cao | NS-A đang có phiên | Gọi `POST /api/v1/auth/logout`, rồi làm mới bằng mã làm mới cũ | Làm mới bị từ chối | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
-| CTC-DD-035 | P01-07 | AC-05, PQ-04, BM-14, BM-56, CT-005 | LT-04 | Cao | QL-A đang có phiên, đang có quyền duyệt hồ sơ trẻ | HT thu hồi vai trò VT-03 của QL-A; QL-A gửi ngay yêu cầu duyệt hồ sơ | Bị từ chối ngay, không chờ phiên hết hạn; mã làm mới cũ bị thu hồi | | Chưa chạy |
+| CTC-DD-035 | P01-07 | AC-05, PQ-04, BM-14, BM-56, CT-005 | LT-04 | Cao | QL-A đang có phiên, đang có quyền duyệt hồ sơ trẻ | HT thu hồi vai trò VT-03 của QL-A; QL-A gửi ngay yêu cầu duyệt hồ sơ | Bị từ chối ngay, không chờ phiên hết hạn; mã làm mới cũ bị thu hồi | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-DD-036 | P01-06 | PQ-04 | LT-04 | Cao | GV-A1 đang có phiên | HT khóa tài khoản GV-A1; GV-A1 gửi yêu cầu kế tiếp | Bị từ chối ngay | Kiểm thử tự động `apps/api/src/authentication/authentication.guard.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-DD-037 | P19-06 | XT-06, AC-146, BM-58, CT-102 | LT-02 | Cao | Không | Gửi yêu cầu thay đổi dữ liệu tới máy chủ API kèm mã phiên sửa chữ ký, và kèm mã phiên hợp lệ | Mã sửa chữ ký bị từ chối; mã hợp lệ được xử lý sau khi kiểm tra | Kiểm thử tự động `apps/api/src/authentication/authentication.guard.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-DD-038 | P19-06 | XT-08, BM-54 | LT-05 | Cao | Không | Rà cấu trúc cơ sở dữ liệu năm học, cơ sở dữ liệu hệ thống và mã nguồn máy chủ API | Không có cột mật khẩu, không có hàm xác thực mật khẩu ngoài dịch vụ định danh | | Chưa chạy |
@@ -120,8 +120,8 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
-| CTC-DD-039 | P01-06 | AC-147, CT-103 | LT-04 | Cao | GV-A1 | Gọi `PATCH /api/v1/users/{id}` của NS-A | Dịch vụ định danh trả `ERR_FORBIDDEN` | | Chưa chạy |
-| CTC-DD-040 | P01-06 | PQ-08 | LT-04 | Trung bình | PH-1 | Gọi điểm cuối cập nhật tài khoản để đổi số điện thoại đăng nhập của chính mình | Trả `ERR_FORBIDDEN`; số điện thoại không đổi | | Chưa chạy |
+| CTC-DD-039 | P01-06 | AC-147, CT-103 | LT-04 | Cao | GV-A1 | Gọi `PATCH /api/v1/users/{id}` của NS-A | Dịch vụ định danh trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-DD-040 | P01-06 | PQ-08 | LT-04 | Trung bình | PH-1 | Gọi điểm cuối cập nhật tài khoản để đổi số điện thoại đăng nhập của chính mình | Trả `ERR_FORBIDDEN`; số điện thoại không đổi | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-DD-041 | P01-06 | AC-04, CT-004 | LT-04 | Cao | QTNT | Gọi `GET /api/v1/children` và `GET /api/v1/invoices` | Không trả dữ liệu nghiệp vụ nào | | Chưa chạy |
 
 ## 4. Phân hệ P01
@@ -188,24 +188,24 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
-| CTC-P01-030 | P01-06 | P01-06 | LT-02 | Cao | Không | HT tạo tài khoản giáo viên với số điện thoại, vai trò VT-07, đơn vị ĐT-A1 | Tạo thành công; người dùng đăng nhập được | | Chưa chạy |
-| CTC-P01-031 | P01-06 | P01-06, PQ-03 | LT-02 | Cao | QL-A | Tạo tài khoản nhân viên thuộc ĐT-A1 | Tạo thành công vì QL-A được gán ở ĐT-A1 | | Chưa chạy |
-| CTC-P01-032 | P01-06 | PQ-03 | LT-04 | Cao | QL-A | Tạo tài khoản thuộc PH-B | Trả `ERR_FORBIDDEN` | | Chưa chạy |
-| CTC-P01-033 | P01-06 | KT-04 | LT-02 | Cao | Số điện thoại đã thuộc một tài khoản nhân sự | Tạo tài khoản nhân sự khác cùng số điện thoại | Trả `ERR_CONFLICT` | | Chưa chạy |
-| CTC-P01-034 | P01-06 | P01-06 | LT-02 | Cao | Tài khoản GV-A1 đang hoạt động | HT khóa rồi mở khóa | Khi khóa thì không đăng nhập được; khi mở khóa thì đăng nhập lại được; dữ liệu không mất | | Chưa chạy |
-| CTC-P01-035 | P01-06 | P01-06, AC-220, BM-07, Q-148, CT-176 | LT-02 | Cao | Tài khoản GV-A1 | HT gọi `POST /api/v1/users/{id}/reset-password`; GV-A1 đăng nhập bằng mật khẩu được cấp; GV-A1 gọi một điểm cuối nghiệp vụ; GV-A1 đổi mật khẩu rồi gọi lại | Mật khẩu cũ không dùng được; phiên bằng mật khẩu được cấp chỉ dùng được điểm cuối đổi mật khẩu; sau khi đổi thì dùng bình thường | | Chưa chạy |
+| CTC-P01-030 | P01-06 | P01-06 | LT-02 | Cao | Không | HT tạo tài khoản giáo viên với số điện thoại, vai trò VT-07, đơn vị ĐT-A1 | Tạo thành công; người dùng đăng nhập được | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-P01-031 | P01-06 | P01-06, PQ-03 | LT-02 | Cao | QL-A | Tạo tài khoản nhân viên thuộc ĐT-A1 | Tạo thành công vì QL-A được gán ở ĐT-A1 | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-P01-032 | P01-06 | PQ-03 | LT-04 | Cao | QL-A | Tạo tài khoản thuộc PH-B | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-P01-033 | P01-06 | KT-04 | LT-02 | Cao | Số điện thoại đã thuộc một tài khoản nhân sự | Tạo tài khoản nhân sự khác cùng số điện thoại | Trả `ERR_CONFLICT` | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-P01-034 | P01-06 | P01-06 | LT-02 | Cao | Tài khoản GV-A1 đang hoạt động | HT khóa rồi mở khóa | Khi khóa thì không đăng nhập được; khi mở khóa thì đăng nhập lại được; dữ liệu không mất | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-P01-035 | P01-06 | P01-06, AC-220, BM-07, Q-148, CT-176 | LT-02 | Cao | Tài khoản GV-A1 | HT gọi `POST /api/v1/users/{id}/reset-password`; GV-A1 đăng nhập bằng mật khẩu được cấp; GV-A1 gọi một điểm cuối nghiệp vụ; GV-A1 đổi mật khẩu rồi gọi lại | Mật khẩu cũ không dùng được; phiên bằng mật khẩu được cấp chỉ dùng được điểm cuối đổi mật khẩu; sau khi đổi thì dùng bình thường | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-P01-036 | P01-06 | BR-05 | LT-02 | Cao | NS-A có hợp đồng của GV-A1 | Chấm dứt hợp đồng của GV-A1 | Tài khoản GV-A1 bị khóa ngay; không bị xóa | | Chưa chạy |
-| CTC-P01-037 | P01-06 | PQ-05, PCF-05 | LT-05 | Trung bình | Không | Sau CTC-P01-034 mở nhật ký thao tác | Có bản ghi khóa và mở khóa kèm người thực hiện, thời điểm, trạng thái trước và sau | | Chưa chạy |
+| CTC-P01-037 | P01-06 | PQ-05, PCF-05 | LT-05 | Trung bình | Không | Sau CTC-P01-034 mở nhật ký thao tác | Có bản ghi khóa và mở khóa kèm người thực hiện, thời điểm, trạng thái trước và sau | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
 
 ### 4.6. P01-07 Vai trò và quyền
 
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
-| CTC-P01-038 | P01-07 | PQ-03 | LT-02 | Cao | Tài khoản mới chưa có vai trò | Gán VT-04 không chỉ định đơn vị | Trả `ERR_VALIDATION`; vai trò không được gán | | Chưa chạy |
-| CTC-P01-039 | P01-07 | PQ-03 | LT-02 | Cao | Tài khoản mới | Gán VT-04 kèm đơn vị PH-A | Gán thành công; phạm vi dữ liệu là PH-A và các đơn vị trực thuộc | | Chưa chạy |
+| CTC-P01-038 | P01-07 | PQ-03 | LT-02 | Cao | Tài khoản mới chưa có vai trò | Gán VT-04 không chỉ định đơn vị | Trả `ERR_VALIDATION`; vai trò không được gán | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-P01-039 | P01-07 | PQ-03 | LT-02 | Cao | Tài khoản mới | Gán VT-04 kèm đơn vị PH-A | Gán thành công; phạm vi dữ liệu là PH-A (QĐ-23) | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-P01-040 | P01-07 | PQ-02 | LT-04 | Cao | Tài khoản có VT-04 ở PH-A và VT-06 ở PH-A | Gọi điểm cuối của kế toán và điểm cuối của nhân sự | Cả hai được phép vì quyền là hợp của các vai trò | | Chưa chạy |
-| CTC-P01-041 | P01-07 | PQ-01, PQ-05 | LT-05 | Cao | Vai trò VT-04 | HT thêm một quyền vào VT-04 qua `PUT /api/v1/roles/{id}/permissions`; mở nhật ký | Mọi tài khoản VT-04 có quyền mới ở yêu cầu kế tiếp; nhật ký ghi danh sách quyền trước và sau | | Chưa chạy |
-| CTC-P01-042 | P01-07 | P01-07 | LT-04 | Cao | QL-A | Gọi `POST /api/v1/users/{id}/roles` | Trả `ERR_FORBIDDEN` | | Chưa chạy |
+| CTC-P01-041 | P01-07 | PQ-01, PQ-05 | LT-05 | Cao | Vai trò VT-04 | HT thêm một quyền vào VT-04 qua `PUT /api/v1/roles/{id}/permissions`; mở nhật ký | Mọi tài khoản VT-04 có quyền mới ở yêu cầu kế tiếp; nhật ký ghi danh sách quyền trước và sau | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-P01-042 | P01-07 | P01-07 | LT-04 | Cao | QL-A | Gọi `POST /api/v1/users/{id}/roles` | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-P01-043 | P01-07 | AC-02, CT-002 | LT-04 | Cao | KT-A | Gọi trực tiếp điểm cuối cập nhật hồ sơ trẻ của PH-A | Trả `ERR_FORBIDDEN` | | Chưa chạy |
 
 ### 4.7. P01-08 Cấu hình tham số theo đơn vị

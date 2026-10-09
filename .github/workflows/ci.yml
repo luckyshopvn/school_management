@@ -38,6 +38,7 @@ jobs:
       SYSTEM_DATABASE_URL: postgres://api_service:ci_may_chu_api@localhost:5432/school_system
       REDIS_URL: redis://localhost:6379
       IDENTITY_BASE_URL: http://localhost:3001
+      API_BASE_URL: http://localhost:3000
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

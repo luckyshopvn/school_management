@@ -55,6 +55,8 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.2.0 | Bốn thay đổi: Ban Giám hiệu, nhiều cấp đơn vị, tách giao diện và máy chủ, dịch vụ định danh | 01 đến 07 | Đã có |
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
+| 0.27.3 | DT-01 phần 5: tài khoản, vai trò, quyền | 09 | Đã có |
+| 0.27.2 | Phân quyền quản lý tài khoản, mật khẩu tạm, nhật ký của dịch vụ định danh (YCTD-39) | 01 đến 08 | Đã có |
 | 0.27.1 | DT-01 phần 4: cây đơn vị hai cấp, nhật ký thao tác | 09 | Đã có |
 | 0.27.0 | Cây đơn vị hai cấp, nhãn cố định (YCTD-38) | 01 đến 08 | Đã có |
 | 0.26.6 | DT-01 phần 3: năm học, lịch năm học, mở năm học | 09 | Đã có |

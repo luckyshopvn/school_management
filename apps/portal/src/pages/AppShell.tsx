@@ -3,12 +3,18 @@ import { Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@school-management/ui';
 import { fetchCurrentUser } from '../session/api-client.js';
+import { PERMISSION_CODES } from '@school-management/shared';
+import { useHasPermission } from '../session/permissions.js';
 import { useSession } from '../session/session.js';
 
 // Khung trang của cổng quản trị: điều hướng dọc bên trái rộng 240 điểm ảnh (BC-01, KC-08)
 export function AppShell({ children }: { children: ReactNode }) {
   const session = useSession();
   const currentUser = useQuery({ queryKey: ['current-user'], queryFn: fetchCurrentUser });
+  // Chỉ hiện mục người dùng có quyền; máy chủ vẫn kiểm tra quyền ở mọi yêu cầu
+  const canManageAllAccounts = useHasPermission(PERMISSION_CODES.accountManage);
+  const canManageAccountsInUnit = useHasPermission(PERMISSION_CODES.accountManageInUnit);
+  const canSeeAccounts = canManageAllAccounts || canManageAccountsInUnit;
 
   return (
     <div className="flex min-h-screen">
@@ -48,6 +54,28 @@ export function AppShell({ children }: { children: ReactNode }) {
               Cây đơn vị
             </Link>
           </li>
+          {canSeeAccounts ? (
+            <>
+              <li>
+                <Link
+                  to="/accounts"
+                  className="block rounded-lg px-3 py-2 text-label font-medium text-text hover:bg-selected"
+                  activeProps={{ className: 'bg-selected' }}
+                >
+                  Tài khoản
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/roles"
+                  className="block rounded-lg px-3 py-2 text-label font-medium text-text hover:bg-selected"
+                  activeProps={{ className: 'bg-selected' }}
+                >
+                  Vai trò và quyền
+                </Link>
+              </li>
+            </>
+          ) : null}
         </ul>
       </nav>
       <div className="flex min-w-0 flex-1 flex-col">

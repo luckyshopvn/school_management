@@ -291,7 +291,7 @@ describe('Dịch vụ định danh: giới hạn tần suất đăng nhập', ()
   let context: TestContext;
 
   before(async () => {
-    context = await startTestApplication(10);
+    context = await startTestApplication({ loginRequestsPerMinutePerAddress: 10 });
   });
 
   after(async () => {

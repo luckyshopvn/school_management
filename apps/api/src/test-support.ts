@@ -64,6 +64,8 @@ export async function startApiTestEnvironment(
     options,
   );
   await api.listen(0);
+  // Dịch vụ định danh đọc cây đơn vị qua máy chủ API khi quản lý tài khoản (YCTD-39)
+  identity.configuration.apiBaseUrl = `http://127.0.0.1:${(api.getHttpServer().address() as AddressInfo).port}`;
   const system = createDatabase<SystemDatabase>(systemDatabaseUrl);
 
   async function login(
