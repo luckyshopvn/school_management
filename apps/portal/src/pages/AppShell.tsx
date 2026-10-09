@@ -7,6 +7,33 @@ import { PERMISSION_CODES } from '@school-management/shared';
 import { useHasPermission } from '../session/permissions.js';
 import { useSession } from '../session/session.js';
 
+type NavigationPath =
+  | '/'
+  | '/academic-years'
+  | '/org-units'
+  | '/accounts'
+  | '/roles'
+  | '/settings'
+  | '/audit-logs'
+  | '/departments'
+  | '/catalogs'
+  | '/approval-thresholds'
+  | '/rooms';
+
+function NavItem({ to, label }: { to: NavigationPath; label: string }) {
+  return (
+    <li>
+      <Link
+        to={to}
+        className="block rounded-lg px-3 py-2 text-label font-medium text-text hover:bg-selected"
+        activeProps={{ className: 'bg-selected' }}
+      >
+        {label}
+      </Link>
+    </li>
+  );
+}
+
 // Khung trang của cổng quản trị: điều hướng dọc bên trái rộng 240 điểm ảnh (BC-01, KC-08)
 export function AppShell({ children }: { children: ReactNode }) {
   const session = useSession();
@@ -17,6 +44,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canSeeAccounts = canManageAllAccounts || canManageAccountsInUnit;
   const canViewPlatform = useHasPermission('P01.view');
   const canManageSettings = useHasPermission(PERMISSION_CODES.settingManage);
+  const canManageDepartments = useHasPermission(PERMISSION_CODES.departmentManage);
+  const canManageCatalogs = useHasPermission(PERMISSION_CODES.catalogManage);
+  const canManageRooms = useHasPermission(PERMISSION_CODES.roomManage);
 
   return (
     <div className="flex min-h-screen">
@@ -26,80 +56,28 @@ export function AppShell({ children }: { children: ReactNode }) {
       >
         <span className="text-section-title font-semibold text-brand-strong">School Management</span>
         <ul className="flex flex-col gap-1">
-          <li>
-            <Link
-              to="/"
-              className="block rounded-lg px-3 py-2 text-label font-medium text-text hover:bg-selected"
-              activeProps={{ className: 'bg-selected' }}
-            >
-              Trang chủ
-            </Link>
-          </li>
+          <NavItem to="/" label="Trang chủ" />
         </ul>
         <span className="px-3 text-label font-semibold text-text-muted">THIẾT LẬP</span>
         <ul className="flex flex-col gap-1">
-          <li>
-            <Link
-              to="/academic-years"
-              className="block rounded-lg px-3 py-2 text-label font-medium text-text hover:bg-selected"
-              activeProps={{ className: 'bg-selected' }}
-            >
-              Năm học
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/org-units"
-              className="block rounded-lg px-3 py-2 text-label font-medium text-text hover:bg-selected"
-              activeProps={{ className: 'bg-selected' }}
-            >
-              Cây đơn vị
-            </Link>
-          </li>
+          <NavItem to="/academic-years" label="Năm học" />
+          <NavItem to="/org-units" label="Cây đơn vị" />
           {canSeeAccounts ? (
             <>
-              <li>
-                <Link
-                  to="/accounts"
-                  className="block rounded-lg px-3 py-2 text-label font-medium text-text hover:bg-selected"
-                  activeProps={{ className: 'bg-selected' }}
-                >
-                  Tài khoản
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/roles"
-                  className="block rounded-lg px-3 py-2 text-label font-medium text-text hover:bg-selected"
-                  activeProps={{ className: 'bg-selected' }}
-                >
-                  Vai trò và quyền
-                </Link>
-              </li>
+              <NavItem to="/accounts" label="Tài khoản" />
+              <NavItem to="/roles" label="Vai trò và quyền" />
             </>
           ) : null}
-          {canViewPlatform || canManageSettings ? (
-            <li>
-              <Link
-                to="/settings"
-                className="block rounded-lg px-3 py-2 text-label font-medium text-text hover:bg-selected"
-                activeProps={{ className: 'bg-selected' }}
-              >
-                Cấu hình
-              </Link>
-            </li>
+          {canViewPlatform || canManageDepartments ? (
+            <NavItem to="/departments" label="Phòng ban và chức danh" />
           ) : null}
-          {canViewPlatform ? (
-            <li>
-              <Link
-                to="/audit-logs"
-                className="block rounded-lg px-3 py-2 text-label font-medium text-text hover:bg-selected"
-                activeProps={{ className: 'bg-selected' }}
-              >
-                Nhật ký thao tác
-              </Link>
-            </li>
+          {canViewPlatform || canManageCatalogs ? <NavItem to="/catalogs" label="Danh mục dùng chung" /> : null}
+          {canViewPlatform ? <NavItem to="/approval-thresholds" label="Hạn mức phê duyệt" /> : null}
+          {canViewPlatform || canManageRooms || canManageCatalogs ? (
+            <NavItem to="/rooms" label="Phòng học và bậc học" />
           ) : null}
+          {canViewPlatform || canManageSettings ? <NavItem to="/settings" label="Cấu hình" /> : null}
+          {canViewPlatform ? <NavItem to="/audit-logs" label="Nhật ký thao tác" /> : null}
         </ul>
       </nav>
       <div className="flex min-w-0 flex-1 flex-col">

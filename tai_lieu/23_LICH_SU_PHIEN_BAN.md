@@ -2,7 +2,7 @@
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
 - Phiên bản: 0.4
-- Ngày cập nhật: 2026-10-09
+- Ngày cập nhật: 2026-10-10
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
 
@@ -15,6 +15,17 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.27.7 – 2026-10-10
+
+- Phạm vi thay đổi: DT-01 phần 6b, các danh mục của P01 (YCTD-42).
+- Chức năng mới: phòng ban dạng cây, chức danh, danh mục dùng chung, hạn mức phê duyệt theo đơn vị và loại chứng từ, phòng học, bậc học; màn hình MH-33, MH-34, MH-49, MH-50.
+- Lỗi đã sửa: tài liệu 08 mục 5 thiếu phiếu đảo phiếu thu và phiếu đảo phiếu chi.
+- Thay đổi dữ liệu: sáu bảng danh mục ở cơ sở dữ liệu năm học; mã quyền `P01.department.manage`, `P01.catalog.manage`, `P01.approval-threshold.manage`, `P01.room.manage`.
+- Thay đổi API: điểm cuối phòng ban, chức danh, danh mục dùng chung, hạn mức phê duyệt, phòng học, bậc học.
+- Rủi ro: không.
+- Khả năng tương thích: không ảnh hưởng.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-01-phan-6b`; chạy ngược tệp thay đổi cấu trúc 0004 của cơ sở dữ liệu năm học và 0008 của cơ sở dữ liệu định danh.
 
 ### Phiên bản 0.27.6 – 2026-10-09
 

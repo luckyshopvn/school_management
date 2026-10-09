@@ -13,11 +13,28 @@ type Source = 'business' | 'identity';
 const ENTITY_LABELS: Record<string, string> = {
   org_units: 'Đơn vị',
   settings: 'Cấu hình',
+  departments: 'Phòng ban',
+  job_titles: 'Chức danh',
+  catalog_items: 'Danh mục dùng chung',
+  approval_thresholds: 'Hạn mức phê duyệt',
+  rooms: 'Phòng học',
+  grade_levels: 'Bậc học',
   users: 'Tài khoản',
   user_roles: 'Vai trò của tài khoản',
   roles: 'Vai trò',
   identity_settings: 'Cấu hình tài khoản',
 };
+
+const BUSINESS_ENTITIES = [
+  'org_units',
+  'settings',
+  'departments',
+  'job_titles',
+  'catalog_items',
+  'approval_thresholds',
+  'rooms',
+  'grade_levels',
+];
 
 const ACTION_LABELS: Record<string, string> = {
   create: 'Tạo',
@@ -95,8 +112,11 @@ function AuditLogTable({ source }: { source: Source }) {
             className="rounded-lg border border-border bg-card px-3 py-2 text-content"
           >
             <option value="">Tất cả</option>
-            <option value="org_units">Đơn vị</option>
-            <option value="settings">Cấu hình</option>
+            {BUSINESS_ENTITIES.map((entity) => (
+              <option key={entity} value={entity}>
+                {ENTITY_LABELS[entity]}
+              </option>
+            ))}
           </select>
         </div>
       ) : null}

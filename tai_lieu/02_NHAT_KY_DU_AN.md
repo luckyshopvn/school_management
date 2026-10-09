@@ -2,7 +2,7 @@
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
 - Phiên bản: 0.4
-- Ngày cập nhật: 2026-10-09
+- Ngày cập nhật: 2026-10-10
 - Trạng thái: Đang cập nhật
 
 ## Quy ước ghi nhật ký
@@ -13,6 +13,29 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-10 — DT-01 phần 6b: các danh mục
+
+#### Công việc đã thực hiện
+
+- Hỏi Eric bốn điểm tài liệu chưa rõ trước khi thiết kế; Eric duyệt thiết kế; viết trên nhánh `dt-01-phan-6b`.
+- Cơ sở dữ liệu: năm học có `departments`, `job_titles`, `catalog_items`, `approval_thresholds`, `rooms`, `grade_levels` (tệp 0004); định danh có bốn mã quyền mới (tệp 0008).
+- Máy chủ API: điểm cuối của sáu danh mục, kiểm tra phạm vi đơn vị, ghi nhật ký thao tác, chuyển danh mục khi mở năm học mới.
+- Cổng quản trị: MH-49 Phòng ban và chức danh, MH-50 Danh mục dùng chung, MH-33 Hạn mức phê duyệt, MH-34 Phòng học và bậc học; bộ lọc nhật ký thao tác thêm các danh mục.
+- Kết quả: máy chủ API 80/80 (gồm 16 ca của danh mục), dịch vụ định danh 21/21, cơ sở dữ liệu 3/3, tiến trình chạy nền 1/1, kiểm thử giao diện 15/15.
+
+#### Quyết định
+
+- Danh mục dùng chung có bốn loại do hệ thống định nghĩa; VT-06 quản lý phòng ban và chức danh trong đơn vị; hạn mức có hiệu lực ngay; độ tuổi bậc học theo tháng (YCTD-42) – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-42 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.27.7.
+
+#### Vấn đề tồn đọng
+
+- CTC-P01-023, 027, 060 đến 066, 068, 070, 071, 074 và phần chọn bậc học của 073 cần hồ sơ nhân sự, lớp học, chứng từ ở các đợt sau.
+- Chưa commit, chờ Eric đồng ý.
 
 ### 2026-10-09 — Ngày chốt học phí và chốt công
 

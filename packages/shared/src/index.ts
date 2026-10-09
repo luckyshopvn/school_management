@@ -20,7 +20,25 @@ export const PERMISSION_CODES = {
   academicYearManage: 'P01.academic-year.manage',
   orgUnitManage: 'P01.org-unit.manage',
   settingManage: 'P01.setting.manage',
+  departmentManage: 'P01.department.manage',
+  catalogManage: 'P01.catalog.manage',
+  approvalThresholdManage: 'P01.approval-threshold.manage',
+  roomManage: 'P01.room.manage',
 } as const;
+
+// Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
+export const APPROVAL_DOCUMENT_TYPES = [
+  { code: 'payment', label: 'Phiếu chi' },
+  { code: 'receipt_reversal', label: 'Phiếu đảo phiếu thu' },
+  { code: 'payment_reversal', label: 'Phiếu đảo phiếu chi' },
+  { code: 'purchase_request', label: 'Đề nghị mua hàng' },
+  { code: 'invoice_adjustment', label: 'Phiếu điều chỉnh hóa đơn' },
+  { code: 'tuition_discount', label: 'Miễn giảm học phí' },
+  { code: 'payroll', label: 'Bảng lương kỳ' },
+  { code: 'financial_period_closing', label: 'Chốt kỳ tài chính' },
+] as const;
+
+export type ApprovalDocumentType = (typeof APPROVAL_DOCUMENT_TYPES)[number]['code'];
 
 // Vai trò không gắn đơn vị, phạm vi toàn trường (PQ-03)
 export const WHOLE_SCHOOL_ROLE_CODES = ['VT-01', 'VT-02', 'VT-19', 'VT-20'] as const;

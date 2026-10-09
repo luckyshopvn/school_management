@@ -6,6 +6,7 @@ import { migration as addAcademicYearPermission } from './migrations/0004_add_ac
 import { migration as addOrgUnitPermission } from './migrations/0005_add_org_unit_permission.js';
 import { migration as addAccountManagement } from './migrations/0006_add_account_management.js';
 import { migration as addIdentitySettings } from './migrations/0007_add_identity_settings.js';
+import { migration as addCatalogPermissions } from './migrations/0008_add_catalog_permissions.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu định danh, theo số thứ tự (QU-01)
 export const identityMigrations: Record<string, Migration> = {
@@ -16,4 +17,5 @@ export const identityMigrations: Record<string, Migration> = {
   '0005_add_org_unit_permission': addOrgUnitPermission,
   '0006_add_account_management': addAccountManagement,
   '0007_add_identity_settings': addIdentitySettings,
+  '0008_add_catalog_permissions': addCatalogPermissions,
 };

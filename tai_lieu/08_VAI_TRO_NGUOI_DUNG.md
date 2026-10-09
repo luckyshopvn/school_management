@@ -1,8 +1,8 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.9
-- Ngày cập nhật: 2026-10-09
+- Phiên bản: 1.10
+- Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -85,7 +85,7 @@ Ghi chú áp dụng cho bảng:
 10. VT-13 đã bỏ cùng phân hệ P11. VT-16 đến VT-20 thêm ngày 09/10/2026 (Q-21, Q-110). VT-19 và VT-20 là người ngoài trường: VT-19 chỉ thấy số liệu tổng hợp, không thấy dữ liệu cá nhân; tài khoản VT-20 có ngày hết hiệu lực bắt buộc.
 11. Quyền X của VT-20 ở P08 gồm bảng lương. Xem GD-92.
 12. VT-02 và VT-15 được tạo và sửa lịch nghỉ thứ 7 và lịch học bù chung toàn trường trong P08 (P08-10, BR-84); các phần khác của P08 chỉ ở mức phê duyệt.
-13. VT-04 và VT-06 được dùng P01-13 để nhập dữ liệu ban đầu thuộc phạm vi của mình (kế toán: công nợ đầu kỳ; nhân sự: hồ sơ nhân sự); ngoài P01-13 không truy cập P01.
+13. VT-04 và VT-06 được dùng P01-13 để nhập dữ liệu ban đầu thuộc phạm vi của mình (kế toán: công nợ đầu kỳ; nhân sự: hồ sơ nhân sự); ngoài P01-13 không truy cập P01, trừ VT-06 được tạo, sửa phòng ban và chức danh trong đơn vị được gán (P01-03, P01-04, YCTD-42).
 14. Quyền X của VT-19 và VT-20 ở P19 chỉ gồm đăng nhập và sử dụng cổng quản trị, không gửi thông báo.
 15. Quyền S của VT-03 ở P04 chỉ gồm chốt điểm danh ngày thay giáo viên, sửa điểm danh đã chốt kèm lý do (P04-06, QT-02) và sửa nhật ký đã công bố quá thời hạn sửa của giáo viên (Q-67, QT-09).
 16. Quyền S của VT-03 ở P05 chỉ gồm lập đề xuất xử lý công nợ quá hạn (P05-12); quyết định do VT-15 hoặc VT-02 ghi.
@@ -110,6 +110,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-13 | Quản lý tài khoản (P01-06, P01-07, YCTD-39): VT-01 và VT-02 có `P01.account.manage`, tạo và quản lý mọi tài khoản, gán và gỡ vai trò, tạo vai trò, sửa ma trận quyền. VT-03 có `P01.account.manage-in-unit`: tạo tài khoản với mọi vai trò trừ VT-01, VT-02, chỉ trong các đơn vị được gán; khóa, mở khóa, đặt lại mật khẩu tài khoản có mọi vai trò nằm trong đơn vị của mình; không gán, gỡ vai trò sau khi tạo (CTC-P01-042). VT-15 không quản lý tài khoản |
 | PQ-14 | Đặt lại mật khẩu thì hệ thống sinh mật khẩu tạm, hiển thị một lần cho người đặt lại; người được đặt lại bắt buộc đổi ở lần đăng nhập kế tiếp (BM-07, YCTD-39) |
 | PQ-15 | Quyền `P01.setting.manage`: VT-02 sửa cấu hình mọi đơn vị và cấu hình chung toàn trường, VT-03 sửa cấu hình của đơn vị được gán; VT-15 và vai trò khác chỉ xem cấu hình của đơn vị trong phạm vi (P01-08, YCTD-40) |
+| PQ-16 | Quyền quản lý danh mục (YCTD-42): `P01.department.manage` cho VT-02 toàn trường và VT-06 trong đơn vị được gán, dùng cho phòng ban và chức danh; `P01.catalog.manage` chỉ VT-02, dùng cho danh mục dùng chung và bậc học; `P01.approval-threshold.manage` chỉ VT-02; `P01.room.manage` cho VT-02 toàn trường và VT-03 trong đơn vị được gán. Ai có vai trò ở đơn vị đều xem được phòng ban, chức danh, phòng học của đơn vị đó; mọi người đã đăng nhập xem được danh mục dùng chung và bậc học; hạn mức phê duyệt xem bằng `P01.view` trong phạm vi đơn vị |
 
 ## 5. Phân cấp phê duyệt
 
@@ -121,7 +122,7 @@ Ban Giám hiệu gồm hai vai trò tách riêng để áp dụng hạn mức ph
 | Chứng từ dưới hạn mức | Phó Hiệu trưởng (VT-15) | Các đơn vị được gán | Chứng từ có giá trị **dưới** hạn mức cấu hình |
 | Chứng từ từ hạn mức trở lên | Hiệu trưởng (VT-02) | Toàn trường | Chứng từ có giá trị **từ** hạn mức cấu hình trở lên, mọi chứng từ do Phó Hiệu trưởng chuyển lên, chốt kỳ tài chính, và phiếu chi hoàn tiền khi trẻ thôi học ở mọi giá trị (BR-24) |
 
-Danh mục chứng từ áp dụng hạn mức: phiếu chi, đề nghị mua hàng, phiếu điều chỉnh hóa đơn, miễn giảm học phí, bảng lương kỳ, chốt kỳ tài chính.
+Danh mục chứng từ áp dụng hạn mức: phiếu chi, phiếu đảo phiếu thu, phiếu đảo phiếu chi, đề nghị mua hàng, phiếu điều chỉnh hóa đơn, miễn giảm học phí, bảng lương kỳ, chốt kỳ tài chính.
 
 Nguyên tắc áp dụng:
 
