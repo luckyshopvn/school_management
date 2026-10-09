@@ -33,7 +33,7 @@
 | 21 | [21_KICH_BAN_KIEM_THU.md](21_KICH_BAN_KIEM_THU.md) | Kịch bản kiểm thử | CT-001 đến CT-188 | 10 Kiểm thử | Đã phê duyệt |
 | 22 | [22_BAO_MAT.md](22_BAO_MAT.md) | Bảo mật | BM-01 đến BM-70 | 10 Kiểm thử | Đã phê duyệt |
 | 23 | [23_LICH_SU_PHIEN_BAN.md](23_LICH_SU_PHIEN_BAN.md) | Lịch sử phiên bản | Các phiên bản từ 0.1.0 | 11 Nghiệm thu và phát hành | Đang cập nhật |
-| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-33, đánh giá ảnh hưởng | 12 Vận hành và cải tiến | Đang cập nhật |
+| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-35, đánh giá ảnh hưởng | 12 Vận hành và cải tiến | Đang cập nhật |
 | 25 | [25_QUY_TRINH_NGHIEP_VU/](25_QUY_TRINH_NGHIEP_VU/) | Quy trình nghiệp vụ | Mười đặc tả QT-01 đến QT-10 và phiếu yêu cầu trống | 03 Phân tích nghiệp vụ | Đã phê duyệt |
 | 26 | [26_SO_DO_CHUC_NANG/](26_SO_DO_CHUC_NANG/) | Sơ đồ chức năng gốc | Tám ảnh sơ đồ chức năng do Eric gửi, nguồn đầu vào của bộ tài liệu | 01 Xác định ý tưởng | Tài liệu nguồn |
 | 27 | [27_BO_CA_KIEM_THU_CHI_TIET/](27_BO_CA_KIEM_THU_CHI_TIET/) | Bộ ca kiểm thử chi tiết | Ca kiểm thử chi tiết theo việc N21, mã CTC-..., năm đợt, 453 ca, 6 ca không áp dụng | 10 Kiểm thử | Đã phê duyệt |
@@ -84,7 +84,7 @@ Mã quy trình dạng `QT-nn`, đánh số tăng dần, không tái sử dụng 
 | Cổng kiểm soát chất lượng | 12 | Từ CG-01 đến CG-12, xem `01_KE_HOACH_TONG_THE.md` |
 | Đợt xây dựng | 12 | Từ DT-00 đến DT-11, xem `01_KE_HOACH_TONG_THE.md` |
 | Rủi ro đã ghi nhận | 14 | Từ RR-01 đến RR-14, xem `01_KE_HOACH_TONG_THE.md` |
-| Yêu cầu thay đổi | 33 | Từ YCTD-01 đến YCTD-33, xem `24_YEU_CAU_THAY_DOI.md` |
+| Yêu cầu thay đổi | 35 | Từ YCTD-01 đến YCTD-35, xem `24_YEU_CAU_THAY_DOI.md` |
 
 ## Quyết định đã chốt
 
@@ -136,7 +136,7 @@ Trước ngày 09/10/2026 bộ tài liệu dùng thuật ngữ "cơ sở" cho đ
 1. Ngày 09/10/2026 Eric đã phê duyệt `01`, `04` đến `22` và các đặc tả QT; `02`, `03`, `23`, `24` là tài liệu ghi theo ngày, ở trạng thái Đang cập nhật.
 2. Dự án chưa có mã nguồn. Mọi tham chiếu tệp và số dòng trong các tài liệu phân tích hiện trạng đều chưa áp dụng được.
 3. Nguồn duy nhất để phân tích là danh sách tính năng và tám ảnh sơ đồ chức năng do Eric gửi ngày 09/10/2026, lưu tại `26_SO_DO_CHUC_NANG/`. Không có tài liệu nghiệp vụ, không có biểu mẫu thật, không có phỏng vấn người dùng.
-4. Mọi câu hỏi mở đã được trả lời và mọi giả định đã được xử lý ngày 09/10/2026. Việc còn lại trước khi xây dựng là tạo kho mã nguồn GitHub và môi trường phát triển để qua CG-08; hạ tầng đám mây thuê khi triển khai (YCTD-32).
+4. Mọi câu hỏi mở đã được trả lời và mọi giả định đã được xử lý ngày 09/10/2026. CG-08 đã đạt ngày 09/10/2026: mã nguồn ở https://github.com/luckyshopvn/school_management, môi trường phát triển chạy Docker trên máy cục bộ; hạ tầng đám mây thuê khi triển khai (YCTD-32).
 5. Đầu mỗi phiên làm việc, đọc `index.md`, `01_KE_HOACH_TONG_THE.md`, `03_DANH_SACH_CONG_VIEC.md` và các tài liệu liên quan.
 6. Trạng thái tổng thể ở trên đếm mã giả định và câu hỏi mở trên toàn bộ tài liệu, kể cả các đặc tả quy trình.
 7. Bảng đối chiếu tên tệp cũ trong `tai-lieu-thiet-ke/` và tên mới nằm ở `24_YEU_CAU_THAY_DOI.md` mục YCTD-01.

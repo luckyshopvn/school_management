@@ -1,7 +1,7 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.3
+- Phiên bản: 1.4
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -55,6 +55,10 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.2.0 | Bốn thay đổi: Ban Giám hiệu, nhiều cấp đơn vị, tách giao diện và máy chủ, dịch vụ định danh | 01 đến 07 | Đã có |
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
+| 0.26.2 | DT-01 phần 1: phần lõi dịch vụ định danh | 09 | Đã có |
+| 0.26.1 | Chốt quy tắc mật khẩu, tạm khóa, mã quyền, tài khoản đầu tiên VT-01 (YCTD-35) | 01 đến 08 | Đã có |
+| 0.26.0 | Gộp phần lõi dịch vụ định danh vào DT-01, chia sáu phần; QĐ-20 đến QĐ-22 (YCTD-34) | 01 đến 08 | Đã có |
+| 0.25.5 | Qua cổng CG-08, hoàn thành đợt DT-00 | 01 đến 08 | Đã có |
 | 0.25.4 | Thêm điểm cuối kiểm tra sức khỏe cho đợt DT-00 | 01 đến 08 | Đã có |
 | 0.25.3 | Chọn Kysely, quy ước nhánh và yêu cầu gộp (YCTD-33) | 01 đến 08 | Đã có |
 | 0.25.2 | Chỉ dùng GitHub trước, hạ tầng đám mây khi triển khai (YCTD-32) | 01 đến 08 | Đã có |
@@ -125,13 +129,13 @@ Mỗi giai đoạn kết thúc bằng một cổng. Cổng không đạt thì kh
 | 05 Thiết kế kiến trúc | `12_KIEN_TRUC_HE_THONG.md`, `13_CONG_NGHE_SU_DUNG.md` | CG-05 | Đã đạt ngày 09/10/2026 |
 | 06 Thiết kế giao diện | `14_DAC_TA_GIAO_DIEN.md`, `15_HE_THONG_THIET_KE.md` | CG-06 | Đã đạt ngày 09/10/2026 |
 | 07 Thiết kế dữ liệu và giao diện lập trình | `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md` | CG-07 | Đã đạt ngày 09/10/2026 |
-| 08 Chuẩn bị môi trường | `18_QUY_TAC_PHAT_TRIEN_AI.md`, `19_CHI_DAN_HE_THONG_AI.md`, kho mã nguồn GitHub, môi trường phát triển | CG-08 | Tài liệu đã duyệt; chưa có kho mã nguồn và môi trường phát triển |
+| 08 Chuẩn bị môi trường | `18_QUY_TAC_PHAT_TRIEN_AI.md`, `19_CHI_DAN_HE_THONG_AI.md`, kho mã nguồn GitHub, môi trường phát triển | CG-08 | Đã đạt ngày 09/10/2026 |
 | 09 Xây dựng theo phân hệ | Mã nguồn, thay đổi dữ liệu, kiểm thử tự động | CG-09 | Chưa bắt đầu |
 | 10 Kiểm thử và kiểm soát chất lượng | `20_KE_HOACH_KIEM_THU.md`, `21_KICH_BAN_KIEM_THU.md`, kết quả chạy thật | CG-10 | Tài liệu `20`, `21`, `22` đã duyệt; chưa chạy |
 | 11 Nghiệm thu và phát hành | Bản phát hành 1.0.0, `23_LICH_SU_PHIEN_BAN.md`, biên bản triển khai | CG-11 | Chưa bắt đầu |
 | 12 Vận hành và cải tiến | Sửa lỗi, cải tiến, `24_YEU_CAU_THAY_DOI.md`, tài liệu cập nhật | CG-12 | Chưa bắt đầu |
 
-Vị trí hiện tại của dự án: tài liệu `01`, `04` đến `22` và các đặc tả QT đã được Eric phê duyệt ngày 09/10/2026; CG-01 đến CG-07 đã đạt. CG-08 còn chờ kho mã nguồn GitHub và môi trường phát triển; môi trường thử nghiệm và chạy thật dựng khi triển khai (YCTD-32).
+Vị trí hiện tại của dự án: tài liệu `01`, `04` đến `22` và các đặc tả QT đã được Eric phê duyệt ngày 09/10/2026; CG-01 đến CG-08 đã đạt; đợt DT-00 đã gộp vào nhánh `main` qua yêu cầu gộp số 1. Môi trường thử nghiệm và chạy thật dựng khi triển khai (YCTD-32). Việc tiếp theo là đợt DT-01 (`M01`).
 
 ### 4.1 Giai đoạn 01 — Xác định ý tưởng
 
@@ -259,8 +263,8 @@ Quy tắc bắt buộc: không thực hiện thay đổi trực tiếp trên h�
 | Đợt | Nội dung | Phân hệ | Việc | Phụ thuộc | Điều kiện ra |
 |---|---|---|---|---|---|
 | DT-00 | Nền móng kỹ thuật: kho mã nguồn GitHub, cấu trúc dự án nhiều gói, môi trường phát triển chạy Docker trên máy cục bộ, khuôn khổ kiểm thử, tích hợp liên tục chỉ chạy kiểm thử (YCTD-32), cơ sở dữ liệu định danh, hệ thống và theo năm học (`QĐ-15`, `QĐ-17`, `QU-11`) | Toàn dự án | `M01-3` | CG-08 | Dựng được môi trường trống, chạy được một kiểm thử mẫu |
-| DT-01 | Nền tảng, cây đơn vị nhiều cấp, lịch năm học (G1-20), tài khoản, vai trò, quyền | P01 | `M01` | DT-00 | Đăng nhập được, phân quyền ba lớp chạy đúng |
-| DT-02 | Dịch vụ định danh độc lập tự viết | P01 | `M01-2` | DT-01 | Cấp phát và thu hồi phiên, mã một lần cho phụ huynh |
+| DT-01 | Nền tảng và phần lõi dịch vụ định danh, làm theo sáu phần (YCTD-34): (1) tài khoản, vai trò, quyền, đăng nhập bằng mật khẩu, làm mới phiên, đăng xuất, đổi mật khẩu, khóa khi sai nhiều lần, tạo tài khoản quản trị đầu tiên; (2) máy chủ API kiểm tra mã phiên và quyền ở mọi yêu cầu; (3) năm học, học kỳ, tuần học (G1-20), mở năm học tạo cơ sở dữ liệu năm học; (4) cây đơn vị nhiều cấp; (5) quản lý tài khoản, vai trò, ma trận quyền; (6) cấu hình theo đơn vị, nhật ký thao tác, phòng ban, chức danh, danh mục, phòng học, bậc học, hạn mức phê duyệt | P01 | `M01`, `M01-2` | DT-00 | Đăng nhập được, phân quyền ba lớp chạy đúng |
+| DT-02 | Dịch vụ định danh, phần dành cho phụ huynh: mã một lần, kích hoạt tài khoản bằng mật khẩu mặc định (YCTD-34) | P01 | `M01-2` | DT-01 | Cấp mã một lần cho phụ huynh, phụ huynh kích hoạt được tài khoản |
 | DT-03 | Hồ sơ trẻ, phụ huynh, lớp học, phân lớp; nhập Excel phần trẻ, phụ huynh, lớp (G1-15); nhập mã định danh của Bộ (G1-18) | P02 | `M02` | DT-01 | Tiếp nhận được một trẻ thật theo `QT-01` |
 | DT-04 | Điểm danh, báo vắng, đón trả trẻ | P04 | `M04` | DT-03 | Điểm danh đúng theo `QT-02` |
 | DT-05 | Biểu phí, đăng ký dịch vụ, tính học phí, miễn giảm, phiếu thu, công nợ, thanh toán mã QR (G1-16), phiếu chi, quỹ tiền mặt (G1-19); nhập công nợ đầu kỳ từ Excel; đăng ký học hè (G1-20) | P05, P06 | `M05`, `M06` | DT-03 | Tính đúng học phí một tháng thật theo `QT-03` và `QT-04` |
@@ -305,7 +309,7 @@ flowchart TD
 6. Đã xử lý ngày 09/10/2026: mức miễn giảm do nhà trường cấu hình (P05-11), công thức học phí giữa tháng và tiền ăn đã chốt.
 7. Đã xử lý ngày 09/10/2026: danh mục khấu trừ và số ngày phép năm do nhà trường cấu hình (P08-11).
 
-Từ ngày 09/10/2026 không còn việc xây dựng nào bị chặn bởi câu hỏi nghiệp vụ. Tài liệu và các đặc tả QT đã phê duyệt; mắt xích còn lại là tạo kho mã nguồn GitHub và môi trường phát triển để qua CG-08.
+Từ ngày 09/10/2026 không còn việc xây dựng nào bị chặn bởi câu hỏi nghiệp vụ. Tài liệu và các đặc tả QT đã phê duyệt; CG-08 đã đạt ngày 09/10/2026; việc tiếp theo là đợt DT-01.
 
 ## 7. Tổ chức thực hiện và trách nhiệm
 
@@ -467,7 +471,7 @@ Dự án chưa có mã nguồn. Tài liệu `01`, `04` đến `22` và các đ�
 | 4 | Xác nhận cây đơn vị thật — nhà trường tự tạo trong Cấu hình | `M00-4` | DT-01, ước lượng khối lượng |
 | 5 | Chốt mức hạn mức phê duyệt — để cấu hình sau | `M00-5` | Kiểm thử luồng phê duyệt |
 | 6 | Phê duyệt bộ tài liệu — đã xong ngày 09/10/2026 | `M00` | CG-01 đến CG-07 |
-| 7 | Tạo kho mã nguồn GitHub và môi trường phát triển; môi trường thử nghiệm và chạy thật khi triển khai | `M01-3`, `T6` | CG-08, DT-00 |
+| 7 | Tạo kho mã nguồn GitHub và môi trường phát triển — đã xong ngày 09/10/2026; môi trường thử nghiệm và chạy thật khi triển khai | `M01-3`, `T6` | CG-08, DT-00 |
 | 8 | Chế độ kế toán cho sổ kế toán kép — đã chốt hành chính, sự nghiệp | `N5` | DT-11 |
 | 9 | Mức miễn giảm — nhà trường tự cấu hình | `M05` | DT-05, DT-07, DT-08 |
 | 10 | Danh mục khấu trừ và số ngày phép năm — nhà trường tự cấu hình | `M08` | DT-06 |

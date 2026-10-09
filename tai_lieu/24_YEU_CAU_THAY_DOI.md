@@ -11,6 +11,32 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-35: Quy tắc mật khẩu, tạm khóa, mã quyền và tài khoản đầu tiên – 2026-10-09
+
+- Lý do: thiết kế DT-01 phần 1 cần các giá trị mà tài liệu chưa chốt.
+- Nội dung thay đổi: mật khẩu tối thiểu 8 ký tự có chữ và số (BM-03); sai 5 lần tạm khóa 15 phút rồi tự mở (BM-04, XT-05); giới hạn 10 yêu cầu đăng nhập mỗi phút trên một địa chỉ mạng; mã quyền dạng phân hệ và hành động (PQ-09); VT-01 có thêm quyền `P01.account.manage`, tài khoản đầu tiên là VT-01 tạo bằng lệnh (PQ-10); thêm bảng `security_events` và cột `users.locked_until`; sửa kết quả mong đợi của CTC-DD-004.
+- Thành phần bị ảnh hưởng: `01`, `08`, `12`, `16`, `22`, `27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md`, `index.md`.
+- Dữ liệu bị ảnh hưởng: bảng mới `security_events`, cột mới `users.locked_until`.
+- API bị ảnh hưởng: không thêm điểm cuối.
+- Giao diện bị ảnh hưởng: thông báo tạm khóa ghi thời gian thử lại.
+- Quyền bị ảnh hưởng: VT-01 có thêm `P01.account.manage`.
+- Ảnh hưởng chức năng cũ: chưa có mã nghiệp vụ nên không ảnh hưởng.
+- Kiểm thử cần thực hiện: CTC-DD-001 đến 004, 009, 031 đến 034, 043.
+- Trạng thái: Đã triển khai
+
+### YCTD-34: Gộp phần lõi dịch vụ định danh vào DT-01 – 2026-10-09
+
+- Lý do: điều kiện ra của DT-01 là đăng nhập được và phân quyền ba lớp chạy đúng, nhưng đăng nhập, tài khoản, vai trò, quyền thuộc dịch vụ định danh ở DT-02; ngoài ra `org_units` nằm trong cơ sở dữ liệu năm học nên phải có năm học trước cây đơn vị.
+- Nội dung thay đổi: DT-01 làm theo sáu phần, mỗi phần một yêu cầu gộp: (1) phần lõi dịch vụ định danh; (2) máy chủ API kiểm tra phiên và quyền; (3) năm học; (4) cây đơn vị; (5) quản lý tài khoản, vai trò, quyền; (6) cấu hình, nhật ký thao tác và danh mục. DT-02 chỉ còn mã một lần và kích hoạt tài khoản phụ huynh. Chốt QĐ-20 hỏi dịch vụ định danh quyền hiện hành ở mọi yêu cầu, QĐ-21 cấp quyền tạo cơ sở dữ liệu cho tài khoản kết nối của máy chủ API, QĐ-22 ký mã phiên bằng Ed25519.
+- Thành phần bị ảnh hưởng: `01`, `03`, `12`, `index.md`.
+- Dữ liệu bị ảnh hưởng: không đổi cấu trúc; tài khoản `api_service` có thêm quyền tạo cơ sở dữ liệu.
+- API bị ảnh hưởng: không thêm điểm cuối; máy chủ API dùng `GET /api/v1/auth/me` của dịch vụ định danh để lấy quyền hiện hành.
+- Giao diện bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không đổi quy tắc; PQ-04 được bảo đảm bằng QĐ-20.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: ca CTC-DD và CTC-P01 tương ứng từng phần.
+- Trạng thái: Đã triển khai
+
 ### YCTD-33: Thư viện truy cập dữ liệu và quy ước nhánh – 2026-10-09
 
 - Lý do: chuẩn bị đợt DT-00; tài liệu chưa chọn thư viện truy cập dữ liệu và chưa có quy ước nhánh trên GitHub.

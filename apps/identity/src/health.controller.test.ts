@@ -1,27 +1,21 @@
 import assert from 'node:assert/strict';
-import type { AddressInfo } from 'node:net';
 import { after, before, describe, it } from 'node:test';
-import type { INestApplication } from '@nestjs/common';
-import { createApplication } from './create-application.js';
+import { getJson, startTestApplication, type TestContext } from './test-support.js';
 
 describe('Dịch vụ định danh: kiểm tra sức khỏe', () => {
-  let application: INestApplication;
-  let baseUrl: string;
+  let context: TestContext;
 
   before(async () => {
-    application = await createApplication();
-    await application.listen(0);
-    const address = application.getHttpServer().address() as AddressInfo;
-    baseUrl = `http://127.0.0.1:${address.port}`;
+    context = await startTestApplication();
   });
 
   after(async () => {
-    await application.close();
+    await context.close();
   });
 
-  it('GET /api/v1/health trả trạng thái hoạt động', async () => {
-    const response = await fetch(`${baseUrl}/api/v1/health`);
+  it('GET /api/v1/health trả trạng thái hoạt động, không cần mã phiên', async () => {
+    const response = await getJson(`${context.baseUrl}/health`);
     assert.equal(response.status, 200);
-    assert.deepEqual(await response.json(), { status: 'ok', service: 'identity' });
+    assert.deepEqual(response.body, { status: 'ok', service: 'identity' });
   });
 });
