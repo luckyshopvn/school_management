@@ -11,6 +11,19 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-39: Phân quyền quản lý tài khoản – 2026-10-09
+
+- Lý do: thiết kế DT-01 phần 5 cần chốt ai tạo tài khoản, VT-03 được cấp vai trò nào, ai sửa ma trận quyền, cách đặt lại mật khẩu; tài liệu chỉ ghi VT-02, VT-03 cho P01-06 trong khi ma trận cho VT-15 quyền S ở P01.
+- Nội dung thay đổi: thêm PQ-13, PQ-14; mã quyền `P01.account.manage-in-unit` cho VT-03; VT-01 và VT-02 sửa được ma trận quyền và tạo vai trò; mật khẩu tạm do hệ thống sinh; bảng `identity_audit_logs` trong cơ sở dữ liệu định danh; khóa, gán, gỡ vai trò, đặt lại mật khẩu thì thu hồi mọi phiên (BM-56).
+- Thành phần bị ảnh hưởng: `01`, `08`, `16`, `index.md`.
+- Dữ liệu bị ảnh hưởng: bảng mới `identity_audit_logs`; mã quyền mới.
+- API bị ảnh hưởng: không thêm điểm cuối; các điểm cuối `users`, `roles` kiểm quyền theo PQ-13.
+- Giao diện bị ảnh hưởng: MH-30.
+- Quyền bị ảnh hưởng: VT-15 không quản lý tài khoản dù có `P01.edit`.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: CTC-P01-030 đến 035, 037 đến 042; CTC-DD-035, 039, 040.
+- Trạng thái: Đã triển khai
+
 ### YCTD-38: Cây đơn vị hai cấp – 2026-10-09
 
 - Lý do: Eric cho biết trường chỉ có hai cấp: Trường chính và các Phân hiệu, Điểm trường; trước đó QĐ-14 ghi cây không giới hạn cấp.

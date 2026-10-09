@@ -4,6 +4,7 @@ import { migration as createAccountTables } from './migrations/0002_create_accou
 import { migration as seedRolesAndPermissions } from './migrations/0003_seed_roles_and_permissions.js';
 import { migration as addAcademicYearPermission } from './migrations/0004_add_academic_year_permission.js';
 import { migration as addOrgUnitPermission } from './migrations/0005_add_org_unit_permission.js';
+import { migration as addAccountManagement } from './migrations/0006_add_account_management.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu định danh, theo số thứ tự (QU-01)
 export const identityMigrations: Record<string, Migration> = {
@@ -12,4 +13,5 @@ export const identityMigrations: Record<string, Migration> = {
   '0003_seed_roles_and_permissions': seedRolesAndPermissions,
   '0004_add_academic_year_permission': addAcademicYearPermission,
   '0005_add_org_unit_permission': addOrgUnitPermission,
+  '0006_add_account_management': addAccountManagement,
 };

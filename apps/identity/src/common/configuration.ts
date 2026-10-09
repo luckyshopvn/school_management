@@ -8,6 +8,8 @@ export interface IdentityConfiguration {
   tokenPrivateKeyPem: string;
   tokenPublicKeyPem: string;
   loginRequestsPerMinutePerAddress: number;
+  // Máy chủ API, để đọc cây đơn vị khi quản lý tài khoản (YCTD-39)
+  apiBaseUrl: string;
 }
 
 export const IDENTITY_CONFIGURATION = Symbol('IDENTITY_CONFIGURATION');
@@ -27,6 +29,7 @@ export function readConfigurationFromEnvironment(): IdentityConfiguration {
     redisKeyPrefix: 'identity',
     tokenPrivateKeyPem: decodeBase64Key(readRequired('IDENTITY_TOKEN_PRIVATE_KEY')),
     tokenPublicKeyPem: decodeBase64Key(readRequired('TOKEN_PUBLIC_KEY')),
-    loginRequestsPerMinutePerAddress: 10,
+    loginRequestsPerMinutePerAddress: Number(process.env.LOGIN_REQUESTS_PER_MINUTE ?? 10),
+    apiBaseUrl: readRequired('API_BASE_URL'),
   };
 }

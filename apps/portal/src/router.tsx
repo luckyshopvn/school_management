@@ -1,5 +1,7 @@
 import { createRootRoute, createRoute, createRouter, Navigate, Outlet, useLocation } from '@tanstack/react-router';
 import { AcademicYearsPage } from './academic-years/AcademicYearsPage.js';
+import { AccountsPage } from './accounts/AccountsPage.js';
+import { RolesPage } from './accounts/RolesPage.js';
 import { OrgUnitsPage } from './org-units/OrgUnitsPage.js';
 import { ChangePasswordPage } from './pages/ChangePasswordPage.js';
 import { HomePage } from './pages/HomePage.js';
@@ -34,6 +36,8 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/change-password', component: ChangePasswordPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/academic-years', component: AcademicYearsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/org-units', component: OrgUnitsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/accounts', component: AccountsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/roles', component: RolesPage }),
 ]);
 
 export const router = createRouter({ routeTree });

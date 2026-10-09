@@ -1,4 +1,8 @@
 import { Module, type DynamicModule } from '@nestjs/common';
+import { AccountsController, RolesController } from './accounts/accounts.controller.js';
+import { AccountsService } from './accounts/accounts.service.js';
+import { ApiOrganizationDirectory, OrganizationDirectory } from './accounts/organization-directory.js';
+import { RolesService } from './accounts/roles.service.js';
 import { AccessTokenGuard } from './authentication/access-token.guard.js';
 import { AuthenticationController } from './authentication/authentication.controller.js';
 import { AuthenticationService } from './authentication/authentication.service.js';
@@ -11,10 +15,14 @@ import { HealthController } from './health.controller.js';
 
 @Module({})
 export class ApplicationModule {
-  static register(configuration: IdentityConfiguration, clock: Clock): DynamicModule {
+  static register(
+    configuration: IdentityConfiguration,
+    clock: Clock,
+    organizationDirectory?: OrganizationDirectory,
+  ): DynamicModule {
     return {
       module: ApplicationModule,
-      controllers: [HealthController, AuthenticationController],
+      controllers: [HealthController, AuthenticationController, AccountsController, RolesController],
       providers: [
         { provide: IDENTITY_CONFIGURATION, useValue: configuration },
         { provide: Clock, useValue: clock },
@@ -23,6 +31,11 @@ export class ApplicationModule {
         LoginRateLimiter,
         AuthenticationService,
         AccessTokenGuard,
+        organizationDirectory
+          ? { provide: OrganizationDirectory, useValue: organizationDirectory }
+          : { provide: OrganizationDirectory, useClass: ApiOrganizationDirectory },
+        AccountsService,
+        RolesService,
       ],
     };
   }

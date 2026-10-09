@@ -80,6 +80,18 @@ export interface SecurityEventsTable {
   created_at: CreatedTimestamp;
 }
 
+export interface IdentityAuditLogsTable {
+  id: Generated<string>;
+  actor_user_id: string;
+  entity_name: string;
+  entity_id: string;
+  action: string;
+  before_data: ColumnType<unknown, string | null, string | null>;
+  after_data: ColumnType<unknown, string | null, string | null>;
+  ip_address: string | null;
+  created_at: CreatedTimestamp;
+}
+
 export interface IdentityDatabase {
   users: UsersTable;
   roles: RolesTable;
@@ -88,4 +100,5 @@ export interface IdentityDatabase {
   user_roles: UserRolesTable;
   sessions: SessionsTable;
   security_events: SecurityEventsTable;
+  identity_audit_logs: IdentityAuditLogsTable;
 }

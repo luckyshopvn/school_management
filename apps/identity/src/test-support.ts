@@ -8,6 +8,7 @@ import { Clock } from '@school-management/server';
 import type { IdentityConfiguration } from './common/configuration.js';
 import { generateTokenKeyPair } from './common/token-keys.js';
 import { createApplication } from './create-application.js';
+import type { OrganizationDirectory } from './accounts/organization-directory.js';
 
 // Hỗ trợ kiểm thử tích hợp trên cơ sở dữ liệu định danh và Redis thật
 
@@ -35,10 +36,13 @@ export interface TestContext {
   baseUrl: string;
   origin: string;
   tokenPublicKeyPem: string;
+  configuration: IdentityConfiguration;
   close(): Promise<void>;
 }
 
-export async function startTestApplication(loginRequestsPerMinutePerAddress = 1000): Promise<TestContext> {
+export async function startTestApplication(
+  options: { loginRequestsPerMinutePerAddress?: number; organizationDirectory?: OrganizationDirectory } = {},
+): Promise<TestContext> {
   const redisUrl = process.env.REDIS_URL;
   if (!redisUrl) {
     throw new Error('Thiếu biến môi trường REDIS_URL');
@@ -50,10 +54,12 @@ export async function startTestApplication(loginRequestsPerMinutePerAddress = 10
     redisKeyPrefix: `identity-test-${randomUUID()}`,
     tokenPrivateKeyPem: keys.privateKeyPem,
     tokenPublicKeyPem: keys.publicKeyPem,
-    loginRequestsPerMinutePerAddress,
+    loginRequestsPerMinutePerAddress: options.loginRequestsPerMinutePerAddress ?? 1000,
+    // Môi trường kiểm thử của máy chủ API gán lại sau khi máy chủ API chạy
+    apiBaseUrl: 'http://127.0.0.1:9',
   };
   const clock = new AdjustableClock();
-  const application = await createApplication(configuration, clock);
+  const application = await createApplication(configuration, clock, options.organizationDirectory);
   await application.listen(0);
   const address = application.getHttpServer().address() as AddressInfo;
   const database = createDatabase<IdentityDatabase>(configuration.databaseUrl);
@@ -64,6 +70,7 @@ export async function startTestApplication(loginRequestsPerMinutePerAddress = 10
     baseUrl: `http://127.0.0.1:${address.port}/api/v1`,
     origin: `http://127.0.0.1:${address.port}`,
     tokenPublicKeyPem: keys.publicKeyPem,
+    configuration,
     async close() {
       await application.close();
       await database.destroy();

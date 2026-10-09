@@ -14,6 +14,47 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-09 — DT-01 phần 5: tài khoản, vai trò, quyền
+
+#### Công việc đã thực hiện
+
+- Eric duyệt thiết kế phần 5. Viết trên nhánh `dt-01-phan-5`.
+- Cơ sở dữ liệu định danh: `0006_add_account_management` tạo `identity_audit_logs` và thêm `P01.account.manage-in-unit` cho VT-03.
+- Dịch vụ định danh: tạo, sửa, khóa, mở khóa tài khoản, đặt lại mật khẩu bằng mật khẩu tạm, gán và gỡ vai trò, tạo vai trò, sửa ma trận quyền, danh sách quyền; kiểm tra phạm vi theo PQ-13 bằng cây đơn vị đọc qua máy chủ API; thu hồi phiên khi khóa, đặt lại mật khẩu, đổi vai trò; giới hạn đăng nhập đọc được từ biến môi trường `LOGIN_REQUESTS_PER_MINUTE`, mặc định 10.
+- Cổng quản trị: MH-30 gồm màn hình Tài khoản và Vai trò và quyền; mục điều hướng chỉ hiện với người có quyền quản lý tài khoản; máy chủ phát triển chuyển `users`, `roles`, `permissions` sang dịch vụ định danh.
+- Kết quả: máy chủ API 54/54 (gồm CTC-P01-030 đến 035, 037 đến 039, 041, 042, CTC-DD-035, 039, 040), dịch vụ định danh 20/20, cơ sở dữ liệu 3/3, tiến trình chạy nền 1/1, kiểm thử giao diện 10/10.
+
+#### Quyết định
+
+- Không có quyết định mới ngoài YCTD-39.
+
+#### Thay đổi
+
+- `17` ghi giao kèo nhóm tài khoản, vai trò, quyền, điểm cuối gỡ vai trò và quy tắc chuyển tiếp của cổng vào; xem `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.27.3.
+
+#### Vấn đề tồn đọng
+
+- CTC-P01-036 (khóa khi chấm dứt hợp đồng) làm ở DT-06; CTC-P01-040, 043 cần điểm cuối nghiệp vụ của kế toán và hồ sơ trẻ.
+- Chưa commit, chờ Eric đồng ý.
+
+### 2026-10-09 — Thiết kế DT-01 phần 5: tài khoản, vai trò, quyền
+
+#### Công việc đã thực hiện
+
+- Trình thiết kế phần 5 và bốn câu hỏi về phân quyền quản lý tài khoản.
+
+#### Quyết định
+
+- VT-01, VT-02 quản lý mọi tài khoản và sửa ma trận quyền; VT-03 tạo tài khoản với mọi vai trò trừ VT-01, VT-02 trong đơn vị được gán; hệ thống sinh mật khẩu tạm khi đặt lại (YCTD-39) – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-39 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.27.2.
+
+#### Vấn đề tồn đọng
+
+- Chờ Eric duyệt thiết kế phần 5.
+
 ### 2026-10-09 — DT-01 phần 4: cây đơn vị hai cấp
 
 #### Công việc đã thực hiện

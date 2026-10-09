@@ -16,6 +16,28 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.27.3 – 2026-10-09
+
+- Phạm vi thay đổi: DT-01 phần 5, tài khoản, vai trò, quyền.
+- Chức năng mới: quản lý tài khoản, mật khẩu tạm, gán và gỡ vai trò, ma trận quyền; màn hình Tài khoản và Vai trò và quyền.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: `identity_audit_logs`; mã quyền `P01.account.manage-in-unit`.
+- Thay đổi API: nhóm điểm cuối `users`, `roles`, `permissions`; thêm `DELETE /api/v1/users/{id}/roles/{assignmentId}`.
+- Rủi ro: dịch vụ định danh gọi máy chủ API để đọc cây đơn vị khi quản lý tài khoản.
+- Khả năng tương thích: không ảnh hưởng.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-01-phan-5`; chạy ngược tệp thay đổi cấu trúc 0006 của cơ sở dữ liệu định danh.
+
+### Phiên bản 0.27.2 – 2026-10-09
+
+- Phạm vi thay đổi: YCTD-39, phân quyền quản lý tài khoản.
+- Chức năng mới: không.
+- Lỗi đã sửa: P01-06 và ma trận quyền chưa thống nhất về VT-15.
+- Thay đổi dữ liệu: `identity_audit_logs`; mã quyền `P01.account.manage-in-unit`.
+- Thay đổi API: không.
+- Rủi ro: không.
+- Khả năng tương thích: không ảnh hưởng.
+- Phương án quay lui: khôi phục các tài liệu nêu ở YCTD-39 về phiên bản trước.
+
 ### Phiên bản 0.27.1 – 2026-10-09
 
 - Phạm vi thay đổi: DT-01 phần 4, cây đơn vị hai cấp.

@@ -36,7 +36,7 @@ export default defineConfig({
     {
       command: 'node ../apps/identity/dist/main.js',
       url: `${identityBaseUrl}/api/v1/health`,
-      env: { IDENTITY_PORT: String(E2E_IDENTITY_PORT) },
+      env: { IDENTITY_PORT: String(E2E_IDENTITY_PORT), API_BASE_URL: apiBaseUrl, LOGIN_REQUESTS_PER_MINUTE: '60' },
     },
     {
       command: 'node ../apps/api/dist/main.js',
