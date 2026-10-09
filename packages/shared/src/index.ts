@@ -12,3 +12,9 @@ export interface HealthResponse {
   status: 'ok';
   service: ServiceName;
 }
+
+// Mã quyền đặc biệt ngoài dạng phân hệ và hành động (PQ-10, PQ-11)
+export const PERMISSION_CODES = {
+  accountManage: 'P01.account.manage',
+  academicYearManage: 'P01.academic-year.manage',
+} as const;

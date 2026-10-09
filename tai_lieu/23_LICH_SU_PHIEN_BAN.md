@@ -16,6 +16,28 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.26.6 – 2026-10-09
+
+- Phạm vi thay đổi: DT-01 phần 3, năm học.
+- Chức năng mới: tạo năm học, lịch năm học, đánh số tuần, tuần nghỉ, mở năm học mới; màn hình Năm học trên cổng quản trị.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: bốn bảng mới ở cơ sở dữ liệu hệ thống; mã quyền `P01.academic-year.manage`; cơ sở dữ liệu năm học do máy chủ API tạo.
+- Thay đổi API: nhóm điểm cuối `academic-years`; phản hồi `ERR_RULE_VIOLATION` có `rule_code`.
+- Rủi ro: mở năm học tạo cơ sở dữ liệu mới; lỗi giữa chừng thì xóa cơ sở dữ liệu vừa tạo và giữ nguyên năm đang dùng.
+- Khả năng tương thích: chưa có bên gọi nên không ảnh hưởng.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-01-phan-3`; chạy ngược tệp thay đổi cấu trúc 0002 của cơ sở dữ liệu hệ thống và 0004 của cơ sở dữ liệu định danh.
+
+### Phiên bản 0.26.5 – 2026-10-09
+
+- Phạm vi thay đổi: YCTD-37, quy tắc mở và đóng năm học.
+- Chức năng mới: không.
+- Lỗi đã sửa: mâu thuẫn giữa AC-194, CB-10 và BR-89 về trạng thái năm cũ sau khi mở năm mới; `index.md` còn ghi BR-01 đến BR-85 trong khi đã có tới BR-92.
+- Thay đổi dữ liệu: `academic_years.status` ba giá trị; mã quyền `P01.academic-year.manage`.
+- Thay đổi API: bỏ `POST /api/v1/academic-years/{id}/close`.
+- Rủi ro: không.
+- Khả năng tương thích: chưa có bên gọi nên không ảnh hưởng.
+- Phương án quay lui: khôi phục các tài liệu nêu ở YCTD-37 về phiên bản trước.
+
 ### Phiên bản 0.26.4 – 2026-10-09
 
 - Phạm vi thay đổi: DT-01 phần 2.

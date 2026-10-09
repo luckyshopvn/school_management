@@ -36,7 +36,6 @@ jobs:
       API_DATABASE_PASSWORD: ci_may_chu_api
       IDENTITY_DATABASE_URL: postgres://identity_service:ci_dinh_danh@localhost:5432/school_identity
       SYSTEM_DATABASE_URL: postgres://api_service:ci_may_chu_api@localhost:5432/school_system
-      SCHOOL_YEAR_DATABASE_URL: postgres://api_service:ci_may_chu_api@localhost:5432/school_year_2026_2027
       REDIS_URL: redis://localhost:6379
       IDENTITY_BASE_URL: http://localhost:3001
     steps:

@@ -31,9 +31,15 @@ export class ApplicationError extends Error {
     message: string,
     readonly details: FieldError[] = [],
     readonly retryAfterSeconds?: number,
+    readonly ruleCode?: string,
   ) {
     super(message);
   }
+}
+
+// Vi phạm quy tắc nghiệp vụ trả kèm mã quy tắc (17_DAC_TA_API.md mục 2)
+export function ruleViolationError(ruleCode: string, message: string, details: FieldError[] = []): ApplicationError {
+  return new ApplicationError('ERR_RULE_VIOLATION', message, details, undefined, ruleCode);
 }
 
 export function validationError(details: FieldError[]): ApplicationError {

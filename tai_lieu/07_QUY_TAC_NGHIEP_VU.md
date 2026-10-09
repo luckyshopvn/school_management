@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.7
+- Phiên bản: 1.8
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -159,10 +159,11 @@ Bổ sung ngày 2026-10-09 theo yêu cầu tách vai trò Ban Giám hiệu thàn
 | BR-86 | Mỗi đơn vị có cấu hình "không có nhân viên y tế". Khi bật, yêu cầu dặn thuốc của trẻ thuộc đơn vị đó chuyển cho giáo viên chủ nhiệm của lớp; giáo viên chủ nhiệm nhận thuốc, cho uống và ghi liều như y tế; y tế được gán ở đơn vị cấp trên vẫn xem được. Khi tắt, giáo viên chủ nhiệm không nhận thuốc và không ghi liều (YCTD-25) |
 | BR-87 | Giáo viên chủ nhiệm và y tế ghi nhận chăm sóc hằng ngày của trẻ: nhiệt độ, tình trạng khi trẻ ốm, chăm sóc đặc biệt theo lưu ý của phụ huynh; phụ huynh của trẻ xem được trên ứng dụng (YCTD-25) |
 | BR-88 | Phụ huynh xác nhận đã biết với thông báo sự kiện y tế và thông báo bỏ liều; hệ thống chỉ hiển thị trạng thái đã hoặc chưa xác nhận cho y tế và giáo viên chủ nhiệm, không nhắc lại (YCTD-25) |
-| BR-89 | Không đóng được năm học khi còn trẻ đã thôi học có công nợ chưa tất toán trong năm đó; kế toán phải thu hết hoặc xử lý bằng miễn giảm, điều chỉnh hóa đơn trước khi đóng. Công nợ của trẻ đã thôi học không chuyển sang năm mới (Q-149) |
+| BR-89 | Không mở được năm học mới khi năm học đang dùng còn trẻ đã thôi học có công nợ chưa tất toán; kế toán phải thu hết hoặc xử lý bằng miễn giảm, điều chỉnh hóa đơn trước. Công nợ của trẻ đã thôi học không chuyển sang năm mới (Q-149, YCTD-37) |
 | BR-90 | Khi chấm dứt hợp đồng, nhân sự chốt công đến ngày nghỉ và kế toán lập bảng quyết toán cuối cùng: còn thiếu thì trả thêm, đã trả thừa thì ghi khoản phải thu hồi và thu bằng phiếu thu không gắn trẻ, khoản mục thu hồi lương; bảng quyết toán do Ban Giám hiệu duyệt theo hạn mức bảng lương (Q-156, YCTD-29) |
-| BR-91 | Hiệu trưởng lập một lịch năm học chung toàn trường khi tạo năm học: học kỳ 1 và học kỳ 2 có ngày bắt đầu, ngày kết thúc, học kỳ 1 kết thúc trước khi học kỳ 2 bắt đầu; kỳ hè không bắt buộc, nằm sau học kỳ 2; ngày học trong tuần, mặc định thứ hai đến thứ sáu. Hệ thống tự đánh số tuần từ tuần chứa ngày bắt đầu học kỳ 1 đến hết năm học; Hiệu trưởng đánh dấu tuần nghỉ. Ngày ngoài học kỳ và kỳ hè, ngày thuộc tuần nghỉ không điểm danh và không tính vào số ngày học (YCTD-30) |
+| BR-91 | Hiệu trưởng lập một lịch năm học chung toàn trường khi tạo năm học: học kỳ 1 và học kỳ 2 có ngày bắt đầu, ngày kết thúc, học kỳ 1 kết thúc trước khi học kỳ 2 bắt đầu; kỳ hè không bắt buộc, nằm sau học kỳ 2; ngày học trong tuần, mặc định thứ hai đến thứ sáu. Hệ thống tự đánh số tuần từ tuần chứa ngày bắt đầu học kỳ 1 đến hết năm học; Hiệu trưởng đánh dấu tuần nghỉ. Lịch sửa được cho tới khi năm học đóng; sửa ngày thì hệ thống đánh số lại tuần và giữ cờ nghỉ của tuần có cùng ngày bắt đầu (YCTD-37). Ngày ngoài học kỳ và kỳ hè, ngày thuộc tuần nghỉ không điểm danh và không tính vào số ngày học (YCTD-30) |
 | BR-92 | Kỳ hè thuộc năm học đó. Trẻ học hè phải được đăng ký theo từng tháng hè; trẻ đã đăng ký thì điểm danh và tính học phí như tháng thường theo biểu phí hiện hành, trẻ không đăng ký thì không có trong bảng điểm danh và không có hóa đơn của tháng hè đó (YCTD-30) |
+| BR-93 | Mỗi thời điểm chỉ có một năm học đang dùng. Mở năm học mới là một thao tác: kiểm tra BR-89, tạo cơ sở dữ liệu năm mới, chuyển dữ liệu dùng chung, chuyển năm đang dùng sang đã đóng và cơ sở dữ liệu của năm đó sang chỉ đọc. Năm học đầu tiên của hệ thống mở mà không có năm trước (YCTD-37) |
 
 Danh mục chứng từ áp dụng hạn mức: phiếu chi, phiếu đảo phiếu thu (YCTD-23), phiếu đảo phiếu chi (YCTD-24), đề nghị mua hàng, phiếu điều chỉnh hóa đơn, miễn giảm học phí, bảng lương kỳ, chốt kỳ tài chính. Mức hạn mức cụ thể chưa có, xem Q-22 và Q-112.
 

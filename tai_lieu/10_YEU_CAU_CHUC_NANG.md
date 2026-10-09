@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.9
+- Phiên bản: 1.10
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -19,7 +19,7 @@
 | Mã | Tên chức năng | Người dùng | Đầu vào chính | Xử lý chính | Đầu ra chính | Quy tắc |
 |---|---|---|---|---|---|---|
 | P01-01 | Quản lý cây đơn vị nhiều cấp (G1) | VT-02 | Tên, mã, cấp đơn vị, đơn vị cha, địa chỉ, người phụ trách, trạng thái | Tạo, sửa, chuyển đơn vị cha, ngừng sử dụng đơn vị | Cây đơn vị không giới hạn cấp, tên cấp mặc định Trường chính, Phân hiệu, Điểm trường | BR-01 |
-| P01-02 | Quản lý năm học (G1) | VT-02 | Tên năm học; ngày bắt đầu và kết thúc của học kỳ 1, học kỳ 2; kỳ hè nếu có; ngày học trong tuần; tuần nghỉ | Tạo năm học kèm lịch chung toàn trường, tự đánh số tuần, đánh dấu tuần nghỉ (BR-91); mở năm học mới thì tạo cơ sở dữ liệu năm học và chuyển dữ liệu dùng chung; đóng năm học thì chuyển cơ sở dữ liệu sang chỉ đọc; chặn đóng khi còn trẻ đã thôi học có công nợ chưa tất toán | Danh sách năm học và lịch năm học | BR-02, BR-89, BR-91 |
+| P01-02 | Quản lý năm học (G1) | VT-02 | Tên năm học; ngày bắt đầu và kết thúc của học kỳ 1, học kỳ 2; kỳ hè nếu có; ngày học trong tuần; tuần nghỉ | Tạo năm học kèm lịch chung toàn trường, tự đánh số tuần, đánh dấu tuần nghỉ (BR-91); mở năm học mới thì tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung và chuyển năm đang dùng sang đã đóng, chỉ đọc; chặn mở khi năm đang dùng còn trẻ đã thôi học có công nợ chưa tất toán (YCTD-37) | Danh sách năm học và lịch năm học | BR-02, BR-89, BR-91, BR-93 |
 | P01-03 | Quản lý phòng ban (G1) | VT-02, VT-06 | Tên, đơn vị, phòng ban cha | Tạo, sửa, ngừng sử dụng | Sơ đồ phòng ban | BR-01 |
 | P01-04 | Quản lý chức danh (G1) | VT-02, VT-06 | Tên chức danh, cấp bậc | Tạo, sửa, ngừng sử dụng | Danh sách chức danh | BR-37 |
 | P01-05 | Quản lý danh mục dùng chung (G1) | VT-02 | Loại danh mục, mã, tên, thứ tự | Tạo, sửa, ngừng sử dụng danh mục | Danh mục dùng chung | BR-75 |

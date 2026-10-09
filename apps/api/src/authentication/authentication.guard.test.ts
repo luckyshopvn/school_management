@@ -2,15 +2,10 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import type { AddressInfo } from 'node:net';
 import { after, before, describe, it } from 'node:test';
-import { Controller, Get, type INestApplication } from '@nestjs/common';
-import {
-  createTestUser,
-  getJson,
-  postJson,
-  startTestApplication,
-  type TestContext,
-} from '@school-management/identity/testing';
+import { Controller, Get } from '@nestjs/common';
+import { getJson } from '@school-management/identity/testing';
 import { createApplication } from '../create-application.js';
+import { startApiTestEnvironment, type ApiTestEnvironment } from '../test-support.js';
 import { AuthenticatedUser, RequirePermission } from './authentication.guard.js';
 import type { CurrentUser } from './current-user.js';
 
@@ -32,35 +27,22 @@ class AuthorizationProbeController {
 
 // Ca kiểm thử theo 27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md
 describe('Máy chủ API: kiểm tra mã phiên và quyền', () => {
-  let identity: TestContext;
-  let api: INestApplication;
+  let environment: ApiTestEnvironment;
   let apiBaseUrl: string;
   const branchA = randomUUID();
 
   before(async () => {
-    identity = await startTestApplication();
-    api = await createApplication(
-      { tokenPublicKeyPem: identity.tokenPublicKeyPem, identityBaseUrl: identity.origin },
-      { additionalControllers: [AuthorizationProbeController] },
-    );
-    await api.listen(0);
-    apiBaseUrl = `http://127.0.0.1:${(api.getHttpServer().address() as AddressInfo).port}/api/v1`;
+    environment = await startApiTestEnvironment({ additionalControllers: [AuthorizationProbeController] });
+    apiBaseUrl = environment.baseUrl;
   });
 
   after(async () => {
-    await api.close();
-    await identity.close();
+    await environment.close();
   });
 
   async function loginAs(roleCode: string, orgUnitId: string | null, mustChangePassword = false) {
-    const user = await createTestUser(identity.database, { roles: [{ roleCode, orgUnitId }], mustChangePassword });
-    const response = await postJson(`${identity.baseUrl}/auth/login`, {
-      login: user.username,
-      password: user.password,
-      channel: 'portal',
-    });
-    assert.equal(response.status, 200);
-    return { user, accessToken: response.body.access_token as string };
+    const user = await environment.loginAs(roleCode, orgUnitId, mustChangePassword);
+    return { user: { id: user.userId }, accessToken: user.accessToken };
   }
 
   it('GET /api/v1/health không cần mã phiên', async () => {
@@ -86,7 +68,7 @@ describe('Máy chủ API: kiểm tra mã phiên và quyền', () => {
   it('CTC-DD-035: thu hồi vai trò thì yêu cầu kế tiếp bị từ chối ngay, không chờ phiên hết hạn', async () => {
     const { user, accessToken } = await loginAs('VT-03', branchA);
     assert.equal((await getJson(`${apiBaseUrl}/test-authorization/child-approval`, accessToken)).status, 200);
-    await identity.database.deleteFrom('user_roles').where('user_id', '=', user.id).execute();
+    await environment.identity.database.deleteFrom('user_roles').where('user_id', '=', user.id).execute();
     const rejected = await getJson(`${apiBaseUrl}/test-authorization/child-approval`, accessToken);
     assert.equal(rejected.status, 403);
     assert.equal((rejected.body.error as Record<string, unknown>).code, 'ERR_FORBIDDEN');
@@ -95,7 +77,11 @@ describe('Máy chủ API: kiểm tra mã phiên và quyền', () => {
   it('CTC-DD-036: khóa tài khoản thì yêu cầu kế tiếp bị từ chối ngay', async () => {
     const { user, accessToken } = await loginAs('VT-07', branchA);
     assert.equal((await getJson(`${apiBaseUrl}/test-authorization/children`, accessToken)).status, 200);
-    await identity.database.updateTable('users').set({ status: 'locked' }).where('id', '=', user.id).execute();
+    await environment.identity.database
+      .updateTable('users')
+      .set({ status: 'locked' })
+      .where('id', '=', user.id)
+      .execute();
     assert.equal((await getJson(`${apiBaseUrl}/test-authorization/children`, accessToken)).status, 401);
   });
 
@@ -124,7 +110,12 @@ describe('Máy chủ API: kiểm tra mã phiên và quyền', () => {
   it('Không liên lạc được với dịch vụ định danh thì trả ERR_INTERNAL', async () => {
     const { accessToken } = await loginAs('VT-02', null);
     const isolatedApi = await createApplication(
-      { tokenPublicKeyPem: identity.tokenPublicKeyPem, identityBaseUrl: 'http://127.0.0.1:9' },
+      {
+        tokenPublicKeyPem: environment.identity.tokenPublicKeyPem,
+        identityBaseUrl: 'http://127.0.0.1:9',
+        systemDatabaseUrl: environment.systemDatabaseUrl,
+        schoolYearDatabasePrefix: environment.schoolYearDatabasePrefix,
+      },
       { additionalControllers: [AuthorizationProbeController] },
     );
     await isolatedApi.listen(0);

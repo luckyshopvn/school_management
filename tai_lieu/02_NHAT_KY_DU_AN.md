@@ -14,6 +14,49 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-09 — DT-01 phần 3: năm học
+
+#### Công việc đã thực hiện
+
+- Eric duyệt thiết kế phần 3. Viết trên nhánh `dt-01-phan-3`.
+- Cơ sở dữ liệu hệ thống: `0002_create_academic_year_tables` tạo `academic_years`, `academic_terms`, `school_weeks`, `academic_year_databases`, có chỉ mục bảo đảm chỉ một năm đang dùng. Cơ sở dữ liệu định danh: `0004_add_academic_year_permission` thêm `P01.academic-year.manage` cho VT-02.
+- Tài khoản `api_service` có quyền tạo cơ sở dữ liệu; bỏ cơ sở dữ liệu năm học tạo tay trong Docker và biến `SCHOOL_YEAR_DATABASE_URL`; công cụ thay đổi cấu trúc chạy trên năm học đang dùng (QU-11).
+- Máy chủ API: tạo năm học, lưu lịch, đánh số tuần, đánh dấu tuần nghỉ, mở năm học gồm kiểm tra, tạo cơ sở dữ liệu, chạy tệp thay đổi cấu trúc, chuyển dữ liệu, đóng năm cũ và chuyển sang chỉ đọc; khung bước chuyển năm học để các phân hệ sau tự thêm bước.
+- Cổng quản trị: màn hình Năm học gồm MH-45 và MH-43; thêm `StatusBadge`, `ConfirmDialog`, `Toast` vào `packages/ui`.
+- Kiểm thử giao diện chạy trên cơ sở dữ liệu hệ thống riêng `school_system_e2e` và cổng riêng, chuẩn bị lại trước mỗi lần chạy.
+- Kết quả: máy chủ API 26/26 (gồm CTC-P01-013, 018, 099 đến 104 và khung kiểm tra, chuyển dữ liệu của CTC-P01-096, 097), dịch vụ định danh 20/20, cơ sở dữ liệu 3/3, tiến trình chạy nền 1/1, kiểm thử giao diện 5/5.
+
+#### Quyết định
+
+- Không có quyết định mới ngoài YCTD-37.
+
+#### Thay đổi
+
+- `17` ghi giao kèo nhóm điểm cuối năm học và trường `rule_code`; xem `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.26.6.
+
+#### Vấn đề tồn đọng
+
+- CTC-P01-014 đến 017, 096 đến 098 cần dữ liệu trẻ và công nợ, chạy ở DT-03 và DT-05; CTC-P01-019 chạy khi có tệp thay đổi cấu trúc năm học thứ hai.
+- Chưa commit, chờ Eric đồng ý.
+
+### 2026-10-09 — Thiết kế DT-01 phần 3: năm học
+
+#### Công việc đã thực hiện
+
+- Đọc tài liệu cho phần 3, phát hiện mâu thuẫn giữa AC-194, CB-10 và BR-89, CTC-P01-096 đến 098 về việc năm cũ còn ghi được sau khi mở năm mới; trình Eric thiết kế phần 3.
+
+#### Quyết định
+
+- Mở năm học mới là đóng năm cũ trong một thao tác; lịch năm học sửa được cho tới khi đóng (YCTD-37) – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-37 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.26.5.
+
+#### Vấn đề tồn đọng
+
+- Chờ Eric duyệt thiết kế phần 3.
+
 ### 2026-10-09 — DT-01 phần 2: kiểm tra mã phiên, quyền và màn hình đăng nhập
 
 #### Công việc đã thực hiện
