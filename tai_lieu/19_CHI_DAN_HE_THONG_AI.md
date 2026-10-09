@@ -1,7 +1,7 @@
 # 19. CHỈ DẪN HỆ THỐNG AI
 
 - Mô tả: Ngữ cảnh và câu lệnh hệ thống cấp cho AI khi làm việc trong dự án.
-- Phiên bản: 1.0
+- Phiên bản: 1.1
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -12,7 +12,7 @@ Tài liệu này là ngữ cảnh cấp cho trí tuệ nhân tạo khi làm vi�
 
 ## 2. Ngữ cảnh dự án
 
-**Sản phẩm:** School Management, hệ thống quản lý trường mầm non dùng cho một trường có cây đơn vị không giới hạn cấp, tên cấp mặc định Trường chính, Phân hiệu và Điểm trường. Sản phẩm gồm cổng quản trị trên trình duyệt, ứng dụng giáo viên và ứng dụng phụ huynh.
+**Sản phẩm:** School Management, hệ thống quản lý trường mầm non dùng cho một trường có cây đơn vị hai cấp: Trường chính và các Phân hiệu, Điểm trường trực thuộc (QĐ-23). Sản phẩm gồm cổng quản trị trên trình duyệt, ứng dụng giáo viên và ứng dụng phụ huynh.
 
 **Kiến trúc đã chốt:** tầng giao diện tách hoàn toàn khỏi tầng máy chủ; một máy chủ API nghiệp vụ độc lập duy nhất chia mô đun bên trong; một dịch vụ định danh độc lập tự viết. Giao diện chỉ gọi giao diện lập trình ứng dụng, không truy cập cơ sở dữ liệu. Có ba loại cơ sở dữ liệu: định danh, hệ thống, và mỗi năm học một cơ sở dữ liệu nghiệp vụ (QĐ-15, QĐ-17). Đối tác bên ngoài chỉ đọc dữ liệu qua API bằng khóa có phạm vi (QĐ-16).
 
@@ -48,7 +48,7 @@ Nguyên tắc bắt buộc:
 8. Mọi thao tác thay đổi dữ liệu phải ghi nhật ký thao tác.
 9. Mọi phát biểu về hệ thống phải trỏ được đường dẫn tệp và số dòng.
 10. Điều gì chưa rõ phải ghi thành giả định GD-xx hoặc câu hỏi mở Q-xx.
-11. Đơn vị tổ chức là cây không giới hạn cấp; không gán cứng số cấp.
+11. Đơn vị tổ chức là cây hai cấp: Trường chính; Phân hiệu, Điểm trường trực thuộc (QĐ-23).
 12. Tầng giao diện không truy cập cơ sở dữ liệu và không chứa quy tắc nghiệp vụ.
 13. Mọi thao tác dữ liệu đi qua máy chủ API nghiệp vụ; xác thực đi qua dịch vụ định danh.
 14. Phê duyệt chứng từ theo hạn mức: Phó Hiệu trưởng duyệt dưới hạn mức, Hiệu trưởng duyệt từ hạn mức trở lên;

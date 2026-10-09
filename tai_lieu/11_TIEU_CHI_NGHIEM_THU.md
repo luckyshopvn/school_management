@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.10
+- Phiên bản: 1.11
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -186,11 +186,11 @@
 | Mã | Tiêu chí |
 |---|---|
 | AC-135 | Cho một trường chưa cấu hình đơn vị / Khi Hiệu trưởng tạo Trường chính / Thì hệ thống tạo đơn vị cấp cao nhất với đơn vị cha trống |
-| AC-136 | Cho đơn vị A là cha của đơn vị B / Khi đổi đơn vị cha của A thành B / Thì hệ thống từ chối vì tạo vòng lặp trong cây đơn vị |
-| AC-137 | Cho cây đơn vị bốn cấp / Khi mở màn hình cây đơn vị / Thì thấy đủ các cấp, mỗi đơn vị nằm đúng dưới đơn vị cha, và chuyển được sang dạng danh sách phẳng có lọc |
+| AC-136 | Cho cây đơn vị hai cấp / Khi tạo đơn vị dưới một Phân hiệu hoặc Điểm trường, hoặc đặt Trường chính dưới đơn vị khác / Thì hệ thống từ chối vì cây chỉ có hai cấp (BR-01, YCTD-38) |
+| AC-137 | Cho Trường chính có hai Phân hiệu và ba Điểm trường / Khi mở màn hình cây đơn vị / Thì thấy mỗi đơn vị cấp 2 nằm dưới Trường chính kèm loại đơn vị, và chuyển được sang dạng danh sách phẳng lọc theo loại (YCTD-38) |
 | AC-138 | Cho một lớp thuộc Điểm trường / Khi xếp trẻ vào lớp đó / Thì đơn vị của trẻ được ghi nhận là Điểm trường đó |
 | AC-139 | Cho một người dùng được gán phạm vi ở Trường chính / Khi truy vấn dữ liệu của một Điểm trường trực thuộc / Thì được phép vì đơn vị cấp trên bao gồm đơn vị cấp dưới trực thuộc |
-| AC-140 | Cho một người dùng được gán phạm vi ở Điểm trường A / Khi truy vấn dữ liệu của Phân hiệu chứa Điểm trường A / Thì bị từ chối vì đơn vị cấp dưới không bao gồm đơn vị cấp trên |
+| AC-140 | Cho một người dùng được gán phạm vi ở Điểm trường A / Khi truy vấn dữ liệu của Trường chính hoặc của đơn vị cấp 2 khác / Thì bị từ chối vì phạm vi chỉ gồm đơn vị được gán (YCTD-38) |
 | AC-141 | Cho hạn mức phê duyệt của một đơn vị / Khi Phó Hiệu trưởng phê duyệt phiếu chi có giá trị dưới hạn mức / Thì phiếu chi được duyệt |
 | AC-142 | Cho hạn mức phê duyệt của một đơn vị / Khi Phó Hiệu trưởng phê duyệt phiếu chi có giá trị bằng hoặc trên hạn mức / Thì hệ thống từ chối và yêu cầu chuyển lên Hiệu trưởng |
 | AC-143 | Cho một phiếu chi do chính người phê duyệt lập / Khi người đó phê duyệt phiếu / Thì hệ thống từ chối vì người lập không tự phê duyệt chứng từ của mình |
@@ -311,7 +311,7 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 1. Mức chi tiết tiêu chí nghiệm thu mà nhà trường mong muốn: chưa có mẫu nghiệm thu của trường. Đã tìm trong: tám ảnh sơ đồ chức năng và danh sách tính năng.
 2. Ngưỡng hiệu năng: dùng các chỉ số PCF-01 đến PCF-13 đã được xác nhận (GD-18).
 3. Đã có câu trả lời: Eric duyệt mọi cổng; Hiệu trưởng nghiệm thu nghiệp vụ chung; kế toán trưởng nghiệm thu P05, P06, P08 (Q-32).
-4. Đã có câu trả lời: cây đơn vị không giới hạn cấp (Q-124).
+4. Đã có câu trả lời: cây đơn vị không giới hạn cấp (Q-124); đã thay bằng cây hai cấp ngày 09/10/2026 (QĐ-23, YCTD-38).
 
 ## 21. Giả định và câu hỏi mở
 

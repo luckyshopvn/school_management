@@ -3,14 +3,14 @@
 - Mô tả: Tên sản phẩm, vấn đề cần giải quyết, mục tiêu sản phẩm, đối tượng sử dụng, giá trị mang lại, kết quả mong muốn, yêu cầu cấp cao, giới hạn ban đầu.
 - Dự án: School Management - Hệ thống quản lý trường mầm non
 - Mã dự án: SM
-- Phiên bản: 1.0
+- Phiên bản: 1.1
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
 ## 1. Tên sản phẩm và định vị
 
-**School Management** là hệ thống quản lý trường mầm non dùng chung cho mọi cấp đơn vị. Đơn vị tổ chức thành cây không giới hạn cấp, tên cấp mặc định là Trường chính, Phân hiệu và Điểm trường (QĐ-14). Hệ thống vận hành trên ba kênh:
+**School Management** là hệ thống quản lý trường mầm non dùng chung cho mọi cấp đơn vị. Đơn vị tổ chức thành cây hai cấp: Trường chính ở cấp 1; Phân hiệu và Điểm trường ở cấp 2, trực thuộc Trường chính (QĐ-23). Hệ thống vận hành trên ba kênh:
 
 | Kênh | Đối tượng | Nền tảng |
 |---|---|---|
@@ -75,7 +75,7 @@ Sản phẩm mới hoàn toàn, không kế thừa mã nguồn của hệ thốn
 
 | Mã | Yêu cầu |
 |---|---|
-| YCC-01 | Một hệ thống phục vụ một trường với cây đơn vị không giới hạn cấp, tên cấp mặc định Trường chính, Phân hiệu và Điểm trường; dữ liệu của đơn vị nào chỉ đơn vị đó và cấp quản lý tương ứng được xem |
+| YCC-01 | Một hệ thống phục vụ một trường với cây đơn vị hai cấp: Trường chính và các Phân hiệu, Điểm trường trực thuộc (QĐ-23); dữ liệu của đơn vị nào chỉ đơn vị đó và cấp quản lý tương ứng được xem |
 | YCC-02 | Mọi dữ liệu nghiệp vụ gắn với trẻ, lớp, đơn vị và thời điểm phát sinh |
 | YCC-03 | Phân quyền do máy chủ quyết định, không dựa vào việc ẩn nút trên giao diện |
 | YCC-04 | Dữ liệu tài chính không xóa, chỉ đảo bút toán hoặc ghi phiếu điều chỉnh |

@@ -1,7 +1,7 @@
 # 27.1. BỘ CA KIỂM THỬ CHI TIẾT — DỊCH VỤ ĐỊNH DANH VÀ P01
 
 - Mô tả: Ca kiểm thử chi tiết cho dịch vụ định danh (Q-125, Q-126) và các chức năng giai đoạn 1 của phân hệ P01 Nền tảng, đơn vị và phân quyền (việc N21, Q-105).
-- Phiên bản: 1.7
+- Phiên bản: 1.9
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -25,21 +25,23 @@ Cây đơn vị theo DL-01 và GD-79:
 | TC | Trường chính | Không có |
 | PH-A | Phân hiệu A | TC |
 | PH-B | Phân hiệu B | TC |
-| ĐT-A1 | Điểm trường A1 | PH-A |
-| ĐT-A2 | Điểm trường A2 | PH-A |
-| ĐT-B1 | Điểm trường B1 | PH-B |
+| ĐT-A1 | Điểm trường A1 | TC |
+| ĐT-A2 | Điểm trường A2 | TC |
+| ĐT-B1 | Điểm trường B1 | TC |
+
+Cây chỉ có hai cấp (QĐ-23). "Nhóm A" là ba đơn vị PH-A, ĐT-A1, ĐT-A2; "nhóm B" là PH-B, ĐT-B1. Tài khoản có phạm vi nhóm A được gán ở cả ba đơn vị của nhóm A (YCTD-38).
 
 Tài khoản kiểm thử:
 
 | Ký hiệu | Vai trò | Phạm vi |
 |---|---|---|
 | HT | VT-02 Hiệu trưởng | Toàn trường |
-| PHT-A | VT-15 Phó Hiệu trưởng | PH-A |
-| QL-A | VT-03 Quản lý đơn vị | PH-A |
+| PHT-A | VT-15 Phó Hiệu trưởng | Nhóm A |
+| QL-A | VT-03 Quản lý đơn vị | Nhóm A |
 | QL-A1 | VT-03 Quản lý đơn vị | ĐT-A1 |
-| KT-A | VT-04 Kế toán | PH-A |
+| KT-A | VT-04 Kế toán | Nhóm A |
 | KTT | VT-05 Kế toán trưởng | TC |
-| NS-A | VT-06 Nhân sự | PH-A |
+| NS-A | VT-06 Nhân sự | Nhóm A |
 | GV-A1 | VT-07 Giáo viên chủ nhiệm | Một lớp của ĐT-A1 |
 | PH-1 | VT-14 Phụ huynh | Trẻ T1 thuộc ĐT-A1 |
 | QTNT | VT-01 Quản trị nền tảng | Cấu hình kỹ thuật |
@@ -128,18 +130,18 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
-| CTC-P01-001 | P01-01 | AC-135, CT-091 | LT-02 | Cao | Trường chưa có đơn vị | HT tạo TC không chọn đơn vị cha | Tạo thành công, đơn vị cha trống | | Chưa chạy |
-| CTC-P01-002 | P01-01 | BR-01 | LT-02 | Cao | Đã có TC | HT tạo PH-A dưới TC, rồi ĐT-A1 dưới PH-A | Tạo thành công; `GET /api/v1/org-units/tree` trả đúng quan hệ cha con | | Chưa chạy |
-| CTC-P01-003 | P01-01 | AC-136, BR-01, CT-092 | LT-02 | Cao | Cây theo mục 2 | Đổi đơn vị cha của PH-A thành ĐT-A1 | Trả `ERR_RULE_VIOLATION` kèm mã BR-01; cây không đổi | | Chưa chạy |
-| CTC-P01-004 | P01-01 | AC-136 | LT-02 | Trung bình | Cây theo mục 2 | Đổi đơn vị cha của PH-A thành chính PH-A | Bị từ chối như CTC-P01-003 | | Chưa chạy |
-| CTC-P01-005 | P01-01 | AC-137, CT-093 | LT-02 | Cao | Thêm một đơn vị cấp bốn dưới ĐT-A1 | Mở cây đơn vị; chuyển sang danh sách phẳng và lọc theo cấp | Đủ bốn cấp, mỗi đơn vị đúng dưới đơn vị cha; danh sách phẳng lọc đúng | | Chưa chạy |
-| CTC-P01-006 | P01-01 | BR-01 | LT-02 | Trung bình | Cây theo mục 2 | Đổi nhãn cấp "Điểm trường" thành "Cơ sở lẻ" | Nhãn mới hiển thị ở mọi nơi; dữ liệu của các đơn vị không đổi | | Chưa chạy |
-| CTC-P01-007 | P01-01 | BR-75 | LT-02 | Trung bình | ĐT-A2 không còn dùng | Ngừng sử dụng ĐT-A2 | ĐT-A2 ở trạng thái ngừng sử dụng, không bị xóa; không chọn được khi tạo lớp mới | | Chưa chạy |
-| CTC-P01-008 | P01-01 | P01-01, PQ-03 | LT-04 | Cao | QL-A | Gọi `POST /api/v1/org-units` | Trả `ERR_FORBIDDEN` | | Chưa chạy |
+| CTC-P01-001 | P01-01 | AC-135, CT-091 | LT-02 | Cao | Trường chưa có đơn vị | HT tạo TC không chọn đơn vị cha | Tạo thành công, đơn vị cha trống | Kiểm thử tự động `apps/api/src/organization/org-units.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-P01-002 | P01-01 | BR-01 | LT-02 | Cao | Đã có TC | HT tạo PH-A loại Phân hiệu và ĐT-A1 loại Điểm trường dưới TC | Tạo thành công; `GET /api/v1/org-units/tree` trả hai đơn vị dưới TC kèm loại | Kiểm thử tự động `apps/api/src/organization/org-units.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-P01-003 | P01-01 | AC-136, BR-01, CT-092, YCTD-38 | LT-02 | Cao | Cây theo mục 2 | Tạo đơn vị có đơn vị cha là ĐT-A1; đổi đơn vị cha của PH-A thành ĐT-A1 | Cả hai trả `ERR_RULE_VIOLATION` kèm mã BR-01; cây không đổi | Kiểm thử tự động `apps/api/src/organization/org-units.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-P01-004 | P01-01 | AC-136, YCTD-38 | LT-02 | Trung bình | Cây theo mục 2 | Tạo Trường chính thứ hai; đặt TC dưới PH-A | Bị từ chối như CTC-P01-003 | Kiểm thử tự động `apps/api/src/organization/org-units.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-P01-005 | P01-01 | AC-137, CT-093, YCTD-38 | LT-02 | Cao | Cây theo mục 2 | Mở cây đơn vị; chuyển sang danh sách phẳng và lọc theo loại Điểm trường | Năm đơn vị cấp 2 nằm dưới TC kèm loại; danh sách phẳng chỉ còn ĐT-A1, ĐT-A2, ĐT-B1 | Kiểm thử tự động `apps/api/src/organization/org-units.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-P01-006 | Bỏ ngày 09/10/2026: nhãn cấp cố định, không đổi được (YCTD-38) | — | — | — | — | — | — | — | Không áp dụng |
+| CTC-P01-007 | P01-01 | BR-75 | LT-02 | Trung bình | ĐT-A2 không còn dùng | Ngừng sử dụng ĐT-A2 | ĐT-A2 ở trạng thái ngừng sử dụng, không bị xóa; không chọn được khi tạo lớp mới | Kiểm thử tự động `apps/api/src/organization/org-units.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-P01-008 | P01-01 | P01-01, PQ-03 | LT-04 | Cao | QL-A | Gọi `POST /api/v1/org-units` | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/organization/org-units.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-P01-009 | P01-01 | AC-139, CT-095 | LT-04 | Cao | Tài khoản gán ở TC | Truy vấn danh sách lớp của ĐT-B1 | Được trả dữ liệu | | Chưa chạy |
 | CTC-P01-010 | P01-01 | AC-140, CT-096 | LT-04 | Cao | QL-A1 gán ở ĐT-A1 | Truy vấn danh sách lớp của PH-A và của ĐT-A2 | Cả hai bị từ chối | | Chưa chạy |
-| CTC-P01-011 | P01-01 | AC-01, CT-001 | LT-04 | Cao | QL-A gán ở PH-A | Truy vấn danh sách trẻ | Chỉ trả trẻ thuộc PH-A, ĐT-A1, ĐT-A2; không có trẻ của PH-B, ĐT-B1 | | Chưa chạy |
-| CTC-P01-012 | P01-01 | PCF-05 | LT-05 | Trung bình | Cây theo mục 2 | HT đổi tên PH-B; mở nhật ký thao tác | Có bản ghi người thực hiện, thời điểm, giá trị trước và sau | | Chưa chạy |
+| CTC-P01-011 | P01-01 | AC-01, CT-001 | LT-04 | Cao | QL-A gán ở nhóm A | Truy vấn danh sách trẻ | Chỉ trả trẻ thuộc PH-A, ĐT-A1, ĐT-A2; không có trẻ của PH-B, ĐT-B1 | | Chưa chạy |
+| CTC-P01-012 | P01-01 | PCF-05 | LT-05 | Trung bình | Cây theo mục 2 | HT đổi tên PH-B; mở nhật ký thao tác | Có bản ghi người thực hiện, thời điểm, giá trị trước và sau | Kiểm thử tự động `apps/api/src/organization/org-units.test.ts` đạt ngày 09/10/2026 | Đạt |
 
 ### 4.2. P01-02 Năm học
 
@@ -167,7 +169,7 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
 | CTC-P01-020 | P01-03 | P01-03 | LT-02 | Trung bình | Cây theo mục 2 | NS-A tạo phòng ban "Tổ chuyên môn" thuộc PH-A, có phòng ban cha | Tạo thành công, hiện đúng trong sơ đồ phòng ban | | Chưa chạy |
-| CTC-P01-021 | P01-03 | P01-03 | LT-04 | Trung bình | NS-A gán ở PH-A | Tạo phòng ban thuộc PH-B | Trả `ERR_FORBIDDEN` | | Chưa chạy |
+| CTC-P01-021 | P01-03 | P01-03 | LT-04 | Trung bình | NS-A gán ở nhóm A | Tạo phòng ban thuộc PH-B | Trả `ERR_FORBIDDEN` | | Chưa chạy |
 | CTC-P01-022 | P01-03 | P01-03 | LT-04 | Trung bình | GV-A1 | Gọi `POST /api/v1/departments` | Trả `ERR_FORBIDDEN` | | Chưa chạy |
 | CTC-P01-023 | P01-03 | BR-75 | LT-02 | Thấp | Phòng ban đã có nhân sự | Ngừng sử dụng phòng ban | Trạng thái ngừng sử dụng; nhân sự cũ vẫn giữ lịch sử phòng ban | | Chưa chạy |
 | CTC-P01-024 | P01-04 | P01-04, BR-37 | LT-02 | Trung bình | Không | NS-A tạo chức danh "Giáo viên mầm non hạng III" kèm cấp bậc | Tạo thành công | | Chưa chạy |
@@ -187,7 +189,7 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
 | CTC-P01-030 | P01-06 | P01-06 | LT-02 | Cao | Không | HT tạo tài khoản giáo viên với số điện thoại, vai trò VT-07, đơn vị ĐT-A1 | Tạo thành công; người dùng đăng nhập được | | Chưa chạy |
-| CTC-P01-031 | P01-06 | P01-06, PQ-03 | LT-02 | Cao | QL-A | Tạo tài khoản nhân viên thuộc ĐT-A1 | Tạo thành công vì ĐT-A1 nằm trong phạm vi PH-A | | Chưa chạy |
+| CTC-P01-031 | P01-06 | P01-06, PQ-03 | LT-02 | Cao | QL-A | Tạo tài khoản nhân viên thuộc ĐT-A1 | Tạo thành công vì QL-A được gán ở ĐT-A1 | | Chưa chạy |
 | CTC-P01-032 | P01-06 | PQ-03 | LT-04 | Cao | QL-A | Tạo tài khoản thuộc PH-B | Trả `ERR_FORBIDDEN` | | Chưa chạy |
 | CTC-P01-033 | P01-06 | KT-04 | LT-02 | Cao | Số điện thoại đã thuộc một tài khoản nhân sự | Tạo tài khoản nhân sự khác cùng số điện thoại | Trả `ERR_CONFLICT` | | Chưa chạy |
 | CTC-P01-034 | P01-06 | P01-06 | LT-02 | Cao | Tài khoản GV-A1 đang hoạt động | HT khóa rồi mở khóa | Khi khóa thì không đăng nhập được; khi mở khóa thì đăng nhập lại được; dữ liệu không mất | | Chưa chạy |
