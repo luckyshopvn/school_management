@@ -1,2 +1,7 @@
 @import 'tailwindcss';
+@import '@school-management/ui/theme.css';
 @source '../../../packages/ui/src';
+
+body {
+  @apply bg-page text-content text-text;
+}

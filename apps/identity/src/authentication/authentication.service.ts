@@ -1,18 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import type { SessionChannel } from '@school-management/database';
 import { randomUUID } from 'node:crypto';
-import { unauthenticatedError, validationError } from '../common/application-error.js';
-import { Clock } from '../common/clock.js';
-import { Infrastructure } from '../common/infrastructure.js';
-import { checkPasswordPolicy, hashPassword, placeholderPasswordHash, verifyPassword } from './password.js';
 import {
   ACCESS_TOKEN_LIFETIME_SECONDS,
-  createRefreshToken,
-  hashRefreshToken,
-  readSessionIdFromRefreshToken,
-  TokenService,
+  Clock,
+  unauthenticatedError,
+  validationError,
   type AccessTokenClaims,
-} from './token.service.js';
+} from '@school-management/server';
+import { Infrastructure } from '../common/infrastructure.js';
+import { checkPasswordPolicy, hashPassword, placeholderPasswordHash, verifyPassword } from './password.js';
+import { createRefreshToken, hashRefreshToken, readSessionIdFromRefreshToken, TokenService } from './token.service.js';
 
 // Sai mật khẩu 5 lần liên tiếp thì tạm khóa 15 phút rồi tự mở (BM-04, XT-05)
 export const MAXIMUM_FAILED_LOGIN_COUNT = 5;
@@ -34,10 +32,16 @@ export interface RequestOrigin {
 
 export interface TokenResponse {
   access_token: string;
-  refresh_token: string;
   token_type: 'Bearer';
   expires_in: number;
   password_change_required: boolean;
+}
+
+// Mã làm mới không trả trong nội dung phản hồi; bộ điều khiển đặt vào cookie httpOnly (BM-71)
+export interface IssuedTokens {
+  response: TokenResponse;
+  refreshToken: string;
+  refreshExpiresAt: Date;
 }
 
 export interface CurrentUserResponse {
@@ -69,7 +73,7 @@ export class AuthenticationService {
     password: string,
     channel: SessionChannel,
     origin: RequestOrigin,
-  ): Promise<TokenResponse> {
+  ): Promise<IssuedTokens> {
     const now = this.clock.now();
     const user = await this.database
       .selectFrom('users')
@@ -117,6 +121,7 @@ export class AuthenticationService {
 
     const sessionId = randomUUID();
     const refreshToken = createRefreshToken(sessionId);
+    const expiresAt = new Date(now.getTime() + REFRESH_LIFETIME_MILLISECONDS[channel]);
     await this.database
       .insertInto('sessions')
       .values({
@@ -125,7 +130,7 @@ export class AuthenticationService {
         channel,
         refresh_token_hash: refreshToken.hash,
         issued_at: now,
-        expires_at: new Date(now.getTime() + REFRESH_LIFETIME_MILLISECONDS[channel]),
+        expires_at: expiresAt,
         ip_address: origin.ipAddress,
         user_agent: origin.userAgent,
       })
@@ -134,11 +139,12 @@ export class AuthenticationService {
     return this.buildTokenResponse(
       { userId: user.id, sessionId, channel, passwordChangeRequired: user.must_change_password },
       refreshToken.token,
+      expiresAt,
     );
   }
 
   // Mỗi lần làm mới cấp mã làm mới mới; dùng lại mã cũ thì thu hồi cả phiên
-  async refresh(refreshTokenValue: string, origin: RequestOrigin): Promise<TokenResponse> {
+  async refresh(refreshTokenValue: string, origin: RequestOrigin): Promise<IssuedTokens> {
     const now = this.clock.now();
     const sessionId = readSessionIdFromRefreshToken(refreshTokenValue);
     if (!sessionId) {
@@ -174,6 +180,7 @@ export class AuthenticationService {
         passwordChangeRequired: user.must_change_password,
       },
       refreshToken.token,
+      session.expires_at,
     );
   }
 
@@ -186,7 +193,7 @@ export class AuthenticationService {
     claims: AccessTokenClaims,
     currentPassword: string,
     newPassword: string,
-  ): Promise<Omit<TokenResponse, 'refresh_token'>> {
+  ): Promise<TokenResponse> {
     const now = this.clock.now();
     await this.findActiveSession(claims.sessionId, now);
     const user = await this.findActiveUser(claims.userId, now);
@@ -274,13 +281,20 @@ export class AuthenticationService {
     };
   }
 
-  private async buildTokenResponse(claims: AccessTokenClaims, refreshToken: string): Promise<TokenResponse> {
+  private async buildTokenResponse(
+    claims: AccessTokenClaims,
+    refreshToken: string,
+    refreshExpiresAt: Date,
+  ): Promise<IssuedTokens> {
     return {
-      access_token: await this.tokenService.signAccessToken(claims),
-      refresh_token: refreshToken,
-      token_type: 'Bearer',
-      expires_in: ACCESS_TOKEN_LIFETIME_SECONDS,
-      password_change_required: claims.passwordChangeRequired,
+      response: {
+        access_token: await this.tokenService.signAccessToken(claims),
+        token_type: 'Bearer',
+        expires_in: ACCESS_TOKEN_LIFETIME_SECONDS,
+        password_change_required: claims.passwordChangeRequired,
+      },
+      refreshToken,
+      refreshExpiresAt,
     };
   }
 

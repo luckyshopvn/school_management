@@ -1,8 +1,9 @@
 import { Injectable, SetMetadata, type CanActivate, type ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import type { Request } from 'express';
-import { ApplicationError, unauthenticatedError } from '../common/application-error.js';
-import { TokenService, type AccessTokenClaims } from './token.service.js';
+import { ApplicationError, unauthenticatedError } from '@school-management/server';
+import type { AccessTokenClaims } from '@school-management/server';
+import { TokenService } from './token.service.js';
 
 const ALLOWED_WHILE_PASSWORD_CHANGE_REQUIRED = 'allowedWhilePasswordChangeRequired';
 

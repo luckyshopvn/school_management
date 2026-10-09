@@ -4,7 +4,7 @@ import type { INestApplication } from '@nestjs/common';
 import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
 import type { Kysely } from 'kysely';
 import { hashPassword } from './authentication/password.js';
-import { Clock } from './common/clock.js';
+import { Clock } from '@school-management/server';
 import type { IdentityConfiguration } from './common/configuration.js';
 import { generateTokenKeyPair } from './common/token-keys.js';
 import { createApplication } from './create-application.js';
@@ -33,6 +33,8 @@ export interface TestContext {
   clock: AdjustableClock;
   database: Kysely<IdentityDatabase>;
   baseUrl: string;
+  origin: string;
+  tokenPublicKeyPem: string;
   close(): Promise<void>;
 }
 
@@ -60,6 +62,8 @@ export async function startTestApplication(loginRequestsPerMinutePerAddress = 10
     clock,
     database,
     baseUrl: `http://127.0.0.1:${address.port}/api/v1`,
+    origin: `http://127.0.0.1:${address.port}`,
+    tokenPublicKeyPem: keys.publicKeyPem,
     async close() {
       await application.close();
       await database.destroy();
@@ -117,21 +121,38 @@ export async function createTestUser(
   return { id: user.id, phone, username, password: TEST_PASSWORD };
 }
 
+export interface JsonResponse {
+  status: number;
+  body: Record<string, unknown>;
+  setCookie: string | undefined;
+  refreshToken: string | undefined;
+}
+
+// Gửi yêu cầu POST; mã làm mới gửi và nhận qua cookie như trình duyệt (BM-71)
 export async function postJson(
   url: string,
   body: unknown,
   accessToken?: string,
-): Promise<{ status: number; body: Record<string, unknown> }> {
+  refreshToken?: string,
+): Promise<JsonResponse> {
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
       ...(accessToken ? { authorization: `Bearer ${accessToken}` } : {}),
+      ...(refreshToken ? { cookie: `refresh_token=${encodeURIComponent(refreshToken)}` } : {}),
     },
     body: JSON.stringify(body),
   });
   const text = await response.text();
-  return { status: response.status, body: text ? (JSON.parse(text) as Record<string, unknown>) : {} };
+  const setCookie = response.headers.getSetCookie().find((cookie) => cookie.startsWith('refresh_token='));
+  const cookieValue = setCookie?.split(';')[0]?.slice('refresh_token='.length);
+  return {
+    status: response.status,
+    body: text ? (JSON.parse(text) as Record<string, unknown>) : {},
+    setCookie,
+    refreshToken: cookieValue ? decodeURIComponent(cookieValue) : undefined,
+  };
 }
 
 export async function getJson(

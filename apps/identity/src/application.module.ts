@@ -4,7 +4,7 @@ import { AuthenticationController } from './authentication/authentication.contro
 import { AuthenticationService } from './authentication/authentication.service.js';
 import { LoginRateLimiter } from './authentication/login-rate-limiter.js';
 import { TokenService } from './authentication/token.service.js';
-import { Clock } from './common/clock.js';
+import { Clock } from '@school-management/server';
 import { IDENTITY_CONFIGURATION, type IdentityConfiguration } from './common/configuration.js';
 import { Infrastructure } from './common/infrastructure.js';
 import { HealthController } from './health.controller.js';

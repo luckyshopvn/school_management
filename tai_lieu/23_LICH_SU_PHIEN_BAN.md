@@ -16,6 +16,28 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.26.4 – 2026-10-09
+
+- Phạm vi thay đổi: DT-01 phần 2.
+- Chức năng mới: máy chủ API kiểm tra mã phiên và quyền; màn hình đăng nhập, đổi mật khẩu, khung trang của cổng quản trị.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: không.
+- Thay đổi API: `login`, `refresh`, `logout` dùng cookie `refresh_token`; mọi điểm cuối của máy chủ API trừ kiểm tra sức khỏe yêu cầu mã phiên.
+- Rủi ro: máy chủ API phụ thuộc dịch vụ định danh ở mọi yêu cầu.
+- Khả năng tương thích: chưa có bên gọi nên không ảnh hưởng.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-01-phan-2`.
+
+### Phiên bản 0.26.3 – 2026-10-09
+
+- Phạm vi thay đổi: YCTD-36, thiết kế DT-01 phần 2.
+- Chức năng mới: không.
+- Lỗi đã sửa: sơ đồ mục 1 của `14` ghi điều hướng ngang trái với BC-01; `14` thiếu màn hình đăng nhập và đổi mật khẩu.
+- Thay đổi dữ liệu: không.
+- Thay đổi API: mã làm mới chuyển sang cookie httpOnly.
+- Rủi ro: không.
+- Khả năng tương thích: chưa có bên gọi nên không ảnh hưởng.
+- Phương án quay lui: khôi phục các tài liệu nêu ở YCTD-36 về phiên bản trước.
+
 ### Phiên bản 0.26.2 – 2026-10-09
 
 - Phạm vi thay đổi: DT-01 phần 1, phần lõi dịch vụ định danh.

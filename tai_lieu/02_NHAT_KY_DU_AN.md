@@ -14,6 +14,50 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-09 — DT-01 phần 2: kiểm tra mã phiên, quyền và màn hình đăng nhập
+
+#### Công việc đã thực hiện
+
+- Eric duyệt thiết kế phần 2. Viết trên nhánh `dt-01-phan-2`.
+- Thêm gói `packages/server`: mô hình lỗi, bộ lọc lỗi, đồng hồ, kiểm tra mã phiên bằng khóa công khai; dịch vụ định danh chuyển sang dùng gói này.
+- Dịch vụ định danh trả mã làm mới bằng cookie httpOnly, SameSite=Strict, Secure, đường dẫn `/api/v1/auth`; đăng xuất xóa cookie (BM-71).
+- Máy chủ API: kiểm tra mã phiên ở mọi điểm cuối trừ kiểm tra sức khỏe; hỏi `GET /api/v1/auth/me` ở mỗi yêu cầu (QĐ-20); khai báo quyền cần có cho từng điểm cuối; trả phạm vi đơn vị của từng quyền; từ chối mã phiên còn bắt buộc đổi mật khẩu.
+- Cổng quản trị: MH-47 Đăng nhập, MH-48 Đổi mật khẩu, khung trang điều hướng dọc bên trái, tự làm mới mã phiên, đăng xuất; thêm thành phần `Button`, `TextField`, `Alert` và mã màu theo `15` vào `packages/ui`.
+- Thêm gói `tests` chạy Playwright; GitHub Actions sinh khóa tạm, cài Chromium và chạy kiểm thử giao diện.
+- Kết quả: dịch vụ định danh 20/20, máy chủ API 9/9 (gồm CTC-DD-035, 036, 037, 041), cơ sở dữ liệu 3/3, tiến trình chạy nền 1/1, kiểm thử giao diện 3/3; kiểm tra kiểu, quy tắc viết mã, định dạng đạt.
+
+#### Quyết định
+
+- Cookie mã làm mới áp dụng cho cả ba kênh trình duyệt – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.26.4.
+
+#### Vấn đề tồn đọng
+
+- CTC-DD-035 mới kiểm được phần từ chối ngay khi mất vai trò; phần thu hồi mã làm mới khi đổi quyền làm cùng điểm cuối gán vai trò ở phần 5. CTC-DD-041 kiểm lại khi có điểm cuối nghiệp vụ thật.
+- Lớp đơn vị mới trả đơn vị được gán; mở rộng sang đơn vị con làm ở phần 4 khi có cây đơn vị.
+- Chưa commit, chờ Eric đồng ý.
+
+### 2026-10-09 — Thiết kế DT-01 phần 2
+
+#### Công việc đã thực hiện
+
+- Trình thiết kế phần 2: máy chủ API kiểm tra mã phiên và quyền, màn hình đăng nhập và đổi mật khẩu trên cổng quản trị.
+
+#### Quyết định
+
+- Mã làm mới lưu trong cookie httpOnly; thêm gói `packages/server`; điều hướng dọc bên trái; làm kiểm thử Playwright ngay (YCTD-36) – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-36 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.26.3.
+
+#### Vấn đề tồn đọng
+
+- Chờ Eric duyệt thiết kế phần 2.
+
 ### 2026-10-09 — DT-01 phần 1: phần lõi dịch vụ định danh
 
 #### Công việc đã thực hiện

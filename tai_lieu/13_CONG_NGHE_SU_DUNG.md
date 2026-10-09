@@ -1,7 +1,7 @@
 # 13. CÔNG NGHỆ SỬ DỤNG
 
 - Mô tả: Ngôn ngữ lập trình, khuôn khổ, cơ sở dữ liệu, thư viện, công cụ xây dựng, công cụ kiểm thử, môi trường triển khai.
-- Phiên bản: 1.3
+- Phiên bản: 1.4
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -66,6 +66,7 @@ School_Management/
 ├── packages/
 │   ├── shared/         # Kiểu dữ liệu, hằng số dùng chung
 │   ├── ui/             # Thành phần giao diện dùng chung
+│   ├── server/         # Mã dùng chung của hai dịch vụ máy chủ: mô hình lỗi, kiểm tra mã phiên (YCTD-36)
 │   └── config/         # Cấu hình dùng chung
 ├── database/
 │   ├── identity/       # Thay đổi cấu trúc và dữ liệu khởi tạo của cơ sở dữ liệu định danh
@@ -75,7 +76,7 @@ School_Management/
 └── tests/              # Kiểm thử tích hợp và kiểm thử giao diện
 ```
 
-Quản lý gói theo không gian làm việc, một kho mã nguồn cho toàn bộ sản phẩm. Ba ứng dụng giao diện (`portal`, `teacher`, `parent`) và hai dịch vụ máy chủ (`api`, `identity`) là các gói triển khai độc lập; gói `shared` không được chứa mã truy cập cơ sở dữ liệu.
+Quản lý gói theo không gian làm việc, một kho mã nguồn cho toàn bộ sản phẩm. Ba ứng dụng giao diện (`portal`, `teacher`, `parent`) và hai dịch vụ máy chủ (`api`, `identity`) là các gói triển khai độc lập; gói `shared` không được chứa mã truy cập cơ sở dữ liệu; gói `server` chỉ dùng cho `api` và `identity`, giao diện không được dùng (YCTD-36).
 
 ## 5. Quy ước kỹ thuật
 

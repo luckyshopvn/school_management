@@ -38,6 +38,7 @@ jobs:
       SYSTEM_DATABASE_URL: postgres://api_service:ci_may_chu_api@localhost:5432/school_system
       SCHOOL_YEAR_DATABASE_URL: postgres://api_service:ci_may_chu_api@localhost:5432/school_year_2026_2027
       REDIS_URL: redis://localhost:6379
+      IDENTITY_BASE_URL: http://localhost:3001
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -53,3 +54,7 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm database:migrate
       - run: pnpm test
+      # Khóa ký mã phiên chỉ dùng cho lần chạy kiểm thử này
+      - run: node apps/identity/dist/generate-token-keys.js >> "$GITHUB_ENV"
+      - run: pnpm --filter @school-management/tests exec playwright install --with-deps chromium
+      - run: pnpm test:e2e

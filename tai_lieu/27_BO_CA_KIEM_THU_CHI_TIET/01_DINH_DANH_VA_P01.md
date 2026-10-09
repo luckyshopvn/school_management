@@ -1,7 +1,7 @@
 # 27.1. BỘ CA KIỂM THỬ CHI TIẾT — DỊCH VỤ ĐỊNH DANH VÀ P01
 
 - Mô tả: Ca kiểm thử chi tiết cho dịch vụ định danh (Q-125, Q-126) và các chức năng giai đoạn 1 của phân hệ P01 Nền tảng, đơn vị và phân quyền (việc N21, Q-105).
-- Phiên bản: 1.4
+- Phiên bản: 1.5
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -110,8 +110,8 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 | CTC-DD-033 | P19-06 | XT-02, Q-120 | LT-02 | Trung bình | GV-A1 và PH-1 đăng nhập trên ứng dụng | Làm mới sau 29 ngày; làm mới sau 30 ngày 1 phút | Lần đầu thành công; lần sau bị từ chối | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-DD-034 | P19-06 | BM-05 | LT-02 | Cao | NS-A đang có phiên | Gọi `POST /api/v1/auth/logout`, rồi làm mới bằng mã làm mới cũ | Làm mới bị từ chối | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-DD-035 | P01-07 | AC-05, PQ-04, BM-14, BM-56, CT-005 | LT-04 | Cao | QL-A đang có phiên, đang có quyền duyệt hồ sơ trẻ | HT thu hồi vai trò VT-03 của QL-A; QL-A gửi ngay yêu cầu duyệt hồ sơ | Bị từ chối ngay, không chờ phiên hết hạn; mã làm mới cũ bị thu hồi | | Chưa chạy |
-| CTC-DD-036 | P01-06 | PQ-04 | LT-04 | Cao | GV-A1 đang có phiên | HT khóa tài khoản GV-A1; GV-A1 gửi yêu cầu kế tiếp | Bị từ chối ngay | | Chưa chạy |
-| CTC-DD-037 | P19-06 | XT-06, AC-146, BM-58, CT-102 | LT-02 | Cao | Không | Gửi yêu cầu thay đổi dữ liệu tới máy chủ API kèm mã phiên sửa chữ ký, và kèm mã phiên hợp lệ | Mã sửa chữ ký bị từ chối; mã hợp lệ được xử lý sau khi kiểm tra | | Chưa chạy |
+| CTC-DD-036 | P01-06 | PQ-04 | LT-04 | Cao | GV-A1 đang có phiên | HT khóa tài khoản GV-A1; GV-A1 gửi yêu cầu kế tiếp | Bị từ chối ngay | Kiểm thử tự động `apps/api/src/authentication/authentication.guard.test.ts` đạt ngày 09/10/2026 | Đạt |
+| CTC-DD-037 | P19-06 | XT-06, AC-146, BM-58, CT-102 | LT-02 | Cao | Không | Gửi yêu cầu thay đổi dữ liệu tới máy chủ API kèm mã phiên sửa chữ ký, và kèm mã phiên hợp lệ | Mã sửa chữ ký bị từ chối; mã hợp lệ được xử lý sau khi kiểm tra | Kiểm thử tự động `apps/api/src/authentication/authentication.guard.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-DD-038 | P19-06 | XT-08, BM-54 | LT-05 | Cao | Không | Rà cấu trúc cơ sở dữ liệu năm học, cơ sở dữ liệu hệ thống và mã nguồn máy chủ API | Không có cột mật khẩu, không có hàm xác thực mật khẩu ngoài dịch vụ định danh | | Chưa chạy |
 
 ### 3.6. Quản lý tài khoản qua dịch vụ định danh

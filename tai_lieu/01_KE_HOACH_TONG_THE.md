@@ -55,6 +55,8 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.2.0 | Bốn thay đổi: Ban Giám hiệu, nhiều cấp đơn vị, tách giao diện và máy chủ, dịch vụ định danh | 01 đến 07 | Đã có |
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
+| 0.26.4 | DT-01 phần 2: máy chủ API kiểm tra mã phiên và quyền, màn hình đăng nhập | 09 | Đã có |
+| 0.26.3 | Cookie httpOnly cho mã làm mới, gói `packages/server`, điều hướng dọc, MH-47 và MH-48 (YCTD-36) | 01 đến 08 | Đã có |
 | 0.26.2 | DT-01 phần 1: phần lõi dịch vụ định danh | 09 | Đã có |
 | 0.26.1 | Chốt quy tắc mật khẩu, tạm khóa, mã quyền, tài khoản đầu tiên VT-01 (YCTD-35) | 01 đến 08 | Đã có |
 | 0.26.0 | Gộp phần lõi dịch vụ định danh vào DT-01, chia sáu phần; QĐ-20 đến QĐ-22 (YCTD-34) | 01 đến 08 | Đã có |
@@ -196,7 +198,7 @@ Năm quyết định đã chốt ngày 09/10/2026, ghi tại `QĐ-06` đến `Q�
 
 Nội dung: danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, thích ứng màn hình, quy tắc thiết kế thống nhất.
 
-Đầu ra: `14_DAC_TA_GIAO_DIEN.md` với 46 màn hình cổng quản trị `MH-01` đến `MH-46`, 16 màn hình giáo viên `MG-xx`, 19 màn hình phụ huynh `MP-xx`, và `RG-01` đến `RG-06` về ranh giới với máy chủ; `15_HE_THONG_THIET_KE.md`.
+Đầu ra: `14_DAC_TA_GIAO_DIEN.md` với 48 màn hình cổng quản trị `MH-01` đến `MH-48`, 16 màn hình giáo viên `MG-xx`, 19 màn hình phụ huynh `MP-xx`, và `RG-01` đến `RG-06` về ranh giới với máy chủ; `15_HE_THONG_THIET_KE.md`.
 
 Cổng CG-06 đạt khi: bao phủ chức năng và vai trò; có đầy đủ trạng thái rỗng, đang tải, lỗi; điều hướng rõ; chuyển được thành giao diện thật.
 

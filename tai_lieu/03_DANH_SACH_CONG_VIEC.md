@@ -44,7 +44,7 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | M00-3 | Phê duyệt cách xếp ba giai đoạn | Toàn dự án | Hoàn thành | Eric đồng ý ngày 2026-10-09 (Q-07) |
 | M00-4 | Xác nhận cây đơn vị thực tế | Toàn dự án | Hoàn thành | Nhà trường tự tạo trong phần Cấu hình; biểu phí dùng chung (Q-113, Q-122) |
 | M00-5 | Chốt mức hạn mức phê duyệt theo loại chứng từ | Toàn dự án | Hoàn thành | Để nhà trường cấu hình sau; khi chưa cấu hình Hiệu trưởng duyệt mọi chứng từ (Q-112). Q-123 vẫn mở |
-| M01 | Xây dựng nền tảng, cây đơn vị nhiều cấp, tài khoản, vai trò, quyền | P01 | Đang thực hiện | Đợt DT-01, làm theo sáu phần cùng phần lõi của M01-2 (YCTD-34); phần 1 xong trên nhánh `dt-01-phan-1`, 19/19 kiểm thử đạt, chờ yêu cầu gộp |
+| M01 | Xây dựng nền tảng, cây đơn vị nhiều cấp, tài khoản, vai trò, quyền | P01 | Đang thực hiện | Đợt DT-01, làm theo sáu phần cùng phần lõi của M01-2 (YCTD-34); phần 1 ở yêu cầu gộp số 3; phần 2 xong trên nhánh `dt-01-phan-2`, 33 kiểm thử và 3 kiểm thử giao diện đạt |
 | M01-2 | Xây dựng dịch vụ định danh độc lập tự viết | P01 | Chưa bắt đầu | Tách khỏi máy chủ API nghiệp vụ; phần lõi làm trong DT-01 phần 1, phần phụ huynh (mã một lần, kích hoạt) ở DT-02 (YCTD-34) |
 | M01-3 | Nền móng kỹ thuật DT-00: kho mã nguồn GitHub, cấu trúc nhiều gói, ranh giới giao diện và máy chủ, gói mã dùng chung, môi trường phát triển Docker, tích hợp liên tục chỉ chạy kiểm thử | Toàn dự án | Hoàn thành | Giao diện chỉ gọi giao diện lập trình ứng dụng; kho https://github.com/luckyshopvn/school_management; 6/6 kiểm thử đạt trên máy và GitHub Actions; Eric gộp yêu cầu gộp số 1 vào `main` ngày 09/10/2026 (YCTD-32) |
 | M02 | Xây dựng hồ sơ trẻ, phụ huynh, lớp học, phân lớp | P02 | Chưa bắt đầu | Phụ thuộc M01 |

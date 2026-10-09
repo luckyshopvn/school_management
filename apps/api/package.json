@@ -7,17 +7,23 @@
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "start": "node --env-file-if-exists=../../.env dist/main.js",
-    "test": "node --test \"dist/**/*.test.js\""
+    "test": "node --env-file-if-exists=../../.env --test \"dist/**/*.test.js\""
   },
   "dependencies": {
     "@nestjs/common": "^11.2.7",
     "@nestjs/core": "^11.2.7",
     "@nestjs/platform-express": "^11.2.7",
+    "@school-management/server": "workspace:*",
     "@school-management/shared": "workspace:*",
+    "jose": "^6.2.12",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2"
   },
   "devDependencies": {
-    "@school-management/config": "workspace:*"
+    "@school-management/config": "workspace:*",
+    "@school-management/database": "workspace:*",
+    "@school-management/identity": "workspace:*",
+    "@types/express": "^5.0.6",
+    "kysely": "^0.29.6"
   }
 }
