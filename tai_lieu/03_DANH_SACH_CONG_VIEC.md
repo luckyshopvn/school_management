@@ -46,7 +46,7 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | M00-5 | Chốt mức hạn mức phê duyệt theo loại chứng từ | Toàn dự án | Hoàn thành | Để nhà trường cấu hình sau; khi chưa cấu hình Hiệu trưởng duyệt mọi chứng từ (Q-112). Q-123 vẫn mở |
 | M01 | Xây dựng nền tảng, cây đơn vị nhiều cấp, tài khoản, vai trò, quyền | P01 | Chưa bắt đầu | Nhiệm vụ đầu tiên của giai đoạn 1 |
 | M01-2 | Xây dựng dịch vụ định danh độc lập tự viết | P01 | Chưa bắt đầu | Tách khỏi máy chủ API nghiệp vụ; phụ thuộc M01 |
-| M01-3 | Nền móng kỹ thuật DT-00: kho mã nguồn GitHub, cấu trúc nhiều gói, ranh giới giao diện và máy chủ, gói mã dùng chung, môi trường phát triển Docker, tích hợp liên tục chỉ chạy kiểm thử | Toàn dự án | Đang thực hiện | Giao diện chỉ gọi giao diện lập trình ứng dụng; kho https://github.com/luckyshopvn/school_management, nhánh `dt-00-nen-mong`; 6/6 kiểm thử đạt trên máy; chờ commit và GitHub Actions (YCTD-32) |
+| M01-3 | Nền móng kỹ thuật DT-00: kho mã nguồn GitHub, cấu trúc nhiều gói, ranh giới giao diện và máy chủ, gói mã dùng chung, môi trường phát triển Docker, tích hợp liên tục chỉ chạy kiểm thử | Toàn dự án | Hoàn thành | Giao diện chỉ gọi giao diện lập trình ứng dụng; kho https://github.com/luckyshopvn/school_management; 6/6 kiểm thử đạt trên máy và GitHub Actions; Eric gộp yêu cầu gộp số 1 vào `main` ngày 09/10/2026 (YCTD-32) |
 | M02 | Xây dựng hồ sơ trẻ, phụ huynh, lớp học, phân lớp | P02 | Chưa bắt đầu | Phụ thuộc M01 |
 | M04 | Xây dựng điểm danh, báo vắng, đón trả trẻ | P04 | Chưa bắt đầu | Phụ thuộc M02 |
 | M05 | Xây dựng học phí, khoản thu, giảm trừ | P05 | Chưa bắt đầu | Phụ thuộc M02 |
@@ -106,11 +106,10 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 
 Chỉ liệt kê việc chưa xong. Thứ tự lấy theo đường găng và mục 13 của `01_KE_HOACH_TONG_THE.md`.
 
-1. M01-3 — Eric tạo kho riêng trên GitHub; dựng nền móng kỹ thuật DT-00 và môi trường phát triển Docker để qua CG-08.
-2. M01 — Xây dựng nền tảng, cây đơn vị nhiều cấp, tài khoản, vai trò, quyền.
-3. M01-2 — Xây dựng dịch vụ định danh độc lập.
-4. M02 — Xây dựng hồ sơ trẻ, phụ huynh, lớp học.
-5. T6 — Thuê máy chủ đám mây trong nước khi triển khai; T1 — chọn nhà cung cấp tin nhắn.
+1. M01 — Xây dựng nền tảng, cây đơn vị nhiều cấp, lịch năm học, tài khoản, vai trò, quyền (đợt DT-01).
+2. M01-2 — Xây dựng dịch vụ định danh độc lập.
+3. M02 — Xây dựng hồ sơ trẻ, phụ huynh, lớp học.
+4. T6 — Thuê máy chủ đám mây trong nước khi triển khai; T1 — chọn nhà cung cấp tin nhắn.
 
 ## 4. Đang thực hiện
 

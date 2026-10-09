@@ -14,6 +14,27 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-09 — Qua cổng CG-08
+
+#### Công việc đã thực hiện
+
+- Eric đồng ý commit; đẩy nhánh `main` và `dt-00-nen-mong` lên GitHub sau khi Eric cấp quyền ghi.
+- GitHub Actions chạy kiểm thử trên yêu cầu gộp số 1: đạt.
+- Cài đặt sẵn công cụ `gh`; Eric đăng nhập bằng tài khoản `luckyshopvn`.
+- Eric gộp yêu cầu gộp số 1 vào `main`. M01-3 hoàn thành, CG-08 đạt.
+
+#### Quyết định
+
+- Eric là người bấm gộp yêu cầu gộp vào `main` (QĐ-19).
+
+#### Thay đổi
+
+- Xem `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.25.5.
+
+#### Vấn đề tồn đọng
+
+- Việc tiếp theo: trình thiết kế đợt DT-01 (`M01`). Các việc cần tài khoản ngoài T1, T5 đến T8.
+
 ### 2026-10-09 — M01-3 nền móng kỹ thuật
 
 #### Công việc đã thực hiện

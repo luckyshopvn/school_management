@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.25.5 – 2026-10-09
+
+- Phạm vi thay đổi: hoàn thành đợt DT-00 (M01-3), qua cổng CG-08; mã nguồn gộp vào nhánh `main`.
+- Chức năng mới: không.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: ba cơ sở dữ liệu định danh, hệ thống, năm học có tệp thay đổi cấu trúc đầu tiên đặt giờ Việt Nam.
+- Thay đổi API: không.
+- Rủi ro: không.
+- Khả năng tương thích: không ảnh hưởng.
+- Phương án quay lui: hoàn lại commit gộp của yêu cầu gộp số 1 trên `main`.
+
 ### Phiên bản 0.25.4 – 2026-10-09
 
 - Phạm vi thay đổi: đợt DT-00, thêm điểm cuối kiểm tra sức khỏe.

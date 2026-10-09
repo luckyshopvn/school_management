@@ -136,7 +136,7 @@ Trước ngày 09/10/2026 bộ tài liệu dùng thuật ngữ "cơ sở" cho đ
 1. Ngày 09/10/2026 Eric đã phê duyệt `01`, `04` đến `22` và các đặc tả QT; `02`, `03`, `23`, `24` là tài liệu ghi theo ngày, ở trạng thái Đang cập nhật.
 2. Dự án chưa có mã nguồn. Mọi tham chiếu tệp và số dòng trong các tài liệu phân tích hiện trạng đều chưa áp dụng được.
 3. Nguồn duy nhất để phân tích là danh sách tính năng và tám ảnh sơ đồ chức năng do Eric gửi ngày 09/10/2026, lưu tại `26_SO_DO_CHUC_NANG/`. Không có tài liệu nghiệp vụ, không có biểu mẫu thật, không có phỏng vấn người dùng.
-4. Mọi câu hỏi mở đã được trả lời và mọi giả định đã được xử lý ngày 09/10/2026. Việc còn lại trước khi xây dựng là tạo kho mã nguồn GitHub và môi trường phát triển để qua CG-08; hạ tầng đám mây thuê khi triển khai (YCTD-32).
+4. Mọi câu hỏi mở đã được trả lời và mọi giả định đã được xử lý ngày 09/10/2026. CG-08 đã đạt ngày 09/10/2026: mã nguồn ở https://github.com/luckyshopvn/school_management, môi trường phát triển chạy Docker trên máy cục bộ; hạ tầng đám mây thuê khi triển khai (YCTD-32).
 5. Đầu mỗi phiên làm việc, đọc `index.md`, `01_KE_HOACH_TONG_THE.md`, `03_DANH_SACH_CONG_VIEC.md` và các tài liệu liên quan.
 6. Trạng thái tổng thể ở trên đếm mã giả định và câu hỏi mở trên toàn bộ tài liệu, kể cả các đặc tả quy trình.
 7. Bảng đối chiếu tên tệp cũ trong `tai-lieu-thiet-ke/` và tên mới nằm ở `24_YEU_CAU_THAY_DOI.md` mục YCTD-01.
