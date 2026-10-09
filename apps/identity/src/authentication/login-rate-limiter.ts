@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ApplicationError } from '../common/application-error.js';
-import { Clock } from '../common/clock.js';
+import { ApplicationError, Clock } from '@school-management/server';
 import { IDENTITY_CONFIGURATION, type IdentityConfiguration } from '../common/configuration.js';
 import { Infrastructure } from '../common/infrastructure.js';
 

@@ -8,6 +8,7 @@ import {
   postJson,
   startTestApplication,
   TEST_PASSWORD,
+  type JsonResponse,
   type TestContext,
 } from '../test-support.js';
 
@@ -17,10 +18,15 @@ async function login(context: TestContext, loginIdentifier: string, password: st
   return postJson(`${context.baseUrl}/auth/login`, { login: loginIdentifier, password, channel });
 }
 
-function readTokens(body: Record<string, unknown>): { accessToken: string; refreshToken: string } {
-  assert.equal(typeof body.access_token, 'string');
-  assert.equal(typeof body.refresh_token, 'string');
-  return { accessToken: body.access_token as string, refreshToken: body.refresh_token as string };
+function readTokens(response: JsonResponse): { accessToken: string; refreshToken: string } {
+  assert.equal(typeof response.body.access_token, 'string');
+  assert.equal(response.body.refresh_token, undefined);
+  assert.ok(response.refreshToken);
+  return { accessToken: response.body.access_token as string, refreshToken: response.refreshToken };
+}
+
+function refresh(context: TestContext, refreshToken: string) {
+  return postJson(`${context.baseUrl}/auth/refresh`, {}, undefined, refreshToken);
 }
 
 describe('Dịch vụ định danh: đăng nhập và phiên', () => {
@@ -39,7 +45,7 @@ describe('Dịch vụ định danh: đăng nhập và phiên', () => {
     const staff = await createTestUser(context.database, { roles: [{ roleCode: 'VT-06', orgUnitId: branchA }] });
     const response = await login(context, staff.phone, staff.password);
     assert.equal(response.status, 200);
-    const { accessToken } = readTokens(response.body);
+    const { accessToken } = readTokens(response);
     assert.equal(response.body.password_change_required, false);
 
     const me = await getJson(`${context.baseUrl}/auth/me`, accessToken);
@@ -56,7 +62,22 @@ describe('Dịch vụ định danh: đăng nhập và phiên', () => {
     const staff = await createTestUser(context.database, { roles: [{ roleCode: 'VT-06', orgUnitId: branchA }] });
     const response = await login(context, staff.username, staff.password);
     assert.equal(response.status, 200);
-    readTokens(response.body);
+    readTokens(response);
+  });
+
+  it('BM-71: mã làm mới chỉ nằm trong cookie httpOnly, Secure, SameSite=Strict; đăng xuất xóa cookie', async () => {
+    const staff = await createTestUser(context.database);
+    const response = await login(context, staff.phone, staff.password);
+    assert.equal(response.status, 200);
+    assert.equal(response.body.refresh_token, undefined);
+    const attributes = (response.setCookie ?? '').toLowerCase();
+    for (const attribute of ['httponly', 'secure', 'samesite=strict', 'path=/api/v1/auth']) {
+      assert.ok(attributes.includes(attribute), attribute);
+    }
+    const { accessToken } = readTokens(response);
+    const logout = await postJson(`${context.baseUrl}/auth/logout`, {}, accessToken);
+    assert.equal(logout.status, 204);
+    assert.match(logout.setCookie ?? '', /refresh_token=;/);
   });
 
   it('CTC-DD-003: sai mật khẩu bị từ chối, phản hồi không chứa thông tin nội bộ', async () => {
@@ -130,59 +151,59 @@ describe('Dịch vụ định danh: đăng nhập và phiên', () => {
 
   it('CTC-DD-031: mã phiên hết hạn sau 15 phút, làm mới thì dùng được mã mới', async () => {
     const staff = await createTestUser(context.database, { roles: [{ roleCode: 'VT-06', orgUnitId: branchA }] });
-    const { accessToken, refreshToken } = readTokens((await login(context, staff.phone, staff.password)).body);
+    const { accessToken, refreshToken } = readTokens(await login(context, staff.phone, staff.password));
     context.clock.advanceMinutes(16);
     const expired = await getJson(`${context.baseUrl}/auth/me`, accessToken);
     assert.equal(expired.status, 401);
     assert.equal(errorCode(expired.body), 'ERR_UNAUTHENTICATED');
 
-    const refreshed = await postJson(`${context.baseUrl}/auth/refresh`, { refresh_token: refreshToken });
+    const refreshed = await refresh(context, refreshToken);
     assert.equal(refreshed.status, 200);
-    const renewed = readTokens(refreshed.body);
+    const renewed = readTokens(refreshed);
     const me = await getJson(`${context.baseUrl}/auth/me`, renewed.accessToken);
     assert.equal(me.status, 200);
   });
 
   it('CTC-DD-032: cổng quản trị không làm mới được sau 8 giờ 1 phút', async () => {
     const staff = await createTestUser(context.database);
-    const { refreshToken } = readTokens((await login(context, staff.phone, staff.password, 'portal')).body);
+    const { refreshToken } = readTokens(await login(context, staff.phone, staff.password, 'portal'));
     context.clock.advanceMinutes(8 * 60 + 1);
-    const refreshed = await postJson(`${context.baseUrl}/auth/refresh`, { refresh_token: refreshToken });
+    const refreshed = await refresh(context, refreshToken);
     assert.equal(refreshed.status, 401);
   });
 
   for (const channel of ['teacher', 'parent']) {
     it(`CTC-DD-033: kênh ${channel} làm mới được sau 29 ngày, bị từ chối sau 30 ngày 1 phút`, async () => {
       const user = await createTestUser(context.database);
-      let { refreshToken } = readTokens((await login(context, user.phone, user.password, channel)).body);
+      let { refreshToken } = readTokens(await login(context, user.phone, user.password, channel));
       context.clock.advanceMinutes(29 * 24 * 60);
-      const first = await postJson(`${context.baseUrl}/auth/refresh`, { refresh_token: refreshToken });
+      const first = await refresh(context, refreshToken);
       assert.equal(first.status, 200);
-      refreshToken = readTokens(first.body).refreshToken;
+      refreshToken = readTokens(first).refreshToken;
       context.clock.advanceMinutes(24 * 60 + 1);
-      const second = await postJson(`${context.baseUrl}/auth/refresh`, { refresh_token: refreshToken });
+      const second = await refresh(context, refreshToken);
       assert.equal(second.status, 401);
     });
   }
 
   it('CTC-DD-034: đăng xuất rồi làm mới bằng mã làm mới cũ bị từ chối', async () => {
     const staff = await createTestUser(context.database);
-    const { accessToken, refreshToken } = readTokens((await login(context, staff.phone, staff.password)).body);
+    const { accessToken, refreshToken } = readTokens(await login(context, staff.phone, staff.password));
     const logout = await postJson(`${context.baseUrl}/auth/logout`, {}, accessToken);
     assert.equal(logout.status, 204);
-    const refreshed = await postJson(`${context.baseUrl}/auth/refresh`, { refresh_token: refreshToken });
+    const refreshed = await refresh(context, refreshToken);
     assert.equal(refreshed.status, 401);
   });
 
   it('Dùng lại mã làm mới đã đổi thì thu hồi cả phiên', async () => {
     const staff = await createTestUser(context.database);
-    const { refreshToken } = readTokens((await login(context, staff.phone, staff.password)).body);
-    const first = await postJson(`${context.baseUrl}/auth/refresh`, { refresh_token: refreshToken });
+    const { refreshToken } = readTokens(await login(context, staff.phone, staff.password));
+    const first = await refresh(context, refreshToken);
     assert.equal(first.status, 200);
-    const newRefreshToken = readTokens(first.body).refreshToken;
-    const reused = await postJson(`${context.baseUrl}/auth/refresh`, { refresh_token: refreshToken });
+    const newRefreshToken = readTokens(first).refreshToken;
+    const reused = await refresh(context, refreshToken);
     assert.equal(reused.status, 401);
-    const afterReuse = await postJson(`${context.baseUrl}/auth/refresh`, { refresh_token: newRefreshToken });
+    const afterReuse = await refresh(context, newRefreshToken);
     assert.equal(afterReuse.status, 401);
   });
 
@@ -194,7 +215,7 @@ describe('Dịch vụ định danh: đăng nhập và phiên', () => {
       const response = await login(context, user.username, user.password);
       assert.equal(response.status, 200, roleCode);
       assert.equal(response.body.password_change_required, false);
-      const me = await getJson(`${context.baseUrl}/auth/me`, readTokens(response.body).accessToken);
+      const me = await getJson(`${context.baseUrl}/auth/me`, readTokens(response).accessToken);
       assert.equal(me.status, 200);
     }
     const verifyOtp = await postJson(`${context.baseUrl}/auth/verify-otp`, { code: '123456' });
@@ -203,7 +224,7 @@ describe('Dịch vụ định danh: đăng nhập và phiên', () => {
 
   it('PQ-10: VT-01 chỉ có quyền quản lý tài khoản, không có quyền nghiệp vụ', async () => {
     const administrator = await createTestUser(context.database, { roles: [{ roleCode: 'VT-01', orgUnitId: null }] });
-    const { accessToken } = readTokens((await login(context, administrator.username, administrator.password)).body);
+    const { accessToken } = readTokens(await login(context, administrator.username, administrator.password));
     const me = await getJson(`${context.baseUrl}/auth/me`, accessToken);
     const assignments = me.body.assignments as Array<{ permissions: string[] }>;
     assert.deepEqual(assignments[0]?.permissions, ['P01.account.manage']);
@@ -214,7 +235,7 @@ describe('Dịch vụ định danh: đăng nhập và phiên', () => {
     const response = await login(context, user.phone, user.password);
     assert.equal(response.status, 200);
     assert.equal(response.body.password_change_required, true);
-    const { accessToken, refreshToken } = readTokens(response.body);
+    const { accessToken, refreshToken } = readTokens(response);
 
     const weak = await postJson(
       `${context.baseUrl}/auth/change-password`,
@@ -243,14 +264,14 @@ describe('Dịch vụ định danh: đăng nhập và phiên', () => {
     assert.equal(oldPassword.status, 401);
     const newPassword = await login(context, user.phone, 'MatKhauMoi2026');
     assert.equal(newPassword.status, 200);
-    const refreshed = await postJson(`${context.baseUrl}/auth/refresh`, { refresh_token: refreshToken });
+    const refreshed = await refresh(context, refreshToken);
     assert.equal(refreshed.status, 200);
     assert.equal(refreshed.body.password_change_required, false);
   });
 
   it('Mã phiên bị sửa chữ ký bị từ chối', async () => {
     const staff = await createTestUser(context.database);
-    const { accessToken } = readTokens((await login(context, staff.phone, staff.password)).body);
+    const { accessToken } = readTokens(await login(context, staff.phone, staff.password));
     const [header, payload, signature] = accessToken.split('.');
     const tampered = `${header}.${payload}.${signature?.startsWith('A') ? 'B' : 'A'}${signature?.slice(1)}`;
     const me = await getJson(`${context.baseUrl}/auth/me`, tampered);
@@ -259,7 +280,7 @@ describe('Dịch vụ định danh: đăng nhập và phiên', () => {
 
   it('CTC-DD-036: tài khoản bị khóa thì /auth/me từ chối ngay dù mã phiên còn hạn', async () => {
     const staff = await createTestUser(context.database);
-    const { accessToken } = readTokens((await login(context, staff.phone, staff.password)).body);
+    const { accessToken } = readTokens(await login(context, staff.phone, staff.password));
     await context.database.updateTable('users').set({ status: 'locked' }).where('id', '=', staff.id).execute();
     const me = await getJson(`${context.baseUrl}/auth/me`, accessToken);
     assert.equal(me.status, 401);

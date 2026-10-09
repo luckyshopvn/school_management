@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@school-management/ui": "workspace:*",
+    "@tanstack/react-query": "^5.104.1",
+    "@tanstack/react-router": "^1.170.41",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

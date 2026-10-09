@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.3
+- Phiên bản: 1.4
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -13,7 +13,7 @@ Ba kênh, ba cấu trúc điều hướng khác nhau, dùng chung một hệ th�
 ```mermaid
 flowchart TD
   R[Vai tro dang nhap] --> C{Kenh nao}
-  C -- Cong quan tri --> A[Dieu huong ngang theo phan he]
+  C -- Cong quan tri --> A[Dieu huong doc ben trai theo phan he]
   C -- Ung dung giao vien --> B[Dieu huong day theo lop phu trach]
   C -- Ung dung phu huynh --> D[Dieu huong day theo con]
   A --> A1[Bang dieu khien]
@@ -92,6 +92,8 @@ flowchart TD
 | MH-44 | Cá nhân: chấm công và đơn nghỉ của tôi, phiếu lương của tôi, công việc được giao | Mọi nhân sự dùng cổng quản trị |
 | MH-45 | Lịch năm học: học kỳ, kỳ hè, ngày học trong tuần, danh sách tuần và tuần nghỉ | VT-02 |
 | MH-46 | Đăng ký học hè theo tháng | VT-04 |
+| MH-47 | Đăng nhập, dùng chung cho ba kênh (YCTD-36) | Mọi vai trò |
+| MH-48 | Đổi mật khẩu, kể cả khi bắt buộc đổi ở lần đăng nhập đầu hoặc sau khi được đặt lại (YCTD-36) | Mọi vai trò |
 
 ### 2.2 Ứng dụng giáo viên
 
@@ -193,7 +195,7 @@ Ba kênh giao diện là ba ứng dụng chạy trên trình duyệt, tách hoà
 | RG-01 | Giao diện chỉ giao tiếp với máy chủ qua giao diện lập trình ứng dụng có phiên bản; không kết nối trực tiếp cơ sở dữ liệu |
 | RG-02 | Giao diện không chứa quy tắc nghiệp vụ, không tự tính học phí, lương, giảm trừ hay công nợ |
 | RG-03 | Giao diện không quyết định quyền; mọi quyết định quyền do máy chủ trả về và máy chủ kiểm tra lại ở từng yêu cầu |
-| RG-04 | Giao diện giữ mã phiên ngắn hạn do dịch vụ định danh phát hành; không giữ mật khẩu và không giữ khóa bí mật của dịch vụ ngoài |
+| RG-04 | Giao diện giữ mã phiên ngắn hạn do dịch vụ định danh phát hành trong bộ nhớ của trang; mã làm mới nằm trong cookie httpOnly, mã giao diện không đọc được (BM-71); không giữ mật khẩu và không giữ khóa bí mật của dịch vụ ngoài |
 | RG-05 | Gói mã dùng chung giữa các kênh chỉ chứa kiểu dữ liệu, hằng số và thành phần giao diện; không chứa truy vấn dữ liệu |
 | RG-06 | Khi máy chủ trả lỗi quyền hoặc lỗi quy tắc nghiệp vụ, giao diện hiển thị nguyên văn thông điệp tiếng Việt của máy chủ, không tự diễn giải lại |
 

@@ -3,6 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "exports": {
+    "./testing": {
+      "types": "./dist/test-support.d.ts",
+      "default": "./dist/test-support.js"
+    }
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -17,6 +23,7 @@
     "@nestjs/platform-express": "^11.2.7",
     "@node-rs/argon2": "^2.2.2",
     "@school-management/database": "workspace:*",
+    "@school-management/server": "workspace:*",
     "@school-management/shared": "workspace:*",
     "ioredis": "^5.11.1",
     "jose": "^6.2.12",

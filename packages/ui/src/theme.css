@@ -1,0 +1,25 @@
+/* Mã màu, cỡ chữ theo 15_HE_THONG_THIET_KE.md mục 2 và 3 */
+@theme {
+  --color-brand: #f59e0b;
+  --color-brand-strong: #b45309;
+  --color-link: #0ea5e9;
+  --color-positive: #10b981;
+  --color-page: #f8fafc;
+  --color-card: #ffffff;
+  --color-selected: #eff6ff;
+  --color-text: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94a3b8;
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+  --color-info: #2563eb;
+  --color-neutral: #64748b;
+
+  --text-page-title: 24px;
+  --text-section-title: 18px;
+  --text-content: 15px;
+  --text-label: 14px;
+}

@@ -11,6 +11,19 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-36: Thiết kế DT-01 phần 2 – 2026-10-09
+
+- Lý do: thiết kế phần 2 cần chốt nơi lưu mã làm mới trên trình duyệt, nơi đặt mã dùng chung của hai dịch vụ máy chủ, cách điều hướng của cổng quản trị đang mâu thuẫn trong `14`, và màn hình đăng nhập chưa có trong `14`.
+- Nội dung thay đổi: mã làm mới gửi bằng cookie httpOnly cho cả ba kênh trình duyệt, không trả trong nội dung phản hồi (BM-71, RG-04); thêm gói `packages/server`; cổng quản trị điều hướng dọc bên trái theo BC-01, sửa sơ đồ mục 1 của `14`; thêm MH-47 Đăng nhập, MH-48 Đổi mật khẩu; kiểm thử giao diện bằng Playwright làm ngay từ phần 2.
+- Thành phần bị ảnh hưởng: `01`, `13`, `14`, `17`, `22`, `index.md`; mã nguồn `apps/identity` đổi cách trả mã làm mới.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: `login`, `refresh`, `logout` dùng cookie `refresh_token` thay cho trường `refresh_token`.
+- Giao diện bị ảnh hưởng: thêm MH-47, MH-48.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: kiểm thử phần 1 sửa theo cookie.
+- Kiểm thử cần thực hiện: CTC-DD-031 đến 037, 041; kiểm thử giao diện luồng đăng nhập.
+- Trạng thái: Đã triển khai
+
 ### YCTD-35: Quy tắc mật khẩu, tạm khóa, mã quyền và tài khoản đầu tiên – 2026-10-09
 
 - Lý do: thiết kế DT-01 phần 1 cần các giá trị mà tài liệu chưa chốt.

@@ -1,0 +1,16 @@
+{
+  "name": "@school-management/tests",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.0",
+    "@school-management/config": "workspace:*",
+    "@school-management/database": "workspace:*",
+    "@school-management/identity": "workspace:*"
+  }
+}

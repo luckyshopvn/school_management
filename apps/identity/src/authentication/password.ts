@@ -1,5 +1,5 @@
 import { hash, verify } from '@node-rs/argon2';
-import type { FieldError } from '../common/application-error.js';
+import type { FieldError } from '@school-management/server';
 
 // Băm mật khẩu bằng argon2id, mỗi mật khẩu có muối riêng (BM-02, XT-04)
 export function hashPassword(password: string): Promise<string> {

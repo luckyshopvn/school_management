@@ -1,6 +1,6 @@
-import { Body, Controller, Get, HttpCode, Post, Req, UseGuards } from '@nestjs/common';
-import type { Request } from 'express';
-import { validationError, type FieldError } from '../common/application-error.js';
+import { Body, Controller, Get, HttpCode, Post, Req, Res, UseGuards } from '@nestjs/common';
+import type { Request, Response } from 'express';
+import { Clock, unauthenticatedError, validationError, type FieldError } from '@school-management/server';
 import {
   AccessTokenGuard,
   AllowedWhilePasswordChangeRequired,
@@ -8,6 +8,7 @@ import {
 } from './access-token.guard.js';
 import { assertChannel, AuthenticationService, type RequestOrigin } from './authentication.service.js';
 import { LoginRateLimiter } from './login-rate-limiter.js';
+import { clearRefreshTokenCookie, readRefreshTokenCookie, setRefreshTokenCookie } from './refresh-token-cookie.js';
 
 type RequestBody = Record<string, unknown> | undefined;
 
@@ -30,11 +31,12 @@ export class AuthenticationController {
   constructor(
     private readonly authenticationService: AuthenticationService,
     private readonly loginRateLimiter: LoginRateLimiter,
+    private readonly clock: Clock,
   ) {}
 
   @Post('login')
   @HttpCode(200)
-  async login(@Body() body: RequestBody, @Req() request: Request) {
+  async login(@Body() body: RequestBody, @Req() request: Request, @Res({ passthrough: true }) response: Response) {
     const origin = readOrigin(request);
     await this.loginRateLimiter.check(origin.ipAddress);
     const errors: FieldError[] = [];
@@ -44,26 +46,35 @@ export class AuthenticationController {
       throw validationError(errors);
     }
     const channel = assertChannel(body?.channel);
-    return this.authenticationService.login(login, password, channel, origin);
+    const issued = await this.authenticationService.login(login, password, channel, origin);
+    setRefreshTokenCookie(response, issued.refreshToken, issued.refreshExpiresAt, this.clock);
+    return issued.response;
   }
 
   @Post('refresh')
   @HttpCode(200)
-  async refresh(@Body() body: RequestBody, @Req() request: Request) {
-    const errors: FieldError[] = [];
-    const refreshToken = readText(body, 'refresh_token', errors);
-    if (errors.length > 0) {
-      throw validationError(errors);
+  async refresh(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
+    const refreshToken = readRefreshTokenCookie(request);
+    if (!refreshToken) {
+      throw unauthenticatedError();
     }
-    return this.authenticationService.refresh(refreshToken, readOrigin(request));
+    try {
+      const issued = await this.authenticationService.refresh(refreshToken, readOrigin(request));
+      setRefreshTokenCookie(response, issued.refreshToken, issued.refreshExpiresAt, this.clock);
+      return issued.response;
+    } catch (error) {
+      clearRefreshTokenCookie(response);
+      throw error;
+    }
   }
 
   @Post('logout')
   @HttpCode(204)
   @UseGuards(AccessTokenGuard)
   @AllowedWhilePasswordChangeRequired()
-  async logout(@Req() request: AuthenticatedRequest): Promise<void> {
+  async logout(@Req() request: AuthenticatedRequest, @Res({ passthrough: true }) response: Response): Promise<void> {
     await this.authenticationService.logout(request.accessTokenClaims);
+    clearRefreshTokenCookie(response);
   }
 
   @Post('change-password')

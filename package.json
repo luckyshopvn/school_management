@@ -15,7 +15,8 @@
     "test": "pnpm -r test",
     "database:migrate": "pnpm --filter @school-management/database migrate",
     "environment:start": "docker compose up -d",
-    "environment:stop": "docker compose down"
+    "environment:stop": "docker compose down",
+    "test:e2e": "pnpm --filter @school-management/tests e2e"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
