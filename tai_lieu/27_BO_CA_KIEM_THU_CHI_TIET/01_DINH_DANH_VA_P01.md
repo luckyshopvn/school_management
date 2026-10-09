@@ -1,8 +1,8 @@
 # 27.1. BỘ CA KIỂM THỬ CHI TIẾT — DỊCH VỤ ĐỊNH DANH VÀ P01
 
 - Mô tả: Ca kiểm thử chi tiết cho dịch vụ định danh (Q-125, Q-126) và các chức năng giai đoạn 1 của phân hệ P01 Nền tảng, đơn vị và phân quyền (việc N21, Q-105).
-- Phiên bản: 1.12
-- Ngày cập nhật: 2026-10-09
+- Phiên bản: 1.13
+- Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -168,21 +168,21 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
-| CTC-P01-020 | P01-03 | P01-03 | LT-02 | Trung bình | Cây theo mục 2 | NS-A tạo phòng ban "Tổ chuyên môn" thuộc PH-A, có phòng ban cha | Tạo thành công, hiện đúng trong sơ đồ phòng ban | | Chưa chạy |
-| CTC-P01-021 | P01-03 | P01-03 | LT-04 | Trung bình | NS-A gán ở nhóm A | Tạo phòng ban thuộc PH-B | Trả `ERR_FORBIDDEN` | | Chưa chạy |
-| CTC-P01-022 | P01-03 | P01-03 | LT-04 | Trung bình | GV-A1 | Gọi `POST /api/v1/departments` | Trả `ERR_FORBIDDEN` | | Chưa chạy |
+| CTC-P01-020 | P01-03 | P01-03 | LT-02 | Trung bình | Cây theo mục 2 | NS-A tạo phòng ban "Tổ chuyên môn" thuộc PH-A, có phòng ban cha | Tạo thành công, hiện đúng trong sơ đồ phòng ban | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
+| CTC-P01-021 | P01-03 | P01-03 | LT-04 | Trung bình | NS-A gán ở nhóm A | Tạo phòng ban thuộc PH-B | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
+| CTC-P01-022 | P01-03 | P01-03 | LT-04 | Trung bình | GV-A1 | Gọi `POST /api/v1/departments` | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
 | CTC-P01-023 | P01-03 | BR-75 | LT-02 | Thấp | Phòng ban đã có nhân sự | Ngừng sử dụng phòng ban | Trạng thái ngừng sử dụng; nhân sự cũ vẫn giữ lịch sử phòng ban | | Chưa chạy |
-| CTC-P01-024 | P01-04 | P01-04, BR-37 | LT-02 | Trung bình | Không | NS-A tạo chức danh "Giáo viên mầm non hạng III" kèm cấp bậc | Tạo thành công | | Chưa chạy |
-| CTC-P01-025 | P01-04 | P01-04 | LT-04 | Trung bình | KT-A | Gọi `POST /api/v1/job-titles` | Trả `ERR_FORBIDDEN` | | Chưa chạy |
+| CTC-P01-024 | P01-04 | P01-04, BR-37 | LT-02 | Trung bình | Không | NS-A tạo chức danh "Giáo viên mầm non hạng III" kèm cấp bậc | Tạo thành công | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
+| CTC-P01-025 | P01-04 | P01-04 | LT-04 | Trung bình | KT-A | Gọi `POST /api/v1/job-titles` | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
 
 ### 4.4. P01-05 Danh mục dùng chung
 
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
-| CTC-P01-026 | P01-05 | P01-05 | LT-02 | Trung bình | Không | HT tạo mục mới trong một loại danh mục dùng chung | Mục mới chọn được ở các màn hình dùng loại danh mục đó | | Chưa chạy |
+| CTC-P01-026 | P01-05 | P01-05 | LT-02 | Trung bình | Không | HT tạo mục mới trong một loại danh mục dùng chung | Mục mới chọn được ở các màn hình dùng loại danh mục đó | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
 | CTC-P01-027 | P01-05 | BR-75 | LT-02 | Trung bình | Một mục đã được dùng trong bản ghi cũ | Ngừng sử dụng mục đó | Bản ghi cũ vẫn hiển thị đúng mục; không chọn được mục đó cho bản ghi mới | | Chưa chạy |
-| CTC-P01-028 | P01-05 | KT-04 | LT-02 | Thấp | Đã có mã "MA_01" trong một loại danh mục | Tạo mục mới trùng mã | Trả `ERR_CONFLICT` | | Chưa chạy |
-| CTC-P01-029 | P01-05 | P01-05 | LT-04 | Trung bình | QL-A | Tạo mục danh mục dùng chung | Trả `ERR_FORBIDDEN` | | Chưa chạy |
+| CTC-P01-028 | P01-05 | KT-04 | LT-02 | Thấp | Đã có mã "MA_01" trong một loại danh mục | Tạo mục mới trùng mã | Trả `ERR_CONFLICT` | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
+| CTC-P01-029 | P01-05 | P01-05 | LT-04 | Trung bình | QL-A | Tạo mục danh mục dùng chung | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
 
 ### 4.5. P01-06 Tài khoản
 
@@ -237,7 +237,7 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
-| CTC-P01-059 | P01-10 | P01-10, BR-77 | LT-02 | Cao | Không | HT đặt hạn mức phiếu chi của PH-A là 10 000 000 | Lưu thành công; đọc lại đúng giá trị theo đơn vị và loại chứng từ | | Chưa chạy |
+| CTC-P01-059 | P01-10 | P01-10, BR-77 | LT-02 | Cao | Không | HT đặt hạn mức phiếu chi của PH-A là 10 000 000 | Lưu thành công; đọc lại đúng giá trị theo đơn vị và loại chứng từ | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
 | CTC-P01-060 | P01-10 | AC-141, CT-097 | LT-02 | Cao | Hạn mức của CTC-P01-059; phiếu chi 9 999 999 của PH-A do KT-A lập | PHT-A phê duyệt | Phiếu được duyệt | | Chưa chạy |
 | CTC-P01-061 | P01-10 | AC-142, CT-098 | LT-02 | Cao | Phiếu chi 10 000 000 của PH-A | PHT-A phê duyệt | Trả `ERR_RULE_VIOLATION`, yêu cầu chuyển Hiệu trưởng; HT phê duyệt được | | Chưa chạy |
 | CTC-P01-062 | P01-10 | AC-208, CT-164 | LT-02 | Cao | Loại chứng từ đề nghị mua hàng của PH-A chưa có hạn mức | KT-A trình một đề nghị 1 000 | Chứng từ chuyển cho Hiệu trưởng; PHT-A phê duyệt bị từ chối | | Chưa chạy |
@@ -245,20 +245,20 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 | CTC-P01-064 | P01-10 | AC-144, BR-79, CT-100 | LT-04 | Cao | Phiếu chi của PH-B | PHT-A phê duyệt | Bị từ chối | | Chưa chạy |
 | CTC-P01-065 | P01-10 | AC-148, BR-80, CT-104 | LT-05 | Cao | Sau CTC-P01-061 PHT-A đã bị chặn và HT từ chối kèm lý do | Mở nhật ký thao tác của phiếu | Có người từ chối, thời điểm, giá trị chứng từ, lý do | | Chưa chạy |
 | CTC-P01-066 | P01-10 | BM-59 | LT-04 | Cao | Hạn mức của CTC-P01-059 | PHT-A gửi yêu cầu phê duyệt phiếu 15 000 000 kèm trường hạn mức giả là 20 000 000 | Máy chủ bỏ qua giá trị gửi lên, dùng hạn mức đã lưu; bị từ chối | | Chưa chạy |
-| CTC-P01-067 | P01-10 | P01-10 | LT-04 | Cao | QL-A, KTT | Gọi `PUT /api/v1/approval-thresholds` | Cả hai trả `ERR_FORBIDDEN` | | Chưa chạy |
+| CTC-P01-067 | P01-10 | P01-10 | LT-04 | Cao | QL-A, KTT | Gọi `PUT /api/v1/approval-thresholds` | Cả hai trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
 | CTC-P01-068 | P01-10 | AC-207, BR-24, CT-163 | LT-02 | Cao | Phiếu chi hoàn tiền thôi học 500 000 của PH-A, dưới hạn mức | PHT-A phê duyệt | Bị từ chối, chuyển Hiệu trưởng | | Chưa chạy |
 
 ### 4.10. P01-11 Phòng học và P01-12 Bậc học
 
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
-| CTC-P01-069 | P01-11 | P01-11 | LT-02 | Trung bình | Không | QL-A tạo phòng "P101" sức chứa 30 thuộc ĐT-A1 | Tạo thành công | | Chưa chạy |
+| CTC-P01-069 | P01-11 | P01-11 | LT-02 | Trung bình | Không | QL-A tạo phòng "P101" sức chứa 30 thuộc ĐT-A1 | Tạo thành công | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
 | CTC-P01-070 | P01-11 | CT-105 | LT-02 | Cao | Phòng P101 thuộc ĐT-A1; một lớp thuộc ĐT-B1 | Gán phòng P101 cho lớp đó | Bị từ chối | | Chưa chạy |
 | CTC-P01-071 | P01-11 | BR-75 | LT-02 | Thấp | Phòng P101 đang gán cho lớp | Ngừng sử dụng phòng | Lớp hiện tại giữ phòng; không gán được cho lớp mới | | Chưa chạy |
-| CTC-P01-072 | P01-11 | PQ-03 | LT-04 | Trung bình | QL-A | Tạo phòng thuộc PH-B | Trả `ERR_FORBIDDEN` | | Chưa chạy |
-| CTC-P01-073 | P01-12 | P01-12 | LT-02 | Trung bình | Không | HT tạo bậc học "Mầm" độ tuổi 4 đến 5 | Tạo thành công; chọn được khi tạo lớp và biểu phí | | Chưa chạy |
+| CTC-P01-072 | P01-11 | PQ-03 | LT-04 | Trung bình | QL-A | Tạo phòng thuộc PH-B | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
+| CTC-P01-073 | P01-12 | P01-12 | LT-02 | Trung bình | Không | HT tạo bậc học "Mầm" độ tuổi 48 đến 59 tháng (YCTD-42) | Tạo thành công; chọn được khi tạo lớp và biểu phí | Phần tạo đạt bằng kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` ngày 10/10/2026; phần chọn khi tạo lớp và biểu phí chạy khi có P02, P05 | Chưa chạy |
 | CTC-P01-074 | P01-12 | CT-106, BR-75 | LT-02 | Trung bình | Bậc học "Mầm" đang gắn với lớp | Ngừng sử dụng bậc học | Lớp cũ giữ nguyên; lớp mới không chọn được | | Chưa chạy |
-| CTC-P01-075 | P01-12 | P01-12 | LT-04 | Trung bình | QL-A | Tạo bậc học | Trả `ERR_FORBIDDEN` | | Chưa chạy |
+| CTC-P01-075 | P01-12 | P01-12 | LT-04 | Trung bình | QL-A | Tạo bậc học | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
 
 ### 4.11. P01-13 Nhập dữ liệu ban đầu từ Excel
 

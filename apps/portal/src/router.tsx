@@ -2,6 +2,10 @@ import { createRootRoute, createRoute, createRouter, Navigate, Outlet, useLocati
 import { AcademicYearsPage } from './academic-years/AcademicYearsPage.js';
 import { AccountsPage } from './accounts/AccountsPage.js';
 import { RolesPage } from './accounts/RolesPage.js';
+import { ApprovalThresholdsPage } from './catalogs/ApprovalThresholdsPage.js';
+import { CommonCatalogPage } from './catalogs/CommonCatalogPage.js';
+import { DepartmentsPage } from './catalogs/DepartmentsPage.js';
+import { RoomsAndGradeLevelsPage } from './catalogs/RoomsAndGradeLevelsPage.js';
 import { OrgUnitsPage } from './org-units/OrgUnitsPage.js';
 import { AuditLogsPage } from './settings/AuditLogsPage.js';
 import { SettingsPage } from './settings/SettingsPage.js';
@@ -42,6 +46,10 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/roles', component: RolesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/settings', component: SettingsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/audit-logs', component: AuditLogsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/departments', component: DepartmentsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/catalogs', component: CommonCatalogPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/approval-thresholds', component: ApprovalThresholdsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/rooms', component: RoomsAndGradeLevelsPage }),
 ]);
 
 export const router = createRouter({ routeTree });

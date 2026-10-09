@@ -2,7 +2,7 @@
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
 - Phiên bản: 0.4
-- Ngày cập nhật: 2026-10-09
+- Ngày cập nhật: 2026-10-10
 - Trạng thái: Đang cập nhật
 
 ## Quy ước
@@ -10,6 +10,26 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-42: Các danh mục của P01 – 2026-10-10
+
+- Lý do: thiết kế DT-01 phần 6b gặp bốn điểm tài liệu chưa rõ: danh mục dùng chung chưa có loại và chưa có bảng; P01-03, P01-04 ghi VT-06 nhưng ma trận quyền ghi VT-06 không truy cập P01; chưa rõ cách hiệu lực của hạn mức phê duyệt; chưa rõ đơn vị của độ tuổi bậc học. Tài liệu 08 mục 5 còn thiếu phiếu đảo phiếu thu và phiếu đảo phiếu chi so với tài liệu 07 mục 12.1.
+- Nội dung thay đổi:
+  - Danh mục dùng chung có loại do hệ thống định nghĩa, ban đầu gồm quan hệ với trẻ, loại nghỉ phép, loại hợp đồng, nhóm tài sản; phân hệ nào cần loại mới thì thêm khi xây phân hệ đó; không tạo sẵn mục.
+  - VT-06 tạo, sửa phòng ban và chức danh trong đơn vị được gán (`P01.department.manage`).
+  - Hạn mức phê duyệt có hiệu lực ngay khi lưu; bản cũ chuyển sang hết hiệu lực; không kế thừa từ Trường chính.
+  - Độ tuổi bậc học ghi theo tháng tuổi; mã bậc học không đổi được vì lớp và biểu phí tham chiếu theo mã.
+  - Mã quyền mới `P01.department.manage` (VT-02, VT-06), `P01.catalog.manage` (VT-02), `P01.approval-threshold.manage` (VT-02), `P01.room.manage` (VT-02, VT-03).
+  - Thêm MH-49 Phòng ban và chức danh, MH-50 Danh mục dùng chung.
+  - Tài liệu 08 mục 5 bổ sung phiếu đảo phiếu thu và phiếu đảo phiếu chi cho khớp tài liệu 07.
+- Thành phần bị ảnh hưởng: `01`, `08`, `10`, `14`, `16`, `17`, `27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md`, `index.md`; mã nguồn DT-01 phần 6b.
+- Dữ liệu bị ảnh hưởng: bảng mới `catalog_items`; `grade_levels` dùng `age_from_months`, `age_to_months`; bốn mã quyền mới.
+- API bị ảnh hưởng: thêm `PATCH` cho phòng ban, chức danh, phòng học, bậc học; thêm `GET /catalog-types`, `GET`, `POST /catalog-items`, `PATCH /catalog-items/{id}`.
+- Giao diện bị ảnh hưởng: MH-33, MH-34, MH-49, MH-50.
+- Quyền bị ảnh hưởng: VT-06 có quyền ở P01 cho phòng ban và chức danh; ghi chú 13 của tài liệu 08 sửa theo.
+- Ảnh hưởng chức năng cũ: không, các danh mục chưa có mã nguồn.
+- Kiểm thử cần thực hiện: CTC-P01-020 đến 022, 024 đến 026, 028, 029, 059, 067, 069, 072, 073, 075.
+- Trạng thái: Đã triển khai
 
 ### YCTD-41: Ngày chốt học phí và ngày chốt công – 2026-10-09
 

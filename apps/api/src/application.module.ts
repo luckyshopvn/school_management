@@ -19,6 +19,14 @@ import { SettingsController } from './settings/settings.controller.js';
 import { SettingsService } from './settings/settings.service.js';
 import { OrganizationScopes } from './organization/organization-scopes.js';
 import { orgUnitsTransitionStep } from './organization/org-units-transition.js';
+import { catalogsTransitionStep } from './catalogs/catalogs-transition.js';
+import { CatalogAccess } from './catalogs/catalog-access.js';
+import { DepartmentsController, DepartmentsService } from './catalogs/departments.js';
+import { JobTitlesController, JobTitlesService } from './catalogs/job-titles.js';
+import { CatalogItemsController, CatalogItemsService } from './catalogs/catalog-items.js';
+import { ApprovalThresholdsController, ApprovalThresholdsService } from './catalogs/approval-thresholds.js';
+import { RoomsController, RoomsService } from './catalogs/rooms.js';
+import { GradeLevelsController, GradeLevelsService } from './catalogs/grade-levels.js';
 import { OrgUnitsController } from './organization/org-units.controller.js';
 import { OrgUnitsService } from './organization/org-units.service.js';
 
@@ -37,6 +45,12 @@ export class ApplicationModule {
         OrgUnitsController,
         SettingsController,
         AuditLogsController,
+        DepartmentsController,
+        JobTitlesController,
+        CatalogItemsController,
+        ApprovalThresholdsController,
+        RoomsController,
+        GradeLevelsController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -48,13 +62,25 @@ export class ApplicationModule {
         // Các phân hệ thêm bước chuyển năm học vào danh sách này khi được xây dựng (BR-93)
         {
           provide: ACADEMIC_YEAR_TRANSITION_STEPS,
-          useValue: [orgUnitsTransitionStep, settingsTransitionStep, ...(options.transitionSteps ?? [])],
+          useValue: [
+            orgUnitsTransitionStep,
+            settingsTransitionStep,
+            catalogsTransitionStep,
+            ...(options.transitionSteps ?? []),
+          ],
         },
         AcademicYearsService,
         CurrentSchoolYearResolver,
         OrganizationScopes,
         OrgUnitsService,
         SettingsService,
+        CatalogAccess,
+        DepartmentsService,
+        JobTitlesService,
+        CatalogItemsService,
+        ApprovalThresholdsService,
+        RoomsService,
+        GradeLevelsService,
       ],
     };
   }
