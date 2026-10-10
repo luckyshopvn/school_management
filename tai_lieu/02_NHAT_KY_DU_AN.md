@@ -22,7 +22,7 @@
 - Hỏi Eric bốn điểm của phần 5d; chia 5d thành 5d-1 và 5d-2; viết phần 5d-1 trên nhánh `dt-05-phan-5d1`.
 - Cơ sở dữ liệu: năm học có `cash_accounts`, `receipts`, `receipt_allocations`, `account_transactions` (tệp 0014); định danh có `P06.receipt.manage`, `P06.cash-account.manage`, `P05.debt.view` (tệp 0019).
 - Máy chủ API: khai báo quỹ và tài khoản; lập phiếu thu kèm phân bổ, chống gửi lặp, ghi giao dịch tài khoản, thông báo phụ huynh và báo tất toán; dùng số dư có; danh sách và chi tiết phiếu thu; công nợ theo đơn vị và theo trẻ; số đã thu và còn phải nộp của hóa đơn; chặn giảm vượt số còn phải nộp.
-- Cổng quản trị: trang Công nợ (MH-08) có chi tiết của trẻ, lập phiếu thu, dùng số dư có; trang Phiếu thu (MH-09); trang Quỹ và tài khoản (MH-11). Ứng dụng phụ huynh: số còn phải nộp, hóa đơn đã thu đủ, số dư có, lịch sử đã nộp.
+- Cổng quản trị: trang Công nợ (MH-08) có chi tiết của trẻ, lập phiếu thu, dùng số dư có; trang Phiếu thu (MH-09); trang Quỹ và ngân hàng (MH-11). Ứng dụng phụ huynh: số còn phải nộp, hóa đơn đã thu đủ, số dư có, lịch sử đã nộp.
 - Kết quả: máy chủ API 219/219, dịch vụ định danh 37/37, cơ sở dữ liệu 3/3, tiến trình chạy nền 1/1, kiểm thử giao diện 31.
 
 #### Quyết định

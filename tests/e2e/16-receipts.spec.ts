@@ -47,7 +47,7 @@ test('Kế toán khai báo quỹ, thu đủ hóa đơn từ màn hình công n�
   await portal.getByLabel('Mật khẩu', { exact: true }).fill(accountant.password);
   await portal.getByRole('button', { name: 'Đăng nhập' }).click();
 
-  await portal.getByRole('link', { name: 'Quỹ và tài khoản' }).click();
+  await portal.getByRole('link', { name: 'Quỹ và ngân hàng' }).click();
   await portal.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
   const accounts = portal.getByRole('region', { name: 'Quỹ và tài khoản của đơn vị' });
   await accounts.getByLabel('Tên quỹ hoặc tài khoản').fill('Quỹ tiền mặt cơ sở');
@@ -70,7 +70,7 @@ test('Kế toán khai báo quỹ, thu đủ hóa đơn từ màn hình công n�
   await expect(panel).toContainText('Đã thu đủ');
   await expect(panel.getByRole('listitem').filter({ hasText: 'PT-' })).toContainText('2.893.000');
 
-  await portal.getByRole('link', { name: 'Quỹ và tài khoản' }).click();
+  await portal.getByRole('link', { name: 'Quỹ và ngân hàng' }).click();
   await portal.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
   await expect(
     portal.getByRole('region', { name: 'Quỹ và tài khoản của đơn vị' }).getByRole('row').filter({

@@ -56,7 +56,7 @@ flowchart TD
 | MH-08 | Danh sách công nợ, nhắc nợ và xử lý công nợ quá hạn: phần 5d-1 có danh sách công nợ theo trẻ (phải thu, đã thu, còn lại, số dư có, quá hạn), chi tiết của trẻ có lịch sử phiếu thu, biểu mẫu lập phiếu thu và nút dùng số dư có (YCTD-53) | VT-04, VT-03, VT-15, VT-02, VT-05, VT-16 |
 | MH-09 | Phiếu thu và màn hình phân bổ: danh sách phiếu thu lọc theo đơn vị và ngày; lập phiếu thu và phân bổ trong chi tiết công nợ của trẻ ở MH-08 (YCTD-53) | VT-04, VT-16 |
 | MH-10 | Phiếu chi và phê duyệt | VT-04, VT-05, VT-16, VT-15, VT-02 |
-| MH-11 | Sổ quỹ và tài khoản ngân hàng: phần 5d-1 có trang Quỹ và tài khoản để khai báo và xem số dư; sổ quỹ theo ngày ở phần 5e (YCTD-53) | VT-04, VT-05, VT-16 |
+| MH-11 | Sổ quỹ và tài khoản ngân hàng: phần 5d-1 có trang Quỹ và ngân hàng để khai báo và xem số dư; sổ quỹ theo ngày ở phần 5e (YCTD-53) | VT-04, VT-05, VT-16 |
 | MH-12 | Hồ sơ nhân sự và hợp đồng | VT-06 |
 | MH-13 | Bảng chấm công, chốt công và duyệt mở lại kỳ công | VT-06, VT-15, VT-02 |
 | MH-14 | Đơn nghỉ phép | VT-06, VT-03 |

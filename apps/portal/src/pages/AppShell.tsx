@@ -114,7 +114,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               {canApproveFeeDocuments ? <NavItem to="/fee-approvals" label="Duyệt miễn giảm và điều chỉnh" /> : null}
               {canViewDebts ? <NavItem to="/debts" label="Công nợ" /> : null}
               {canSeeAccountsAndReceipts ? <NavItem to="/receipts" label="Phiếu thu" /> : null}
-              {canSeeAccountsAndReceipts ? <NavItem to="/cash-accounts" label="Quỹ và tài khoản" /> : null}
+              {canSeeAccountsAndReceipts ? <NavItem to="/cash-accounts" label="Quỹ và ngân hàng" /> : null}
               {canViewCashflow ? <NavItem to="/cashflow-categories" label="Khoản mục thu chi" /> : null}
             </ul>
           </>
