@@ -152,6 +152,7 @@ export class ChildrenController {
       classId: query.class_id,
       status: query.status as ChildStatus | undefined,
       q: query.q?.trim() || undefined,
+      missingBirthCertificate: query.missing_birth_certificate === 'true',
       page,
       pageSize,
     });

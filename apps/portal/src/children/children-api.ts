@@ -55,7 +55,7 @@ export interface ChildEnrollment {
 export interface ChildDetail extends Omit<ChildListItem, 'class_id' | 'class_name'> {
   place_of_birth: string | null;
   address: string | null;
-  birth_certificate_file_id: string;
+  birth_certificate_file_id: string | null;
   is_staff_child: boolean;
   related_staff_name: string | null;
   special_needs_note: string | null;
@@ -118,9 +118,13 @@ export function listChildren(filter: {
   classId?: string;
   status?: string;
   q?: string;
+  missingBirthCertificate?: boolean;
   page: number;
 }): Promise<ChildPage> {
   const parameters = new URLSearchParams({ page: String(filter.page), page_size: '20' });
+  if (filter.missingBirthCertificate) {
+    parameters.set('missing_birth_certificate', 'true');
+  }
   for (const [key, value] of [
     ['org_unit_id', filter.orgUnitId],
     ['class_id', filter.classId],

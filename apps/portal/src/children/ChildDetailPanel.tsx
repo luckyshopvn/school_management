@@ -15,6 +15,8 @@ import {
   rejectChild,
   submitChild,
   transferClass,
+  updateChild,
+  uploadFile,
   type ChildDetail,
 } from './children-api.js';
 
@@ -134,6 +136,15 @@ export function ChildDetailPanel({ childId, onChanged }: { childId: string; onCh
       }
     },
   });
+  // Trẻ nhập từ Excel bổ sung giấy khai sinh sau (YCTD-46)
+  const supplementCertificate = useMutation({
+    mutationFn: async (file: File) => {
+      const stored = await uploadFile(child.data?.org_unit_id ?? '', 'birth_certificate', file);
+      return updateChild(childId, { birth_certificate_file_id: stored.id });
+    },
+    onSuccess: () => refresh('Đã bổ sung giấy khai sinh'),
+    onError: (error) => setFileError(messageOf(error)),
+  });
   const revealNationalId = useMutation({
     mutationFn: () => readNationalId(childId),
     onSuccess: (result) => setNationalId(result.national_id),
@@ -178,11 +189,11 @@ export function ChildDetailPanel({ childId, onChanged }: { childId: string; onCh
               Xem đầy đủ
             </Button>
           ) : null}
-          {canViewNationalId ? (
+          {canViewNationalId && data.birth_certificate_file_id ? (
             <Button
               variant="text"
               onClick={() =>
-                openFile(data.birth_certificate_file_id, fetchWithSession).catch((error: unknown) =>
+                openFile(data.birth_certificate_file_id ?? '', fetchWithSession).catch((error: unknown) =>
                   setFileError(messageOf(error)),
                 )
               }
@@ -191,6 +202,27 @@ export function ChildDetailPanel({ childId, onChanged }: { childId: string; onCh
             </Button>
           ) : null}
         </dd>
+        {data.birth_certificate_file_id === null ? (
+          <>
+            <dt className="text-text-secondary">Giấy khai sinh</dt>
+            <dd className="flex flex-wrap items-center gap-2">
+              <span className="rounded bg-danger/10 px-2 text-danger">Thiếu giấy khai sinh</span>
+              {canApprove ? (
+                <input
+                  type="file"
+                  aria-label="Bổ sung giấy khai sinh"
+                  accept="image/jpeg,image/png,application/pdf"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) {
+                      supplementCertificate.mutate(file);
+                    }
+                  }}
+                />
+              ) : null}
+            </dd>
+          </>
+        ) : null}
         <dt className="text-text-secondary">Mã định danh ngành</dt>
         <dd className={data.moet_student_code ? '' : 'rounded bg-danger/10 px-2 text-danger'} data-testid="moet-code">
           {data.moet_student_code ?? 'Chưa có'}

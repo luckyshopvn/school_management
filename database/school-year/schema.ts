@@ -135,7 +135,7 @@ export interface ClassStaffAssignmentsTable extends CatalogRecordColumns {
   status: Generated<AssignmentStatus>;
 }
 
-export type FilePurpose = 'birth_certificate' | 'photo_consent';
+export type FilePurpose = 'birth_certificate' | 'photo_consent' | 'import';
 
 export interface FilesTable extends CatalogRecordColumns {
   org_unit_id: string | null;
@@ -162,7 +162,7 @@ export interface ChildrenTable extends CatalogRecordColumns {
   national_id_hash: string;
   national_id_last4: string;
   moet_student_code: string | null;
-  birth_certificate_file_id: string;
+  birth_certificate_file_id: string | null;
   status: Generated<ChildStatus>;
   is_staff_child: Generated<boolean>;
   related_staff_user_id: string | null;
@@ -266,6 +266,25 @@ export interface NotificationRecipientsTable {
   sent_at: Date | null;
 }
 
+export type ImportType = 'classes' | 'children' | 'moet_codes';
+export type ImportStatus = 'validated' | 'failed' | 'committed';
+
+export interface DataImportJobsTable {
+  id: Generated<string>;
+  org_unit_id: string | null;
+  import_type: ImportType;
+  file_id: string;
+  status: ImportStatus;
+  total_rows: number;
+  error_rows: number;
+  errors: ColumnType<unknown, string, string>;
+  error_report_file_id: string | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  committed_by: string | null;
+  committed_at: Date | null;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -288,4 +307,5 @@ export interface SchoolYearDatabase {
   data_access_logs: DataAccessLogsTable;
   notifications: NotificationsTable;
   notification_recipients: NotificationRecipientsTable;
+  data_import_jobs: DataImportJobsTable;
 }

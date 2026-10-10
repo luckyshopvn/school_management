@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.28.1 – 2026-10-10
+
+- Phạm vi thay đổi: DT-03 phần 3c, nhập dữ liệu ban đầu và mã định danh ngành (YCTD-46).
+- Chức năng mới: tải mẫu Excel; nhập lớp; nhập trẻ kèm phụ huynh vào thẳng trạng thái đang học; nhập mã ngành; bộ lọc và bổ sung giấy khai sinh; màn hình Nhập dữ liệu.
+- Lỗi đã sửa: tệp tải lên vượt dung lượng trả lỗi hệ thống thay vì lỗi dữ liệu.
+- Thay đổi dữ liệu: bảng `data_import_jobs`; `children.birth_certificate_file_id` cho phép trống; mã quyền `P01.import.children`.
+- Thay đổi API: nhóm điểm cuối `/imports`; bộ lọc `missing_birth_certificate`.
+- Rủi ro: không.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-03-phan-3c`; chạy ngược tệp thay đổi cấu trúc 0007 của cơ sở dữ liệu năm học và 0012 của cơ sở dữ liệu định danh.
+
 ### Phiên bản 0.28.0 – 2026-10-10
 
 - Phạm vi thay đổi: DT-03 phần 3b, hồ sơ trẻ từ lúc tiếp nhận đến khi vào lớp (YCTD-45).

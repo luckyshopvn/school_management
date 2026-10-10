@@ -55,6 +55,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.2.0 | Bốn thay đổi: Ban Giám hiệu, nhiều cấp đơn vị, tách giao diện và máy chủ, dịch vụ định danh | 01 đến 07 | Đã có |
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
+| 0.28.1 | DT-03 phần 3c: nhập lớp, trẻ và phụ huynh từ Excel, nhập mã định danh ngành (YCTD-46) | 08, 09 | Đã có |
 | 0.28.0 | DT-03 phần 3b: hồ sơ trẻ, phụ huynh, duyệt và phân lớp, chuyển lớp, kho tệp, mã hóa số định danh (YCTD-45) | 08, 09 | Đã có |
 | 0.27.9 | DT-03 phần 3a: lớp học và phân công giáo viên (YCTD-44) | 08, 09 | Đã có |
 | 0.27.8 | DT-02: mật khẩu mặc định của phụ huynh, mã một lần, kích hoạt, ứng dụng phụ huynh, cookie riêng theo kênh (YCTD-43) | 08, 09 | Đã có |

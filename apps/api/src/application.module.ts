@@ -35,6 +35,8 @@ import { ChildrenService } from './children/children.service.js';
 import { ChildDataProtection } from './common/child-data-protection.js';
 import { FileStorage, S3FileStorage } from './files/file-storage.js';
 import { FilesController, FilesService } from './files/files.js';
+import { ImportsController } from './imports/imports.controller.js';
+import { ImportsService } from './imports/imports.service.js';
 import { OrgUnitsController } from './organization/org-units.controller.js';
 import { OrgUnitsService } from './organization/org-units.service.js';
 
@@ -66,6 +68,7 @@ export class ApplicationModule {
         ClassesController,
         ChildrenController,
         FilesController,
+        ImportsController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -101,6 +104,7 @@ export class ApplicationModule {
         ChildrenService,
         ChildDataProtection,
         FilesService,
+        ImportsService,
         {
           provide: FileStorage,
           useFactory: () => {
