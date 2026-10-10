@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.29.1 – 2026-10-10
+
+- Phạm vi thay đổi: DT-05 phần 5e-2, phiếu đảo phiếu chi (YCTD-56).
+- Chức năng mới: lập phiếu đảo phiếu chi kèm lý do; Ban Giám hiệu duyệt theo hạn mức; hoàn lại nguồn chi và số dư có khi đảo phiếu hoàn tiền.
+- Lỗi đã sửa: kiểm thử giao diện phiếu chi không còn phụ thuộc việc đơn vị chưa đặt hạn mức.
+- Thay đổi dữ liệu: `payment_reversals`; mã quyền `P06.payment-reversal.create`.
+- Thay đổi API: điểm cuối đảo phiếu chi, phiếu đảo phiếu chi chờ duyệt.
+- Rủi ro: không.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-05-phan-5e2`; chạy ngược tệp thay đổi cấu trúc 0017 của cơ sở dữ liệu năm học và 0022 của cơ sở dữ liệu định danh.
+
 ### Phiên bản 0.29.0 – 2026-10-10
 
 - Phạm vi thay đổi: DT-05 phần 5e-1, phiếu chi và sổ quỹ (YCTD-55).

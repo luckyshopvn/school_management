@@ -12,6 +12,7 @@ import { notFoundError } from '../common/request-fields.js';
 import { nextDocumentCode } from '../fees/document-codes.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { SettingsService } from '../settings/settings.service.js';
+import { PaymentReversalsService } from './payment-reversals.service.js';
 import { unallocatedReceipts } from './receivables.js';
 
 // Phiếu chi: lập nháp kèm chứng từ, trình duyệt, Ban Giám hiệu duyệt theo hạn mức thì phát hành và trừ nguồn chi
@@ -38,6 +39,7 @@ export class PaymentsService {
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly organizationScopes: OrganizationScopes,
     private readonly settings: SettingsService,
+    private readonly reversals: PaymentReversalsService,
     private readonly clock: Clock,
   ) {}
 
@@ -363,7 +365,12 @@ export class PaymentsService {
       .select(['files.id', 'files.file_name', 'files.content_type', 'files.size_bytes'])
       .where('payment_attachments.payment_id', '=', paymentId)
       .execute();
-    return { ...payment, amount: Number(payment.amount), attachments };
+    return {
+      ...payment,
+      amount: Number(payment.amount),
+      attachments,
+      reversals: await this.reversals.ofPayment(database, paymentId),
+    };
   }
 
   // Phát hành khi duyệt: kiểm tra số dư nguồn chi, cấp số phiếu, trừ số dư, ghi giao dịch; hoàn tiền thì trừ số dư có

@@ -59,6 +59,11 @@ export class CashBooksService {
           .onRef('receipt_reversals.id', '=', 'account_transactions.reference_id')
           .on('account_transactions.reference_type', '=', 'receipt_reversals'),
       )
+      .leftJoin('payment_reversals', (join) =>
+        join
+          .onRef('payment_reversals.id', '=', 'account_transactions.reference_id')
+          .on('account_transactions.reference_type', '=', 'payment_reversals'),
+      )
       .select([
         'account_transactions.id',
         'account_transactions.transaction_date',
@@ -71,6 +76,7 @@ export class CashBooksService {
         'receipts.code as receipt_code',
         'payments.code as payment_code',
         'receipt_reversals.code as reversal_code',
+        'payment_reversals.code as payment_reversal_code',
       ])
       .where('account_transactions.account_id', '=', account.id)
       .where('account_transactions.transaction_date', '>=', filter.from)
@@ -78,9 +84,9 @@ export class CashBooksService {
       .orderBy('account_transactions.transaction_date')
       .orderBy('account_transactions.created_at')
       .execute();
-    const rows = transactions.map(({ receipt_code, payment_code, reversal_code, ...row }) => ({
+    const rows = transactions.map(({ receipt_code, payment_code, reversal_code, payment_reversal_code, ...row }) => ({
       ...row,
-      document_code: receipt_code ?? payment_code ?? reversal_code,
+      document_code: receipt_code ?? payment_code ?? reversal_code ?? payment_reversal_code,
       amount: Number(row.amount),
       balance_after: Number(row.balance_after),
     }));

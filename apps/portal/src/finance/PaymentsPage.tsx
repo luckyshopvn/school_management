@@ -11,19 +11,23 @@ import { useHasPermission, useHasPermissionOnlyThrough } from '../session/permis
 import {
   createPayment,
   decidePayment,
+  decidePaymentReversal,
   deletePayment,
   listCashAccounts,
   listDebts,
   listPayments,
+  listPendingPaymentReversals,
   listPendingPayments,
   PAYMENT_STATUS_TEXT,
   PAYMENT_TYPE_LABELS,
+  reversePayment,
   submitPayment,
   type PaymentType,
 } from './finance-api.js';
 
 // MH-10 Phiếu chi và phê duyệt (P06-04; QT-05; BR-24, BR-28, BR-34, BR-77; YCTD-55): lập nháp kèm chứng từ, trình duyệt;
-// Ban Giám hiệu duyệt theo hạn mức, duyệt là phát hành; phiếu hoàn tiền thôi học chỉ Hiệu trưởng duyệt
+// Ban Giám hiệu duyệt theo hạn mức, duyệt là phát hành; phiếu hoàn tiền thôi học chỉ Hiệu trưởng duyệt; lập và duyệt
+// phiếu đảo phiếu chi (YCTD-56)
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
@@ -177,9 +181,12 @@ function PaymentForm({ orgUnitId, onCreated }: { orgUnitId: string; onCreated(me
   );
 }
 
+type ActionKind = 'submit' | 'delete' | 'approve' | 'reject' | 'reverse' | 'approveReversal' | 'rejectReversal';
+
 export function PaymentsPage() {
   const canManage = useHasPermission(PERMISSION_CODES.paymentManage);
   const canApprove = useHasPermission(PERMISSION_CODES.paymentApprove);
+  const canReverse = useHasPermission(PERMISSION_CODES.paymentReversalCreate);
   const unitChoice = useUnitChoice();
   const orgUnitId = unitChoice.selectedId;
   const queryClient = useQueryClient();
@@ -193,22 +200,39 @@ export function PaymentsPage() {
     queryFn: () => listPendingPayments(orgUnitId ?? ''),
     enabled: Boolean(orgUnitId) && canApprove,
   });
+  const pendingReversals = useQuery({
+    queryKey: ['payment-reversals', orgUnitId],
+    queryFn: () => listPendingPaymentReversals(orgUnitId ?? ''),
+    enabled: Boolean(orgUnitId) && canApprove,
+  });
   const [reasons, setReasons] = useState<Record<string, string>>({});
+  const [reversingId, setReversingId] = useState<string>();
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
   const refresh = async (message: string) => {
     await queryClient.invalidateQueries({ queryKey: ['payments'] });
     await queryClient.invalidateQueries({ queryKey: ['payments-pending'] });
+    await queryClient.invalidateQueries({ queryKey: ['payment-reversals'] });
     await queryClient.invalidateQueries({ queryKey: ['cash-accounts'] });
     setToastMessage(message);
   };
   const action = useMutation({
-    mutationFn: (input: { paymentId: string; kind: 'submit' | 'delete' | 'approve' | 'reject' }): Promise<unknown> =>
-      input.kind === 'submit'
-        ? submitPayment(input.paymentId)
-        : input.kind === 'delete'
-          ? deletePayment(input.paymentId)
-          : decidePayment(input.paymentId, input.kind === 'approve', reasons[input.paymentId] ?? ''),
+    mutationFn: (input: { paymentId: string; kind: ActionKind }): Promise<unknown> => {
+      const reason = reasons[input.paymentId] ?? '';
+      switch (input.kind) {
+        case 'submit':
+          return submitPayment(input.paymentId);
+        case 'delete':
+          return deletePayment(input.paymentId);
+        case 'reverse':
+          return reversePayment(input.paymentId, reason);
+        case 'approveReversal':
+        case 'rejectReversal':
+          return decidePaymentReversal(input.paymentId, input.kind === 'approveReversal', reason);
+        default:
+          return decidePayment(input.paymentId, input.kind === 'approve', reason);
+      }
+    },
     onSuccess: (_result, input) =>
       refresh(
         {
@@ -216,8 +240,11 @@ export function PaymentsPage() {
           delete: 'Đã xóa phiếu chi nháp',
           approve: 'Đã duyệt và phát hành phiếu chi',
           reject: 'Đã từ chối phiếu chi',
+          reverse: 'Đã lập phiếu đảo, chờ Ban Giám hiệu duyệt',
+          approveReversal: 'Đã duyệt phiếu đảo phiếu chi',
+          rejectReversal: 'Đã từ chối phiếu đảo phiếu chi',
         }[input.kind],
-      ),
+      ).then(() => setReversingId(undefined)),
   });
   const rows = payments.data ?? [];
 
@@ -283,6 +310,55 @@ export function PaymentsPage() {
             ))}
           </section>
         ) : null}
+        {canApprove ? (
+          <section
+            className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
+            aria-label="Phiếu đảo phiếu chi chờ duyệt"
+          >
+            <h2 className="text-section-title font-semibold text-text">Phiếu đảo phiếu chi chờ duyệt</h2>
+            {pendingReversals.data && pendingReversals.data.length === 0 ? (
+              <p className="text-content text-text-secondary">Không có phiếu đảo phiếu chi chờ duyệt.</p>
+            ) : null}
+            {(pendingReversals.data ?? []).map((reversal) => (
+              <div
+                key={reversal.id}
+                className="flex flex-col gap-2 border-t border-border pt-3"
+                role="group"
+                aria-label={`Phiếu đảo ${reversal.code}`}
+              >
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="font-medium">
+                    {reversal.code}: đảo {reversal.payment_code} chi cho {reversal.payee_name}
+                  </span>
+                  <span>{formatMoney(reversal.amount)}</span>
+                  {reversal.requires_principal ? <StatusBadge tone="warning" label="Cần Hiệu trưởng duyệt" /> : null}
+                </div>
+                <span className="text-label text-text-secondary">Lý do: {reversal.reason}</span>
+                <div className="flex flex-wrap items-end gap-2">
+                  <Button
+                    variant="primary"
+                    disabled={action.isPending}
+                    onClick={() => action.mutate({ paymentId: reversal.payment_id, kind: 'approveReversal' })}
+                  >
+                    Duyệt
+                  </Button>
+                  <TextField
+                    label={`Lý do từ chối ${reversal.code}`}
+                    value={reasons[reversal.payment_id] ?? ''}
+                    onChange={(event) => setReasons({ ...reasons, [reversal.payment_id]: event.target.value })}
+                  />
+                  <Button
+                    variant="danger"
+                    disabled={action.isPending}
+                    onClick={() => action.mutate({ paymentId: reversal.payment_id, kind: 'rejectReversal' })}
+                  >
+                    Từ chối
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </section>
+        ) : null}
         <section
           className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
           aria-label="Danh sách phiếu chi"
@@ -340,6 +416,27 @@ export function PaymentsPage() {
                             Xóa
                           </Button>
                         </>
+                      ) : null}
+                      {canReverse && row.status === 'issued' && reversingId !== row.id ? (
+                        <Button variant="text" onClick={() => setReversingId(row.id)}>
+                          Lập phiếu đảo
+                        </Button>
+                      ) : null}
+                      {reversingId === row.id ? (
+                        <div className="flex flex-wrap items-end justify-end gap-2">
+                          <TextField
+                            label={`Lý do đảo ${row.code ?? ''}`}
+                            value={reasons[row.id] ?? ''}
+                            onChange={(event) => setReasons({ ...reasons, [row.id]: event.target.value })}
+                          />
+                          <Button
+                            variant="primary"
+                            disabled={action.isPending}
+                            onClick={() => action.mutate({ paymentId: row.id, kind: 'reverse' })}
+                          >
+                            Gửi duyệt phiếu đảo
+                          </Button>
+                        </div>
                       ) : null}
                     </td>
                   </tr>

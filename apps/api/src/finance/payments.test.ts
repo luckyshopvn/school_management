@@ -157,12 +157,17 @@ describe('Phiếu chi và sổ quỹ', () => {
     users.vicePrincipal = await environment.loginAs('VT-15', unitA);
     users.teacher = await environment.loginAs('VT-07', unitA);
     users.accountantB = await environment.loginAs('VT-04', units['ĐT-B1'] ?? null);
-    const threshold = await api('PUT', '/approval-thresholds', principal.accessToken, {
-      org_unit_id: unitA,
-      document_type: 'payment',
-      threshold_amount: 10_000_000,
-    });
-    assert.equal(threshold.status, 200, JSON.stringify(threshold.body));
+    for (const [documentType, amount] of [
+      ['payment', 10_000_000],
+      ['payment_reversal', 1_000_000],
+    ] as const) {
+      const threshold = await api('PUT', '/approval-thresholds', principal.accessToken, {
+        org_unit_id: unitA,
+        document_type: documentType,
+        threshold_amount: amount,
+      });
+      assert.equal(threshold.status, 200, JSON.stringify(threshold.body));
+    }
 
     const book = new ExcelJS.Workbook();
     const worksheet = book.addWorksheet('Trẻ');
@@ -395,6 +400,7 @@ describe('Phiếu chi và sổ quỹ', () => {
       const debt = await api('GET', `/children/${children.T2}/debt`, token('accountant'));
       assert.equal(debt.body.credit_amount, 0);
       assert.equal(await balance('NH-A'), 0);
+      payments.refund = paymentId;
     });
 
     it('tài khoản ngân hàng không đủ số dư thì mặc định chặn duyệt (BR-34)', async () => {
@@ -478,6 +484,83 @@ describe('Phiếu chi và sổ quỹ', () => {
         token('teacher'),
       );
       assert.equal(teacher.status, 403);
+    });
+  });
+  describe('Phiếu đảo phiếu chi', () => {
+    it('lập phiếu đảo không có lý do bị chặn; phiếu chưa phát hành không đảo được; thủ quỹ không lập được phiếu đảo', async () => {
+      assert.equal(
+        (await api('POST', `/payments/${payments.issued}/reverse`, token('accountant'), { reason: '' })).status,
+        400,
+      );
+      const draftPayment = await draft(token('accountant'), { amount: 100_000 });
+      const notIssued = await api('POST', `/payments/${draftPayment.body.id}/reverse`, token('accountant'), {
+        reason: 'Thử',
+      });
+      assert.equal(notIssued.status, 422);
+      const cashier = await api('POST', `/payments/${payments.issued}/reverse`, token('cashier'), { reason: 'Thử' });
+      assert.equal(cashier.status, 403);
+    });
+
+    it('CTC-P06-037, CTC-P06-039: kế toán lập phiếu đảo phiếu chi 2 000 000 thì chờ duyệt, QUY-A chưa đổi; kế toán trưởng, kế toán, thủ quỹ duyệt bị từ chối', async () => {
+      const before = await balance('QUY-A');
+      const created = await api('POST', `/payments/${payments.issued}/reverse`, token('accountant'), {
+        reason: 'Nhà cung cấp trả lại hàng',
+      });
+      assert.equal(created.status, 201, JSON.stringify(created.body));
+      assert.match(created.body.code as string, /^DPC-\d{6}$/);
+      assert.equal(created.body.requires_principal, true);
+      assert.equal(await balance('QUY-A'), before);
+      for (const name of ['chiefAccountant', 'accountant', 'cashier']) {
+        const approve = await api('POST', `/payments/${payments.issued}/reverse/approve`, token(name));
+        assert.equal(approve.status, 403, name);
+      }
+    });
+
+    it('CTC-P06-038: phiếu đảo trên hạn mức thì Phó Hiệu trưởng bị từ chối, Hiệu trưởng duyệt được; QUY-A tăng lại 2 000 000', async () => {
+      assert.equal(
+        (await api('POST', `/payments/${payments.issued}/reverse/approve`, token('vicePrincipal'))).status,
+        403,
+      );
+      const before = await balance('QUY-A');
+      const approved = await api('POST', `/payments/${payments.issued}/reverse/approve`, principal.accessToken);
+      assert.equal(approved.status, 200, JSON.stringify(approved.body));
+      assert.equal(await balance('QUY-A'), before + 2_000_000);
+      const detail = await api('GET', `/payments/${payments.issued}`, token('accountant'));
+      assert.equal(detail.body.status, 'reversed');
+      assert.equal((detail.body.reversals as Array<{ status: string }>)[0]?.status, 'approved');
+      const book = await api(
+        'GET',
+        `/cash-books?account_id=${accounts['QUY-A']}&from=${vietnamToday}&to=${vietnamToday}`,
+        token('accountant'),
+      );
+      const rows = book.body.transactions as Array<{ document_code: string; amount: number }>;
+      assert.ok(rows.some((row) => /^DPC-\d{6}$/.test(row.document_code) && row.amount === 2_000_000));
+    });
+
+    it('đảo phiếu hoàn tiền: Phó Hiệu trưởng từ chối thì phiếu về đã phát hành; duyệt thì số dư có của T2 trở lại 500 000', async () => {
+      await api('POST', `/payments/${payments.refund}/reverse`, token('chiefAccountant'), {
+        reason: 'Phụ huynh chưa nhận',
+      });
+      const rejected = await api('POST', `/payments/${payments.refund}/reverse/reject`, token('vicePrincipal'), {
+        reason: 'Đã có biên nhận',
+      });
+      assert.equal(rejected.status, 200, JSON.stringify(rejected.body));
+      assert.equal((await api('GET', `/payments/${payments.refund}`, token('accountant'))).body.status, 'issued');
+      assert.equal((await api('GET', `/children/${children.T2}/debt`, token('accountant'))).body.credit_amount, 0);
+      await api('POST', `/payments/${payments.refund}/reverse`, token('chiefAccountant'), { reason: 'Hoàn nhầm' });
+      const pending = await api(
+        'GET',
+        `/payment-reversals/pending?org_unit_id=${units['ĐT-A1']}`,
+        token('vicePrincipal'),
+      );
+      assert.equal((pending.body as unknown as unknown[]).length, 1);
+      const approved = await api('POST', `/payments/${payments.refund}/reverse/approve`, token('vicePrincipal'));
+      assert.equal(approved.status, 200, JSON.stringify(approved.body));
+      assert.equal(
+        (await api('GET', `/children/${children.T2}/debt`, token('accountant'))).body.credit_amount,
+        500_000,
+      );
+      assert.equal(await balance('NH-A'), 500_000);
     });
   });
 });

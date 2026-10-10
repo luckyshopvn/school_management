@@ -230,3 +230,28 @@ export const decidePayment = (paymentId: string, approve: boolean, reason: strin
   });
 export const readCashBook = (accountId: string, from: string, to: string): Promise<CashBook> =>
   requestJson(`/api/v1/cash-books?account_id=${accountId}&from=${from}&to=${to}`);
+
+export interface PaymentReversal {
+  id: string;
+  code: string;
+  payment_id: string;
+  payment_code: string | null;
+  payee_name: string;
+  amount: number;
+  reason: string;
+  status: 'pending' | 'approved' | 'rejected';
+  requires_principal: boolean;
+}
+
+export const reversePayment = (paymentId: string, reason: string) =>
+  requestJson<PaymentReversal>(`/api/v1/payments/${paymentId}/reverse`, {
+    method: 'POST',
+    body: JSON.stringify({ reason }),
+  });
+export const decidePaymentReversal = (paymentId: string, approve: boolean, reason: string) =>
+  requestJson<PaymentReversal>(`/api/v1/payments/${paymentId}/reverse/${approve ? 'approve' : 'reject'}`, {
+    method: 'POST',
+    body: JSON.stringify(approve ? {} : { reason }),
+  });
+export const listPendingPaymentReversals = (orgUnitId: string): Promise<PaymentReversal[]> =>
+  requestJson(`/api/v1/payment-reversals/pending?org_unit_id=${orgUnitId}`);

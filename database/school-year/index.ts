@@ -15,6 +15,7 @@ import { migration as createDiscountsAndAdjustments } from './migrations/0013_cr
 import { migration as createReceipts } from './migrations/0014_create_receipts.js';
 import { migration as createReceiptReversals } from './migrations/0015_create_receipt_reversals.js';
 import { migration as createPayments } from './migrations/0016_create_payments.js';
+import { migration as createPaymentReversals } from './migrations/0017_create_payment_reversals.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
@@ -34,4 +35,5 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0014_create_receipts': createReceipts,
   '0015_create_receipt_reversals': createReceiptReversals,
   '0016_create_payments': createPayments,
+  '0017_create_payment_reversals': createPaymentReversals,
 };

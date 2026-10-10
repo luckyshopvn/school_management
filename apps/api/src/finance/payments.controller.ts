@@ -15,6 +15,7 @@ import {
 } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { readAmount, readEnum } from '../fees/fee-catalog-fields.js';
+import { PaymentReversalsService } from './payment-reversals.service.js';
 import { PaymentsService, type PaymentInput } from './payments.service.js';
 
 // Phiếu chi và duyệt theo hạn mức (P06-04; YCTD-55). Quyền kiểm tra ở tầng nghiệp vụ theo phạm vi đơn vị
@@ -51,7 +52,10 @@ function readPayment(body: RequestBody, errors: FieldError[]): PaymentInput {
 
 @Controller()
 export class PaymentsController {
-  constructor(private readonly payments: PaymentsService) {}
+  constructor(
+    private readonly payments: PaymentsService,
+    private readonly reversals: PaymentReversalsService,
+  ) {}
 
   @Post('payments')
   @HttpCode(201)
@@ -95,6 +99,65 @@ export class PaymentsController {
       throw validationError([{ field: 'org_unit_id', message: 'Mã đơn vị không hợp lệ' }]);
     }
     return this.payments.pending(currentUser, query.org_unit_id ?? null);
+  }
+
+  @Get('payment-reversals/pending')
+  pendingReversals(@Query() query: Record<string, string | undefined>, @AuthenticatedUser() currentUser: CurrentUser) {
+    if (query.org_unit_id !== undefined && !isUuid(query.org_unit_id)) {
+      throw validationError([{ field: 'org_unit_id', message: 'Mã đơn vị không hợp lệ' }]);
+    }
+    return this.reversals.pending(currentUser, query.org_unit_id ?? null);
+  }
+
+  // Lập phiếu đảo phiếu chi kèm lý do, chờ Ban Giám hiệu duyệt theo hạn mức (QT-05 bước 8, AC-214)
+  @Post('payments/:id/reverse')
+  @HttpCode(201)
+  reverse(
+    @Param('id', uuidParameter('Mã phiếu chi không hợp lệ')) paymentId: string,
+    @Body() body: RequestBody,
+    @Req() request: Request,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const errors: FieldError[] = [];
+    const reason = readRequiredText(body, 'reason', errors);
+    if (reason.length > MAXIMUM_TEXT) {
+      errors.push({ field: 'reason', message: `Tối đa ${MAXIMUM_TEXT} ký tự` });
+    }
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.reversals.create(currentUser, paymentId, reason, originOf(request, currentUser));
+  }
+
+  @Post('payments/:id/reverse/approve')
+  @HttpCode(200)
+  approveReversal(
+    @Param('id', uuidParameter('Mã phiếu chi không hợp lệ')) paymentId: string,
+    @Req() request: Request,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    return this.reversals.decide(
+      currentUser,
+      paymentId,
+      { approve: true, reason: null },
+      originOf(request, currentUser),
+    );
+  }
+
+  @Post('payments/:id/reverse/reject')
+  @HttpCode(200)
+  rejectReversal(
+    @Param('id', uuidParameter('Mã phiếu chi không hợp lệ')) paymentId: string,
+    @Body() body: RequestBody,
+    @Req() request: Request,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const errors: FieldError[] = [];
+    const reason = readOptionalText(body, 'reason', errors) ?? null;
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.reversals.decide(currentUser, paymentId, { approve: false, reason }, originOf(request, currentUser));
   }
 
   @Get('payments/:id')
