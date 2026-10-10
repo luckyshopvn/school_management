@@ -27,6 +27,8 @@ import { CatalogItemsController, CatalogItemsService } from './catalogs/catalog-
 import { ApprovalThresholdsController, ApprovalThresholdsService } from './catalogs/approval-thresholds.js';
 import { RoomsController, RoomsService } from './catalogs/rooms.js';
 import { GradeLevelsController, GradeLevelsService } from './catalogs/grade-levels.js';
+import { ClassesController } from './classes/classes.controller.js';
+import { ClassesService } from './classes/classes.service.js';
 import { OrgUnitsController } from './organization/org-units.controller.js';
 import { OrgUnitsService } from './organization/org-units.service.js';
 
@@ -51,6 +53,7 @@ export class ApplicationModule {
         ApprovalThresholdsController,
         RoomsController,
         GradeLevelsController,
+        ClassesController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -81,6 +84,7 @@ export class ApplicationModule {
         ApprovalThresholdsService,
         RoomsService,
         GradeLevelsService,
+        ClassesService,
       ],
     };
   }

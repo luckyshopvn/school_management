@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.14
+- Phiên bản: 1.15
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -67,9 +67,9 @@ Ràng buộc: `org_units.parent_id` trỏ tới `org_units.id`. Chỉ một đơ
 | guardians | Hồ sơ phụ huynh | full_name, phone (duy nhất khi có tài khoản), email, occupation, address, user_id |
 | child_guardians | Quan hệ trẻ và phụ huynh | child_id, guardian_id, relationship, is_primary, can_pickup |
 | authorized_pickups | Người được ủy quyền đón trẻ | child_id, full_name, relationship, phone, valid_from, valid_to, status |
-| classes | Lớp học | org_unit_id, academic_year_id, code, name, grade_level (tham chiếu grade_levels.code), room_id, max_size, homeroom_teacher_id, status |
+| classes | Lớp học | org_unit_id, academic_year_id, code (duy nhất trong đơn vị), name, grade_level (tham chiếu grade_levels.code), room_id (phòng cùng đơn vị), max_size, status (đang dùng hoặc đã đóng); giáo viên của lớp ở `class_staff_assignments` (YCTD-44) |
 | class_enrollments | Lịch sử lớp của trẻ | child_id, class_id, from_date, to_date, reason, is_current |
-| class_staff_assignments | Phân công giáo viên vào lớp | class_id, staff_id, assignment_role (chủ nhiệm hoặc bộ môn), subject_name, from_date, to_date, status |
+| class_staff_assignments | Phân công giáo viên vào lớp | class_id, staff_user_id (tạm là mã tài khoản đến khi có hồ sơ nhân sự), staff_name, assignment_role (chủ nhiệm hoặc bộ môn), subject_name, from_date, to_date, status; một lớp có thể có nhiều giáo viên chủ nhiệm (YCTD-44) |
 | teaching_groups | Tổ chuyên môn | org_unit_id, name, leader_staff_id, status |
 | teaching_group_members | Thành viên tổ chuyên môn | group_id, staff_id, from_date, to_date |
 | health_profiles | Hồ sơ sức khỏe cơ bản | child_id (duy nhất), blood_type, allergies, chronic_conditions, note |
@@ -337,7 +337,7 @@ erDiagram
 | activities | class_id kèm status kèm published_at | Danh sách hoạt động cho phụ huynh |
 | audit_logs | entity_name kèm entity_id, actor_user_id kèm created_at | Tra nhật ký thao tác |
 | notifications | target_type kèm target_id | Tra thông báo theo đối tượng |
-| class_staff_assignments | staff_id kèm status, class_id | Giới hạn phạm vi giáo viên theo lớp được phân công |
+| class_staff_assignments | staff_user_id kèm status, class_id | Giới hạn phạm vi giáo viên theo lớp được phân công |
 | data_access_logs | api_client_id kèm created_at, entity_name kèm entity_id | Tra nhật ký đọc dữ liệu nhạy cảm |
 
 ## 21. Chính sách xóa dữ liệu

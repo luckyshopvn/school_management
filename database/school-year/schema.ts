@@ -108,6 +108,33 @@ export interface GradeLevelsTable extends CatalogRecordColumns {
   status: Generated<CatalogStatus>;
 }
 
+export type ClassStatus = 'active' | 'closed';
+
+export interface ClassesTable extends CatalogRecordColumns {
+  org_unit_id: string;
+  academic_year_id: string;
+  code: string;
+  name: string;
+  grade_level: string;
+  room_id: string | null;
+  max_size: number;
+  status: Generated<ClassStatus>;
+}
+
+export type AssignmentRole = 'homeroom' | 'subject';
+export type AssignmentStatus = 'active' | 'ended';
+
+export interface ClassStaffAssignmentsTable extends CatalogRecordColumns {
+  class_id: string;
+  staff_user_id: string;
+  staff_name: string;
+  assignment_role: AssignmentRole;
+  subject_name: string | null;
+  from_date: string;
+  to_date: string | null;
+  status: Generated<AssignmentStatus>;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -118,4 +145,6 @@ export interface SchoolYearDatabase {
   approval_thresholds: ApprovalThresholdsTable;
   rooms: RoomsTable;
   grade_levels: GradeLevelsTable;
+  classes: ClassesTable;
+  class_staff_assignments: ClassStaffAssignmentsTable;
 }

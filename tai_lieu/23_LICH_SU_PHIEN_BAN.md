@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.27.9 – 2026-10-10
+
+- Phạm vi thay đổi: DT-03 phần 3a, lớp học và phân công giáo viên (YCTD-44).
+- Chức năng mới: tạo, sửa, đóng, mở lại lớp; phân công và kết thúc phân công giáo viên chủ nhiệm, bộ môn; lớp của tôi; màn hình Lớp học.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: bảng `classes`, `class_staff_assignments`; mã quyền `P02.class.manage`.
+- Thay đổi API: `GET`, `POST /classes`; `PATCH /classes/{id}`; `GET`, `POST /classes/{id}/staff-assignments`; `PATCH /classes/{id}/staff-assignments/{assignmentId}`; `GET /users/directory`.
+- Rủi ro: không.
+- Khả năng tương thích: không ảnh hưởng.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-03-phan-3a`; chạy ngược tệp thay đổi cấu trúc 0005 của cơ sở dữ liệu năm học và 0010 của cơ sở dữ liệu định danh.
+
 ### Phiên bản 0.27.8 – 2026-10-10
 
 - Phạm vi thay đổi: DT-02, đăng nhập của phụ huynh (YCTD-43).

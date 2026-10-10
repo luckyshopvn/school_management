@@ -24,6 +24,7 @@ export const PERMISSION_CODES = {
   catalogManage: 'P01.catalog.manage',
   approvalThresholdManage: 'P01.approval-threshold.manage',
   roomManage: 'P01.room.manage',
+  classManage: 'P02.class.manage',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)

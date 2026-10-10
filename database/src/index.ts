@@ -16,8 +16,11 @@ export type {
 } from '../system/schema.js';
 export type {
   ApprovalThresholdStatus,
+  AssignmentRole,
+  AssignmentStatus,
   AuditLogsTable,
   CatalogStatus,
+  ClassStatus,
   OrgUnitStatus,
   OrgUnitType,
   SchoolYearDatabase,
