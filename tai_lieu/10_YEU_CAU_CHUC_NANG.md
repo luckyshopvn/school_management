@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.20
+- Phiên bản: 1.21
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -106,7 +106,7 @@
 | P06-08 | Báo cáo thu chi (G1) | VT-02, VT-03, VT-04 | Đơn vị, khoảng ngày, loại thu chi | Tổng hợp theo nhóm và theo kỳ | Báo cáo thu chi | BR-36 |
 | P06-09 | Chốt kỳ tài chính (G2) | VT-05, VT-02 | Kỳ, đơn vị | Kế toán trưởng đề nghị chốt, Hiệu trưởng phê duyệt; khóa số liệu của kỳ, chặn sửa ngược | Kỳ đã chốt | BR-25, BR-29, BR-77 |
 | P06-10 | Khoản mục và nhóm thu chi (G1) | VT-04, VT-05 | Mã, tên khoản mục, nhóm thu chi, loại thu hoặc chi | Quản lý danh mục; phiếu thu và phiếu chi bắt buộc chọn khoản mục | Danh mục khoản mục thu chi | BR-36 |
-| P06-11 | Thanh toán trực tuyến bằng mã QR (G1) | VT-14, VT-04 | Hóa đơn, số còn phải nộp | Sinh mã QR chuẩn VietQR theo hóa đơn với số tiền bằng số còn phải nộp và nội dung chứa mã hóa đơn; nhận thông báo tiền vào, đối chiếu, tự lập phiếu thu và phân bổ; giao dịch không khớp chuyển kế toán xử lý | Phiếu thu tự động, hóa đơn đã thu đủ | BR-28, BR-31 |
+| P06-11 | Thanh toán trực tuyến bằng mã QR (G1) | VT-14, VT-04 | Hóa đơn, số còn phải nộp | Xin nhà cung cấp tài khoản ảo và mã QR dùng một lần theo hóa đơn với số tiền bằng số còn phải nộp, nội dung là mã hóa đơn; tiền về tài khoản duy nhất của trường; nhận thông báo tiền vào, đối chiếu, tự lập phiếu thu và phân bổ; giao dịch không khớp chuyển kế toán xử lý (YCTD-57) | Phiếu thu tự động, hóa đơn đã thu đủ | BR-28, BR-31 |
 
 ## 8. Phân hệ P07 — Nhân sự
 

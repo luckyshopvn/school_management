@@ -14,6 +14,29 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-10 — DT-05 phần 5f: thanh toán trực tuyến bằng mã QR
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 24 (phần 5e-2) sau khi mọi bước kiểm thử trên GitHub đạt.
+- Hỏi Eric hai lượt về nhà cung cấp, tài khoản nhận, đối chiếu và phạm vi; viết phần 5f trên nhánh `dt-05-phan-5f`.
+- Cơ sở dữ liệu: năm học có `payment_requests`, `online_payment_transactions`, tài khoản nhận thanh toán trực tuyến trong `cash_accounts` (tệp 0018).
+- Máy chủ API: lớp nhà cung cấp có bộ giả lập; cấu hình tài khoản nhận; cấp mã QR theo hóa đơn; đối chiếu giao dịch tiền vào, tự lập phiếu thu; danh sách chờ và ghi xử lý; tách phần ghi phiếu thu để dùng chung.
+- Cổng quản trị: chọn tài khoản nhận ở trang Quỹ và ngân hàng; giao dịch chờ xử lý ở trang Phiếu thu. Ứng dụng phụ huynh: nút thanh toán bằng mã QR.
+- Kết quả: máy chủ API 257/257, dịch vụ định danh 37/37, cơ sở dữ liệu 3/3, tiến trình chạy nền 1/1; kiểm thử giao diện chạy trên CI vì cổng 5273 trên máy đang bận.
+
+#### Quyết định
+
+- Nhà cung cấp cấp tài khoản ảo và mã QR dùng một lần qua API, tiền về một tài khoản của trường; đối chiếu nội dung trước, số tiền sau; nội dung là mã hóa đơn bỏ gạch; điểm cuối nhận thông báo thật chờ chọn nhà cung cấp; làm đủ phần còn lại với bộ giả lập (YCTD-57) – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-57 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.29.2.
+
+#### Vấn đề tồn đọng
+
+- Chọn nhà cung cấp tài khoản ảo và xác nhận chuyển khoản (T1), viết bộ chuyển đổi và điểm cuối nhận thông báo có chữ ký, địa chỉ mạng cho phép; chạy CTC-P06-061.
+
 ### 2026-10-10 — DT-05 phần 5e-2: phiếu đảo phiếu chi
 
 #### Công việc đã thực hiện

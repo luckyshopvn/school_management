@@ -62,6 +62,9 @@ import { CashBooksController, CashBooksService } from './finance/cash-books.js';
 import { PaymentsController } from './finance/payments.controller.js';
 import { PaymentsService } from './finance/payments.service.js';
 import { PaymentReversalsService } from './finance/payment-reversals.service.js';
+import { OnlinePaymentsController } from './finance/online-payments.controller.js';
+import { OnlinePaymentsService } from './finance/online-payments.service.js';
+import { DevelopmentPaymentGateway, PaymentGateway, UnavailablePaymentGateway } from './finance/payment-gateway.js';
 import { DebtsService } from './fees/debts.service.js';
 import { OrgUnitsController } from './organization/org-units.controller.js';
 import { OrgUnitsService } from './organization/org-units.service.js';
@@ -107,6 +110,7 @@ export class ApplicationModule {
         CashAccountsController,
         ReceiptsController,
         PaymentsController,
+        OnlinePaymentsController,
         CashBooksController,
         ...(options.additionalControllers ?? []),
       ],
@@ -160,6 +164,14 @@ export class ApplicationModule {
         ReceiptReversalsService,
         PaymentsService,
         PaymentReversalsService,
+        OnlinePaymentsService,
+        {
+          provide: PaymentGateway,
+          useFactory: () =>
+            configuration.paymentGateway === 'development'
+              ? new DevelopmentPaymentGateway()
+              : new UnavailablePaymentGateway(),
+        },
         CashBooksService,
         DebtsService,
         SchoolCalendar,

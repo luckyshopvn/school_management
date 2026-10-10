@@ -12,6 +12,8 @@ export interface ApiConfiguration {
   childDataHashKey: Buffer;
   // Kho tệp tương thích S3; trống khi kiểm thử dùng kho trong bộ nhớ
   objectStorage: ObjectStorageSettings | null;
+  // Nhà cung cấp tài khoản ảo và mã QR; trống là chưa nối (T1), `development` là bộ giả lập (YCTD-57)
+  paymentGateway?: 'development' | null;
 }
 
 export interface ObjectStorageSettings {
@@ -55,5 +57,6 @@ export function readConfigurationFromEnvironment(): ApiConfiguration {
       accessKeyId: readRequired('S3_ACCESS_KEY_ID'),
       secretAccessKey: readRequired('S3_SECRET_ACCESS_KEY'),
     },
+    paymentGateway: process.env.PAYMENT_GATEWAY === 'development' ? 'development' : null,
   };
 }

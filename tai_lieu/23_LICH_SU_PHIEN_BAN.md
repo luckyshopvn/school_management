@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.29.2 – 2026-10-10
+
+- Phạm vi thay đổi: DT-05 phần 5f, thanh toán trực tuyến bằng mã QR (YCTD-57).
+- Chức năng mới: tài khoản ảo và mã QR dùng một lần theo hóa đơn; đối chiếu giao dịch tiền vào tự lập phiếu thu; danh sách giao dịch chờ kế toán xử lý; phụ huynh thanh toán bằng mã QR.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: `payment_requests`, `online_payment_transactions`; `cash_accounts` thêm tài khoản nhận thanh toán trực tuyến.
+- Thay đổi API: mã QR của hóa đơn, cấu hình tài khoản nhận, giao dịch chuyển khoản và xử lý, điểm cuối giả lập.
+- Rủi ro: chưa nối nhà cung cấp thật; ở môi trường chạy thật không đặt `PAYMENT_GATEWAY` thì phụ huynh nhận thông báo chưa nối.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-05-phan-5f`; chạy ngược tệp thay đổi cấu trúc 0018 của cơ sở dữ liệu năm học.
+
 ### Phiên bản 0.29.1 – 2026-10-10
 
 - Phạm vi thay đổi: DT-05 phần 5e-2, phiếu đảo phiếu chi (YCTD-56).

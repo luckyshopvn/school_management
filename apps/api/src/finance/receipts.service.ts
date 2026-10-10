@@ -97,84 +97,9 @@ export class ReceiptsService {
       throw validationError([{ field: 'category_id', message: 'Khoản mục phải là khoản mục thu đang dùng' }]);
     }
     try {
-      const receiptId = await database.transaction().execute(async (transaction) => {
-        const settled = await this.checkAllocations(transaction, child.id, input.allocations, input.amount, 'receipt');
-        const code = await this.nextCode(transaction);
-        const receipt = await transaction
-          .insertInto('receipts')
-          .values({
-            code,
-            org_unit_id: child.org_unit_id,
-            child_id: child.id,
-            payer_name: input.payerName,
-            amount: input.amount,
-            method: input.method,
-            account_id: account.id,
-            category_id: category.id,
-            receipt_date: input.receiptDate,
-            content: input.content,
-            request_key: input.requestKey,
-            created_by: origin.actorUserId,
-          })
-          .returning('id')
-          .executeTakeFirstOrThrow();
-        if (input.allocations.length > 0) {
-          await transaction
-            .insertInto('receipt_allocations')
-            .values(
-              input.allocations.map((allocation) => ({
-                receipt_id: receipt.id,
-                invoice_id: allocation.invoiceId,
-                amount: allocation.amount,
-                created_by: origin.actorUserId,
-              })),
-            )
-            .execute();
-        }
-        const balanceAfter = await this.recordAccountTransaction(transaction, {
-          accountId: account.id,
-          date: input.receiptDate,
-          amount: input.amount,
-          receiptId: receipt.id,
-          description: `${code} thu của ${child.full_name}`,
-        });
-        await writeAuditLog(transaction, {
-          origin,
-          orgUnitId: child.org_unit_id,
-          entityName: 'receipts',
-          entityId: receipt.id,
-          action: 'create',
-          before: null,
-          after: {
-            code,
-            child_id: child.id,
-            payer_name: input.payerName,
-            amount: input.amount,
-            method: input.method,
-            account: account.name,
-            account_balance_after: balanceAfter,
-            receipt_date: input.receiptDate,
-            allocations: input.allocations,
-          },
-        });
-        const credit = input.amount - input.allocations.reduce((sum, allocation) => sum + allocation.amount, 0);
-        await queueNotification(transaction, {
-          orgUnitId: child.org_unit_id,
-          templateCode: 'receipt_issued',
-          title: 'Nhà trường đã nhận tiền',
-          body: `${code}: đã nhận ${input.amount} đồng cho ${child.full_name}${
-            credit > 0 ? `, ${credit} đồng ghi thành số dư có cho kỳ sau` : ''
-          }`,
-          targetType: 'receipts',
-          targetId: receipt.id,
-          recipients: (await guardianUserIds(transaction, child.id)).flatMap((userId) => [
-            { userId, channel: 'in_app' as const },
-            { userId, channel: 'sms' as const },
-          ]),
-        });
-        await this.notifySettled(transaction, child, settled);
-        return receipt.id;
-      });
+      const receiptId = await database
+        .transaction()
+        .execute((transaction) => this.issueInTransaction(transaction, child, account, category.id, input, origin));
       return this.read(currentUser, receiptId);
     } catch (error) {
       // Hai yêu cầu cùng mã gửi đồng thời: yêu cầu sau trả phiếu của yêu cầu trước
@@ -186,6 +111,94 @@ export class ReceiptsService {
       }
       throw error;
     }
+  }
+
+  // Ghi phiếu thu đã kiểm tra: số phiếu, phân bổ, giao dịch tài khoản, nhật ký, thông báo; dùng cho phiếu thu lập tay và
+  // phiếu thu tự lập từ thanh toán trực tuyến (P06-01, P06-11)
+  async issueInTransaction(
+    transaction: Transaction<SchoolYearDatabase>,
+    child: { id: string; org_unit_id: string; full_name: string },
+    account: { id: string; name: string },
+    categoryId: string,
+    input: ReceiptInput,
+    origin: ChangeOrigin,
+  ): Promise<string> {
+    const settled = await this.checkAllocations(transaction, child.id, input.allocations, input.amount, 'receipt');
+    const code = await this.nextCode(transaction);
+    const receipt = await transaction
+      .insertInto('receipts')
+      .values({
+        code,
+        org_unit_id: child.org_unit_id,
+        child_id: child.id,
+        payer_name: input.payerName,
+        amount: input.amount,
+        method: input.method,
+        account_id: account.id,
+        category_id: categoryId,
+        receipt_date: input.receiptDate,
+        content: input.content,
+        request_key: input.requestKey,
+        created_by: origin.actorUserId,
+      })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    if (input.allocations.length > 0) {
+      await transaction
+        .insertInto('receipt_allocations')
+        .values(
+          input.allocations.map((allocation) => ({
+            receipt_id: receipt.id,
+            invoice_id: allocation.invoiceId,
+            amount: allocation.amount,
+            created_by: origin.actorUserId,
+          })),
+        )
+        .execute();
+    }
+    const balanceAfter = await this.recordAccountTransaction(transaction, {
+      accountId: account.id,
+      date: input.receiptDate,
+      amount: input.amount,
+      receiptId: receipt.id,
+      description: `${code} thu của ${child.full_name}`,
+    });
+    await writeAuditLog(transaction, {
+      origin,
+      orgUnitId: child.org_unit_id,
+      entityName: 'receipts',
+      entityId: receipt.id,
+      action: 'create',
+      before: null,
+      after: {
+        code,
+        child_id: child.id,
+        payer_name: input.payerName,
+        amount: input.amount,
+        method: input.method,
+        account: account.name,
+        account_balance_after: balanceAfter,
+        receipt_date: input.receiptDate,
+        allocations: input.allocations,
+      },
+    });
+    const credit = input.amount - input.allocations.reduce((sum, allocation) => sum + allocation.amount, 0);
+    await queueNotification(transaction, {
+      orgUnitId: child.org_unit_id,
+      templateCode: 'receipt_issued',
+      title: 'Nhà trường đã nhận tiền',
+      body: `${code}: đã nhận ${input.amount} đồng cho ${child.full_name}${
+        credit > 0 ? `, ${credit} đồng ghi thành số dư có cho kỳ sau` : ''
+      }`,
+      targetType: 'receipts',
+      targetId: receipt.id,
+      recipients: (await guardianUserIds(transaction, child.id)).flatMap((userId) => [
+        { userId, channel: 'in_app' as const },
+        { userId, channel: 'sms' as const },
+      ]),
+    });
+    await this.notifySettled(transaction, child, settled);
+    return receipt.id;
   }
 
   // Dùng số dư có của trẻ để thanh toán hóa đơn kỳ sau; tiền lấy từ phiếu thu cũ nhất trước (GD-27, P06-02)

@@ -7,6 +7,7 @@ import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { formatMoney } from '../fees/fees-api.js';
 import { AppShell } from '../pages/AppShell.js';
 import { useHasPermission } from '../session/permissions.js';
+import { OnlinePaymentSettings } from './OnlinePaymentSettings.js';
 import {
   ACCOUNT_TYPE_LABELS,
   createCashAccount,
@@ -104,6 +105,7 @@ export function CashAccountsPage() {
           }}
           onChanged={setToastMessage}
         />
+        {canManage ? <OnlinePaymentSettings accounts={accounts.data ?? []} onSaved={setToastMessage} /> : null}
       </div>
     </AppShell>
   );

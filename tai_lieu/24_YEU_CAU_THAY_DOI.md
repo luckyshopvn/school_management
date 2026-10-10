@@ -11,6 +11,24 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-57: Thanh toán trực tuyến qua tài khoản ảo và mã QR dùng một lần – 2026-10-10
+
+- Lý do: thiết kế DT-05 phần 5f; nhà cung cấp xác nhận chuyển khoản chưa chọn (T1); Eric chốt cách nhận tiền và đối chiếu.
+- Nội dung thay đổi:
+  - Mỗi lần thanh toán một hóa đơn, nhà cung cấp cấp qua API một tài khoản ảo và mã QR dùng một lần, số tiền bằng số còn phải nộp, nội dung là mã hóa đơn bỏ dấu gạch (ví dụ HD000123). Tiền vào tài khoản ảo đều về một tài khoản ngân hàng duy nhất của trường. Mã QR mất hiệu lực khi đã thanh toán; số còn phải nộp đổi thì hủy mã cũ và xin mã mới.
+  - Tài khoản nhận: một tài khoản ngân hàng của Trường chính được đánh dấu nhận thanh toán trực tuyến kèm khoản mục thu của phiếu thu tự lập; kế toán có quyền khai báo quỹ ở Trường chính cấu hình.
+  - Đối chiếu: nội dung chứa mã hóa đơn của trẻ thì theo mã đó; không có mã thì theo hóa đơn của tài khoản ảo, số tiền không khớp mà khớp đúng một hóa đơn còn nợ khác của trẻ thì theo hóa đơn đó. Số tiền bằng đúng số còn phải nộp thì tự lập phiếu thu chuyển khoản vào tài khoản trường, phân bổ vào hóa đơn, gửi biên nhận cho phụ huynh. Sai số tiền, không xác định hóa đơn, hóa đơn đã thu đủ thì vào danh sách chờ, báo kế toán; gửi lại cùng mã giao dịch không xử lý lần hai.
+  - Kế toán ghi đã xử lý giao dịch chờ kèm nội dung, có thể gắn phiếu thu đã lập tay.
+  - Chưa nối nhà cung cấp thật: lớp nhà cung cấp có bản `development` giả lập (bật bằng biến môi trường `PAYMENT_GATEWAY=development`, dùng khi phát triển và kiểm thử) và bản chưa nối báo lỗi khi xin mã QR. Điểm cuối nhận thông báo của nhà cung cấp thật có chữ ký và địa chỉ mạng cho phép (BM-62) làm khi chọn xong nhà cung cấp; điểm cuối giả lập `POST /payment-webhooks/development` chỉ có với bản giả lập, người gọi phải có quyền lập phiếu thu.
+- Thành phần bị ảnh hưởng: `10`, `13`, `14`, `16`, `17`, `22`, `27_BO_CA_KIEM_THU_CHI_TIET/04_P06.md`, `01`, `03`, `index.md`; mã nguồn tài chính, phiếu thu; cổng quản trị; ứng dụng phụ huynh (thư viện `qrcode`).
+- Dữ liệu bị ảnh hưởng: bảng mới `payment_requests`, `online_payment_transactions`; `cash_accounts` thêm `receives_online_payments`, `online_payment_category_id`.
+- API bị ảnh hưởng: `GET /invoices/{id}/payment-qr`, `GET, PUT /online-payment-settings`, `GET /online-payment-transactions`, `POST /online-payment-transactions/{id}/resolve`, `POST /payment-webhooks/development`.
+- Giao diện bị ảnh hưởng: MH-09 (giao dịch chuyển khoản chờ xử lý), MH-11 (tài khoản nhận thanh toán trực tuyến), MP-11 (thanh toán bằng mã QR).
+- Quyền bị ảnh hưởng: không thêm mã quyền; dùng `P06.receipt.manage`, `P06.cash-account.manage`, `P06.view` và quan hệ phụ huynh của trẻ.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: CTC-P06-056 đến 065; CTC-P06-061 (chữ ký, địa chỉ mạng) chạy khi nối nhà cung cấp thật.
+- Trạng thái: Đã triển khai, trừ bộ chuyển đổi nhà cung cấp thật
+
 ### YCTD-56: Phiếu đảo phiếu chi – 2026-10-10
 
 - Lý do: phần 5e-2 theo cách chia đã chốt ở YCTD-55.
