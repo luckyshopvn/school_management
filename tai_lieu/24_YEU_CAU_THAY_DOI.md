@@ -11,6 +11,26 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-55: Phiếu chi, duyệt theo hạn mức và sổ quỹ – 2026-10-10
+
+- Lý do: thiết kế DT-05 phần 5e cần chốt cách phiếu chi hoàn tiền thôi học ảnh hưởng công nợ, mặc định kiểm tra số dư tài khoản ngân hàng, cách chia phần và thời điểm làm phiếu nộp, phiếu rút.
+- Nội dung thay đổi:
+  - Phần 5e chia hai: 5e-1 phiếu chi và sổ quỹ; 5e-2 phiếu đảo phiếu chi (số `DPC-000001`). Phiếu nộp tiền mặt vào ngân hàng và phiếu rút tiền về quỹ làm cùng P06-06 ở giai đoạn 2.
+  - Phiếu chi gồm loại thường, hoàn tiền thôi học, lương; lập ở trạng thái nháp, sửa và xóa được khi còn nháp; trình duyệt phải có ít nhất một chứng từ (ảnh hoặc PDF, mục đích tệp `payment_voucher`). Nguồn chi là quỹ hoặc tài khoản đang dùng của đơn vị; khoản mục là khoản mục chi đang dùng. Thủ quỹ chỉ chi từ quỹ tiền mặt.
+  - Duyệt theo hạn mức `payment` của đơn vị: dưới hạn mức Phó Hiệu trưởng hoặc Hiệu trưởng; từ hạn mức trở lên hoặc chưa đặt hạn mức chỉ Hiệu trưởng; phiếu hoàn tiền luôn Hiệu trưởng (BR-24). Người duyệt không được là người lập. Từ chối phải có lý do, phiếu về nháp kèm lý do.
+  - Duyệt là phát hành: cấp số `PC-000001` (dãy toàn trường trong năm học), ngày chi là ngày duyệt, trừ số dư nguồn chi và ghi giao dịch. Quỹ tiền mặt không đủ thì luôn chặn; tài khoản ngân hàng không đủ thì chặn theo cấu hình `bank_balance_check` của đơn vị, mặc định bật (chặn). Duyệt lần hai báo người đã duyệt.
+  - Phiếu chi hoàn tiền thôi học trừ vào số dư có của trẻ: số hoàn không vượt số dư có (không tính phiếu thu đang chờ duyệt đảo), lấy từ phiếu thu cũ nhất trước (bảng `payment_refund_sources`). Phiếu thu đã dùng để hoàn tiền thì không đảo được.
+  - Sổ quỹ theo khoảng ngày cho từng quỹ hoặc tài khoản: số dư đầu kỳ, từng giao dịch kèm số phiếu, tổng thu, tổng chi, số dư cuối kỳ.
+  - Mã quyền mới: `P06.payment.manage` cho VT-04, VT-05, VT-16; `P06.payment.approve` cho VT-02, VT-15. Xem phiếu chi và sổ quỹ theo `P06.view` hoặc quyền lập, duyệt trong phạm vi đơn vị.
+- Thành phần bị ảnh hưởng: `07`, `08`, `14`, `16`, `17`, `27_BO_CA_KIEM_THU_CHI_TIET/04_P06.md`, `01`, `03`, `index.md`; mã nguồn tài chính, tệp, cấu hình; cổng quản trị.
+- Dữ liệu bị ảnh hưởng: bảng mới `payments`, `payment_attachments`, `payment_refund_sources`; `files.purpose` thêm `payment_voucher`.
+- API bị ảnh hưởng: `GET, POST /payments`, `GET, PATCH, DELETE /payments/{id}`, `POST /payments/{id}/submit`, `/approve`, `/reject`, `GET /payments/pending`, `GET /cash-books`; `POST /files` nhận mục đích `payment_voucher`.
+- Giao diện bị ảnh hưởng: MH-10 Phiếu chi, MH-11 Sổ quỹ.
+- Quyền bị ảnh hưởng: thêm `P06.payment.manage`, `P06.payment.approve`.
+- Ảnh hưởng chức năng cũ: cấu hình kiểm tra số dư tài khoản ngân hàng có mặc định bật; số dư có của trẻ trừ số đã hoàn.
+- Kiểm thử cần thực hiện: CTC-P06-025 đến 036, 040 đến 046.
+- Trạng thái: Đã triển khai phần 5e-1
+
 ### YCTD-54: Đảo phiếu thu và nhập công nợ đầu kỳ – 2026-10-10
 
 - Lý do: thiết kế DT-05 phần 5d-2 cần chốt cách xử lý khi quỹ không đủ tiền lúc duyệt phiếu đảo, dạng số phiếu đảo và mẫu tệp công nợ đầu kỳ.

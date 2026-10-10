@@ -44,6 +44,16 @@ export async function unallocatedReceipts(
         .where('receipt_id', 'in', ids)
         .execute()
     : [];
+  // Tiền đã hoàn bằng phiếu chi hoàn tiền thôi học đã phát hành không còn là số dư có (YCTD-55)
+  const refunds = ids.length
+    ? await executor
+        .selectFrom('payment_refund_sources')
+        .innerJoin('payments', 'payments.id', 'payment_refund_sources.payment_id')
+        .select(['payment_refund_sources.receipt_id', 'payment_refund_sources.amount'])
+        .where('payment_refund_sources.receipt_id', 'in', ids)
+        .where('payments.status', 'in', ['issued', 'pending_reversal'])
+        .execute()
+    : [];
   return receipts
     .map((receipt) => ({
       id: receipt.id,
@@ -52,7 +62,10 @@ export async function unallocatedReceipts(
         Number(receipt.amount) -
         allocations
           .filter((allocation) => allocation.receipt_id === receipt.id)
-          .reduce((sum, allocation) => sum + Number(allocation.amount), 0),
+          .reduce((sum, allocation) => sum + Number(allocation.amount), 0) -
+        refunds
+          .filter((refund) => refund.receipt_id === receipt.id)
+          .reduce((sum, refund) => sum + Number(refund.amount), 0),
     }))
     .filter((receipt) => receipt.remaining > 0);
 }

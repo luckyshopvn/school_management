@@ -55,6 +55,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.2.0 | Bốn thay đổi: Ban Giám hiệu, nhiều cấp đơn vị, tách giao diện và máy chủ, dịch vụ định danh | 01 đến 07 | Đã có |
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
+| 0.29.0 | DT-05 phần 5e-1: phiếu chi duyệt theo hạn mức, hoàn tiền thôi học, sổ quỹ (YCTD-55) | 08, 09 | Đã có |
 | 0.28.9 | DT-05 phần 5d-2: đảo phiếu thu, nhập công nợ đầu kỳ (YCTD-54) | 08, 09 | Đã có |
 | 0.28.8 | DT-05 phần 5d-1: phiếu thu, phân bổ, quỹ và tài khoản, công nợ phải thu (YCTD-53) | 08, 09 | Đã có |
 | 0.28.7 | DT-05 phần 5c-2: miễn giảm và phiếu điều chỉnh hóa đơn, duyệt theo hạn mức (YCTD-52) | 08, 09 | Đã có |

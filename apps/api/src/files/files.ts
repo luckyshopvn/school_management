@@ -31,7 +31,7 @@ import { FileStorage } from './file-storage.js';
 // Tệp đính kèm của hồ sơ trẻ: bản chụp giấy khai sinh và giấy đồng ý hình ảnh; ảnh hoặc PDF, tối đa 10 MB (YCTD-45).
 // Ảnh bàn giao trẻ do giáo viên chủ nhiệm chụp khi đón trả (Q-40, YCTD-48)
 export const MAXIMUM_FILE_BYTES = 10 * 1024 * 1024;
-const PURPOSES: FilePurpose[] = ['birth_certificate', 'photo_consent', 'pickup_photo'];
+const PURPOSES: FilePurpose[] = ['birth_certificate', 'photo_consent', 'pickup_photo', 'payment_voucher'];
 const SIGNATURES: Array<{ contentType: string; bytes: number[] }> = [
   { contentType: 'image/jpeg', bytes: [0xff, 0xd8, 0xff] },
   { contentType: 'image/png', bytes: [0x89, 0x50, 0x4e, 0x47] },
@@ -76,6 +76,8 @@ export class FilesService {
     const { database } = await this.currentSchoolYear.require();
     if (input.purpose === 'pickup_photo') {
       await this.assertHomeroomInUnit(currentUser, database, input.orgUnitId);
+    } else if (input.purpose === 'payment_voucher') {
+      await this.organizationScopes.assertCanAccess(currentUser, PERMISSION_CODES.paymentManage, input.orgUnitId);
     } else {
       await this.organizationScopes.assertCanAccess(currentUser, PERMISSION_CODES.childManage, input.orgUnitId);
     }
@@ -150,6 +152,8 @@ export class FilesService {
       } else {
         await this.assertHomeroomInUnit(currentUser, database, orgUnitId);
       }
+    } else if (file.purpose === 'payment_voucher') {
+      await this.assertCanViewPayments(currentUser, orgUnitId);
     } else if (file.purpose === 'birth_certificate') {
       await this.organizationScopes.assertCanAccess(currentUser, PERMISSION_CODES.nationalIdView, orgUnitId);
       await writeDataAccessLog(database, {
@@ -167,6 +171,17 @@ export class FilesService {
     }
     const { storage_key: storageKey, ...stored } = file;
     return { file: stored, body: await this.fileStorage.get(storageKey) };
+  }
+
+  // Chứng từ phiếu chi: người xem phiếu chi của đơn vị (P06-04)
+  private async assertCanViewPayments(currentUser: CurrentUser, orgUnitId: string): Promise<void> {
+    for (const permission of ['P06.view', PERMISSION_CODES.paymentManage, PERMISSION_CODES.paymentApprove]) {
+      const scope = await this.organizationScopes.resolveStaff(currentUser, permission);
+      if (scope.wholeSchool || scope.orgUnitIds.includes(orgUnitId)) {
+        return;
+      }
+    }
+    throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không có quyền xem chứng từ này');
   }
 
   // Giáo viên chủ nhiệm đang được phân công một lớp của đơn vị
@@ -209,7 +224,10 @@ export class FilesController {
     const orgUnitId = readRequiredUuid(body, 'org_unit_id', errors, 'Bắt buộc chọn đơn vị');
     const purpose = body?.purpose as FilePurpose;
     if (!PURPOSES.includes(purpose)) {
-      errors.push({ field: 'purpose', message: 'Mục đích là birth_certificate, photo_consent hoặc pickup_photo' });
+      errors.push({
+        field: 'purpose',
+        message: 'Mục đích là birth_certificate, photo_consent, pickup_photo hoặc payment_voucher',
+      });
     }
     if (!file || file.size === 0) {
       errors.push({ field: 'file', message: 'Bắt buộc chọn tệp' });

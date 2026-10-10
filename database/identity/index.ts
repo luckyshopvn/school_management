@@ -19,6 +19,7 @@ import { migration as addFeeCalculationPermission } from './migrations/0017_add_
 import { migration as addDiscountPermissions } from './migrations/0018_add_discount_permissions.js';
 import { migration as addReceiptPermissions } from './migrations/0019_add_receipt_permissions.js';
 import { migration as addReversalAndOpeningDebtPermissions } from './migrations/0020_add_reversal_and_opening_debt_permissions.js';
+import { migration as addPaymentPermissions } from './migrations/0021_add_payment_permissions.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu định danh, theo số thứ tự (QU-01)
 export const identityMigrations: Record<string, Migration> = {
@@ -42,4 +43,5 @@ export const identityMigrations: Record<string, Migration> = {
   '0018_add_discount_permissions': addDiscountPermissions,
   '0019_add_receipt_permissions': addReceiptPermissions,
   '0020_add_reversal_and_opening_debt_permissions': addReversalAndOpeningDebtPermissions,
+  '0021_add_payment_permissions': addPaymentPermissions,
 };

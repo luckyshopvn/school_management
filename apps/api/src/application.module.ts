@@ -58,6 +58,9 @@ import { CashAccountsController, CashAccountsService } from './finance/cash-acco
 import { ReceiptsController } from './finance/receipts.controller.js';
 import { ReceiptsService } from './finance/receipts.service.js';
 import { ReceiptReversalsService } from './finance/receipt-reversals.service.js';
+import { CashBooksController, CashBooksService } from './finance/cash-books.js';
+import { PaymentsController } from './finance/payments.controller.js';
+import { PaymentsService } from './finance/payments.service.js';
 import { DebtsService } from './fees/debts.service.js';
 import { OrgUnitsController } from './organization/org-units.controller.js';
 import { OrgUnitsService } from './organization/org-units.service.js';
@@ -102,6 +105,8 @@ export class ApplicationModule {
         DiscountsController,
         CashAccountsController,
         ReceiptsController,
+        PaymentsController,
+        CashBooksController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -152,6 +157,8 @@ export class ApplicationModule {
         CashAccountsService,
         ReceiptsService,
         ReceiptReversalsService,
+        PaymentsService,
+        CashBooksService,
         DebtsService,
         SchoolCalendar,
         {

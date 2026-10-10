@@ -47,6 +47,8 @@ export const PERMISSION_CODES = {
   receiptReversalCreate: 'P06.receipt-reversal.create',
   receiptReversalApprove: 'P06.receipt-reversal.approve',
   openingDebtImport: 'P05.opening-debt.import',
+  paymentManage: 'P06.payment.manage',
+  paymentApprove: 'P06.payment.approve',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)

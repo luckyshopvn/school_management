@@ -169,7 +169,7 @@ export const readNationalId = (childId: string): Promise<{ national_id: string }
 // Tải tệp qua biểu mẫu nhiều phần; không qua requestJson vì nội dung không phải JSON
 export async function uploadFile(
   orgUnitId: string,
-  purpose: 'birth_certificate' | 'photo_consent',
+  purpose: 'birth_certificate' | 'photo_consent' | 'payment_voucher',
   file: File,
 ): Promise<{ id: string }> {
   const form = new FormData();

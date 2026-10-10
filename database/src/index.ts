@@ -42,6 +42,8 @@ export type {
   PhotoConsentMethod,
   PickupConfirmationStatus,
   PickupPersonKind,
+  PaymentStatus,
+  PaymentType,
   PickupType,
   ReceiptMethod,
   ReceiptStatus,

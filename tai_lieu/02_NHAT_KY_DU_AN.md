@@ -14,6 +14,29 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-10 — DT-05 phần 5e-1: phiếu chi và sổ quỹ
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 22 (phần 5d-2) sau khi mọi bước kiểm thử trên GitHub đạt.
+- Hỏi Eric bốn điểm của phần 5e; chia 5e thành 5e-1 và 5e-2; viết phần 5e-1 trên nhánh `dt-05-phan-5e`.
+- Cơ sở dữ liệu: năm học có `payments`, `payment_attachments`, `payment_refund_sources`, tệp mục đích `payment_voucher` (tệp 0016); định danh có `P06.payment.manage`, `P06.payment.approve` (tệp 0021); cấu hình kiểm tra số dư ngân hàng mặc định bật.
+- Máy chủ API: lập, sửa, xóa phiếu chi nháp, trình duyệt, duyệt là phát hành, từ chối; hoàn tiền trừ số dư có; sổ quỹ theo khoảng ngày; tải và xem chứng từ phiếu chi.
+- Cổng quản trị: trang Phiếu chi (MH-10) có biểu mẫu kèm chứng từ, danh sách và mục chờ duyệt; trang Sổ quỹ (MH-11).
+- Kết quả: máy chủ API 242/242, dịch vụ định danh 37/37, cơ sở dữ liệu 3/3, tiến trình chạy nền 1/1; kiểm thử giao diện chạy trên CI vì cổng 5273 trên máy đang bận.
+
+#### Quyết định
+
+- Hoàn tiền thôi học trừ vào số dư có; kiểm tra số dư ngân hàng mặc định chặn; chia 5e-1, 5e-2; phiếu nộp, phiếu rút để giai đoạn 2 (YCTD-55) – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-55 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.29.0.
+
+#### Vấn đề tồn đọng
+
+- CTC-P06-034 (phiếu chi lương từ bảng lương đã duyệt) chờ phân hệ lương; CTC-P01-049 (tắt kiểm tra số dư ngân hàng) chưa có kiểm thử tự động.
+
 ### 2026-10-10 — DT-05 phần 5d-2: đảo phiếu thu và nhập công nợ đầu kỳ
 
 #### Công việc đã thực hiện
