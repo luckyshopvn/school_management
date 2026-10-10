@@ -11,6 +11,27 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-50: Đăng ký dịch vụ, hủy trễ và học hè – 2026-10-10
+
+- Lý do: thiết kế DT-05 phần 5b cần chốt cách hủy dịch vụ sau ngày chốt, dịch vụ trong tháng hè và quyền duyệt đăng ký trễ khác với quyền `P05.approve` hiện có (kế toán cũng có quyền này).
+- Nội dung thay đổi:
+  - Hủy dịch vụ không bắt buộc sau ngày chốt hoặc khi kỳ đã chốt danh sách thì chờ Ban Giám hiệu duyệt, như đăng ký trễ; từ chối thì đăng ký giữ nguyên, duyệt thì hủy. Rút đăng ký trễ chưa duyệt thì hủy ngay.
+  - Tháng hè không tự giữ dịch vụ không bắt buộc từ năm học; chỉ trẻ đã đăng ký học hè tháng đó mới có dòng đăng ký (tự có bán trú) và đăng ký thêm dịch vụ được.
+  - Mã quyền mới `P05.registration.manage` cho VT-04 trong đơn vị được gán: đăng ký, hủy dịch vụ và học hè thay phụ huynh, chốt danh sách kỳ. Mã quyền mới `P05.late-registration.approve` cho VT-02 toàn trường và VT-15 trong đơn vị được gán: duyệt, từ chối đăng ký trễ và hủy trễ. Quản lý đơn vị chỉ xem (Q-134).
+  - Mục cấu hình mới `service_registration_closing_day` theo đơn vị, mặc định 25, nhận 1 đến 28 hoặc ngày cuối tháng.
+  - Trạng thái dòng đăng ký: đang hiệu lực, chờ duyệt đăng ký trễ, chờ duyệt hủy, đã hủy, bị từ chối. Dòng của kỳ được tạo khi mở bảng, xem của trẻ, đăng ký hoặc chốt kỳ: dịch vụ bắt buộc cho mọi trẻ học trong kỳ, dịch vụ không bắt buộc giữ từ tháng gần nhất có đăng ký đang hiệu lực.
+  - Ngày kỳ hè trở thành ngày học cho trẻ đã đăng ký học hè tháng đó: bảng điểm danh và báo vắng ngày hè chỉ gồm các trẻ này (CTC-P04-046).
+  - Hủy học hè chỉ trước ngày chốt của tháng đó; hủy thì các dòng đăng ký dịch vụ của tháng hè cũng hủy.
+  - Chặn đăng ký thêm khi trẻ còn nợ quá hạn (BR-33, CTC-P05-017, 018) làm khi có hóa đơn ở phần 5c, 5d.
+- Thành phần bị ảnh hưởng: `07`, `08`, `10`, `14`, `16`, `17`, `27_BO_CA_KIEM_THU_CHI_TIET/02_P02_VA_P04.md`, `03_P05.md`, `01`, `03`, `index.md`; mã nguồn DT-05 phần 5b, điểm danh; cổng quản trị, ứng dụng phụ huynh.
+- Dữ liệu bị ảnh hưởng: bảng mới `service_registrations`, `registration_periods`, `summer_registrations`.
+- API bị ảnh hưởng: `GET /service-registrations/periods`, `GET /service-registrations`, `GET /service-registrations/pending`, `GET /children/{id}/service-registrations`, `POST /service-registrations`, `POST /service-registrations/lock`, `POST /service-registrations/{id}/cancel`, `/approve-late`, `/reject-late`; `GET`, `POST /summer-registrations`, `DELETE /summer-registrations/{id}`; bảng điểm danh ngày hè.
+- Giao diện bị ảnh hưởng: MH-05 Đăng ký dịch vụ, MP-12 trong ứng dụng phụ huynh, màn hình Cấu hình có mục ngày chốt đăng ký dịch vụ.
+- Quyền bị ảnh hưởng: thêm `P05.registration.manage`, `P05.late-registration.approve`.
+- Ảnh hưởng chức năng cũ: ngày kỳ hè trước đây không có bảng điểm danh, nay có bảng gồm trẻ đăng ký học hè.
+- Kiểm thử cần thực hiện: CTC-P05-009 đến 022, 064 đến 067; CTC-P04-046.
+- Trạng thái: Đã triển khai
+
 ### YCTD-49: Chia đợt DT-05 và danh mục học phí, tài chính – 2026-10-10
 
 - Lý do: thiết kế DT-05 cần chốt cách chia đợt, cách giữ đăng ký dịch vụ qua các tháng, nguồn của ngày chốt đăng ký và phạm vi của danh mục loại miễn giảm, khoản mục thu chi.
@@ -29,7 +50,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: thêm `P05.fee-catalog.manage`, `P05.discount-type.manage`, `P06.cashflow-category.manage`.
 - Ảnh hưởng chức năng cũ: không.
 - Kiểm thử cần thực hiện: CTC-P05-001 đến 008, 043 đến 045; CTC-P06-052 đến 055.
-- Trạng thái: Đã triển khai phần 5a
+- Trạng thái: Đã triển khai phần 5a, 5b
 
 ### YCTD-48: Người được ủy quyền đón trẻ và đón trả – 2026-10-10
 

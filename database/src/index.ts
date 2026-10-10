@@ -31,6 +31,7 @@ export type {
   FilePurpose,
   ImportStatus,
   ImportType,
+  LateChargeMethod,
   OrgUnitStatus,
   OrgUnitType,
   PhotoConsent,
@@ -38,6 +39,8 @@ export type {
   PickupConfirmationStatus,
   PickupPersonKind,
   PickupType,
+  RegistrationSource,
+  RegistrationStatus,
   SchoolYearDatabase,
   ServiceCalculationMethod,
 } from '../school-year/schema.js';

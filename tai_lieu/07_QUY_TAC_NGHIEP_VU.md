@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.12
+- Phiên bản: 1.13
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -54,7 +54,7 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 | BR-23 | Trẻ nhập học hoặc thôi học giữa tháng: học phí chính khóa bằng học phí tháng nhân số ngày học thực tế trong tháng, chia số ngày học của tháng. Số ngày học của tháng tính theo lịch năm học (BR-91): các ngày học trong tuần nằm trong học kỳ hoặc kỳ hè, trừ tuần nghỉ và ngày nghỉ lễ, cộng ngày học bù thứ bảy |
 | BR-24 | Trẻ thôi học giữa tháng: quyết toán đến ngày thôi học, các khoản đã thu vượt được bù trừ vào kỳ sau hoặc hoàn lại theo quyết định của Hiệu trưởng. Phiếu chi hoàn tiền luôn do Hiệu trưởng phê duyệt, không xét hạn mức |
 | BR-25 | Hóa đơn học phí đã phát hành không sửa trực tiếp. Muốn điều chỉnh phải lập phiếu điều chỉnh có lý do, người phê duyệt và liên kết tới hóa đơn gốc |
-| BR-26 | Đăng ký dịch vụ theo tháng phải chốt trước ngày cấu hình của đơn vị. Sau ngày chốt chỉ được đăng ký thêm các dịch vụ không bắt buộc (ví dụ STEM, Anh văn, 7 môn phối hợp); đăng ký trễ phải được Ban Giám hiệu duyệt, và Ban Giám hiệu quyết định thu 100% phí tháng hoặc thu theo số ngày thực tế. Đăng ký trễ phải ghi ngày bắt đầu học dịch vụ; thu theo số ngày thực tế thì tính từ ngày đó, kể cả ngày đó, đến cuối tháng (Q-150) |
+| BR-26 | Đăng ký dịch vụ theo tháng phải chốt trước ngày cấu hình của đơn vị (mặc định ngày 25 của tháng trước kỳ, YCTD-49). Sau ngày chốt hoặc khi kế toán đã chốt danh sách kỳ chỉ được đăng ký thêm các dịch vụ không bắt buộc (ví dụ STEM, Anh văn, 7 môn phối hợp); đăng ký trễ phải được Ban Giám hiệu duyệt, và Ban Giám hiệu quyết định thu 100% phí tháng hoặc thu theo số ngày thực tế. Đăng ký trễ phải ghi ngày bắt đầu học dịch vụ; thu theo số ngày thực tế thì tính từ ngày đó, kể cả ngày đó, đến cuối tháng (Q-150). Hủy dịch vụ sau ngày chốt cũng phải được Ban Giám hiệu duyệt (YCTD-50) |
 | BR-27 | Bỏ ngày 09/10/2026: học thứ bảy không còn là dịch vụ thu phí; thứ bảy chỉ có lịch học bù toàn trường do Ban Giám hiệu lập (BR-84) |
 
 ## 6. Quy tắc về thu chi, quỹ và công nợ

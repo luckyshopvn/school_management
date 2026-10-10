@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, ApplicationHeader, Button, StatusBadge } from '@school-management/ui';
 import {
   enqueue,
@@ -57,10 +57,16 @@ export function AttendanceScreen({ myClass, onBack }: { myClass: MyClass; onBack
   const [message, setMessage] = useState<{ tone: 'success' | 'warning' | 'danger'; text: string }>();
   const [busy, setBusy] = useState(false);
 
+  // Đổi ngày nhanh thì kết quả của ngày cũ có thể về sau; chỉ nhận kết quả của lần tải mới nhất
+  const latestRequest = useRef(0);
   const load = useCallback(async () => {
+    const requestNumber = ++latestRequest.current;
     setMessage(undefined);
     try {
       const loaded = await requestJson<Sheet>(`/api/v1/classes/${myClass.id}/attendance?date=${date}`);
+      if (requestNumber !== latestRequest.current) {
+        return;
+      }
       setSheet(loaded);
       // Bản lưu tạm chưa gửi được ưu tiên hiển thị để giáo viên không mất thao tác
       const pending = pendingFor(myClass.id, date);
@@ -78,6 +84,9 @@ export function AttendanceScreen({ myClass, onBack }: { myClass: MyClass; onBack
         setMessage({ tone: 'warning', text: 'Dữ liệu chưa đồng bộ, sẽ tự gửi khi có mạng' });
       }
     } catch (error) {
+      if (requestNumber !== latestRequest.current) {
+        return;
+      }
       setSheet(undefined);
       setMessage({ tone: 'danger', text: messageOf(error) });
     }

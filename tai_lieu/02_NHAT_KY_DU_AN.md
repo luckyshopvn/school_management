@@ -14,6 +14,30 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-10 — DT-05 phần 5b: đăng ký dịch vụ và học hè
+
+#### Công việc đã thực hiện
+
+- Yêu cầu gộp số 17 (phần 5a) lần đầu thất bại trên GitHub vì kiểm thử hồ sơ trẻ sinh tên ngẫu nhiên trùng nhau; sửa bằng tên đánh số tuần tự, chạy lại đạt rồi gộp.
+- Hỏi Eric hai điểm của phần 5b; viết phần 5b trên nhánh `dt-05-phan-5b`.
+- Cơ sở dữ liệu: năm học có `service_registrations`, `registration_periods`, `summer_registrations` (tệp 0011); định danh có `P05.registration.manage`, `P05.late-registration.approve` (tệp 0016); cấu hình `service_registration_closing_day`.
+- Máy chủ API: bảng đăng ký theo kỳ, đăng ký và hủy, đăng ký và hủy trễ chờ duyệt, chốt kỳ, học hè; điểm danh ngày hè cho trẻ đăng ký học hè.
+- Cổng quản trị: MH-05 Đăng ký dịch vụ. Ứng dụng phụ huynh: mục Dịch vụ của con (MP-12).
+- Kiểm thử giao diện phát hiện lỗi chạy đua khi tải dữ liệu: kết quả của tháng hoặc ngày cũ về sau ghi đè dữ liệu mới, ở màn hình dịch vụ của ứng dụng phụ huynh và bảng điểm danh của ứng dụng giáo viên; đã sửa bằng cách chỉ nhận kết quả của lần tải mới nhất.
+- Kết quả: máy chủ API 174/174, dịch vụ định danh 37/37, cơ sở dữ liệu 3/3, tiến trình chạy nền 1/1, kiểm thử giao diện 29/29.
+
+#### Quyết định
+
+- Hủy dịch vụ sau ngày chốt cần Ban Giám hiệu duyệt; tháng hè không tự giữ dịch vụ không bắt buộc (YCTD-50) – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-50 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.28.5.
+
+#### Vấn đề tồn đọng
+
+- CTC-P05-015 (thu theo ngày thực tế), 017, 018 (chặn khi nợ quá hạn), 065 cần tính học phí và hóa đơn; chạy ở phần 5c, 5d.
+
 ### 2026-10-10 — DT-05 phần 5a: danh mục học phí và tài chính
 
 #### Công việc đã thực hiện

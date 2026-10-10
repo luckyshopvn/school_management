@@ -35,6 +35,8 @@ export const PERMISSION_CODES = {
   feeCatalogManage: 'P05.fee-catalog.manage',
   discountTypeManage: 'P05.discount-type.manage',
   cashflowCategoryManage: 'P06.cashflow-category.manage',
+  registrationManage: 'P05.registration.manage',
+  lateRegistrationApprove: 'P05.late-registration.approve',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)

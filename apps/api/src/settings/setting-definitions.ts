@@ -27,6 +27,13 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
     rule: 'BR-33',
   },
   {
+    key: 'service_registration_closing_day',
+    label: 'Ngày chốt đăng ký dịch vụ (trong tháng trước kỳ)',
+    valueType: 'day_of_month',
+    defaultValue: 25,
+    rule: 'BR-26',
+  },
+  {
     key: 'debt_reminder_days',
     label: 'Các mốc nhắc nợ (số ngày sau ngày đến hạn)',
     valueType: 'day_list',

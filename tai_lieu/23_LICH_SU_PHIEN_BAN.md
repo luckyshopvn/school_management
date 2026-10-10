@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.28.5 – 2026-10-10
+
+- Phạm vi thay đổi: DT-05 phần 5b, đăng ký dịch vụ và học hè (YCTD-50).
+- Chức năng mới: đăng ký dịch vụ theo tháng tự giữ tới khi hủy; đăng ký và hủy sau ngày chốt chờ Ban Giám hiệu duyệt; chốt danh sách kỳ; đăng ký học hè; điểm danh ngày hè; màn hình MH-05, MP-12.
+- Lỗi đã sửa: kiểm thử hồ sơ trẻ thất bại ngẫu nhiên do tên trùng; ứng dụng phụ huynh và ứng dụng giáo viên hiển thị nhầm dữ liệu của tháng hoặc ngày cũ khi kết quả tải về không theo thứ tự.
+- Thay đổi dữ liệu: `service_registrations`, `registration_periods`, `summer_registrations`; cấu hình `service_registration_closing_day`; mã quyền `P05.registration.manage`, `P05.late-registration.approve`.
+- Thay đổi API: nhóm điểm cuối đăng ký dịch vụ và học hè; bảng điểm danh ngày hè có dữ liệu.
+- Rủi ro: không.
+- Khả năng tương thích: ngày kỳ hè có bảng điểm danh cho trẻ đăng ký học hè; chức năng khác không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-05-phan-5b`; chạy ngược tệp thay đổi cấu trúc 0011 của cơ sở dữ liệu năm học và 0016 của cơ sở dữ liệu định danh.
+
 ### Phiên bản 0.28.4 – 2026-10-10
 
 - Phạm vi thay đổi: DT-05 phần 5a, danh mục học phí và tài chính (YCTD-49).

@@ -436,6 +436,60 @@ export interface CashflowCategoriesTable extends CatalogRecordColumns {
   status: Generated<CatalogStatus>;
 }
 
+export type RegistrationStatus = 'active' | 'pending_late' | 'pending_cancel' | 'cancelled' | 'rejected';
+export type RegistrationSource = 'parent' | 'staff' | 'system' | 'carried';
+export type LateChargeMethod = 'full_month' | 'actual_days';
+
+export interface ServiceRegistrationsTable {
+  id: Generated<string>;
+  child_id: string;
+  org_unit_id: string;
+  period_year: number;
+  period_month: number;
+  service_id: string;
+  status: RegistrationStatus;
+  source: RegistrationSource;
+  registered_by: string | null;
+  // Đăng ký lại sau khi hủy thì ghi lại thời điểm
+  registered_at: UpdatedTimestamp;
+  is_late: Generated<boolean>;
+  service_start_date: string | null;
+  late_charge_method: LateChargeMethod | null;
+  decided_by: string | null;
+  decided_at: Date | null;
+  decision_note: string | null;
+  cancel_requested_by: string | null;
+  cancel_requested_at: Date | null;
+  cancelled_by: string | null;
+  cancelled_at: Date | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface RegistrationPeriodsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  period_year: number;
+  period_month: number;
+  status: 'open' | 'locked';
+  locked_by: string | null;
+  locked_at: Date | null;
+}
+
+export interface SummerRegistrationsTable {
+  id: Generated<string>;
+  child_id: string;
+  org_unit_id: string;
+  period_year: number;
+  period_month: number;
+  status: 'active' | 'cancelled';
+  source: 'parent' | 'staff';
+  registered_by: string;
+  // Đăng ký lại sau khi hủy thì ghi lại thời điểm
+  registered_at: UpdatedTimestamp;
+  cancelled_by: string | null;
+  cancelled_at: Date | null;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -470,4 +524,7 @@ export interface SchoolYearDatabase {
   fee_schedule_items: FeeScheduleItemsTable;
   discount_types: DiscountTypesTable;
   cashflow_categories: CashflowCategoriesTable;
+  service_registrations: ServiceRegistrationsTable;
+  registration_periods: RegistrationPeriodsTable;
+  summer_registrations: SummerRegistrationsTable;
 }
