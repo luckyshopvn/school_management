@@ -1,8 +1,8 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.29
-- Ngày cập nhật: 2026-10-10
+- Phiên bản: 1.30
+- Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -55,7 +55,7 @@
 | notification_recipients | Người nhận thông báo | notification_id, user_id (trống khi gửi theo vai trò), role_code và org_unit_id (mọi tài khoản có vai trò ở đơn vị, YCTD-47), channel (trong ứng dụng hoặc tin nhắn, YCTD-45), is_read, read_at, channel_status, sent_at |
 | rooms | Phòng học | org_unit_id, code (duy nhất trong đơn vị), name, capacity (lớn hơn 0), status |
 | grade_levels | Bậc học | code (duy nhất, không đổi sau khi tạo), name, age_from_months, age_to_months (tháng tuổi, YCTD-42), order_no, status |
-| catalog_items | Mục danh mục dùng chung, không thuộc đơn vị (P01-05, YCTD-42) | catalog_type (loại do hệ thống định nghĩa), code (duy nhất trong loại), name, order_no, status |
+| catalog_items | Mục danh mục dùng chung, không thuộc đơn vị (P01-05, YCTD-42) | catalog_type (loại do hệ thống định nghĩa), code (duy nhất trong loại), name, order_no, status, attributes (thuộc tính riêng của loại; loại nghỉ phép có is_paid, deducts_annual_leave, insurance_paid, YCTD-59) |
 
 Ràng buộc: `org_units.parent_id` trỏ tới `org_units.id`. Chỉ một đơn vị `truong_chinh`, có `parent_id` trống; đơn vị `phan_hieu`, `diem_truong` có `parent_id` là Trường chính. Kiểm tra ở tầng ứng dụng và ở tầng dữ liệu (YCTD-38).
 
@@ -161,7 +161,7 @@ Ràng buộc duy nhất: `receipts` trên bộ đôi đơn vị và mã phiếu 
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| attendance_logs | Chấm công | staff_id, work_date, check_in, check_out, worked_hours, status, note, source, overtime_minutes |
+| attendance_logs | Chấm công (YCTD-59) | staff_id, work_date, check_in, check_out (giờ HH:MM theo giờ Việt Nam), worked_minutes, late_minutes, early_leave_minutes, source (tự chấm hoặc nhập tay), note, updated_by |
 | work_schedules | Lịch nghỉ và lịch công tác | staff_id, schedule_date, schedule_type, note |
 | leave_requests | Đơn xin nghỉ phép | staff_id, leave_type, from_date, to_date, days, reason, status, requested_at, approved_by, approved_at, reject_reason |
 | leave_balances | Số ngày phép | staff_id, balance_year, leave_type, entitled_days, used_days, remaining_days |
@@ -171,8 +171,8 @@ Ràng buộc duy nhất: `receipts` trên bộ đôi đơn vị và mã phiếu 
 | payslip_lines | Chi tiết bảng lương | payslip_id, line_type, code, name, amount, basis |
 | allowance_types | Danh mục phụ cấp | org_unit_id, code, name, calculation_method, rate_value, status |
 | deduction_types | Danh mục khấu trừ | org_unit_id, code, name, calculation_method, rate_value, status |
-| holidays | Ngày nghỉ lễ | org_unit_id, holiday_date, name, is_paid, year |
-| saturday_schedules | Lịch nghỉ thứ 7 và lịch học bù, một lịch chung toàn trường | org_unit_id (luôn là đơn vị gốc), saturday_date, schedule_type (nghỉ định kỳ hoặc học bù), note, created_by |
+| holidays | Ngày nghỉ lễ chung toàn trường (YCTD-59) | holiday_date (duy nhất), name, is_paid |
+| school_day_changes | Ngày học bù thứ bảy và ngày nghỉ bù, một lịch chung toàn trường (YCTD-59) | change_date (duy nhất), change_type (học bù hoặc nghỉ bù), note, created_by |
 
 Ràng buộc duy nhất: `attendance_logs` trên bộ đôi nhân sự và ngày; `payslips` trên bộ đôi kỳ lương và nhân sự.
 

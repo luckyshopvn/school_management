@@ -1,8 +1,8 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.33
-- Ngày cập nhật: 2026-10-10
+- Phiên bản: 1.34
+- Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -95,6 +95,15 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | GET, PATCH | /api/v1/academic-years/{id}/weeks | Danh sách tuần; đánh dấu hoặc bỏ đánh dấu tuần nghỉ |
 | POST | /api/v1/academic-years/{id}/open | Mở năm học: kiểm tra BR-89, tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung, chuyển năm đang dùng sang đã đóng và chỉ đọc (BR-93) |
 | POST | /api/v1/academic-years/{id}/close | Bỏ ngày 09/10/2026: gộp vào mở năm học mới (YCTD-37) |
+
+Giao kèo của ngày lễ, lịch bù và chấm công (DT-06 phần 6b-1, YCTD-59):
+
+1. `POST /holidays` nhận `holiday_date`, `name` (tối đa 200 ký tự), `is_paid`; cần `P08.holiday.manage` với phạm vi toàn trường. `POST /school-day-changes` nhận `change_date`, `change_type` (`makeup_school_day`, `compensatory_day_off`), `note`; cần `P08.school-day-change.manage`. Ngày từ hôm nay trở về trước, học bù không phải thứ bảy trong học kỳ, nghỉ bù không phải thứ hai đến thứ sáu, ngày đã là ngày lễ hoặc đã có lịch bù đều bị từ chối (BR-84 hoặc `ERR_CONFLICT`).
+2. `GET /school-days?year=` trả `holidays` và `changes` của năm dương lịch cho mọi người đã đăng nhập.
+3. `GET /me/attendance-logs?month=YYYY-MM` trả `staff`, `today`, `today_log`, `days` (từng ngày với `kind`: `work`, `holiday` kèm `name`, `is_paid`, `compensatory_day_off`, `rest`), `logs`; tài khoản chưa gắn hồ sơ trả `ERR_NOT_FOUND`. `POST /me/attendance-logs/check-in` và `check-out` không nhận thân yêu cầu; vào ca lần hai, ra ca khi chưa vào ca, hồ sơ đã nghỉ việc trả mã BR-39.
+4. `GET /attendance-logs?org_unit_id=&month=` cần `P08.attendance.view` trong phạm vi; trả `work_hours`, `can_manage`, `days`, `staff` kèm `logs`. `PUT /attendance-logs` nhận `staff_id`, `work_date`, `check_in`, `check_out` (giờ `HH:MM`, có thể trống), `note`; cần `P08.attendance.manage`; ngày chưa tới hoặc giờ ra không lớn hơn giờ vào trả `ERR_VALIDATION`; ngày ngoài thời gian làm việc của nhân sự trả mã BR-39.
+5. Mỗi bản ghi chấm công có `worked_minutes`, `late_minutes`, `early_leave_minutes` tính theo cấu hình `work_start_time`, `work_end_time`, `lunch_break_minutes` của đơn vị lúc ghi; phần chưa cấu hình để trống.
+6. Danh mục dùng chung: mục loại `leave_type` bắt buộc `attributes` gồm `is_paid`, `deducts_annual_leave`, `insurance_paid`; loại khác bỏ qua `attributes`.
 
 Giao kèo của hồ sơ nhân sự và hợp đồng (DT-06 phần 6a, YCTD-58):
 
@@ -455,8 +464,8 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 | POST, DELETE | /api/v1/staff/{id}/account | Liên kết và bỏ liên kết tài khoản có sẵn (YCTD-58) |
 | POST | /api/v1/staff/{id}/contracts | Lập hợp đồng lao động |
 | POST | /api/v1/employment-contracts/{id}/terminate | Chấm dứt hợp đồng, khóa tài khoản liên kết (YCTD-58) |
-| GET | /api/v1/attendance-logs | Bảng chấm công theo kỳ và đơn vị |
-| PUT | /api/v1/attendance-logs | Ghi hoặc sửa chấm công |
+| GET | /api/v1/attendance-logs | Bảng chấm công của đơn vị theo tháng kèm loại ngày (YCTD-59) |
+| PUT | /api/v1/attendance-logs | Phòng nhân sự ghi hoặc sửa chấm công của một ngày |
 | POST | /api/v1/attendance-logs/lock | Chốt bảng công của kỳ |
 | POST | /api/v1/attendance-logs/reopen-requests | Nhân sự đề nghị mở lại kỳ công đã chốt kèm lý do |
 | POST | /api/v1/attendance-logs/reopen-requests/{id}/approve | Ban Giám hiệu duyệt mở lại kỳ công (Q-135) |
@@ -469,12 +478,17 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 | POST | /api/v1/payrolls/{period_id}/approve | Phê duyệt bảng lương |
 | POST | /api/v1/payrolls/settlements | Lập bảng quyết toán cuối cùng khi chấm dứt hợp đồng (BR-90) |
 | GET | /api/v1/me/payslips | Phiếu lương của chính người đăng nhập |
-| GET | /api/v1/me/attendance-logs | Chấm công của chính người đăng nhập |
+| GET | /api/v1/me/attendance-logs | Chấm công của chính người đăng nhập theo tháng |
+| POST | /api/v1/me/attendance-logs/check-in | Tự vào ca hôm nay theo giờ máy chủ (YCTD-59) |
+| POST | /api/v1/me/attendance-logs/check-out | Tự ra ca hôm nay theo giờ máy chủ (YCTD-59) |
 | GET, POST | /api/v1/allowance-types | Danh mục phụ cấp |
 | GET, POST | /api/v1/deduction-types | Danh mục khấu trừ |
 | GET, POST | /api/v1/leave-policies | Quy định số ngày phép năm theo chức danh và thâm niên |
-| GET, POST | /api/v1/holidays | Ngày nghỉ lễ |
-| GET, POST | /api/v1/saturday-schedules | Lịch nghỉ thứ 7 định kỳ và lịch học bù chung toàn trường; chỉ Ban Giám hiệu được tạo và sửa |
+| GET | /api/v1/school-days | Ngày nghỉ lễ và lịch học bù, nghỉ bù của một năm dương lịch (YCTD-59) |
+| POST | /api/v1/holidays | Thêm ngày nghỉ lễ |
+| PUT, DELETE | /api/v1/holidays/{id} | Sửa tên, hưởng lương hoặc xóa ngày nghỉ lễ |
+| POST | /api/v1/school-day-changes | Thêm ngày học bù thứ bảy hoặc ngày nghỉ bù chung toàn trường; chỉ Ban Giám hiệu (YCTD-59) |
+| DELETE | /api/v1/school-day-changes/{id} | Xóa ngày học bù hoặc nghỉ bù |
 
 ## 12. Công việc, kế hoạch và đánh giá
 

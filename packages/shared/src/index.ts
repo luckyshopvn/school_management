@@ -54,6 +54,10 @@ export const PERMISSION_CODES = {
   staffView: 'P07.staff.view',
   contractView: 'P07.contract.view',
   importStaff: 'P01.import.staff',
+  holidayManage: 'P08.holiday.manage',
+  schoolDayChangeManage: 'P08.school-day-change.manage',
+  staffAttendanceManage: 'P08.attendance.manage',
+  staffAttendanceView: 'P08.attendance.view',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)

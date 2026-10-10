@@ -2,7 +2,7 @@
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
 - Phiên bản: 0.4
-- Ngày cập nhật: 2026-10-10
+- Ngày cập nhật: 2026-10-11
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
 
@@ -15,6 +15,17 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.29.4 – 2026-10-11
+
+- Phạm vi thay đổi: DT-06 phần 6b-1, ngày lễ, lịch học bù và nghỉ bù, chấm công (YCTD-59).
+- Chức năng mới: ngày nghỉ lễ, ngày học bù thứ bảy, ngày nghỉ bù; nhân sự tự vào ca, ra ca; phòng nhân sự nhập, sửa giờ; bảng chấm công theo tháng; cấu hình giờ làm; thuộc tính tính công của loại nghỉ.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: `holidays`, `school_day_changes`, `attendance_logs`, `catalog_items.attributes`; bốn mã quyền P08; ba mục cấu hình giờ làm.
+- Thay đổi API: nhóm điểm cuối ngày lễ, lịch bù, chấm công; danh mục dùng chung nhận `attributes`.
+- Rủi ro: ngày lễ, nghỉ bù, học bù đổi ngày học khi điểm danh và tính học phí; chỉ lập được cho ngày từ ngày mai.
+- Khả năng tương thích: chưa lập lịch thì ngày học không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-06-phan-6b`; chạy ngược tệp thay đổi cấu trúc 0020 của cơ sở dữ liệu năm học và 0024 của cơ sở dữ liệu định danh.
 
 ### Phiên bản 0.29.3 – 2026-10-10
 

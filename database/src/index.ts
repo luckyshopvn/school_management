@@ -51,6 +51,7 @@ export type {
   ReceiptStatus,
   RegistrationSource,
   RegistrationStatus,
+  SchoolDayChangeType,
   SchoolYearDatabase,
   ServiceCalculationMethod,
 } from '../school-year/schema.js';

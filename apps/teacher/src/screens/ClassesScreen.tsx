@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Alert, ApplicationHeader, Button } from '@school-management/ui';
 import { ApiError, fetchCurrentUser, requestJson } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
+import { CheckInCard } from './CheckInCard.js';
 
 // MG-01 Lớp của tôi hôm nay: các lớp đang được phân công (YCTD-44); bảo vệ mở xác nhận người đón tại cổng (MG-16)
 export interface MyClass {
@@ -47,6 +48,7 @@ export function ClassesScreen({
     <div className="min-h-screen">
       <ApplicationHeader title="Ứng dụng giáo viên" />
       <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
+        <CheckInCard />
         <h1 className="text-page-title font-bold text-text">Lớp của tôi</h1>
         {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
         {gateUnitIds.length > 0 ? (

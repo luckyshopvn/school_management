@@ -2,7 +2,7 @@
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
 - Phiên bản: 1.5
-- Ngày cập nhật: 2026-10-10
+- Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -55,6 +55,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.2.0 | Bốn thay đổi: Ban Giám hiệu, nhiều cấp đơn vị, tách giao diện và máy chủ, dịch vụ định danh | 01 đến 07 | Đã có |
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
+| 0.29.4 | DT-06 phần 6b-1: ngày nghỉ lễ, lịch học bù và nghỉ bù, giờ làm, thuộc tính loại nghỉ, chấm công (YCTD-59) | 08, 09 | Đã có |
 | 0.29.3 | DT-06 phần 6a: hồ sơ nhân sự, hợp đồng lao động, liên kết tài khoản, nhập nhân sự từ Excel (YCTD-58) | 08, 09 | Đã có |
 | 0.29.2 | DT-05 phần 5f: thanh toán trực tuyến qua tài khoản ảo và mã QR dùng một lần, đối chiếu tự lập phiếu thu (YCTD-57) | 08, 09 | Đã có |
 | 0.29.1 | DT-05 phần 5e-2: phiếu đảo phiếu chi duyệt theo hạn mức (YCTD-56) | 08, 09 | Đã có |

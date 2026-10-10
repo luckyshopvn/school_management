@@ -2,7 +2,7 @@
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
 - Phiên bản: 0.4
-- Ngày cập nhật: 2026-10-10
+- Ngày cập nhật: 2026-10-11
 - Trạng thái: Đang cập nhật
 
 ## Quy ước ghi nhật ký
@@ -13,6 +13,28 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-11 — DT-06 phần 6b-1: ngày lễ, lịch học bù và nghỉ bù, chấm công
+
+#### Công việc đã thực hiện
+
+- Hỏi Eric các điểm của phần 6b; chia 6b-1 và 6b-2; viết phần 6b-1 trên nhánh `dt-06-phan-6b`.
+- Cơ sở dữ liệu: năm học có `holidays`, `school_day_changes`, `attendance_logs`, `catalog_items.attributes` (tệp 0020); định danh có `P08.holiday.manage`, `P08.school-day-change.manage`, `P08.attendance.manage`, `P08.attendance.view` (tệp 0024).
+- Máy chủ API: ngày lễ, lịch học bù và nghỉ bù; lịch ngày học của trẻ tính ngày lễ, nghỉ bù, học bù; ngày làm việc của nhân sự; chấm công tự bấm và nhập tay; cấu hình giờ làm; thuộc tính loại nghỉ; chuyển năm học.
+- Cổng quản trị: trang Chấm công (MH-44, MH-13), trang Ngày lễ và lịch bù (MH-37), thuộc tính loại nghỉ ở Danh mục dùng chung. Ứng dụng giáo viên: thẻ chấm công hôm nay (MG-10).
+- Kết quả: máy chủ API 279/279, kiểm thử giao diện 38/38.
+
+#### Quyết định
+
+- Ngày làm việc, lịch thứ bảy, ngày lễ, giờ làm, loại nghỉ, phép năm, đơn nghỉ theo YCTD-59 – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-59 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.29.4.
+
+#### Vấn đề tồn đọng
+
+- Phần 6b-2: phép năm, đơn nghỉ phép, chốt và mở lại bảng công.
 
 ### 2026-10-10 — DT-06 phần 6a: hồ sơ nhân sự và hợp đồng lao động
 

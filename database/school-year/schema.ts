@@ -77,6 +77,7 @@ export interface CatalogItemsTable extends CatalogRecordColumns {
   name: string;
   order_no: Generated<number>;
   status: Generated<CatalogStatus>;
+  attributes: ColumnType<Record<string, unknown>, string | undefined, string>;
 }
 
 export type ApprovalThresholdStatus = 'active' | 'expired';
@@ -800,6 +801,42 @@ export interface EmploymentContractsTable {
   updated_at: UpdatedTimestamp;
 }
 
+export interface HolidaysTable {
+  id: Generated<string>;
+  holiday_date: string;
+  name: string;
+  is_paid: boolean;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export type SchoolDayChangeType = 'makeup_school_day' | 'compensatory_day_off';
+
+export interface SchoolDayChangesTable {
+  id: Generated<string>;
+  change_date: string;
+  change_type: SchoolDayChangeType;
+  note: string | null;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface AttendanceLogsTable {
+  id: Generated<string>;
+  staff_id: string;
+  work_date: string;
+  check_in: string;
+  check_out: string | null;
+  worked_minutes: number | null;
+  late_minutes: number | null;
+  early_leave_minutes: number | null;
+  source: 'self' | 'manual';
+  note: string | null;
+  updated_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -856,4 +893,7 @@ export interface SchoolYearDatabase {
   online_payment_transactions: OnlinePaymentTransactionsTable;
   staff: StaffTable;
   employment_contracts: EmploymentContractsTable;
+  holidays: HolidaysTable;
+  school_day_changes: SchoolDayChangesTable;
+  attendance_logs: AttendanceLogsTable;
 }

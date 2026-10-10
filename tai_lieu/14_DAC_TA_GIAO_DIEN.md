@@ -1,8 +1,8 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.19
-- Ngày cập nhật: 2026-10-10
+- Phiên bản: 1.20
+- Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -58,7 +58,7 @@ flowchart TD
 | MH-10 | Phiếu chi và phê duyệt: biểu mẫu lập phiếu chi kèm chứng từ, lưu nháp hoặc trình duyệt; danh sách phiếu chi; mục phiếu chi chờ duyệt cho Ban Giám hiệu (YCTD-55); lập phiếu đảo trên phiếu đã phát hành và mục phiếu đảo phiếu chi chờ duyệt (YCTD-56) | VT-04, VT-05, VT-16, VT-15, VT-02 |
 | MH-11 | Sổ quỹ và tài khoản ngân hàng: trang Quỹ và ngân hàng để khai báo và xem số dư (YCTD-53), chọn tài khoản nhận thanh toán trực tuyến (YCTD-57); trang Sổ quỹ theo quỹ hoặc tài khoản và khoảng ngày, có số dư đầu kỳ, từng phiếu, tổng thu, tổng chi, số dư cuối kỳ (YCTD-55) | VT-04, VT-05, VT-16 |
 | MH-12 | Hồ sơ nhân sự và hợp đồng: danh sách theo đơn vị, tìm theo tên hoặc mã; thêm hồ sơ; chi tiết có liên kết tài khoản, lập và chấm dứt hợp đồng (YCTD-58) | VT-06, VT-02, VT-15, VT-03, VT-04, VT-05 |
-| MH-13 | Bảng chấm công, chốt công và duyệt mở lại kỳ công | VT-06, VT-15, VT-02 |
+| MH-13 | Bảng chấm công của đơn vị theo tháng, nhập và sửa giờ (YCTD-59); chốt công và duyệt mở lại kỳ công (phần 6b-2) | VT-06, VT-15, VT-02, VT-03, VT-04, VT-05 |
 | MH-14 | Đơn nghỉ phép | VT-06, VT-03 |
 | MH-15 | Bảng lương và phê duyệt | VT-04, VT-06, VT-15, VT-02 |
 | MH-16 | Hồ sơ sức khỏe và đợt khám | VT-09 |
@@ -82,7 +82,7 @@ flowchart TD
 | MH-34 | Danh mục phòng học và bậc học | VT-02, VT-03 |
 | MH-35 | Đồ bị mất của trẻ | VT-03 |
 | MH-36 | Hoạt động ngoại khóa và danh sách đăng ký | VT-03, VT-04 |
-| MH-37 | Ngày nghỉ lễ và lịch nghỉ thứ 7 | VT-06 (ngày nghỉ lễ), VT-02, VT-15 (lịch nghỉ thứ 7 và lịch học bù) |
+| MH-37 | Ngày lễ và lịch bù: ngày nghỉ lễ, ngày học bù thứ bảy, ngày nghỉ bù theo năm (YCTD-59) | VT-06 gán ở Trường chính (ngày nghỉ lễ), VT-02, VT-15 (học bù và nghỉ bù); mọi người xem |
 | MH-38 | Phiếu đi chợ và nhà cung cấp thực phẩm | VT-10 |
 | MH-39 | Khoản mục và nhóm thu chi | VT-04, VT-05 |
 | MH-40 | Nhập dữ liệu ban đầu từ Excel và nhập mã định danh ngành từ tệp; kế toán nhập công nợ đầu kỳ (YCTD-54); nhân sự nhập hồ sơ nhân sự (YCTD-58) | VT-02, VT-04, VT-06, VT-12, VT-03 |
