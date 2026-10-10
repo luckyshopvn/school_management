@@ -1,8 +1,8 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.9
-- Ngày cập nhật: 2026-10-09
+- Phiên bản: 1.10
+- Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -151,7 +151,7 @@ Bổ sung ngày 2026-10-09 theo yêu cầu tách vai trò Ban Giám hiệu thàn
 | BR-78 | Người lập chứng từ không được tự phê duyệt chứng từ do chính mình lập. Trường hợp đặc biệt phải do Hiệu trưởng phê duyệt và ghi rõ lý do |
 | BR-79 | Phó Hiệu trưởng chỉ phê duyệt trong phạm vi đơn vị được gán. Hiệu trưởng phê duyệt trong phạm vi toàn trường |
 | BR-80 | Mọi lần phê duyệt hoặc từ chối đều ghi nhật ký thao tác kèm người phê duyệt, thời điểm, giá trị chứng từ và lý do từ chối nếu có |
-| BR-81 | Số định danh cá nhân và bản chụp giấy khai sinh của trẻ bắt buộc khi tạo hồ sơ; chỉ hiển thị đầy đủ với Hiệu trưởng, Phó Hiệu trưởng, quản lý đơn vị và nhân viên tuyển sinh; vai trò khác thấy số đã che; mỗi lần xem đầy đủ ghi nhật ký truy cập dữ liệu nhạy cảm |
+| BR-81 | Số định danh cá nhân và bản chụp giấy khai sinh của trẻ bắt buộc khi tạo hồ sơ; trẻ nhập từ dữ liệu ban đầu được bổ sung giấy khai sinh sau (YCTD-46); chỉ hiển thị đầy đủ với Hiệu trưởng, Phó Hiệu trưởng, quản lý đơn vị và nhân viên tuyển sinh; vai trò khác thấy số đã che; mỗi lần xem đầy đủ ghi nhật ký truy cập dữ liệu nhạy cảm |
 | BR-82 | Giờ làm thêm tính từ chấm công, là phần vượt giờ làm chuẩn trong ngày, tối đa 1 giờ mỗi ngày; tiền làm thêm bằng số giờ nhân đơn giá cấu hình, đưa vào bảng lương của tháng kế tiếp (BR-43). Không có phụ cấp dạy thay |
 | BR-83 | Bán trú là dịch vụ bắt buộc với mọi trẻ đang học; phụ huynh không bỏ chọn được. Bán trú gồm ba bữa sáng, trưa, xế; không có dịch vụ ăn sáng hay ăn tối riêng. Tiệc buffet tổ chức theo dịp, nằm trong tiền ăn, không thu riêng |
 | BR-84 | Lịch nghỉ thứ bảy định kỳ và lịch học bù thứ bảy do Ban Giám hiệu lập, áp dụng cho toàn trường. Ngày học bù là ngày học bình thường của mọi lớp: có điểm danh, tính vào số ngày học của tháng theo BR-23, tiền ăn tính theo BR-14, không thu phí riêng; với nhân sự là ngày làm việc |

@@ -20,7 +20,8 @@ type NavigationPath =
   | '/approval-thresholds'
   | '/rooms'
   | '/classes'
-  | '/children';
+  | '/children'
+  | '/imports';
 
 function NavItem({ to, label }: { to: NavigationPath; label: string }) {
   return (
@@ -52,6 +53,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canManageClasses = useHasPermission(PERMISSION_CODES.classManage);
   const canViewChildren = useHasPermission('P02.view');
   const canEditChildren = useHasPermission('P02.edit');
+  const canImportChildren = useHasPermission(PERMISSION_CODES.importChildren);
+  const canManageChildren = useHasPermission(PERMISSION_CODES.childManage);
+  const canImport = canImportChildren || canManageChildren;
 
   return (
     <div className="flex min-h-screen">
@@ -69,6 +73,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <ul className="flex flex-col gap-1">
               <NavItem to="/children" label="Hồ sơ trẻ" />
               <NavItem to="/classes" label="Lớp học" />
+              {canImport ? <NavItem to="/imports" label="Nhập dữ liệu" /> : null}
             </ul>
           </>
         ) : null}

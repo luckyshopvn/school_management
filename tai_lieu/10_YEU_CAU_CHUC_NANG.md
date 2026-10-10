@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.16
+- Phiên bản: 1.17
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -30,7 +30,7 @@
 | P01-10 | Cấu hình hạn mức phê duyệt (G1) | VT-02 | Loại chứng từ, hạn mức theo đơn vị | Lưu và áp dụng hạn mức phê duyệt | Danh sách hạn mức | BR-77, BR-79 |
 | P01-11 | Danh mục phòng học (G1) | VT-02, VT-03 | Đơn vị, mã phòng, tên phòng, sức chứa, trạng thái | Tạo, sửa, ngừng sử dụng phòng học; gán phòng cho lớp | Danh mục phòng học | BR-01, BR-75 |
 | P01-12 | Danh mục bậc học (G1) | VT-02 | Mã (không đổi sau khi tạo), tên bậc học, độ tuổi theo tháng (YCTD-42), thứ tự | Tạo, sửa, ngừng sử dụng; lớp và biểu phí chọn bậc học từ danh mục | Danh mục bậc học | BR-02, BR-17, BR-75 |
-| P01-13 | Nhập dữ liệu ban đầu từ Excel (G1) | VT-02, VT-04, VT-06 | Loại dữ liệu, tệp Excel theo mẫu tải từ hệ thống | Kiểm tra toàn bộ tệp, xuất báo cáo dòng lỗi; chỉ ghi khi không còn dòng lỗi; ghi nhật ký nhập | Trẻ, phụ huynh, lớp, nhân sự, công nợ đầu kỳ đã nhập | BR-06, BR-35, BR-75 |
+| P01-13 | Nhập dữ liệu ban đầu từ Excel (G1) | VT-02, VT-04, VT-06 | Loại dữ liệu, tệp Excel theo mẫu tải từ hệ thống | Kiểm tra toàn bộ tệp, xuất báo cáo dòng lỗi; chỉ ghi khi không còn dòng lỗi; ghi nhật ký nhập; trẻ nhập ở trạng thái đang học, bổ sung giấy khai sinh sau (YCTD-46) | Trẻ, phụ huynh, lớp, nhân sự, công nợ đầu kỳ đã nhập | BR-06, BR-35, BR-75 |
 | P01-14 | Khóa API cho đối tác (G1) | VT-02 | Tên đối tác, loại đối tác, phạm vi dữ liệu (báo cáo tổng hợp, thu chi và công nợ, danh sách trẻ và phụ huynh, nhân sự và lương), căn cứ pháp lý, địa chỉ mạng cho phép, ngày hết hạn | Cấp, thu hồi khóa; đối tác chỉ đọc dữ liệu trong phạm vi; mọi lần đọc dữ liệu cá nhân ghi nhật ký | Danh sách khóa API | BR-74, BR-73 |
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
@@ -48,7 +48,7 @@
 | P02-09 | Cờ trẻ con nhân viên và đồng ý sử dụng hình ảnh (G1) | VT-03, VT-14 | Trẻ, nhân sự liên quan; đồng ý hoặc rút đồng ý hình ảnh, cách đồng ý, bản chụp giấy ký tay | Phụ huynh đồng ý hoặc rút đồng ý trên ứng dụng; nhà trường ghi nhận giấy ký tay; lưu người và thời điểm | Cờ và lịch sử đồng ý trên hồ sơ trẻ | BR-09, BR-65 |
 | P02-10 | Danh sách trẻ theo lớp của giáo viên (G1) | VT-07, VT-08 | Lớp được phân công | Truy vấn giới hạn theo phân công | Danh sách trẻ trong lớp | BR-72 |
 | P02-11 | Đồ bị mất của trẻ (G2) | VT-14, VT-07, VT-03 | Trẻ, mô tả đồ, ngày phát hiện, hình ảnh | Phụ huynh báo mất đồ hoặc giáo viên ghi nhận đồ nhặt được; đối chiếu, xác nhận đã trả hoặc không tìm thấy | Phiếu đồ bị mất ở trạng thái đã báo, đã tìm thấy, đã trả hoặc không tìm thấy | BR-72, BR-75 |
-| P02-12 | Nhập mã định danh ngành từ tệp (G1) | VT-12, VT-03 | Tệp xuất từ cơ sở dữ liệu ngành của Bộ Giáo dục và Đào tạo | Đối chiếu theo số định danh cá nhân, gán mã ngành, báo dòng không khớp hoặc trùng; kết nối tự động để giai đoạn 3 (G3-09) | Mã ngành trên hồ sơ trẻ | BR-07 |
+| P02-12 | Nhập mã định danh ngành từ tệp (G1) | VT-12, VT-03 | Tệp theo mẫu của hệ thống gồm số định danh cá nhân, mã định danh ngành, họ tên, chép từ tệp xuất của cơ sở dữ liệu ngành (YCTD-46) | Đối chiếu theo số định danh cá nhân, gán mã ngành, báo dòng không khớp hoặc trùng; kết nối tự động để giai đoạn 3 (G3-09) | Mã ngành trên hồ sơ trẻ | BR-07 |
 
 ## 4. Phân hệ P03 — Giảng dạy
 

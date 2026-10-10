@@ -14,6 +14,30 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-10 — DT-03 phần 3c: nhập dữ liệu
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 12 (phần 3b) vào nhánh chính. Eric yêu cầu làm song song: viết phần sau trong lúc phần trước chạy kiểm thử trên GitHub.
+- Hỏi Eric ba điểm của phần 3c; viết trên nhánh `dt-03-phan-3c`.
+- Cơ sở dữ liệu: năm học có `data_import_jobs`, giấy khai sinh cho phép trống với trẻ nhập (tệp 0007); định danh có quyền `P01.import.children` (tệp 0012).
+- Máy chủ API: mẫu Excel, kiểm tra và ghi tệp lớp, tệp trẻ kèm phụ huynh, nhập mã ngành, bộ lọc thiếu giấy khai sinh; tệp vượt dung lượng trả `ERR_VALIDATION`.
+- Cổng quản trị: màn hình Nhập dữ liệu (MH-40); Hồ sơ trẻ có bộ lọc và bổ sung giấy khai sinh.
+- Kết quả: máy chủ API 116/116, dịch vụ định danh 37/37, cơ sở dữ liệu 3/3, tiến trình chạy nền 1/1, kiểm thử giao diện 22/22.
+
+#### Quyết định
+
+- Trẻ nhập vào thẳng đang học, bổ sung giấy khai sinh sau; mẫu mã ngành của hệ thống; nhập lớp và trẻ kèm phụ huynh (YCTD-46) – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-46 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.28.1.
+
+#### Vấn đề tồn đọng
+
+- CTC-P01-079, 082 (nhập công nợ, nhân sự) làm ở P05, P07; chuyển trẻ sang năm mới (GD-90) làm cùng lên lớp.
+- Chưa commit, chờ Eric đồng ý.
+
 ### 2026-10-10 — DT-03 phần 3b: hồ sơ trẻ
 
 #### Công việc đã thực hiện

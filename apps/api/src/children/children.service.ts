@@ -113,7 +113,15 @@ export class ChildrenService {
 
   async list(
     currentUser: CurrentUser,
-    filter: { orgUnitId?: string; classId?: string; status?: ChildStatus; q?: string; page: number; pageSize: number },
+    filter: {
+      orgUnitId?: string;
+      classId?: string;
+      status?: ChildStatus;
+      q?: string;
+      missingBirthCertificate?: boolean;
+      page: number;
+      pageSize: number;
+    },
   ) {
     const current = await this.currentSchoolYear.find();
     if (!current) {
@@ -136,6 +144,9 @@ export class ChildrenService {
     }
     if (filter.status) {
       selection = selection.where('children.status', '=', filter.status);
+    }
+    if (filter.missingBirthCertificate) {
+      selection = selection.where('children.birth_certificate_file_id', 'is', null);
     }
     if (filter.q) {
       selection = selection.where('children.full_name', 'ilike', `%${filter.q.replace(/[%_\\]/g, '\\$&')}%`);
@@ -317,7 +328,12 @@ export class ChildrenService {
     if (child.status === 'pending') {
       throw ruleViolationError('QT-01', 'Hồ sơ đang chờ duyệt; cần được từ chối về nháp trước khi sửa');
     }
-    const changesIdentity = IDENTITY_FIELDS.some((field) => changes[field] !== undefined);
+    // Bổ sung giấy khai sinh còn thiếu của trẻ nhập từ Excel không cần lý do (YCTD-46)
+    const changesIdentity = IDENTITY_FIELDS.some(
+      (field) =>
+        changes[field] !== undefined &&
+        !(field === 'birth_certificate_file_id' && child.birth_certificate_file_id === null),
+    );
     if (child.status === 'draft') {
       await this.organizationScopes.assertCanAccess(currentUser, PERMISSION_CODES.childManage, child.org_unit_id);
     } else {

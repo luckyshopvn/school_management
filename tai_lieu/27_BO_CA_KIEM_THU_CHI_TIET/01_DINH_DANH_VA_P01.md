@@ -1,7 +1,7 @@
 # 27.1. BỘ CA KIỂM THỬ CHI TIẾT — DỊCH VỤ ĐỊNH DANH VÀ P01
 
 - Mô tả: Ca kiểm thử chi tiết cho dịch vụ định danh (Q-125, Q-126) và các chức năng giai đoạn 1 của phân hệ P01 Nền tảng, đơn vị và phân quyền (việc N21, Q-105).
-- Phiên bản: 1.14
+- Phiên bản: 1.15
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -264,15 +264,15 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
-| CTC-P01-076 | P01-13 | P01-13 | LT-02 | Trung bình | Không | HT tải mẫu Excel loại trẻ qua `GET /api/v1/imports/templates/{type}` | Nhận tệp mẫu đúng các cột của loại trẻ | | Chưa chạy |
-| CTC-P01-077 | P01-13 | AC-183, CT-139 | LT-02 | Cao | Tệp trẻ 50 dòng theo DL-13, dòng 17 thiếu ngày sinh | Tải tệp lên; gọi ghi dữ liệu | Báo cáo chỉ ra dòng 17 và trường thiếu; lệnh ghi bị từ chối; không có trẻ nào được tạo | | Chưa chạy |
-| CTC-P01-078 | P01-13 | P01-13 | LT-02 | Cao | Sửa dòng 17 của tệp trên | Tải lại và ghi | 50 trẻ được tạo; có nhật ký lần nhập | | Chưa chạy |
+| CTC-P01-076 | P01-13 | P01-13 | LT-02 | Trung bình | Không | HT tải mẫu Excel loại trẻ qua `GET /api/v1/imports/templates/{type}` | Nhận tệp mẫu đúng các cột của loại trẻ | Kiểm thử tự động `apps/api/src/imports/imports.test.ts` đạt ngày 10/10/2026 | Đạt |
+| CTC-P01-077 | P01-13 | AC-183, CT-139 | LT-02 | Cao | Tệp trẻ 50 dòng theo DL-13, dòng 17 thiếu ngày sinh | Tải tệp lên; gọi ghi dữ liệu | Báo cáo chỉ ra dòng 17 và trường thiếu; lệnh ghi bị từ chối; không có trẻ nào được tạo | Kiểm thử tự động `apps/api/src/imports/imports.test.ts` đạt ngày 10/10/2026 | Đạt |
+| CTC-P01-078 | P01-13 | P01-13 | LT-02 | Cao | Sửa dòng 17 của tệp trên | Tải lại và ghi | 50 trẻ được tạo; có nhật ký lần nhập | Kiểm thử tự động `apps/api/src/imports/imports.test.ts` đạt ngày 10/10/2026 | Đạt |
 | CTC-P01-079 | P01-13 | AC-184, CT-140 | LT-05 | Cao | Tệp công nợ đầu kỳ hợp lệ của 10 trẻ đã có | KT-A tải lên và ghi | Mỗi trẻ có khoản phải thu đầu kỳ đúng số tiền; nhật ký ghi người nhập và thời điểm | | Chưa chạy |
-| CTC-P01-080 | P01-13 | AC-185, CT-141 | LT-04 | Cao | GV-A1 | Gọi `POST /api/v1/imports` | Trả `ERR_FORBIDDEN` | | Chưa chạy |
-| CTC-P01-081 | P01-13 | BM-63, ghi chú 13 của tài liệu 08 | LT-04 | Cao | KT-A | Tải lên tệp loại trẻ | Trả `ERR_FORBIDDEN` vì kế toán chỉ nhập công nợ đầu kỳ | | Chưa chạy |
+| CTC-P01-080 | P01-13 | AC-185, CT-141 | LT-04 | Cao | GV-A1 | Gọi `POST /api/v1/imports` | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/imports/imports.test.ts` đạt ngày 10/10/2026 | Đạt |
+| CTC-P01-081 | P01-13 | BM-63, ghi chú 13 của tài liệu 08 | LT-04 | Cao | KT-A | Tải lên tệp loại trẻ | Trả `ERR_FORBIDDEN` vì kế toán chỉ nhập công nợ đầu kỳ | Kiểm thử tự động `apps/api/src/imports/imports.test.ts` đạt ngày 10/10/2026 | Đạt |
 | CTC-P01-082 | P01-13 | BM-63, ghi chú 13 của tài liệu 08 | LT-04 | Cao | NS-A | Tải lên tệp nhân sự; tải lên tệp công nợ đầu kỳ | Tệp nhân sự được nhận; tệp công nợ bị từ chối | | Chưa chạy |
-| CTC-P01-083 | P01-13 | BM-63, BM-27, KT-06 | LT-02 | Trung bình | Không | Tải lên tệp đổi đuôi thành xlsx nhưng nội dung không phải Excel; tải lên tệp vượt dung lượng | Cả hai bị từ chối, không tạo lần nhập | | Chưa chạy |
-| CTC-P01-084 | P01-13 | BR-07, KT-04 | LT-02 | Cao | Tệp trẻ có hai dòng trùng số định danh cá nhân, hoặc trùng với trẻ đã có | Tải lên | Báo dòng trùng; không ghi | | Chưa chạy |
+| CTC-P01-083 | P01-13 | BM-63, BM-27, KT-06 | LT-02 | Trung bình | Không | Tải lên tệp đổi đuôi thành xlsx nhưng nội dung không phải Excel; tải lên tệp vượt dung lượng | Cả hai bị từ chối, không tạo lần nhập | Kiểm thử tự động `apps/api/src/imports/imports.test.ts` đạt ngày 10/10/2026 | Đạt |
+| CTC-P01-084 | P01-13 | BR-07, KT-04 | LT-02 | Cao | Tệp trẻ có hai dòng trùng số định danh cá nhân, hoặc trùng với trẻ đã có | Tải lên | Báo dòng trùng; không ghi | Kiểm thử tự động `apps/api/src/imports/imports.test.ts` đạt ngày 10/10/2026 | Đạt |
 
 ### 4.12. P01-14 Khóa API cho đối tác
 

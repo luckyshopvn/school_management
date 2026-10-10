@@ -11,6 +11,25 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-46: Nhập dữ liệu ban đầu và nhập mã định danh ngành – 2026-10-10
+
+- Lý do: trẻ nhập từ Excel là trẻ đang học sẵn nhưng BR-81 bắt buộc bản chụp giấy khai sinh mà tệp Excel không mang được; tài liệu chưa có mẫu tệp mã định danh ngành; chưa rõ phần 3c nhập những loại dữ liệu nào.
+- Nội dung thay đổi:
+  - Phần 3c nhập hai loại: lớp học; trẻ kèm tối đa hai phụ huynh trên một dòng. Nhân sự và công nợ đầu kỳ nhập ở phân hệ P07, P05.
+  - Trẻ nhập vào thẳng trạng thái đang học, xếp vào lớp ghi trong tệp; phụ huynh có số điện thoại được tạo tài khoản như khi duyệt; đồng ý hình ảnh chờ phụ huynh xác nhận; giấy khai sinh bổ sung sau, danh sách trẻ có bộ lọc thiếu giấy khai sinh.
+  - Mẫu tệp mã ngành của hệ thống gồm số định danh cá nhân, mã định danh ngành, họ tên để đối chiếu; dòng khớp được gán ngay, dòng không khớp hoặc trùng mã được báo.
+  - Nhập dữ liệu ban đầu hai bước: tải lên để kiểm tra toàn bộ và nhận báo cáo dòng lỗi; ghi khi không còn dòng lỗi, hệ thống kiểm tra lại trước khi ghi. Tệp gốc lưu ở kho tệp, báo cáo lỗi không chứa số định danh ở dạng rõ.
+  - Mã quyền mới `P01.import.children` chỉ VT-02 (BM-63); nhập mã ngành dùng `P02.child.manage`.
+  - Tệp nhập tối đa 5 MB, 2 000 dòng, nhận diện Excel theo nội dung tệp; tệp vượt dung lượng trả `ERR_VALIDATION`.
+- Thành phần bị ảnh hưởng: `07`, `08`, `10`, `16`, `17`, `27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md`, `27_BO_CA_KIEM_THU_CHI_TIET/02_P02_VA_P04.md`, `01`, `03`, `index.md`; mã nguồn DT-03 phần 3c.
+- Dữ liệu bị ảnh hưởng: `children.birth_certificate_file_id` cho phép trống với trẻ nhập; `files.purpose` thêm `import`; bảng `data_import_jobs` thêm `errors`, `committed_by`.
+- API bị ảnh hưởng: `GET /imports/templates/{type}`, `POST /imports`, `GET /imports/{id}`, `POST /imports/{id}/commit`, `POST /imports/moet-codes`; `GET /children` thêm bộ lọc `missing_birth_certificate`.
+- Giao diện bị ảnh hưởng: MH-40; MH-02 thêm bộ lọc và bổ sung giấy khai sinh.
+- Quyền bị ảnh hưởng: thêm `P01.import.children`.
+- Ảnh hưởng chức năng cũ: BR-81 có ngoại lệ cho trẻ nhập từ dữ liệu ban đầu.
+- Kiểm thử cần thực hiện: CTC-P01-076 đến 078, 080, 081, 083, 084; CTC-P02-065 đến 068.
+- Trạng thái: Đã triển khai
+
 ### YCTD-45: Hồ sơ trẻ từ lúc tiếp nhận đến khi vào lớp – 2026-10-10
 
 - Lý do: thiết kế DT-03 phần 3b gặp các điểm chưa rõ: đồng ý hình ảnh bắt buộc khi lập hồ sơ nhưng phụ huynh chưa có tài khoản; nhiều vai trò có `P02.view` nhưng chưa rõ phạm vi xem trẻ; chưa có kho tệp cho giấy khai sinh; GD-90 chuyển trẻ sang năm mới cùng lớp gần nhất mâu thuẫn với việc lớp không chuyển sang năm mới (YCTD-44). Ảnh Docker của MinIO không còn tải được.

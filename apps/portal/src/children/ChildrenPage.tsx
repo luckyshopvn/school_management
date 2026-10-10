@@ -22,6 +22,7 @@ export function ChildrenPage() {
   const [orgUnitId, setOrgUnitId] = useState('');
   const [status, setStatus] = useState<ChildStatus | ''>('');
   const [search, setSearch] = useState('');
+  const [missingCertificate, setMissingCertificate] = useState(false);
   const [page, setPage] = useState(1);
   const [selectedId, setSelectedId] = useState<string>();
   const [creating, setCreating] = useState(false);
@@ -29,9 +30,15 @@ export function ChildrenPage() {
   const closeToast = useCallback(() => setToastMessage(undefined), []);
 
   const children = useQuery({
-    queryKey: ['children', orgUnitId, status, search, page],
+    queryKey: ['children', orgUnitId, status, search, missingCertificate, page],
     queryFn: () =>
-      listChildren({ orgUnitId: orgUnitId || undefined, status: status || undefined, q: search || undefined, page }),
+      listChildren({
+        orgUnitId: orgUnitId || undefined,
+        status: status || undefined,
+        q: search || undefined,
+        missingBirthCertificate: missingCertificate,
+        page,
+      }),
   });
 
   return (
@@ -89,6 +96,17 @@ export function ChildrenPage() {
                 </option>
               ))}
             </select>
+          </label>
+          <label className="flex items-center gap-2 pb-2 text-label">
+            <input
+              type="checkbox"
+              checked={missingCertificate}
+              onChange={(event) => {
+                setMissingCertificate(event.target.checked);
+                setPage(1);
+              }}
+            />
+            Thiếu giấy khai sinh
           </label>
           <TextField
             label="Tìm theo họ tên"

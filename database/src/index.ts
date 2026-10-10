@@ -24,6 +24,8 @@ export type {
   ChildStatus,
   ClassStatus,
   FilePurpose,
+  ImportStatus,
+  ImportType,
   OrgUnitStatus,
   OrgUnitType,
   PhotoConsent,

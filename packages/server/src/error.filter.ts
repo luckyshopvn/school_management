@@ -9,6 +9,8 @@ const ERROR_CODE_BY_HTTP_STATUS: Record<number, ErrorCode> = {
   403: 'ERR_FORBIDDEN',
   404: 'ERR_NOT_FOUND',
   409: 'ERR_CONFLICT',
+  // Tệp tải lên vượt dung lượng cho phép (KT-06, BM-27)
+  413: 'ERR_VALIDATION',
   429: 'ERR_RATE_LIMIT',
 };
 
@@ -37,7 +39,12 @@ export class ErrorFilter implements ExceptionFilter {
       ruleCode = exception.ruleCode;
     } else if (exception instanceof HttpException && ERROR_CODE_BY_HTTP_STATUS[exception.getStatus()]) {
       code = ERROR_CODE_BY_HTTP_STATUS[exception.getStatus()] ?? 'ERR_INTERNAL';
-      message = code === 'ERR_NOT_FOUND' ? 'Không tìm thấy' : 'Yêu cầu không hợp lệ';
+      message =
+        exception.getStatus() === 413
+          ? 'Tệp vượt dung lượng cho phép'
+          : code === 'ERR_NOT_FOUND'
+            ? 'Không tìm thấy'
+            : 'Yêu cầu không hợp lệ';
     } else {
       this.logger.error(
         `Lỗi hệ thống, mã tương quan ${correlationId}`,

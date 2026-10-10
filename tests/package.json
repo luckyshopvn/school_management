@@ -11,6 +11,7 @@
     "@playwright/test": "^1.64.0",
     "@school-management/config": "workspace:*",
     "@school-management/database": "workspace:*",
-    "@school-management/identity": "workspace:*"
+    "@school-management/identity": "workspace:*",
+    "exceljs": "^4.4.0"
   }
 }

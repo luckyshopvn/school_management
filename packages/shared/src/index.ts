@@ -28,6 +28,7 @@ export const PERMISSION_CODES = {
   childManage: 'P02.child.manage',
   childApprove: 'P02.approve',
   nationalIdView: 'P02.national-id.view',
+  importChildren: 'P01.import.children',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
