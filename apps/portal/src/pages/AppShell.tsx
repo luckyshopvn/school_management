@@ -64,7 +64,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canEditChildren = useHasPermission('P02.edit');
   const canImportChildren = useHasPermission(PERMISSION_CODES.importChildren);
   const canManageChildren = useHasPermission(PERMISSION_CODES.childManage);
-  const canImport = canImportChildren || canManageChildren;
+  const canImportOpeningDebts = useHasPermission(PERMISSION_CODES.openingDebtImport);
+  const canImport = canImportChildren || canManageChildren || canImportOpeningDebts;
   const canViewTuition = useHasPermission('P05.view');
   const canManageFeeCatalog = useHasPermission(PERMISSION_CODES.feeCatalogManage);
   const canManageDiscountTypes = useHasPermission(PERMISSION_CODES.discountTypeManage);

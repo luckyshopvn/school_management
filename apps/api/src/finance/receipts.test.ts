@@ -37,6 +37,7 @@ describe('Phiếu thu, phân bổ và công nợ', () => {
   const units: Record<string, string> = {};
   const users: Record<string, LoggedInUser> = {};
   const children: Record<string, string> = {};
+  const nationalIds: Record<string, string> = {};
   const invoices: Record<string, string> = {};
   const accounts: Record<string, string> = {};
   const categories: Record<string, string> = {};
@@ -178,6 +179,14 @@ describe('Phiếu thu, phân bổ và công nợ', () => {
     users.manager = await environment.loginAs('VT-03', unitA);
     users.teacher = await environment.loginAs('VT-07', unitA);
     users.accountantB = await environment.loginAs('VT-04', units['ĐT-B1'] ?? null);
+    users.vicePrincipal = await environment.loginAs('VT-15', unitA);
+    users.personnel = await environment.loginAs('VT-06', unitA);
+    const threshold = await api('PUT', '/approval-thresholds', principal.accessToken, {
+      org_unit_id: unitA,
+      document_type: 'receipt_reversal',
+      threshold_amount: 1_000_000,
+    });
+    assert.equal(threshold.status, 200, JSON.stringify(threshold.body));
 
     const book = new ExcelJS.Workbook();
     const worksheet = book.addWorksheet('Trẻ');
@@ -193,7 +202,8 @@ describe('Phiếu thu, phân bổ và công nợ', () => {
         full_name: `Trẻ ${name}`,
         dob: '2022-04-18',
         gender: 'Nam',
-        national_id: `086${String(Date.now() % 1_000_000).padStart(6, '0')}${String(randomInt(0, 100) * 10 + index).padStart(3, '0')}`,
+        national_id: (nationalIds[name ?? ''] =
+          `086${String(Date.now() % 1_000_000).padStart(6, '0')}${String(randomInt(0, 100) * 10 + index).padStart(3, '0')}`),
         allergies: 'Không',
         enroll_date: '2026-09-01',
         guardian1_name: `Mẹ ${name}`,
@@ -577,6 +587,212 @@ describe('Phiếu thu, phân bổ và công nợ', () => {
       const response = await api('GET', `/invoices/${invoices['HĐ-1']}`, token('accountant'));
       assert.equal(response.body.paid_amount, 1_000_000);
       assert.equal(response.body.outstanding_amount, 0);
+    });
+  });
+  describe('P06-03 Đảo phiếu thu', () => {
+    const receiptOf = async (child: string, amount: number) => {
+      const listed = await api('GET', `/receipts?child_id=${children[child]}`, token('accountant'));
+      const found = (listed.body as unknown as Array<{ id: string; amount: number; status: string }>).find(
+        (row) => row.amount === amount && row.status === 'issued',
+      );
+      assert.ok(found, `không thấy phiếu ${amount} của ${child}`);
+      return found.id;
+    };
+
+    it('CTC-P06-019: lập phiếu đảo không nhập lý do bị chặn', async () => {
+      const receiptId = await receiptOf('T1', 1_000_000);
+      const response = await api('POST', `/receipts/${receiptId}/reverse`, token('accountant'), { reason: ' ' });
+      assert.equal(response.status, 400);
+    });
+
+    it('CTC-P06-020, CTC-P06-022: phiếu đảo chờ duyệt thì phiếu gốc, công nợ và quỹ chưa đổi; kế toán, kế toán trưởng, quản lý đơn vị duyệt bị từ chối', async () => {
+      const receiptId = await receiptOf('T1', 1_000_000);
+      const cashBefore = await balance('QUY-A');
+      const debtBefore = (await debt('T1')).outstanding_amount;
+      const response = await api('POST', `/receipts/${receiptId}/reverse`, token('accountant'), {
+        reason: 'Ghi nhầm số tiền',
+      });
+      assert.equal(response.status, 201, JSON.stringify(response.body));
+      assert.match(response.body.code as string, /^DPT-\d{6}$/);
+      assert.equal(response.body.status, 'pending');
+      assert.equal(response.body.requires_principal, true);
+      assert.equal(await balance('QUY-A'), cashBefore);
+      assert.equal((await debt('T1')).outstanding_amount, debtBefore);
+      for (const name of ['accountant', 'chiefAccountant', 'manager']) {
+        const approve = await api('POST', `/receipts/${receiptId}/reverse/approve`, token(name));
+        assert.equal(approve.status, 403, name);
+      }
+      const again = await api('POST', `/receipts/${receiptId}/reverse`, token('accountant'), { reason: 'Lần hai' });
+      assert.equal(again.status, 422);
+    });
+
+    it('CTC-P06-021: phiếu đảo bằng hạn mức thì Phó Hiệu trưởng bị từ chối, Hiệu trưởng duyệt được; HĐ-1 trở lại còn phải nộp, quỹ giảm', async () => {
+      const listed = await api('GET', `/receipts?child_id=${children.T1}`, token('accountant'));
+      const original = (listed.body as unknown as Array<{ id: string; code: string; status: string }>).find(
+        (row) => row.status === 'pending_reversal',
+      );
+      const pendingForVice = await api(
+        'GET',
+        `/receipt-reversals/pending?org_unit_id=${units['ĐT-A1']}`,
+        token('vicePrincipal'),
+      );
+      assert.equal((pendingForVice.body as unknown as unknown[]).length, 0);
+      const vice = await api('POST', `/receipts/${original?.id}/reverse/approve`, token('vicePrincipal'));
+      assert.equal(vice.status, 403);
+      const cashBefore = await balance('QUY-A');
+      const approved = await api('POST', `/receipts/${original?.id}/reverse/approve`, principal.accessToken);
+      assert.equal(approved.status, 200, JSON.stringify(approved.body));
+      assert.equal(approved.body.status, 'approved');
+      assert.equal(await balance('QUY-A'), cashBefore - 1_000_000);
+      const view = await debt('T1');
+      assert.equal(view.invoices.find((invoice) => invoice.id === invoices['HĐ-1'])?.outstanding_amount, 1_000_000);
+      const detail = await api('GET', `/receipts/${original?.id}`, token('accountant'));
+      assert.equal(detail.body.status, 'reversed');
+      assert.equal(detail.body.amount, 1_000_000);
+      const reversals = detail.body.reversals as Array<{ receipt_code: string; reason: string }>;
+      assert.equal(reversals[0]?.receipt_code, original?.code);
+      assert.equal(reversals[0]?.reason, 'Ghi nhầm số tiền');
+    });
+
+    it('CTC-P06-024, CTC-P06-023: kế toán trưởng lập phiếu đảo; Phó Hiệu trưởng từ chối kèm lý do thì phiếu gốc về đã phát hành, công nợ không đổi', async () => {
+      const receiptId = await receiptOf('T2', 300_000);
+      const created = await api('POST', `/receipts/${receiptId}/reverse`, token('chiefAccountant'), {
+        reason: 'Nhầm tài khoản nhận',
+      });
+      assert.equal(created.status, 201, JSON.stringify(created.body));
+      assert.equal(created.body.requires_principal, false);
+      const withoutReason = await api('POST', `/receipts/${receiptId}/reverse/reject`, token('vicePrincipal'), {});
+      assert.equal(withoutReason.status, 400);
+      const rejected = await api('POST', `/receipts/${receiptId}/reverse/reject`, token('vicePrincipal'), {
+        reason: 'Đúng tài khoản',
+      });
+      assert.equal(rejected.status, 200, JSON.stringify(rejected.body));
+      const detail = await api('GET', `/receipts/${receiptId}`, token('accountant'));
+      assert.equal(detail.body.status, 'issued');
+      const notice = await schoolYear
+        .selectFrom('notifications')
+        .innerJoin('notification_recipients', 'notification_recipients.notification_id', 'notifications.id')
+        .select('notification_recipients.user_id')
+        .where('notifications.template_code', '=', 'receipt_reversal_rejected')
+        .where('notifications.target_id', '=', created.body.id as string)
+        .executeTakeFirstOrThrow();
+      assert.equal(notice.user_id, users.chiefAccountant?.userId);
+    });
+
+    it('quỹ tiền mặt không đủ số dư thì không duyệt được phiếu đảo, phiếu vẫn chờ duyệt (BR-34)', async () => {
+      const created = await receipt(token('accountant'), { child: 'T2', amount: 200_000 });
+      assert.equal(created.status, 201);
+      await schoolYear
+        .updateTable('cash_accounts')
+        .set({ current_balance: 100_000 })
+        .where('id', '=', accounts['QUY-A'] ?? '')
+        .execute();
+      await api('POST', `/receipts/${created.body.id}/reverse`, token('accountant'), { reason: 'Thử quỹ không đủ' });
+      const approve = await api('POST', `/receipts/${created.body.id}/reverse/approve`, token('vicePrincipal'));
+      assert.equal(approve.status, 422);
+      assert.equal(errorOf(approve.body).rule_code, 'BR-34');
+      const pending = await api(
+        'GET',
+        `/receipt-reversals/pending?org_unit_id=${units['ĐT-A1']}`,
+        token('vicePrincipal'),
+      );
+      assert.equal((pending.body as unknown as unknown[]).length, 1);
+    });
+  });
+
+  describe('P01-13 Nhập công nợ đầu kỳ', () => {
+    async function uploadOpening(accessToken: string, rows: Array<Record<string, string | number>>) {
+      const book = new ExcelJS.Workbook();
+      const worksheet = book.addWorksheet('Công nợ');
+      worksheet.addRow(IMPORT_COLUMNS.opening_debts.map((column) => column.header));
+      for (const row of rows) {
+        worksheet.addRow(IMPORT_COLUMNS.opening_debts.map((column) => row[column.key] ?? ''));
+      }
+      const form = new FormData();
+      form.set('type', 'opening_debts');
+      form.set('file', new Blob([Buffer.from(await book.xlsx.writeBuffer())]), 'cong-no.xlsx');
+      const response = await fetch(`${environment.baseUrl}/imports`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${accessToken}` },
+        body: form,
+      });
+      return {
+        status: response.status,
+        body: (await response.json()) as {
+          id: string;
+          status: string;
+          errors: Array<{ row: number; column: string; message: string }>;
+        },
+      };
+    }
+
+    it('tệp có dòng lỗi thì báo đúng dòng và không ghi: sai họ tên, trẻ ngoài phạm vi, số tiền không hợp lệ, trẻ trùng', async () => {
+      const uploaded = await uploadOpening(token('accountant'), [
+        { national_id: nationalIds.T1 ?? '', full_name: 'Tên khác', amount: 500_000, due_date: '2026-10-31' },
+        { national_id: nationalIds.T3 ?? '', amount: 500_000, due_date: '2026-10-31' },
+        { national_id: nationalIds.T2 ?? '', amount: 0, due_date: '2026-10-31' },
+        { national_id: nationalIds.T2 ?? '', amount: 100_000, due_date: '31/10/2026' },
+      ]);
+      assert.equal(uploaded.status, 201, JSON.stringify(uploaded.body));
+      assert.equal(uploaded.body.status, 'failed');
+      assert.deepEqual([...new Set(uploaded.body.errors.map((error) => error.row))].sort(), [2, 3, 4, 5]);
+      const commit = await api('POST', `/imports/${uploaded.body.id}/commit`, token('accountant'));
+      assert.equal(commit.status, 422);
+    });
+
+    it('CTC-P01-079: kế toán nhập công nợ đầu kỳ hợp lệ thì mỗi trẻ có hóa đơn đầu kỳ đúng số tiền và có nhật ký', async () => {
+      const before = (await debt('T2')).outstanding_amount;
+      const uploaded = await uploadOpening(token('accountant'), [
+        { national_id: nationalIds.T1 ?? '', full_name: 'Trẻ T1', amount: 650_000, due_date: '2026-10-31' },
+        { national_id: nationalIds.T2 ?? '', amount: 350_000, due_date: '31/10/2026', note: 'Nợ tháng 8' },
+      ]);
+      assert.equal(uploaded.body.status, 'validated', JSON.stringify(uploaded.body));
+      const commit = await api('POST', `/imports/${uploaded.body.id}/commit`, token('accountant'));
+      assert.equal(commit.status, 200, JSON.stringify(commit.body));
+      const opening = await schoolYear
+        .selectFrom('invoices')
+        .select(['id', 'child_id', 'total_amount', 'status', 'code', 'due_date'])
+        .where('invoice_kind', '=', 'opening')
+        .execute();
+      assert.equal(opening.length, 2);
+      assert.equal(Number(opening.find((row) => row.child_id === children.T2)?.total_amount), 350_000);
+      assert.ok(opening.every((row) => row.status === 'issued' && /^HD-\d{6}$/.test(row.code ?? '')));
+      assert.equal((await debt('T2')).outstanding_amount, before + 350_000);
+      const audits = await schoolYear
+        .selectFrom('audit_logs')
+        .select('actor_user_id')
+        .where('entity_name', '=', 'invoices')
+        .where(
+          'entity_id',
+          'in',
+          opening.map((row) => row.id),
+        )
+        .execute();
+      assert.equal(audits.length, 2);
+      assert.ok(audits.every((row) => row.actor_user_id === users.accountant?.userId));
+
+      const again = await uploadOpening(token('accountant'), [
+        { national_id: nationalIds.T1 ?? '', amount: 100_000, due_date: '2026-10-31' },
+      ]);
+      assert.equal(again.body.status, 'failed');
+      assert.match(again.body.errors[0]?.message ?? '', /đã có công nợ đầu kỳ/);
+    });
+
+    it('CTC-P01-082, CTC-P01-080: nhân sự và giáo viên nhập công nợ đầu kỳ bị từ chối; kế toán không ghi được lần nhập trẻ', async () => {
+      for (const name of ['personnel', 'teacher']) {
+        const uploaded = await uploadOpening(token(name), [
+          { national_id: nationalIds.T1 ?? '', amount: 100_000, due_date: '2026-10-31' },
+        ]);
+        assert.equal(uploaded.status, 403, name);
+      }
+      const template = await fetch(`${environment.baseUrl}/imports/templates/opening_debts`, {
+        headers: { authorization: `Bearer ${token('accountant')}` },
+      });
+      assert.equal(template.status, 200);
+      const childrenTemplate = await fetch(`${environment.baseUrl}/imports/templates/children`, {
+        headers: { authorization: `Bearer ${token('accountant')}` },
+      });
+      assert.equal(childrenTemplate.status, 403);
     });
   });
 });

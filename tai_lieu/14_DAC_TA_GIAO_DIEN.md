@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.14
+- Phiên bản: 1.15
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -54,7 +54,7 @@ flowchart TD
 | MH-06 | Học phí: tính học phí kỳ, bảng hóa đơn kèm dòng cần kiểm tra, phát hành, hóa đơn bổ sung (YCTD-51) | VT-04 |
 | MH-07 | Miễn giảm và học phí đặc biệt: lập miễn giảm và phiếu điều chỉnh trong chi tiết hóa đơn của MH-06; trang Duyệt miễn giảm và điều chỉnh cho Ban Giám hiệu (YCTD-52) | VT-04, VT-05, VT-15, VT-02 |
 | MH-08 | Danh sách công nợ, nhắc nợ và xử lý công nợ quá hạn: phần 5d-1 có danh sách công nợ theo trẻ (phải thu, đã thu, còn lại, số dư có, quá hạn), chi tiết của trẻ có lịch sử phiếu thu, biểu mẫu lập phiếu thu và nút dùng số dư có (YCTD-53) | VT-04, VT-03, VT-15, VT-02, VT-05, VT-16 |
-| MH-09 | Phiếu thu và màn hình phân bổ: danh sách phiếu thu lọc theo đơn vị và ngày; lập phiếu thu và phân bổ trong chi tiết công nợ của trẻ ở MH-08 (YCTD-53) | VT-04, VT-16 |
+| MH-09 | Phiếu thu và màn hình phân bổ: danh sách phiếu thu lọc theo đơn vị và ngày; lập phiếu thu và phân bổ trong chi tiết công nợ của trẻ ở MH-08 (YCTD-53); lập phiếu đảo kèm lý do; Ban Giám hiệu duyệt hoặc từ chối phiếu đảo chờ duyệt (YCTD-54) | VT-04, VT-05, VT-16, VT-15, VT-02 |
 | MH-10 | Phiếu chi và phê duyệt | VT-04, VT-05, VT-16, VT-15, VT-02 |
 | MH-11 | Sổ quỹ và tài khoản ngân hàng: phần 5d-1 có trang Quỹ và ngân hàng để khai báo và xem số dư; sổ quỹ theo ngày ở phần 5e (YCTD-53) | VT-04, VT-05, VT-16 |
 | MH-12 | Hồ sơ nhân sự và hợp đồng | VT-06 |
@@ -85,7 +85,7 @@ flowchart TD
 | MH-37 | Ngày nghỉ lễ và lịch nghỉ thứ 7 | VT-06 (ngày nghỉ lễ), VT-02, VT-15 (lịch nghỉ thứ 7 và lịch học bù) |
 | MH-38 | Phiếu đi chợ và nhà cung cấp thực phẩm | VT-10 |
 | MH-39 | Khoản mục và nhóm thu chi | VT-04, VT-05 |
-| MH-40 | Nhập dữ liệu ban đầu từ Excel và nhập mã định danh ngành từ tệp | VT-02, VT-04, VT-06, VT-12, VT-03 |
+| MH-40 | Nhập dữ liệu ban đầu từ Excel và nhập mã định danh ngành từ tệp; kế toán nhập công nợ đầu kỳ (YCTD-54) | VT-02, VT-04, VT-06, VT-12, VT-03 |
 | MH-41 | Giao dịch chuyển khoản trực tuyến cần xử lý | VT-04 |
 | MH-42 | Khóa API của đối tác | VT-02 |
 | MH-43 | Mở năm học mới và chuyển dữ liệu | VT-02 |

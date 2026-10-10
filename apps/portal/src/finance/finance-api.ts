@@ -126,3 +126,29 @@ export const allocateCredit = (childId: string, allocations: Array<{ invoice_id:
     method: 'POST',
     body: JSON.stringify({ allocations }),
   });
+
+export interface ReceiptReversal {
+  id: string;
+  code: string;
+  receipt_id: string;
+  receipt_code: string;
+  child_name: string;
+  amount: number;
+  reason: string;
+  status: 'pending' | 'approved' | 'rejected';
+  requires_principal: boolean;
+  reject_reason: string | null;
+}
+
+export const reverseReceipt = (receiptId: string, reason: string) =>
+  requestJson<ReceiptReversal>(`/api/v1/receipts/${receiptId}/reverse`, {
+    method: 'POST',
+    body: JSON.stringify({ reason }),
+  });
+export const decideReversal = (receiptId: string, approve: boolean, reason: string) =>
+  requestJson<ReceiptReversal>(`/api/v1/receipts/${receiptId}/reverse/${approve ? 'approve' : 'reject'}`, {
+    method: 'POST',
+    body: JSON.stringify(approve ? {} : { reason }),
+  });
+export const listPendingReversals = (orgUnitId: string): Promise<ReceiptReversal[]> =>
+  requestJson(`/api/v1/receipt-reversals/pending?org_unit_id=${orgUnitId}`);
