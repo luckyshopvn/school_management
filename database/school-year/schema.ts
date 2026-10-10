@@ -585,6 +585,65 @@ export interface InvoiceAdjustmentsTable {
   reject_reason: string | null;
 }
 
+export type CashAccountType = 'cash' | 'bank';
+export type ReceiptMethod = 'cash' | 'transfer' | 'other';
+export type ReceiptStatus = 'issued' | 'pending_reversal' | 'reversed';
+
+export interface CashAccountsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  account_type: CashAccountType;
+  name: string;
+  bank_name: string | null;
+  account_number: string | null;
+  opening_balance: Money;
+  current_balance: Money;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ReceiptsTable {
+  id: Generated<string>;
+  code: string;
+  org_unit_id: string;
+  child_id: string;
+  payer_name: string;
+  amount: Money;
+  method: ReceiptMethod;
+  account_id: string;
+  category_id: string;
+  receipt_date: string;
+  content: string | null;
+  status: Generated<ReceiptStatus>;
+  request_key: string;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface ReceiptAllocationsTable {
+  id: Generated<string>;
+  receipt_id: string;
+  invoice_id: string;
+  amount: Money;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface AccountTransactionsTable {
+  id: Generated<string>;
+  account_id: string;
+  transaction_date: string;
+  transaction_type: string;
+  amount: Money;
+  balance_after: Money;
+  reference_type: string;
+  reference_id: string;
+  description: string;
+  created_at: CreatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -628,4 +687,8 @@ export interface SchoolYearDatabase {
   document_sequences: DocumentSequencesTable;
   discounts: DiscountsTable;
   invoice_adjustments: InvoiceAdjustmentsTable;
+  cash_accounts: CashAccountsTable;
+  receipts: ReceiptsTable;
+  receipt_allocations: ReceiptAllocationsTable;
+  account_transactions: AccountTransactionsTable;
 }

@@ -14,6 +14,9 @@ import { FeesPage } from './fees/FeesPage.js';
 import { RegistrationsPage } from './fees/RegistrationsPage.js';
 import { InvoicesPage } from './fees/InvoicesPage.js';
 import { FeeApprovalsPage } from './fees/FeeApprovalsPage.js';
+import { CashAccountsPage } from './finance/CashAccountsPage.js';
+import { DebtsPage } from './finance/DebtsPage.js';
+import { ReceiptsPage } from './finance/ReceiptsPage.js';
 import { ImportsPage } from './imports/ImportsPage.js';
 import { OrgUnitsPage } from './org-units/OrgUnitsPage.js';
 import { AuditLogsPage } from './settings/AuditLogsPage.js';
@@ -68,6 +71,9 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/invoices', component: InvoicesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/fee-approvals', component: FeeApprovalsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/cashflow-categories', component: CashflowCategoriesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/debts', component: DebtsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/receipts', component: ReceiptsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/cash-accounts', component: CashAccountsPage }),
 ]);
 
 export const router = createRouter({ routeTree });

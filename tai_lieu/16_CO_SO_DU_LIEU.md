@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.23
+- Phiên bản: 1.24
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -130,11 +130,11 @@ Ràng buộc duy nhất: `invoices` loại chính trên bộ ba trẻ, kỳ năm
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| receipts | Phiếu thu | code, org_unit_id, child_id (trống với phiếu thu thu hồi lương, BR-90), staff_id (với phiếu thu thu hồi lương), payer_name, amount, method, account_id, category_id, receipt_date, status, reversed_by_receipt_id, reason, created_by, approved_by, approved_at (với phiếu đảo) |
-| receipt_allocations | Phân bổ phiếu thu | receipt_id, invoice_item_id, amount |
+| receipts | Phiếu thu (YCTD-53) | code (dạng PT-000001, một dãy số toàn trường trong năm học), org_unit_id, child_id (trống với phiếu thu thu hồi lương, BR-90), staff_id (với phiếu thu thu hồi lương), payer_name, amount, method (tiền mặt, chuyển khoản, khác), account_id, category_id, receipt_date, content, status (đã phát hành, chờ duyệt đảo, đã đảo), request_key (duy nhất, chống gửi lặp), created_by; trường phiếu đảo thêm ở phần 5d-2 |
+| receipt_allocations | Phân bổ phiếu thu vào hóa đơn (YCTD-53) | receipt_id, invoice_id, amount, created_by, created_at; tiền chưa phân bổ là số dư có của trẻ |
 | online_payment_transactions | Giao dịch chuyển khoản trực tuyến | provider, provider_transaction_ref (duy nhất), invoice_id, amount, transfer_content, received_at, match_status (khớp, sai số tiền, không xác định hóa đơn), receipt_id, handled_by, handled_at |
 | payments | Phiếu chi | code, org_unit_id, payment_type (thường, hoàn tiền thôi học, lương), child_id (khi hoàn tiền), payee_type, payee_name, supplier_id, amount, content, account_id, category_id, voucher_ref, status, approved_by, approved_at, created_by, reversed_by_payment_id |
-| cash_accounts | Quỹ tiền mặt và tài khoản ngân hàng | org_unit_id, account_type, name, bank_name, account_number, opening_balance, current_balance, status |
+| cash_accounts | Quỹ tiền mặt và tài khoản ngân hàng (YCTD-53) | org_unit_id, account_type (tiền mặt hoặc ngân hàng), name (duy nhất trong đơn vị), bank_name, account_number (bắt buộc với ngân hàng), opening_balance, current_balance (quỹ tiền mặt không âm), status |
 | account_transactions | Giao dịch trên tài khoản | account_id, transaction_date, transaction_type, amount, balance_after, reference_type, reference_id, description |
 | payables | Công nợ phải trả | org_unit_id, supplier_id, reference_type, reference_id, amount, paid_amount, due_date, status |
 | suppliers | Nhà cung cấp | org_unit_id, name, supplier_type (chung hoặc thực phẩm), tax_code, contact_name, phone, email, address, payment_terms, status |
@@ -336,7 +336,7 @@ erDiagram
 | class_enrollments | child_id kèm is_current | Tìm lớp hiện tại của trẻ |
 | attendance_records | child_id kèm attendance_date, class_id kèm attendance_date | Tính tiền ăn và báo cáo điểm danh |
 | invoices | child_id kèm period_year kèm period_month, org_unit_id kèm status | Tra công nợ và báo cáo học phí |
-| receipt_allocations | receipt_id, invoice_item_id | Tính số dư công nợ |
+| receipt_allocations | receipt_id; invoice_id | Tính số dư công nợ |
 | account_transactions | account_id kèm transaction_date | Sổ quỹ và sổ ngân hàng |
 | attendance_logs | staff_id kèm work_date | Chốt bảng công |
 | payslips | payroll_period_id, staff_id | Bảng lương và phiếu lương |

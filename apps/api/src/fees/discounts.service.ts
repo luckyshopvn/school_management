@@ -70,6 +70,8 @@ export class DiscountsService {
     if (used + applied > Number(invoice.total_amount)) {
       throw ruleViolationError('BR-22', 'Tổng miễn giảm vượt tổng khoản phải thu của trẻ trong kỳ, cần điều chỉnh');
     }
+    const amounts = (await invoiceAmounts(database, [invoice])).get(invoice.id);
+    this.assertWithinOutstanding(amounts?.outstanding_amount ?? 0, applied);
     const requiresPrincipal = await this.requiresPrincipal(database, invoice.org_unit_id, 'tuition_discount', applied);
     const created = await database.transaction().execute(async (transaction) => {
       const row = await transaction
@@ -196,6 +198,8 @@ export class DiscountsService {
       if (total > Number(invoice.total_amount)) {
         throw ruleViolationError('BR-22', 'Tổng miễn giảm vượt tổng khoản phải thu của trẻ trong kỳ, cần điều chỉnh');
       }
+      const amounts = (await invoiceAmounts(database, [invoice])).get(invoice.id);
+      this.assertWithinOutstanding(amounts?.outstanding_amount ?? 0, Number(discount.applied_amount));
     }
     await this.decide(database, 'discounts', discount, decision, origin);
     return this.readDiscount(database, discountId);
@@ -221,9 +225,7 @@ export class DiscountsService {
       );
     }
     const amounts = (await invoiceAmounts(database, [invoice])).get(invoice.id);
-    if ((amounts?.payable_amount ?? 0) + input.amount < 0) {
-      throw ruleViolationError('BR-22', 'Điều chỉnh giảm vượt số phải nộp của hóa đơn');
-    }
+    this.assertWithinOutstanding(amounts?.outstanding_amount ?? 0, -input.amount);
     const requiresPrincipal = await this.requiresPrincipal(
       database,
       invoice.org_unit_id,
@@ -288,9 +290,7 @@ export class DiscountsService {
     if (decision.approve) {
       const invoice = await this.loadInvoice(database, adjustment.invoice_id);
       const amounts = (await invoiceAmounts(database, [invoice])).get(invoice.id);
-      if ((amounts?.payable_amount ?? 0) + Number(adjustment.amount) < 0) {
-        throw ruleViolationError('BR-22', 'Điều chỉnh giảm vượt số phải nộp của hóa đơn');
-      }
+      this.assertWithinOutstanding(amounts?.outstanding_amount ?? 0, -Number(adjustment.amount));
     }
     await this.decide(database, 'invoice_adjustments', adjustment, decision, origin);
     return this.readAdjustment(database, adjustmentId);
@@ -472,6 +472,16 @@ export class DiscountsService {
       .where('status', '=', 'active')
       .executeTakeFirst();
     return !threshold || amount >= Number(threshold.threshold_amount);
+  }
+
+  // Khoản giảm không được vượt số còn phải nộp; hóa đơn đã thu thì đảo phiếu thu trước rồi mới giảm (YCTD-53)
+  private assertWithinOutstanding(outstanding: number, reduction: number): void {
+    if (reduction > 0 && outstanding - reduction < 0) {
+      throw ruleViolationError(
+        'BR-22',
+        'Khoản giảm vượt số còn phải nộp của hóa đơn; hóa đơn đã thu thì cần đảo phiếu thu trước',
+      );
+    }
   }
 
   private isPrincipal(currentUser: CurrentUser): boolean {

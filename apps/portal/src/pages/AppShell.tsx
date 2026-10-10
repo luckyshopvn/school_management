@@ -27,7 +27,10 @@ type NavigationPath =
   | '/cashflow-categories'
   | '/registrations'
   | '/invoices'
-  | '/fee-approvals';
+  | '/fee-approvals'
+  | '/debts'
+  | '/receipts'
+  | '/cash-accounts';
 
 function NavItem({ to, label }: { to: NavigationPath; label: string }) {
   return (
@@ -75,6 +78,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canSeeInvoices = canViewTuition || canCalculateFees;
   const canApproveFeeDocuments = useHasPermission(PERMISSION_CODES.feeDocumentApprove);
   const canViewCashflow = canViewFinance || canManageCashflowCategories;
+  const canViewDebts = useHasPermission(PERMISSION_CODES.debtView);
+  const canCollect = useHasPermission(PERMISSION_CODES.receiptManage);
+  const canManageCashAccounts = useHasPermission(PERMISSION_CODES.cashAccountManage);
+  const canSeeAccountsAndReceipts = canViewFinance || canCollect || canManageCashAccounts;
 
   return (
     <div className="flex min-h-screen">
@@ -97,7 +104,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </ul>
           </>
         ) : null}
-        {canViewFees || canViewCashflow || canSeeRegistrations ? (
+        {canViewFees || canViewCashflow || canSeeRegistrations || canViewDebts ? (
           <>
             <span className="px-3 text-label font-semibold text-text-muted">HỌC PHÍ VÀ TÀI CHÍNH</span>
             <ul className="flex flex-col gap-1">
@@ -105,6 +112,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               {canSeeRegistrations ? <NavItem to="/registrations" label="Đăng ký dịch vụ" /> : null}
               {canSeeInvoices ? <NavItem to="/invoices" label="Học phí" /> : null}
               {canApproveFeeDocuments ? <NavItem to="/fee-approvals" label="Duyệt miễn giảm và điều chỉnh" /> : null}
+              {canViewDebts ? <NavItem to="/debts" label="Công nợ" /> : null}
+              {canSeeAccountsAndReceipts ? <NavItem to="/receipts" label="Phiếu thu" /> : null}
+              {canSeeAccountsAndReceipts ? <NavItem to="/cash-accounts" label="Quỹ và ngân hàng" /> : null}
               {canViewCashflow ? <NavItem to="/cashflow-categories" label="Khoản mục thu chi" /> : null}
             </ul>
           </>

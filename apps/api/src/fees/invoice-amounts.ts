@@ -3,14 +3,20 @@ import type { Kysely, Transaction } from 'kysely';
 import { TUITION_TARGET } from './discount-types.js';
 
 // Số tiền của hóa đơn dùng chung cho học phí, miễn giảm, điều chỉnh, công nợ (BR-21, BR-22, BR-32; YCTD-52):
-// số phải nộp = tổng hóa đơn − miễn giảm đã duyệt + điều chỉnh đã duyệt; số đã thu trừ thêm khi có phiếu thu (phần 5d)
+// số phải nộp = tổng hóa đơn − miễn giảm đã duyệt + điều chỉnh đã duyệt; còn phải nộp = số phải nộp − số đã phân bổ từ phiếu thu
+// chưa bị đảo (YCTD-53)
 type Executor = Kysely<SchoolYearDatabase> | Transaction<SchoolYearDatabase>;
 
 export interface InvoiceAmounts {
   discount_amount: number;
   adjustment_amount: number;
   payable_amount: number;
+  paid_amount: number;
+  outstanding_amount: number;
 }
+
+// Phiếu thu đang chờ duyệt đảo vẫn giữ nguyên công nợ cho tới khi Ban Giám hiệu duyệt (AC-212)
+export const ACTIVE_RECEIPT_STATUSES = ['issued', 'pending_reversal'] as const;
 
 // Cơ sở tính miễn giảm là tổng các dòng thuộc khoản áp dụng của loại miễn giảm
 export function discountBase(
@@ -50,6 +56,15 @@ export async function invoiceAmounts(
         .where('status', '=', 'approved')
         .execute()
     : [];
+  const allocations = ids.length
+    ? await executor
+        .selectFrom('receipt_allocations')
+        .innerJoin('receipts', 'receipts.id', 'receipt_allocations.receipt_id')
+        .select(['receipt_allocations.invoice_id', 'receipt_allocations.amount'])
+        .where('receipt_allocations.invoice_id', 'in', ids)
+        .where('receipts.status', 'in', ACTIVE_RECEIPT_STATUSES)
+        .execute()
+    : [];
   return new Map(
     invoices.map((invoice) => {
       const discount = discounts
@@ -58,12 +73,18 @@ export async function invoiceAmounts(
       const adjustment = adjustments
         .filter((row) => row.invoice_id === invoice.id)
         .reduce((sum, row) => sum + Number(row.amount), 0);
+      const paid = allocations
+        .filter((row) => row.invoice_id === invoice.id)
+        .reduce((sum, row) => sum + Number(row.amount), 0);
+      const payable = Number(invoice.total_amount) - discount + adjustment;
       return [
         invoice.id,
         {
           discount_amount: discount,
           adjustment_amount: adjustment,
-          payable_amount: Number(invoice.total_amount) - discount + adjustment,
+          payable_amount: payable,
+          paid_amount: paid,
+          outstanding_amount: payable - paid,
         },
       ];
     }),

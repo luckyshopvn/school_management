@@ -102,6 +102,13 @@ export function InvoiceDetailPanel({ invoiceId }: { invoiceId: string }) {
             <td className="px-3 py-1 text-text-secondary">Tính miễn giảm và điều chỉnh đã duyệt</td>
             <td className="px-3 py-1 text-right">{formatMoney(data.payable_amount)}</td>
           </tr>
+          {data.status === 'issued' ? (
+            <tr>
+              <td className="px-3 py-1">Đã thu</td>
+              <td className="px-3 py-1 text-text-secondary">Còn phải nộp {formatMoney(data.outstanding_amount)}</td>
+              <td className="px-3 py-1 text-right">{formatMoney(data.paid_amount)}</td>
+            </tr>
+          ) : null}
         </tbody>
       </table>
       {action.error ? <Alert tone="danger">{messageOf(action.error)}</Alert> : null}
