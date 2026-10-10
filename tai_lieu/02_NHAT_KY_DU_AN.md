@@ -14,6 +14,29 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-10 — DT-04 phần 4b: người được ủy quyền đón trẻ và đón trả
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 15 (phần 4a) sau khi mọi bước kiểm thử trên GitHub đạt.
+- Hỏi Eric bốn điểm của phần 4b; viết phần 4b trên nhánh `dt-04-phan-4b`.
+- Cơ sở dữ liệu: năm học có `authorized_pickups`, `pickup_confirmation_requests`, `pickup_records`, tệp mục đích `pickup_photo` (tệp 0009); định danh có quyền `P02.authorized-pickup.manage`, `P04.pickup.gate-confirm` (tệp 0014).
+- Máy chủ API: khai báo, hủy người được ủy quyền; bàn giao trẻ; yêu cầu và trả lời xác nhận của phụ huynh; danh sách người đón cho bảo vệ; ảnh bàn giao.
+- Ứng dụng giáo viên: màn hình Đón trả trẻ (MG-04), Xác nhận người đón tại cổng (MG-16). Ứng dụng phụ huynh: người đón của con, xác nhận người đón ngoài danh sách (MP-18). Cổng quản trị: mục người được ủy quyền trong hồ sơ trẻ.
+- Kết quả: máy chủ API 142/142, dịch vụ định danh 37/37, cơ sở dữ liệu 3/3, tiến trình chạy nền 1/1, kiểm thử giao diện 26/26.
+
+#### Quyết định
+
+- Chỉ ghi bàn giao chiều; bảo vệ xác nhận độc lập; mọi phụ huynh có tài khoản của trẻ xác nhận người đón ngoài danh sách, hiệu lực trong ngày; VT-02, VT-15, VT-03 khai báo phía nhà trường (YCTD-48) – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-48 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.28.3.
+
+#### Vấn đề tồn đọng
+
+- Thông báo mới vào hàng đợi; gửi thật khi làm phân hệ thông báo. Kiểm thử giao diện chưa phủ bàn giao của giáo viên vì phụ thuộc hôm nay là ngày học; đã phủ bằng kiểm thử máy chủ API.
+
 ### 2026-10-10 — DT-04 phần 4a: điểm danh và báo vắng
 
 #### Công việc đã thực hiện

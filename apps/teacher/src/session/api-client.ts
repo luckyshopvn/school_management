@@ -26,6 +26,7 @@ export interface CurrentUser {
   id: string;
   full_name: string;
   phone: string | null;
+  assignments: Array<{ role_code: string; org_unit_id: string | null; permissions: string[] }>;
 }
 
 // Mã phiên chỉ giữ trong bộ nhớ; mã làm mới nằm trong cookie httpOnly (BM-71)

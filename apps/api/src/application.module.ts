@@ -39,6 +39,8 @@ import { ImportsController } from './imports/imports.controller.js';
 import { ImportsService } from './imports/imports.service.js';
 import { AttendanceController } from './attendance/attendance.controller.js';
 import { AttendanceService } from './attendance/attendance.service.js';
+import { PickupsController } from './pickups/pickups.controller.js';
+import { PickupsService } from './pickups/pickups.service.js';
 import { SchoolCalendar } from './attendance/school-calendar.js';
 import { OrgUnitsController } from './organization/org-units.controller.js';
 import { OrgUnitsService } from './organization/org-units.service.js';
@@ -73,6 +75,7 @@ export class ApplicationModule {
         FilesController,
         ImportsController,
         AttendanceController,
+        PickupsController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -110,6 +113,7 @@ export class ApplicationModule {
         FilesService,
         ImportsService,
         AttendanceService,
+        PickupsService,
         SchoolCalendar,
         {
           provide: FileStorage,

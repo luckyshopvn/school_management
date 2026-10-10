@@ -2,8 +2,10 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { Alert, ApplicationHeader, Button, StatusBadge, TextField } from '@school-management/ui';
 import { ApiError, fetchCurrentUser, requestJson, type CurrentUser } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
+import { AuthorizedPickupsPanel, PickupConfirmations } from './PickupSections.js';
 
-// Trang chủ ứng dụng phụ huynh: danh sách con, báo vắng (MP-06), điểm danh của con theo tháng (MP-02)
+// Trang chủ ứng dụng phụ huynh: danh sách con, báo vắng (MP-06), điểm danh của con theo tháng (MP-02),
+// người đón trẻ và xác nhận người đón (MP-18)
 interface Child {
   id: string;
   full_name: string;
@@ -77,7 +79,7 @@ function AbsenceForm({ child, onDone }: { child: Child; onDone(message: string):
 }
 
 function ChildCard({ child, onMessage }: { child: Child; onMessage(message: string): void }) {
-  const [view, setView] = useState<'none' | 'absence' | 'attendance'>('none');
+  const [view, setView] = useState<'none' | 'absence' | 'attendance' | 'pickups'>('none');
   const [attendance, setAttendance] = useState<MonthAttendance>();
   const [errorMessage, setErrorMessage] = useState<string>();
   const month = vietnamToday().slice(0, 7);
@@ -96,7 +98,7 @@ function ChildCard({ child, onMessage }: { child: Child; onMessage(message: stri
         <span className="text-content font-semibold">{child.full_name}</span>
         <span className="text-label text-text-secondary">{child.class_name ?? ''}</span>
       </div>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button onClick={() => setView(view === 'absence' ? 'none' : 'absence')}>Báo vắng</Button>
         <Button
           onClick={() => {
@@ -106,7 +108,9 @@ function ChildCard({ child, onMessage }: { child: Child; onMessage(message: stri
         >
           Điểm danh tháng này
         </Button>
+        <Button onClick={() => setView(view === 'pickups' ? 'none' : 'pickups')}>Người đón</Button>
       </div>
+      {view === 'pickups' ? <AuthorizedPickupsPanel child={child} /> : null}
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       {view === 'absence' ? (
         <AbsenceForm
@@ -164,6 +168,7 @@ export function HomeScreen() {
           <div className="h-8 w-48 animate-pulse rounded bg-border" aria-hidden="true" />
         )}
         {notice ? <Alert tone="success">{notice}</Alert> : null}
+        <PickupConfirmations />
         {children && children.length === 0 ? (
           <p className="text-content text-text-secondary">Chưa có thông tin của con.</p>
         ) : null}

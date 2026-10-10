@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.8
+- Phiên bản: 1.9
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -105,7 +105,7 @@ flowchart TD
 | MG-01 | Lớp của tôi hôm nay | VT-07 |
 | MG-02 | Bảng điểm danh của lớp | VT-07 |
 | MG-03 | Nhật ký của bé theo ngày | VT-07 |
-| MG-04 | Đón trả trẻ | VT-07 |
+| MG-04 | Đón trả trẻ: chọn người đón, ảnh bàn giao tùy chọn, trạng thái chờ phụ huynh xác nhận (YCTD-48) | VT-07 |
 | MG-05 | Giáo án, bài học, thời khóa biểu | VT-07, VT-08 |
 | MG-06 | Tiến độ và kế hoạch giảng dạy | VT-07 |
 | MG-07 | Tạo hoạt động và album hình ảnh | VT-07, VT-08 |
@@ -117,7 +117,7 @@ flowchart TD
 | MG-13 | Lịch đưa đón của tuyến — Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62) | — |
 | MG-14 | Suất ăn và báo cơm của lớp | VT-10, VT-07 |
 | MG-15 | Đồ bị mất của lớp | VT-07 |
-| MG-16 | Xác nhận người đón tại cổng | VT-18 |
+| MG-16 | Xác nhận người đón tại cổng: tìm trẻ trong đơn vị, xác nhận người được đón (YCTD-48) | VT-18 |
 | MG-17 | Duyệt giáo án của tổ | VT-17 |
 
 ### 2.3 Ứng dụng phụ huynh
@@ -141,7 +141,7 @@ flowchart TD
 | MP-15 | Thực đơn | VT-14 |
 | MP-16 | Tin tức, thông báo, thư viện, hình tô màu | VT-14 |
 | MP-17 | Bình chọn, biểu quyết, khảo sát | VT-14 |
-| MP-18 | Tài khoản, người được ủy quyền đón trẻ, đồng ý sử dụng hình ảnh | VT-14 |
+| MP-18 | Tài khoản, người được ủy quyền đón trẻ, xác nhận người đón ngoài danh sách, đồng ý sử dụng hình ảnh | VT-14 |
 | MP-19 | Mất đồ | VT-14 |
 | MP-20 | Hoạt động ngoại khóa | VT-14 |
 

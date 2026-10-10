@@ -30,6 +30,8 @@ export const PERMISSION_CODES = {
   nationalIdView: 'P02.national-id.view',
   importChildren: 'P01.import.children',
   attendanceManage: 'P04.attendance.manage',
+  authorizedPickupManage: 'P02.authorized-pickup.manage',
+  pickupGateConfirm: 'P04.pickup.gate-confirm',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)

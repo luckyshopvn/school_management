@@ -11,6 +11,25 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-48: Người được ủy quyền đón trẻ và đón trả – 2026-10-10
+
+- Lý do: thiết kế DT-04 phần 4b cần chốt lượt đón trả được ghi, vai trò của bảo vệ, ai xác nhận người đón ngoài danh sách và ai phía nhà trường khai báo người được ủy quyền.
+- Nội dung thay đổi:
+  - Nhật ký đón trả chỉ ghi lượt bàn giao chiều của giáo viên chủ nhiệm cho trẻ có mặt; thời điểm đón không trước thời điểm điểm danh; mỗi trẻ một lượt mỗi ngày. Lượt nhận trẻ buổi sáng đã có ở điểm danh.
+  - Phụ huynh có đánh dấu được đón trẻ trong hồ sơ và người được ủy quyền còn hiệu lực được bàn giao ngay. Người khác, kể cả ủy quyền đã hủy hoặc hết hạn, thì máy chủ chặn và gửi yêu cầu xác nhận tới các phụ huynh có tài khoản của trẻ; bất kỳ phụ huynh nào của trẻ xác nhận hoặc từ chối trên ứng dụng phụ huynh. Xác nhận chỉ có hiệu lực cho trẻ, người đón và ngày đó; phụ huynh từ chối thì vẫn chặn.
+  - Bảo vệ xác nhận người đón tại cổng độc lập với bàn giao của giáo viên: tra trẻ trong đơn vị được gán, chỉ xác nhận được phụ huynh được đón và người được ủy quyền còn hiệu lực; người ngoài danh sách thì báo giáo viên chủ nhiệm. Bảo vệ không xem hồ sơ trẻ.
+  - Phụ huynh tự khai báo và hủy người được ủy quyền cho con mình, có hiệu lực ngay. Phía nhà trường dùng mã quyền mới `P02.authorized-pickup.manage` cho VT-02, VT-15 toàn trường và VT-03 trong đơn vị được gán. Mã quyền mới `P04.pickup.gate-confirm` cho VT-18 trong đơn vị được gán.
+  - Người được ủy quyền gồm họ tên, quan hệ (chữ tự nhập), số điện thoại bắt buộc, hiệu lực từ ngày (mặc định hôm nay) đến ngày (trống là không thời hạn).
+  - Ảnh bàn giao tùy chọn, ảnh JPEG hoặc PNG tải lên kho tệp với mục đích `pickup_photo`; ai xem được trẻ thì xem được ảnh.
+- Thành phần bị ảnh hưởng: `08`, `10`, `14`, `16`, `17`, `27_BO_CA_KIEM_THU_CHI_TIET/02_P02_VA_P04.md`, `01`, `03`, `index.md`; mã nguồn DT-04 phần 4b; ứng dụng giáo viên, ứng dụng phụ huynh, cổng quản trị.
+- Dữ liệu bị ảnh hưởng: bảng mới `authorized_pickups`, `pickup_confirmation_requests`, `pickup_records`; `files.purpose` thêm `pickup_photo`.
+- API bị ảnh hưởng: `GET`, `POST /children/{id}/authorized-pickups`; `DELETE /authorized-pickups/{id}`; `GET /classes/{id}/pickups`; `POST /children/{id}/pickups`; `GET /pickup-directory`; `GET /pickup-confirmations`; `POST /pickup-confirmations/{id}/confirm`, `/refuse`; `POST /files` nhận ảnh bàn giao của giáo viên chủ nhiệm.
+- Giao diện bị ảnh hưởng: MG-01, MG-04, MG-16, MP-01, MP-18; chi tiết hồ sơ trẻ trên cổng quản trị có mục người được ủy quyền.
+- Quyền bị ảnh hưởng: thêm `P02.authorized-pickup.manage`, `P04.pickup.gate-confirm`.
+- Ảnh hưởng chức năng cũ: tải tệp lên kiểm tra quyền theo mục đích ở tầng nghiệp vụ; tệp của hồ sơ trẻ vẫn cần `P02.child.manage`.
+- Kiểm thử cần thực hiện: CTC-P02-034 đến 038, CTC-P04-024 đến 031.
+- Trạng thái: Đã triển khai
+
 ### YCTD-47: Điểm danh, chốt ngày và báo vắng – 2026-10-10
 
 - Lý do: thiết kế DT-04 cần chốt cách chia đợt, nguồn của giờ học trong BR-13, trạng thái ban đầu của bảng điểm danh và cách xử lý kỳ hè khi chưa có đăng ký học hè (P05-13).
@@ -30,7 +49,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: thêm `P04.attendance.manage`.
 - Ảnh hưởng chức năng cũ: không.
 - Kiểm thử cần thực hiện: CTC-P04-001 đến 006, 009 đến 023, 044, 045.
-- Trạng thái: Đã triển khai phần 4a
+- Trạng thái: Đã triển khai
 
 ### YCTD-46: Nhập dữ liệu ban đầu và nhập mã định danh ngành – 2026-10-10
 

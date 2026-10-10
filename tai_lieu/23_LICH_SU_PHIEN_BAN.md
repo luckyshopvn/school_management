@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.28.3 – 2026-10-10
+
+- Phạm vi thay đổi: DT-04 phần 4b, người được ủy quyền đón trẻ và đón trả (YCTD-48).
+- Chức năng mới: khai báo, hủy người được ủy quyền trên ứng dụng phụ huynh và cổng quản trị; giáo viên chủ nhiệm bàn giao trẻ kèm ảnh tùy chọn; phụ huynh xác nhận người đón ngoài danh sách; bảo vệ xác nhận người đón tại cổng.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: `authorized_pickups`, `pickup_confirmation_requests`, `pickup_records`; tệp mục đích `pickup_photo`; mã quyền `P02.authorized-pickup.manage`, `P04.pickup.gate-confirm`.
+- Thay đổi API: nhóm điểm cuối đón trả; `POST /files` nhận ảnh bàn giao.
+- Rủi ro: không.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-04-phan-4b`; chạy ngược tệp thay đổi cấu trúc 0009 của cơ sở dữ liệu năm học và 0014 của cơ sở dữ liệu định danh.
+
 ### Phiên bản 0.28.2 – 2026-10-10
 
 - Phạm vi thay đổi: DT-04 phần 4a, điểm danh, chốt ngày, báo vắng (YCTD-47).
