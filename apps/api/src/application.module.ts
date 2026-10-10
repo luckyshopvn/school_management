@@ -57,6 +57,7 @@ import { SchoolCalendar } from './attendance/school-calendar.js';
 import { CashAccountsController, CashAccountsService } from './finance/cash-accounts.js';
 import { ReceiptsController } from './finance/receipts.controller.js';
 import { ReceiptsService } from './finance/receipts.service.js';
+import { ReceiptReversalsService } from './finance/receipt-reversals.service.js';
 import { DebtsService } from './fees/debts.service.js';
 import { OrgUnitsController } from './organization/org-units.controller.js';
 import { OrgUnitsService } from './organization/org-units.service.js';
@@ -150,6 +151,7 @@ export class ApplicationModule {
         DiscountsService,
         CashAccountsService,
         ReceiptsService,
+        ReceiptReversalsService,
         DebtsService,
         SchoolCalendar,
         {

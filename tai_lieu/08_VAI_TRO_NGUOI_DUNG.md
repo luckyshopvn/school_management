@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.21
+- Phiên bản: 1.22
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -121,6 +121,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-24 | Học phí (YCTD-51): `P05.fee-calculation.manage` cho VT-04 tính học phí, phát hành hóa đơn chính và bổ sung trong đơn vị được gán; nhân sự xem hóa đơn bằng `P05.view` trong phạm vi đơn vị, không tính vai trò phụ huynh dù VT-14 gán theo đơn vị của con; phụ huynh chỉ xem hóa đơn đã phát hành của con mình |
 | PQ-25 | Miễn giảm và điều chỉnh (YCTD-52): `P05.discount.manage` cho VT-04 lập miễn giảm; `P05.invoice-adjustment.create` cho VT-04, VT-05 lập phiếu điều chỉnh; `P05.fee-document.approve` cho VT-02 toàn trường và VT-15 trong đơn vị được gán duyệt theo hạn mức: dưới hạn mức VT-15 hoặc VT-02, từ hạn mức trở lên hoặc chưa đặt hạn mức chỉ VT-02; VT-03 chỉ xem |
 | PQ-26 | Phiếu thu, quỹ và công nợ (YCTD-53): `P06.receipt.manage` cho VT-04 và VT-16 lập phiếu thu, phân bổ trong đơn vị được gán, VT-16 chỉ thu tiền mặt; `P06.cash-account.manage` cho VT-04, VT-05 khai báo quỹ và tài khoản ngân hàng; `P05.debt.view` cho VT-02, VT-15, VT-03, VT-04, VT-05, VT-16 xem công nợ trong phạm vi. Giáo viên không xem công nợ và phiếu thu; phụ huynh xem công nợ và phiếu thu của con mình |
+| PQ-27 | Đảo phiếu thu và công nợ đầu kỳ (YCTD-54): `P06.receipt-reversal.create` cho VT-04, VT-05 lập phiếu đảo; `P06.receipt-reversal.approve` cho VT-02 toàn trường và VT-15 trong đơn vị được gán duyệt theo hạn mức `receipt_reversal`: dưới hạn mức VT-15 hoặc VT-02, từ hạn mức trở lên hoặc chưa đặt hạn mức chỉ VT-02; `P05.opening-debt.import` cho VT-04 nhập công nợ đầu kỳ của trẻ trong đơn vị được gán |
 
 ## 5. Phân cấp phê duyệt
 

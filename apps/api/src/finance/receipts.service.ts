@@ -11,6 +11,8 @@ import { queueNotification } from '../common/notification-queue.js';
 import { notFoundError } from '../common/request-fields.js';
 import { invoiceAmounts } from '../fees/invoice-amounts.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
+import { nextDocumentCode } from '../fees/document-codes.js';
+import { ReceiptReversalsService } from './receipt-reversals.service.js';
 import { guardianUserIds, isGuardianOf, unallocatedReceipts } from './receivables.js';
 
 // Phiếu thu, phân bổ vào hóa đơn, phân bổ số dư có của trẻ (P06-01, P06-02; QT-04 bước 2 đến 7;
@@ -42,6 +44,7 @@ export class ReceiptsService {
   constructor(
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly organizationScopes: OrganizationScopes,
+    private readonly reversals: ReceiptReversalsService,
     private readonly clock: Clock,
   ) {}
 
@@ -200,7 +203,20 @@ export class ReceiptsService {
     }
     await database.transaction().execute(async (transaction) => {
       await transaction.selectFrom('receipts').select('id').where('child_id', '=', childId).forUpdate().execute();
-      const sources = await unallocatedReceipts(transaction, [childId]);
+      const pendingReversal = new Set(
+        (
+          await transaction
+            .selectFrom('receipts')
+            .select('id')
+            .where('child_id', '=', childId)
+            .where('status', '=', 'pending_reversal')
+            .execute()
+        ).map((row) => row.id),
+      );
+      // Phiếu đang chờ duyệt đảo không dùng làm nguồn số dư có
+      const sources = (await unallocatedReceipts(transaction, [childId])).filter(
+        (source) => !pendingReversal.has(source.id),
+      );
       const credit = sources.reduce((sum, source) => sum + source.remaining, 0);
       const settled = await this.checkAllocations(transaction, childId, allocations, credit, 'credit');
       const rows: Array<{ receipt_id: string; invoice_id: string; amount: number; created_by: string }> = [];
@@ -321,6 +337,7 @@ export class ReceiptsService {
       amount: Number(receipt.amount),
       allocated_amount: allocated,
       allocations: allocations.map((row) => ({ ...row, amount: Number(row.amount) })),
+      reversals: await this.reversals.ofReceipt(database, receiptId),
     };
   }
 
@@ -556,17 +573,7 @@ export class ReceiptsService {
     return VIETNAM_DATE.format(this.clock.now());
   }
 
-  private async nextCode(transaction: Transaction<SchoolYearDatabase>): Promise<string> {
-    const row = await transaction
-      .insertInto('document_sequences')
-      .values({ document_type: RECEIPT_SEQUENCE, last_value: 1 })
-      .onConflict((conflict) =>
-        conflict.column('document_type').doUpdateSet((expression) => ({
-          last_value: expression('document_sequences.last_value', '+', 1),
-        })),
-      )
-      .returning('last_value')
-      .executeTakeFirstOrThrow();
-    return `PT-${String(row.last_value).padStart(6, '0')}`;
+  private nextCode(transaction: Transaction<SchoolYearDatabase>): Promise<string> {
+    return nextDocumentCode(transaction, RECEIPT_SEQUENCE, 'PT');
   }
 }

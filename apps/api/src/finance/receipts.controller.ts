@@ -15,6 +15,7 @@ import {
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { DebtsService } from '../fees/debts.service.js';
 import { readAmount, readEnum } from '../fees/fee-catalog-fields.js';
+import { ReceiptReversalsService } from './receipt-reversals.service.js';
 import { ReceiptsService, type AllocationInput } from './receipts.service.js';
 
 // Phiếu thu, phân bổ và công nợ phải thu (P05-09, P06-01, P06-02; YCTD-53).
@@ -57,6 +58,7 @@ function readAllocations(body: RequestBody, errors: FieldError[]): AllocationInp
 export class ReceiptsController {
   constructor(
     private readonly receipts: ReceiptsService,
+    private readonly reversals: ReceiptReversalsService,
     private readonly debts: DebtsService,
   ) {}
 
@@ -124,6 +126,65 @@ export class ReceiptsController {
   ) {
     await this.receipts.read(currentUser, receiptId);
     throw ruleViolationError('BR-29', 'Không xóa được phiếu đã phát hành, lập phiếu đảo để điều chỉnh');
+  }
+
+  // Lập phiếu đảo kèm lý do, chờ Ban Giám hiệu duyệt theo hạn mức (P06-03, AC-212)
+  @Post('receipts/:id/reverse')
+  @HttpCode(201)
+  reverse(
+    @Param('id', uuidParameter('Mã phiếu thu không hợp lệ')) receiptId: string,
+    @Body() body: RequestBody,
+    @Req() request: Request,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const errors: FieldError[] = [];
+    const reason = readRequiredText(body, 'reason', errors);
+    if (reason.length > MAXIMUM_TEXT) {
+      errors.push({ field: 'reason', message: `Tối đa ${MAXIMUM_TEXT} ký tự` });
+    }
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.reversals.create(currentUser, receiptId, reason, originOf(request, currentUser));
+  }
+
+  @Post('receipts/:id/reverse/approve')
+  @HttpCode(200)
+  approveReversal(
+    @Param('id', uuidParameter('Mã phiếu thu không hợp lệ')) receiptId: string,
+    @Req() request: Request,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    return this.reversals.decide(
+      currentUser,
+      receiptId,
+      { approve: true, reason: null },
+      originOf(request, currentUser),
+    );
+  }
+
+  @Post('receipts/:id/reverse/reject')
+  @HttpCode(200)
+  rejectReversal(
+    @Param('id', uuidParameter('Mã phiếu thu không hợp lệ')) receiptId: string,
+    @Body() body: RequestBody,
+    @Req() request: Request,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const errors: FieldError[] = [];
+    const reason = readOptionalText(body, 'reason', errors) ?? null;
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.reversals.decide(currentUser, receiptId, { approve: false, reason }, originOf(request, currentUser));
+  }
+
+  @Get('receipt-reversals/pending')
+  pendingReversals(@Query() query: Record<string, string | undefined>, @AuthenticatedUser() currentUser: CurrentUser) {
+    if (query.org_unit_id !== undefined && !isUuid(query.org_unit_id)) {
+      throw validationError([{ field: 'org_unit_id', message: 'Mã đơn vị không hợp lệ' }]);
+    }
+    return this.reversals.pending(currentUser, query.org_unit_id ?? null);
   }
 
   @Get('children/:id/receipts')

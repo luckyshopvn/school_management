@@ -25,25 +25,38 @@ function requireFile(file: UploadedPart | undefined): UploadedPart {
 }
 
 const fileName = (file: UploadedPart) => Buffer.from(file.originalname, 'latin1').toString('utf8');
+
+// Quyền theo loại dữ liệu nhập: lớp và trẻ chỉ Hiệu trưởng, công nợ đầu kỳ cho kế toán (YCTD-54)
+function permissionOf(type: string): string {
+  return type === 'moet_codes'
+    ? PERMISSION_CODES.childManage
+    : type === 'opening_debts'
+      ? PERMISSION_CODES.openingDebtImport
+      : PERMISSION_CODES.importChildren;
+}
+
+function assertCanImport(currentUser: CurrentUser, type: string): void {
+  if (!currentUser.hasPermission(permissionOf(type))) {
+    throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không có quyền nhập loại dữ liệu này');
+  }
+}
 const XLSX_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
-// Nhập dữ liệu ban đầu từ Excel (P01-13) chỉ Hiệu trưởng; nhập mã ngành (P02-12) cho người lập hồ sơ trẻ (BM-63, YCTD-46)
+// Nhập dữ liệu ban đầu từ Excel (P01-13): lớp và trẻ chỉ Hiệu trưởng, công nợ đầu kỳ cho kế toán; nhập mã ngành (P02-12)
+// cho người lập hồ sơ trẻ (BM-63, YCTD-46, YCTD-54)
 @Controller('imports')
 export class ImportsController {
   constructor(private readonly importsService: ImportsService) {}
 
   @Get('templates/:type')
-  @RequirePermission(PERMISSION_CODES.importChildren, PERMISSION_CODES.childManage)
+  @RequirePermission(PERMISSION_CODES.importChildren, PERMISSION_CODES.childManage, PERMISSION_CODES.openingDebtImport)
   async template(
     @Param('type') rawType: string,
     @Res() response: Response,
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
     const type = this.importsService.assertImportType(rawType);
-    const permission = type === 'moet_codes' ? PERMISSION_CODES.childManage : PERMISSION_CODES.importChildren;
-    if (!currentUser.hasPermission(permission)) {
-      throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không có quyền nhập loại dữ liệu này');
-    }
+    assertCanImport(currentUser, type);
     response.setHeader('content-type', XLSX_TYPE);
     response.setHeader('content-disposition', `attachment; filename="mau-nhap-${type}.xlsx"`);
     response.send(await this.importsService.template(type));
@@ -68,7 +81,7 @@ export class ImportsController {
   }
 
   @Post()
-  @RequirePermission(PERMISSION_CODES.importChildren)
+  @RequirePermission(PERMISSION_CODES.importChildren, PERMISSION_CODES.openingDebtImport)
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: MAXIMUM_IMPORT_BYTES, files: 1 } }))
   upload(
     @UploadedFile() file: UploadedPart | undefined,
@@ -77,9 +90,10 @@ export class ImportsController {
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
     const type = body?.type;
-    if (type !== 'classes' && type !== 'children') {
-      throw validationError([{ field: 'type', message: 'Loại dữ liệu nhập là classes hoặc children' }]);
+    if (type !== 'classes' && type !== 'children' && type !== 'opening_debts') {
+      throw validationError([{ field: 'type', message: 'Loại dữ liệu nhập là classes, children hoặc opening_debts' }]);
     }
+    assertCanImport(currentUser, type);
     const uploaded = requireFile(file);
     return this.importsService.upload(
       currentUser,
@@ -91,19 +105,25 @@ export class ImportsController {
   }
 
   @Get(':id')
-  @RequirePermission(PERMISSION_CODES.importChildren)
-  get(@Param('id', uuidParameter('Mã lần nhập không hợp lệ')) jobId: string) {
-    return this.importsService.get(jobId);
+  @RequirePermission(PERMISSION_CODES.importChildren, PERMISSION_CODES.openingDebtImport)
+  async get(
+    @Param('id', uuidParameter('Mã lần nhập không hợp lệ')) jobId: string,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const job = await this.importsService.get(jobId);
+    assertCanImport(currentUser, job.import_type);
+    return job;
   }
 
   @Post(':id/commit')
   @HttpCode(200)
-  @RequirePermission(PERMISSION_CODES.importChildren)
-  commit(
+  @RequirePermission(PERMISSION_CODES.importChildren, PERMISSION_CODES.openingDebtImport)
+  async commit(
     @Param('id', uuidParameter('Mã lần nhập không hợp lệ')) jobId: string,
     @Req() request: Request,
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
+    assertCanImport(currentUser, (await this.importsService.get(jobId)).import_type);
     return this.importsService.commit(
       currentUser,
       readBearerToken(request.header('authorization')),

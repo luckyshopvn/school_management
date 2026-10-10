@@ -14,6 +14,29 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-10 — DT-05 phần 5d-2: đảo phiếu thu và nhập công nợ đầu kỳ
+
+#### Công việc đã thực hiện
+
+- Sửa lỗi CI của yêu cầu gộp số 21: mục điều hướng "Quỹ và tài khoản" trùng tên với mục "Tài khoản" trong kiểm thử giao diện, đổi thành "Quỹ và ngân hàng"; gộp yêu cầu gộp số 21 sau khi mọi bước đạt.
+- Hỏi Eric ba điểm của phần 5d-2; viết phần 5d-2 trên nhánh `dt-05-phan-5d2`.
+- Cơ sở dữ liệu: năm học có `receipt_reversals`, hóa đơn và dòng khoản loại đầu kỳ, lần nhập loại công nợ đầu kỳ (tệp 0015); định danh có `P06.receipt-reversal.create`, `P06.receipt-reversal.approve`, `P05.opening-debt.import` (tệp 0020).
+- Máy chủ API: lập, duyệt, từ chối phiếu đảo theo hạn mức, chặn khi quỹ không đủ; danh sách phiếu đảo chờ duyệt; nhập công nợ đầu kỳ từ Excel theo quy trình kiểm tra rồi ghi; hàm cấp số chứng từ dùng chung.
+- Cổng quản trị: trang Phiếu thu có lập phiếu đảo và mục phiếu đảo chờ duyệt; trang Nhập dữ liệu có mục công nợ đầu kỳ cho kế toán.
+- Kết quả: máy chủ API 227/227, dịch vụ định danh 37/37, cơ sở dữ liệu 3/3, tiến trình chạy nền 1/1; kiểm thử giao diện chạy trên CI vì cổng 5273 trên máy đang bận.
+
+#### Quyết định
+
+- Quỹ tiền mặt không đủ thì chặn duyệt phiếu đảo; số phiếu đảo `DPT-000001` riêng; tệp công nợ đầu kỳ dùng số định danh cá nhân, chỉ số dương (YCTD-54) – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-54 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.28.9.
+
+#### Vấn đề tồn đọng
+
+- CTC-P01-082 còn phần nhập tệp nhân sự, làm khi xây dựng P07.
+
 ### 2026-10-10 — DT-05 phần 5d-1: phiếu thu, phân bổ, quỹ và công nợ
 
 #### Công việc đã thực hiện

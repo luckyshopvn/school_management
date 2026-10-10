@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.28.9 – 2026-10-10
+
+- Phạm vi thay đổi: DT-05 phần 5d-2, đảo phiếu thu và nhập công nợ đầu kỳ (YCTD-54).
+- Chức năng mới: lập phiếu đảo phiếu thu, Ban Giám hiệu duyệt theo hạn mức; nhập công nợ đầu kỳ từ Excel thành hóa đơn đầu kỳ.
+- Lỗi đã sửa: mục điều hướng "Quỹ và tài khoản" trùng với mục "Tài khoản", đổi thành "Quỹ và ngân hàng".
+- Thay đổi dữ liệu: `receipt_reversals`; loại hóa đơn, loại dòng khoản và loại lần nhập thêm đầu kỳ; mã quyền `P06.receipt-reversal.create`, `P06.receipt-reversal.approve`, `P05.opening-debt.import`.
+- Thay đổi API: điểm cuối đảo phiếu thu, phiếu đảo chờ duyệt; nhập dữ liệu nhận loại `opening_debts`.
+- Rủi ro: không.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-05-phan-5d2`; chạy ngược tệp thay đổi cấu trúc 0015 của cơ sở dữ liệu năm học và 0020 của cơ sở dữ liệu định danh.
+
 ### Phiên bản 0.28.8 – 2026-10-10
 
 - Phạm vi thay đổi: DT-05 phần 5d-1, phiếu thu, phân bổ, quỹ và công nợ phải thu (YCTD-53).

@@ -11,6 +11,25 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-54: Đảo phiếu thu và nhập công nợ đầu kỳ – 2026-10-10
+
+- Lý do: thiết kế DT-05 phần 5d-2 cần chốt cách xử lý khi quỹ không đủ tiền lúc duyệt phiếu đảo, dạng số phiếu đảo và mẫu tệp công nợ đầu kỳ.
+- Nội dung thay đổi:
+  - Phiếu đảo phiếu thu lưu ở bảng riêng `receipt_reversals`, số `DPT-000001` dãy riêng toàn trường trong năm học, tham chiếu phiếu gốc. Kế toán, kế toán trưởng lập kèm lý do (tối đa 500 ký tự); phiếu gốc chuyển chờ duyệt đảo; công nợ và quỹ chưa đổi (AC-212).
+  - Duyệt theo hạn mức `receipt_reversal` của đơn vị: dưới hạn mức Phó Hiệu trưởng hoặc Hiệu trưởng; từ hạn mức trở lên hoặc chưa đặt hạn mức chỉ Hiệu trưởng. Từ chối phải có lý do, phiếu gốc về đã phát hành, người lập nhận thông báo.
+  - Khi duyệt: trừ tiền khỏi quỹ hoặc tài khoản nhận; quỹ tiền mặt không đủ số dư thì chặn, phiếu đảo vẫn chờ duyệt (BR-34). Phiếu gốc chuyển đã đảo, các phân bổ của phiếu gốc không còn tính vào số đã thu nên hóa đơn trở lại còn phải nộp. Phụ huynh và kế toán trưởng nhận thông báo kèm lý do.
+  - Phiếu đang chờ duyệt đảo không dùng làm nguồn số dư có.
+  - Nhập công nợ đầu kỳ: tệp gồm số định danh cá nhân của trẻ (bắt buộc), họ tên để đối chiếu, số tiền (số nguyên dương), ngày đến hạn, ghi chú. Trẻ phải thuộc phạm vi của người nhập; mỗi trẻ tối đa một hóa đơn đầu kỳ trong năm học; chưa nhận số dư có đầu kỳ. Mỗi dòng tạo một hóa đơn loại đầu kỳ đã phát hành ở tháng đầu năm học, số `HD-`, một dòng khoản "Công nợ đầu kỳ".
+  - Mã quyền mới: `P06.receipt-reversal.create` cho VT-04, VT-05; `P06.receipt-reversal.approve` cho VT-02, VT-15; `P05.opening-debt.import` cho VT-04.
+- Thành phần bị ảnh hưởng: `08`, `14`, `16`, `17`, `27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md`, `27_BO_CA_KIEM_THU_CHI_TIET/04_P06.md`, `01`, `03`, `index.md`; mã nguồn phiếu thu, nhập dữ liệu; cổng quản trị.
+- Dữ liệu bị ảnh hưởng: bảng mới `receipt_reversals`; `invoices.invoice_kind` thêm `opening`, `invoice_items.item_type` thêm `opening`, `data_import_jobs.import_type` thêm `opening_debts`.
+- API bị ảnh hưởng: `POST /receipts/{id}/reverse`, `/reverse/approve`, `/reverse/reject`, `GET /receipt-reversals/pending`; `GET /receipts/{id}` thêm `reversals`; `POST /imports`, `GET /imports/templates/opening_debts` nhận loại `opening_debts`.
+- Giao diện bị ảnh hưởng: MH-09 (lập phiếu đảo, phiếu đảo chờ duyệt), MH-40 (công nợ đầu kỳ).
+- Quyền bị ảnh hưởng: thêm `P06.receipt-reversal.create`, `P06.receipt-reversal.approve`, `P05.opening-debt.import`.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: CTC-P06-019 đến 024, CTC-P01-079, 082.
+- Trạng thái: Đã triển khai
+
 ### YCTD-53: Phiếu thu, phân bổ, quỹ và công nợ phải thu – 2026-10-10
 
 - Lý do: thiết kế DT-05 phần 5d cần chốt nơi nhận tiền của phiếu thu (bảng `cash_accounts` đang xếp cho phần 5e), dạng số phiếu thu, cấp phân bổ khi miễn giảm và điều chỉnh tính ở cấp hóa đơn, và cách nhập công nợ đầu kỳ.
@@ -31,7 +50,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: thêm `P06.receipt.manage`, `P06.cash-account.manage`, `P05.debt.view`.
 - Ảnh hưởng chức năng cũ: miễn giảm và phiếu điều chỉnh giảm bị chặn khi vượt số còn phải nộp của hóa đơn đã thu.
 - Kiểm thử cần thực hiện: CTC-P06-001 đến 018, CTC-P05-061, 062.
-- Trạng thái: Đã triển khai phần 5d-1
+- Trạng thái: Đã triển khai phần 5d-1; phần 5d-2 ở YCTD-54
 
 ### YCTD-52: Miễn giảm và phiếu điều chỉnh hóa đơn – 2026-10-10
 

@@ -88,3 +88,55 @@ test('Kế toán khai báo quỹ, thu đủ hóa đơn từ màn hình công n�
   await expect(card.getByRole('listitem', { name: 'Hóa đơn HD-900001' })).toContainText('Đã thu đủ');
   await expect(card.getByRole('region', { name: 'Lịch sử đã nộp' })).toContainText('2.893.000');
 });
+
+test('Kế toán lập phiếu đảo phiếu thu; Hiệu trưởng duyệt thì phiếu gốc đã đảo và hóa đơn trở lại còn phải nộp', async ({
+  browser,
+}) => {
+  const child = await schoolYear
+    .selectFrom('children')
+    .innerJoin('org_units', 'org_units.id', 'children.org_unit_id')
+    .select(['children.org_unit_id', 'org_units.name as unit_name'])
+    .where('children.full_name', '=', CHILD_NAME)
+    .executeTakeFirstOrThrow();
+  const signIn = async (roleCode: string, orgUnitId: string | null) => {
+    const user = await createTestUser(identity, { roles: [{ roleCode, orgUnitId }] });
+    const page = await (await browser.newContext()).newPage();
+    await page.goto('/');
+    await page.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(user.username);
+    await page.getByLabel('Mật khẩu', { exact: true }).fill(user.password);
+    await page.getByRole('button', { name: 'Đăng nhập' }).click();
+    return page;
+  };
+
+  const accountant = await signIn('VT-04', child.org_unit_id);
+  await accountant.getByRole('link', { name: 'Phiếu thu' }).click();
+  await accountant.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
+  const list = accountant.getByRole('region', { name: 'Danh sách phiếu thu' });
+  const row = list.getByRole('row').filter({ hasText: CHILD_NAME }).filter({ hasText: '2.893.000' });
+  await row.getByRole('button', { name: 'Lập phiếu đảo' }).click();
+  await list.getByLabel(/^Lý do đảo/).fill('Ghi nhầm người nộp');
+  await list.getByRole('button', { name: 'Gửi duyệt phiếu đảo' }).click();
+  await expect(row).toContainText('Chờ duyệt đảo');
+
+  const principal = await signIn('VT-02', null);
+  await principal.getByRole('link', { name: 'Phiếu thu' }).click();
+  await principal.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
+  const request = principal.getByRole('region', { name: 'Phiếu đảo chờ duyệt' }).getByRole('group');
+  await expect(request).toContainText('Ghi nhầm người nộp');
+  await expect(request).toContainText('Cần Hiệu trưởng duyệt');
+  await request.getByRole('button', { name: 'Duyệt' }).click();
+  await expect(principal.getByText('Không có phiếu đảo chờ duyệt.')).toBeVisible();
+  await expect(
+    principal.getByRole('region', { name: 'Danh sách phiếu thu' }).getByRole('row').filter({ hasText: CHILD_NAME }),
+  ).toContainText('Đã đảo');
+
+  await accountant.getByRole('link', { name: 'Công nợ' }).click();
+  await accountant.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
+  await accountant
+    .getByRole('row', { name: `Công nợ ${CHILD_NAME}` })
+    .getByRole('button', { name: 'Chi tiết' })
+    .click();
+  await expect(accountant.getByRole('group', { name: `Công nợ của ${CHILD_NAME}` })).toContainText(
+    'Còn phải nộp 2.893.000',
+  );
+});

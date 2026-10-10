@@ -268,7 +268,7 @@ export interface NotificationRecipientsTable {
   sent_at: Date | null;
 }
 
-export type ImportType = 'classes' | 'children' | 'moet_codes';
+export type ImportType = 'classes' | 'children' | 'moet_codes' | 'opening_debts';
 export type ImportStatus = 'validated' | 'failed' | 'committed';
 
 export interface DataImportJobsTable {
@@ -490,7 +490,7 @@ export interface SummerRegistrationsTable {
   cancelled_at: Date | null;
 }
 
-export type InvoiceKind = 'main' | 'supplementary';
+export type InvoiceKind = 'main' | 'supplementary' | 'opening';
 export type InvoiceStatus = 'draft' | 'issued';
 
 export interface FeeCalculationRunsTable {
@@ -530,7 +530,7 @@ export interface InvoicesTable {
 export interface InvoiceItemsTable {
   id: Generated<string>;
   invoice_id: string;
-  item_type: 'tuition' | 'service';
+  item_type: 'tuition' | 'service' | 'opening';
   service_id: string | null;
   service_registration_id: string | null;
   description: string;
@@ -644,6 +644,23 @@ export interface AccountTransactionsTable {
   created_at: CreatedTimestamp;
 }
 
+export interface ReceiptReversalsTable {
+  id: Generated<string>;
+  code: string;
+  receipt_id: string;
+  org_unit_id: string;
+  child_id: string;
+  amount: Money;
+  reason: string;
+  status: FeeDocumentStatus;
+  requires_principal: boolean;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  decided_by: string | null;
+  decided_at: Date | null;
+  reject_reason: string | null;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -691,4 +708,5 @@ export interface SchoolYearDatabase {
   receipts: ReceiptsTable;
   receipt_allocations: ReceiptAllocationsTable;
   account_transactions: AccountTransactionsTable;
+  receipt_reversals: ReceiptReversalsTable;
 }

@@ -11,11 +11,15 @@ import { ChildDataProtection } from '../common/child-data-protection.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { queueNotification } from '../common/notification-queue.js';
 import { notFoundError } from '../common/request-fields.js';
+import { nextDocumentCode } from '../fees/document-codes.js';
+import { MAXIMUM_AMOUNT } from '../fees/fee-catalog-fields.js';
+import { RegistrationPeriods } from '../fees/registration-periods.js';
 import { FileStorage } from '../files/file-storage.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { buildTemplate, parseDate, readSheet, type ImportColumn, type RowError, type SheetRow } from './excel.js';
 
-// Nhập dữ liệu ban đầu: lớp, trẻ kèm phụ huynh (P01-13) và mã định danh ngành (P02-12) (YCTD-46)
+// Nhập dữ liệu ban đầu: lớp, trẻ kèm phụ huynh (P01-13), mã định danh ngành (P02-12) (YCTD-46) và công nợ đầu kỳ
+// (P01-13, AC-184; YCTD-54)
 export const IMPORT_COLUMNS: Record<ImportType, ImportColumn[]> = {
   classes: [
     { key: 'unit_code', header: 'Mã đơn vị', note: 'Mã của Trường chính, Phân hiệu hoặc Điểm trường, bắt buộc' },
@@ -58,12 +62,20 @@ export const IMPORT_COLUMNS: Record<ImportType, ImportColumn[]> = {
     { key: 'moet_code', header: 'Mã định danh ngành', note: 'Mã do cơ sở dữ liệu ngành cấp, bắt buộc' },
     { key: 'full_name', header: 'Họ tên trẻ', note: 'Để đối chiếu, không bắt buộc' },
   ],
+  opening_debts: [
+    { key: 'national_id', header: 'Số định danh cá nhân', note: 'Mười hai chữ số của trẻ đã có, bắt buộc' },
+    { key: 'full_name', header: 'Họ tên trẻ', note: 'Để đối chiếu; ghi thì phải khớp hồ sơ' },
+    { key: 'amount', header: 'Số tiền', note: 'Số nguyên đồng lớn hơn 0, bắt buộc' },
+    { key: 'due_date', header: 'Ngày đến hạn', note: 'Dạng ngày của Excel, YYYY-MM-DD hoặc DD/MM/YYYY, bắt buộc' },
+    { key: 'note', header: 'Ghi chú', note: 'Không bắt buộc, tối đa 500 ký tự' },
+  ],
 };
 
 const TEMPLATE_TITLES: Record<ImportType, string> = {
   classes: 'Lớp học',
   children: 'Trẻ và phụ huynh',
   moet_codes: 'Mã định danh ngành',
+  opening_debts: 'Công nợ đầu kỳ',
 };
 
 const PHONE_PATTERN = /^0\d{9}$/;
@@ -96,6 +108,16 @@ interface ChildRow {
   guardians: Array<{ full_name: string; phone: string | null; relationship_item_id: string }>;
 }
 
+interface OpeningDebtRow {
+  child_id: string;
+  org_unit_id: string;
+  amount: number;
+  due_date: string;
+  note: string | null;
+}
+
+type UploadType = 'classes' | 'children' | 'opening_debts';
+
 export interface ImportJobView {
   id: string;
   import_type: ImportType;
@@ -117,6 +139,7 @@ export class ImportsService {
     private readonly fileStorage: FileStorage,
     private readonly protection: ChildDataProtection,
     private readonly identityClient: IdentityClient,
+    private readonly periods: RegistrationPeriods,
     private readonly clock: Clock,
   ) {}
 
@@ -127,7 +150,7 @@ export class ImportsService {
   // Tải tệp lên và kiểm tra toàn bộ; lưu tệp gốc ở kho tệp để ghi lại khi không còn dòng lỗi (P01-13)
   async upload(
     currentUser: CurrentUser,
-    type: 'classes' | 'children',
+    type: UploadType,
     fileName: string,
     body: Buffer,
     origin: ChangeOrigin,
@@ -214,6 +237,9 @@ export class ImportsService {
 
     // Tài khoản phụ huynh tạo trước khi ghi; gọi lại với cùng số điện thoại không tạo trùng
     const accounts = new Map<string, { userId: string; created: boolean }>();
+    if (type === 'opening_debts') {
+      return this.commitOpeningDebts(database, validated.openingDebts, jobId, origin);
+    }
     if (type === 'children') {
       for (const row of validated.children) {
         for (const guardian of row.guardians) {
@@ -391,9 +417,14 @@ export class ImportsService {
   private async validate(
     database: Executor,
     currentUser: CurrentUser,
-    type: 'classes' | 'children',
+    type: UploadType,
     rows: SheetRow[],
-  ): Promise<{ errors: RowError[]; classes: ClassRow[]; children: ChildRow[] }> {
+  ): Promise<{ errors: RowError[]; classes: ClassRow[]; children: ChildRow[]; openingDebts: OpeningDebtRow[] }> {
+    if (type === 'opening_debts') {
+      const errors: RowError[] = [];
+      const openingDebts = await this.validateOpeningDebts(database, currentUser, rows, errors);
+      return { errors, classes: [], children: [], openingDebts };
+    }
     const units = await database.selectFrom('org_units').select(['id', 'code', 'status']).execute();
     const scope = await this.organizationScopes.resolve(currentUser, PERMISSION_CODES.importChildren);
     const errors: RowError[] = [];
@@ -410,9 +441,149 @@ export class ImportsService {
       return unit.id;
     };
     if (type === 'classes') {
-      return { errors, classes: await this.validateClasses(database, rows, resolveUnit, errors), children: [] };
+      return {
+        errors,
+        classes: await this.validateClasses(database, rows, resolveUnit, errors),
+        children: [],
+        openingDebts: [],
+      };
     }
-    return { errors, classes: [], children: await this.validateChildren(database, rows, resolveUnit, errors) };
+    return {
+      errors,
+      classes: [],
+      children: await this.validateChildren(database, rows, resolveUnit, errors),
+      openingDebts: [],
+    };
+  }
+
+  // Trẻ tìm theo số định danh trong phạm vi của kế toán; mỗi trẻ một hóa đơn đầu kỳ trong năm học (YCTD-54)
+  private async validateOpeningDebts(
+    database: Executor,
+    currentUser: CurrentUser,
+    rows: SheetRow[],
+    errors: RowError[],
+  ): Promise<OpeningDebtRow[]> {
+    const scope = await this.organizationScopes.resolveStaff(currentUser, PERMISSION_CODES.openingDebtImport);
+    const seen = new Set<string>();
+    const result: OpeningDebtRow[] = [];
+    for (const { row, values } of rows) {
+      const before = errors.length;
+      const amount = Number(values.amount);
+      if (!Number.isInteger(amount) || amount <= 0 || amount > MAXIMUM_AMOUNT) {
+        errors.push({ row, column: 'Số tiền', message: 'Số nguyên đồng lớn hơn 0' });
+      }
+      const dueDate = parseDate(values.due_date ?? '');
+      if (!dueDate) {
+        errors.push({ row, column: 'Ngày đến hạn', message: 'Ngày không hợp lệ' });
+      }
+      const note = values.note || null;
+      if (note && note.length > 500) {
+        errors.push({ row, column: 'Ghi chú', message: 'Tối đa 500 ký tự' });
+      }
+      if (!NATIONAL_ID_PATTERN.test(values.national_id ?? '')) {
+        errors.push({ row, column: 'Số định danh cá nhân', message: 'Số định danh cá nhân gồm mười hai chữ số' });
+        continue;
+      }
+      const child = await database
+        .selectFrom('children')
+        .select(['id', 'org_unit_id', 'full_name'])
+        .where('national_id_hash', '=', this.protection.hash(values.national_id ?? ''))
+        .executeTakeFirst();
+      if (!child || (!scope.wholeSchool && !scope.orgUnitIds.includes(child.org_unit_id))) {
+        errors.push({
+          row,
+          column: 'Số định danh cá nhân',
+          message: 'Không có trẻ nào khớp số định danh này trong phạm vi của bạn',
+        });
+        continue;
+      }
+      if (values.full_name && values.full_name.trim() !== child.full_name) {
+        errors.push({ row, column: 'Họ tên trẻ', message: `Không khớp hồ sơ: ${child.full_name}` });
+      }
+      if (seen.has(child.id)) {
+        errors.push({ row, column: 'Số định danh cá nhân', message: 'Trẻ xuất hiện nhiều lần trong tệp' });
+      }
+      seen.add(child.id);
+      const existing = await database
+        .selectFrom('invoices')
+        .select('id')
+        .where('child_id', '=', child.id)
+        .where('invoice_kind', '=', 'opening')
+        .executeTakeFirst();
+      if (existing) {
+        errors.push({ row, column: 'Số định danh cá nhân', message: 'Trẻ đã có công nợ đầu kỳ trong năm học' });
+      }
+      if (errors.length === before) {
+        result.push({ child_id: child.id, org_unit_id: child.org_unit_id, amount, due_date: dueDate ?? '', note });
+      }
+    }
+    return result;
+  }
+
+  // Mỗi dòng thành một hóa đơn đầu kỳ đã phát hành ở tháng đầu năm học, thu bằng phiếu thu như hóa đơn thường
+  private async commitOpeningDebts(
+    database: Kysely<SchoolYearDatabase>,
+    rows: OpeningDebtRow[],
+    jobId: string,
+    origin: ChangeOrigin,
+  ): Promise<ImportJobView> {
+    const first = (await this.periods.list())[0];
+    if (!first) {
+      throw ruleViolationError('P01-13', 'Năm học chưa có lịch học kỳ');
+    }
+    const [year, month] = first.period.split('-').map(Number);
+    return database.transaction().execute(async (transaction) => {
+      for (const row of rows) {
+        const code = await nextDocumentCode(transaction, 'invoice', 'HD');
+        const invoice = await transaction
+          .insertInto('invoices')
+          .values({
+            code,
+            child_id: row.child_id,
+            org_unit_id: row.org_unit_id,
+            period_year: year ?? 0,
+            period_month: month ?? 0,
+            invoice_kind: 'opening',
+            status: 'issued',
+            total_amount: row.amount,
+            basis: JSON.stringify({ import_job_id: jobId }),
+            review_flags: JSON.stringify([]),
+            due_date: row.due_date,
+            issued_at: this.clock.now(),
+            issued_by: origin.actorUserId,
+          })
+          .returning('id')
+          .executeTakeFirstOrThrow();
+        await transaction
+          .insertInto('invoice_items')
+          .values({
+            invoice_id: invoice.id,
+            item_type: 'opening',
+            service_id: null,
+            description: 'Công nợ đầu kỳ',
+            quantity: 1,
+            unit_price: row.amount,
+            amount: row.amount,
+            basis_note: row.note,
+          })
+          .execute();
+        await writeAuditLog(transaction, {
+          origin,
+          orgUnitId: row.org_unit_id,
+          entityName: 'invoices',
+          entityId: invoice.id,
+          action: 'create',
+          before: null,
+          after: { code, invoice_kind: 'opening', amount: row.amount, due_date: row.due_date, import_job_id: jobId },
+        });
+      }
+      await transaction
+        .updateTable('data_import_jobs')
+        .set({ status: 'committed', committed_by: origin.actorUserId, committed_at: this.clock.now() })
+        .where('id', '=', jobId)
+        .execute();
+      return this.readJob(transaction, jobId);
+    });
   }
 
   private async validateClasses(
@@ -741,11 +912,13 @@ export class ImportsService {
   }
 
   assertImportType(value: unknown): ImportType {
-    if (value === 'classes' || value === 'children' || value === 'moet_codes') {
+    if (value === 'classes' || value === 'children' || value === 'moet_codes' || value === 'opening_debts') {
       return value;
     }
-    throw new ApplicationError('ERR_VALIDATION', 'Loại dữ liệu nhập là classes, children hoặc moet_codes', [
-      { field: 'type', message: 'Loại không hợp lệ' },
-    ]);
+    throw new ApplicationError(
+      'ERR_VALIDATION',
+      'Loại dữ liệu nhập là classes, children, moet_codes hoặc opening_debts',
+      [{ field: 'type', message: 'Loại không hợp lệ' }],
+    );
   }
 }
