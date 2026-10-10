@@ -14,6 +14,31 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-10 — DT-03 phần 3a: lớp học
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 10 (DT-02) vào nhánh chính.
+- Hỏi Eric năm điểm của DT-03; Eric duyệt thiết kế phần 3a; viết trên nhánh `dt-03-phan-3a`.
+- Cơ sở dữ liệu: năm học có `classes`, `class_staff_assignments` (tệp 0005); định danh có quyền `P02.class.manage` (tệp 0010).
+- Dịch vụ định danh: danh bạ nhân sự theo vai trò và đơn vị.
+- Máy chủ API: lớp học, phân công giáo viên, kiểm tra bậc học, phòng học, vai trò người được phân công.
+- Cổng quản trị: nhóm điều hướng Trẻ và lớp, màn hình Lớp học (MH-03).
+- Kết quả: máy chủ API 87/87, dịch vụ định danh 35/35, cơ sở dữ liệu 3/3, tiến trình chạy nền 1/1, kiểm thử giao diện 19/19.
+
+#### Quyết định
+
+- DT-03 chia ba phần; giáo viên chọn theo tài khoản; một lớp nhiều giáo viên chủ nhiệm; số điện thoại phụ huynh trùng tài khoản nhân sự thì thêm vai trò VT-14; thông báo ghi hàng đợi (YCTD-44) – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-44 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.27.9.
+
+#### Vấn đề tồn đọng
+
+- Phần điểm danh của CTC-P02-042 chạy khi có P04.
+- Chưa commit, chờ Eric đồng ý.
+
 ### 2026-10-10 — DT-02: đăng nhập của phụ huynh
 
 #### Công việc đã thực hiện

@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.18
+- Phiên bản: 1.19
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -96,6 +96,13 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | POST | /api/v1/academic-years/{id}/open | Mở năm học: kiểm tra BR-89, tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung, chuyển năm đang dùng sang đã đóng và chỉ đọc (BR-93) |
 | POST | /api/v1/academic-years/{id}/close | Bỏ ngày 09/10/2026: gộp vào mở năm học mới (YCTD-37) |
 
+Giao kèo của lớp học (DT-03 phần 3a, YCTD-44):
+
+1. `GET /classes` lọc theo `org_unit_id`, `status`, `grade_level`; `mine=true` trả các lớp người gọi đang được phân công. Mỗi lớp kèm `staff` là các phân công còn hiệu lực. Ai có vai trò ở đơn vị đều đọc được.
+2. `POST /classes` nhận `org_unit_id`, `code`, `name`, `grade_level`, `room_id`, `max_size`; `PATCH /classes/{id}` sửa các trường đó và `status` (`active`, `closed`). Bậc học phải đang dùng; phòng phải đang dùng và cùng đơn vị, khác đơn vị trả `ERR_RULE_VIOLATION`. Mã trùng trong đơn vị trả `ERR_CONFLICT`. Cần `P02.class.manage` trong phạm vi đơn vị.
+3. `POST /classes/{id}/staff-assignments` nhận `staff_user_id`, `assignment_role` (`homeroom`, `subject`), `subject_name` (bắt buộc với bộ môn), `from_date` (mặc định hôm nay). Người được chọn phải có VT-07 với chủ nhiệm, VT-08 với bộ môn, ở đơn vị của lớp hoặc Trường chính; máy chủ API kiểm tra qua `GET /users/directory` bằng mã phiên của người gọi. Lớp đã đóng thì trả `ERR_RULE_VIOLATION`. `PATCH .../{assignmentId}` nhận `status: ended` và `to_date`.
+4. `GET /users/directory?role_code=&org_unit_id=` trả `user_id`, `full_name`, `role_code`, `org_unit_id` của tài khoản đang hoạt động có vai trò đó ở đơn vị hoặc Trường chính.
+
 Giao kèo của các danh mục (DT-01 phần 6b, YCTD-42):
 
 1. `GET /departments`, `GET /job-titles`, `GET /rooms` bắt buộc `org_unit_id`; ai có vai trò ở đơn vị đó đều đọc được. `POST` nhận `org_unit_id` và các trường của bảng; `PATCH /{id}` nhận các trường sửa được và `status` (`active`, `inactive`). Ghi cần `P01.department.manage` (phòng ban, chức danh) hoặc `P01.room.manage` (phòng học) trong phạm vi đơn vị; đơn vị phải đang hoạt động.
@@ -134,6 +141,7 @@ Giao kèo của nhóm điểm cuối năm học (DT-01 phần 3):
 | GET, POST | /api/v1/catalog-items | Danh sách và tạo mục danh mục dùng chung |
 | PATCH | /api/v1/catalog-items/{id} | Sửa, ngừng sử dụng hoặc dùng lại mục danh mục dùng chung |
 | GET, POST | /api/v1/users | Danh sách và tạo tài khoản |
+| GET | /api/v1/users/directory | Danh bạ nhân sự theo vai trò và đơn vị để phân công giáo viên; cần `P02.class.manage` (YCTD-44) |
 | PATCH | /api/v1/users/{id} | Cập nhật tài khoản, khóa hoặc mở khóa |
 | POST | /api/v1/users/{id}/reset-password | Đặt lại mật khẩu |
 | GET, POST | /api/v1/roles | Danh sách và tạo vai trò |
@@ -195,6 +203,7 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | GET | /api/v1/classes/{id}/children | Danh sách trẻ trong lớp |
 | POST | /api/v1/imports/moet-codes | Nhập mã định danh ngành từ tệp (P02-12) |
 | GET, POST | /api/v1/classes/{id}/staff-assignments | Phân công giáo viên chủ nhiệm và giáo viên bộ môn vào lớp |
+| PATCH | /api/v1/classes/{id}/staff-assignments/{assignmentId} | Kết thúc phân công (YCTD-44) |
 | PATCH | /api/v1/staff-assignments/{id} | Kết thúc hoặc sửa phân công |
 | GET, POST | /api/v1/teaching-groups | Tổ chuyên môn, tổ trưởng và thành viên |
 | GET, POST | /api/v1/lost-items | Danh sách và báo đồ bị mất của trẻ |

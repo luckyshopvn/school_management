@@ -11,6 +11,26 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-44: Chia DT-03, giáo viên của lớp và phụ huynh trùng số điện thoại nhân sự – 2026-10-10
+
+- Lý do: DT-03 lớn hơn một yêu cầu gộp; chưa có hồ sơ nhân sự (P07) nhưng lớp cần giáo viên; bảng `classes` có một cột giáo viên chủ nhiệm trong khi bảng phân công cho phép nhiều giáo viên; số điện thoại phụ huynh có thể đã thuộc tài khoản nhân sự; chưa có phân hệ thông báo.
+- Nội dung thay đổi:
+  - DT-03 chia ba phần: 3a lớp học; 3b hồ sơ trẻ đến khi duyệt và phân lớp; 3c nhập Excel và nhập mã ngành.
+  - Giáo viên trong lớp tạm chọn theo tài khoản: chủ nhiệm là tài khoản có vai trò VT-07, bộ môn là VT-08, cùng đơn vị với lớp hoặc ở Trường chính; khi có P07 thì chuyển sang hồ sơ nhân sự. Nhân sự liên quan của cờ trẻ con nhân viên cũng chọn theo tài khoản.
+  - Một lớp có một hoặc nhiều giáo viên chủ nhiệm cùng lúc; bỏ cột `classes.homeroom_teacher_id`, dùng bảng `class_staff_assignments`.
+  - Số điện thoại phụ huynh đã thuộc tài khoản nhân sự thì hệ thống tự thêm vai trò VT-14 vào tài khoản đó và ghi nhật ký.
+  - Thông báo trong ứng dụng và tin nhắn chỉ ghi vào hàng đợi; gửi thật làm ở phân hệ thông báo.
+  - Mã quyền mới `P02.class.manage` cho VT-02 toàn trường, VT-15 và VT-03 trong đơn vị được gán.
+  - Lớp và phân công không chuyển sang năm học mới vì lớp gắn với một năm học (BR-02).
+- Thành phần bị ảnh hưởng: `08`, `10`, `14`, `16`, `17`, `27_BO_CA_KIEM_THU_CHI_TIET/02_P02_VA_P04.md`, `01`, `03`, `index.md`; mã nguồn DT-03.
+- Dữ liệu bị ảnh hưởng: bảng `classes` không có `homeroom_teacher_id`; `class_staff_assignments` dùng `staff_user_id`, thêm `staff_name`.
+- API bị ảnh hưởng: thêm `PATCH /classes/{id}/staff-assignments/{assignmentId}`; dịch vụ định danh thêm `GET /users/directory`.
+- Giao diện bị ảnh hưởng: MH-03.
+- Quyền bị ảnh hưởng: thêm `P02.class.manage`.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: CTC-P02-039 đến 043.
+- Trạng thái: Đã triển khai phần 3a
+
 ### YCTD-43: Đăng nhập của phụ huynh – 2026-10-10
 
 - Lý do: thiết kế DT-02 gặp các điểm chưa rõ: chưa có tài khoản nhà cung cấp tin nhắn (T1); P01-08 ghi mật khẩu mặc định của phụ huynh trong cấu hình theo đơn vị nhưng mật khẩu chỉ được nằm ở dịch vụ định danh; thông số mã một lần chưa có mặc định; điểm cuối `POST /auth/activate` trùng chức năng với đăng nhập và đổi mật khẩu. Khi kiểm thử giao diện phát hiện thêm: ba kênh dùng chung tên miền (Q-118) và chung một cookie mã làm mới, nên đăng nhập kênh này dùng hoặc đè phiên kênh kia.

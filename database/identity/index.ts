@@ -8,6 +8,7 @@ import { migration as addAccountManagement } from './migrations/0006_add_account
 import { migration as addIdentitySettings } from './migrations/0007_add_identity_settings.js';
 import { migration as addCatalogPermissions } from './migrations/0008_add_catalog_permissions.js';
 import { migration as addParentSignIn } from './migrations/0009_add_parent_sign_in.js';
+import { migration as addClassPermission } from './migrations/0010_add_class_permission.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu định danh, theo số thứ tự (QU-01)
 export const identityMigrations: Record<string, Migration> = {
@@ -20,4 +21,5 @@ export const identityMigrations: Record<string, Migration> = {
   '0007_add_identity_settings': addIdentitySettings,
   '0008_add_catalog_permissions': addCatalogPermissions,
   '0009_add_parent_sign_in': addParentSignIn,
+  '0010_add_class_permission': addClassPermission,
 };

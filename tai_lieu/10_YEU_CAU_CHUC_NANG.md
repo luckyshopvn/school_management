@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.15
+- Phiên bản: 1.16
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -41,7 +41,7 @@
 | P02-02 | Hồ sơ trẻ (G1) | VT-12, VT-03 | Thông tin định danh, ngày sinh, giới tính, địa chỉ, số định danh cá nhân, bản chụp giấy khai sinh, mã định danh do cơ sở dữ liệu ngành cấp, ghi chú | Tạo, sửa, trình duyệt; kiểm tra số định danh không trùng; tô đỏ khi chưa có mã ngành; che số định danh với vai trò không được xem đầy đủ | Hồ sơ trẻ hoàn chỉnh | BR-06, BR-07, BR-81 |
 | P02-03 | Hồ sơ phụ huynh và quan hệ với trẻ (G1) | VT-12, VT-03 | Họ tên, quan hệ, số điện thoại, nghề nghiệp | Gắn phụ huynh vào trẻ, đặt phụ huynh liên hệ chính; phụ huynh có số điện thoại được tạo tài khoản với mật khẩu mặc định chung | Danh sách phụ huynh của trẻ | BR-08, PQ-06 |
 | P02-04 | Người được ủy quyền đón trẻ (G1) | VT-14, VT-03 | Họ tên, quan hệ, số điện thoại, thời hạn | Khai báo và hủy ủy quyền | Danh sách người được ủy quyền | BR-11 |
-| P02-05 | Lớp học (G1) | VT-03 | Tên lớp, khối, đơn vị, năm học, giáo viên chủ nhiệm, sĩ số tối đa | Tạo, sửa, đóng lớp | Danh sách lớp | BR-02, BR-04 |
+| P02-05 | Lớp học (G1) | VT-03 | Tên lớp, khối, đơn vị, năm học, một hoặc nhiều giáo viên chủ nhiệm và giáo viên bộ môn chọn theo tài khoản (YCTD-44), sĩ số tối đa | Tạo, sửa, đóng lớp, phân công giáo viên | Danh sách lớp | BR-02, BR-04 |
 | P02-06 | Phân lớp và chuyển lớp (G1) | VT-03 | Trẻ, lớp đích, ngày hiệu lực, lý do | Ghi thêm lịch sử lớp của trẻ | Lịch sử lớp của trẻ | BR-03 |
 | P02-07 | Chuyển đơn vị (G1) | VT-03, VT-02 | Trẻ, đơn vị đích, ngày hiệu lực | Kiểm tra công nợ, ghi lịch sử | Hồ sơ trẻ ở đơn vị mới | LP-02, BR-32 |
 | P02-08 | Thôi học và quyết toán (G1) | VT-03, VT-04, VT-02 | Trẻ, ngày thôi học, lý do, kết quả quyết toán | Đổi trạng thái, chốt công nợ, thu hồi tài sản; khoản thu vượt được bù trừ hoặc hoàn tiền theo quyết định của Hiệu trưởng, phiếu chi hoàn tiền do Hiệu trưởng phê duyệt | Trẻ ở trạng thái thôi học | LP-03, BR-10, BR-24 |

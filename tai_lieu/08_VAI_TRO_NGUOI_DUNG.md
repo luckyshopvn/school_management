@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.11
+- Phiên bản: 1.12
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -111,6 +111,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-14 | Đặt lại mật khẩu thì hệ thống sinh mật khẩu tạm, hiển thị một lần cho người đặt lại; người được đặt lại bắt buộc đổi ở lần đăng nhập kế tiếp (BM-07, YCTD-39) |
 | PQ-15 | Quyền `P01.setting.manage`: VT-02 sửa cấu hình mọi đơn vị và cấu hình chung toàn trường, VT-03 sửa cấu hình của đơn vị được gán; VT-15 và vai trò khác chỉ xem cấu hình của đơn vị trong phạm vi (P01-08, YCTD-40) |
 | PQ-16 | Quyền quản lý danh mục (YCTD-42): `P01.department.manage` cho VT-02 toàn trường và VT-06 trong đơn vị được gán, dùng cho phòng ban và chức danh; `P01.catalog.manage` chỉ VT-02, dùng cho danh mục dùng chung và bậc học; `P01.approval-threshold.manage` chỉ VT-02; `P01.room.manage` cho VT-02 toàn trường và VT-03 trong đơn vị được gán. Ai có vai trò ở đơn vị đều xem được phòng ban, chức danh, phòng học của đơn vị đó; mọi người đã đăng nhập xem được danh mục dùng chung và bậc học; hạn mức phê duyệt xem bằng `P01.view` trong phạm vi đơn vị |
+| PQ-17 | Quyền `P02.class.manage` (YCTD-44): VT-02 toàn trường, VT-15 và VT-03 trong đơn vị được gán; tạo, sửa, đóng lớp và phân công giáo viên. Ai có vai trò ở đơn vị đều xem được lớp của đơn vị; giáo viên xem các lớp mình đang được phân công |
 
 ## 5. Phân cấp phê duyệt
 

@@ -18,7 +18,8 @@ type NavigationPath =
   | '/departments'
   | '/catalogs'
   | '/approval-thresholds'
-  | '/rooms';
+  | '/rooms'
+  | '/classes';
 
 function NavItem({ to, label }: { to: NavigationPath; label: string }) {
   return (
@@ -47,6 +48,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canManageDepartments = useHasPermission(PERMISSION_CODES.departmentManage);
   const canManageCatalogs = useHasPermission(PERMISSION_CODES.catalogManage);
   const canManageRooms = useHasPermission(PERMISSION_CODES.roomManage);
+  const canManageClasses = useHasPermission(PERMISSION_CODES.classManage);
+  const canViewChildren = useHasPermission('P02.view');
+  const canEditChildren = useHasPermission('P02.edit');
 
   return (
     <div className="flex min-h-screen">
@@ -58,6 +62,14 @@ export function AppShell({ children }: { children: ReactNode }) {
         <ul className="flex flex-col gap-1">
           <NavItem to="/" label="Trang chủ" />
         </ul>
+        {canManageClasses || canViewChildren || canEditChildren ? (
+          <>
+            <span className="px-3 text-label font-semibold text-text-muted">TRẺ VÀ LỚP</span>
+            <ul className="flex flex-col gap-1">
+              <NavItem to="/classes" label="Lớp học" />
+            </ul>
+          </>
+        ) : null}
         <span className="px-3 text-label font-semibold text-text-muted">THIẾT LẬP</span>
         <ul className="flex flex-col gap-1">
           <NavItem to="/academic-years" label="Năm học" />

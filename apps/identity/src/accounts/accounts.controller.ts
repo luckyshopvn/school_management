@@ -24,6 +24,7 @@ import {
   type RoleGrant,
 } from './accounts.service.js';
 import { RolesService } from './roles.service.js';
+import { StaffDirectoryService } from './staff-directory.service.js';
 
 type RequestBody = Record<string, unknown> | undefined;
 
@@ -93,7 +94,10 @@ function readGrant(value: unknown, field: string, errors: FieldError[]): RoleGra
 @Controller('users')
 @UseGuards(AccessTokenGuard)
 export class AccountsController {
-  constructor(private readonly accountsService: AccountsService) {}
+  constructor(
+    private readonly accountsService: AccountsService,
+    private readonly staffDirectory: StaffDirectoryService,
+  ) {}
 
   @Get()
   list(@Req() request: AuthenticatedRequest, @Query() query: Record<string, string | undefined>) {
@@ -154,6 +158,22 @@ export class AccountsController {
       page,
       page_size: pageSize,
     });
+  }
+
+  // Khai báo trước ':id' để không bị hiểu là mã tài khoản
+  @Get('directory')
+  directory(@Req() request: AuthenticatedRequest, @Query() query: Record<string, string | undefined>) {
+    const errors: FieldError[] = [];
+    if (!query.role_code) {
+      errors.push({ field: 'role_code', message: 'Bắt buộc chọn vai trò' });
+    }
+    if (!query.org_unit_id || !UUID_PATTERN.test(query.org_unit_id)) {
+      errors.push({ field: 'org_unit_id', message: 'Bắt buộc chọn đơn vị' });
+    }
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.staffDirectory.list(callerOf(request), query.role_code ?? '', query.org_unit_id ?? '');
   }
 
   @Get(':id')
