@@ -12,6 +12,7 @@ import { migration as addClassPermission } from './migrations/0010_add_class_per
 import { migration as addChildPermissions } from './migrations/0011_add_child_permissions.js';
 import { migration as addImportPermission } from './migrations/0012_add_import_permission.js';
 import { migration as addAttendancePermission } from './migrations/0013_add_attendance_permission.js';
+import { migration as addPickupPermissions } from './migrations/0014_add_pickup_permissions.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu định danh, theo số thứ tự (QU-01)
 export const identityMigrations: Record<string, Migration> = {
@@ -28,4 +29,5 @@ export const identityMigrations: Record<string, Migration> = {
   '0011_add_child_permissions': addChildPermissions,
   '0012_add_import_permission': addImportPermission,
   '0013_add_attendance_permission': addAttendancePermission,
+  '0014_add_pickup_permissions': addPickupPermissions,
 };

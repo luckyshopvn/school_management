@@ -5,6 +5,7 @@ import { Alert, Button, ConfirmDialog, StatusBadge, TextField } from '@school-ma
 import { listClasses } from '../classes/classes-api.js';
 import { ApiError, fetchWithSession } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
+import { AuthorizedPickupsSection } from './AuthorizedPickupsSection.js';
 import {
   approveChild,
   CHILD_STATUS_LABELS,
@@ -335,6 +336,8 @@ export function ChildDetailPanel({ childId, onChanged }: { childId: string; onCh
           />
         </div>
       ) : null}
+
+      {data.status === 'active' ? <AuthorizedPickupsSection childId={data.id} childName={data.full_name} /> : null}
 
       {pendingCapacity ? (
         <ConfirmDialog

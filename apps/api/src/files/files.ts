@@ -11,24 +11,27 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import type { FilePurpose } from '@school-management/database';
+import type { FilePurpose, SchoolYearDatabase } from '@school-management/database';
 import { ApplicationError, validationError, type FieldError } from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { Request, Response } from 'express';
+import type { Kysely } from 'kysely';
 import { randomUUID } from 'node:crypto';
-import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
+import { AuthenticatedUser } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf, type ChangeOrigin } from '../common/audit-log.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { writeDataAccessLog } from '../common/data-access-log.js';
 import { notFoundError, readRequiredUuid, type RequestBody } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
+import { ChildScope } from '../children/child-scope.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { FileStorage } from './file-storage.js';
 
-// Tệp đính kèm của hồ sơ trẻ: bản chụp giấy khai sinh và giấy đồng ý hình ảnh; ảnh hoặc PDF, tối đa 10 MB (YCTD-45)
+// Tệp đính kèm của hồ sơ trẻ: bản chụp giấy khai sinh và giấy đồng ý hình ảnh; ảnh hoặc PDF, tối đa 10 MB (YCTD-45).
+// Ảnh bàn giao trẻ do giáo viên chủ nhiệm chụp khi đón trả (Q-40, YCTD-48)
 export const MAXIMUM_FILE_BYTES = 10 * 1024 * 1024;
-const PURPOSES: FilePurpose[] = ['birth_certificate', 'photo_consent'];
+const PURPOSES: FilePurpose[] = ['birth_certificate', 'photo_consent', 'pickup_photo'];
 const SIGNATURES: Array<{ contentType: string; bytes: number[] }> = [
   { contentType: 'image/jpeg', bytes: [0xff, 0xd8, 0xff] },
   { contentType: 'image/png', bytes: [0x89, 0x50, 0x4e, 0x47] },
@@ -62,6 +65,7 @@ export class FilesService {
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly organizationScopes: OrganizationScopes,
     private readonly fileStorage: FileStorage,
+    private readonly childScope: ChildScope,
   ) {}
 
   async upload(
@@ -69,12 +73,24 @@ export class FilesService {
     input: { orgUnitId: string; purpose: FilePurpose; fileName: string; body: Buffer },
     origin: ChangeOrigin,
   ): Promise<StoredFile> {
-    await this.organizationScopes.assertCanAccess(currentUser, PERMISSION_CODES.childManage, input.orgUnitId);
-    const contentType = detectContentType(input.body);
-    if (!contentType) {
-      throw validationError([{ field: 'file', message: 'Chỉ nhận ảnh JPEG, PNG hoặc tệp PDF' }]);
-    }
     const { database } = await this.currentSchoolYear.require();
+    if (input.purpose === 'pickup_photo') {
+      await this.assertHomeroomInUnit(currentUser, database, input.orgUnitId);
+    } else {
+      await this.organizationScopes.assertCanAccess(currentUser, PERMISSION_CODES.childManage, input.orgUnitId);
+    }
+    const contentType = detectContentType(input.body);
+    if (!contentType || (input.purpose === 'pickup_photo' && contentType === 'application/pdf')) {
+      throw validationError([
+        {
+          field: 'file',
+          message:
+            input.purpose === 'pickup_photo'
+              ? 'Ảnh bàn giao là ảnh JPEG hoặc PNG'
+              : 'Chỉ nhận ảnh JPEG, PNG hoặc tệp PDF',
+        },
+      ]);
+    }
     const storageKey = `${input.purpose}/${randomUUID()}`;
     await this.fileStorage.put(storageKey, input.body, contentType);
     return database
@@ -122,7 +138,19 @@ export class FilesService {
     if (!orgUnitId) {
       throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không có quyền xem tệp này');
     }
-    if (file.purpose === 'birth_certificate') {
+    if (file.purpose === 'pickup_photo') {
+      // Ảnh bàn giao xem theo phạm vi xem trẻ của lượt bàn giao
+      const pickup = await database
+        .selectFrom('pickup_records')
+        .select('child_id')
+        .where('photo_file_id', '=', fileId)
+        .executeTakeFirst();
+      if (pickup) {
+        await this.childScope.assertCanRead(currentUser, database, pickup.child_id);
+      } else {
+        await this.assertHomeroomInUnit(currentUser, database, orgUnitId);
+      }
+    } else if (file.purpose === 'birth_certificate') {
       await this.organizationScopes.assertCanAccess(currentUser, PERMISSION_CODES.nationalIdView, orgUnitId);
       await writeDataAccessLog(database, {
         origin,
@@ -140,14 +168,36 @@ export class FilesService {
     const { storage_key: storageKey, ...stored } = file;
     return { file: stored, body: await this.fileStorage.get(storageKey) };
   }
+
+  // Giáo viên chủ nhiệm đang được phân công một lớp của đơn vị
+  private async assertHomeroomInUnit(
+    currentUser: CurrentUser,
+    database: Kysely<SchoolYearDatabase>,
+    orgUnitId: string,
+  ): Promise<void> {
+    const homeroom = currentUser.description.assignments.some((assignment) => assignment.role_code === 'VT-07')
+      ? await database
+          .selectFrom('class_staff_assignments')
+          .innerJoin('classes', 'classes.id', 'class_staff_assignments.class_id')
+          .select('class_staff_assignments.id')
+          .where('class_staff_assignments.staff_user_id', '=', currentUser.id)
+          .where('class_staff_assignments.assignment_role', '=', 'homeroom')
+          .where('class_staff_assignments.status', '=', 'active')
+          .where('classes.org_unit_id', '=', orgUnitId)
+          .executeTakeFirst()
+      : undefined;
+    if (!homeroom) {
+      throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không có quyền tải ảnh bàn giao cho đơn vị này');
+    }
+  }
 }
 
 @Controller('files')
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
+  // Quyền kiểm tra ở tầng nghiệp vụ theo mục đích: hồ sơ trẻ cần P02.child.manage, ảnh bàn giao cần là giáo viên chủ nhiệm
   @Post()
-  @RequirePermission(PERMISSION_CODES.childManage)
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: MAXIMUM_FILE_BYTES, files: 1 } }))
   upload(
     @UploadedFile() file: UploadedPart | undefined,
@@ -159,7 +209,7 @@ export class FilesController {
     const orgUnitId = readRequiredUuid(body, 'org_unit_id', errors, 'Bắt buộc chọn đơn vị');
     const purpose = body?.purpose as FilePurpose;
     if (!PURPOSES.includes(purpose)) {
-      errors.push({ field: 'purpose', message: 'Mục đích là birth_certificate hoặc photo_consent' });
+      errors.push({ field: 'purpose', message: 'Mục đích là birth_certificate, photo_consent hoặc pickup_photo' });
     }
     if (!file || file.size === 0) {
       errors.push({ field: 'file', message: 'Bắt buộc chọn tệp' });

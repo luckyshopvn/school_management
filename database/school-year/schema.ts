@@ -135,7 +135,7 @@ export interface ClassStaffAssignmentsTable extends CatalogRecordColumns {
   status: Generated<AssignmentStatus>;
 }
 
-export type FilePurpose = 'birth_certificate' | 'photo_consent' | 'import';
+export type FilePurpose = 'birth_certificate' | 'photo_consent' | 'import' | 'pickup_photo';
 
 export interface FilesTable extends CatalogRecordColumns {
   org_unit_id: string | null;
@@ -332,6 +332,60 @@ export interface AbsenceRecordsTable {
   created_at: CreatedTimestamp;
 }
 
+export type PickupType = 'handover' | 'gate_check';
+export type PickupPersonKind = 'guardian' | 'authorized' | 'parent_confirmed';
+export type PickupConfirmationStatus = 'pending' | 'confirmed' | 'refused';
+
+export interface AuthorizedPickupsTable {
+  id: Generated<string>;
+  child_id: string;
+  full_name: string;
+  relationship: string;
+  phone: string;
+  valid_from: string;
+  valid_to: string | null;
+  status: Generated<'active' | 'revoked'>;
+  source: 'parent' | 'staff';
+  created_by: string;
+  created_at: CreatedTimestamp;
+  revoked_by: string | null;
+  revoked_at: Date | null;
+}
+
+export interface PickupConfirmationRequestsTable {
+  id: Generated<string>;
+  child_id: string;
+  pickup_date: string;
+  person_name: string;
+  relationship: string;
+  phone: string | null;
+  status: Generated<PickupConfirmationStatus>;
+  requested_by: string;
+  requested_at: CreatedTimestamp;
+  responded_by: string | null;
+  responded_at: Date | null;
+}
+
+export interface PickupRecordsTable {
+  id: Generated<string>;
+  child_id: string;
+  class_id: string;
+  org_unit_id: string;
+  pickup_date: string;
+  pickup_type: PickupType;
+  person_kind: PickupPersonKind;
+  person_name: string;
+  relationship: string;
+  phone: string | null;
+  guardian_id: string | null;
+  authorized_pickup_id: string | null;
+  confirmation_request_id: string | null;
+  photo_file_id: string | null;
+  recorded_by: string;
+  recorded_at: Date;
+  created_at: CreatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -358,4 +412,7 @@ export interface SchoolYearDatabase {
   attendance_records: AttendanceRecordsTable;
   attendance_days: AttendanceDaysTable;
   absence_records: AbsenceRecordsTable;
+  authorized_pickups: AuthorizedPickupsTable;
+  pickup_confirmation_requests: PickupConfirmationRequestsTable;
+  pickup_records: PickupRecordsTable;
 }

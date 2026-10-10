@@ -32,5 +32,8 @@ export type {
   OrgUnitType,
   PhotoConsent,
   PhotoConsentMethod,
+  PickupConfirmationStatus,
+  PickupPersonKind,
+  PickupType,
   SchoolYearDatabase,
 } from '../school-year/schema.js';

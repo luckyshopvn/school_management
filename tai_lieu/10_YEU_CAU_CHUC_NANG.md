@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.18
+- Phiên bản: 1.19
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -40,7 +40,7 @@
 | P02-01 | Danh sách trẻ (G1) | VT-03, VT-04, VT-07 | Bộ lọc đơn vị, lớp, trạng thái, từ khóa | Truy vấn có phân trang và lọc theo quyền | Danh sách trẻ | BR-01, BR-72 |
 | P02-02 | Hồ sơ trẻ (G1) | VT-12, VT-03 | Thông tin định danh, ngày sinh, giới tính, địa chỉ, số định danh cá nhân, bản chụp giấy khai sinh, mã định danh do cơ sở dữ liệu ngành cấp, ghi chú | Tạo, sửa, trình duyệt; kiểm tra số định danh không trùng; tô đỏ khi chưa có mã ngành; che số định danh với vai trò không được xem đầy đủ | Hồ sơ trẻ hoàn chỉnh | BR-06, BR-07, BR-81 |
 | P02-03 | Hồ sơ phụ huynh và quan hệ với trẻ (G1) | VT-12, VT-03 | Họ tên, quan hệ, số điện thoại, nghề nghiệp | Gắn phụ huynh vào trẻ, đặt phụ huynh liên hệ chính; phụ huynh có số điện thoại được tạo tài khoản với mật khẩu mặc định chung | Danh sách phụ huynh của trẻ | BR-08, PQ-06 |
-| P02-04 | Người được ủy quyền đón trẻ (G1) | VT-14, VT-03 | Họ tên, quan hệ, số điện thoại, thời hạn | Khai báo và hủy ủy quyền | Danh sách người được ủy quyền | BR-11 |
+| P02-04 | Người được ủy quyền đón trẻ (G1) | VT-14, VT-02, VT-15, VT-03 | Họ tên, quan hệ, số điện thoại, hiệu lực từ ngày đến ngày | Khai báo và hủy ủy quyền; phụ huynh khai báo cho con mình (YCTD-48) | Danh sách người được ủy quyền | BR-11 |
 | P02-05 | Lớp học (G1) | VT-03 | Tên lớp, khối, đơn vị, năm học, một hoặc nhiều giáo viên chủ nhiệm và giáo viên bộ môn chọn theo tài khoản (YCTD-44), sĩ số tối đa | Tạo, sửa, đóng lớp, phân công giáo viên | Danh sách lớp | BR-02, BR-04 |
 | P02-06 | Phân lớp và chuyển lớp (G1) | VT-03 | Trẻ, lớp đích, ngày hiệu lực, lý do | Ghi thêm lịch sử lớp của trẻ | Lịch sử lớp của trẻ | BR-03 |
 | P02-07 | Chuyển đơn vị (G1) | VT-03, VT-02 | Trẻ, đơn vị đích, ngày hiệu lực | Kiểm tra công nợ, ghi lịch sử | Hồ sơ trẻ ở đơn vị mới | LP-02, BR-32 |
@@ -69,7 +69,7 @@
 |---|---|---|---|---|---|---|
 | P04-01 | Điểm danh trong ngày (G1) | VT-07 | Lớp, ngày, trạng thái từng trẻ | Ghi bản ghi điểm danh, chống trùng theo trẻ và ngày; lưu tạm khi mất mạng và gửi lại khi có mạng (Q-09); ngày thứ bảy học bù điểm danh như ngày thường | Bảng điểm danh trong ngày | BR-12, BR-16, BR-84 |
 | P04-02 | Báo vắng (G1) | VT-14, VT-07 | Trẻ, ngày, lý do, có báo trước hay không | Ghi nhận nghỉ, đánh dấu nghỉ có báo | Bản ghi nghỉ của trẻ | BR-13 |
-| P04-03 | Đón trả trẻ (G1) | VT-07, VT-18 | Trẻ, thời điểm, người đón, quan hệ | Ghi nhận đón và trả; bảo vệ xác nhận người đón tại cổng theo danh sách ủy quyền | Nhật ký đón trả | BR-11, BR-56 |
+| P04-03 | Đón trả trẻ (G1) | VT-07, VT-18, VT-14 | Trẻ, thời điểm, người đón, quan hệ, ảnh bàn giao | Giáo viên chủ nhiệm ghi nhận bàn giao chiều; người ngoài danh sách cần phụ huynh xác nhận trên ứng dụng; bảo vệ xác nhận người đón tại cổng theo danh sách ủy quyền (YCTD-48) | Nhật ký đón trả | BR-11, BR-56 |
 | P04-04 | Nhật ký của bé (G1) | VT-07 | Trẻ, ngày, nội dung ăn, ngủ, vệ sinh, tâm trạng | Ghi nhật ký, công bố cho phụ huynh của trẻ | Nhật ký trong ngày | BR-15 |
 | P04-05 | Ghi nhận ăn, ngủ, vệ sinh (G1) | VT-07 | Trẻ, bữa, số lượng ăn, thời lượng ngủ | Ghi nhận chi tiết trong ngày | Chi tiết chăm sóc | BR-15 |
 | P04-06 | Chốt điểm danh ngày (G1) | VT-07, VT-03 | Ngày, lớp | Khóa bản ghi trong ngày, cho phép sửa kèm lý do | Số liệu điểm danh đã chốt | BR-12 |
