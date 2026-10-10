@@ -21,10 +21,13 @@ export type {
   AttendanceSource,
   AttendanceStatus,
   AuditLogsTable,
+  CashflowType,
   CatalogStatus,
   ChildGender,
   ChildStatus,
   ClassStatus,
+  DiscountCalculationMethod,
+  FeeType,
   FilePurpose,
   ImportStatus,
   ImportType,
@@ -36,4 +39,6 @@ export type {
   PickupPersonKind,
   PickupType,
   SchoolYearDatabase,
+  ServiceCalculationMethod,
 } from '../school-year/schema.js';
+export { MEAL_SERVICE_ID } from '../school-year/migrations/0010_create_fee_catalogs.js';

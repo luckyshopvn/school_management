@@ -32,6 +32,9 @@ export const PERMISSION_CODES = {
   attendanceManage: 'P04.attendance.manage',
   authorizedPickupManage: 'P02.authorized-pickup.manage',
   pickupGateConfirm: 'P04.pickup.gate-confirm',
+  feeCatalogManage: 'P05.fee-catalog.manage',
+  discountTypeManage: 'P05.discount-type.manage',
+  cashflowCategoryManage: 'P06.cashflow-category.manage',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)

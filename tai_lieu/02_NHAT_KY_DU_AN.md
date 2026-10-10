@@ -14,6 +14,29 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-10 — DT-05 phần 5a: danh mục học phí và tài chính
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 16 (phần 4b) sau khi mọi bước kiểm thử trên GitHub đạt; DT-04 xong phần điểm danh và đón trả.
+- Hỏi Eric bốn điểm của DT-05; viết phần 5a trên nhánh `dt-05-phan-5a`.
+- Cơ sở dữ liệu: năm học có `services` (bán trú tạo sẵn), `fee_schedules`, `fee_schedule_items`, `discount_types`, `cashflow_categories` (tệp 0010); định danh có ba quyền mới (tệp 0015). Mở năm học mới chuyển các danh mục này sang.
+- Máy chủ API: dịch vụ, biểu phí theo phiên bản, loại miễn giảm, khoản mục thu chi.
+- Cổng quản trị: MH-04 Biểu phí và dịch vụ, MH-39 Khoản mục thu chi.
+- Kết quả: máy chủ API 158/158, dịch vụ định danh 37/37, cơ sở dữ liệu 3/3, tiến trình chạy nền 1/1, kiểm thử giao diện 28/28.
+
+#### Quyết định
+
+- DT-05 chia sáu phần; đăng ký dịch vụ tự giữ tới khi hủy; ngày chốt đăng ký là cấu hình đơn vị mặc định ngày 25; danh mục dùng chung toàn trường (YCTD-49) – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-49 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.28.4.
+
+#### Vấn đề tồn đọng
+
+- CTC-P05-002, 003, 007, 045, CTC-P06-052 đến 054 có phần phụ thuộc hóa đơn, đăng ký, phiếu thu chi; chạy ở các phần sau.
+
 ### 2026-10-10 — DT-04 phần 4b: người được ủy quyền đón trẻ và đón trả
 
 #### Công việc đã thực hiện

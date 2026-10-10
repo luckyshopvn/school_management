@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.19
+- Phiên bản: 1.20
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -109,14 +109,15 @@ Ràng buộc duy nhất: `attendance_records` trên bộ đôi trẻ, ngày; `ab
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| fee_schedules | Biểu phí dùng chung toàn trường | org_unit_id (luôn là Trường chính), grade_level, fee_type, amount, unit, effective_from, effective_to, status |
-| services | Danh mục dịch vụ | code, name, unit, calculation_method, is_mandatory, status |
+| fee_schedules | Phiên bản biểu phí dùng chung toàn trường (YCTD-49) | name, effective_from (ngày 1 của tháng, duy nhất), effective_to (ngày trước phiên bản sau, trống là đang áp dụng tới nay) |
+| fee_schedule_items | Mức phí của phiên bản theo bậc học | fee_schedule_id, grade_level, fee_type (học phí chính khóa hoặc dịch vụ), service_id, amount (đồng, không âm); duy nhất theo phiên bản, bậc học, khoản phí |
+| services | Danh mục dịch vụ dùng chung toàn trường | code (duy nhất), name, unit, calculation_method (theo tháng hoặc theo ngày có mặt), is_mandatory, is_system (bán trú tạo sẵn), status |
 | service_registrations | Đăng ký dịch vụ theo kỳ | child_id, period_year, period_month, service_id, registered_at, registered_by, source, is_late, service_start_date (bắt buộc khi đăng ký trễ, Q-150), late_approved_by, late_charge_method (cả tháng hoặc theo ngày thực tế), status |
 | summer_registrations | Đăng ký học hè theo tháng (P05-13, BR-92) | child_id, period_year, period_month, registered_by, registered_at, source, status |
 | invoices | Hóa đơn học phí | code, child_id, org_unit_id, period_year, period_month, invoice_kind (chính hoặc bổ sung), issued_at, issued_by, total_amount, discount_amount, payable_amount, paid_amount, due_date, status |
 | invoice_items | Dòng khoản phải thu | invoice_id, item_type, service_id, description, quantity, unit_price, amount, source |
 | discounts | Miễn giảm | child_id, invoice_id, discount_type_id, basis, percent_value, amount_value, applied_amount, approved_by, approved_at, status |
-| discount_types | Danh mục loại miễn giảm | org_unit_id, code, name, calculation_method (phần trăm hoặc số tiền), value, applies_to_fee_types, condition_note, status |
+| discount_types | Danh mục loại miễn giảm dùng chung toàn trường | code (duy nhất), name, calculation_method (phần trăm hoặc số tiền), value, applies_to (học phí chính khóa và mã các dịch vụ), condition_note, status |
 | invoice_adjustments | Phiếu điều chỉnh hóa đơn | code, original_invoice_id, reason, adjustment_amount, created_by, approved_by, created_at, status |
 | fee_calculation_runs | Lần chạy tính học phí | org_unit_id, period_year, period_month, status, started_at, finished_at, error_detail, run_by |
 | debt_resolutions | Đề xuất và quyết định xử lý công nợ quá hạn (P05-12) | org_unit_id, child_id, invoice_id, proposal, proposed_by, proposed_at, decision, decided_by, decided_at, status (chờ quyết định, đã quyết định) |
@@ -136,7 +137,7 @@ Ràng buộc duy nhất: `invoices` loại chính trên bộ ba trẻ, kỳ năm
 | payables | Công nợ phải trả | org_unit_id, supplier_id, reference_type, reference_id, amount, paid_amount, due_date, status |
 | suppliers | Nhà cung cấp | org_unit_id, name, supplier_type (chung hoặc thực phẩm), tax_code, contact_name, phone, email, address, payment_terms, status |
 | fiscal_periods | Kỳ tài chính | org_unit_id, period_year, period_month, status, close_requested_by, close_requested_at, closed_by, closed_at |
-| cashflow_categories | Khoản mục và nhóm thu chi | org_unit_id, code, name, group_name, flow_type (thu hoặc chi), status |
+| cashflow_categories | Khoản mục và nhóm thu chi dùng chung toàn trường | code (duy nhất), name, group_name, flow_type (thu hoặc chi), status |
 
 Ràng buộc duy nhất: `receipts` trên bộ đôi đơn vị và mã phiếu thu; `payments` trên bộ đôi đơn vị và mã phiếu chi.
 

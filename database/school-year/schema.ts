@@ -386,6 +386,56 @@ export interface PickupRecordsTable {
   created_at: CreatedTimestamp;
 }
 
+// Số tiền kiểu bigint đọc ra dạng chuỗi để không mất chính xác; đơn vị đồng
+type Money = ColumnType<string, string | number, string | number>;
+export type ServiceCalculationMethod = 'monthly' | 'per_present_day';
+export type FeeType = 'tuition' | 'service';
+export type DiscountCalculationMethod = 'percent' | 'amount';
+export type CashflowType = 'income' | 'expense';
+
+export interface ServicesTable extends CatalogRecordColumns {
+  code: string;
+  name: string;
+  unit: string;
+  calculation_method: ServiceCalculationMethod;
+  is_mandatory: Generated<boolean>;
+  is_system: Generated<boolean>;
+  status: Generated<CatalogStatus>;
+}
+
+export interface FeeSchedulesTable extends CatalogRecordColumns {
+  name: string;
+  effective_from: string;
+  effective_to: string | null;
+}
+
+export interface FeeScheduleItemsTable {
+  id: Generated<string>;
+  fee_schedule_id: string;
+  grade_level: string;
+  fee_type: FeeType;
+  service_id: string | null;
+  amount: Money;
+}
+
+export interface DiscountTypesTable extends CatalogRecordColumns {
+  code: string;
+  name: string;
+  calculation_method: DiscountCalculationMethod;
+  value: Money;
+  applies_to: ColumnType<string[], string, string>;
+  condition_note: string | null;
+  status: Generated<CatalogStatus>;
+}
+
+export interface CashflowCategoriesTable extends CatalogRecordColumns {
+  code: string;
+  name: string;
+  group_name: string;
+  flow_type: CashflowType;
+  status: Generated<CatalogStatus>;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -415,4 +465,9 @@ export interface SchoolYearDatabase {
   authorized_pickups: AuthorizedPickupsTable;
   pickup_confirmation_requests: PickupConfirmationRequestsTable;
   pickup_records: PickupRecordsTable;
+  services: ServicesTable;
+  fee_schedules: FeeSchedulesTable;
+  fee_schedule_items: FeeScheduleItemsTable;
+  discount_types: DiscountTypesTable;
+  cashflow_categories: CashflowCategoriesTable;
 }

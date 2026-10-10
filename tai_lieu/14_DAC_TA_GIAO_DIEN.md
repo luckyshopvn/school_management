@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.9
+- Phiên bản: 1.10
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -49,7 +49,7 @@ flowchart TD
 | MH-01 | Bảng điều khiển | VT-02, VT-15, VT-03 |
 | MH-02 | Danh sách trẻ và hồ sơ trẻ | VT-03, VT-04, VT-12 |
 | MH-03 | Danh sách lớp, phân công giáo viên và phân lớp (YCTD-44) | VT-03 |
-| MH-04 | Biểu phí và danh mục dịch vụ | VT-04 |
+| MH-04 | Biểu phí và danh mục dịch vụ: dịch vụ, biểu phí theo phiên bản, loại miễn giảm (YCTD-49) | VT-04, VT-02 |
 | MH-05 | Đăng ký dịch vụ theo kỳ và duyệt đăng ký trễ | VT-04, VT-15, VT-02 |
 | MH-06 | Bảng tính học phí và phát hành khoản phải thu | VT-04 |
 | MH-07 | Miễn giảm và học phí đặc biệt | VT-04, VT-15, VT-02 |
