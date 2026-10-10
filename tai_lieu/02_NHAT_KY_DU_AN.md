@@ -14,6 +14,29 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-10 — DT-05 phần 5e-2: phiếu đảo phiếu chi
+
+#### Công việc đã thực hiện
+
+- Sửa lỗi CI của yêu cầu gộp số 23: kiểm thử giao diện phiếu chi chờ nhãn cần Hiệu trưởng duyệt, nhưng dữ liệu kiểm thử đã đặt hạn mức phiếu chi ở `06-catalogs.spec.ts`; đổi sang kiểm tra nội dung phiếu.
+- Viết phần 5e-2 trên nhánh `dt-05-phan-5e2`.
+- Cơ sở dữ liệu: năm học có `payment_reversals` (tệp 0017); định danh có `P06.payment-reversal.create` (tệp 0022).
+- Máy chủ API: lập, duyệt, từ chối phiếu đảo phiếu chi theo hạn mức; hoàn lại nguồn chi; đảo phiếu hoàn tiền trả lại số dư có; sổ quỹ ghi số phiếu đảo.
+- Cổng quản trị: trang Phiếu chi có nút lập phiếu đảo và mục phiếu đảo phiếu chi chờ duyệt.
+- Kết quả: máy chủ API 246/246, dịch vụ định danh 37/37, cơ sở dữ liệu 3/3, tiến trình chạy nền 1/1; kiểm thử giao diện chạy trên CI vì cổng 5273 trên máy đang bận.
+
+#### Quyết định
+
+- Không có quyết định mới; làm theo YCTD-55.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-56 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.29.1.
+
+#### Vấn đề tồn đọng
+
+- Không.
+
 ### 2026-10-10 — DT-05 phần 5e-1: phiếu chi và sổ quỹ
 
 #### Công việc đã thực hiện

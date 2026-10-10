@@ -700,6 +700,22 @@ export interface PaymentRefundSourcesTable {
   amount: Money;
 }
 
+export interface PaymentReversalsTable {
+  id: Generated<string>;
+  code: string;
+  payment_id: string;
+  org_unit_id: string;
+  amount: Money;
+  reason: string;
+  status: FeeDocumentStatus;
+  requires_principal: boolean;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  decided_by: string | null;
+  decided_at: Date | null;
+  reject_reason: string | null;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -751,4 +767,5 @@ export interface SchoolYearDatabase {
   payments: PaymentsTable;
   payment_attachments: PaymentAttachmentsTable;
   payment_refund_sources: PaymentRefundSourcesTable;
+  payment_reversals: PaymentReversalsTable;
 }

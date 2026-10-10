@@ -61,6 +61,7 @@ import { ReceiptReversalsService } from './finance/receipt-reversals.service.js'
 import { CashBooksController, CashBooksService } from './finance/cash-books.js';
 import { PaymentsController } from './finance/payments.controller.js';
 import { PaymentsService } from './finance/payments.service.js';
+import { PaymentReversalsService } from './finance/payment-reversals.service.js';
 import { DebtsService } from './fees/debts.service.js';
 import { OrgUnitsController } from './organization/org-units.controller.js';
 import { OrgUnitsService } from './organization/org-units.service.js';
@@ -158,6 +159,7 @@ export class ApplicationModule {
         ReceiptsService,
         ReceiptReversalsService,
         PaymentsService,
+        PaymentReversalsService,
         CashBooksService,
         DebtsService,
         SchoolCalendar,

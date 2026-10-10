@@ -11,6 +11,23 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-56: Phiếu đảo phiếu chi – 2026-10-10
+
+- Lý do: phần 5e-2 theo cách chia đã chốt ở YCTD-55.
+- Nội dung thay đổi:
+  - Phiếu đảo phiếu chi lưu ở bảng `payment_reversals`, số `DPC-000001` dãy riêng toàn trường trong năm học, tham chiếu phiếu gốc. Kế toán, kế toán trưởng lập kèm lý do (tối đa 500 ký tự) cho phiếu chi đã phát hành; phiếu gốc chuyển chờ duyệt đảo; số dư nguồn chi chưa đổi (AC-214).
+  - Duyệt theo hạn mức `payment_reversal` của đơn vị bằng quyền `P06.payment.approve`: dưới hạn mức Phó Hiệu trưởng hoặc Hiệu trưởng; từ hạn mức trở lên hoặc chưa đặt hạn mức chỉ Hiệu trưởng (YCTD-24). Từ chối phải có lý do, phiếu gốc về đã phát hành, người lập nhận thông báo.
+  - Khi duyệt: cộng lại tiền vào nguồn chi, ghi giao dịch có số phiếu đảo trong sổ quỹ; phiếu gốc chuyển đã đảo. Đảo phiếu hoàn tiền thôi học thì số đã hoàn trở lại số dư có của trẻ.
+  - Mã quyền mới: `P06.payment-reversal.create` cho VT-04, VT-05.
+- Thành phần bị ảnh hưởng: `08`, `14`, `16`, `17`, `27_BO_CA_KIEM_THU_CHI_TIET/04_P06.md`, `01`, `03`, `index.md`; mã nguồn phiếu chi, sổ quỹ; cổng quản trị.
+- Dữ liệu bị ảnh hưởng: bảng mới `payment_reversals`.
+- API bị ảnh hưởng: `POST /payments/{id}/reverse`, `/reverse/approve`, `/reverse/reject`, `GET /payment-reversals/pending`; `GET /payments/{id}` thêm `reversals`.
+- Giao diện bị ảnh hưởng: MH-10 (lập phiếu đảo, phiếu đảo phiếu chi chờ duyệt).
+- Quyền bị ảnh hưởng: thêm `P06.payment-reversal.create`.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: CTC-P06-037, 038, 039.
+- Trạng thái: Đã triển khai
+
 ### YCTD-55: Phiếu chi, duyệt theo hạn mức và sổ quỹ – 2026-10-10
 
 - Lý do: thiết kế DT-05 phần 5e cần chốt cách phiếu chi hoàn tiền thôi học ảnh hưởng công nợ, mặc định kiểm tra số dư tài khoản ngân hàng, cách chia phần và thời điểm làm phiếu nộp, phiếu rút.
@@ -29,7 +46,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: thêm `P06.payment.manage`, `P06.payment.approve`.
 - Ảnh hưởng chức năng cũ: cấu hình kiểm tra số dư tài khoản ngân hàng có mặc định bật; số dư có của trẻ trừ số đã hoàn.
 - Kiểm thử cần thực hiện: CTC-P06-025 đến 036, 040 đến 046.
-- Trạng thái: Đã triển khai phần 5e-1
+- Trạng thái: Đã triển khai phần 5e-1; phần 5e-2 ở YCTD-56
 
 ### YCTD-54: Đảo phiếu thu và nhập công nợ đầu kỳ – 2026-10-10
 
