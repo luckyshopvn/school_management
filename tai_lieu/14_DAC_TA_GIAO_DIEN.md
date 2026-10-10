@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.11
+- Phiên bản: 1.12
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -51,7 +51,7 @@ flowchart TD
 | MH-03 | Danh sách lớp, phân công giáo viên và phân lớp (YCTD-44) | VT-03 |
 | MH-04 | Biểu phí và danh mục dịch vụ: dịch vụ, biểu phí theo phiên bản, loại miễn giảm (YCTD-49) | VT-04, VT-02 |
 | MH-05 | Đăng ký dịch vụ theo kỳ: bảng trẻ nhân dịch vụ, đăng ký học hè, chốt danh sách; duyệt đăng ký trễ và hủy trễ (YCTD-50) | VT-04, VT-15, VT-02 |
-| MH-06 | Bảng tính học phí và phát hành khoản phải thu | VT-04 |
+| MH-06 | Học phí: tính học phí kỳ, bảng hóa đơn kèm dòng cần kiểm tra, phát hành, hóa đơn bổ sung (YCTD-51) | VT-04 |
 | MH-07 | Miễn giảm và học phí đặc biệt | VT-04, VT-15, VT-02 |
 | MH-08 | Danh sách công nợ, nhắc nợ và xử lý công nợ quá hạn | VT-04, VT-03, VT-15, VT-02 |
 | MH-09 | Phiếu thu và màn hình phân bổ | VT-04, VT-16 |
@@ -134,7 +134,7 @@ flowchart TD
 | MP-08 | Sức khỏe, kết quả khám, chăm sóc hằng ngày; xác nhận đã biết sự kiện y tế và bỏ liều | VT-14 |
 | MP-09 | Trao đổi với nhà trường | VT-14 |
 | MP-10 | Góp ý | VT-14 |
-| MP-11 | Học phí và công nợ | VT-14 |
+| MP-11 | Học phí và công nợ: hóa đơn đã phát hành của con, chi tiết từng khoản (YCTD-51) | VT-14 |
 | MP-12 | Đăng ký, hủy dịch vụ theo tháng và đăng ký học hè (YCTD-50) | VT-14 |
 | MP-13 | Lịch đưa đón — Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62) | — |
 | MP-14 | Hoạt động và hình ảnh | VT-14 |

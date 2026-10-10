@@ -120,6 +120,9 @@ export class ServiceRegistrationsService {
     const source = await this.actorFor(currentUser, database, child);
     const state = await this.periods.state(database, child.org_unit_id, input.period);
     const summerChildren = await this.summerChildIds(database, input.period);
+    if (source === 'parent' && (await this.periods.blocksWhenOverdue(child.org_unit_id))) {
+      await this.assertNoOverdue(database, child.id);
+    }
     if (state.is_summer && !summerChildren.has(child.id)) {
       throw ruleViolationError('BR-92', 'Trẻ chưa đăng ký học hè tháng này');
     }
@@ -667,6 +670,24 @@ export class ServiceRegistrationsService {
       .execute();
   }
 
+  // Còn hóa đơn đã phát hành quá hạn nộp thì phụ huynh không đăng ký thêm được; trẻ vẫn được điểm danh (BR-33, AC-182).
+  // Số đã thu trừ vào khi có phiếu thu ở phần 5d
+  private async assertNoOverdue(database: Kysely<SchoolYearDatabase>, childId: string): Promise<void> {
+    const overdue = await database
+      .selectFrom('invoices')
+      .select(['code', 'due_date'])
+      .where('child_id', '=', childId)
+      .where('status', '=', 'issued')
+      .where('due_date', '<', this.periods.today())
+      .where('total_amount', '>', '0')
+      .executeTakeFirst();
+    if (overdue) {
+      throw ruleViolationError('BR-33', 'Không đăng ký thêm được vì còn công nợ quá hạn', [
+        { field: 'invoice', message: `${overdue.code ?? ''} quá hạn từ ${overdue.due_date ?? ''}` },
+      ]);
+    }
+  }
+
   private async summerChildIds(database: Kysely<SchoolYearDatabase>, period: Period): Promise<Set<string>> {
     const rows = await database
       .selectFrom('summer_registrations')
@@ -795,7 +816,7 @@ export class ServiceRegistrationsService {
       PERMISSION_CODES.lateRegistrationApprove,
     ]) {
       if (currentUser.hasPermission(permission)) {
-        const scope = await this.organizationScopes.resolve(currentUser, permission);
+        const scope = await this.organizationScopes.resolveStaff(currentUser, permission);
         if (scope.wholeSchool || scope.orgUnitIds.includes(orgUnitId)) {
           return;
         }

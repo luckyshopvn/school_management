@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.13
+- Phiên bản: 1.14
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -51,7 +51,7 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 | BR-20 | Loại giảm trừ, cách tính và mức do nhà trường cấu hình (P05-11, Q-16), ví dụ trẻ con nhân sự, anh chị em ruột cùng học, học phí đặc biệt theo thỏa thuận, học bổng. Mỗi khoản giảm trừ phải ghi rõ căn cứ và người phê duyệt |
 | BR-21 | Giảm trừ theo tỷ lệ phần trăm và giảm trừ theo số tiền cố định là hai cách áp dụng khác nhau; hệ thống lưu cả căn cứ và kết quả tính để truy xuất về sau |
 | BR-22 | Tổng giảm trừ của một trẻ trong một kỳ không vượt quá tổng khoản phải thu của kỳ đó. Số dư âm phải chuyển thành số dư có cho kỳ sau, không để âm trên hóa đơn |
-| BR-23 | Trẻ nhập học hoặc thôi học giữa tháng: học phí chính khóa bằng học phí tháng nhân số ngày học thực tế trong tháng, chia số ngày học của tháng. Số ngày học của tháng tính theo lịch năm học (BR-91): các ngày học trong tuần nằm trong học kỳ hoặc kỳ hè, trừ tuần nghỉ và ngày nghỉ lễ, cộng ngày học bù thứ bảy |
+| BR-23 | Trẻ nhập học hoặc thôi học giữa tháng: học phí chính khóa bằng học phí tháng nhân số ngày học thực tế trong tháng, chia số ngày học của tháng, làm tròn đến đồng. Số ngày học thực tế là số ngày học trong thời gian trẻ đang học, không trừ ngày vắng (YCTD-51). Số ngày học của tháng tính theo lịch năm học (BR-91): các ngày học trong tuần nằm trong học kỳ hoặc kỳ hè, trừ tuần nghỉ và ngày nghỉ lễ, cộng ngày học bù thứ bảy |
 | BR-24 | Trẻ thôi học giữa tháng: quyết toán đến ngày thôi học, các khoản đã thu vượt được bù trừ vào kỳ sau hoặc hoàn lại theo quyết định của Hiệu trưởng. Phiếu chi hoàn tiền luôn do Hiệu trưởng phê duyệt, không xét hạn mức |
 | BR-25 | Hóa đơn học phí đã phát hành không sửa trực tiếp. Muốn điều chỉnh phải lập phiếu điều chỉnh có lý do, người phê duyệt và liên kết tới hóa đơn gốc |
 | BR-26 | Đăng ký dịch vụ theo tháng phải chốt trước ngày cấu hình của đơn vị (mặc định ngày 25 của tháng trước kỳ, YCTD-49). Sau ngày chốt hoặc khi kế toán đã chốt danh sách kỳ chỉ được đăng ký thêm các dịch vụ không bắt buộc (ví dụ STEM, Anh văn, 7 môn phối hợp); đăng ký trễ phải được Ban Giám hiệu duyệt, và Ban Giám hiệu quyết định thu 100% phí tháng hoặc thu theo số ngày thực tế. Đăng ký trễ phải ghi ngày bắt đầu học dịch vụ; thu theo số ngày thực tế thì tính từ ngày đó, kể cả ngày đó, đến cuối tháng (Q-150). Hủy dịch vụ sau ngày chốt cũng phải được Ban Giám hiệu duyệt (YCTD-50) |

@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.28.6 – 2026-10-10
+
+- Phạm vi thay đổi: DT-05 phần 5c-1, tính học phí và phát hành hóa đơn (YCTD-51).
+- Chức năng mới: tính học phí kỳ theo đơn vị; hóa đơn nháp kèm dòng cần kiểm tra; phát hành hóa đơn chính và bổ sung; xem hóa đơn trên cổng quản trị và ứng dụng phụ huynh; chặn đăng ký thêm khi nợ quá hạn.
+- Lỗi đã sửa: phụ huynh xem được bảng đăng ký dịch vụ của cả đơn vị.
+- Thay đổi dữ liệu: `fee_calculation_runs`, `invoices`, `invoice_items`, `document_sequences`; mã quyền `P05.fee-calculation.manage`.
+- Thay đổi API: nhóm điểm cuối tính học phí và hóa đơn.
+- Rủi ro: không.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ ngoài sửa lỗi phân quyền.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-05-phan-5c1`; chạy ngược tệp thay đổi cấu trúc 0012 của cơ sở dữ liệu năm học và 0017 của cơ sở dữ liệu định danh.
+
 ### Phiên bản 0.28.5 – 2026-10-10
 
 - Phạm vi thay đổi: DT-05 phần 5b, đăng ký dịch vụ và học hè (YCTD-50).

@@ -490,6 +490,61 @@ export interface SummerRegistrationsTable {
   cancelled_at: Date | null;
 }
 
+export type InvoiceKind = 'main' | 'supplementary';
+export type InvoiceStatus = 'draft' | 'issued';
+
+export interface FeeCalculationRunsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  period_year: number;
+  period_month: number;
+  status: 'running' | 'succeeded' | 'failed';
+  started_at: CreatedTimestamp;
+  finished_at: Date | null;
+  error_detail: string | null;
+  child_count: number | null;
+  total_amount: ColumnType<string | null, string | number | null, string | number | null>;
+  run_by: string;
+}
+
+export interface InvoicesTable {
+  id: Generated<string>;
+  code: string | null;
+  child_id: string;
+  org_unit_id: string;
+  period_year: number;
+  period_month: number;
+  invoice_kind: InvoiceKind;
+  status: InvoiceStatus;
+  calculation_run_id: string | null;
+  total_amount: Money;
+  basis: ColumnType<Record<string, unknown>, string, string>;
+  review_flags: ColumnType<string[], string | undefined, string>;
+  due_date: string | null;
+  issued_at: Date | null;
+  issued_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface InvoiceItemsTable {
+  id: Generated<string>;
+  invoice_id: string;
+  item_type: 'tuition' | 'service';
+  service_id: string | null;
+  service_registration_id: string | null;
+  description: string;
+  quantity: ColumnType<string, string | number, string | number>;
+  unit_price: Money;
+  amount: Money;
+  basis_note: string | null;
+}
+
+export interface DocumentSequencesTable {
+  document_type: string;
+  last_value: number;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -527,4 +582,8 @@ export interface SchoolYearDatabase {
   service_registrations: ServiceRegistrationsTable;
   registration_periods: RegistrationPeriodsTable;
   summer_registrations: SummerRegistrationsTable;
+  fee_calculation_runs: FeeCalculationRunsTable;
+  invoices: InvoicesTable;
+  invoice_items: InvoiceItemsTable;
+  document_sequences: DocumentSequencesTable;
 }

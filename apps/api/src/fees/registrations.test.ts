@@ -425,6 +425,17 @@ describe('Đăng ký dịch vụ, chốt kỳ, đăng ký trễ và học hè', 
         ).status,
         403,
       );
+      // Phụ huynh được gán VT-14 theo đơn vị của con nhưng không xem được bảng của cả đơn vị (PQ-23)
+      assert.equal(
+        (
+          await api(
+            'GET',
+            `/service-registrations?org_unit_id=${units['ĐT-A1']}&period=${openMonth.period}`,
+            parentTokens.T1 ?? '',
+          )
+        ).status,
+        403,
+      );
     });
   });
 

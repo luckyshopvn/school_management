@@ -107,6 +107,14 @@ export class RegistrationPeriods {
     return `${formatPeriod(previous)}-${String(day).padStart(2, '0')}`;
   }
 
+  // Đơn vị bật chặn đăng ký thêm dịch vụ khi trẻ còn nợ quá hạn (BR-33)
+  async blocksWhenOverdue(orgUnitId: string): Promise<boolean> {
+    const setting = (await this.settings.effective(orgUnitId)).find(
+      (item) => item.key === 'block_service_registration_when_overdue',
+    );
+    return setting?.value === true;
+  }
+
   async isLocked(database: Kysely<SchoolYearDatabase>, orgUnitId: string, period: Period): Promise<boolean> {
     const row = await database
       .selectFrom('registration_periods')

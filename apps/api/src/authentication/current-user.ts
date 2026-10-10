@@ -29,9 +29,12 @@ export class CurrentUser {
     return this.description.assignments.some((assignment) => assignment.permissions.includes(permissionCode));
   }
 
-  organizationScope(permissionCode: string): OrganizationScope {
-    const assignments = this.description.assignments.filter((assignment) =>
-      assignment.permissions.includes(permissionCode),
+  // Không tính vai trò phụ huynh khi cần phạm vi của nhân sự: VT-14 gán theo đơn vị của con nhưng chỉ xem dữ liệu con mình
+  organizationScope(permissionCode: string, options: { excludeParentRole?: boolean } = {}): OrganizationScope {
+    const assignments = this.description.assignments.filter(
+      (assignment) =>
+        assignment.permissions.includes(permissionCode) &&
+        !(options.excludeParentRole && assignment.role_code === 'VT-14'),
     );
     const wholeSchool = assignments.some((assignment) => assignment.org_unit_id === null);
     const orgUnitIds = wholeSchool

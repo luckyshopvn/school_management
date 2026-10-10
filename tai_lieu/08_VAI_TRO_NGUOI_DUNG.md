@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.18
+- Phiên bản: 1.19
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -118,6 +118,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-21 | Đón trả (YCTD-48): phụ huynh khai báo và hủy người được ủy quyền đón con mình; `P02.authorized-pickup.manage` cho VT-02, VT-15 toàn trường và VT-03 trong đơn vị được gán làm việc đó phía nhà trường; giáo viên chủ nhiệm đang được phân công bàn giao trẻ của lớp mình; `P04.pickup.gate-confirm` cho VT-18 tra người đón và xác nhận tại cổng trong đơn vị được gán; phụ huynh của trẻ xác nhận hoặc từ chối người đón ngoài danh sách |
 | PQ-22 | Danh mục học phí và tài chính dùng chung toàn trường (YCTD-49): `P05.fee-catalog.manage` cho VT-04 quản lý dịch vụ và biểu phí; `P05.discount-type.manage` cho VT-04, VT-02 quản lý loại miễn giảm; `P06.cashflow-category.manage` cho VT-04, VT-05 quản lý khoản mục thu chi. Mọi người đã đăng nhập xem được dịch vụ và biểu phí; nhân sự xem được loại miễn giảm và khoản mục thu chi |
 | PQ-23 | Đăng ký dịch vụ (YCTD-50): phụ huynh đăng ký, hủy dịch vụ và học hè cho con mình; `P05.registration.manage` cho VT-04 làm việc đó thay phụ huynh và chốt danh sách kỳ trong đơn vị được gán; `P05.late-registration.approve` cho VT-02 toàn trường và VT-15 trong đơn vị được gán duyệt đăng ký trễ và hủy trễ; người có quyền xem học phí (`P05.view`) xem bảng đăng ký trong phạm vi đơn vị |
+| PQ-24 | Học phí (YCTD-51): `P05.fee-calculation.manage` cho VT-04 tính học phí, phát hành hóa đơn chính và bổ sung trong đơn vị được gán; nhân sự xem hóa đơn bằng `P05.view` trong phạm vi đơn vị, không tính vai trò phụ huynh dù VT-14 gán theo đơn vị của con; phụ huynh chỉ xem hóa đơn đã phát hành của con mình |
 
 ## 5. Phân cấp phê duyệt
 
