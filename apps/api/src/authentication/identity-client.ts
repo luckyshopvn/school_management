@@ -98,6 +98,67 @@ export class IdentityClient {
     }
     return (await response.json()) as GuardianAccountResult;
   }
+
+  // Tra tài khoản nhân sự có sẵn để liên kết với hồ sơ nhân sự (P07-01, YCTD-58)
+  lookupStaffAccount(accessToken: string, input: { login: string; org_unit_id: string }) {
+    return this.postJson<StaffAccountResult>(accessToken, '/users/staff-accounts/lookup', input, 'tra tài khoản');
+  }
+
+  // Khóa tài khoản khi chấm dứt hợp đồng lao động (BR-05, YCTD-58)
+  terminateEmployment(accessToken: string, userId: string, orgUnitId: string) {
+    return this.postJson<StaffAccountResult>(
+      accessToken,
+      `/users/${userId}/terminate-employment`,
+      { org_unit_id: orgUnitId },
+      'khóa tài khoản',
+    );
+  }
+
+  // Gọi dịch vụ định danh bằng mã phiên của người thao tác; lỗi nghiệp vụ trả nguyên mã lỗi và nội dung
+  private async postJson<Result>(accessToken: string, path: string, body: unknown, action: string): Promise<Result> {
+    let response: Response;
+    try {
+      response = await fetch(`${this.configuration.identityBaseUrl}${API_VERSION_PREFIX}${path}`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(IDENTITY_TIMEOUT_MILLISECONDS),
+      });
+    } catch (error) {
+      this.logger.error('Không liên lạc được với dịch vụ định danh', error instanceof Error ? error.message : '');
+      throw new ApplicationError('ERR_INTERNAL', `Không ${action} được, vui lòng thử lại sau`);
+    }
+    if (!response.ok) {
+      const payload = (await response.json().catch(() => ({}))) as {
+        error?: {
+          code?: string;
+          message?: string;
+          details?: Array<{ field: string; message: string }>;
+          rule_code?: string;
+        };
+      };
+      if ([400, 403, 404, 422].includes(response.status) && payload.error?.code) {
+        throw new ApplicationError(
+          payload.error.code as 'ERR_FORBIDDEN',
+          payload.error.message ?? `Không ${action} được`,
+          payload.error.details ?? [],
+          undefined,
+          payload.error.rule_code,
+        );
+      }
+      this.logger.error(`Dịch vụ định danh trả mã trạng thái ${response.status} khi ${action}`);
+      throw new ApplicationError('ERR_INTERNAL', `Không ${action} được, vui lòng thử lại sau`);
+    }
+    return (await response.json()) as Result;
+  }
+}
+
+export interface StaffAccountResult {
+  user_id: string;
+  full_name: string;
+  username: string | null;
+  phone: string | null;
+  status: 'active' | 'locked';
 }
 
 export interface GuardianAccountResult {

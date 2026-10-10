@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.28
+- Phiên bản: 1.29
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -152,8 +152,8 @@ Ràng buộc duy nhất: `receipts` trên bộ đôi đơn vị và mã phiếu 
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| staff | Hồ sơ nhân sự | org_unit_id, code (duy nhất), full_name, dob, gender, phone, email, address, id_number, department_id, job_title_id, start_date, end_date, status, user_id |
-| employment_contracts | Hợp đồng lao động | staff_id, contract_type, contract_no (duy nhất), start_date, end_date, base_salary, allowances_data, status, signed_at, terminated_at, terminate_reason |
+| staff | Hồ sơ nhân sự (YCTD-58) | org_unit_id (đơn vị chính), code (duy nhất), full_name, dob, gender, phone, email, address, id_number_encrypted, id_number_last4, department_id, job_title_id, start_date, end_date, status (đang làm, đã nghỉ), user_id (duy nhất, tài khoản liên kết) |
+| employment_contracts | Hợp đồng lao động (YCTD-58) | staff_id, contract_no (duy nhất), contract_type (thử việc, có thời hạn, không thời hạn), start_date, end_date (bắt buộc trừ không thời hạn), base_salary, allowances (danh sách tên và số tiền), status (còn hiệu lực, đã chấm dứt), terminated_on, terminate_reason |
 | staff_work_history | Quá trình công tác | staff_id, from_date, to_date, department_id, job_title_id, note |
 | staff_certificates | Chứng chỉ | staff_id, name, issued_by, issued_date, expire_date, file_id |
 

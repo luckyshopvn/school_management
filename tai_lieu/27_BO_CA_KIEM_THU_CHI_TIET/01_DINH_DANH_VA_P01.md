@@ -1,7 +1,7 @@
 # 27.1. BỘ CA KIỂM THỬ CHI TIẾT — DỊCH VỤ ĐỊNH DANH VÀ P01
 
 - Mô tả: Ca kiểm thử chi tiết cho dịch vụ định danh (Q-125, Q-126) và các chức năng giai đoạn 1 của phân hệ P01 Nền tảng, đơn vị và phân quyền (việc N21, Q-105).
-- Phiên bản: 1.16
+- Phiên bản: 1.17
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -270,7 +270,7 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 | CTC-P01-079 | P01-13 | AC-184, CT-140 | LT-05 | Cao | Tệp công nợ đầu kỳ hợp lệ của 10 trẻ đã có | KT-A tải lên và ghi | Mỗi trẻ có khoản phải thu đầu kỳ đúng số tiền; nhật ký ghi người nhập và thời điểm | Kiểm thử tự động `apps/api/src/finance/receipts.test.ts` đạt ngày 10/10/2026 | Đạt |
 | CTC-P01-080 | P01-13 | AC-185, CT-141 | LT-04 | Cao | GV-A1 | Gọi `POST /api/v1/imports` | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/imports/imports.test.ts` đạt ngày 10/10/2026 | Đạt |
 | CTC-P01-081 | P01-13 | BM-63, ghi chú 13 của tài liệu 08 | LT-04 | Cao | KT-A | Tải lên tệp loại trẻ | Trả `ERR_FORBIDDEN` vì kế toán chỉ nhập công nợ đầu kỳ | Kiểm thử tự động `apps/api/src/imports/imports.test.ts` đạt ngày 10/10/2026 | Đạt |
-| CTC-P01-082 | P01-13 | BM-63, ghi chú 13 của tài liệu 08 | LT-04 | Cao | NS-A | Tải lên tệp nhân sự; tải lên tệp công nợ đầu kỳ | Tệp nhân sự được nhận; tệp công nợ bị từ chối | | Chưa chạy |
+| CTC-P01-082 | P01-13 | BM-63, ghi chú 13 của tài liệu 08 | LT-04 | Cao | NS-A | Tải lên tệp nhân sự; tải lên tệp công nợ đầu kỳ | Tệp nhân sự được nhận; tệp công nợ bị từ chối | Kiểm thử tự động `apps/api/src/staff/staff.test.ts` đạt ngày 10/10/2026 | Đạt |
 | CTC-P01-083 | P01-13 | BM-63, BM-27, KT-06 | LT-02 | Trung bình | Không | Tải lên tệp đổi đuôi thành xlsx nhưng nội dung không phải Excel; tải lên tệp vượt dung lượng | Cả hai bị từ chối, không tạo lần nhập | Kiểm thử tự động `apps/api/src/imports/imports.test.ts` đạt ngày 10/10/2026 | Đạt |
 | CTC-P01-084 | P01-13 | BR-07, KT-04 | LT-02 | Cao | Tệp trẻ có hai dòng trùng số định danh cá nhân, hoặc trùng với trẻ đã có | Tải lên | Báo dòng trùng; không ghi | Kiểm thử tự động `apps/api/src/imports/imports.test.ts` đạt ngày 10/10/2026 | Đạt |
 

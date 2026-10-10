@@ -11,6 +11,30 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-58: DT-06 chia ba phần; hồ sơ nhân sự và hợp đồng lao động – 2026-10-10
+
+- Lý do: thiết kế DT-06; Eric chốt cách chia phần, liên kết tài khoản, cách chấm công và người duyệt đơn nghỉ phép.
+- Nội dung thay đổi:
+  - DT-06 chia ba phần: 6a hồ sơ nhân sự, hợp đồng, cảnh báo hết hạn, danh sách, nhập Excel nhân sự; 6b ngày nghỉ lễ, lịch nghỉ thứ 7 và học bù, chấm công, đơn nghỉ phép, quy định phép năm, chốt và mở lại bảng công; 6c danh mục phụ cấp và khấu trừ, làm thêm giờ, bảng lương trả trước và duyệt, phiếu lương, phiếu chi lương, quyết toán và phiếu thu thu hồi lương.
+  - Chấm công (phần 6b): nhân viên tự bấm vào ca, ra ca trên ứng dụng giáo viên hoặc cổng quản trị, giờ lấy theo máy chủ, chỉ ngày hôm nay; phòng nhân sự nhập hoặc sửa giờ cho mọi người trong đơn vị khi kỳ chưa chốt, có nhật ký.
+  - Đơn nghỉ phép (phần 6b) do Hiệu trưởng hoặc Phó Hiệu trưởng duyệt, thay cho quản lý đơn vị ở P08-03.
+  - Hồ sơ nhân sự tạo độc lập, gắn một đơn vị chính, mã nhân sự không trùng; số định danh cá nhân mã hóa, chỉ hiện bốn số cuối; phòng ban và chức danh phải đang dùng ở đơn vị chính.
+  - Liên kết tài khoản có sẵn: phòng nhân sự nhập tên đăng nhập hoặc số điện thoại, dịch vụ định danh trả tài khoản có vai trò nhân sự; tài khoản chỉ là phụ huynh bị từ chối; mỗi tài khoản gắn tối đa một hồ sơ. Nhân sự có tài khoản xem hồ sơ và hợp đồng của chính mình.
+  - Hợp đồng lao động: thử việc, có thời hạn (bắt buộc ngày kết thúc), không thời hạn; lương thỏa thuận và danh sách phụ cấp theo hợp đồng; không trùng thời gian với hợp đồng còn hiệu lực; gia hạn là lập hợp đồng kế tiếp.
+  - Chấm dứt hợp đồng: bắt buộc ngày và lý do; khóa tài khoản liên kết ngay và thu hồi phiên (BR-05); hồ sơ chuyển đã nghỉ; kế toán đơn vị nhận thông báo lập bảng quyết toán (phần 6c).
+  - Cảnh báo hợp đồng sắp hết hạn theo cấu hình đơn vị `contract_expiry_warning_days` (chưa có mặc định), hiện trên trang chủ cho người xem được nhân sự.
+  - Nhập nhân sự từ Excel: mã đơn vị, mã nhân sự, họ tên, ngày sinh, giới tính, điện thoại, thư điện tử, số định danh, tên phòng ban, tên chức danh, ngày vào làm; kiểm tra toàn bộ rồi mới ghi.
+  - Mở năm học mới chuyển hồ sơ nhân sự và hợp đồng sang, giữ nguyên mã định danh.
+  - Mã quyền mới: `P07.staff.manage` cho VT-06; `P07.staff.view` cho VT-02, VT-15, VT-03, VT-04, VT-05, VT-06; `P07.contract.view` cho VT-02, VT-15, VT-04, VT-05, VT-06 (quản lý đơn vị không thấy lương); `P01.import.staff` cho VT-06. Không dùng `P07.view` vì giáo viên có quyền này.
+- Thành phần bị ảnh hưởng: `08`, `10`, `14`, `16`, `17`, `27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md`, `27_BO_CA_KIEM_THU_CHI_TIET/05_P08.md`, `01`, `03`, `index.md`; dịch vụ định danh, máy chủ API, cổng quản trị.
+- Dữ liệu bị ảnh hưởng: bảng mới `staff`, `employment_contracts`; lần nhập thêm loại `staff`; cấu hình `contract_expiry_warning_days`.
+- API bị ảnh hưởng: `GET, POST /staff`, `GET, PUT /staff/{id}`, `GET /staff/me`, `GET /staff/expiring-contracts`, `POST, DELETE /staff/{id}/account`, `POST /staff/{id}/contracts`, `POST /employment-contracts/{id}/terminate`; dịch vụ định danh `POST /users/staff-accounts/lookup`, `POST /users/{id}/terminate-employment`; nhập dữ liệu nhận loại `staff`.
+- Giao diện bị ảnh hưởng: MH-12 Hồ sơ nhân sự, MH-40 (nhân sự), trang chủ (hợp đồng sắp hết hạn).
+- Quyền bị ảnh hưởng: thêm `P07.staff.manage`, `P07.staff.view`, `P07.contract.view`, `P01.import.staff`.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: CTC-P08-043, CTC-P08-059, CTC-P01-082.
+- Trạng thái: Đã triển khai phần 6a
+
 ### YCTD-57: Thanh toán trực tuyến qua tài khoản ảo và mã QR dùng một lần – 2026-10-10
 
 - Lý do: thiết kế DT-05 phần 5f; nhà cung cấp xác nhận chuyển khoản chưa chọn (T1); Eric chốt cách nhận tiền và đối chiếu.

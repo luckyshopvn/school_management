@@ -66,6 +66,9 @@ import { OnlinePaymentsController } from './finance/online-payments.controller.j
 import { OnlinePaymentsService } from './finance/online-payments.service.js';
 import { DevelopmentPaymentGateway, PaymentGateway, UnavailablePaymentGateway } from './finance/payment-gateway.js';
 import { DebtsService } from './fees/debts.service.js';
+import { StaffController } from './staff/staff.controller.js';
+import { StaffService } from './staff/staff.service.js';
+import { staffTransitionStep } from './staff/staff-transition.js';
 import { OrgUnitsController } from './organization/org-units.controller.js';
 import { OrgUnitsService } from './organization/org-units.service.js';
 
@@ -111,6 +114,7 @@ export class ApplicationModule {
         ReceiptsController,
         PaymentsController,
         OnlinePaymentsController,
+        StaffController,
         CashBooksController,
         ...(options.additionalControllers ?? []),
       ],
@@ -127,6 +131,7 @@ export class ApplicationModule {
             orgUnitsTransitionStep,
             settingsTransitionStep,
             catalogsTransitionStep,
+            staffTransitionStep,
             feeCatalogsTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
@@ -165,6 +170,7 @@ export class ApplicationModule {
         PaymentsService,
         PaymentReversalsService,
         OnlinePaymentsService,
+        StaffService,
         {
           provide: PaymentGateway,
           useFactory: () =>

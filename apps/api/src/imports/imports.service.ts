@@ -62,6 +62,19 @@ export const IMPORT_COLUMNS: Record<ImportType, ImportColumn[]> = {
     { key: 'moet_code', header: 'Mã định danh ngành', note: 'Mã do cơ sở dữ liệu ngành cấp, bắt buộc' },
     { key: 'full_name', header: 'Họ tên trẻ', note: 'Để đối chiếu, không bắt buộc' },
   ],
+  staff: [
+    { key: 'unit_code', header: 'Mã đơn vị', note: 'Mã đơn vị chính của nhân sự, bắt buộc' },
+    { key: 'code', header: 'Mã nhân sự', note: 'Không trùng, bắt buộc' },
+    { key: 'full_name', header: 'Họ tên', note: 'Bắt buộc' },
+    { key: 'dob', header: 'Ngày sinh', note: 'Dạng ngày của Excel, YYYY-MM-DD hoặc DD/MM/YYYY' },
+    { key: 'gender', header: 'Giới tính', note: 'Nam hoặc Nữ' },
+    { key: 'phone', header: 'Số điện thoại', note: '10 chữ số bắt đầu bằng 0' },
+    { key: 'email', header: 'Thư điện tử', note: 'Không bắt buộc' },
+    { key: 'id_number', header: 'Số định danh cá nhân', note: 'Mười hai chữ số, không bắt buộc' },
+    { key: 'department', header: 'Phòng ban', note: 'Tên phòng ban đang dùng của đơn vị, không bắt buộc' },
+    { key: 'job_title', header: 'Chức danh', note: 'Tên chức danh đang dùng của đơn vị, không bắt buộc' },
+    { key: 'start_date', header: 'Ngày vào làm', note: 'Bắt buộc' },
+  ],
   opening_debts: [
     { key: 'national_id', header: 'Số định danh cá nhân', note: 'Mười hai chữ số của trẻ đã có, bắt buộc' },
     { key: 'full_name', header: 'Họ tên trẻ', note: 'Để đối chiếu; ghi thì phải khớp hồ sơ' },
@@ -76,6 +89,7 @@ const TEMPLATE_TITLES: Record<ImportType, string> = {
   children: 'Trẻ và phụ huynh',
   moet_codes: 'Mã định danh ngành',
   opening_debts: 'Công nợ đầu kỳ',
+  staff: 'Nhân sự',
 };
 
 const PHONE_PATTERN = /^0\d{9}$/;
@@ -108,6 +122,20 @@ interface ChildRow {
   guardians: Array<{ full_name: string; phone: string | null; relationship_item_id: string }>;
 }
 
+interface StaffRow {
+  org_unit_id: string;
+  code: string;
+  full_name: string;
+  dob: string | null;
+  gender: 'male' | 'female' | null;
+  phone: string | null;
+  email: string | null;
+  id_number: string | null;
+  department_id: string | null;
+  job_title_id: string | null;
+  start_date: string;
+}
+
 interface OpeningDebtRow {
   child_id: string;
   org_unit_id: string;
@@ -116,7 +144,7 @@ interface OpeningDebtRow {
   note: string | null;
 }
 
-type UploadType = 'classes' | 'children' | 'opening_debts';
+type UploadType = 'classes' | 'children' | 'opening_debts' | 'staff';
 
 export interface ImportJobView {
   id: string;
@@ -239,6 +267,9 @@ export class ImportsService {
     const accounts = new Map<string, { userId: string; created: boolean }>();
     if (type === 'opening_debts') {
       return this.commitOpeningDebts(database, validated.openingDebts, jobId, origin);
+    }
+    if (type === 'staff') {
+      return this.commitStaff(database, validated.staff, jobId, origin);
     }
     if (type === 'children') {
       for (const row of validated.children) {
@@ -419,11 +450,22 @@ export class ImportsService {
     currentUser: CurrentUser,
     type: UploadType,
     rows: SheetRow[],
-  ): Promise<{ errors: RowError[]; classes: ClassRow[]; children: ChildRow[]; openingDebts: OpeningDebtRow[] }> {
+  ): Promise<{
+    errors: RowError[];
+    classes: ClassRow[];
+    children: ChildRow[];
+    openingDebts: OpeningDebtRow[];
+    staff: StaffRow[];
+  }> {
     if (type === 'opening_debts') {
       const errors: RowError[] = [];
       const openingDebts = await this.validateOpeningDebts(database, currentUser, rows, errors);
-      return { errors, classes: [], children: [], openingDebts };
+      return { errors, classes: [], children: [], openingDebts, staff: [] };
+    }
+    if (type === 'staff') {
+      const errors: RowError[] = [];
+      const staff = await this.validateStaff(database, currentUser, rows, errors);
+      return { errors, classes: [], children: [], openingDebts: [], staff };
     }
     const units = await database.selectFrom('org_units').select(['id', 'code', 'status']).execute();
     const scope = await this.organizationScopes.resolve(currentUser, PERMISSION_CODES.importChildren);
@@ -446,6 +488,7 @@ export class ImportsService {
         classes: await this.validateClasses(database, rows, resolveUnit, errors),
         children: [],
         openingDebts: [],
+        staff: [],
       };
     }
     return {
@@ -453,6 +496,7 @@ export class ImportsService {
       classes: [],
       children: await this.validateChildren(database, rows, resolveUnit, errors),
       openingDebts: [],
+      staff: [],
     };
   }
 
@@ -518,6 +562,134 @@ export class ImportsService {
       }
     }
     return result;
+  }
+
+  // Hồ sơ nhân sự theo đơn vị trong phạm vi người nhập; mã nhân sự không trùng; phòng ban, chức danh tìm theo tên (YCTD-58)
+  private async validateStaff(
+    database: Executor,
+    currentUser: CurrentUser,
+    rows: SheetRow[],
+    errors: RowError[],
+  ): Promise<StaffRow[]> {
+    const scope = await this.organizationScopes.resolveStaff(currentUser, PERMISSION_CODES.importStaff);
+    const units = await database.selectFrom('org_units').select(['id', 'code', 'status']).execute();
+    const departments = await database
+      .selectFrom('departments')
+      .select(['id', 'org_unit_id', 'name'])
+      .where('status', '=', 'active')
+      .execute();
+    const jobTitles = await database
+      .selectFrom('job_titles')
+      .select(['id', 'org_unit_id', 'name'])
+      .where('status', '=', 'active')
+      .execute();
+    const existingCodes = new Set((await database.selectFrom('staff').select('code').execute()).map((row) => row.code));
+    const seen = new Set<string>();
+    const result: StaffRow[] = [];
+    for (const { row, values } of rows) {
+      const before = errors.length;
+      const unit = units.find((item) => item.code === values.unit_code);
+      if (!unit || unit.status !== 'active') {
+        errors.push({ row, column: 'Mã đơn vị', message: 'Không có đơn vị đang dùng với mã này' });
+      } else if (!scope.wholeSchool && !scope.orgUnitIds.includes(unit.id)) {
+        errors.push({ row, column: 'Mã đơn vị', message: 'Đơn vị này nằm ngoài phạm vi của bạn' });
+      }
+      const code = values.code ?? '';
+      if (!code) {
+        errors.push({ row, column: 'Mã nhân sự', message: 'Bắt buộc nhập' });
+      } else if (seen.has(code)) {
+        errors.push({ row, column: 'Mã nhân sự', message: 'Mã nhân sự trùng với dòng khác trong tệp' });
+      } else if (existingCodes.has(code)) {
+        errors.push({ row, column: 'Mã nhân sự', message: 'Mã nhân sự đã có' });
+      }
+      seen.add(code);
+      if (!values.full_name) {
+        errors.push({ row, column: 'Họ tên', message: 'Bắt buộc nhập' });
+      }
+      const dob = values.dob ? parseDate(values.dob) : null;
+      if (values.dob && !dob) {
+        errors.push({ row, column: 'Ngày sinh', message: 'Ngày không hợp lệ' });
+      }
+      const startDate = parseDate(values.start_date ?? '');
+      if (!startDate) {
+        errors.push({ row, column: 'Ngày vào làm', message: 'Ngày không hợp lệ' });
+      }
+      const gender = values.gender === 'Nam' ? 'male' : values.gender === 'Nữ' ? 'female' : null;
+      if (values.gender && !gender) {
+        errors.push({ row, column: 'Giới tính', message: 'Nam hoặc Nữ' });
+      }
+      if (values.phone && !PHONE_PATTERN.test(values.phone)) {
+        errors.push({ row, column: 'Số điện thoại', message: '10 chữ số bắt đầu bằng 0' });
+      }
+      if (values.id_number && !NATIONAL_ID_PATTERN.test(values.id_number)) {
+        errors.push({ row, column: 'Số định danh cá nhân', message: 'Mười hai chữ số' });
+      }
+      const department = values.department
+        ? departments.find((item) => item.org_unit_id === unit?.id && item.name === values.department)
+        : undefined;
+      if (values.department && !department) {
+        errors.push({ row, column: 'Phòng ban', message: 'Không có phòng ban đang dùng với tên này ở đơn vị' });
+      }
+      const jobTitle = values.job_title
+        ? jobTitles.find((item) => item.org_unit_id === unit?.id && item.name === values.job_title)
+        : undefined;
+      if (values.job_title && !jobTitle) {
+        errors.push({ row, column: 'Chức danh', message: 'Không có chức danh đang dùng với tên này ở đơn vị' });
+      }
+      if (errors.length === before && unit && startDate) {
+        result.push({
+          org_unit_id: unit.id,
+          code,
+          full_name: values.full_name ?? '',
+          dob,
+          gender,
+          phone: values.phone || null,
+          email: values.email || null,
+          id_number: values.id_number || null,
+          department_id: department?.id ?? null,
+          job_title_id: jobTitle?.id ?? null,
+          start_date: startDate,
+        });
+      }
+    }
+    return result;
+  }
+
+  private async commitStaff(
+    database: Kysely<SchoolYearDatabase>,
+    rows: StaffRow[],
+    jobId: string,
+    origin: ChangeOrigin,
+  ): Promise<ImportJobView> {
+    return database.transaction().execute(async (transaction) => {
+      for (const { id_number: idNumber, ...row } of rows) {
+        const created = await transaction
+          .insertInto('staff')
+          .values({
+            ...row,
+            id_number_encrypted: idNumber ? this.protection.encrypt(idNumber) : null,
+            id_number_last4: idNumber ? idNumber.slice(-4) : null,
+            created_by: origin.actorUserId,
+          })
+          .returning('id')
+          .executeTakeFirstOrThrow();
+        await writeAuditLog(transaction, {
+          origin,
+          orgUnitId: row.org_unit_id,
+          entityName: 'staff',
+          entityId: created.id,
+          action: 'create',
+          before: null,
+          after: { ...row, import_job_id: jobId },
+        });
+      }
+      await transaction
+        .updateTable('data_import_jobs')
+        .set({ status: 'committed', committed_by: origin.actorUserId, committed_at: this.clock.now() })
+        .where('id', '=', jobId)
+        .execute();
+      return this.readJob(transaction, jobId);
+    });
   }
 
   // Mỗi dòng thành một hóa đơn đầu kỳ đã phát hành ở tháng đầu năm học, thu bằng phiếu thu như hóa đơn thường
@@ -912,7 +1084,13 @@ export class ImportsService {
   }
 
   assertImportType(value: unknown): ImportType {
-    if (value === 'classes' || value === 'children' || value === 'moet_codes' || value === 'opening_debts') {
+    if (
+      value === 'classes' ||
+      value === 'children' ||
+      value === 'moet_codes' ||
+      value === 'opening_debts' ||
+      value === 'staff'
+    ) {
       return value;
     }
     throw new ApplicationError(

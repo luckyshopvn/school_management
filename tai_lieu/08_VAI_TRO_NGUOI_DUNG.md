@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.24
+- Phiên bản: 1.25
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -124,6 +124,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-27 | Đảo phiếu thu và công nợ đầu kỳ (YCTD-54): `P06.receipt-reversal.create` cho VT-04, VT-05 lập phiếu đảo; `P06.receipt-reversal.approve` cho VT-02 toàn trường và VT-15 trong đơn vị được gán duyệt theo hạn mức `receipt_reversal`: dưới hạn mức VT-15 hoặc VT-02, từ hạn mức trở lên hoặc chưa đặt hạn mức chỉ VT-02; `P05.opening-debt.import` cho VT-04 nhập công nợ đầu kỳ của trẻ trong đơn vị được gán |
 | PQ-28 | Phiếu chi (YCTD-55): `P06.payment.manage` cho VT-04, VT-05, VT-16 lập, sửa, trình duyệt phiếu chi trong đơn vị được gán, VT-16 chỉ chi từ quỹ tiền mặt; `P06.payment.approve` cho VT-02 toàn trường và VT-15 trong đơn vị được gán duyệt theo hạn mức `payment`: dưới hạn mức VT-15 hoặc VT-02, từ hạn mức trở lên, chưa đặt hạn mức hoặc phiếu hoàn tiền thôi học chỉ VT-02; người duyệt không là người lập. VT-03 chỉ xem |
 | PQ-29 | Phiếu đảo phiếu chi (YCTD-56): `P06.payment-reversal.create` cho VT-04, VT-05 lập phiếu đảo; duyệt bằng `P06.payment.approve` theo hạn mức `payment_reversal`: dưới hạn mức VT-15 hoặc VT-02, từ hạn mức trở lên hoặc chưa đặt hạn mức chỉ VT-02; VT-16 không lập và không duyệt phiếu đảo |
+| PQ-30 | Nhân sự (YCTD-58): `P07.staff.manage` cho VT-06 tạo, sửa hồ sơ, liên kết tài khoản, lập và chấm dứt hợp đồng trong đơn vị được gán; `P07.staff.view` cho VT-02, VT-15, VT-03, VT-04, VT-05, VT-06 xem danh sách và hồ sơ; `P07.contract.view` cho VT-02, VT-15, VT-04, VT-05, VT-06 xem hợp đồng kèm lương; `P01.import.staff` cho VT-06 nhập nhân sự từ Excel. Nhân sự có tài khoản liên kết xem hồ sơ và hợp đồng của chính mình. Đơn nghỉ phép do VT-02, VT-15 duyệt (phần 6b) |
 
 ## 5. Phân cấp phê duyệt
 

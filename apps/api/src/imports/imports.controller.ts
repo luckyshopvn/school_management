@@ -32,7 +32,9 @@ function permissionOf(type: string): string {
     ? PERMISSION_CODES.childManage
     : type === 'opening_debts'
       ? PERMISSION_CODES.openingDebtImport
-      : PERMISSION_CODES.importChildren;
+      : type === 'staff'
+        ? PERMISSION_CODES.importStaff
+        : PERMISSION_CODES.importChildren;
 }
 
 function assertCanImport(currentUser: CurrentUser, type: string): void {
@@ -49,7 +51,12 @@ export class ImportsController {
   constructor(private readonly importsService: ImportsService) {}
 
   @Get('templates/:type')
-  @RequirePermission(PERMISSION_CODES.importChildren, PERMISSION_CODES.childManage, PERMISSION_CODES.openingDebtImport)
+  @RequirePermission(
+    PERMISSION_CODES.importChildren,
+    PERMISSION_CODES.childManage,
+    PERMISSION_CODES.openingDebtImport,
+    PERMISSION_CODES.importStaff,
+  )
   async template(
     @Param('type') rawType: string,
     @Res() response: Response,
@@ -81,7 +88,7 @@ export class ImportsController {
   }
 
   @Post()
-  @RequirePermission(PERMISSION_CODES.importChildren, PERMISSION_CODES.openingDebtImport)
+  @RequirePermission(PERMISSION_CODES.importChildren, PERMISSION_CODES.openingDebtImport, PERMISSION_CODES.importStaff)
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: MAXIMUM_IMPORT_BYTES, files: 1 } }))
   upload(
     @UploadedFile() file: UploadedPart | undefined,
@@ -90,7 +97,7 @@ export class ImportsController {
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
     const type = body?.type;
-    if (type !== 'classes' && type !== 'children' && type !== 'opening_debts') {
+    if (type !== 'classes' && type !== 'children' && type !== 'opening_debts' && type !== 'staff') {
       throw validationError([{ field: 'type', message: 'Loại dữ liệu nhập là classes, children hoặc opening_debts' }]);
     }
     assertCanImport(currentUser, type);
@@ -105,7 +112,7 @@ export class ImportsController {
   }
 
   @Get(':id')
-  @RequirePermission(PERMISSION_CODES.importChildren, PERMISSION_CODES.openingDebtImport)
+  @RequirePermission(PERMISSION_CODES.importChildren, PERMISSION_CODES.openingDebtImport, PERMISSION_CODES.importStaff)
   async get(
     @Param('id', uuidParameter('Mã lần nhập không hợp lệ')) jobId: string,
     @AuthenticatedUser() currentUser: CurrentUser,
@@ -117,7 +124,7 @@ export class ImportsController {
 
   @Post(':id/commit')
   @HttpCode(200)
-  @RequirePermission(PERMISSION_CODES.importChildren, PERMISSION_CODES.openingDebtImport)
+  @RequirePermission(PERMISSION_CODES.importChildren, PERMISSION_CODES.openingDebtImport, PERMISSION_CODES.importStaff)
   async commit(
     @Param('id', uuidParameter('Mã lần nhập không hợp lệ')) jobId: string,
     @Req() request: Request,

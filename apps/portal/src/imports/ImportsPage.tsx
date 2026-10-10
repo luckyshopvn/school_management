@@ -8,7 +8,7 @@ import { useHasPermission } from '../session/permissions.js';
 
 // MH-40 Nhập dữ liệu ban đầu từ Excel (P01-13) và nhập mã định danh ngành (P02-12) (YCTD-46).
 // Giao diện chỉ chuyển tệp và hiện báo cáo; máy chủ kiểm tra toàn bộ và chỉ ghi khi không còn dòng lỗi
-type ImportType = 'classes' | 'children' | 'moet_codes' | 'opening_debts';
+type ImportType = 'classes' | 'children' | 'moet_codes' | 'opening_debts' | 'staff';
 
 interface ImportJob {
   id: string;
@@ -25,6 +25,7 @@ const TYPE_LABELS: Record<ImportType, string> = {
   children: 'Trẻ và phụ huynh',
   moet_codes: 'Mã định danh ngành',
   opening_debts: 'Công nợ đầu kỳ',
+  staff: 'Nhân sự',
 };
 
 const STATUS_LABELS: Record<ImportJob['status'], { label: string; tone: 'success' | 'danger' | 'info' }> = {
@@ -157,6 +158,7 @@ export function ImportsPage() {
   const canImportChildren = useHasPermission(PERMISSION_CODES.importChildren);
   const canImportMoetCodes = useHasPermission(PERMISSION_CODES.childManage);
   const canImportOpeningDebts = useHasPermission(PERMISSION_CODES.openingDebtImport);
+  const canImportStaff = useHasPermission(PERMISSION_CODES.importStaff);
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
 
@@ -177,6 +179,7 @@ export function ImportsPage() {
         ) : null}
         {canImportMoetCodes ? <ImportSection type="moet_codes" onChanged={setToastMessage} /> : null}
         {canImportOpeningDebts ? <ImportSection type="opening_debts" onChanged={setToastMessage} /> : null}
+        {canImportStaff ? <ImportSection type="staff" onChanged={setToastMessage} /> : null}
       </div>
     </AppShell>
   );
