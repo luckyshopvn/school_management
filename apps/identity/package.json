@@ -13,7 +13,7 @@
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "start": "node --env-file-if-exists=../../.env dist/main.js",
-    "test": "node --env-file-if-exists=../../.env --test \"dist/**/*.test.js\"",
+    "test": "node --env-file-if-exists=../../.env --test --test-concurrency=1 \"dist/**/*.test.js\"",
     "generate-token-keys": "node dist/generate-token-keys.js",
     "create-platform-administrator": "node --env-file-if-exists=../../.env dist/create-platform-administrator.js"
   },
