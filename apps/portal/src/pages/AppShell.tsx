@@ -24,7 +24,8 @@ type NavigationPath =
   | '/imports'
   | '/attendance'
   | '/fees'
-  | '/cashflow-categories';
+  | '/cashflow-categories'
+  | '/registrations';
 
 function NavItem({ to, label }: { to: NavigationPath; label: string }) {
   return (
@@ -64,7 +65,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canManageDiscountTypes = useHasPermission(PERMISSION_CODES.discountTypeManage);
   const canViewFinance = useHasPermission('P06.view');
   const canManageCashflowCategories = useHasPermission(PERMISSION_CODES.cashflowCategoryManage);
+  const canManageRegistrations = useHasPermission(PERMISSION_CODES.registrationManage);
+  const canApproveLateRegistrations = useHasPermission(PERMISSION_CODES.lateRegistrationApprove);
   const canViewFees = canViewTuition || canManageFeeCatalog || canManageDiscountTypes;
+  const canSeeRegistrations = canViewTuition || canManageRegistrations || canApproveLateRegistrations;
   const canViewCashflow = canViewFinance || canManageCashflowCategories;
 
   return (
@@ -88,11 +92,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             </ul>
           </>
         ) : null}
-        {canViewFees || canViewCashflow ? (
+        {canViewFees || canViewCashflow || canSeeRegistrations ? (
           <>
             <span className="px-3 text-label font-semibold text-text-muted">HỌC PHÍ VÀ TÀI CHÍNH</span>
             <ul className="flex flex-col gap-1">
               {canViewFees ? <NavItem to="/fees" label="Biểu phí và dịch vụ" /> : null}
+              {canSeeRegistrations ? <NavItem to="/registrations" label="Đăng ký dịch vụ" /> : null}
               {canViewCashflow ? <NavItem to="/cashflow-categories" label="Khoản mục thu chi" /> : null}
             </ul>
           </>

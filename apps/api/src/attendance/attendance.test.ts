@@ -239,7 +239,7 @@ describe('Điểm danh, chốt ngày và báo vắng', () => {
       assert.equal((await sheet(token('otherTeacher'), 'L-A1', PAST_DAY)).status, 403);
     });
 
-    it('CTC-P04-006, CTC-P04-044, CTC-P04-045: ngoài năm học, thứ bảy, tuần nghỉ, kỳ hè đều không có bảng điểm danh', async () => {
+    it('CTC-P04-006, CTC-P04-044, CTC-P04-045: ngoài năm học, thứ bảy, tuần nghỉ không có bảng điểm danh; kỳ hè chỉ có trẻ đăng ký học hè', async () => {
       const weeks = (await api('GET', `/academic-years/${yearId}/weeks`, principal.accessToken))
         .body as unknown as Array<{
         week_no: number;
@@ -249,11 +249,15 @@ describe('Điểm danh, chốt ngày và báo vắng', () => {
       await api('PATCH', `/academic-years/${yearId}/weeks`, principal.accessToken, {
         weeks: [{ week_no: offWeek?.week_no, is_off: true, note: 'Nghỉ giữa kỳ' }],
       });
-      for (const date of ['2027-08-15', '2026-10-10', '2027-03-09', '2027-06-02']) {
+      for (const date of ['2027-08-15', '2026-10-10', '2027-03-09']) {
         const response = await sheet(token('teacher'), 'L-A1', date);
         assert.equal(response.status, 422, date);
         assert.equal(errorOf(response.body).rule_code, 'BR-91');
       }
+      // Chưa trẻ nào đăng ký học hè tháng 6 nên bảng ngày hè trống (BR-92, YCTD-50)
+      const summer = await sheet(token('teacher'), 'L-A1', '2027-06-02');
+      assert.equal(summer.status, 200, JSON.stringify(summer.body));
+      assert.equal((summer.body as unknown as Sheet).children.length, 0);
     });
 
     it('CTC-P04-009, CTC-P04-010: bản ghi gửi bù được đánh dấu nhập bù; trẻ không thuộc lớp bị bỏ qua kèm cảnh báo', async () => {

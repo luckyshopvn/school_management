@@ -56,6 +56,7 @@ export class AttendanceService {
     const classRecord = await this.findClass(database, classId);
     await this.assertCanRead(currentUser, database, classRecord);
     await this.calendar.assertSchoolDay(date);
+    const summerChildren = await this.summerChildren(database, date);
     const children = await database
       .selectFrom('class_enrollments')
       .innerJoin('children', 'children.id', 'class_enrollments.child_id')
@@ -79,6 +80,7 @@ export class AttendanceService {
       .where('class_enrollments.class_id', '=', classId)
       .where('class_enrollments.is_current', '=', true)
       .where('children.status', '=', 'active')
+      .$if(summerChildren !== null, (query) => query.where('children.id', 'in', summerChildren ?? []))
       .orderBy('children.full_name')
       .execute();
     const day = await database
@@ -136,7 +138,9 @@ export class AttendanceService {
     if (locked && !input.reason) {
       throw validationError([{ field: 'reason', message: 'Ngày đã chốt; nhập lý do để sửa điểm danh' }]);
     }
-    // Chỉ ghi cho trẻ đang học của lớp; trẻ đã chuyển lớp bị bỏ qua kèm cảnh báo (BR-16, QT-02 E2)
+    // Chỉ ghi cho trẻ đang học của lớp; trẻ đã chuyển lớp bị bỏ qua kèm cảnh báo (BR-16, QT-02 E2).
+    // Ngày kỳ hè chỉ trẻ đã đăng ký học hè tháng đó (BR-92)
+    const summerChildren = await this.summerChildren(database, input.date);
     const enrolled = new Set(
       (
         await database
@@ -146,6 +150,7 @@ export class AttendanceService {
           .where('class_enrollments.class_id', '=', classId)
           .where('class_enrollments.is_current', '=', true)
           .where('children.status', '=', 'active')
+          .$if(summerChildren !== null, (query) => query.where('children.id', 'in', summerChildren ?? []))
           .execute()
       ).map((row) => row.child_id),
     );
@@ -395,7 +400,11 @@ export class AttendanceService {
     const dates = this.datesBetween(input.fromDate, input.toDate);
     const schoolDates: string[] = [];
     for (const date of dates) {
-      if (!(await this.calendar.reasonNotSchoolDay(date))) {
+      const summerChildren = await this.summerChildren(database, date);
+      if (
+        !(await this.calendar.reasonNotSchoolDay(date)) &&
+        (summerChildren === null || summerChildren.includes(child.id))
+      ) {
         schoolDates.push(date);
       }
     }
@@ -496,6 +505,22 @@ export class AttendanceService {
       .orderBy('absence_date')
       .execute();
     return { child_id: childId, month, records, absences };
+  }
+
+  // Ngày kỳ hè trả danh sách trẻ đã đăng ký học hè tháng đó; ngày thường trả null là không lọc (BR-92, YCTD-50)
+  private async summerChildren(database: Kysely<SchoolYearDatabase>, date: string): Promise<string[] | null> {
+    if (!(await this.calendar.isSummerDay(date))) {
+      return null;
+    }
+    const rows = await database
+      .selectFrom('summer_registrations')
+      .select('child_id')
+      .where('period_year', '=', Number(date.slice(0, 4)))
+      .where('period_month', '=', Number(date.slice(5, 7)))
+      .where('status', '=', 'active')
+      .execute();
+    // Danh sách rỗng vẫn phải lọc hết, nên dùng mã không tồn tại thay cho mảng rỗng
+    return rows.length > 0 ? rows.map((row) => row.child_id) : ['00000000-0000-0000-0000-000000000000'];
   }
 
   private summarize(statuses: Array<AttendanceStatus | null>) {

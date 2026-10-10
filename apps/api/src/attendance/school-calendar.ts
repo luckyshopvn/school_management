@@ -3,8 +3,8 @@ import { ruleViolationError } from '@school-management/server';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
 
-// Ngày học theo lịch năm học (BR-91): thuộc học kỳ 1 hoặc 2, là ngày học trong tuần, không thuộc tuần nghỉ.
-// Kỳ hè chưa có bảng điểm danh cho tới khi có đăng ký học hè P05-13; ngày học bù thứ bảy chờ P08-10 (YCTD-47)
+// Ngày học theo lịch năm học (BR-91): thuộc học kỳ 1, học kỳ 2 hoặc kỳ hè, là ngày học trong tuần, không thuộc tuần nghỉ.
+// Ngày kỳ hè chỉ dành cho trẻ đã đăng ký học hè tháng đó (BR-92, YCTD-50); ngày học bù thứ bảy chờ P08-10 (YCTD-47)
 export const VIETNAM_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
 
 // Thứ trong tuần theo quy ước của lịch năm học: 1 là thứ hai, 7 là chủ nhật
@@ -39,9 +39,6 @@ export class SchoolCalendar {
     if (!term) {
       return 'Ngày này không thuộc học kỳ nào của năm học đang mở';
     }
-    if (term.term_type === 'summer_term') {
-      return 'Kỳ hè chưa có bảng điểm danh vì chưa có đăng ký học hè (P05-13)';
-    }
     if (!year.school_days_of_week.includes(dayOfWeek(date))) {
       return 'Ngày này không phải ngày học trong tuần';
     }
@@ -56,6 +53,19 @@ export class SchoolCalendar {
       return 'Ngày này thuộc tuần nghỉ của lịch năm học';
     }
     return null;
+  }
+
+  // Ngày thuộc kỳ hè của năm học đang mở
+  async isSummerDay(date: string): Promise<boolean> {
+    const { academicYearId } = await this.currentSchoolYear.require();
+    const term = await this.databases.system
+      .selectFrom('academic_terms')
+      .select('term_type')
+      .where('academic_year_id', '=', academicYearId)
+      .where('start_date', '<=', date)
+      .where('end_date', '>=', date)
+      .executeTakeFirst();
+    return term?.term_type === 'summer_term';
   }
 
   async assertSchoolDay(date: string): Promise<void> {
