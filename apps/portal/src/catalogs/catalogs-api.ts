@@ -31,6 +31,14 @@ export interface CatalogItem {
   name: string;
   order_no: number;
   status: CatalogStatus;
+  attributes: Partial<LeaveTypeAttributes>;
+}
+
+// Thuộc tính tính công của loại nghỉ phép (YCTD-59)
+export interface LeaveTypeAttributes {
+  is_paid: boolean;
+  deducts_annual_leave: boolean;
+  insurance_paid: boolean;
 }
 
 export interface ApprovalThreshold {
@@ -81,11 +89,16 @@ export const updateJobTitle = (id: string, changes: Partial<Pick<JobTitle, 'name
 export const listCatalogTypes = (): Promise<CatalogType[]> => requestJson('/api/v1/catalog-types');
 export const listCatalogItems = (catalogType: string): Promise<CatalogItem[]> =>
   requestJson(`/api/v1/catalog-items?catalog_type=${catalogType}`);
-export const createCatalogItem = (input: { catalog_type: string; code: string; name: string; order_no: number }) =>
-  send<CatalogItem>('POST', '/api/v1/catalog-items', input);
+export const createCatalogItem = (input: {
+  catalog_type: string;
+  code: string;
+  name: string;
+  order_no: number;
+  attributes?: LeaveTypeAttributes;
+}) => send<CatalogItem>('POST', '/api/v1/catalog-items', input);
 export const updateCatalogItem = (
   id: string,
-  changes: Partial<Pick<CatalogItem, 'code' | 'name' | 'order_no' | 'status'>>,
+  changes: Partial<Pick<CatalogItem, 'code' | 'name' | 'order_no' | 'status'>> & { attributes?: LeaveTypeAttributes },
 ) => send<CatalogItem>('PATCH', `/api/v1/catalog-items/${id}`, changes);
 
 export const listApprovalThresholds = (): Promise<ApprovalThreshold[]> => requestJson('/api/v1/approval-thresholds');

@@ -162,14 +162,51 @@ describe('Phòng ban, chức danh, danh mục dùng chung, hạn mức phê duy�
         catalog_type: 'leave_type',
         code: 'MA_01',
         name: 'Nghỉ phép năm',
+        attributes: { is_paid: true, deducts_annual_leave: true, insurance_paid: false },
       });
       assert.equal(otherType.status, 201);
+      assert.deepEqual(otherType.body.attributes, { is_paid: true, deducts_annual_leave: true, insurance_paid: false });
       const unknownType = await post('/catalog-items', principal, {
         catalog_type: 'ethnicity',
         code: 'KINH',
         name: 'Kinh',
       });
       assert.equal(unknownType.status, 400);
+    });
+
+    it('YCTD-59: loại nghỉ phép bắt buộc khai thuộc tính tính công, không được trái nhau', async () => {
+      const missing = await post('/catalog-items', principal, {
+        catalog_type: 'leave_type',
+        code: 'THIEU',
+        name: 'Nghỉ thiếu thuộc tính',
+      });
+      assert.equal(missing.status, 400);
+      const conflicting = await post('/catalog-items', principal, {
+        catalog_type: 'leave_type',
+        code: 'BHXH',
+        name: 'Nghỉ hưởng chế độ bảo hiểm xã hội',
+        attributes: { is_paid: true, deducts_annual_leave: false, insurance_paid: true },
+      });
+      assert.equal(conflicting.status, 400);
+      const created = await post('/catalog-items', principal, {
+        catalog_type: 'leave_type',
+        code: 'BHXH',
+        name: 'Nghỉ hưởng chế độ bảo hiểm xã hội',
+        attributes: { is_paid: false, deducts_annual_leave: false, insurance_paid: true },
+      });
+      assert.equal(created.status, 201);
+      const changed = await patch(`/catalog-items/${created.body.id}`, principal, {
+        attributes: { is_paid: false, deducts_annual_leave: false, insurance_paid: false },
+      });
+      assert.equal(changed.status, 200);
+      assert.equal((changed.body.attributes as { insurance_paid: boolean }).insurance_paid, false);
+      const relationship = await post('/catalog-items', principal, {
+        catalog_type: 'parent_relationship',
+        code: 'CHU',
+        name: 'Chú',
+        attributes: { is_paid: true },
+      });
+      assert.deepEqual(relationship.body.attributes, {});
     });
 
     it('CTC-P01-029: QL-A tạo mục danh mục dùng chung bị từ chối', async () => {

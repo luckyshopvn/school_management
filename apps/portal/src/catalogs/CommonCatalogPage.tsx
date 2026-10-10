@@ -11,9 +11,28 @@ import {
   listCatalogTypes,
   updateCatalogItem,
   type CatalogItem,
+  type LeaveTypeAttributes,
 } from './catalogs-api.js';
 
-// MH-50 Danh mục dùng chung (P01-05): loại do hệ thống định nghĩa, Hiệu trưởng thêm, sửa, ngừng các mục (YCTD-42)
+// MH-50 Danh mục dùng chung (P01-05): loại do hệ thống định nghĩa, Hiệu trưởng thêm, sửa, ngừng các mục (YCTD-42).
+// Loại nghỉ phép có thêm ba thuộc tính tính công (YCTD-59)
+const LEAVE_FLAGS: Array<{ key: keyof LeaveTypeAttributes; label: string }> = [
+  { key: 'is_paid', label: 'Trường trả lương' },
+  { key: 'deducts_annual_leave', label: 'Trừ phép năm' },
+  { key: 'insurance_paid', label: 'Bảo hiểm chi trả' },
+];
+const YES_NO = [
+  { value: 'khong', label: 'Không' },
+  { value: 'co', label: 'Có' },
+];
+
+function leaveAttributesOf(values: Record<string, string | undefined>): LeaveTypeAttributes {
+  return {
+    is_paid: values.is_paid === 'co',
+    deducts_annual_leave: values.deducts_annual_leave === 'co',
+    insurance_paid: values.insurance_paid === 'co',
+  };
+}
 function CatalogItemsSection({
   catalogType,
   label,
@@ -29,6 +48,7 @@ function CatalogItemsSection({
   const items = useQuery({ queryKey: ['catalog-items', catalogType], queryFn: () => listCatalogItems(catalogType) });
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['catalog-items', catalogType] });
   const toOrder = (value: string | undefined) => (value === undefined || value === '' ? 0 : Number(value));
+  const isLeaveType = catalogType === 'leave_type';
 
   return (
     <CatalogTable<CatalogItem>
@@ -40,21 +60,44 @@ function CatalogItemsSection({
         { label: 'Mã', render: (row) => row.code },
         { label: 'Tên', render: (row) => <span className="font-medium">{row.name}</span> },
         { label: 'Thứ tự', render: (row) => row.order_no },
+        ...(isLeaveType
+          ? LEAVE_FLAGS.map((flag) => ({
+              label: flag.label,
+              render: (row: CatalogItem) =>
+                row.attributes[flag.key] === undefined ? 'Chưa khai' : row.attributes[flag.key] ? 'Có' : 'Không',
+            }))
+          : []),
       ]}
       fields={[
         { key: 'code', label: 'Mã' },
         { key: 'name', label: 'Tên' },
         { key: 'order_no', label: 'Thứ tự', kind: 'number' },
+        ...(isLeaveType
+          ? LEAVE_FLAGS.map((flag) => ({ key: flag.key, label: flag.label, kind: 'select' as const, options: YES_NO }))
+          : []),
       ]}
       canManage={canManage}
-      initialValues={{ code: '', name: '', order_no: '' }}
-      valuesOf={(row) => ({ code: row.code, name: row.name, order_no: String(row.order_no) })}
+      initialValues={{
+        code: '',
+        name: '',
+        order_no: '',
+        ...(isLeaveType ? { is_paid: 'khong', deducts_annual_leave: 'khong', insurance_paid: 'khong' } : {}),
+      }}
+      valuesOf={(row) => ({
+        code: row.code,
+        name: row.name,
+        order_no: String(row.order_no),
+        ...(isLeaveType
+          ? Object.fromEntries(LEAVE_FLAGS.map((flag) => [flag.key, row.attributes[flag.key] ? 'co' : 'khong']))
+          : {}),
+      })}
       onCreate={async (values) => {
         await createCatalogItem({
           catalog_type: catalogType,
           code: values.code ?? '',
           name: values.name ?? '',
           order_no: toOrder(values.order_no),
+          ...(isLeaveType ? { attributes: leaveAttributesOf(values) } : {}),
         });
         await refresh();
       }}
@@ -62,7 +105,12 @@ function CatalogItemsSection({
         await updateCatalogItem(
           row.id,
           'name' in changes
-            ? { code: changes.code, name: changes.name, order_no: toOrder(changes.order_no) }
+            ? {
+                code: changes.code,
+                name: changes.name,
+                order_no: toOrder(changes.order_no),
+                ...(isLeaveType ? { attributes: leaveAttributesOf(changes) } : {}),
+              }
             : { status: changes.status as CatalogItem['status'] },
         );
         await refresh();

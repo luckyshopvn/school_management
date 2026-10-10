@@ -1,7 +1,7 @@
 // Danh mục cấu hình theo đơn vị (P01-08, YCTD-40); giờ bắt đầu học mặc định 07:30 (YCTD-47). Ngày chốt công cố định mùng 1 tháng sau nên không có trong danh mục (YCTD-41). Chỉ mục tài liệu đã ghi mặc định mới có mặc định;
 // mục khác trống cho tới khi nhà trường cấu hình. Không có mục tắt kiểm tra quỹ tiền mặt vì BR-34 bắt buộc.
 export type SettingValueType =
-  'closing_day' | 'day_of_month' | 'day_list' | 'boolean' | 'positive_integer' | 'time_of_day';
+  'closing_day' | 'day_of_month' | 'day_list' | 'boolean' | 'positive_integer' | 'time_of_day' | 'minutes';
 
 export interface SettingDefinition {
   key: string;
@@ -89,6 +89,29 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
     defaultValue: null,
     rule: 'BR-38',
   },
+  // Giờ làm việc của nhân sự dùng khi chấm công (BR-39, YCTD-59): chưa có mặc định, chưa cấu hình thì chưa xếp đi muộn,
+  // về sớm và chưa chốt được bảng công
+  {
+    key: 'work_start_time',
+    label: 'Giờ vào làm của nhân sự',
+    valueType: 'time_of_day',
+    defaultValue: null,
+    rule: 'BR-39',
+  },
+  {
+    key: 'work_end_time',
+    label: 'Giờ tan làm của nhân sự',
+    valueType: 'time_of_day',
+    defaultValue: null,
+    rule: 'BR-39',
+  },
+  {
+    key: 'lunch_break_minutes',
+    label: 'Số phút nghỉ trưa của nhân sự',
+    valueType: 'minutes',
+    defaultValue: null,
+    rule: 'BR-39',
+  },
   {
     key: 'max_class_size',
     label: 'Sĩ số tối đa của lớp',
@@ -129,6 +152,10 @@ export function validateSettingValue(definition: SettingDefinition, value: unkno
       return Number.isInteger(value) && (value as number) >= 1 && (value as number) <= 100
         ? null
         : 'Số nguyên từ 1 đến 100';
+    case 'minutes':
+      return Number.isInteger(value) && (value as number) >= 0 && (value as number) <= 480
+        ? null
+        : 'Số phút từ 0 đến 480';
     // Giờ dạng HH:MM theo giờ Việt Nam (BR-13, YCTD-47)
     case 'time_of_day':
       return typeof value === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(value)

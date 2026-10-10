@@ -2,7 +2,7 @@
 
 - Mô tả: Danh sách công việc, trạng thái và thứ tự ưu tiên của dự án.
 - Phiên bản: 0.4
-- Ngày cập nhật: 2026-10-10
+- Ngày cập nhật: 2026-10-11
 - Trạng thái: Đang cập nhật
 
 ## Quy ước trạng thái

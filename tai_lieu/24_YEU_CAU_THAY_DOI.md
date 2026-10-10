@@ -2,7 +2,7 @@
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
 - Phiên bản: 0.4
-- Ngày cập nhật: 2026-10-10
+- Ngày cập nhật: 2026-10-11
 - Trạng thái: Đang cập nhật
 
 ## Quy ước
@@ -10,6 +10,31 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-59: DT-06 phần 6b chia hai; ngày lễ, lịch học bù và nghỉ bù, chấm công, loại nghỉ và phép năm – 2026-10-11
+
+- Lý do: thiết kế DT-06 phần 6b; Eric chốt ngày làm việc của nhân sự, lịch thứ bảy, ngày lễ, giờ làm, loại nghỉ, phép năm và đơn nghỉ.
+- Nội dung thay đổi:
+  - Phần 6b chia hai: 6b-1 ngày nghỉ lễ, lịch học bù và nghỉ bù, cấu hình giờ làm, thuộc tính loại nghỉ, chấm công; 6b-2 quy định và số ngày phép năm, đơn nghỉ phép, chốt và mở lại bảng công.
+  - Ngày làm việc của nhân sự là các ngày học trong tuần của lịch năm học (mặc định thứ hai đến thứ sáu) cộng ngày học bù, trừ ngày nghỉ lễ và ngày nghỉ bù; áp dụng cả kỳ hè và tuần nghỉ của trẻ.
+  - Thứ bảy mặc định nghỉ. Ban Giám hiệu bổ sung từng ngày vào lịch chung toàn trường: học bù chỉ chọn ngày thứ bảy trong học kỳ, là ngày học của mọi lớp và ngày làm việc của mọi nhân sự; nghỉ bù chọn ngày thứ hai đến thứ sáu, trẻ nghỉ học, nhân sự nghỉ có lương. Bỏ quy tắc nghỉ thứ bảy định kỳ.
+  - Ngày nghỉ lễ là một danh sách chung toàn trường do phòng nhân sự gán ở Trường chính lập; ngày lễ không là ngày học của trẻ (không điểm danh, không tính vào số ngày học) và là ngày nghỉ lễ của nhân sự, có hưởng lương hoặc không theo từng ngày.
+  - Ngày lễ, học bù, nghỉ bù chỉ lập, sửa, xóa cho ngày từ ngày mai trở đi; một ngày không vừa là ngày lễ vừa có lịch bù.
+  - Giờ làm việc theo đơn vị, không có mặc định: `work_start_time`, `work_end_time`, `lunch_break_minutes`. Vào sau giờ vào làm là đi muộn, ra trước giờ tan làm là về sớm; số giờ làm bằng giờ ra trừ giờ vào trừ nghỉ trưa; giờ làm chuẩn bằng giờ tan làm trừ giờ vào làm trừ nghỉ trưa. Chưa cấu hình thì chưa xếp đi muộn, về sớm và chưa chốt được bảng công (6b-2).
+  - Chấm công: nhân sự có hồ sơ liên kết tài khoản bấm vào ca một lần, ra ca (bấm lại lấy giờ mới nhất) cho ngày hôm nay trên cổng quản trị hoặc ứng dụng giáo viên, giờ theo máy chủ nên cần có mạng; phòng nhân sự nhập hoặc sửa giờ cho nhân sự của đơn vị cho hôm nay hoặc ngày đã qua trong thời gian làm việc, có nhật ký; mỗi nhân sự mỗi ngày một bản ghi.
+  - Loại nghỉ phép giữ ở danh mục dùng chung do nhà trường tự khai (ví dụ nghỉ phép, không lương, thai sản, bệnh, hưởng chế độ bảo hiểm xã hội, cưới tang); mỗi loại có ba thuộc tính: trường trả lương, trừ số ngày phép năm, bảo hiểm xã hội chi trả. Trừ phép năm thì phải có lương; bảo hiểm chi trả thì trường không trả lương.
+  - Phép năm (6b-2): cấp theo năm dương lịch; quy định số ngày theo chức danh và thâm niên chung toàn trường do phòng nhân sự gán ở Trường chính quản lý.
+  - Đơn nghỉ (6b-2): nhân sự tự gửi trên ứng dụng giáo viên hoặc cổng quản trị, phòng nhân sự lập hộ; ngày đầu hoặc ngày cuối chọn được nửa ngày; số ngày chỉ đếm ngày làm việc; người gửi hủy được khi còn chờ duyệt.
+  - Mở năm học mới chuyển ngày lễ, lịch học bù, nghỉ bù và chấm công sang để chốt được tháng giao giữa hai năm học.
+  - Mã quyền mới: `P08.holiday.manage` cho VT-06 (phải gán ở Trường chính); `P08.school-day-change.manage` cho VT-02, VT-15; `P08.attendance.manage` cho VT-06; `P08.attendance.view` cho VT-02, VT-15, VT-03, VT-04, VT-05, VT-06.
+- Thành phần bị ảnh hưởng: `07`, `08`, `10`, `14`, `16`, `17`, `27_BO_CA_KIEM_THU_CHI_TIET/05_P08.md`, `01`, `03`, `index.md`; máy chủ API (lịch ngày học, danh mục dùng chung, cấu hình), cổng quản trị, ứng dụng giáo viên.
+- Dữ liệu bị ảnh hưởng: bảng mới `holidays`, `school_day_changes` (thay cho `saturday_schedules` của thiết kế), `attendance_logs`; `catalog_items` thêm `attributes`; cấu hình `work_start_time`, `work_end_time`, `lunch_break_minutes`.
+- API bị ảnh hưởng: `GET /school-days`, `POST, PUT, DELETE /holidays`, `POST, DELETE /school-day-changes` (thay cho `/saturday-schedules`), `GET, PUT /attendance-logs`, `GET /me/attendance-logs`, `POST /me/attendance-logs/check-in`, `POST /me/attendance-logs/check-out`; danh mục dùng chung nhận `attributes`.
+- Giao diện bị ảnh hưởng: MH-13 và MH-44 (trang Chấm công), MH-37 (trang Ngày lễ và lịch bù), MG-10 (thẻ chấm công hôm nay), MH-50 (thuộc tính loại nghỉ), MH-30 cấu hình đơn vị (giờ làm).
+- Quyền bị ảnh hưởng: thêm `P08.holiday.manage`, `P08.school-day-change.manage`, `P08.attendance.manage`, `P08.attendance.view`.
+- Ảnh hưởng chức năng cũ: ngày lễ và ngày nghỉ bù không còn là ngày học khi điểm danh, đón trả và tính học phí; ngày học bù thứ bảy thành ngày học. Chưa lập lịch thì không đổi gì.
+- Kiểm thử cần thực hiện: CTC-P08-001 đến 006, CTC-P08-050 đến 053; phần 6b-2: CTC-P08-009 đến 026, CTC-P08-054.
+- Trạng thái: Đã triển khai phần 6b-1
 
 ### YCTD-58: DT-06 chia ba phần; hồ sơ nhân sự và hợp đồng lao động – 2026-10-10
 

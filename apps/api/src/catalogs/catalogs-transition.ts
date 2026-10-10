@@ -31,7 +31,10 @@ export const catalogsTransitionStep: AcademicYearTransitionStep = {
       await next.insertInto('job_titles').values(row).execute();
     }
     for (const row of await previous.selectFrom('catalog_items').selectAll().execute()) {
-      await next.insertInto('catalog_items').values(row).execute();
+      await next
+        .insertInto('catalog_items')
+        .values({ ...row, attributes: JSON.stringify(row.attributes) })
+        .execute();
     }
     for (const row of await previous.selectFrom('approval_thresholds').selectAll().execute()) {
       await next.insertInto('approval_thresholds').values(row).execute();

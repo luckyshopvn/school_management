@@ -32,6 +32,7 @@ export interface CatalogItem {
   name: string;
   order_no: number;
   status: CatalogStatus;
+  attributes: Record<string, unknown>;
 }
 
 interface CatalogItemChanges {
@@ -39,9 +40,56 @@ interface CatalogItemChanges {
   name?: string;
   order_no?: number;
   status?: CatalogStatus;
+  attributes?: unknown;
 }
 
-const COLUMNS = ['id', 'catalog_type', 'code', 'name', 'order_no', 'status'] as const;
+// Thuộc tính tính công của loại nghỉ phép (YCTD-59): trường trả lương, trừ số ngày phép năm, bảo hiểm xã hội chi trả.
+// Trừ phép năm thì phải là nghỉ trường trả lương; bảo hiểm chi trả thì trường không trả lương
+export interface LeaveTypeAttributes {
+  is_paid: boolean;
+  deducts_annual_leave: boolean;
+  insurance_paid: boolean;
+}
+
+const LEAVE_TYPE_FLAGS = ['is_paid', 'deducts_annual_leave', 'insurance_paid'] as const;
+
+export function readLeaveTypeAttributes(value: unknown, errors: FieldError[]): LeaveTypeAttributes | undefined {
+  const input = (typeof value === 'object' && value !== null ? value : {}) as Record<string, unknown>;
+  for (const flag of LEAVE_TYPE_FLAGS) {
+    if (typeof input[flag] !== 'boolean') {
+      errors.push({ field: `attributes.${flag}`, message: 'Loại nghỉ phép bắt buộc chọn có hoặc không' });
+    }
+  }
+  if (errors.some((error) => error.field.startsWith('attributes.'))) {
+    return undefined;
+  }
+  const attributes = {
+    is_paid: input.is_paid as boolean,
+    deducts_annual_leave: input.deducts_annual_leave as boolean,
+    insurance_paid: input.insurance_paid as boolean,
+  };
+  if (attributes.deducts_annual_leave && !attributes.is_paid) {
+    errors.push({ field: 'attributes.deducts_annual_leave', message: 'Loại nghỉ trừ phép năm phải là nghỉ có lương' });
+  }
+  if (attributes.insurance_paid && attributes.is_paid) {
+    errors.push({ field: 'attributes.insurance_paid', message: 'Bảo hiểm chi trả thì trường không trả lương' });
+  }
+  return attributes;
+}
+
+function attributesFor(catalogType: string, value: unknown): string {
+  if (catalogType !== 'leave_type') {
+    return '{}';
+  }
+  const errors: FieldError[] = [];
+  const attributes = readLeaveTypeAttributes(value, errors);
+  if (errors.length > 0) {
+    throw validationError(errors);
+  }
+  return JSON.stringify(attributes);
+}
+
+const COLUMNS = ['id', 'catalog_type', 'code', 'name', 'order_no', 'status', 'attributes'] as const;
 const ORDER_RANGE = { min: 0, max: 9999 };
 const DUPLICATE_MESSAGE = 'Mã đã có trong loại danh mục này';
 
@@ -72,15 +120,16 @@ export class CatalogItemsService {
   }
 
   async create(
-    input: { catalog_type: string; code: string; name: string; order_no: number },
+    input: { catalog_type: string; code: string; name: string; order_no: number; attributes: unknown },
     origin: ChangeOrigin,
   ): Promise<CatalogItem> {
     const { database } = await this.currentSchoolYear.require();
+    const attributes = attributesFor(input.catalog_type, input.attributes);
     return conflictOnDuplicate(
       database.transaction().execute(async (transaction) => {
         const created = await transaction
           .insertInto('catalog_items')
-          .values({ ...input, created_by: origin.actorUserId })
+          .values({ ...input, attributes, created_by: origin.actorUserId })
           .returning(COLUMNS)
           .executeTakeFirstOrThrow();
         await writeAuditLog(transaction, {
@@ -109,11 +158,13 @@ export class CatalogItemsService {
     if (!existing) {
       throw notFoundError('Không tìm thấy mục danh mục', 'catalog_item');
     }
+    const { attributes, ...columns } = changes;
+    const attributesText = attributes === undefined ? undefined : attributesFor(existing.catalog_type, attributes);
     return conflictOnDuplicate(
       database.transaction().execute(async (transaction) => {
         const updated = await transaction
           .updateTable('catalog_items')
-          .set({ ...changes, updated_at: this.clock.now() })
+          .set({ ...columns, attributes: attributesText, updated_at: this.clock.now() })
           .where('id', '=', itemId)
           .returning(COLUMNS)
           .executeTakeFirstOrThrow();
@@ -169,6 +220,7 @@ export class CatalogItemsController {
       code: readRequiredText(body, 'code', errors),
       name: readRequiredText(body, 'name', errors),
       order_no: readInteger(body, 'order_no', errors, ORDER_RANGE) ?? 0,
+      attributes: body?.attributes,
     };
     if (errors.length > 0) {
       throw validationError(errors);
@@ -190,6 +242,7 @@ export class CatalogItemsController {
       name: body?.name === undefined ? undefined : readRequiredText(body, 'name', errors),
       order_no: readInteger(body, 'order_no', errors, ORDER_RANGE),
       status: readStatus(body, errors),
+      attributes: body?.attributes,
     };
     if (errors.length > 0) {
       throw validationError(errors);
