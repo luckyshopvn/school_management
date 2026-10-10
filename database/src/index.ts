@@ -36,6 +36,7 @@ export type {
   InvoiceKind,
   InvoiceStatus,
   LateChargeMethod,
+  OnlineMatchStatus,
   OrgUnitStatus,
   OrgUnitType,
   PhotoConsent,

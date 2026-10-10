@@ -7,6 +7,7 @@ import { formatMoney } from '../fees/fees-api.js';
 import { AppShell } from '../pages/AppShell.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
+import { OnlineTransfersSection } from './OnlineTransfersSection.js';
 import { decideReversal, listPendingReversals, listReceipts, METHOD_LABELS, reverseReceipt } from './finance-api.js';
 
 // MH-09 Danh sách phiếu thu (P06-01, P06-03; BR-28, BR-29, BR-77; YCTD-53, YCTD-54): lọc theo đơn vị và khoảng ngày;
@@ -22,6 +23,7 @@ const STATUS_LABELS = { issued: 'Đã phát hành', pending_reversal: 'Chờ duy
 export function ReceiptsPage() {
   const canReverse = useHasPermission(PERMISSION_CODES.receiptReversalCreate);
   const canApprove = useHasPermission(PERMISSION_CODES.receiptReversalApprove);
+  const canCollect = useHasPermission(PERMISSION_CODES.receiptManage);
   const unitChoice = useUnitChoice();
   const orgUnitId = unitChoice.selectedId;
   const queryClient = useQueryClient();
@@ -81,6 +83,7 @@ export function ReceiptsPage() {
         {receipts.error ? <Alert tone="danger">{messageOf(receipts.error)}</Alert> : null}
         {reverse.error ? <Alert tone="danger">{messageOf(reverse.error)}</Alert> : null}
         {decide.error ? <Alert tone="danger">{messageOf(decide.error)}</Alert> : null}
+        {canCollect ? <OnlineTransfersSection onResolved={setToastMessage} /> : null}
         {canApprove ? (
           <section
             className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"

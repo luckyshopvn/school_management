@@ -1,7 +1,7 @@
 # 22. BẢO MẬT
 
 - Mô tả: Xác thực, phân quyền, phiên làm việc, kiểm tra dữ liệu đầu vào, bảo mật API, truy cập dữ liệu.
-- Phiên bản: 1.6
+- Phiên bản: 1.7
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -76,7 +76,7 @@
 | BM-57 | Tầng giao diện không truy cập cơ sở dữ liệu và không giữ thông tin đăng nhập cơ sở dữ liệu |
 | BM-58 | Máy chủ API nghiệp vụ kiểm tra mã phiên với dịch vụ định danh hoặc kiểm tra chữ ký của mã trước khi xử lý mọi yêu cầu |
 | BM-59 | Phê duyệt theo hạn mức được kiểm tra ở máy chủ; không tin giá trị hạn mức do giao diện gửi lên |
-| BM-62 | Điểm cuối nhận thông báo tiền vào chỉ chấp nhận yêu cầu có chữ ký hợp lệ của nhà cung cấp và đến từ địa chỉ mạng cho phép; chống xử lý trùng theo mã giao dịch của nhà cung cấp; không tự lập phiếu thu khi số tiền hoặc nội dung không khớp |
+| BM-62 | Điểm cuối nhận thông báo tiền vào chỉ chấp nhận yêu cầu có chữ ký hợp lệ của nhà cung cấp và đến từ địa chỉ mạng cho phép; chống xử lý trùng theo mã giao dịch của nhà cung cấp; không tự lập phiếu thu khi số tiền hoặc nội dung không khớp. Điểm cuối giả lập chỉ bật với bộ giả lập nhà cung cấp, cần mã phiên có quyền lập phiếu thu; không bật ở môi trường chạy thật (YCTD-57) |
 | BM-63 | Tệp Excel nhập dữ liệu ban đầu được kiểm tra định dạng và nội dung, giới hạn dung lượng; chỉ VT-02, VT-04, VT-06 được nhập; mỗi lần nhập ghi nhật ký |
 | BM-65 | Khóa API của đối tác lưu dạng băm, chỉ hiển thị một lần khi cấp; mỗi khóa có phạm vi dữ liệu, địa chỉ mạng cho phép, ngày hết hạn và giới hạn tần suất; thu hồi có hiệu lực ngay |
 | BM-66 | Đối tác chỉ đọc dữ liệu cá nhân khi khóa ghi căn cứ pháp lý; mỗi lần đọc ghi nhật ký truy cập dữ liệu nhạy cảm kèm khóa, phạm vi và số bản ghi |

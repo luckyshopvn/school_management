@@ -64,6 +64,7 @@ export async function startApiTestEnvironment(
       childDataEncryptionKey: randomBytes(32),
       childDataHashKey: randomBytes(32),
       objectStorage: null,
+      paymentGateway: 'development',
     },
     { ...options, fileStorage: new MemoryFileStorage() },
   );

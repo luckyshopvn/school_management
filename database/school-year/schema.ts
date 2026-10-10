@@ -599,6 +599,8 @@ export interface CashAccountsTable {
   opening_balance: Money;
   current_balance: Money;
   status: Generated<'active' | 'inactive'>;
+  receives_online_payments: Generated<boolean>;
+  online_payment_category_id: string | null;
   created_by: string;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
@@ -716,6 +718,46 @@ export interface PaymentReversalsTable {
   reject_reason: string | null;
 }
 
+export type OnlineMatchStatus = 'matched' | 'wrong_amount' | 'unknown_invoice' | 'already_paid';
+
+export interface PaymentRequestsTable {
+  id: Generated<string>;
+  invoice_id: string;
+  child_id: string;
+  org_unit_id: string;
+  amount: Money;
+  transfer_content: string;
+  provider: string;
+  provider_reference: string;
+  virtual_account_number: string;
+  qr_content: string;
+  status: Generated<'active' | 'paid' | 'cancelled'>;
+  expires_at: Date | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  closed_at: Date | null;
+}
+
+export interface OnlinePaymentTransactionsTable {
+  id: Generated<string>;
+  provider: string;
+  provider_transaction_ref: string;
+  virtual_account_number: string | null;
+  amount: Money;
+  transfer_content: string;
+  received_at: Date;
+  match_status: OnlineMatchStatus;
+  payment_request_id: string | null;
+  invoice_id: string | null;
+  child_id: string | null;
+  org_unit_id: string | null;
+  receipt_id: string | null;
+  resolution_note: string | null;
+  handled_by: string | null;
+  handled_at: Date | null;
+  created_at: CreatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -768,4 +810,6 @@ export interface SchoolYearDatabase {
   payment_attachments: PaymentAttachmentsTable;
   payment_refund_sources: PaymentRefundSourcesTable;
   payment_reversals: PaymentReversalsTable;
+  payment_requests: PaymentRequestsTable;
+  online_payment_transactions: OnlinePaymentTransactionsTable;
 }

@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Button, StatusBadge } from '@school-management/ui';
 import { ApiError, requestJson } from '../session/api-client.js';
+import { PaymentQr } from './PaymentQr.js';
 
 // MP-11 Học phí và công nợ của con (P05-06, P05-09; AC-103, AC-106; YCTD-51, YCTD-53): hóa đơn đã phát hành của con mình,
-// chi tiết từng khoản, số còn phải nộp, số dư có và lịch sử đã nộp
+// chi tiết từng khoản, số còn phải nộp, số dư có, lịch sử đã nộp và thanh toán bằng mã QR (YCTD-57)
 interface Invoice {
   id: string;
   code: string | null;
@@ -48,6 +49,7 @@ export function InvoicesPanel({ child }: { child: { id: string; full_name: strin
   const [debt, setDebt] = useState<Debt>();
   const [receipts, setReceipts] = useState<Receipt[]>();
   const [errorMessage, setErrorMessage] = useState<string>();
+  const [payingId, setPayingId] = useState<string>();
   // Mở nhanh nhiều hóa đơn thì chỉ hiện chi tiết của lần mở sau cùng
   const latestRequest = useRef(0);
 
@@ -106,10 +108,16 @@ export function InvoicesPanel({ child }: { child: { id: string; full_name: strin
               ) : invoice.due_date ? (
                 <StatusBadge tone="warning" label={`Hạn nộp ${invoice.due_date}`} />
               ) : null}
+              {invoice.outstanding_amount > 0 ? (
+                <Button variant="text" onClick={() => setPayingId(payingId === invoice.id ? undefined : invoice.id)}>
+                  {payingId === invoice.id ? 'Ẩn mã QR' : 'Thanh toán bằng mã QR'}
+                </Button>
+              ) : null}
               <Button variant="text" onClick={() => void open(invoice.id)}>
                 Xem chi tiết
               </Button>
             </div>
+            {payingId === invoice.id ? <PaymentQr invoiceId={invoice.id} invoiceCode={invoice.code ?? ''} /> : null}
             {detail?.id === invoice.id ? (
               <ul className="flex flex-col gap-1 text-content">
                 {detail.items.map((item) => (

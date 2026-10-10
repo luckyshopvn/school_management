@@ -255,3 +255,37 @@ export const decidePaymentReversal = (paymentId: string, approve: boolean, reaso
   });
 export const listPendingPaymentReversals = (orgUnitId: string): Promise<PaymentReversal[]> =>
   requestJson(`/api/v1/payment-reversals/pending?org_unit_id=${orgUnitId}`);
+
+export interface OnlinePaymentAccount {
+  id: string;
+  name: string;
+  bank_name: string | null;
+  account_number: string | null;
+  online_payment_category_id: string | null;
+}
+
+export interface OnlineTransfer {
+  id: string;
+  provider_transaction_ref: string;
+  amount: number;
+  transfer_content: string;
+  received_at: string;
+  match_status: 'matched' | 'wrong_amount' | 'unknown_invoice' | 'already_paid';
+  invoice_code: string | null;
+  child_name: string | null;
+}
+
+export const readOnlinePaymentSettings = (): Promise<OnlinePaymentAccount | null> =>
+  requestJson('/api/v1/online-payment-settings');
+export const saveOnlinePaymentSettings = (accountId: string, categoryId: string) =>
+  requestJson<OnlinePaymentAccount>('/api/v1/online-payment-settings', {
+    method: 'PUT',
+    body: JSON.stringify({ account_id: accountId, category_id: categoryId }),
+  });
+export const listPendingTransfers = (): Promise<OnlineTransfer[]> =>
+  requestJson('/api/v1/online-payment-transactions?status=pending');
+export const resolveTransfer = (transferId: string, note: string) =>
+  requestJson<OnlineTransfer>(`/api/v1/online-payment-transactions/${transferId}/resolve`, {
+    method: 'POST',
+    body: JSON.stringify({ note }),
+  });
