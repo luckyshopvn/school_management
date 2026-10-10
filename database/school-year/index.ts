@@ -11,6 +11,7 @@ import { migration as createPickups } from './migrations/0009_create_pickups.js'
 import { migration as createFeeCatalogs } from './migrations/0010_create_fee_catalogs.js';
 import { migration as createServiceRegistrations } from './migrations/0011_create_service_registrations.js';
 import { migration as createInvoices } from './migrations/0012_create_invoices.js';
+import { migration as createDiscountsAndAdjustments } from './migrations/0013_create_discounts_and_adjustments.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
@@ -26,4 +27,5 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0010_create_fee_catalogs': createFeeCatalogs,
   '0011_create_service_registrations': createServiceRegistrations,
   '0012_create_invoices': createInvoices,
+  '0013_create_discounts_and_adjustments': createDiscountsAndAdjustments,
 };

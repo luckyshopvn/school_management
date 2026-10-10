@@ -14,6 +14,29 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-10 — DT-05 phần 5c-2: miễn giảm và phiếu điều chỉnh hóa đơn
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 19 (phần 5c-1) sau khi mọi bước kiểm thử trên GitHub đạt.
+- Hỏi Eric hai điểm của phần 5c-2; viết phần 5c-2 trên nhánh `dt-05-phan-5c2`.
+- Cơ sở dữ liệu: năm học có `discounts`, `invoice_adjustments` (tệp 0013); định danh có `P05.discount.manage`, `P05.invoice-adjustment.create`, `P05.fee-document.approve` (tệp 0018).
+- Máy chủ API: lập miễn giảm, chép miễn giảm kỳ trước, lập phiếu điều chỉnh, duyệt và từ chối theo hạn mức, danh sách chờ duyệt; số phải nộp của hóa đơn; tính lại miễn giảm chờ duyệt khi chạy lại tính học phí.
+- Cổng quản trị: chi tiết hóa đơn trong MH-06 có miễn giảm, điều chỉnh, số phải nộp và biểu mẫu lập; trang MH-07 Duyệt miễn giảm và điều chỉnh. Ứng dụng phụ huynh: số phải nộp và miễn giảm đã duyệt.
+- Kết quả: máy chủ API 200/200, dịch vụ định danh 37/37, cơ sở dữ liệu 3/3, tiến trình chạy nền 1/1, kiểm thử giao diện 30/30.
+
+#### Quyết định
+
+- Miễn giảm lập trên cả hóa đơn nháp và đã phát hành; lập theo từng hóa đơn, có chép từ kỳ trước (YCTD-52) – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-52 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.28.7.
+
+#### Vấn đề tồn đọng
+
+- Không.
+
 ### 2026-10-10 — DT-05 phần 5c-1: tính học phí và phát hành hóa đơn
 
 #### Công việc đã thực hiện

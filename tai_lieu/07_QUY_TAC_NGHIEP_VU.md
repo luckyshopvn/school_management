@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.14
+- Phiên bản: 1.15
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -50,7 +50,7 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 | BR-19 | Khoản phải thu của một trẻ trong một kỳ gồm: học phí chính khóa, tiền ăn, các dịch vụ khác đã đăng ký, và các khoản phát sinh. Học phí chính khóa là một loại phí trong biểu phí, mức có thể bằng không theo chính sách miễn học phí của từng năm học; khi mức bằng không thì hóa đơn không sinh dòng học phí chính khóa |
 | BR-20 | Loại giảm trừ, cách tính và mức do nhà trường cấu hình (P05-11, Q-16), ví dụ trẻ con nhân sự, anh chị em ruột cùng học, học phí đặc biệt theo thỏa thuận, học bổng. Mỗi khoản giảm trừ phải ghi rõ căn cứ và người phê duyệt |
 | BR-21 | Giảm trừ theo tỷ lệ phần trăm và giảm trừ theo số tiền cố định là hai cách áp dụng khác nhau; hệ thống lưu cả căn cứ và kết quả tính để truy xuất về sau |
-| BR-22 | Tổng giảm trừ của một trẻ trong một kỳ không vượt quá tổng khoản phải thu của kỳ đó. Số dư âm phải chuyển thành số dư có cho kỳ sau, không để âm trên hóa đơn |
+| BR-22 | Tổng giảm trừ của một trẻ trong một kỳ không vượt quá tổng khoản phải thu của kỳ đó; mỗi khoản miễn giảm không vượt tổng các khoản mà loại miễn giảm áp dụng (YCTD-52). Số dư âm phải chuyển thành số dư có cho kỳ sau, không để âm trên hóa đơn |
 | BR-23 | Trẻ nhập học hoặc thôi học giữa tháng: học phí chính khóa bằng học phí tháng nhân số ngày học thực tế trong tháng, chia số ngày học của tháng, làm tròn đến đồng. Số ngày học thực tế là số ngày học trong thời gian trẻ đang học, không trừ ngày vắng (YCTD-51). Số ngày học của tháng tính theo lịch năm học (BR-91): các ngày học trong tuần nằm trong học kỳ hoặc kỳ hè, trừ tuần nghỉ và ngày nghỉ lễ, cộng ngày học bù thứ bảy |
 | BR-24 | Trẻ thôi học giữa tháng: quyết toán đến ngày thôi học, các khoản đã thu vượt được bù trừ vào kỳ sau hoặc hoàn lại theo quyết định của Hiệu trưởng. Phiếu chi hoàn tiền luôn do Hiệu trưởng phê duyệt, không xét hạn mức |
 | BR-25 | Hóa đơn học phí đã phát hành không sửa trực tiếp. Muốn điều chỉnh phải lập phiếu điều chỉnh có lý do, người phê duyệt và liên kết tới hóa đơn gốc |

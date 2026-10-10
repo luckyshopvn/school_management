@@ -11,7 +11,7 @@ import {
 import { createTestUser, hashForTesting, TEST_PASSWORD } from '@school-management/identity/testing';
 import { E2E_PARENT_PORT, E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
 
-// Xem hóa đơn trên cổng quản trị và ứng dụng phụ huynh (DT-05 phần 5c-1, YCTD-51). Tính học phí cần một tháng đã qua
+// Xem hóa đơn, lập và duyệt miễn giảm trên cổng quản trị, xem trên ứng dụng phụ huynh (DT-05 phần 5c, YCTD-51, YCTD-52). Tính học phí cần một tháng đã qua
 // chốt đủ điểm danh nên đã kiểm thử ở apps/api/src/fees/fee-calculation.test.ts; ở đây ghi sẵn một hóa đơn đã phát hành
 // cho trẻ Nguyễn Gia Bảo (09-children.spec.ts) để kiểm tra màn hình
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
@@ -104,7 +104,28 @@ test('Kế toán xem bảng học phí kỳ có hóa đơn đã phát hành; ph�
   await expect(row).toContainText('HD-900001');
   await expect(row).toContainText('2.970.000');
   await row.getByRole('button', { name: 'Chi tiết' }).click();
-  await expect(sheet.getByRole('table', { name: `Chi tiết hóa đơn của ${CHILD_NAME}` })).toContainText('22 ngày ăn');
+  const detail = sheet.getByRole('group', { name: `Chi tiết hóa đơn của ${CHILD_NAME}` });
+  await expect(detail).toContainText('22 ngày ăn');
+
+  // Miễn giảm anh chị em ruột 10% tiền bán trú (13-fees.spec.ts) bằng 77 000; đơn vị chưa đặt hạn mức nên Hiệu trưởng duyệt
+  await detail.getByRole('combobox', { name: /^Loại miễn giảm/ }).selectOption({ label: 'Anh chị em ruột' });
+  await detail.getByLabel('Căn cứ miễn giảm').fill('Có anh ruột cùng học');
+  await detail.getByRole('button', { name: 'Lập miễn giảm' }).click();
+  await expect(detail).toContainText('Cần Hiệu trưởng duyệt');
+  await expect(detail).toContainText('77.000');
+
+  const principal = await createTestUser(identity, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
+  const approver = await (await browser.newContext()).newPage();
+  await approver.goto('/');
+  await approver.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(principal.username);
+  await approver.getByLabel('Mật khẩu', { exact: true }).fill(principal.password);
+  await approver.getByRole('button', { name: 'Đăng nhập' }).click();
+  await approver.getByRole('link', { name: 'Duyệt miễn giảm và điều chỉnh' }).click();
+  await approver.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
+  const request = approver.getByRole('group', { name: `Miễn giảm của ${CHILD_NAME}` });
+  await expect(request).toContainText('Có anh ruột cùng học');
+  await request.getByRole('button', { name: 'Duyệt' }).click();
+  await expect(approver.getByText('Không có miễn giảm chờ duyệt.')).toBeVisible();
 
   await identity
     .updateTable('users')
@@ -120,7 +141,8 @@ test('Kế toán xem bảng học phí kỳ có hóa đơn đã phát hành; ph�
   await card.getByRole('button', { name: 'Học phí' }).click();
   const item = card.getByRole('listitem', { name: 'Hóa đơn HD-900001' });
   await expect(item).toContainText('Tháng 10/2026');
-  await expect(item).toContainText('2.970.000');
+  await expect(item).toContainText('Phải nộp 2.893.000');
   await item.getByRole('button', { name: 'Xem chi tiết' }).click();
   await expect(item).toContainText('Bán trú (22 ngày ăn)');
+  await expect(item).toContainText('Miễn giảm: Anh chị em ruột');
 });

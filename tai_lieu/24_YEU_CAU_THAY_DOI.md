@@ -11,6 +11,26 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-52: Miễn giảm và phiếu điều chỉnh hóa đơn – 2026-10-10
+
+- Lý do: thiết kế DT-05 phần 5c-2 cần chốt thời điểm lập miễn giảm, cách xử lý miễn giảm lặp lại mỗi tháng và quyền duyệt khác với `P05.approve` hiện có (kế toán, kế toán trưởng cũng có quyền này).
+- Nội dung thay đổi:
+  - Miễn giảm lập được trên hóa đơn nháp và hóa đơn đã phát hành; không sửa dòng khoản phải thu. Số phải nộp bằng tổng hóa đơn trừ miễn giảm đã duyệt, cộng điều chỉnh đã duyệt; số đã thu trừ thêm ở phần 5d. Chạy lại tính học phí thì miễn giảm chờ duyệt được tính lại theo dòng mới, miễn giảm đã duyệt giữ nguyên số tiền; tổng miễn giảm vượt tổng hóa đơn thì đánh dấu dòng cần kiểm tra.
+  - Miễn giảm lập theo từng hóa đơn, mỗi khoản có căn cứ và người duyệt (BR-20); có nút chép miễn giảm đã duyệt của hóa đơn chính kỳ trước sang hóa đơn kỳ này, bản chép vẫn chờ duyệt.
+  - Số tiền miễn giảm tính trên tổng các dòng thuộc khoản áp dụng của loại miễn giảm: phần trăm làm tròn đến đồng, số tiền cố định giữ nguyên; vượt các khoản áp dụng hoặc tổng miễn giảm chờ duyệt và đã duyệt vượt tổng hóa đơn thì chặn (BR-22).
+  - Phiếu điều chỉnh chỉ cho hóa đơn đã phát hành, tăng hoặc giảm kèm lý do, số `DC-000001` liên tục trong năm học; giảm vượt số phải nộp thì chặn.
+  - Duyệt theo hạn mức đang hiệu lực của đơn vị của hóa đơn (`tuition_discount`, `invoice_adjustment`): dưới hạn mức thì Phó Hiệu trưởng hoặc Hiệu trưởng duyệt; từ hạn mức trở lên hoặc chưa đặt hạn mức thì chỉ Hiệu trưởng (Q-112). Từ chối phải có lý do. Phó Hiệu trưởng chỉ thấy khoản dưới hạn mức trong danh sách chờ duyệt.
+  - Mã quyền mới: `P05.discount.manage` cho VT-04 (lập miễn giảm); `P05.invoice-adjustment.create` cho VT-04, VT-05 (lập phiếu điều chỉnh); `P05.fee-document.approve` cho VT-02 toàn trường và VT-15 trong đơn vị được gán (duyệt). Quản lý đơn vị chỉ xem (Q-134).
+  - Phụ huynh chỉ thấy miễn giảm và điều chỉnh đã duyệt; chặn đăng ký khi nợ quá hạn tính theo số phải nộp.
+- Thành phần bị ảnh hưởng: `07`, `08`, `14`, `16`, `17`, `27_BO_CA_KIEM_THU_CHI_TIET/03_P05.md`, `01`, `03`, `index.md`; mã nguồn DT-05 phần 5c-2, tính học phí, đăng ký dịch vụ; cổng quản trị, ứng dụng phụ huynh.
+- Dữ liệu bị ảnh hưởng: bảng mới `discounts`, `invoice_adjustments`.
+- API bị ảnh hưởng: `POST /invoices/{id}/discounts`, `POST /invoices/{id}/discounts/copy-previous`, `POST /discounts/{id}/approve`, `/reject`, `POST /invoice-adjustments`, `POST /invoice-adjustments/{id}/approve`, `/reject`, `GET /fee-approvals/pending`; `GET /invoices`, `GET /invoices/{id}` thêm `discount_amount`, `adjustment_amount`, `payable_amount`, `discounts`, `adjustments`.
+- Giao diện bị ảnh hưởng: MH-06 (chi tiết hóa đơn có miễn giảm, điều chỉnh, số phải nộp), MH-07 Duyệt miễn giảm và điều chỉnh, MP-11.
+- Quyền bị ảnh hưởng: thêm `P05.discount.manage`, `P05.invoice-adjustment.create`, `P05.fee-document.approve`.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: CTC-P05-043 đến 060.
+- Trạng thái: Đã triển khai
+
 ### YCTD-51: Tính học phí, phát hành hóa đơn và chặn đăng ký khi nợ quá hạn – 2026-10-10
 
 - Lý do: thiết kế DT-05 phần 5c cần chốt cách đếm ngày học của BR-23, cách chạy tính học phí, mốc đánh dấu dòng cần kiểm tra và cách làm tròn; khi rà phần 5b phát hiện phụ huynh xem được bảng đăng ký của cả đơn vị vì VT-14 gán theo đơn vị của con.
@@ -31,7 +51,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: thêm `P05.fee-calculation.manage`.
 - Ảnh hưởng chức năng cũ: phụ huynh không còn xem được bảng đăng ký dịch vụ của cả đơn vị (sửa lỗi phân quyền).
 - Kiểm thử cần thực hiện: CTC-P05-015, 017, 018, 023 đến 026, 029 đến 031, 033 đến 042.
-- Trạng thái: Đã triển khai phần 5c-1
+- Trạng thái: Đã triển khai phần 5c-1; phần 5c-2 ở YCTD-52
 
 ### YCTD-50: Đăng ký dịch vụ, hủy trễ và học hè – 2026-10-10
 

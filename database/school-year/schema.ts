@@ -545,6 +545,46 @@ export interface DocumentSequencesTable {
   last_value: number;
 }
 
+export type FeeDocumentStatus = 'pending' | 'approved' | 'rejected';
+
+export interface DiscountsTable {
+  id: Generated<string>;
+  invoice_id: string;
+  child_id: string;
+  org_unit_id: string;
+  discount_type_id: string;
+  basis: string;
+  calculation_method: DiscountCalculationMethod;
+  rate_value: Money;
+  base_amount: Money;
+  applied_amount: Money;
+  status: FeeDocumentStatus;
+  requires_principal: boolean;
+  copied_from_id: string | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  decided_by: string | null;
+  decided_at: Date | null;
+  reject_reason: string | null;
+}
+
+export interface InvoiceAdjustmentsTable {
+  id: Generated<string>;
+  code: string;
+  invoice_id: string;
+  child_id: string;
+  org_unit_id: string;
+  reason: string;
+  amount: Money;
+  status: FeeDocumentStatus;
+  requires_principal: boolean;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  decided_by: string | null;
+  decided_at: Date | null;
+  reject_reason: string | null;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -586,4 +626,6 @@ export interface SchoolYearDatabase {
   invoices: InvoicesTable;
   invoice_items: InvoiceItemsTable;
   document_sequences: DocumentSequencesTable;
+  discounts: DiscountsTable;
+  invoice_adjustments: InvoiceAdjustmentsTable;
 }
