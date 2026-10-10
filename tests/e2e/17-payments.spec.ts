@@ -11,7 +11,7 @@ import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
 
 // Lập phiếu chi kèm chứng từ, Hiệu trưởng duyệt, xem sổ quỹ (DT-05 phần 5e-1, YCTD-55). Dùng quỹ "Quỹ tiền mặt cơ sở"
-// còn 1 000 000 sau khi thu rồi đảo phiếu thu ở 16-receipts.spec.ts; đơn vị chưa đặt hạn mức nên Hiệu trưởng duyệt
+// còn 1 000 000 sau khi thu rồi đảo phiếu thu ở 16-receipts.spec.ts; Hiệu trưởng duyệt được mọi mức
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 const CHILD_NAME = 'Nguyễn Gia Bảo';
 const PAYEE = 'Cửa hàng rau sạch';
@@ -78,7 +78,7 @@ test('Kế toán lập phiếu chi kèm chứng từ và trình duyệt; Hiệu 
   await principal.getByRole('link', { name: 'Phiếu chi' }).click();
   await principal.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
   const request = principal.getByRole('group', { name: `Phiếu chi cho ${PAYEE}` });
-  await expect(request).toContainText('Cần Hiệu trưởng duyệt');
+  await expect(request).toContainText('Mua rau cho bữa trưa');
   await request.getByRole('button', { name: 'Duyệt' }).click();
   await expect(principal.getByText('Không có phiếu chi chờ duyệt.')).toBeVisible();
   await expect(principal.getByRole('row', { name: `Phiếu chi ${PAYEE}` })).toContainText('Đã phát hành');
