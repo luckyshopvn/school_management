@@ -32,7 +32,8 @@ type NavigationPath =
   | '/receipts'
   | '/cash-accounts'
   | '/payments'
-  | '/cash-book';
+  | '/cash-book'
+  | '/staff';
 
 function NavItem({ to, label }: { to: NavigationPath; label: string }) {
   return (
@@ -67,7 +68,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canImportChildren = useHasPermission(PERMISSION_CODES.importChildren);
   const canManageChildren = useHasPermission(PERMISSION_CODES.childManage);
   const canImportOpeningDebts = useHasPermission(PERMISSION_CODES.openingDebtImport);
-  const canImport = canImportChildren || canManageChildren || canImportOpeningDebts;
+  const canImportStaff = useHasPermission(PERMISSION_CODES.importStaff);
+  const canViewStaff = useHasPermission(PERMISSION_CODES.staffView);
+  const canImport = canImportChildren || canManageChildren || canImportOpeningDebts || canImportStaff;
   const canViewTuition = useHasPermission('P05.view');
   const canManageFeeCatalog = useHasPermission(PERMISSION_CODES.feeCatalogManage);
   const canManageDiscountTypes = useHasPermission(PERMISSION_CODES.discountTypeManage);
@@ -124,6 +127,17 @@ export function AppShell({ children }: { children: ReactNode }) {
               {canSeeAccountsAndReceipts ? <NavItem to="/cash-accounts" label="Quỹ và ngân hàng" /> : null}
               {canSeeAccountsAndReceipts ? <NavItem to="/cash-book" label="Sổ quỹ" /> : null}
               {canViewCashflow ? <NavItem to="/cashflow-categories" label="Khoản mục thu chi" /> : null}
+            </ul>
+          </>
+        ) : null}
+        {canViewStaff ? (
+          <>
+            <span className="px-3 text-label font-semibold text-text-muted">NHÂN SỰ</span>
+            <ul className="flex flex-col gap-1">
+              <NavItem to="/staff" label="Hồ sơ nhân sự" />
+              {canImportStaff && !(canManageClasses || canViewChildren || canEditChildren) ? (
+                <NavItem to="/imports" label="Nhập dữ liệu" />
+              ) : null}
             </ul>
           </>
         ) : null}

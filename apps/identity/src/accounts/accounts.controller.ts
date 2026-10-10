@@ -26,6 +26,7 @@ import {
 import { RolesService } from './roles.service.js';
 import { StaffDirectoryService } from './staff-directory.service.js';
 import { GuardianAccountsService } from './guardian-accounts.service.js';
+import { StaffAccountsService } from './staff-accounts.service.js';
 
 type RequestBody = Record<string, unknown> | undefined;
 
@@ -99,6 +100,7 @@ export class AccountsController {
     private readonly accountsService: AccountsService,
     private readonly staffDirectory: StaffDirectoryService,
     private readonly guardianAccounts: GuardianAccountsService,
+    private readonly staffAccounts: StaffAccountsService,
   ) {}
 
   @Get()
@@ -203,6 +205,40 @@ export class AccountsController {
       full_name: fullName ?? '',
       org_unit_id: orgUnitId as string,
     });
+  }
+
+  // Máy chủ API gọi khi phòng nhân sự liên kết tài khoản với hồ sơ nhân sự (P07-01, YCTD-58)
+  @Post('staff-accounts/lookup')
+  @HttpCode(200)
+  lookupStaffAccount(@Req() request: AuthenticatedRequest, @Body() body: RequestBody) {
+    const login = typeof body?.login === 'string' ? body.login.trim() : '';
+    const orgUnitId = body?.org_unit_id;
+    const errors: FieldError[] = [];
+    if (!login) {
+      errors.push({ field: 'login', message: 'Bắt buộc nhập tên đăng nhập hoặc số điện thoại' });
+    }
+    if (typeof orgUnitId !== 'string' || !UUID_PATTERN.test(orgUnitId)) {
+      errors.push({ field: 'org_unit_id', message: 'Bắt buộc chọn đơn vị' });
+    }
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.staffAccounts.lookup(callerOf(request), { login, org_unit_id: orgUnitId as string });
+  }
+
+  // Máy chủ API gọi khi chấm dứt hợp đồng lao động: khóa tài khoản ngay (BR-05)
+  @Post(':id/terminate-employment')
+  @HttpCode(200)
+  terminateEmployment(
+    @Req() request: AuthenticatedRequest,
+    @Param('id', uuidParameter('id')) userId: string,
+    @Body() body: RequestBody,
+  ) {
+    const orgUnitId = body?.org_unit_id;
+    if (typeof orgUnitId !== 'string' || !UUID_PATTERN.test(orgUnitId)) {
+      throw validationError([{ field: 'org_unit_id', message: 'Bắt buộc chọn đơn vị' }]);
+    }
+    return this.staffAccounts.lockForTermination(callerOf(request), userId, { org_unit_id: orgUnitId });
   }
 
   @Get(':id')

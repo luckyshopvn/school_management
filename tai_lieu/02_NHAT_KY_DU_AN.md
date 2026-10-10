@@ -14,6 +14,31 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-10 — DT-06 phần 6a: hồ sơ nhân sự và hợp đồng lao động
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 26 (đổi cổng kiểm thử giao diện).
+- Tạo `.claude/launch.json` cho các máy chủ phát triển (không đưa vào kho mã).
+- Hỏi Eric bốn điểm của DT-06; chia ba phần; viết phần 6a trên nhánh `dt-06-phan-6a`.
+- Cơ sở dữ liệu: năm học có `staff`, `employment_contracts`, lần nhập loại `staff` (tệp 0019); định danh có `P07.staff.manage`, `P07.staff.view`, `P07.contract.view`, `P01.import.staff` (tệp 0023).
+- Dịch vụ định danh: tra tài khoản nhân sự để liên kết; khóa tài khoản và thu hồi phiên khi chấm dứt hợp đồng.
+- Máy chủ API: hồ sơ nhân sự, liên kết tài khoản, hợp đồng, chấm dứt hợp đồng, cảnh báo hết hạn, hồ sơ của tôi, nhập nhân sự từ Excel, chuyển năm học.
+- Cổng quản trị: trang Hồ sơ nhân sự (MH-12), mục nhân sự ở trang Nhập dữ liệu, cảnh báo hợp đồng sắp hết hạn trên trang chủ.
+- Kết quả: máy chủ API 266/266, dịch vụ định danh 37/37, cơ sở dữ liệu 3/3, tiến trình chạy nền 1/1, kiểm thử giao diện 36/36.
+
+#### Quyết định
+
+- DT-06 chia ba phần; hồ sơ liên kết tài khoản có sẵn; nhân viên tự chấm công, phòng nhân sự sửa; đơn nghỉ phép do Hiệu trưởng hoặc Phó Hiệu trưởng duyệt (YCTD-58) – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-58 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.29.3.
+
+#### Vấn đề tồn đọng
+
+- Không.
+
 ### 2026-10-10 — Đổi cổng kiểm thử giao diện
 
 #### Công việc đã thực hiện

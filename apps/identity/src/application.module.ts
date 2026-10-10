@@ -5,6 +5,7 @@ import { ApiOrganizationDirectory, OrganizationDirectory } from './accounts/orga
 import { RolesService } from './accounts/roles.service.js';
 import { StaffDirectoryService } from './accounts/staff-directory.service.js';
 import { GuardianAccountsService } from './accounts/guardian-accounts.service.js';
+import { StaffAccountsService } from './accounts/staff-accounts.service.js';
 import { IdentitySettingsController } from './settings/identity-settings.controller.js';
 import { IdentitySettingsService } from './settings/identity-settings.service.js';
 import { AccessTokenGuard } from './authentication/access-token.guard.js';
@@ -53,6 +54,7 @@ export class ApplicationModule {
         RolesService,
         StaffDirectoryService,
         GuardianAccountsService,
+        StaffAccountsService,
         IdentitySettingsService,
       ],
     };

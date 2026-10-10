@@ -27,6 +27,7 @@ export type {
   ChildGender,
   ChildStatus,
   ClassStatus,
+  ContractType,
   DiscountCalculationMethod,
   FeeDocumentStatus,
   FeeType,

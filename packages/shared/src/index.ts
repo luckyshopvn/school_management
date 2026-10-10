@@ -50,6 +50,10 @@ export const PERMISSION_CODES = {
   paymentManage: 'P06.payment.manage',
   paymentApprove: 'P06.payment.approve',
   paymentReversalCreate: 'P06.payment-reversal.create',
+  staffManage: 'P07.staff.manage',
+  staffView: 'P07.staff.view',
+  contractView: 'P07.contract.view',
+  importStaff: 'P01.import.staff',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)

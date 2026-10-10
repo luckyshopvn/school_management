@@ -83,6 +83,13 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
     rule: 'BR-13',
   },
   {
+    key: 'contract_expiry_warning_days',
+    label: 'Số ngày cảnh báo trước khi hợp đồng lao động hết hạn',
+    valueType: 'positive_integer',
+    defaultValue: null,
+    rule: 'BR-38',
+  },
+  {
     key: 'max_class_size',
     label: 'Sĩ số tối đa của lớp',
     valueType: 'positive_integer',

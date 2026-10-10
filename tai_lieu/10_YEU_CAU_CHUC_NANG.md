@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.21
+- Phiên bản: 1.22
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -123,7 +123,7 @@
 |---|---|---|---|---|---|---|
 | P08-01 | Chấm công (G1) | VT-06, VT-07 | Nhân sự, ngày, giờ vào, giờ ra, trạng thái | Ghi bản ghi chấm công, tính số giờ làm | Bảng công theo tháng | BR-39 |
 | P08-02 | Lịch nghỉ và lịch công tác (G1) | VT-06, VT-03 | Nhân sự, ngày, loại, ghi chú | Lập và công bố lịch | Lịch nghỉ và công tác | BR-40 |
-| P08-03 | Đơn xin nghỉ phép (G1) | VT-07, VT-06, VT-03 | Nhân sự, loại nghỉ, khoảng thời gian, lý do | Trình quản lý trực tiếp duyệt và cập nhật số ngày phép | Đơn nghỉ đã duyệt | BR-40, BR-41 |
+| P08-03 | Đơn xin nghỉ phép (G1) | VT-07, VT-06, VT-15, VT-02 | Nhân sự, loại nghỉ, khoảng thời gian, lý do | Trình Hiệu trưởng hoặc Phó Hiệu trưởng duyệt (YCTD-58) và cập nhật số ngày phép | Đơn nghỉ đã duyệt | BR-40, BR-41 |
 | P08-04 | Chốt bảng công (G1) | VT-06 | Kỳ, đơn vị | Đối chiếu chấm công và đơn nghỉ, khóa bảng công; mở lại kỳ đã chốt phải được Ban Giám hiệu duyệt (Q-135) | Bảng công đã chốt | LE-07 |
 | P08-05 | Ứng lương — Bỏ ngày 09/10/2026: nhà trường không cho ứng lương (Q-54) | — | — | — | — | — |
 | P08-06 | Bảng lương (G1) | VT-04, VT-06, VT-15, VT-02 | Tháng M, lương hợp đồng, phụ cấp, thưởng, khấu trừ, bảng công đã chốt của tháng M−1 | Đầu tháng M tính bảng lương trả trước kèm điều chỉnh theo công tháng M−1; chặn khi tháng M−1 chưa chốt công; Ban Giám hiệu phê duyệt theo hạn mức; lập phiếu chi lương; lập bảng quyết toán khi chấm dứt hợp đồng (YCTD-29) | Bảng lương của tháng | BR-43, BR-44, BR-77, BR-90 |

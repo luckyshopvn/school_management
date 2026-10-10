@@ -268,7 +268,7 @@ export interface NotificationRecipientsTable {
   sent_at: Date | null;
 }
 
-export type ImportType = 'classes' | 'children' | 'moet_codes' | 'opening_debts';
+export type ImportType = 'classes' | 'children' | 'moet_codes' | 'opening_debts' | 'staff';
 export type ImportStatus = 'validated' | 'failed' | 'committed';
 
 export interface DataImportJobsTable {
@@ -758,6 +758,48 @@ export interface OnlinePaymentTransactionsTable {
   created_at: CreatedTimestamp;
 }
 
+export type ContractType = 'probation' | 'fixed_term' | 'indefinite';
+
+export interface StaffTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  code: string;
+  full_name: string;
+  dob: string | null;
+  gender: 'male' | 'female' | null;
+  phone: string | null;
+  email: string | null;
+  address: string | null;
+  id_number_encrypted: string | null;
+  id_number_last4: string | null;
+  department_id: string | null;
+  job_title_id: string | null;
+  start_date: string;
+  end_date: string | null;
+  status: Generated<'active' | 'terminated'>;
+  user_id: string | null;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface EmploymentContractsTable {
+  id: Generated<string>;
+  staff_id: string;
+  contract_no: string;
+  contract_type: ContractType;
+  start_date: string;
+  end_date: string | null;
+  base_salary: Money;
+  allowances: ColumnType<Array<{ name: string; amount: number }>, string | undefined, string>;
+  status: Generated<'active' | 'terminated'>;
+  terminated_on: string | null;
+  terminate_reason: string | null;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -812,4 +854,6 @@ export interface SchoolYearDatabase {
   payment_reversals: PaymentReversalsTable;
   payment_requests: PaymentRequestsTable;
   online_payment_transactions: OnlinePaymentTransactionsTable;
+  staff: StaffTable;
+  employment_contracts: EmploymentContractsTable;
 }

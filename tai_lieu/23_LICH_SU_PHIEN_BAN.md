@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.29.3 – 2026-10-10
+
+- Phạm vi thay đổi: DT-06 phần 6a, hồ sơ nhân sự và hợp đồng lao động (YCTD-58).
+- Chức năng mới: hồ sơ nhân sự, liên kết tài khoản có sẵn, hợp đồng lao động, chấm dứt hợp đồng khóa tài khoản, cảnh báo hợp đồng sắp hết hạn, nhập nhân sự từ Excel.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: `staff`, `employment_contracts`; mã quyền `P07.staff.manage`, `P07.staff.view`, `P07.contract.view`, `P01.import.staff`; cấu hình `contract_expiry_warning_days`.
+- Thay đổi API: nhóm điểm cuối nhân sự và hợp đồng; hai điểm cuối mới ở dịch vụ định danh.
+- Rủi ro: không.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-06-phan-6a`; chạy ngược tệp thay đổi cấu trúc 0019 của cơ sở dữ liệu năm học và 0023 của cơ sở dữ liệu định danh.
+
 ### Phiên bản 0.29.2 – 2026-10-10
 
 - Phạm vi thay đổi: DT-05 phần 5f, thanh toán trực tuyến bằng mã QR (YCTD-57).

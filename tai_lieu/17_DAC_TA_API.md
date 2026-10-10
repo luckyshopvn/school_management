@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.32
+- Phiên bản: 1.33
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -95,6 +95,13 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | GET, PATCH | /api/v1/academic-years/{id}/weeks | Danh sách tuần; đánh dấu hoặc bỏ đánh dấu tuần nghỉ |
 | POST | /api/v1/academic-years/{id}/open | Mở năm học: kiểm tra BR-89, tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung, chuyển năm đang dùng sang đã đóng và chỉ đọc (BR-93) |
 | POST | /api/v1/academic-years/{id}/close | Bỏ ngày 09/10/2026: gộp vào mở năm học mới (YCTD-37) |
+
+Giao kèo của hồ sơ nhân sự và hợp đồng (DT-06 phần 6a, YCTD-58):
+
+1. `POST /staff`, `PUT /staff/{id}` nhận `org_unit_id`, `code`, `full_name`, `dob`, `gender` (`male`, `female`), `phone`, `email`, `address`, `id_number` (mười hai chữ số), `department_id`, `job_title_id`, `start_date`; cần `P07.staff.manage`. Kết quả có `id_number_masked`, `has_account`, `department_name`, `job_title_name`; `GET /staff/{id}` có `contracts` khi người xem có `P07.contract.view` hoặc là chính nhân sự, ngược lại `contracts` là null.
+2. `POST /staff/{id}/account` nhận `login` (tên đăng nhập hoặc số điện thoại); không có tài khoản trả `ERR_NOT_FOUND`; tài khoản chỉ là phụ huynh hoặc đã gắn hồ sơ khác trả `ERR_RULE_VIOLATION` mã BR-37.
+3. `POST /staff/{id}/contracts` nhận `contract_no`, `contract_type` (`probation`, `fixed_term`, `indefinite`), `start_date`, `end_date`, `base_salary`, `allowances` (danh sách `name`, `amount`); trùng thời gian với hợp đồng còn hiệu lực trả mã BR-38.
+4. `POST /employment-contracts/{id}/terminate` nhận `terminated_on`, `reason` bắt buộc; dịch vụ định danh khóa tài khoản liên kết qua `POST /users/{id}/terminate-employment` bằng mã phiên của người thao tác.
 
 Giao kèo của thanh toán trực tuyến (DT-05 phần 5f, YCTD-57):
 
@@ -442,9 +449,12 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 | Phương thức | Đường dẫn | Mô tả |
 |---|---|---|
 | GET, POST | /api/v1/staff | Danh sách và tạo hồ sơ nhân sự |
-| GET, PATCH | /api/v1/staff/{id} | Chi tiết và cập nhật hồ sơ nhân sự |
-| GET, POST | /api/v1/staff/{id}/contracts | Danh sách và tạo hợp đồng lao động |
-| POST | /api/v1/contracts/{id}/terminate | Chấm dứt hợp đồng |
+| GET, PUT | /api/v1/staff/{id} | Chi tiết kèm hợp đồng và cập nhật hồ sơ nhân sự (YCTD-58) |
+| GET | /api/v1/staff/me | Hồ sơ và hợp đồng của chính mình (YCTD-58) |
+| GET | /api/v1/staff/expiring-contracts | Hợp đồng sắp hết hạn theo cấu hình đơn vị (YCTD-58) |
+| POST, DELETE | /api/v1/staff/{id}/account | Liên kết và bỏ liên kết tài khoản có sẵn (YCTD-58) |
+| POST | /api/v1/staff/{id}/contracts | Lập hợp đồng lao động |
+| POST | /api/v1/employment-contracts/{id}/terminate | Chấm dứt hợp đồng, khóa tài khoản liên kết (YCTD-58) |
 | GET | /api/v1/attendance-logs | Bảng chấm công theo kỳ và đơn vị |
 | PUT | /api/v1/attendance-logs | Ghi hoặc sửa chấm công |
 | POST | /api/v1/attendance-logs/lock | Chốt bảng công của kỳ |
