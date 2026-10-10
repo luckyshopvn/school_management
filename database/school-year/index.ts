@@ -8,6 +8,7 @@ import { migration as createChildren } from './migrations/0006_create_children.j
 import { migration as createDataImports } from './migrations/0007_create_data_imports.js';
 import { migration as createAttendance } from './migrations/0008_create_attendance.js';
 import { migration as createPickups } from './migrations/0009_create_pickups.js';
+import { migration as createFeeCatalogs } from './migrations/0010_create_fee_catalogs.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
@@ -20,4 +21,5 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0007_create_data_imports': createDataImports,
   '0008_create_attendance': createAttendance,
   '0009_create_pickups': createPickups,
+  '0010_create_fee_catalogs': createFeeCatalogs,
 };

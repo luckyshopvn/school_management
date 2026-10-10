@@ -11,6 +11,26 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-49: Chia đợt DT-05 và danh mục học phí, tài chính – 2026-10-10
+
+- Lý do: thiết kế DT-05 cần chốt cách chia đợt, cách giữ đăng ký dịch vụ qua các tháng, nguồn của ngày chốt đăng ký và phạm vi của danh mục loại miễn giảm, khoản mục thu chi.
+- Nội dung thay đổi:
+  - DT-05 chia sáu phần: 5a danh mục (khoản mục thu chi, dịch vụ, biểu phí, loại miễn giảm); 5b đăng ký dịch vụ, chốt, đăng ký trễ, đăng ký học hè; 5c tính học phí, miễn giảm, phát hành hóa đơn, điều chỉnh hóa đơn; 5d phiếu thu, phân bổ, đảo phiếu thu, công nợ, nhập công nợ đầu kỳ; 5e phiếu chi, quỹ tiền mặt; 5f thanh toán mã QR.
+  - Đăng ký dịch vụ không bắt buộc tự giữ sang các tháng sau cho tới khi phụ huynh hoặc kế toán hủy trước ngày chốt; mỗi tháng vẫn có một dòng đăng ký theo kỳ (làm ở phần 5b).
+  - Ngày chốt đăng ký dịch vụ là mục cấu hình theo đơn vị, mặc định ngày 25 của tháng trước kỳ, kế thừa như các cấu hình khác; sau ngày đó hoặc khi kế toán đã chốt danh sách thì đăng ký thêm là đăng ký trễ (làm ở phần 5b).
+  - Danh mục dịch vụ, biểu phí, loại miễn giảm, khoản mục thu chi dùng chung toàn trường, chuyển sang năm học mới. Bán trú do hệ thống tạo sẵn: bắt buộc, tính theo ngày có mặt, không ngừng và không đổi cách tính được.
+  - Biểu phí theo phiên bản: phiên bản bắt đầu ngày 1 của một tháng, sau phiên bản mới nhất; phiên bản trước tự kết thúc ngay trước đó; mỗi phiên bản có học phí chính khóa theo tháng và giá từng dịch vụ theo bậc học; phiên bản đã tới ngày hiệu lực không sửa được, phiên bản chưa tới sửa và xóa được.
+  - Loại miễn giảm theo phần trăm (1 đến 100) hoặc số tiền, áp dụng cho học phí chính khóa và các dịch vụ được chọn; mã và cách tính không đổi sau khi tạo.
+  - Mã quyền mới: `P05.fee-catalog.manage` cho VT-04 (dịch vụ, biểu phí); `P05.discount-type.manage` cho VT-04, VT-02; `P06.cashflow-category.manage` cho VT-04, VT-05. Mọi người đã đăng nhập xem được dịch vụ và biểu phí; nhân sự xem được loại miễn giảm và khoản mục thu chi.
+- Thành phần bị ảnh hưởng: `07`, `08`, `14`, `16`, `17`, `27_BO_CA_KIEM_THU_CHI_TIET/03_P05.md`, `04_P06.md`, `01`, `03`, `index.md`; mã nguồn DT-05 phần 5a; cổng quản trị.
+- Dữ liệu bị ảnh hưởng: bảng mới `services`, `fee_schedules`, `fee_schedule_items`, `discount_types`, `cashflow_categories`; các bảng này không có `org_unit_id` vì dùng chung toàn trường.
+- API bị ảnh hưởng: `GET`, `POST /services`, `PATCH /services/{id}`; `GET`, `POST /fee-schedules`, `GET`, `PUT`, `DELETE /fee-schedules/{id}`; `GET`, `POST /discount-types`, `PATCH /discount-types/{id}`; `GET`, `POST /cashflow-categories`, `PATCH /cashflow-categories/{id}`.
+- Giao diện bị ảnh hưởng: MH-04 Biểu phí và dịch vụ (thêm loại miễn giảm), MH-39 Khoản mục thu chi.
+- Quyền bị ảnh hưởng: thêm `P05.fee-catalog.manage`, `P05.discount-type.manage`, `P06.cashflow-category.manage`.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: CTC-P05-001 đến 008, 043 đến 045; CTC-P06-052 đến 055.
+- Trạng thái: Đã triển khai phần 5a
+
 ### YCTD-48: Người được ủy quyền đón trẻ và đón trả – 2026-10-10
 
 - Lý do: thiết kế DT-04 phần 4b cần chốt lượt đón trả được ghi, vai trò của bảo vệ, ai xác nhận người đón ngoài danh sách và ai phía nhà trường khai báo người được ủy quyền.

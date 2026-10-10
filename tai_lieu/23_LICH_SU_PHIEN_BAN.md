@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.28.4 – 2026-10-10
+
+- Phạm vi thay đổi: DT-05 phần 5a, danh mục học phí và tài chính (YCTD-49).
+- Chức năng mới: danh mục dịch vụ có bán trú tạo sẵn; biểu phí theo phiên bản; loại miễn giảm; khoản mục thu chi; màn hình MH-04, MH-39.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: `services`, `fee_schedules`, `fee_schedule_items`, `discount_types`, `cashflow_categories`; mã quyền `P05.fee-catalog.manage`, `P05.discount-type.manage`, `P06.cashflow-category.manage`.
+- Thay đổi API: nhóm điểm cuối dịch vụ, biểu phí, loại miễn giảm, khoản mục thu chi.
+- Rủi ro: không.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-05-phan-5a`; chạy ngược tệp thay đổi cấu trúc 0010 của cơ sở dữ liệu năm học và 0015 của cơ sở dữ liệu định danh.
+
 ### Phiên bản 0.28.3 – 2026-10-10
 
 - Phạm vi thay đổi: DT-04 phần 4b, người được ủy quyền đón trẻ và đón trả (YCTD-48).

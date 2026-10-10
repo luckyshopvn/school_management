@@ -20,6 +20,11 @@ import { SettingsService } from './settings/settings.service.js';
 import { OrganizationScopes } from './organization/organization-scopes.js';
 import { orgUnitsTransitionStep } from './organization/org-units-transition.js';
 import { catalogsTransitionStep } from './catalogs/catalogs-transition.js';
+import { feeCatalogsTransitionStep } from './fees/fee-catalogs-transition.js';
+import { CashflowCategoriesController, CashflowCategoriesService } from './fees/cashflow-categories.js';
+import { DiscountTypesController, DiscountTypesService } from './fees/discount-types.js';
+import { FeeSchedulesController, FeeSchedulesService } from './fees/fee-schedules.js';
+import { ServicesController, ServicesService } from './fees/services.js';
 import { CatalogAccess } from './catalogs/catalog-access.js';
 import { DepartmentsController, DepartmentsService } from './catalogs/departments.js';
 import { JobTitlesController, JobTitlesService } from './catalogs/job-titles.js';
@@ -76,6 +81,10 @@ export class ApplicationModule {
         ImportsController,
         AttendanceController,
         PickupsController,
+        ServicesController,
+        FeeSchedulesController,
+        DiscountTypesController,
+        CashflowCategoriesController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -91,6 +100,7 @@ export class ApplicationModule {
             orgUnitsTransitionStep,
             settingsTransitionStep,
             catalogsTransitionStep,
+            feeCatalogsTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -114,6 +124,10 @@ export class ApplicationModule {
         ImportsService,
         AttendanceService,
         PickupsService,
+        ServicesService,
+        FeeSchedulesService,
+        DiscountTypesService,
+        CashflowCategoriesService,
         SchoolCalendar,
         {
           provide: FileStorage,

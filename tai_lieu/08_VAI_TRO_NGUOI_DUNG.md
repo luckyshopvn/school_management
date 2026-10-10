@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.16
+- Phiên bản: 1.17
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -116,6 +116,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-19 | Nhập dữ liệu ban đầu (YCTD-46): `P01.import.children` chỉ VT-02, nhập lớp học, trẻ và phụ huynh từ Excel; nhập mã định danh ngành dùng `P02.child.manage` (VT-02, VT-15, VT-03, VT-12). Nhập nhân sự (VT-06) và công nợ đầu kỳ (VT-04) có mã quyền riêng khi làm P07, P05 |
 | PQ-20 | Điểm danh (YCTD-47): giáo viên chủ nhiệm đang được phân công điểm danh và chốt ngày của lớp mình; `P04.attendance.manage` cho VT-03 chốt thay, sửa sau khi chốt kèm lý do, mở lại ngày đã chốt trong đơn vị được gán; giáo viên bộ môn xem bảng của lớp được phân công; vai trò văn phòng xem theo phạm vi xem trẻ của PQ-18; phụ huynh báo vắng và xem điểm danh của con mình |
 | PQ-21 | Đón trả (YCTD-48): phụ huynh khai báo và hủy người được ủy quyền đón con mình; `P02.authorized-pickup.manage` cho VT-02, VT-15 toàn trường và VT-03 trong đơn vị được gán làm việc đó phía nhà trường; giáo viên chủ nhiệm đang được phân công bàn giao trẻ của lớp mình; `P04.pickup.gate-confirm` cho VT-18 tra người đón và xác nhận tại cổng trong đơn vị được gán; phụ huynh của trẻ xác nhận hoặc từ chối người đón ngoài danh sách |
+| PQ-22 | Danh mục học phí và tài chính dùng chung toàn trường (YCTD-49): `P05.fee-catalog.manage` cho VT-04 quản lý dịch vụ và biểu phí; `P05.discount-type.manage` cho VT-04, VT-02 quản lý loại miễn giảm; `P06.cashflow-category.manage` cho VT-04, VT-05 quản lý khoản mục thu chi. Mọi người đã đăng nhập xem được dịch vụ và biểu phí; nhân sự xem được loại miễn giảm và khoản mục thu chi |
 
 ## 5. Phân cấp phê duyệt
 

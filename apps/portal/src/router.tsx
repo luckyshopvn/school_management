@@ -9,6 +9,8 @@ import { RoomsAndGradeLevelsPage } from './catalogs/RoomsAndGradeLevelsPage.js';
 import { ChildrenPage } from './children/ChildrenPage.js';
 import { AttendancePage } from './attendance/AttendancePage.js';
 import { ClassesPage } from './classes/ClassesPage.js';
+import { CashflowCategoriesPage } from './fees/CashflowCategoriesPage.js';
+import { FeesPage } from './fees/FeesPage.js';
 import { ImportsPage } from './imports/ImportsPage.js';
 import { OrgUnitsPage } from './org-units/OrgUnitsPage.js';
 import { AuditLogsPage } from './settings/AuditLogsPage.js';
@@ -58,6 +60,8 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/children', component: ChildrenPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/imports', component: ImportsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/attendance', component: AttendancePage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/fees', component: FeesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/cashflow-categories', component: CashflowCategoriesPage }),
 ]);
 
 export const router = createRouter({ routeTree });

@@ -20,7 +20,7 @@ export interface AuditLogEntry {
   orgUnitId: string | null;
   entityName: string;
   entityId: string;
-  action: 'create' | 'update';
+  action: 'create' | 'update' | 'delete';
   before: unknown;
   after: unknown;
 }
