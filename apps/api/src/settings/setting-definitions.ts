@@ -56,9 +56,9 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
   },
   {
     key: 'bank_balance_check',
-    label: 'Kiểm tra số dư tài khoản ngân hàng',
+    label: 'Chặn chi khi tài khoản ngân hàng không đủ số dư',
     valueType: 'boolean',
-    defaultValue: null,
+    defaultValue: true,
     rule: 'BR-34',
   },
   {

@@ -33,6 +33,16 @@ export class ReceiptReversalsService {
     if (receipt.status !== 'issued') {
       throw ruleViolationError('BR-29', 'Phiếu thu này đang chờ duyệt đảo hoặc đã đảo');
     }
+    const refunded = await database
+      .selectFrom('payment_refund_sources')
+      .innerJoin('payments', 'payments.id', 'payment_refund_sources.payment_id')
+      .select('payments.id')
+      .where('payment_refund_sources.receipt_id', '=', receiptId)
+      .where('payments.status', 'in', ['pending', 'issued', 'pending_reversal'])
+      .executeTakeFirst();
+    if (refunded) {
+      throw ruleViolationError('BR-29', 'Tiền của phiếu thu này đã dùng cho phiếu chi hoàn tiền, không đảo được');
+    }
     const amount = Number(receipt.amount);
     const requiresPrincipal = await this.requiresPrincipal(database, receipt.org_unit_id, amount);
     const reversalId = await database.transaction().execute(async (transaction) => {

@@ -30,7 +30,9 @@ type NavigationPath =
   | '/fee-approvals'
   | '/debts'
   | '/receipts'
-  | '/cash-accounts';
+  | '/cash-accounts'
+  | '/payments'
+  | '/cash-book';
 
 function NavItem({ to, label }: { to: NavigationPath; label: string }) {
   return (
@@ -82,7 +84,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canViewDebts = useHasPermission(PERMISSION_CODES.debtView);
   const canCollect = useHasPermission(PERMISSION_CODES.receiptManage);
   const canManageCashAccounts = useHasPermission(PERMISSION_CODES.cashAccountManage);
+  const canManagePayments = useHasPermission(PERMISSION_CODES.paymentManage);
+  const canApprovePayments = useHasPermission(PERMISSION_CODES.paymentApprove);
   const canSeeAccountsAndReceipts = canViewFinance || canCollect || canManageCashAccounts;
+  const canSeePayments = canViewFinance || canManagePayments || canApprovePayments;
 
   return (
     <div className="flex min-h-screen">
@@ -115,7 +120,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               {canApproveFeeDocuments ? <NavItem to="/fee-approvals" label="Duyệt miễn giảm và điều chỉnh" /> : null}
               {canViewDebts ? <NavItem to="/debts" label="Công nợ" /> : null}
               {canSeeAccountsAndReceipts ? <NavItem to="/receipts" label="Phiếu thu" /> : null}
+              {canSeePayments ? <NavItem to="/payments" label="Phiếu chi" /> : null}
               {canSeeAccountsAndReceipts ? <NavItem to="/cash-accounts" label="Quỹ và ngân hàng" /> : null}
+              {canSeeAccountsAndReceipts ? <NavItem to="/cash-book" label="Sổ quỹ" /> : null}
               {canViewCashflow ? <NavItem to="/cashflow-categories" label="Khoản mục thu chi" /> : null}
             </ul>
           </>

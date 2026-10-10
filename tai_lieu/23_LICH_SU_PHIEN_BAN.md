@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.29.0 – 2026-10-10
+
+- Phạm vi thay đổi: DT-05 phần 5e-1, phiếu chi và sổ quỹ (YCTD-55).
+- Chức năng mới: phiếu chi kèm chứng từ, trình duyệt, Ban Giám hiệu duyệt theo hạn mức thì phát hành và trừ nguồn chi; phiếu chi hoàn tiền thôi học trừ số dư có của trẻ; sổ quỹ theo khoảng ngày.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: `payments`, `payment_attachments`, `payment_refund_sources`; tệp mục đích `payment_voucher`; mã quyền `P06.payment.manage`, `P06.payment.approve`; mặc định của `bank_balance_check` là bật.
+- Thay đổi API: nhóm điểm cuối phiếu chi, `GET /cash-books`.
+- Rủi ro: không.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-05-phan-5e`; chạy ngược tệp thay đổi cấu trúc 0016 của cơ sở dữ liệu năm học và 0021 của cơ sở dữ liệu định danh.
+
 ### Phiên bản 0.28.9 – 2026-10-10
 
 - Phạm vi thay đổi: DT-05 phần 5d-2, đảo phiếu thu và nhập công nợ đầu kỳ (YCTD-54).

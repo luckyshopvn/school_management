@@ -135,7 +135,7 @@ export interface ClassStaffAssignmentsTable extends CatalogRecordColumns {
   status: Generated<AssignmentStatus>;
 }
 
-export type FilePurpose = 'birth_certificate' | 'photo_consent' | 'import' | 'pickup_photo';
+export type FilePurpose = 'birth_certificate' | 'photo_consent' | 'import' | 'pickup_photo' | 'payment_voucher';
 
 export interface FilesTable extends CatalogRecordColumns {
   org_unit_id: string | null;
@@ -661,6 +661,45 @@ export interface ReceiptReversalsTable {
   reject_reason: string | null;
 }
 
+export type PaymentType = 'regular' | 'refund' | 'payroll';
+export type PaymentStatus = 'draft' | 'pending' | 'issued' | 'pending_reversal' | 'reversed';
+
+export interface PaymentsTable {
+  id: Generated<string>;
+  code: string | null;
+  org_unit_id: string;
+  payment_type: PaymentType;
+  child_id: string | null;
+  payee_name: string;
+  amount: Money;
+  content: string;
+  account_id: string;
+  category_id: string;
+  payment_date: string | null;
+  status: Generated<PaymentStatus>;
+  requires_principal: boolean | null;
+  request_key: string;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+  submitted_at: Date | null;
+  approved_by: string | null;
+  approved_at: Date | null;
+  reject_reason: string | null;
+}
+
+export interface PaymentAttachmentsTable {
+  payment_id: string;
+  file_id: string;
+}
+
+export interface PaymentRefundSourcesTable {
+  id: Generated<string>;
+  payment_id: string;
+  receipt_id: string;
+  amount: Money;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -709,4 +748,7 @@ export interface SchoolYearDatabase {
   receipt_allocations: ReceiptAllocationsTable;
   account_transactions: AccountTransactionsTable;
   receipt_reversals: ReceiptReversalsTable;
+  payments: PaymentsTable;
+  payment_attachments: PaymentAttachmentsTable;
+  payment_refund_sources: PaymentRefundSourcesTable;
 }
