@@ -41,6 +41,9 @@ export const PERMISSION_CODES = {
   discountManage: 'P05.discount.manage',
   invoiceAdjustmentCreate: 'P05.invoice-adjustment.create',
   feeDocumentApprove: 'P05.fee-document.approve',
+  receiptManage: 'P06.receipt.manage',
+  cashAccountManage: 'P06.cash-account.manage',
+  debtView: 'P05.debt.view',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)

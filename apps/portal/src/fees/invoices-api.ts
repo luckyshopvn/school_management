@@ -21,6 +21,8 @@ export interface Invoice {
   discount_amount: number;
   adjustment_amount: number;
   payable_amount: number;
+  paid_amount: number;
+  outstanding_amount: number;
   basis: { school_days?: number; enrolled_days?: number; present_days?: number; fee_schedule_name?: string };
 }
 

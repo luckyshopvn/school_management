@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Alert, Button, StatusBadge } from '@school-management/ui';
 import { ApiError, requestJson } from '../session/api-client.js';
 
-// MP-11 Học phí của con (P05-06, P05-09; AC-103; YCTD-51): hóa đơn đã phát hành của con mình và chi tiết từng khoản
+// MP-11 Học phí và công nợ của con (P05-06, P05-09; AC-103, AC-106; YCTD-51, YCTD-53): hóa đơn đã phát hành của con mình,
+// chi tiết từng khoản, số còn phải nộp, số dư có và lịch sử đã nộp
 interface Invoice {
   id: string;
   code: string | null;
@@ -11,7 +12,22 @@ interface Invoice {
   invoice_kind: 'main' | 'supplementary';
   total_amount: number;
   payable_amount: number;
+  paid_amount: number;
+  outstanding_amount: number;
   due_date: string | null;
+}
+
+interface Debt {
+  outstanding_amount: number;
+  credit_amount: number;
+}
+
+interface Receipt {
+  id: string;
+  code: string;
+  receipt_date: string;
+  amount: number;
+  payer_name: string;
 }
 
 interface InvoiceDetail extends Invoice {
@@ -29,6 +45,8 @@ function messageOf(error: unknown): string {
 export function InvoicesPanel({ child }: { child: { id: string; full_name: string } }) {
   const [invoices, setInvoices] = useState<Invoice[]>();
   const [detail, setDetail] = useState<InvoiceDetail>();
+  const [debt, setDebt] = useState<Debt>();
+  const [receipts, setReceipts] = useState<Receipt[]>();
   const [errorMessage, setErrorMessage] = useState<string>();
   // Mở nhanh nhiều hóa đơn thì chỉ hiện chi tiết của lần mở sau cùng
   const latestRequest = useRef(0);
@@ -36,6 +54,12 @@ export function InvoicesPanel({ child }: { child: { id: string; full_name: strin
   useEffect(() => {
     requestJson<Invoice[]>(`/api/v1/invoices?child_id=${child.id}`)
       .then(setInvoices)
+      .catch((error: unknown) => setErrorMessage(messageOf(error)));
+    requestJson<Debt>(`/api/v1/children/${child.id}/debt`)
+      .then(setDebt)
+      .catch((error: unknown) => setErrorMessage(messageOf(error)));
+    requestJson<Receipt[]>(`/api/v1/children/${child.id}/receipts`)
+      .then(setReceipts)
       .catch((error: unknown) => setErrorMessage(messageOf(error)));
   }, [child.id]);
 
@@ -54,6 +78,12 @@ export function InvoicesPanel({ child }: { child: { id: string; full_name: strin
   return (
     <section className="flex flex-col gap-3" aria-label={`Học phí của ${child.full_name}`}>
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
+      {debt ? (
+        <div className="flex flex-wrap gap-4 text-content font-semibold">
+          <span>Còn phải nộp {money(debt.outstanding_amount)}</span>
+          {debt.credit_amount > 0 ? <span>Số dư có {money(debt.credit_amount)}</span> : null}
+        </div>
+      ) : null}
       {invoices && invoices.length === 0 ? <p className="text-content text-text-secondary">Chưa có học phí.</p> : null}
       <ul className="flex flex-col gap-2">
         {(invoices ?? []).map((invoice) => (
@@ -71,7 +101,11 @@ export function InvoicesPanel({ child }: { child: { id: string; full_name: strin
             </div>
             <div className="flex flex-wrap items-center gap-2 text-label text-text-secondary">
               <span>Số {invoice.code}</span>
-              {invoice.due_date ? <StatusBadge tone="warning" label={`Hạn nộp ${invoice.due_date}`} /> : null}
+              {invoice.outstanding_amount <= 0 ? (
+                <StatusBadge tone="success" label="Đã thu đủ" />
+              ) : invoice.due_date ? (
+                <StatusBadge tone="warning" label={`Hạn nộp ${invoice.due_date}`} />
+              ) : null}
               <Button variant="text" onClick={() => void open(invoice.id)}>
                 Xem chi tiết
               </Button>
@@ -110,6 +144,21 @@ export function InvoicesPanel({ child }: { child: { id: string; full_name: strin
           </li>
         ))}
       </ul>
+      {receipts && receipts.length > 0 ? (
+        <section className="flex flex-col gap-1" aria-label="Lịch sử đã nộp">
+          <h3 className="text-content font-semibold text-text">Lịch sử đã nộp</h3>
+          <ul className="flex flex-col gap-1 text-content">
+            {receipts.map((receipt) => (
+              <li key={receipt.id} className="flex justify-between gap-2">
+                <span>
+                  {receipt.code} ngày {receipt.receipt_date}
+                </span>
+                <span>{money(receipt.amount)}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </section>
   );
 }

@@ -671,8 +671,7 @@ export class ServiceRegistrationsService {
       .execute();
   }
 
-  // Còn hóa đơn đã phát hành quá hạn nộp thì phụ huynh không đăng ký thêm được; trẻ vẫn được điểm danh (BR-33, AC-182).
-  // Số đã thu trừ vào khi có phiếu thu ở phần 5d
+  // Còn hóa đơn đã phát hành quá hạn nộp thì phụ huynh không đăng ký thêm được; trẻ vẫn được điểm danh (BR-33, AC-182)
   private async assertNoOverdue(database: Kysely<SchoolYearDatabase>, childId: string): Promise<void> {
     const candidates = await database
       .selectFrom('invoices')
@@ -682,7 +681,7 @@ export class ServiceRegistrationsService {
       .where('due_date', '<', this.periods.today())
       .execute();
     const amounts = await invoiceAmounts(database, candidates);
-    const overdue = candidates.find((invoice) => (amounts.get(invoice.id)?.payable_amount ?? 0) > 0);
+    const overdue = candidates.find((invoice) => (amounts.get(invoice.id)?.outstanding_amount ?? 0) > 0);
     if (overdue) {
       throw ruleViolationError('BR-33', 'Không đăng ký thêm được vì còn công nợ quá hạn', [
         { field: 'invoice', message: `${overdue.code ?? ''} quá hạn từ ${overdue.due_date ?? ''}` },

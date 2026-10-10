@@ -6,3 +6,12 @@ export function useHasPermission(permissionCode: string): boolean {
   const currentUser = useQuery({ queryKey: ['current-user'], queryFn: fetchCurrentUser });
   return currentUser.data?.assignments.some((assignment) => assignment.permissions.includes(permissionCode)) ?? false;
 }
+
+// Mọi phân công có quyền đều thuộc một vai trò, ví dụ thủ quỹ chỉ lập phiếu thu tiền mặt (Q-152)
+export function useHasPermissionOnlyThrough(permissionCode: string, roleCode: string): boolean {
+  const currentUser = useQuery({ queryKey: ['current-user'], queryFn: fetchCurrentUser });
+  const granting = (currentUser.data?.assignments ?? []).filter((assignment) =>
+    assignment.permissions.includes(permissionCode),
+  );
+  return granting.length > 0 && granting.every((assignment) => assignment.role_code === roleCode);
+}

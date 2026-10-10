@@ -54,6 +54,10 @@ import { AttendanceService } from './attendance/attendance.service.js';
 import { PickupsController } from './pickups/pickups.controller.js';
 import { PickupsService } from './pickups/pickups.service.js';
 import { SchoolCalendar } from './attendance/school-calendar.js';
+import { CashAccountsController, CashAccountsService } from './finance/cash-accounts.js';
+import { ReceiptsController } from './finance/receipts.controller.js';
+import { ReceiptsService } from './finance/receipts.service.js';
+import { DebtsService } from './fees/debts.service.js';
 import { OrgUnitsController } from './organization/org-units.controller.js';
 import { OrgUnitsService } from './organization/org-units.service.js';
 
@@ -95,6 +99,8 @@ export class ApplicationModule {
         ServiceRegistrationsController,
         InvoicesController,
         DiscountsController,
+        CashAccountsController,
+        ReceiptsController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -142,6 +148,9 @@ export class ApplicationModule {
         ServiceRegistrationsService,
         FeeCalculationService,
         DiscountsService,
+        CashAccountsService,
+        ReceiptsService,
+        DebtsService,
         SchoolCalendar,
         {
           provide: FileStorage,

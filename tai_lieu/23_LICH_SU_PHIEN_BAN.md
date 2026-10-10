@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.28.8 – 2026-10-10
+
+- Phạm vi thay đổi: DT-05 phần 5d-1, phiếu thu, phân bổ, quỹ và công nợ phải thu (YCTD-53).
+- Chức năng mới: khai báo quỹ tiền mặt và tài khoản ngân hàng; lập phiếu thu và phân bổ vào hóa đơn, số dư có; công nợ theo đơn vị và theo trẻ; màn hình Công nợ, Phiếu thu, Quỹ và tài khoản; phụ huynh xem số còn phải nộp và lịch sử đã nộp.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: `cash_accounts`, `receipts`, `receipt_allocations`, `account_transactions`; mã quyền `P06.receipt.manage`, `P06.cash-account.manage`, `P05.debt.view`.
+- Thay đổi API: nhóm điểm cuối phiếu thu, quỹ và tài khoản, công nợ; hóa đơn thêm số đã thu và còn phải nộp; bỏ `POST /receipts/{id}/issue`.
+- Rủi ro: không.
+- Khả năng tương thích: miễn giảm và điều chỉnh giảm bị chặn khi vượt số còn phải nộp của hóa đơn đã thu.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-05-phan-5d1`; chạy ngược tệp thay đổi cấu trúc 0014 của cơ sở dữ liệu năm học và 0019 của cơ sở dữ liệu định danh.
+
 ### Phiên bản 0.28.7 – 2026-10-10
 
 - Phạm vi thay đổi: DT-05 phần 5c-2, miễn giảm và phiếu điều chỉnh hóa đơn (YCTD-52).

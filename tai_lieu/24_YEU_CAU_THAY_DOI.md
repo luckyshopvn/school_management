@@ -11,6 +11,28 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-53: Phiếu thu, phân bổ, quỹ và công nợ phải thu – 2026-10-10
+
+- Lý do: thiết kế DT-05 phần 5d cần chốt nơi nhận tiền của phiếu thu (bảng `cash_accounts` đang xếp cho phần 5e), dạng số phiếu thu, cấp phân bổ khi miễn giảm và điều chỉnh tính ở cấp hóa đơn, và cách nhập công nợ đầu kỳ.
+- Nội dung thay đổi:
+  - Phần 5d chia hai: 5d-1 quỹ và tài khoản, phiếu thu, phân bổ, công nợ; 5d-2 đảo phiếu thu và nhập công nợ đầu kỳ.
+  - Quỹ tiền mặt và tài khoản ngân hàng (`cash_accounts`) cùng giao dịch tài khoản (`account_transactions`) làm ở phần 5d-1: kế toán, kế toán trưởng khai báo; số dư đầu chỉ nhập khi khai báo; phiếu thu ghi giao dịch và cộng số dư. Sổ quỹ theo ngày và phiếu chi làm ở phần 5e.
+  - Số phiếu thu dạng `PT-000001`, một dãy số toàn trường trong năm học nên không trùng trong đơn vị (BR-30); phiếu đảo phần 5d-2.
+  - Phân bổ theo hóa đơn: `receipt_allocations` lưu `invoice_id` thay cho `invoice_item_id`. Số phân bổ của mỗi hóa đơn bằng đúng số còn phải nộp (BR-31, Q-47); tổng phân bổ không vượt số thu. Tiền chưa phân bổ là số dư có của trẻ, dùng để thanh toán hóa đơn kỳ sau, lấy từ phiếu thu cũ nhất trước (GD-27).
+  - Phiếu thu phát hành ngay khi lập, không có bản nháp; màn hình gửi mã yêu cầu để gửi lại không tạo phiếu thứ hai (QT-04 E5). Bỏ điểm cuối `POST /receipts/{id}/issue`.
+  - Thu tiền mặt thì tài khoản nhận là quỹ tiền mặt, chuyển khoản thì là tài khoản ngân hàng, cùng đơn vị của trẻ; khoản mục phải là khoản mục thu đang dùng; ngày thu không sau hôm nay. Thủ quỹ chỉ lập phiếu thu tiền mặt (Q-152).
+  - Còn phải nộp của hóa đơn = số phải nộp − số đã phân bổ từ phiếu thu chưa bị đảo; trạng thái đã thu đủ, quá hạn tính ra, không lưu riêng. Chặn đăng ký khi nợ quá hạn (BR-33) tính theo số còn phải nộp. Miễn giảm hoặc điều chỉnh giảm vượt số còn phải nộp thì chặn; hóa đơn đã thu thì đảo phiếu thu trước.
+  - Mã quyền mới: `P06.receipt.manage` cho VT-04, VT-16; `P06.cash-account.manage` cho VT-04, VT-05; `P05.debt.view` cho VT-02, VT-15, VT-03, VT-04, VT-05, VT-16. Không dùng `P05.view` cho công nợ vì giáo viên có quyền này (CTC-P05-062).
+  - Nhập công nợ đầu kỳ (phần 5d-2): mỗi dòng của tệp tạo một hóa đơn loại đầu kỳ đã phát hành, thu bằng phiếu thu như hóa đơn thường.
+- Thành phần bị ảnh hưởng: `08`, `14`, `16`, `17`, `27_BO_CA_KIEM_THU_CHI_TIET/03_P05.md`, `27_BO_CA_KIEM_THU_CHI_TIET/04_P06.md`, `01`, `03`, `index.md`; mã nguồn DT-05 phần 5d-1, số tiền hóa đơn, miễn giảm, đăng ký dịch vụ; cổng quản trị, ứng dụng phụ huynh.
+- Dữ liệu bị ảnh hưởng: bảng mới `cash_accounts`, `receipts`, `receipt_allocations`, `account_transactions`.
+- API bị ảnh hưởng: `GET, POST /cash-accounts`, `PATCH /cash-accounts/{id}`, `GET, POST /receipts`, `GET, DELETE /receipts/{id}`, `GET /children/{id}/receipts`, `POST /children/{id}/credit-allocations`, `GET /debts`, `GET /children/{id}/debt`; `GET /invoices`, `GET /invoices/{id}` thêm `paid_amount`, `outstanding_amount`.
+- Giao diện bị ảnh hưởng: MH-08 Công nợ (danh sách, chi tiết của trẻ, lập phiếu thu, dùng số dư có), MH-09 Phiếu thu, MH-11 Quỹ và tài khoản, MP-11.
+- Quyền bị ảnh hưởng: thêm `P06.receipt.manage`, `P06.cash-account.manage`, `P05.debt.view`.
+- Ảnh hưởng chức năng cũ: miễn giảm và phiếu điều chỉnh giảm bị chặn khi vượt số còn phải nộp của hóa đơn đã thu.
+- Kiểm thử cần thực hiện: CTC-P06-001 đến 018, CTC-P05-061, 062.
+- Trạng thái: Đã triển khai phần 5d-1
+
 ### YCTD-52: Miễn giảm và phiếu điều chỉnh hóa đơn – 2026-10-10
 
 - Lý do: thiết kế DT-05 phần 5c-2 cần chốt thời điểm lập miễn giảm, cách xử lý miễn giảm lặp lại mỗi tháng và quyền duyệt khác với `P05.approve` hiện có (kế toán, kế toán trưởng cũng có quyền này).

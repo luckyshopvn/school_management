@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.13
+- Phiên bản: 1.14
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -53,10 +53,10 @@ flowchart TD
 | MH-05 | Đăng ký dịch vụ theo kỳ: bảng trẻ nhân dịch vụ, đăng ký học hè, chốt danh sách; duyệt đăng ký trễ và hủy trễ (YCTD-50) | VT-04, VT-15, VT-02 |
 | MH-06 | Học phí: tính học phí kỳ, bảng hóa đơn kèm dòng cần kiểm tra, phát hành, hóa đơn bổ sung (YCTD-51) | VT-04 |
 | MH-07 | Miễn giảm và học phí đặc biệt: lập miễn giảm và phiếu điều chỉnh trong chi tiết hóa đơn của MH-06; trang Duyệt miễn giảm và điều chỉnh cho Ban Giám hiệu (YCTD-52) | VT-04, VT-05, VT-15, VT-02 |
-| MH-08 | Danh sách công nợ, nhắc nợ và xử lý công nợ quá hạn | VT-04, VT-03, VT-15, VT-02 |
-| MH-09 | Phiếu thu và màn hình phân bổ | VT-04, VT-16 |
+| MH-08 | Danh sách công nợ, nhắc nợ và xử lý công nợ quá hạn: phần 5d-1 có danh sách công nợ theo trẻ (phải thu, đã thu, còn lại, số dư có, quá hạn), chi tiết của trẻ có lịch sử phiếu thu, biểu mẫu lập phiếu thu và nút dùng số dư có (YCTD-53) | VT-04, VT-03, VT-15, VT-02, VT-05, VT-16 |
+| MH-09 | Phiếu thu và màn hình phân bổ: danh sách phiếu thu lọc theo đơn vị và ngày; lập phiếu thu và phân bổ trong chi tiết công nợ của trẻ ở MH-08 (YCTD-53) | VT-04, VT-16 |
 | MH-10 | Phiếu chi và phê duyệt | VT-04, VT-05, VT-16, VT-15, VT-02 |
-| MH-11 | Sổ quỹ và tài khoản ngân hàng | VT-04, VT-05, VT-16 |
+| MH-11 | Sổ quỹ và tài khoản ngân hàng: phần 5d-1 có trang Quỹ và tài khoản để khai báo và xem số dư; sổ quỹ theo ngày ở phần 5e (YCTD-53) | VT-04, VT-05, VT-16 |
 | MH-12 | Hồ sơ nhân sự và hợp đồng | VT-06 |
 | MH-13 | Bảng chấm công, chốt công và duyệt mở lại kỳ công | VT-06, VT-15, VT-02 |
 | MH-14 | Đơn nghỉ phép | VT-06, VT-03 |
@@ -134,7 +134,7 @@ flowchart TD
 | MP-08 | Sức khỏe, kết quả khám, chăm sóc hằng ngày; xác nhận đã biết sự kiện y tế và bỏ liều | VT-14 |
 | MP-09 | Trao đổi với nhà trường | VT-14 |
 | MP-10 | Góp ý | VT-14 |
-| MP-11 | Học phí và công nợ: hóa đơn đã phát hành của con, chi tiết từng khoản (YCTD-51) | VT-14 |
+| MP-11 | Học phí và công nợ: hóa đơn đã phát hành của con, chi tiết từng khoản, số còn phải nộp, hóa đơn đã thu đủ, số dư có và lịch sử đã nộp (YCTD-51, YCTD-53) | VT-14 |
 | MP-12 | Đăng ký, hủy dịch vụ theo tháng và đăng ký học hè (YCTD-50) | VT-14 |
 | MP-13 | Lịch đưa đón — Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62) | — |
 | MP-14 | Hoạt động và hình ảnh | VT-14 |
