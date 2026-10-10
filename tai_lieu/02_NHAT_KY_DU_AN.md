@@ -14,6 +14,22 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-10 — Đổi cổng kiểm thử giao diện
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 25 (phần 5f) sau khi mọi bước kiểm thử trên GitHub đạt; đợt DT-05 xong, còn bộ chuyển đổi nhà cung cấp thanh toán thật.
+- Đổi cổng kiểm thử giao diện trong `tests/e2e-environment.mjs` để không trùng máy chủ phát triển đang chạy trên máy: dịch vụ định danh 3201, máy chủ API 3200, cổng quản trị 5373, ứng dụng phụ huynh 5375, ứng dụng giáo viên 5376.
+- Kết quả: kiểm thử giao diện chạy trên máy đạt 35/35.
+
+#### Quyết định
+
+- Đổi cổng kiểm thử giao diện sang cổng khác – người quyết định: Eric.
+
+#### Vấn đề tồn đọng
+
+- Không.
+
 ### 2026-10-10 — DT-05 phần 5f: thanh toán trực tuyến bằng mã QR
 
 #### Công việc đã thực hiện
