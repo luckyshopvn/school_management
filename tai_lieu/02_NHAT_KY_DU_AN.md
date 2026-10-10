@@ -14,6 +14,29 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-10 — DT-04 phần 4a: điểm danh và báo vắng
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 13 (phần 3c). Yêu cầu gộp số 13 được gộp nhầm khi kiểm thử trên GitHub thất bại; nguyên nhân là các tệp kiểm thử chạy song song cùng sửa mật khẩu mặc định; đã sửa ở yêu cầu gộp số 14 (kiểm thử chạy từng tệp lần lượt) và chỉ gộp khi mọi bước đạt.
+- Hỏi Eric bốn điểm của DT-04; viết phần 4a trên nhánh `dt-04-phan-4a`.
+- Cơ sở dữ liệu: năm học có `attendance_records`, `attendance_days`, `absence_records`, người nhận thông báo theo vai trò (tệp 0008); định danh có quyền `P04.attendance.manage` (tệp 0013).
+- Máy chủ API: lịch ngày học, bảng điểm danh, lưu chống trùng, chốt và mở lại, sửa sau khi chốt kèm lý do, báo vắng, điểm danh của trẻ theo tháng; cấu hình giờ bắt đầu học.
+- Ứng dụng giáo viên: đăng nhập, Lớp của tôi, Bảng điểm danh có lưu tạm khi mất mạng. Ứng dụng phụ huynh: danh sách con, báo vắng, điểm danh tháng này. Cổng quản trị: màn hình Điểm danh.
+- Kết quả: máy chủ API 129/129, dịch vụ định danh 37/37, cơ sở dữ liệu 3/3, tiến trình chạy nền 1/1, kiểm thử giao diện 24/24.
+
+#### Quyết định
+
+- DT-04 chia hai phần; giờ bắt đầu học cấu hình theo đơn vị mặc định 07:30; bảng ban đầu chưa đánh dấu; chưa điểm danh kỳ hè (YCTD-47) – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-47 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.28.2.
+
+#### Vấn đề tồn đọng
+
+- CTC-P04-007, 008 chờ lịch học bù thứ bảy (P08-10); CTC-P04-046 chờ đăng ký học hè (P05-13).
+
 ### 2026-10-10 — DT-03 phần 3c: nhập dữ liệu
 
 #### Công việc đã thực hiện

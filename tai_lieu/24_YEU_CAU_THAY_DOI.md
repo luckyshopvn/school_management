@@ -11,6 +11,27 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-47: Điểm danh, chốt ngày và báo vắng – 2026-10-10
+
+- Lý do: thiết kế DT-04 cần chốt cách chia đợt, nguồn của giờ học trong BR-13, trạng thái ban đầu của bảng điểm danh và cách xử lý kỳ hè khi chưa có đăng ký học hè (P05-13).
+- Nội dung thay đổi:
+  - DT-04 chia hai phần: 4a điểm danh, chốt ngày, báo vắng; 4b người được ủy quyền đón và đón trả.
+  - Thêm mục cấu hình theo đơn vị `school_start_time` (giờ bắt đầu học), mặc định 07:30; báo vắng trước giờ này là nghỉ có báo, sau là báo muộn.
+  - Bảng điểm danh ban đầu chưa đánh dấu; trẻ đã báo vắng hiện sẵn là nghỉ có báo; còn trẻ chưa đánh dấu thì không chốt được ngày.
+  - Chỉ có bảng điểm danh vào ngày học theo lịch năm học; kỳ hè chưa có bảng cho tới khi có P05-13; ngày học bù thứ bảy chờ P08-10.
+  - Mã quyền mới `P04.attendance.manage` cho VT-03: chốt thay giáo viên, sửa sau khi chốt kèm lý do, mở lại ngày đã chốt. Giáo viên chủ nhiệm đang được phân công điểm danh và chốt lớp mình.
+  - Ứng dụng giáo viên lưu tạm điểm danh trên thiết bị khi mất mạng và tự gửi lại; bản ghi gửi bù được đánh dấu nhập bù.
+  - Người nhận thông báo có thể là mọi tài khoản có một vai trò ở đơn vị, phân hệ thông báo xác định khi gửi.
+  - Thêm MH-51 Điểm danh trên cổng quản trị.
+- Thành phần bị ảnh hưởng: `07`, `08`, `10`, `14`, `16`, `17`, `27_BO_CA_KIEM_THU_CHI_TIET/02_P02_VA_P04.md`, `01`, `03`, `index.md`; mã nguồn DT-04 phần 4a; ứng dụng giáo viên, ứng dụng phụ huynh.
+- Dữ liệu bị ảnh hưởng: bảng `attendance_records` thêm `org_unit_id`; bảng mới `attendance_days`; `absence_records` thêm `org_unit_id`, `reported_by`; `notification_recipients` thêm `role_code`, `org_unit_id`.
+- API bị ảnh hưởng: `GET`, `PUT /classes/{id}/attendance`; `POST /classes/{id}/attendance/lock`, `/unlock`; `GET`, `POST /absences`; `GET /children/{id}/attendance`.
+- Giao diện bị ảnh hưởng: MG-01, MG-02, MP-02, MP-06, MH-51; màn hình Cấu hình có mục giờ bắt đầu học.
+- Quyền bị ảnh hưởng: thêm `P04.attendance.manage`.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: CTC-P04-001 đến 006, 009 đến 023, 044, 045.
+- Trạng thái: Đã triển khai phần 4a
+
 ### YCTD-46: Nhập dữ liệu ban đầu và nhập mã định danh ngành – 2026-10-10
 
 - Lý do: trẻ nhập từ Excel là trẻ đang học sẵn nhưng BR-81 bắt buộc bản chụp giấy khai sinh mà tệp Excel không mang được; tài liệu chưa có mẫu tệp mã định danh ngành; chưa rõ phần 3c nhập những loại dữ liệu nào.

@@ -37,6 +37,9 @@ import { FileStorage, S3FileStorage } from './files/file-storage.js';
 import { FilesController, FilesService } from './files/files.js';
 import { ImportsController } from './imports/imports.controller.js';
 import { ImportsService } from './imports/imports.service.js';
+import { AttendanceController } from './attendance/attendance.controller.js';
+import { AttendanceService } from './attendance/attendance.service.js';
+import { SchoolCalendar } from './attendance/school-calendar.js';
 import { OrgUnitsController } from './organization/org-units.controller.js';
 import { OrgUnitsService } from './organization/org-units.service.js';
 
@@ -69,6 +72,7 @@ export class ApplicationModule {
         ChildrenController,
         FilesController,
         ImportsController,
+        AttendanceController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -105,6 +109,8 @@ export class ApplicationModule {
         ChildDataProtection,
         FilesService,
         ImportsService,
+        AttendanceService,
+        SchoolCalendar,
         {
           provide: FileStorage,
           useFactory: () => {

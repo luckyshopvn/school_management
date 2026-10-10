@@ -18,6 +18,8 @@ export type {
   ApprovalThresholdStatus,
   AssignmentRole,
   AssignmentStatus,
+  AttendanceSource,
+  AttendanceStatus,
   AuditLogsTable,
   CatalogStatus,
   ChildGender,
