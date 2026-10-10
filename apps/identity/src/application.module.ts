@@ -14,6 +14,8 @@ import { Clock } from '@school-management/server';
 import { IDENTITY_CONFIGURATION, type IdentityConfiguration } from './common/configuration.js';
 import { Infrastructure } from './common/infrastructure.js';
 import { HealthController } from './health.controller.js';
+import { LoggingSmsSender, SmsSender } from './messaging/sms-sender.js';
+import { OneTimeCodeService } from './authentication/one-time-code.service.js';
 
 @Module({})
 export class ApplicationModule {
@@ -21,6 +23,7 @@ export class ApplicationModule {
     configuration: IdentityConfiguration,
     clock: Clock,
     organizationDirectory?: OrganizationDirectory,
+    smsSender?: SmsSender,
   ): DynamicModule {
     return {
       module: ApplicationModule,
@@ -38,6 +41,8 @@ export class ApplicationModule {
         TokenService,
         LoginRateLimiter,
         AuthenticationService,
+        OneTimeCodeService,
+        smsSender ? { provide: SmsSender, useValue: smsSender } : { provide: SmsSender, useClass: LoggingSmsSender },
         AccessTokenGuard,
         organizationDirectory
           ? { provide: OrganizationDirectory, useValue: organizationDirectory }

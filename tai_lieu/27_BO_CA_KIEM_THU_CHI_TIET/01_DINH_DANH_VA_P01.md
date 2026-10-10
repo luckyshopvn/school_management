@@ -1,7 +1,7 @@
 # 27.1. BỘ CA KIỂM THỬ CHI TIẾT — DỊCH VỤ ĐỊNH DANH VÀ P01
 
 - Mô tả: Ca kiểm thử chi tiết cho dịch vụ định danh (Q-125, Q-126) và các chức năng giai đoạn 1 của phân hệ P01 Nền tảng, đơn vị và phân quyền (việc N21, Q-105).
-- Phiên bản: 1.13
+- Phiên bản: 1.14
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -69,26 +69,26 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
-| CTC-DD-010 | P19-06 | AC-203, PQ-06, XT-03, CT-159 | LT-02 | Cao | PH-1 vừa được tạo với mật khẩu mặc định chung | Đăng nhập bằng mật khẩu mặc định | Đăng nhập được nhưng chỉ dùng được điểm cuối đổi mật khẩu | | Chưa chạy |
-| CTC-DD-011 | P19-06 | AC-203, BM-69 | LT-04 | Cao | PH-1 đăng nhập bằng mật khẩu mặc định, chưa đổi | Gọi `GET /api/v1/children` | Trả `ERR_FORBIDDEN` | | Chưa chạy |
-| CTC-DD-012 | P19-06 | AC-89, CT-007 | LT-02 | Cao | PH-1 ở trạng thái của CTC-DD-010 | Gọi `POST /api/v1/auth/activate` đặt mật khẩu mới hợp lệ; đăng nhập lại bằng mật khẩu mới; thử mật khẩu mặc định | Đổi thành công; mật khẩu mới dùng được mọi chức năng của phụ huynh; mật khẩu mặc định bị từ chối | | Chưa chạy |
+| CTC-DD-010 | P19-06 | AC-203, PQ-06, XT-03, CT-159 | LT-02 | Cao | PH-1 vừa được tạo với mật khẩu mặc định chung | Đăng nhập bằng mật khẩu mặc định | Đăng nhập được nhưng chỉ dùng được điểm cuối đổi mật khẩu | Kiểm thử tự động `apps/identity/src/authentication/parent-sign-in.test.ts` đạt ngày 10/10/2026 | Đạt |
+| CTC-DD-011 | P19-06 | AC-203, BM-69 | LT-04 | Cao | PH-1 đăng nhập bằng mật khẩu mặc định, chưa đổi | Gọi `GET /api/v1/children` | Trả `ERR_FORBIDDEN` | Phiên hạn chế bị từ chối ở điểm cuối của dịch vụ định danh, kiểm thử tự động `apps/identity/src/authentication/parent-sign-in.test.ts` ngày 10/10/2026; phần `GET /api/v1/children` chạy khi có P02 | Chưa chạy |
+| CTC-DD-012 | P19-06 | AC-89, CT-007 | LT-02 | Cao | PH-1 ở trạng thái của CTC-DD-010 | Gọi `POST /api/v1/auth/change-password` với mật khẩu mặc định làm mật khẩu hiện tại, đặt mật khẩu mới hợp lệ (YCTD-43); đăng nhập lại bằng mật khẩu mới; thử mật khẩu mặc định | Đổi thành công; mật khẩu mới dùng được mọi chức năng của phụ huynh; mật khẩu mặc định bị từ chối | Kiểm thử tự động `apps/identity/src/authentication/parent-sign-in.test.ts` đạt ngày 10/10/2026 | Đạt |
 | CTC-DD-013 | P19-06 | BM-03 | LT-02 | Trung bình | PH-1 ở trạng thái của CTC-DD-010 | Đặt mật khẩu mới ngắn hơn độ dài tối thiểu | Trả `ERR_VALIDATION`, mật khẩu không đổi | | Chưa chạy |
-| CTC-DD-014 | P01-08 | BM-69 | LT-05 | Cao | HT đã cấu hình mật khẩu mặc định chung | Đọc cấu hình qua `GET /api/v1/settings` và đọc cơ sở dữ liệu | Không trả mật khẩu mặc định ở dạng rõ; cơ sở dữ liệu chỉ lưu giá trị băm | | Chưa chạy |
+| CTC-DD-014 | P01-08 | BM-69 | LT-05 | Cao | HT đã cấu hình mật khẩu mặc định chung | Đọc cấu hình qua `GET /api/v1/auth/settings` và đọc cơ sở dữ liệu (YCTD-43) | Không trả mật khẩu mặc định ở dạng rõ; cơ sở dữ liệu chỉ lưu giá trị băm | Kiểm thử tự động `apps/identity/src/authentication/parent-sign-in.test.ts` đạt ngày 10/10/2026 | Đạt |
 | CTC-DD-015 | P02-03 | BM-69, PQ-06 | LT-02 | Trung bình | Hồ sơ trẻ được duyệt, phụ huynh có số điện thoại | Kiểm tra tin nhắn gửi cho phụ huynh | Tin nhắn báo tài khoản đã tạo, không chứa mật khẩu | | Chưa chạy |
 
 ### 3.3. Mã một lần cho phụ huynh
 
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
-| CTC-DD-016 | P19-06 | XT-09, BM-61 | LT-02 | Cao | PH-1 đã đổi mật khẩu mặc định | Gọi `POST /api/v1/auth/otp/request` | Tin nhắn chứa mã sáu chữ số; bảng `one_time_codes` lưu giá trị băm, mục đích là đăng nhập | | Chưa chạy |
-| CTC-DD-017 | P19-06 | AC-180, CT-136 | LT-02 | Cao | Đã có mã của CTC-DD-016, còn hạn | Gọi `POST /api/v1/auth/otp/login` với mã đúng | Đăng nhập thành công, không cần mật khẩu | | Chưa chạy |
-| CTC-DD-018 | P19-06 | AC-181 | LT-02 | Cao | Mã đã quá 5 phút | Đăng nhập bằng mã đó | Bị từ chối, phải yêu cầu mã mới | | Chưa chạy |
-| CTC-DD-019 | P19-06 | AC-181, CT-137 | LT-02 | Cao | Mã còn hạn | Nhập sai 5 lần rồi nhập đúng | Lần đúng vẫn bị từ chối, phải yêu cầu mã mới | | Chưa chạy |
-| CTC-DD-020 | P19-06 | XT-09, BM-61 | LT-02 | Cao | Mã đã dùng đăng nhập thành công | Dùng lại mã đó | Bị từ chối | | Chưa chạy |
-| CTC-DD-021 | P19-06 | BM-61 | LT-02 | Cao | Một số điện thoại không có trong hệ thống | Yêu cầu mã cho số đó và cho số của PH-1 | Hai phản hồi giống nhau, không tiết lộ số có tồn tại hay không; không gửi tin cho số không tồn tại | | Chưa chạy |
-| CTC-DD-022 | P19-06 | XT-09, BM-61 | LT-02 | Trung bình | PH-1 | Yêu cầu mã lần thứ 6 trong một giờ | Trả `ERR_RATE_LIMIT`, không gửi tin | | Chưa chạy |
-| CTC-DD-023 | P19-06 | XT-01 | LT-04 | Trung bình | Tài khoản NS-A | Yêu cầu mã một lần và đăng nhập bằng mã | Bị từ chối vì cách đăng nhập này chỉ dành cho phụ huynh | | Chưa chạy |
-| CTC-DD-042 | P19-06 | Q-147, AC-203 | LT-02 | Cao | PH-1 còn mật khẩu mặc định, chưa đổi | Đăng nhập bằng mã một lần; gọi `GET /api/v1/children` | Đăng nhập thành công; xem được trẻ T1 bình thường; lần đăng nhập bằng mật khẩu mặc định sau đó vẫn chỉ vào màn hình đổi mật khẩu | | Chưa chạy |
+| CTC-DD-016 | P19-06 | XT-09, BM-61 | LT-02 | Cao | PH-1 đã đổi mật khẩu mặc định | Gọi `POST /api/v1/auth/otp/request` | Tin nhắn chứa mã sáu chữ số; bảng `one_time_codes` lưu giá trị băm, mục đích là đăng nhập | Kiểm thử tự động `apps/identity/src/authentication/parent-sign-in.test.ts` đạt ngày 10/10/2026 | Đạt |
+| CTC-DD-017 | P19-06 | AC-180, CT-136 | LT-02 | Cao | Đã có mã của CTC-DD-016, còn hạn | Gọi `POST /api/v1/auth/otp/login` với mã đúng | Đăng nhập thành công, không cần mật khẩu | Kiểm thử tự động `apps/identity/src/authentication/parent-sign-in.test.ts` đạt ngày 10/10/2026 | Đạt |
+| CTC-DD-018 | P19-06 | AC-181 | LT-02 | Cao | Mã đã quá 5 phút | Đăng nhập bằng mã đó | Bị từ chối, phải yêu cầu mã mới | Kiểm thử tự động `apps/identity/src/authentication/parent-sign-in.test.ts` đạt ngày 10/10/2026 | Đạt |
+| CTC-DD-019 | P19-06 | AC-181, CT-137 | LT-02 | Cao | Mã còn hạn | Nhập sai 5 lần rồi nhập đúng | Lần đúng vẫn bị từ chối, phải yêu cầu mã mới | Kiểm thử tự động `apps/identity/src/authentication/parent-sign-in.test.ts` đạt ngày 10/10/2026 | Đạt |
+| CTC-DD-020 | P19-06 | XT-09, BM-61 | LT-02 | Cao | Mã đã dùng đăng nhập thành công | Dùng lại mã đó | Bị từ chối | Kiểm thử tự động `apps/identity/src/authentication/parent-sign-in.test.ts` đạt ngày 10/10/2026 | Đạt |
+| CTC-DD-021 | P19-06 | BM-61 | LT-02 | Cao | Một số điện thoại không có trong hệ thống | Yêu cầu mã cho số đó và cho số của PH-1 | Hai phản hồi giống nhau, không tiết lộ số có tồn tại hay không; không gửi tin cho số không tồn tại | Kiểm thử tự động `apps/identity/src/authentication/parent-sign-in.test.ts` đạt ngày 10/10/2026 | Đạt |
+| CTC-DD-022 | P19-06 | XT-09, BM-61 | LT-02 | Trung bình | PH-1 | Yêu cầu mã lần thứ 6 trong một giờ | Trả `ERR_RATE_LIMIT`, không gửi tin | Kiểm thử tự động `apps/identity/src/authentication/parent-sign-in.test.ts` đạt ngày 10/10/2026 | Đạt |
+| CTC-DD-023 | P19-06 | XT-01 | LT-04 | Trung bình | Tài khoản NS-A | Yêu cầu mã một lần và đăng nhập bằng mã | Bị từ chối vì cách đăng nhập này chỉ dành cho phụ huynh | Kiểm thử tự động `apps/identity/src/authentication/parent-sign-in.test.ts` đạt ngày 10/10/2026 | Đạt |
+| CTC-DD-042 | P19-06 | Q-147, AC-203 | LT-02 | Cao | PH-1 còn mật khẩu mặc định, chưa đổi | Đăng nhập bằng mã một lần; gọi `GET /api/v1/children` | Đăng nhập thành công; xem được trẻ T1 bình thường; lần đăng nhập bằng mật khẩu mặc định sau đó vẫn chỉ vào màn hình đổi mật khẩu | Đăng nhập bằng mã cấp phiên đầy đủ kể cả sau khi làm mới, kiểm thử tự động `apps/identity/src/authentication/parent-sign-in.test.ts` ngày 10/10/2026; phần xem trẻ chạy khi có P02 | Chưa chạy |
 | CTC-DD-024 | P19-06 | KT-09 | LT-02 | Thấp | PH-1 đã nhận 5 tin nhắn thông báo trong ngày | Yêu cầu mã một lần | Vẫn nhận được mã vì giới hạn 5 tin mỗi ngày không tính mã một lần | | Chưa chạy |
 
 ### 3.4. Xác thực hai lớp (đã bỏ, YCTD-31)

@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.14
+- Phiên bản: 1.15
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -25,7 +25,7 @@
 | P01-05 | Quản lý danh mục dùng chung (G1) | VT-02 | Loại danh mục (do hệ thống định nghĩa: quan hệ với trẻ, loại nghỉ phép, loại hợp đồng, nhóm tài sản; YCTD-42), mã, tên, thứ tự | Tạo, sửa, ngừng sử dụng mục trong từng loại | Danh mục dùng chung | BR-75 |
 | P01-06 | Quản lý tài khoản (G1) | VT-02, VT-03 | Họ tên, số điện thoại, vai trò, đơn vị | Tạo, khóa, mở khóa, đặt lại mật khẩu; người được đặt lại bắt buộc đổi mật khẩu ở lần đăng nhập kế tiếp (Q-148) | Danh sách tài khoản | PQ-06, PQ-07, BM-07 |
 | P01-07 | Quản lý vai trò và quyền (G1) | VT-02 | Vai trò, danh sách quyền, phạm vi đơn vị | Gán và thu hồi quyền | Ma trận quyền hiện hành | PQ-01, PQ-03, PQ-04 |
-| P01-08 | Cấu hình tham số theo đơn vị (G1) | VT-02, VT-03 | Ngày chốt học phí (mặc định mùng 1 tháng sau, cấu hình được; ngày chốt công cố định mùng 1 tháng sau, không cấu hình, YCTD-41), ngày đến hạn, mật khẩu mặc định chung của tài khoản phụ huynh, mốc nhắc nợ (mặc định 3, 7 và 15 ngày sau ngày đến hạn), bật hoặc tắt chặn đăng ký dịch vụ khi nợ quá hạn, bật hoặc tắt ghi nhật ký truy cập, bật hoặc tắt kiểm tra số dư tài khoản ngân hàng, bật hoặc tắt chặn xuất quá tồn kho, bật hoặc tắt không có nhân viên y tế (BR-86), sĩ số tối đa | Lưu và áp dụng cấu hình; đơn vị chưa cấu hình một mục thì dùng giá trị của Trường chính, rồi tới mặc định; chỉ ngày chốt học phí (mùng 1 tháng sau) và mốc nhắc nợ (3, 7, 15 ngày) có mặc định, các mục khác để trống cho tới khi nhà trường cấu hình; mật khẩu mặc định của phụ huynh lưu ở dịch vụ định danh, làm ở DT-02 (YCTD-40) | Bộ tham số của đơn vị | BR-18, BR-33, BR-34, BR-62, BR-73, BR-86 |
+| P01-08 | Cấu hình tham số theo đơn vị (G1) | VT-02, VT-03 | Ngày chốt học phí (mặc định mùng 1 tháng sau, cấu hình được; ngày chốt công cố định mùng 1 tháng sau, không cấu hình, YCTD-41), ngày đến hạn, mốc nhắc nợ (mặc định 3, 7 và 15 ngày sau ngày đến hạn), bật hoặc tắt chặn đăng ký dịch vụ khi nợ quá hạn, bật hoặc tắt ghi nhật ký truy cập, bật hoặc tắt kiểm tra số dư tài khoản ngân hàng, bật hoặc tắt chặn xuất quá tồn kho, bật hoặc tắt không có nhân viên y tế (BR-86), sĩ số tối đa | Lưu và áp dụng cấu hình; đơn vị chưa cấu hình một mục thì dùng giá trị của Trường chính, rồi tới mặc định; chỉ ngày chốt học phí (mùng 1 tháng sau) và mốc nhắc nợ (3, 7, 15 ngày) có mặc định, các mục khác để trống cho tới khi nhà trường cấu hình; mật khẩu mặc định của phụ huynh lưu ở dịch vụ định danh, làm ở DT-02 (YCTD-40) | Bộ tham số của đơn vị | BR-18, BR-33, BR-34, BR-62, BR-73, BR-86 |
 | P01-09 | Nhật ký thao tác (G1) | VT-02, VT-03 | Bộ lọc người dùng, thời gian, đối tượng | Ghi và tra cứu nhật ký thao tác | Danh sách nhật ký | BR-35, BR-73 |
 | P01-10 | Cấu hình hạn mức phê duyệt (G1) | VT-02 | Loại chứng từ, hạn mức theo đơn vị | Lưu và áp dụng hạn mức phê duyệt | Danh sách hạn mức | BR-77, BR-79 |
 | P01-11 | Danh mục phòng học (G1) | VT-02, VT-03 | Đơn vị, mã phòng, tên phòng, sức chứa, trạng thái | Tạo, sửa, ngừng sử dụng phòng học; gán phòng cho lớp | Danh mục phòng học | BR-01, BR-75 |
@@ -278,7 +278,7 @@
 | P19-03 | Ứng dụng phụ huynh (G1) | VT-14 | Tài khoản phụ huynh | Cung cấp giao diện theo dõi con | Ứng dụng phụ huynh | PQ-06 |
 | P19-04 | Trung tâm thông báo (G1) | Mọi vai trò | Sự kiện nghiệp vụ | Tạo, phân phối, đánh dấu đã đọc | Danh sách thông báo | BR-70 |
 | P19-05 | Mẫu thông báo (G1) | VT-02, VT-03 | Loại sự kiện, kênh, nội dung mẫu | Quản lý mẫu và biến nội dung | Mẫu thông báo | BR-70 |
-| P19-06 | Đăng nhập và quản lý phiên (G1) | Mọi vai trò | Tài khoản, mật khẩu; phụ huynh có thể đăng nhập bằng mã một lần gửi qua tin nhắn | Xác thực, cấp phiên, thu hồi phiên; phiên đăng nhập bằng mật khẩu mặc định chỉ được vào màn hình đổi mật khẩu; phiên đăng nhập bằng mã một lần dùng bình thường (Q-147) | Phiên làm việc | PQ-04, PQ-06 |
+| P19-06 | Đăng nhập và quản lý phiên (G1) | Mọi vai trò | Tài khoản, mật khẩu; phụ huynh có thể đăng nhập bằng mã một lần gửi qua tin nhắn; mật khẩu mặc định chung và thông số mã một lần do Hiệu trưởng đặt ở cấu hình chung của dịch vụ định danh (YCTD-43) | Xác thực, cấp phiên, thu hồi phiên; phiên đăng nhập bằng mật khẩu mặc định chỉ được vào màn hình đổi mật khẩu; phiên đăng nhập bằng mã một lần dùng bình thường (Q-147) | Phiên làm việc | PQ-04, PQ-06 |
 
 ## 21. Yêu cầu phi chức năng
 

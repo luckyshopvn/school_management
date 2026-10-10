@@ -200,34 +200,103 @@ function UnitSettingsForm({ orgUnitId, editable, onSaved }: { orgUnitId: string;
   );
 }
 
-function AccountLockSettings({ onSaved }: { onSaved(): void }) {
+// Cấu hình chung của tài khoản: số ngày tự khóa (PQ-07), mật khẩu mặc định của phụ huynh và mã một lần (YCTD-43)
+const NUMBER_FIELDS = [
+  { key: 'account_inactivity_lock_days', label: 'Số ngày không đăng nhập thì tự khóa tài khoản' },
+  { key: 'one_time_code_lifetime_minutes', label: 'Số phút mã một lần còn hiệu lực' },
+  { key: 'one_time_code_maximum_attempts', label: 'Số lần nhập sai mã tối đa' },
+  { key: 'one_time_code_maximum_sends_per_hour', label: 'Số lần gửi mã tối đa mỗi giờ cho một số điện thoại' },
+] as const;
+
+type NumberFieldKey = (typeof NUMBER_FIELDS)[number]['key'];
+
+function AccountLockSettings({ onSaved }: { onSaved(message: string): void }) {
+  const queryClient = useQueryClient();
   const settings = useQuery({ queryKey: ['identity-settings'], queryFn: readIdentitySettings });
-  const [days, setDays] = useState('');
+  const [numbers, setNumbers] = useState<Record<NumberFieldKey, string>>({
+    account_inactivity_lock_days: '',
+    one_time_code_lifetime_minutes: '',
+    one_time_code_maximum_attempts: '',
+    one_time_code_maximum_sends_per_hour: '',
+  });
+  const [defaultPassword, setDefaultPassword] = useState('');
   useEffect(() => {
     if (settings.data) {
-      setDays(String(settings.data.account_inactivity_lock_days));
+      const data = settings.data;
+      setNumbers({
+        account_inactivity_lock_days: String(data.account_inactivity_lock_days),
+        one_time_code_lifetime_minutes: String(data.one_time_code_lifetime_minutes),
+        one_time_code_maximum_attempts: String(data.one_time_code_maximum_attempts),
+        one_time_code_maximum_sends_per_hour: String(data.one_time_code_maximum_sends_per_hour),
+      });
     }
   }, [settings.data]);
-  const save = useMutation({ mutationFn: () => saveIdentitySettings(Number(days)), onSuccess: onSaved });
+  const onSuccess = async (message: string) => {
+    await queryClient.invalidateQueries({ queryKey: ['identity-settings'] });
+    onSaved(message);
+  };
+  const save = useMutation({
+    mutationFn: () =>
+      saveIdentitySettings(Object.fromEntries(NUMBER_FIELDS.map((field) => [field.key, Number(numbers[field.key])]))),
+    onSuccess: () => onSuccess('Đã lưu cấu hình tài khoản'),
+  });
+  const savePassword = useMutation({
+    mutationFn: () => saveIdentitySettings({ parent_default_password: defaultPassword }),
+    onSuccess: async () => {
+      setDefaultPassword('');
+      await onSuccess('Đã đặt mật khẩu mặc định của phụ huynh');
+    },
+  });
+  const passwordErrors =
+    savePassword.error instanceof ApiError
+      ? savePassword.error.details.map((detail) => detail.message).join('; ')
+      : undefined;
   if (settings.isError) {
     return null;
   }
   return (
     <section
-      className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
+      className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4"
       aria-label="Cấu hình tài khoản"
     >
       <h2 className="text-section-title font-semibold text-text">Tài khoản</h2>
       {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
-      <div className="flex flex-wrap items-end gap-3">
-        <TextField
-          label="Số ngày không đăng nhập thì tự khóa tài khoản"
-          value={days}
-          onChange={(event) => setDays(event.target.value)}
-        />
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        {NUMBER_FIELDS.map((field) => (
+          <TextField
+            key={field.key}
+            label={field.label}
+            inputMode="numeric"
+            value={numbers[field.key]}
+            onChange={(event) => setNumbers({ ...numbers, [field.key]: event.target.value })}
+          />
+        ))}
+      </div>
+      <div>
         <Button onClick={() => save.mutate()} disabled={save.isPending}>
           Lưu
         </Button>
+      </div>
+      <div className="flex flex-col gap-3 border-t border-border pt-4">
+        <h3 className="text-content font-semibold text-text">Mật khẩu mặc định của phụ huynh</h3>
+        <p className="text-label text-text-secondary">
+          {settings.data?.parent_default_password_configured
+            ? 'Đã đặt. Hệ thống chỉ lưu dạng mã hóa nên không xem lại được; nhập mật khẩu mới để thay. Phụ huynh chưa kích hoạt sẽ dùng mật khẩu mới.'
+            : 'Chưa đặt. Cần đặt trước khi tạo tài khoản phụ huynh.'}
+        </p>
+        <div className="flex flex-wrap items-end gap-3">
+          <TextField
+            label="Mật khẩu mặc định mới"
+            type="password"
+            autoComplete="new-password"
+            value={defaultPassword}
+            error={passwordErrors}
+            onChange={(event) => setDefaultPassword(event.target.value)}
+          />
+          <Button onClick={() => savePassword.mutate()} disabled={savePassword.isPending || defaultPassword === ''}>
+            Đặt mật khẩu mặc định
+          </Button>
+        </div>
       </div>
     </section>
   );
@@ -292,9 +361,7 @@ export function SettingsPage() {
             <Alert tone="warning">Chưa có đơn vị. Hãy mở năm học và tạo cây đơn vị trước.</Alert>
           )}
         </section>
-        {wholeSchoolSettingManager ? (
-          <AccountLockSettings onSaved={() => setToastMessage('Đã lưu cấu hình tài khoản')} />
-        ) : null}
+        {wholeSchoolSettingManager ? <AccountLockSettings onSaved={setToastMessage} /> : null}
       </div>
     </AppShell>
   );

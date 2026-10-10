@@ -64,7 +64,7 @@ function CreateAccountForm({
 }: {
   roles: Role[];
   units: OrgUnit[];
-  onCreated(result: { account: Account; temporary_password: string }): void;
+  onCreated(result: { account: Account; temporary_password: string | null; uses_default_password: boolean }): void;
 }) {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -378,8 +378,15 @@ export function AccountsPage() {
                   units={units.data ?? []}
                   onCreated={(result) => {
                     void queryClient.invalidateQueries({ queryKey: ['accounts'] });
-                    setTemporaryPassword(result.temporary_password);
-                    setToastMessage(`Đã tạo tài khoản ${result.account.full_name}`);
+                    // Tài khoản phụ huynh dùng mật khẩu mặc định chung, không có mật khẩu tạm (PQ-06)
+                    if (result.temporary_password) {
+                      setTemporaryPassword(result.temporary_password);
+                    }
+                    setToastMessage(
+                      result.uses_default_password
+                        ? `Đã tạo tài khoản ${result.account.full_name}, dùng mật khẩu mặc định của phụ huynh`
+                        : `Đã tạo tài khoản ${result.account.full_name}`,
+                    );
                   }}
                 />
               </>

@@ -3,6 +3,7 @@ import type { IdentityDatabase } from '@school-management/database';
 import {
   ApplicationError,
   Clock,
+  ruleViolationError,
   validationError,
   type AccessTokenClaims,
   type FieldError,
@@ -10,6 +11,7 @@ import {
 import { WHOLE_SCHOOL_ROLE_CODES } from '@school-management/shared';
 import type { Transaction } from 'kysely';
 import { hashPassword } from '../authentication/password.js';
+import { IdentitySettingsService } from '../settings/identity-settings.service.js';
 import { Infrastructure } from '../common/infrastructure.js';
 import {
   canGrantOnCreate,
@@ -23,6 +25,8 @@ import { loadAssignments, type AssignmentWithPermissions } from './assignments.j
 import { writeIdentityAuditLog } from './identity-audit-log.js';
 import { OrganizationDirectory, type OrgUnitSummary } from './organization-directory.js';
 import { generateTemporaryPassword } from './temporary-password.js';
+
+const PARENT_ROLE_CODE = 'VT-14';
 
 // Quản lý tài khoản (P01-06) và gán vai trò (P01-07) theo PQ-03, PQ-05, PQ-08, PQ-13, BM-56, BM-68
 export interface RoleGrant {
@@ -107,6 +111,7 @@ export class AccountsService {
     private readonly infrastructure: Infrastructure,
     private readonly organizationDirectory: OrganizationDirectory,
     private readonly clock: Clock,
+    private readonly identitySettings: IdentitySettingsService,
   ) {}
 
   private get database() {
@@ -223,11 +228,12 @@ export class AccountsService {
     return view;
   }
 
-  // Tạo tài khoản kèm vai trò; hệ thống sinh mật khẩu tạm, bắt buộc đổi ở lần đăng nhập đầu (PQ-13, PQ-14)
+  // Tạo tài khoản kèm vai trò; hệ thống sinh mật khẩu tạm, bắt buộc đổi ở lần đăng nhập đầu (PQ-13, PQ-14).
+  // Tài khoản chỉ có vai trò phụ huynh dùng mật khẩu mặc định chung, không sinh mật khẩu tạm (PQ-06, YCTD-43)
   async create(
     caller: CallerContext,
     input: AccountInput,
-  ): Promise<{ account: AccountView; temporary_password: string }> {
+  ): Promise<{ account: AccountView; temporary_password: string | null; uses_default_password: boolean }> {
     const { authority, units } = await this.authority(caller);
     const roles = await this.validateGrants(input.roles, input.valid_until, units, 'roles');
     for (const grant of input.roles) {
@@ -237,8 +243,16 @@ export class AccountsService {
     }
     await this.assertUnique(input.phone, input.username, null);
 
-    const temporaryPassword = generateTemporaryPassword();
-    const passwordHash = await hashPassword(temporaryPassword);
+    const usesDefaultPassword =
+      input.roles.length > 0 && input.roles.every((grant) => grant.role_code === PARENT_ROLE_CODE);
+    if (usesDefaultPassword && (await this.identitySettings.parentDefaultPasswordHash()) === null) {
+      throw ruleViolationError(
+        'PQ-06',
+        'Chưa đặt mật khẩu mặc định của phụ huynh; Hiệu trưởng đặt ở màn hình Cấu hình, phần Tài khoản',
+      );
+    }
+    const temporaryPassword = usesDefaultPassword ? null : generateTemporaryPassword();
+    const passwordHash = temporaryPassword === null ? null : await hashPassword(temporaryPassword);
     const userId = await this.database.transaction().execute(async (transaction) => {
       const user = await transaction
         .insertInto('users')
@@ -275,7 +289,11 @@ export class AccountsService {
       });
       return user.id;
     });
-    return { account: (await this.findAccount(userId)).view, temporary_password: temporaryPassword };
+    return {
+      account: (await this.findAccount(userId)).view,
+      temporary_password: temporaryPassword,
+      uses_default_password: usesDefaultPassword,
+    };
   }
 
   // Sửa thông tin, khóa, mở khóa; không ai tự đổi tài khoản của mình qua điểm cuối này (PQ-08)

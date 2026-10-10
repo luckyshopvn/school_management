@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import type { SessionChannel } from '@school-management/database';
+import type { IdentityDatabase, LoginMethod, SessionChannel } from '@school-management/database';
+import type { Selectable } from 'kysely';
 import { randomUUID } from 'node:crypto';
 import {
   ACCESS_TOKEN_LIFETIME_SECONDS,
@@ -90,7 +91,30 @@ export class AuthenticationService {
       await this.recordSecurityEvent('login_failed', null, loginIdentifier, origin.ipAddress);
       throw unauthenticatedError(INVALID_CREDENTIALS_MESSAGE);
     }
+    await this.assertAccountUsable(user, loginIdentifier, origin, now);
 
+    if (!(await this.verifyAccountPassword(user.password_hash, password))) {
+      await this.registerFailedLogin(user.id, user.failed_login_count, now);
+      await this.recordSecurityEvent(
+        user.password_hash === null ? 'login_failed_default_password' : 'login_failed',
+        user.id,
+        loginIdentifier,
+        origin.ipAddress,
+      );
+      throw unauthenticatedError(INVALID_CREDENTIALS_MESSAGE);
+    }
+
+    // Đăng nhập bằng mật khẩu mặc định hoặc mật khẩu tạm chỉ dùng được điểm cuối đổi mật khẩu (BM-07, BM-69)
+    return this.completeSignIn(user, channel, origin, 'password', requiresPasswordChange(user), now);
+  }
+
+  // Tài khoản còn hiệu lực, đang hoạt động và không bị tạm khóa do nhập sai
+  async assertAccountUsable(
+    user: Selectable<IdentityDatabase['users']>,
+    loginIdentifier: string,
+    origin: RequestOrigin,
+    now: Date,
+  ): Promise<void> {
     if (user.valid_until !== null && user.valid_until < toDateText(now)) {
       await this.database
         .updateTable('users')
@@ -108,13 +132,17 @@ export class AuthenticationService {
       await this.recordSecurityEvent('login_rejected_temporarily_locked', user.id, loginIdentifier, origin.ipAddress);
       throw unauthenticatedError(temporaryLockMessage(user.locked_until, now));
     }
+  }
 
-    if (!(await verifyPassword(user.password_hash, password))) {
-      await this.registerFailedLogin(user.id, user.failed_login_count, now);
-      await this.recordSecurityEvent('login_failed', user.id, loginIdentifier, origin.ipAddress);
-      throw unauthenticatedError(INVALID_CREDENTIALS_MESSAGE);
-    }
-
+  // Sau khi xác thực đúng: kiểm tra tự khóa do lâu không đăng nhập, ghi lần đăng nhập, mở phiên
+  async completeSignIn(
+    user: Selectable<IdentityDatabase['users']>,
+    channel: SessionChannel,
+    origin: RequestOrigin,
+    loginMethod: LoginMethod,
+    passwordChangeRequired: boolean,
+    now: Date,
+  ): Promise<IssuedTokens> {
     // Không đăng nhập quá số ngày cấu hình thì tạm khóa, phải được mở khóa lại (PQ-07, BM-09)
     const lockDays = await this.identitySettings.accountInactivityLockDays();
     const lastActivity = user.last_login_at ?? user.created_at;
@@ -124,7 +152,7 @@ export class AuthenticationService {
         .set({ status: 'locked', updated_at: now })
         .where('id', '=', user.id)
         .execute();
-      await this.recordSecurityEvent('login_rejected_inactive', user.id, loginIdentifier, origin.ipAddress);
+      await this.recordSecurityEvent('login_rejected_inactive', user.id, user.phone ?? user.username, origin.ipAddress);
       throw unauthenticatedError(
         `Tài khoản bị tạm khóa vì không đăng nhập quá ${lockDays} ngày, vui lòng liên hệ nhà trường`,
       );
@@ -150,18 +178,29 @@ export class AuthenticationService {
         expires_at: expiresAt,
         ip_address: origin.ipAddress,
         user_agent: origin.userAgent,
+        login_method: loginMethod,
       })
       .execute();
 
     return this.buildTokenResponse(
-      { userId: user.id, sessionId, channel, passwordChangeRequired: user.must_change_password },
+      { userId: user.id, sessionId, channel, passwordChangeRequired },
       refreshToken.token,
       expiresAt,
     );
   }
 
+  // Tài khoản còn dùng mật khẩu mặc định thì so với mật khẩu mặc định chung (PQ-06, YCTD-43)
+  private async verifyAccountPassword(passwordHash: string | null, password: string): Promise<boolean> {
+    const effectiveHash = passwordHash ?? (await this.identitySettings.parentDefaultPasswordHash());
+    if (!effectiveHash) {
+      await verifyPassword(await placeholderPasswordHash(), password);
+      return false;
+    }
+    return verifyPassword(effectiveHash, password);
+  }
+
   // Mỗi lần làm mới cấp mã làm mới mới; dùng lại mã cũ thì thu hồi cả phiên
-  async refresh(refreshTokenValue: string, origin: RequestOrigin): Promise<IssuedTokens> {
+  async refresh(refreshTokenValue: string, channel: SessionChannel, origin: RequestOrigin): Promise<IssuedTokens> {
     const now = this.clock.now();
     const sessionId = readSessionIdFromRefreshToken(refreshTokenValue);
     if (!sessionId) {
@@ -172,7 +211,7 @@ export class AuthenticationService {
       .selectAll()
       .where('id', '=', sessionId)
       .executeTakeFirst();
-    if (!session || session.revoked_at !== null || session.expires_at <= now) {
+    if (!session || session.revoked_at !== null || session.expires_at <= now || session.channel !== channel) {
       throw unauthenticatedError();
     }
     if (session.refresh_token_hash !== hashRefreshToken(refreshTokenValue)) {
@@ -194,7 +233,8 @@ export class AuthenticationService {
         userId: user.id,
         sessionId: session.id,
         channel: session.channel,
-        passwordChangeRequired: user.must_change_password,
+        // Phiên đăng nhập bằng mã một lần luôn là phiên đầy đủ (Q-147)
+        passwordChangeRequired: session.login_method === 'one_time_code' ? false : requiresPasswordChange(user),
       },
       refreshToken.token,
       session.expires_at,
@@ -215,7 +255,7 @@ export class AuthenticationService {
     await this.findActiveSession(claims.sessionId, now);
     const user = await this.findActiveUser(claims.userId, now);
 
-    if (!(await verifyPassword(user.password_hash, currentPassword))) {
+    if (!(await this.verifyAccountPassword(user.password_hash, currentPassword))) {
       throw validationError([{ field: 'current_password', message: 'Mật khẩu hiện tại không đúng' }]);
     }
     const policyErrors = checkPasswordPolicy('new_password', newPassword);
@@ -383,6 +423,10 @@ export class AuthenticationService {
       })
       .execute();
   }
+}
+
+function requiresPasswordChange(user: { must_change_password: boolean; password_hash: string | null }): boolean {
+  return user.must_change_password || user.password_hash === null;
 }
 
 function toDateText(moment: Date): string {

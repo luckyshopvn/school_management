@@ -7,7 +7,7 @@ export {
 } from './database-administration.js';
 export { readConnectionString, replaceDatabaseName, type ServiceDatabaseKind } from './environment.js';
 export { migrateToLatest, type DatabaseKind } from './migrate.js';
-export type { IdentityDatabase, SessionChannel, UserStatus } from '../identity/schema.js';
+export type { IdentityDatabase, LoginMethod, SessionChannel, UserStatus } from '../identity/schema.js';
 export type {
   AcademicTermType,
   AcademicYearDatabaseStatus,

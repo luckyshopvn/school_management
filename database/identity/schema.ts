@@ -6,13 +6,15 @@ type UpdatedTimestamp = ColumnType<Date, Date | undefined, Date>;
 
 export type UserStatus = 'active' | 'locked';
 export type SessionChannel = 'portal' | 'teacher' | 'parent';
+export type LoginMethod = 'password' | 'one_time_code';
 
 export interface UsersTable {
   id: Generated<string>;
   full_name: string;
   phone: string | null;
   username: string | null;
-  password_hash: string;
+  // Để trống nghĩa là tài khoản phụ huynh còn dùng mật khẩu mặc định chung (PQ-06, YCTD-43)
+  password_hash: string | null;
   status: Generated<UserStatus>;
   last_login_at: Date | null;
   failed_login_count: Generated<number>;
@@ -69,6 +71,7 @@ export interface SessionsTable {
   revoked_at: Date | null;
   ip_address: string | null;
   user_agent: string | null;
+  login_method: Generated<LoginMethod>;
 }
 
 export interface SecurityEventsTable {
@@ -100,6 +103,18 @@ export interface IdentitySettingsTable {
   updated_by: string | null;
 }
 
+export interface OneTimeCodesTable {
+  id: Generated<string>;
+  user_id: string;
+  phone: string;
+  purpose: string;
+  code_hash: string;
+  expires_at: Date;
+  attempt_count: Generated<number>;
+  used_at: Date | null;
+  created_at: CreatedTimestamp;
+}
+
 export interface IdentityDatabase {
   users: UsersTable;
   roles: RolesTable;
@@ -110,4 +125,5 @@ export interface IdentityDatabase {
   security_events: SecurityEventsTable;
   identity_audit_logs: IdentityAuditLogsTable;
   identity_settings: IdentitySettingsTable;
+  one_time_codes: OneTimeCodesTable;
 }
