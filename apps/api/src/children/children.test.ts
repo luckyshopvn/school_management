@@ -51,11 +51,14 @@ describe('Hồ sơ trẻ, phụ huynh, duyệt và phân lớp', () => {
     return { status: response.status, body: (await response.json()) as Record<string, unknown> };
   }
 
+  let childSequence = 0;
+
   async function childBody(token: string, orgUnit: string, overrides: Record<string, unknown> = {}) {
     const file = await upload(token, unit(orgUnit));
     return {
       org_unit_id: unit(orgUnit),
-      full_name: `Trẻ ${randomInt(0, 1_000_000)}`,
+      // Tên đánh số tuần tự để không trùng họ tên và ngày sinh với trẻ khác trong lần chạy
+      full_name: `Trẻ số ${(childSequence += 1)}`,
       dob: '2022-04-18',
       gender: 'male',
       national_id: nextNationalId(),
