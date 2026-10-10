@@ -1,8 +1,8 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, thành phần, xác thực, phân quyền, lưu trữ tệp, ghi nhật ký, giám sát, sao lưu, phục hồi, triển khai.
-- Phiên bản: 1.8
-- Ngày cập nhật: 2026-10-09
+- Phiên bản: 1.9
+- Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -108,13 +108,13 @@ Xác thực do dịch vụ định danh đảm nhiệm, tách khỏi máy chủ 
 |---|---|
 | XT-01 | Đăng nhập bằng số điện thoại hoặc tên đăng nhập kèm mật khẩu, thực hiện tại dịch vụ định danh. Phụ huynh có thêm cách đăng nhập bằng số điện thoại và mã một lần gửi qua tin nhắn |
 | XT-02 | Cấp phiên ngắn hạn kèm mã làm mới; mã làm mới thu hồi được khi cần. Mã phiên hết hạn sau 15 phút; mã làm mới hết hạn sau 8 giờ với cổng quản trị, 30 ngày với ứng dụng giáo viên và phụ huynh |
-| XT-03 | Tài khoản phụ huynh tạo với mật khẩu mặc định chung do nhà trường cấu hình; bắt buộc đổi mật khẩu ở lần đăng nhập đầu |
+| XT-03 | Tài khoản phụ huynh tạo với mật khẩu mặc định chung toàn trường do Hiệu trưởng đặt, lưu dạng băm ở dịch vụ định danh; bắt buộc đổi mật khẩu ở lần đăng nhập đầu; kích hoạt là đăng nhập bằng mật khẩu mặc định rồi đổi mật khẩu (YCTD-43) |
 | XT-04 | Mật khẩu lưu dưới dạng băm có muối, không lưu bản rõ |
 | XT-05 | Sai mật khẩu 5 lần liên tiếp thì tạm khóa tài khoản 15 phút rồi tự mở; giới hạn 10 yêu cầu đăng nhập mỗi phút trên một địa chỉ mạng (YCTD-35) |
 | XT-06 | Mọi yêu cầu tới máy chủ API nghiệp vụ đều kiểm tra phiên còn hiệu lực: kiểm tra chữ ký của mã bằng khóa công khai, sau đó hỏi dịch vụ định danh vai trò và quyền hiện hành qua `GET /api/v1/auth/me` (QĐ-20, QĐ-22) |
 | XT-07 | Bỏ ngày 09/10/2026: không dùng xác thực hai lớp (YCTD-31); Hiệu trưởng, Phó Hiệu trưởng, kế toán trưởng và quản trị nền tảng đăng nhập bằng mật khẩu như các vai trò khác |
 | XT-08 | Dịch vụ định danh phát hành mã có thời hạn ngắn; máy chủ API nghiệp vụ không lưu mật khẩu và không tự xác thực mật khẩu |
-| XT-09 | Mã một lần gồm sáu chữ số, hết hạn sau số phút cấu hình, chỉ dùng một lần, giới hạn số lần gửi và số lần nhập sai; cần nhà cung cấp tin nhắn (việc T1) |
+| XT-09 | Mã một lần gồm sáu chữ số, chỉ dùng một lần; mặc định hết hạn sau 5 phút, nhập sai tối đa 5 lần, gửi tối đa 5 lần mỗi giờ cho một số điện thoại, Hiệu trưởng sửa được (YCTD-43); gửi qua lớp gửi tin nhắn của dịch vụ định danh, nối nhà cung cấp thật khi có tài khoản ở việc T1 |
 
 ## 5. Phân quyền
 

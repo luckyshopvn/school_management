@@ -25,8 +25,8 @@ function readTokens(response: JsonResponse): { accessToken: string; refreshToken
   return { accessToken: response.body.access_token as string, refreshToken: response.refreshToken };
 }
 
-function refresh(context: TestContext, refreshToken: string) {
-  return postJson(`${context.baseUrl}/auth/refresh`, {}, undefined, refreshToken);
+function refresh(context: TestContext, refreshToken: string, channel = 'portal') {
+  return postJson(`${context.baseUrl}/auth/refresh`, { channel }, undefined, refreshToken);
 }
 
 describe('Dịch vụ định danh: đăng nhập và phiên', () => {
@@ -162,8 +162,8 @@ describe('Dịch vụ định danh: đăng nhập và phiên', () => {
     assert.equal(rows.length, 2);
     assert.notEqual(rows[0]?.password_hash, rows[1]?.password_hash);
     for (const row of rows) {
-      assert.ok(row.password_hash.startsWith('$argon2id$'));
-      assert.ok(!row.password_hash.includes(TEST_PASSWORD));
+      assert.ok((row.password_hash ?? '').startsWith('$argon2id$'));
+      assert.ok(!(row.password_hash ?? '').includes(TEST_PASSWORD));
     }
   });
 
@@ -195,11 +195,11 @@ describe('Dịch vụ định danh: đăng nhập và phiên', () => {
       const user = await createTestUser(context.database);
       let { refreshToken } = readTokens(await login(context, user.phone, user.password, channel));
       context.clock.advanceMinutes(29 * 24 * 60);
-      const first = await refresh(context, refreshToken);
+      const first = await refresh(context, refreshToken, channel);
       assert.equal(first.status, 200);
       refreshToken = readTokens(first).refreshToken;
       context.clock.advanceMinutes(24 * 60 + 1);
-      const second = await refresh(context, refreshToken);
+      const second = await refresh(context, refreshToken, channel);
       assert.equal(second.status, 401);
     });
   }

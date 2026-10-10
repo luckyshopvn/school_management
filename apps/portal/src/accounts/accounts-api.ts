@@ -64,7 +64,7 @@ export function createAccount(input: {
   username: string | null;
   valid_until: string | null;
   roles: RoleGrant[];
-}): Promise<{ account: Account; temporary_password: string }> {
+}): Promise<{ account: Account; temporary_password: string | null; uses_default_password: boolean }> {
   return requestJson('/api/v1/users', { method: 'POST', body: JSON.stringify(input) });
 }
 

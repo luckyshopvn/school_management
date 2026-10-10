@@ -14,6 +14,33 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-10 — DT-02: đăng nhập của phụ huynh
+
+#### Công việc đã thực hiện
+
+- Gộp các yêu cầu gộp số 4 đến 9 vào nhánh chính, hoàn tất DT-01.
+- Hỏi Eric bốn điểm của DT-02; Eric duyệt thiết kế; viết trên nhánh `dt-02`.
+- Cơ sở dữ liệu định danh: tệp 0009 cho mật khẩu mặc định, `sessions.login_method`, bảng `one_time_codes`.
+- Dịch vụ định danh: đăng nhập bằng mật khẩu mặc định, mã một lần, lớp gửi tin nhắn, cấu hình chung mới, tạo tài khoản phụ huynh dùng mật khẩu mặc định, cookie mã làm mới riêng theo kênh.
+- Cổng quản trị: màn hình Cấu hình phần Tài khoản có mật khẩu mặc định và thông số mã một lần; màn hình Tài khoản báo tài khoản phụ huynh dùng mật khẩu mặc định.
+- Ứng dụng phụ huynh: đăng nhập bằng mật khẩu hoặc mã, đặt mật khẩu mới khi kích hoạt, trang chủ tạm.
+- Kiểm thử giao diện phát hiện cổng quản trị và ứng dụng phụ huynh dùng chung cookie mã làm mới; đã sửa bằng cookie riêng theo kênh.
+- Kết quả: dịch vụ định danh 35/35, máy chủ API 80/80, cơ sở dữ liệu 3/3, tiến trình chạy nền 1/1, kiểm thử giao diện 17/17.
+
+#### Quyết định
+
+- Mật khẩu mặc định toàn trường; thông số mã một lần có mặc định, Hiệu trưởng sửa được; lớp gửi tin nhắn nối sau; làm màn hình ứng dụng phụ huynh; bỏ `POST /auth/activate` (YCTD-43) – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-43 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.27.8.
+
+#### Vấn đề tồn đọng
+
+- P19-06 chỉ nghiệm thu xong khi có tài khoản nhà cung cấp tin nhắn (T1).
+- CTC-DD-011, 042 còn phần cần P02; CTC-DD-013, 015, 024 chưa chạy.
+- Chưa commit, chờ Eric đồng ý.
+
 ### 2026-10-10 — DT-01 phần 6b: các danh mục
 
 #### Công việc đã thực hiện

@@ -4,6 +4,7 @@ import { replaceDatabaseName } from '@school-management/database';
 import {
   E2E_API_PORT,
   E2E_IDENTITY_PORT,
+  E2E_PARENT_PORT,
   E2E_PORTAL_PORT,
   E2E_SCHOOL_YEAR_DATABASE_PREFIX,
   E2E_SYSTEM_DATABASE_NAME,
@@ -51,6 +52,11 @@ export default defineConfig({
     {
       command: `pnpm --filter @school-management/portal exec vite --port ${E2E_PORTAL_PORT} --strictPort`,
       url: `http://localhost:${E2E_PORTAL_PORT}`,
+      env: { IDENTITY_BASE_URL: identityBaseUrl, API_BASE_URL: apiBaseUrl },
+    },
+    {
+      command: `pnpm --filter @school-management/parent exec vite --port ${E2E_PARENT_PORT} --strictPort`,
+      url: `http://localhost:${E2E_PARENT_PORT}`,
       env: { IDENTITY_BASE_URL: identityBaseUrl, API_BASE_URL: apiBaseUrl },
     },
   ],

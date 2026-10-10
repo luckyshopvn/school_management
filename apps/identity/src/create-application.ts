@@ -6,15 +6,17 @@ import { API_VERSION_PREFIX } from '@school-management/shared';
 import { ApplicationModule } from './application.module.js';
 import type { OrganizationDirectory } from './accounts/organization-directory.js';
 import type { IdentityConfiguration } from './common/configuration.js';
+import type { SmsSender } from './messaging/sms-sender.js';
 import { Clock, ErrorFilter, SystemClock } from '@school-management/server';
 
 export async function createApplication(
   configuration: IdentityConfiguration,
   clock: Clock = new SystemClock(),
   organizationDirectory?: OrganizationDirectory,
+  smsSender?: SmsSender,
 ): Promise<INestApplication> {
   const application = await NestFactory.create<NestExpressApplication>(
-    ApplicationModule.register(configuration, clock, organizationDirectory),
+    ApplicationModule.register(configuration, clock, organizationDirectory, smsSender),
     { logger: ['error', 'warn'] },
   );
   application.setGlobalPrefix(API_VERSION_PREFIX.slice(1));

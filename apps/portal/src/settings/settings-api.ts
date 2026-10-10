@@ -20,15 +20,25 @@ export function saveSettings(orgUnitId: string, values: Record<string, unknown>)
   return requestJson('/api/v1/settings', { method: 'PUT', body: JSON.stringify({ org_unit_id: orgUnitId, values }) });
 }
 
-export function readIdentitySettings(): Promise<{ account_inactivity_lock_days: number }> {
+// Cấu hình chung của tài khoản: tự khóa, mật khẩu mặc định của phụ huynh, mã một lần (PQ-07, YCTD-43)
+export interface IdentitySettings {
+  account_inactivity_lock_days: number;
+  one_time_code_lifetime_minutes: number;
+  one_time_code_maximum_attempts: number;
+  one_time_code_maximum_sends_per_hour: number;
+  parent_default_password_configured: boolean;
+}
+
+export type IdentitySettingsChanges = Partial<Omit<IdentitySettings, 'parent_default_password_configured'>> & {
+  parent_default_password?: string;
+};
+
+export function readIdentitySettings(): Promise<IdentitySettings> {
   return requestJson('/api/v1/auth/settings');
 }
 
-export function saveIdentitySettings(days: number): Promise<{ account_inactivity_lock_days: number }> {
-  return requestJson('/api/v1/auth/settings', {
-    method: 'PUT',
-    body: JSON.stringify({ account_inactivity_lock_days: days }),
-  });
+export function saveIdentitySettings(changes: IdentitySettingsChanges): Promise<IdentitySettings> {
+  return requestJson('/api/v1/auth/settings', { method: 'PUT', body: JSON.stringify(changes) });
 }
 
 export interface AuditLogEntry {

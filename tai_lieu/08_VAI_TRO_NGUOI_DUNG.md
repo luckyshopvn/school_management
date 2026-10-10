@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.10
+- Phiên bản: 1.11
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -100,7 +100,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-03 | Khi gán vai trò có phạm vi đơn vị, phải chỉ định rõ đơn vị. Không có vai trò nào mặc định toàn trường ngoài VT-02, VT-19, VT-20 và VT-01 (chỉ cấu hình kỹ thuật) |
 | PQ-04 | Thu hồi quyền có hiệu lực ngay tại yêu cầu kế tiếp; hệ thống không chờ phiên làm việc hết hạn |
 | PQ-05 | Mọi thay đổi về vai trò và quyền phải ghi nhật ký thao tác kèm người thực hiện, thời điểm, giá trị trước và giá trị sau |
-| PQ-06 | Nhà trường tạo tài khoản cho mọi phụ huynh có số điện thoại trong hồ sơ, với mật khẩu mặc định chung; phụ huynh bắt buộc đổi mật khẩu ở lần đăng nhập đầu |
+| PQ-06 | Nhà trường tạo tài khoản cho mọi phụ huynh có số điện thoại trong hồ sơ, với mật khẩu mặc định chung toàn trường do Hiệu trưởng đặt ở cấu hình chung của dịch vụ định danh (YCTD-43); phụ huynh bắt buộc đổi mật khẩu ở lần đăng nhập đầu. Chỉ tài khoản có duy nhất vai trò VT-14 mới đăng nhập được bằng mã một lần |
 | PQ-07 | Tài khoản không đăng nhập quá số ngày cấu hình (mặc định 90, Hiệu trưởng sửa trên cổng quản trị) thì bị tạm khóa ở lần đăng nhập kế tiếp và phải được mở khóa lại (YCTD-40) |
 | PQ-08 | Phụ huynh không tự đổi số điện thoại đăng nhập; muốn đổi phải gửi yêu cầu để nhà trường xác nhận |
 | PQ-09 | Mã quyền có dạng `<phân hệ>.<hành động>`: `view` ứng với X, `edit` ứng với S, `approve` ứng với D; Q gồm cả ba. Giới hạn chi tiết trong ghi chú của ma trận mục 3 kiểm tra trong mã nghiệp vụ (YCTD-35) |

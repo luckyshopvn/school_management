@@ -24,6 +24,6 @@ export class IdentitySettingsController {
 
   @Put()
   update(@Req() request: AuthenticatedRequest, @Body() body: Record<string, unknown> | undefined) {
-    return this.identitySettings.update(this.caller(request), body?.account_inactivity_lock_days);
+    return this.identitySettings.update(this.caller(request), body);
   }
 }

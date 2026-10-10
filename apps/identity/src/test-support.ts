@@ -9,6 +9,7 @@ import type { IdentityConfiguration } from './common/configuration.js';
 import { generateTokenKeyPair } from './common/token-keys.js';
 import { createApplication } from './create-application.js';
 import type { OrganizationDirectory } from './accounts/organization-directory.js';
+import { RecordingSmsSender } from './messaging/sms-sender.js';
 
 // Hỗ trợ kiểm thử tích hợp trên cơ sở dữ liệu định danh và Redis thật
 
@@ -37,6 +38,7 @@ export interface TestContext {
   origin: string;
   tokenPublicKeyPem: string;
   configuration: IdentityConfiguration;
+  smsSender: RecordingSmsSender;
   close(): Promise<void>;
 }
 
@@ -57,9 +59,11 @@ export async function startTestApplication(
     loginRequestsPerMinutePerAddress: options.loginRequestsPerMinutePerAddress ?? 1000,
     // Môi trường kiểm thử của máy chủ API gán lại sau khi máy chủ API chạy
     apiBaseUrl: 'http://127.0.0.1:9',
+    smsProvider: 'log',
   };
   const clock = new AdjustableClock();
-  const application = await createApplication(configuration, clock, options.organizationDirectory);
+  const smsSender = new RecordingSmsSender();
+  const application = await createApplication(configuration, clock, options.organizationDirectory, smsSender);
   await application.listen(0);
   const address = application.getHttpServer().address() as AddressInfo;
   const database = createDatabase<IdentityDatabase>(configuration.databaseUrl);
@@ -71,6 +75,7 @@ export async function startTestApplication(
     origin: `http://127.0.0.1:${address.port}`,
     tokenPublicKeyPem: keys.publicKeyPem,
     configuration,
+    smsSender,
     async close() {
       await application.close();
       await database.destroy();
@@ -96,6 +101,8 @@ export async function createTestUser(
     mustChangePassword?: boolean;
     validUntil?: string;
     passwordHash?: string;
+    // Tài khoản phụ huynh còn dùng mật khẩu mặc định chung (PQ-06)
+    usesDefaultPassword?: boolean;
   } = {},
 ): Promise<TestUser> {
   sharedPasswordHash ??= hashPassword(TEST_PASSWORD);
@@ -108,8 +115,8 @@ export async function createTestUser(
       full_name: `Người kiểm thử ${suffix}`,
       phone,
       username,
-      password_hash: options.passwordHash ?? (await sharedPasswordHash),
-      must_change_password: options.mustChangePassword ?? false,
+      password_hash: options.usesDefaultPassword ? null : (options.passwordHash ?? (await sharedPasswordHash)),
+      must_change_password: options.mustChangePassword ?? options.usesDefaultPassword ?? false,
       valid_until: options.validUntil ?? null,
     })
     .returning('id')
@@ -126,6 +133,11 @@ export async function createTestUser(
       .execute();
   }
   return { id: user.id, phone, username, password: TEST_PASSWORD };
+}
+
+// Kiểm thử giao diện không đọc được tin nhắn thật; dùng để gán mã một lần đã biết cho tài khoản kiểm thử
+export function hashForTesting(value: string): Promise<string> {
+  return hashPassword(value);
 }
 
 export interface JsonResponse {
@@ -147,13 +159,21 @@ export async function postJson(
     headers: {
       'content-type': 'application/json',
       ...(accessToken ? { authorization: `Bearer ${accessToken}` } : {}),
-      ...(refreshToken ? { cookie: `refresh_token=${encodeURIComponent(refreshToken)}` } : {}),
+      // Gửi cùng giá trị dưới tên cookie của cả ba kênh; máy chủ đọc cookie đúng kênh (BM-71)
+      ...(refreshToken
+        ? {
+            cookie: ['refresh_token', 'refresh_token_teacher', 'refresh_token_parent']
+              .map((name) => `${name}=${encodeURIComponent(refreshToken)}`)
+              .join('; '),
+          }
+        : {}),
     },
     body: JSON.stringify(body),
   });
   const text = await response.text();
-  const setCookie = response.headers.getSetCookie().find((cookie) => cookie.startsWith('refresh_token='));
-  const cookieValue = setCookie?.split(';')[0]?.slice('refresh_token='.length);
+  const setCookie = response.headers.getSetCookie().find((cookie) => cookie.startsWith('refresh_token'));
+  const firstPart = setCookie?.split(';')[0] ?? '';
+  const cookieValue = firstPart.slice(firstPart.indexOf('=') + 1);
   return {
     status: response.status,
     body: text ? (JSON.parse(text) as Record<string, unknown>) : {},

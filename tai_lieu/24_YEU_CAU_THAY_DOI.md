@@ -11,6 +11,26 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-43: Đăng nhập của phụ huynh – 2026-10-10
+
+- Lý do: thiết kế DT-02 gặp các điểm chưa rõ: chưa có tài khoản nhà cung cấp tin nhắn (T1); P01-08 ghi mật khẩu mặc định của phụ huynh trong cấu hình theo đơn vị nhưng mật khẩu chỉ được nằm ở dịch vụ định danh; thông số mã một lần chưa có mặc định; điểm cuối `POST /auth/activate` trùng chức năng với đăng nhập và đổi mật khẩu. Khi kiểm thử giao diện phát hiện thêm: ba kênh dùng chung tên miền (Q-118) và chung một cookie mã làm mới, nên đăng nhập kênh này dùng hoặc đè phiên kênh kia.
+- Nội dung thay đổi:
+  - Mật khẩu mặc định của phụ huynh là một mật khẩu toàn trường, Hiệu trưởng đặt ở cấu hình chung của dịch vụ định danh, lưu dạng băm; bỏ khỏi cấu hình theo đơn vị P01-08. Tài khoản chưa kích hoạt dùng mật khẩu mặc định đang có, nên đổi mật khẩu mặc định thì phụ huynh chưa kích hoạt dùng mật khẩu mới.
+  - Thông số mã một lần có mặc định 5 phút, nhập sai tối đa 5 lần, gửi tối đa 5 lần mỗi giờ cho một số điện thoại; Hiệu trưởng sửa được. Đếm số lần gửi theo số điện thoại cho mọi số để báo vượt giới hạn mà không lộ số có tồn tại hay không.
+  - Tin nhắn gửi qua một lớp gửi riêng; khi phát triển ghi ra nhật ký máy chủ; môi trường chạy thật không khởi động khi chưa có nhà cung cấp; P19-06 chỉ nghiệm thu xong khi có T1.
+  - Bỏ `POST /auth/activate`; kích hoạt là đăng nhập bằng mật khẩu mặc định rồi đổi mật khẩu.
+  - Mã một lần chỉ dùng cho tài khoản có duy nhất vai trò VT-14.
+  - Tạo tài khoản chỉ có vai trò VT-14 thì dùng mật khẩu mặc định, không sinh mật khẩu tạm; chưa đặt mật khẩu mặc định thì từ chối.
+  - Mỗi kênh một cookie mã làm mới (`refresh_token`, `refresh_token_teacher`, `refresh_token_parent`); `refresh` nhận `channel`, mặc định `portal`; phiên khác kênh bị từ chối.
+- Thành phần bị ảnh hưởng: `08`, `10`, `12`, `16`, `17`, `22`, `27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md`, `01`, `03`, `index.md`; mã nguồn DT-02.
+- Dữ liệu bị ảnh hưởng: `users.password_hash` cho phép để trống; `sessions.login_method`; bảng `one_time_codes`; bốn khóa mới trong `identity_settings`.
+- API bị ảnh hưởng: thêm `POST /auth/otp/request`, `POST /auth/otp/login`; bỏ `POST /auth/activate`; `GET`, `PUT /auth/settings` thêm thông số mã một lần và mật khẩu mặc định; `POST /users` trả thêm `uses_default_password`; `refresh` nhận `channel`.
+- Giao diện bị ảnh hưởng: màn hình Cấu hình phần Tài khoản, màn hình Tài khoản; ứng dụng phụ huynh có MH-47, MH-48.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: cổng quản trị vẫn dùng cookie `refresh_token` và gọi `refresh` không kèm kênh như trước.
+- Kiểm thử cần thực hiện: CTC-DD-010 đến 012, 014, 016 đến 023, 042.
+- Trạng thái: Đã triển khai
+
 ### YCTD-42: Các danh mục của P01 – 2026-10-10
 
 - Lý do: thiết kế DT-01 phần 6b gặp bốn điểm tài liệu chưa rõ: danh mục dùng chung chưa có loại và chưa có bảng; P01-03, P01-04 ghi VT-06 nhưng ma trận quyền ghi VT-06 không truy cập P01; chưa rõ cách hiệu lực của hạn mức phê duyệt; chưa rõ đơn vị của độ tuổi bậc học. Tài liệu 08 mục 5 còn thiếu phiếu đảo phiếu thu và phiếu đảo phiếu chi so với tài liệu 07 mục 12.1.

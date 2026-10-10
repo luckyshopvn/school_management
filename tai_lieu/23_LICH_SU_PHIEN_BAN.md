@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.27.8 – 2026-10-10
+
+- Phạm vi thay đổi: DT-02, đăng nhập của phụ huynh (YCTD-43).
+- Chức năng mới: mật khẩu mặc định chung của phụ huynh; đăng nhập bằng mã một lần; kích hoạt tài khoản; ứng dụng phụ huynh có màn hình đăng nhập, đặt mật khẩu mới, trang chủ tạm.
+- Lỗi đã sửa: ba kênh dùng chung một cookie mã làm mới.
+- Thay đổi dữ liệu: `users.password_hash` cho phép để trống; `sessions.login_method`; bảng `one_time_codes`; khóa mới trong `identity_settings`.
+- Thay đổi API: thêm `POST /auth/otp/request`, `POST /auth/otp/login`; bỏ `POST /auth/activate`; mở rộng `/auth/settings`, `POST /users`, `refresh`.
+- Rủi ro: chưa có nhà cung cấp tin nhắn nên mã một lần chưa gửi được thật.
+- Khả năng tương thích: cổng quản trị giữ nguyên cookie và cách làm mới.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-02`; chạy ngược tệp thay đổi cấu trúc 0009 của cơ sở dữ liệu định danh.
+
 ### Phiên bản 0.27.7 – 2026-10-10
 
 - Phạm vi thay đổi: DT-01 phần 6b, các danh mục của P01 (YCTD-42).

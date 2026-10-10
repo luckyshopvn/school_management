@@ -10,6 +10,8 @@ export interface IdentityConfiguration {
   loginRequestsPerMinutePerAddress: number;
   // Máy chủ API, để đọc cây đơn vị khi quản lý tài khoản (YCTD-39)
   apiBaseUrl: string;
+  // Nhà cung cấp tin nhắn; hiện chỉ có 'log' ghi ra nhật ký, không dùng được ở môi trường chạy thật (YCTD-43)
+  smsProvider: 'log';
 }
 
 export const IDENTITY_CONFIGURATION = Symbol('IDENTITY_CONFIGURATION');
@@ -22,6 +24,17 @@ function readRequired(name: string): string {
   return value;
 }
 
+function readSmsProvider(): 'log' {
+  const provider = process.env.SMS_PROVIDER ?? 'log';
+  if (provider !== 'log') {
+    throw new Error(`Nhà cung cấp tin nhắn ${provider} chưa được hỗ trợ`);
+  }
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Chưa cấu hình nhà cung cấp tin nhắn cho môi trường chạy thật (việc T1)');
+  }
+  return provider;
+}
+
 export function readConfigurationFromEnvironment(): IdentityConfiguration {
   return {
     databaseUrl: readRequired('IDENTITY_DATABASE_URL'),
@@ -31,5 +44,6 @@ export function readConfigurationFromEnvironment(): IdentityConfiguration {
     tokenPublicKeyPem: decodeBase64Key(readRequired('TOKEN_PUBLIC_KEY')),
     loginRequestsPerMinutePerAddress: Number(process.env.LOGIN_REQUESTS_PER_MINUTE ?? 10),
     apiBaseUrl: readRequired('API_BASE_URL'),
+    smsProvider: readSmsProvider(),
   };
 }
