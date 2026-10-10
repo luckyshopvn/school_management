@@ -10,11 +10,14 @@ interface Invoice {
   period_month: number;
   invoice_kind: 'main' | 'supplementary';
   total_amount: number;
+  payable_amount: number;
   due_date: string | null;
 }
 
 interface InvoiceDetail extends Invoice {
   items: Array<{ id: string; description: string; amount: number; basis_note: string | null }>;
+  discounts: Array<{ id: string; discount_type_name: string; applied_amount: number }>;
+  adjustments: Array<{ id: string; code: string; reason: string; amount: number }>;
 }
 
 const money = (amount: number) => `${new Intl.NumberFormat('vi-VN').format(amount)} đ`;
@@ -64,7 +67,7 @@ export function InvoicesPanel({ child }: { child: { id: string; full_name: strin
                 Tháng {invoice.period_month}/{invoice.period_year}
                 {invoice.invoice_kind === 'supplementary' ? ' (bổ sung)' : ''}
               </span>
-              <span className="text-content font-semibold">{money(invoice.total_amount)}</span>
+              <span className="text-content font-semibold">Phải nộp {money(invoice.payable_amount)}</span>
             </div>
             <div className="flex flex-wrap items-center gap-2 text-label text-text-secondary">
               <span>Số {invoice.code}</span>
@@ -84,6 +87,24 @@ export function InvoicesPanel({ child }: { child: { id: string; full_name: strin
                     <span>{money(item.amount)}</span>
                   </li>
                 ))}
+                {detail.discounts.map((discount) => (
+                  <li key={discount.id} className="flex justify-between gap-2">
+                    <span>Miễn giảm: {discount.discount_type_name}</span>
+                    <span>−{money(discount.applied_amount)}</span>
+                  </li>
+                ))}
+                {detail.adjustments.map((adjustment) => (
+                  <li key={adjustment.id} className="flex justify-between gap-2">
+                    <span>
+                      Điều chỉnh {adjustment.code}: {adjustment.reason}
+                    </span>
+                    <span>{money(adjustment.amount)}</span>
+                  </li>
+                ))}
+                <li className="flex justify-between gap-2 font-semibold">
+                  <span>Tổng hóa đơn</span>
+                  <span>{money(detail.total_amount)}</span>
+                </li>
               </ul>
             ) : null}
           </li>

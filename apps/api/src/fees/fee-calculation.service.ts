@@ -16,6 +16,8 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { queueNotification } from '../common/notification-queue.js';
 import { notFoundError } from '../common/request-fields.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
+import { DiscountsService } from './discounts.service.js';
+import { invoiceAmounts, recalculatePendingDiscounts } from './invoice-amounts.js';
 import { formatPeriod, periodRange, RegistrationPeriods, type Period } from './registration-periods.js';
 
 // Tính học phí kỳ, phát hành hóa đơn chính và hóa đơn bổ sung (P05-05, P05-06; QT-03 bước 4 đến 10;
@@ -55,6 +57,7 @@ export class FeeCalculationService {
     private readonly organizationScopes: OrganizationScopes,
     private readonly calendar: SchoolCalendar,
     private readonly periods: RegistrationPeriods,
+    private readonly discounts: DiscountsService,
     private readonly clock: Clock,
   ) {}
 
@@ -245,6 +248,21 @@ export class FeeCalculationService {
             await transaction
               .insertInto('invoice_items')
               .values(draft.items.map((item) => ({ ...item, invoice_id: invoice.id })))
+              .execute();
+          }
+          // Miễn giảm chờ duyệt tính lại theo dòng mới; tổng miễn giảm vượt tổng hóa đơn thì đánh dấu để xem lại (BR-22)
+          await recalculatePendingDiscounts(transaction, invoice.id);
+          const discounted = await transaction
+            .selectFrom('discounts')
+            .select('applied_amount')
+            .where('invoice_id', '=', invoice.id)
+            .where('status', 'in', ['pending', 'approved'])
+            .execute();
+          if (discounted.reduce((sum, row) => sum + Number(row.applied_amount), 0) > draft.total) {
+            await transaction
+              .updateTable('invoices')
+              .set({ review_flags: JSON.stringify([...draft.flags, 'discount_exceeds']) })
+              .where('id', '=', invoice.id)
               .execute();
           }
         }
@@ -552,7 +570,8 @@ export class FeeCalculationService {
       .orderBy('children.full_name')
       .orderBy('invoices.invoice_kind')
       .execute();
-    return rows.map((row) => ({ ...row, total_amount: Number(row.total_amount) }));
+    const amounts = await invoiceAmounts(database, rows);
+    return rows.map((row) => ({ ...row, total_amount: Number(row.total_amount), ...amounts.get(row.id) }));
   }
 
   async read(currentUser: CurrentUser, invoiceId: string) {
@@ -568,7 +587,12 @@ export class FeeCalculationService {
       throw notFoundError('Không tìm thấy hóa đơn', 'invoice');
     }
     const staffUnits = await this.staffUnits(currentUser);
-    const isStaff = staffUnits.wholeSchool || staffUnits.orgUnitIds.includes(invoice.org_unit_id);
+    const isStaff =
+      staffUnits.wholeSchool ||
+      staffUnits.orgUnitIds.includes(invoice.org_unit_id) ||
+      (
+        await this.organizationScopes.resolveStaff(currentUser, PERMISSION_CODES.feeDocumentApprove)
+      ).orgUnitIds.includes(invoice.org_unit_id);
     if (!isStaff) {
       const guardian = await database
         .selectFrom('child_guardians')
@@ -588,9 +612,14 @@ export class FeeCalculationService {
       .orderBy('item_type', 'desc')
       .orderBy('description')
       .execute();
+    const related = await this.discounts.ofInvoice(database, invoiceId);
     return {
       ...invoice,
       total_amount: Number(invoice.total_amount),
+      ...(await invoiceAmounts(database, [invoice])).get(invoice.id),
+      // Phụ huynh chỉ thấy miễn giảm và điều chỉnh đã duyệt
+      discounts: isStaff ? related.discounts : related.discounts.filter((row) => row.status === 'approved'),
+      adjustments: isStaff ? related.adjustments : related.adjustments.filter((row) => row.status === 'approved'),
       items: items.map((item) => ({
         ...item,
         quantity: Number(item.quantity),

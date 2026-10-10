@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.28.7 – 2026-10-10
+
+- Phạm vi thay đổi: DT-05 phần 5c-2, miễn giảm và phiếu điều chỉnh hóa đơn (YCTD-52).
+- Chức năng mới: lập miễn giảm trên hóa đơn nháp và đã phát hành, chép miễn giảm kỳ trước; phiếu điều chỉnh tăng, giảm; Ban Giám hiệu duyệt theo hạn mức; số phải nộp trên hóa đơn; màn hình duyệt MH-07.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: `discounts`, `invoice_adjustments`; mã quyền `P05.discount.manage`, `P05.invoice-adjustment.create`, `P05.fee-document.approve`.
+- Thay đổi API: nhóm điểm cuối miễn giảm, phiếu điều chỉnh, chờ duyệt; hóa đơn thêm số phải nộp.
+- Rủi ro: không.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-05-phan-5c2`; chạy ngược tệp thay đổi cấu trúc 0013 của cơ sở dữ liệu năm học và 0018 của cơ sở dữ liệu định danh.
+
 ### Phiên bản 0.28.6 – 2026-10-10
 
 - Phạm vi thay đổi: DT-05 phần 5c-1, tính học phí và phát hành hóa đơn (YCTD-51).

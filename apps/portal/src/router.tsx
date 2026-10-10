@@ -13,6 +13,7 @@ import { CashflowCategoriesPage } from './fees/CashflowCategoriesPage.js';
 import { FeesPage } from './fees/FeesPage.js';
 import { RegistrationsPage } from './fees/RegistrationsPage.js';
 import { InvoicesPage } from './fees/InvoicesPage.js';
+import { FeeApprovalsPage } from './fees/FeeApprovalsPage.js';
 import { ImportsPage } from './imports/ImportsPage.js';
 import { OrgUnitsPage } from './org-units/OrgUnitsPage.js';
 import { AuditLogsPage } from './settings/AuditLogsPage.js';
@@ -65,6 +66,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/fees', component: FeesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/registrations', component: RegistrationsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/invoices', component: InvoicesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/fee-approvals', component: FeeApprovalsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/cashflow-categories', component: CashflowCategoriesPage }),
 ]);
 

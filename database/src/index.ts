@@ -27,6 +27,7 @@ export type {
   ChildStatus,
   ClassStatus,
   DiscountCalculationMethod,
+  FeeDocumentStatus,
   FeeType,
   FilePurpose,
   ImportStatus,

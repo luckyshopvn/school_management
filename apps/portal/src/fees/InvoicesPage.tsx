@@ -12,10 +12,10 @@ import {
   issueInvoices,
   issueSupplementary,
   listInvoices,
-  readInvoice,
   REVIEW_FLAG_LABELS,
   type Invoice,
 } from './invoices-api.js';
+import { InvoiceDetailPanel } from './InvoiceDetailPanel.js';
 import { listPeriods } from './registrations-api.js';
 
 // MH-06 Bảng tính học phí và phát hành khoản phải thu (P05-05, P05-06; QT-03 bước 4 đến 9; YCTD-51)
@@ -28,26 +28,6 @@ function messageOf(error: unknown): string {
 function previousMonth(): string {
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
   return new Date(Date.UTC(Number(today.slice(0, 4)), Number(today.slice(5, 7)) - 2, 1)).toISOString().slice(0, 7);
-}
-
-function InvoiceItems({ invoiceId }: { invoiceId: string }) {
-  const invoice = useQuery({ queryKey: ['invoice', invoiceId], queryFn: () => readInvoice(invoiceId) });
-  if (!invoice.data) {
-    return <div className="h-12 animate-pulse rounded bg-border" aria-hidden="true" />;
-  }
-  return (
-    <table className="w-full text-content" aria-label={`Chi tiết hóa đơn của ${invoice.data.child_name}`}>
-      <tbody>
-        {invoice.data.items.map((item) => (
-          <tr key={item.id} className="border-t border-border">
-            <td className="px-3 py-1">{item.description}</td>
-            <td className="px-3 py-1 text-text-secondary">{item.basis_note ?? ''}</td>
-            <td className="px-3 py-1 text-right">{formatMoney(item.amount)}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
 }
 
 export function InvoicesPage() {
@@ -163,6 +143,7 @@ export function InvoicesPage() {
                   <th className="px-3 py-2">Số hóa đơn</th>
                   <th className="px-3 py-2">Ngày học</th>
                   <th className="px-3 py-2 text-right">Tổng</th>
+                  <th className="px-3 py-2 text-right">Phải nộp</th>
                   <th className="px-3 py-2">Cần xem lại</th>
                   <th className="px-3 py-2" />
                 </tr>
@@ -178,6 +159,7 @@ export function InvoicesPage() {
                         {row.basis.present_days ?? '-'}/{row.basis.school_days ?? '-'}
                       </td>
                       <td className="px-3 py-2 text-right">{formatMoney(row.total_amount)}</td>
+                      <td className="px-3 py-2 text-right">{formatMoney(row.payable_amount)}</td>
                       <td className="px-3 py-2">
                         {row.review_flags.map((flag) => REVIEW_FLAG_LABELS[flag] ?? flag).join(', ')}
                       </td>
@@ -198,8 +180,8 @@ export function InvoicesPage() {
                     </tr>
                     {openId === row.id ? (
                       <tr>
-                        <td colSpan={7} className="px-3 pb-3">
-                          <InvoiceItems invoiceId={row.id} />
+                        <td colSpan={8} className="px-3 pb-3">
+                          <InvoiceDetailPanel invoiceId={row.id} />
                         </td>
                       </tr>
                     ) : null}

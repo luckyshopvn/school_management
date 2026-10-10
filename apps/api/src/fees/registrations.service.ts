@@ -10,6 +10,7 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { queueNotification, type NotificationRecipient } from '../common/notification-queue.js';
 import { notFoundError } from '../common/request-fields.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
+import { invoiceAmounts } from './invoice-amounts.js';
 import { periodRange, RegistrationPeriods, type Period } from './registration-periods.js';
 
 // Đăng ký dịch vụ theo tháng, chốt danh sách kỳ, đăng ký và hủy trễ, đăng ký học hè
@@ -673,14 +674,15 @@ export class ServiceRegistrationsService {
   // Còn hóa đơn đã phát hành quá hạn nộp thì phụ huynh không đăng ký thêm được; trẻ vẫn được điểm danh (BR-33, AC-182).
   // Số đã thu trừ vào khi có phiếu thu ở phần 5d
   private async assertNoOverdue(database: Kysely<SchoolYearDatabase>, childId: string): Promise<void> {
-    const overdue = await database
+    const candidates = await database
       .selectFrom('invoices')
-      .select(['code', 'due_date'])
+      .select(['id', 'code', 'due_date', 'total_amount'])
       .where('child_id', '=', childId)
       .where('status', '=', 'issued')
       .where('due_date', '<', this.periods.today())
-      .where('total_amount', '>', '0')
-      .executeTakeFirst();
+      .execute();
+    const amounts = await invoiceAmounts(database, candidates);
+    const overdue = candidates.find((invoice) => (amounts.get(invoice.id)?.payable_amount ?? 0) > 0);
     if (overdue) {
       throw ruleViolationError('BR-33', 'Không đăng ký thêm được vì còn công nợ quá hạn', [
         { field: 'invoice', message: `${overdue.code ?? ''} quá hạn từ ${overdue.due_date ?? ''}` },
