@@ -12,6 +12,11 @@ export class OrganizationScopes {
     return this.widenAtRoot(currentUser.organizationScope(permissionCode));
   }
 
+  // Phạm vi của nhân sự theo một quyền, bỏ vai trò phụ huynh (PQ-23)
+  async resolveStaff(currentUser: CurrentUser, permissionCode: string): Promise<OrganizationScope> {
+    return this.widenAtRoot(currentUser.organizationScope(permissionCode, { excludeParentRole: true }));
+  }
+
   // Phạm vi theo mọi vai trò của người dùng, dùng cho dữ liệu ai trong đơn vị cũng được xem như cấu hình
   async resolveAnyRole(currentUser: CurrentUser): Promise<OrganizationScope> {
     const assignments = currentUser.description.assignments;

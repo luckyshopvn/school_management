@@ -11,6 +11,28 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-51: Tính học phí, phát hành hóa đơn và chặn đăng ký khi nợ quá hạn – 2026-10-10
+
+- Lý do: thiết kế DT-05 phần 5c cần chốt cách đếm ngày học của BR-23, cách chạy tính học phí, mốc đánh dấu dòng cần kiểm tra và cách làm tròn; khi rà phần 5b phát hiện phụ huynh xem được bảng đăng ký của cả đơn vị vì VT-14 gán theo đơn vị của con.
+- Nội dung thay đổi:
+  - Phần 5c chia hai: 5c-1 tính học phí, phát hành hóa đơn chính và bổ sung, xem hóa đơn, chặn đăng ký khi nợ quá hạn; 5c-2 miễn giảm và phiếu điều chỉnh hóa đơn.
+  - BR-23: số ngày học thực tế là số ngày học theo lịch năm học trong thời gian trẻ đang học (từ ngày nhập học hoặc đầu tháng tới ngày thôi học hoặc cuối tháng), không trừ ngày vắng; trẻ học trọn tháng thu đủ học phí chính khóa, vắng chỉ trừ tiền ăn.
+  - Tiền ăn bằng đơn giá bán trú nhân số ngày có mặt, đi muộn, về sớm theo điểm danh đã chốt. Dịch vụ theo tháng thu đủ; đăng ký trễ được duyệt thu theo ngày thực tế thì tính theo số ngày học từ ngày bắt đầu học dịch vụ. Dịch vụ đang chờ duyệt hủy vẫn thu. Mỗi dòng làm tròn đến đồng; học phí chính khóa bằng 0 thì không có dòng.
+  - Tính học phí chạy ngay trong yêu cầu, có ghi lần chạy (thành công hoặc thất bại kèm lỗi); lỗi giữa chừng thì giữ kết quả cũ, chạy lại được. Điều kiện: danh sách đăng ký của kỳ đã chốt; có biểu phí hiệu lực cho mọi bậc học và dịch vụ (thiếu thì chặn, chỉ rõ bậc học, dịch vụ thiếu); mọi ngày học của các lớp đã chốt điểm danh (Q-151); kỳ chưa phát hành.
+  - Kết quả tính là hóa đơn nháp; chạy lại thay kết quả, không sinh trùng. Dòng cần kiểm tra theo mốc cố định, không chặn phát hành: vắng từ 5 ngày học; tổng chênh hơn 30% so với hóa đơn chính kỳ trước; không có dịch vụ không bắt buộc và không có ngày ăn.
+  - Phát hành cấp số hóa đơn dạng `HD-000001` liên tục trong năm học, ghi ngày đến hạn (không nhỏ hơn ngày phát hành), khóa kỳ, báo phụ huynh trong ứng dụng và tin nhắn. Hóa đơn bổ sung lập cho đăng ký trễ đã duyệt chưa lập khoản thu, phát hành ngay.
+  - Hóa đơn không sửa trực tiếp: hóa đơn nháp sửa bằng chạy lại tính, hóa đơn đã phát hành lập phiếu điều chỉnh (BR-25).
+  - Mã quyền mới `P05.fee-calculation.manage` cho VT-04 trong đơn vị được gán. Nhân sự xem hóa đơn bằng `P05.view` trong phạm vi đơn vị, không tính vai trò phụ huynh; phụ huynh chỉ xem hóa đơn đã phát hành của con mình. Bảng đăng ký dịch vụ của đơn vị cũng không còn cho phụ huynh xem.
+  - Chặn phụ huynh đăng ký thêm dịch vụ khi đơn vị bật chặn và trẻ có hóa đơn đã phát hành quá hạn (BR-33); số đã thu trừ vào khi có phiếu thu ở phần 5d.
+- Thành phần bị ảnh hưởng: `07`, `08`, `14`, `16`, `17`, `27_BO_CA_KIEM_THU_CHI_TIET/03_P05.md`, `01`, `03`, `index.md`; mã nguồn DT-05 phần 5c-1, đăng ký dịch vụ; cổng quản trị, ứng dụng phụ huynh.
+- Dữ liệu bị ảnh hưởng: bảng mới `fee_calculation_runs`, `invoices`, `invoice_items`, `document_sequences`.
+- API bị ảnh hưởng: `POST /fee-calculations`, `GET /fee-calculations/{id}`, `GET /invoices`, `GET`, `PATCH /invoices/{id}`, `POST /invoices/issue`, `POST /invoices/supplementary`; `POST /service-registrations` thêm chặn BR-33; `GET /service-registrations` không cho phụ huynh.
+- Giao diện bị ảnh hưởng: MH-06 Học phí, MP-11 trong ứng dụng phụ huynh.
+- Quyền bị ảnh hưởng: thêm `P05.fee-calculation.manage`.
+- Ảnh hưởng chức năng cũ: phụ huynh không còn xem được bảng đăng ký dịch vụ của cả đơn vị (sửa lỗi phân quyền).
+- Kiểm thử cần thực hiện: CTC-P05-015, 017, 018, 023 đến 026, 029 đến 031, 033 đến 042.
+- Trạng thái: Đã triển khai phần 5c-1
+
 ### YCTD-50: Đăng ký dịch vụ, hủy trễ và học hè – 2026-10-10
 
 - Lý do: thiết kế DT-05 phần 5b cần chốt cách hủy dịch vụ sau ngày chốt, dịch vụ trong tháng hè và quyền duyệt đăng ký trễ khác với quyền `P05.approve` hiện có (kế toán cũng có quyền này).

@@ -3,10 +3,11 @@ import { Alert, ApplicationHeader, Button, StatusBadge, TextField } from '@schoo
 import { ApiError, fetchCurrentUser, requestJson, type CurrentUser } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
 import { AuthorizedPickupsPanel, PickupConfirmations } from './PickupSections.js';
+import { InvoicesPanel } from './InvoicesPanel.js';
 import { ServicesPanel } from './ServicesPanel.js';
 
 // Trang chủ ứng dụng phụ huynh: danh sách con, báo vắng (MP-06), điểm danh của con theo tháng (MP-02),
-// người đón trẻ và xác nhận người đón (MP-18), đăng ký dịch vụ và học hè (MP-12)
+// người đón trẻ và xác nhận người đón (MP-18), đăng ký dịch vụ và học hè (MP-12), học phí (MP-11)
 interface Child {
   id: string;
   full_name: string;
@@ -80,7 +81,7 @@ function AbsenceForm({ child, onDone }: { child: Child; onDone(message: string):
 }
 
 function ChildCard({ child, onMessage }: { child: Child; onMessage(message: string): void }) {
-  const [view, setView] = useState<'none' | 'absence' | 'attendance' | 'pickups' | 'services'>('none');
+  const [view, setView] = useState<'none' | 'absence' | 'attendance' | 'pickups' | 'services' | 'invoices'>('none');
   const [attendance, setAttendance] = useState<MonthAttendance>();
   const [errorMessage, setErrorMessage] = useState<string>();
   const month = vietnamToday().slice(0, 7);
@@ -111,9 +112,11 @@ function ChildCard({ child, onMessage }: { child: Child; onMessage(message: stri
         </Button>
         <Button onClick={() => setView(view === 'pickups' ? 'none' : 'pickups')}>Người đón</Button>
         <Button onClick={() => setView(view === 'services' ? 'none' : 'services')}>Dịch vụ</Button>
+        <Button onClick={() => setView(view === 'invoices' ? 'none' : 'invoices')}>Học phí</Button>
       </div>
       {view === 'pickups' ? <AuthorizedPickupsPanel child={child} /> : null}
       {view === 'services' ? <ServicesPanel child={child} /> : null}
+      {view === 'invoices' ? <InvoicesPanel child={child} /> : null}
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       {view === 'absence' ? (
         <AbsenceForm

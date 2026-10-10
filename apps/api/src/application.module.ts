@@ -28,6 +28,8 @@ import { ServicesController, ServicesService } from './fees/services.js';
 import { RegistrationPeriods } from './fees/registration-periods.js';
 import { ServiceRegistrationsController } from './fees/registrations.controller.js';
 import { ServiceRegistrationsService } from './fees/registrations.service.js';
+import { FeeCalculationService } from './fees/fee-calculation.service.js';
+import { InvoicesController } from './fees/invoices.controller.js';
 import { CatalogAccess } from './catalogs/catalog-access.js';
 import { DepartmentsController, DepartmentsService } from './catalogs/departments.js';
 import { JobTitlesController, JobTitlesService } from './catalogs/job-titles.js';
@@ -89,6 +91,7 @@ export class ApplicationModule {
         DiscountTypesController,
         CashflowCategoriesController,
         ServiceRegistrationsController,
+        InvoicesController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -134,6 +137,7 @@ export class ApplicationModule {
         CashflowCategoriesService,
         RegistrationPeriods,
         ServiceRegistrationsService,
+        FeeCalculationService,
         SchoolCalendar,
         {
           provide: FileStorage,

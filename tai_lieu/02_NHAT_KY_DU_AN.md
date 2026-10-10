@@ -14,6 +14,30 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-10 — DT-05 phần 5c-1: tính học phí và phát hành hóa đơn
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 18 (phần 5b) sau khi mọi bước kiểm thử trên GitHub đạt.
+- Hỏi Eric bốn điểm của phần 5c; chia phần 5c thành 5c-1 và 5c-2; viết 5c-1 trên nhánh `dt-05-phan-5c1`.
+- Sửa lỗi phân quyền của phần 5b: phụ huynh xem được bảng đăng ký của cả đơn vị vì VT-14 gán theo đơn vị của con và có `P05.view`; phạm vi xem của nhân sự nay bỏ vai trò phụ huynh.
+- Cơ sở dữ liệu: năm học có `fee_calculation_runs`, `invoices`, `invoice_items`, `document_sequences` (tệp 0012); định danh có `P05.fee-calculation.manage` (tệp 0017).
+- Máy chủ API: tính học phí theo kỳ và đơn vị, hóa đơn nháp và dòng cần kiểm tra, phát hành, hóa đơn bổ sung, xem hóa đơn; chặn đăng ký khi nợ quá hạn.
+- Cổng quản trị: MH-06 Học phí. Ứng dụng phụ huynh: mục Học phí của con (MP-11).
+- Kết quả: máy chủ API 185/185, dịch vụ định danh 37/37, cơ sở dữ liệu 3/3, tiến trình chạy nền 1/1, kiểm thử giao diện 30/30.
+
+#### Quyết định
+
+- Ngày học thực tế của BR-23 là ngày học trong thời gian đang học; tính học phí chạy ngay có ghi lần chạy; dòng cần kiểm tra theo mốc cố định; làm tròn đến đồng (YCTD-51) – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-51 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.28.6.
+
+#### Vấn đề tồn đọng
+
+- CTC-P05-032 (giả lập lỗi giữa lần tính) chưa có kiểm thử tự động. Kiểm thử giao diện chưa chạy trọn luồng tính học phí vì cần một tháng đã qua chốt đủ điểm danh; đã phủ bằng kiểm thử máy chủ API.
+
 ### 2026-10-10 — DT-05 phần 5b: đăng ký dịch vụ và học hè
 
 #### Công việc đã thực hiện

@@ -31,6 +31,8 @@ export type {
   FilePurpose,
   ImportStatus,
   ImportType,
+  InvoiceKind,
+  InvoiceStatus,
   LateChargeMethod,
   OrgUnitStatus,
   OrgUnitType,
