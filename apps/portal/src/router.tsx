@@ -6,6 +6,7 @@ import { ApprovalThresholdsPage } from './catalogs/ApprovalThresholdsPage.js';
 import { CommonCatalogPage } from './catalogs/CommonCatalogPage.js';
 import { DepartmentsPage } from './catalogs/DepartmentsPage.js';
 import { RoomsAndGradeLevelsPage } from './catalogs/RoomsAndGradeLevelsPage.js';
+import { ChildrenPage } from './children/ChildrenPage.js';
 import { ClassesPage } from './classes/ClassesPage.js';
 import { OrgUnitsPage } from './org-units/OrgUnitsPage.js';
 import { AuditLogsPage } from './settings/AuditLogsPage.js';
@@ -52,6 +53,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/approval-thresholds', component: ApprovalThresholdsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/rooms', component: RoomsAndGradeLevelsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/classes', component: ClassesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/children', component: ChildrenPage }),
 ]);
 
 export const router = createRouter({ routeTree });

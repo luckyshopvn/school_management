@@ -20,8 +20,13 @@ export type {
   AssignmentStatus,
   AuditLogsTable,
   CatalogStatus,
+  ChildGender,
+  ChildStatus,
   ClassStatus,
+  FilePurpose,
   OrgUnitStatus,
   OrgUnitType,
+  PhotoConsent,
+  PhotoConsentMethod,
   SchoolYearDatabase,
 } from '../school-year/schema.js';

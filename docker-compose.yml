@@ -23,5 +23,14 @@ services:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
       retries: 10
+  # Kho tệp tương thích S3 khi phát triển (YCTD-45); khi triển khai dùng kho của nhà cung cấp đám mây (T6)
+  seaweedfs:
+    image: chrislusf/seaweedfs:3.80
+    command: server -s3 -dir=/data
+    ports:
+      - '8333:8333'
+    volumes:
+      - seaweedfs-data:/data
 volumes:
   postgres-data:
+  seaweedfs-data:

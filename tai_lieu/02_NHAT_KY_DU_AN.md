@@ -14,6 +14,32 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-10 — DT-03 phần 3b: hồ sơ trẻ
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 11 (phần 3a) vào nhánh chính.
+- Hỏi Eric năm điểm của phần 3b; Eric duyệt thiết kế; viết trên nhánh `dt-03-phan-3b`.
+- Hạ tầng: SeaweedFS trong docker compose và GitHub Actions; khóa mã hóa số định danh; lệnh `generate-data-keys`.
+- Cơ sở dữ liệu: năm học có mười bảng của hồ sơ trẻ (tệp 0006); định danh có quyền `P02.child.manage`, `P02.national-id.view` (tệp 0011).
+- Dịch vụ định danh: tạo tài khoản phụ huynh khi duyệt hồ sơ, thêm vai trò VT-14 cho tài khoản nhân sự trùng số điện thoại.
+- Máy chủ API: hồ sơ trẻ, phụ huynh, sức khỏe, đồng ý hình ảnh, trình duyệt, duyệt và phân lớp, từ chối, chuyển lớp, xem đầy đủ số định danh, tệp đính kèm, hàng đợi thông báo.
+- Cổng quản trị: màn hình Hồ sơ trẻ (MH-02); màn hình Lớp học hiện sĩ số đang học.
+- Kết quả: máy chủ API 107/107, dịch vụ định danh 37/37, cơ sở dữ liệu 3/3, tiến trình chạy nền 1/1, kiểm thử giao diện 21/21.
+
+#### Quyết định
+
+- Đồng ý hình ảnh ba trạng thái; phạm vi xem trẻ theo lớp với giáo viên; kho tệp SeaweedFS thay MinIO; chuyển trẻ sang năm mới để lại đợt sau (YCTD-45) – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-45 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.28.0.
+
+#### Vấn đề tồn đọng
+
+- CTC-P02-013 (gán mã ngành trùng qua nhập tệp) làm ở phần 3c; CTC-P02-033 cần nhà cung cấp tin nhắn.
+- Chưa commit, chờ Eric đồng ý.
+
 ### 2026-10-10 — DT-03 phần 3a: lớp học
 
 #### Công việc đã thực hiện

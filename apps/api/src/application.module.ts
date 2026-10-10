@@ -29,6 +29,12 @@ import { RoomsController, RoomsService } from './catalogs/rooms.js';
 import { GradeLevelsController, GradeLevelsService } from './catalogs/grade-levels.js';
 import { ClassesController } from './classes/classes.controller.js';
 import { ClassesService } from './classes/classes.service.js';
+import { ChildScope } from './children/child-scope.js';
+import { ChildrenController } from './children/children.controller.js';
+import { ChildrenService } from './children/children.service.js';
+import { ChildDataProtection } from './common/child-data-protection.js';
+import { FileStorage, S3FileStorage } from './files/file-storage.js';
+import { FilesController, FilesService } from './files/files.js';
 import { OrgUnitsController } from './organization/org-units.controller.js';
 import { OrgUnitsService } from './organization/org-units.service.js';
 
@@ -37,7 +43,11 @@ export class ApplicationModule {
   static register(
     configuration: ApiConfiguration,
     clock: Clock,
-    options: { additionalControllers?: Type[]; transitionSteps?: AcademicYearTransitionStep[] } = {},
+    options: {
+      additionalControllers?: Type[];
+      transitionSteps?: AcademicYearTransitionStep[];
+      fileStorage?: FileStorage;
+    } = {},
   ): DynamicModule {
     return {
       module: ApplicationModule,
@@ -54,6 +64,8 @@ export class ApplicationModule {
         RoomsController,
         GradeLevelsController,
         ClassesController,
+        ChildrenController,
+        FilesController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -85,6 +97,22 @@ export class ApplicationModule {
         RoomsService,
         GradeLevelsService,
         ClassesService,
+        ChildScope,
+        ChildrenService,
+        ChildDataProtection,
+        FilesService,
+        {
+          provide: FileStorage,
+          useFactory: () => {
+            if (options.fileStorage) {
+              return options.fileStorage;
+            }
+            if (!configuration.objectStorage) {
+              throw new Error('Thiếu cấu hình kho tệp');
+            }
+            return new S3FileStorage(configuration.objectStorage);
+          },
+        },
       ],
     };
   }

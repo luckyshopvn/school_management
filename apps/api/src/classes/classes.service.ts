@@ -95,7 +95,7 @@ export class ClassesService {
   async list(
     currentUser: CurrentUser,
     filter: { orgUnitId?: string; status?: ClassStatus; gradeLevel?: string; mine: boolean },
-  ): Promise<Array<ClassRecord & { staff: StaffAssignment[] }>> {
+  ): Promise<Array<ClassRecord & { enrolled_count: number; staff: StaffAssignment[] }>> {
     const current = await this.currentSchoolYear.find();
     if (!current) {
       return [];
@@ -140,7 +140,23 @@ export class ClassesService {
       .orderBy('assignment_role')
       .orderBy('staff_name')
       .execute();
-    return classes.map((row) => ({ ...row, staff: assignments.filter((item) => item.class_id === row.id) }));
+    // Sĩ số đang học để chọn lớp khi duyệt hồ sơ và chuyển lớp (QT-01 mục 11)
+    const counts = await current.database
+      .selectFrom('class_enrollments')
+      .select(['class_id', (expression) => expression.fn.countAll<string>().as('count')])
+      .where(
+        'class_id',
+        'in',
+        classes.map((row) => row.id),
+      )
+      .where('is_current', '=', true)
+      .groupBy('class_id')
+      .execute();
+    return classes.map((row) => ({
+      ...row,
+      enrolled_count: Number(counts.find((count) => count.class_id === row.id)?.count ?? 0),
+      staff: assignments.filter((item) => item.class_id === row.id),
+    }));
   }
 
   async create(currentUser: CurrentUser, input: ClassInput, origin: ChangeOrigin): Promise<ClassRecord> {
@@ -181,6 +197,18 @@ export class ClassesService {
   ): Promise<ClassRecord> {
     const existing = await this.find(classId);
     const database = await this.catalogAccess.writableDatabase(currentUser, PERMISSION, existing.org_unit_id);
+    // Không đóng được lớp còn trẻ đang học (BR-02)
+    if (changes.status === 'closed' && existing.status === 'active') {
+      const enrolled = await database
+        .selectFrom('class_enrollments')
+        .select('id')
+        .where('class_id', '=', classId)
+        .where('is_current', '=', true)
+        .executeTakeFirst();
+      if (enrolled) {
+        throw ruleViolationError('BR-02', 'Lớp còn trẻ đang học; chuyển trẻ sang lớp khác trước khi đóng lớp');
+      }
+    }
     if (changes.grade_level !== undefined && changes.grade_level !== existing.grade_level) {
       await this.assertGradeLevel(changes.grade_level);
     }

@@ -19,7 +19,8 @@ type NavigationPath =
   | '/catalogs'
   | '/approval-thresholds'
   | '/rooms'
-  | '/classes';
+  | '/classes'
+  | '/children';
 
 function NavItem({ to, label }: { to: NavigationPath; label: string }) {
   return (
@@ -66,6 +67,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <>
             <span className="px-3 text-label font-semibold text-text-muted">TRẺ VÀ LỚP</span>
             <ul className="flex flex-col gap-1">
+              <NavItem to="/children" label="Hồ sơ trẻ" />
               <NavItem to="/classes" label="Lớp học" />
             </ul>
           </>

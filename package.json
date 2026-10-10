@@ -12,7 +12,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "pnpm -r test",
+    "test": "pnpm -r --workspace-concurrency=1 test",
     "database:migrate": "pnpm --filter @school-management/database migrate",
     "environment:start": "docker compose up -d",
     "environment:stop": "docker compose down",

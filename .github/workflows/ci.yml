@@ -39,6 +39,11 @@ jobs:
       REDIS_URL: redis://localhost:6379
       IDENTITY_BASE_URL: http://localhost:3001
       API_BASE_URL: http://localhost:3000
+      S3_ENDPOINT: http://localhost:8333
+      S3_REGION: us-east-1
+      S3_BUCKET: school-files
+      S3_ACCESS_KEY_ID: kiem_thu
+      S3_SECRET_ACCESS_KEY: kiem_thu
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -47,6 +52,8 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Kho tệp tương thích S3; khối services không truyền được lệnh khởi động nên chạy bằng docker run
+      - run: docker run -d -p 8333:8333 chrislusf/seaweedfs:3.80 server -s3 -dir=/data
       - run: sh docker/postgres/create-databases.sh
       - run: pnpm format:check
       - run: pnpm lint
@@ -56,5 +63,6 @@ jobs:
       - run: pnpm test
       # Khóa ký mã phiên chỉ dùng cho lần chạy kiểm thử này
       - run: node apps/identity/dist/generate-token-keys.js >> "$GITHUB_ENV"
+      - run: node apps/api/dist/generate-data-keys.js >> "$GITHUB_ENV"
       - run: pnpm --filter @school-management/tests exec playwright install --with-deps chromium
       - run: pnpm test:e2e

@@ -208,6 +208,46 @@ describe('Dịch vụ định danh: mật khẩu mặc định và mã một l�
     });
   });
 
+  describe('Tài khoản phụ huynh khi duyệt hồ sơ trẻ', () => {
+    const ensure = (token: string, phone: string) =>
+      postJson(
+        `${context.baseUrl}/users/guardian-accounts`,
+        { phone, full_name: 'Phụ huynh mới', org_unit_id: branchA },
+        token,
+      );
+
+    it('QT-01 bước 9, YCTD-44: số mới thì tạo tài khoản mật khẩu mặc định; số của nhân sự thì thêm vai trò VT-14; gọi lại không tạo trùng', async () => {
+      const phone = `09${Date.now().toString().slice(-8)}`;
+      const created = await ensure(principalToken, phone);
+      assert.equal(created.status, 200, JSON.stringify(created.body));
+      assert.equal(created.body.created, true);
+      const again = await ensure(principalToken, phone);
+      assert.equal(again.body.user_id, created.body.user_id);
+      assert.equal(again.body.created, false);
+      assert.equal(again.body.role_added, false);
+
+      const teacher = await createTestUser(context.database, { roles: [{ roleCode: 'VT-07', orgUnitId: branchA }] });
+      const linked = await ensure(principalToken, teacher.phone);
+      assert.equal(linked.body.user_id, teacher.id);
+      assert.equal(linked.body.role_added, true);
+      const roles = await context.database
+        .selectFrom('user_roles')
+        .innerJoin('roles', 'roles.id', 'user_roles.role_id')
+        .select('roles.code')
+        .where('user_roles.user_id', '=', teacher.id)
+        .execute();
+      assert.deepEqual(roles.map((role) => role.code).sort(), ['VT-07', 'VT-14']);
+      // Tài khoản nhân sự vẫn đăng nhập bằng mật khẩu của mình
+      assert.equal((await login(teacher.phone, TEST_PASSWORD)).status, 200);
+    });
+
+    it('QT-01 E8: người không có quyền duyệt hồ sơ trẻ không tạo được tài khoản phụ huynh', async () => {
+      const admissions = await createTestUser(context.database, { roles: [{ roleCode: 'VT-12', orgUnitId: branchA }] });
+      const token = (await login(admissions.phone, admissions.password, 'portal')).body.access_token as string;
+      assert.equal((await ensure(token, `08${Date.now().toString().slice(-8)}`)).status, 403);
+    });
+  });
+
   describe('Mã một lần', () => {
     it('CTC-DD-016, CTC-DD-017: yêu cầu mã thì nhận tin nhắn sáu chữ số, lưu dạng băm; đăng nhập bằng mã không cần mật khẩu', async () => {
       const parent = await createParent(false);

@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.12
+- Phiên bản: 1.13
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -112,6 +112,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-15 | Quyền `P01.setting.manage`: VT-02 sửa cấu hình mọi đơn vị và cấu hình chung toàn trường, VT-03 sửa cấu hình của đơn vị được gán; VT-15 và vai trò khác chỉ xem cấu hình của đơn vị trong phạm vi (P01-08, YCTD-40) |
 | PQ-16 | Quyền quản lý danh mục (YCTD-42): `P01.department.manage` cho VT-02 toàn trường và VT-06 trong đơn vị được gán, dùng cho phòng ban và chức danh; `P01.catalog.manage` chỉ VT-02, dùng cho danh mục dùng chung và bậc học; `P01.approval-threshold.manage` chỉ VT-02; `P01.room.manage` cho VT-02 toàn trường và VT-03 trong đơn vị được gán. Ai có vai trò ở đơn vị đều xem được phòng ban, chức danh, phòng học của đơn vị đó; mọi người đã đăng nhập xem được danh mục dùng chung và bậc học; hạn mức phê duyệt xem bằng `P01.view` trong phạm vi đơn vị |
 | PQ-17 | Quyền `P02.class.manage` (YCTD-44): VT-02 toàn trường, VT-15 và VT-03 trong đơn vị được gán; tạo, sửa, đóng lớp và phân công giáo viên. Ai có vai trò ở đơn vị đều xem được lớp của đơn vị; giáo viên xem các lớp mình đang được phân công |
+| PQ-18 | Hồ sơ trẻ (YCTD-45): `P02.child.manage` cho VT-02, VT-15 toàn trường và VT-03, VT-12 trong đơn vị được gán, dùng để tạo, sửa hồ sơ nháp, gửi trình duyệt; `P02.approve` dùng để duyệt, từ chối, phân lớp, chuyển lớp và sửa thông tin định danh của trẻ đang học kèm lý do; `P02.national-id.view` cho VT-02, VT-15, VT-03, VT-12 xem đầy đủ số định danh và giấy khai sinh. Phạm vi xem trẻ: VT-02, VT-15, VT-03, VT-12, VT-04, VT-05, VT-06, VT-09, VT-10, VT-11 trong đơn vị; VT-07, VT-08 trong lớp được phân công; VT-14 con mình; VT-17, VT-18 chưa xem được |
 
 ## 5. Phân cấp phê duyệt
 

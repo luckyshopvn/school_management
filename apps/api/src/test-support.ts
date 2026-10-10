@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import type { AddressInfo } from 'node:net';
 import type { INestApplication, Type } from '@nestjs/common';
 import {
@@ -20,6 +20,7 @@ import {
 import type { Kysely } from 'kysely';
 import type { AcademicYearTransitionStep } from './academic-years/academic-year-transition.js';
 import { createApplication } from './create-application.js';
+import { MemoryFileStorage } from './files/file-storage.js';
 
 // Môi trường kiểm thử tích hợp: dịch vụ định danh thật, cơ sở dữ liệu hệ thống tạm và tiền tố tên cơ sở dữ liệu năm học riêng
 export interface ApiTestEnvironment {
@@ -60,8 +61,11 @@ export async function startApiTestEnvironment(
       identityBaseUrl: identity.origin,
       systemDatabaseUrl,
       schoolYearDatabasePrefix,
+      childDataEncryptionKey: randomBytes(32),
+      childDataHashKey: randomBytes(32),
+      objectStorage: null,
     },
-    options,
+    { ...options, fileStorage: new MemoryFileStorage() },
   );
   await api.listen(0);
   // Dịch vụ định danh đọc cây đơn vị qua máy chủ API khi quản lý tài khoản (YCTD-39)

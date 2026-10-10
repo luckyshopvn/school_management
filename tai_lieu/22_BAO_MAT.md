@@ -1,7 +1,7 @@
 # 22. BẢO MẬT
 
 - Mô tả: Xác thực, phân quyền, phiên làm việc, kiểm tra dữ liệu đầu vào, bảo mật API, truy cập dữ liệu.
-- Phiên bản: 1.5
+- Phiên bản: 1.6
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -57,7 +57,7 @@
 | BM-20 | Xuất dữ liệu cá nhân phải có quyền riêng và ghi nhật ký kèm người xuất, bộ lọc, thời điểm |
 | BM-21 | Không đưa dữ liệu thật của trẻ ra môi trường phát triển và môi trường thử nghiệm |
 | BM-22 | Khi cần dữ liệu để kiểm thử, phải dùng dữ liệu mô phỏng hoặc dữ liệu đã loại bỏ thông tin định danh |
-| BM-64 | Số định danh cá nhân của trẻ được mã hóa khi lưu; chỉ giải mã cho vai trò được xem đầy đủ theo BR-81 và ghi nhật ký mỗi lần giải mã |
+| BM-64 | Số định danh cá nhân của trẻ được mã hóa khi lưu; chỉ giải mã cho vai trò được xem đầy đủ theo BR-81 và ghi nhật ký mỗi lần giải mã. Mã hóa AES-256-GCM; kiểm tra trùng bằng giá trị băm có khóa riêng; hai khóa đặt ở biến môi trường của máy chủ API, không ở mã nguồn (YCTD-45) |
 | BM-67 | Hệ thống tuân thủ quy định bảo vệ dữ liệu cá nhân hiện hành; trước khi phát hành phải kiểm tra lại văn bản áp dụng (theo hiểu biết của nhóm thiết kế: Nghị định 13/2023/NĐ-CP và Luật Bảo vệ dữ liệu cá nhân 2025) |
 | BM-70 | Nhật ký thao tác, nhật ký truy cập dữ liệu nhạy cảm, nhật ký xuất dữ liệu và nhật ký bảo mật giữ tối thiểu 24 tháng; nhật ký lỗi hệ thống giữ tối thiểu 6 tháng (Q-109, `12_KIEN_TRUC_HE_THONG.md` mục nhật ký) |
 

@@ -1,7 +1,7 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, thành phần, xác thực, phân quyền, lưu trữ tệp, ghi nhật ký, giám sát, sao lưu, phục hồi, triển khai.
-- Phiên bản: 1.9
+- Phiên bản: 1.10
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -78,7 +78,7 @@ Nguyên tắc tách tầng:
 | TP-05 | Tiến trình chạy nền | Dịch vụ ứng dụng | Tính học phí, tính lương, kiểm tra công nợ quá hạn, tổng hợp báo cáo, xử lý tệp |
 | TP-06 | Trung tâm thông báo | Dịch vụ ứng dụng | Sinh thông báo theo sự kiện, phân phối theo kênh, ghi nhận trạng thái đã đọc |
 | TP-07 | Cơ sở dữ liệu quan hệ | Dữ liệu | Lưu toàn bộ dữ liệu nghiệp vụ, có ràng buộc và chỉ mục |
-| TP-08 | Kho lưu trữ tệp | Dữ liệu | Hình ảnh hoạt động, chứng từ, tệp đính kèm |
+| TP-08 | Kho lưu trữ tệp | Dữ liệu | Hình ảnh hoạt động, chứng từ, tệp đính kèm; giao diện S3, khi phát triển và kiểm thử là SeaweedFS trong Docker (YCTD-45) |
 | TP-09 | Hàng đợi và bộ nhớ đệm | Dữ liệu | Xử lý tác vụ dài, giảm tải truy vấn đọc nhiều |
 | TP-10 | Cổng tích hợp ngoài | Dịch vụ ứng dụng | Tin nhắn, thư điện tử, xác nhận chuyển khoản mã QR; ở giai đoạn 3 thêm Facebook, Zalo, kết nối cơ sở dữ liệu ngành của Bộ Giáo dục và Đào tạo. Chỉ máy chủ API và trung tâm thông báo được gọi. Nhà cung cấp tin nhắn và dịch vụ xác nhận chuyển khoản (trung gian hoặc ngân hàng trực tiếp) cấu hình được, mỗi loại dùng một lớp kết nối chung |
 
