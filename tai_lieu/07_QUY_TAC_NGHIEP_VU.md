@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.10
+- Phiên bản: 1.11
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -36,7 +36,7 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 | Mã | Quy tắc |
 |---|---|
 | BR-12 | Điểm danh một lần mỗi ngày, mỗi trẻ một bản ghi cho mỗi ngày. Sửa điểm danh sau khi đã chốt ngày phải có lý do và ghi nhật ký thao tác |
-| BR-13 | Báo vắng do phụ huynh gửi hoặc giáo viên ghi nhận. Báo vắng có trước giờ học được coi là nghỉ có báo |
+| BR-13 | Báo vắng do phụ huynh gửi hoặc giáo viên ghi nhận. Báo vắng có trước giờ học được coi là nghỉ có báo; giờ học là mục cấu hình theo đơn vị, mặc định 07:30 (YCTD-47) |
 | BR-14 | Tiền ăn tính theo số ngày ăn thực tế của trẻ, lấy từ điểm danh đã chốt; không có khoản giảm trừ tiền ăn do nghỉ, vì ngày nghỉ có báo hay không báo đều không tính tiền ăn |
 | BR-15 | Nhật ký của bé ghi theo ngày và theo trẻ; phụ huynh chỉ xem được nhật ký của con mình |
 | BR-16 | Hệ thống không cho phép nhập điểm danh hoặc nhật ký cho trẻ không thuộc lớp mà người dùng phụ trách |

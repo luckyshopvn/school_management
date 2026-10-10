@@ -258,7 +258,9 @@ export interface NotificationsTable {
 export interface NotificationRecipientsTable {
   id: Generated<string>;
   notification_id: string;
-  user_id: string;
+  user_id: string | null;
+  role_code: string | null;
+  org_unit_id: string | null;
   channel: 'in_app' | 'sms';
   is_read: Generated<boolean>;
   read_at: Date | null;
@@ -285,6 +287,51 @@ export interface DataImportJobsTable {
   committed_at: Date | null;
 }
 
+export type AttendanceStatus =
+  'present' | 'absent_notified' | 'absent_unnotified' | 'late' | 'early_leave' | 'late_and_early_leave';
+export type AttendanceSource = 'teacher' | 'manager' | 'parent' | 'system';
+
+export interface AttendanceRecordsTable {
+  id: Generated<string>;
+  child_id: string;
+  class_id: string;
+  org_unit_id: string;
+  attendance_date: string;
+  status: AttendanceStatus;
+  note: string | null;
+  source: AttendanceSource;
+  recorded_by: string;
+  recorded_at: Date;
+  is_backfilled: Generated<boolean>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface AttendanceDaysTable {
+  id: Generated<string>;
+  class_id: string;
+  attendance_date: string;
+  status: 'open' | 'locked';
+  locked_by: string | null;
+  locked_at: Date | null;
+  unlocked_by: string | null;
+  unlocked_at: Date | null;
+  unlock_reason: string | null;
+}
+
+export interface AbsenceRecordsTable {
+  id: Generated<string>;
+  child_id: string;
+  org_unit_id: string;
+  absence_date: string;
+  reason: string | null;
+  is_advised: boolean;
+  advised_at: Date;
+  source: 'teacher' | 'manager' | 'parent';
+  reported_by: string;
+  created_at: CreatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -308,4 +355,7 @@ export interface SchoolYearDatabase {
   notifications: NotificationsTable;
   notification_recipients: NotificationRecipientsTable;
   data_import_jobs: DataImportJobsTable;
+  attendance_records: AttendanceRecordsTable;
+  attendance_days: AttendanceDaysTable;
+  absence_records: AbsenceRecordsTable;
 }

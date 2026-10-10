@@ -1,4 +1,4 @@
-// Gọi dịch vụ định danh từ ứng dụng phụ huynh; giao diện không chứa quy tắc nghiệp vụ (QU-09)
+// Gọi dịch vụ định danh và máy chủ API từ ứng dụng giáo viên; giao diện không chứa quy tắc nghiệp vụ (QU-09)
 export interface FieldError {
   field: string;
   message: string;
@@ -47,7 +47,7 @@ async function readError(response: Response): Promise<ApiError> {
 
 async function send<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
-  if (init.body !== undefined) {
+  if (typeof init.body === 'string') {
     headers.set('content-type', 'application/json');
   }
   if (accessToken) {
@@ -73,7 +73,7 @@ let pendingRefresh: Promise<TokenResponse> | undefined;
 export function refreshSession(): Promise<TokenResponse> {
   pendingRefresh ??= send<TokenResponse>('/api/v1/auth/refresh', {
     method: 'POST',
-    body: JSON.stringify({ channel: 'parent' }),
+    body: JSON.stringify({ channel: 'teacher' }),
   })
     .then(remember)
     .finally(() => {
@@ -94,22 +94,12 @@ export async function requestJson<T>(path: string, init: RequestInit = {}): Prom
   }
 }
 
-export async function loginWithPassword(phone: string, password: string): Promise<TokenResponse> {
+export async function loginWithPassword(loginIdentifier: string, password: string): Promise<TokenResponse> {
   return remember(
     await send<TokenResponse>('/api/v1/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ login: phone, password, channel: 'parent' }),
+      body: JSON.stringify({ login: loginIdentifier, password, channel: 'teacher' }),
     }),
-  );
-}
-
-export function requestOneTimeCode(phone: string): Promise<{ message: string; expires_in_seconds: number }> {
-  return send('/api/v1/auth/otp/request', { method: 'POST', body: JSON.stringify({ phone }) });
-}
-
-export async function loginWithOneTimeCode(phone: string, code: string): Promise<TokenResponse> {
-  return remember(
-    await send<TokenResponse>('/api/v1/auth/otp/login', { method: 'POST', body: JSON.stringify({ phone, code }) }),
   );
 }
 

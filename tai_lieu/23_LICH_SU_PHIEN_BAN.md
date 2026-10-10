@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.28.2 – 2026-10-10
+
+- Phạm vi thay đổi: DT-04 phần 4a, điểm danh, chốt ngày, báo vắng (YCTD-47).
+- Chức năng mới: bảng điểm danh theo ngày học; lưu chống trùng và lưu tạm khi mất mạng; chốt ngày, sửa sau khi chốt, mở lại; báo vắng nhiều ngày; ứng dụng giáo viên; màn hình báo vắng và điểm danh trong ứng dụng phụ huynh; màn hình Điểm danh trên cổng quản trị.
+- Lỗi đã sửa: kiểm thử các tệp chạy song song làm hỏng cấu hình dùng chung (yêu cầu gộp số 14).
+- Thay đổi dữ liệu: `attendance_records`, `attendance_days`, `absence_records`; người nhận thông báo theo vai trò; mục cấu hình `school_start_time`; mã quyền `P04.attendance.manage`.
+- Thay đổi API: nhóm điểm cuối điểm danh và báo vắng.
+- Rủi ro: không.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-04-phan-4a`; chạy ngược tệp thay đổi cấu trúc 0008 của cơ sở dữ liệu năm học và 0013 của cơ sở dữ liệu định danh.
+
 ### Phiên bản 0.28.1 – 2026-10-10
 
 - Phạm vi thay đổi: DT-03 phần 3c, nhập dữ liệu ban đầu và mã định danh ngành (YCTD-46).

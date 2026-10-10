@@ -21,7 +21,8 @@ type NavigationPath =
   | '/rooms'
   | '/classes'
   | '/children'
-  | '/imports';
+  | '/imports'
+  | '/attendance';
 
 function NavItem({ to, label }: { to: NavigationPath; label: string }) {
   return (
@@ -73,6 +74,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <ul className="flex flex-col gap-1">
               <NavItem to="/children" label="Hồ sơ trẻ" />
               <NavItem to="/classes" label="Lớp học" />
+              <NavItem to="/attendance" label="Điểm danh" />
               {canImport ? <NavItem to="/imports" label="Nhập dữ liệu" /> : null}
             </ul>
           </>

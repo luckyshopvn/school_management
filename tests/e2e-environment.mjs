@@ -5,3 +5,4 @@ export const E2E_IDENTITY_PORT = 3101;
 export const E2E_API_PORT = 3100;
 export const E2E_PORTAL_PORT = 5273;
 export const E2E_PARENT_PORT = 5275;
+export const E2E_TEACHER_PORT = 5276;

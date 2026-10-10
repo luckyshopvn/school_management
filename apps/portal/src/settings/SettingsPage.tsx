@@ -61,6 +61,8 @@ function fromText(setting: EffectiveSetting, text: string): unknown {
       return trimmed.split(',').map((part) => Number(part.trim()));
     case 'positive_integer':
       return Number(trimmed);
+    case 'time_of_day':
+      return trimmed;
     case 'boolean':
       return trimmed === 'bat';
   }

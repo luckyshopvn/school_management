@@ -48,7 +48,7 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | M01-2 | Xây dựng dịch vụ định danh độc lập tự viết | P01 | Đang thực hiện | Phần lõi làm trong DT-01 phần 1; phần phụ huynh (mật khẩu mặc định, mã một lần, kích hoạt, ứng dụng phụ huynh MH-47, MH-48) xong trên nhánh `dt-02`, 119 kiểm thử và 17 kiểm thử giao diện đạt (YCTD-43); P19-06 chờ nhà cung cấp tin nhắn ở việc T1 |
 | M01-3 | Nền móng kỹ thuật DT-00: kho mã nguồn GitHub, cấu trúc nhiều gói, ranh giới giao diện và máy chủ, gói mã dùng chung, môi trường phát triển Docker, tích hợp liên tục chỉ chạy kiểm thử | Toàn dự án | Hoàn thành | Giao diện chỉ gọi giao diện lập trình ứng dụng; kho https://github.com/luckyshopvn/school_management; 6/6 kiểm thử đạt trên máy và GitHub Actions; Eric gộp yêu cầu gộp số 1 vào `main` ngày 09/10/2026 (YCTD-32) |
 | M02 | Xây dựng hồ sơ trẻ, phụ huynh, lớp học, phân lớp | P02 | Đang thực hiện | Đợt DT-03 chia ba phần (YCTD-44); phần 3a, 3b ở yêu cầu gộp số 11, 12; phần 3c nhập Excel và mã ngành xong trên nhánh `dt-03-phan-3c`, 157 kiểm thử và 22 kiểm thử giao diện đạt (YCTD-46); còn chuyển trẻ sang năm học mới (GD-90) làm cùng lên lớp |
-| M04 | Xây dựng điểm danh, báo vắng, đón trả trẻ | P04 | Chưa bắt đầu | Phụ thuộc M02 |
+| M04 | Xây dựng điểm danh, báo vắng, đón trả trẻ | P04 | Đang thực hiện | Đợt DT-04 chia hai phần (YCTD-47); phần 4a điểm danh, chốt ngày, báo vắng xong trên nhánh `dt-04-phan-4a`, 170 kiểm thử và 24 kiểm thử giao diện đạt; còn 4b đón trả |
 | M05 | Xây dựng học phí, khoản thu, giảm trừ | P05 | Chưa bắt đầu | Phụ thuộc M02 |
 | M06 | Xây dựng phiếu thu, phiếu chi, công nợ, quỹ tiền mặt | P06 | Chưa bắt đầu | Phụ thuộc M05 |
 | M07 | Xây dựng hồ sơ nhân sự và hợp đồng lao động | P07 | Chưa bắt đầu | Phụ thuộc M01 |
