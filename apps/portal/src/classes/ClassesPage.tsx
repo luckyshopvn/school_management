@@ -291,7 +291,9 @@ function ClassRow({
         <td className="px-3 py-2 font-medium">{classRecord.name}</td>
         <td className="px-3 py-2">{gradeName}</td>
         <td className="px-3 py-2">{roomName}</td>
-        <td className="px-3 py-2">{classRecord.max_size}</td>
+        <td className="px-3 py-2">
+          {classRecord.enrolled_count}/{classRecord.max_size}
+        </td>
         <td className="px-3 py-2">{homeroomNames}</td>
         <td className="px-3 py-2">
           <StatusBadge
@@ -466,7 +468,7 @@ export function ClassesPage() {
                   <th className="px-3 py-2">Tên lớp</th>
                   <th className="px-3 py-2">Bậc học</th>
                   <th className="px-3 py-2">Phòng</th>
-                  <th className="px-3 py-2">Sĩ số tối đa</th>
+                  <th className="px-3 py-2">Sĩ số</th>
                   <th className="px-3 py-2">Chủ nhiệm</th>
                   <th className="px-3 py-2">Trạng thái</th>
                   <th className="px-3 py-2" />

@@ -55,7 +55,8 @@ async function readError(response: Response): Promise<ApiError> {
 
 async function send<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
-  if (init.body !== undefined) {
+  // Biểu mẫu nhiều phần để trình duyệt tự đặt kiểu nội dung kèm ranh giới
+  if (typeof init.body === 'string') {
     headers.set('content-type', 'application/json');
   }
   if (accessToken) {
@@ -97,6 +98,21 @@ export async function requestJson<T>(path: string, init: RequestInit = {}): Prom
     await refreshSession();
     return send<T>(path, init);
   }
+}
+
+// Tải nội dung không phải JSON như tệp đính kèm, kèm mã phiên; gặp mã hết hạn thì làm mới một lần
+export async function fetchWithSession(path: string): Promise<Response> {
+  const attempt = () =>
+    fetch(path, {
+      headers: accessToken ? { authorization: `Bearer ${accessToken}` } : {},
+      credentials: 'same-origin',
+    });
+  const response = await attempt();
+  if (response.status !== 401 || !accessToken) {
+    return response;
+  }
+  await refreshSession();
+  return attempt();
 }
 
 export async function login(loginIdentifier: string, password: string): Promise<TokenResponse> {

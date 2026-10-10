@@ -11,6 +11,28 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-45: Hồ sơ trẻ từ lúc tiếp nhận đến khi vào lớp – 2026-10-10
+
+- Lý do: thiết kế DT-03 phần 3b gặp các điểm chưa rõ: đồng ý hình ảnh bắt buộc khi lập hồ sơ nhưng phụ huynh chưa có tài khoản; nhiều vai trò có `P02.view` nhưng chưa rõ phạm vi xem trẻ; chưa có kho tệp cho giấy khai sinh; GD-90 chuyển trẻ sang năm mới cùng lớp gần nhất mâu thuẫn với việc lớp không chuyển sang năm mới (YCTD-44). Ảnh Docker của MinIO không còn tải được.
+- Nội dung thay đổi:
+  - Đồng ý hình ảnh khi lập hồ sơ có ba trạng thái: đồng ý bằng giấy ký tay kèm bản chụp, không đồng ý, chờ phụ huynh xác nhận trên ứng dụng (xem như chưa đồng ý, BR-65).
+  - Phạm vi xem trẻ: Ban Giám hiệu, quản lý đơn vị, tuyển sinh, kế toán, kế toán trưởng, nhân sự, y tế, bếp, kho xem trẻ trong đơn vị; giáo viên chủ nhiệm và bộ môn xem trẻ trong lớp được phân công; phụ huynh xem con mình; tổ trưởng chuyên môn và bảo vệ chưa xem được. Dữ liệu sức khỏe theo BR-53; người lập hồ sơ xem được khi hồ sơ còn nháp hoặc chờ duyệt.
+  - Kho tệp tương thích S3; khi phát triển và kiểm thử dùng SeaweedFS trong Docker thay MinIO; chỉ nhận ảnh JPEG, PNG hoặc PDF tối đa 10 MB, nhận diện theo nội dung tệp.
+  - Chuyển trẻ sang năm học mới (GD-90) để lại làm cùng chức năng lên lớp ở đợt sau.
+  - Mã quyền mới `P02.child.manage` (VT-02, VT-15, VT-03, VT-12) và `P02.national-id.view` (VT-02, VT-15, VT-03, VT-12); duyệt, từ chối, chuyển lớp, sửa thông tin định danh của trẻ đang học dùng `P02.approve`.
+  - Số định danh mã hóa AES-256-GCM, kiểm tra trùng bằng giá trị băm có khóa; hai khóa đọc từ biến môi trường.
+  - Dịch vụ định danh thêm `POST /users/guardian-accounts` để tạo tài khoản phụ huynh khi duyệt hồ sơ, bằng mã phiên của người duyệt.
+  - Chuyển lớp chỉ trong cùng đơn vị; chuyển sang lớp của đơn vị khác dùng P02-07. Không đóng được lớp còn trẻ đang học.
+  - Kiểm thử các gói chạy lần lượt vì cùng dùng cơ sở dữ liệu định danh khi phát triển.
+- Thành phần bị ảnh hưởng: `08`, `12`, `13`, `16`, `17`, `22`, `27_BO_CA_KIEM_THU_CHI_TIET/02_P02_VA_P04.md`, `01`, `03`, `index.md`; mã nguồn DT-03 phần 3b; docker compose và GitHub Actions.
+- Dữ liệu bị ảnh hưởng: bảng `files`, `children`, `health_profiles`, `guardians`, `child_guardians`, `class_enrollments`, `photo_consent_histories`, `data_access_logs`, `notifications`, `notification_recipients`.
+- API bị ảnh hưởng: nhóm điểm cuối hồ sơ trẻ, `POST /files`, `GET /files/{id}`, `GET /classes/{id}/children`, `PATCH /children/{id}/guardians/{guardianId}`; dịch vụ định danh thêm `POST /users/guardian-accounts`.
+- Giao diện bị ảnh hưởng: MH-02; MH-03 hiện sĩ số đang học.
+- Quyền bị ảnh hưởng: thêm `P02.child.manage`, `P02.national-id.view`.
+- Ảnh hưởng chức năng cũ: danh sách lớp trả thêm `enrolled_count`.
+- Kiểm thử cần thực hiện: CTC-P02-001 đến 012, 014 đến 032, 044 đến 048.
+- Trạng thái: Đã triển khai
+
 ### YCTD-44: Chia DT-03, giáo viên của lớp và phụ huynh trùng số điện thoại nhân sự – 2026-10-10
 
 - Lý do: DT-03 lớn hơn một yêu cầu gộp; chưa có hồ sơ nhân sự (P07) nhưng lớp cần giáo viên; bảng `classes` có một cột giáo viên chủ nhiệm trong khi bảng phân công cho phép nhiều giáo viên; số điện thoại phụ huynh có thể đã thuộc tài khoản nhân sự; chưa có phân hệ thông báo.

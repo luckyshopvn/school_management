@@ -135,6 +135,137 @@ export interface ClassStaffAssignmentsTable extends CatalogRecordColumns {
   status: Generated<AssignmentStatus>;
 }
 
+export type FilePurpose = 'birth_certificate' | 'photo_consent';
+
+export interface FilesTable extends CatalogRecordColumns {
+  org_unit_id: string | null;
+  purpose: FilePurpose;
+  file_name: string;
+  content_type: string;
+  size_bytes: number;
+  storage_key: string;
+}
+
+export type ChildStatus = 'draft' | 'pending' | 'active' | 'paused' | 'withdrawn' | 'graduated';
+export type ChildGender = 'male' | 'female';
+export type PhotoConsent = 'pending' | 'granted' | 'refused';
+export type PhotoConsentMethod = 'paper' | 'app';
+
+export interface ChildrenTable extends CatalogRecordColumns {
+  org_unit_id: string;
+  full_name: string;
+  dob: string;
+  gender: ChildGender;
+  place_of_birth: string | null;
+  address: string | null;
+  national_id_encrypted: string;
+  national_id_hash: string;
+  national_id_last4: string;
+  moet_student_code: string | null;
+  birth_certificate_file_id: string;
+  status: Generated<ChildStatus>;
+  is_staff_child: Generated<boolean>;
+  related_staff_user_id: string | null;
+  related_staff_name: string | null;
+  special_needs_note: string | null;
+  photo_consent: PhotoConsent;
+  photo_consent_method: PhotoConsentMethod | null;
+  photo_consent_by: string | null;
+  photo_consent_at: Date | null;
+  photo_consent_file_id: string | null;
+  enroll_date: string | null;
+  leave_date: string | null;
+  leave_reason: string | null;
+  note: string | null;
+  reject_reason: string | null;
+  submitted_by: string | null;
+  submitted_at: Date | null;
+  approved_by: string | null;
+  approved_at: Date | null;
+}
+
+export interface HealthProfilesTable extends CatalogRecordColumns {
+  child_id: string;
+  blood_type: string | null;
+  has_allergies: boolean | null;
+  allergies: string | null;
+  chronic_conditions: string | null;
+  note: string | null;
+}
+
+export interface GuardiansTable extends CatalogRecordColumns {
+  full_name: string;
+  phone: string | null;
+  email: string | null;
+  occupation: string | null;
+  address: string | null;
+  user_id: string | null;
+}
+
+export interface ChildGuardiansTable extends CatalogRecordColumns {
+  child_id: string;
+  guardian_id: string;
+  relationship_item_id: string;
+  is_primary: Generated<boolean>;
+  can_pickup: Generated<boolean>;
+}
+
+export interface ClassEnrollmentsTable extends CatalogRecordColumns {
+  child_id: string;
+  class_id: string;
+  from_date: string;
+  to_date: string | null;
+  reason: string | null;
+  is_current: Generated<boolean>;
+}
+
+export interface PhotoConsentHistoriesTable {
+  id: Generated<string>;
+  child_id: string;
+  action: PhotoConsent;
+  method: PhotoConsentMethod | null;
+  file_id: string | null;
+  actor_user_id: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface DataAccessLogsTable {
+  id: Generated<string>;
+  actor_user_id: string | null;
+  actor_name: string | null;
+  api_client_id: string | null;
+  org_unit_id: string | null;
+  entity_name: string;
+  entity_id: string;
+  scope: string;
+  record_count: Generated<number>;
+  purpose: string | null;
+  ip_address: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface NotificationsTable {
+  id: Generated<string>;
+  org_unit_id: string | null;
+  template_code: string;
+  title: string;
+  body: string;
+  target_type: string;
+  target_id: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface NotificationRecipientsTable {
+  id: Generated<string>;
+  notification_id: string;
+  user_id: string;
+  channel: 'in_app' | 'sms';
+  is_read: Generated<boolean>;
+  read_at: Date | null;
+  channel_status: Generated<'pending' | 'sent' | 'failed'>;
+  sent_at: Date | null;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -147,4 +278,14 @@ export interface SchoolYearDatabase {
   grade_levels: GradeLevelsTable;
   classes: ClassesTable;
   class_staff_assignments: ClassStaffAssignmentsTable;
+  files: FilesTable;
+  children: ChildrenTable;
+  health_profiles: HealthProfilesTable;
+  guardians: GuardiansTable;
+  child_guardians: ChildGuardiansTable;
+  class_enrollments: ClassEnrollmentsTable;
+  photo_consent_histories: PhotoConsentHistoriesTable;
+  data_access_logs: DataAccessLogsTable;
+  notifications: NotificationsTable;
+  notification_recipients: NotificationRecipientsTable;
 }

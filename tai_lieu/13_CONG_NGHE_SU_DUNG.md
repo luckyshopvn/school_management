@@ -1,8 +1,8 @@
 # 13. CÔNG NGHỆ SỬ DỤNG
 
 - Mô tả: Ngôn ngữ lập trình, khuôn khổ, cơ sở dữ liệu, thư viện, công cụ xây dựng, công cụ kiểm thử, môi trường triển khai.
-- Phiên bản: 1.4
-- Ngày cập nhật: 2026-10-09
+- Phiên bản: 1.5
+- Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -28,7 +28,7 @@
 | Truy cập dữ liệu | Truy vấn có tham số kèm tầng ánh xạ mỏng Kysely, dùng cả để chạy tệp thay đổi cấu trúc (QĐ-18) | Kiểm soát được câu truy vấn ở các báo cáo nặng, không bị che khuất bởi tầng trừu tượng |
 | Hàng đợi và bộ nhớ đệm | Redis | Chạy tác vụ nền, giới hạn tần suất, bộ nhớ đệm số liệu tổng hợp |
 | Xác thực | Mã phiên ngắn hạn kèm mã làm mới do dịch vụ định danh phát hành | Phổ biến, thu hồi được, không phụ thuộc nhà cung cấp |
-| Lưu trữ tệp | Kho lưu trữ tệp tương thích giao diện S3 | Chuẩn phổ biến, đổi nhà cung cấp dễ |
+| Lưu trữ tệp | Kho lưu trữ tệp tương thích giao diện S3; khi phát triển và kiểm thử dùng SeaweedFS trong Docker vì ảnh Docker của MinIO không còn tải được (YCTD-45) | Chuẩn phổ biến, đổi nhà cung cấp dễ |
 | Kiểm thử | Bộ kiểm thử của Node kèm Playwright | Kiểm thử đơn vị, kiểm thử tích hợp và kiểm thử giao diện |
 | Đóng gói và triển khai | Docker kèm quy trình tích hợp và triển khai tự động | Ba môi trường tách biệt, triển khai lặp lại được; trước khi có hạ tầng, GitHub Actions chỉ chạy kiểm thử (YCTD-32) |
 | Giám sát | Bảng theo dõi lỗi và số liệu vận hành | Phát hiện lỗi sớm, đo thời gian phản hồi |

@@ -25,6 +25,7 @@ export interface ClassRecord {
   room_id: string | null;
   max_size: number;
   status: ClassStatus;
+  enrolled_count: number;
   staff: StaffAssignment[];
 }
 

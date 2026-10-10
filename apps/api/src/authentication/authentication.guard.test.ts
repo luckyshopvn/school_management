@@ -5,6 +5,7 @@ import { after, before, describe, it } from 'node:test';
 import { Controller, Get } from '@nestjs/common';
 import { getJson } from '@school-management/identity/testing';
 import { createApplication } from '../create-application.js';
+import { MemoryFileStorage } from '../files/file-storage.js';
 import { startApiTestEnvironment, type ApiTestEnvironment } from '../test-support.js';
 import { AuthenticatedUser, RequirePermission } from './authentication.guard.js';
 import type { CurrentUser } from './current-user.js';
@@ -115,8 +116,11 @@ describe('Máy chủ API: kiểm tra mã phiên và quyền', () => {
         identityBaseUrl: 'http://127.0.0.1:9',
         systemDatabaseUrl: environment.systemDatabaseUrl,
         schoolYearDatabasePrefix: environment.schoolYearDatabasePrefix,
+        childDataEncryptionKey: Buffer.alloc(32),
+        childDataHashKey: Buffer.alloc(32),
+        objectStorage: null,
       },
-      { additionalControllers: [AuthorizationProbeController] },
+      { additionalControllers: [AuthorizationProbeController], fileStorage: new MemoryFileStorage() },
     );
     await isolatedApi.listen(0);
     const port = (isolatedApi.getHttpServer().address() as AddressInfo).port;

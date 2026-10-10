@@ -25,6 +25,7 @@ import {
 } from './accounts.service.js';
 import { RolesService } from './roles.service.js';
 import { StaffDirectoryService } from './staff-directory.service.js';
+import { GuardianAccountsService } from './guardian-accounts.service.js';
 
 type RequestBody = Record<string, unknown> | undefined;
 
@@ -97,6 +98,7 @@ export class AccountsController {
   constructor(
     private readonly accountsService: AccountsService,
     private readonly staffDirectory: StaffDirectoryService,
+    private readonly guardianAccounts: GuardianAccountsService,
   ) {}
 
   @Get()
@@ -174,6 +176,33 @@ export class AccountsController {
       throw validationError(errors);
     }
     return this.staffDirectory.list(callerOf(request), query.role_code ?? '', query.org_unit_id ?? '');
+  }
+
+  // Máy chủ API gọi khi duyệt hồ sơ trẻ, bằng mã phiên của người duyệt (QT-01 bước 9, YCTD-45)
+  @Post('guardian-accounts')
+  @HttpCode(200)
+  ensureGuardianAccount(@Req() request: AuthenticatedRequest, @Body() body: RequestBody) {
+    const errors: FieldError[] = [];
+    const phone = readNullableText(body, 'phone', errors, PHONE_RULE);
+    const fullName = readNullableText(body, 'full_name', errors);
+    const orgUnitId = body?.org_unit_id;
+    if (!phone) {
+      errors.push({ field: 'phone', message: 'Bắt buộc nhập số điện thoại' });
+    }
+    if (!fullName) {
+      errors.push({ field: 'full_name', message: 'Bắt buộc nhập họ tên' });
+    }
+    if (typeof orgUnitId !== 'string' || !UUID_PATTERN.test(orgUnitId)) {
+      errors.push({ field: 'org_unit_id', message: 'Bắt buộc chọn đơn vị' });
+    }
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.guardianAccounts.ensure(callerOf(request), {
+      phone: phone ?? '',
+      full_name: fullName ?? '',
+      org_unit_id: orgUnitId as string,
+    });
   }
 
   @Get(':id')

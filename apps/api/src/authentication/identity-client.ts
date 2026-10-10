@@ -56,6 +56,54 @@ export class IdentityClient {
     }
     return (await response.json()) as StaffDirectoryEntry[];
   }
+
+  // Tạo hoặc gắn vai trò phụ huynh cho số điện thoại, bằng mã phiên của người duyệt hồ sơ (QT-01 bước 9, YCTD-45)
+  async ensureGuardianAccount(
+    accessToken: string,
+    input: { phone: string; full_name: string; org_unit_id: string },
+  ): Promise<GuardianAccountResult> {
+    let response: Response;
+    try {
+      response = await fetch(`${this.configuration.identityBaseUrl}${API_VERSION_PREFIX}/users/guardian-accounts`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json' },
+        body: JSON.stringify(input),
+        signal: AbortSignal.timeout(IDENTITY_TIMEOUT_MILLISECONDS),
+      });
+    } catch (error) {
+      this.logger.error('Không liên lạc được với dịch vụ định danh', error instanceof Error ? error.message : '');
+      throw new ApplicationError('ERR_INTERNAL', 'Không tạo được tài khoản phụ huynh, vui lòng thử lại sau');
+    }
+    if (!response.ok) {
+      // Lỗi nghiệp vụ của dịch vụ định danh (ví dụ chưa đặt mật khẩu mặc định) trả nguyên cho người dùng
+      const body = (await response.json().catch(() => ({}))) as {
+        error?: {
+          code?: string;
+          message?: string;
+          details?: Array<{ field: string; message: string }>;
+          rule_code?: string;
+        };
+      };
+      if (response.status === 403 || response.status === 422 || response.status === 400) {
+        throw new ApplicationError(
+          (body.error?.code as 'ERR_FORBIDDEN' | 'ERR_RULE_VIOLATION' | 'ERR_VALIDATION') ?? 'ERR_INTERNAL',
+          body.error?.message ?? 'Không tạo được tài khoản phụ huynh',
+          body.error?.details ?? [],
+          undefined,
+          body.error?.rule_code,
+        );
+      }
+      this.logger.error(`Dịch vụ định danh trả mã trạng thái ${response.status} khi tạo tài khoản phụ huynh`);
+      throw new ApplicationError('ERR_INTERNAL', 'Không tạo được tài khoản phụ huynh, vui lòng thử lại sau');
+    }
+    return (await response.json()) as GuardianAccountResult;
+  }
+}
+
+export interface GuardianAccountResult {
+  user_id: string;
+  created: boolean;
+  role_added: boolean;
 }
 
 export interface StaffDirectoryEntry {

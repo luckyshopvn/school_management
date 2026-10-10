@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.28.0 – 2026-10-10
+
+- Phạm vi thay đổi: DT-03 phần 3b, hồ sơ trẻ từ lúc tiếp nhận đến khi vào lớp (YCTD-45).
+- Chức năng mới: lập hồ sơ trẻ, phụ huynh, sức khỏe cơ bản, cờ trẻ con nhân viên, đồng ý hình ảnh; gửi trình duyệt, duyệt và phân lớp, từ chối; tạo tài khoản phụ huynh khi duyệt; chuyển lớp; xem đầy đủ số định danh có ghi nhật ký; tải giấy khai sinh; màn hình Hồ sơ trẻ.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: mười bảng mới ở cơ sở dữ liệu năm học; mã quyền `P02.child.manage`, `P02.national-id.view`.
+- Thay đổi API: nhóm điểm cuối hồ sơ trẻ và tệp; `GET /classes/{id}/children`; `POST /users/guardian-accounts`; danh sách lớp trả thêm `enrolled_count`.
+- Rủi ro: hai khóa mã hóa số định danh phải được sao lưu cùng cơ sở dữ liệu; mất khóa thì không giải mã được.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-03-phan-3b`; chạy ngược tệp thay đổi cấu trúc 0006 của cơ sở dữ liệu năm học và 0011 của cơ sở dữ liệu định danh.
+
 ### Phiên bản 0.27.9 – 2026-10-10
 
 - Phạm vi thay đổi: DT-03 phần 3a, lớp học và phân công giáo viên (YCTD-44).

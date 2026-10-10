@@ -25,6 +25,9 @@ export const PERMISSION_CODES = {
   approvalThresholdManage: 'P01.approval-threshold.manage',
   roomManage: 'P01.room.manage',
   classManage: 'P02.class.manage',
+  childManage: 'P02.child.manage',
+  childApprove: 'P02.approve',
+  nationalIdView: 'P02.national-id.view',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
