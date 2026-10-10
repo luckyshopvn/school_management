@@ -14,6 +14,28 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-06 phần 6b-2: phép năm, đơn nghỉ phép, chốt và mở lại bảng công
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 28 (phần 6b-1); viết phần 6b-2 trên nhánh `dt-06-phan-6b-2`.
+- Cơ sở dữ liệu: năm học có `leave_policies`, `leave_balances`, `leave_requests`, `timesheet_periods`, `timesheet_days`, `timesheet_reopen_requests` (tệp 0021); định danh có `P08.leave-policy.manage`, `P08.leave.approve`, `P08.timesheet-reopen.approve` (tệp 0025).
+- Máy chủ API: quy định phép năm, số ngày phép, đơn nghỉ phép, chốt bảng công, đề nghị và duyệt mở lại, chặn sửa kỳ đã chốt, chuyển năm học.
+- Cổng quản trị: trang Đơn nghỉ phép, trang Quy định phép năm (MH-52), phần kỳ công ở trang Chấm công. Ứng dụng giáo viên: màn hình đơn nghỉ phép.
+- Kết quả: máy chủ API 290/290, kiểm thử giao diện 39/39.
+
+#### Quyết định
+
+- Theo YCTD-59 – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-59 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.29.5.
+
+#### Vấn đề tồn đọng
+
+- Phần 6c: tiền lương.
+
 ### 2026-10-11 — DT-06 phần 6b-1: ngày lễ, lịch học bù và nghỉ bù, chấm công
 
 #### Công việc đã thực hiện
@@ -34,7 +56,7 @@
 
 #### Vấn đề tồn đọng
 
-- Phần 6b-2: phép năm, đơn nghỉ phép, chốt và mở lại bảng công.
+- Phần 6b-2 làm ngay sau đó.
 
 ### 2026-10-10 — DT-06 phần 6a: hồ sơ nhân sự và hợp đồng lao động
 

@@ -73,6 +73,9 @@ import { SchoolDaysController, SchoolDaysService } from './staff-attendance/scho
 import { StaffAttendanceController } from './staff-attendance/staff-attendance.controller.js';
 import { StaffAttendanceService } from './staff-attendance/staff-attendance.service.js';
 import { staffAttendanceTransitionStep } from './staff-attendance/staff-attendance-transition.js';
+import { LeaveController } from './staff-attendance/leave.controller.js';
+import { LeaveService } from './staff-attendance/leave.service.js';
+import { TimesheetsService } from './staff-attendance/timesheets.service.js';
 import { OrgUnitsController } from './organization/org-units.controller.js';
 import { OrgUnitsService } from './organization/org-units.service.js';
 
@@ -121,6 +124,7 @@ export class ApplicationModule {
         StaffController,
         SchoolDaysController,
         StaffAttendanceController,
+        LeaveController,
         CashBooksController,
         ...(options.additionalControllers ?? []),
       ],
@@ -180,6 +184,8 @@ export class ApplicationModule {
         StaffService,
         SchoolDaysService,
         StaffAttendanceService,
+        LeaveService,
+        TimesheetsService,
         {
           provide: PaymentGateway,
           useFactory: () =>

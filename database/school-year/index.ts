@@ -19,6 +19,7 @@ import { migration as createPaymentReversals } from './migrations/0017_create_pa
 import { migration as createOnlinePayments } from './migrations/0018_create_online_payments.js';
 import { migration as createStaff } from './migrations/0019_create_staff.js';
 import { migration as createStaffAttendance } from './migrations/0020_create_staff_attendance.js';
+import { migration as createLeaveAndTimesheets } from './migrations/0021_create_leave_and_timesheets.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
@@ -42,4 +43,5 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0018_create_online_payments': createOnlinePayments,
   '0019_create_staff': createStaff,
   '0020_create_staff_attendance': createStaffAttendance,
+  '0021_create_leave_and_timesheets': createLeaveAndTimesheets,
 };

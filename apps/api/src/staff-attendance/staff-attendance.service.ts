@@ -10,6 +10,7 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { notFoundError } from '../common/request-fields.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { SettingsService } from '../settings/settings.service.js';
+import { assertMonthsOpen } from './timesheet-periods.js';
 
 // Chấm công của nhân sự (P08-01, BR-39, YCTD-59). Nhân sự có hồ sơ liên kết tài khoản tự bấm vào ca, ra ca cho ngày
 // hôm nay, giờ lấy theo máy chủ; phòng nhân sự nhập hoặc sửa giờ cho mọi người trong đơn vị, có nhật ký.
@@ -288,6 +289,7 @@ export class StaffAttendanceService {
     if (input.checkOut !== null && input.checkOut <= input.checkIn) {
       throw validationError([{ field: 'check_out', message: 'Giờ ra phải lớn hơn giờ vào' }]);
     }
+    await assertMonthsOpen(database, staff.org_unit_id, input.workDate, input.workDate);
     const times = attendanceTimes(input.checkIn, input.checkOut, await this.workHours(staff.org_unit_id));
     const existing = await database
       .selectFrom('attendance_logs')

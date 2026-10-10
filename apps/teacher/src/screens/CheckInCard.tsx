@@ -14,7 +14,7 @@ function messageOf(error: unknown): string {
   return error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, cần có mạng để chấm công';
 }
 
-export function CheckInCard() {
+export function CheckInCard({ onOpenLeave }: { onOpenLeave(): void }) {
   const [attendance, setAttendance] = useState<TodayAttendance | null>();
   const [errorMessage, setErrorMessage] = useState<string>();
   const [busy, setBusy] = useState(false);
@@ -68,6 +68,11 @@ export function CheckInCard() {
         </Button>
         <Button disabled={busy || !log || !active} onClick={() => void press('check-out')}>
           Ra ca
+        </Button>
+      </div>
+      <div>
+        <Button variant="text" onClick={onOpenLeave}>
+          Đơn nghỉ phép
         </Button>
       </div>
     </section>

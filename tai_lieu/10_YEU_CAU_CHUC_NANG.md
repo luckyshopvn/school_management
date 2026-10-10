@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.23
+- Phiên bản: 1.24
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -123,15 +123,15 @@
 |---|---|---|---|---|---|---|
 | P08-01 | Chấm công (G1) | VT-06, mọi nhân sự có hồ sơ liên kết tài khoản | Nhân sự, ngày, giờ vào, giờ ra, ghi chú | Nhân sự tự vào ca, ra ca hôm nay theo giờ máy chủ; phòng nhân sự nhập hoặc sửa giờ có nhật ký; tính số phút làm, đi muộn, về sớm theo giờ làm của đơn vị (YCTD-59) | Bảng công theo tháng | BR-39 |
 | P08-02 | Lịch nghỉ và lịch công tác (G1) | VT-06, VT-03 | Nhân sự, ngày, loại, ghi chú | Lập và công bố lịch | Lịch nghỉ và công tác | BR-40 |
-| P08-03 | Đơn xin nghỉ phép (G1) | VT-07, VT-06, VT-15, VT-02 | Nhân sự, loại nghỉ, khoảng thời gian, lý do | Trình Hiệu trưởng hoặc Phó Hiệu trưởng duyệt (YCTD-58) và cập nhật số ngày phép | Đơn nghỉ đã duyệt | BR-40, BR-41 |
-| P08-04 | Chốt bảng công (G1) | VT-06 | Kỳ, đơn vị | Đối chiếu chấm công và đơn nghỉ, khóa bảng công; mở lại kỳ đã chốt phải được Ban Giám hiệu duyệt (Q-135) | Bảng công đã chốt | LE-07 |
+| P08-03 | Đơn xin nghỉ phép (G1) | Mọi nhân sự có hồ sơ liên kết tài khoản, VT-06, VT-15, VT-02 | Nhân sự, loại nghỉ, khoảng thời gian, nửa ngày ở ngày đầu hoặc ngày cuối, lý do | Nhân sự tự gửi hoặc phòng nhân sự lập hộ; Hiệu trưởng hoặc Phó Hiệu trưởng duyệt (YCTD-58); số ngày chỉ đếm ngày làm việc; duyệt đơn phép năm thì trừ số ngày phép (YCTD-59) | Đơn nghỉ đã duyệt | BR-40, BR-41 |
+| P08-04 | Chốt bảng công (G1) | VT-06, VT-15, VT-02 | Đơn vị, tháng | Chốt từ mùng 1 tháng sau khi không còn đơn chờ duyệt; ghi từng ngày đi làm, nghỉ theo đơn, vắng không phép, nghỉ lễ, nghỉ bù, giờ làm thêm; kỳ đã chốt chặn sửa; mở lại phải được Ban Giám hiệu duyệt (Q-135, YCTD-59) | Bảng công đã chốt | LE-07, BR-39, BR-82 |
 | P08-05 | Ứng lương — Bỏ ngày 09/10/2026: nhà trường không cho ứng lương (Q-54) | — | — | — | — | — |
 | P08-06 | Bảng lương (G1) | VT-04, VT-06, VT-15, VT-02 | Tháng M, lương hợp đồng, phụ cấp, thưởng, khấu trừ, bảng công đã chốt của tháng M−1 | Đầu tháng M tính bảng lương trả trước kèm điều chỉnh theo công tháng M−1; chặn khi tháng M−1 chưa chốt công; Ban Giám hiệu phê duyệt theo hạn mức; lập phiếu chi lương; lập bảng quyết toán khi chấm dứt hợp đồng (YCTD-29) | Bảng lương của tháng | BR-43, BR-44, BR-77, BR-90 |
 | P08-07 | Lương thưởng và khấu trừ (G2) | VT-04, VT-05 | Loại thưởng, loại khấu trừ, căn cứ | Ghi nhận các khoản thưởng và khấu trừ | Chi tiết bảng lương | BR-44, BR-45 |
 | P08-08 | Phiếu lương của nhân sự (G1) | Mọi vai trò nhân sự | Kỳ | Hiển thị chi tiết lương của chính mình | Phiếu lương | BR-46 |
 | P08-09 | Ngày nghỉ lễ (G1) | VT-06 gán ở Trường chính | Ngày, tên ngày lễ, có hưởng lương hay không | Lập lịch nghỉ lễ chung toàn trường; ngày lễ không là ngày học của trẻ và là ngày nghỉ lễ của nhân sự (YCTD-59) | Lịch nghỉ lễ | BR-39, BR-84 |
 | P08-10 | Lịch học bù và nghỉ bù (G1) | VT-02, VT-15 | Ngày, loại lịch (học bù thứ bảy hoặc nghỉ bù thứ hai đến thứ sáu), ghi chú | Thứ bảy mặc định nghỉ; Ban Giám hiệu bổ sung từng ngày vào lịch chung toàn trường; học bù là ngày học của mọi lớp và ngày làm việc của mọi nhân sự; nghỉ bù trẻ nghỉ, nhân sự nghỉ có lương; áp dụng khi điểm danh, tính học phí và chấm công (YCTD-59) | Lịch học bù và nghỉ bù | BR-39, BR-84 |
-| P08-11 | Danh mục khấu trừ và quy định số ngày phép năm (G1) | VT-06, VT-04 | Loại khấu trừ, cách tính, tỷ lệ hoặc số tiền; chức danh, khoảng thâm niên, số ngày phép | Cấu hình danh mục khấu trừ dùng khi tính lương và quy định số ngày phép dùng khi cấp phép năm | Danh mục khấu trừ, bảng quy định phép năm | BR-41, BR-44 |
+| P08-11 | Danh mục khấu trừ và quy định số ngày phép năm (G1) | VT-06, VT-04 | Loại khấu trừ, cách tính, tỷ lệ hoặc số tiền; chức danh, khoảng thâm niên, số ngày phép | Cấu hình danh mục khấu trừ dùng khi tính lương (phần 6c); quy định phép năm chung toàn trường do phòng nhân sự gán ở Trường chính lập, cấp theo năm dương lịch (YCTD-59) | Danh mục khấu trừ, bảng quy định phép năm | BR-41, BR-44 |
 | P08-12 | Tiền làm thêm giờ (G1) | VT-06, VT-04 | Chấm công đã chốt, giờ làm chuẩn, đơn giá làm thêm | Tính phần vượt giờ chuẩn, tối đa 1 giờ mỗi ngày, đưa vào bảng lương của tháng kế tiếp | Dòng làm thêm trên bảng lương | BR-82 |
 
 ## 10. Phân hệ P09 — Công việc, kế hoạch và đánh giá

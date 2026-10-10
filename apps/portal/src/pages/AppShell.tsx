@@ -35,7 +35,9 @@ type NavigationPath =
   | '/cash-book'
   | '/staff'
   | '/staff-attendance'
-  | '/school-days';
+  | '/school-days'
+  | '/leave-requests'
+  | '/leave-policies';
 
 function NavItem({ to, label }: { to: NavigationPath; label: string }) {
   return (
@@ -136,7 +138,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         <ul className="flex flex-col gap-1">
           {canViewStaff ? <NavItem to="/staff" label="Hồ sơ nhân sự" /> : null}
           <NavItem to="/staff-attendance" label="Chấm công" />
+          <NavItem to="/leave-requests" label="Đơn nghỉ phép" />
           <NavItem to="/school-days" label="Ngày lễ và lịch bù" />
+          <NavItem to="/leave-policies" label="Quy định phép năm" />
           {canViewStaff && canImportStaff && !(canManageClasses || canViewChildren || canEditChildren) ? (
             <NavItem to="/imports" label="Nhập dữ liệu" />
           ) : null}

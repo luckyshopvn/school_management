@@ -52,6 +52,9 @@ export type {
   RegistrationSource,
   RegistrationStatus,
   SchoolDayChangeType,
+  DayHalf,
+  LeaveRequestStatus,
+  TimesheetDayStatus,
   SchoolYearDatabase,
   ServiceCalculationMethod,
 } from '../school-year/schema.js';

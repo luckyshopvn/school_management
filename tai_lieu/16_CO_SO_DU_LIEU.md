@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.30
+- Phiên bản: 1.31
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -163,9 +163,12 @@ Ràng buộc duy nhất: `receipts` trên bộ đôi đơn vị và mã phiếu 
 |---|---|---|
 | attendance_logs | Chấm công (YCTD-59) | staff_id, work_date, check_in, check_out (giờ HH:MM theo giờ Việt Nam), worked_minutes, late_minutes, early_leave_minutes, source (tự chấm hoặc nhập tay), note, updated_by |
 | work_schedules | Lịch nghỉ và lịch công tác | staff_id, schedule_date, schedule_type, note |
-| leave_requests | Đơn xin nghỉ phép | staff_id, leave_type, from_date, to_date, days, reason, status, requested_at, approved_by, approved_at, reject_reason |
-| leave_balances | Số ngày phép | staff_id, balance_year, leave_type, entitled_days, used_days, remaining_days |
-| leave_policies | Quy định số ngày phép năm | org_unit_id, job_title_id, seniority_from_years, seniority_to_years, leave_type, entitled_days, effective_from, status |
+| leave_requests | Đơn xin nghỉ phép (YCTD-59) | staff_id, leave_type_id, is_paid, deducts_annual_leave, insurance_paid (chép từ loại nghỉ lúc gửi), from_date, to_date, first_day_half, last_day_half, days, reason, status (chờ duyệt, đã duyệt, bị từ chối, đã hủy), created_by, requested_at, decided_by, decided_at, reject_reason |
+| leave_balances | Số ngày phép năm theo năm dương lịch (YCTD-59) | staff_id, balance_year (duy nhất cùng staff_id), entitled_days, used_days, policy_id, adjust_reason, updated_by |
+| leave_policies | Quy định số ngày phép năm chung toàn trường (YCTD-59) | job_title_id, seniority_from_years, seniority_to_years, entitled_days, status |
+| timesheet_periods | Kỳ công của đơn vị theo tháng (YCTD-59) | org_unit_id, period_year, period_month (duy nhất cùng đơn vị), status (đã chốt, đã mở lại), closed_by, closed_at |
+| timesheet_days | Bảng công đã chốt từng ngày (YCTD-59) | period_id, staff_id, work_date, status (đi làm, nghỉ theo đơn, vắng, nghỉ lễ, nghỉ bù), worked_minutes, late_minutes, early_leave_minutes, overtime_minutes, leave_request_id, leave_days, absent_days, unpaid_days, insurance_days, note |
+| timesheet_reopen_requests | Đề nghị mở lại kỳ công (Q-135, YCTD-59) | period_id, reason, status (chờ duyệt, đã duyệt, bị từ chối), requested_by, requested_at, decided_by, decided_at, reject_reason |
 | payroll_periods | Kỳ lương | org_unit_id, period_year, period_month, payroll_type (trả trước hoặc quyết toán), adjustment_year, adjustment_month (tháng công dùng để điều chỉnh), status, approved_by, approved_at |
 | payslips | Bảng lương từng người | payroll_period_id, staff_id, base_salary, allowances_amount, bonus_amount, deduction_amount, adjustment_amount (điều chỉnh theo công tháng trước), recovery_amount (khoản phải thu hồi khi quyết toán), net_amount, note, status |
 | payslip_lines | Chi tiết bảng lương | payslip_id, line_type, code, name, amount, basis |

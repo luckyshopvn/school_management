@@ -34,7 +34,17 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: thêm `P08.holiday.manage`, `P08.school-day-change.manage`, `P08.attendance.manage`, `P08.attendance.view`.
 - Ảnh hưởng chức năng cũ: ngày lễ và ngày nghỉ bù không còn là ngày học khi điểm danh, đón trả và tính học phí; ngày học bù thứ bảy thành ngày học. Chưa lập lịch thì không đổi gì.
 - Kiểm thử cần thực hiện: CTC-P08-001 đến 006, CTC-P08-050 đến 053; phần 6b-2: CTC-P08-009 đến 026, CTC-P08-054.
-- Trạng thái: Đã triển khai phần 6b-1
+- Chi tiết phần 6b-2:
+  - Quy định phép năm: mỗi dòng gồm chức danh, thâm niên từ bao nhiêu năm đến dưới bao nhiêu năm (để trống là trở lên), số ngày phép theo nửa ngày; các khoảng của cùng chức danh đang dùng không chồng nhau. Thâm niên là số năm tròn từ ngày vào làm đến ngày 1 tháng 1 của năm.
+  - Số ngày phép của một năm được cấp theo quy định khi đơn phép năm đầu tiên được duyệt; phòng nhân sự đơn vị chỉnh số ngày được cấp kèm lý do, không nhỏ hơn số ngày đã nghỉ. Chưa có quy định phù hợp thì chặn đơn phép năm (QT-06 E6).
+  - Đơn nghỉ: nằm trong một năm dương lịch; thuộc tính của loại nghỉ chép vào đơn lúc gửi; không trùng ngày với đơn đang chờ hoặc đã duyệt (E5); đơn phép năm kiểm tra số ngày còn lại lúc gửi và lúc duyệt (E4); người duyệt không tự duyệt đơn của chính mình; từ chối phải có lý do; người gửi, chính nhân sự hoặc phòng nhân sự hủy được đơn còn chờ. Gửi đơn báo VT-15 của đơn vị và VT-02; duyệt hoặc từ chối báo nhân sự.
+  - Chốt bảng công theo đơn vị và tháng, từ mùng 1 tháng sau; cần cấu hình giờ vào làm và giờ tan làm; còn đơn chờ duyệt có ngày trong tháng thì chặn và liệt kê (E7). Mỗi ngày làm việc trong thời gian làm việc của nhân sự ghi đi làm, nghỉ theo đơn đã duyệt, hoặc vắng không phép; ngày lễ ghi nghỉ lễ (không lương nếu ngày lễ không hưởng lương), ngày nghỉ bù ghi nghỉ bù; thứ bảy không học bù và chủ nhật không ghi. Mỗi ngày có số ngày nghỉ theo đơn, vắng, không hưởng lương (vắng, nghỉ trường không trả lương), bảo hiểm chi trả và số phút làm thêm (phần vượt giờ làm chuẩn, tối đa 60 phút, BR-82). Chốt xong báo kế toán và quản lý đơn vị.
+  - Kỳ đã chốt chặn sửa chấm công và gửi, duyệt, hủy đơn có ngày trong kỳ (E8). Phòng nhân sự đề nghị mở lại kèm lý do, mỗi lúc một đề nghị chờ; Hiệu trưởng hoặc Phó Hiệu trưởng của đơn vị duyệt thì kỳ mở lại, từ chối phải có lý do; chốt lại thì bảng công tính lại.
+  - Mã quyền thêm: `P08.leave-policy.manage` cho VT-06 (phải gán ở Trường chính); `P08.leave.approve` và `P08.timesheet-reopen.approve` cho VT-02, VT-15. Phòng nhân sự lập đơn hộ, chỉnh số ngày phép, chốt và đề nghị mở lại bằng `P08.attendance.manage`.
+  - Dữ liệu: `leave_policies`, `leave_balances`, `leave_requests`, `timesheet_periods`, `timesheet_days`, `timesheet_reopen_requests`; mở năm học mới chuyển sang.
+  - API: `GET, POST /leave-policies`, `PUT /leave-policies/{id}`, `GET, PUT /leave-balances`, `GET /me/leave-requests`, `GET, POST /leave-requests`, `POST /leave-requests/{id}/approve`, `reject`, `cancel`, `GET /timesheet-periods`, `POST /attendance-logs/lock`, `GET, POST /attendance-logs/reopen-requests`, `POST /attendance-logs/reopen-requests/{id}/approve`, `reject`.
+  - Giao diện: trang Đơn nghỉ phép (MH-44, MH-13), trang Quy định phép năm (MH-52), phần kỳ công ở trang Chấm công (MH-13), màn hình đơn nghỉ trên ứng dụng giáo viên (MG-10).
+- Trạng thái: Đã triển khai
 
 ### YCTD-58: DT-06 chia ba phần; hồ sơ nhân sự và hợp đồng lao động – 2026-10-10
 
