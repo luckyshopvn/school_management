@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.29.5 – 2026-10-11
+
+- Phạm vi thay đổi: DT-06 phần 6b-2, phép năm, đơn nghỉ phép, chốt và mở lại bảng công (YCTD-59).
+- Chức năng mới: quy định phép năm theo chức danh và thâm niên; số ngày phép năm; đơn nghỉ tự gửi hoặc lập hộ, duyệt, từ chối, hủy; chốt bảng công; đề nghị và duyệt mở lại kỳ công.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: sáu bảng phép năm, đơn nghỉ, bảng công; ba mã quyền P08.
+- Thay đổi API: nhóm điểm cuối phép năm, đơn nghỉ, kỳ công.
+- Rủi ro: kỳ đã chốt chặn sửa chấm công và đơn nghỉ của tháng đó.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-06-phan-6b-2`; chạy ngược tệp thay đổi cấu trúc 0021 của cơ sở dữ liệu năm học và 0025 của cơ sở dữ liệu định danh.
+
 ### Phiên bản 0.29.4 – 2026-10-11
 
 - Phạm vi thay đổi: DT-06 phần 6b-1, ngày lễ, lịch học bù và nghỉ bù, chấm công (YCTD-59).

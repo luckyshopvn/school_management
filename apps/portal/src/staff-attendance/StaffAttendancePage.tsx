@@ -7,8 +7,13 @@ import { AppShell } from '../pages/AppShell.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import {
+  approveTimesheetReopen,
   checkIn,
   checkOut,
+  closeTimesheet,
+  readTimesheetPeriod,
+  rejectTimesheetReopen,
+  requestTimesheetReopen,
   describeDay,
   formatMinutes,
   readAttendanceSheet,
@@ -230,6 +235,143 @@ function AttendanceLogForm({ sheet, onSaved }: { sheet: AttendanceSheet; onSaved
   );
 }
 
+const PERIOD_LABELS = { open: 'Chưa chốt', closed: 'Đã chốt', reopened: 'Đã mở lại, chờ chốt lại' } as const;
+
+// Chốt bảng công từ mùng 1 tháng sau; kỳ đã chốt thì phòng nhân sự đề nghị mở lại, Ban Giám hiệu duyệt (P08-04, Q-135)
+function TimesheetPeriodPanel({
+  orgUnitId,
+  month,
+  onChanged,
+}: {
+  orgUnitId: string;
+  month: string;
+  onChanged(message: string): void;
+}) {
+  const queryClient = useQueryClient();
+  const period = useQuery({
+    queryKey: ['timesheet-period', orgUnitId, month],
+    queryFn: () => readTimesheetPeriod(orgUnitId, month),
+  });
+  const [reason, setReason] = useState('');
+  const [rejectReason, setRejectReason] = useState('');
+  const refresh = async (message: string) => {
+    await queryClient.invalidateQueries({ queryKey: ['timesheet-period'] });
+    await queryClient.invalidateQueries({ queryKey: ['attendance-sheet'] });
+    onChanged(message);
+  };
+  const close = useMutation({
+    mutationFn: () => closeTimesheet(orgUnitId, month),
+    onSuccess: () => refresh(`Đã chốt bảng công tháng ${month}`),
+  });
+  const reopen = useMutation({
+    mutationFn: () => requestTimesheetReopen(orgUnitId, month, reason),
+    onSuccess: () => {
+      setReason('');
+      return refresh('Đã gửi đề nghị mở lại bảng công');
+    },
+  });
+  const pendingRequest = period.data?.reopen_requests.find((request) => request.status === 'pending');
+  const approve = useMutation({
+    mutationFn: () => approveTimesheetReopen(pendingRequest?.id ?? ''),
+    onSuccess: () => refresh('Đã duyệt mở lại bảng công'),
+  });
+  const reject = useMutation({
+    mutationFn: () => rejectTimesheetReopen(pendingRequest?.id ?? '', rejectReason),
+    onSuccess: () => refresh('Đã từ chối mở lại bảng công'),
+  });
+  const data = period.data;
+  if (!data) {
+    return period.error ? <Alert tone="danger">{messageOf(period.error)}</Alert> : null;
+  }
+  const error = close.error ?? reopen.error ?? approve.error ?? reject.error;
+
+  return (
+    <section className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4" aria-label="Kỳ công">
+      <h2 className="text-section-title font-semibold text-text">Kỳ công tháng {month}</h2>
+      <p className="text-content text-text">Trạng thái: {PERIOD_LABELS[data.status]}</p>
+      {data.can_close && data.status !== 'closed' ? (
+        <div>
+          <Button variant="primary" disabled={close.isPending} onClick={() => close.mutate()}>
+            Chốt bảng công
+          </Button>
+        </div>
+      ) : null}
+      {data.can_close && data.status === 'closed' && !pendingRequest ? (
+        <form
+          className="flex flex-wrap items-end gap-3"
+          aria-label="Đề nghị mở lại bảng công"
+          onSubmit={(event) => {
+            event.preventDefault();
+            reopen.mutate();
+          }}
+        >
+          <div className="w-96">
+            <TextField label="Lý do mở lại" value={reason} onChange={(event) => setReason(event.target.value)} />
+          </div>
+          <Button type="submit" disabled={reopen.isPending}>
+            Đề nghị mở lại
+          </Button>
+        </form>
+      ) : null}
+      {pendingRequest ? (
+        <div className="flex flex-col gap-2">
+          <p className="text-content text-text">Đề nghị mở lại đang chờ duyệt: {pendingRequest.reason}</p>
+          {data.can_approve_reopen ? (
+            <div className="flex flex-wrap items-end gap-3">
+              <Button variant="primary" disabled={approve.isPending} onClick={() => approve.mutate()}>
+                Duyệt mở lại
+              </Button>
+              <div className="w-72">
+                <TextField
+                  label="Lý do từ chối mở lại"
+                  value={rejectReason}
+                  onChange={(event) => setRejectReason(event.target.value)}
+                />
+              </div>
+              <Button variant="danger" disabled={reject.isPending} onClick={() => reject.mutate()}>
+                Từ chối mở lại
+              </Button>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+      {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
+      {data.summary.length > 0 ? (
+        <table className="w-full text-content" aria-label="Tổng hợp bảng công đã chốt">
+          <thead className="text-left text-label font-medium text-text-secondary">
+            <tr>
+              <th className="px-3 py-2">Nhân sự</th>
+              <th className="px-3 py-2">Ngày đi làm</th>
+              <th className="px-3 py-2">Ngày nghỉ theo đơn</th>
+              <th className="px-3 py-2">Vắng không phép</th>
+              <th className="px-3 py-2">Ngày không hưởng lương</th>
+              <th className="px-3 py-2">Bảo hiểm chi trả</th>
+              <th className="px-3 py-2">Làm thêm</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.summary.map((row) => (
+              <tr
+                key={row.staff_id}
+                className="border-t border-border"
+                aria-label={`Tổng hợp công của ${row.full_name}`}
+              >
+                <td className="px-3 py-2 font-medium">{row.full_name}</td>
+                <td className="px-3 py-2">{row.present_days}</td>
+                <td className="px-3 py-2">{row.leave_days}</td>
+                <td className="px-3 py-2">{row.absent_days}</td>
+                <td className="px-3 py-2">{row.unpaid_days}</td>
+                <td className="px-3 py-2">{row.insurance_days}</td>
+                <td className="px-3 py-2">{formatMinutes(row.overtime_minutes)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : null}
+    </section>
+  );
+}
+
 function AttendanceSheetSection({ onChanged }: { onChanged(message: string): void }) {
   const unitChoice = useUnitChoice();
   const orgUnitId = unitChoice.selectedId;
@@ -263,6 +405,9 @@ function AttendanceSheetSection({ onChanged }: { onChanged(message: string): voi
             ? `Giờ làm việc ${hours.start_time} – ${hours.end_time}, nghỉ trưa ${hours.lunch_break_minutes} phút`
             : 'Đơn vị chưa cấu hình giờ vào làm và giờ tan làm nên chưa xếp đi muộn, về sớm (Cấu hình hệ thống)'}
         </p>
+      ) : null}
+      {orgUnitId && /^\d{4}-\d{2}$/.test(month) ? (
+        <TimesheetPeriodPanel orgUnitId={orgUnitId} month={month} onChanged={onChanged} />
       ) : null}
       {data?.can_manage ? (
         <AttendanceLogForm

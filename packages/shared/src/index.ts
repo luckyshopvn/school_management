@@ -58,6 +58,9 @@ export const PERMISSION_CODES = {
   schoolDayChangeManage: 'P08.school-day-change.manage',
   staffAttendanceManage: 'P08.attendance.manage',
   staffAttendanceView: 'P08.attendance.view',
+  leavePolicyManage: 'P08.leave-policy.manage',
+  leaveApprove: 'P08.leave.approve',
+  timesheetReopenApprove: 'P08.timesheet-reopen.approve',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)

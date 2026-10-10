@@ -23,6 +23,7 @@ import { migration as addPaymentPermissions } from './migrations/0021_add_paymen
 import { migration as addPaymentReversalPermission } from './migrations/0022_add_payment_reversal_permission.js';
 import { migration as addStaffPermissions } from './migrations/0023_add_staff_permissions.js';
 import { migration as addTimekeepingPermissions } from './migrations/0024_add_timekeeping_permissions.js';
+import { migration as addLeavePermissions } from './migrations/0025_add_leave_permissions.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu định danh, theo số thứ tự (QU-01)
 export const identityMigrations: Record<string, Migration> = {
@@ -50,4 +51,5 @@ export const identityMigrations: Record<string, Migration> = {
   '0022_add_payment_reversal_permission': addPaymentReversalPermission,
   '0023_add_staff_permissions': addStaffPermissions,
   '0024_add_timekeeping_permissions': addTimekeepingPermissions,
+  '0025_add_leave_permissions': addLeavePermissions,
 };

@@ -20,6 +20,8 @@ import { ReceiptsPage } from './finance/ReceiptsPage.js';
 import { PaymentsPage } from './finance/PaymentsPage.js';
 import { CashBookPage } from './finance/CashBookPage.js';
 import { StaffPage } from './staff/StaffPage.js';
+import { LeavePoliciesPage } from './staff-attendance/LeavePoliciesPage.js';
+import { LeaveRequestsPage } from './staff-attendance/LeaveRequestsPage.js';
 import { SchoolDaysPage } from './staff-attendance/SchoolDaysPage.js';
 import { StaffAttendancePage } from './staff-attendance/StaffAttendancePage.js';
 import { ImportsPage } from './imports/ImportsPage.js';
@@ -84,6 +86,8 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/staff', component: StaffPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/staff-attendance', component: StaffAttendancePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/school-days', component: SchoolDaysPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/leave-requests', component: LeaveRequestsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/leave-policies', component: LeavePoliciesPage }),
 ]);
 
 export const router = createRouter({ routeTree });

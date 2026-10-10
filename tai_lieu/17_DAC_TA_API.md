@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.34
+- Phiên bản: 1.35
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -95,6 +95,16 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | GET, PATCH | /api/v1/academic-years/{id}/weeks | Danh sách tuần; đánh dấu hoặc bỏ đánh dấu tuần nghỉ |
 | POST | /api/v1/academic-years/{id}/open | Mở năm học: kiểm tra BR-89, tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung, chuyển năm đang dùng sang đã đóng và chỉ đọc (BR-93) |
 | POST | /api/v1/academic-years/{id}/close | Bỏ ngày 09/10/2026: gộp vào mở năm học mới (YCTD-37) |
+
+Giao kèo của phép năm, đơn nghỉ và bảng công (DT-06 phần 6b-2, YCTD-59):
+
+1. `POST /leave-policies`, `PUT /leave-policies/{id}` nhận `job_title_id`, `seniority_from_years`, `seniority_to_years` (trống là trở lên), `entitled_days` (theo nửa ngày), `PUT` thêm `status`; cần `P08.leave-policy.manage` với phạm vi toàn trường; khoảng trùng trả mã BR-41.
+2. `GET /leave-balances?org_unit_id=&year=` trả từng nhân sự `granted`, `policy_missing`, `entitled_days`, `used_days`, `remaining_days`, `adjust_reason`. `PUT /leave-balances` nhận `staff_id`, `year`, `entitled_days`, `reason`; cần `P08.attendance.manage`; nhỏ hơn số ngày đã nghỉ trả mã BR-41.
+3. `POST /leave-requests` nhận `staff_id` (trống là chính mình), `leave_type_id`, `from_date`, `to_date`, `first_day_half`, `last_day_half` (`morning`, `afternoon`), `reason`; lập hộ cần `P08.attendance.manage`. Trả `days` do máy chủ tính. Trùng đơn, không có ngày làm việc trả mã BR-40; thiếu quy định hoặc không đủ ngày phép trả mã BR-41; kỳ đã chốt trả mã Q-135.
+4. `POST /leave-requests/{id}/approve` cần `P08.leave.approve` trong phạm vi đơn vị của nhân sự; `reject` nhận `reason` bắt buộc; `cancel` cho người gửi, chính nhân sự hoặc phòng nhân sự. Đơn không còn chờ trả mã BR-40.
+5. `POST /attendance-logs/lock` nhận `org_unit_id`, `month`; cần `P08.attendance.manage`; tháng chưa hết trả mã YCTD-41; thiếu giờ làm trả mã BR-39; còn đơn chờ trả mã BR-40 với `details` liệt kê từng đơn; đã chốt trả mã Q-135.
+6. `GET /timesheet-periods?org_unit_id=&month=` trả `status` (`open`, `closed`, `reopened`), `can_close`, `can_approve_reopen`, `reopen_requests`, `summary` (từng nhân sự: `present_days`, `leave_days`, `absent_days`, `unpaid_days`, `insurance_days`, `overtime_minutes`).
+7. `POST /attendance-logs/reopen-requests` nhận `org_unit_id`, `month`, `reason`; kỳ chưa chốt hoặc đã có đề nghị chờ trả mã Q-135. `approve`, `reject` (nhận `reason`) cần `P08.timesheet-reopen.approve` trong phạm vi đơn vị.
 
 Giao kèo của ngày lễ, lịch bù và chấm công (DT-06 phần 6b-1, YCTD-59):
 
@@ -466,13 +476,18 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 | POST | /api/v1/employment-contracts/{id}/terminate | Chấm dứt hợp đồng, khóa tài khoản liên kết (YCTD-58) |
 | GET | /api/v1/attendance-logs | Bảng chấm công của đơn vị theo tháng kèm loại ngày (YCTD-59) |
 | PUT | /api/v1/attendance-logs | Phòng nhân sự ghi hoặc sửa chấm công của một ngày |
-| POST | /api/v1/attendance-logs/lock | Chốt bảng công của kỳ |
-| POST | /api/v1/attendance-logs/reopen-requests | Nhân sự đề nghị mở lại kỳ công đã chốt kèm lý do |
+| GET | /api/v1/timesheet-periods | Trạng thái kỳ công, đề nghị mở lại và tổng hợp bảng công đã chốt (YCTD-59) |
+| POST | /api/v1/attendance-logs/lock | Chốt bảng công của đơn vị theo tháng |
+| GET, POST | /api/v1/attendance-logs/reopen-requests | Đề nghị mở lại đang chờ trong phạm vi người duyệt; nhân sự đề nghị mở lại kỳ công đã chốt kèm lý do |
 | POST | /api/v1/attendance-logs/reopen-requests/{id}/approve | Ban Giám hiệu duyệt mở lại kỳ công (Q-135) |
+| POST | /api/v1/attendance-logs/reopen-requests/{id}/reject | Ban Giám hiệu từ chối mở lại kèm lý do (YCTD-59) |
 | GET, POST | /api/v1/work-schedules | Lịch nghỉ và lịch công tác |
 | GET, POST | /api/v1/leave-requests | Danh sách và tạo đơn xin nghỉ phép |
 | POST | /api/v1/leave-requests/{id}/approve | Duyệt đơn nghỉ phép |
-| POST | /api/v1/leave-requests/{id}/reject | Từ chối đơn nghỉ phép |
+| POST | /api/v1/leave-requests/{id}/reject | Từ chối đơn nghỉ phép kèm lý do |
+| POST | /api/v1/leave-requests/{id}/cancel | Hủy đơn còn chờ duyệt (YCTD-59) |
+| GET | /api/v1/me/leave-requests | Đơn nghỉ và số ngày phép năm của chính người đăng nhập (YCTD-59) |
+| GET, PUT | /api/v1/leave-balances | Số ngày phép năm của nhân sự trong đơn vị; phòng nhân sự chỉnh kèm lý do (YCTD-59) |
 | POST | /api/v1/payrolls | Tính bảng lương trả trước của tháng kèm điều chỉnh theo công đã chốt của tháng trước; trả `ERR_RULE_VIOLATION` khi tháng trước chưa chốt công (BR-43) |
 | GET | /api/v1/payrolls/{period_id} | Bảng lương của kỳ |
 | POST | /api/v1/payrolls/{period_id}/approve | Phê duyệt bảng lương |
@@ -484,6 +499,7 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 | GET, POST | /api/v1/allowance-types | Danh mục phụ cấp |
 | GET, POST | /api/v1/deduction-types | Danh mục khấu trừ |
 | GET, POST | /api/v1/leave-policies | Quy định số ngày phép năm theo chức danh và thâm niên |
+| PUT | /api/v1/leave-policies/{id} | Sửa hoặc ngừng dùng quy định phép năm (YCTD-59) |
 | GET | /api/v1/school-days | Ngày nghỉ lễ và lịch học bù, nghỉ bù của một năm dương lịch (YCTD-59) |
 | POST | /api/v1/holidays | Thêm ngày nghỉ lễ |
 | PUT, DELETE | /api/v1/holidays/{id} | Sửa tên, hưởng lương hoặc xóa ngày nghỉ lễ |

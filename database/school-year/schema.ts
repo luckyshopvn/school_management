@@ -837,6 +837,101 @@ export interface AttendanceLogsTable {
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
 }
+
+type Decimal = ColumnType<string, string | number | undefined, string | number>;
+
+export interface LeavePoliciesTable {
+  id: Generated<string>;
+  job_title_id: string;
+  seniority_from_years: number;
+  seniority_to_years: number | null;
+  entitled_days: Decimal;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface LeaveBalancesTable {
+  id: Generated<string>;
+  staff_id: string;
+  balance_year: number;
+  entitled_days: Decimal;
+  used_days: Decimal;
+  policy_id: string | null;
+  adjust_reason: string | null;
+  updated_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export type DayHalf = 'morning' | 'afternoon';
+export type LeaveRequestStatus = 'pending' | 'approved' | 'rejected' | 'cancelled';
+
+export interface LeaveRequestsTable {
+  id: Generated<string>;
+  staff_id: string;
+  leave_type_id: string;
+  is_paid: boolean;
+  deducts_annual_leave: boolean;
+  insurance_paid: boolean;
+  from_date: string;
+  to_date: string;
+  first_day_half: DayHalf | null;
+  last_day_half: DayHalf | null;
+  days: Decimal;
+  reason: string;
+  status: Generated<LeaveRequestStatus>;
+  created_by: string;
+  requested_at: CreatedTimestamp;
+  decided_by: string | null;
+  decided_at: Date | null;
+  reject_reason: string | null;
+}
+
+export interface TimesheetPeriodsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  period_year: number;
+  period_month: number;
+  status: 'closed' | 'reopened';
+  closed_by: string | null;
+  closed_at: Date | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export type TimesheetDayStatus = 'present' | 'leave' | 'absent' | 'holiday' | 'day_off';
+
+export interface TimesheetDaysTable {
+  id: Generated<string>;
+  period_id: string;
+  staff_id: string;
+  work_date: string;
+  status: TimesheetDayStatus;
+  worked_minutes: number | null;
+  late_minutes: number | null;
+  early_leave_minutes: number | null;
+  overtime_minutes: Generated<number>;
+  leave_request_id: string | null;
+  leave_days: Decimal;
+  absent_days: Decimal;
+  unpaid_days: Decimal;
+  insurance_days: Decimal;
+  note: string | null;
+}
+
+export interface TimesheetReopenRequestsTable {
+  id: Generated<string>;
+  period_id: string;
+  reason: string;
+  status: Generated<'pending' | 'approved' | 'rejected'>;
+  requested_by: string;
+  requested_at: CreatedTimestamp;
+  decided_by: string | null;
+  decided_at: Date | null;
+  reject_reason: string | null;
+}
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -896,4 +991,10 @@ export interface SchoolYearDatabase {
   holidays: HolidaysTable;
   school_day_changes: SchoolDayChangesTable;
   attendance_logs: AttendanceLogsTable;
+  leave_policies: LeavePoliciesTable;
+  leave_balances: LeaveBalancesTable;
+  leave_requests: LeaveRequestsTable;
+  timesheet_periods: TimesheetPeriodsTable;
+  timesheet_days: TimesheetDaysTable;
+  timesheet_reopen_requests: TimesheetReopenRequestsTable;
 }

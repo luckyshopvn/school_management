@@ -118,3 +118,155 @@ export function describeDay(day: StaffDay): string {
       return 'Ngày nghỉ';
   }
 }
+
+// Phép năm, đơn nghỉ phép, chốt và mở lại bảng công (P08-03, P08-04, P08-11; YCTD-59)
+export type DayHalf = 'morning' | 'afternoon';
+export type LeaveRequestStatus = 'pending' | 'approved' | 'rejected' | 'cancelled';
+
+export const LEAVE_STATUS_LABELS: Record<LeaveRequestStatus, string> = {
+  pending: 'Chờ duyệt',
+  approved: 'Đã duyệt',
+  rejected: 'Bị từ chối',
+  cancelled: 'Đã hủy',
+};
+
+export interface LeaveRequest {
+  id: string;
+  staff_id: string;
+  full_name: string;
+  staff_code: string;
+  org_unit_id: string;
+  leave_type_id: string;
+  leave_type_name: string;
+  from_date: string;
+  to_date: string;
+  first_day_half: DayHalf | null;
+  last_day_half: DayHalf | null;
+  days: string | number;
+  reason: string;
+  status: LeaveRequestStatus;
+  created_by: string;
+  reject_reason: string | null;
+}
+
+export interface LeaveBalance {
+  granted: boolean;
+  policy_missing: boolean;
+  entitled_days: number | null;
+  used_days: number;
+  remaining_days: number | null;
+  adjust_reason: string | null;
+}
+
+export interface LeavePolicy {
+  id: string;
+  job_title_id: string;
+  job_title_name: string;
+  unit_name: string;
+  seniority_from_years: number;
+  seniority_to_years: number | null;
+  entitled_days: number;
+  status: 'active' | 'inactive';
+}
+
+export interface LeaveRequestInput {
+  staff_id?: string;
+  leave_type_id: string;
+  from_date: string;
+  to_date: string;
+  first_day_half: DayHalf | null;
+  last_day_half: DayHalf | null;
+  reason: string;
+}
+
+export interface TimesheetPeriod {
+  org_unit_id: string;
+  month: string;
+  status: 'open' | 'closed' | 'reopened';
+  closed_at: string | null;
+  can_close: boolean;
+  can_approve_reopen: boolean;
+  reopen_requests: Array<{
+    id: string;
+    reason: string;
+    status: 'pending' | 'approved' | 'rejected';
+    requested_at: string;
+    reject_reason: string | null;
+  }>;
+  summary: Array<{
+    staff_id: string;
+    code: string;
+    full_name: string;
+    present_days: number;
+    leave_days: number;
+    absent_days: number;
+    unpaid_days: number;
+    insurance_days: number;
+    overtime_minutes: number;
+  }>;
+}
+
+export const readMyLeave = (): Promise<{
+  staff: { id: string; full_name: string };
+  balance: LeaveBalance & { year: number };
+  requests: LeaveRequest[];
+}> => requestJson('/api/v1/me/leave-requests');
+export const listLeaveRequests = (
+  orgUnitId: string,
+  status: LeaveRequestStatus | '',
+): Promise<{ can_approve: boolean; can_manage: boolean; requests: LeaveRequest[] }> =>
+  requestJson(`/api/v1/leave-requests?org_unit_id=${orgUnitId}${status ? `&status=${status}` : ''}`);
+export const createLeaveRequest = (input: LeaveRequestInput) =>
+  send<LeaveRequest>('POST', '/api/v1/leave-requests', input);
+export const approveLeaveRequest = (requestId: string) =>
+  send<LeaveRequest>('POST', `/api/v1/leave-requests/${requestId}/approve`);
+export const rejectLeaveRequest = (requestId: string, reason: string) =>
+  send<LeaveRequest>('POST', `/api/v1/leave-requests/${requestId}/reject`, { reason });
+export const cancelLeaveRequest = (requestId: string) =>
+  send<LeaveRequest>('POST', `/api/v1/leave-requests/${requestId}/cancel`);
+
+export const listLeavePolicies = (): Promise<LeavePolicy[]> => requestJson('/api/v1/leave-policies');
+export const createLeavePolicy = (input: {
+  job_title_id: string;
+  seniority_from_years: number;
+  seniority_to_years: number | null;
+  entitled_days: number;
+}) => send<LeavePolicy>('POST', '/api/v1/leave-policies', input);
+export const updateLeavePolicy = (
+  policyId: string,
+  input: {
+    job_title_id: string;
+    seniority_from_years: number;
+    seniority_to_years: number | null;
+    entitled_days: number;
+    status: 'active' | 'inactive';
+  },
+) => send<LeavePolicy>('PUT', `/api/v1/leave-policies/${policyId}`, input);
+export const listLeaveBalances = (
+  orgUnitId: string,
+  year: number,
+): Promise<Array<LeaveBalance & { staff_id: string; code: string; full_name: string }>> =>
+  requestJson(`/api/v1/leave-balances?org_unit_id=${orgUnitId}&year=${year}`);
+export const adjustLeaveBalance = (input: { staff_id: string; year: number; entitled_days: number; reason: string }) =>
+  send<LeaveBalance>('PUT', '/api/v1/leave-balances', input);
+
+export const readTimesheetPeriod = (orgUnitId: string, month: string): Promise<TimesheetPeriod> =>
+  requestJson(`/api/v1/timesheet-periods?org_unit_id=${orgUnitId}&month=${month}`);
+export const closeTimesheet = (orgUnitId: string, month: string) =>
+  send<TimesheetPeriod>('POST', '/api/v1/attendance-logs/lock', { org_unit_id: orgUnitId, month });
+export const requestTimesheetReopen = (orgUnitId: string, month: string, reason: string) =>
+  send<unknown>('POST', '/api/v1/attendance-logs/reopen-requests', { org_unit_id: orgUnitId, month, reason });
+export const approveTimesheetReopen = (requestId: string) =>
+  send<TimesheetPeriod>('POST', `/api/v1/attendance-logs/reopen-requests/${requestId}/approve`);
+export const rejectTimesheetReopen = (requestId: string, reason: string) =>
+  send<TimesheetPeriod>('POST', `/api/v1/attendance-logs/reopen-requests/${requestId}/reject`, { reason });
+
+export function describeLeaveDates(
+  request: Pick<LeaveRequest, 'from_date' | 'to_date' | 'first_day_half' | 'last_day_half'>,
+): string {
+  const half = (value: DayHalf | null) =>
+    value === 'morning' ? ' (buổi sáng)' : value === 'afternoon' ? ' (buổi chiều)' : '';
+  return request.from_date === request.to_date
+    ? `${request.from_date}${half(request.first_day_half)}`
+    : `${request.from_date}${half(request.first_day_half)} đến ${request.to_date}${half(request.last_day_half)}`;
+}

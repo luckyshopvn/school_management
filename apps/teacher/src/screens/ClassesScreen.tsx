@@ -16,10 +16,12 @@ export function ClassesScreen({
   onOpen,
   onOpenPickup,
   onOpenGate,
+  onOpenLeave,
 }: {
   onOpen(myClass: MyClass): void;
   onOpenPickup(myClass: MyClass): void;
   onOpenGate(orgUnitIds: string[]): void;
+  onOpenLeave(): void;
 }) {
   const session = useSession();
   const [classes, setClasses] = useState<MyClass[]>();
@@ -48,7 +50,7 @@ export function ClassesScreen({
     <div className="min-h-screen">
       <ApplicationHeader title="Ứng dụng giáo viên" />
       <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
-        <CheckInCard />
+        <CheckInCard onOpenLeave={onOpenLeave} />
         <h1 className="text-page-title font-bold text-text">Lớp của tôi</h1>
         {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
         {gateUnitIds.length > 0 ? (
