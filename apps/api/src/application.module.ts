@@ -29,6 +29,11 @@ import { HealthAccess } from './health/health-access.js';
 import { HealthCareController, HealthCareService } from './health/health-care.js';
 import { HealthRecordsController, HealthRecordsService } from './health/health-records.js';
 import { healthTransitionStep } from './health/health-transition.js';
+import { AssetsController, AssetsService } from './inventory/assets.js';
+import { InventoryAccess } from './inventory/inventory-common.js';
+import { inventoryTransitionStep } from './inventory/inventory-transition.js';
+import { PurchasingController, PurchasingService } from './inventory/purchasing.js';
+import { StockController, StockService } from './inventory/stock.js';
 import { CashflowCategoriesController, CashflowCategoriesService } from './fees/cashflow-categories.js';
 import { DiscountTypesController, DiscountTypesService } from './fees/discount-types.js';
 import { FeeSchedulesController, FeeSchedulesService } from './fees/fee-schedules.js';
@@ -135,6 +140,9 @@ export class ApplicationModule {
         WorkSchedulesController,
         HealthRecordsController,
         HealthCareController,
+        AssetsController,
+        StockController,
+        PurchasingController,
         FilesController,
         ImportsController,
         AttendanceController,
@@ -185,6 +193,7 @@ export class ApplicationModule {
             childrenTransitionStep,
             financeTransitionStep,
             healthTransitionStep,
+            inventoryTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -210,6 +219,10 @@ export class ApplicationModule {
         HealthAccess,
         HealthRecordsService,
         HealthCareService,
+        InventoryAccess,
+        AssetsService,
+        StockService,
+        PurchasingService,
         ChildDataProtection,
         FilesService,
         ImportsService,

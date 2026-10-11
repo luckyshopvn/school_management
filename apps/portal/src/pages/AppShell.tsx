@@ -39,6 +39,8 @@ type NavigationPath =
   | '/school-days'
   | '/work-schedules'
   | '/health'
+  | '/inventory'
+  | '/purchase-requests'
   | '/leave-requests'
   | '/leave-policies'
   | '/payrolls'
@@ -94,6 +96,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canViewPayroll = useHasPermission(PERMISSION_CODES.payrollView);
   const canManageHealth = useHasPermission(PERMISSION_CODES.healthManage);
   const canRecordMedicalEvents = useHasPermission(PERMISSION_CODES.medicalEventRecord);
+  const canManageAssets = useHasPermission(PERMISSION_CODES.assetManage);
+  const canCreatePurchaseRequests = useHasPermission(PERMISSION_CODES.purchaseRequestCreate);
+  const canApprovePurchaseRequests = useHasPermission(PERMISSION_CODES.purchaseRequestApprove);
+  const canManagePurchaseOrders = useHasPermission(PERMISSION_CODES.purchaseOrderManage);
+  const canApproveStocktakes = useHasPermission(PERMISSION_CODES.stocktakeApprove);
+  const canSeeInventory =
+    canManageAssets || canManagePurchaseOrders || canApproveStocktakes || canApprovePurchaseRequests;
+  const canSeePurchaseRequests = canCreatePurchaseRequests || canApprovePurchaseRequests;
   const canManageApiClients = useHasPermission(PERMISSION_CODES.apiClientManage);
   const canManagePayItems = useHasPermission(PERMISSION_CODES.payItemTypeManage);
   const canImport = canImportChildren || canManageChildren || canImportOpeningDebts || canImportStaff;
@@ -145,6 +155,15 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span className="px-3 text-label font-semibold text-text-muted">Y TẾ</span>
             <ul className="flex flex-col gap-1">
               <NavItem to="/health" label="Y tế học đường" />
+            </ul>
+          </>
+        ) : null}
+        {canSeeInventory || canSeePurchaseRequests ? (
+          <>
+            <span className="px-3 text-label font-semibold text-text-muted">KHO VÀ MUA HÀNG</span>
+            <ul className="flex flex-col gap-1">
+              {canSeeInventory ? <NavItem to="/inventory" label="Kho và tài sản" /> : null}
+              {canSeePurchaseRequests ? <NavItem to="/purchase-requests" label="Đề nghị mua hàng" /> : null}
             </ul>
           </>
         ) : null}
