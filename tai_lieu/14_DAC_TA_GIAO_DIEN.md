@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.27
+- Phiên bản: 1.28
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -47,7 +47,7 @@ flowchart TD
 | Mã | Màn hình | Vai trò chính |
 |---|---|---|
 | MH-01 | Bảng điều khiển trên trang chủ: số trẻ, lớp, nhân sự, học phí tháng, công nợ, tỷ lệ đi học; sinh nhật trẻ trong tháng (YCTD-62) | VT-02, VT-15, VT-03; sinh nhật cho cả giáo viên |
-| MH-02 | Danh sách trẻ và hồ sơ trẻ | VT-03, VT-04, VT-12 |
+| MH-02 | Danh sách trẻ và hồ sơ trẻ; chi tiết trẻ có lịch sử đồng ý hình ảnh, ghi nhận giấy ký tay, cờ trẻ con nhân viên, chuyển đơn vị, thôi học (YCTD-67) | VT-03, VT-04, VT-12 |
 | MH-03 | Danh sách lớp, phân công giáo viên và phân lớp (YCTD-44) | VT-03 |
 | MH-04 | Biểu phí và danh mục dịch vụ: dịch vụ, biểu phí theo phiên bản, loại miễn giảm (YCTD-49) | VT-04, VT-02 |
 | MH-05 | Đăng ký dịch vụ theo kỳ: bảng trẻ nhân dịch vụ, đăng ký học hè, chốt danh sách; duyệt đăng ký trễ và hủy trễ (YCTD-50) | VT-04, VT-15, VT-02 |
@@ -128,7 +128,7 @@ flowchart TD
 
 | Mã | Màn hình | Vai trò chính |
 |---|---|---|
-| MP-01 | Trang của con | VT-14 |
+| MP-01 | Trang của con; mục hình ảnh để đồng ý hoặc rút đồng ý sử dụng hình ảnh, xem lịch sử (YCTD-67) | VT-14 |
 | MP-02 | Điểm danh của con | VT-14 |
 | MP-03 | Nhật ký của con theo tháng, chỉ nhật ký đã công bố (YCTD-65) | VT-14 |
 | MP-04 | Thời khóa biểu và lịch hoạt động lớp | VT-14 |

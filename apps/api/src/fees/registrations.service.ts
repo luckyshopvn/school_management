@@ -56,15 +56,35 @@ export class ServiceRegistrationsService {
     await this.assertCanView(currentUser, orgUnitId);
     const { database } = await this.currentSchoolYear.require();
     const state = await this.periods.state(database, orgUnitId, period);
+    const { from } = periodRange(period);
+    // Trẻ thôi học trong kỳ vẫn có dòng đăng ký của kỳ đó để tính đến ngày thôi học (YCTD-67)
     const children = await database
       .selectFrom('children')
       .innerJoin('class_enrollments', (join) =>
-        join.onRef('class_enrollments.child_id', '=', 'children.id').on('class_enrollments.is_current', '=', true),
+        join
+          .onRef('class_enrollments.child_id', '=', 'children.id')
+          .on((expression) =>
+            expression.or([
+              expression('class_enrollments.is_current', '=', true),
+              expression.and([
+                expression('children.status', '=', 'withdrawn'),
+                expression('class_enrollments.to_date', '=', expression.ref('children.leave_date')),
+              ]),
+            ]),
+          ),
       )
       .innerJoin('classes', 'classes.id', 'class_enrollments.class_id')
       .select(['children.id', 'children.full_name', 'children.org_unit_id', 'classes.name as class_name'])
       .where('children.org_unit_id', '=', orgUnitId)
-      .where('children.status', '=', 'active')
+      .where((expression) =>
+        expression.or([
+          expression('children.status', '=', 'active'),
+          expression.and([
+            expression('children.status', '=', 'withdrawn'),
+            expression('children.leave_date', '>=', from),
+          ]),
+        ]),
+      )
       .orderBy('classes.name')
       .orderBy('children.full_name')
       .execute();

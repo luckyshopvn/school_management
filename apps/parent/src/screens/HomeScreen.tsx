@@ -5,6 +5,7 @@ import { useSession } from '../session/session.js';
 import { AuthorizedPickupsPanel, PickupConfirmations } from './PickupSections.js';
 import { InvoicesPanel } from './InvoicesPanel.js';
 import { JournalPanel } from './JournalPanel.js';
+import { PhotoConsentPanel } from './PhotoConsentPanel.js';
 import { NotificationsPanel } from './NotificationsPanel.js';
 import { ServicesPanel } from './ServicesPanel.js';
 
@@ -83,9 +84,9 @@ function AbsenceForm({ child, onDone }: { child: Child; onDone(message: string):
 }
 
 function ChildCard({ child, onMessage }: { child: Child; onMessage(message: string): void }) {
-  const [view, setView] = useState<'none' | 'absence' | 'attendance' | 'journal' | 'pickups' | 'services' | 'invoices'>(
-    'none',
-  );
+  const [view, setView] = useState<
+    'none' | 'absence' | 'attendance' | 'journal' | 'pickups' | 'services' | 'invoices' | 'consent'
+  >('none');
   const [attendance, setAttendance] = useState<MonthAttendance>();
   const [errorMessage, setErrorMessage] = useState<string>();
   const month = vietnamToday().slice(0, 7);
@@ -118,8 +119,10 @@ function ChildCard({ child, onMessage }: { child: Child; onMessage(message: stri
         <Button onClick={() => setView(view === 'pickups' ? 'none' : 'pickups')}>Người đón</Button>
         <Button onClick={() => setView(view === 'services' ? 'none' : 'services')}>Dịch vụ</Button>
         <Button onClick={() => setView(view === 'invoices' ? 'none' : 'invoices')}>Học phí</Button>
+        <Button onClick={() => setView(view === 'consent' ? 'none' : 'consent')}>Hình ảnh</Button>
       </div>
       {view === 'journal' ? <JournalPanel child={child} /> : null}
+      {view === 'consent' ? <PhotoConsentPanel child={child} /> : null}
       {view === 'pickups' ? <AuthorizedPickupsPanel child={child} /> : null}
       {view === 'services' ? <ServicesPanel child={child} /> : null}
       {view === 'invoices' ? <InvoicesPanel child={child} /> : null}

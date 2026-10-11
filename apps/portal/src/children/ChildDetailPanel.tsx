@@ -6,6 +6,7 @@ import { listClasses } from '../classes/classes-api.js';
 import { ApiError, fetchWithSession } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import { AuthorizedPickupsSection } from './AuthorizedPickupsSection.js';
+import { ChildLifecycleSection } from './ChildLifecycleSection.js';
 import {
   approveChild,
   CHILD_STATUS_LABELS,
@@ -335,6 +336,10 @@ export function ChildDetailPanel({ childId, onChanged }: { childId: string; onCh
             onPick={(classId) => transfer.mutate({ classId, confirm: false })}
           />
         </div>
+      ) : null}
+
+      {canApprove && ['active', 'paused', 'withdrawn'].includes(data.status) ? (
+        <ChildLifecycleSection key={data.status + data.org_unit_id} child={data} onChanged={onChanged} />
       ) : null}
 
       {data.status === 'active' ? <AuthorizedPickupsSection childId={data.id} childName={data.full_name} /> : null}

@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.30
+- Phiên bản: 1.31
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -43,9 +43,9 @@
 | P02-04 | Người được ủy quyền đón trẻ (G1) | VT-14, VT-02, VT-15, VT-03 | Họ tên, quan hệ, số điện thoại, hiệu lực từ ngày đến ngày | Khai báo và hủy ủy quyền; phụ huynh khai báo cho con mình (YCTD-48) | Danh sách người được ủy quyền | BR-11 |
 | P02-05 | Lớp học (G1) | VT-03 | Tên lớp, khối, đơn vị, năm học, một hoặc nhiều giáo viên chủ nhiệm và giáo viên bộ môn chọn theo tài khoản (YCTD-44), sĩ số tối đa | Tạo, sửa, đóng lớp, phân công giáo viên | Danh sách lớp | BR-02, BR-04 |
 | P02-06 | Phân lớp và chuyển lớp (G1) | VT-03 | Trẻ, lớp đích, ngày hiệu lực, lý do | Ghi thêm lịch sử lớp của trẻ | Lịch sử lớp của trẻ | BR-03 |
-| P02-07 | Chuyển đơn vị (G1) | VT-03, VT-02 | Trẻ, đơn vị đích, ngày hiệu lực | Kiểm tra công nợ, ghi lịch sử | Hồ sơ trẻ ở đơn vị mới | LP-02, BR-32 |
-| P02-08 | Thôi học và quyết toán (G1) | VT-03, VT-04, VT-02 | Trẻ, ngày thôi học, lý do, kết quả quyết toán | Đổi trạng thái, chốt công nợ, thu hồi tài sản; khoản thu vượt được bù trừ hoặc hoàn tiền theo quyết định của Hiệu trưởng, phiếu chi hoàn tiền do Hiệu trưởng phê duyệt | Trẻ ở trạng thái thôi học | LP-03, BR-10, BR-24 |
-| P02-09 | Cờ trẻ con nhân viên và đồng ý sử dụng hình ảnh (G1) | VT-03, VT-14 | Trẻ, nhân sự liên quan; đồng ý hoặc rút đồng ý hình ảnh, cách đồng ý, bản chụp giấy ký tay | Phụ huynh đồng ý hoặc rút đồng ý trên ứng dụng; nhà trường ghi nhận giấy ký tay; lưu người và thời điểm | Cờ và lịch sử đồng ý trên hồ sơ trẻ | BR-09, BR-65 |
+| P02-07 | Chuyển đơn vị (G1) | VT-03, VT-02 | Trẻ, đơn vị đích, ngày hiệu lực | Kiểm tra công nợ, ghi lịch sử (YCTD-67) | Hồ sơ trẻ ở đơn vị mới | LP-02, BR-32 |
+| P02-08 | Thôi học và quyết toán (G1) | VT-03, VT-04, VT-02 | Trẻ, ngày thôi học, lý do, kết quả quyết toán | Đổi trạng thái, chốt công nợ, thu hồi tài sản; khoản thu vượt được bù trừ hoặc hoàn tiền theo quyết định của Hiệu trưởng, phiếu chi hoàn tiền do Hiệu trưởng phê duyệt (YCTD-67) | Trẻ ở trạng thái thôi học | LP-03, BR-10, BR-24 |
+| P02-09 | Cờ trẻ con nhân viên và đồng ý sử dụng hình ảnh (G1) | VT-03, VT-14 | Trẻ, nhân sự liên quan; đồng ý hoặc rút đồng ý hình ảnh, cách đồng ý, bản chụp giấy ký tay | Phụ huynh đồng ý hoặc rút đồng ý trên ứng dụng; nhà trường ghi nhận giấy ký tay; lưu người và thời điểm (YCTD-67) | Cờ và lịch sử đồng ý trên hồ sơ trẻ | BR-09, BR-65 |
 | P02-10 | Danh sách trẻ theo lớp của giáo viên (G1) | VT-07, VT-08 | Lớp được phân công | Truy vấn giới hạn theo phân công | Danh sách trẻ trong lớp | BR-72 |
 | P02-11 | Đồ bị mất của trẻ (G2) | VT-14, VT-07, VT-03 | Trẻ, mô tả đồ, ngày phát hiện, hình ảnh | Phụ huynh báo mất đồ hoặc giáo viên ghi nhận đồ nhặt được; đối chiếu, xác nhận đã trả hoặc không tìm thấy | Phiếu đồ bị mất ở trạng thái đã báo, đã tìm thấy, đã trả hoặc không tìm thấy | BR-72, BR-75 |
 | P02-12 | Nhập mã định danh ngành từ tệp (G1) | VT-12, VT-03 | Tệp theo mẫu của hệ thống gồm số định danh cá nhân, mã định danh ngành, họ tên, chép từ tệp xuất của cơ sở dữ liệu ngành (YCTD-46) | Đối chiếu theo số định danh cá nhân, gán mã ngành, báo dòng không khớp hoặc trùng; kết nối tự động để giai đoạn 3 (G3-09) | Mã ngành trên hồ sơ trẻ | BR-07 |

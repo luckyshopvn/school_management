@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.41
+- Phiên bản: 1.42
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -95,6 +95,13 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | GET, PATCH | /api/v1/academic-years/{id}/weeks | Danh sách tuần; đánh dấu hoặc bỏ đánh dấu tuần nghỉ |
 | POST | /api/v1/academic-years/{id}/open | Mở năm học: kiểm tra BR-89, tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung, chuyển năm đang dùng sang đã đóng và chỉ đọc (BR-93) |
 | POST | /api/v1/academic-years/{id}/close | Bỏ ngày 09/10/2026: gộp vào mở năm học mới (YCTD-37) |
+
+Giao kèo của chuyển đơn vị, thôi học, đồng ý hình ảnh (DT-09 phần 9b, YCTD-67):
+
+1. `POST /children/{id}/transfer-unit` nhận `class_id`, `reason`, `effective_date` (trống là hôm nay), `confirm_over_capacity`; còn số phải nộp trả mã LP-02 kèm `outstanding_amount`; trả `from_org_unit_id`, `to_org_unit_id`, `from_class_id`, `to_class_id`, `effective_date`.
+2. `POST /children/{id}/withdraw` nhận `reason`, `leave_date` (trống là hôm nay); trả `status`, `leave_date`, `outstanding_amount`, `credit_amount`.
+3. `POST /children/{id}/photo-consent` nhận `action` (`grant`, `withdraw`) và `file_id` khi nhà trường ghi nhận giấy ký tay; trả `photo_consent`, `photo_consent_method`, `history`.
+4. `PUT /children/{id}/staff-child` nhận `is_staff_child`, `related_staff_user_id`, `related_staff_role_code`.
 
 Giao kèo của nhật ký của bé (DT-08 phần 8b, YCTD-65):
 
@@ -352,7 +359,9 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | POST | /api/v1/children | Tạo hồ sơ trẻ |
 | GET | /api/v1/children/{id} | Chi tiết hồ sơ trẻ |
 | GET | /api/v1/children/{id}/national-id | Xem đầy đủ số định danh cá nhân; chỉ VT-02, VT-15, VT-03, VT-12; ghi nhật ký truy cập |
+| GET | /api/v1/children/{id}/photo-consent | Trạng thái và lịch sử đồng ý hình ảnh (YCTD-67) |
 | POST | /api/v1/children/{id}/photo-consent | Phụ huynh đồng ý hoặc rút đồng ý; nhà trường ghi nhận giấy ký tay |
+| PUT | /api/v1/children/{id}/staff-child | Gắn hoặc bỏ cờ trẻ con nhân viên (YCTD-67) |
 | PATCH | /api/v1/children/{id} | Cập nhật hồ sơ trẻ |
 | POST | /api/v1/children/{id}/submit | Gửi trình duyệt hồ sơ |
 | POST | /api/v1/children/{id}/approve | Duyệt hồ sơ và phân lớp |
