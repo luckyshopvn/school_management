@@ -14,6 +14,28 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-08 phần 8b: nhật ký của bé
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 34 (phần 8a); viết phần 8b trên nhánh `dt-08-phan-8b`.
+- Cơ sở dữ liệu: năm học có `daily_journals`, `journal_amendments` (tệp 0025).
+- Máy chủ API: nhật ký của lớp theo ngày, lưu nhật ký từng trẻ, công bố cả lớp kèm cảnh báo, nhật ký của trẻ theo tháng, lịch sử sửa.
+- Ứng dụng giáo viên: màn hình nhật ký của lớp (MG-03). Ứng dụng phụ huynh: nhật ký của con (MP-03).
+- Kết quả: máy chủ API 327/327, kiểm thử giao diện 45/45. Hoàn thành đợt DT-08.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-65 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-65 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.30.3.
+
+#### Vấn đề tồn đọng
+
+- Đợt DT-09: kiểm thử toàn bộ giai đoạn 1, nghiệm thu, phát hành 1.0.0.
+
 ### 2026-10-11 — DT-08 phần 8a: trung tâm thông báo và mẫu thông báo
 
 #### Công việc đã thực hiện

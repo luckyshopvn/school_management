@@ -61,6 +61,7 @@ export type {
   PayslipSection,
   TaxBracket,
   SettlementLine,
+  JournalMood,
   SchoolYearDatabase,
   ServiceCalculationMethod,
 } from '../school-year/schema.js';

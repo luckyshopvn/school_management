@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.26
+- Phiên bản: 1.27
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -108,7 +108,7 @@ flowchart TD
 |---|---|---|
 | MG-01 | Lớp của tôi hôm nay | VT-07 |
 | MG-02 | Bảng điểm danh của lớp | VT-07 |
-| MG-03 | Nhật ký của bé theo ngày | VT-07 |
+| MG-03 | Nhật ký của bé theo ngày: ghi ăn, ngủ, vệ sinh, tâm trạng, hoạt động cho từng trẻ, công bố cả lớp (YCTD-65) | VT-07 chủ nhiệm |
 | MG-04 | Đón trả trẻ: chọn người đón, ảnh bàn giao tùy chọn, trạng thái chờ phụ huynh xác nhận (YCTD-48) | VT-07 |
 | MG-05 | Giáo án, bài học, thời khóa biểu | VT-07, VT-08 |
 | MG-06 | Tiến độ và kế hoạch giảng dạy | VT-07 |
@@ -130,7 +130,7 @@ flowchart TD
 |---|---|---|
 | MP-01 | Trang của con | VT-14 |
 | MP-02 | Điểm danh của con | VT-14 |
-| MP-03 | Nhật ký của con | VT-14 |
+| MP-03 | Nhật ký của con theo tháng, chỉ nhật ký đã công bố (YCTD-65) | VT-14 |
 | MP-04 | Thời khóa biểu và lịch hoạt động lớp | VT-14 |
 | MP-05 | Tiến độ học tập | VT-14 |
 | MP-06 | Báo vắng | VT-14 |

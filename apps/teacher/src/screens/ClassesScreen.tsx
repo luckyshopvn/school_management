@@ -16,12 +16,14 @@ export interface MyClass {
 export function ClassesScreen({
   onOpen,
   onOpenPickup,
+  onOpenJournal,
   onOpenGate,
   onOpenLeave,
   onOpenPayslips,
 }: {
   onOpen(myClass: MyClass): void;
   onOpenPickup(myClass: MyClass): void;
+  onOpenJournal(myClass: MyClass): void;
   onOpenGate(orgUnitIds: string[]): void;
   onOpenLeave(): void;
   onOpenPayslips(): void;
@@ -78,6 +80,9 @@ export function ClassesScreen({
               </button>
               <Button aria-label={`Đón trả lớp ${myClass.name}`} onClick={() => onOpenPickup(myClass)}>
                 Đón trả
+              </Button>
+              <Button aria-label={`Nhật ký lớp ${myClass.name}`} onClick={() => onOpenJournal(myClass)}>
+                Nhật ký
               </Button>
             </li>
           ))}

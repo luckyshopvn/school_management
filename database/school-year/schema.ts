@@ -1092,6 +1092,36 @@ export interface NotificationTemplatesTable {
   updated_by: string | null;
   updated_at: UpdatedTimestamp;
 }
+
+export type JournalMood = 'happy' | 'normal' | 'tired' | 'sad' | 'unwell';
+
+export interface DailyJournalsTable {
+  id: Generated<string>;
+  child_id: string;
+  class_id: string;
+  journal_date: string;
+  meal_note: string | null;
+  sleep_note: string | null;
+  hygiene_note: string | null;
+  mood: JournalMood | null;
+  activity_note: string | null;
+  status: Generated<'draft' | 'published'>;
+  published_at: Date | null;
+  published_by: string | null;
+  updated_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface JournalAmendmentsTable {
+  id: Generated<string>;
+  journal_id: string;
+  reason: string;
+  before_data: ColumnType<unknown, string, string>;
+  after_data: ColumnType<unknown, string, string>;
+  amended_by: string;
+  amended_at: CreatedTimestamp;
+}
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -1167,4 +1197,6 @@ export interface SchoolYearDatabase {
   payroll_adjustments: PayrollAdjustmentsTable;
   notification_reads: NotificationReadsTable;
   notification_templates: NotificationTemplatesTable;
+  daily_journals: DailyJournalsTable;
+  journal_amendments: JournalAmendmentsTable;
 }

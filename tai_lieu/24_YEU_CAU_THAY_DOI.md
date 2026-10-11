@@ -11,6 +11,24 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-65: Nhật ký của bé trên ứng dụng giáo viên và ứng dụng phụ huynh – 2026-10-11
+
+- Lý do: phần 8b theo cách chia ở YCTD-64. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Nhật ký mỗi trẻ mỗi ngày gồm ăn, ngủ, vệ sinh, tâm trạng (vui vẻ, bình thường, mệt, buồn, không khỏe), hoạt động; phải có ít nhất một nội dung; không ghi trước cho ngày chưa tới. Chỉ giáo viên chủ nhiệm đang phụ trách lớp của trẻ ghi; giáo viên bộ môn, giáo viên lớp khác, quản lý đơn vị không ghi (BR-16). Quản lý có quyền điểm danh trong phạm vi xem được nhật ký của lớp.
+  - Nhật ký lưu nháp, phụ huynh chưa thấy; giáo viên chủ nhiệm công bố cả lớp theo ngày; còn trẻ chưa có nội dung thì máy chủ trả cảnh báo kèm danh sách, gửi lại kèm xác nhận mới công bố (QT-09 E4). Công bố thì phụ huynh của từng trẻ nhận thông báo trong ứng dụng.
+  - Sửa nhật ký đã công bố phải ghi lý do; trước và sau lưu ở `journal_amendments`; nhật ký vẫn ở trạng thái đã công bố.
+  - Phụ huynh xem nhật ký đã công bố của con theo tháng (BR-15); người không phải phụ huynh, không phụ trách lớp bị từ chối.
+  - Không thêm mã quyền: quyền ghi theo phân công chủ nhiệm, quyền xem của quản lý theo `P04.attendance.manage`.
+- Thành phần bị ảnh hưởng: `10`, `14`, `16`, `17`, `27_BO_CA_KIEM_THU_CHI_TIET/02_P02_VA_P04.md`, `01`, `03`, `index.md`; máy chủ API, ứng dụng giáo viên, ứng dụng phụ huynh.
+- Dữ liệu bị ảnh hưởng: bảng mới `daily_journals`, `journal_amendments`.
+- API bị ảnh hưởng: `GET /classes/{id}/journals`, `PUT /children/{id}/journals/{date}`, `POST /classes/{id}/journals/publish`, `GET /children/{id}/journals`.
+- Giao diện bị ảnh hưởng: MG-03 Nhật ký của bé, MP-03 Nhật ký của con.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: CTC-P04-032 đến 038.
+- Trạng thái: Đã triển khai
+
 ### YCTD-64: DT-08 chia hai; trung tâm thông báo và mẫu thông báo – 2026-10-11
 
 - Lý do: thiết kế đợt DT-08. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
@@ -28,7 +46,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: thêm hai mã quyền P19 ở trên.
 - Ảnh hưởng chức năng cũ: không.
 - Kiểm thử cần thực hiện: kiểm thử tự động của trung tâm thông báo và mẫu thông báo.
-- Trạng thái: Đã triển khai phần 8a
+- Trạng thái: Đã triển khai
 
 ### YCTD-63: Khóa API cho đối tác chỉ đọc – 2026-10-11
 
