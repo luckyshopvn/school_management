@@ -39,6 +39,7 @@ type NavigationPath =
   | '/school-days'
   | '/work-schedules'
   | '/health'
+  | '/kitchen'
   | '/leave-requests'
   | '/leave-policies'
   | '/payrolls'
@@ -94,6 +95,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canViewPayroll = useHasPermission(PERMISSION_CODES.payrollView);
   const canManageHealth = useHasPermission(PERMISSION_CODES.healthManage);
   const canRecordMedicalEvents = useHasPermission(PERMISSION_CODES.medicalEventRecord);
+  const canManageKitchen = useHasPermission(PERMISSION_CODES.kitchenManage);
+  const canApproveMenus = useHasPermission(PERMISSION_CODES.menuApprove);
+  const canViewKitchenReport = useHasPermission(PERMISSION_CODES.kitchenReport);
   const canManageApiClients = useHasPermission(PERMISSION_CODES.apiClientManage);
   const canManagePayItems = useHasPermission(PERMISSION_CODES.payItemTypeManage);
   const canImport = canImportChildren || canManageChildren || canImportOpeningDebts || canImportStaff;
@@ -145,6 +149,14 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span className="px-3 text-label font-semibold text-text-muted">Y TẾ</span>
             <ul className="flex flex-col gap-1">
               <NavItem to="/health" label="Y tế học đường" />
+            </ul>
+          </>
+        ) : null}
+        {canManageKitchen || canApproveMenus || canViewKitchenReport ? (
+          <>
+            <span className="px-3 text-label font-semibold text-text-muted">BẾP</span>
+            <ul className="flex flex-col gap-1">
+              <NavItem to="/kitchen" label="Bếp và thực đơn" />
             </ul>
           </>
         ) : null}

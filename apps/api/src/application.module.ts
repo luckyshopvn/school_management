@@ -29,6 +29,12 @@ import { HealthAccess } from './health/health-access.js';
 import { HealthCareController, HealthCareService } from './health/health-care.js';
 import { HealthRecordsController, HealthRecordsService } from './health/health-records.js';
 import { healthTransitionStep } from './health/health-transition.js';
+import { KitchenAccess } from './kitchen/kitchen-access.js';
+import { KitchenCatalogsController, KitchenCatalogsService } from './kitchen/kitchen-catalogs.js';
+import { KitchenMealsController, KitchenMealsService } from './kitchen/kitchen-meals.js';
+import { KitchenMenusController, KitchenMenusService } from './kitchen/kitchen-menus.js';
+import { KitchenPurchasesController, KitchenPurchasesService } from './kitchen/kitchen-purchases.js';
+import { kitchenTransitionStep } from './kitchen/kitchen-transition.js';
 import { CashflowCategoriesController, CashflowCategoriesService } from './fees/cashflow-categories.js';
 import { DiscountTypesController, DiscountTypesService } from './fees/discount-types.js';
 import { FeeSchedulesController, FeeSchedulesService } from './fees/fee-schedules.js';
@@ -135,6 +141,10 @@ export class ApplicationModule {
         WorkSchedulesController,
         HealthRecordsController,
         HealthCareController,
+        KitchenCatalogsController,
+        KitchenMenusController,
+        KitchenMealsController,
+        KitchenPurchasesController,
         FilesController,
         ImportsController,
         AttendanceController,
@@ -185,6 +195,7 @@ export class ApplicationModule {
             childrenTransitionStep,
             financeTransitionStep,
             healthTransitionStep,
+            kitchenTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -210,6 +221,11 @@ export class ApplicationModule {
         HealthAccess,
         HealthRecordsService,
         HealthCareService,
+        KitchenAccess,
+        KitchenCatalogsService,
+        KitchenMealsService,
+        KitchenMenusService,
+        KitchenPurchasesService,
         ChildDataProtection,
         FilesService,
         ImportsService,
