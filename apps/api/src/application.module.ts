@@ -29,6 +29,11 @@ import { HealthAccess } from './health/health-access.js';
 import { HealthCareController, HealthCareService } from './health/health-care.js';
 import { HealthRecordsController, HealthRecordsService } from './health/health-records.js';
 import { healthTransitionStep } from './health/health-transition.js';
+import { MedicationAccess } from './medicines/medication-access.js';
+import { MedicationRequestsController, MedicationRequestsService } from './medicines/medication-requests.js';
+import { MedicineCatalogController, MedicineCatalogService } from './medicines/medicine-catalog.js';
+import { MedicinePurchasesController, MedicinePurchasesService } from './medicines/medicine-purchases.js';
+import { medicinesTransitionStep } from './medicines/medicines-transition.js';
 import { CashflowCategoriesController, CashflowCategoriesService } from './fees/cashflow-categories.js';
 import { DiscountTypesController, DiscountTypesService } from './fees/discount-types.js';
 import { FeeSchedulesController, FeeSchedulesService } from './fees/fee-schedules.js';
@@ -135,6 +140,9 @@ export class ApplicationModule {
         WorkSchedulesController,
         HealthRecordsController,
         HealthCareController,
+        MedicineCatalogController,
+        MedicationRequestsController,
+        MedicinePurchasesController,
         FilesController,
         ImportsController,
         AttendanceController,
@@ -185,6 +193,7 @@ export class ApplicationModule {
             childrenTransitionStep,
             financeTransitionStep,
             healthTransitionStep,
+            medicinesTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -210,6 +219,10 @@ export class ApplicationModule {
         HealthAccess,
         HealthRecordsService,
         HealthCareService,
+        MedicationAccess,
+        MedicineCatalogService,
+        MedicationRequestsService,
+        MedicinePurchasesService,
         ChildDataProtection,
         FilesService,
         ImportsService,

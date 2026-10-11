@@ -136,7 +136,14 @@ export interface ClassStaffAssignmentsTable extends CatalogRecordColumns {
   status: Generated<AssignmentStatus>;
 }
 
-export type FilePurpose = 'birth_certificate' | 'photo_consent' | 'import' | 'pickup_photo' | 'payment_voucher';
+export type FilePurpose =
+  | 'birth_certificate'
+  | 'photo_consent'
+  | 'import'
+  | 'pickup_photo'
+  | 'payment_voucher'
+  | 'medicine_photo'
+  | 'prescription';
 
 export interface FilesTable extends CatalogRecordColumns {
   org_unit_id: string | null;
@@ -1271,6 +1278,135 @@ export interface HealthReportRequestsTable {
   sent_at: Date | null;
 }
 
+// Thuốc: danh mục, nhà thuốc, dặn thuốc, cho uống thuốc, đề nghị mua, phiếu mua, phiếu cấp (P10-02 đến P10-05, P10-09;
+// YCTD-75)
+export type MedicationRequestStatus = 'pending' | 'administering' | 'completed' | 'rejected';
+export type MedicationAssignedRole = 'nurse' | 'homeroom';
+export type MedicinePurchaseRequestStatus = 'pending' | 'approved' | 'rejected' | 'ordered';
+
+export interface PharmaciesTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  name: string;
+  phone: string | null;
+  address: string | null;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface MedicinesTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  code: string;
+  name: string;
+  active_ingredient: string | null;
+  unit: string;
+  pharmacy_id: string | null;
+  stock_qty: Generated<number>;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface MedicationRequestsTable {
+  id: Generated<string>;
+  child_id: string;
+  org_unit_id: string;
+  class_id: string | null;
+  requested_by: string;
+  medicine_name: string;
+  dosage: string;
+  times: string[];
+  from_date: string;
+  to_date: string;
+  allergy_note: string;
+  note: string | null;
+  medicine_photo_ids: string[];
+  prescription_photo_id: string | null;
+  assigned_role: MedicationAssignedRole;
+  status: Generated<MedicationRequestStatus>;
+  received_quantity: string | null;
+  received_note: string | null;
+  received_by: string | null;
+  received_at: Date | null;
+  reject_reason: string | null;
+  rejected_by: string | null;
+  rejected_at: Date | null;
+  completed_at: Date | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface MedicationAdministrationsTable {
+  id: Generated<string>;
+  request_id: string;
+  scheduled_date: string;
+  scheduled_time: string;
+  administered_at: Date | null;
+  administered_by: string;
+  dose_note: string | null;
+  is_skipped: Generated<boolean>;
+  skip_reason: string | null;
+  parent_acknowledged_at: Date | null;
+  parent_acknowledged_by: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface MedicinePurchaseRequestsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  medicine_id: string;
+  quantity: number;
+  estimated_unit_price: Decimal;
+  estimated_amount: Decimal;
+  reason: string;
+  status: Generated<MedicinePurchaseRequestStatus>;
+  requires_principal: boolean;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  approved_by: string | null;
+  approved_at: Date | null;
+  reject_reason: string | null;
+}
+
+export interface MedicinePurchaseOrdersTable {
+  id: Generated<string>;
+  code: string;
+  org_unit_id: string;
+  request_id: string;
+  pharmacy_id: string;
+  order_date: string;
+  total_amount: Decimal;
+  status: Generated<'received'>;
+  note: string | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface MedicinePurchaseOrderItemsTable {
+  id: Generated<string>;
+  order_id: string;
+  medicine_id: string;
+  quantity: number;
+  unit_price: Decimal;
+  amount: Decimal;
+  received_qty: number;
+}
+
+export interface MedicineIssuesTable {
+  id: Generated<string>;
+  code: string;
+  org_unit_id: string;
+  medicine_id: string;
+  quantity: number;
+  recipient: string;
+  reason: string;
+  issued_by: string;
+  issued_at: CreatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -1358,4 +1494,12 @@ export interface SchoolYearDatabase {
   medical_events: MedicalEventsTable;
   daily_care_logs: DailyCareLogsTable;
   health_report_requests: HealthReportRequestsTable;
+  pharmacies: PharmaciesTable;
+  medicines: MedicinesTable;
+  medication_requests: MedicationRequestsTable;
+  medication_administrations: MedicationAdministrationsTable;
+  medicine_purchase_requests: MedicinePurchaseRequestsTable;
+  medicine_purchase_orders: MedicinePurchaseOrdersTable;
+  medicine_purchase_order_items: MedicinePurchaseOrderItemsTable;
+  medicine_issues: MedicineIssuesTable;
 }
