@@ -11,6 +11,29 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-60: DT-06 phần 6c chia hai; danh mục lương, biểu thuế, bảng lương toàn trường, phiếu lương – 2026-10-11
+
+- Lý do: thiết kế DT-06 phần 6c; Eric chốt ngày công chuẩn, cách áp phụ cấp và khấu trừ, đơn giá làm thêm, thuế thu nhập cá nhân, phạm vi và người duyệt bảng lương.
+- Nội dung thay đổi:
+  - Phần 6c chia hai: 6c-1 danh mục phụ cấp, thưởng, khấu trừ, biểu thuế, bảng lương trả trước kèm điều chỉnh, duyệt theo hạn mức, phiếu lương; 6c-2 phiếu chi lương, bảng quyết toán khi nghỉ việc, phiếu thu thu hồi lương, bảng điều chỉnh kỳ sau (BR-45).
+  - Ngày công chuẩn của tháng là số ngày làm việc của tháng theo lịch (thứ hai đến thứ sáu theo lịch năm học, cộng học bù, trừ ngày lễ và nghỉ bù), thay cho số cố định 24 trong ví dụ.
+  - Danh mục phụ cấp, thưởng, khấu trừ chung toàn trường do kế toán khai; cách tính: số tiền cố định mỗi tháng, số tiền mỗi ngày đi làm thực tế, phần trăm lương hợp đồng; phụ cấp có thể đánh dấu miễn thuế, khấu trừ có thể đánh dấu bảo hiểm bắt buộc. Thưởng tháng là một phụ cấp cố định. Phòng nhân sự gán khoản cho từng nhân sự, nhập mức riêng nếu khác mức chung, và nhập số người phụ thuộc. Phụ cấp ghi trong hợp đồng tính như khoản cố định.
+  - Phụ cấp theo ngày công chỉ đếm ngày đi làm thực tế trong bảng công đã chốt của tháng trước (nghỉ nửa ngày theo đơn tính 0,5).
+  - Tiền làm thêm giờ theo lương giờ từng người: lương hợp đồng / ngày công chuẩn / giờ làm chuẩn của đơn vị × hệ số làm thêm (cấu hình `overtime_rate_percent` theo đơn vị, phần trăm, không mặc định) × số giờ làm thêm; có giờ làm thêm mà chưa cấu hình thì chặn tính lương.
+  - Thuế thu nhập cá nhân lũy tiến từng phần theo tháng. Biểu thuế có sẵn theo luật hiện hành, Eric xác nhận: giảm trừ bản thân 15 500 000, mỗi người phụ thuộc 6 200 000; bậc đến 10 triệu 5%, trên 10 đến 30 triệu 10%, trên 30 đến 60 triệu 20%, trên 60 đến 100 triệu 30%, trên 100 triệu 35%, hiệu lực 01/07/2026. Kế toán trưởng thêm phiên bản mới có ngày hiệu lực khi luật đổi. Thu nhập tính thuế = tổng thu nhập trên phiếu (lương, phụ cấp, thưởng, làm thêm, điều chỉnh) − phụ cấp miễn thuế − khấu trừ bảo hiểm bắt buộc − giảm trừ gia cảnh, âm thì bằng 0.
+  - Bảng lương toàn trường một bảng mỗi tháng; chặn tính khi còn đơn vị có nhân sự làm việc trong tháng trước chưa chốt công (liệt kê). Phần trả trước cho nhân sự có hợp đồng hiệu lực ngày 1 tháng M và vào làm từ trước tháng M. Phần điều chỉnh theo bảng công tháng M−1: trừ ngày không hưởng lương, hoặc trả phần tháng đầu theo ngày công với nhân sự mới vào làm trong tháng M−1 (Q-155); cộng làm thêm giờ, phụ cấp và khấu trừ theo ngày công. Nhân sự chưa có hợp đồng hoặc đã chấm dứt hợp đồng vào danh sách chưa tính lương kèm lý do.
+  - Kế toán tính lại được khi bảng còn nháp; trình duyệt thì xét hạn mức 'Bảng lương kỳ' của Trường chính: dưới hạn mức Phó Hiệu trưởng gán ở Trường chính duyệt, từ hạn mức hoặc chưa cấu hình thì Hiệu trưởng duyệt; người duyệt trả lại được kèm lý do. Duyệt xong phiếu lương hiện cho từng nhân sự và báo cho họ; bảng đã trình hoặc đã duyệt không tính lại (BR-45).
+  - Người xem bảng lương: kế toán, kế toán trưởng, nhân sự, kiểm toán viên (VT-20), Hiệu trưởng, Phó Hiệu trưởng; mỗi người chỉ thấy phiếu của nhân sự trong phạm vi đơn vị được gán. Quản lý đơn vị, thủ quỹ, giáo viên không xem.
+  - Mã quyền mới: `P08.pay-item-type.manage` cho VT-04; `P08.staff-pay-item.manage` cho VT-06; `P08.tax-table.manage` cho VT-05; `P08.payroll.manage` cho VT-04; `P08.payroll.view` cho VT-02, VT-15, VT-04, VT-05, VT-06, VT-20; `P08.payroll.approve` cho VT-02, VT-15.
+- Thành phần bị ảnh hưởng: `07`, `08`, `10`, `14`, `16`, `17`, `27_BO_CA_KIEM_THU_CHI_TIET/05_P08.md`, `01`, `03`, `index.md`; máy chủ API, cổng quản trị, ứng dụng giáo viên.
+- Dữ liệu bị ảnh hưởng: bảng mới `pay_item_types` (thay cho `allowance_types`, `deduction_types` của thiết kế), `staff_pay_items`, `tax_tables`, `payrolls` (thay cho `payroll_periods`), `payslips`, `payslip_lines`; `staff` thêm `dependents_count`; cấu hình `overtime_rate_percent`.
+- API bị ảnh hưởng: `GET, POST /pay-item-types`, `PUT /pay-item-types/{id}`, `GET, POST /staff/{id}/pay-items`, `DELETE /staff-pay-items/{id}`, `PUT /staff/{id}/dependents`, `GET, POST /tax-tables`, `GET, POST /payrolls`, `GET /payrolls/{id}`, `POST /payrolls/{id}/submit`, `approve`, `return`, `GET /me/payslips`.
+- Giao diện bị ảnh hưởng: MH-15 Bảng lương, MH-53 Danh mục lương và biểu thuế, MH-12 (khoản lương riêng), MH-44 (phiếu lương của tôi), MG-11.
+- Quyền bị ảnh hưởng: thêm sáu mã quyền P08 ở trên.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: CTC-P08-027 đến 038, CTC-P08-044 đến 049, CTC-P08-055, CTC-P08-057, CTC-P08-058; phần 6c-2: CTC-P08-039 đến 042, CTC-P06-034.
+- Trạng thái: Đã triển khai phần 6c-1
+
 ### YCTD-59: DT-06 phần 6b chia hai; ngày lễ, lịch học bù và nghỉ bù, chấm công, loại nghỉ và phép năm – 2026-10-11
 
 - Lý do: thiết kế DT-06 phần 6b; Eric chốt ngày làm việc của nhân sự, lịch thứ bảy, ngày lễ, giờ làm, loại nghỉ, phép năm và đơn nghỉ.

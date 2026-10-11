@@ -76,6 +76,10 @@ import { staffAttendanceTransitionStep } from './staff-attendance/staff-attendan
 import { LeaveController } from './staff-attendance/leave.controller.js';
 import { LeaveService } from './staff-attendance/leave.service.js';
 import { TimesheetsService } from './staff-attendance/timesheets.service.js';
+import { PayItemsController, PayItemsService } from './payroll/pay-items.js';
+import { PayrollController } from './payroll/payroll.controller.js';
+import { PayrollService } from './payroll/payroll.service.js';
+import { payrollTransitionStep } from './payroll/payroll-transition.js';
 import { OrgUnitsController } from './organization/org-units.controller.js';
 import { OrgUnitsService } from './organization/org-units.service.js';
 
@@ -125,6 +129,8 @@ export class ApplicationModule {
         SchoolDaysController,
         StaffAttendanceController,
         LeaveController,
+        PayItemsController,
+        PayrollController,
         CashBooksController,
         ...(options.additionalControllers ?? []),
       ],
@@ -143,6 +149,7 @@ export class ApplicationModule {
             catalogsTransitionStep,
             staffTransitionStep,
             staffAttendanceTransitionStep,
+            payrollTransitionStep,
             feeCatalogsTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
@@ -186,6 +193,8 @@ export class ApplicationModule {
         StaffAttendanceService,
         LeaveService,
         TimesheetsService,
+        PayItemsService,
+        PayrollService,
         {
           provide: PaymentGateway,
           useFactory: () =>

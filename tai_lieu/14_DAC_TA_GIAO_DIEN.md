@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.21
+- Phiên bản: 1.22
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -60,7 +60,7 @@ flowchart TD
 | MH-12 | Hồ sơ nhân sự và hợp đồng: danh sách theo đơn vị, tìm theo tên hoặc mã; thêm hồ sơ; chi tiết có liên kết tài khoản, lập và chấm dứt hợp đồng (YCTD-58) | VT-06, VT-02, VT-15, VT-03, VT-04, VT-05 |
 | MH-13 | Chấm công: bảng chấm công của đơn vị theo tháng, nhập và sửa giờ, chốt bảng công, đề nghị và duyệt mở lại kỳ công; đơn nghỉ của đơn vị (YCTD-59) | VT-06, VT-15, VT-02, VT-03, VT-04, VT-05 |
 | MH-14 | Đơn nghỉ phép | VT-06, VT-03 |
-| MH-15 | Bảng lương và phê duyệt | VT-04, VT-06, VT-15, VT-02 |
+| MH-15 | Bảng lương toàn trường theo tháng: tính, trình, duyệt, trả lại; phiếu từng người kèm căn cứ; danh sách chưa tính lương (YCTD-60) | VT-04, VT-05, VT-06, VT-20, VT-15, VT-02 |
 | MH-16 | Hồ sơ sức khỏe và đợt khám | VT-09 |
 | MH-17 | Yêu cầu dặn thuốc và cho uống thuốc | VT-09 |
 | MH-18 | Thực đơn và định lượng nguyên liệu | VT-10 |
@@ -98,6 +98,7 @@ flowchart TD
 | MH-50 | Danh mục dùng chung: chọn loại, thêm, sửa, ngừng sử dụng mục (YCTD-42) | VT-02 |
 | MH-51 | Điểm danh của lớp theo ngày: xem, chốt thay, sửa sau khi chốt kèm lý do, mở lại (YCTD-47) | VT-03, VT-02, VT-15 |
 | MH-52 | Quy định phép năm theo chức danh và thâm niên; số ngày phép năm của nhân sự trong đơn vị, chỉnh kèm lý do (YCTD-59) | VT-06, VT-02, VT-15, VT-03, VT-04, VT-05 |
+| MH-53 | Danh mục lương và biểu thuế: phụ cấp, thưởng, khấu trừ chung toàn trường; các phiên bản biểu thuế thu nhập cá nhân (YCTD-60) | VT-04, VT-05, người xem bảng lương |
 
 ### 2.2 Ứng dụng giáo viên
 
@@ -113,7 +114,7 @@ flowchart TD
 | MG-08 | Trao đổi với phụ huynh | VT-07 |
 | MG-09 | Yêu cầu dặn thuốc của lớp; nhận thuốc và ghi liều khi đơn vị không có nhân viên y tế; chăm sóc hằng ngày | VT-07 |
 | MG-10 | Chấm công hôm nay, đơn nghỉ phép và số ngày phép của tôi (YCTD-59) | Mọi nhân sự dùng ứng dụng giáo viên |
-| MG-11 | Phiếu lương của tôi | Mọi nhân sự dùng ứng dụng giáo viên |
+| MG-11 | Phiếu lương của tôi: phiếu đã duyệt, từng dòng kèm căn cứ (YCTD-60) | Mọi nhân sự dùng ứng dụng giáo viên |
 | MG-12 | Công việc được giao và kế hoạch | Mọi nhân sự dùng ứng dụng giáo viên |
 | MG-13 | Lịch đưa đón của tuyến — Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62) | — |
 | MG-14 | Suất ăn và báo cơm của lớp | VT-10, VT-07 |

@@ -4,6 +4,7 @@ import { ChangePasswordScreen } from './screens/ChangePasswordScreen.js';
 import { ClassesScreen, type MyClass } from './screens/ClassesScreen.js';
 import { GateCheckScreen } from './screens/GateCheckScreen.js';
 import { LeaveScreen } from './screens/LeaveScreen.js';
+import { PayslipsScreen } from './screens/PayslipsScreen.js';
 import { LoginScreen } from './screens/LoginScreen.js';
 import { PickupScreen } from './screens/PickupScreen.js';
 import { SessionProvider, useSession } from './session/session.js';
@@ -15,6 +16,7 @@ function Screens() {
     | { screen: 'attendance' | 'pickup'; myClass: MyClass }
     | { screen: 'gate'; orgUnitIds: string[] }
     | { screen: 'leave' }
+    | { screen: 'payslips' }
   >();
   const back = () => setOpened(undefined);
   if (session.status === 'checking') {
@@ -32,6 +34,9 @@ function Screens() {
   if (opened?.screen === 'pickup') {
     return <PickupScreen myClass={opened.myClass} onBack={back} />;
   }
+  if (opened?.screen === 'payslips') {
+    return <PayslipsScreen onBack={back} />;
+  }
   if (opened?.screen === 'leave') {
     return <LeaveScreen onBack={back} />;
   }
@@ -44,6 +49,7 @@ function Screens() {
       onOpenPickup={(myClass) => setOpened({ screen: 'pickup', myClass })}
       onOpenGate={(orgUnitIds) => setOpened({ screen: 'gate', orgUnitIds })}
       onOpenLeave={() => setOpened({ screen: 'leave' })}
+      onOpenPayslips={() => setOpened({ screen: 'payslips' })}
     />
   );
 }

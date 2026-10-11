@@ -779,6 +779,7 @@ export interface StaffTable {
   end_date: string | null;
   status: Generated<'active' | 'terminated'>;
   user_id: string | null;
+  dependents_count: Generated<number>;
   created_by: string | null;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
@@ -932,6 +933,102 @@ export interface TimesheetReopenRequestsTable {
   decided_at: Date | null;
   reject_reason: string | null;
 }
+
+export type PayItemKind = 'allowance' | 'deduction';
+export type PayCalculationMethod = 'fixed_monthly' | 'per_workday' | 'percent_of_base';
+
+export interface PayItemTypesTable {
+  id: Generated<string>;
+  kind: PayItemKind;
+  code: string;
+  name: string;
+  calculation_method: PayCalculationMethod;
+  default_amount: Money | null;
+  rate_percent: Decimal | null;
+  is_tax_exempt: Generated<boolean>;
+  is_mandatory_insurance: Generated<boolean>;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface StaffPayItemsTable {
+  id: Generated<string>;
+  staff_id: string;
+  pay_item_type_id: string;
+  amount: Money | null;
+  rate_percent: Decimal | null;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface TaxBracket {
+  up_to: number | null;
+  rate_percent: number;
+}
+
+export interface TaxTablesTable {
+  id: Generated<string>;
+  effective_from: string;
+  personal_deduction: Money;
+  dependent_deduction: Money;
+  brackets: ColumnType<TaxBracket[], string, string>;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export type PayrollStatus = 'draft' | 'pending' | 'approved';
+
+export interface PayrollsTable {
+  id: Generated<string>;
+  period_year: number;
+  period_month: number;
+  status: Generated<PayrollStatus>;
+  total_net: Money;
+  requires_principal: Generated<boolean>;
+  tax_table_id: string | null;
+  skipped: ColumnType<
+    Array<{ staff_id: string; org_unit_id: string; full_name: string; reason: string }>,
+    string | undefined,
+    string
+  >;
+  calculated_by: string | null;
+  calculated_at: Date | null;
+  submitted_at: Date | null;
+  approved_by: string | null;
+  approved_at: Date | null;
+  return_reason: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface PayslipsTable {
+  id: Generated<string>;
+  payroll_id: string;
+  staff_id: string;
+  org_unit_id: string;
+  contract_id: string | null;
+  prepaid_amount: Money;
+  adjustment_amount: Money;
+  taxable_income: Money;
+  tax_amount: Money;
+  net_amount: Money;
+}
+
+export type PayslipSection = 'prepaid' | 'adjustment' | 'tax';
+
+export interface PayslipLinesTable {
+  id: Generated<string>;
+  payslip_id: string;
+  section: PayslipSection;
+  line_type: string;
+  code: string;
+  name: string;
+  amount: Money;
+  basis: string;
+  order_no: number;
+}
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -997,4 +1094,10 @@ export interface SchoolYearDatabase {
   timesheet_periods: TimesheetPeriodsTable;
   timesheet_days: TimesheetDaysTable;
   timesheet_reopen_requests: TimesheetReopenRequestsTable;
+  pay_item_types: PayItemTypesTable;
+  staff_pay_items: StaffPayItemsTable;
+  tax_tables: TaxTablesTable;
+  payrolls: PayrollsTable;
+  payslips: PayslipsTable;
+  payslip_lines: PayslipLinesTable;
 }

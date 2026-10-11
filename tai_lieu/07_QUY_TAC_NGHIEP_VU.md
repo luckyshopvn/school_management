@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.17
+- Phiên bản: 1.18
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -81,7 +81,7 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 | BR-40 | Đơn xin nghỉ phép phải được quản lý trực tiếp duyệt trước khi tính vào ngày nghỉ có lương |
 | BR-41 | Số ngày phép năm của mỗi nhân sự do nhà trường cấu hình theo chức danh và thâm niên (P08-11) |
 | BR-42 | Bỏ ngày 09/10/2026: nhà trường không cho ứng lương (Q-54) |
-| BR-43 | Lương tháng M trả trước một lần vào đầu tháng M, không đợi chốt công của tháng M: gồm lương theo hợp đồng, phụ cấp cố định và thưởng, trừ khấu trừ cố định; cộng trừ phần điều chỉnh theo bảng công đã chốt của tháng M−1, gồm trừ ngày không hưởng lương bằng lương hợp đồng nhân số ngày không hưởng lương chia ngày công chuẩn (Q-154), cộng tiền làm thêm giờ, phụ cấp và khấu trừ tính theo ngày công. Ngày không hưởng lương gồm nghỉ không lương, vắng không phép và ngày có đơn nghỉ bị từ chối hoặc đã hủy. Tháng M−1 chưa chốt công thì không tính được bảng lương tháng M. Nhân sự mới vào làm giữa tháng không được trả trước tháng đầu; phần tháng đầu trả vào đầu tháng sau theo ngày công đã chốt (Q-155). Xem YCTD-29 |
+| BR-43 | Lương tháng M trả trước một lần vào đầu tháng M, không đợi chốt công của tháng M: gồm lương theo hợp đồng, phụ cấp cố định và thưởng, trừ khấu trừ cố định; cộng trừ phần điều chỉnh theo bảng công đã chốt của tháng M−1, gồm trừ ngày không hưởng lương bằng lương hợp đồng nhân số ngày không hưởng lương chia ngày công chuẩn, ngày công chuẩn là số ngày làm việc của tháng theo lịch (Q-154, YCTD-60), cộng tiền làm thêm giờ, phụ cấp và khấu trừ tính theo ngày công. Ngày không hưởng lương gồm nghỉ không lương, vắng không phép và ngày có đơn nghỉ bị từ chối hoặc đã hủy. Tháng M−1 chưa chốt công thì không tính được bảng lương tháng M. Nhân sự mới vào làm giữa tháng không được trả trước tháng đầu; phần tháng đầu trả vào đầu tháng sau theo ngày công đã chốt (Q-155). Xem YCTD-29 |
 | BR-44 | Khấu trừ gồm bảo hiểm bắt buộc theo quy định, thuế thu nhập cá nhân theo biểu đang áp dụng, và các khoản khác có ghi rõ căn cứ |
 | BR-45 | Bảng lương đã chốt không sửa trực tiếp. Sai thì lập bảng điều chỉnh cho kỳ sau, có lý do và người phê duyệt |
 | BR-46 | Nhân sự chỉ xem được bảng lương, chấm công và đơn nghỉ của chính mình, trừ nhân sự, kế toán, kế toán trưởng, Ban Giám hiệu và kiểm toán viên trong thời hạn tài khoản |
@@ -152,7 +152,7 @@ Bổ sung ngày 2026-10-09 theo yêu cầu tách vai trò Ban Giám hiệu thàn
 | BR-79 | Phó Hiệu trưởng chỉ phê duyệt trong phạm vi đơn vị được gán. Hiệu trưởng phê duyệt trong phạm vi toàn trường |
 | BR-80 | Mọi lần phê duyệt hoặc từ chối đều ghi nhật ký thao tác kèm người phê duyệt, thời điểm, giá trị chứng từ và lý do từ chối nếu có |
 | BR-81 | Số định danh cá nhân và bản chụp giấy khai sinh của trẻ bắt buộc khi tạo hồ sơ; trẻ nhập từ dữ liệu ban đầu được bổ sung giấy khai sinh sau (YCTD-46); chỉ hiển thị đầy đủ với Hiệu trưởng, Phó Hiệu trưởng, quản lý đơn vị và nhân viên tuyển sinh; vai trò khác thấy số đã che; mỗi lần xem đầy đủ ghi nhật ký truy cập dữ liệu nhạy cảm |
-| BR-82 | Giờ làm thêm tính từ chấm công, là phần vượt giờ làm chuẩn trong ngày, tối đa 1 giờ mỗi ngày; tiền làm thêm bằng số giờ nhân đơn giá cấu hình, đưa vào bảng lương của tháng kế tiếp (BR-43). Không có phụ cấp dạy thay |
+| BR-82 | Giờ làm thêm tính từ chấm công, là phần vượt giờ làm chuẩn trong ngày, tối đa 1 giờ mỗi ngày; tiền làm thêm bằng số giờ nhân lương giờ (lương hợp đồng chia ngày công chuẩn chia giờ làm chuẩn) nhân hệ số cấu hình của đơn vị (YCTD-60), đưa vào bảng lương của tháng kế tiếp (BR-43). Không có phụ cấp dạy thay |
 | BR-83 | Bán trú là dịch vụ bắt buộc với mọi trẻ đang học; phụ huynh không bỏ chọn được. Bán trú gồm ba bữa sáng, trưa, xế; không có dịch vụ ăn sáng hay ăn tối riêng. Tiệc buffet tổ chức theo dịp, nằm trong tiền ăn, không thu riêng |
 | BR-84 | Thứ bảy mặc định nghỉ; Ban Giám hiệu bổ sung từng ngày học bù thứ bảy và ngày nghỉ bù (thứ hai đến thứ sáu, nhân sự nghỉ có lương) vào lịch chung toàn trường (YCTD-59). Ngày học bù là ngày học bình thường của mọi lớp: có điểm danh, tính vào số ngày học của tháng theo BR-23, tiền ăn tính theo BR-14, không thu phí riêng; với nhân sự là ngày làm việc |
 | BR-85 | Mỗi trẻ mỗi kỳ có một hóa đơn chính. Khoản phát sinh sau khi hóa đơn chính đã phát hành, gồm đăng ký trễ được Ban Giám hiệu duyệt và phí hoạt động ngoại khóa thu theo từng hoạt động, được lập thành hóa đơn bổ sung cùng kỳ; hóa đơn chính không bị sửa |

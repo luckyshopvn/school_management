@@ -14,6 +14,28 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-06 phần 6c-1: danh mục lương, biểu thuế, bảng lương, phiếu lương
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 29 (phần 6b-2). Hỏi Eric các điểm của phần 6c; chia 6c-1 và 6c-2; viết phần 6c-1 trên nhánh `dt-06-phan-6c-1`.
+- Cơ sở dữ liệu: năm học có `pay_item_types`, `staff_pay_items`, `tax_tables` (có sẵn biểu thuế hiện hành), `payrolls`, `payslips`, `payslip_lines`, `staff.dependents_count` (tệp 0022); định danh có sáu mã quyền P08 (tệp 0026).
+- Máy chủ API: danh mục lương, khoản gán, số người phụ thuộc, biểu thuế, tính bảng lương toàn trường, trình, duyệt, trả lại, phiếu lương của tôi, chuyển năm học; cấu hình hệ số làm thêm.
+- Cổng quản trị: trang Bảng lương (MH-15), Danh mục lương và biểu thuế (MH-53), Phiếu lương của tôi, khoản lương riêng ở hồ sơ nhân sự. Ứng dụng giáo viên: màn hình phiếu lương (MG-11).
+- Kết quả: máy chủ API 299/299, kiểm thử giao diện 40/40.
+
+#### Quyết định
+
+- Theo YCTD-60 – người quyết định: Eric.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-60 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.29.6.
+
+#### Vấn đề tồn đọng
+
+- Phần 6c-2: phiếu chi lương, bảng quyết toán, phiếu thu thu hồi lương, bảng điều chỉnh kỳ sau.
+
 ### 2026-10-11 — DT-06 phần 6b-2: phép năm, đơn nghỉ phép, chốt và mở lại bảng công
 
 #### Công việc đã thực hiện
