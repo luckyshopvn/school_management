@@ -57,6 +57,7 @@ export interface ChildDetail extends Omit<ChildListItem, 'class_id' | 'class_nam
   address: string | null;
   birth_certificate_file_id: string | null;
   is_staff_child: boolean;
+  related_staff_user_id: string | null;
   related_staff_name: string | null;
   special_needs_note: string | null;
   photo_consent: PhotoConsent;
