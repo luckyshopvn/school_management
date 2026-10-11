@@ -34,6 +34,11 @@ import { MedicationRequestsController, MedicationRequestsService } from './medic
 import { MedicineCatalogController, MedicineCatalogService } from './medicines/medicine-catalog.js';
 import { MedicinePurchasesController, MedicinePurchasesService } from './medicines/medicine-purchases.js';
 import { medicinesTransitionStep } from './medicines/medicines-transition.js';
+import { AssetsController, AssetsService } from './inventory/assets.js';
+import { InventoryAccess } from './inventory/inventory-common.js';
+import { inventoryTransitionStep } from './inventory/inventory-transition.js';
+import { PurchasingController, PurchasingService } from './inventory/purchasing.js';
+import { StockController, StockService } from './inventory/stock.js';
 import { CashflowCategoriesController, CashflowCategoriesService } from './fees/cashflow-categories.js';
 import { DiscountTypesController, DiscountTypesService } from './fees/discount-types.js';
 import { FeeSchedulesController, FeeSchedulesService } from './fees/fee-schedules.js';
@@ -143,6 +148,9 @@ export class ApplicationModule {
         MedicineCatalogController,
         MedicationRequestsController,
         MedicinePurchasesController,
+        AssetsController,
+        StockController,
+        PurchasingController,
         FilesController,
         ImportsController,
         AttendanceController,
@@ -194,6 +202,7 @@ export class ApplicationModule {
             financeTransitionStep,
             healthTransitionStep,
             medicinesTransitionStep,
+            inventoryTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -223,6 +232,10 @@ export class ApplicationModule {
         MedicineCatalogService,
         MedicationRequestsService,
         MedicinePurchasesService,
+        InventoryAccess,
+        AssetsService,
+        StockService,
+        PurchasingService,
         ChildDataProtection,
         FilesService,
         ImportsService,

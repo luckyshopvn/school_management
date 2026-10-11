@@ -40,6 +40,8 @@ type NavigationPath =
   | '/work-schedules'
   | '/health'
   | '/medicines'
+  | '/inventory'
+  | '/purchase-requests'
   | '/leave-requests'
   | '/leave-policies'
   | '/payrolls'
@@ -99,6 +101,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canAdministerMedication = useHasPermission(PERMISSION_CODES.medicationAdminister);
   const canApproveMedicinePurchases = useHasPermission(PERMISSION_CODES.medicinePurchaseApprove);
   const canSeeMedicines = canManageMedicines || canAdministerMedication || canApproveMedicinePurchases;
+  const canManageAssets = useHasPermission(PERMISSION_CODES.assetManage);
+  const canCreatePurchaseRequests = useHasPermission(PERMISSION_CODES.purchaseRequestCreate);
+  const canApprovePurchaseRequests = useHasPermission(PERMISSION_CODES.purchaseRequestApprove);
+  const canManagePurchaseOrders = useHasPermission(PERMISSION_CODES.purchaseOrderManage);
+  const canApproveStocktakes = useHasPermission(PERMISSION_CODES.stocktakeApprove);
+  const canSeeInventory =
+    canManageAssets || canManagePurchaseOrders || canApproveStocktakes || canApprovePurchaseRequests;
+  const canSeePurchaseRequests = canCreatePurchaseRequests || canApprovePurchaseRequests;
   const canManageApiClients = useHasPermission(PERMISSION_CODES.apiClientManage);
   const canManagePayItems = useHasPermission(PERMISSION_CODES.payItemTypeManage);
   const canImport = canImportChildren || canManageChildren || canImportOpeningDebts || canImportStaff;
@@ -151,6 +161,15 @@ export function AppShell({ children }: { children: ReactNode }) {
             <ul className="flex flex-col gap-1">
               {canManageHealth || canRecordMedicalEvents ? <NavItem to="/health" label="Y tế học đường" /> : null}
               {canSeeMedicines ? <NavItem to="/medicines" label="Thuốc và dặn thuốc" /> : null}
+            </ul>
+          </>
+        ) : null}
+        {canSeeInventory || canSeePurchaseRequests ? (
+          <>
+            <span className="px-3 text-label font-semibold text-text-muted">KHO VÀ MUA HÀNG</span>
+            <ul className="flex flex-col gap-1">
+              {canSeeInventory ? <NavItem to="/inventory" label="Kho và tài sản" /> : null}
+              {canSeePurchaseRequests ? <NavItem to="/purchase-requests" label="Đề nghị mua hàng" /> : null}
             </ul>
           </>
         ) : null}

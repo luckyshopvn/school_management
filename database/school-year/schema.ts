@@ -1407,6 +1407,210 @@ export interface MedicineIssuesTable {
   issued_at: CreatedTimestamp;
 }
 
+// Kho, tài sản và mua hàng (P13; YCTD-77)
+export type AssetLocationType = 'store' | 'room' | 'class' | 'staff' | 'unit';
+export type AssetStatus = 'in_stock' | 'assigned' | 'on_loan' | 'damaged' | 'lost' | 'disposed';
+export type StockTransactionType = 'opening' | 'receipt' | 'issue' | 'count_adjustment' | 'carry_over';
+export type StockCountStatus = 'matched' | 'pending' | 'approved' | 'rejected';
+export type PurchaseRequestStatus = 'pending' | 'approved' | 'rejected' | 'ordered';
+
+export interface SuppliersTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  name: string;
+  tax_code: string | null;
+  contact_name: string | null;
+  phone: string | null;
+  address: string | null;
+  payment_terms: string | null;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface AssetsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  code: string;
+  name: string;
+  category: string;
+  unit: string;
+  original_cost: Money;
+  purchase_date: string;
+  location_type: Generated<AssetLocationType>;
+  location_id: string | null;
+  location_name: string | null;
+  status: Generated<AssetStatus>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface AssetAssignmentsTable {
+  id: Generated<string>;
+  code: string;
+  asset_id: string;
+  assigned_to_type: Exclude<AssetLocationType, 'store'>;
+  assigned_to_id: string | null;
+  assigned_to_name: string;
+  received_by_name: string;
+  assigned_on: string;
+  handed_by: string;
+  note: string | null;
+  return_code: string | null;
+  returned_on: string | null;
+  returned_by_name: string | null;
+  return_received_by: string | null;
+  return_note: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface AssetLoansTable {
+  id: Generated<string>;
+  code: string;
+  asset_id: string;
+  borrower_name: string;
+  borrower_user_id: string | null;
+  from_date: string;
+  due_date: string;
+  status: Generated<'open' | 'returned'>;
+  note: string | null;
+  lent_by: string;
+  returned_on: string | null;
+  return_received_by: string | null;
+  return_note: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface AssetDamagesTable {
+  id: Generated<string>;
+  code: string;
+  asset_id: string;
+  org_unit_id: string;
+  incident_type: 'damaged' | 'lost';
+  severity: 'minor' | 'major' | 'total';
+  description: string;
+  occurred_on: string;
+  proposed_handling: string;
+  status: Generated<'pending' | 'approved' | 'rejected'>;
+  reported_by: string;
+  decided_by: string | null;
+  decided_at: Date | null;
+  decision_note: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface StockItemsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  code: string;
+  name: string;
+  unit: string;
+  min_qty: Decimal;
+  current_qty: Decimal;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface StockTransactionsTable {
+  id: Generated<string>;
+  code: string;
+  stock_item_id: string;
+  transaction_type: StockTransactionType;
+  quantity: Decimal;
+  unit_price: Money | null;
+  balance_after: Decimal;
+  reference_type: string | null;
+  reference_id: string | null;
+  transaction_date: string;
+  note: string | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface StockCountsTable {
+  id: Generated<string>;
+  code: string;
+  org_unit_id: string;
+  count_date: string;
+  status: StockCountStatus;
+  note: string | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  decided_by: string | null;
+  decided_at: Date | null;
+  reject_reason: string | null;
+}
+
+export interface StockCountLinesTable {
+  id: Generated<string>;
+  count_id: string;
+  stock_item_id: string;
+  system_qty: Decimal;
+  actual_qty: Decimal;
+  difference: Decimal;
+  note: string | null;
+}
+
+export interface PurchaseRequestsTable {
+  id: Generated<string>;
+  code: string;
+  org_unit_id: string;
+  requester_id: string;
+  requester_name: string;
+  needed_by: string;
+  reason: string;
+  total_amount: Money;
+  requires_principal: boolean;
+  status: Generated<PurchaseRequestStatus>;
+  approved_by: string | null;
+  approved_at: Date | null;
+  reject_reason: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface PurchaseRequestItemsTable {
+  id: Generated<string>;
+  request_id: string;
+  item_name: string;
+  quantity: Decimal;
+  unit: string;
+  estimated_price: Money;
+  note: string | null;
+}
+
+export interface PurchaseOrdersTable {
+  id: Generated<string>;
+  code: string;
+  org_unit_id: string;
+  request_id: string;
+  supplier_id: string;
+  order_date: string;
+  total_amount: Money;
+  status: Generated<'ordered' | 'received'>;
+  payment_status: Generated<'awaiting_payment' | 'paid'>;
+  payment_id: string | null;
+  note: string | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  received_by: string | null;
+  received_at: Date | null;
+}
+
+export interface PurchaseOrderItemsTable {
+  id: Generated<string>;
+  order_id: string;
+  stock_item_id: string | null;
+  item_name: string;
+  quantity: Decimal;
+  unit_price: Money;
+  amount: Money;
+  received_qty: Decimal;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -1502,4 +1706,17 @@ export interface SchoolYearDatabase {
   medicine_purchase_orders: MedicinePurchaseOrdersTable;
   medicine_purchase_order_items: MedicinePurchaseOrderItemsTable;
   medicine_issues: MedicineIssuesTable;
+  suppliers: SuppliersTable;
+  assets: AssetsTable;
+  asset_assignments: AssetAssignmentsTable;
+  asset_loans: AssetLoansTable;
+  asset_damages: AssetDamagesTable;
+  stock_items: StockItemsTable;
+  stock_transactions: StockTransactionsTable;
+  stock_counts: StockCountsTable;
+  stock_count_lines: StockCountLinesTable;
+  purchase_requests: PurchaseRequestsTable;
+  purchase_request_items: PurchaseRequestItemsTable;
+  purchase_orders: PurchaseOrdersTable;
+  purchase_order_items: PurchaseOrderItemsTable;
 }
