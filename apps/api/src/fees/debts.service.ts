@@ -28,6 +28,11 @@ export class DebtsService {
   // Danh sách công nợ theo trẻ của một đơn vị, lọc theo lớp và theo trẻ còn nợ quá hạn
   async list(currentUser: CurrentUser, filter: { orgUnitId: string; classId: string | null; overdueOnly: boolean }) {
     await this.assertStaffCanView(currentUser, filter.orgUnitId);
+    return this.unitRows(filter);
+  }
+
+  // Công nợ theo trẻ của một đơn vị, không kiểm tra quyền; dùng cho báo cáo công nợ đã kiểm tra quyền riêng (P17-04)
+  async unitRows(filter: { orgUnitId: string; classId: string | null; overdueOnly: boolean }) {
     const { database } = await this.currentSchoolYear.require();
     let childrenQuery = database
       .selectFrom('children')

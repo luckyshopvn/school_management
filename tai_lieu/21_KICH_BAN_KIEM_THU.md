@@ -1,8 +1,8 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.10
-- Ngày cập nhật: 2026-10-09
+- Phiên bản: 1.11
+- Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -207,10 +207,10 @@
 | CT-122 | P14-11 | Đăng ký hoạt động ngoại khóa có phí | Phí vào khoản phải thu như khoản phát sinh | | Chưa chạy |
 | CT-123 | P14-12 | Xóa bình luận của phụ huynh trên tin tức | Chặn xóa | | Chưa chạy |
 | CT-124 | P16-05 | Mở danh sách tin tuyển sinh của đợt đang mở | Thấy tin kèm thời hạn | | Chưa chạy |
-| CT-125 | P17-13 | Giáo viên lớp Mầm 1 mở bảng tin | Chỉ thấy sinh nhật trẻ lớp Mầm 1 | | Chưa chạy |
-| CT-126 | P17-14 | Kế toán mở báo cáo học thứ 7 | Có các ngày học bù, số trẻ đi học và vắng của từng ngày | | Chưa chạy |
+| CT-125 | P17-13 | Giáo viên lớp Mầm 1 mở bảng tin | Chỉ thấy sinh nhật trẻ lớp Mầm 1 | Kiểm thử tự động `apps/api/src/reports/reports.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CT-126 | P17-14 | Kế toán mở báo cáo học thứ 7 | Có các ngày học bù, số trẻ đi học và vắng của từng ngày | Kiểm thử tự động `apps/api/src/reports/reports.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-127 | P17-15 | Bỏ ngày 09/10/2026: trường không có bữa tối (YCTD-20) | — | | Không áp dụng |
-| CT-128 | P17-14 | Giáo viên gọi điểm cuối báo cáo học thứ 7 | Trả lỗi không có quyền | | Chưa chạy |
+| CT-128 | P17-14 | Giáo viên gọi điểm cuối báo cáo học thứ 7 | Trả lỗi không có quyền | Kiểm thử tự động `apps/api/src/reports/reports.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-129 | P08-10 | Chốt bảng công có ngày thứ bảy học bù, một nhân sự không chấm công | Ngày đó là ngày làm việc, nhân sự bị tính vắng | | Chưa chạy |
 | CT-130 | P14-11 | Tính học phí kỳ kế tiếp với đăng ký ngoại khóa thu theo tháng | Phí hoạt động có trong khoản phải thu của kỳ | | Chưa chạy |
 | CT-131 | P14-11 | Trẻ đăng ký ngoại khóa thu theo tháng, nghỉ ba buổi, thôi giữa tháng | Phí tháng thu đủ, không có dòng giảm trừ | | Chưa chạy |

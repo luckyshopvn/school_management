@@ -14,6 +14,28 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-07 phần 7a: bảng điều khiển và báo cáo cơ bản
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 31 (phần 6c-2, hoàn thành DT-06); viết phần 7a trên nhánh `dt-07-phan-7a`.
+- Cơ sở dữ liệu: định danh có chín mã quyền P17 (tệp 0027).
+- Máy chủ API: bảng điều khiển Ban Giám hiệu và quản lý đơn vị, sinh nhật trẻ, báo cáo học phí, công nợ, thu chi, điểm danh, chấm công, học thứ 7.
+- Cổng quản trị: bảng điều khiển và sinh nhật trên trang chủ (MH-01), trang Báo cáo (MH-28).
+- Kết quả: máy chủ API 314/314, kiểm thử giao diện 42/42.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-62 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-62 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.30.0.
+
+#### Vấn đề tồn đọng
+
+- Phần 7b: khóa API cho đối tác.
+
 ### 2026-10-11 — DT-06 phần 6c-2: phiếu chi lương, quyết toán, thu hồi lương, điều chỉnh kỳ sau
 
 #### Công việc đã thực hiện

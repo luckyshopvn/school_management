@@ -83,6 +83,8 @@ import { payrollTransitionStep } from './payroll/payroll-transition.js';
 import { PayrollAdjustmentsController, PayrollAdjustmentsService } from './payroll/adjustments.js';
 import { SettlementsController } from './payroll/settlements.controller.js';
 import { SettlementsService } from './payroll/settlements.service.js';
+import { ReportsController } from './reports/reports.controller.js';
+import { ReportsService } from './reports/reports.service.js';
 import { OrgUnitsController } from './organization/org-units.controller.js';
 import { OrgUnitsService } from './organization/org-units.service.js';
 
@@ -136,6 +138,7 @@ export class ApplicationModule {
         PayrollController,
         PayrollAdjustmentsController,
         SettlementsController,
+        ReportsController,
         CashBooksController,
         ...(options.additionalControllers ?? []),
       ],
@@ -202,6 +205,7 @@ export class ApplicationModule {
         PayrollService,
         PayrollAdjustmentsService,
         SettlementsService,
+        ReportsService,
         {
           provide: PaymentGateway,
           useFactory: () =>

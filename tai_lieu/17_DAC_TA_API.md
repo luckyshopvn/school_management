@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.37
+- Phiên bản: 1.38
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -95,6 +95,12 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | GET, PATCH | /api/v1/academic-years/{id}/weeks | Danh sách tuần; đánh dấu hoặc bỏ đánh dấu tuần nghỉ |
 | POST | /api/v1/academic-years/{id}/open | Mở năm học: kiểm tra BR-89, tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung, chuyển năm đang dùng sang đã đóng và chỉ đọc (BR-93) |
 | POST | /api/v1/academic-years/{id}/close | Bỏ ngày 09/10/2026: gộp vào mở năm học mới (YCTD-37) |
+
+Giao kèo của bảng điều khiển và báo cáo (DT-07 phần 7a, YCTD-62):
+
+1. Mọi điểm cuối nhận `org_unit_id` tùy chọn (trống là mọi đơn vị trong phạm vi); đơn vị ngoài phạm vi trả `ERR_FORBIDDEN`. `GET /dashboard/leadership`, `/dashboard/unit`, `/reports/tuition`, `/reports/staff-attendance` nhận `month`; `/reports/cash-flow`, `/reports/attendance`, `/reports/saturday-classes` nhận `from`, `to`.
+2. `GET /dashboard/*` trả `children_count`, `classes_count`, `staff_count`, `tuition` (`invoice_count`, `payable_amount`, `paid_amount`, `outstanding_amount`), `debt` (`outstanding_amount`, `overdue_amount`), `attendance` (`present_count`, `record_count`, `rate_percent`). `GET /dashboard/birthdays` nhận `month`, `class_id`; trả `full_name`, `dob`, `class_name`, `turning_age`.
+3. `GET /reports/tuition` nhận thêm `grade_level`; trả `classes` và `totals`. `GET /reports/debts` nhận `minimum_overdue_days`; trả `children`, `classes`, `totals`. `GET /reports/cash-flow` nhận `flow_type` (`income`, `expense`), `created_by`; trả `categories`, `documents`, `totals` (`income_amount`, `expense_amount`, `difference_amount`). `GET /reports/attendance` nhận `class_id`; trả `classes` (kèm `rate_percent`) và `absences`. `GET /reports/staff-attendance` nhận `department_id`; trả `staff`. `GET /reports/saturday-classes` trả `days` kèm `classes`, `present_count`, `absent_count`.
 
 Giao kèo của phiếu chi lương, quyết toán và điều chỉnh (DT-06 phần 6c-2, YCTD-61):
 
