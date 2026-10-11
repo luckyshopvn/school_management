@@ -3,6 +3,7 @@ import { PERMISSION_CODES } from '@school-management/shared';
 import { Alert } from '@school-management/ui';
 import { fetchCurrentUser } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
+import { BirthdayList, DashboardCards } from '../reports/DashboardCards.js';
 import { listExpiringContracts } from '../staff/staff-api.js';
 import { AppShell } from './AppShell.js';
 
@@ -26,7 +27,7 @@ function ExpiringContracts() {
   );
 }
 
-// Trang chủ tạm thời: lời chào và vai trò hiện hành; bảng điều khiển MH-01 làm ở đợt sau
+// Trang chủ: lời chào, bảng điều khiển MH-01 theo quyền (YCTD-62), sinh nhật trẻ trong tháng, cảnh báo hợp đồng, vai trò
 export function HomePage() {
   const currentUser = useQuery({ queryKey: ['current-user'], queryFn: fetchCurrentUser });
   const canViewStaff = useHasPermission(PERMISSION_CODES.staffView);
@@ -43,6 +44,8 @@ export function HomePage() {
       ) : (
         <section className="flex flex-col gap-4">
           <h1 className="text-page-title font-bold text-text">Xin chào, {currentUser.data.full_name}</h1>
+          <DashboardCards />
+          <BirthdayList />
           {canViewStaff ? <ExpiringContracts /> : null}
           <div className="rounded-xl border border-border bg-card p-4">
             <h2 className="text-section-title font-semibold text-text">Vai trò của bạn</h2>

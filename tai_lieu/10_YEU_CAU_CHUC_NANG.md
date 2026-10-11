@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.26
+- Phiên bản: 1.27
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -244,20 +244,20 @@
 
 | Mã | Tên chức năng | Người dùng | Đầu vào chính | Xử lý chính | Đầu ra chính | Quy tắc |
 |---|---|---|---|---|---|---|
-| P17-01 | Bảng điều khiển Ban Giám hiệu (G1) | VT-02, VT-15 | Đơn vị, kỳ | Tổng hợp số trẻ, số lớp, số nhân sự, thu học phí, công nợ, tỷ lệ đi học | Bảng điều khiển toàn trường | BR-36 |
-| P17-02 | Bảng điều khiển quản lý đơn vị (G1) | VT-03 | Kỳ | Tổng hợp theo đơn vị được gán | Bảng điều khiển đơn vị | BR-01 |
-| P17-03 | Báo cáo học phí (G1) | VT-04, VT-02 | Kỳ, đơn vị, khối lớp | Tổng hợp khoản phải thu, đã thu, giảm trừ | Báo cáo học phí | BR-36 |
-| P17-04 | Báo cáo công nợ (G1) | VT-04, VT-02 | Kỳ, mốc quá hạn, đơn vị | Tổng hợp công nợ phải thu theo trẻ và theo lớp | Báo cáo công nợ | BR-33 |
-| P17-05 | Báo cáo thu chi (G1) | VT-04, VT-05 | Khoảng ngày, đơn vị, loại thu chi | Tổng hợp thu, chi, chênh lệch | Báo cáo thu chi | BR-36 |
-| P17-06 | Báo cáo điểm danh và trẻ vắng (G1) | VT-03, VT-07 | Ngày hoặc kỳ, lớp, đơn vị | Tổng hợp tỷ lệ đi học, danh sách vắng | Báo cáo điểm danh | BR-12 |
-| P17-07 | Báo cáo chấm công (G1) | VT-06, VT-03 | Kỳ, đơn vị, phòng ban | Tổng hợp ngày công, đi muộn, nghỉ | Báo cáo chấm công | BR-39 |
+| P17-01 | Bảng điều khiển Ban Giám hiệu (G1) | VT-02, VT-15 | Đơn vị, kỳ | Tổng hợp số trẻ, số lớp, số nhân sự, thu học phí, công nợ, tỷ lệ đi học (YCTD-62: toàn phạm vi được gán) | Bảng điều khiển toàn trường | BR-36 |
+| P17-02 | Bảng điều khiển quản lý đơn vị (G1) | VT-03 | Kỳ | Tổng hợp theo đơn vị được gán (YCTD-62: đơn vị được gán) | Bảng điều khiển đơn vị | BR-01 |
+| P17-03 | Báo cáo học phí (G1) | VT-04, VT-02 | Kỳ, đơn vị, khối lớp | Tổng hợp khoản phải thu, đã thu, giảm trừ (YCTD-62: theo lớp, lọc khối) | Báo cáo học phí | BR-36 |
+| P17-04 | Báo cáo công nợ (G1) | VT-04, VT-02 | Kỳ, mốc quá hạn, đơn vị | Tổng hợp công nợ phải thu theo trẻ và theo lớp (YCTD-62: theo trẻ và lớp, lọc số ngày quá hạn) | Báo cáo công nợ | BR-33 |
+| P17-05 | Báo cáo thu chi (G1) | VT-04, VT-05 | Khoảng ngày, đơn vị, loại thu chi | Tổng hợp thu, chi, chênh lệch (YCTD-62: lọc cả người lập) | Báo cáo thu chi | BR-36 |
+| P17-06 | Báo cáo điểm danh và trẻ vắng (G1) | VT-03, VT-07 | Ngày hoặc kỳ, lớp, đơn vị | Tổng hợp tỷ lệ đi học, danh sách vắng (YCTD-62: giáo viên xem lớp được phân công) | Báo cáo điểm danh | BR-12 |
+| P17-07 | Báo cáo chấm công (G1) | VT-06, VT-03 | Kỳ, đơn vị, phòng ban | Tổng hợp ngày công, đi muộn, nghỉ (YCTD-62: tính đến hôm nay) | Báo cáo chấm công | BR-39 |
 | P17-08 | Báo cáo ăn và bếp (G2) | VT-10, VT-04 | Ngày hoặc kỳ, đơn vị | Tổng hợp suất ăn, chi phí nguyên liệu | Báo cáo bếp | BR-58 |
 | P17-09 | Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62) | — | — | — | — | — |
 | P17-10 | Báo cáo hoạt động và công việc (G2) | VT-03 | Kỳ, đơn vị, lớp | Tổng hợp hoạt động đã công bố và tiến độ công việc | Báo cáo vận hành | BR-64 |
 | P17-11 | Báo cáo hợp nhất nhiều đơn vị (G2) | VT-02, VT-19 | Kỳ, danh sách đơn vị | So sánh chỉ số giữa các đơn vị; cán bộ quản lý cấp trên chỉ thấy số liệu tổng hợp | Báo cáo hợp nhất | BR-01 |
 | P17-12 | Xuất dữ liệu (G2) | VT-02, VT-04, VT-06 | Loại báo cáo, bộ lọc | Sinh tệp và ghi nhật ký xuất | Tệp dữ liệu | BR-74 |
-| P17-13 | Sinh nhật trẻ trong tháng trên bảng tin (G1) | VT-02, VT-15, VT-03, VT-07 | Đơn vị, lớp, tháng | Lọc trẻ đang học có ngày sinh trong tháng theo phạm vi quyền | Danh sách sinh nhật trong tháng | BR-72 |
-| P17-14 | Báo cáo học thứ 7 (G1) | VT-04, VT-03 | Kỳ, đơn vị, lớp | Tổng hợp các ngày thứ bảy học bù trong kỳ và số trẻ đi học, số trẻ vắng của từng ngày | Báo cáo học thứ 7 | BR-84 |
+| P17-13 | Sinh nhật trẻ trong tháng trên bảng tin (G1) | VT-02, VT-15, VT-03, VT-07 | Đơn vị, lớp, tháng | Lọc trẻ đang học có ngày sinh trong tháng theo phạm vi quyền (YCTD-62: giáo viên xem lớp được phân công) | Danh sách sinh nhật trong tháng | BR-72 |
+| P17-14 | Báo cáo học thứ 7 (G1) | VT-04, VT-03 | Kỳ, đơn vị, lớp | Tổng hợp các ngày thứ bảy học bù trong kỳ và số trẻ đi học, số trẻ vắng của từng ngày (YCTD-62: theo lớp) | Báo cáo học thứ 7 | BR-84 |
 | P17-15 | Bỏ ngày 09/10/2026: trường không có bữa tối (YCTD-20) | — | — | — | — | — |
 
 ## 19. Phân hệ P18 — Tuyển dụng

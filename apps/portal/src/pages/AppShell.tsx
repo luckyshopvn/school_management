@@ -41,7 +41,8 @@ type NavigationPath =
   | '/payrolls'
   | '/pay-items'
   | '/my-payslips'
-  | '/payroll-settlements';
+  | '/payroll-settlements'
+  | '/reports';
 
 function NavItem({ to, label }: { to: NavigationPath; label: string }) {
   return (
@@ -154,6 +155,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           {canViewStaff && canImportStaff && !(canManageClasses || canViewChildren || canEditChildren) ? (
             <NavItem to="/imports" label="Nhập dữ liệu" />
           ) : null}
+        </ul>
+        <span className="px-3 text-label font-semibold text-text-muted">BÁO CÁO</span>
+        <ul className="flex flex-col gap-1">
+          <NavItem to="/reports" label="Báo cáo" />
         </ul>
         <span className="px-3 text-label font-semibold text-text-muted">THIẾT LẬP</span>
         <ul className="flex flex-col gap-1">

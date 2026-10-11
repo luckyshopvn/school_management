@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.30.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-07 phần 7a, bảng điều khiển và báo cáo cơ bản (YCTD-62).
+- Chức năng mới: bảng điều khiển Ban Giám hiệu và quản lý đơn vị, sinh nhật trẻ trong tháng, sáu báo cáo cơ bản.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: chín mã quyền P17.
+- Thay đổi API: nhóm điểm cuối `/dashboard/` và `/reports/`.
+- Rủi ro: báo cáo tính trực tiếp, dữ liệu lớn có thể chậm; khi cần thì thêm bảng tổng hợp.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-07-phan-7a`; chạy ngược tệp thay đổi cấu trúc 0027 của cơ sở dữ liệu định danh.
+
 ### Phiên bản 0.29.7 – 2026-10-11
 
 - Phạm vi thay đổi: DT-06 phần 6c-2, phiếu chi lương, quyết toán, thu hồi lương, điều chỉnh kỳ sau (YCTD-61).

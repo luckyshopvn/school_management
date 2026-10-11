@@ -11,6 +11,25 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-62: DT-07 chia hai; bảng điều khiển và báo cáo cơ bản – 2026-10-11
+
+- Lý do: thiết kế đợt DT-07. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - DT-07 chia hai: 7a bảng điều khiển và báo cáo cơ bản giai đoạn 1 (P17-01 đến P17-07, P17-13, P17-14); 7b khóa API cho đối tác và nhóm điểm cuối `/partner/` (P01-14).
+  - Số liệu tính trực tiếp từ dữ liệu gốc của năm học đang mở mỗi lần xem, không lưu bảng tổng hợp; lọc theo đơn vị trong phạm vi người xem (gán ở Trường chính là toàn trường).
+  - Bảng điều khiển (trên trang chủ): số trẻ đang học, số lớp đang hoạt động, số nhân sự đang làm, học phí phải thu và đã thu của tháng, công nợ còn phải thu và quá hạn, tỷ lệ đi học của tháng (lượt có mặt kể cả đi muộn, về sớm chia tổng lượt điểm danh). Ban Giám hiệu xem theo đơn vị được gán; quản lý đơn vị xem đơn vị được gán.
+  - Báo cáo học phí: hóa đơn đã phát hành của kỳ, theo lớp hiện tại của trẻ, lọc khối lớp: phải thu, giảm trừ, điều chỉnh, còn phải thu, đã thu, còn nợ. Báo cáo công nợ: theo trẻ và theo lớp, lọc số ngày quá hạn tối thiểu. Báo cáo thu chi: phiếu thu, phiếu chi đã phát hành hoặc chờ duyệt đảo trong khoảng ngày, theo khoản mục và danh sách chứng từ, lọc đơn vị, loại thu chi, người lập (BR-36). Báo cáo điểm danh: tỷ lệ đi học theo lớp và danh sách trẻ vắng trong khoảng ngày. Báo cáo chấm công: ngày đi làm, nghỉ theo đơn, vắng, số lần đi muộn, về sớm, phút làm thêm của tháng tính đến hôm nay. Báo cáo học thứ 7: từng ngày học bù trong khoảng, số trẻ đi học và vắng theo lớp. Sinh nhật trẻ đang học trong tháng.
+  - Giáo viên chủ nhiệm và giáo viên bộ môn xem báo cáo điểm danh và sinh nhật của lớp được phân công mà không cần mã quyền riêng; không xem được báo cáo khác.
+  - Mã quyền mới: `P17.dashboard.leadership` (VT-02, VT-15), `P17.dashboard.unit` (VT-03), `P17.report.tuition` và `P17.report.debt` (VT-02, VT-15, VT-04, VT-05), `P17.report.cash-flow` (VT-02, VT-04, VT-05), `P17.report.attendance` (VT-02, VT-15, VT-03), `P17.report.staff-attendance` (VT-02, VT-15, VT-03, VT-06), `P17.report.saturday` (VT-02, VT-15, VT-03, VT-04), `P17.birthday.view` (VT-02, VT-15, VT-03).
+- Thành phần bị ảnh hưởng: `08`, `10`, `14`, `17`, `21`, `01`, `03`, `index.md`; máy chủ API (nhóm báo cáo), cổng quản trị (trang chủ, trang Báo cáo).
+- Dữ liệu bị ảnh hưởng: không thêm bảng.
+- API bị ảnh hưởng: `GET /dashboard/leadership`, `GET /dashboard/unit`, `GET /dashboard/birthdays`, `GET /reports/tuition`, `/reports/debts`, `/reports/cash-flow`, `/reports/attendance`, `/reports/staff-attendance`, `/reports/saturday-classes`.
+- Giao diện bị ảnh hưởng: MH-01 Bảng điều khiển (trang chủ), MH-28 Báo cáo theo phân hệ.
+- Quyền bị ảnh hưởng: thêm chín mã quyền P17 ở trên.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: CT-125, CT-126, CT-128 và kiểm thử tự động của từng báo cáo.
+- Trạng thái: Đã triển khai phần 7a
+
 ### YCTD-61: Phiếu chi lương, bảng quyết toán khi nghỉ việc, phiếu thu thu hồi lương, khoản điều chỉnh kỳ sau – 2026-10-11
 
 - Lý do: phần 6c-2 theo cách chia ở YCTD-60. Eric ủy quyền ngày 11/10/2026 cho Claude tự làm tới khi hoàn tất dự án, không chờ xác nhận; các điểm dưới đây Claude tự chọn theo ủy quyền, Eric rà lại khi cần.

@@ -67,6 +67,15 @@ export const PERMISSION_CODES = {
   payrollManage: 'P08.payroll.manage',
   payrollView: 'P08.payroll.view',
   payrollApprove: 'P08.payroll.approve',
+  leadershipDashboard: 'P17.dashboard.leadership',
+  unitDashboard: 'P17.dashboard.unit',
+  tuitionReport: 'P17.report.tuition',
+  debtReport: 'P17.report.debt',
+  cashFlowReport: 'P17.report.cash-flow',
+  attendanceReport: 'P17.report.attendance',
+  staffAttendanceReport: 'P17.report.staff-attendance',
+  saturdayReport: 'P17.report.saturday',
+  birthdayView: 'P17.birthday.view',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
