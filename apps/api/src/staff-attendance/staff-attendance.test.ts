@@ -150,6 +150,19 @@ describe('Ngày nghỉ lễ, lịch học bù và chấm công nhân sự', () =
         400,
       );
     });
+
+    it('CT-115: giáo viên gọi sửa hoặc xóa ngày nghỉ lễ bị từ chối', async () => {
+      const created = await api('POST', '/holidays', token('rootPersonnel'), {
+        holiday_date: nextWeekday(4, 2),
+        name: 'Ngày lễ thử',
+        is_paid: true,
+      });
+      assert.equal(created.status, 201, JSON.stringify(created.body));
+      const path = `/holidays/${created.body.id}`;
+      assert.equal((await api('PUT', path, token('teacher'), { name: 'Đổi tên', is_paid: false })).status, 403);
+      assert.equal((await api('DELETE', path, token('teacher'))).status, 403);
+      assert.equal((await api('DELETE', path, token('rootPersonnel'))).status, 204);
+    });
   });
 
   describe('P08-10 Lịch học bù và nghỉ bù', () => {

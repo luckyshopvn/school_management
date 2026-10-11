@@ -11,6 +11,25 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-66: Đợt DT-09 kiểm thử toàn bộ giai đoạn 1 và các chức năng còn thiếu – 2026-10-11
+
+- Lý do: rà soát 108 ca kiểm thử chi tiết và 175 kịch bản kiểm thử còn ở trạng thái Chưa chạy trước khi phát hành 1.0.0. Có ca đã có kiểm thử tự động nhưng tài liệu chưa ghi kết quả, có ca chưa có kiểm thử, có ca chức năng chưa làm hoặc làm khác tài liệu. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Chia đợt DT-09 thành bảy phần: 9a kiểm thử bổ sung và ghi kết quả; 9b thôi học, chuyển đơn vị, cập nhật đồng ý hình ảnh và cờ trẻ con nhân viên (P02-07, P02-08, P02-09); 9c lịch công tác (P08-02); 9d chuyển trẻ, phụ huynh, lớp đang học, công nợ sang năm học mới và kiểm tra BR-89; 9e ghi nhật ký truy cập theo cấu hình (BR-73), sĩ số tối đa theo cấu hình, báo cáo thu chi theo nhóm; 9f tiến trình chạy nền gửi thông báo, gửi lại khi lỗi, giới hạn tin nhắn trong ngày, nhắc ghi nhật ký; 9g báo cáo cổng CG-10 và phát hành 1.0.0.
+  - Phiếu chi từ hạn mức trở lên do Phó Hiệu trưởng duyệt giữ mã lỗi `ERR_FORBIDDEN` vì đây là thiếu thẩm quyền, không phải vi phạm quy tắc dữ liệu; sửa kết quả mong đợi của CTC-P01-061.
+  - Nhật ký thao tác khi duyệt và từ chối phiếu chi ghi thêm giá trị chứng từ (BR-80, CTC-P01-065).
+  - Sửa kết quả mong đợi của CTC-P04-039, CTC-P04-040 theo YCTD-65 (không có mốc 24 giờ, sửa sau công bố cần lý do, quản lý đơn vị chỉ xem); CT-006 theo YCTD-35 (tạm khóa 15 phút).
+  - Quản trị nền tảng gọi danh sách trẻ, danh sách hóa đơn nhận danh sách rỗng, đạt yêu cầu "không trả dữ liệu nghiệp vụ nào" của CTC-DD-041.
+  - Tách hàm chọn cơ sở dữ liệu năm học cần chạy tệp thay đổi cấu trúc để kiểm thử được CTC-P01-019; thêm kiểm thử tĩnh gói giao diện không truy cập cơ sở dữ liệu (CT-101).
+- Thành phần bị ảnh hưởng: `21`, `27_BO_CA_KIEM_THU_CHI_TIET/*`, `01`, `02`, `03`, `23`, `index.md`; máy chủ API (phiếu chi), gói cơ sở dữ liệu (lệnh chạy tệp thay đổi cấu trúc), kiểm thử tự động.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không đổi giao kèo; nhật ký thao tác của phiếu chi có thêm trường `amount`.
+- Giao diện bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: toàn bộ kiểm thử tự động; phần 9a ghi kết quả Đạt cho 69 ca kiểm thử chi tiết và 116 kịch bản kiểm thử.
+- Trạng thái: Đã triển khai phần 9a
+
 ### YCTD-65: Nhật ký của bé trên ứng dụng giáo viên và ứng dụng phụ huynh – 2026-10-11
 
 - Lý do: phần 8b theo cách chia ở YCTD-64. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.

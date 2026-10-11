@@ -1,6 +1,6 @@
 import { createDatabase } from './connection.js';
 import { readConnectionString, replaceDatabaseName } from './environment.js';
-import { migrateToLatest, type DatabaseKind } from './migrate.js';
+import { migrateToLatest, schoolYearDatabasesToMigrate, type DatabaseKind } from './migrate.js';
 import type { SystemDatabase } from '../system/schema.js';
 
 // Chạy tệp thay đổi cấu trúc cho cơ sở dữ liệu định danh, hệ thống và năm học đang dùng;
@@ -25,13 +25,9 @@ let succeeded =
 
 if (succeeded) {
   const systemDatabase = createDatabase<SystemDatabase>(systemConnectionString);
-  const activeDatabases = await systemDatabase
-    .selectFrom('academic_year_databases')
-    .select('database_name')
-    .where('status', '=', 'active')
-    .execute();
+  const activeDatabases = await schoolYearDatabasesToMigrate(systemDatabase);
   await systemDatabase.destroy();
-  for (const { database_name: databaseName } of activeDatabases) {
+  for (const databaseName of activeDatabases) {
     succeeded =
       succeeded &&
       (await migrate(databaseName, 'school-year', replaceDatabaseName(systemConnectionString, databaseName)));

@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.30.4 – 2026-10-11
+
+- Phạm vi thay đổi: DT-09 phần 9a, kiểm thử bổ sung và ghi kết quả (YCTD-66).
+- Chức năng mới: không.
+- Lỗi đã sửa: nhật ký duyệt, từ chối phiếu chi thiếu giá trị chứng từ (BR-80).
+- Thay đổi dữ liệu: không.
+- Thay đổi API: không đổi giao kèo.
+- Rủi ro: không.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-09-phan-9a`.
+
 ### Phiên bản 0.30.3 – 2026-10-11
 
 - Phạm vi thay đổi: DT-08 phần 8b, nhật ký của bé (YCTD-65).

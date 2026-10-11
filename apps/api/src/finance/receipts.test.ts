@@ -436,7 +436,7 @@ describe('Phiếu thu, phân bổ và công nợ', () => {
       assert.equal(Number(count.total), 1);
     });
 
-    it('CTC-P06-012, CTC-P06-011: thủ quỹ lập phiếu chuyển khoản bị từ chối; thu tiền mặt cho HĐ-3 được', async () => {
+    it('CTC-P06-012, CTC-P06-011, CT-179: thủ quỹ lập phiếu chuyển khoản bị từ chối; thu tiền mặt cho HĐ-3 được, QUY-A tăng', async () => {
       const transfer = await receipt(token('cashier'), {
         child: 'T2',
         amount: 1_500_000,
@@ -445,6 +445,7 @@ describe('Phiếu thu, phân bổ và công nợ', () => {
         allocations: [['HĐ-3', 1_500_000]],
       });
       assert.equal(transfer.status, 403);
+      const cashBefore = await balance('QUY-A');
       const cash = await receipt(token('cashier'), {
         child: 'T2',
         amount: 1_500_000,
@@ -453,6 +454,7 @@ describe('Phiếu thu, phân bổ và công nợ', () => {
       assert.equal(cash.status, 201, JSON.stringify(cash.body));
       const view = await debt('T2');
       assert.equal(view.invoices[0]?.payment_status, 'paid');
+      assert.equal(await balance('QUY-A'), cashBefore + 1_500_000);
     });
 
     it('chuyển khoản vào tài khoản ngân hàng không làm đổi quỹ tiền mặt', async () => {
@@ -793,6 +795,42 @@ describe('Phiếu thu, phân bổ và công nợ', () => {
         headers: { authorization: `Bearer ${token('accountant')}` },
       });
       assert.equal(childrenTemplate.status, 403);
+    });
+  });
+
+  describe('DT-09 phần 9a: phân bổ nhiều hóa đơn và nhiều quỹ tiền mặt', () => {
+    it('CTC-P06-002: một phiếu thu 3 000 000 chọn hai hóa đơn thì cả hai đã thu đủ, công nợ của hai hóa đơn bằng 0', async () => {
+      invoices['HĐ-4'] = await seedInvoice('T2', 'ĐT-A1', 1_000_000, '2099-12-31');
+      invoices['HĐ-5'] = await seedInvoice('T2', 'ĐT-A1', 2_000_000, '2099-12-31');
+      const response = await receipt(token('accountant'), {
+        child: 'T2',
+        amount: 3_000_000,
+        allocations: [
+          ['HĐ-4', 1_000_000],
+          ['HĐ-5', 2_000_000],
+        ],
+      });
+      assert.equal(response.status, 201, JSON.stringify(response.body));
+      const view = await debt('T2');
+      for (const code of ['HĐ-4', 'HĐ-5']) {
+        assert.equal(view.invoices.find((invoice) => invoice.id === invoices[code])?.payment_status, 'paid');
+      }
+    });
+
+    it('CTC-P06-045: đơn vị có hai quỹ tiền mặt; thu vào QUY-A2 thì chỉ số dư QUY-A2 thay đổi', async () => {
+      const created = await api('POST', '/cash-accounts', token('accountant'), {
+        org_unit_id: units['ĐT-A1'],
+        account_type: 'cash',
+        name: 'QUY-A2',
+        opening_balance: 0,
+      });
+      assert.equal(created.status, 201, JSON.stringify(created.body));
+      accounts['QUY-A2'] = created.body.id as string;
+      const before = await balance('QUY-A');
+      const response = await receipt(token('accountant'), { child: 'T2', amount: 400_000, account: 'QUY-A2' });
+      assert.equal(response.status, 201, JSON.stringify(response.body));
+      assert.equal(await balance('QUY-A2'), 400_000);
+      assert.equal(await balance('QUY-A'), before);
     });
   });
 });

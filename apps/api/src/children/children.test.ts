@@ -695,4 +695,134 @@ describe('Hồ sơ trẻ, phụ huynh, duyệt và phân lớp', () => {
       assert.equal(granted.photo_consent_method, 'paper');
     });
   });
+
+  describe('DT-09 phần 9a: phiên đăng nhập, phạm vi đơn vị và danh mục ngừng dùng', () => {
+    it('CTC-DD-015, CTC-DD-011, CTC-DD-042: tin tạo tài khoản không chứa mật khẩu; phiên mật khẩu mặc định bị chặn, phiên đăng nhập bằng mã thấy con mình', async () => {
+      const phone = randomPhone();
+      const child = await enrolChild('ĐT-A1', 'L-A1', {
+        guardians: [{ full_name: 'Mẹ đăng nhập', phone, relationship_item_id: mother, is_primary: true }],
+      });
+      const messages = await schoolYear
+        .selectFrom('notifications')
+        .select(['title', 'body'])
+        .where('template_code', '=', 'guardian_account_created')
+        .where('target_id', '=', child.id as string)
+        .execute();
+      assert.ok(messages.length > 0);
+      assert.ok(messages.every((message) => !`${message.title} ${message.body}`.includes(DEFAULT_PASSWORD)));
+      const withDefault = await sendJson('POST', `${environment.identity.baseUrl}/auth/login`, undefined, {
+        login: phone,
+        password: DEFAULT_PASSWORD,
+        channel: 'parent',
+      });
+      assert.equal(withDefault.body.password_change_required, true);
+      const blocked = await api('GET', '/children', withDefault.body.access_token as string);
+      assert.equal(blocked.status, 403);
+      await sendJson('POST', `${environment.identity.baseUrl}/auth/otp/request`, undefined, { phone });
+      const code = /(\d{6})/.exec(environment.identity.smsSender.lastTo(phone) ?? '')?.[1] ?? '';
+      const withCode = await sendJson('POST', `${environment.identity.baseUrl}/auth/otp/login`, undefined, {
+        phone,
+        code,
+      });
+      assert.equal(withCode.status, 200, JSON.stringify(withCode.body));
+      const own = await api('GET', '/children', withCode.body.access_token as string);
+      assert.equal(own.status, 200, JSON.stringify(own.body));
+      assert.deepEqual(
+        rows<{ id: string }>((own.body as { items: unknown }).items).map((item) => item.id),
+        [child.id],
+      );
+    });
+
+    it('CTC-DD-041: quản trị nền tảng gọi danh sách trẻ và danh sách hóa đơn thật không nhận dữ liệu nghiệp vụ nào', async () => {
+      const administrator = await environment.loginAs('VT-01', null);
+      for (const path of ['/children', '/invoices']) {
+        const response = await api('GET', path, administrator.accessToken);
+        const items = Array.isArray(response.body) ? response.body : (response.body as { items?: unknown[] }).items;
+        assert.ok(response.status === 403 || items?.length === 0, `${path} ${JSON.stringify(response.body)}`);
+      }
+    });
+
+    it('CTC-P01-009, CTC-P01-010, CTC-P01-011: phạm vi đơn vị trên danh sách lớp và danh sách trẻ thật', async () => {
+      const rootManager = await environment.loginAs('VT-03', unit('TC'));
+      const classesOfB = await api('GET', `/classes?org_unit_id=${unit('PH-B')}`, rootManager.accessToken);
+      assert.equal(classesOfB.status, 200);
+      assert.ok(rows<{ id: string }>(classesOfB.body).some((row) => row.id === classes['L-B1']));
+      const managerA1 = users.managerA1?.accessToken ?? '';
+      assert.equal((await api('GET', `/classes?org_unit_id=${unit('ĐT-A2')}`, managerA1)).status, 403);
+      assert.equal((await api('GET', `/classes?org_unit_id=${unit('TC')}`, managerA1)).status, 403);
+      const groupA = await api('GET', '/children?page_size=100', users.manager?.accessToken ?? '');
+      assert.equal(groupA.status, 200, JSON.stringify(groupA.body));
+      const unitsSeen = new Set(
+        rows<{ org_unit_id: string }>((groupA.body as { items: unknown }).items).map((item) => item.org_unit_id),
+      );
+      assert.ok(unitsSeen.size > 0);
+      assert.ok([...unitsSeen].every((id) => id === unit('ĐT-A1') || id === unit('ĐT-A2')));
+      const all = await api('GET', '/children?page_size=100', principal.accessToken);
+      assert.ok(
+        rows<{ org_unit_id: string }>((all.body as { items: unknown }).items).some(
+          (item) => item.org_unit_id === unit('PH-B'),
+        ),
+      );
+    });
+
+    it('CTC-P02-013: sửa mã định danh ngành trùng với trẻ khác trả ERR_CONFLICT', async () => {
+      const first = await enrolChild('ĐT-A1', 'L-A1');
+      const second = await enrolChild('ĐT-A1', 'L-A1');
+      const code = `MOET${Date.now()}`;
+      const saved = await api('PATCH', `/children/${first.id}`, users.manager?.accessToken ?? '', {
+        moet_student_code: code,
+        reason: 'Cập nhật mã ngành',
+      });
+      assert.equal(saved.status, 200, JSON.stringify(saved.body));
+      const duplicate = await api('PATCH', `/children/${second.id}`, users.manager?.accessToken ?? '', {
+        moet_student_code: code,
+        reason: 'Cập nhật mã ngành',
+      });
+      assert.equal(duplicate.status, 409, JSON.stringify(duplicate.body));
+      assert.equal((duplicate.body.error as { code?: string }).code, 'ERR_CONFLICT');
+    });
+
+    it('CTC-P02-057: không có thao tác xóa hồ sơ trẻ; hồ sơ vẫn còn', async () => {
+      const child = await enrolChild('ĐT-A1', 'L-A1');
+      const response = await api('DELETE', `/children/${child.id}`, principal.accessToken);
+      assert.ok(response.status >= 400, String(response.status));
+      assert.equal((await api('GET', `/children/${child.id}`, principal.accessToken)).status, 200);
+    });
+
+    it('CTC-P01-027: ngừng mục quan hệ với trẻ thì hồ sơ cũ vẫn hiện quan hệ, hồ sơ mới chọn mục đó bị từ chối', async () => {
+      const grandmother = (
+        await api('POST', '/catalog-items', principal.accessToken, {
+          catalog_type: 'parent_relationship',
+          code: 'BA',
+          name: 'Bà',
+        })
+      ).body.id as string;
+      const token = users.admissions?.accessToken ?? '';
+      const old = await createChild(token, 'ĐT-A1', {
+        guardians: [
+          { full_name: 'Bà ngoại', phone: randomPhone(), relationship_item_id: grandmother, is_primary: true },
+        ],
+      });
+      assert.equal(
+        (await api('PATCH', `/catalog-items/${grandmother}`, principal.accessToken, { status: 'inactive' })).status,
+        200,
+      );
+      const detail = await api('GET', `/children/${old.id}`, token);
+      assert.equal(
+        (detail.body.guardians as Array<{ relationship_item_id: string }>)[0]?.relationship_item_id,
+        grandmother,
+      );
+      const fresh = await api(
+        'POST',
+        '/children',
+        token,
+        await childBody(token, 'ĐT-A1', {
+          guardians: [
+            { full_name: 'Bà nội', phone: randomPhone(), relationship_item_id: grandmother, is_primary: true },
+          ],
+        }),
+      );
+      assert.equal(fresh.status, 400, JSON.stringify(fresh.body));
+    });
+  });
 });

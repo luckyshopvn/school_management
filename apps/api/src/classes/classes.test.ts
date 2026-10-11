@@ -222,6 +222,45 @@ describe('Lớp học và phân công giáo viên', () => {
     assert.equal((logs.body as { total: number }).total, 3);
   });
 
+  it('CTC-P01-071: ngừng phòng học thì lớp cũ giữ phòng, lớp mới không gán được phòng đó', async () => {
+    const room = await post('/rooms', principal, {
+      org_unit_id: unit('PH-A'),
+      code: 'A201',
+      name: 'A201',
+      capacity: 25,
+    });
+    const old = await createClass(principal, 'PH-A', 'PHONG1', { room_id: room.body.id });
+    assert.equal(old.status, 201, JSON.stringify(old.body));
+    assert.equal((await patch(`/rooms/${room.body.id}`, principal, { status: 'inactive' })).status, 200);
+    assert.equal(
+      rows<{ id: string; room_id: string }>((await get('/classes', principal)).body).find(
+        (row) => row.id === old.body.id,
+      )?.room_id,
+      room.body.id,
+    );
+    const fresh = await createClass(principal, 'PH-A', 'PHONG2', { room_id: room.body.id });
+    assert.ok([400, 422].includes(fresh.status), JSON.stringify(fresh.body));
+  });
+
+  it('CTC-P01-074, CT-106: ngừng bậc học đang gắn lớp thì lớp cũ giữ nguyên, tạo lớp mới với bậc học đó bị từ chối', async () => {
+    const created = await post('/grade-levels', principal, {
+      code: 'NHA',
+      name: 'Nhà trẻ',
+      age_from_months: 24,
+      age_to_months: 35,
+    });
+    assert.equal(created.status, 201, JSON.stringify(created.body));
+    const old = await createClass(principal, 'PH-A', 'NHA1', { grade_level: 'NHA' });
+    assert.equal(old.status, 201, JSON.stringify(old.body));
+    assert.equal((await patch(`/grade-levels/${created.body.id}`, principal, { status: 'inactive' })).status, 200);
+    const kept = rows<{ id: string; grade_level: string }>((await get('/classes', principal)).body).find(
+      (row) => row.id === old.body.id,
+    );
+    assert.equal(kept?.grade_level, 'NHA');
+    const fresh = await createClass(principal, 'PH-A', 'NHA2', { grade_level: 'NHA' });
+    assert.equal(fresh.status, 400, JSON.stringify(fresh.body));
+  });
+
   it('BR-02, YCTD-44: mở năm học mới thì lớp của năm cũ không chuyển sang', async () => {
     await openTestAcademicYear(environment, principal, '2027–2028', {
       first_term: { start_date: '2027-09-06', end_date: '2028-01-14' },

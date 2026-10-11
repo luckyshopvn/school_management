@@ -280,7 +280,7 @@ export class PaymentsService {
           entityId: paymentId,
           action: 'update',
           before: { status: 'pending' },
-          after: { status: 'draft', reason: decision.reason },
+          after: { status: 'draft', amount: Number(payment.amount), reason: decision.reason },
         });
         await queueNotification(transaction, {
           orgUnitId: payment.org_unit_id,
@@ -432,7 +432,7 @@ export class PaymentsService {
       entityId: payment.id,
       action: 'update',
       before: { status: 'pending', account_balance: balanceBefore },
-      after: { status: 'issued', code, approved_by: origin.actorUserId, account_balance: balanceAfter },
+      after: { status: 'issued', code, amount, approved_by: origin.actorUserId, account_balance: balanceAfter },
     });
     await queueNotification(transaction, {
       orgUnitId: payment.org_unit_id,

@@ -300,11 +300,15 @@ describe('Bảng điều khiển và báo cáo cơ bản', () => {
     assert.equal((await get(`/reports/tuition?month=${currentMonth}`, token('teacher'))).status, 403);
   });
 
-  it('P17-04: báo cáo công nợ theo trẻ và theo lớp; lọc theo số ngày quá hạn', async () => {
+  it('P17-04, CT-080: báo cáo công nợ theo trẻ và theo lớp khớp tổng; lọc theo số ngày quá hạn', async () => {
     const all = await get(`/reports/debts?org_unit_id=${units['ĐT-A1']}`, token('accountant'));
     assert.equal(all.status, 200, JSON.stringify(all.body));
     assert.equal((all.body.totals as { outstanding_amount: number }).outstanding_amount, 5_000_000);
     assert.equal((all.body.classes as unknown[]).length, 2);
+    const sum = (rows: unknown) =>
+      (rows as Array<{ outstanding_amount: number }>).reduce((total, row) => total + row.outstanding_amount, 0);
+    assert.equal(sum(all.body.children), 5_000_000);
+    assert.equal(sum(all.body.classes), 5_000_000);
     const overdue = await get(
       `/reports/debts?org_unit_id=${units['ĐT-A1']}&minimum_overdue_days=10`,
       token('accountant'),
@@ -315,7 +319,7 @@ describe('Bảng điều khiển và báo cáo cơ bản', () => {
     );
   });
 
-  it('P17-05, BR-36: báo cáo thu chi theo khoản mục, lọc loại thu chi và người lập', async () => {
+  it('P17-05, BR-36, CTC-P06-051, CT-084: báo cáo thu chi theo khoản mục, lọc loại thu chi và người lập; giáo viên bị từ chối', async () => {
     const range = `from=${addDays(vietnamToday, -1)}&to=${vietnamToday}`;
     const response = await get(`/reports/cash-flow?${range}&org_unit_id=${units['ĐT-A1']}`, token('accountant'));
     assert.equal(response.status, 200, JSON.stringify(response.body));
@@ -329,6 +333,7 @@ describe('Bảng điều khiển và báo cáo cơ bản', () => {
     const byOther = await get(`/reports/cash-flow?${range}&created_by=${users.manager?.userId}`, principal.accessToken);
     assert.equal((byOther.body.documents as unknown[]).length, 0);
     assert.equal((await get(`/reports/cash-flow?${range}`, token('manager'))).status, 403);
+    assert.equal((await get(`/reports/cash-flow?${range}`, token('teacher'))).status, 403);
   });
 
   it('P17-06: báo cáo điểm danh; giáo viên chỉ thấy lớp được phân công', async () => {

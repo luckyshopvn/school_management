@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { after, before, describe, it } from 'node:test';
-import { createDatabase } from '@school-management/database';
+import { createDatabase, schoolYearDatabasesToMigrate } from '@school-management/database';
 import { sql } from 'kysely';
 import { sendJson, startApiTestEnvironment, type ApiTestEnvironment } from '../test-support.js';
 import type { AcademicYearTransitionStep, TransitionViolation } from './academic-year-transition.js';
@@ -239,6 +239,18 @@ describe('Năm học, lịch năm học và mở năm học', () => {
     } finally {
       await oldDatabase.destroy();
     }
+  });
+
+  it('CTC-P01-019: năm học đã đóng không nằm trong danh sách chạy tệp thay đổi cấu trúc, chỉ năm đang dùng được cập nhật', async () => {
+    const names = await schoolYearDatabasesToMigrate(environment.system);
+    const registry = await environment.system
+      .selectFrom('academic_year_databases')
+      .select(['academic_year_id', 'database_name'])
+      .execute();
+    assert.deepEqual(
+      names,
+      registry.filter((row) => row.academic_year_id === year20272028).map((row) => row.database_name),
+    );
   });
 
   it('Năm học đã đóng không sửa được lịch và tuần nghỉ', async () => {

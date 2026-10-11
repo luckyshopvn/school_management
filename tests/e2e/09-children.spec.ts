@@ -115,6 +115,8 @@ test('Tuyển sinh lập hồ sơ, quản lý đơn vị duyệt vào lớp Mầ
   const detail = admissions.getByRole('region', { name: 'Hồ sơ Nguyễn Gia Bảo' });
   await expect(detail).toContainText('Nháp');
   await expect(detail.getByTestId('moet-code')).toHaveText('Chưa có');
+  // Ô mã ngành tô đỏ khi chưa có (CT-157)
+  await expect(detail.getByTestId('moet-code')).toHaveClass(/text-danger/);
   await expect(detail.getByTestId('national-id')).toHaveText(`********${nationalId.slice(-4)}`);
   await detail.getByRole('button', { name: 'Gửi trình duyệt' }).click();
   await expect(detail).toContainText('Chờ duyệt');

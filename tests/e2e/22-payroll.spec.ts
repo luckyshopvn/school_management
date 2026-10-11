@@ -8,7 +8,7 @@ import {
   type SchoolYearDatabase,
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
-import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_TEACHER_PORT } from '../e2e-environment.mjs';
 
 // Bảng lương toàn trường (DT-06 phần 6c-1, YCTD-60): kế toán tính bảng lương tháng này sau khi tháng trước đã chốt công
 // (kiểm thử 21), trình duyệt; Hiệu trưởng duyệt; giáo viên thấy phiếu lương của mình
@@ -36,7 +36,9 @@ async function signIn(browser: import('@playwright/test').Browser, user: { usern
   return page;
 }
 
-test('Kế toán tính và trình bảng lương; Hiệu trưởng duyệt; giáo viên xem phiếu lương', async ({ browser }) => {
+test('Kế toán tính và trình bảng lương; Hiệu trưởng duyệt; giáo viên và phòng nhân sự xem phiếu lương (CTC-P08-049)', async ({
+  browser,
+}) => {
   const unit = await schoolYear
     .selectFrom('org_units')
     .select(['id', 'name'])
@@ -47,29 +49,29 @@ test('Kế toán tính và trình bảng lương; Hiệu trưởng duyệt; giá
   const accountant = await createTestUser(identity, { roles: [{ roleCode: 'VT-04', orgUnitId: unit.id }] });
   const principal = await createTestUser(identity, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
   const teacher = await createTestUser(identity, { roles: [{ roleCode: 'VT-07', orgUnitId: unit.id }] });
+  const personnel = await createTestUser(identity, { roles: [{ roleCode: 'VT-06', orgUnitId: unit.id }] });
   const suffix = Date.now() % 1_000_000;
   const fullName = `Hà Minh Châu ${suffix}`;
-  const staff = await schoolYear
-    .insertInto('staff')
-    .values({
-      org_unit_id: unit.id,
-      code: `BL-${suffix}`,
-      full_name: fullName,
-      start_date: '2026-01-01',
-      user_id: teacher.id,
-    })
-    .returning('id')
-    .executeTakeFirstOrThrow();
-  await schoolYear
-    .insertInto('employment_contracts')
-    .values({
-      staff_id: staff.id,
-      contract_no: `HDBL-${suffix}`,
-      contract_type: 'indefinite',
-      start_date: '2026-01-01',
-      base_salary: 10_000_000,
-    })
-    .execute();
+  for (const [userId, name, code, salary] of [
+    [teacher.id, fullName, `BL-${suffix}`, 10_000_000],
+    [personnel.id, `Đỗ Thu Hằng ${suffix}`, `BLNS-${suffix}`, 9_000_000],
+  ] as const) {
+    const staff = await schoolYear
+      .insertInto('staff')
+      .values({ org_unit_id: unit.id, code, full_name: name, start_date: '2026-01-01', user_id: userId })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    await schoolYear
+      .insertInto('employment_contracts')
+      .values({
+        staff_id: staff.id,
+        contract_no: `HD${code}`,
+        contract_type: 'indefinite',
+        start_date: '2026-01-01',
+        base_salary: salary,
+      })
+      .execute();
+  }
 
   const page = await signIn(browser, accountant);
   await page.getByRole('link', { name: 'Bảng lương' }).click();
@@ -93,4 +95,17 @@ test('Kế toán tính và trình bảng lương; Hiệu trưởng duyệt; giá
   await slip.getByRole('button', { name: 'Chi tiết' }).click();
   await expect(slip).toContainText('Lương hợp đồng');
   await expect(teacherPage.getByRole('link', { name: 'Bảng lương' })).toHaveCount(0);
+
+  const slipTitle = `Phiếu lương tháng ${month}/${vietnamToday.slice(0, 4)}`;
+  const personnelPage = await signIn(browser, personnel);
+  await personnelPage.getByRole('link', { name: 'Phiếu lương của tôi' }).click();
+  await expect(personnelPage.getByRole('region', { name: slipTitle })).toContainText('9.000.000');
+
+  const teacherApp = await (await browser.newContext()).newPage();
+  await teacherApp.goto(`http://localhost:${E2E_TEACHER_PORT}`);
+  await teacherApp.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(teacher.username);
+  await teacherApp.getByLabel('Mật khẩu', { exact: true }).fill(teacher.password);
+  await teacherApp.getByRole('button', { name: 'Đăng nhập' }).click();
+  await teacherApp.getByRole('button', { name: 'Phiếu lương' }).click();
+  await expect(teacherApp.getByRole('region', { name: slipTitle })).toContainText('10.000.000');
 });

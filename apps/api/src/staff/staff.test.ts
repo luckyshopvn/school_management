@@ -4,6 +4,7 @@ import { after, before, describe, it } from 'node:test';
 import ExcelJS from 'exceljs';
 import { createDatabase, replaceDatabaseName, type SchoolYearDatabase } from '@school-management/database';
 import type { Kysely } from 'kysely';
+import { hashForTesting, TEST_PASSWORD } from '@school-management/identity/testing';
 import { IMPORT_COLUMNS } from '../imports/imports.service.js';
 import {
   openTestAcademicYear,
@@ -332,6 +333,64 @@ describe('Hồ sơ nhân sự và hợp đồng lao động', () => {
       assert.equal(imported.length, 2);
       assert.ok(imported.some((row) => row.department_id === departmentId && row.start_date === '2026-09-01'));
       assert.equal((await upload(token('accountant'), [])).status, 403);
+    });
+  });
+
+  describe('DT-09 phần 9a', () => {
+    it('CTC-DD-005: sau khi chấm dứt hợp đồng, đăng nhập đúng mật khẩu bị từ chối; tài khoản và nhật ký thao tác vẫn còn', async () => {
+      const identity = environment.identity.database;
+      await identity
+        .updateTable('users')
+        .set({ password_hash: await hashForTesting(TEST_PASSWORD), must_change_password: false })
+        .where('id', '=', users.teacher?.userId ?? '')
+        .execute();
+      const username = await usernameOf(users.teacher?.userId ?? '');
+      const login = await sendJson('POST', `${environment.identity.baseUrl}/auth/login`, undefined, {
+        login: username,
+        password: TEST_PASSWORD,
+        channel: 'portal',
+      });
+      assert.ok(login.status === 401 || login.status === 403, JSON.stringify(login.body));
+      const account = await identity
+        .selectFrom('users')
+        .select('status')
+        .where('id', '=', users.teacher?.userId ?? '')
+        .executeTakeFirstOrThrow();
+      assert.equal(account.status, 'locked');
+      const history = await schoolYear
+        .selectFrom('audit_logs')
+        .select('id')
+        .where('entity_id', 'in', [staffIds.teacher ?? '', contracts.teacher ?? ''])
+        .execute();
+      assert.ok(history.length > 0);
+    });
+
+    it('CTC-P01-023: ngừng phòng ban đang có nhân sự thì phòng ban ngừng sử dụng, hồ sơ nhân sự vẫn giữ phòng ban', async () => {
+      const stopped = await api('PATCH', `/departments/${departmentId}`, token('personnel'), { status: 'inactive' });
+      assert.equal(stopped.status, 200, JSON.stringify(stopped.body));
+      assert.equal(stopped.body.status, 'inactive');
+      const staff = await api('GET', `/staff/${staffIds.teacher}`, token('personnel'));
+      assert.equal(staff.body.department_id, departmentId);
+      assert.equal(staff.body.department_name, 'Tổ chuyên môn');
+    });
+
+    it('CTC-P01-040: tài khoản có VT-04 và VT-06 cùng đơn vị dùng được điểm cuối của kế toán và của nhân sự', async () => {
+      const both = await environment.loginWithRoles([
+        { roleCode: 'VT-04', orgUnitId: units['ĐT-A1'] ?? null },
+        { roleCode: 'VT-06', orgUnitId: units['ĐT-A1'] ?? null },
+      ]);
+      const accounting = await api('POST', '/cash-accounts', both.accessToken, {
+        org_unit_id: units['ĐT-A1'],
+        account_type: 'cash',
+        name: 'Quỹ hợp quyền',
+        opening_balance: 0,
+      });
+      assert.equal(accounting.status, 201, JSON.stringify(accounting.body));
+      const personnel = await api('POST', '/departments', both.accessToken, {
+        org_unit_id: units['ĐT-A1'],
+        name: 'Tổ hợp quyền',
+      });
+      assert.equal(personnel.status, 201, JSON.stringify(personnel.body));
     });
   });
 });

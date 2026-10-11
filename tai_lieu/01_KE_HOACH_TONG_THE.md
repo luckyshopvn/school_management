@@ -55,6 +55,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.2.0 | Bốn thay đổi: Ban Giám hiệu, nhiều cấp đơn vị, tách giao diện và máy chủ, dịch vụ định danh | 01 đến 07 | Đã có |
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
+| 0.30.4 | DT-09 phần 9a: kiểm thử bổ sung, ghi kết quả kiểm thử tự động (YCTD-66) | 10 | Đã có |
 | 0.30.3 | DT-08 phần 8b: nhật ký của bé; hoàn thành đợt DT-08 (YCTD-65) | 08, 09 | Đã có |
 | 0.30.2 | DT-08 phần 8a: trung tâm thông báo và mẫu thông báo (YCTD-64) | 08, 09 | Đã có |
 | 0.30.1 | DT-07 phần 7b: khóa API cho đối tác chỉ đọc; hoàn thành đợt DT-07 (YCTD-63) | 08, 09 | Đã có |
@@ -167,7 +168,7 @@ Mỗi giai đoạn kết thúc bằng một cổng. Cổng không đạt thì kh
 | 07 Thiết kế dữ liệu và giao diện lập trình | `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md` | CG-07 | Đã đạt ngày 09/10/2026 |
 | 08 Chuẩn bị môi trường | `18_QUY_TAC_PHAT_TRIEN_AI.md`, `19_CHI_DAN_HE_THONG_AI.md`, kho mã nguồn GitHub, môi trường phát triển | CG-08 | Đã đạt ngày 09/10/2026 |
 | 09 Xây dựng theo phân hệ | Mã nguồn, thay đổi dữ liệu, kiểm thử tự động | CG-09 | Chưa bắt đầu |
-| 10 Kiểm thử và kiểm soát chất lượng | `20_KE_HOACH_KIEM_THU.md`, `21_KICH_BAN_KIEM_THU.md`, kết quả chạy thật | CG-10 | Tài liệu `20`, `21`, `22` đã duyệt; chưa chạy |
+| 10 Kiểm thử và kiểm soát chất lượng | `20_KE_HOACH_KIEM_THU.md`, `21_KICH_BAN_KIEM_THU.md`, kết quả chạy thật | CG-10 | Đang chạy: đợt DT-09 phần 9a đã ghi kết quả kiểm thử tự động (YCTD-66) |
 | 11 Nghiệm thu và phát hành | Bản phát hành 1.0.0, `23_LICH_SU_PHIEN_BAN.md`, biên bản triển khai | CG-11 | Chưa bắt đầu |
 | 12 Vận hành và cải tiến | Sửa lỗi, cải tiến, `24_YEU_CAU_THAY_DOI.md`, tài liệu cập nhật | CG-12 | Chưa bắt đầu |
 
@@ -307,7 +308,7 @@ Quy tắc bắt buộc: không thực hiện thay đổi trực tiếp trên h�
 | DT-06 | Hồ sơ nhân sự, hợp đồng lao động, chấm công, nghỉ phép, bảng lương cơ bản; nhập Excel phần nhân sự | P07, P08 | `M07`, `M08` | DT-01 | Tính đúng bảng lương một tháng thật theo `QT-06` |
 | DT-07 | Bảng điều khiển và báo cáo cơ bản; API chỉ đọc cho đối tác (G1-17) | P17, P01 | `M17` | DT-04, DT-05, DT-06 | Số liệu báo cáo khớp dữ liệu gốc; khóa API đúng phạm vi, có nhật ký |
 | DT-08 | Ứng dụng giáo viên và ứng dụng phụ huynh | P19 | `M19` | DT-03, DT-04, DT-05 | Phụ huynh xem được điểm danh, học phí, thông báo, nhật ký |
-| DT-09 | Kiểm thử toàn bộ giai đoạn 1, nghiệm thu, phát hành 1.0.0 | Toàn dự án | — | DT-07, DT-08 | Qua cổng CG-10 và CG-11 |
+| DT-09 | Kiểm thử toàn bộ giai đoạn 1, nghiệm thu, phát hành 1.0.0; làm theo bảy phần 9a đến 9g (YCTD-66) | Toàn dự án | — | DT-07, DT-08 | Qua cổng CG-10 và CG-11 |
 | DT-10 | Giai đoạn 2: giảng dạy, công việc, y tế, bếp, kho, hoạt động, tương tác, tài khoản ngân hàng và công nợ phải trả, báo cáo hợp nhất | P03, P06, P09, P10, P12 đến P15, P17 | `M03`, `M09`, `M10`, `M12` đến `M15` | 1.0.0 | Phát hành 1.1.0 |
 | DT-11 | Giai đoạn 3: tuyển sinh, tuyển dụng, kết nối Facebook, đối soát thanh toán, sổ kế toán kép | P14, P16, P18 | `M16`, `M18`, `N2` đến `N5` | 1.1.0 | Phát hành 1.2.0 |
 

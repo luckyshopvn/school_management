@@ -563,4 +563,133 @@ describe('Phiếu chi và sổ quỹ', () => {
       assert.equal(await balance('NH-A'), 500_000);
     });
   });
+
+  // Phê duyệt theo hạn mức của đơn vị (DT-09 phần 9a): chi từ NH-A khi tắt kiểm tra số dư ngân hàng để không phụ thuộc
+  // số dư của các ca trên
+  describe('P01-10 Phê duyệt theo hạn mức', () => {
+    before(async () => {
+      const saved = await api('PUT', '/settings', principal.accessToken, {
+        org_unit_id: units['ĐT-A1'],
+        values: { bank_balance_check: false },
+      });
+      assert.equal(saved.status, 200, JSON.stringify(saved.body));
+    });
+
+    it('CTC-P01-049: tắt kiểm tra số dư ngân hàng thì duyệt được phiếu chi vượt số dư NH-A', async () => {
+      const before = await balance('NH-A');
+      const paymentId = await submitted(token('accountant'), { amount: before + 100_000, account: 'NH-A' });
+      const approved = await api('POST', `/payments/${paymentId}/approve`, token('vicePrincipal'));
+      assert.equal(approved.status, 200, JSON.stringify(approved.body));
+      assert.equal(await balance('NH-A'), -100_000);
+    });
+
+    it('CTC-P01-060: phiếu chi 9 999 999 dưới hạn mức 10 000 000 thì Phó Hiệu trưởng duyệt được', async () => {
+      const paymentId = await submitted(token('accountant'), { amount: 9_999_999, account: 'NH-A' });
+      assert.equal((await api('GET', `/payments/${paymentId}`, token('accountant'))).body.requires_principal, false);
+      const approved = await api('POST', `/payments/${paymentId}/approve`, token('vicePrincipal'));
+      assert.equal(approved.status, 200, JSON.stringify(approved.body));
+      assert.equal(approved.body.status, 'issued');
+    });
+
+    it('CTC-P01-061, CT-098, CTC-P01-065, CT-104: phiếu chi đúng bằng hạn mức thì Phó Hiệu trưởng bị chặn; Hiệu trưởng từ chối ghi nhật ký có người, thời điểm, giá trị, lý do', async () => {
+      const paymentId = await submitted(token('accountant'), { amount: 10_000_000, account: 'NH-A' });
+      const blocked = await api('POST', `/payments/${paymentId}/approve`, token('vicePrincipal'));
+      assert.equal(blocked.status, 403);
+      assert.equal(errorOf(blocked.body).code, 'ERR_FORBIDDEN');
+      const rejected = await api('POST', `/payments/${paymentId}/reject`, principal.accessToken, {
+        reason: 'Chưa có báo giá',
+      });
+      assert.equal(rejected.status, 200, JSON.stringify(rejected.body));
+      const log = await schoolYear
+        .selectFrom('audit_logs')
+        .select(['actor_user_id', 'after_data', 'created_at'])
+        .where('entity_name', '=', 'payments')
+        .where('entity_id', '=', paymentId)
+        .orderBy('created_at', 'desc')
+        .executeTakeFirstOrThrow();
+      assert.equal(log.actor_user_id, principal.userId);
+      assert.ok(log.created_at);
+      assert.deepEqual(log.after_data, { status: 'draft', amount: 10_000_000, reason: 'Chưa có báo giá' });
+      assert.equal((await api('POST', `/payments/${paymentId}/submit`, token('accountant'))).status, 200);
+      const approved = await api('POST', `/payments/${paymentId}/approve`, principal.accessToken);
+      assert.equal(approved.status, 200, JSON.stringify(approved.body));
+    });
+
+    it('CTC-P01-066: Phó Hiệu trưởng gửi kèm hạn mức giả khi duyệt phiếu 15 000 000 vẫn bị từ chối', async () => {
+      const paymentId = await submitted(token('accountant'), { amount: 15_000_000, account: 'NH-A' });
+      const response = await api('POST', `/payments/${paymentId}/approve`, token('vicePrincipal'), {
+        threshold_amount: 20_000_000,
+        requires_principal: false,
+      });
+      assert.equal(response.status, 403);
+      assert.equal((await api('GET', `/payments/${paymentId}`, token('accountant'))).body.status, 'pending');
+    });
+
+    it('CTC-P01-063, CT-099: tài khoản có cả VT-04 và VT-15 tự duyệt phiếu chi mình lập bị từ chối', async () => {
+      const both = await environment.loginWithRoles([
+        { roleCode: 'VT-04', orgUnitId: units['ĐT-A1'] ?? null },
+        { roleCode: 'VT-15', orgUnitId: units['ĐT-A1'] ?? null },
+      ]);
+      const paymentId = await submitted(both.accessToken, { amount: 200_000, account: 'NH-A' });
+      const response = await api('POST', `/payments/${paymentId}/approve`, both.accessToken);
+      assert.equal(response.status, 403);
+      assert.equal((await api('GET', `/payments/${paymentId}`, token('accountant'))).body.status, 'pending');
+    });
+
+    it('CTC-P01-064, CT-100: Phó Hiệu trưởng đơn vị B duyệt phiếu chi của đơn vị A bị từ chối', async () => {
+      const vicePrincipalB = await environment.loginAs('VT-15', units['ĐT-B1'] ?? null);
+      const paymentId = await submitted(token('accountant'), { amount: 300_000, account: 'NH-A' });
+      assert.equal((await api('POST', `/payments/${paymentId}/approve`, vicePrincipalB.accessToken)).status, 403);
+    });
+
+    it('CTC-P06-054: ngừng khoản mục chi thì phiếu chi cũ giữ khoản mục, phiếu chi mới chọn khoản mục đó bị chặn', async () => {
+      const created = await api('POST', '/cashflow-categories', token('accountant'), {
+        code: 'VAN_PHONG_PHAM',
+        name: 'Văn phòng phẩm',
+        group_name: 'Hoạt động thường xuyên',
+        flow_type: 'expense',
+      });
+      categories.VAN_PHONG_PHAM = created.body.id as string;
+      const paymentId = await submitted(token('accountant'), {
+        amount: 100_000,
+        account: 'NH-A',
+        category: 'VAN_PHONG_PHAM',
+      });
+      const stopped = await api('PATCH', `/cashflow-categories/${categories.VAN_PHONG_PHAM}`, token('accountant'), {
+        status: 'inactive',
+      });
+      assert.equal(stopped.status, 200, JSON.stringify(stopped.body));
+      const old = await api('GET', `/payments/${paymentId}`, token('accountant'));
+      assert.equal(old.body.category_id, categories.VAN_PHONG_PHAM);
+      const fresh = await draft(token('accountant'), { amount: 100_000, account: 'NH-A', category: 'VAN_PHONG_PHAM' });
+      assert.equal(fresh.status, 400, JSON.stringify(fresh.body));
+    });
+
+    it('CT-082: tổng phiếu thu và phiếu chi tiền mặt trong ngày khớp biến động sổ quỹ QUY-A', async () => {
+      const receipt = await api('POST', '/receipts', token('accountant'), {
+        request_key: randomUUID(),
+        child_id: children.T2,
+        payer_name: 'Mẹ T2',
+        amount: 200_000,
+        method: 'cash',
+        account_id: accounts['QUY-A'],
+        category_id: categories.THU_HOC_PHI,
+        receipt_date: vietnamToday,
+      });
+      assert.equal(receipt.status, 201, JSON.stringify(receipt.body));
+      const book = await api(
+        'GET',
+        `/cash-books?account_id=${accounts['QUY-A']}&from=${vietnamToday}&to=${vietnamToday}`,
+        token('accountant'),
+      );
+      const rows = book.body.transactions as Array<{ amount: number }>;
+      const totalIn = rows.filter((row) => row.amount > 0).reduce((sum, row) => sum + row.amount, 0);
+      const totalOut = rows.filter((row) => row.amount < 0).reduce((sum, row) => sum - row.amount, 0);
+      assert.ok(totalIn >= 200_000 && totalOut > 0);
+      assert.equal(book.body.total_in, totalIn);
+      assert.equal(book.body.total_out, totalOut);
+      assert.equal(Number(book.body.closing_balance) - Number(book.body.opening_balance), totalIn - totalOut);
+      assert.equal(book.body.closing_balance, await balance('QUY-A'));
+    });
+  });
 });
