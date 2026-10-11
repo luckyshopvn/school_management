@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.43
+- Phiên bản: 1.44
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -93,8 +93,13 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | GET, POST | /api/v1/academic-years | Danh sách và tạo năm học kèm lịch năm học |
 | GET, PUT | /api/v1/academic-years/{id}/calendar | Đọc và lưu học kỳ, kỳ hè, ngày học trong tuần; hệ thống tự đánh số tuần (BR-91) |
 | GET, PATCH | /api/v1/academic-years/{id}/weeks | Danh sách tuần; đánh dấu hoặc bỏ đánh dấu tuần nghỉ |
-| POST | /api/v1/academic-years/{id}/open | Mở năm học: kiểm tra BR-89, tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung, chuyển năm đang dùng sang đã đóng và chỉ đọc (BR-93) |
+| POST | /api/v1/academic-years/{id}/open | Mở năm học: kiểm tra BR-89, BR-94, tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung, trẻ, lớp, quỹ, công nợ (YCTD-69), chuyển năm đang dùng sang đã đóng và chỉ đọc (BR-93) |
 | POST | /api/v1/academic-years/{id}/close | Bỏ ngày 09/10/2026: gộp vào mở năm học mới (YCTD-37) |
+
+Giao kèo của mở năm học mới (DT-09 phần 9d, YCTD-69):
+
+1. `POST /academic-years/{id}/open` trả `ERR_RULE_VIOLATION` mã BR-89 kèm `details` từng trẻ đã thôi học hoặc ra trường còn nợ (`Tên: số tiền`); mã BR-94 kèm số chứng từ chờ duyệt theo loại.
+2. Danh sách và chi tiết phiếu thu có `carried_over`; `POST /receipts/{id}/reverse` với phiếu có `carried_over` trả mã BR-29; `GET /reports/cash-flow` không gồm phiếu này.
 
 Giao kèo của lịch nghỉ và lịch công tác (DT-09 phần 9c, YCTD-68):
 

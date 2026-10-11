@@ -7,6 +7,8 @@ export interface AcademicYearTransitionContext {
   // Trống khi mở năm học đầu tiên của hệ thống
   previousDatabase: Kysely<unknown> | null;
   newDatabase: Kysely<unknown>;
+  // Năm học đang mở: hóa đơn công nợ chuyển sang lấy kỳ đầu tiên và hạn nộp theo ngày bắt đầu (YCTD-69)
+  academicYear: { id: string; startDate: string };
   actorUserId: string;
 }
 

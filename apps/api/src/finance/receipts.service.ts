@@ -554,6 +554,7 @@ export class ReceiptsService {
         'receipts.receipt_date',
         'receipts.content',
         'receipts.status',
+        'receipts.carried_over',
         'receipts.created_by',
         'receipts.created_at',
       ]);

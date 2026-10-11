@@ -21,6 +21,8 @@ import { OrganizationScopes } from './organization/organization-scopes.js';
 import { orgUnitsTransitionStep } from './organization/org-units-transition.js';
 import { catalogsTransitionStep } from './catalogs/catalogs-transition.js';
 import { feeCatalogsTransitionStep } from './fees/fee-catalogs-transition.js';
+import { childrenTransitionStep } from './children/children-transition.js';
+import { financeTransitionStep } from './finance/finance-transition.js';
 import { CashflowCategoriesController, CashflowCategoriesService } from './fees/cashflow-categories.js';
 import { DiscountTypesController, DiscountTypesService } from './fees/discount-types.js';
 import { FeeSchedulesController, FeeSchedulesService } from './fees/fee-schedules.js';
@@ -169,6 +171,8 @@ export class ApplicationModule {
             staffAttendanceTransitionStep,
             payrollTransitionStep,
             feeCatalogsTransitionStep,
+            childrenTransitionStep,
+            financeTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },

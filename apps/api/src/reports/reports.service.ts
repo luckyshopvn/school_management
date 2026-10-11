@@ -316,6 +316,8 @@ export class ReportsService {
         ])
         .where('receipts.org_unit_id', 'in', orgUnitIds)
         .where('receipts.status', 'in', ACTIVE_DOCUMENT_STATUSES)
+        // Số dư có chuyển từ năm học trước không phải tiền thu trong kỳ (YCTD-69)
+        .where('receipts.carried_over', '=', false)
         .where('receipts.receipt_date', '>=', filter.from)
         .where('receipts.receipt_date', '<=', filter.to);
       if (filter.createdBy) {

@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.38
+- Phiên bản: 1.39
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -133,7 +133,7 @@ Ràng buộc duy nhất: `invoices` loại chính trên bộ ba trẻ, kỳ năm
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| receipts | Phiếu thu (YCTD-53) | code (dạng PT-000001, một dãy số toàn trường trong năm học), org_unit_id, child_id (trống với phiếu thu thu hồi lương, BR-90), staff_id (với phiếu thu thu hồi lương), payer_name, amount, method (tiền mặt, chuyển khoản, khác), account_id, category_id, receipt_date, content, status (đã phát hành, chờ duyệt đảo, đã đảo), request_key (duy nhất, chống gửi lặp), created_by; trường phiếu đảo thêm ở phần 5d-2; child_id được trống khi là phiếu thu thu hồi lương, khi đó có staff_id, settlement_id (YCTD-61) |
+| receipts | Phiếu thu (YCTD-53) | code (dạng PT-000001, một dãy số toàn trường trong năm học), org_unit_id, child_id (trống với phiếu thu thu hồi lương, BR-90), staff_id (với phiếu thu thu hồi lương), payer_name, amount, method (tiền mặt, chuyển khoản, khác), account_id, category_id, receipt_date, content, status (đã phát hành, chờ duyệt đảo, đã đảo), request_key (duy nhất, chống gửi lặp), created_by; trường phiếu đảo thêm ở phần 5d-2; child_id được trống khi là phiếu thu thu hồi lương, khi đó có staff_id, settlement_id (YCTD-61); carried_over đúng với phiếu ghi số dư có chuyển từ năm học trước, không có giao dịch quỹ (YCTD-69) |
 | receipt_allocations | Phân bổ phiếu thu vào hóa đơn (YCTD-53) | receipt_id, invoice_id, amount, created_by, created_at; tiền chưa phân bổ là số dư có của trẻ |
 | receipt_reversals | Phiếu đảo phiếu thu (YCTD-54) | code (dạng DPT-000001), receipt_id, org_unit_id, child_id, amount, reason, status (chờ duyệt, đã duyệt, bị từ chối), requires_principal, created_by, decided_by, decided_at, reject_reason; mỗi phiếu thu tối đa một phiếu đảo đang chờ hoặc đã duyệt |
 | online_payment_transactions | Giao dịch chuyển khoản trực tuyến (YCTD-57) | provider, provider_transaction_ref (duy nhất), virtual_account_number, amount, transfer_content, received_at, match_status (khớp, sai số tiền, không xác định hóa đơn, hóa đơn đã thu đủ), payment_request_id, invoice_id, child_id, org_unit_id, receipt_id, resolution_note, handled_by, handled_at |

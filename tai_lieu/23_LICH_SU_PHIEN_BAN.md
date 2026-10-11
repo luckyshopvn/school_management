@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.30.7 – 2026-10-11
+
+- Phạm vi thay đổi: DT-09 phần 9d, chuyển trẻ, phụ huynh, lớp đang học, quỹ, công nợ sang năm học mới; kiểm tra BR-89, BR-94 (YCTD-69).
+- Chức năng mới: hai bước chuyển năm học `children` và `finance`; mẫu thông báo chuyển cùng cấu hình.
+- Lỗi đã sửa: mở năm học mới trước đây không chuyển trẻ, lớp, quỹ, công nợ, mẫu thông báo và không kiểm tra BR-89.
+- Thay đổi dữ liệu: `receipts.carried_over`.
+- Thay đổi API: mở năm học trả thêm mã BR-94; phiếu thu có `carried_over`.
+- Rủi ro: mở năm học là thao tác một chiều; cần sao lưu trước khi mở (RR-13).
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-09-phan-9d`; chạy ngược tệp 0028 của cơ sở dữ liệu năm học.
+
 ### Phiên bản 0.30.6 – 2026-10-11
 
 - Phạm vi thay đổi: DT-09 phần 9c, lịch nghỉ và lịch công tác (YCTD-68).

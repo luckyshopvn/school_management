@@ -11,6 +11,27 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-69: Chuyển trẻ, phụ huynh, lớp đang học và công nợ sang năm học mới – 2026-10-11
+
+- Lý do: phần 9d theo cách chia ở YCTD-66; mở năm học mới mới chuyển danh mục, nhân sự, chấm công, lương, khoản thu nhưng chưa chuyển trẻ, lớp, quỹ, công nợ, chưa kiểm tra BR-89 (AC-194, GD-90, Q-149). Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Trẻ ở trạng thái nháp, chờ duyệt, đang học, tạm nghỉ được chuyển sang; trẻ đã thôi học, đã ra trường ở lại năm cũ. Đi kèm: phụ huynh có liên kết, quan hệ phụ huynh, hồ sơ sức khỏe, lịch sử đồng ý hình ảnh, người được ủy quyền đón còn hiệu lực, dòng thông tin tệp giấy khai sinh và giấy đồng ý (nội dung tệp nằm ở kho tệp dùng chung).
+  - Lớp đang mở và lớp trẻ đang học chuyển sang, gắn với năm học mới; phân công giáo viên còn hiệu lực đi theo; mỗi trẻ chỉ chuyển dòng lớp hiện tại (GD-90). Lên lớp đầu năm làm bằng tạo lớp mới và chuyển lớp ở năm mới; lịch sử lớp đầy đủ, điểm danh, đón trả, nhật ký tra ở năm cũ.
+  - Đăng ký dịch vụ: chuyển dòng gần nhất của mỗi trẻ, mỗi dịch vụ để dịch vụ không bắt buộc tiếp tục giữ cho tới khi hủy.
+  - Mẫu thông báo toàn trường chuyển sang cùng cấu hình.
+  - Tài khoản quỹ chuyển sang, số dư đầu kỳ bằng số dư hiện tại của năm cũ; dãy số chứng từ năm mới bắt đầu lại từ 000001 (YCTD-30).
+  - Công nợ: với mỗi trẻ được chuyển, số còn phải nộp trên hóa đơn đã phát hành trừ số dư có. Còn nợ thì năm mới có một hóa đơn công nợ đầu kỳ (`invoice_kind` = `opening`) ở kỳ đầu tiên, hạn nộp là ngày bắt đầu năm học. Còn dư thì năm mới có một phiếu thu ghi số dư có chuyển sang (`carried_over`), không phát sinh tiền vào quỹ, không vào báo cáo thu chi, không đảo được; số dư này dùng bù trừ hoặc hoàn như số dư có thường.
+  - BR-89 áp dụng cho cả trẻ đã ra trường; thêm BR-94: không mở được năm mới khi còn miễn giảm, điều chỉnh hóa đơn, phiếu đảo phiếu thu, phiếu chi, phiếu đảo phiếu chi chờ duyệt, vì năm cũ chuyển sang chỉ đọc.
+  - Mã thanh toán trực tuyến của hóa đơn năm cũ không chuyển; tiền về sau khi mở năm mới vào hàng đợi chưa khớp để kế toán xử lý.
+- Thành phần bị ảnh hưởng: `07`, `16`, `17`, `21`, `27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md`, `01`, `02`, `03`, `23`, `index.md`; máy chủ API.
+- Dữ liệu bị ảnh hưởng: cột mới `receipts.carried_over` (tệp 0028 của cơ sở dữ liệu năm học).
+- API bị ảnh hưởng: `POST /academic-years/{id}/open` trả thêm mã BR-94; danh sách phiếu thu có `carried_over`; báo cáo thu chi bỏ phiếu số dư có chuyển sang; đảo phiếu số dư có chuyển sang trả mã BR-29.
+- Giao diện bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: mở năm học có thêm bước kiểm tra và chuyển dữ liệu.
+- Kiểm thử cần thực hiện: CTC-P01-014, 015, 017, 096, 097, 098, CT-150, CT-177.
+- Trạng thái: Đã triển khai
+
 ### YCTD-68: Lịch nghỉ và lịch công tác của nhân sự – 2026-10-11
 
 - Lý do: phần 9c theo cách chia ở YCTD-66; P08-02 thuộc giai đoạn 1 nhưng chưa làm. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.

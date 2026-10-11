@@ -33,6 +33,12 @@ export class ReceiptReversalsService {
     if (receipt.status !== 'issued') {
       throw ruleViolationError('BR-29', 'Phiếu thu này đang chờ duyệt đảo hoặc đã đảo');
     }
+    if (receipt.carried_over) {
+      throw ruleViolationError(
+        'BR-29',
+        'Phiếu ghi số dư có chuyển từ năm học trước không có tiền vào quỹ, không đảo được',
+      );
+    }
     const refunded = await database
       .selectFrom('payment_refund_sources')
       .innerJoin('payments', 'payments.id', 'payment_refund_sources.payment_id')
@@ -299,6 +305,7 @@ export class ReceiptReversalsService {
         'receipts.amount',
         'receipts.account_id',
         'receipts.status',
+        'receipts.carried_over',
         'children.full_name as child_name',
       ])
       .where('receipts.id', '=', receiptId)
