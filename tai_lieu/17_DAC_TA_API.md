@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.45
+- Phiên bản: 1.46
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -95,6 +95,16 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | GET, PATCH | /api/v1/academic-years/{id}/weeks | Danh sách tuần; đánh dấu hoặc bỏ đánh dấu tuần nghỉ |
 | POST | /api/v1/academic-years/{id}/open | Mở năm học: kiểm tra BR-89, BR-94, tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung, trẻ, lớp, quỹ, công nợ (YCTD-69), chuyển năm đang dùng sang đã đóng và chỉ đọc (BR-93) |
 | POST | /api/v1/academic-years/{id}/close | Bỏ ngày 09/10/2026: gộp vào mở năm học mới (YCTD-37) |
+
+Giao kèo của y tế học đường phần hồ sơ, khám, sự kiện, chăm sóc, báo cáo (DT-10 phần 10a, YCTD-74):
+
+1. Chỉ số và kết quả khám trả `evaluation` dạng `{ height_cm | weight_kg | bmi: below | normal | above }`, chỉ có chỉ số đã có tiêu chuẩn phù hợp.
+2. `POST /children/{id}/health-measurements` nhận `measured_on`, `height_cm` (30 đến 200), `weight_kg` (1 đến 150), `vision_left`, `vision_right`, `note`; cần ít nhất một chỉ số.
+3. `POST /health-standards` nhận `indicator_code`, `gender`, `age_month_from`, `age_month_to` (0 đến 120), `lower_value`, `upper_value`, `source_document`; trùng khoảng trả mã P10-11.
+4. `POST /health-check-schedules` nhận `campaign_id`, `class_id`, `check_date`, `location`; trả thêm `notified_count`; lớp đã có lịch trong đợt trả `ERR_CONFLICT`. `PUT /health-check-campaigns/{id}/results` nhận `child_id`, `height_cm`, `weight_kg`, `result_data`, `conclusion`, `note`; đợt đã đóng trả mã P10-06.
+5. `POST /medical-events` nhận `child_id`, `occurred_at` (ISO 8601, không sau hiện tại), `symptoms`, `handling`, `handler_name` (trống là người ghi), `severity` (`mild`, `moderate`, `severe`). `GET /medical-events` nhận `child_id` hoặc `org_unit_id`, `from`, `to`. `POST /medical-events/{id}/acknowledge` chỉ phụ huynh của trẻ, gọi lại trả thời điểm xác nhận lần đầu.
+6. `POST /daily-care-logs` nhận `child_id`, `care_date` (trống là hôm nay), `temperature` (34 đến 43), `condition_note`, `special_care_note`.
+7. `POST /health-report-requests` nhận `child_id`, `report_type` (`growth`, `medical`, `full`), `period_from`, `period_to`, `note`; đã có yêu cầu đang chờ trả mã P10-08. `GET /health-report-requests` nhận `status`; y tế thấy yêu cầu trong đơn vị, phụ huynh thấy yêu cầu của mình kèm `report_data`. `POST /health-report-requests/{id}/send` nhận `response_note`.
 
 Giao kèo của mở năm học mới (DT-09 phần 9d, YCTD-69):
 
@@ -616,6 +626,15 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 | POST | /api/v1/medication-administrations | Ghi nhận một lần cho uống thuốc hoặc bỏ liều; giáo viên chủ nhiệm chỉ gọi được khi đơn vị bật cấu hình không có nhân viên y tế |
 | POST | /api/v1/medication-administrations/{id}/acknowledge | Phụ huynh xác nhận đã biết thông báo bỏ liều (YCTD-25) |
 | GET, POST | /api/v1/health-check-campaigns | Đợt khám sức khỏe |
+| POST | /api/v1/health-check-campaigns/{id}/close | Đóng đợt khám (YCTD-74) |
+| GET | /api/v1/health-check-campaigns/{id}/results | Kết quả khám của trẻ đang học trong đơn vị của đợt, lọc theo lớp, kèm đánh giá |
+| POST | /api/v1/health-check-campaigns/{id}/publish-results | Công bố kết quả chưa công bố, báo phụ huynh |
+| GET | /api/v1/children/{id}/health | Tổng hợp sức khỏe của trẻ: hồ sơ, chỉ số, kết quả khám đã công bố, sự kiện y tế, chăm sóc 30 ngày |
+| POST | /api/v1/daily-care-logs | Ghi chăm sóc hằng ngày |
+| GET | /api/v1/children/{id}/daily-care-logs | Chăm sóc hằng ngày của trẻ theo khoảng ngày |
+| GET, POST | /api/v1/health-report-requests | Yêu cầu báo cáo sức khỏe |
+| POST | /api/v1/health-report-requests/{id}/send | Y tế tổng hợp và gửi báo cáo |
+| DELETE | /api/v1/health-standards/{id} | Xóa tiêu chuẩn sức khỏe |
 | PUT | /api/v1/health-check-campaigns/{id}/results | Ghi kết quả khám cho từng trẻ |
 | GET, POST | /api/v1/medical-events | Sự kiện y tế tại trường |
 | POST | /api/v1/medical-events/{id}/acknowledge | Phụ huynh xác nhận đã biết sự kiện y tế (YCTD-25) |

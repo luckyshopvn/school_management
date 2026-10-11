@@ -1159,6 +1159,118 @@ export interface WorkSchedulesTable {
   created_at: CreatedTimestamp;
 }
 
+// Y tế học đường phần hồ sơ, khám, sự kiện, chăm sóc (P10; YCTD-74)
+export type HealthIndicator = 'height_cm' | 'weight_kg' | 'bmi';
+export type MedicalEventSeverity = 'mild' | 'moderate' | 'severe';
+export type HealthReportType = 'growth' | 'medical' | 'full';
+
+export interface HealthMeasurementsTable {
+  id: Generated<string>;
+  child_id: string;
+  measured_on: string;
+  height_cm: Decimal | null;
+  weight_kg: Decimal | null;
+  vision_left: string | null;
+  vision_right: string | null;
+  note: string | null;
+  recorded_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface HealthStandardsTable {
+  id: Generated<string>;
+  indicator_code: HealthIndicator;
+  gender: ChildGender;
+  age_month_from: number;
+  age_month_to: number;
+  lower_value: Decimal;
+  upper_value: Decimal;
+  source_document: string;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface HealthCheckCampaignsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  name: string;
+  from_date: string;
+  to_date: string;
+  status: Generated<'open' | 'closed'>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface HealthCheckSchedulesTable {
+  id: Generated<string>;
+  campaign_id: string;
+  class_id: string;
+  check_date: string;
+  location: string;
+  published_at: Date | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface HealthCheckResultsTable {
+  id: Generated<string>;
+  campaign_id: string;
+  child_id: string;
+  height_cm: Decimal | null;
+  weight_kg: Decimal | null;
+  result_data: ColumnType<Record<string, unknown>, string | undefined, string>;
+  conclusion: string | null;
+  note: string | null;
+  recorded_by: string;
+  recorded_at: UpdatedTimestamp;
+  published_at: Date | null;
+}
+
+export interface MedicalEventsTable {
+  id: Generated<string>;
+  child_id: string;
+  org_unit_id: string;
+  occurred_at: Date;
+  symptoms: string;
+  handling: string;
+  handler_name: string;
+  severity: MedicalEventSeverity;
+  recorded_by: string;
+  notified_guardians_at: Date | null;
+  parent_acknowledged_at: Date | null;
+  parent_acknowledged_by: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface DailyCareLogsTable {
+  id: Generated<string>;
+  child_id: string;
+  care_date: string;
+  recorded_at: Date;
+  temperature: Decimal | null;
+  condition_note: string | null;
+  special_care_note: string | null;
+  recorded_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface HealthReportRequestsTable {
+  id: Generated<string>;
+  child_id: string;
+  org_unit_id: string;
+  report_type: HealthReportType;
+  period_from: string;
+  period_to: string;
+  note: string | null;
+  status: Generated<'pending' | 'sent'>;
+  requested_by: string;
+  requested_at: CreatedTimestamp;
+  report_data: ColumnType<Record<string, unknown> | null, string | null | undefined, string | null>;
+  response_note: string | null;
+  sent_by: string | null;
+  sent_at: Date | null;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -1238,4 +1350,12 @@ export interface SchoolYearDatabase {
   journal_amendments: JournalAmendmentsTable;
   child_unit_transfers: ChildUnitTransfersTable;
   work_schedules: WorkSchedulesTable;
+  health_measurements: HealthMeasurementsTable;
+  health_standards: HealthStandardsTable;
+  health_check_campaigns: HealthCheckCampaignsTable;
+  health_check_schedules: HealthCheckSchedulesTable;
+  health_check_results: HealthCheckResultsTable;
+  medical_events: MedicalEventsTable;
+  daily_care_logs: DailyCareLogsTable;
+  health_report_requests: HealthReportRequestsTable;
 }

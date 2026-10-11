@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.20
+- Phiên bản: 1.21
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -96,7 +96,7 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 | BR-50 | Mỗi lần cho trẻ uống thuốc, người nhận thuốc theo BR-49 ghi nhận thời điểm và người thực hiện. Bỏ liều phải ghi lý do |
 | BR-51 | Hồ sơ sức khỏe của trẻ gồm: chiều cao, cân nặng, dị ứng, bệnh nền, kết quả khám định kỳ, sự kiện y tế phát sinh tại trường, nhu cầu đặc biệt và lưu ý chăm sóc |
 | BR-52 | Sự kiện y tế tại trường phải được ghi nhận ngay, thông báo cho phụ huynh, và ghi rõ ai xử lý, xử lý như thế nào |
-| BR-53 | Dữ liệu sức khỏe của trẻ là dữ liệu cá nhân nhạy cảm; chỉ giáo viên chủ nhiệm, y tế, Ban Giám hiệu, quản lý đơn vị, kế toán và chính phụ huynh của trẻ được xem; nhu cầu đặc biệt và lưu ý chăm sóc của trẻ cũng thuộc nhóm dữ liệu này |
+| BR-53 | Dữ liệu sức khỏe của trẻ là dữ liệu cá nhân nhạy cảm; chỉ giáo viên chủ nhiệm, y tế, Ban Giám hiệu, quản lý đơn vị, kế toán (VT-04, không gồm kế toán trưởng, YCTD-74) và chính phụ huynh của trẻ được xem; nhu cầu đặc biệt và lưu ý chăm sóc của trẻ cũng thuộc nhóm dữ liệu này |
 
 ## 9. Quy tắc về đưa đón và bàn giao trẻ
 

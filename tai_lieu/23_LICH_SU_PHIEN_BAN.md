@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.32.0 – 2026-10-11
+
+- Phạm vi thay đổi: kế hoạch DT-10 (YCTD-73); DT-10 phần 10a, y tế học đường phần hồ sơ, khám, sự kiện, chăm sóc, báo cáo (YCTD-74).
+- Chức năng mới: P10-01, P10-06, P10-07, P10-08, P10-10, P10-11, P10-12 trên máy chủ API, cổng quản trị (MH-16), ứng dụng giáo viên (MG-09), ứng dụng phụ huynh (MP-08).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: tám bảng y tế của năm học; ba quyền P10.
+- Thay đổi API: các điểm cuối y tế trong `17`.
+- Rủi ro: tiêu chuẩn sức khỏe do y tế nhập tay theo văn bản của Bộ Y tế, nhập sai thì đánh giá sai.
+- Khả năng tương thích: kế toán trưởng không còn thấy mục sức khỏe trong chi tiết hồ sơ trẻ (BR-53).
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-10-phan-10a`; chạy ngược tệp 0030 của cơ sở dữ liệu năm học và 0031 của định danh.
+
 ### Phiên bản 0.31.0 – 2026-10-11 (ứng viên phát hành 1.0.0)
 
 - Phạm vi thay đổi: DT-09 phần 9g, báo cáo cổng CG-10 và bản ứng viên phát hành 1.0.0 (YCTD-72).
