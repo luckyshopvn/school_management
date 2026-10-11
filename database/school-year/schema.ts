@@ -1077,6 +1077,21 @@ export interface PayrollAdjustmentsTable {
   decided_at: Date | null;
   reject_reason: string | null;
 }
+
+export interface NotificationReadsTable {
+  id: Generated<string>;
+  notification_id: string;
+  user_id: string;
+  read_at: CreatedTimestamp;
+}
+
+export interface NotificationTemplatesTable {
+  template_code: string;
+  title_template: string;
+  body_template: string;
+  updated_by: string | null;
+  updated_at: UpdatedTimestamp;
+}
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -1150,4 +1165,6 @@ export interface SchoolYearDatabase {
   payslip_lines: PayslipLinesTable;
   payroll_settlements: PayrollSettlementsTable;
   payroll_adjustments: PayrollAdjustmentsTable;
+  notification_reads: NotificationReadsTable;
+  notification_templates: NotificationTemplatesTable;
 }

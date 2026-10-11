@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.39
+- Phiên bản: 1.40
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -95,6 +95,12 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | GET, PATCH | /api/v1/academic-years/{id}/weeks | Danh sách tuần; đánh dấu hoặc bỏ đánh dấu tuần nghỉ |
 | POST | /api/v1/academic-years/{id}/open | Mở năm học: kiểm tra BR-89, tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung, chuyển năm đang dùng sang đã đóng và chỉ đọc (BR-93) |
 | POST | /api/v1/academic-years/{id}/close | Bỏ ngày 09/10/2026: gộp vào mở năm học mới (YCTD-37) |
+
+Giao kèo của trung tâm thông báo (DT-08 phần 8a, YCTD-64):
+
+1. `GET /notifications?unread_only=` trả `unread_count` và tối đa 50 `notifications` mới nhất (`id`, `template_code`, `title`, `body` đã áp mẫu, `created_at`, `is_read`).
+2. `POST /notifications/{id}/read` với thông báo không gửi cho mình trả `ERR_NOT_FOUND`. `GET /notifications/{id}/receipts` cần `P19.notification-receipt.view` trong phạm vi đơn vị của thông báo; trả `direct_recipients`, `role_recipients`, `readers`, `unread_count`.
+3. `PUT /notification-templates/{code}` nhận `title_template`, `body_template` (tối đa 1000 ký tự); cần `P19.notification-template.manage` với phạm vi toàn trường.
 
 Giao kèo của khóa API cho đối tác (DT-07 phần 7b, YCTD-63):
 
@@ -677,6 +683,10 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | POST | /api/v1/reports/{code}/export | Xuất báo cáo ra tệp |
 | GET | /api/v1/notifications | Danh sách thông báo của người đăng nhập |
 | POST | /api/v1/notifications/{id}/read | Đánh dấu đã đọc |
+| POST | /api/v1/notifications/read-all | Đánh dấu đọc tất cả (YCTD-64) |
+| GET | /api/v1/notifications/{id}/receipts | Ai đã đọc, ai chưa đọc (BR-70, YCTD-64) |
+| GET | /api/v1/notification-templates | Mẫu thông báo theo mã (YCTD-64) |
+| PUT, DELETE | /api/v1/notification-templates/{code} | Sửa mẫu hoặc dùng lại nội dung gốc |
 | GET, POST | /api/v1/notification-templates | Mẫu thông báo |
 
 ## 18. Quy tắc kiểm tra dữ liệu

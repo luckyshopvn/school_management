@@ -22,6 +22,7 @@ import { migration as createStaffAttendance } from './migrations/0020_create_sta
 import { migration as createLeaveAndTimesheets } from './migrations/0021_create_leave_and_timesheets.js';
 import { migration as createPayrolls } from './migrations/0022_create_payrolls.js';
 import { migration as createSettlementsAndAdjustments } from './migrations/0023_create_settlements_and_adjustments.js';
+import { migration as createNotificationCenter } from './migrations/0024_create_notification_center.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
@@ -48,4 +49,5 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0021_create_leave_and_timesheets': createLeaveAndTimesheets,
   '0022_create_payrolls': createPayrolls,
   '0023_create_settlements_and_adjustments': createSettlementsAndAdjustments,
+  '0024_create_notification_center': createNotificationCenter,
 };

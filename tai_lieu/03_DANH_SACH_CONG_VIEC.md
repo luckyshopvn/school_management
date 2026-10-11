@@ -54,7 +54,7 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | M07 | Xây dựng hồ sơ nhân sự và hợp đồng lao động | P07 | Hoàn thành | Đợt DT-06 phần 6a (YCTD-58) đã gộp vào main |
 | M08 | Xây dựng chấm công, nghỉ phép, bảng lương | P08 | Hoàn thành | Đợt DT-06 phần 6b-1, 6b-2, 6c-1, 6c-2 (YCTD-59 đến YCTD-61) |
 | M17 | Xây dựng bảng điều khiển và báo cáo cơ bản | P17 | Hoàn thành | Đợt DT-07 phần 7a, 7b (YCTD-62, YCTD-63) |
-| M19 | Xây dựng ứng dụng phụ huynh và ứng dụng giáo viên | P19 | Chưa bắt đầu | Phụ thuộc M02, M04, M05 |
+| M19 | Xây dựng ứng dụng phụ huynh và ứng dụng giáo viên | P19 | Đang thực hiện | Đợt DT-08 phần 8a trung tâm thông báo đã có (YCTD-64); phần 8b nhật ký của bé |
 | M03 | Xây dựng giảng dạy, giáo án, thời khóa biểu | P03 | Chưa bắt đầu | Giai đoạn 2 |
 | M09 | Xây dựng công việc, kế hoạch, đánh giá | P09 | Chưa bắt đầu | Giai đoạn 2 |
 | M10 | Xây dựng y tế học đường | P10 | Chưa bắt đầu | Giai đoạn 2 |

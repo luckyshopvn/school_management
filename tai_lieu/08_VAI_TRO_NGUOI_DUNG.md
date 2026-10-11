@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.31
+- Phiên bản: 1.32
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -131,6 +131,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-34 | Quyết toán và điều chỉnh lương (YCTD-61): VT-04 lập bảng quyết toán, khoản điều chỉnh và phiếu chi lương bằng `P08.payroll.manage`, phiếu chi cần thêm `P06.payment.manage` ở Trường chính, phiếu thu thu hồi cần `P06.receipt.manage` ở đơn vị của quỹ; VT-02 duyệt mọi bảng quyết toán và khoản điều chỉnh, VT-15 gán ở Trường chính duyệt khi dưới hạn mức bảng lương; người lập khoản điều chỉnh không tự duyệt |
 | PQ-35 | Bảng điều khiển và báo cáo (YCTD-62): `P17.dashboard.leadership` cho VT-02, VT-15; `P17.dashboard.unit` cho VT-03; `P17.report.tuition`, `P17.report.debt` cho VT-02, VT-15, VT-04, VT-05; `P17.report.cash-flow` cho VT-02, VT-04, VT-05; `P17.report.attendance` cho VT-02, VT-15, VT-03; `P17.report.staff-attendance` cho VT-02, VT-15, VT-03, VT-06; `P17.report.saturday` cho VT-02, VT-15, VT-03, VT-04; `P17.birthday.view` cho VT-02, VT-15, VT-03. Phạm vi theo đơn vị được gán; giáo viên xem điểm danh và sinh nhật của lớp được phân công |
 | PQ-36 | Khóa API cho đối tác (YCTD-63): `P01.api-client.manage` cho VT-02 cấp, xem, thu hồi khóa. Đối tác không có tài khoản, chỉ đọc qua nhóm `/partner/` trong phạm vi của khóa |
+| PQ-37 | Thông báo (YCTD-64): mọi người xem và đánh dấu đã đọc thông báo của mình; `P19.notification-receipt.view` cho VT-02, VT-15, VT-03 xem ai đã đọc thông báo của đơn vị trong phạm vi; `P19.notification-template.manage` cho VT-02, VT-03 gán ở Trường chính sửa mẫu thông báo |
 
 ## 5. Phân cấp phê duyệt
 

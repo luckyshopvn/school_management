@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.30.2 – 2026-10-11
+
+- Phạm vi thay đổi: DT-08 phần 8a, trung tâm thông báo và mẫu thông báo (YCTD-64).
+- Chức năng mới: thông báo của tôi trên ba kênh giao diện, đánh dấu đã đọc, ai đã đọc, mẫu thông báo.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: `notification_reads`, `notification_templates`; hai mã quyền P19.
+- Thay đổi API: nhóm điểm cuối `/notifications`, `/notification-templates`.
+- Rủi ro: không.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-08-phan-8a`; chạy ngược tệp thay đổi cấu trúc 0024 của cơ sở dữ liệu năm học và 0029 của cơ sở dữ liệu định danh.
+
 ### Phiên bản 0.30.1 – 2026-10-11
 
 - Phạm vi thay đổi: DT-07 phần 7b, khóa API cho đối tác chỉ đọc (YCTD-63).
