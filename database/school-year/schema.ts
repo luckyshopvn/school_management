@@ -625,6 +625,8 @@ export interface ReceiptsTable {
   created_at: CreatedTimestamp;
   staff_id: string | null;
   settlement_id: string | null;
+  // Số dư có chuyển từ năm học trước (YCTD-69)
+  carried_over: Generated<boolean>;
 }
 
 export interface ReceiptAllocationsTable {

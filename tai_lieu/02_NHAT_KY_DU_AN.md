@@ -14,6 +14,27 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-09 phần 9d: chuyển dữ liệu sang năm học mới
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 38 (phần 9c); viết phần 9d trên nhánh `dt-09-phan-9d`.
+- Cơ sở dữ liệu: năm học có cột `receipts.carried_over` (tệp 0028).
+- Máy chủ API: bước chuyển trẻ, phụ huynh, lớp, đăng ký dịch vụ; bước chuyển quỹ, công nợ, số dư có kèm kiểm tra BR-89, BR-94; mẫu thông báo chuyển cùng cấu hình.
+- Kết quả: máy chủ API 390/390.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-69 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-69 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.30.7.
+
+#### Vấn đề tồn đọng
+
+- Phần 9e đến 9g của đợt DT-09.
+
 ### 2026-10-11 — DT-09 phần 9c: lịch nghỉ và lịch công tác
 
 #### Công việc đã thực hiện

@@ -299,6 +299,7 @@ export class AcademicYearsService {
         await step.carryOver?.({
           previousDatabase: current ? this.databases.schoolYear<unknown>(current.database_name) : null,
           newDatabase,
+          academicYear: { id: year.id, startDate: year.start_date },
           actorUserId,
         });
       }
