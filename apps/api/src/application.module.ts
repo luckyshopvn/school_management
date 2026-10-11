@@ -67,6 +67,7 @@ import { OnlinePaymentsService } from './finance/online-payments.service.js';
 import { DevelopmentPaymentGateway, PaymentGateway, UnavailablePaymentGateway } from './finance/payment-gateway.js';
 import { DebtsService } from './fees/debts.service.js';
 import { ChildLifecycleController, ChildLifecycleService } from './children/child-lifecycle.js';
+import { WorkSchedulesController, WorkSchedulesService } from './staff-attendance/work-schedules.js';
 import { StaffController } from './staff/staff.controller.js';
 import { StaffService } from './staff/staff.service.js';
 import { staffTransitionStep } from './staff/staff-transition.js';
@@ -120,6 +121,7 @@ export class ApplicationModule {
         ClassesController,
         ChildrenController,
         ChildLifecycleController,
+        WorkSchedulesController,
         FilesController,
         ImportsController,
         AttendanceController,
@@ -186,6 +188,7 @@ export class ApplicationModule {
         ChildScope,
         ChildrenService,
         ChildLifecycleService,
+        WorkSchedulesService,
         ChildDataProtection,
         FilesService,
         ImportsService,

@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.37
+- Phiên bản: 1.38
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -165,7 +165,7 @@ Ràng buộc duy nhất: `receipts` trên bộ đôi đơn vị và mã phiếu 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
 | attendance_logs | Chấm công (YCTD-59) | staff_id, work_date, check_in, check_out (giờ HH:MM theo giờ Việt Nam), worked_minutes, late_minutes, early_leave_minutes, source (tự chấm hoặc nhập tay), note, updated_by |
-| work_schedules | Lịch nghỉ và lịch công tác | staff_id, schedule_date, schedule_type, note |
+| work_schedules | Lịch nghỉ và lịch công tác (YCTD-68) | staff_id, org_unit_id, schedule_date (duy nhất cùng staff_id), schedule_type (công tác hoặc nghỉ), note, status (nháp, đã công bố), published_at, published_by, created_by |
 | leave_requests | Đơn xin nghỉ phép (YCTD-59) | staff_id, leave_type_id, is_paid, deducts_annual_leave, insurance_paid (chép từ loại nghỉ lúc gửi), from_date, to_date, first_day_half, last_day_half, days, reason, status (chờ duyệt, đã duyệt, bị từ chối, đã hủy), created_by, requested_at, decided_by, decided_at, reject_reason |
 | leave_balances | Số ngày phép năm theo năm dương lịch (YCTD-59) | staff_id, balance_year (duy nhất cùng staff_id), entitled_days, used_days, policy_id, adjust_reason, updated_by |
 | leave_policies | Quy định số ngày phép năm chung toàn trường (YCTD-59) | job_title_id, seniority_from_years, seniority_to_years, entitled_days, status |

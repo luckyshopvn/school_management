@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.42
+- Phiên bản: 1.43
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -95,6 +95,13 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | GET, PATCH | /api/v1/academic-years/{id}/weeks | Danh sách tuần; đánh dấu hoặc bỏ đánh dấu tuần nghỉ |
 | POST | /api/v1/academic-years/{id}/open | Mở năm học: kiểm tra BR-89, tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung, chuyển năm đang dùng sang đã đóng và chỉ đọc (BR-93) |
 | POST | /api/v1/academic-years/{id}/close | Bỏ ngày 09/10/2026: gộp vào mở năm học mới (YCTD-37) |
+
+Giao kèo của lịch nghỉ và lịch công tác (DT-09 phần 9c, YCTD-68):
+
+1. `GET /work-schedules?org_unit_id=&month=` cần `P08.work-schedule.manage` hoặc `P08.attendance.view` trong phạm vi; trả từng lịch kèm `full_name`, `status`, `published_at`.
+2. `POST /work-schedules` nhận `staff_id`, `schedule_date`, `schedule_type` (`business_trip`, `day_off`), `note`; ngày ngoài thời gian làm việc trả `ERR_VALIDATION`; kỳ công đã chốt trả mã Q-135; trùng ngày trả `ERR_CONFLICT`.
+3. `POST /work-schedules/publish` nhận `org_unit_id`, `month`; trả `published_count`; không có lịch nháp trả mã P08-02.
+4. `GET /me/work-schedules?month=` trả lịch đã công bố của người đăng nhập; tháng trống là tháng hiện tại.
 
 Giao kèo của chuyển đơn vị, thôi học, đồng ý hình ảnh (DT-09 phần 9b, YCTD-67):
 
@@ -532,7 +539,10 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 | GET, POST | /api/v1/attendance-logs/reopen-requests | Đề nghị mở lại đang chờ trong phạm vi người duyệt; nhân sự đề nghị mở lại kỳ công đã chốt kèm lý do |
 | POST | /api/v1/attendance-logs/reopen-requests/{id}/approve | Ban Giám hiệu duyệt mở lại kỳ công (Q-135) |
 | POST | /api/v1/attendance-logs/reopen-requests/{id}/reject | Ban Giám hiệu từ chối mở lại kèm lý do (YCTD-59) |
-| GET, POST | /api/v1/work-schedules | Lịch nghỉ và lịch công tác |
+| GET, POST | /api/v1/work-schedules | Lịch nghỉ và lịch công tác của đơn vị theo tháng; lập lịch nháp (YCTD-68) |
+| POST | /api/v1/work-schedules/publish | Công bố lịch nháp của đơn vị trong tháng |
+| DELETE | /api/v1/work-schedules/{id} | Xóa lịch khi kỳ công còn mở |
+| GET | /api/v1/me/work-schedules | Lịch đã công bố của tôi theo tháng |
 | GET, POST | /api/v1/leave-requests | Danh sách và tạo đơn xin nghỉ phép |
 | POST | /api/v1/leave-requests/{id}/approve | Duyệt đơn nghỉ phép |
 | POST | /api/v1/leave-requests/{id}/reject | Từ chối đơn nghỉ phép kèm lý do |

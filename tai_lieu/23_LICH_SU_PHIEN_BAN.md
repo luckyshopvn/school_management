@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.30.6 – 2026-10-11
+
+- Phạm vi thay đổi: DT-09 phần 9c, lịch nghỉ và lịch công tác (YCTD-68).
+- Chức năng mới: P08-02 trên máy chủ API, cổng quản trị (MH-56), ứng dụng giáo viên (MG-10).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: `work_schedules`; quyền `P08.work-schedule.manage`.
+- Thay đổi API: năm điểm cuối lịch công tác; bảng công tính ngày công tác đã công bố.
+- Rủi ro: ngày công tác không chấm công được tính đủ giờ chuẩn nên lịch phải lập đúng trước khi chốt công.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-09-phan-9c`; chạy ngược tệp 0027 của cơ sở dữ liệu năm học và 0030 của cơ sở dữ liệu định danh.
+
 ### Phiên bản 0.30.5 – 2026-10-11
 
 - Phạm vi thay đổi: DT-09 phần 9b, chuyển đơn vị, thôi học, đồng ý hình ảnh, cờ trẻ con nhân viên (YCTD-67).

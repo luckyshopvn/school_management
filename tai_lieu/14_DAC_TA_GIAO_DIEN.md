@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.28
+- Phiên bản: 1.29
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -100,6 +100,7 @@ flowchart TD
 | MH-52 | Quy định phép năm theo chức danh và thâm niên; số ngày phép năm của nhân sự trong đơn vị, chỉnh kèm lý do (YCTD-59) | VT-06, VT-02, VT-15, VT-03, VT-04, VT-05 |
 | MH-53 | Danh mục lương và biểu thuế: phụ cấp, thưởng, khấu trừ chung toàn trường; các phiên bản biểu thuế thu nhập cá nhân (YCTD-60) | VT-04, VT-05, người xem bảng lương |
 | MH-54 | Quyết toán và điều chỉnh lương: hợp đồng đã chấm dứt, bảng quyết toán, trình và duyệt, phiếu chi quyết toán, phiếu thu thu hồi lương; khoản điều chỉnh lương kỳ sau (YCTD-61) | VT-04, VT-15, VT-02, người xem bảng lương |
+| MH-56 | Lịch công tác: chọn đơn vị và tháng, lập lịch công tác hoặc nghỉ cho nhân sự, xóa, công bố lịch nháp của tháng (YCTD-68) | VT-06, VT-03; người xem chấm công chỉ xem |
 | MH-55 | Thông báo: thông báo của tôi, chỉ chưa đọc, đánh dấu đã đọc, ai đã đọc; mẫu thông báo (YCTD-64) | Mọi nhân sự dùng cổng quản trị; mẫu cho VT-02, VT-03 gán ở Trường chính |
 
 ### 2.2 Ứng dụng giáo viên
@@ -115,7 +116,7 @@ flowchart TD
 | MG-07 | Tạo hoạt động và album hình ảnh | VT-07, VT-08 |
 | MG-08 | Trao đổi với phụ huynh | VT-07 |
 | MG-09 | Yêu cầu dặn thuốc của lớp; nhận thuốc và ghi liều khi đơn vị không có nhân viên y tế; chăm sóc hằng ngày | VT-07 |
-| MG-10 | Chấm công hôm nay, đơn nghỉ phép và số ngày phép của tôi (YCTD-59) | Mọi nhân sự dùng ứng dụng giáo viên |
+| MG-10 | Chấm công hôm nay, đơn nghỉ phép, số ngày phép và lịch công tác đã công bố của tôi (YCTD-59, YCTD-68) | Mọi nhân sự dùng ứng dụng giáo viên |
 | MG-11 | Phiếu lương của tôi: phiếu đã duyệt, từng dòng kèm căn cứ (YCTD-60) | Mọi nhân sự dùng ứng dụng giáo viên |
 | MG-12 | Công việc được giao và kế hoạch | Mọi nhân sự dùng ứng dụng giáo viên |
 | MG-13 | Lịch đưa đón của tuyến — Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62) | — |

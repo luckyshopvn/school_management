@@ -37,6 +37,7 @@ type NavigationPath =
   | '/staff'
   | '/staff-attendance'
   | '/school-days'
+  | '/work-schedules'
   | '/leave-requests'
   | '/leave-policies'
   | '/payrolls'
@@ -86,6 +87,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canImportOpeningDebts = useHasPermission(PERMISSION_CODES.openingDebtImport);
   const canImportStaff = useHasPermission(PERMISSION_CODES.importStaff);
   const canViewStaff = useHasPermission(PERMISSION_CODES.staffView);
+  const canManageWorkSchedules = useHasPermission(PERMISSION_CODES.workScheduleManage);
+  const canViewStaffAttendance = useHasPermission(PERMISSION_CODES.staffAttendanceView);
+  const canSeeWorkSchedules = canManageWorkSchedules || canViewStaffAttendance;
   const canViewPayroll = useHasPermission(PERMISSION_CODES.payrollView);
   const canManageApiClients = useHasPermission(PERMISSION_CODES.apiClientManage);
   const canManagePayItems = useHasPermission(PERMISSION_CODES.payItemTypeManage);
@@ -156,6 +160,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <NavItem to="/staff-attendance" label="Chấm công" />
           <NavItem to="/leave-requests" label="Đơn nghỉ phép" />
           <NavItem to="/school-days" label="Ngày lễ và lịch bù" />
+          {canSeeWorkSchedules ? <NavItem to="/work-schedules" label="Lịch công tác" /> : null}
           <NavItem to="/leave-policies" label="Quy định phép năm" />
           {canViewPayroll ? <NavItem to="/payrolls" label="Bảng lương" /> : null}
           {canViewPayroll ? <NavItem to="/payroll-settlements" label="Quyết toán và điều chỉnh lương" /> : null}

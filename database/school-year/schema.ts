@@ -1136,6 +1136,23 @@ export interface ChildUnitTransfersTable {
   created_at: CreatedTimestamp;
 }
 
+// Lịch nghỉ và lịch công tác (P08-02, YCTD-68)
+export type WorkScheduleType = 'business_trip' | 'day_off';
+
+export interface WorkSchedulesTable {
+  id: Generated<string>;
+  staff_id: string;
+  org_unit_id: string;
+  schedule_date: string;
+  schedule_type: WorkScheduleType;
+  note: string | null;
+  status: Generated<'draft' | 'published'>;
+  published_at: Date | null;
+  published_by: string | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -1214,4 +1231,5 @@ export interface SchoolYearDatabase {
   daily_journals: DailyJournalsTable;
   journal_amendments: JournalAmendmentsTable;
   child_unit_transfers: ChildUnitTransfersTable;
+  work_schedules: WorkSchedulesTable;
 }

@@ -33,7 +33,7 @@
 | 21 | [21_KICH_BAN_KIEM_THU.md](21_KICH_BAN_KIEM_THU.md) | Kịch bản kiểm thử | CT-001 đến CT-188 | 10 Kiểm thử | Đã phê duyệt |
 | 22 | [22_BAO_MAT.md](22_BAO_MAT.md) | Bảo mật | BM-01 đến BM-70 | 10 Kiểm thử | Đã phê duyệt |
 | 23 | [23_LICH_SU_PHIEN_BAN.md](23_LICH_SU_PHIEN_BAN.md) | Lịch sử phiên bản | Các phiên bản từ 0.1.0 | 11 Nghiệm thu và phát hành | Đang cập nhật |
-| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-67, đánh giá ảnh hưởng | 12 Vận hành và cải tiến | Đang cập nhật |
+| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-68, đánh giá ảnh hưởng | 12 Vận hành và cải tiến | Đang cập nhật |
 | 25 | [25_QUY_TRINH_NGHIEP_VU/](25_QUY_TRINH_NGHIEP_VU/) | Quy trình nghiệp vụ | Mười đặc tả QT-01 đến QT-10 và phiếu yêu cầu trống | 03 Phân tích nghiệp vụ | Đã phê duyệt |
 | 26 | [26_SO_DO_CHUC_NANG/](26_SO_DO_CHUC_NANG/) | Sơ đồ chức năng gốc | Tám ảnh sơ đồ chức năng do Eric gửi, nguồn đầu vào của bộ tài liệu | 01 Xác định ý tưởng | Tài liệu nguồn |
 | 27 | [27_BO_CA_KIEM_THU_CHI_TIET/](27_BO_CA_KIEM_THU_CHI_TIET/) | Bộ ca kiểm thử chi tiết | Ca kiểm thử chi tiết theo việc N21, mã CTC-..., năm đợt, 453 ca, 6 ca không áp dụng | 10 Kiểm thử | Đã phê duyệt |
