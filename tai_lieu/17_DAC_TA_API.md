@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.40
+- Phiên bản: 1.41
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -95,6 +95,13 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | GET, PATCH | /api/v1/academic-years/{id}/weeks | Danh sách tuần; đánh dấu hoặc bỏ đánh dấu tuần nghỉ |
 | POST | /api/v1/academic-years/{id}/open | Mở năm học: kiểm tra BR-89, tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung, chuyển năm đang dùng sang đã đóng và chỉ đọc (BR-93) |
 | POST | /api/v1/academic-years/{id}/close | Bỏ ngày 09/10/2026: gộp vào mở năm học mới (YCTD-37) |
+
+Giao kèo của nhật ký của bé (DT-08 phần 8b, YCTD-65):
+
+1. `GET /classes/{id}/journals?date=` trả `can_write` và `children` (từng trẻ đang học kèm `journal` hoặc trống); cần là giáo viên chủ nhiệm của lớp hoặc có `P04.attendance.manage` trong phạm vi.
+2. `PUT /children/{id}/journals/{date}` nhận `meal_note`, `sleep_note`, `hygiene_note`, `mood` (`happy`, `normal`, `tired`, `sad`, `unwell`), `activity_note` (tối đa 1000 ký tự), `reason` khi sửa nhật ký đã công bố; không phải chủ nhiệm trả `ERR_FORBIDDEN`; thiếu lý do khi sửa bản đã công bố trả mã BR-15.
+3. `POST /classes/{id}/journals/publish` nhận `date`, `confirm`; còn trẻ chưa có nội dung mà chưa xác nhận trả mã BR-15 kèm `details` là tên từng trẻ.
+4. `GET /children/{id}/journals?month=` trả `journals`; phụ huynh chỉ nhận bản đã công bố.
 
 Giao kèo của trung tâm thông báo (DT-08 phần 8a, YCTD-64):
 

@@ -55,6 +55,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.2.0 | Bốn thay đổi: Ban Giám hiệu, nhiều cấp đơn vị, tách giao diện và máy chủ, dịch vụ định danh | 01 đến 07 | Đã có |
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
+| 0.30.3 | DT-08 phần 8b: nhật ký của bé; hoàn thành đợt DT-08 (YCTD-65) | 08, 09 | Đã có |
 | 0.30.2 | DT-08 phần 8a: trung tâm thông báo và mẫu thông báo (YCTD-64) | 08, 09 | Đã có |
 | 0.30.1 | DT-07 phần 7b: khóa API cho đối tác chỉ đọc; hoàn thành đợt DT-07 (YCTD-63) | 08, 09 | Đã có |
 | 0.30.0 | DT-07 phần 7a: bảng điều khiển và báo cáo cơ bản (YCTD-62) | 08, 09 | Đã có |

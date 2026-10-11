@@ -87,6 +87,7 @@ import { ReportsController } from './reports/reports.controller.js';
 import { ReportsService } from './reports/reports.service.js';
 import { PartnerController, PartnerService } from './partner/partner.js';
 import { NotificationsController, NotificationsService } from './notifications/notifications.js';
+import { JournalsController, JournalsService } from './journals/journals.js';
 import { OrgUnitsController } from './organization/org-units.controller.js';
 import { OrgUnitsService } from './organization/org-units.service.js';
 
@@ -143,6 +144,7 @@ export class ApplicationModule {
         ReportsController,
         PartnerController,
         NotificationsController,
+        JournalsController,
         CashBooksController,
         ...(options.additionalControllers ?? []),
       ],
@@ -212,6 +214,7 @@ export class ApplicationModule {
         ReportsService,
         PartnerService,
         NotificationsService,
+        JournalsService,
         {
           provide: PaymentGateway,
           useFactory: () =>
