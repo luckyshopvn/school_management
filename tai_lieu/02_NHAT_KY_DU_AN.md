@@ -14,6 +14,26 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-10 phần 10d: kho, tài sản, mua hàng
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 43 (phần 10a). Lượt song song đầu của DT-10: ba agent làm 10b, 10c, 10d trong worktree riêng (YCTD-73); agent 10d viết mã, kiểm thử máy chủ và nháp tài liệu; người điều phối soát, gộp `main`, chạy toàn bộ kiểm thử và đưa nháp vào tài liệu.
+- Cơ sở dữ liệu: mười ba bảng (tệp 0033). Máy chủ API: tài sản, cấp phát, mượn trả, hỏng mất, nhà cung cấp, mặt hàng, nhập xuất, tồn ban đầu, kiểm kê, đề nghị và phiếu mua hàng; bước chuyển năm học `inventory`. Cổng quản trị: trang Kho và tài sản, trang Đề nghị mua hàng.
+- Kết quả: máy chủ API 416/416, kiểm thử giao diện 49/49.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-77 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-77 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.33.0.
+
+#### Vấn đề tồn đọng
+
+- Gộp phần 10b, 10c; các phần 10e đến 10j.
+
 ### 2026-10-11 — DT-10 phần 10a: y tế học đường
 
 #### Công việc đã thực hiện

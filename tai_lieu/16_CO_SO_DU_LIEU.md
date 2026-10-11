@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.41
+- Phiên bản: 1.42
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -145,7 +145,7 @@ Ràng buộc duy nhất: `invoices` loại chính trên bộ ba trẻ, kỳ năm
 | cash_accounts | Quỹ tiền mặt và tài khoản ngân hàng (YCTD-53) | org_unit_id, account_type (tiền mặt hoặc ngân hàng), name (duy nhất trong đơn vị), bank_name, account_number (bắt buộc với ngân hàng), opening_balance, current_balance (quỹ tiền mặt không âm), status, receives_online_payments (toàn trường tối đa một tài khoản), online_payment_category_id (YCTD-57) |
 | account_transactions | Giao dịch trên tài khoản | account_id, transaction_date, transaction_type, amount, balance_after, reference_type, reference_id, description |
 | payables | Công nợ phải trả | org_unit_id, supplier_id, reference_type, reference_id, amount, paid_amount, due_date, status |
-| suppliers | Nhà cung cấp | org_unit_id, name, supplier_type (chung hoặc thực phẩm), tax_code, contact_name, phone, email, address, payment_terms, status |
+| suppliers | Nhà cung cấp chung của kho và mua hàng theo đơn vị (P13-07); nhà cung cấp thực phẩm ở `food_suppliers` (P12-08) | org_unit_id, name (duy nhất trong đơn vị), tax_code, contact_name, phone, address, payment_terms, status, created_by |
 | fiscal_periods | Kỳ tài chính | org_unit_id, period_year, period_month, status, close_requested_by, close_requested_at, closed_by, closed_at |
 | cashflow_categories | Khoản mục và nhóm thu chi dùng chung toàn trường | code (duy nhất), name, group_name, flow_type (thu hoặc chi), status |
 
@@ -242,18 +242,18 @@ Bỏ ngày 09/10/2026 (YCTD-20): bảng `meal_registrations` đã gỡ vì khôn
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| assets | Tài sản | org_unit_id, code, name, category, unit, original_cost, purchase_date, location_type, location_id, status |
-| asset_assignments | Cấp phát và thu hồi | asset_id, assigned_to_type, assigned_to_id, assigned_at, returned_at, handed_by, received_by, note |
-| asset_loans | Mượn trả | asset_id, borrower_staff_id, from_date, due_date, returned_at, status, note |
-| asset_damages | Hỏng và mất | asset_id, incident_type, severity, description, occurred_at, reported_by, proposed_handling, approved_by, status |
-| purchase_requests | Đề nghị mua hàng | org_unit_id, requester_id, needed_by, reason, status, approved_by, approved_at, reject_reason |
+| assets | Tài sản (P13-01) | org_unit_id, code (duy nhất), name, category, unit, original_cost, purchase_date, location_type (store, room, class, staff, unit), location_id, location_name, status (in_stock, assigned, on_loan, damaged, lost, disposed) |
+| asset_assignments | Phiếu cấp phát và thu hồi (P13-02) | code, asset_id, assigned_to_type, assigned_to_id, assigned_to_name, received_by_name, assigned_on, handed_by, return_code, returned_on, returned_by_name, return_received_by, return_note; một phiếu đang mở mỗi tài sản |
+| asset_loans | Phiếu mượn trả (P13-03) | code, asset_id, borrower_name, borrower_user_id, from_date, due_date, status (open, returned), lent_by, returned_on, return_received_by; một phiếu đang mở mỗi tài sản |
+| asset_damages | Ghi nhận hỏng và mất (P13-04) | code, asset_id, org_unit_id, incident_type (damaged, lost), severity (minor, major, total), description, occurred_on, proposed_handling, status (pending, approved, rejected), reported_by, decided_by, decided_at, decision_note |
+| stock_items | Mặt hàng trong kho (P13-08) | org_unit_id, code (duy nhất trong đơn vị), name, unit, min_qty, current_qty (không âm), status |
+| stock_transactions | Giao dịch kho (P13-08, P13-10) | code, stock_item_id, transaction_type (opening, receipt, issue, count_adjustment, carry_over), quantity (có dấu), unit_price, balance_after, reference_type, reference_id, transaction_date, note, created_by |
+| stock_counts | Biên bản kiểm kê (P13-09) | code, org_unit_id, count_date, status (matched, pending, approved, rejected), note, created_by, decided_by, decided_at, reject_reason |
+| stock_count_lines | Dòng kiểm kê | count_id, stock_item_id, system_qty, actual_qty, difference, note |
+| purchase_requests | Đề nghị mua hàng (P13-05) | code, org_unit_id, requester_id, requester_name, needed_by, reason, total_amount, requires_principal, status (pending, approved, rejected, ordered), approved_by, approved_at, reject_reason |
 | purchase_request_items | Mặt hàng đề nghị | request_id, item_name, quantity, unit, estimated_price, note |
-| purchase_orders | Phiếu mua hàng | code, org_unit_id, supplier_id, order_date, total_amount, status, created_by, approved_by |
-| purchase_order_items | Mặt hàng đã mua | order_id, item_name, quantity, unit_price, amount, received_qty |
-| stock_items | Mặt hàng trong kho | org_unit_id, code, name, unit, min_qty, current_qty, status |
-| stock_transactions | Nhập xuất kho | stock_item_id, transaction_type (gồm tồn ban đầu), quantity, unit_price, reference_type, reference_id, transaction_date, created_by |
-| stock_counts | Kỳ kiểm kê | org_unit_id, count_date, status, created_by, approved_by |
-| stock_count_lines | Chi tiết kiểm kê | count_id, stock_item_id, system_qty, actual_qty, difference, note |
+| purchase_orders | Phiếu mua hàng (P13-06) | code, org_unit_id, request_id (duy nhất), supplier_id, order_date, total_amount, status (ordered, received), payment_status (awaiting_payment, paid), payment_id (duy nhất), note, created_by, received_by, received_at |
+| purchase_order_items | Mặt hàng đã mua | order_id, stock_item_id, item_name, quantity, unit_price, amount, received_qty |
 
 ## 15. Phân hệ P14 — Hoạt động, nội dung và truyền thông
 
