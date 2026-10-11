@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.11
+- Phiên bản: 1.12
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -233,8 +233,8 @@
 | CT-148 | P02-02 | Kế toán xem số định danh của trẻ | Chỉ thấy số đã che | | Chưa chạy |
 | CT-149 | P02-02 | Quản lý đơn vị xem đầy đủ số định danh | Có bản ghi nhật ký truy cập | | Chưa chạy |
 | CT-150 | P01-02 | Mở năm học mới | Cơ sở dữ liệu năm mới có dữ liệu chuyển sang, giữ nguyên mã định danh; năm cũ chỉ đọc | | Chưa chạy |
-| CT-151 | P01-14 | Khóa phạm vi báo cáo gọi danh sách trẻ | Từ chối | | Chưa chạy |
-| CT-152 | P01-14 | Khóa phạm vi danh sách trẻ đọc dữ liệu | Có nhật ký kèm khóa và căn cứ | | Chưa chạy |
+| CT-151 | P01-14 | Khóa phạm vi báo cáo gọi danh sách trẻ | Từ chối | Kiểm thử tự động `apps/api/src/partner/partner.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CT-152 | P01-14 | Khóa phạm vi danh sách trẻ đọc dữ liệu | Có nhật ký kèm khóa và căn cứ | Kiểm thử tự động `apps/api/src/partner/partner.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-153 | P08-12 | Làm vượt giờ 2 giờ trong ngày | Chỉ tính 1 giờ làm thêm | | Chưa chạy |
 | CT-154 | P05-03 | Đăng ký STEM sau ngày chốt | Chờ Ban Giám hiệu duyệt | | Chưa chạy |
 | CT-155 | P05-05 | Đăng ký trễ duyệt thu theo ngày thực tế | Phí theo tỷ lệ ngày còn lại | | Chưa chạy |
@@ -249,7 +249,7 @@
 | CT-164 | P01-10 | Trình duyệt chứng từ thuộc loại chưa cấu hình hạn mức | Chuyển Hiệu trưởng | | Chưa chạy |
 | CT-165 | P19-06 | Kiểm toán viên đăng nhập sau ngày hết hiệu lực | Bị từ chối, tài khoản khóa | | Chưa chạy |
 | CT-166 | P05-06 | Phát hành khoản phát sinh sau khi hóa đơn chính đã phát hành | Sinh hóa đơn bổ sung cùng kỳ, hóa đơn chính không đổi | | Chưa chạy |
-| CT-167 | P01-14 | Đối tác gọi danh sách trẻ bằng khóa đã thu hồi | Bị từ chối ngay | | Chưa chạy |
+| CT-167 | P01-14 | Đối tác gọi danh sách trẻ bằng khóa đã thu hồi | Bị từ chối ngay | Kiểm thử tự động `apps/api/src/partner/partner.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-168 | P06-03 | Kế toán lập phiếu đảo, kế toán trưởng gọi điểm cuối duyệt | Bị từ chối; phiếu gốc và công nợ chưa đổi | | Chưa chạy |
 | CT-169 | P05-12 | Quản lý đơn vị gọi điểm cuối ghi quyết định xử lý công nợ | Bị từ chối; Phó Hiệu trưởng ghi được, số tiền công nợ không đổi | | Chưa chạy |
 | CT-170 | P06-04 | Kế toán lập phiếu đảo phiếu chi, kế toán trưởng gọi điểm cuối duyệt | Bị từ chối; phiếu gốc và số dư quỹ chưa đổi | | Chưa chạy |

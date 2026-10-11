@@ -42,7 +42,8 @@ type NavigationPath =
   | '/pay-items'
   | '/my-payslips'
   | '/payroll-settlements'
-  | '/reports';
+  | '/reports'
+  | '/api-clients';
 
 function NavItem({ to, label }: { to: NavigationPath; label: string }) {
   return (
@@ -80,6 +81,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canImportStaff = useHasPermission(PERMISSION_CODES.importStaff);
   const canViewStaff = useHasPermission(PERMISSION_CODES.staffView);
   const canViewPayroll = useHasPermission(PERMISSION_CODES.payrollView);
+  const canManageApiClients = useHasPermission(PERMISSION_CODES.apiClientManage);
   const canManagePayItems = useHasPermission(PERMISSION_CODES.payItemTypeManage);
   const canImport = canImportChildren || canManageChildren || canImportOpeningDebts || canImportStaff;
   const canViewTuition = useHasPermission('P05.view');
@@ -168,6 +170,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <>
               <NavItem to="/accounts" label="Tài khoản" />
               <NavItem to="/roles" label="Vai trò và quyền" />
+              {canManageApiClients ? <NavItem to="/api-clients" label="Khóa API cho đối tác" /> : null}
             </>
           ) : null}
           {canViewPlatform || canManageDepartments ? (

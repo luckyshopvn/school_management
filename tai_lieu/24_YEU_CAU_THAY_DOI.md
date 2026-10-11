@@ -11,6 +11,24 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-63: Khóa API cho đối tác chỉ đọc – 2026-10-11
+
+- Lý do: phần 7b theo cách chia ở YCTD-62. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Khóa API do dịch vụ định danh quản lý: Hiệu trưởng cấp khóa gồm tên đối tác, loại đối tác (nhập tự do), phạm vi dữ liệu (`reports` báo cáo tổng hợp, `finance` thu chi và công nợ, `children` danh sách trẻ và phụ huynh, `staff` nhân sự và lương), căn cứ pháp lý (bắt buộc khi có phạm vi dữ liệu cá nhân), danh sách địa chỉ mạng cho phép (ít nhất một), ngày hết hạn sau hôm nay. Khóa dạng `sm_...` chỉ trả về một lần, lưu dạng băm SHA-256, hiển thị mười ký tự đầu để nhận biết; thu hồi có hiệu lực ngay; mọi thao tác ghi nhật ký tài khoản.
+  - Đối tác gửi khóa ở tiêu đề `x-api-key` tới nhóm `/partner/` của máy chủ API; máy chủ API hỏi điểm cuối kiểm tra của dịch vụ định danh kèm địa chỉ mạng gọi tới. Khóa sai, đã thu hồi, hết hạn hoặc sai địa chỉ mạng trả `ERR_UNAUTHENTICATED`; khóa thiếu phạm vi trả `ERR_FORBIDDEN`; mỗi khóa tối đa 60 yêu cầu mỗi phút, vượt trả `ERR_RATE_LIMIT`.
+  - Dữ liệu trả cho đối tác là toàn trường: báo cáo tổng hợp như bảng điều khiển của một tháng; thu chi theo khoản mục và công nợ tổng hợp theo lớp; danh sách trẻ đang học kèm lớp và phụ huynh (không có số định danh cá nhân); nhân sự đang làm kèm lương hợp đồng còn hiệu lực và thực nhận trên bảng lương đã duyệt gần nhất. Đọc danh sách trẻ và nhân sự luôn ghi nhật ký truy cập dữ liệu nhạy cảm kèm khóa, phạm vi, số bản ghi và căn cứ pháp lý (BR-73, BM-66).
+  - Mã quyền mới: `P01.api-client.manage` cho VT-02. Cổng vào chuyển `/api/v1/api-clients` sang dịch vụ định danh.
+  - Khi triển khai sau cổng vào hoặc bộ cân bằng tải, máy chủ API phải được cấu hình lấy đúng địa chỉ mạng của đối tác (việc của đợt triển khai, `T6`).
+- Thành phần bị ảnh hưởng: `08`, `10`, `14`, `16`, `17`, `21`, `01`, `03`, `index.md`; dịch vụ định danh, máy chủ API, cổng quản trị.
+- Dữ liệu bị ảnh hưởng: bảng `api_clients` ở cơ sở dữ liệu định danh; nhật ký `data_access_logs` ghi `api_client_id`.
+- API bị ảnh hưởng: `GET, POST /api-clients`, `POST /api-clients/{id}/revoke`, `POST /api-clients/verify` (dịch vụ định danh); `GET /partner/reports/summary`, `/partner/finance`, `/partner/children`, `/partner/staff` (máy chủ API).
+- Giao diện bị ảnh hưởng: MH-42 Khóa API của đối tác.
+- Quyền bị ảnh hưởng: thêm `P01.api-client.manage`.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: CT-151, CT-152, CT-167.
+- Trạng thái: Đã triển khai
+
 ### YCTD-62: DT-07 chia hai; bảng điều khiển và báo cáo cơ bản – 2026-10-11
 
 - Lý do: thiết kế đợt DT-07. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
@@ -28,7 +46,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: thêm chín mã quyền P17 ở trên.
 - Ảnh hưởng chức năng cũ: không.
 - Kiểm thử cần thực hiện: CT-125, CT-126, CT-128 và kiểm thử tự động của từng báo cáo.
-- Trạng thái: Đã triển khai phần 7a
+- Trạng thái: Đã triển khai
 
 ### YCTD-61: Phiếu chi lương, bảng quyết toán khi nghỉ việc, phiếu thu thu hồi lương, khoản điều chỉnh kỳ sau – 2026-10-11
 

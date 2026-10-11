@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.30
+- Phiên bản: 1.31
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -130,6 +130,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-33 | Tiền lương (YCTD-60): `P08.pay-item-type.manage` cho VT-04 khai danh mục phụ cấp, thưởng, khấu trừ; `P08.staff-pay-item.manage` cho VT-06 gán khoản và số người phụ thuộc cho nhân sự trong đơn vị; `P08.tax-table.manage` cho VT-05 khai biểu thuế; `P08.payroll.manage` cho VT-04 tính và trình bảng lương toàn trường; `P08.payroll.view` cho VT-02, VT-15, VT-04, VT-05, VT-06, VT-20 xem phiếu của nhân sự trong phạm vi; `P08.payroll.approve` cho VT-02 (mọi bảng) và VT-15 gán ở Trường chính (dưới hạn mức). VT-03, VT-16, giáo viên không xem bảng lương; mỗi nhân sự xem phiếu lương đã duyệt của mình |
 | PQ-34 | Quyết toán và điều chỉnh lương (YCTD-61): VT-04 lập bảng quyết toán, khoản điều chỉnh và phiếu chi lương bằng `P08.payroll.manage`, phiếu chi cần thêm `P06.payment.manage` ở Trường chính, phiếu thu thu hồi cần `P06.receipt.manage` ở đơn vị của quỹ; VT-02 duyệt mọi bảng quyết toán và khoản điều chỉnh, VT-15 gán ở Trường chính duyệt khi dưới hạn mức bảng lương; người lập khoản điều chỉnh không tự duyệt |
 | PQ-35 | Bảng điều khiển và báo cáo (YCTD-62): `P17.dashboard.leadership` cho VT-02, VT-15; `P17.dashboard.unit` cho VT-03; `P17.report.tuition`, `P17.report.debt` cho VT-02, VT-15, VT-04, VT-05; `P17.report.cash-flow` cho VT-02, VT-04, VT-05; `P17.report.attendance` cho VT-02, VT-15, VT-03; `P17.report.staff-attendance` cho VT-02, VT-15, VT-03, VT-06; `P17.report.saturday` cho VT-02, VT-15, VT-03, VT-04; `P17.birthday.view` cho VT-02, VT-15, VT-03. Phạm vi theo đơn vị được gán; giáo viên xem điểm danh và sinh nhật của lớp được phân công |
+| PQ-36 | Khóa API cho đối tác (YCTD-63): `P01.api-client.manage` cho VT-02 cấp, xem, thu hồi khóa. Đối tác không có tài khoản, chỉ đọc qua nhóm `/partner/` trong phạm vi của khóa |
 
 ## 5. Phân cấp phê duyệt
 

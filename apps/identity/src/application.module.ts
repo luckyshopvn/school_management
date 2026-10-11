@@ -1,4 +1,5 @@
 import { Module, type DynamicModule } from '@nestjs/common';
+import { ApiClientsController, ApiClientsService } from './accounts/api-clients.js';
 import { AccountsController, RolesController } from './accounts/accounts.controller.js';
 import { AccountsService } from './accounts/accounts.service.js';
 import { ApiOrganizationDirectory, OrganizationDirectory } from './accounts/organization-directory.js';
@@ -36,6 +37,7 @@ export class ApplicationModule {
         IdentitySettingsController,
         AccountsController,
         RolesController,
+        ApiClientsController,
       ],
       providers: [
         { provide: IDENTITY_CONFIGURATION, useValue: configuration },
@@ -47,6 +49,7 @@ export class ApplicationModule {
         OneTimeCodeService,
         smsSender ? { provide: SmsSender, useValue: smsSender } : { provide: SmsSender, useClass: LoggingSmsSender },
         AccessTokenGuard,
+        ApiClientsService,
         organizationDirectory
           ? { provide: OrganizationDirectory, useValue: organizationDirectory }
           : { provide: OrganizationDirectory, useClass: ApiOrganizationDirectory },

@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.30.1 – 2026-10-11
+
+- Phạm vi thay đổi: DT-07 phần 7b, khóa API cho đối tác chỉ đọc (YCTD-63).
+- Chức năng mới: cấp, thu hồi khóa API; đối tác đọc báo cáo tổng hợp, thu chi và công nợ, danh sách trẻ và phụ huynh, nhân sự và lương theo phạm vi khóa.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: `api_clients` ở cơ sở dữ liệu định danh; mã quyền `P01.api-client.manage`.
+- Thay đổi API: nhóm `/api-clients` (dịch vụ định danh), nhóm `/partner/` (máy chủ API).
+- Rủi ro: giới hạn tần suất giữ trong bộ nhớ của một tiến trình máy chủ API; khi chạy nhiều tiến trình cần chuyển sang Redis.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-07-phan-7b`; chạy ngược tệp thay đổi cấu trúc 0028 của cơ sở dữ liệu định danh.
+
 ### Phiên bản 0.30.0 – 2026-10-11
 
 - Phạm vi thay đổi: DT-07 phần 7a, bảng điều khiển và báo cáo cơ bản (YCTD-62).

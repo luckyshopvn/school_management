@@ -14,6 +14,28 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-07 phần 7b: khóa API cho đối tác
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 32 (phần 7a; lần chạy đầu của CI lỗi ngẫu nhiên ở ca kiểm thử giao diện 20, chạy lại thì đạt); viết phần 7b trên nhánh `dt-07-phan-7b`.
+- Cơ sở dữ liệu định danh: bảng `api_clients`, mã quyền `P01.api-client.manage` (tệp 0028).
+- Dịch vụ định danh: cấp, xem, thu hồi, kiểm tra khóa. Máy chủ API: nhóm `/partner/` với giới hạn tần suất và nhật ký truy cập dữ liệu nhạy cảm.
+- Cổng quản trị: trang Khóa API cho đối tác (MH-42).
+- Kết quả: máy chủ API 318/318, dịch vụ định danh 37/37, kiểm thử giao diện 43/43. Hoàn thành đợt DT-07.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-63 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-63 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.30.1.
+
+#### Vấn đề tồn đọng
+
+- Đợt DT-08: ứng dụng giáo viên và ứng dụng phụ huynh.
+
 ### 2026-10-11 — DT-07 phần 7a: bảng điều khiển và báo cáo cơ bản
 
 #### Công việc đã thực hiện

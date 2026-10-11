@@ -2,6 +2,7 @@ import { createRootRoute, createRoute, createRouter, Navigate, Outlet, useLocati
 import { AcademicYearsPage } from './academic-years/AcademicYearsPage.js';
 import { AccountsPage } from './accounts/AccountsPage.js';
 import { RolesPage } from './accounts/RolesPage.js';
+import { ApiClientsPage } from './accounts/ApiClientsPage.js';
 import { ApprovalThresholdsPage } from './catalogs/ApprovalThresholdsPage.js';
 import { CommonCatalogPage } from './catalogs/CommonCatalogPage.js';
 import { DepartmentsPage } from './catalogs/DepartmentsPage.js';
@@ -98,6 +99,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/my-payslips', component: MyPayslipsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/payroll-settlements', component: SettlementsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/reports', component: ReportsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/api-clients', component: ApiClientsPage }),
 ]);
 
 export const router = createRouter({ routeTree });
