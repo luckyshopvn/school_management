@@ -20,6 +20,7 @@ import {
 import type { Kysely } from 'kysely';
 import type { AcademicYearTransitionStep } from './academic-years/academic-year-transition.js';
 import { createApplication } from './create-application.js';
+import { RecordingSmsGateway } from './notifications/sms-gateway.js';
 import { MemoryFileStorage } from './files/file-storage.js';
 
 // Môi trường kiểm thử tích hợp: dịch vụ định danh thật, cơ sở dữ liệu hệ thống tạm và tiền tố tên cơ sở dữ liệu năm học riêng
@@ -30,6 +31,8 @@ export interface ApiTestEnvironment {
   system: Kysely<SystemDatabase>;
   systemDatabaseUrl: string;
   schoolYearDatabasePrefix: string;
+  // Tin nhắn thông báo đã gửi; đặt failuresLeft để giả lập nhà cung cấp lỗi (YCTD-71)
+  smsGateway: RecordingSmsGateway;
   loginAs(roleCode: string, orgUnitId: string | null, mustChangePassword?: boolean): Promise<LoggedInUser>;
   loginWithRoles(roles: Array<{ roleCode: string; orgUnitId: string | null }>): Promise<LoggedInUser>;
   close(): Promise<void>;
@@ -55,6 +58,7 @@ export async function startApiTestEnvironment(
   }
 
   const identity = await startTestApplication();
+  const smsGateway = new RecordingSmsGateway();
   const api = await createApplication(
     {
       tokenPublicKeyPem: identity.tokenPublicKeyPem,
@@ -65,8 +69,9 @@ export async function startApiTestEnvironment(
       childDataHashKey: randomBytes(32),
       objectStorage: null,
       paymentGateway: 'development',
+      notificationDispatchIntervalSeconds: 0,
     },
-    { ...options, fileStorage: new MemoryFileStorage() },
+    { ...options, fileStorage: new MemoryFileStorage(), smsGateway },
   );
   await api.listen(0);
   // Dịch vụ định danh đọc cây đơn vị qua máy chủ API khi quản lý tài khoản (YCTD-39)
@@ -96,6 +101,7 @@ export async function startApiTestEnvironment(
     system,
     systemDatabaseUrl,
     schoolYearDatabasePrefix,
+    smsGateway,
     loginAs(roleCode, orgUnitId, mustChangePassword = false) {
       return login([{ roleCode, orgUnitId }], mustChangePassword);
     },

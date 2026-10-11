@@ -14,6 +14,27 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-09 phần 9f: tiến trình gửi thông báo
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 40 (phần 9e); viết phần 9f trên nhánh `dt-09-phan-9f`.
+- Cơ sở dữ liệu: `notification_recipients` thêm cột theo dõi lần gửi (tệp 0029).
+- Máy chủ API: tiến trình gửi thông báo trong ứng dụng và tin nhắn, gửi lại khi lỗi, giới hạn 5 tin mỗi ngày, nhắc ghi nhật ký theo giờ cấu hình.
+- Kết quả: máy chủ API 400/400, kiểm thử giao diện 47/47.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-71 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-71 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.30.9.
+
+#### Vấn đề tồn đọng
+
+- Phần 9g của đợt DT-09: báo cáo cổng CG-10 và phát hành 1.0.0.
+
 ### 2026-10-11 — DT-09 phần 9e: quy tắc theo cấu hình, báo cáo thu chi theo nhóm
 
 #### Công việc đã thực hiện

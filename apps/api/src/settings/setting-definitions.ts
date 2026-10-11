@@ -121,6 +121,13 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
     rule: 'BR-82',
   },
   {
+    key: 'journal_reminder_time',
+    label: 'Giờ nhắc giáo viên ghi nhật ký',
+    valueType: 'time_of_day',
+    defaultValue: null,
+    rule: 'CB-05',
+  },
+  {
     key: 'max_class_size',
     label: 'Sĩ số tối đa của lớp',
     valueType: 'positive_integer',

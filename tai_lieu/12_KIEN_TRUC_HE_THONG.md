@@ -1,7 +1,7 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, thành phần, xác thực, phân quyền, lưu trữ tệp, ghi nhật ký, giám sát, sao lưu, phục hồi, triển khai.
-- Phiên bản: 1.10
+- Phiên bản: 1.11
 - Ngày cập nhật: 2026-10-10
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -172,9 +172,9 @@ Kênh gửi và loại sự kiện cấu hình được theo đơn vị. Thông 
 | CB-02 | Tính bảng lương theo kỳ | Theo yêu cầu, đầu mỗi tháng | Chỉ chạy khi bảng công của tháng trước đã chốt (BR-43, YCTD-29) |
 | CB-03 | Kiểm tra công nợ quá hạn và gửi nhắc nợ | Hằng ngày | Theo mốc cấu hình của đơn vị |
 | CB-04 | Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62) | — | — |
-| CB-05 | Nhắc giáo viên chưa ghi nhật ký | Hằng ngày | Theo giờ cấu hình |
+| CB-05 | Nhắc giáo viên chưa ghi nhật ký | Hằng ngày | Theo giờ cấu hình `journal_reminder_time` của đơn vị; chạy cùng tiến trình gửi thông báo của máy chủ API, mỗi lớp một lần mỗi ngày (YCTD-71) |
 | CB-06 | Tổng hợp số liệu bảng điều khiển | Hằng giờ | Lưu sẵn số liệu tổng hợp để đọc nhanh |
-| CB-07 | Gửi lại thông báo thất bại | Mỗi mười lăm phút | Có giới hạn số lần thử |
+| CB-07 | Gửi thông báo và gửi lại thông báo thất bại | Mỗi chu kỳ `NOTIFICATION_DISPATCH_INTERVAL_SECONDS` (mặc định 60 giây); thử lại sau mười lăm phút | Tối đa 5 lần thử; tối đa 5 tin nhắn mỗi người nhận mỗi ngày (KT-09, YCTD-71) |
 | CB-08 | Sao lưu dữ liệu | Hằng ngày | Kèm kiểm tra phục hồi định kỳ hằng tháng |
 | CB-09 | Khóa tài khoản hết hiệu lực | Hằng ngày | Khóa tài khoản kiểm toán viên quá ngày hết hiệu lực (BM-68) và tài khoản không dùng quá số ngày cấu hình (PQ-07) |
 | CB-10 | Mở năm học mới | Theo yêu cầu | Tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung, chuyển cơ sở dữ liệu năm cũ sang chỉ đọc (QĐ-15) |

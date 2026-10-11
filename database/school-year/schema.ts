@@ -265,8 +265,12 @@ export interface NotificationRecipientsTable {
   channel: 'in_app' | 'sms';
   is_read: Generated<boolean>;
   read_at: Date | null;
-  channel_status: Generated<'pending' | 'sent' | 'failed'>;
+  channel_status: Generated<'pending' | 'sent' | 'failed' | 'limited'>;
   sent_at: Date | null;
+  // Gửi lại khi lỗi (CB-07, YCTD-71)
+  attempt_count: Generated<number>;
+  next_attempt_at: Date | null;
+  last_error: string | null;
 }
 
 export type ImportType = 'classes' | 'children' | 'moet_codes' | 'opening_debts' | 'staff';

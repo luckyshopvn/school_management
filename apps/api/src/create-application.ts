@@ -7,6 +7,7 @@ import type { AcademicYearTransitionStep } from './academic-years/academic-year-
 import { ApplicationModule } from './application.module.js';
 import type { ApiConfiguration } from './common/configuration.js';
 import type { FileStorage } from './files/file-storage.js';
+import type { SmsGateway } from './notifications/sms-gateway.js';
 
 export async function createApplication(
   configuration: ApiConfiguration,
@@ -15,6 +16,7 @@ export async function createApplication(
     additionalControllers?: Type[];
     transitionSteps?: AcademicYearTransitionStep[];
     fileStorage?: FileStorage;
+    smsGateway?: SmsGateway;
   } = {},
 ): Promise<INestApplication> {
   const application = await NestFactory.create(

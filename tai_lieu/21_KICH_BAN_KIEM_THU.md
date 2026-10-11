@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.16
+- Phiên bản: 1.17
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -181,7 +181,7 @@
 | CT-087 | Tính học phí cho năm trăm trẻ | Hoàn thành dưới năm phút, không chặn giao diện | | Chưa chạy |
 | CT-088 | Tạo một nghìn phiếu thu trong ngày | Không lỗi, số phiếu không trùng | | Chưa chạy |
 | CT-089 | Khôi phục từ bản sao lưu | Mọi cơ sở dữ liệu khôi phục đầy đủ, có biên bản (SL-01) | | Chưa chạy |
-| CT-090 | Gửi lại thông báo thất bại | Hàng đợi gửi lại thành công trong thời gian cấu hình | | Chưa chạy |
+| CT-090 | Gửi lại thông báo thất bại | Hàng đợi gửi lại thành công trong thời gian cấu hình | Kiểm thử tự động `apps/api/src/notifications/notification-dispatcher.test.ts` đạt ngày 11/10/2026 | Đạt |
 
 ## 15. Ca kiểm thử chức năng bổ sung theo tám ảnh sơ đồ chức năng
 

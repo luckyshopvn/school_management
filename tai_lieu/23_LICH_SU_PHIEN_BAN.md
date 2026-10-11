@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.30.9 – 2026-10-11
+
+- Phạm vi thay đổi: DT-09 phần 9f, tiến trình gửi thông báo, gửi lại khi lỗi, giới hạn tin nhắn trong ngày, nhắc ghi nhật ký (YCTD-71).
+- Chức năng mới: tiến trình nền CB-05, CB-07 trong máy chủ API; cấu hình `journal_reminder_time`.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: `notification_recipients` thêm cột theo dõi lần gửi và trạng thái `limited`.
+- Thay đổi API: không thêm điểm cuối; biến môi trường mới `NOTIFICATION_DISPATCH_INTERVAL_SECONDS`.
+- Rủi ro: chưa nối nhà cung cấp tin nhắn thật (T1), tin nhắn chỉ ghi ra nhật ký máy chủ.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-09-phan-9f`; chạy ngược tệp 0029 của cơ sở dữ liệu năm học.
+
 ### Phiên bản 0.30.8 – 2026-10-11
 
 - Phạm vi thay đổi: DT-09 phần 9e, sĩ số tối đa và nhật ký truy cập theo cấu hình, báo cáo thu chi theo nhóm và theo tháng (YCTD-70).
