@@ -14,7 +14,7 @@ export const CHILD_STATUS_LABELS: Record<ChildStatus, string> = {
 };
 
 export const PHOTO_CONSENT_LABELS: Record<PhotoConsent, string> = {
-  granted: 'Đồng ý bằng giấy ký tay',
+  granted: 'Đồng ý',
   refused: 'Không đồng ý',
   pending: 'Chờ phụ huynh xác nhận trên ứng dụng',
 };
@@ -57,6 +57,7 @@ export interface ChildDetail extends Omit<ChildListItem, 'class_id' | 'class_nam
   address: string | null;
   birth_certificate_file_id: string | null;
   is_staff_child: boolean;
+  related_staff_user_id: string | null;
   related_staff_name: string | null;
   special_needs_note: string | null;
   photo_consent: PhotoConsent;
@@ -188,3 +189,25 @@ export async function openFile(fileId: string, fetchFile: (path: string) => Prom
   const url = URL.createObjectURL(await response.blob());
   window.open(url, '_blank', 'noopener');
 }
+
+// Chuyển đơn vị, thôi học, đồng ý hình ảnh, cờ trẻ con nhân viên (P02-07, P02-08, P02-09; YCTD-67)
+export interface PhotoConsentView {
+  photo_consent: PhotoConsent;
+  photo_consent_method: 'app' | 'paper' | null;
+  history: Array<{ action: PhotoConsent; method: 'app' | 'paper' | null; file_id: string | null; created_at: string }>;
+}
+
+export const transferUnit = (
+  childId: string,
+  input: { class_id: string; reason: string; effective_date?: string; confirm_over_capacity: boolean },
+) => post<{ to_org_unit_id: string }>(`/api/v1/children/${childId}/transfer-unit`, input);
+export const withdrawChild = (childId: string, input: { leave_date?: string; reason: string }) =>
+  post<{ outstanding_amount: number; credit_amount: number }>(`/api/v1/children/${childId}/withdraw`, input);
+export const readPhotoConsent = (childId: string): Promise<PhotoConsentView> =>
+  requestJson(`/api/v1/children/${childId}/photo-consent`);
+export const recordPhotoConsent = (childId: string, input: { action: 'grant' | 'withdraw'; file_id: string }) =>
+  post<PhotoConsentView>(`/api/v1/children/${childId}/photo-consent`, input);
+export const saveStaffChild = (
+  childId: string,
+  input: { is_staff_child: boolean; related_staff_user_id: string | null; related_staff_role_code: string | null },
+) => requestJson(`/api/v1/children/${childId}/staff-child`, { method: 'PUT', body: JSON.stringify(input) });

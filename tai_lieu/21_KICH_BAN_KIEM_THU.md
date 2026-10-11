@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.13
+- Phiên bản: 1.14
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -34,7 +34,7 @@
 | CT-009 | Số định danh cá nhân trùng | Hồ sơ mới có số định danh trùng | Từ chối, chỉ ra hồ sơ trùng | Kiểm thử tự động `apps/api/src/children/children.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-010 | Chuyển lớp cho trẻ | Trẻ đang học lớp Mầm 1 sang Mầm 2 | Sĩ số hai lớp đổi, lịch sử lớp ghi thêm dòng mới | Kiểm thử tự động `apps/api/src/children/children.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-011 | Phân lớp vượt sĩ số | Lớp đã đủ hai mươi lăm trẻ | Cảnh báo và yêu cầu xác nhận quản lý đơn vị | Kiểm thử tự động `apps/api/src/children/children.test.ts` đạt ngày 11/10/2026 | Đạt |
-| CT-012 | Chuyển đơn vị khi còn công nợ | Trẻ còn công nợ ba triệu đồng | Chặn, yêu cầu tất toán trước | | Chưa chạy |
+| CT-012 | Chuyển đơn vị khi còn công nợ | Trẻ còn công nợ ba triệu đồng | Chặn, yêu cầu tất toán trước | Kiểm thử tự động `apps/api/src/children/child-lifecycle.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-013 | Phụ huynh xem danh sách trẻ | Tài khoản phụ huynh của trẻ A | Chỉ thấy trẻ A | Kiểm thử tự động `apps/api/src/children/children.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-014 | Phụ huynh gọi điểm cuối hồ sơ trẻ khác | Tài khoản phụ huynh của trẻ A, gọi hồ sơ trẻ B | Trả lỗi không có quyền | Kiểm thử tự động `apps/api/src/children/children.test.ts` đạt ngày 11/10/2026 | Đạt |
 
@@ -228,8 +228,8 @@
 | CT-143 | P06-11 | Gửi lại thông báo cùng mã giao dịch | Không tạo phiếu thu thứ hai | Kiểm thử tự động `apps/api/src/finance/online-payments.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-144 | P06-11 | Chuyển khoản sai số tiền | Vào danh sách chờ kế toán xử lý | Kiểm thử tự động `apps/api/src/finance/online-payments.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-145 | P06-01 | Lập phiếu thu một phần cho hóa đơn | Từ chối | Kiểm thử tự động `apps/api/src/finance/receipts.test.ts` đạt ngày 11/10/2026 | Đạt |
-| CT-146 | P02-09 | Phụ huynh rút đồng ý hình ảnh | Hình của trẻ bị ẩn, có lịch sử đồng ý | | Chưa chạy |
-| CT-147 | P02-09 | Phụ huynh trẻ A đổi đồng ý của trẻ B | Trả lỗi không có quyền | | Chưa chạy |
+| CT-146 | P02-09 | Phụ huynh rút đồng ý hình ảnh | Hình của trẻ bị ẩn, có lịch sử đồng ý | Kiểm thử tự động `apps/api/src/children/child-lifecycle.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CT-147 | P02-09 | Phụ huynh trẻ A đổi đồng ý của trẻ B | Trả lỗi không có quyền | Kiểm thử tự động `apps/api/src/children/child-lifecycle.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-148 | P02-02 | Kế toán xem số định danh của trẻ | Chỉ thấy số đã che | Kiểm thử tự động `apps/api/src/children/children.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-149 | P02-02 | Quản lý đơn vị xem đầy đủ số định danh | Có bản ghi nhật ký truy cập | Kiểm thử tự động `apps/api/src/children/children.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-150 | P01-02 | Mở năm học mới | Cơ sở dữ liệu năm mới có dữ liệu chuyển sang, giữ nguyên mã định danh; năm cũ chỉ đọc | | Chưa chạy |

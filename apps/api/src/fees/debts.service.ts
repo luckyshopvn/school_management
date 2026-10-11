@@ -77,6 +77,11 @@ export class DebtsService {
     return { child_id: child.id, child_name: child.full_name, org_unit_id: child.org_unit_id, ...summary, invoices };
   }
 
+  // Số còn phải nộp và số dư có của một trẻ, dùng nội bộ khi chuyển đơn vị, thôi học, chuyển năm (BR-32)
+  async summaryOf(database: Kysely<SchoolYearDatabase>, childId: string) {
+    return (await this.summaries(database, [childId])).get(childId) ?? this.emptySummary();
+  }
+
   private async summaries(database: Kysely<SchoolYearDatabase>, childIds: string[]) {
     const invoices = await this.invoiceRows(database, childIds);
     const credits = await unallocatedReceipts(database, childIds);

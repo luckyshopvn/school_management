@@ -11,6 +11,24 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-67: Chuyển đơn vị, thôi học, đồng ý hình ảnh và cờ trẻ con nhân viên cho trẻ đã có hồ sơ – 2026-10-11
+
+- Lý do: phần 9b theo cách chia ở YCTD-66; P02-07, P02-08, P02-09 thuộc giai đoạn 1 nhưng chưa làm. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Dùng quyền `P02.approve` (Hiệu trưởng, Phó Hiệu trưởng, quản lý đơn vị) cho chuyển đơn vị, thôi học, cờ trẻ con nhân viên và ghi nhận giấy ký tay; không thêm mã quyền.
+  - Chuyển đơn vị: chọn lớp đang mở của đơn vị khác, nhập lý do, ngày hiệu lực không sau hôm nay; còn số phải nộp thì chặn (LP-02); người thực hiện phải có quyền ở cả hai đơn vị; lớp cũ kết thúc, lớp mới bắt đầu ở ngày hiệu lực; đơn vị của trẻ đổi theo lớp mới; lịch sử lưu ở `child_unit_transfers`; tài khoản phụ huynh được thêm vai trò phụ huynh ở đơn vị mới; giáo viên chủ nhiệm lớp mới nhận thông báo. Kỳ chưa phát hành tính học phí ở đơn vị mới.
+  - Thôi học: ngày thôi học không sau hôm nay và không trước ngày vào lớp hiện tại; trẻ chuyển trạng thái thôi học, hồ sơ giữ nguyên (BR-10); lớp hiện tại kết thúc ở ngày thôi học; đăng ký dịch vụ và học hè của các tháng sau tháng thôi học bị hủy; tháng thôi học tính học phí và tiền ăn đến ngày thôi học khi tính học phí kỳ đó (BR-23); kế toán và giáo viên chủ nhiệm nhận thông báo; kết quả trả về số còn phải nộp và số dư có. Số dư có còn lại giữ để bù trừ, hoặc Hiệu trưởng quyết định hoàn bằng phiếu chi hoàn tiền do Hiệu trưởng duyệt (BR-24).
+  - Đồng ý hình ảnh: phụ huynh của trẻ đồng ý hoặc rút đồng ý trên ứng dụng (cách đồng ý là trên ứng dụng); nhà trường ghi nhận giấy ký tay kèm bản chụp; mỗi lần lưu một dòng `photo_consent_histories`; rút đồng ý thì giáo viên lớp nhận thông báo không công bố hình có trẻ. Việc ẩn hình đã công bố làm cùng phân hệ hoạt động và công bố hình ảnh P14 ở giai đoạn 2.
+  - Cờ trẻ con nhân viên sửa được cho trẻ đã có hồ sơ, nhân sự liên quan chọn theo vai trò và đơn vị như lúc lập hồ sơ.
+- Thành phần bị ảnh hưởng: `10`, `14`, `16`, `17`, `21`, `27_BO_CA_KIEM_THU_CHI_TIET/02_P02_VA_P04.md`, `03_P05.md`, `01`, `02`, `23`, `index.md`; máy chủ API, cổng quản trị, ứng dụng phụ huynh.
+- Dữ liệu bị ảnh hưởng: bảng mới `child_unit_transfers`; dùng các cột có sẵn `leave_date`, `leave_reason`, `photo_consent_*`.
+- API bị ảnh hưởng: `POST /children/{id}/transfer-unit`, `POST /children/{id}/withdraw`, `GET` và `POST /children/{id}/photo-consent`, `PUT /children/{id}/staff-child`; tính học phí và bảng đăng ký dịch vụ gồm trẻ thôi học trong kỳ.
+- Giao diện bị ảnh hưởng: MH-02 chi tiết trẻ có các mục đồng ý hình ảnh, cờ trẻ con nhân viên, chuyển đơn vị, thôi học; MP-01 có mục hình ảnh.
+- Quyền bị ảnh hưởng: không thêm mã quyền.
+- Ảnh hưởng chức năng cũ: không; trẻ thôi học trước kỳ không vào bảng đăng ký và tính học phí như trước.
+- Kiểm thử cần thực hiện: CTC-P02-049 đến 064, CTC-P05-027, CT-012, CT-146, CT-147.
+- Trạng thái: Đã triển khai
+
 ### YCTD-66: Đợt DT-09 kiểm thử toàn bộ giai đoạn 1 và các chức năng còn thiếu – 2026-10-11
 
 - Lý do: rà soát 108 ca kiểm thử chi tiết và 175 kịch bản kiểm thử còn ở trạng thái Chưa chạy trước khi phát hành 1.0.0. Có ca đã có kiểm thử tự động nhưng tài liệu chưa ghi kết quả, có ca chưa có kiểm thử, có ca chức năng chưa làm hoặc làm khác tài liệu. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
@@ -28,7 +46,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: không.
 - Ảnh hưởng chức năng cũ: không.
 - Kiểm thử cần thực hiện: toàn bộ kiểm thử tự động; phần 9a ghi kết quả Đạt cho 69 ca kiểm thử chi tiết và 116 kịch bản kiểm thử.
-- Trạng thái: Đã triển khai phần 9a
+- Trạng thái: Đã triển khai phần 9a, 9b
 
 ### YCTD-65: Nhật ký của bé trên ứng dụng giáo viên và ứng dụng phụ huynh – 2026-10-11
 

@@ -699,17 +699,29 @@ export class FeeCalculationService {
     return days;
   }
 
-  // Trẻ đang học của đơn vị có lớp; tháng hè chỉ trẻ đăng ký học hè (BR-92)
+  // Trẻ đang học của đơn vị có lớp; trẻ thôi học trong kỳ tính đến ngày thôi học theo lớp cuối cùng (BR-23, BR-24,
+  // YCTD-67); tháng hè chỉ trẻ đăng ký học hè (BR-92)
   private async billableChildren(
     database: Kysely<SchoolYearDatabase>,
     orgUnitId: string,
     period: Period,
     isSummer: boolean,
   ) {
+    const { from } = periodRange(period);
     let query = database
       .selectFrom('children')
       .innerJoin('class_enrollments', (join) =>
-        join.onRef('class_enrollments.child_id', '=', 'children.id').on('class_enrollments.is_current', '=', true),
+        join
+          .onRef('class_enrollments.child_id', '=', 'children.id')
+          .on((expression) =>
+            expression.or([
+              expression('class_enrollments.is_current', '=', true),
+              expression.and([
+                expression('children.status', '=', 'withdrawn'),
+                expression('class_enrollments.to_date', '=', expression.ref('children.leave_date')),
+              ]),
+            ]),
+          ),
       )
       .innerJoin('classes', 'classes.id', 'class_enrollments.class_id')
       .select([
@@ -722,7 +734,15 @@ export class FeeCalculationService {
         'classes.grade_level',
       ])
       .where('children.org_unit_id', '=', orgUnitId)
-      .where('children.status', '=', 'active');
+      .where((expression) =>
+        expression.or([
+          expression('children.status', '=', 'active'),
+          expression.and([
+            expression('children.status', '=', 'withdrawn'),
+            expression('children.leave_date', '>=', from),
+          ]),
+        ]),
+      );
     if (isSummer) {
       query = query.where('children.id', 'in', (expression) =>
         expression

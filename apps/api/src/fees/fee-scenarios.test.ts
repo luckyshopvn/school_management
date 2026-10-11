@@ -61,7 +61,7 @@ describe('Tình huống tính học phí theo lịch năm học', () => {
   let academicYearId = '';
   let unitId = '';
   const classes: Record<string, string> = {};
-  const children: Record<string, { id: string; classCode: string; enrollDate: string }> = {};
+  const children: Record<string, { id: string; classCode: string; enrollDate: string; leaveDate?: string }> = {};
   const services: Record<string, string> = {};
   const [monthA, monthB, monthC, monthD, monthE, monthF] = [-6, -5, -4, -3, -2, -1].map(shiftMonth) as [
     ReturnType<typeof shiftMonth>,
@@ -125,7 +125,10 @@ describe('Tình huống tính học phí theo lịch năm học', () => {
         })
         .execute();
       const present = Object.values(children).filter(
-        (child) => classes[child.classCode] === classId && child.enrollDate <= day,
+        (child) =>
+          classes[child.classCode] === classId &&
+          child.enrollDate <= day &&
+          (!child.leaveDate || day <= child.leaveDate),
       );
       if (present.length > 0) {
         await schoolYear
@@ -212,6 +215,8 @@ describe('Tình huống tính học phí theo lịch năm học', () => {
       ['T2', 'L-A2', monthA.first],
       // T3 nhập học ở tháng C, còn 6 ngày học cuối tháng (CTC-P05-063)
       ['T3', 'L-A1', monthCDays[monthCDays.length - 6] ?? ''],
+      // T4 thôi học giữa tháng D (CTC-P02-054)
+      ['T4', 'L-A2', monthA.first],
     ] as const) {
       const child = await schoolYear
         .insertInto('children')
@@ -234,6 +239,15 @@ describe('Tình huống tính học phí theo lịch năm học', () => {
         .values({ child_id: child.id, class_id: classes[classCode] ?? '', from_date: enrollDate })
         .execute();
       children[key] = { id: child.id, classCode, enrollDate };
+    }
+    const leaveDate = weekdays(monthD.first, monthD.last)[9] ?? '';
+    const withdrawn = await api('POST', `/children/${children.T4?.id}/withdraw`, principal.accessToken, {
+      leave_date: leaveDate,
+      reason: 'Chuyển trường',
+    });
+    assert.equal(withdrawn.status, 200, JSON.stringify(withdrawn.body));
+    if (children.T4) {
+      children.T4.leaveDate = leaveDate;
     }
   });
 
@@ -347,6 +361,16 @@ describe('Tình huống tính học phí theo lịch năm học', () => {
     assert.equal(t2?.items.find((item) => item.service_id === MEAL_SERVICE_ID)?.amount, 35_000 * days);
   });
 
+  it('CTC-P02-054: trẻ thôi học giữa tháng D thì học phí chính khóa tháng D theo ngày học đến ngày thôi học, tháng sau không tính', async () => {
+    const t4 = await invoiceOf('T4', monthD.period);
+    assert.ok(t4 && t4.basis.enrolled_days > 0 && t4.basis.enrolled_days < t4.basis.school_days);
+    assert.equal(
+      t4.items.find((item) => item.item_type === 'tuition')?.amount,
+      Math.round((2_400_000 * t4.basis.enrolled_days) / t4.basis.school_days),
+    );
+    assert.equal(t4.items.find((item) => item.service_id === MEAL_SERVICE_ID)?.amount, 35_000 * t4.basis.enrolled_days);
+  });
+
   it('CTC-P05-003, CT-132: học phí chính khóa bằng 0 thì hóa đơn chỉ có các khoản dịch vụ', async () => {
     const version = await api('POST', '/fee-schedules', accessToken(), {
       name: 'Biểu phí phiên bản 3',
@@ -359,6 +383,7 @@ describe('Tình huống tính học phí theo lịch năm học', () => {
     const t2 = await invoiceOf('T2', monthE.period);
     assert.ok(t2 && t2.items.length > 0);
     assert.ok(t2.items.every((item) => item.item_type === 'service'));
+    assert.equal(await invoiceOf('T4', monthE.period), undefined);
   });
 
   it('CTC-P05-032: lỗi giữa chừng thì lần chạy ghi thất bại, hóa đơn cũ giữ nguyên, chạy lại được', async () => {

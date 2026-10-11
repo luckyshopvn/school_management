@@ -17,7 +17,7 @@ import {
 
 // Biểu mẫu hồ sơ trẻ bốn khối: định danh, phụ huynh, sức khỏe, cờ và ghi chú (QT-01 mục 11).
 // Giao diện chỉ chuyển dữ liệu; máy chủ kiểm tra trường bắt buộc, trùng số định danh và phạm vi đơn vị
-const STAFF_ROLES = [
+export const STAFF_ROLES = [
   { code: 'VT-07', label: 'Giáo viên chủ nhiệm' },
   { code: 'VT-08', label: 'Giáo viên bộ môn' },
   { code: 'VT-03', label: 'Quản lý đơn vị' },

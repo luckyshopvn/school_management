@@ -1122,6 +1122,20 @@ export interface JournalAmendmentsTable {
   amended_by: string;
   amended_at: CreatedTimestamp;
 }
+// Lịch sử chuyển đơn vị của trẻ (P02-07, YCTD-67)
+export interface ChildUnitTransfersTable {
+  id: Generated<string>;
+  child_id: string;
+  from_org_unit_id: string;
+  to_org_unit_id: string;
+  from_class_id: string | null;
+  to_class_id: string;
+  effective_date: string;
+  reason: string;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -1199,4 +1213,5 @@ export interface SchoolYearDatabase {
   notification_templates: NotificationTemplatesTable;
   daily_journals: DailyJournalsTable;
   journal_amendments: JournalAmendmentsTable;
+  child_unit_transfers: ChildUnitTransfersTable;
 }

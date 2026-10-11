@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.30.5 – 2026-10-11
+
+- Phạm vi thay đổi: DT-09 phần 9b, chuyển đơn vị, thôi học, đồng ý hình ảnh, cờ trẻ con nhân viên (YCTD-67).
+- Chức năng mới: P02-07, P02-08, P02-09 trên máy chủ API, cổng quản trị, ứng dụng phụ huynh.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: `child_unit_transfers`.
+- Thay đổi API: năm điểm cuối mới của hồ sơ trẻ.
+- Rủi ro: tính học phí tháng thôi học phụ thuộc ngày thôi học nhập đúng.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-09-phan-9b`; chạy ngược tệp thay đổi cấu trúc 0026 của cơ sở dữ liệu năm học.
+
 ### Phiên bản 0.30.4 – 2026-10-11
 
 - Phạm vi thay đổi: DT-09 phần 9a, kiểm thử bổ sung và ghi kết quả (YCTD-66).

@@ -14,6 +14,28 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-09 phần 9b: chuyển đơn vị, thôi học, đồng ý hình ảnh
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 36 (phần 9a); viết phần 9b trên nhánh `dt-09-phan-9b`.
+- Cơ sở dữ liệu: năm học có `child_unit_transfers` (tệp 0026).
+- Máy chủ API: chuyển đơn vị kèm kiểm tra công nợ, thôi học, đồng ý hình ảnh của phụ huynh và giấy ký tay, cờ trẻ con nhân viên; tính học phí và bảng đăng ký dịch vụ gồm trẻ thôi học trong kỳ.
+- Cổng quản trị: các mục mới trong chi tiết trẻ. Ứng dụng phụ huynh: mục hình ảnh.
+- Kết quả: máy chủ API 380/380, kiểm thử giao diện 46/46.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-67 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-67 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.30.5.
+
+#### Vấn đề tồn đọng
+
+- Phần 9c đến 9g của đợt DT-09.
+
 ### 2026-10-11 — DT-09 phần 9a: kiểm thử bổ sung và ghi kết quả
 
 #### Công việc đã thực hiện
