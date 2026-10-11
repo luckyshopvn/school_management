@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.27
+- Phiên bản: 1.28
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -31,7 +31,7 @@
 | P01-11 | Danh mục phòng học (G1) | VT-02, VT-03 | Đơn vị, mã phòng, tên phòng, sức chứa, trạng thái | Tạo, sửa, ngừng sử dụng phòng học; gán phòng cho lớp | Danh mục phòng học | BR-01, BR-75 |
 | P01-12 | Danh mục bậc học (G1) | VT-02 | Mã (không đổi sau khi tạo), tên bậc học, độ tuổi theo tháng (YCTD-42), thứ tự | Tạo, sửa, ngừng sử dụng; lớp và biểu phí chọn bậc học từ danh mục | Danh mục bậc học | BR-02, BR-17, BR-75 |
 | P01-13 | Nhập dữ liệu ban đầu từ Excel (G1) | VT-02, VT-04, VT-06 | Loại dữ liệu, tệp Excel theo mẫu tải từ hệ thống | Kiểm tra toàn bộ tệp, xuất báo cáo dòng lỗi; chỉ ghi khi không còn dòng lỗi; ghi nhật ký nhập; trẻ nhập ở trạng thái đang học, bổ sung giấy khai sinh sau (YCTD-46) | Trẻ, phụ huynh, lớp, nhân sự, công nợ đầu kỳ đã nhập | BR-06, BR-35, BR-75 |
-| P01-14 | Khóa API cho đối tác (G1) | VT-02 | Tên đối tác, loại đối tác, phạm vi dữ liệu (báo cáo tổng hợp, thu chi và công nợ, danh sách trẻ và phụ huynh, nhân sự và lương), căn cứ pháp lý, địa chỉ mạng cho phép, ngày hết hạn | Cấp, thu hồi khóa; đối tác chỉ đọc dữ liệu trong phạm vi; mọi lần đọc dữ liệu cá nhân ghi nhật ký | Danh sách khóa API | BR-74, BR-73 |
+| P01-14 | Khóa API cho đối tác (G1) | VT-02 | Tên đối tác, loại đối tác, phạm vi dữ liệu (báo cáo tổng hợp, thu chi và công nợ, danh sách trẻ và phụ huynh, nhân sự và lương), căn cứ pháp lý, địa chỉ mạng cho phép, ngày hết hạn | Cấp, thu hồi khóa; đối tác chỉ đọc dữ liệu trong phạm vi; mọi lần đọc dữ liệu cá nhân ghi nhật ký; khóa chỉ hiện một lần, tối đa 60 yêu cầu mỗi phút (YCTD-63) | Danh sách khóa API | BR-74, BR-73 |
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 

@@ -115,6 +115,25 @@ export interface OneTimeCodesTable {
   created_at: CreatedTimestamp;
 }
 
+export type ApiClientScope = 'reports' | 'finance' | 'children' | 'staff';
+
+export interface ApiClientsTable {
+  id: Generated<string>;
+  name: string;
+  partner_type: string;
+  scopes: ColumnType<ApiClientScope[], string, string>;
+  legal_basis: string | null;
+  key_prefix: string;
+  key_hash: string;
+  allowed_ips: ColumnType<string[], string, string>;
+  valid_until: string;
+  status: Generated<'active' | 'revoked'>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  revoked_by: string | null;
+  revoked_at: Date | null;
+  last_used_at: Date | null;
+}
 export interface IdentityDatabase {
   users: UsersTable;
   roles: RolesTable;
@@ -126,4 +145,5 @@ export interface IdentityDatabase {
   identity_audit_logs: IdentityAuditLogsTable;
   identity_settings: IdentitySettingsTable;
   one_time_codes: OneTimeCodesTable;
+  api_clients: ApiClientsTable;
 }

@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.24
+- Phiên bản: 1.25
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -87,7 +87,7 @@ flowchart TD
 | MH-39 | Khoản mục và nhóm thu chi | VT-04, VT-05 |
 | MH-40 | Nhập dữ liệu ban đầu từ Excel và nhập mã định danh ngành từ tệp; kế toán nhập công nợ đầu kỳ (YCTD-54); nhân sự nhập hồ sơ nhân sự (YCTD-58) | VT-02, VT-04, VT-06, VT-12, VT-03 |
 | MH-41 | Giao dịch chuyển khoản trực tuyến cần xử lý | VT-04 |
-| MH-42 | Khóa API của đối tác | VT-02 |
+| MH-42 | Khóa API của đối tác: cấp khóa theo phạm vi, căn cứ pháp lý, địa chỉ mạng, ngày hết hạn; khóa hiện một lần; thu hồi (YCTD-63) | VT-02 |
 | MH-43 | Mở năm học mới và chuyển dữ liệu | VT-02 |
 | MH-44 | Cá nhân: chấm công và đơn nghỉ của tôi, phiếu lương của tôi, công việc được giao | Mọi nhân sự dùng cổng quản trị |
 | MH-45 | Lịch năm học: học kỳ, kỳ hè, ngày học trong tuần, danh sách tuần và tuần nghỉ | VT-02 |

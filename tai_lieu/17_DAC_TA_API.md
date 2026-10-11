@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.38
+- Phiên bản: 1.39
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -15,7 +15,7 @@
 5. Mọi điểm cuối kiểm tra quyền ở máy chủ theo ba lớp: vai trò, đơn vị, bản ghi.
 6. Mọi yêu cầu thay đổi dữ liệu phải kèm mã chống gửi trùng do giao diện sinh; máy chủ bỏ qua yêu cầu trùng và trả lại kết quả của lần đầu.
 7. Mọi điểm cuối thay đổi dữ liệu đều ghi nhật ký thao tác.
-8. Giao diện lập trình ứng dụng này do hai dịch vụ máy chủ phục vụ (cổng vào chuyển `/api/v1/auth`, `/api/v1/users`, `/api/v1/roles`, `/api/v1/permissions` sang dịch vụ định danh, phần còn lại sang máy chủ API): nhóm điểm cuối xác thực, quản lý tài khoản và quản lý khóa API của đối tác do **dịch vụ định danh** phục vụ (QĐ-17); các nhóm còn lại do **máy chủ API nghiệp vụ** phục vụ. Hai dịch vụ dùng chung một tiền tố phiên bản và một mô hình lỗi.
+8. Giao diện lập trình ứng dụng này do hai dịch vụ máy chủ phục vụ (cổng vào chuyển `/api/v1/auth`, `/api/v1/users`, `/api/v1/roles`, `/api/v1/permissions`, `/api/v1/api-clients` sang dịch vụ định danh, phần còn lại sang máy chủ API): nhóm điểm cuối xác thực, quản lý tài khoản và quản lý khóa API của đối tác do **dịch vụ định danh** phục vụ (QĐ-17); các nhóm còn lại do **máy chủ API nghiệp vụ** phục vụ. Hai dịch vụ dùng chung một tiền tố phiên bản và một mô hình lỗi.
 9. Tầng giao diện không truy cập cơ sở dữ liệu; mọi thao tác dữ liệu đều đi qua giao diện lập trình ứng dụng này.
 
 ## 2. Mô hình lỗi
@@ -95,6 +95,12 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | GET, PATCH | /api/v1/academic-years/{id}/weeks | Danh sách tuần; đánh dấu hoặc bỏ đánh dấu tuần nghỉ |
 | POST | /api/v1/academic-years/{id}/open | Mở năm học: kiểm tra BR-89, tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung, chuyển năm đang dùng sang đã đóng và chỉ đọc (BR-93) |
 | POST | /api/v1/academic-years/{id}/close | Bỏ ngày 09/10/2026: gộp vào mở năm học mới (YCTD-37) |
+
+Giao kèo của khóa API cho đối tác (DT-07 phần 7b, YCTD-63):
+
+1. `POST /api-clients` (dịch vụ định danh) nhận `name`, `partner_type`, `scopes` (`reports`, `finance`, `children`, `staff`), `legal_basis` (bắt buộc khi có `children` hoặc `staff`), `allowed_ips`, `valid_until`; cần `P01.api-client.manage`; trả thêm `api_key` duy nhất một lần. `GET /api-clients` không trả khóa và giá trị băm.
+2. Nhóm `/partner/` nhận khóa ở tiêu đề `x-api-key`. `GET /partner/reports/summary?month=` trả số liệu như bảng điều khiển toàn trường; `GET /partner/finance?from=&to=` trả `cash_flow` và `debts`; `GET /partner/children` trả trẻ đang học kèm `guardians`; `GET /partner/staff` trả nhân sự kèm `contract` và `latest_payslip`.
+3. Khóa sai, đã thu hồi, hết hạn, sai địa chỉ mạng trả `ERR_UNAUTHENTICATED`; thiếu phạm vi trả `ERR_FORBIDDEN`; quá 60 yêu cầu mỗi phút trả `ERR_RATE_LIMIT`.
 
 Giao kèo của bảng điều khiển và báo cáo (DT-07 phần 7a, YCTD-62):
 
@@ -314,6 +320,7 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | GET | /api/v1/audit-logs | Tra nhật ký thao tác |
 | GET, POST | /api/v1/api-clients | Danh sách và cấp khóa API cho đối tác |
 | POST | /api/v1/api-clients/{id}/revoke | Thu hồi khóa API |
+| POST | /api/v1/api-clients/verify | Máy chủ API kiểm tra khóa và địa chỉ mạng của đối tác, trả phạm vi (YCTD-63) |
 | GET | /api/v1/partner/reports/summary | Đối tác đọc báo cáo tổng hợp; xác thực bằng khóa API |
 | GET | /api/v1/partner/finance | Đối tác đọc phiếu thu, phiếu chi, khoản mục, công nợ tổng hợp |
 | GET | /api/v1/partner/children | Đối tác đọc danh sách trẻ và phụ huynh; ghi nhật ký mỗi lần đọc |

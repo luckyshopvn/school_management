@@ -42,6 +42,12 @@ export class ReportsService {
   ) {
     const permission = kind === 'leadership' ? PERMISSION_CODES.leadershipDashboard : PERMISSION_CODES.unitDashboard;
     const { orgUnitIds } = await this.unitScope(currentUser, permission, filter.orgUnitId, false);
+    return this.dashboardForUnits(orgUnitIds, filter.month);
+  }
+
+  // Số liệu bảng điều khiển của các đơn vị đã kiểm tra phạm vi; dùng cả cho đối tác đọc báo cáo tổng hợp (YCTD-63)
+  async dashboardForUnits(orgUnitIds: string[], monthText: string) {
+    const filter = { month: monthText };
     const { database } = await this.currentSchoolYear.require();
     const { from, to } = monthRange(filter.month);
     const [year, month] = filter.month.split('-').map(Number) as [number, number];
@@ -213,6 +219,11 @@ export class ReportsService {
   // P17-04: công nợ theo trẻ và theo lớp, lọc theo số ngày quá hạn tối thiểu
   async debtsReport(currentUser: CurrentUser, filter: { orgUnitId: string | null; minimumOverdueDays: number | null }) {
     const { orgUnitIds } = await this.unitScope(currentUser, PERMISSION_CODES.debtReport, filter.orgUnitId, false);
+    return this.debtsForUnits(orgUnitIds, filter.minimumOverdueDays);
+  }
+
+  async debtsForUnits(orgUnitIds: string[], minimumOverdueDays: number | null) {
+    const filter = { minimumOverdueDays };
     const children = [];
     for (const orgUnitId of orgUnitIds) {
       for (const row of await this.debts.unitRows({ orgUnitId, classId: null, overdueOnly: false })) {
@@ -268,6 +279,13 @@ export class ReportsService {
     },
   ) {
     const { orgUnitIds } = await this.unitScope(currentUser, PERMISSION_CODES.cashFlowReport, filter.orgUnitId, false);
+    return this.cashFlowForUnits(orgUnitIds, filter);
+  }
+
+  async cashFlowForUnits(
+    orgUnitIds: string[],
+    filter: { from: string; to: string; flowType: 'income' | 'expense' | null; createdBy: string | null },
+  ) {
     const { database } = await this.currentSchoolYear.require();
     const documents: Array<{
       flow_type: 'income' | 'expense';

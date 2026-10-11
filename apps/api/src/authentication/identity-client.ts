@@ -7,6 +7,13 @@ import type { CurrentUserDescription } from './current-user.js';
 const IDENTITY_TIMEOUT_MILLISECONDS = 5000;
 
 // Hỏi dịch vụ định danh vai trò và quyền hiện hành ở mỗi yêu cầu, không lưu bộ nhớ đệm (QĐ-20, PQ-04)
+export interface ApiClientIdentity {
+  id: string;
+  name: string;
+  scopes: Array<'reports' | 'finance' | 'children' | 'staff'>;
+  legal_basis: string | null;
+}
+
 @Injectable()
 export class IdentityClient {
   private readonly logger = new Logger('IdentityClient');
@@ -112,6 +119,32 @@ export class IdentityClient {
       { org_unit_id: orgUnitId },
       'khóa tài khoản',
     );
+  }
+
+  // Kiểm tra khóa API của đối tác kèm địa chỉ mạng gọi tới (P01-14, BM-65, YCTD-63); khóa sai trả ERR_UNAUTHENTICATED
+  async verifyApiKey(key: string, ip: string): Promise<ApiClientIdentity> {
+    let response: Response;
+    try {
+      response = await fetch(`${this.configuration.identityBaseUrl}${API_VERSION_PREFIX}/api-clients/verify`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ key, ip }),
+        signal: AbortSignal.timeout(IDENTITY_TIMEOUT_MILLISECONDS),
+      });
+    } catch (error) {
+      this.logger.error('Không liên lạc được với dịch vụ định danh', error instanceof Error ? error.message : '');
+      throw new ApplicationError('ERR_INTERNAL', 'Không kiểm tra được khóa API, vui lòng thử lại sau');
+    }
+    if (response.status === 401) {
+      throw new ApplicationError(
+        'ERR_UNAUTHENTICATED',
+        'Khóa API không hợp lệ, đã thu hồi, hết hạn hoặc sai địa chỉ mạng',
+      );
+    }
+    if (!response.ok) {
+      throw new ApplicationError('ERR_INTERNAL', 'Không kiểm tra được khóa API, vui lòng thử lại sau');
+    }
+    return (await response.json()) as ApiClientIdentity;
   }
 
   // Gọi dịch vụ định danh bằng mã phiên của người thao tác; lỗi nghiệp vụ trả nguyên mã lỗi và nội dung
