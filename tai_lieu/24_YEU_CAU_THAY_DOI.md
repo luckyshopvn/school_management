@@ -11,6 +11,23 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-70: Sĩ số tối đa và nhật ký truy cập theo cấu hình, báo cáo thu chi theo nhóm – 2026-10-11
+
+- Lý do: phần 9e theo cách chia ở YCTD-66; cấu hình `max_class_size` và `data_access_logging` đã lưu được nhưng chưa có tác dụng; báo cáo thu chi chưa tổng hợp theo nhóm và theo kỳ (P06-08); chưa có điểm cuối tra nhật ký truy cập. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Sĩ số tối đa áp dụng khi phân lớp, chuyển lớp, chuyển đơn vị là số nhỏ hơn giữa sĩ số của lớp và cấu hình `max_class_size` của đơn vị quản lý lớp (kế thừa Trường chính); chưa cấu hình thì dùng sĩ số của lớp. Vượt thì cảnh báo mã BR-04 và cần xác nhận như cũ.
+  - Khi đơn vị của trẻ bật `data_access_logging` (kế thừa Trường chính), mỗi lần đọc chi tiết hồ sơ trẻ (`child_profile`), công nợ của trẻ, phiếu thu của trẻ (`finance`) ghi một dòng nhật ký truy cập. Xem đầy đủ số định danh, giấy khai sinh, đối tác đọc qua API luôn ghi như cũ (BR-81, BM-66).
+  - Thêm `GET /data-access-logs` dùng chung quyền và bộ lọc với nhật ký thao tác (`P01.view`, lọc theo phạm vi đơn vị).
+  - Báo cáo thu chi trả thêm `groups` (theo loại và nhóm khoản mục: số chứng từ, số tiền) và `periods` (theo tháng: thu, chi); cổng quản trị có thêm hai bảng Theo nhóm và Theo tháng.
+- Thành phần bị ảnh hưởng: `07`, `14`, `17`, `21`, `27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md`, `04_P06.md`, `01`, `02`, `23`, `index.md`; máy chủ API, cổng quản trị.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: `GET /data-access-logs` mới; `GET /reports/cash-flow` có `groups`, `periods`; phân lớp, chuyển lớp, chuyển đơn vị dùng sĩ số theo cấu hình.
+- Giao diện bị ảnh hưởng: MH-28 báo cáo thu chi có bảng theo nhóm và theo tháng.
+- Quyền bị ảnh hưởng: không thêm mã quyền.
+- Ảnh hưởng chức năng cũ: đơn vị chưa cấu hình hai mục này hoạt động như trước.
+- Kiểm thử cần thực hiện: CTC-P01-050, 055, 056, 057, CTC-P06-048, CT-112.
+- Trạng thái: Đã triển khai
+
 ### YCTD-69: Chuyển trẻ, phụ huynh, lớp đang học và công nợ sang năm học mới – 2026-10-11
 
 - Lý do: phần 9d theo cách chia ở YCTD-66; mở năm học mới mới chuyển danh mục, nhân sự, chấm công, lương, khoản thu nhưng chưa chuyển trẻ, lớp, quỹ, công nợ, chưa kiểm tra BR-89 (AC-194, GD-90, Q-149). Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.

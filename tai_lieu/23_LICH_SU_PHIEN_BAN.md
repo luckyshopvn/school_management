@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.30.8 – 2026-10-11
+
+- Phạm vi thay đổi: DT-09 phần 9e, sĩ số tối đa và nhật ký truy cập theo cấu hình, báo cáo thu chi theo nhóm và theo tháng (YCTD-70).
+- Chức năng mới: `GET /data-access-logs`; bảng theo nhóm và theo tháng của báo cáo thu chi.
+- Lỗi đã sửa: cấu hình `max_class_size` và `data_access_logging` trước đây lưu được nhưng không có tác dụng.
+- Thay đổi dữ liệu: không.
+- Thay đổi API: báo cáo thu chi có `groups`, `periods`.
+- Rủi ro: bật ghi nhật ký truy cập làm tăng số dòng nhật ký; giữ tối thiểu 24 tháng (BM-70).
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-09-phan-9e`.
+
 ### Phiên bản 0.30.7 – 2026-10-11
 
 - Phạm vi thay đổi: DT-09 phần 9d, chuyển trẻ, phụ huynh, lớp đang học, quỹ, công nợ sang năm học mới; kiểm tra BR-89, BR-94 (YCTD-69).

@@ -72,6 +72,25 @@ const TABLES: Record<ReportCode, Array<{ key: string; title: string; columns: Co
   ],
   'cash-flow': [
     {
+      key: 'groups',
+      title: 'Theo nhóm',
+      columns: [
+        { key: 'flow_type', label: 'Loại' },
+        { key: 'group_name', label: 'Nhóm' },
+        { key: 'count', label: 'Số chứng từ' },
+        { key: 'amount', label: 'Số tiền' },
+      ],
+    },
+    {
+      key: 'periods',
+      title: 'Theo tháng',
+      columns: [
+        { key: 'period', label: 'Tháng' },
+        { key: 'income_amount', label: 'Thu' },
+        { key: 'expense_amount', label: 'Chi' },
+      ],
+    },
+    {
       key: 'categories',
       title: 'Theo khoản mục',
       columns: [

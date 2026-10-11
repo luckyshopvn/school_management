@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.15
+- Phiên bản: 1.16
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -194,7 +194,7 @@
 | CT-109 | P02-11 | Xóa phiếu đồ bị mất đã đóng | Chặn xóa | | Chưa chạy |
 | CT-110 | P03-08 | Lọc bài học theo lĩnh vực | Chỉ trả bài học thuộc lĩnh vực | | Chưa chạy |
 | CT-111 | P06-10 | Phát hành phiếu thu chưa chọn khoản mục | Từ chối | Kiểm thử tự động `apps/api/src/finance/receipts.test.ts` đạt ngày 11/10/2026 | Đạt |
-| CT-112 | P06-10 | Báo cáo thu chi nhóm theo nhóm thu chi | Tổng các nhóm bằng tổng kỳ | | Chưa chạy |
+| CT-112 | P06-10 | Báo cáo thu chi nhóm theo nhóm thu chi | Tổng các nhóm bằng tổng kỳ | Kiểm thử tự động `apps/api/src/settings/configurable-rules.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-113 | P08-09 | Chốt bảng công có ngày nghỉ lễ hưởng lương | Ngày đó ghi nghỉ lễ | Kiểm thử tự động `apps/api/src/staff-attendance/leave.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-114 | P08-10 | Chốt bảng công có ngày thứ bảy nghỉ định kỳ | Không tính vắng không phép | Kiểm thử tự động `apps/api/src/staff-attendance/leave.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-115 | P08-09 | Giáo viên gọi điểm cuối sửa ngày nghỉ lễ | Trả lỗi không có quyền | Kiểm thử tự động `apps/api/src/staff-attendance/staff-attendance.test.ts` đạt ngày 11/10/2026 | Đạt |

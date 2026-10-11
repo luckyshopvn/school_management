@@ -14,6 +14,27 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-09 phần 9e: quy tắc theo cấu hình, báo cáo thu chi theo nhóm
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 39 (phần 9d); viết phần 9e trên nhánh `dt-09-phan-9e`.
+- Máy chủ API: sĩ số tối đa theo cấu hình đơn vị; ghi nhật ký truy cập khi đơn vị bật; tra nhật ký truy cập; báo cáo thu chi theo nhóm và theo tháng.
+- Cổng quản trị: hai bảng mới trong báo cáo thu chi.
+- Kết quả: máy chủ API 395/395, kiểm thử giao diện 47/47.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-70 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-70 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.30.8.
+
+#### Vấn đề tồn đọng
+
+- Phần 9f, 9g của đợt DT-09.
+
 ### 2026-10-11 — DT-09 phần 9d: chuyển dữ liệu sang năm học mới
 
 #### Công việc đã thực hiện

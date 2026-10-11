@@ -5,6 +5,7 @@ import type { Request } from 'express';
 import { AuthenticatedUser } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf } from '../common/audit-log.js';
+import { DataAccessLogger } from '../common/data-access-log.js';
 import {
   isUuid,
   readOptionalText,
@@ -60,6 +61,7 @@ export class ReceiptsController {
     private readonly receipts: ReceiptsService,
     private readonly reversals: ReceiptReversalsService,
     private readonly debts: DebtsService,
+    private readonly accessLogger: DataAccessLogger,
   ) {}
 
   // Lập và phát hành phiếu thu ngay, kèm danh sách hóa đơn phân bổ; tiền thừa thành số dư có của trẻ
@@ -188,11 +190,14 @@ export class ReceiptsController {
   }
 
   @Get('children/:id/receipts')
-  ofChild(
+  async ofChild(
     @Param('id', uuidParameter('Mã trẻ không hợp lệ')) childId: string,
+    @Req() request: Request,
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
-    return this.receipts.ofChild(currentUser, childId);
+    const receipts = await this.receipts.ofChild(currentUser, childId);
+    await this.accessLogger.recordChildRead(originOf(request, currentUser), childId, 'finance');
+    return receipts;
   }
 
   @Post('children/:id/credit-allocations')
@@ -231,10 +236,13 @@ export class ReceiptsController {
   }
 
   @Get('children/:id/debt')
-  childDebt(
+  async childDebt(
     @Param('id', uuidParameter('Mã trẻ không hợp lệ')) childId: string,
+    @Req() request: Request,
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
-    return this.debts.child(currentUser, childId);
+    const debt = await this.debts.child(currentUser, childId);
+    await this.accessLogger.recordChildRead(originOf(request, currentUser), childId, 'finance');
+    return debt;
   }
 }
