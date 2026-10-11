@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.25
+- Phiên bản: 1.26
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -100,6 +100,7 @@ flowchart TD
 | MH-52 | Quy định phép năm theo chức danh và thâm niên; số ngày phép năm của nhân sự trong đơn vị, chỉnh kèm lý do (YCTD-59) | VT-06, VT-02, VT-15, VT-03, VT-04, VT-05 |
 | MH-53 | Danh mục lương và biểu thuế: phụ cấp, thưởng, khấu trừ chung toàn trường; các phiên bản biểu thuế thu nhập cá nhân (YCTD-60) | VT-04, VT-05, người xem bảng lương |
 | MH-54 | Quyết toán và điều chỉnh lương: hợp đồng đã chấm dứt, bảng quyết toán, trình và duyệt, phiếu chi quyết toán, phiếu thu thu hồi lương; khoản điều chỉnh lương kỳ sau (YCTD-61) | VT-04, VT-15, VT-02, người xem bảng lương |
+| MH-55 | Thông báo: thông báo của tôi, chỉ chưa đọc, đánh dấu đã đọc, ai đã đọc; mẫu thông báo (YCTD-64) | Mọi nhân sự dùng cổng quản trị; mẫu cho VT-02, VT-03 gán ở Trường chính |
 
 ### 2.2 Ứng dụng giáo viên
 

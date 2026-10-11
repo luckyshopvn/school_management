@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { readNotifications } from '../notifications/notifications-api.js';
 import { Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@school-management/ui';
@@ -43,7 +44,8 @@ type NavigationPath =
   | '/my-payslips'
   | '/payroll-settlements'
   | '/reports'
-  | '/api-clients';
+  | '/api-clients'
+  | '/notifications';
 
 function NavItem({ to, label }: { to: NavigationPath; label: string }) {
   return (
@@ -63,6 +65,10 @@ function NavItem({ to, label }: { to: NavigationPath; label: string }) {
 export function AppShell({ children }: { children: ReactNode }) {
   const session = useSession();
   const currentUser = useQuery({ queryKey: ['current-user'], queryFn: fetchCurrentUser });
+  // Số thông báo chưa đọc, làm mới mỗi phút (P19-04)
+  const unread =
+    useQuery({ queryKey: ['notifications', 'count'], queryFn: () => readNotifications(true), refetchInterval: 60_000 })
+      .data?.unread_count ?? 0;
   // Chỉ hiện mục người dùng có quyền; máy chủ vẫn kiểm tra quyền ở mọi yêu cầu
   const canManageAllAccounts = useHasPermission(PERMISSION_CODES.accountManage);
   const canManageAccountsInUnit = useHasPermission(PERMISSION_CODES.accountManageInUnit);
@@ -114,6 +120,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <span className="text-section-title font-semibold text-brand-strong">School Management</span>
         <ul className="flex flex-col gap-1">
           <NavItem to="/" label="Trang chủ" />
+          <NavItem to="/notifications" label={unread ? `Thông báo (${unread})` : 'Thông báo'} />
         </ul>
         {canManageClasses || canViewChildren || canEditChildren ? (
           <>

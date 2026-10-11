@@ -4,6 +4,7 @@ import { ApiError, fetchCurrentUser, requestJson, type CurrentUser } from '../se
 import { useSession } from '../session/session.js';
 import { AuthorizedPickupsPanel, PickupConfirmations } from './PickupSections.js';
 import { InvoicesPanel } from './InvoicesPanel.js';
+import { NotificationsPanel } from './NotificationsPanel.js';
 import { ServicesPanel } from './ServicesPanel.js';
 
 // Trang chủ ứng dụng phụ huynh: danh sách con, báo vắng (MP-06), điểm danh của con theo tháng (MP-02),
@@ -174,6 +175,7 @@ export function HomeScreen() {
           <div className="h-8 w-48 animate-pulse rounded bg-border" aria-hidden="true" />
         )}
         {notice ? <Alert tone="success">{notice}</Alert> : null}
+        <NotificationsPanel />
         <PickupConfirmations />
         {children && children.length === 0 ? (
           <p className="text-content text-text-secondary">Chưa có thông tin của con.</p>

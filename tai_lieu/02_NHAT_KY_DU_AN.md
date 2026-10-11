@@ -14,6 +14,28 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-08 phần 8a: trung tâm thông báo và mẫu thông báo
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 33 (phần 7b, hoàn thành DT-07); viết phần 8a trên nhánh `dt-08-phan-8a`.
+- Cơ sở dữ liệu: năm học có `notification_reads`, `notification_templates` (tệp 0024); định danh có hai mã quyền P19 (tệp 0029).
+- Máy chủ API: danh sách thông báo theo người nhận trực tiếp và theo vai trò, đánh dấu đã đọc, ai đã đọc, mẫu thông báo.
+- Cổng quản trị: trang Thông báo (MH-55) và số chưa đọc ở thanh điều hướng; ứng dụng giáo viên và phụ huynh: khung thông báo.
+- Kết quả: máy chủ API 322/322, kiểm thử giao diện 44/44.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-64 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-64 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.30.2.
+
+#### Vấn đề tồn đọng
+
+- Phần 8b: nhật ký của bé.
+
 ### 2026-10-11 — DT-07 phần 7b: khóa API cho đối tác
 
 #### Công việc đã thực hiện

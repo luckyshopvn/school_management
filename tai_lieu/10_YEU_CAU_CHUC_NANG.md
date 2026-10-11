@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.28
+- Phiên bản: 1.29
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -276,8 +276,8 @@
 | P19-01 | Cổng quản trị (G1) | VT-02 đến VT-12, VT-15, VT-16, VT-17, VT-19, VT-20 | Tài khoản, vai trò | Cung cấp giao diện theo vai trò | Cổng quản trị | PQ-01 |
 | P19-02 | Ứng dụng giáo viên (G1) | VT-07, VT-08, VT-09, VT-10, VT-17, VT-18 | Tài khoản giáo viên và nhân viên | Cung cấp giao diện tác nghiệp tại lớp và tại cổng | Ứng dụng giáo viên | PQ-01 |
 | P19-03 | Ứng dụng phụ huynh (G1) | VT-14 | Tài khoản phụ huynh | Cung cấp giao diện theo dõi con | Ứng dụng phụ huynh | PQ-06 |
-| P19-04 | Trung tâm thông báo (G1) | Mọi vai trò | Sự kiện nghiệp vụ | Tạo, phân phối, đánh dấu đã đọc | Danh sách thông báo | BR-70 |
-| P19-05 | Mẫu thông báo (G1) | VT-02, VT-03 | Loại sự kiện, kênh, nội dung mẫu | Quản lý mẫu và biến nội dung | Mẫu thông báo | BR-70 |
+| P19-04 | Trung tâm thông báo (G1) | Mọi vai trò | Sự kiện nghiệp vụ | Tạo, phân phối, đánh dấu đã đọc; ghi từng người đã đọc kể cả thông báo theo vai trò (YCTD-64) | Danh sách thông báo | BR-70 |
+| P19-05 | Mẫu thông báo (G1) | VT-02, VT-03 | Loại sự kiện, kênh, nội dung mẫu | Quản lý mẫu và biến nội dung; mẫu chung toàn trường, biến {tieu_de}, {noi_dung}, {don_vi} (YCTD-64) | Mẫu thông báo | BR-70 |
 | P19-06 | Đăng nhập và quản lý phiên (G1) | Mọi vai trò | Tài khoản, mật khẩu; phụ huynh có thể đăng nhập bằng mã một lần gửi qua tin nhắn; mật khẩu mặc định chung và thông số mã một lần do Hiệu trưởng đặt ở cấu hình chung của dịch vụ định danh (YCTD-43) | Xác thực, cấp phiên, thu hồi phiên; phiên đăng nhập bằng mật khẩu mặc định chỉ được vào màn hình đổi mật khẩu; phiên đăng nhập bằng mã một lần dùng bình thường (Q-147) | Phiên làm việc | PQ-04, PQ-06 |
 
 ## 21. Yêu cầu phi chức năng

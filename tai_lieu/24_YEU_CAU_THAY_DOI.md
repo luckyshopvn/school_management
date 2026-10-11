@@ -11,6 +11,25 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-64: DT-08 chia hai; trung tâm thông báo và mẫu thông báo – 2026-10-11
+
+- Lý do: thiết kế đợt DT-08. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - DT-08 chia hai: 8a trung tâm thông báo (P19-04) và mẫu thông báo (P19-05) trên cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh; 8b nhật ký của bé (P04-04, P04-05) ở ứng dụng giáo viên và ứng dụng phụ huynh. Các màn hình MP, MG khác thuộc phân hệ giai đoạn 2 chưa làm.
+  - Mỗi người thấy thông báo trong ứng dụng gửi riêng cho mình, hoặc gửi theo vai trò mà mình có ở đúng đơn vị; người có vai trò đó được gán ở Trường chính hoặc toàn trường nhận thông báo theo vai trò của mọi đơn vị. Thông báo kênh tin nhắn không hiện trong ứng dụng.
+  - Mỗi lần người dùng đánh dấu đã đọc được ghi riêng (bảng `notification_reads`), kể cả thông báo gửi theo vai trò (BR-70). Hiệu trưởng, Phó Hiệu trưởng, quản lý đơn vị xem được ai đã đọc thông báo của đơn vị trong phạm vi: người nhận trực tiếp kèm trạng thái đọc, và danh sách người đã đọc.
+  - Mẫu thông báo chung toàn trường theo mã thông báo, do Hiệu trưởng hoặc quản lý đơn vị gán ở Trường chính sửa; dùng biến {tieu_de}, {noi_dung}, {don_vi}; áp khi hiển thị, xóa mẫu thì dùng lại nội dung gốc. Danh sách mã gồm các mã đã phát sinh.
+  - Cổng quản trị có mục Thông báo kèm số chưa đọc ở thanh điều hướng, làm mới mỗi phút; hai ứng dụng có khung thông báo ở trang đầu. Gửi tin nhắn thật vẫn chờ chọn nhà cung cấp (`T1`).
+  - Mã quyền mới: `P19.notification-template.manage` (VT-02, VT-03, phải gán ở Trường chính), `P19.notification-receipt.view` (VT-02, VT-15, VT-03).
+- Thành phần bị ảnh hưởng: `08`, `10`, `14`, `16`, `17`, `01`, `03`, `index.md`; máy chủ API, cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh.
+- Dữ liệu bị ảnh hưởng: bảng mới `notification_reads`, `notification_templates`.
+- API bị ảnh hưởng: `GET /notifications`, `POST /notifications/{id}/read`, `POST /notifications/read-all`, `GET /notifications/{id}/receipts`, `GET /notification-templates`, `PUT, DELETE /notification-templates/{code}`.
+- Giao diện bị ảnh hưởng: MH-55 Thông báo; khung thông báo ở MG-01 và trang đầu ứng dụng phụ huynh.
+- Quyền bị ảnh hưởng: thêm hai mã quyền P19 ở trên.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: kiểm thử tự động của trung tâm thông báo và mẫu thông báo.
+- Trạng thái: Đã triển khai phần 8a
+
 ### YCTD-63: Khóa API cho đối tác chỉ đọc – 2026-10-11
 
 - Lý do: phần 7b theo cách chia ở YCTD-62. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.

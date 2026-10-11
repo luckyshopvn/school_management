@@ -27,6 +27,7 @@ import { migration as addLeavePermissions } from './migrations/0025_add_leave_pe
 import { migration as addPayrollPermissions } from './migrations/0026_add_payroll_permissions.js';
 import { migration as addReportPermissions } from './migrations/0027_add_report_permissions.js';
 import { migration as createApiClients } from './migrations/0028_create_api_clients.js';
+import { migration as addNotificationPermissions } from './migrations/0029_add_notification_permissions.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu định danh, theo số thứ tự (QU-01)
 export const identityMigrations: Record<string, Migration> = {
@@ -58,4 +59,5 @@ export const identityMigrations: Record<string, Migration> = {
   '0026_add_payroll_permissions': addPayrollPermissions,
   '0027_add_report_permissions': addReportPermissions,
   '0028_create_api_clients': createApiClients,
+  '0029_add_notification_permissions': addNotificationPermissions,
 };
