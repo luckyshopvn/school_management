@@ -108,6 +108,7 @@ export interface Payroll extends PayrollSummary {
   can_approve: boolean;
   skipped: Array<{ staff_id: string; full_name: string; reason: string }>;
   payslips: Payslip[];
+  payments: Array<{ id: string; code: string | null; status: string; amount: number }>;
 }
 
 const send = <T>(method: string, path: string, body?: unknown) =>
@@ -140,3 +141,103 @@ export const returnPayroll = (payrollId: string, reason: string) =>
 export const readMyPayslips = (): Promise<Payslip[]> => requestJson('/api/v1/me/payslips');
 
 export const formatMoney = (value: number) => new Intl.NumberFormat('vi-VN').format(value);
+
+// Phiếu chi lương, bảng quyết toán, phiếu thu thu hồi lương, khoản điều chỉnh kỳ sau (BR-45, BR-90; YCTD-61)
+export interface LinkedDocument {
+  id: string;
+  code: string | null;
+  status: string;
+  amount: number;
+}
+
+export interface SettlementRow {
+  contract_id: string;
+  contract_no: string;
+  terminated_on: string;
+  staff_id: string;
+  full_name: string;
+  settlement_id: string | null;
+  status: keyof typeof PAYROLL_STATUS_LABELS | null;
+  payable_amount: number | null;
+}
+
+export interface Settlement {
+  id: string;
+  full_name: string;
+  contract_no: string;
+  terminated_on: string;
+  status: keyof typeof PAYROLL_STATUS_LABELS;
+  earned_amount: number;
+  prepaid_amount: number;
+  tax_difference: number;
+  payable_amount: number;
+  recovery_outstanding: number;
+  requires_principal: boolean;
+  return_reason: string | null;
+  lines: Array<{ code: string; name: string; amount: number; basis: string }>;
+  receipts: Array<LinkedDocument & { receipt_date: string }>;
+  payments: LinkedDocument[];
+  can_manage: boolean;
+  can_approve: boolean;
+}
+
+export interface PayrollAdjustment {
+  id: string;
+  staff_id: string;
+  full_name: string;
+  target_year: number;
+  target_month: number;
+  amount: number;
+  reason: string;
+  status: 'pending' | 'approved' | 'rejected';
+  reject_reason: string | null;
+  can_decide: boolean;
+}
+
+export interface PaymentSource {
+  account_id: string;
+  category_id: string;
+  request_key: string;
+}
+
+export const createPayrollPayment = (payrollId: string, source: PaymentSource) =>
+  send<LinkedDocument>('POST', `/api/v1/payrolls/${payrollId}/payment`, source);
+export const listSettlements = (): Promise<SettlementRow[]> => requestJson('/api/v1/payroll-settlements');
+export const readSettlement = (settlementId: string): Promise<Settlement> =>
+  requestJson(`/api/v1/payroll-settlements/${settlementId}`);
+export const calculateSettlement = (contractId: string) =>
+  send<Settlement>('POST', '/api/v1/payroll-settlements', { contract_id: contractId });
+export const submitSettlement = (settlementId: string) =>
+  send<Settlement>('POST', `/api/v1/payroll-settlements/${settlementId}/submit`);
+export const approveSettlement = (settlementId: string) =>
+  send<Settlement>('POST', `/api/v1/payroll-settlements/${settlementId}/approve`);
+export const returnSettlement = (settlementId: string, reason: string) =>
+  send<Settlement>('POST', `/api/v1/payroll-settlements/${settlementId}/return`, { reason });
+export const createSettlementPayment = (settlementId: string, source: PaymentSource) =>
+  send<LinkedDocument>('POST', `/api/v1/payroll-settlements/${settlementId}/payment`, source);
+export const createRecoveryReceipt = (
+  settlementId: string,
+  input: {
+    amount: number;
+    method: 'cash' | 'transfer' | 'other';
+    account_id: string;
+    category_id: string;
+    receipt_date: string;
+    request_key: string;
+  },
+) => send<Settlement>('POST', `/api/v1/payroll-settlements/${settlementId}/recovery-receipts`, input);
+export const listPayrollAdjustments = (): Promise<PayrollAdjustment[]> => requestJson('/api/v1/payroll-adjustments');
+export const createPayrollAdjustment = (input: { staff_id: string; month: string; amount: number; reason: string }) =>
+  send<PayrollAdjustment>('POST', '/api/v1/payroll-adjustments', input);
+export const approvePayrollAdjustment = (adjustmentId: string) =>
+  send<PayrollAdjustment>('POST', `/api/v1/payroll-adjustments/${adjustmentId}/approve`);
+export const rejectPayrollAdjustment = (adjustmentId: string, reason: string) =>
+  send<PayrollAdjustment>('POST', `/api/v1/payroll-adjustments/${adjustmentId}/reject`, { reason });
+
+export const DOCUMENT_STATUS_LABELS: Record<string, string> = {
+  draft: 'nháp',
+  pending: 'chờ duyệt',
+  issued: 'đã phát hành',
+  pending_reversal: 'chờ duyệt đảo',
+  reversed: 'đã đảo',
+};

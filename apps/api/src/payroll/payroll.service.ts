@@ -82,9 +82,16 @@ export class PayrollService {
             )
             .orderBy('order_no')
             .execute();
+    const payments = await database
+      .selectFrom('payments')
+      .select(['id', 'code', 'status', 'amount'])
+      .where('payroll_id', '=', payrollId)
+      .orderBy('created_at')
+      .execute();
     return {
       ...payroll,
       total_net: Number(payroll.total_net),
+      payments: payments.map((row) => ({ ...row, amount: Number(row.amount) })),
       can_manage: currentUser.hasPermission(PERMISSION_CODES.payrollManage),
       can_approve: await this.canApprove(currentUser, payroll.requires_principal),
       skipped: payroll.skipped.filter((row) => scope.wholeSchool || scope.orgUnitIds.includes(row.org_unit_id)),
@@ -245,16 +252,7 @@ export class PayrollService {
       throw ruleViolationError('BR-77', 'Bảng lương này không còn nháp');
     }
     const root = await this.root(database);
-    const threshold = root
-      ? await database
-          .selectFrom('approval_thresholds')
-          .select('threshold_amount')
-          .where('org_unit_id', '=', root.id)
-          .where('document_type', '=', 'payroll')
-          .where('status', '=', 'active')
-          .executeTakeFirst()
-      : undefined;
-    const requiresPrincipal = !threshold || Number(payroll.total_net) >= Number(threshold.threshold_amount);
+    const requiresPrincipal = await this.requiresPrincipal(database, Number(payroll.total_net));
     await database.transaction().execute(async (transaction) => {
       await transaction
         .updateTable('payrolls')
@@ -477,6 +475,14 @@ export class PayrollService {
       .orderBy('pay_item_types.kind')
       .orderBy('pay_item_types.code')
       .execute();
+    const [monthYear, monthNumber] = month.split('-').map(Number) as [number, number];
+    const manualAdjustments = await database
+      .selectFrom('payroll_adjustments')
+      .select(['staff_id', 'amount', 'reason'])
+      .where('target_year', '=', monthYear)
+      .where('target_month', '=', monthNumber)
+      .where('status', '=', 'approved')
+      .execute();
     const unitHours = new Map<string, { standardMinutes: number; overtimeRatePercent: number | null }>();
     const hoursOf = async (orgUnitId: string) => {
       const cached = unitHours.get(orgUnitId);
@@ -593,6 +599,9 @@ export class PayrollService {
             }
           : null,
         items,
+        manualAdjustments: manualAdjustments
+          .filter((row) => row.staff_id === person.id)
+          .map((row) => ({ amount: Number(row.amount), reason: row.reason })),
         dependents: person.dependents_count,
         taxTable: {
           personal_deduction: Number(taxTable.personal_deduction),
@@ -614,7 +623,7 @@ export class PayrollService {
   }
 
   // Hiệu trưởng duyệt mọi bảng lương; Phó Hiệu trưởng gán ở Trường chính duyệt bảng dưới hạn mức
-  private async canApprove(currentUser: CurrentUser, requiresPrincipal: boolean): Promise<boolean> {
+  async canApprove(currentUser: CurrentUser, requiresPrincipal: boolean): Promise<boolean> {
     const isPrincipal = currentUser.description.assignments.some(
       (assignment) =>
         assignment.role_code === PRINCIPAL_ROLE && assignment.permissions.includes(PERMISSION_CODES.payrollApprove),
@@ -644,7 +653,22 @@ export class PayrollService {
     return payroll;
   }
 
-  private root(database: Executor) {
+  // Từ hạn mức bảng lương của Trường chính trở lên hoặc chưa cấu hình hạn mức thì cần Hiệu trưởng (BR-77)
+  async requiresPrincipal(database: Executor, amount: number): Promise<boolean> {
+    const root = await this.root(database);
+    const threshold = root
+      ? await database
+          .selectFrom('approval_thresholds')
+          .select('threshold_amount')
+          .where('org_unit_id', '=', root.id)
+          .where('document_type', '=', 'payroll')
+          .where('status', '=', 'active')
+          .executeTakeFirst()
+      : undefined;
+    return !threshold || Math.abs(amount) >= Number(threshold.threshold_amount);
+  }
+
+  root(database: Executor) {
     return database.selectFrom('org_units').select('id').where('unit_type', '=', 'truong_chinh').executeTakeFirst();
   }
 

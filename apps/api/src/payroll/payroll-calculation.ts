@@ -49,6 +49,8 @@ export interface PayslipInput {
     month: string;
   } | null;
   items: PayItemAssignment[];
+  // Khoản điều chỉnh đã duyệt cho tháng này (BR-45)
+  manualAdjustments?: Array<{ amount: number; reason: string }>;
   dependents: number;
   taxTable: { personal_deduction: number; dependent_deduction: number; brackets: TaxBracket[] };
 }
@@ -185,6 +187,17 @@ export function calculatePayslip(input: PayslipInput) {
         );
       }
     }
+  }
+  for (const manual of input.manualAdjustments ?? []) {
+    lines.push({
+      section: 'adjustment',
+      line_type: 'manual_adjustment',
+      code: 'DIEU_CHINH',
+      name: `Điều chỉnh: ${manual.reason}`,
+      amount: manual.amount,
+      basis: 'Khoản điều chỉnh đã được phê duyệt (BR-45)',
+      ...plain,
+    });
   }
   const income = lines.filter((line) => line.line_type !== 'deduction').reduce((total, line) => total + line.amount, 0);
   const exempt = lines.filter((line) => line.tax_exempt).reduce((total, line) => total + line.amount, 0);

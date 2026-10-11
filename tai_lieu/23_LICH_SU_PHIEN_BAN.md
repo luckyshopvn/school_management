@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.29.7 – 2026-10-11
+
+- Phạm vi thay đổi: DT-06 phần 6c-2, phiếu chi lương, quyết toán, thu hồi lương, điều chỉnh kỳ sau (YCTD-61).
+- Chức năng mới: phiếu chi lương từ bảng lương và bảng quyết toán; bảng quyết toán khi chấm dứt hợp đồng; phiếu thu thu hồi lương không gắn trẻ; khoản điều chỉnh lương kỳ sau.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: `payroll_settlements`, `payroll_adjustments`; cột liên kết ở `payments`, `receipts`; `receipts.child_id` được trống.
+- Thay đổi API: nhóm điểm cuối quyết toán, điều chỉnh, phiếu chi lương.
+- Rủi ro: phiếu thu không gắn trẻ chưa đảo được bằng chức năng đảo phiếu thu.
+- Khả năng tương thích: phiếu thu cũ đều gắn trẻ, không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-06-phan-6c-2`; chạy ngược tệp thay đổi cấu trúc 0023 của cơ sở dữ liệu năm học.
+
 ### Phiên bản 0.29.6 – 2026-10-11
 
 - Phạm vi thay đổi: DT-06 phần 6c-1, danh mục lương, biểu thuế, bảng lương toàn trường, phiếu lương (YCTD-60).

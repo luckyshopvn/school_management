@@ -11,6 +11,26 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-61: Phiếu chi lương, bảng quyết toán khi nghỉ việc, phiếu thu thu hồi lương, khoản điều chỉnh kỳ sau – 2026-10-11
+
+- Lý do: phần 6c-2 theo cách chia ở YCTD-60. Eric ủy quyền ngày 11/10/2026 cho Claude tự làm tới khi hoàn tất dự án, không chờ xác nhận; các điểm dưới đây Claude tự chọn theo ủy quyền, Eric rà lại khi cần.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Phiếu chi lương: bảng lương đã duyệt lập một phiếu chi loại lương nháp bằng tổng thực nhận, đơn vị là Trường chính, nguồn chi là quỹ hoặc tài khoản của Trường chính; sau đó đính chứng từ, trình và duyệt như phiếu chi thường theo hạn mức phiếu chi (QT-05). Mỗi bảng lương chỉ có một phiếu chi lương chưa đảo. Kế toán cần được gán ở Trường chính để lập phiếu chi của Trường chính.
+  - Bảng quyết toán lập cho từng hợp đồng đã chấm dứt. Lương được hưởng của tháng nghỉ việc = lương hợp đồng × ngày công hưởng lương từ ngày 1 (hoặc ngày vào làm) đến ngày chấm dứt / ngày công chuẩn của tháng; phụ cấp cố định và khấu trừ cố định chia cùng tỷ lệ; khấu trừ theo phần trăm tính trên lương được hưởng; phụ cấp theo ngày đi làm; làm thêm giờ. Ngày công tính trực tiếp từ chấm công, đơn nghỉ đã duyệt, ngày lễ và lịch bù, không cần chốt bảng công của tháng đó; còn đơn nghỉ chờ duyệt thì chặn.
+  - Phần đã trả trước là phần trả trước trên phiếu lương tháng nghỉ việc đã duyệt; chưa có phiếu lương tháng đó thì phần đã trả trước bằng 0 và bảng quyết toán tính luôn phần điều chỉnh theo công tháng trước. Thuế tính lại cho tháng nghỉ việc, trừ thuế đã khấu trừ trên phiếu lương; số phải trả = lương được hưởng − đã trả trước − chênh lệch thuế; dương là trả thêm, âm là khoản phải thu hồi.
+  - Bảng quyết toán nháp tính lại được; trình duyệt theo hạn mức bảng lương của Trường chính trên giá trị tuyệt đối của số phải trả (BR-90): dưới hạn mức Phó Hiệu trưởng gán ở Trường chính duyệt, còn lại Hiệu trưởng; trả lại kèm lý do.
+  - Đã duyệt mà trả thêm thì lập phiếu chi loại lương cho nhân sự; phải thu hồi thì lập phiếu thu không gắn trẻ, gắn nhân sự và bảng quyết toán, khoản mục thu do kế toán chọn, số dãy PT chung, thu nhiều lần đến khi hết; tiền vào quỹ hoặc tài khoản như phiếu thu thường. Phiếu thu thu hồi lương chưa đảo được ở chức năng đảo phiếu thu hiện có.
+  - Khoản điều chỉnh lương cho kỳ sau (BR-45): kế toán lập cho một nhân sự, một tháng chưa có bảng lương đã trình, số tiền âm hoặc dương, lý do bắt buộc; Ban Giám hiệu duyệt theo hạn mức bảng lương của Trường chính, người lập không tự duyệt; khoản đã duyệt nằm ở phần điều chỉnh của phiếu lương tháng đó, có tính thuế.
+  - Không thêm mã quyền: dùng `P08.payroll.manage`, `P08.payroll.view`, `P08.payroll.approve`, `P06.payment.manage`, `P06.receipt.manage`.
+- Thành phần bị ảnh hưởng: `08`, `10`, `14`, `16`, `17`, `27_BO_CA_KIEM_THU_CHI_TIET/04_P06.md`, `27_BO_CA_KIEM_THU_CHI_TIET/05_P08.md`, `01`, `03`, `index.md`; máy chủ API (tiền lương, phiếu chi, phiếu thu), cổng quản trị.
+- Dữ liệu bị ảnh hưởng: bảng mới `payroll_settlements`, `payroll_adjustments`; `payments` thêm `payroll_id`, `settlement_id`; `receipts` cho phép `child_id` trống, thêm `staff_id`, `settlement_id` (mỗi phiếu thu gắn đúng một trẻ hoặc một nhân sự).
+- API bị ảnh hưởng: `POST /payrolls/{id}/payment`, `GET, POST /payroll-settlements` (thay cho `/payrolls/settlements`), `GET /payroll-settlements/{id}`, `POST /payroll-settlements/{id}/submit`, `approve`, `return`, `recovery-receipts`, `payment`, `GET, POST /payroll-adjustments`, `POST /payroll-adjustments/{id}/approve`, `reject`; `GET /payrolls/{id}` thêm `payments`.
+- Giao diện bị ảnh hưởng: MH-15 (lập phiếu chi lương), MH-54 Quyết toán và điều chỉnh lương.
+- Quyền bị ảnh hưởng: không thêm mã quyền.
+- Ảnh hưởng chức năng cũ: phiếu thu có thể không gắn trẻ; danh sách phiếu thu của trẻ, công nợ và đảo phiếu thu chỉ xét phiếu thu gắn trẻ như cũ.
+- Kiểm thử cần thực hiện: CTC-P08-039 đến 042, CTC-P06-034.
+- Trạng thái: Đã triển khai
+
 ### YCTD-60: DT-06 phần 6c chia hai; danh mục lương, biểu thuế, bảng lương toàn trường, phiếu lương – 2026-10-11
 
 - Lý do: thiết kế DT-06 phần 6c; Eric chốt ngày công chuẩn, cách áp phụ cấp và khấu trừ, đơn giá làm thêm, thuế thu nhập cá nhân, phạm vi và người duyệt bảng lương.
@@ -32,7 +52,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: thêm sáu mã quyền P08 ở trên.
 - Ảnh hưởng chức năng cũ: không.
 - Kiểm thử cần thực hiện: CTC-P08-027 đến 038, CTC-P08-044 đến 049, CTC-P08-055, CTC-P08-057, CTC-P08-058; phần 6c-2: CTC-P08-039 đến 042, CTC-P06-034.
-- Trạng thái: Đã triển khai phần 6c-1
+- Trạng thái: Đã triển khai
 
 ### YCTD-59: DT-06 phần 6b chia hai; ngày lễ, lịch học bù và nghỉ bù, chấm công, loại nghỉ và phép năm – 2026-10-11
 

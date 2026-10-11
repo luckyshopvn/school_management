@@ -8,6 +8,8 @@ import { useHasPermission } from '../session/permissions.js';
 import {
   approvePayroll,
   calculatePayroll,
+  createPayrollPayment,
+  DOCUMENT_STATUS_LABELS,
   formatMoney,
   listPayrolls,
   PAYROLL_STATUS_LABELS,
@@ -16,6 +18,7 @@ import {
   submitPayroll,
   type Payroll,
 } from './payroll-api.js';
+import { AccountCategoryFields } from './PaymentSourceForm.js';
 import { PayslipView } from './PayslipView.js';
 
 // MH-15 Bảng lương và phê duyệt (P08-06, BR-43, BR-45, BR-77; YCTD-60): bảng lương toàn trường theo tháng, kế toán tính
@@ -51,7 +54,13 @@ function PayrollDetail({ payroll, onChanged }: { payroll: Payroll; onChanged(mes
     mutationFn: () => returnPayroll(payroll.id, reason),
     onSuccess: () => refresh('Đã trả lại bảng lương'),
   });
-  const error = submit.error ?? approve.error ?? giveBack.error;
+  const pay = useMutation({
+    mutationFn: (source: { account_id: string; category_id: string }) =>
+      createPayrollPayment(payroll.id, { ...source, request_key: crypto.randomUUID() }),
+    onSuccess: () => refresh('Đã lập phiếu chi lương nháp; đính chứng từ và trình duyệt ở trang Phiếu chi'),
+  });
+  const activePayment = payroll.payments.find((payment) => payment.status !== 'reversed');
+  const error = submit.error ?? approve.error ?? giveBack.error ?? pay.error;
 
   return (
     <section
@@ -105,6 +114,24 @@ function PayrollDetail({ payroll, onChanged }: { payroll: Payroll; onChanged(mes
           </>
         ) : null}
       </div>
+      {payroll.payments.length > 0 ? (
+        <ul className="list-disc pl-6 text-content" aria-label="Phiếu chi lương">
+          {payroll.payments.map((payment) => (
+            <li key={payment.id}>
+              Phiếu chi {payment.code ?? 'nháp'}: {formatMoney(payment.amount)} đồng,{' '}
+              {DOCUMENT_STATUS_LABELS[payment.status] ?? payment.status}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      {payroll.can_manage && payroll.status === 'approved' && !activePayment ? (
+        <AccountCategoryFields
+          flowType="expense"
+          label="Lập phiếu chi lương"
+          busy={pay.isPending}
+          onSubmit={(source) => pay.mutate({ account_id: source.account_id, category_id: source.category_id })}
+        />
+      ) : null}
       {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
       <table className="w-full text-content">
         <thead className="text-left text-label font-medium text-text-secondary">

@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.36
+- Phiên bản: 1.37
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -95,6 +95,13 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | GET, PATCH | /api/v1/academic-years/{id}/weeks | Danh sách tuần; đánh dấu hoặc bỏ đánh dấu tuần nghỉ |
 | POST | /api/v1/academic-years/{id}/open | Mở năm học: kiểm tra BR-89, tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung, chuyển năm đang dùng sang đã đóng và chỉ đọc (BR-93) |
 | POST | /api/v1/academic-years/{id}/close | Bỏ ngày 09/10/2026: gộp vào mở năm học mới (YCTD-37) |
+
+Giao kèo của phiếu chi lương, quyết toán và điều chỉnh (DT-06 phần 6c-2, YCTD-61):
+
+1. `POST /payrolls/{id}/payment` và `POST /payroll-settlements/{id}/payment` nhận `account_id`, `category_id` (khoản mục chi), `request_key`; tạo phiếu chi `payment_type` `payroll` trạng thái nháp của Trường chính; chứng từ chưa duyệt, đã có phiếu chi chưa đảo, quyết toán không phải trả thêm trả mã BR-77 hoặc BR-90.
+2. `POST /payroll-settlements` nhận `contract_id` của hợp đồng đã chấm dứt; trả `earned_amount`, `prepaid_amount`, `tax_difference`, `payable_amount`, `lines`, `recovery_outstanding` (chỉ khi đã duyệt), `receipts`, `payments`, `can_manage`, `can_approve`. Còn đơn nghỉ chờ duyệt trả mã BR-40; phiếu lương tháng nghỉ việc chưa duyệt trả mã BR-90; đã trình trả mã BR-45.
+3. `POST /payroll-settlements/{id}/recovery-receipts` nhận `amount`, `method`, `account_id`, `category_id` (khoản mục thu), `receipt_date`, `content`, `request_key`; vượt khoản còn phải thu hồi trả mã BR-90.
+4. `POST /payroll-adjustments` nhận `staff_id`, `month`, `amount` (khác 0), `reason`; tháng đã có bảng lương trình duyệt trả mã BR-45. `approve`, `reject` (nhận `reason`) theo hạn mức bảng lương của Trường chính.
 
 Giao kèo của danh mục lương, biểu thuế và bảng lương (DT-06 phần 6c-1, YCTD-60):
 
@@ -503,7 +510,17 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 | POST | /api/v1/payrolls/{id}/submit | Trình duyệt bảng lương (YCTD-60) |
 | POST | /api/v1/payrolls/{id}/approve | Phê duyệt bảng lương, công bố phiếu lương |
 | POST | /api/v1/payrolls/{id}/return | Trả lại bảng lương về nháp kèm lý do (YCTD-60) |
-| POST | /api/v1/payrolls/settlements | Lập bảng quyết toán cuối cùng khi chấm dứt hợp đồng (BR-90) |
+| POST | /api/v1/payrolls/{id}/payment | Lập phiếu chi lương nháp từ bảng lương đã duyệt (YCTD-61) |
+| GET, POST | /api/v1/payroll-settlements | Hợp đồng đã chấm dứt kèm bảng quyết toán; lập hoặc tính lại bảng quyết toán (BR-90, YCTD-61) |
+| GET | /api/v1/payroll-settlements/{id} | Chi tiết bảng quyết toán kèm phiếu chi, phiếu thu đã lập |
+| POST | /api/v1/payroll-settlements/{id}/submit | Trình duyệt bảng quyết toán |
+| POST | /api/v1/payroll-settlements/{id}/approve | Duyệt bảng quyết toán |
+| POST | /api/v1/payroll-settlements/{id}/return | Trả lại bảng quyết toán kèm lý do |
+| POST | /api/v1/payroll-settlements/{id}/recovery-receipts | Lập phiếu thu thu hồi lương không gắn trẻ |
+| POST | /api/v1/payroll-settlements/{id}/payment | Lập phiếu chi quyết toán nháp khi phải trả thêm |
+| GET, POST | /api/v1/payroll-adjustments | Khoản điều chỉnh lương cho kỳ sau (BR-45) |
+| POST | /api/v1/payroll-adjustments/{id}/approve | Duyệt khoản điều chỉnh |
+| POST | /api/v1/payroll-adjustments/{id}/reject | Từ chối khoản điều chỉnh kèm lý do |
 | GET | /api/v1/me/payslips | Phiếu lương của chính người đăng nhập |
 | GET | /api/v1/me/attendance-logs | Chấm công của chính người đăng nhập theo tháng |
 | POST | /api/v1/me/attendance-logs/check-in | Tự vào ca hôm nay theo giờ máy chủ (YCTD-59) |

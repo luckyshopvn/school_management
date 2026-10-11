@@ -60,6 +60,7 @@ export type {
   PayrollStatus,
   PayslipSection,
   TaxBracket,
+  SettlementLine,
   SchoolYearDatabase,
   ServiceCalculationMethod,
 } from '../school-year/schema.js';

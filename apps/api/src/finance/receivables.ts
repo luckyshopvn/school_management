@@ -57,7 +57,7 @@ export async function unallocatedReceipts(
   return receipts
     .map((receipt) => ({
       id: receipt.id,
-      child_id: receipt.child_id,
+      child_id: receipt.child_id ?? '',
       remaining:
         Number(receipt.amount) -
         allocations

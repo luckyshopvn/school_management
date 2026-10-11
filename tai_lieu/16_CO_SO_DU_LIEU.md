@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.32
+- Phiên bản: 1.33
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -130,12 +130,12 @@ Ràng buộc duy nhất: `invoices` loại chính trên bộ ba trẻ, kỳ năm
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| receipts | Phiếu thu (YCTD-53) | code (dạng PT-000001, một dãy số toàn trường trong năm học), org_unit_id, child_id (trống với phiếu thu thu hồi lương, BR-90), staff_id (với phiếu thu thu hồi lương), payer_name, amount, method (tiền mặt, chuyển khoản, khác), account_id, category_id, receipt_date, content, status (đã phát hành, chờ duyệt đảo, đã đảo), request_key (duy nhất, chống gửi lặp), created_by; trường phiếu đảo thêm ở phần 5d-2 |
+| receipts | Phiếu thu (YCTD-53) | code (dạng PT-000001, một dãy số toàn trường trong năm học), org_unit_id, child_id (trống với phiếu thu thu hồi lương, BR-90), staff_id (với phiếu thu thu hồi lương), payer_name, amount, method (tiền mặt, chuyển khoản, khác), account_id, category_id, receipt_date, content, status (đã phát hành, chờ duyệt đảo, đã đảo), request_key (duy nhất, chống gửi lặp), created_by; trường phiếu đảo thêm ở phần 5d-2; child_id được trống khi là phiếu thu thu hồi lương, khi đó có staff_id, settlement_id (YCTD-61) |
 | receipt_allocations | Phân bổ phiếu thu vào hóa đơn (YCTD-53) | receipt_id, invoice_id, amount, created_by, created_at; tiền chưa phân bổ là số dư có của trẻ |
 | receipt_reversals | Phiếu đảo phiếu thu (YCTD-54) | code (dạng DPT-000001), receipt_id, org_unit_id, child_id, amount, reason, status (chờ duyệt, đã duyệt, bị từ chối), requires_principal, created_by, decided_by, decided_at, reject_reason; mỗi phiếu thu tối đa một phiếu đảo đang chờ hoặc đã duyệt |
 | online_payment_transactions | Giao dịch chuyển khoản trực tuyến (YCTD-57) | provider, provider_transaction_ref (duy nhất), virtual_account_number, amount, transfer_content, received_at, match_status (khớp, sai số tiền, không xác định hóa đơn, hóa đơn đã thu đủ), payment_request_id, invoice_id, child_id, org_unit_id, receipt_id, resolution_note, handled_by, handled_at |
 | payment_requests | Yêu cầu thanh toán qua tài khoản ảo dùng một lần (YCTD-57) | invoice_id, child_id, org_unit_id, amount, transfer_content, provider, provider_reference, virtual_account_number, qr_content, status (còn hiệu lực, đã thanh toán, đã hủy), expires_at, created_by, closed_at; mỗi hóa đơn tối đa một yêu cầu còn hiệu lực |
-| payments | Phiếu chi (YCTD-55) | code (cấp khi phát hành, dạng PC-000001), org_unit_id, payment_type (thường, hoàn tiền thôi học, lương), child_id (bắt buộc khi hoàn tiền), payee_name, amount, content, account_id, category_id, payment_date (ngày phát hành), status (nháp, chờ duyệt, đã phát hành, chờ duyệt đảo, đã đảo), requires_principal, request_key, created_by, submitted_at, approved_by, approved_at, reject_reason; supplier_id, voucher_ref thêm khi có P06-07 |
+| payments | Phiếu chi (YCTD-55) | code (cấp khi phát hành, dạng PC-000001), org_unit_id, payment_type (thường, hoàn tiền thôi học, lương), child_id (bắt buộc khi hoàn tiền), payee_name, amount, content, account_id, category_id, payment_date (ngày phát hành), status (nháp, chờ duyệt, đã phát hành, chờ duyệt đảo, đã đảo), requires_principal, request_key, created_by, submitted_at, approved_by, approved_at, reject_reason; payroll_id, settlement_id (phiếu chi lương, YCTD-61); supplier_id, voucher_ref thêm khi có P06-07 |
 | payment_attachments | Chứng từ kèm phiếu chi (YCTD-55) | payment_id, file_id (tệp mục đích `payment_voucher`) |
 | payment_refund_sources | Nguồn tiền của phiếu chi hoàn tiền (YCTD-55) | payment_id, receipt_id, amount; trừ vào số dư có của trẻ |
 | payment_reversals | Phiếu đảo phiếu chi (YCTD-56) | code (dạng DPC-000001), payment_id, org_unit_id, amount, reason, status (chờ duyệt, đã duyệt, bị từ chối), requires_principal, created_by, decided_by, decided_at, reject_reason; mỗi phiếu chi tối đa một phiếu đảo đang chờ hoặc đã duyệt |
@@ -175,6 +175,8 @@ Ràng buộc duy nhất: `receipts` trên bộ đôi đơn vị và mã phiếu 
 | pay_item_types | Danh mục phụ cấp, thưởng, khấu trừ chung toàn trường (YCTD-60) | kind (phụ cấp hoặc khấu trừ), code (duy nhất), name, calculation_method (cố định mỗi tháng, mỗi ngày đi làm, phần trăm lương hợp đồng), default_amount, rate_percent, is_tax_exempt, is_mandatory_insurance, status |
 | staff_pay_items | Khoản gán cho nhân sự (YCTD-60) | staff_id, pay_item_type_id (duy nhất cùng staff_id), amount, rate_percent (mức riêng, trống là mức chung) |
 | tax_tables | Biểu thuế thu nhập cá nhân theo phiên bản (YCTD-60) | effective_from (duy nhất), personal_deduction, dependent_deduction, brackets (danh sách mức trần và thuế suất) |
+| payroll_settlements | Bảng quyết toán khi chấm dứt hợp đồng (YCTD-61) | staff_id, contract_id (duy nhất), terminated_on, status (nháp, chờ duyệt, đã duyệt), earned_amount, prepaid_amount, tax_difference, payable_amount (dương trả thêm, âm thu hồi), lines (căn cứ từng dòng), requires_principal, calculated_by, calculated_at, approved_by, approved_at, return_reason |
+| payroll_adjustments | Khoản điều chỉnh lương cho kỳ sau (BR-45, YCTD-61) | staff_id, target_year, target_month, amount (âm trừ, dương cộng), reason, status (chờ duyệt, đã duyệt, bị từ chối), requires_principal, created_by, decided_by, decided_at, reject_reason |
 | holidays | Ngày nghỉ lễ chung toàn trường (YCTD-59) | holiday_date (duy nhất), name, is_paid |
 | school_day_changes | Ngày học bù thứ bảy và ngày nghỉ bù, một lịch chung toàn trường (YCTD-59) | change_date (duy nhất), change_type (học bù hoặc nghỉ bù), note, created_by |
 
