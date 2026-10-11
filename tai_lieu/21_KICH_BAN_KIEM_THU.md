@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.18
+- Phiên bản: 1.19
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -104,8 +104,8 @@
 | CT-054 | Cho uống thuốc khi chưa nhận thuốc | Phiếu chưa xác nhận nhận thuốc | Chặn ghi nhận liều | | Chưa chạy |
 | CT-055 | Ghi trùng một liều | Ghi hai liều cùng thời điểm | Chặn, hiển thị liều đã ghi | | Chưa chạy |
 | CT-056 | Bỏ liều không nhập lý do | Bấm bỏ liều | Chặn lưu, yêu cầu lý do | | Chưa chạy |
-| CT-057 | Giáo viên không liên quan xem hồ sơ sức khỏe | Tài khoản giáo viên lớp khác | Trả lỗi không có quyền | | Chưa chạy |
-| CT-058 | Ghi sự kiện y tế | Trẻ sốt tại trường | Phụ huynh nhận thông báo, bản ghi có người xử lý | | Chưa chạy |
+| CT-057 | Giáo viên không liên quan xem hồ sơ sức khỏe | Tài khoản giáo viên lớp khác | Trả lỗi không có quyền | Kiểm thử tự động `apps/api/src/health/health.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CT-058 | Ghi sự kiện y tế | Trẻ sốt tại trường | Phụ huynh nhận thông báo, bản ghi có người xử lý | Kiểm thử tự động `apps/api/src/health/health.test.ts` đạt ngày 11/10/2026 | Đạt |
 
 ## 9. Xe đưa đón (đã bỏ ngày 09/10/2026)
 
@@ -199,8 +199,8 @@
 | CT-114 | P08-10 | Chốt bảng công có ngày thứ bảy nghỉ định kỳ | Không tính vắng không phép | Kiểm thử tự động `apps/api/src/staff-attendance/leave.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-115 | P08-09 | Giáo viên gọi điểm cuối sửa ngày nghỉ lễ | Trả lỗi không có quyền | Kiểm thử tự động `apps/api/src/staff-attendance/staff-attendance.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-116 | P10-09 | Ghi nhận thuốc đã mua mười hộp | Số lượng thuốc tăng mười | | Chưa chạy |
-| CT-117 | P10-10 | Công bố lịch khám lớp Mầm 1 | Phụ huynh lớp Mầm 1 nhận thông báo | | Chưa chạy |
-| CT-118 | P10-11 | Lưu kết quả khám có cân nặng dưới ngưỡng | Chỉ số được đánh dấu cần theo dõi | | Chưa chạy |
+| CT-117 | P10-10 | Công bố lịch khám lớp Mầm 1 | Phụ huynh lớp Mầm 1 nhận thông báo | Kiểm thử tự động `apps/api/src/health/health.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CT-118 | P10-11 | Lưu kết quả khám có cân nặng dưới ngưỡng | Chỉ số được đánh dấu cần theo dõi | Kiểm thử tự động `apps/api/src/health/health.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-119 | P12-09 | Xác nhận nhập phiếu đi chợ | Tồn nguyên liệu tăng, có đề nghị thanh toán | | Chưa chạy |
 | CT-120 | P13-10 | Nhập tồn ban đầu cho mặt hàng đã có giao dịch | Từ chối | | Chưa chạy |
 | CT-121 | P14-11 | Đăng ký hoạt động ngoại khóa đã đủ chỉ tiêu | Từ chối, báo hết chỗ | | Chưa chạy |
@@ -244,7 +244,7 @@
 | CT-159 | P19-06 | Đăng nhập lần đầu bằng mật khẩu mặc định | Chỉ vào màn hình đổi mật khẩu | Kiểm thử tự động `tests/e2e/07-parent-sign-in.spec.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-160 | P08-10 | Ban Giám hiệu tạo ngày học bù, giáo viên mở điểm danh ngày đó | Mọi lớp có danh sách điểm danh; ngày đó tính vào số ngày học của tháng | Kiểm thử tự động `apps/api/src/fees/fee-scenarios.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-161 | P08-10 | Quản lý đơn vị gọi điểm cuối tạo lịch học bù | Trả lỗi không có quyền | Kiểm thử tự động `apps/api/src/staff-attendance/staff-attendance.test.ts` đạt ngày 11/10/2026 | Đạt |
-| CT-162 | P10-01 | Kế toán trưởng, nhân sự, giáo viên bộ môn gọi điểm cuối hồ sơ sức khỏe | Trả lỗi không có quyền | | Chưa chạy |
+| CT-162 | P10-01 | Kế toán trưởng, nhân sự, giáo viên bộ môn gọi điểm cuối hồ sơ sức khỏe | Trả lỗi không có quyền | Kiểm thử tự động `apps/api/src/health/health.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-163 | P06-04 | Phó Hiệu trưởng duyệt phiếu chi hoàn tiền dưới hạn mức | Bị từ chối, chuyển Hiệu trưởng | Kiểm thử tự động `apps/api/src/finance/payments.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-164 | P01-10 | Trình duyệt chứng từ thuộc loại chưa cấu hình hạn mức | Chuyển Hiệu trưởng | Kiểm thử tự động `apps/api/src/fees/discounts.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-165 | P19-06 | Kiểm toán viên đăng nhập sau ngày hết hiệu lực | Bị từ chối, tài khoản khóa | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 11/10/2026 | Đạt |
@@ -256,8 +256,8 @@
 | CT-171 | P10-04 | Đơn vị bật không có nhân viên y tế, phụ huynh gửi yêu cầu dặn thuốc | Giáo viên chủ nhiệm nhận, xác nhận và ghi liều được | | Chưa chạy |
 | CT-172 | P10-04 | Đơn vị tắt cấu hình, giáo viên chủ nhiệm gọi điểm cuối xác nhận nhận thuốc | Trả lỗi không có quyền | | Chưa chạy |
 | CT-173 | P10-03 | Gửi yêu cầu dặn thuốc không có ảnh thuốc; gửi yêu cầu có ảnh thuốc, không có đơn | Lần đầu bị từ chối; lần sau gửi được | | Chưa chạy |
-| CT-174 | P10-12 | Giáo viên ghi nhiệt độ trẻ A; phụ huynh trẻ A và trẻ B mở ứng dụng | Phụ huynh trẻ A thấy, phụ huynh trẻ B không thấy | | Chưa chạy |
-| CT-175 | P10-07 | Phụ huynh bấm đã biết sự kiện y tế | Y tế thấy đã xác nhận kèm thời điểm; không có lần nhắc lại nào | | Chưa chạy |
+| CT-174 | P10-12 | Giáo viên ghi nhiệt độ trẻ A; phụ huynh trẻ A và trẻ B mở ứng dụng | Phụ huynh trẻ A thấy, phụ huynh trẻ B không thấy | Kiểm thử tự động `apps/api/src/health/health.test.ts` đạt ngày 11/10/2026; Kiểm thử giao diện `tests/e2e/30-health.spec.ts` đạt ngày 11/10/2026 | Đạt |
+| CT-175 | P10-07 | Phụ huynh bấm đã biết sự kiện y tế | Y tế thấy đã xác nhận kèm thời điểm; không có lần nhắc lại nào | Kiểm thử tự động `apps/api/src/health/health.test.ts` đạt ngày 11/10/2026; Kiểm thử giao diện `tests/e2e/30-health.spec.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-176 | P01-06 | Đặt lại mật khẩu cho giáo viên, giáo viên đăng nhập bằng mật khẩu mới | Chỉ vào được màn hình đổi mật khẩu | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-177 | P01-02 | Mở năm học mới khi năm đang dùng còn trẻ đã thôi học nợ 500 000 (YCTD-37) | Bị chặn, liệt kê trẻ còn nợ | Kiểm thử tự động `apps/api/src/academic-years/year-transition.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-178 | P05-05 | Chạy tính học phí khi lớp L-A1 còn hai ngày chưa chốt điểm danh | Bị chặn, liệt kê lớp và ngày | Kiểm thử tự động `apps/api/src/fees/fee-calculation.test.ts` đạt ngày 11/10/2026 | Đạt |

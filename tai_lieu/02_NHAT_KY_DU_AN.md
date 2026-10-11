@@ -14,6 +14,28 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-10 phần 10a: y tế học đường
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 42 (phần 9g), gắn nhãn `v1.0.0-rc.1`; lập kế hoạch DT-10 (YCTD-73); viết phần 10a trên nhánh `dt-10-phan-10a`.
+- Cơ sở dữ liệu: tám bảng y tế (tệp 0030 năm học); quyền P10 (tệp 0031 định danh).
+- Máy chủ API: chỉ số, tiêu chuẩn, đợt khám, lịch khám, kết quả, sự kiện y tế, chăm sóc hằng ngày, tổng hợp sức khỏe, yêu cầu báo cáo; bước chuyển năm học `health`.
+- Cổng quản trị: trang Y tế học đường. Ứng dụng giáo viên: màn hình chăm sóc và y tế của lớp. Ứng dụng phụ huynh: mục sức khỏe.
+- Kết quả: máy chủ API 408/408, kiểm thử giao diện 48/48.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-73, YCTD-74 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-73, YCTD-74 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.32.0.
+
+#### Vấn đề tồn đọng
+
+- Phần 10b đến 10j của đợt DT-10.
+
 ### 2026-10-11 — DT-09 phần 9g: cổng CG-10 và bản ứng viên 1.0.0
 
 #### Công việc đã thực hiện

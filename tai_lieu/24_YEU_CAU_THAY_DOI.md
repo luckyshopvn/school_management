@@ -11,6 +11,46 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-74: Y tế học đường phần hồ sơ, khám, sự kiện, chăm sóc, báo cáo – 2026-10-11
+
+- Lý do: phần 10a theo cách chia ở YCTD-73. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Quyền mới: `P10.health.manage` (VT-09) ghi chỉ số, tiêu chuẩn, đợt khám, lịch khám, kết quả, gửi báo cáo; `P10.medical-event.record` và `P10.daily-care.record` (VT-09, VT-07). Y tế ghi trong phạm vi đơn vị được gán; giáo viên chỉ ghi cho trẻ của lớp mình chủ nhiệm.
+  - Người xem dữ liệu sức khỏe theo BR-53 và CT-162: giáo viên chủ nhiệm của lớp, y tế, Ban Giám hiệu, quản lý đơn vị, kế toán (VT-04) trong phạm vi đơn vị và phụ huynh của trẻ; kế toán trưởng (VT-05), nhân sự, giáo viên bộ môn không xem. Bỏ VT-05 khỏi nhóm xem sức khỏe ở chi tiết hồ sơ trẻ của G1 cho thống nhất.
+  - Chỉ số theo lần đo (`health_measurements`): chiều cao, cân nặng, thị lực hai mắt, ghi chú; ngày đo không sau hôm nay. Hồ sơ dị ứng, bệnh nền giữ ở `health_profiles` của G1.
+  - Tiêu chuẩn sức khỏe chung toàn trường do y tế nhập theo văn bản của Bộ Y tế (không nạp sẵn số liệu): chỉ số chiều cao, cân nặng, chỉ số khối cơ thể; theo giới tính và khoảng tháng tuổi, không trùng khoảng. Chỉ số được đánh giá dưới ngưỡng, bình thường, trên ngưỡng theo tháng tuổi tại ngày đo; chưa có tiêu chuẩn phù hợp thì không đánh giá.
+  - Đợt khám theo đơn vị (đang mở, đã đóng); lịch khám mỗi lớp một lần trong đợt, ngày khám trong thời gian của đợt, lập xong thì phụ huynh của trẻ đang học trong lớp nhận thông báo; kết quả khám ghi khi đợt đang mở, công bố theo đợt thì phụ huynh mới thấy và nhận thông báo.
+  - Sự kiện y tế ghi xong thì phụ huynh nhận thông báo trong ứng dụng, sự kiện mức nặng gửi thêm tin nhắn; người xử lý mặc định là người ghi; phụ huynh xác nhận đã biết một lần, không nhắc lại (BR-88).
+  - Chăm sóc hằng ngày: nhiệt độ từ 34 đến 43 độ, tình trạng, chăm sóc đặc biệt; ngày chăm sóc không sau hôm nay; tổng hợp sức khỏe trả 30 ngày gần nhất.
+  - Yêu cầu báo cáo sức khỏe: phụ huynh chọn loại (tăng trưởng, y tế, đầy đủ) và kỳ không sau hôm nay; mỗi trẻ một yêu cầu đang chờ; y tế của đơn vị nhận thông báo theo vai trò, bấm gửi thì hệ thống tổng hợp chỉ số, kết quả khám công bố trong kỳ, sự kiện y tế, chăm sóc hằng ngày theo loại và lưu vào yêu cầu; phụ huynh nhận thông báo và xem báo cáo.
+  - Mở năm học mới chuyển tiêu chuẩn sức khỏe và chỉ số theo lần đo của trẻ được chuyển; các dữ liệu y tế khác tra ở năm cũ.
+  - Trang Y tế học đường trên cổng quản trị (MH-16) cho người có quyền P10; quản lý đơn vị, Ban Giám hiệu xem sức khỏe của từng trẻ qua tổng hợp sức khỏe của trẻ.
+- Thành phần bị ảnh hưởng: `07`, `08`, `14`, `16`, `17`, `21`, `01`, `02`, `03`, `23`, `index.md`; máy chủ API, cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh.
+- Dữ liệu bị ảnh hưởng: tám bảng mới của năm học (tệp 0030); ba quyền mới (tệp 0031 của định danh).
+- API bị ảnh hưởng: các điểm cuối P10 phần hồ sơ, khám, sự kiện, chăm sóc, báo cáo trong `17`.
+- Giao diện bị ảnh hưởng: MH-16, MG-09 phần chăm sóc và sự kiện, MP-08.
+- Quyền bị ảnh hưởng: PQ-39.
+- Ảnh hưởng chức năng cũ: kế toán trưởng không còn thấy mục sức khỏe trong chi tiết hồ sơ trẻ.
+- Kiểm thử cần thực hiện: CT-057, CT-058, CT-117, CT-118, CT-162, CT-174, CT-175.
+- Trạng thái: Đã triển khai
+
+### YCTD-73: Kế hoạch đợt DT-10 giai đoạn 2 – 2026-10-11
+
+- Lý do: Eric yêu cầu tiếp tục tự động cho đến khi hoàn thành mọi đợt theo kế hoạch. DT-10 phụ thuộc bản 1.0.0, trong khi CG-11 chờ Eric nghiệm thu và việc T6. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Làm DT-10 song song trong lúc bản ứng viên 1.0.0 (`v1.0.0-rc.1`, tài liệu 0.31.0) chờ nghiệm thu; mọi thay đổi của DT-10 chỉ thêm chức năng G2, không đổi hành vi G1 trừ khi ghi rõ trong yêu cầu thay đổi của phần. Phát hành 1.1.0 sau khi 1.0.0 qua CG-11.
+  - Chia DT-10 thành mười phần theo phân hệ: 10a y tế phần hồ sơ, khám, sự kiện, chăm sóc, báo cáo (P10-01, P10-06, P10-07, P10-08, P10-10, P10-11, P10-12); 10b thuốc (P10-02 đến P10-05, P10-09); 10c bếp và báo cáo ăn (P12, P17-08); 10d kho, tài sản, mua hàng (P13); 10e hoạt động, hình ảnh, tin tức, thư viện, ngoại khóa (P14); 10f tương tác (P15) và đồ bị mất (P02-11); 10g giảng dạy (P03); 10h công việc, đánh giá (P09), quá trình công tác (P07-03), lương thưởng và khấu trừ (P08-07); 10i nhắc nợ, xử lý nợ quá hạn, tài khoản ngân hàng, công nợ phải trả, chốt kỳ tài chính (P05-10, P05-12, P06-06, P06-07, P06-09); 10j báo cáo hoạt động, báo cáo hợp nhất, xuất dữ liệu (P17-10 đến P17-12), kiểm thử G2 và chuẩn bị phát hành 1.1.0.
+  - Từ phần 10b làm song song ba phần một lượt bằng các agent trong worktree riêng; quyền của các phần trong một lượt được cấp trước trong một tệp thay đổi cấu trúc định danh chung (tệp 0032 cấp quyền của 10b, 10c, 10d) để các nhánh không cùng sửa cơ sở dữ liệu định danh; người điều phối gộp tuần tự, chạy kiểm thử giao diện và cập nhật tài liệu chung.
+  - Mỗi phần làm theo cùng quy trình như DT-09: yêu cầu thay đổi riêng ghi các điểm tự chọn, kiểm thử máy chủ và giao diện, ghi kết quả vào `21`, cập nhật tài liệu liên quan, một yêu cầu gộp.
+- Thành phần bị ảnh hưởng: `01`, `03`.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: theo từng phần.
+- Trạng thái: Đã phê duyệt
+
 ### YCTD-72: Báo cáo cổng CG-10 và bản ứng viên phát hành 1.0.0 – 2026-10-11
 
 - Lý do: phần 9g theo cách chia ở YCTD-66; tổng hợp kết quả chạy thật, phân loại ca chưa chạy, kết luận cổng CG-10 trước khi phát hành. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.

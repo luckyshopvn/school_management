@@ -10,7 +10,7 @@ const UNIT_VIEW_ROLES = ['VT-02', 'VT-15', 'VT-03', 'VT-12', 'VT-04', 'VT-05', '
 const TEACHER_ROLES = ['VT-07', 'VT-08'];
 const PARENT_ROLE = 'VT-14';
 // Dữ liệu sức khỏe chỉ cho giáo viên chủ nhiệm, y tế, Ban Giám hiệu, quản lý đơn vị, kế toán và phụ huynh (BR-53)
-const HEALTH_VIEW_ROLES = ['VT-07', 'VT-09', 'VT-02', 'VT-15', 'VT-03', 'VT-04', 'VT-05', 'VT-14'];
+const HEALTH_VIEW_ROLES = ['VT-07', 'VT-09', 'VT-02', 'VT-15', 'VT-03', 'VT-04', 'VT-14'];
 const NO_ID = '00000000-0000-0000-0000-000000000000';
 
 export interface ChildReadScope {

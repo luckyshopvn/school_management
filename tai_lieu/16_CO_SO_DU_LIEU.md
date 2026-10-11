@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.40
+- Phiên bản: 1.41
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -202,17 +202,19 @@ Ràng buộc duy nhất: `attendance_logs` trên bộ đôi nhân sự và ngày
 |---|---|---|
 | medicines | Danh mục thuốc | org_unit_id, code, name, active_ingredient, unit, stock_qty, status |
 | pharmacies | Nhà thuốc | org_unit_id, name, phone, address, status |
+| health_measurements | Chỉ số sức khỏe theo lần đo (YCTD-74) | child_id, measured_on, height_cm, weight_kg, vision_left, vision_right, note, recorded_by |
 | medication_requests | Yêu cầu dặn thuốc | child_id, requested_by_user_id, medicine_name, dosage, times_data, from_date, to_date, allergy_note, note, medicine_photo_ids (ít nhất một), prescription_photo_id (tùy chọn), assigned_role (y tế hoặc giáo viên chủ nhiệm), status, received_qty, received_note, received_by, received_at, reject_reason |
 | medication_administrations | Nhật ký cho uống thuốc | request_id, scheduled_at, administered_at, administered_by, dose_note, is_skipped, skip_reason, parent_acknowledged_at, parent_acknowledged_by |
-| health_check_campaigns | Đợt khám sức khỏe | org_unit_id, name, from_date, to_date, status |
-| health_check_results | Kết quả khám | campaign_id, child_id, result_data, conclusion, note, recorded_by, published_at |
-| medical_events | Sự kiện y tế tại trường | child_id, occurred_at, symptoms, handling, handler_id, severity, notified_guardians_at, parent_acknowledged_at, parent_acknowledged_by, status |
+| health_check_campaigns | Đợt khám sức khỏe | org_unit_id, name, from_date, to_date, status (đang mở, đã đóng), created_by |
+| health_check_results | Kết quả khám | campaign_id, child_id (duy nhất cùng campaign_id), height_cm, weight_kg, result_data (tên chỉ số và giá trị), conclusion, note, recorded_by, recorded_at, published_at |
+| medical_events | Sự kiện y tế tại trường | child_id, org_unit_id, occurred_at, symptoms, handling, handler_name, severity (nhẹ, vừa, nặng), recorded_by, notified_guardians_at, parent_acknowledged_at, parent_acknowledged_by |
 | medicine_purchase_requests | Đề nghị mua thuốc | org_unit_id, medicine_id, quantity, reason, status, approved_by, approved_at |
 | medicine_purchase_orders | Phiếu mua thuốc | code, org_unit_id, request_id, pharmacy_id, order_date, total_amount, status, created_by |
 | medicine_purchase_order_items | Thuốc đã mua | order_id, medicine_id, quantity, unit_price, amount, received_qty |
-| health_check_schedules | Lịch khám | campaign_id, class_id, check_date, location, published_at |
-| health_standards | Tiêu chuẩn sức khỏe theo Bộ Y tế | indicator_code, gender, age_month_from, age_month_to, lower_value, upper_value, source_document |
+| health_check_schedules | Lịch khám | campaign_id, class_id (duy nhất cùng campaign_id), check_date, location, published_at, created_by |
+| health_standards | Tiêu chuẩn sức khỏe theo Bộ Y tế, chung toàn trường | indicator_code (chiều cao, cân nặng, chỉ số khối cơ thể), gender, age_month_from, age_month_to, lower_value, upper_value, source_document, created_by |
 | daily_care_logs | Nhật ký chăm sóc hằng ngày (P10-12) | child_id, care_date, recorded_at, temperature, condition_note, special_care_note, recorded_by |
+| health_report_requests | Yêu cầu báo cáo sức khỏe (P10-08, YCTD-74) | child_id, org_unit_id, report_type (tăng trưởng, y tế, đầy đủ), period_from, period_to, note, status (chờ gửi, đã gửi), requested_by, requested_at, report_data, response_note, sent_by, sent_at |
 
 ## 12. Phân hệ P11 — Xe đưa đón (đã bỏ)
 

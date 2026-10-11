@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.33
+- Phiên bản: 1.34
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -132,6 +132,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-35 | Bảng điều khiển và báo cáo (YCTD-62): `P17.dashboard.leadership` cho VT-02, VT-15; `P17.dashboard.unit` cho VT-03; `P17.report.tuition`, `P17.report.debt` cho VT-02, VT-15, VT-04, VT-05; `P17.report.cash-flow` cho VT-02, VT-04, VT-05; `P17.report.attendance` cho VT-02, VT-15, VT-03; `P17.report.staff-attendance` cho VT-02, VT-15, VT-03, VT-06; `P17.report.saturday` cho VT-02, VT-15, VT-03, VT-04; `P17.birthday.view` cho VT-02, VT-15, VT-03. Phạm vi theo đơn vị được gán; giáo viên xem điểm danh và sinh nhật của lớp được phân công |
 | PQ-36 | Khóa API cho đối tác (YCTD-63): `P01.api-client.manage` cho VT-02 cấp, xem, thu hồi khóa. Đối tác không có tài khoản, chỉ đọc qua nhóm `/partner/` trong phạm vi của khóa |
 | PQ-38 | Lịch nghỉ và lịch công tác (YCTD-68): `P08.work-schedule.manage` cho VT-06, VT-03 lập, công bố, xóa lịch của nhân sự trong đơn vị; người có `P08.attendance.view` xem lịch của đơn vị; nhân sự xem lịch đã công bố của mình |
+| PQ-39 | Y tế học đường (YCTD-74): `P10.health.manage` cho VT-09 ghi chỉ số sức khỏe, tiêu chuẩn, đợt khám, lịch khám, kết quả khám, gửi báo cáo sức khỏe trong đơn vị; `P10.medical-event.record`, `P10.daily-care.record` cho VT-09 trong đơn vị và VT-07 cho trẻ của lớp mình chủ nhiệm; người xem sức khỏe theo BR-53 |
 | PQ-37 | Thông báo (YCTD-64): mọi người xem và đánh dấu đã đọc thông báo của mình; `P19.notification-receipt.view` cho VT-02, VT-15, VT-03 xem ai đã đọc thông báo của đơn vị trong phạm vi; `P19.notification-template.manage` cho VT-02, VT-03 gán ở Trường chính sửa mẫu thông báo |
 
 ## 5. Phân cấp phê duyệt
