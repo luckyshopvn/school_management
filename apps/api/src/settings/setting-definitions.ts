@@ -1,7 +1,7 @@
 // Danh mục cấu hình theo đơn vị (P01-08, YCTD-40); giờ bắt đầu học mặc định 07:30 (YCTD-47). Ngày chốt công cố định mùng 1 tháng sau nên không có trong danh mục (YCTD-41). Chỉ mục tài liệu đã ghi mặc định mới có mặc định;
 // mục khác trống cho tới khi nhà trường cấu hình. Không có mục tắt kiểm tra quỹ tiền mặt vì BR-34 bắt buộc.
 export type SettingValueType =
-  'closing_day' | 'day_of_month' | 'day_list' | 'boolean' | 'positive_integer' | 'time_of_day' | 'minutes';
+  'closing_day' | 'day_of_month' | 'day_list' | 'boolean' | 'positive_integer' | 'time_of_day' | 'minutes' | 'percent';
 
 export interface SettingDefinition {
   key: string;
@@ -112,6 +112,14 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
     defaultValue: null,
     rule: 'BR-39',
   },
+  // Hệ số làm thêm giờ theo phần trăm lương giờ (BR-82, YCTD-60), chưa có mặc định
+  {
+    key: 'overtime_rate_percent',
+    label: 'Hệ số làm thêm giờ (phần trăm lương giờ)',
+    valueType: 'percent',
+    defaultValue: null,
+    rule: 'BR-82',
+  },
   {
     key: 'max_class_size',
     label: 'Sĩ số tối đa của lớp',
@@ -152,6 +160,10 @@ export function validateSettingValue(definition: SettingDefinition, value: unkno
       return Number.isInteger(value) && (value as number) >= 1 && (value as number) <= 100
         ? null
         : 'Số nguyên từ 1 đến 100';
+    case 'percent':
+      return Number.isInteger(value) && (value as number) >= 100 && (value as number) <= 1000
+        ? null
+        : 'Phần trăm nguyên từ 100 đến 1000';
     case 'minutes':
       return Number.isInteger(value) && (value as number) >= 0 && (value as number) <= 480
         ? null

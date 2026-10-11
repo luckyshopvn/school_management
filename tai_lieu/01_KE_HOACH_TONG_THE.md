@@ -55,6 +55,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.2.0 | Bốn thay đổi: Ban Giám hiệu, nhiều cấp đơn vị, tách giao diện và máy chủ, dịch vụ định danh | 01 đến 07 | Đã có |
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
+| 0.29.6 | DT-06 phần 6c-1: danh mục lương, biểu thuế, bảng lương toàn trường, duyệt theo hạn mức, phiếu lương (YCTD-60) | 08, 09 | Đã có |
 | 0.29.5 | DT-06 phần 6b-2: quy định và số ngày phép năm, đơn nghỉ phép, chốt và mở lại bảng công (YCTD-59) | 08, 09 | Đã có |
 | 0.29.4 | DT-06 phần 6b-1: ngày nghỉ lễ, lịch học bù và nghỉ bù, giờ làm, thuộc tính loại nghỉ, chấm công (YCTD-59) | 08, 09 | Đã có |
 | 0.29.3 | DT-06 phần 6a: hồ sơ nhân sự, hợp đồng lao động, liên kết tài khoản, nhập nhân sự từ Excel (YCTD-58) | 08, 09 | Đã có |

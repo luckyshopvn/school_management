@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.31
+- Phiên bản: 1.32
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -152,7 +152,7 @@ Ràng buộc duy nhất: `receipts` trên bộ đôi đơn vị và mã phiếu 
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| staff | Hồ sơ nhân sự (YCTD-58) | org_unit_id (đơn vị chính), code (duy nhất), full_name, dob, gender, phone, email, address, id_number_encrypted, id_number_last4, department_id, job_title_id, start_date, end_date, status (đang làm, đã nghỉ), user_id (duy nhất, tài khoản liên kết) |
+| staff | Hồ sơ nhân sự (YCTD-58) | org_unit_id (đơn vị chính), code (duy nhất), dependents_count (số người phụ thuộc, YCTD-60), full_name, dob, gender, phone, email, address, id_number_encrypted, id_number_last4, department_id, job_title_id, start_date, end_date, status (đang làm, đã nghỉ), user_id (duy nhất, tài khoản liên kết) |
 | employment_contracts | Hợp đồng lao động (YCTD-58) | staff_id, contract_no (duy nhất), contract_type (thử việc, có thời hạn, không thời hạn), start_date, end_date (bắt buộc trừ không thời hạn), base_salary, allowances (danh sách tên và số tiền), status (còn hiệu lực, đã chấm dứt), terminated_on, terminate_reason |
 | staff_work_history | Quá trình công tác | staff_id, from_date, to_date, department_id, job_title_id, note |
 | staff_certificates | Chứng chỉ | staff_id, name, issued_by, issued_date, expire_date, file_id |
@@ -169,11 +169,12 @@ Ràng buộc duy nhất: `receipts` trên bộ đôi đơn vị và mã phiếu 
 | timesheet_periods | Kỳ công của đơn vị theo tháng (YCTD-59) | org_unit_id, period_year, period_month (duy nhất cùng đơn vị), status (đã chốt, đã mở lại), closed_by, closed_at |
 | timesheet_days | Bảng công đã chốt từng ngày (YCTD-59) | period_id, staff_id, work_date, status (đi làm, nghỉ theo đơn, vắng, nghỉ lễ, nghỉ bù), worked_minutes, late_minutes, early_leave_minutes, overtime_minutes, leave_request_id, leave_days, absent_days, unpaid_days, insurance_days, note |
 | timesheet_reopen_requests | Đề nghị mở lại kỳ công (Q-135, YCTD-59) | period_id, reason, status (chờ duyệt, đã duyệt, bị từ chối), requested_by, requested_at, decided_by, decided_at, reject_reason |
-| payroll_periods | Kỳ lương | org_unit_id, period_year, period_month, payroll_type (trả trước hoặc quyết toán), adjustment_year, adjustment_month (tháng công dùng để điều chỉnh), status, approved_by, approved_at |
-| payslips | Bảng lương từng người | payroll_period_id, staff_id, base_salary, allowances_amount, bonus_amount, deduction_amount, adjustment_amount (điều chỉnh theo công tháng trước), recovery_amount (khoản phải thu hồi khi quyết toán), net_amount, note, status |
-| payslip_lines | Chi tiết bảng lương | payslip_id, line_type, code, name, amount, basis |
-| allowance_types | Danh mục phụ cấp | org_unit_id, code, name, calculation_method, rate_value, status |
-| deduction_types | Danh mục khấu trừ | org_unit_id, code, name, calculation_method, rate_value, status |
+| payrolls | Bảng lương toàn trường theo tháng (YCTD-60) | period_year, period_month (duy nhất), status (nháp, chờ duyệt, đã duyệt), total_net, requires_principal, tax_table_id, skipped (nhân sự chưa tính lương kèm lý do), calculated_by, calculated_at, submitted_at, approved_by, approved_at, return_reason |
+| payslips | Phiếu lương từng người (YCTD-60) | payroll_id, staff_id (duy nhất cùng payroll_id), org_unit_id, contract_id, prepaid_amount, adjustment_amount, taxable_income, tax_amount, net_amount |
+| payslip_lines | Chi tiết phiếu lương (YCTD-60) | payslip_id, section (trả trước, điều chỉnh, thuế), line_type, code, name, amount (thu nhập dương, khấu trừ âm), basis (căn cứ), order_no |
+| pay_item_types | Danh mục phụ cấp, thưởng, khấu trừ chung toàn trường (YCTD-60) | kind (phụ cấp hoặc khấu trừ), code (duy nhất), name, calculation_method (cố định mỗi tháng, mỗi ngày đi làm, phần trăm lương hợp đồng), default_amount, rate_percent, is_tax_exempt, is_mandatory_insurance, status |
+| staff_pay_items | Khoản gán cho nhân sự (YCTD-60) | staff_id, pay_item_type_id (duy nhất cùng staff_id), amount, rate_percent (mức riêng, trống là mức chung) |
+| tax_tables | Biểu thuế thu nhập cá nhân theo phiên bản (YCTD-60) | effective_from (duy nhất), personal_deduction, dependent_deduction, brackets (danh sách mức trần và thuế suất) |
 | holidays | Ngày nghỉ lễ chung toàn trường (YCTD-59) | holiday_date (duy nhất), name, is_paid |
 | school_day_changes | Ngày học bù thứ bảy và ngày nghỉ bù, một lịch chung toàn trường (YCTD-59) | change_date (duy nhất), change_type (học bù hoặc nghỉ bù), note, created_by |
 
@@ -347,7 +348,7 @@ erDiagram
 | receipt_allocations | receipt_id; invoice_id | Tính số dư công nợ |
 | account_transactions | account_id kèm transaction_date | Sổ quỹ và sổ ngân hàng |
 | attendance_logs | staff_id kèm work_date | Chốt bảng công |
-| payslips | payroll_period_id, staff_id | Bảng lương và phiếu lương |
+| payslips | payroll_id, staff_id | Bảng lương và phiếu lương |
 | activities | class_id kèm status kèm published_at | Danh sách hoạt động cho phụ huynh |
 | audit_logs | entity_name kèm entity_id, actor_user_id kèm created_at | Tra nhật ký thao tác |
 | notifications | target_type kèm target_id | Tra thông báo theo đối tượng |

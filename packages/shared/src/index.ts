@@ -61,6 +61,12 @@ export const PERMISSION_CODES = {
   leavePolicyManage: 'P08.leave-policy.manage',
   leaveApprove: 'P08.leave.approve',
   timesheetReopenApprove: 'P08.timesheet-reopen.approve',
+  payItemTypeManage: 'P08.pay-item-type.manage',
+  staffPayItemManage: 'P08.staff-pay-item.manage',
+  taxTableManage: 'P08.tax-table.manage',
+  payrollManage: 'P08.payroll.manage',
+  payrollView: 'P08.payroll.view',
+  payrollApprove: 'P08.payroll.approve',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)

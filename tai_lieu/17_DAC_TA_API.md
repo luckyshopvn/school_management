@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.35
+- Phiên bản: 1.36
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -95,6 +95,15 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | GET, PATCH | /api/v1/academic-years/{id}/weeks | Danh sách tuần; đánh dấu hoặc bỏ đánh dấu tuần nghỉ |
 | POST | /api/v1/academic-years/{id}/open | Mở năm học: kiểm tra BR-89, tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung, chuyển năm đang dùng sang đã đóng và chỉ đọc (BR-93) |
 | POST | /api/v1/academic-years/{id}/close | Bỏ ngày 09/10/2026: gộp vào mở năm học mới (YCTD-37) |
+
+Giao kèo của danh mục lương, biểu thuế và bảng lương (DT-06 phần 6c-1, YCTD-60):
+
+1. `POST /pay-item-types`, `PUT /pay-item-types/{id}` nhận `kind` (`allowance`, `deduction`), `code`, `name`, `calculation_method` (`fixed_monthly`, `per_workday`, `percent_of_base`), `default_amount` hoặc `rate_percent`, `is_tax_exempt` (chỉ phụ cấp), `is_mandatory_insurance` (chỉ khấu trừ), `PUT` thêm `status`; cần `P08.pay-item-type.manage`.
+2. `POST /staff/{id}/pay-items` nhận `pay_item_type_id`, `amount` hoặc `rate_percent` (trống là mức chung; danh mục chưa có mức chung thì bắt buộc); `PUT /staff/{id}/dependents` nhận `dependents_count`; cần `P08.staff-pay-item.manage` trong phạm vi.
+3. `POST /tax-tables` nhận `effective_from` (ngày 1 của tháng), `personal_deduction`, `dependent_deduction`, `brackets` (danh sách `up_to`, `rate_percent`, bậc cuối không có `up_to`); cần `P08.tax-table.manage`; ngày hiệu lực không sớm hơn tháng của bảng lương đã trình.
+4. `POST /payrolls` nhận `month`; cần `P08.payroll.manage`; trước ngày 1 của tháng, còn đơn vị chưa chốt công tháng trước (kèm `details`) trả mã BR-43; thiếu hệ số làm thêm trả mã BR-82; bảng đã trình hoặc đã duyệt trả mã BR-45. Kết quả có `status`, `total_net`, `skipped`, `can_manage`, `can_approve`, `payslips` (từng người: `prepaid_amount`, `adjustment_amount`, `taxable_income`, `tax_amount`, `net_amount`, `lines` gồm `section`, `code`, `name`, `amount`, `basis`).
+5. `POST /payrolls/{id}/submit` tính `requires_principal` theo hạn mức `payroll` của Trường chính. `approve` cần `P08.payroll.approve`: VT-02 duyệt mọi bảng, VT-15 gán ở Trường chính duyệt bảng dưới hạn mức; `return` nhận `reason` bắt buộc.
+6. `GET /me/payslips` trả phiếu đã duyệt của chính người đăng nhập kèm `period_year`, `period_month`, `lines`.
 
 Giao kèo của phép năm, đơn nghỉ và bảng công (DT-06 phần 6b-2, YCTD-59):
 
@@ -488,16 +497,23 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 | POST | /api/v1/leave-requests/{id}/cancel | Hủy đơn còn chờ duyệt (YCTD-59) |
 | GET | /api/v1/me/leave-requests | Đơn nghỉ và số ngày phép năm của chính người đăng nhập (YCTD-59) |
 | GET, PUT | /api/v1/leave-balances | Số ngày phép năm của nhân sự trong đơn vị; phòng nhân sự chỉnh kèm lý do (YCTD-59) |
-| POST | /api/v1/payrolls | Tính bảng lương trả trước của tháng kèm điều chỉnh theo công đã chốt của tháng trước; trả `ERR_RULE_VIOLATION` khi tháng trước chưa chốt công (BR-43) |
-| GET | /api/v1/payrolls/{period_id} | Bảng lương của kỳ |
-| POST | /api/v1/payrolls/{period_id}/approve | Phê duyệt bảng lương |
+| GET | /api/v1/payrolls | Danh sách bảng lương theo tháng (YCTD-60) |
+| POST | /api/v1/payrolls | Tính hoặc tính lại bảng lương toàn trường của tháng kèm điều chỉnh theo công đã chốt của tháng trước; trả `ERR_RULE_VIOLATION` khi tháng trước còn đơn vị chưa chốt công (BR-43) |
+| GET | /api/v1/payrolls/{id} | Bảng lương kèm phiếu của nhân sự trong phạm vi người xem |
+| POST | /api/v1/payrolls/{id}/submit | Trình duyệt bảng lương (YCTD-60) |
+| POST | /api/v1/payrolls/{id}/approve | Phê duyệt bảng lương, công bố phiếu lương |
+| POST | /api/v1/payrolls/{id}/return | Trả lại bảng lương về nháp kèm lý do (YCTD-60) |
 | POST | /api/v1/payrolls/settlements | Lập bảng quyết toán cuối cùng khi chấm dứt hợp đồng (BR-90) |
 | GET | /api/v1/me/payslips | Phiếu lương của chính người đăng nhập |
 | GET | /api/v1/me/attendance-logs | Chấm công của chính người đăng nhập theo tháng |
 | POST | /api/v1/me/attendance-logs/check-in | Tự vào ca hôm nay theo giờ máy chủ (YCTD-59) |
 | POST | /api/v1/me/attendance-logs/check-out | Tự ra ca hôm nay theo giờ máy chủ (YCTD-59) |
-| GET, POST | /api/v1/allowance-types | Danh mục phụ cấp |
-| GET, POST | /api/v1/deduction-types | Danh mục khấu trừ |
+| GET, POST | /api/v1/pay-item-types | Danh mục phụ cấp, thưởng, khấu trừ (YCTD-60) |
+| PUT | /api/v1/pay-item-types/{id} | Sửa hoặc ngừng dùng khoản |
+| GET, POST | /api/v1/staff/{id}/pay-items | Khoản gán cho nhân sự |
+| DELETE | /api/v1/staff-pay-items/{id} | Bỏ khoản đã gán |
+| PUT | /api/v1/staff/{id}/dependents | Số người phụ thuộc của nhân sự |
+| GET, POST | /api/v1/tax-tables | Biểu thuế thu nhập cá nhân theo phiên bản (YCTD-60) |
 | GET, POST | /api/v1/leave-policies | Quy định số ngày phép năm theo chức danh và thâm niên |
 | PUT | /api/v1/leave-policies/{id} | Sửa hoặc ngừng dùng quy định phép năm (YCTD-59) |
 | GET | /api/v1/school-days | Ngày nghỉ lễ và lịch học bù, nghỉ bù của một năm dương lịch (YCTD-59) |

@@ -6,7 +6,15 @@ export type SettingSource = 'unit' | 'truong_chinh' | 'default' | 'missing';
 export interface EffectiveSetting {
   key: string;
   label: string;
-  value_type: 'closing_day' | 'day_of_month' | 'day_list' | 'boolean' | 'positive_integer' | 'time_of_day' | 'minutes';
+  value_type:
+    | 'closing_day'
+    | 'day_of_month'
+    | 'day_list'
+    | 'boolean'
+    | 'positive_integer'
+    | 'time_of_day'
+    | 'minutes'
+    | 'percent';
   value: unknown;
   source: SettingSource;
   unit_value: unknown;

@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.29.6 – 2026-10-11
+
+- Phạm vi thay đổi: DT-06 phần 6c-1, danh mục lương, biểu thuế, bảng lương toàn trường, phiếu lương (YCTD-60).
+- Chức năng mới: danh mục phụ cấp, thưởng, khấu trừ; khoản gán cho nhân sự; biểu thuế thu nhập cá nhân; tính bảng lương trả trước kèm điều chỉnh; trình, duyệt theo hạn mức, trả lại; phiếu lương của tôi.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: sáu bảng tiền lương, `staff.dependents_count`; sáu mã quyền P08; cấu hình `overtime_rate_percent`.
+- Thay đổi API: nhóm điểm cuối danh mục lương, biểu thuế, bảng lương, phiếu lương.
+- Rủi ro: biểu thuế có sẵn phải được kế toán trưởng cập nhật khi luật thay đổi.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-06-phan-6c-1`; chạy ngược tệp thay đổi cấu trúc 0022 của cơ sở dữ liệu năm học và 0026 của cơ sở dữ liệu định danh.
+
 ### Phiên bản 0.29.5 – 2026-10-11
 
 - Phạm vi thay đổi: DT-06 phần 6b-2, phép năm, đơn nghỉ phép, chốt và mở lại bảng công (YCTD-59).
