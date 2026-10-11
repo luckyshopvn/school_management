@@ -11,6 +11,24 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-72: Báo cáo cổng CG-10 và bản ứng viên phát hành 1.0.0 – 2026-10-11
+
+- Lý do: phần 9g theo cách chia ở YCTD-66; tổng hợp kết quả chạy thật, phân loại ca chưa chạy, kết luận cổng CG-10 trước khi phát hành. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Thêm `28_BAO_CAO_KIEM_THU_CG_10.md`: kết quả 131/188 kịch bản và 441/453 ca chi tiết đạt; 50 kịch bản và 5 ca chi tiết chưa chạy đều thuộc G2, G3 hoặc chờ việc T1, T6; không còn lỗi nghiêm trọng, lỗi cao chưa xử lý; CG-10 đạt.
+  - Sửa CTC-P06-050 và quyền của P06-08 trong `10` theo PQ-35 (YCTD-62): báo cáo thu chi cấp cho VT-02, VT-04, VT-05; quản lý đơn vị không xem.
+  - Ghi kết quả CTC-P01-016, CTC-P06-066, CTC-P08-049, CT-157, CT-188 theo kiểm thử đã có.
+  - Cập nhật trạng thái công việc M01, M01-2, M02, M04, M06 trong `03` thành Hoàn thành; trạng thái giai đoạn 09, 10, 11 trong `01`.
+  - Phiên bản tài liệu 0.31.0 là bản ứng viên phát hành 1.0.0. Gắn phiên bản 1.0.0 khi qua CG-11: Eric nghiệm thu và triển khai lên môi trường chạy thật (việc T6) kèm xác nhận sau triển khai.
+- Thành phần bị ảnh hưởng: `01`, `02`, `03`, `10`, `21`, `23`, `27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md`, `04_P06.md`, `05_P08.md`, `28`, `index.md`; thêm một ca kiểm thử máy chủ API.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không đổi mã quyền; tài liệu `10` sửa theo quyền đã cấp.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: CTC-P06-050.
+- Trạng thái: Đã triển khai
+
 ### YCTD-71: Tiến trình gửi thông báo, gửi lại khi lỗi, giới hạn tin nhắn trong ngày, nhắc ghi nhật ký – 2026-10-11
 
 - Lý do: phần 9f theo cách chia ở YCTD-66; thông báo mới chỉ được ghi vào hàng đợi (YCTD-44), chưa có tiến trình gửi tin nhắn, gửi lại khi lỗi (CB-07, CT-090), giới hạn 5 tin mỗi ngày (KT-09) và nhắc ghi nhật ký (CB-05, CTC-P04-041). Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.

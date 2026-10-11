@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.17
+- Phiên bản: 1.18
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -239,7 +239,7 @@
 | CT-154 | P05-03 | Đăng ký STEM sau ngày chốt | Chờ Ban Giám hiệu duyệt | Kiểm thử tự động `apps/api/src/fees/registrations.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-155 | P05-05 | Đăng ký trễ duyệt thu theo ngày thực tế | Phí theo tỷ lệ ngày còn lại | Kiểm thử tự động `apps/api/src/fees/fee-calculation.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-156 | P05-03 | Bỏ chọn bán trú | Không cho bỏ | Kiểm thử tự động `apps/api/src/fees/registrations.test.ts` đạt ngày 11/10/2026 | Đạt |
-| CT-157 | P02-02 | Trẻ chưa có mã ngành | Ô mã ngành tô đỏ | | Chưa chạy |
+| CT-157 | P02-02 | Trẻ chưa có mã ngành | Ô mã ngành tô đỏ | Kiểm thử giao diện `tests/e2e/09-children.spec.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-158 | P02-12 | Nhập tệp mã ngành có dòng không khớp | Báo dòng lỗi | Kiểm thử tự động `apps/api/src/imports/imports.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-159 | P19-06 | Đăng nhập lần đầu bằng mật khẩu mặc định | Chỉ vào màn hình đổi mật khẩu | Kiểm thử tự động `tests/e2e/07-parent-sign-in.spec.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-160 | P08-10 | Ban Giám hiệu tạo ngày học bù, giáo viên mở điểm danh ngày đó | Mọi lớp có danh sách điểm danh; ngày đó tính vào số ngày học của tháng | Kiểm thử tự động `apps/api/src/fees/fee-scenarios.test.ts` đạt ngày 11/10/2026 | Đạt |
@@ -270,7 +270,7 @@
 | CT-185 | P04-01 | Mở điểm danh ngày thuộc tuần nghỉ | Không có bảng điểm danh | Kiểm thử tự động `apps/api/src/attendance/attendance.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-186 | P04-01 | Mở điểm danh ngày sau học kỳ 2, ngoài kỳ hè | Không có bảng điểm danh | Kiểm thử tự động `apps/api/src/attendance/attendance.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-187 | P05-13 | Tháng hè có một trẻ đăng ký, một trẻ không | Chỉ trẻ đã đăng ký có điểm danh và hóa đơn | Kiểm thử tự động `apps/api/src/fees/fee-scenarios.test.ts` đạt ngày 11/10/2026 | Đạt |
-| CT-188 | P06-01 | Phiếu thu đầu năm học mới | Số phiếu đánh lại từ đầu | | Chưa chạy |
+| CT-188 | P06-01 | Phiếu thu đầu năm học mới | Số phiếu đánh lại từ đầu | Kiểm thử tự động `apps/api/src/academic-years/year-transition.test.ts` đạt ngày 11/10/2026: phiếu thu đầu tiên của năm mới có số PT-000001 | Đạt |
 
 Ca CT-105 đến CT-188 lần lượt kiểm tra AC-149 đến AC-232.
 

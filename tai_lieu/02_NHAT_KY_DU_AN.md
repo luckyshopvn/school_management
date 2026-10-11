@@ -14,6 +14,27 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-09 phần 9g: cổng CG-10 và bản ứng viên 1.0.0
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 41 (phần 9f); viết phần 9g trên nhánh `dt-09-phan-9g`.
+- Thêm kiểm thử phạm vi báo cáo thu chi của kế toán (CTC-P06-050); ghi kết quả các ca đã có kiểm thử.
+- Viết `28_BAO_CAO_KIEM_THU_CG_10.md`; cập nhật trạng thái công việc và giai đoạn.
+- Kết quả: máy chủ API 401/401, kiểm thử giao diện 47/47.
+
+#### Quyết định
+
+- Claude đánh giá CG-10 đạt theo ủy quyền của Eric ngày 2026-10-11 (YCTD-72).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-72 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.31.0.
+
+#### Vấn đề tồn đọng
+
+- CG-11: Eric nghiệm thu bản ứng viên; việc T1 (nhà cung cấp tin nhắn, thanh toán) và T6 (môi trường đám mây, kiểm thử hiệu năng, phục hồi, triển khai).
+
 ### 2026-10-11 — DT-09 phần 9f: tiến trình gửi thông báo
 
 #### Công việc đã thực hiện
