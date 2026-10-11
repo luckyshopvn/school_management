@@ -11,6 +11,25 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-68: Lịch nghỉ và lịch công tác của nhân sự – 2026-10-11
+
+- Lý do: phần 9c theo cách chia ở YCTD-66; P08-02 thuộc giai đoạn 1 nhưng chưa làm. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Thêm quyền `P08.work-schedule.manage` cho phòng nhân sự (VT-06) và quản lý đơn vị (VT-03) lập, công bố, xóa lịch của nhân sự trong đơn vị; người có `P08.attendance.view` xem được lịch của đơn vị.
+  - Mỗi nhân sự một lịch mỗi ngày, loại `business_trip` (công tác) hoặc `day_off` (nghỉ), kèm ghi chú; ngày phải trong thời gian làm việc của nhân sự và kỳ công của tháng chưa chốt.
+  - Lịch lập ở trạng thái nháp; công bố theo đơn vị và tháng, mỗi nhân sự có tài khoản nhận một thông báo liệt kê các ngày; xóa lịch đã công bố thì nhân sự nhận thông báo hủy.
+  - Ngày công tác đã công bố mà nhân sự không chấm công và không có đơn nghỉ được bảng công tính là ngày đi làm đủ giờ chuẩn, ghi chú "Công tác". Lịch nghỉ chỉ để thông báo; ngày nghỉ ảnh hưởng công và lương vẫn đi qua đơn nghỉ phép (BR-40).
+  - Nhân sự xem lịch đã công bố của mình trên ứng dụng giáo viên ở thẻ chấm công (MG-10).
+  - Mở năm học mới chuyển lịch sang cơ sở dữ liệu năm mới, giữ nguyên mã định danh.
+- Thành phần bị ảnh hưởng: `08`, `14`, `16`, `17`, `27_BO_CA_KIEM_THU_CHI_TIET/05_P08.md`, `01`, `02`, `23`, `index.md`; máy chủ API, cổng quản trị, ứng dụng giáo viên.
+- Dữ liệu bị ảnh hưởng: bảng mới `work_schedules` trong cơ sở dữ liệu năm học; quyền mới trong cơ sở dữ liệu định danh.
+- API bị ảnh hưởng: `GET`, `POST /work-schedules`, `POST /work-schedules/publish`, `DELETE /work-schedules/{id}`, `GET /me/work-schedules`; bảng công tính ngày công tác.
+- Giao diện bị ảnh hưởng: màn hình mới MH-56 Lịch công tác trên cổng quản trị; MG-10 có mục lịch công tác.
+- Quyền bị ảnh hưởng: thêm `P08.work-schedule.manage` (PQ-38).
+- Ảnh hưởng chức năng cũ: bảng công chỉ khác khi có lịch công tác đã công bố.
+- Kiểm thử cần thực hiện: CTC-P08-007, CTC-P08-008.
+- Trạng thái: Đã triển khai
+
 ### YCTD-67: Chuyển đơn vị, thôi học, đồng ý hình ảnh và cờ trẻ con nhân viên cho trẻ đã có hồ sơ – 2026-10-11
 
 - Lý do: phần 9b theo cách chia ở YCTD-66; P02-07, P02-08, P02-09 thuộc giai đoạn 1 nhưng chưa làm. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.

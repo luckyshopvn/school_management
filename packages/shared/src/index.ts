@@ -58,6 +58,7 @@ export const PERMISSION_CODES = {
   schoolDayChangeManage: 'P08.school-day-change.manage',
   staffAttendanceManage: 'P08.attendance.manage',
   staffAttendanceView: 'P08.attendance.view',
+  workScheduleManage: 'P08.work-schedule.manage',
   leavePolicyManage: 'P08.leave-policy.manage',
   leaveApprove: 'P08.leave.approve',
   timesheetReopenApprove: 'P08.timesheet-reopen.approve',

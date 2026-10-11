@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Alert, Button } from '@school-management/ui';
 import { ApiError, requestJson } from '../session/api-client.js';
+import { WorkScheduleList } from './WorkScheduleList.js';
 
 // MG-10 Chấm công hôm nay (P08-01, YCTD-59): nhân sự có hồ sơ liên kết tài khoản bấm vào ca, ra ca; giờ lấy theo máy
 // chủ nên cần có mạng, không lưu tạm khi mất mạng. Tài khoản chưa gắn hồ sơ nhân sự thì không hiện thẻ này
@@ -18,6 +19,7 @@ export function CheckInCard({ onOpenLeave, onOpenPayslips }: { onOpenLeave(): vo
   const [attendance, setAttendance] = useState<TodayAttendance | null>();
   const [errorMessage, setErrorMessage] = useState<string>();
   const [busy, setBusy] = useState(false);
+  const [showSchedules, setShowSchedules] = useState(false);
 
   useEffect(() => {
     const month = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date()).slice(0, 7);
@@ -77,7 +79,11 @@ export function CheckInCard({ onOpenLeave, onOpenPayslips }: { onOpenLeave(): vo
         <Button variant="text" onClick={onOpenPayslips}>
           Phiếu lương
         </Button>
+        <Button variant="text" onClick={() => setShowSchedules(!showSchedules)}>
+          Lịch công tác
+        </Button>
       </div>
+      {showSchedules ? <WorkScheduleList /> : null}
     </section>
   );
 }

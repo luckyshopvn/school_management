@@ -421,6 +421,20 @@ export class TimesheetsService {
       .where('from_date', '<=', to)
       .where('to_date', '>=', from)
       .execute();
+    // Ngày công tác đã công bố mà chưa chấm công được tính là ngày làm việc đủ giờ chuẩn (P08-02, YCTD-68)
+    const businessTrips = new Set(
+      (
+        await database
+          .selectFrom('work_schedules')
+          .select(['staff_id', 'schedule_date'])
+          .where('staff_id', 'in', staffIds)
+          .where('schedule_type', '=', 'business_trip')
+          .where('status', '=', 'published')
+          .where('schedule_date', '>=', from)
+          .where('schedule_date', '<=', to)
+          .execute()
+      ).map((row) => `${row.staff_id}:${row.schedule_date}`),
+    );
     const requestDays = await this.calendar.staffDays(
       requests.reduce((earliest, row) => (row.from_date < earliest ? row.from_date : earliest), from),
       requests.reduce((latest, row) => (row.to_date > latest ? row.to_date : latest), to),
@@ -461,6 +475,10 @@ export class TimesheetsService {
         const leave = ownLeaves.find((item) => item.portions.has(date));
         const leaveDays = leave?.portions.get(date) ?? 0;
         const log = ownLogs.get(date);
+        if (!log && leaveDays === 0 && businessTrips.has(`${person.id}:${date}`)) {
+          result.push({ ...base, status: 'present', worked_minutes: standardMinutes, note: 'Công tác' });
+          continue;
+        }
         const times = log ? attendanceTimes(log.check_in, log.check_out, hours) : null;
         const absentDays = log ? 0 : 1 - leaveDays;
         const status: TimesheetDayStatus = log ? 'present' : leaveDays > 0 ? 'leave' : 'absent';

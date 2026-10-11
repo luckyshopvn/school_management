@@ -14,6 +14,28 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-09 phần 9c: lịch nghỉ và lịch công tác
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 37 (phần 9b); viết phần 9c trên nhánh `dt-09-phan-9c`.
+- Cơ sở dữ liệu: năm học có `work_schedules` (tệp 0027); định danh có quyền `P08.work-schedule.manage` (tệp 0030).
+- Máy chủ API: lập, công bố, xóa lịch; lịch của tôi; bảng công tính ngày công tác đã công bố; mở năm học mới chuyển lịch sang.
+- Cổng quản trị: màn hình Lịch công tác (MH-56). Ứng dụng giáo viên: mục lịch công tác ở thẻ chấm công.
+- Kết quả: máy chủ API 384/384, kiểm thử giao diện 47/47.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-68 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-68 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.30.6.
+
+#### Vấn đề tồn đọng
+
+- Phần 9d đến 9g của đợt DT-09.
+
 ### 2026-10-11 — DT-09 phần 9b: chuyển đơn vị, thôi học, đồng ý hình ảnh
 
 #### Công việc đã thực hiện

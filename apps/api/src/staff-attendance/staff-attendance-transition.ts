@@ -2,7 +2,7 @@ import type { SchoolYearDatabase } from '@school-management/database';
 import type { Kysely } from 'kysely';
 import type { AcademicYearTransitionStep } from '../academic-years/academic-year-transition.js';
 
-// Mở năm học mới thì chuyển lịch nghỉ lễ, lịch học bù, nghỉ bù, chấm công, phép năm, đơn nghỉ và bảng công sang, giữ
+// Mở năm học mới thì chuyển lịch nghỉ lễ, lịch học bù, nghỉ bù, chấm công, phép năm, đơn nghỉ, lịch công tác (YCTD-68) và bảng công sang, giữ
 // nguyên mã định danh (QĐ-17, YCTD-59). Chấm công và bảng công được chuyển để chốt và tính lương được tháng giao giữa hai
 // năm học; phép năm tính theo năm dương lịch nên số ngày đã nghỉ đi theo. Chạy sau bước hồ sơ nhân sự và danh mục
 export const staffAttendanceTransitionStep: AcademicYearTransitionStep = {
@@ -36,6 +36,9 @@ export const staffAttendanceTransitionStep: AcademicYearTransitionStep = {
     }
     for (const row of await previous.selectFrom('timesheet_days').selectAll().execute()) {
       await next.insertInto('timesheet_days').values(row).execute();
+    }
+    for (const row of await previous.selectFrom('work_schedules').selectAll().execute()) {
+      await next.insertInto('work_schedules').values(row).execute();
     }
     for (const row of await previous.selectFrom('timesheet_reopen_requests').selectAll().execute()) {
       await next.insertInto('timesheet_reopen_requests').values(row).execute();
