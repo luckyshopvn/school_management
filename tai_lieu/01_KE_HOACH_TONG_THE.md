@@ -55,6 +55,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.2.0 | Bốn thay đổi: Ban Giám hiệu, nhiều cấp đơn vị, tách giao diện và máy chủ, dịch vụ định danh | 01 đến 07 | Đã có |
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
+| 0.31.0 | DT-09 phần 9g: báo cáo cổng CG-10, bản ứng viên phát hành 1.0.0 (YCTD-72) | 01, 03, 10, 28 | Đã có |
 | 0.30.9 | DT-09 phần 9f: tiến trình gửi thông báo, gửi lại khi lỗi, giới hạn tin nhắn, nhắc ghi nhật ký (YCTD-71) | 09, 10 | Đã có |
 | 0.30.8 | DT-09 phần 9e: sĩ số và nhật ký truy cập theo cấu hình, báo cáo thu chi theo nhóm (YCTD-70) | 09, 10 | Đã có |
 | 0.30.7 | DT-09 phần 9d: chuyển trẻ, lớp, quỹ, công nợ sang năm học mới (YCTD-69) | 09, 10 | Đã có |
@@ -172,12 +173,12 @@ Mỗi giai đoạn kết thúc bằng một cổng. Cổng không đạt thì kh
 | 06 Thiết kế giao diện | `14_DAC_TA_GIAO_DIEN.md`, `15_HE_THONG_THIET_KE.md` | CG-06 | Đã đạt ngày 09/10/2026 |
 | 07 Thiết kế dữ liệu và giao diện lập trình | `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md` | CG-07 | Đã đạt ngày 09/10/2026 |
 | 08 Chuẩn bị môi trường | `18_QUY_TAC_PHAT_TRIEN_AI.md`, `19_CHI_DAN_HE_THONG_AI.md`, kho mã nguồn GitHub, môi trường phát triển | CG-08 | Đã đạt ngày 09/10/2026 |
-| 09 Xây dựng theo phân hệ | Mã nguồn, thay đổi dữ liệu, kiểm thử tự động | CG-09 | Chưa bắt đầu |
-| 10 Kiểm thử và kiểm soát chất lượng | `20_KE_HOACH_KIEM_THU.md`, `21_KICH_BAN_KIEM_THU.md`, kết quả chạy thật | CG-10 | Đang chạy: đợt DT-09 phần 9a đã ghi kết quả kiểm thử tự động (YCTD-66) |
-| 11 Nghiệm thu và phát hành | Bản phát hành 1.0.0, `23_LICH_SU_PHIEN_BAN.md`, biên bản triển khai | CG-11 | Chưa bắt đầu |
+| 09 Xây dựng theo phân hệ | Mã nguồn, thay đổi dữ liệu, kiểm thử tự động | CG-09 | Đã đạt theo từng đợt DT-01 đến DT-09, mỗi phần qua tích hợp liên tục trước khi gộp |
+| 10 Kiểm thử và kiểm soát chất lượng | `20_KE_HOACH_KIEM_THU.md`, `21_KICH_BAN_KIEM_THU.md`, kết quả chạy thật | CG-10 | Đã đạt ngày 11/10/2026, xem `28_BAO_CAO_KIEM_THU_CG_10.md` (YCTD-72) |
+| 11 Nghiệm thu và phát hành | Bản phát hành 1.0.0, `23_LICH_SU_PHIEN_BAN.md`, biên bản triển khai | CG-11 | Đang chờ: bản ứng viên 0.31.0 chờ Eric nghiệm thu và triển khai ở việc T6 |
 | 12 Vận hành và cải tiến | Sửa lỗi, cải tiến, `24_YEU_CAU_THAY_DOI.md`, tài liệu cập nhật | CG-12 | Chưa bắt đầu |
 
-Vị trí hiện tại của dự án: tài liệu `01`, `04` đến `22` và các đặc tả QT đã được Eric phê duyệt ngày 09/10/2026; CG-01 đến CG-08 đã đạt; đợt DT-00 đã gộp vào nhánh `main` qua yêu cầu gộp số 1. Môi trường thử nghiệm và chạy thật dựng khi triển khai (YCTD-32). Việc tiếp theo là đợt DT-01 (`M01`).
+Vị trí hiện tại của dự án (11/10/2026): các đợt DT-00 đến DT-09 đã gộp vào nhánh `main`; CG-01 đến CG-10 đã đạt; bản ứng viên phát hành 1.0.0 là phiên bản tài liệu 0.31.0. Việc tiếp theo: Eric nghiệm thu bản ứng viên; chọn nhà cung cấp tin nhắn và thanh toán (việc T1); dựng môi trường thử nghiệm và chạy thật trên đám mây, chạy kiểm thử hiệu năng và phục hồi, triển khai (việc T6); qua CG-11 thì gắn phiên bản 1.0.0.
 
 ### 4.1 Giai đoạn 01 — Xác định ý tưởng
 

@@ -1,7 +1,7 @@
 # 27.1. BỘ CA KIỂM THỬ CHI TIẾT — DỊCH VỤ ĐỊNH DANH VÀ P01
 
 - Mô tả: Ca kiểm thử chi tiết cho dịch vụ định danh (Q-125, Q-126) và các chức năng giai đoạn 1 của phân hệ P01 Nền tảng, đơn vị và phân quyền (việc N21, Q-105).
-- Phiên bản: 1.20
+- Phiên bản: 1.21
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -150,7 +150,7 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 | CTC-P01-013 | P01-02 | P01-02 | LT-02 | Cao | Không | HT tạo năm học 2027–2028 với ngày bắt đầu và kết thúc | Năm học ở trạng thái chưa mở | Kiểm thử tự động `apps/api/src/academic-years/academic-years.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-P01-014 | P01-02 | AC-194, QĐ-15, QĐ-17, CT-150 | LT-05 | Cao | Năm 2026–2027 đang dùng theo DL-11, có trẻ đang học và công nợ chưa tất toán | HT gọi `POST /api/v1/academic-years/{id}/open` cho 2027–2028 | Có cơ sở dữ liệu năm mới gồm trẻ đang học, phụ huynh, nhân sự, danh mục, cấu hình, số dư công nợ chưa tất toán; mã định danh của mọi bản ghi chuyển sang giữ nguyên | Kiểm thử tự động `apps/api/src/academic-years/year-transition.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CTC-P01-015 | P01-02 | AC-194, QĐ-17 | LT-05 | Cao | Sau CTC-P01-014 | So sánh mã định danh của 20 trẻ ngẫu nhiên giữa hai cơ sở dữ liệu | Trùng khớp hoàn toàn | Kiểm thử tự động `apps/api/src/academic-years/year-transition.test.ts` đạt ngày 11/10/2026 | Đạt |
-| CTC-P01-016 | P01-02 | P01-02, QĐ-15 | LT-02 | Cao | Năm 2026–2027 đã đóng | Gửi yêu cầu sửa một hồ sơ trẻ của năm 2026–2027 | Bị từ chối vì cơ sở dữ liệu năm cũ chỉ đọc; đọc vẫn được | | Chưa chạy |
+| CTC-P01-016 | P01-02 | P01-02, QĐ-15 | LT-02 | Cao | Năm 2026–2027 đã đóng | Gửi yêu cầu sửa một hồ sơ trẻ của năm 2026–2027 | Bị từ chối vì cơ sở dữ liệu năm cũ chỉ đọc; đọc vẫn được | Kiểm thử tự động `apps/api/src/academic-years/academic-years.test.ts` đạt ngày 11/10/2026: cơ sở dữ liệu năm đã đóng từ chối ghi, đọc vẫn được; máy chủ API chỉ ghi vào năm đang dùng | Đạt |
 | CTC-P01-017 | P01-02 | GD-90 | LT-05 | Trung bình | Sau CTC-P01-014 | Mở lịch sử lớp của một trẻ ở năm mới và ở năm cũ | Năm mới có lịch sử lớp gần nhất; năm cũ có lịch sử đầy đủ | Kiểm thử tự động `apps/api/src/academic-years/year-transition.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CTC-P01-018 | P01-02 | P01-02, PQ-11 | LT-04 | Cao | QL-A, PHT-A | Gọi tạo năm học và mở năm học | Đều trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/academic-years/academic-years.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-P01-019 | P01-02 | QU-11 | LT-02 | Trung bình | Năm cũ đã đóng, có thay đổi cấu trúc dữ liệu mới | Chạy công cụ thay đổi cấu trúc dữ liệu | Chỉ cơ sở dữ liệu năm đang dùng được thay đổi; năm đã đóng giữ phiên bản cấu trúc cũ và vẫn đọc được | Kiểm thử tự động `apps/api/src/academic-years/academic-years.test.ts` đạt ngày 11/10/2026 | Đạt |

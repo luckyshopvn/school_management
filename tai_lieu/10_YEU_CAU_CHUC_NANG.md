@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.32
+- Phiên bản: 1.33
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -103,7 +103,7 @@
 | P06-05 | Quỹ tiền mặt (G1) | VT-04, VT-05, VT-16 | Phiếu thu, phiếu chi, phiếu nộp, phiếu rút | Tính số dư quỹ theo thời điểm | Sổ quỹ | BR-34 |
 | P06-06 | Tài khoản ngân hàng và lịch sử giao dịch (G2) | VT-04, VT-05 | Tài khoản, số dư đầu, giao dịch | Ghi nhận giao dịch, đối chiếu | Sổ ngân hàng | BR-34 |
 | P06-07 | Công nợ phải trả (G2) | VT-04, VT-05 | Nhà cung cấp, chứng từ, số tiền, hạn thanh toán | Ghi nhận và theo dõi công nợ phải trả | Bảng công nợ phải trả | BR-36 |
-| P06-08 | Báo cáo thu chi (G1) | VT-02, VT-03, VT-04 | Đơn vị, khoảng ngày, loại thu chi | Tổng hợp theo nhóm và theo kỳ | Báo cáo thu chi | BR-36 |
+| P06-08 | Báo cáo thu chi (G1) | VT-02, VT-04, VT-05 (PQ-35, YCTD-72) | Đơn vị, khoảng ngày, loại thu chi | Tổng hợp theo nhóm và theo kỳ | Báo cáo thu chi | BR-36 |
 | P06-09 | Chốt kỳ tài chính (G2) | VT-05, VT-02 | Kỳ, đơn vị | Kế toán trưởng đề nghị chốt, Hiệu trưởng phê duyệt; khóa số liệu của kỳ, chặn sửa ngược | Kỳ đã chốt | BR-25, BR-29, BR-77 |
 | P06-10 | Khoản mục và nhóm thu chi (G1) | VT-04, VT-05 | Mã, tên khoản mục, nhóm thu chi, loại thu hoặc chi | Quản lý danh mục; phiếu thu và phiếu chi bắt buộc chọn khoản mục | Danh mục khoản mục thu chi | BR-36 |
 | P06-11 | Thanh toán trực tuyến bằng mã QR (G1) | VT-14, VT-04 | Hóa đơn, số còn phải nộp | Xin nhà cung cấp tài khoản ảo và mã QR dùng một lần theo hóa đơn với số tiền bằng số còn phải nộp, nội dung là mã hóa đơn; tiền về tài khoản duy nhất của trường; nhận thông báo tiền vào, đối chiếu, tự lập phiếu thu và phân bổ; giao dịch không khớp chuyển kế toán xử lý (YCTD-57) | Phiếu thu tự động, hóa đơn đã thu đủ | BR-28, BR-31 |

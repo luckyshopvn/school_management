@@ -1,7 +1,7 @@
 # 03. DANH SÁCH KIỂM TRA CÔNG VIỆC
 
 - Mô tả: Danh sách công việc, trạng thái và thứ tự ưu tiên của dự án.
-- Phiên bản: 0.4
+- Phiên bản: 0.5
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đang cập nhật
 
@@ -44,13 +44,13 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | M00-3 | Phê duyệt cách xếp ba giai đoạn | Toàn dự án | Hoàn thành | Eric đồng ý ngày 2026-10-09 (Q-07) |
 | M00-4 | Xác nhận cây đơn vị thực tế | Toàn dự án | Hoàn thành | Nhà trường tự tạo trong phần Cấu hình; biểu phí dùng chung (Q-113, Q-122) |
 | M00-5 | Chốt mức hạn mức phê duyệt theo loại chứng từ | Toàn dự án | Hoàn thành | Để nhà trường cấu hình sau; khi chưa cấu hình Hiệu trưởng duyệt mọi chứng từ (Q-112). Q-123 vẫn mở |
-| M01 | Xây dựng nền tảng, cây đơn vị hai cấp, tài khoản, vai trò, quyền | P01 | Đang thực hiện | Đợt DT-01, làm theo sáu phần cùng phần lõi của M01-2 (YCTD-34); phần 1 đến 6a ở yêu cầu gộp số 3 đến 8; phần 6b các danh mục xong trên nhánh `dt-01-phan-6b`, 105 kiểm thử và 15 kiểm thử giao diện đạt |
-| M01-2 | Xây dựng dịch vụ định danh độc lập tự viết | P01 | Đang thực hiện | Phần lõi làm trong DT-01 phần 1; phần phụ huynh (mật khẩu mặc định, mã một lần, kích hoạt, ứng dụng phụ huynh MH-47, MH-48) xong trên nhánh `dt-02`, 119 kiểm thử và 17 kiểm thử giao diện đạt (YCTD-43); P19-06 chờ nhà cung cấp tin nhắn ở việc T1 |
+| M01 | Xây dựng nền tảng, cây đơn vị hai cấp, tài khoản, vai trò, quyền | P01 | Hoàn thành | Đợt DT-01 sáu phần (YCTD-34 đến YCTD-42), yêu cầu gộp số 3 đến 9; sĩ số và nhật ký truy cập theo cấu hình ở DT-09 (YCTD-70) |
+| M01-2 | Xây dựng dịch vụ định danh độc lập tự viết | P01 | Hoàn thành | Phần lõi ở DT-01 phần 1; phần phụ huynh ở DT-02 (YCTD-43); nhà cung cấp tin nhắn thật chờ việc T1 |
 | M01-3 | Nền móng kỹ thuật DT-00: kho mã nguồn GitHub, cấu trúc nhiều gói, ranh giới giao diện và máy chủ, gói mã dùng chung, môi trường phát triển Docker, tích hợp liên tục chỉ chạy kiểm thử | Toàn dự án | Hoàn thành | Giao diện chỉ gọi giao diện lập trình ứng dụng; kho https://github.com/luckyshopvn/school_management; 6/6 kiểm thử đạt trên máy và GitHub Actions; Eric gộp yêu cầu gộp số 1 vào `main` ngày 09/10/2026 (YCTD-32) |
-| M02 | Xây dựng hồ sơ trẻ, phụ huynh, lớp học, phân lớp | P02 | Đang thực hiện | Đợt DT-03 chia ba phần (YCTD-44); phần 3a, 3b ở yêu cầu gộp số 11, 12; phần 3c nhập Excel và mã ngành xong trên nhánh `dt-03-phan-3c`, 157 kiểm thử và 22 kiểm thử giao diện đạt (YCTD-46); chuyển trẻ sang năm học mới (GD-90) làm ở DT-09 phần 9d (YCTD-69) |
-| M04 | Xây dựng điểm danh, báo vắng, đón trả trẻ | P04 | Đang thực hiện | Đợt DT-04 xong: phần 4a điểm danh, chốt ngày, báo vắng (YCTD-47); phần 4b người được ủy quyền đón và đón trả (YCTD-48) trên nhánh `dt-04-phan-4b`, 183 kiểm thử và 26 kiểm thử giao diện đạt; nhật ký của bé (P04-04) và chăm sóc làm ở đợt sau |
+| M02 | Xây dựng hồ sơ trẻ, phụ huynh, lớp học, phân lớp | P02 | Hoàn thành | Đợt DT-03 ba phần (YCTD-44 đến YCTD-46); chuyển đơn vị, thôi học, đồng ý hình ảnh ở DT-09 phần 9b (YCTD-67); chuyển trẻ sang năm học mới (GD-90) ở DT-09 phần 9d (YCTD-69) |
+| M04 | Xây dựng điểm danh, báo vắng, đón trả trẻ | P04 | Hoàn thành | Đợt DT-04 (YCTD-47, YCTD-48); nhật ký của bé ở DT-08 phần 8b (YCTD-65); nhắc ghi nhật ký ở DT-09 phần 9f (YCTD-71) |
 | M05 | Xây dựng học phí, khoản thu, giảm trừ | P05 | Hoàn thành | Đợt DT-05 sáu phần (YCTD-49 đến YCTD-57) đã gộp vào main; còn bộ chuyển đổi nhà cung cấp thanh toán thật khi chọn xong ở T1 |
-| M06 | Xây dựng phiếu thu, phiếu chi, công nợ, quỹ tiền mặt | P06 | Chưa bắt đầu | Phụ thuộc M05 |
+| M06 | Xây dựng phiếu thu, phiếu chi, công nợ, quỹ tiền mặt | P06 | Hoàn thành | Đợt DT-05 phần 5d, 5e, 5f (YCTD-53 đến YCTD-57); báo cáo thu chi theo nhóm ở DT-09 phần 9e (YCTD-70) |
 | M07 | Xây dựng hồ sơ nhân sự và hợp đồng lao động | P07 | Hoàn thành | Đợt DT-06 phần 6a (YCTD-58) đã gộp vào main |
 | M08 | Xây dựng chấm công, nghỉ phép, bảng lương | P08 | Hoàn thành | Đợt DT-06 phần 6b-1, 6b-2, 6c-1, 6c-2 (YCTD-59 đến YCTD-61) |
 | M17 | Xây dựng bảng điều khiển và báo cáo cơ bản | P17 | Hoàn thành | Đợt DT-07 phần 7a, 7b (YCTD-62, YCTD-63) |

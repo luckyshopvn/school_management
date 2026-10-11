@@ -292,4 +292,52 @@ describe('Quy tắc theo cấu hình đơn vị', () => {
       { period: thisMonth.slice(0, 7), income_amount: 500_000, expense_amount: 300_000 },
     ]);
   });
+  it('CTC-P06-050: kế toán của PH-A xem báo cáo thu chi không lọc đơn vị chỉ thấy số liệu của PH-A; quản lý đơn vị không xem được (YCTD-62)', async () => {
+    const unitB = (
+      await api('POST', '/org-units', principal.accessToken, { code: 'PH-B', name: 'PH-B', unit_type: 'phan_hieu' })
+    ).body.id as string;
+    const category = await schoolYear
+      .selectFrom('cashflow_categories')
+      .select('id')
+      .where('code', '=', 'THU-KHAC')
+      .executeTakeFirstOrThrow();
+    const account = await schoolYear
+      .insertInto('cash_accounts')
+      .values({
+        org_unit_id: unitB,
+        account_type: 'cash',
+        name: 'Quỹ PH-B',
+        opening_balance: 0,
+        current_balance: 0,
+        created_by: principal.userId,
+      })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    await schoolYear
+      .insertInto('receipts')
+      .values({
+        code: `PT-${randomUUID().slice(0, 8)}`,
+        org_unit_id: unitB,
+        child_id: children.T1 ?? '',
+        payer_name: 'Phụ huynh PH-B',
+        amount: 700_000,
+        method: 'cash',
+        account_id: account.id,
+        category_id: category.id,
+        receipt_date: `${vietnamToday.slice(0, 7)}-01`,
+        request_key: randomUUID(),
+        created_by: principal.userId,
+      })
+      .execute();
+    const range = `from=${vietnamToday.slice(0, 7)}-01&to=${vietnamToday.slice(0, 7)}-28`;
+    const own = await api('GET', `/reports/cash-flow?${range}`, accountant.accessToken);
+    assert.equal(own.status, 200, JSON.stringify(own.body));
+    assert.equal((own.body.totals as { income_amount: number }).income_amount, 500_000);
+    assert.ok((own.body.documents as Array<{ org_unit_id: string }>).every((row) => row.org_unit_id === unitA));
+    const whole = await api('GET', `/reports/cash-flow?${range}`, principal.accessToken);
+    assert.equal((whole.body.totals as { income_amount: number }).income_amount, 1_200_000);
+    const other = await api('GET', `/reports/cash-flow?${range}&org_unit_id=${unitB}`, accountant.accessToken);
+    assert.equal(other.status, 403);
+    assert.equal((await api('GET', `/reports/cash-flow?${range}`, manager.accessToken)).status, 403);
+  });
 });

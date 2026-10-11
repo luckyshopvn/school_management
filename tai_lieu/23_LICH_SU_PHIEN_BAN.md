@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.31.0 – 2026-10-11 (ứng viên phát hành 1.0.0)
+
+- Phạm vi thay đổi: DT-09 phần 9g, báo cáo cổng CG-10 và bản ứng viên phát hành 1.0.0 (YCTD-72).
+- Chức năng mới: không; toàn bộ chức năng G1 đã có ở các phiên bản 0.25.x đến 0.30.9.
+- Lỗi đã sửa: tài liệu CTC-P06-050 và quyền của P06-08 lệch PQ-35.
+- Thay đổi dữ liệu: không.
+- Thay đổi API: không.
+- Rủi ro: chưa nối nhà cung cấp tin nhắn và thanh toán thật (T1); chưa chạy kiểm thử hiệu năng và phục hồi trên môi trường thật (T6).
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: bản ứng viên chưa triển khai; khi triển khai, quay lui bằng bản sao lưu cơ sở dữ liệu trước triển khai và bản dựng trước đó.
+
 ### Phiên bản 0.30.9 – 2026-10-11
 
 - Phạm vi thay đổi: DT-09 phần 9f, tiến trình gửi thông báo, gửi lại khi lỗi, giới hạn tin nhắn trong ngày, nhắc ghi nhật ký (YCTD-71).
