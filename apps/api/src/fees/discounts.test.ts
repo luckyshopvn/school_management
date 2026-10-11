@@ -385,6 +385,23 @@ describe('Miễn giảm và phiếu điều chỉnh hóa đơn', () => {
     });
   });
 
+  describe('DT-09 phần 9a: ngừng loại miễn giảm', () => {
+    it('CTC-P05-045: ngừng loại miễn giảm đã dùng thì miễn giảm cũ giữ nguyên, miễn giảm mới không chọn được loại đó', async () => {
+      const stopped = await api('PATCH', `/discount-types/${types.CO_DINH}`, token('accountant'), {
+        status: 'inactive',
+      });
+      assert.equal(stopped.status, 200, JSON.stringify(stopped.body));
+      const old = await schoolYear
+        .selectFrom('discounts')
+        .select(['discount_type_id', 'status'])
+        .where('discount_type_id', '=', types.CO_DINH ?? '')
+        .execute();
+      assert.ok(old.length > 0);
+      const fresh = await discount('T1', 'CO_DINH');
+      assert.equal(fresh.status, 400, JSON.stringify(fresh.body));
+    });
+  });
+
   describe('P05-08 Điều chỉnh hóa đơn', () => {
     let small = '';
     let large = '';
@@ -443,6 +460,32 @@ describe('Miễn giảm và phiếu điều chỉnh hóa đơn', () => {
       });
       assert.equal(draft.status, 422);
       assert.equal(errorOf(draft.body).rule_code, 'BR-25');
+    });
+
+    it('CTC-P01-052: tra nhật ký theo phiếu điều chỉnh có người thực hiện, thời điểm, giá trị trước và sau', async () => {
+      const response = await api(
+        'GET',
+        `/audit-logs?entity_name=invoice_adjustments&entity_id=${small}`,
+        principal.accessToken,
+      );
+      assert.equal(response.status, 200, JSON.stringify(response.body));
+      const items = (
+        response.body as {
+          items: Array<{
+            actor_user_id: string;
+            created_at: string;
+            action: string;
+            before_data: unknown;
+            after_data: Record<string, unknown> | null;
+          }>;
+        }
+      ).items;
+      const created = items.find((row) => row.action === 'create');
+      assert.equal(created?.actor_user_id, users.accountant?.userId);
+      assert.ok(created?.created_at);
+      assert.equal(created?.after_data?.amount, -70_000);
+      const decided = items.find((row) => row.action === 'update');
+      assert.ok(decided?.before_data && decided.after_data);
     });
 
     it('Điều chỉnh giảm vượt số phải nộp bị chặn', async () => {

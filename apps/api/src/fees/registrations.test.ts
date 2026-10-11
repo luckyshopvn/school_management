@@ -364,6 +364,27 @@ describe('Đăng ký dịch vụ, chốt kỳ, đăng ký trễ và học hè', 
     });
   });
 
+  describe('DT-09 phần 9a: ngừng dịch vụ', () => {
+    it('CTC-P05-007: ngừng dịch vụ đang có đăng ký thì đăng ký cũ giữ nguyên, không đăng ký mới được', async () => {
+      serviceIds.BOI = (
+        await api('POST', '/services', token('accountant'), {
+          code: 'BOI',
+          name: 'Bơi',
+          unit: 'tháng',
+          calculation_method: 'monthly',
+        })
+      ).body.id as string;
+      const registered = await register(parentTokens.T1 ?? '', 'T1', openMonth.period, 'BOI');
+      assert.equal(registered.status, 201, JSON.stringify(registered.body));
+      const stopped = await api('PATCH', `/services/${serviceIds.BOI}`, token('accountant'), { status: 'inactive' });
+      assert.equal(stopped.status, 200, JSON.stringify(stopped.body));
+      const view = await childView(parentTokens.T1 ?? '', 'T1', openMonth.period);
+      assert.equal(view.registrations.find((row) => row.service_id === serviceIds.BOI)?.status, 'active');
+      const fresh = await register(parentTokens.T2 ?? '', 'T2', openMonth.period, 'BOI');
+      assert.ok(fresh.status === 400 || fresh.status === 422, JSON.stringify(fresh.body));
+    });
+  });
+
   describe('P05-04 Chốt danh sách đăng ký', () => {
     it('CTC-P05-022: quản lý đơn vị không chốt được', async () => {
       const response = await api('POST', '/service-registrations/lock', token('manager'), {

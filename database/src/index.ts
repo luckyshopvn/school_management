@@ -6,7 +6,7 @@ export {
   makeDatabaseReadOnly,
 } from './database-administration.js';
 export { readConnectionString, replaceDatabaseName, type ServiceDatabaseKind } from './environment.js';
-export { migrateToLatest, type DatabaseKind } from './migrate.js';
+export { migrateToLatest, schoolYearDatabasesToMigrate, type DatabaseKind } from './migrate.js';
 export type { ApiClientScope, IdentityDatabase, LoginMethod, SessionChannel, UserStatus } from '../identity/schema.js';
 export type {
   AcademicTermType,

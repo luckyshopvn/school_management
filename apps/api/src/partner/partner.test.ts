@@ -167,4 +167,68 @@ describe('Khóa API cho đối tác', () => {
     }
     assert.equal(lastStatus, 429);
   });
+
+  it('CTC-P01-085: bảng khóa chỉ lưu giá trị băm, không lưu khóa gốc', async () => {
+    const created = await createKey(principal.accessToken, { scopes: ['reports'] });
+    const key = created.body.api_key as string;
+    const row = await environment.identity.database
+      .selectFrom('api_clients')
+      .selectAll()
+      .where('id', '=', created.body.id as string)
+      .executeTakeFirstOrThrow();
+    assert.ok(typeof row.key_hash === 'string' && row.key_hash.length > 0);
+    assert.notEqual(row.key_hash, key);
+    assert.ok(!JSON.stringify(row).includes(key));
+  });
+
+  it('CTC-P01-090: khóa quá ngày hiệu lực bị từ chối', async () => {
+    const created = await createKey(principal.accessToken, { scopes: ['reports'] });
+    const key = created.body.api_key as string;
+    assert.equal((await partnerGet('/reports/summary', key)).status, 200);
+    await environment.identity.database
+      .updateTable('api_clients')
+      .set({ valid_until: addDays(vietnamToday, -1) })
+      .where('id', '=', created.body.id as string)
+      .execute();
+    const expired = await partnerGet('/reports/summary', key);
+    assert.ok(expired.status === 401 || expired.status === 403, String(expired.status));
+  });
+
+  it('CTC-P01-093: khóa chỉ đọc; gọi tạo hoặc sửa dữ liệu bằng khóa bị từ chối', async () => {
+    const created = await createKey(principal.accessToken, {
+      scopes: ['children'],
+      legal_basis: 'Công văn số 15 của Phòng Giáo dục',
+    });
+    const key = created.body.api_key as string;
+    for (const [method, path] of [
+      ['POST', '/partner/children'],
+      ['PATCH', `/partner/children/${randomUUID()}`],
+      ['POST', '/children'],
+      ['PATCH', `/children/${randomUUID()}`],
+    ] as const) {
+      const response = await fetch(`${environment.baseUrl}${path}`, {
+        method,
+        headers: { 'x-api-key': key, 'content-type': 'application/json' },
+        body: JSON.stringify({ full_name: 'Thử ghi' }),
+      });
+      assert.ok(response.status >= 400 && response.status < 500, `${method} ${path} ${response.status}`);
+    }
+    assert.equal(
+      await schoolYear.selectFrom('children').select('id').where('full_name', '=', 'Thử ghi').executeTakeFirst(),
+      undefined,
+    );
+  });
+
+  it('CTC-P01-095: mở năm học mới thì khóa cũ vẫn dùng được', async () => {
+    const created = await createKey(principal.accessToken, { scopes: ['reports'] });
+    const key = created.body.api_key as string;
+    const nextStart = addDays(vietnamToday, 210);
+    const startYear = Number(nextStart.slice(0, 4));
+    await openTestAcademicYear(environment, principal.accessToken, `${startYear}–${startYear + 1}`, {
+      first_term: { start_date: nextStart, end_date: addDays(nextStart, 120) },
+      second_term: { start_date: addDays(nextStart, 125), end_date: addDays(nextStart, 240) },
+    });
+    const summary = await partnerGet('/reports/summary', key);
+    assert.equal(summary.status, 200, JSON.stringify(summary.body));
+  });
 });

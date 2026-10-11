@@ -14,6 +14,28 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-09 phần 9a: kiểm thử bổ sung và ghi kết quả
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 35 (phần 8b). Rà soát 108 ca kiểm thử chi tiết và 175 kịch bản kiểm thử còn Chưa chạy; viết phần 9a trên nhánh `dt-09-phan-9a`.
+- Viết thêm kiểm thử tự động cho phê duyệt theo hạn mức, phiếu thu nhiều hóa đơn, nhiều quỹ, sổ quỹ, phạm vi đơn vị, phiên đăng nhập, danh mục ngừng dùng, khóa API, tình huống tính học phí theo lịch, lương, quyết toán, lưu trữ dữ liệu nhạy cảm.
+- Ghi kết quả Đạt cho 69 ca kiểm thử chi tiết và 116 kịch bản kiểm thử.
+- Kết quả: máy chủ API 368/368, kiểm thử giao diện 45/45.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-66 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-66 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.30.4.
+
+#### Vấn đề tồn đọng
+
+- Phần 9b đến 9g của đợt DT-09.
+- Cổng CG-11 cần Eric: thuê hạ tầng đám mây (T6), chọn nhà cung cấp tin nhắn và cổng thanh toán (T1), ký nghiệm thu.
+
 ### 2026-10-11 — DT-08 phần 8b: nhật ký của bé
 
 #### Công việc đã thực hiện

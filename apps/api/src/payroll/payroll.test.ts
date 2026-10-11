@@ -104,6 +104,30 @@ describe('Phép tính bảng lương', () => {
     assert.equal(firstMonth.adjustment_amount, 6_000_000);
   });
 
+  it('CTC-P08-031: ngày nghỉ không lương của tháng M không trừ vào phần trả trước tháng M, chỉ trừ ở bảng lương tháng M+1', () => {
+    const prepaid = { contractNo: 'HD-1', baseSalary: 12_000_000, contractAllowances: [] };
+    const october = calculatePayslip({ prepaid, adjustment: null, items: [], dependents: 0, taxTable: TAX_TABLE });
+    assert.equal(october.prepaid_amount, 12_000_000);
+    const november = calculatePayslip({
+      prepaid,
+      adjustment: {
+        contractNo: 'HD-1',
+        baseSalary: 12_000_000,
+        standardDays: 24,
+        standardMinutes: 480,
+        overtimeRatePercent: 150,
+        totals: { workdayRows: 24, unpaidDays: 4, workedDays: 20, overtimeMinutes: 0 },
+        month: '2026-10',
+        prepaidLastMonth: true,
+      },
+      items: [],
+      dependents: 0,
+      taxTable: TAX_TABLE,
+    });
+    assert.equal(november.prepaid_amount, 12_000_000);
+    assert.equal(november.adjustment_amount, -2_000_000);
+  });
+
   it('BR-82: làm thêm theo lương giờ nhân hệ số; thuế lũy tiến từng phần sau giảm trừ gia cảnh', () => {
     const result = calculatePayslip({
       prepaid: { contractNo: 'HD-2', baseSalary: 50_000_000, contractAllowances: [] },
@@ -205,6 +229,8 @@ describe('Bảng lương toàn trường', () => {
     staffIds.teacher = await createStaff('Nguyễn Thị Lan', addDays(previousMonthStart, -400), 12_000_000);
     staffIds.newcomer = await createStaff('Trần Văn Mới', newStaffStart, 12_000_000);
     staffIds.noContract = await createStaff('Lê Thị Chưa Ký', addDays(previousMonthStart, -30), null);
+    // Vào làm giữa tháng tính lương (CT-182)
+    staffIds.lateJoiner = await createStaff('Phạm Văn Sau', `${currentMonth}-15`, 12_000_000);
     await schoolYear
       .updateTable('staff')
       .set({ user_id: users.teacher?.userId ?? null })
@@ -328,7 +354,7 @@ describe('Bảng lương toàn trường', () => {
     assert.match(details[0]?.message ?? '', /ĐT-A1 chưa chốt công/);
   });
 
-  it('CTC-P08-028 đến 033, CTC-P08-057: tính bảng lương; trả trước, điều chỉnh tháng trước, nhân sự mới, thiếu hợp đồng', async () => {
+  it('CTC-P08-028 đến 033, CTC-P08-057, CT-182: tính bảng lương; trả trước, điều chỉnh tháng trước, nhân sự mới, thiếu hợp đồng', async () => {
     const closed = await api('POST', '/attendance-logs/lock', token('personnel'), {
       org_unit_id: units['ĐT-A1'],
       month: previousMonth,
@@ -367,6 +393,8 @@ describe('Bảng lương toàn trường', () => {
       payslips.some((row) => row.staff_id === staffIds.noContract),
       false,
     );
+    // Vào làm trong tháng tính lương thì tháng đó không trả trước; phần tháng này trả theo công ở tháng sau (CT-182)
+    assert.ok(!payslips.some((row) => row.staff_id === staffIds.lateJoiner && row.prepaid_amount > 0));
     const skipped = calculated.body.skipped as Array<{ staff_id: string; reason: string }>;
     assert.match(skipped.find((row) => row.staff_id === staffIds.noContract)?.reason ?? '', /hợp đồng/);
     assert.equal(

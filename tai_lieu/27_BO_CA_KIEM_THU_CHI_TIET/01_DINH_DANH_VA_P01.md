@@ -1,8 +1,8 @@
 # 27.1. BỘ CA KIỂM THỬ CHI TIẾT — DỊCH VỤ ĐỊNH DANH VÀ P01
 
 - Mô tả: Ca kiểm thử chi tiết cho dịch vụ định danh (Q-125, Q-126) và các chức năng giai đoạn 1 của phân hệ P01 Nền tảng, đơn vị và phân quyền (việc N21, Q-105).
-- Phiên bản: 1.17
-- Ngày cập nhật: 2026-10-10
+- Phiên bản: 1.18
+- Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -59,7 +59,7 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 | CTC-DD-002 | P19-06 | XT-01 | LT-02 | Trung bình | Tài khoản NS-A có tên đăng nhập | Đăng nhập bằng tên đăng nhập và mật khẩu đúng | Đăng nhập thành công như CTC-DD-001 | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-DD-003 | P19-06 | XT-01, BM-29 | LT-02 | Cao | Tài khoản NS-A | Đăng nhập với mật khẩu sai | Trả `ERR_UNAUTHENTICATED`, không cấp phiên; phản hồi không chứa thông tin nội bộ | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-DD-004 | P19-06 | XT-05, BM-04, BM-36, CT-006, YCTD-35 | LT-02 | Cao | Tài khoản NS-A, đếm sai bằng 0 | Đăng nhập sai 5 lần liên tiếp, rồi đăng nhập đúng; sau 15 phút đăng nhập đúng lần nữa | Lần đúng đầu tiên bị từ chối vì tài khoản tạm khóa, thông báo thử lại sau 15 phút; sau 15 phút đăng nhập thành công; nhật ký bảo mật ghi 5 lần sai theo tài khoản và địa chỉ mạng | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
-| CTC-DD-005 | P19-06 | BR-05 | LT-02 | Cao | Hợp đồng của NS-A đã chấm dứt, tài khoản đã khóa | Đăng nhập bằng thông tin đúng | Bị từ chối; tài khoản vẫn tồn tại, lịch sử thao tác còn nguyên | | Chưa chạy |
+| CTC-DD-005 | P19-06 | BR-05 | LT-02 | Cao | Hợp đồng của NS-A đã chấm dứt, tài khoản đã khóa | Đăng nhập bằng thông tin đúng | Bị từ chối; tài khoản vẫn tồn tại, lịch sử thao tác còn nguyên | Kiểm thử tự động `apps/api/src/staff/staff.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CTC-DD-006 | P19-06 | PQ-07, BM-09 | LT-02 | Trung bình | Tài khoản GV-A1 không đăng nhập 91 ngày | Đăng nhập bằng thông tin đúng | Bị từ chối, tài khoản ở trạng thái tạm khóa, cần kích hoạt lại | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-DD-007 | P19-06 | AC-209, BM-68, CT-165 | LT-02 | Cao | KTV có ngày hết hiệu lực là hôm qua | Đăng nhập bằng thông tin đúng | Bị từ chối; tài khoản ở trạng thái khóa | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-DD-008 | P19-06 | KT-07, BM-26 | LT-02 | Trung bình | Không | Gửi liên tục yêu cầu đăng nhập vượt giới hạn tần suất | Trả `ERR_RATE_LIMIT` kèm thời gian chờ | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 09/10/2026 | Đạt |
@@ -70,11 +70,11 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
 | CTC-DD-010 | P19-06 | AC-203, PQ-06, XT-03, CT-159 | LT-02 | Cao | PH-1 vừa được tạo với mật khẩu mặc định chung | Đăng nhập bằng mật khẩu mặc định | Đăng nhập được nhưng chỉ dùng được điểm cuối đổi mật khẩu | Kiểm thử tự động `apps/identity/src/authentication/parent-sign-in.test.ts` đạt ngày 10/10/2026 | Đạt |
-| CTC-DD-011 | P19-06 | AC-203, BM-69 | LT-04 | Cao | PH-1 đăng nhập bằng mật khẩu mặc định, chưa đổi | Gọi `GET /api/v1/children` | Trả `ERR_FORBIDDEN` | Phiên hạn chế bị từ chối ở điểm cuối của dịch vụ định danh, kiểm thử tự động `apps/identity/src/authentication/parent-sign-in.test.ts` ngày 10/10/2026; phần `GET /api/v1/children` chạy khi có P02 | Chưa chạy |
+| CTC-DD-011 | P19-06 | AC-203, BM-69 | LT-04 | Cao | PH-1 đăng nhập bằng mật khẩu mặc định, chưa đổi | Gọi `GET /api/v1/children` | Trả `ERR_FORBIDDEN` | Phiên hạn chế bị từ chối ở điểm cuối của dịch vụ định danh, kiểm thử tự động `apps/identity/src/authentication/parent-sign-in.test.ts` ngày 10/10/2026; phần còn lại đạt bằng kiểm thử tự động `apps/api/src/children/children.test.ts` ngày 11/10/2026 | Đạt |
 | CTC-DD-012 | P19-06 | AC-89, CT-007 | LT-02 | Cao | PH-1 ở trạng thái của CTC-DD-010 | Gọi `POST /api/v1/auth/change-password` với mật khẩu mặc định làm mật khẩu hiện tại, đặt mật khẩu mới hợp lệ (YCTD-43); đăng nhập lại bằng mật khẩu mới; thử mật khẩu mặc định | Đổi thành công; mật khẩu mới dùng được mọi chức năng của phụ huynh; mật khẩu mặc định bị từ chối | Kiểm thử tự động `apps/identity/src/authentication/parent-sign-in.test.ts` đạt ngày 10/10/2026 | Đạt |
-| CTC-DD-013 | P19-06 | BM-03 | LT-02 | Trung bình | PH-1 ở trạng thái của CTC-DD-010 | Đặt mật khẩu mới ngắn hơn độ dài tối thiểu | Trả `ERR_VALIDATION`, mật khẩu không đổi | | Chưa chạy |
+| CTC-DD-013 | P19-06 | BM-03 | LT-02 | Trung bình | PH-1 ở trạng thái của CTC-DD-010 | Đặt mật khẩu mới ngắn hơn độ dài tối thiểu | Trả `ERR_VALIDATION`, mật khẩu không đổi | Kiểm thử tự động `apps/identity/src/authentication/authentication.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CTC-DD-014 | P01-08 | BM-69 | LT-05 | Cao | HT đã cấu hình mật khẩu mặc định chung | Đọc cấu hình qua `GET /api/v1/auth/settings` và đọc cơ sở dữ liệu (YCTD-43) | Không trả mật khẩu mặc định ở dạng rõ; cơ sở dữ liệu chỉ lưu giá trị băm | Kiểm thử tự động `apps/identity/src/authentication/parent-sign-in.test.ts` đạt ngày 10/10/2026 | Đạt |
-| CTC-DD-015 | P02-03 | BM-69, PQ-06 | LT-02 | Trung bình | Hồ sơ trẻ được duyệt, phụ huynh có số điện thoại | Kiểm tra tin nhắn gửi cho phụ huynh | Tin nhắn báo tài khoản đã tạo, không chứa mật khẩu | | Chưa chạy |
+| CTC-DD-015 | P02-03 | BM-69, PQ-06 | LT-02 | Trung bình | Hồ sơ trẻ được duyệt, phụ huynh có số điện thoại | Kiểm tra tin nhắn gửi cho phụ huynh | Tin nhắn báo tài khoản đã tạo, không chứa mật khẩu | Kiểm thử tự động `apps/api/src/children/children.test.ts` đạt ngày 11/10/2026 | Đạt |
 
 ### 3.3. Mã một lần cho phụ huynh
 
@@ -88,7 +88,7 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 | CTC-DD-021 | P19-06 | BM-61 | LT-02 | Cao | Một số điện thoại không có trong hệ thống | Yêu cầu mã cho số đó và cho số của PH-1 | Hai phản hồi giống nhau, không tiết lộ số có tồn tại hay không; không gửi tin cho số không tồn tại | Kiểm thử tự động `apps/identity/src/authentication/parent-sign-in.test.ts` đạt ngày 10/10/2026 | Đạt |
 | CTC-DD-022 | P19-06 | XT-09, BM-61 | LT-02 | Trung bình | PH-1 | Yêu cầu mã lần thứ 6 trong một giờ | Trả `ERR_RATE_LIMIT`, không gửi tin | Kiểm thử tự động `apps/identity/src/authentication/parent-sign-in.test.ts` đạt ngày 10/10/2026 | Đạt |
 | CTC-DD-023 | P19-06 | XT-01 | LT-04 | Trung bình | Tài khoản NS-A | Yêu cầu mã một lần và đăng nhập bằng mã | Bị từ chối vì cách đăng nhập này chỉ dành cho phụ huynh | Kiểm thử tự động `apps/identity/src/authentication/parent-sign-in.test.ts` đạt ngày 10/10/2026 | Đạt |
-| CTC-DD-042 | P19-06 | Q-147, AC-203 | LT-02 | Cao | PH-1 còn mật khẩu mặc định, chưa đổi | Đăng nhập bằng mã một lần; gọi `GET /api/v1/children` | Đăng nhập thành công; xem được trẻ T1 bình thường; lần đăng nhập bằng mật khẩu mặc định sau đó vẫn chỉ vào màn hình đổi mật khẩu | Đăng nhập bằng mã cấp phiên đầy đủ kể cả sau khi làm mới, kiểm thử tự động `apps/identity/src/authentication/parent-sign-in.test.ts` ngày 10/10/2026; phần xem trẻ chạy khi có P02 | Chưa chạy |
+| CTC-DD-042 | P19-06 | Q-147, AC-203 | LT-02 | Cao | PH-1 còn mật khẩu mặc định, chưa đổi | Đăng nhập bằng mã một lần; gọi `GET /api/v1/children` | Đăng nhập thành công; xem được trẻ T1 bình thường; lần đăng nhập bằng mật khẩu mặc định sau đó vẫn chỉ vào màn hình đổi mật khẩu | Đăng nhập bằng mã cấp phiên đầy đủ kể cả sau khi làm mới, kiểm thử tự động `apps/identity/src/authentication/parent-sign-in.test.ts` ngày 10/10/2026; phần còn lại đạt bằng kiểm thử tự động `apps/api/src/children/children.test.ts` ngày 11/10/2026 | Đạt |
 | CTC-DD-024 | P19-06 | KT-09 | LT-02 | Thấp | PH-1 đã nhận 5 tin nhắn thông báo trong ngày | Yêu cầu mã một lần | Vẫn nhận được mã vì giới hạn 5 tin mỗi ngày không tính mã một lần | | Chưa chạy |
 
 ### 3.4. Xác thực hai lớp (đã bỏ, YCTD-31)
@@ -114,7 +114,7 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 | CTC-DD-035 | P01-07 | AC-05, PQ-04, BM-14, BM-56, CT-005 | LT-04 | Cao | QL-A đang có phiên, đang có quyền duyệt hồ sơ trẻ | HT thu hồi vai trò VT-03 của QL-A; QL-A gửi ngay yêu cầu duyệt hồ sơ | Bị từ chối ngay, không chờ phiên hết hạn; mã làm mới cũ bị thu hồi | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-DD-036 | P01-06 | PQ-04 | LT-04 | Cao | GV-A1 đang có phiên | HT khóa tài khoản GV-A1; GV-A1 gửi yêu cầu kế tiếp | Bị từ chối ngay | Kiểm thử tự động `apps/api/src/authentication/authentication.guard.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-DD-037 | P19-06 | XT-06, AC-146, BM-58, CT-102 | LT-02 | Cao | Không | Gửi yêu cầu thay đổi dữ liệu tới máy chủ API kèm mã phiên sửa chữ ký, và kèm mã phiên hợp lệ | Mã sửa chữ ký bị từ chối; mã hợp lệ được xử lý sau khi kiểm tra | Kiểm thử tự động `apps/api/src/authentication/authentication.guard.test.ts` đạt ngày 09/10/2026 | Đạt |
-| CTC-DD-038 | P19-06 | XT-08, BM-54 | LT-05 | Cao | Không | Rà cấu trúc cơ sở dữ liệu năm học, cơ sở dữ liệu hệ thống và mã nguồn máy chủ API | Không có cột mật khẩu, không có hàm xác thực mật khẩu ngoài dịch vụ định danh | | Chưa chạy |
+| CTC-DD-038 | P19-06 | XT-08, BM-54 | LT-05 | Cao | Không | Rà cấu trúc cơ sở dữ liệu năm học, cơ sở dữ liệu hệ thống và mã nguồn máy chủ API | Không có cột mật khẩu, không có hàm xác thực mật khẩu ngoài dịch vụ định danh | Kiểm thử tự động `apps/api/src/security/data-storage.test.ts` đạt ngày 11/10/2026 | Đạt |
 
 ### 3.6. Quản lý tài khoản qua dịch vụ định danh
 
@@ -122,7 +122,7 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 |---|---|---|---|---|---|---|---|---|---|
 | CTC-DD-039 | P01-06 | AC-147, CT-103 | LT-04 | Cao | GV-A1 | Gọi `PATCH /api/v1/users/{id}` của NS-A | Dịch vụ định danh trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-DD-040 | P01-06 | PQ-08 | LT-04 | Trung bình | PH-1 | Gọi điểm cuối cập nhật tài khoản để đổi số điện thoại đăng nhập của chính mình | Trả `ERR_FORBIDDEN`; số điện thoại không đổi | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
-| CTC-DD-041 | P01-06 | AC-04, CT-004 | LT-04 | Cao | QTNT | Gọi `GET /api/v1/children` và `GET /api/v1/invoices` | Không trả dữ liệu nghiệp vụ nào | | Chưa chạy |
+| CTC-DD-041 | P01-06 | AC-04, CT-004 | LT-04 | Cao | QTNT | Gọi `GET /api/v1/children` và `GET /api/v1/invoices` | Không trả dữ liệu nghiệp vụ nào | Kiểm thử tự động `apps/api/src/children/children.test.ts` đạt ngày 11/10/2026 | Đạt |
 
 ## 4. Phân hệ P01
 
@@ -138,9 +138,9 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 | CTC-P01-006 | Bỏ ngày 09/10/2026: nhãn cấp cố định, không đổi được (YCTD-38) | — | — | — | — | — | — | — | Không áp dụng |
 | CTC-P01-007 | P01-01 | BR-75 | LT-02 | Trung bình | ĐT-A2 không còn dùng | Ngừng sử dụng ĐT-A2 | ĐT-A2 ở trạng thái ngừng sử dụng, không bị xóa; không chọn được khi tạo lớp mới | Kiểm thử tự động `apps/api/src/organization/org-units.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-P01-008 | P01-01 | P01-01, PQ-03 | LT-04 | Cao | QL-A | Gọi `POST /api/v1/org-units` | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/organization/org-units.test.ts` đạt ngày 09/10/2026 | Đạt |
-| CTC-P01-009 | P01-01 | AC-139, CT-095 | LT-04 | Cao | Tài khoản gán ở TC | Truy vấn danh sách lớp của ĐT-B1 | Được trả dữ liệu | | Chưa chạy |
-| CTC-P01-010 | P01-01 | AC-140, CT-096 | LT-04 | Cao | QL-A1 gán ở ĐT-A1 | Truy vấn danh sách lớp của PH-A và của ĐT-A2 | Cả hai bị từ chối | | Chưa chạy |
-| CTC-P01-011 | P01-01 | AC-01, CT-001 | LT-04 | Cao | QL-A gán ở nhóm A | Truy vấn danh sách trẻ | Chỉ trả trẻ thuộc PH-A, ĐT-A1, ĐT-A2; không có trẻ của PH-B, ĐT-B1 | | Chưa chạy |
+| CTC-P01-009 | P01-01 | AC-139, CT-095 | LT-04 | Cao | Tài khoản gán ở TC | Truy vấn danh sách lớp của ĐT-B1 | Được trả dữ liệu | Kiểm thử tự động `apps/api/src/children/children.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CTC-P01-010 | P01-01 | AC-140, CT-096 | LT-04 | Cao | QL-A1 gán ở ĐT-A1 | Truy vấn danh sách lớp của PH-A và của ĐT-A2 | Cả hai bị từ chối | Kiểm thử tự động `apps/api/src/children/children.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CTC-P01-011 | P01-01 | AC-01, CT-001 | LT-04 | Cao | QL-A gán ở nhóm A | Truy vấn danh sách trẻ | Chỉ trả trẻ thuộc PH-A, ĐT-A1, ĐT-A2; không có trẻ của PH-B, ĐT-B1 | Kiểm thử tự động `apps/api/src/children/children.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CTC-P01-012 | P01-01 | PCF-05 | LT-05 | Trung bình | Cây theo mục 2 | HT đổi tên PH-B; mở nhật ký thao tác | Có bản ghi người thực hiện, thời điểm, giá trị trước và sau | Kiểm thử tự động `apps/api/src/organization/org-units.test.ts` đạt ngày 09/10/2026 | Đạt |
 
 ### 4.2. P01-02 Năm học
@@ -153,7 +153,7 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 | CTC-P01-016 | P01-02 | P01-02, QĐ-15 | LT-02 | Cao | Năm 2026–2027 đã đóng | Gửi yêu cầu sửa một hồ sơ trẻ của năm 2026–2027 | Bị từ chối vì cơ sở dữ liệu năm cũ chỉ đọc; đọc vẫn được | | Chưa chạy |
 | CTC-P01-017 | P01-02 | GD-90 | LT-05 | Trung bình | Sau CTC-P01-014 | Mở lịch sử lớp của một trẻ ở năm mới và ở năm cũ | Năm mới có lịch sử lớp gần nhất; năm cũ có lịch sử đầy đủ | | Chưa chạy |
 | CTC-P01-018 | P01-02 | P01-02, PQ-11 | LT-04 | Cao | QL-A, PHT-A | Gọi tạo năm học và mở năm học | Đều trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/academic-years/academic-years.test.ts` đạt ngày 09/10/2026 | Đạt |
-| CTC-P01-019 | P01-02 | QU-11 | LT-02 | Trung bình | Năm cũ đã đóng, có thay đổi cấu trúc dữ liệu mới | Chạy công cụ thay đổi cấu trúc dữ liệu | Chỉ cơ sở dữ liệu năm đang dùng được thay đổi; năm đã đóng giữ phiên bản cấu trúc cũ và vẫn đọc được | | Chưa chạy |
+| CTC-P01-019 | P01-02 | QU-11 | LT-02 | Trung bình | Năm cũ đã đóng, có thay đổi cấu trúc dữ liệu mới | Chạy công cụ thay đổi cấu trúc dữ liệu | Chỉ cơ sở dữ liệu năm đang dùng được thay đổi; năm đã đóng giữ phiên bản cấu trúc cũ và vẫn đọc được | Kiểm thử tự động `apps/api/src/academic-years/academic-years.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CTC-P01-096 | P01-02 | AC-221, BR-89, Q-149, CT-177, YCTD-37 | LT-02 | Cao | Năm 2026–2027 đang dùng có trẻ T9 đã thôi học còn nợ 500 000 | HT gọi `POST /api/v1/academic-years/{id}/open` cho 2027–2028 | Trả `ERR_RULE_VIOLATION` kèm mã BR-89 và danh sách trẻ còn nợ; không tạo cơ sở dữ liệu mới; 2026–2027 vẫn đang dùng | | Chưa chạy |
 | CTC-P01-097 | P01-02 | BR-89, BR-93, Q-149, YCTD-37 | LT-02 | Cao | Như CTC-P01-096 | KT-A lập phiếu thu đủ 500 000 cho T9; HT mở 2027–2028 | Mở thành công; 2026–2027 chuyển sang đã đóng, cơ sở dữ liệu chỉ đọc | | Chưa chạy |
 | CTC-P01-098 | P01-02 | AC-194, BR-89 | LT-05 | Cao | Năm 2026–2027 có trẻ T9 đã thôi học còn nợ và trẻ T1 đang học còn nợ | Mở năm 2027–2028 | T1 và số dư công nợ của T1 chuyển sang năm mới; T9 và công nợ của T9 không chuyển | | Chưa chạy |
@@ -171,7 +171,7 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 | CTC-P01-020 | P01-03 | P01-03 | LT-02 | Trung bình | Cây theo mục 2 | NS-A tạo phòng ban "Tổ chuyên môn" thuộc PH-A, có phòng ban cha | Tạo thành công, hiện đúng trong sơ đồ phòng ban | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
 | CTC-P01-021 | P01-03 | P01-03 | LT-04 | Trung bình | NS-A gán ở nhóm A | Tạo phòng ban thuộc PH-B | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
 | CTC-P01-022 | P01-03 | P01-03 | LT-04 | Trung bình | GV-A1 | Gọi `POST /api/v1/departments` | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
-| CTC-P01-023 | P01-03 | BR-75 | LT-02 | Thấp | Phòng ban đã có nhân sự | Ngừng sử dụng phòng ban | Trạng thái ngừng sử dụng; nhân sự cũ vẫn giữ lịch sử phòng ban | | Chưa chạy |
+| CTC-P01-023 | P01-03 | BR-75 | LT-02 | Thấp | Phòng ban đã có nhân sự | Ngừng sử dụng phòng ban | Trạng thái ngừng sử dụng; nhân sự cũ vẫn giữ lịch sử phòng ban | Kiểm thử tự động `apps/api/src/staff/staff.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CTC-P01-024 | P01-04 | P01-04, BR-37 | LT-02 | Trung bình | Không | NS-A tạo chức danh "Giáo viên mầm non hạng III" kèm cấp bậc | Tạo thành công | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
 | CTC-P01-025 | P01-04 | P01-04 | LT-04 | Trung bình | KT-A | Gọi `POST /api/v1/job-titles` | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
 
@@ -180,7 +180,7 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
 | CTC-P01-026 | P01-05 | P01-05 | LT-02 | Trung bình | Không | HT tạo mục mới trong một loại danh mục dùng chung | Mục mới chọn được ở các màn hình dùng loại danh mục đó | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
-| CTC-P01-027 | P01-05 | BR-75 | LT-02 | Trung bình | Một mục đã được dùng trong bản ghi cũ | Ngừng sử dụng mục đó | Bản ghi cũ vẫn hiển thị đúng mục; không chọn được mục đó cho bản ghi mới | | Chưa chạy |
+| CTC-P01-027 | P01-05 | BR-75 | LT-02 | Trung bình | Một mục đã được dùng trong bản ghi cũ | Ngừng sử dụng mục đó | Bản ghi cũ vẫn hiển thị đúng mục; không chọn được mục đó cho bản ghi mới | Kiểm thử tự động `apps/api/src/children/children.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CTC-P01-028 | P01-05 | KT-04 | LT-02 | Thấp | Đã có mã "MA_01" trong một loại danh mục | Tạo mục mới trùng mã | Trả `ERR_CONFLICT` | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
 | CTC-P01-029 | P01-05 | P01-05 | LT-04 | Trung bình | QL-A | Tạo mục danh mục dùng chung | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
 
@@ -194,7 +194,7 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 | CTC-P01-033 | P01-06 | KT-04 | LT-02 | Cao | Số điện thoại đã thuộc một tài khoản nhân sự | Tạo tài khoản nhân sự khác cùng số điện thoại | Trả `ERR_CONFLICT` | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-P01-034 | P01-06 | P01-06 | LT-02 | Cao | Tài khoản GV-A1 đang hoạt động | HT khóa rồi mở khóa | Khi khóa thì không đăng nhập được; khi mở khóa thì đăng nhập lại được; dữ liệu không mất | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-P01-035 | P01-06 | P01-06, AC-220, BM-07, Q-148, CT-176 | LT-02 | Cao | Tài khoản GV-A1 | HT gọi `POST /api/v1/users/{id}/reset-password`; GV-A1 đăng nhập bằng mật khẩu được cấp; GV-A1 gọi một điểm cuối nghiệp vụ; GV-A1 đổi mật khẩu rồi gọi lại | Mật khẩu cũ không dùng được; phiên bằng mật khẩu được cấp chỉ dùng được điểm cuối đổi mật khẩu; sau khi đổi thì dùng bình thường | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
-| CTC-P01-036 | P01-06 | BR-05 | LT-02 | Cao | NS-A có hợp đồng của GV-A1 | Chấm dứt hợp đồng của GV-A1 | Tài khoản GV-A1 bị khóa ngay; không bị xóa | | Chưa chạy |
+| CTC-P01-036 | P01-06 | BR-05 | LT-02 | Cao | NS-A có hợp đồng của GV-A1 | Chấm dứt hợp đồng của GV-A1 | Tài khoản GV-A1 bị khóa ngay; không bị xóa | Kiểm thử tự động `apps/api/src/staff/staff.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CTC-P01-037 | P01-06 | PQ-05, PCF-05 | LT-05 | Trung bình | Không | Sau CTC-P01-034 mở nhật ký thao tác | Có bản ghi khóa và mở khóa kèm người thực hiện, thời điểm, trạng thái trước và sau | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
 
 ### 4.6. P01-07 Vai trò và quyền
@@ -203,10 +203,10 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 |---|---|---|---|---|---|---|---|---|---|
 | CTC-P01-038 | P01-07 | PQ-03 | LT-02 | Cao | Tài khoản mới chưa có vai trò | Gán VT-04 không chỉ định đơn vị | Trả `ERR_VALIDATION`; vai trò không được gán | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-P01-039 | P01-07 | PQ-03 | LT-02 | Cao | Tài khoản mới | Gán VT-04 kèm đơn vị PH-A | Gán thành công; phạm vi dữ liệu là PH-A (QĐ-23) | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
-| CTC-P01-040 | P01-07 | PQ-02 | LT-04 | Cao | Tài khoản có VT-04 ở PH-A và VT-06 ở PH-A | Gọi điểm cuối của kế toán và điểm cuối của nhân sự | Cả hai được phép vì quyền là hợp của các vai trò | | Chưa chạy |
+| CTC-P01-040 | P01-07 | PQ-02 | LT-04 | Cao | Tài khoản có VT-04 ở PH-A và VT-06 ở PH-A | Gọi điểm cuối của kế toán và điểm cuối của nhân sự | Cả hai được phép vì quyền là hợp của các vai trò | Kiểm thử tự động `apps/api/src/staff/staff.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CTC-P01-041 | P01-07 | PQ-01, PQ-05 | LT-05 | Cao | Vai trò VT-04 | HT thêm một quyền vào VT-04 qua `PUT /api/v1/roles/{id}/permissions`; mở nhật ký | Mọi tài khoản VT-04 có quyền mới ở yêu cầu kế tiếp; nhật ký ghi danh sách quyền trước và sau | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-P01-042 | P01-07 | P01-07 | LT-04 | Cao | QL-A | Gọi `POST /api/v1/users/{id}/roles` | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 09/10/2026 | Đạt |
-| CTC-P01-043 | P01-07 | AC-02, CT-002 | LT-04 | Cao | KT-A | Gọi trực tiếp điểm cuối cập nhật hồ sơ trẻ của PH-A | Trả `ERR_FORBIDDEN` | | Chưa chạy |
+| CTC-P01-043 | P01-07 | AC-02, CT-002 | LT-04 | Cao | KT-A | Gọi trực tiếp điểm cuối cập nhật hồ sơ trẻ của PH-A | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/children/children.test.ts` đạt ngày 11/10/2026 | Đạt |
 
 ### 4.7. P01-08 Cấu hình tham số theo đơn vị
 
@@ -217,7 +217,7 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 | CTC-P01-046 | P01-08 | P01-08, PQ-03 | LT-04 | Cao | QL-A | Ghi cấu hình của PH-B | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/settings/settings.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-P01-047 | P01-08 | P01-08 | LT-04 | Trung bình | KT-A | Ghi cấu hình của PH-A | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/settings/settings.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-P01-048 | P01-08 | BR-34 | LT-02 | Cao | Cấu hình của PH-A | Tìm cách tắt kiểm tra số dư quỹ tiền mặt | Không có tham số này; số dư quỹ tiền mặt luôn được kiểm tra | Kiểm thử tự động `apps/api/src/settings/settings.test.ts` đạt ngày 09/10/2026 | Đạt |
-| CTC-P01-049 | P01-08 | BR-34; chạy khi có P06-06 ở giai đoạn 2 | LT-02 | Thấp | Tài khoản ngân hàng của PH-A có số dư 1 000 000 | Tắt kiểm tra số dư tài khoản ngân hàng; lập phiếu chi 2 000 000 từ tài khoản ngân hàng; bật lại và lập lại | Khi tắt thì không bị chặn vì số dư; khi bật thì bị chặn | | Chưa chạy |
+| CTC-P01-049 | P01-08 | BR-34; chạy khi có P06-06 ở giai đoạn 2 | LT-02 | Thấp | Tài khoản ngân hàng của PH-A có số dư 1 000 000 | Tắt kiểm tra số dư tài khoản ngân hàng; lập phiếu chi 2 000 000 từ tài khoản ngân hàng; bật lại và lập lại | Khi tắt thì không bị chặn vì số dư; khi bật thì bị chặn | Kiểm thử tự động `apps/api/src/finance/payments.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CTC-P01-050 | P01-08 | BR-04, CT-011 | LT-02 | Trung bình | QL-A đặt sĩ số tối đa của PH-A là 20; một lớp đang có 20 trẻ | Phân thêm trẻ thứ 21 vào lớp | Hệ thống cảnh báo và yêu cầu quản lý đơn vị xác nhận | | Chưa chạy |
 | CTC-P01-051 | P01-08 | PCF-05 | LT-05 | Trung bình | Không | Sau CTC-P01-045 mở nhật ký thao tác | Có bản ghi đổi ngày chốt kèm giá trị trước và sau | Kiểm thử tự động `apps/api/src/settings/settings.test.ts` đạt ngày 09/10/2026 | Đạt |
 
@@ -225,7 +225,7 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
-| CTC-P01-052 | P01-09 | BR-35 | LT-05 | Cao | Một hóa đơn đã phát hành | Lập phiếu điều chỉnh hóa đơn; tra nhật ký theo đối tượng | Có bản ghi người thực hiện, thời điểm, giá trị trước và sau | | Chưa chạy |
+| CTC-P01-052 | P01-09 | BR-35 | LT-05 | Cao | Một hóa đơn đã phát hành | Lập phiếu điều chỉnh hóa đơn; tra nhật ký theo đối tượng | Có bản ghi người thực hiện, thời điểm, giá trị trước và sau | Kiểm thử tự động `apps/api/src/fees/discounts.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CTC-P01-053 | P01-09 | P01-09, PQ-03 | LT-04 | Cao | QL-A | Gọi `GET /api/v1/audit-logs` không lọc | Chỉ trả nhật ký của PH-A (QĐ-23) | Kiểm thử tự động `apps/api/src/settings/settings.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-P01-054 | P01-09 | P01-09 | LT-04 | Cao | GV-A1 | Gọi `GET /api/v1/audit-logs` | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/settings/settings.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-P01-055 | P01-09 | BR-73 | LT-05 | Cao | PH-A bật ghi nhật ký truy cập | KT-A đọc chi tiết tài chính của một trẻ; tra `GET /api/v1/data-access-logs` | Có bản ghi người đọc, thời điểm, đối tượng | | Chưa chạy |
@@ -238,26 +238,26 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
 | CTC-P01-059 | P01-10 | P01-10, BR-77 | LT-02 | Cao | Không | HT đặt hạn mức phiếu chi của PH-A là 10 000 000 | Lưu thành công; đọc lại đúng giá trị theo đơn vị và loại chứng từ | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
-| CTC-P01-060 | P01-10 | AC-141, CT-097 | LT-02 | Cao | Hạn mức của CTC-P01-059; phiếu chi 9 999 999 của PH-A do KT-A lập | PHT-A phê duyệt | Phiếu được duyệt | | Chưa chạy |
-| CTC-P01-061 | P01-10 | AC-142, CT-098 | LT-02 | Cao | Phiếu chi 10 000 000 của PH-A | PHT-A phê duyệt | Trả `ERR_RULE_VIOLATION`, yêu cầu chuyển Hiệu trưởng; HT phê duyệt được | | Chưa chạy |
+| CTC-P01-060 | P01-10 | AC-141, CT-097 | LT-02 | Cao | Hạn mức của CTC-P01-059; phiếu chi 9 999 999 của PH-A do KT-A lập | PHT-A phê duyệt | Phiếu được duyệt | Kiểm thử tự động `apps/api/src/finance/payments.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CTC-P01-061 | P01-10 | AC-142, CT-098 | LT-02 | Cao | Phiếu chi 10 000 000 của PH-A | PHT-A phê duyệt | Trả `ERR_FORBIDDEN`, thông báo cần Hiệu trưởng duyệt; HT phê duyệt được (YCTD-66) | Kiểm thử tự động `apps/api/src/finance/payments.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CTC-P01-062 | P01-10 | AC-208, CT-164 | LT-02 | Cao | Loại chứng từ đề nghị mua hàng của PH-A chưa có hạn mức | KT-A trình một đề nghị 1 000 | Chứng từ chuyển cho Hiệu trưởng; PHT-A phê duyệt bị từ chối | | Chưa chạy |
-| CTC-P01-063 | P01-10 | AC-143, BR-78, CT-099 | LT-04 | Cao | Một tài khoản có cả VT-04 và VT-15 ở PH-A lập phiếu chi dưới hạn mức | Chính tài khoản đó phê duyệt phiếu | Bị từ chối | | Chưa chạy |
-| CTC-P01-064 | P01-10 | AC-144, BR-79, CT-100 | LT-04 | Cao | Phiếu chi của PH-B | PHT-A phê duyệt | Bị từ chối | | Chưa chạy |
-| CTC-P01-065 | P01-10 | AC-148, BR-80, CT-104 | LT-05 | Cao | Sau CTC-P01-061 PHT-A đã bị chặn và HT từ chối kèm lý do | Mở nhật ký thao tác của phiếu | Có người từ chối, thời điểm, giá trị chứng từ, lý do | | Chưa chạy |
-| CTC-P01-066 | P01-10 | BM-59 | LT-04 | Cao | Hạn mức của CTC-P01-059 | PHT-A gửi yêu cầu phê duyệt phiếu 15 000 000 kèm trường hạn mức giả là 20 000 000 | Máy chủ bỏ qua giá trị gửi lên, dùng hạn mức đã lưu; bị từ chối | | Chưa chạy |
+| CTC-P01-063 | P01-10 | AC-143, BR-78, CT-099 | LT-04 | Cao | Một tài khoản có cả VT-04 và VT-15 ở PH-A lập phiếu chi dưới hạn mức | Chính tài khoản đó phê duyệt phiếu | Bị từ chối | Kiểm thử tự động `apps/api/src/finance/payments.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CTC-P01-064 | P01-10 | AC-144, BR-79, CT-100 | LT-04 | Cao | Phiếu chi của PH-B | PHT-A phê duyệt | Bị từ chối | Kiểm thử tự động `apps/api/src/finance/payments.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CTC-P01-065 | P01-10 | AC-148, BR-80, CT-104 | LT-05 | Cao | Sau CTC-P01-061 PHT-A đã bị chặn và HT từ chối kèm lý do | Mở nhật ký thao tác của phiếu | Có người từ chối, thời điểm, giá trị chứng từ, lý do | Kiểm thử tự động `apps/api/src/finance/payments.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CTC-P01-066 | P01-10 | BM-59 | LT-04 | Cao | Hạn mức của CTC-P01-059 | PHT-A gửi yêu cầu phê duyệt phiếu 15 000 000 kèm trường hạn mức giả là 20 000 000 | Máy chủ bỏ qua giá trị gửi lên, dùng hạn mức đã lưu; bị từ chối | Kiểm thử tự động `apps/api/src/finance/payments.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CTC-P01-067 | P01-10 | P01-10 | LT-04 | Cao | QL-A, KTT | Gọi `PUT /api/v1/approval-thresholds` | Cả hai trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
-| CTC-P01-068 | P01-10 | AC-207, BR-24, CT-163 | LT-02 | Cao | Phiếu chi hoàn tiền thôi học 500 000 của PH-A, dưới hạn mức | PHT-A phê duyệt | Bị từ chối, chuyển Hiệu trưởng | | Chưa chạy |
+| CTC-P01-068 | P01-10 | AC-207, BR-24, CT-163 | LT-02 | Cao | Phiếu chi hoàn tiền thôi học 500 000 của PH-A, dưới hạn mức | PHT-A phê duyệt | Bị từ chối, chuyển Hiệu trưởng | Kiểm thử tự động `apps/api/src/finance/payments.test.ts` đạt ngày 11/10/2026 | Đạt |
 
 ### 4.10. P01-11 Phòng học và P01-12 Bậc học
 
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
 | CTC-P01-069 | P01-11 | P01-11 | LT-02 | Trung bình | Không | QL-A tạo phòng "P101" sức chứa 30 thuộc ĐT-A1 | Tạo thành công | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
-| CTC-P01-070 | P01-11 | CT-105 | LT-02 | Cao | Phòng P101 thuộc ĐT-A1; một lớp thuộc ĐT-B1 | Gán phòng P101 cho lớp đó | Bị từ chối | | Chưa chạy |
-| CTC-P01-071 | P01-11 | BR-75 | LT-02 | Thấp | Phòng P101 đang gán cho lớp | Ngừng sử dụng phòng | Lớp hiện tại giữ phòng; không gán được cho lớp mới | | Chưa chạy |
+| CTC-P01-070 | P01-11 | CT-105 | LT-02 | Cao | Phòng P101 thuộc ĐT-A1; một lớp thuộc ĐT-B1 | Gán phòng P101 cho lớp đó | Bị từ chối | Kiểm thử tự động `apps/api/src/classes/classes.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CTC-P01-071 | P01-11 | BR-75 | LT-02 | Thấp | Phòng P101 đang gán cho lớp | Ngừng sử dụng phòng | Lớp hiện tại giữ phòng; không gán được cho lớp mới | Kiểm thử tự động `apps/api/src/classes/classes.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CTC-P01-072 | P01-11 | PQ-03 | LT-04 | Trung bình | QL-A | Tạo phòng thuộc PH-B | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
-| CTC-P01-073 | P01-12 | P01-12 | LT-02 | Trung bình | Không | HT tạo bậc học "Mầm" độ tuổi 48 đến 59 tháng (YCTD-42) | Tạo thành công; chọn được khi tạo lớp và biểu phí | Phần tạo đạt bằng kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` ngày 10/10/2026; phần chọn khi tạo lớp và biểu phí chạy khi có P02, P05 | Chưa chạy |
-| CTC-P01-074 | P01-12 | CT-106, BR-75 | LT-02 | Trung bình | Bậc học "Mầm" đang gắn với lớp | Ngừng sử dụng bậc học | Lớp cũ giữ nguyên; lớp mới không chọn được | | Chưa chạy |
+| CTC-P01-073 | P01-12 | P01-12 | LT-02 | Trung bình | Không | HT tạo bậc học "Mầm" độ tuổi 48 đến 59 tháng (YCTD-42) | Tạo thành công; chọn được khi tạo lớp và biểu phí | Phần tạo đạt bằng kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` ngày 10/10/2026; phần còn lại đạt bằng kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` ngày 11/10/2026 | Đạt |
+| CTC-P01-074 | P01-12 | CT-106, BR-75 | LT-02 | Trung bình | Bậc học "Mầm" đang gắn với lớp | Ngừng sử dụng bậc học | Lớp cũ giữ nguyên; lớp mới không chọn được | Kiểm thử tự động `apps/api/src/classes/classes.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CTC-P01-075 | P01-12 | P01-12 | LT-04 | Trung bình | QL-A | Tạo bậc học | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
 
 ### 4.11. P01-13 Nhập dữ liệu ban đầu từ Excel
@@ -278,17 +278,17 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 
 | Mã | Chức năng | Căn cứ | Lớp | Ưu tiên | Điều kiện trước | Các bước | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
-| CTC-P01-085 | P01-14 | BM-65 | LT-02 | Cao | Không | HT cấp khóa cho cơ quan quản lý giáo dục, phạm vi báo cáo tổng hợp, địa chỉ mạng cho phép, ngày hết hạn | Khóa hiển thị một lần khi cấp; mở lại danh sách không thấy khóa; bảng `api_clients` chỉ lưu giá trị băm | | Chưa chạy |
-| CTC-P01-086 | P01-14 | AC-195, CT-151 | LT-04 | Cao | Khóa phạm vi báo cáo tổng hợp | Gọi `GET /api/v1/partner/children` | Bị từ chối | | Chưa chạy |
-| CTC-P01-087 | P01-14 | AC-196, BM-66, CT-152 | LT-05 | Cao | Khóa phạm vi danh sách trẻ, có căn cứ pháp lý | Gọi `GET /api/v1/partner/children` lấy 30 trẻ | Có bản ghi nhật ký truy cập kèm khóa, phạm vi, căn cứ pháp lý và số bản ghi 30 | | Chưa chạy |
-| CTC-P01-088 | P01-14 | BM-66 | LT-02 | Cao | Không | Cấp khóa phạm vi danh sách trẻ mà không nhập căn cứ pháp lý | Trả `ERR_VALIDATION`; không cấp khóa | | Chưa chạy |
-| CTC-P01-089 | P01-14 | AC-211, BM-65, CT-167 | LT-04 | Cao | Khóa đang dùng được | HT thu hồi khóa; đối tác gọi ngay bằng khóa đó | Bị từ chối ngay | | Chưa chạy |
-| CTC-P01-090 | P01-14 | BM-65 | LT-04 | Cao | Khóa có ngày hết hạn là hôm qua | Đối tác gọi bằng khóa | Bị từ chối | | Chưa chạy |
-| CTC-P01-091 | P01-14 | BM-65 | LT-04 | Cao | Khóa chỉ cho phép một địa chỉ mạng | Gọi từ địa chỉ mạng khác | Bị từ chối | | Chưa chạy |
-| CTC-P01-092 | P01-14 | BM-65 | LT-02 | Trung bình | Khóa có giới hạn tần suất | Gọi vượt giới hạn | Trả `ERR_RATE_LIMIT` | | Chưa chạy |
-| CTC-P01-093 | P01-14 | QĐ-16 | LT-04 | Cao | Khóa phạm vi danh sách trẻ | Dùng khóa gọi `POST /api/v1/children` và `PATCH` một hồ sơ trẻ | Cả hai bị từ chối vì khóa chỉ đọc | | Chưa chạy |
-| CTC-P01-094 | P01-14 | P01-14 | LT-04 | Cao | QL-A | Gọi `POST /api/v1/api-clients` | Trả `ERR_FORBIDDEN` | | Chưa chạy |
-| CTC-P01-095 | P01-14 | QĐ-17 | LT-05 | Trung bình | Đã mở năm học mới theo CTC-P01-014 | Đối tác gọi lại bằng khóa cũ | Khóa vẫn dùng được vì khóa nằm ở cơ sở dữ liệu định danh, không phụ thuộc năm học | | Chưa chạy |
+| CTC-P01-085 | P01-14 | BM-65 | LT-02 | Cao | Không | HT cấp khóa cho cơ quan quản lý giáo dục, phạm vi báo cáo tổng hợp, địa chỉ mạng cho phép, ngày hết hạn | Khóa hiển thị một lần khi cấp; mở lại danh sách không thấy khóa; bảng `api_clients` chỉ lưu giá trị băm | Kiểm thử tự động `apps/api/src/partner/partner.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CTC-P01-086 | P01-14 | AC-195, CT-151 | LT-04 | Cao | Khóa phạm vi báo cáo tổng hợp | Gọi `GET /api/v1/partner/children` | Bị từ chối | Kiểm thử tự động `apps/api/src/partner/partner.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CTC-P01-087 | P01-14 | AC-196, BM-66, CT-152 | LT-05 | Cao | Khóa phạm vi danh sách trẻ, có căn cứ pháp lý | Gọi `GET /api/v1/partner/children` lấy 30 trẻ | Có bản ghi nhật ký truy cập kèm khóa, phạm vi, căn cứ pháp lý và số bản ghi 30 | Kiểm thử tự động `apps/api/src/partner/partner.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CTC-P01-088 | P01-14 | BM-66 | LT-02 | Cao | Không | Cấp khóa phạm vi danh sách trẻ mà không nhập căn cứ pháp lý | Trả `ERR_VALIDATION`; không cấp khóa | Kiểm thử tự động `apps/api/src/partner/partner.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CTC-P01-089 | P01-14 | AC-211, BM-65, CT-167 | LT-04 | Cao | Khóa đang dùng được | HT thu hồi khóa; đối tác gọi ngay bằng khóa đó | Bị từ chối ngay | Kiểm thử tự động `apps/api/src/partner/partner.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CTC-P01-090 | P01-14 | BM-65 | LT-04 | Cao | Khóa có ngày hết hạn là hôm qua | Đối tác gọi bằng khóa | Bị từ chối | Kiểm thử tự động `apps/api/src/partner/partner.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CTC-P01-091 | P01-14 | BM-65 | LT-04 | Cao | Khóa chỉ cho phép một địa chỉ mạng | Gọi từ địa chỉ mạng khác | Bị từ chối | Kiểm thử tự động `apps/api/src/partner/partner.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CTC-P01-092 | P01-14 | BM-65 | LT-02 | Trung bình | Khóa có giới hạn tần suất | Gọi vượt giới hạn | Trả `ERR_RATE_LIMIT` | Kiểm thử tự động `apps/api/src/partner/partner.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CTC-P01-093 | P01-14 | QĐ-16 | LT-04 | Cao | Khóa phạm vi danh sách trẻ | Dùng khóa gọi `POST /api/v1/children` và `PATCH` một hồ sơ trẻ | Cả hai bị từ chối vì khóa chỉ đọc | Kiểm thử tự động `apps/api/src/partner/partner.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CTC-P01-094 | P01-14 | P01-14 | LT-04 | Cao | QL-A | Gọi `POST /api/v1/api-clients` | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/partner/partner.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CTC-P01-095 | P01-14 | QĐ-17 | LT-05 | Trung bình | Đã mở năm học mới theo CTC-P01-014 | Đối tác gọi lại bằng khóa cũ | Khóa vẫn dùng được vì khóa nằm ở cơ sở dữ liệu định danh, không phụ thuộc năm học | Kiểm thử tự động `apps/api/src/partner/partner.test.ts` đạt ngày 11/10/2026 | Đạt |
 
 ## 5. Bảng truy xuất
 

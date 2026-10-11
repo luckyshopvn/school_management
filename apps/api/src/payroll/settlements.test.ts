@@ -71,6 +71,7 @@ describe('Phiếu chi lương, quyết toán, thu hồi lương, điều chỉnh
   let contractId = '';
   let payrollId = '';
   let settlementId = '';
+  let fullMonthContractId = '';
   const ids: Record<string, string> = {};
 
   const token = (name: string) => users[name]?.accessToken ?? '';
@@ -132,6 +133,33 @@ describe('Phiếu chi lương, quyết toán, thu hồi lương, điều chỉnh
       }),
     );
     await schoolYear.insertInto('attendance_logs').values(logs).execute();
+    // Nhân sự nghỉ việc ngày cuối tháng, làm thêm 4 ngày mỗi ngày 1 giờ trong tháng (CTC-P08-041)
+    const fullMonthStaff = await api('POST', '/staff', token('personnel'), {
+      org_unit_id: units['ĐT-A1'],
+      code: `NV-${randomInt(100_000, 999_999)}`,
+      full_name: 'Lê Văn Đủ',
+      start_date: addDays(`${previousMonth}-01`, -400),
+    });
+    fullMonthContractId = (
+      await api('POST', `/staff/${fullMonthStaff.body.id}/contracts`, token('personnel'), {
+        contract_no: `HDLD-${randomInt(100_000, 999_999)}`,
+        contract_type: 'indefinite',
+        start_date: addDays(`${previousMonth}-01`, -400),
+        base_salary: 12_000_000,
+      })
+    ).body.id as string;
+    await schoolYear
+      .insertInto('attendance_logs')
+      .values(
+        [...weekdaysOf(previousMonth), ...currentWeekdays].map((date) => ({
+          staff_id: fullMonthStaff.body.id as string,
+          work_date: date,
+          check_in: '07:30',
+          check_out: currentWeekdays.slice(0, 4).includes(date) ? '18:00' : '17:00',
+          source: 'manual' as const,
+        })),
+      )
+      .execute();
     for (const [code, flowType] of [
       ['CHI_LUONG', 'expense'],
       ['THU_HOI_LUONG', 'income'],
@@ -188,7 +216,7 @@ describe('Phiếu chi lương, quyết toán, thu hồi lương, điều chỉnh
     assert.equal(payment.status, 201, JSON.stringify(payment.body));
     assert.equal(payment.body.payment_type, 'payroll');
     assert.equal(payment.body.status, 'draft');
-    assert.equal(payment.body.amount, 12_000_000);
+    assert.equal(payment.body.amount, calculated.body.total_net);
     const again = await api('POST', `/payrolls/${payrollId}/payment`, token('accountant'), {
       ...source,
       request_key: randomUUID(),
@@ -256,6 +284,26 @@ describe('Phiếu chi lương, quyết toán, thu hồi lương, điều chỉnh
     assert.ok(
       (list.body as unknown as Array<{ settlement_id: string }>).some((row) => row.settlement_id === settlementId),
     );
+  });
+
+  it('CTC-P08-041: nghỉ việc ngày cuối tháng đã nhận trả trước thì không có khoản thu hồi, quyết toán trả thêm tiền làm thêm giờ', async () => {
+    const lastDay = currentWeekdays[currentWeekdays.length - 1] ?? '';
+    const terminated = await api('POST', `/employment-contracts/${fullMonthContractId}/terminate`, token('personnel'), {
+      terminated_on: lastDay,
+      reason: 'Hết thời gian công tác',
+    });
+    assert.equal(terminated.status, 200, JSON.stringify(terminated.body));
+    const settlement = await api('POST', '/payroll-settlements', token('accountant'), {
+      contract_id: fullMonthContractId,
+    });
+    assert.equal(settlement.status, 201, JSON.stringify(settlement.body));
+    const lines = settlement.body.lines as Array<{ code: string; amount: number }>;
+    const overtime = Math.round((12_000_000 * 240 * 150) / (currentWeekdays.length * 510 * 100));
+    assert.equal(lines.find((line) => line.code === 'LUONG_THANG_NGHI')?.amount, 12_000_000);
+    assert.equal(lines.find((line) => line.code === 'LAM_THEM')?.amount, overtime);
+    assert.equal(settlement.body.prepaid_amount, 12_000_000);
+    assert.ok(Number(settlement.body.payable_amount) > 0, JSON.stringify(settlement.body));
+    assert.equal(settlement.body.recovery_outstanding, 0);
   });
 
   it('BR-90: trình duyệt; chưa có hạn mức thì Phó Hiệu trưởng không duyệt được, Hiệu trưởng duyệt; không lập phiếu chi khi phải thu hồi', async () => {
