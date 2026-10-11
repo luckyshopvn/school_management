@@ -11,6 +11,25 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-71: Tiến trình gửi thông báo, gửi lại khi lỗi, giới hạn tin nhắn trong ngày, nhắc ghi nhật ký – 2026-10-11
+
+- Lý do: phần 9f theo cách chia ở YCTD-66; thông báo mới chỉ được ghi vào hàng đợi (YCTD-44), chưa có tiến trình gửi tin nhắn, gửi lại khi lỗi (CB-07, CT-090), giới hạn 5 tin mỗi ngày (KT-09) và nhắc ghi nhật ký (CB-05, CTC-P04-041). Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Máy chủ API chạy tiến trình nền theo chu kỳ cấu hình bằng biến môi trường `NOTIFICATION_DISPATCH_INTERVAL_SECONDS` (mặc định 60 giây; 0 là tắt). Nhiều máy chủ chạy cùng lúc không gửi trùng vì dòng chờ gửi được khóa khi xử lý.
+  - Thông báo trong ứng dụng chuyển sang đã gửi khi tiến trình nhận. Tin nhắn gửi tới số điện thoại phụ huynh gắn với tài khoản nhận; tài khoản không có số điện thoại thì ghi thất bại.
+  - Nhà cung cấp trả lỗi thì thử lại sau 15 phút, tối đa 5 lần; lần thứ năm vẫn lỗi thì ghi thất bại kèm lỗi gần nhất.
+  - Mỗi người nhận tối đa 5 tin nhắn thông báo mỗi ngày theo giờ Việt Nam; tin vượt ghi trạng thái `limited`, vẫn có thông báo trong ứng dụng nếu nghiệp vụ gửi kèm. Mã một lần do dịch vụ định danh gửi nên không tính vào giới hạn này.
+  - Thêm cấu hình `journal_reminder_time` (giờ nhắc ghi nhật ký, không có mặc định, kế thừa Trường chính). Từ giờ nhắc của ngày học, lớp đang mở còn trẻ chưa có nhật ký đã công bố thì giáo viên chủ nhiệm và quản lý đơn vị nhận một thông báo nhắc trong ứng dụng, mỗi lớp một lần mỗi ngày.
+  - Lớp gửi tin nhắn ghi ra nhật ký máy chủ cho tới khi chọn nhà cung cấp ở việc T1.
+- Thành phần bị ảnh hưởng: `10`, `12`, `16`, `21`, `27_BO_CA_KIEM_THU_CHI_TIET/02_P02_VA_P04.md`, `01`, `02`, `23`, `index.md`; máy chủ API.
+- Dữ liệu bị ảnh hưởng: `notification_recipients` thêm `attempt_count`, `next_attempt_at`, `last_error`, trạng thái `limited` (tệp 0029 của cơ sở dữ liệu năm học).
+- API bị ảnh hưởng: không thêm điểm cuối; cấu hình đơn vị có thêm `journal_reminder_time`.
+- Giao diện bị ảnh hưởng: màn hình cấu hình hiện thêm mục giờ nhắc ghi nhật ký (danh sách cấu hình lấy từ máy chủ).
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: thông báo trong ứng dụng có trạng thái gửi là đã gửi thay vì chờ gửi.
+- Kiểm thử cần thực hiện: CT-090, CTC-P02-033, CTC-P04-041.
+- Trạng thái: Đã triển khai
+
 ### YCTD-70: Sĩ số tối đa và nhật ký truy cập theo cấu hình, báo cáo thu chi theo nhóm – 2026-10-11
 
 - Lý do: phần 9e theo cách chia ở YCTD-66; cấu hình `max_class_size` và `data_access_logging` đã lưu được nhưng chưa có tác dụng; báo cáo thu chi chưa tổng hợp theo nhóm và theo kỳ (P06-08); chưa có điểm cuối tra nhật ký truy cập. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.

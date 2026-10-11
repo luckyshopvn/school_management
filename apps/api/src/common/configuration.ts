@@ -14,6 +14,8 @@ export interface ApiConfiguration {
   objectStorage: ObjectStorageSettings | null;
   // Nhà cung cấp tài khoản ảo và mã QR; trống là chưa nối (T1), `development` là bộ giả lập (YCTD-57)
   paymentGateway?: 'development' | null;
+  // Chu kỳ tiến trình gửi thông báo và nhắc nhật ký, tính bằng giây; 0 là tắt, kiểm thử tự gọi (YCTD-71)
+  notificationDispatchIntervalSeconds?: number;
 }
 
 export interface ObjectStorageSettings {
@@ -58,5 +60,6 @@ export function readConfigurationFromEnvironment(): ApiConfiguration {
       secretAccessKey: readRequired('S3_SECRET_ACCESS_KEY'),
     },
     paymentGateway: process.env.PAYMENT_GATEWAY === 'development' ? 'development' : null,
+    notificationDispatchIntervalSeconds: Number(process.env.NOTIFICATION_DISPATCH_INTERVAL_SECONDS ?? 60),
   };
 }

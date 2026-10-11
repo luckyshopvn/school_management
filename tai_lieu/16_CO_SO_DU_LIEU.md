@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.39
+- Phiên bản: 1.40
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -52,7 +52,7 @@
 | data_import_jobs | Lần nhập dữ liệu ban đầu và nhập mã ngành | org_unit_id, import_type (lớp, trẻ, mã ngành), file_id (tệp gốc ở kho tệp), status (đã kiểm tra, còn lỗi, đã ghi), total_rows, error_rows, errors (báo cáo dòng lỗi, không chứa số định danh), error_report_file_id, created_by, created_at, committed_by, committed_at (YCTD-46) |
 | notification_templates | Mẫu thông báo | code (duy nhất), channel, subject, body_template, status |
 | notifications | Thông báo đã sinh | org_unit_id, template_code, title, body, target_type, target_id, created_at |
-| notification_recipients | Người nhận thông báo | notification_id, user_id (trống khi gửi theo vai trò), role_code và org_unit_id (mọi tài khoản có vai trò ở đơn vị, YCTD-47), channel (trong ứng dụng hoặc tin nhắn, YCTD-45), is_read, read_at, channel_status, sent_at |
+| notification_recipients | Người nhận thông báo | notification_id, user_id (trống khi gửi theo vai trò), role_code và org_unit_id (mọi tài khoản có vai trò ở đơn vị, YCTD-47), channel (trong ứng dụng hoặc tin nhắn, YCTD-45), is_read, read_at, channel_status (chờ gửi, đã gửi, thất bại, vượt giới hạn trong ngày), sent_at, attempt_count, next_attempt_at, last_error (YCTD-71) |
 | notification_reads | Người đã đọc thông báo (BR-70, YCTD-64) | notification_id, user_id (duy nhất cùng notification_id), read_at |
 | notification_templates | Mẫu tiêu đề và nội dung theo mã thông báo, chung toàn trường (YCTD-64) | template_code (khóa chính), title_template, body_template, updated_by, updated_at |
 | rooms | Phòng học | org_unit_id, code (duy nhất trong đơn vị), name, capacity (lớn hơn 0), status |
