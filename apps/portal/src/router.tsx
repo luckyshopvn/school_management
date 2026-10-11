@@ -24,6 +24,7 @@ import { LeavePoliciesPage } from './staff-attendance/LeavePoliciesPage.js';
 import { MyPayslipsPage } from './payroll/MyPayslipsPage.js';
 import { PayItemsPage } from './payroll/PayItemsPage.js';
 import { PayrollPage } from './payroll/PayrollPage.js';
+import { SettlementsPage } from './payroll/SettlementsPage.js';
 import { LeaveRequestsPage } from './staff-attendance/LeaveRequestsPage.js';
 import { SchoolDaysPage } from './staff-attendance/SchoolDaysPage.js';
 import { StaffAttendancePage } from './staff-attendance/StaffAttendancePage.js';
@@ -94,6 +95,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/payrolls', component: PayrollPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/pay-items', component: PayItemsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/my-payslips', component: MyPayslipsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/payroll-settlements', component: SettlementsPage }),
 ]);
 
 export const router = createRouter({ routeTree });

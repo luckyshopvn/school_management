@@ -326,7 +326,7 @@ export class ReceiptsService {
       throw notFoundError('Không tìm thấy phiếu thu', 'receipt');
     }
     await this.assertCanViewChild(database, currentUser, {
-      id: receipt.child_id,
+      id: receipt.child_id ?? '',
       org_unit_id: receipt.org_unit_id,
     });
     const allocations = await database
@@ -414,6 +414,69 @@ export class ReceiptsService {
   }
 
   // Ghi giao dịch vào quỹ hoặc tài khoản ngân hàng và cập nhật số dư; khóa dòng tài khoản để số dư tuần tự (BR-34)
+  // Phiếu thu thu hồi lương trả thừa, không gắn trẻ mà gắn nhân sự và bảng quyết toán (BR-90, YCTD-61)
+  async issueRecoveryInTransaction(
+    transaction: Transaction<SchoolYearDatabase>,
+    input: {
+      staffId: string;
+      staffName: string;
+      settlementId: string;
+      account: { id: string; org_unit_id: string };
+      categoryId: string;
+      amount: number;
+      method: ReceiptMethod;
+      receiptDate: string;
+      content: string | null;
+      requestKey: string;
+    },
+    origin: ChangeOrigin,
+  ): Promise<string> {
+    const code = await this.nextCode(transaction);
+    const receipt = await transaction
+      .insertInto('receipts')
+      .values({
+        code,
+        org_unit_id: input.account.org_unit_id,
+        child_id: null,
+        staff_id: input.staffId,
+        settlement_id: input.settlementId,
+        payer_name: input.staffName,
+        amount: input.amount,
+        method: input.method,
+        account_id: input.account.id,
+        category_id: input.categoryId,
+        receipt_date: input.receiptDate,
+        content: input.content,
+        request_key: input.requestKey,
+        created_by: origin.actorUserId,
+      })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    const balanceAfter = await this.recordAccountTransaction(transaction, {
+      accountId: input.account.id,
+      date: input.receiptDate,
+      amount: input.amount,
+      receiptId: receipt.id,
+      description: `${code} thu hồi lương của ${input.staffName}`,
+    });
+    await writeAuditLog(transaction, {
+      origin,
+      orgUnitId: input.account.org_unit_id,
+      entityName: 'receipts',
+      entityId: receipt.id,
+      action: 'create',
+      before: null,
+      after: {
+        code,
+        staff_id: input.staffId,
+        settlement_id: input.settlementId,
+        amount: input.amount,
+        account_balance_after: balanceAfter,
+      },
+    });
+    return receipt.id;
+  }
+
   private async recordAccountTransaction(
     transaction: Transaction<SchoolYearDatabase>,
     entry: { accountId: string; date: string; amount: number; receiptId: string; description: string },

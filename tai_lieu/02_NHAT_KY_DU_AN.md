@@ -14,6 +14,28 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-06 phần 6c-2: phiếu chi lương, quyết toán, thu hồi lương, điều chỉnh kỳ sau
+
+#### Công việc đã thực hiện
+
+- Gộp yêu cầu gộp số 30 (phần 6c-1). Eric ủy quyền tự làm tới khi hoàn tất dự án, không chờ xác nhận; viết phần 6c-2 trên nhánh `dt-06-phan-6c-2`.
+- Cơ sở dữ liệu: năm học có `payroll_settlements`, `payroll_adjustments`; `payments` có `payroll_id`, `settlement_id`; `receipts` cho phép không gắn trẻ, có `staff_id`, `settlement_id` (tệp 0023).
+- Máy chủ API: phiếu chi lương từ bảng lương và bảng quyết toán, bảng quyết toán, phiếu thu thu hồi lương, khoản điều chỉnh kỳ sau đưa vào bảng lương, chuyển năm học.
+- Cổng quản trị: lập phiếu chi lương ở trang Bảng lương; trang Quyết toán và điều chỉnh lương (MH-54).
+- Kết quả: máy chủ API 305/305, kiểm thử giao diện 41/41. Hoàn thành đợt DT-06.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-61 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-61 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.29.7.
+
+#### Vấn đề tồn đọng
+
+- Đợt DT-07: bảng điều khiển và báo cáo cơ bản, API chỉ đọc cho đối tác.
+
 ### 2026-10-11 — DT-06 phần 6c-1: danh mục lương, biểu thuế, bảng lương, phiếu lương
 
 #### Công việc đã thực hiện

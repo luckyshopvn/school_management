@@ -51,8 +51,8 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | M04 | Xây dựng điểm danh, báo vắng, đón trả trẻ | P04 | Đang thực hiện | Đợt DT-04 xong: phần 4a điểm danh, chốt ngày, báo vắng (YCTD-47); phần 4b người được ủy quyền đón và đón trả (YCTD-48) trên nhánh `dt-04-phan-4b`, 183 kiểm thử và 26 kiểm thử giao diện đạt; nhật ký của bé (P04-04) và chăm sóc làm ở đợt sau |
 | M05 | Xây dựng học phí, khoản thu, giảm trừ | P05 | Hoàn thành | Đợt DT-05 sáu phần (YCTD-49 đến YCTD-57) đã gộp vào main; còn bộ chuyển đổi nhà cung cấp thanh toán thật khi chọn xong ở T1 |
 | M06 | Xây dựng phiếu thu, phiếu chi, công nợ, quỹ tiền mặt | P06 | Chưa bắt đầu | Phụ thuộc M05 |
-| M07 | Xây dựng hồ sơ nhân sự và hợp đồng lao động | P07 | Chưa bắt đầu | Phụ thuộc M01 |
-| M08 | Xây dựng chấm công, nghỉ phép, bảng lương | P08 | Chưa bắt đầu | Phụ thuộc M07 |
+| M07 | Xây dựng hồ sơ nhân sự và hợp đồng lao động | P07 | Hoàn thành | Đợt DT-06 phần 6a (YCTD-58) đã gộp vào main |
+| M08 | Xây dựng chấm công, nghỉ phép, bảng lương | P08 | Hoàn thành | Đợt DT-06 phần 6b-1, 6b-2, 6c-1, 6c-2 (YCTD-59 đến YCTD-61) |
 | M17 | Xây dựng bảng điều khiển và báo cáo cơ bản | P17 | Chưa bắt đầu | Phụ thuộc M04, M05, M08 |
 | M19 | Xây dựng ứng dụng phụ huynh và ứng dụng giáo viên | P19 | Chưa bắt đầu | Phụ thuộc M02, M04, M05 |
 | M03 | Xây dựng giảng dạy, giáo án, thời khóa biểu | P03 | Chưa bắt đầu | Giai đoạn 2 |

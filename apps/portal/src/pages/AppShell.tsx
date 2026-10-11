@@ -40,7 +40,8 @@ type NavigationPath =
   | '/leave-policies'
   | '/payrolls'
   | '/pay-items'
-  | '/my-payslips';
+  | '/my-payslips'
+  | '/payroll-settlements';
 
 function NavItem({ to, label }: { to: NavigationPath; label: string }) {
   return (
@@ -147,6 +148,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <NavItem to="/school-days" label="Ngày lễ và lịch bù" />
           <NavItem to="/leave-policies" label="Quy định phép năm" />
           {canViewPayroll ? <NavItem to="/payrolls" label="Bảng lương" /> : null}
+          {canViewPayroll ? <NavItem to="/payroll-settlements" label="Quyết toán và điều chỉnh lương" /> : null}
           {canViewPayroll || canManagePayItems ? <NavItem to="/pay-items" label="Danh mục lương và biểu thuế" /> : null}
           <NavItem to="/my-payslips" label="Phiếu lương của tôi" />
           {canViewStaff && canImportStaff && !(canManageClasses || canViewChildren || canEditChildren) ? (

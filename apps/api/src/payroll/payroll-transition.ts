@@ -45,5 +45,14 @@ export const payrollTransitionStep: AcademicYearTransitionStep = {
     for (const row of await previous.selectFrom('payslip_lines').selectAll().execute()) {
       await next.insertInto('payslip_lines').values(row).execute();
     }
+    for (const row of await previous.selectFrom('payroll_settlements').selectAll().execute()) {
+      await next
+        .insertInto('payroll_settlements')
+        .values({ ...row, lines: JSON.stringify(row.lines) })
+        .execute();
+    }
+    for (const row of await previous.selectFrom('payroll_adjustments').selectAll().execute()) {
+      await next.insertInto('payroll_adjustments').values(row).execute();
+    }
   },
 };

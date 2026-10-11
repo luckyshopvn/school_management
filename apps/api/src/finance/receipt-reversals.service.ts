@@ -63,7 +63,7 @@ export class ReceiptReversalsService {
           code,
           receipt_id: receiptId,
           org_unit_id: receipt.org_unit_id,
-          child_id: receipt.child_id,
+          child_id: receipt.child_id ?? '',
           amount,
           reason,
           status: 'pending',
@@ -210,7 +210,7 @@ export class ReceiptReversalsService {
         targetType: 'receipts',
         targetId: receiptId,
         recipients: [
-          ...(await guardianUserIds(transaction, receipt.child_id)).map((userId) => ({
+          ...(await guardianUserIds(transaction, receipt.child_id ?? '')).map((userId) => ({
             userId,
             channel: 'in_app' as const,
           })),

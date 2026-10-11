@@ -47,6 +47,8 @@ export class PaymentsService {
     currentUser: CurrentUser,
     input: PaymentInput & { orgUnitId: string; requestKey: string },
     origin: ChangeOrigin,
+    // Phiếu chi lương lập từ bảng lương hoặc bảng quyết toán đã duyệt (YCTD-61)
+    link: { payrollId?: string; settlementId?: string } = {},
   ) {
     const { database } = await this.currentSchoolYear.require();
     const repeated = await database
@@ -74,6 +76,8 @@ export class PaymentsService {
             category_id: input.categoryId,
             request_key: input.requestKey,
             created_by: origin.actorUserId,
+            payroll_id: link.payrollId ?? null,
+            settlement_id: link.settlementId ?? null,
           })
           .returning('id')
           .executeTakeFirstOrThrow();

@@ -611,7 +611,7 @@ export interface ReceiptsTable {
   id: Generated<string>;
   code: string;
   org_unit_id: string;
-  child_id: string;
+  child_id: string | null;
   payer_name: string;
   amount: Money;
   method: ReceiptMethod;
@@ -623,6 +623,8 @@ export interface ReceiptsTable {
   request_key: string;
   created_by: string;
   created_at: CreatedTimestamp;
+  staff_id: string | null;
+  settlement_id: string | null;
 }
 
 export interface ReceiptAllocationsTable {
@@ -689,6 +691,8 @@ export interface PaymentsTable {
   approved_by: string | null;
   approved_at: Date | null;
   reject_reason: string | null;
+  payroll_id: string | null;
+  settlement_id: string | null;
 }
 
 export interface PaymentAttachmentsTable {
@@ -1029,6 +1033,50 @@ export interface PayslipLinesTable {
   basis: string;
   order_no: number;
 }
+
+export interface SettlementLine {
+  code: string;
+  name: string;
+  amount: number;
+  basis: string;
+}
+
+export interface PayrollSettlementsTable {
+  id: Generated<string>;
+  staff_id: string;
+  contract_id: string;
+  terminated_on: string;
+  status: Generated<PayrollStatus>;
+  earned_amount: Money;
+  prepaid_amount: Money;
+  tax_difference: Money;
+  payable_amount: Money;
+  lines: ColumnType<SettlementLine[], string, string>;
+  requires_principal: Generated<boolean>;
+  calculated_by: string | null;
+  calculated_at: Date | null;
+  approved_by: string | null;
+  approved_at: Date | null;
+  return_reason: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface PayrollAdjustmentsTable {
+  id: Generated<string>;
+  staff_id: string;
+  target_year: number;
+  target_month: number;
+  amount: Money;
+  reason: string;
+  status: Generated<'pending' | 'approved' | 'rejected'>;
+  requires_principal: boolean;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  decided_by: string | null;
+  decided_at: Date | null;
+  reject_reason: string | null;
+}
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -1100,4 +1148,6 @@ export interface SchoolYearDatabase {
   payrolls: PayrollsTable;
   payslips: PayslipsTable;
   payslip_lines: PayslipLinesTable;
+  payroll_settlements: PayrollSettlementsTable;
+  payroll_adjustments: PayrollAdjustmentsTable;
 }
