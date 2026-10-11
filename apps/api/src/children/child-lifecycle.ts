@@ -14,6 +14,7 @@ import type { Kysely, Transaction } from 'kysely';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import { IdentityClient } from '../authentication/identity-client.js';
 import type { CurrentUser } from '../authentication/current-user.js';
+import { ClassCapacity } from '../classes/class-capacity.js';
 import { originOf, writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { queueNotification } from '../common/notification-queue.js';
@@ -58,6 +59,7 @@ export class ChildLifecycleService {
     private readonly identityClient: IdentityClient,
     private readonly debts: DebtsService,
     private readonly childScope: ChildScope,
+    private readonly capacity: ClassCapacity,
     private readonly clock: Clock,
   ) {}
 
@@ -118,18 +120,7 @@ export class ChildLifecycleService {
         { field: 'outstanding_amount', message: String(debt.outstanding_amount) },
       ]);
     }
-    const enrolled = await database
-      .selectFrom('class_enrollments')
-      .select((expression) => expression.fn.countAll<string>().as('count'))
-      .where('class_id', '=', targetClass.id)
-      .where('is_current', '=', true)
-      .executeTakeFirstOrThrow();
-    if (Number(enrolled.count) >= targetClass.max_size && !input.confirmOverCapacity) {
-      throw ruleViolationError('BR-04', 'Lớp đã đủ sĩ số, xác nhận để tiếp tục', [
-        { field: 'enrolled_count', message: enrolled.count },
-        { field: 'max_size', message: String(targetClass.max_size) },
-      ]);
-    }
+    await this.capacity.assert(database, targetClass, input.confirmOverCapacity);
     const guardians = await database
       .selectFrom('child_guardians')
       .innerJoin('guardians', 'guardians.id', 'child_guardians.guardian_id')

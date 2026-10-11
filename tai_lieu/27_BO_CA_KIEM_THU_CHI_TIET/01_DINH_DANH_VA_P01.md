@@ -1,7 +1,7 @@
 # 27.1. BỘ CA KIỂM THỬ CHI TIẾT — DỊCH VỤ ĐỊNH DANH VÀ P01
 
 - Mô tả: Ca kiểm thử chi tiết cho dịch vụ định danh (Q-125, Q-126) và các chức năng giai đoạn 1 của phân hệ P01 Nền tảng, đơn vị và phân quyền (việc N21, Q-105).
-- Phiên bản: 1.19
+- Phiên bản: 1.20
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -218,7 +218,7 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 | CTC-P01-047 | P01-08 | P01-08 | LT-04 | Trung bình | KT-A | Ghi cấu hình của PH-A | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/settings/settings.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-P01-048 | P01-08 | BR-34 | LT-02 | Cao | Cấu hình của PH-A | Tìm cách tắt kiểm tra số dư quỹ tiền mặt | Không có tham số này; số dư quỹ tiền mặt luôn được kiểm tra | Kiểm thử tự động `apps/api/src/settings/settings.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-P01-049 | P01-08 | BR-34; chạy khi có P06-06 ở giai đoạn 2 | LT-02 | Thấp | Tài khoản ngân hàng của PH-A có số dư 1 000 000 | Tắt kiểm tra số dư tài khoản ngân hàng; lập phiếu chi 2 000 000 từ tài khoản ngân hàng; bật lại và lập lại | Khi tắt thì không bị chặn vì số dư; khi bật thì bị chặn | Kiểm thử tự động `apps/api/src/finance/payments.test.ts` đạt ngày 11/10/2026 | Đạt |
-| CTC-P01-050 | P01-08 | BR-04, CT-011 | LT-02 | Trung bình | QL-A đặt sĩ số tối đa của PH-A là 20; một lớp đang có 20 trẻ | Phân thêm trẻ thứ 21 vào lớp | Hệ thống cảnh báo và yêu cầu quản lý đơn vị xác nhận | | Chưa chạy |
+| CTC-P01-050 | P01-08 | BR-04, CT-011 | LT-02 | Trung bình | QL-A đặt sĩ số tối đa của PH-A là 20; một lớp đang có 20 trẻ | Phân thêm trẻ thứ 21 vào lớp | Hệ thống cảnh báo và yêu cầu quản lý đơn vị xác nhận | Kiểm thử tự động `apps/api/src/settings/configurable-rules.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CTC-P01-051 | P01-08 | PCF-05 | LT-05 | Trung bình | Không | Sau CTC-P01-045 mở nhật ký thao tác | Có bản ghi đổi ngày chốt kèm giá trị trước và sau | Kiểm thử tự động `apps/api/src/settings/settings.test.ts` đạt ngày 09/10/2026 | Đạt |
 
 ### 4.8. P01-09 Nhật ký thao tác và nhật ký truy cập
@@ -228,9 +228,9 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 | CTC-P01-052 | P01-09 | BR-35 | LT-05 | Cao | Một hóa đơn đã phát hành | Lập phiếu điều chỉnh hóa đơn; tra nhật ký theo đối tượng | Có bản ghi người thực hiện, thời điểm, giá trị trước và sau | Kiểm thử tự động `apps/api/src/fees/discounts.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CTC-P01-053 | P01-09 | P01-09, PQ-03 | LT-04 | Cao | QL-A | Gọi `GET /api/v1/audit-logs` không lọc | Chỉ trả nhật ký của PH-A (QĐ-23) | Kiểm thử tự động `apps/api/src/settings/settings.test.ts` đạt ngày 09/10/2026 | Đạt |
 | CTC-P01-054 | P01-09 | P01-09 | LT-04 | Cao | GV-A1 | Gọi `GET /api/v1/audit-logs` | Trả `ERR_FORBIDDEN` | Kiểm thử tự động `apps/api/src/settings/settings.test.ts` đạt ngày 09/10/2026 | Đạt |
-| CTC-P01-055 | P01-09 | BR-73 | LT-05 | Cao | PH-A bật ghi nhật ký truy cập | KT-A đọc chi tiết tài chính của một trẻ; tra `GET /api/v1/data-access-logs` | Có bản ghi người đọc, thời điểm, đối tượng | | Chưa chạy |
-| CTC-P01-056 | P01-09 | BR-73 | LT-05 | Trung bình | PH-A tắt ghi nhật ký truy cập | Lặp lại CTC-P01-055 | Không có bản ghi mới cho lần đọc này | | Chưa chạy |
-| CTC-P01-057 | P01-09 | BR-73, BR-81, AC-193 | LT-05 | Cao | PH-A tắt ghi nhật ký truy cập | QL-A xem đầy đủ số định danh cá nhân của một trẻ | Vẫn có bản ghi vì trường hợp này luôn ghi, không tắt được | | Chưa chạy |
+| CTC-P01-055 | P01-09 | BR-73 | LT-05 | Cao | PH-A bật ghi nhật ký truy cập | KT-A đọc chi tiết tài chính của một trẻ; tra `GET /api/v1/data-access-logs` | Có bản ghi người đọc, thời điểm, đối tượng | Kiểm thử tự động `apps/api/src/settings/configurable-rules.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CTC-P01-056 | P01-09 | BR-73 | LT-05 | Trung bình | PH-A tắt ghi nhật ký truy cập | Lặp lại CTC-P01-055 | Không có bản ghi mới cho lần đọc này | Kiểm thử tự động `apps/api/src/settings/configurable-rules.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CTC-P01-057 | P01-09 | BR-73, BR-81, AC-193 | LT-05 | Cao | PH-A tắt ghi nhật ký truy cập | QL-A xem đầy đủ số định danh cá nhân của một trẻ | Vẫn có bản ghi vì trường hợp này luôn ghi, không tắt được | Kiểm thử tự động `apps/api/src/settings/configurable-rules.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CTC-P01-058 | P01-09 | BM-70 | LT-05 | Thấp | Không | Rà cấu hình lưu trữ nhật ký | Nhật ký thao tác, truy cập, xuất dữ liệu và bảo mật giữ tối thiểu 24 tháng; nhật ký lỗi giữ tối thiểu 6 tháng | | Chưa chạy |
 
 ### 4.9. P01-10 Hạn mức phê duyệt

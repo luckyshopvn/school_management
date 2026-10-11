@@ -1,5 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
+import type { SchoolYearDatabase } from '@school-management/database';
 import { validationError, type FieldError } from '@school-management/server';
+import type { SelectQueryBuilder } from 'kysely';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
@@ -10,46 +12,64 @@ const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const VIEW_PERMISSION = 'P01.view';
 const NO_UNIT = '00000000-0000-0000-0000-000000000000';
 
-// Tra nhật ký thao tác của năm học đang dùng (P01-09); chỉ trả nhật ký trong phạm vi đơn vị (CTC-P01-053)
-@Controller('audit-logs')
+type LogTable = 'audit_logs' | 'data_access_logs';
+type LogQuery = SelectQueryBuilder<SchoolYearDatabase, LogTable, object>;
+
+function readPaging(query: Record<string, string | undefined>) {
+  const errors: FieldError[] = [];
+  const page = Number(query.page ?? 1);
+  const pageSize = Number(query.page_size ?? 20);
+  if (!Number.isInteger(page) || page < 1) {
+    errors.push({ field: 'page', message: 'Số trang bắt đầu từ 1' });
+  }
+  if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 100) {
+    errors.push({ field: 'page_size', message: 'Cỡ trang từ 1 đến 100' });
+  }
+  for (const field of ['entity_id', 'actor_user_id', 'org_unit_id']) {
+    if (query[field] && !UUID_PATTERN.test(query[field] ?? '')) {
+      errors.push({ field, message: 'Mã không hợp lệ' });
+    }
+  }
+  for (const field of ['from_date', 'to_date']) {
+    if (query[field] && !DATE_PATTERN.test(query[field] ?? '')) {
+      errors.push({ field, message: 'Ngày dạng YYYY-MM-DD' });
+    }
+  }
+  if (errors.length > 0) {
+    throw validationError(errors);
+  }
+  return { page, pageSize };
+}
+
+// Tra nhật ký thao tác (P01-09) và nhật ký truy cập dữ liệu nhạy cảm (BR-73, YCTD-70) của năm học đang dùng; chỉ trả
+// nhật ký trong phạm vi đơn vị (CTC-P01-053)
+@Controller()
 export class AuditLogsController {
   constructor(
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly organizationScopes: OrganizationScopes,
   ) {}
 
-  @Get()
+  @Get('audit-logs')
   @RequirePermission(VIEW_PERMISSION)
-  async list(@Query() query: Record<string, string | undefined>, @AuthenticatedUser() currentUser: CurrentUser) {
-    const errors: FieldError[] = [];
-    const page = Number(query.page ?? 1);
-    const pageSize = Number(query.page_size ?? 20);
-    if (!Number.isInteger(page) || page < 1) {
-      errors.push({ field: 'page', message: 'Số trang bắt đầu từ 1' });
-    }
-    if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 100) {
-      errors.push({ field: 'page_size', message: 'Cỡ trang từ 1 đến 100' });
-    }
-    for (const field of ['entity_id', 'actor_user_id', 'org_unit_id']) {
-      if (query[field] && !UUID_PATTERN.test(query[field] ?? '')) {
-        errors.push({ field, message: 'Mã không hợp lệ' });
-      }
-    }
-    for (const field of ['from_date', 'to_date']) {
-      if (query[field] && !DATE_PATTERN.test(query[field] ?? '')) {
-        errors.push({ field, message: 'Ngày dạng YYYY-MM-DD' });
-      }
-    }
-    if (errors.length > 0) {
-      throw validationError(errors);
-    }
+  list(@Query() query: Record<string, string | undefined>, @AuthenticatedUser() currentUser: CurrentUser) {
+    return this.search('audit_logs', query, currentUser);
+  }
 
+  @Get('data-access-logs')
+  @RequirePermission(VIEW_PERMISSION)
+  listDataAccess(@Query() query: Record<string, string | undefined>, @AuthenticatedUser() currentUser: CurrentUser) {
+    return this.search('data_access_logs', query, currentUser);
+  }
+
+  private async search(table: LogTable, query: Record<string, string | undefined>, currentUser: CurrentUser) {
+    const { page, pageSize } = readPaging(query);
     const current = await this.currentSchoolYear.find();
     if (!current) {
       return { items: [], page, page_size: pageSize, total: 0, total_pages: 1 };
     }
     const scope = await this.organizationScopes.resolve(currentUser, VIEW_PERMISSION);
-    let selection = current.database.selectFrom('audit_logs');
+    let selection = current.database.selectFrom(table) as LogQuery;
     // Lọc phạm vi ở tầng truy vấn (BM-11, BM-12)
     if (!scope.wholeSchool) {
       selection = selection.where('org_unit_id', 'in', scope.orgUnitIds.length ? scope.orgUnitIds : [NO_UNIT]);

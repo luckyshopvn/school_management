@@ -295,6 +295,7 @@ export class ReportsService {
       amount: number;
       category_id: string;
       category_name: string;
+      group_name: string;
       org_unit_id: string;
       created_by: string;
       party: string;
@@ -310,6 +311,7 @@ export class ReportsService {
           'receipts.amount',
           'receipts.category_id',
           'cashflow_categories.name as category_name',
+          'cashflow_categories.group_name',
           'receipts.org_unit_id',
           'receipts.created_by',
           'receipts.payer_name',
@@ -332,6 +334,7 @@ export class ReportsService {
           amount: Number(row.amount),
           category_id: row.category_id,
           category_name: row.category_name,
+          group_name: row.group_name,
           org_unit_id: row.org_unit_id,
           created_by: row.created_by,
           party: row.payer_name,
@@ -349,6 +352,7 @@ export class ReportsService {
           'payments.amount',
           'payments.category_id',
           'cashflow_categories.name as category_name',
+          'cashflow_categories.group_name',
           'payments.org_unit_id',
           'payments.created_by',
           'payments.payee_name',
@@ -369,6 +373,7 @@ export class ReportsService {
           amount: Number(row.amount),
           category_id: row.category_id,
           category_name: row.category_name,
+          group_name: row.group_name,
           org_unit_id: row.org_unit_id,
           created_by: row.created_by,
           party: row.payee_name,
@@ -393,12 +398,37 @@ export class ReportsService {
       group.amount += document.amount;
       categories.set(key, group);
     }
+    // Tổng hợp theo nhóm khoản mục và theo tháng (P06-08, CTC-P06-048, YCTD-70)
+    const groups = new Map<string, { flow_type: string; group_name: string; count: number; amount: number }>();
+    const periods = new Map<string, { period: string; income_amount: number; expense_amount: number }>();
+    for (const document of documents) {
+      const key = `${document.flow_type}:${document.group_name}`;
+      const group = groups.get(key) ?? {
+        flow_type: document.flow_type,
+        group_name: document.group_name,
+        count: 0,
+        amount: 0,
+      };
+      group.count += 1;
+      group.amount += document.amount;
+      groups.set(key, group);
+      const month = document.document_date.slice(0, 7);
+      const period = periods.get(month) ?? { period: month, income_amount: 0, expense_amount: 0 };
+      if (document.flow_type === 'income') {
+        period.income_amount += document.amount;
+      } else {
+        period.expense_amount += document.amount;
+      }
+      periods.set(month, period);
+    }
     const income = documents.filter((row) => row.flow_type === 'income').reduce((sum, row) => sum + row.amount, 0);
     const expense = documents.filter((row) => row.flow_type === 'expense').reduce((sum, row) => sum + row.amount, 0);
     return {
       from: filter.from,
       to: filter.to,
       categories: [...categories.values()],
+      groups: [...groups.values()],
+      periods: [...periods.values()].sort((left, right) => left.period.localeCompare(right.period)),
       documents,
       totals: { income_amount: income, expense_amount: expense, difference_amount: income - expense },
     };

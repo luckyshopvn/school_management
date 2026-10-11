@@ -6,6 +6,7 @@ import type { Request } from 'express';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf } from '../common/audit-log.js';
+import { DataAccessLogger } from '../common/data-access-log.js';
 import {
   isUuid,
   readOptionalText,
@@ -123,7 +124,10 @@ function readGuardian(value: unknown, field: string, errors: FieldError[]): Guar
 // Hồ sơ trẻ (P02-01, 02, 03, 06, 10; QT-01; YCTD-45)
 @Controller()
 export class ChildrenController {
-  constructor(private readonly childrenService: ChildrenService) {}
+  constructor(
+    private readonly childrenService: ChildrenService,
+    private readonly accessLogger: DataAccessLogger,
+  ) {}
 
   @Get('children')
   list(@Query() query: Record<string, string | undefined>, @AuthenticatedUser() currentUser: CurrentUser) {
@@ -250,11 +254,14 @@ export class ChildrenController {
   }
 
   @Get('children/:id')
-  get(
+  async get(
     @Param('id', uuidParameter('Mã trẻ không hợp lệ')) childId: string,
+    @Req() request: Request,
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
-    return this.childrenService.get(currentUser, childId);
+    const child = await this.childrenService.get(currentUser, childId);
+    await this.accessLogger.recordChildRead(originOf(request, currentUser), childId, 'child_profile');
+    return child;
   }
 
   @Patch('children/:id')

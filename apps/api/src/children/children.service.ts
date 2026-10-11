@@ -11,6 +11,7 @@ import { PERMISSION_CODES } from '@school-management/shared';
 import { sql, type Kysely, type Transaction } from 'kysely';
 import { IdentityClient } from '../authentication/identity-client.js';
 import type { CurrentUser } from '../authentication/current-user.js';
+import { ClassCapacity } from '../classes/class-capacity.js';
 import { writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { ChildDataProtection, maskNationalId } from '../common/child-data-protection.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
@@ -104,6 +105,7 @@ export class ChildrenService {
     private readonly childScope: ChildScope,
     private readonly protection: ChildDataProtection,
     private readonly identityClient: IdentityClient,
+    private readonly capacity: ClassCapacity,
     private readonly clock: Clock,
   ) {}
 
@@ -487,7 +489,7 @@ export class ChildrenService {
     const targetClass = await this.findActiveClass(database, input.classId);
     // Lớp ở đơn vị khác thì người duyệt cũng phải có quyền ở đơn vị đó; đơn vị của trẻ là đơn vị của lớp (BR-03, QĐ-14)
     await this.organizationScopes.assertCanAccess(currentUser, PERMISSION_CODES.childApprove, targetClass.org_unit_id);
-    await this.assertCapacity(database, targetClass, input.confirmOverCapacity);
+    await this.capacity.assert(database, targetClass, input.confirmOverCapacity);
 
     const guardians = await database
       .selectFrom('child_guardians')
@@ -721,7 +723,7 @@ export class ChildrenService {
     if (current && fromDate < current.from_date) {
       throw validationError([{ field: 'from_date', message: 'Ngày hiệu lực không trước ngày vào lớp hiện tại' }]);
     }
-    await this.assertCapacity(database, targetClass, input.confirmOverCapacity);
+    await this.capacity.assert(database, targetClass, input.confirmOverCapacity);
     return database.transaction().execute(async (transaction) => {
       if (current) {
         await transaction
@@ -890,26 +892,6 @@ export class ChildrenService {
       throw validationError([{ field: 'class_id', message: 'Lớp không có hoặc đã đóng' }]);
     }
     return classRecord;
-  }
-
-  // Vượt sĩ số tối đa thì cảnh báo, quản lý đơn vị xác nhận thì vẫn phân lớp (BR-04, AC-10)
-  private async assertCapacity(
-    database: Executor,
-    classRecord: { id: string; max_size: number },
-    confirmed: boolean,
-  ): Promise<void> {
-    const enrolled = await database
-      .selectFrom('class_enrollments')
-      .select((expression) => expression.fn.countAll<string>().as('count'))
-      .where('class_id', '=', classRecord.id)
-      .where('is_current', '=', true)
-      .executeTakeFirstOrThrow();
-    if (Number(enrolled.count) >= classRecord.max_size && !confirmed) {
-      throw ruleViolationError('BR-04', 'Lớp đã đủ sĩ số, xác nhận để tiếp tục', [
-        { field: 'enrolled_count', message: enrolled.count },
-        { field: 'max_size', message: String(classRecord.max_size) },
-      ]);
-    }
   }
 
   private async assertUniqueIdentifiers(

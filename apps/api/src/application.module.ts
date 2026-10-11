@@ -17,6 +17,8 @@ import { HealthController } from './health.controller.js';
 import { settingsTransitionStep } from './settings/settings-transition.js';
 import { SettingsController } from './settings/settings.controller.js';
 import { SettingsService } from './settings/settings.service.js';
+import { DataAccessLogger } from './common/data-access-log.js';
+import { ClassCapacity } from './classes/class-capacity.js';
 import { OrganizationScopes } from './organization/organization-scopes.js';
 import { orgUnitsTransitionStep } from './organization/org-units-transition.js';
 import { catalogsTransitionStep } from './catalogs/catalogs-transition.js';
@@ -181,6 +183,8 @@ export class ApplicationModule {
         OrganizationScopes,
         OrgUnitsService,
         SettingsService,
+        DataAccessLogger,
+        ClassCapacity,
         CatalogAccess,
         DepartmentsService,
         JobTitlesService,
