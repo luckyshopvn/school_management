@@ -11,6 +11,24 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-85: Kế hoạch đợt DT-11 giai đoạn 3 – 2026-10-11
+
+- Lý do: giai đoạn 2 đã xong (YCTD-84); Eric yêu cầu làm tự động đến hết dự án theo kế hoạch, đợt DT-11 làm giai đoạn 3 để phát hành 1.2.0. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Chia năm phần, làm song song bằng các agent trong worktree riêng như đợt DT-10: 11a tuyển sinh trực tuyến và tin tuyển sinh (G3-01, G3-07; YCTD-86), 11b tuyển dụng (G3-02; YCTD-87), 11c sổ kế toán kép (G3-06, việc N5; YCTD-88), 11d đối soát sao kê ngân hàng tự động và nhiều cổng thanh toán (G3-05, việc N4; YCTD-89), 11e kết nối Facebook, Fanpage và Zalo Official Account (G3-03, G3-08, việc N3; YCTD-90).
+  - Quyền của cả đợt cấp trước trong tệp định danh 0035 (yêu cầu gộp số 56): `P16.admission-campaign.manage`, `P16.application.manage`, `P16.application.review`, `P16.admission-post.manage`, `P18.recruitment-request.create`, `P18.recruitment-request.approve`, `P18.recruitment.manage`, `P18.interview.manage`, `P06.ledger.manage`, `P06.ledger.view`, `P06.bank-statement.import`, `P14.facebook.manage`, `P01.integration.manage`.
+  - Tuyển sinh và tuyển dụng có trang công khai không cần đăng nhập trên ứng dụng phụ huynh, điểm cuối công khai có kiểm tra dữ liệu và giới hạn số lần gọi theo địa chỉ mạng.
+  - Facebook, Zalo, cổng thanh toán thêm: làm bộ chuyển đổi kèm bản giả lập cho môi trường phát triển và kiểm thử như cổng thanh toán (YCTD-57); nối tài khoản thật khi Eric cung cấp ở việc T1.
+  - Chưa làm trong DT-11: bản cài riêng trên điện thoại (G3-04, việc N2) chờ Eric quyết định vì bản trên trình duyệt đang đáp ứng; kết nối tự động với cơ sở dữ liệu ngành của Bộ (G3-09) chưa có giao diện lập trình công khai, tiếp tục nhập từ tệp (P02-12).
+- Thành phần bị ảnh hưởng: `01`, `03`, `24`; các tài liệu của từng phần ghi ở YCTD-86 đến YCTD-90.
+- Dữ liệu bị ảnh hưởng: tệp định danh 0035; tệp năm học 0040 đến 0044 theo phần.
+- API bị ảnh hưởng: theo từng phần.
+- Giao diện bị ảnh hưởng: theo từng phần.
+- Quyền bị ảnh hưởng: các mã nêu trên.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: theo từng phần; chạy lại toàn bộ kiểm thử trước mỗi yêu cầu gộp.
+- Trạng thái: Đang triển khai
+
 ### YCTD-84: Báo cáo kiểm thử giai đoạn 2 và bản ứng viên phát hành 1.1.0 – 2026-10-11
 
 - Lý do: mười phần 10a đến 10j của đợt DT-10 (YCTD-73) đã gộp vào `main`; cần chạy lại toàn bộ kiểm thử, phân loại ca chưa chạy và lỗi, đóng gói bản ứng viên 1.1.0. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
