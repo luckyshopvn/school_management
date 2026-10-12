@@ -40,7 +40,10 @@ type NavigationPath =
   | '/work-schedules'
   | '/health'
   | '/interactions'
+  | '/kitchen'
+  | '/medicines'
   | '/inventory'
+  | '/activities'
   | '/purchase-requests'
   | '/leave-requests'
   | '/leave-policies'
@@ -100,6 +103,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canManageInteractions = useHasPermission(PERMISSION_CODES.interactionManage);
   const canSendMessages = useHasPermission(PERMISSION_CODES.messageSend);
   const canManageLostItems = useHasPermission(PERMISSION_CODES.lostItemManage);
+  const canManageKitchen = useHasPermission(PERMISSION_CODES.kitchenManage);
+  const canApproveMenus = useHasPermission(PERMISSION_CODES.menuApprove);
+  const canViewKitchenReport = useHasPermission(PERMISSION_CODES.kitchenReport);
+  const canManageMedicines = useHasPermission(PERMISSION_CODES.medicineManage);
+  const canAdministerMedication = useHasPermission(PERMISSION_CODES.medicationAdminister);
+  const canApproveMedicinePurchases = useHasPermission(PERMISSION_CODES.medicinePurchaseApprove);
+  const canSeeMedicines = canManageMedicines || canAdministerMedication || canApproveMedicinePurchases;
   const canManageAssets = useHasPermission(PERMISSION_CODES.assetManage);
   const canCreatePurchaseRequests = useHasPermission(PERMISSION_CODES.purchaseRequestCreate);
   const canApprovePurchaseRequests = useHasPermission(PERMISSION_CODES.purchaseRequestApprove);
@@ -108,6 +118,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canSeeInventory =
     canManageAssets || canManagePurchaseOrders || canApproveStocktakes || canApprovePurchaseRequests;
   const canSeePurchaseRequests = canCreatePurchaseRequests || canApprovePurchaseRequests;
+  const canApproveActivities = useHasPermission(PERMISSION_CODES.activityApprove);
+  const canManageContent = useHasPermission(PERMISSION_CODES.contentManage);
+  const canManageLibrary = useHasPermission(PERMISSION_CODES.libraryManage);
+  const canManageExtracurricular = useHasPermission(PERMISSION_CODES.extracurricularManage);
+  const canSeeActivities = canApproveActivities || canManageContent || canManageLibrary || canManageExtracurricular;
   const canManageApiClients = useHasPermission(PERMISSION_CODES.apiClientManage);
   const canManagePayItems = useHasPermission(PERMISSION_CODES.payItemTypeManage);
   const canImport = canImportChildren || canManageChildren || canImportOpeningDebts || canImportStaff;
@@ -154,11 +169,20 @@ export function AppShell({ children }: { children: ReactNode }) {
             </ul>
           </>
         ) : null}
-        {canManageHealth || canRecordMedicalEvents ? (
+        {canManageHealth || canRecordMedicalEvents || canSeeMedicines ? (
           <>
             <span className="px-3 text-label font-semibold text-text-muted">Y TẾ</span>
             <ul className="flex flex-col gap-1">
-              <NavItem to="/health" label="Y tế học đường" />
+              {canManageHealth || canRecordMedicalEvents ? <NavItem to="/health" label="Y tế học đường" /> : null}
+              {canSeeMedicines ? <NavItem to="/medicines" label="Thuốc và dặn thuốc" /> : null}
+            </ul>
+          </>
+        ) : null}
+        {canManageKitchen || canApproveMenus || canViewKitchenReport ? (
+          <>
+            <span className="px-3 text-label font-semibold text-text-muted">BẾP</span>
+            <ul className="flex flex-col gap-1">
+              <NavItem to="/kitchen" label="Bếp và thực đơn" />
             </ul>
           </>
         ) : null}
@@ -176,6 +200,14 @@ export function AppShell({ children }: { children: ReactNode }) {
             <ul className="flex flex-col gap-1">
               {canSeeInventory ? <NavItem to="/inventory" label="Kho và tài sản" /> : null}
               {canSeePurchaseRequests ? <NavItem to="/purchase-requests" label="Đề nghị mua hàng" /> : null}
+            </ul>
+          </>
+        ) : null}
+        {canSeeActivities ? (
+          <>
+            <span className="px-3 text-label font-semibold text-text-muted">HOẠT ĐỘNG VÀ TRUYỀN THÔNG</span>
+            <ul className="flex flex-col gap-1">
+              <NavItem to="/activities" label="Hoạt động và tin tức" />
             </ul>
           </>
         ) : null}

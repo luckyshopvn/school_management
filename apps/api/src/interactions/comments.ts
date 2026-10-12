@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Injectable, Param, Post, Query, Req } from '@nestjs/common';
 import type {
   CommentModerationAction,
-  CommentTargetType,
+  InteractionCommentTargetType,
   LikeTargetType,
   SchoolYearDatabase,
 } from '@school-management/database';
@@ -29,12 +29,12 @@ import { PollsService } from './polls.js';
 // poll (bình chọn, biểu quyết, khảo sát); thêm loại thì thêm vào ràng buộc và hàm kiểm tra quyền xem đối tượng. Không có
 // thao tác xóa bình luận: người xem báo bình luận tiêu cực cho quản lý đơn vị; quản lý ẩn kèm lý do, khôi phục hoặc ghi
 // chú; nội dung giữ nguyên, mỗi lần xử lý có một bản ghi xử lý
-const COMMENT_TARGETS: CommentTargetType[] = ['poll'];
+const COMMENT_TARGETS: InteractionCommentTargetType[] = ['poll'];
 const LIKE_TARGETS: LikeTargetType[] = ['poll', 'comment'];
 const MODERATION_ACTIONS: CommentModerationAction[] = ['hide', 'restore', 'note'];
 
 @Injectable()
-export class CommentsService {
+export class InteractionCommentsService {
   constructor(
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly access: InteractionAccess,
@@ -46,7 +46,7 @@ export class CommentsService {
   private async viewTarget(
     database: Kysely<SchoolYearDatabase>,
     currentUser: CurrentUser,
-    targetType: CommentTargetType,
+    targetType: InteractionCommentTargetType,
     targetId: string,
   ): Promise<{ orgUnitId: string; manager: boolean }> {
     switch (targetType) {
@@ -69,7 +69,7 @@ export class CommentsService {
     return comment;
   }
 
-  async list(currentUser: CurrentUser, targetType: CommentTargetType, targetId: string) {
+  async list(currentUser: CurrentUser, targetType: InteractionCommentTargetType, targetId: string) {
     const { database } = await this.currentSchoolYear.require();
     const { manager } = await this.viewTarget(database, currentUser, targetType, targetId);
     const comments = await database
@@ -87,7 +87,7 @@ export class CommentsService {
   private async decorate(
     database: Kysely<SchoolYearDatabase>,
     currentUser: CurrentUser,
-    comments: Array<Awaited<ReturnType<CommentsService['findComment']>>>,
+    comments: Array<Awaited<ReturnType<InteractionCommentsService['findComment']>>>,
     manager: boolean,
   ) {
     if (comments.length === 0) {
@@ -129,7 +129,7 @@ export class CommentsService {
 
   async create(
     currentUser: CurrentUser,
-    input: { target_type: CommentTargetType; target_id: string; content: string },
+    input: { target_type: InteractionCommentTargetType; target_id: string; content: string },
     origin: ChangeOrigin,
   ) {
     const { database } = await this.currentSchoolYear.require();
@@ -307,8 +307,8 @@ export class CommentsService {
 }
 
 @Controller()
-export class CommentsController {
-  constructor(private readonly comments: CommentsService) {}
+export class InteractionCommentsController {
+  constructor(private readonly comments: InteractionCommentsService) {}
 
   @Get('interaction-comments')
   list(@Query() query: Record<string, string | undefined>, @AuthenticatedUser() currentUser: CurrentUser) {
