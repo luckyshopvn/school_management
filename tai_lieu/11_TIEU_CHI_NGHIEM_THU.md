@@ -305,6 +305,12 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-230 | Cho một ngày sau học kỳ 2 và không thuộc kỳ hè / Khi giáo viên mở điểm danh ngày đó / Thì không có bảng điểm danh (BR-91) |
 | AC-231 | Cho kỳ hè có tháng 6; trẻ T1 đã đăng ký học hè tháng 6, trẻ T2 không đăng ký / Khi điểm danh và tính học phí tháng 6 / Thì chỉ T1 có trong bảng điểm danh và có hóa đơn tháng 6 (BR-92) |
 | AC-232 | Cho phiếu thu cuối năm học 2026–2027 và phiếu thu đầu tiên của năm học 2027–2028 ở cùng đơn vị / Khi phát hành / Thì số phiếu của năm học mới được đánh lại từ đầu và không trùng trong năm học (BR-30) |
+| AC-233 | Cho quản lý đơn vị ĐT-A1 có lớp L1, L2 có điểm danh, sổ liên lạc, hoạt động, sự kiện y tế trong 10 ngày gần nhất / Khi mở báo cáo hoạt động và công việc khoảng 10 ngày đó, rồi chọn lớp L1 / Thì báo cáo có các bảng theo lớp của ĐT-A1, không có lớp đơn vị khác; khi chọn L1 chỉ còn dòng của L1 (YCTD-83) |
+| AC-234 | Cho quản lý đơn vị ĐT-A1, giáo viên, kế toán và cán bộ quản lý cấp trên / Khi quản lý ĐT-A1 xem đơn vị hoặc lớp của ĐT-B1, các vai trò còn lại mở báo cáo hoạt động, hoặc chọn khoảng ngày dài hơn 366 ngày / Thì hệ thống trả lỗi không có quyền với các trường hợp ngoài phạm vi và lỗi dữ liệu với khoảng ngày quá dài (BR-01, YCTD-83) |
+| AC-235 | Cho cán bộ quản lý cấp trên VT-19 và trường có nhiều đơn vị có số liệu trong tháng / Khi mở báo cáo hợp nhất của tháng / Thì mỗi đơn vị một dòng gồm sĩ số, tỷ lệ đi học, học phí phải thu, đã thu, còn nợ, thu chi, cùng dòng tổng; không có dữ liệu cá nhân (YCTD-83) |
+| AC-236 | Cho cán bộ quản lý cấp trên VT-19 và quản lý đơn vị VT-03 / Khi VT-19 gọi các báo cáo có dữ liệu cá nhân, VT-03 gọi báo cáo hợp nhất / Thì hệ thống trả lỗi không có quyền (BR-01, YCTD-83) |
+| AC-237 | Cho kế toán có quyền xem báo cáo công nợ của đơn vị mình và quyền xuất dữ liệu / Khi xuất báo cáo công nợ ra Excel / Thì nhận được tệp xlsx đúng số dòng của báo cáo và nhật ký xuất có một dòng ghi người xuất, báo cáo, bộ lọc, đơn vị, số dòng, có dữ liệu cá nhân (BR-74, YCTD-83) |
+| AC-238 | Cho người không có quyền xuất dữ liệu, và kế toán không có quyền xem báo cáo hoặc đơn vị cần xuất / Khi gọi xuất dữ liệu / Thì hệ thống trả lỗi không có quyền và không ghi dòng nào vào nhật ký xuất (BR-74, YCTD-83) |
 
 ## 20. Chưa xác minh được
 

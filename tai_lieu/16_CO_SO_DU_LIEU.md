@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.47
+- Phiên bản: 1.48
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -319,7 +319,7 @@ Ràng buộc duy nhất: `poll_responses` trên bộ đôi bình chọn và tài
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
 | report_snapshots | Số liệu tổng hợp sẵn | org_unit_id, snapshot_type, period_type, period_value, payload_data, generated_at |
-| export_logs | Nhật ký xuất dữ liệu | user_id, report_code, filters_data, file_id, exported_at |
+| export_logs | Nhật ký xuất dữ liệu (BR-74, YCTD-83); tệp không lưu lại nên không có file_id | user_id, actor_name, report_code, filters_data, org_unit_ids, row_count, contains_personal_data, file_name, ip_address, exported_at |
 
 ## 19. Quan hệ chính giữa các bảng
 

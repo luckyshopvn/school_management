@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.25
+- Phiên bản: 1.26
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -271,8 +271,14 @@
 | CT-186 | P04-01 | Mở điểm danh ngày sau học kỳ 2, ngoài kỳ hè | Không có bảng điểm danh | Kiểm thử tự động `apps/api/src/attendance/attendance.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-187 | P05-13 | Tháng hè có một trẻ đăng ký, một trẻ không | Chỉ trẻ đã đăng ký có điểm danh và hóa đơn | Kiểm thử tự động `apps/api/src/fees/fee-scenarios.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-188 | P06-01 | Phiếu thu đầu năm học mới | Số phiếu đánh lại từ đầu | Kiểm thử tự động `apps/api/src/academic-years/year-transition.test.ts` đạt ngày 11/10/2026: phiếu thu đầu tiên của năm mới có số PT-000001 | Đạt |
+| CT-189 | P17-10 | Quản lý đơn vị mở báo cáo hoạt động và công việc 10 ngày gần nhất, rồi lọc theo một lớp | Có các bảng điểm danh, sổ liên lạc, hoạt động, y tế, dặn thuốc, thông báo; chỉ các lớp của đơn vị mình; lọc theo lớp chỉ còn lớp đó | Kiểm thử tự động `apps/api/src/reports/reports-g2.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-190 | P17-10 | Quản lý đơn vị xem đơn vị hoặc lớp ngoài phạm vi; giáo viên, kế toán, cán bộ quản lý cấp trên mở báo cáo; khoảng ngày quá 366 ngày | Trả lỗi không có quyền; khoảng ngày quá dài trả lỗi dữ liệu | Kiểm thử tự động `apps/api/src/reports/reports-g2.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-191 | P17-11 | Cán bộ quản lý cấp trên mở báo cáo hợp nhất tháng này | Mỗi đơn vị một dòng kèm dòng tổng; không có tên trẻ, tên người nộp tiền, mã trẻ | Kiểm thử tự động `apps/api/src/reports/reports-g2.test.ts` đạt ngày 12/10/2026; Kiểm thử giao diện `tests/e2e/39-reports-g2.spec.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-192 | P17-11 | Cán bộ quản lý cấp trên gọi báo cáo công nợ, điểm danh, thu chi, chấm công, sinh nhật; quản lý đơn vị gọi báo cáo hợp nhất | Trả lỗi không có quyền | Kiểm thử tự động `apps/api/src/reports/reports-g2.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-193 | P17-12 | Kế toán xuất báo cáo công nợ của đơn vị mình ra Excel | Tải được tệp xlsx; nhật ký xuất ghi người xuất, báo cáo, bộ lọc, đơn vị, số dòng, có dữ liệu cá nhân | Kiểm thử tự động `apps/api/src/reports/reports-g2.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-194 | P17-12 | Giáo viên, quản lý đơn vị, cán bộ quản lý cấp trên xuất dữ liệu; kế toán xuất báo cáo không có quyền xem hoặc của đơn vị khác | Trả lỗi không có quyền, không ghi nhật ký xuất | Kiểm thử tự động `apps/api/src/reports/reports-g2.test.ts` đạt ngày 12/10/2026 | Đạt |
 
-Ca CT-105 đến CT-188 lần lượt kiểm tra AC-149 đến AC-232.
+Ca CT-105 đến CT-194 lần lượt kiểm tra AC-149 đến AC-238.
 
 ## 16. Chưa xác minh được
 

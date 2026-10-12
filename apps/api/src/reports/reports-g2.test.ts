@@ -14,7 +14,7 @@ import {
 import { OPERATIONS_SECTION_PROVIDERS, type OperationsSectionProvider } from './operations-report.js';
 
 // Báo cáo giai đoạn 2 (DT-10 phần 10j, YCTD-83): P17-10 báo cáo hoạt động và công việc, P17-11 báo cáo hợp nhất nhiều đơn
-// vị, P17-12 xuất dữ liệu; BR-01, BR-74; kịch bản CT-10j-1 đến CT-10j-6 (người điều phối đánh số CT chính thức)
+// vị, P17-12 xuất dữ liệu; BR-01, BR-74; kịch bản CT-189 đến CT-194 (người điều phối đánh số CT chính thức)
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
   new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
@@ -346,7 +346,7 @@ describe('Báo cáo giai đoạn 2: hoạt động, hợp nhất, xuất dữ li
     await environment.close();
   });
 
-  it('CT-10j-1, P17-10: quản lý đơn vị xem báo cáo hoạt động của các lớp trong đơn vị được gán', async () => {
+  it('CT-189, P17-10: quản lý đơn vị xem báo cáo hoạt động của các lớp trong đơn vị được gán', async () => {
     const response = await get(`/reports/activities?${range}`, token('manager'));
     assert.equal(response.status, 200, JSON.stringify(response.body));
     assert.deepEqual(
@@ -381,7 +381,7 @@ describe('Báo cáo giai đoạn 2: hoạt động, hợp nhất, xuất dữ li
     );
   });
 
-  it('CT-10j-2, P17-10, BR-01: đơn vị hoặc lớp ngoài phạm vi, vai trò không có quyền và khoảng ngày quá dài bị từ chối', async () => {
+  it('CT-190, P17-10, BR-01: đơn vị hoặc lớp ngoài phạm vi, vai trò không có quyền và khoảng ngày quá dài bị từ chối', async () => {
     assert.equal(
       (await get(`/reports/activities?${range}&org_unit_id=${units['ĐT-B1']}`, token('manager'))).status,
       403,
@@ -417,7 +417,7 @@ describe('Báo cáo giai đoạn 2: hoạt động, hợp nhất, xuất dữ li
     }
   });
 
-  it('CT-10j-3, P17-11: cán bộ quản lý cấp trên xem báo cáo hợp nhất chỉ có số liệu tổng hợp', async () => {
+  it('CT-191, P17-11: cán bộ quản lý cấp trên xem báo cáo hợp nhất chỉ có số liệu tổng hợp', async () => {
     const response = await get(`/reports/consolidated?month=${currentMonth}`, token('upper'));
     assert.equal(response.status, 200, JSON.stringify(response.body));
     const rows = response.body.units as Array<Record<string, number | string | null>>;
@@ -450,7 +450,7 @@ describe('Báo cáo giai đoạn 2: hoạt động, hợp nhất, xuất dữ li
     assert.equal((chosen.body.units as unknown[]).length, 2);
   });
 
-  it('CT-10j-4, P17-11, BR-01: cán bộ quản lý cấp trên không xem được báo cáo có dữ liệu cá nhân; quản lý đơn vị không xem báo cáo hợp nhất', async () => {
+  it('CT-192, P17-11, BR-01: cán bộ quản lý cấp trên không xem được báo cáo có dữ liệu cá nhân; quản lý đơn vị không xem báo cáo hợp nhất', async () => {
     for (const path of [
       `/reports/debts`,
       `/reports/attendance?${range}`,
@@ -468,7 +468,7 @@ describe('Báo cáo giai đoạn 2: hoạt động, hợp nhất, xuất dữ li
     );
   });
 
-  it('CT-10j-5, P17-12, BR-74: kế toán xuất báo cáo công nợ ra Excel, hệ thống ghi nhật ký xuất', async () => {
+  it('CT-193, P17-12, BR-74: kế toán xuất báo cáo công nợ ra Excel, hệ thống ghi nhật ký xuất', async () => {
     const response = await exportReport('debts', token('accountant'), { org_unit_id: units['ĐT-A1'] });
     assert.equal(response.status, 200, response.body.toString());
     assert.match(response.headers.get('content-type') ?? '', /spreadsheetml/);
@@ -511,7 +511,7 @@ describe('Báo cáo giai đoạn 2: hoạt động, hợp nhất, xuất dữ li
     assert.equal(consolidatedLog.org_unit_ids.length, 3);
   });
 
-  it('CT-10j-6, P17-12, BR-74: không có quyền xuất hoặc không có quyền xem báo cáo thì không xuất được và không ghi nhật ký', async () => {
+  it('CT-194, P17-12, BR-74: không có quyền xuất hoặc không có quyền xem báo cáo thì không xuất được và không ghi nhật ký', async () => {
     const before = await schoolYear
       .selectFrom('export_logs')
       .select((expression) => expression.fn.countAll<string>().as('count'))
