@@ -15,7 +15,15 @@ function messageOf(error: unknown): string {
   return error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, cần có mạng để chấm công';
 }
 
-export function CheckInCard({ onOpenLeave, onOpenPayslips }: { onOpenLeave(): void; onOpenPayslips(): void }) {
+export function CheckInCard({
+  onOpenLeave,
+  onOpenPayslips,
+  onOpenWork,
+}: {
+  onOpenLeave(): void;
+  onOpenPayslips(): void;
+  onOpenWork(): void;
+}) {
   const [attendance, setAttendance] = useState<TodayAttendance | null>();
   const [errorMessage, setErrorMessage] = useState<string>();
   const [busy, setBusy] = useState(false);
@@ -81,6 +89,9 @@ export function CheckInCard({ onOpenLeave, onOpenPayslips }: { onOpenLeave(): vo
         </Button>
         <Button variant="text" onClick={() => setShowSchedules(!showSchedules)}>
           Lịch công tác
+        </Button>
+        <Button variant="text" onClick={onOpenWork}>
+          Công việc của tôi
         </Button>
       </div>
       {showSchedules ? <WorkScheduleList /> : null}

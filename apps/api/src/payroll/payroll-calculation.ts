@@ -51,6 +51,16 @@ export interface PayslipInput {
   items: PayItemAssignment[];
   // Khoản điều chỉnh đã duyệt cho tháng này (BR-45)
   manualAdjustments?: Array<{ amount: number; reason: string }>;
+  // Khoản thưởng, khấu trừ ghi riêng cho tháng này, số tiền dương (P08-07, YCTD-81)
+  bonusDeductions?: Array<{
+    kind: 'allowance' | 'deduction';
+    code: string;
+    name: string;
+    amount: number;
+    basis: string;
+    is_tax_exempt: boolean;
+    is_mandatory_insurance: boolean;
+  }>;
   dependents: number;
   taxTable: { personal_deduction: number; dependent_deduction: number; brackets: TaxBracket[] };
 }
@@ -197,6 +207,20 @@ export function calculatePayslip(input: PayslipInput) {
       amount: manual.amount,
       basis: 'Khoản điều chỉnh đã được phê duyệt (BR-45)',
       ...plain,
+    });
+  }
+  // Thưởng là thu nhập (chịu thuế trừ khi loại được miễn thuế); khấu trừ khác không giảm thu nhập tính thuế trừ bảo hiểm
+  // bắt buộc (BR-44)
+  for (const item of input.bonusDeductions ?? []) {
+    lines.push({
+      section: 'adjustment',
+      line_type: item.kind === 'allowance' ? 'bonus' : 'deduction',
+      code: item.code,
+      name: item.name,
+      amount: item.kind === 'allowance' ? item.amount : -item.amount,
+      basis: item.basis,
+      tax_exempt: item.is_tax_exempt,
+      mandatory_insurance: item.is_mandatory_insurance,
     });
   }
   const income = lines.filter((line) => line.line_type !== 'deduction').reduce((total, line) => total + line.amount, 0);

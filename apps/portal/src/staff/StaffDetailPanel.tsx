@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { StaffPayItemsSection } from '../payroll/StaffPayItemsSection.js';
+import { WorkHistorySection } from './WorkHistorySection.js';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
 import { Alert, Button, StatusBadge, TextField } from '@school-management/ui';
@@ -231,6 +232,7 @@ export function StaffDetailPanel({ staffId, onChanged }: { staffId: string; onCh
         </section>
       ) : null}
       <StaffPayItemsSection staffId={staffId} />
+      <WorkHistorySection staffId={staffId} />
     </div>
   );
 }

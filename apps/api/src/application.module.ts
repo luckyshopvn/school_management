@@ -159,6 +159,13 @@ import { LoggingSmsGateway, SmsGateway } from './notifications/sms-gateway.js';
 import { JournalsController, JournalsService } from './journals/journals.js';
 import { OrgUnitsController } from './organization/org-units.controller.js';
 import { OrgUnitsService } from './organization/org-units.service.js';
+import { WorkAccess } from './work/work-access.js';
+import { TasksController, TasksService } from './work/tasks.js';
+import { PlansController, PlansService } from './work/plans.js';
+import { EvaluationsController, EvaluationsService } from './work/evaluations.js';
+import { workTransitionStep } from './work/work-transition.js';
+import { WorkHistoryController, WorkHistoryService } from './staff/work-history.js';
+import { BonusDeductionsController, BonusDeductionsService } from './payroll/bonus-deductions.js';
 
 @Module({})
 export class ApplicationModule {
@@ -253,6 +260,11 @@ export class ApplicationModule {
         NotificationsController,
         JournalsController,
         CashBooksController,
+        TasksController,
+        PlansController,
+        EvaluationsController,
+        WorkHistoryController,
+        BonusDeductionsController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -281,6 +293,7 @@ export class ApplicationModule {
             teachingTransitionStep,
             interactionsTransitionStep,
             activitiesTransitionStep,
+            workTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -385,6 +398,12 @@ export class ApplicationModule {
               : new UnavailablePaymentGateway(),
         },
         CashBooksService,
+        WorkAccess,
+        TasksService,
+        PlansService,
+        EvaluationsService,
+        WorkHistoryService,
+        BonusDeductionsService,
         DebtsService,
         SchoolCalendar,
         {

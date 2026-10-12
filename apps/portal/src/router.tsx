@@ -48,6 +48,9 @@ import { ChangePasswordPage } from './pages/ChangePasswordPage.js';
 import { HomePage } from './pages/HomePage.js';
 import { LoginPage } from './pages/LoginPage.js';
 import { useSession } from './session/session.js';
+import { WorkPage } from './work/WorkPage.js';
+import { EvaluationsPage } from './work/EvaluationsPage.js';
+import { BonusDeductionsPage } from './work/BonusDeductionsPage.js';
 
 // Chuyển hướng theo trạng thái phiên: chưa đăng nhập về MH-47; bắt buộc đổi mật khẩu về MH-48 (BM-07)
 function SessionGate() {
@@ -120,6 +123,9 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/reports', component: ReportsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/api-clients', component: ApiClientsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/notifications', component: NotificationsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/work', component: WorkPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/evaluations', component: EvaluationsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/bonus-deductions', component: BonusDeductionsPage }),
 ]);
 
 export const router = createRouter({ routeTree });

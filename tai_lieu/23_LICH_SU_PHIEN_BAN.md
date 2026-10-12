@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.40.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-10 phần 10h, công việc, kế hoạch, đánh giá nhân sự, quá trình công tác, thưởng và khấu trừ (YCTD-81).
+- Chức năng mới: P09-01 đến P09-05, P07-03, P08-07 trên máy chủ API, cổng quản trị (MH-58, MH-59, MH-60, MH-12, MH-44), ứng dụng giáo viên (MG-12).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: mười bảng của năm học (tệp 0037); phiếu lương có thêm dòng thưởng và khấu trừ.
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: khoản thưởng, khấu trừ ghi khi bảng lương còn nháp cần tính lại bảng lương; quyết toán nghỉ việc chưa gồm thưởng.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-10-phan-10h`; chạy ngược tệp 0037 của cơ sở dữ liệu năm học.
+
 ### Phiên bản 0.39.0 – 2026-10-11
 
 - Phạm vi thay đổi: DT-10 phần 10j, báo cáo hoạt động và công việc, báo cáo hợp nhất, xuất dữ liệu (YCTD-83).

@@ -378,6 +378,48 @@ export const activitiesSection: OperationsSectionProvider = {
   },
 };
 
+// Công việc được giao theo đơn vị, hạn trong khoảng ngày: đã xong, đang làm, quá hạn chưa xong, đã hủy; việc cá nhân không
+// tính (BR-70; YCTD-81, YCTD-83)
+export const tasksSection: OperationsSectionProvider = {
+  code: 'tasks',
+  title: 'Công việc được giao',
+  async build(context) {
+    const unitIds = context.orgUnits.length ? context.orgUnits.map((unit) => unit.id) : [NO_ID];
+    const rows = await context.database
+      .selectFrom('tasks')
+      .select(['org_unit_id', 'status', 'due_date'])
+      .where('org_unit_id', 'in', unitIds)
+      .where('task_type', '=', 'assigned')
+      .where('due_date', '>=', context.from)
+      .where('due_date', '<=', context.to)
+      .execute();
+    const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' });
+    const count = (unitId: string, test: (row: { status: string; due_date: string | null }) => boolean) =>
+      rows.filter((row) => row.org_unit_id === unitId && test(row)).length;
+    return {
+      columns: [
+        { key: 'org_unit_name', label: 'Đơn vị' },
+        { key: 'total_count', label: 'Việc có hạn trong kỳ' },
+        { key: 'done_count', label: 'Đã xong' },
+        { key: 'open_count', label: 'Chưa xong' },
+        { key: 'overdue_count', label: 'Quá hạn chưa xong' },
+        { key: 'cancelled_count', label: 'Đã hủy' },
+      ],
+      rows: context.orgUnits.map((unit) => ({
+        org_unit_name: unit.name,
+        total_count: count(unit.id, () => true),
+        done_count: count(unit.id, (row) => row.status === 'done'),
+        open_count: count(unit.id, (row) => row.status === 'todo' || row.status === 'in_progress'),
+        overdue_count: count(
+          unit.id,
+          (row) => (row.status === 'todo' || row.status === 'in_progress') && (row.due_date ?? '') < today,
+        ),
+        cancelled_count: count(unit.id, (row) => row.status === 'cancelled'),
+      })),
+    };
+  },
+};
+
 export const DEFAULT_OPERATIONS_SECTIONS: OperationsSectionProvider[] = [
   attendanceSection,
   journalsSection,
@@ -385,6 +427,7 @@ export const DEFAULT_OPERATIONS_SECTIONS: OperationsSectionProvider[] = [
   healthSection,
   medicationSection,
   notificationsSection,
+  tasksSection,
 ];
 
 export interface OperationsFilter {

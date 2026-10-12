@@ -14,6 +14,27 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-10 phần 10h: công việc và đánh giá
+
+#### Công việc đã thực hiện
+
+- Agent 10h viết mã, kiểm thử máy chủ, nháp tài liệu trong worktree riêng (lượt 3, dừng giữa chừng vì giới hạn phiên rồi làm tiếp); người điều phối gộp nhánh 10j (đã gồm 10b đến 10g), thêm bảng công việc được giao vào báo cáo hoạt động và công việc, đánh số màn hình MH-58 đến MH-60 và bảy kịch bản mới CT-195 đến CT-201 kèm AC-239 đến AC-245, chạy toàn bộ kiểm thử, đưa nháp vào tài liệu.
+- Cơ sở dữ liệu: mười bảng (tệp 0037). Máy chủ API: giao việc, việc cá nhân, tiến độ, kế hoạch kích hoạt thành việc, chỉ số và phiếu đánh giá, quá trình công tác và chứng chỉ, thưởng và khấu trừ đưa vào phiếu lương; bước chuyển năm học `work`.
+- Cổng quản trị: trang Công việc và kế hoạch, Đánh giá nhân sự, Thưởng và khấu trừ, mục Quá trình công tác trong hồ sơ nhân sự. Ứng dụng giáo viên: Công việc của tôi.
+- Kết quả: máy chủ API 474/474, kiểm thử giao diện 56/56.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-81 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-81 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.40.0.
+
+#### Vấn đề tồn đọng
+
+- Gộp phần 10i; kiểm thử G2 và phát hành 1.1.0.
+
 ### 2026-10-11 — DT-10 phần 10j: báo cáo giai đoạn 2
 
 #### Công việc đã thực hiện
