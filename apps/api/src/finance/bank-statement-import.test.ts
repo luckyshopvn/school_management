@@ -16,7 +16,7 @@ import { invoiceCodesIn } from './bank-statement-matching.js';
 import { crc16, PaymentGatewayRegistry, VietQrStaticPaymentGateway, vietQrContent } from './payment-gateway.js';
 
 // Nhập tệp sao kê, đối soát tự động, đề xuất lập phiếu thu và nhiều cổng thanh toán (DT-11 phần 11d, G3-05, YCTD-89);
-// kịch bản đề xuất CT-11d-1 đến CT-11d-6
+// kịch bản đề xuất CT-222 đến CT-227
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
   new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
@@ -230,7 +230,7 @@ describe('Nhập sao kê ngân hàng, đối soát tự động và cổng thanh
     await environment.close();
   });
 
-  it('CT-11d-1: đọc số tiền, ngày, tệp CSV, mã hóa đơn trong diễn giải và mã VietQR', () => {
+  it('CT-222: đọc số tiền, ngày, tệp CSV, mã hóa đơn trong diễn giải và mã VietQR', () => {
     assert.equal(parseAmount('1.000.000'), 1_000_000);
     assert.equal(parseAmount('1,000,000.00'), 1_000_000);
     assert.equal(parseAmount('(11,000)'), -11_000);
@@ -257,7 +257,7 @@ describe('Nhập sao kê ngân hàng, đối soát tự động và cổng thanh
     assert.equal(new PaymentGatewayRegistry([new VietQrStaticPaymentGateway()]).list()[0]?.is_default, true);
   });
 
-  it('CT-11d-2: kế toán lưu cấu hình cột của tài khoản; chưa có cấu hình thì không nhập; quản lý đơn vị bị từ chối', async () => {
+  it('CT-223: kế toán lưu cấu hình cột của tài khoản; chưa có cấu hình thì không nhập; quản lý đơn vị bị từ chối', async () => {
     const file = Buffer.from(csvLines.join('\n'), 'utf8');
     const noProfile = await upload(token('accountant'), accounts.bank ?? '', file, 'sao-ke.csv');
     assert.equal(noProfile.status, 422, JSON.stringify(noProfile.body));
@@ -294,7 +294,7 @@ describe('Nhập sao kê ngân hàng, đối soát tự động và cổng thanh
     assert.equal((await upload(token('manager'), accounts.bank ?? '', file, 'sao-ke.csv')).status, 403);
   });
 
-  it('CT-11d-3: nhập tệp CSV ghi dòng hợp lệ, báo dòng lỗi, đối soát tự động ưu tiên số phiếu trong diễn giải; số dư không đổi; nhập lại bỏ dòng trùng', async () => {
+  it('CT-224: nhập tệp CSV ghi dòng hợp lệ, báo dòng lỗi, đối soát tự động ưu tiên số phiếu trong diễn giải; số dư không đổi; nhập lại bỏ dòng trùng', async () => {
     const before = await balance('bank');
     const file = Buffer.from(csvLines.join('\n'), 'utf8');
     const imported = await upload(token('accountant'), accounts.bank ?? '', file, 'sao-ke.csv');
@@ -329,7 +329,7 @@ describe('Nhập sao kê ngân hàng, đối soát tự động và cổng thanh
     assert.equal((history.body as unknown as unknown[]).length, 2);
   });
 
-  it('CT-11d-4: nhập tệp Excel theo cấu hình một cột số tiền có dấu; dòng trùng số tham chiếu bỏ qua', async () => {
+  it('CT-225: nhập tệp Excel theo cấu hình một cột số tiền có dấu; dòng trùng số tham chiếu bỏ qua', async () => {
     const saved = await api('PUT', `/bank-statement-profiles/${accounts.bank}`, token('chiefAccountant'), {
       date_column: 'Date',
       date_format: 'ymd',
@@ -365,7 +365,7 @@ describe('Nhập sao kê ngân hàng, đối soát tự động và cổng thanh
     assert.equal(rejected.status, 400);
   });
 
-  it('CT-11d-5: kế toán xác nhận đề xuất thì lập phiếu thu chuyển khoản, khớp dòng, hóa đơn hết nợ; không nhận thanh toán một phần; bỏ đề xuất', async () => {
+  it('CT-226: kế toán xác nhận đề xuất thì lập phiếu thu chuyển khoản, khớp dòng, hóa đơn hết nợ; không nhận thanh toán một phần; bỏ đề xuất', async () => {
     const line = firstImport.lines.find((row) => row.bank_reference === 'FT005');
     const before = await balance('bank');
     const denied = await api('POST', `/bank-transactions/${line?.id}/create-receipt`, token('manager'), {
@@ -409,7 +409,7 @@ describe('Nhập sao kê ngân hàng, đối soát tự động và cổng thanh
     );
   });
 
-  it('CT-11d-6: khớp tự động theo số ngày lệch cấu hình của đơn vị', async () => {
+  it('CT-227: khớp tự động theo số ngày lệch cấu hình của đơn vị', async () => {
     await issueReceipt('old', 'B', 650_000, addDays(vietnamToday, -2));
     const manual = await api('POST', '/bank-transactions', token('accountant'), {
       account_id: accounts.bank,
@@ -430,7 +430,7 @@ describe('Nhập sao kê ngân hàng, đối soát tự động và cổng thanh
     assert.equal(wide.body.auto_matched_count, 1);
   });
 
-  it('CT-11d-7: nhiều cổng thanh toán; tài khoản chọn cổng VietQR tĩnh thì mã QR là chuỗi VietQR tới tài khoản thật; bỏ chọn thì về cổng mặc định', async () => {
+  it('CT-228: nhiều cổng thanh toán; tài khoản chọn cổng VietQR tĩnh thì mã QR là chuỗi VietQR tới tài khoản thật; bỏ chọn thì về cổng mặc định', async () => {
     const providers = await api('GET', '/payment-providers', token('accountant'));
     assert.equal(providers.status, 200, JSON.stringify(providers.body));
     assert.deepEqual(

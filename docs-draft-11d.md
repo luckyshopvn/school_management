@@ -26,7 +26,7 @@
 - Giao diện bị ảnh hưởng: MH-11, MH-70 (mới).
 - Quyền bị ảnh hưởng: PQ-52.
 - Ảnh hưởng chức năng cũ: khớp tự động của YCTD-82 nay ưu tiên giao dịch có mã chứng từ trong diễn giải và đọc số ngày lệch từ cấu hình (mặc định 3 nên hành vi mặc định gần như cũ); gõ tay dòng tiền vào có mã hóa đơn thì có đề xuất. Biến `PAYMENT_GATEWAY=development` vẫn chạy như cũ; cấu hình máy chủ trong mã đổi từ `paymentGateway` sang `paymentGateways` (danh sách).
-- Kiểm thử cần thực hiện: CT-11d-1 đến CT-11d-7 (mã tạm, xem mục Kết quả kiểm thử); kiểm thử máy chủ `apps/api/src/finance/bank-statement-import.test.ts`; chạy lại bộ `finance-g2`, `receipts`, `payments`, `online-payments`, `imports`, `settings`, `year-transition`; kiểm thử giao diện `tests/e2e/43-statement-import.spec.ts`.
+- Kiểm thử cần thực hiện: CT-222 đến CT-228 (mã tạm, xem mục Kết quả kiểm thử); kiểm thử máy chủ `apps/api/src/finance/bank-statement-import.test.ts`; chạy lại bộ `finance-g2`, `receipts`, `payments`, `online-payments`, `imports`, `settings`, `year-transition`; kiểm thử giao diện `tests/e2e/43-statement-import.spec.ts`.
 - Trạng thái: Đã triển khai
 
 ## Bảng
@@ -67,13 +67,13 @@ Giao kèo của nhóm điểm cuối nhập sao kê và cổng thanh toán (DT-1
 
 Kiểm thử máy chủ `apps/api/src/finance/bank-statement-import.test.ts`: 7/7 ca đạt. Mã tạm đề xuất cho `21_KICH_BAN_KIEM_THU.md`:
 
-- CT-11d-1: đọc số tiền (phân cách hàng nghìn, phần lẻ ,00, số âm, ngoặc đơn, phần lẻ khác 0 bị từ chối), ngày theo ba cách ghi, tệp CSV có BOM và ngoặc kép, mã hóa đơn trong diễn giải, chuỗi VietQR đúng mã kiểm tra CRC — đạt.
-- CT-11d-2: chưa có cấu hình cột thì nhập tệp trả 422 P06-06; quản lý đơn vị (VT-03) lưu cấu hình hoặc nhập tệp bị từ chối 403; cấu hình thiếu cột tiền ra trả 400; kế toán lưu được — đạt.
-- CT-11d-3: nhập tệp CSV 8 dòng: 6 dòng ghi, 2 dòng lỗi (số tiền không đọc được, ngày sau hôm nay) báo đúng số dòng; khớp tự động 3 dòng, dòng có số phiếu PT trong diễn giải khớp đúng phiếu đó dù có phiếu khác cùng số tiền cùng ngày lập trước; 1 đề xuất lập phiếu thu; dòng 500 000 cho hóa đơn còn nợ 900 000 không có đề xuất; số dư tài khoản không đổi; nhập lại cùng tệp: 0 dòng ghi, 6 dòng trùng — đạt.
-- CT-11d-4: nhập tệp Excel cấu hình một cột số tiền có dấu, ngày năm-tháng-ngày; dòng trùng số tham chiếu với dòng đã có bỏ qua; tệp thiếu cột đã cấu hình trả 400 — đạt.
-- CT-11d-5: quản lý đơn vị xác nhận đề xuất bị từ chối; kế toán xác nhận thì lập phiếu thu PT, dòng đã khớp, hóa đơn hết nợ, số dư tài khoản tăng đúng; xác nhận lần hai trả 409; dòng số tiền nhỏ hơn số còn nợ trả 422 BR-31; dòng gõ tay có mã hóa đơn được đề xuất, bỏ đề xuất được, bỏ lần hai trả 409 — đạt.
-- CT-11d-6: cấu hình `bank_match_days` = 1 thì dòng lệch 2 ngày không khớp; bỏ cấu hình (mặc định 3) thì khớp — đạt.
-- CT-11d-7: máy chủ bật hai cổng (giả lập là mặc định, VietQR tĩnh); chọn VietQR tĩnh thiếu mã BIN, mã BIN sai, cổng chưa bật trả 400, kế toán đơn vị khác trả 403; mã QR của tài khoản chọn VietQR tĩnh là chuỗi EMVCo chứa mã BIN, số tài khoản thật, nội dung là mã hóa đơn bỏ gạch, CRC đúng; bỏ chọn thì về cổng giả lập, mã cũ bị hủy; điểm cuối giả lập vẫn chạy — đạt.
+- CT-222: đọc số tiền (phân cách hàng nghìn, phần lẻ ,00, số âm, ngoặc đơn, phần lẻ khác 0 bị từ chối), ngày theo ba cách ghi, tệp CSV có BOM và ngoặc kép, mã hóa đơn trong diễn giải, chuỗi VietQR đúng mã kiểm tra CRC — đạt.
+- CT-223: chưa có cấu hình cột thì nhập tệp trả 422 P06-06; quản lý đơn vị (VT-03) lưu cấu hình hoặc nhập tệp bị từ chối 403; cấu hình thiếu cột tiền ra trả 400; kế toán lưu được — đạt.
+- CT-224: nhập tệp CSV 8 dòng: 6 dòng ghi, 2 dòng lỗi (số tiền không đọc được, ngày sau hôm nay) báo đúng số dòng; khớp tự động 3 dòng, dòng có số phiếu PT trong diễn giải khớp đúng phiếu đó dù có phiếu khác cùng số tiền cùng ngày lập trước; 1 đề xuất lập phiếu thu; dòng 500 000 cho hóa đơn còn nợ 900 000 không có đề xuất; số dư tài khoản không đổi; nhập lại cùng tệp: 0 dòng ghi, 6 dòng trùng — đạt.
+- CT-225: nhập tệp Excel cấu hình một cột số tiền có dấu, ngày năm-tháng-ngày; dòng trùng số tham chiếu với dòng đã có bỏ qua; tệp thiếu cột đã cấu hình trả 400 — đạt.
+- CT-226: quản lý đơn vị xác nhận đề xuất bị từ chối; kế toán xác nhận thì lập phiếu thu PT, dòng đã khớp, hóa đơn hết nợ, số dư tài khoản tăng đúng; xác nhận lần hai trả 409; dòng số tiền nhỏ hơn số còn nợ trả 422 BR-31; dòng gõ tay có mã hóa đơn được đề xuất, bỏ đề xuất được, bỏ lần hai trả 409 — đạt.
+- CT-227: cấu hình `bank_match_days` = 1 thì dòng lệch 2 ngày không khớp; bỏ cấu hình (mặc định 3) thì khớp — đạt.
+- CT-228: máy chủ bật hai cổng (giả lập là mặc định, VietQR tĩnh); chọn VietQR tĩnh thiếu mã BIN, mã BIN sai, cổng chưa bật trả 400, kế toán đơn vị khác trả 403; mã QR của tài khoản chọn VietQR tĩnh là chuỗi EMVCo chứa mã BIN, số tài khoản thật, nội dung là mã hóa đơn bỏ gạch, CRC đúng; bỏ chọn thì về cổng giả lập, mã cũ bị hủy; điểm cuối giả lập vẫn chạy — đạt.
 
 Chạy lại sau khi sửa mã tài chính: `finance-g2`, `receipts`, `payments`, `online-payments`, `imports`, `settings` (92/92 ca đạt), `year-transition` cùng bộ mới (13/13 ca đạt). `pnpm typecheck` sạch.
 
