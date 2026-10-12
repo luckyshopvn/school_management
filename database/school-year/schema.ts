@@ -1475,6 +1475,154 @@ export interface PurchaseOrderItemsTable {
   received_qty: Decimal;
 }
 
+// Giảng dạy (P03; YCTD-80)
+export type LessonPlanStatus = 'draft' | 'submitted' | 'leader_approved' | 'approved' | 'returned';
+export type LessonPlanReviewStage = 'leader' | 'manager';
+export type TeachingPlanPeriod = 'term' | 'month' | 'week';
+export type TeachingPlanStatus = 'planned' | 'in_progress' | 'completed';
+export type ProgressPeriod = 'term' | 'month';
+export type ProgressLevel = 'achieved' | 'developing' | 'not_yet';
+export type ActivityScheduleStatus = 'draft' | 'published' | 'cancelled';
+
+export interface LessonDomainsTable extends CatalogRecordColumns {
+  org_unit_id: string;
+  name: string;
+  order_no: Generated<number>;
+  status: Generated<'active' | 'inactive'>;
+}
+
+export interface LessonGroupsTable extends CatalogRecordColumns {
+  org_unit_id: string;
+  domain_id: string;
+  name: string;
+  order_no: Generated<number>;
+  status: Generated<'active' | 'inactive'>;
+}
+
+export interface ThemesTable extends CatalogRecordColumns {
+  org_unit_id: string;
+  name: string;
+  age_group: string | null;
+  start_date: string;
+  end_date: string;
+  status: Generated<'active' | 'inactive'>;
+}
+
+export interface LessonsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  theme_id: string | null;
+  domain_id: string | null;
+  lesson_group_id: string | null;
+  name: string;
+  age_group: string | null;
+  objectives: string;
+  materials: string | null;
+  is_shared: Generated<boolean>;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface LessonPlansTable {
+  id: Generated<string>;
+  lesson_id: string;
+  class_id: string;
+  org_unit_id: string;
+  teacher_id: string;
+  teacher_name: string;
+  planned_date: string;
+  activities: string;
+  duration_minutes: number;
+  materials: string | null;
+  status: Generated<LessonPlanStatus>;
+  submitted_at: Date | null;
+  leader_reviewed_by: string | null;
+  leader_reviewed_at: Date | null;
+  approved_by: string | null;
+  approved_at: Date | null;
+  review_comment: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface LessonPlanReviewsTable {
+  id: Generated<string>;
+  lesson_plan_id: string;
+  reviewer_id: string;
+  reviewer_name: string;
+  stage: LessonPlanReviewStage;
+  decision: 'approved' | 'returned';
+  comment: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface TimetablesTable {
+  id: Generated<string>;
+  class_id: string;
+  effective_from: string;
+  weekday: number;
+  period_no: number;
+  start_time: string;
+  end_time: string;
+  activity_name: string;
+  teacher_id: string | null;
+  teacher_name: string | null;
+  status: Generated<'draft' | 'published'>;
+  published_at: Date | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface TeachingPlansTable {
+  id: Generated<string>;
+  class_id: string;
+  org_unit_id: string;
+  period_type: TeachingPlanPeriod;
+  period_value: string;
+  objectives: string;
+  content: string;
+  progress_note: string | null;
+  status: Generated<TeachingPlanStatus>;
+  created_by: string;
+  updated_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ChildProgressTable {
+  id: Generated<string>;
+  child_id: string;
+  class_id: string;
+  period_type: ProgressPeriod;
+  period_value: string;
+  domain_id: string | null;
+  indicator_code: string;
+  level: ProgressLevel;
+  comment: string | null;
+  recorded_by: string;
+  published_at: Date | null;
+  published_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ClassActivitySchedulesTable {
+  id: Generated<string>;
+  class_id: string;
+  activity_date: string;
+  start_time: string;
+  end_time: string;
+  activity_name: string;
+  note: string | null;
+  status: Generated<ActivityScheduleStatus>;
+  published_at: Date | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -1575,4 +1723,14 @@ export interface SchoolYearDatabase {
   purchase_request_items: PurchaseRequestItemsTable;
   purchase_orders: PurchaseOrdersTable;
   purchase_order_items: PurchaseOrderItemsTable;
+  lesson_domains: LessonDomainsTable;
+  lesson_groups: LessonGroupsTable;
+  themes: ThemesTable;
+  lessons: LessonsTable;
+  lesson_plans: LessonPlansTable;
+  lesson_plan_reviews: LessonPlanReviewsTable;
+  timetables: TimetablesTable;
+  teaching_plans: TeachingPlansTable;
+  child_progress: ChildProgressTable;
+  class_activity_schedules: ClassActivitySchedulesTable;
 }

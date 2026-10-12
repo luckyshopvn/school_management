@@ -34,6 +34,12 @@ import { InventoryAccess } from './inventory/inventory-common.js';
 import { inventoryTransitionStep } from './inventory/inventory-transition.js';
 import { PurchasingController, PurchasingService } from './inventory/purchasing.js';
 import { StockController, StockService } from './inventory/stock.js';
+import { ChildProgressController, ChildProgressService } from './teaching/child-progress.js';
+import { ClassTeachingController, ClassTeachingService } from './teaching/class-teaching.js';
+import { LessonPlansController, LessonPlansService } from './teaching/lesson-plans.js';
+import { TeachingAccess } from './teaching/teaching-access.js';
+import { TeachingCatalogsController, TeachingCatalogsService } from './teaching/teaching-catalogs.js';
+import { teachingTransitionStep } from './teaching/teaching-transition.js';
 import { CashflowCategoriesController, CashflowCategoriesService } from './fees/cashflow-categories.js';
 import { DiscountTypesController, DiscountTypesService } from './fees/discount-types.js';
 import { FeeSchedulesController, FeeSchedulesService } from './fees/fee-schedules.js';
@@ -143,6 +149,10 @@ export class ApplicationModule {
         AssetsController,
         StockController,
         PurchasingController,
+        TeachingCatalogsController,
+        LessonPlansController,
+        ClassTeachingController,
+        ChildProgressController,
         FilesController,
         ImportsController,
         AttendanceController,
@@ -194,6 +204,7 @@ export class ApplicationModule {
             financeTransitionStep,
             healthTransitionStep,
             inventoryTransitionStep,
+            teachingTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -223,6 +234,11 @@ export class ApplicationModule {
         AssetsService,
         StockService,
         PurchasingService,
+        TeachingAccess,
+        TeachingCatalogsService,
+        LessonPlansService,
+        ClassTeachingService,
+        ChildProgressService,
         ChildDataProtection,
         FilesService,
         ImportsService,
