@@ -58,6 +58,7 @@ type NavigationPath =
   | '/payroll-settlements'
   | '/reports'
   | '/api-clients'
+  | '/integrations'
   | '/notifications'
   | '/work'
   | '/evaluations'
@@ -136,6 +137,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canManageExtracurricular = useHasPermission(PERMISSION_CODES.extracurricularManage);
   const canSeeActivities = canApproveActivities || canManageContent || canManageLibrary || canManageExtracurricular;
   const canManageApiClients = useHasPermission(PERMISSION_CODES.apiClientManage);
+  const canManageIntegrations = useHasPermission(PERMISSION_CODES.integrationManage);
   const canManagePayItems = useHasPermission(PERMISSION_CODES.payItemTypeManage);
   const canManageBonusDeductions = useHasPermission(PERMISSION_CODES.bonusDeductionManage);
   const canImport = canImportChildren || canManageChildren || canImportOpeningDebts || canImportStaff;
@@ -306,6 +308,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               {canManageApiClients ? <NavItem to="/api-clients" label="Khóa API cho đối tác" /> : null}
             </>
           ) : null}
+          {canManageIntegrations ? <NavItem to="/integrations" label="Kết nối ngoài" /> : null}
           {canViewPlatform || canManageDepartments ? (
             <NavItem to="/departments" label="Phòng ban và chức danh" />
           ) : null}

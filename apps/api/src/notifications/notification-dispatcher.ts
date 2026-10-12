@@ -7,6 +7,8 @@ import { API_CONFIGURATION, type ApiConfiguration } from '../common/configuratio
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { queueNotification } from '../common/notification-queue.js';
 import { SettingsService } from '../settings/settings.service.js';
+import { readIntegration } from '../integrations/integrations.js';
+import { ZaloSender } from '../integrations/zalo-sender.js';
 import { SmsGateway } from './sms-gateway.js';
 
 // Tiến trình chạy nền của thông báo (CB-05, CB-07; YCTD-71):
@@ -15,7 +17,10 @@ import { SmsGateway } from './sms-gateway.js';
 // - mỗi người nhận tối đa 5 tin nhắn thông báo mỗi ngày, tin vượt ghi trạng thái `limited`; mã một lần do dịch vụ định danh
 //   gửi nên không tính vào giới hạn này (KT-09);
 // - đến giờ nhắc của đơn vị (`journal_reminder_time`), lớp còn trẻ chưa có nhật ký đã công bố trong ngày học thì giáo viên
-//   chủ nhiệm và quản lý đơn vị nhận nhắc, mỗi lớp một lần mỗi ngày.
+//   chủ nhiệm và quản lý đơn vị nhận nhắc, mỗi lớp một lần mỗi ngày;
+// - kênh zalo (G3-08, YCTD-90): khi nhà trường bật Zalo Official Account và số điện thoại của người nhận đã liên kết thì gửi
+//   qua Zalo, không thì gửi tin nhắn theo các quy tắc trên; Zalo lỗi thì gửi ngay bằng tin nhắn. Tin qua Zalo tính chung
+//   giới hạn 5 tin mỗi ngày với tin nhắn; `delivered_via` ghi kênh thực tế.
 export const MAXIMUM_ATTEMPTS = 5;
 export const RETRY_DELAY_MILLISECONDS = 15 * 60_000;
 export const DAILY_SMS_LIMIT = 5;
@@ -39,6 +44,7 @@ export class NotificationDispatcher implements OnApplicationBootstrap, OnModuleD
     private readonly settings: SettingsService,
     private readonly calendar: SchoolCalendar,
     private readonly sms: SmsGateway,
+    private readonly zalo: ZaloSender,
     private readonly clock: Clock,
   ) {}
 
@@ -105,11 +111,12 @@ export class NotificationDispatcher implements OnApplicationBootstrap, OnModuleD
         .skipLocked()
         .execute();
       const startOfDay = new Date(`${VIETNAM_DATE.format(now)}T00:00:00+07:00`);
+      const zaloActive = this.zalo.available && (await readIntegration(transaction, 'zalo')).enabled;
       for (const recipient of pending) {
         if (recipient.channel === 'in_app') {
           await transaction
             .updateTable('notification_recipients')
-            .set({ channel_status: 'sent', sent_at: now })
+            .set({ channel_status: 'sent', sent_at: now, delivered_via: 'in_app' })
             .where('id', '=', recipient.id)
             .execute();
           result.sent += 1;
@@ -132,7 +139,7 @@ export class NotificationDispatcher implements OnApplicationBootstrap, OnModuleD
           .selectFrom('notification_recipients')
           .select(sql<string>`count(*)`.as('count'))
           .where('user_id', '=', recipient.user_id)
-          .where('channel', '=', 'sms')
+          .where('channel', 'in', ['sms', 'zalo'])
           .where('channel_status', '=', 'sent')
           .where('sent_at', '>=', startOfDay)
           .executeTakeFirstOrThrow();
@@ -145,11 +152,38 @@ export class NotificationDispatcher implements OnApplicationBootstrap, OnModuleD
           result.limited += 1;
           continue;
         }
+        const text = `${recipient.title}: ${recipient.body}`;
+        const follower =
+          recipient.channel === 'zalo' && zaloActive
+            ? await transaction
+                .selectFrom('zalo_followers')
+                .select('zalo_user_id')
+                .where('phone', '=', phone)
+                .executeTakeFirst()
+            : undefined;
+        let deliveredVia: 'sms' | 'zalo' = 'sms';
+        let zaloError: string | null = null;
+        if (follower) {
+          try {
+            await this.zalo.send(follower.zalo_user_id, text);
+            deliveredVia = 'zalo';
+          } catch (error) {
+            zaloError = error instanceof Error ? error.message : String(error);
+          }
+        }
         try {
-          await this.sms.send(phone, `${recipient.title}: ${recipient.body}`);
+          if (deliveredVia === 'sms') {
+            await this.sms.send(phone, text);
+          }
           await transaction
             .updateTable('notification_recipients')
-            .set({ channel_status: 'sent', sent_at: now, attempt_count: recipient.attempt_count + 1, last_error: null })
+            .set({
+              channel_status: 'sent',
+              sent_at: now,
+              attempt_count: recipient.attempt_count + 1,
+              last_error: zaloError ? `Gửi Zalo lỗi, đã gửi tin nhắn: ${zaloError}` : null,
+              delivered_via: deliveredVia,
+            })
             .where('id', '=', recipient.id)
             .execute();
           result.sent += 1;

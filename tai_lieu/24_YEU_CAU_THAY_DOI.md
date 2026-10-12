@@ -11,6 +11,29 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-90: Kết nối Facebook, Fanpage và Zalo Official Account – 2026-10-11
+
+- Lý do: phần 11e của đợt DT-11 (giai đoạn 3): P14-08, G3-03, việc N3 (Fanpage) và G3-08, việc N17 (Zalo). Tài khoản thật chưa có (T4 Fanpage, T7 Zalo) nên làm lớp kết nối có bộ giả lập, kết nối thật bật khi có khóa. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Cấu hình kết nối ngoài toàn trường (bảng `integration_settings` của năm học, mỗi kết nối một dòng): bật hay tắt và thông tin không bí mật. Fanpage gồm mã trang (bắt buộc khi bật), tên trang; Zalo gồm mã Official Account (bắt buộc khi bật), tên. Chưa lưu lần nào thì là tắt. Chỉ quyền `P01.integration.manage` (VT-02, không cấp VT-01 theo PQ-10) xem và sửa trên trang Kết nối ngoài (MH-71).
+  - Khóa truy cập chỉ đặt ở biến môi trường của máy chủ API: `FACEBOOK_PAGE_ACCESS_TOKEN`, `ZALO_OA_ACCESS_TOKEN`; không lưu vào cơ sở dữ liệu, không trả qua API. API chỉ trả `credentials_configured` (đã có khóa hay chưa) và `provider`. Cấu hình gửi kèm trường lạ (ví dụ `access_token`) bị từ chối 400.
+  - Bộ giả lập: `FACEBOOK_PUBLISHER=development` (ghi bài vào bộ nhớ và nhật ký máy chủ, trả mã bài giả), `ZALO_SENDER=development` (ghi tin ra nhật ký máy chủ, giữ trong bộ nhớ). Kiểm thử máy chủ và kiểm thử giao diện dùng bộ giả lập. Kết nối thật: `GraphApiFacebookPublisher` (Graph API, tải hình chưa công bố rồi đăng một bài kèm hình) và `OfficialAccountZaloSender` (tin tư vấn của Official Account) đã viết khung, chỉ dùng khi có khóa ở biến môi trường, chưa kiểm thử với tài khoản thật; khóa Zalo hết hạn theo giờ nên khi triển khai thật cần thêm bước làm mới khóa (T7).
+  - Đăng Fanpage (P14-08): người có `P14.facebook.manage` (VT-03, VT-02) trong phạm vi đơn vị của nội dung bấm "Đăng lên Fanpage" cho hoạt động của lớp hoặc tin tức. Chỉ nội dung đang công bố (BR-64); tin tức gửi riêng cho lớp hoặc trẻ không đăng công khai (chỉ phạm vi toàn trường hoặc đơn vị). Hình của hoạt động chỉ kèm khi mọi trẻ được gắn thẻ đã đồng ý sử dụng hình ảnh (BR-65), hình khác bị loại và đếm vào `excluded_photo_count`; tin tức kèm hình bìa nếu có. Nội dung bài là tiêu đề và nội dung (tin tức thêm tóm tắt).
+  - Mỗi nội dung một bài (`facebook_posts`, duy nhất theo loại và mã nội dung). Đăng gọi Facebook ngay trong yêu cầu: thành công ghi `posted` kèm mã bài; Facebook lỗi thì ghi `failed` kèm lỗi, không ném lỗi; người quản lý bấm thử lại (đọc lại nội dung và đồng ý hình ảnh lúc thử). Đã đăng thì không đăng lại (409). Chưa bật Fanpage hoặc máy chủ chưa có khóa thì từ chối 422 mã P14-08, kiểm tra trước khi xét nội dung. Ẩn nội dung trên hệ thống không tự gỡ bài trên Fanpage (người quản lý gỡ trên Facebook).
+  - Kênh thông báo `zalo` thêm vào `in_app`, `sms`: tiến trình gửi thông báo gửi qua Zalo khi nhà trường bật Zalo, máy chủ có khóa và số điện thoại phụ huynh của người nhận đã liên kết; không thì gửi tin nhắn theo quy tắc của tin nhắn (thử lại 15 phút, tối đa 5 lần). Zalo lỗi thì gửi ngay bằng tin nhắn trong cùng lượt và ghi lỗi Zalo vào `last_error`. Cột `delivered_via` ghi kênh thực tế (`in_app`, `sms`, `zalo`). Kênh `sms` giữ nguyên, không chuyển sang Zalo.
+  - Giới hạn 5 tin mỗi ngày của một người nhận (KT-09) tính chung tin nhắn và tin Zalo. Báo cáo vận hành đếm "Tin nhắn" gồm cả kênh zalo.
+  - Phụ huynh quan tâm Official Account: chọn màn hình liên kết của người quản trị (không làm điểm cuối giả lập webhook) vì dùng được cả khi chạy thật trước khi có webhook sự kiện quan tâm của Zalo (T7). Người có `P01.integration.manage` nhập số điện thoại (phải là số của một phụ huynh trong năm học, nếu không 422 G3-08) và mã người dùng Zalo; số điện thoại và mã Zalo đều duy nhất (409 khi trùng); bỏ liên kết được. Liên kết theo số điện thoại nên mọi tài khoản phụ huynh có số đó đều nhận qua Zalo.
+  - Nhắc nợ (P05-10): khi Zalo đang bật, mỗi phụ huynh nhận thêm một người nhận kênh `zalo` bên cạnh trong ứng dụng; Zalo tắt thì như cũ (chỉ trong ứng dụng), không phát sinh tin nhắn.
+  - Mở năm học mới chuyển `integration_settings` và `zalo_followers`; bài đăng Fanpage tra ở năm cũ.
+- Thành phần bị ảnh hưởng: `05`, `07`, `08`, `10`, `14`, `16`, `17`, `21`, `22` (khóa ở biến môi trường), `03` (N3, N17), `01`, `02`, `23`, `index.md`; máy chủ API (thư mục `integrations`, tiến trình gửi thông báo, nhắc nợ, báo cáo vận hành), cổng quản trị.
+- Dữ liệu bị ảnh hưởng: ba bảng mới của năm học `integration_settings`, `zalo_followers`, `facebook_posts`; `notification_recipients` thêm `delivered_via`, kênh thêm `zalo` (tệp 0044). Quyền đã cấp trước ở tệp 0035 của định danh (YCTD-85).
+- API bị ảnh hưởng: `GET /integrations`, `PUT /integrations/{connector}`, `GET|POST /integrations/zalo/followers`, `DELETE /integrations/zalo/followers/{id}`, `POST /activities/{id}/facebook-post`, `POST /news/{id}/facebook-post`, `GET /facebook-posts`, `POST /facebook-posts/{id}/retry`.
+- Giao diện bị ảnh hưởng: MH-71 Kết nối ngoài (mới); MH-23 thêm nút "Đăng lên Fanpage" cho hoạt động và tin tức đã công bố.
+- Quyền bị ảnh hưởng: PQ-53.
+- Ảnh hưởng chức năng cũ: khi bật Zalo, nhắc nợ có thêm tin qua Zalo hoặc tin nhắn cho phụ huynh và tính vào giới hạn 5 tin mỗi ngày; báo cáo vận hành đếm tin nhắn gồm cả tin Zalo. Khi chưa bật thì không đổi.
+- Kiểm thử cần thực hiện: CT-202 đến CT-207; chạy lại bộ kiểm thử thông báo, hoạt động, tài chính giai đoạn 2.
+- Trạng thái: Đã triển khai
+
 ### YCTD-85: Kế hoạch đợt DT-11 giai đoạn 3 – 2026-10-11
 
 - Lý do: giai đoạn 2 đã xong (YCTD-84); Eric yêu cầu làm tự động đến hết dự án theo kế hoạch, đợt DT-11 làm giai đoạn 3 để phát hành 1.2.0. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.

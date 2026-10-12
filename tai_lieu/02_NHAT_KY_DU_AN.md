@@ -14,6 +14,27 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-11 phần 11e: kết nối Facebook và Zalo
+
+#### Công việc đã thực hiện
+
+- Agent 11e viết mã, kiểm thử máy chủ, nháp tài liệu trong worktree riêng (dừng giữa chừng vì giới hạn phiên rồi làm tiếp); người điều phối gộp `main`, đánh số sáu kịch bản mới CT-202 đến CT-207 kèm AC-246 đến AC-251, sửa KT-09 tính chung tin Zalo, chạy toàn bộ kiểm thử, đưa nháp vào tài liệu.
+- Cơ sở dữ liệu: tệp 0044. Máy chủ API: cấu hình kết nối ngoài (khóa chỉ ở biến môi trường), đăng hoạt động và tin tức đã công bố lên Fanpage kèm loại ảnh theo đồng ý hình ảnh, thử lại khi lỗi; kênh Zalo cho thông báo và nhắc nợ, gửi tin nhắn thay khi chưa liên kết hoặc lỗi; bước chuyển năm học `integrations`.
+- Cổng quản trị: trang Kết nối ngoài (MH-71), nút Đăng lên Fanpage ở trang Hoạt động và tin tức.
+- Kết quả: máy chủ API 486/486, kiểm thử giao diện 58/58.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-90 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-90 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.43.0.
+
+#### Vấn đề tồn đọng
+
+- Gộp các phần 11a đến 11d; báo cáo kiểm thử giai đoạn 3 và bản ứng viên 1.2.0.
+
 ### 2026-10-11 — DT-10: báo cáo kiểm thử giai đoạn 2, bản ứng viên 1.1.0
 
 #### Công việc đã thực hiện

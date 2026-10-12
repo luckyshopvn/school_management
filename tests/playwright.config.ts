@@ -52,6 +52,9 @@ export default defineConfig({
         SCHOOL_YEAR_DATABASE_PREFIX: E2E_SCHOOL_YEAR_DATABASE_PREFIX,
         // Bộ giả lập nhà cung cấp tài khoản ảo và mã QR (YCTD-57)
         PAYMENT_GATEWAY: 'development',
+        // Bộ giả lập đăng Fanpage và gửi Zalo (YCTD-90)
+        FACEBOOK_PUBLISHER: 'development',
+        ZALO_SENDER: 'development',
       },
     },
     {
