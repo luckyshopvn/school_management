@@ -137,7 +137,10 @@ test('CT-124, CT-076: phụ huynh nộp hồ sơ trực tuyến; nhà trường 
     .getByLabel('Bản chụp giấy khai sinh')
     .setInputFiles({ name: 'giay-khai-sinh.png', mimeType: 'image/png', buffer: PNG });
   await convert.getByRole('button', { name: 'Chuyển thành hồ sơ trẻ' }).click();
-  await expect(staffPage.getByText(`${childName} đang học lớp ${className}`)).toBeVisible({ timeout: 20_000 });
+  // Chờ thông báo kết quả chuyển hồ sơ rồi mới kiểm nội dung, để khi duyệt lỗi thấy được lý do trong thông báo
+  const converted = staffPage.getByText(/^Đã chuyển thành hồ sơ trẻ/);
+  await expect(converted).toBeVisible({ timeout: 20_000 });
+  await expect(converted).toContainText(`${childName} đang học lớp ${className}`);
 
   const lookup = parentPage.getByRole('form', { name: 'Tra cứu hồ sơ tuyển sinh' });
   await lookup.getByLabel('Mã hồ sơ').fill(code);
