@@ -302,7 +302,8 @@ describe('Tuyển sinh trực tuyến: đợt, tin, hồ sơ, xét duyệt, chuy
     const body = applicationBody();
     const submitted = await publicApi('POST', '/admission-applications', body);
     const id = (
-      (await api('GET', `/admission-applications?q=${submitted.body.code}`, token('admissions'))).body as unknown as Array<{
+      (await api('GET', `/admission-applications?q=${submitted.body.code}`, token('admissions')))
+        .body as unknown as Array<{
         id: string;
       }>
     )[0]?.id;
@@ -331,7 +332,8 @@ describe('Tuyển sinh trực tuyến: đợt, tin, hồ sơ, xét duyệt, chuy
     const body = applicationBody();
     const submitted = await publicApi('POST', '/admission-applications', body);
     const id = (
-      (await api('GET', `/admission-applications?q=${submitted.body.code}`, token('admissions'))).body as unknown as Array<{
+      (await api('GET', `/admission-applications?q=${submitted.body.code}`, token('admissions')))
+        .body as unknown as Array<{
         id: string;
       }>
     )[0]?.id;
@@ -364,7 +366,11 @@ describe('Tuyển sinh trực tuyến: đợt, tin, hồ sơ, xét duyệt, chuy
   });
 
   it('CT-076: chuyển hồ sơ tuyển sinh đã đạt sinh hồ sơ trẻ đang học, gắn phụ huynh, phân lớp', async () => {
-    const passed = await passedApplication({ child_national_id: nextNationalId(), child_has_allergies: true, child_allergies: 'Tôm' });
+    const passed = await passedApplication({
+      child_national_id: nextNationalId(),
+      child_has_allergies: true,
+      child_allergies: 'Tôm',
+    });
     const fileId = await upload(token('manager'), units['ĐT-A1'] ?? '');
     const converted = await api('POST', `/admission-applications/${passed.id}/convert`, token('manager'), {
       class_id: classes['MAM-1'],
@@ -394,10 +400,15 @@ describe('Tuyển sinh trực tuyến: đợt, tin, hồ sơ, xét duyệt, chuy
     const child = await api('GET', `/children/${result.child.id}`, token('manager'));
     assert.equal(child.status, 200);
     assert.equal((child.body.health as { allergies: string }).allergies, 'Tôm');
-    assert.equal((await api('POST', `/admission-applications/${passed.id}/convert`, token('manager'), {
-      class_id: classes['MAM-1'],
-      birth_certificate_file_id: fileId,
-    })).status, 422);
+    assert.equal(
+      (
+        await api('POST', `/admission-applications/${passed.id}/convert`, token('manager'), {
+          class_id: classes['MAM-1'],
+          birth_certificate_file_id: fileId,
+        })
+      ).status,
+      422,
+    );
     const lookup = await publicApi('GET', `/admission-applications/lookup?code=${passed.code}&phone=${passed.phone}`);
     assert.equal(lookup.body.status, 'converted');
   });
@@ -425,7 +436,9 @@ describe('Tuyển sinh trực tuyến: đợt, tin, hồ sơ, xét duyệt, chuy
     assert.equal(converted.status, 200, JSON.stringify(converted.body));
     const child = (converted.body as { child: { id: string; status: string } }).child;
     assert.equal(child.status, 'pending');
-    const approved = await api('POST', `/children/${child.id}/approve`, token('manager'), { class_id: classes['MAM-1'] });
+    const approved = await api('POST', `/children/${child.id}/approve`, token('manager'), {
+      class_id: classes['MAM-1'],
+    });
     assert.equal(approved.status, 200, JSON.stringify(approved.body));
     assert.equal(approved.body.status, 'active');
   });
@@ -435,7 +448,8 @@ describe('Tuyển sinh trực tuyến: đợt, tin, hồ sơ, xét duyệt, chuy
     await passedApplication();
     const submitted = await publicApi('POST', '/admission-applications', applicationBody());
     const id = (
-      (await api('GET', `/admission-applications?q=${submitted.body.code}`, token('admissions'))).body as unknown as Array<{
+      (await api('GET', `/admission-applications?q=${submitted.body.code}`, token('admissions')))
+        .body as unknown as Array<{
         id: string;
       }>
     )[0]?.id;

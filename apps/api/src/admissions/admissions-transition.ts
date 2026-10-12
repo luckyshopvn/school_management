@@ -35,9 +35,9 @@ export const admissionsTransitionStep: AcademicYearTransitionStep = {
       await next.insertInto('admission_posts').values(post).execute();
     }
     const relationships = new Set(
-      (await next.selectFrom('catalog_items').select('id').where('catalog_type', '=', 'parent_relationship').execute()).map(
-        (row) => row.id,
-      ),
+      (
+        await next.selectFrom('catalog_items').select('id').where('catalog_type', '=', 'parent_relationship').execute()
+      ).map((row) => row.id),
     );
     let highest = 0;
     for (const application of await previous

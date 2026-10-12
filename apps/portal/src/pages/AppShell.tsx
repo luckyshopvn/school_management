@@ -43,6 +43,7 @@ type NavigationPath =
   | '/school-days'
   | '/work-schedules'
   | '/health'
+  | '/admissions'
   | '/interactions'
   | '/kitchen'
   | '/medicines'
@@ -107,6 +108,16 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canSeeWorkSchedules = canManageWorkSchedules || canViewStaffAttendance;
   const canViewPayroll = useHasPermission(PERMISSION_CODES.payrollView);
   const canManageHealth = useHasPermission(PERMISSION_CODES.healthManage);
+  // Tuyển sinh (YCTD-86)
+  const canManageAdmissionCampaigns = useHasPermission(PERMISSION_CODES.admissionCampaignManage);
+  const canManageAdmissionApplications = useHasPermission(PERMISSION_CODES.admissionApplicationManage);
+  const canReviewAdmissionApplications = useHasPermission(PERMISSION_CODES.admissionApplicationReview);
+  const canManageAdmissionPosts = useHasPermission(PERMISSION_CODES.admissionPostManage);
+  const canSeeAdmissions =
+    canManageAdmissionCampaigns ||
+    canManageAdmissionApplications ||
+    canReviewAdmissionApplications ||
+    canManageAdmissionPosts;
   const canRecordMedicalEvents = useHasPermission(PERMISSION_CODES.medicalEventRecord);
   const canManageInteractions = useHasPermission(PERMISSION_CODES.interactionManage);
   const canSendMessages = useHasPermission(PERMISSION_CODES.messageSend);
@@ -191,6 +202,14 @@ export function AppShell({ children }: { children: ReactNode }) {
               <NavItem to="/classes" label="Lớp học" />
               <NavItem to="/attendance" label="Điểm danh" />
               {canImport ? <NavItem to="/imports" label="Nhập dữ liệu" /> : null}
+            </ul>
+          </>
+        ) : null}
+        {canSeeAdmissions ? (
+          <>
+            <span className="px-3 text-label font-semibold text-text-muted">TUYỂN SINH</span>
+            <ul className="flex flex-col gap-1">
+              <NavItem to="/admissions" label="Tuyển sinh" />
             </ul>
           </>
         ) : null}

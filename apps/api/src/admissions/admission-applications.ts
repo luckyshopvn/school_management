@@ -25,7 +25,13 @@ import { uuidParameter } from '../common/uuid-parameter.js';
 import { nextDocumentCode } from '../fees/document-codes.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { ADMISSION_PERMISSIONS, AdmissionAccess } from './admission-access.js';
-import { readAllergyFlag, readApplication, readNationalId, readText, type ApplicationInput } from './admission-fields.js';
+import {
+  readAllergyFlag,
+  readApplication,
+  readNationalId,
+  readText,
+  type ApplicationInput,
+} from './admission-fields.js';
 
 // Hồ sơ tuyển sinh, xét duyệt và chuyển thành hồ sơ trẻ (P16-02, P16-03, P16-04; G3-01; BR-01, BR-06, QT-01; YCTD-86).
 // Trạng thái: đã nộp (trực tuyến) -> đã tiếp nhận (nhân viên tuyển sinh kiểm tra đủ điều kiện BR-06) -> đạt hoặc không
@@ -138,7 +144,8 @@ export class AdmissionApplicationsService {
   // Nộp hồ sơ: trực tuyến không cần tài khoản (người nộp là phụ huynh) hoặc nhân viên tuyển sinh nhập hộ (đã tiếp nhận)
   async submit(
     input: ApplicationInput,
-    origin: { source: 'online'; ip: string | null } | { source: 'staff'; currentUser: CurrentUser; change: ChangeOrigin },
+    origin:
+      { source: 'online'; ip: string | null } | { source: 'staff'; currentUser: CurrentUser; change: ChangeOrigin },
   ) {
     const { database } = await this.currentSchoolYear.require();
     const campaign = await this.access.findCampaign(database, input.campaign_id);
@@ -546,12 +553,17 @@ export class AdmissionApplicationsService {
         await queueNotification(transaction, {
           orgUnitId: application.org_unit_id,
           templateCode: status === 'received' ? 'admission_application_received' : 'admission_application_passed',
-          title: status === 'received' ? 'Có hồ sơ tuyển sinh chờ xét duyệt' : 'Hồ sơ tuyển sinh đạt, chờ chuyển hồ sơ trẻ',
+          title:
+            status === 'received' ? 'Có hồ sơ tuyển sinh chờ xét duyệt' : 'Hồ sơ tuyển sinh đạt, chờ chuyển hồ sơ trẻ',
           body: `Hồ sơ ${application.code} của ${application.child_full_name}`,
           targetType: 'admission_applications',
           targetId: application.id,
           recipients: [
-            { roleCode: status === 'received' ? 'VT-03' : 'VT-12', orgUnitId: application.org_unit_id, channel: 'in_app' },
+            {
+              roleCode: status === 'received' ? 'VT-03' : 'VT-12',
+              orgUnitId: application.org_unit_id,
+              channel: 'in_app',
+            },
           ],
         });
       }
@@ -623,14 +635,13 @@ export class AdmissionApplicationsService {
       ])
       .where('admission_applications.id', '=', applicationId)
       .executeTakeFirstOrThrow();
-    const {
-      child_national_id_encrypted: _encrypted,
-      child_national_id_hash: _hash,
-      child_national_id_last4: lastFour,
-      submitted_ip: _ip,
-      ...rest
-    } = row;
-    return { ...rest, child_national_id_masked: lastFour ? maskNationalId(lastFour) : null };
+    const rest: Partial<typeof row> = { ...row };
+    delete rest.child_national_id_encrypted;
+    delete rest.child_national_id_hash;
+    delete rest.child_national_id_last4;
+    delete rest.submitted_ip;
+    const lastFour = row.child_national_id_last4;
+    return { ...(rest as typeof row), child_national_id_masked: lastFour ? maskNationalId(lastFour) : null };
   }
 
   // Nhật ký thao tác không chứa số định danh ở dạng rõ (BM-64)

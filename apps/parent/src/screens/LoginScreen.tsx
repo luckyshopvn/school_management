@@ -16,7 +16,7 @@ function describe(error: unknown): { message: string; fields: Record<string, str
   return { message: 'Không kết nối được tới máy chủ, vui lòng thử lại', fields: {} };
 }
 
-export function LoginScreen() {
+export function LoginScreen({ onAdmissions }: { onAdmissions?: () => void }) {
   const session = useSession();
   const [method, setMethod] = useState<Method>('password');
   const [phone, setPhone] = useState('');
@@ -135,6 +135,11 @@ export function LoginScreen() {
           <p className="text-label text-text-secondary">
             Lần đầu đăng nhập, dùng mật khẩu mặc định do nhà trường cung cấp; ứng dụng sẽ yêu cầu đặt mật khẩu mới.
           </p>
+        ) : null}
+        {onAdmissions ? (
+          <Button variant="text" onClick={onAdmissions}>
+            Tuyển sinh trực tuyến
+          </Button>
         ) : null}
       </form>
     </main>

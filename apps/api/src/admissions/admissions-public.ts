@@ -68,7 +68,9 @@ export class AdmissionsPublicService {
           )
           .where('status', '=', 'published')
           .where('publish_from', '<=', today)
-          .where((expression) => expression.or([expression('publish_to', 'is', null), expression('publish_to', '>=', today)]))
+          .where((expression) =>
+            expression.or([expression('publish_to', 'is', null), expression('publish_to', '>=', today)]),
+          )
           .orderBy('publish_from', 'desc')
           .execute()
       : [];
@@ -85,7 +87,15 @@ export class AdmissionsPublicService {
         application_deadline: campaign.open_to,
         posts: posts
           .filter((post) => post.campaign_id === campaign.id)
-          .map(({ campaign_id: _campaignId, ...post }) => ({ ...post, deadline: post.publish_to ?? campaign.open_to })),
+          .map((post) => ({
+            id: post.id,
+            title: post.title,
+            content: post.content,
+            publish_from: post.publish_from,
+            publish_to: post.publish_to,
+            published_at: post.published_at,
+            deadline: post.publish_to ?? campaign.open_to,
+          })),
       })),
       relationships,
     };

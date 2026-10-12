@@ -462,7 +462,11 @@ export class AdmissionCampaignsController {
   @Post('admission-campaigns')
   @RequirePermission(PERMISSION_CODES.admissionCampaignManage)
   create(@Body() body: RequestBody, @Req() request: Request, @AuthenticatedUser() currentUser: CurrentUser) {
-    return this.campaigns.create(currentUser, readCampaign(body, false) as CampaignInput, originOf(request, currentUser));
+    return this.campaigns.create(
+      currentUser,
+      readCampaign(body, false) as CampaignInput,
+      originOf(request, currentUser),
+    );
   }
 
   @Patch('admission-campaigns/:id')

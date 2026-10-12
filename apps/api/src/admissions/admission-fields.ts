@@ -8,7 +8,12 @@ const NATIONAL_ID_PATTERN = /^\d{12}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const VIETNAM_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
 
-export function readDate(body: RequestBody, field: string, errors: FieldError[], required: boolean): string | undefined {
+export function readDate(
+  body: RequestBody,
+  field: string,
+  errors: FieldError[],
+  required: boolean,
+): string | undefined {
   const value = body?.[field];
   if (value === undefined || value === null || value === '') {
     if (required) {
