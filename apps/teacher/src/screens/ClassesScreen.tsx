@@ -19,6 +19,7 @@ export function ClassesScreen({
   onOpenPickup,
   onOpenJournal,
   onOpenCare,
+  onOpenMessages,
   onOpenActivity,
   onOpenMealReport,
   onOpenMedication,
@@ -30,6 +31,7 @@ export function ClassesScreen({
   onOpenPickup(myClass: MyClass): void;
   onOpenJournal(myClass: MyClass): void;
   onOpenCare(myClass: MyClass): void;
+  onOpenMessages(myClass: MyClass): void;
   onOpenActivity(myClass: MyClass): void;
   onOpenMealReport(myClass: MyClass): void;
   onOpenMedication(myClass: MyClass): void;
@@ -95,6 +97,9 @@ export function ClassesScreen({
               </Button>
               <Button aria-label={`Chăm sóc lớp ${myClass.name}`} onClick={() => onOpenCare(myClass)}>
                 Chăm sóc và y tế
+              </Button>
+              <Button aria-label={`Trao đổi lớp ${myClass.name}`} onClick={() => onOpenMessages(myClass)}>
+                Trao đổi và đồ bị mất
               </Button>
               <Button aria-label={`Hoạt động lớp ${myClass.name}`} onClick={() => onOpenActivity(myClass)}>
                 Hoạt động và hình ảnh

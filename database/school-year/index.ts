@@ -32,6 +32,7 @@ import { migration as createHealthRecords } from './migrations/0030_create_healt
 import { migration as createKitchen } from './migrations/0032_create_kitchen.js';
 import { migration as createMedicines } from './migrations/0031_create_medicines.js';
 import { migration as createInventory } from './migrations/0033_create_inventory.js';
+import { migration as createInteractions } from './migrations/0035_create_interactions.js';
 import { migration as createActivities } from './migrations/0034_create_activities.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
@@ -69,5 +70,6 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0032_create_kitchen': createKitchen,
   '0031_create_medicines': createMedicines,
   '0033_create_inventory': createInventory,
+  '0035_create_interactions': createInteractions,
   '0034_create_activities': createActivities,
 };

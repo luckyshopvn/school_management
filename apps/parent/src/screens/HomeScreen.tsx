@@ -7,6 +7,8 @@ import { InvoicesPanel } from './InvoicesPanel.js';
 import { JournalPanel } from './JournalPanel.js';
 import { ActivitiesPanel } from './ActivitiesPanel.js';
 import { HealthPanel } from './HealthPanel.js';
+import { InteractionsPanel } from './InteractionsPanel.js';
+import { PollsPanel } from './PollsPanel.js';
 import { MenuPanel } from './MenuPanel.js';
 import { MedicationPanel } from './MedicationPanel.js';
 import { PhotoConsentPanel } from './PhotoConsentPanel.js';
@@ -99,6 +101,7 @@ function ChildCard({ child, onMessage }: { child: Child; onMessage(message: stri
     | 'invoices'
     | 'consent'
     | 'health'
+    | 'interactions'
     | 'activities'
     | 'menu'
     | 'medication'
@@ -137,6 +140,7 @@ function ChildCard({ child, onMessage }: { child: Child; onMessage(message: stri
         <Button onClick={() => setView(view === 'invoices' ? 'none' : 'invoices')}>Học phí</Button>
         <Button onClick={() => setView(view === 'consent' ? 'none' : 'consent')}>Hình ảnh</Button>
         <Button onClick={() => setView(view === 'health' ? 'none' : 'health')}>Sức khỏe</Button>
+        <Button onClick={() => setView(view === 'interactions' ? 'none' : 'interactions')}>Trao đổi</Button>
         <Button onClick={() => setView(view === 'activities' ? 'none' : 'activities')}>Hoạt động</Button>
         <Button onClick={() => setView(view === 'menu' ? 'none' : 'menu')}>Thực đơn</Button>
         <Button onClick={() => setView(view === 'medication' ? 'none' : 'medication')}>Dặn thuốc</Button>
@@ -145,6 +149,7 @@ function ChildCard({ child, onMessage }: { child: Child; onMessage(message: stri
       {view === 'medication' ? <MedicationPanel child={child} /> : null}
       {view === 'consent' ? <PhotoConsentPanel child={child} /> : null}
       {view === 'health' ? <HealthPanel child={child} /> : null}
+      {view === 'interactions' ? <InteractionsPanel child={child} /> : null}
       {view === 'activities' ? <ActivitiesPanel child={child} /> : null}
       {view === 'menu' ? <MenuPanel child={child} /> : null}
       {view === 'pickups' ? <AuthorizedPickupsPanel child={child} /> : null}
@@ -209,6 +214,7 @@ export function HomeScreen() {
         {notice ? <Alert tone="success">{notice}</Alert> : null}
         <NotificationsPanel />
         <PickupConfirmations />
+        <PollsPanel />
         {children && children.length === 0 ? (
           <p className="text-content text-text-secondary">Chưa có thông tin của con.</p>
         ) : null}

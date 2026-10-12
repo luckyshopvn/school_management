@@ -14,6 +14,28 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-10 phần 10f: tương tác và đồ bị mất
+
+#### Công việc đã thực hiện
+
+- Agent 10f viết mã, kiểm thử máy chủ, nháp tài liệu trong worktree riêng (lượt 2); người điều phối gộp các nhánh 10b, 10c, 10d, 10e, xử lý xung đột ở các tệp đăng ký dùng chung, chạy toàn bộ kiểm thử, đưa nháp vào tài liệu.
+- Bình luận: giữ hai bảng riêng, `content_comments` của 10e cho nội dung P14 (hoạt động, tin tức, thư viện, album) và `interaction_comments` của 10f cho đối tượng P15 (bình chọn); đổi tên kiểu và lớp của phần tương tác (`InteractionCommentTargetType`, `InteractionCommentsService`) để không trùng tên. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: gộp một bảng chung cần sửa lớn cả hai phần mà không thêm giá trị cho người dùng.
+- Cơ sở dữ liệu: mười ba bảng (tệp 0035). Máy chủ API: luồng trao đổi theo trẻ và tài khoản phụ huynh, góp ý ẩn danh, bình chọn, biểu quyết, khảo sát và danh mục khảo sát, bình luận có bản ghi xử lý, lượt thích, phiếu đồ bị mất `DBM-000001`; bước chuyển năm học `interactions`.
+- Cổng quản trị: trang Tương tác với phụ huynh. Ứng dụng giáo viên: trao đổi và đồ bị mất của lớp. Ứng dụng phụ huynh: trao đổi, góp ý, bình chọn, mất đồ.
+- Kết quả: máy chủ API 452/452, kiểm thử giao diện 53/53.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-79 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-79 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.37.0.
+
+#### Vấn đề tồn đọng
+
+- Gộp phần 10g; lượt 3 (10h, 10i, 10j).
+
 ### 2026-10-11 — DT-10 phần 10e: hoạt động và nội dung
 
 #### Công việc đã thực hiện

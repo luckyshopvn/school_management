@@ -1,7 +1,7 @@
 # 03. DANH SÁCH KIỂM TRA CÔNG VIỆC
 
 - Mô tả: Danh sách công việc, trạng thái và thứ tự ưu tiên của dự án.
-- Phiên bản: 0.10
+- Phiên bản: 0.11
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đang cập nhật
 
@@ -62,7 +62,7 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | M12 | Xây dựng bếp, thực đơn, định lượng | P12 | Hoàn thành | Đợt DT-10 phần 10c (YCTD-76), gồm báo cáo ăn và bếp P17-08 |
 | M13 | Xây dựng kho, tài sản, mua hàng | P13 | Hoàn thành | Đợt DT-10 phần 10d (YCTD-77) |
 | M14 | Xây dựng hoạt động, tin tức, thư viện, thông báo | P14 | Hoàn thành | Đợt DT-10 phần 10e (YCTD-78): hoạt động và hình ảnh, tin tức, thư viện, album, hình tô màu, ngoại khóa có phí |
-| M15 | Xây dựng tương tác, góp ý, bình chọn, khảo sát | P15 | Chưa bắt đầu | Giai đoạn 2 |
+| M15 | Xây dựng tương tác, góp ý, bình chọn, khảo sát | P15 | Hoàn thành | Đợt DT-10 phần 10f (YCTD-79): trao đổi hai chiều, góp ý, bình chọn, biểu quyết, khảo sát, bình luận và thích; đồ bị mất của trẻ (P02-11) |
 | M16 | Xây dựng tuyển sinh trực tuyến | P16 | Chưa bắt đầu | Giai đoạn 3 |
 | M18 | Xây dựng tuyển dụng | P18 | Chưa bắt đầu | Giai đoạn 3 |
 

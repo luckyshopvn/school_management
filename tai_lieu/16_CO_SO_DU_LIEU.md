@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.45
+- Phiên bản: 1.46
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -77,7 +77,7 @@ Ràng buộc: `org_units.parent_id` trỏ tới `org_units.id`. Chỉ một đơ
 | teaching_group_members | Thành viên tổ chuyên môn | group_id, staff_id, from_date, to_date |
 | health_profiles | Hồ sơ sức khỏe cơ bản | child_id (duy nhất), blood_type, has_allergies (trống là chưa khai báo, BR-06), allergies, chronic_conditions, note |
 | health_measurements | Chỉ số sức khỏe theo lần đo | child_id, measured_on, height_cm, weight_kg, vision_left, vision_right, bmi, note |
-| lost_items | Đồ bị mất của trẻ | child_id, class_id, description, report_type (báo mất hoặc nhặt được), reported_by, reported_at, photo_file_id, status, closed_by, closed_at, result_note |
+| lost_items | Đồ bị mất của trẻ | code (DBM-000001), org_unit_id, child_id, class_id, report_type (lost, found), description, noticed_on, photo_file_id, status (reported, found, returned, not_found, cancelled), reported_by, reported_at, found_by, found_at, found_note, closed_by, closed_at, result_note, cancelled_by, cancelled_at |
 
 ## 4. Phân hệ P03 — Giảng dạy
 
@@ -286,14 +286,18 @@ Ràng buộc duy nhất: `activity_likes` trên bộ đôi hoạt động và t�
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| message_threads | Luồng trao đổi | org_unit_id, child_id, teacher_id, guardian_user_id, last_message_at, status |
-| messages | Tin nhắn | thread_id, sender_user_id, content, attachment_file_id, sent_at, is_read, read_at |
-| feedbacks | Góp ý | org_unit_id, child_id, submitted_by_user_id, category, content, privacy_level, status, handled_by, handled_at, handling_note |
-| polls | Bình chọn, biểu quyết, khảo sát | org_unit_id, poll_type, title, description, scope_type, scope_id, start_at, end_at, is_anonymous, status, created_by |
-| poll_options | Phương án lựa chọn | poll_id, label, order_no |
-| poll_questions | Câu hỏi khảo sát | poll_id, question_text, answer_type, order_no, is_required |
+| message_threads | Luồng trao đổi, một luồng cho mỗi trẻ và tài khoản phụ huynh | org_unit_id, child_id, guardian_user_id, created_by, last_message_at |
+| messages | Tin nhắn | thread_id, sender_user_id, sender_side (guardian, staff), sender_name, content, sent_at, read_at, read_by |
+| feedbacks | Góp ý | org_unit_id, child_id, submitted_by_user_id, submitter_name, category, content, privacy_level (named, anonymous), status (received, in_progress, resolved), assigned_to_user_id, handled_by, handled_at, handling_note |
+| polls | Bình chọn, biểu quyết, khảo sát | org_unit_id, poll_type (poll, vote, survey), title, description, class_id, audience (guardians, staff, everyone), start_at, end_at, is_anonymous, survey_template_id, status (draft, open, closed), published_at, closed_at, results_published_at, created_by |
+| poll_options | Phương án của câu hỏi | poll_id, question_id, label, order_no |
+| poll_questions | Câu hỏi (bình chọn và biểu quyết có một câu) | poll_id, question_text, answer_type (single_choice, multiple_choice, text, rating), order_no, is_required |
 | poll_responses | Phiếu trả lời | poll_id, user_id, submitted_at |
 | poll_answers | Câu trả lời chi tiết | response_id, question_id, option_id, answer_text, answer_number |
+| survey_templates | Danh mục khảo sát chung toàn trường | name (duy nhất), description, questions (JSON: question_text, answer_type, is_required, options), status |
+| interaction_comments | Bình luận trên đối tượng của P15 | org_unit_id, target_type (poll), target_id, user_id, author_name, author_side, content, reported_at, reported_by, hidden_at, hidden_by, hide_reason |
+| comment_moderations | Bản ghi xử lý bình luận | comment_id, action (hide, restore, note), reason, handled_by, handled_at |
+| interaction_likes | Lượt thích | target_type (poll, comment), target_id, user_id |
 
 Ràng buộc duy nhất: `poll_responses` trên bộ đôi bình chọn và tài khoản, để mỗi tài khoản chỉ gửi một phiếu.
 

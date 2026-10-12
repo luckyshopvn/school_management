@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.37.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-10 phần 10f, tương tác với phụ huynh và đồ bị mất của trẻ (YCTD-79).
+- Chức năng mới: P15-01 đến P15-06 và P02-11 trên máy chủ API, cổng quản trị (MH-25), ứng dụng giáo viên (MG-08, MG-15), ứng dụng phụ huynh (MP-09, MP-10, MP-17, MP-19).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: mười ba bảng tương tác và đồ bị mất của năm học (tệp 0035).
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: trao đổi không theo thời gian thực, phụ huynh và giáo viên tải lại để thấy tin mới; chưa nhận ảnh đồ bị mất và tệp đính kèm tin nhắn.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-10-phan-10f`; chạy ngược tệp 0035 của cơ sở dữ liệu năm học.
+
 ### Phiên bản 0.36.0 – 2026-10-11
 
 - Phạm vi thay đổi: DT-10 phần 10e, hoạt động, hình ảnh, tin tức, thư viện, ngoại khóa (YCTD-78).

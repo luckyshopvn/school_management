@@ -65,6 +65,13 @@ import {
 import { ExtracurricularController, ExtracurricularService } from './activities/extracurricular.js';
 import { PurchasingController, PurchasingService } from './inventory/purchasing.js';
 import { StockController, StockService } from './inventory/stock.js';
+import { InteractionCommentsController, InteractionCommentsService } from './interactions/comments.js';
+import { FeedbacksController, FeedbacksService } from './interactions/feedbacks.js';
+import { InteractionAccess } from './interactions/interaction-access.js';
+import { interactionsTransitionStep } from './interactions/interactions-transition.js';
+import { LostItemsController, LostItemsService } from './interactions/lost-items.js';
+import { MessagesController, MessagesService } from './interactions/messages.js';
+import { PollsController, PollsService } from './interactions/polls.js';
 import { CashflowCategoriesController, CashflowCategoriesService } from './fees/cashflow-categories.js';
 import { DiscountTypesController, DiscountTypesService } from './fees/discount-types.js';
 import { FeeSchedulesController, FeeSchedulesService } from './fees/fee-schedules.js';
@@ -181,6 +188,11 @@ export class ApplicationModule {
         AssetsController,
         StockController,
         PurchasingController,
+        MessagesController,
+        FeedbacksController,
+        PollsController,
+        CommentsController,
+        LostItemsController,
         ActivitiesController,
         ActivityCategoriesController,
         NewsCategoriesController,
@@ -190,7 +202,7 @@ export class ApplicationModule {
         LibraryItemsController,
         ColoringPagesController,
         LibraryAlbumsController,
-        CommentsController,
+        InteractionCommentsController,
         ExtracurricularController,
         FilesController,
         ImportsController,
@@ -245,6 +257,7 @@ export class ApplicationModule {
             kitchenTransitionStep,
             medicinesTransitionStep,
             inventoryTransitionStep,
+            interactionsTransitionStep,
             activitiesTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
@@ -284,13 +297,19 @@ export class ApplicationModule {
         AssetsService,
         StockService,
         PurchasingService,
+        InteractionAccess,
+        MessagesService,
+        FeedbacksService,
+        PollsService,
+        CommentsService,
+        LostItemsService,
         ActivityAccess,
         ActivitiesService,
         ContentCatalogsService,
         ContentFilesService,
         ContentService,
         LibraryAlbumsService,
-        CommentsService,
+        InteractionCommentsService,
         ExtracurricularService,
         ChildDataProtection,
         FilesService,

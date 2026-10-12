@@ -7,6 +7,7 @@ import { ClassesScreen, type MyClass } from './screens/ClassesScreen.js';
 import { GateCheckScreen } from './screens/GateCheckScreen.js';
 import { JournalScreen } from './screens/JournalScreen.js';
 import { LeaveScreen } from './screens/LeaveScreen.js';
+import { MessagesScreen } from './screens/MessagesScreen.js';
 import { MealReportScreen } from './screens/MealReportScreen.js';
 import { PayslipsScreen } from './screens/PayslipsScreen.js';
 import { LoginScreen } from './screens/LoginScreen.js';
@@ -18,7 +19,10 @@ import { SessionProvider, useSession } from './session/session.js';
 function Screens() {
   const session = useSession();
   const [opened, setOpened] = useState<
-    | { screen: 'attendance' | 'pickup' | 'journal' | 'care' | 'activity' | 'meal' | 'medication'; myClass: MyClass }
+    | {
+        screen: 'attendance' | 'pickup' | 'journal' | 'care' | 'messages' | 'activity' | 'meal' | 'medication';
+        myClass: MyClass;
+      }
     | { screen: 'gate'; orgUnitIds: string[] }
     | { screen: 'leave' }
     | { screen: 'payslips' }
@@ -41,6 +45,9 @@ function Screens() {
   }
   if (opened?.screen === 'care') {
     return <CareScreen myClass={opened.myClass} onBack={back} />;
+  }
+  if (opened?.screen === 'messages') {
+    return <MessagesScreen myClass={opened.myClass} onBack={back} />;
   }
   if (opened?.screen === 'activity') {
     return <ActivityScreen myClass={opened.myClass} onBack={back} />;
@@ -69,6 +76,7 @@ function Screens() {
       onOpenPickup={(myClass) => setOpened({ screen: 'pickup', myClass })}
       onOpenJournal={(myClass) => setOpened({ screen: 'journal', myClass })}
       onOpenCare={(myClass) => setOpened({ screen: 'care', myClass })}
+      onOpenMessages={(myClass) => setOpened({ screen: 'messages', myClass })}
       onOpenActivity={(myClass) => setOpened({ screen: 'activity', myClass })}
       onOpenMealReport={(myClass) => setOpened({ screen: 'meal', myClass })}
       onOpenMedication={(myClass) => setOpened({ screen: 'medication', myClass })}
