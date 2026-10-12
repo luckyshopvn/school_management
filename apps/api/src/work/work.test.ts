@@ -13,7 +13,7 @@ import {
 import { weightedTotal } from './evaluations.js';
 
 // Công việc, kế hoạch, đánh giá, quá trình công tác, thưởng và khấu trừ (DT-10 phần 10h, YCTD-81); kịch bản đề xuất
-// CT-10H-01 đến CT-10H-07 (người điều phối đánh số lại khi ghi vào tài liệu 21)
+// CT-195 đến CT-201
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
   new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
@@ -116,7 +116,7 @@ describe('Công việc, kế hoạch, đánh giá nhân sự, quá trình công 
     await environment.close();
   });
 
-  it('CT-10H-01 P09-01: quản lý giao việc trong đơn vị, người nhận nhận thông báo; ngoài đơn vị hoặc không có quyền bị chặn', async () => {
+  it('CT-195 P09-01: quản lý giao việc trong đơn vị, người nhận nhận thông báo; ngoài đơn vị hoặc không có quyền bị chặn', async () => {
     const assign = (body: Record<string, unknown>, accessToken = token('manager')) =>
       api('POST', '/tasks', accessToken, {
         title: 'Chuẩn bị hồ sơ lớp',
@@ -149,7 +149,7 @@ describe('Công việc, kế hoạch, đánh giá nhân sự, quá trình công 
     assert.equal((await api('GET', `/tasks/${created.body.id}`, token('vicePrincipal'))).status, 200);
   });
 
-  it('CT-10H-02 P09-02: nhân sự tự tạo việc cá nhân, chỉ mình xem và sửa', async () => {
+  it('CT-196 P09-02: nhân sự tự tạo việc cá nhân, chỉ mình xem và sửa', async () => {
     const created = await api('POST', '/tasks', token('teacher'), { title: 'Soạn giáo án tuần sau' });
     assert.equal(created.status, 201, JSON.stringify(created.body));
     assert.equal(created.body.task_type, 'personal');
@@ -164,7 +164,7 @@ describe('Công việc, kế hoạch, đánh giá nhân sự, quá trình công 
     assert.equal((await api('POST', '/tasks', token('accountant'), { title: 'Việc riêng' })).status, 404);
   });
 
-  it('CT-10H-03 P09-04: người nhận cập nhật tiến độ, đủ 100% là hoàn thành, người giao nhận thông báo; bảng tiến độ có việc quá hạn', async () => {
+  it('CT-197 P09-04: người nhận cập nhật tiến độ, đủ 100% là hoàn thành, người giao nhận thông báo; bảng tiến độ có việc quá hạn', async () => {
     const created = await api('POST', '/tasks', token('manager'), {
       title: 'Kiểm kê đồ chơi',
       assignee_staff_id: staff.otherTeacher,
@@ -236,7 +236,7 @@ describe('Công việc, kế hoạch, đánh giá nhân sự, quá trình công 
     );
   });
 
-  it('CT-10H-04 P09-03: quản lý lập kế hoạch theo kỳ, kích hoạt thì giao việc cho người phụ trách, tiến độ theo việc', async () => {
+  it('CT-198 P09-03: quản lý lập kế hoạch theo kỳ, kích hoạt thì giao việc cho người phụ trách, tiến độ theo việc', async () => {
     const plan = {
       org_unit_id: units['ĐT-A1'],
       period_type: 'month',
@@ -296,7 +296,7 @@ describe('Công việc, kế hoạch, đánh giá nhân sự, quá trình công 
     assert.equal(errorOf(late.body).rule_code, 'P09-03');
   });
 
-  it('CT-10H-05 P09-05, BR-47: đánh giá theo chỉ số của đơn vị, công bố xong không sửa, đánh giá lại phải có lý do', async () => {
+  it('CT-199 P09-05, BR-47: đánh giá theo chỉ số của đơn vị, công bố xong không sửa, đánh giá lại phải có lý do', async () => {
     const criterion = (body: Record<string, unknown>, accessToken = token('hr')) =>
       api('POST', '/evaluation-criteria', accessToken, { org_unit_id: units['ĐT-A1'], ...body });
     const quality = await criterion({ code: 'cl', name: 'Chất lượng công việc', weight: 2, max_score: 10 });
@@ -374,7 +374,7 @@ describe('Công việc, kế hoạch, đánh giá nhân sự, quá trình công 
     assert.equal((await api('GET', '/evaluations', token('otherTeacher'))).status, 403);
   });
 
-  it('CT-10H-06 P07-03, BR-37: phòng nhân sự ghi thêm quá trình công tác và chứng chỉ; nhân sự xem của mình', async () => {
+  it('CT-200 P07-03, BR-37: phòng nhân sự ghi thêm quá trình công tác và chứng chỉ; nhân sự xem của mình', async () => {
     const department = await schoolYear
       .insertInto('departments')
       .values({ org_unit_id: units['ĐT-A1'] ?? '', name: 'Tổ Mầm' })
@@ -451,7 +451,7 @@ describe('Công việc, kế hoạch, đánh giá nhân sự, quá trình công 
     assert.equal((await api('DELETE', `/staff-certificates/${certificate.body.id}`, token('hr'))).status, 200);
   });
 
-  it('CT-10H-07 P08-07, BR-44, BR-45: kế toán ghi thưởng, khấu trừ có căn cứ; bảng lương tháng đó cộng trừ; trình duyệt xong thì khóa', async () => {
+  it('CT-201 P08-07, BR-44, BR-45: kế toán ghi thưởng, khấu trừ có căn cứ; bảng lương tháng đó cộng trừ; trình duyệt xong thì khóa', async () => {
     await schoolYear
       .insertInto('employment_contracts')
       .values({

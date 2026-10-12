@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.27
+- Phiên bản: 1.28
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -85,7 +85,7 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 | BR-44 | Khấu trừ gồm bảo hiểm bắt buộc theo quy định, thuế thu nhập cá nhân theo biểu đang áp dụng, và các khoản khác có ghi rõ căn cứ |
 | BR-45 | Bảng lương đã chốt không sửa trực tiếp. Sai thì lập bảng điều chỉnh cho kỳ sau, có lý do và người phê duyệt |
 | BR-46 | Nhân sự chỉ xem được bảng lương, chấm công và đơn nghỉ của chính mình, trừ nhân sự, kế toán, kế toán trưởng, Ban Giám hiệu và kiểm toán viên trong thời hạn tài khoản |
-| BR-47 | Đánh giá nhân sự theo kỳ dựa trên chỉ số do đơn vị cấu hình. Kết quả đánh giá đã công bố không sửa mà phải lập đánh giá lại có lý do |
+| BR-47 | Đánh giá nhân sự theo kỳ dựa trên chỉ số do đơn vị cấu hình. Kết quả đánh giá đã công bố không sửa mà phải lập đánh giá lại có lý do. Điểm tổng thang 100 là trung bình có trọng số của tỷ lệ điểm trên điểm tối đa từng chỉ số; mỗi nhân sự mỗi kỳ chỉ một phiếu đã công bố còn hiệu lực, phiếu đánh giá lại thay thế phiếu cũ khi công bố (YCTD-81) |
 
 ## 8. Quy tắc về y tế học đường
 

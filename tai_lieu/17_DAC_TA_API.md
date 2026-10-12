@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.53
+- Phiên bản: 1.54
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -88,6 +88,16 @@ Giao kèo phần 10f (YCTD-79):
 
 Thay hai dòng có sẵn và thêm một dòng trong mục 17 của `17_DAC_TA_API.md`:
 
+
+Giao kèo:
+
+1. Việc trả `{ id, task_type: assigned | personal, title, description, org_unit_id, assigner_user_id, assigner_name, assignee_staff_id, assignee_name, due_date, priority: low | normal | high, status: todo | in_progress | done | cancelled, progress_percent, plan_item_id, completed_at, cancel_reason, overdue }`; chi tiết thêm `can_edit`, `can_update_progress`, `updates`.
+2. Bảng tiến độ trả `{ rows: [{ staff_id, full_name, total, todo, in_progress, done, overdue, average_progress }], total, done, overdue, average_progress }`.
+3. Kế hoạch trả `{ ..., status: draft | active | closed, item_count, done_count, progress_percent }`; chi tiết thêm `can_manage`, `items: [{ id, content, owner_staff_id, owner_name, due_date, task_id, task_status, progress_percent }]`. Kỳ: `period_type` month (`YYYY-MM`), term (`HK1|HK2|HE YYYY-YYYY`), year (`YYYY-YYYY`).
+4. Phiếu đánh giá trả `{ id, staff_id, full_name, staff_code, period_type, period_value, total_score, comment, status: draft | published | superseded, replaces_id, reevaluation_reason, evaluated_by_name, published_at, scores: [{ criterion_id, criterion_code, criterion_name, weight, max_score, score, comment }] }`. Lập phiếu gửi `scores: [{ criterion_id, score, comment }]` đủ mọi chỉ số đang dùng.
+5. Quá trình công tác trả `{ staff_id, can_manage, history: [{ id, org_unit_id, unit_name, department_name, job_title_name, from_date, to_date, note, is_main_unit }], certificates: [...] }`.
+6. Khoản thưởng, khấu trừ trả `{ id, staff_id, full_name, staff_code, pay_item_type_id, kind: allowance | deduction, item_code, item_name, target_year, target_month, amount, basis, status: active | cancelled, cancel_reason, can_cancel }`. Phiếu lương có dòng `line_type` `bonus` hoặc `deduction`, mục `adjustment`, `code` là mã loại khoản.
+7. Mã lỗi: `ERR_RULE_VIOLATION` kèm `P09-01` (người nhận nghỉ việc hoặc chưa có tài khoản; việc đã xong hoặc đã hủy), `P09-03` (kế hoạch không ở trạng thái phù hợp), `P09-04` (cập nhật tiến độ việc đã xong), `BR-47` (sửa phiếu đã công bố, đánh giá lại thiếu lý do, đơn vị chưa có chỉ số), `BR-45` (tháng đã trình duyệt bảng lương), `BR-90` (nhân sự đã chấm dứt hợp đồng); `ERR_CONFLICT` khi trùng mã chỉ số, đã có phiếu nháp của kỳ, mốc công tác đã có ngày kết thúc.
 
 Giao kèo của báo cáo hoạt động, báo cáo hợp nhất và xuất dữ liệu (DT-10 phần 10j, YCTD-83):
 
@@ -708,13 +718,28 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 
 | Phương thức | Đường dẫn | Mô tả |
 |---|---|---|
-| GET, POST | /api/v1/tasks | Danh sách và tạo công việc |
-| PATCH | /api/v1/tasks/{id} | Cập nhật công việc |
-| POST | /api/v1/tasks/{id}/updates | Cập nhật tiến độ |
-| GET, POST | /api/v1/plans | Danh sách và tạo kế hoạch |
-| GET, POST | /api/v1/evaluations | Danh sách và tạo đánh giá |
-| POST | /api/v1/evaluations/{id}/publish | Công bố kết quả đánh giá |
-| GET, POST | /api/v1/evaluation-criteria | Danh mục chỉ số đánh giá |
+| GET, POST | /api/v1/tasks | Danh sách việc theo `view` (`mine` việc của tôi, `assigned` việc tôi giao, `unit` việc được giao trong đơn vị), lọc `status`, `org_unit_id`, `assignee_staff_id`; tạo việc cá nhân (không có `assignee_staff_id`) hoặc giao việc |
+| GET | /api/v1/tasks/{id} | Chi tiết việc kèm các lần cập nhật tiến độ, `can_edit`, `can_update_progress` |
+| PATCH | /api/v1/tasks/{id} | Sửa việc; người giao chỉ hủy kèm `cancel_reason`; việc cá nhân đổi được trạng thái |
+| POST | /api/v1/tasks/{id}/updates | Người nhận cập nhật `progress_percent` (0–100) kèm `content` |
+| GET | /api/v1/task-progress | Bảng tiến độ việc được giao theo người nhận, lọc `org_unit_id`, `from`, `to` (theo hạn) |
+| GET, POST | /api/v1/plans | Danh sách kế hoạch kèm tiến độ; lập kế hoạch nháp kèm đầu việc |
+| GET, PATCH | /api/v1/plans/{id} | Chi tiết kế hoạch kèm đầu việc và tiến độ; sửa kế hoạch nháp (thay toàn bộ đầu việc) |
+| POST | /api/v1/plans/{id}/items | Thêm đầu việc; kế hoạch đang thực hiện thì giao việc ngay |
+| POST | /api/v1/plans/{id}/activate | Kích hoạt kế hoạch, giao việc cho người phụ trách từng đầu việc |
+| POST | /api/v1/plans/{id}/close | Đóng kế hoạch đang thực hiện |
+| GET, POST | /api/v1/evaluation-criteria | Chỉ số đánh giá theo đơn vị; thêm chỉ số |
+| PATCH | /api/v1/evaluation-criteria/{id} | Sửa tên, trọng số, điểm tối đa, ngừng dùng chỉ số |
+| GET, POST | /api/v1/evaluations | Phiếu đánh giá theo đơn vị, nhân sự, kỳ, trạng thái; lập phiếu nháp (đánh giá lại kèm `reevaluation_reason`) |
+| GET, PATCH | /api/v1/evaluations/{id} | Chi tiết phiếu kèm điểm từng chỉ số; sửa phiếu nháp |
+| POST | /api/v1/evaluations/{id}/publish | Công bố kết quả đánh giá, phiếu cũ của kỳ chuyển đã thay thế |
+| GET | /api/v1/me/evaluations | Phiếu đánh giá đã công bố của chính người đăng nhập |
+| GET, POST | /api/v1/staff/{id}/work-history | Quá trình công tác và chứng chỉ của nhân sự; ghi thêm mốc công tác |
+| PATCH | /api/v1/staff-work-history/{id} | Ghi ngày kết thúc cho mốc công tác đang mở |
+| POST | /api/v1/staff/{id}/certificates | Thêm chứng chỉ |
+| DELETE | /api/v1/staff-certificates/{id} | Xóa chứng chỉ ghi nhầm |
+| GET, POST | /api/v1/bonus-deductions | Khoản thưởng, khấu trừ theo `month` và `staff_id` kèm `can_cancel`; ghi khoản |
+| POST | /api/v1/bonus-deductions/{id}/cancel | Hủy khoản kèm lý do khi bảng lương của tháng còn nháp |
 
 ## 13. Y tế học đường
 

@@ -20,7 +20,7 @@ import {
   type PeriodType,
 } from './work-api.js';
 
-// MH-58 (đề xuất) Đánh giá nhân sự (P09-05; BR-47; YCTD-81): quản lý đơn vị, phòng nhân sự cấu hình chỉ số của đơn vị,
+// MH-59 Đánh giá nhân sự (P09-05; BR-47; YCTD-81): quản lý đơn vị, phòng nhân sự cấu hình chỉ số của đơn vị,
 // chấm điểm theo kỳ, công bố; đã công bố thì chỉ lập đánh giá lại có lý do. Mọi nhân sự xem phiếu đã công bố của mình
 function EvaluationCard({ evaluation, children }: { evaluation: Evaluation; children?: ReactNode }) {
   return (

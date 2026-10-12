@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.38
+- Phiên bản: 1.39
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -57,7 +57,7 @@ flowchart TD
 | MH-09 | Phiếu thu và màn hình phân bổ: danh sách phiếu thu lọc theo đơn vị và ngày; lập phiếu thu và phân bổ trong chi tiết công nợ của trẻ ở MH-08 (YCTD-53); lập phiếu đảo kèm lý do; Ban Giám hiệu duyệt hoặc từ chối phiếu đảo chờ duyệt (YCTD-54); giao dịch chuyển khoản chờ xử lý (YCTD-57) | VT-04, VT-05, VT-16, VT-15, VT-02 |
 | MH-10 | Phiếu chi và phê duyệt: biểu mẫu lập phiếu chi kèm chứng từ, lưu nháp hoặc trình duyệt; danh sách phiếu chi; mục phiếu chi chờ duyệt cho Ban Giám hiệu (YCTD-55); lập phiếu đảo trên phiếu đã phát hành và mục phiếu đảo phiếu chi chờ duyệt (YCTD-56) | VT-04, VT-05, VT-16, VT-15, VT-02 |
 | MH-11 | Sổ quỹ và tài khoản ngân hàng: trang Quỹ và ngân hàng để khai báo và xem số dư (YCTD-53), chọn tài khoản nhận thanh toán trực tuyến (YCTD-57); trang Sổ quỹ theo quỹ hoặc tài khoản và khoảng ngày, có số dư đầu kỳ, từng phiếu, tổng thu, tổng chi, số dư cuối kỳ (YCTD-55) | VT-04, VT-05, VT-16 |
-| MH-12 | Hồ sơ nhân sự và hợp đồng: danh sách theo đơn vị, tìm theo tên hoặc mã; thêm hồ sơ; chi tiết có liên kết tài khoản, lập và chấm dứt hợp đồng (YCTD-58) | VT-06, VT-02, VT-15, VT-03, VT-04, VT-05 |
+| MH-12 | Hồ sơ nhân sự và hợp đồng: danh sách theo đơn vị, tìm theo tên hoặc mã; thêm hồ sơ; chi tiết có liên kết tài khoản, lập và chấm dứt hợp đồng (YCTD-58); mục Quá trình công tác và chứng chỉ: phòng nhân sự ghi thêm mốc công tác, ghi chứng chỉ; nhân sự và người xem hồ sơ xem (YCTD-81) | VT-06, VT-02, VT-15, VT-03, VT-04, VT-05 |
 | MH-13 | Chấm công: bảng chấm công của đơn vị theo tháng, nhập và sửa giờ, chốt bảng công, đề nghị và duyệt mở lại kỳ công; đơn nghỉ của đơn vị (YCTD-59) | VT-06, VT-15, VT-02, VT-03, VT-04, VT-05 |
 | MH-14 | Đơn nghỉ phép | VT-06, VT-03 |
 | MH-15 | Bảng lương toàn trường theo tháng: tính, trình, duyệt, trả lại; phiếu từng người kèm căn cứ; danh sách chưa tính lương (YCTD-60); lập phiếu chi lương (YCTD-61) | VT-04, VT-05, VT-06, VT-20, VT-15, VT-02 |
@@ -89,7 +89,7 @@ flowchart TD
 | MH-41 | Giao dịch chuyển khoản trực tuyến cần xử lý | VT-04 |
 | MH-42 | Khóa API của đối tác: cấp khóa theo phạm vi, căn cứ pháp lý, địa chỉ mạng, ngày hết hạn; khóa hiện một lần; thu hồi (YCTD-63) | VT-02 |
 | MH-43 | Mở năm học mới và chuyển dữ liệu | VT-02 |
-| MH-44 | Cá nhân: chấm công và đơn nghỉ của tôi, phiếu lương của tôi, công việc được giao | Mọi nhân sự dùng cổng quản trị |
+| MH-44 | Cá nhân: chấm công và đơn nghỉ của tôi, phiếu lương của tôi; việc của tôi (được giao và cá nhân) cập nhật tiến độ ở trang Công việc và kế hoạch, kết quả đánh giá của tôi ở trang Đánh giá nhân sự (YCTD-81) | Mọi nhân sự dùng cổng quản trị |
 | MH-45 | Lịch năm học: học kỳ, kỳ hè, ngày học trong tuần, danh sách tuần và tuần nghỉ | VT-02 |
 | MH-46 | Đăng ký học hè theo tháng | VT-04 |
 | MH-47 | Đăng nhập, dùng chung cho ba kênh (YCTD-36) | Mọi vai trò |
@@ -103,6 +103,9 @@ flowchart TD
 | MH-56 | Lịch công tác: chọn đơn vị và tháng, lập lịch công tác hoặc nghỉ cho nhân sự, xóa, công bố lịch nháp của tháng (YCTD-68) | VT-06, VT-03; người xem chấm công chỉ xem |
 | MH-55 | Thông báo: thông báo của tôi, chỉ chưa đọc, đánh dấu đã đọc, ai đã đọc; mẫu thông báo (YCTD-64) | Mọi nhân sự dùng cổng quản trị; mẫu cho VT-02, VT-03 gán ở Trường chính |
 | MH-57 | Bài học và giáo án: thẻ Giáo án chờ duyệt, thẻ Bài học lọc theo lĩnh vực, thẻ Lĩnh vực và chủ đề (thêm lĩnh vực, nhóm, chủ đề của đơn vị), thẻ Thời khóa biểu và kế hoạch (chọn lớp và tuần, lưu bản nháp, công bố thời khóa biểu; lập kế hoạch học kỳ) (YCTD-80) | VT-17, VT-03, VT-07 |
+| MH-58 | Công việc và kế hoạch: việc của tôi, thêm việc cá nhân, cập nhật tiến độ; giao việc, bảng tiến độ theo người nhận, việc đã giao trong đơn vị; lập, kích hoạt, đóng kế hoạch theo kỳ kèm tiến độ (YCTD-81) | Mọi nhân sự; VT-03, VT-06 giao việc; VT-03 lập kế hoạch; VT-02, VT-15 xem |
+| MH-59 | Đánh giá nhân sự: chỉ số đánh giá của đơn vị, lập phiếu nháp, công bố, đánh giá lại có lý do; kết quả đánh giá của tôi (YCTD-81) | VT-03, VT-06; VT-02, VT-15 xem; mọi nhân sự xem phiếu của mình |
+| MH-60 | Thưởng và khấu trừ theo tháng bảng lương: ghi khoản có căn cứ, hủy khi bảng lương còn nháp (YCTD-81) | VT-04, VT-05; người xem bảng lương xem |
 
 ### 2.2 Ứng dụng giáo viên
 
@@ -119,7 +122,7 @@ flowchart TD
 | MG-09 | Chăm sóc và y tế của lớp: ghi nhiệt độ, tình trạng, chăm sóc đặc biệt, sự kiện y tế cho từng trẻ (YCTD-74); màn hình dặn thuốc của lớp: xem yêu cầu và ảnh thuốc, nhận thuốc, từ chối, ghi liều hoặc bỏ liều khi đơn vị không có nhân viên y tế (YCTD-75) | VT-07 |
 | MG-10 | Chấm công hôm nay, đơn nghỉ phép, số ngày phép và lịch công tác đã công bố của tôi (YCTD-59, YCTD-68) | Mọi nhân sự dùng ứng dụng giáo viên |
 | MG-11 | Phiếu lương của tôi: phiếu đã duyệt, từng dòng kèm căn cứ (YCTD-60) | Mọi nhân sự dùng ứng dụng giáo viên |
-| MG-12 | Công việc được giao và kế hoạch | Mọi nhân sự dùng ứng dụng giáo viên |
+| MG-12 | Công việc của tôi: việc được giao và việc cá nhân, cập nhật phần trăm hoàn thành, thêm việc cá nhân, kết quả đánh giá đã công bố (YCTD-81) | Mọi nhân sự có hồ sơ liên kết tài khoản dùng ứng dụng giáo viên |
 | MG-13 | Lịch đưa đón của tuyến — Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62) | — |
 | MG-14 | Báo cơm của lớp: sĩ số, số trẻ có mặt theo điểm danh đã lưu, gửi số suất cho bếp khi chưa chốt điểm danh (YCTD-76) | VT-07 chủ nhiệm |
 | MG-15 | Đồ bị mất của lớp: phiếu của lớp, đánh dấu đã tìm thấy, đã trả, không tìm thấy; ghi nhận đồ nhặt được (YCTD-79); chung màn hình với MG-08 | VT-07 |

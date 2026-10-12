@@ -9,7 +9,7 @@ import { useHasPermission } from '../session/permissions.js';
 import { listStaff } from '../staff/staff-api.js';
 import { listBonusDeductions, messageOf, selectClass, send, vietnamToday } from './work-api.js';
 
-// MH-59 (đề xuất) Thưởng và khấu trừ theo tháng (P08-07; BR-44, BR-45; YCTD-81): kế toán, kế toán trưởng ghi khoản thưởng
+// MH-60 Thưởng và khấu trừ theo tháng (P08-07; BR-44, BR-45; YCTD-81): kế toán, kế toán trưởng ghi khoản thưởng
 // hoặc khấu trừ có căn cứ vào bảng lương của một tháng; tính lại bảng lương nháp để áp dụng; tháng đã trình duyệt thì khóa
 export function BonusDeductionsPage() {
   const queryClient = useQueryClient();

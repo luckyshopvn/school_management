@@ -24,7 +24,7 @@ import {
   type TaskPriority,
 } from './work-api.js';
 
-// MH-57 (đề xuất) Công việc và kế hoạch (P09-01 đến P09-04, YCTD-81): mọi nhân sự có hồ sơ xem việc của mình, cập nhật
+// MH-58 Công việc và kế hoạch (P09-01 đến P09-04, YCTD-81): mọi nhân sự có hồ sơ xem việc của mình, cập nhật
 // tiến độ, tạo việc cá nhân; quản lý đơn vị và phòng nhân sự giao việc, xem bảng tiến độ; quản lý đơn vị lập kế hoạch
 function TaskRow({ task, onUpdated, canUpdate }: { task: Task; onUpdated(message: string): void; canUpdate: boolean }) {
   const [progress, setProgress] = useState(String(task.progress_percent));

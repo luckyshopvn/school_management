@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.26
+- Phiên bản: 1.27
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -277,8 +277,15 @@
 | CT-192 | P17-11 | Cán bộ quản lý cấp trên gọi báo cáo công nợ, điểm danh, thu chi, chấm công, sinh nhật; quản lý đơn vị gọi báo cáo hợp nhất | Trả lỗi không có quyền | Kiểm thử tự động `apps/api/src/reports/reports-g2.test.ts` đạt ngày 12/10/2026 | Đạt |
 | CT-193 | P17-12 | Kế toán xuất báo cáo công nợ của đơn vị mình ra Excel | Tải được tệp xlsx; nhật ký xuất ghi người xuất, báo cáo, bộ lọc, đơn vị, số dòng, có dữ liệu cá nhân | Kiểm thử tự động `apps/api/src/reports/reports-g2.test.ts` đạt ngày 12/10/2026 | Đạt |
 | CT-194 | P17-12 | Giáo viên, quản lý đơn vị, cán bộ quản lý cấp trên xuất dữ liệu; kế toán xuất báo cáo không có quyền xem hoặc của đơn vị khác | Trả lỗi không có quyền, không ghi nhật ký xuất | Kiểm thử tự động `apps/api/src/reports/reports-g2.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-195 | P09-01 | Quản lý giao việc cho nhân sự trong đơn vị; quản lý đơn vị khác, giáo viên giao việc; người nhận chưa có tài khoản; hạn đã qua | Giao được, người nhận có thông báo; ngoài đơn vị và giáo viên bị chặn; người nhận chưa có tài khoản bị từ chối mã P09-01; hạn đã qua bị từ chối | Kiểm thử tự động `apps/api/src/work/work.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-196 | P09-02 | Giáo viên tạo việc cá nhân; quản lý xem, sửa việc đó | Chỉ giáo viên xem, sửa được; quản lý bị chặn và không thấy trong danh sách đơn vị | Kiểm thử tự động `apps/api/src/work/work.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-197 | P09-04 | Người nhận cập nhật 50% rồi 100%; người khác cập nhật; việc quá hạn; người giao hủy không lý do | Đang làm rồi hoàn thành, người giao nhận thông báo; người khác bị chặn; bảng tiến độ đếm việc quá hạn; hủy thiếu lý do bị từ chối | Kiểm thử tự động `apps/api/src/work/work.test.ts` đạt ngày 12/10/2026; Kiểm thử giao diện `tests/e2e/37-work.spec.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-198 | P09-03 | Quản lý lập kế hoạch tháng có 2 đầu việc, kích hoạt, một việc xong; thêm đầu việc sau khi đóng; phòng nhân sự lập kế hoạch | Kích hoạt giao 2 việc; tiến độ kế hoạch 50%; thêm sau khi đóng bị từ chối mã P09-03; phòng nhân sự không lập được | Kiểm thử tự động `apps/api/src/work/work.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-199 | P09-05 | Chấm 2 chỉ số trọng số 2 và 1; công bố; sửa sau công bố; đánh giá lại không lý do và có lý do | Điểm 86,67; sửa sau công bố bị chặn mã BR-47; đánh giá lại thiếu lý do bị chặn; có lý do thì phiếu mới thay phiếu cũ khi công bố | Kiểm thử tự động `apps/api/src/work/work.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-200 | P07-03 | Phòng nhân sự ghi mốc công tác ở đơn vị chính và đơn vị khác, ghi chứng chỉ; nhân sự và người khác xem; đóng lại mốc đã kết thúc | Hai mốc, một mốc kiêm nhiệm; nhân sự xem được của mình; người khác bị chặn; mốc đã kết thúc không đóng lại được | Kiểm thử tự động `apps/api/src/work/work.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-201 | P08-07 | Kế toán ghi thưởng 1 000 000 và khấu trừ 300 000 tháng này, hủy một khoản; tính bảng lương; ghi thêm sau khi trình duyệt | Phiếu lương có dòng thưởng, khấu trừ kèm căn cứ, không có khoản đã hủy; ghi thêm sau khi trình duyệt bị chặn mã BR-45 | Kiểm thử tự động `apps/api/src/work/work.test.ts` đạt ngày 12/10/2026 | Đạt |
 
-Ca CT-105 đến CT-194 lần lượt kiểm tra AC-149 đến AC-238.
+Ca CT-105 đến CT-201 lần lượt kiểm tra AC-149 đến AC-245.
 
 ## 16. Chưa xác minh được
 
