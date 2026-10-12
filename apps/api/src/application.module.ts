@@ -29,6 +29,12 @@ import { HealthAccess } from './health/health-access.js';
 import { HealthCareController, HealthCareService } from './health/health-care.js';
 import { HealthRecordsController, HealthRecordsService } from './health/health-records.js';
 import { healthTransitionStep } from './health/health-transition.js';
+import { KitchenAccess } from './kitchen/kitchen-access.js';
+import { KitchenCatalogsController, KitchenCatalogsService } from './kitchen/kitchen-catalogs.js';
+import { KitchenMealsController, KitchenMealsService } from './kitchen/kitchen-meals.js';
+import { KitchenMenusController, KitchenMenusService } from './kitchen/kitchen-menus.js';
+import { KitchenPurchasesController, KitchenPurchasesService } from './kitchen/kitchen-purchases.js';
+import { kitchenTransitionStep } from './kitchen/kitchen-transition.js';
 import { MedicationAccess } from './medicines/medication-access.js';
 import { MedicationRequestsController, MedicationRequestsService } from './medicines/medication-requests.js';
 import { MedicineCatalogController, MedicineCatalogService } from './medicines/medicine-catalog.js';
@@ -37,8 +43,41 @@ import { medicinesTransitionStep } from './medicines/medicines-transition.js';
 import { AssetsController, AssetsService } from './inventory/assets.js';
 import { InventoryAccess } from './inventory/inventory-common.js';
 import { inventoryTransitionStep } from './inventory/inventory-transition.js';
+import { ActivitiesController, ActivitiesService } from './activities/activities.js';
+import { activitiesTransitionStep } from './activities/activities-transition.js';
+import { ActivityAccess } from './activities/activity-access.js';
+import { CommentsController, CommentsService } from './activities/comments.js';
+import {
+  ActivityCategoriesController,
+  ContentCatalogsService,
+  LibraryTopicsController,
+  NewsCategoriesController,
+} from './activities/content-catalogs.js';
+import { ContentFilesController, ContentFilesService } from './activities/content-files.js';
+import {
+  ColoringPagesController,
+  ContentService,
+  LibraryAlbumsController,
+  LibraryAlbumsService,
+  LibraryItemsController,
+  NewsController,
+} from './activities/content.js';
+import { ExtracurricularController, ExtracurricularService } from './activities/extracurricular.js';
 import { PurchasingController, PurchasingService } from './inventory/purchasing.js';
 import { StockController, StockService } from './inventory/stock.js';
+import { ChildProgressController, ChildProgressService } from './teaching/child-progress.js';
+import { ClassTeachingController, ClassTeachingService } from './teaching/class-teaching.js';
+import { LessonPlansController, LessonPlansService } from './teaching/lesson-plans.js';
+import { TeachingAccess } from './teaching/teaching-access.js';
+import { TeachingCatalogsController, TeachingCatalogsService } from './teaching/teaching-catalogs.js';
+import { teachingTransitionStep } from './teaching/teaching-transition.js';
+import { InteractionCommentsController, InteractionCommentsService } from './interactions/comments.js';
+import { FeedbacksController, FeedbacksService } from './interactions/feedbacks.js';
+import { InteractionAccess } from './interactions/interaction-access.js';
+import { interactionsTransitionStep } from './interactions/interactions-transition.js';
+import { LostItemsController, LostItemsService } from './interactions/lost-items.js';
+import { MessagesController, MessagesService } from './interactions/messages.js';
+import { PollsController, PollsService } from './interactions/polls.js';
 import { CashflowCategoriesController, CashflowCategoriesService } from './fees/cashflow-categories.js';
 import { DiscountTypesController, DiscountTypesService } from './fees/discount-types.js';
 import { FeeSchedulesController, FeeSchedulesService } from './fees/fee-schedules.js';
@@ -153,12 +192,36 @@ export class ApplicationModule {
         WorkSchedulesController,
         HealthRecordsController,
         HealthCareController,
+        KitchenCatalogsController,
+        KitchenMenusController,
+        KitchenMealsController,
+        KitchenPurchasesController,
         MedicineCatalogController,
         MedicationRequestsController,
         MedicinePurchasesController,
         AssetsController,
         StockController,
         PurchasingController,
+        TeachingCatalogsController,
+        LessonPlansController,
+        ClassTeachingController,
+        ChildProgressController,
+        MessagesController,
+        FeedbacksController,
+        PollsController,
+        CommentsController,
+        LostItemsController,
+        ActivitiesController,
+        ActivityCategoriesController,
+        NewsCategoriesController,
+        LibraryTopicsController,
+        ContentFilesController,
+        NewsController,
+        LibraryItemsController,
+        ColoringPagesController,
+        LibraryAlbumsController,
+        InteractionCommentsController,
+        ExtracurricularController,
         FilesController,
         ImportsController,
         AttendanceController,
@@ -212,8 +275,12 @@ export class ApplicationModule {
             childrenTransitionStep,
             financeTransitionStep,
             healthTransitionStep,
+            kitchenTransitionStep,
             medicinesTransitionStep,
             inventoryTransitionStep,
+            teachingTransitionStep,
+            interactionsTransitionStep,
+            activitiesTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -239,6 +306,11 @@ export class ApplicationModule {
         HealthAccess,
         HealthRecordsService,
         HealthCareService,
+        KitchenAccess,
+        KitchenCatalogsService,
+        KitchenMealsService,
+        KitchenMenusService,
+        KitchenPurchasesService,
         MedicationAccess,
         MedicineCatalogService,
         MedicationRequestsService,
@@ -247,6 +319,25 @@ export class ApplicationModule {
         AssetsService,
         StockService,
         PurchasingService,
+        TeachingAccess,
+        TeachingCatalogsService,
+        LessonPlansService,
+        ClassTeachingService,
+        ChildProgressService,
+        InteractionAccess,
+        MessagesService,
+        FeedbacksService,
+        PollsService,
+        CommentsService,
+        LostItemsService,
+        ActivityAccess,
+        ActivitiesService,
+        ContentCatalogsService,
+        ContentFilesService,
+        ContentService,
+        LibraryAlbumsService,
+        InteractionCommentsService,
+        ExtracurricularService,
         ChildDataProtection,
         FilesService,
         ImportsService,

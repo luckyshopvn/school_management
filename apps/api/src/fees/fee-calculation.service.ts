@@ -16,6 +16,7 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { queueNotification } from '../common/notification-queue.js';
 import { notFoundError } from '../common/request-fields.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
+import { extracurricularItems } from '../activities/extracurricular-fees.js';
 import { DiscountsService } from './discounts.service.js';
 import { invoiceAmounts, recalculatePendingDiscounts } from './invoice-amounts.js';
 import { formatPeriod, periodRange, RegistrationPeriods, type Period } from './registration-periods.js';
@@ -30,9 +31,11 @@ const CHANGE_FLAG_RATIO = 0.3;
 const INVOICE_SEQUENCE = 'invoice';
 
 export interface DraftItem {
-  item_type: 'tuition' | 'service';
+  item_type: 'tuition' | 'service' | 'extracurricular';
   service_id: string | null;
   service_registration_id: string | null;
+  // Phí hoạt động ngoại khóa (P14-11, YCTD-78)
+  extracurricular_registration_id?: string | null;
   description: string;
   quantity: number;
   unit_price: number;
@@ -118,6 +121,11 @@ export class FeeCalculationService {
       children.map((child) => child.id),
       period,
     );
+    const extracurricular = await extracurricularItems(
+      database,
+      children.map((child) => child.id),
+      period,
+    );
 
     const missing: FieldError[] = [];
     const drafts = children.flatMap((child) => {
@@ -151,6 +159,8 @@ export class FeeCalculationService {
           items.push(item);
         }
       }
+      // Phí ngoại khóa theo tháng thu đủ, phí theo hoạt động thu một lần (BR-19, YCTD-78)
+      items.push(...(extracurricular.get(child.id) ?? []));
       const total = items.reduce((sum, item) => sum + item.amount, 0);
       const flags: string[] = [];
       if (enrolledDays.length - present >= ABSENCE_FLAG_DAYS) {

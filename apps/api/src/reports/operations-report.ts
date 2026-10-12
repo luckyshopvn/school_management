@@ -340,9 +340,48 @@ export const notificationsSection: OperationsSectionProvider = {
 };
 
 // Nguồn số liệu có sẵn trong G2 đến phần 10j; phần hoạt động (P14) và công việc (P09) thêm nguồn của mình vào cuối danh sách
+// Hoạt động của lớp theo ngày hoạt động: đã công bố, chờ duyệt, bị từ chối hoặc ẩn (BR-64; YCTD-78, YCTD-83)
+export const activitiesSection: OperationsSectionProvider = {
+  code: 'activities',
+  title: 'Hoạt động của lớp',
+  async build(context) {
+    const values = new Map<string, Record<string, number>>();
+    const activities = await context.database
+      .selectFrom('activities')
+      .select(['class_id', 'status'])
+      .select((expression) => expression.fn.countAll<string>().as('count'))
+      .where('class_id', 'in', classIds(context))
+      .where('activity_date', '>=', context.from)
+      .where('activity_date', '<=', context.to)
+      .groupBy(['class_id', 'status'])
+      .execute();
+    const keyOf: Record<string, string> = {
+      published: 'published_count',
+      pending: 'pending_count',
+      draft: 'pending_count',
+      rejected: 'rejected_count',
+      hidden: 'hidden_count',
+    };
+    for (const row of activities) {
+      add(values, row.class_id, keyOf[row.status] ?? 'pending_count', Number(row.count));
+    }
+    return {
+      columns: [
+        ...CLASS_COLUMNS,
+        { key: 'published_count', label: 'Đã công bố' },
+        { key: 'pending_count', label: 'Nháp hoặc chờ duyệt' },
+        { key: 'rejected_count', label: 'Bị từ chối' },
+        { key: 'hidden_count', label: 'Đã ẩn' },
+      ],
+      rows: perClass(context, values, ['published_count', 'pending_count', 'rejected_count', 'hidden_count']),
+    };
+  },
+};
+
 export const DEFAULT_OPERATIONS_SECTIONS: OperationsSectionProvider[] = [
   attendanceSection,
   journalsSection,
+  activitiesSection,
   healthSection,
   medicationSection,
   notificationsSection,

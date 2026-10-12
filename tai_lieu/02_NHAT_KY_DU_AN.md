@@ -14,6 +14,92 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-10 phần 10g: giảng dạy
+
+#### Công việc đã thực hiện
+
+- Agent 10g viết mã, kiểm thử máy chủ, nháp tài liệu trong worktree riêng (lượt 2); người điều phối gộp các nhánh 10b đến 10f, dựng lại các tệp giao diện dùng chung từ bản của 10f cộng phần thay đổi của 10g, chạy toàn bộ kiểm thử, đưa nháp vào tài liệu.
+- Cơ sở dữ liệu: mười bảng (tệp 0036). Máy chủ API: lĩnh vực, nhóm bài học, chủ đề, bài học dùng chung hoặc riêng, giáo án duyệt hai bước (tổ trưởng rồi quản lý đơn vị), thời khóa biểu theo phiên bản tuần, kế hoạch giảng dạy, tiến độ học tập theo kỳ, lịch hoạt động lớp, trang học tập của con; bước chuyển năm học `teaching`.
+- Cổng quản trị: trang Bài học và giáo án (MH-57). Ứng dụng giáo viên: Giảng dạy lớp. Ứng dụng phụ huynh: Học tập.
+- Sửa thêm: kiểm thử giao diện bếp chờ lưu món xong rồi mới trình duyệt; xóa cơ sở dữ liệu thử lại khi gặp tiến trình nền của PostgreSQL không kết thúc được (mã 42501), lỗi dọn dẹp thỉnh thoảng gặp khi chạy kiểm thử.
+- Kết quả: máy chủ API 458/458, kiểm thử giao diện 54/54.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-80 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-80 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.38.0.
+
+#### Vấn đề tồn đọng
+
+- Lượt 3 (10h, 10i, 10j); kiểm thử G2 và phát hành 1.1.0.
+
+### 2026-10-11 — DT-10 phần 10f: tương tác và đồ bị mất
+
+#### Công việc đã thực hiện
+
+- Agent 10f viết mã, kiểm thử máy chủ, nháp tài liệu trong worktree riêng (lượt 2); người điều phối gộp các nhánh 10b, 10c, 10d, 10e, xử lý xung đột ở các tệp đăng ký dùng chung, chạy toàn bộ kiểm thử, đưa nháp vào tài liệu.
+- Bình luận: giữ hai bảng riêng, `content_comments` của 10e cho nội dung P14 (hoạt động, tin tức, thư viện, album) và `interaction_comments` của 10f cho đối tượng P15 (bình chọn); đổi tên kiểu và lớp của phần tương tác (`InteractionCommentTargetType`, `InteractionCommentsService`) để không trùng tên. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: gộp một bảng chung cần sửa lớn cả hai phần mà không thêm giá trị cho người dùng.
+- Cơ sở dữ liệu: mười ba bảng (tệp 0035). Máy chủ API: luồng trao đổi theo trẻ và tài khoản phụ huynh, góp ý ẩn danh, bình chọn, biểu quyết, khảo sát và danh mục khảo sát, bình luận có bản ghi xử lý, lượt thích, phiếu đồ bị mất `DBM-000001`; bước chuyển năm học `interactions`.
+- Cổng quản trị: trang Tương tác với phụ huynh. Ứng dụng giáo viên: trao đổi và đồ bị mất của lớp. Ứng dụng phụ huynh: trao đổi, góp ý, bình chọn, mất đồ.
+- Kết quả: máy chủ API 452/452, kiểm thử giao diện 53/53.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-79 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-79 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.37.0.
+
+#### Vấn đề tồn đọng
+
+- Gộp phần 10g; lượt 3 (10h, 10i, 10j).
+
+### 2026-10-11 — DT-10 phần 10e: hoạt động và nội dung
+
+#### Công việc đã thực hiện
+
+- Agent 10e viết mã, kiểm thử máy chủ, nháp tài liệu trong worktree riêng (lượt 2, dừng giữa chừng vì giới hạn phiên rồi làm tiếp); người điều phối gộp các nhánh 10b, 10c, 10d, xử lý xung đột ở các tệp đăng ký dùng chung và kiểu `FilePurpose`, chạy toàn bộ kiểm thử, đưa nháp vào tài liệu.
+- Cơ sở dữ liệu: tệp 0034. Máy chủ API: danh mục hoạt động, hoạt động trình duyệt và công bố, ảnh gắn thẻ trẻ theo đồng ý hình ảnh, tin tức, thư viện, album, hình tô màu, bình luận và thích, ngoại khóa có chỉ tiêu và phí đưa vào hóa đơn; bước chuyển năm học `activities`.
+- Cổng quản trị: trang Hoạt động và tin tức. Ứng dụng giáo viên: hoạt động lớp. Ứng dụng phụ huynh: hoạt động và tin tức.
+- Kết quả: máy chủ API 443/443, kiểm thử giao diện 52/52.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-78 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-78 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.36.0.
+
+#### Vấn đề tồn đọng
+
+- Gộp phần 10f, 10g; lượt 3 (10h, 10i, 10j) đang làm.
+
+### 2026-10-11 — DT-10 phần 10c: bếp và thực đơn
+
+#### Công việc đã thực hiện
+
+- Agent 10c viết mã, kiểm thử máy chủ, nháp tài liệu trong worktree riêng; người điều phối gộp `main` cùng các nhánh 10b, 10d, xử lý xung đột ở các tệp đăng ký dùng chung, sửa kiểm thử giao diện chọn món, chạy toàn bộ kiểm thử, đưa nháp vào tài liệu.
+- Cơ sở dữ liệu: mười một bảng bếp (tệp 0032). Máy chủ API: nguyên liệu, món ăn, định lượng, thực đơn tuần trình duyệt và công bố, suất ăn theo ngày, báo cơm, buffet, nhà cung cấp thực phẩm, phiếu đi chợ chờ thanh toán, báo cáo ăn và bếp; bước chuyển năm học `kitchen`.
+- Cổng quản trị: trang Bếp và thực đơn. Ứng dụng giáo viên: báo cơm của lớp. Ứng dụng phụ huynh: thực đơn.
+- Kết quả: máy chủ API 431/431, kiểm thử giao diện 51/51.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-76 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-76 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.35.0.
+
+#### Vấn đề tồn đọng
+
+- Gộp lượt 2 (10e, 10f, 10g); các phần 10h đến 10j.
+
 ### 2026-10-11 — DT-10 phần 10b: thuốc
 
 #### Công việc đã thực hiện

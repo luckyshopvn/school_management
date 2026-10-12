@@ -351,7 +351,7 @@ describe('Báo cáo giai đoạn 2: hoạt động, hợp nhất, xuất dữ li
     assert.equal(response.status, 200, JSON.stringify(response.body));
     assert.deepEqual(
       (response.body.sections as Section[]).map((item) => item.code),
-      ['attendance', 'journals', 'health', 'medication', 'notifications'],
+      ['attendance', 'journals', 'activities', 'health', 'medication', 'notifications'],
     );
     const attendance = section(response.body, 'attendance');
     assert.deepEqual(
