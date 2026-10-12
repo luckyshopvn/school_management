@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.24
+- Phiên bản: 1.25
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -47,7 +47,7 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 |---|---|
 | BR-17 | Học phí tính theo tháng dương lịch, dựa trên biểu phí dùng chung cho mọi đơn vị của trường, theo khối lớp và bản đăng ký dịch vụ của trẻ trong kỳ |
 | BR-18 | Biểu phí có hiệu lực theo khoảng ngày. Mỗi phiên bản bắt đầu ngày 1 của một tháng; phiên bản đã tới ngày hiệu lực không sửa được, muốn đổi phải tạo phiên bản mới (YCTD-49). Khi biểu phí thay đổi, hóa đơn đã phát hành không bị tính lại tự động |
-| BR-19 | Khoản phải thu của một trẻ trong một kỳ gồm: học phí chính khóa, tiền ăn, các dịch vụ khác đã đăng ký, và các khoản phát sinh. Học phí chính khóa là một loại phí trong biểu phí, mức có thể bằng không theo chính sách miễn học phí của từng năm học; khi mức bằng không thì hóa đơn không sinh dòng học phí chính khóa |
+| BR-19 | Khoản phải thu của một trẻ trong một kỳ gồm: học phí chính khóa, tiền ăn, các dịch vụ khác đã đăng ký, phí hoạt động ngoại khóa đã đăng ký, và các khoản phát sinh. Học phí chính khóa là một loại phí trong biểu phí, mức có thể bằng không theo chính sách miễn học phí của từng năm học; khi mức bằng không thì hóa đơn không sinh dòng học phí chính khóa. Phí ngoại khóa theo tháng thu đủ mỗi kỳ mà đăng ký còn hiệu lực, không giảm trừ khi nghỉ buổi hoặc thôi giữa tháng; phí theo hoạt động thu một lần (YCTD-78) |
 | BR-20 | Loại giảm trừ, cách tính và mức do nhà trường cấu hình (P05-11, Q-16), ví dụ trẻ con nhân sự, anh chị em ruột cùng học, học phí đặc biệt theo thỏa thuận, học bổng. Mỗi khoản giảm trừ phải ghi rõ căn cứ và người phê duyệt |
 | BR-21 | Giảm trừ theo tỷ lệ phần trăm và giảm trừ theo số tiền cố định là hai cách áp dụng khác nhau; hệ thống lưu cả căn cứ và kết quả tính để truy xuất về sau |
 | BR-22 | Tổng giảm trừ của một trẻ trong một kỳ không vượt quá tổng khoản phải thu của kỳ đó; mỗi khoản miễn giảm không vượt tổng các khoản mà loại miễn giảm áp dụng (YCTD-52). Số dư âm phải chuyển thành số dư có cho kỳ sau, không để âm trên hóa đơn |
@@ -122,9 +122,9 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 
 | Mã | Quy tắc |
 |---|---|
-| BR-64 | Hoạt động do giáo viên tạo phải ở trạng thái chờ duyệt. Chỉ hoạt động đã duyệt mới hiển thị cho phụ huynh |
-| BR-65 | Hình ảnh của trẻ chỉ được công bố khi phụ huynh đã đồng ý cho sử dụng hình ảnh. Phụ huynh đồng ý bằng xác nhận trên ứng dụng hoặc bằng giấy ký tay được nhà trường tải bản chụp lên; hệ thống lưu cách đồng ý, người đồng ý và thời điểm. Phụ huynh rút lại đồng ý bất cứ lúc nào |
-| BR-66 | Bình luận của phụ huynh không bị xóa. Phản hồi tiêu cực được chuyển cho quản lý đơn vị xử lý riêng; quản lý đơn vị được ẩn bình luận vi phạm kèm lý do; bình luận ẩn vẫn được lưu |
+| BR-64 | Hoạt động do giáo viên tạo phải ở trạng thái chờ duyệt. Chỉ hoạt động đã duyệt mới hiển thị cho phụ huynh. Giáo viên có thể lưu nháp để thêm hình rồi gửi duyệt. Hoạt động đã công bố không sửa được; quản lý đơn vị hoặc Ban Giám hiệu ẩn kèm lý do và công bố lại (Q-72, YCTD-78) |
+| BR-65 | Hình ảnh của trẻ chỉ được công bố khi phụ huynh đã đồng ý cho sử dụng hình ảnh. Phụ huynh đồng ý bằng xác nhận trên ứng dụng hoặc bằng giấy ký tay được nhà trường tải bản chụp lên; hệ thống lưu cách đồng ý, người đồng ý và thời điểm. Phụ huynh rút lại đồng ý bất cứ lúc nào. Giáo viên gắn thẻ trẻ có trong ảnh; ảnh có trẻ chưa đồng ý không hiển thị cho phụ huynh. Khi phụ huynh rút đồng ý, mọi ảnh đã công bố có gắn thẻ trẻ đó tự ẩn, tệp không bị xóa (YCTD-78) |
+| BR-66 | Không bình luận nào bị xóa, kể cả của phụ huynh. Phản hồi tiêu cực được chuyển cho quản lý đơn vị xử lý riêng; quản lý đơn vị được ẩn bình luận vi phạm kèm lý do; bình luận ẩn vẫn được lưu (YCTD-78) |
 | BR-67 | Mỗi tài khoản chỉ được bỏ một phiếu cho mỗi bình chọn, biểu quyết hoặc khảo sát. Sau khi gửi, phiếu không sửa được |
 | BR-68 | Bình chọn, biểu quyết, khảo sát có thời gian bắt đầu và kết thúc. Ngoài khoảng thời gian đó hệ thống không nhận phiếu |
 | BR-69 | Tin tức, thư viện và thông báo có phạm vi công bố: toàn trường, theo đơn vị, theo lớp hoặc theo từng trẻ |

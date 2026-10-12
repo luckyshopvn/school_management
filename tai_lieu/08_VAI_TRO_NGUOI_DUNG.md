@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.37
+- Phiên bản: 1.38
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -137,6 +137,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-42 | Kho, tài sản và mua hàng (YCTD-77): `P13.asset.manage` cho VT-11 quản lý tài sản, cấp phát, mượn trả, hỏng mất, mặt hàng, nhập xuất, tồn ban đầu, lập kiểm kê, nhà cung cấp trong đơn vị; `P13.purchase-request.create` cho mọi vai trò nhân sự lập đề nghị mua hàng của đơn vị mình; `P13.purchase-request.approve` cho VT-15 (dưới hạn mức, trong đơn vị) và VT-02 (mọi mức) duyệt đề nghị và duyệt xử lý hỏng mất, người lập không tự duyệt; `P13.purchase-order.manage` cho VT-11, VT-04 lập phiếu mua hàng và nhận hàng; `P13.stocktake.approve` cho VT-05 duyệt biên bản kiểm kê có chênh lệch; `P06.payment.manage` gắn phiếu chi vào phiếu mua hàng |
 | PQ-40 | Thuốc và dặn thuốc (YCTD-75): `P10.medicine.manage` cho VT-09 quản lý danh mục thuốc, nhà thuốc, đề nghị mua thuốc, phiếu mua thuốc, phiếu cấp thuốc trong đơn vị được gán; `P10.medication.administer` cho VT-09 nhận thuốc, từ chối, ghi liều, bỏ liều trong đơn vị được gán (gán ở Trường chính là toàn trường) và VT-07 chỉ cho trẻ của lớp mình chủ nhiệm khi đơn vị bật "không có nhân viên y tế" (BR-86); `P10.medicine-purchase.approve` cho VT-15 duyệt đề nghị dưới hạn mức `purchase_request` trong đơn vị và VT-02 duyệt mọi đề nghị (BR-63); xem yêu cầu dặn thuốc theo BR-53; người có `P06.view` xem danh mục, đề nghị, phiếu mua để thanh toán |
 | PQ-41 | Bếp và thực đơn (YCTD-76): `P12.kitchen.manage` cho VT-10 quản lý nguyên liệu, món, định lượng, thực đơn nháp, tính suất ăn, buffet, nhà cung cấp thực phẩm, phiếu đi chợ trong đơn vị; `P12.menu.approve` cho VT-03 duyệt và công bố thực đơn, duyệt buffet trong đơn vị; `P12.meal-report.submit` cho VT-07 báo cơm lớp mình chủ nhiệm; `P17.report.kitchen` cho VT-10, VT-04 xem báo cáo ăn và bếp; kế toán có `P06.payment.manage` gắn phiếu chi cho phiếu đi chợ chờ thanh toán; phụ huynh chỉ xem thực đơn đã công bố của con |
+| PQ-43 | Hoạt động, hình ảnh, tin tức, thư viện, ngoại khóa (YCTD-78): `P14.activity.create` cho VT-07, VT-08 lập hoạt động và tải ảnh cho lớp được phân công; `P14.activity.approve` cho VT-03, VT-15, VT-02 duyệt, từ chối, ẩn, công bố lại hoạt động và ẩn bình luận trong đơn vị; `P14.content.manage` cho VT-03 quản lý danh mục hoạt động, danh mục tin tức, tin tức; `P14.library.manage` cho VT-03 (mọi phạm vi trong đơn vị) và VT-07 (lớp mình, nội dung mình tạo) quản lý chủ đề, album, thư viện, hình tô màu; `P14.extracurricular.manage` cho VT-03, VT-07 lập hoạt động ngoại khóa và đăng ký thay; `P14.comment.moderate` cho VT-03 (đơn vị) và VT-07 (hoạt động của lớp mình, nội dung mình tạo) ẩn bình luận kèm lý do; `P05.registration.manage` (VT-04) đăng ký ngoại khóa thay phụ huynh; phụ huynh đăng ký, thích, bình luận cho con mình không cần mã quyền; không ai xóa được bình luận |
 
 ## 5. Phân cấp phê duyệt
 

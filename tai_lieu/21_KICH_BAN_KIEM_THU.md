@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.22
+- Phiên bản: 1.23
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -131,10 +131,10 @@
 
 | Mã | Chức năng | Dữ liệu đầu vào | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|
-| CT-069 | Tạo hoạt động | Giáo viên tạo hoạt động của lớp | Ở trạng thái chờ duyệt, chưa hiển thị cho phụ huynh | | Chưa chạy |
-| CT-070 | Phụ huynh xem hoạt động đã duyệt | Hoạt động đã công bố của lớp con | Hiển thị kèm hình ảnh | | Chưa chạy |
-| CT-071 | Tải ảnh có trẻ chưa đồng ý | Trẻ chưa có cờ đồng ý hình ảnh | Cảnh báo, không công bố hình của trẻ đó | | Chưa chạy |
-| CT-072 | Giáo viên bộ môn duyệt hoạt động | Tài khoản giáo viên bộ môn | Trả lỗi không có quyền | | Chưa chạy |
+| CT-069 | Tạo hoạt động | Giáo viên tạo hoạt động của lớp | Ở trạng thái chờ duyệt, chưa hiển thị cho phụ huynh | Kiểm thử tự động `apps/api/src/activities/activities.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CT-070 | Phụ huynh xem hoạt động đã duyệt | Hoạt động đã công bố của lớp con | Hiển thị kèm hình ảnh | Kiểm thử tự động `apps/api/src/activities/activities.test.ts` đạt ngày 11/10/2026; Kiểm thử giao diện `tests/e2e/34-activities.spec.ts` đạt ngày 11/10/2026 | Đạt |
+| CT-071 | Tải ảnh có trẻ chưa đồng ý | Trẻ chưa có cờ đồng ý hình ảnh | Cảnh báo, không công bố hình của trẻ đó | Kiểm thử tự động `apps/api/src/activities/activities.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CT-072 | Giáo viên bộ môn duyệt hoạt động | Tài khoản giáo viên bộ môn | Trả lỗi không có quyền | Kiểm thử tự động `apps/api/src/activities/activities.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-073 | Gửi phiếu bình chọn hai lần | Cùng tài khoản gửi hai phiếu | Từ chối phiếu thứ hai | | Chưa chạy |
 | CT-074 | Gửi phiếu sau khi hết thời gian | Bình chọn đã kết thúc | Từ chối, báo đã hết thời gian | | Chưa chạy |
 | CT-075 | Xử lý bình luận tiêu cực | Quản lý đơn vị xử lý | Bình luận còn nguyên, có bản ghi xử lý | | Chưa chạy |
@@ -203,17 +203,17 @@
 | CT-118 | P10-11 | Lưu kết quả khám có cân nặng dưới ngưỡng | Chỉ số được đánh dấu cần theo dõi | Kiểm thử tự động `apps/api/src/health/health.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-119 | P12-09 | Xác nhận nhập phiếu đi chợ | Tồn nguyên liệu tăng, có đề nghị thanh toán | Kiểm thử tự động `apps/api/src/kitchen/kitchen.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-120 | P13-10 | Nhập tồn ban đầu cho mặt hàng đã có giao dịch | Từ chối | Kiểm thử tự động `apps/api/src/inventory/inventory.test.ts` đạt ngày 11/10/2026 | Đạt |
-| CT-121 | P14-11 | Đăng ký hoạt động ngoại khóa đã đủ chỉ tiêu | Từ chối, báo hết chỗ | | Chưa chạy |
-| CT-122 | P14-11 | Đăng ký hoạt động ngoại khóa có phí | Phí vào khoản phải thu như khoản phát sinh | | Chưa chạy |
-| CT-123 | P14-12 | Xóa bình luận của phụ huynh trên tin tức | Chặn xóa | | Chưa chạy |
+| CT-121 | P14-11 | Đăng ký hoạt động ngoại khóa đã đủ chỉ tiêu | Từ chối, báo hết chỗ | Kiểm thử tự động `apps/api/src/activities/activities.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CT-122 | P14-11 | Đăng ký hoạt động ngoại khóa có phí | Phí vào khoản phải thu như khoản phát sinh | Kiểm thử tự động `apps/api/src/activities/activities.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CT-123 | P14-12 | Xóa bình luận của phụ huynh trên tin tức | Chặn xóa | Kiểm thử tự động `apps/api/src/activities/activities.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-124 | P16-05 | Mở danh sách tin tuyển sinh của đợt đang mở | Thấy tin kèm thời hạn | | Chưa chạy |
 | CT-125 | P17-13 | Giáo viên lớp Mầm 1 mở bảng tin | Chỉ thấy sinh nhật trẻ lớp Mầm 1 | Kiểm thử tự động `apps/api/src/reports/reports.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-126 | P17-14 | Kế toán mở báo cáo học thứ 7 | Có các ngày học bù, số trẻ đi học và vắng của từng ngày | Kiểm thử tự động `apps/api/src/reports/reports.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-127 | P17-15 | Bỏ ngày 09/10/2026: trường không có bữa tối (YCTD-20) | — | | Không áp dụng |
 | CT-128 | P17-14 | Giáo viên gọi điểm cuối báo cáo học thứ 7 | Trả lỗi không có quyền | Kiểm thử tự động `apps/api/src/reports/reports.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-129 | P08-10 | Chốt bảng công có ngày thứ bảy học bù, một nhân sự không chấm công | Ngày đó là ngày làm việc, nhân sự bị tính vắng | Kiểm thử tự động `apps/api/src/staff-attendance/leave.test.ts` đạt ngày 11/10/2026 | Đạt |
-| CT-130 | P14-11 | Tính học phí kỳ kế tiếp với đăng ký ngoại khóa thu theo tháng | Phí hoạt động có trong khoản phải thu của kỳ | | Chưa chạy |
-| CT-131 | P14-11 | Trẻ đăng ký ngoại khóa thu theo tháng, nghỉ ba buổi, thôi giữa tháng | Phí tháng thu đủ, không có dòng giảm trừ | | Chưa chạy |
+| CT-130 | P14-11 | Tính học phí kỳ kế tiếp với đăng ký ngoại khóa thu theo tháng | Phí hoạt động có trong khoản phải thu của kỳ | Kiểm thử tự động `apps/api/src/activities/activities.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CT-131 | P14-11 | Trẻ đăng ký ngoại khóa thu theo tháng, nghỉ ba buổi, thôi giữa tháng | Phí tháng thu đủ, không có dòng giảm trừ | Kiểm thử tự động `apps/api/src/activities/activities.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-132 | P05-05 | Tính học phí kỳ với học phí chính khóa bằng không | Hóa đơn chỉ có khoản dịch vụ | Kiểm thử tự động `apps/api/src/fees/fee-scenarios.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-133 | P05-11 | Áp dụng loại miễn giảm mười phần trăm tiền bán trú | Dòng giảm trừ đúng mười phần trăm | Kiểm thử tự động `apps/api/src/fees/discounts.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-134 | P08-11 | Cấp phép năm cho giáo viên sáu năm thâm niên | Được mười ba ngày theo quy định cấu hình | Kiểm thử tự động `apps/api/src/staff-attendance/leave.test.ts` đạt ngày 11/10/2026 | Đạt |
