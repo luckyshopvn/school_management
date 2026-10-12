@@ -142,6 +142,8 @@ export type FilePurpose =
   | 'import'
   | 'pickup_photo'
   | 'payment_voucher'
+  | 'activity_photo'
+  | 'content_file'
   | 'medicine_photo'
   | 'prescription';
 
@@ -542,9 +544,11 @@ export interface InvoicesTable {
 export interface InvoiceItemsTable {
   id: Generated<string>;
   invoice_id: string;
-  item_type: 'tuition' | 'service' | 'opening';
+  item_type: 'tuition' | 'service' | 'opening' | 'extracurricular';
   service_id: string | null;
   service_registration_id: string | null;
+  // Đăng ký ngoại khóa đã lập khoản thu (YCTD-78)
+  extracurricular_registration_id: ColumnType<string | null, string | null | undefined, string | null>;
   description: string;
   quantity: ColumnType<string, string | number, string | number>;
   unit_price: Money;
@@ -1278,135 +1282,6 @@ export interface HealthReportRequestsTable {
   sent_at: Date | null;
 }
 
-// Thuốc: danh mục, nhà thuốc, dặn thuốc, cho uống thuốc, đề nghị mua, phiếu mua, phiếu cấp (P10-02 đến P10-05, P10-09;
-// YCTD-75)
-export type MedicationRequestStatus = 'pending' | 'administering' | 'completed' | 'rejected';
-export type MedicationAssignedRole = 'nurse' | 'homeroom';
-export type MedicinePurchaseRequestStatus = 'pending' | 'approved' | 'rejected' | 'ordered';
-
-export interface PharmaciesTable {
-  id: Generated<string>;
-  org_unit_id: string;
-  name: string;
-  phone: string | null;
-  address: string | null;
-  status: Generated<'active' | 'inactive'>;
-  created_by: string;
-  created_at: CreatedTimestamp;
-  updated_at: UpdatedTimestamp;
-}
-
-export interface MedicinesTable {
-  id: Generated<string>;
-  org_unit_id: string;
-  code: string;
-  name: string;
-  active_ingredient: string | null;
-  unit: string;
-  pharmacy_id: string | null;
-  stock_qty: Generated<number>;
-  status: Generated<'active' | 'inactive'>;
-  created_by: string;
-  created_at: CreatedTimestamp;
-  updated_at: UpdatedTimestamp;
-}
-
-export interface MedicationRequestsTable {
-  id: Generated<string>;
-  child_id: string;
-  org_unit_id: string;
-  class_id: string | null;
-  requested_by: string;
-  medicine_name: string;
-  dosage: string;
-  times: string[];
-  from_date: string;
-  to_date: string;
-  allergy_note: string;
-  note: string | null;
-  medicine_photo_ids: string[];
-  prescription_photo_id: string | null;
-  assigned_role: MedicationAssignedRole;
-  status: Generated<MedicationRequestStatus>;
-  received_quantity: string | null;
-  received_note: string | null;
-  received_by: string | null;
-  received_at: Date | null;
-  reject_reason: string | null;
-  rejected_by: string | null;
-  rejected_at: Date | null;
-  completed_at: Date | null;
-  created_at: CreatedTimestamp;
-}
-
-export interface MedicationAdministrationsTable {
-  id: Generated<string>;
-  request_id: string;
-  scheduled_date: string;
-  scheduled_time: string;
-  administered_at: Date | null;
-  administered_by: string;
-  dose_note: string | null;
-  is_skipped: Generated<boolean>;
-  skip_reason: string | null;
-  parent_acknowledged_at: Date | null;
-  parent_acknowledged_by: string | null;
-  created_at: CreatedTimestamp;
-}
-
-export interface MedicinePurchaseRequestsTable {
-  id: Generated<string>;
-  org_unit_id: string;
-  medicine_id: string;
-  quantity: number;
-  estimated_unit_price: Decimal;
-  estimated_amount: Decimal;
-  reason: string;
-  status: Generated<MedicinePurchaseRequestStatus>;
-  requires_principal: boolean;
-  created_by: string;
-  created_at: CreatedTimestamp;
-  approved_by: string | null;
-  approved_at: Date | null;
-  reject_reason: string | null;
-}
-
-export interface MedicinePurchaseOrdersTable {
-  id: Generated<string>;
-  code: string;
-  org_unit_id: string;
-  request_id: string;
-  pharmacy_id: string;
-  order_date: string;
-  total_amount: Decimal;
-  status: Generated<'received'>;
-  note: string | null;
-  created_by: string;
-  created_at: CreatedTimestamp;
-}
-
-export interface MedicinePurchaseOrderItemsTable {
-  id: Generated<string>;
-  order_id: string;
-  medicine_id: string;
-  quantity: number;
-  unit_price: Decimal;
-  amount: Decimal;
-  received_qty: number;
-}
-
-export interface MedicineIssuesTable {
-  id: Generated<string>;
-  code: string;
-  org_unit_id: string;
-  medicine_id: string;
-  quantity: number;
-  recipient: string;
-  reason: string;
-  issued_by: string;
-  issued_at: CreatedTimestamp;
-}
-
 // Kho, tài sản và mua hàng (P13; YCTD-77)
 export type AssetLocationType = 'store' | 'room' | 'class' | 'staff' | 'unit';
 export type AssetStatus = 'in_stock' | 'assigned' | 'on_loan' | 'damaged' | 'lost' | 'disposed';
@@ -1609,6 +1484,768 @@ export interface PurchaseOrderItemsTable {
   unit_price: Money;
   amount: Money;
   received_qty: Decimal;
+}
+
+// Giảng dạy (P03; YCTD-80)
+export type LessonPlanStatus = 'draft' | 'submitted' | 'leader_approved' | 'approved' | 'returned';
+export type LessonPlanReviewStage = 'leader' | 'manager';
+export type TeachingPlanPeriod = 'term' | 'month' | 'week';
+export type TeachingPlanStatus = 'planned' | 'in_progress' | 'completed';
+export type ProgressPeriod = 'term' | 'month';
+export type ProgressLevel = 'achieved' | 'developing' | 'not_yet';
+export type ActivityScheduleStatus = 'draft' | 'published' | 'cancelled';
+
+export interface LessonDomainsTable extends CatalogRecordColumns {
+  org_unit_id: string;
+  name: string;
+  order_no: Generated<number>;
+  status: Generated<'active' | 'inactive'>;
+}
+
+export interface LessonGroupsTable extends CatalogRecordColumns {
+  org_unit_id: string;
+  domain_id: string;
+  name: string;
+  order_no: Generated<number>;
+  status: Generated<'active' | 'inactive'>;
+}
+
+export interface ThemesTable extends CatalogRecordColumns {
+  org_unit_id: string;
+  name: string;
+  age_group: string | null;
+  start_date: string;
+  end_date: string;
+  status: Generated<'active' | 'inactive'>;
+}
+
+export interface LessonsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  theme_id: string | null;
+  domain_id: string | null;
+  lesson_group_id: string | null;
+  name: string;
+  age_group: string | null;
+  objectives: string;
+  materials: string | null;
+  is_shared: Generated<boolean>;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface LessonPlansTable {
+  id: Generated<string>;
+  lesson_id: string;
+  class_id: string;
+  org_unit_id: string;
+  teacher_id: string;
+  teacher_name: string;
+  planned_date: string;
+  activities: string;
+  duration_minutes: number;
+  materials: string | null;
+  status: Generated<LessonPlanStatus>;
+  submitted_at: Date | null;
+  leader_reviewed_by: string | null;
+  leader_reviewed_at: Date | null;
+  approved_by: string | null;
+  approved_at: Date | null;
+  review_comment: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface LessonPlanReviewsTable {
+  id: Generated<string>;
+  lesson_plan_id: string;
+  reviewer_id: string;
+  reviewer_name: string;
+  stage: LessonPlanReviewStage;
+  decision: 'approved' | 'returned';
+  comment: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface TimetablesTable {
+  id: Generated<string>;
+  class_id: string;
+  effective_from: string;
+  weekday: number;
+  period_no: number;
+  start_time: string;
+  end_time: string;
+  activity_name: string;
+  teacher_id: string | null;
+  teacher_name: string | null;
+  status: Generated<'draft' | 'published'>;
+  published_at: Date | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface TeachingPlansTable {
+  id: Generated<string>;
+  class_id: string;
+  org_unit_id: string;
+  period_type: TeachingPlanPeriod;
+  period_value: string;
+  objectives: string;
+  content: string;
+  progress_note: string | null;
+  status: Generated<TeachingPlanStatus>;
+  created_by: string;
+  updated_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ChildProgressTable {
+  id: Generated<string>;
+  child_id: string;
+  class_id: string;
+  period_type: ProgressPeriod;
+  period_value: string;
+  domain_id: string | null;
+  indicator_code: string;
+  level: ProgressLevel;
+  comment: string | null;
+  recorded_by: string;
+  published_at: Date | null;
+  published_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ClassActivitySchedulesTable {
+  id: Generated<string>;
+  class_id: string;
+  activity_date: string;
+  start_time: string;
+  end_time: string;
+  activity_name: string;
+  note: string | null;
+  status: Generated<ActivityScheduleStatus>;
+  published_at: Date | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+// Tương tác và ý kiến, đồ bị mất của trẻ (P15, P02-11; YCTD-79)
+export type MessageSenderSide = 'guardian' | 'staff';
+export type FeedbackCategory = 'teaching' | 'care' | 'meal' | 'facility' | 'fee' | 'other';
+export type FeedbackPrivacy = 'named' | 'anonymous';
+export type FeedbackStatus = 'received' | 'in_progress' | 'resolved';
+export type PollType = 'poll' | 'vote' | 'survey';
+export type PollAudience = 'guardians' | 'staff' | 'everyone';
+export type PollStatus = 'draft' | 'open' | 'closed';
+export type PollAnswerType = 'single_choice' | 'multiple_choice' | 'text' | 'rating';
+export type InteractionCommentTargetType = 'poll';
+export type LikeTargetType = 'poll' | 'comment';
+export type CommentModerationAction = 'hide' | 'restore' | 'note';
+export type LostItemReportType = 'lost' | 'found';
+export type LostItemStatus = 'reported' | 'found' | 'returned' | 'not_found' | 'cancelled';
+
+export interface SurveyTemplateQuestion {
+  question_text: string;
+  answer_type: PollAnswerType;
+  is_required: boolean;
+  options: string[];
+}
+
+export interface MessageThreadsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  child_id: string;
+  guardian_user_id: string;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  last_message_at: UpdatedTimestamp;
+}
+
+export interface MessagesTable {
+  id: Generated<string>;
+  thread_id: string;
+  sender_user_id: string;
+  sender_side: MessageSenderSide;
+  sender_name: string;
+  content: string;
+  sent_at: CreatedTimestamp;
+  read_at: Date | null;
+  read_by: string | null;
+}
+
+export interface FeedbacksTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  child_id: string | null;
+  submitted_by_user_id: string;
+  submitter_name: string;
+  category: FeedbackCategory;
+  content: string;
+  privacy_level: FeedbackPrivacy;
+  status: Generated<FeedbackStatus>;
+  assigned_to_user_id: string | null;
+  handled_by: string | null;
+  handled_at: Date | null;
+  handling_note: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface SurveyTemplatesTable {
+  id: Generated<string>;
+  name: string;
+  description: string | null;
+  questions: ColumnType<SurveyTemplateQuestion[], string, string>;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface PollsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  poll_type: PollType;
+  title: string;
+  description: string | null;
+  class_id: string | null;
+  audience: PollAudience;
+  start_at: Date;
+  end_at: Date;
+  is_anonymous: Generated<boolean>;
+  survey_template_id: string | null;
+  status: Generated<PollStatus>;
+  published_at: Date | null;
+  closed_at: Date | null;
+  results_published_at: Date | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface PollQuestionsTable {
+  id: Generated<string>;
+  poll_id: string;
+  question_text: string;
+  answer_type: PollAnswerType;
+  order_no: number;
+  is_required: Generated<boolean>;
+}
+
+export interface PollOptionsTable {
+  id: Generated<string>;
+  poll_id: string;
+  question_id: string;
+  label: string;
+  order_no: number;
+}
+
+export interface PollResponsesTable {
+  id: Generated<string>;
+  poll_id: string;
+  user_id: string;
+  submitted_at: CreatedTimestamp;
+}
+
+export interface PollAnswersTable {
+  id: Generated<string>;
+  response_id: string;
+  question_id: string;
+  option_id: string | null;
+  answer_text: string | null;
+  answer_number: number | null;
+}
+
+export interface InteractionCommentsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  target_type: InteractionCommentTargetType;
+  target_id: string;
+  user_id: string;
+  author_name: string;
+  author_side: MessageSenderSide;
+  content: string;
+  created_at: CreatedTimestamp;
+  reported_at: Date | null;
+  reported_by: string | null;
+  hidden_at: Date | null;
+  hidden_by: string | null;
+  hide_reason: string | null;
+}
+
+export interface CommentModerationsTable {
+  id: Generated<string>;
+  comment_id: string;
+  action: CommentModerationAction;
+  reason: string;
+  handled_by: string;
+  handled_at: CreatedTimestamp;
+}
+
+export interface InteractionLikesTable {
+  id: Generated<string>;
+  target_type: LikeTargetType;
+  target_id: string;
+  user_id: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface LostItemsTable {
+  id: Generated<string>;
+  code: string;
+  org_unit_id: string;
+  child_id: string | null;
+  class_id: string | null;
+  report_type: LostItemReportType;
+  description: string;
+  noticed_on: string;
+  photo_file_id: string | null;
+  status: LostItemStatus;
+  reported_by: string;
+  reported_at: CreatedTimestamp;
+  found_by: string | null;
+  found_at: Date | null;
+  found_note: string | null;
+  closed_by: string | null;
+  closed_at: Date | null;
+  result_note: string | null;
+  cancelled_by: string | null;
+  cancelled_at: Date | null;
+}
+
+// Hoạt động, hình ảnh, tin tức, thư viện, hình tô màu, ngoại khóa, bình luận (YCTD-78)
+export type ActivityStatus = 'draft' | 'pending' | 'published' | 'rejected' | 'hidden';
+export type ContentStatus = 'draft' | 'published' | 'hidden';
+export type ContentScopeType = 'school' | 'unit' | 'class' | 'child';
+export type CommentTargetType = 'activity' | 'news' | 'library_item' | 'library_album';
+export type ExtracurricularFeeType = 'free' | 'per_activity' | 'monthly';
+
+interface AuthoredColumns {
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+interface PublishingColumns {
+  scope_type: ColumnType<ContentScopeType, ContentScopeType | undefined, ContentScopeType>;
+  scope_id: string | null;
+  status: ColumnType<ContentStatus, ContentStatus | undefined, ContentStatus>;
+  published_at: Date | null;
+  published_by: string | null;
+  hidden_reason: string | null;
+  hidden_by: string | null;
+  hidden_at: Date | null;
+}
+
+export interface ContentCatalogTable extends AuthoredColumns {
+  id: Generated<string>;
+  org_unit_id: string;
+  name: string;
+  order_no: Generated<number>;
+  status: Generated<'active' | 'inactive'>;
+}
+
+export interface ActivitiesTable extends AuthoredColumns {
+  id: Generated<string>;
+  org_unit_id: string;
+  class_id: string;
+  category_id: string;
+  title: string;
+  content: string;
+  activity_date: string;
+  status: ActivityStatus;
+  created_by_name: string;
+  submitted_at: Date | null;
+  approved_by: string | null;
+  approved_at: Date | null;
+  reject_reason: string | null;
+  published_at: Date | null;
+  hidden_reason: string | null;
+  hidden_by: string | null;
+  hidden_at: Date | null;
+}
+
+export interface ActivityMediaTable {
+  id: Generated<string>;
+  activity_id: string;
+  file_id: string;
+  caption: string | null;
+  order_no: Generated<number>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface ActivityMediaChildrenTable {
+  media_id: string;
+  child_id: string;
+}
+
+export interface ActivityLikesTable {
+  activity_id: string;
+  user_id: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface NewsTable extends AuthoredColumns, PublishingColumns {
+  id: Generated<string>;
+  org_unit_id: string;
+  category_id: string | null;
+  title: string;
+  summary: string | null;
+  content: string;
+  cover_file_id: string | null;
+}
+
+export interface LibraryAlbumsTable extends AuthoredColumns {
+  id: Generated<string>;
+  org_unit_id: string;
+  topic_id: string | null;
+  title: string;
+  cover_file_id: string | null;
+  status: Generated<'active' | 'inactive'>;
+}
+
+export interface LibraryItemsTable extends AuthoredColumns, PublishingColumns {
+  id: Generated<string>;
+  org_unit_id: string;
+  topic_id: string | null;
+  album_id: string | null;
+  title: string;
+  description: string | null;
+  age_group: string | null;
+  file_id: string | null;
+}
+
+export interface ColoringPagesTable extends AuthoredColumns, PublishingColumns {
+  id: Generated<string>;
+  org_unit_id: string;
+  title: string;
+  topic: string | null;
+  age_group: string | null;
+  file_id: string;
+}
+
+export interface ContentCommentsTable {
+  id: Generated<string>;
+  target_type: CommentTargetType;
+  target_id: string;
+  org_unit_id: string;
+  user_id: string;
+  author_name: string;
+  is_parent: Generated<boolean>;
+  content: string;
+  created_at: CreatedTimestamp;
+  hidden_reason: string | null;
+  hidden_by: string | null;
+  hidden_at: Date | null;
+}
+
+export interface ExtracurricularActivitiesTable extends AuthoredColumns {
+  id: Generated<string>;
+  org_unit_id: string;
+  name: string;
+  description: string | null;
+  start_date: string;
+  end_date: string;
+  grade_levels: ColumnType<string[], string | undefined, string>;
+  quota: number;
+  fee_type: ExtracurricularFeeType;
+  fee_amount: Money;
+  status: Generated<'draft' | 'published' | 'closed'>;
+}
+
+export interface ExtracurricularRegistrationsTable {
+  id: Generated<string>;
+  activity_id: string;
+  child_id: string;
+  org_unit_id: string;
+  registered_by: string;
+  registered_at: CreatedTimestamp;
+  effective_from: string;
+  effective_to: string | null;
+  status: Generated<'active' | 'withdrawn'>;
+  withdrawn_by: string | null;
+  withdrawn_at: Date | null;
+}
+
+// Bếp, thực đơn, định lượng, suất ăn, phiếu đi chợ (P12; YCTD-76)
+export type MealType = 'breakfast' | 'lunch' | 'snack';
+export type MenuStatus = 'draft' | 'submitted' | 'published';
+export type MarketPurchaseStatus = 'draft' | 'received' | 'cancelled';
+export type MarketPurchasePaymentStatus = 'awaiting_payment' | 'paid';
+
+export interface IngredientsTable extends CatalogRecordColumns {
+  org_unit_id: string;
+  code: string;
+  name: string;
+  unit: string;
+  current_stock: Generated<Decimal>;
+  status: Generated<CatalogStatus>;
+}
+
+export interface DishesTable extends CatalogRecordColumns {
+  org_unit_id: string;
+  name: string;
+  group_name: string | null;
+  recipe_note: string | null;
+  status: Generated<CatalogStatus>;
+}
+
+export interface IngredientNormsTable {
+  id: Generated<string>;
+  dish_id: string;
+  ingredient_id: string;
+  quantity_per_serving: Decimal;
+}
+
+export interface MenusTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  week_start_date: string;
+  age_group: Generated<string>;
+  status: Generated<MenuStatus>;
+  note: string | null;
+  submitted_by: string | null;
+  submitted_at: Date | null;
+  approved_by: string | null;
+  approved_at: Date | null;
+  published_at: Date | null;
+  reject_reason: string | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface MenuItemsTable {
+  id: Generated<string>;
+  menu_id: string;
+  weekday: number;
+  meal_type: MealType;
+  dish_id: string;
+  note: string | null;
+}
+
+export interface MealReportsTable {
+  id: Generated<string>;
+  class_id: string;
+  org_unit_id: string;
+  report_date: string;
+  headcount: number;
+  note: string | null;
+  reported_by: string;
+  reported_at: Date;
+}
+
+export interface MealPlansTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  meal_date: string;
+  meal_type: MealType;
+  headcount: number;
+  computed_from: 'attendance' | 'mixed';
+  status: 'provisional' | 'final';
+  computed_by: string;
+  computed_at: Date;
+}
+
+export interface BuffetEventsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  buffet_date: string;
+  occasion: string;
+  class_id: string | null;
+  menu_note: string;
+  status: Generated<'draft' | 'approved' | 'cancelled'>;
+  created_by: string;
+  approved_by: string | null;
+  approved_at: Date | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface FoodSuppliersTable extends CatalogRecordColumns {
+  org_unit_id: string;
+  name: string;
+  food_groups: string | null;
+  tax_code: string | null;
+  contact_name: string | null;
+  phone: string | null;
+  address: string | null;
+  status: Generated<CatalogStatus>;
+}
+
+export interface MarketPurchasesTable {
+  id: Generated<string>;
+  code: string;
+  org_unit_id: string;
+  purchase_date: string;
+  supplier_id: string;
+  total_amount: Money;
+  note: string | null;
+  status: Generated<MarketPurchaseStatus>;
+  payment_status: MarketPurchasePaymentStatus | null;
+  payment_id: string | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  received_by: string | null;
+  received_at: Date | null;
+  paid_linked_by: string | null;
+  paid_linked_at: Date | null;
+}
+
+export interface MarketPurchaseItemsTable {
+  id: Generated<string>;
+  purchase_id: string;
+  ingredient_id: string;
+  quantity: Decimal;
+  planned_quantity: Decimal | null;
+  unit_price: Money;
+  amount: Money;
+}
+
+// Thuốc: danh mục, nhà thuốc, dặn thuốc, cho uống thuốc, đề nghị mua, phiếu mua, phiếu cấp (P10-02 đến P10-05, P10-09;
+// YCTD-75)
+export type MedicationRequestStatus = 'pending' | 'administering' | 'completed' | 'rejected';
+export type MedicationAssignedRole = 'nurse' | 'homeroom';
+export type MedicinePurchaseRequestStatus = 'pending' | 'approved' | 'rejected' | 'ordered';
+
+export interface PharmaciesTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  name: string;
+  phone: string | null;
+  address: string | null;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface MedicinesTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  code: string;
+  name: string;
+  active_ingredient: string | null;
+  unit: string;
+  pharmacy_id: string | null;
+  stock_qty: Generated<number>;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface MedicationRequestsTable {
+  id: Generated<string>;
+  child_id: string;
+  org_unit_id: string;
+  class_id: string | null;
+  requested_by: string;
+  medicine_name: string;
+  dosage: string;
+  times: string[];
+  from_date: string;
+  to_date: string;
+  allergy_note: string;
+  note: string | null;
+  medicine_photo_ids: string[];
+  prescription_photo_id: string | null;
+  assigned_role: MedicationAssignedRole;
+  status: Generated<MedicationRequestStatus>;
+  received_quantity: string | null;
+  received_note: string | null;
+  received_by: string | null;
+  received_at: Date | null;
+  reject_reason: string | null;
+  rejected_by: string | null;
+  rejected_at: Date | null;
+  completed_at: Date | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface MedicationAdministrationsTable {
+  id: Generated<string>;
+  request_id: string;
+  scheduled_date: string;
+  scheduled_time: string;
+  administered_at: Date | null;
+  administered_by: string;
+  dose_note: string | null;
+  is_skipped: Generated<boolean>;
+  skip_reason: string | null;
+  parent_acknowledged_at: Date | null;
+  parent_acknowledged_by: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface MedicinePurchaseRequestsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  medicine_id: string;
+  quantity: number;
+  estimated_unit_price: Decimal;
+  estimated_amount: Decimal;
+  reason: string;
+  status: Generated<MedicinePurchaseRequestStatus>;
+  requires_principal: boolean;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  approved_by: string | null;
+  approved_at: Date | null;
+  reject_reason: string | null;
+}
+
+export interface MedicinePurchaseOrdersTable {
+  id: Generated<string>;
+  code: string;
+  org_unit_id: string;
+  request_id: string;
+  pharmacy_id: string;
+  order_date: string;
+  total_amount: Decimal;
+  status: Generated<'received'>;
+  note: string | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface MedicinePurchaseOrderItemsTable {
+  id: Generated<string>;
+  order_id: string;
+  medicine_id: string;
+  quantity: number;
+  unit_price: Decimal;
+  amount: Decimal;
+  received_qty: number;
+}
+
+export interface MedicineIssuesTable {
+  id: Generated<string>;
+  code: string;
+  org_unit_id: string;
+  medicine_id: string;
+  quantity: number;
+  recipient: string;
+  reason: string;
+  issued_by: string;
+  issued_at: CreatedTimestamp;
+}
+
+// Nhật ký xuất dữ liệu (P17-12, BR-74, YCTD-83)
+export interface ExportLogsTable {
+  id: Generated<string>;
+  user_id: string;
+  actor_name: string;
+  report_code: string;
+  filters_data: ColumnType<Record<string, unknown>, string, string>;
+  org_unit_ids: string[];
+  row_count: number;
+  contains_personal_data: boolean;
+  file_name: string;
+  ip_address: string | null;
+  exported_at: CreatedTimestamp;
 }
 
 // Công việc, kế hoạch, đánh giá, quá trình công tác, thưởng và khấu trừ (YCTD-81)
@@ -1848,14 +2485,6 @@ export interface SchoolYearDatabase {
   medical_events: MedicalEventsTable;
   daily_care_logs: DailyCareLogsTable;
   health_report_requests: HealthReportRequestsTable;
-  pharmacies: PharmaciesTable;
-  medicines: MedicinesTable;
-  medication_requests: MedicationRequestsTable;
-  medication_administrations: MedicationAdministrationsTable;
-  medicine_purchase_requests: MedicinePurchaseRequestsTable;
-  medicine_purchase_orders: MedicinePurchaseOrdersTable;
-  medicine_purchase_order_items: MedicinePurchaseOrderItemsTable;
-  medicine_issues: MedicineIssuesTable;
   suppliers: SuppliersTable;
   assets: AssetsTable;
   asset_assignments: AssetAssignmentsTable;
@@ -1869,6 +2498,63 @@ export interface SchoolYearDatabase {
   purchase_request_items: PurchaseRequestItemsTable;
   purchase_orders: PurchaseOrdersTable;
   purchase_order_items: PurchaseOrderItemsTable;
+  lesson_domains: LessonDomainsTable;
+  lesson_groups: LessonGroupsTable;
+  themes: ThemesTable;
+  lessons: LessonsTable;
+  lesson_plans: LessonPlansTable;
+  lesson_plan_reviews: LessonPlanReviewsTable;
+  timetables: TimetablesTable;
+  teaching_plans: TeachingPlansTable;
+  child_progress: ChildProgressTable;
+  class_activity_schedules: ClassActivitySchedulesTable;
+  message_threads: MessageThreadsTable;
+  messages: MessagesTable;
+  feedbacks: FeedbacksTable;
+  survey_templates: SurveyTemplatesTable;
+  polls: PollsTable;
+  poll_questions: PollQuestionsTable;
+  poll_options: PollOptionsTable;
+  poll_responses: PollResponsesTable;
+  poll_answers: PollAnswersTable;
+  interaction_comments: InteractionCommentsTable;
+  comment_moderations: CommentModerationsTable;
+  interaction_likes: InteractionLikesTable;
+  lost_items: LostItemsTable;
+  activity_categories: ContentCatalogTable;
+  news_categories: ContentCatalogTable;
+  library_topics: ContentCatalogTable;
+  activities: ActivitiesTable;
+  activity_media: ActivityMediaTable;
+  activity_media_children: ActivityMediaChildrenTable;
+  activity_likes: ActivityLikesTable;
+  news: NewsTable;
+  library_albums: LibraryAlbumsTable;
+  library_items: LibraryItemsTable;
+  coloring_pages: ColoringPagesTable;
+  content_comments: ContentCommentsTable;
+  extracurricular_activities: ExtracurricularActivitiesTable;
+  extracurricular_registrations: ExtracurricularRegistrationsTable;
+  ingredients: IngredientsTable;
+  dishes: DishesTable;
+  ingredient_norms: IngredientNormsTable;
+  menus: MenusTable;
+  menu_items: MenuItemsTable;
+  meal_reports: MealReportsTable;
+  meal_plans: MealPlansTable;
+  buffet_events: BuffetEventsTable;
+  food_suppliers: FoodSuppliersTable;
+  market_purchases: MarketPurchasesTable;
+  market_purchase_items: MarketPurchaseItemsTable;
+  pharmacies: PharmaciesTable;
+  medicines: MedicinesTable;
+  medication_requests: MedicationRequestsTable;
+  medication_administrations: MedicationAdministrationsTable;
+  medicine_purchase_requests: MedicinePurchaseRequestsTable;
+  medicine_purchase_orders: MedicinePurchaseOrdersTable;
+  medicine_purchase_order_items: MedicinePurchaseOrderItemsTable;
+  medicine_issues: MedicineIssuesTable;
+  export_logs: ExportLogsTable;
   plans: PlansTable;
   tasks: TasksTable;
   task_updates: TaskUpdatesTable;

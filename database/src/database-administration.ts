@@ -27,7 +27,16 @@ export async function dropDatabaseIfExists(connectionString: string, databaseNam
   assertDatabaseName(databaseName);
   const database = createDatabase<unknown>(connectionString);
   try {
-    await sql`drop database if exists ${sql.id(databaseName)} with (force)`.execute(database);
+    // Tiến trình nền của PostgreSQL (ví dụ autovacuum) không kết thúc được bằng tài khoản thường (mã 42501); thử lại sau ít lâu
+    for (let attempt = 1; ; attempt += 1) {
+      try {
+        await sql`drop database if exists ${sql.id(databaseName)} with (force)`.execute(database);
+        return;
+      } catch (error) {
+        if ((error as { code?: string }).code !== '42501' || attempt >= 5) throw error;
+        await new Promise((resolve) => setTimeout(resolve, 500 * attempt));
+      }
+    }
   } finally {
     await database.destroy();
   }

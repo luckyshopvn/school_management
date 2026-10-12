@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.48
+- Phiên bản: 1.53
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -67,6 +67,79 @@ Nhóm điểm cuối dưới đây do dịch vụ định danh phục vụ.
 | POST | /api/v1/auth/change-password | Đổi mật khẩu |
 | POST | /api/v1/auth/verify-otp | Bỏ ngày 09/10/2026: không dùng xác thực hai lớp (YCTD-31) |
 | GET | /api/v1/auth/me | Lấy thông tin tài khoản, vai trò, đơn vị, danh sách quyền |
+
+Thay bảng phần bếp ở mục 15 của `17_DAC_TA_API.md`:
+
+
+|---|---|---|
+
+Giao kèo phần 10f (YCTD-79):
+
+1. `POST /message-threads` nhận `child_id`, `content`, `guardian_user_id` (nhà trường chọn khi trẻ có nhiều phụ huynh dùng ứng dụng); trả `{ thread_id, message }`; luồng đã có thì dùng lại. Người ngoài luồng gọi tin nhắn trả `ERR_FORBIDDEN`.
+2. `GET /message-threads` trả `child_name`, `class_name`, `guardian_name`, `last_message`, `last_message_at`, `my_side`, `unread_count`.
+3. `POST /feedbacks` nhận `child_id` (phụ huynh) hoặc `org_unit_id` (nhân sự), `category`, `content`, `privacy_level`; góp ý ẩn danh trả người xử lý `submitter_name` "Ẩn danh", `submitted_by_user_id` và `child_id` rỗng. `handle` nhận `status` (`in_progress`, `resolved`), `handling_note` (bắt buộc khi `resolved`), `assigned_to_user_id`; góp ý đã xử lý trả mã P15-02.
+4. `POST /polls` nhận `org_unit_id`, `poll_type`, `title`, `description`, `class_id`, `audience`, `start_at`, `end_at` (ISO 8601, kết thúc sau bắt đầu), `is_anonymous`, `options` (bình chọn, biểu quyết), `questions` hoặc `survey_template_id` (khảo sát). Mở khi thời gian kết thúc đã qua, mở bình chọn không ở trạng thái nháp, đóng bình chọn không đang mở trả mã BR-68.
+5. `POST /polls/{id}/responses` nhận `option_id` (bình chọn, biểu quyết) hoặc `answers: [{ question_id, option_ids, text, number }]`; phiếu thứ hai trả mã BR-67; ngoài thời gian hoặc đã đóng trả mã BR-68; không là đối tượng trả `ERR_FORBIDDEN`; thiếu câu bắt buộc hoặc phương án không thuộc câu hỏi trả `ERR_VALIDATION`.
+6. `GET /polls/{id}/results` trả `response_count`, `respondents` (chỉ người quản lý, bình chọn không ẩn danh), `questions[].options[].count`, `texts`, `average`; đối tượng gọi khi chưa công bố trả `ERR_FORBIDDEN`.
+7. `POST /interaction-comments/{id}/moderate` nhận `action` (`hide`, `restore`, `note`) và `reason` bắt buộc; ẩn bình luận đã ẩn hoặc hiện lại bình luận đang hiện trả mã BR-66; không có điểm cuối xóa bình luận.
+8. `POST /interaction-likes` nhận `target_type` (`poll`, `comment`), `target_id`; trả `{ liked, like_count }`.
+9. `POST /lost-items` nhận `report_type` (`lost` mặc định, `found`), `child_id` (bắt buộc khi báo mất), `class_id` (đồ nhặt được không rõ trẻ), `description`, `noticed_on` (mặc định hôm nay, không sau hôm nay); phụ huynh chỉ báo mất cho con mình, đồ nhặt được chỉ người xử lý ghi. Phụ huynh gọi phiếu hoặc danh sách của trẻ không phải con mình trả `ERR_FORBIDDEN`.
+10. `DELETE /lost-items/{id}` trả phiếu ở trạng thái `cancelled`; phiếu đã đóng trả mã BR-75; phiếu đã tìm thấy hoặc đã hủy trả mã P02-11.
+
+Thay hai dòng có sẵn và thêm một dòng trong mục 17 của `17_DAC_TA_API.md`:
+
+
+Giao kèo của báo cáo hoạt động, báo cáo hợp nhất và xuất dữ liệu (DT-10 phần 10j, YCTD-83):
+
+1. `GET /reports/activities` cần `P17.report.operations`; nhận `from`, `to` (bắt buộc, tối đa 366 ngày, quá trả `ERR_VALIDATION`), `org_unit_id`, `class_id` (tùy chọn); đơn vị hoặc lớp ngoài phạm vi trả `ERR_FORBIDDEN`. Trả `from`, `to`, `org_unit_ids`, `class_id`, `sections` (mảng `code`, `title`, `columns` gồm `key`, `label`, `rows`). Mục có sẵn: `attendance` (`children_count`, `present`, `absent_notified`, `absent_unnotified`, `total`, `rate_percent`), `journals` (`published_count`, `draft_count`, `amendment_count`, `present`, `coverage_percent`), `health` (`medical_event_count`, `severe_event_count`, `daily_care_count`), `medication` (`request_count`, `given_count`, `skipped_count`) theo lớp kèm `org_unit_name`, `class_name`; `notifications` (`org_unit_name`, `notification_count`, `sms_sent_count`, `sms_failed_count`) theo đơn vị. Phần hoạt động (P14) và công việc (P09) thêm mục mới cùng định dạng.
+2. `GET /reports/consolidated` cần `P17.report.consolidated`; nhận `month` (`YYYY-MM`) và `org_unit_ids` (mã cách nhau dấu phẩy, trống là mọi đơn vị trong phạm vi); mã sai định dạng trả `ERR_VALIDATION`, đơn vị ngoài phạm vi trả `ERR_FORBIDDEN`. Trả `month`, `units` (mỗi dòng `org_unit_id`, `org_unit_code`, `org_unit_name`, `unit_type`, `children_count`, `classes_count`, `staff_count`, `attendance_present_count`, `attendance_record_count`, `attendance_rate_percent`, `tuition_payable_amount`, `tuition_paid_amount`, `tuition_outstanding_amount`, `tuition_collection_percent`, `debt_outstanding_amount`, `debt_overdue_amount`, `income_amount`, `expense_amount`, `difference_amount`) và `totals` (tổng các cột số, tỷ lệ tính lại từ tổng). Không có trường dữ liệu cá nhân.
+3. `POST /reports/{code}/export` cần `P17.data.export` và quyền xem của báo cáo `code` trong phạm vi; `code` là `tuition`, `debts`, `cash-flow`, `attendance`, `staff-attendance`, `saturday-classes`, `consolidated`, khác trả `ERR_NOT_FOUND`. Thân là bộ lọc cùng tên trường với chuỗi truy vấn của báo cáo (mảng được nối bằng dấu phẩy); bộ lọc sai trả `ERR_VALIDATION`. Thành công trả `200` nội dung `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`, tiêu đề `content-disposition: attachment; filename="bao-cao-{code}-{YYYYMMDD-HHmm}.xlsx"` và `x-export-log-id`. Mỗi lần thành công ghi một dòng `export_logs`; lần bị từ chối không ghi.
+4. `GET /reports/export-logs` cần `P17.data.export`; nhận `from`, `to`; người có phạm vi toàn trường theo quyền xuất thấy mọi dòng, người khác chỉ thấy dòng của mình; mỗi dòng `id`, `user_id`, `actor_name`, `report_code`, `filters_data`, `org_unit_ids`, `row_count`, `contains_personal_data`, `file_name`, `exported_at`; tối đa 500 dòng mới nhất.
+
+Giao kèo của nhóm điểm cuối giảng dạy (DT-10 phần 10g, YCTD-80):
+
+1. `GET /lesson-domains`, `/lesson-groups`, `/themes`, `/lessons` cho mọi nhân sự (không tính vai trò phụ huynh) trong phạm vi đơn vị, trả bản ghi của đơn vị trong phạm vi và của Trường chính; phụ huynh trả `ERR_FORBIDDEN`. Lọc `org_unit_id`, `status` (mặc định bài học `active`); nhóm lọc thêm `domain_id`; bài học lọc `theme_id`, `domain_id`, `lesson_group_id`, `age_group`, `mine=true`. Người chỉ có vai trò giáo viên thấy bài học của mình và bài học `is_shared`.
+2. `POST /lesson-domains` nhận `org_unit_id`, `name`, `order_no`; `POST /lesson-groups` nhận `domain_id`, `name`, `order_no` (đơn vị lấy theo lĩnh vực; lĩnh vực ngừng dùng trả mã BR-75); `POST /themes` nhận `org_unit_id`, `name`, `age_group`, `start_date`, `end_date`. Cần `P03.curriculum.manage` ở đơn vị; trùng tên trả `ERR_CONFLICT`. `PATCH` nhận `name`, `order_no` (chủ đề nhận `start_date`, `end_date`, `age_group`), `status`.
+3. `POST /lessons` nhận `org_unit_id` (bỏ trống thì lấy đơn vị đầu tiên trong phạm vi `P03.lesson.manage`), `name`, `objectives`, `materials`, `age_group`, `theme_id`, `domain_id`, `lesson_group_id`, `is_shared`; cần `P03.lesson.manage` ở đơn vị. Tham chiếu không đang dùng hoặc khác đơn vị, nhóm khác lĩnh vực trả `ERR_VALIDATION`. `PATCH /lessons/{id}` chỉ người soạn, nhận thêm `status`.
+4. `POST /lesson-plans` nhận `lesson_id`, `class_id`, `planned_date`, `activities`, `duration_minutes` (5–480), `materials`; cần `P03.lesson.manage` và phân công đang hiệu lực ở lớp, nếu không trả `ERR_FORBIDDEN`; bài học ngừng dùng, khác đơn vị, hoặc riêng của người khác trả `ERR_VALIDATION`. `PATCH` chỉ người soạn khi nháp hoặc bị trả lại (khác trả mã P03-02). `submit` chỉ người soạn từ nháp hoặc bị trả lại.
+5. `approve` (`comment` tùy chọn), `reject` (`comment` bắt buộc) cần `P03.lesson-plan.review`: vai trò VT-03 có quyền ở đơn vị của giáo án là bước quản lý (từ `submitted` hoặc `leader_approved`, duyệt thành `approved`); vai trò VT-17 là bước tổ trưởng (chỉ từ `submitted`, duyệt thành `leader_approved`); ngoài phạm vi trả `ERR_FORBIDDEN`; tự duyệt hoặc sai trạng thái trả mã P03-02.
+6. `GET /lesson-plans?view=mine` giáo án của người gọi; `view=review` giáo án của người khác chờ người gọi duyệt theo bước; không có `view` thì bắt buộc `class_id` và người gọi xem được lớp (nhân sự văn phòng hoặc tổ trưởng ở đơn vị của lớp, giáo viên được phân công). Lọc thêm `from`, `to`, `status`. `GET /lesson-plans/{id}` có `lesson`, `class_name`, `reviews`.
+7. `PUT /classes/{id}/timetable` nhận `effective_from` (thứ Hai, không trước tuần hiện tại), `slots` (tối đa 100 dòng `weekday`, `period_no`, `start_time`, `end_time`, `activity_name`, `teacher_id`); cần `P03.curriculum.manage` ở đơn vị hoặc chủ nhiệm lớp. Trùng tiết, trùng giờ trong lớp, giáo viên trùng giờ ở lớp khác, tuần đã qua, phiên bản đã công bố trả mã P03-04. `GET` nhận `week` (mặc định hôm nay), trả `effective_from`, `status`, `slots`, `versions` (chỉ nhân sự). `publish` nhận `effective_from`; không có bản nháp trả mã P03-04; phụ huynh của lớp nhận thông báo.
+8. `POST /classes/{id}/activity-schedules` nhận `activity_date` (không trước hôm nay), `start_time`, `end_time`, `activity_name`, `note`; trùng giờ trả mã P03-07. `publish` nhận `from`, `to`. `PATCH /class-activity-schedules/{id}` sửa khi nháp hoặc `status=cancelled`. `GET` nhận `from` (mặc định hôm nay), `to` (mặc định 7 ngày); nhân sự thấy nháp và đã công bố, phụ huynh có con trong lớp chỉ thấy đã công bố.
+9. `POST /teaching-plans` nhận `class_id`, `period_type`, `period_value`, `objectives`, `content`; trùng kỳ trả `ERR_CONFLICT`. `PATCH` nhận `objectives`, `content`, `progress_note`, `status`. `GET /teaching-plans?class_id=` cho người xem được lớp.
+10. `POST /children/{id}/progress` nhận `period_type` (`term`, `month`), `period_value`, `items` (1–50 dòng `indicator_code`, `level`, `comment`, `domain_id`); cần `P03.progress.record` và phân công lớp hiện tại của trẻ; kỳ đã công bố trả mã P03-06. `publish` nhận kỳ; không có chỉ số chưa công bố trả mã P03-06. `GET` nhận kỳ tùy chọn; phụ huynh chỉ thấy chỉ số đã công bố; nhân sự theo phạm vi xem trẻ.
+11. `GET /children/{id}/learning` cho phụ huynh của trẻ (hoặc nhân sự xem được trẻ): `class_id`, `class_name`, `timetable` đã công bố của tuần, `activities` đã công bố 14 ngày tới, `progress`.
+
+Giao kèo của nhóm điểm cuối hoạt động, nội dung và ngoại khóa (DT-10 phần 10e, YCTD-78):
+
+1. `POST /activities` nhận `class_id`, `category_id` (danh mục đang dùng của đơn vị của lớp hoặc Trường chính), `title` (tối đa 200 ký tự), `content` (tối đa 5 000 ký tự), `activity_date`, `draft` (tùy chọn, mặc định sai); cần `P14.activity.create` và đang được phân công lớp, nếu không trả `ERR_FORBIDDEN`. Kết quả `status` `pending` (hoặc `draft`).
+2. `GET /activities` trả hoạt động mà người gọi được xem: người có `P14.activity.approve` hoặc `P14.content.manage` (vai trò văn phòng) theo đơn vị, giáo viên theo lớp được phân công (mọi trạng thái), phụ huynh chỉ hoạt động `published` của lớp con; lọc `class_id`, `child_id`, `status`, `org_unit_id`. Mỗi dòng có `class_name`, `category_name`, `media` (`id`, `caption`, `file_name`, `child_ids`, `unconsented_children`, `excluded`; phụ huynh chỉ nhận ảnh không bị loại trừ, không kèm thẻ trẻ), `like_count`, `liked_by_me`, `comment_count`. `GET /activities/{id}` cùng quy tắc, không có quyền trả `ERR_FORBIDDEN`.
+3. `PATCH /activities/{id}` nhận các trường của mục 1 trừ `class_id`; chỉ người tạo được phân công lớp; hoạt động đã công bố hoặc đã ẩn trả mã BR-64. `submit`, `approve`, `reject` (`reason` bắt buộc), `hide` (`reason` bắt buộc), `republish` kiểm tra trạng thái nguồn, sai trả mã BR-64; người duyệt không có phạm vi trả `ERR_FORBIDDEN`.
+4. `POST /activities/{id}/media` là biểu mẫu nhiều phần gồm `file` (JPEG, PNG tối đa 10 MB), `child_ids` (mã trẻ cách nhau bởi dấu phẩy, phải đang học trong lớp của hoạt động), `caption`; quá 30 ảnh trả mã Q-71. Kết quả `{ media, warnings }`, `warnings` gồm `child_id` và câu báo cho từng trẻ chưa đồng ý hình ảnh.
+5. `GET /activity-media/{id}/file` cho nhân sự xem được hoạt động; phụ huynh chỉ khi hoạt động đã công bố và mọi trẻ được gắn thẻ đang đồng ý, nếu không trả mã BR-65.
+6. Bình luận: `POST /content-comments` nhận `target_type`, `target_id`, `content` (tối đa 1 000 ký tự); `POST /activities/{id}/comments` nhận `content`. Đối tượng chưa công bố trả mã BR-64. `GET` trả bình luận theo thời gian; người quản lý thấy cả bình luận ẩn kèm `hidden_reason`. `POST /comments/{id}/hide` nhận `reason` bắt buộc; đã ẩn trả `ERR_CONFLICT`. `DELETE /content-comments/{id}` luôn trả mã BR-66.
+7. `POST /news`, `/library-items`, `/coloring-pages` nhận `org_unit_id`, các trường riêng (tin tức: `title`, `summary`, `content`, `category_id`, `cover_file_id`; thư viện: `title`, `description`, `age_group`, `topic_id`, `album_id`, `file_id`; hình tô màu: `title`, `topic`, `age_group`, `file_id` bắt buộc), `scope_type`, `scope_id` (mặc định đơn vị của nội dung); tạo ở trạng thái `draft`. Tệp phải là `content_file` của đơn vị. `publish`, `hide` (`reason` bắt buộc); trạng thái sai trả mã BR-69. `GET` lọc `org_unit_id`, `status`, `child_id` (phụ huynh xem theo một con); mỗi dòng có `can_manage`.
+8. `POST /content-files` là biểu mẫu nhiều phần gồm `org_unit_id`, `file` (JPEG, PNG, PDF tối đa 10 MB); cần `P14.content.manage`, `P14.library.manage` hoặc `P14.extracurricular.manage` ở đơn vị.
+9. Danh mục: `GET /activity-categories|news-categories|library-topics?org_unit_id=` (kèm `include_inactive=true`) trả danh mục của đơn vị và Trường chính cho người dùng trong đơn vị; `POST` nhận `org_unit_id`, `name`, `order_no`; `PATCH` nhận `name`, `order_no`, `status`; trùng tên trả `ERR_CONFLICT`.
+10. `POST /extracurricular-activities` nhận `org_unit_id`, `name`, `description`, `start_date`, `end_date`, `grade_levels` (mảng mã bậc học), `quota`, `fee_type`, `fee_amount`; cần `P14.extracurricular.manage`. `GET` cho nhân sự có quyền ngoại khóa, đăng ký dịch vụ hoặc tính học phí theo đơn vị (mọi trạng thái) và phụ huynh (đã công bố, đơn vị có con); mỗi dòng có `registered_count`, `remaining`, `can_manage`, `my_registrations` (đăng ký của con người gọi).
+11. `POST /extracurricular-activities/{id}/registrations` nhận `child_id`; hoạt động chưa công bố, đã kết thúc, trẻ không thuộc đơn vị hoặc sai bậc học, đủ chỉ tiêu trả mã `P14-11`; trùng trả `ERR_CONFLICT`. Kết quả có `charge`: `null` (chờ tính học phí hoặc miễn phí) hoặc `{ invoice_id, invoice_kind }` (`supplementary` khi đã lập hóa đơn bổ sung, `main` khi thêm vào hóa đơn chính nháp). `POST /extracurricular-registrations/{id}/withdraw` cho phụ huynh của trẻ hoặc nhân sự có quyền; đã thôi trả `ERR_CONFLICT`.
+
+Giao kèo của nhóm điểm cuối bếp, thực đơn, suất ăn, phiếu đi chợ (DT-10 phần 10c):
+
+1. Ghi danh mục bếp, thực đơn, tính suất, phiếu đi chợ cần `P12.kitchen.manage` trong phạm vi đơn vị; đọc cần một trong `P12.kitchen.manage`, `P12.menu.approve`, `P17.report.kitchen` của đơn vị. Các điểm cuối danh sách bắt buộc `org_unit_id`. Ngoài phạm vi trả `ERR_FORBIDDEN`; trùng mã nguyên liệu, tên món, tên nhà cung cấp, thực đơn cùng đơn vị, tuần, độ tuổi trả `ERR_CONFLICT`.
+2. `POST /dishes` nhận `org_unit_id`, `name`, `group_name`, `recipe_note`, `norms` (mỗi phần tử `ingredient_id`, `quantity_per_serving` lớn hơn 0, tối đa 50 dòng); `PUT /dishes/{id}/norms` nhận `norms`. Nguyên liệu khác đơn vị hoặc ngừng dùng trả `ERR_RULE_VIOLATION` mã BR-60.
+3. `POST /menus` nhận `org_unit_id`, `week_start_date` (thứ hai, sai trả `ERR_VALIDATION`), `age_group` (mặc định `all`, hoặc mã khối học), `note`, `items` (mỗi phần tử `weekday` 1 đến 6, `meal_type` `breakfast`, `lunch`, `snack`, `dish_id` cùng đơn vị, `note`; tối đa 120). `status` là `draft`, `submitted`, `published`.
+4. `PUT /menus/{id}/items` chỉ khi `draft`; `submit` chỉ khi `draft` và có món; `approve`, `reject` (nhận `reason` bắt buộc) chỉ khi `submitted` và cần `P12.menu.approve`. Sai trạng thái trả `ERR_RULE_VIOLATION` mã BR-59. Duyệt là công bố.
+5. `GET /menus/{id}/norms` nhận `date` trong tuần của thực đơn (mặc định thứ hai) và `servings` (số nguyên 0 đến 5000, mặc định số suất của các lớp dùng thực đơn trong ngày); trả `lines` theo món và `totals` theo nguyên liệu kèm `shortage` so với tồn.
+6. `GET /children/{id}/menus` nhận `week_start_date` là một ngày bất kỳ của tuần (mặc định hôm nay); chỉ phụ huynh của trẻ hoặc người đọc dữ liệu bếp của đơn vị; trả `menu` là thực đơn đã công bố đúng mã khối của lớp, không có thì thực đơn chung, không có thì `null`; `buffets` là buffet đã duyệt trong tuần của toàn đơn vị hoặc lớp của trẻ.
+7. `GET /meal-plans` nhận `org_unit_id`, `date` (mặc định hôm nay); trả `headcount` (mỗi bữa), `meals` ba bữa, `status` (`final` khi mọi lớp đang hoạt động đã chốt điểm danh, còn lại `provisional`), `computed_from`, `classes` (mỗi lớp `enrolled_count`, `attendance_meal_count`, `meal_report_headcount`, `source` `attendance_locked` | `meal_report` | `attendance_open`, `headcount`) và `stored` là số đã lưu. `POST /meal-plans/compute` nhận `org_unit_id`, `date` (ngày học không sau hôm nay, ngày không phải ngày học trả mã BR-91) và ghi đè số đã lưu.
+8. `POST /classes/{id}/meal-report` nhận `date` (mặc định hôm nay, không sau hôm nay, phải là ngày học), `headcount` (số nguyên), `note`; chỉ giáo viên chủ nhiệm đang được phân công có `P12.meal-report.submit`, sai trả `ERR_FORBIDDEN`; quá sĩ số hoặc điểm danh đã chốt trả `ERR_RULE_VIOLATION` mã BR-58. `GET` cho giáo viên chủ nhiệm hoặc người đọc dữ liệu bếp.
+9. `POST /buffet-events` nhận `org_unit_id`, `buffet_date` (không trước hôm nay), `occasion`, `class_id` (trống là toàn đơn vị), `menu_note`; cần `P12.kitchen.manage` hoặc `P12.menu.approve`. `approve` cần `P12.menu.approve`, chỉ khi `draft`; `cancel` cần một trong hai quyền. Sai trạng thái trả mã P12-06.
+10. `POST /market-purchases` nhận `org_unit_id`, `purchase_date`, `supplier_id` (nhà cung cấp thực phẩm cùng đơn vị đang dùng), `note`, `items` (1 đến 100 dòng, mỗi dòng `ingredient_id`, `quantity` lớn hơn 0, `unit_price` nguyên đồng không âm; mỗi nguyên liệu một dòng); trả `code` dạng `PDC-000001`, `total_amount`, mỗi dòng có `planned_quantity` và `difference`.
+11. `receive` chỉ khi `draft`: `status` thành `received`, `payment_status` thành `awaiting_payment`, tồn nguyên liệu tăng, kế toán (VT-04) của đơn vị nhận thông báo; `cancel` chỉ khi `draft`. Sai trạng thái trả mã P12-09. `GET /market-purchases` lọc `status`, `payment_status=awaiting_payment`; người có `P06.payment.manage` của đơn vị cũng đọc được.
+12. `link-payment` nhận `payment_id`; cần `P06.payment.manage` trong đơn vị; phiếu đi chợ phải chờ thanh toán, phiếu chi đã phát hành, số tiền bằng `total_amount`, chưa gắn phiếu đi chợ khác, sai trả `ERR_RULE_VIOLATION` mã BR-28; xong thì `payment_status` thành `paid`.
+13. `GET /reports/meals` nhận `org_unit_id`, `from`, `to` (mặc định đầu tháng đến hôm nay, tối đa 62 ngày); cần `P17.report.kitchen` trong đơn vị. Trả `days` (mỗi ngày `class_count`, `locked_class_count`, `attendance_locked`, `attendance_meal_count` theo điểm danh đã chốt, `absent_count`, `meal_headcount` đã lưu, `meal_plan_status`, `matched` là `true`, `false` hoặc `null` khi chưa đối chiếu được), `mismatched_days`, `total_meal_days`, `purchases` (`count`, `total_amount`, `awaiting_payment_amount`, `paid_amount`, `by_supplier`) và `cost_per_meal_day`.
+14. Mọi thao tác ghi ghi `audit_logs` kèm giá trị trước và sau (QU-04).
 
 Giao kèo của thuốc và dặn thuốc (DT-10 phần 10b, YCTD-75):
 
@@ -435,31 +508,34 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | PATCH | /api/v1/classes/{id}/staff-assignments/{assignmentId} | Kết thúc phân công (YCTD-44) |
 | PATCH | /api/v1/staff-assignments/{id} | Kết thúc hoặc sửa phân công |
 | GET, POST | /api/v1/teaching-groups | Tổ chuyên môn, tổ trưởng và thành viên |
-| GET, POST | /api/v1/lost-items | Danh sách và báo đồ bị mất của trẻ |
-| POST | /api/v1/lost-items/{id}/close | Đóng phiếu đồ bị mất kèm kết quả |
 
 ## 7. Giảng dạy
 
 | Phương thức | Đường dẫn | Mô tả |
 |---|---|---|
-| GET, POST | /api/v1/lesson-domains | Danh mục lĩnh vực bài học |
-| GET, POST | /api/v1/lesson-groups | Danh mục nhóm bài học, lọc được theo lĩnh vực |
+| GET, POST | /api/v1/lesson-domains | Danh mục lĩnh vực bài học của đơn vị và Trường chính; thêm lĩnh vực |
+| PATCH | /api/v1/lesson-domains/{id} | Sửa tên, thứ tự, ngừng dùng lĩnh vực |
+| GET, POST | /api/v1/lesson-groups | Danh mục nhóm bài học, lọc theo lĩnh vực; thêm nhóm |
+| PATCH | /api/v1/lesson-groups/{id} | Sửa tên, thứ tự, ngừng dùng nhóm |
 | GET, POST | /api/v1/themes | Danh sách và tạo chủ đề giảng dạy |
-| GET, POST | /api/v1/lessons | Danh sách bài học, lọc theo chủ đề, lĩnh vực, nhóm, độ tuổi; tạo bài học |
-| PATCH | /api/v1/lessons/{id} | Cập nhật bài học |
-| GET, POST | /api/v1/lesson-plans | Danh sách giáo án theo lớp và khoảng ngày; soạn giáo án |
-| PATCH | /api/v1/lesson-plans/{id} | Cập nhật giáo án ở trạng thái nháp hoặc bị từ chối |
-| POST | /api/v1/lesson-plans/{id}/submit | Gửi trình duyệt giáo án |
-| POST | /api/v1/lesson-plans/{id}/approve | Duyệt và công bố giáo án |
-| POST | /api/v1/lesson-plans/{id}/reject | Từ chối giáo án kèm lý do |
-| GET, PUT | /api/v1/classes/{id}/timetable | Đọc và lưu thời khóa biểu của lớp theo tuần |
-| POST | /api/v1/classes/{id}/timetable/publish | Công bố thời khóa biểu cho phụ huynh |
-| GET, POST | /api/v1/teaching-plans | Danh sách và lập kế hoạch giảng dạy theo lớp và kỳ |
-| PATCH | /api/v1/teaching-plans/{id} | Cập nhật kế hoạch và tiến độ giảng dạy |
-| GET, POST | /api/v1/children/{id}/progress | Tiến độ học tập của trẻ theo kỳ; ghi nhận chỉ số và nhận xét |
-| POST | /api/v1/children/{id}/progress/publish | Công bố phiếu tiến độ cho phụ huynh |
-| GET, POST | /api/v1/classes/{id}/activity-schedules | Lịch hoạt động của lớp theo ngày |
-| POST | /api/v1/classes/{id}/activity-schedules/publish | Công bố lịch hoạt động lớp cho phụ huynh |
+| PATCH | /api/v1/themes/{id} | Sửa hoặc ngừng dùng chủ đề |
+| GET, POST | /api/v1/lessons | Danh sách bài học, lọc theo chủ đề, lĩnh vực, nhóm, độ tuổi, của tôi; tạo bài học |
+| PATCH | /api/v1/lessons/{id} | Người soạn cập nhật, chia sẻ hoặc ngừng dùng bài học |
+| GET, POST | /api/v1/lesson-plans | Danh sách giáo án của tôi, chờ tôi duyệt hoặc theo lớp và khoảng ngày; soạn giáo án |
+| GET, PATCH | /api/v1/lesson-plans/{id} | Chi tiết kèm lịch sử duyệt; cập nhật giáo án nháp hoặc bị trả lại |
+| POST | /api/v1/lesson-plans/{id}/submit | Gửi duyệt giáo án |
+| POST | /api/v1/lesson-plans/{id}/approve | Tổ trưởng duyệt bước trước; quản lý đơn vị duyệt và công bố |
+| POST | /api/v1/lesson-plans/{id}/reject | Trả lại giáo án kèm góp ý |
+| GET, PUT | /api/v1/classes/{id}/timetable | Đọc thời khóa biểu theo tuần; lưu bản nháp phiên bản áp dụng từ thứ Hai |
+| POST | /api/v1/classes/{id}/timetable/publish | Công bố phiên bản thời khóa biểu cho phụ huynh |
+| GET, POST | /api/v1/classes/{id}/activity-schedules | Lịch hoạt động của lớp theo khoảng ngày; thêm hoạt động nháp |
+| POST | /api/v1/classes/{id}/activity-schedules/publish | Công bố hoạt động nháp trong khoảng ngày |
+| PATCH | /api/v1/class-activity-schedules/{id} | Sửa hoạt động nháp hoặc hủy hoạt động |
+| GET, POST | /api/v1/teaching-plans | Kế hoạch giảng dạy của lớp; lập kế hoạch theo lớp và kỳ |
+| PATCH | /api/v1/teaching-plans/{id} | Cập nhật kế hoạch, tiến độ, trạng thái |
+| GET, POST | /api/v1/children/{id}/progress | Tiến độ học tập của trẻ theo kỳ; ghi chỉ số và nhận xét |
+| POST | /api/v1/children/{id}/progress/publish | Công bố phiếu tiến độ của kỳ cho phụ huynh |
+| GET | /api/v1/children/{id}/learning | Trang học tập của con: thời khóa biểu, lịch hoạt động, tiến độ đã công bố |
 
 Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp được phân công. Phụ huynh chỉ đọc được thời khóa biểu, lịch hoạt động và tiến độ đã công bố của lớp và của con mình.
 
@@ -689,14 +765,34 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 
 | Phương thức | Đường dẫn | Mô tả |
 |---|---|---|
-| GET, POST | /api/v1/dishes | Món ăn |
-| GET, POST | /api/v1/menus | Thực đơn tuần |
+| GET, POST | /api/v1/ingredients | Danh sách nguyên liệu của đơn vị và thêm nguyên liệu |
+| PATCH | /api/v1/ingredients/{id} | Sửa tên, đơn vị tính, ngừng hoặc dùng lại nguyên liệu |
+| GET, POST | /api/v1/dishes | Món ăn của đơn vị kèm định lượng; thêm món (có thể kèm định lượng) |
+| PATCH | /api/v1/dishes/{id} | Sửa món, ngừng hoặc dùng lại |
+| PUT | /api/v1/dishes/{id}/norms | Thay toàn bộ định lượng trên một suất của món |
+| GET, POST | /api/v1/food-suppliers | Nhà cung cấp thực phẩm của đơn vị |
+| PATCH | /api/v1/food-suppliers/{id} | Sửa, ngừng hoặc dùng lại nhà cung cấp thực phẩm |
+| GET, POST | /api/v1/menus | Thực đơn tuần của đơn vị; lập thực đơn nháp |
+| GET | /api/v1/menus/{id} | Chi tiết thực đơn kèm món |
+| PUT | /api/v1/menus/{id}/items | Thay toàn bộ món của thực đơn nháp |
+| POST | /api/v1/menus/{id}/submit | Bếp trình duyệt thực đơn |
 | POST | /api/v1/menus/{id}/approve | Duyệt và công bố thực đơn |
-| GET | /api/v1/menus/{id}/norms | Định lượng nguyên liệu theo số suất |
-| GET | /api/v1/meal-plans | Số suất ăn theo ngày |
+| POST | /api/v1/menus/{id}/reject | Trả lại thực đơn kèm lý do |
+| GET | /api/v1/menus/{id}/norms | Định lượng nguyên liệu của thực đơn trong một ngày theo số suất |
+| GET | /api/v1/children/{id}/menus | Thực đơn đã công bố và buffet đã duyệt của tuần cho phụ huynh của trẻ |
+| GET | /api/v1/meal-plans | Số suất ăn theo ngày của đơn vị theo từng lớp |
+| POST | /api/v1/meal-plans/compute | Tính và lưu số suất ăn của ngày |
+| GET | /api/v1/kitchen/daily-norms | Định lượng nguyên liệu của ngày cho cả đơn vị |
+| GET, POST | /api/v1/classes/{id}/meal-report | Xem và gửi báo cơm của lớp |
 | GET, POST | /api/v1/buffet-events | Tiệc buffet theo dịp |
-| GET, POST | /api/v1/market-purchases | Phiếu đi chợ |
-| POST | /api/v1/market-purchases/{id}/receive | Xác nhận nhập nguyên liệu của phiếu đi chợ |
+| POST | /api/v1/buffet-events/{id}/approve | Duyệt buffet |
+| POST | /api/v1/buffet-events/{id}/cancel | Hủy buffet |
+| GET, POST | /api/v1/market-purchases | Phiếu đi chợ của đơn vị; lập phiếu nháp |
+| GET | /api/v1/market-purchases/{id} | Chi tiết phiếu đi chợ kèm chênh lệch với định lượng |
+| POST | /api/v1/market-purchases/{id}/receive | Xác nhận nhập nguyên liệu, chuyển đề nghị thanh toán |
+| POST | /api/v1/market-purchases/{id}/cancel | Hủy phiếu nháp |
+| POST | /api/v1/market-purchases/{id}/link-payment | Kế toán gắn phiếu chi đã phát hành |
+| GET | /api/v1/reports/meals | Báo cáo ăn và bếp: đối chiếu suất ăn với điểm danh đã chốt, chi phí đi chợ |
 | GET, POST | /api/v1/assets | Danh sách (lọc đơn vị, trạng thái, mã hoặc tên) và thêm tài sản |
 | GET, PUT | /api/v1/assets/{id} | Chi tiết tài sản kèm lịch sử cấp phát, mượn, hỏng mất; sửa thông tin hoặc thanh lý |
 | POST | /api/v1/asset-assignments | Cấp phát tài sản |
@@ -727,31 +823,76 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 
 | Phương thức | Đường dẫn | Mô tả |
 |---|---|---|
-| GET, POST | /api/v1/activities | Danh sách và tạo hoạt động |
-| POST | /api/v1/activities/{id}/submit | Gửi trình duyệt |
-| POST | /api/v1/activities/{id}/approve | Duyệt hoạt động |
+| GET, POST | /api/v1/activities | Danh sách (lọc lớp, trẻ, trạng thái, đơn vị) và tạo hoạt động (chờ duyệt, hoặc nháp khi `draft`) |
+| GET, PATCH | /api/v1/activities/{id} | Chi tiết kèm ảnh, lượt thích, số bình luận; sửa khi chưa công bố |
+| POST | /api/v1/activities/{id}/submit | Gửi trình duyệt hoạt động nháp hoặc bị từ chối |
+| POST | /api/v1/activities/{id}/approve | Duyệt và công bố hoạt động |
 | POST | /api/v1/activities/{id}/reject | Từ chối hoạt động kèm lý do |
-| POST | /api/v1/activities/{id}/hide | Quản lý đơn vị hoặc Ban Giám hiệu ẩn hoạt động đã công bố kèm lý do (Q-72) |
+| POST | /api/v1/activities/{id}/hide | Ẩn hoạt động đã công bố kèm lý do (Q-72) |
 | POST | /api/v1/activities/{id}/republish | Công bố lại hoạt động đã ẩn |
-| POST | /api/v1/activities/{id}/like | Thích hoạt động |
+| POST | /api/v1/activities/{id}/media | Tải ảnh hoạt động, gắn thẻ trẻ, cảnh báo trẻ chưa đồng ý hình ảnh |
+| DELETE | /api/v1/activities/{id}/media/{mediaId} | Gỡ ảnh khỏi hoạt động chưa công bố |
+| GET | /api/v1/activity-media/{id}/file | Tải ảnh hoạt động theo quyền xem |
+| POST, DELETE | /api/v1/activities/{id}/like | Thích, bỏ thích hoạt động đã công bố |
 | GET, POST | /api/v1/activities/{id}/comments | Bình luận của hoạt động |
-| POST | /api/v1/comments/{id}/hide | Quản lý đơn vị ẩn bình luận vi phạm kèm lý do; bình luận vẫn được lưu (BR-66) |
+| GET, POST | /api/v1/activity-categories | Danh mục hoạt động của đơn vị |
+| PATCH | /api/v1/activity-categories/{id} | Sửa, ngừng dùng danh mục hoạt động |
+| GET, POST | /api/v1/news-categories | Danh mục tin tức của đơn vị |
+| PATCH | /api/v1/news-categories/{id} | Sửa, ngừng dùng danh mục tin tức |
+| GET, POST | /api/v1/library-topics | Chủ đề thư viện của đơn vị |
+| PATCH | /api/v1/library-topics/{id} | Sửa, ngừng dùng chủ đề thư viện |
+| POST | /api/v1/content-files | Tải tệp nội dung (ảnh bìa, tài liệu thư viện, hình tô màu) |
+| GET | /api/v1/content-files/{id} | Tải tệp nội dung theo quyền xem |
 | GET, POST | /api/v1/news | Tin tức |
+| GET, PATCH | /api/v1/news/{id} | Chi tiết, sửa tin tức |
+| POST | /api/v1/news/{id}/publish | Công bố tin tức |
+| POST | /api/v1/news/{id}/hide | Ẩn tin tức đã công bố kèm lý do |
 | GET, POST | /api/v1/library-items | Nội dung thư viện |
+| GET, PATCH | /api/v1/library-items/{id} | Chi tiết, sửa nội dung thư viện |
+| POST | /api/v1/library-items/{id}/publish | Công bố nội dung thư viện |
+| POST | /api/v1/library-items/{id}/hide | Ẩn nội dung thư viện kèm lý do |
 | GET, POST | /api/v1/coloring-pages | Hình tô màu |
-| GET, POST | /api/v1/extracurricular-activities | Hoạt động ngoại khóa |
-| GET, POST | /api/v1/extracurricular-activities/{id}/registrations | Đăng ký hoạt động ngoại khóa |
+| GET, PATCH | /api/v1/coloring-pages/{id} | Chi tiết, sửa hình tô màu |
+| POST | /api/v1/coloring-pages/{id}/publish | Công bố hình tô màu |
+| POST | /api/v1/coloring-pages/{id}/hide | Ẩn hình tô màu kèm lý do |
 | GET, POST | /api/v1/library-albums | Album thư viện |
-| GET, POST | /api/v1/content-comments | Bình luận trên thư viện và tin tức |
+| PATCH | /api/v1/library-albums/{id} | Sửa, ngừng dùng album |
+| GET, POST | /api/v1/content-comments | Bình luận trên hoạt động, tin tức, thư viện, album |
+| DELETE | /api/v1/content-comments/{id} | Luôn bị chặn: bình luận không xóa được (BR-66) |
+| POST | /api/v1/comments/{id}/hide | Ẩn bình luận vi phạm kèm lý do; bình luận vẫn được lưu (BR-66) |
+| GET, POST | /api/v1/extracurricular-activities | Hoạt động ngoại khóa |
+| PATCH | /api/v1/extracurricular-activities/{id} | Sửa hoạt động ngoại khóa |
+| POST | /api/v1/extracurricular-activities/{id}/publish | Công bố hoạt động ngoại khóa |
+| POST | /api/v1/extracurricular-activities/{id}/close | Đóng hoạt động ngoại khóa |
+| GET, POST | /api/v1/extracurricular-activities/{id}/registrations | Danh sách đăng ký; đăng ký cho trẻ |
+| POST | /api/v1/extracurricular-registrations/{id}/withdraw | Thôi tham gia ngoại khóa |
 | GET, POST | /api/v1/announcements | Thông báo |
 | GET | /api/v1/announcements/{id}/reads | Danh sách đã đọc và chưa đọc |
-| GET, POST | /api/v1/message-threads | Luồng trao đổi |
-| GET, POST | /api/v1/message-threads/{id}/messages | Tin nhắn trong luồng |
-| GET, POST | /api/v1/feedbacks | Góp ý |
-| POST | /api/v1/feedbacks/{id}/handle | Ghi nhận xử lý góp ý |
-| GET, POST | /api/v1/polls | Bình chọn, biểu quyết, khảo sát |
-| POST | /api/v1/polls/{id}/responses | Gửi phiếu trả lời |
+| Phương thức | Đường dẫn | Mô tả |
+| GET, POST | /api/v1/message-threads | Danh sách luồng trong phạm vi kèm số tin chưa đọc (lọc `child_id`, `class_id`); mở luồng cho một trẻ và gửi tin đầu tiên |
+| GET, POST | /api/v1/message-threads/{id}/messages | Tin nhắn trong luồng; gửi tin |
+| POST | /api/v1/message-threads/{id}/read | Ghi đã đọc các tin của phía bên kia |
+| GET, POST | /api/v1/feedbacks | Góp ý của tôi và của đơn vị trong phạm vi xử lý; gửi góp ý |
+| POST | /api/v1/feedbacks/{id}/handle | Ghi đang xử lý (chuyển người xử lý) hoặc kết quả xử lý |
+| GET, POST | /api/v1/polls | Bình chọn, biểu quyết, khảo sát trong phạm vi hoặc dành cho tôi (lọc `status`, `poll_type`, `org_unit_id`, `open=true`); lập bản nháp |
+| GET | /api/v1/polls/{id} | Chi tiết kèm câu hỏi, phương án, đã gửi phiếu chưa, lượt thích |
+| POST | /api/v1/polls/{id}/publish | Mở bình chọn và báo đối tượng |
+| POST | /api/v1/polls/{id}/close | Đóng sớm |
+| POST | /api/v1/polls/{id}/publish-results | Công bố kết quả cho đối tượng |
+| POST | /api/v1/polls/{id}/responses | Gửi phiếu trả lời (BR-67, BR-68) |
 | GET | /api/v1/polls/{id}/results | Kết quả |
+| GET, POST | /api/v1/survey-templates | Danh mục khảo sát; thêm mẫu |
+| POST | /api/v1/survey-templates/{id}/status | Ngừng dùng hoặc dùng lại mẫu |
+| GET, POST | /api/v1/interaction-comments | Bình luận của một đối tượng P15; gửi bình luận |
+| GET | /api/v1/interaction-comments/reported | Bình luận bị báo hoặc đã ẩn trong phạm vi quản lý |
+| POST | /api/v1/interaction-comments/{id}/report | Báo bình luận tiêu cực cho quản lý đơn vị |
+| POST | /api/v1/interaction-comments/{id}/moderate | Quản lý đơn vị ẩn, hiện lại hoặc ghi chú kèm lý do; bình luận vẫn được lưu (BR-66) |
+| POST | /api/v1/interaction-likes | Thích hoặc bỏ thích bình chọn, bình luận |
+| GET, POST | /api/v1/lost-items | Danh sách (lọc `child_id`, `class_id`, `status`) và báo mất đồ hoặc ghi nhận đồ nhặt được |
+| GET | /api/v1/lost-items/{id} | Chi tiết phiếu |
+| POST | /api/v1/lost-items/{id}/found | Đánh dấu đã tìm thấy |
+| POST | /api/v1/lost-items/{id}/close | Đóng phiếu với kết quả đã trả hoặc không tìm thấy |
+| DELETE | /api/v1/lost-items/{id} | Hủy phiếu đang báo; phiếu đã đóng bị chặn (BR-75) |
 | GET, POST | /api/v1/admission-campaigns | Đợt tuyển sinh |
 | GET, POST | /api/v1/admission-posts | Tin tuyển sinh |
 | GET, POST | /api/v1/admission-applications | Hồ sơ tuyển sinh |
@@ -775,11 +916,11 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | GET | /api/v1/reports/cash-flow | Báo cáo thu chi |
 | GET | /api/v1/reports/attendance | Báo cáo điểm danh và trẻ vắng |
 | GET | /api/v1/reports/staff-attendance | Báo cáo chấm công |
-| GET | /api/v1/reports/meals | Báo cáo ăn và bếp |
-| GET | /api/v1/reports/activities | Báo cáo hoạt động và công việc |
-| GET | /api/v1/reports/consolidated | Báo cáo hợp nhất nhiều đơn vị |
+| GET | /api/v1/reports/activities | Báo cáo hoạt động và công việc theo lớp (P17-10, YCTD-83) |
+| GET | /api/v1/reports/consolidated | Báo cáo hợp nhất so sánh chỉ số giữa các đơn vị, chỉ số liệu tổng hợp (P17-11, YCTD-83) |
+| POST | /api/v1/reports/{code}/export | Xuất báo cáo ra tệp Excel, ghi nhật ký xuất (P17-12, BR-74, YCTD-83) |
+| GET | /api/v1/reports/export-logs | Nhật ký xuất dữ liệu (BR-74, YCTD-83) |
 | GET | /api/v1/reports/saturday-classes | Báo cáo học thứ 7: số trẻ đi học và vắng của từng ngày học bù |
-| POST | /api/v1/reports/{code}/export | Xuất báo cáo ra tệp |
 | GET | /api/v1/notifications | Danh sách thông báo của người đăng nhập |
 | POST | /api/v1/notifications/{id}/read | Đánh dấu đã đọc |
 | POST | /api/v1/notifications/read-all | Đánh dấu đọc tất cả (YCTD-64) |
