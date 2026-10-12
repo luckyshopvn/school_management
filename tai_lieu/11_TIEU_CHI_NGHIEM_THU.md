@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.15
+- Phiên bản: 1.16
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -332,6 +332,12 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-257 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P18-04 / Khi lên lịch với người phỏng vấn không phải nhân sự; giáo viên lên lịch; quyết định khi còn lịch chờ; vòng 1 không đạt rồi quyết định tuyển; vòng 2 đạt rồi quyết định tuyển / Thì lỗi dữ liệu; bị từ chối; trả BR-80 hai lần; tuyển được, nhật ký có người và thời điểm quyết định; đề nghị có số đã tuyển 1 (YCTD-87) |
 | AC-258 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P18-04 / Khi quản lý đơn vị tạo hồ sơ nhân sự từ ứng viên đã tuyển; nhân sự tạo; tạo lần hai / Thì bị từ chối; hồ sơ nhân sự có họ tên, điện thoại, đơn vị của ứng viên; lần hai trả BR-37 (YCTD-87) |
 | AC-259 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P18-01, P18-02 / Khi giáo viên đóng đề nghị; nhân sự đóng đề nghị; nộp hồ sơ vào tin đã đóng; nộp liên tục nhiều lần / Thì bị từ chối; đề nghị và tin đều đóng; tin đã đóng trả không tìm thấy; vượt giới hạn trả `ERR_RATE_LIMIT` (YCTD-87) |
+| AC-260 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P16-01 / Khi lập đợt nháp, mở đợt; giáo viên hoặc quản lý đơn vị khác lập đợt / Thì đợt nháp chưa nhận hồ sơ; mở xong nhận hồ sơ; người ngoài quyền hoặc ngoài đơn vị bị từ chối (YCTD-86) |
+| AC-261 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P16-02 / Khi phụ huynh không đăng nhập nộp hồ sơ, tra cứu bằng mã và số điện thoại / Thì nhận mã TS-000001; nộp trùng bị báo; sai số điện thoại không tra được; số định danh hiện dạng che (YCTD-86) |
+| AC-262 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P16-03 / Khi nhân viên tuyển sinh xét hồ sơ; quản lý đơn vị xét không đạt không ghi lý do / Thì bị từ chối; không đạt cần lý do, phụ huynh tra cứu thấy lý do (YCTD-86) |
+| AC-263 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P16-03 / Khi xét đạt khi đã đủ chỉ tiêu; đóng đợt rồi nộp trực tuyến / Thì bị chặn mã P16-03; hồ sơ trực tuyến bị chặn mã P16-02, đợt không còn trên trang công khai (YCTD-86) |
+| AC-264 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P16-04 / Khi nhân viên tuyển sinh chuyển hồ sơ đạt / Thì hồ sơ trẻ chờ duyệt; quản lý đơn vị duyệt ở trang Hồ sơ trẻ thì trẻ đang học (YCTD-86) |
+| AC-265 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P16 / Khi gửi quá 10 hồ sơ trong một giờ từ một địa chỉ mạng / Thì bị chặn `ERR_RATE_LIMIT` (YCTD-86) |
 
 ## 20. Chưa xác minh được
 
