@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.35
+- Phiên bản: 1.36
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -135,6 +135,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-39 | Y tế học đường (YCTD-74): `P10.health.manage` cho VT-09 ghi chỉ số sức khỏe, tiêu chuẩn, đợt khám, lịch khám, kết quả khám, gửi báo cáo sức khỏe trong đơn vị; `P10.medical-event.record`, `P10.daily-care.record` cho VT-09 trong đơn vị và VT-07 cho trẻ của lớp mình chủ nhiệm; người xem sức khỏe theo BR-53 |
 | PQ-37 | Thông báo (YCTD-64): mọi người xem và đánh dấu đã đọc thông báo của mình; `P19.notification-receipt.view` cho VT-02, VT-15, VT-03 xem ai đã đọc thông báo của đơn vị trong phạm vi; `P19.notification-template.manage` cho VT-02, VT-03 gán ở Trường chính sửa mẫu thông báo |
 | PQ-42 | Kho, tài sản và mua hàng (YCTD-77): `P13.asset.manage` cho VT-11 quản lý tài sản, cấp phát, mượn trả, hỏng mất, mặt hàng, nhập xuất, tồn ban đầu, lập kiểm kê, nhà cung cấp trong đơn vị; `P13.purchase-request.create` cho mọi vai trò nhân sự lập đề nghị mua hàng của đơn vị mình; `P13.purchase-request.approve` cho VT-15 (dưới hạn mức, trong đơn vị) và VT-02 (mọi mức) duyệt đề nghị và duyệt xử lý hỏng mất, người lập không tự duyệt; `P13.purchase-order.manage` cho VT-11, VT-04 lập phiếu mua hàng và nhận hàng; `P13.stocktake.approve` cho VT-05 duyệt biên bản kiểm kê có chênh lệch; `P06.payment.manage` gắn phiếu chi vào phiếu mua hàng |
+| PQ-40 | Thuốc và dặn thuốc (YCTD-75): `P10.medicine.manage` cho VT-09 quản lý danh mục thuốc, nhà thuốc, đề nghị mua thuốc, phiếu mua thuốc, phiếu cấp thuốc trong đơn vị được gán; `P10.medication.administer` cho VT-09 nhận thuốc, từ chối, ghi liều, bỏ liều trong đơn vị được gán (gán ở Trường chính là toàn trường) và VT-07 chỉ cho trẻ của lớp mình chủ nhiệm khi đơn vị bật "không có nhân viên y tế" (BR-86); `P10.medicine-purchase.approve` cho VT-15 duyệt đề nghị dưới hạn mức `purchase_request` trong đơn vị và VT-02 duyệt mọi đề nghị (BR-63); xem yêu cầu dặn thuốc theo BR-53; người có `P06.view` xem danh mục, đề nghị, phiếu mua để thanh toán |
 
 ## 5. Phân cấp phê duyệt
 

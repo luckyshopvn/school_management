@@ -461,11 +461,17 @@ export class MedicationRequestsService {
     const requests = (
       await this.list(currentUser, {
         childId: null,
-        status: 'administering',
+        status: null,
         orgUnitId: filter.orgUnitId,
         classId: filter.classId,
       })
-    ).filter((request) => request.from_date <= filter.date && request.to_date >= filter.date);
+    ).filter(
+      // Yêu cầu tự hoàn thành sau liều cuối vẫn hiện trong lịch của ngày để thấy liều đã ghi
+      (request) =>
+        (request.status === 'administering' || request.status === 'completed') &&
+        request.from_date <= filter.date &&
+        request.to_date >= filter.date,
+    );
     const allowed = new Map<string, boolean>();
     const rows = [];
     for (const request of requests) {
@@ -493,7 +499,7 @@ export class MedicationRequestsService {
             request.administrations.find(
               (dose) => dose.scheduled_date === filter.date && dose.scheduled_time === time,
             ) ?? null,
-          can_administer: allowed.get(key) ?? false,
+          can_administer: request.status === 'administering' && (allowed.get(key) ?? false),
         });
       }
     }

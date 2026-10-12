@@ -94,7 +94,7 @@ test('Phụ huynh gửi dặn thuốc kèm ảnh; y tế nhận thuốc và ghi 
   await parentPage.getByLabel('Mật khẩu', { exact: true }).fill(parent.password);
   await parentPage.getByRole('button', { name: 'Đăng nhập' }).click();
   const childCard = parentPage.getByRole('listitem', { name: childName });
-  await childCard.getByRole('button', { name: 'Dặn thuốc' }).click();
+  await childCard.getByRole('button', { name: 'Dặn thuốc', exact: true }).click();
   const panel = childCard.getByRole('region', { name: `Dặn thuốc cho ${childName}` });
   await panel.getByLabel('Tên thuốc').fill(medicineName);
   await panel.getByLabel('Liều lượng').fill('5 ml');
@@ -124,8 +124,8 @@ test('Phụ huynh gửi dặn thuốc kèm ảnh; y tế nhận thuốc và ghi 
   await doseRow.getByRole('button', { name: 'Đã cho uống' }).click();
   await expect(doseRow).toContainText('Đã cho uống lúc');
 
-  await childCard.getByRole('button', { name: 'Dặn thuốc' }).click();
-  await childCard.getByRole('button', { name: 'Dặn thuốc' }).click();
+  await childCard.getByRole('button', { name: 'Dặn thuốc', exact: true }).click();
+  await childCard.getByRole('button', { name: 'Dặn thuốc', exact: true }).click();
   const request = panel.getByRole('article', { name: `Thuốc ${medicineName}` });
   // Một liều duy nhất trong lịch đã ghi nên yêu cầu tự hoàn thành
   await expect(request).toContainText('Hoàn thành');
