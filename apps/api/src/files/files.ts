@@ -26,12 +26,23 @@ import { notFoundError, readRequiredUuid, type RequestBody } from '../common/req
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { ChildScope } from '../children/child-scope.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
+import { MedicationAccess } from '../medicines/medication-access.js';
+import { medicationRequestOfFile } from '../medicines/medication-requests.js';
 import { FileStorage } from './file-storage.js';
 
 // Tệp đính kèm của hồ sơ trẻ: bản chụp giấy khai sinh và giấy đồng ý hình ảnh; ảnh hoặc PDF, tối đa 10 MB (YCTD-45).
-// Ảnh bàn giao trẻ do giáo viên chủ nhiệm chụp khi đón trả (Q-40, YCTD-48)
+// Ảnh bàn giao trẻ do giáo viên chủ nhiệm chụp khi đón trả (Q-40, YCTD-48). Ảnh thuốc và ảnh đơn thuốc phụ huynh gửi kèm
+// yêu cầu dặn thuốc (BR-48, YCTD-75)
 export const MAXIMUM_FILE_BYTES = 10 * 1024 * 1024;
-const PURPOSES: FilePurpose[] = ['birth_certificate', 'photo_consent', 'pickup_photo', 'payment_voucher'];
+const PURPOSES: FilePurpose[] = [
+  'birth_certificate',
+  'photo_consent',
+  'pickup_photo',
+  'payment_voucher',
+  'medicine_photo',
+  'prescription',
+];
+const MEDICATION_PURPOSES: FilePurpose[] = ['medicine_photo', 'prescription'];
 const SIGNATURES: Array<{ contentType: string; bytes: number[] }> = [
   { contentType: 'image/jpeg', bytes: [0xff, 0xd8, 0xff] },
   { contentType: 'image/png', bytes: [0x89, 0x50, 0x4e, 0x47] },
@@ -66,6 +77,7 @@ export class FilesService {
     private readonly organizationScopes: OrganizationScopes,
     private readonly fileStorage: FileStorage,
     private readonly childScope: ChildScope,
+    private readonly medicationAccess: MedicationAccess,
   ) {}
 
   async upload(
@@ -78,18 +90,23 @@ export class FilesService {
       await this.assertHomeroomInUnit(currentUser, database, input.orgUnitId);
     } else if (input.purpose === 'payment_voucher') {
       await this.organizationScopes.assertCanAccess(currentUser, PERMISSION_CODES.paymentManage, input.orgUnitId);
+    } else if (MEDICATION_PURPOSES.includes(input.purpose)) {
+      await this.assertGuardianInUnit(currentUser, database, input.orgUnitId);
     } else {
       await this.organizationScopes.assertCanAccess(currentUser, PERMISSION_CODES.childManage, input.orgUnitId);
     }
     const contentType = detectContentType(input.body);
-    if (!contentType || (input.purpose === 'pickup_photo' && contentType === 'application/pdf')) {
+    const imageOnly = input.purpose === 'pickup_photo' || input.purpose === 'medicine_photo';
+    if (!contentType || (imageOnly && contentType === 'application/pdf')) {
       throw validationError([
         {
           field: 'file',
           message:
             input.purpose === 'pickup_photo'
               ? 'Ảnh bàn giao là ảnh JPEG hoặc PNG'
-              : 'Chỉ nhận ảnh JPEG, PNG hoặc tệp PDF',
+              : input.purpose === 'medicine_photo'
+                ? 'Ảnh thuốc là ảnh JPEG hoặc PNG'
+                : 'Chỉ nhận ảnh JPEG, PNG hoặc tệp PDF',
         },
       ]);
     }
@@ -119,11 +136,22 @@ export class FilesService {
     const { database } = await this.currentSchoolYear.require();
     const file = await database
       .selectFrom('files')
-      .select(['id', 'org_unit_id', 'purpose', 'file_name', 'content_type', 'size_bytes', 'storage_key'])
+      .select(['id', 'org_unit_id', 'purpose', 'file_name', 'content_type', 'size_bytes', 'storage_key', 'created_by'])
       .where('id', '=', fileId)
       .executeTakeFirst();
     if (!file) {
       throw notFoundError('Không tìm thấy tệp', 'file');
+    }
+    const { storage_key: storageKey, created_by: createdBy, ...stored } = file;
+    if (MEDICATION_PURPOSES.includes(file.purpose)) {
+      // Ảnh thuốc, đơn thuốc xem theo quyền xem sức khỏe của trẻ (BR-53); chưa gắn yêu cầu thì chỉ người tải lên xem
+      const request = await medicationRequestOfFile(database, fileId);
+      if (request) {
+        await this.medicationAccess.assertCanRead(currentUser, database, request.child_id);
+      } else if (createdBy !== currentUser.id) {
+        throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không có quyền xem tệp này');
+      }
+      return { file: stored, body: await this.fileStorage.get(storageKey) };
     }
     // Tệp gắn với hồ sơ trẻ thì phạm vi theo đơn vị hiện tại của trẻ
     const child = await database
@@ -169,8 +197,27 @@ export class FilesService {
         : PERMISSION_CODES.childApprove;
       await this.organizationScopes.assertCanAccess(currentUser, permission, orgUnitId);
     }
-    const { storage_key: storageKey, ...stored } = file;
     return { file: stored, body: await this.fileStorage.get(storageKey) };
+  }
+
+  // Phụ huynh của một trẻ đang học trong đơn vị tải ảnh thuốc, ảnh đơn thuốc cho yêu cầu dặn thuốc (P10-03)
+  private async assertGuardianInUnit(
+    currentUser: CurrentUser,
+    database: Kysely<SchoolYearDatabase>,
+    orgUnitId: string,
+  ): Promise<void> {
+    const child = await database
+      .selectFrom('child_guardians')
+      .innerJoin('guardians', 'guardians.id', 'child_guardians.guardian_id')
+      .innerJoin('children', 'children.id', 'child_guardians.child_id')
+      .select('children.id')
+      .where('guardians.user_id', '=', currentUser.id)
+      .where('children.org_unit_id', '=', orgUnitId)
+      .where('children.status', '=', 'active')
+      .executeTakeFirst();
+    if (!child) {
+      throw new ApplicationError('ERR_FORBIDDEN', 'Chỉ phụ huynh của trẻ trong đơn vị tải được ảnh thuốc');
+    }
   }
 
   // Chứng từ phiếu chi: người xem phiếu chi của đơn vị (P06-04)
@@ -226,7 +273,7 @@ export class FilesController {
     if (!PURPOSES.includes(purpose)) {
       errors.push({
         field: 'purpose',
-        message: 'Mục đích là birth_certificate, photo_consent, pickup_photo hoặc payment_voucher',
+        message: `Mục đích là ${PURPOSES.join(', ')}`,
       });
     }
     if (!file || file.size === 0) {

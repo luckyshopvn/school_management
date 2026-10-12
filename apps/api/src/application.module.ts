@@ -35,6 +35,11 @@ import { KitchenMealsController, KitchenMealsService } from './kitchen/kitchen-m
 import { KitchenMenusController, KitchenMenusService } from './kitchen/kitchen-menus.js';
 import { KitchenPurchasesController, KitchenPurchasesService } from './kitchen/kitchen-purchases.js';
 import { kitchenTransitionStep } from './kitchen/kitchen-transition.js';
+import { MedicationAccess } from './medicines/medication-access.js';
+import { MedicationRequestsController, MedicationRequestsService } from './medicines/medication-requests.js';
+import { MedicineCatalogController, MedicineCatalogService } from './medicines/medicine-catalog.js';
+import { MedicinePurchasesController, MedicinePurchasesService } from './medicines/medicine-purchases.js';
+import { medicinesTransitionStep } from './medicines/medicines-transition.js';
 import { AssetsController, AssetsService } from './inventory/assets.js';
 import { InventoryAccess } from './inventory/inventory-common.js';
 import { inventoryTransitionStep } from './inventory/inventory-transition.js';
@@ -150,6 +155,9 @@ export class ApplicationModule {
         KitchenMenusController,
         KitchenMealsController,
         KitchenPurchasesController,
+        MedicineCatalogController,
+        MedicationRequestsController,
+        MedicinePurchasesController,
         AssetsController,
         StockController,
         PurchasingController,
@@ -204,6 +212,7 @@ export class ApplicationModule {
             financeTransitionStep,
             healthTransitionStep,
             kitchenTransitionStep,
+            medicinesTransitionStep,
             inventoryTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
@@ -235,6 +244,10 @@ export class ApplicationModule {
         KitchenMealsService,
         KitchenMenusService,
         KitchenPurchasesService,
+        MedicationAccess,
+        MedicineCatalogService,
+        MedicationRequestsService,
+        MedicinePurchasesService,
         InventoryAccess,
         AssetsService,
         StockService,

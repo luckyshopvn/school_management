@@ -40,6 +40,7 @@ type NavigationPath =
   | '/work-schedules'
   | '/health'
   | '/kitchen'
+  | '/medicines'
   | '/inventory'
   | '/purchase-requests'
   | '/leave-requests'
@@ -100,6 +101,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canManageKitchen = useHasPermission(PERMISSION_CODES.kitchenManage);
   const canApproveMenus = useHasPermission(PERMISSION_CODES.menuApprove);
   const canViewKitchenReport = useHasPermission(PERMISSION_CODES.kitchenReport);
+  const canManageMedicines = useHasPermission(PERMISSION_CODES.medicineManage);
+  const canAdministerMedication = useHasPermission(PERMISSION_CODES.medicationAdminister);
+  const canApproveMedicinePurchases = useHasPermission(PERMISSION_CODES.medicinePurchaseApprove);
+  const canSeeMedicines = canManageMedicines || canAdministerMedication || canApproveMedicinePurchases;
   const canManageAssets = useHasPermission(PERMISSION_CODES.assetManage);
   const canCreatePurchaseRequests = useHasPermission(PERMISSION_CODES.purchaseRequestCreate);
   const canApprovePurchaseRequests = useHasPermission(PERMISSION_CODES.purchaseRequestApprove);
@@ -154,11 +159,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             </ul>
           </>
         ) : null}
-        {canManageHealth || canRecordMedicalEvents ? (
+        {canManageHealth || canRecordMedicalEvents || canSeeMedicines ? (
           <>
             <span className="px-3 text-label font-semibold text-text-muted">Y TẾ</span>
             <ul className="flex flex-col gap-1">
-              <NavItem to="/health" label="Y tế học đường" />
+              {canManageHealth || canRecordMedicalEvents ? <NavItem to="/health" label="Y tế học đường" /> : null}
+              {canSeeMedicines ? <NavItem to="/medicines" label="Thuốc và dặn thuốc" /> : null}
             </ul>
           </>
         ) : null}

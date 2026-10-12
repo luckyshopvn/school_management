@@ -30,6 +30,7 @@ import { migration as addReceiptCarriedOver } from './migrations/0028_add_receip
 import { migration as addNotificationDelivery } from './migrations/0029_add_notification_delivery.js';
 import { migration as createHealthRecords } from './migrations/0030_create_health_records.js';
 import { migration as createKitchen } from './migrations/0032_create_kitchen.js';
+import { migration as createMedicines } from './migrations/0031_create_medicines.js';
 import { migration as createInventory } from './migrations/0033_create_inventory.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
@@ -65,5 +66,6 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0029_add_notification_delivery': addNotificationDelivery,
   '0030_create_health_records': createHealthRecords,
   '0032_create_kitchen': createKitchen,
+  '0031_create_medicines': createMedicines,
   '0033_create_inventory': createInventory,
 };

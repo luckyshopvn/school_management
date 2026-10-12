@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.22
+- Phiên bản: 1.23
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -91,7 +91,7 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 
 | Mã | Quy tắc |
 |---|---|
-| BR-48 | Phụ huynh gửi thuốc phải khai báo tên thuốc, liều lượng, giờ cho uống, thời gian dùng, tình trạng dị ứng và gửi ít nhất một ảnh thuốc; ảnh đơn thuốc của bác sĩ không bắt buộc. Thiếu thông tin bắt buộc thì không nhận thuốc |
+| BR-48 | Phụ huynh gửi thuốc phải khai báo tên thuốc, liều lượng, giờ cho uống, thời gian dùng, tình trạng dị ứng và gửi ít nhất một ảnh thuốc; ảnh đơn thuốc của bác sĩ không bắt buộc. Thiếu thông tin bắt buộc thì không nhận thuốc. Tình trạng dị ứng bắt buộc nhập, ghi Không nếu không dị ứng; mỗi yêu cầu dùng thuốc tối đa 30 ngày (YCTD-75) |
 | BR-49 | Người nhận thuốc phải xác nhận đã nhận thuốc trước khi thuốc được đưa vào danh sách cần cho uống. Người nhận thuốc là y tế, hoặc giáo viên chủ nhiệm khi đơn vị bật cấu hình không có nhân viên y tế (BR-86) |
 | BR-50 | Mỗi lần cho trẻ uống thuốc, người nhận thuốc theo BR-49 ghi nhận thời điểm và người thực hiện. Bỏ liều phải ghi lý do |
 | BR-51 | Hồ sơ sức khỏe của trẻ gồm: chiều cao, cân nặng, dị ứng, bệnh nền, kết quả khám định kỳ, sự kiện y tế phát sinh tại trường, nhu cầu đặc biệt và lưu ý chăm sóc |

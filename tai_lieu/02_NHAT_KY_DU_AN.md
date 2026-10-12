@@ -14,6 +14,27 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-10 phần 10b: thuốc
+
+#### Công việc đã thực hiện
+
+- Agent 10b viết mã, kiểm thử máy chủ, nháp tài liệu trong worktree riêng; người điều phối gộp `main` và nhánh 10d, xử lý xung đột ở các tệp đăng ký dùng chung, chạy toàn bộ kiểm thử, đưa nháp vào tài liệu.
+- Cơ sở dữ liệu: tám bảng thuốc (tệp 0031). Máy chủ API: danh mục thuốc, nhà thuốc, yêu cầu dặn thuốc kèm ảnh, nhận thuốc, ghi liều và bỏ liều, xác nhận đã biết bỏ liều, đề nghị mua thuốc theo hạn mức, phiếu mua thuốc, phiếu cấp thuốc; bước chuyển năm học `medicines`.
+- Cổng quản trị: trang Thuốc và dặn thuốc. Ứng dụng giáo viên: màn hình dặn thuốc của lớp. Ứng dụng phụ huynh: mục dặn thuốc.
+- Kết quả: máy chủ API 424/424, kiểm thử giao diện 50/50.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-75 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-75 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.34.0.
+
+#### Vấn đề tồn đọng
+
+- Gộp phần 10c; các phần 10e đến 10j.
+
 ### 2026-10-11 — DT-10 phần 10d: kho, tài sản, mua hàng
 
 #### Công việc đã thực hiện
