@@ -15,7 +15,7 @@ import {
 import { DevelopmentFacebookPublisher, FacebookPublisher } from './facebook-publisher.js';
 import { DevelopmentZaloSender, ZaloSender } from './zalo-sender.js';
 
-// Kết nối Fanpage và Zalo Official Account (DT-11 phần 11e, YCTD-90); kịch bản đề xuất CT-11e-1 đến CT-11e-6
+// Kết nối Fanpage và Zalo Official Account (DT-11 phần 11e, YCTD-90); kịch bản đề xuất CT-202 đến CT-207
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
   new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
@@ -193,7 +193,7 @@ describe('Kết nối Fanpage và Zalo Official Account', () => {
     await environment.close();
   });
 
-  it('CT-11e-1: Hiệu trưởng cấu hình kết nối; trường lạ như khóa truy cập bị từ chối; người khác không cấu hình được', async () => {
+  it('CT-202: Hiệu trưởng cấu hình kết nối; trường lạ như khóa truy cập bị từ chối; người khác không cấu hình được', async () => {
     const initial = await api('GET', '/integrations', principal.accessToken);
     assert.equal(initial.status, 200, JSON.stringify(initial.body));
     const list = initial.body as unknown as Array<Record<string, unknown>>;
@@ -237,7 +237,7 @@ describe('Kết nối Fanpage và Zalo Official Account', () => {
     assert.equal(audit.length, 1);
   });
 
-  it('CT-11e-2: chỉ hoạt động đã duyệt được đăng Fanpage; hình có trẻ chưa đồng ý bị loại (BR-64, BR-65)', async () => {
+  it('CT-203: chỉ hoạt động đã duyệt được đăng Fanpage; hình có trẻ chưa đồng ý bị loại (BR-64, BR-65)', async () => {
     const category = await api('POST', '/activity-categories', token('manager'), {
       org_unit_id: unitId,
       name: 'Vui chơi',
@@ -294,7 +294,7 @@ describe('Kết nối Fanpage và Zalo Official Account', () => {
     assert.equal(((await api('GET', '/facebook-posts', token('otherManager'))).body as unknown as unknown[]).length, 0);
   });
 
-  it('CT-11e-3: Facebook lỗi thì ghi lỗi và thử lại; tin theo lớp không đăng công khai', async () => {
+  it('CT-204: Facebook lỗi thì ghi lỗi và thử lại; tin theo lớp không đăng công khai', async () => {
     const news = await api('POST', '/news', token('manager'), {
       org_unit_id: unitId,
       title: 'Lễ khai giảng',
@@ -332,7 +332,7 @@ describe('Kết nối Fanpage và Zalo Official Account', () => {
     assert.equal(errorOf(blocked.body).rule_code, 'P14-08');
   });
 
-  it('CT-11e-4: liên kết Zalo theo số điện thoại; gửi qua Zalo khi đã liên kết, không thì tin nhắn', async () => {
+  it('CT-205: liên kết Zalo theo số điện thoại; gửi qua Zalo khi đã liên kết, không thì tin nhắn', async () => {
     const notGuardian = await api('POST', '/integrations/zalo/followers', principal.accessToken, {
       phone: '0999999999',
       zalo_user_id: 'zalo-x',
@@ -392,7 +392,7 @@ describe('Kết nối Fanpage và Zalo Official Account', () => {
     assert.match(fell.last_error ?? '', /Gửi Zalo lỗi/);
   });
 
-  it('CT-11e-5: tin qua Zalo tính chung giới hạn 5 tin mỗi ngày với tin nhắn', async () => {
+  it('CT-206: tin qua Zalo tính chung giới hạn 5 tin mỗi ngày với tin nhắn', async () => {
     await api('POST', '/integrations/zalo/followers', principal.accessToken, {
       phone: phones.C,
       zalo_user_id: 'zalo-user-c',
@@ -407,7 +407,7 @@ describe('Kết nối Fanpage và Zalo Official Account', () => {
     assert.equal(statuses.filter((status) => status === 'limited').length, 1);
   });
 
-  it('CT-11e-6: nhắc nợ gửi qua Zalo cho phụ huynh đã liên kết khi bật Zalo (P05-10)', async () => {
+  it('CT-207: nhắc nợ gửi qua Zalo cho phụ huynh đã liên kết khi bật Zalo (P05-10)', async () => {
     const invoice = await schoolYear
       .insertInto('invoices')
       .values({
