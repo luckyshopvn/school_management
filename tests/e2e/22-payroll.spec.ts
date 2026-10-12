@@ -39,6 +39,8 @@ async function signIn(browser: import('@playwright/test').Browser, user: { usern
 test('Kế toán tính và trình bảng lương; Hiệu trưởng duyệt; giáo viên và phòng nhân sự xem phiếu lương (CTC-P08-049)', async ({
   browser,
 }) => {
+  // Chuẩn bị chấm công cả tháng cho nhiều nhân sự nên chậm trên máy chạy kiểm thử liên tục; cho gấp ba thời gian chờ
+  test.slow();
   const unit = await schoolYear
     .selectFrom('org_units')
     .select(['id', 'name'])
