@@ -144,6 +144,14 @@ import { SettlementsController } from './payroll/settlements.controller.js';
 import { SettlementsService } from './payroll/settlements.service.js';
 import { ReportsController } from './reports/reports.controller.js';
 import { ReportsService } from './reports/reports.service.js';
+import {
+  DEFAULT_OPERATIONS_SECTIONS,
+  OPERATIONS_SECTION_PROVIDERS,
+  OperationsReportController,
+  OperationsReportService,
+} from './reports/operations-report.js';
+import { ConsolidatedReportController, ConsolidatedReportService } from './reports/consolidated-report.js';
+import { ReportExportController, ReportExportService } from './reports/report-export.js';
 import { PartnerController, PartnerService } from './partner/partner.js';
 import { NotificationsController, NotificationsService } from './notifications/notifications.js';
 import { NotificationDispatcher } from './notifications/notification-dispatcher.js';
@@ -238,6 +246,9 @@ export class ApplicationModule {
         PayrollAdjustmentsController,
         SettlementsController,
         ReportsController,
+        OperationsReportController,
+        ConsolidatedReportController,
+        ReportExportController,
         PartnerController,
         NotificationsController,
         JournalsController,
@@ -356,6 +367,11 @@ export class ApplicationModule {
         PayrollAdjustmentsService,
         SettlementsService,
         ReportsService,
+        // Các phân hệ hoạt động (P14), công việc (P09) thêm nguồn số liệu của báo cáo hoạt động vào danh sách này (YCTD-83)
+        { provide: OPERATIONS_SECTION_PROVIDERS, useValue: [...DEFAULT_OPERATIONS_SECTIONS] },
+        OperationsReportService,
+        ConsolidatedReportService,
+        ReportExportService,
         PartnerService,
         NotificationsService,
         NotificationDispatcher,

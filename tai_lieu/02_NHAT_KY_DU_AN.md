@@ -14,6 +14,27 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-10 phần 10j: báo cáo giai đoạn 2
+
+#### Công việc đã thực hiện
+
+- Agent 10j viết mã, kiểm thử máy chủ, nháp tài liệu trong worktree riêng (lượt 3); người điều phối gộp nhánh 10g (đã gồm 10b đến 10f), thêm bảng hoạt động của lớp vào báo cáo hoạt động và công việc qua giao diện nguồn số liệu, đánh số sáu kịch bản mới CT-189 đến CT-194 kèm AC-233 đến AC-238, chạy toàn bộ kiểm thử, đưa nháp vào tài liệu.
+- Cơ sở dữ liệu: bảng `export_logs` (tệp 0039). Máy chủ API: báo cáo hoạt động và công việc theo nguồn số liệu gắn thêm được, báo cáo hợp nhất theo đơn vị không có dữ liệu cá nhân, xuất Excel bảy báo cáo có nhật ký xuất.
+- Cổng quản trị: trang Báo cáo thêm ba thẻ và nút xuất Excel.
+- Kết quả: máy chủ API 466/466, kiểm thử giao diện 55/55.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-83 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-83 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.39.0.
+
+#### Vấn đề tồn đọng
+
+- Gộp phần 10h (thêm bảng công việc vào báo cáo hoạt động) và 10i; kiểm thử G2 và phát hành 1.1.0.
+
 ### 2026-10-11 — DT-10 phần 10g: giảng dạy
 
 #### Công việc đã thực hiện

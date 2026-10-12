@@ -18,7 +18,7 @@ import { TimesheetsService } from '../staff-attendance/timesheets.service.js';
 const PRESENT_STATUSES = ['present', 'late', 'early_leave', 'late_and_early_leave'];
 const ACTIVE_DOCUMENT_STATUSES = ['issued', 'pending_reversal'] as const;
 
-interface UnitScope {
+export interface UnitScope {
   orgUnitIds: string[];
   classIds: string[] | null;
 }
@@ -620,8 +620,9 @@ export class ReportsService {
     return [...groups.values()].sort((left, right) => left.class_name.localeCompare(right.class_name, 'vi'));
   }
 
-  // Đơn vị trong phạm vi quyền; giáo viên không có quyền thì xem theo lớp được phân công nếu báo cáo cho phép
-  private async unitScope(
+  // Đơn vị trong phạm vi quyền; giáo viên không có quyền thì xem theo lớp được phân công nếu báo cáo cho phép. Dùng chung
+  // cho báo cáo hoạt động, báo cáo hợp nhất và xuất dữ liệu (YCTD-83)
+  async unitScope(
     currentUser: CurrentUser,
     permission: string,
     orgUnitId: string | null,

@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.39.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-10 phần 10j, báo cáo hoạt động và công việc, báo cáo hợp nhất, xuất dữ liệu (YCTD-83).
+- Chức năng mới: P17-10, P17-11, P17-12 trên máy chủ API và cổng quản trị (MH-28, MH-29).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: bảng `export_logs` của năm học (tệp 0039).
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: báo cáo hợp nhất tính trực tiếp từ dữ liệu gốc, chưa dùng số liệu tổng hợp sẵn; tháng có nhiều dữ liệu có thể chậm.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-10-phan-10j`; chạy ngược tệp 0039 của cơ sở dữ liệu năm học.
+
 ### Phiên bản 0.38.0 – 2026-10-11
 
 - Phạm vi thay đổi: DT-10 phần 10g, giảng dạy: bài học, giáo án, thời khóa biểu, kế hoạch, tiến độ học tập (YCTD-80).

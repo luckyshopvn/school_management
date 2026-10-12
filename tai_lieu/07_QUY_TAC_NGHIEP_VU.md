@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.26
+- Phiên bản: 1.27
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -137,7 +137,7 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 | BR-71 | Quyền do máy chủ quyết định tại mọi yêu cầu. Ẩn hoặc vô hiệu hóa nút trên giao diện chỉ là tiện dụng, không được coi là bảo mật |
 | BR-72 | Quyền được kiểm tra theo ba lớp: vai trò, phạm vi đơn vị, phạm vi bản ghi. Ví dụ phụ huynh chỉ truy cập được bản ghi của con mình |
 | BR-73 | Mọi thao tác đọc dữ liệu cá nhân của trẻ và dữ liệu tài chính phải ghi nhật ký truy cập khi đơn vị bật chế độ này. Hai trường hợp luôn ghi nhật ký, không tắt được: đối tác đọc dữ liệu cá nhân qua API (BM-66) và xem đầy đủ số định danh cá nhân (BR-81) |
-| BR-74 | Dữ liệu cá nhân của trẻ và phụ huynh không được xuất ra ngoài hệ thống nếu không có quyền xuất dữ liệu và không ghi nhật ký xuất |
+| BR-74 | Dữ liệu cá nhân của trẻ và phụ huynh không được xuất ra ngoài hệ thống nếu không có quyền xuất dữ liệu và không ghi nhật ký xuất. Người xuất phải có cả quyền xuất dữ liệu và quyền xem báo cáo trong phạm vi đơn vị; mỗi lần xuất ghi người xuất, báo cáo, bộ lọc, đơn vị, số dòng và có dữ liệu cá nhân hay không; tệp xuất không lưu lại trên hệ thống (YCTD-83) |
 | BR-75 | Không xóa cứng dữ liệu nghiệp vụ đã phát sinh. Dữ liệu không dùng nữa chuyển sang trạng thái ngừng sử dụng |
 | BR-76 | Sao lưu dữ liệu theo lịch cấu hình; phải kiểm tra khả năng phục hồi định kỳ, không chỉ kiểm tra bản sao lưu tồn tại |
 

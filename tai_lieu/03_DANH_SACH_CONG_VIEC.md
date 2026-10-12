@@ -1,7 +1,7 @@
 # 03. DANH SÁCH KIỂM TRA CÔNG VIỆC
 
 - Mô tả: Danh sách công việc, trạng thái và thứ tự ưu tiên của dự án.
-- Phiên bản: 0.12
+- Phiên bản: 0.13
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đang cập nhật
 
@@ -53,7 +53,7 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | M06 | Xây dựng phiếu thu, phiếu chi, công nợ, quỹ tiền mặt | P06 | Hoàn thành | Đợt DT-05 phần 5d, 5e, 5f (YCTD-53 đến YCTD-57); báo cáo thu chi theo nhóm ở DT-09 phần 9e (YCTD-70) |
 | M07 | Xây dựng hồ sơ nhân sự và hợp đồng lao động | P07 | Hoàn thành | Đợt DT-06 phần 6a (YCTD-58) đã gộp vào main |
 | M08 | Xây dựng chấm công, nghỉ phép, bảng lương | P08 | Hoàn thành | Đợt DT-06 phần 6b-1, 6b-2, 6c-1, 6c-2 (YCTD-59 đến YCTD-61) |
-| M17 | Xây dựng bảng điều khiển và báo cáo cơ bản | P17 | Hoàn thành | Đợt DT-07 phần 7a, 7b (YCTD-62, YCTD-63) |
+| M17 | Xây dựng bảng điều khiển và báo cáo cơ bản | P17 | Hoàn thành | Đợt DT-07 phần 7a, 7b (YCTD-62, YCTD-63); báo cáo hoạt động và công việc, báo cáo hợp nhất, xuất dữ liệu ở DT-10 phần 10j (YCTD-83) |
 | M19 | Xây dựng ứng dụng phụ huynh và ứng dụng giáo viên | P19 | Hoàn thành | Đợt DT-08 phần 8a, 8b (YCTD-64, YCTD-65); các màn hình của phân hệ giai đoạn 2 làm cùng phân hệ đó |
 | M03 | Xây dựng giảng dạy, giáo án, thời khóa biểu | P03 | Hoàn thành | Đợt DT-10 phần 10g (YCTD-80): lĩnh vực, nhóm bài học, chủ đề, bài học, giáo án duyệt hai bước, thời khóa biểu, kế hoạch giảng dạy, tiến độ học tập, lịch hoạt động lớp; tổ chuyên môn chưa làm |
 | M09 | Xây dựng công việc, kế hoạch, đánh giá | P09 | Chưa bắt đầu | Giai đoạn 2 |
