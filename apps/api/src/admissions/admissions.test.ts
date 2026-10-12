@@ -178,7 +178,7 @@ describe('Tuyển sinh trực tuyến: đợt, tin, hồ sơ, xét duyệt, chuy
     await environment.close();
   });
 
-  it('P16-01: lập đợt tuyển sinh ở trạng thái nháp, mở đợt; ngoài quyền hoặc ngoài đơn vị bị chặn', async () => {
+  it('CT-216 P16-01: lập đợt tuyển sinh ở trạng thái nháp, mở đợt; ngoài quyền hoặc ngoài đơn vị bị chặn', async () => {
     const body = {
       org_unit_id: units['ĐT-A1'],
       name: 'Tuyển sinh mầm 2027',
@@ -254,7 +254,7 @@ describe('Tuyển sinh trực tuyến: đợt, tin, hồ sơ, xét duyệt, chuy
     assert.equal((await api('POST', `/admission-posts/${created.body.id}/publish`, token('admissions'))).status, 200);
   });
 
-  it('P16-02: phụ huynh nộp hồ sơ không cần tài khoản, nhận mã TS và tra cứu bằng mã cùng số điện thoại', async () => {
+  it('CT-217 P16-02: phụ huynh nộp hồ sơ không cần tài khoản, nhận mã TS và tra cứu bằng mã cùng số điện thoại', async () => {
     const missing = await publicApi('POST', '/admission-applications', {
       ...applicationBody(),
       child_has_allergies: undefined,
@@ -298,7 +298,7 @@ describe('Tuyển sinh trực tuyến: đợt, tin, hồ sơ, xét duyệt, chuy
     assert.equal((await api('GET', '/admission-applications', token('teacher'))).status, 403);
   });
 
-  it('P16-03: tiếp nhận rồi xét; nhân viên tuyển sinh không xét được; không đạt kèm lý do; đạt không vượt chỉ tiêu', async () => {
+  it('CT-218 P16-03: tiếp nhận rồi xét; nhân viên tuyển sinh không xét được; không đạt kèm lý do; đạt không vượt chỉ tiêu', async () => {
     const body = applicationBody();
     const submitted = await publicApi('POST', '/admission-applications', body);
     const id = (
@@ -413,7 +413,7 @@ describe('Tuyển sinh trực tuyến: đợt, tin, hồ sơ, xét duyệt, chuy
     assert.equal(lookup.body.status, 'converted');
   });
 
-  it('P16-04: nhân viên tuyển sinh chuyển hồ sơ đạt thì hồ sơ trẻ chờ quản lý đơn vị duyệt; thiếu số định danh bị báo', async () => {
+  it('CT-220 P16-04: nhân viên tuyển sinh chuyển hồ sơ đạt thì hồ sơ trẻ chờ quản lý đơn vị duyệt; thiếu số định danh bị báo', async () => {
     const passed = await passedApplication();
     const fileId = await upload(token('admissions'), units['ĐT-A1'] ?? '');
     const missing = await api('POST', `/admission-applications/${passed.id}/convert`, token('admissions'), {
@@ -443,7 +443,7 @@ describe('Tuyển sinh trực tuyến: đợt, tin, hồ sơ, xét duyệt, chuy
     assert.equal(approved.body.status, 'active');
   });
 
-  it('P16-03: đủ chỉ tiêu thì không xét đạt thêm; đóng đợt thì thôi nhận hồ sơ trực tuyến', async () => {
+  it('CT-219 P16-03: đủ chỉ tiêu thì không xét đạt thêm; đóng đợt thì thôi nhận hồ sơ trực tuyến', async () => {
     // Chỉ tiêu 3: đã đạt hoặc đã chuyển 2 hồ sơ ở các ca trước
     await passedApplication();
     const submitted = await publicApi('POST', '/admission-applications', applicationBody());
@@ -515,7 +515,7 @@ describe('Tuyển sinh trực tuyến: đợt, tin, hồ sơ, xét duyệt, chuy
     }
   });
 
-  it('Điểm cuối công khai giới hạn số lần nộp hồ sơ trên một địa chỉ mạng', async () => {
+  it('CT-221: điểm cuối công khai giới hạn số lần nộp hồ sơ trên một địa chỉ mạng', async () => {
     const statuses: number[] = [];
     for (let attempt = 0; attempt < 12; attempt += 1) {
       statuses.push((await publicApi('POST', '/admission-applications', {})).status);
