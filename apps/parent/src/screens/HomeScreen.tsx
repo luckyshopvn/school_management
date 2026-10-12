@@ -7,6 +7,8 @@ import { InvoicesPanel } from './InvoicesPanel.js';
 import { JournalPanel } from './JournalPanel.js';
 import { ActivitiesPanel } from './ActivitiesPanel.js';
 import { HealthPanel } from './HealthPanel.js';
+import { MenuPanel } from './MenuPanel.js';
+import { MedicationPanel } from './MedicationPanel.js';
 import { PhotoConsentPanel } from './PhotoConsentPanel.js';
 import { NotificationsPanel } from './NotificationsPanel.js';
 import { ServicesPanel } from './ServicesPanel.js';
@@ -16,6 +18,7 @@ import { ServicesPanel } from './ServicesPanel.js';
 interface Child {
   id: string;
   full_name: string;
+  org_unit_id: string;
   class_name: string | null;
 }
 
@@ -97,6 +100,8 @@ function ChildCard({ child, onMessage }: { child: Child; onMessage(message: stri
     | 'consent'
     | 'health'
     | 'activities'
+    | 'menu'
+    | 'medication'
   >('none');
   const [attendance, setAttendance] = useState<MonthAttendance>();
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -133,11 +138,15 @@ function ChildCard({ child, onMessage }: { child: Child; onMessage(message: stri
         <Button onClick={() => setView(view === 'consent' ? 'none' : 'consent')}>Hình ảnh</Button>
         <Button onClick={() => setView(view === 'health' ? 'none' : 'health')}>Sức khỏe</Button>
         <Button onClick={() => setView(view === 'activities' ? 'none' : 'activities')}>Hoạt động</Button>
+        <Button onClick={() => setView(view === 'menu' ? 'none' : 'menu')}>Thực đơn</Button>
+        <Button onClick={() => setView(view === 'medication' ? 'none' : 'medication')}>Dặn thuốc</Button>
       </div>
       {view === 'journal' ? <JournalPanel child={child} /> : null}
+      {view === 'medication' ? <MedicationPanel child={child} /> : null}
       {view === 'consent' ? <PhotoConsentPanel child={child} /> : null}
       {view === 'health' ? <HealthPanel child={child} /> : null}
       {view === 'activities' ? <ActivitiesPanel child={child} /> : null}
+      {view === 'menu' ? <MenuPanel child={child} /> : null}
       {view === 'pickups' ? <AuthorizedPickupsPanel child={child} /> : null}
       {view === 'services' ? <ServicesPanel child={child} /> : null}
       {view === 'invoices' ? <InvoicesPanel child={child} /> : null}

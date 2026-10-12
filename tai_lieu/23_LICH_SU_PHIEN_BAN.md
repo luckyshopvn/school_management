@@ -16,6 +16,39 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.35.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-10 phần 10c, bếp, thực đơn, định lượng và báo cáo ăn (YCTD-76).
+- Chức năng mới: P12-01 đến P12-09 và P17-08 trên máy chủ API, cổng quản trị (MH-18, MH-38), ứng dụng giáo viên (MG-14), ứng dụng phụ huynh (MP-15).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: mười một bảng bếp của năm học (tệp 0032).
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: số suất tạm trước khi chốt điểm danh có thể khác số chính thức; báo cáo ăn và bếp chỉ ra ngày lệch.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-10-phan-10c`; chạy ngược tệp 0032 của cơ sở dữ liệu năm học.
+
+### Phiên bản 0.34.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-10 phần 10b, thuốc: danh mục, dặn thuốc, cho uống, mua và cấp thuốc (YCTD-75).
+- Chức năng mới: P10-02, P10-03, P10-04, P10-05, P10-09 trên máy chủ API, cổng quản trị (MH-17), ứng dụng giáo viên (MG-09 phần dặn thuốc), ứng dụng phụ huynh (MP-07, MP-08 phần bỏ liều).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: tám bảng thuốc của năm học (tệp 0031); thêm mục đích tệp `medicine_photo`, `prescription`.
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: giáo viên chủ nhiệm chỉ nhận thuốc khi đơn vị bật cấu hình không có nhân viên y tế; cấu hình sai thì không ai nhận được yêu cầu.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-10-phan-10b`; chạy ngược tệp 0031 của cơ sở dữ liệu năm học.
+
+### Phiên bản 0.33.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-10 phần 10d, kho, tài sản, mua hàng (YCTD-77).
+- Chức năng mới: P13-01 đến P13-10 trên máy chủ API và cổng quản trị (MH-20, MH-21, MH-22).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: mười ba bảng kho, tài sản, mua hàng của năm học (tệp 0033).
+- Thay đổi API: nhóm điểm cuối kho, tài sản, mua hàng trong `17`.
+- Rủi ro: thanh toán phiếu mua hàng phụ thuộc kế toán gắn phiếu chi; phiếu chưa gắn vẫn ở trạng thái chờ thanh toán.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-10-phan-10d`; chạy ngược tệp 0033 của cơ sở dữ liệu năm học.
+
 ### Phiên bản 0.32.0 – 2026-10-11
 
 - Phạm vi thay đổi: kế hoạch DT-10 (YCTD-73); DT-10 phần 10a, y tế học đường phần hồ sơ, khám, sự kiện, chăm sóc, báo cáo (YCTD-74).

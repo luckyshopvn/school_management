@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.41
+- Phiên bản: 1.44
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -145,7 +145,7 @@ Ràng buộc duy nhất: `invoices` loại chính trên bộ ba trẻ, kỳ năm
 | cash_accounts | Quỹ tiền mặt và tài khoản ngân hàng (YCTD-53) | org_unit_id, account_type (tiền mặt hoặc ngân hàng), name (duy nhất trong đơn vị), bank_name, account_number (bắt buộc với ngân hàng), opening_balance, current_balance (quỹ tiền mặt không âm), status, receives_online_payments (toàn trường tối đa một tài khoản), online_payment_category_id (YCTD-57) |
 | account_transactions | Giao dịch trên tài khoản | account_id, transaction_date, transaction_type, amount, balance_after, reference_type, reference_id, description |
 | payables | Công nợ phải trả | org_unit_id, supplier_id, reference_type, reference_id, amount, paid_amount, due_date, status |
-| suppliers | Nhà cung cấp | org_unit_id, name, supplier_type (chung hoặc thực phẩm), tax_code, contact_name, phone, email, address, payment_terms, status |
+| suppliers | Nhà cung cấp chung của kho và mua hàng theo đơn vị (P13-07); nhà cung cấp thực phẩm ở `food_suppliers` (P12-08) | org_unit_id, name (duy nhất trong đơn vị), tax_code, contact_name, phone, address, payment_terms, status, created_by |
 | fiscal_periods | Kỳ tài chính | org_unit_id, period_year, period_month, status, close_requested_by, close_requested_at, closed_by, closed_at |
 | cashflow_categories | Khoản mục và nhóm thu chi dùng chung toàn trường | code (duy nhất), name, group_name, flow_type (thu hoặc chi), status |
 
@@ -200,21 +200,22 @@ Ràng buộc duy nhất: `attendance_logs` trên bộ đôi nhân sự và ngày
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| medicines | Danh mục thuốc | org_unit_id, code, name, active_ingredient, unit, stock_qty, status |
-| pharmacies | Nhà thuốc | org_unit_id, name, phone, address, status |
+| medicines | Danh mục thuốc của tủ thuốc phòng y tế theo đơn vị (YCTD-75) | org_unit_id, code (duy nhất trong đơn vị), name, active_ingredient, unit, pharmacy_id, stock_qty (không âm, chỉ đổi qua phiếu mua và phiếu cấp), status, created_by |
+| pharmacies | Nhà thuốc theo đơn vị (YCTD-75) | org_unit_id, name, phone, address, status, created_by |
 | health_measurements | Chỉ số sức khỏe theo lần đo (YCTD-74) | child_id, measured_on, height_cm, weight_kg, vision_left, vision_right, note, recorded_by |
-| medication_requests | Yêu cầu dặn thuốc | child_id, requested_by_user_id, medicine_name, dosage, times_data, from_date, to_date, allergy_note, note, medicine_photo_ids (ít nhất một), prescription_photo_id (tùy chọn), assigned_role (y tế hoặc giáo viên chủ nhiệm), status, received_qty, received_note, received_by, received_at, reject_reason |
-| medication_administrations | Nhật ký cho uống thuốc | request_id, scheduled_at, administered_at, administered_by, dose_note, is_skipped, skip_reason, parent_acknowledged_at, parent_acknowledged_by |
+| medication_requests | Yêu cầu dặn thuốc (YCTD-75) | child_id, org_unit_id, class_id, requested_by, medicine_name, dosage, times (giờ HH:MM, ít nhất một), from_date, to_date, allergy_note, note, medicine_photo_ids (ít nhất một), prescription_photo_id (tùy chọn), assigned_role (nurse, homeroom), status (pending, administering, completed, rejected), received_quantity, received_note, received_by, received_at, reject_reason, rejected_by, rejected_at, completed_at |
+| medication_administrations | Nhật ký cho uống thuốc (YCTD-75) | request_id, scheduled_date, scheduled_time (duy nhất cùng request_id và scheduled_date), administered_at, administered_by, dose_note, is_skipped, skip_reason (bắt buộc khi bỏ liều), parent_acknowledged_at, parent_acknowledged_by |
 | health_check_campaigns | Đợt khám sức khỏe | org_unit_id, name, from_date, to_date, status (đang mở, đã đóng), created_by |
 | health_check_results | Kết quả khám | campaign_id, child_id (duy nhất cùng campaign_id), height_cm, weight_kg, result_data (tên chỉ số và giá trị), conclusion, note, recorded_by, recorded_at, published_at |
 | medical_events | Sự kiện y tế tại trường | child_id, org_unit_id, occurred_at, symptoms, handling, handler_name, severity (nhẹ, vừa, nặng), recorded_by, notified_guardians_at, parent_acknowledged_at, parent_acknowledged_by |
-| medicine_purchase_requests | Đề nghị mua thuốc | org_unit_id, medicine_id, quantity, reason, status, approved_by, approved_at |
-| medicine_purchase_orders | Phiếu mua thuốc | code, org_unit_id, request_id, pharmacy_id, order_date, total_amount, status, created_by |
-| medicine_purchase_order_items | Thuốc đã mua | order_id, medicine_id, quantity, unit_price, amount, received_qty |
+| medicine_purchase_requests | Đề nghị mua thuốc (YCTD-75) | org_unit_id, medicine_id, quantity, estimated_unit_price, estimated_amount, reason, status (pending, approved, rejected, ordered), requires_principal, created_by, approved_by, approved_at, reject_reason |
+| medicine_purchase_orders | Phiếu mua thuốc (YCTD-75) | code (MT-000001), org_unit_id, request_id (duy nhất), pharmacy_id, order_date, total_amount, status (received), note, created_by |
+| medicine_purchase_order_items | Thuốc đã mua (YCTD-75) | order_id, medicine_id, quantity, unit_price, amount, received_qty |
 | health_check_schedules | Lịch khám | campaign_id, class_id (duy nhất cùng campaign_id), check_date, location, published_at, created_by |
 | health_standards | Tiêu chuẩn sức khỏe theo Bộ Y tế, chung toàn trường | indicator_code (chiều cao, cân nặng, chỉ số khối cơ thể), gender, age_month_from, age_month_to, lower_value, upper_value, source_document, created_by |
 | daily_care_logs | Nhật ký chăm sóc hằng ngày (P10-12) | child_id, care_date, recorded_at, temperature, condition_note, special_care_note, recorded_by |
 | health_report_requests | Yêu cầu báo cáo sức khỏe (P10-08, YCTD-74) | child_id, org_unit_id, report_type (tăng trưởng, y tế, đầy đủ), period_from, period_to, note, status (chờ gửi, đã gửi), requested_by, requested_at, report_data, response_note, sent_by, sent_at |
+| medicine_issues | Phiếu cấp thuốc từ tủ thuốc (YCTD-75) | code (CTH-000001), org_unit_id, medicine_id, quantity, recipient, reason, issued_by, issued_at |
 
 ## 12. Phân hệ P11 — Xe đưa đón (đã bỏ)
 
@@ -224,15 +225,17 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Các bảng `
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| dishes | Món ăn | org_unit_id, name, group_name, ingredients_data, recipe_note, status |
-| menus | Thực đơn tuần | org_unit_id, week_start_date, age_group, status, approved_by, approved_at, published_at |
-| menu_items | Món trong thực đơn | menu_id, weekday, meal_type, dish_id, note |
-| ingredients | Nguyên liệu | org_unit_id, code, name, unit, current_stock, status |
-| ingredient_norms | Định lượng trên một suất | org_unit_id, dish_id, ingredient_id, quantity_per_serving, unit |
-| meal_plans | Số suất ăn theo ngày | org_unit_id, meal_date, meal_type (sáng, trưa, xế), headcount lấy từ số trẻ có mặt, computed_from, status |
-| buffet_events | Tiệc buffet theo dịp | org_unit_id, buffet_date, occasion, class_id (trống khi toàn trường), menu_note, status, created_by |
-| market_purchases | Phiếu đi chợ | code, org_unit_id, purchase_date, supplier_id, total_amount, status, created_by, received_at |
-| market_purchase_items | Dòng phiếu đi chợ | purchase_id, ingredient_id, quantity, unit_price, amount |
+| dishes | Món ăn (YCTD-76) | org_unit_id, name (duy nhất trong đơn vị), group_name (nhóm chất), recipe_note (cách chế biến), status |
+| menus | Thực đơn tuần (YCTD-76) | org_unit_id, week_start_date (thứ hai), age_group (all hoặc mã khối học), status (nháp, chờ duyệt, đã công bố), note, submitted_by, submitted_at, approved_by, approved_at, published_at, reject_reason, created_by |
+| menu_items | Món trong thực đơn (YCTD-76) | menu_id, weekday (1 thứ hai đến 6 thứ bảy), meal_type (sáng, trưa, xế), dish_id, note; duy nhất trên menu_id, weekday, meal_type, dish_id |
+| ingredients | Nguyên liệu và tồn của bếp (YCTD-76) | org_unit_id, code (duy nhất trong đơn vị), name, unit, current_stock (không âm, tăng khi nhập phiếu đi chợ), status |
+| ingredient_norms | Định lượng trên một suất (YCTD-76) | dish_id, ingredient_id (duy nhất cùng dish_id), quantity_per_serving (lớn hơn 0, theo đơn vị tính của nguyên liệu) |
+| meal_plans | Số suất ăn theo ngày đã lưu (YCTD-76) | org_unit_id, meal_date, meal_type (sáng, trưa, xế), headcount, computed_from (điểm danh, hỗn hợp), status (tạm tính, chính thức), computed_by, computed_at |
+| buffet_events | Tiệc buffet theo dịp (YCTD-76) | org_unit_id, buffet_date, occasion, class_id (trống khi toàn đơn vị), menu_note, status (nháp, đã duyệt, đã hủy), created_by, approved_by, approved_at |
+| market_purchases | Phiếu đi chợ (YCTD-76) | code (PDC-000001, cấp khi lập), org_unit_id, purchase_date, supplier_id (food_suppliers), total_amount, note, status (nháp, đã nhập, đã hủy), payment_status (chờ thanh toán, đã thanh toán; chỉ khi đã nhập), payment_id (phiếu chi đã phát hành, duy nhất), created_by, received_by, received_at, paid_linked_by, paid_linked_at |
+| market_purchase_items | Dòng phiếu đi chợ (YCTD-76) | purchase_id, ingredient_id (duy nhất cùng purchase_id), quantity, planned_quantity (định lượng của ngày lúc lập phiếu, BR-60), unit_price, amount |
+| meal_reports | Báo cơm của lớp (YCTD-76) | class_id, org_unit_id, report_date (duy nhất cùng class_id), headcount (không quá sĩ số), note, reported_by, reported_at |
+| food_suppliers | Nhà cung cấp thực phẩm (YCTD-76; gộp vào `suppliers` khi có danh mục dùng chung) | org_unit_id, name (duy nhất trong đơn vị), food_groups, tax_code, contact_name, phone, address, status |
 
 Ràng buộc duy nhất: `menus` trên bộ ba đơn vị, tuần, độ tuổi; `meal_plans` trên bộ ba đơn vị, ngày, bữa.
 
@@ -242,18 +245,18 @@ Bỏ ngày 09/10/2026 (YCTD-20): bảng `meal_registrations` đã gỡ vì khôn
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| assets | Tài sản | org_unit_id, code, name, category, unit, original_cost, purchase_date, location_type, location_id, status |
-| asset_assignments | Cấp phát và thu hồi | asset_id, assigned_to_type, assigned_to_id, assigned_at, returned_at, handed_by, received_by, note |
-| asset_loans | Mượn trả | asset_id, borrower_staff_id, from_date, due_date, returned_at, status, note |
-| asset_damages | Hỏng và mất | asset_id, incident_type, severity, description, occurred_at, reported_by, proposed_handling, approved_by, status |
-| purchase_requests | Đề nghị mua hàng | org_unit_id, requester_id, needed_by, reason, status, approved_by, approved_at, reject_reason |
+| assets | Tài sản (P13-01) | org_unit_id, code (duy nhất), name, category, unit, original_cost, purchase_date, location_type (store, room, class, staff, unit), location_id, location_name, status (in_stock, assigned, on_loan, damaged, lost, disposed) |
+| asset_assignments | Phiếu cấp phát và thu hồi (P13-02) | code, asset_id, assigned_to_type, assigned_to_id, assigned_to_name, received_by_name, assigned_on, handed_by, return_code, returned_on, returned_by_name, return_received_by, return_note; một phiếu đang mở mỗi tài sản |
+| asset_loans | Phiếu mượn trả (P13-03) | code, asset_id, borrower_name, borrower_user_id, from_date, due_date, status (open, returned), lent_by, returned_on, return_received_by; một phiếu đang mở mỗi tài sản |
+| asset_damages | Ghi nhận hỏng và mất (P13-04) | code, asset_id, org_unit_id, incident_type (damaged, lost), severity (minor, major, total), description, occurred_on, proposed_handling, status (pending, approved, rejected), reported_by, decided_by, decided_at, decision_note |
+| stock_items | Mặt hàng trong kho (P13-08) | org_unit_id, code (duy nhất trong đơn vị), name, unit, min_qty, current_qty (không âm), status |
+| stock_transactions | Giao dịch kho (P13-08, P13-10) | code, stock_item_id, transaction_type (opening, receipt, issue, count_adjustment, carry_over), quantity (có dấu), unit_price, balance_after, reference_type, reference_id, transaction_date, note, created_by |
+| stock_counts | Biên bản kiểm kê (P13-09) | code, org_unit_id, count_date, status (matched, pending, approved, rejected), note, created_by, decided_by, decided_at, reject_reason |
+| stock_count_lines | Dòng kiểm kê | count_id, stock_item_id, system_qty, actual_qty, difference, note |
+| purchase_requests | Đề nghị mua hàng (P13-05) | code, org_unit_id, requester_id, requester_name, needed_by, reason, total_amount, requires_principal, status (pending, approved, rejected, ordered), approved_by, approved_at, reject_reason |
 | purchase_request_items | Mặt hàng đề nghị | request_id, item_name, quantity, unit, estimated_price, note |
-| purchase_orders | Phiếu mua hàng | code, org_unit_id, supplier_id, order_date, total_amount, status, created_by, approved_by |
-| purchase_order_items | Mặt hàng đã mua | order_id, item_name, quantity, unit_price, amount, received_qty |
-| stock_items | Mặt hàng trong kho | org_unit_id, code, name, unit, min_qty, current_qty, status |
-| stock_transactions | Nhập xuất kho | stock_item_id, transaction_type (gồm tồn ban đầu), quantity, unit_price, reference_type, reference_id, transaction_date, created_by |
-| stock_counts | Kỳ kiểm kê | org_unit_id, count_date, status, created_by, approved_by |
-| stock_count_lines | Chi tiết kiểm kê | count_id, stock_item_id, system_qty, actual_qty, difference, note |
+| purchase_orders | Phiếu mua hàng (P13-06) | code, org_unit_id, request_id (duy nhất), supplier_id, order_date, total_amount, status (ordered, received), payment_status (awaiting_payment, paid), payment_id (duy nhất), note, created_by, received_by, received_at |
+| purchase_order_items | Mặt hàng đã mua | order_id, stock_item_id, item_name, quantity, unit_price, amount, received_qty |
 
 ## 15. Phân hệ P14 — Hoạt động, nội dung và truyền thông
 

@@ -7,8 +7,10 @@ import { ClassesScreen, type MyClass } from './screens/ClassesScreen.js';
 import { GateCheckScreen } from './screens/GateCheckScreen.js';
 import { JournalScreen } from './screens/JournalScreen.js';
 import { LeaveScreen } from './screens/LeaveScreen.js';
+import { MealReportScreen } from './screens/MealReportScreen.js';
 import { PayslipsScreen } from './screens/PayslipsScreen.js';
 import { LoginScreen } from './screens/LoginScreen.js';
+import { MedicationScreen } from './screens/MedicationScreen.js';
 import { PickupScreen } from './screens/PickupScreen.js';
 import { SessionProvider, useSession } from './session/session.js';
 
@@ -16,7 +18,7 @@ import { SessionProvider, useSession } from './session/session.js';
 function Screens() {
   const session = useSession();
   const [opened, setOpened] = useState<
-    | { screen: 'attendance' | 'pickup' | 'journal' | 'care' | 'activity'; myClass: MyClass }
+    | { screen: 'attendance' | 'pickup' | 'journal' | 'care' | 'activity' | 'meal' | 'medication'; myClass: MyClass }
     | { screen: 'gate'; orgUnitIds: string[] }
     | { screen: 'leave' }
     | { screen: 'payslips' }
@@ -43,6 +45,12 @@ function Screens() {
   if (opened?.screen === 'activity') {
     return <ActivityScreen myClass={opened.myClass} onBack={back} />;
   }
+  if (opened?.screen === 'meal') {
+    return <MealReportScreen myClass={opened.myClass} onBack={back} />;
+  }
+  if (opened?.screen === 'medication') {
+    return <MedicationScreen myClass={opened.myClass} onBack={back} />;
+  }
   if (opened?.screen === 'pickup') {
     return <PickupScreen myClass={opened.myClass} onBack={back} />;
   }
@@ -62,6 +70,8 @@ function Screens() {
       onOpenJournal={(myClass) => setOpened({ screen: 'journal', myClass })}
       onOpenCare={(myClass) => setOpened({ screen: 'care', myClass })}
       onOpenActivity={(myClass) => setOpened({ screen: 'activity', myClass })}
+      onOpenMealReport={(myClass) => setOpened({ screen: 'meal', myClass })}
+      onOpenMedication={(myClass) => setOpened({ screen: 'medication', myClass })}
       onOpenGate={(orgUnitIds) => setOpened({ screen: 'gate', orgUnitIds })}
       onOpenLeave={() => setOpened({ screen: 'leave' })}
       onOpenPayslips={() => setOpened({ screen: 'payslips' })}
