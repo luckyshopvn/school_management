@@ -28,6 +28,8 @@ export default defineConfig({
   workers: 1,
   forbidOnly: isContinuousIntegration,
   retries: 0,
+  // Máy chạy kiểm thử liên tục chậm hơn máy phát triển, các ca chuẩn bị nhiều dữ liệu có lúc quá 30 giây
+  timeout: isContinuousIntegration ? 60_000 : 30_000,
   reporter: isContinuousIntegration ? 'github' : 'list',
   use: {
     baseURL: `http://localhost:${E2E_PORTAL_PORT}`,
