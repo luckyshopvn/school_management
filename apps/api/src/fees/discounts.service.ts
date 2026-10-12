@@ -8,6 +8,7 @@ import { writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { queueNotification, type NotificationRecipient } from '../common/notification-queue.js';
 import { notFoundError } from '../common/request-fields.js';
+import { assertPeriodOpen } from '../finance/fiscal-period-lock.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { discountApplied, discountBase, invoiceAmounts } from './invoice-amounts.js';
 
@@ -454,6 +455,13 @@ export class DiscountsService {
     if (!invoice) {
       throw notFoundError('Không tìm thấy hóa đơn', 'invoice');
     }
+    // Hàm này chỉ dùng cho thao tác ghi: hóa đơn của kỳ tài chính đã chốt không miễn giảm, điều chỉnh (P06-09, YCTD-82)
+    await assertPeriodOpen(
+      database,
+      invoice.org_unit_id,
+      { year: invoice.period_year, month: invoice.period_month },
+      'miễn giảm hoặc điều chỉnh hóa đơn của kỳ này',
+    );
     return invoice;
   }
 

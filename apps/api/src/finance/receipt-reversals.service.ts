@@ -11,6 +11,7 @@ import { queueNotification, type NotificationRecipient } from '../common/notific
 import { notFoundError } from '../common/request-fields.js';
 import { nextDocumentCode } from '../fees/document-codes.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
+import { assertDateOpen } from './fiscal-period-lock.js';
 import { guardianUserIds } from './receivables.js';
 
 // Phiếu đảo phiếu thu: kế toán, kế toán trưởng lập kèm lý do; Ban Giám hiệu duyệt theo hạn mức `receipt_reversal`;
@@ -30,6 +31,8 @@ export class ReceiptReversalsService {
     const { database } = await this.currentSchoolYear.require();
     const receipt = await this.loadReceipt(database, receiptId);
     await this.assertScope(currentUser, PERMISSION_CODES.receiptReversalCreate, receipt.org_unit_id);
+    // Phiếu thu thuộc kỳ tài chính đã chốt không đảo được (P06-09, YCTD-82)
+    await assertDateOpen(database, receipt.org_unit_id, receipt.receipt_date, 'đảo phiếu thu của kỳ này');
     if (receipt.status !== 'issued') {
       throw ruleViolationError('BR-29', 'Phiếu thu này đang chờ duyệt đảo hoặc đã đảo');
     }
@@ -124,6 +127,9 @@ export class ReceiptReversalsService {
         'ERR_FORBIDDEN',
         'Phiếu đảo từ hạn mức trở lên hoặc đơn vị chưa đặt hạn mức, cần Hiệu trưởng duyệt',
       );
+    }
+    if (decision.approve) {
+      await assertDateOpen(database, receipt.org_unit_id, receipt.receipt_date, 'duyệt đảo phiếu thu của kỳ này');
     }
     if (!decision.approve && !decision.reason) {
       throw validationError([{ field: 'reason', message: 'Bắt buộc nhập lý do từ chối' }]);
@@ -306,6 +312,7 @@ export class ReceiptReversalsService {
         'receipts.account_id',
         'receipts.status',
         'receipts.carried_over',
+        'receipts.receipt_date',
         'children.full_name as child_name',
       ])
       .where('receipts.id', '=', receiptId)

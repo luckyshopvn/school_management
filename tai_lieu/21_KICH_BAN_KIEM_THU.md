@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.27
+- Phiên bản: 1.28
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -251,7 +251,7 @@
 | CT-166 | P05-06 | Phát hành khoản phát sinh sau khi hóa đơn chính đã phát hành | Sinh hóa đơn bổ sung cùng kỳ, hóa đơn chính không đổi | Kiểm thử tự động `apps/api/src/fees/fee-calculation.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-167 | P01-14 | Đối tác gọi danh sách trẻ bằng khóa đã thu hồi | Bị từ chối ngay | Kiểm thử tự động `apps/api/src/partner/partner.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-168 | P06-03 | Kế toán lập phiếu đảo, kế toán trưởng gọi điểm cuối duyệt | Bị từ chối; phiếu gốc và công nợ chưa đổi | Kiểm thử tự động `apps/api/src/finance/receipts.test.ts` đạt ngày 11/10/2026 | Đạt |
-| CT-169 | P05-12 | Quản lý đơn vị gọi điểm cuối ghi quyết định xử lý công nợ | Bị từ chối; Phó Hiệu trưởng ghi được, số tiền công nợ không đổi | | Chưa chạy |
+| CT-169 | P05-12 | Quản lý đơn vị gọi điểm cuối ghi quyết định xử lý công nợ | Bị từ chối; Phó Hiệu trưởng ghi được, số tiền công nợ không đổi | Kiểm thử tự động `apps/api/src/finance/finance-g2.test.ts` đạt ngày 12/10/2026; Kiểm thử giao diện `tests/e2e/38-finance-g2.spec.ts` đạt ngày 12/10/2026 | Đạt |
 | CT-170 | P06-04 | Kế toán lập phiếu đảo phiếu chi, kế toán trưởng gọi điểm cuối duyệt | Bị từ chối; phiếu gốc và số dư quỹ chưa đổi | Kiểm thử tự động `apps/api/src/finance/payments.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-171 | P10-04 | Đơn vị bật không có nhân viên y tế, phụ huynh gửi yêu cầu dặn thuốc | Giáo viên chủ nhiệm nhận, xác nhận và ghi liều được | Kiểm thử tự động `apps/api/src/medicines/medicines.test.ts` đạt ngày 11/10/2026; Kiểm thử giao diện `tests/e2e/31-medication.spec.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-172 | P10-04 | Đơn vị tắt cấu hình, giáo viên chủ nhiệm gọi điểm cuối xác nhận nhận thuốc | Trả lỗi không có quyền | Kiểm thử tự động `apps/api/src/medicines/medicines.test.ts` đạt ngày 11/10/2026 | Đạt |

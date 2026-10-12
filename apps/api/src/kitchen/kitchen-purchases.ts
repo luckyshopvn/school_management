@@ -1,4 +1,5 @@
 import { Body, Controller, Get, HttpCode, Injectable, Param, Post, Query, Req } from '@nestjs/common';
+import { settlePurchaseOrderPayable } from '../finance/payables.js';
 import type { MarketPurchaseStatus, SchoolYearDatabase } from '@school-management/database';
 import { ruleViolationError, validationError, type FieldError } from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
@@ -286,6 +287,8 @@ export class KitchenPurchasesService {
         })
         .where('id', '=', id)
         .execute();
+      // Công nợ phải trả của phiếu đi chợ (P06-07, YCTD-82) cũng thành đã trả
+      await settlePurchaseOrderPayable(transaction, id, paymentId, new Date(), 'market_purchase');
       await writeAuditLog(transaction, {
         origin,
         orgUnitId: purchase.org_unit_id,

@@ -25,6 +25,7 @@ import {
 } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { nextDocumentCode } from '../fees/document-codes.js';
+import { settlePurchaseOrderPayable } from '../finance/payables.js';
 import {
   check,
   InventoryAccess,
@@ -567,6 +568,12 @@ export class PurchasingService {
           .where('id', '=', orderId)
           .execute(),
         'Phiếu chi này đã gắn với phiếu mua hàng khác',
+        'payment_id',
+      );
+      // Công nợ phải trả của phiếu mua hàng (P06-07, YCTD-82) cũng thành đã trả
+      await conflictOnDuplicate(
+        settlePurchaseOrderPayable(transaction, orderId, paymentId, this.clock.now()),
+        'Phiếu chi này đã dùng để trả công nợ phải trả khác',
         'payment_id',
       );
       await writeAuditLog(transaction, {

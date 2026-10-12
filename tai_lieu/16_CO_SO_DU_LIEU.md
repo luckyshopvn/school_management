@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.49
+- Phiên bản: 1.50
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -126,7 +126,7 @@ Ràng buộc duy nhất: `attendance_records` trên bộ đôi trẻ, ngày; `ab
 | invoice_adjustments | Phiếu điều chỉnh hóa đơn (YCTD-52) | code (dạng DC-000001), invoice_id, child_id, org_unit_id, reason, amount (dương tăng, âm giảm), status (chờ duyệt, đã duyệt, bị từ chối), requires_principal, created_by, decided_by, decided_at, reject_reason |
 | fee_calculation_runs | Lần chạy tính học phí | org_unit_id, period_year, period_month, status (đang chạy, thành công, thất bại), started_at, finished_at, error_detail, child_count, total_amount, run_by |
 | document_sequences | Số chứng từ liên tục trong năm học theo loại (YCTD-30, YCTD-51) | document_type, last_value |
-| debt_resolutions | Đề xuất và quyết định xử lý công nợ quá hạn (P05-12) | org_unit_id, child_id, invoice_id, proposal, proposed_by, proposed_at, decision, decided_by, decided_at, status (chờ quyết định, đã quyết định) |
+| debt_resolutions | Đề xuất và quyết định xử lý công nợ quá hạn (P05-12, YCTD-82) | org_unit_id, child_id, invoice_id (tùy chọn), overdue_amount, overdue_days (lúc lập), proposal, proposed_by, proposed_at, decision, decided_by, decided_at, status (chờ quyết định, đã quyết định; mỗi trẻ tối đa một đề xuất đang chờ) |
 
 Ràng buộc duy nhất: `invoices` loại chính trên bộ ba trẻ, kỳ năm, kỳ tháng; hóa đơn bổ sung không giới hạn số lượng (BR-85); `service_registrations` trên bộ ba trẻ, kỳ, dịch vụ.
 
@@ -145,10 +145,12 @@ Ràng buộc duy nhất: `invoices` loại chính trên bộ ba trẻ, kỳ năm
 | payment_reversals | Phiếu đảo phiếu chi (YCTD-56) | code (dạng DPC-000001), payment_id, org_unit_id, amount, reason, status (chờ duyệt, đã duyệt, bị từ chối), requires_principal, created_by, decided_by, decided_at, reject_reason; mỗi phiếu chi tối đa một phiếu đảo đang chờ hoặc đã duyệt |
 | cash_accounts | Quỹ tiền mặt và tài khoản ngân hàng (YCTD-53) | org_unit_id, account_type (tiền mặt hoặc ngân hàng), name (duy nhất trong đơn vị), bank_name, account_number (bắt buộc với ngân hàng), opening_balance, current_balance (quỹ tiền mặt không âm), status, receives_online_payments (toàn trường tối đa một tài khoản), online_payment_category_id (YCTD-57) |
 | account_transactions | Giao dịch trên tài khoản | account_id, transaction_date, transaction_type, amount, balance_after, reference_type, reference_id, description |
-| payables | Công nợ phải trả | org_unit_id, supplier_id, reference_type, reference_id, amount, paid_amount, due_date, status |
+| payables | Công nợ phải trả nhà cung cấp (P06-07, YCTD-82) | code (CNP-000001), org_unit_id, supplier_id (tùy chọn), payee_name, source_type (lập tay, phiếu mua hàng, phiếu mua thuốc), source_id (duy nhất cùng loại), document_ref, description, amount, document_date, due_date, status (chưa trả, đã trả, đã hủy), payment_id (duy nhất, phiếu chi đã phát hành), paid_at, cancel_reason, created_by |
 | suppliers | Nhà cung cấp chung của kho và mua hàng theo đơn vị (P13-07); nhà cung cấp thực phẩm ở `food_suppliers` (P12-08) | org_unit_id, name (duy nhất trong đơn vị), tax_code, contact_name, phone, address, payment_terms, status, created_by |
-| fiscal_periods | Kỳ tài chính | org_unit_id, period_year, period_month, status, close_requested_by, close_requested_at, closed_by, closed_at |
+| fiscal_periods | Kỳ tài chính theo tháng của đơn vị (P06-09, YCTD-82) | org_unit_id, period_year, period_month (duy nhất cùng đơn vị), status (chờ duyệt chốt, đã chốt, bị từ chối; không có dòng là đang mở), summary (số liệu kỳ khi đề nghị và khi chốt), request_note, close_requested_by, close_requested_at, closed_by, closed_at, rejected_by, rejected_at, reject_reason |
 | cashflow_categories | Khoản mục và nhóm thu chi dùng chung toàn trường | code (duy nhất), name, group_name, flow_type (thu hoặc chi), status |
+| debt_reminders | Lần nhắc nợ theo hóa đơn và mốc (P05-10, YCTD-82) | org_unit_id, child_id, invoice_id, milestone_days (duy nhất cùng hóa đơn; 0 là nhắc trước mốc đầu), overdue_days, outstanding_amount, sent_by, sent_at |
+| bank_statement_lines | Dòng sao kê ngân hàng nhập tay để đối chiếu, không đổi số dư (P06-06, YCTD-82) | account_id (tài khoản ngân hàng), org_unit_id, transaction_date, amount (vào dương, ra âm, khác 0), description, bank_reference, status (chưa khớp, đã khớp), matched_transaction_id (duy nhất, tới account_transactions), matched_by, matched_at, created_by |
 
 Ràng buộc duy nhất: `receipts` trên bộ đôi đơn vị và mã phiếu thu; `payments` trên bộ đôi đơn vị và mã phiếu chi.
 

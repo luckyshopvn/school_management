@@ -14,6 +14,27 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-10 phần 10i: tài chính giai đoạn 2
+
+#### Công việc đã thực hiện
+
+- Agent 10i viết mã, kiểm thử máy chủ, nháp tài liệu trong worktree riêng (lượt 3, dừng giữa chừng vì giới hạn phiên rồi làm tiếp); người điều phối gộp nhánh 10h (đã gồm 10b đến 10j), nối công nợ phải trả với phiếu đi chợ của bếp (thêm ca kiểm thử), đánh số màn hình MH-61, MH-62 và quy tắc mới BR-95 (thay mã lỗi tạm P06-09), chạy toàn bộ kiểm thử, đưa nháp vào tài liệu.
+- Cơ sở dữ liệu: năm bảng (tệp 0038). Máy chủ API: nhắc nợ theo mốc, đề xuất và quyết định xử lý công nợ quá hạn, dòng sao kê và đối chiếu ngân hàng, công nợ phải trả từ phiếu mua hàng, phiếu mua thuốc, phiếu đi chợ hoặc lập tay, chốt kỳ tài chính và khóa số liệu kỳ đã chốt trên phiếu thu, phiếu chi, phiếu đảo, tính học phí, miễn giảm, điều chỉnh.
+- Cổng quản trị: trang Nhắc nợ và xử lý quá hạn, Đối chiếu ngân hàng, Nợ nhà cung cấp, Chốt kỳ tài chính.
+- Kết quả: máy chủ API 480/480, kiểm thử giao diện 57/57.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-82 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-82 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.41.0.
+
+#### Vấn đề tồn đọng
+
+- Kiểm thử G2 và phát hành 1.1.0.
+
 ### 2026-10-11 — DT-10 phần 10h: công việc và đánh giá
 
 #### Công việc đã thực hiện

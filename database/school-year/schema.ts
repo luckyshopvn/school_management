@@ -2398,6 +2398,96 @@ export interface StaffBonusDeductionsTable {
   cancel_reason: string | null;
 }
 
+// Tài chính giai đoạn 2 (P05-10, P05-12, P06-06, P06-07, P06-09; YCTD-82)
+export interface DebtRemindersTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  child_id: string;
+  invoice_id: string;
+  milestone_days: number;
+  overdue_days: number;
+  outstanding_amount: Money;
+  sent_by: string;
+  sent_at: CreatedTimestamp;
+}
+
+export type DebtResolutionStatus = 'pending' | 'decided';
+
+export interface DebtResolutionsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  child_id: string;
+  invoice_id: string | null;
+  overdue_amount: Money;
+  overdue_days: number;
+  proposal: string;
+  proposed_by: string;
+  proposed_at: CreatedTimestamp;
+  decision: string | null;
+  decided_by: string | null;
+  decided_at: Date | null;
+  status: Generated<DebtResolutionStatus>;
+}
+
+export interface BankStatementLinesTable {
+  id: Generated<string>;
+  account_id: string;
+  org_unit_id: string;
+  transaction_date: string;
+  amount: Money;
+  description: string;
+  bank_reference: string | null;
+  status: Generated<'unmatched' | 'matched'>;
+  matched_transaction_id: string | null;
+  matched_by: string | null;
+  matched_at: Date | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export type PayableSourceType = 'manual' | 'purchase_order' | 'medicine_purchase_order' | 'market_purchase';
+export type PayableStatus = 'open' | 'paid' | 'cancelled';
+
+export interface PayablesTable {
+  id: Generated<string>;
+  code: string;
+  org_unit_id: string;
+  supplier_id: string | null;
+  payee_name: string;
+  source_type: PayableSourceType;
+  source_id: string | null;
+  document_ref: string | null;
+  description: string;
+  amount: Money;
+  document_date: string;
+  due_date: string;
+  status: Generated<PayableStatus>;
+  payment_id: string | null;
+  paid_at: Date | null;
+  cancel_reason: string | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export type FiscalPeriodStatus = 'pending' | 'closed' | 'rejected';
+
+export interface FiscalPeriodsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  period_year: number;
+  period_month: number;
+  status: Generated<FiscalPeriodStatus>;
+  summary: ColumnType<Record<string, unknown>, string, string>;
+  request_note: string | null;
+  close_requested_by: string;
+  close_requested_at: ColumnType<Date, Date | undefined, Date>;
+  closed_by: string | null;
+  closed_at: Date | null;
+  rejected_by: string | null;
+  rejected_at: Date | null;
+  reject_reason: string | null;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -2565,4 +2655,9 @@ export interface SchoolYearDatabase {
   staff_work_history: StaffWorkHistoryTable;
   staff_certificates: StaffCertificatesTable;
   staff_bonus_deductions: StaffBonusDeductionsTable;
+  debt_reminders: DebtRemindersTable;
+  debt_resolutions: DebtResolutionsTable;
+  bank_statement_lines: BankStatementLinesTable;
+  payables: PayablesTable;
+  fiscal_periods: FiscalPeriodsTable;
 }

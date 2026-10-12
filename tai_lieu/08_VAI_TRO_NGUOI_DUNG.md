@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.42
+- Phiên bản: 1.43
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -142,6 +142,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-45 | Giảng dạy (YCTD-80): `P03.lesson.manage` cho VT-07, VT-08 soạn bài học (chỉ người soạn sửa) và giáo án cho lớp đang được phân công; `P03.lesson-plan.review` cho VT-17 duyệt bước trước và VT-03 duyệt bước sau, công bố giáo án trong đơn vị được gán, không tự duyệt; `P03.curriculum.manage` cho VT-03 trong đơn vị và VT-07 (chủ nhiệm lớp với dữ liệu của lớp) quản lý lĩnh vực, nhóm bài học, chủ đề, thời khóa biểu, kế hoạch giảng dạy, lịch hoạt động lớp; `P03.progress.record` cho VT-07 ghi và công bố tiến độ học tập của trẻ trong lớp đang được phân công; phụ huynh chỉ đọc thời khóa biểu, lịch hoạt động, tiến độ đã công bố của lớp và của con |
 | PQ-48 | Báo cáo giai đoạn 2 (YCTD-83): `P17.report.operations` cho VT-03 xem báo cáo hoạt động và công việc của các lớp trong đơn vị được gán; `P17.report.consolidated` cho VT-02, VT-19 xem báo cáo hợp nhất toàn trường, chỉ số liệu tổng hợp, không có dữ liệu cá nhân; `P17.data.export` cho VT-02, VT-04, VT-06 xuất ra Excel các báo cáo mình có quyền xem trong phạm vi, mỗi lần xuất ghi nhật ký (BR-74); người có phạm vi toàn trường xem mọi nhật ký xuất, người khác chỉ xem lần xuất của mình. VT-19 không có quyền xem các báo cáo có dữ liệu cá nhân và không có quyền xuất |
 | PQ-46 | Công việc, đánh giá, quá trình công tác, thưởng và khấu trừ (YCTD-81): `P09.task.assign` cho VT-03, VT-06 giao việc cho nhân sự có tài khoản trong đơn vị được gán, sửa, hủy việc đã giao, xem việc được giao và bảng tiến độ của đơn vị; `P09.plan.manage` cho VT-03 lập, kích hoạt, đóng kế hoạch của đơn vị và xem tiến độ; `P09.evaluation.manage` cho VT-03, VT-06 cấu hình chỉ số, đánh giá, công bố trong đơn vị (không tự đánh giá mình); `P07.work-history.manage` cho VT-06 ghi quá trình công tác và chứng chỉ; `P08.bonus-deduction.manage` cho VT-04, VT-05 ghi, hủy thưởng và khấu trừ của tháng chưa trình duyệt bảng lương. Mọi nhân sự có hồ sơ liên kết tài khoản tạo việc cá nhân, cập nhật tiến độ việc của mình, xem phiếu đánh giá đã công bố, quá trình công tác của mình (BR-46). VT-02, VT-15 xem công việc, kế hoạch, phiếu đánh giá trong phạm vi đơn vị được gán; người có `P08.payroll.view` xem thưởng và khấu trừ |
+| PQ-47 | Tài chính giai đoạn 2 (YCTD-82): `P05.debt-reminder.manage` cho VT-04, VT-03 xem danh sách nhắc nợ và gửi nhắc nợ trong đơn vị; `P05.overdue-debt.propose` cho VT-03, VT-04 lập đề xuất xử lý công nợ quá hạn; `P05.overdue-debt.decide` cho VT-15 (trong đơn vị), VT-02 ghi quyết định, không đổi số tiền công nợ; `P06.bank-transaction.manage` cho VT-04, VT-05 ghi dòng sao kê, khớp, bỏ khớp, khớp tự động; `P06.payable.manage` cho VT-04, VT-05 ghi, trả, hủy công nợ phải trả; `P06.period-close.request` cho VT-05 đề nghị chốt kỳ; `P06.period-close.approve` cho VT-02 duyệt hoặc từ chối chốt kỳ; người có `P06.view` xem đối chiếu ngân hàng, công nợ phải trả, kỳ tài chính |
 
 ## 5. Phân cấp phê duyệt
 

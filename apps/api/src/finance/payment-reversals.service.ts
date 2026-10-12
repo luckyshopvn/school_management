@@ -11,6 +11,7 @@ import { queueNotification, type NotificationRecipient } from '../common/notific
 import { notFoundError } from '../common/request-fields.js';
 import { nextDocumentCode } from '../fees/document-codes.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
+import { assertDateOpen } from './fiscal-period-lock.js';
 
 // Phiếu đảo phiếu chi: kế toán, kế toán trưởng lập kèm lý do; Ban Giám hiệu duyệt theo hạn mức `payment_reversal`;
 // phiếu gốc và số dư nguồn chi chỉ thay đổi khi đã duyệt; đảo phiếu hoàn tiền thì trả lại số dư có của trẻ
@@ -30,6 +31,10 @@ export class PaymentReversalsService {
     const { database } = await this.currentSchoolYear.require();
     const payment = await this.loadPayment(database, paymentId);
     await this.assertScope(currentUser, PERMISSION_CODES.paymentReversalCreate, payment.org_unit_id);
+    // Phiếu chi thuộc kỳ tài chính đã chốt không đảo được (P06-09, YCTD-82)
+    if (payment.payment_date) {
+      await assertDateOpen(database, payment.org_unit_id, payment.payment_date, 'đảo phiếu chi của kỳ này');
+    }
     if (payment.status !== 'issued') {
       throw ruleViolationError('BR-29', 'Chỉ đảo được phiếu chi đã phát hành và chưa có phiếu đảo');
     }
@@ -101,6 +106,9 @@ export class PaymentReversalsService {
       .executeTakeFirst();
     if (!reversal) {
       throw ruleViolationError('BR-77', 'Phiếu chi này không có phiếu đảo chờ duyệt');
+    }
+    if (decision.approve && payment.payment_date) {
+      await assertDateOpen(database, payment.org_unit_id, payment.payment_date, 'duyệt đảo phiếu chi của kỳ này');
     }
     if (reversal.requires_principal && !this.isPrincipal(currentUser)) {
       throw new ApplicationError(
@@ -270,7 +278,7 @@ export class PaymentReversalsService {
   private async loadPayment(database: Kysely<SchoolYearDatabase>, paymentId: string) {
     const payment = await database
       .selectFrom('payments')
-      .select(['id', 'code', 'org_unit_id', 'amount', 'account_id', 'status', 'payee_name'])
+      .select(['id', 'code', 'org_unit_id', 'amount', 'account_id', 'status', 'payee_name', 'payment_date'])
       .where('id', '=', paymentId)
       .executeTakeFirst();
     if (!payment) {

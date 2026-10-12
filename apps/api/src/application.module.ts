@@ -116,6 +116,10 @@ import { ReceiptsController } from './finance/receipts.controller.js';
 import { ReceiptsService } from './finance/receipts.service.js';
 import { ReceiptReversalsService } from './finance/receipt-reversals.service.js';
 import { CashBooksController, CashBooksService } from './finance/cash-books.js';
+import { BankReconciliationController, BankReconciliationService } from './finance/bank-reconciliation.js';
+import { DebtCollectionController, DebtCollectionService } from './finance/debt-collection.js';
+import { FiscalPeriodsController, FiscalPeriodsService } from './finance/fiscal-periods.js';
+import { PayablesController, PayablesService } from './finance/payables.js';
 import { PaymentsController } from './finance/payments.controller.js';
 import { PaymentsService } from './finance/payments.service.js';
 import { PaymentReversalsService } from './finance/payment-reversals.service.js';
@@ -265,6 +269,10 @@ export class ApplicationModule {
         EvaluationsController,
         WorkHistoryController,
         BonusDeductionsController,
+        DebtCollectionController,
+        BankReconciliationController,
+        PayablesController,
+        FiscalPeriodsController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -405,6 +413,10 @@ export class ApplicationModule {
         WorkHistoryService,
         BonusDeductionsService,
         DebtsService,
+        DebtCollectionService,
+        BankReconciliationService,
+        PayablesService,
+        FiscalPeriodsService,
         SchoolCalendar,
         {
           provide: FileStorage,
