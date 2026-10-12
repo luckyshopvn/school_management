@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.29
+- Phiên bản: 1.31
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -284,8 +284,22 @@
 | CT-199 | P09-05 | Chấm 2 chỉ số trọng số 2 và 1; công bố; sửa sau công bố; đánh giá lại không lý do và có lý do | Điểm 86,67; sửa sau công bố bị chặn mã BR-47; đánh giá lại thiếu lý do bị chặn; có lý do thì phiếu mới thay phiếu cũ khi công bố | Kiểm thử tự động `apps/api/src/work/work.test.ts` đạt ngày 12/10/2026 | Đạt |
 | CT-200 | P07-03 | Phòng nhân sự ghi mốc công tác ở đơn vị chính và đơn vị khác, ghi chứng chỉ; nhân sự và người khác xem; đóng lại mốc đã kết thúc | Hai mốc, một mốc kiêm nhiệm; nhân sự xem được của mình; người khác bị chặn; mốc đã kết thúc không đóng lại được | Kiểm thử tự động `apps/api/src/work/work.test.ts` đạt ngày 12/10/2026 | Đạt |
 | CT-201 | P08-07 | Kế toán ghi thưởng 1 000 000 và khấu trừ 300 000 tháng này, hủy một khoản; tính bảng lương; ghi thêm sau khi trình duyệt | Phiếu lương có dòng thưởng, khấu trừ kèm căn cứ, không có khoản đã hủy; ghi thêm sau khi trình duyệt bị chặn mã BR-45 | Kiểm thử tự động `apps/api/src/work/work.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-202 | P14-08 | Hiệu trưởng cấu hình Fanpage và Zalo Official Account; gửi trường lạ như khóa truy cập; bật thiếu mã; quản lý đơn vị cấu hình | Lưu được mã trang, mã Official Account; trường lạ và bật thiếu mã bị từ chối; quản lý đơn vị bị chặn; API không trả khóa truy cập | Kiểm thử tự động `apps/api/src/integrations/integrations.test.ts` đạt ngày 12/10/2026; Kiểm thử giao diện `tests/e2e/44-integrations.spec.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-203 | P14-08 | Đăng hoạt động lên Fanpage khi chưa bật, khi chưa duyệt, khi đã duyệt có ảnh của trẻ chưa đồng ý; người không có quyền đăng; đăng lại | Chưa bật và chưa duyệt bị chặn; đã duyệt thì đăng, ảnh có trẻ chưa đồng ý bị loại; người không có quyền bị chặn; đăng lại bị chặn | Kiểm thử tự động `apps/api/src/integrations/integrations.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-204 | P14-08 | Facebook trả lỗi khi đăng rồi thử lại; đăng tin tức phạm vi lớp | Lỗi được ghi, thử lại thành công; tin phạm vi lớp không đăng công khai | Kiểm thử tự động `apps/api/src/integrations/integrations.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-205 | P19-04 | Liên kết Zalo theo số điện thoại phụ huynh; gửi thông báo khi Zalo tắt, khi bật với người đã và chưa liên kết, khi Zalo lỗi | Zalo tắt gửi tin nhắn; bật thì người đã liên kết nhận qua Zalo, chưa liên kết nhận tin nhắn; Zalo lỗi thì gửi ngay bằng tin nhắn | Kiểm thử tự động `apps/api/src/integrations/integrations.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-206 | P19-04 | Một phụ huynh nhận nhiều tin trong ngày qua Zalo và tin nhắn | Tin Zalo và tin nhắn tính chung giới hạn 5 tin mỗi ngày | Kiểm thử tự động `apps/api/src/integrations/integrations.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-207 | P05-10 | Kế toán gửi nhắc nợ quá hạn khi Zalo bật | Phụ huynh đã liên kết nhận nhắc nợ qua Zalo | Kiểm thử tự động `apps/api/src/integrations/integrations.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-208 | P18-01 | Quản lý đơn vị lập đề nghị; giáo viên lập; nhân sự duyệt; Phó Hiệu trưởng duyệt; người lập tự duyệt; duyệt lại | Giáo viên, nhân sự bị từ chối; Phó Hiệu trưởng duyệt được, nhật ký có người duyệt, thời điểm, số lượng (BR-80); người lập không tự duyệt; duyệt lại trả BR-80 | Kiểm thử tự động `apps/api/src/recruitment/recruitment.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-209 | P18-02 | Nhân sự đơn vị khác soạn tin; soạn tin hạn nộp đã qua; công bố tin; xem trang công khai không đăng nhập; tin hết hạn | Bị từ chối, lỗi dữ liệu; tin đang soạn không hiện công khai; tin đã công bố hiện kèm vị trí, đơn vị; tin hết hạn trả không tìm thấy | Kiểm thử tự động `apps/api/src/recruitment/recruitment.test.ts` đạt ngày 12/10/2026; Kiểm thử giao diện `tests/e2e/41-recruitment.spec.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-210 | P18-03 | Người ngoài nộp hồ sơ thiếu đồng ý, số điện thoại sai, thiếu tệp, tệp không phải ảnh hoặc PDF, hợp lệ, nộp lại | Bốn trường hợp đầu lỗi dữ liệu; hợp lệ được nhận, không trả mã; nộp lại trả xung đột; nhân sự nhận thông báo | Kiểm thử tự động `apps/api/src/recruitment/recruitment.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-211 | P18-03 | Giáo viên, nhân sự đơn vị khác xem ứng viên; nhân sự xem danh sách; quản lý đơn vị xem chi tiết; tải hồ sơ xin việc; tải qua điểm cuối tệp chung | Bị từ chối; danh sách không có số điện thoại; chi tiết và tải tệp ghi nhật ký truy cập (BR-74); tải qua tệp chung bị từ chối | Kiểm thử tự động `apps/api/src/recruitment/recruitment.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-212 | P18-03 | Nhân sự nhập ứng viên; quản lý đơn vị nhập; loại không lý do; loại có lý do; mở lại; xóa | Nhân sự nhập được, quản lý đơn vị bị từ chối; thiếu lý do lỗi dữ liệu; mở lại trả BR-75; không có điểm cuối xóa | Kiểm thử tự động `apps/api/src/recruitment/recruitment.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-213 | P18-04 | Lên lịch với người phỏng vấn không phải nhân sự; giáo viên lên lịch; quyết định khi còn lịch chờ; vòng 1 không đạt rồi quyết định tuyển; vòng 2 đạt rồi quyết định tuyển | Lỗi dữ liệu; bị từ chối; trả BR-80 hai lần; tuyển được, nhật ký có người và thời điểm quyết định; đề nghị có số đã tuyển 1 | Kiểm thử tự động `apps/api/src/recruitment/recruitment.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-214 | P18-04 | Quản lý đơn vị tạo hồ sơ nhân sự từ ứng viên đã tuyển; nhân sự tạo; tạo lần hai | Bị từ chối; hồ sơ nhân sự có họ tên, điện thoại, đơn vị của ứng viên; lần hai trả BR-37 | Kiểm thử tự động `apps/api/src/recruitment/recruitment.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-215 | P18-01, P18-02 | Giáo viên đóng đề nghị; nhân sự đóng đề nghị; nộp hồ sơ vào tin đã đóng; nộp liên tục nhiều lần | Bị từ chối; đề nghị và tin đều đóng; tin đã đóng trả không tìm thấy; vượt giới hạn trả `ERR_RATE_LIMIT` | Kiểm thử tự động `apps/api/src/recruitment/recruitment.test.ts` đạt ngày 12/10/2026 | Đạt |
 
-Ca CT-105 đến CT-201 lần lượt kiểm tra AC-149 đến AC-245.
+Ca CT-105 đến CT-215 lần lượt kiểm tra AC-149 đến AC-259.
 
 ## 16. Chưa xác minh được
 
