@@ -9,6 +9,7 @@ import { NotificationsPanel } from './NotificationsPanel.js';
 export interface MyClass {
   id: string;
   name: string;
+  org_unit_id?: string;
   enrolled_count: number;
   staff: Array<{ staff_user_id: string; assignment_role: 'homeroom' | 'subject' }>;
 }
@@ -18,6 +19,7 @@ export function ClassesScreen({
   onOpenPickup,
   onOpenJournal,
   onOpenCare,
+  onOpenTeaching,
   onOpenGate,
   onOpenLeave,
   onOpenPayslips,
@@ -26,6 +28,7 @@ export function ClassesScreen({
   onOpenPickup(myClass: MyClass): void;
   onOpenJournal(myClass: MyClass): void;
   onOpenCare(myClass: MyClass): void;
+  onOpenTeaching(myClass: MyClass): void;
   onOpenGate(orgUnitIds: string[]): void;
   onOpenLeave(): void;
   onOpenPayslips(): void;
@@ -88,6 +91,9 @@ export function ClassesScreen({
               </Button>
               <Button aria-label={`Chăm sóc lớp ${myClass.name}`} onClick={() => onOpenCare(myClass)}>
                 Chăm sóc và y tế
+              </Button>
+              <Button aria-label={`Giảng dạy lớp ${myClass.name}`} onClick={() => onOpenTeaching(myClass)}>
+                Giảng dạy
               </Button>
             </li>
           ))}

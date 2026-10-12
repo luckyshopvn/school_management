@@ -271,13 +271,7 @@ export class ClassTeachingService {
     const others = await database
       .selectFrom('timetables as slot')
       .innerJoin('classes', 'classes.id', 'slot.class_id')
-      .select([
-        'slot.teacher_id',
-        'slot.weekday',
-        'slot.start_time',
-        'slot.end_time',
-        'classes.name as class_name',
-      ])
+      .select(['slot.teacher_id', 'slot.weekday', 'slot.start_time', 'slot.end_time', 'classes.name as class_name'])
       .where('slot.class_id', '<>', classId)
       .where('slot.teacher_id', 'in', teacherIds)
       .where(
@@ -382,9 +376,7 @@ export class ClassTeachingService {
       .where('activity_date', '<=', to)
       .orderBy('activity_date')
       .orderBy('start_time');
-    query = publishedOnly
-      ? query.where('status', '=', 'published')
-      : query.where('status', '<>', 'cancelled');
+    query = publishedOnly ? query.where('status', '=', 'published') : query.where('status', '<>', 'cancelled');
     return query.execute();
   }
 
@@ -412,7 +404,12 @@ export class ClassTeachingService {
     }
   }
 
-  async createSchedule(currentUser: CurrentUser, classId: string, input: Required<ScheduleInput>, origin: ChangeOrigin) {
+  async createSchedule(
+    currentUser: CurrentUser,
+    classId: string,
+    input: Required<ScheduleInput>,
+    origin: ChangeOrigin,
+  ) {
     const { database } = await this.currentSchoolYear.require();
     const found = await this.access.assertCanManageClass(
       currentUser,
@@ -582,7 +579,13 @@ export class ClassTeachingService {
 
   async createTeachingPlan(
     currentUser: CurrentUser,
-    input: { class_id: string; period_type: TeachingPlanPeriod; period_value: string; objectives: string; content: string },
+    input: {
+      class_id: string;
+      period_type: TeachingPlanPeriod;
+      period_value: string;
+      objectives: string;
+      content: string;
+    },
     origin: ChangeOrigin,
   ) {
     const { database } = await this.currentSchoolYear.require();
@@ -834,7 +837,11 @@ export class ClassTeachingController {
 
   @Post('teaching-plans')
   @HttpCode(201)
-  createTeachingPlan(@Body() body: RequestBody, @Req() request: Request, @AuthenticatedUser() currentUser: CurrentUser) {
+  createTeachingPlan(
+    @Body() body: RequestBody,
+    @Req() request: Request,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
     const errors: FieldError[] = [];
     const classId = readOptionalUuid(body, 'class_id', errors);
     if (!classId) {
@@ -859,8 +866,12 @@ export class ClassTeachingController {
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
     const errors: FieldError[] = [];
-    const changes: { objectives?: string; content?: string; progress_note?: string | null; status?: TeachingPlanStatus } =
-      {};
+    const changes: {
+      objectives?: string;
+      content?: string;
+      progress_note?: string | null;
+      status?: TeachingPlanStatus;
+    } = {};
     for (const field of ['objectives', 'content'] as const) {
       if (body?.[field] !== undefined) {
         changes[field] = readText(body, field, errors, { required: true }) ?? '';

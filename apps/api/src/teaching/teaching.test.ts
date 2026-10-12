@@ -72,7 +72,14 @@ describe('Giảng dạy: bài học, giáo án, thời khóa biểu, tiến đ�
       classes[code] = (
         await schoolYear
           .insertInto('classes')
-          .values({ org_unit_id: unitA, academic_year_id: academicYearId, code, name: code, grade_level: 'MAM', max_size: 25 })
+          .values({
+            org_unit_id: unitA,
+            academic_year_id: academicYearId,
+            code,
+            name: code,
+            grade_level: 'MAM',
+            max_size: 25,
+          })
           .returning('id')
           .executeTakeFirstOrThrow()
       ).id;
@@ -133,7 +140,12 @@ describe('Giảng dạy: bài học, giáo án, thời khóa biểu, tiến đ�
       .executeTakeFirstOrThrow();
     await schoolYear
       .insertInto('child_guardians')
-      .values({ child_id: children.A ?? '', guardian_id: guardian.id, relationship_item_id: relationship.id, is_primary: true })
+      .values({
+        child_id: children.A ?? '',
+        guardian_id: guardian.id,
+        relationship_item_id: relationship.id,
+        is_primary: true,
+      })
       .execute();
   });
 
@@ -172,7 +184,12 @@ describe('Giảng dạy: bài học, giáo án, thời khóa biểu, tiến đ�
 
     const lesson = (body: Record<string, unknown>, accessToken = token('homeroom')) =>
       api('POST', '/lessons', accessToken, { objectives: 'Trẻ nhận biết', ...body });
-    const counting = await lesson({ name: 'Đếm đến 5', lesson_group_id: group.body.id, theme_id: theme.body.id, is_shared: true });
+    const counting = await lesson({
+      name: 'Đếm đến 5',
+      lesson_group_id: group.body.id,
+      theme_id: theme.body.id,
+      is_shared: true,
+    });
     assert.equal(counting.status, 201, JSON.stringify(counting.body));
     assert.equal(counting.body.domain_id, domains['Phát triển nhận thức']);
     lessons.counting = counting.body.id as string;
@@ -270,7 +287,10 @@ describe('Giảng dạy: bài học, giáo án, thời khóa biểu, tiến đ�
     const approved = await api('POST', `/lesson-plans/${planId}/approve`, token('manager'), {});
     assert.equal(approved.status, 200, JSON.stringify(approved.body));
     assert.equal(approved.body.status, 'approved');
-    assert.equal((await api('PATCH', `/lesson-plans/${planId}`, token('homeroom'), { duration_minutes: 40 })).status, 422);
+    assert.equal(
+      (await api('PATCH', `/lesson-plans/${planId}`, token('homeroom'), { duration_minutes: 40 })).status,
+      422,
+    );
 
     const detail = await api('GET', `/lesson-plans/${planId}`, token('leader'));
     assert.equal(detail.status, 200);
@@ -289,7 +309,13 @@ describe('Giảng dạy: bài học, giáo án, thời khóa biểu, tiến đ�
   });
 
   it('P03-04: thời khóa biểu theo lớp không trùng khung giờ; giáo viên không trùng giờ ở lớp khác; phụ huynh chỉ thấy bản công bố', async () => {
-    const slot = (weekdayNo: number, period: number, start: string, end: string, extra: Record<string, unknown> = {}) => ({
+    const slot = (
+      weekdayNo: number,
+      period: number,
+      start: string,
+      end: string,
+      extra: Record<string, unknown> = {},
+    ) => ({
       weekday: weekdayNo,
       period_no: period,
       start_time: start,
@@ -309,13 +335,21 @@ describe('Giảng dạy: bài học, giáo án, thời khóa biểu, tiến đ�
       400,
     );
     assert.equal(
-      (await api('PUT', path, token('otherTeacher'), { effective_from: nextMonday, slots: [slot(1, 1, '08:00', '08:30')] }))
-        .status,
+      (
+        await api('PUT', path, token('otherTeacher'), {
+          effective_from: nextMonday,
+          slots: [slot(1, 1, '08:00', '08:30')],
+        })
+      ).status,
       403,
     );
     assert.equal(
-      (await api('PUT', path, token('subjectTeacher'), { effective_from: nextMonday, slots: [slot(1, 1, '08:00', '08:30')] }))
-        .status,
+      (
+        await api('PUT', path, token('subjectTeacher'), {
+          effective_from: nextMonday,
+          slots: [slot(1, 1, '08:00', '08:30')],
+        })
+      ).status,
       403,
     );
     const saved = await api('PUT', path, token('homeroom'), {
@@ -421,7 +455,10 @@ describe('Giảng dạy: bài học, giáo án, thời khóa biểu, tiến đ�
     const created = await api('POST', '/teaching-plans', token('homeroom'), input);
     assert.equal(created.status, 201, JSON.stringify(created.body));
     assert.equal((await api('POST', '/teaching-plans', token('manager'), input)).status, 409);
-    assert.equal((await api('POST', '/teaching-plans', token('homeroom'), { ...input, period_value: 'HK3' })).status, 400);
+    assert.equal(
+      (await api('POST', '/teaching-plans', token('homeroom'), { ...input, period_value: 'HK3' })).status,
+      400,
+    );
     const updated = await api('PATCH', `/teaching-plans/${created.body.id}`, token('homeroom'), {
       status: 'in_progress',
       progress_note: 'Đã xong chủ đề 1',
@@ -463,7 +500,10 @@ describe('Giảng dạy: bài học, giáo án, thời khóa biểu, tiến đ�
     );
     assert.equal(list((await api('GET', path, token('parent'))).body).length, 0);
     assert.equal((await api('GET', path, token('leader'))).status, 403);
-    const published = await api('POST', `${path}/publish`, token('homeroom'), { period_type: 'term', period_value: 'HK1' });
+    const published = await api('POST', `${path}/publish`, token('homeroom'), {
+      period_type: 'term',
+      period_value: 'HK1',
+    });
     assert.equal(published.status, 200, JSON.stringify(published.body));
     assert.equal(published.body.published_count, 2);
     assert.equal(list((await api('GET', `${path}?period_type=term&period_value=HK1`, token('parent'))).body).length, 2);

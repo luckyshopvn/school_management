@@ -78,7 +78,9 @@ export class ChildProgressService {
     if (!guardian) {
       await this.childScope.assertCanRead(currentUser, database, childId);
     }
-    return { publishedOnly: guardian && !this.access.hasOfficeRole(currentUser) && !this.access.isTeacher(currentUser) };
+    return {
+      publishedOnly: guardian && !this.access.hasOfficeRole(currentUser) && !this.access.isTeacher(currentUser),
+    };
   }
 
   async list(currentUser: CurrentUser, childId: string, period: { type: ProgressPeriod | null; value: string | null }) {
@@ -252,7 +254,13 @@ export class ChildProgressService {
       class_name: found?.name ?? null,
       timetable: found ? await this.classTeaching.timetableOf(database, found, mondayOf(today), true) : null,
       activities: found
-        ? await this.classTeaching.schedulesOf(database, found.id, today, addDays(today, LEARNING_SCHEDULE_DAYS - 1), true)
+        ? await this.classTeaching.schedulesOf(
+            database,
+            found.id,
+            today,
+            addDays(today, LEARNING_SCHEDULE_DAYS - 1),
+            true,
+          )
         : [],
       progress: await this.progressOf(database, childId, { type: null, value: null }, publishedOnly),
     };

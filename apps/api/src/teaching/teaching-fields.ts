@@ -14,7 +14,12 @@ export function check(errors: FieldError[]) {
   }
 }
 
-export function readDate(body: RequestBody, field: string, errors: FieldError[], required: boolean): string | undefined {
+export function readDate(
+  body: RequestBody,
+  field: string,
+  errors: FieldError[],
+  required: boolean,
+): string | undefined {
   const value = body?.[field];
   if (value === undefined || value === null || value === '') {
     if (required) {
@@ -118,6 +123,9 @@ export function mondayOf(date: string): string {
   return addDays(date, 1 - isoWeekday(date));
 }
 
-export function overlaps(first: { start_time: string; end_time: string }, second: { start_time: string; end_time: string }) {
+export function overlaps(
+  first: { start_time: string; end_time: string },
+  second: { start_time: string; end_time: string },
+) {
   return first.start_time < second.end_time && second.start_time < first.end_time;
 }

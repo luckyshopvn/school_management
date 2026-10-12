@@ -47,7 +47,10 @@ export class TeachingAccess {
 
   // Phạm vi của một quyền chỉ tính các vai trò được nêu
   async scopeOfRoles(currentUser: CurrentUser, roles: string[], permission: string): Promise<OrganizationScope> {
-    return this.organizationScopes.resolveStaff(this.withRoles(currentUser, (role) => roles.includes(role)), permission);
+    return this.organizationScopes.resolveStaff(
+      this.withRoles(currentUser, (role) => roles.includes(role)),
+      permission,
+    );
   }
 
   // Phạm vi của quyền theo vai trò văn phòng (không tính giáo viên và phụ huynh)

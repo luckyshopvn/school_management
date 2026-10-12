@@ -71,7 +71,11 @@ export const migration: Migration = {
       .addColumn('updated_at', 'timestamptz', (column) => column.notNull().defaultTo(sql`now()`))
       .addCheckConstraint('lessons_status_check', sql`status in ('active', 'inactive')`)
       .execute();
-    await database.schema.createIndex('lessons_unit_index').on('lessons').columns(['org_unit_id', 'domain_id']).execute();
+    await database.schema
+      .createIndex('lessons_unit_index')
+      .on('lessons')
+      .columns(['org_unit_id', 'domain_id'])
+      .execute();
 
     await database.schema
       .createTable('lesson_plans')
@@ -210,10 +214,7 @@ export const migration: Migration = {
         'class_activity_schedules_time_check',
         sql`start_time ~ ${sql.lit(TIME_PATTERN)} and end_time ~ ${sql.lit(TIME_PATTERN)} and end_time > start_time`,
       )
-      .addCheckConstraint(
-        'class_activity_schedules_status_check',
-        sql`status in ('draft', 'published', 'cancelled')`,
-      )
+      .addCheckConstraint('class_activity_schedules_status_check', sql`status in ('draft', 'published', 'cancelled')`)
       .execute();
     await database.schema
       .createIndex('class_activity_schedules_class_index')

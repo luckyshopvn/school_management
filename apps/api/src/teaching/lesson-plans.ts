@@ -132,7 +132,8 @@ export class LessonPlansService {
     if (input.lesson_id) {
       await this.assertUsableLesson(database, currentUser, input.lesson_id, before.org_unit_id);
     }
-    const { class_id: _ignored, ...changes } = input;
+    const changes = { ...input };
+    delete changes.class_id;
     return database.transaction().execute(async (transaction) => {
       const after = await transaction
         .updateTable('lesson_plans')

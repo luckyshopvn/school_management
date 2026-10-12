@@ -195,8 +195,7 @@ export class TeachingCatalogsService {
   ) {
     const { database } = await this.currentSchoolYear.require();
     const before = (await database.selectFrom(table).selectAll().where('id', '=', id).executeTakeFirst()) as
-      | ({ id: string; org_unit_id: string } & Record<string, unknown>)
-      | undefined;
+      ({ id: string; org_unit_id: string } & Record<string, unknown>) | undefined;
     if (!before) {
       throw notFoundError(`Không tìm thấy ${CATALOG_LABELS[table]}`, table);
     }
@@ -407,11 +406,8 @@ export class TeachingCatalogsService {
       if (!id) {
         return null;
       }
-      const row = (await database
-        .selectFrom(table)
-        .selectAll()
-        .where('id', '=', id)
-        .executeTakeFirst()) as { id: string; org_unit_id: string; status: string; domain_id?: string } | undefined;
+      const row = (await database.selectFrom(table).selectAll().where('id', '=', id).executeTakeFirst()) as
+        { id: string; org_unit_id: string; status: string; domain_id?: string } | undefined;
       if (!row || !allowed.includes(row.org_unit_id) || row.status !== 'active') {
         errors.push({ field, message: `Không tìm thấy ${CATALOG_LABELS[table]} đang dùng của đơn vị` });
         return null;
