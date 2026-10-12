@@ -136,7 +136,14 @@ export interface ClassStaffAssignmentsTable extends CatalogRecordColumns {
   status: Generated<AssignmentStatus>;
 }
 
-export type FilePurpose = 'birth_certificate' | 'photo_consent' | 'import' | 'pickup_photo' | 'payment_voucher';
+export type FilePurpose =
+  | 'birth_certificate'
+  | 'photo_consent'
+  | 'import'
+  | 'pickup_photo'
+  | 'payment_voucher'
+  | 'activity_photo'
+  | 'content_file';
 
 export interface FilesTable extends CatalogRecordColumns {
   org_unit_id: string | null;
@@ -535,9 +542,11 @@ export interface InvoicesTable {
 export interface InvoiceItemsTable {
   id: Generated<string>;
   invoice_id: string;
-  item_type: 'tuition' | 'service' | 'opening';
+  item_type: 'tuition' | 'service' | 'opening' | 'extracurricular';
   service_id: string | null;
   service_registration_id: string | null;
+  // Đăng ký ngoại khóa đã lập khoản thu (YCTD-78)
+  extracurricular_registration_id: ColumnType<string | null, string | null | undefined, string | null>;
   description: string;
   quantity: ColumnType<string, string | number, string | number>;
   unit_price: Money;
@@ -1475,6 +1484,161 @@ export interface PurchaseOrderItemsTable {
   received_qty: Decimal;
 }
 
+// Hoạt động, hình ảnh, tin tức, thư viện, hình tô màu, ngoại khóa, bình luận (YCTD-78)
+export type ActivityStatus = 'draft' | 'pending' | 'published' | 'rejected' | 'hidden';
+export type ContentStatus = 'draft' | 'published' | 'hidden';
+export type ContentScopeType = 'school' | 'unit' | 'class' | 'child';
+export type CommentTargetType = 'activity' | 'news' | 'library_item' | 'library_album';
+export type ExtracurricularFeeType = 'free' | 'per_activity' | 'monthly';
+
+interface AuthoredColumns {
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+interface PublishingColumns {
+  scope_type: ColumnType<ContentScopeType, ContentScopeType | undefined, ContentScopeType>;
+  scope_id: string | null;
+  status: ColumnType<ContentStatus, ContentStatus | undefined, ContentStatus>;
+  published_at: Date | null;
+  published_by: string | null;
+  hidden_reason: string | null;
+  hidden_by: string | null;
+  hidden_at: Date | null;
+}
+
+export interface ContentCatalogTable extends AuthoredColumns {
+  id: Generated<string>;
+  org_unit_id: string;
+  name: string;
+  order_no: Generated<number>;
+  status: Generated<'active' | 'inactive'>;
+}
+
+export interface ActivitiesTable extends AuthoredColumns {
+  id: Generated<string>;
+  org_unit_id: string;
+  class_id: string;
+  category_id: string;
+  title: string;
+  content: string;
+  activity_date: string;
+  status: ActivityStatus;
+  created_by_name: string;
+  submitted_at: Date | null;
+  approved_by: string | null;
+  approved_at: Date | null;
+  reject_reason: string | null;
+  published_at: Date | null;
+  hidden_reason: string | null;
+  hidden_by: string | null;
+  hidden_at: Date | null;
+}
+
+export interface ActivityMediaTable {
+  id: Generated<string>;
+  activity_id: string;
+  file_id: string;
+  caption: string | null;
+  order_no: Generated<number>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface ActivityMediaChildrenTable {
+  media_id: string;
+  child_id: string;
+}
+
+export interface ActivityLikesTable {
+  activity_id: string;
+  user_id: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface NewsTable extends AuthoredColumns, PublishingColumns {
+  id: Generated<string>;
+  org_unit_id: string;
+  category_id: string | null;
+  title: string;
+  summary: string | null;
+  content: string;
+  cover_file_id: string | null;
+}
+
+export interface LibraryAlbumsTable extends AuthoredColumns {
+  id: Generated<string>;
+  org_unit_id: string;
+  topic_id: string | null;
+  title: string;
+  cover_file_id: string | null;
+  status: Generated<'active' | 'inactive'>;
+}
+
+export interface LibraryItemsTable extends AuthoredColumns, PublishingColumns {
+  id: Generated<string>;
+  org_unit_id: string;
+  topic_id: string | null;
+  album_id: string | null;
+  title: string;
+  description: string | null;
+  age_group: string | null;
+  file_id: string | null;
+}
+
+export interface ColoringPagesTable extends AuthoredColumns, PublishingColumns {
+  id: Generated<string>;
+  org_unit_id: string;
+  title: string;
+  topic: string | null;
+  age_group: string | null;
+  file_id: string;
+}
+
+export interface ContentCommentsTable {
+  id: Generated<string>;
+  target_type: CommentTargetType;
+  target_id: string;
+  org_unit_id: string;
+  user_id: string;
+  author_name: string;
+  is_parent: Generated<boolean>;
+  content: string;
+  created_at: CreatedTimestamp;
+  hidden_reason: string | null;
+  hidden_by: string | null;
+  hidden_at: Date | null;
+}
+
+export interface ExtracurricularActivitiesTable extends AuthoredColumns {
+  id: Generated<string>;
+  org_unit_id: string;
+  name: string;
+  description: string | null;
+  start_date: string;
+  end_date: string;
+  grade_levels: ColumnType<string[], string | undefined, string>;
+  quota: number;
+  fee_type: ExtracurricularFeeType;
+  fee_amount: Money;
+  status: Generated<'draft' | 'published' | 'closed'>;
+}
+
+export interface ExtracurricularRegistrationsTable {
+  id: Generated<string>;
+  activity_id: string;
+  child_id: string;
+  org_unit_id: string;
+  registered_by: string;
+  registered_at: CreatedTimestamp;
+  effective_from: string;
+  effective_to: string | null;
+  status: Generated<'active' | 'withdrawn'>;
+  withdrawn_by: string | null;
+  withdrawn_at: Date | null;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -1575,4 +1739,18 @@ export interface SchoolYearDatabase {
   purchase_request_items: PurchaseRequestItemsTable;
   purchase_orders: PurchaseOrdersTable;
   purchase_order_items: PurchaseOrderItemsTable;
+  activity_categories: ContentCatalogTable;
+  news_categories: ContentCatalogTable;
+  library_topics: ContentCatalogTable;
+  activities: ActivitiesTable;
+  activity_media: ActivityMediaTable;
+  activity_media_children: ActivityMediaChildrenTable;
+  activity_likes: ActivityLikesTable;
+  news: NewsTable;
+  library_albums: LibraryAlbumsTable;
+  library_items: LibraryItemsTable;
+  coloring_pages: ColoringPagesTable;
+  content_comments: ContentCommentsTable;
+  extracurricular_activities: ExtracurricularActivitiesTable;
+  extracurricular_registrations: ExtracurricularRegistrationsTable;
 }

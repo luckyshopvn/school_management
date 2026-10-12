@@ -5,6 +5,7 @@ import { useSession } from '../session/session.js';
 import { AuthorizedPickupsPanel, PickupConfirmations } from './PickupSections.js';
 import { InvoicesPanel } from './InvoicesPanel.js';
 import { JournalPanel } from './JournalPanel.js';
+import { ActivitiesPanel } from './ActivitiesPanel.js';
 import { HealthPanel } from './HealthPanel.js';
 import { PhotoConsentPanel } from './PhotoConsentPanel.js';
 import { NotificationsPanel } from './NotificationsPanel.js';
@@ -86,7 +87,16 @@ function AbsenceForm({ child, onDone }: { child: Child; onDone(message: string):
 
 function ChildCard({ child, onMessage }: { child: Child; onMessage(message: string): void }) {
   const [view, setView] = useState<
-    'none' | 'absence' | 'attendance' | 'journal' | 'pickups' | 'services' | 'invoices' | 'consent' | 'health'
+    | 'none'
+    | 'absence'
+    | 'attendance'
+    | 'journal'
+    | 'pickups'
+    | 'services'
+    | 'invoices'
+    | 'consent'
+    | 'health'
+    | 'activities'
   >('none');
   const [attendance, setAttendance] = useState<MonthAttendance>();
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -122,10 +132,12 @@ function ChildCard({ child, onMessage }: { child: Child; onMessage(message: stri
         <Button onClick={() => setView(view === 'invoices' ? 'none' : 'invoices')}>Học phí</Button>
         <Button onClick={() => setView(view === 'consent' ? 'none' : 'consent')}>Hình ảnh</Button>
         <Button onClick={() => setView(view === 'health' ? 'none' : 'health')}>Sức khỏe</Button>
+        <Button onClick={() => setView(view === 'activities' ? 'none' : 'activities')}>Hoạt động</Button>
       </div>
       {view === 'journal' ? <JournalPanel child={child} /> : null}
       {view === 'consent' ? <PhotoConsentPanel child={child} /> : null}
       {view === 'health' ? <HealthPanel child={child} /> : null}
+      {view === 'activities' ? <ActivitiesPanel child={child} /> : null}
       {view === 'pickups' ? <AuthorizedPickupsPanel child={child} /> : null}
       {view === 'services' ? <ServicesPanel child={child} /> : null}
       {view === 'invoices' ? <InvoicesPanel child={child} /> : null}
