@@ -15,6 +15,7 @@ import { writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { queueNotification } from '../common/notification-queue.js';
 import { notFoundError } from '../common/request-fields.js';
+import { assertPeriodOpen } from '../finance/fiscal-period-lock.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { DiscountsService } from './discounts.service.js';
 import { invoiceAmounts, recalculatePendingDiscounts } from './invoice-amounts.js';
@@ -69,6 +70,8 @@ export class FeeCalculationService {
   async calculate(currentUser: CurrentUser, orgUnitId: string, period: Period, origin: ChangeOrigin) {
     await this.organizationScopes.assertCanAccess(currentUser, PERMISSION_CODES.feeCalculationManage, orgUnitId);
     const { database } = await this.currentSchoolYear.require();
+    // Kỳ tài chính đã chốt không tính lại học phí (P06-09, YCTD-82)
+    await assertPeriodOpen(database, orgUnitId, period, 'tính học phí của kỳ này');
     const state = await this.periods.state(database, orgUnitId, period);
     if (!state.is_locked) {
       throw ruleViolationError('BR-26', 'Chốt danh sách đăng ký dịch vụ của kỳ trước khi tính học phí');
@@ -320,6 +323,7 @@ export class FeeCalculationService {
       throw validationError([{ field: 'due_date', message: 'Ngày đến hạn không nhỏ hơn ngày phát hành' }]);
     }
     const { database } = await this.currentSchoolYear.require();
+    await assertPeriodOpen(database, orgUnitId, period, 'phát hành hóa đơn của kỳ này');
     const drafts = await database
       .selectFrom('invoices')
       .innerJoin('children', 'children.id', 'invoices.child_id')
@@ -399,6 +403,7 @@ export class FeeCalculationService {
     if (dueDate < this.today()) {
       throw validationError([{ field: 'due_date', message: 'Ngày đến hạn không nhỏ hơn ngày phát hành' }]);
     }
+    await assertPeriodOpen(database, child.org_unit_id, period, 'lập hóa đơn bổ sung của kỳ này');
     const main = await database
       .selectFrom('invoices')
       .select(['id', 'basis'])

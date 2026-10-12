@@ -13,6 +13,7 @@ import { nextDocumentCode } from '../fees/document-codes.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { SettingsService } from '../settings/settings.service.js';
 import { PaymentReversalsService } from './payment-reversals.service.js';
+import { assertDateOpen } from './fiscal-period-lock.js';
 import { unallocatedReceipts } from './receivables.js';
 
 // Phiếu chi: lập nháp kèm chứng từ, trình duyệt, Ban Giám hiệu duyệt theo hạn mức thì phát hành và trừ nguồn chi
@@ -404,8 +405,10 @@ export class PaymentsService {
     if (payment.payment_type === 'refund') {
       await this.takeRefundFromCredit(transaction, payment.id, payment.child_id ?? '', amount);
     }
-    const code = await nextDocumentCode(transaction, PAYMENT_SEQUENCE, 'PC');
     const today = VIETNAM_DATE.format(this.clock.now());
+    // Kỳ tài chính đã chốt không nhận phiếu chi có ngày thuộc kỳ (P06-09, YCTD-82)
+    await assertDateOpen(transaction, payment.org_unit_id, today, 'phát hành phiếu chi có ngày thuộc kỳ này');
+    const code = await nextDocumentCode(transaction, PAYMENT_SEQUENCE, 'PC');
     await transaction.updateTable('payments').set({ code, payment_date: today }).where('id', '=', payment.id).execute();
     await transaction
       .updateTable('cash_accounts')

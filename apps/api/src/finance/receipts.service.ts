@@ -12,6 +12,7 @@ import { notFoundError } from '../common/request-fields.js';
 import { invoiceAmounts } from '../fees/invoice-amounts.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { nextDocumentCode } from '../fees/document-codes.js';
+import { assertDateOpen } from './fiscal-period-lock.js';
 import { ReceiptReversalsService } from './receipt-reversals.service.js';
 import { guardianUserIds, isGuardianOf, unallocatedReceipts } from './receivables.js';
 
@@ -123,6 +124,8 @@ export class ReceiptsService {
     input: ReceiptInput,
     origin: ChangeOrigin,
   ): Promise<string> {
+    // Kỳ tài chính đã chốt không nhận phiếu thu có ngày thuộc kỳ (P06-09, YCTD-82)
+    await assertDateOpen(transaction, child.org_unit_id, input.receiptDate, 'lập phiếu thu có ngày thuộc kỳ này');
     const settled = await this.checkAllocations(transaction, child.id, input.allocations, input.amount, 'receipt');
     const code = await this.nextCode(transaction);
     const receipt = await transaction
@@ -431,6 +434,12 @@ export class ReceiptsService {
     },
     origin: ChangeOrigin,
   ): Promise<string> {
+    await assertDateOpen(
+      transaction,
+      input.account.org_unit_id,
+      input.receiptDate,
+      'lập phiếu thu có ngày thuộc kỳ này',
+    );
     const code = await this.nextCode(transaction);
     const receipt = await transaction
       .insertInto('receipts')

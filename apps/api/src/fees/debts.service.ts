@@ -12,7 +12,7 @@ import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { invoiceAmounts } from './invoice-amounts.js';
 
 // Công nợ phải thu của trẻ: còn phải nộp = phải nộp của hóa đơn đã phát hành − đã phân bổ từ phiếu thu; số dư có là
-// tiền đã thu chưa phân bổ (P05-09; QT-04 bước 1, 6; BR-32, BR-33; GD-27; YCTD-53). Nhắc nợ là giai đoạn 2 (P05-10)
+// tiền đã thu chưa phân bổ (P05-09; QT-04 bước 1, 6; BR-32, BR-33; GD-27; YCTD-53). Nhắc nợ (P05-10) dùng invoiceRows (YCTD-82)
 const VIEW_PERMISSIONS = [PERMISSION_CODES.debtView, PERMISSION_CODES.receiptManage];
 
 type PaymentStatus = 'unpaid' | 'paid' | 'overdue';
@@ -121,7 +121,7 @@ export class DebtsService {
   }
 
   // Trạng thái thu của hóa đơn tính từ số còn phải nộp và ngày đến hạn, không lưu riêng (QT-04 mục 7)
-  private async invoiceRows(database: Kysely<SchoolYearDatabase>, childIds: string[]) {
+  async invoiceRows(database: Kysely<SchoolYearDatabase>, childIds: string[]) {
     if (childIds.length === 0) {
       return [];
     }

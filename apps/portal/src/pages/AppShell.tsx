@@ -34,6 +34,10 @@ type NavigationPath =
   | '/cash-accounts'
   | '/payments'
   | '/cash-book'
+  | '/debt-collection'
+  | '/bank-reconciliation'
+  | '/payables'
+  | '/fiscal-periods'
   | '/staff'
   | '/staff-attendance'
   | '/school-days'
@@ -132,6 +136,18 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canApprovePayments = useHasPermission(PERMISSION_CODES.paymentApprove);
   const canSeeAccountsAndReceipts = canViewFinance || canCollect || canManageCashAccounts;
   const canSeePayments = canViewFinance || canManagePayments || canApprovePayments;
+  // Tài chính giai đoạn 2 (YCTD-82)
+  const canManageDebtReminders = useHasPermission(PERMISSION_CODES.debtReminderManage);
+  const canProposeDebtResolution = useHasPermission(PERMISSION_CODES.overdueDebtPropose);
+  const canDecideDebtResolution = useHasPermission(PERMISSION_CODES.overdueDebtDecide);
+  const canManageBankTransactions = useHasPermission(PERMISSION_CODES.bankTransactionManage);
+  const canManagePayables = useHasPermission(PERMISSION_CODES.payableManage);
+  const canRequestPeriodClose = useHasPermission(PERMISSION_CODES.periodCloseRequest);
+  const canApprovePeriodClose = useHasPermission(PERMISSION_CODES.periodCloseApprove);
+  const canSeeDebtCollection = canManageDebtReminders || canProposeDebtResolution || canDecideDebtResolution;
+  const canSeeBankReconciliation = canManageBankTransactions || canViewFinance;
+  const canSeePayables = canManagePayables || canViewFinance;
+  const canSeeFiscalPeriods = canRequestPeriodClose || canApprovePeriodClose;
 
   return (
     <div className="flex min-h-screen">
@@ -173,7 +189,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             </ul>
           </>
         ) : null}
-        {canViewFees || canViewCashflow || canSeeRegistrations || canViewDebts ? (
+        {canViewFees ||
+        canViewCashflow ||
+        canSeeRegistrations ||
+        canViewDebts ||
+        canSeeDebtCollection ||
+        canSeeFiscalPeriods ? (
           <>
             <span className="px-3 text-label font-semibold text-text-muted">HỌC PHÍ VÀ TÀI CHÍNH</span>
             <ul className="flex flex-col gap-1">
@@ -186,6 +207,10 @@ export function AppShell({ children }: { children: ReactNode }) {
               {canSeePayments ? <NavItem to="/payments" label="Phiếu chi" /> : null}
               {canSeeAccountsAndReceipts ? <NavItem to="/cash-accounts" label="Quỹ và ngân hàng" /> : null}
               {canSeeAccountsAndReceipts ? <NavItem to="/cash-book" label="Sổ quỹ" /> : null}
+              {canSeeDebtCollection ? <NavItem to="/debt-collection" label="Nhắc nợ và xử lý quá hạn" /> : null}
+              {canSeeBankReconciliation ? <NavItem to="/bank-reconciliation" label="Đối chiếu ngân hàng" /> : null}
+              {canSeePayables ? <NavItem to="/payables" label="Nợ nhà cung cấp" /> : null}
+              {canSeeFiscalPeriods ? <NavItem to="/fiscal-periods" label="Chốt kỳ tài chính" /> : null}
               {canViewCashflow ? <NavItem to="/cashflow-categories" label="Khoản mục thu chi" /> : null}
             </ul>
           </>
