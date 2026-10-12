@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.17
+- Phiên bản: 1.18
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -345,6 +345,13 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-270 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P06-06 / Khi quản lý đơn vị xác nhận đề xuất bị từ chối / Thì quản lý đơn vị xác nhận đề xuất bị từ chối; kế toán xác nhận thì lập phiếu thu PT, dòng đã khớp, hóa đơn hết nợ, số dư tài khoản tăng đúng; xác nhận lần hai trả 409; dòng số tiền nhỏ hơn số còn nợ trả 422 BR-31; dòng gõ tay có mã hóa đơn được đề xuất, bỏ đề xuất được, bỏ lần hai trả 409 (YCTD-89) |
 | AC-271 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P06-06 / Khi cấu hình `bank_match_days` = 1 thì dòng lệch 2 ngày không khớp / Thì cấu hình `bank_match_days` = 1 thì dòng lệch 2 ngày không khớp; bỏ cấu hình (mặc định 3) thì khớp (YCTD-89) |
 | AC-272 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P06-11 / Khi máy chủ bật hai cổng (giả lập là mặc định, VietQR tĩnh) / Thì máy chủ bật hai cổng (giả lập là mặc định, VietQR tĩnh); chọn VietQR tĩnh thiếu mã BIN, mã BIN sai, cổng chưa bật trả 400, kế toán đơn vị khác trả 403; mã QR của tài khoản chọn VietQR tĩnh là chuỗi EMVCo chứa mã BIN, số tài khoản thật, nội dung là mã hóa đơn bỏ gạch, CRC đúng; bỏ chọn thì về cổng giả lập, mã cũ bị hủy; điểm cuối giả lập vẫn chạy (YCTD-89) |
+| AC-273 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P06-12 / Khi xem hệ thống tài khoản khởi tạo; kế toán đơn vị thêm tài khoản chi tiết; kế toán trưởng ở Trường chính thêm 1121 dưới 111, thêm 1111, thêm trùng; sửa tài khoản theo chế độ; đổi tên tài khoản chi tiết / Thì có 111, 131, 334, 3335, 421, 531, 642; giáo viên 403; kế toán đơn vị 403; sai cha 422; thêm 1111 được; trùng 409; sửa tài khoản theo chế độ 422 (YCTD-88) |
+| AC-274 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P06-12 / Khi có hóa đơn 1 000 000, phiếu thu tiền mặt 600 000, miễn giảm 100 000, phiếu chi ngân hàng 200 000, đảo phiếu thu 50 000, bảng lương thu nhập 5 000 000 khấu trừ 500 000 thuế 100 000; ghi sổ chứng từ hai lần; xem bảng cân đối của đơn vị và đơn vị khác / Thì lần đầu 6 bút toán đúng quy tắc mặc định, lần hai 0; mọi bút toán cân; 131 dư Nợ 350 000, 111 dư Nợ 550 000, 112 dư Có 200 000, 334 dư Có 4 400 000; sổ cân; đơn vị khác không có số liệu; kế toán đơn vị khác 403 (YCTD-88) |
+| AC-275 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P06-12 / Khi sửa quy tắc phiếu chi điền phía tiền; quy tắc theo khoản mục cho hóa đơn; kế toán đơn vị sửa quy tắc; kế toán trưởng đặt phiếu thu khoản mục tài trợ Có 3371 và tiền mặt 1111; phiếu thu mới 300 000; ngừng dùng 1111; bỏ quy tắc chung và quy tắc theo khoản mục / Thì 400, 400, 403; bút toán mới Nợ 1111 / Có 3371, bút toán cũ không đổi; ngừng dùng 422; bỏ quy tắc chung 422, theo khoản mục 200 (YCTD-88) |
+| AC-276 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P06-12 / Khi ghi bút toán thủ công lệch, dòng ghi hai phía, ngày mai, đơn vị ngoài phạm vi, bút toán đúng, gửi lại cùng mã yêu cầu; hủy không lý do, có lý do, hủy lần hai; hủy bút toán tự động / Thì 400, 400, 400, 403; ghi được 300 000; gửi lại trả cùng bút toán; 400; hủy được; 409; 409; bút toán đã hủy không vào bảng cân đối (YCTD-88) |
+| AC-277 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P06-12 / Khi ghi bút toán ngày tháng trước; chốt kỳ tháng trước; ghi thêm và hủy bút toán ngày thuộc kỳ / Thì trước chốt ghi được; sau chốt 422 mã BR-95 cho cả ghi và hủy (YCTD-88) |
+| AC-278 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P06-12 / Khi xem sổ cái tài khoản 111 trong ngày; thiếu tài khoản; bảng cân đối toàn trường; kế toán xuất Excel bảng cân đối của đơn vị; kế toán đơn vị khác xuất sổ nhật ký chung của đơn vị / Thì gồm dòng 1111 đối ứng 3371 và dòng đối ứng 131; đầu kỳ dư Có 1 000 000, phát sinh Nợ 900 000, Có 50 000, cuối kỳ dư Có 150 000; thiếu tài khoản 400; toàn trường cân; tệp xlsx; 403 (YCTD-88) |
+| AC-279 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P06-12 / Khi mở năm học mới / Thì năm mới giữ tài khoản 1111 (cùng mã) và quy tắc tiền mặt 1111; bút toán số dư đầu năm của đơn vị cân, 131 dư Nợ 350 000, 3371 dư Có 300 000, không còn tài khoản loại 5–9, 421 dư Nợ 4 300 000; ngày bằng ngày bắt đầu năm học (YCTD-88) |
 
 ## 20. Chưa xác minh được
 

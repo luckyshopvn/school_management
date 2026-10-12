@@ -14,6 +14,27 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-11 phần 11c: sổ kế toán kép
+
+#### Công việc đã thực hiện
+
+- Agent 11c viết mã, kiểm thử máy chủ, nháp tài liệu trong worktree riêng (dừng giữa chừng vì giới hạn phiên rồi làm tiếp); người điều phối gộp nhánh 11d (đã gồm 11a, 11b, 11e), thêm chức năng P06-12 và quy tắc BR-96, đánh số bảy kịch bản mới CT-229 đến CT-235 kèm AC-273 đến AC-279, chạy toàn bộ kiểm thử, đưa nháp vào tài liệu.
+- Cơ sở dữ liệu: bốn bảng (tệp 0042). Máy chủ API: hệ thống tài khoản, quy tắc ghi sổ theo loại chứng từ và khoản mục, ghi sổ tự động một lần cho mỗi chứng từ (phiếu thu, phiếu chi, phiếu đảo, hóa đơn, miễn giảm, điều chỉnh, bảng lương, quyết toán), bút toán thủ công cân, nhật ký chung, sổ cái, bảng cân đối số phát sinh, xuất Excel; bước chuyển năm học `ledger` kết chuyển số dư đầu kỳ.
+- Cổng quản trị: trang Sổ kế toán.
+- Kết quả: máy chủ API 518/518, kiểm thử giao diện 62/62.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-88 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-88 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.47.0.
+
+#### Vấn đề tồn đọng
+
+- Báo cáo kiểm thử giai đoạn 3 và bản ứng viên 1.2.0.
+
 ### 2026-10-11 — DT-11 phần 11d: nhập sao kê và đối soát
 
 #### Công việc đã thực hiện

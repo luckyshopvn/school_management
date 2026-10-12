@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.54
+- Phiên bản: 1.55
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -153,6 +153,10 @@ Ràng buộc duy nhất: `invoices` loại chính trên bộ ba trẻ, kỳ năm
 | bank_statement_lines | Dòng sao kê ngân hàng nhập tay để đối chiếu, không đổi số dư (P06-06, YCTD-82) | account_id (tài khoản ngân hàng), org_unit_id, transaction_date, amount (vào dương, ra âm, khác 0), description, bank_reference, status (chưa khớp, đã khớp), matched_transaction_id (duy nhất, tới account_transactions), matched_by, matched_at, created_by |
 | bank_statement_profiles | Cấu hình cột của tệp sao kê theo tài khoản ngân hàng, dùng lại cho các lần nhập (G3-05, YCTD-89) | account_id (duy nhất, tới cash_accounts), org_unit_id, header_row (1 đến 50), date_column, date_format (dmy, ymd, mdy), amount_mode (signed, split), amount_column, credit_column, debit_column, description_column, reference_column, updated_by, created_at, updated_at |
 | bank_statement_imports | Mỗi lần nhập tệp sao kê và kết quả (G3-05, YCTD-89) | account_id, org_unit_id, file_name, file_format (xlsx, csv), total_rows, imported_count, duplicate_count, error_count, auto_matched_count, suggested_count, errors (jsonb: row, column, message), duplicates (jsonb), created_by, created_at |
+| ledger_accounts | Hệ thống tài khoản kế toán dùng chung toàn trường theo chế độ hành chính, sự nghiệp (Thông tư 24/2024/TT-BTC) và tài khoản chi tiết do kế toán thêm (YCTD-88) | id, code (duy nhất, 3–12 chữ số), name, parent_id, normal_balance (debit, credit, both), is_system, status, created_by |
+| ledger_posting_rules | Quy tắc ghi sổ tự động theo loại chứng từ, có thể riêng theo khoản mục thu chi; phía trống là tài khoản tiền của quỹ (YCTD-88) | id, document_type, category_id (duy nhất cùng document_type, kể cả trống), debit_account_id, credit_account_id, updated_by |
+| journal_entries | Bút toán theo đơn vị: tự động từ chứng từ, thủ công, số dư đầu năm; số BT-000001 toàn trường trong năm học (YCTD-88) | id, code, org_unit_id, entry_date, description, entry_type (auto, manual, opening), source_type, source_id, source_code (duy nhất source_type + source_id + org_unit_id), total_amount, status (posted, voided; chỉ thủ công được hủy), request_key, created_by, voided_by, voided_at, void_reason |
+| journal_lines | Dòng bút toán, mỗi dòng một phía Nợ hoặc Có (YCTD-88) | id, entry_id, line_no, account_id, debit, credit, description |
 
 Ràng buộc duy nhất: `receipts` trên bộ đôi đơn vị và mã phiếu thu; `payments` trên bộ đôi đơn vị và mã phiếu chi.
 

@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.47.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-11 phần 11c, sổ kế toán kép theo chế độ kế toán hành chính, sự nghiệp (YCTD-88).
+- Chức năng mới: P06-12 (mới) trên máy chủ API và cổng quản trị (MH-67, MH-68, MH-69).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: bốn bảng sổ kế toán của năm học kèm danh mục tài khoản và quy tắc ghi sổ khởi tạo (tệp 0042).
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: danh mục tài khoản khởi tạo cần kế toán trưởng đối chiếu văn bản gốc; kết chuyển theo năm học, không theo năm dương lịch.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-11-phan-11c`; chạy ngược tệp 0042 của cơ sở dữ liệu năm học.
+
 ### Phiên bản 0.46.0 – 2026-10-11
 
 - Phạm vi thay đổi: DT-11 phần 11d, nhập sao kê ngân hàng, đối soát tự động, nhiều cổng thanh toán (YCTD-89).

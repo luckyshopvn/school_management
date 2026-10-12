@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.33
+- Phiên bản: 1.34
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -311,8 +311,15 @@
 | CT-226 | P06-06 | quản lý đơn vị xác nhận đề xuất bị từ chối | quản lý đơn vị xác nhận đề xuất bị từ chối; kế toán xác nhận thì lập phiếu thu PT, dòng đã khớp, hóa đơn hết nợ, số dư tài khoản tăng đúng; xác nhận lần hai trả 409; dòng số tiền nhỏ hơn số còn nợ trả 422 BR-31; dòng gõ tay có mã hóa đơn được đề xuất, bỏ đề xuất được, bỏ lần hai trả 409 | Kiểm thử tự động `apps/api/src/finance/bank-statement-import.test.ts` đạt ngày 12/10/2026 | Đạt |
 | CT-227 | P06-06 | cấu hình `bank_match_days` = 1 thì dòng lệch 2 ngày không khớp; bỏ cấu hình (mặc định 3) thì khớp | cấu hình `bank_match_days` = 1 thì dòng lệch 2 ngày không khớp; bỏ cấu hình (mặc định 3) thì khớp | Kiểm thử tự động `apps/api/src/finance/bank-statement-import.test.ts` đạt ngày 12/10/2026 | Đạt |
 | CT-228 | P06-11 | máy chủ bật hai cổng (giả lập là mặc định, VietQR tĩnh) | máy chủ bật hai cổng (giả lập là mặc định, VietQR tĩnh); chọn VietQR tĩnh thiếu mã BIN, mã BIN sai, cổng chưa bật trả 400, kế toán đơn vị khác trả 403; mã QR của tài khoản chọn VietQR tĩnh là chuỗi EMVCo chứa mã BIN, số tài khoản thật, nội dung là mã hóa đơn bỏ gạch, CRC đúng; bỏ chọn thì về cổng giả lập, mã cũ bị hủy; điểm cuối giả lập vẫn chạy | Kiểm thử tự động `apps/api/src/finance/bank-statement-import.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-229 | P06-12 | Xem hệ thống tài khoản khởi tạo; kế toán đơn vị thêm tài khoản chi tiết; kế toán trưởng ở Trường chính thêm 1121 dưới 111, thêm 1111, thêm trùng; sửa tài khoản theo chế độ; đổi tên tài khoản chi tiết | Có 111, 131, 334, 3335, 421, 531, 642; giáo viên 403; kế toán đơn vị 403; sai cha 422; thêm 1111 được; trùng 409; sửa tài khoản theo chế độ 422 | Kiểm thử tự động `apps/api/src/ledger/ledger.test.ts` đạt ngày 12/10/2026; Kiểm thử giao diện `tests/e2e/42-ledger.spec.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-230 | P06-12 | Có hóa đơn 1 000 000, phiếu thu tiền mặt 600 000, miễn giảm 100 000, phiếu chi ngân hàng 200 000, đảo phiếu thu 50 000, bảng lương thu nhập 5 000 000 khấu trừ 500 000 thuế 100 000; ghi sổ chứng từ hai lần; xem bảng cân đối của đơn vị và đơn vị khác | Lần đầu 6 bút toán đúng quy tắc mặc định, lần hai 0; mọi bút toán cân; 131 dư Nợ 350 000, 111 dư Nợ 550 000, 112 dư Có 200 000, 334 dư Có 4 400 000; sổ cân; đơn vị khác không có số liệu; kế toán đơn vị khác 403 | Kiểm thử tự động `apps/api/src/ledger/ledger.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-231 | P06-12 | Sửa quy tắc phiếu chi điền phía tiền; quy tắc theo khoản mục cho hóa đơn; kế toán đơn vị sửa quy tắc; kế toán trưởng đặt phiếu thu khoản mục tài trợ Có 3371 và tiền mặt 1111; phiếu thu mới 300 000; ngừng dùng 1111; bỏ quy tắc chung và quy tắc theo khoản mục | 400, 400, 403; bút toán mới Nợ 1111 / Có 3371, bút toán cũ không đổi; ngừng dùng 422; bỏ quy tắc chung 422, theo khoản mục 200 | Kiểm thử tự động `apps/api/src/ledger/ledger.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-232 | P06-12 | Ghi bút toán thủ công lệch, dòng ghi hai phía, ngày mai, đơn vị ngoài phạm vi, bút toán đúng, gửi lại cùng mã yêu cầu; hủy không lý do, có lý do, hủy lần hai; hủy bút toán tự động | 400, 400, 400, 403; ghi được 300 000; gửi lại trả cùng bút toán; 400; hủy được; 409; 409; bút toán đã hủy không vào bảng cân đối | Kiểm thử tự động `apps/api/src/ledger/ledger.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-233 | P06-12 | Ghi bút toán ngày tháng trước; chốt kỳ tháng trước; ghi thêm và hủy bút toán ngày thuộc kỳ | Trước chốt ghi được; sau chốt 422 mã BR-95 cho cả ghi và hủy | Kiểm thử tự động `apps/api/src/ledger/ledger.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-234 | P06-12 | Xem sổ cái tài khoản 111 trong ngày; thiếu tài khoản; bảng cân đối toàn trường; kế toán xuất Excel bảng cân đối của đơn vị; kế toán đơn vị khác xuất sổ nhật ký chung của đơn vị | Gồm dòng 1111 đối ứng 3371 và dòng đối ứng 131; đầu kỳ dư Có 1 000 000, phát sinh Nợ 900 000, Có 50 000, cuối kỳ dư Có 150 000; thiếu tài khoản 400; toàn trường cân; tệp xlsx; 403 | Kiểm thử tự động `apps/api/src/ledger/ledger.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-235 | P06-12 | Mở năm học mới | Năm mới giữ tài khoản 1111 (cùng mã) và quy tắc tiền mặt 1111; bút toán số dư đầu năm của đơn vị cân, 131 dư Nợ 350 000, 3371 dư Có 300 000, không còn tài khoản loại 5–9, 421 dư Nợ 4 300 000; ngày bằng ngày bắt đầu năm học | Kiểm thử tự động `apps/api/src/ledger/ledger.test.ts` đạt ngày 12/10/2026 | Đạt |
 
-Ca CT-105 đến CT-228 lần lượt kiểm tra AC-149 đến AC-272.
+Ca CT-105 đến CT-235 lần lượt kiểm tra AC-149 đến AC-279.
 
 ## 16. Chưa xác minh được
 

@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.44
+- Phiên bản: 1.45
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -112,6 +112,9 @@ flowchart TD
 | MH-65 | Trang tuyển dụng công khai trong ứng dụng phụ huynh, mở từ liên kết “Tuyển dụng giáo viên và nhân viên” trên màn hình đăng nhập, không cần tài khoản: tin đã công bố còn hạn, biểu mẫu nộp hồ sơ kèm hồ sơ xin việc và đồng ý xử lý dữ liệu cá nhân (YCTD-87) | Người ngoài trường |
 | MH-63 | Đợt và tin tuyển sinh: trang Tuyển sinh thẻ Đợt tuyển sinh (lập, mở, đóng đợt, số hồ sơ và chỉ tiêu) và thẻ Tin tuyển sinh (soạn, công bố, ẩn tin kèm thời hạn) (YCTD-86) | VT-12, VT-03 |
 | MH-70 | Nhập tệp sao kê (phần của trang Đối chiếu ngân hàng): cấu hình cột theo tài khoản (dòng tiêu đề, cột ngày và cách ghi ngày, một cột số tiền có dấu hoặc hai cột tiền vào, tiền ra, cột diễn giải, cột số tham chiếu), chọn tệp Excel hoặc CSV, kết quả nhập (đã ghi, trùng bỏ qua, lỗi theo dòng, khớp tự động, đề xuất lập phiếu thu) (YCTD-89) | VT-04, VT-05 |
+| MH-67 | Sổ kế toán, thẻ Nhật ký chung: lọc đơn vị (hoặc mọi đơn vị trong phạm vi) và khoảng ngày; nút Ghi sổ chứng từ; bút toán theo ngày kèm dòng Nợ / Có, loại (tự động, thủ công, số dư đầu năm, đã hủy); ghi bút toán thủ công nhiều dòng có tổng Nợ / Có; hủy bút toán thủ công kèm lý do; xuất Excel (YCTD-88) | VT-04, VT-05 ghi; VT-02, VT-15, VT-20 xem |
+| MH-68 | Sổ kế toán, thẻ Sổ cái (chọn tài khoản, số dư đầu, dòng có tài khoản đối ứng, số dư lũy kế, số dư cuối) và thẻ Cân đối số phát sinh (theo tài khoản, tài khoản chi tiết thụt vào, dòng tổng, báo sổ cân hoặc lệch); xuất Excel (YCTD-88) | VT-02, VT-15, VT-04, VT-05, VT-20 |
+| MH-69 | Sổ kế toán, thẻ Hệ thống tài khoản kế toán (danh sách theo cấp, thêm tài khoản chi tiết) và thẻ Quy tắc ghi sổ (theo loại chứng từ và khoản mục, sửa tài khoản Nợ / Có, bỏ quy tắc theo khoản mục) (YCTD-88) | VT-04, VT-05 ở Trường chính sửa; người xem sổ xem |
 
 ### 2.2 Ứng dụng giáo viên
 
