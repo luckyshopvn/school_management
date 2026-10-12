@@ -38,6 +38,7 @@ import { KitchenPage } from './kitchen/KitchenPage.js';
 import { MedicinesPage } from './medicines/MedicinesPage.js';
 import { InventoryPage } from './inventory/InventoryPage.js';
 import { PurchaseRequestsPage } from './inventory/PurchaseRequestsPage.js';
+import { TeachingPage } from './teaching/TeachingPage.js';
 import { StaffAttendancePage } from './staff-attendance/StaffAttendancePage.js';
 import { ImportsPage } from './imports/ImportsPage.js';
 import { OrgUnitsPage } from './org-units/OrgUnitsPage.js';
@@ -109,6 +110,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/inventory', component: InventoryPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/activities', component: ActivitiesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/purchase-requests', component: PurchaseRequestsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/teaching', component: TeachingPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/leave-requests', component: LeaveRequestsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/leave-policies', component: LeavePoliciesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/payrolls', component: PayrollPage }),

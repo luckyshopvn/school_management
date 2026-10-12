@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.38.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-10 phần 10g, giảng dạy: bài học, giáo án, thời khóa biểu, kế hoạch, tiến độ học tập (YCTD-80).
+- Chức năng mới: P03-01 đến P03-08 (trừ tổ chuyên môn) trên máy chủ API, cổng quản trị (MH-57), ứng dụng giáo viên (MG-05, MG-06), ứng dụng phụ huynh (MP-04, MP-05).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: mười bảng giảng dạy của năm học (tệp 0036).
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: tổ trưởng chuyên môn xem theo đơn vị được gán vì chưa có bảng tổ chuyên môn.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-10-phan-10g`; chạy ngược tệp 0036 của cơ sở dữ liệu năm học.
+
 ### Phiên bản 0.37.0 – 2026-10-11
 
 - Phạm vi thay đổi: DT-10 phần 10f, tương tác với phụ huynh và đồ bị mất của trẻ (YCTD-79).

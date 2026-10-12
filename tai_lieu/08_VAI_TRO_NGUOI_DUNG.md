@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.39
+- Phiên bản: 1.40
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -139,6 +139,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-41 | Bếp và thực đơn (YCTD-76): `P12.kitchen.manage` cho VT-10 quản lý nguyên liệu, món, định lượng, thực đơn nháp, tính suất ăn, buffet, nhà cung cấp thực phẩm, phiếu đi chợ trong đơn vị; `P12.menu.approve` cho VT-03 duyệt và công bố thực đơn, duyệt buffet trong đơn vị; `P12.meal-report.submit` cho VT-07 báo cơm lớp mình chủ nhiệm; `P17.report.kitchen` cho VT-10, VT-04 xem báo cáo ăn và bếp; kế toán có `P06.payment.manage` gắn phiếu chi cho phiếu đi chợ chờ thanh toán; phụ huynh chỉ xem thực đơn đã công bố của con |
 | PQ-43 | Hoạt động, hình ảnh, tin tức, thư viện, ngoại khóa (YCTD-78): `P14.activity.create` cho VT-07, VT-08 lập hoạt động và tải ảnh cho lớp được phân công; `P14.activity.approve` cho VT-03, VT-15, VT-02 duyệt, từ chối, ẩn, công bố lại hoạt động và ẩn bình luận trong đơn vị; `P14.content.manage` cho VT-03 quản lý danh mục hoạt động, danh mục tin tức, tin tức; `P14.library.manage` cho VT-03 (mọi phạm vi trong đơn vị) và VT-07 (lớp mình, nội dung mình tạo) quản lý chủ đề, album, thư viện, hình tô màu; `P14.extracurricular.manage` cho VT-03, VT-07 lập hoạt động ngoại khóa và đăng ký thay; `P14.comment.moderate` cho VT-03 (đơn vị) và VT-07 (hoạt động của lớp mình, nội dung mình tạo) ẩn bình luận kèm lý do; `P05.registration.manage` (VT-04) đăng ký ngoại khóa thay phụ huynh; phụ huynh đăng ký, thích, bình luận cho con mình không cần mã quyền; không ai xóa được bình luận |
 | PQ-44 | Tương tác và đồ bị mất (YCTD-79): `P15.interaction.manage` cho VT-03, VT-02, VT-15 lập bình chọn, biểu quyết, khảo sát và danh mục khảo sát, xem và công bố kết quả, xử lý góp ý, ẩn bình luận kèm lý do trong phạm vi đơn vị; `P15.message.send` cho VT-07 trao đổi với phụ huynh của trẻ trong lớp được phân công và VT-03 trong đơn vị; `P02.lost-item.manage` cho VT-07 với phiếu của lớp mình và VT-03 trong đơn vị; phụ huynh nhắn giáo viên, góp ý, báo mất đồ cho con mình, trả lời bình chọn mình là đối tượng mà không cần mã quyền riêng |
+| PQ-45 | Giảng dạy (YCTD-80): `P03.lesson.manage` cho VT-07, VT-08 soạn bài học (chỉ người soạn sửa) và giáo án cho lớp đang được phân công; `P03.lesson-plan.review` cho VT-17 duyệt bước trước và VT-03 duyệt bước sau, công bố giáo án trong đơn vị được gán, không tự duyệt; `P03.curriculum.manage` cho VT-03 trong đơn vị và VT-07 (chủ nhiệm lớp với dữ liệu của lớp) quản lý lĩnh vực, nhóm bài học, chủ đề, thời khóa biểu, kế hoạch giảng dạy, lịch hoạt động lớp; `P03.progress.record` cho VT-07 ghi và công bố tiến độ học tập của trẻ trong lớp đang được phân công; phụ huynh chỉ đọc thời khóa biểu, lịch hoạt động, tiến độ đã công bố của lớp và của con |
 
 ## 5. Phân cấp phê duyệt
 

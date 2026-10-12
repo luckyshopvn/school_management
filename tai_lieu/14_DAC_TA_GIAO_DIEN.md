@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.36
+- Phiên bản: 1.37
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -102,6 +102,7 @@ flowchart TD
 | MH-54 | Quyết toán và điều chỉnh lương: hợp đồng đã chấm dứt, bảng quyết toán, trình và duyệt, phiếu chi quyết toán, phiếu thu thu hồi lương; khoản điều chỉnh lương kỳ sau (YCTD-61) | VT-04, VT-15, VT-02, người xem bảng lương |
 | MH-56 | Lịch công tác: chọn đơn vị và tháng, lập lịch công tác hoặc nghỉ cho nhân sự, xóa, công bố lịch nháp của tháng (YCTD-68) | VT-06, VT-03; người xem chấm công chỉ xem |
 | MH-55 | Thông báo: thông báo của tôi, chỉ chưa đọc, đánh dấu đã đọc, ai đã đọc; mẫu thông báo (YCTD-64) | Mọi nhân sự dùng cổng quản trị; mẫu cho VT-02, VT-03 gán ở Trường chính |
+| MH-57 | Bài học và giáo án: thẻ Giáo án chờ duyệt, thẻ Bài học lọc theo lĩnh vực, thẻ Lĩnh vực và chủ đề (thêm lĩnh vực, nhóm, chủ đề của đơn vị), thẻ Thời khóa biểu và kế hoạch (chọn lớp và tuần, lưu bản nháp, công bố thời khóa biểu; lập kế hoạch học kỳ) (YCTD-80) | VT-17, VT-03, VT-07 |
 
 ### 2.2 Ứng dụng giáo viên
 
@@ -111,8 +112,8 @@ flowchart TD
 | MG-02 | Bảng điểm danh của lớp | VT-07 |
 | MG-03 | Nhật ký của bé theo ngày: ghi ăn, ngủ, vệ sinh, tâm trạng, hoạt động cho từng trẻ, công bố cả lớp (YCTD-65) | VT-07 chủ nhiệm |
 | MG-04 | Đón trả trẻ: chọn người đón, ảnh bàn giao tùy chọn, trạng thái chờ phụ huynh xác nhận (YCTD-48) | VT-07 |
-| MG-05 | Giáo án, bài học, thời khóa biểu | VT-07, VT-08 |
-| MG-06 | Tiến độ và kế hoạch giảng dạy | VT-07 |
+| MG-05 | Giáo án, bài học, thời khóa biểu: màn hình Giảng dạy lớp (nút "Giảng dạy" trên danh sách lớp) tạo bài học, soạn giáo án, gửi duyệt, xem trạng thái và góp ý; thời khóa biểu tuần này (YCTD-80) | VT-07, VT-08 |
+| MG-06 | Tiến độ và kế hoạch giảng dạy: trên màn hình Giảng dạy lớp, lập và công bố lịch hoạt động 14 ngày tới, ghi chỉ số tiến độ theo học kỳ cho từng trẻ và công bố phiếu; kế hoạch giảng dạy lập trên cổng quản trị (YCTD-80) | VT-07 |
 | MG-07 | Tạo hoạt động và album hình ảnh: nút "Hoạt động và hình ảnh" ở mỗi lớp, tạo hoạt động gửi duyệt hoặc lưu nháp, tải ảnh và gắn thẻ trẻ, ghi chú trẻ chưa đồng ý hình ảnh, xem trạng thái và lý do từ chối (YCTD-78) | VT-07, VT-08 |
 | MG-08 | Trao đổi với phụ huynh: luồng của trẻ trong lớp kèm số tin chưa đọc, trả lời, nhắn phụ huynh một trẻ (YCTD-79) | VT-07 |
 | MG-09 | Chăm sóc và y tế của lớp: ghi nhiệt độ, tình trạng, chăm sóc đặc biệt, sự kiện y tế cho từng trẻ (YCTD-74); màn hình dặn thuốc của lớp: xem yêu cầu và ảnh thuốc, nhận thuốc, từ chối, ghi liều hoặc bỏ liều khi đơn vị không có nhân viên y tế (YCTD-75) | VT-07 |
@@ -123,7 +124,7 @@ flowchart TD
 | MG-14 | Báo cơm của lớp: sĩ số, số trẻ có mặt theo điểm danh đã lưu, gửi số suất cho bếp khi chưa chốt điểm danh (YCTD-76) | VT-07 chủ nhiệm |
 | MG-15 | Đồ bị mất của lớp: phiếu của lớp, đánh dấu đã tìm thấy, đã trả, không tìm thấy; ghi nhận đồ nhặt được (YCTD-79); chung màn hình với MG-08 | VT-07 |
 | MG-16 | Xác nhận người đón tại cổng: tìm trẻ trong đơn vị, xác nhận người được đón (YCTD-48) | VT-18 |
-| MG-17 | Duyệt giáo án của tổ | VT-17 |
+| MG-17 | Duyệt giáo án của tổ: làm trên cổng quản trị, trang Bài học và giáo án, thẻ Giáo án chờ duyệt (duyệt hoặc trả lại kèm góp ý); chưa có trên ứng dụng giáo viên (YCTD-80) | VT-17, VT-03 |
 
 ### 2.3 Ứng dụng phụ huynh
 
@@ -132,8 +133,8 @@ flowchart TD
 | MP-01 | Trang của con; mục hình ảnh để đồng ý hoặc rút đồng ý sử dụng hình ảnh, xem lịch sử (YCTD-67) | VT-14 |
 | MP-02 | Điểm danh của con | VT-14 |
 | MP-03 | Nhật ký của con theo tháng, chỉ nhật ký đã công bố (YCTD-65) | VT-14 |
-| MP-04 | Thời khóa biểu và lịch hoạt động lớp | VT-14 |
-| MP-05 | Tiến độ học tập | VT-14 |
+| MP-04 | Thời khóa biểu và lịch hoạt động lớp: bảng Học tập trên thẻ của trẻ, chỉ bản đã công bố (YCTD-80) | VT-14 |
+| MP-05 | Tiến độ học tập: bảng Học tập trên thẻ của trẻ, phiếu đã công bố (YCTD-80) | VT-14 |
 | MP-06 | Báo vắng | VT-14 |
 | MP-07 | Dặn thuốc: gửi yêu cầu kèm ảnh thuốc, ảnh đơn thuốc nếu có; xem trạng thái, liều đã cho uống, liều bỏ và nút đã biết (YCTD-75) | VT-14 |
 | MP-08 | Sức khỏe của con: dị ứng, chỉ số và kết quả khám kèm đánh giá, sự kiện y tế và nút đã biết, chăm sóc hằng ngày, yêu cầu và xem báo cáo sức khỏe (YCTD-74); xác nhận bỏ liều ở mục Dặn thuốc (MP-07, YCTD-75) | VT-14 |

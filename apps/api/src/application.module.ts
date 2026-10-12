@@ -65,6 +65,12 @@ import {
 import { ExtracurricularController, ExtracurricularService } from './activities/extracurricular.js';
 import { PurchasingController, PurchasingService } from './inventory/purchasing.js';
 import { StockController, StockService } from './inventory/stock.js';
+import { ChildProgressController, ChildProgressService } from './teaching/child-progress.js';
+import { ClassTeachingController, ClassTeachingService } from './teaching/class-teaching.js';
+import { LessonPlansController, LessonPlansService } from './teaching/lesson-plans.js';
+import { TeachingAccess } from './teaching/teaching-access.js';
+import { TeachingCatalogsController, TeachingCatalogsService } from './teaching/teaching-catalogs.js';
+import { teachingTransitionStep } from './teaching/teaching-transition.js';
 import { InteractionCommentsController, InteractionCommentsService } from './interactions/comments.js';
 import { FeedbacksController, FeedbacksService } from './interactions/feedbacks.js';
 import { InteractionAccess } from './interactions/interaction-access.js';
@@ -188,6 +194,10 @@ export class ApplicationModule {
         AssetsController,
         StockController,
         PurchasingController,
+        TeachingCatalogsController,
+        LessonPlansController,
+        ClassTeachingController,
+        ChildProgressController,
         MessagesController,
         FeedbacksController,
         PollsController,
@@ -257,6 +267,7 @@ export class ApplicationModule {
             kitchenTransitionStep,
             medicinesTransitionStep,
             inventoryTransitionStep,
+            teachingTransitionStep,
             interactionsTransitionStep,
             activitiesTransitionStep,
             ...(options.transitionSteps ?? []),
@@ -297,6 +308,11 @@ export class ApplicationModule {
         AssetsService,
         StockService,
         PurchasingService,
+        TeachingAccess,
+        TeachingCatalogsService,
+        LessonPlansService,
+        ClassTeachingService,
+        ChildProgressService,
         InteractionAccess,
         MessagesService,
         FeedbacksService,

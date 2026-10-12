@@ -13,6 +13,7 @@ import { PayslipsScreen } from './screens/PayslipsScreen.js';
 import { LoginScreen } from './screens/LoginScreen.js';
 import { MedicationScreen } from './screens/MedicationScreen.js';
 import { PickupScreen } from './screens/PickupScreen.js';
+import { TeachingScreen } from './screens/TeachingScreen.js';
 import { SessionProvider, useSession } from './session/session.js';
 
 // Chọn màn hình theo trạng thái phiên: chưa đăng nhập về MH-47; bắt buộc đổi mật khẩu về MH-48 (BM-07)
@@ -20,7 +21,8 @@ function Screens() {
   const session = useSession();
   const [opened, setOpened] = useState<
     | {
-        screen: 'attendance' | 'pickup' | 'journal' | 'care' | 'messages' | 'activity' | 'meal' | 'medication';
+        screen:
+          'attendance' | 'pickup' | 'journal' | 'care' | 'messages' | 'activity' | 'meal' | 'medication' | 'teaching';
         myClass: MyClass;
       }
     | { screen: 'gate'; orgUnitIds: string[] }
@@ -58,6 +60,9 @@ function Screens() {
   if (opened?.screen === 'medication') {
     return <MedicationScreen myClass={opened.myClass} onBack={back} />;
   }
+  if (opened?.screen === 'teaching') {
+    return <TeachingScreen myClass={opened.myClass} onBack={back} />;
+  }
   if (opened?.screen === 'pickup') {
     return <PickupScreen myClass={opened.myClass} onBack={back} />;
   }
@@ -76,6 +81,7 @@ function Screens() {
       onOpenPickup={(myClass) => setOpened({ screen: 'pickup', myClass })}
       onOpenJournal={(myClass) => setOpened({ screen: 'journal', myClass })}
       onOpenCare={(myClass) => setOpened({ screen: 'care', myClass })}
+      onOpenTeaching={(myClass) => setOpened({ screen: 'teaching', myClass })}
       onOpenMessages={(myClass) => setOpened({ screen: 'messages', myClass })}
       onOpenActivity={(myClass) => setOpened({ screen: 'activity', myClass })}
       onOpenMealReport={(myClass) => setOpened({ screen: 'meal', myClass })}
