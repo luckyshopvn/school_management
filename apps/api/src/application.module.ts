@@ -170,6 +170,12 @@ import { EvaluationsController, EvaluationsService } from './work/evaluations.js
 import { workTransitionStep } from './work/work-transition.js';
 import { WorkHistoryController, WorkHistoryService } from './staff/work-history.js';
 import { BonusDeductionsController, BonusDeductionsService } from './payroll/bonus-deductions.js';
+import { PublicRateLimiter, RecruitmentAccess } from './recruitment/recruitment-common.js';
+import { RecruitmentRequestsController, RecruitmentRequestsService } from './recruitment/recruitment-requests.js';
+import { JobPostingsController, JobPostingsService } from './recruitment/job-postings.js';
+import { PublicRecruitmentController, PublicRecruitmentService } from './recruitment/public-recruitment.js';
+import { CandidatesController, CandidatesService } from './recruitment/candidates.js';
+import { recruitmentTransitionStep } from './recruitment/recruitment-transition.js';
 
 @Module({})
 export class ApplicationModule {
@@ -273,6 +279,10 @@ export class ApplicationModule {
         BankReconciliationController,
         PayablesController,
         FiscalPeriodsController,
+        RecruitmentRequestsController,
+        JobPostingsController,
+        PublicRecruitmentController,
+        CandidatesController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -302,6 +312,7 @@ export class ApplicationModule {
             interactionsTransitionStep,
             activitiesTransitionStep,
             workTransitionStep,
+            recruitmentTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -417,6 +428,12 @@ export class ApplicationModule {
         BankReconciliationService,
         PayablesService,
         FiscalPeriodsService,
+        RecruitmentAccess,
+        PublicRateLimiter,
+        RecruitmentRequestsService,
+        JobPostingsService,
+        PublicRecruitmentService,
+        CandidatesService,
         SchoolCalendar,
         {
           provide: FileStorage,

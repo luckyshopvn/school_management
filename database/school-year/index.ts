@@ -38,6 +38,7 @@ import { migration as createActivities } from './migrations/0034_create_activiti
 import { migration as createExportLogs } from './migrations/0039_create_export_logs.js';
 import { migration as createWorkManagement } from './migrations/0037_create_work_management.js';
 import { migration as createFinancePhaseTwo } from './migrations/0038_create_finance_phase_two.js';
+import { migration as createRecruitment } from './migrations/0041_create_recruitment.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
@@ -80,4 +81,5 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0039_create_export_logs': createExportLogs,
   '0037_create_work_management': createWorkManagement,
   '0038_create_finance_phase_two': createFinancePhaseTwo,
+  '0041_create_recruitment': createRecruitment,
 };

@@ -145,7 +145,8 @@ export type FilePurpose =
   | 'activity_photo'
   | 'content_file'
   | 'medicine_photo'
-  | 'prescription';
+  | 'prescription'
+  | 'candidate_cv';
 
 export interface FilesTable extends CatalogRecordColumns {
   org_unit_id: string | null;
@@ -2488,6 +2489,100 @@ export interface FiscalPeriodsTable {
   reject_reason: string | null;
 }
 
+// Tuyển dụng (P18; YCTD-87)
+export type RecruitmentRequestStatus = 'pending' | 'approved' | 'rejected' | 'closed';
+export type JobPostingStatus = 'draft' | 'published' | 'closed';
+export type CandidateSource = 'website' | 'referral' | 'job_board' | 'social_media' | 'walk_in' | 'other';
+export type CandidateStatus = 'new' | 'screening' | 'interviewing' | 'hired' | 'rejected' | 'withdrawn';
+export type InterviewStatus = 'scheduled' | 'completed' | 'cancelled';
+export type InterviewResult = 'passed' | 'failed';
+
+export interface RecruitmentRequestsTable {
+  id: Generated<string>;
+  code: string;
+  org_unit_id: string;
+  position: string;
+  quantity: number;
+  requirements: string;
+  reason: string;
+  needed_by: string | null;
+  status: Generated<RecruitmentRequestStatus>;
+  requester_id: string;
+  requester_name: string;
+  approved_by: string | null;
+  approver_name: string | null;
+  approved_at: Date | null;
+  reject_reason: string | null;
+  closed_by: string | null;
+  closed_at: Date | null;
+  close_reason: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface JobPostingsTable {
+  id: Generated<string>;
+  request_id: string;
+  org_unit_id: string;
+  title: string;
+  description: string;
+  requirements: string;
+  deadline: string;
+  status: Generated<JobPostingStatus>;
+  published_at: Date | null;
+  published_by: string | null;
+  closed_at: Date | null;
+  closed_by: string | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface CandidatesTable {
+  id: Generated<string>;
+  posting_id: string;
+  org_unit_id: string;
+  full_name: string;
+  dob: string | null;
+  gender: 'male' | 'female' | null;
+  phone: string;
+  email: string | null;
+  address: string | null;
+  source: CandidateSource;
+  cv_file_id: string | null;
+  cover_letter: string | null;
+  consent_at: Date | null;
+  status: Generated<CandidateStatus>;
+  status_reason: string | null;
+  note: string | null;
+  decided_by: string | null;
+  decided_at: Date | null;
+  decision_note: string | null;
+  staff_id: string | null;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface InterviewsTable {
+  id: Generated<string>;
+  candidate_id: string;
+  round: number;
+  scheduled_at: Date;
+  location: string;
+  interviewer_staff_ids: string[];
+  status: Generated<InterviewStatus>;
+  result: InterviewResult | null;
+  score: ColumnType<string | null, number | string | null | undefined, number | string | null>;
+  evaluation: string | null;
+  cancel_reason: string | null;
+  recorded_by: string | null;
+  recorded_at: Date | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -2660,4 +2755,8 @@ export interface SchoolYearDatabase {
   bank_statement_lines: BankStatementLinesTable;
   payables: PayablesTable;
   fiscal_periods: FiscalPeriodsTable;
+  recruitment_requests: RecruitmentRequestsTable;
+  job_postings: JobPostingsTable;
+  candidates: CandidatesTable;
+  interviews: InterviewsTable;
 }
