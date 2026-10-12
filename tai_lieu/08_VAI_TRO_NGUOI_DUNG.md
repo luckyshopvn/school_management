@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.44
+- Phiên bản: 1.45
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -144,6 +144,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-46 | Công việc, đánh giá, quá trình công tác, thưởng và khấu trừ (YCTD-81): `P09.task.assign` cho VT-03, VT-06 giao việc cho nhân sự có tài khoản trong đơn vị được gán, sửa, hủy việc đã giao, xem việc được giao và bảng tiến độ của đơn vị; `P09.plan.manage` cho VT-03 lập, kích hoạt, đóng kế hoạch của đơn vị và xem tiến độ; `P09.evaluation.manage` cho VT-03, VT-06 cấu hình chỉ số, đánh giá, công bố trong đơn vị (không tự đánh giá mình); `P07.work-history.manage` cho VT-06 ghi quá trình công tác và chứng chỉ; `P08.bonus-deduction.manage` cho VT-04, VT-05 ghi, hủy thưởng và khấu trừ của tháng chưa trình duyệt bảng lương. Mọi nhân sự có hồ sơ liên kết tài khoản tạo việc cá nhân, cập nhật tiến độ việc của mình, xem phiếu đánh giá đã công bố, quá trình công tác của mình (BR-46). VT-02, VT-15 xem công việc, kế hoạch, phiếu đánh giá trong phạm vi đơn vị được gán; người có `P08.payroll.view` xem thưởng và khấu trừ |
 | PQ-47 | Tài chính giai đoạn 2 (YCTD-82): `P05.debt-reminder.manage` cho VT-04, VT-03 xem danh sách nhắc nợ và gửi nhắc nợ trong đơn vị; `P05.overdue-debt.propose` cho VT-03, VT-04 lập đề xuất xử lý công nợ quá hạn; `P05.overdue-debt.decide` cho VT-15 (trong đơn vị), VT-02 ghi quyết định, không đổi số tiền công nợ; `P06.bank-transaction.manage` cho VT-04, VT-05 ghi dòng sao kê, khớp, bỏ khớp, khớp tự động; `P06.payable.manage` cho VT-04, VT-05 ghi, trả, hủy công nợ phải trả; `P06.period-close.request` cho VT-05 đề nghị chốt kỳ; `P06.period-close.approve` cho VT-02 duyệt hoặc từ chối chốt kỳ; người có `P06.view` xem đối chiếu ngân hàng, công nợ phải trả, kỳ tài chính |
 | PQ-53 | Kết nối ngoài (YCTD-90): `P01.integration.manage` chỉ VT-02 (Hiệu trưởng) cấu hình Fanpage, Zalo Official Account và liên kết Zalo của phụ huynh, toàn trường; `P14.facebook.manage` VT-03 trong phạm vi đơn vị được gán, VT-02 toàn trường, đăng hoạt động và tin tức đã công bố lên Fanpage, xem và thử lại bài đăng. Khóa truy cập chỉ ở biến môi trường máy chủ, không ai xem được qua hệ thống |
+| PQ-50 | Tuyển dụng (YCTD-87): `P18.recruitment-request.create` cho VT-06, VT-03 lập đề nghị tuyển dụng cho đơn vị trong phạm vi và đóng đề nghị mình lập; `P18.recruitment-request.approve` cho VT-02 (toàn trường), VT-15 (đơn vị được gán) duyệt hoặc từ chối, không tự duyệt đề nghị mình lập; `P18.recruitment.manage` cho VT-06 soạn, công bố, đóng tin, nhập và sàng lọc ứng viên, đóng đề nghị của đơn vị, tạo hồ sơ nhân sự từ ứng viên đã tuyển (cần thêm `P07.staff.manage`); `P18.interview.manage` cho VT-06, VT-03 lên lịch, ghi kết quả phỏng vấn và quyết định tuyển. Hồ sơ ứng viên chỉ người có `P18.recruitment.manage` hoặc `P18.interview.manage` trong phạm vi đơn vị xem, mỗi lần xem chi tiết hoặc hồ sơ xin việc ghi nhật ký truy cập. Người ngoài trường không cần tài khoản xem tin đã công bố còn hạn và nộp hồ sơ |
 
 ## 5. Phân cấp phê duyệt
 

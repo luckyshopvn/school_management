@@ -1,3 +1,9 @@
+import { PublicRateLimiter, RecruitmentAccess } from './recruitment/recruitment-common.js';
+import { RecruitmentRequestsController, RecruitmentRequestsService } from './recruitment/recruitment-requests.js';
+import { JobPostingsController, JobPostingsService } from './recruitment/job-postings.js';
+import { PublicRecruitmentController, PublicRecruitmentService } from './recruitment/public-recruitment.js';
+import { CandidatesController, CandidatesService } from './recruitment/candidates.js';
+import { recruitmentTransitionStep } from './recruitment/recruitment-transition.js';
 import { Module, type DynamicModule, type Type } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { Clock } from '@school-management/server';
@@ -290,6 +296,10 @@ export class ApplicationModule {
         FiscalPeriodsController,
         IntegrationsController,
         FacebookPostsController,
+        RecruitmentRequestsController,
+        JobPostingsController,
+        PublicRecruitmentController,
+        CandidatesController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -320,6 +330,7 @@ export class ApplicationModule {
             activitiesTransitionStep,
             workTransitionStep,
             integrationsTransitionStep,
+            recruitmentTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -456,6 +467,12 @@ export class ApplicationModule {
         BankReconciliationService,
         PayablesService,
         FiscalPeriodsService,
+        RecruitmentAccess,
+        PublicRateLimiter,
+        RecruitmentRequestsService,
+        JobPostingsService,
+        PublicRecruitmentService,
+        CandidatesService,
         SchoolCalendar,
         {
           provide: FileStorage,

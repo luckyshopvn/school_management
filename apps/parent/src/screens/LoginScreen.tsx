@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Alert, Button, TextField } from '@school-management/ui';
 import { ApiError, requestOneTimeCode } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
+import { RECRUITMENT_HASH } from './RecruitmentScreen.js';
 
 // MH-47 Đăng nhập của ứng dụng phụ huynh: bằng mật khẩu hoặc bằng mã một lần gửi qua tin nhắn (XT-01, Q-24)
 type Method = 'password' | 'code';
@@ -137,6 +138,11 @@ export function LoginScreen() {
           </p>
         ) : null}
       </form>
+      <nav aria-label="Trang công khai" className="fixed bottom-6 left-0 right-0 flex justify-center">
+        <a href={RECRUITMENT_HASH} className="text-label font-medium text-text underline">
+          Tuyển dụng giáo viên và nhân viên
+        </a>
+      </nav>
     </main>
   );
 }

@@ -49,6 +49,7 @@ type NavigationPath =
   | '/inventory'
   | '/activities'
   | '/purchase-requests'
+  | '/recruitment'
   | '/teaching'
   | '/leave-requests'
   | '/leave-policies'
@@ -127,6 +128,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canSeeInventory =
     canManageAssets || canManagePurchaseOrders || canApproveStocktakes || canApprovePurchaseRequests;
   const canSeePurchaseRequests = canCreatePurchaseRequests || canApprovePurchaseRequests;
+  // Tuyển dụng (P18, YCTD-87)
+  const canCreateRecruitmentRequests = useHasPermission(PERMISSION_CODES.recruitmentRequestCreate);
+  const canApproveRecruitmentRequests = useHasPermission(PERMISSION_CODES.recruitmentRequestApprove);
+  const canManageRecruitment = useHasPermission(PERMISSION_CODES.recruitmentManage);
+  const canManageInterviews = useHasPermission(PERMISSION_CODES.interviewManage);
+  const canSeeRecruitment =
+    canCreateRecruitmentRequests || canApproveRecruitmentRequests || canManageRecruitment || canManageInterviews;
   const canReviewLessonPlans = useHasPermission(PERMISSION_CODES.lessonPlanReview);
   const canManageCurriculum = useHasPermission(PERMISSION_CODES.curriculumManage);
   const canManageLessons = useHasPermission(PERMISSION_CODES.lessonManage);
@@ -275,6 +283,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <span className="px-3 text-label font-semibold text-text-muted">NHÂN SỰ</span>
         <ul className="flex flex-col gap-1">
           {canViewStaff ? <NavItem to="/staff" label="Hồ sơ nhân sự" /> : null}
+          {canSeeRecruitment ? <NavItem to="/recruitment" label="Tuyển dụng" /> : null}
           <NavItem to="/staff-attendance" label="Chấm công" />
           <NavItem to="/leave-requests" label="Đơn nghỉ phép" />
           <NavItem to="/school-days" label="Ngày lễ và lịch bù" />
