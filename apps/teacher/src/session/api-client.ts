@@ -95,6 +95,21 @@ export async function requestJson<T>(path: string, init: RequestInit = {}): Prom
   }
 }
 
+// Tải nội dung không phải JSON như ảnh thuốc, kèm mã phiên; gặp mã hết hạn thì làm mới một lần
+export async function fetchWithSession(path: string): Promise<Response> {
+  const attempt = () =>
+    fetch(path, {
+      headers: accessToken ? { authorization: `Bearer ${accessToken}` } : {},
+      credentials: 'same-origin',
+    });
+  const response = await attempt();
+  if (response.status !== 401 || !accessToken) {
+    return response;
+  }
+  await refreshSession();
+  return attempt();
+}
+
 export async function loginWithPassword(loginIdentifier: string, password: string): Promise<TokenResponse> {
   return remember(
     await send<TokenResponse>('/api/v1/auth/login', {

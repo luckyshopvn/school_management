@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.20
+- Phiên bản: 1.21
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -100,10 +100,10 @@
 
 | Mã | Chức năng | Dữ liệu đầu vào | Kết quả mong đợi | Thực tế | Trạng thái |
 |---|---|---|---|---|---|
-| CT-053 | Gửi yêu cầu dặn thuốc thiếu giờ | Yêu cầu không có giờ cho uống | Từ chối, yêu cầu bổ sung | | Chưa chạy |
-| CT-054 | Cho uống thuốc khi chưa nhận thuốc | Phiếu chưa xác nhận nhận thuốc | Chặn ghi nhận liều | | Chưa chạy |
-| CT-055 | Ghi trùng một liều | Ghi hai liều cùng thời điểm | Chặn, hiển thị liều đã ghi | | Chưa chạy |
-| CT-056 | Bỏ liều không nhập lý do | Bấm bỏ liều | Chặn lưu, yêu cầu lý do | | Chưa chạy |
+| CT-053 | Gửi yêu cầu dặn thuốc thiếu giờ | Yêu cầu không có giờ cho uống | Từ chối, yêu cầu bổ sung | Kiểm thử tự động `apps/api/src/medicines/medicines.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CT-054 | Cho uống thuốc khi chưa nhận thuốc | Phiếu chưa xác nhận nhận thuốc | Chặn ghi nhận liều | Kiểm thử tự động `apps/api/src/medicines/medicines.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CT-055 | Ghi trùng một liều | Ghi hai liều cùng thời điểm | Chặn, hiển thị liều đã ghi | Kiểm thử tự động `apps/api/src/medicines/medicines.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CT-056 | Bỏ liều không nhập lý do | Bấm bỏ liều | Chặn lưu, yêu cầu lý do | Kiểm thử tự động `apps/api/src/medicines/medicines.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-057 | Giáo viên không liên quan xem hồ sơ sức khỏe | Tài khoản giáo viên lớp khác | Trả lỗi không có quyền | Kiểm thử tự động `apps/api/src/health/health.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-058 | Ghi sự kiện y tế | Trẻ sốt tại trường | Phụ huynh nhận thông báo, bản ghi có người xử lý | Kiểm thử tự động `apps/api/src/health/health.test.ts` đạt ngày 11/10/2026 | Đạt |
 
@@ -198,7 +198,7 @@
 | CT-113 | P08-09 | Chốt bảng công có ngày nghỉ lễ hưởng lương | Ngày đó ghi nghỉ lễ | Kiểm thử tự động `apps/api/src/staff-attendance/leave.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-114 | P08-10 | Chốt bảng công có ngày thứ bảy nghỉ định kỳ | Không tính vắng không phép | Kiểm thử tự động `apps/api/src/staff-attendance/leave.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-115 | P08-09 | Giáo viên gọi điểm cuối sửa ngày nghỉ lễ | Trả lỗi không có quyền | Kiểm thử tự động `apps/api/src/staff-attendance/staff-attendance.test.ts` đạt ngày 11/10/2026 | Đạt |
-| CT-116 | P10-09 | Ghi nhận thuốc đã mua mười hộp | Số lượng thuốc tăng mười | | Chưa chạy |
+| CT-116 | P10-09 | Ghi nhận thuốc đã mua mười hộp | Số lượng thuốc tăng mười | Kiểm thử tự động `apps/api/src/medicines/medicines.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-117 | P10-10 | Công bố lịch khám lớp Mầm 1 | Phụ huynh lớp Mầm 1 nhận thông báo | Kiểm thử tự động `apps/api/src/health/health.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-118 | P10-11 | Lưu kết quả khám có cân nặng dưới ngưỡng | Chỉ số được đánh dấu cần theo dõi | Kiểm thử tự động `apps/api/src/health/health.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-119 | P12-09 | Xác nhận nhập phiếu đi chợ | Tồn nguyên liệu tăng, có đề nghị thanh toán | | Chưa chạy |
@@ -253,9 +253,9 @@
 | CT-168 | P06-03 | Kế toán lập phiếu đảo, kế toán trưởng gọi điểm cuối duyệt | Bị từ chối; phiếu gốc và công nợ chưa đổi | Kiểm thử tự động `apps/api/src/finance/receipts.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-169 | P05-12 | Quản lý đơn vị gọi điểm cuối ghi quyết định xử lý công nợ | Bị từ chối; Phó Hiệu trưởng ghi được, số tiền công nợ không đổi | | Chưa chạy |
 | CT-170 | P06-04 | Kế toán lập phiếu đảo phiếu chi, kế toán trưởng gọi điểm cuối duyệt | Bị từ chối; phiếu gốc và số dư quỹ chưa đổi | Kiểm thử tự động `apps/api/src/finance/payments.test.ts` đạt ngày 11/10/2026 | Đạt |
-| CT-171 | P10-04 | Đơn vị bật không có nhân viên y tế, phụ huynh gửi yêu cầu dặn thuốc | Giáo viên chủ nhiệm nhận, xác nhận và ghi liều được | | Chưa chạy |
-| CT-172 | P10-04 | Đơn vị tắt cấu hình, giáo viên chủ nhiệm gọi điểm cuối xác nhận nhận thuốc | Trả lỗi không có quyền | | Chưa chạy |
-| CT-173 | P10-03 | Gửi yêu cầu dặn thuốc không có ảnh thuốc; gửi yêu cầu có ảnh thuốc, không có đơn | Lần đầu bị từ chối; lần sau gửi được | | Chưa chạy |
+| CT-171 | P10-04 | Đơn vị bật không có nhân viên y tế, phụ huynh gửi yêu cầu dặn thuốc | Giáo viên chủ nhiệm nhận, xác nhận và ghi liều được | Kiểm thử tự động `apps/api/src/medicines/medicines.test.ts` đạt ngày 11/10/2026; Kiểm thử giao diện `tests/e2e/31-medication.spec.ts` đạt ngày 11/10/2026 | Đạt |
+| CT-172 | P10-04 | Đơn vị tắt cấu hình, giáo viên chủ nhiệm gọi điểm cuối xác nhận nhận thuốc | Trả lỗi không có quyền | Kiểm thử tự động `apps/api/src/medicines/medicines.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CT-173 | P10-03 | Gửi yêu cầu dặn thuốc không có ảnh thuốc; gửi yêu cầu có ảnh thuốc, không có đơn | Lần đầu bị từ chối; lần sau gửi được | Kiểm thử tự động `apps/api/src/medicines/medicines.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-174 | P10-12 | Giáo viên ghi nhiệt độ trẻ A; phụ huynh trẻ A và trẻ B mở ứng dụng | Phụ huynh trẻ A thấy, phụ huynh trẻ B không thấy | Kiểm thử tự động `apps/api/src/health/health.test.ts` đạt ngày 11/10/2026; Kiểm thử giao diện `tests/e2e/30-health.spec.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-175 | P10-07 | Phụ huynh bấm đã biết sự kiện y tế | Y tế thấy đã xác nhận kèm thời điểm; không có lần nhắc lại nào | Kiểm thử tự động `apps/api/src/health/health.test.ts` đạt ngày 11/10/2026; Kiểm thử giao diện `tests/e2e/30-health.spec.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-176 | P01-06 | Đặt lại mật khẩu cho giáo viên, giáo viên đăng nhập bằng mật khẩu mới | Chỉ vào được màn hình đổi mật khẩu | Kiểm thử tự động `apps/api/src/accounts.test.ts` đạt ngày 11/10/2026 | Đạt |

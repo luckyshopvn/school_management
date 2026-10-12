@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.32
+- Phiên bản: 1.33
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -62,7 +62,7 @@ flowchart TD
 | MH-14 | Đơn nghỉ phép | VT-06, VT-03 |
 | MH-15 | Bảng lương toàn trường theo tháng: tính, trình, duyệt, trả lại; phiếu từng người kèm căn cứ; danh sách chưa tính lương (YCTD-60); lập phiếu chi lương (YCTD-61) | VT-04, VT-05, VT-06, VT-20, VT-15, VT-02 |
 | MH-16 | Y tế học đường: đợt khám, lịch khám theo lớp, ghi và công bố kết quả khám kèm đánh giá theo tiêu chuẩn; sự kiện y tế và trạng thái phụ huynh xác nhận; yêu cầu báo cáo sức khỏe; tiêu chuẩn sức khỏe (YCTD-74) | VT-09; người có quyền ghi sự kiện y tế |
-| MH-17 | Yêu cầu dặn thuốc và cho uống thuốc | VT-09 |
+| MH-17 | Thuốc và dặn thuốc: yêu cầu dặn thuốc chờ nhận, nhận hoặc từ chối, xem ảnh thuốc và đơn thuốc; liều cần cho uống theo ngày, ghi đã cho uống hoặc bỏ liều kèm lý do, trạng thái phụ huynh đã biết; danh mục thuốc, nhà thuốc; đề nghị mua thuốc, duyệt theo hạn mức, phiếu mua thuốc; phiếu cấp thuốc (YCTD-75) | VT-09; người có quyền duyệt mua thuốc, người có quyền ghi liều |
 | MH-18 | Thực đơn và định lượng nguyên liệu | VT-10 |
 | MH-19 | Suất ăn theo ngày và buffet theo dịp | VT-10 |
 | MH-20 | Tài sản, mượn trả, hỏng và mất: trang Kho và tài sản, thẻ Tài sản: thêm tài sản, cấp phát, cho mượn, thu hồi hoặc nhận trả, ghi nhận hỏng; Ban Giám hiệu duyệt hoặc từ chối hỏng mất chờ duyệt (YCTD-77) | VT-11, VT-02, VT-15 |
@@ -115,7 +115,7 @@ flowchart TD
 | MG-06 | Tiến độ và kế hoạch giảng dạy | VT-07 |
 | MG-07 | Tạo hoạt động và album hình ảnh | VT-07, VT-08 |
 | MG-08 | Trao đổi với phụ huynh | VT-07 |
-| MG-09 | Chăm sóc và y tế của lớp: ghi nhiệt độ, tình trạng, chăm sóc đặc biệt, sự kiện y tế cho từng trẻ (YCTD-74); yêu cầu dặn thuốc, nhận thuốc và ghi liều khi đơn vị không có nhân viên y tế làm ở phần 10b | VT-07 |
+| MG-09 | Chăm sóc và y tế của lớp: ghi nhiệt độ, tình trạng, chăm sóc đặc biệt, sự kiện y tế cho từng trẻ (YCTD-74); màn hình dặn thuốc của lớp: xem yêu cầu và ảnh thuốc, nhận thuốc, từ chối, ghi liều hoặc bỏ liều khi đơn vị không có nhân viên y tế (YCTD-75) | VT-07 |
 | MG-10 | Chấm công hôm nay, đơn nghỉ phép, số ngày phép và lịch công tác đã công bố của tôi (YCTD-59, YCTD-68) | Mọi nhân sự dùng ứng dụng giáo viên |
 | MG-11 | Phiếu lương của tôi: phiếu đã duyệt, từng dòng kèm căn cứ (YCTD-60) | Mọi nhân sự dùng ứng dụng giáo viên |
 | MG-12 | Công việc được giao và kế hoạch | Mọi nhân sự dùng ứng dụng giáo viên |
@@ -135,8 +135,8 @@ flowchart TD
 | MP-04 | Thời khóa biểu và lịch hoạt động lớp | VT-14 |
 | MP-05 | Tiến độ học tập | VT-14 |
 | MP-06 | Báo vắng | VT-14 |
-| MP-07 | Dặn thuốc | VT-14 |
-| MP-08 | Sức khỏe của con: dị ứng, chỉ số và kết quả khám kèm đánh giá, sự kiện y tế và nút đã biết, chăm sóc hằng ngày, yêu cầu và xem báo cáo sức khỏe (YCTD-74); xác nhận bỏ liều làm ở phần 10b | VT-14 |
+| MP-07 | Dặn thuốc: gửi yêu cầu kèm ảnh thuốc, ảnh đơn thuốc nếu có; xem trạng thái, liều đã cho uống, liều bỏ và nút đã biết (YCTD-75) | VT-14 |
+| MP-08 | Sức khỏe của con: dị ứng, chỉ số và kết quả khám kèm đánh giá, sự kiện y tế và nút đã biết, chăm sóc hằng ngày, yêu cầu và xem báo cáo sức khỏe (YCTD-74); xác nhận bỏ liều ở mục Dặn thuốc (MP-07, YCTD-75) | VT-14 |
 | MP-09 | Trao đổi với nhà trường | VT-14 |
 | MP-10 | Góp ý | VT-14 |
 | MP-11 | Học phí và công nợ: hóa đơn đã phát hành của con, chi tiết từng khoản, số còn phải nộp, hóa đơn đã thu đủ, số dư có và lịch sử đã nộp (YCTD-51, YCTD-53); nút thanh toán bằng mã QR hiện mã, tài khoản ảo, số tiền, nội dung (YCTD-57) | VT-14 |

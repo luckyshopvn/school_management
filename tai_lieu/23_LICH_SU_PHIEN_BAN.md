@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.34.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-10 phần 10b, thuốc: danh mục, dặn thuốc, cho uống, mua và cấp thuốc (YCTD-75).
+- Chức năng mới: P10-02, P10-03, P10-04, P10-05, P10-09 trên máy chủ API, cổng quản trị (MH-17), ứng dụng giáo viên (MG-09 phần dặn thuốc), ứng dụng phụ huynh (MP-07, MP-08 phần bỏ liều).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: tám bảng thuốc của năm học (tệp 0031); thêm mục đích tệp `medicine_photo`, `prescription`.
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: giáo viên chủ nhiệm chỉ nhận thuốc khi đơn vị bật cấu hình không có nhân viên y tế; cấu hình sai thì không ai nhận được yêu cầu.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-10-phan-10b`; chạy ngược tệp 0031 của cơ sở dữ liệu năm học.
+
 ### Phiên bản 0.33.0 – 2026-10-11
 
 - Phạm vi thay đổi: DT-10 phần 10d, kho, tài sản, mua hàng (YCTD-77).
