@@ -129,7 +129,7 @@ test('CT-124, CT-076: phụ huynh nộp hồ sơ trực tuyến; nhà trường 
   await panel.getByRole('button', { name: 'Xét đạt' }).click();
   await expect(staffPage.getByText('Đã xét hồ sơ đạt')).toBeVisible();
   const convert = panel.getByRole('form', { name: 'Chuyển thành hồ sơ trẻ' });
-  await convert.getByLabel('Lớp', { exact: true }).selectOption({ label: `${className} (0/30)` });
+  await convert.getByRole('combobox', { name: 'Lớp', exact: true }).selectOption({ label: `${className} (0/30)` });
   await convert
     .getByLabel('Số định danh cá nhân của trẻ')
     .fill(`079${String(randomInt(0, 1_000_000_000)).padStart(9, '0')}`);

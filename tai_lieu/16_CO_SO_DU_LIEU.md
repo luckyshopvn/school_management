@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.52
+- Phiên bản: 1.53
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -314,9 +314,9 @@ Ràng buộc duy nhất: `poll_responses` trên bộ đôi bình chọn và tài
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| admission_campaigns | Đợt tuyển sinh | org_unit_id, name, academic_year_id, quota, open_from, open_to, status |
-| admission_applications | Hồ sơ tuyển sinh | code, campaign_id, child_full_name, child_dob, child_gender, guardian_full_name, guardian_phone, guardian_email, note, status, reviewed_by, reviewed_at, reject_reason, created_child_id |
-| admission_posts | Tin tuyển sinh | campaign_id, title, content, publish_from, publish_to, status, created_by |
+| admission_campaigns | Đợt tuyển sinh của một đơn vị trong năm học đang dùng (P16-01) | org_unit_id, name, description, quota, open_from, open_to, status (draft, open, closed), opened_at, closed_at, created_by |
+| admission_applications | Hồ sơ tuyển sinh nộp trực tuyến hoặc nhập tại trường (P16-02 đến P16-04) | code (TS-000001), campaign_id, org_unit_id, source (online, staff), child_full_name, child_dob, child_gender, child_national_id_encrypted, child_national_id_hash, child_national_id_last4, child_has_allergies, child_allergies, guardian_full_name, guardian_phone, guardian_email, guardian_relationship_item_id, address, note, status (submitted, received, passed, rejected, converted), received_by, received_at, reviewed_by, reviewed_at, review_note, reject_reason, planned_class_id, created_child_id, converted_by, converted_at, submitted_ip, created_by |
+| admission_posts | Tin tuyển sinh gắn đợt, phạm vi theo đơn vị của đợt (P16-05) | campaign_id, title, content, publish_from, publish_to, status (draft, published, hidden), published_at, hidden_reason, created_by |
 | recruitment_requests | Đề nghị tuyển dụng (P18-01, BR-80) | code (DNTD-000001), org_unit_id, position, quantity, requirements, reason, needed_by, status (pending, approved, rejected, closed), requester_id, requester_name, approved_by, approver_name, approved_at, reject_reason, closed_by, closed_at, close_reason |
 | job_postings | Tin tuyển dụng (P18-02); đã công bố còn hạn là công khai | request_id, org_unit_id, title, description, requirements, deadline, status (draft, published, closed), published_at, published_by, closed_at, closed_by, created_by |
 | candidates | Hồ sơ ứng viên (P18-03); dữ liệu cá nhân, không xóa; duy nhất theo tin và số điện thoại | posting_id, org_unit_id, full_name, dob, gender, phone, email, address, source, cv_file_id, cover_letter, consent_at, status (new, screening, interviewing, hired, rejected, withdrawn), status_reason, note, decided_by, decided_at, decision_note, staff_id, created_by (trống là nộp công khai) |

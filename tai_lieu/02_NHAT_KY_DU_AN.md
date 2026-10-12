@@ -14,6 +14,27 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-11 phần 11a: tuyển sinh trực tuyến
+
+#### Công việc đã thực hiện
+
+- Agent 11a viết mã, kiểm thử máy chủ, nháp tài liệu trong worktree riêng (dừng giữa chừng vì giới hạn phiên rồi làm tiếp); người điều phối gộp nhánh 11b (đã gồm 11e), đổi tên bộ giới hạn số lần gọi của tuyển sinh để không trùng tuyển dụng, đặt cả hai trang công khai trên màn hình đăng nhập phụ huynh, đánh số sáu kịch bản mới CT-216 đến CT-221 kèm AC-260 đến AC-265, chạy toàn bộ kiểm thử, đưa nháp vào tài liệu.
+- Cơ sở dữ liệu: ba bảng (tệp 0040). Máy chủ API: đợt tuyển sinh có chỉ tiêu, tin tuyển sinh, nộp và tra cứu hồ sơ TS-000001 không cần tài khoản có giới hạn số lần, tiếp nhận, xét đạt theo chỉ tiêu hoặc không đạt kèm lý do, chuyển hồ sơ đạt thành hồ sơ trẻ dùng lại quy trình hồ sơ trẻ (QT-01); bước chuyển năm học `admissions`.
+- Cổng quản trị: trang Tuyển sinh. Ứng dụng phụ huynh: trang Tuyển sinh trực tuyến công khai.
+- Kết quả: máy chủ API 504/504, kiểm thử giao diện 60/60.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-86 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-86 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.45.0.
+
+#### Vấn đề tồn đọng
+
+- Gộp các phần 11c, 11d; báo cáo kiểm thử giai đoạn 3 và bản ứng viên 1.2.0.
+
 ### 2026-10-11 — DT-11 phần 11b: tuyển dụng
 
 #### Công việc đã thực hiện
