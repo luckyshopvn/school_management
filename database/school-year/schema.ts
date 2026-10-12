@@ -1611,6 +1611,21 @@ export interface PurchaseOrderItemsTable {
   received_qty: Decimal;
 }
 
+// Nhật ký xuất dữ liệu (P17-12, BR-74, YCTD-83)
+export interface ExportLogsTable {
+  id: Generated<string>;
+  user_id: string;
+  actor_name: string;
+  report_code: string;
+  filters_data: ColumnType<Record<string, unknown>, string, string>;
+  org_unit_ids: string[];
+  row_count: number;
+  contains_personal_data: boolean;
+  file_name: string;
+  ip_address: string | null;
+  exported_at: CreatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -1719,4 +1734,5 @@ export interface SchoolYearDatabase {
   purchase_request_items: PurchaseRequestItemsTable;
   purchase_orders: PurchaseOrdersTable;
   purchase_order_items: PurchaseOrderItemsTable;
+  export_logs: ExportLogsTable;
 }

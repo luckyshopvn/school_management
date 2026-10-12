@@ -39,7 +39,7 @@ export function setAccessToken(value: string | undefined): void {
   accessToken = value;
 }
 
-async function readError(response: Response): Promise<ApiError> {
+export async function readError(response: Response): Promise<ApiError> {
   try {
     const body = (await response.json()) as { error?: { code?: string; message?: string; details?: FieldError[] } };
     return new ApiError(
@@ -101,12 +101,14 @@ export async function requestJson<T>(path: string, init: RequestInit = {}): Prom
 }
 
 // Tải nội dung không phải JSON như tệp đính kèm, kèm mã phiên; gặp mã hết hạn thì làm mới một lần
-export async function fetchWithSession(path: string): Promise<Response> {
-  const attempt = () =>
-    fetch(path, {
-      headers: accessToken ? { authorization: `Bearer ${accessToken}` } : {},
-      credentials: 'same-origin',
-    });
+export async function fetchWithSession(path: string, init: RequestInit = {}): Promise<Response> {
+  const attempt = () => {
+    const headers = new Headers(init.headers);
+    if (accessToken) {
+      headers.set('authorization', `Bearer ${accessToken}`);
+    }
+    return fetch(path, { ...init, headers, credentials: 'same-origin' });
+  };
   const response = await attempt();
   if (response.status !== 401 || !accessToken) {
     return response;
