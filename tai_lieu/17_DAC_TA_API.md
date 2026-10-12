@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.54
+- Phiên bản: 1.55
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -98,6 +98,18 @@ Giao kèo:
 5. Quá trình công tác trả `{ staff_id, can_manage, history: [{ id, org_unit_id, unit_name, department_name, job_title_name, from_date, to_date, note, is_main_unit }], certificates: [...] }`.
 6. Khoản thưởng, khấu trừ trả `{ id, staff_id, full_name, staff_code, pay_item_type_id, kind: allowance | deduction, item_code, item_name, target_year, target_month, amount, basis, status: active | cancelled, cancel_reason, can_cancel }`. Phiếu lương có dòng `line_type` `bonus` hoặc `deduction`, mục `adjustment`, `code` là mã loại khoản.
 7. Mã lỗi: `ERR_RULE_VIOLATION` kèm `P09-01` (người nhận nghỉ việc hoặc chưa có tài khoản; việc đã xong hoặc đã hủy), `P09-03` (kế hoạch không ở trạng thái phù hợp), `P09-04` (cập nhật tiến độ việc đã xong), `BR-47` (sửa phiếu đã công bố, đánh giá lại thiếu lý do, đơn vị chưa có chỉ số), `BR-45` (tháng đã trình duyệt bảng lương), `BR-90` (nhân sự đã chấm dứt hợp đồng); `ERR_CONFLICT` khi trùng mã chỉ số, đã có phiếu nháp của kỳ, mốc công tác đã có ngày kết thúc.
+
+Thay hai dòng dự kiến `POST /fiscal-periods/{id}/request-close` và `/close` bằng các dòng trên (đề nghị chốt tạo dòng kỳ nên dùng `POST /fiscal-periods`). Bỏ dòng dự kiến `GET, POST /suppliers` của P06-07 vì nhà cung cấp đã có ở P13-07 (YCTD-77).
+
+Giao kèo của nhóm điểm cuối tài chính giai đoạn 2 (DT-10 phần 10i, YCTD-82):
+
+1. `GET /debts/reminders` nhận `org_unit_id` (bắt buộc), `class_id`, `milestone` (số ngày), `due_only=true`; cần `P05.debt-reminder.manage` hoặc `P05.debt.view` ở đơn vị. Trả `milestones`, `rows` (`invoice_id`, `invoice_code`, `period`, `child_id`, `child_name`, `class_name`, `due_date`, `outstanding_amount`, `overdue_days`, `milestone_days`, `last_reminder_milestone`, `last_reminded_at`, `needs_reminder`), `totals`.
+2. `POST /debts/reminders/send` nhận `org_unit_id`, `invoice_ids` (1 đến 500); cần `P05.debt-reminder.manage`. Trả `sent_count`, `skipped` (`invoice_id`, `reason`). Gửi thông báo mẫu `debt_reminder` trong ứng dụng cho phụ huynh.
+3. `POST /debt-resolutions` nhận `child_id`, `invoice_id` (tùy chọn), `proposal`; cần `P05.overdue-debt.propose`. Trẻ hoặc hóa đơn không có nợ quá hạn trả `ERR_RULE_VIOLATION` mã BR-33; trẻ đã có đề xuất đang chờ trả `ERR_CONFLICT`. `POST /debt-resolutions/{id}/decide` nhận `decision`; cần `P05.overdue-debt.decide` (thiếu trả `ERR_FORBIDDEN`); đã quyết định trả `ERR_CONFLICT`. `GET /debt-resolutions` lọc `org_unit_id`, `child_id`, `status` (`pending`, `decided`).
+4. `POST /bank-transactions` nhận `account_id` (tài khoản ngân hàng, quỹ tiền mặt trả `ERR_VALIDATION`), `transaction_date`, `amount` (số nguyên khác 0), `description`, `bank_reference`; cần `P06.bank-transaction.manage`. `POST /bank-transactions/{id}/match` nhận `account_transaction_id`; khác tài khoản hoặc số tiền trả mã BR-34; giao dịch đã khớp dòng khác hoặc dòng đã khớp trả `ERR_CONFLICT`. Xóa dòng đã khớp trả mã BR-34. `POST /bank-transactions/auto-match` nhận `account_id`, `from`, `to`; trả bảng đối chiếu kèm `auto_matched_count`. `GET /bank-reconciliation` nhận `account_id`, `from`, `to`; trả `book_opening_balance`, `book_movement`, `book_closing_balance`, `statement_movement`, `difference`, `matched_count`, `unmatched_book`, `unmatched_statement`, `book`, `statement`.
+5. `POST /payables` nhận `source_type` (`manual` mặc định, `purchase_order`, `medicine_purchase_order`), `source_id` (khi không lập tay), `due_date`; lập tay thêm `org_unit_id`, `supplier_id` hoặc `payee_name`, `document_ref`, `description`, `amount`, `document_date`. Cần `P06.payable.manage`. Chứng từ đã ghi trả `ERR_CONFLICT`; phiếu mua hàng đã thanh toán trả mã P06-07. `GET /payables` lọc `org_unit_id`, `status` (`open`, `paid`, `cancelled`), `supplier_id`, `overdue_only`; trả `rows` (kèm `overdue_days`, `payment_code`), `payees`, `totals`. `POST /payables/{id}/pay` nhận `payment_id`: phiếu chi chưa phát hành, khác đơn vị hoặc khác số tiền trả mã BR-28; phiếu chi đã dùng trả `ERR_CONFLICT`; công nợ không còn chưa trả trả mã P06-07. `POST /payables/{id}/cancel` nhận `reason`.
+6. `GET /fiscal-periods?org_unit_id=` trả từng tháng của năm học đang mở: `period`, `id`, `status` (`open`, `pending`, `closed`, `rejected`), `ended`, `can_request`, `summary`, `request_note`, `reject_reason`. `POST /fiscal-periods` nhận `org_unit_id`, `period` (YYYY-MM), `note`; cần `P06.period-close.request`; tháng chưa kết thúc hoặc còn chứng từ chờ duyệt, hóa đơn nháp trả `ERR_RULE_VIOLATION` mã P06-09 (`details` là `draft_invoices`, `discounts`, `invoice_adjustments`, `receipt_reversals`, `payment_reversals`); đang chờ hoặc đã chốt trả `ERR_CONFLICT`. `POST /fiscal-periods/{id}/close` cần `P06.period-close.approve`; người đề nghị tự duyệt trả mã BR-77. `POST /fiscal-periods/{id}/reject` nhận `reason`.
+7. Thao tác ghi chạm kỳ tài chính đã chốt của đơn vị trả `ERR_RULE_VIOLATION` mã P06-09: `POST /receipts` có `receipt_date` thuộc kỳ, duyệt phiếu chi khi ngày phát hành thuộc kỳ, `POST /receipts/{id}/reverse` và `/payments/{id}/reverse` (cả duyệt) với phiếu có ngày thuộc kỳ, `POST /fee-calculations`, `/invoices/issue`, `/invoices/supplementary` của kỳ, miễn giảm, chép miễn giảm, phiếu điều chỉnh và duyệt của hóa đơn kỳ, dòng sao kê và công nợ phải trả có ngày thuộc kỳ.
 
 Giao kèo của báo cáo hoạt động, báo cáo hợp nhất và xuất dữ liệu (DT-10 phần 10j, YCTD-83):
 
@@ -613,10 +625,25 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 | POST | /api/v1/invoice-adjustments/{id}/reject | Từ chối phiếu điều chỉnh kèm lý do |
 | GET | /api/v1/debts | Danh sách công nợ theo trẻ, theo lớp, theo mốc quá hạn |
 | GET | /api/v1/children/{id}/debt | Công nợ của một trẻ: hóa đơn đã phát hành kèm số còn phải nộp, số dư có (YCTD-53) |
-| GET | /api/v1/debts/reminders | Danh sách cần nhắc nợ |
-| POST | /api/v1/debts/reminders/send | Gửi nhắc nợ |
+| GET | /api/v1/debts/reminders | Danh sách nhắc nợ: hóa đơn quá hạn của đơn vị kèm mốc, lần nhắc gần nhất, cần nhắc (P05-10) |
+| POST | /api/v1/debts/reminders/send | Gửi nhắc nợ cho các hóa đơn được chọn (P05-10) |
 | GET, POST | /api/v1/debt-resolutions | Danh sách và lập đề xuất xử lý công nợ quá hạn (P05-12) |
-| POST | /api/v1/debt-resolutions/{id}/decide | Ban Giám hiệu ghi quyết định xử lý |
+| POST | /api/v1/debt-resolutions/{id}/decide | Phó Hiệu trưởng hoặc Hiệu trưởng ghi quyết định (P05-12) |
+| GET, POST | /api/v1/bank-transactions | Danh sách và ghi dòng sao kê ngân hàng (P06-06) |
+| DELETE | /api/v1/bank-transactions/{id} | Xóa dòng sao kê chưa khớp (P06-06) |
+| POST | /api/v1/bank-transactions/{id}/match | Khớp dòng sao kê với giao dịch tài khoản (P06-06) |
+| POST | /api/v1/bank-transactions/{id}/unmatch | Bỏ khớp (P06-06) |
+| POST | /api/v1/bank-transactions/auto-match | Khớp tự động trong khoảng ngày (P06-06) |
+| GET | /api/v1/bank-reconciliation | Bảng đối chiếu tài khoản ngân hàng trong khoảng ngày (P06-06) |
+| GET, POST | /api/v1/payables | Danh sách và ghi công nợ phải trả (P06-07) |
+| GET | /api/v1/payables/sources | Phiếu mua hàng, phiếu mua thuốc chưa ghi công nợ và nhà cung cấp đang dùng (P06-07) |
+| POST | /api/v1/payables/{id}/pay | Ghi đã trả bằng phiếu chi đã phát hành (P06-07) |
+| POST | /api/v1/payables/{id}/cancel | Hủy công nợ chưa trả (P06-07) |
+| GET | /api/v1/fiscal-periods | Các tháng của năm học kèm trạng thái kỳ tài chính của đơn vị (P06-09) |
+| GET | /api/v1/fiscal-periods/preview | Số liệu và chứng từ chờ duyệt của một kỳ (P06-09) |
+| POST | /api/v1/fiscal-periods | Kế toán trưởng đề nghị chốt kỳ (P06-09) |
+| POST | /api/v1/fiscal-periods/{id}/close | Hiệu trưởng phê duyệt và chốt kỳ (P06-09) |
+| POST | /api/v1/fiscal-periods/{id}/reject | Hiệu trưởng từ chối đề nghị chốt kèm lý do (P06-09) |
 
 ## 10. Tài chính
 
@@ -643,11 +670,8 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 | GET, POST | /api/v1/cash-accounts | Danh sách quỹ và tài khoản ngân hàng của đơn vị; khai báo quỹ hoặc tài khoản (YCTD-53) |
 | PATCH | /api/v1/cash-accounts/{id} | Sửa tên, thông tin ngân hàng, ngừng sử dụng |
 | GET | /api/v1/cash-books | Sổ quỹ hoặc sổ tài khoản theo khoảng ngày, thay cho lịch sử giao dịch của tài khoản (YCTD-55) |
-| GET, POST | /api/v1/payables | Danh sách và ghi nhận công nợ phải trả |
 | GET, POST | /api/v1/suppliers | Danh sách và thêm nhà cung cấp của đơn vị |
 | PUT | /api/v1/suppliers/{id} | Sửa hoặc ngừng dùng nhà cung cấp |
-| POST | /api/v1/fiscal-periods/{id}/request-close | Kế toán trưởng đề nghị chốt kỳ tài chính |
-| POST | /api/v1/fiscal-periods/{id}/close | Hiệu trưởng phê duyệt và chốt kỳ tài chính |
 | GET, POST | /api/v1/cashflow-categories | Khoản mục và nhóm thu chi |
 | PATCH | /api/v1/cashflow-categories/{id} | Sửa, ngừng sử dụng khoản mục (YCTD-49) |
 

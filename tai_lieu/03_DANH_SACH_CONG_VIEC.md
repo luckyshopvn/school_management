@@ -1,7 +1,7 @@
 # 03. DANH SÁCH KIỂM TRA CÔNG VIỆC
 
 - Mô tả: Danh sách công việc, trạng thái và thứ tự ưu tiên của dự án.
-- Phiên bản: 0.14
+- Phiên bản: 0.15
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đang cập nhật
 
@@ -50,7 +50,7 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | M02 | Xây dựng hồ sơ trẻ, phụ huynh, lớp học, phân lớp | P02 | Hoàn thành | Đợt DT-03 ba phần (YCTD-44 đến YCTD-46); chuyển đơn vị, thôi học, đồng ý hình ảnh ở DT-09 phần 9b (YCTD-67); chuyển trẻ sang năm học mới (GD-90) ở DT-09 phần 9d (YCTD-69) |
 | M04 | Xây dựng điểm danh, báo vắng, đón trả trẻ | P04 | Hoàn thành | Đợt DT-04 (YCTD-47, YCTD-48); nhật ký của bé ở DT-08 phần 8b (YCTD-65); nhắc ghi nhật ký ở DT-09 phần 9f (YCTD-71) |
 | M05 | Xây dựng học phí, khoản thu, giảm trừ | P05 | Hoàn thành | Đợt DT-05 sáu phần (YCTD-49 đến YCTD-57) đã gộp vào main; còn bộ chuyển đổi nhà cung cấp thanh toán thật khi chọn xong ở T1 |
-| M06 | Xây dựng phiếu thu, phiếu chi, công nợ, quỹ tiền mặt | P06 | Hoàn thành | Đợt DT-05 phần 5d, 5e, 5f (YCTD-53 đến YCTD-57); báo cáo thu chi theo nhóm ở DT-09 phần 9e (YCTD-70) |
+| M06 | Xây dựng phiếu thu, phiếu chi, công nợ, quỹ tiền mặt | P06 | Hoàn thành | Đợt DT-05 phần 5d, 5e, 5f (YCTD-53 đến YCTD-57); báo cáo thu chi theo nhóm ở DT-09 phần 9e (YCTD-70); nhắc nợ, xử lý công nợ quá hạn, đối chiếu ngân hàng, công nợ phải trả, chốt kỳ tài chính ở DT-10 phần 10i (YCTD-82) |
 | M07 | Xây dựng hồ sơ nhân sự và hợp đồng lao động | P07 | Hoàn thành | Đợt DT-06 phần 6a (YCTD-58) đã gộp vào main |
 | M08 | Xây dựng chấm công, nghỉ phép, bảng lương | P08 | Hoàn thành | Đợt DT-06 phần 6b-1, 6b-2, 6c-1, 6c-2 (YCTD-59 đến YCTD-61) |
 | M17 | Xây dựng bảng điều khiển và báo cáo cơ bản | P17 | Hoàn thành | Đợt DT-07 phần 7a, 7b (YCTD-62, YCTD-63); báo cáo hoạt động và công việc, báo cáo hợp nhất, xuất dữ liệu ở DT-10 phần 10j (YCTD-83) |

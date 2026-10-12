@@ -18,7 +18,7 @@ import {
   type Payable,
 } from './finance-g2-api.js';
 
-// MH-57 (đề xuất) Công nợ phải trả nhà cung cấp (P06-07; BR-28, BR-36; YCTD-82): ghi từ phiếu mua hàng, phiếu mua thuốc hoặc lập
+// MH-61 Công nợ phải trả nhà cung cấp (P06-07; BR-28, BR-36; YCTD-82): ghi từ phiếu mua hàng, phiếu mua thuốc hoặc lập
 // tay; tổng còn phải trả theo nhà cung cấp, quá hạn; ghi đã trả bằng phiếu chi đã phát hành đúng số tiền
 function messageOf(error: unknown): string {
   return error instanceof ApiError

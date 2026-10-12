@@ -17,7 +17,7 @@ import {
   type FiscalPeriodStatus,
 } from './finance-g2-api.js';
 
-// MH-58 (đề xuất) Chốt kỳ tài chính (P06-09; BR-25, BR-29, BR-77; Q-133; YCTD-82): kế toán trưởng đề nghị chốt tháng đã kết thúc,
+// MH-62 Chốt kỳ tài chính (P06-09; BR-25, BR-29, BR-77; Q-133; YCTD-82): kế toán trưởng đề nghị chốt tháng đã kết thúc,
 // Hiệu trưởng duyệt hoặc từ chối; kỳ đã chốt khóa phiếu thu, phiếu chi, phiếu đảo, hóa đơn của kỳ
 function messageOf(error: unknown): string {
   return error instanceof ApiError

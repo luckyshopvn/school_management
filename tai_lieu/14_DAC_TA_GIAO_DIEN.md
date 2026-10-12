@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.39
+- Phiên bản: 1.40
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -53,10 +53,10 @@ flowchart TD
 | MH-05 | Đăng ký dịch vụ theo kỳ: bảng trẻ nhân dịch vụ, đăng ký học hè, chốt danh sách; duyệt đăng ký trễ và hủy trễ (YCTD-50) | VT-04, VT-15, VT-02 |
 | MH-06 | Học phí: tính học phí kỳ, bảng hóa đơn kèm dòng cần kiểm tra, phát hành, hóa đơn bổ sung (YCTD-51) | VT-04 |
 | MH-07 | Miễn giảm và học phí đặc biệt: lập miễn giảm và phiếu điều chỉnh trong chi tiết hóa đơn của MH-06; trang Duyệt miễn giảm và điều chỉnh cho Ban Giám hiệu (YCTD-52) | VT-04, VT-05, VT-15, VT-02 |
-| MH-08 | Danh sách công nợ, nhắc nợ và xử lý công nợ quá hạn: phần 5d-1 có danh sách công nợ theo trẻ (phải thu, đã thu, còn lại, số dư có, quá hạn), chi tiết của trẻ có lịch sử phiếu thu, biểu mẫu lập phiếu thu và nút dùng số dư có (YCTD-53) | VT-04, VT-03, VT-15, VT-02, VT-05, VT-16 |
+| MH-08 | Danh sách công nợ, nhắc nợ và xử lý công nợ quá hạn: phần 5d-1 có danh sách công nợ theo trẻ (phải thu, đã thu, còn lại, số dư có, quá hạn), chi tiết của trẻ có lịch sử phiếu thu, biểu mẫu lập phiếu thu và nút dùng số dư có (YCTD-53); trang Nhắc nợ và xử lý quá hạn có danh sách hóa đơn quá hạn theo mốc, chọn và gửi nhắc nợ, lập đề xuất xử lý, Ban Giám hiệu ghi quyết định (YCTD-82) | VT-04, VT-03, VT-15, VT-02, VT-05, VT-16 |
 | MH-09 | Phiếu thu và màn hình phân bổ: danh sách phiếu thu lọc theo đơn vị và ngày; lập phiếu thu và phân bổ trong chi tiết công nợ của trẻ ở MH-08 (YCTD-53); lập phiếu đảo kèm lý do; Ban Giám hiệu duyệt hoặc từ chối phiếu đảo chờ duyệt (YCTD-54); giao dịch chuyển khoản chờ xử lý (YCTD-57) | VT-04, VT-05, VT-16, VT-15, VT-02 |
 | MH-10 | Phiếu chi và phê duyệt: biểu mẫu lập phiếu chi kèm chứng từ, lưu nháp hoặc trình duyệt; danh sách phiếu chi; mục phiếu chi chờ duyệt cho Ban Giám hiệu (YCTD-55); lập phiếu đảo trên phiếu đã phát hành và mục phiếu đảo phiếu chi chờ duyệt (YCTD-56) | VT-04, VT-05, VT-16, VT-15, VT-02 |
-| MH-11 | Sổ quỹ và tài khoản ngân hàng: trang Quỹ và ngân hàng để khai báo và xem số dư (YCTD-53), chọn tài khoản nhận thanh toán trực tuyến (YCTD-57); trang Sổ quỹ theo quỹ hoặc tài khoản và khoảng ngày, có số dư đầu kỳ, từng phiếu, tổng thu, tổng chi, số dư cuối kỳ (YCTD-55) | VT-04, VT-05, VT-16 |
+| MH-11 | Sổ quỹ và tài khoản ngân hàng: trang Quỹ và ngân hàng để khai báo và xem số dư (YCTD-53), chọn tài khoản nhận thanh toán trực tuyến (YCTD-57); trang Sổ quỹ theo quỹ hoặc tài khoản và khoảng ngày, có số dư đầu kỳ, từng phiếu, tổng thu, tổng chi, số dư cuối kỳ (YCTD-55); trang Đối chiếu ngân hàng: ghi dòng sao kê, phát sinh theo sổ và sao kê, chênh lệch, khớp tay, khớp tự động, bỏ khớp (YCTD-82) | VT-04, VT-05, VT-16 |
 | MH-12 | Hồ sơ nhân sự và hợp đồng: danh sách theo đơn vị, tìm theo tên hoặc mã; thêm hồ sơ; chi tiết có liên kết tài khoản, lập và chấm dứt hợp đồng (YCTD-58); mục Quá trình công tác và chứng chỉ: phòng nhân sự ghi thêm mốc công tác, ghi chứng chỉ; nhân sự và người xem hồ sơ xem (YCTD-81) | VT-06, VT-02, VT-15, VT-03, VT-04, VT-05 |
 | MH-13 | Chấm công: bảng chấm công của đơn vị theo tháng, nhập và sửa giờ, chốt bảng công, đề nghị và duyệt mở lại kỳ công; đơn nghỉ của đơn vị (YCTD-59) | VT-06, VT-15, VT-02, VT-03, VT-04, VT-05 |
 | MH-14 | Đơn nghỉ phép | VT-06, VT-03 |
@@ -106,6 +106,8 @@ flowchart TD
 | MH-58 | Công việc và kế hoạch: việc của tôi, thêm việc cá nhân, cập nhật tiến độ; giao việc, bảng tiến độ theo người nhận, việc đã giao trong đơn vị; lập, kích hoạt, đóng kế hoạch theo kỳ kèm tiến độ (YCTD-81) | Mọi nhân sự; VT-03, VT-06 giao việc; VT-03 lập kế hoạch; VT-02, VT-15 xem |
 | MH-59 | Đánh giá nhân sự: chỉ số đánh giá của đơn vị, lập phiếu nháp, công bố, đánh giá lại có lý do; kết quả đánh giá của tôi (YCTD-81) | VT-03, VT-06; VT-02, VT-15 xem; mọi nhân sự xem phiếu của mình |
 | MH-60 | Thưởng và khấu trừ theo tháng bảng lương: ghi khoản có căn cứ, hủy khi bảng lương còn nháp (YCTD-81) | VT-04, VT-05; người xem bảng lương xem |
+| MH-61 | Công nợ phải trả (trang Nợ nhà cung cấp): tổng còn phải trả, quá hạn, theo nhà cung cấp; ghi từ phiếu mua hàng, phiếu mua thuốc chưa ghi hoặc lập tay; ghi đã trả bằng phiếu chi đã phát hành; hủy (YCTD-82) | VT-04, VT-05; người có P06.view xem |
+| MH-62 | Chốt kỳ tài chính: các tháng của năm học kèm trạng thái và số liệu kỳ; kế toán trưởng đề nghị chốt kèm ghi chú; Hiệu trưởng duyệt hoặc từ chối kèm lý do (YCTD-82) | VT-05, VT-02 |
 
 ### 2.2 Ứng dụng giáo viên
 

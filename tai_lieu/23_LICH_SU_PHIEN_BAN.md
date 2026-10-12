@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.41.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-10 phần 10i, nhắc nợ, xử lý công nợ quá hạn, đối chiếu ngân hàng, công nợ phải trả, chốt kỳ tài chính (YCTD-82).
+- Chức năng mới: P05-10, P05-12, P06-06, P06-07, P06-09 trên máy chủ API và cổng quản trị (MH-08, MH-11, MH-61, MH-62).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: năm bảng của năm học (tệp 0038); không thêm cột vào bảng có sẵn.
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: kỳ đã chốt chặn lập và sửa chứng từ của kỳ; chưa có thao tác mở lại kỳ đã chốt.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-10-phan-10i`; chạy ngược tệp 0038 của cơ sở dữ liệu năm học.
+
 ### Phiên bản 0.40.0 – 2026-10-11
 
 - Phạm vi thay đổi: DT-10 phần 10h, công việc, kế hoạch, đánh giá nhân sự, quá trình công tác, thưởng và khấu trừ (YCTD-81).

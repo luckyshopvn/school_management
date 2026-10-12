@@ -580,7 +580,7 @@ describe('Tài chính giai đoạn 2: nhắc nợ, xử lý công nợ, ngân h�
       period: currentMonth,
     });
     assert.equal(notEnded.status, 422);
-    assert.equal(errorOf(notEnded.body).rule_code, 'P06-09');
+    assert.equal(errorOf(notEnded.body).rule_code, 'BR-95');
     assert.equal(
       (await api('POST', '/fiscal-periods', token('accountant'), { org_unit_id: unitA(), period: previousMonth }))
         .status,
@@ -632,7 +632,7 @@ describe('Tài chính giai đoạn 2: nhắc nợ, xử lý công nợ, ngân h�
 
     const expectLocked = (response: { status: number; body: Record<string, unknown> }, label: string) => {
       assert.equal(response.status, 422, `${label}: ${JSON.stringify(response.body)}`);
-      assert.equal(errorOf(response.body).rule_code, 'P06-09', label);
+      assert.equal(errorOf(response.body).rule_code, 'BR-95', label);
     };
     expectLocked(
       await api('POST', '/receipts', token('accountant'), {

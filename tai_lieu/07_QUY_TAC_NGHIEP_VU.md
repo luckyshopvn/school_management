@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.28
+- Phiên bản: 1.29
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -66,8 +66,8 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 | BR-30 | Số phiếu thu và phiếu chi do hệ thống sinh theo quy tắc của đơn vị, không trùng trong phạm vi đơn vị và năm học, đánh lại từ đầu mỗi năm học (YCTD-30) |
 | BR-31 | Một phiếu thu thanh toán cho một hoặc nhiều hóa đơn của một trẻ và phải trả đủ số còn phải nộp của từng hóa đơn được chọn; không nhận thanh toán một phần. Tổng số tiền phân bổ không vượt quá số tiền thu |
 | BR-32 | Số dư công nợ của trẻ là tổng khoản phải thu trừ tổng số tiền đã phân bổ từ các phiếu thu và trừ giảm trừ đã duyệt |
-| BR-33 | Công nợ quá hạn được xác định theo số ngày quá hạn so với ngày đến hạn của kỳ. Hệ thống đưa vào danh sách nhắc nợ theo mốc cấu hình. Mỗi đơn vị tự bật hoặc tắt việc chặn phụ huynh đăng ký thêm dịch vụ khi trẻ còn công nợ quá hạn; trẻ không bị chặn đi học |
-| BR-34 | Số dư quỹ tiền mặt và tài khoản ngân hàng được tính từ phiếu thu, phiếu chi và các giao dịch đã ghi nhận; số dư quỹ tiền mặt không được âm, quy tắc bắt buộc và không tắt được; kiểm tra số dư tài khoản ngân hàng do đơn vị cấu hình, mặc định bật (YCTD-55) |
+| BR-33 | Công nợ quá hạn được xác định theo số ngày quá hạn so với ngày đến hạn của kỳ. Hệ thống đưa vào danh sách nhắc nợ theo mốc cấu hình. Mỗi đơn vị tự bật hoặc tắt việc chặn phụ huynh đăng ký thêm dịch vụ khi trẻ còn công nợ quá hạn; trẻ không bị chặn đi học. Mỗi hóa đơn được nhắc nợ tối đa một lần ở mỗi mốc; đề xuất và quyết định xử lý công nợ quá hạn không làm thay đổi số tiền công nợ (YCTD-82) |
+| BR-34 | Số dư quỹ tiền mặt và tài khoản ngân hàng được tính từ phiếu thu, phiếu chi và các giao dịch đã ghi nhận; số dư quỹ tiền mặt không được âm, quy tắc bắt buộc và không tắt được; kiểm tra số dư tài khoản ngân hàng do đơn vị cấu hình, mặc định bật (YCTD-55). Dòng sao kê ngân hàng nhập để đối chiếu không làm thay đổi số dư tài khoản (YCTD-82) |
 | BR-35 | Mọi thao tác thay đổi số liệu tài chính phải ghi nhật ký thao tác kèm người thực hiện, thời điểm và giá trị trước, giá trị sau |
 | BR-36 | Báo cáo tài chính phải lọc được theo đơn vị, theo khoảng ngày, theo loại thu chi và theo người lập phiếu |
 
@@ -165,6 +165,7 @@ Bổ sung ngày 2026-10-09 theo yêu cầu tách vai trò Ban Giám hiệu thàn
 | BR-92 | Kỳ hè thuộc năm học đó. Trẻ học hè phải được đăng ký theo từng tháng hè; trẻ đã đăng ký thì điểm danh và tính học phí như tháng thường theo biểu phí hiện hành, trẻ không đăng ký thì không có trong bảng điểm danh và không có hóa đơn của tháng hè đó (YCTD-30) |
 | BR-93 | Mỗi thời điểm chỉ có một năm học đang dùng. Mở năm học mới là một thao tác: kiểm tra BR-89, tạo cơ sở dữ liệu năm mới, chuyển dữ liệu dùng chung, chuyển năm đang dùng sang đã đóng và cơ sở dữ liệu của năm đó sang chỉ đọc. Năm học đầu tiên của hệ thống mở mà không có năm trước (YCTD-37) |
 | BR-94 | Không mở được năm học mới khi năm học đang dùng còn miễn giảm, điều chỉnh hóa đơn, phiếu đảo phiếu thu, phiếu chi hoặc phiếu đảo phiếu chi chờ duyệt, vì năm cũ chuyển sang chỉ đọc (YCTD-69) |
+| BR-95 | Kỳ tài chính là tháng dương lịch của từng đơn vị, chỉ đề nghị chốt khi tháng đã kết thúc. Khi Hiệu trưởng đã duyệt chốt kỳ, không lập, phát hành, đảo hay duyệt đảo chứng từ thu chi có ngày thuộc kỳ, không tính lại, phát hành, miễn giảm hay điều chỉnh hóa đơn của kỳ; sai sót của kỳ đã chốt được sửa bằng chứng từ của kỳ đang mở (YCTD-82) |
 
 Danh mục chứng từ áp dụng hạn mức: phiếu chi, phiếu đảo phiếu thu (YCTD-23), phiếu đảo phiếu chi (YCTD-24), đề nghị mua hàng, phiếu điều chỉnh hóa đơn, miễn giảm học phí, bảng lương kỳ, chốt kỳ tài chính. Mức hạn mức cụ thể chưa có, xem Q-22 và Q-112.
 
