@@ -18,6 +18,7 @@ export function ClassesScreen({
   onOpenPickup,
   onOpenJournal,
   onOpenCare,
+  onOpenMealReport,
   onOpenMedication,
   onOpenGate,
   onOpenLeave,
@@ -27,6 +28,7 @@ export function ClassesScreen({
   onOpenPickup(myClass: MyClass): void;
   onOpenJournal(myClass: MyClass): void;
   onOpenCare(myClass: MyClass): void;
+  onOpenMealReport(myClass: MyClass): void;
   onOpenMedication(myClass: MyClass): void;
   onOpenGate(orgUnitIds: string[]): void;
   onOpenLeave(): void;
@@ -90,6 +92,9 @@ export function ClassesScreen({
               </Button>
               <Button aria-label={`Chăm sóc lớp ${myClass.name}`} onClick={() => onOpenCare(myClass)}>
                 Chăm sóc và y tế
+              </Button>
+              <Button aria-label={`Báo cơm lớp ${myClass.name}`} onClick={() => onOpenMealReport(myClass)}>
+                Báo cơm
               </Button>
               <Button aria-label={`Dặn thuốc lớp ${myClass.name}`} onClick={() => onOpenMedication(myClass)}>
                 Dặn thuốc

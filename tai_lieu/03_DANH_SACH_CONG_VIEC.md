@@ -1,7 +1,7 @@
 # 03. DANH SÁCH KIỂM TRA CÔNG VIỆC
 
 - Mô tả: Danh sách công việc, trạng thái và thứ tự ưu tiên của dự án.
-- Phiên bản: 0.8
+- Phiên bản: 0.9
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đang cập nhật
 
@@ -59,7 +59,7 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | M09 | Xây dựng công việc, kế hoạch, đánh giá | P09 | Chưa bắt đầu | Giai đoạn 2 |
 | M10 | Xây dựng y tế học đường | P10 | Hoàn thành | Đợt DT-10 phần 10a hồ sơ, khám, sự kiện, chăm sóc, báo cáo (YCTD-74); phần 10b thuốc (YCTD-75) |
 | M11 | Xây dựng xe đưa đón | P11 | Đã bỏ | Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62) |
-| M12 | Xây dựng bếp, thực đơn, định lượng | P12 | Chưa bắt đầu | Giai đoạn 2 |
+| M12 | Xây dựng bếp, thực đơn, định lượng | P12 | Hoàn thành | Đợt DT-10 phần 10c (YCTD-76), gồm báo cáo ăn và bếp P17-08 |
 | M13 | Xây dựng kho, tài sản, mua hàng | P13 | Hoàn thành | Đợt DT-10 phần 10d (YCTD-77) |
 | M14 | Xây dựng hoạt động, tin tức, thư viện, thông báo | P14 | Chưa bắt đầu | Giai đoạn 2 |
 | M15 | Xây dựng tương tác, góp ý, bình chọn, khảo sát | P15 | Chưa bắt đầu | Giai đoạn 2 |

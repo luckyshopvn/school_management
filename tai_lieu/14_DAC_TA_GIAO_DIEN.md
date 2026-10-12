@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.33
+- Phiên bản: 1.34
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -63,7 +63,7 @@ flowchart TD
 | MH-15 | Bảng lương toàn trường theo tháng: tính, trình, duyệt, trả lại; phiếu từng người kèm căn cứ; danh sách chưa tính lương (YCTD-60); lập phiếu chi lương (YCTD-61) | VT-04, VT-05, VT-06, VT-20, VT-15, VT-02 |
 | MH-16 | Y tế học đường: đợt khám, lịch khám theo lớp, ghi và công bố kết quả khám kèm đánh giá theo tiêu chuẩn; sự kiện y tế và trạng thái phụ huynh xác nhận; yêu cầu báo cáo sức khỏe; tiêu chuẩn sức khỏe (YCTD-74) | VT-09; người có quyền ghi sự kiện y tế |
 | MH-17 | Thuốc và dặn thuốc: yêu cầu dặn thuốc chờ nhận, nhận hoặc từ chối, xem ảnh thuốc và đơn thuốc; liều cần cho uống theo ngày, ghi đã cho uống hoặc bỏ liều kèm lý do, trạng thái phụ huynh đã biết; danh mục thuốc, nhà thuốc; đề nghị mua thuốc, duyệt theo hạn mức, phiếu mua thuốc; phiếu cấp thuốc (YCTD-75) | VT-09; người có quyền duyệt mua thuốc, người có quyền ghi liều |
-| MH-18 | Thực đơn và định lượng nguyên liệu | VT-10 |
+| MH-18 | Bếp và thực đơn: thực đơn tuần (lập, thêm món theo thứ và bữa, trình duyệt; quản lý đơn vị duyệt và công bố hoặc trả lại), định lượng theo ngày, suất ăn theo ngày theo lớp và tính lưu số suất, món ăn, nguyên liệu, định lượng trên một suất, buffet theo dịp, thẻ báo cáo ăn và bếp (YCTD-76) | VT-10, VT-03; VT-04 xem |
 | MH-19 | Suất ăn theo ngày và buffet theo dịp | VT-10 |
 | MH-20 | Tài sản, mượn trả, hỏng và mất: trang Kho và tài sản, thẻ Tài sản: thêm tài sản, cấp phát, cho mượn, thu hồi hoặc nhận trả, ghi nhận hỏng; Ban Giám hiệu duyệt hoặc từ chối hỏng mất chờ duyệt (YCTD-77) | VT-11, VT-02, VT-15 |
 | MH-21 | Đề nghị mua hàng, phiếu mua hàng, nhà cung cấp: trang Đề nghị mua hàng cho mọi nhân sự lập và xem đề nghị của mình, Ban Giám hiệu duyệt hoặc từ chối đề nghị chờ duyệt; trang Kho và tài sản, thẻ Phiếu mua hàng lập phiếu từ đề nghị đã duyệt, nhận hàng, xem trạng thái chờ thanh toán; thẻ Nhà cung cấp (YCTD-77) | Mọi nhân sự, VT-11, VT-04, VT-02, VT-15 |
@@ -83,7 +83,7 @@ flowchart TD
 | MH-35 | Đồ bị mất của trẻ | VT-03 |
 | MH-36 | Hoạt động ngoại khóa và danh sách đăng ký | VT-03, VT-04 |
 | MH-37 | Ngày lễ và lịch bù: ngày nghỉ lễ, ngày học bù thứ bảy, ngày nghỉ bù theo năm (YCTD-59) | VT-06 gán ở Trường chính (ngày nghỉ lễ), VT-02, VT-15 (học bù và nghỉ bù); mọi người xem |
-| MH-38 | Phiếu đi chợ và nhà cung cấp thực phẩm | VT-10 |
+| MH-38 | Phiếu đi chợ và nhà cung cấp thực phẩm: thẻ trong trang Bếp và thực đơn; lập phiếu theo định lượng của ngày, xác nhận nhập, chênh lệch với định lượng, kế toán gắn phiếu chi (YCTD-76) | VT-10; VT-04 gắn phiếu chi |
 | MH-39 | Khoản mục và nhóm thu chi | VT-04, VT-05 |
 | MH-40 | Nhập dữ liệu ban đầu từ Excel và nhập mã định danh ngành từ tệp; kế toán nhập công nợ đầu kỳ (YCTD-54); nhân sự nhập hồ sơ nhân sự (YCTD-58) | VT-02, VT-04, VT-06, VT-12, VT-03 |
 | MH-41 | Giao dịch chuyển khoản trực tuyến cần xử lý | VT-04 |
@@ -120,7 +120,7 @@ flowchart TD
 | MG-11 | Phiếu lương của tôi: phiếu đã duyệt, từng dòng kèm căn cứ (YCTD-60) | Mọi nhân sự dùng ứng dụng giáo viên |
 | MG-12 | Công việc được giao và kế hoạch | Mọi nhân sự dùng ứng dụng giáo viên |
 | MG-13 | Lịch đưa đón của tuyến — Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62) | — |
-| MG-14 | Suất ăn và báo cơm của lớp | VT-10, VT-07 |
+| MG-14 | Báo cơm của lớp: sĩ số, số trẻ có mặt theo điểm danh đã lưu, gửi số suất cho bếp khi chưa chốt điểm danh (YCTD-76) | VT-07 chủ nhiệm |
 | MG-15 | Đồ bị mất của lớp | VT-07 |
 | MG-16 | Xác nhận người đón tại cổng: tìm trẻ trong đơn vị, xác nhận người được đón (YCTD-48) | VT-18 |
 | MG-17 | Duyệt giáo án của tổ | VT-17 |
@@ -143,7 +143,7 @@ flowchart TD
 | MP-12 | Đăng ký, hủy dịch vụ theo tháng và đăng ký học hè (YCTD-50) | VT-14 |
 | MP-13 | Lịch đưa đón — Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62) | — |
 | MP-14 | Hoạt động và hình ảnh | VT-14 |
-| MP-15 | Thực đơn | VT-14 |
+| MP-15 | Thực đơn: thực đơn tuần đã công bố theo độ tuổi của lớp, buffet đã duyệt trong tuần (YCTD-76) | VT-14 |
 | MP-16 | Tin tức, thông báo, thư viện, hình tô màu | VT-14 |
 | MP-17 | Bình chọn, biểu quyết, khảo sát | VT-14 |
 | MP-18 | Tài khoản, người được ủy quyền đón trẻ, xác nhận người đón ngoài danh sách, đồng ý sử dụng hình ảnh | VT-14 |

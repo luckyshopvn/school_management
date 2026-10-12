@@ -29,6 +29,7 @@ import { migration as createWorkSchedules } from './migrations/0027_create_work_
 import { migration as addReceiptCarriedOver } from './migrations/0028_add_receipt_carried_over.js';
 import { migration as addNotificationDelivery } from './migrations/0029_add_notification_delivery.js';
 import { migration as createHealthRecords } from './migrations/0030_create_health_records.js';
+import { migration as createKitchen } from './migrations/0032_create_kitchen.js';
 import { migration as createMedicines } from './migrations/0031_create_medicines.js';
 import { migration as createInventory } from './migrations/0033_create_inventory.js';
 
@@ -64,6 +65,7 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0028_add_receipt_carried_over': addReceiptCarriedOver,
   '0029_add_notification_delivery': addNotificationDelivery,
   '0030_create_health_records': createHealthRecords,
+  '0032_create_kitchen': createKitchen,
   '0031_create_medicines': createMedicines,
   '0033_create_inventory': createInventory,
 };

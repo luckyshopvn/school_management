@@ -55,6 +55,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.2.0 | Bốn thay đổi: Ban Giám hiệu, nhiều cấp đơn vị, tách giao diện và máy chủ, dịch vụ định danh | 01 đến 07 | Đã có |
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
+| 0.35.0 | DT-10 phần 10c, bếp, thực đơn, định lượng và báo cáo ăn (YCTD-76) | 09, 10 | Đã có |
 | 0.34.0 | DT-10 phần 10b, thuốc: danh mục, dặn thuốc, cho uống, mua và cấp thuốc (YCTD-75) | 09, 10 | Đã có |
 | 0.33.0 | DT-10 phần 10d: kho, tài sản, mua hàng (YCTD-77) | 09, 10 | Đã có |
 | 0.32.0 | DT-10 phần 10a: y tế học đường phần hồ sơ, khám, sự kiện, chăm sóc, báo cáo (YCTD-73, YCTD-74) | 09, 10 | Đã có |

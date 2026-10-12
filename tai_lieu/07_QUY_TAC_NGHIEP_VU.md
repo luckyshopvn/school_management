@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.23
+- Phiên bản: 1.24
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -111,7 +111,7 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 
 | Mã | Quy tắc |
 |---|---|
-| BR-58 | Suất ăn một ngày gồm ba bữa sáng, trưa, xế, thuộc bán trú. Số suất ăn mỗi ngày bằng số trẻ có mặt theo điểm danh; trẻ vắng ngày nào không tính tiền ăn ngày đó (BR-14). Bếp và kế toán dùng cùng một con số |
+| BR-58 | Suất ăn một ngày gồm ba bữa sáng, trưa, xế, thuộc bán trú. Số suất ăn mỗi ngày bằng số trẻ có mặt theo điểm danh; trẻ vắng ngày nào không tính tiền ăn ngày đó (BR-14). Bếp và kế toán dùng cùng một con số. Số suất của lớp trong ngày lấy theo điểm danh đã chốt; trước khi chốt, bếp dùng báo cơm của giáo viên chủ nhiệm hoặc số trẻ có mặt đã lưu làm số tạm; báo cáo ăn và bếp đối chiếu số suất đã lưu với điểm danh đã chốt (YCTD-76) |
 | BR-59 | Thực đơn theo tuần phải được duyệt trước khi công bố cho phụ huynh |
 | BR-60 | Định lượng nguyên liệu tính từ thực đơn và số suất. Chênh lệch giữa định lượng và thực xuất phải được ghi nhận |
 | BR-61 | Tài sản của trường được gán cho đơn vị, phòng hoặc lớp. Mượn, trả, hỏng, mất đều phải có phiếu và người xác nhận. Chỉ tài sản đang trong kho mới cấp phát hoặc cho mượn được; hỏng hoặc mất do Ban Giám hiệu của đơn vị duyệt xử lý (YCTD-77) |

@@ -14,6 +14,27 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-10 phần 10c: bếp và thực đơn
+
+#### Công việc đã thực hiện
+
+- Agent 10c viết mã, kiểm thử máy chủ, nháp tài liệu trong worktree riêng; người điều phối gộp `main` cùng các nhánh 10b, 10d, xử lý xung đột ở các tệp đăng ký dùng chung, sửa kiểm thử giao diện chọn món, chạy toàn bộ kiểm thử, đưa nháp vào tài liệu.
+- Cơ sở dữ liệu: mười một bảng bếp (tệp 0032). Máy chủ API: nguyên liệu, món ăn, định lượng, thực đơn tuần trình duyệt và công bố, suất ăn theo ngày, báo cơm, buffet, nhà cung cấp thực phẩm, phiếu đi chợ chờ thanh toán, báo cáo ăn và bếp; bước chuyển năm học `kitchen`.
+- Cổng quản trị: trang Bếp và thực đơn. Ứng dụng giáo viên: báo cơm của lớp. Ứng dụng phụ huynh: thực đơn.
+- Kết quả: máy chủ API 431/431, kiểm thử giao diện 51/51.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-76 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-76 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.35.0.
+
+#### Vấn đề tồn đọng
+
+- Gộp lượt 2 (10e, 10f, 10g); các phần 10h đến 10j.
+
 ### 2026-10-11 — DT-10 phần 10b: thuốc
 
 #### Công việc đã thực hiện

@@ -29,6 +29,12 @@ import { HealthAccess } from './health/health-access.js';
 import { HealthCareController, HealthCareService } from './health/health-care.js';
 import { HealthRecordsController, HealthRecordsService } from './health/health-records.js';
 import { healthTransitionStep } from './health/health-transition.js';
+import { KitchenAccess } from './kitchen/kitchen-access.js';
+import { KitchenCatalogsController, KitchenCatalogsService } from './kitchen/kitchen-catalogs.js';
+import { KitchenMealsController, KitchenMealsService } from './kitchen/kitchen-meals.js';
+import { KitchenMenusController, KitchenMenusService } from './kitchen/kitchen-menus.js';
+import { KitchenPurchasesController, KitchenPurchasesService } from './kitchen/kitchen-purchases.js';
+import { kitchenTransitionStep } from './kitchen/kitchen-transition.js';
 import { MedicationAccess } from './medicines/medication-access.js';
 import { MedicationRequestsController, MedicationRequestsService } from './medicines/medication-requests.js';
 import { MedicineCatalogController, MedicineCatalogService } from './medicines/medicine-catalog.js';
@@ -145,6 +151,10 @@ export class ApplicationModule {
         WorkSchedulesController,
         HealthRecordsController,
         HealthCareController,
+        KitchenCatalogsController,
+        KitchenMenusController,
+        KitchenMealsController,
+        KitchenPurchasesController,
         MedicineCatalogController,
         MedicationRequestsController,
         MedicinePurchasesController,
@@ -201,6 +211,7 @@ export class ApplicationModule {
             childrenTransitionStep,
             financeTransitionStep,
             healthTransitionStep,
+            kitchenTransitionStep,
             medicinesTransitionStep,
             inventoryTransitionStep,
             ...(options.transitionSteps ?? []),
@@ -228,6 +239,11 @@ export class ApplicationModule {
         HealthAccess,
         HealthRecordsService,
         HealthCareService,
+        KitchenAccess,
+        KitchenCatalogsService,
+        KitchenMealsService,
+        KitchenMenusService,
+        KitchenPurchasesService,
         MedicationAccess,
         MedicineCatalogService,
         MedicationRequestsService,
