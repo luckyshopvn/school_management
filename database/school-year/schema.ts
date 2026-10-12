@@ -265,13 +265,16 @@ export interface NotificationsTable {
   created_at: CreatedTimestamp;
 }
 
+// Kênh thông báo: trong ứng dụng, tin nhắn, Zalo Official Account (YCTD-71, YCTD-90)
+export type NotificationChannel = 'in_app' | 'sms' | 'zalo';
+
 export interface NotificationRecipientsTable {
   id: Generated<string>;
   notification_id: string;
   user_id: string | null;
   role_code: string | null;
   org_unit_id: string | null;
-  channel: 'in_app' | 'sms';
+  channel: NotificationChannel;
   is_read: Generated<boolean>;
   read_at: Date | null;
   channel_status: Generated<'pending' | 'sent' | 'failed' | 'limited'>;
@@ -280,6 +283,8 @@ export interface NotificationRecipientsTable {
   attempt_count: Generated<number>;
   next_attempt_at: Date | null;
   last_error: string | null;
+  // Kênh thực tế đã gửi; kênh zalo gửi tin nhắn khi người nhận chưa liên kết Zalo (YCTD-90)
+  delivered_via: NotificationChannel | null;
 }
 
 export type ImportType = 'classes' | 'children' | 'moet_codes' | 'opening_debts' | 'staff';
@@ -2488,6 +2493,50 @@ export interface FiscalPeriodsTable {
   reject_reason: string | null;
 }
 
+// Kết nối ngoài: cấu hình toàn trường, phụ huynh quan tâm Zalo Official Account, bài đăng Fanpage (P14-08, G3-08, YCTD-90)
+export type IntegrationConnector = 'facebook' | 'zalo';
+export type FacebookPostSourceType = 'activity' | 'news';
+export type FacebookPostStatus = 'posted' | 'failed';
+
+export interface IntegrationSettingsTable {
+  id: Generated<string>;
+  connector: IntegrationConnector;
+  enabled: Generated<boolean>;
+  config_data: ColumnType<Record<string, string>, string | undefined, string>;
+  updated_by: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ZaloFollowersTable {
+  id: Generated<string>;
+  phone: string;
+  zalo_user_id: string;
+  display_name: string | null;
+  linked_by: string;
+  linked_at: CreatedTimestamp;
+}
+
+export interface FacebookPostsTable {
+  id: Generated<string>;
+  source_type: FacebookPostSourceType;
+  source_id: string;
+  org_unit_id: string;
+  title: string;
+  message: string;
+  photo_file_ids: ColumnType<string[], string[] | undefined, string[]>;
+  excluded_photo_count: Generated<number>;
+  status: FacebookPostStatus;
+  page_id: string;
+  provider: string;
+  external_post_id: string | null;
+  last_error: string | null;
+  attempt_count: Generated<number>;
+  posted_by: string;
+  posted_at: Date | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -2660,4 +2709,7 @@ export interface SchoolYearDatabase {
   bank_statement_lines: BankStatementLinesTable;
   payables: PayablesTable;
   fiscal_periods: FiscalPeriodsTable;
+  integration_settings: IntegrationSettingsTable;
+  zalo_followers: ZaloFollowersTable;
+  facebook_posts: FacebookPostsTable;
 }

@@ -21,6 +21,7 @@ import {
   type Extracurricular,
   type Registration,
 } from './activities-api.js';
+import { FacebookPostButton, useFacebookPosts } from './FacebookPostButton.js';
 
 // MH-23, MH-24, MH-36 Hoạt động và tin tức (P14-01 đến P14-06, P14-09 đến P14-12; YCTD-78): duyệt, từ chối, ẩn hoạt động
 // của lớp; danh mục; tin tức kèm bình luận (chỉ ẩn kèm lý do); thư viện và hình tô màu; hoạt động ngoại khóa và đăng ký
@@ -91,6 +92,7 @@ function ActivitiesTab({ orgUnitId, onDone }: TabProps) {
   const queryClient = useQueryClient();
   const [status, setStatus] = useState<ActivityStatus | ''>('pending');
   const [reasons, setReasons] = useState<Record<string, string>>({});
+  const facebook = useFacebookPosts('activity');
   const activities = useQuery({
     queryKey: ['activities', orgUnitId, status],
     queryFn: () =>
@@ -178,6 +180,13 @@ function ActivitiesTab({ orgUnitId, onDone }: TabProps) {
               <Button onClick={() => act.mutate({ id: activity.id, action: 'republish' })}>Công bố lại</Button>
             ) : null}
           </div>
+          {facebook.allowed && activity.status === 'published' ? (
+            <FacebookPostButton
+              sourceType="activity"
+              sourceId={activity.id}
+              post={facebook.bySource.get(activity.id)}
+            />
+          ) : null}
         </article>
       ))}
     </section>
@@ -287,6 +296,7 @@ function NewsTab({ orgUnitId, onDone }: TabProps) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [selected, setSelected] = useState<string>();
+  const facebook = useFacebookPosts('news');
   const news = useQuery({
     queryKey: ['news', orgUnitId],
     queryFn: () => requestJson<ContentItem[]>(`/api/v1/news?org_unit_id=${orgUnitId}`),
@@ -328,6 +338,11 @@ function NewsTab({ orgUnitId, onDone }: TabProps) {
             item={item}
             onChanged={() => void queryClient.invalidateQueries({ queryKey: ['news'] })}
           />
+          {facebook.allowed &&
+          item.status === 'published' &&
+          (item.scope_type === 'school' || item.scope_type === 'unit') ? (
+            <FacebookPostButton sourceType="news" sourceId={item.id} post={facebook.bySource.get(item.id)} />
+          ) : null}
           <Button variant="text" onClick={() => setSelected(selected === item.id ? undefined : item.id)}>
             Bình luận
           </Button>
