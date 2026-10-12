@@ -2488,6 +2488,80 @@ export interface FiscalPeriodsTable {
   reject_reason: string | null;
 }
 
+// Tuyển sinh trực tuyến (P16; YCTD-86)
+export type AdmissionCampaignStatus = 'draft' | 'open' | 'closed';
+export type AdmissionApplicationStatus = 'submitted' | 'received' | 'passed' | 'rejected' | 'converted';
+export type AdmissionApplicationSource = 'online' | 'staff';
+export type AdmissionPostStatus = 'draft' | 'published' | 'hidden';
+
+export interface AdmissionCampaignsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  name: string;
+  description: string | null;
+  quota: number;
+  open_from: string;
+  open_to: string;
+  status: Generated<AdmissionCampaignStatus>;
+  opened_at: Date | null;
+  closed_at: Date | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface AdmissionApplicationsTable {
+  id: Generated<string>;
+  code: string;
+  campaign_id: string;
+  org_unit_id: string;
+  source: AdmissionApplicationSource;
+  child_full_name: string;
+  child_dob: string;
+  child_gender: 'male' | 'female';
+  child_national_id_encrypted: string | null;
+  child_national_id_hash: string | null;
+  child_national_id_last4: string | null;
+  child_has_allergies: boolean | null;
+  child_allergies: string | null;
+  guardian_full_name: string;
+  guardian_phone: string;
+  guardian_email: string | null;
+  guardian_relationship_item_id: string | null;
+  address: string | null;
+  note: string | null;
+  status: Generated<AdmissionApplicationStatus>;
+  received_by: string | null;
+  received_at: Date | null;
+  reviewed_by: string | null;
+  reviewed_at: Date | null;
+  review_note: string | null;
+  reject_reason: string | null;
+  planned_class_id: string | null;
+  created_child_id: string | null;
+  converted_by: string | null;
+  converted_at: Date | null;
+  submitted_ip: string | null;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface AdmissionPostsTable {
+  id: Generated<string>;
+  campaign_id: string;
+  title: string;
+  content: string;
+  publish_from: string;
+  publish_to: string | null;
+  status: Generated<AdmissionPostStatus>;
+  published_at: Date | null;
+  hidden_reason: string | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -2660,4 +2734,7 @@ export interface SchoolYearDatabase {
   bank_statement_lines: BankStatementLinesTable;
   payables: PayablesTable;
   fiscal_periods: FiscalPeriodsTable;
+  admission_campaigns: AdmissionCampaignsTable;
+  admission_applications: AdmissionApplicationsTable;
+  admission_posts: AdmissionPostsTable;
 }

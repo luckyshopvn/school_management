@@ -170,6 +170,12 @@ import { EvaluationsController, EvaluationsService } from './work/evaluations.js
 import { workTransitionStep } from './work/work-transition.js';
 import { WorkHistoryController, WorkHistoryService } from './staff/work-history.js';
 import { BonusDeductionsController, BonusDeductionsService } from './payroll/bonus-deductions.js';
+import { AdmissionAccess } from './admissions/admission-access.js';
+import { AdmissionApplicationsController, AdmissionApplicationsService } from './admissions/admission-applications.js';
+import { AdmissionCampaignsController, AdmissionCampaignsService } from './admissions/admission-campaigns.js';
+import { AdmissionsPublicController, AdmissionsPublicService } from './admissions/admissions-public.js';
+import { admissionsTransitionStep } from './admissions/admissions-transition.js';
+import { PublicRateLimiter } from './admissions/public-rate-limit.js';
 
 @Module({})
 export class ApplicationModule {
@@ -273,6 +279,9 @@ export class ApplicationModule {
         BankReconciliationController,
         PayablesController,
         FiscalPeriodsController,
+        AdmissionCampaignsController,
+        AdmissionApplicationsController,
+        AdmissionsPublicController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -302,6 +311,7 @@ export class ApplicationModule {
             interactionsTransitionStep,
             activitiesTransitionStep,
             workTransitionStep,
+            admissionsTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -417,6 +427,11 @@ export class ApplicationModule {
         BankReconciliationService,
         PayablesService,
         FiscalPeriodsService,
+        AdmissionAccess,
+        AdmissionCampaignsService,
+        AdmissionApplicationsService,
+        AdmissionsPublicService,
+        PublicRateLimiter,
         SchoolCalendar,
         {
           provide: FileStorage,
