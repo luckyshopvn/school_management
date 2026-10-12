@@ -14,6 +14,27 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-11 phần 11b: tuyển dụng
+
+#### Công việc đã thực hiện
+
+- Agent 11b viết mã, kiểm thử máy chủ, nháp tài liệu trong worktree riêng (dừng giữa chừng vì giới hạn phiên rồi làm tiếp); người điều phối gộp nhánh 11e, đánh số tám kịch bản mới CT-208 đến CT-215 kèm AC-252 đến AC-259, chạy toàn bộ kiểm thử, đưa nháp vào tài liệu.
+- Cơ sở dữ liệu: bốn bảng (tệp 0041). Máy chủ API: đề nghị tuyển dụng DNTD-000001 duyệt bởi Ban Giám hiệu, tin tuyển dụng công khai đến hết hạn, nộp hồ sơ không cần tài khoản có giới hạn số lần, hồ sơ ứng viên có ghi nhật ký truy cập dữ liệu cá nhân, phỏng vấn nhiều vòng, quyết định tuyển, tạo hồ sơ nhân sự; bước chuyển năm học `recruitment`.
+- Cổng quản trị: trang Tuyển dụng. Ứng dụng phụ huynh: trang Tuyển dụng giáo viên và nhân viên công khai.
+- Kết quả: máy chủ API 494/494, kiểm thử giao diện 59/59.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-87 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-87 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.44.0.
+
+#### Vấn đề tồn đọng
+
+- Gộp các phần 11a, 11c, 11d; báo cáo kiểm thử giai đoạn 3 và bản ứng viên 1.2.0.
+
 ### 2026-10-11 — DT-11 phần 11e: kết nối Facebook và Zalo
 
 #### Công việc đã thực hiện

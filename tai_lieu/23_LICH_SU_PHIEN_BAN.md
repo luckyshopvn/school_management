@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.44.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-11 phần 11b, tuyển dụng: đề nghị, tin, ứng viên, phỏng vấn (YCTD-87).
+- Chức năng mới: P18-01 đến P18-04 trên máy chủ API, cổng quản trị (MH-27), trang tuyển dụng công khai trên ứng dụng phụ huynh (MH-65).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: bốn bảng tuyển dụng của năm học (tệp 0041); thêm mục đích tệp `candidate_cv`.
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: điểm cuối công khai giới hạn số lần gọi trong bộ nhớ của từng máy chủ, cần bộ nhớ chung khi chạy nhiều máy chủ (việc T6).
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-11-phan-11b`; chạy ngược tệp 0041 của cơ sở dữ liệu năm học.
+
 ### Phiên bản 0.43.0 – 2026-10-11
 
 - Phạm vi thay đổi: DT-11 phần 11e, kết nối Facebook, Fanpage và Zalo Official Account (YCTD-90).

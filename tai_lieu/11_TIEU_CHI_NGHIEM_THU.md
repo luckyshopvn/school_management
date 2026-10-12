@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.14
+- Phiên bản: 1.15
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -324,6 +324,14 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-249 | Cho hai phụ huynh, một người đã liên kết mã người dùng Zalo / Khi hệ thống gửi thông báo cho cả hai khi Zalo tắt, khi Zalo bật, và khi Zalo trả lỗi / Thì Zalo tắt cả hai nhận tin nhắn; Zalo bật người đã liên kết nhận qua Zalo, người kia nhận tin nhắn; Zalo lỗi thì người đã liên kết nhận ngay tin nhắn và lỗi được ghi (YCTD-90) |
 | AC-250 | Cho phụ huynh đã nhận 3 tin qua Zalo và 2 tin nhắn trong ngày / Khi hệ thống gửi thêm một thông báo cho phụ huynh đó / Thì thông báo không gửi ra ngoài mà ở trạng thái bị giới hạn, vẫn hiện trong ứng dụng (KT-09, YCTD-90) |
 | AC-251 | Cho Zalo đã bật, phụ huynh của trẻ có hóa đơn quá hạn đã liên kết Zalo / Khi kế toán gửi nhắc nợ / Thì phụ huynh nhận nhắc nợ qua Zalo, ngoài thông báo trong ứng dụng (BR-33, YCTD-90) |
+| AC-252 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P18-01 / Khi quản lý đơn vị lập đề nghị; giáo viên lập; nhân sự duyệt; Phó Hiệu trưởng duyệt; người lập tự duyệt; duyệt lại / Thì giáo viên, nhân sự bị từ chối; Phó Hiệu trưởng duyệt được, nhật ký có người duyệt, thời điểm, số lượng (BR-80); người lập không tự duyệt; duyệt lại trả BR-80 (YCTD-87) |
+| AC-253 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P18-02 / Khi nhân sự đơn vị khác soạn tin; soạn tin hạn nộp đã qua; công bố tin; xem trang công khai không đăng nhập; tin hết hạn / Thì bị từ chối, lỗi dữ liệu; tin đang soạn không hiện công khai; tin đã công bố hiện kèm vị trí, đơn vị; tin hết hạn trả không tìm thấy (YCTD-87) |
+| AC-254 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P18-03 / Khi người ngoài nộp hồ sơ thiếu đồng ý, số điện thoại sai, thiếu tệp, tệp không phải ảnh hoặc PDF, hợp lệ, nộp lại / Thì bốn trường hợp đầu lỗi dữ liệu; hợp lệ được nhận, không trả mã; nộp lại trả xung đột; nhân sự nhận thông báo (YCTD-87) |
+| AC-255 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P18-03 / Khi giáo viên, nhân sự đơn vị khác xem ứng viên; nhân sự xem danh sách; quản lý đơn vị xem chi tiết; tải hồ sơ xin việc; tải qua điểm cuối tệp chung / Thì bị từ chối; danh sách không có số điện thoại; chi tiết và tải tệp ghi nhật ký truy cập (BR-74); tải qua tệp chung bị từ chối (YCTD-87) |
+| AC-256 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P18-03 / Khi nhân sự nhập ứng viên; quản lý đơn vị nhập; loại không lý do; loại có lý do; mở lại; xóa / Thì nhân sự nhập được, quản lý đơn vị bị từ chối; thiếu lý do lỗi dữ liệu; mở lại trả BR-75; không có điểm cuối xóa (YCTD-87) |
+| AC-257 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P18-04 / Khi lên lịch với người phỏng vấn không phải nhân sự; giáo viên lên lịch; quyết định khi còn lịch chờ; vòng 1 không đạt rồi quyết định tuyển; vòng 2 đạt rồi quyết định tuyển / Thì lỗi dữ liệu; bị từ chối; trả BR-80 hai lần; tuyển được, nhật ký có người và thời điểm quyết định; đề nghị có số đã tuyển 1 (YCTD-87) |
+| AC-258 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P18-04 / Khi quản lý đơn vị tạo hồ sơ nhân sự từ ứng viên đã tuyển; nhân sự tạo; tạo lần hai / Thì bị từ chối; hồ sơ nhân sự có họ tên, điện thoại, đơn vị của ứng viên; lần hai trả BR-37 (YCTD-87) |
+| AC-259 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P18-01, P18-02 / Khi giáo viên đóng đề nghị; nhân sự đóng đề nghị; nộp hồ sơ vào tin đã đóng; nộp liên tục nhiều lần / Thì bị từ chối; đề nghị và tin đều đóng; tin đã đóng trả không tìm thấy; vượt giới hạn trả `ERR_RATE_LIMIT` (YCTD-87) |
 
 ## 20. Chưa xác minh được
 

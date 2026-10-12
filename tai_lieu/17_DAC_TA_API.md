@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.56
+- Phiên bản: 1.57
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -110,6 +110,19 @@ Giao kèo:
 5. Liên kết Zalo: số điện thoại 10 chữ số bắt đầu bằng 0 và phải là số của một phụ huynh trong năm học (không thì 422 `G3-08`); số hoặc mã Zalo đã liên kết thì 409.
 6. Tiến trình gửi thông báo: người nhận kênh `zalo` gửi qua Zalo khi Zalo bật, máy chủ có khóa và số điện thoại đã liên kết; còn lại hoặc Zalo lỗi thì gửi tin nhắn. Tin Zalo và tin nhắn tính chung giới hạn 5 tin mỗi ngày; `delivered_via` ghi kênh thực tế.
 7. Nhắc nợ thêm người nhận kênh `zalo` cho mỗi phụ huynh khi Zalo đang bật lúc gửi nhắc.
+
+Thay bốn dòng P18 hiện có trong `17` bằng:
+
+
+Giao kèo của nhóm điểm cuối tuyển dụng (DT-11 phần 11b, YCTD-87):
+
+1. `POST /recruitment-requests` nhận `org_unit_id` (trống khi chỉ có một đơn vị trong phạm vi), `position`, `quantity` (1 đến 1000), `requirements`, `reason`, `needed_by` (không bắt buộc, không trước hôm nay); cần `P18.recruitment-request.create`. `approve`, `reject` (nhận `reason` bắt buộc) cần `P18.recruitment-request.approve` trong phạm vi đơn vị, người lập không tự duyệt (`ERR_FORBIDDEN`), đề nghị không chờ duyệt trả mã BR-80. `close` nhận `reason`, cần là người lập hoặc có `P18.recruitment.manage`. Kết quả có `code`, `unit_name`, `hired_count`, `approver_name`, `reject_reason`, `close_reason`.
+2. `POST /job-postings` nhận `request_id`, `title`, `description`, `requirements`, `deadline`; `PUT` nhận bốn trường cuối; cần `P18.recruitment.manage` trong đơn vị của đề nghị; đề nghị chưa duyệt trả mã BR-80; tin đã đóng không sửa (BR-75); `publish` chỉ từ tin đang soạn (BR-69). Kết quả có `request_code`, `position`, `quantity`, `unit_name`, `candidate_count`, `is_open`. Danh sách cần một trong `P18.recruitment.manage`, `P18.interview.manage`, `P18.recruitment-request.approve`.
+3. Điểm cuối `/public/job-posts` không cần mã phiên; mỗi địa chỉ mạng 120 lần xem mỗi phút, 10 lần nộp mỗi 10 phút, vượt trả `ERR_RATE_LIMIT` (429). Tin trả `id`, `title`, `description`, `requirements`, `deadline`, `published_at`, `position`, `quantity`, `unit_name`, `org_unit_id`. Tin không công bố hoặc hết hạn trả `ERR_NOT_FOUND`. `POST .../applications` là biểu mẫu nhiều phần: `full_name`, `phone` bắt buộc, `email`, `dob`, `gender`, `address`, `cover_letter`, `source` (`website`, `referral`, `job_board`, `social_media`, `other`), `consent` phải là `true`, tệp ở trường `cv` (ảnh JPEG, PNG hoặc PDF, tối đa 10 MB) bắt buộc; trùng số điện thoại trong tin trả `ERR_CONFLICT`; kết quả chỉ có `message`.
+4. `GET /candidates` lọc `posting_id`, `status`, `org_unit_id`; trả `full_name`, `posting_title`, `source`, `status`, `has_cv`, `staff_id`, không trả liên hệ. `GET /candidates/{id}` trả đủ liên hệ, `cv_file_name`, `staff_code`, `can_manage`, `can_interview`, `interviews` (kèm `interviewers` gồm `staff_id`, `full_name`) và ghi nhật ký truy cập phạm vi `candidate_profile`; `GET /candidates/{id}/cv` ghi phạm vi `candidate_cv`. Đọc cần `P18.recruitment.manage` hoặc `P18.interview.manage` trong phạm vi đơn vị của tin.
+5. `POST /candidates` nhận `posting_id` (tin đã công bố hoặc đã đóng), `full_name`, `phone`, `email`, `dob`, `gender`, `address`, `source` (thêm `walk_in`), `note`; `POST /candidates/{id}/cv` nhận tệp ở trường `cv`; `POST /candidates/{id}/status` nhận `status` (`screening`, `rejected`, `withdrawn`) và `reason` (bắt buộc trừ `screening`); chuyển không hợp lệ trả mã BR-75. Cần `P18.recruitment.manage`.
+6. `POST /candidates/{id}/interviews` nhận `scheduled_at` (ISO 8601), `location`, `interviewer_staff_ids` (1 đến 10 hồ sơ nhân sự đang làm); `POST /interviews/{id}/result` nhận `result` (`passed`, `failed`), `score` (0 đến 10, không bắt buộc), `evaluation`; `cancel` nhận `reason`; `POST /candidates/{id}/decision` nhận `result` (`hired`, `rejected`) và `note` (bắt buộc khi không tuyển); còn lịch chờ, chưa có kết quả hoặc lần gần nhất không đạt mà quyết định tuyển trả mã BR-80. Cần `P18.interview.manage`.
+7. `POST /candidates/{id}/staff` nhận `code`, `start_date`, `department_id`, `job_title_id`; cần `P18.recruitment.manage` và `P07.staff.manage`; ứng viên chưa tuyển, đã có hồ sơ hoặc số điện thoại đã có hồ sơ nhân sự trả mã BR-37; mã nhân sự trùng trả `ERR_CONFLICT`.
 
 Giao kèo của nhóm điểm cuối tài chính giai đoạn 2 (DT-10 phần 10i, YCTD-82):
 
@@ -967,10 +980,27 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | POST | /api/v1/admission-applications/{id}/approve | Duyệt hồ sơ tuyển sinh |
 | POST | /api/v1/admission-applications/{id}/reject | Từ chối hồ sơ tuyển sinh kèm lý do |
 | POST | /api/v1/admission-applications/{id}/convert | Chuyển thành hồ sơ trẻ |
-| GET, POST | /api/v1/recruitment-requests | Đề nghị tuyển dụng |
-| GET, POST | /api/v1/job-postings | Tin tuyển dụng |
-| GET, POST | /api/v1/candidates | Hồ sơ ứng viên |
-| GET, POST | /api/v1/candidates/{id}/interviews | Lịch phỏng vấn và kết quả |
+| GET, POST | /api/v1/recruitment-requests | Danh sách (view mine, pending, all; lọc status, org_unit_id) và lập đề nghị tuyển dụng |
+| GET | /api/v1/recruitment-requests/{id} | Chi tiết đề nghị kèm số đã tuyển |
+| POST | /api/v1/recruitment-requests/{id}/approve | Duyệt đề nghị tuyển dụng |
+| POST | /api/v1/recruitment-requests/{id}/reject | Từ chối đề nghị kèm lý do |
+| POST | /api/v1/recruitment-requests/{id}/close | Đóng đề nghị kèm lý do, đóng các tin còn mở |
+| GET, POST | /api/v1/job-postings | Danh sách và soạn tin tuyển dụng |
+| GET, PUT | /api/v1/job-postings/{id} | Chi tiết, sửa tin chưa đóng |
+| POST | /api/v1/job-postings/{id}/publish | Công bố tin |
+| POST | /api/v1/job-postings/{id}/close | Đóng tin |
+| GET | /api/v1/public/job-posts | Công khai, không cần tài khoản: tin đã công bố còn hạn nộp |
+| GET | /api/v1/public/job-posts/{id} | Công khai: chi tiết tin còn hạn |
+| POST | /api/v1/public/job-posts/{id}/applications | Công khai: nộp hồ sơ kèm hồ sơ xin việc |
+| GET, POST | /api/v1/candidates | Danh sách ứng viên (không có liên hệ) và nhân sự nhập ứng viên |
+| GET | /api/v1/candidates/{id} | Chi tiết ứng viên kèm lịch phỏng vấn, ghi nhật ký truy cập |
+| GET, POST | /api/v1/candidates/{id}/cv | Tải (ghi nhật ký truy cập) hoặc đính kèm hồ sơ xin việc |
+| POST | /api/v1/candidates/{id}/status | Sàng lọc: đang sàng lọc, không đạt, đã rút |
+| POST | /api/v1/candidates/{id}/interviews | Lên lịch phỏng vấn |
+| POST | /api/v1/interviews/{id}/result | Ghi kết quả phỏng vấn |
+| POST | /api/v1/interviews/{id}/cancel | Hủy lịch phỏng vấn kèm lý do |
+| POST | /api/v1/candidates/{id}/decision | Quyết định tuyển hoặc không tuyển |
+| POST | /api/v1/candidates/{id}/staff | Tạo hồ sơ nhân sự từ ứng viên đã tuyển |
 
 ## 17. Báo cáo và thông báo
 
