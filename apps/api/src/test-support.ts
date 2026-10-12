@@ -70,6 +70,8 @@ export async function startApiTestEnvironment(
       objectStorage: null,
       paymentGateways: ['development', 'vietqr-static'],
       notificationDispatchIntervalSeconds: 0,
+      facebookPublisher: 'development',
+      zaloSender: 'development',
     },
     { ...options, fileStorage: new MemoryFileStorage(), smsGateway },
   );

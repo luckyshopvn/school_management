@@ -11,6 +11,88 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-90: Kết nối Facebook, Fanpage và Zalo Official Account – 2026-10-11
+
+- Lý do: phần 11e của đợt DT-11 (giai đoạn 3): P14-08, G3-03, việc N3 (Fanpage) và G3-08, việc N17 (Zalo). Tài khoản thật chưa có (T4 Fanpage, T7 Zalo) nên làm lớp kết nối có bộ giả lập, kết nối thật bật khi có khóa. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Cấu hình kết nối ngoài toàn trường (bảng `integration_settings` của năm học, mỗi kết nối một dòng): bật hay tắt và thông tin không bí mật. Fanpage gồm mã trang (bắt buộc khi bật), tên trang; Zalo gồm mã Official Account (bắt buộc khi bật), tên. Chưa lưu lần nào thì là tắt. Chỉ quyền `P01.integration.manage` (VT-02, không cấp VT-01 theo PQ-10) xem và sửa trên trang Kết nối ngoài (MH-71).
+  - Khóa truy cập chỉ đặt ở biến môi trường của máy chủ API: `FACEBOOK_PAGE_ACCESS_TOKEN`, `ZALO_OA_ACCESS_TOKEN`; không lưu vào cơ sở dữ liệu, không trả qua API. API chỉ trả `credentials_configured` (đã có khóa hay chưa) và `provider`. Cấu hình gửi kèm trường lạ (ví dụ `access_token`) bị từ chối 400.
+  - Bộ giả lập: `FACEBOOK_PUBLISHER=development` (ghi bài vào bộ nhớ và nhật ký máy chủ, trả mã bài giả), `ZALO_SENDER=development` (ghi tin ra nhật ký máy chủ, giữ trong bộ nhớ). Kiểm thử máy chủ và kiểm thử giao diện dùng bộ giả lập. Kết nối thật: `GraphApiFacebookPublisher` (Graph API, tải hình chưa công bố rồi đăng một bài kèm hình) và `OfficialAccountZaloSender` (tin tư vấn của Official Account) đã viết khung, chỉ dùng khi có khóa ở biến môi trường, chưa kiểm thử với tài khoản thật; khóa Zalo hết hạn theo giờ nên khi triển khai thật cần thêm bước làm mới khóa (T7).
+  - Đăng Fanpage (P14-08): người có `P14.facebook.manage` (VT-03, VT-02) trong phạm vi đơn vị của nội dung bấm "Đăng lên Fanpage" cho hoạt động của lớp hoặc tin tức. Chỉ nội dung đang công bố (BR-64); tin tức gửi riêng cho lớp hoặc trẻ không đăng công khai (chỉ phạm vi toàn trường hoặc đơn vị). Hình của hoạt động chỉ kèm khi mọi trẻ được gắn thẻ đã đồng ý sử dụng hình ảnh (BR-65), hình khác bị loại và đếm vào `excluded_photo_count`; tin tức kèm hình bìa nếu có. Nội dung bài là tiêu đề và nội dung (tin tức thêm tóm tắt).
+  - Mỗi nội dung một bài (`facebook_posts`, duy nhất theo loại và mã nội dung). Đăng gọi Facebook ngay trong yêu cầu: thành công ghi `posted` kèm mã bài; Facebook lỗi thì ghi `failed` kèm lỗi, không ném lỗi; người quản lý bấm thử lại (đọc lại nội dung và đồng ý hình ảnh lúc thử). Đã đăng thì không đăng lại (409). Chưa bật Fanpage hoặc máy chủ chưa có khóa thì từ chối 422 mã P14-08, kiểm tra trước khi xét nội dung. Ẩn nội dung trên hệ thống không tự gỡ bài trên Fanpage (người quản lý gỡ trên Facebook).
+  - Kênh thông báo `zalo` thêm vào `in_app`, `sms`: tiến trình gửi thông báo gửi qua Zalo khi nhà trường bật Zalo, máy chủ có khóa và số điện thoại phụ huynh của người nhận đã liên kết; không thì gửi tin nhắn theo quy tắc của tin nhắn (thử lại 15 phút, tối đa 5 lần). Zalo lỗi thì gửi ngay bằng tin nhắn trong cùng lượt và ghi lỗi Zalo vào `last_error`. Cột `delivered_via` ghi kênh thực tế (`in_app`, `sms`, `zalo`). Kênh `sms` giữ nguyên, không chuyển sang Zalo.
+  - Giới hạn 5 tin mỗi ngày của một người nhận (KT-09) tính chung tin nhắn và tin Zalo. Báo cáo vận hành đếm "Tin nhắn" gồm cả kênh zalo.
+  - Phụ huynh quan tâm Official Account: chọn màn hình liên kết của người quản trị (không làm điểm cuối giả lập webhook) vì dùng được cả khi chạy thật trước khi có webhook sự kiện quan tâm của Zalo (T7). Người có `P01.integration.manage` nhập số điện thoại (phải là số của một phụ huynh trong năm học, nếu không 422 G3-08) và mã người dùng Zalo; số điện thoại và mã Zalo đều duy nhất (409 khi trùng); bỏ liên kết được. Liên kết theo số điện thoại nên mọi tài khoản phụ huynh có số đó đều nhận qua Zalo.
+  - Nhắc nợ (P05-10): khi Zalo đang bật, mỗi phụ huynh nhận thêm một người nhận kênh `zalo` bên cạnh trong ứng dụng; Zalo tắt thì như cũ (chỉ trong ứng dụng), không phát sinh tin nhắn.
+  - Mở năm học mới chuyển `integration_settings` và `zalo_followers`; bài đăng Fanpage tra ở năm cũ.
+- Thành phần bị ảnh hưởng: `05`, `07`, `08`, `10`, `14`, `16`, `17`, `21`, `22` (khóa ở biến môi trường), `03` (N3, N17), `01`, `02`, `23`, `index.md`; máy chủ API (thư mục `integrations`, tiến trình gửi thông báo, nhắc nợ, báo cáo vận hành), cổng quản trị.
+- Dữ liệu bị ảnh hưởng: ba bảng mới của năm học `integration_settings`, `zalo_followers`, `facebook_posts`; `notification_recipients` thêm `delivered_via`, kênh thêm `zalo` (tệp 0044). Quyền đã cấp trước ở tệp 0035 của định danh (YCTD-85).
+- API bị ảnh hưởng: `GET /integrations`, `PUT /integrations/{connector}`, `GET|POST /integrations/zalo/followers`, `DELETE /integrations/zalo/followers/{id}`, `POST /activities/{id}/facebook-post`, `POST /news/{id}/facebook-post`, `GET /facebook-posts`, `POST /facebook-posts/{id}/retry`.
+- Giao diện bị ảnh hưởng: MH-71 Kết nối ngoài (mới); MH-23 thêm nút "Đăng lên Fanpage" cho hoạt động và tin tức đã công bố.
+- Quyền bị ảnh hưởng: PQ-53.
+- Ảnh hưởng chức năng cũ: khi bật Zalo, nhắc nợ có thêm tin qua Zalo hoặc tin nhắn cho phụ huynh và tính vào giới hạn 5 tin mỗi ngày; báo cáo vận hành đếm tin nhắn gồm cả tin Zalo. Khi chưa bật thì không đổi.
+- Kiểm thử cần thực hiện: CT-202 đến CT-207; chạy lại bộ kiểm thử thông báo, hoạt động, tài chính giai đoạn 2.
+- Trạng thái: Đã triển khai
+
+### YCTD-87: Tuyển dụng: đề nghị, tin, ứng viên, phỏng vấn – 2026-10-11
+
+- Lý do: phần 11b theo cách chia đợt DT-11 (YCTD-85), làm P18-01 đến P18-04, mục phạm vi G3-02. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Quyền dùng các mã đã cấp trước ở tệp 0035 của định danh: `P18.recruitment-request.create` (VT-06, VT-03) lập đề nghị cho đơn vị trong phạm vi; `P18.recruitment-request.approve` (VT-02, VT-15) duyệt hoặc từ chối trong phạm vi đơn vị được gán (VT-02 ở Trường chính là toàn trường); `P18.recruitment.manage` (VT-06) soạn, công bố, đóng tin, tiếp nhận, nhập, sàng lọc ứng viên, tải hồ sơ xin việc, tạo hồ sơ nhân sự từ ứng viên đã tuyển; `P18.interview.manage` (VT-06, VT-03) lên lịch, hủy lịch, ghi kết quả phỏng vấn và quyết định tuyển.
+  - Đề nghị tuyển dụng (P18-01): vị trí, số lượng (1 đến 1000), yêu cầu, lý do, ngày cần người (không bắt buộc, không trước hôm nay); mã `DNTD-000001` theo năm học. Đề nghị trình duyệt ngay khi lập; Phó Hiệu trưởng của đơn vị và Hiệu trưởng nhận thông báo. Đề nghị không có giá trị tiền nên không áp hạn mức phê duyệt: người có quyền duyệt trong phạm vi đơn vị duyệt được; người lập không tự duyệt; từ chối bắt buộc lý do. Mỗi lần duyệt, từ chối ghi nhật ký thao tác kèm người duyệt, tên, thời điểm, vị trí, số lượng, lý do (BR-80). Người lập hoặc nhân sự của đơn vị đóng đề nghị đang chờ duyệt hoặc đã duyệt kèm lý do (đã tuyển đủ, không cần nữa); đóng đề nghị thì các tin còn mở của đề nghị đóng theo. Danh sách đề nghị có số ứng viên đã tuyển so với số lượng cần; hệ thống không chặn tuyển quá số lượng, chỉ hiển thị.
+  - Tin tuyển dụng (P18-02): chỉ soạn từ đề nghị đã duyệt; nhiều tin cho một đề nghị được; tiêu đề, mô tả, yêu cầu, hạn nộp (không trước hôm nay). Trạng thái đang soạn, đã công bố, đã đóng; sửa khi chưa đóng; công bố cần đề nghị còn ở trạng thái đã duyệt và hạn nộp chưa qua. Phạm vi công bố của tin tuyển dụng là công khai: tin đã công bố còn hạn nộp (theo ngày Việt Nam) hiện trên trang công khai không cần tài khoản; hết hạn thì không hiện và không nhận hồ sơ, không cần thao tác đóng. Đơn vị của tin là đơn vị của đề nghị.
+  - Trang công khai (MH-65) đặt trong ứng dụng phụ huynh, mở bằng liên kết “Tuyển dụng giáo viên và nhân viên” trên màn hình đăng nhập (địa chỉ `#tuyen-dung`), không cần đăng nhập. Điểm cuối công khai `/api/v1/public/job-posts`: mỗi địa chỉ mạng tối đa 120 lần xem mỗi phút và 10 lần nộp hồ sơ mỗi 10 phút (giữ trong bộ nhớ máy chủ, đếm cả lần nộp lỗi), vượt thì trả `ERR_RATE_LIMIT` kèm số giây chờ. Nộp hồ sơ là biểu mẫu nhiều phần: họ tên, số điện thoại (10 số bắt đầu bằng 0) bắt buộc; thư điện tử, ngày sinh, giới tính, địa chỉ, giới thiệu bản thân, nguồn biết tin (mặc định trang tuyển dụng) không bắt buộc; hồ sơ xin việc bắt buộc, ảnh JPEG, PNG hoặc PDF nhận diện theo byte đầu, tối đa 10 MB; bắt buộc tích đồng ý cho nhà trường xử lý dữ liệu cá nhân để tuyển dụng, lưu thời điểm đồng ý. Mỗi số điện thoại nộp một lần cho một tin (trùng trả `ERR_CONFLICT`). Kết quả chỉ trả lời nhận hồ sơ, không trả mã hay dữ liệu đã nộp. Nhân sự (VT-06) của đơn vị và của Trường chính nhận thông báo có hồ sơ mới. Lần nộp công khai không ghi nhật ký thao tác vì không có người dùng; dòng ứng viên có người tạo trống.
+  - Hồ sơ xin việc lưu ở bảng tệp dùng chung với mục đích mới `candidate_cv` (tệp 0041 dựng lại ràng buộc mục đích tệp với danh sách đủ). Tải tệp này qua `GET /files/{id}` bị từ chối; chỉ tải qua `GET /candidates/{id}/cv` để kiểm tra quyền P18 và ghi nhật ký truy cập.
+  - Hồ sơ ứng viên (P18-03) là dữ liệu cá nhân: người có `P18.recruitment.manage` hoặc `P18.interview.manage` trong phạm vi đơn vị của tin mới xem; danh sách không trả số điện thoại, thư điện tử; xem chi tiết (phạm vi `candidate_profile`) và tải hồ sơ xin việc (phạm vi `candidate_cv`) luôn ghi nhật ký truy cập dữ liệu, không phụ thuộc cấu hình `data_access_logging` vì đây không phải dữ liệu của trẻ. Ứng viên không xóa (BR-75), trạng thái: mới, đang sàng lọc, đang phỏng vấn, đã tuyển, không đạt, đã rút. Nhân sự nhập ứng viên nộp trực tiếp hoặc qua người giới thiệu cho tin đã công bố hoặc đã đóng (nguồn: trang tuyển dụng, người giới thiệu, trang việc làm, mạng xã hội, nộp trực tiếp, khác) và tải hồ sơ xin việc sau. Đổi trạng thái thủ công: mới sang đang sàng lọc, không đạt, đã rút; đang sàng lọc sang không đạt, đã rút; đang phỏng vấn sang đã rút; không đạt và đã rút bắt buộc lý do và hủy lịch phỏng vấn còn chờ; trạng thái kết thúc không mở lại.
+  - Phỏng vấn (P18-04): lên lịch cho ứng viên đang sàng lọc hoặc đang phỏng vấn, mỗi lúc một lịch chờ; thời điểm (ngày không trước hôm nay), địa điểm, 1 đến 10 người phỏng vấn chọn từ hồ sơ nhân sự đang làm việc (đơn vị bất kỳ); vòng tự đánh số theo số lịch không bị hủy. Ứng viên chuyển sang đang phỏng vấn; người phỏng vấn có tài khoản nhận thông báo trong ứng dụng. Ghi kết quả đạt hoặc không đạt, điểm 0 đến 10 (một chữ số thập phân, không bắt buộc), đánh giá bắt buộc; hủy lịch chờ kèm lý do.
+  - Quyết định tuyển: ứng viên đang phỏng vấn, không còn lịch chờ, có ít nhất một lần phỏng vấn đã ghi kết quả; tuyển cần lần phỏng vấn gần nhất đạt; không tuyển bắt buộc lý do. Ghi người quyết định, thời điểm, ghi chú, kèm nhật ký thao tác (BR-80); quyết định tuyển thì nhân sự của đơn vị và Trường chính nhận thông báo cần tạo hồ sơ nhân sự và hợp đồng.
+  - Tạo hồ sơ nhân sự từ ứng viên đã tuyển là bước tùy chọn, tách khỏi quyết định tuyển: nhân sự nhập mã nhân sự, ngày vào làm, phòng ban, chức danh; hệ thống dùng nghiệp vụ tạo hồ sơ của P07-01 (cần thêm `P07.staff.manage`) với họ tên, ngày sinh, giới tính, điện thoại, thư điện tử, địa chỉ của ứng viên, đơn vị chính là đơn vị của tin; số định danh và hợp đồng nhập ở trang Hồ sơ nhân sự. Số điện thoại đã có hồ sơ nhân sự (kể cả đã nghỉ) thì không tạo hồ sơ thứ hai, trả mã BR-37; mỗi ứng viên gắn tối đa một hồ sơ nhân sự.
+  - Hệ thống không gửi thông báo cho ứng viên (ứng viên không có tài khoản); nhân sự liên hệ trực tiếp qua số điện thoại.
+  - Mở năm học mới chuyển đề nghị đang chờ duyệt hoặc đã duyệt kèm mọi tin, ứng viên, dòng tệp hồ sơ xin việc, lịch phỏng vấn của đề nghị, giữ mã định danh; số thứ tự mã đề nghị tiếp nối năm cũ; đề nghị đã đóng, bị từ chối tra ở năm cũ. Chạy sau bước nhân sự.
+  - Trang Tuyển dụng trên cổng quản trị (MH-27, mục điều hướng “Tuyển dụng” trong nhóm Nhân sự) cho người có một trong bốn quyền P18, gồm các thẻ Đề nghị tuyển dụng, Đề nghị chờ duyệt, Tin tuyển dụng, Ứng viên (chi tiết, sàng lọc, phỏng vấn, quyết định tuyển, tạo hồ sơ nhân sự).
+- Thành phần bị ảnh hưởng: `05`, `07`, `08`, `14`, `16`, `17`, `21`, `01`, `02`, `03`, `23`, `index.md`; máy chủ API, cổng quản trị, ứng dụng phụ huynh (trang công khai).
+- Dữ liệu bị ảnh hưởng: bốn bảng mới của năm học `recruitment_requests`, `job_postings`, `candidates`, `interviews` và mục đích tệp `candidate_cv` (tệp 0041); không thêm quyền (đã cấp ở tệp 0035 của định danh).
+- API bị ảnh hưởng: các điểm cuối P18 trong `17`, nhóm điểm cuối công khai `/api/v1/public/job-posts`; `GET /files/{id}` từ chối tệp `candidate_cv`.
+- Giao diện bị ảnh hưởng: MH-27, MH-65 (mới), màn hình đăng nhập của ứng dụng phụ huynh thêm liên kết “Tuyển dụng giáo viên và nhân viên”.
+- Quyền bị ảnh hưởng: PQ-50.
+- Ảnh hưởng chức năng cũ: không đổi hành vi cũ; tải tệp chung không còn mở được tệp mục đích `candidate_cv` (mục đích mới).
+- Kiểm thử cần thực hiện: CT-208 đến CT-215; kiểm thử giao diện `tests/e2e/41-recruitment.spec.ts`.
+- Trạng thái: Đã triển khai
+
+### YCTD-85: Kế hoạch đợt DT-11 giai đoạn 3 – 2026-10-11
+
+- Lý do: giai đoạn 2 đã xong (YCTD-84); Eric yêu cầu làm tự động đến hết dự án theo kế hoạch, đợt DT-11 làm giai đoạn 3 để phát hành 1.2.0. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Chia năm phần, làm song song bằng các agent trong worktree riêng như đợt DT-10: 11a tuyển sinh trực tuyến và tin tuyển sinh (G3-01, G3-07; YCTD-86), 11b tuyển dụng (G3-02; YCTD-87), 11c sổ kế toán kép (G3-06, việc N5; YCTD-88), 11d đối soát sao kê ngân hàng tự động và nhiều cổng thanh toán (G3-05, việc N4; YCTD-89), 11e kết nối Facebook, Fanpage và Zalo Official Account (G3-03, G3-08, việc N3; YCTD-90).
+  - Quyền của cả đợt cấp trước trong tệp định danh 0035 (yêu cầu gộp số 56): `P16.admission-campaign.manage`, `P16.application.manage`, `P16.application.review`, `P16.admission-post.manage`, `P18.recruitment-request.create`, `P18.recruitment-request.approve`, `P18.recruitment.manage`, `P18.interview.manage`, `P06.ledger.manage`, `P06.ledger.view`, `P06.bank-statement.import`, `P14.facebook.manage`, `P01.integration.manage`.
+  - Tuyển sinh và tuyển dụng có trang công khai không cần đăng nhập trên ứng dụng phụ huynh, điểm cuối công khai có kiểm tra dữ liệu và giới hạn số lần gọi theo địa chỉ mạng.
+  - Facebook, Zalo, cổng thanh toán thêm: làm bộ chuyển đổi kèm bản giả lập cho môi trường phát triển và kiểm thử như cổng thanh toán (YCTD-57); nối tài khoản thật khi Eric cung cấp ở việc T1.
+  - Chưa làm trong DT-11: bản cài riêng trên điện thoại (G3-04, việc N2) chờ Eric quyết định vì bản trên trình duyệt đang đáp ứng; kết nối tự động với cơ sở dữ liệu ngành của Bộ (G3-09) chưa có giao diện lập trình công khai, tiếp tục nhập từ tệp (P02-12).
+- Thành phần bị ảnh hưởng: `01`, `03`, `24`; các tài liệu của từng phần ghi ở YCTD-86 đến YCTD-90.
+- Dữ liệu bị ảnh hưởng: tệp định danh 0035; tệp năm học 0040 đến 0044 theo phần.
+- API bị ảnh hưởng: theo từng phần.
+- Giao diện bị ảnh hưởng: theo từng phần.
+- Quyền bị ảnh hưởng: các mã nêu trên.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: theo từng phần; chạy lại toàn bộ kiểm thử trước mỗi yêu cầu gộp.
+- Trạng thái: Đang triển khai
+
+### YCTD-84: Báo cáo kiểm thử giai đoạn 2 và bản ứng viên phát hành 1.1.0 – 2026-10-11
+
+- Lý do: mười phần 10a đến 10j của đợt DT-10 (YCTD-73) đã gộp vào `main`; cần chạy lại toàn bộ kiểm thử, phân loại ca chưa chạy và lỗi, đóng gói bản ứng viên 1.1.0. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Thêm `29_BAO_CAO_KIEM_THU_G2.md`: phạm vi G2, môi trường, kết quả (CT 187/201 đạt, CTC 443/453 đạt), ca chưa chạy kèm quyết định, lỗi phát hiện khi gộp, giới hạn đã biết của bản 1.1.0, kết luận.
+  - Bổ sung ca kiểm thử cho ba kịch bản G2 còn chưa chạy: CT-041 (chốt kỳ, `finance-g2.test.ts`), CT-083 (xuất báo cáo thu chi, `reports-g2.test.ts`), CT-085 (báo cáo hợp nhất hai đơn vị có dòng tổng, `reports-g2.test.ts`); ca chi tiết CTC-P06-049 đạt cùng CT-083.
+  - Bản ứng viên phát hành 1.1.0 là phiên bản tài liệu 0.42.0. Không gắn 1.1.0 trước khi 1.0.0 qua cổng CG-11; Eric nghiệm thu cả hai bản ứng viên.
+- Thành phần bị ảnh hưởng: `01`, `02`, `03`, `21`, `23`, `27`, `29`, `index.md`; kiểm thử máy chủ báo cáo và tài chính giai đoạn 2.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: chạy lại toàn bộ kiểm thử máy chủ và giao diện; CT-041, CT-083, CT-085.
+- Trạng thái: Đã triển khai
+
 ### YCTD-83: Báo cáo hoạt động và công việc, báo cáo hợp nhất, xuất dữ liệu – 2026-10-11
 
 - Lý do: phần 10j theo cách chia ở YCTD-73 (P17-10, P17-11, P17-12). Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.

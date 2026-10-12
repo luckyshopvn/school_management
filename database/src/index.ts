@@ -73,6 +73,10 @@ export type {
   WorkScheduleType,
   HealthIndicator,
   HealthReportType,
+  AdmissionCampaignStatus,
+  AdmissionApplicationStatus,
+  AdmissionApplicationSource,
+  AdmissionPostStatus,
   MedicalEventSeverity,
   MealType,
   MenuStatus,
@@ -118,6 +122,16 @@ export type {
   TaskStatus,
   PlanStatus,
   EvaluationStatus,
+  NotificationChannel,
+  IntegrationConnector,
+  FacebookPostSourceType,
+  FacebookPostStatus,
+  RecruitmentRequestStatus,
+  JobPostingStatus,
+  CandidateSource,
+  CandidateStatus,
+  InterviewStatus,
+  InterviewResult,
 } from '../school-year/schema.js';
 export { DEFAULT_TAX_TABLE_ID } from '../school-year/migrations/0022_create_payrolls.js';
 export { MEAL_SERVICE_ID } from '../school-year/migrations/0010_create_fee_catalogs.js';

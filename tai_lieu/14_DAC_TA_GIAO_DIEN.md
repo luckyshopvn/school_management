@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.40
+- Phiên bản: 1.42
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -68,11 +68,11 @@ flowchart TD
 | MH-20 | Tài sản, mượn trả, hỏng và mất: trang Kho và tài sản, thẻ Tài sản: thêm tài sản, cấp phát, cho mượn, thu hồi hoặc nhận trả, ghi nhận hỏng; Ban Giám hiệu duyệt hoặc từ chối hỏng mất chờ duyệt (YCTD-77) | VT-11, VT-02, VT-15 |
 | MH-21 | Đề nghị mua hàng, phiếu mua hàng, nhà cung cấp: trang Đề nghị mua hàng cho mọi nhân sự lập và xem đề nghị của mình, Ban Giám hiệu duyệt hoặc từ chối đề nghị chờ duyệt; trang Kho và tài sản, thẻ Phiếu mua hàng lập phiếu từ đề nghị đã duyệt, nhận hàng, xem trạng thái chờ thanh toán; thẻ Nhà cung cấp (YCTD-77) | Mọi nhân sự, VT-11, VT-04, VT-02, VT-15 |
 | MH-22 | Nhập xuất tồn kho và kiểm kê: trang Kho và tài sản, thẻ Mặt hàng và tồn kho (thêm mặt hàng, ghi phiếu nhập, phiếu xuất, tồn kho ban đầu, sổ kho) và thẻ Kiểm kê (lập biên bản, kế toán trưởng duyệt hoặc từ chối chênh lệch) (YCTD-77) | VT-11, VT-05 |
-| MH-23 | Danh sách hoạt động và duyệt hoạt động: trang Hoạt động và tin tức, thẻ Duyệt hoạt động lọc theo trạng thái, duyệt và công bố, từ chối hoặc ẩn kèm lý do, công bố lại; cảnh báo ảnh có trẻ chưa đồng ý hình ảnh (YCTD-78) | VT-03, VT-15, VT-02 |
+| MH-23 | Danh sách hoạt động và duyệt hoạt động: trang Hoạt động và tin tức, thẻ Duyệt hoạt động lọc theo trạng thái, duyệt và công bố, từ chối hoặc ẩn kèm lý do, công bố lại; cảnh báo ảnh có trẻ chưa đồng ý hình ảnh (YCTD-78); hoạt động và tin tức phạm vi toàn trường hoặc đơn vị đã công bố có nút Đăng lên Fanpage, hiện mã bài, số hình bị loại vì trẻ chưa đồng ý, lỗi và nút thử đăng lại (YCTD-90) | VT-03, VT-15, VT-02 |
 | MH-24 | Tin tức, thư viện, thông báo: trang Hoạt động và tin tức, thẻ Danh mục (danh mục hoạt động, danh mục tin tức, chủ đề thư viện), Tin tức (soạn, công bố, ẩn, xem và ẩn bình luận kèm lý do), Thư viện và hình tô màu (tải tệp, lưu, công bố, ẩn); thông báo ở trang Thông báo (YCTD-64, YCTD-78) | VT-03, VT-07 |
 | MH-25 | Tương tác với phụ huynh: bình chọn, biểu quyết, khảo sát (lập nháp, mở, đóng, kết quả, công bố kết quả); danh mục khảo sát; góp ý và xử lý; trao đổi với phụ huynh của đơn vị; phiếu đồ bị mất; bình luận bị báo cần xử lý (YCTD-79) | VT-03, VT-02, VT-15; VT-07 thẻ trao đổi và đồ bị mất |
 | MH-26 | Hồ sơ tuyển sinh và xét duyệt | VT-12, VT-03 |
-| MH-27 | Tuyển dụng: tin, ứng viên, phỏng vấn | VT-06 |
+| MH-27 | Tuyển dụng (YCTD-87): đề nghị tuyển dụng (lập, đóng, số đã tuyển so với cần), đề nghị chờ duyệt (duyệt, từ chối kèm lý do), tin tuyển dụng (soạn từ đề nghị đã duyệt, công bố, đóng), ứng viên (danh sách theo tin, nhập ứng viên, chi tiết kèm hồ sơ xin việc, sàng lọc, lịch và kết quả phỏng vấn, quyết định tuyển, tạo hồ sơ nhân sự) | VT-06, VT-03; VT-02, VT-15 duyệt đề nghị và xem tin |
 | MH-28 | Báo cáo theo phân hệ: học phí, công nợ, thu chi, điểm danh, chấm công, học thứ 7; mỗi báo cáo một thẻ theo quyền (YCTD-62); báo cáo thu chi có bảng theo nhóm và theo tháng (YCTD-70); thẻ "Hoạt động và công việc" gồm các bảng điểm danh, sổ liên lạc, y tế, dặn thuốc, thông báo theo lớp và đơn vị; nút "Xuất Excel" trên từng báo cáo và thẻ "Nhật ký xuất" cho người có quyền xuất dữ liệu (YCTD-83) | VT-02, VT-15, VT-03, VT-04, VT-05, VT-06, VT-07, VT-08, VT-19, VT-20 |
 | MH-29 | Báo cáo hợp nhất nhiều đơn vị: thẻ "Hợp nhất đơn vị" trên trang Báo cáo, chọn tháng và các đơn vị so sánh (không chọn là mọi đơn vị), bảng so sánh theo đơn vị kèm dòng tổng, chỉ số liệu tổng hợp; nút "Xuất Excel" khi có quyền xuất (YCTD-83). VT-15 chưa được cấp quyền ở tệp 0034 nên chưa thấy thẻ này | VT-02, VT-19 |
 | MH-30 | Tài khoản, vai trò, quyền, cấu hình đơn vị | VT-02, VT-03 |
@@ -108,6 +108,8 @@ flowchart TD
 | MH-60 | Thưởng và khấu trừ theo tháng bảng lương: ghi khoản có căn cứ, hủy khi bảng lương còn nháp (YCTD-81) | VT-04, VT-05; người xem bảng lương xem |
 | MH-61 | Công nợ phải trả (trang Nợ nhà cung cấp): tổng còn phải trả, quá hạn, theo nhà cung cấp; ghi từ phiếu mua hàng, phiếu mua thuốc chưa ghi hoặc lập tay; ghi đã trả bằng phiếu chi đã phát hành; hủy (YCTD-82) | VT-04, VT-05; người có P06.view xem |
 | MH-62 | Chốt kỳ tài chính: các tháng của năm học kèm trạng thái và số liệu kỳ; kế toán trưởng đề nghị chốt kèm ghi chú; Hiệu trưởng duyệt hoặc từ chối kèm lý do (YCTD-82) | VT-05, VT-02 |
+| MH-71 | Kết nối ngoài: Hiệu trưởng bật, tắt Fanpage và Zalo Official Account, nhập mã trang, mã Official Account (khóa truy cập đặt ở máy chủ, trang chỉ báo đã có hay chưa); liên kết số điện thoại phụ huynh với mã người dùng Zalo, bỏ liên kết (YCTD-90) | VT-02 |
+| MH-65 | Trang tuyển dụng công khai trong ứng dụng phụ huynh, mở từ liên kết “Tuyển dụng giáo viên và nhân viên” trên màn hình đăng nhập, không cần tài khoản: tin đã công bố còn hạn, biểu mẫu nộp hồ sơ kèm hồ sơ xin việc và đồng ý xử lý dữ liệu cá nhân (YCTD-87) | Người ngoài trường |
 
 ### 2.2 Ứng dụng giáo viên
 

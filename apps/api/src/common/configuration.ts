@@ -28,6 +28,12 @@ export interface ApiConfiguration {
   paymentGateways?: PaymentProviderCode[];
   // Chu kỳ tiến trình gửi thông báo và nhắc nhật ký, tính bằng giây; 0 là tắt, kiểm thử tự gọi (YCTD-71)
   notificationDispatchIntervalSeconds?: number;
+  // Đăng Fanpage và gửi Zalo: `development` là bộ giả lập; khóa truy cập chỉ đặt ở biến môi trường, không lưu trong cơ sở
+  // dữ liệu (YCTD-90)
+  facebookPublisher?: 'development' | null;
+  facebookPageAccessToken?: string | null;
+  zaloSender?: 'development' | null;
+  zaloOaAccessToken?: string | null;
 }
 
 export interface ObjectStorageSettings {
@@ -73,5 +79,9 @@ export function readConfigurationFromEnvironment(): ApiConfiguration {
     },
     paymentGateways: readPaymentGateways(process.env.PAYMENT_GATEWAY),
     notificationDispatchIntervalSeconds: Number(process.env.NOTIFICATION_DISPATCH_INTERVAL_SECONDS ?? 60),
+    facebookPublisher: process.env.FACEBOOK_PUBLISHER === 'development' ? 'development' : null,
+    facebookPageAccessToken: process.env.FACEBOOK_PAGE_ACCESS_TOKEN || null,
+    zaloSender: process.env.ZALO_SENDER === 'development' ? 'development' : null,
+    zaloOaAccessToken: process.env.ZALO_OA_ACCESS_TOKEN || null,
   };
 }

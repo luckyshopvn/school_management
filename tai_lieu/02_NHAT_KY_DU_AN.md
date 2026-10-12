@@ -14,6 +14,69 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-11 phần 11b: tuyển dụng
+
+#### Công việc đã thực hiện
+
+- Agent 11b viết mã, kiểm thử máy chủ, nháp tài liệu trong worktree riêng (dừng giữa chừng vì giới hạn phiên rồi làm tiếp); người điều phối gộp nhánh 11e, đánh số tám kịch bản mới CT-208 đến CT-215 kèm AC-252 đến AC-259, chạy toàn bộ kiểm thử, đưa nháp vào tài liệu.
+- Cơ sở dữ liệu: bốn bảng (tệp 0041). Máy chủ API: đề nghị tuyển dụng DNTD-000001 duyệt bởi Ban Giám hiệu, tin tuyển dụng công khai đến hết hạn, nộp hồ sơ không cần tài khoản có giới hạn số lần, hồ sơ ứng viên có ghi nhật ký truy cập dữ liệu cá nhân, phỏng vấn nhiều vòng, quyết định tuyển, tạo hồ sơ nhân sự; bước chuyển năm học `recruitment`.
+- Cổng quản trị: trang Tuyển dụng. Ứng dụng phụ huynh: trang Tuyển dụng giáo viên và nhân viên công khai.
+- Kết quả: máy chủ API 494/494, kiểm thử giao diện 59/59.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-87 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-87 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.44.0.
+
+#### Vấn đề tồn đọng
+
+- Gộp các phần 11a, 11c, 11d; báo cáo kiểm thử giai đoạn 3 và bản ứng viên 1.2.0.
+
+### 2026-10-11 — DT-11 phần 11e: kết nối Facebook và Zalo
+
+#### Công việc đã thực hiện
+
+- Agent 11e viết mã, kiểm thử máy chủ, nháp tài liệu trong worktree riêng (dừng giữa chừng vì giới hạn phiên rồi làm tiếp); người điều phối gộp `main`, đánh số sáu kịch bản mới CT-202 đến CT-207 kèm AC-246 đến AC-251, sửa KT-09 tính chung tin Zalo, chạy toàn bộ kiểm thử, đưa nháp vào tài liệu.
+- Cơ sở dữ liệu: tệp 0044. Máy chủ API: cấu hình kết nối ngoài (khóa chỉ ở biến môi trường), đăng hoạt động và tin tức đã công bố lên Fanpage kèm loại ảnh theo đồng ý hình ảnh, thử lại khi lỗi; kênh Zalo cho thông báo và nhắc nợ, gửi tin nhắn thay khi chưa liên kết hoặc lỗi; bước chuyển năm học `integrations`.
+- Cổng quản trị: trang Kết nối ngoài (MH-71), nút Đăng lên Fanpage ở trang Hoạt động và tin tức.
+- Kết quả: máy chủ API 486/486, kiểm thử giao diện 58/58.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-90 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-90 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.43.0.
+
+#### Vấn đề tồn đọng
+
+- Gộp các phần 11a đến 11d; báo cáo kiểm thử giai đoạn 3 và bản ứng viên 1.2.0.
+
+### 2026-10-11 — DT-10: báo cáo kiểm thử giai đoạn 2, bản ứng viên 1.1.0
+
+#### Công việc đã thực hiện
+
+- Gộp mười phần 10a đến 10j vào `main` (yêu cầu gộp số 43, 45, 46, 48 đến 54); từ phần 10b làm song song ba phần một lượt bằng các agent, người điều phối gộp nối tiếp và chạy toàn bộ kiểm thử trước mỗi yêu cầu gộp.
+- Bổ sung ca kiểm thử cho CT-041, CT-083, CT-085; đánh dấu CTC-P06-049 đạt.
+- Viết `29_BAO_CAO_KIEM_THU_G2.md`.
+- Kết quả: máy chủ API 480/480, kiểm thử giao diện 57/57; kịch bản CT 187/201 đạt, ca chi tiết CTC 443/453 đạt.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-84 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-84 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.42.0.
+
+#### Vấn đề tồn đọng
+
+- Eric nghiệm thu bản ứng viên 1.0.0 (0.31.0) và 1.1.0 (0.42.0); việc T1, T6; đợt DT-11 giai đoạn 3.
+
 ### 2026-10-11 — DT-10 phần 10i: tài chính giai đoạn 2
 
 #### Công việc đã thực hiện

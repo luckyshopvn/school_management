@@ -143,6 +143,10 @@ export class FilesService {
       throw notFoundError('Không tìm thấy tệp', 'file');
     }
     const { storage_key: storageKey, created_by: createdBy, ...stored } = file;
+    if (file.purpose === 'candidate_cv') {
+      // Hồ sơ xin việc chỉ tải qua hồ sơ ứng viên để kiểm tra quyền P18 và ghi nhật ký truy cập (YCTD-87)
+      throw new ApplicationError('ERR_FORBIDDEN', 'Hồ sơ xin việc chỉ xem trong hồ sơ ứng viên');
+    }
     if (MEDICATION_PURPOSES.includes(file.purpose)) {
       // Ảnh thuốc, đơn thuốc xem theo quyền xem sức khỏe của trẻ (BR-53); chưa gắn yêu cầu thì chỉ người tải lên xem
       const request = await medicationRequestOfFile(database, fileId);
@@ -197,6 +201,50 @@ export class FilesService {
         : PERMISSION_CODES.childApprove;
       await this.organizationScopes.assertCanAccess(currentUser, permission, orgUnitId);
     }
+    return { file: stored, body: await this.fileStorage.get(storageKey) };
+  }
+
+  // Hồ sơ xin việc của ứng viên (P18-03, YCTD-87): ảnh JPEG, PNG hoặc PDF tối đa 10 MB; ứng viên tự nộp không có tài
+  // khoản nên người tạo trống. Quyền kiểm tra ở phân hệ tuyển dụng trước khi gọi
+  async storeCandidateCv(
+    executor: Kysely<SchoolYearDatabase>,
+    input: { orgUnitId: string; fileName: string; body: Buffer; createdBy: string | null },
+  ): Promise<StoredFile> {
+    const contentType = detectContentType(input.body);
+    if (!contentType) {
+      throw validationError([{ field: 'file', message: 'Hồ sơ xin việc là ảnh JPEG, PNG hoặc tệp PDF' }]);
+    }
+    if (input.body.length > MAXIMUM_FILE_BYTES) {
+      throw validationError([{ field: 'file', message: 'Tệp tối đa 10 MB' }]);
+    }
+    const storageKey = `candidate_cv/${randomUUID()}`;
+    await this.fileStorage.put(storageKey, input.body, contentType);
+    return executor
+      .insertInto('files')
+      .values({
+        org_unit_id: input.orgUnitId,
+        purpose: 'candidate_cv',
+        file_name: input.fileName.slice(0, 200),
+        content_type: contentType,
+        size_bytes: input.body.length,
+        storage_key: storageKey,
+        created_by: input.createdBy,
+      })
+      .returning(['id', 'org_unit_id', 'purpose', 'file_name', 'content_type', 'size_bytes'])
+      .executeTakeFirstOrThrow();
+  }
+
+  // Đọc nội dung tệp sau khi phân hệ gọi đã kiểm tra quyền
+  async readStored(database: Kysely<SchoolYearDatabase>, fileId: string): Promise<{ file: StoredFile; body: Buffer }> {
+    const file = await database
+      .selectFrom('files')
+      .select(['id', 'org_unit_id', 'purpose', 'file_name', 'content_type', 'size_bytes', 'storage_key'])
+      .where('id', '=', fileId)
+      .executeTakeFirst();
+    if (!file) {
+      throw notFoundError('Không tìm thấy tệp', 'file');
+    }
+    const { storage_key: storageKey, ...stored } = file;
     return { file: stored, body: await this.fileStorage.get(storageKey) };
   }
 

@@ -417,7 +417,7 @@ describe('Báo cáo giai đoạn 2: hoạt động, hợp nhất, xuất dữ li
     }
   });
 
-  it('CT-191, P17-11: cán bộ quản lý cấp trên xem báo cáo hợp nhất chỉ có số liệu tổng hợp', async () => {
+  it('CT-191, CT-085, P17-11: cán bộ quản lý cấp trên xem báo cáo hợp nhất chỉ có số liệu tổng hợp', async () => {
     const response = await get(`/reports/consolidated?month=${currentMonth}`, token('upper'));
     assert.equal(response.status, 200, JSON.stringify(response.body));
     const rows = response.body.units as Array<Record<string, number | string | null>>;
@@ -448,6 +448,10 @@ describe('Báo cáo giai đoạn 2: hoạt động, hợp nhất, xuất dữ li
     );
     assert.equal(chosen.status, 200, JSON.stringify(chosen.body));
     assert.equal((chosen.body.units as unknown[]).length, 2);
+    // CT-085: Hiệu trưởng chọn hai đơn vị thì chỉ số tách theo đơn vị và có dòng tổng
+    const chosenUnits = chosen.body.units as Array<{ children_count: number }>;
+    const chosenTotals = chosen.body.totals as { children_count: number };
+    assert.equal(chosenTotals.children_count, chosenUnits[0]!.children_count + chosenUnits[1]!.children_count);
   });
 
   it('CT-192, P17-11, BR-01: cán bộ quản lý cấp trên không xem được báo cáo có dữ liệu cá nhân; quản lý đơn vị không xem báo cáo hợp nhất', async () => {
@@ -468,7 +472,7 @@ describe('Báo cáo giai đoạn 2: hoạt động, hợp nhất, xuất dữ li
     );
   });
 
-  it('CT-193, P17-12, BR-74: kế toán xuất báo cáo công nợ ra Excel, hệ thống ghi nhật ký xuất', async () => {
+  it('CT-193, CT-083, P17-12, BR-74: kế toán xuất báo cáo công nợ ra Excel, hệ thống ghi nhật ký xuất', async () => {
     const response = await exportReport('debts', token('accountant'), { org_unit_id: units['ĐT-A1'] });
     assert.equal(response.status, 200, response.body.toString());
     assert.match(response.headers.get('content-type') ?? '', /spreadsheetml/);
@@ -494,6 +498,22 @@ describe('Báo cáo giai đoạn 2: hoạt động, hợp nhất, xuất dữ li
     assert.equal(log.row_count, 4);
     assert.deepEqual(log.org_unit_ids, [units['ĐT-A1']]);
     assert.deepEqual(log.filters_data, { org_unit_id: units['ĐT-A1'] });
+
+    // CT-083: kế toán xuất báo cáo thu chi, có tệp và một dòng nhật ký xuất
+    const cashFlow = await exportReport('cash-flow', token('accountant'), {
+      org_unit_id: units['ĐT-A1'],
+      from: addDays(vietnamToday, -10),
+      to: vietnamToday,
+    });
+    assert.equal(cashFlow.status, 200, cashFlow.body.toString());
+    assert.match(cashFlow.headers.get('content-type') ?? '', /spreadsheetml/);
+    const cashFlowLog = await schoolYear
+      .selectFrom('export_logs')
+      .select(['report_code', 'user_id'])
+      .where('id', '=', cashFlow.headers.get('x-export-log-id') ?? '')
+      .executeTakeFirstOrThrow();
+    assert.equal(cashFlowLog.report_code, 'cash-flow');
+    assert.equal(cashFlowLog.user_id, users.accountant?.userId);
 
     const staff = await exportReport('staff-attendance', token('personnel'), { month: currentMonth });
     assert.equal(staff.status, 200, staff.body.toString());
@@ -541,6 +561,7 @@ describe('Báo cáo giai đoạn 2: hoạt động, hợp nhất, xuất dữ li
     assert.equal(principalView.status, 200, JSON.stringify(principalView.body));
     const all = principalView.body as unknown as Array<{ report_code: string; user_id: string }>;
     assert.deepEqual([...new Set(all.map((row) => row.report_code))].sort(), [
+      'cash-flow',
       'consolidated',
       'debts',
       'staff-attendance',

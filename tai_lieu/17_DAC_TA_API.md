@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.55
+- Phiên bản: 1.57
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -100,6 +100,29 @@ Giao kèo:
 7. Mã lỗi: `ERR_RULE_VIOLATION` kèm `P09-01` (người nhận nghỉ việc hoặc chưa có tài khoản; việc đã xong hoặc đã hủy), `P09-03` (kế hoạch không ở trạng thái phù hợp), `P09-04` (cập nhật tiến độ việc đã xong), `BR-47` (sửa phiếu đã công bố, đánh giá lại thiếu lý do, đơn vị chưa có chỉ số), `BR-45` (tháng đã trình duyệt bảng lương), `BR-90` (nhân sự đã chấm dứt hợp đồng); `ERR_CONFLICT` khi trùng mã chỉ số, đã có phiếu nháp của kỳ, mốc công tác đã có ngày kết thúc.
 
 Thay hai dòng dự kiến `POST /fiscal-periods/{id}/request-close` và `/close` bằng các dòng trên (đề nghị chốt tạo dòng kỳ nên dùng `POST /fiscal-periods`). Bỏ dòng dự kiến `GET, POST /suppliers` của P06-07 vì nhà cung cấp đã có ở P13-07 (YCTD-77).
+
+Giao kèo:
+
+1. Khóa truy cập Fanpage và Zalo chỉ đọc từ biến môi trường `FACEBOOK_PAGE_ACCESS_TOKEN`, `ZALO_OA_ACCESS_TOKEN`; không có điểm cuối nào nhận hay trả khóa. `PUT /integrations/{connector}` từ chối mọi trường cấu hình ngoài `page_id`, `page_name` (facebook) hoặc `oa_id`, `oa_name` (zalo) bằng 400; bật mà thiếu mã trang hoặc mã Official Account là 400; kết nối khác hai giá trị trên là 404. Mọi lần lưu ghi nhật ký thao tác.
+2. `FACEBOOK_PUBLISHER=development`, `ZALO_SENDER=development` dùng bộ giả lập; không đặt và không có khóa thì `provider` là `none`, `credentials_configured` là false.
+3. Đăng Fanpage: người không có `P14.facebook.manage` ở đơn vị nào 403; chưa bật Fanpage hoặc máy chủ chưa có khóa 422 `P14-08`; nội dung không thuộc phạm vi đơn vị của người đăng 403; nội dung chưa công bố hoặc đã ẩn 422 `BR-64`; tin tức phạm vi lớp hoặc trẻ 422 `P14-08`; đã đăng 409. Facebook lỗi thì trả 201 với `status = failed`, `last_error`; thử lại chỉ cho bài `failed` (khác là 409), trả 200, tăng `attempt_count`.
+4. Hình kèm bài: hình của hoạt động có bất kỳ trẻ được gắn thẻ chưa đồng ý (`photo_consent` khác `granted`) bị loại, số hình bị loại ở `excluded_photo_count`; xét lúc đăng hoặc thử lại.
+5. Liên kết Zalo: số điện thoại 10 chữ số bắt đầu bằng 0 và phải là số của một phụ huynh trong năm học (không thì 422 `G3-08`); số hoặc mã Zalo đã liên kết thì 409.
+6. Tiến trình gửi thông báo: người nhận kênh `zalo` gửi qua Zalo khi Zalo bật, máy chủ có khóa và số điện thoại đã liên kết; còn lại hoặc Zalo lỗi thì gửi tin nhắn. Tin Zalo và tin nhắn tính chung giới hạn 5 tin mỗi ngày; `delivered_via` ghi kênh thực tế.
+7. Nhắc nợ thêm người nhận kênh `zalo` cho mỗi phụ huynh khi Zalo đang bật lúc gửi nhắc.
+
+Thay bốn dòng P18 hiện có trong `17` bằng:
+
+
+Giao kèo của nhóm điểm cuối tuyển dụng (DT-11 phần 11b, YCTD-87):
+
+1. `POST /recruitment-requests` nhận `org_unit_id` (trống khi chỉ có một đơn vị trong phạm vi), `position`, `quantity` (1 đến 1000), `requirements`, `reason`, `needed_by` (không bắt buộc, không trước hôm nay); cần `P18.recruitment-request.create`. `approve`, `reject` (nhận `reason` bắt buộc) cần `P18.recruitment-request.approve` trong phạm vi đơn vị, người lập không tự duyệt (`ERR_FORBIDDEN`), đề nghị không chờ duyệt trả mã BR-80. `close` nhận `reason`, cần là người lập hoặc có `P18.recruitment.manage`. Kết quả có `code`, `unit_name`, `hired_count`, `approver_name`, `reject_reason`, `close_reason`.
+2. `POST /job-postings` nhận `request_id`, `title`, `description`, `requirements`, `deadline`; `PUT` nhận bốn trường cuối; cần `P18.recruitment.manage` trong đơn vị của đề nghị; đề nghị chưa duyệt trả mã BR-80; tin đã đóng không sửa (BR-75); `publish` chỉ từ tin đang soạn (BR-69). Kết quả có `request_code`, `position`, `quantity`, `unit_name`, `candidate_count`, `is_open`. Danh sách cần một trong `P18.recruitment.manage`, `P18.interview.manage`, `P18.recruitment-request.approve`.
+3. Điểm cuối `/public/job-posts` không cần mã phiên; mỗi địa chỉ mạng 120 lần xem mỗi phút, 10 lần nộp mỗi 10 phút, vượt trả `ERR_RATE_LIMIT` (429). Tin trả `id`, `title`, `description`, `requirements`, `deadline`, `published_at`, `position`, `quantity`, `unit_name`, `org_unit_id`. Tin không công bố hoặc hết hạn trả `ERR_NOT_FOUND`. `POST .../applications` là biểu mẫu nhiều phần: `full_name`, `phone` bắt buộc, `email`, `dob`, `gender`, `address`, `cover_letter`, `source` (`website`, `referral`, `job_board`, `social_media`, `other`), `consent` phải là `true`, tệp ở trường `cv` (ảnh JPEG, PNG hoặc PDF, tối đa 10 MB) bắt buộc; trùng số điện thoại trong tin trả `ERR_CONFLICT`; kết quả chỉ có `message`.
+4. `GET /candidates` lọc `posting_id`, `status`, `org_unit_id`; trả `full_name`, `posting_title`, `source`, `status`, `has_cv`, `staff_id`, không trả liên hệ. `GET /candidates/{id}` trả đủ liên hệ, `cv_file_name`, `staff_code`, `can_manage`, `can_interview`, `interviews` (kèm `interviewers` gồm `staff_id`, `full_name`) và ghi nhật ký truy cập phạm vi `candidate_profile`; `GET /candidates/{id}/cv` ghi phạm vi `candidate_cv`. Đọc cần `P18.recruitment.manage` hoặc `P18.interview.manage` trong phạm vi đơn vị của tin.
+5. `POST /candidates` nhận `posting_id` (tin đã công bố hoặc đã đóng), `full_name`, `phone`, `email`, `dob`, `gender`, `address`, `source` (thêm `walk_in`), `note`; `POST /candidates/{id}/cv` nhận tệp ở trường `cv`; `POST /candidates/{id}/status` nhận `status` (`screening`, `rejected`, `withdrawn`) và `reason` (bắt buộc trừ `screening`); chuyển không hợp lệ trả mã BR-75. Cần `P18.recruitment.manage`.
+6. `POST /candidates/{id}/interviews` nhận `scheduled_at` (ISO 8601), `location`, `interviewer_staff_ids` (1 đến 10 hồ sơ nhân sự đang làm); `POST /interviews/{id}/result` nhận `result` (`passed`, `failed`), `score` (0 đến 10, không bắt buộc), `evaluation`; `cancel` nhận `reason`; `POST /candidates/{id}/decision` nhận `result` (`hired`, `rejected`) và `note` (bắt buộc khi không tuyển); còn lịch chờ, chưa có kết quả hoặc lần gần nhất không đạt mà quyết định tuyển trả mã BR-80. Cần `P18.interview.manage`.
+7. `POST /candidates/{id}/staff` nhận `code`, `start_date`, `department_id`, `job_title_id`; cần `P18.recruitment.manage` và `P07.staff.manage`; ứng viên chưa tuyển, đã có hồ sơ hoặc số điện thoại đã có hồ sơ nhân sự trả mã BR-37; mã nhân sự trùng trả `ERR_CONFLICT`.
 
 Giao kèo của nhóm điểm cuối tài chính giai đoạn 2 (DT-10 phần 10i, YCTD-82):
 
@@ -873,6 +896,15 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | Phương thức | Đường dẫn | Mô tả |
 |---|---|---|
 | GET, POST | /api/v1/activities | Danh sách (lọc lớp, trẻ, trạng thái, đơn vị) và tạo hoạt động (chờ duyệt, hoặc nháp khi `draft`) |
+| GET | /api/v1/integrations | Cấu hình hai kết nối: bật hay tắt, cấu hình không bí mật, nhà cung cấp, đã có khóa ở máy chủ hay chưa (P01.integration.manage) |
+| PUT | /api/v1/integrations/{connector} | Lưu cấu hình Fanpage (`facebook`) hoặc Zalo (`zalo`): `enabled`, `config` chỉ gồm trường được phép |
+| GET | /api/v1/integrations/zalo/followers | Danh sách số điện thoại đã liên kết Zalo kèm tên phụ huynh |
+| POST | /api/v1/integrations/zalo/followers | Liên kết số điện thoại phụ huynh với mã người dùng Zalo |
+| DELETE | /api/v1/integrations/zalo/followers/{id} | Bỏ liên kết Zalo |
+| POST | /api/v1/activities/{id}/facebook-post | Đăng hoạt động đã công bố lên Fanpage (P14.facebook.manage) |
+| POST | /api/v1/news/{id}/facebook-post | Đăng tin tức đã công bố, phạm vi toàn trường hoặc đơn vị, lên Fanpage |
+| GET | /api/v1/facebook-posts | Bài đăng Fanpage trong phạm vi đơn vị; lọc `source_type`, `source_id` |
+| POST | /api/v1/facebook-posts/{id}/retry | Thử đăng lại bài đăng lỗi |
 | GET, PATCH | /api/v1/activities/{id} | Chi tiết kèm ảnh, lượt thích, số bình luận; sửa khi chưa công bố |
 | POST | /api/v1/activities/{id}/submit | Gửi trình duyệt hoạt động nháp hoặc bị từ chối |
 | POST | /api/v1/activities/{id}/approve | Duyệt và công bố hoạt động |
@@ -948,10 +980,27 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | POST | /api/v1/admission-applications/{id}/approve | Duyệt hồ sơ tuyển sinh |
 | POST | /api/v1/admission-applications/{id}/reject | Từ chối hồ sơ tuyển sinh kèm lý do |
 | POST | /api/v1/admission-applications/{id}/convert | Chuyển thành hồ sơ trẻ |
-| GET, POST | /api/v1/recruitment-requests | Đề nghị tuyển dụng |
-| GET, POST | /api/v1/job-postings | Tin tuyển dụng |
-| GET, POST | /api/v1/candidates | Hồ sơ ứng viên |
-| GET, POST | /api/v1/candidates/{id}/interviews | Lịch phỏng vấn và kết quả |
+| GET, POST | /api/v1/recruitment-requests | Danh sách (view mine, pending, all; lọc status, org_unit_id) và lập đề nghị tuyển dụng |
+| GET | /api/v1/recruitment-requests/{id} | Chi tiết đề nghị kèm số đã tuyển |
+| POST | /api/v1/recruitment-requests/{id}/approve | Duyệt đề nghị tuyển dụng |
+| POST | /api/v1/recruitment-requests/{id}/reject | Từ chối đề nghị kèm lý do |
+| POST | /api/v1/recruitment-requests/{id}/close | Đóng đề nghị kèm lý do, đóng các tin còn mở |
+| GET, POST | /api/v1/job-postings | Danh sách và soạn tin tuyển dụng |
+| GET, PUT | /api/v1/job-postings/{id} | Chi tiết, sửa tin chưa đóng |
+| POST | /api/v1/job-postings/{id}/publish | Công bố tin |
+| POST | /api/v1/job-postings/{id}/close | Đóng tin |
+| GET | /api/v1/public/job-posts | Công khai, không cần tài khoản: tin đã công bố còn hạn nộp |
+| GET | /api/v1/public/job-posts/{id} | Công khai: chi tiết tin còn hạn |
+| POST | /api/v1/public/job-posts/{id}/applications | Công khai: nộp hồ sơ kèm hồ sơ xin việc |
+| GET, POST | /api/v1/candidates | Danh sách ứng viên (không có liên hệ) và nhân sự nhập ứng viên |
+| GET | /api/v1/candidates/{id} | Chi tiết ứng viên kèm lịch phỏng vấn, ghi nhật ký truy cập |
+| GET, POST | /api/v1/candidates/{id}/cv | Tải (ghi nhật ký truy cập) hoặc đính kèm hồ sơ xin việc |
+| POST | /api/v1/candidates/{id}/status | Sàng lọc: đang sàng lọc, không đạt, đã rút |
+| POST | /api/v1/candidates/{id}/interviews | Lên lịch phỏng vấn |
+| POST | /api/v1/interviews/{id}/result | Ghi kết quả phỏng vấn |
+| POST | /api/v1/interviews/{id}/cancel | Hủy lịch phỏng vấn kèm lý do |
+| POST | /api/v1/candidates/{id}/decision | Quyết định tuyển hoặc không tuyển |
+| POST | /api/v1/candidates/{id}/staff | Tạo hồ sơ nhân sự từ ứng viên đã tuyển |
 
 ## 17. Báo cáo và thông báo
 
@@ -990,7 +1039,7 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | KT-06 | Giới hạn dung lượng và định dạng tệp tải lên ở máy chủ |
 | KT-07 | Giới hạn tần suất cho các điểm cuối nhạy cảm: đăng nhập, gửi thông báo, gửi phiếu bình chọn |
 | KT-08 | Mọi phản hồi lỗi phải kèm mã tương quan để tra nhật ký |
-| KT-09 | Mỗi phụ huynh nhận tối đa 5 tin nhắn mỗi ngày, không tính mã một lần; thông báo trong ứng dụng không giới hạn (Q-96) |
+| KT-09 | Mỗi phụ huynh nhận tối đa 5 tin gửi ra ngoài mỗi ngày, gồm tin nhắn và tin qua Zalo Official Account, không tính mã một lần; thông báo trong ứng dụng không giới hạn (Q-96, YCTD-90) |
 
 ## 19. Phiên bản và tương thích
 
