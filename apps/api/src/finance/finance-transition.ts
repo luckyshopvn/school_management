@@ -127,6 +127,10 @@ export const financeTransitionStep: AcademicYearTransitionStep = {
         .values({ ...account, opening_balance: account.current_balance })
         .execute();
     }
+    // Cấu hình cột của tệp sao kê theo tài khoản dùng tiếp ở năm học mới (YCTD-89)
+    for (const profile of await previous.selectFrom('bank_statement_profiles').selectAll().execute()) {
+      await next.insertInto('bank_statement_profiles').values(profile).execute();
+    }
 
     const children = await previous
       .selectFrom('children')

@@ -117,6 +117,7 @@ import { ReceiptsService } from './finance/receipts.service.js';
 import { ReceiptReversalsService } from './finance/receipt-reversals.service.js';
 import { CashBooksController, CashBooksService } from './finance/cash-books.js';
 import { BankReconciliationController, BankReconciliationService } from './finance/bank-reconciliation.js';
+import { BankStatementImportsController, BankStatementImportsService } from './finance/bank-statement-imports.js';
 import { DebtCollectionController, DebtCollectionService } from './finance/debt-collection.js';
 import { FiscalPeriodsController, FiscalPeriodsService } from './finance/fiscal-periods.js';
 import { PayablesController, PayablesService } from './finance/payables.js';
@@ -125,7 +126,7 @@ import { PaymentsService } from './finance/payments.service.js';
 import { PaymentReversalsService } from './finance/payment-reversals.service.js';
 import { OnlinePaymentsController } from './finance/online-payments.controller.js';
 import { OnlinePaymentsService } from './finance/online-payments.service.js';
-import { DevelopmentPaymentGateway, PaymentGateway, UnavailablePaymentGateway } from './finance/payment-gateway.js';
+import { createPaymentGateway, PaymentGatewayRegistry } from './finance/payment-gateway.js';
 import { DebtsService } from './fees/debts.service.js';
 import { ChildLifecycleController, ChildLifecycleService } from './children/child-lifecycle.js';
 import { WorkSchedulesController, WorkSchedulesService } from './staff-attendance/work-schedules.js';
@@ -271,6 +272,7 @@ export class ApplicationModule {
         BonusDeductionsController,
         DebtCollectionController,
         BankReconciliationController,
+        BankStatementImportsController,
         PayablesController,
         FiscalPeriodsController,
         ...(options.additionalControllers ?? []),
@@ -399,11 +401,9 @@ export class ApplicationModule {
         { provide: SmsGateway, useFactory: () => options.smsGateway ?? new LoggingSmsGateway() },
         JournalsService,
         {
-          provide: PaymentGateway,
+          provide: PaymentGatewayRegistry,
           useFactory: () =>
-            configuration.paymentGateway === 'development'
-              ? new DevelopmentPaymentGateway()
-              : new UnavailablePaymentGateway(),
+            new PaymentGatewayRegistry((configuration.paymentGateways ?? []).map((code) => createPaymentGateway(code))),
         },
         CashBooksService,
         WorkAccess,
@@ -415,6 +415,7 @@ export class ApplicationModule {
         DebtsService,
         DebtCollectionService,
         BankReconciliationService,
+        BankStatementImportsService,
         PayablesService,
         FiscalPeriodsService,
         SchoolCalendar,

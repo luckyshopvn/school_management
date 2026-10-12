@@ -68,7 +68,7 @@ export async function startApiTestEnvironment(
       childDataEncryptionKey: randomBytes(32),
       childDataHashKey: randomBytes(32),
       objectStorage: null,
-      paymentGateway: 'development',
+      paymentGateways: ['development', 'vietqr-static'],
       notificationDispatchIntervalSeconds: 0,
     },
     { ...options, fileStorage: new MemoryFileStorage(), smsGateway },

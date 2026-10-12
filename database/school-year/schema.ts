@@ -617,6 +617,9 @@ export interface CashAccountsTable {
   status: Generated<'active' | 'inactive'>;
   receives_online_payments: Generated<boolean>;
   online_payment_category_id: string | null;
+  // Cổng thanh toán trực tuyến của tài khoản (trống là cổng mặc định) và mã BIN ngân hàng cho mã VietQR (YCTD-89)
+  payment_provider: string | null;
+  bank_bin: string | null;
   created_by: string;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
@@ -2443,6 +2446,48 @@ export interface BankStatementLinesTable {
   matched_at: Date | null;
   created_by: string;
   created_at: CreatedTimestamp;
+  // Lần nhập tệp sao kê tạo ra dòng và hóa đơn được đề xuất lập phiếu thu (YCTD-89)
+  import_id: string | null;
+  suggested_invoice_id: string | null;
+}
+
+export type BankStatementAmountMode = 'signed' | 'split';
+export type BankStatementDateFormat = 'dmy' | 'ymd' | 'mdy';
+
+export interface BankStatementProfilesTable {
+  id: Generated<string>;
+  account_id: string;
+  org_unit_id: string;
+  header_row: Generated<number>;
+  date_column: string;
+  date_format: Generated<BankStatementDateFormat>;
+  amount_mode: BankStatementAmountMode;
+  amount_column: string | null;
+  credit_column: string | null;
+  debit_column: string | null;
+  description_column: string;
+  reference_column: string | null;
+  updated_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface BankStatementImportsTable {
+  id: Generated<string>;
+  account_id: string;
+  org_unit_id: string;
+  file_name: string;
+  file_format: 'xlsx' | 'csv';
+  total_rows: number;
+  imported_count: number;
+  duplicate_count: number;
+  error_count: number;
+  auto_matched_count: Generated<number>;
+  suggested_count: Generated<number>;
+  errors: ColumnType<unknown, string | undefined, string>;
+  duplicates: ColumnType<unknown, string | undefined, string>;
+  created_by: string;
+  created_at: CreatedTimestamp;
 }
 
 export type PayableSourceType = 'manual' | 'purchase_order' | 'medicine_purchase_order' | 'market_purchase';
@@ -2660,4 +2705,6 @@ export interface SchoolYearDatabase {
   bank_statement_lines: BankStatementLinesTable;
   payables: PayablesTable;
   fiscal_periods: FiscalPeriodsTable;
+  bank_statement_profiles: BankStatementProfilesTable;
+  bank_statement_imports: BankStatementImportsTable;
 }

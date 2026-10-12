@@ -61,6 +61,15 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
     defaultValue: true,
     rule: 'BR-34',
   },
+  // Số ngày lệch tối đa giữa dòng sao kê và giao dịch theo sổ khi đối soát tự động (G3-05, YCTD-89), mặc định 3 như
+  // khớp tự động của YCTD-82
+  {
+    key: 'bank_match_days',
+    label: 'Số ngày lệch tối đa khi đối soát sao kê tự động',
+    valueType: 'positive_integer',
+    defaultValue: 3,
+    rule: 'BR-34',
+  },
   {
     key: 'block_stock_overdraw',
     label: 'Chặn xuất quá tồn kho',

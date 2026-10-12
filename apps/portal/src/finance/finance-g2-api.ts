@@ -65,7 +65,53 @@ export interface StatementLine {
   status: 'unmatched' | 'matched';
   matched_transaction_id: string | null;
   matched_description: string | null;
+  suggested_invoice_id: string | null;
+  suggested_invoice_code: string | null;
+  suggested_child_name: string | null;
 }
+
+// Nhập tệp sao kê và đối soát tự động, đề xuất lập phiếu thu (G3-05, YCTD-89)
+export interface StatementProfile {
+  header_row: number;
+  date_column: string;
+  date_format: 'dmy' | 'ymd' | 'mdy';
+  amount_mode: 'signed' | 'split';
+  amount_column: string | null;
+  credit_column: string | null;
+  debit_column: string | null;
+  description_column: string;
+  reference_column: string | null;
+}
+
+export interface StatementImport {
+  id: string;
+  file_name: string;
+  total_rows: number;
+  imported_count: number;
+  duplicate_count: number;
+  error_count: number;
+  auto_matched_count: number;
+  suggested_count: number;
+  errors: Array<{ row: number; column: string | null; message: string }>;
+  created_at: string;
+}
+
+export const readStatementProfile = (accountId: string) =>
+  requestJson<{ account_id: string; profile: StatementProfile | null }>(`/api/v1/bank-statement-profiles/${accountId}`);
+export const saveStatementProfile = (accountId: string, profile: StatementProfile) =>
+  requestJson<{ account_id: string; profile: StatementProfile | null }>(
+    `/api/v1/bank-statement-profiles/${accountId}`,
+    { method: 'PUT', body: JSON.stringify(profile) },
+  );
+export const importStatement = (accountId: string, file: File) => {
+  const form = new FormData();
+  form.set('account_id', accountId);
+  form.set('file', file);
+  return requestJson<StatementImport>('/api/v1/bank-statement-imports', { method: 'POST', body: form });
+};
+export const createReceiptFromLine = (id: string, categoryId: string) =>
+  post<{ receipt: { code: string } }>(`/api/v1/bank-transactions/${id}/create-receipt`, { category_id: categoryId });
+export const dismissSuggestion = (id: string) => post(`/api/v1/bank-transactions/${id}/dismiss-suggestion`);
 
 export interface BookEntry {
   id: string;
@@ -101,11 +147,14 @@ export const matchStatementLine = (id: string, accountTransactionId: string) =>
 export const unmatchStatementLine = (id: string) => post(`/api/v1/bank-transactions/${id}/unmatch`);
 export const deleteStatementLine = (id: string) => requestJson(`/api/v1/bank-transactions/${id}`, { method: 'DELETE' });
 export const autoMatch = (accountId: string, from: string, to: string) =>
-  post<Reconciliation & { auto_matched_count: number }>('/api/v1/bank-transactions/auto-match', {
-    account_id: accountId,
-    from,
-    to,
-  });
+  post<Reconciliation & { auto_matched_count: number; suggested_count: number }>(
+    '/api/v1/bank-transactions/auto-match',
+    {
+      account_id: accountId,
+      from,
+      to,
+    },
+  );
 
 export type PayableStatus = 'open' | 'paid' | 'cancelled';
 export const PAYABLE_STATUS_LABELS: Record<PayableStatus, string> = {
