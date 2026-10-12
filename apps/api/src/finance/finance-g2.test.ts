@@ -553,7 +553,7 @@ describe('Tài chính giai đoạn 2: nhắc nợ, xử lý công nợ, ngân h�
     assert.equal(purchaseAfter.payment_id, payment);
   });
 
-  it('P06-09: kế toán trưởng đề nghị, Hiệu trưởng từ chối rồi duyệt chốt; kỳ đã chốt chặn lập phiếu, đảo phiếu, sửa hóa đơn', async () => {
+  it('CT-041 P06-09, BR-95: kế toán trưởng đề nghị, Hiệu trưởng từ chối rồi duyệt chốt; kỳ đã chốt chặn lập phiếu, đảo phiếu, sửa hóa đơn', async () => {
     // Chứng từ của tháng trước lập sẵn trước khi chốt
     const oldReceipt = await schoolYear
       .insertInto('receipts')

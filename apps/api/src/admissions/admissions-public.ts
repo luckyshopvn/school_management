@@ -7,12 +7,12 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { notFoundError, type RequestBody } from '../common/request-fields.js';
 import { AdmissionApplicationsService } from './admission-applications.js';
 import { readApplication } from './admission-fields.js';
-import { PublicRateLimiter } from './public-rate-limit.js';
+import { AdmissionsRateLimiter } from './public-rate-limit.js';
 
 // Tuyển sinh trực tuyến cho phụ huynh và người ngoài trường, không cần tài khoản (G3-01, G3-07; P16-02, P16-05;
 // YCTD-86): xem đợt đang nhận hồ sơ kèm tin tuyển sinh đang đăng, nộp hồ sơ, tra cứu trạng thái bằng mã hồ sơ và số điện
 // thoại. Không trả số định danh, lý do xét ngoài lý do không đạt, hay thông tin nội bộ. Mỗi địa chỉ mạng bị giới hạn số
-// yêu cầu (PublicRateLimiter)
+// yêu cầu (AdmissionsRateLimiter)
 const STATUS_LABELS = {
   submitted: 'Đã nộp, chờ nhà trường tiếp nhận',
   received: 'Nhà trường đã tiếp nhận, đang xét duyệt',
@@ -155,7 +155,7 @@ export class AdmissionsPublicService {
 export class AdmissionsPublicController {
   constructor(
     private readonly admissions: AdmissionsPublicService,
-    private readonly limiter: PublicRateLimiter,
+    private readonly limiter: AdmissionsRateLimiter,
   ) {}
 
   @Get('admissions')

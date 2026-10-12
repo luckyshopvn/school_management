@@ -3,6 +3,7 @@ import { AcademicYearsPage } from './academic-years/AcademicYearsPage.js';
 import { AccountsPage } from './accounts/AccountsPage.js';
 import { RolesPage } from './accounts/RolesPage.js';
 import { ApiClientsPage } from './accounts/ApiClientsPage.js';
+import { IntegrationsPage } from './settings/IntegrationsPage.js';
 import { NotificationsPage } from './notifications/NotificationsPage.js';
 import { ApprovalThresholdsPage } from './catalogs/ApprovalThresholdsPage.js';
 import { CommonCatalogPage } from './catalogs/CommonCatalogPage.js';
@@ -43,6 +44,7 @@ import { KitchenPage } from './kitchen/KitchenPage.js';
 import { MedicinesPage } from './medicines/MedicinesPage.js';
 import { InventoryPage } from './inventory/InventoryPage.js';
 import { PurchaseRequestsPage } from './inventory/PurchaseRequestsPage.js';
+import { RecruitmentPage } from './recruitment/RecruitmentPage.js';
 import { TeachingPage } from './teaching/TeachingPage.js';
 import { StaffAttendancePage } from './staff-attendance/StaffAttendancePage.js';
 import { ImportsPage } from './imports/ImportsPage.js';
@@ -123,6 +125,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/inventory', component: InventoryPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/activities', component: ActivitiesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/purchase-requests', component: PurchaseRequestsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/recruitment', component: RecruitmentPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/teaching', component: TeachingPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/leave-requests', component: LeaveRequestsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/leave-policies', component: LeavePoliciesPage }),
@@ -132,6 +135,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/payroll-settlements', component: SettlementsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/reports', component: ReportsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/api-clients', component: ApiClientsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/integrations', component: IntegrationsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/notifications', component: NotificationsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/work', component: WorkPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/evaluations', component: EvaluationsPage }),

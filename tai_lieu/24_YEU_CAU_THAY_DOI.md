@@ -11,6 +11,40 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-85: Kế hoạch đợt DT-11 giai đoạn 3 – 2026-10-11
+
+- Lý do: giai đoạn 2 đã xong (YCTD-84); Eric yêu cầu làm tự động đến hết dự án theo kế hoạch, đợt DT-11 làm giai đoạn 3 để phát hành 1.2.0. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Chia năm phần, làm song song bằng các agent trong worktree riêng như đợt DT-10: 11a tuyển sinh trực tuyến và tin tuyển sinh (G3-01, G3-07; YCTD-86), 11b tuyển dụng (G3-02; YCTD-87), 11c sổ kế toán kép (G3-06, việc N5; YCTD-88), 11d đối soát sao kê ngân hàng tự động và nhiều cổng thanh toán (G3-05, việc N4; YCTD-89), 11e kết nối Facebook, Fanpage và Zalo Official Account (G3-03, G3-08, việc N3; YCTD-90).
+  - Quyền của cả đợt cấp trước trong tệp định danh 0035 (yêu cầu gộp số 56): `P16.admission-campaign.manage`, `P16.application.manage`, `P16.application.review`, `P16.admission-post.manage`, `P18.recruitment-request.create`, `P18.recruitment-request.approve`, `P18.recruitment.manage`, `P18.interview.manage`, `P06.ledger.manage`, `P06.ledger.view`, `P06.bank-statement.import`, `P14.facebook.manage`, `P01.integration.manage`.
+  - Tuyển sinh và tuyển dụng có trang công khai không cần đăng nhập trên ứng dụng phụ huynh, điểm cuối công khai có kiểm tra dữ liệu và giới hạn số lần gọi theo địa chỉ mạng.
+  - Facebook, Zalo, cổng thanh toán thêm: làm bộ chuyển đổi kèm bản giả lập cho môi trường phát triển và kiểm thử như cổng thanh toán (YCTD-57); nối tài khoản thật khi Eric cung cấp ở việc T1.
+  - Chưa làm trong DT-11: bản cài riêng trên điện thoại (G3-04, việc N2) chờ Eric quyết định vì bản trên trình duyệt đang đáp ứng; kết nối tự động với cơ sở dữ liệu ngành của Bộ (G3-09) chưa có giao diện lập trình công khai, tiếp tục nhập từ tệp (P02-12).
+- Thành phần bị ảnh hưởng: `01`, `03`, `24`; các tài liệu của từng phần ghi ở YCTD-86 đến YCTD-90.
+- Dữ liệu bị ảnh hưởng: tệp định danh 0035; tệp năm học 0040 đến 0044 theo phần.
+- API bị ảnh hưởng: theo từng phần.
+- Giao diện bị ảnh hưởng: theo từng phần.
+- Quyền bị ảnh hưởng: các mã nêu trên.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: theo từng phần; chạy lại toàn bộ kiểm thử trước mỗi yêu cầu gộp.
+- Trạng thái: Đang triển khai
+
+### YCTD-84: Báo cáo kiểm thử giai đoạn 2 và bản ứng viên phát hành 1.1.0 – 2026-10-11
+
+- Lý do: mười phần 10a đến 10j của đợt DT-10 (YCTD-73) đã gộp vào `main`; cần chạy lại toàn bộ kiểm thử, phân loại ca chưa chạy và lỗi, đóng gói bản ứng viên 1.1.0. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Thêm `29_BAO_CAO_KIEM_THU_G2.md`: phạm vi G2, môi trường, kết quả (CT 187/201 đạt, CTC 443/453 đạt), ca chưa chạy kèm quyết định, lỗi phát hiện khi gộp, giới hạn đã biết của bản 1.1.0, kết luận.
+  - Bổ sung ca kiểm thử cho ba kịch bản G2 còn chưa chạy: CT-041 (chốt kỳ, `finance-g2.test.ts`), CT-083 (xuất báo cáo thu chi, `reports-g2.test.ts`), CT-085 (báo cáo hợp nhất hai đơn vị có dòng tổng, `reports-g2.test.ts`); ca chi tiết CTC-P06-049 đạt cùng CT-083.
+  - Bản ứng viên phát hành 1.1.0 là phiên bản tài liệu 0.42.0. Không gắn 1.1.0 trước khi 1.0.0 qua cổng CG-11; Eric nghiệm thu cả hai bản ứng viên.
+- Thành phần bị ảnh hưởng: `01`, `02`, `03`, `21`, `23`, `27`, `29`, `index.md`; kiểm thử máy chủ báo cáo và tài chính giai đoạn 2.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: chạy lại toàn bộ kiểm thử máy chủ và giao diện; CT-041, CT-083, CT-085.
+- Trạng thái: Đã triển khai
+
 ### YCTD-83: Báo cáo hoạt động và công việc, báo cáo hợp nhất, xuất dữ liệu – 2026-10-11
 
 - Lý do: phần 10j theo cách chia ở YCTD-73 (P17-10, P17-11, P17-12). Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.

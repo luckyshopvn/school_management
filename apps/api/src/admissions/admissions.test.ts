@@ -17,7 +17,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 import { admissionsTransitionStep } from './admissions-transition.js';
-import { PublicRateLimiter } from './public-rate-limit.js';
+import { AdmissionsRateLimiter } from './public-rate-limit.js';
 
 // Tuyển sinh trực tuyến (DT-11 phần 11a, YCTD-86): đợt tuyển sinh, tin tuyển sinh, hồ sơ nộp trực tuyến không cần tài
 // khoản, tiếp nhận, xét duyệt, chuyển thành hồ sơ trẻ; kịch bản CT-076, CT-077, CT-124
@@ -162,7 +162,7 @@ describe('Tuyển sinh trực tuyến: đợt, tin, hồ sơ, xét duyệt, chuy
 
   // Mọi yêu cầu kiểm thử cùng một địa chỉ mạng; đếm lại từ đầu ở mỗi ca
   beforeEach(() => {
-    environment.api.get(PublicRateLimiter).reset();
+    environment.api.get(AdmissionsRateLimiter).reset();
   });
 
   after(async () => {

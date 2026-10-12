@@ -10,7 +10,7 @@ export const PUBLIC_LIMITS = {
 } as const;
 
 @Injectable()
-export class PublicRateLimiter {
+export class AdmissionsRateLimiter {
   private readonly windows = new Map<string, { start: number; count: number }>();
 
   constructor(private readonly clock: Clock) {}
