@@ -24,7 +24,7 @@
 - Giao diện bị ảnh hưởng: MH-27, MH-65 (mới), màn hình đăng nhập của ứng dụng phụ huynh thêm liên kết “Tuyển dụng giáo viên và nhân viên”.
 - Quyền bị ảnh hưởng: PQ-50.
 - Ảnh hưởng chức năng cũ: không đổi hành vi cũ; tải tệp chung không còn mở được tệp mục đích `candidate_cv` (mục đích mới).
-- Kiểm thử cần thực hiện: CT-11b-1 đến CT-11b-8; kiểm thử giao diện `tests/e2e/41-recruitment.spec.ts`.
+- Kiểm thử cần thực hiện: CT-208 đến CT-215; kiểm thử giao diện `tests/e2e/41-recruitment.spec.ts`.
 - Trạng thái: Đã triển khai
 
 ## Bảng
@@ -87,14 +87,14 @@ MH-66 không dùng.
 
 Kịch bản đề xuất thêm vào `21` (P18 chưa có kịch bản), đều đạt bằng kiểm thử tự động `apps/api/src/recruitment/recruitment.test.ts` ngày 12/10/2026:
 
-| CT-11b-1 | P18-01 | Quản lý đơn vị lập đề nghị; giáo viên lập; nhân sự duyệt; Phó Hiệu trưởng duyệt; người lập tự duyệt; duyệt lại | Giáo viên, nhân sự bị từ chối; Phó Hiệu trưởng duyệt được, nhật ký có người duyệt, thời điểm, số lượng (BR-80); người lập không tự duyệt; duyệt lại trả BR-80 | Đạt |
-| CT-11b-2 | P18-02 | Nhân sự đơn vị khác soạn tin; soạn tin hạn nộp đã qua; công bố tin; xem trang công khai không đăng nhập; tin hết hạn | Bị từ chối, lỗi dữ liệu; tin đang soạn không hiện công khai; tin đã công bố hiện kèm vị trí, đơn vị; tin hết hạn trả không tìm thấy | Đạt |
-| CT-11b-3 | P18-03 | Người ngoài nộp hồ sơ thiếu đồng ý, số điện thoại sai, thiếu tệp, tệp không phải ảnh hoặc PDF, hợp lệ, nộp lại | Bốn trường hợp đầu lỗi dữ liệu; hợp lệ được nhận, không trả mã; nộp lại trả xung đột; nhân sự nhận thông báo | Đạt |
-| CT-11b-4 | P18-03 | Giáo viên, nhân sự đơn vị khác xem ứng viên; nhân sự xem danh sách; quản lý đơn vị xem chi tiết; tải hồ sơ xin việc; tải qua điểm cuối tệp chung | Bị từ chối; danh sách không có số điện thoại; chi tiết và tải tệp ghi nhật ký truy cập (BR-74); tải qua tệp chung bị từ chối | Đạt |
-| CT-11b-5 | P18-03 | Nhân sự nhập ứng viên; quản lý đơn vị nhập; loại không lý do; loại có lý do; mở lại; xóa | Nhân sự nhập được, quản lý đơn vị bị từ chối; thiếu lý do lỗi dữ liệu; mở lại trả BR-75; không có điểm cuối xóa | Đạt |
-| CT-11b-6 | P18-04 | Lên lịch với người phỏng vấn không phải nhân sự; giáo viên lên lịch; quyết định khi còn lịch chờ; vòng 1 không đạt rồi quyết định tuyển; vòng 2 đạt rồi quyết định tuyển | Lỗi dữ liệu; bị từ chối; trả BR-80 hai lần; tuyển được, nhật ký có người và thời điểm quyết định; đề nghị có số đã tuyển 1 | Đạt |
-| CT-11b-7 | P18-04 | Quản lý đơn vị tạo hồ sơ nhân sự từ ứng viên đã tuyển; nhân sự tạo; tạo lần hai | Bị từ chối; hồ sơ nhân sự có họ tên, điện thoại, đơn vị của ứng viên; lần hai trả BR-37 | Đạt |
-| CT-11b-8 | P18-01, P18-02 | Giáo viên đóng đề nghị; nhân sự đóng đề nghị; nộp hồ sơ vào tin đã đóng; nộp liên tục nhiều lần | Bị từ chối; đề nghị và tin đều đóng; tin đã đóng trả không tìm thấy; vượt giới hạn trả `ERR_RATE_LIMIT` | Đạt |
+| CT-208 | P18-01 | Quản lý đơn vị lập đề nghị; giáo viên lập; nhân sự duyệt; Phó Hiệu trưởng duyệt; người lập tự duyệt; duyệt lại | Giáo viên, nhân sự bị từ chối; Phó Hiệu trưởng duyệt được, nhật ký có người duyệt, thời điểm, số lượng (BR-80); người lập không tự duyệt; duyệt lại trả BR-80 | Đạt |
+| CT-209 | P18-02 | Nhân sự đơn vị khác soạn tin; soạn tin hạn nộp đã qua; công bố tin; xem trang công khai không đăng nhập; tin hết hạn | Bị từ chối, lỗi dữ liệu; tin đang soạn không hiện công khai; tin đã công bố hiện kèm vị trí, đơn vị; tin hết hạn trả không tìm thấy | Đạt |
+| CT-210 | P18-03 | Người ngoài nộp hồ sơ thiếu đồng ý, số điện thoại sai, thiếu tệp, tệp không phải ảnh hoặc PDF, hợp lệ, nộp lại | Bốn trường hợp đầu lỗi dữ liệu; hợp lệ được nhận, không trả mã; nộp lại trả xung đột; nhân sự nhận thông báo | Đạt |
+| CT-211 | P18-03 | Giáo viên, nhân sự đơn vị khác xem ứng viên; nhân sự xem danh sách; quản lý đơn vị xem chi tiết; tải hồ sơ xin việc; tải qua điểm cuối tệp chung | Bị từ chối; danh sách không có số điện thoại; chi tiết và tải tệp ghi nhật ký truy cập (BR-74); tải qua tệp chung bị từ chối | Đạt |
+| CT-212 | P18-03 | Nhân sự nhập ứng viên; quản lý đơn vị nhập; loại không lý do; loại có lý do; mở lại; xóa | Nhân sự nhập được, quản lý đơn vị bị từ chối; thiếu lý do lỗi dữ liệu; mở lại trả BR-75; không có điểm cuối xóa | Đạt |
+| CT-213 | P18-04 | Lên lịch với người phỏng vấn không phải nhân sự; giáo viên lên lịch; quyết định khi còn lịch chờ; vòng 1 không đạt rồi quyết định tuyển; vòng 2 đạt rồi quyết định tuyển | Lỗi dữ liệu; bị từ chối; trả BR-80 hai lần; tuyển được, nhật ký có người và thời điểm quyết định; đề nghị có số đã tuyển 1 | Đạt |
+| CT-214 | P18-04 | Quản lý đơn vị tạo hồ sơ nhân sự từ ứng viên đã tuyển; nhân sự tạo; tạo lần hai | Bị từ chối; hồ sơ nhân sự có họ tên, điện thoại, đơn vị của ứng viên; lần hai trả BR-37 | Đạt |
+| CT-215 | P18-01, P18-02 | Giáo viên đóng đề nghị; nhân sự đóng đề nghị; nộp hồ sơ vào tin đã đóng; nộp liên tục nhiều lần | Bị từ chối; đề nghị và tin đều đóng; tin đã đóng trả không tìm thấy; vượt giới hạn trả `ERR_RATE_LIMIT` | Đạt |
 
 Kiểm thử giao diện `tests/e2e/41-recruitment.spec.ts` (luồng đề nghị, duyệt, công bố tin, nộp hồ sơ công khai trên ứng dụng phụ huynh, sàng lọc, phỏng vấn, quyết định tuyển, tạo hồ sơ nhân sự): đã viết, chưa chạy (người điều phối chạy). Kiểm thử chuyển năm học `apps/api/src/academic-years/year-transition.test.ts` vẫn đạt với bước chuyển tuyển dụng.
 

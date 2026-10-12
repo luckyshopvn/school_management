@@ -10,7 +10,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 
-// Tuyển dụng (DT-11 phần 11b, YCTD-87); kịch bản đề xuất CT-11b-1 đến CT-11b-8
+// Tuyển dụng (DT-11 phần 11b, YCTD-87); kịch bản đề xuất CT-208 đến CT-215
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
   new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
@@ -97,7 +97,7 @@ describe('Tuyển dụng: đề nghị, tin, ứng viên, phỏng vấn', () => 
     await environment?.close();
   });
 
-  it('CT-11b-1: lập đề nghị tuyển dụng, người lập không tự duyệt, Phó Hiệu trưởng duyệt và ghi nhật ký (BR-80)', async () => {
+  it('CT-208: lập đề nghị tuyển dụng, người lập không tự duyệt, Phó Hiệu trưởng duyệt và ghi nhật ký (BR-80)', async () => {
     const forbidden = await api('POST', '/recruitment-requests', token('teacher'), {
       position: 'Giáo viên mầm non',
       quantity: 2,
@@ -166,7 +166,7 @@ describe('Tuyển dụng: đề nghị, tin, ứng viên, phỏng vấn', () => 
     assert.equal(own.status, 403);
   });
 
-  it('CT-11b-2: soạn và công bố tin; trang công khai hiện tin còn hạn, không cần tài khoản (BR-69)', async () => {
+  it('CT-209: soạn và công bố tin; trang công khai hiện tin còn hạn, không cần tài khoản (BR-69)', async () => {
     const otherUnit = await api('POST', '/job-postings', token('otherHr'), {
       request_id: requestId,
       title: 'Tuyển giáo viên',
@@ -227,7 +227,7 @@ describe('Tuyển dụng: đề nghị, tin, ứng viên, phỏng vấn', () => 
       .execute();
   });
 
-  it('CT-11b-3: ứng viên nộp hồ sơ không cần tài khoản, kiểm tra dữ liệu vào, tệp PDF hoặc ảnh, không nộp trùng', async () => {
+  it('CT-210: ứng viên nộp hồ sơ không cần tài khoản, kiểm tra dữ liệu vào, tệp PDF hoặc ảnh, không nộp trùng', async () => {
     const fields = {
       full_name: 'Nguyễn Thị Ứng Viên',
       phone: '0912345678',
@@ -270,7 +270,7 @@ describe('Tuyển dụng: đề nghị, tin, ứng viên, phỏng vấn', () => 
     assert.ok(notification);
   });
 
-  it('CT-11b-4: hồ sơ ứng viên chỉ người có quyền P18 trong phạm vi xem, xem chi tiết và tệp ghi nhật ký truy cập (BR-74)', async () => {
+  it('CT-211: hồ sơ ứng viên chỉ người có quyền P18 trong phạm vi xem, xem chi tiết và tệp ghi nhật ký truy cập (BR-74)', async () => {
     for (const name of ['teacher', 'otherHr']) {
       const denied = await api('GET', `/candidates/${candidateId}`, token(name));
       assert.equal(denied.status, 403, name);
@@ -306,7 +306,7 @@ describe('Tuyển dụng: đề nghị, tin, ứng viên, phỏng vấn', () => 
     assert.deepEqual(logs.map((log) => log.scope).sort(), ['candidate_cv', 'candidate_profile']);
   });
 
-  it('CT-11b-5: nhân sự nhập ứng viên, sàng lọc, loại kèm lý do; không xóa hồ sơ (BR-75)', async () => {
+  it('CT-212: nhân sự nhập ứng viên, sàng lọc, loại kèm lý do; không xóa hồ sơ (BR-75)', async () => {
     const created = await api('POST', '/candidates', token('hr'), {
       posting_id: postingId,
       full_name: 'Trần Văn Giới Thiệu',
@@ -340,7 +340,7 @@ describe('Tuyển dụng: đề nghị, tin, ứng viên, phỏng vấn', () => 
     assert.equal(screening.body.status, 'screening');
   });
 
-  it('CT-11b-6: lên lịch phỏng vấn, ghi kết quả, quyết định tuyển cần lần phỏng vấn gần nhất đạt (BR-80)', async () => {
+  it('CT-213: lên lịch phỏng vấn, ghi kết quả, quyết định tuyển cần lần phỏng vấn gần nhất đạt (BR-80)', async () => {
     const tomorrow = new Date(Date.now() + 86_400_000).toISOString();
     const badInterviewer = await api('POST', `/candidates/${candidateId}/interviews`, token('manager'), {
       scheduled_at: tomorrow,
@@ -417,7 +417,7 @@ describe('Tuyển dụng: đề nghị, tin, ứng viên, phỏng vấn', () => 
     assert.equal(request.body.hired_count, 1);
   });
 
-  it('CT-11b-7: tạo hồ sơ nhân sự từ ứng viên đã tuyển, mỗi người một hồ sơ (BR-37)', async () => {
+  it('CT-214: tạo hồ sơ nhân sự từ ứng viên đã tuyển, mỗi người một hồ sơ (BR-37)', async () => {
     const manager = await api('POST', `/candidates/${candidateId}/staff`, token('manager'), {
       code: 'GV-TD-01',
       start_date: addDays(vietnamToday, 7),
@@ -444,7 +444,7 @@ describe('Tuyển dụng: đề nghị, tin, ứng viên, phỏng vấn', () => 
     assert.equal(errorOf(again.body).rule_code, 'BR-37');
   });
 
-  it('CT-11b-8: đóng đề nghị thì đóng tin; tin đã đóng không nhận hồ sơ; giới hạn số lần nộp theo địa chỉ mạng', async () => {
+  it('CT-215: đóng đề nghị thì đóng tin; tin đã đóng không nhận hồ sơ; giới hạn số lần nộp theo địa chỉ mạng', async () => {
     const closeByTeacher = await api('POST', `/recruitment-requests/${requestId}/close`, token('teacher'), {
       reason: 'Đủ người',
     });
