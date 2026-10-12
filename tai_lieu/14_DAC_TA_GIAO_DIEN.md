@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.31
+- Phiên bản: 1.32
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -65,9 +65,9 @@ flowchart TD
 | MH-17 | Yêu cầu dặn thuốc và cho uống thuốc | VT-09 |
 | MH-18 | Thực đơn và định lượng nguyên liệu | VT-10 |
 | MH-19 | Suất ăn theo ngày và buffet theo dịp | VT-10 |
-| MH-20 | Tài sản, mượn trả, hỏng và mất | VT-11 |
-| MH-21 | Đề nghị mua hàng, phiếu mua hàng, nhà cung cấp | VT-11, VT-04 |
-| MH-22 | Nhập xuất tồn kho và kiểm kê | VT-11 |
+| MH-20 | Tài sản, mượn trả, hỏng và mất: trang Kho và tài sản, thẻ Tài sản: thêm tài sản, cấp phát, cho mượn, thu hồi hoặc nhận trả, ghi nhận hỏng; Ban Giám hiệu duyệt hoặc từ chối hỏng mất chờ duyệt (YCTD-77) | VT-11, VT-02, VT-15 |
+| MH-21 | Đề nghị mua hàng, phiếu mua hàng, nhà cung cấp: trang Đề nghị mua hàng cho mọi nhân sự lập và xem đề nghị của mình, Ban Giám hiệu duyệt hoặc từ chối đề nghị chờ duyệt; trang Kho và tài sản, thẻ Phiếu mua hàng lập phiếu từ đề nghị đã duyệt, nhận hàng, xem trạng thái chờ thanh toán; thẻ Nhà cung cấp (YCTD-77) | Mọi nhân sự, VT-11, VT-04, VT-02, VT-15 |
+| MH-22 | Nhập xuất tồn kho và kiểm kê: trang Kho và tài sản, thẻ Mặt hàng và tồn kho (thêm mặt hàng, ghi phiếu nhập, phiếu xuất, tồn kho ban đầu, sổ kho) và thẻ Kiểm kê (lập biên bản, kế toán trưởng duyệt hoặc từ chối chênh lệch) (YCTD-77) | VT-11, VT-05 |
 | MH-23 | Danh sách hoạt động và duyệt hoạt động | VT-03 |
 | MH-24 | Tin tức, thư viện, thông báo | VT-03 |
 | MH-25 | Bình chọn, biểu quyết, khảo sát và kết quả | VT-03 |

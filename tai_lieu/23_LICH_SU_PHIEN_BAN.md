@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.33.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-10 phần 10d, kho, tài sản, mua hàng (YCTD-77).
+- Chức năng mới: P13-01 đến P13-10 trên máy chủ API và cổng quản trị (MH-20, MH-21, MH-22).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: mười ba bảng kho, tài sản, mua hàng của năm học (tệp 0033).
+- Thay đổi API: nhóm điểm cuối kho, tài sản, mua hàng trong `17`.
+- Rủi ro: thanh toán phiếu mua hàng phụ thuộc kế toán gắn phiếu chi; phiếu chưa gắn vẫn ở trạng thái chờ thanh toán.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-10-phan-10d`; chạy ngược tệp 0033 của cơ sở dữ liệu năm học.
+
 ### Phiên bản 0.32.0 – 2026-10-11
 
 - Phạm vi thay đổi: kế hoạch DT-10 (YCTD-73); DT-10 phần 10a, y tế học đường phần hồ sơ, khám, sự kiện, chăm sóc, báo cáo (YCTD-74).

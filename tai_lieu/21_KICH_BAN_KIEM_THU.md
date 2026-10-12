@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.19
+- Phiên bản: 1.20
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -123,9 +123,9 @@
 |---|---|---|---|---|---|
 | CT-064 | Tính số suất ăn | Ba mươi trẻ có mặt, hai trẻ nghỉ | Mỗi bữa sáng, trưa, xế có ba mươi suất; hai trẻ nghỉ không tính tiền ăn ngày đó | | Chưa chạy |
 | CT-065 | Phụ huynh xem thực đơn chưa duyệt | Thực đơn ở trạng thái chưa duyệt | Không hiển thị | | Chưa chạy |
-| CT-066 | Xuất kho vượt tồn | Tồn mười, xuất mười lăm | Từ chối, báo vượt tồn | | Chưa chạy |
-| CT-067 | Đề nghị mua hàng vượt hạn mức | Đề nghị có giá trị từ hạn mức trở lên | Chuyển Hiệu trưởng phê duyệt, ở trạng thái chờ duyệt | | Chưa chạy |
-| CT-068 | Kiểm kê có chênh lệch | Số thực tế khác số hệ thống | Biên bản ghi chênh lệch, cần phê duyệt | | Chưa chạy |
+| CT-066 | Xuất kho vượt tồn | Tồn mười, xuất mười lăm | Từ chối, báo vượt tồn | Kiểm thử tự động `apps/api/src/inventory/inventory.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CT-067 | Đề nghị mua hàng vượt hạn mức | Đề nghị có giá trị từ hạn mức trở lên | Chuyển Hiệu trưởng phê duyệt, ở trạng thái chờ duyệt | Kiểm thử tự động `apps/api/src/inventory/inventory.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CT-068 | Kiểm kê có chênh lệch | Số thực tế khác số hệ thống | Biên bản ghi chênh lệch, cần phê duyệt | Kiểm thử tự động `apps/api/src/inventory/inventory.test.ts` đạt ngày 11/10/2026 | Đạt |
 
 ## 11. Nội dung, tương tác, tuyển sinh
 
@@ -202,7 +202,7 @@
 | CT-117 | P10-10 | Công bố lịch khám lớp Mầm 1 | Phụ huynh lớp Mầm 1 nhận thông báo | Kiểm thử tự động `apps/api/src/health/health.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-118 | P10-11 | Lưu kết quả khám có cân nặng dưới ngưỡng | Chỉ số được đánh dấu cần theo dõi | Kiểm thử tự động `apps/api/src/health/health.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-119 | P12-09 | Xác nhận nhập phiếu đi chợ | Tồn nguyên liệu tăng, có đề nghị thanh toán | | Chưa chạy |
-| CT-120 | P13-10 | Nhập tồn ban đầu cho mặt hàng đã có giao dịch | Từ chối | | Chưa chạy |
+| CT-120 | P13-10 | Nhập tồn ban đầu cho mặt hàng đã có giao dịch | Từ chối | Kiểm thử tự động `apps/api/src/inventory/inventory.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-121 | P14-11 | Đăng ký hoạt động ngoại khóa đã đủ chỉ tiêu | Từ chối, báo hết chỗ | | Chưa chạy |
 | CT-122 | P14-11 | Đăng ký hoạt động ngoại khóa có phí | Phí vào khoản phải thu như khoản phát sinh | | Chưa chạy |
 | CT-123 | P14-12 | Xóa bình luận của phụ huynh trên tin tức | Chặn xóa | | Chưa chạy |
