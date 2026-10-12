@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.29
+- Phiên bản: 1.30
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -123,7 +123,7 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 | Mã | Quy tắc |
 |---|---|
 | BR-64 | Hoạt động do giáo viên tạo phải ở trạng thái chờ duyệt. Chỉ hoạt động đã duyệt mới hiển thị cho phụ huynh. Giáo viên có thể lưu nháp để thêm hình rồi gửi duyệt. Hoạt động đã công bố không sửa được; quản lý đơn vị hoặc Ban Giám hiệu ẩn kèm lý do và công bố lại (Q-72, YCTD-78) |
-| BR-65 | Hình ảnh của trẻ chỉ được công bố khi phụ huynh đã đồng ý cho sử dụng hình ảnh. Phụ huynh đồng ý bằng xác nhận trên ứng dụng hoặc bằng giấy ký tay được nhà trường tải bản chụp lên; hệ thống lưu cách đồng ý, người đồng ý và thời điểm. Phụ huynh rút lại đồng ý bất cứ lúc nào. Giáo viên gắn thẻ trẻ có trong ảnh; ảnh có trẻ chưa đồng ý không hiển thị cho phụ huynh. Khi phụ huynh rút đồng ý, mọi ảnh đã công bố có gắn thẻ trẻ đó tự ẩn, tệp không bị xóa (YCTD-78) |
+| BR-65 | Hình ảnh của trẻ chỉ được công bố khi phụ huynh đã đồng ý cho sử dụng hình ảnh. Phụ huynh đồng ý bằng xác nhận trên ứng dụng hoặc bằng giấy ký tay được nhà trường tải bản chụp lên; hệ thống lưu cách đồng ý, người đồng ý và thời điểm. Phụ huynh rút lại đồng ý bất cứ lúc nào. Giáo viên gắn thẻ trẻ có trong ảnh; ảnh có trẻ chưa đồng ý không hiển thị cho phụ huynh. Khi phụ huynh rút đồng ý, mọi ảnh đã công bố có gắn thẻ trẻ đó tự ẩn, tệp không bị xóa (YCTD-78). Khi đăng lên Fanpage, hình có bất kỳ trẻ được gắn thẻ chưa đồng ý bị loại khỏi bài đăng; chỉ nội dung đang công bố và tin tức phạm vi toàn trường hoặc đơn vị được đăng (YCTD-90) |
 | BR-66 | Không bình luận nào bị xóa, kể cả của phụ huynh. Phản hồi tiêu cực được chuyển cho quản lý đơn vị xử lý riêng; quản lý đơn vị được ẩn bình luận vi phạm kèm lý do; bình luận ẩn vẫn được lưu. Người xem báo bình luận tiêu cực; mỗi lần xử lý (ẩn, hiện lại, ghi chú) có một bản ghi xử lý kèm lý do và người xử lý (YCTD-78, YCTD-79) |
 | BR-67 | Mỗi tài khoản chỉ được bỏ một phiếu cho mỗi bình chọn, biểu quyết hoặc khảo sát. Sau khi gửi, phiếu không sửa được |
 | BR-68 | Bình chọn, biểu quyết, khảo sát có thời gian bắt đầu và kết thúc. Ngoài khoảng thời gian đó hệ thống không nhận phiếu |

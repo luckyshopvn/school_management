@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.43.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-11 phần 11e, kết nối Facebook, Fanpage và Zalo Official Account (YCTD-90).
+- Chức năng mới: P14-08, kênh Zalo của trung tâm thông báo (P19-04) và nhắc nợ (P05-10) trên máy chủ API và cổng quản trị (MH-71, MH-23).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: bảng `integration_settings`, `zalo_followers`, `facebook_posts` của năm học (tệp 0044); kênh `zalo` và cột `delivered_via` ở `notification_recipients`.
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: bộ chuyển đổi Graph API và Zalo Official Account thật chưa chạy với tài khoản thật; khóa truy cập chỉ đặt ở biến môi trường.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-11-phan-11e`; chạy ngược tệp 0044 của cơ sở dữ liệu năm học.
+
 ### Phiên bản 0.42.0 – 2026-10-11
 
 - Phạm vi thay đổi: DT-10, báo cáo kiểm thử giai đoạn 2, bản ứng viên phát hành 1.1.0 (YCTD-84).

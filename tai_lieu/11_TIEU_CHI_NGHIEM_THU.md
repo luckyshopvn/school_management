@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.13
+- Phiên bản: 1.14
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -318,6 +318,12 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-243 | Cho đơn vị có hai chỉ số trọng số 2 và 1, nhân sự đạt 9/10 và 8/10 / Khi quản lý chấm, công bố, sửa phiếu đã công bố, rồi đánh giá lại không lý do và có lý do / Thì điểm tổng 86,67; sửa phiếu đã công bố và đánh giá lại thiếu lý do bị từ chối mã BR-47; phiếu đánh giá lại có lý do khi công bố thay phiếu cũ, nhân sự chỉ thấy phiếu mới (BR-47, YCTD-81) |
 | AC-244 | Cho phòng nhân sự và nhân sự N1 / Khi phòng nhân sự ghi mốc công tác ở đơn vị chính và một đơn vị khác, ghi chứng chỉ; N1 và giáo viên khác xem; đóng lại mốc đã kết thúc / Thì N1 có hai mốc, mốc ở đơn vị khác là kiêm nhiệm, có chứng chỉ; N1 xem được, giáo viên khác bị từ chối; đóng lại mốc đã kết thúc bị từ chối (BR-37, YCTD-81) |
 | AC-245 | Cho nhân sự có thưởng 1 000 000 và khấu trừ 300 000 của tháng, một khoản khác đã hủy / Khi kế toán tính bảng lương tháng rồi trình duyệt, sau đó ghi thêm khoản / Thì phiếu lương có dòng thưởng và khấu trừ kèm căn cứ, không có khoản đã hủy; ghi thêm sau khi trình duyệt bị từ chối mã BR-45 (BR-44, BR-45, YCTD-81) |
+| AC-246 | Cho Hiệu trưởng và quản lý đơn vị, máy chủ có khóa truy cập Fanpage trong biến môi trường / Khi Hiệu trưởng lưu cấu hình Fanpage, Zalo, gửi kèm khóa truy cập hoặc bật khi thiếu mã; quản lý đơn vị lưu cấu hình / Thì cấu hình hợp lệ được lưu; khóa truy cập và bật thiếu mã bị từ chối dữ liệu; quản lý đơn vị bị từ chối không có quyền; kết quả chỉ báo đã có khóa hay chưa (YCTD-90) |
+| AC-247 | Cho hoạt động có hai ảnh, một ảnh gắn thẻ trẻ chưa đồng ý hình ảnh / Khi quản lý đăng lên Fanpage trước khi bật kết nối, trước khi duyệt, sau khi duyệt; giáo viên, phụ huynh, quản lý đơn vị khác đăng; đăng lại lần nữa / Thì chưa bật và chưa duyệt bị từ chối (BR-64); sau khi duyệt bài đăng có một ảnh, ảnh có trẻ chưa đồng ý bị loại (BR-65); người không có quyền bị từ chối; đăng lại bị từ chối trùng (YCTD-90) |
+| AC-248 | Cho Fanpage đã bật, lần gọi đầu Facebook trả lỗi / Khi quản lý đăng tin tức toàn trường rồi thử lại, và đăng một tin chỉ dành cho một lớp / Thì bài đăng ghi trạng thái lỗi kèm nội dung lỗi, thử lại thì thành công; tin phạm vi lớp bị từ chối mã P14-08 (YCTD-90) |
+| AC-249 | Cho hai phụ huynh, một người đã liên kết mã người dùng Zalo / Khi hệ thống gửi thông báo cho cả hai khi Zalo tắt, khi Zalo bật, và khi Zalo trả lỗi / Thì Zalo tắt cả hai nhận tin nhắn; Zalo bật người đã liên kết nhận qua Zalo, người kia nhận tin nhắn; Zalo lỗi thì người đã liên kết nhận ngay tin nhắn và lỗi được ghi (YCTD-90) |
+| AC-250 | Cho phụ huynh đã nhận 3 tin qua Zalo và 2 tin nhắn trong ngày / Khi hệ thống gửi thêm một thông báo cho phụ huynh đó / Thì thông báo không gửi ra ngoài mà ở trạng thái bị giới hạn, vẫn hiện trong ứng dụng (KT-09, YCTD-90) |
+| AC-251 | Cho Zalo đã bật, phụ huynh của trẻ có hóa đơn quá hạn đã liên kết Zalo / Khi kế toán gửi nhắc nợ / Thì phụ huynh nhận nhắc nợ qua Zalo, ngoài thông báo trong ứng dụng (BR-33, YCTD-90) |
 
 ## 20. Chưa xác minh được
 

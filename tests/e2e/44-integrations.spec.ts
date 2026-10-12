@@ -10,7 +10,7 @@ import {
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
 
-// Kết nối ngoài (DT-11 phần 11e, YCTD-90; CT-11e-1, CT-11e-2): Hiệu trưởng bật Fanpage trên trang Kết nối ngoài; quản lý đơn
+// Kết nối ngoài (DT-11 phần 11e, YCTD-90; CT-202, CT-203): Hiệu trưởng bật Fanpage trên trang Kết nối ngoài; quản lý đơn
 // vị đăng hoạt động đã công bố lên Fanpage (máy chủ kiểm thử dùng bộ giả lập FACEBOOK_PUBLISHER=development)
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 let schoolYear: ReturnType<typeof createDatabase<SchoolYearDatabase>>;
