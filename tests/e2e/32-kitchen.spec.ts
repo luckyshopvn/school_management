@@ -112,9 +112,9 @@ test('Bếp lập thực đơn, quản lý đơn vị duyệt và công bố, ph
   await createForm.getByRole('button', { name: 'Lập thực đơn' }).click();
   await expect(kitchenPage.getByText('Đã lập thực đơn nháp')).toBeVisible();
   const addForm = kitchenPage.getByRole('form', { name: 'Thêm món' });
-  await addForm.getByLabel('Thứ', { exact: true }).selectOption({ label: 'Thứ hai' });
-  await addForm.getByLabel('Bữa', { exact: true }).selectOption({ label: 'Bữa trưa' });
-  await addForm.getByLabel('Món', { exact: true }).selectOption({ label: dishName });
+  await addForm.getByRole('combobox', { name: 'Thứ', exact: true }).selectOption({ label: 'Thứ hai' });
+  await addForm.getByRole('combobox', { name: 'Bữa', exact: true }).selectOption({ label: 'Bữa trưa' });
+  await addForm.getByRole('combobox', { name: 'Món', exact: true }).selectOption({ label: dishName });
   await addForm.getByRole('button', { name: 'Thêm món' }).click();
   const detail = kitchenPage.getByRole('region', { name: 'Chi tiết thực đơn' });
   await expect(detail).toContainText(dishName);
