@@ -11,7 +11,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 
-// Sổ kế toán kép (DT-11 phần 11c, YCTD-88); kịch bản đề xuất CT-11c-1 đến CT-11c-7
+// Sổ kế toán kép (DT-11 phần 11c, YCTD-88); kịch bản đề xuất CT-229 đến CT-235
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
   new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
@@ -335,7 +335,7 @@ describe('Sổ kế toán kép: tài khoản, quy tắc ghi sổ, bút toán, s�
     await environment?.close();
   });
 
-  it('CT-11c-1: hệ thống tài khoản khởi tạo theo chế độ hành chính, sự nghiệp; thêm tài khoản chi tiết ở Trường chính', async () => {
+  it('CT-229: hệ thống tài khoản khởi tạo theo chế độ hành chính, sự nghiệp; thêm tài khoản chi tiết ở Trường chính', async () => {
     const list = await api('GET', '/ledger/accounts', principal.accessToken);
     assert.equal(list.status, 200, JSON.stringify(list.body));
     const codes = (list.body.accounts as Array<{ code: string }>).map((account) => account.code);
@@ -378,7 +378,7 @@ describe('Sổ kế toán kép: tài khoản, quy tắc ghi sổ, bút toán, s�
     assert.equal(renamed.status, 200, JSON.stringify(renamed.body));
   });
 
-  it('CT-11c-2: ghi sổ chứng từ tự động theo quy tắc, chạy lại không ghi trùng, mỗi bút toán cân', async () => {
+  it('CT-230: ghi sổ chứng từ tự động theo quy tắc, chạy lại không ghi trùng, mỗi bút toán cân', async () => {
     const forbidden = await api('POST', '/ledger/post-documents', principal.accessToken);
     assert.equal(forbidden.status, 403);
     const posted = await api('POST', '/ledger/post-documents', token('accountantA'));
@@ -445,7 +445,7 @@ describe('Sổ kế toán kép: tài khoản, quy tắc ghi sổ, bút toán, s�
     assert.equal(outOfScope.status, 403);
   });
 
-  it('CT-11c-3: quy tắc ghi sổ theo khoản mục thu chi áp dụng cho chứng từ ghi sổ sau đó', async () => {
+  it('CT-231: quy tắc ghi sổ theo khoản mục thu chi áp dụng cho chứng từ ghi sổ sau đó', async () => {
     const invalid = await api('PUT', '/ledger/posting-rules', token('chief'), {
       document_type: 'payment',
       debit_account_id: accounts['611'],
@@ -498,7 +498,7 @@ describe('Sổ kế toán kép: tài khoản, quy tắc ghi sổ, bút toán, s�
     assert.equal((await api('DELETE', `/ledger/posting-rules/${override?.id}`, token('chief'))).status, 200);
   });
 
-  it('CT-11c-4: bút toán thủ công phải cân, theo phạm vi đơn vị, hủy kèm lý do; bút toán tự động không hủy', async () => {
+  it('CT-232: bút toán thủ công phải cân, theo phạm vi đơn vị, hủy kèm lý do; bút toán tự động không hủy', async () => {
     const unbalanced = await api('POST', '/ledger/entries', token('accountantA'), {
       org_unit_id: unitA(),
       entry_date: vietnamToday,
@@ -585,7 +585,7 @@ describe('Sổ kế toán kép: tài khoản, quy tắc ghi sổ, bút toán, s�
     );
   });
 
-  it('CT-11c-5: kỳ tài chính đã chốt khóa ghi và hủy bút toán thủ công có ngày thuộc kỳ (BR-95)', async () => {
+  it('CT-233: kỳ tài chính đã chốt khóa ghi và hủy bút toán thủ công có ngày thuộc kỳ (BR-95)', async () => {
     const before = await api('POST', '/ledger/entries', token('chief'), {
       org_unit_id: unitA(),
       entry_date: previousDate,
@@ -627,7 +627,7 @@ describe('Sổ kế toán kép: tài khoản, quy tắc ghi sổ, bút toán, s�
     assert.equal(errorOf(voidBlocked.body).rule_code, 'BR-95');
   });
 
-  it('CT-11c-6: sổ cái gồm tài khoản chi tiết, có tài khoản đối ứng và số dư; xuất Excel bảng cân đối', async () => {
+  it('CT-234: sổ cái gồm tài khoản chi tiết, có tài khoản đối ứng và số dư; xuất Excel bảng cân đối', async () => {
     const ledger = await api(
       'GET',
       `/ledger/reports/general-ledger?account_id=${accounts['111']}&org_unit_id=${unitA()}&from=${vietnamToday}&to=${vietnamToday}`,
@@ -675,7 +675,7 @@ describe('Sổ kế toán kép: tài khoản, quy tắc ghi sổ, bút toán, s�
     assert.equal(outside.status, 403);
   });
 
-  it('CT-11c-7: mở năm học mới chuyển tài khoản, quy tắc và số dư cuối thành số dư đầu năm', async () => {
+  it('CT-235: mở năm học mới chuyển tài khoản, quy tắc và số dư cuối thành số dư đầu năm', async () => {
     const newYearId = (await api('POST', '/academic-years', principal.accessToken, { name: '2027–2028' })).body
       .id as string;
     const saved = await api('PUT', `/academic-years/${newYearId}/calendar`, principal.accessToken, {
