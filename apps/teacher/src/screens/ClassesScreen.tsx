@@ -9,7 +9,7 @@ import { NotificationsPanel } from './NotificationsPanel.js';
 export interface MyClass {
   id: string;
   name: string;
-  org_unit_id?: string;
+  org_unit_id: string;
   enrolled_count: number;
   staff: Array<{ staff_user_id: string; assignment_role: 'homeroom' | 'subject' }>;
 }
@@ -20,6 +20,10 @@ export function ClassesScreen({
   onOpenJournal,
   onOpenCare,
   onOpenTeaching,
+  onOpenMessages,
+  onOpenActivity,
+  onOpenMealReport,
+  onOpenMedication,
   onOpenGate,
   onOpenLeave,
   onOpenPayslips,
@@ -29,6 +33,10 @@ export function ClassesScreen({
   onOpenJournal(myClass: MyClass): void;
   onOpenCare(myClass: MyClass): void;
   onOpenTeaching(myClass: MyClass): void;
+  onOpenMessages(myClass: MyClass): void;
+  onOpenActivity(myClass: MyClass): void;
+  onOpenMealReport(myClass: MyClass): void;
+  onOpenMedication(myClass: MyClass): void;
   onOpenGate(orgUnitIds: string[]): void;
   onOpenLeave(): void;
   onOpenPayslips(): void;
@@ -91,6 +99,18 @@ export function ClassesScreen({
               </Button>
               <Button aria-label={`Chăm sóc lớp ${myClass.name}`} onClick={() => onOpenCare(myClass)}>
                 Chăm sóc và y tế
+              </Button>
+              <Button aria-label={`Trao đổi lớp ${myClass.name}`} onClick={() => onOpenMessages(myClass)}>
+                Trao đổi và đồ bị mất
+              </Button>
+              <Button aria-label={`Hoạt động lớp ${myClass.name}`} onClick={() => onOpenActivity(myClass)}>
+                Hoạt động và hình ảnh
+              </Button>
+              <Button aria-label={`Báo cơm lớp ${myClass.name}`} onClick={() => onOpenMealReport(myClass)}>
+                Báo cơm
+              </Button>
+              <Button aria-label={`Dặn thuốc lớp ${myClass.name}`} onClick={() => onOpenMedication(myClass)}>
+                Dặn thuốc
               </Button>
               <Button aria-label={`Giảng dạy lớp ${myClass.name}`} onClick={() => onOpenTeaching(myClass)}>
                 Giảng dạy
