@@ -117,7 +117,8 @@ test('Bếp lập thực đơn, quản lý đơn vị duyệt và công bố, ph
   await addForm.getByRole('combobox', { name: 'Món', exact: true }).selectOption({ label: dishName });
   await addForm.getByRole('button', { name: 'Thêm món' }).click();
   const detail = kitchenPage.getByRole('region', { name: 'Chi tiết thực đơn' });
-  await expect(detail).toContainText(dishName);
+  await expect(kitchenPage.getByText('Đã lưu món của thực đơn')).toBeVisible();
+  await expect(detail.getByRole('button', { name: new RegExp(`^Bỏ ${dishName}`) })).toBeVisible();
   await detail.getByRole('button', { name: 'Trình duyệt' }).click();
   await expect(detail).toContainText('Chờ duyệt');
 
