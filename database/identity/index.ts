@@ -32,6 +32,7 @@ import { migration as addWorkSchedulePermission } from './migrations/0030_add_wo
 import { migration as addHealthPermissions } from './migrations/0031_add_health_permissions.js';
 import { migration as addPhaseTwoPermissions } from './migrations/0032_add_phase_two_permissions.js';
 import { migration as addPhaseTwoPermissionsBatchTwo } from './migrations/0033_add_phase_two_permissions_batch_two.js';
+import { migration as addPhaseTwoPermissionsBatchThree } from './migrations/0034_add_phase_two_permissions_batch_three.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu định danh, theo số thứ tự (QU-01)
 export const identityMigrations: Record<string, Migration> = {
@@ -68,4 +69,5 @@ export const identityMigrations: Record<string, Migration> = {
   '0031_add_health_permissions': addHealthPermissions,
   '0032_add_phase_two_permissions': addPhaseTwoPermissions,
   '0033_add_phase_two_permissions_batch_two': addPhaseTwoPermissionsBatchTwo,
+  '0034_add_phase_two_permissions_batch_three': addPhaseTwoPermissionsBatchThree,
 };
