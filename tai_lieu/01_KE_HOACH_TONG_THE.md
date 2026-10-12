@@ -55,6 +55,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.2.0 | Bốn thay đổi: Ban Giám hiệu, nhiều cấp đơn vị, tách giao diện và máy chủ, dịch vụ định danh | 01 đến 07 | Đã có |
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
+| 0.42.0 | DT-10: báo cáo kiểm thử giai đoạn 2, bản ứng viên phát hành 1.1.0 (YCTD-84) | 01, 03, 21, 29 | Đã có |
 | 0.41.0 | DT-10 phần 10i, nhắc nợ, xử lý công nợ quá hạn, đối chiếu ngân hàng, công nợ phải trả, chốt kỳ tài chính (YCTD-82) | 09, 10 | Đã có |
 | 0.40.0 | DT-10 phần 10h, công việc, kế hoạch, đánh giá nhân sự, quá trình công tác, thưởng và khấu trừ (YCTD-81) | 09, 10 | Đã có |
 | 0.39.0 | DT-10 phần 10j, báo cáo hoạt động và công việc, báo cáo hợp nhất, xuất dữ liệu (YCTD-83) | 09, 10 | Đã có |
@@ -164,7 +165,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.5.0 | Bổ sung hai mươi chức năng theo tám ảnh sơ đồ chức năng | 01 đến 08 | Đã có |
 | 0.4.0 | Chuyển bộ tài liệu sang cấu trúc Vibecoding_Flow, sửa các chỗ chưa khớp, thống nhất phân cấp phê duyệt, đổi mã dự án thành SM | 01 đến 08 | Đã có |
 | 1.0.0 | Giai đoạn 1 chạy thật: nền tảng, trẻ, điểm danh, học phí, thanh toán mã QR, phiếu thu, phiếu chi, quỹ tiền mặt, nhân sự, lương cơ bản, hai ứng dụng, báo cáo cơ bản, nhập dữ liệu từ Excel, nhập mã định danh của Bộ, API đối tác | 09 đến 11 | Chưa bắt đầu |
-| 1.1.0 | Giai đoạn 2: giảng dạy, y tế, bếp, kho, hoạt động, tương tác, công việc, tài khoản ngân hàng và công nợ phải trả, báo cáo hợp nhất | 09 đến 11 | Chưa bắt đầu |
+| 1.1.0 | Giai đoạn 2: giảng dạy, y tế, bếp, kho, hoạt động, tương tác, công việc, tài khoản ngân hàng và công nợ phải trả, báo cáo hợp nhất | 09 đến 11 | Bản ứng viên 0.42.0, chờ 1.0.0 qua CG-11 và Eric nghiệm thu (YCTD-84) |
 | 1.2.0 | Giai đoạn 3: tuyển sinh, tuyển dụng, kết nối Facebook, đối soát thanh toán, sổ kế toán kép | 09 đến 11 | Chưa bắt đầu |
 
 Ba giai đoạn sản phẩm nêu trong `05_PHAM_VI.md` mục 4 đến mục 6, đã được Eric xác nhận ngày 09/10/2026 (`Q-07`, `M00-3`).
@@ -188,7 +189,7 @@ Mỗi giai đoạn kết thúc bằng một cổng. Cổng không đạt thì kh
 | 11 Nghiệm thu và phát hành | Bản phát hành 1.0.0, `23_LICH_SU_PHIEN_BAN.md`, biên bản triển khai | CG-11 | Đang chờ: bản ứng viên 0.31.0 chờ Eric nghiệm thu và triển khai ở việc T6 |
 | 12 Vận hành và cải tiến | Sửa lỗi, cải tiến, `24_YEU_CAU_THAY_DOI.md`, tài liệu cập nhật | CG-12 | Chưa bắt đầu |
 
-Vị trí hiện tại của dự án (11/10/2026): các đợt DT-00 đến DT-09 đã gộp vào nhánh `main`; CG-01 đến CG-10 đã đạt; bản ứng viên phát hành 1.0.0 là phiên bản tài liệu 0.31.0. Việc tiếp theo: Eric nghiệm thu bản ứng viên; chọn nhà cung cấp tin nhắn và thanh toán (việc T1); dựng môi trường thử nghiệm và chạy thật trên đám mây, chạy kiểm thử hiệu năng và phục hồi, triển khai (việc T6); qua CG-11 thì gắn phiên bản 1.0.0.
+Vị trí hiện tại của dự án (12/10/2026): các đợt DT-00 đến DT-10 đã gộp vào nhánh `main`; CG-01 đến CG-10 đã đạt; bản ứng viên phát hành 1.0.0 là phiên bản tài liệu 0.31.0, bản ứng viên 1.1.0 (giai đoạn 2) là phiên bản tài liệu 0.42.0, kết quả kiểm thử ở `29_BAO_CAO_KIEM_THU_G2.md`. Việc tiếp theo: Eric nghiệm thu hai bản ứng viên; chọn nhà cung cấp tin nhắn và thanh toán (việc T1); dựng môi trường thử nghiệm và chạy thật trên đám mây, chạy kiểm thử hiệu năng và phục hồi, triển khai (việc T6); qua CG-11 thì gắn phiên bản 1.0.0 rồi 1.1.0; làm đợt DT-11 (giai đoạn 3) song song.
 
 ### 4.1 Giai đoạn 01 — Xác định ý tưởng
 
@@ -325,7 +326,7 @@ Quy tắc bắt buộc: không thực hiện thay đổi trực tiếp trên h�
 | DT-07 | Bảng điều khiển và báo cáo cơ bản; API chỉ đọc cho đối tác (G1-17) | P17, P01 | `M17` | DT-04, DT-05, DT-06 | Số liệu báo cáo khớp dữ liệu gốc; khóa API đúng phạm vi, có nhật ký |
 | DT-08 | Ứng dụng giáo viên và ứng dụng phụ huynh | P19 | `M19` | DT-03, DT-04, DT-05 | Phụ huynh xem được điểm danh, học phí, thông báo, nhật ký |
 | DT-09 | Kiểm thử toàn bộ giai đoạn 1, nghiệm thu, phát hành 1.0.0; làm theo bảy phần 9a đến 9g (YCTD-66) | Toàn dự án | — | DT-07, DT-08 | Qua cổng CG-10 và CG-11 |
-| DT-10 | Giai đoạn 2: giảng dạy, công việc, y tế, bếp, kho, hoạt động, tương tác, tài khoản ngân hàng và công nợ phải trả, báo cáo hợp nhất | P03, P06, P09, P10, P12 đến P15, P17 | `M03`, `M09`, `M10`, `M12` đến `M15` | 1.0.0 (làm song song khi 1.0.0 chờ nghiệm thu, YCTD-73) | Phát hành 1.1.0; mười phần 10a đến 10j |
+| DT-10 | Giai đoạn 2: giảng dạy, công việc, y tế, bếp, kho, hoạt động, tương tác, tài khoản ngân hàng và công nợ phải trả, báo cáo hợp nhất | P03, P06, P09, P10, P12 đến P15, P17 | `M03`, `M09`, `M10`, `M12` đến `M15` | 1.0.0 (làm song song khi 1.0.0 chờ nghiệm thu, YCTD-73) | Mười phần 10a đến 10j đã gộp vào `main` ngày 12/10/2026; báo cáo kiểm thử `29_BAO_CAO_KIEM_THU_G2.md`; bản ứng viên 1.1.0 là phiên bản tài liệu 0.42.0 (YCTD-84) |
 | DT-11 | Giai đoạn 3: tuyển sinh, tuyển dụng, kết nối Facebook, đối soát thanh toán, sổ kế toán kép | P14, P16, P18 | `M16`, `M18`, `N2` đến `N5` | 1.1.0 | Phát hành 1.2.0 |
 
 Thứ tự trong bảng là thứ tự đề xuất, không phải thứ tự cứng. Đổi thứ tự phải qua quản lý thay đổi và phải giữ nguyên các phụ thuộc ở cột thứ sáu.
