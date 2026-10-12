@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.46.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-11 phần 11d, nhập sao kê ngân hàng, đối soát tự động, nhiều cổng thanh toán (YCTD-89).
+- Chức năng mới: P06-06, P06-11 trên máy chủ API và cổng quản trị (MH-70, MH-11).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: bảng `bank_statement_profiles`, `bank_statement_imports` của năm học (tệp 0043); cột `cash_accounts.payment_provider`, `bank_bin`, `bank_statement_lines.import_id`, `suggested_invoice_id`; cấu hình đơn vị `bank_match_days`.
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: cấu hình cột sai làm đọc sai sao kê; chỉ đọc tệp .xlsx và CSV mã UTF-8.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-11-phan-11d`; chạy ngược tệp 0043 của cơ sở dữ liệu năm học.
+
 ### Phiên bản 0.45.0 – 2026-10-11
 
 - Phạm vi thay đổi: DT-11 phần 11a, tuyển sinh trực tuyến và tin tuyển sinh (YCTD-86).

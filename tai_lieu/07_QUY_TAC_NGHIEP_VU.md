@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.31
+- Phiên bản: 1.32
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -67,7 +67,7 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 | BR-31 | Một phiếu thu thanh toán cho một hoặc nhiều hóa đơn của một trẻ và phải trả đủ số còn phải nộp của từng hóa đơn được chọn; không nhận thanh toán một phần. Tổng số tiền phân bổ không vượt quá số tiền thu |
 | BR-32 | Số dư công nợ của trẻ là tổng khoản phải thu trừ tổng số tiền đã phân bổ từ các phiếu thu và trừ giảm trừ đã duyệt |
 | BR-33 | Công nợ quá hạn được xác định theo số ngày quá hạn so với ngày đến hạn của kỳ. Hệ thống đưa vào danh sách nhắc nợ theo mốc cấu hình. Mỗi đơn vị tự bật hoặc tắt việc chặn phụ huynh đăng ký thêm dịch vụ khi trẻ còn công nợ quá hạn; trẻ không bị chặn đi học. Mỗi hóa đơn được nhắc nợ tối đa một lần ở mỗi mốc; đề xuất và quyết định xử lý công nợ quá hạn không làm thay đổi số tiền công nợ (YCTD-82) |
-| BR-34 | Số dư quỹ tiền mặt và tài khoản ngân hàng được tính từ phiếu thu, phiếu chi và các giao dịch đã ghi nhận; số dư quỹ tiền mặt không được âm, quy tắc bắt buộc và không tắt được; kiểm tra số dư tài khoản ngân hàng do đơn vị cấu hình, mặc định bật (YCTD-55). Dòng sao kê ngân hàng nhập để đối chiếu không làm thay đổi số dư tài khoản (YCTD-82) |
+| BR-34 | Số dư quỹ tiền mặt và tài khoản ngân hàng được tính từ phiếu thu, phiếu chi và các giao dịch đã ghi nhận; số dư quỹ tiền mặt không được âm, quy tắc bắt buộc và không tắt được; kiểm tra số dư tài khoản ngân hàng do đơn vị cấu hình, mặc định bật (YCTD-55). Dòng sao kê ngân hàng nhập để đối chiếu không làm thay đổi số dư tài khoản (YCTD-82) Dòng sao kê nhập từ tệp cũng không làm thay đổi số dư; tiền vào trên sao kê chưa có phiếu thu chỉ được đề xuất lập phiếu thu, kế toán xác nhận mới lập (YCTD-89) |
 | BR-35 | Mọi thao tác thay đổi số liệu tài chính phải ghi nhật ký thao tác kèm người thực hiện, thời điểm và giá trị trước, giá trị sau |
 | BR-36 | Báo cáo tài chính phải lọc được theo đơn vị, theo khoảng ngày, theo loại thu chi và theo người lập phiếu |
 

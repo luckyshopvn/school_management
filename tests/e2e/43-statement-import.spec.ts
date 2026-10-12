@@ -104,12 +104,12 @@ test('Kế toán nhập tệp sao kê CSV và xác nhận đề xuất lập phi
   await page.getByLabel('Tài khoản ngân hàng').selectOption({ label: `${accountName} (${accountNumber})` });
 
   const section = page.getByRole('region', { name: 'Nhập tệp sao kê' });
-  await section.getByLabel('Dòng tiêu đề').fill('1');
-  await section.getByLabel('Cột ngày').fill('Ngày GD');
-  await section.getByLabel('Cột tiền vào').fill('Ghi có');
-  await section.getByLabel('Cột tiền ra').fill('Ghi nợ');
-  await section.getByLabel('Cột diễn giải').fill('Nội dung');
-  await section.getByLabel('Cột số tham chiếu').fill('Số tham chiếu');
+  await section.getByRole('spinbutton', { name: 'Dòng tiêu đề', exact: true }).fill('1');
+  await section.getByRole('textbox', { name: 'Cột ngày', exact: true }).fill('Ngày GD');
+  await section.getByRole('textbox', { name: 'Cột tiền vào', exact: true }).fill('Ghi có');
+  await section.getByRole('textbox', { name: 'Cột tiền ra', exact: true }).fill('Ghi nợ');
+  await section.getByRole('textbox', { name: 'Cột diễn giải', exact: true }).fill('Nội dung');
+  await section.getByRole('textbox', { name: 'Cột số tham chiếu', exact: true }).fill('Số tham chiếu');
   await section.getByRole('button', { name: 'Lưu cấu hình cột' }).click();
   await expect(section).toContainText('Đã lưu cấu hình cột');
 

@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.16
+- Phiên bản: 1.17
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -338,6 +338,13 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-263 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P16-03 / Khi xét đạt khi đã đủ chỉ tiêu; đóng đợt rồi nộp trực tuyến / Thì bị chặn mã P16-03; hồ sơ trực tuyến bị chặn mã P16-02, đợt không còn trên trang công khai (YCTD-86) |
 | AC-264 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P16-04 / Khi nhân viên tuyển sinh chuyển hồ sơ đạt / Thì hồ sơ trẻ chờ duyệt; quản lý đơn vị duyệt ở trang Hồ sơ trẻ thì trẻ đang học (YCTD-86) |
 | AC-265 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P16 / Khi gửi quá 10 hồ sơ trong một giờ từ một địa chỉ mạng / Thì bị chặn `ERR_RATE_LIMIT` (YCTD-86) |
+| AC-266 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P06-06 / Khi đọc số tiền (phân cách hàng nghìn, phần lẻ ,00, số âm, ngoặc đơn, phần lẻ khác 0 bị từ chối), ngày theo ba cách ghi, tệp CSV có BOM và ngoặc kép, mã hóa đơn trong diễn giải, chuỗi VietQR đúng mã kiểm tra CRC / Thì đọc số tiền (phân cách hàng nghìn, phần lẻ ,00, số âm, ngoặc đơn, phần lẻ khác 0 bị từ chối), ngày theo ba cách ghi, tệp CSV có BOM và ngoặc kép, mã hóa đơn trong diễn giải, chuỗi VietQR đúng mã kiểm tra CRC (YCTD-89) |
+| AC-267 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P06-06 / Khi chưa có cấu hình cột thì nhập tệp trả 422 P06-06 / Thì chưa có cấu hình cột thì nhập tệp trả 422 P06-06; quản lý đơn vị (VT-03) lưu cấu hình hoặc nhập tệp bị từ chối 403; cấu hình thiếu cột tiền ra trả 400; kế toán lưu được (YCTD-89) |
+| AC-268 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P06-06 / Khi nhập tệp CSV 8 dòng / Thì nhập tệp CSV 8 dòng: 6 dòng ghi, 2 dòng lỗi (số tiền không đọc được, ngày sau hôm nay) báo đúng số dòng; khớp tự động 3 dòng, dòng có số phiếu PT trong diễn giải khớp đúng phiếu đó dù có phiếu khác cùng số tiền cùng ngày lập trước; 1 đề xuất lập phiếu thu; dòng 500 000 cho hóa đơn còn nợ 900 000 không có đề xuất; số dư tài khoản không đổi; nhập lại cùng tệp: 0 dòng ghi, 6 dòng trùng (YCTD-89) |
+| AC-269 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P06-06 / Khi nhập tệp Excel cấu hình một cột số tiền có dấu, ngày năm-tháng-ngày / Thì nhập tệp Excel cấu hình một cột số tiền có dấu, ngày năm-tháng-ngày; dòng trùng số tham chiếu với dòng đã có bỏ qua; tệp thiếu cột đã cấu hình trả 400 (YCTD-89) |
+| AC-270 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P06-06 / Khi quản lý đơn vị xác nhận đề xuất bị từ chối / Thì quản lý đơn vị xác nhận đề xuất bị từ chối; kế toán xác nhận thì lập phiếu thu PT, dòng đã khớp, hóa đơn hết nợ, số dư tài khoản tăng đúng; xác nhận lần hai trả 409; dòng số tiền nhỏ hơn số còn nợ trả 422 BR-31; dòng gõ tay có mã hóa đơn được đề xuất, bỏ đề xuất được, bỏ lần hai trả 409 (YCTD-89) |
+| AC-271 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P06-06 / Khi cấu hình `bank_match_days` = 1 thì dòng lệch 2 ngày không khớp / Thì cấu hình `bank_match_days` = 1 thì dòng lệch 2 ngày không khớp; bỏ cấu hình (mặc định 3) thì khớp (YCTD-89) |
+| AC-272 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P06-11 / Khi máy chủ bật hai cổng (giả lập là mặc định, VietQR tĩnh) / Thì máy chủ bật hai cổng (giả lập là mặc định, VietQR tĩnh); chọn VietQR tĩnh thiếu mã BIN, mã BIN sai, cổng chưa bật trả 400, kế toán đơn vị khác trả 403; mã QR của tài khoản chọn VietQR tĩnh là chuỗi EMVCo chứa mã BIN, số tài khoản thật, nội dung là mã hóa đơn bỏ gạch, CRC đúng; bỏ chọn thì về cổng giả lập, mã cũ bị hủy; điểm cuối giả lập vẫn chạy (YCTD-89) |
 
 ## 20. Chưa xác minh được
 
