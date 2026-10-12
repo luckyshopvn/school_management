@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.34
+- Phiên bản: 1.35
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -134,6 +134,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-38 | Lịch nghỉ và lịch công tác (YCTD-68): `P08.work-schedule.manage` cho VT-06, VT-03 lập, công bố, xóa lịch của nhân sự trong đơn vị; người có `P08.attendance.view` xem lịch của đơn vị; nhân sự xem lịch đã công bố của mình |
 | PQ-39 | Y tế học đường (YCTD-74): `P10.health.manage` cho VT-09 ghi chỉ số sức khỏe, tiêu chuẩn, đợt khám, lịch khám, kết quả khám, gửi báo cáo sức khỏe trong đơn vị; `P10.medical-event.record`, `P10.daily-care.record` cho VT-09 trong đơn vị và VT-07 cho trẻ của lớp mình chủ nhiệm; người xem sức khỏe theo BR-53 |
 | PQ-37 | Thông báo (YCTD-64): mọi người xem và đánh dấu đã đọc thông báo của mình; `P19.notification-receipt.view` cho VT-02, VT-15, VT-03 xem ai đã đọc thông báo của đơn vị trong phạm vi; `P19.notification-template.manage` cho VT-02, VT-03 gán ở Trường chính sửa mẫu thông báo |
+| PQ-42 | Kho, tài sản và mua hàng (YCTD-77): `P13.asset.manage` cho VT-11 quản lý tài sản, cấp phát, mượn trả, hỏng mất, mặt hàng, nhập xuất, tồn ban đầu, lập kiểm kê, nhà cung cấp trong đơn vị; `P13.purchase-request.create` cho mọi vai trò nhân sự lập đề nghị mua hàng của đơn vị mình; `P13.purchase-request.approve` cho VT-15 (dưới hạn mức, trong đơn vị) và VT-02 (mọi mức) duyệt đề nghị và duyệt xử lý hỏng mất, người lập không tự duyệt; `P13.purchase-order.manage` cho VT-11, VT-04 lập phiếu mua hàng và nhận hàng; `P13.stocktake.approve` cho VT-05 duyệt biên bản kiểm kê có chênh lệch; `P06.payment.manage` gắn phiếu chi vào phiếu mua hàng |
 
 ## 5. Phân cấp phê duyệt
 

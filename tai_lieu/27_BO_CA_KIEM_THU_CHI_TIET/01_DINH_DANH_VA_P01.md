@@ -1,7 +1,7 @@
 # 27.1. BỘ CA KIỂM THỬ CHI TIẾT — DỊCH VỤ ĐỊNH DANH VÀ P01
 
 - Mô tả: Ca kiểm thử chi tiết cho dịch vụ định danh (Q-125, Q-126) và các chức năng giai đoạn 1 của phân hệ P01 Nền tảng, đơn vị và phân quyền (việc N21, Q-105).
-- Phiên bản: 1.21
+- Phiên bản: 1.22
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -240,7 +240,7 @@ Tham số dữ liệu kiểm thử: số lần đăng nhập sai tối đa 5; s�
 | CTC-P01-059 | P01-10 | P01-10, BR-77 | LT-02 | Cao | Không | HT đặt hạn mức phiếu chi của PH-A là 10 000 000 | Lưu thành công; đọc lại đúng giá trị theo đơn vị và loại chứng từ | Kiểm thử tự động `apps/api/src/catalogs/catalogs.test.ts` đạt ngày 10/10/2026 | Đạt |
 | CTC-P01-060 | P01-10 | AC-141, CT-097 | LT-02 | Cao | Hạn mức của CTC-P01-059; phiếu chi 9 999 999 của PH-A do KT-A lập | PHT-A phê duyệt | Phiếu được duyệt | Kiểm thử tự động `apps/api/src/finance/payments.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CTC-P01-061 | P01-10 | AC-142, CT-098 | LT-02 | Cao | Phiếu chi 10 000 000 của PH-A | PHT-A phê duyệt | Trả `ERR_FORBIDDEN`, thông báo cần Hiệu trưởng duyệt; HT phê duyệt được (YCTD-66) | Kiểm thử tự động `apps/api/src/finance/payments.test.ts` đạt ngày 11/10/2026 | Đạt |
-| CTC-P01-062 | P01-10 | AC-208, CT-164 | LT-02 | Cao | Loại chứng từ đề nghị mua hàng của PH-A chưa có hạn mức | KT-A trình một đề nghị 1 000 | Chứng từ chuyển cho Hiệu trưởng; PHT-A phê duyệt bị từ chối | | Chưa chạy |
+| CTC-P01-062 | P01-10 | AC-208, CT-164 | LT-02 | Cao | Loại chứng từ đề nghị mua hàng của PH-A chưa có hạn mức | KT-A trình một đề nghị 1 000 | Chứng từ chuyển cho Hiệu trưởng; PHT-A phê duyệt bị từ chối | Kiểm thử tự động `apps/api/src/inventory/inventory.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CTC-P01-063 | P01-10 | AC-143, BR-78, CT-099 | LT-04 | Cao | Một tài khoản có cả VT-04 và VT-15 ở PH-A lập phiếu chi dưới hạn mức | Chính tài khoản đó phê duyệt phiếu | Bị từ chối | Kiểm thử tự động `apps/api/src/finance/payments.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CTC-P01-064 | P01-10 | AC-144, BR-79, CT-100 | LT-04 | Cao | Phiếu chi của PH-B | PHT-A phê duyệt | Bị từ chối | Kiểm thử tự động `apps/api/src/finance/payments.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CTC-P01-065 | P01-10 | AC-148, BR-80, CT-104 | LT-05 | Cao | Sau CTC-P01-061 PHT-A đã bị chặn và HT từ chối kèm lý do | Mở nhật ký thao tác của phiếu | Có người từ chối, thời điểm, giá trị chứng từ, lý do | Kiểm thử tự động `apps/api/src/finance/payments.test.ts` đạt ngày 11/10/2026 | Đạt |

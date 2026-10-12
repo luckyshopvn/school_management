@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.21
+- Phiên bản: 1.22
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -114,9 +114,9 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 | BR-58 | Suất ăn một ngày gồm ba bữa sáng, trưa, xế, thuộc bán trú. Số suất ăn mỗi ngày bằng số trẻ có mặt theo điểm danh; trẻ vắng ngày nào không tính tiền ăn ngày đó (BR-14). Bếp và kế toán dùng cùng một con số |
 | BR-59 | Thực đơn theo tuần phải được duyệt trước khi công bố cho phụ huynh |
 | BR-60 | Định lượng nguyên liệu tính từ thực đơn và số suất. Chênh lệch giữa định lượng và thực xuất phải được ghi nhận |
-| BR-61 | Tài sản của trường được gán cho đơn vị, phòng hoặc lớp. Mượn, trả, hỏng, mất đều phải có phiếu và người xác nhận |
-| BR-62 | Tồn kho tính từ phiếu nhập, phiếu xuất và phiếu kiểm kê. Không cho xuất quá số lượng tồn nếu đơn vị bật kiểm tra này |
-| BR-63 | Đề nghị mua hàng phải được duyệt theo hạn mức cấu hình trước khi lập phiếu mua hàng |
+| BR-61 | Tài sản của trường được gán cho đơn vị, phòng hoặc lớp. Mượn, trả, hỏng, mất đều phải có phiếu và người xác nhận. Chỉ tài sản đang trong kho mới cấp phát hoặc cho mượn được; hỏng hoặc mất do Ban Giám hiệu của đơn vị duyệt xử lý (YCTD-77) |
+| BR-62 | Tồn kho tính từ phiếu nhập, phiếu xuất, tồn ban đầu, phiếu chuyển năm và phiếu điều chỉnh kiểm kê đã duyệt. Không cho xuất quá số lượng tồn. Tồn ban đầu chỉ nhập cho mặt hàng chưa có giao dịch và khóa ngay khi ghi. Kiểm kê có chênh lệch chỉ điều chỉnh tồn sau khi kế toán trưởng duyệt (YCTD-77) |
+| BR-63 | Đề nghị mua hàng phải được duyệt theo hạn mức cấu hình trước khi lập phiếu mua hàng. Dưới hạn mức thì Phó Hiệu trưởng của đơn vị hoặc Hiệu trưởng duyệt; từ hạn mức trở lên hoặc đơn vị chưa đặt hạn mức thì Hiệu trưởng duyệt; người lập không tự duyệt. Mỗi đề nghị đã duyệt lập một phiếu mua hàng (YCTD-77) |
 
 ## 11. Quy tắc về nội dung và tương tác
 

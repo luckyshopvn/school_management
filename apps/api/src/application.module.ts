@@ -35,6 +35,11 @@ import { KitchenMealsController, KitchenMealsService } from './kitchen/kitchen-m
 import { KitchenMenusController, KitchenMenusService } from './kitchen/kitchen-menus.js';
 import { KitchenPurchasesController, KitchenPurchasesService } from './kitchen/kitchen-purchases.js';
 import { kitchenTransitionStep } from './kitchen/kitchen-transition.js';
+import { AssetsController, AssetsService } from './inventory/assets.js';
+import { InventoryAccess } from './inventory/inventory-common.js';
+import { inventoryTransitionStep } from './inventory/inventory-transition.js';
+import { PurchasingController, PurchasingService } from './inventory/purchasing.js';
+import { StockController, StockService } from './inventory/stock.js';
 import { CashflowCategoriesController, CashflowCategoriesService } from './fees/cashflow-categories.js';
 import { DiscountTypesController, DiscountTypesService } from './fees/discount-types.js';
 import { FeeSchedulesController, FeeSchedulesService } from './fees/fee-schedules.js';
@@ -145,6 +150,9 @@ export class ApplicationModule {
         KitchenMenusController,
         KitchenMealsController,
         KitchenPurchasesController,
+        AssetsController,
+        StockController,
+        PurchasingController,
         FilesController,
         ImportsController,
         AttendanceController,
@@ -196,6 +204,7 @@ export class ApplicationModule {
             financeTransitionStep,
             healthTransitionStep,
             kitchenTransitionStep,
+            inventoryTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -226,6 +235,10 @@ export class ApplicationModule {
         KitchenMealsService,
         KitchenMenusService,
         KitchenPurchasesService,
+        InventoryAccess,
+        AssetsService,
+        StockService,
+        PurchasingService,
         ChildDataProtection,
         FilesService,
         ImportsService,
