@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.46
+- Phiên bản: 1.47
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -83,15 +83,16 @@ Ràng buộc: `org_units.parent_id` trỏ tới `org_units.id`. Chỉ một đơ
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| themes | Chủ đề giảng dạy | org_unit_id, name, age_group, start_date, end_date |
-| lessons | Bài học | org_unit_id, theme_id, domain_id, lesson_group_id, name, age_group, objectives, materials, status |
-| lesson_plans | Giáo án theo lớp | lesson_id, class_id, teacher_id, planned_date, content, status, approved_by, approved_at |
-| timetables | Thời khóa biểu | class_id, academic_year_id, weekday, period_no, activity_name, teacher_id, effective_from |
-| teaching_plans | Kế hoạch giảng dạy | class_id, period_type, period_value, objectives, content, status |
-| child_progress | Tiến độ học tập của trẻ | child_id, period_type, period_value, indicator_code, level, comment, published_at |
-| lesson_domains | Lĩnh vực bài học | org_unit_id, name, order_no, status |
-| lesson_groups | Nhóm bài học | org_unit_id, domain_id, name, order_no, status |
-| class_activity_schedules | Lịch hoạt động lớp | class_id, activity_date, start_time, end_time, activity_name, note, status, published_at, created_by |
+| themes | Chủ đề giảng dạy (P03-03) | org_unit_id, name, age_group, start_date, end_date, status, created_by |
+| lessons | Bài học (P03-01) | org_unit_id, theme_id, domain_id, lesson_group_id, name, age_group, objectives, materials, is_shared, status, created_by |
+| lesson_plans | Giáo án theo lớp (P03-02) | lesson_id, class_id, org_unit_id, teacher_id, teacher_name, planned_date, activities, duration_minutes (5–480), materials, status (draft, submitted, leader_approved, approved, returned), submitted_at, leader_reviewed_by, leader_reviewed_at, approved_by, approved_at, review_comment |
+| timetables | Thời khóa biểu theo phiên bản tuần (P03-04) | class_id, effective_from (thứ Hai), weekday (1–7), period_no, start_time, end_time (HH:MM), activity_name, teacher_id, teacher_name, status (draft, published), published_at, created_by; duy nhất theo lớp, ngày áp dụng, thứ, tiết |
+| teaching_plans | Kế hoạch giảng dạy (P03-05) | class_id, org_unit_id, period_type (term, month, week), period_value, objectives, content, progress_note, status (planned, in_progress, completed); duy nhất theo lớp và kỳ |
+| child_progress | Tiến độ học tập của trẻ (P03-06) | child_id, class_id, period_type (term, month), period_value, domain_id, indicator_code, level (achieved, developing, not_yet), comment, recorded_by, published_at, published_by; duy nhất theo trẻ, kỳ, chỉ số |
+| lesson_domains | Lĩnh vực bài học (P03-08) | org_unit_id, name (duy nhất trong đơn vị), order_no, status, created_by |
+| lesson_groups | Nhóm bài học (P03-08) | org_unit_id, domain_id, name (duy nhất trong lĩnh vực), order_no, status, created_by |
+| class_activity_schedules | Lịch hoạt động lớp (P03-07) | class_id, activity_date, start_time, end_time, activity_name, note, status (draft, published, cancelled), published_at, created_by |
+| lesson_plan_reviews | Lịch sử duyệt và góp ý giáo án | lesson_plan_id, reviewer_id, reviewer_name, stage (leader, manager), decision (approved, returned), comment, created_at |
 
 ## 5. Phân hệ P04 — Điểm danh và chăm sóc hằng ngày
 
