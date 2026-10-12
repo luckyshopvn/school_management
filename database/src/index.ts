@@ -73,6 +73,20 @@ export type {
   PurchaseRequestStatus,
   StockCountStatus,
   StockTransactionType,
+  CommentModerationAction,
+  CommentTargetType,
+  FeedbackCategory,
+  FeedbackPrivacy,
+  FeedbackStatus,
+  LikeTargetType,
+  LostItemReportType,
+  LostItemStatus,
+  MessageSenderSide,
+  PollAnswerType,
+  PollAudience,
+  PollStatus,
+  PollType,
+  SurveyTemplateQuestion,
 } from '../school-year/schema.js';
 export { DEFAULT_TAX_TABLE_ID } from '../school-year/migrations/0022_create_payrolls.js';
 export { MEAL_SERVICE_ID } from '../school-year/migrations/0010_create_fee_catalogs.js';

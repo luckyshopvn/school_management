@@ -34,6 +34,13 @@ import { InventoryAccess } from './inventory/inventory-common.js';
 import { inventoryTransitionStep } from './inventory/inventory-transition.js';
 import { PurchasingController, PurchasingService } from './inventory/purchasing.js';
 import { StockController, StockService } from './inventory/stock.js';
+import { CommentsController, CommentsService } from './interactions/comments.js';
+import { FeedbacksController, FeedbacksService } from './interactions/feedbacks.js';
+import { InteractionAccess } from './interactions/interaction-access.js';
+import { interactionsTransitionStep } from './interactions/interactions-transition.js';
+import { LostItemsController, LostItemsService } from './interactions/lost-items.js';
+import { MessagesController, MessagesService } from './interactions/messages.js';
+import { PollsController, PollsService } from './interactions/polls.js';
 import { CashflowCategoriesController, CashflowCategoriesService } from './fees/cashflow-categories.js';
 import { DiscountTypesController, DiscountTypesService } from './fees/discount-types.js';
 import { FeeSchedulesController, FeeSchedulesService } from './fees/fee-schedules.js';
@@ -143,6 +150,11 @@ export class ApplicationModule {
         AssetsController,
         StockController,
         PurchasingController,
+        MessagesController,
+        FeedbacksController,
+        PollsController,
+        CommentsController,
+        LostItemsController,
         FilesController,
         ImportsController,
         AttendanceController,
@@ -194,6 +206,7 @@ export class ApplicationModule {
             financeTransitionStep,
             healthTransitionStep,
             inventoryTransitionStep,
+            interactionsTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -223,6 +236,12 @@ export class ApplicationModule {
         AssetsService,
         StockService,
         PurchasingService,
+        InteractionAccess,
+        MessagesService,
+        FeedbacksService,
+        PollsService,
+        CommentsService,
+        LostItemsService,
         ChildDataProtection,
         FilesService,
         ImportsService,

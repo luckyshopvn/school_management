@@ -39,6 +39,7 @@ type NavigationPath =
   | '/school-days'
   | '/work-schedules'
   | '/health'
+  | '/interactions'
   | '/inventory'
   | '/purchase-requests'
   | '/leave-requests'
@@ -96,6 +97,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canViewPayroll = useHasPermission(PERMISSION_CODES.payrollView);
   const canManageHealth = useHasPermission(PERMISSION_CODES.healthManage);
   const canRecordMedicalEvents = useHasPermission(PERMISSION_CODES.medicalEventRecord);
+  const canManageInteractions = useHasPermission(PERMISSION_CODES.interactionManage);
+  const canSendMessages = useHasPermission(PERMISSION_CODES.messageSend);
+  const canManageLostItems = useHasPermission(PERMISSION_CODES.lostItemManage);
   const canManageAssets = useHasPermission(PERMISSION_CODES.assetManage);
   const canCreatePurchaseRequests = useHasPermission(PERMISSION_CODES.purchaseRequestCreate);
   const canApprovePurchaseRequests = useHasPermission(PERMISSION_CODES.purchaseRequestApprove);
@@ -155,6 +159,14 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span className="px-3 text-label font-semibold text-text-muted">Y TẾ</span>
             <ul className="flex flex-col gap-1">
               <NavItem to="/health" label="Y tế học đường" />
+            </ul>
+          </>
+        ) : null}
+        {canManageInteractions || canSendMessages || canManageLostItems ? (
+          <>
+            <span className="px-3 text-label font-semibold text-text-muted">TƯƠNG TÁC</span>
+            <ul className="flex flex-col gap-1">
+              <NavItem to="/interactions" label="Tương tác với phụ huynh" />
             </ul>
           </>
         ) : null}

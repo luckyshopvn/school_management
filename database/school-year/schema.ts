@@ -1475,6 +1475,187 @@ export interface PurchaseOrderItemsTable {
   received_qty: Decimal;
 }
 
+// Tương tác và ý kiến, đồ bị mất của trẻ (P15, P02-11; YCTD-79)
+export type MessageSenderSide = 'guardian' | 'staff';
+export type FeedbackCategory = 'teaching' | 'care' | 'meal' | 'facility' | 'fee' | 'other';
+export type FeedbackPrivacy = 'named' | 'anonymous';
+export type FeedbackStatus = 'received' | 'in_progress' | 'resolved';
+export type PollType = 'poll' | 'vote' | 'survey';
+export type PollAudience = 'guardians' | 'staff' | 'everyone';
+export type PollStatus = 'draft' | 'open' | 'closed';
+export type PollAnswerType = 'single_choice' | 'multiple_choice' | 'text' | 'rating';
+export type CommentTargetType = 'poll';
+export type LikeTargetType = 'poll' | 'comment';
+export type CommentModerationAction = 'hide' | 'restore' | 'note';
+export type LostItemReportType = 'lost' | 'found';
+export type LostItemStatus = 'reported' | 'found' | 'returned' | 'not_found' | 'cancelled';
+
+export interface SurveyTemplateQuestion {
+  question_text: string;
+  answer_type: PollAnswerType;
+  is_required: boolean;
+  options: string[];
+}
+
+export interface MessageThreadsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  child_id: string;
+  guardian_user_id: string;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  last_message_at: UpdatedTimestamp;
+}
+
+export interface MessagesTable {
+  id: Generated<string>;
+  thread_id: string;
+  sender_user_id: string;
+  sender_side: MessageSenderSide;
+  sender_name: string;
+  content: string;
+  sent_at: CreatedTimestamp;
+  read_at: Date | null;
+  read_by: string | null;
+}
+
+export interface FeedbacksTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  child_id: string | null;
+  submitted_by_user_id: string;
+  submitter_name: string;
+  category: FeedbackCategory;
+  content: string;
+  privacy_level: FeedbackPrivacy;
+  status: Generated<FeedbackStatus>;
+  assigned_to_user_id: string | null;
+  handled_by: string | null;
+  handled_at: Date | null;
+  handling_note: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface SurveyTemplatesTable {
+  id: Generated<string>;
+  name: string;
+  description: string | null;
+  questions: ColumnType<SurveyTemplateQuestion[], string, string>;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface PollsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  poll_type: PollType;
+  title: string;
+  description: string | null;
+  class_id: string | null;
+  audience: PollAudience;
+  start_at: Date;
+  end_at: Date;
+  is_anonymous: Generated<boolean>;
+  survey_template_id: string | null;
+  status: Generated<PollStatus>;
+  published_at: Date | null;
+  closed_at: Date | null;
+  results_published_at: Date | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface PollQuestionsTable {
+  id: Generated<string>;
+  poll_id: string;
+  question_text: string;
+  answer_type: PollAnswerType;
+  order_no: number;
+  is_required: Generated<boolean>;
+}
+
+export interface PollOptionsTable {
+  id: Generated<string>;
+  poll_id: string;
+  question_id: string;
+  label: string;
+  order_no: number;
+}
+
+export interface PollResponsesTable {
+  id: Generated<string>;
+  poll_id: string;
+  user_id: string;
+  submitted_at: CreatedTimestamp;
+}
+
+export interface PollAnswersTable {
+  id: Generated<string>;
+  response_id: string;
+  question_id: string;
+  option_id: string | null;
+  answer_text: string | null;
+  answer_number: number | null;
+}
+
+export interface InteractionCommentsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  target_type: CommentTargetType;
+  target_id: string;
+  user_id: string;
+  author_name: string;
+  author_side: MessageSenderSide;
+  content: string;
+  created_at: CreatedTimestamp;
+  reported_at: Date | null;
+  reported_by: string | null;
+  hidden_at: Date | null;
+  hidden_by: string | null;
+  hide_reason: string | null;
+}
+
+export interface CommentModerationsTable {
+  id: Generated<string>;
+  comment_id: string;
+  action: CommentModerationAction;
+  reason: string;
+  handled_by: string;
+  handled_at: CreatedTimestamp;
+}
+
+export interface InteractionLikesTable {
+  id: Generated<string>;
+  target_type: LikeTargetType;
+  target_id: string;
+  user_id: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface LostItemsTable {
+  id: Generated<string>;
+  code: string;
+  org_unit_id: string;
+  child_id: string | null;
+  class_id: string | null;
+  report_type: LostItemReportType;
+  description: string;
+  noticed_on: string;
+  photo_file_id: string | null;
+  status: LostItemStatus;
+  reported_by: string;
+  reported_at: CreatedTimestamp;
+  found_by: string | null;
+  found_at: Date | null;
+  found_note: string | null;
+  closed_by: string | null;
+  closed_at: Date | null;
+  result_note: string | null;
+  cancelled_by: string | null;
+  cancelled_at: Date | null;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -1575,4 +1756,17 @@ export interface SchoolYearDatabase {
   purchase_request_items: PurchaseRequestItemsTable;
   purchase_orders: PurchaseOrdersTable;
   purchase_order_items: PurchaseOrderItemsTable;
+  message_threads: MessageThreadsTable;
+  messages: MessagesTable;
+  feedbacks: FeedbacksTable;
+  survey_templates: SurveyTemplatesTable;
+  polls: PollsTable;
+  poll_questions: PollQuestionsTable;
+  poll_options: PollOptionsTable;
+  poll_responses: PollResponsesTable;
+  poll_answers: PollAnswersTable;
+  interaction_comments: InteractionCommentsTable;
+  comment_moderations: CommentModerationsTable;
+  interaction_likes: InteractionLikesTable;
+  lost_items: LostItemsTable;
 }
