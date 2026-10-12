@@ -1,10 +1,12 @@
-import type { SchoolYearDatabase } from '@school-management/database';
+import type { NotificationChannel, SchoolYearDatabase } from '@school-management/database';
 import type { Kysely, Transaction } from 'kysely';
 
 // Ghi thông báo vào hàng đợi; gửi thật trong ứng dụng và qua tin nhắn làm ở phân hệ thông báo (YCTD-44).
-// Người nhận là một tài khoản, hoặc mọi tài khoản có vai trò ở đơn vị, xác định khi gửi (YCTD-47)
+// Người nhận là một tài khoản, hoặc mọi tài khoản có vai trò ở đơn vị, xác định khi gửi (YCTD-47). Kênh zalo gửi qua Zalo
+// Official Account khi bật và người nhận đã liên kết, không được thì gửi tin nhắn (YCTD-90)
 export type NotificationRecipient =
-  { userId: string; channel: 'in_app' | 'sms' } | { roleCode: string; orgUnitId: string; channel: 'in_app' | 'sms' };
+  | { userId: string; channel: NotificationChannel }
+  | { roleCode: string; orgUnitId: string; channel: NotificationChannel };
 
 export interface QueuedNotification {
   orgUnitId: string | null;

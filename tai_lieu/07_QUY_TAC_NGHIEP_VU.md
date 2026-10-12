@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.29
+- Phiên bản: 1.31
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -123,11 +123,11 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 | Mã | Quy tắc |
 |---|---|
 | BR-64 | Hoạt động do giáo viên tạo phải ở trạng thái chờ duyệt. Chỉ hoạt động đã duyệt mới hiển thị cho phụ huynh. Giáo viên có thể lưu nháp để thêm hình rồi gửi duyệt. Hoạt động đã công bố không sửa được; quản lý đơn vị hoặc Ban Giám hiệu ẩn kèm lý do và công bố lại (Q-72, YCTD-78) |
-| BR-65 | Hình ảnh của trẻ chỉ được công bố khi phụ huynh đã đồng ý cho sử dụng hình ảnh. Phụ huynh đồng ý bằng xác nhận trên ứng dụng hoặc bằng giấy ký tay được nhà trường tải bản chụp lên; hệ thống lưu cách đồng ý, người đồng ý và thời điểm. Phụ huynh rút lại đồng ý bất cứ lúc nào. Giáo viên gắn thẻ trẻ có trong ảnh; ảnh có trẻ chưa đồng ý không hiển thị cho phụ huynh. Khi phụ huynh rút đồng ý, mọi ảnh đã công bố có gắn thẻ trẻ đó tự ẩn, tệp không bị xóa (YCTD-78) |
+| BR-65 | Hình ảnh của trẻ chỉ được công bố khi phụ huynh đã đồng ý cho sử dụng hình ảnh. Phụ huynh đồng ý bằng xác nhận trên ứng dụng hoặc bằng giấy ký tay được nhà trường tải bản chụp lên; hệ thống lưu cách đồng ý, người đồng ý và thời điểm. Phụ huynh rút lại đồng ý bất cứ lúc nào. Giáo viên gắn thẻ trẻ có trong ảnh; ảnh có trẻ chưa đồng ý không hiển thị cho phụ huynh. Khi phụ huynh rút đồng ý, mọi ảnh đã công bố có gắn thẻ trẻ đó tự ẩn, tệp không bị xóa (YCTD-78). Khi đăng lên Fanpage, hình có bất kỳ trẻ được gắn thẻ chưa đồng ý bị loại khỏi bài đăng; chỉ nội dung đang công bố và tin tức phạm vi toàn trường hoặc đơn vị được đăng (YCTD-90) |
 | BR-66 | Không bình luận nào bị xóa, kể cả của phụ huynh. Phản hồi tiêu cực được chuyển cho quản lý đơn vị xử lý riêng; quản lý đơn vị được ẩn bình luận vi phạm kèm lý do; bình luận ẩn vẫn được lưu. Người xem báo bình luận tiêu cực; mỗi lần xử lý (ẩn, hiện lại, ghi chú) có một bản ghi xử lý kèm lý do và người xử lý (YCTD-78, YCTD-79) |
 | BR-67 | Mỗi tài khoản chỉ được bỏ một phiếu cho mỗi bình chọn, biểu quyết hoặc khảo sát. Sau khi gửi, phiếu không sửa được |
 | BR-68 | Bình chọn, biểu quyết, khảo sát có thời gian bắt đầu và kết thúc. Ngoài khoảng thời gian đó hệ thống không nhận phiếu |
-| BR-69 | Tin tức, thư viện và thông báo có phạm vi công bố: toàn trường, theo đơn vị, theo lớp hoặc theo từng trẻ |
+| BR-69 | Tin tức, thư viện và thông báo có phạm vi công bố: toàn trường, theo đơn vị, theo lớp hoặc theo từng trẻ. Tin tuyển dụng và tin tuyển sinh đã công bố có phạm vi công khai: người ngoài trường xem được và nộp hồ sơ không cần tài khoản đến hết hạn (YCTD-86, YCTD-87) |
 | BR-70 | Thông báo quan trọng phải ghi nhận ai đã đọc, ai chưa đọc, để nhà trường biết chắc phụ huynh đã nhận |
 
 ## 12. Quy tắc về phân quyền và dữ liệu
@@ -150,7 +150,7 @@ Bổ sung ngày 2026-10-09 theo yêu cầu tách vai trò Ban Giám hiệu thàn
 | BR-77 | Hạn mức phê duyệt được cấu hình theo đơn vị và theo loại chứng từ. Phó Hiệu trưởng phê duyệt chứng từ có giá trị dưới hạn mức; Hiệu trưởng phê duyệt chứng từ có giá trị bằng hoặc trên hạn mức. Loại chứng từ chưa cấu hình hạn mức thì Hiệu trưởng phê duyệt (Q-112). Phiếu chi hoàn tiền khi trẻ thôi học là ngoại lệ, luôn do Hiệu trưởng phê duyệt (BR-24) |
 | BR-78 | Người lập chứng từ không được tự phê duyệt chứng từ do chính mình lập. Trường hợp đặc biệt phải do Hiệu trưởng phê duyệt và ghi rõ lý do |
 | BR-79 | Phó Hiệu trưởng chỉ phê duyệt trong phạm vi đơn vị được gán. Hiệu trưởng phê duyệt trong phạm vi toàn trường |
-| BR-80 | Mọi lần phê duyệt hoặc từ chối đều ghi nhật ký thao tác kèm người phê duyệt, thời điểm, giá trị chứng từ và lý do từ chối nếu có |
+| BR-80 | Mọi lần phê duyệt hoặc từ chối đều ghi nhật ký thao tác kèm người phê duyệt, thời điểm, giá trị chứng từ và lý do từ chối nếu có; áp dụng cả cho đề nghị tuyển dụng (giá trị là vị trí và số lượng) và quyết định tuyển ứng viên (YCTD-87) |
 | BR-81 | Số định danh cá nhân và bản chụp giấy khai sinh của trẻ bắt buộc khi tạo hồ sơ; trẻ nhập từ dữ liệu ban đầu được bổ sung giấy khai sinh sau (YCTD-46); chỉ hiển thị đầy đủ với Hiệu trưởng, Phó Hiệu trưởng, quản lý đơn vị và nhân viên tuyển sinh; vai trò khác thấy số đã che; mỗi lần xem đầy đủ ghi nhật ký truy cập dữ liệu nhạy cảm |
 | BR-82 | Giờ làm thêm tính từ chấm công, là phần vượt giờ làm chuẩn trong ngày, tối đa 1 giờ mỗi ngày; tiền làm thêm bằng số giờ nhân lương giờ (lương hợp đồng chia ngày công chuẩn chia giờ làm chuẩn) nhân hệ số cấu hình của đơn vị (YCTD-60), đưa vào bảng lương của tháng kế tiếp (BR-43). Không có phụ cấp dạy thay |
 | BR-83 | Bán trú là dịch vụ bắt buộc với mọi trẻ đang học; phụ huynh không bỏ chọn được. Bán trú gồm ba bữa sáng, trưa, xế; không có dịch vụ ăn sáng hay ăn tối riêng. Tiệc buffet tổ chức theo dịp, nằm trong tiền ăn, không thu riêng |

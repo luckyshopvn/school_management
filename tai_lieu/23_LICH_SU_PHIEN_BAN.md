@@ -16,6 +16,39 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.44.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-11 phần 11b, tuyển dụng: đề nghị, tin, ứng viên, phỏng vấn (YCTD-87).
+- Chức năng mới: P18-01 đến P18-04 trên máy chủ API, cổng quản trị (MH-27), trang tuyển dụng công khai trên ứng dụng phụ huynh (MH-65).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: bốn bảng tuyển dụng của năm học (tệp 0041); thêm mục đích tệp `candidate_cv`.
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: điểm cuối công khai giới hạn số lần gọi trong bộ nhớ của từng máy chủ, cần bộ nhớ chung khi chạy nhiều máy chủ (việc T6).
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-11-phan-11b`; chạy ngược tệp 0041 của cơ sở dữ liệu năm học.
+
+### Phiên bản 0.43.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-11 phần 11e, kết nối Facebook, Fanpage và Zalo Official Account (YCTD-90).
+- Chức năng mới: P14-08, kênh Zalo của trung tâm thông báo (P19-04) và nhắc nợ (P05-10) trên máy chủ API và cổng quản trị (MH-71, MH-23).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: bảng `integration_settings`, `zalo_followers`, `facebook_posts` của năm học (tệp 0044); kênh `zalo` và cột `delivered_via` ở `notification_recipients`.
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: bộ chuyển đổi Graph API và Zalo Official Account thật chưa chạy với tài khoản thật; khóa truy cập chỉ đặt ở biến môi trường.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-11-phan-11e`; chạy ngược tệp 0044 của cơ sở dữ liệu năm học.
+
+### Phiên bản 0.42.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-10, báo cáo kiểm thử giai đoạn 2, bản ứng viên phát hành 1.1.0 (YCTD-84).
+- Chức năng mới: không; bổ sung ca kiểm thử cho CT-041, CT-083, CT-085.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: không.
+- Thay đổi API: không.
+- Rủi ro: các giới hạn đã biết ở mục 6 của `29_BAO_CAO_KIEM_THU_G2.md`.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-10-bao-cao-g2`.
+
 ### Phiên bản 0.41.0 – 2026-10-11
 
 - Phạm vi thay đổi: DT-10 phần 10i, nhắc nợ, xử lý công nợ quá hạn, đối chiếu ngân hàng, công nợ phải trả, chốt kỳ tài chính (YCTD-82).

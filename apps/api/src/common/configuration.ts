@@ -1,4 +1,14 @@
 import { decodeBase64Key } from '@school-management/server';
+import { PAYMENT_PROVIDER_CODES, type PaymentProviderCode } from '../finance/payment-gateway.js';
+
+// Mã cổng không có trong danh sách thì bỏ qua; mỗi mã chỉ một lần, giữ thứ tự ghi
+export function readPaymentGateways(text: string | undefined): PaymentProviderCode[] {
+  const codes = (text ?? '')
+    .split(',')
+    .map((code) => code.trim())
+    .filter((code): code is PaymentProviderCode => (PAYMENT_PROVIDER_CODES as readonly string[]).includes(code));
+  return [...new Set(codes)];
+}
 
 // Cấu hình của máy chủ API nghiệp vụ; máy chủ API chỉ giữ khóa công khai để kiểm tra mã phiên (QĐ-22)
 export interface ApiConfiguration {
@@ -12,10 +22,18 @@ export interface ApiConfiguration {
   childDataHashKey: Buffer;
   // Kho tệp tương thích S3; trống khi kiểm thử dùng kho trong bộ nhớ
   objectStorage: ObjectStorageSettings | null;
-  // Nhà cung cấp tài khoản ảo và mã QR; trống là chưa nối (T1), `development` là bộ giả lập (YCTD-57)
-  paymentGateway?: 'development' | null;
+  // Các cổng thanh toán trực tuyến được bật, cổng đầu là mặc định; trống là chưa nối (T1), `development` là bộ giả
+  // lập (YCTD-57), `vietqr-static` là mã VietQR tĩnh đối soát qua sao kê (YCTD-89). Biến PAYMENT_GATEWAY ghi các mã
+  // cách nhau bằng dấu phẩy
+  paymentGateways?: PaymentProviderCode[];
   // Chu kỳ tiến trình gửi thông báo và nhắc nhật ký, tính bằng giây; 0 là tắt, kiểm thử tự gọi (YCTD-71)
   notificationDispatchIntervalSeconds?: number;
+  // Đăng Fanpage và gửi Zalo: `development` là bộ giả lập; khóa truy cập chỉ đặt ở biến môi trường, không lưu trong cơ sở
+  // dữ liệu (YCTD-90)
+  facebookPublisher?: 'development' | null;
+  facebookPageAccessToken?: string | null;
+  zaloSender?: 'development' | null;
+  zaloOaAccessToken?: string | null;
 }
 
 export interface ObjectStorageSettings {
@@ -59,7 +77,11 @@ export function readConfigurationFromEnvironment(): ApiConfiguration {
       accessKeyId: readRequired('S3_ACCESS_KEY_ID'),
       secretAccessKey: readRequired('S3_SECRET_ACCESS_KEY'),
     },
-    paymentGateway: process.env.PAYMENT_GATEWAY === 'development' ? 'development' : null,
+    paymentGateways: readPaymentGateways(process.env.PAYMENT_GATEWAY),
     notificationDispatchIntervalSeconds: Number(process.env.NOTIFICATION_DISPATCH_INTERVAL_SECONDS ?? 60),
+    facebookPublisher: process.env.FACEBOOK_PUBLISHER === 'development' ? 'development' : null,
+    facebookPageAccessToken: process.env.FACEBOOK_PAGE_ACCESS_TOKEN || null,
+    zaloSender: process.env.ZALO_SENDER === 'development' ? 'development' : null,
+    zaloOaAccessToken: process.env.ZALO_OA_ACCESS_TOKEN || null,
   };
 }

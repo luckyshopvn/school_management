@@ -31,12 +31,14 @@ import {
   optionalUuidQuery,
   readText,
 } from '../inventory/inventory-common.js';
+import { readIntegration } from '../integrations/integrations.js';
 import { SettingsService } from '../settings/settings.service.js';
 import { guardianUserIds } from './receivables.js';
 
 // Nhắc nợ và xử lý công nợ quá hạn (P05-10, P05-12; BR-33; YCTD-23, YCTD-82). Danh sách nhắc nợ gồm hóa đơn đã phát hành
 // còn nợ và đã quá hạn; mốc là mốc cấu hình lớn nhất đã tới (mặc định 3, 7, 15 ngày). Mỗi hóa đơn nhắc một lần ở mỗi mốc,
-// gửi trong ứng dụng cho phụ huynh. Đề xuất xử lý do quản lý đơn vị hoặc kế toán lập, Phó Hiệu trưởng hoặc Hiệu trưởng
+// gửi trong ứng dụng cho phụ huynh; khi nhà trường bật Zalo Official Account thì gửi thêm qua kênh zalo (Zalo nếu phụ huynh
+// đã liên kết, không thì tin nhắn; G3-08, YCTD-90). Đề xuất xử lý do quản lý đơn vị hoặc kế toán lập, Phó Hiệu trưởng hoặc Hiệu trưởng
 // ghi quyết định; đề xuất và quyết định không đổi số tiền công nợ (thay đổi số tiền phải qua miễn giảm, điều chỉnh)
 const REMINDER_VIEW = [PERMISSION_CODES.debtReminderManage, PERMISSION_CODES.debtView];
 const RESOLUTION_VIEW = [
@@ -169,6 +171,7 @@ export class DebtCollectionService {
     const { database } = await this.currentSchoolYear.require();
     const rows = new Map((await this.overdueRows(database, orgUnitId, null)).map((row) => [row.invoice_id, row]));
     const skipped: Array<{ invoice_id: string; reason: string }> = [];
+    const viaZalo = (await readIntegration(database, 'zalo')).enabled;
     let sentCount = 0;
     for (const invoiceId of [...new Set(invoiceIds)]) {
       const row = rows.get(invoiceId);
@@ -202,10 +205,10 @@ export class DebtCollectionService {
           body: `${row.child_name} còn ${row.outstanding_amount} đồng của hóa đơn ${row.invoice_code ?? ''} kỳ ${periodLabel(Number(year), Number(month))}, đã quá hạn ${row.overdue_days} ngày (hạn ${row.due_date ?? ''})`,
           targetType: 'invoices',
           targetId: row.invoice_id,
-          recipients: (await guardianUserIds(transaction, row.child_id)).map((userId) => ({
-            userId,
-            channel: 'in_app' as const,
-          })),
+          recipients: (await guardianUserIds(transaction, row.child_id)).flatMap((userId) => [
+            { userId, channel: 'in_app' as const },
+            ...(viaZalo ? [{ userId, channel: 'zalo' as const }] : []),
+          ]),
         });
         await writeAuditLog(transaction, {
           origin,

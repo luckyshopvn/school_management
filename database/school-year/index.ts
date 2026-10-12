@@ -38,6 +38,10 @@ import { migration as createActivities } from './migrations/0034_create_activiti
 import { migration as createExportLogs } from './migrations/0039_create_export_logs.js';
 import { migration as createWorkManagement } from './migrations/0037_create_work_management.js';
 import { migration as createFinancePhaseTwo } from './migrations/0038_create_finance_phase_two.js';
+import { migration as createIntegrations } from './migrations/0044_create_integrations.js';
+import { migration as createRecruitment } from './migrations/0041_create_recruitment.js';
+import { migration as createAdmissions } from './migrations/0040_create_admissions.js';
+import { migration as createBankStatementImports } from './migrations/0043_create_bank_statement_imports.js';
 import { migration as createLedger } from './migrations/0042_create_ledger.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
@@ -81,5 +85,9 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0039_create_export_logs': createExportLogs,
   '0037_create_work_management': createWorkManagement,
   '0038_create_finance_phase_two': createFinancePhaseTwo,
+  '0044_create_integrations': createIntegrations,
+  '0041_create_recruitment': createRecruitment,
+  '0040_create_admissions': createAdmissions,
+  '0043_create_bank_statement_imports': createBankStatementImports,
   '0042_create_ledger': createLedger,
 };

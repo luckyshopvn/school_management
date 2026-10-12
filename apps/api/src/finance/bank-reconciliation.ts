@@ -18,28 +18,38 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { isUuid, notFoundError, readRequiredUuid, type RequestBody } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { check, InventoryAccess, readDate, readText } from '../inventory/inventory-common.js';
+import { SettingsService } from '../settings/settings.service.js';
+import { autoMatchLines, DEFAULT_MATCH_DAYS, refreshSuggestions } from './bank-statement-matching.js';
 import { assertDateOpen } from './fiscal-period-lock.js';
 
 // Tài khoản ngân hàng và lịch sử giao dịch (P06-06; BR-34; YCTD-82). Kế toán nhập các dòng sao kê của ngân hàng (tiền vào
 // dương, tiền ra âm) rồi đối chiếu với giao dịch tài khoản mà hệ thống ghi từ phiếu thu, phiếu chi, phiếu đảo. Dòng sao kê
 // không đổi số dư (số dư chỉ đổi qua phiếu, BR-34); khoản có trên sao kê mà chưa có phiếu (phí, lãi ngân hàng) thì lập phiếu
-// thu hoặc phiếu chi rồi khớp. Khớp một dòng với một giao dịch cùng tài khoản và cùng số tiền
-const VIEW_PERMISSIONS = [PERMISSION_CODES.bankTransactionManage, PERMISSION_CODES.cashAccountManage, 'P06.view'];
-const AUTO_MATCH_DAYS = 3;
-const MAXIMUM_AMOUNT = 1_000_000_000_000;
-
-const dayDistance = (left: string, right: string) =>
-  Math.abs(Date.parse(`${left}T00:00:00Z`) - Date.parse(`${right}T00:00:00Z`)) / 86_400_000;
+// thu hoặc phiếu chi rồi khớp. Khớp một dòng với một giao dịch cùng tài khoản và cùng số tiền. Khớp tự động dùng chung bộ
+// đối soát với nhập tệp sao kê: số ngày lệch theo cấu hình, ưu tiên mã chứng từ, đề xuất lập phiếu thu (G3-05, YCTD-89)
+export const VIEW_PERMISSIONS = [
+  PERMISSION_CODES.bankTransactionManage,
+  PERMISSION_CODES.cashAccountManage,
+  'P06.view',
+];
+export const MAXIMUM_AMOUNT = 1_000_000_000_000;
 
 @Injectable()
 export class BankReconciliationService {
   constructor(
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly access: InventoryAccess,
+    private readonly settings: SettingsService,
     private readonly clock: Clock,
   ) {}
 
-  private async loadAccount(database: Kysely<SchoolYearDatabase>, accountId: string) {
+  // Số ngày lệch tối đa khi đối soát tự động theo cấu hình của đơn vị (mặc định 3)
+  async matchDays(orgUnitId: string): Promise<number> {
+    const setting = (await this.settings.effective(orgUnitId)).find((item) => item.key === 'bank_match_days');
+    return typeof setting?.value === 'number' ? setting.value : DEFAULT_MATCH_DAYS;
+  }
+
+  async loadAccount(database: Kysely<SchoolYearDatabase>, accountId: string) {
     const account = await database
       .selectFrom('cash_accounts')
       .select(['id', 'org_unit_id', 'name', 'account_type', 'bank_name', 'account_number', 'opening_balance', 'status'])
@@ -54,7 +64,7 @@ export class BankReconciliationService {
     return account;
   }
 
-  private async assertManage(currentUser: CurrentUser, orgUnitId: string) {
+  async assertManage(currentUser: CurrentUser, orgUnitId: string) {
     await this.access.assertUnit(
       currentUser,
       [PERMISSION_CODES.bankTransactionManage],
@@ -75,14 +85,24 @@ export class BankReconciliationService {
     return this.lines(database, account.id, filter.from, filter.to);
   }
 
-  private async lines(database: Kysely<SchoolYearDatabase>, accountId: string, from: string | null, to: string | null) {
+  async lines(
+    database: Kysely<SchoolYearDatabase>,
+    accountId: string,
+    from: string | null,
+    to: string | null,
+    importId: string | null = null,
+  ) {
     let query = database
       .selectFrom('bank_statement_lines')
       .leftJoin('account_transactions', 'account_transactions.id', 'bank_statement_lines.matched_transaction_id')
+      .leftJoin('invoices', 'invoices.id', 'bank_statement_lines.suggested_invoice_id')
+      .leftJoin('children', 'children.id', 'invoices.child_id')
       .selectAll('bank_statement_lines')
       .select([
         'account_transactions.description as matched_description',
         'account_transactions.transaction_date as matched_date',
+        'invoices.code as suggested_invoice_code',
+        'children.full_name as suggested_child_name',
       ])
       .where('bank_statement_lines.account_id', '=', accountId)
       .orderBy('bank_statement_lines.transaction_date')
@@ -92,6 +112,9 @@ export class BankReconciliationService {
     }
     if (to) {
       query = query.where('bank_statement_lines.transaction_date', '<=', to);
+    }
+    if (importId) {
+      query = query.where('bank_statement_lines.import_id', '=', importId);
     }
     return (await query.execute()).map((row) => ({ ...row, amount: Number(row.amount) }));
   }
@@ -114,7 +137,7 @@ export class BankReconciliationService {
       throw validationError([{ field: 'transaction_date', message: 'Ngày giao dịch không sau hôm nay' }]);
     }
     await assertDateOpen(database, account.org_unit_id, input.transactionDate, 'ghi giao dịch ngân hàng');
-    return database.transaction().execute(async (transaction) => {
+    const created = await database.transaction().execute(async (transaction) => {
       const created = await transaction
         .insertInto('bank_statement_lines')
         .values({
@@ -137,11 +160,15 @@ export class BankReconciliationService {
         before: null,
         after: created,
       });
-      return { ...created, amount: Number(created.amount) };
+      return created;
     });
+    // Dòng tiền vào có mã hóa đơn còn nợ thì đề xuất lập phiếu thu (YCTD-89)
+    await refreshSuggestions(database, [created.id]);
+    const line = await this.loadLine(database, created.id);
+    return { ...line, amount: Number(line.amount) };
   }
 
-  private async loadLine(database: Kysely<SchoolYearDatabase>, lineId: string) {
+  async loadLine(database: Kysely<SchoolYearDatabase>, lineId: string) {
     const line = await database
       .selectFrom('bank_statement_lines')
       .selectAll()
@@ -219,6 +246,7 @@ export class BankReconciliationService {
             matched_transaction_id: transactionId,
             matched_by: origin.actorUserId,
             matched_at: this.clock.now(),
+            suggested_invoice_id: null,
           })
           .where('id', '=', line.id)
           .where('status', '=', 'unmatched')
@@ -271,10 +299,12 @@ export class BankReconciliationService {
         after: { status: 'unmatched' },
       });
     });
+    await refreshSuggestions(database, [lineId]);
     return { id: lineId, status: 'unmatched' };
   }
 
-  // Khớp tự động: dòng chưa khớp với giao dịch chưa khớp cùng số tiền, ngày lệch không quá 3 ngày, chọn ngày gần nhất
+  // Khớp tự động: dòng chưa khớp với giao dịch chưa khớp cùng số tiền, ngày lệch không quá số ngày cấu hình (mặc định 3),
+  // ưu tiên mã chứng từ trong diễn giải rồi ngày gần nhất; sau đó đề xuất lập phiếu thu cho dòng tiền vào có mã hóa đơn
   async autoMatch(
     currentUser: CurrentUser,
     filter: { accountId: string; from: string; to: string },
@@ -283,40 +313,22 @@ export class BankReconciliationService {
     const { database } = await this.currentSchoolYear.require();
     const account = await this.loadAccount(database, filter.accountId);
     await this.assertManage(currentUser, account.org_unit_id);
-    const book = await this.bookEntries(database, account.id, filter.from, filter.to, AUTO_MATCH_DAYS);
-    const available = book.filter((entry) => !entry.matched);
     const lines = (await this.lines(database, account.id, filter.from, filter.to)).filter(
       (line) => line.status === 'unmatched',
     );
-    let matched = 0;
-    for (const line of lines) {
-      const candidates = available
-        .filter(
-          (entry) =>
-            entry.amount === line.amount &&
-            dayDistance(entry.transaction_date, line.transaction_date) <= AUTO_MATCH_DAYS,
-        )
-        .sort(
-          (left, right) =>
-            dayDistance(left.transaction_date, line.transaction_date) -
-            dayDistance(right.transaction_date, line.transaction_date),
-        );
-      const chosen = candidates[0];
-      if (!chosen) {
-        continue;
-      }
-      try {
-        await assertDateOpen(database, account.org_unit_id, line.transaction_date, 'đối chiếu giao dịch ngân hàng');
-        await this.applyMatch(database, line, chosen.id, origin);
-        available.splice(available.indexOf(chosen), 1);
-        matched += 1;
-      } catch (error) {
-        if (!(error instanceof ApplicationError)) {
-          throw error;
-        }
-      }
-    }
-    return { ...(await this.reconcile(currentUser, filter)), auto_matched_count: matched };
+    const matched = await autoMatchLines(
+      database,
+      account.id,
+      lines,
+      await this.matchDays(account.org_unit_id),
+      origin,
+      this.clock.now(),
+    );
+    const suggested = await refreshSuggestions(
+      database,
+      lines.map((line) => line.id),
+    );
+    return { ...(await this.reconcile(currentUser, filter)), auto_matched_count: matched, suggested_count: suggested };
   }
 
   private async bookEntries(

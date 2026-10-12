@@ -81,7 +81,7 @@ const PERMISSIONS = [
     code: 'P01.integration.manage',
     module: 'P01',
     description: 'Cấu hình kết nối ngoài: Zalo Official Account, Facebook, cổng thanh toán',
-    roleCodes: ['VT-01', 'VT-02'],
+    roleCodes: ['VT-02'],
   },
 ];
 

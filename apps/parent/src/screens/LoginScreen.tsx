@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Alert, Button, TextField } from '@school-management/ui';
 import { ApiError, requestOneTimeCode } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
+import { RECRUITMENT_HASH } from './RecruitmentScreen.js';
 
 // MH-47 Đăng nhập của ứng dụng phụ huynh: bằng mật khẩu hoặc bằng mã một lần gửi qua tin nhắn (XT-01, Q-24)
 type Method = 'password' | 'code';
@@ -16,7 +17,7 @@ function describe(error: unknown): { message: string; fields: Record<string, str
   return { message: 'Không kết nối được tới máy chủ, vui lòng thử lại', fields: {} };
 }
 
-export function LoginScreen() {
+export function LoginScreen({ onAdmissions }: { onAdmissions?: () => void }) {
   const session = useSession();
   const [method, setMethod] = useState<Method>('password');
   const [phone, setPhone] = useState('');
@@ -136,7 +137,17 @@ export function LoginScreen() {
             Lần đầu đăng nhập, dùng mật khẩu mặc định do nhà trường cung cấp; ứng dụng sẽ yêu cầu đặt mật khẩu mới.
           </p>
         ) : null}
+        {onAdmissions ? (
+          <Button variant="text" onClick={onAdmissions}>
+            Tuyển sinh trực tuyến
+          </Button>
+        ) : null}
       </form>
+      <nav aria-label="Trang công khai" className="fixed bottom-6 left-0 right-0 flex justify-center">
+        <a href={RECRUITMENT_HASH} className="text-label font-medium text-text underline">
+          Tuyển dụng giáo viên và nhân viên
+        </a>
+      </nav>
     </main>
   );
 }

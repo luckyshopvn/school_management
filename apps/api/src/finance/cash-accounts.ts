@@ -34,6 +34,8 @@ const COLUMNS = [
   'opening_balance',
   'current_balance',
   'status',
+  'payment_provider',
+  'bank_bin',
 ] as const;
 const VIEW_PERMISSIONS = ['P06.view', PERMISSION_CODES.receiptManage, PERMISSION_CODES.cashAccountManage];
 
