@@ -22,6 +22,7 @@ export function ClassesScreen({
   onOpenGate,
   onOpenLeave,
   onOpenPayslips,
+  onOpenWork,
 }: {
   onOpen(myClass: MyClass): void;
   onOpenPickup(myClass: MyClass): void;
@@ -31,6 +32,7 @@ export function ClassesScreen({
   onOpenGate(orgUnitIds: string[]): void;
   onOpenLeave(): void;
   onOpenPayslips(): void;
+  onOpenWork(): void;
 }) {
   const session = useSession();
   const [classes, setClasses] = useState<MyClass[]>();
@@ -60,7 +62,7 @@ export function ClassesScreen({
       <ApplicationHeader title="Ứng dụng giáo viên" />
       <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
         <NotificationsPanel />
-        <CheckInCard onOpenLeave={onOpenLeave} onOpenPayslips={onOpenPayslips} />
+        <CheckInCard onOpenLeave={onOpenLeave} onOpenPayslips={onOpenPayslips} onOpenWork={onOpenWork} />
         <h1 className="text-page-title font-bold text-text">Lớp của tôi</h1>
         {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
         {gateUnitIds.length > 0 ? (

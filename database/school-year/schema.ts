@@ -1611,6 +1611,156 @@ export interface PurchaseOrderItemsTable {
   received_qty: Decimal;
 }
 
+// Công việc, kế hoạch, đánh giá, quá trình công tác, thưởng và khấu trừ (YCTD-81)
+export type WorkPeriodType = 'month' | 'term' | 'year';
+export type TaskType = 'assigned' | 'personal';
+export type TaskPriority = 'low' | 'normal' | 'high';
+export type TaskStatus = 'todo' | 'in_progress' | 'done' | 'cancelled';
+export type PlanStatus = 'draft' | 'active' | 'closed';
+export type EvaluationStatus = 'draft' | 'published' | 'superseded';
+
+export interface PlansTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  period_type: WorkPeriodType;
+  period_value: string;
+  title: string;
+  objectives: string | null;
+  status: Generated<PlanStatus>;
+  created_by: string;
+  activated_at: Date | null;
+  closed_at: Date | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface TasksTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  task_type: TaskType;
+  title: string;
+  description: string | null;
+  assigner_user_id: string;
+  assigner_name: string;
+  assignee_staff_id: string;
+  due_date: string | null;
+  priority: Generated<TaskPriority>;
+  status: Generated<TaskStatus>;
+  progress_percent: Generated<number>;
+  plan_item_id: string | null;
+  completed_at: Date | null;
+  cancel_reason: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface TaskUpdatesTable {
+  id: Generated<string>;
+  task_id: string;
+  content: string | null;
+  progress_percent: number;
+  status: TaskStatus;
+  created_by: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface PlanItemsTable {
+  id: Generated<string>;
+  plan_id: string;
+  content: string;
+  owner_staff_id: string;
+  due_date: string;
+  task_id: string | null;
+  order_no: number;
+}
+
+export interface EvaluationCriteriaTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  code: string;
+  name: string;
+  weight: Decimal;
+  max_score: Decimal;
+  status: Generated<CatalogStatus>;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface EvaluationsTable {
+  id: Generated<string>;
+  staff_id: string;
+  org_unit_id: string;
+  period_type: WorkPeriodType;
+  period_value: string;
+  total_score: Decimal;
+  comment: string | null;
+  status: Generated<EvaluationStatus>;
+  replaces_id: string | null;
+  reevaluation_reason: string | null;
+  evaluated_by: string;
+  evaluated_by_name: string;
+  published_by: string | null;
+  published_at: Date | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface EvaluationScoresTable {
+  id: Generated<string>;
+  evaluation_id: string;
+  criterion_id: string;
+  criterion_code: string;
+  criterion_name: string;
+  weight: Decimal;
+  max_score: Decimal;
+  score: Decimal;
+  comment: string | null;
+}
+
+export interface StaffWorkHistoryTable {
+  id: Generated<string>;
+  staff_id: string;
+  org_unit_id: string;
+  from_date: string;
+  to_date: string | null;
+  department_id: string | null;
+  job_title_id: string | null;
+  note: string | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface StaffCertificatesTable {
+  id: Generated<string>;
+  staff_id: string;
+  name: string;
+  certificate_no: string | null;
+  issued_by: string;
+  issued_date: string;
+  expire_date: string | null;
+  note: string | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface StaffBonusDeductionsTable {
+  id: Generated<string>;
+  staff_id: string;
+  pay_item_type_id: string;
+  target_year: number;
+  target_month: number;
+  amount: Money;
+  basis: string;
+  status: Generated<'active' | 'cancelled'>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  cancelled_by: string | null;
+  cancelled_at: Date | null;
+  cancel_reason: string | null;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -1719,4 +1869,14 @@ export interface SchoolYearDatabase {
   purchase_request_items: PurchaseRequestItemsTable;
   purchase_orders: PurchaseOrdersTable;
   purchase_order_items: PurchaseOrderItemsTable;
+  plans: PlansTable;
+  tasks: TasksTable;
+  task_updates: TaskUpdatesTable;
+  plan_items: PlanItemsTable;
+  evaluation_criteria: EvaluationCriteriaTable;
+  evaluations: EvaluationsTable;
+  evaluation_scores: EvaluationScoresTable;
+  staff_work_history: StaffWorkHistoryTable;
+  staff_certificates: StaffCertificatesTable;
+  staff_bonus_deductions: StaffBonusDeductionsTable;
 }

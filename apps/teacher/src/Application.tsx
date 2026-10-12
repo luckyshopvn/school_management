@@ -10,6 +10,7 @@ import { PayslipsScreen } from './screens/PayslipsScreen.js';
 import { LoginScreen } from './screens/LoginScreen.js';
 import { MedicationScreen } from './screens/MedicationScreen.js';
 import { PickupScreen } from './screens/PickupScreen.js';
+import { WorkScreen } from './screens/WorkScreen.js';
 import { SessionProvider, useSession } from './session/session.js';
 
 // Chọn màn hình theo trạng thái phiên: chưa đăng nhập về MH-47; bắt buộc đổi mật khẩu về MH-48 (BM-07)
@@ -20,6 +21,7 @@ function Screens() {
     | { screen: 'gate'; orgUnitIds: string[] }
     | { screen: 'leave' }
     | { screen: 'payslips' }
+    | { screen: 'work' }
   >();
   const back = () => setOpened(undefined);
   if (session.status === 'checking') {
@@ -49,6 +51,9 @@ function Screens() {
   if (opened?.screen === 'payslips') {
     return <PayslipsScreen onBack={back} />;
   }
+  if (opened?.screen === 'work') {
+    return <WorkScreen onBack={back} />;
+  }
   if (opened?.screen === 'leave') {
     return <LeaveScreen onBack={back} />;
   }
@@ -65,6 +70,7 @@ function Screens() {
       onOpenGate={(orgUnitIds) => setOpened({ screen: 'gate', orgUnitIds })}
       onOpenLeave={() => setOpened({ screen: 'leave' })}
       onOpenPayslips={() => setOpened({ screen: 'payslips' })}
+      onOpenWork={() => setOpened({ screen: 'work' })}
     />
   );
 }

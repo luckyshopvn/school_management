@@ -50,7 +50,10 @@ type NavigationPath =
   | '/payroll-settlements'
   | '/reports'
   | '/api-clients'
-  | '/notifications';
+  | '/notifications'
+  | '/work'
+  | '/evaluations'
+  | '/bonus-deductions';
 
 function NavItem({ to, label }: { to: NavigationPath; label: string }) {
   return (
@@ -111,6 +114,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canSeePurchaseRequests = canCreatePurchaseRequests || canApprovePurchaseRequests;
   const canManageApiClients = useHasPermission(PERMISSION_CODES.apiClientManage);
   const canManagePayItems = useHasPermission(PERMISSION_CODES.payItemTypeManage);
+  const canManageBonusDeductions = useHasPermission(PERMISSION_CODES.bonusDeductionManage);
   const canImport = canImportChildren || canManageChildren || canImportOpeningDebts || canImportStaff;
   const canViewTuition = useHasPermission('P05.view');
   const canManageFeeCatalog = useHasPermission(PERMISSION_CODES.feeCatalogManage);
@@ -201,7 +205,12 @@ export function AppShell({ children }: { children: ReactNode }) {
           {canViewPayroll ? <NavItem to="/payrolls" label="Bảng lương" /> : null}
           {canViewPayroll ? <NavItem to="/payroll-settlements" label="Quyết toán và điều chỉnh lương" /> : null}
           {canViewPayroll || canManagePayItems ? <NavItem to="/pay-items" label="Danh mục lương và biểu thuế" /> : null}
+          {canViewPayroll || canManageBonusDeductions ? (
+            <NavItem to="/bonus-deductions" label="Thưởng và khấu trừ" />
+          ) : null}
           <NavItem to="/my-payslips" label="Phiếu lương của tôi" />
+          <NavItem to="/work" label="Công việc và kế hoạch" />
+          <NavItem to="/evaluations" label="Đánh giá nhân sự" />
           {canViewStaff && canImportStaff && !(canManageClasses || canViewChildren || canEditChildren) ? (
             <NavItem to="/imports" label="Nhập dữ liệu" />
           ) : null}
