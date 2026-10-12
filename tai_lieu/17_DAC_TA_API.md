@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.57
+- Phiên bản: 1.59
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -113,6 +113,25 @@ Giao kèo:
 
 Thay bốn dòng P18 hiện có trong `17` bằng:
 
+
+Giao kèo của nhóm điểm cuối nhập sao kê và cổng thanh toán (DT-11 phần 11d, YCTD-89):
+
+1. `GET /bank-statement-profiles/{accountId}` cần `P06.bank-statement.import` hoặc quyền xem đối chiếu ngân hàng ở đơn vị của tài khoản; trả `account_id`, `profile` (trống khi chưa cấu hình). `PUT` nhận `header_row` (mặc định 1), `date_column`, `date_format` (`dmy` mặc định, `ymd`, `mdy`), `amount_mode` (`signed` cần `amount_column`; `split` cần `credit_column`, `debit_column`), `description_column`, `reference_column` (tùy chọn); tên cột tối đa 100 ký tự; cần `P06.bank-statement.import`. Quỹ tiền mặt trả `ERR_VALIDATION`.
+2. `POST /bank-statement-imports` dạng `multipart/form-data` nhận `account_id`, `file` (xlsx hoặc CSV UTF-8, tối đa 5 MB, 2 000 dòng); cần `P06.bank-statement.import`. Chưa có cấu hình trả `ERR_RULE_VIOLATION` mã P06-06; thiếu cột ở dòng tiêu đề, tệp không đọc được, tệp không có dòng trả `ERR_VALIDATION`. Trả 201 với bản ghi lần nhập (`total_rows`, `imported_count`, `duplicate_count`, `error_count`, `errors` gồm `row`, `column`, `message`, `duplicates`, `auto_matched_count`, `suggested_count`) và `lines` (các dòng vừa ghi sau đối soát). `GET /bank-statement-imports?account_id=` trả các lần nhập mới nhất trước.
+3. `POST /bank-transactions/{id}/create-receipt` nhận `category_id` (khoản mục thu đang dùng), `invoice_id` (tùy chọn, mặc định hóa đơn đề xuất), `payer_name` (tùy chọn); cần `P06.bank-transaction.manage` ở đơn vị của dòng và `P06.receipt.manage` ở đơn vị của hóa đơn. Dòng đã khớp trả `ERR_CONFLICT`; dòng tiền ra, dòng không có đề xuất mà không chọn hóa đơn trả `ERR_VALIDATION`; hóa đơn chưa phát hành, đã thu đủ hoặc số tiền dòng nhỏ hơn số còn nợ trả `ERR_RULE_VIOLATION` mã BR-31; ngày thuộc kỳ đã chốt trả mã P06-09. Trả 201 `line` (đã khớp), `receipt` (`id`, `code`, `amount`).
+4. `POST /bank-transactions/{id}/dismiss-suggestion` cần `P06.bank-transaction.manage`; dòng không có đề xuất trả `ERR_CONFLICT`.
+5. `POST /bank-transactions/auto-match` (YCTD-82) dùng số ngày `bank_match_days` của đơn vị, ưu tiên mã chứng từ, trả thêm `suggested_count`. `POST /bank-transactions` tính đề xuất cho dòng vừa gõ.
+6. `GET /payment-providers` cần quyền xem thanh toán trực tuyến; trả `code`, `label`, `supports_webhook`, `requires_bank_bin`, `is_default`. `PUT /cash-accounts/{id}/payment-provider` nhận `payment_provider` (trống là cổng mặc định; mã chưa bật trả `ERR_VALIDATION`), `bank_bin` (6 chữ số; bắt buộc khi cổng cần); cần `P06.cash-account.manage` ở đơn vị của tài khoản; chỉ tài khoản ngân hàng. `GET /invoices/{id}/payment-qr` dùng cổng của tài khoản nhận, trả thêm `provider`; cổng của tài khoản chưa bật trên máy chủ trả mã P06-11. `POST /payment-webhooks/development` có khi cổng `development` được bật (không cần là cổng mặc định).
+
+Giao kèo của nhóm điểm cuối tuyển sinh (DT-11 phần 11a, YCTD-86):
+
+1. `GET /admission-campaigns`, `GET /admission-posts`, `GET /admission-applications`, `GET /admission-applications/{id}` cần một trong `P16.admission-campaign.manage`, `P16.application.manage`, `P16.application.review`, `P16.admission-post.manage`; chỉ trả bản ghi của đơn vị trong phạm vi. Đợt trả thêm `org_unit_name`, `application_count`, `passed_count` (đạt và đã chuyển), `converted_count`. Danh sách hồ sơ tối đa 500 dòng mới nhất, mỗi dòng `id`, `code`, `campaign_id`, `campaign_name`, `org_unit_id`, `source`, `child_full_name`, `child_dob`, `child_gender`, `guardian_full_name`, `guardian_phone`, `status`, `reject_reason`, `created_child_id`, `child_status`, `created_at`. Chi tiết không trả số định danh dạng mã hóa, trả `child_national_id_masked`, `guardian_relationship`, `planned_class_name`, `child_status`.
+2. `POST /admission-campaigns` nhận `org_unit_id`, `name` (tối đa 200), `description`, `quota` (1 đến 10.000), `open_from`, `open_to` (không trước `open_from`); cần `P16.admission-campaign.manage` ở đơn vị; đơn vị ngừng dùng trả `ERR_VALIDATION`. `PATCH` nhận cùng trường trừ `org_unit_id`; đợt đã đóng hoặc chỉ tiêu nhỏ hơn số đạt trả `ERR_RULE_VIOLATION` mã P16-01. `open` chỉ với đợt nháp có hạn chưa qua; `close` chỉ với đợt đang mở; sai trả mã P16-01.
+3. `POST /admission-posts` nhận `campaign_id`, `title` (tối đa 200), `content` (tối đa 10.000), `publish_from`, `publish_to` (tùy chọn, mặc định hạn nhận hồ sơ của đợt); cần `P16.admission-post.manage`. Đợt đã đóng trả `ERR_RULE_VIOLATION` mã P16-05. `publish` với tin chưa đăng; `hide` nhận `reason` bắt buộc với tin đang đăng.
+4. `POST /public/admission-applications` không cần mã phiên; nhận `campaign_id`, `child_full_name` (tối đa 100), `child_dob`, `child_gender` (`male`, `female`), `child_has_allergies` (bắt buộc), `child_allergies` (bắt buộc khi có dị ứng), `child_national_id` (tùy chọn, 12 chữ số), `guardian_full_name`, `guardian_phone` (10 chữ số bắt đầu bằng 0), `guardian_email`, `guardian_relationship_item_id`, `address`, `note`. Đợt không mở hoặc ngoài thời gian nhận trả `ERR_RULE_VIOLATION` mã P16-02; trùng hồ sơ trả `ERR_CONFLICT`. Trả 201 `code`, `status`, `status_label`, `campaign_name`, `child_full_name`, `message`. `POST /admission-applications` (nhân viên) nhận cùng trường, `child_has_allergies` không bắt buộc ở bước đọc nhưng thiếu trả mã BR-06; cần `P16.application.manage` ở đơn vị của đợt; hồ sơ ở trạng thái `received`.
+5. `GET /public/admissions` trả `campaigns` (đợt đang mở và hôm nay trong khoảng nhận hồ sơ: `id`, `name`, `description`, `quota`, `open_from`, `open_to`, `application_deadline`, `org_unit_name`, `org_unit_address`, `posts` gồm `id`, `title`, `content`, `publish_from`, `publish_to`, `published_at`, `deadline`) và `relationships` (`id`, `name`). `GET /public/admission-applications/lookup` nhận `code` (dạng TS-000001) và `phone`; không khớp trả `ERR_NOT_FOUND`; trả `code`, `child_full_name`, `campaign_name`, `status`, `status_label`, `reject_reason` (chỉ khi không đạt), `submitted_at`. Mỗi địa chỉ mạng nộp tối đa 10 hồ sơ mỗi giờ, đọc và tra cứu tối đa 60 yêu cầu mỗi phút; vượt trả `ERR_RATE_LIMIT`.
+6. `PATCH /admission-applications/{id}` nhận đầy đủ trường như khi nộp trừ `campaign_id`; chỉ hồ sơ `submitted` hoặc `received`, khác trả mã P16-02. `receive` chỉ hồ sơ `submitted`; chưa khai báo dị ứng trả mã BR-06. `approve` cần `P16.application.review`, nhận `note`, `planned_class_id` (tùy chọn); chỉ hồ sơ `received`, đủ chỉ tiêu trả mã P16-03. `reject` cần `P16.application.review`, nhận `reason` bắt buộc; chỉ hồ sơ `submitted` hoặc `received`.
+7. `POST /admission-applications/{id}/convert` cần `P16.application.manage` ở đơn vị của đợt và `P02.child.manage` ở đơn vị của lớp; nhận `class_id`, `birth_certificate_file_id` (tệp mục đích `birth_certificate` của đơn vị lớp), `national_id` (bắt buộc khi hồ sơ chưa có), `relationship_item_id` (bắt buộc khi hồ sơ chưa có), `has_allergies` (tùy chọn), `confirm_possible_duplicate`, `confirm_over_capacity`. Hồ sơ không ở trạng thái `passed` trả `ERR_RULE_VIOLATION` mã P16-04; lớp không thuộc đơn vị của đợt trả `ERR_VALIDATION`; lỗi của hồ sơ trẻ (trùng số định danh `ERR_CONFLICT`, nghi trùng mã QT-01, vượt sĩ số mã BR-04) trả nguyên. Trả `application`, `child` (`id`, `full_name`, `status` là `active` khi người chuyển có `P02.approve` ở đơn vị lớp, ngược lại `pending`; `current_class`, `guardians`) và `approval_error`.
 
 Giao kèo của nhóm điểm cuối tuyển dụng (DT-11 phần 11b, YCTD-87):
 
@@ -691,6 +710,12 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 | POST | /api/v1/payments/{id}/reverse/reject | Ban Giám hiệu từ chối phiếu đảo phiếu chi kèm lý do |
 | GET | /api/v1/payment-reversals/pending | Phiếu đảo phiếu chi chờ duyệt của người duyệt (YCTD-56) |
 | GET, POST | /api/v1/cash-accounts | Danh sách quỹ và tài khoản ngân hàng của đơn vị; khai báo quỹ hoặc tài khoản (YCTD-53) |
+| GET, PUT | /api/v1/bank-statement-profiles/{accountId} | Xem và lưu cấu hình cột của tệp sao kê của tài khoản ngân hàng (G3-05) |
+| GET, POST | /api/v1/bank-statement-imports | Danh sách lần nhập của tài khoản; nhập tệp sao kê Excel hoặc CSV rồi đối soát tự động (G3-05) |
+| POST | /api/v1/bank-transactions/{id}/create-receipt | Xác nhận đề xuất: lập phiếu thu chuyển khoản từ dòng sao kê và khớp (G3-05) |
+| POST | /api/v1/bank-transactions/{id}/dismiss-suggestion | Bỏ đề xuất lập phiếu thu của dòng sao kê (G3-05) |
+| GET | /api/v1/payment-providers | Các cổng thanh toán trực tuyến máy chủ đã bật (G3-05) |
+| PUT | /api/v1/cash-accounts/{id}/payment-provider | Tài khoản ngân hàng chọn cổng thanh toán và khai mã BIN (G3-05) |
 | PATCH | /api/v1/cash-accounts/{id} | Sửa tên, thông tin ngân hàng, ngừng sử dụng |
 | GET | /api/v1/cash-books | Sổ quỹ hoặc sổ tài khoản theo khoảng ngày, thay cho lịch sử giao dịch của tài khoản (YCTD-55) |
 | GET, POST | /api/v1/suppliers | Danh sách và thêm nhà cung cấp của đơn vị |
@@ -974,12 +999,23 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | POST | /api/v1/lost-items/{id}/found | Đánh dấu đã tìm thấy |
 | POST | /api/v1/lost-items/{id}/close | Đóng phiếu với kết quả đã trả hoặc không tìm thấy |
 | DELETE | /api/v1/lost-items/{id} | Hủy phiếu đang báo; phiếu đã đóng bị chặn (BR-75) |
-| GET, POST | /api/v1/admission-campaigns | Đợt tuyển sinh |
-| GET, POST | /api/v1/admission-posts | Tin tuyển sinh |
-| GET, POST | /api/v1/admission-applications | Hồ sơ tuyển sinh |
-| POST | /api/v1/admission-applications/{id}/approve | Duyệt hồ sơ tuyển sinh |
-| POST | /api/v1/admission-applications/{id}/reject | Từ chối hồ sơ tuyển sinh kèm lý do |
-| POST | /api/v1/admission-applications/{id}/convert | Chuyển thành hồ sơ trẻ |
+| GET, POST | /api/v1/admission-campaigns | Danh sách đợt trong phạm vi kèm số hồ sơ, số đạt, số đã chuyển (lọc `org_unit_id`, `status`); lập đợt nháp |
+| PATCH | /api/v1/admission-campaigns/{id} | Sửa đợt chưa đóng |
+| POST | /api/v1/admission-campaigns/{id}/open | Mở đợt nháp |
+| POST | /api/v1/admission-campaigns/{id}/close | Đóng đợt đang mở |
+| GET, POST | /api/v1/admission-posts | Tin tuyển sinh (lọc `campaign_id`); soạn tin nháp |
+| PATCH | /api/v1/admission-posts/{id} | Sửa tin |
+| POST | /api/v1/admission-posts/{id}/publish | Công bố tin khi đợt chưa đóng |
+| POST | /api/v1/admission-posts/{id}/hide | Ẩn tin đang đăng kèm lý do |
+| GET, POST | /api/v1/admission-applications | Hồ sơ trong phạm vi (lọc `campaign_id`, `status`, `q`); nhân viên nhập hộ hồ sơ (đã tiếp nhận) |
+| GET, PATCH | /api/v1/admission-applications/{id} | Chi tiết (số định danh đã che); sửa hồ sơ chưa xét |
+| POST | /api/v1/admission-applications/{id}/receive | Tiếp nhận hồ sơ trực tuyến, kiểm tra BR-06 |
+| POST | /api/v1/admission-applications/{id}/approve | Xét đạt, không vượt chỉ tiêu |
+| POST | /api/v1/admission-applications/{id}/reject | Xét không đạt kèm lý do |
+| POST | /api/v1/admission-applications/{id}/convert | Chuyển hồ sơ đạt thành hồ sơ trẻ theo QT-01 |
+| GET | /api/v1/public/admissions | Không cần đăng nhập: đợt đang nhận hồ sơ kèm tin đang đăng và thời hạn, danh mục quan hệ |
+| POST | /api/v1/public/admission-applications | Không cần đăng nhập: nộp hồ sơ, trả mã hồ sơ |
+| GET | /api/v1/public/admission-applications/lookup | Không cần đăng nhập: tra cứu trạng thái bằng `code` và `phone` |
 | GET, POST | /api/v1/recruitment-requests | Danh sách (view mine, pending, all; lọc status, org_unit_id) và lập đề nghị tuyển dụng |
 | GET | /api/v1/recruitment-requests/{id} | Chi tiết đề nghị kèm số đã tuyển |
 | POST | /api/v1/recruitment-requests/{id}/approve | Duyệt đề nghị tuyển dụng |

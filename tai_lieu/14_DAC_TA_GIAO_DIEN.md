@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.42
+- Phiên bản: 1.44
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -56,7 +56,7 @@ flowchart TD
 | MH-08 | Danh sách công nợ, nhắc nợ và xử lý công nợ quá hạn: phần 5d-1 có danh sách công nợ theo trẻ (phải thu, đã thu, còn lại, số dư có, quá hạn), chi tiết của trẻ có lịch sử phiếu thu, biểu mẫu lập phiếu thu và nút dùng số dư có (YCTD-53); trang Nhắc nợ và xử lý quá hạn có danh sách hóa đơn quá hạn theo mốc, chọn và gửi nhắc nợ, lập đề xuất xử lý, Ban Giám hiệu ghi quyết định (YCTD-82) | VT-04, VT-03, VT-15, VT-02, VT-05, VT-16 |
 | MH-09 | Phiếu thu và màn hình phân bổ: danh sách phiếu thu lọc theo đơn vị và ngày; lập phiếu thu và phân bổ trong chi tiết công nợ của trẻ ở MH-08 (YCTD-53); lập phiếu đảo kèm lý do; Ban Giám hiệu duyệt hoặc từ chối phiếu đảo chờ duyệt (YCTD-54); giao dịch chuyển khoản chờ xử lý (YCTD-57) | VT-04, VT-05, VT-16, VT-15, VT-02 |
 | MH-10 | Phiếu chi và phê duyệt: biểu mẫu lập phiếu chi kèm chứng từ, lưu nháp hoặc trình duyệt; danh sách phiếu chi; mục phiếu chi chờ duyệt cho Ban Giám hiệu (YCTD-55); lập phiếu đảo trên phiếu đã phát hành và mục phiếu đảo phiếu chi chờ duyệt (YCTD-56) | VT-04, VT-05, VT-16, VT-15, VT-02 |
-| MH-11 | Sổ quỹ và tài khoản ngân hàng: trang Quỹ và ngân hàng để khai báo và xem số dư (YCTD-53), chọn tài khoản nhận thanh toán trực tuyến (YCTD-57); trang Sổ quỹ theo quỹ hoặc tài khoản và khoảng ngày, có số dư đầu kỳ, từng phiếu, tổng thu, tổng chi, số dư cuối kỳ (YCTD-55); trang Đối chiếu ngân hàng: ghi dòng sao kê, phát sinh theo sổ và sao kê, chênh lệch, khớp tay, khớp tự động, bỏ khớp (YCTD-82) | VT-04, VT-05, VT-16 |
+| MH-11 | Sổ quỹ và tài khoản ngân hàng: trang Quỹ và ngân hàng để khai báo và xem số dư (YCTD-53), chọn tài khoản nhận thanh toán trực tuyến (YCTD-57) kèm cổng thanh toán và mã BIN ngân hàng (YCTD-89); trang Sổ quỹ theo quỹ hoặc tài khoản và khoảng ngày, có số dư đầu kỳ, từng phiếu, tổng thu, tổng chi, số dư cuối kỳ (YCTD-55); trang Đối chiếu ngân hàng: ghi dòng sao kê, phát sinh theo sổ và sao kê, chênh lệch, khớp tay, khớp tự động, bỏ khớp (YCTD-82), đề xuất lập phiếu thu với nút Lập phiếu thu và Bỏ đề xuất, chọn khoản mục thu (YCTD-89) | VT-04, VT-05, VT-16 |
 | MH-12 | Hồ sơ nhân sự và hợp đồng: danh sách theo đơn vị, tìm theo tên hoặc mã; thêm hồ sơ; chi tiết có liên kết tài khoản, lập và chấm dứt hợp đồng (YCTD-58); mục Quá trình công tác và chứng chỉ: phòng nhân sự ghi thêm mốc công tác, ghi chứng chỉ; nhân sự và người xem hồ sơ xem (YCTD-81) | VT-06, VT-02, VT-15, VT-03, VT-04, VT-05 |
 | MH-13 | Chấm công: bảng chấm công của đơn vị theo tháng, nhập và sửa giờ, chốt bảng công, đề nghị và duyệt mở lại kỳ công; đơn nghỉ của đơn vị (YCTD-59) | VT-06, VT-15, VT-02, VT-03, VT-04, VT-05 |
 | MH-14 | Đơn nghỉ phép | VT-06, VT-03 |
@@ -71,7 +71,7 @@ flowchart TD
 | MH-23 | Danh sách hoạt động và duyệt hoạt động: trang Hoạt động và tin tức, thẻ Duyệt hoạt động lọc theo trạng thái, duyệt và công bố, từ chối hoặc ẩn kèm lý do, công bố lại; cảnh báo ảnh có trẻ chưa đồng ý hình ảnh (YCTD-78); hoạt động và tin tức phạm vi toàn trường hoặc đơn vị đã công bố có nút Đăng lên Fanpage, hiện mã bài, số hình bị loại vì trẻ chưa đồng ý, lỗi và nút thử đăng lại (YCTD-90) | VT-03, VT-15, VT-02 |
 | MH-24 | Tin tức, thư viện, thông báo: trang Hoạt động và tin tức, thẻ Danh mục (danh mục hoạt động, danh mục tin tức, chủ đề thư viện), Tin tức (soạn, công bố, ẩn, xem và ẩn bình luận kèm lý do), Thư viện và hình tô màu (tải tệp, lưu, công bố, ẩn); thông báo ở trang Thông báo (YCTD-64, YCTD-78) | VT-03, VT-07 |
 | MH-25 | Tương tác với phụ huynh: bình chọn, biểu quyết, khảo sát (lập nháp, mở, đóng, kết quả, công bố kết quả); danh mục khảo sát; góp ý và xử lý; trao đổi với phụ huynh của đơn vị; phiếu đồ bị mất; bình luận bị báo cần xử lý (YCTD-79) | VT-03, VT-02, VT-15; VT-07 thẻ trao đổi và đồ bị mất |
-| MH-26 | Hồ sơ tuyển sinh và xét duyệt | VT-12, VT-03 |
+| MH-26 | Hồ sơ tuyển sinh và xét duyệt: trang Tuyển sinh thẻ Hồ sơ tuyển sinh, chọn đợt, lọc trạng thái, xem hồ sơ, tiếp nhận, xét đạt hoặc không đạt kèm lý do, chuyển hồ sơ đạt thành hồ sơ trẻ (chọn lớp, giấy khai sinh, số định danh, quan hệ) (YCTD-86) | VT-12, VT-03 |
 | MH-27 | Tuyển dụng (YCTD-87): đề nghị tuyển dụng (lập, đóng, số đã tuyển so với cần), đề nghị chờ duyệt (duyệt, từ chối kèm lý do), tin tuyển dụng (soạn từ đề nghị đã duyệt, công bố, đóng), ứng viên (danh sách theo tin, nhập ứng viên, chi tiết kèm hồ sơ xin việc, sàng lọc, lịch và kết quả phỏng vấn, quyết định tuyển, tạo hồ sơ nhân sự) | VT-06, VT-03; VT-02, VT-15 duyệt đề nghị và xem tin |
 | MH-28 | Báo cáo theo phân hệ: học phí, công nợ, thu chi, điểm danh, chấm công, học thứ 7; mỗi báo cáo một thẻ theo quyền (YCTD-62); báo cáo thu chi có bảng theo nhóm và theo tháng (YCTD-70); thẻ "Hoạt động và công việc" gồm các bảng điểm danh, sổ liên lạc, y tế, dặn thuốc, thông báo theo lớp và đơn vị; nút "Xuất Excel" trên từng báo cáo và thẻ "Nhật ký xuất" cho người có quyền xuất dữ liệu (YCTD-83) | VT-02, VT-15, VT-03, VT-04, VT-05, VT-06, VT-07, VT-08, VT-19, VT-20 |
 | MH-29 | Báo cáo hợp nhất nhiều đơn vị: thẻ "Hợp nhất đơn vị" trên trang Báo cáo, chọn tháng và các đơn vị so sánh (không chọn là mọi đơn vị), bảng so sánh theo đơn vị kèm dòng tổng, chỉ số liệu tổng hợp; nút "Xuất Excel" khi có quyền xuất (YCTD-83). VT-15 chưa được cấp quyền ở tệp 0034 nên chưa thấy thẻ này | VT-02, VT-19 |
@@ -110,6 +110,8 @@ flowchart TD
 | MH-62 | Chốt kỳ tài chính: các tháng của năm học kèm trạng thái và số liệu kỳ; kế toán trưởng đề nghị chốt kèm ghi chú; Hiệu trưởng duyệt hoặc từ chối kèm lý do (YCTD-82) | VT-05, VT-02 |
 | MH-71 | Kết nối ngoài: Hiệu trưởng bật, tắt Fanpage và Zalo Official Account, nhập mã trang, mã Official Account (khóa truy cập đặt ở máy chủ, trang chỉ báo đã có hay chưa); liên kết số điện thoại phụ huynh với mã người dùng Zalo, bỏ liên kết (YCTD-90) | VT-02 |
 | MH-65 | Trang tuyển dụng công khai trong ứng dụng phụ huynh, mở từ liên kết “Tuyển dụng giáo viên và nhân viên” trên màn hình đăng nhập, không cần tài khoản: tin đã công bố còn hạn, biểu mẫu nộp hồ sơ kèm hồ sơ xin việc và đồng ý xử lý dữ liệu cá nhân (YCTD-87) | Người ngoài trường |
+| MH-63 | Đợt và tin tuyển sinh: trang Tuyển sinh thẻ Đợt tuyển sinh (lập, mở, đóng đợt, số hồ sơ và chỉ tiêu) và thẻ Tin tuyển sinh (soạn, công bố, ẩn tin kèm thời hạn) (YCTD-86) | VT-12, VT-03 |
+| MH-70 | Nhập tệp sao kê (phần của trang Đối chiếu ngân hàng): cấu hình cột theo tài khoản (dòng tiêu đề, cột ngày và cách ghi ngày, một cột số tiền có dấu hoặc hai cột tiền vào, tiền ra, cột diễn giải, cột số tham chiếu), chọn tệp Excel hoặc CSV, kết quả nhập (đã ghi, trùng bỏ qua, lỗi theo dòng, khớp tự động, đề xuất lập phiếu thu) (YCTD-89) | VT-04, VT-05 |
 
 ### 2.2 Ứng dụng giáo viên
 
@@ -157,6 +159,7 @@ flowchart TD
 | MP-18 | Tài khoản, người được ủy quyền đón trẻ, xác nhận người đón ngoài danh sách, đồng ý sử dụng hình ảnh | VT-14 |
 | MP-19 | Mất đồ: báo mất đồ của con, xem kết quả, hủy phiếu đang báo (YCTD-79) | VT-14 |
 | MP-20 | Hoạt động ngoại khóa: trong mục Hoạt động của trẻ, danh sách hoạt động ngoại khóa, mức phí, chỗ còn lại, đăng ký và thôi tham gia (YCTD-78) | VT-14 |
+| MP-21 | Tuyển sinh trực tuyến không cần đăng nhập: nút "Tuyển sinh trực tuyến" trên màn hình đăng nhập (MH-47), tin tuyển sinh của đợt đang mở kèm thời hạn, nộp hồ sơ, nhận mã hồ sơ, tra cứu trạng thái bằng mã và số điện thoại (YCTD-86) | Phụ huynh, người ngoài trường |
 
 ## 3. Quy tắc bố cục
 

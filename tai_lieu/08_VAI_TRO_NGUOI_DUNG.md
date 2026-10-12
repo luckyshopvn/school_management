@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.45
+- Phiên bản: 1.47
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -145,6 +145,8 @@ Ghi chú áp dụng cho bảng:
 | PQ-47 | Tài chính giai đoạn 2 (YCTD-82): `P05.debt-reminder.manage` cho VT-04, VT-03 xem danh sách nhắc nợ và gửi nhắc nợ trong đơn vị; `P05.overdue-debt.propose` cho VT-03, VT-04 lập đề xuất xử lý công nợ quá hạn; `P05.overdue-debt.decide` cho VT-15 (trong đơn vị), VT-02 ghi quyết định, không đổi số tiền công nợ; `P06.bank-transaction.manage` cho VT-04, VT-05 ghi dòng sao kê, khớp, bỏ khớp, khớp tự động; `P06.payable.manage` cho VT-04, VT-05 ghi, trả, hủy công nợ phải trả; `P06.period-close.request` cho VT-05 đề nghị chốt kỳ; `P06.period-close.approve` cho VT-02 duyệt hoặc từ chối chốt kỳ; người có `P06.view` xem đối chiếu ngân hàng, công nợ phải trả, kỳ tài chính |
 | PQ-53 | Kết nối ngoài (YCTD-90): `P01.integration.manage` chỉ VT-02 (Hiệu trưởng) cấu hình Fanpage, Zalo Official Account và liên kết Zalo của phụ huynh, toàn trường; `P14.facebook.manage` VT-03 trong phạm vi đơn vị được gán, VT-02 toàn trường, đăng hoạt động và tin tức đã công bố lên Fanpage, xem và thử lại bài đăng. Khóa truy cập chỉ ở biến môi trường máy chủ, không ai xem được qua hệ thống |
 | PQ-50 | Tuyển dụng (YCTD-87): `P18.recruitment-request.create` cho VT-06, VT-03 lập đề nghị tuyển dụng cho đơn vị trong phạm vi và đóng đề nghị mình lập; `P18.recruitment-request.approve` cho VT-02 (toàn trường), VT-15 (đơn vị được gán) duyệt hoặc từ chối, không tự duyệt đề nghị mình lập; `P18.recruitment.manage` cho VT-06 soạn, công bố, đóng tin, nhập và sàng lọc ứng viên, đóng đề nghị của đơn vị, tạo hồ sơ nhân sự từ ứng viên đã tuyển (cần thêm `P07.staff.manage`); `P18.interview.manage` cho VT-06, VT-03 lên lịch, ghi kết quả phỏng vấn và quyết định tuyển. Hồ sơ ứng viên chỉ người có `P18.recruitment.manage` hoặc `P18.interview.manage` trong phạm vi đơn vị xem, mỗi lần xem chi tiết hoặc hồ sơ xin việc ghi nhật ký truy cập. Người ngoài trường không cần tài khoản xem tin đã công bố còn hạn và nộp hồ sơ |
+| PQ-49 | Tuyển sinh (YCTD-86): `P16.admission-campaign.manage` cho VT-12, VT-03 lập, sửa, mở, đóng đợt tuyển sinh trong đơn vị; `P16.application.manage` cho VT-12, VT-03 nhập hộ, sửa, tiếp nhận hồ sơ và chuyển hồ sơ đạt thành hồ sơ trẻ (cần thêm `P02.child.manage`; trẻ vào lớp ngay khi người chuyển có `P02.approve`, ngược lại chờ quản lý đơn vị duyệt); `P16.application.review` cho VT-03 xét đạt hoặc không đạt; `P16.admission-post.manage` cho VT-12 soạn, công bố, ẩn tin tuyển sinh. Người có một trong các quyền xem đợt, hồ sơ, tin trong phạm vi đơn vị. Phụ huynh và người ngoài trường xem tin, nộp, tra cứu hồ sơ không cần tài khoản, giới hạn theo địa chỉ mạng |
+| PQ-52 | Nhập sao kê ngân hàng và cổng thanh toán (YCTD-89): `P06.bank-statement.import` cho VT-04, VT-05 lưu cấu hình cột và nhập tệp sao kê của tài khoản ngân hàng trong đơn vị được gán (gán ở Trường chính là toàn trường); khớp tay, bỏ khớp, xác nhận hoặc bỏ đề xuất lập phiếu thu dùng `P06.bank-transaction.manage` (YCTD-82), xác nhận cần thêm `P06.receipt.manage` ở đơn vị của hóa đơn; chọn cổng thanh toán và mã BIN của tài khoản dùng `P06.cash-account.manage` (VT-04, VT-05) |
 
 ## 5. Phân cấp phê duyệt
 

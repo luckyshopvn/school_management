@@ -1,7 +1,7 @@
 # 03. DANH SÁCH KIỂM TRA CÔNG VIỆC
 
 - Mô tả: Danh sách công việc, trạng thái và thứ tự ưu tiên của dự án.
-- Phiên bản: 0.18
+- Phiên bản: 0.20
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đang cập nhật
 
@@ -63,7 +63,7 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | M13 | Xây dựng kho, tài sản, mua hàng | P13 | Hoàn thành | Đợt DT-10 phần 10d (YCTD-77) |
 | M14 | Xây dựng hoạt động, tin tức, thư viện, thông báo | P14 | Hoàn thành | Đợt DT-10 phần 10e (YCTD-78): hoạt động và hình ảnh, tin tức, thư viện, album, hình tô màu, ngoại khóa có phí |
 | M15 | Xây dựng tương tác, góp ý, bình chọn, khảo sát | P15 | Hoàn thành | Đợt DT-10 phần 10f (YCTD-79): trao đổi hai chiều, góp ý, bình chọn, biểu quyết, khảo sát, bình luận và thích; đồ bị mất của trẻ (P02-11) |
-| M16 | Xây dựng tuyển sinh trực tuyến | P16 | Chưa bắt đầu | Giai đoạn 3 |
+| M16 | Xây dựng tuyển sinh trực tuyến | P16 | Hoàn thành | Đợt DT-11 phần 11a (YCTD-86): đợt tuyển sinh, tin tuyển sinh, nộp hồ sơ trực tuyến không cần tài khoản, xét duyệt theo chỉ tiêu, chuyển thành hồ sơ trẻ theo QT-01 |
 | M18 | Xây dựng tuyển dụng | P18 | Hoàn thành | Đợt DT-11 phần 11b (YCTD-87): đề nghị tuyển dụng, tin tuyển dụng công khai, hồ sơ ứng viên, phỏng vấn, tạo hồ sơ nhân sự từ ứng viên đã tuyển |
 
 ### 2.2 Tính năng mới, mã N<số>
@@ -75,7 +75,7 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | N3 | Kết nối Facebook và Fanpage để đăng nội dung đã duyệt | Hoàn thành | Đợt DT-11 phần 11e (YCTD-90), bản giả lập; nối tài khoản thật ở việc T1 |
 | N21 | Viết bộ ca kiểm thử chi tiết cho P01, P02 và P04, P05 và P06, P08 (Q-105) | Hoàn thành | Thư mục `27_BO_CA_KIEM_THU_CHI_TIET/`, 437 ca, năm đợt đã duyệt; xem mục 7 |
 | N17 | Gửi thông báo và nhắc nợ qua Zalo Official Account | Hoàn thành | Đợt DT-11 phần 11e (YCTD-90), bản giả lập; nối Official Account thật ở việc T7 |
-| N4 | Đối soát thanh toán tự động qua ngân hàng hoặc cổng thanh toán | Chưa bắt đầu | Giai đoạn 3 |
+| N4 | Đối soát thanh toán tự động qua ngân hàng hoặc cổng thanh toán | Hoàn thành | Đợt DT-11 phần 11d (YCTD-89): nhập tệp sao kê, đối soát tự động, đề xuất lập phiếu thu, nhiều cổng thanh toán; cổng có thông báo tiền vào thật chờ việc T1 |
 | N5 | Sổ kế toán kép theo chế độ kế toán hành chính, sự nghiệp | Chưa bắt đầu | Giai đoạn 3 (G3-06) |
 | N6 | Cập nhật bộ tài liệu theo bốn yêu cầu ngày 09/10/2026 | Hoàn thành | Xem `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.2.0 |
 | N7 | Lập kế hoạch tổng thể dự án | Hoàn thành | Xem `01_KE_HOACH_TONG_THE.md`; gồm 12 giai đoạn, 12 cổng, 12 đợt, 12 rủi ro |

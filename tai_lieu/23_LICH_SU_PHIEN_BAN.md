@@ -16,6 +16,28 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.46.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-11 phần 11d, nhập sao kê ngân hàng, đối soát tự động, nhiều cổng thanh toán (YCTD-89).
+- Chức năng mới: P06-06, P06-11 trên máy chủ API và cổng quản trị (MH-70, MH-11).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: bảng `bank_statement_profiles`, `bank_statement_imports` của năm học (tệp 0043); cột `cash_accounts.payment_provider`, `bank_bin`, `bank_statement_lines.import_id`, `suggested_invoice_id`; cấu hình đơn vị `bank_match_days`.
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: cấu hình cột sai làm đọc sai sao kê; chỉ đọc tệp .xlsx và CSV mã UTF-8.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-11-phan-11d`; chạy ngược tệp 0043 của cơ sở dữ liệu năm học.
+
+### Phiên bản 0.45.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-11 phần 11a, tuyển sinh trực tuyến và tin tuyển sinh (YCTD-86).
+- Chức năng mới: P16-01 đến P16-05 trên máy chủ API, cổng quản trị (MH-26, MH-63), trang tuyển sinh trực tuyến công khai trên ứng dụng phụ huynh (MP-21).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: ba bảng tuyển sinh của năm học (tệp 0040).
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: điểm cuối công khai giới hạn số lần gọi trong bộ nhớ của từng máy chủ, cần bộ nhớ chung khi chạy nhiều máy chủ (việc T6); chuyển hồ sơ gồm nhiều bước không chung một giao dịch, lỗi duyệt để lại hồ sơ trẻ chờ duyệt.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-11-phan-11a`; chạy ngược tệp 0040 của cơ sở dữ liệu năm học.
+
 ### Phiên bản 0.44.0 – 2026-10-11
 
 - Phạm vi thay đổi: DT-11 phần 11b, tuyển dụng: đề nghị, tin, ứng viên, phỏng vấn (YCTD-87).
