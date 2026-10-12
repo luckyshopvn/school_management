@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.28
+- Phiên bản: 1.29
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -78,7 +78,7 @@
 | CT-038 | Phiếu chi từ hạn mức trở lên | Phiếu chi mười lăm triệu với hạn mức mười triệu | Chuyển Hiệu trưởng phê duyệt | Kiểm thử tự động `apps/api/src/finance/payments.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-039 | Phiếu chi vượt số dư quỹ | Số dư một triệu, chi hai triệu | Từ chối, báo số dư không đủ | Kiểm thử tự động `apps/api/src/finance/payments.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-040 | Phiếu chi thiếu chứng từ | Không đính kèm chứng từ | Chặn phát hành | Kiểm thử tự động `apps/api/src/finance/payments.test.ts` đạt ngày 11/10/2026 | Đạt |
-| CT-041 | Chốt kỳ tài chính | Chốt kỳ tháng chín | Không sửa được phiếu trong kỳ đã chốt | | Chưa chạy |
+| CT-041 | Chốt kỳ tài chính | Chốt kỳ tháng chín | Không sửa được phiếu trong kỳ đã chốt | Kiểm thử tự động `apps/api/src/finance/finance-g2.test.ts` đạt ngày 12/10/2026 | Đạt |
 | CT-042 | Giáo viên gọi điểm cuối danh sách phiếu chi | Tài khoản giáo viên | Trả lỗi không có quyền | Kiểm thử tự động `apps/api/src/finance/payments.test.ts` đạt ngày 11/10/2026 | Đạt |
 
 ## 7. Nhân sự, chấm công và lương
@@ -150,9 +150,9 @@
 | CT-080 | Đối chiếu công nợ | Báo cáo công nợ kỳ tháng mười | Tổng công nợ khớp tổng theo từng trẻ | Kiểm thử tự động `apps/api/src/reports/reports.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-081 | Đối chiếu tiền ăn và điểm danh | Số suất ăn của ngày so với điểm danh đã chốt | Khớp nhau | Kiểm thử tự động `apps/api/src/kitchen/kitchen.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-082 | Đối chiếu phiếu thu và sổ quỹ | Tổng phiếu thu tiền mặt và phiếu chi tiền mặt trong ngày so với biến động sổ quỹ tiền mặt | Khớp nhau | Kiểm thử tự động `apps/api/src/finance/payments.test.ts` đạt ngày 11/10/2026 | Đạt |
-| CT-083 | Xuất báo cáo và ghi nhật ký | Kế toán xuất báo cáo thu chi | Tệp được sinh và có bản ghi nhật ký xuất | | Chưa chạy |
+| CT-083 | Xuất báo cáo và ghi nhật ký | Kế toán xuất báo cáo thu chi | Tệp được sinh và có bản ghi nhật ký xuất | Kiểm thử tự động `apps/api/src/reports/reports-g2.test.ts` đạt ngày 12/10/2026 | Đạt |
 | CT-084 | Giáo viên gọi điểm cuối báo cáo thu chi | Tài khoản giáo viên | Trả lỗi không có quyền | Kiểm thử tự động `apps/api/src/reports/reports.test.ts` đạt ngày 11/10/2026 | Đạt |
-| CT-085 | Báo cáo hợp nhất nhiều đơn vị | Hiệu trưởng chọn hai đơn vị | Chỉ số tách biệt và có dòng tổng | | Chưa chạy |
+| CT-085 | Báo cáo hợp nhất nhiều đơn vị | Hiệu trưởng chọn hai đơn vị | Chỉ số tách biệt và có dòng tổng | Kiểm thử tự động `apps/api/src/reports/reports-g2.test.ts` đạt ngày 12/10/2026 | Đạt |
 
 ## 13. Ca kiểm thử đơn vị tổ chức, phân cấp phê duyệt và kiến trúc
 

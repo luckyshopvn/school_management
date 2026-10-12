@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.42.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-10, báo cáo kiểm thử giai đoạn 2, bản ứng viên phát hành 1.1.0 (YCTD-84).
+- Chức năng mới: không; bổ sung ca kiểm thử cho CT-041, CT-083, CT-085.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: không.
+- Thay đổi API: không.
+- Rủi ro: các giới hạn đã biết ở mục 6 của `29_BAO_CAO_KIEM_THU_G2.md`.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-10-bao-cao-g2`.
+
 ### Phiên bản 0.41.0 – 2026-10-11
 
 - Phạm vi thay đổi: DT-10 phần 10i, nhắc nợ, xử lý công nợ quá hạn, đối chiếu ngân hàng, công nợ phải trả, chốt kỳ tài chính (YCTD-82).

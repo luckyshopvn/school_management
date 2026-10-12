@@ -14,6 +14,27 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-10: báo cáo kiểm thử giai đoạn 2, bản ứng viên 1.1.0
+
+#### Công việc đã thực hiện
+
+- Gộp mười phần 10a đến 10j vào `main` (yêu cầu gộp số 43, 45, 46, 48 đến 54); từ phần 10b làm song song ba phần một lượt bằng các agent, người điều phối gộp nối tiếp và chạy toàn bộ kiểm thử trước mỗi yêu cầu gộp.
+- Bổ sung ca kiểm thử cho CT-041, CT-083, CT-085; đánh dấu CTC-P06-049 đạt.
+- Viết `29_BAO_CAO_KIEM_THU_G2.md`.
+- Kết quả: máy chủ API 480/480, kiểm thử giao diện 57/57; kịch bản CT 187/201 đạt, ca chi tiết CTC 443/453 đạt.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-84 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-84 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.42.0.
+
+#### Vấn đề tồn đọng
+
+- Eric nghiệm thu bản ứng viên 1.0.0 (0.31.0) và 1.1.0 (0.42.0); việc T1, T6; đợt DT-11 giai đoạn 3.
+
 ### 2026-10-11 — DT-10 phần 10i: tài chính giai đoạn 2
 
 #### Công việc đã thực hiện

@@ -1,3 +1,9 @@
+import { PublicRateLimiter, RecruitmentAccess } from './recruitment/recruitment-common.js';
+import { RecruitmentRequestsController, RecruitmentRequestsService } from './recruitment/recruitment-requests.js';
+import { JobPostingsController, JobPostingsService } from './recruitment/job-postings.js';
+import { PublicRecruitmentController, PublicRecruitmentService } from './recruitment/public-recruitment.js';
+import { CandidatesController, CandidatesService } from './recruitment/candidates.js';
+import { recruitmentTransitionStep } from './recruitment/recruitment-transition.js';
 import { Module, type DynamicModule, type Type } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { Clock } from '@school-management/server';
@@ -170,12 +176,21 @@ import { EvaluationsController, EvaluationsService } from './work/evaluations.js
 import { workTransitionStep } from './work/work-transition.js';
 import { WorkHistoryController, WorkHistoryService } from './staff/work-history.js';
 import { BonusDeductionsController, BonusDeductionsService } from './payroll/bonus-deductions.js';
-import { PublicRateLimiter, RecruitmentAccess } from './recruitment/recruitment-common.js';
-import { RecruitmentRequestsController, RecruitmentRequestsService } from './recruitment/recruitment-requests.js';
-import { JobPostingsController, JobPostingsService } from './recruitment/job-postings.js';
-import { PublicRecruitmentController, PublicRecruitmentService } from './recruitment/public-recruitment.js';
-import { CandidatesController, CandidatesService } from './recruitment/candidates.js';
-import { recruitmentTransitionStep } from './recruitment/recruitment-transition.js';
+import { IntegrationsController, IntegrationsService } from './integrations/integrations.js';
+import { integrationsTransitionStep } from './integrations/integrations-transition.js';
+import { FacebookPostsController, FacebookPostsService } from './integrations/facebook-posts.js';
+import {
+  DevelopmentFacebookPublisher,
+  FacebookPublisher,
+  GraphApiFacebookPublisher,
+  UnavailableFacebookPublisher,
+} from './integrations/facebook-publisher.js';
+import {
+  DevelopmentZaloSender,
+  OfficialAccountZaloSender,
+  UnavailableZaloSender,
+  ZaloSender,
+} from './integrations/zalo-sender.js';
 
 @Module({})
 export class ApplicationModule {
@@ -279,6 +294,8 @@ export class ApplicationModule {
         BankReconciliationController,
         PayablesController,
         FiscalPeriodsController,
+        IntegrationsController,
+        FacebookPostsController,
         RecruitmentRequestsController,
         JobPostingsController,
         PublicRecruitmentController,
@@ -312,6 +329,7 @@ export class ApplicationModule {
             interactionsTransitionStep,
             activitiesTransitionStep,
             workTransitionStep,
+            integrationsTransitionStep,
             recruitmentTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
@@ -408,6 +426,27 @@ export class ApplicationModule {
         NotificationsService,
         NotificationDispatcher,
         { provide: SmsGateway, useFactory: () => options.smsGateway ?? new LoggingSmsGateway() },
+        // Kết nối Fanpage và Zalo: bộ giả lập khi phát triển, kết nối thật khi có khóa ở biến môi trường (YCTD-90)
+        {
+          provide: FacebookPublisher,
+          useFactory: () =>
+            configuration.facebookPublisher === 'development'
+              ? new DevelopmentFacebookPublisher()
+              : configuration.facebookPageAccessToken
+                ? new GraphApiFacebookPublisher(configuration.facebookPageAccessToken)
+                : new UnavailableFacebookPublisher(),
+        },
+        {
+          provide: ZaloSender,
+          useFactory: () =>
+            configuration.zaloSender === 'development'
+              ? new DevelopmentZaloSender()
+              : configuration.zaloOaAccessToken
+                ? new OfficialAccountZaloSender(configuration.zaloOaAccessToken)
+                : new UnavailableZaloSender(),
+        },
+        IntegrationsService,
+        FacebookPostsService,
         JournalsService,
         {
           provide: PaymentGateway,
