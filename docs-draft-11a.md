@@ -28,7 +28,7 @@
 - Giao diện bị ảnh hưởng: MH-26, MH-63 mới, MP-21 mới, MH-47 (thêm nút Tuyển sinh trực tuyến).
 - Quyền bị ảnh hưởng: PQ-49.
 - Ảnh hưởng chức năng cũ: không đổi hành vi hồ sơ trẻ; màn hình đăng nhập ứng dụng phụ huynh thêm một nút.
-- Kiểm thử cần thực hiện: CT-076, CT-077, CT-124; đề xuất CT-11a-1 đến CT-11a-6.
+- Kiểm thử cần thực hiện: CT-076, CT-077, CT-124; đề xuất CT-216 đến CT-221.
 - Trạng thái: Đã triển khai
 
 ## Bảng
@@ -87,12 +87,12 @@ Kiểm thử máy chủ `apps/api/src/admissions/admissions.test.ts`: 10/10 ca �
 - CT-077 đạt: `admissions.test.ts` ca "CT-077: chuyển hồ sơ tuyển sinh chưa đạt bị từ chối".
 - CT-124 đạt: `admissions.test.ts` ca "CT-124: P16-05 danh sách tin tuyển sinh của đợt đang mở kèm thời hạn, không cần đăng nhập"; kiểm thử giao diện `tests/e2e/40-admissions.spec.ts`.
 - Đề xuất kịch bản mới (đã đạt trong `admissions.test.ts`):
-  - CT-11a-1 | P16-01 | Lập đợt nháp, mở đợt; giáo viên hoặc quản lý đơn vị khác lập đợt | Đợt nháp chưa nhận hồ sơ; mở xong nhận hồ sơ; người ngoài quyền hoặc ngoài đơn vị bị từ chối
-  - CT-11a-2 | P16-02 | Phụ huynh không đăng nhập nộp hồ sơ, tra cứu bằng mã và số điện thoại | Nhận mã TS-000001; nộp trùng bị báo; sai số điện thoại không tra được; số định danh hiện dạng che
-  - CT-11a-3 | P16-03 | Nhân viên tuyển sinh xét hồ sơ; quản lý đơn vị xét không đạt không ghi lý do | Bị từ chối; không đạt cần lý do, phụ huynh tra cứu thấy lý do
-  - CT-11a-4 | P16-03 | Xét đạt khi đã đủ chỉ tiêu; đóng đợt rồi nộp trực tuyến | Bị chặn mã P16-03; hồ sơ trực tuyến bị chặn mã P16-02, đợt không còn trên trang công khai
-  - CT-11a-5 | P16-04 | Nhân viên tuyển sinh chuyển hồ sơ đạt | Hồ sơ trẻ chờ duyệt; quản lý đơn vị duyệt ở trang Hồ sơ trẻ thì trẻ đang học
-  - CT-11a-6 | P16 | Gửi quá 10 hồ sơ trong một giờ từ một địa chỉ mạng | Bị chặn `ERR_RATE_LIMIT`
+  - CT-216 | P16-01 | Lập đợt nháp, mở đợt; giáo viên hoặc quản lý đơn vị khác lập đợt | Đợt nháp chưa nhận hồ sơ; mở xong nhận hồ sơ; người ngoài quyền hoặc ngoài đơn vị bị từ chối
+  - CT-217 | P16-02 | Phụ huynh không đăng nhập nộp hồ sơ, tra cứu bằng mã và số điện thoại | Nhận mã TS-000001; nộp trùng bị báo; sai số điện thoại không tra được; số định danh hiện dạng che
+  - CT-218 | P16-03 | Nhân viên tuyển sinh xét hồ sơ; quản lý đơn vị xét không đạt không ghi lý do | Bị từ chối; không đạt cần lý do, phụ huynh tra cứu thấy lý do
+  - CT-219 | P16-03 | Xét đạt khi đã đủ chỉ tiêu; đóng đợt rồi nộp trực tuyến | Bị chặn mã P16-03; hồ sơ trực tuyến bị chặn mã P16-02, đợt không còn trên trang công khai
+  - CT-220 | P16-04 | Nhân viên tuyển sinh chuyển hồ sơ đạt | Hồ sơ trẻ chờ duyệt; quản lý đơn vị duyệt ở trang Hồ sơ trẻ thì trẻ đang học
+  - CT-221 | P16 | Gửi quá 10 hồ sơ trong một giờ từ một địa chỉ mạng | Bị chặn `ERR_RATE_LIMIT`
   - Ca chuyển năm học (đợt đang mở, tin, hồ sơ chưa xong được chuyển, số hồ sơ đánh tiếp) cũng đạt trong cùng tệp.
 - Không chạy kiểm thử giao diện theo hướng dẫn; `tests/e2e/40-admissions.spec.ts` đã viết cho luồng chính (phụ huynh nộp hồ sơ trên ứng dụng phụ huynh không đăng nhập, cán bộ tiếp nhận, xét đạt, chuyển hồ sơ trẻ trên cổng quản trị, phụ huynh tra cứu thấy đã nhập học). Ca này cần cơ sở dữ liệu kiểm thử giao diện đã đặt mật khẩu mặc định phụ huynh (như `09-children.spec.ts`).
 
