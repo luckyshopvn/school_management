@@ -162,7 +162,7 @@ test('CT-124, CT-076: phụ huynh nộp hồ sơ trực tuyến; nhà trường 
     .setInputFiles({ name: 'giay-khai-sinh.png', mimeType: 'image/png', buffer: PNG });
   await convert.getByRole('button', { name: 'Chuyển thành hồ sơ trẻ' }).click();
   // Chờ thông báo kết quả chuyển hồ sơ rồi mới kiểm nội dung, để khi duyệt lỗi thấy được lý do trong thông báo
-  const converted = staffPage.getByText(/^Đã chuyển thành hồ sơ trẻ/);
+  const converted = staffPage.getByText(/^Đã chuyển thành hồ sơ trẻ/).first();
   await expect(converted).toBeVisible({ timeout: 20_000 });
   await expect(converted).toContainText(`${childName} đang học lớp ${className}`);
 
