@@ -8,7 +8,7 @@ import {
   type IdentityDatabase,
   type SchoolYearDatabase,
 } from '@school-management/database';
-import { createTestUser } from '@school-management/identity/testing';
+import { createTestUser, hashForTesting } from '@school-management/identity/testing';
 import { E2E_PARENT_PORT, E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
 
 // Tuyển sinh trực tuyến (DT-11 phần 11a, YCTD-86): phụ huynh không đăng nhập xem tin tuyển sinh kèm thời hạn (CT-124)
@@ -19,15 +19,39 @@ let schoolYear: ReturnType<typeof createDatabase<SchoolYearDatabase>>;
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
   new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
+// Chuyển hồ sơ tạo tài khoản phụ huynh theo số điện thoại nên cần mật khẩu mặc định của phụ huynh như 09-children
+const DEFAULT_PASSWORD = 'PhuHuynh2026';
+let savedSettings: Array<{ key: string; value: unknown; updated_by: string | null }> = [];
 const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1, 2, 3, 4]);
 
 test.beforeAll(async () => {
   const systemUrl = readConnectionString('system');
   const [databaseName] = await listDatabasesWithPrefix(systemUrl, E2E_SCHOOL_YEAR_DATABASE_PREFIX);
   schoolYear = createDatabase<SchoolYearDatabase>(replaceDatabaseName(systemUrl, databaseName ?? ''));
+  savedSettings = await identity
+    .selectFrom('identity_settings')
+    .select(['key', 'value', 'updated_by'])
+    .where('key', '=', 'parent_default_password_hash')
+    .execute();
+  await identity.deleteFrom('identity_settings').where('key', '=', 'parent_default_password_hash').execute();
+  await identity
+    .insertInto('identity_settings')
+    .values({
+      key: 'parent_default_password_hash',
+      value: JSON.stringify(await hashForTesting(DEFAULT_PASSWORD)),
+      updated_by: null,
+    })
+    .execute();
 });
 
 test.afterAll(async () => {
+  await identity.deleteFrom('identity_settings').where('key', '=', 'parent_default_password_hash').execute();
+  for (const row of savedSettings) {
+    await identity
+      .insertInto('identity_settings')
+      .values({ key: row.key, value: JSON.stringify(row.value), updated_by: row.updated_by })
+      .execute();
+  }
   await schoolYear.destroy();
   await identity.destroy();
 });
