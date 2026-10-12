@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.35.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-10 phần 10c, bếp, thực đơn, định lượng và báo cáo ăn (YCTD-76).
+- Chức năng mới: P12-01 đến P12-09 và P17-08 trên máy chủ API, cổng quản trị (MH-18, MH-38), ứng dụng giáo viên (MG-14), ứng dụng phụ huynh (MP-15).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: mười một bảng bếp của năm học (tệp 0032).
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: số suất tạm trước khi chốt điểm danh có thể khác số chính thức; báo cáo ăn và bếp chỉ ra ngày lệch.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-10-phan-10c`; chạy ngược tệp 0032 của cơ sở dữ liệu năm học.
+
 ### Phiên bản 0.34.0 – 2026-10-11
 
 - Phạm vi thay đổi: DT-10 phần 10b, thuốc: danh mục, dặn thuốc, cho uống, mua và cấp thuốc (YCTD-75).
