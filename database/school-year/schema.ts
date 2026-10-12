@@ -142,6 +142,8 @@ export type FilePurpose =
   | 'import'
   | 'pickup_photo'
   | 'payment_voucher'
+  | 'activity_photo'
+  | 'content_file'
   | 'medicine_photo'
   | 'prescription';
 
@@ -542,9 +544,11 @@ export interface InvoicesTable {
 export interface InvoiceItemsTable {
   id: Generated<string>;
   invoice_id: string;
-  item_type: 'tuition' | 'service' | 'opening';
+  item_type: 'tuition' | 'service' | 'opening' | 'extracurricular';
   service_id: string | null;
   service_registration_id: string | null;
+  // Đăng ký ngoại khóa đã lập khoản thu (YCTD-78)
+  extracurricular_registration_id: ColumnType<string | null, string | null | undefined, string | null>;
   description: string;
   quantity: ColumnType<string, string | number, string | number>;
   unit_price: Money;
@@ -1278,140 +1282,6 @@ export interface HealthReportRequestsTable {
   sent_at: Date | null;
 }
 
-// Bếp, thực đơn, định lượng, suất ăn, phiếu đi chợ (P12; YCTD-76)
-export type MealType = 'breakfast' | 'lunch' | 'snack';
-export type MenuStatus = 'draft' | 'submitted' | 'published';
-export type MarketPurchaseStatus = 'draft' | 'received' | 'cancelled';
-export type MarketPurchasePaymentStatus = 'awaiting_payment' | 'paid';
-
-export interface IngredientsTable extends CatalogRecordColumns {
-  org_unit_id: string;
-  code: string;
-  name: string;
-  unit: string;
-  current_stock: Generated<Decimal>;
-  status: Generated<CatalogStatus>;
-}
-
-export interface DishesTable extends CatalogRecordColumns {
-  org_unit_id: string;
-  name: string;
-  group_name: string | null;
-  recipe_note: string | null;
-  status: Generated<CatalogStatus>;
-}
-
-export interface IngredientNormsTable {
-  id: Generated<string>;
-  dish_id: string;
-  ingredient_id: string;
-  quantity_per_serving: Decimal;
-}
-
-export interface MenusTable {
-  id: Generated<string>;
-  org_unit_id: string;
-  week_start_date: string;
-  age_group: Generated<string>;
-  status: Generated<MenuStatus>;
-  note: string | null;
-  submitted_by: string | null;
-  submitted_at: Date | null;
-  approved_by: string | null;
-  approved_at: Date | null;
-  published_at: Date | null;
-  reject_reason: string | null;
-  created_by: string;
-  created_at: CreatedTimestamp;
-  updated_at: UpdatedTimestamp;
-}
-
-export interface MenuItemsTable {
-  id: Generated<string>;
-  menu_id: string;
-  weekday: number;
-  meal_type: MealType;
-  dish_id: string;
-  note: string | null;
-}
-
-export interface MealReportsTable {
-  id: Generated<string>;
-  class_id: string;
-  org_unit_id: string;
-  report_date: string;
-  headcount: number;
-  note: string | null;
-  reported_by: string;
-  reported_at: Date;
-}
-
-export interface MealPlansTable {
-  id: Generated<string>;
-  org_unit_id: string;
-  meal_date: string;
-  meal_type: MealType;
-  headcount: number;
-  computed_from: 'attendance' | 'mixed';
-  status: 'provisional' | 'final';
-  computed_by: string;
-  computed_at: Date;
-}
-
-export interface BuffetEventsTable {
-  id: Generated<string>;
-  org_unit_id: string;
-  buffet_date: string;
-  occasion: string;
-  class_id: string | null;
-  menu_note: string;
-  status: Generated<'draft' | 'approved' | 'cancelled'>;
-  created_by: string;
-  approved_by: string | null;
-  approved_at: Date | null;
-  created_at: CreatedTimestamp;
-}
-
-export interface FoodSuppliersTable extends CatalogRecordColumns {
-  org_unit_id: string;
-  name: string;
-  food_groups: string | null;
-  tax_code: string | null;
-  contact_name: string | null;
-  phone: string | null;
-  address: string | null;
-  status: Generated<CatalogStatus>;
-}
-
-export interface MarketPurchasesTable {
-  id: Generated<string>;
-  code: string;
-  org_unit_id: string;
-  purchase_date: string;
-  supplier_id: string;
-  total_amount: Money;
-  note: string | null;
-  status: Generated<MarketPurchaseStatus>;
-  payment_status: MarketPurchasePaymentStatus | null;
-  payment_id: string | null;
-  created_by: string;
-  created_at: CreatedTimestamp;
-  received_by: string | null;
-  received_at: Date | null;
-  paid_linked_by: string | null;
-  paid_linked_at: Date | null;
-}
-
-export interface MarketPurchaseItemsTable {
-  id: Generated<string>;
-  purchase_id: string;
-  ingredient_id: string;
-  quantity: Decimal;
-  planned_quantity: Decimal | null;
-  unit_price: Money;
-  amount: Money;
-}
-
 // Kho, tài sản và mua hàng (P13; YCTD-77)
 export type AssetLocationType = 'store' | 'room' | 'class' | 'staff' | 'unit';
 export type AssetStatus = 'in_stock' | 'assigned' | 'on_loan' | 'damaged' | 'lost' | 'disposed';
@@ -1614,6 +1484,295 @@ export interface PurchaseOrderItemsTable {
   unit_price: Money;
   amount: Money;
   received_qty: Decimal;
+}
+
+// Hoạt động, hình ảnh, tin tức, thư viện, hình tô màu, ngoại khóa, bình luận (YCTD-78)
+export type ActivityStatus = 'draft' | 'pending' | 'published' | 'rejected' | 'hidden';
+export type ContentStatus = 'draft' | 'published' | 'hidden';
+export type ContentScopeType = 'school' | 'unit' | 'class' | 'child';
+export type CommentTargetType = 'activity' | 'news' | 'library_item' | 'library_album';
+export type ExtracurricularFeeType = 'free' | 'per_activity' | 'monthly';
+
+interface AuthoredColumns {
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+interface PublishingColumns {
+  scope_type: ColumnType<ContentScopeType, ContentScopeType | undefined, ContentScopeType>;
+  scope_id: string | null;
+  status: ColumnType<ContentStatus, ContentStatus | undefined, ContentStatus>;
+  published_at: Date | null;
+  published_by: string | null;
+  hidden_reason: string | null;
+  hidden_by: string | null;
+  hidden_at: Date | null;
+}
+
+export interface ContentCatalogTable extends AuthoredColumns {
+  id: Generated<string>;
+  org_unit_id: string;
+  name: string;
+  order_no: Generated<number>;
+  status: Generated<'active' | 'inactive'>;
+}
+
+export interface ActivitiesTable extends AuthoredColumns {
+  id: Generated<string>;
+  org_unit_id: string;
+  class_id: string;
+  category_id: string;
+  title: string;
+  content: string;
+  activity_date: string;
+  status: ActivityStatus;
+  created_by_name: string;
+  submitted_at: Date | null;
+  approved_by: string | null;
+  approved_at: Date | null;
+  reject_reason: string | null;
+  published_at: Date | null;
+  hidden_reason: string | null;
+  hidden_by: string | null;
+  hidden_at: Date | null;
+}
+
+export interface ActivityMediaTable {
+  id: Generated<string>;
+  activity_id: string;
+  file_id: string;
+  caption: string | null;
+  order_no: Generated<number>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface ActivityMediaChildrenTable {
+  media_id: string;
+  child_id: string;
+}
+
+export interface ActivityLikesTable {
+  activity_id: string;
+  user_id: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface NewsTable extends AuthoredColumns, PublishingColumns {
+  id: Generated<string>;
+  org_unit_id: string;
+  category_id: string | null;
+  title: string;
+  summary: string | null;
+  content: string;
+  cover_file_id: string | null;
+}
+
+export interface LibraryAlbumsTable extends AuthoredColumns {
+  id: Generated<string>;
+  org_unit_id: string;
+  topic_id: string | null;
+  title: string;
+  cover_file_id: string | null;
+  status: Generated<'active' | 'inactive'>;
+}
+
+export interface LibraryItemsTable extends AuthoredColumns, PublishingColumns {
+  id: Generated<string>;
+  org_unit_id: string;
+  topic_id: string | null;
+  album_id: string | null;
+  title: string;
+  description: string | null;
+  age_group: string | null;
+  file_id: string | null;
+}
+
+export interface ColoringPagesTable extends AuthoredColumns, PublishingColumns {
+  id: Generated<string>;
+  org_unit_id: string;
+  title: string;
+  topic: string | null;
+  age_group: string | null;
+  file_id: string;
+}
+
+export interface ContentCommentsTable {
+  id: Generated<string>;
+  target_type: CommentTargetType;
+  target_id: string;
+  org_unit_id: string;
+  user_id: string;
+  author_name: string;
+  is_parent: Generated<boolean>;
+  content: string;
+  created_at: CreatedTimestamp;
+  hidden_reason: string | null;
+  hidden_by: string | null;
+  hidden_at: Date | null;
+}
+
+export interface ExtracurricularActivitiesTable extends AuthoredColumns {
+  id: Generated<string>;
+  org_unit_id: string;
+  name: string;
+  description: string | null;
+  start_date: string;
+  end_date: string;
+  grade_levels: ColumnType<string[], string | undefined, string>;
+  quota: number;
+  fee_type: ExtracurricularFeeType;
+  fee_amount: Money;
+  status: Generated<'draft' | 'published' | 'closed'>;
+}
+
+export interface ExtracurricularRegistrationsTable {
+  id: Generated<string>;
+  activity_id: string;
+  child_id: string;
+  org_unit_id: string;
+  registered_by: string;
+  registered_at: CreatedTimestamp;
+  effective_from: string;
+  effective_to: string | null;
+  status: Generated<'active' | 'withdrawn'>;
+  withdrawn_by: string | null;
+  withdrawn_at: Date | null;
+}
+
+// Bếp, thực đơn, định lượng, suất ăn, phiếu đi chợ (P12; YCTD-76)
+export type MealType = 'breakfast' | 'lunch' | 'snack';
+export type MenuStatus = 'draft' | 'submitted' | 'published';
+export type MarketPurchaseStatus = 'draft' | 'received' | 'cancelled';
+export type MarketPurchasePaymentStatus = 'awaiting_payment' | 'paid';
+
+export interface IngredientsTable extends CatalogRecordColumns {
+  org_unit_id: string;
+  code: string;
+  name: string;
+  unit: string;
+  current_stock: Generated<Decimal>;
+  status: Generated<CatalogStatus>;
+}
+
+export interface DishesTable extends CatalogRecordColumns {
+  org_unit_id: string;
+  name: string;
+  group_name: string | null;
+  recipe_note: string | null;
+  status: Generated<CatalogStatus>;
+}
+
+export interface IngredientNormsTable {
+  id: Generated<string>;
+  dish_id: string;
+  ingredient_id: string;
+  quantity_per_serving: Decimal;
+}
+
+export interface MenusTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  week_start_date: string;
+  age_group: Generated<string>;
+  status: Generated<MenuStatus>;
+  note: string | null;
+  submitted_by: string | null;
+  submitted_at: Date | null;
+  approved_by: string | null;
+  approved_at: Date | null;
+  published_at: Date | null;
+  reject_reason: string | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface MenuItemsTable {
+  id: Generated<string>;
+  menu_id: string;
+  weekday: number;
+  meal_type: MealType;
+  dish_id: string;
+  note: string | null;
+}
+
+export interface MealReportsTable {
+  id: Generated<string>;
+  class_id: string;
+  org_unit_id: string;
+  report_date: string;
+  headcount: number;
+  note: string | null;
+  reported_by: string;
+  reported_at: Date;
+}
+
+export interface MealPlansTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  meal_date: string;
+  meal_type: MealType;
+  headcount: number;
+  computed_from: 'attendance' | 'mixed';
+  status: 'provisional' | 'final';
+  computed_by: string;
+  computed_at: Date;
+}
+
+export interface BuffetEventsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  buffet_date: string;
+  occasion: string;
+  class_id: string | null;
+  menu_note: string;
+  status: Generated<'draft' | 'approved' | 'cancelled'>;
+  created_by: string;
+  approved_by: string | null;
+  approved_at: Date | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface FoodSuppliersTable extends CatalogRecordColumns {
+  org_unit_id: string;
+  name: string;
+  food_groups: string | null;
+  tax_code: string | null;
+  contact_name: string | null;
+  phone: string | null;
+  address: string | null;
+  status: Generated<CatalogStatus>;
+}
+
+export interface MarketPurchasesTable {
+  id: Generated<string>;
+  code: string;
+  org_unit_id: string;
+  purchase_date: string;
+  supplier_id: string;
+  total_amount: Money;
+  note: string | null;
+  status: Generated<MarketPurchaseStatus>;
+  payment_status: MarketPurchasePaymentStatus | null;
+  payment_id: string | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  received_by: string | null;
+  received_at: Date | null;
+  paid_linked_by: string | null;
+  paid_linked_at: Date | null;
+}
+
+export interface MarketPurchaseItemsTable {
+  id: Generated<string>;
+  purchase_id: string;
+  ingredient_id: string;
+  quantity: Decimal;
+  planned_quantity: Decimal | null;
+  unit_price: Money;
+  amount: Money;
 }
 
 // Thuốc: danh mục, nhà thuốc, dặn thuốc, cho uống thuốc, đề nghị mua, phiếu mua, phiếu cấp (P10-02 đến P10-05, P10-09;
@@ -1832,17 +1991,6 @@ export interface SchoolYearDatabase {
   medical_events: MedicalEventsTable;
   daily_care_logs: DailyCareLogsTable;
   health_report_requests: HealthReportRequestsTable;
-  ingredients: IngredientsTable;
-  dishes: DishesTable;
-  ingredient_norms: IngredientNormsTable;
-  menus: MenusTable;
-  menu_items: MenuItemsTable;
-  meal_reports: MealReportsTable;
-  meal_plans: MealPlansTable;
-  buffet_events: BuffetEventsTable;
-  food_suppliers: FoodSuppliersTable;
-  market_purchases: MarketPurchasesTable;
-  market_purchase_items: MarketPurchaseItemsTable;
   suppliers: SuppliersTable;
   assets: AssetsTable;
   asset_assignments: AssetAssignmentsTable;
@@ -1856,6 +2004,31 @@ export interface SchoolYearDatabase {
   purchase_request_items: PurchaseRequestItemsTable;
   purchase_orders: PurchaseOrdersTable;
   purchase_order_items: PurchaseOrderItemsTable;
+  activity_categories: ContentCatalogTable;
+  news_categories: ContentCatalogTable;
+  library_topics: ContentCatalogTable;
+  activities: ActivitiesTable;
+  activity_media: ActivityMediaTable;
+  activity_media_children: ActivityMediaChildrenTable;
+  activity_likes: ActivityLikesTable;
+  news: NewsTable;
+  library_albums: LibraryAlbumsTable;
+  library_items: LibraryItemsTable;
+  coloring_pages: ColoringPagesTable;
+  content_comments: ContentCommentsTable;
+  extracurricular_activities: ExtracurricularActivitiesTable;
+  extracurricular_registrations: ExtracurricularRegistrationsTable;
+  ingredients: IngredientsTable;
+  dishes: DishesTable;
+  ingredient_norms: IngredientNormsTable;
+  menus: MenusTable;
+  menu_items: MenuItemsTable;
+  meal_reports: MealReportsTable;
+  meal_plans: MealPlansTable;
+  buffet_events: BuffetEventsTable;
+  food_suppliers: FoodSuppliersTable;
+  market_purchases: MarketPurchasesTable;
+  market_purchase_items: MarketPurchaseItemsTable;
   pharmacies: PharmaciesTable;
   medicines: MedicinesTable;
   medication_requests: MedicationRequestsTable;

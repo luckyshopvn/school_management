@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.49
+- Phiên bản: 1.50
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -70,6 +70,20 @@ Nhóm điểm cuối dưới đây do dịch vụ định danh phục vụ.
 
 Thay bảng phần bếp ở mục 15 của `17_DAC_TA_API.md`:
 
+
+Giao kèo của nhóm điểm cuối hoạt động, nội dung và ngoại khóa (DT-10 phần 10e, YCTD-78):
+
+1. `POST /activities` nhận `class_id`, `category_id` (danh mục đang dùng của đơn vị của lớp hoặc Trường chính), `title` (tối đa 200 ký tự), `content` (tối đa 5 000 ký tự), `activity_date`, `draft` (tùy chọn, mặc định sai); cần `P14.activity.create` và đang được phân công lớp, nếu không trả `ERR_FORBIDDEN`. Kết quả `status` `pending` (hoặc `draft`).
+2. `GET /activities` trả hoạt động mà người gọi được xem: người có `P14.activity.approve` hoặc `P14.content.manage` (vai trò văn phòng) theo đơn vị, giáo viên theo lớp được phân công (mọi trạng thái), phụ huynh chỉ hoạt động `published` của lớp con; lọc `class_id`, `child_id`, `status`, `org_unit_id`. Mỗi dòng có `class_name`, `category_name`, `media` (`id`, `caption`, `file_name`, `child_ids`, `unconsented_children`, `excluded`; phụ huynh chỉ nhận ảnh không bị loại trừ, không kèm thẻ trẻ), `like_count`, `liked_by_me`, `comment_count`. `GET /activities/{id}` cùng quy tắc, không có quyền trả `ERR_FORBIDDEN`.
+3. `PATCH /activities/{id}` nhận các trường của mục 1 trừ `class_id`; chỉ người tạo được phân công lớp; hoạt động đã công bố hoặc đã ẩn trả mã BR-64. `submit`, `approve`, `reject` (`reason` bắt buộc), `hide` (`reason` bắt buộc), `republish` kiểm tra trạng thái nguồn, sai trả mã BR-64; người duyệt không có phạm vi trả `ERR_FORBIDDEN`.
+4. `POST /activities/{id}/media` là biểu mẫu nhiều phần gồm `file` (JPEG, PNG tối đa 10 MB), `child_ids` (mã trẻ cách nhau bởi dấu phẩy, phải đang học trong lớp của hoạt động), `caption`; quá 30 ảnh trả mã Q-71. Kết quả `{ media, warnings }`, `warnings` gồm `child_id` và câu báo cho từng trẻ chưa đồng ý hình ảnh.
+5. `GET /activity-media/{id}/file` cho nhân sự xem được hoạt động; phụ huynh chỉ khi hoạt động đã công bố và mọi trẻ được gắn thẻ đang đồng ý, nếu không trả mã BR-65.
+6. Bình luận: `POST /content-comments` nhận `target_type`, `target_id`, `content` (tối đa 1 000 ký tự); `POST /activities/{id}/comments` nhận `content`. Đối tượng chưa công bố trả mã BR-64. `GET` trả bình luận theo thời gian; người quản lý thấy cả bình luận ẩn kèm `hidden_reason`. `POST /comments/{id}/hide` nhận `reason` bắt buộc; đã ẩn trả `ERR_CONFLICT`. `DELETE /content-comments/{id}` luôn trả mã BR-66.
+7. `POST /news`, `/library-items`, `/coloring-pages` nhận `org_unit_id`, các trường riêng (tin tức: `title`, `summary`, `content`, `category_id`, `cover_file_id`; thư viện: `title`, `description`, `age_group`, `topic_id`, `album_id`, `file_id`; hình tô màu: `title`, `topic`, `age_group`, `file_id` bắt buộc), `scope_type`, `scope_id` (mặc định đơn vị của nội dung); tạo ở trạng thái `draft`. Tệp phải là `content_file` của đơn vị. `publish`, `hide` (`reason` bắt buộc); trạng thái sai trả mã BR-69. `GET` lọc `org_unit_id`, `status`, `child_id` (phụ huynh xem theo một con); mỗi dòng có `can_manage`.
+8. `POST /content-files` là biểu mẫu nhiều phần gồm `org_unit_id`, `file` (JPEG, PNG, PDF tối đa 10 MB); cần `P14.content.manage`, `P14.library.manage` hoặc `P14.extracurricular.manage` ở đơn vị.
+9. Danh mục: `GET /activity-categories|news-categories|library-topics?org_unit_id=` (kèm `include_inactive=true`) trả danh mục của đơn vị và Trường chính cho người dùng trong đơn vị; `POST` nhận `org_unit_id`, `name`, `order_no`; `PATCH` nhận `name`, `order_no`, `status`; trùng tên trả `ERR_CONFLICT`.
+10. `POST /extracurricular-activities` nhận `org_unit_id`, `name`, `description`, `start_date`, `end_date`, `grade_levels` (mảng mã bậc học), `quota`, `fee_type`, `fee_amount`; cần `P14.extracurricular.manage`. `GET` cho nhân sự có quyền ngoại khóa, đăng ký dịch vụ hoặc tính học phí theo đơn vị (mọi trạng thái) và phụ huynh (đã công bố, đơn vị có con); mỗi dòng có `registered_count`, `remaining`, `can_manage`, `my_registrations` (đăng ký của con người gọi).
+11. `POST /extracurricular-activities/{id}/registrations` nhận `child_id`; hoạt động chưa công bố, đã kết thúc, trẻ không thuộc đơn vị hoặc sai bậc học, đủ chỉ tiêu trả mã `P14-11`; trùng trả `ERR_CONFLICT`. Kết quả có `charge`: `null` (chờ tính học phí hoặc miễn phí) hoặc `{ invoice_id, invoice_kind }` (`supplementary` khi đã lập hóa đơn bổ sung, `main` khi thêm vào hóa đơn chính nháp). `POST /extracurricular-registrations/{id}/withdraw` cho phụ huynh của trẻ hoặc nhân sự có quyền; đã thôi trả `ERR_CONFLICT`.
 
 Giao kèo của nhóm điểm cuối bếp, thực đơn, suất ăn, phiếu đi chợ (DT-10 phần 10c):
 
@@ -767,22 +781,49 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 
 | Phương thức | Đường dẫn | Mô tả |
 |---|---|---|
-| GET, POST | /api/v1/activities | Danh sách và tạo hoạt động |
-| POST | /api/v1/activities/{id}/submit | Gửi trình duyệt |
-| POST | /api/v1/activities/{id}/approve | Duyệt hoạt động |
+| GET, POST | /api/v1/activities | Danh sách (lọc lớp, trẻ, trạng thái, đơn vị) và tạo hoạt động (chờ duyệt, hoặc nháp khi `draft`) |
+| GET, PATCH | /api/v1/activities/{id} | Chi tiết kèm ảnh, lượt thích, số bình luận; sửa khi chưa công bố |
+| POST | /api/v1/activities/{id}/submit | Gửi trình duyệt hoạt động nháp hoặc bị từ chối |
+| POST | /api/v1/activities/{id}/approve | Duyệt và công bố hoạt động |
 | POST | /api/v1/activities/{id}/reject | Từ chối hoạt động kèm lý do |
-| POST | /api/v1/activities/{id}/hide | Quản lý đơn vị hoặc Ban Giám hiệu ẩn hoạt động đã công bố kèm lý do (Q-72) |
+| POST | /api/v1/activities/{id}/hide | Ẩn hoạt động đã công bố kèm lý do (Q-72) |
 | POST | /api/v1/activities/{id}/republish | Công bố lại hoạt động đã ẩn |
-| POST | /api/v1/activities/{id}/like | Thích hoạt động |
+| POST | /api/v1/activities/{id}/media | Tải ảnh hoạt động, gắn thẻ trẻ, cảnh báo trẻ chưa đồng ý hình ảnh |
+| DELETE | /api/v1/activities/{id}/media/{mediaId} | Gỡ ảnh khỏi hoạt động chưa công bố |
+| GET | /api/v1/activity-media/{id}/file | Tải ảnh hoạt động theo quyền xem |
+| POST, DELETE | /api/v1/activities/{id}/like | Thích, bỏ thích hoạt động đã công bố |
 | GET, POST | /api/v1/activities/{id}/comments | Bình luận của hoạt động |
-| POST | /api/v1/comments/{id}/hide | Quản lý đơn vị ẩn bình luận vi phạm kèm lý do; bình luận vẫn được lưu (BR-66) |
+| GET, POST | /api/v1/activity-categories | Danh mục hoạt động của đơn vị |
+| PATCH | /api/v1/activity-categories/{id} | Sửa, ngừng dùng danh mục hoạt động |
+| GET, POST | /api/v1/news-categories | Danh mục tin tức của đơn vị |
+| PATCH | /api/v1/news-categories/{id} | Sửa, ngừng dùng danh mục tin tức |
+| GET, POST | /api/v1/library-topics | Chủ đề thư viện của đơn vị |
+| PATCH | /api/v1/library-topics/{id} | Sửa, ngừng dùng chủ đề thư viện |
+| POST | /api/v1/content-files | Tải tệp nội dung (ảnh bìa, tài liệu thư viện, hình tô màu) |
+| GET | /api/v1/content-files/{id} | Tải tệp nội dung theo quyền xem |
 | GET, POST | /api/v1/news | Tin tức |
+| GET, PATCH | /api/v1/news/{id} | Chi tiết, sửa tin tức |
+| POST | /api/v1/news/{id}/publish | Công bố tin tức |
+| POST | /api/v1/news/{id}/hide | Ẩn tin tức đã công bố kèm lý do |
 | GET, POST | /api/v1/library-items | Nội dung thư viện |
+| GET, PATCH | /api/v1/library-items/{id} | Chi tiết, sửa nội dung thư viện |
+| POST | /api/v1/library-items/{id}/publish | Công bố nội dung thư viện |
+| POST | /api/v1/library-items/{id}/hide | Ẩn nội dung thư viện kèm lý do |
 | GET, POST | /api/v1/coloring-pages | Hình tô màu |
-| GET, POST | /api/v1/extracurricular-activities | Hoạt động ngoại khóa |
-| GET, POST | /api/v1/extracurricular-activities/{id}/registrations | Đăng ký hoạt động ngoại khóa |
+| GET, PATCH | /api/v1/coloring-pages/{id} | Chi tiết, sửa hình tô màu |
+| POST | /api/v1/coloring-pages/{id}/publish | Công bố hình tô màu |
+| POST | /api/v1/coloring-pages/{id}/hide | Ẩn hình tô màu kèm lý do |
 | GET, POST | /api/v1/library-albums | Album thư viện |
-| GET, POST | /api/v1/content-comments | Bình luận trên thư viện và tin tức |
+| PATCH | /api/v1/library-albums/{id} | Sửa, ngừng dùng album |
+| GET, POST | /api/v1/content-comments | Bình luận trên hoạt động, tin tức, thư viện, album |
+| DELETE | /api/v1/content-comments/{id} | Luôn bị chặn: bình luận không xóa được (BR-66) |
+| POST | /api/v1/comments/{id}/hide | Ẩn bình luận vi phạm kèm lý do; bình luận vẫn được lưu (BR-66) |
+| GET, POST | /api/v1/extracurricular-activities | Hoạt động ngoại khóa |
+| PATCH | /api/v1/extracurricular-activities/{id} | Sửa hoạt động ngoại khóa |
+| POST | /api/v1/extracurricular-activities/{id}/publish | Công bố hoạt động ngoại khóa |
+| POST | /api/v1/extracurricular-activities/{id}/close | Đóng hoạt động ngoại khóa |
+| GET, POST | /api/v1/extracurricular-activities/{id}/registrations | Danh sách đăng ký; đăng ký cho trẻ |
+| POST | /api/v1/extracurricular-registrations/{id}/withdraw | Thôi tham gia ngoại khóa |
 | GET, POST | /api/v1/announcements | Thông báo |
 | GET | /api/v1/announcements/{id}/reads | Danh sách đã đọc và chưa đọc |
 | GET, POST | /api/v1/message-threads | Luồng trao đổi |

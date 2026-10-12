@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.36.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-10 phần 10e, hoạt động, hình ảnh, tin tức, thư viện, ngoại khóa (YCTD-78).
+- Chức năng mới: P14-01 đến P14-12 trên máy chủ API, cổng quản trị (trang Hoạt động và tin tức), ứng dụng giáo viên (hoạt động lớp), ứng dụng phụ huynh (hoạt động, tin tức).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: các bảng hoạt động, nội dung, bình luận, ngoại khóa của năm học (tệp 0034); thêm mục đích tệp `activity_photo`, `content_file`; thêm loại dòng hóa đơn `extracurricular` và cột `invoice_items.extracurricular_registration_id`.
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: phí ngoại khóa đi vào lần tính học phí; đăng ký sau khi hóa đơn chính đã phát hành sinh hóa đơn bổ sung.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-10-phan-10e`; chạy ngược tệp 0034 của cơ sở dữ liệu năm học.
+
 ### Phiên bản 0.35.0 – 2026-10-11
 
 - Phạm vi thay đổi: DT-10 phần 10c, bếp, thực đơn, định lượng và báo cáo ăn (YCTD-76).

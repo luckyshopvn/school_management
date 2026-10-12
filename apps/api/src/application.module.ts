@@ -43,6 +43,26 @@ import { medicinesTransitionStep } from './medicines/medicines-transition.js';
 import { AssetsController, AssetsService } from './inventory/assets.js';
 import { InventoryAccess } from './inventory/inventory-common.js';
 import { inventoryTransitionStep } from './inventory/inventory-transition.js';
+import { ActivitiesController, ActivitiesService } from './activities/activities.js';
+import { activitiesTransitionStep } from './activities/activities-transition.js';
+import { ActivityAccess } from './activities/activity-access.js';
+import { CommentsController, CommentsService } from './activities/comments.js';
+import {
+  ActivityCategoriesController,
+  ContentCatalogsService,
+  LibraryTopicsController,
+  NewsCategoriesController,
+} from './activities/content-catalogs.js';
+import { ContentFilesController, ContentFilesService } from './activities/content-files.js';
+import {
+  ColoringPagesController,
+  ContentService,
+  LibraryAlbumsController,
+  LibraryAlbumsService,
+  LibraryItemsController,
+  NewsController,
+} from './activities/content.js';
+import { ExtracurricularController, ExtracurricularService } from './activities/extracurricular.js';
 import { PurchasingController, PurchasingService } from './inventory/purchasing.js';
 import { StockController, StockService } from './inventory/stock.js';
 import { CashflowCategoriesController, CashflowCategoriesService } from './fees/cashflow-categories.js';
@@ -161,6 +181,17 @@ export class ApplicationModule {
         AssetsController,
         StockController,
         PurchasingController,
+        ActivitiesController,
+        ActivityCategoriesController,
+        NewsCategoriesController,
+        LibraryTopicsController,
+        ContentFilesController,
+        NewsController,
+        LibraryItemsController,
+        ColoringPagesController,
+        LibraryAlbumsController,
+        CommentsController,
+        ExtracurricularController,
         FilesController,
         ImportsController,
         AttendanceController,
@@ -214,6 +245,7 @@ export class ApplicationModule {
             kitchenTransitionStep,
             medicinesTransitionStep,
             inventoryTransitionStep,
+            activitiesTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -252,6 +284,14 @@ export class ApplicationModule {
         AssetsService,
         StockService,
         PurchasingService,
+        ActivityAccess,
+        ActivitiesService,
+        ContentCatalogsService,
+        ContentFilesService,
+        ContentService,
+        LibraryAlbumsService,
+        CommentsService,
+        ExtracurricularService,
         ChildDataProtection,
         FilesService,
         ImportsService,

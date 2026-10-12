@@ -14,6 +14,27 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-10 phần 10e: hoạt động và nội dung
+
+#### Công việc đã thực hiện
+
+- Agent 10e viết mã, kiểm thử máy chủ, nháp tài liệu trong worktree riêng (lượt 2, dừng giữa chừng vì giới hạn phiên rồi làm tiếp); người điều phối gộp các nhánh 10b, 10c, 10d, xử lý xung đột ở các tệp đăng ký dùng chung và kiểu `FilePurpose`, chạy toàn bộ kiểm thử, đưa nháp vào tài liệu.
+- Cơ sở dữ liệu: tệp 0034. Máy chủ API: danh mục hoạt động, hoạt động trình duyệt và công bố, ảnh gắn thẻ trẻ theo đồng ý hình ảnh, tin tức, thư viện, album, hình tô màu, bình luận và thích, ngoại khóa có chỉ tiêu và phí đưa vào hóa đơn; bước chuyển năm học `activities`.
+- Cổng quản trị: trang Hoạt động và tin tức. Ứng dụng giáo viên: hoạt động lớp. Ứng dụng phụ huynh: hoạt động và tin tức.
+- Kết quả: máy chủ API 443/443, kiểm thử giao diện 52/52.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-78 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-78 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.36.0.
+
+#### Vấn đề tồn đọng
+
+- Gộp phần 10f, 10g; lượt 3 (10h, 10i, 10j) đang làm.
+
 ### 2026-10-11 — DT-10 phần 10c: bếp và thực đơn
 
 #### Công việc đã thực hiện

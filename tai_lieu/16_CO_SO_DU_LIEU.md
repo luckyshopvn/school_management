@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.44
+- Phiên bản: 1.45
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -262,22 +262,23 @@ Bỏ ngày 09/10/2026 (YCTD-20): bảng `meal_registrations` đã gỡ vì khôn
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| activities | Hoạt động của lớp | org_unit_id, class_id, title, content, category_id, activity_date, status, created_by, submitted_at, approved_by, approved_at, reject_reason, published_at, view_count, like_count |
-| activity_categories | Danh mục hoạt động | org_unit_id, name, order_no, status |
-| activity_media | Hình ảnh và tệp của hoạt động | activity_id, file_id, media_type, caption, order_no, excluded_child_ids |
-| activity_likes | Lượt thích | activity_id, user_id, created_at |
+| activities | Hoạt động của lớp (P14-01, P14-02) | org_unit_id, class_id, category_id, title, content, activity_date, status (draft, pending, published, rejected, hidden), created_by, created_by_name, submitted_at, approved_by, approved_at, reject_reason, published_at, hidden_reason, hidden_by, hidden_at |
+| activity_categories | Danh mục hoạt động theo đơn vị (P14-03) | org_unit_id, name (duy nhất trong đơn vị), order_no, status, created_by |
+| activity_media | Ảnh của hoạt động (P14-04) | activity_id, file_id (mục đích activity_photo), caption, order_no, created_by; tối đa 30 ảnh mỗi hoạt động |
+| activity_likes | Lượt thích | activity_id, user_id (khóa chính đôi), created_at |
 | activity_comments | Bình luận | activity_id, user_id, content, created_at, moderation_note, moderated_by |
-| news | Tin tức | org_unit_id, title, summary, content, cover_file_id, scope_type, scope_id, status, published_at, created_by |
-| news_categories | Danh mục tin tức | org_unit_id, name, order_no, status |
-| library_items | Nội dung thư viện | org_unit_id, title, description, topic_id, age_group, file_id, scope_type, scope_id, status |
-| library_topics | Chủ đề thư viện | org_unit_id, name, order_no, status |
-| coloring_pages | Hình tô màu | org_unit_id, title, topic, age_group, file_id, status |
+| news | Tin tức (P14-05) | org_unit_id, category_id, title, summary, content, cover_file_id, scope_type (school, unit, class, child), scope_id, status (draft, published, hidden), published_at, published_by, hidden_reason, hidden_by, hidden_at, created_by |
+| news_categories | Danh mục tin tức theo đơn vị (P14-05) | org_unit_id, name (duy nhất trong đơn vị), order_no, status, created_by |
+| library_items | Nội dung thư viện (P14-06) | org_unit_id, topic_id, album_id, title, description, age_group, file_id, scope_type, scope_id, status, published_at, hidden_reason |
+| library_topics | Chủ đề thư viện theo đơn vị (P14-06) | org_unit_id, name (duy nhất trong đơn vị), order_no, status, created_by |
+| coloring_pages | Hình tô màu (P14-09) | org_unit_id, title, topic, age_group, file_id (bắt buộc), scope_type, scope_id, status, published_at, hidden_reason |
 | announcements | Thông báo | org_unit_id, title, content, scope_type, scope_id, importance, published_at, created_by, status |
 | announcement_reads | Trạng thái đã đọc thông báo | announcement_id, user_id, is_read, read_at |
-| extracurricular_activities | Hoạt động ngoại khóa | org_unit_id, name, description, start_at, end_at, target_scope, quota, fee_type (theo hoạt động hoặc theo tháng), fee_amount, status |
-| extracurricular_registrations | Đăng ký hoạt động ngoại khóa | activity_id, child_id, registered_by, registered_at, effective_from, effective_to, status |
-| library_albums | Album thư viện | org_unit_id, topic_id, title, cover_file_id, status |
-| content_comments | Bình luận thư viện và tin tức | target_type, target_id, user_id, content, created_at, moderation_note, moderated_by |
+| extracurricular_activities | Hoạt động ngoại khóa (P14-10) | org_unit_id, name, description, start_date, end_date, grade_levels, quota (lớn hơn 0), fee_type (free, per_activity, monthly), fee_amount, status (draft, published, closed) |
+| extracurricular_registrations | Đăng ký ngoại khóa (P14-11) | activity_id, child_id, org_unit_id, registered_by, registered_at, effective_from, effective_to, status (active, withdrawn), withdrawn_by, withdrawn_at; một đăng ký đang hiệu lực mỗi trẻ mỗi hoạt động |
+| library_albums | Album thư viện (P14-12) | org_unit_id, topic_id, title, cover_file_id, status |
+| content_comments | Bình luận trên hoạt động, tin tức, nội dung và album thư viện (P14-12, BR-66) | target_type (activity, news, library_item, library_album), target_id, org_unit_id, user_id, author_name, is_parent, content, created_at, hidden_reason, hidden_by, hidden_at; không xóa |
+| activity_media_children | Trẻ được gắn thẻ trong ảnh (BR-65) | media_id, child_id (khóa chính đôi); ảnh hiển thị cho phụ huynh khi mọi trẻ được gắn đang đồng ý hình ảnh |
 
 Ràng buộc duy nhất: `activity_likes` trên bộ đôi hoạt động và tài khoản.
 

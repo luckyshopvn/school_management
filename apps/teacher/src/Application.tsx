@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AttendanceScreen } from './screens/AttendanceScreen.js';
+import { ActivityScreen } from './screens/ActivityScreen.js';
 import { CareScreen } from './screens/CareScreen.js';
 import { ChangePasswordScreen } from './screens/ChangePasswordScreen.js';
 import { ClassesScreen, type MyClass } from './screens/ClassesScreen.js';
@@ -17,7 +18,7 @@ import { SessionProvider, useSession } from './session/session.js';
 function Screens() {
   const session = useSession();
   const [opened, setOpened] = useState<
-    | { screen: 'attendance' | 'pickup' | 'journal' | 'care' | 'meal' | 'medication'; myClass: MyClass }
+    | { screen: 'attendance' | 'pickup' | 'journal' | 'care' | 'activity' | 'meal' | 'medication'; myClass: MyClass }
     | { screen: 'gate'; orgUnitIds: string[] }
     | { screen: 'leave' }
     | { screen: 'payslips' }
@@ -40,6 +41,9 @@ function Screens() {
   }
   if (opened?.screen === 'care') {
     return <CareScreen myClass={opened.myClass} onBack={back} />;
+  }
+  if (opened?.screen === 'activity') {
+    return <ActivityScreen myClass={opened.myClass} onBack={back} />;
   }
   if (opened?.screen === 'meal') {
     return <MealReportScreen myClass={opened.myClass} onBack={back} />;
@@ -65,6 +69,7 @@ function Screens() {
       onOpenPickup={(myClass) => setOpened({ screen: 'pickup', myClass })}
       onOpenJournal={(myClass) => setOpened({ screen: 'journal', myClass })}
       onOpenCare={(myClass) => setOpened({ screen: 'care', myClass })}
+      onOpenActivity={(myClass) => setOpened({ screen: 'activity', myClass })}
       onOpenMealReport={(myClass) => setOpened({ screen: 'meal', myClass })}
       onOpenMedication={(myClass) => setOpened({ screen: 'medication', myClass })}
       onOpenGate={(orgUnitIds) => setOpened({ screen: 'gate', orgUnitIds })}

@@ -32,6 +32,7 @@ import { LeaveRequestsPage } from './staff-attendance/LeaveRequestsPage.js';
 import { SchoolDaysPage } from './staff-attendance/SchoolDaysPage.js';
 import { WorkSchedulesPage } from './staff-attendance/WorkSchedulesPage.js';
 import { HealthPage } from './health/HealthPage.js';
+import { ActivitiesPage } from './activities/ActivitiesPage.js';
 import { KitchenPage } from './kitchen/KitchenPage.js';
 import { MedicinesPage } from './medicines/MedicinesPage.js';
 import { InventoryPage } from './inventory/InventoryPage.js';
@@ -104,6 +105,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/kitchen', component: KitchenPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/medicines', component: MedicinesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/inventory', component: InventoryPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/activities', component: ActivitiesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/purchase-requests', component: PurchaseRequestsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/leave-requests', component: LeaveRequestsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/leave-policies', component: LeavePoliciesPage }),
