@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.50
+- Phiên bản: 1.51
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -70,6 +70,21 @@ Nhóm điểm cuối dưới đây do dịch vụ định danh phục vụ.
 
 Thay bảng phần bếp ở mục 15 của `17_DAC_TA_API.md`:
 
+
+|---|---|---|
+
+Giao kèo phần 10f (YCTD-79):
+
+1. `POST /message-threads` nhận `child_id`, `content`, `guardian_user_id` (nhà trường chọn khi trẻ có nhiều phụ huynh dùng ứng dụng); trả `{ thread_id, message }`; luồng đã có thì dùng lại. Người ngoài luồng gọi tin nhắn trả `ERR_FORBIDDEN`.
+2. `GET /message-threads` trả `child_name`, `class_name`, `guardian_name`, `last_message`, `last_message_at`, `my_side`, `unread_count`.
+3. `POST /feedbacks` nhận `child_id` (phụ huynh) hoặc `org_unit_id` (nhân sự), `category`, `content`, `privacy_level`; góp ý ẩn danh trả người xử lý `submitter_name` "Ẩn danh", `submitted_by_user_id` và `child_id` rỗng. `handle` nhận `status` (`in_progress`, `resolved`), `handling_note` (bắt buộc khi `resolved`), `assigned_to_user_id`; góp ý đã xử lý trả mã P15-02.
+4. `POST /polls` nhận `org_unit_id`, `poll_type`, `title`, `description`, `class_id`, `audience`, `start_at`, `end_at` (ISO 8601, kết thúc sau bắt đầu), `is_anonymous`, `options` (bình chọn, biểu quyết), `questions` hoặc `survey_template_id` (khảo sát). Mở khi thời gian kết thúc đã qua, mở bình chọn không ở trạng thái nháp, đóng bình chọn không đang mở trả mã BR-68.
+5. `POST /polls/{id}/responses` nhận `option_id` (bình chọn, biểu quyết) hoặc `answers: [{ question_id, option_ids, text, number }]`; phiếu thứ hai trả mã BR-67; ngoài thời gian hoặc đã đóng trả mã BR-68; không là đối tượng trả `ERR_FORBIDDEN`; thiếu câu bắt buộc hoặc phương án không thuộc câu hỏi trả `ERR_VALIDATION`.
+6. `GET /polls/{id}/results` trả `response_count`, `respondents` (chỉ người quản lý, bình chọn không ẩn danh), `questions[].options[].count`, `texts`, `average`; đối tượng gọi khi chưa công bố trả `ERR_FORBIDDEN`.
+7. `POST /interaction-comments/{id}/moderate` nhận `action` (`hide`, `restore`, `note`) và `reason` bắt buộc; ẩn bình luận đã ẩn hoặc hiện lại bình luận đang hiện trả mã BR-66; không có điểm cuối xóa bình luận.
+8. `POST /interaction-likes` nhận `target_type` (`poll`, `comment`), `target_id`; trả `{ liked, like_count }`.
+9. `POST /lost-items` nhận `report_type` (`lost` mặc định, `found`), `child_id` (bắt buộc khi báo mất), `class_id` (đồ nhặt được không rõ trẻ), `description`, `noticed_on` (mặc định hôm nay, không sau hôm nay); phụ huynh chỉ báo mất cho con mình, đồ nhặt được chỉ người xử lý ghi. Phụ huynh gọi phiếu hoặc danh sách của trẻ không phải con mình trả `ERR_FORBIDDEN`.
+10. `DELETE /lost-items/{id}` trả phiếu ở trạng thái `cancelled`; phiếu đã đóng trả mã BR-75; phiếu đã tìm thấy hoặc đã hủy trả mã P02-11.
 
 Giao kèo của nhóm điểm cuối hoạt động, nội dung và ngoại khóa (DT-10 phần 10e, YCTD-78):
 
@@ -469,8 +484,6 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | PATCH | /api/v1/classes/{id}/staff-assignments/{assignmentId} | Kết thúc phân công (YCTD-44) |
 | PATCH | /api/v1/staff-assignments/{id} | Kết thúc hoặc sửa phân công |
 | GET, POST | /api/v1/teaching-groups | Tổ chuyên môn, tổ trưởng và thành viên |
-| GET, POST | /api/v1/lost-items | Danh sách và báo đồ bị mất của trẻ |
-| POST | /api/v1/lost-items/{id}/close | Đóng phiếu đồ bị mất kèm kết quả |
 
 ## 7. Giảng dạy
 
@@ -826,13 +839,31 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | POST | /api/v1/extracurricular-registrations/{id}/withdraw | Thôi tham gia ngoại khóa |
 | GET, POST | /api/v1/announcements | Thông báo |
 | GET | /api/v1/announcements/{id}/reads | Danh sách đã đọc và chưa đọc |
-| GET, POST | /api/v1/message-threads | Luồng trao đổi |
-| GET, POST | /api/v1/message-threads/{id}/messages | Tin nhắn trong luồng |
-| GET, POST | /api/v1/feedbacks | Góp ý |
-| POST | /api/v1/feedbacks/{id}/handle | Ghi nhận xử lý góp ý |
-| GET, POST | /api/v1/polls | Bình chọn, biểu quyết, khảo sát |
-| POST | /api/v1/polls/{id}/responses | Gửi phiếu trả lời |
+| Phương thức | Đường dẫn | Mô tả |
+| GET, POST | /api/v1/message-threads | Danh sách luồng trong phạm vi kèm số tin chưa đọc (lọc `child_id`, `class_id`); mở luồng cho một trẻ và gửi tin đầu tiên |
+| GET, POST | /api/v1/message-threads/{id}/messages | Tin nhắn trong luồng; gửi tin |
+| POST | /api/v1/message-threads/{id}/read | Ghi đã đọc các tin của phía bên kia |
+| GET, POST | /api/v1/feedbacks | Góp ý của tôi và của đơn vị trong phạm vi xử lý; gửi góp ý |
+| POST | /api/v1/feedbacks/{id}/handle | Ghi đang xử lý (chuyển người xử lý) hoặc kết quả xử lý |
+| GET, POST | /api/v1/polls | Bình chọn, biểu quyết, khảo sát trong phạm vi hoặc dành cho tôi (lọc `status`, `poll_type`, `org_unit_id`, `open=true`); lập bản nháp |
+| GET | /api/v1/polls/{id} | Chi tiết kèm câu hỏi, phương án, đã gửi phiếu chưa, lượt thích |
+| POST | /api/v1/polls/{id}/publish | Mở bình chọn và báo đối tượng |
+| POST | /api/v1/polls/{id}/close | Đóng sớm |
+| POST | /api/v1/polls/{id}/publish-results | Công bố kết quả cho đối tượng |
+| POST | /api/v1/polls/{id}/responses | Gửi phiếu trả lời (BR-67, BR-68) |
 | GET | /api/v1/polls/{id}/results | Kết quả |
+| GET, POST | /api/v1/survey-templates | Danh mục khảo sát; thêm mẫu |
+| POST | /api/v1/survey-templates/{id}/status | Ngừng dùng hoặc dùng lại mẫu |
+| GET, POST | /api/v1/interaction-comments | Bình luận của một đối tượng P15; gửi bình luận |
+| GET | /api/v1/interaction-comments/reported | Bình luận bị báo hoặc đã ẩn trong phạm vi quản lý |
+| POST | /api/v1/interaction-comments/{id}/report | Báo bình luận tiêu cực cho quản lý đơn vị |
+| POST | /api/v1/interaction-comments/{id}/moderate | Quản lý đơn vị ẩn, hiện lại hoặc ghi chú kèm lý do; bình luận vẫn được lưu (BR-66) |
+| POST | /api/v1/interaction-likes | Thích hoặc bỏ thích bình chọn, bình luận |
+| GET, POST | /api/v1/lost-items | Danh sách (lọc `child_id`, `class_id`, `status`) và báo mất đồ hoặc ghi nhận đồ nhặt được |
+| GET | /api/v1/lost-items/{id} | Chi tiết phiếu |
+| POST | /api/v1/lost-items/{id}/found | Đánh dấu đã tìm thấy |
+| POST | /api/v1/lost-items/{id}/close | Đóng phiếu với kết quả đã trả hoặc không tìm thấy |
+| DELETE | /api/v1/lost-items/{id} | Hủy phiếu đang báo; phiếu đã đóng bị chặn (BR-75) |
 | GET, POST | /api/v1/admission-campaigns | Đợt tuyển sinh |
 | GET, POST | /api/v1/admission-posts | Tin tuyển sinh |
 | GET, POST | /api/v1/admission-applications | Hồ sơ tuyển sinh |

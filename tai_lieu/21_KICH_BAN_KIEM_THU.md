@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.23
+- Phiên bản: 1.24
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -135,9 +135,9 @@
 | CT-070 | Phụ huynh xem hoạt động đã duyệt | Hoạt động đã công bố của lớp con | Hiển thị kèm hình ảnh | Kiểm thử tự động `apps/api/src/activities/activities.test.ts` đạt ngày 11/10/2026; Kiểm thử giao diện `tests/e2e/34-activities.spec.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-071 | Tải ảnh có trẻ chưa đồng ý | Trẻ chưa có cờ đồng ý hình ảnh | Cảnh báo, không công bố hình của trẻ đó | Kiểm thử tự động `apps/api/src/activities/activities.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-072 | Giáo viên bộ môn duyệt hoạt động | Tài khoản giáo viên bộ môn | Trả lỗi không có quyền | Kiểm thử tự động `apps/api/src/activities/activities.test.ts` đạt ngày 11/10/2026 | Đạt |
-| CT-073 | Gửi phiếu bình chọn hai lần | Cùng tài khoản gửi hai phiếu | Từ chối phiếu thứ hai | | Chưa chạy |
-| CT-074 | Gửi phiếu sau khi hết thời gian | Bình chọn đã kết thúc | Từ chối, báo đã hết thời gian | | Chưa chạy |
-| CT-075 | Xử lý bình luận tiêu cực | Quản lý đơn vị xử lý | Bình luận còn nguyên, có bản ghi xử lý | | Chưa chạy |
+| CT-073 | Gửi phiếu bình chọn hai lần | Cùng tài khoản gửi hai phiếu | Từ chối phiếu thứ hai | Kiểm thử tự động `apps/api/src/interactions/interactions.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CT-074 | Gửi phiếu sau khi hết thời gian | Bình chọn đã kết thúc | Từ chối, báo đã hết thời gian | Kiểm thử tự động `apps/api/src/interactions/interactions.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CT-075 | Xử lý bình luận tiêu cực | Quản lý đơn vị xử lý | Bình luận còn nguyên, có bản ghi xử lý | Kiểm thử tự động `apps/api/src/interactions/interactions.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-076 | Chuyển hồ sơ tuyển sinh đã đạt | Hồ sơ ở trạng thái đạt | Sinh hồ sơ trẻ, gắn phụ huynh, phân lớp | | Chưa chạy |
 | CT-077 | Chuyển hồ sơ tuyển sinh chưa đạt | Hồ sơ chưa đạt | Từ chối | | Chưa chạy |
 
@@ -189,9 +189,9 @@
 |---|---|---|---|---|---|
 | CT-105 | P01-11 | Phòng học của đơn vị A gán cho lớp đơn vị B | Từ chối | Kiểm thử tự động `apps/api/src/classes/classes.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-106 | P01-12 | Ngừng sử dụng bậc học đang gắn với lớp | Lớp cũ giữ nguyên, lớp mới không chọn được | Kiểm thử tự động `apps/api/src/classes/classes.test.ts` đạt ngày 11/10/2026 | Đạt |
-| CT-107 | P02-11 | Phụ huynh báo mất đồ của con | Phiếu đã báo, giáo viên chủ nhiệm nhận thông báo | | Chưa chạy |
-| CT-108 | P02-11 | Phụ huynh trẻ A gọi phiếu đồ bị mất của trẻ B | Trả lỗi không có quyền | | Chưa chạy |
-| CT-109 | P02-11 | Xóa phiếu đồ bị mất đã đóng | Chặn xóa | | Chưa chạy |
+| CT-107 | P02-11 | Phụ huynh báo mất đồ của con | Phiếu đã báo, giáo viên chủ nhiệm nhận thông báo | Kiểm thử tự động `apps/api/src/interactions/interactions.test.ts` đạt ngày 11/10/2026; Kiểm thử giao diện `tests/e2e/35-interactions.spec.ts` đạt ngày 11/10/2026 | Đạt |
+| CT-108 | P02-11 | Phụ huynh trẻ A gọi phiếu đồ bị mất của trẻ B | Trả lỗi không có quyền | Kiểm thử tự động `apps/api/src/interactions/interactions.test.ts` đạt ngày 11/10/2026 | Đạt |
+| CT-109 | P02-11 | Xóa phiếu đồ bị mất đã đóng | Chặn xóa | Kiểm thử tự động `apps/api/src/interactions/interactions.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-110 | P03-08 | Lọc bài học theo lĩnh vực | Chỉ trả bài học thuộc lĩnh vực | | Chưa chạy |
 | CT-111 | P06-10 | Phát hành phiếu thu chưa chọn khoản mục | Từ chối | Kiểm thử tự động `apps/api/src/finance/receipts.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-112 | P06-10 | Báo cáo thu chi nhóm theo nhóm thu chi | Tổng các nhóm bằng tổng kỳ | Kiểm thử tự động `apps/api/src/settings/configurable-rules.test.ts` đạt ngày 11/10/2026 | Đạt |

@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.35
+- Phiên bản: 1.36
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -70,7 +70,7 @@ flowchart TD
 | MH-22 | Nhập xuất tồn kho và kiểm kê: trang Kho và tài sản, thẻ Mặt hàng và tồn kho (thêm mặt hàng, ghi phiếu nhập, phiếu xuất, tồn kho ban đầu, sổ kho) và thẻ Kiểm kê (lập biên bản, kế toán trưởng duyệt hoặc từ chối chênh lệch) (YCTD-77) | VT-11, VT-05 |
 | MH-23 | Danh sách hoạt động và duyệt hoạt động: trang Hoạt động và tin tức, thẻ Duyệt hoạt động lọc theo trạng thái, duyệt và công bố, từ chối hoặc ẩn kèm lý do, công bố lại; cảnh báo ảnh có trẻ chưa đồng ý hình ảnh (YCTD-78) | VT-03, VT-15, VT-02 |
 | MH-24 | Tin tức, thư viện, thông báo: trang Hoạt động và tin tức, thẻ Danh mục (danh mục hoạt động, danh mục tin tức, chủ đề thư viện), Tin tức (soạn, công bố, ẩn, xem và ẩn bình luận kèm lý do), Thư viện và hình tô màu (tải tệp, lưu, công bố, ẩn); thông báo ở trang Thông báo (YCTD-64, YCTD-78) | VT-03, VT-07 |
-| MH-25 | Bình chọn, biểu quyết, khảo sát và kết quả | VT-03 |
+| MH-25 | Tương tác với phụ huynh: bình chọn, biểu quyết, khảo sát (lập nháp, mở, đóng, kết quả, công bố kết quả); danh mục khảo sát; góp ý và xử lý; trao đổi với phụ huynh của đơn vị; phiếu đồ bị mất; bình luận bị báo cần xử lý (YCTD-79) | VT-03, VT-02, VT-15; VT-07 thẻ trao đổi và đồ bị mất |
 | MH-26 | Hồ sơ tuyển sinh và xét duyệt | VT-12, VT-03 |
 | MH-27 | Tuyển dụng: tin, ứng viên, phỏng vấn | VT-06 |
 | MH-28 | Báo cáo theo phân hệ: học phí, công nợ, thu chi, điểm danh, chấm công, học thứ 7; mỗi báo cáo một thẻ theo quyền (YCTD-62); báo cáo thu chi có bảng theo nhóm và theo tháng (YCTD-70) | VT-02, VT-15, VT-03, VT-04, VT-05, VT-06, VT-07, VT-08, VT-19, VT-20 |
@@ -114,14 +114,14 @@ flowchart TD
 | MG-05 | Giáo án, bài học, thời khóa biểu | VT-07, VT-08 |
 | MG-06 | Tiến độ và kế hoạch giảng dạy | VT-07 |
 | MG-07 | Tạo hoạt động và album hình ảnh: nút "Hoạt động và hình ảnh" ở mỗi lớp, tạo hoạt động gửi duyệt hoặc lưu nháp, tải ảnh và gắn thẻ trẻ, ghi chú trẻ chưa đồng ý hình ảnh, xem trạng thái và lý do từ chối (YCTD-78) | VT-07, VT-08 |
-| MG-08 | Trao đổi với phụ huynh | VT-07 |
+| MG-08 | Trao đổi với phụ huynh: luồng của trẻ trong lớp kèm số tin chưa đọc, trả lời, nhắn phụ huynh một trẻ (YCTD-79) | VT-07 |
 | MG-09 | Chăm sóc và y tế của lớp: ghi nhiệt độ, tình trạng, chăm sóc đặc biệt, sự kiện y tế cho từng trẻ (YCTD-74); màn hình dặn thuốc của lớp: xem yêu cầu và ảnh thuốc, nhận thuốc, từ chối, ghi liều hoặc bỏ liều khi đơn vị không có nhân viên y tế (YCTD-75) | VT-07 |
 | MG-10 | Chấm công hôm nay, đơn nghỉ phép, số ngày phép và lịch công tác đã công bố của tôi (YCTD-59, YCTD-68) | Mọi nhân sự dùng ứng dụng giáo viên |
 | MG-11 | Phiếu lương của tôi: phiếu đã duyệt, từng dòng kèm căn cứ (YCTD-60) | Mọi nhân sự dùng ứng dụng giáo viên |
 | MG-12 | Công việc được giao và kế hoạch | Mọi nhân sự dùng ứng dụng giáo viên |
 | MG-13 | Lịch đưa đón của tuyến — Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62) | — |
 | MG-14 | Báo cơm của lớp: sĩ số, số trẻ có mặt theo điểm danh đã lưu, gửi số suất cho bếp khi chưa chốt điểm danh (YCTD-76) | VT-07 chủ nhiệm |
-| MG-15 | Đồ bị mất của lớp | VT-07 |
+| MG-15 | Đồ bị mất của lớp: phiếu của lớp, đánh dấu đã tìm thấy, đã trả, không tìm thấy; ghi nhận đồ nhặt được (YCTD-79); chung màn hình với MG-08 | VT-07 |
 | MG-16 | Xác nhận người đón tại cổng: tìm trẻ trong đơn vị, xác nhận người được đón (YCTD-48) | VT-18 |
 | MG-17 | Duyệt giáo án của tổ | VT-17 |
 
@@ -137,17 +137,17 @@ flowchart TD
 | MP-06 | Báo vắng | VT-14 |
 | MP-07 | Dặn thuốc: gửi yêu cầu kèm ảnh thuốc, ảnh đơn thuốc nếu có; xem trạng thái, liều đã cho uống, liều bỏ và nút đã biết (YCTD-75) | VT-14 |
 | MP-08 | Sức khỏe của con: dị ứng, chỉ số và kết quả khám kèm đánh giá, sự kiện y tế và nút đã biết, chăm sóc hằng ngày, yêu cầu và xem báo cáo sức khỏe (YCTD-74); xác nhận bỏ liều ở mục Dặn thuốc (MP-07, YCTD-75) | VT-14 |
-| MP-09 | Trao đổi với nhà trường | VT-14 |
-| MP-10 | Góp ý | VT-14 |
+| MP-09 | Trao đổi với nhà trường: nhắn giáo viên chủ nhiệm của lớp con, tải lại để thấy trả lời (YCTD-79) | VT-14 |
+| MP-10 | Góp ý: chủ đề, nội dung, ẩn danh; xem trạng thái và kết quả xử lý (YCTD-79) | VT-14 |
 | MP-11 | Học phí và công nợ: hóa đơn đã phát hành của con, chi tiết từng khoản, số còn phải nộp, hóa đơn đã thu đủ, số dư có và lịch sử đã nộp (YCTD-51, YCTD-53); nút thanh toán bằng mã QR hiện mã, tài khoản ảo, số tiền, nội dung (YCTD-57) | VT-14 |
 | MP-12 | Đăng ký, hủy dịch vụ theo tháng và đăng ký học hè (YCTD-50) | VT-14 |
 | MP-13 | Lịch đưa đón — Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62) | — |
 | MP-14 | Hoạt động và hình ảnh: nút "Hoạt động" trong thẻ của trẻ, hoạt động đã công bố của lớp kèm ảnh, thích, bình luận (YCTD-78) | VT-14 |
 | MP-15 | Thực đơn: thực đơn tuần đã công bố theo độ tuổi của lớp, buffet đã duyệt trong tuần (YCTD-76) | VT-14 |
 | MP-16 | Tin tức, thông báo, thư viện, hình tô màu: tin tức đã công bố trong mục Hoạt động của trẻ; thông báo ở mục Thông báo (YCTD-64, YCTD-78); thư viện và hình tô màu chưa có danh sách riêng trên ứng dụng phụ huynh (giao diện lập trình đã có) | VT-14 |
-| MP-17 | Bình chọn, biểu quyết, khảo sát | VT-14 |
+| MP-17 | Bình chọn, biểu quyết, khảo sát đang mở ở trang chủ: gửi phiếu một lần, kết quả đã công bố, bình luận, thích (YCTD-79) | VT-14 |
 | MP-18 | Tài khoản, người được ủy quyền đón trẻ, xác nhận người đón ngoài danh sách, đồng ý sử dụng hình ảnh | VT-14 |
-| MP-19 | Mất đồ | VT-14 |
+| MP-19 | Mất đồ: báo mất đồ của con, xem kết quả, hủy phiếu đang báo (YCTD-79) | VT-14 |
 | MP-20 | Hoạt động ngoại khóa: trong mục Hoạt động của trẻ, danh sách hoạt động ngoại khóa, mức phí, chỗ còn lại, đăng ký và thôi tham gia (YCTD-78) | VT-14 |
 
 ## 3. Quy tắc bố cục
