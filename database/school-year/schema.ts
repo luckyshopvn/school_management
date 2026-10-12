@@ -2488,6 +2488,64 @@ export interface FiscalPeriodsTable {
   reject_reason: string | null;
 }
 
+// Sổ kế toán kép (G3-06, N5; YCTD-88)
+export type LedgerNormalBalance = 'debit' | 'credit' | 'both';
+export type JournalEntryType = 'auto' | 'manual' | 'opening';
+export type JournalEntryStatus = 'posted' | 'voided';
+
+export interface LedgerAccountsTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  parent_id: string | null;
+  normal_balance: LedgerNormalBalance;
+  is_system: Generated<boolean>;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface LedgerPostingRulesTable {
+  id: Generated<string>;
+  document_type: string;
+  category_id: string | null;
+  debit_account_id: string | null;
+  credit_account_id: string | null;
+  updated_by: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface JournalEntriesTable {
+  id: Generated<string>;
+  code: string;
+  org_unit_id: string;
+  entry_date: string;
+  description: string;
+  entry_type: JournalEntryType;
+  source_type: string | null;
+  source_id: string | null;
+  source_code: string | null;
+  total_amount: Money;
+  status: Generated<JournalEntryStatus>;
+  request_key: string | null;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  voided_by: string | null;
+  voided_at: Date | null;
+  void_reason: string | null;
+}
+
+export interface JournalLinesTable {
+  id: Generated<string>;
+  entry_id: string;
+  line_no: number;
+  account_id: string;
+  debit: Money;
+  credit: Money;
+  description: string | null;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -2660,4 +2718,8 @@ export interface SchoolYearDatabase {
   bank_statement_lines: BankStatementLinesTable;
   payables: PayablesTable;
   fiscal_periods: FiscalPeriodsTable;
+  ledger_accounts: LedgerAccountsTable;
+  ledger_posting_rules: LedgerPostingRulesTable;
+  journal_entries: JournalEntriesTable;
+  journal_lines: JournalLinesTable;
 }

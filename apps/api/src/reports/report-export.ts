@@ -8,6 +8,7 @@ import { AuthenticatedUser, RequirePermission } from '../authentication/authenti
 import type { CurrentUser } from '../authentication/current-user.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { notFoundError } from '../common/request-fields.js';
+import { LedgerReportsService } from '../ledger/ledger-reports.js';
 import { ConsolidatedReportService } from './consolidated-report.js';
 import type { ReportColumn, ReportRow } from './operations-report.js';
 import {
@@ -256,6 +257,82 @@ export const EXPORT_DEFINITIONS: Record<string, ExportDefinition> = {
       ...dateRange(query, errors),
     }),
   },
+  // Sổ kế toán kép (G3-06, YCTD-88)
+  'ledger-journal': {
+    title: 'Sổ nhật ký chung',
+    viewPermission: PERMISSION_CODES.ledgerView,
+    personal: true,
+    sheets: [
+      {
+        key: 'lines',
+        title: 'Nhật ký chung',
+        columns: [
+          { key: 'entry_date', label: 'Ngày' },
+          { key: 'code', label: 'Số bút toán' },
+          { key: 'org_unit_name', label: 'Đơn vị' },
+          { key: 'description', label: 'Diễn giải' },
+          { key: 'source_code', label: 'Chứng từ' },
+          { key: 'account_code', label: 'Tài khoản' },
+          { key: 'account_name', label: 'Tên tài khoản' },
+          { key: 'debit', label: 'Nợ' },
+          { key: 'credit', label: 'Có' },
+        ],
+      },
+    ],
+    parse: (query, errors) => ({ orgUnitId: optionalUuid(query, 'org_unit_id', errors), ...dateRange(query, errors) }),
+  },
+  'ledger-trial-balance': {
+    title: 'Bảng cân đối số phát sinh',
+    viewPermission: PERMISSION_CODES.ledgerView,
+    personal: false,
+    sheets: [
+      {
+        key: 'accounts',
+        title: 'Cân đối số phát sinh',
+        columns: [
+          { key: 'account_code', label: 'Tài khoản' },
+          { key: 'account_name', label: 'Tên tài khoản' },
+          { key: 'opening_debit', label: 'Đầu kỳ Nợ' },
+          { key: 'opening_credit', label: 'Đầu kỳ Có' },
+          { key: 'period_debit', label: 'Phát sinh Nợ' },
+          { key: 'period_credit', label: 'Phát sinh Có' },
+          { key: 'closing_debit', label: 'Cuối kỳ Nợ' },
+          { key: 'closing_credit', label: 'Cuối kỳ Có' },
+        ],
+      },
+    ],
+    parse: (query, errors) => ({ orgUnitId: optionalUuid(query, 'org_unit_id', errors), ...dateRange(query, errors) }),
+  },
+  'ledger-general-ledger': {
+    title: 'Sổ cái',
+    viewPermission: PERMISSION_CODES.ledgerView,
+    personal: true,
+    sheets: [
+      {
+        key: 'lines',
+        title: 'Sổ cái',
+        columns: [
+          { key: 'entry_date', label: 'Ngày' },
+          { key: 'code', label: 'Số bút toán' },
+          { key: 'description', label: 'Diễn giải' },
+          { key: 'source_code', label: 'Chứng từ' },
+          { key: 'account_code', label: 'Tài khoản' },
+          { key: 'counterpart_accounts', label: 'Tài khoản đối ứng' },
+          { key: 'debit', label: 'Nợ' },
+          { key: 'credit', label: 'Có' },
+          { key: 'balance_debit', label: 'Số dư Nợ' },
+          { key: 'balance_credit', label: 'Số dư Có' },
+        ],
+      },
+    ],
+    parse: (query, errors) => {
+      const accountId = optionalUuid(query, 'account_id', errors);
+      if (!accountId) {
+        errors.push({ field: 'account_id', message: 'Bắt buộc chọn tài khoản' });
+      }
+      return { orgUnitId: optionalUuid(query, 'org_unit_id', errors), accountId, ...dateRange(query, errors) };
+    },
+  },
   consolidated: {
     title: 'Báo cáo hợp nhất nhiều đơn vị',
     viewPermission: PERMISSION_CODES.consolidatedReport,
@@ -290,6 +367,7 @@ export class ReportExportService {
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly reports: ReportsService,
     private readonly consolidated: ConsolidatedReportService,
+    private readonly ledger: LedgerReportsService,
     private readonly clock: Clock,
   ) {}
 
@@ -403,6 +481,12 @@ export class ReportExportService {
         return (await this.reports.staffAttendanceReport(currentUser, value)) as Record<string, unknown>;
       case 'saturday-classes':
         return (await this.reports.saturdayReport(currentUser, value)) as Record<string, unknown>;
+      case 'ledger-journal':
+        return (await this.ledger.journal(currentUser, value)) as unknown as Record<string, unknown>;
+      case 'ledger-trial-balance':
+        return (await this.ledger.trialBalance(currentUser, value)) as unknown as Record<string, unknown>;
+      case 'ledger-general-ledger':
+        return (await this.ledger.generalLedger(currentUser, value)) as unknown as Record<string, unknown>;
       default:
         return (await this.consolidated.report(currentUser, value)) as unknown as Record<string, unknown>;
     }

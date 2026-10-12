@@ -48,6 +48,9 @@ export type {
   PaymentType,
   DebtResolutionStatus,
   FiscalPeriodStatus,
+  JournalEntryStatus,
+  JournalEntryType,
+  LedgerNormalBalance,
   PayableSourceType,
   PayableStatus,
   PickupType,
@@ -119,3 +122,4 @@ export type {
 } from '../school-year/schema.js';
 export { DEFAULT_TAX_TABLE_ID } from '../school-year/migrations/0022_create_payrolls.js';
 export { MEAL_SERVICE_ID } from '../school-year/migrations/0010_create_fee_catalogs.js';
+export { DEFAULT_LEDGER_ACCOUNTS, DEFAULT_POSTING_RULES } from '../school-year/migrations/0042_create_ledger.js';

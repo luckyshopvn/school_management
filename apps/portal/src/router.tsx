@@ -25,6 +25,7 @@ import { DebtCollectionPage } from './finance/DebtCollectionPage.js';
 import { BankReconciliationPage } from './finance/BankReconciliationPage.js';
 import { PayablesPage } from './finance/PayablesPage.js';
 import { FiscalPeriodsPage } from './finance/FiscalPeriodsPage.js';
+import { LedgerPage } from './ledger/LedgerPage.js';
 import { StaffPage } from './staff/StaffPage.js';
 import { LeavePoliciesPage } from './staff-attendance/LeavePoliciesPage.js';
 import { MyPayslipsPage } from './payroll/MyPayslipsPage.js';
@@ -110,6 +111,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/bank-reconciliation', component: BankReconciliationPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/payables', component: PayablesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/fiscal-periods', component: FiscalPeriodsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/ledger', component: LedgerPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/staff', component: StaffPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/staff-attendance', component: StaffAttendancePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/school-days', component: SchoolDaysPage }),
