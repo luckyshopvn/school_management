@@ -16,6 +16,72 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.40.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-10 phần 10h, công việc, kế hoạch, đánh giá nhân sự, quá trình công tác, thưởng và khấu trừ (YCTD-81).
+- Chức năng mới: P09-01 đến P09-05, P07-03, P08-07 trên máy chủ API, cổng quản trị (MH-58, MH-59, MH-60, MH-12, MH-44), ứng dụng giáo viên (MG-12).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: mười bảng của năm học (tệp 0037); phiếu lương có thêm dòng thưởng và khấu trừ.
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: khoản thưởng, khấu trừ ghi khi bảng lương còn nháp cần tính lại bảng lương; quyết toán nghỉ việc chưa gồm thưởng.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-10-phan-10h`; chạy ngược tệp 0037 của cơ sở dữ liệu năm học.
+
+### Phiên bản 0.39.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-10 phần 10j, báo cáo hoạt động và công việc, báo cáo hợp nhất, xuất dữ liệu (YCTD-83).
+- Chức năng mới: P17-10, P17-11, P17-12 trên máy chủ API và cổng quản trị (MH-28, MH-29).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: bảng `export_logs` của năm học (tệp 0039).
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: báo cáo hợp nhất tính trực tiếp từ dữ liệu gốc, chưa dùng số liệu tổng hợp sẵn; tháng có nhiều dữ liệu có thể chậm.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-10-phan-10j`; chạy ngược tệp 0039 của cơ sở dữ liệu năm học.
+
+### Phiên bản 0.38.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-10 phần 10g, giảng dạy: bài học, giáo án, thời khóa biểu, kế hoạch, tiến độ học tập (YCTD-80).
+- Chức năng mới: P03-01 đến P03-08 (trừ tổ chuyên môn) trên máy chủ API, cổng quản trị (MH-57), ứng dụng giáo viên (MG-05, MG-06), ứng dụng phụ huynh (MP-04, MP-05).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: mười bảng giảng dạy của năm học (tệp 0036).
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: tổ trưởng chuyên môn xem theo đơn vị được gán vì chưa có bảng tổ chuyên môn.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-10-phan-10g`; chạy ngược tệp 0036 của cơ sở dữ liệu năm học.
+
+### Phiên bản 0.37.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-10 phần 10f, tương tác với phụ huynh và đồ bị mất của trẻ (YCTD-79).
+- Chức năng mới: P15-01 đến P15-06 và P02-11 trên máy chủ API, cổng quản trị (MH-25), ứng dụng giáo viên (MG-08, MG-15), ứng dụng phụ huynh (MP-09, MP-10, MP-17, MP-19).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: mười ba bảng tương tác và đồ bị mất của năm học (tệp 0035).
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: trao đổi không theo thời gian thực, phụ huynh và giáo viên tải lại để thấy tin mới; chưa nhận ảnh đồ bị mất và tệp đính kèm tin nhắn.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-10-phan-10f`; chạy ngược tệp 0035 của cơ sở dữ liệu năm học.
+
+### Phiên bản 0.36.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-10 phần 10e, hoạt động, hình ảnh, tin tức, thư viện, ngoại khóa (YCTD-78).
+- Chức năng mới: P14-01 đến P14-12 trên máy chủ API, cổng quản trị (trang Hoạt động và tin tức), ứng dụng giáo viên (hoạt động lớp), ứng dụng phụ huynh (hoạt động, tin tức).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: các bảng hoạt động, nội dung, bình luận, ngoại khóa của năm học (tệp 0034); thêm mục đích tệp `activity_photo`, `content_file`; thêm loại dòng hóa đơn `extracurricular` và cột `invoice_items.extracurricular_registration_id`.
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: phí ngoại khóa đi vào lần tính học phí; đăng ký sau khi hóa đơn chính đã phát hành sinh hóa đơn bổ sung.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-10-phan-10e`; chạy ngược tệp 0034 của cơ sở dữ liệu năm học.
+
+### Phiên bản 0.35.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-10 phần 10c, bếp, thực đơn, định lượng và báo cáo ăn (YCTD-76).
+- Chức năng mới: P12-01 đến P12-09 và P17-08 trên máy chủ API, cổng quản trị (MH-18, MH-38), ứng dụng giáo viên (MG-14), ứng dụng phụ huynh (MP-15).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: mười một bảng bếp của năm học (tệp 0032).
+- Thay đổi API: nhóm điểm cuối của phần trong `17`.
+- Rủi ro: số suất tạm trước khi chốt điểm danh có thể khác số chính thức; báo cáo ăn và bếp chỉ ra ngày lệch.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-10-phan-10c`; chạy ngược tệp 0032 của cơ sở dữ liệu năm học.
+
 ### Phiên bản 0.34.0 – 2026-10-11
 
 - Phạm vi thay đổi: DT-10 phần 10b, thuốc: danh mục, dặn thuốc, cho uống, mua và cấp thuốc (YCTD-75).

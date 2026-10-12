@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.11
+- Phiên bản: 1.13
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -305,6 +305,19 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-230 | Cho một ngày sau học kỳ 2 và không thuộc kỳ hè / Khi giáo viên mở điểm danh ngày đó / Thì không có bảng điểm danh (BR-91) |
 | AC-231 | Cho kỳ hè có tháng 6; trẻ T1 đã đăng ký học hè tháng 6, trẻ T2 không đăng ký / Khi điểm danh và tính học phí tháng 6 / Thì chỉ T1 có trong bảng điểm danh và có hóa đơn tháng 6 (BR-92) |
 | AC-232 | Cho phiếu thu cuối năm học 2026–2027 và phiếu thu đầu tiên của năm học 2027–2028 ở cùng đơn vị / Khi phát hành / Thì số phiếu của năm học mới được đánh lại từ đầu và không trùng trong năm học (BR-30) |
+| AC-233 | Cho quản lý đơn vị ĐT-A1 có lớp L1, L2 có điểm danh, sổ liên lạc, hoạt động, sự kiện y tế trong 10 ngày gần nhất / Khi mở báo cáo hoạt động và công việc khoảng 10 ngày đó, rồi chọn lớp L1 / Thì báo cáo có các bảng theo lớp của ĐT-A1, không có lớp đơn vị khác; khi chọn L1 chỉ còn dòng của L1 (YCTD-83) |
+| AC-234 | Cho quản lý đơn vị ĐT-A1, giáo viên, kế toán và cán bộ quản lý cấp trên / Khi quản lý ĐT-A1 xem đơn vị hoặc lớp của ĐT-B1, các vai trò còn lại mở báo cáo hoạt động, hoặc chọn khoảng ngày dài hơn 366 ngày / Thì hệ thống trả lỗi không có quyền với các trường hợp ngoài phạm vi và lỗi dữ liệu với khoảng ngày quá dài (BR-01, YCTD-83) |
+| AC-235 | Cho cán bộ quản lý cấp trên VT-19 và trường có nhiều đơn vị có số liệu trong tháng / Khi mở báo cáo hợp nhất của tháng / Thì mỗi đơn vị một dòng gồm sĩ số, tỷ lệ đi học, học phí phải thu, đã thu, còn nợ, thu chi, cùng dòng tổng; không có dữ liệu cá nhân (YCTD-83) |
+| AC-236 | Cho cán bộ quản lý cấp trên VT-19 và quản lý đơn vị VT-03 / Khi VT-19 gọi các báo cáo có dữ liệu cá nhân, VT-03 gọi báo cáo hợp nhất / Thì hệ thống trả lỗi không có quyền (BR-01, YCTD-83) |
+| AC-237 | Cho kế toán có quyền xem báo cáo công nợ của đơn vị mình và quyền xuất dữ liệu / Khi xuất báo cáo công nợ ra Excel / Thì nhận được tệp xlsx đúng số dòng của báo cáo và nhật ký xuất có một dòng ghi người xuất, báo cáo, bộ lọc, đơn vị, số dòng, có dữ liệu cá nhân (BR-74, YCTD-83) |
+| AC-238 | Cho người không có quyền xuất dữ liệu, và kế toán không có quyền xem báo cáo hoặc đơn vị cần xuất / Khi gọi xuất dữ liệu / Thì hệ thống trả lỗi không có quyền và không ghi dòng nào vào nhật ký xuất (BR-74, YCTD-83) |
+| AC-239 | Cho quản lý đơn vị ĐT-A1, nhân sự N1 của ĐT-A1 đã liên kết tài khoản, nhân sự N2 chưa có tài khoản / Khi quản lý giao việc cho N1 và N2, quản lý ĐT-B1 hoặc giáo viên giao việc cho N1, hoặc chọn hạn đã qua / Thì việc của N1 được tạo và N1 nhận thông báo; giao cho N2 bị từ chối mã P09-01; ngoài đơn vị và giáo viên bị từ chối không có quyền; hạn đã qua bị từ chối (BR-70, YCTD-81) |
+| AC-240 | Cho giáo viên G1 tạo một việc cá nhân / Khi G1 và quản lý đơn vị xem, sửa việc đó / Thì G1 xem và sửa được; quản lý bị từ chối và danh sách việc của đơn vị không có việc đó (BR-46, YCTD-81) |
+| AC-241 | Cho việc được giao cho N1 và một việc khác đã quá hạn / Khi N1 cập nhật 50% rồi 100%, người khác cập nhật, quản lý xem bảng tiến độ, người giao hủy việc không ghi lý do / Thì việc chuyển đang làm rồi hoàn thành và người giao nhận thông báo; người khác bị từ chối; bảng tiến độ đếm đúng việc quá hạn; hủy thiếu lý do bị từ chối (BR-01, YCTD-81) |
+| AC-242 | Cho quản lý đơn vị lập kế hoạch tháng có hai đầu việc giao cho hai nhân sự / Khi kích hoạt kế hoạch, một việc hoàn thành, đóng kế hoạch rồi thêm đầu việc; phòng nhân sự lập kế hoạch / Thì kích hoạt sinh hai việc được giao; tiến độ kế hoạch 50%; thêm đầu việc sau khi đóng bị từ chối mã P09-03; phòng nhân sự bị từ chối không có quyền (BR-01, YCTD-81) |
+| AC-243 | Cho đơn vị có hai chỉ số trọng số 2 và 1, nhân sự đạt 9/10 và 8/10 / Khi quản lý chấm, công bố, sửa phiếu đã công bố, rồi đánh giá lại không lý do và có lý do / Thì điểm tổng 86,67; sửa phiếu đã công bố và đánh giá lại thiếu lý do bị từ chối mã BR-47; phiếu đánh giá lại có lý do khi công bố thay phiếu cũ, nhân sự chỉ thấy phiếu mới (BR-47, YCTD-81) |
+| AC-244 | Cho phòng nhân sự và nhân sự N1 / Khi phòng nhân sự ghi mốc công tác ở đơn vị chính và một đơn vị khác, ghi chứng chỉ; N1 và giáo viên khác xem; đóng lại mốc đã kết thúc / Thì N1 có hai mốc, mốc ở đơn vị khác là kiêm nhiệm, có chứng chỉ; N1 xem được, giáo viên khác bị từ chối; đóng lại mốc đã kết thúc bị từ chối (BR-37, YCTD-81) |
+| AC-245 | Cho nhân sự có thưởng 1 000 000 và khấu trừ 300 000 của tháng, một khoản khác đã hủy / Khi kế toán tính bảng lương tháng rồi trình duyệt, sau đó ghi thêm khoản / Thì phiếu lương có dòng thưởng và khấu trừ kèm căn cứ, không có khoản đã hủy; ghi thêm sau khi trình duyệt bị từ chối mã BR-45 (BR-44, BR-45, YCTD-81) |
 
 ## 20. Chưa xác minh được
 

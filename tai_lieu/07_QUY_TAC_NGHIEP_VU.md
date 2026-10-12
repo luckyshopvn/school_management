@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.23
+- Phiên bản: 1.28
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -47,7 +47,7 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 |---|---|
 | BR-17 | Học phí tính theo tháng dương lịch, dựa trên biểu phí dùng chung cho mọi đơn vị của trường, theo khối lớp và bản đăng ký dịch vụ của trẻ trong kỳ |
 | BR-18 | Biểu phí có hiệu lực theo khoảng ngày. Mỗi phiên bản bắt đầu ngày 1 của một tháng; phiên bản đã tới ngày hiệu lực không sửa được, muốn đổi phải tạo phiên bản mới (YCTD-49). Khi biểu phí thay đổi, hóa đơn đã phát hành không bị tính lại tự động |
-| BR-19 | Khoản phải thu của một trẻ trong một kỳ gồm: học phí chính khóa, tiền ăn, các dịch vụ khác đã đăng ký, và các khoản phát sinh. Học phí chính khóa là một loại phí trong biểu phí, mức có thể bằng không theo chính sách miễn học phí của từng năm học; khi mức bằng không thì hóa đơn không sinh dòng học phí chính khóa |
+| BR-19 | Khoản phải thu của một trẻ trong một kỳ gồm: học phí chính khóa, tiền ăn, các dịch vụ khác đã đăng ký, phí hoạt động ngoại khóa đã đăng ký, và các khoản phát sinh. Học phí chính khóa là một loại phí trong biểu phí, mức có thể bằng không theo chính sách miễn học phí của từng năm học; khi mức bằng không thì hóa đơn không sinh dòng học phí chính khóa. Phí ngoại khóa theo tháng thu đủ mỗi kỳ mà đăng ký còn hiệu lực, không giảm trừ khi nghỉ buổi hoặc thôi giữa tháng; phí theo hoạt động thu một lần (YCTD-78) |
 | BR-20 | Loại giảm trừ, cách tính và mức do nhà trường cấu hình (P05-11, Q-16), ví dụ trẻ con nhân sự, anh chị em ruột cùng học, học phí đặc biệt theo thỏa thuận, học bổng. Mỗi khoản giảm trừ phải ghi rõ căn cứ và người phê duyệt |
 | BR-21 | Giảm trừ theo tỷ lệ phần trăm và giảm trừ theo số tiền cố định là hai cách áp dụng khác nhau; hệ thống lưu cả căn cứ và kết quả tính để truy xuất về sau |
 | BR-22 | Tổng giảm trừ của một trẻ trong một kỳ không vượt quá tổng khoản phải thu của kỳ đó; mỗi khoản miễn giảm không vượt tổng các khoản mà loại miễn giảm áp dụng (YCTD-52). Số dư âm phải chuyển thành số dư có cho kỳ sau, không để âm trên hóa đơn |
@@ -85,7 +85,7 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 | BR-44 | Khấu trừ gồm bảo hiểm bắt buộc theo quy định, thuế thu nhập cá nhân theo biểu đang áp dụng, và các khoản khác có ghi rõ căn cứ |
 | BR-45 | Bảng lương đã chốt không sửa trực tiếp. Sai thì lập bảng điều chỉnh cho kỳ sau, có lý do và người phê duyệt |
 | BR-46 | Nhân sự chỉ xem được bảng lương, chấm công và đơn nghỉ của chính mình, trừ nhân sự, kế toán, kế toán trưởng, Ban Giám hiệu và kiểm toán viên trong thời hạn tài khoản |
-| BR-47 | Đánh giá nhân sự theo kỳ dựa trên chỉ số do đơn vị cấu hình. Kết quả đánh giá đã công bố không sửa mà phải lập đánh giá lại có lý do |
+| BR-47 | Đánh giá nhân sự theo kỳ dựa trên chỉ số do đơn vị cấu hình. Kết quả đánh giá đã công bố không sửa mà phải lập đánh giá lại có lý do. Điểm tổng thang 100 là trung bình có trọng số của tỷ lệ điểm trên điểm tối đa từng chỉ số; mỗi nhân sự mỗi kỳ chỉ một phiếu đã công bố còn hiệu lực, phiếu đánh giá lại thay thế phiếu cũ khi công bố (YCTD-81) |
 
 ## 8. Quy tắc về y tế học đường
 
@@ -111,7 +111,7 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 
 | Mã | Quy tắc |
 |---|---|
-| BR-58 | Suất ăn một ngày gồm ba bữa sáng, trưa, xế, thuộc bán trú. Số suất ăn mỗi ngày bằng số trẻ có mặt theo điểm danh; trẻ vắng ngày nào không tính tiền ăn ngày đó (BR-14). Bếp và kế toán dùng cùng một con số |
+| BR-58 | Suất ăn một ngày gồm ba bữa sáng, trưa, xế, thuộc bán trú. Số suất ăn mỗi ngày bằng số trẻ có mặt theo điểm danh; trẻ vắng ngày nào không tính tiền ăn ngày đó (BR-14). Bếp và kế toán dùng cùng một con số. Số suất của lớp trong ngày lấy theo điểm danh đã chốt; trước khi chốt, bếp dùng báo cơm của giáo viên chủ nhiệm hoặc số trẻ có mặt đã lưu làm số tạm; báo cáo ăn và bếp đối chiếu số suất đã lưu với điểm danh đã chốt (YCTD-76) |
 | BR-59 | Thực đơn theo tuần phải được duyệt trước khi công bố cho phụ huynh |
 | BR-60 | Định lượng nguyên liệu tính từ thực đơn và số suất. Chênh lệch giữa định lượng và thực xuất phải được ghi nhận |
 | BR-61 | Tài sản của trường được gán cho đơn vị, phòng hoặc lớp. Mượn, trả, hỏng, mất đều phải có phiếu và người xác nhận. Chỉ tài sản đang trong kho mới cấp phát hoặc cho mượn được; hỏng hoặc mất do Ban Giám hiệu của đơn vị duyệt xử lý (YCTD-77) |
@@ -122,9 +122,9 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 
 | Mã | Quy tắc |
 |---|---|
-| BR-64 | Hoạt động do giáo viên tạo phải ở trạng thái chờ duyệt. Chỉ hoạt động đã duyệt mới hiển thị cho phụ huynh |
-| BR-65 | Hình ảnh của trẻ chỉ được công bố khi phụ huynh đã đồng ý cho sử dụng hình ảnh. Phụ huynh đồng ý bằng xác nhận trên ứng dụng hoặc bằng giấy ký tay được nhà trường tải bản chụp lên; hệ thống lưu cách đồng ý, người đồng ý và thời điểm. Phụ huynh rút lại đồng ý bất cứ lúc nào |
-| BR-66 | Bình luận của phụ huynh không bị xóa. Phản hồi tiêu cực được chuyển cho quản lý đơn vị xử lý riêng; quản lý đơn vị được ẩn bình luận vi phạm kèm lý do; bình luận ẩn vẫn được lưu |
+| BR-64 | Hoạt động do giáo viên tạo phải ở trạng thái chờ duyệt. Chỉ hoạt động đã duyệt mới hiển thị cho phụ huynh. Giáo viên có thể lưu nháp để thêm hình rồi gửi duyệt. Hoạt động đã công bố không sửa được; quản lý đơn vị hoặc Ban Giám hiệu ẩn kèm lý do và công bố lại (Q-72, YCTD-78) |
+| BR-65 | Hình ảnh của trẻ chỉ được công bố khi phụ huynh đã đồng ý cho sử dụng hình ảnh. Phụ huynh đồng ý bằng xác nhận trên ứng dụng hoặc bằng giấy ký tay được nhà trường tải bản chụp lên; hệ thống lưu cách đồng ý, người đồng ý và thời điểm. Phụ huynh rút lại đồng ý bất cứ lúc nào. Giáo viên gắn thẻ trẻ có trong ảnh; ảnh có trẻ chưa đồng ý không hiển thị cho phụ huynh. Khi phụ huynh rút đồng ý, mọi ảnh đã công bố có gắn thẻ trẻ đó tự ẩn, tệp không bị xóa (YCTD-78) |
+| BR-66 | Không bình luận nào bị xóa, kể cả của phụ huynh. Phản hồi tiêu cực được chuyển cho quản lý đơn vị xử lý riêng; quản lý đơn vị được ẩn bình luận vi phạm kèm lý do; bình luận ẩn vẫn được lưu. Người xem báo bình luận tiêu cực; mỗi lần xử lý (ẩn, hiện lại, ghi chú) có một bản ghi xử lý kèm lý do và người xử lý (YCTD-78, YCTD-79) |
 | BR-67 | Mỗi tài khoản chỉ được bỏ một phiếu cho mỗi bình chọn, biểu quyết hoặc khảo sát. Sau khi gửi, phiếu không sửa được |
 | BR-68 | Bình chọn, biểu quyết, khảo sát có thời gian bắt đầu và kết thúc. Ngoài khoảng thời gian đó hệ thống không nhận phiếu |
 | BR-69 | Tin tức, thư viện và thông báo có phạm vi công bố: toàn trường, theo đơn vị, theo lớp hoặc theo từng trẻ |
@@ -137,7 +137,7 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 | BR-71 | Quyền do máy chủ quyết định tại mọi yêu cầu. Ẩn hoặc vô hiệu hóa nút trên giao diện chỉ là tiện dụng, không được coi là bảo mật |
 | BR-72 | Quyền được kiểm tra theo ba lớp: vai trò, phạm vi đơn vị, phạm vi bản ghi. Ví dụ phụ huynh chỉ truy cập được bản ghi của con mình |
 | BR-73 | Mọi thao tác đọc dữ liệu cá nhân của trẻ và dữ liệu tài chính phải ghi nhật ký truy cập khi đơn vị bật chế độ này. Hai trường hợp luôn ghi nhật ký, không tắt được: đối tác đọc dữ liệu cá nhân qua API (BM-66) và xem đầy đủ số định danh cá nhân (BR-81) |
-| BR-74 | Dữ liệu cá nhân của trẻ và phụ huynh không được xuất ra ngoài hệ thống nếu không có quyền xuất dữ liệu và không ghi nhật ký xuất |
+| BR-74 | Dữ liệu cá nhân của trẻ và phụ huynh không được xuất ra ngoài hệ thống nếu không có quyền xuất dữ liệu và không ghi nhật ký xuất. Người xuất phải có cả quyền xuất dữ liệu và quyền xem báo cáo trong phạm vi đơn vị; mỗi lần xuất ghi người xuất, báo cáo, bộ lọc, đơn vị, số dòng và có dữ liệu cá nhân hay không; tệp xuất không lưu lại trên hệ thống (YCTD-83) |
 | BR-75 | Không xóa cứng dữ liệu nghiệp vụ đã phát sinh. Dữ liệu không dùng nữa chuyển sang trạng thái ngừng sử dụng |
 | BR-76 | Sao lưu dữ liệu theo lịch cấu hình; phải kiểm tra khả năng phục hồi định kỳ, không chỉ kiểm tra bản sao lưu tồn tại |
 

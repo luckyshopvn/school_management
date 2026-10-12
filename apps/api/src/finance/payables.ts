@@ -42,7 +42,12 @@ import { assertDateOpen } from './fiscal-period-lock.js';
 // phiếu mua hàng gắn phiếu chi thì công nợ của phiếu đó cũng thành đã trả và ngược lại. Phiếu đi chợ của bếp (P12)
 // nối vào khi phần bếp có bảng phiếu đi chợ (ghi trong YCTD-82)
 const VIEW_PERMISSIONS = [PERMISSION_CODES.payableManage, 'P06.view'];
-const SOURCE_TYPES: readonly PayableSourceType[] = ['manual', 'purchase_order', 'medicine_purchase_order'];
+const SOURCE_TYPES: readonly PayableSourceType[] = [
+  'manual',
+  'purchase_order',
+  'medicine_purchase_order',
+  'market_purchase',
+];
 const STATUSES: readonly PayableStatus[] = ['open', 'paid', 'cancelled'];
 const SEQUENCE = 'payable';
 const RULE = 'P06-07';
@@ -180,6 +185,26 @@ export class PayablesService {
       .where('payables.id', 'is', null)
       .orderBy('medicine_purchase_orders.order_date')
       .execute();
+    // Phiếu đi chợ của bếp đã nhận hàng, chờ thanh toán (YCTD-76)
+    const marketPurchases = await database
+      .selectFrom('market_purchases')
+      .innerJoin('food_suppliers', 'food_suppliers.id', 'market_purchases.supplier_id')
+      .leftJoin('payables', (join) =>
+        join.onRef('payables.source_id', '=', 'market_purchases.id').on('payables.source_type', '=', 'market_purchase'),
+      )
+      .select([
+        'market_purchases.id',
+        'market_purchases.code',
+        'market_purchases.purchase_date',
+        'market_purchases.total_amount',
+        'food_suppliers.name as supplier_name',
+      ])
+      .where('market_purchases.org_unit_id', '=', orgUnitId)
+      .where('market_purchases.status', '=', 'received')
+      .where('market_purchases.payment_status', '=', 'awaiting_payment')
+      .where('payables.id', 'is', null)
+      .orderBy('market_purchases.purchase_date')
+      .execute();
     const suppliers = await database
       .selectFrom('suppliers')
       .select(['id', 'name', 'payment_terms'])
@@ -190,6 +215,7 @@ export class PayablesService {
     return {
       purchase_orders: purchaseOrders.map((row) => ({ ...row, total_amount: Number(row.total_amount) })),
       medicine_orders: medicineOrders.map((row) => ({ ...row, total_amount: Math.round(Number(row.total_amount)) })),
+      market_purchases: marketPurchases.map((row) => ({ ...row, total_amount: Number(row.total_amount) })),
       suppliers,
     };
   }
@@ -299,6 +325,39 @@ export class PayablesService {
         document_date: order.order_date,
       };
     }
+    if (input.sourceType === 'market_purchase') {
+      const purchase = await database
+        .selectFrom('market_purchases')
+        .innerJoin('food_suppliers', 'food_suppliers.id', 'market_purchases.supplier_id')
+        .select([
+          'market_purchases.org_unit_id',
+          'market_purchases.code',
+          'market_purchases.purchase_date',
+          'market_purchases.total_amount',
+          'market_purchases.status',
+          'market_purchases.payment_status',
+          'food_suppliers.name as supplier_name',
+        ])
+        .where('market_purchases.id', '=', input.sourceId ?? '')
+        .executeTakeFirst();
+      if (!purchase) {
+        throw notFoundError('Không tìm thấy phiếu đi chợ', 'market_purchase');
+      }
+      if (purchase.status !== 'received' || purchase.payment_status !== 'awaiting_payment') {
+        throw ruleViolationError(RULE, 'Chỉ ghi công nợ phải trả cho phiếu đi chợ đã nhận hàng và đang chờ thanh toán');
+      }
+      return {
+        org_unit_id: purchase.org_unit_id,
+        supplier_id: null,
+        payee_name: purchase.supplier_name,
+        source_type: input.sourceType,
+        source_id: input.sourceId,
+        document_ref: purchase.code,
+        description: input.description ?? `Phiếu đi chợ ${purchase.code}`,
+        amount: Number(purchase.total_amount),
+        document_date: purchase.purchase_date,
+      };
+    }
     const orgUnitId = input.orgUnitId ?? '';
     let payeeName = input.payeeName;
     if (input.supplierId) {
@@ -349,6 +408,16 @@ export class PayablesService {
         { field: 'payment_id', message: `Công nợ ${Number(payable.amount)} đồng` },
       ]);
     }
+    const otherPurchase = await database
+      .selectFrom('market_purchases')
+      .select('id')
+      .where('payment_id', '=', paymentId)
+      .executeTakeFirst();
+    if (otherPurchase && !(payable.source_type === 'market_purchase' && otherPurchase.id === payable.source_id)) {
+      throw new ApplicationError('ERR_CONFLICT', 'Phiếu chi này đã gắn với phiếu đi chợ khác', [
+        { field: 'payment_id', message: 'Đã dùng' },
+      ]);
+    }
     const otherOrder = await database
       .selectFrom('purchase_orders')
       .select('id')
@@ -375,6 +444,32 @@ export class PayablesService {
               origin,
               orgUnitId: payable.org_unit_id,
               entityName: 'purchase_orders',
+              entityId: payable.source_id,
+              action: 'update',
+              before: { payment_status: 'awaiting_payment' },
+              after: { payment_status: 'paid', payment_id: paymentId, payment_code: payment.code },
+            });
+          }
+        }
+        // Phiếu đi chợ của bếp cũng thành đã thanh toán (YCTD-76)
+        if (payable.source_type === 'market_purchase' && payable.source_id) {
+          const purchase = await transaction
+            .updateTable('market_purchases')
+            .set({
+              payment_status: 'paid',
+              payment_id: paymentId,
+              paid_linked_by: origin.actorUserId,
+              paid_linked_at: new Date(),
+            })
+            .where('id', '=', payable.source_id)
+            .where('payment_status', '=', 'awaiting_payment')
+            .returning('id')
+            .executeTakeFirst();
+          if (purchase) {
+            await writeAuditLog(transaction, {
+              origin,
+              orgUnitId: payable.org_unit_id,
+              entityName: 'market_purchases',
               entityId: payable.source_id,
               action: 'update',
               before: { payment_status: 'awaiting_payment' },
@@ -481,11 +576,12 @@ export async function settlePurchaseOrderPayable(
   orderId: string,
   paymentId: string,
   paidAt: Date,
+  sourceType: PayableSourceType = 'purchase_order',
 ): Promise<void> {
   await transaction
     .updateTable('payables')
     .set({ status: 'paid', payment_id: paymentId, paid_at: paidAt })
-    .where('source_type', '=', 'purchase_order')
+    .where('source_type', '=', sourceType)
     .where('source_id', '=', orderId)
     .where('status', '=', 'open')
     .execute();

@@ -6,16 +6,15 @@ import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { AppShell } from '../pages/AppShell.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
+import { ConsolidatedView, ExportButton, ExportLogsView, OperationsView } from './PhaseTwoReports.js';
 import { formatNumber, readReport, type ReportRow } from './reports-api.js';
+import { ReportTable, type Column } from './ReportTable.js';
 
 // MH-28 Báo cáo cơ bản (P17-03 đến P17-07, P17-14; BR-36; YCTD-62): mỗi báo cáo một thẻ, chỉ hiện báo cáo người dùng có
-// quyền; số liệu do máy chủ tính, giao diện chỉ hiển thị
+// quyền; số liệu do máy chủ tính, giao diện chỉ hiển thị. Giai đoạn 2 (YCTD-83) thêm thẻ báo cáo hoạt động (P17-10), báo
+// cáo hợp nhất (MH-29, P17-11), nhật ký xuất và nút xuất Excel cho người có quyền xuất dữ liệu (P17-12)
 type ReportCode = 'tuition' | 'debts' | 'cash-flow' | 'attendance' | 'staff-attendance' | 'saturday-classes';
-
-interface Column {
-  key: string;
-  label: string;
-}
+type TabCode = ReportCode | 'activities' | 'consolidated' | 'export-logs';
 
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const firstOfMonth = () => `${today().slice(0, 7)}-01`;
@@ -167,54 +166,15 @@ const TABLES: Record<ReportCode, Array<{ key: string; title: string; columns: Co
   ],
 };
 
-const LABELS: Record<string, string> = {
-  income: 'Thu',
-  expense: 'Chi',
-  absent_notified: 'Vắng có báo',
-  absent_unnotified: 'Vắng không báo',
-};
-
-function ReportTable({ rows, columns, title }: { rows: ReportRow[]; columns: Column[]; title: string }) {
-  return (
-    <section
-      className="flex flex-col gap-2 overflow-x-auto rounded-xl border border-border bg-card p-4"
-      aria-label={title}
-    >
-      <h2 className="text-section-title font-semibold text-text">{title}</h2>
-      {rows.length === 0 ? (
-        <p className="text-content text-text-secondary">Không có số liệu.</p>
-      ) : (
-        <table className="w-full text-content">
-          <thead className="text-left text-label font-medium text-text-secondary">
-            <tr>
-              {columns.map((column) => (
-                <th key={column.key} className="px-3 py-2">
-                  {column.label}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, index) => (
-              <tr key={index} className="border-t border-border">
-                {columns.map((column) => {
-                  const value = row[column.key];
-                  return (
-                    <td key={column.key} className="px-3 py-2">
-                      {typeof value === 'string' && LABELS[value] ? LABELS[value] : formatNumber(value)}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </section>
-  );
-}
-
-function ReportView({ code, filter }: { code: ReportCode; filter: 'month' | 'range' | 'overdue' }) {
+function ReportView({
+  code,
+  filter,
+  canExport,
+}: {
+  code: ReportCode;
+  filter: 'month' | 'range' | 'overdue';
+  canExport: boolean;
+}) {
   const unitChoice = useUnitChoice();
   const [orgUnitId, setOrgUnitId] = useState<string>('');
   const [month, setMonth] = useState(today().slice(0, 7));
@@ -276,6 +236,7 @@ function ReportView({ code, filter }: { code: ReportCode; filter: 'month' | 'ran
         <Button type="submit" variant="primary">
           Xem báo cáo
         </Button>
+        {canExport ? <ExportButton code={code} filters={values} /> : null}
       </form>
       {report.error ? (
         <Alert tone="danger">
@@ -329,31 +290,43 @@ export function ReportsPage() {
     'staff-attendance': useHasPermission(PERMISSION_CODES.staffAttendanceReport),
     'saturday-classes': useHasPermission(PERMISSION_CODES.saturdayReport),
   };
-  const available = REPORTS.filter((report) => permissions[report.code]);
-  const [chosen, setChosen] = useState<ReportCode>();
-  const selected = available.find((report) => report.code === chosen) ?? available[0];
+  const canOperations = useHasPermission(PERMISSION_CODES.operationsReport);
+  const canConsolidated = useHasPermission(PERMISSION_CODES.consolidatedReport);
+  const canExport = useHasPermission(PERMISSION_CODES.dataExport);
+  const tabs: Array<{ code: TabCode; label: string }> = [
+    ...REPORTS.filter((report) => permissions[report.code]),
+    ...(canOperations ? [{ code: 'activities' as const, label: 'Hoạt động và công việc' }] : []),
+    ...(canConsolidated ? [{ code: 'consolidated' as const, label: 'Hợp nhất đơn vị' }] : []),
+    ...(canExport ? [{ code: 'export-logs' as const, label: 'Nhật ký xuất' }] : []),
+  ];
+  const [chosen, setChosen] = useState<TabCode>();
+  const selected = tabs.find((tab) => tab.code === chosen) ?? tabs[0];
+  const basic = REPORTS.find((report) => report.code === selected?.code);
 
   return (
     <AppShell>
       <div className="flex flex-col gap-6">
         <h1 className="text-page-title font-bold text-text">Báo cáo</h1>
-        {available.length === 0 ? (
+        {tabs.length === 0 ? (
           <p className="text-content text-text-secondary">Bạn chưa có quyền xem báo cáo nào.</p>
         ) : null}
         <div className="flex flex-wrap gap-2" role="tablist" aria-label="Loại báo cáo">
-          {available.map((report) => (
+          {tabs.map((tab) => (
             <Button
-              key={report.code}
+              key={tab.code}
               role="tab"
-              aria-selected={report.code === selected?.code}
-              variant={report.code === selected?.code ? 'primary' : 'secondary'}
-              onClick={() => setChosen(report.code)}
+              aria-selected={tab.code === selected?.code}
+              variant={tab.code === selected?.code ? 'primary' : 'secondary'}
+              onClick={() => setChosen(tab.code)}
             >
-              {report.label}
+              {tab.label}
             </Button>
           ))}
         </div>
-        {selected ? <ReportView key={selected.code} code={selected.code} filter={selected.filter} /> : null}
+        {basic ? <ReportView key={basic.code} code={basic.code} filter={basic.filter} canExport={canExport} /> : null}
+        {selected?.code === 'activities' ? <OperationsView /> : null}
+        {selected?.code === 'consolidated' ? <ConsolidatedView canExport={canExport} /> : null}
+        {selected?.code === 'export-logs' ? <ExportLogsView /> : null}
       </div>
     </AppShell>
   );

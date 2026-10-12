@@ -483,6 +483,25 @@ export class PayrollService {
       .where('target_month', '=', monthNumber)
       .where('status', '=', 'approved')
       .execute();
+    // Thưởng và khấu trừ ghi cho tháng này (P08-07, YCTD-81)
+    const bonusDeductions = await database
+      .selectFrom('staff_bonus_deductions')
+      .innerJoin('pay_item_types', 'pay_item_types.id', 'staff_bonus_deductions.pay_item_type_id')
+      .select([
+        'staff_bonus_deductions.staff_id',
+        'staff_bonus_deductions.amount',
+        'staff_bonus_deductions.basis',
+        'pay_item_types.kind',
+        'pay_item_types.code',
+        'pay_item_types.name',
+        'pay_item_types.is_tax_exempt',
+        'pay_item_types.is_mandatory_insurance',
+      ])
+      .where('staff_bonus_deductions.target_year', '=', monthYear)
+      .where('staff_bonus_deductions.target_month', '=', monthNumber)
+      .where('staff_bonus_deductions.status', '=', 'active')
+      .orderBy('staff_bonus_deductions.created_at')
+      .execute();
     const unitHours = new Map<string, { standardMinutes: number; overtimeRatePercent: number | null }>();
     const hoursOf = async (orgUnitId: string) => {
       const cached = unitHours.get(orgUnitId);
@@ -602,6 +621,17 @@ export class PayrollService {
         manualAdjustments: manualAdjustments
           .filter((row) => row.staff_id === person.id)
           .map((row) => ({ amount: Number(row.amount), reason: row.reason })),
+        bonusDeductions: bonusDeductions
+          .filter((row) => row.staff_id === person.id)
+          .map((row) => ({
+            kind: row.kind,
+            code: row.code,
+            name: row.name,
+            amount: Number(row.amount),
+            basis: `Thưởng, khấu trừ tháng ${monthNumber}/${monthYear}: ${row.basis}`,
+            is_tax_exempt: row.is_tax_exempt,
+            is_mandatory_insurance: row.is_mandatory_insurance,
+          })),
         dependents: person.dependents_count,
         taxTable: {
           personal_deduction: Number(taxTable.personal_deduction),

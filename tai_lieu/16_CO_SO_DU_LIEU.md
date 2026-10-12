@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.43
+- Phiên bản: 1.49
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -77,21 +77,22 @@ Ràng buộc: `org_units.parent_id` trỏ tới `org_units.id`. Chỉ một đơ
 | teaching_group_members | Thành viên tổ chuyên môn | group_id, staff_id, from_date, to_date |
 | health_profiles | Hồ sơ sức khỏe cơ bản | child_id (duy nhất), blood_type, has_allergies (trống là chưa khai báo, BR-06), allergies, chronic_conditions, note |
 | health_measurements | Chỉ số sức khỏe theo lần đo | child_id, measured_on, height_cm, weight_kg, vision_left, vision_right, bmi, note |
-| lost_items | Đồ bị mất của trẻ | child_id, class_id, description, report_type (báo mất hoặc nhặt được), reported_by, reported_at, photo_file_id, status, closed_by, closed_at, result_note |
+| lost_items | Đồ bị mất của trẻ | code (DBM-000001), org_unit_id, child_id, class_id, report_type (lost, found), description, noticed_on, photo_file_id, status (reported, found, returned, not_found, cancelled), reported_by, reported_at, found_by, found_at, found_note, closed_by, closed_at, result_note, cancelled_by, cancelled_at |
 
 ## 4. Phân hệ P03 — Giảng dạy
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| themes | Chủ đề giảng dạy | org_unit_id, name, age_group, start_date, end_date |
-| lessons | Bài học | org_unit_id, theme_id, domain_id, lesson_group_id, name, age_group, objectives, materials, status |
-| lesson_plans | Giáo án theo lớp | lesson_id, class_id, teacher_id, planned_date, content, status, approved_by, approved_at |
-| timetables | Thời khóa biểu | class_id, academic_year_id, weekday, period_no, activity_name, teacher_id, effective_from |
-| teaching_plans | Kế hoạch giảng dạy | class_id, period_type, period_value, objectives, content, status |
-| child_progress | Tiến độ học tập của trẻ | child_id, period_type, period_value, indicator_code, level, comment, published_at |
-| lesson_domains | Lĩnh vực bài học | org_unit_id, name, order_no, status |
-| lesson_groups | Nhóm bài học | org_unit_id, domain_id, name, order_no, status |
-| class_activity_schedules | Lịch hoạt động lớp | class_id, activity_date, start_time, end_time, activity_name, note, status, published_at, created_by |
+| themes | Chủ đề giảng dạy (P03-03) | org_unit_id, name, age_group, start_date, end_date, status, created_by |
+| lessons | Bài học (P03-01) | org_unit_id, theme_id, domain_id, lesson_group_id, name, age_group, objectives, materials, is_shared, status, created_by |
+| lesson_plans | Giáo án theo lớp (P03-02) | lesson_id, class_id, org_unit_id, teacher_id, teacher_name, planned_date, activities, duration_minutes (5–480), materials, status (draft, submitted, leader_approved, approved, returned), submitted_at, leader_reviewed_by, leader_reviewed_at, approved_by, approved_at, review_comment |
+| timetables | Thời khóa biểu theo phiên bản tuần (P03-04) | class_id, effective_from (thứ Hai), weekday (1–7), period_no, start_time, end_time (HH:MM), activity_name, teacher_id, teacher_name, status (draft, published), published_at, created_by; duy nhất theo lớp, ngày áp dụng, thứ, tiết |
+| teaching_plans | Kế hoạch giảng dạy (P03-05) | class_id, org_unit_id, period_type (term, month, week), period_value, objectives, content, progress_note, status (planned, in_progress, completed); duy nhất theo lớp và kỳ |
+| child_progress | Tiến độ học tập của trẻ (P03-06) | child_id, class_id, period_type (term, month), period_value, domain_id, indicator_code, level (achieved, developing, not_yet), comment, recorded_by, published_at, published_by; duy nhất theo trẻ, kỳ, chỉ số |
+| lesson_domains | Lĩnh vực bài học (P03-08) | org_unit_id, name (duy nhất trong đơn vị), order_no, status, created_by |
+| lesson_groups | Nhóm bài học (P03-08) | org_unit_id, domain_id, name (duy nhất trong lĩnh vực), order_no, status, created_by |
+| class_activity_schedules | Lịch hoạt động lớp (P03-07) | class_id, activity_date, start_time, end_time, activity_name, note, status (draft, published, cancelled), published_at, created_by |
+| lesson_plan_reviews | Lịch sử duyệt và góp ý giáo án | lesson_plan_id, reviewer_id, reviewer_name, stage (leader, manager), decision (approved, returned), comment, created_at |
 
 ## 5. Phân hệ P04 — Điểm danh và chăm sóc hằng ngày
 
@@ -157,8 +158,8 @@ Ràng buộc duy nhất: `receipts` trên bộ đôi đơn vị và mã phiếu 
 |---|---|---|
 | staff | Hồ sơ nhân sự (YCTD-58) | org_unit_id (đơn vị chính), code (duy nhất), dependents_count (số người phụ thuộc, YCTD-60), full_name, dob, gender, phone, email, address, id_number_encrypted, id_number_last4, department_id, job_title_id, start_date, end_date, status (đang làm, đã nghỉ), user_id (duy nhất, tài khoản liên kết) |
 | employment_contracts | Hợp đồng lao động (YCTD-58) | staff_id, contract_no (duy nhất), contract_type (thử việc, có thời hạn, không thời hạn), start_date, end_date (bắt buộc trừ không thời hạn), base_salary, allowances (danh sách tên và số tiền), status (còn hiệu lực, đã chấm dứt), terminated_on, terminate_reason |
-| staff_work_history | Quá trình công tác | staff_id, from_date, to_date, department_id, job_title_id, note |
-| staff_certificates | Chứng chỉ | staff_id, name, issued_by, issued_date, expire_date, file_id |
+| staff_work_history | Quá trình công tác (BR-37, YCTD-81) | staff_id, org_unit_id, from_date, to_date, department_id, job_title_id, note, created_by |
+| staff_certificates | Chứng chỉ (YCTD-81) | staff_id, name, certificate_no, issued_by, issued_date, expire_date, note, created_by |
 
 ## 9. Phân hệ P08 — Chấm công và tiền lương
 
@@ -189,12 +190,14 @@ Ràng buộc duy nhất: `attendance_logs` trên bộ đôi nhân sự và ngày
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| tasks | Công việc | org_unit_id, title, description, assigner_id, assignee_id, due_date, priority, status, progress_percent, related_type, related_id |
-| task_updates | Cập nhật tiến độ công việc | task_id, content, progress_percent, created_by, created_at |
-| plans | Kế hoạch | org_unit_id, period_type, period_value, title, objectives, status, created_by |
-| plan_items | Đầu việc trong kế hoạch | plan_id, content, owner_id, due_date, status |
-| evaluations | Đánh giá nhân sự | staff_id, period_type, period_value, total_score, comment, status, evaluated_by, published_at |
-| evaluation_criteria | Chỉ số đánh giá | org_unit_id, code, name, weight, max_score, status |
+| tasks | Công việc được giao và việc cá nhân (YCTD-81) | org_unit_id, task_type (được giao, cá nhân), title, description, assigner_user_id, assigner_name, assignee_staff_id, due_date, priority (thấp, bình thường, cao), status (chưa làm, đang làm, hoàn thành, đã hủy), progress_percent, plan_item_id, completed_at, cancel_reason |
+| task_updates | Cập nhật tiến độ công việc (YCTD-81) | task_id, content, progress_percent, status, created_by, created_by_name, created_at |
+| plans | Kế hoạch của đơn vị theo kỳ (YCTD-81) | org_unit_id, period_type (tháng, học kỳ, năm học), period_value, title, objectives, status (nháp, đang thực hiện, đã đóng), created_by, activated_at, closed_at |
+| plan_items | Đầu việc trong kế hoạch (YCTD-81) | plan_id, content, owner_staff_id, due_date, task_id (việc được giao khi kích hoạt), order_no |
+| evaluations | Phiếu đánh giá nhân sự theo kỳ (BR-47, YCTD-81) | staff_id, org_unit_id, period_type, period_value, total_score (thang 100), comment, status (nháp, đã công bố, đã thay thế), replaces_id, reevaluation_reason, evaluated_by, evaluated_by_name, published_by, published_at; mỗi nhân sự mỗi kỳ tối đa một phiếu nháp và một phiếu đã công bố |
+| evaluation_criteria | Chỉ số đánh giá của đơn vị (YCTD-81) | org_unit_id, code (duy nhất cùng org_unit_id), name, weight, max_score, status |
+| evaluation_scores | Điểm từng chỉ số của phiếu đánh giá (YCTD-81) | evaluation_id, criterion_id (duy nhất cùng evaluation_id), criterion_code, criterion_name, weight, max_score (chép lúc chấm), score, comment |
+| staff_bonus_deductions | Thưởng và khấu trừ ghi riêng cho bảng lương một tháng (BR-44, BR-45, YCTD-81) | staff_id, pay_item_type_id, target_year, target_month, amount (dương), basis (căn cứ), status (hiệu lực, đã hủy), created_by, cancelled_by, cancelled_at, cancel_reason |
 
 ## 11. Phân hệ P10 — Y tế học đường
 
@@ -225,15 +228,17 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Các bảng `
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| dishes | Món ăn | org_unit_id, name, group_name, ingredients_data, recipe_note, status |
-| menus | Thực đơn tuần | org_unit_id, week_start_date, age_group, status, approved_by, approved_at, published_at |
-| menu_items | Món trong thực đơn | menu_id, weekday, meal_type, dish_id, note |
-| ingredients | Nguyên liệu | org_unit_id, code, name, unit, current_stock, status |
-| ingredient_norms | Định lượng trên một suất | org_unit_id, dish_id, ingredient_id, quantity_per_serving, unit |
-| meal_plans | Số suất ăn theo ngày | org_unit_id, meal_date, meal_type (sáng, trưa, xế), headcount lấy từ số trẻ có mặt, computed_from, status |
-| buffet_events | Tiệc buffet theo dịp | org_unit_id, buffet_date, occasion, class_id (trống khi toàn trường), menu_note, status, created_by |
-| market_purchases | Phiếu đi chợ | code, org_unit_id, purchase_date, supplier_id, total_amount, status, created_by, received_at |
-| market_purchase_items | Dòng phiếu đi chợ | purchase_id, ingredient_id, quantity, unit_price, amount |
+| dishes | Món ăn (YCTD-76) | org_unit_id, name (duy nhất trong đơn vị), group_name (nhóm chất), recipe_note (cách chế biến), status |
+| menus | Thực đơn tuần (YCTD-76) | org_unit_id, week_start_date (thứ hai), age_group (all hoặc mã khối học), status (nháp, chờ duyệt, đã công bố), note, submitted_by, submitted_at, approved_by, approved_at, published_at, reject_reason, created_by |
+| menu_items | Món trong thực đơn (YCTD-76) | menu_id, weekday (1 thứ hai đến 6 thứ bảy), meal_type (sáng, trưa, xế), dish_id, note; duy nhất trên menu_id, weekday, meal_type, dish_id |
+| ingredients | Nguyên liệu và tồn của bếp (YCTD-76) | org_unit_id, code (duy nhất trong đơn vị), name, unit, current_stock (không âm, tăng khi nhập phiếu đi chợ), status |
+| ingredient_norms | Định lượng trên một suất (YCTD-76) | dish_id, ingredient_id (duy nhất cùng dish_id), quantity_per_serving (lớn hơn 0, theo đơn vị tính của nguyên liệu) |
+| meal_plans | Số suất ăn theo ngày đã lưu (YCTD-76) | org_unit_id, meal_date, meal_type (sáng, trưa, xế), headcount, computed_from (điểm danh, hỗn hợp), status (tạm tính, chính thức), computed_by, computed_at |
+| buffet_events | Tiệc buffet theo dịp (YCTD-76) | org_unit_id, buffet_date, occasion, class_id (trống khi toàn đơn vị), menu_note, status (nháp, đã duyệt, đã hủy), created_by, approved_by, approved_at |
+| market_purchases | Phiếu đi chợ (YCTD-76) | code (PDC-000001, cấp khi lập), org_unit_id, purchase_date, supplier_id (food_suppliers), total_amount, note, status (nháp, đã nhập, đã hủy), payment_status (chờ thanh toán, đã thanh toán; chỉ khi đã nhập), payment_id (phiếu chi đã phát hành, duy nhất), created_by, received_by, received_at, paid_linked_by, paid_linked_at |
+| market_purchase_items | Dòng phiếu đi chợ (YCTD-76) | purchase_id, ingredient_id (duy nhất cùng purchase_id), quantity, planned_quantity (định lượng của ngày lúc lập phiếu, BR-60), unit_price, amount |
+| meal_reports | Báo cơm của lớp (YCTD-76) | class_id, org_unit_id, report_date (duy nhất cùng class_id), headcount (không quá sĩ số), note, reported_by, reported_at |
+| food_suppliers | Nhà cung cấp thực phẩm (YCTD-76; gộp vào `suppliers` khi có danh mục dùng chung) | org_unit_id, name (duy nhất trong đơn vị), food_groups, tax_code, contact_name, phone, address, status |
 
 Ràng buộc duy nhất: `menus` trên bộ ba đơn vị, tuần, độ tuổi; `meal_plans` trên bộ ba đơn vị, ngày, bữa.
 
@@ -260,22 +265,23 @@ Bỏ ngày 09/10/2026 (YCTD-20): bảng `meal_registrations` đã gỡ vì khôn
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| activities | Hoạt động của lớp | org_unit_id, class_id, title, content, category_id, activity_date, status, created_by, submitted_at, approved_by, approved_at, reject_reason, published_at, view_count, like_count |
-| activity_categories | Danh mục hoạt động | org_unit_id, name, order_no, status |
-| activity_media | Hình ảnh và tệp của hoạt động | activity_id, file_id, media_type, caption, order_no, excluded_child_ids |
-| activity_likes | Lượt thích | activity_id, user_id, created_at |
+| activities | Hoạt động của lớp (P14-01, P14-02) | org_unit_id, class_id, category_id, title, content, activity_date, status (draft, pending, published, rejected, hidden), created_by, created_by_name, submitted_at, approved_by, approved_at, reject_reason, published_at, hidden_reason, hidden_by, hidden_at |
+| activity_categories | Danh mục hoạt động theo đơn vị (P14-03) | org_unit_id, name (duy nhất trong đơn vị), order_no, status, created_by |
+| activity_media | Ảnh của hoạt động (P14-04) | activity_id, file_id (mục đích activity_photo), caption, order_no, created_by; tối đa 30 ảnh mỗi hoạt động |
+| activity_likes | Lượt thích | activity_id, user_id (khóa chính đôi), created_at |
 | activity_comments | Bình luận | activity_id, user_id, content, created_at, moderation_note, moderated_by |
-| news | Tin tức | org_unit_id, title, summary, content, cover_file_id, scope_type, scope_id, status, published_at, created_by |
-| news_categories | Danh mục tin tức | org_unit_id, name, order_no, status |
-| library_items | Nội dung thư viện | org_unit_id, title, description, topic_id, age_group, file_id, scope_type, scope_id, status |
-| library_topics | Chủ đề thư viện | org_unit_id, name, order_no, status |
-| coloring_pages | Hình tô màu | org_unit_id, title, topic, age_group, file_id, status |
+| news | Tin tức (P14-05) | org_unit_id, category_id, title, summary, content, cover_file_id, scope_type (school, unit, class, child), scope_id, status (draft, published, hidden), published_at, published_by, hidden_reason, hidden_by, hidden_at, created_by |
+| news_categories | Danh mục tin tức theo đơn vị (P14-05) | org_unit_id, name (duy nhất trong đơn vị), order_no, status, created_by |
+| library_items | Nội dung thư viện (P14-06) | org_unit_id, topic_id, album_id, title, description, age_group, file_id, scope_type, scope_id, status, published_at, hidden_reason |
+| library_topics | Chủ đề thư viện theo đơn vị (P14-06) | org_unit_id, name (duy nhất trong đơn vị), order_no, status, created_by |
+| coloring_pages | Hình tô màu (P14-09) | org_unit_id, title, topic, age_group, file_id (bắt buộc), scope_type, scope_id, status, published_at, hidden_reason |
 | announcements | Thông báo | org_unit_id, title, content, scope_type, scope_id, importance, published_at, created_by, status |
 | announcement_reads | Trạng thái đã đọc thông báo | announcement_id, user_id, is_read, read_at |
-| extracurricular_activities | Hoạt động ngoại khóa | org_unit_id, name, description, start_at, end_at, target_scope, quota, fee_type (theo hoạt động hoặc theo tháng), fee_amount, status |
-| extracurricular_registrations | Đăng ký hoạt động ngoại khóa | activity_id, child_id, registered_by, registered_at, effective_from, effective_to, status |
-| library_albums | Album thư viện | org_unit_id, topic_id, title, cover_file_id, status |
-| content_comments | Bình luận thư viện và tin tức | target_type, target_id, user_id, content, created_at, moderation_note, moderated_by |
+| extracurricular_activities | Hoạt động ngoại khóa (P14-10) | org_unit_id, name, description, start_date, end_date, grade_levels, quota (lớn hơn 0), fee_type (free, per_activity, monthly), fee_amount, status (draft, published, closed) |
+| extracurricular_registrations | Đăng ký ngoại khóa (P14-11) | activity_id, child_id, org_unit_id, registered_by, registered_at, effective_from, effective_to, status (active, withdrawn), withdrawn_by, withdrawn_at; một đăng ký đang hiệu lực mỗi trẻ mỗi hoạt động |
+| library_albums | Album thư viện (P14-12) | org_unit_id, topic_id, title, cover_file_id, status |
+| content_comments | Bình luận trên hoạt động, tin tức, nội dung và album thư viện (P14-12, BR-66) | target_type (activity, news, library_item, library_album), target_id, org_unit_id, user_id, author_name, is_parent, content, created_at, hidden_reason, hidden_by, hidden_at; không xóa |
+| activity_media_children | Trẻ được gắn thẻ trong ảnh (BR-65) | media_id, child_id (khóa chính đôi); ảnh hiển thị cho phụ huynh khi mọi trẻ được gắn đang đồng ý hình ảnh |
 
 Ràng buộc duy nhất: `activity_likes` trên bộ đôi hoạt động và tài khoản.
 
@@ -283,14 +289,18 @@ Ràng buộc duy nhất: `activity_likes` trên bộ đôi hoạt động và t�
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| message_threads | Luồng trao đổi | org_unit_id, child_id, teacher_id, guardian_user_id, last_message_at, status |
-| messages | Tin nhắn | thread_id, sender_user_id, content, attachment_file_id, sent_at, is_read, read_at |
-| feedbacks | Góp ý | org_unit_id, child_id, submitted_by_user_id, category, content, privacy_level, status, handled_by, handled_at, handling_note |
-| polls | Bình chọn, biểu quyết, khảo sát | org_unit_id, poll_type, title, description, scope_type, scope_id, start_at, end_at, is_anonymous, status, created_by |
-| poll_options | Phương án lựa chọn | poll_id, label, order_no |
-| poll_questions | Câu hỏi khảo sát | poll_id, question_text, answer_type, order_no, is_required |
+| message_threads | Luồng trao đổi, một luồng cho mỗi trẻ và tài khoản phụ huynh | org_unit_id, child_id, guardian_user_id, created_by, last_message_at |
+| messages | Tin nhắn | thread_id, sender_user_id, sender_side (guardian, staff), sender_name, content, sent_at, read_at, read_by |
+| feedbacks | Góp ý | org_unit_id, child_id, submitted_by_user_id, submitter_name, category, content, privacy_level (named, anonymous), status (received, in_progress, resolved), assigned_to_user_id, handled_by, handled_at, handling_note |
+| polls | Bình chọn, biểu quyết, khảo sát | org_unit_id, poll_type (poll, vote, survey), title, description, class_id, audience (guardians, staff, everyone), start_at, end_at, is_anonymous, survey_template_id, status (draft, open, closed), published_at, closed_at, results_published_at, created_by |
+| poll_options | Phương án của câu hỏi | poll_id, question_id, label, order_no |
+| poll_questions | Câu hỏi (bình chọn và biểu quyết có một câu) | poll_id, question_text, answer_type (single_choice, multiple_choice, text, rating), order_no, is_required |
 | poll_responses | Phiếu trả lời | poll_id, user_id, submitted_at |
 | poll_answers | Câu trả lời chi tiết | response_id, question_id, option_id, answer_text, answer_number |
+| survey_templates | Danh mục khảo sát chung toàn trường | name (duy nhất), description, questions (JSON: question_text, answer_type, is_required, options), status |
+| interaction_comments | Bình luận trên đối tượng của P15 | org_unit_id, target_type (poll), target_id, user_id, author_name, author_side, content, reported_at, reported_by, hidden_at, hidden_by, hide_reason |
+| comment_moderations | Bản ghi xử lý bình luận | comment_id, action (hide, restore, note), reason, handled_by, handled_at |
+| interaction_likes | Lượt thích | target_type (poll, comment), target_id, user_id |
 
 Ràng buộc duy nhất: `poll_responses` trên bộ đôi bình chọn và tài khoản, để mỗi tài khoản chỉ gửi một phiếu.
 
@@ -311,7 +321,7 @@ Ràng buộc duy nhất: `poll_responses` trên bộ đôi bình chọn và tài
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
 | report_snapshots | Số liệu tổng hợp sẵn | org_unit_id, snapshot_type, period_type, period_value, payload_data, generated_at |
-| export_logs | Nhật ký xuất dữ liệu | user_id, report_code, filters_data, file_id, exported_at |
+| export_logs | Nhật ký xuất dữ liệu (BR-74, YCTD-83); tệp không lưu lại nên không có file_id | user_id, actor_name, report_code, filters_data, org_unit_ids, row_count, contains_personal_data, file_name, ip_address, exported_at |
 
 ## 19. Quan hệ chính giữa các bảng
 

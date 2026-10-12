@@ -102,7 +102,7 @@ export const migration: Migration = {
       .addCheckConstraint('payables_due_check', sql`due_date >= document_date`)
       .addCheckConstraint(
         'payables_source_check',
-        sql`source_type in ('manual', 'purchase_order', 'medicine_purchase_order')
+        sql`source_type in ('manual', 'purchase_order', 'medicine_purchase_order', 'market_purchase')
           and ((source_type = 'manual') = (source_id is null))`,
       )
       .addCheckConstraint('payables_status_check', sql`status in ('open', 'paid', 'cancelled')`)

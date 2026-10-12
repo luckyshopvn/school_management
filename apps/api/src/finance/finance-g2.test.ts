@@ -496,6 +496,63 @@ describe('Tài chính giai đoạn 2: nhắc nợ, xử lý công nợ, ngân h�
     );
   });
 
+  it('P06-07: ghi công nợ phải trả từ phiếu đi chợ của bếp đã nhận hàng; trả bằng phiếu chi thì phiếu đi chợ thành đã thanh toán', async () => {
+    const foodSupplier = await schoolYear
+      .insertInto('food_suppliers')
+      .values({ org_unit_id: unitA(), name: 'Cửa hàng thực phẩm Bình', created_by: principal.userId })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    const insertPurchase = (code: string, status: 'draft' | 'received') =>
+      schoolYear
+        .insertInto('market_purchases')
+        .values({
+          code,
+          org_unit_id: unitA(),
+          purchase_date: addDays(vietnamToday, -1),
+          supplier_id: foodSupplier.id,
+          total_amount: 850_000,
+          status,
+          payment_status: status === 'received' ? 'awaiting_payment' : null,
+          created_by: principal.userId,
+        })
+        .returning('id')
+        .executeTakeFirstOrThrow();
+    const received = await insertPurchase('PDC-900001', 'received');
+    const draft = await insertPurchase('PDC-900002', 'draft');
+
+    const sources = await api('GET', `/payables/sources?org_unit_id=${unitA()}`, token('accountant'));
+    assert.equal(sources.status, 200, JSON.stringify(sources.body));
+    assert.deepEqual(
+      (sources.body.market_purchases as Array<{ id: string }>).map((row) => row.id),
+      [received.id],
+    );
+    const notReceived = await api('POST', '/payables', token('accountant'), {
+      source_type: 'market_purchase',
+      source_id: draft.id,
+      due_date: addDays(vietnamToday, 5),
+    });
+    assert.equal(notReceived.status, 422, JSON.stringify(notReceived.body));
+    const payable = await api('POST', '/payables', token('accountant'), {
+      source_type: 'market_purchase',
+      source_id: received.id,
+      due_date: addDays(vietnamToday, 5),
+    });
+    assert.equal(payable.status, 201, JSON.stringify(payable.body));
+    assert.equal(payable.body.amount, 850_000);
+    assert.equal(payable.body.payee_name, 'Cửa hàng thực phẩm Bình');
+
+    const payment = await insertPayment(850_000, vietnamToday);
+    const paid = await api('POST', `/payables/${payable.body.id}/pay`, token('accountant'), { payment_id: payment });
+    assert.equal(paid.status, 200, JSON.stringify(paid.body));
+    const purchaseAfter = await schoolYear
+      .selectFrom('market_purchases')
+      .select(['payment_status', 'payment_id'])
+      .where('id', '=', received.id)
+      .executeTakeFirstOrThrow();
+    assert.equal(purchaseAfter.payment_status, 'paid');
+    assert.equal(purchaseAfter.payment_id, payment);
+  });
+
   it('P06-09: kế toán trưởng đề nghị, Hiệu trưởng từ chối rồi duyệt chốt; kỳ đã chốt chặn lập phiếu, đảo phiếu, sửa hóa đơn', async () => {
     // Chứng từ của tháng trước lập sẵn trước khi chốt
     const oldReceipt = await schoolYear

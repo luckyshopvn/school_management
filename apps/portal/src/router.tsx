@@ -36,9 +36,13 @@ import { LeaveRequestsPage } from './staff-attendance/LeaveRequestsPage.js';
 import { SchoolDaysPage } from './staff-attendance/SchoolDaysPage.js';
 import { WorkSchedulesPage } from './staff-attendance/WorkSchedulesPage.js';
 import { HealthPage } from './health/HealthPage.js';
+import { InteractionsPage } from './interactions/InteractionsPage.js';
+import { ActivitiesPage } from './activities/ActivitiesPage.js';
+import { KitchenPage } from './kitchen/KitchenPage.js';
 import { MedicinesPage } from './medicines/MedicinesPage.js';
 import { InventoryPage } from './inventory/InventoryPage.js';
 import { PurchaseRequestsPage } from './inventory/PurchaseRequestsPage.js';
+import { TeachingPage } from './teaching/TeachingPage.js';
 import { StaffAttendancePage } from './staff-attendance/StaffAttendancePage.js';
 import { ImportsPage } from './imports/ImportsPage.js';
 import { OrgUnitsPage } from './org-units/OrgUnitsPage.js';
@@ -48,6 +52,9 @@ import { ChangePasswordPage } from './pages/ChangePasswordPage.js';
 import { HomePage } from './pages/HomePage.js';
 import { LoginPage } from './pages/LoginPage.js';
 import { useSession } from './session/session.js';
+import { WorkPage } from './work/WorkPage.js';
+import { EvaluationsPage } from './work/EvaluationsPage.js';
+import { BonusDeductionsPage } from './work/BonusDeductionsPage.js';
 
 // Chuyển hướng theo trạng thái phiên: chưa đăng nhập về MH-47; bắt buộc đổi mật khẩu về MH-48 (BM-07)
 function SessionGate() {
@@ -108,9 +115,13 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/school-days', component: SchoolDaysPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/work-schedules', component: WorkSchedulesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/health', component: HealthPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/interactions', component: InteractionsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/kitchen', component: KitchenPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/medicines', component: MedicinesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/inventory', component: InventoryPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/activities', component: ActivitiesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/purchase-requests', component: PurchaseRequestsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/teaching', component: TeachingPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/leave-requests', component: LeaveRequestsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/leave-policies', component: LeavePoliciesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/payrolls', component: PayrollPage }),
@@ -120,6 +131,9 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/reports', component: ReportsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/api-clients', component: ApiClientsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/notifications', component: NotificationsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/work', component: WorkPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/evaluations', component: EvaluationsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/bonus-deductions', component: BonusDeductionsPage }),
 ]);
 
 export const router = createRouter({ routeTree });
