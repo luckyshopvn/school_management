@@ -272,8 +272,9 @@ export class OnlinePaymentsService {
   }
 
   // Thông báo tiền vào của nhà cung cấp thật (PayOS, SePay, Casso; YCTD-92): cổng chưa bật thì 404, chữ ký hoặc khóa sai
-  // thì 401 và không ghi giao dịch. Giao dịch có mã đơn ở nhà cung cấp mà không có yêu cầu thanh toán tương ứng thì bỏ
-  // qua (ví dụ dữ liệu thử PayOS gửi khi đăng ký địa chỉ nhận thông báo)
+  // thì 401 và không ghi giao dịch. Giao dịch có mã đơn ở nhà cung cấp mà không có yêu cầu thanh toán tương ứng vẫn ghi,
+  // đối chiếu theo nội dung và số tiền như thường; không khớp thì vào danh sách chờ kế toán, tiền không bị bỏ sót (dữ
+  // liệu thử PayOS gửi khi đăng ký địa chỉ nhận thông báo cũng vào danh sách chờ một lần)
   async receiveWebhook(provider: string, request: WebhookRequest) {
     const gateway = this.gateways.find(provider);
     if (!gateway || !isWebhookGateway(gateway)) {
@@ -290,9 +291,6 @@ export class OnlinePaymentsService {
     }
     const received = [];
     for (const transfer of incoming) {
-      if (transfer.providerReference && !(await this.findRequest(transfer.provider, transfer.providerReference))) {
-        continue;
-      }
       received.push(await this.receive(transfer));
     }
     return received;

@@ -41,12 +41,12 @@ vào sổ đăng ký cổng thanh toán đã có (YCTD-89), làm theo tài liệ
 
 `<máy chủ API>` là địa chỉ công khai HTTPS của máy chủ API (việc T6), tiền tố `/api/v1`.
 
-| Nhà cung cấp | Địa chỉ                                               | Ghi chú cấu hình bên nhà cung cấp                                                                                                                    |
-| ------------ | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| PayOS        | `POST <máy chủ API>/api/v1/payment-webhooks/payos`    | Khai ở kênh thanh toán trên my.payos.vn; PayOS gửi dữ liệu thử khi xác nhận địa chỉ, hệ thống bỏ qua vì mã đơn không có yêu cầu thanh toán tương ứng |
-| SePay        | `POST <máy chủ API>/api/v1/payment-webhooks/sepay`    | Chọn kiểu xác thực API Key, khóa trùng `SEPAY_WEBHOOK_API_KEY`; chọn sự kiện tiền vào                                                                |
-| Casso        | `POST <máy chủ API>/api/v1/payment-webhooks/casso`    | Tích hợp Webhook V2, Key bảo mật trùng `CASSO_WEBHOOK_SECRET`                                                                                        |
-| VNPay        | `GET <máy chủ API>/api/v1/payment-webhooks/vnpay-ipn` | Gửi địa chỉ IPN cho VNPay cấu hình; `VNPAY_RETURN_URL` là trang của ứng dụng phụ huynh sau khi thanh toán                                            |
+| Nhà cung cấp | Địa chỉ                                               | Ghi chú cấu hình bên nhà cung cấp                                                                                                                             |
+| ------------ | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PayOS        | `POST <máy chủ API>/api/v1/payment-webhooks/payos`    | Khai ở kênh thanh toán trên my.payos.vn; PayOS gửi dữ liệu thử khi xác nhận địa chỉ; dữ liệu này vào danh sách chờ một lần, kế toán ghi đã xử lý kèm nội dung |
+| SePay        | `POST <máy chủ API>/api/v1/payment-webhooks/sepay`    | Chọn kiểu xác thực API Key, khóa trùng `SEPAY_WEBHOOK_API_KEY`; chọn sự kiện tiền vào                                                                         |
+| Casso        | `POST <máy chủ API>/api/v1/payment-webhooks/casso`    | Tích hợp Webhook V2, Key bảo mật trùng `CASSO_WEBHOOK_SECRET`                                                                                                 |
+| VNPay        | `GET <máy chủ API>/api/v1/payment-webhooks/vnpay-ipn` | Gửi địa chỉ IPN cho VNPay cấu hình; `VNPAY_RETURN_URL` là trang của ứng dụng phụ huynh sau khi thanh toán                                                     |
 
 Mã trả lời IPN VNPay: `00` đã nhận (kể cả giao dịch không thành công), `97` sai chữ ký, `01` không có đơn, `04` sai số tiền,
 `02` đơn đã xác nhận.
@@ -61,11 +61,15 @@ Mã trả lời IPN VNPay: `00` đã nhận (kể cả giao dịch không thành
 - CT-12b-6: VNPay dựng địa chỉ thanh toán: số tiền nhân 100, nội dung là mã hóa đơn bỏ gạch, giờ tạo và giờ hết hạn (sau 15 phút) theo giờ Việt Nam, tham số xếp theo tên và mã hóa khoảng trắng thành dấu cộng, chữ ký HMAC-SHA512 đúng — đạt.
 - CT-12b-7: IPN VNPay đúng chữ ký (chữ ký viết hoa vẫn nhận) thành giao dịch tiền vào; sửa tham số thì báo sai chữ ký; thanh toán không thành công không tạo giao dịch — đạt.
 - CT-12b-8: bật cổng mà thiếu biến môi trường thì dừng khởi động và liệt kê biến thiếu; đủ biến thì tạo được cổng của cả bốn mã — đạt.
-- CT-12b-9: điểm cuối PayOS không cần mã phiên: sai chữ ký trả 401 và không ghi giao dịch; đúng chữ ký thì tự lập phiếu thu, hóa đơn hết nợ; gửi lại không lập phiếu thu thứ hai; dữ liệu thử có mã đơn lạ bị bỏ qua — đạt.
+- CT-12b-9: điểm cuối PayOS không cần mã phiên: sai chữ ký trả 401 và không ghi giao dịch; đúng chữ ký thì tự lập phiếu thu, hóa đơn hết nợ; gửi lại không lập phiếu thu thứ hai; mã đơn không có yêu cầu thanh toán (dữ liệu thử) vẫn ghi và vào danh sách chờ; giao dịch có code khác 00 hoặc success false bị bỏ qua — đạt.
 - CT-12b-10: điểm cuối SePay: thiếu hoặc sai khóa trả 401; đúng khóa thì tự lập phiếu thu, hóa đơn hết nợ; tiền ra bỏ qua; điểm cuối Casso khi chưa bật cổng trả 404 — đạt.
 - CT-12b-11: IPN VNPay qua máy chủ: sai chữ ký 97, đơn lạ 01, sai số tiền 04, đúng thì 00 và tự lập phiếu thu, gửi lại 02 — đạt.
 
 ## Giới hạn
+
+- Thông báo PayOS có mã đơn không thuộc yêu cầu thanh toán nào vẫn được ghi, đối chiếu theo nội dung và số tiền; không khớp
+  thì vào danh sách chờ để tiền không bị bỏ sót. Dữ liệu thử PayOS gửi khi đăng ký địa chỉ vì vậy hiện một lần trong danh sách
+  chờ; kế toán ghi đã xử lý kèm nội dung (ví dụ "dữ liệu thử của PayOS"). Chỉ bỏ qua thông báo có code khác 00 hoặc success false.
 
 - Chưa thử với tài khoản thật của PayOS, SePay, Casso, VNPay; mọi ca kiểm thử dùng khóa thử và fetch giả lập. Trước khi chạy
   thật cần thử trên môi trường sandbox của từng nhà cung cấp.

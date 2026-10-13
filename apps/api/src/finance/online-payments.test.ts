@@ -486,7 +486,7 @@ describe('Thanh toán trực tuyến bằng mã QR', () => {
       )
       .digest('hex');
 
-  it('CT-12b-9: thông báo PayOS sai chữ ký trả 401, không ghi giao dịch; đúng chữ ký thì tự lập phiếu thu HĐ-6; mã đơn lạ (dữ liệu thử) bỏ qua', async () => {
+  it('CT-12b-9: thông báo PayOS sai chữ ký trả 401, không ghi giao dịch; đúng chữ ký thì tự lập phiếu thu HĐ-6; mã đơn lạ (dữ liệu thử) vào danh sách chờ; giao dịch lỗi bỏ qua', async () => {
     await seedRequest('HĐ-6', 'T1', 'payos', '1760324645000601', 600_000);
     const data = {
       orderCode: 1760324645000601,
@@ -522,15 +522,27 @@ describe('Thanh toán trực tuyến bằng mã QR', () => {
     const repeated = await webhook('payos', { code: '00', desc: 'success', success: true, data, signature });
     assert.equal(repeated.status, 200);
     const sample = { ...data, orderCode: 123, reference: 'TF230204212323', description: 'VQRIO123' };
-    const ignored = await webhook('payos', {
+    const unknownOrder = await webhook('payos', {
       code: '00',
       desc: 'success',
       success: true,
       data: sample,
       signature: payosSignature('checksum-thu', sample),
     });
-    assert.equal(ignored.status, 200);
-    assert.equal(await transferOf('payos-TF230204212323'), undefined);
+    assert.equal(unknownOrder.status, 200);
+    const queued = await transferOf('payos-TF230204212323');
+    assert.equal(queued?.match_status, 'unknown_invoice');
+    assert.equal(queued?.receipt_id, null);
+    const failedData = { ...data, orderCode: 456, reference: 'FT-PAYOS-LOI' };
+    const failed = await webhook('payos', {
+      code: '01',
+      desc: 'failed',
+      success: false,
+      data: failedData,
+      signature: payosSignature('checksum-thu', failedData),
+    });
+    assert.equal(failed.status, 200);
+    assert.equal(await transferOf('payos-FT-PAYOS-LOI'), undefined);
   });
 
   it('CT-12b-10: thông báo SePay sai khóa trả 401; đúng khóa thì tự lập phiếu thu HĐ-7; tiền ra bỏ qua; Casso chưa bật trả 404', async () => {
