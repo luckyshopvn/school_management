@@ -193,6 +193,8 @@ export interface ChildrenTable extends CatalogRecordColumns {
   submitted_at: Date | null;
   approved_by: string | null;
   approved_at: Date | null;
+  // Các cột của tệp CSDL ngành không có cột riêng, khóa tiếng Anh cố định (YCTD-100)
+  moet_profile: ColumnType<Record<string, unknown> | null, string | null | undefined, string | null>;
 }
 
 export interface HealthProfilesTable extends CatalogRecordColumns {
@@ -211,6 +213,10 @@ export interface GuardiansTable extends CatalogRecordColumns {
   occupation: string | null;
   address: string | null;
   user_id: string | null;
+  // Năm sinh, số định danh mã hóa kèm bốn số cuối, nhập từ CSDL ngành (YCTD-100)
+  birth_year: ColumnType<number | null, number | null | undefined, number | null>;
+  id_number_encrypted: ColumnType<string | null, string | null | undefined, string | null>;
+  id_number_last4: ColumnType<string | null, string | null | undefined, string | null>;
 }
 
 export interface ChildGuardiansTable extends CatalogRecordColumns {
@@ -288,7 +294,8 @@ export interface NotificationRecipientsTable {
   delivered_via: NotificationChannel | null;
 }
 
-export type ImportType = 'classes' | 'children' | 'moet_codes' | 'opening_debts' | 'staff';
+export type ImportType =
+  'classes' | 'children' | 'moet_codes' | 'opening_debts' | 'staff' | 'moet_children' | 'moet_staff';
 export type ImportStatus = 'validated' | 'failed' | 'committed';
 
 export interface DataImportJobsTable {
@@ -305,6 +312,8 @@ export interface DataImportJobsTable {
   created_at: CreatedTimestamp;
   committed_by: string | null;
   committed_at: Date | null;
+  // Số dòng tạo mới, cập nhật, bỏ qua và ghi chú từng dòng của lần nhập CSDL ngành (YCTD-100)
+  preview: ColumnType<unknown, string | null | undefined, string | null>;
 }
 
 export type AttendanceStatus =
@@ -810,6 +819,9 @@ export interface StaffTable {
   status: Generated<'active' | 'terminated'>;
   user_id: string | null;
   dependents_count: Generated<number>;
+  // Mã định danh Bộ GD&ĐT và các cột khác của tệp CSDL ngành (YCTD-100)
+  moet_staff_code: ColumnType<string | null, string | null | undefined, string | null>;
+  moet_profile: ColumnType<Record<string, unknown> | null, string | null | undefined, string | null>;
   created_by: string | null;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;

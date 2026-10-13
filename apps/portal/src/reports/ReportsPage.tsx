@@ -6,6 +6,7 @@ import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { AppShell } from '../pages/AppShell.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
+import { AttendanceMealsView } from './AttendanceMealsReport.js';
 import { ConsolidatedView, ExportButton, ExportLogsView, OperationsView } from './PhaseTwoReports.js';
 import { formatNumber, readReport, type ReportRow } from './reports-api.js';
 import { ReportTable, type Column } from './ReportTable.js';
@@ -14,7 +15,7 @@ import { ReportTable, type Column } from './ReportTable.js';
 // quyền; số liệu do máy chủ tính, giao diện chỉ hiển thị. Giai đoạn 2 (YCTD-83) thêm thẻ báo cáo hoạt động (P17-10), báo
 // cáo hợp nhất (MH-29, P17-11), nhật ký xuất và nút xuất Excel cho người có quyền xuất dữ liệu (P17-12)
 type ReportCode = 'tuition' | 'debts' | 'cash-flow' | 'attendance' | 'staff-attendance' | 'saturday-classes';
-type TabCode = ReportCode | 'activities' | 'consolidated' | 'export-logs';
+type TabCode = ReportCode | 'attendance-meals' | 'activities' | 'consolidated' | 'export-logs';
 
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const firstOfMonth = () => `${today().slice(0, 7)}-01`;
@@ -295,6 +296,8 @@ export function ReportsPage() {
   const canExport = useHasPermission(PERMISSION_CODES.dataExport);
   const tabs: Array<{ code: TabCode; label: string }> = [
     ...REPORTS.filter((report) => permissions[report.code]),
+    // Điểm danh và suất ăn theo ngày, tuần, tháng theo mẫu của nhà trường (YCTD-100)
+    ...(permissions.attendance ? [{ code: 'attendance-meals' as const, label: 'Điểm danh và suất ăn' }] : []),
     ...(canOperations ? [{ code: 'activities' as const, label: 'Hoạt động và công việc' }] : []),
     ...(canConsolidated ? [{ code: 'consolidated' as const, label: 'Hợp nhất đơn vị' }] : []),
     ...(canExport ? [{ code: 'export-logs' as const, label: 'Nhật ký xuất' }] : []),
@@ -324,6 +327,7 @@ export function ReportsPage() {
           ))}
         </div>
         {basic ? <ReportView key={basic.code} code={basic.code} filter={basic.filter} canExport={canExport} /> : null}
+        {selected?.code === 'attendance-meals' ? <AttendanceMealsView canExport={canExport} /> : null}
         {selected?.code === 'activities' ? <OperationsView /> : null}
         {selected?.code === 'consolidated' ? <ConsolidatedView canExport={canExport} /> : null}
         {selected?.code === 'export-logs' ? <ExportLogsView /> : null}

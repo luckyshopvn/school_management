@@ -16,6 +16,28 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.55.0 – 2026-10-13
+
+- Phạm vi thay đổi: DT-13 phần 13c, báo cáo điểm danh và suất ăn theo ngày, tuần, tháng (YCTD-103).
+- Chức năng mới: báo cáo điểm danh và suất ăn, xuất Excel theo mẫu của trường, suất ăn cho bếp (P17-02, P12).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: không.
+- Thay đổi API: thêm `GET /reports/attendance-meals`, `GET /reports/attendance-meals/children`, `POST /reports/attendance-meals/export`, `GET /kitchen/meal-counts`.
+- Rủi ro: mã B suy từ lý do vắng có từ chỉ bệnh, có thể sót khi lý do ghi khác.
+- Khả năng tương thích: không đổi hành vi khi chưa bật nhà cung cấp; kiểm thử giữ bộ giả lập.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-13-phan-13a`; hoặc đặt lại biến môi trường về bộ giả lập.
+
+### Phiên bản 0.54.0 – 2026-10-13
+
+- Phạm vi thay đổi: DT-13 phần 13a, nhập thẳng tệp học sinh, cán bộ theo mẫu CSDL ngành (YCTD-100).
+- Chức năng mới: nhập tệp học sinh, cán bộ theo mẫu CSDL ngành, lưu đủ mọi cột (P01-13, P02-12, P07).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: tệp 0045, 0046 của năm học: hồ sơ ngành của trẻ và nhân sự, năm sinh và số định danh của người thân, bản xem trước của lượt nhập.
+- Thay đổi API: loại nhập `moet_children`, `moet_staff`; tải tệp nhận `org_unit_id`.
+- Rủi ro: giá trị danh mục chưa đối chiếu danh mục của Bộ; nhập lại thay toàn bộ hồ sơ ngành.
+- Khả năng tương thích: không đổi hành vi khi chưa bật nhà cung cấp; kiểm thử giữ bộ giả lập.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-13-phan-13a`; hoặc đặt lại biến môi trường về bộ giả lập.
+
 ### Phiên bản 0.53.0 – 2026-10-13
 
 - Phạm vi thay đổi: DT-12 phần 12d, cấu hình triển khai môi trường chạy thật (YCTD-98).
