@@ -34,11 +34,11 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
   - Thống kê chuẩn nghề nghiệp theo loại chuẩn trong phạm vi (lọc được đơn vị): số phiếu, số đã chốt, số chưa chốt, số phiếu và tỷ lệ từng mức xếp loại trên số phiếu đã chốt.
   - Không dùng lại phân hệ đánh giá nhân sự theo kỳ (P09-05, chấm điểm theo chỉ số của đơn vị) vì chuẩn nghề nghiệp xếp mức theo tiêu chí của văn bản, không chấm điểm; tách thành màn hình “Chuẩn nghề nghiệp” riêng.
   - Nhập mức đánh giá từ Excel (mục 3.2.2 của hệ thống Sở) chưa làm, xem mục hạn chế.
-- Thành phần bị ảnh hưởng: `05`, `07`, `08`, `14`, `16`, `17`, `21`, `01`, `02`, `03`, `23`, `index.md`; máy chủ API, cổng quản trị.
+- Thành phần bị ảnh hưởng: máy chủ API, cổng quản trị; tài liệu `01`, `02`, `03` (P02, P07), `07` (BR-97 đến BR-99, chuyển trạng thái), `08` (PQ-54 đến PQ-56, ghi chú 18), `10` (P02-13, P02-14, P07-05), `11`, `14` (MH-02, MH-72 đến MH-74), `16` (tám bảng, chỉ mục), `17` (điểm cuối, giao kèo), `21`, `23`, `24`, `index.md`.
 - Dữ liệu bị ảnh hưởng: tám bảng mới của năm học (tệp 0047); năm quyền mới (tệp 0037 của định danh).
 - API bị ảnh hưởng: nhóm điểm cuối `/program-completion`, `/child-groups`, `/professional-standards`, `/professional-criteria`, `/professional-evaluations`, `/me/professional-evaluation`; `GET /children` thêm lọc `group_id`.
-- Giao diện bị ảnh hưởng: ba màn hình mới trên cổng quản trị; màn hình Hồ sơ trẻ thêm ô lọc “Nhóm trẻ” (hiện khi có nhóm).
-- Quyền bị ảnh hưởng: PQ mới (xem mục Quyền).
+- Giao diện bị ảnh hưởng: ba màn hình mới trên cổng quản trị MH-72 Hoàn thành chương trình, MH-73 Nhóm học sinh, MH-74 Chuẩn nghề nghiệp; màn hình Hồ sơ trẻ (MH-02) thêm ô lọc theo nhóm học sinh (hiện khi có nhóm).
+- Quyền bị ảnh hưởng: PQ-54 (`P02.program-completion.manage`, `P02.program-completion.approve`), PQ-55 (`P02.child-group.manage`), PQ-56 (`P07.professional-standard.manage`, `P07.professional-standard.assess`). Chức năng mới P02-13, P02-14, P07-05; quy tắc mới BR-97 đến BR-99.
 - Ảnh hưởng chức năng cũ: không đổi hành vi cũ. Vi phạm quy tắc của phần này trả `ERR_RULE_VIOLATION` với mã chung của đợt DT-14 là `YCTD-102`.
 - Kiểm thử cần thực hiện: kịch bản CT-310 đến CT-319.
 - Trạng thái: Đã triển khai

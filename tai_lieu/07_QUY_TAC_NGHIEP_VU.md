@@ -1,8 +1,8 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.33
-- Ngày cập nhật: 2026-10-11
+- Phiên bản: 1.34
+- Ngày cập nhật: 2026-10-13
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -167,6 +167,9 @@ Bổ sung ngày 2026-10-09 theo yêu cầu tách vai trò Ban Giám hiệu thàn
 | BR-94 | Không mở được năm học mới khi năm học đang dùng còn miễn giảm, điều chỉnh hóa đơn, phiếu đảo phiếu thu, phiếu chi hoặc phiếu đảo phiếu chi chờ duyệt, vì năm cũ chuyển sang chỉ đọc (YCTD-69) |
 | BR-95 | Kỳ tài chính là tháng dương lịch của từng đơn vị, chỉ đề nghị chốt khi tháng đã kết thúc. Khi Hiệu trưởng đã duyệt chốt kỳ, không lập, phát hành, đảo hay duyệt đảo chứng từ thu chi có ngày thuộc kỳ, không tính lại, phát hành, miễn giảm hay điều chỉnh hóa đơn của kỳ; sai sót của kỳ đã chốt được sửa bằng chứng từ của kỳ đang mở (YCTD-82) Không ghi hoặc hủy bút toán thủ công có ngày thuộc kỳ đã chốt; bút toán tự động của chứng từ thuộc kỳ vẫn được ghi sổ vì chứng từ đã phát hành, duyệt trước khi chốt (YCTD-88) |
 | BR-96 | Mỗi bút toán phải cân: tổng Nợ bằng tổng Có, mỗi dòng ghi một phía với số tiền dương. Bút toán đã ghi sổ không sửa, không xóa; bút toán thủ công sai thì hủy kèm lý do rồi ghi lại, bút toán tự động sai thì sửa chứng từ gốc bằng phiếu đảo hoặc phiếu điều chỉnh. Mỗi chứng từ ghi sổ tự động đúng một lần cho mỗi đơn vị theo quy tắc ghi sổ đang dùng tại lúc ghi (YCTD-88) |
+| BR-97 | Hoàn thành chương trình giáo dục mầm non chỉ ghi cho lớp có bậc học bắt đầu từ 60 tháng tuổi (mẫu giáo 5-6 tuổi) và cho trẻ đang học ở lớp hiện tại; mỗi trẻ một kết quả mỗi năm học (Hoàn thành hoặc Chưa hoàn thành, ghi chú tối đa 500 ký tự), ghi lại thì thay kết quả cũ. Ban Giám hiệu chỉ xác nhận danh sách của lớp khi lớp có ít nhất một trẻ và mọi trẻ đang học đã có kết quả; danh sách đã xác nhận bị khóa, không ghi sửa được; hủy xác nhận bắt buộc lý do và ghi nhật ký thao tác, sau đó sửa và xác nhận lại (YCTD-104) |
+| BR-98 | Mỗi nhân sự có một phiếu đánh giá chuẩn nghề nghiệp mỗi năm học; loại chuẩn (giáo viên mầm non hoặc hiệu trưởng, chuẩn hiệu trưởng dùng cho Hiệu trưởng, Phó Hiệu trưởng, quản lý đơn vị) chọn lúc mở; phiếu giữ danh mục tiêu chí lúc mở, sửa danh mục chỉ áp cho phiếu mở sau. Nhân sự chỉ gửi tự đánh giá khi mọi tiêu chí có mức, đã gửi thì không tự sửa; người đánh giá chỉ chốt khi mọi tiêu chí có mức của mình, mức cuối của tiêu chí là mức của người đánh giá; phiếu đã chốt không sửa. Phiếu chuẩn giáo viên do người có quyền đánh giá trong phạm vi đơn vị chính của nhân sự; phiếu chuẩn hiệu trưởng chỉ Hiệu trưởng. Không ai mở, đánh giá hay chốt phiếu của chính mình (YCTD-104) |
+| BR-99 | Xếp loại chung của phiếu chuẩn nghề nghiệp khi chốt: Chưa đạt khi có tiêu chí Chưa đạt; Tốt khi mọi tiêu chí từ Khá trở lên, ít nhất 2/3 số tiêu chí đạt Tốt và mọi tiêu chí trọng yếu đạt Tốt; Khá khi mọi tiêu chí từ Đạt trở lên, ít nhất 2/3 số tiêu chí từ Khá trở lên và mọi tiêu chí trọng yếu từ Khá trở lên; còn lại là Đạt. "Ít nhất 2/3" so sánh số nguyên: số tiêu chí đạt mức × 3 ≥ tổng số tiêu chí × 2. Tiêu chí trọng yếu là tiêu chí đánh dấu trên danh mục, mặc định các tiêu chí của tiêu chuẩn 1 và 2. Quy tắc theo cách xếp loại của Thông tư 26/2018/TT-BGDĐT và Thông tư 25/2018/TT-BGDĐT, cần đối chiếu văn bản (YCTD-104) |
 
 Danh mục chứng từ áp dụng hạn mức: phiếu chi, phiếu đảo phiếu thu (YCTD-23), phiếu đảo phiếu chi (YCTD-24), đề nghị mua hàng, phiếu điều chỉnh hóa đơn, miễn giảm học phí, bảng lương kỳ, chốt kỳ tài chính. Mức hạn mức cụ thể chưa có, xem Q-22 và Q-112.
 
@@ -184,6 +187,8 @@ Chỉ Ban Giám hiệu phê duyệt chứng từ thuộc danh mục trên theo B
 | Hoạt động của lớp | Nháp → Chờ duyệt → Đã công bố → Đã ẩn |
 | Đề nghị mua hàng | Chờ duyệt → Đã duyệt → Đã mua → Đã nhập kho, hoặc Từ chối |
 | Hồ sơ tuyển sinh | Tiếp nhận → Đang xét → Đạt → Đã nhập học, hoặc Không đạt |
+| Danh sách hoàn thành chương trình của lớp | Đang ghi → Đã xác nhận (khóa) → Đang ghi khi hủy xác nhận kèm lý do (BR-97) |
+| Phiếu đánh giá chuẩn nghề nghiệp | Chờ tự đánh giá → Chờ đánh giá → Đã chốt (BR-98) |
 
 ## 14. Chưa xác minh được
 
