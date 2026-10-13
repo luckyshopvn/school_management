@@ -12,6 +12,7 @@ export type {
   AcademicTermType,
   AcademicYearDatabaseStatus,
   AcademicYearStatus,
+  IntegrationCredentialConnector,
   SystemDatabase,
 } from '../system/schema.js';
 export type {

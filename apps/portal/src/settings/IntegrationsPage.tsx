@@ -6,7 +6,9 @@ import { ApiError, requestJson } from '../session/api-client.js';
 
 // MH-71 Kết nối ngoài (P01.integration.manage; P14-08, G3-03, G3-08; YCTD-90): Hiệu trưởng bật, tắt Fanpage và Zalo Official
 // Account, nhập mã trang, mã Official Account; khóa truy cập đặt ở biến môi trường của máy chủ nên trang chỉ báo đã có hay
-// chưa. Liên kết số điện thoại phụ huynh đã quan tâm Official Account với mã người dùng Zalo
+// chưa. Liên kết số điện thoại phụ huynh đã quan tâm Official Account với mã người dùng Zalo. YCTD-92: nút Kiểm tra kết nối
+// cho từng kết nối (máy chủ gọi Facebook, Zalo và trả tên trang, tên Official Account hoặc lỗi) và ô nhập khóa làm mới Zalo
+// (ô mật khẩu; máy chủ lưu mã hóa, không trả lại) khi khóa cũ hết hạn sau 3 tháng
 type Connector = 'facebook' | 'zalo';
 
 interface Integration {
@@ -15,6 +17,18 @@ interface Integration {
   config: Record<string, string>;
   provider: string;
   credentials_configured: boolean;
+  token_status?: {
+    refresh_token_configured: boolean;
+    access_token_expires_at: string | null;
+    refreshed_at: string | null;
+  };
+}
+
+interface ConnectionTest {
+  connector: Connector;
+  ok: boolean;
+  page_name?: string;
+  oa_name?: string;
 }
 
 interface Follower {
@@ -77,6 +91,10 @@ function ConnectorForm({ integration, onSaved }: { integration: Integration; onS
       onSaved(`Đã lưu ${fields.title}`);
     },
   });
+  const test = useMutation({
+    mutationFn: () => send<ConnectionTest>('POST', `/api/v1/integrations/${integration.connector}/test`),
+  });
+  const testedName = test.data ? (test.data.page_name ?? test.data.oa_name ?? '') : '';
   return (
     <form
       className="flex flex-col gap-3 rounded-lg bg-card p-4"
@@ -90,6 +108,12 @@ function ConnectorForm({ integration, onSaved }: { integration: Integration; onS
       <p className="text-label text-text-secondary">
         Nhà cung cấp: {integration.provider === 'development' ? 'bộ giả lập' : integration.provider} ·{' '}
         {integration.credentials_configured ? 'Đã có khóa truy cập ở máy chủ' : 'Chưa có khóa truy cập ở máy chủ'}
+        {integration.token_status
+          ? ` · ${integration.token_status.refresh_token_configured ? 'Đã có khóa làm mới' : 'Chưa có khóa làm mới'}`
+          : ''}
+        {integration.token_status?.access_token_expires_at
+          ? ` · Khóa truy cập hết hạn lúc ${new Date(integration.token_status.access_token_expires_at).toLocaleString('vi-VN')}`
+          : ''}
       </p>
       <label className="flex items-center gap-2 text-content text-text">
         <input type="checkbox" checked={enabled} onChange={(event) => setEnabled(event.target.checked)} />
@@ -99,9 +123,64 @@ function ConnectorForm({ integration, onSaved }: { integration: Integration; onS
         <TextField label={fields.idLabel} value={externalId} onChange={(event) => setExternalId(event.target.value)} />
         <TextField label={fields.nameLabel} value={name} onChange={(event) => setName(event.target.value)} />
       </div>
-      <div>
+      <div className="flex flex-wrap gap-2">
         <Button type="submit" variant="primary" disabled={save.isPending}>
           Lưu {fields.title}
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          aria-label={`Kiểm tra kết nối ${fields.title}`}
+          disabled={test.isPending}
+          onClick={() => test.mutate()}
+        >
+          Kiểm tra kết nối
+        </Button>
+      </div>
+      {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
+      {test.error ? <Alert tone="danger">{messageOf(test.error)}</Alert> : null}
+      {test.data ? <Alert tone="success">Kết nối được tới {testedName || fields.title}</Alert> : null}
+    </form>
+  );
+}
+
+// Thay khóa làm mới Zalo; ô mật khẩu, sau khi lưu xóa trắng vì máy chủ không trả lại khóa
+function ZaloRefreshToken({ onSaved }: { onSaved(message: string): void }) {
+  const queryClient = useQueryClient();
+  const [refreshToken, setRefreshToken] = useState('');
+  const save = useMutation({
+    mutationFn: () =>
+      send<Integration>('PUT', '/api/v1/integrations/zalo/refresh-token', { refresh_token: refreshToken }),
+    onSuccess: async () => {
+      setRefreshToken('');
+      await queryClient.invalidateQueries({ queryKey: ['integrations'] });
+      onSaved('Đã cập nhật khóa làm mới Zalo');
+    },
+  });
+  return (
+    <form
+      className="flex flex-col gap-3 rounded-lg bg-card p-4"
+      aria-label="Khóa làm mới Zalo"
+      onSubmit={(event) => {
+        event.preventDefault();
+        save.mutate();
+      }}
+    >
+      <h2 className="text-section-title font-semibold text-text">Khóa làm mới Zalo</h2>
+      <p className="text-label text-text-secondary">
+        Khóa làm mới do Zalo cấp có hạn 3 tháng; máy chủ tự làm mới khóa truy cập. Khi Zalo báo khóa làm mới hết hạn,
+        lấy khóa mới trên trang quản trị ứng dụng Zalo rồi dán vào đây. Khóa được lưu mã hóa và không hiển thị lại.
+      </p>
+      <TextField
+        label="Khóa làm mới mới"
+        type="password"
+        autoComplete="off"
+        value={refreshToken}
+        onChange={(event) => setRefreshToken(event.target.value)}
+      />
+      <div>
+        <Button type="submit" variant="primary" disabled={!refreshToken.trim() || save.isPending}>
+          Cập nhật khóa làm mới Zalo
         </Button>
       </div>
       {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
@@ -198,6 +277,7 @@ export function IntegrationsPage() {
         {(integrations.data ?? []).map((integration) => (
           <ConnectorForm key={integration.connector} integration={integration} onSaved={setToastMessage} />
         ))}
+        {integrations.data ? <ZaloRefreshToken onSaved={setToastMessage} /> : null}
         <Followers onSaved={setToastMessage} />
       </div>
     </AppShell>

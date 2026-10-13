@@ -12,11 +12,15 @@ import { notFoundError, type RequestBody } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { FacebookPublisher } from './facebook-publisher.js';
 import { ZaloSender } from './zalo-sender.js';
+import { ZaloTokenStore } from './zalo-token-store.js';
 
 // Cấu hình kết nối ngoài toàn trường (P01.integration.manage, VT-02; G3-03, G3-08; YCTD-90). Mỗi kết nối có bật hay tắt và
 // thông tin không bí mật: Fanpage gồm mã trang, tên trang; Zalo gồm mã Official Account, tên. Khóa truy cập chỉ đặt ở biến
 // môi trường của máy chủ; API chỉ báo đã có khóa hay chưa. Phụ huynh quan tâm Official Account được người quản trị liên kết
-// số điện thoại với mã người dùng Zalo trên màn hình kết nối (chưa có webhook nhận sự kiện quan tâm cho tới việc T7)
+// số điện thoại với mã người dùng Zalo trên màn hình kết nối (chưa có webhook nhận sự kiện quan tâm cho tới việc T7).
+// YCTD-92: người quản trị bấm Kiểm tra kết nối để máy chủ gọi Facebook, Zalo bằng khóa đang dùng và trả tên trang, tên
+// Official Account hoặc lỗi; khóa làm mới Zalo (hạn 3 tháng) được dán qua API, lưu mã hóa ở cơ sở dữ liệu hệ thống, không
+// bao giờ trả lại, nhật ký chỉ ghi việc thay khóa
 type Executor = Kysely<SchoolYearDatabase> | Transaction<SchoolYearDatabase>;
 
 export const CONNECTORS: IntegrationConnector[] = ['facebook', 'zalo'];
@@ -27,6 +31,7 @@ const CONFIG_FIELDS: Record<IntegrationConnector, { required: string; optional: 
 const LABELS: Record<IntegrationConnector, string> = { facebook: 'Fanpage', zalo: 'Zalo Official Account' };
 const PHONE_PATTERN = /^0\d{9}$/;
 const EXTERNAL_ID_PATTERN = /^[A-Za-z0-9_.-]{1,100}$/;
+const REFRESH_TOKEN_PATTERN = /^\S{10,2000}$/;
 
 export interface IntegrationState {
   connector: IntegrationConnector;
@@ -50,7 +55,49 @@ export class IntegrationsService {
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly facebook: FacebookPublisher,
     private readonly zalo: ZaloSender,
+    private readonly zaloTokens: ZaloTokenStore,
   ) {}
+
+  // Kiểm tra kết nối Fanpage: đọc mã và tên trang bằng khóa trang ở máy chủ
+  async testFacebook() {
+    const { database } = await this.currentSchoolYear.require();
+    const pageId = (await readIntegration(database, 'facebook')).config.page_id;
+    if (!pageId) {
+      throw ruleViolationError('G3-03', 'Chưa nhập mã trang Fanpage');
+    }
+    try {
+      const page = await this.facebook.verify(pageId);
+      return { connector: 'facebook', ok: true, page_id: page.id, page_name: page.name };
+    } catch (error) {
+      throw ruleViolationError('G3-03', `Kiểm tra kết nối Fanpage lỗi: ${messageOf(error)}`);
+    }
+  }
+
+  // Kiểm tra kết nối Zalo: đọc thông tin Official Account; khóa sắp hết hạn thì tự làm mới trước
+  async testZalo() {
+    try {
+      const account = await this.zalo.verify();
+      return { connector: 'zalo', ok: true, oa_id: account.oaId, oa_name: account.name };
+    } catch (error) {
+      throw ruleViolationError('G3-08', `Kiểm tra kết nối Zalo lỗi: ${messageOf(error)}`);
+    }
+  }
+
+  // Thay khóa làm mới Zalo khi khóa cũ hết hạn hoặc bị thu hồi; nhật ký không ghi giá trị khóa
+  async replaceZaloRefreshToken(refreshToken: string, origin: ChangeOrigin) {
+    const { database } = await this.currentSchoolYear.require();
+    const saved = await this.zaloTokens.replaceRefreshToken(refreshToken, origin.actorUserId);
+    await writeAuditLog(database, {
+      origin,
+      orgUnitId: null,
+      entityName: 'integration_credentials',
+      entityId: saved.id,
+      action: saved.replaced ? 'update' : 'create',
+      before: null,
+      after: { connector: 'zalo', refresh_token: 'đã thay' },
+    });
+    return this.view(database, 'zalo');
+  }
 
   async list() {
     const { database } = await this.currentSchoolYear.require();
@@ -199,10 +246,15 @@ export class IntegrationsService {
     return {
       ...state,
       provider: provider.provider,
-      // Chỉ báo đã có khóa truy cập ở biến môi trường hay chưa, không trả khóa
+      // Chỉ báo đã có khóa truy cập hay chưa, không trả khóa
       credentials_configured: provider.available,
+      ...(connector === 'zalo' ? { token_status: await this.zaloTokens.status() } : {}),
     };
   }
+}
+
+function messageOf(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
 
 function readConnector(value: string): IntegrationConnector {
@@ -275,6 +327,36 @@ export class IntegrationsController {
       throw validationError(errors);
     }
     return this.service.update(connector, { enabled: body?.enabled === true, config }, originOf(request, currentUser));
+  }
+
+  @Post('integrations/facebook/test')
+  @HttpCode(200)
+  @RequirePermission(PERMISSION_CODES.integrationManage)
+  testFacebook() {
+    return this.service.testFacebook();
+  }
+
+  @Post('integrations/zalo/test')
+  @HttpCode(200)
+  @RequirePermission(PERMISSION_CODES.integrationManage)
+  testZalo() {
+    return this.service.testZalo();
+  }
+
+  @Put('integrations/zalo/refresh-token')
+  @RequirePermission(PERMISSION_CODES.integrationManage)
+  replaceZaloRefreshToken(
+    @Body() body: RequestBody,
+    @Req() request: Request,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const refreshToken = typeof body?.refresh_token === 'string' ? body.refresh_token.trim() : '';
+    if (!REFRESH_TOKEN_PATTERN.test(refreshToken)) {
+      throw validationError([
+        { field: 'refresh_token', message: 'Nhập khóa làm mới do Zalo cấp (từ 10 ký tự, không chứa khoảng trắng)' },
+      ]);
+    }
+    return this.service.replaceZaloRefreshToken(refreshToken, originOf(request, currentUser));
   }
 
   @Get('integrations/zalo/followers')

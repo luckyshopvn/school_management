@@ -55,6 +55,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.2.0 | Bốn thay đổi: Ban Giám hiệu, nhiều cấp đơn vị, tách giao diện và máy chủ, dịch vụ định danh | 01 đến 07 | Đã có |
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
+| 0.52.0 | DT-12 phần 12c, Fanpage và Zalo Official Account chạy thật (YCTD-95) | 13, 21 | Đã có |
 | 0.51.0 | DT-12 phần 12b, cổng thanh toán PayOS, SePay, Casso, VNPay (YCTD-94) | 13, 21 | Đã có |
 | 0.50.0 | DT-12 phần 12a, nối nhà cung cấp tin nhắn eSMS.vn (YCTD-93) | 13, 21 | Đã có |
 | 0.49.0 | Eric nghiệm thu ba bản 1.0.0, 1.1.0, 1.2.0, chọn nhà cung cấp, lập đợt DT-12 (YCTD-92) | 01, 03 | Đã có |

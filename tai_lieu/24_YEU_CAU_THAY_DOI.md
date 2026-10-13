@@ -57,6 +57,24 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: không.
 - Ảnh hưởng chức năng cũ: không.
 - Kiểm thử cần thực hiện: kiểm thử giao diện `04-accounts.spec.ts` (chọn cả nhóm, bỏ chọn tất cả).
+
+### YCTD-95: DT-12 phần 12c: Fanpage và Zalo Official Account chạy thật – 2026-10-13
+
+- Lý do: Eric quyết định nối Fanpage (việc T4) và Zalo Official Account (việc T7) thật ngày 2026-10-13 (YCTD-92); khóa cấp khi triển khai. Các điểm kỹ thuật dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Facebook: Graph API v21.0, đổi bằng `FACEBOOK_GRAPH_VERSION`; bài không hình chỉ đăng nội dung; khóa gửi ở tiêu đề, không trên đường dẫn; lỗi Graph API thường gặp báo bằng tiếng Việt kèm mã. Bật kết nối thật bằng `FACEBOOK_PUBLISHER=graph` kèm `FACEBOOK_PAGE_ACCESS_TOKEN`.
+  - Zalo: kho khóa ở cơ sở dữ liệu hệ thống (bảng `integration_credentials`, tệp `0003_create_integration_credentials`) vì khóa dùng chung toàn trường và giữ qua các năm học; khóa truy cập, hạn và khóa làm mới mã hóa AES-256-GCM bằng `CHILD_DATA_ENCRYPTION_KEY` (hàm mã hóa tách ra dùng chung với số định danh của trẻ). Làm mới khóa khi còn dưới 5 phút hoặc khi Zalo báo khóa không hợp lệ (-216, -124) rồi thử lại một lần; khóa làm mới mới lưu ngay trong cùng giao dịch vì Zalo vô hiệu khóa cũ sau mỗi lần dùng; khóa dòng trong cơ sở dữ liệu để nhiều tiến trình không làm mới hai lần. Khóa ban đầu lấy từ `ZALO_OA_REFRESH_TOKEN`. Bật kết nối thật bằng `ZALO_SENDER=zalo_oa` kèm `ZALO_APP_ID`, `ZALO_APP_SECRET`, `ZALO_OA_REFRESH_TOKEN`; thiếu biến thì máy chủ không khởi động. Chỉ đặt `ZALO_OA_ACCESS_TOKEN` không còn bật Zalo thật.
+  - Lỗi Zalo thường gặp báo bằng tiếng Việt; tin ngoài thời hạn tương tác hoặc Zalo lỗi vẫn chuyển sang tin nhắn như YCTD-90.
+  - API mới, quyền `P01.integration.manage` (VT-02): `POST /api/v1/integrations/facebook/test` trả tên trang; `POST /api/v1/integrations/zalo/test` trả tên Official Account; `PUT /api/v1/integrations/zalo/refresh-token` lưu khóa làm mới mới, không bao giờ trả lại khóa, nhật ký thay đổi chỉ ghi đã thay. `GET /api/v1/integrations` thêm trạng thái khóa Zalo.
+  - Màn hình Kết nối ngoài (MH-71): nút "Kiểm tra kết nối" cho Fanpage và Zalo; biểu mẫu "Khóa làm mới Zalo" có ô mật khẩu; dòng trạng thái khóa Zalo.
+  - Chưa thử với Fanpage và Official Account thật; chưa dùng tin giao dịch ZNS; chưa có webhook sự kiện quan tâm Official Account; khóa trang Facebook vẫn đặt ở biến môi trường.
+- Thành phần bị ảnh hưởng: máy chủ API (kết nối ngoài, mã hóa dữ liệu), cơ sở dữ liệu hệ thống, cổng quản trị, `.env.example`; tài liệu `01`, `02`, `03`, `11`, `16`, `21`, `23`, `24`, `index.md`.
+- Dữ liệu bị ảnh hưởng: bảng `integration_credentials` của cơ sở dữ liệu hệ thống.
+- API bị ảnh hưởng: ba điểm cuối mới của kết nối ngoài; `GET /api/v1/integrations` thêm `token_status`.
+- Giao diện bị ảnh hưởng: MH-71.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: bật Zalo thật cần `ZALO_SENDER=zalo_oa`.
+- Kiểm thử cần thực hiện: kịch bản CT-261 đến CT-268.
 - Trạng thái: Đã triển khai
 
 ### YCTD-94: DT-12 phần 12b: cổng thanh toán PayOS, SePay, Casso, VNPay – 2026-10-13

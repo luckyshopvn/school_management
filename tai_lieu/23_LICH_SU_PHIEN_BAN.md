@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.52.0 – 2026-10-13
+
+- Phạm vi thay đổi: DT-12 phần 12c, Fanpage và Zalo Official Account chạy thật (YCTD-95).
+- Chức năng mới: kiểm tra kết nối Fanpage, Zalo, làm mới khóa Zalo tự động (P14-08, G3-08).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: bảng `integration_credentials` của cơ sở dữ liệu hệ thống (tệp 0003).
+- Thay đổi API: thêm `POST /api/v1/integrations/facebook/test`, `POST /api/v1/integrations/zalo/test`, `PUT /api/v1/integrations/zalo/refresh-token`.
+- Rủi ro: chưa thử với Fanpage và Official Account thật; đổi `CHILD_DATA_ENCRYPTION_KEY` thì phải dán lại khóa làm mới Zalo.
+- Khả năng tương thích: không đổi hành vi khi chưa bật nhà cung cấp; kiểm thử giữ bộ giả lập.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-12-phan-12c`; hoặc đặt lại biến môi trường về bộ giả lập.
+
 ### Phiên bản 0.51.0 – 2026-10-13
 
 - Phạm vi thay đổi: DT-12 phần 12b, cổng thanh toán PayOS, SePay, Casso, VNPay (YCTD-94).
