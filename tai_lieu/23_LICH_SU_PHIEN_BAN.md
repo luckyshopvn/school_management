@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.48.0 – 2026-10-11
+
+- Phạm vi thay đổi: DT-11, báo cáo kiểm thử giai đoạn 3, bản ứng viên phát hành 1.2.0 (YCTD-91).
+- Chức năng mới: không.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: không.
+- Thay đổi API: không.
+- Rủi ro: các giới hạn đã biết ở mục 6 của `30_BAO_CAO_KIEM_THU_G3.md`.
+- Khả năng tương thích: không ảnh hưởng chức năng cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-11-bao-cao-g3`.
+
 ### Phiên bản 0.47.0 – 2026-10-11
 
 - Phạm vi thay đổi: DT-11 phần 11c, sổ kế toán kép theo chế độ kế toán hành chính, sự nghiệp (YCTD-88).

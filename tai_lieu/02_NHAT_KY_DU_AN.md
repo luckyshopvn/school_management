@@ -14,6 +14,26 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-11 — DT-11: báo cáo kiểm thử giai đoạn 3, bản ứng viên 1.2.0
+
+#### Công việc đã thực hiện
+
+- Gộp năm phần 11a đến 11e vào `main` (yêu cầu gộp số 58 đến 62), quyền và kế hoạch ở yêu cầu gộp số 56, 57.
+- Viết `30_BAO_CAO_KIEM_THU_G3.md`.
+- Kết quả: máy chủ API 518/518, kiểm thử giao diện 62/62; kịch bản CT 224/235 đạt, ca chi tiết CTC 443/453 đạt.
+
+#### Quyết định
+
+- Claude tự chọn các điểm của YCTD-91 theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-91 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.48.0.
+
+#### Vấn đề tồn đọng
+
+- Eric nghiệm thu ba bản ứng viên 1.0.0, 1.1.0, 1.2.0; quyết định G3-04; việc T1, T4, T6, T7.
+
 ### 2026-10-11 — DT-11 phần 11c: sổ kế toán kép
 
 #### Công việc đã thực hiện
