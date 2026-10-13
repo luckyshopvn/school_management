@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.59
+- Phiên bản: 1.60
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -113,6 +113,15 @@ Giao kèo:
 
 Thay bốn dòng P18 hiện có trong `17` bằng:
 
+
+Giao kèo sổ kế toán (YCTD-88):
+
+1. Xem: người có `P06.ledger.view` hoặc `P06.ledger.manage`; phạm vi theo đơn vị được gán, gán ở Trường chính là toàn trường. `org_unit_id` ngoài phạm vi trả `ERR_FORBIDDEN`; bỏ trống là mọi đơn vị trong phạm vi. `from`, `to` bắt buộc dạng YYYY-MM-DD, from không sau to (`ERR_VALIDATION`). Mỗi lần xem sổ, báo cáo, xuất Excel thì ghi sổ chứng từ chưa ghi trước.
+2. `POST /ledger/accounts` nhận `parent_id`, `code`, `name`: chỉ người quản lý sổ ở Trường chính (`ERR_FORBIDDEN`); số hiệu sai dạng `ERR_VALIDATION`; không bắt đầu bằng số hiệu cha, tài khoản cha ngừng dùng `ERR_RULE_VIOLATION` mã P06-12; trùng số hiệu `ERR_CONFLICT`. `PATCH` nhận `name`, `status`; tài khoản theo chế độ, ngừng dùng khi còn tài khoản chi tiết đang dùng hoặc đang trong quy tắc trả `ERR_RULE_VIOLATION` mã P06-12.
+3. `PUT /ledger/posting-rules` nhận `document_type`, `category_id` (chỉ loại chứng từ theo khoản mục), `debit_account_id`, `credit_account_id`: phía tiền của quỹ phải để trống, phía còn lại bắt buộc, hai phía khác nhau, tài khoản đang dùng (`ERR_VALIDATION`); quy tắc `money_cash`, `money_bank` chỉ khai báo phía Nợ. Có rồi thì thay, chưa có thì thêm. `DELETE` quy tắc chung trả `ERR_RULE_VIOLATION` mã P06-12.
+4. `POST /ledger/post-documents`: người có `P06.ledger.manage` ở bất kỳ đơn vị nào; ghi cho toàn trường; trả `{ posted: { receipt, payment, receipt_reversal, payment_reversal, invoice, discount, invoice_adjustment, payroll, settlement }, total }`; chạy lại trả `total` 0.
+5. `POST /ledger/entries` nhận `org_unit_id`, `entry_date`, `description`, `lines` (2–50 dòng `account_id`, `debit`, `credit`, `description`), `request_key` tùy chọn: ngoài phạm vi quản lý `ERR_FORBIDDEN`; dòng sai, tổng Nợ khác tổng Có, ngày sau hôm nay, ngày ngoài năm học, tài khoản ngừng dùng `ERR_VALIDATION`; ngày thuộc kỳ đã chốt `ERR_RULE_VIOLATION` mã BR-95; gửi lại cùng `request_key` trả bút toán đã ghi. `POST /ledger/entries/{id}/void` nhận `reason` bắt buộc; bút toán tự động, số dư đầu năm hoặc đã hủy `ERR_CONFLICT`; kỳ đã chốt BR-95.
+6. Bảng cân đối trả `accounts` (account_code, account_name, level, opening_debit, opening_credit, period_debit, period_credit, closing_debit, closing_credit), `totals` và `balanced`. Sổ cái trả `account`, `lines` (entry_date, code, description, source_code, account_code, counterpart_accounts, debit, credit, balance_debit, balance_credit), `totals`. Sổ nhật ký chung trả `entries` (kèm `lines`), `lines` phẳng để xuất và `totals`.
 
 Giao kèo của nhóm điểm cuối nhập sao kê và cổng thanh toán (DT-11 phần 11d, YCTD-89):
 
@@ -710,6 +719,20 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 | POST | /api/v1/payments/{id}/reverse/reject | Ban Giám hiệu từ chối phiếu đảo phiếu chi kèm lý do |
 | GET | /api/v1/payment-reversals/pending | Phiếu đảo phiếu chi chờ duyệt của người duyệt (YCTD-56) |
 | GET, POST | /api/v1/cash-accounts | Danh sách quỹ và tài khoản ngân hàng của đơn vị; khai báo quỹ hoặc tài khoản (YCTD-53) |
+| GET | /api/v1/ledger/accounts | Hệ thống tài khoản kèm cờ có tài khoản chi tiết và quyền sửa (người xem hoặc quản lý sổ) |
+| POST | /api/v1/ledger/accounts | Thêm tài khoản chi tiết dưới tài khoản cha (quản lý sổ ở Trường chính) |
+| PATCH | /api/v1/ledger/accounts/{id} | Đổi tên hoặc ngừng dùng, dùng lại tài khoản chi tiết |
+| GET | /api/v1/ledger/posting-rules | Loại chứng từ và quy tắc ghi sổ đang dùng |
+| PUT | /api/v1/ledger/posting-rules | Lưu quy tắc của một loại chứng từ (và khoản mục) |
+| DELETE | /api/v1/ledger/posting-rules/{id} | Bỏ quy tắc riêng theo khoản mục |
+| POST | /api/v1/ledger/post-documents | Ghi sổ chứng từ chưa ghi, trả số bút toán theo loại chứng từ |
+| GET | /api/v1/ledger/entries | Sổ nhật ký chung theo đơn vị (bỏ trống là cả phạm vi) và khoảng ngày from, to |
+| GET | /api/v1/ledger/entries/{id} | Một bút toán kèm dòng |
+| POST | /api/v1/ledger/entries | Ghi bút toán thủ công |
+| POST | /api/v1/ledger/entries/{id}/void | Hủy bút toán thủ công kèm lý do |
+| GET | /api/v1/ledger/reports/trial-balance | Bảng cân đối số phát sinh |
+| GET | /api/v1/ledger/reports/general-ledger | Sổ cái của một tài khoản (account_id) gồm tài khoản chi tiết |
+| POST | /api/v1/reports/ledger-journal/export, /ledger-trial-balance/export, /ledger-general-ledger/export | Xuất Excel sổ nhật ký chung, bảng cân đối, sổ cái (P17-12) |
 | GET, PUT | /api/v1/bank-statement-profiles/{accountId} | Xem và lưu cấu hình cột của tệp sao kê của tài khoản ngân hàng (G3-05) |
 | GET, POST | /api/v1/bank-statement-imports | Danh sách lần nhập của tài khoản; nhập tệp sao kê Excel hoặc CSV rồi đối soát tự động (G3-05) |
 | POST | /api/v1/bank-transactions/{id}/create-receipt | Xác nhận đề xuất: lập phiếu thu chuyển khoản từ dòng sao kê và khớp (G3-05) |

@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.32
+- Phiên bản: 1.33
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -165,7 +165,8 @@ Bổ sung ngày 2026-10-09 theo yêu cầu tách vai trò Ban Giám hiệu thàn
 | BR-92 | Kỳ hè thuộc năm học đó. Trẻ học hè phải được đăng ký theo từng tháng hè; trẻ đã đăng ký thì điểm danh và tính học phí như tháng thường theo biểu phí hiện hành, trẻ không đăng ký thì không có trong bảng điểm danh và không có hóa đơn của tháng hè đó (YCTD-30) |
 | BR-93 | Mỗi thời điểm chỉ có một năm học đang dùng. Mở năm học mới là một thao tác: kiểm tra BR-89, tạo cơ sở dữ liệu năm mới, chuyển dữ liệu dùng chung, chuyển năm đang dùng sang đã đóng và cơ sở dữ liệu của năm đó sang chỉ đọc. Năm học đầu tiên của hệ thống mở mà không có năm trước (YCTD-37) |
 | BR-94 | Không mở được năm học mới khi năm học đang dùng còn miễn giảm, điều chỉnh hóa đơn, phiếu đảo phiếu thu, phiếu chi hoặc phiếu đảo phiếu chi chờ duyệt, vì năm cũ chuyển sang chỉ đọc (YCTD-69) |
-| BR-95 | Kỳ tài chính là tháng dương lịch của từng đơn vị, chỉ đề nghị chốt khi tháng đã kết thúc. Khi Hiệu trưởng đã duyệt chốt kỳ, không lập, phát hành, đảo hay duyệt đảo chứng từ thu chi có ngày thuộc kỳ, không tính lại, phát hành, miễn giảm hay điều chỉnh hóa đơn của kỳ; sai sót của kỳ đã chốt được sửa bằng chứng từ của kỳ đang mở (YCTD-82) |
+| BR-95 | Kỳ tài chính là tháng dương lịch của từng đơn vị, chỉ đề nghị chốt khi tháng đã kết thúc. Khi Hiệu trưởng đã duyệt chốt kỳ, không lập, phát hành, đảo hay duyệt đảo chứng từ thu chi có ngày thuộc kỳ, không tính lại, phát hành, miễn giảm hay điều chỉnh hóa đơn của kỳ; sai sót của kỳ đã chốt được sửa bằng chứng từ của kỳ đang mở (YCTD-82) Không ghi hoặc hủy bút toán thủ công có ngày thuộc kỳ đã chốt; bút toán tự động của chứng từ thuộc kỳ vẫn được ghi sổ vì chứng từ đã phát hành, duyệt trước khi chốt (YCTD-88) |
+| BR-96 | Mỗi bút toán phải cân: tổng Nợ bằng tổng Có, mỗi dòng ghi một phía với số tiền dương. Bút toán đã ghi sổ không sửa, không xóa; bút toán thủ công sai thì hủy kèm lý do rồi ghi lại, bút toán tự động sai thì sửa chứng từ gốc bằng phiếu đảo hoặc phiếu điều chỉnh. Mỗi chứng từ ghi sổ tự động đúng một lần cho mỗi đơn vị theo quy tắc ghi sổ đang dùng tại lúc ghi (YCTD-88) |
 
 Danh mục chứng từ áp dụng hạn mức: phiếu chi, phiếu đảo phiếu thu (YCTD-23), phiếu đảo phiếu chi (YCTD-24), đề nghị mua hàng, phiếu điều chỉnh hóa đơn, miễn giảm học phí, bảng lương kỳ, chốt kỳ tài chính. Mức hạn mức cụ thể chưa có, xem Q-22 và Q-112.
 

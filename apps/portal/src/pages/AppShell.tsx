@@ -38,6 +38,7 @@ type NavigationPath =
   | '/bank-reconciliation'
   | '/payables'
   | '/fiscal-periods'
+  | '/ledger'
   | '/staff'
   | '/staff-attendance'
   | '/school-days'
@@ -192,6 +193,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canSeeBankReconciliation = canManageBankTransactions || canViewFinance;
   const canSeePayables = canManagePayables || canViewFinance;
   const canSeeFiscalPeriods = canRequestPeriodClose || canApprovePeriodClose;
+  const canViewLedger = useHasPermission(PERMISSION_CODES.ledgerView);
+  const canManageLedger = useHasPermission(PERMISSION_CODES.ledgerManage);
+  const canSeeLedger = canViewLedger || canManageLedger;
 
   return (
     <div className="flex min-h-screen">
@@ -278,7 +282,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         canSeeRegistrations ||
         canViewDebts ||
         canSeeDebtCollection ||
-        canSeeFiscalPeriods ? (
+        canSeeFiscalPeriods ||
+        canSeeLedger ? (
           <>
             <span className="px-3 text-label font-semibold text-text-muted">HỌC PHÍ VÀ TÀI CHÍNH</span>
             <ul className="flex flex-col gap-1">
@@ -295,6 +300,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               {canSeeBankReconciliation ? <NavItem to="/bank-reconciliation" label="Đối chiếu ngân hàng" /> : null}
               {canSeePayables ? <NavItem to="/payables" label="Nợ nhà cung cấp" /> : null}
               {canSeeFiscalPeriods ? <NavItem to="/fiscal-periods" label="Chốt kỳ tài chính" /> : null}
+              {canSeeLedger ? <NavItem to="/ledger" label="Sổ kế toán" /> : null}
               {canViewCashflow ? <NavItem to="/cashflow-categories" label="Khoản mục thu chi" /> : null}
             </ul>
           </>

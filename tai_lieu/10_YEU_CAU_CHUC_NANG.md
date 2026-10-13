@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.33
+- Phiên bản: 1.34
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -107,6 +107,7 @@
 | P06-09 | Chốt kỳ tài chính (G2) | VT-05, VT-02 | Kỳ, đơn vị | Kế toán trưởng đề nghị chốt, Hiệu trưởng phê duyệt; khóa số liệu của kỳ, chặn sửa ngược | Kỳ đã chốt | BR-25, BR-29, BR-77 |
 | P06-10 | Khoản mục và nhóm thu chi (G1) | VT-04, VT-05 | Mã, tên khoản mục, nhóm thu chi, loại thu hoặc chi | Quản lý danh mục; phiếu thu và phiếu chi bắt buộc chọn khoản mục | Danh mục khoản mục thu chi | BR-36 |
 | P06-11 | Thanh toán trực tuyến bằng mã QR (G1) | VT-14, VT-04 | Hóa đơn, số còn phải nộp | Xin nhà cung cấp tài khoản ảo và mã QR dùng một lần theo hóa đơn với số tiền bằng số còn phải nộp, nội dung là mã hóa đơn; tiền về tài khoản duy nhất của trường; nhận thông báo tiền vào, đối chiếu, tự lập phiếu thu và phân bổ; giao dịch không khớp chuyển kế toán xử lý (YCTD-57) | Phiếu thu tự động, hóa đơn đã thu đủ | BR-28, BR-31 |
+| P06-12 | Sổ kế toán kép (G3) | VT-05, VT-04; xem VT-02, VT-15, VT-20 | Hệ thống tài khoản, quy tắc ghi sổ, chứng từ đã phát hành, duyệt, bút toán thủ công | Ghi sổ tự động theo quy tắc, ghi bút toán thủ công cân, tổng hợp sổ | Sổ nhật ký chung, sổ cái, bảng cân đối số phát sinh | BR-95, BR-96 |
 
 ## 8. Phân hệ P07 — Nhân sự
 

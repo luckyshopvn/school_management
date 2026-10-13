@@ -132,6 +132,12 @@ import { BankReconciliationController, BankReconciliationService } from './finan
 import { BankStatementImportsController, BankStatementImportsService } from './finance/bank-statement-imports.js';
 import { DebtCollectionController, DebtCollectionService } from './finance/debt-collection.js';
 import { FiscalPeriodsController, FiscalPeriodsService } from './finance/fiscal-periods.js';
+import { LedgerAccountsController, LedgerAccountsService } from './ledger/ledger-accounts.js';
+import { LedgerAccess } from './ledger/ledger-common.js';
+import { LedgerEntriesController, LedgerEntriesService } from './ledger/ledger-entries.js';
+import { LedgerPostingService } from './ledger/ledger-posting.js';
+import { LedgerReportsService } from './ledger/ledger-reports.js';
+import { ledgerTransitionStep } from './ledger/ledger-transition.js';
 import { PayablesController, PayablesService } from './finance/payables.js';
 import { PaymentsController } from './finance/payments.controller.js';
 import { PaymentsService } from './finance/payments.service.js';
@@ -311,6 +317,8 @@ export class ApplicationModule {
         AdmissionCampaignsController,
         AdmissionApplicationsController,
         AdmissionsPublicController,
+        LedgerAccountsController,
+        LedgerEntriesController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -332,6 +340,7 @@ export class ApplicationModule {
             feeCatalogsTransitionStep,
             childrenTransitionStep,
             financeTransitionStep,
+            ledgerTransitionStep,
             healthTransitionStep,
             kitchenTransitionStep,
             medicinesTransitionStep,
@@ -479,6 +488,11 @@ export class ApplicationModule {
         PayablesService,
         FiscalPeriodsService,
         RecruitmentAccess,
+        LedgerAccess,
+        LedgerAccountsService,
+        LedgerPostingService,
+        LedgerReportsService,
+        LedgerEntriesService,
         AdmissionAccess,
         AdmissionCampaignsService,
         AdmissionApplicationsService,
