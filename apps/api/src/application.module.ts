@@ -177,6 +177,7 @@ import {
 } from './reports/operations-report.js';
 import { ConsolidatedReportController, ConsolidatedReportService } from './reports/consolidated-report.js';
 import { ReportExportController, ReportExportService } from './reports/report-export.js';
+import { AttendanceMealsController, AttendanceMealsService } from './reports/attendance-meals.js';
 import { PartnerController, PartnerService } from './partner/partner.js';
 import { NotificationsController, NotificationsService } from './notifications/notifications.js';
 import { NotificationDispatcher } from './notifications/notification-dispatcher.js';
@@ -298,6 +299,7 @@ export class ApplicationModule {
         OperationsReportController,
         ConsolidatedReportController,
         ReportExportController,
+        AttendanceMealsController,
         PartnerController,
         NotificationsController,
         JournalsController,
@@ -447,6 +449,7 @@ export class ApplicationModule {
         OperationsReportService,
         ConsolidatedReportService,
         ReportExportService,
+        AttendanceMealsService,
         PartnerService,
         NotificationsService,
         NotificationDispatcher,

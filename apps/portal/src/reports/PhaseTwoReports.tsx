@@ -180,6 +180,7 @@ const REPORT_NAMES: Record<string, string> = {
   debts: 'Công nợ',
   'cash-flow': 'Thu chi',
   attendance: 'Điểm danh',
+  'attendance-meals': 'Điểm danh và suất ăn',
   'staff-attendance': 'Chấm công',
   'saturday-classes': 'Học thứ 7',
   consolidated: 'Hợp nhất đơn vị',
