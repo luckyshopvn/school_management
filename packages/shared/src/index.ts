@@ -136,7 +136,7 @@ export const PERMISSION_CODES = {
   apiClientManage: 'P01.api-client.manage',
   notificationTemplateManage: 'P19.notification-template.manage',
   notificationReceiptView: 'P19.notification-receipt.view',
-  // Hoàn thành chương trình, nhóm trẻ, chuẩn nghề nghiệp (YCTD-102)
+  // Hoàn thành chương trình, nhóm học sinh, chuẩn nghề nghiệp (YCTD-102)
   programCompletionManage: 'P02.program-completion.manage',
   programCompletionApprove: 'P02.program-completion.approve',
   childGroupManage: 'P02.child-group.manage',

@@ -22,7 +22,7 @@ export function ChildrenPage() {
   const unitChoice = useUnitChoice();
   const [orgUnitId, setOrgUnitId] = useState('');
   const [status, setStatus] = useState<ChildStatus | ''>('');
-  // Lọc theo nhóm trẻ (YCTD-102)
+  // Lọc theo nhóm học sinh (YCTD-102)
   const [groupId, setGroupId] = useState('');
   const groups = useQuery({ queryKey: ['child-groups', 'list', ''], queryFn: () => listChildGroups('') });
   const [search, setSearch] = useState('');
@@ -86,7 +86,7 @@ export function ChildrenPage() {
           </label>
           {(groups.data ?? []).length > 0 ? (
             <label className="flex flex-col gap-2 text-label font-medium text-text">
-              Nhóm trẻ
+              Nhóm học sinh
               <select
                 value={groupId}
                 onChange={(event) => {

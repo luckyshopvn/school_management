@@ -22,7 +22,7 @@ import {
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 
-// Nhóm trẻ (YCTD-102, theo mục 4.1.6, 4.1.7 hệ thống của Sở GD&ĐT TP.HCM): nhóm có tên trong một đơn vị (năng khiếu vẽ,
+// Nhóm học sinh (YCTD-102, theo mục 4.1.6, 4.1.7 hệ thống của Sở GD&ĐT TP.HCM): nhóm có tên trong một đơn vị (năng khiếu vẽ,
 // tiếng Anh, chăm sóc đặc biệt...), có thể có giáo viên phụ trách; thêm trẻ theo lớp, bớt trẻ; một trẻ thuộc nhiều nhóm.
 // Ban Giám hiệu và quản lý đơn vị (P02.child-group.manage) quản lý nhóm trong phạm vi đơn vị. Giáo viên xem nhóm mình phụ
 // trách (thấy mọi trẻ của nhóm) và nhóm có trẻ thuộc lớp mình được phân công (chỉ thấy trẻ trong phạm vi xem trẻ của mình)
@@ -48,7 +48,7 @@ export class ChildGroupsService {
   private async assertManage(currentUser: CurrentUser, orgUnitId: string) {
     const scope = await this.manageScope(currentUser);
     if (!scope.wholeSchool && !scope.orgUnitIds.includes(orgUnitId)) {
-      throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không có quyền quản lý nhóm trẻ của đơn vị này');
+      throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không có quyền quản lý nhóm học sinh của đơn vị này');
     }
   }
 
@@ -126,7 +126,7 @@ export class ChildGroupsService {
   private async load(database: Executor, groupId: string) {
     const group = await this.groupQuery(database).where('child_groups.id', '=', groupId).executeTakeFirst();
     if (!group) {
-      throw notFoundError('Không tìm thấy nhóm trẻ', 'child_group');
+      throw notFoundError('Không tìm thấy nhóm học sinh', 'child_group');
     }
     return group;
   }
@@ -235,7 +235,7 @@ export class ChildGroupsService {
     const canManage = scope.wholeSchool || scope.orgUnitIds.includes(group.org_unit_id);
     const inCharge = group.teacher_user_id === currentUser.id;
     if (!canManage && !inCharge && !(await this.teacherGroupIds(database, currentUser)).includes(groupId)) {
-      throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không được xem nhóm trẻ này');
+      throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không được xem nhóm học sinh này');
     }
     let members = database
       .selectFrom('child_group_members')

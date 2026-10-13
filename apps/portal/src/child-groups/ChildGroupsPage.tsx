@@ -18,7 +18,7 @@ import {
   type ChildGroupDetail,
 } from './child-groups-api.js';
 
-// Nhóm trẻ (YCTD-102): Ban Giám hiệu, quản lý đơn vị lập nhóm trong đơn vị (năng khiếu, chăm sóc đặc biệt...), chọn giáo
+// Nhóm học sinh (YCTD-102): Ban Giám hiệu, quản lý đơn vị lập nhóm trong đơn vị (năng khiếu, chăm sóc đặc biệt...), chọn giáo
 // viên phụ trách, thêm nhiều trẻ theo lớp, bớt trẻ; giáo viên xem nhóm có trẻ của lớp mình hoặc nhóm mình phụ trách
 function CreateGroupForm({ orgUnitId, onCreated }: { orgUnitId: string; onCreated(group: ChildGroupDetail): void }) {
   const staff = useQuery({ queryKey: ['staff', orgUnitId, ''], queryFn: () => listStaff(orgUnitId, ''), retry: false });
@@ -42,7 +42,7 @@ function CreateGroupForm({ orgUnitId, onCreated }: { orgUnitId: string; onCreate
   });
   return (
     <form
-      aria-label="Lập nhóm trẻ"
+      aria-label="Lập nhóm học sinh"
       className="grid grid-cols-1 gap-3 rounded-lg bg-card p-4 md:grid-cols-4"
       onSubmit={(event) => {
         event.preventDefault();
@@ -238,7 +238,7 @@ export function ChildGroupsPage() {
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-4">
-        <h1 className="text-page-title font-bold text-text">Nhóm trẻ</h1>
+        <h1 className="text-page-title font-bold text-text">Nhóm học sinh</h1>
         {canManage && orgUnitId ? (
           <>
             <UnitSelect
@@ -259,7 +259,7 @@ export function ChildGroupsPage() {
           </>
         ) : null}
         {groups.error ? <Alert tone="danger">{messageOf(groups.error)}</Alert> : null}
-        <section className="flex flex-col gap-2 rounded-lg bg-card p-4" aria-label="Danh sách nhóm trẻ">
+        <section className="flex flex-col gap-2 rounded-lg bg-card p-4" aria-label="Danh sách nhóm học sinh">
           <table className="w-full text-content">
             <thead>
               <tr className="text-left text-text-secondary">
@@ -286,7 +286,7 @@ export function ChildGroupsPage() {
               ))}
             </tbody>
           </table>
-          {groups.data?.length === 0 ? <p className="text-text-secondary">Chưa có nhóm trẻ.</p> : null}
+          {groups.data?.length === 0 ? <p className="text-text-secondary">Chưa có nhóm học sinh.</p> : null}
         </section>
         {groupId ? <GroupPanel key={groupId} groupId={groupId} onChanged={changed} /> : null}
       </div>

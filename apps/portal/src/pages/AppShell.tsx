@@ -305,7 +305,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canViewLedger = useHasPermission(PERMISSION_CODES.ledgerView);
   const canManageLedger = useHasPermission(PERMISSION_CODES.ledgerManage);
   const canSeeLedger = canViewLedger || canManageLedger;
-  // Hoàn thành chương trình, nhóm trẻ (YCTD-102)
+  // Hoàn thành chương trình, nhóm học sinh (YCTD-102)
   const canManageProgramCompletion = useHasPermission(PERMISSION_CODES.programCompletionManage);
   const canApproveProgramCompletion = useHasPermission(PERMISSION_CODES.programCompletionApprove);
   const canSeeProgramCompletion = canManageProgramCompletion || canApproveProgramCompletion;
@@ -400,7 +400,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                       {canSeeProgramCompletion ? (
                         <NavItem to="/program-completion" label="Hoàn thành chương trình" />
                       ) : null}
-                      {canManageChildGroups || canViewChildren ? <NavItem to="/child-groups" label="Nhóm trẻ" /> : null}
+                      {canManageChildGroups || canViewChildren ? (
+                        <NavItem to="/child-groups" label="Nhóm học sinh" />
+                      ) : null}
                       {canImport ? <NavItem to="/imports" label="Nhập dữ liệu" /> : null}
                     </NavGroup>
                   </>

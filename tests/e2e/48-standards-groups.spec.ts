@@ -12,7 +12,7 @@ import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
 
 // DT-14 phần 14c (YCTD-102): hoàn thành chương trình giáo dục mầm non (quản lý đơn vị ghi cả lớp, phó hiệu trưởng xác
-// nhận), nhóm trẻ (lập nhóm, thêm cả lớp), chuẩn nghề nghiệp (mở phiếu, giáo viên tự đánh giá, quản lý chốt phiếu)
+// nhận), nhóm học sinh (lập nhóm, thêm cả lớp), chuẩn nghề nghiệp (mở phiếu, giáo viên tự đánh giá, quản lý chốt phiếu)
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 let schoolYear: ReturnType<typeof createDatabase<SchoolYearDatabase>>;
 const suffix = Date.now() % 1_000_000;
@@ -107,11 +107,11 @@ test('Hoàn thành chương trình: quản lý đơn vị ghi cả lớp, phó h
   await expect(approverPage.getByRole('row', { name: `Lớp ${className}` })).toContainText('Đã xác nhận');
 });
 
-test('Nhóm trẻ: quản lý đơn vị lập nhóm và thêm cả lớp vào nhóm', async ({ browser }) => {
+test('Nhóm học sinh: quản lý đơn vị lập nhóm và thêm cả lớp vào nhóm', async ({ browser }) => {
   const manager = await createTestUser(identity, { roles: [{ roleCode: 'VT-03', orgUnitId: unitId }] });
   const page = await signIn(browser, manager);
-  await page.getByRole('link', { name: 'Nhóm trẻ' }).click();
-  const form = page.getByRole('form', { name: 'Lập nhóm trẻ' });
+  await page.getByRole('link', { name: 'Nhóm học sinh' }).click();
+  const form = page.getByRole('form', { name: 'Lập nhóm học sinh' });
   await form.getByLabel('Tên nhóm').fill(`Năng khiếu vẽ ${suffix}`);
   await form.getByRole('button', { name: 'Lập nhóm' }).click();
   const panel = page.getByRole('region', { name: `Nhóm Năng khiếu vẽ ${suffix}` });

@@ -119,7 +119,7 @@ export class ChildrenService {
     filter: {
       orgUnitId?: string;
       classId?: string;
-      // Lọc theo nhóm trẻ (YCTD-102); phạm vi xem trẻ vẫn áp dụng
+      // Lọc theo nhóm học sinh (YCTD-102); phạm vi xem trẻ vẫn áp dụng
       groupId?: string;
       status?: ChildStatus;
       q?: string;

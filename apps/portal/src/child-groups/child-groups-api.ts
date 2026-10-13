@@ -1,6 +1,6 @@
 import { requestJson } from '../session/api-client.js';
 
-// Gọi các điểm cuối nhóm trẻ (YCTD-102)
+// Gọi các điểm cuối nhóm học sinh (YCTD-102)
 export interface ChildGroup {
   id: string;
   org_unit_id: string;
