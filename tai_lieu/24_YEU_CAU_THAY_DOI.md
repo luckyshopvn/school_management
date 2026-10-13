@@ -2,7 +2,7 @@
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
 - Phiên bản: 0.4
-- Ngày cập nhật: 2026-10-11
+- Ngày cập nhật: 2026-10-13
 - Trạng thái: Đang cập nhật
 
 ## Quy ước
@@ -10,6 +10,27 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-92: Nghiệm thu ba bản phát hành, quyết định G3-04, chọn nhà cung cấp và đợt DT-12 – 2026-10-13
+
+- Lý do: Eric trả lời các câu hỏi còn mở ngày 2026-10-13: nghiệm thu cả ba bản ứng viên; chưa làm bản cài riêng trên điện thoại; chọn nhà cung cấp tin nhắn, thanh toán, nối Facebook và Zalo thật; Claude chuẩn bị cấu hình triển khai trước khi thuê máy chủ.
+- Nội dung thay đổi (Eric quyết định ngày 2026-10-13):
+  - Eric nghiệm thu ba bản 1.0.0 (tài liệu 0.31.0), 1.1.0 (0.42.0), 1.2.0 (0.48.0). Gắn thẻ `v1.0.0`, `v1.1.0`, `v1.2.0` trên GitHub tại commit gộp của các báo cáo kiểm thử (yêu cầu gộp số 42, 55, 63). Điều kiện "đã xác nhận sau triển khai" của cổng CG-11 còn chờ triển khai ở việc T6.
+  - G3-04 (bản cài riêng trên điện thoại, việc N2, L2) chưa làm: phụ huynh dùng ứng dụng trên trình duyệt; xem lại khi bản trên trình duyệt không đáp ứng.
+  - Nhà cung cấp tin nhắn thương hiệu: eSMS.vn (việc T1).
+  - Thanh toán trực tuyến (việc T5, P06-11): bật được cả PayOS (mã VietQR theo yêu cầu thanh toán, báo tiền vào), SePay và Casso (theo dõi tài khoản ngân hàng của trường, báo giao dịch), VNPay (trang thanh toán và thông báo kết quả). Mỗi tài khoản ngân hàng chọn cổng của mình theo sổ đăng ký cổng (YCTD-89).
+  - Nối Fanpage (T4) và Zalo Official Account (T7) thật, kèm làm mới khóa Zalo tự động.
+  - Khóa và mật khẩu của nhà cung cấp chỉ đặt ở biến môi trường khi triển khai; mã nguồn viết theo tài liệu công khai của nhà cung cấp, kiểm thử bằng bộ giả lập phản hồi, kiểm với tài khoản thật khi có.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Đợt DT-12 làm theo bốn phần song song: 12a tin nhắn eSMS cho dịch vụ định danh và máy chủ API; 12b bốn cổng thanh toán PayOS, SePay, Casso, VNPay; 12c Facebook và Zalo thật; 12d cấu hình triển khai một máy chủ bằng Docker Compose, sao lưu và phục hồi, hướng dẫn triển khai. Mỗi phần một yêu cầu gộp, ghi yêu cầu thay đổi riêng khi gộp.
+- Thành phần bị ảnh hưởng: `01`, `02`, `03`, `23`, `24`, `index.md`.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: không.
+- Trạng thái: Đã phê duyệt
 
 ### YCTD-91: Báo cáo kiểm thử giai đoạn 3 và bản ứng viên phát hành 1.2.0 – 2026-10-11
 
