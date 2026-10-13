@@ -10,6 +10,13 @@ import { JobPostingsController, JobPostingsService } from './recruitment/job-pos
 import { PublicRecruitmentController, PublicRecruitmentService } from './recruitment/public-recruitment.js';
 import { CandidatesController, CandidatesService } from './recruitment/candidates.js';
 import { recruitmentTransitionStep } from './recruitment/recruitment-transition.js';
+import { professionalStandardsTransitionStep } from './professional-standards/professional-standards-transition.js';
+import {
+  ProfessionalStandardsController,
+  ProfessionalStandardsService,
+} from './professional-standards/professional-standards.js';
+import { ProgramCompletionController, ProgramCompletionService } from './program-completion/program-completion.js';
+import { ChildGroupsController, ChildGroupsService } from './child-groups/child-groups.js';
 import { Module, type DynamicModule, type Type } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { Clock } from '@school-management/server';
@@ -39,6 +46,8 @@ import { childrenTransitionStep } from './children/children-transition.js';
 import { financeTransitionStep } from './finance/finance-transition.js';
 import { HealthAccess } from './health/health-access.js';
 import { HealthCareController, HealthCareService } from './health/health-care.js';
+import { GrowthController, GrowthService } from './health/growth.js';
+import { StatisticsController, StatisticsService } from './statistics/statistics.js';
 import { HealthRecordsController, HealthRecordsService } from './health/health-records.js';
 import { healthTransitionStep } from './health/health-transition.js';
 import { KitchenAccess } from './kitchen/kitchen-access.js';
@@ -200,6 +209,7 @@ import { workTransitionStep } from './work/work-transition.js';
 import { WorkHistoryController, WorkHistoryService } from './staff/work-history.js';
 import { BonusDeductionsController, BonusDeductionsService } from './payroll/bonus-deductions.js';
 import { IntegrationsController, IntegrationsService } from './integrations/integrations.js';
+import { QuickLinksController, QuickLinksService } from './quick-links/quick-links.js';
 import { integrationsTransitionStep } from './integrations/integrations-transition.js';
 import { FacebookPostsController, FacebookPostsService } from './integrations/facebook-posts.js';
 import {
@@ -252,6 +262,8 @@ export class ApplicationModule {
         WorkSchedulesController,
         HealthRecordsController,
         HealthCareController,
+        GrowthController,
+        StatisticsController,
         KitchenCatalogsController,
         KitchenMenusController,
         KitchenMealsController,
@@ -326,6 +338,7 @@ export class ApplicationModule {
         PayablesController,
         FiscalPeriodsController,
         IntegrationsController,
+        QuickLinksController,
         FacebookPostsController,
         RecruitmentRequestsController,
         JobPostingsController,
@@ -336,6 +349,9 @@ export class ApplicationModule {
         AdmissionsPublicController,
         LedgerAccountsController,
         LedgerEntriesController,
+        ProgramCompletionController,
+        ChildGroupsController,
+        ProfessionalStandardsController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -370,6 +386,7 @@ export class ApplicationModule {
             integrationsTransitionStep,
             recruitmentTransitionStep,
             admissionsTransitionStep,
+            professionalStandardsTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -400,6 +417,8 @@ export class ApplicationModule {
         HealthAccess,
         HealthRecordsService,
         HealthCareService,
+        GrowthService,
+        StatisticsService,
         KitchenAccess,
         KitchenCatalogsService,
         KitchenMealsService,
@@ -509,6 +528,7 @@ export class ApplicationModule {
                 : new UnavailableZaloSender(),
         },
         IntegrationsService,
+        QuickLinksService,
         FacebookPostsService,
         JournalsService,
         {
@@ -522,6 +542,9 @@ export class ApplicationModule {
         },
         CashBooksService,
         WorkAccess,
+        ProgramCompletionService,
+        ChildGroupsService,
+        ProfessionalStandardsService,
         TasksService,
         PlansService,
         EvaluationsService,

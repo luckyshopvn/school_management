@@ -34,6 +34,8 @@ import { migration as addPhaseTwoPermissions } from './migrations/0032_add_phase
 import { migration as addPhaseTwoPermissionsBatchTwo } from './migrations/0033_add_phase_two_permissions_batch_two.js';
 import { migration as addPhaseTwoPermissionsBatchThree } from './migrations/0034_add_phase_two_permissions_batch_three.js';
 import { migration as addPhaseThreePermissions } from './migrations/0035_add_phase_three_permissions.js';
+import { migration as addStandardsAndGroupsPermissions } from './migrations/0037_add_standards_and_groups_permissions.js';
+import { migration as addGrowthReportPermission } from './migrations/0038_add_growth_report_permission.js';
 import { migration as addFacilitiesEmisPermissions } from './migrations/0039_add_facilities_emis_permissions.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu định danh, theo số thứ tự (QU-01)
@@ -73,5 +75,7 @@ export const identityMigrations: Record<string, Migration> = {
   '0033_add_phase_two_permissions_batch_two': addPhaseTwoPermissionsBatchTwo,
   '0034_add_phase_two_permissions_batch_three': addPhaseTwoPermissionsBatchThree,
   '0035_add_phase_three_permissions': addPhaseThreePermissions,
+  '0037_add_standards_and_groups_permissions': addStandardsAndGroupsPermissions,
+  '0038_add_growth_report_permission': addGrowthReportPermission,
   '0039_add_facilities_emis_permissions': addFacilitiesEmisPermissions,
 };

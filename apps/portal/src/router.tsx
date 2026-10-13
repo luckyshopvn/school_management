@@ -42,6 +42,10 @@ import { LeaveRequestsPage } from './staff-attendance/LeaveRequestsPage.js';
 import { SchoolDaysPage } from './staff-attendance/SchoolDaysPage.js';
 import { WorkSchedulesPage } from './staff-attendance/WorkSchedulesPage.js';
 import { HealthPage } from './health/HealthPage.js';
+import { GrowthPage } from './growth/GrowthPage.js';
+import { GrowthReportPage } from './growth/GrowthReportPage.js';
+import { StatisticsPage } from './statistics/StatisticsPage.js';
+import { MissingProfilesPage } from './statistics/MissingProfilesPage.js';
 import { AdmissionsPage } from './admissions/AdmissionsPage.js';
 import { InteractionsPage } from './interactions/InteractionsPage.js';
 import { ActivitiesPage } from './activities/ActivitiesPage.js';
@@ -63,6 +67,9 @@ import { useSession } from './session/session.js';
 import { WorkPage } from './work/WorkPage.js';
 import { EvaluationsPage } from './work/EvaluationsPage.js';
 import { BonusDeductionsPage } from './work/BonusDeductionsPage.js';
+import { ProgramCompletionPage } from './program-completion/ProgramCompletionPage.js';
+import { ChildGroupsPage } from './child-groups/ChildGroupsPage.js';
+import { ProfessionalStandardsPage } from './professional-standards/ProfessionalStandardsPage.js';
 
 // Chuyển hướng theo trạng thái phiên: chưa đăng nhập về MH-47; bắt buộc đổi mật khẩu về MH-48 (BM-07)
 function SessionGate() {
@@ -124,6 +131,10 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/school-days', component: SchoolDaysPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/work-schedules', component: WorkSchedulesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/health', component: HealthPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/growth', component: GrowthPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/growth-report', component: GrowthReportPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/statistics', component: StatisticsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/missing-profiles', component: MissingProfilesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/admissions', component: AdmissionsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/interactions', component: InteractionsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/kitchen', component: KitchenPage }),
@@ -150,6 +161,13 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/work', component: WorkPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/evaluations', component: EvaluationsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/bonus-deductions', component: BonusDeductionsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/program-completion', component: ProgramCompletionPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/child-groups', component: ChildGroupsPage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/professional-standards',
+    component: ProfessionalStandardsPage,
+  }),
 ]);
 
 export const router = createRouter({ routeTree });

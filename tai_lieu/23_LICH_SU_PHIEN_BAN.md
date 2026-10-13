@@ -2,7 +2,7 @@
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
 - Phiên bản: 0.4
-- Ngày cập nhật: 2026-10-13
+- Ngày cập nhật: 2026-10-14
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
 
@@ -15,6 +15,39 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.58.0 – 2026-10-14
+
+- Phạm vi thay đổi: DT-14 phần 14a, cân nặng, chiều cao theo chuẩn WHO, thống kê theo tiêu chí ngành, hồ sơ chưa nhập đủ (YCTD-105).
+- Chức năng mới: đợt cân đo, nhập cân nặng, chiều cao (kể cả từ Excel), kênh tăng trưởng, biểu đồ tăng trưởng, tổng hợp cân nặng, chiều cao (P10); thống kê lớp học, học sinh, nhân sự theo tiêu chí ngành, hồ sơ học sinh, nhân sự chưa nhập đủ (P17).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: bảng mới `growth_rounds`, cột mới `health_measurements.growth_round_id` (tệp 0048 của năm học); ba quyền mới (tệp 0038 của định danh).
+- Thay đổi API: thêm `/growth-rounds`, `/children/{id}/growth`, `/reports/growth`, `/reports/growth/export`, `/statistics/classes`, `/statistics/children`, `/statistics/staff`, `/statistics/missing-child-fields`, `/statistics/missing-staff-fields`.
+- Rủi ro: dân tộc, khuyết tật, trình độ và các trường tương tự đọc từ hồ sơ CSDL ngành đã nhập (YCTD-100), trường chưa nhập tệp ngành thì thống kê ở "Chưa nhập"; ngưỡng kênh cố định theo WHO.
+- Khả năng tương thích: chức năng cũ giữ nguyên; mở năm học mới bỏ liên kết đợt của số đo chuyển sang.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-14-phan-14a`; bảng, cột mới để lại không ảnh hưởng.
+
+### Phiên bản 0.57.0 – 2026-10-13
+
+- Phạm vi thay đổi: DT-14 phần 14c, hoàn thành chương trình mầm non, chuẩn nghề nghiệp, nhóm học sinh (YCTD-104).
+- Chức năng mới: hoàn thành chương trình mầm non, nhóm học sinh (P02), đánh giá chuẩn nghề nghiệp giáo viên, hiệu trưởng (P07).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: tám bảng mới của năm học (tệp 0047); năm quyền mới (tệp 0037 của định danh).
+- Thay đổi API: thêm `/program-completion`, `/child-groups`, `/professional-standards`, `/professional-criteria`, `/professional-evaluations`, `/me/professional-evaluation`; `GET /children` thêm lọc `group_id`.
+- Rủi ro: tên tiêu chí gieo sẵn và quy tắc xếp loại cần đối chiếu Thông tư 25, 26/2018/TT-BGDĐT.
+- Khả năng tương thích: chức năng cũ giữ nguyên.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-14-phan-14c`; các bảng mới để lại không ảnh hưởng.
+
+### Phiên bản 0.56.0 – 2026-10-13
+
+- Phạm vi thay đổi: DT-14 phần 14b, năm học ở thanh đầu trang và Truy cập nhanh (YCTD-102).
+- Chức năng mới: ô năm học, học kỳ ở thanh đầu trang; Truy cập nhanh trên trang chủ (P01).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: bảng `user_quick_links` ở cơ sở dữ liệu hệ thống (tệp 0004).
+- Thay đổi API: thêm `GET`, `PUT /me/quick-links`.
+- Rủi ro: học kỳ hiện tại tính theo đồng hồ trình duyệt; năm học đã đóng chưa xem được.
+- Khả năng tương thích: chức năng cũ giữ nguyên; người dùng chưa ghim thì vùng Truy cập nhanh trống.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-14-phan-14b`; bảng `user_quick_links` để lại không ảnh hưởng.
 
 ### Phiên bản 0.55.0 – 2026-10-13
 

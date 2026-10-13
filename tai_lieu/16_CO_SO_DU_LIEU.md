@@ -1,8 +1,8 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.55
-- Ngày cập nhật: 2026-10-13
+- Phiên bản: 1.58
+- Ngày cập nhật: 2026-10-14
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -18,7 +18,7 @@
 8. Đơn vị tổ chức lưu trong bảng `org_units` thành cây hai cấp (QĐ-23); `unit_type` là loại đơn vị; Trường chính có `parent_id` trống, Phân hiệu và Điểm trường có `parent_id` là Trường chính.
 9. Mỗi năm học một cơ sở dữ liệu nghiệp vụ (QĐ-15). Có ba loại cơ sở dữ liệu:
    - Cơ sở dữ liệu định danh, không theo năm học: `users`, `roles`, `permissions`, `role_permissions`, `user_roles`, `sessions`, `one_time_codes`, `api_clients`, `security_events` (YCTD-35), `identity_audit_logs` (YCTD-39), `identity_settings` (YCTD-40).
-   - Cơ sở dữ liệu hệ thống của máy chủ API, không theo năm học: `academic_year_databases` (QĐ-17), `academic_years`, `academic_terms`, `school_weeks` (YCTD-30), `integration_credentials` (YCTD-95).
+   - Cơ sở dữ liệu hệ thống của máy chủ API, không theo năm học: `academic_year_databases` (QĐ-17), `academic_years`, `academic_terms`, `school_weeks` (YCTD-30), `integration_credentials` (YCTD-95), `user_quick_links` (YCTD-102).
    - Cơ sở dữ liệu năm học: mọi bảng còn lại.
 10. Khi mở năm học mới, dữ liệu chuyển sang giữ nguyên mã định danh (`id`) của đơn vị, trẻ, phụ huynh, nhân sự, danh mục và tài khoản quỹ, để phân quyền ở cơ sở dữ liệu định danh và báo cáo nhiều năm tham chiếu đúng.
 
@@ -31,6 +31,7 @@
 | academic_years | Năm học, một lịch chung toàn trường, lưu ở cơ sở dữ liệu hệ thống | name, start_date, end_date, school_days_of_week (mặc định thứ hai đến thứ sáu), status (chưa mở, đang dùng, đã đóng; chỉ một năm đang dùng, BR-93) |
 | academic_terms | Học kỳ và kỳ hè của năm học (BR-91) | academic_year_id, term_type (học kỳ 1, học kỳ 2, kỳ hè), start_date, end_date |
 | school_weeks | Tuần học tự đánh số (BR-91) | academic_year_id, week_no, start_date, end_date, is_off (tuần nghỉ), note |
+| user_quick_links | Lối tắt Truy cập nhanh trên trang chủ cổng quản trị của từng tài khoản, lưu ở cơ sở dữ liệu hệ thống để giữ qua các năm học (YCTD-102, tệp `database/system/migrations/0004_create_user_quick_links.ts`) | id, user_id (mã tài khoản ở dịch vụ định danh, không có khóa ngoại vì khác cơ sở dữ liệu), path (trong danh sách cho phép `PORTAL_QUICK_LINK_PATHS`), label (1 đến 100 ký tự), position (từ 0, thứ tự hiển thị), created_at; duy nhất trên user_id, path; tối đa 12 dòng mỗi tài khoản |
 | departments | Phòng ban | org_unit_id, parent_id (phòng ban cha cùng đơn vị, không tạo vòng), name, status |
 | job_titles | Chức danh | org_unit_id, name (duy nhất trong đơn vị), level (cấp bậc, chữ tự do), status |
 | users | Tài khoản đăng nhập | full_name, phone (duy nhất), username (duy nhất), password_hash (để trống khi phụ huynh còn dùng mật khẩu mặc định chung, YCTD-43), status, last_login_at, failed_login_count, locked_until (hết hạn tạm khóa do sai mật khẩu, YCTD-35), must_change_password, valid_until (bắt buộc với VT-20) |
@@ -76,8 +77,12 @@ Ràng buộc: `org_units.parent_id` trỏ tới `org_units.id`. Chỉ một đơ
 | teaching_groups | Tổ chuyên môn | org_unit_id, name, leader_staff_id, status |
 | teaching_group_members | Thành viên tổ chuyên môn | group_id, staff_id, from_date, to_date |
 | health_profiles | Hồ sơ sức khỏe cơ bản | child_id (duy nhất), blood_type, has_allergies (trống là chưa khai báo, BR-06), allergies, chronic_conditions, note |
-| health_measurements | Chỉ số sức khỏe theo lần đo | child_id, measured_on, height_cm, weight_kg, vision_left, vision_right, bmi, note |
+| health_measurements | Chỉ số sức khỏe theo lần đo | child_id, measured_on, height_cm, weight_kg, vision_left, vision_right, bmi, note, growth_round_id (YCTD-105) |
 | lost_items | Đồ bị mất của trẻ | code (DBM-000001), org_unit_id, child_id, class_id, report_type (lost, found), description, noticed_on, photo_file_id, status (reported, found, returned, not_found, cancelled), reported_by, reported_at, found_by, found_at, found_note, closed_by, closed_at, result_note, cancelled_by, cancelled_at |
+| program_completions | Kết quả hoàn thành chương trình giáo dục mầm non của trẻ, một dòng mỗi trẻ mỗi năm học (P02-13, BR-97, YCTD-104) | child_id (duy nhất), class_id, org_unit_id, result (completed, not_completed), note, recorded_by, recorded_by_name |
+| program_completion_confirmations | Xác nhận danh sách hoàn thành chương trình của lớp; có dòng là đã khóa, hủy xác nhận thì xóa dòng, nhật ký thao tác giữ lý do (BR-97, YCTD-104) | class_id (duy nhất), org_unit_id, completed_count, children_count, confirmed_by, confirmed_by_name, confirmed_at |
+| child_groups | Nhóm học sinh trong đơn vị, không chuyển sang năm học mới (P02-14, YCTD-104) | org_unit_id, name (duy nhất trong đơn vị), description, teacher_staff_id (giáo viên phụ trách, không bắt buộc), status (active, inactive), created_by |
+| child_group_members | Trẻ của nhóm; một trẻ thuộc nhiều nhóm (YCTD-104) | group_id, child_id (khóa chính hai cột), added_by, created_at |
 
 ## 4. Phân hệ P03 — Giảng dạy
 
@@ -168,6 +173,12 @@ Ràng buộc duy nhất: `receipts` trên bộ đôi đơn vị và mã phiếu 
 | employment_contracts | Hợp đồng lao động (YCTD-58) | staff_id, contract_no (duy nhất), contract_type (thử việc, có thời hạn, không thời hạn), start_date, end_date (bắt buộc trừ không thời hạn), base_salary, allowances (danh sách tên và số tiền), status (còn hiệu lực, đã chấm dứt), terminated_on, terminate_reason |
 | staff_work_history | Quá trình công tác (BR-37, YCTD-81) | staff_id, org_unit_id, from_date, to_date, department_id, job_title_id, note, created_by |
 | staff_certificates | Chứng chỉ (YCTD-81) | staff_id, name, certificate_no, issued_by, issued_date, expire_date, note, created_by |
+| professional_standards | Tiêu chuẩn của chuẩn nghề nghiệp, dùng chung toàn trường; gieo sẵn tên ngắn theo Thông tư 26/2018/TT-BGDĐT và Thông tư 25/2018/TT-BGDĐT khi tạo cơ sở dữ liệu năm học, mở năm học mới thì chép từ năm cũ (P07-05, YCTD-104) | standard_type (teacher, principal), code (TC1 đến TC5; duy nhất cùng standard_type), name, order_no |
+| professional_criteria | Tiêu chí của chuẩn, đánh số liên tục trong cả chuẩn (YCTD-104) | standard_id, standard_type, code (duy nhất theo loại chuẩn), name, is_key (tiêu chí trọng yếu, BR-99), order_no, status (active, inactive) |
+| professional_evaluations | Phiếu đánh giá chuẩn nghề nghiệp, một phiếu mỗi nhân sự mỗi năm học (BR-98, YCTD-104) | staff_id (duy nhất), org_unit_id, standard_type, status (self_assessing, self_submitted, finalized), self_submitted_at, overall_level (not_met, met, good, excellent), assessor_comment, opened_by, finalized_by, finalized_by_name, finalized_at |
+| professional_evaluation_items | Tiêu chí của phiếu, chụp lúc mở phiếu (YCTD-104) | evaluation_id, criterion_id (duy nhất cùng evaluation_id), standard_code, standard_name, criterion_code, criterion_name, is_key, order_no, self_rating, self_evidence, assessor_rating, assessor_note |
+
+Tám bảng của DT-14 phần 14c (bốn bảng ở mục 3 và bốn bảng trên) tạo bằng tệp `database/school-year/migrations/0047_create_standards_and_groups.ts` của cơ sở dữ liệu năm học. Năm quyền `P02.program-completion.manage`, `P02.program-completion.approve`, `P02.child-group.manage`, `P07.professional-standard.manage`, `P07.professional-standard.assess` (PQ-54 đến PQ-56) thêm vào `permissions`, `role_permissions` của cơ sở dữ liệu định danh bằng tệp `database/identity/migrations/0037_add_standards_and_groups_permissions.ts` (YCTD-104).
 
 ## 9. Phân hệ P08 — Chấm công và tiền lương
 
@@ -213,7 +224,8 @@ Ràng buộc duy nhất: `attendance_logs` trên bộ đôi nhân sự và ngày
 |---|---|---|
 | medicines | Danh mục thuốc của tủ thuốc phòng y tế theo đơn vị (YCTD-75) | org_unit_id, code (duy nhất trong đơn vị), name, active_ingredient, unit, pharmacy_id, stock_qty (không âm, chỉ đổi qua phiếu mua và phiếu cấp), status, created_by |
 | pharmacies | Nhà thuốc theo đơn vị (YCTD-75) | org_unit_id, name, phone, address, status, created_by |
-| health_measurements | Chỉ số sức khỏe theo lần đo (YCTD-74) | child_id, measured_on, height_cm, weight_kg, vision_left, vision_right, note, recorded_by |
+| health_measurements | Chỉ số sức khỏe theo lần đo (YCTD-74); số đo của đợt cân đo lưu ngay trong bảng này, mỗi học sinh một dòng trong một đợt (BR-100, YCTD-105) | child_id, measured_on, height_cm, weight_kg, vision_left, vision_right, note, recorded_by, growth_round_id (đợt cân đo, trống là số đo lẻ) |
+| growth_rounds | Đợt cân đo cân nặng, chiều cao của đơn vị (P10-13, BR-100, YCTD-105); chỉ số Z và kênh tăng trưởng không lưu, tính lại theo bảng WHO mỗi lần đọc (BR-101) | org_unit_id, name (duy nhất trong đơn vị), measured_on, note, created_by |
 | medication_requests | Yêu cầu dặn thuốc (YCTD-75) | child_id, org_unit_id, class_id, requested_by, medicine_name, dosage, times (giờ HH:MM, ít nhất một), from_date, to_date, allergy_note, note, medicine_photo_ids (ít nhất một), prescription_photo_id (tùy chọn), assigned_role (nurse, homeroom), status (pending, administering, completed, rejected), received_quantity, received_note, received_by, received_at, reject_reason, rejected_by, rejected_at, completed_at |
 | medication_administrations | Nhật ký cho uống thuốc (YCTD-75) | request_id, scheduled_date, scheduled_time (duy nhất cùng request_id và scheduled_date), administered_at, administered_by, dose_note, is_skipped, skip_reason (bắt buộc khi bỏ liều), parent_acknowledged_at, parent_acknowledged_by |
 | health_check_campaigns | Đợt khám sức khỏe | org_unit_id, name, from_date, to_date, status (đang mở, đã đóng), created_by |
@@ -227,6 +239,8 @@ Ràng buộc duy nhất: `attendance_logs` trên bộ đôi nhân sự và ngày
 | daily_care_logs | Nhật ký chăm sóc hằng ngày (P10-12) | child_id, care_date, recorded_at, temperature, condition_note, special_care_note, recorded_by |
 | health_report_requests | Yêu cầu báo cáo sức khỏe (P10-08, YCTD-74) | child_id, org_unit_id, report_type (tăng trưởng, y tế, đầy đủ), period_from, period_to, note, status (chờ gửi, đã gửi), requested_by, requested_at, report_data, response_note, sent_by, sent_at |
 | medicine_issues | Phiếu cấp thuốc từ tủ thuốc (YCTD-75) | code (CTH-000001), org_unit_id, medicine_id, quantity, recipient, reason, issued_by, issued_at |
+
+Bảng `growth_rounds` và cột `health_measurements.growth_round_id` (DT-14 phần 14a) tạo bằng tệp `database/school-year/migrations/0048_create_growth_rounds.ts` của cơ sở dữ liệu năm học. Mở năm học mới chuyển số đo sang năm mới không kèm đợt (đợt ở lại năm cũ). Ba quyền `P17.report.growth`, `P17.child-statistics.view`, `P17.staff-statistics.view` (PQ-57 đến PQ-59) thêm vào `permissions`, `role_permissions` của cơ sở dữ liệu định danh bằng tệp `database/identity/migrations/0038_add_growth_report_permission.ts` (YCTD-105).
 
 ## 12. Phân hệ P11 — Xe đưa đón (đã bỏ)
 
@@ -385,6 +399,11 @@ erDiagram
 | notifications | target_type kèm target_id | Tra thông báo theo đối tượng |
 | class_staff_assignments | staff_user_id kèm status, class_id | Giới hạn phạm vi giáo viên theo lớp được phân công |
 | data_access_logs | api_client_id kèm created_at, entity_name kèm entity_id | Tra nhật ký đọc dữ liệu nhạy cảm |
+| user_quick_links | user_id kèm position | Đọc lối tắt của tài khoản theo thứ tự (YCTD-102) |
+| program_completions | class_id | Danh sách và thống kê hoàn thành chương trình theo lớp (YCTD-104) |
+| child_group_members | child_id | Lọc danh sách trẻ theo nhóm, tìm nhóm của trẻ (YCTD-104) |
+| professional_evaluations | org_unit_id | Phiếu chuẩn nghề nghiệp theo đơn vị (YCTD-104) |
+| health_measurements | growth_round_id kèm child_id, duy nhất khi có đợt | Mỗi học sinh một số đo trong một đợt, đọc số đo của đợt (YCTD-105) |
 
 ## 21. Chính sách xóa dữ liệu
 

@@ -1,8 +1,8 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.45
-- Ngày cập nhật: 2026-10-11
+- Phiên bản: 1.48
+- Ngày cập nhật: 2026-10-14
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -46,8 +46,8 @@ flowchart TD
 
 | Mã | Màn hình | Vai trò chính |
 |---|---|---|
-| MH-01 | Bảng điều khiển trên trang chủ: số trẻ, lớp, nhân sự, học phí tháng, công nợ, tỷ lệ đi học; sinh nhật trẻ trong tháng (YCTD-62) | VT-02, VT-15, VT-03; sinh nhật cho cả giáo viên |
-| MH-02 | Danh sách trẻ và hồ sơ trẻ; chi tiết trẻ có lịch sử đồng ý hình ảnh, ghi nhận giấy ký tay, cờ trẻ con nhân viên, chuyển đơn vị, thôi học (YCTD-67) | VT-03, VT-04, VT-12 |
+| MH-01 | Bảng điều khiển trên trang chủ: số trẻ, lớp, nhân sự, học phí tháng, công nợ, tỷ lệ đi học; sinh nhật trẻ trong tháng (YCTD-62); vùng "Truy cập nhanh" ngay dưới lời chào: nút "Thêm truy cập nhanh" mở bộ chọn các trang người dùng đang thấy trên thanh điều hướng, nhóm theo phân hệ; mỗi ô có biểu tượng phân hệ, tên trang, nút đưa lên trước, đưa ra sau, bỏ; kéo thả để đổi chỗ; tối đa 12 ô, lưu theo tài khoản ở máy chủ (YCTD-102) | VT-02, VT-15, VT-03; sinh nhật cho cả giáo viên; Truy cập nhanh cho mọi người dùng cổng quản trị |
+| MH-02 | Danh sách trẻ và hồ sơ trẻ; chi tiết trẻ có lịch sử đồng ý hình ảnh, ghi nhận giấy ký tay, cờ trẻ con nhân viên, chuyển đơn vị, thôi học (YCTD-67); danh sách lọc theo nhóm học sinh, ô lọc chỉ hiện khi đơn vị có nhóm (YCTD-104) | VT-03, VT-04, VT-12 |
 | MH-03 | Danh sách lớp, phân công giáo viên và phân lớp (YCTD-44) | VT-03 |
 | MH-04 | Biểu phí và danh mục dịch vụ: dịch vụ, biểu phí theo phiên bản, loại miễn giảm (YCTD-49) | VT-04, VT-02 |
 | MH-05 | Đăng ký dịch vụ theo kỳ: bảng trẻ nhân dịch vụ, đăng ký học hè, chốt danh sách; duyệt đăng ký trễ và hủy trễ (YCTD-50) | VT-04, VT-15, VT-02 |
@@ -115,6 +115,13 @@ flowchart TD
 | MH-67 | Sổ kế toán, thẻ Nhật ký chung: lọc đơn vị (hoặc mọi đơn vị trong phạm vi) và khoảng ngày; nút Ghi sổ chứng từ; bút toán theo ngày kèm dòng Nợ / Có, loại (tự động, thủ công, số dư đầu năm, đã hủy); ghi bút toán thủ công nhiều dòng có tổng Nợ / Có; hủy bút toán thủ công kèm lý do; xuất Excel (YCTD-88) | VT-04, VT-05 ghi; VT-02, VT-15, VT-20 xem |
 | MH-68 | Sổ kế toán, thẻ Sổ cái (chọn tài khoản, số dư đầu, dòng có tài khoản đối ứng, số dư lũy kế, số dư cuối) và thẻ Cân đối số phát sinh (theo tài khoản, tài khoản chi tiết thụt vào, dòng tổng, báo sổ cân hoặc lệch); xuất Excel (YCTD-88) | VT-02, VT-15, VT-04, VT-05, VT-20 |
 | MH-69 | Sổ kế toán, thẻ Hệ thống tài khoản kế toán (danh sách theo cấp, thêm tài khoản chi tiết) và thẻ Quy tắc ghi sổ (theo loại chứng từ và khoản mục, sửa tài khoản Nợ / Có, bỏ quy tắc theo khoản mục) (YCTD-88) | VT-04, VT-05 ở Trường chính sửa; người xem sổ xem |
+| MH-72 | Hoàn thành chương trình (nhóm Trẻ và lớp, đường dẫn `/program-completion`): thống kê theo đơn vị; danh sách lớp mẫu giáo 5-6 tuổi kèm số trẻ, số hoàn thành, chưa ghi, tỷ lệ, trạng thái xác nhận; mở lớp để ghi kết quả từng trẻ hoặc đánh dấu cả lớp hoàn thành; xác nhận, hủy xác nhận kèm lý do; xuất Excel một lớp hoặc các lớp (YCTD-104) | VT-07 (lớp chủ nhiệm), VT-03 ghi; VT-02, VT-15 xác nhận |
+| MH-73 | Nhóm học sinh (nhóm Trẻ và lớp, đường dẫn `/child-groups`): danh sách nhóm theo đơn vị; lập, sửa nhóm, giáo viên phụ trách, ngừng dùng; xem trẻ của nhóm; thêm trẻ theo lớp (chọn trẻ hoặc cả lớp), bớt trẻ (YCTD-104) | VT-02, VT-15, VT-03; giáo viên chỉ xem |
+| MH-74 | Chuẩn nghề nghiệp (nhóm Nhân sự, đường dẫn `/professional-standards`): phiếu tự đánh giá của tôi (mức, minh chứng từng tiêu chí, lưu, gửi); mở phiếu cho nhiều nhân sự; thống kê xếp loại; phiếu của đơn vị, đánh giá từng tiêu chí, nhận xét, chốt; danh mục tiêu chuẩn, tiêu chí (sửa tên, tiêu chí trọng yếu, ngừng dùng, thêm tiêu chí) (YCTD-104) | Mọi nhân sự tự đánh giá; VT-03, VT-02 đánh giá; VT-02 sửa danh mục |
+| MH-75 | Nhập kết quả sức khỏe nuôi dưỡng (nhóm Y tế, mục "Nhập cân đo", đường dẫn `/growth`): chọn đơn vị, đợt cân đo, lớp; lập, xóa đợt; bảng học sinh nhập cân nặng, chiều cao, hiện tháng tuổi, BMI, kết quả cân nặng theo tuổi, chiều cao theo tuổi, cân nặng theo chiều cao, kênh tăng trưởng; nút "Tính và lưu"; tải tệp mẫu của lớp, nhập từ Excel kèm lỗi từng dòng; mở biểu đồ tăng trưởng của học sinh (cân nặng, chiều cao theo tuổi với đường trung vị, ±2SD, ±3SD theo WHO) (YCTD-105) | VT-09 nhập; VT-02, VT-15, VT-03, VT-04 và giáo viên chủ nhiệm (lớp mình) xem |
+| MH-76 | Tổng hợp cân nặng, chiều cao (nhóm Y tế, mục "Tổng hợp cân đo", đường dẫn `/growth-report`): lọc đơn vị, đợt hoặc tháng, giới tính, kênh; bảng theo khối kèm dòng tổng cộng, bảng theo lớp, danh sách học sinh theo kênh; xuất Excel (YCTD-105) | VT-02, VT-15, VT-03, VT-09 |
+| MH-77 | Thống kê theo tiêu chí ngành (nhóm Báo cáo, mục "Thống kê theo tiêu chí ngành", đường dẫn `/statistics`): ba thẻ Thống kê lớp học, Thống kê nhân sự, Thống kê học sinh, tiêu đề trang theo thẻ đang chọn; lọc đơn vị; mỗi nhóm có số lượng, nữ, tỷ lệ, giá trị trống gom vào "Chưa nhập" (YCTD-105) | VT-02, VT-15, VT-03; VT-06 thẻ nhân sự |
+| MH-78 | Hồ sơ chưa nhập đủ (nhóm Báo cáo, mục "Hồ sơ chưa nhập đủ", đường dẫn `/missing-profiles`): thẻ Hồ sơ học sinh chưa nhập đủ và Hồ sơ nhân sự chưa nhập đủ; số hồ sơ thiếu theo từng trường; bấm số để xem danh sách (họ tên, đơn vị, lớp), bấm họ tên để mở hồ sơ ngay trên trang (YCTD-105) | VT-02, VT-15, VT-03; VT-06 thẻ nhân sự |
 
 ### 2.2 Ứng dụng giáo viên
 
@@ -176,6 +183,7 @@ flowchart TD
 | BC-06 | Thanh chọn đơn vị chỉ hiển thị với người dùng có nhiều hơn một đơn vị |
 | BC-07 | Màn hình tài chính luôn hiển thị đơn vị tiền tệ và định dạng số theo tiếng Việt |
 | BC-08 | Trong màn hình người dùng được phép vào, nút của thao tác không có quyền hiển thị ở trạng thái không cho thao tác kèm lý do; màn hình không có quyền thì không hiện trong điều hướng (mục 6) |
+| BC-09 | Thanh đầu trang cổng quản trị có nút "<năm học> · <học kỳ>" bên phải trước chuông thông báo; học kỳ là kỳ trong lịch năm học chứa ngày hôm nay (Học kỳ I, Học kỳ II, Kỳ hè), ngoài mọi kỳ thì hiện "Ngoài học kỳ", chưa mở năm học thì hiện "Chưa có năm học đang dùng". Bấm mở danh sách năm học đang dùng và đã đóng (không hiện năm học nháp) kèm học kỳ, ngày bắt đầu, kết thúc, học kỳ hiện tại đánh dấu "(hiện tại)"; phím Esc đóng. Năm học đã đóng chưa chọn được (chú thích "Chưa hỗ trợ xem năm học cũ"), học kỳ chỉ để xem. Màn hình hẹp hơn 768 điểm ảnh ẩn nút (YCTD-102) |
 
 ## 4. Trạng thái màn hình
 

@@ -111,7 +111,7 @@ export class HealthAccess {
     return assignment !== undefined;
   }
 
-  private async officeCanAccess(currentUser: CurrentUser, orgUnitId: string): Promise<boolean> {
+  async officeCanAccess(currentUser: CurrentUser, orgUnitId: string): Promise<boolean> {
     const office = new CurrentUser({
       ...currentUser.description,
       assignments: currentUser.description.assignments.filter((assignment) =>

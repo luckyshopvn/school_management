@@ -1,8 +1,8 @@
 # 03. DANH SÁCH KIỂM TRA CÔNG VIỆC
 
 - Mô tả: Danh sách công việc, trạng thái và thứ tự ưu tiên của dự án.
-- Phiên bản: 0.23
-- Ngày cập nhật: 2026-10-13
+- Phiên bản: 0.25
+- Ngày cập nhật: 2026-10-14
 - Trạng thái: Đang cập nhật
 
 ## Quy ước trạng thái
@@ -14,22 +14,22 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | Phân hệ | Trạng thái | Việc còn lại |
 |---|---|---|
 | P01 Nền tảng, đơn vị và phân quyền | Hoàn thành | Đợt DT-01 (YCTD-34 đến YCTD-42); kết nối ngoài ở DT-11 phần 11e |
-| P02 Trẻ, phụ huynh và lớp học | Hoàn thành | Đợt DT-03 (YCTD-44 đến YCTD-46), DT-09 phần 9b, 9d; kết nối tự động cơ sở dữ liệu ngành (G3-09) chưa có giao diện lập trình công khai, tiếp tục nhập từ tệp |
+| P02 Trẻ, phụ huynh và lớp học | Hoàn thành | Đợt DT-03 (YCTD-44 đến YCTD-46), DT-09 phần 9b, 9d, DT-14 phần 14c (YCTD-104: hoàn thành chương trình, nhóm học sinh); kết nối tự động cơ sở dữ liệu ngành (G3-09) chưa có giao diện lập trình công khai, tiếp tục nhập từ tệp |
 | P03 Giảng dạy | Hoàn thành | Đợt DT-10 phần 10g (YCTD-80); tổ chuyên môn chưa làm |
 | P04 Điểm danh và chăm sóc hằng ngày | Hoàn thành | Đợt DT-04 (YCTD-47, YCTD-48), DT-08 phần 8b |
 | P05 Học phí, khoản thu và giảm trừ | Hoàn thành | Đợt DT-05 (YCTD-49 đến YCTD-57); cổng thanh toán thật chờ việc T1 |
 | P06 Tài chính | Hoàn thành | Đợt DT-05 phần 5d đến 5f, DT-10 phần 10i, DT-11 phần 11c, 11d (YCTD-88, YCTD-89) |
-| P07 Nhân sự | Hoàn thành | Đợt DT-06 phần 6a (YCTD-58), DT-10 phần 10h |
+| P07 Nhân sự | Hoàn thành | Đợt DT-06 phần 6a (YCTD-58), DT-10 phần 10h, DT-14 phần 14c (YCTD-104: đánh giá chuẩn nghề nghiệp) |
 | P08 Chấm công và tiền lương | Hoàn thành | Đợt DT-06 phần 6b, 6c (YCTD-59 đến YCTD-61) |
 | P09 Công việc, kế hoạch và đánh giá | Hoàn thành | Đợt DT-10 phần 10h (YCTD-81) |
-| P10 Y tế học đường | Hoàn thành | Đợt DT-10 phần 10a, 10b (YCTD-74, YCTD-75) |
+| P10 Y tế học đường | Hoàn thành | Đợt DT-10 phần 10a, 10b (YCTD-74, YCTD-75), DT-14 phần 14a (YCTD-105: đợt cân đo, kênh tăng trưởng theo chuẩn WHO, tổng hợp cân nặng, chiều cao) |
 | P11 Xe đưa đón | Đã bỏ | Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62) |
 | P12 Bếp và dinh dưỡng | Hoàn thành | Đợt DT-10 phần 10c (YCTD-76) |
 | P13 Kho, tài sản và mua hàng | Hoàn thành | Đợt DT-10 phần 10d (YCTD-77) |
 | P14 Hoạt động, nội dung và truyền thông | Hoàn thành | Đợt DT-10 phần 10e (YCTD-78); Fanpage ở DT-11 phần 11e, tài khoản thật chờ việc T1 |
 | P15 Tương tác và ý kiến | Hoàn thành | Đợt DT-10 phần 10f (YCTD-79) |
 | P16 Tuyển sinh | Hoàn thành | Đợt DT-11 phần 11a (YCTD-86) |
-| P17 Báo cáo và bảng điều khiển | Hoàn thành | Đợt DT-07 (YCTD-62, YCTD-63), DT-10 phần 10j (YCTD-83) |
+| P17 Báo cáo và bảng điều khiển | Hoàn thành | Đợt DT-07 (YCTD-62, YCTD-63), DT-10 phần 10j (YCTD-83), DT-14 phần 14a (YCTD-105: thống kê theo tiêu chí ngành, hồ sơ chưa nhập đủ) |
 | P18 Tuyển dụng | Hoàn thành | Đợt DT-11 phần 11b (YCTD-87) |
 | P19 Kênh truy cập và thông báo | Hoàn thành | Đợt DT-08 (YCTD-64, YCTD-65), Zalo ở DT-11 phần 11e; bản cài riêng trên điện thoại (N2, G3-04) chờ Eric quyết định |
 

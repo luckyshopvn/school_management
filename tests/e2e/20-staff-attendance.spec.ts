@@ -57,7 +57,7 @@ test('Phòng nhân sự Trường chính lập ngày lễ, Hiệu trưởng lậ
 
   const page = await signIn(browser, personnel);
   await page.getByRole('link', { name: 'Ngày lễ và lịch bù' }).click();
-  await page.getByLabel('Năm').fill(holidayDate.slice(0, 4));
+  await page.getByLabel('Năm', { exact: true }).fill(holidayDate.slice(0, 4));
   const holidayForm = page.getByRole('form', { name: 'Thêm ngày nghỉ lễ' });
   await holidayForm.getByLabel('Ngày lễ', { exact: true }).fill(holidayDate);
   await holidayForm.getByLabel('Tên ngày lễ').fill('Ngày lễ kiểm thử');
@@ -68,7 +68,7 @@ test('Phòng nhân sự Trường chính lập ngày lễ, Hiệu trưởng lậ
 
   const principalPage = await signIn(browser, principal);
   await principalPage.getByRole('link', { name: 'Ngày lễ và lịch bù' }).click();
-  await principalPage.getByLabel('Năm').fill(dayOffDate.slice(0, 4));
+  await principalPage.getByLabel('Năm', { exact: true }).fill(dayOffDate.slice(0, 4));
   const changeForm = principalPage.getByRole('form', { name: 'Thêm ngày học bù hoặc nghỉ bù' });
   await changeForm.getByLabel('Loại lịch').selectOption('compensatory_day_off');
   await changeForm.getByLabel('Ngày áp dụng').fill(dayOffDate);

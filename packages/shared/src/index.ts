@@ -135,6 +135,11 @@ export const PERMISSION_CODES = {
   staffAttendanceReport: 'P17.report.staff-attendance',
   saturdayReport: 'P17.report.saturday',
   birthdayView: 'P17.birthday.view',
+  // Báo cáo cân nặng, chiều cao theo đợt cân đo (YCTD-102)
+  growthReport: 'P17.report.growth',
+  // Thống kê theo tiêu chí ngành và hồ sơ chưa nhập đủ (YCTD-102)
+  childStatisticsView: 'P17.child-statistics.view',
+  staffStatisticsView: 'P17.staff-statistics.view',
   apiClientManage: 'P01.api-client.manage',
   // Thiết bị dạy học, cơ sở vật chất, hồ sơ trường và báo cáo EMIS (DT-14 phần 14d, YCTD-102)
   equipmentManage: 'P13.equipment.manage',
@@ -143,6 +148,12 @@ export const PERMISSION_CODES = {
   emisReport: 'P17.report.emis',
   notificationTemplateManage: 'P19.notification-template.manage',
   notificationReceiptView: 'P19.notification-receipt.view',
+  // Hoàn thành chương trình, nhóm học sinh, chuẩn nghề nghiệp (YCTD-102)
+  programCompletionManage: 'P02.program-completion.manage',
+  programCompletionApprove: 'P02.program-completion.approve',
+  childGroupManage: 'P02.child-group.manage',
+  professionalStandardManage: 'P07.professional-standard.manage',
+  professionalStandardAssess: 'P07.professional-standard.assess',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -185,3 +196,69 @@ export const MODULE_NAMES: Record<string, string> = {
 export const WHOLE_SCHOOL_ROLE_CODES = ['VT-01', 'VT-02', 'VT-19', 'VT-20'] as const;
 // Vai trò VT-03 không được cấp khi tạo tài khoản (PQ-13)
 export const ROLE_CODES_RESERVED_FOR_PRINCIPAL = ['VT-01', 'VT-02'] as const;
+
+// Đường dẫn trang của cổng quản trị được ghim vào "Truy cập nhanh" trên trang chủ (YCTD-102); máy chủ API chỉ nhận các
+// đường dẫn này, giao diện chỉ cho chọn trang người dùng thấy trên thanh điều hướng
+export const PORTAL_QUICK_LINK_PATHS = [
+  '/academic-years',
+  '/org-units',
+  '/accounts',
+  '/roles',
+  '/settings',
+  '/audit-logs',
+  '/departments',
+  '/catalogs',
+  '/approval-thresholds',
+  '/rooms',
+  '/classes',
+  '/children',
+  '/imports',
+  '/attendance',
+  '/fees',
+  '/cashflow-categories',
+  '/registrations',
+  '/invoices',
+  '/fee-approvals',
+  '/debts',
+  '/receipts',
+  '/cash-accounts',
+  '/payments',
+  '/cash-book',
+  '/debt-collection',
+  '/bank-reconciliation',
+  '/payables',
+  '/fiscal-periods',
+  '/ledger',
+  '/staff',
+  '/staff-attendance',
+  '/school-days',
+  '/work-schedules',
+  '/health',
+  '/admissions',
+  '/interactions',
+  '/kitchen',
+  '/medicines',
+  '/inventory',
+  '/activities',
+  '/purchase-requests',
+  '/recruitment',
+  '/teaching',
+  '/leave-requests',
+  '/leave-policies',
+  '/payrolls',
+  '/pay-items',
+  '/my-payslips',
+  '/payroll-settlements',
+  '/reports',
+  '/api-clients',
+  '/integrations',
+  '/notifications',
+  '/work',
+  '/evaluations',
+  '/bonus-deductions',
+] as const;
+
+export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
+
+// Số lối tắt tối đa của mỗi tài khoản
+export const MAX_QUICK_LINKS = 12;
