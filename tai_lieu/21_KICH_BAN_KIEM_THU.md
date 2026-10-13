@@ -382,8 +382,18 @@
 | CT-297 | P17-02 | Bếp xem suất ăn tuần của đơn vị mình theo lớp và khối; đơn vị khác, kỳ tháng, giáo viên bị từ chối | Bếp xem suất ăn tuần của đơn vị mình theo lớp và khối; đơn vị khác, kỳ tháng, giáo viên bị từ chối | Kiểm thử tự động `apps/api/src/reports/attendance-meals.test.ts`, `tests/e2e/46-attendance-report.spec.ts` đạt ngày 13/10/2026 | Đạt |
 | CT-298 | P17-02 | Xuất Excel tháng | tên tệp đúng, có các bảng Data, Tổng hợp, Tổng hợp tháng và một bảng mỗi lớp; tiêu đề, tên trường, sĩ số, tổng có mặt, mã B của trẻ đúng; ghi nhật ký xuất có dữ liệu cá nhân; xuất tuần có bảng "Tổng hợp tuần"; quản lý đơn vị không có quyền xuất bị từ chối | Kiểm thử tự động `apps/api/src/reports/attendance-meals.test.ts`, `tests/e2e/46-attendance-report.spec.ts` đạt ngày 13/10/2026 | Đạt |
 | CT-299 | P17-02 | Giao diện (46-attendance-report.spec.ts) | mở báo cáo, chuyển Ngày, Tuần, Tháng, tải tệp Excel đúng tên, mở được bằng exceljs và có bảng "Tổng hợp tháng" | Kiểm thử tự động `apps/api/src/reports/attendance-meals.test.ts`, `tests/e2e/46-attendance-report.spec.ts` đạt ngày 13/10/2026 | Đạt |
+| CT-300 | P01-01 | Gọi `GET` hoặc `PUT /me/quick-links` không có mã phiên | 401 | Kiểm thử tự động `apps/api/src/quick-links/quick-links.test.ts`, `tests/e2e/47-quick-access.spec.ts` đạt ngày 13/10/2026 | Đạt |
+| CT-301 | P01-01 | Tài khoản mới đọc lối tắt | danh sách rỗng | Kiểm thử tự động `apps/api/src/quick-links/quick-links.test.ts`, `tests/e2e/47-quick-access.spec.ts` đạt ngày 13/10/2026 | Đạt |
+| CT-302 | P01-01 | Lưu ba lối tắt rồi đọc lại | đúng thứ tự gửi lên, vị trí 0, 1, 2 | Kiểm thử tự động `apps/api/src/quick-links/quick-links.test.ts`, `tests/e2e/47-quick-access.spec.ts` đạt ngày 13/10/2026 | Đạt |
+| CT-303 | P01-01 | Gửi lại danh sách đã đổi thứ tự và bỏ một mục | máy chủ lưu đúng thứ tự mới, còn hai mục | Kiểm thử tự động `apps/api/src/quick-links/quick-links.test.ts`, `tests/e2e/47-quick-access.spec.ts` đạt ngày 13/10/2026 | Đạt |
+| CT-304 | P01-01 | Tài khoản khác đọc và lưu lối tắt | không thấy và không đổi lối tắt của tài khoản thứ nhất | Kiểm thử tự động `apps/api/src/quick-links/quick-links.test.ts`, `tests/e2e/47-quick-access.spec.ts` đạt ngày 13/10/2026 | Đạt |
+| CT-305 | P01-01 | Lưu đường dẫn ngoài danh sách cho phép (`/../admin`, địa chỉ ngoài, `/`, `/change-password`) | 400 | Kiểm thử tự động `apps/api/src/quick-links/quick-links.test.ts`, `tests/e2e/47-quick-access.spec.ts` đạt ngày 13/10/2026 | Đạt |
+| CT-306 | P01-01 | Lưu 13 lối tắt hoặc hai mục trùng trang, nhãn rỗng hoặc quá 100 ký tự | 400 | Kiểm thử tự động `apps/api/src/quick-links/quick-links.test.ts`, `tests/e2e/47-quick-access.spec.ts` đạt ngày 13/10/2026 | Đạt |
+| CT-307 | P01-01 | Lưu danh sách rỗng | xóa hết lối tắt | Kiểm thử tự động `apps/api/src/quick-links/quick-links.test.ts`, `tests/e2e/47-quick-access.spec.ts` đạt ngày 13/10/2026 | Đạt |
+| CT-308 | P01-01 | Thanh đầu trang của Hiệu trưởng hiện tên năm học đang dùng; mở danh sách thấy năm học đó được đánh dấu đang | Thanh đầu trang của Hiệu trưởng hiện tên năm học đang dùng; mở danh sách thấy năm học đó được đánh dấu đang | Kiểm thử tự động `apps/api/src/quick-links/quick-links.test.ts`, `tests/e2e/47-quick-access.spec.ts` đạt ngày 13/10/2026 | Đạt |
+| CT-309 | P01-01 | Hiệu trưởng ghim "Hồ sơ trẻ" và "Công nợ", đưa "Công nợ" lên trước, tải lại vẫn còn đúng thứ tự; bỏ "Công | Hiệu trưởng ghim "Hồ sơ trẻ" và "Công nợ", đưa "Công nợ" lên trước, tải lại vẫn còn đúng thứ tự; bỏ "Công | Kiểm thử tự động `apps/api/src/quick-links/quick-links.test.ts`, `tests/e2e/47-quick-access.spec.ts` đạt ngày 13/10/2026 | Đạt |
 
-Ca CT-105 đến CT-299 lần lượt kiểm tra AC-149 đến AC-343.
+Ca CT-105 đến CT-309 lần lượt kiểm tra AC-149 đến AC-353.
 
 ## 16. Chưa xác minh được
 

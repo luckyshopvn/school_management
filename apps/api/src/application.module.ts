@@ -194,6 +194,7 @@ import { workTransitionStep } from './work/work-transition.js';
 import { WorkHistoryController, WorkHistoryService } from './staff/work-history.js';
 import { BonusDeductionsController, BonusDeductionsService } from './payroll/bonus-deductions.js';
 import { IntegrationsController, IntegrationsService } from './integrations/integrations.js';
+import { QuickLinksController, QuickLinksService } from './quick-links/quick-links.js';
 import { integrationsTransitionStep } from './integrations/integrations-transition.js';
 import { FacebookPostsController, FacebookPostsService } from './integrations/facebook-posts.js';
 import {
@@ -316,6 +317,7 @@ export class ApplicationModule {
         PayablesController,
         FiscalPeriodsController,
         IntegrationsController,
+        QuickLinksController,
         FacebookPostsController,
         RecruitmentRequestsController,
         JobPostingsController,
@@ -493,6 +495,7 @@ export class ApplicationModule {
                 : new UnavailableZaloSender(),
         },
         IntegrationsService,
+        QuickLinksService,
         FacebookPostsService,
         JournalsService,
         {

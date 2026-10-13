@@ -178,3 +178,69 @@ export const MODULE_NAMES: Record<string, string> = {
 export const WHOLE_SCHOOL_ROLE_CODES = ['VT-01', 'VT-02', 'VT-19', 'VT-20'] as const;
 // Vai trò VT-03 không được cấp khi tạo tài khoản (PQ-13)
 export const ROLE_CODES_RESERVED_FOR_PRINCIPAL = ['VT-01', 'VT-02'] as const;
+
+// Đường dẫn trang của cổng quản trị được ghim vào "Truy cập nhanh" trên trang chủ (YCTD-102); máy chủ API chỉ nhận các
+// đường dẫn này, giao diện chỉ cho chọn trang người dùng thấy trên thanh điều hướng
+export const PORTAL_QUICK_LINK_PATHS = [
+  '/academic-years',
+  '/org-units',
+  '/accounts',
+  '/roles',
+  '/settings',
+  '/audit-logs',
+  '/departments',
+  '/catalogs',
+  '/approval-thresholds',
+  '/rooms',
+  '/classes',
+  '/children',
+  '/imports',
+  '/attendance',
+  '/fees',
+  '/cashflow-categories',
+  '/registrations',
+  '/invoices',
+  '/fee-approvals',
+  '/debts',
+  '/receipts',
+  '/cash-accounts',
+  '/payments',
+  '/cash-book',
+  '/debt-collection',
+  '/bank-reconciliation',
+  '/payables',
+  '/fiscal-periods',
+  '/ledger',
+  '/staff',
+  '/staff-attendance',
+  '/school-days',
+  '/work-schedules',
+  '/health',
+  '/admissions',
+  '/interactions',
+  '/kitchen',
+  '/medicines',
+  '/inventory',
+  '/activities',
+  '/purchase-requests',
+  '/recruitment',
+  '/teaching',
+  '/leave-requests',
+  '/leave-policies',
+  '/payrolls',
+  '/pay-items',
+  '/my-payslips',
+  '/payroll-settlements',
+  '/reports',
+  '/api-clients',
+  '/integrations',
+  '/notifications',
+  '/work',
+  '/evaluations',
+  '/bonus-deductions',
+] as const;
+
+export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
+
+// Số lối tắt tối đa của mỗi tài khoản
+export const MAX_QUICK_LINKS = 12;

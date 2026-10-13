@@ -31,6 +31,38 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Kiểm thử cần thực hiện: kịch bản CT-289 đến CT-299.
 - Trạng thái: Đã triển khai
 
+### YCTD-102: DT-14 phần 14b: năm học ở thanh đầu trang và Truy cập nhanh trên trang chủ – 2026-10-13
+
+- Lý do: Eric cho Claude khảo sát hệ thống thông tin quản lý giáo dục của Sở GD&ĐT TP.HCM ngày 2026-10-13 và chọn bổ sung cả bốn nhóm (đợt DT-14): 14a thống kê theo tiêu chí ngành, cân nặng, chiều cao theo kênh tăng trưởng; 14b ô năm học, học kỳ ở thanh đầu trang và Truy cập nhanh; 14c hoàn thành chương trình mầm non, đánh giá chuẩn nghề nghiệp, nhóm học sinh; 14d thiết bị dạy học tối thiểu, khai báo cơ sở vật chất, hồ sơ trường, mẫu báo cáo EMIS. Mục này ghi phần 14b; các phần khác ghi ở YCTD riêng khi gộp. Kết quả khảo sát ở `31_KHAO_SAT_HE_THONG_SO.md`.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Thanh đầu trang cổng quản trị có nút "<năm học> · <học kỳ>"; học kỳ là kỳ trong lịch năm học chứa ngày hôm nay (Học kỳ I, Học kỳ II, Kỳ hè, hoặc "Ngoài học kỳ"); bấm mở danh sách năm học đang dùng và đã đóng kèm học kỳ, ngày bắt đầu, kết thúc. Năm học đã đóng chưa chọn để xem được (máy chủ chỉ đọc năm học đang dùng, BR-93); học kỳ chỉ để hiển thị. Màn hình hẹp hơn 768 điểm ảnh ẩn nút.
+  - Trang chủ có vùng "Truy cập nhanh" với nút "Thêm truy cập nhanh": ghim tối đa 12 trang người dùng đang thấy trên thanh điều hướng, nhóm theo phân hệ; đổi thứ tự bằng nút lên, xuống hoặc kéo thả; bỏ ô. Lối tắt lưu theo tài khoản ở cơ sở dữ liệu hệ thống nên giữ qua các năm học.
+  - `GET`, `PUT /api/v1/me/quick-links` (chỉ cần đăng nhập, chỉ đọc, sửa của chính mình); PUT thay cả danh sách trong một giao dịch; đường dẫn phải nằm trong danh sách cho phép `PORTAL_QUICK_LINK_PATHS` ở gói dùng chung; mỗi trang vẫn tự kiểm tra quyền khi mở.
+- Thành phần bị ảnh hưởng: máy chủ API, cổng quản trị (thanh đầu trang, trang chủ), gói dùng chung; tài liệu `01`, `02`, `11`, `14` (MH-01, BC-09), `16` (bảng `user_quick_links`), `17` (giao kèo Truy cập nhanh), `21`, `23`, `24`, `index.md`.
+- Dữ liệu bị ảnh hưởng: bảng `user_quick_links` ở cơ sở dữ liệu hệ thống (tệp 0004).
+- API bị ảnh hưởng: thêm `GET`, `PUT /me/quick-links`.
+- Giao diện bị ảnh hưởng: thanh đầu trang, trang chủ.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: kịch bản CT-300 đến CT-309.
+- Trạng thái: Đã triển khai
+
+### YCTD-101: Menu sổ xuống chọn phân hệ ở thanh đầu trang – 2026-10-13
+
+- Lý do: Eric gửi ảnh mẫu ngày 2026-10-13, yêu cầu tách các nhóm chức năng thành một menu sổ xuống như ảnh.
+- Nội dung thay đổi (Eric yêu cầu ngày 2026-10-13; cách gom phân hệ Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Thanh đầu trang cổng quản trị có ô chọn phân hệ (nền trắng, biểu tượng vuông xanh lá, mũi tên), sổ xuống tám mục: Quản lý giáo dục mầm non (Trẻ và lớp, Giảng dạy, Y tế, Bếp, Tương tác, Hoạt động và truyền thông), Tuyển sinh, Học phí và tài chính, Nhân sự, Cơ sở vật chất (Kho và mua hàng), Báo cáo số liệu, Quản trị hệ thống (Thiết lập), Tất cả chức năng (mặc định).
+  - Chọn phân hệ thì thanh điều hướng chỉ hiện nhóm của phân hệ đó; chỉ liệt kê phân hệ người dùng có ít nhất một nhóm được phép. Trình duyệt nhớ phân hệ đã chọn. Mở trang thuộc phân hệ khác (đường dẫn, chuông thông báo) thì menu tự chuyển sang phân hệ của trang.
+  - Màn hình hẹp: tên hệ thống, tên người dùng, đổi mật khẩu ẩn bớt để thanh đầu trang không xuống dòng.
+- Thành phần bị ảnh hưởng: khung trang cổng quản trị, bảng màu dùng chung (màu biểu tượng phân hệ); tài liệu `02`, `24`, `index.md`.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: khung trang cổng quản trị.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không; mặc định hiện mọi nhóm như trước.
+- Kiểm thử cần thực hiện: kiểm thử giao diện `01-login.spec.ts` (chọn phân hệ, nhớ sau khi tải lại, tự chuyển phân hệ) và toàn bộ kiểm thử giao diện.
+- Trạng thái: Đã triển khai
+
 ### YCTD-100: DT-13 phần 13a: nhập thẳng tệp học sinh, cán bộ theo mẫu CSDL ngành – 2026-10-13
 
 - Lý do: Eric gửi ba tệp mẫu ngày 2026-10-13 (học sinh, giáo viên theo mẫu xuất của CSDL ngành TP.HCM; báo cáo điểm danh, suất ăn) và chọn: nhập thẳng tệp ngành, lưu đầy đủ mọi cột, báo cáo điểm danh xuất Excel đúng mẫu, xem trên màn hình, báo suất ăn cho bếp. Đợt DT-13 gồm 13a (nhập tệp ngành) và 13c (báo cáo điểm danh, suất ăn). Các điểm kỹ thuật dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
@@ -52,22 +84,6 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: không.
 - Ảnh hưởng chức năng cũ: không; các loại nhập cũ giữ nguyên.
 - Kiểm thử cần thực hiện: kịch bản CT-275 đến CT-288.
-- Trạng thái: Đã triển khai
-
-### YCTD-101: Menu sổ xuống chọn phân hệ ở thanh đầu trang – 2026-10-13
-
-- Lý do: Eric gửi ảnh mẫu ngày 2026-10-13, yêu cầu tách các nhóm chức năng thành một menu sổ xuống như ảnh.
-- Nội dung thay đổi (Eric yêu cầu ngày 2026-10-13; cách gom phân hệ Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
-  - Thanh đầu trang cổng quản trị có ô chọn phân hệ (nền trắng, biểu tượng vuông xanh lá, mũi tên), sổ xuống tám mục: Quản lý giáo dục mầm non (Trẻ và lớp, Giảng dạy, Y tế, Bếp, Tương tác, Hoạt động và truyền thông), Tuyển sinh, Học phí và tài chính, Nhân sự, Cơ sở vật chất (Kho và mua hàng), Báo cáo số liệu, Quản trị hệ thống (Thiết lập), Tất cả chức năng (mặc định).
-  - Chọn phân hệ thì thanh điều hướng chỉ hiện nhóm của phân hệ đó; chỉ liệt kê phân hệ người dùng có ít nhất một nhóm được phép. Trình duyệt nhớ phân hệ đã chọn. Mở trang thuộc phân hệ khác (đường dẫn, chuông thông báo) thì menu tự chuyển sang phân hệ của trang.
-  - Màn hình hẹp: tên hệ thống, tên người dùng, đổi mật khẩu ẩn bớt để thanh đầu trang không xuống dòng.
-- Thành phần bị ảnh hưởng: khung trang cổng quản trị, bảng màu dùng chung (màu biểu tượng phân hệ); tài liệu `02`, `24`, `index.md`.
-- Dữ liệu bị ảnh hưởng: không.
-- API bị ảnh hưởng: không.
-- Giao diện bị ảnh hưởng: khung trang cổng quản trị.
-- Quyền bị ảnh hưởng: không.
-- Ảnh hưởng chức năng cũ: không; mặc định hiện mọi nhóm như trước.
-- Kiểm thử cần thực hiện: kiểm thử giao diện `01-login.spec.ts` (chọn phân hệ, nhớ sau khi tải lại, tự chuyển phân hệ) và toàn bộ kiểm thử giao diện.
 - Trạng thái: Đã triển khai
 
 ### YCTD-99: Giao diện tông xanh, ẩn hiện thanh điều hướng, thu gọn nhóm chức năng – 2026-10-13
