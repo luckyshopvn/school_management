@@ -1,4 +1,4 @@
-import { decodeBase64Key } from '@school-management/server';
+import { decodeBase64Key, readSmsProviderSettings, type SmsProviderSettings } from '@school-management/server';
 import { PAYMENT_PROVIDER_CODES, type PaymentProviderCode } from '../finance/payment-gateway.js';
 
 // Mã cổng không có trong danh sách thì bỏ qua; mỗi mã chỉ một lần, giữ thứ tự ghi
@@ -34,6 +34,9 @@ export interface ApiConfiguration {
   facebookPageAccessToken?: string | null;
   zaloSender?: 'development' | null;
   zaloOaAccessToken?: string | null;
+  // Nhà cung cấp tin nhắn thông báo: 'log' chỉ ghi nhật ký, không dùng được ở môi trường chạy thật; 'esms' là eSMS.vn
+  // (YCTD-92). Trống là 'log'
+  smsProvider?: SmsProviderSettings;
 }
 
 export interface ObjectStorageSettings {
@@ -83,5 +86,6 @@ export function readConfigurationFromEnvironment(): ApiConfiguration {
     facebookPageAccessToken: process.env.FACEBOOK_PAGE_ACCESS_TOKEN || null,
     zaloSender: process.env.ZALO_SENDER === 'development' ? 'development' : null,
     zaloOaAccessToken: process.env.ZALO_OA_ACCESS_TOKEN || null,
+    smsProvider: readSmsProviderSettings(),
   };
 }

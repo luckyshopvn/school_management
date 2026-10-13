@@ -11,6 +11,24 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-93: DT-12 phần 12a: nối nhà cung cấp tin nhắn eSMS.vn – 2026-10-13
+
+- Lý do: Eric chọn eSMS.vn làm nhà cung cấp tin nhắn thương hiệu ngày 2026-10-13 (YCTD-92, việc T1). Các điểm kỹ thuật dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Gói dùng chung `packages/server` có `EsmsClient`: gửi tin chăm sóc khách hàng có tên thương hiệu (SmsType 2) qua API V4 của eSMS.vn; `CodeResult` 100 là thành công, mã khác hoặc lỗi HTTP thì báo lỗi kèm mã; hủy sau 10 giây không phản hồi.
+  - Số điện thoại chuẩn hóa về dạng 84xxxxxxxxx; số sai dạng báo lỗi, không gọi eSMS.vn. Mặc định bỏ dấu tiếng Việt (tin không dấu rẻ hơn); `ESMS_UNICODE=true` gửi có dấu.
+  - Dịch vụ định danh gửi mã đăng nhập một lần (YCTD-43) và máy chủ API gửi tin nhắn thông báo (YCTD-71) cùng dùng `EsmsClient`; lỗi nhà cung cấp được ném ra để luồng gửi mã báo lỗi và tiến trình gửi thông báo thử lại như hiện nay.
+  - Biến môi trường: `SMS_PROVIDER` (`log` mặc định khi phát triển, kiểm thử; `esms`), `ESMS_API_KEY`, `ESMS_SECRET_KEY`, `ESMS_BRANDNAME` (bắt buộc khi `esms`), `ESMS_SANDBOX`, `ESMS_UNICODE`. Môi trường chạy thật (`NODE_ENV=production`) không đặt `SMS_PROVIDER=esms` thì cả dịch vụ định danh và máy chủ API dừng khi khởi động.
+  - Chưa nhận báo cáo trạng thái tin từ eSMS.vn; chưa thử với tài khoản thật. Nhà trường cần tài khoản, tiền trong tài khoản và tên thương hiệu đã đăng ký; nên chạy thử với `ESMS_SANDBOX=true` trước.
+- Thành phần bị ảnh hưởng: `packages/server`, dịch vụ định danh, máy chủ API, `.env.example`; tài liệu `01`, `02`, `03`, `11`, `13`, `21`, `23`, `24`, `index.md`.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: máy chủ API ở môi trường chạy thật bắt buộc cấu hình nhà cung cấp tin nhắn.
+- Kiểm thử cần thực hiện: kịch bản CT-236 đến CT-249.
+- Trạng thái: Đã triển khai
+
 ### YCTD-92: Nghiệm thu ba bản phát hành, quyết định G3-04, chọn nhà cung cấp và đợt DT-12 – 2026-10-13
 
 - Lý do: Eric trả lời các câu hỏi còn mở ngày 2026-10-13: nghiệm thu cả ba bản ứng viên; chưa làm bản cài riêng trên điện thoại; chọn nhà cung cấp tin nhắn, thanh toán, nối Facebook và Zalo thật; Claude chuẩn bị cấu hình triển khai trước khi thuê máy chủ.

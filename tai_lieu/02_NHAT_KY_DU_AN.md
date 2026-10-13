@@ -14,6 +14,25 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-13 — DT-12 phần 12a: nối nhà cung cấp tin nhắn eSMS.vn
+
+#### Công việc đã thực hiện
+
+- Viết `EsmsClient` và lớp gửi eSMS.vn cho dịch vụ định danh, máy chủ API; đọc cấu hình từ biến môi trường.
+- Thêm kịch bản CT-236 đến CT-249.
+
+#### Quyết định
+
+- Eric chọn nhà cung cấp ngày 13/10/2026 (YCTD-92); các điểm kỹ thuật Claude tự chọn ghi ở YCTD-93.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-93 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.50.0.
+
+#### Vấn đề tồn đọng
+
+- Kiểm với tài khoản thật khi Eric cấp khóa lúc triển khai (việc T6).
+
 ### 2026-10-13 — Nghiệm thu ba bản phát hành, chọn nhà cung cấp, lập đợt DT-12
 
 #### Công việc đã thực hiện

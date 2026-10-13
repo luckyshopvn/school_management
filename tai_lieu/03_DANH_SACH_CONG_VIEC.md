@@ -85,7 +85,7 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 
 | Mã | Công việc | Cần gì | Trạng thái |
 |---|---|---|---|
-| T1 | Gửi thông báo và mã đăng nhập một lần qua tin nhắn tới phụ huynh | Tài khoản nhà cung cấp tin nhắn thương hiệu | Đang thực hiện: Eric chọn eSMS.vn ngày 13/10/2026, nối ở DT-12 phần 12a; cần tài khoản và tên thương hiệu đã đăng ký khi triển khai |
+| T1 | Gửi thông báo và mã đăng nhập một lần qua tin nhắn tới phụ huynh | Tài khoản nhà cung cấp tin nhắn thương hiệu | Đang thực hiện: Eric chọn eSMS.vn ngày 13/10/2026; kết nối đã viết ở DT-12 phần 12a (YCTD-93); cần tài khoản và tên thương hiệu đã đăng ký khi triển khai |
 | T2 | Gửi thư điện tử thông báo | Tài khoản gửi thư | Bị chặn, cần tài khoản |
 | T3 | Thông báo đẩy trên điện thoại | Khóa dịch vụ thông báo đẩy | Bị chặn, cần tài khoản |
 | T4 | Kết nối Facebook và Fanpage | Tài khoản quản trị trang và quyền ứng dụng | Đang thực hiện: nối thật ở DT-12 phần 12c; cần khóa trang khi triển khai |

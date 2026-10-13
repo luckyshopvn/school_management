@@ -21,3 +21,13 @@ export {
   type AccessTokenClaims,
   type SessionChannel,
 } from './access-token.js';
+export {
+  ESMS_SEND_URL,
+  EsmsClient,
+  normalizeVietnamesePhone,
+  readEsmsSettings,
+  readSmsProviderSettings,
+  removeVietnameseDiacritics,
+  type EsmsSettings,
+  type SmsProviderSettings,
+} from './esms-client.js';

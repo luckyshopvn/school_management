@@ -59,7 +59,7 @@ export async function startTestApplication(
     loginRequestsPerMinutePerAddress: options.loginRequestsPerMinutePerAddress ?? 1000,
     // Môi trường kiểm thử của máy chủ API gán lại sau khi máy chủ API chạy
     apiBaseUrl: 'http://127.0.0.1:9',
-    smsProvider: 'log',
+    smsProvider: { provider: 'log' },
   };
   const clock = new AdjustableClock();
   const smsSender = new RecordingSmsSender();

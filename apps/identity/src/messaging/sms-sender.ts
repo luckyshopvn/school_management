@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { EsmsClient, type EsmsSettings, type SmsProviderSettings } from '@school-management/server';
 
-// Lớp gửi tin nhắn tới số điện thoại; nhà cung cấp thật nối khi có tài khoản ở việc T1 (XT-09, YCTD-43)
+// Lớp gửi tin nhắn tới số điện thoại; nhà cung cấp thật là eSMS.vn (XT-09, YCTD-43, YCTD-92)
 export abstract class SmsSender {
   abstract send(phone: string, text: string): Promise<void>;
 }
@@ -13,6 +14,25 @@ export class LoggingSmsSender extends SmsSender {
   async send(phone: string, text: string): Promise<void> {
     this.logger.warn(`Chưa nối nhà cung cấp tin nhắn; tin nhắn tới ${phone}: ${text}`);
   }
+}
+
+// Gửi tin qua eSMS.vn; lỗi của nhà cung cấp được ném ra để luồng gửi mã đăng nhập báo lỗi (YCTD-92)
+export class EsmsSmsSender extends SmsSender {
+  private readonly client: EsmsClient;
+
+  constructor(settings: EsmsSettings, fetchFunction: typeof fetch = fetch) {
+    super();
+    this.client = new EsmsClient(settings, fetchFunction);
+  }
+
+  async send(phone: string, text: string): Promise<void> {
+    await this.client.send(phone, text);
+  }
+}
+
+// Chọn lớp gửi theo cấu hình SMS_PROVIDER
+export function createSmsSender(settings: SmsProviderSettings): SmsSender {
+  return settings.provider === 'esms' ? new EsmsSmsSender(settings.esms) : new LoggingSmsSender();
 }
 
 // Dùng khi kiểm thử: giữ tin nhắn trong bộ nhớ để kiểm thử đọc

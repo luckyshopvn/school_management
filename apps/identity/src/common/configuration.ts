@@ -1,4 +1,4 @@
-import { decodeBase64Key } from '@school-management/server';
+import { decodeBase64Key, readSmsProviderSettings, type SmsProviderSettings } from '@school-management/server';
 
 // Cấu hình của dịch vụ định danh; bí mật đọc từ biến môi trường, không đặt trong mã nguồn (QU-05)
 export interface IdentityConfiguration {
@@ -10,8 +10,9 @@ export interface IdentityConfiguration {
   loginRequestsPerMinutePerAddress: number;
   // Máy chủ API, để đọc cây đơn vị khi quản lý tài khoản (YCTD-39)
   apiBaseUrl: string;
-  // Nhà cung cấp tin nhắn; hiện chỉ có 'log' ghi ra nhật ký, không dùng được ở môi trường chạy thật (YCTD-43)
-  smsProvider: 'log';
+  // Nhà cung cấp tin nhắn: 'log' chỉ ghi ra nhật ký, không dùng được ở môi trường chạy thật (YCTD-43); 'esms' là
+  // eSMS.vn, cần khóa và tên thương hiệu ở biến môi trường (YCTD-92)
+  smsProvider: SmsProviderSettings;
 }
 
 export const IDENTITY_CONFIGURATION = Symbol('IDENTITY_CONFIGURATION');
@@ -24,17 +25,6 @@ function readRequired(name: string): string {
   return value;
 }
 
-function readSmsProvider(): 'log' {
-  const provider = process.env.SMS_PROVIDER ?? 'log';
-  if (provider !== 'log') {
-    throw new Error(`Nhà cung cấp tin nhắn ${provider} chưa được hỗ trợ`);
-  }
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error('Chưa cấu hình nhà cung cấp tin nhắn cho môi trường chạy thật (việc T1)');
-  }
-  return provider;
-}
-
 export function readConfigurationFromEnvironment(): IdentityConfiguration {
   return {
     databaseUrl: readRequired('IDENTITY_DATABASE_URL'),
@@ -44,6 +34,6 @@ export function readConfigurationFromEnvironment(): IdentityConfiguration {
     tokenPublicKeyPem: decodeBase64Key(readRequired('TOKEN_PUBLIC_KEY')),
     loginRequestsPerMinutePerAddress: Number(process.env.LOGIN_REQUESTS_PER_MINUTE ?? 10),
     apiBaseUrl: readRequired('API_BASE_URL'),
-    smsProvider: readSmsProvider(),
+    smsProvider: readSmsProviderSettings(),
   };
 }

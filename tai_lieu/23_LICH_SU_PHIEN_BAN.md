@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.50.0 – 2026-10-13
+
+- Phạm vi thay đổi: DT-12 phần 12a, nối nhà cung cấp tin nhắn eSMS.vn (YCTD-93).
+- Chức năng mới: gửi mã đăng nhập một lần và tin nhắn thông báo qua eSMS.vn (P19-06, XT-09).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: không.
+- Thay đổi API: không.
+- Rủi ro: chưa thử với tài khoản eSMS.vn thật; tên thương hiệu và mẫu tin cần đăng ký trước.
+- Khả năng tương thích: không đổi hành vi khi chưa bật nhà cung cấp; kiểm thử giữ bộ giả lập.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-12-phan-12a`; hoặc đặt lại biến môi trường về bộ giả lập.
+
 ### Phiên bản 0.49.0 – 2026-10-13
 
 - Phạm vi thay đổi: Eric nghiệm thu ba bản 1.0.0, 1.1.0, 1.2.0; quyết định G3-04; chọn nhà cung cấp; lập đợt DT-12 (YCTD-92).
