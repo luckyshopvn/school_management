@@ -1,0 +1,11 @@
+# Lịch sao lưu mẫu (YCTD-92, SL-01, SL-02). Cài cho tài khoản vận hành có quyền docker: crontab -e rồi dán các dòng dưới,
+# sửa /opt/school-management thành thư mục chứa mã nguồn trên máy chủ. Giờ theo múi giờ của máy chủ (đặt Asia/Ho_Chi_Minh).
+# Kết quả ghi vào /var/log/school-management/backup.log (tạo thư mục và cấp quyền ghi trước).
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Bản đầy đủ hằng ngày lúc 01:30 (mọi cơ sở dữ liệu và kho tệp; giữ 30 ngày)
+30 1 * * * cd /opt/school-management && bash deploy/scripts/backup.sh daily >> /var/log/school-management/backup.log 2>&1
+
+# Bản hằng giờ ở phút 15, trừ giờ chạy bản hằng ngày (cơ sở dữ liệu đang dùng; mất tối đa 1 giờ dữ liệu)
+15 0,2-23 * * * cd /opt/school-management && bash deploy/scripts/backup.sh hourly >> /var/log/school-management/backup.log 2>&1

@@ -1,0 +1,100 @@
+# Máy chủ web và chuyển tiếp của môi trường chạy thật (YCTD-92).
+# Mỗi giao diện một tên miền con; giao diện gọi /api/v1 cùng tên miền (không cần CORS) và Caddy chuyển nhóm điểm cuối của
+# dịch vụ định danh sang dịch vụ định danh, phần còn lại sang máy chủ API, giống cấu hình chuyển tiếp khi phát triển
+# (17_DAC_TA_API.md quy ước 8). Cookie mã làm mới (SameSite=Strict, Secure, đường dẫn /api/v1/auth, BM-71) vì vậy luôn là
+# cookie cùng tên miền, không cần đặt Domain chung cho các tên miền con.
+# Địa chỉ trang lấy từ biến môi trường: ghi tên miền (ví dụ portal.truong.vn) để Caddy tự xin chứng chỉ HTTPS; ghi
+# http://<tên> để chạy không mã hóa khi thử trên máy cục bộ.
+
+{
+	email {$ACME_EMAIL}
+	# Trang quản trị của Caddy giữ mặc định localhost:2019, chỉ nghe bên trong vùng chứa (dùng cho kiểm tra sức khỏe)
+	servers {
+		# Thời gian chờ đủ cho tải tệp nhập Excel và tệp đính kèm tối đa 10 MB trên mạng chậm
+		timeouts {
+			read_body 120s
+			read_header 15s
+			idle 2m
+		}
+	}
+}
+
+(common) {
+	encode zstd gzip
+	log {
+		output stdout
+		format json
+	}
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "geolocation=(), microphone=()"
+		-Server
+	}
+	request_body {
+		max_size 25MB
+	}
+}
+
+(backend) {
+	@identity path /api/v1/auth /api/v1/auth/* /api/v1/users /api/v1/users/* /api/v1/roles /api/v1/roles/* /api/v1/permissions /api/v1/permissions/* /api/v1/api-clients /api/v1/api-clients/*
+	handle @identity {
+		reverse_proxy identity:3001 {
+			health_uri /api/v1/health
+			health_interval 30s
+		}
+	}
+	# Cả hai nhóm dùng bộ so khớp có tên để Caddy giữ đúng thứ tự: nhóm định danh xét trước
+	@api path /api/v1/*
+	handle @api {
+		reverse_proxy api:3000 {
+			health_uri /api/v1/health
+			health_interval 30s
+		}
+	}
+}
+
+(spa) {
+	handle {
+		root * {args[0]}
+		# Tệp đã băm tên thì lưu đệm lâu dài; index.html và các tệp khác luôn hỏi lại để nhận bản mới sau khi cập nhật
+		@hashed path /assets/*
+		header @hashed Cache-Control "public, max-age=31536000, immutable"
+		@other not path /assets/*
+		header @other Cache-Control "no-cache"
+		try_files {path} /index.html
+		file_server
+	}
+}
+
+# Trang quản lý cho cán bộ (portal)
+{$PORTAL_SITE} {
+	import common
+	import backend
+	import spa /srv/portal
+}
+
+# Ứng dụng phụ huynh
+{$PARENT_SITE} {
+	import common
+	import backend
+	import spa /srv/parent
+}
+
+# Ứng dụng giáo viên
+{$TEACHER_SITE} {
+	import common
+	import backend
+	import spa /srv/teacher
+}
+
+# Địa chỉ cho đối tác (API chỉ đọc có khóa, YCTD-63), cổng thanh toán gọi về (webhook) và kiểm tra sức khỏe từ bên ngoài
+{$API_SITE} {
+	import common
+	import backend
+	handle {
+		respond "Không tìm thấy" 404
+	}
+}

@@ -1,0 +1,20 @@
+# Ngữ cảnh dựng ảnh Docker (deploy/docker/*.Dockerfile, YCTD-92): chỉ mã nguồn cần để dựng
+**/node_modules
+**/dist
+**/*.tsbuildinfo
+.git
+.github
+.claude
+.workbuddy-ai
+tai_lieu
+deploy
+!deploy/caddy
+.env
+.env.*
+**/coverage
+**/test-results
+**/playwright-report
+# Gói kiểm thử giao diện chỉ cần tệp khai báo để pnpm đọc đúng không gian làm việc
+tests/*
+!tests/package.json
+*.md
