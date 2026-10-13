@@ -1,8 +1,8 @@
 # 03. DANH SÁCH KIỂM TRA CÔNG VIỆC
 
 - Mô tả: Danh sách công việc, trạng thái và thứ tự ưu tiên của dự án.
-- Phiên bản: 0.22
-- Ngày cập nhật: 2026-10-11
+- Phiên bản: 0.23
+- Ngày cập nhật: 2026-10-13
 - Trạng thái: Đang cập nhật
 
 ## Quy ước trạng thái
@@ -13,25 +13,25 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 
 | Phân hệ | Trạng thái | Việc còn lại |
 |---|---|---|
-| P01 Nền tảng, đơn vị và phân quyền | Chưa bắt đầu | Đặc tả đã có; chờ duyệt và chờ mã nguồn |
-| P02 Trẻ, phụ huynh và lớp học | Chưa bắt đầu | Đặc tả đã có; chờ duyệt và chờ mã nguồn |
-| P03 Giảng dạy | Chưa bắt đầu | Thuộc giai đoạn 2 |
-| P04 Điểm danh và chăm sóc hằng ngày | Chưa bắt đầu | Đặc tả đã có; chờ duyệt và chờ mã nguồn |
-| P05 Học phí, khoản thu và giảm trừ | Chưa bắt đầu | Đặc tả đã có; chờ duyệt và chờ mã nguồn |
-| P06 Tài chính | Chưa bắt đầu | Sổ kế toán kép theo chế độ hành chính, sự nghiệp ở giai đoạn 3 |
-| P07 Nhân sự | Chưa bắt đầu | Đặc tả đã có; chờ duyệt |
-| P08 Chấm công và tiền lương | Chưa bắt đầu | Đặc tả đã có; chờ duyệt và chờ mã nguồn |
-| P09 Công việc, kế hoạch và đánh giá | Chưa bắt đầu | Thuộc giai đoạn 2; thiếu chỉ số đánh giá |
-| P10 Y tế học đường | Chưa bắt đầu | Thuộc giai đoạn 2 |
+| P01 Nền tảng, đơn vị và phân quyền | Hoàn thành | Đợt DT-01 (YCTD-34 đến YCTD-42); kết nối ngoài ở DT-11 phần 11e |
+| P02 Trẻ, phụ huynh và lớp học | Hoàn thành | Đợt DT-03 (YCTD-44 đến YCTD-46), DT-09 phần 9b, 9d; kết nối tự động cơ sở dữ liệu ngành (G3-09) chưa có giao diện lập trình công khai, tiếp tục nhập từ tệp |
+| P03 Giảng dạy | Hoàn thành | Đợt DT-10 phần 10g (YCTD-80); tổ chuyên môn chưa làm |
+| P04 Điểm danh và chăm sóc hằng ngày | Hoàn thành | Đợt DT-04 (YCTD-47, YCTD-48), DT-08 phần 8b |
+| P05 Học phí, khoản thu và giảm trừ | Hoàn thành | Đợt DT-05 (YCTD-49 đến YCTD-57); cổng thanh toán thật chờ việc T1 |
+| P06 Tài chính | Hoàn thành | Đợt DT-05 phần 5d đến 5f, DT-10 phần 10i, DT-11 phần 11c, 11d (YCTD-88, YCTD-89) |
+| P07 Nhân sự | Hoàn thành | Đợt DT-06 phần 6a (YCTD-58), DT-10 phần 10h |
+| P08 Chấm công và tiền lương | Hoàn thành | Đợt DT-06 phần 6b, 6c (YCTD-59 đến YCTD-61) |
+| P09 Công việc, kế hoạch và đánh giá | Hoàn thành | Đợt DT-10 phần 10h (YCTD-81) |
+| P10 Y tế học đường | Hoàn thành | Đợt DT-10 phần 10a, 10b (YCTD-74, YCTD-75) |
 | P11 Xe đưa đón | Đã bỏ | Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62) |
-| P12 Bếp và dinh dưỡng | Chưa bắt đầu | Thuộc giai đoạn 2; định lượng do bếp cấu hình (Q-30) |
-| P13 Kho, tài sản và mua hàng | Chưa bắt đầu | Thuộc giai đoạn 2 |
-| P14 Hoạt động, nội dung và truyền thông | Chưa bắt đầu | Thuộc giai đoạn 2 |
-| P15 Tương tác và ý kiến | Chưa bắt đầu | Thuộc giai đoạn 2 |
-| P16 Tuyển sinh | Chưa bắt đầu | Thuộc giai đoạn 3 |
-| P17 Báo cáo và bảng điều khiển | Chưa bắt đầu | Đặc tả đã có; chờ duyệt |
-| P18 Tuyển dụng | Chưa bắt đầu | Thuộc giai đoạn 3 |
-| P19 Kênh truy cập và thông báo | Chưa bắt đầu | Chờ quyết định về bản cài riêng trên điện thoại |
+| P12 Bếp và dinh dưỡng | Hoàn thành | Đợt DT-10 phần 10c (YCTD-76) |
+| P13 Kho, tài sản và mua hàng | Hoàn thành | Đợt DT-10 phần 10d (YCTD-77) |
+| P14 Hoạt động, nội dung và truyền thông | Hoàn thành | Đợt DT-10 phần 10e (YCTD-78); Fanpage ở DT-11 phần 11e, tài khoản thật chờ việc T1 |
+| P15 Tương tác và ý kiến | Hoàn thành | Đợt DT-10 phần 10f (YCTD-79) |
+| P16 Tuyển sinh | Hoàn thành | Đợt DT-11 phần 11a (YCTD-86) |
+| P17 Báo cáo và bảng điều khiển | Hoàn thành | Đợt DT-07 (YCTD-62, YCTD-63), DT-10 phần 10j (YCTD-83) |
+| P18 Tuyển dụng | Hoàn thành | Đợt DT-11 phần 11b (YCTD-87) |
+| P19 Kênh truy cập và thông báo | Hoàn thành | Đợt DT-08 (YCTD-64, YCTD-65), Zalo ở DT-11 phần 11e; bản cài riêng trên điện thoại (N2, G3-04) chờ Eric quyết định |
 
 ## 2. Việc còn lại
 
@@ -71,7 +71,7 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | Mã | Công việc | Trạng thái | Ghi chú |
 |---|---|---|---|
 | N1 | Xác thực hai lớp cho Hiệu trưởng, Phó Hiệu trưởng, kế toán trưởng, quản trị nền tảng | Đã bỏ | Bỏ ngày 09/10/2026 theo quyết định của Eric (YCTD-31) |
-| N2 | Bản cài riêng trên điện thoại cho phụ huynh | Chưa bắt đầu | Giai đoạn 3, chờ quyết định |
+| N2 | Bản cài riêng trên điện thoại cho phụ huynh | Bị chặn | G3-04, chờ Eric quyết định; hiện phụ huynh dùng ứng dụng web (YCTD-85) |
 | N3 | Kết nối Facebook và Fanpage để đăng nội dung đã duyệt | Hoàn thành | Đợt DT-11 phần 11e (YCTD-90), bản giả lập; nối tài khoản thật ở việc T1 |
 | N21 | Viết bộ ca kiểm thử chi tiết cho P01, P02 và P04, P05 và P06, P08 (Q-105) | Hoàn thành | Thư mục `27_BO_CA_KIEM_THU_CHI_TIET/`, 437 ca, năm đợt đã duyệt; xem mục 7 |
 | N17 | Gửi thông báo và nhắc nợ qua Zalo Official Account | Hoàn thành | Đợt DT-11 phần 11e (YCTD-90), bản giả lập; nối Official Account thật ở việc T7 |
@@ -98,30 +98,30 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 
 | Mã | Công việc | Trạng thái | Ghi chú |
 |---|---|---|---|
-| L1 | Nhập dữ liệu ban đầu từ Excel theo mẫu | Chưa bắt đầu | Đã đưa vào giai đoạn 1 ngày 2026-10-09 (P01-13) |
-| L2 | Ứng dụng phụ huynh bản cài riêng | Chưa bắt đầu, làm theo đợt riêng | Trùng mã N2 |
-| L3 | Sổ kế toán kép | Chưa bắt đầu, làm theo đợt riêng | Trùng mã N5 |
+| L1 | Nhập dữ liệu ban đầu từ Excel theo mẫu | Hoàn thành | Đợt DT-03 phần 3c (YCTD-46), nhân sự ở DT-06 phần 6a, số dư nợ đầu kỳ ở DT-05 phần 5d (P01-13) |
+| L2 | Ứng dụng phụ huynh bản cài riêng | Bị chặn | Trùng mã N2, chờ Eric quyết định |
+| L3 | Sổ kế toán kép | Hoàn thành | Trùng mã N5, đợt DT-11 phần 11c (YCTD-88) |
 
 ## 3. Thứ tự ưu tiên tiếp theo
 
-Chỉ liệt kê việc chưa xong. Thứ tự lấy theo đường găng và mục 13 của `01_KE_HOACH_TONG_THE.md`.
+Chỉ liệt kê việc chưa xong. Mọi đợt xây dựng DT-00 đến DT-11 đã hoàn thành; bản ứng viên phát hành 1.0.0, 1.1.0, 1.2.0 đã đóng gói (`28_BAO_CAO_KIEM_THU_CG_10.md`, `29_BAO_CAO_KIEM_THU_G2.md`, `30_BAO_CAO_KIEM_THU_G3.md`).
 
-1. M01 — Xây dựng nền tảng, cây đơn vị hai cấp, lịch năm học, tài khoản, vai trò, quyền (đợt DT-01).
-2. M01-2 — Xây dựng dịch vụ định danh độc lập.
-3. M02 — Xây dựng hồ sơ trẻ, phụ huynh, lớp học.
-4. T6 — Thuê máy chủ đám mây trong nước khi triển khai; T1 — chọn nhà cung cấp tin nhắn.
+1. CG-11 — Eric nghiệm thu các bản ứng viên phát hành.
+2. T6 — Thuê máy chủ đám mây trong nước, triển khai, chạy kịch bản hiệu năng và phục hồi CT-086 đến CT-089.
+3. T1, T5, T4, T7 — Chọn nhà cung cấp tin nhắn, cổng thanh toán, nối Facebook và Zalo Official Account thật thay bộ giả lập.
+4. N2 — Eric quyết định có làm bản cài riêng trên điện thoại (G3-04).
 
 ## 4. Đang thực hiện
 
 | Mã | Công việc | Giai đoạn | Người thực hiện | Trạng thái | Hạn | Ghi chú |
 |---|---|---|---|---|---|---|
-| M00 | Soạn bộ tài liệu thiết kế và ghi nhận câu hỏi mở | Phân tích nghiệp vụ và thiết kế | Minh | Đang thực hiện | Chưa đặt | Tài liệu đã soạn xong, chờ Eric duyệt |
+| — | Không có việc nào đang thực hiện từ ngày 2026-10-13; các việc còn lại chờ Eric hoặc tài khoản bên ngoài (mục 2.3) | — | — | — | — | — |
 
 ## 5. Bị chặn
 
 | Mã | Công việc | Giai đoạn | Người thực hiện | Lý do bị chặn |
 |---|---|---|---|---|
-| — | Không có việc nào bị chặn từ ngày 2026-10-09 | — | — | — |
+| N2 | Bản cài riêng trên điện thoại cho phụ huynh | Giai đoạn 3 | — | Chờ Eric quyết định (G3-04) |
 
 ## 6. Chờ phê duyệt (đề xuất của AI)
 
