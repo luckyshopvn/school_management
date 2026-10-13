@@ -60,7 +60,7 @@ export function PaymentQr({ invoiceId, invoiceCode }: { invoiceId: string; invoi
           href={data.qr_content}
           target="_blank"
           rel="noopener noreferrer"
-          className="rounded-lg bg-brand px-4 py-2 text-label font-medium text-text hover:bg-brand-strong hover:text-white"
+          className="rounded-lg bg-brand px-4 py-2 text-label font-medium text-white hover:bg-brand-strong"
         >
           {data.provider === 'vnpay' ? 'Thanh toán qua VNPay' : 'Mở trang thanh toán'}
         </a>
