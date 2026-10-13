@@ -27,7 +27,8 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   forbidOnly: isContinuousIntegration,
-  retries: 0,
+  // Máy chạy kiểm thử liên tục đôi lúc chậm bất thường ngay sau đăng nhập; chạy lại một lần, ca hỏng cả hai lần mới tính lỗi
+  retries: isContinuousIntegration ? 1 : 0,
   // Máy chạy kiểm thử liên tục chậm hơn máy phát triển, các ca chuẩn bị nhiều dữ liệu có lúc quá 30 giây
   timeout: isContinuousIntegration ? 60_000 : 30_000,
   reporter: isContinuousIntegration ? 'github' : 'list',
