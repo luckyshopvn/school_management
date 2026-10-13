@@ -954,6 +954,9 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | GET | /api/v1/integrations/zalo/followers | Danh sách số điện thoại đã liên kết Zalo kèm tên phụ huynh |
 | POST | /api/v1/integrations/zalo/followers | Liên kết số điện thoại phụ huynh với mã người dùng Zalo |
 | DELETE | /api/v1/integrations/zalo/followers/{id} | Bỏ liên kết Zalo |
+| POST | /api/v1/integrations/facebook/test | Kiểm tra kết nối Fanpage: trả mã và tên trang; lỗi trả 422 kèm lời báo (YCTD-95) |
+| POST | /api/v1/integrations/zalo/test | Kiểm tra kết nối Zalo Official Account: trả mã và tên Official Account; lỗi trả 422 (YCTD-95) |
+| PUT | /api/v1/integrations/zalo/refresh-token | Lưu khóa làm mới Zalo mới (mã hóa), bỏ khóa truy cập cũ; không bao giờ trả lại khóa, nhật ký chỉ ghi đã thay (YCTD-95) |
 | POST | /api/v1/activities/{id}/facebook-post | Đăng hoạt động đã công bố lên Fanpage (P14.facebook.manage) |
 | POST | /api/v1/news/{id}/facebook-post | Đăng tin tức đã công bố, phạm vi toàn trường hoặc đơn vị, lên Fanpage |
 | GET | /api/v1/facebook-posts | Bài đăng Fanpage trong phạm vi đơn vị; lọc `source_type`, `source_id` |
