@@ -352,6 +352,20 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-277 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P06-12 / Khi ghi bút toán ngày tháng trước; chốt kỳ tháng trước; ghi thêm và hủy bút toán ngày thuộc kỳ / Thì trước chốt ghi được; sau chốt 422 mã BR-95 cho cả ghi và hủy (YCTD-88) |
 | AC-278 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P06-12 / Khi xem sổ cái tài khoản 111 trong ngày; thiếu tài khoản; bảng cân đối toàn trường; kế toán xuất Excel bảng cân đối của đơn vị; kế toán đơn vị khác xuất sổ nhật ký chung của đơn vị / Thì gồm dòng 1111 đối ứng 3371 và dòng đối ứng 131; đầu kỳ dư Có 1 000 000, phát sinh Nợ 900 000, Có 50 000, cuối kỳ dư Có 150 000; thiếu tài khoản 400; toàn trường cân; tệp xlsx; 403 (YCTD-88) |
 | AC-279 | Cho dữ liệu và tài khoản theo kịch bản của chức năng P06-12 / Khi mở năm học mới / Thì năm mới giữ tài khoản 1111 (cùng mã) và quy tắc tiền mặt 1111; bút toán số dư đầu năm của đơn vị cân, 131 dư Nợ 350 000, 3371 dư Có 300 000, không còn tài khoản loại 5–9, 421 dư Nợ 4 300 000; ngày bằng ngày bắt đầu năm học (YCTD-88) |
+| AC-280 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P19-06, nhà cung cấp được giả lập / Khi gửi thành công / Thì trả mã tin; yêu cầu gửi đúng địa chỉ, phương thức POST, đủ các trường, SmsType 2, số điện thoại dạng 84 (YCTD-93) |
+| AC-281 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P19-06, nhà cung cấp được giả lập / Khi eSMS.vn trả CodeResult khác 100 / Thì báo lỗi kèm mã và nội dung lỗi (YCTD-93) |
+| AC-282 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P19-06, nhà cung cấp được giả lập / Khi eSMS.vn trả mã HTTP lỗi / Thì báo lỗi (YCTD-93) |
+| AC-283 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P19-06, nhà cung cấp được giả lập / Khi nội dung có dấu khi chưa bật ESMS_UNICODE / Thì gửi nội dung đã bỏ dấu, gồm chữ đ, IsUnicode 0 (YCTD-93) |
+| AC-284 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P19-06, nhà cung cấp được giả lập / Khi bật ESMS_UNICODE và ESMS_SANDBOX / Thì giữ nguyên nội dung có dấu, IsUnicode 1, Sandbox 1 (YCTD-93) |
+| AC-285 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P19-06, nhà cung cấp được giả lập / Khi số điện thoại các dạng 0..., +84..., 84... / Thì chuẩn hóa về 84...; số sai dạng báo lỗi và không gọi eSMS.vn (YCTD-93) |
+| AC-286 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P19-06, nhà cung cấp được giả lập / Khi eSMS.vn không phản hồi trong thời hạn / Thì hủy yêu cầu, báo lỗi quá thời hạn (YCTD-93) |
+| AC-287 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P19-06, nhà cung cấp được giả lập / Khi sMS_PROVIDER=esms mà thiếu ESMS_API_KEY, ESMS_SECRET_KEY hoặc ESMS_BRANDNAME / Thì báo lỗi nêu tên biến thiếu (YCTD-93) |
+| AC-288 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P19-06, nhà cung cấp được giả lập / Khi sMS_PROVIDER=esms đủ biến ở môi trường chạy thật / Thì đọc được cấu hình eSMS.vn (YCTD-93) |
+| AC-289 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P19-06, nhà cung cấp được giả lập / Khi không đặt SMS_PROVIDER / Thì mặc định log khi phát triển; ở môi trường chạy thật thì dừng; nhà cung cấp lạ thì báo chưa hỗ trợ (YCTD-93) |
+| AC-290 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P19-06, nhà cung cấp được giả lập / Khi dịch vụ định danh với SMS_PROVIDER=esms / Thì dùng lớp gửi eSMS.vn; mặc định dùng lớp ghi nhật ký (YCTD-93) |
+| AC-291 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P19-06, nhà cung cấp được giả lập / Khi dịch vụ định danh gửi mã đăng nhập qua eSMS.vn / Thì gửi nội dung bỏ dấu; eSMS.vn trả lỗi thì luồng gửi nhận lỗi (YCTD-93) |
+| AC-292 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P19-06, nhà cung cấp được giả lập / Khi máy chủ API với SMS_PROVIDER=esms / Thì dùng lớp gửi eSMS.vn; chưa cấu hình hoặc log thì ghi nhật ký (YCTD-93) |
+| AC-293 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P19-06, nhà cung cấp được giả lập / Khi máy chủ API gửi thông báo có dấu qua eSMS.vn / Thì giữ nội dung có dấu khi bật ESMS_UNICODE; eSMS.vn trả lỗi thì tiến trình gửi nhận lỗi (YCTD-93) |
 
 ## 20. Chưa xác minh được
 

@@ -2,7 +2,7 @@
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
 - Phiên bản: 1.34
-- Ngày cập nhật: 2026-10-11
+- Ngày cập nhật: 2026-10-13
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -318,8 +318,22 @@
 | CT-233 | P06-12 | Ghi bút toán ngày tháng trước; chốt kỳ tháng trước; ghi thêm và hủy bút toán ngày thuộc kỳ | Trước chốt ghi được; sau chốt 422 mã BR-95 cho cả ghi và hủy | Kiểm thử tự động `apps/api/src/ledger/ledger.test.ts` đạt ngày 12/10/2026 | Đạt |
 | CT-234 | P06-12 | Xem sổ cái tài khoản 111 trong ngày; thiếu tài khoản; bảng cân đối toàn trường; kế toán xuất Excel bảng cân đối của đơn vị; kế toán đơn vị khác xuất sổ nhật ký chung của đơn vị | Gồm dòng 1111 đối ứng 3371 và dòng đối ứng 131; đầu kỳ dư Có 1 000 000, phát sinh Nợ 900 000, Có 50 000, cuối kỳ dư Có 150 000; thiếu tài khoản 400; toàn trường cân; tệp xlsx; 403 | Kiểm thử tự động `apps/api/src/ledger/ledger.test.ts` đạt ngày 12/10/2026 | Đạt |
 | CT-235 | P06-12 | Mở năm học mới | Năm mới giữ tài khoản 1111 (cùng mã) và quy tắc tiền mặt 1111; bút toán số dư đầu năm của đơn vị cân, 131 dư Nợ 350 000, 3371 dư Có 300 000, không còn tài khoản loại 5–9, 421 dư Nợ 4 300 000; ngày bằng ngày bắt đầu năm học | Kiểm thử tự động `apps/api/src/ledger/ledger.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-236 | P19-06 | Gửi thành công | trả mã tin; yêu cầu gửi đúng địa chỉ, phương thức POST, đủ các trường, SmsType 2, số điện thoại dạng 84 | Kiểm thử tự động `packages/server/src/esms-client.test.ts`, `apps/identity/src/messaging/sms-sender.test.ts`, `apps/api/src/notifications/sms-gateway.test.ts` đạt ngày 13/10/2026 | Đạt |
+| CT-237 | P19-06 | eSMS.vn trả CodeResult khác 100 | báo lỗi kèm mã và nội dung lỗi | Kiểm thử tự động `packages/server/src/esms-client.test.ts`, `apps/identity/src/messaging/sms-sender.test.ts`, `apps/api/src/notifications/sms-gateway.test.ts` đạt ngày 13/10/2026 | Đạt |
+| CT-238 | P19-06 | eSMS.vn trả mã HTTP lỗi | báo lỗi | Kiểm thử tự động `packages/server/src/esms-client.test.ts`, `apps/identity/src/messaging/sms-sender.test.ts`, `apps/api/src/notifications/sms-gateway.test.ts` đạt ngày 13/10/2026 | Đạt |
+| CT-239 | P19-06 | Nội dung có dấu khi chưa bật ESMS_UNICODE | gửi nội dung đã bỏ dấu, gồm chữ đ, IsUnicode 0 | Kiểm thử tự động `packages/server/src/esms-client.test.ts`, `apps/identity/src/messaging/sms-sender.test.ts`, `apps/api/src/notifications/sms-gateway.test.ts` đạt ngày 13/10/2026 | Đạt |
+| CT-240 | P19-06 | Bật ESMS_UNICODE và ESMS_SANDBOX | giữ nguyên nội dung có dấu, IsUnicode 1, Sandbox 1 | Kiểm thử tự động `packages/server/src/esms-client.test.ts`, `apps/identity/src/messaging/sms-sender.test.ts`, `apps/api/src/notifications/sms-gateway.test.ts` đạt ngày 13/10/2026 | Đạt |
+| CT-241 | P19-06 | Số điện thoại các dạng 0..., +84..., 84... | chuẩn hóa về 84...; số sai dạng báo lỗi và không gọi eSMS.vn | Kiểm thử tự động `packages/server/src/esms-client.test.ts`, `apps/identity/src/messaging/sms-sender.test.ts`, `apps/api/src/notifications/sms-gateway.test.ts` đạt ngày 13/10/2026 | Đạt |
+| CT-242 | P19-06 | eSMS.vn không phản hồi trong thời hạn | hủy yêu cầu, báo lỗi quá thời hạn | Kiểm thử tự động `packages/server/src/esms-client.test.ts`, `apps/identity/src/messaging/sms-sender.test.ts`, `apps/api/src/notifications/sms-gateway.test.ts` đạt ngày 13/10/2026 | Đạt |
+| CT-243 | P19-06 | SMS_PROVIDER=esms mà thiếu ESMS_API_KEY, ESMS_SECRET_KEY hoặc ESMS_BRANDNAME | báo lỗi nêu tên biến thiếu | Kiểm thử tự động `packages/server/src/esms-client.test.ts`, `apps/identity/src/messaging/sms-sender.test.ts`, `apps/api/src/notifications/sms-gateway.test.ts` đạt ngày 13/10/2026 | Đạt |
+| CT-244 | P19-06 | SMS_PROVIDER=esms đủ biến ở môi trường chạy thật | đọc được cấu hình eSMS.vn | Kiểm thử tự động `packages/server/src/esms-client.test.ts`, `apps/identity/src/messaging/sms-sender.test.ts`, `apps/api/src/notifications/sms-gateway.test.ts` đạt ngày 13/10/2026 | Đạt |
+| CT-245 | P19-06 | Không đặt SMS_PROVIDER | mặc định log khi phát triển; ở môi trường chạy thật thì dừng; nhà cung cấp lạ thì báo chưa hỗ trợ | Kiểm thử tự động `packages/server/src/esms-client.test.ts`, `apps/identity/src/messaging/sms-sender.test.ts`, `apps/api/src/notifications/sms-gateway.test.ts` đạt ngày 13/10/2026 | Đạt |
+| CT-246 | P19-06 | Dịch vụ định danh với SMS_PROVIDER=esms | dùng lớp gửi eSMS.vn; mặc định dùng lớp ghi nhật ký | Kiểm thử tự động `packages/server/src/esms-client.test.ts`, `apps/identity/src/messaging/sms-sender.test.ts`, `apps/api/src/notifications/sms-gateway.test.ts` đạt ngày 13/10/2026 | Đạt |
+| CT-247 | P19-06 | Dịch vụ định danh gửi mã đăng nhập qua eSMS.vn | gửi nội dung bỏ dấu; eSMS.vn trả lỗi thì luồng gửi nhận lỗi | Kiểm thử tự động `packages/server/src/esms-client.test.ts`, `apps/identity/src/messaging/sms-sender.test.ts`, `apps/api/src/notifications/sms-gateway.test.ts` đạt ngày 13/10/2026 | Đạt |
+| CT-248 | P19-06 | Máy chủ API với SMS_PROVIDER=esms | dùng lớp gửi eSMS.vn; chưa cấu hình hoặc log thì ghi nhật ký | Kiểm thử tự động `packages/server/src/esms-client.test.ts`, `apps/identity/src/messaging/sms-sender.test.ts`, `apps/api/src/notifications/sms-gateway.test.ts` đạt ngày 13/10/2026 | Đạt |
+| CT-249 | P19-06 | Máy chủ API gửi thông báo có dấu qua eSMS.vn | giữ nội dung có dấu khi bật ESMS_UNICODE; eSMS.vn trả lỗi thì tiến trình gửi nhận lỗi | Kiểm thử tự động `packages/server/src/esms-client.test.ts`, `apps/identity/src/messaging/sms-sender.test.ts`, `apps/api/src/notifications/sms-gateway.test.ts` đạt ngày 13/10/2026 | Đạt |
 
-Ca CT-105 đến CT-235 lần lượt kiểm tra AC-149 đến AC-279.
+Ca CT-105 đến CT-249 lần lượt kiểm tra AC-149 đến AC-293.
 
 ## 16. Chưa xác minh được
 
