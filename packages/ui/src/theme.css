@@ -11,6 +11,8 @@
   --color-header: #0a8be6;
   --color-header-strong: #0670c0;
   --color-header-accent: #ffe600;
+  /* Nền biểu tượng phân hệ trên menu sổ xuống */
+  --color-workspace: #84b818;
   --color-text: #0f172a;
   --color-text-secondary: #475569;
   --color-text-muted: #94a3b8;

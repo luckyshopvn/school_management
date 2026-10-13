@@ -11,6 +11,22 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-101: Menu sổ xuống chọn phân hệ ở thanh đầu trang – 2026-10-13
+
+- Lý do: Eric gửi ảnh mẫu ngày 2026-10-13, yêu cầu tách các nhóm chức năng thành một menu sổ xuống như ảnh.
+- Nội dung thay đổi (Eric yêu cầu ngày 2026-10-13; cách gom phân hệ Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Thanh đầu trang cổng quản trị có ô chọn phân hệ (nền trắng, biểu tượng vuông xanh lá, mũi tên), sổ xuống tám mục: Quản lý giáo dục mầm non (Trẻ và lớp, Giảng dạy, Y tế, Bếp, Tương tác, Hoạt động và truyền thông), Tuyển sinh, Học phí và tài chính, Nhân sự, Cơ sở vật chất (Kho và mua hàng), Báo cáo số liệu, Quản trị hệ thống (Thiết lập), Tất cả chức năng (mặc định).
+  - Chọn phân hệ thì thanh điều hướng chỉ hiện nhóm của phân hệ đó; chỉ liệt kê phân hệ người dùng có ít nhất một nhóm được phép. Trình duyệt nhớ phân hệ đã chọn. Mở trang thuộc phân hệ khác (đường dẫn, chuông thông báo) thì menu tự chuyển sang phân hệ của trang.
+  - Màn hình hẹp: tên hệ thống, tên người dùng, đổi mật khẩu ẩn bớt để thanh đầu trang không xuống dòng.
+- Thành phần bị ảnh hưởng: khung trang cổng quản trị, bảng màu dùng chung (màu biểu tượng phân hệ); tài liệu `02`, `24`, `index.md`.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: khung trang cổng quản trị.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không; mặc định hiện mọi nhóm như trước.
+- Kiểm thử cần thực hiện: kiểm thử giao diện `01-login.spec.ts` (chọn phân hệ, nhớ sau khi tải lại, tự chuyển phân hệ) và toàn bộ kiểm thử giao diện.
+- Trạng thái: Đã triển khai
+
 ### YCTD-99: Giao diện tông xanh, ẩn hiện thanh điều hướng, thu gọn nhóm chức năng – 2026-10-13
 
 - Lý do: Eric gửi ảnh mẫu giao diện ngày 2026-10-13, yêu cầu tham khảo màu, giữ thanh điều hướng dọc (không đổi sang thanh thẻ), cho ẩn hoặc hiện thanh điều hướng, cho ẩn hoặc hiện từng nhóm chức năng.
