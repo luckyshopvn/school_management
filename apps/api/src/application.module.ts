@@ -204,6 +204,7 @@ import {
   UnavailableZaloSender,
   ZaloSender,
 } from './integrations/zalo-sender.js';
+import { ZaloTokenStore } from './integrations/zalo-token-store.js';
 
 @Module({})
 export class ApplicationModule {
@@ -454,16 +455,32 @@ export class ApplicationModule {
             configuration.facebookPublisher === 'development'
               ? new DevelopmentFacebookPublisher()
               : configuration.facebookPageAccessToken
-                ? new GraphApiFacebookPublisher(configuration.facebookPageAccessToken)
+                ? new GraphApiFacebookPublisher(
+                    configuration.facebookPageAccessToken,
+                    configuration.facebookGraphVersion,
+                  )
                 : new UnavailableFacebookPublisher(),
+        },
+        // Kho khóa Zalo ở cơ sở dữ liệu hệ thống, mã hóa bằng khóa mã hóa dữ liệu của máy chủ (YCTD-92)
+        {
+          provide: ZaloTokenStore,
+          inject: [Databases],
+          useFactory: (databases: Databases) =>
+            new ZaloTokenStore(databases.system, configuration.childDataEncryptionKey, {
+              appId: configuration.zaloAppId ?? null,
+              appSecret: configuration.zaloAppSecret ?? null,
+              seedRefreshToken: configuration.zaloOaRefreshToken ?? null,
+              seedAccessToken: configuration.zaloOaAccessToken ?? null,
+            }),
         },
         {
           provide: ZaloSender,
-          useFactory: () =>
+          inject: [ZaloTokenStore],
+          useFactory: (tokens: ZaloTokenStore) =>
             configuration.zaloSender === 'development'
               ? new DevelopmentZaloSender()
-              : configuration.zaloOaAccessToken
-                ? new OfficialAccountZaloSender(configuration.zaloOaAccessToken)
+              : configuration.zaloSender === 'zalo_oa'
+                ? new OfficialAccountZaloSender(tokens)
                 : new UnavailableZaloSender(),
         },
         IntegrationsService,

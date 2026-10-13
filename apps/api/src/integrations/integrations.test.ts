@@ -444,4 +444,58 @@ describe('Kết nối Fanpage và Zalo Official Account', () => {
     assert.equal((await recipientOf(zaloRow?.id ?? '')).delivered_via, 'zalo');
     assert.match(zalo.messages.at(-1)?.text ?? '', /Nhắc nộp học phí quá hạn/);
   });
+
+  it('CT-12c-8: Hiệu trưởng kiểm tra kết nối và thay khóa làm mới Zalo; người khác bị từ chối; khóa không trả lại (YCTD-92)', async () => {
+    for (const name of ['manager', 'accountant', 'homeroom', 'parentA']) {
+      assert.equal((await api('POST', '/integrations/facebook/test', token(name))).status, 403);
+      assert.equal((await api('POST', '/integrations/zalo/test', token(name))).status, 403);
+      assert.equal(
+        (await api('PUT', '/integrations/zalo/refresh-token', token(name), { refresh_token: 'khoa-lam-moi-123' }))
+          .status,
+        403,
+      );
+    }
+    const facebookTest = await api('POST', '/integrations/facebook/test', principal.accessToken);
+    assert.equal(facebookTest.status, 200, JSON.stringify(facebookTest.body));
+    assert.deepEqual(facebookTest.body, {
+      connector: 'facebook',
+      ok: true,
+      page_id: '1234567890',
+      page_name: 'Fanpage giả lập',
+    });
+    publisher.failuresLeft = 1;
+    const facebookFailed = await api('POST', '/integrations/facebook/test', principal.accessToken);
+    assert.equal(facebookFailed.status, 422);
+    assert.match(String(facebookFailed.body.error?.message), /Kiểm tra kết nối Fanpage lỗi: Facebook trả lỗi/);
+
+    const zaloTest = await api('POST', '/integrations/zalo/test', principal.accessToken);
+    assert.equal(zaloTest.status, 200, JSON.stringify(zaloTest.body));
+    assert.equal(zaloTest.body.oa_name, 'Official Account giả lập');
+
+    assert.equal(
+      (await api('PUT', '/integrations/zalo/refresh-token', principal.accessToken, { refresh_token: 'co khoang' }))
+        .status,
+      400,
+    );
+    const secret = 'khoa-lam-moi-bi-mat-123456';
+    const replaced = await api('PUT', '/integrations/zalo/refresh-token', principal.accessToken, {
+      refresh_token: secret,
+    });
+    assert.equal(replaced.status, 200, JSON.stringify(replaced.body));
+    assert.equal(JSON.stringify(replaced.body).includes(secret), false);
+    assert.equal((replaced.body.token_status as { refresh_token_configured: boolean }).refresh_token_configured, true);
+    const listed = await api('GET', '/integrations', principal.accessToken);
+    assert.equal(JSON.stringify(listed.body).includes(secret), false);
+    const stored = await environment.system.selectFrom('integration_credentials').selectAll().executeTakeFirstOrThrow();
+    assert.equal(stored.connector, 'zalo');
+    assert.equal(stored.refresh_token_encrypted?.includes(secret), false);
+    assert.equal(stored.updated_by, principal.userId);
+    const audit = await schoolYear
+      .selectFrom('audit_logs')
+      .select(['action', 'after_data'])
+      .where('entity_name', '=', 'integration_credentials')
+      .execute();
+    assert.equal(audit.length, 1);
+    assert.equal(JSON.stringify(audit[0]?.after_data).includes(secret), false);
+  });
 });

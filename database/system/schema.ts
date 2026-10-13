@@ -58,9 +58,25 @@ export interface AcademicYearDatabasesTable {
   created_by: string | null;
 }
 
+export type IntegrationCredentialConnector = 'zalo';
+
+// Khóa truy cập kết nối ngoài đã mã hóa, dùng chung toàn trường qua các năm học (YCTD-92)
+export interface IntegrationCredentialsTable {
+  connector: IntegrationCredentialConnector;
+  id: Generated<string>;
+  access_token_encrypted: string | null;
+  access_token_expires_at: Date | null;
+  refresh_token_encrypted: string | null;
+  refreshed_at: Date | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+  updated_by: string | null;
+}
+
 export interface SystemDatabase {
   academic_years: AcademicYearsTable;
   academic_terms: AcademicTermsTable;
   school_weeks: SchoolWeeksTable;
   academic_year_databases: AcademicYearDatabasesTable;
+  integration_credentials: IntegrationCredentialsTable;
 }

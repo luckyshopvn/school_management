@@ -1,5 +1,6 @@
 import { decodeBase64Key } from '@school-management/server';
 import { PAYMENT_PROVIDER_CODES, type PaymentProviderCode } from '../finance/payment-gateway.js';
+import { DEFAULT_FACEBOOK_GRAPH_VERSION } from '../integrations/facebook-publisher.js';
 
 // Mã cổng không có trong danh sách thì bỏ qua; mỗi mã chỉ một lần, giữ thứ tự ghi
 export function readPaymentGateways(text: string | undefined): PaymentProviderCode[] {
@@ -28,12 +29,66 @@ export interface ApiConfiguration {
   paymentGateways?: PaymentProviderCode[];
   // Chu kỳ tiến trình gửi thông báo và nhắc nhật ký, tính bằng giây; 0 là tắt, kiểm thử tự gọi (YCTD-71)
   notificationDispatchIntervalSeconds?: number;
-  // Đăng Fanpage và gửi Zalo: `development` là bộ giả lập; khóa truy cập chỉ đặt ở biến môi trường, không lưu trong cơ sở
-  // dữ liệu (YCTD-90)
+  // Đăng Fanpage và gửi Zalo: `development` là bộ giả lập (YCTD-90). Khóa trang Facebook chỉ đặt ở biến môi trường;
+  // Graph API dùng phiên bản facebookGraphVersion, mặc định v21.0 (YCTD-92)
   facebookPublisher?: 'development' | null;
   facebookPageAccessToken?: string | null;
-  zaloSender?: 'development' | null;
+  facebookGraphVersion?: string;
+  // `zalo_oa` là kết nối thật: cần mã ứng dụng, khóa bí mật ứng dụng và khóa làm mới ban đầu; khóa truy cập và khóa làm mới
+  // luân phiên lưu mã hóa ở cơ sở dữ liệu hệ thống bằng childDataEncryptionKey (YCTD-92)
+  zaloSender?: 'development' | 'zalo_oa' | null;
+  zaloAppId?: string | null;
+  zaloAppSecret?: string | null;
+  zaloOaRefreshToken?: string | null;
   zaloOaAccessToken?: string | null;
+}
+
+type IntegrationConfiguration = Pick<
+  ApiConfiguration,
+  | 'facebookPublisher'
+  | 'facebookPageAccessToken'
+  | 'facebookGraphVersion'
+  | 'zaloSender'
+  | 'zaloAppId'
+  | 'zaloAppSecret'
+  | 'zaloOaRefreshToken'
+  | 'zaloOaAccessToken'
+>;
+
+// Đọc cấu hình Fanpage và Zalo; bật kết nối thật mà thiếu biến bắt buộc thì máy chủ không khởi động (YCTD-92)
+export function readIntegrationConfiguration(environment: NodeJS.ProcessEnv): IntegrationConfiguration {
+  const value = (name: string) => environment[name]?.trim() || null;
+  const facebookPublisher = value('FACEBOOK_PUBLISHER');
+  if (facebookPublisher && facebookPublisher !== 'development' && facebookPublisher !== 'graph') {
+    throw new Error('FACEBOOK_PUBLISHER chỉ nhận development hoặc graph');
+  }
+  if (facebookPublisher === 'graph' && !value('FACEBOOK_PAGE_ACCESS_TOKEN')) {
+    throw new Error('Thiếu biến môi trường FACEBOOK_PAGE_ACCESS_TOKEN khi FACEBOOK_PUBLISHER=graph');
+  }
+  const graphVersion = value('FACEBOOK_GRAPH_VERSION') ?? DEFAULT_FACEBOOK_GRAPH_VERSION;
+  if (!/^v\d+\.\d+$/.test(graphVersion)) {
+    throw new Error('FACEBOOK_GRAPH_VERSION có dạng vNN.N, ví dụ v21.0');
+  }
+  const zaloSender = value('ZALO_SENDER');
+  if (zaloSender && zaloSender !== 'development' && zaloSender !== 'zalo_oa') {
+    throw new Error('ZALO_SENDER chỉ nhận development hoặc zalo_oa');
+  }
+  if (zaloSender === 'zalo_oa') {
+    const missing = ['ZALO_APP_ID', 'ZALO_APP_SECRET', 'ZALO_OA_REFRESH_TOKEN'].filter((name) => !value(name));
+    if (missing.length > 0) {
+      throw new Error(`Thiếu biến môi trường ${missing.join(', ')} khi ZALO_SENDER=zalo_oa`);
+    }
+  }
+  return {
+    facebookPublisher: facebookPublisher === 'development' ? 'development' : null,
+    facebookPageAccessToken: value('FACEBOOK_PAGE_ACCESS_TOKEN'),
+    facebookGraphVersion: graphVersion,
+    zaloSender: zaloSender === 'development' || zaloSender === 'zalo_oa' ? zaloSender : null,
+    zaloAppId: value('ZALO_APP_ID'),
+    zaloAppSecret: value('ZALO_APP_SECRET'),
+    zaloOaRefreshToken: value('ZALO_OA_REFRESH_TOKEN'),
+    zaloOaAccessToken: value('ZALO_OA_ACCESS_TOKEN'),
+  };
 }
 
 export interface ObjectStorageSettings {
@@ -79,9 +134,6 @@ export function readConfigurationFromEnvironment(): ApiConfiguration {
     },
     paymentGateways: readPaymentGateways(process.env.PAYMENT_GATEWAY),
     notificationDispatchIntervalSeconds: Number(process.env.NOTIFICATION_DISPATCH_INTERVAL_SECONDS ?? 60),
-    facebookPublisher: process.env.FACEBOOK_PUBLISHER === 'development' ? 'development' : null,
-    facebookPageAccessToken: process.env.FACEBOOK_PAGE_ACCESS_TOKEN || null,
-    zaloSender: process.env.ZALO_SENDER === 'development' ? 'development' : null,
-    zaloOaAccessToken: process.env.ZALO_OA_ACCESS_TOKEN || null,
+    ...readIntegrationConfiguration(process.env),
   };
 }
