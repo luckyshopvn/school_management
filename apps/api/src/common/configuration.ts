@@ -1,5 +1,6 @@
 import { decodeBase64Key, readSmsProviderSettings, type SmsProviderSettings } from '@school-management/server';
 import { PAYMENT_PROVIDER_CODES, type PaymentProviderCode } from '../finance/payment-gateway.js';
+import { readPaymentProviderSettings, type PaymentProviderSettings } from '../finance/payment-providers.js';
 
 // Mã cổng không có trong danh sách thì bỏ qua; mỗi mã chỉ một lần, giữ thứ tự ghi
 export function readPaymentGateways(text: string | undefined): PaymentProviderCode[] {
@@ -24,8 +25,10 @@ export interface ApiConfiguration {
   objectStorage: ObjectStorageSettings | null;
   // Các cổng thanh toán trực tuyến được bật, cổng đầu là mặc định; trống là chưa nối (T1), `development` là bộ giả
   // lập (YCTD-57), `vietqr-static` là mã VietQR tĩnh đối soát qua sao kê (YCTD-89). Biến PAYMENT_GATEWAY ghi các mã
-  // cách nhau bằng dấu phẩy
+  // cách nhau bằng dấu phẩy; `payos`, `sepay`, `casso`, `vnpay` là nhà cung cấp thật (YCTD-92)
   paymentGateways?: PaymentProviderCode[];
+  // Khóa của các nhà cung cấp thật, chỉ đọc từ biến môi trường; cổng bật mà thiếu khóa thì máy chủ không khởi động
+  paymentProviders?: PaymentProviderSettings;
   // Chu kỳ tiến trình gửi thông báo và nhắc nhật ký, tính bằng giây; 0 là tắt, kiểm thử tự gọi (YCTD-71)
   notificationDispatchIntervalSeconds?: number;
   // Đăng Fanpage và gửi Zalo: `development` là bộ giả lập; khóa truy cập chỉ đặt ở biến môi trường, không lưu trong cơ sở
@@ -66,6 +69,7 @@ export function readKey(name: string): Buffer {
 }
 
 export function readConfigurationFromEnvironment(): ApiConfiguration {
+  const paymentGateways = readPaymentGateways(process.env.PAYMENT_GATEWAY);
   return {
     tokenPublicKeyPem: decodeBase64Key(readRequired('TOKEN_PUBLIC_KEY')),
     identityBaseUrl: readRequired('IDENTITY_BASE_URL'),
@@ -80,7 +84,8 @@ export function readConfigurationFromEnvironment(): ApiConfiguration {
       accessKeyId: readRequired('S3_ACCESS_KEY_ID'),
       secretAccessKey: readRequired('S3_SECRET_ACCESS_KEY'),
     },
-    paymentGateways: readPaymentGateways(process.env.PAYMENT_GATEWAY),
+    paymentGateways,
+    paymentProviders: readPaymentProviderSettings(paymentGateways),
     notificationDispatchIntervalSeconds: Number(process.env.NOTIFICATION_DISPATCH_INTERVAL_SECONDS ?? 60),
     facebookPublisher: process.env.FACEBOOK_PUBLISHER === 'development' ? 'development' : null,
     facebookPageAccessToken: process.env.FACEBOOK_PAGE_ACCESS_TOKEN || null,
