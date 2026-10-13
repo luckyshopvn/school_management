@@ -178,7 +178,7 @@ import { ReportExportController, ReportExportService } from './reports/report-ex
 import { PartnerController, PartnerService } from './partner/partner.js';
 import { NotificationsController, NotificationsService } from './notifications/notifications.js';
 import { NotificationDispatcher } from './notifications/notification-dispatcher.js';
-import { LoggingSmsGateway, SmsGateway } from './notifications/sms-gateway.js';
+import { createSmsGateway, SmsGateway } from './notifications/sms-gateway.js';
 import { JournalsController, JournalsService } from './journals/journals.js';
 import { OrgUnitsController } from './organization/org-units.controller.js';
 import { OrgUnitsService } from './organization/org-units.service.js';
@@ -446,7 +446,8 @@ export class ApplicationModule {
         PartnerService,
         NotificationsService,
         NotificationDispatcher,
-        { provide: SmsGateway, useFactory: () => options.smsGateway ?? new LoggingSmsGateway() },
+        // Gửi tin nhắn thông báo: eSMS.vn khi SMS_PROVIDER=esms, còn lại ghi nhật ký (YCTD-92)
+        { provide: SmsGateway, useFactory: () => options.smsGateway ?? createSmsGateway(configuration.smsProvider) },
         // Kết nối Fanpage và Zalo: bộ giả lập khi phát triển, kết nối thật khi có khóa ở biến môi trường (YCTD-90)
         {
           provide: FacebookPublisher,

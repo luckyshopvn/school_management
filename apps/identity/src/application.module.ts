@@ -18,7 +18,7 @@ import { Clock } from '@school-management/server';
 import { IDENTITY_CONFIGURATION, type IdentityConfiguration } from './common/configuration.js';
 import { Infrastructure } from './common/infrastructure.js';
 import { HealthController } from './health.controller.js';
-import { LoggingSmsSender, SmsSender } from './messaging/sms-sender.js';
+import { createSmsSender, SmsSender } from './messaging/sms-sender.js';
 import { OneTimeCodeService } from './authentication/one-time-code.service.js';
 
 @Module({})
@@ -47,7 +47,7 @@ export class ApplicationModule {
         LoginRateLimiter,
         AuthenticationService,
         OneTimeCodeService,
-        smsSender ? { provide: SmsSender, useValue: smsSender } : { provide: SmsSender, useClass: LoggingSmsSender },
+        { provide: SmsSender, useValue: smsSender ?? createSmsSender(configuration.smsProvider) },
         AccessTokenGuard,
         ApiClientsService,
         organizationDirectory
