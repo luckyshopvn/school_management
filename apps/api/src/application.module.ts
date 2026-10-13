@@ -10,6 +10,13 @@ import { JobPostingsController, JobPostingsService } from './recruitment/job-pos
 import { PublicRecruitmentController, PublicRecruitmentService } from './recruitment/public-recruitment.js';
 import { CandidatesController, CandidatesService } from './recruitment/candidates.js';
 import { recruitmentTransitionStep } from './recruitment/recruitment-transition.js';
+import { professionalStandardsTransitionStep } from './professional-standards/professional-standards-transition.js';
+import {
+  ProfessionalStandardsController,
+  ProfessionalStandardsService,
+} from './professional-standards/professional-standards.js';
+import { ProgramCompletionController, ProgramCompletionService } from './program-completion/program-completion.js';
+import { ChildGroupsController, ChildGroupsService } from './child-groups/child-groups.js';
 import { Module, type DynamicModule, type Type } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { Clock } from '@school-management/server';
@@ -196,6 +203,7 @@ import { workTransitionStep } from './work/work-transition.js';
 import { WorkHistoryController, WorkHistoryService } from './staff/work-history.js';
 import { BonusDeductionsController, BonusDeductionsService } from './payroll/bonus-deductions.js';
 import { IntegrationsController, IntegrationsService } from './integrations/integrations.js';
+import { QuickLinksController, QuickLinksService } from './quick-links/quick-links.js';
 import { integrationsTransitionStep } from './integrations/integrations-transition.js';
 import { FacebookPostsController, FacebookPostsService } from './integrations/facebook-posts.js';
 import {
@@ -320,6 +328,7 @@ export class ApplicationModule {
         PayablesController,
         FiscalPeriodsController,
         IntegrationsController,
+        QuickLinksController,
         FacebookPostsController,
         RecruitmentRequestsController,
         JobPostingsController,
@@ -330,6 +339,9 @@ export class ApplicationModule {
         AdmissionsPublicController,
         LedgerAccountsController,
         LedgerEntriesController,
+        ProgramCompletionController,
+        ChildGroupsController,
+        ProfessionalStandardsController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -363,6 +375,7 @@ export class ApplicationModule {
             integrationsTransitionStep,
             recruitmentTransitionStep,
             admissionsTransitionStep,
+            professionalStandardsTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -499,6 +512,7 @@ export class ApplicationModule {
                 : new UnavailableZaloSender(),
         },
         IntegrationsService,
+        QuickLinksService,
         FacebookPostsService,
         JournalsService,
         {
@@ -512,6 +526,9 @@ export class ApplicationModule {
         },
         CashBooksService,
         WorkAccess,
+        ProgramCompletionService,
+        ChildGroupsService,
+        ProfessionalStandardsService,
         TasksService,
         PlansService,
         EvaluationsService,

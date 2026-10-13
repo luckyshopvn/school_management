@@ -14,6 +14,61 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-13 — DT-14 phần 14c: hoàn thành chương trình mầm non, chuẩn nghề nghiệp, nhóm học sinh
+
+#### Công việc đã thực hiện
+
+- Hoàn thành chương trình mầm non theo lớp 5-6 tuổi, nhóm học sinh, đánh giá chuẩn nghề nghiệp giáo viên và hiệu trưởng.
+- Thêm kịch bản CT-310 đến CT-319.
+
+#### Quyết định
+
+- Eric chọn bổ sung bốn nhóm chức năng theo hệ thống của Sở ngày 13/10/2026 (YCTD-102); các điểm kỹ thuật Claude tự chọn ghi ở YCTD-104.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-104 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.57.0.
+
+#### Vấn đề tồn đọng
+
+- Đối chiếu tên tiêu chí và quy tắc xếp loại với Thông tư 25, 26/2018/TT-BGDĐT; chưa có nhập mức đánh giá từ Excel.
+
+### 2026-10-13 — DT-14 phần 14b: năm học ở thanh đầu trang và Truy cập nhanh trên trang chủ
+
+#### Công việc đã thực hiện
+
+- Ô năm học và học kỳ ở thanh đầu trang; vùng Truy cập nhanh trên trang chủ, lưu lối tắt theo tài khoản.
+- Thêm kịch bản CT-300 đến CT-309.
+
+#### Quyết định
+
+- Eric chọn bổ sung bốn nhóm chức năng theo hệ thống của Sở ngày 13/10/2026; các điểm kỹ thuật Claude tự chọn ghi ở YCTD-102.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-102 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.56.0.
+
+#### Vấn đề tồn đọng
+
+- Xem năm học đã đóng cần máy chủ API đọc được cơ sở dữ liệu năm học cũ ở chế độ chỉ xem.
+### 2026-10-13 — Khảo sát hệ thống thông tin quản lý giáo dục của Sở
+
+#### Công việc đã thực hiện
+
+- Eric đăng nhập hệ thống của Sở GD&ĐT TP.HCM; Claude đọc giao diện 6 phân hệ, 98 màn hình, không thay đổi dữ liệu, không ghi dữ liệu cá nhân; viết `31_KHAO_SAT_HE_THONG_SO.md`.
+
+#### Quyết định
+
+- Eric chọn bổ sung bốn nhóm chức năng (đợt DT-14, YCTD-102); các đề xuất còn lại ở mục 8.3 của tài liệu khảo sát chờ Eric chọn.
+
+#### Thay đổi
+
+- Thêm `31_KHAO_SAT_HE_THONG_SO.md`.
+
+#### Vấn đề tồn đọng
+
+- Chưa xem được phân hệ Tuyển sinh đầu cấp (chỉ mở ở học kỳ II năm 2025-2026) và nội dung chỉ tiêu các biểu EMIS.
+
 ### 2026-10-13 — DT-13 phần 13c: báo cáo điểm danh và suất ăn theo ngày, tuần, tháng
 
 #### Công việc đã thực hiện

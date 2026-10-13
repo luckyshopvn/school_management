@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.60
+- Phiên bản: 1.62
 - Ngày cập nhật: 2026-10-13
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -255,6 +255,27 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | GET, PATCH | /api/v1/academic-years/{id}/weeks | Danh sách tuần; đánh dấu hoặc bỏ đánh dấu tuần nghỉ |
 | POST | /api/v1/academic-years/{id}/open | Mở năm học: kiểm tra BR-89, BR-94, tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung, trẻ, lớp, quỹ, công nợ (YCTD-69), chuyển năm đang dùng sang đã đóng và chỉ đọc (BR-93) |
 | POST | /api/v1/academic-years/{id}/close | Bỏ ngày 09/10/2026: gộp vào mở năm học mới (YCTD-37) |
+| GET, PUT | /api/v1/me/quick-links | Đọc và lưu lối tắt Truy cập nhanh trên trang chủ cổng quản trị của chính người đăng nhập (YCTD-102) |
+
+Giao kèo của hoàn thành chương trình, nhóm học sinh, chuẩn nghề nghiệp (DT-14 phần 14c, YCTD-104):
+
+1. `PUT /program-completion/classes/{id}` nhận `items` (`child_id`, `result` là `completed` hoặc `not_completed`, `note` tối đa 500 ký tự); cần `P02.program-completion.manage` (VT-07 chỉ lớp đang chủ nhiệm). Lớp không phải mẫu giáo 5-6 tuổi, lớp đã xác nhận trả `ERR_RULE_VIOLATION`; trẻ không học lớp hoặc giá trị sai trả `ERR_VALIDATION`.
+2. `confirm`, `unconfirm` cần `P02.program-completion.approve` trong phạm vi đơn vị của lớp; `confirm` khi lớp không có trẻ hoặc còn trẻ chưa có kết quả trả `ERR_RULE_VIOLATION`; `unconfirm` nhận `reason` bắt buộc, ghi nhật ký thao tác (giá trị trước là dòng xác nhận, giá trị sau là lý do).
+3. `GET /program-completion/statistics` trả theo lớp, theo đơn vị và tổng: số lớp, số lớp đã xác nhận, số trẻ đang học, hoàn thành, chưa hoàn thành, chưa ghi, `completion_rate` (phần trăm làm tròn 2 chữ số, lớp không có trẻ là 0). `GET /program-completion/export` trả tệp Excel (STT, đơn vị, lớp, họ tên, ngày sinh, giới tính, kết quả, ghi chú, trạng thái xác nhận), ghi một dòng `export_logs` mã báo cáo `program-completion` có dữ liệu cá nhân; người xem được danh sách thì xuất được.
+4. `POST /child-groups` nhận `org_unit_id`, `name` (trùng trong đơn vị trả `ERR_CONFLICT`), `description`, `teacher_staff_id` (hồ sơ nhân sự đang làm việc của đơn vị); `PATCH` nhận các trường trên và `status` (`active`, `inactive`). `members` và `members/remove` nhận `child_ids` (1 đến 200); chỉ trẻ đang học của đơn vị có nhóm, thêm trùng không lỗi, nhóm ngừng dùng không thêm được. Ghi cần `P02.child-group.manage`; giáo viên đọc được nhóm mình phụ trách và nhóm có trẻ lớp mình (PQ-55).
+5. `PATCH /professional-standards/{id}`, `POST`, `PATCH /professional-criteria` cần `P07.professional-standard.manage` ở phạm vi toàn trường; tiêu chí mới tự đánh mã tiếp theo số lớn nhất của chuẩn; sửa danh mục chỉ áp cho phiếu mở sau.
+6. `POST /professional-evaluations` nhận `standard_type` (`teacher`, `principal`), `staff_ids`; trả số phiếu đã mở và danh sách nhân sự bỏ qua vì đã có phiếu; nhân sự có tài khoản nhận thông báo mời tự đánh giá. Phiếu chuẩn hiệu trưởng cần `P07.professional-standard.manage`, phiếu chuẩn giáo viên cần `P07.professional-standard.assess` trong phạm vi đơn vị chính của nhân sự; mở phiếu của chính mình trả `ERR_FORBIDDEN`.
+7. `PUT /{id}/self` nhận `items` (`criterion_id`, `rating` là `not_met`, `met`, `good`, `excellent`, `evidence` tối đa 2000 ký tự), chỉ chủ phiếu ở trạng thái `self_assessing`; `submit-self` khi còn tiêu chí chưa có mức trả `ERR_RULE_VIOLATION`. `PUT /{id}/assessment` nhận `items` (`criterion_id`, `rating`, `note`) và `comment`, chỉ khi phiếu `self_submitted`; `finalize` khi còn tiêu chí chưa có mức của người đánh giá trả `ERR_RULE_VIOLATION`, đủ thì tính `overall_level` theo BR-99 và thông báo kết quả cho nhân sự. Người đánh giá ghi hoặc chốt phiếu của chính mình trả `ERR_FORBIDDEN`.
+8. `GET /me/professional-evaluation` trả `evaluation` trống khi chưa có phiếu. `GET /professional-evaluations/statistics` trả theo loại chuẩn số phiếu, đã chốt, chưa chốt, số phiếu và tỷ lệ từng mức trên số phiếu đã chốt.
+9. Vi phạm quy tắc nghiệp vụ của phần này trả `ERR_RULE_VIOLATION` với mã chung của đợt DT-14 là `YCTD-102`.
+
+Giao kèo của Truy cập nhanh (DT-14 phần 14b, YCTD-102):
+
+1. Hai điểm cuối chỉ cần đăng nhập, không cần quyền riêng; chỉ đọc và sửa lối tắt của chính tài khoản gọi. Không có mã phiên trả `ERR_UNAUTHENTICATED` (401).
+2. `GET /me/quick-links` trả danh sách `{ path, label, position }` theo `position` tăng dần; tài khoản chưa ghim trang nào nhận danh sách rỗng.
+3. `PUT /me/quick-links` nhận `{ links: [{ path, label }] }` và thay cả danh sách trong một giao dịch, khóa theo tài khoản để hai lần lưu cùng lúc chạy lần lượt; thứ tự trong mảng là thứ tự hiển thị, `position` đánh lại từ 0; mảng rỗng xóa hết lối tắt.
+4. Trả `ERR_VALIDATION` (400) kèm trường lỗi (ví dụ `links[0].path`) và giữ nguyên dữ liệu cũ khi `links` không phải mảng, quá 12 mục (`MAX_QUICK_LINKS`), đường dẫn ngoài danh sách cho phép `PORTAL_QUICK_LINK_PATHS` ở gói dùng chung (không gồm Trang chủ và Đổi mật khẩu), trùng đường dẫn, nhãn rỗng hoặc dài hơn 100 ký tự.
+5. Máy chủ không đối chiếu quyền theo từng trang; mỗi trang vẫn tự kiểm tra quyền khi mở và gọi dữ liệu.
 
 Giao kèo của nhóm điểm cuối kho, tài sản và mua hàng (DT-10 phần 10d, YCTD-77):
 
@@ -552,7 +573,7 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 
 | Phương thức | Đường dẫn | Mô tả |
 |---|---|---|
-| GET | /api/v1/children | Danh sách trẻ có lọc và phân trang |
+| GET | /api/v1/children | Danh sách trẻ có lọc và phân trang; lọc theo nhóm học sinh `group_id` (YCTD-104) |
 | POST | /api/v1/children | Tạo hồ sơ trẻ |
 | GET | /api/v1/children/{id} | Chi tiết hồ sơ trẻ |
 | GET | /api/v1/children/{id}/national-id | Xem đầy đủ số định danh cá nhân; chỉ VT-02, VT-15, VT-03, VT-12; ghi nhật ký truy cập |
@@ -582,6 +603,16 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | PATCH | /api/v1/classes/{id}/staff-assignments/{assignmentId} | Kết thúc phân công (YCTD-44) |
 | PATCH | /api/v1/staff-assignments/{id} | Kết thúc hoặc sửa phân công |
 | GET, POST | /api/v1/teaching-groups | Tổ chuyên môn, tổ trưởng và thành viên |
+| GET | /api/v1/program-completion/classes | Lớp mẫu giáo 5-6 tuổi trong phạm vi kèm số liệu hoàn thành chương trình, lọc `org_unit_id` (P02-13, YCTD-104) |
+| GET, PUT | /api/v1/program-completion/classes/{id} | Danh sách trẻ đang học của lớp kèm kết quả; ghi kết quả nhiều trẻ (YCTD-104) |
+| POST | /api/v1/program-completion/classes/{id}/confirm | Xác nhận danh sách của lớp (BR-97) |
+| POST | /api/v1/program-completion/classes/{id}/unconfirm | Hủy xác nhận kèm lý do (BR-97) |
+| GET | /api/v1/program-completion/statistics | Thống kê hoàn thành chương trình theo lớp, đơn vị và tổng (YCTD-104) |
+| GET | /api/v1/program-completion/export | Xuất Excel theo `class_id` hoặc `org_unit_id`, ghi nhật ký xuất (BR-74, YCTD-104) |
+| GET, POST | /api/v1/child-groups | Danh sách nhóm học sinh trong phạm vi, lọc `org_unit_id`; lập nhóm (P02-14, YCTD-104) |
+| GET, PATCH | /api/v1/child-groups/{id} | Chi tiết nhóm kèm trẻ; sửa tên, mô tả, giáo viên phụ trách, trạng thái (YCTD-104) |
+| POST | /api/v1/child-groups/{id}/members | Thêm trẻ vào nhóm (YCTD-104) |
+| POST | /api/v1/child-groups/{id}/members/remove | Bớt trẻ khỏi nhóm (YCTD-104) |
 
 ## 7. Giảng dạy
 
@@ -813,6 +844,18 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 | PUT, DELETE | /api/v1/holidays/{id} | Sửa tên, hưởng lương hoặc xóa ngày nghỉ lễ |
 | POST | /api/v1/school-day-changes | Thêm ngày học bù thứ bảy hoặc ngày nghỉ bù chung toàn trường; chỉ Ban Giám hiệu (YCTD-59) |
 | DELETE | /api/v1/school-day-changes/{id} | Xóa ngày học bù hoặc nghỉ bù |
+| GET | /api/v1/professional-standards | Danh mục tiêu chuẩn kèm tiêu chí chuẩn nghề nghiệp, lọc `standard_type` (P07-05, YCTD-104) |
+| PATCH | /api/v1/professional-standards/{id} | Sửa tên tiêu chuẩn (YCTD-104) |
+| POST | /api/v1/professional-criteria | Thêm tiêu chí (YCTD-104) |
+| PATCH | /api/v1/professional-criteria/{id} | Sửa tên, tiêu chí trọng yếu, trạng thái của tiêu chí (YCTD-104) |
+| GET, POST | /api/v1/professional-evaluations | Danh sách phiếu trong phạm vi, lọc `org_unit_id`, `standard_type`, `status`; mở phiếu cho nhiều nhân sự (YCTD-104) |
+| GET | /api/v1/professional-evaluations/statistics | Thống kê phiếu theo loại chuẩn và mức xếp loại (YCTD-104) |
+| GET | /api/v1/professional-evaluations/{id} | Chi tiết phiếu kèm tiêu chí (YCTD-104) |
+| PUT | /api/v1/professional-evaluations/{id}/self | Lưu tự đánh giá (YCTD-104) |
+| POST | /api/v1/professional-evaluations/{id}/submit-self | Gửi tự đánh giá (BR-98) |
+| PUT | /api/v1/professional-evaluations/{id}/assessment | Người đánh giá lưu mức, nhận xét (YCTD-104) |
+| POST | /api/v1/professional-evaluations/{id}/finalize | Chốt phiếu, xếp loại chung (BR-99) |
+| GET | /api/v1/me/professional-evaluation | Phiếu chuẩn nghề nghiệp của chính người đăng nhập trong năm học (YCTD-104) |
 
 ## 12. Công việc, kế hoạch và đánh giá
 

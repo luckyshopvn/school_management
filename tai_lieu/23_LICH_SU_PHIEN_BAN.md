@@ -16,6 +16,28 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.57.0 – 2026-10-13
+
+- Phạm vi thay đổi: DT-14 phần 14c, hoàn thành chương trình mầm non, chuẩn nghề nghiệp, nhóm học sinh (YCTD-104).
+- Chức năng mới: hoàn thành chương trình mầm non, nhóm học sinh (P02), đánh giá chuẩn nghề nghiệp giáo viên, hiệu trưởng (P07).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: tám bảng mới của năm học (tệp 0047); năm quyền mới (tệp 0037 của định danh).
+- Thay đổi API: thêm `/program-completion`, `/child-groups`, `/professional-standards`, `/professional-criteria`, `/professional-evaluations`, `/me/professional-evaluation`; `GET /children` thêm lọc `group_id`.
+- Rủi ro: tên tiêu chí gieo sẵn và quy tắc xếp loại cần đối chiếu Thông tư 25, 26/2018/TT-BGDĐT.
+- Khả năng tương thích: chức năng cũ giữ nguyên.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-14-phan-14c`; các bảng mới để lại không ảnh hưởng.
+
+### Phiên bản 0.56.0 – 2026-10-13
+
+- Phạm vi thay đổi: DT-14 phần 14b, năm học ở thanh đầu trang và Truy cập nhanh (YCTD-102).
+- Chức năng mới: ô năm học, học kỳ ở thanh đầu trang; Truy cập nhanh trên trang chủ (P01).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: bảng `user_quick_links` ở cơ sở dữ liệu hệ thống (tệp 0004).
+- Thay đổi API: thêm `GET`, `PUT /me/quick-links`.
+- Rủi ro: học kỳ hiện tại tính theo đồng hồ trình duyệt; năm học đã đóng chưa xem được.
+- Khả năng tương thích: chức năng cũ giữ nguyên; người dùng chưa ghim thì vùng Truy cập nhanh trống.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-14-phan-14b`; bảng `user_quick_links` để lại không ảnh hưởng.
+
 ### Phiên bản 0.55.0 – 2026-10-13
 
 - Phạm vi thay đổi: DT-13 phần 13c, báo cáo điểm danh và suất ăn theo ngày, tuần, tháng (YCTD-103).

@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { GROUP_WORKSPACE, GroupContext, WorkspaceContext, WorkspaceSwitcher, useWorkspaceState } from './workspaces.js';
 import { NotificationBell } from '../notifications/NotificationBell.js';
+import { AcademicYearSwitcher } from './AcademicYearSwitcher.js';
+import { NavigationRegistryContext, useNavigationRegistryState } from './navigation-registry.js';
 import { Link, useLocation } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@school-management/ui';
@@ -70,7 +72,10 @@ type NavigationPath =
   | '/notifications'
   | '/work'
   | '/evaluations'
-  | '/bonus-deductions';
+  | '/bonus-deductions'
+  | '/program-completion'
+  | '/child-groups'
+  | '/professional-standards';
 
 function NavItem({ to, label }: { to: NavigationPath; label: string }) {
   const group = useContext(GroupContext);
@@ -78,6 +83,15 @@ function NavItem({ to, label }: { to: NavigationPath; label: string }) {
   const { pathname } = useLocation();
   const active = pathname === to || (to !== '/' && pathname.startsWith(`${to}/`));
   const workspace = group ? GROUP_WORKSPACE[group] : undefined;
+  const { register, unregister } = useContext(NavigationRegistryContext);
+  // Mục đang hiện (đã lọc theo quyền) thì trang chủ cho ghim vào Truy cập nhanh (YCTD-102)
+  useEffect(() => {
+    if (to === '/') {
+      return undefined;
+    }
+    register({ path: to, label, group });
+    return () => unregister(to);
+  }, [to, label, group, register, unregister]);
   // Mở trang thuộc phân hệ khác (ví dụ từ chuông thông báo) thì menu chuyển sang phân hệ của trang
   useEffect(() => {
     if (active && workspace) {
@@ -300,9 +314,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canViewLedger = useHasPermission(PERMISSION_CODES.ledgerView);
   const canManageLedger = useHasPermission(PERMISSION_CODES.ledgerManage);
   const canSeeLedger = canViewLedger || canManageLedger;
+  // Hoàn thành chương trình, nhóm học sinh (YCTD-102)
+  const canManageProgramCompletion = useHasPermission(PERMISSION_CODES.programCompletionManage);
+  const canApproveProgramCompletion = useHasPermission(PERMISSION_CODES.programCompletionApprove);
+  const canSeeProgramCompletion = canManageProgramCompletion || canApproveProgramCompletion;
+  const canManageChildGroups = useHasPermission(PERMISSION_CODES.childGroupManage);
 
   // Phân hệ đang chọn trên menu sổ xuống (YCTD-101)
   const workspaces = useWorkspaceState();
+  const navigationRegistry = useNavigationRegistryState();
   // Ẩn hoặc hiện thanh điều hướng, thu gọn nhóm chức năng; nhớ lựa chọn trên trình duyệt này (YCTD-99)
   const [sidebarHidden, setSidebarHidden] = useState(() => readStored(SIDEBAR_HIDDEN_KEY, false));
   const toggleSidebar = () => {
@@ -329,48 +349,51 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <WorkspaceContext.Provider value={workspaces}>
-      <div className="flex min-h-screen flex-col">
-        <header className="sticky top-0 z-20 flex h-14 items-center gap-3 bg-header px-4 text-white shadow-sm">
-          <button
-            type="button"
-            className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-header-strong"
-            aria-label={sidebarHidden ? 'Hiện thanh điều hướng' : 'Ẩn thanh điều hướng'}
-            aria-expanded={!sidebarHidden}
-            aria-controls="dieu-huong-chinh"
-            onClick={toggleSidebar}
-          >
-            <MenuIcon />
-          </button>
-          <span className="hidden whitespace-nowrap text-section-title font-bold text-header-accent lg:inline">
-            School Management
-          </span>
-          <WorkspaceSwitcher state={workspaces} />
-          <div className="ml-auto flex shrink-0 items-center gap-4 whitespace-nowrap">
-            <NotificationBell />
-            {currentUser.data ? (
-              <span
-                className="hidden whitespace-nowrap text-label font-semibold text-white md:inline"
-                data-testid="current-user-name"
-              >
-                {currentUser.data.full_name}
-              </span>
-            ) : (
-              <span className="h-4 w-32 animate-pulse rounded bg-header-strong" aria-hidden="true" />
-            )}
-            <Link
-              to="/change-password"
-              className="hidden whitespace-nowrap text-label text-white hover:underline md:inline"
+      <NavigationRegistryContext.Provider value={navigationRegistry}>
+        <div className="flex min-h-screen flex-col">
+          <header className="sticky top-0 z-20 flex h-14 items-center gap-3 bg-header px-4 text-white shadow-sm">
+            <button
+              type="button"
+              className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-header-strong"
+              aria-label={sidebarHidden ? 'Hiện thanh điều hướng' : 'Ẩn thanh điều hướng'}
+              aria-expanded={!sidebarHidden}
+              aria-controls="dieu-huong-chinh"
+              onClick={toggleSidebar}
             >
-              Đổi mật khẩu
-            </Link>
-            <Button onClick={() => void session.logout()}>Đăng xuất</Button>
-          </div>
-        </header>
-        <div className="flex flex-1">
-          {sidebarHidden ? null : (
+              <MenuIcon />
+            </button>
+            <span className="hidden whitespace-nowrap text-section-title font-bold text-header-accent lg:inline">
+              School Management
+            </span>
+            <WorkspaceSwitcher state={workspaces} />
+            <div className="ml-auto flex shrink-0 items-center gap-4 whitespace-nowrap">
+              <AcademicYearSwitcher />
+              <NotificationBell />
+              {currentUser.data ? (
+                <span
+                  className="hidden whitespace-nowrap text-label font-semibold text-white md:inline"
+                  data-testid="current-user-name"
+                >
+                  {currentUser.data.full_name}
+                </span>
+              ) : (
+                <span className="h-4 w-32 animate-pulse rounded bg-header-strong" aria-hidden="true" />
+              )}
+              <Link
+                to="/change-password"
+                className="hidden whitespace-nowrap text-label text-white hover:underline md:inline"
+              >
+                Đổi mật khẩu
+              </Link>
+              <Button onClick={() => void session.logout()}>Đăng xuất</Button>
+            </div>
+          </header>
+          <div className="flex flex-1">
+            {/* Thanh điều hướng ẩn vẫn giữ trong cây giao diện để trang chủ biết các trang người dùng được mở (YCTD-102) */}
             <nav
               id="dieu-huong-chinh"
               aria-label="Điều hướng chính"
+              hidden={sidebarHidden}
               className="sticky top-14 flex h-[calc(100vh-3.5rem)] w-60 shrink-0 flex-col gap-3 overflow-y-auto border-r border-border bg-card p-4"
             >
               <CollapsedGroupsContext.Provider value={groups}>
@@ -383,6 +406,12 @@ export function AppShell({ children }: { children: ReactNode }) {
                       <NavItem to="/children" label="Hồ sơ trẻ" />
                       <NavItem to="/classes" label="Lớp học" />
                       <NavItem to="/attendance" label="Điểm danh" />
+                      {canSeeProgramCompletion ? (
+                        <NavItem to="/program-completion" label="Hoàn thành chương trình" />
+                      ) : null}
+                      {canManageChildGroups || canViewChildren ? (
+                        <NavItem to="/child-groups" label="Nhóm học sinh" />
+                      ) : null}
                       {canImport ? <NavItem to="/imports" label="Nhập dữ liệu" /> : null}
                     </NavGroup>
                   </>
@@ -492,6 +521,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <NavItem to="/my-payslips" label="Phiếu lương của tôi" />
                   <NavItem to="/work" label="Công việc và kế hoạch" />
                   <NavItem to="/evaluations" label="Đánh giá nhân sự" />
+                  <NavItem to="/professional-standards" label="Chuẩn nghề nghiệp" />
                   {canViewStaff && canImportStaff && !(canManageClasses || canViewChildren || canEditChildren) ? (
                     <NavItem to="/imports" label="Nhập dữ liệu" />
                   ) : null}
@@ -525,10 +555,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </NavGroup>
               </CollapsedGroupsContext.Provider>
             </nav>
-          )}
-          <main className="mx-auto w-full max-w-[1440px] min-w-0 flex-1 p-6">{children}</main>
+            <main className="mx-auto w-full max-w-[1440px] min-w-0 flex-1 p-6">{children}</main>
+          </div>
         </div>
-      </div>
+      </NavigationRegistryContext.Provider>
     </WorkspaceContext.Provider>
   );
 }

@@ -1,8 +1,8 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.48
-- Ngày cập nhật: 2026-10-11
+- Phiên bản: 1.49
+- Ngày cập nhật: 2026-10-13
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -90,6 +90,7 @@ Ghi chú áp dụng cho bảng:
 15. Quyền S của VT-03 ở P04 chỉ gồm chốt điểm danh ngày thay giáo viên, sửa điểm danh đã chốt kèm lý do (P04-06, QT-02) và sửa nhật ký đã công bố quá thời hạn sửa của giáo viên (Q-67, QT-09).
 16. Quyền S của VT-03 ở P05 chỉ gồm lập đề xuất xử lý công nợ quá hạn (P05-12); quyết định do VT-15 hoặc VT-02 ghi.
 17. Quyền S của VT-07 ở P10 gồm ghi sự kiện y tế ban đầu, ghi chăm sóc hằng ngày (BR-87), và nhận thuốc, ghi liều chỉ khi đơn vị bật cấu hình không có nhân viên y tế (BR-86).
+18. Ở P02, VT-07 ghi kết quả hoàn thành chương trình của lớp mình chủ nhiệm; VT-02, VT-15 xác nhận danh sách (PQ-54). Ở P07, VT-02 sửa danh mục chuẩn nghề nghiệp và đánh giá, VT-03 đánh giá phiếu chuẩn giáo viên trong đơn vị; mọi nhân sự có hồ sơ tự đánh giá phiếu của mình (PQ-56).
 
 ## 4. Quy tắc phân quyền
 
@@ -148,6 +149,9 @@ Ghi chú áp dụng cho bảng:
 | PQ-49 | Tuyển sinh (YCTD-86): `P16.admission-campaign.manage` cho VT-12, VT-03 lập, sửa, mở, đóng đợt tuyển sinh trong đơn vị; `P16.application.manage` cho VT-12, VT-03 nhập hộ, sửa, tiếp nhận hồ sơ và chuyển hồ sơ đạt thành hồ sơ trẻ (cần thêm `P02.child.manage`; trẻ vào lớp ngay khi người chuyển có `P02.approve`, ngược lại chờ quản lý đơn vị duyệt); `P16.application.review` cho VT-03 xét đạt hoặc không đạt; `P16.admission-post.manage` cho VT-12 soạn, công bố, ẩn tin tuyển sinh. Người có một trong các quyền xem đợt, hồ sơ, tin trong phạm vi đơn vị. Phụ huynh và người ngoài trường xem tin, nộp, tra cứu hồ sơ không cần tài khoản, giới hạn theo địa chỉ mạng |
 | PQ-52 | Nhập sao kê ngân hàng và cổng thanh toán (YCTD-89): `P06.bank-statement.import` cho VT-04, VT-05 lưu cấu hình cột và nhập tệp sao kê của tài khoản ngân hàng trong đơn vị được gán (gán ở Trường chính là toàn trường); khớp tay, bỏ khớp, xác nhận hoặc bỏ đề xuất lập phiếu thu dùng `P06.bank-transaction.manage` (YCTD-82), xác nhận cần thêm `P06.receipt.manage` ở đơn vị của hóa đơn; chọn cổng thanh toán và mã BIN của tài khoản dùng `P06.cash-account.manage` (VT-04, VT-05) |
 | PQ-51 | Sổ kế toán kép (YCTD-88): `P06.ledger.manage` (VT-05, VT-04) ghi sổ chứng từ, ghi và hủy bút toán thủ công của đơn vị trong phạm vi; khi gán ở Trường chính thì thêm tài khoản chi tiết và sửa quy tắc ghi sổ dùng chung toàn trường. `P06.ledger.view` (VT-02, VT-15, VT-04, VT-05, VT-20) xem sổ nhật ký chung, sổ cái, bảng cân đối số phát sinh, hệ thống tài khoản, quy tắc ghi sổ trong phạm vi đơn vị; xuất Excel cần thêm `P17.data.export`. Kỳ tài chính đã chốt khóa bút toán thủ công có ngày thuộc kỳ (BR-95) |
+| PQ-54 | Hoàn thành chương trình giáo dục mầm non (YCTD-104): `P02.program-completion.manage` cho VT-03 (mọi lớp của đơn vị được gán), VT-07 (chỉ lớp đang chủ nhiệm) ghi kết quả của trẻ; `P02.program-completion.approve` cho VT-02 (toàn trường), VT-15 (đơn vị được gán) xác nhận, hủy xác nhận danh sách của lớp. Người có một trong hai quyền xem và xuất Excel danh sách trong phạm vi, không cần `P17.data.export`; mỗi lần xuất ghi nhật ký xuất (BR-74) |
+| PQ-55 | Nhóm học sinh (YCTD-104): `P02.child-group.manage` cho VT-02, VT-15, VT-03 lập, sửa, ngừng dùng nhóm, thêm, bớt trẻ trong phạm vi đơn vị. Giáo viên không cần quyền riêng: xem nhóm mình phụ trách (thấy mọi trẻ của nhóm) và nhóm có trẻ thuộc lớp mình được phân công (chỉ thấy trẻ trong phạm vi xem trẻ, BR-72) |
+| PQ-56 | Chuẩn nghề nghiệp (YCTD-104): `P07.professional-standard.manage` chỉ VT-02, cần phạm vi toàn trường, sửa danh mục tiêu chuẩn, tiêu chí, mở, đánh giá, chốt mọi phiếu kể cả phiếu chuẩn hiệu trưởng; `P07.professional-standard.assess` cho VT-03, VT-02 mở, đánh giá, chốt phiếu chuẩn giáo viên của nhân sự có đơn vị chính trong phạm vi. Mọi nhân sự tự đánh giá phiếu của chính mình; không ai mở, đánh giá, chốt phiếu của chính mình (BR-98) |
 
 ## 5. Phân cấp phê duyệt
 

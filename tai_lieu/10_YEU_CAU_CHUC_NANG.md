@@ -1,8 +1,8 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.34
-- Ngày cập nhật: 2026-10-11
+- Phiên bản: 1.35
+- Ngày cập nhật: 2026-10-13
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -49,6 +49,8 @@
 | P02-10 | Danh sách trẻ theo lớp của giáo viên (G1) | VT-07, VT-08 | Lớp được phân công | Truy vấn giới hạn theo phân công | Danh sách trẻ trong lớp | BR-72 |
 | P02-11 | Đồ bị mất của trẻ (G2) | VT-14, VT-07, VT-03 | Trẻ, mô tả đồ, ngày phát hiện, hình ảnh | Phụ huynh báo mất đồ hoặc giáo viên ghi nhận đồ nhặt được; đối chiếu, xác nhận đã trả hoặc không tìm thấy | Phiếu đồ bị mất ở trạng thái đã báo, đã tìm thấy, đã trả hoặc không tìm thấy | BR-72, BR-75 |
 | P02-12 | Nhập mã định danh ngành từ tệp (G1) | VT-12, VT-03 | Tệp theo mẫu của hệ thống gồm số định danh cá nhân, mã định danh ngành, họ tên, chép từ tệp xuất của cơ sở dữ liệu ngành (YCTD-46) | Đối chiếu theo số định danh cá nhân, gán mã ngành, báo dòng không khớp hoặc trùng; kết nối tự động để giai đoạn 3 (G3-09) | Mã ngành trên hồ sơ trẻ | BR-07 |
+| P02-13 | Hoàn thành chương trình giáo dục mầm non (G3) | VT-07, VT-03; xác nhận VT-02, VT-15 | Lớp mẫu giáo 5-6 tuổi (bậc học bắt đầu từ 60 tháng tuổi), kết quả Hoàn thành hoặc Chưa hoàn thành và ghi chú của từng trẻ đang học | Ghi kết quả từng trẻ hoặc đánh dấu cả lớp; Ban Giám hiệu xác nhận danh sách khi đủ kết quả thì khóa, hủy xác nhận kèm lý do; thống kê tỷ lệ hoàn thành theo lớp, đơn vị; xuất Excel kèm nhật ký xuất (YCTD-104) | Danh sách hoàn thành chương trình đã xác nhận, thống kê, tệp Excel | BR-72, BR-74, BR-97 |
+| P02-14 | Nhóm học sinh (G3) | VT-02, VT-15, VT-03; giáo viên xem | Tên nhóm (duy nhất trong đơn vị), mô tả, giáo viên phụ trách, trạng thái, trẻ của nhóm | Lập, sửa, ngừng dùng nhóm; thêm trẻ đang học của đơn vị theo lớp, bớt trẻ; một trẻ thuộc nhiều nhóm; lọc danh sách trẻ theo nhóm; nhóm không chuyển sang năm học mới (YCTD-104) | Danh sách nhóm và trẻ của nhóm | BR-01, BR-72 |
 
 ## 4. Phân hệ P03 — Giảng dạy
 
@@ -117,6 +119,7 @@
 | P07-02 | Hợp đồng lao động (G1) | VT-06 | Loại hợp đồng, ngày bắt đầu, ngày kết thúc, lương thỏa thuận, phụ cấp | Tạo, gia hạn, chấm dứt hợp đồng; chấm dứt hợp đồng thì chuyển kế toán lập bảng quyết toán cuối cùng | Hợp đồng và lịch sử hợp đồng | BR-38, BR-05, BR-90 |
 | P07-03 | Quá trình công tác và chứng chỉ (G2) | VT-06 | Mốc công tác, chức danh, chứng chỉ, ngày cấp | Ghi thêm lịch sử | Lịch sử công tác | BR-37 |
 | P07-04 | Danh sách nhân sự theo đơn vị và phòng ban (G1) | VT-03, VT-06 | Bộ lọc đơn vị, phòng ban, chức danh, trạng thái | Truy vấn theo quyền | Danh sách nhân sự | BR-01, BR-72 |
+| P07-05 | Đánh giá chuẩn nghề nghiệp (G3) | Mọi nhân sự tự đánh giá; VT-03, VT-02 đánh giá; VT-02 sửa danh mục | Danh mục tiêu chuẩn, tiêu chí theo Thông tư 26/2018/TT-BGDĐT (giáo viên mầm non) và Thông tư 25/2018/TT-BGDĐT (hiệu trưởng); mức và minh chứng từng tiêu chí; nhận xét của người đánh giá | Mở phiếu cho nhân sự theo năm học, nhân sự tự đánh giá rồi gửi, người đánh giá ghi mức, nhận xét rồi chốt, hệ thống xếp loại chung; thống kê xếp loại theo loại chuẩn (YCTD-104) | Phiếu đánh giá đã chốt kèm xếp loại chung, thống kê | BR-98, BR-99 |
 
 ## 9. Phân hệ P08 — Chấm công và tiền lương
 

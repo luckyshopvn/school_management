@@ -11,6 +11,38 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-104: DT-14 phần 14c: hoàn thành chương trình mầm non, chuẩn nghề nghiệp, nhóm học sinh – 2026-10-13
+
+- Lý do: Eric yêu cầu ngày 2026-10-13, làm theo phân hệ mầm non của hệ thống quản lý trường học của Sở GD&ĐT TP.HCM: mục 4.4 (quản lý hoàn thành chương trình mầm non), mục 3.2 (đánh giá chuẩn nghề nghiệp), mục 4.1.6, 4.1.7 (nhóm học sinh). Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Hoàn thành chương trình giáo dục mầm non: áp dụng cho lớp có bậc học mà tháng tuổi bắt đầu từ 60 trở lên (mẫu giáo 5-6 tuổi, theo danh mục bậc học của trường). Cuối năm học ghi cho từng trẻ đang học của lớp (trẻ trạng thái đang học, lớp hiện tại) kết quả Hoàn thành hoặc Chưa hoàn thành kèm ghi chú (tối đa 500 ký tự). Ghi nhiều trẻ một lần, có nút đánh dấu cả lớp hoàn thành rồi sửa từng trẻ; ghi lại thì thay kết quả cũ (một kết quả mỗi trẻ mỗi năm học). Giáo viên chủ nhiệm (VT-07) ghi cho lớp mình chủ nhiệm; quản lý đơn vị (VT-03) ghi cho mọi lớp của đơn vị.
+  - Ban Giám hiệu (VT-02 toàn trường, VT-15 theo đơn vị được gán) xác nhận danh sách của lớp khi mọi trẻ đang học đã có kết quả và lớp có ít nhất một trẻ; đã xác nhận thì khóa, không ghi sửa được. Hủy xác nhận bắt buộc lý do, ghi nhật ký thao tác (giá trị trước là dòng xác nhận, giá trị sau là lý do), sau đó sửa và xác nhận lại.
+  - Thống kê theo lớp và theo đơn vị: số lớp, số lớp đã xác nhận, số trẻ đang học, số hoàn thành, chưa hoàn thành, chưa ghi, tỷ lệ hoàn thành (số hoàn thành chia số trẻ đang học, phần trăm, làm tròn 2 chữ số; lớp chưa có trẻ là 0) và tổng toàn phạm vi.
+  - Xuất danh sách ra Excel theo một lớp hoặc mọi lớp trong phạm vi (lọc được đơn vị): STT, đơn vị, lớp, họ tên trẻ, ngày sinh, giới tính, kết quả, ghi chú, trạng thái xác nhận. Mỗi lần xuất ghi một dòng nhật ký xuất (`export_logs`, mã báo cáo `program-completion`, có dữ liệu cá nhân) theo BR-74; người xem được danh sách thì xuất được, không cần `P17.data.export` vì danh sách thuộc nghiệp vụ của lớp.
+  - Nhóm trẻ: nhóm có tên (duy nhất trong đơn vị), mô tả, giáo viên phụ trách (không bắt buộc, chọn từ hồ sơ nhân sự đang làm việc của đơn vị), trạng thái đang dùng hoặc ngừng dùng. Thêm nhiều trẻ một lần (chọn lớp rồi chọn trẻ hoặc cả lớp), chỉ trẻ đang học của đơn vị có nhóm; thêm trùng không lỗi; bớt trẻ. Một trẻ thuộc nhiều nhóm. Nhóm ngừng dùng không thêm trẻ được. Danh sách hồ sơ trẻ lọc được theo nhóm (`group_id`), phạm vi xem trẻ vẫn áp dụng.
+  - Quản lý nhóm: Ban Giám hiệu, quản lý đơn vị có `P02.child-group.manage` trong phạm vi đơn vị. Giáo viên xem nhóm mình phụ trách (thấy mọi trẻ của nhóm) và nhóm có trẻ thuộc lớp mình được phân công (chỉ thấy trẻ trong phạm vi xem trẻ của mình, BR-72). Nhóm trẻ gắn với năm học, không chuyển sang năm mới.
+  - Chuẩn nghề nghiệp: danh mục tiêu chuẩn, tiêu chí dùng chung toàn trường, gieo sẵn khi tạo cơ sở dữ liệu năm học: chuẩn nghề nghiệp giáo viên mầm non theo Thông tư 26/2018/TT-BGDĐT (5 tiêu chuẩn, 15 tiêu chí) và chuẩn hiệu trưởng cơ sở giáo dục mầm non theo Thông tư 25/2018/TT-BGDĐT (5 tiêu chuẩn, 18 tiêu chí). Chỉ gieo tên ngắn của tiêu chuẩn, tiêu chí, không chép nội dung văn bản; **cần đối chiếu văn bản** về tên và số tiêu chí của từng tiêu chuẩn (đặc biệt tiêu chuẩn 3 và 5 của chuẩn giáo viên, tiêu chuẩn 5 của chuẩn hiệu trưởng). Hiệu trưởng (`P07.professional-standard.manage`, cần phạm vi toàn trường) sửa tên tiêu chuẩn, tên tiêu chí, đánh dấu tiêu chí trọng yếu, ngừng hoặc dùng lại tiêu chí, thêm tiêu chí (mã tự đánh tiếp theo số lớn nhất của chuẩn). Sửa danh mục chỉ áp cho phiếu mở sau; phiếu đã mở giữ tiêu chí lúc mở. Mở năm học mới thì danh mục của năm cũ thay cho danh mục gieo sẵn.
+  - Phiếu đánh giá: mỗi nhân sự một phiếu mỗi năm học, loại chuẩn chọn lúc mở (giáo viên hoặc hiệu trưởng; chuẩn hiệu trưởng dùng cho Hiệu trưởng, Phó Hiệu trưởng, quản lý đơn vị). Người đánh giá mở phiếu cho nhiều nhân sự đang làm việc một lần; nhân sự đã có phiếu thì bỏ qua và báo lại; nhân sự có tài khoản nhận thông báo mời tự đánh giá.
+  - Luồng: chờ tự đánh giá → nhân sự tự đánh giá từng tiêu chí (mức và minh chứng, tối đa 2000 ký tự), lưu nhiều lần, gửi khi đủ mọi tiêu chí → chờ đánh giá → người đánh giá ghi mức từng tiêu chí, nhận xét từng tiêu chí và nhận xét chung, lưu nhiều lần → chốt khi đủ mọi tiêu chí: hệ thống xếp loại chung theo quy tắc dưới đây, nhân sự nhận thông báo kết quả. Phiếu đã gửi không tự sửa; phiếu đã chốt không sửa. Mức kết quả cuối từng tiêu chí là mức của người đánh giá. Chưa làm bước đánh giá của đồng nghiệp (góp ý của tổ chuyên môn), xem mục hạn chế.
+  - Người đánh giá: phiếu chuẩn giáo viên do người có `P07.professional-standard.assess` (VT-03, VT-02) trong phạm vi đơn vị chính của nhân sự; phiếu chuẩn hiệu trưởng chỉ người có `P07.professional-standard.manage` (VT-02). Không ai mở, đánh giá, chốt phiếu của chính mình.
+  - Quy tắc xếp loại chung (theo cách xếp loại của hai thông tư, **cần đối chiếu văn bản**; tiêu chí trọng yếu là tiêu chí đánh dấu trên danh mục, mặc định là các tiêu chí của tiêu chuẩn 1 và 2):
+    - Chưa đạt: có tiêu chí Chưa đạt.
+    - Tốt: mọi tiêu chí từ Khá trở lên, ít nhất 2/3 số tiêu chí đạt Tốt, mọi tiêu chí trọng yếu đạt Tốt.
+    - Khá: mọi tiêu chí từ Đạt trở lên, ít nhất 2/3 số tiêu chí từ Khá trở lên, mọi tiêu chí trọng yếu từ Khá trở lên.
+    - Đạt: các trường hợp còn lại (mọi tiêu chí từ Đạt trở lên).
+    - “Ít nhất 2/3” so sánh số nguyên: số tiêu chí × 3 ≥ tổng số tiêu chí × 2.
+  - Thống kê chuẩn nghề nghiệp theo loại chuẩn trong phạm vi (lọc được đơn vị): số phiếu, số đã chốt, số chưa chốt, số phiếu và tỷ lệ từng mức xếp loại trên số phiếu đã chốt.
+  - Không dùng lại phân hệ đánh giá nhân sự theo kỳ (P09-05, chấm điểm theo chỉ số của đơn vị) vì chuẩn nghề nghiệp xếp mức theo tiêu chí của văn bản, không chấm điểm; tách thành màn hình “Chuẩn nghề nghiệp” riêng.
+  - Nhập mức đánh giá từ Excel (mục 3.2.2 của hệ thống Sở) chưa làm, xem mục hạn chế.
+- Thành phần bị ảnh hưởng: máy chủ API, cổng quản trị; tài liệu `01`, `02`, `03` (P02, P07), `07` (BR-97 đến BR-99, chuyển trạng thái), `08` (PQ-54 đến PQ-56, ghi chú 18), `10` (P02-13, P02-14, P07-05), `11`, `14` (MH-02, MH-72 đến MH-74), `16` (tám bảng, chỉ mục), `17` (điểm cuối, giao kèo), `21`, `23`, `24`, `index.md`.
+- Dữ liệu bị ảnh hưởng: tám bảng mới của năm học (tệp 0047); năm quyền mới (tệp 0037 của định danh).
+- API bị ảnh hưởng: nhóm điểm cuối `/program-completion`, `/child-groups`, `/professional-standards`, `/professional-criteria`, `/professional-evaluations`, `/me/professional-evaluation`; `GET /children` thêm lọc `group_id`.
+- Giao diện bị ảnh hưởng: ba màn hình mới trên cổng quản trị MH-72 Hoàn thành chương trình, MH-73 Nhóm học sinh, MH-74 Chuẩn nghề nghiệp; màn hình Hồ sơ trẻ (MH-02) thêm ô lọc theo nhóm học sinh (hiện khi có nhóm).
+- Quyền bị ảnh hưởng: PQ-54 (`P02.program-completion.manage`, `P02.program-completion.approve`), PQ-55 (`P02.child-group.manage`), PQ-56 (`P07.professional-standard.manage`, `P07.professional-standard.assess`). Chức năng mới P02-13, P02-14, P07-05; quy tắc mới BR-97 đến BR-99.
+- Ảnh hưởng chức năng cũ: không đổi hành vi cũ. Vi phạm quy tắc của phần này trả `ERR_RULE_VIOLATION` với mã chung của đợt DT-14 là `YCTD-102`.
+- Kiểm thử cần thực hiện: kịch bản CT-310 đến CT-319.
+- Trạng thái: Đã triển khai
+
 ### YCTD-103: DT-13 phần 13c: báo cáo điểm danh và suất ăn theo ngày, tuần, tháng – 2026-10-13
 
 - Lý do: Eric gửi mẫu báo cáo điểm danh, suất ăn ngày 2026-10-13 và chọn xuất Excel đúng mẫu, xem trên màn hình, báo suất ăn cho bếp (YCTD-100). Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
@@ -29,6 +61,38 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: không.
 - Ảnh hưởng chức năng cũ: không.
 - Kiểm thử cần thực hiện: kịch bản CT-289 đến CT-299.
+- Trạng thái: Đã triển khai
+
+### YCTD-102: DT-14 phần 14b: năm học ở thanh đầu trang và Truy cập nhanh trên trang chủ – 2026-10-13
+
+- Lý do: Eric cho Claude khảo sát hệ thống thông tin quản lý giáo dục của Sở GD&ĐT TP.HCM ngày 2026-10-13 và chọn bổ sung cả bốn nhóm (đợt DT-14): 14a thống kê theo tiêu chí ngành, cân nặng, chiều cao theo kênh tăng trưởng; 14b ô năm học, học kỳ ở thanh đầu trang và Truy cập nhanh; 14c hoàn thành chương trình mầm non, đánh giá chuẩn nghề nghiệp, nhóm học sinh; 14d thiết bị dạy học tối thiểu, khai báo cơ sở vật chất, hồ sơ trường, mẫu báo cáo EMIS. Mục này ghi phần 14b; các phần khác ghi ở YCTD riêng khi gộp. Kết quả khảo sát ở `31_KHAO_SAT_HE_THONG_SO.md`.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Thanh đầu trang cổng quản trị có nút "<năm học> · <học kỳ>"; học kỳ là kỳ trong lịch năm học chứa ngày hôm nay (Học kỳ I, Học kỳ II, Kỳ hè, hoặc "Ngoài học kỳ"); bấm mở danh sách năm học đang dùng và đã đóng kèm học kỳ, ngày bắt đầu, kết thúc. Năm học đã đóng chưa chọn để xem được (máy chủ chỉ đọc năm học đang dùng, BR-93); học kỳ chỉ để hiển thị. Màn hình hẹp hơn 768 điểm ảnh ẩn nút.
+  - Trang chủ có vùng "Truy cập nhanh" với nút "Thêm truy cập nhanh": ghim tối đa 12 trang người dùng đang thấy trên thanh điều hướng, nhóm theo phân hệ; đổi thứ tự bằng nút lên, xuống hoặc kéo thả; bỏ ô. Lối tắt lưu theo tài khoản ở cơ sở dữ liệu hệ thống nên giữ qua các năm học.
+  - `GET`, `PUT /api/v1/me/quick-links` (chỉ cần đăng nhập, chỉ đọc, sửa của chính mình); PUT thay cả danh sách trong một giao dịch; đường dẫn phải nằm trong danh sách cho phép `PORTAL_QUICK_LINK_PATHS` ở gói dùng chung; mỗi trang vẫn tự kiểm tra quyền khi mở.
+- Thành phần bị ảnh hưởng: máy chủ API, cổng quản trị (thanh đầu trang, trang chủ), gói dùng chung; tài liệu `01`, `02`, `11`, `14` (MH-01, BC-09), `16` (bảng `user_quick_links`), `17` (giao kèo Truy cập nhanh), `21`, `23`, `24`, `index.md`.
+- Dữ liệu bị ảnh hưởng: bảng `user_quick_links` ở cơ sở dữ liệu hệ thống (tệp 0004).
+- API bị ảnh hưởng: thêm `GET`, `PUT /me/quick-links`.
+- Giao diện bị ảnh hưởng: thanh đầu trang, trang chủ.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: kịch bản CT-300 đến CT-309.
+- Trạng thái: Đã triển khai
+
+### YCTD-101: Menu sổ xuống chọn phân hệ ở thanh đầu trang – 2026-10-13
+
+- Lý do: Eric gửi ảnh mẫu ngày 2026-10-13, yêu cầu tách các nhóm chức năng thành một menu sổ xuống như ảnh.
+- Nội dung thay đổi (Eric yêu cầu ngày 2026-10-13; cách gom phân hệ Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Thanh đầu trang cổng quản trị có ô chọn phân hệ (nền trắng, biểu tượng vuông xanh lá, mũi tên), sổ xuống tám mục: Quản lý giáo dục mầm non (Trẻ và lớp, Giảng dạy, Y tế, Bếp, Tương tác, Hoạt động và truyền thông), Tuyển sinh, Học phí và tài chính, Nhân sự, Cơ sở vật chất (Kho và mua hàng), Báo cáo số liệu, Quản trị hệ thống (Thiết lập), Tất cả chức năng (mặc định).
+  - Chọn phân hệ thì thanh điều hướng chỉ hiện nhóm của phân hệ đó; chỉ liệt kê phân hệ người dùng có ít nhất một nhóm được phép. Trình duyệt nhớ phân hệ đã chọn. Mở trang thuộc phân hệ khác (đường dẫn, chuông thông báo) thì menu tự chuyển sang phân hệ của trang.
+  - Màn hình hẹp: tên hệ thống, tên người dùng, đổi mật khẩu ẩn bớt để thanh đầu trang không xuống dòng.
+- Thành phần bị ảnh hưởng: khung trang cổng quản trị, bảng màu dùng chung (màu biểu tượng phân hệ); tài liệu `02`, `24`, `index.md`.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: khung trang cổng quản trị.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không; mặc định hiện mọi nhóm như trước.
+- Kiểm thử cần thực hiện: kiểm thử giao diện `01-login.spec.ts` (chọn phân hệ, nhớ sau khi tải lại, tự chuyển phân hệ) và toàn bộ kiểm thử giao diện.
 - Trạng thái: Đã triển khai
 
 ### YCTD-100: DT-13 phần 13a: nhập thẳng tệp học sinh, cán bộ theo mẫu CSDL ngành – 2026-10-13
@@ -52,22 +116,6 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: không.
 - Ảnh hưởng chức năng cũ: không; các loại nhập cũ giữ nguyên.
 - Kiểm thử cần thực hiện: kịch bản CT-275 đến CT-288.
-- Trạng thái: Đã triển khai
-
-### YCTD-101: Menu sổ xuống chọn phân hệ ở thanh đầu trang – 2026-10-13
-
-- Lý do: Eric gửi ảnh mẫu ngày 2026-10-13, yêu cầu tách các nhóm chức năng thành một menu sổ xuống như ảnh.
-- Nội dung thay đổi (Eric yêu cầu ngày 2026-10-13; cách gom phân hệ Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
-  - Thanh đầu trang cổng quản trị có ô chọn phân hệ (nền trắng, biểu tượng vuông xanh lá, mũi tên), sổ xuống tám mục: Quản lý giáo dục mầm non (Trẻ và lớp, Giảng dạy, Y tế, Bếp, Tương tác, Hoạt động và truyền thông), Tuyển sinh, Học phí và tài chính, Nhân sự, Cơ sở vật chất (Kho và mua hàng), Báo cáo số liệu, Quản trị hệ thống (Thiết lập), Tất cả chức năng (mặc định).
-  - Chọn phân hệ thì thanh điều hướng chỉ hiện nhóm của phân hệ đó; chỉ liệt kê phân hệ người dùng có ít nhất một nhóm được phép. Trình duyệt nhớ phân hệ đã chọn. Mở trang thuộc phân hệ khác (đường dẫn, chuông thông báo) thì menu tự chuyển sang phân hệ của trang.
-  - Màn hình hẹp: tên hệ thống, tên người dùng, đổi mật khẩu ẩn bớt để thanh đầu trang không xuống dòng.
-- Thành phần bị ảnh hưởng: khung trang cổng quản trị, bảng màu dùng chung (màu biểu tượng phân hệ); tài liệu `02`, `24`, `index.md`.
-- Dữ liệu bị ảnh hưởng: không.
-- API bị ảnh hưởng: không.
-- Giao diện bị ảnh hưởng: khung trang cổng quản trị.
-- Quyền bị ảnh hưởng: không.
-- Ảnh hưởng chức năng cũ: không; mặc định hiện mọi nhóm như trước.
-- Kiểm thử cần thực hiện: kiểm thử giao diện `01-login.spec.ts` (chọn phân hệ, nhớ sau khi tải lại, tự chuyển phân hệ) và toàn bộ kiểm thử giao diện.
 - Trạng thái: Đã triển khai
 
 ### YCTD-99: Giao diện tông xanh, ẩn hiện thanh điều hướng, thu gọn nhóm chức năng – 2026-10-13

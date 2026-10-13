@@ -73,10 +73,21 @@ export interface IntegrationCredentialsTable {
   updated_by: string | null;
 }
 
+// Lối tắt truy cập nhanh trên trang chủ cổng quản trị, riêng từng tài khoản (YCTD-102)
+export interface UserQuickLinksTable {
+  id: Generated<string>;
+  user_id: string;
+  path: string;
+  label: string;
+  position: number;
+  created_at: CreatedTimestamp;
+}
+
 export interface SystemDatabase {
   academic_years: AcademicYearsTable;
   academic_terms: AcademicTermsTable;
   school_weeks: SchoolWeeksTable;
   academic_year_databases: AcademicYearDatabasesTable;
   integration_credentials: IntegrationCredentialsTable;
+  user_quick_links: UserQuickLinksTable;
 }

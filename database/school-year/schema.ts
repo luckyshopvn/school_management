@@ -2834,6 +2834,111 @@ export interface JournalLinesTable {
   description: string | null;
 }
 
+// Hoàn thành chương trình, nhóm trẻ, chuẩn nghề nghiệp (DT-14 phần 14c, YCTD-102)
+export type ProgramCompletionResult = 'completed' | 'not_completed';
+export type ProfessionalStandardType = 'teacher' | 'principal';
+export type ProfessionalLevel = 'not_met' | 'met' | 'good' | 'excellent';
+export type ProfessionalEvaluationStatus = 'self_assessing' | 'self_submitted' | 'finalized';
+
+export interface ProgramCompletionsTable {
+  id: Generated<string>;
+  child_id: string;
+  class_id: string;
+  org_unit_id: string;
+  result: ProgramCompletionResult;
+  note: string | null;
+  recorded_by: string;
+  recorded_by_name: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ProgramCompletionConfirmationsTable {
+  id: Generated<string>;
+  class_id: string;
+  org_unit_id: string;
+  completed_count: number;
+  children_count: number;
+  confirmed_by: string;
+  confirmed_by_name: string;
+  confirmed_at: CreatedTimestamp;
+}
+
+export interface ChildGroupsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  name: string;
+  description: string | null;
+  teacher_staff_id: string | null;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ChildGroupMembersTable {
+  group_id: string;
+  child_id: string;
+  added_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface ProfessionalStandardsTable {
+  id: Generated<string>;
+  standard_type: ProfessionalStandardType;
+  code: string;
+  name: string;
+  order_no: number;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ProfessionalCriteriaTable {
+  id: Generated<string>;
+  standard_id: string;
+  standard_type: ProfessionalStandardType;
+  code: string;
+  name: string;
+  is_key: Generated<boolean>;
+  order_no: number;
+  status: Generated<'active' | 'inactive'>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ProfessionalEvaluationsTable {
+  id: Generated<string>;
+  staff_id: string;
+  org_unit_id: string;
+  standard_type: ProfessionalStandardType;
+  status: Generated<ProfessionalEvaluationStatus>;
+  self_submitted_at: Date | null;
+  overall_level: ProfessionalLevel | null;
+  assessor_comment: string | null;
+  opened_by: string;
+  finalized_by: string | null;
+  finalized_by_name: string | null;
+  finalized_at: Date | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ProfessionalEvaluationItemsTable {
+  id: Generated<string>;
+  evaluation_id: string;
+  criterion_id: string;
+  standard_code: string;
+  standard_name: string;
+  criterion_code: string;
+  criterion_name: string;
+  is_key: boolean;
+  order_no: number;
+  self_rating: ProfessionalLevel | null;
+  self_evidence: string | null;
+  assessor_rating: ProfessionalLevel | null;
+  assessor_note: string | null;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -3023,4 +3128,12 @@ export interface SchoolYearDatabase {
   ledger_posting_rules: LedgerPostingRulesTable;
   journal_entries: JournalEntriesTable;
   journal_lines: JournalLinesTable;
+  program_completions: ProgramCompletionsTable;
+  program_completion_confirmations: ProgramCompletionConfirmationsTable;
+  child_groups: ChildGroupsTable;
+  child_group_members: ChildGroupMembersTable;
+  professional_standards: ProfessionalStandardsTable;
+  professional_criteria: ProfessionalCriteriaTable;
+  professional_evaluations: ProfessionalEvaluationsTable;
+  professional_evaluation_items: ProfessionalEvaluationItemsTable;
 }
