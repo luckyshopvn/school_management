@@ -116,6 +116,12 @@ import { JobTitlesController, JobTitlesService } from './catalogs/job-titles.js'
 import { CatalogItemsController, CatalogItemsService } from './catalogs/catalog-items.js';
 import { ApprovalThresholdsController, ApprovalThresholdsService } from './catalogs/approval-thresholds.js';
 import { RoomsController, RoomsService } from './catalogs/rooms.js';
+import { EmisReportController, EmisReportService } from './facilities/emis-report.js';
+import { EquipmentController, EquipmentService } from './facilities/equipment.js';
+import { FacilitiesData } from './facilities/facilities-data.js';
+import { facilitiesTransitionStep } from './facilities/facilities-transition.js';
+import { FacilityRoomsController, FacilityRoomsService } from './facilities/facility-rooms.js';
+import { SchoolProfileController, SchoolProfileService } from './facilities/school-profile.js';
 import { GradeLevelsController, GradeLevelsService } from './catalogs/grade-levels.js';
 import { ClassesController } from './classes/classes.controller.js';
 import { ClassesService } from './classes/classes.service.js';
@@ -245,6 +251,10 @@ export class ApplicationModule {
         CatalogItemsController,
         ApprovalThresholdsController,
         RoomsController,
+        FacilityRoomsController,
+        EquipmentController,
+        SchoolProfileController,
+        EmisReportController,
         GradeLevelsController,
         ClassesController,
         ChildrenController,
@@ -357,6 +367,7 @@ export class ApplicationModule {
             orgUnitsTransitionStep,
             settingsTransitionStep,
             catalogsTransitionStep,
+            facilitiesTransitionStep,
             staffTransitionStep,
             staffAttendanceTransitionStep,
             payrollTransitionStep,
@@ -392,6 +403,11 @@ export class ApplicationModule {
         CatalogItemsService,
         ApprovalThresholdsService,
         RoomsService,
+        FacilitiesData,
+        FacilityRoomsService,
+        EquipmentService,
+        SchoolProfileService,
+        EmisReportService,
         GradeLevelsService,
         ClassesService,
         ChildScope,

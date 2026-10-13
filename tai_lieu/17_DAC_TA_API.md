@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.63
+- Phiên bản: 1.64
 - Ngày cập nhật: 2026-10-14
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -256,6 +256,19 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | POST | /api/v1/academic-years/{id}/open | Mở năm học: kiểm tra BR-89, BR-94, tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung, trẻ, lớp, quỹ, công nợ (YCTD-69), chuyển năm đang dùng sang đã đóng và chỉ đọc (BR-93) |
 | POST | /api/v1/academic-years/{id}/close | Bỏ ngày 09/10/2026: gộp vào mở năm học mới (YCTD-37) |
 | GET, PUT | /api/v1/me/quick-links | Đọc và lưu lối tắt Truy cập nhanh trên trang chủ cổng quản trị của chính người đăng nhập (YCTD-102) |
+| GET, PUT | /api/v1/school-profile | Đọc hồ sơ trường kèm Trường chính; ghi các thẻ gửi lên (P01-15, YCTD-106) |
+
+Giao kèo của hồ sơ trường, khai báo cơ sở vật chất, thiết bị dạy học, báo cáo EMIS đầu năm (DT-14 phần 14d, YCTD-106):
+
+1. `GET /school-profile` cần `P01.school-profile.manage` hoặc `P17.report.emis`, trả hồ sơ của năm học đang dùng kèm Trường chính (chưa ghi thì các thẻ trống). `PUT /school-profile` cần `P01.school-profile.manage` ở phạm vi toàn trường; nhận một hoặc nhiều thẻ `general`, `other_info`, `foreign_elements`, `internet`, `it_infrastructure` (đối tượng khóa cố định) và `office_accounts` (mảng dòng `account_name` bắt buộc, `holder_name`, `position`, `email`); thẻ gửi lên thay toàn bộ, thẻ không gửi giữ nguyên. Thẻ lạ, trường lạ, số âm, số lẻ ở ô số nguyên, ngày không đúng `YYYY-MM-DD`, giá trị chọn ngoài danh sách, chữ quá 500 ký tự, mật khẩu trong tài khoản trả `ERR_VALIDATION`. Mỗi lần ghi ghi nhật ký thao tác.
+2. `POST /rooms`, `PATCH /rooms/{id}` nhận thêm `room_block`, `room_type`, `condition`, `area_m2`, `facility_attributes` (không bắt buộc); loại phòng không thuộc khối (khi sửa chỉ một trong hai thì so với giá trị đang lưu), thuộc tính lạ, giá trị ngoài danh sách trả `ERR_VALIDATION`. `GET /rooms` trả thêm các trường này.
+3. `GET /facilities/rooms` cần `P17.report.facilities` hoặc `P01.room.manage`; lọc `org_unit_id` (trong phạm vi), `room_block`, `room_type`, `condition`, `status`; trả phòng kèm nhóm, lớp đang hoạt động gắn phòng và tổng hợp phòng đang dùng theo khối, hiện trạng kèm tổng diện tích. `POST /facilities/rooms/export` nhận cùng bộ lọc, trả tệp Excel hai trang.
+4. `GET /equipment-items` cần `P13.equipment.manage` hoặc `P17.report.facilities`, lọc `age_group`, `is_minimum`. `POST /equipment-items`, `PATCH /equipment-items/{id}` cần `P13.equipment.manage` ở phạm vi toàn trường; mã trùng trả `ERR_CONFLICT`; không nhập mã thì tự đánh `TT-0001` (danh mục tối thiểu) hoặc `NDM-0001` (ngoài danh mục); `PATCH` sửa tên, định mức, ghi chú, `status` (`active`, `inactive`) và ghi nhật ký thao tác.
+5. `GET /equipment-holdings` cần `org_unit_id`. `PUT /equipment-holdings` cần `P13.equipment.manage` trong phạm vi đơn vị; nhận `org_unit_id`, `items` (1 đến 500 dòng: `equipment_item_id`, `class_id` trống là dòng của đơn vị, `quantity`, `next_year_need` chỉ ở dòng đơn vị, `note`); ghi lại thì thay số cũ. Lớp của đơn vị khác, nhu cầu ở dòng lớp trả `ERR_VALIDATION`; đơn vị ngừng sử dụng trả `ERR_RULE_VIOLATION` mã `BR-75`. `POST /equipment-assets` nhận `asset_id`, `equipment_item_id` (trống là bỏ gắn).
+6. `GET /equipment-report` cần `P17.report.facilities` hoặc `P13.equipment.manage`; lọc `org_unit_id`, `class_id`, `age_group`, `equipment_group`, `development_area`, `is_minimum`; trả từng thiết bị với định mức, hiện có, thừa, thiếu, tỷ lệ đáp ứng, nhu cầu năm sau, tỷ lệ đáp ứng chung, theo lớp và danh sách lớp chưa xếp được nhóm tuổi (BR-102). `POST /equipment-report/export` trả tệp Excel hai trang.
+7. `GET /reports/emis/start-of-year` cần `P17.report.emis` ở phạm vi toàn trường; trả năm thẻ của Biểu 1, năm học, loại hình và cảnh báo (BR-104). `POST /reports/emis/start-of-year/export` trả tệp Excel năm trang.
+8. Ba điểm cuối xuất ghi một dòng `export_logs` (mã báo cáo `facility-rooms`, `equipment-summary`, `emis-start-of-year`, không có dữ liệu cá nhân), trả mã nhật ký ở tiêu đề `x-export-log-id`; không cần `P17.data.export`.
+9. Vi phạm quy tắc nghiệp vụ của phần này (ghi số lượng hoặc gắn tài sản cho thiết bị ngừng dùng, gắn tài sản đã thanh lý) trả `ERR_RULE_VIOLATION` với mã chung của đợt DT-14 là `YCTD-102`.
 
 Giao kèo của cân nặng, chiều cao, thống kê theo tiêu chí ngành, hồ sơ chưa nhập đủ (DT-14 phần 14a, YCTD-105):
 
@@ -561,8 +574,8 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 6. Mọi thao tác ghi `identity_audit_logs` kèm giá trị trước và sau. Dịch vụ định danh đọc cây đơn vị qua `GET /api/v1/org-units` của máy chủ API bằng mã phiên của người gọi.
 | GET, PUT | /api/v1/settings | Đọc và ghi cấu hình theo đơn vị |
 | GET, PUT | /api/v1/approval-thresholds | Đọc và ghi hạn mức phê duyệt theo đơn vị và loại chứng từ |
-| GET, POST | /api/v1/rooms | Danh mục phòng học |
-| PATCH | /api/v1/rooms/{id} | Sửa, ngừng sử dụng hoặc dùng lại phòng học |
+| GET, POST | /api/v1/rooms | Danh mục phòng học; kèm khối phòng, loại phòng, hiện trạng, diện tích, thuộc tính (YCTD-106) |
+| PATCH | /api/v1/rooms/{id} | Sửa, ngừng sử dụng hoặc dùng lại phòng học; sửa khai báo cơ sở vật chất (YCTD-106) |
 | GET, POST | /api/v1/grade-levels | Danh mục bậc học |
 | PATCH | /api/v1/grade-levels/{id} | Sửa, ngừng sử dụng hoặc dùng lại bậc học; không đổi mã |
 | GET | /api/v1/audit-logs | Tra nhật ký thao tác |
@@ -1003,6 +1016,14 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | GET | /api/v1/purchase-orders/{id} | Chi tiết phiếu mua hàng |
 | POST | /api/v1/purchase-orders/{id}/receive | Nhận hàng vào kho |
 | POST | /api/v1/purchase-orders/{id}/payment | Gắn phiếu chi đã phát hành, đánh dấu đã thanh toán |
+| GET | /api/v1/facilities/rooms | Khai báo cơ sở vật chất: phòng của các đơn vị trong phạm vi kèm tổng hợp theo khối và hiện trạng (P13-11, YCTD-106) |
+| POST | /api/v1/facilities/rooms/export | Xuất Excel danh sách phòng và tổng hợp, ghi nhật ký xuất (BR-74, YCTD-106) |
+| GET, POST | /api/v1/equipment-items | Danh mục thiết bị dạy học (lọc nhóm tuổi, loại danh mục); thêm thiết bị (P13-12, YCTD-106) |
+| PATCH | /api/v1/equipment-items/{id} | Sửa thiết bị, ngừng hoặc dùng lại (YCTD-106) |
+| GET, PUT | /api/v1/equipment-holdings | Số hiện có của một đơn vị; ghi nhiều dòng theo đơn vị hoặc lớp (YCTD-106) |
+| POST | /api/v1/equipment-assets | Gắn hoặc bỏ gắn tài sản với thiết bị (YCTD-106) |
+| GET | /api/v1/equipment-report | Tổng hợp thiết bị dạy học theo định mức (BR-102, YCTD-106) |
+| POST | /api/v1/equipment-report/export | Xuất Excel tổng hợp thiết bị, ghi nhật ký xuất (BR-74, YCTD-106) |
 
 ## 16. Nội dung, tương tác và tuyển sinh
 
@@ -1156,6 +1177,8 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | GET | /api/v1/statistics/staff | Thống kê nhân sự (P17-16, YCTD-105) |
 | GET | /api/v1/statistics/missing-child-fields | Hồ sơ học sinh chưa nhập đủ; `field` để lấy danh sách (P17-17, YCTD-105) |
 | GET | /api/v1/statistics/missing-staff-fields | Hồ sơ nhân sự chưa nhập đủ; `field` để lấy danh sách (P17-17, YCTD-105) |
+| GET | /api/v1/reports/emis/start-of-year | Báo cáo EMIS đầu năm Biểu 1: năm thẻ, cảnh báo (P17-18, BR-104, YCTD-106) |
+| POST | /api/v1/reports/emis/start-of-year/export | Xuất Excel năm trang, ghi nhật ký xuất (BR-74, YCTD-106) |
 | GET | /api/v1/notifications | Danh sách thông báo của người đăng nhập |
 | POST | /api/v1/notifications/{id}/read | Đánh dấu đã đọc |
 | POST | /api/v1/notifications/read-all | Đánh dấu đọc tất cả (YCTD-64) |

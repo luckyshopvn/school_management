@@ -67,6 +67,10 @@ type NavigationPath =
   | '/my-payslips'
   | '/payroll-settlements'
   | '/reports'
+  | '/school-profile'
+  | '/facility-rooms'
+  | '/equipment'
+  | '/emis'
   | '/api-clients'
   | '/integrations'
   | '/notifications'
@@ -319,6 +323,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canApproveProgramCompletion = useHasPermission(PERMISSION_CODES.programCompletionApprove);
   const canSeeProgramCompletion = canManageProgramCompletion || canApproveProgramCompletion;
   const canManageChildGroups = useHasPermission(PERMISSION_CODES.childGroupManage);
+  // Hồ sơ trường, cơ sở vật chất, thiết bị dạy học, báo cáo EMIS (YCTD-102)
+  const canManageSchoolProfile = useHasPermission(PERMISSION_CODES.schoolProfileManage);
+  const canViewEmis = useHasPermission(PERMISSION_CODES.emisReport);
+  const canViewFacilities = useHasPermission(PERMISSION_CODES.facilitiesReport);
+  const canManageEquipment = useHasPermission(PERMISSION_CODES.equipmentManage);
 
   // Phân hệ đang chọn trên menu sổ xuống (YCTD-101)
   const workspaces = useWorkspaceState();
@@ -526,14 +535,28 @@ export function AppShell({ children }: { children: ReactNode }) {
                     <NavItem to="/imports" label="Nhập dữ liệu" />
                   ) : null}
                 </NavGroup>
+                {canViewFacilities || canManageEquipment || canManageRooms ? (
+                  <>
+                    <NavGroup title="CƠ SỞ VẬT CHẤT">
+                      <NavItem to="/facility-rooms" label="1.1 Khai báo cơ sở vật chất" />
+                      {canViewFacilities || canManageEquipment ? (
+                        <NavItem to="/equipment" label="2.1 Tổng hợp thiết bị dạy học" />
+                      ) : null}
+                    </NavGroup>
+                  </>
+                ) : null}
                 <NavGroup title="BÁO CÁO">
                   <NavItem to="/reports" label="Báo cáo" />
                   {canSeeStatistics ? <NavItem to="/statistics" label="Thống kê theo tiêu chí ngành" /> : null}
                   {canSeeStatistics ? <NavItem to="/missing-profiles" label="Hồ sơ chưa nhập đủ" /> : null}
+                  {canViewEmis ? <NavItem to="/emis" label="1.1 Biểu EMIS đầu năm" /> : null}
                 </NavGroup>
                 <NavGroup title="THIẾT LẬP">
                   <NavItem to="/academic-years" label="Năm học" />
                   <NavItem to="/org-units" label="Cây đơn vị" />
+                  {canManageSchoolProfile || canViewEmis ? (
+                    <NavItem to="/school-profile" label="1.1 Hồ sơ trường" />
+                  ) : null}
                   {canSeeAccounts ? (
                     <>
                       <NavItem to="/accounts" label="Tài khoản" />

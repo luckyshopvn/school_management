@@ -34,6 +34,10 @@ import { PayItemsPage } from './payroll/PayItemsPage.js';
 import { PayrollPage } from './payroll/PayrollPage.js';
 import { SettlementsPage } from './payroll/SettlementsPage.js';
 import { ReportsPage } from './reports/ReportsPage.js';
+import { EmisPage } from './facilities/EmisPage.js';
+import { EquipmentPage } from './facilities/EquipmentPage.js';
+import { FacilityRoomsPage } from './facilities/FacilityRoomsPage.js';
+import { SchoolProfilePage } from './facilities/SchoolProfilePage.js';
 import { LeaveRequestsPage } from './staff-attendance/LeaveRequestsPage.js';
 import { SchoolDaysPage } from './staff-attendance/SchoolDaysPage.js';
 import { WorkSchedulesPage } from './staff-attendance/WorkSchedulesPage.js';
@@ -147,6 +151,10 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/my-payslips', component: MyPayslipsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/payroll-settlements', component: SettlementsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/reports', component: ReportsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/school-profile', component: SchoolProfilePage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/facility-rooms', component: FacilityRoomsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/equipment', component: EquipmentPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/emis', component: EmisPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/api-clients', component: ApiClientsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/integrations', component: IntegrationsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/notifications', component: NotificationsPage }),

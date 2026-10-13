@@ -98,6 +98,12 @@ export interface RoomsTable extends CatalogRecordColumns {
   name: string;
   capacity: number;
   status: Generated<CatalogStatus>;
+  // Khai báo cơ sở vật chất (YCTD-102): khối phòng, loại phòng, hiện trạng, diện tích, thuộc tính theo quy chuẩn
+  room_block: ColumnType<string | null, string | null | undefined, string | null>;
+  room_type: ColumnType<string | null, string | null | undefined, string | null>;
+  condition: ColumnType<string | null, string | null | undefined, string | null>;
+  area_m2: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+  facility_attributes: ColumnType<Record<string, unknown>, string | undefined, string>;
 }
 
 export interface GradeLevelsTable extends CatalogRecordColumns {
@@ -1351,6 +1357,8 @@ export interface AssetsTable {
   location_id: string | null;
   location_name: string | null;
   status: Generated<AssetStatus>;
+  // Thiết bị trong danh mục thiết bị dạy học mà tài sản được tính vào số hiện có (YCTD-102)
+  equipment_item_id: ColumnType<string | null, string | null | undefined, string | null>;
   created_by: string;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
@@ -2939,6 +2947,58 @@ export interface ProfessionalEvaluationItemsTable {
   assessor_note: string | null;
 }
 
+// Thiết bị dạy học tối thiểu, số lượng hiện có nhập tay, hồ sơ trường (DT-14 phần 14d, YCTD-102)
+export interface EquipmentItemsTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  unit: string;
+  equipment_group: string;
+  development_area: string | null;
+  age_group: string;
+  quantity: ColumnType<string, string | number, string | number>;
+  norm_basis: Generated<string>;
+  target_users: Generated<string>;
+  equipment_type: string | null;
+  is_minimum: Generated<boolean>;
+  is_seeded: Generated<boolean>;
+  order_no: Generated<number>;
+  status: Generated<'active' | 'inactive'>;
+  note: string | null;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface EquipmentHoldingsTable {
+  id: Generated<string>;
+  equipment_item_id: string;
+  org_unit_id: string;
+  class_id: string | null;
+  quantity: ColumnType<string, string | number, string | number>;
+  next_year_need: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+  note: string | null;
+  updated_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+type JsonSection = ColumnType<Record<string, unknown>, string | undefined, string>;
+
+export interface SchoolProfilesTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  general: JsonSection;
+  other_info: JsonSection;
+  foreign_elements: JsonSection;
+  internet: JsonSection;
+  it_infrastructure: JsonSection;
+  office_accounts: ColumnType<Array<Record<string, unknown>>, string | undefined, string>;
+  updated_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -3136,4 +3196,7 @@ export interface SchoolYearDatabase {
   professional_criteria: ProfessionalCriteriaTable;
   professional_evaluations: ProfessionalEvaluationsTable;
   professional_evaluation_items: ProfessionalEvaluationItemsTable;
+  equipment_items: EquipmentItemsTable;
+  equipment_holdings: EquipmentHoldingsTable;
+  school_profiles: SchoolProfilesTable;
 }

@@ -1,4 +1,6 @@
 // Gói dùng chung chỉ chứa kiểu dữ liệu và hằng số, không chứa truy vấn cơ sở dữ liệu và quy tắc nghiệp vụ
+export * from './facilities.js';
+
 export const API_VERSION_PREFIX = '/api/v1';
 
 export const SERVICE_NAMES = {
@@ -139,6 +141,11 @@ export const PERMISSION_CODES = {
   childStatisticsView: 'P17.child-statistics.view',
   staffStatisticsView: 'P17.staff-statistics.view',
   apiClientManage: 'P01.api-client.manage',
+  // Thiết bị dạy học, cơ sở vật chất, hồ sơ trường và báo cáo EMIS (DT-14 phần 14d, YCTD-102)
+  equipmentManage: 'P13.equipment.manage',
+  facilitiesReport: 'P17.report.facilities',
+  schoolProfileManage: 'P01.school-profile.manage',
+  emisReport: 'P17.report.emis',
   notificationTemplateManage: 'P19.notification-template.manage',
   notificationReceiptView: 'P19.notification-receipt.view',
   // Hoàn thành chương trình, nhóm học sinh, chuẩn nghề nghiệp (YCTD-102)
