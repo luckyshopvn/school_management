@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.58
+- Phiên bản: 1.59
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -113,6 +113,15 @@ Giao kèo:
 
 Thay bốn dòng P18 hiện có trong `17` bằng:
 
+
+Giao kèo của nhóm điểm cuối nhập sao kê và cổng thanh toán (DT-11 phần 11d, YCTD-89):
+
+1. `GET /bank-statement-profiles/{accountId}` cần `P06.bank-statement.import` hoặc quyền xem đối chiếu ngân hàng ở đơn vị của tài khoản; trả `account_id`, `profile` (trống khi chưa cấu hình). `PUT` nhận `header_row` (mặc định 1), `date_column`, `date_format` (`dmy` mặc định, `ymd`, `mdy`), `amount_mode` (`signed` cần `amount_column`; `split` cần `credit_column`, `debit_column`), `description_column`, `reference_column` (tùy chọn); tên cột tối đa 100 ký tự; cần `P06.bank-statement.import`. Quỹ tiền mặt trả `ERR_VALIDATION`.
+2. `POST /bank-statement-imports` dạng `multipart/form-data` nhận `account_id`, `file` (xlsx hoặc CSV UTF-8, tối đa 5 MB, 2 000 dòng); cần `P06.bank-statement.import`. Chưa có cấu hình trả `ERR_RULE_VIOLATION` mã P06-06; thiếu cột ở dòng tiêu đề, tệp không đọc được, tệp không có dòng trả `ERR_VALIDATION`. Trả 201 với bản ghi lần nhập (`total_rows`, `imported_count`, `duplicate_count`, `error_count`, `errors` gồm `row`, `column`, `message`, `duplicates`, `auto_matched_count`, `suggested_count`) và `lines` (các dòng vừa ghi sau đối soát). `GET /bank-statement-imports?account_id=` trả các lần nhập mới nhất trước.
+3. `POST /bank-transactions/{id}/create-receipt` nhận `category_id` (khoản mục thu đang dùng), `invoice_id` (tùy chọn, mặc định hóa đơn đề xuất), `payer_name` (tùy chọn); cần `P06.bank-transaction.manage` ở đơn vị của dòng và `P06.receipt.manage` ở đơn vị của hóa đơn. Dòng đã khớp trả `ERR_CONFLICT`; dòng tiền ra, dòng không có đề xuất mà không chọn hóa đơn trả `ERR_VALIDATION`; hóa đơn chưa phát hành, đã thu đủ hoặc số tiền dòng nhỏ hơn số còn nợ trả `ERR_RULE_VIOLATION` mã BR-31; ngày thuộc kỳ đã chốt trả mã P06-09. Trả 201 `line` (đã khớp), `receipt` (`id`, `code`, `amount`).
+4. `POST /bank-transactions/{id}/dismiss-suggestion` cần `P06.bank-transaction.manage`; dòng không có đề xuất trả `ERR_CONFLICT`.
+5. `POST /bank-transactions/auto-match` (YCTD-82) dùng số ngày `bank_match_days` của đơn vị, ưu tiên mã chứng từ, trả thêm `suggested_count`. `POST /bank-transactions` tính đề xuất cho dòng vừa gõ.
+6. `GET /payment-providers` cần quyền xem thanh toán trực tuyến; trả `code`, `label`, `supports_webhook`, `requires_bank_bin`, `is_default`. `PUT /cash-accounts/{id}/payment-provider` nhận `payment_provider` (trống là cổng mặc định; mã chưa bật trả `ERR_VALIDATION`), `bank_bin` (6 chữ số; bắt buộc khi cổng cần); cần `P06.cash-account.manage` ở đơn vị của tài khoản; chỉ tài khoản ngân hàng. `GET /invoices/{id}/payment-qr` dùng cổng của tài khoản nhận, trả thêm `provider`; cổng của tài khoản chưa bật trên máy chủ trả mã P06-11. `POST /payment-webhooks/development` có khi cổng `development` được bật (không cần là cổng mặc định).
 
 Giao kèo của nhóm điểm cuối tuyển sinh (DT-11 phần 11a, YCTD-86):
 
@@ -701,6 +710,12 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 | POST | /api/v1/payments/{id}/reverse/reject | Ban Giám hiệu từ chối phiếu đảo phiếu chi kèm lý do |
 | GET | /api/v1/payment-reversals/pending | Phiếu đảo phiếu chi chờ duyệt của người duyệt (YCTD-56) |
 | GET, POST | /api/v1/cash-accounts | Danh sách quỹ và tài khoản ngân hàng của đơn vị; khai báo quỹ hoặc tài khoản (YCTD-53) |
+| GET, PUT | /api/v1/bank-statement-profiles/{accountId} | Xem và lưu cấu hình cột của tệp sao kê của tài khoản ngân hàng (G3-05) |
+| GET, POST | /api/v1/bank-statement-imports | Danh sách lần nhập của tài khoản; nhập tệp sao kê Excel hoặc CSV rồi đối soát tự động (G3-05) |
+| POST | /api/v1/bank-transactions/{id}/create-receipt | Xác nhận đề xuất: lập phiếu thu chuyển khoản từ dòng sao kê và khớp (G3-05) |
+| POST | /api/v1/bank-transactions/{id}/dismiss-suggestion | Bỏ đề xuất lập phiếu thu của dòng sao kê (G3-05) |
+| GET | /api/v1/payment-providers | Các cổng thanh toán trực tuyến máy chủ đã bật (G3-05) |
+| PUT | /api/v1/cash-accounts/{id}/payment-provider | Tài khoản ngân hàng chọn cổng thanh toán và khai mã BIN (G3-05) |
 | PATCH | /api/v1/cash-accounts/{id} | Sửa tên, thông tin ngân hàng, ngừng sử dụng |
 | GET | /api/v1/cash-books | Sổ quỹ hoặc sổ tài khoản theo khoảng ngày, thay cho lịch sử giao dịch của tài khoản (YCTD-55) |
 | GET, POST | /api/v1/suppliers | Danh sách và thêm nhà cung cấp của đơn vị |

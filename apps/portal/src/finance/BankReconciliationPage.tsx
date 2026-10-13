@@ -3,15 +3,18 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
 import { Alert, Button, StatusBadge, TextField, Toast } from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
-import { formatMoney } from '../fees/fees-api.js';
+import { formatMoney, listCashflowCategories } from '../fees/fees-api.js';
+import { StatementImportSection } from './StatementImportSection.js';
 import { AppShell } from '../pages/AppShell.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import { listCashAccounts } from './finance-api.js';
 import {
   autoMatch,
+  createReceiptFromLine,
   createStatementLine,
   deleteStatementLine,
+  dismissSuggestion,
   matchStatementLine,
   readReconciliation,
   unmatchStatementLine,
@@ -32,7 +35,18 @@ export function BankReconciliationPage() {
   const unitChoice = useUnitChoice();
   const orgUnitId = unitChoice.selectedId;
   const canManage = useHasPermission(PERMISSION_CODES.bankTransactionManage);
+  const canImport = useHasPermission(PERMISSION_CODES.bankStatementImport);
   const queryClient = useQueryClient();
+  const categories = useQuery({
+    queryKey: ['cashflow-categories'],
+    queryFn: listCashflowCategories,
+    enabled: canManage,
+  });
+  const incomes = (categories.data ?? []).filter(
+    (category) => category.flow_type === 'income' && category.status === 'active',
+  );
+  const [chosenCategoryId, setChosenCategoryId] = useState('');
+  const categoryId = chosenCategoryId || incomes[0]?.id || '';
   const accounts = useQuery({
     queryKey: ['cash-accounts', orgUnitId],
     queryFn: () => listCashAccounts(orgUnitId ?? ''),
@@ -110,7 +124,9 @@ export function BankReconciliationPage() {
               onClick={() =>
                 action.mutate(async () => {
                   const result = await autoMatch(accountId, from, to);
-                  setToastMessage(`Đã khớp tự động ${result.auto_matched_count} dòng`);
+                  setToastMessage(
+                    `Đã khớp tự động ${result.auto_matched_count} dòng, đề xuất lập phiếu thu ${result.suggested_count} dòng`,
+                  );
                 })
               }
             >
@@ -134,6 +150,31 @@ export function BankReconciliationPage() {
             <span className="font-semibold">Chênh lệch {formatMoney(data.difference)}</span>
             <span>Đã khớp {data.matched_count}</span>
           </section>
+        ) : null}
+        {canImport && accountId ? (
+          <StatementImportSection
+            key={accountId}
+            accountId={accountId}
+            onImported={() => {
+              void refresh();
+            }}
+          />
+        ) : null}
+        {canManage && accountId && incomes.length > 0 ? (
+          <label className="flex max-w-md flex-col gap-2 text-label font-medium text-text">
+            Khoản mục thu của phiếu lập từ sao kê
+            <select
+              value={categoryId}
+              onChange={(event) => setChosenCategoryId(event.target.value)}
+              className="rounded-lg border border-border bg-card px-3 py-2 text-content font-normal"
+            >
+              {incomes.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </label>
         ) : null}
         {canManage && accountId ? (
           <section
@@ -198,7 +239,14 @@ export function BankReconciliationPage() {
                     {data.statement.map((row) => (
                       <tr key={row.id} className="border-t border-border">
                         <td className="px-2 py-2">{row.transaction_date}</td>
-                        <td className="px-2 py-2">{row.description}</td>
+                        <td className="px-2 py-2">
+                          {row.description}
+                          {row.suggested_invoice_code ? (
+                            <span className="block text-text-secondary">
+                              Đề xuất lập phiếu thu cho {row.suggested_invoice_code} ({row.suggested_child_name})
+                            </span>
+                          ) : null}
+                        </td>
                         <td className="px-2 py-2 text-right">{formatMoney(row.amount)}</td>
                         <td className="px-2 py-2">
                           {row.status === 'matched' ? (
@@ -208,6 +256,25 @@ export function BankReconciliationPage() {
                           )}
                         </td>
                         <td className="px-2 py-2">
+                          {canManage && row.status === 'unmatched' && row.suggested_invoice_id ? (
+                            <>
+                              <Button
+                                variant="text"
+                                disabled={!categoryId}
+                                onClick={() =>
+                                  action.mutate(async () => {
+                                    const created = await createReceiptFromLine(row.id, categoryId);
+                                    setToastMessage(`Đã lập phiếu thu ${created.receipt.code} và khớp dòng sao kê`);
+                                  })
+                                }
+                              >
+                                Lập phiếu thu
+                              </Button>
+                              <Button variant="text" onClick={() => action.mutate(() => dismissSuggestion(row.id))}>
+                                Bỏ đề xuất
+                              </Button>
+                            </>
+                          ) : null}
                           {canManage && row.status === 'unmatched' ? (
                             <>
                               <Button variant="text" onClick={() => setMatching(row.id)}>

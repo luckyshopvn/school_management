@@ -49,6 +49,36 @@ export class OnlinePaymentsController {
     return this.onlinePayments.configure(currentUser, { accountId, categoryId }, originOf(request, currentUser));
   }
 
+  // Các cổng thanh toán máy chủ đã bật; cổng đầu là mặc định (YCTD-89)
+  @Get('payment-providers')
+  providers(@AuthenticatedUser() currentUser: CurrentUser) {
+    return this.onlinePayments.providers(currentUser);
+  }
+
+  @Put('cash-accounts/:id/payment-provider')
+  configureProvider(
+    @Param('id', uuidParameter('Mã tài khoản không hợp lệ')) accountId: string,
+    @Body() body: RequestBody,
+    @Req() request: Request,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const errors: FieldError[] = [];
+    const provider = readOptionalText(body, 'payment_provider', errors) ?? null;
+    const bankBin = readOptionalText(body, 'bank_bin', errors) ?? null;
+    if (bankBin && !/^\d{6}$/.test(bankBin)) {
+      errors.push({ field: 'bank_bin', message: 'Mã BIN ngân hàng gồm 6 chữ số' });
+    }
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.onlinePayments.configureProvider(
+      currentUser,
+      accountId,
+      { provider, bankBin },
+      originOf(request, currentUser),
+    );
+  }
+
   @Get('online-payment-transactions')
   list(@Query() query: Record<string, string | undefined>, @AuthenticatedUser() currentUser: CurrentUser) {
     return this.onlinePayments.list(currentUser, { pendingOnly: query.status === 'pending' });
@@ -78,7 +108,7 @@ export class OnlinePaymentsController {
   @Post('payment-webhooks/development')
   @HttpCode(200)
   simulate(@Body() body: RequestBody, @AuthenticatedUser() currentUser: CurrentUser) {
-    if (this.onlinePayments.provider !== 'development') {
+    if (!this.onlinePayments.supportsProvider('development')) {
       throw new NotFoundException();
     }
     if (!currentUser.hasPermission(PERMISSION_CODES.receiptManage)) {
@@ -86,6 +116,7 @@ export class OnlinePaymentsController {
     }
     const errors: FieldError[] = [];
     const input = {
+      provider: 'development',
       providerTransactionRef: readRequiredText(body, 'provider_transaction_ref', errors),
       virtualAccountNumber: readOptionalText(body, 'virtual_account_number', errors) ?? null,
       amount: readAmount(body?.amount, 'amount', errors, 1),

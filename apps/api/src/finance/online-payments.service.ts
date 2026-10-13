@@ -12,7 +12,7 @@ import { queueNotification } from '../common/notification-queue.js';
 import { notFoundError } from '../common/request-fields.js';
 import { invoiceAmounts } from '../fees/invoice-amounts.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
-import { PaymentGateway } from './payment-gateway.js';
+import { PaymentGatewayRegistry, type PaymentGateway } from './payment-gateway.js';
 import { ReceiptsService } from './receipts.service.js';
 import { isGuardianOf } from './receivables.js';
 
@@ -27,6 +27,8 @@ export const ONLINE_PAYMENT_ORIGIN: ChangeOrigin = {
 const VIEW_PERMISSIONS = ['P06.view', PERMISSION_CODES.receiptManage];
 
 export interface IncomingTransfer {
+  // Cổng báo giao dịch (YCTD-89)
+  provider: string;
   providerTransactionRef: string;
   virtualAccountNumber: string | null;
   amount: number;
@@ -50,12 +52,66 @@ export class OnlinePaymentsService {
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly organizationScopes: OrganizationScopes,
     private readonly receipts: ReceiptsService,
-    private readonly gateway: PaymentGateway,
+    private readonly gateways: PaymentGatewayRegistry,
     private readonly clock: Clock,
   ) {}
 
-  get provider(): string {
-    return this.gateway.provider;
+  // Cổng có được bật trên máy chủ không (điểm cuối giả lập chỉ có khi bật cổng giả lập)
+  supportsProvider(provider: string): boolean {
+    return this.gateways.has(provider);
+  }
+
+  async providers(currentUser: CurrentUser) {
+    await this.assertViewer(currentUser, null);
+    return this.gateways.list();
+  }
+
+  // Tài khoản ngân hàng chọn cổng thanh toán (trống là cổng mặc định) và khai mã BIN ngân hàng (YCTD-89)
+  async configureProvider(
+    currentUser: CurrentUser,
+    accountId: string,
+    input: { provider: string | null; bankBin: string | null },
+    origin: ChangeOrigin,
+  ) {
+    const { database } = await this.currentSchoolYear.require();
+    const account = await database
+      .selectFrom('cash_accounts')
+      .select(['id', 'org_unit_id', 'account_type', 'account_number', 'payment_provider', 'bank_bin'])
+      .where('id', '=', accountId)
+      .executeTakeFirst();
+    if (!account) {
+      throw notFoundError('Không tìm thấy tài khoản', 'cash_account');
+    }
+    await this.organizationScopes.assertCanAccess(currentUser, PERMISSION_CODES.cashAccountManage, account.org_unit_id);
+    if (account.account_type !== 'bank') {
+      throw validationError([{ field: 'account_id', message: 'Chỉ tài khoản ngân hàng chọn cổng thanh toán' }]);
+    }
+    if (input.provider && !this.gateways.has(input.provider)) {
+      throw validationError([{ field: 'payment_provider', message: 'Cổng thanh toán chưa được bật trên máy chủ' }]);
+    }
+    const gateway = this.gateways.forAccount(input.provider);
+    if (gateway.requiresBankBin && (!input.bankBin || !account.account_number)) {
+      throw validationError([
+        { field: 'bank_bin', message: 'Cổng này cần mã BIN ngân hàng 6 số và số tài khoản của tài khoản nhận' },
+      ]);
+    }
+    await database.transaction().execute(async (transaction) => {
+      await transaction
+        .updateTable('cash_accounts')
+        .set({ payment_provider: input.provider, bank_bin: input.bankBin, updated_at: this.clock.now() })
+        .where('id', '=', accountId)
+        .execute();
+      await writeAuditLog(transaction, {
+        origin,
+        orgUnitId: account.org_unit_id,
+        entityName: 'cash_accounts',
+        entityId: accountId,
+        action: 'update',
+        before: { payment_provider: account.payment_provider, bank_bin: account.bank_bin },
+        after: { payment_provider: input.provider, bank_bin: input.bankBin },
+      });
+    });
+    return { account_id: accountId, payment_provider: input.provider, bank_bin: input.bankBin };
   }
 
   async settings(currentUser: CurrentUser) {
@@ -160,10 +216,14 @@ export class OnlinePaymentsService {
       active &&
       Number(active.amount) === outstanding &&
       (!active.expires_at || active.expires_at.getTime() > this.clock.now().getTime());
-    const request = stillValid
-      ? active
-      : await this.createRequest(database, invoice, outstanding, account.account_number ?? '', active?.id, origin);
+    const gateway = this.gateways.forAccount(account.payment_provider);
+    // Mã còn hiệu lực của cổng khác (tài khoản vừa đổi cổng) thì xin mã mới của cổng đang chọn
+    const request =
+      stillValid && active.provider === gateway.provider
+        ? active
+        : await this.createRequest(database, gateway, invoice, outstanding, account, active?.id, origin);
     return {
+      provider: request.provider,
       invoice_id: invoice.id,
       invoice_code: invoice.code,
       amount: Number(request.amount),
@@ -381,7 +441,7 @@ export class OnlinePaymentsService {
     const created = await transaction
       .insertInto('online_payment_transactions')
       .values({
-        provider: this.gateway.provider,
+        provider: incoming.provider,
         provider_transaction_ref: incoming.providerTransactionRef,
         virtual_account_number: incoming.virtualAccountNumber,
         amount: incoming.amount,
@@ -436,19 +496,22 @@ export class OnlinePaymentsService {
 
   private async createRequest(
     database: Kysely<SchoolYearDatabase>,
+    gateway: PaymentGateway,
     invoice: { id: string; code: string | null; child_id: string; org_unit_id: string; child_name: string },
     amount: number,
-    receivingAccountNumber: string,
+    account: { name: string; account_number: string | null; bank_bin: string | null },
     replacedId: string | undefined,
     origin: ChangeOrigin,
   ) {
     const transferContent = transferContentOf(invoice.code ?? '');
-    const created = await this.gateway.createPaymentRequest({
+    const created = await gateway.createPaymentRequest({
       invoiceCode: invoice.code ?? '',
       transferContent,
       amount,
       childName: invoice.child_name,
-      receivingAccountNumber,
+      receivingAccountNumber: account.account_number ?? '',
+      receivingAccountName: account.name,
+      receivingBankBin: account.bank_bin,
     });
     return database.transaction().execute(async (transaction) => {
       if (replacedId) {
@@ -499,7 +562,16 @@ export class OnlinePaymentsService {
   private schoolAccount(executor: Kysely<SchoolYearDatabase> | Transaction<SchoolYearDatabase>) {
     return executor
       .selectFrom('cash_accounts')
-      .select(['id', 'name', 'bank_name', 'account_number', 'online_payment_category_id', 'org_unit_id'])
+      .select([
+        'id',
+        'name',
+        'bank_name',
+        'account_number',
+        'online_payment_category_id',
+        'org_unit_id',
+        'payment_provider',
+        'bank_bin',
+      ])
       .where('receives_online_payments', '=', true)
       .where('status', '=', 'active')
       .executeTakeFirst();

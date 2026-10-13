@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.32
+- Phiên bản: 1.33
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -304,8 +304,15 @@
 | CT-219 | P16-03 | Xét đạt khi đã đủ chỉ tiêu; đóng đợt rồi nộp trực tuyến | Bị chặn mã P16-03; hồ sơ trực tuyến bị chặn mã P16-02, đợt không còn trên trang công khai | Kiểm thử tự động `apps/api/src/admissions/admissions.test.ts` đạt ngày 12/10/2026 | Đạt |
 | CT-220 | P16-04 | Nhân viên tuyển sinh chuyển hồ sơ đạt | Hồ sơ trẻ chờ duyệt; quản lý đơn vị duyệt ở trang Hồ sơ trẻ thì trẻ đang học | Kiểm thử tự động `apps/api/src/admissions/admissions.test.ts` đạt ngày 12/10/2026 | Đạt |
 | CT-221 | P16 | Gửi quá 10 hồ sơ trong một giờ từ một địa chỉ mạng | Bị chặn `ERR_RATE_LIMIT` | Kiểm thử tự động `apps/api/src/admissions/admissions.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-222 | P06-06 | đọc số tiền (phân cách hàng nghìn, phần lẻ ,00, số âm, ngoặc đơn, phần lẻ khác 0 bị từ chối), ngày theo ba cách ghi, tệp CSV có BOM và ngoặc kép, mã hóa đơn trong diễn giải, chuỗi VietQR đúng mã kiểm tra CRC | đọc số tiền (phân cách hàng nghìn, phần lẻ ,00, số âm, ngoặc đơn, phần lẻ khác 0 bị từ chối), ngày theo ba cách ghi, tệp CSV có BOM và ngoặc kép, mã hóa đơn trong diễn giải, chuỗi VietQR đúng mã kiểm tra CRC | Kiểm thử tự động `apps/api/src/finance/bank-statement-import.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-223 | P06-06 | chưa có cấu hình cột thì nhập tệp trả 422 P06-06 | chưa có cấu hình cột thì nhập tệp trả 422 P06-06; quản lý đơn vị (VT-03) lưu cấu hình hoặc nhập tệp bị từ chối 403; cấu hình thiếu cột tiền ra trả 400; kế toán lưu được | Kiểm thử tự động `apps/api/src/finance/bank-statement-import.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-224 | P06-06 | nhập tệp CSV 8 dòng | nhập tệp CSV 8 dòng: 6 dòng ghi, 2 dòng lỗi (số tiền không đọc được, ngày sau hôm nay) báo đúng số dòng; khớp tự động 3 dòng, dòng có số phiếu PT trong diễn giải khớp đúng phiếu đó dù có phiếu khác cùng số tiền cùng ngày lập trước; 1 đề xuất lập phiếu thu; dòng 500 000 cho hóa đơn còn nợ 900 000 không có đề xuất; số dư tài khoản không đổi; nhập lại cùng tệp: 0 dòng ghi, 6 dòng trùng | Kiểm thử tự động `apps/api/src/finance/bank-statement-import.test.ts` đạt ngày 12/10/2026; Kiểm thử giao diện `tests/e2e/43-statement-import.spec.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-225 | P06-06 | nhập tệp Excel cấu hình một cột số tiền có dấu, ngày năm-tháng-ngày; dòng trùng số tham chiếu với dòng đã có bỏ qua; tệp thiếu cột đã cấu hình trả 400 | nhập tệp Excel cấu hình một cột số tiền có dấu, ngày năm-tháng-ngày; dòng trùng số tham chiếu với dòng đã có bỏ qua; tệp thiếu cột đã cấu hình trả 400 | Kiểm thử tự động `apps/api/src/finance/bank-statement-import.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-226 | P06-06 | quản lý đơn vị xác nhận đề xuất bị từ chối | quản lý đơn vị xác nhận đề xuất bị từ chối; kế toán xác nhận thì lập phiếu thu PT, dòng đã khớp, hóa đơn hết nợ, số dư tài khoản tăng đúng; xác nhận lần hai trả 409; dòng số tiền nhỏ hơn số còn nợ trả 422 BR-31; dòng gõ tay có mã hóa đơn được đề xuất, bỏ đề xuất được, bỏ lần hai trả 409 | Kiểm thử tự động `apps/api/src/finance/bank-statement-import.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-227 | P06-06 | cấu hình `bank_match_days` = 1 thì dòng lệch 2 ngày không khớp; bỏ cấu hình (mặc định 3) thì khớp | cấu hình `bank_match_days` = 1 thì dòng lệch 2 ngày không khớp; bỏ cấu hình (mặc định 3) thì khớp | Kiểm thử tự động `apps/api/src/finance/bank-statement-import.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-228 | P06-11 | máy chủ bật hai cổng (giả lập là mặc định, VietQR tĩnh) | máy chủ bật hai cổng (giả lập là mặc định, VietQR tĩnh); chọn VietQR tĩnh thiếu mã BIN, mã BIN sai, cổng chưa bật trả 400, kế toán đơn vị khác trả 403; mã QR của tài khoản chọn VietQR tĩnh là chuỗi EMVCo chứa mã BIN, số tài khoản thật, nội dung là mã hóa đơn bỏ gạch, CRC đúng; bỏ chọn thì về cổng giả lập, mã cũ bị hủy; điểm cuối giả lập vẫn chạy | Kiểm thử tự động `apps/api/src/finance/bank-statement-import.test.ts` đạt ngày 12/10/2026 | Đạt |
 
-Ca CT-105 đến CT-221 lần lượt kiểm tra AC-149 đến AC-265.
+Ca CT-105 đến CT-228 lần lượt kiểm tra AC-149 đến AC-272.
 
 ## 16. Chưa xác minh được
 

@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.53
+- Phiên bản: 1.54
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -151,6 +151,8 @@ Ràng buộc duy nhất: `invoices` loại chính trên bộ ba trẻ, kỳ năm
 | cashflow_categories | Khoản mục và nhóm thu chi dùng chung toàn trường | code (duy nhất), name, group_name, flow_type (thu hoặc chi), status |
 | debt_reminders | Lần nhắc nợ theo hóa đơn và mốc (P05-10, YCTD-82) | org_unit_id, child_id, invoice_id, milestone_days (duy nhất cùng hóa đơn; 0 là nhắc trước mốc đầu), overdue_days, outstanding_amount, sent_by, sent_at |
 | bank_statement_lines | Dòng sao kê ngân hàng nhập tay để đối chiếu, không đổi số dư (P06-06, YCTD-82) | account_id (tài khoản ngân hàng), org_unit_id, transaction_date, amount (vào dương, ra âm, khác 0), description, bank_reference, status (chưa khớp, đã khớp), matched_transaction_id (duy nhất, tới account_transactions), matched_by, matched_at, created_by |
+| bank_statement_profiles | Cấu hình cột của tệp sao kê theo tài khoản ngân hàng, dùng lại cho các lần nhập (G3-05, YCTD-89) | account_id (duy nhất, tới cash_accounts), org_unit_id, header_row (1 đến 50), date_column, date_format (dmy, ymd, mdy), amount_mode (signed, split), amount_column, credit_column, debit_column, description_column, reference_column, updated_by, created_at, updated_at |
+| bank_statement_imports | Mỗi lần nhập tệp sao kê và kết quả (G3-05, YCTD-89) | account_id, org_unit_id, file_name, file_format (xlsx, csv), total_rows, imported_count, duplicate_count, error_count, auto_matched_count, suggested_count, errors (jsonb: row, column, message), duplicates (jsonb), created_by, created_at |
 
 Ràng buộc duy nhất: `receipts` trên bộ đôi đơn vị và mã phiếu thu; `payments` trên bộ đôi đơn vị và mã phiếu chi.
 

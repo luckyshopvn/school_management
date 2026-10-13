@@ -50,6 +50,8 @@ export type {
   FiscalPeriodStatus,
   PayableSourceType,
   PayableStatus,
+  BankStatementAmountMode,
+  BankStatementDateFormat,
   PickupType,
   ReceiptMethod,
   ReceiptStatus,

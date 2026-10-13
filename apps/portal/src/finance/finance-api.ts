@@ -262,6 +262,8 @@ export interface OnlinePaymentAccount {
   bank_name: string | null;
   account_number: string | null;
   online_payment_category_id: string | null;
+  payment_provider: string | null;
+  bank_bin: string | null;
 }
 
 export interface OnlineTransfer {
@@ -281,6 +283,20 @@ export const saveOnlinePaymentSettings = (accountId: string, categoryId: string)
   requestJson<OnlinePaymentAccount>('/api/v1/online-payment-settings', {
     method: 'PUT',
     body: JSON.stringify({ account_id: accountId, category_id: categoryId }),
+  });
+// Cổng thanh toán máy chủ đã bật và cổng của từng tài khoản ngân hàng (YCTD-89)
+export interface PaymentProvider {
+  code: string;
+  label: string;
+  supports_webhook: boolean;
+  requires_bank_bin: boolean;
+  is_default: boolean;
+}
+export const listPaymentProviders = (): Promise<PaymentProvider[]> => requestJson('/api/v1/payment-providers');
+export const setPaymentProvider = (accountId: string, provider: string | null, bankBin: string | null) =>
+  requestJson(`/api/v1/cash-accounts/${accountId}/payment-provider`, {
+    method: 'PUT',
+    body: JSON.stringify({ payment_provider: provider, bank_bin: bankBin }),
   });
 export const listPendingTransfers = (): Promise<OnlineTransfer[]> =>
   requestJson('/api/v1/online-payment-transactions?status=pending');
