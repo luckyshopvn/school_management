@@ -152,6 +152,28 @@ export const APPROVAL_DOCUMENT_TYPES = [
 
 export type ApprovalDocumentType = (typeof APPROVAL_DOCUMENT_TYPES)[number]['code'];
 
+// Tên phân hệ theo mã, dùng làm tên nhóm chức năng trên ma trận quyền (03_DANH_SACH_CONG_VIEC.md mục 1)
+export const MODULE_NAMES: Record<string, string> = {
+  P01: 'Nền tảng, đơn vị và phân quyền',
+  P02: 'Trẻ, phụ huynh và lớp học',
+  P03: 'Giảng dạy',
+  P04: 'Điểm danh và chăm sóc hằng ngày',
+  P05: 'Học phí, khoản thu và giảm trừ',
+  P06: 'Tài chính',
+  P07: 'Nhân sự',
+  P08: 'Chấm công và tiền lương',
+  P09: 'Công việc, kế hoạch và đánh giá',
+  P10: 'Y tế học đường',
+  P12: 'Bếp và dinh dưỡng',
+  P13: 'Kho, tài sản và mua hàng',
+  P14: 'Hoạt động, nội dung và truyền thông',
+  P15: 'Tương tác và ý kiến',
+  P16: 'Tuyển sinh',
+  P17: 'Báo cáo và bảng điều khiển',
+  P18: 'Tuyển dụng',
+  P19: 'Kênh truy cập và thông báo',
+};
+
 // Vai trò không gắn đơn vị, phạm vi toàn trường (PQ-03)
 export const WHOLE_SCHOOL_ROLE_CODES = ['VT-01', 'VT-02', 'VT-19', 'VT-20'] as const;
 // Vai trò VT-03 không được cấp khi tạo tài khoản (PQ-13)
