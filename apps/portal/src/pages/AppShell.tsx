@@ -45,6 +45,10 @@ type NavigationPath =
   | '/school-days'
   | '/work-schedules'
   | '/health'
+  | '/growth'
+  | '/growth-report'
+  | '/statistics'
+  | '/missing-profiles'
   | '/admissions'
   | '/interactions'
   | '/kitchen'
@@ -206,6 +210,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canSeeWorkSchedules = canManageWorkSchedules || canViewStaffAttendance;
   const canViewPayroll = useHasPermission(PERMISSION_CODES.payrollView);
   const canManageHealth = useHasPermission(PERMISSION_CODES.healthManage);
+  // Cân nặng, chiều cao và thống kê theo tiêu chí ngành (YCTD-102)
+  const canViewGrowthReport = useHasPermission(PERMISSION_CODES.growthReport);
+  const canViewChildStatistics = useHasPermission(PERMISSION_CODES.childStatisticsView);
+  const canViewStaffStatistics = useHasPermission(PERMISSION_CODES.staffStatisticsView);
+  const canSeeStatistics = canViewChildStatistics || canViewStaffStatistics;
   // Tuyển sinh (YCTD-86)
   const canManageAdmissionCampaigns = useHasPermission(PERMISSION_CODES.admissionCampaignManage);
   const canManageAdmissionApplications = useHasPermission(PERMISSION_CODES.admissionApplicationManage);
@@ -392,12 +401,14 @@ export function AppShell({ children }: { children: ReactNode }) {
                     </NavGroup>
                   </>
                 ) : null}
-                {canManageHealth || canRecordMedicalEvents || canSeeMedicines ? (
+                {canManageHealth || canRecordMedicalEvents || canSeeMedicines || canViewGrowthReport ? (
                   <>
                     <NavGroup title="Y TẾ">
                       {canManageHealth || canRecordMedicalEvents ? (
                         <NavItem to="/health" label="Y tế học đường" />
                       ) : null}
+                      {canManageHealth || canViewGrowthReport ? <NavItem to="/growth" label="Nhập cân đo" /> : null}
+                      {canViewGrowthReport ? <NavItem to="/growth-report" label="Tổng hợp cân đo" /> : null}
                       {canSeeMedicines ? <NavItem to="/medicines" label="Thuốc và dặn thuốc" /> : null}
                     </NavGroup>
                   </>
@@ -487,6 +498,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </NavGroup>
                 <NavGroup title="BÁO CÁO">
                   <NavItem to="/reports" label="Báo cáo" />
+                  {canSeeStatistics ? <NavItem to="/statistics" label="Thống kê theo tiêu chí ngành" /> : null}
+                  {canSeeStatistics ? <NavItem to="/missing-profiles" label="Hồ sơ chưa nhập đủ" /> : null}
                 </NavGroup>
                 <NavGroup title="THIẾT LẬP">
                   <NavItem to="/academic-years" label="Năm học" />

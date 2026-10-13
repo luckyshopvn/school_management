@@ -25,7 +25,11 @@ export const healthTransitionStep: AcademicYearTransitionStep = {
       .selectAll()
       .where('child_id', 'in', carried)
       .execute()) {
-      await next.insertInto('health_measurements').values(row).execute();
+      // Số đo của đợt cân đo năm cũ (YCTD-102) chuyển sang không kèm đợt vì đợt ở lại năm cũ
+      await next
+        .insertInto('health_measurements')
+        .values({ ...row, growth_round_id: null })
+        .execute();
     }
   },
 };

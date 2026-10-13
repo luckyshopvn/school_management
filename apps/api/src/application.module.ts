@@ -39,6 +39,8 @@ import { childrenTransitionStep } from './children/children-transition.js';
 import { financeTransitionStep } from './finance/finance-transition.js';
 import { HealthAccess } from './health/health-access.js';
 import { HealthCareController, HealthCareService } from './health/health-care.js';
+import { GrowthController, GrowthService } from './health/growth.js';
+import { StatisticsController, StatisticsService } from './statistics/statistics.js';
 import { HealthRecordsController, HealthRecordsService } from './health/health-records.js';
 import { healthTransitionStep } from './health/health-transition.js';
 import { KitchenAccess } from './kitchen/kitchen-access.js';
@@ -242,6 +244,8 @@ export class ApplicationModule {
         WorkSchedulesController,
         HealthRecordsController,
         HealthCareController,
+        GrowthController,
+        StatisticsController,
         KitchenCatalogsController,
         KitchenMenusController,
         KitchenMealsController,
@@ -384,6 +388,8 @@ export class ApplicationModule {
         HealthAccess,
         HealthRecordsService,
         HealthCareService,
+        GrowthService,
+        StatisticsService,
         KitchenAccess,
         KitchenCatalogsService,
         KitchenMealsService,

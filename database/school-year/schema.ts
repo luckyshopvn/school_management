@@ -1207,6 +1207,19 @@ export interface HealthMeasurementsTable {
   note: string | null;
   recorded_by: string;
   created_at: CreatedTimestamp;
+  // Số đo thuộc đợt cân đo (YCTD-102), mỗi trẻ một dòng trong một đợt
+  growth_round_id: ColumnType<string | null, string | null | undefined, string | null>;
+}
+
+// Đợt cân đo cân nặng, chiều cao của đơn vị (DT-14 phần 14a, YCTD-102)
+export interface GrowthRoundsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  name: string;
+  measured_on: string;
+  note: string | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
 }
 
 export interface HealthStandardsTable {
@@ -2901,6 +2914,7 @@ export interface SchoolYearDatabase {
   child_unit_transfers: ChildUnitTransfersTable;
   work_schedules: WorkSchedulesTable;
   health_measurements: HealthMeasurementsTable;
+  growth_rounds: GrowthRoundsTable;
   health_standards: HealthStandardsTable;
   health_check_campaigns: HealthCheckCampaignsTable;
   health_check_schedules: HealthCheckSchedulesTable;
