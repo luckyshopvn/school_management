@@ -5,7 +5,7 @@ import { createContext, useCallback, useEffect, useMemo, useRef, useState, type 
 export type WorkspaceKey =
   'all' | 'education' | 'admissions' | 'finance' | 'personnel' | 'facilities' | 'reports' | 'system';
 
-type IconName = 'cap' | 'enroll' | 'coins' | 'people' | 'box' | 'chart' | 'gear' | 'grid';
+export type IconName = 'cap' | 'enroll' | 'coins' | 'people' | 'box' | 'chart' | 'gear' | 'grid';
 
 export const WORKSPACES: Array<{ key: WorkspaceKey; label: string; icon: IconName }> = [
   { key: 'education', label: 'Quản lý giáo dục mầm non', icon: 'cap' },
@@ -111,7 +111,7 @@ const ICON_PATHS: Record<IconName, ReactNode> = {
   grid: <path d="M3 3h7v7H3V3Zm11 0h7v7h-7V3ZM3 14h7v7H3v-7Zm11 0h7v7h-7v-7Z" />,
 };
 
-function WorkspaceIcon({ name }: { name: IconName }) {
+export function WorkspaceIcon({ name }: { name: IconName }) {
   return (
     <span
       className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-workspace text-white"
