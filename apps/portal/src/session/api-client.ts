@@ -69,7 +69,9 @@ async function send<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (response.status === 204) {
     return undefined as T;
   }
-  return (await response.json()) as T;
+  // Máy chủ trả null (ví dụ chưa có Trường chính) thì thân rỗng; đọc thành null thay vì báo mất kết nối
+  const text = await response.text();
+  return (text ? JSON.parse(text) : null) as T;
 }
 
 let pendingRefresh: Promise<TokenResponse> | undefined;

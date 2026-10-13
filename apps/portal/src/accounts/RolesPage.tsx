@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
 import { Alert, Button, StatusBadge, TextField, Toast } from '@school-management/ui';
@@ -17,6 +17,47 @@ import {
 // MH-30 phần vai trò và ma trận quyền (P01-07, PQ-09, PQ-13)
 function messageOf(error: unknown): string {
   return error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại';
+}
+
+// Ô chọn cả nhóm chức năng: đánh dấu khi đã chọn hết, trạng thái lưng chừng khi mới chọn một phần
+function GroupToggle({
+  moduleCode,
+  codes,
+  selected,
+  disabled,
+  onChange,
+}: {
+  moduleCode: string;
+  codes: string[];
+  selected: Set<string>;
+  disabled: boolean;
+  onChange(checked: boolean): void;
+}) {
+  const ref = useRef<HTMLInputElement>(null);
+  const count = codes.filter((code) => selected.has(code)).length;
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.indeterminate = count > 0 && count < codes.length;
+    }
+  }, [count, codes.length]);
+  return (
+    <label className="flex items-center gap-2 text-label font-semibold text-text">
+      <input
+        ref={ref}
+        type="checkbox"
+        checked={count === codes.length}
+        disabled={disabled}
+        aria-label={`Chọn cả nhóm ${moduleCode}`}
+        onChange={(event) => onChange(event.target.checked)}
+      />
+      <span>
+        {moduleCode}{' '}
+        <span className="font-normal text-text-muted">
+          ({count}/{codes.length})
+        </span>
+      </span>
+    </label>
+  );
 }
 
 function RolePermissions({
@@ -41,6 +82,19 @@ function RolePermissions({
     return [...groups.entries()];
   }, [permissions]);
   const changed = selected.size !== role.permissions.length || role.permissions.some((code) => !selected.has(code));
+  // Chọn hoặc bỏ chọn nhiều quyền cùng lúc
+  const setMany = (codes: string[], checked: boolean) => {
+    const next = new Set(selected);
+    for (const code of codes) {
+      if (checked) {
+        next.add(code);
+      } else {
+        next.delete(code);
+      }
+    }
+    setSelected(next);
+  };
+  const allCodes = permissions.map((permission) => permission.code);
 
   return (
     <section className="flex flex-col gap-4" aria-label={`Quyền của ${role.code}`}>
@@ -51,10 +105,36 @@ function RolePermissions({
         {role.is_system ? <StatusBadge tone="neutral" label="Vai trò hệ thống" /> : null}
       </div>
       {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
+      {editable ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <Button onClick={() => setMany(allCodes, true)} disabled={selected.size === allCodes.length}>
+            Chọn tất cả quyền
+          </Button>
+          <Button onClick={() => setMany(allCodes, false)} disabled={selected.size === 0}>
+            Bỏ chọn tất cả
+          </Button>
+          <span className="text-label text-text-muted">
+            Đã chọn {selected.size}/{allCodes.length} quyền
+          </span>
+        </div>
+      ) : null}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {byModule.map(([moduleCode, modulePermissions]) => (
           <fieldset key={moduleCode} className="flex flex-col gap-1 rounded-lg border border-border p-3">
-            <legend className="px-1 text-label font-semibold text-text">{moduleCode}</legend>
+            <legend className="px-1">
+              <GroupToggle
+                moduleCode={moduleCode}
+                codes={modulePermissions.map((permission) => permission.code)}
+                selected={selected}
+                disabled={!editable}
+                onChange={(checked) =>
+                  setMany(
+                    modulePermissions.map((permission) => permission.code),
+                    checked,
+                  )
+                }
+              />
+            </legend>
             {modulePermissions.map((permission) => (
               <label key={permission.code} className="flex items-start gap-2 text-content text-text">
                 <input
