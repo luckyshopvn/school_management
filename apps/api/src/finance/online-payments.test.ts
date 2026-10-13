@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
-import { randomInt, randomUUID } from 'node:crypto';
+import { createHmac, randomInt, randomUUID } from 'node:crypto';
 import { after, before, describe, it } from 'node:test';
 import ExcelJS from 'exceljs';
 import { createDatabase, replaceDatabaseName, type SchoolYearDatabase } from '@school-management/database';
 import { hashForTesting, TEST_PASSWORD } from '@school-management/identity/testing';
 import type { Kysely } from 'kysely';
 import { IMPORT_COLUMNS } from '../imports/imports.service.js';
+import { payosSignature, vnpaySignature, type PaymentProviderSettings } from './payment-providers.js';
 import {
   openTestAcademicYear,
   sendJson,
@@ -19,6 +20,26 @@ import {
 const randomPhone = () => `09${randomInt(0, 100_000_000).toString().padStart(8, '0')}`;
 const errorOf = (body: Record<string, unknown>) => (body.error ?? {}) as { code?: string; rule_code?: string };
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
+
+// Khóa thử của nhà cung cấp thật; Casso không bật để kiểm điểm cuối trả 404 (YCTD-92)
+const PROVIDER_SETTINGS: PaymentProviderSettings = {
+  payos: {
+    clientId: 'client-thu',
+    apiKey: 'api-thu',
+    checksumKey: 'checksum-thu',
+    returnUrl: 'http://127.0.0.1/tra-ve',
+    cancelUrl: 'http://127.0.0.1/huy',
+    apiUrl: 'http://127.0.0.1:9',
+  },
+  sepay: { webhookApiKey: 'khoa-sepay-thu' },
+  vnpay: {
+    tmnCode: 'TMNTHU01',
+    hashSecret: 'BIMATVNPAYTHU',
+    returnUrl: 'http://127.0.0.1/vnpay',
+    paymentUrl: 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html',
+    expireMinutes: 15,
+  },
+};
 
 type Qr = { amount: number; transfer_content: string; virtual_account_number: string; qr_content: string };
 type Transfer = { id: string; match_status: string; receipt_id: string | null; handled_at: string | null };
@@ -98,7 +119,10 @@ describe('Thanh toán trực tuyến bằng mã QR', () => {
   }
 
   before(async () => {
-    environment = await startApiTestEnvironment();
+    environment = await startApiTestEnvironment({
+      paymentGateways: ['development', 'vietqr-static', 'payos', 'sepay', 'vnpay'],
+      paymentProviders: PROVIDER_SETTINGS,
+    });
     principal = await environment.loginAs('VT-02', null);
     savedDefaultPassword = await environment.identity.database
       .selectFrom('identity_settings')
@@ -222,6 +246,9 @@ describe('Thanh toán trực tuyến bằng mã QR', () => {
     await seedInvoice('HĐ-3', 'T2', 2_000_000);
     await seedInvoice('HĐ-4', 'T1', 500_000);
     await seedInvoice('HĐ-5', 'T2', 300_000);
+    await seedInvoice('HĐ-6', 'T1', 600_000);
+    await seedInvoice('HĐ-7', 'T2', 700_000);
+    await seedInvoice('HĐ-8', 'T1', 800_000);
   });
 
   after(async () => {
@@ -415,5 +442,157 @@ describe('Thanh toán trực tuyến bằng mã QR', () => {
   it('giáo viên xem giao dịch, phụ huynh giả lập giao dịch đều bị từ chối', async () => {
     assert.equal((await api('GET', '/online-payment-transactions', token('teacher'))).status, 403);
     assert.equal((await simulate({ amount: 100_000 }, parentToken)).status, 403);
+  });
+  // Nhà cung cấp thật qua điểm cuối công khai, không dùng mã phiên (DT-12 phần 12b, YCTD-92)
+  const webhook = async (path: string, body: unknown, headers: Record<string, string> = {}) => {
+    const response = await fetch(`${environment.baseUrl}/payment-webhooks/${path}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', ...headers },
+      body: JSON.stringify(body),
+    });
+    const text = await response.text();
+    return { status: response.status, body: (text ? JSON.parse(text) : {}) as Record<string, unknown> };
+  };
+  const seedRequest = async (invoice: string, child: string, provider: string, reference: string, amount: number) => {
+    await schoolYear
+      .insertInto('payment_requests')
+      .values({
+        invoice_id: invoices[invoice] ?? '',
+        child_id: children[child] ?? '',
+        org_unit_id: units['ĐT-A1'] ?? '',
+        amount,
+        transfer_content: invoiceCodes[invoice]?.replace('-', '') ?? '',
+        provider,
+        provider_reference: reference,
+        virtual_account_number: reference,
+        qr_content: reference,
+        created_by: principal.userId,
+      })
+      .execute();
+  };
+  const transferOf = (ref: string) =>
+    schoolYear
+      .selectFrom('online_payment_transactions')
+      .select(['match_status', 'receipt_id', 'provider'])
+      .where('provider_transaction_ref', '=', ref)
+      .executeTakeFirst();
+  const vnpayHash = (parameters: Record<string, string>) =>
+    createHmac('sha512', 'BIMATVNPAYTHU')
+      .update(
+        Object.keys(parameters)
+          .sort()
+          .map((key) => `${key}=${encodeURIComponent(parameters[key] ?? '').replace(/%20/g, '+')}`)
+          .join('&'),
+      )
+      .digest('hex');
+
+  it('CT-12b-9: thông báo PayOS sai chữ ký trả 401, không ghi giao dịch; đúng chữ ký thì tự lập phiếu thu HĐ-6; mã đơn lạ (dữ liệu thử) bỏ qua', async () => {
+    await seedRequest('HĐ-6', 'T1', 'payos', '1760324645000601', 600_000);
+    const data = {
+      orderCode: 1760324645000601,
+      amount: 600_000,
+      description: `CSQ1 ${invoiceCodes['HĐ-6']?.replace('-', '')}`,
+      accountNumber: 'V3CAS0601',
+      reference: 'FT-PAYOS-0601',
+      transactionDateTime: '2026-10-13 10:00:00',
+      currency: 'VND',
+      paymentLinkId: 'link-0601',
+      code: '00',
+      desc: 'success',
+      counterAccountName: null,
+    };
+    const signature = payosSignature('checksum-thu', data);
+    const forged = await webhook('payos', {
+      code: '00',
+      desc: 'success',
+      success: true,
+      data: { ...data, amount: 6_000_000 },
+      signature,
+    });
+    assert.equal(forged.status, 401);
+    assert.equal(await transferOf('payos-FT-PAYOS-0601'), undefined);
+    const accepted = await webhook('payos', { code: '00', desc: 'success', success: true, data, signature });
+    assert.equal(accepted.status, 200, JSON.stringify(accepted.body));
+    assert.deepEqual(accepted.body, { success: true });
+    const transfer = await transferOf('payos-FT-PAYOS-0601');
+    assert.equal(transfer?.match_status, 'matched');
+    assert.equal(transfer?.provider, 'payos');
+    assert.ok(transfer?.receipt_id);
+    assert.equal(await outstanding('HĐ-6'), 0);
+    const repeated = await webhook('payos', { code: '00', desc: 'success', success: true, data, signature });
+    assert.equal(repeated.status, 200);
+    const sample = { ...data, orderCode: 123, reference: 'TF230204212323', description: 'VQRIO123' };
+    const ignored = await webhook('payos', {
+      code: '00',
+      desc: 'success',
+      success: true,
+      data: sample,
+      signature: payosSignature('checksum-thu', sample),
+    });
+    assert.equal(ignored.status, 200);
+    assert.equal(await transferOf('payos-TF230204212323'), undefined);
+  });
+
+  it('CT-12b-10: thông báo SePay sai khóa trả 401; đúng khóa thì tự lập phiếu thu HĐ-7; tiền ra bỏ qua; Casso chưa bật trả 404', async () => {
+    const body = {
+      id: Number(`${Date.now()}`.slice(-9)),
+      gateway: 'Vietcombank',
+      transactionDate: '2026-10-13 09:00:00',
+      accountNumber: '1900123456',
+      content: `MBVCB.1 ${invoiceCodes['HĐ-7']?.replace('-', '')} me T2 nop`,
+      transferType: 'in',
+      transferAmount: 700_000,
+      referenceCode: 'MBVCB.0701',
+    };
+    const wrongKey = await webhook('sepay', body, { authorization: 'Apikey sai' });
+    assert.equal(wrongKey.status, 401);
+    assert.equal((await webhook('sepay', body)).status, 401);
+    assert.equal(await transferOf(`sepay-${body.id}`), undefined);
+    const accepted = await webhook('sepay', body, { authorization: 'Apikey khoa-sepay-thu' });
+    assert.equal(accepted.status, 200, JSON.stringify(accepted.body));
+    assert.deepEqual(accepted.body, { success: true });
+    assert.equal((await transferOf(`sepay-${body.id}`))?.match_status, 'matched');
+    assert.equal(await outstanding('HĐ-7'), 0);
+    const outgoing = await webhook(
+      'sepay',
+      { ...body, id: body.id + 1, transferType: 'out' },
+      { authorization: 'Apikey khoa-sepay-thu' },
+    );
+    assert.equal(outgoing.status, 200);
+    assert.equal(await transferOf(`sepay-${body.id + 1}`), undefined);
+    assert.equal((await webhook('casso', { error: 0, data: {} })).status, 404);
+  });
+
+  it('CT-12b-11: IPN VNPay: sai chữ ký 97, đơn lạ 01, sai số tiền 04, đúng thì 00 và tự lập phiếu thu HĐ-8, gửi lại 02', async () => {
+    const txnRef = `${invoiceCodes['HĐ-8']?.replace('-', '')}${Date.now()}`;
+    await seedRequest('HĐ-8', 'T1', 'vnpay', txnRef, 800_000);
+    const ipn = async (parameters: Record<string, string>, hash?: string) => {
+      const query = new URLSearchParams({
+        ...parameters,
+        vnp_SecureHashType: 'HmacSHA512',
+        vnp_SecureHash: hash ?? vnpayHash(parameters),
+      });
+      const response = await fetch(`${environment.baseUrl}/payment-webhooks/vnpay-ipn?${query.toString()}`);
+      return (await response.json()) as { RspCode: string; Message: string };
+    };
+    const parameters = {
+      vnp_Amount: '80000000',
+      vnp_BankCode: 'NCB',
+      vnp_OrderInfo: invoiceCodes['HĐ-8']?.replace('-', '') ?? '',
+      vnp_PayDate: '20261013100500',
+      vnp_ResponseCode: '00',
+      vnp_TmnCode: 'TMNTHU01',
+      vnp_TransactionNo: '14000001',
+      vnp_TransactionStatus: '00',
+      vnp_TxnRef: txnRef,
+    };
+    assert.equal(vnpaySignature('BIMATVNPAYTHU', parameters), vnpayHash(parameters));
+    assert.equal((await ipn(parameters, 'ab'.repeat(64))).RspCode, '97');
+    assert.equal((await ipn({ ...parameters, vnp_TxnRef: 'KHONGCO' })).RspCode, '01');
+    assert.equal((await ipn({ ...parameters, vnp_Amount: '70000000' })).RspCode, '04');
+    assert.deepEqual(await ipn(parameters), { RspCode: '00', Message: 'Confirm Success' });
+    assert.equal((await transferOf(`vnpay-${txnRef}`))?.match_status, 'matched');
+    assert.equal(await outstanding('HĐ-8'), 0);
+    assert.equal((await ipn(parameters)).RspCode, '02');
   });
 });
