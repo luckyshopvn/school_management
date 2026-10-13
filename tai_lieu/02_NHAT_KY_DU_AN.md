@@ -14,6 +14,24 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-13 — Menu sổ xuống chọn phân hệ
+
+#### Công việc đã thực hiện
+
+- Thêm menu sổ xuống chọn phân hệ ở thanh đầu trang theo ảnh mẫu của Eric; kiểm thử giao diện 65/65 đạt.
+
+#### Quyết định
+
+- Eric yêu cầu ngày 2026-10-13; cách gom phân hệ Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 (YCTD-101).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-101.
+
+#### Vấn đề tồn đọng
+
+- Không có.
+
 ### 2026-10-13 — Giao diện tông xanh, ẩn hiện thanh điều hướng
 
 #### Công việc đã thực hiện
