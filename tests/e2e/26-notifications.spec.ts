@@ -57,9 +57,60 @@ test('Kế toán thấy thông báo chưa đọc và đánh dấu đã đọc', 
   await page.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(accountant.username);
   await page.getByLabel('Mật khẩu', { exact: true }).fill(accountant.password);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
-  await page.getByRole('link', { name: /^Thông báo \(\d+\)$/ }).click();
+  // Chuông ở đầu trang: bấm một thông báo để xem nội dung và đánh dấu đã đọc (YCTD-97)
+  await page.getByRole('button', { name: /^Thông báo, \d+ chưa đọc$/ }).click();
+  const panel = page.getByRole('dialog', { name: 'Thông báo mới' });
+  const bellItem = panel.getByRole('listitem', { name: `Thông báo ${title}` });
+  await expect(bellItem).toContainText('Nội dung kiểm thử');
+  await bellItem.getByRole('button', { name: new RegExp(title) }).click();
+  await expect(bellItem).not.toHaveClass(/bg-selected/);
+  await panel.getByRole('link', { name: 'Xem tất cả thông báo' }).click();
+  await expect(page.getByRole('heading', { name: 'Thông báo', exact: true })).toBeVisible();
   const item = page.getByRole('listitem', { name: `Thông báo ${title}` });
-  await expect(item).toContainText('Nội dung kiểm thử');
-  await item.getByRole('button', { name: 'Đã đọc' }).click();
   await expect(item.getByRole('button', { name: 'Đã đọc' })).toHaveCount(0);
+});
+
+test('Chuông thông báo: chọn nhiều thông báo và đánh dấu đã đọc cùng lúc', async ({ browser }) => {
+  const unit = await schoolYear
+    .selectFrom('org_units')
+    .select('id')
+    .where('unit_type', '!=', 'truong_chinh')
+    .orderBy('code')
+    .executeTakeFirstOrThrow();
+  const accountant = await createTestUser(identity, { roles: [{ roleCode: 'VT-04', orgUnitId: unit.id }] });
+  const suffix = Date.now() % 1_000_000;
+  const titles = [`Chuông một ${suffix}`, `Chuông hai ${suffix}`];
+  for (const title of titles) {
+    const notification = await schoolYear
+      .insertInto('notifications')
+      .values({
+        org_unit_id: unit.id,
+        template_code: 'e2e_test',
+        title,
+        body: 'Nội dung kiểm thử',
+        target_type: 'e2e',
+        target_id: randomUUID(),
+      })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    await schoolYear
+      .insertInto('notification_recipients')
+      .values({ notification_id: notification.id, user_id: accountant.id, channel: 'in_app' })
+      .execute();
+  }
+  const page = await (await browser.newContext()).newPage();
+  await page.goto('/');
+  await page.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(accountant.username);
+  await page.getByLabel('Mật khẩu', { exact: true }).fill(accountant.password);
+  await page.getByRole('button', { name: 'Đăng nhập' }).click();
+  // Kế toán còn nhận thông báo gửi theo vai trò nên số chưa đọc có thể lớn hơn 2
+  await page.getByRole('button', { name: /^Thông báo, \d+ chưa đọc$/ }).click();
+  const panel = page.getByRole('dialog', { name: 'Thông báo mới' });
+  for (const title of titles) {
+    await panel.getByRole('checkbox', { name: `Chọn thông báo ${title}` }).check();
+  }
+  await panel.getByRole('button', { name: 'Đánh dấu đã đọc (2)' }).click();
+  for (const title of titles) {
+    await expect(panel.getByRole('listitem', { name: `Thông báo ${title}` })).not.toHaveClass(/bg-selected/);
+  }
 });

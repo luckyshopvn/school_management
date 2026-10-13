@@ -11,6 +11,37 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-97: Chuông thông báo ở đầu trang cổng quản trị – 2026-10-13
+
+- Lý do: Eric yêu cầu ngày 2026-10-13 thay mục Thông báo ở thanh điều hướng bằng biểu tượng chuông cạnh tên người dùng, xem một hoặc nhiều thông báo, có lối xem tất cả.
+- Nội dung thay đổi (Eric yêu cầu ngày 2026-10-13; cách trình bày Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Màn hình Thông báo (MH-55) là hộp thông báo của người đăng nhập: thông báo gửi đích danh và thông báo gửi theo vai trò đang giữ (YCTD-64), không phải mọi thông báo của hệ thống.
+  - Chuông ở đầu trang, cạnh tên người dùng, có số chưa đọc (quá 99 ghi 99+), làm mới mỗi phút. Bấm chuông mở bảng 10 thông báo mới nhất, thông báo chưa đọc tô nổi. Bấm một thông báo thì mở nội dung đầy đủ và đánh dấu đã đọc. Ô chọn từng thông báo, "Chọn tất cả", "Đánh dấu đã đọc (n)" cho thông báo đã chọn, "Đọc tất cả". "Xem tất cả thông báo" mở MH-55. Bấm ra ngoài hoặc nhấn Esc thì đóng bảng.
+  - Bỏ mục "Thông báo" ở thanh điều hướng; MH-55 giữ lọc chưa đọc, xem ai đã đọc, mẫu thông báo.
+  - Ứng dụng giáo viên và phụ huynh giữ nguyên.
+- Thành phần bị ảnh hưởng: cổng quản trị (khung trang, MH-55); tài liệu `02`, `24`, `index.md`.
+- Giao diện bị ảnh hưởng: khung trang cổng quản trị, MH-55.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: kiểm thử giao diện `26-notifications.spec.ts` (xem một thông báo qua chuông, chọn nhiều thông báo đánh dấu đã đọc).
+- Trạng thái: Đã triển khai
+
+### YCTD-96: Ma trận quyền chọn nhanh theo nhóm chức năng – 2026-10-13
+
+- Lý do: Eric yêu cầu ngày 2026-10-13 chọn nhiều quyền cùng lúc trong một nhóm chức năng và ghi mã số kèm tên nhóm cho dễ phân biệt; Eric gặp lỗi "Không kết nối được tới máy chủ" ở Cây đơn vị khi chưa có Trường chính.
+- Nội dung thay đổi (Eric yêu cầu ngày 2026-10-13; cách trình bày Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Màn hình Vai trò và quyền (MH-30): mỗi nhóm ghi mã số và tên phân hệ (ví dụ "P05 · Học phí, khoản thu và giảm trừ"), xếp theo mã; ô "Chọn cả nhóm" có trạng thái lưng chừng khi mới chọn một phần, đếm đã chọn trên tổng; nút "Chọn tất cả quyền", "Bỏ chọn tất cả". Tên phân hệ đặt ở `MODULE_NAMES` trong gói dùng chung.
+  - Sửa lỗi: `GET /org-units/tree` trả null khi chưa có Trường chính nên thân phản hồi rỗng; ba ứng dụng đọc thân rỗng thành null thay vì báo nhầm mất kết nối.
+- Thành phần bị ảnh hưởng: cổng quản trị (MH-30), `packages/shared`, bộ gọi API của ba ứng dụng; tài liệu `02`, `24`, `index.md`.
+- Giao diện bị ảnh hưởng: MH-30.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: kiểm thử giao diện `04-accounts.spec.ts` (chọn cả nhóm, bỏ chọn tất cả).
+
 ### YCTD-95: DT-12 phần 12c: Fanpage và Zalo Official Account chạy thật – 2026-10-13
 
 - Lý do: Eric quyết định nối Fanpage (việc T4) và Zalo Official Account (việc T7) thật ngày 2026-10-13 (YCTD-92); khóa cấp khi triển khai. Các điểm kỹ thuật dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.

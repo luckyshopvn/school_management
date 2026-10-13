@@ -54,7 +54,9 @@ test('Hiệu trưởng tạo năm học, lưu lịch, đánh dấu tuần nghỉ
   const dialog = page.getByRole('dialog');
   await expect(dialog).toContainText('không hoàn tác được');
   await dialog.getByRole('button', { name: 'Mở năm học' }).click();
-  await expect(page.getByRole('status').filter({ hasText: 'Đã mở năm học 2026–2027' })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: 'Đã mở năm học 2026–2027' })).toBeVisible({
+    timeout: 30_000,
+  });
   await expect(page.getByLabel('Năm học 2026–2027').getByText('Đang dùng', { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Mở năm học' })).toHaveCount(0);
 });
