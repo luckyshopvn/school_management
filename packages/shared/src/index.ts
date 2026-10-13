@@ -136,6 +136,12 @@ export const PERMISSION_CODES = {
   apiClientManage: 'P01.api-client.manage',
   notificationTemplateManage: 'P19.notification-template.manage',
   notificationReceiptView: 'P19.notification-receipt.view',
+  // Hoàn thành chương trình, nhóm trẻ, chuẩn nghề nghiệp (YCTD-102)
+  programCompletionManage: 'P02.program-completion.manage',
+  programCompletionApprove: 'P02.program-completion.approve',
+  childGroupManage: 'P02.child-group.manage',
+  professionalStandardManage: 'P07.professional-standard.manage',
+  professionalStandardAssess: 'P07.professional-standard.assess',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)

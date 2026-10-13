@@ -118,6 +118,8 @@ export class ChildrenService {
     filter: {
       orgUnitId?: string;
       classId?: string;
+      // Lọc theo nhóm trẻ (YCTD-102); phạm vi xem trẻ vẫn áp dụng
+      groupId?: string;
       status?: ChildStatus;
       q?: string;
       missingBirthCertificate?: boolean;
@@ -143,6 +145,15 @@ export class ChildrenService {
     }
     if (filter.classId) {
       selection = selection.where('class_enrollments.class_id', '=', filter.classId);
+    }
+    if (filter.groupId) {
+      const groupId = filter.groupId;
+      selection = selection.where('children.id', 'in', (expression) =>
+        expression
+          .selectFrom('child_group_members')
+          .select('child_group_members.child_id')
+          .where('group_id', '=', groupId),
+      );
     }
     if (filter.status) {
       selection = selection.where('children.status', '=', filter.status);

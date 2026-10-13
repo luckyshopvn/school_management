@@ -117,6 +117,7 @@ export interface ChildInput {
 export function listChildren(filter: {
   orgUnitId?: string;
   classId?: string;
+  groupId?: string;
   status?: string;
   q?: string;
   missingBirthCertificate?: boolean;
@@ -129,6 +130,7 @@ export function listChildren(filter: {
   for (const [key, value] of [
     ['org_unit_id', filter.orgUnitId],
     ['class_id', filter.classId],
+    ['group_id', filter.groupId],
     ['status', filter.status],
     ['q', filter.q],
   ] as const) {

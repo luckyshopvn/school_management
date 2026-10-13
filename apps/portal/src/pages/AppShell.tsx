@@ -66,7 +66,10 @@ type NavigationPath =
   | '/notifications'
   | '/work'
   | '/evaluations'
-  | '/bonus-deductions';
+  | '/bonus-deductions'
+  | '/program-completion'
+  | '/child-groups'
+  | '/professional-standards';
 
 function NavItem({ to, label }: { to: NavigationPath; label: string }) {
   const group = useContext(GroupContext);
@@ -291,6 +294,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canViewLedger = useHasPermission(PERMISSION_CODES.ledgerView);
   const canManageLedger = useHasPermission(PERMISSION_CODES.ledgerManage);
   const canSeeLedger = canViewLedger || canManageLedger;
+  // Hoàn thành chương trình, nhóm trẻ (YCTD-102)
+  const canManageProgramCompletion = useHasPermission(PERMISSION_CODES.programCompletionManage);
+  const canApproveProgramCompletion = useHasPermission(PERMISSION_CODES.programCompletionApprove);
+  const canSeeProgramCompletion = canManageProgramCompletion || canApproveProgramCompletion;
+  const canManageChildGroups = useHasPermission(PERMISSION_CODES.childGroupManage);
 
   // Phân hệ đang chọn trên menu sổ xuống (YCTD-101)
   const workspaces = useWorkspaceState();
@@ -374,6 +382,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                       <NavItem to="/children" label="Hồ sơ trẻ" />
                       <NavItem to="/classes" label="Lớp học" />
                       <NavItem to="/attendance" label="Điểm danh" />
+                      {canSeeProgramCompletion ? (
+                        <NavItem to="/program-completion" label="Hoàn thành chương trình" />
+                      ) : null}
+                      {canManageChildGroups || canViewChildren ? <NavItem to="/child-groups" label="Nhóm trẻ" /> : null}
                       {canImport ? <NavItem to="/imports" label="Nhập dữ liệu" /> : null}
                     </NavGroup>
                   </>
@@ -481,6 +493,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <NavItem to="/my-payslips" label="Phiếu lương của tôi" />
                   <NavItem to="/work" label="Công việc và kế hoạch" />
                   <NavItem to="/evaluations" label="Đánh giá nhân sự" />
+                  <NavItem to="/professional-standards" label="Chuẩn nghề nghiệp" />
                   {canViewStaff && canImportStaff && !(canManageClasses || canViewChildren || canEditChildren) ? (
                     <NavItem to="/imports" label="Nhập dữ liệu" />
                   ) : null}

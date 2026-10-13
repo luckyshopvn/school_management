@@ -7,6 +7,7 @@ import { AppShell } from '../pages/AppShell.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import { ChildDetailPanel } from './ChildDetailPanel.js';
+import { listChildGroups } from '../child-groups/child-groups-api.js';
 import { CHILD_STATUS_LABELS, listChildren, type ChildStatus } from './children-api.js';
 import { CreateChildForm } from './CreateChildForm.js';
 
@@ -21,6 +22,9 @@ export function ChildrenPage() {
   const unitChoice = useUnitChoice();
   const [orgUnitId, setOrgUnitId] = useState('');
   const [status, setStatus] = useState<ChildStatus | ''>('');
+  // Lọc theo nhóm trẻ (YCTD-102)
+  const [groupId, setGroupId] = useState('');
+  const groups = useQuery({ queryKey: ['child-groups', 'list', ''], queryFn: () => listChildGroups('') });
   const [search, setSearch] = useState('');
   const [missingCertificate, setMissingCertificate] = useState(false);
   const [page, setPage] = useState(1);
@@ -30,10 +34,11 @@ export function ChildrenPage() {
   const closeToast = useCallback(() => setToastMessage(undefined), []);
 
   const children = useQuery({
-    queryKey: ['children', orgUnitId, status, search, missingCertificate, page],
+    queryKey: ['children', orgUnitId, groupId, status, search, missingCertificate, page],
     queryFn: () =>
       listChildren({
         orgUnitId: orgUnitId || undefined,
+        groupId: groupId || undefined,
         status: status || undefined,
         q: search || undefined,
         missingBirthCertificate: missingCertificate,
@@ -79,6 +84,28 @@ export function ChildrenPage() {
               ))}
             </select>
           </label>
+          {(groups.data ?? []).length > 0 ? (
+            <label className="flex flex-col gap-2 text-label font-medium text-text">
+              Nhóm trẻ
+              <select
+                value={groupId}
+                onChange={(event) => {
+                  setGroupId(event.target.value);
+                  setPage(1);
+                }}
+                className="rounded-lg border border-border bg-card px-3 py-2 text-content font-normal"
+              >
+                <option value="">Tất cả</option>
+                {(groups.data ?? [])
+                  .filter((group) => !orgUnitId || group.org_unit_id === orgUnitId)
+                  .map((group) => (
+                    <option key={group.id} value={group.id}>
+                      {group.name}
+                    </option>
+                  ))}
+              </select>
+            </label>
+          ) : null}
           <label className="flex flex-col gap-2 text-label font-medium text-text">
             Trạng thái
             <select
