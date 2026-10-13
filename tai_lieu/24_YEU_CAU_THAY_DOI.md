@@ -11,6 +11,22 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-99: Giao diện tông xanh, ẩn hiện thanh điều hướng, thu gọn nhóm chức năng – 2026-10-13
+
+- Lý do: Eric gửi ảnh mẫu giao diện ngày 2026-10-13, yêu cầu tham khảo màu, giữ thanh điều hướng dọc (không đổi sang thanh thẻ), cho ẩn hoặc hiện thanh điều hướng, cho ẩn hoặc hiện từng nhóm chức năng.
+- Nội dung thay đổi (Eric yêu cầu ngày 2026-10-13; cách trình bày Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Bảng màu dùng chung đổi sang tông xanh dương (`15_HE_THONG_THIET_KE.md` mục 2): màu chính #0A8BE6, nhấn #0670C0, liên kết #0A7FD4, nền trang #F5F7FA, vùng chọn #E6F2FC; nút chính chữ trắng. Ba ứng dụng cùng đổi vì dùng chung bảng màu.
+  - Cổng quản trị: thanh đầu trang nền xanh, chữ trắng, tên hệ thống màu vàng #FFE600, gồm nút ẩn hoặc hiện thanh điều hướng, chuông thông báo, tên người dùng, đổi mật khẩu, đăng xuất. Thanh điều hướng dọc giữ nguyên rộng 240 điểm ảnh, dính dưới thanh đầu trang và tự cuộn.
+  - Tiêu đề mỗi nhóm chức năng là nút thu gọn hoặc mở rộng, có mũi tên chỉ trạng thái. Trình duyệt nhớ thanh điều hướng đang ẩn hay hiện và các nhóm đã thu gọn (lưu trữ của trình duyệt, không lưu lên máy chủ); trình duyệt chặn lưu trữ thì dùng mặc định là hiện tất cả.
+- Thành phần bị ảnh hưởng: `packages/ui` (bảng màu, nút), khung trang cổng quản trị, chuông thông báo, nút thanh toán của ứng dụng phụ huynh; tài liệu `02`, `15`, `24`, `index.md`.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: khung trang cổng quản trị; màu của ba ứng dụng.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: kiểm thử giao diện `01-login.spec.ts` (ẩn, hiện thanh điều hướng, thu gọn nhóm, nhớ sau khi tải lại) và toàn bộ kiểm thử giao diện.
+- Trạng thái: Đã triển khai
+
 ### YCTD-97: Chuông thông báo ở đầu trang cổng quản trị – 2026-10-13
 
 - Lý do: Eric yêu cầu ngày 2026-10-13 thay mục Thông báo ở thanh điều hướng bằng biểu tượng chuông cạnh tên người dùng, xem một hoặc nhiều thông báo, có lối xem tất cả.

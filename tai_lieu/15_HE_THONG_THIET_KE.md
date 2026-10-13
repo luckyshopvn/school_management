@@ -20,18 +20,19 @@
 
 | Mã | Tên | Giá trị | Dùng cho |
 |---|---|---|---|
-| M-01 | Cam nắng | #F59E0B | Màu chính, nền nút hành động chính (chữ trên nút dùng C-01), biểu tượng thương hiệu |
-| M-02 | Cam đậm | #B45309 | Trạng thái nhấn của màu chính, chữ trên nền sáng của vùng thương hiệu |
-| M-03 | Xanh biển nhạt | #0EA5E9 | Màu phụ, liên kết, biểu tượng thông tin |
+| M-01 | Xanh dương | #0A8BE6 | Màu chính, nền nút hành động chính (chữ trắng), nền thanh đầu trang của cổng quản trị (YCTD-99) |
+| M-02 | Xanh dương đậm | #0670C0 | Trạng thái nhấn của màu chính, chữ của mục đang chọn trên thanh điều hướng |
+| M-03 | Xanh liên kết | #0A7FD4 | Màu phụ, liên kết, biểu tượng thông tin |
 | M-04 | Xanh lá dịu | #10B981 | Màu phụ thứ hai, vùng tích cực |
+| M-05 | Vàng nhấn | #FFE600 | Tên hệ thống trên thanh đầu trang xanh (YCTD-99) |
 
 ### 2.2 Màu nền và chữ
 
 | Mã | Tên | Giá trị | Dùng cho |
 |---|---|---|---|
-| N-01 | Nền trang | #F8FAFC | Nền toàn trang |
+| N-01 | Nền trang | #F5F7FA | Nền toàn trang |
 | N-02 | Nền thẻ | #FFFFFF | Nền thẻ, bảng, biểu mẫu |
-| N-03 | Nền vùng chọn | #EFF6FF | Dòng đang chọn, vùng được đánh dấu |
+| N-03 | Nền vùng chọn | #E6F2FC | Dòng đang chọn, vùng được đánh dấu |
 | C-01 | Chữ chính | #0F172A | Tiêu đề và nội dung chính |
 | C-02 | Chữ phụ | #475569 | Nhãn, mô tả, ghi chú |
 | C-03 | Chữ mờ | #94A3B8 | Văn bản không hoạt động |
@@ -84,7 +85,7 @@ Phông chữ dùng phông hệ thống có hỗ trợ đầy đủ dấu tiếng
 | KC-05 | Đệm trong thẻ | 16 điểm ảnh |
 | KC-06 | Bán kính góc | 8 điểm ảnh cho thành phần nhỏ, 12 điểm ảnh cho thẻ |
 | KC-07 | Chiều rộng vùng nội dung tối đa | 1440 điểm ảnh |
-| KC-08 | Chiều rộng thanh điều hướng bên | 240 điểm ảnh |
+| KC-08 | Chiều rộng thanh điều hướng bên | 240 điểm ảnh; ẩn hoặc hiện bằng nút ở thanh đầu trang, nhóm chức năng thu gọn được, trình duyệt nhớ lựa chọn (YCTD-99) |
 
 ## 5. Thành phần dùng chung
 

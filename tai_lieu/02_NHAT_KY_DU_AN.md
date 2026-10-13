@@ -14,6 +14,25 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-13 — Giao diện tông xanh, ẩn hiện thanh điều hướng
+
+#### Công việc đã thực hiện
+
+- Đổi bảng màu sang tông xanh theo ảnh mẫu của Eric; thanh đầu trang xanh có nút ẩn hoặc hiện thanh điều hướng; nhóm chức năng thu gọn được, trình duyệt nhớ lựa chọn.
+- Kiểm thử giao diện 64/64 đạt.
+
+#### Quyết định
+
+- Eric yêu cầu ngày 2026-10-13; cách trình bày Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 (YCTD-99).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-99, `15_HE_THONG_THIET_KE.md` mục 2 và KC-08.
+
+#### Vấn đề tồn đọng
+
+- Không có.
+
 ### 2026-10-13 — Ma trận quyền chọn nhanh, chuông thông báo, dữ liệu mẫu
 
 #### Công việc đã thực hiện
