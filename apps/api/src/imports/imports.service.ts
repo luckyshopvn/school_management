@@ -17,10 +17,15 @@ import { RegistrationPeriods } from '../fees/registration-periods.js';
 import { FileStorage } from '../files/file-storage.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { buildTemplate, parseDate, readSheet, type ImportColumn, type RowError, type SheetRow } from './excel.js';
+import { MoetImports, type MoetPreview } from './moet-imports.js';
+
+// Loại nhập theo mẫu của trường (có tệp mẫu); tệp CSDL ngành dùng mẫu của Bộ, không có tệp mẫu ở đây (YCTD-100)
+export type TemplateImportType = Exclude<ImportType, 'moet_children' | 'moet_staff'>;
+export type MoetImportType = 'moet_children' | 'moet_staff';
 
 // Nhập dữ liệu ban đầu: lớp, trẻ kèm phụ huynh (P01-13), mã định danh ngành (P02-12) (YCTD-46) và công nợ đầu kỳ
 // (P01-13, AC-184; YCTD-54)
-export const IMPORT_COLUMNS: Record<ImportType, ImportColumn[]> = {
+export const IMPORT_COLUMNS: Record<TemplateImportType, ImportColumn[]> = {
   classes: [
     { key: 'unit_code', header: 'Mã đơn vị', note: 'Mã của Trường chính, Phân hiệu hoặc Điểm trường, bắt buộc' },
     { key: 'class_code', header: 'Mã lớp', note: 'Không trùng trong một đơn vị, bắt buộc' },
@@ -84,7 +89,7 @@ export const IMPORT_COLUMNS: Record<ImportType, ImportColumn[]> = {
   ],
 };
 
-const TEMPLATE_TITLES: Record<ImportType, string> = {
+const TEMPLATE_TITLES: Record<TemplateImportType, string> = {
   classes: 'Lớp học',
   children: 'Trẻ và phụ huynh',
   moet_codes: 'Mã định danh ngành',
@@ -144,11 +149,21 @@ interface OpeningDebtRow {
   note: string | null;
 }
 
-type UploadType = 'classes' | 'children' | 'opening_debts' | 'staff';
+type UploadType = 'classes' | 'children' | 'opening_debts' | 'staff' | MoetImportType;
+type TemplateUploadType = Exclude<UploadType, MoetImportType>;
+
+const isMoetType = (type: string): type is MoetImportType => type === 'moet_children' || type === 'moet_staff';
+
+const XLSX_CONTENT_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+// Tệp xls bắt đầu bằng chữ ký OLE2 D0 CF
+const contentTypeOf = (body: Buffer) =>
+  body[0] === 0xd0 && body[1] === 0xcf ? 'application/vnd.ms-excel' : XLSX_CONTENT_TYPE;
 
 export interface ImportJobView {
   id: string;
   import_type: ImportType;
+  org_unit_id: string | null;
+  preview: MoetPreview | null;
   status: 'validated' | 'failed' | 'committed';
   total_rows: number;
   error_rows: number;
@@ -169,9 +184,10 @@ export class ImportsService {
     private readonly identityClient: IdentityClient,
     private readonly periods: RegistrationPeriods,
     private readonly clock: Clock,
+    private readonly moet: MoetImports,
   ) {}
 
-  template(type: ImportType): Promise<Buffer> {
+  template(type: TemplateImportType): Promise<Buffer> {
     return buildTemplate(TEMPLATE_TITLES[type], IMPORT_COLUMNS[type]);
   }
 
@@ -182,12 +198,22 @@ export class ImportsService {
     fileName: string,
     body: Buffer,
     origin: ChangeOrigin,
+    orgUnitId: string | null = null,
   ): Promise<ImportJobView> {
     const { database } = await this.currentSchoolYear.require();
-    const rows = await readSheet(body, IMPORT_COLUMNS[type]);
-    const { errors } = await this.validate(database, currentUser, type, rows);
+    let errors: RowError[];
+    let totalRows: number;
+    let preview: MoetPreview | null = null;
+    if (isMoetType(type)) {
+      ({ errors, totalRows, preview } = await this.validateMoet(database, currentUser, type, orgUnitId ?? '', body));
+    } else {
+      const rows = await readSheet(body, IMPORT_COLUMNS[type]);
+      errors = (await this.validate(database, currentUser, type, rows)).errors;
+      totalRows = rows.length;
+    }
     const storageKey = `import/${randomUUID()}`;
-    await this.fileStorage.put(storageKey, body, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    const contentType = contentTypeOf(body);
+    await this.fileStorage.put(storageKey, body, contentType);
     return database.transaction().execute(async (transaction) => {
       const file = await transaction
         .insertInto('files')
@@ -195,7 +221,7 @@ export class ImportsService {
           org_unit_id: null,
           purpose: 'import',
           file_name: fileName.slice(0, 200),
-          content_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          content_type: contentType,
           size_bytes: body.length,
           storage_key: storageKey,
           created_by: origin.actorUserId,
@@ -206,9 +232,11 @@ export class ImportsService {
         .insertInto('data_import_jobs')
         .values({
           import_type: type,
+          org_unit_id: isMoetType(type) ? orgUnitId : null,
+          preview: preview ? JSON.stringify(preview) : null,
           file_id: file.id,
           status: errors.length > 0 ? 'failed' : 'validated',
-          total_rows: rows.length,
+          total_rows: totalRows,
           error_rows: new Set(errors.map((error) => error.row)).size,
           errors: JSON.stringify(errors),
           created_by: origin.actorUserId,
@@ -235,7 +263,13 @@ export class ImportsService {
     const job = await database
       .selectFrom('data_import_jobs')
       .innerJoin('files', 'files.id', 'data_import_jobs.file_id')
-      .select(['data_import_jobs.id', 'data_import_jobs.import_type', 'data_import_jobs.status', 'files.storage_key'])
+      .select([
+        'data_import_jobs.id',
+        'data_import_jobs.import_type',
+        'data_import_jobs.org_unit_id',
+        'data_import_jobs.status',
+        'files.storage_key',
+      ])
       .where('data_import_jobs.id', '=', jobId)
       .executeTakeFirst();
     if (!job || job.import_type === 'moet_codes') {
@@ -248,6 +282,9 @@ export class ImportsService {
       );
     }
     const type = job.import_type;
+    if (isMoetType(type)) {
+      return this.commitMoet(database, currentUser, accessToken, type, job, origin);
+    }
     const rows = await readSheet(await this.fileStorage.get(job.storage_key), IMPORT_COLUMNS[type]);
     const validated = await this.validate(database, currentUser, type, rows);
     if (validated.errors.length > 0) {
@@ -436,19 +473,86 @@ export class ImportsService {
   private async readJob(database: Executor, jobId: string): Promise<ImportJobView> {
     const job = await database
       .selectFrom('data_import_jobs')
-      .select(['id', 'import_type', 'status', 'total_rows', 'error_rows', 'errors', 'created_at', 'committed_at'])
+      .select([
+        'id',
+        'import_type',
+        'org_unit_id',
+        'status',
+        'total_rows',
+        'error_rows',
+        'errors',
+        'preview',
+        'created_at',
+        'committed_at',
+      ])
       .where('id', '=', jobId)
       .executeTakeFirst();
     if (!job) {
       throw notFoundError('Không tìm thấy lần nhập', 'data_import_job');
     }
-    return { ...job, errors: job.errors as RowError[] };
+    return { ...job, errors: job.errors as RowError[], preview: (job.preview ?? null) as MoetPreview | null };
+  }
+
+  private validateMoet(
+    database: Executor,
+    currentUser: CurrentUser,
+    type: MoetImportType,
+    orgUnitId: string,
+    body: Buffer,
+  ) {
+    return type === 'moet_children'
+      ? this.moet.validateChildren(database, currentUser, orgUnitId, body)
+      : this.moet.validateStaff(database, currentUser, orgUnitId, body);
+  }
+
+  // Tệp CSDL ngành: kiểm tra lại theo đơn vị đã chọn lúc tải lên rồi mới ghi; còn dòng lỗi thì không ghi dòng nào
+  private async commitMoet(
+    database: Kysely<SchoolYearDatabase>,
+    currentUser: CurrentUser,
+    accessToken: string,
+    type: MoetImportType,
+    job: { id: string; org_unit_id: string | null; storage_key: string },
+    origin: ChangeOrigin,
+  ): Promise<ImportJobView> {
+    const body = await this.fileStorage.get(job.storage_key);
+    const orgUnitId = job.org_unit_id ?? '';
+    const children =
+      type === 'moet_children' ? await this.moet.validateChildren(database, currentUser, orgUnitId, body) : null;
+    const staff = type === 'moet_staff' ? await this.moet.validateStaff(database, currentUser, orgUnitId, body) : null;
+    const validated = children ?? staff;
+    if (!validated) {
+      throw notFoundError('Không tìm thấy lần nhập', 'data_import_job');
+    }
+    if (validated.errors.length > 0) {
+      await database
+        .updateTable('data_import_jobs')
+        .set({
+          status: 'failed',
+          errors: JSON.stringify(validated.errors),
+          error_rows: new Set(validated.errors.map((error) => error.row)).size,
+          preview: JSON.stringify(validated.preview),
+        })
+        .where('id', '=', job.id)
+        .execute();
+      throw ruleViolationError('P01-13', 'Dữ liệu đã thay đổi từ lúc kiểm tra; tệp còn dòng lỗi, không ghi dòng nào');
+    }
+    await database
+      .updateTable('data_import_jobs')
+      .set({ preview: JSON.stringify(validated.preview) })
+      .where('id', '=', job.id)
+      .execute();
+    if (children) {
+      await this.moet.commitChildren(database, accessToken, children.plans, job.id, origin);
+    } else if (staff) {
+      await this.moet.commitStaff(database, staff.plans, job.id, origin);
+    }
+    return this.readJob(database, job.id);
   }
 
   private async validate(
     database: Executor,
     currentUser: CurrentUser,
-    type: UploadType,
+    type: TemplateUploadType,
     rows: SheetRow[],
   ): Promise<{
     errors: RowError[];
@@ -1083,7 +1187,7 @@ export class ImportsService {
     });
   }
 
-  assertImportType(value: unknown): ImportType {
+  assertImportType(value: unknown): TemplateImportType {
     if (
       value === 'classes' ||
       value === 'children' ||

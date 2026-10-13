@@ -118,6 +118,7 @@ import { FileStorage, S3FileStorage } from './files/file-storage.js';
 import { FilesController, FilesService } from './files/files.js';
 import { ImportsController } from './imports/imports.controller.js';
 import { ImportsService } from './imports/imports.service.js';
+import { MoetImports } from './imports/moet-imports.js';
 import { AttendanceController } from './attendance/attendance.controller.js';
 import { AttendanceService } from './attendance/attendance.service.js';
 import { PickupsController } from './pickups/pickups.controller.js';
@@ -416,6 +417,7 @@ export class ApplicationModule {
         ChildDataProtection,
         FilesService,
         ImportsService,
+        MoetImports,
         AttendanceService,
         PickupsService,
         ServicesService,

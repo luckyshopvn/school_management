@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { StaffPayItemsSection } from '../payroll/StaffPayItemsSection.js';
+import { MoetProfileSection } from '../imports/MoetProfileSection.js';
 import { WorkHistorySection } from './WorkHistorySection.js';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
@@ -94,6 +95,12 @@ export function StaffDetailPanel({ staffId, onChanged }: { staffId: string; onCh
         <dd>{data.phone ?? ''}</dd>
         <dt className="text-text-secondary">Ngày vào làm</dt>
         <dd>{data.start_date}</dd>
+        {data.moet_staff_code ? (
+          <>
+            <dt className="text-text-secondary">Mã định danh Bộ GD&amp;ĐT</dt>
+            <dd>{data.moet_staff_code}</dd>
+          </>
+        ) : null}
       </dl>
       <div className="flex flex-wrap items-end gap-2">
         <span className="text-content">Tài khoản: {data.has_account ? 'đã liên kết' : 'chưa liên kết'}</span>
@@ -233,6 +240,7 @@ export function StaffDetailPanel({ staffId, onChanged }: { staffId: string; onCh
       ) : null}
       <StaffPayItemsSection staffId={staffId} />
       <WorkHistorySection staffId={staffId} />
+      <MoetProfileSection entries={data.moet_profile} />
     </div>
   );
 }

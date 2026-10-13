@@ -11,6 +11,7 @@ import { ChildDataProtection, maskNationalId } from '../common/child-data-protec
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { queueNotification } from '../common/notification-queue.js';
 import { conflictOnDuplicate, notFoundError } from '../common/request-fields.js';
+import { MOET_STAFF_COLUMNS, describeMoetProfile } from '../imports/moet-columns.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { SettingsService } from '../settings/settings.service.js';
 
@@ -115,9 +116,17 @@ export class StaffService {
       throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không có quyền xem hồ sơ nhân sự này');
     }
     const showContracts = isSelf || (await this.inScope(currentUser, PERMISSION_CODES.contractView, staff.org_unit_id));
+    const moet = await database
+      .selectFrom('staff')
+      .select(['moet_staff_code', 'moet_profile'])
+      .where('id', '=', staffId)
+      .executeTakeFirstOrThrow();
     return {
       ...this.toView(staff),
       contracts: showContracts ? await this.contracts(database, staffId) : null,
+      // Thông tin theo CSDL ngành, chỉ đọc (YCTD-100)
+      moet_staff_code: moet.moet_staff_code,
+      moet_profile: describeMoetProfile(moet.moet_profile, MOET_STAFF_COLUMNS),
     };
   }
 

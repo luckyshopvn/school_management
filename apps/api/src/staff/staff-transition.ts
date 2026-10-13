@@ -13,7 +13,10 @@ export const staffTransitionStep: AcademicYearTransitionStep = {
     const previous = context.previousDatabase as Kysely<SchoolYearDatabase>;
     const next = context.newDatabase as Kysely<SchoolYearDatabase>;
     for (const row of await previous.selectFrom('staff').selectAll().execute()) {
-      await next.insertInto('staff').values(row).execute();
+      await next
+        .insertInto('staff')
+        .values({ ...row, moet_profile: row.moet_profile ? JSON.stringify(row.moet_profile) : null })
+        .execute();
     }
     for (const row of await previous.selectFrom('employment_contracts').selectAll().execute()) {
       await next

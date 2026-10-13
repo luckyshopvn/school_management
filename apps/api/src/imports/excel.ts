@@ -1,5 +1,6 @@
 import ExcelJS from 'exceljs';
 import { validationError } from '@school-management/server';
+import * as XLSX from 'xlsx';
 
 // Đọc và tạo tệp Excel cho nhập dữ liệu (P01-13, P02-12, BM-27, BM-63)
 export const MAXIMUM_IMPORT_BYTES = 5 * 1024 * 1024;
@@ -116,4 +117,77 @@ export function parseDate(text: string): string | null {
     return null;
   }
   return date.toISOString().slice(0, 10);
+}
+
+// Tệp xls (Excel 97-2003) là tệp ghép OLE2, bắt đầu bằng chữ ký D0 CF 11 E0 A1 B1 1A E1
+const OLE2_SIGNATURE = [0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1];
+
+function isOle2(body: Buffer): boolean {
+  return body.length > 8 && OLE2_SIGNATURE.every((byte, index) => body[index] === byte);
+}
+
+export interface WorkbookTable {
+  // Tiêu đề từng cột theo vị trí, đã gộp khoảng trắng và xuống dòng; cột không tiêu đề là chuỗi rỗng
+  headers: string[];
+  // Dòng dữ liệu (số dòng như Excel hiển thị) và giá trị từng ô theo vị trí, dạng chữ; ô ngày đổi thành YYYY-MM-DD
+  rows: Array<{ row: number; cells: string[] }>;
+}
+
+export const normalizeHeader = (text: string) => text.replace(/\s+/g, ' ').trim();
+
+function plainCell(value: unknown): string {
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? '' : value.toISOString().slice(0, 10);
+  }
+  if (value === null || value === undefined) {
+    return '';
+  }
+  return String(value).trim();
+}
+
+// Đọc trang tính đầu tiên của tệp xls hoặc xlsx bằng SheetJS (tệp xuất từ CSDL ngành là xls, exceljs không đọc được);
+// dòng tiêu đề là dòng đầu tiên trong năm dòng đầu có đủ các tiêu đề nhận diện; bỏ qua dòng trống (YCTD-100)
+export function readWorkbookTable(body: Buffer, identifyingHeaders: string[]): WorkbookTable {
+  if (!isZip(body) && !isOle2(body)) {
+    throw validationError([{ field: 'file', message: 'Tệp không phải Excel dạng xls hoặc xlsx' }]);
+  }
+  let grid: unknown[][];
+  // Dòng đầu của vùng dữ liệu trang tính (bắt đầu từ 0), để báo số dòng đúng như Excel
+  let firstRow = 0;
+  try {
+    const workbook = XLSX.read(body, { type: 'buffer', cellDates: true, UTC: true, dense: true });
+    const firstName = workbook.SheetNames[0];
+    const sheet = firstName ? workbook.Sheets[firstName] : undefined;
+    firstRow = sheet?.['!ref'] ? XLSX.utils.decode_range(sheet['!ref']).s.r : 0;
+    grid = sheet
+      ? XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, raw: true, defval: '', blankrows: true, UTC: true })
+      : [];
+  } catch {
+    throw validationError([{ field: 'file', message: 'Không đọc được tệp Excel' }]);
+  }
+  const wanted = identifyingHeaders.map((header) => header.toLowerCase());
+  const headerIndex = grid.slice(0, 5).findIndex((cells) => {
+    const texts = cells.map((cell) => normalizeHeader(plainCell(cell)).toLowerCase());
+    return wanted.every((header) => texts.includes(header));
+  });
+  if (headerIndex < 0) {
+    throw validationError([
+      { field: 'file', message: `Không tìm thấy dòng tiêu đề có các cột: ${identifyingHeaders.join(', ')}` },
+    ]);
+  }
+  const headers = (grid[headerIndex] ?? []).map((cell) => normalizeHeader(plainCell(cell)));
+  const rows: WorkbookTable['rows'] = [];
+  grid.slice(headerIndex + 1).forEach((cells, offset) => {
+    const texts = headers.map((_, index) => plainCell(cells[index]));
+    if (texts.some((text) => text !== '')) {
+      rows.push({ row: firstRow + headerIndex + offset + 2, cells: texts });
+    }
+  });
+  if (rows.length === 0) {
+    throw validationError([{ field: 'file', message: 'Tệp chưa có dòng dữ liệu nào' }]);
+  }
+  if (rows.length > MAXIMUM_IMPORT_ROWS) {
+    throw validationError([{ field: 'file', message: `Mỗi tệp tối đa ${MAXIMUM_IMPORT_ROWS} dòng` }]);
+  }
+  return { headers, rows };
 }
