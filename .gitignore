@@ -7,3 +7,6 @@ coverage/
 test-results/
 playwright-report/
 .claude/settings.local.json
+# Cấu hình môi trường chạy thật chứa bí mật (YCTD-92); chỉ đưa tệp mẫu lên kho
+deploy/.env.*
+!deploy/.env.production.example

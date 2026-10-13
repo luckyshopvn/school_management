@@ -66,3 +66,45 @@ jobs:
       - run: node apps/api/dist/generate-data-keys.js >> "$GITHUB_ENV"
       - run: pnpm --filter @school-management/tests exec playwright install --with-deps chromium
       - run: pnpm test:e2e
+
+  # Dựng ảnh Docker của môi trường chạy thật (không đẩy lên kho ảnh) để phát hiện sớm Dockerfile hỏng (YCTD-92)
+  dung-anh-docker:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: api
+            dockerfile: deploy/docker/server.Dockerfile
+            target: api
+          - image: identity
+            dockerfile: deploy/docker/server.Dockerfile
+            target: identity
+          - image: web
+            dockerfile: deploy/docker/web.Dockerfile
+            target: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          target: ${{ matrix.target }}
+          push: false
+          load: ${{ matrix.image == 'web' }}
+          tags: school-management/${{ matrix.image }}:ci
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
+      - name: Kiểm tra cú pháp tệp Docker Compose của môi trường chạy thật
+        if: matrix.image == 'web'
+        run: |
+          cp deploy/.env.production.example deploy/.env
+          sh deploy/scripts/generate-keys.sh deploy/.env
+          docker compose -f deploy/docker-compose.production.yml --env-file deploy/.env config --quiet
+      - name: Kiểm tra cấu hình Caddy
+        if: matrix.image == 'web'
+        run: >-
+          docker run --rm -e ACME_EMAIL=ci@example.com -e PORTAL_SITE=portal.example.com
+          -e PARENT_SITE=phuhuynh.example.com -e TEACHER_SITE=giaovien.example.com -e API_SITE=api.example.com
+          school-management/web:ci caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile

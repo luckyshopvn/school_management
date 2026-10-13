@@ -1,0 +1,218 @@
+# Môi trường chạy thật trên một máy chủ Linux với Docker Compose (YCTD-92, việc T6).
+# Chạy từ thư mục gốc kho mã nguồn:
+#   docker compose -f deploy/docker-compose.production.yml --env-file deploy/.env up -d --build
+# Chỉ dịch vụ `web` (Caddy) mở cổng ra ngoài; PostgreSQL, Redis, kho tệp, máy chủ API, dịch vụ định danh chỉ nghe trong mạng
+# nội bộ của Docker. Hướng dẫn đầy đủ: deploy/README.md.
+name: ${COMPOSE_PROJECT_NAME:-school-management}
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: '20m'
+    max-file: '5'
+
+x-node-environment: &node-environment
+  NODE_ENV: ${NODE_ENV:-production}
+  TZ: Asia/Ho_Chi_Minh
+  # Máy chủ chuyển tiếp Caddy ở mạng nội bộ của Docker; tin X-Forwarded-For từ các địa chỉ nội bộ
+  TRUST_PROXY: ${TRUST_PROXY:-uniquelocal}
+  TOKEN_PUBLIC_KEY: ${TOKEN_PUBLIC_KEY:?Thiếu TOKEN_PUBLIC_KEY}
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    shm_size: 256mb
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Thiếu POSTGRES_PASSWORD}
+      IDENTITY_DATABASE_PASSWORD: ${IDENTITY_DATABASE_PASSWORD:?Thiếu IDENTITY_DATABASE_PASSWORD}
+      API_DATABASE_PASSWORD: ${API_DATABASE_PASSWORD:?Thiếu API_DATABASE_PASSWORD}
+      TZ: Asia/Ho_Chi_Minh
+    command:
+      - postgres
+      - -c
+      - max_connections=${POSTGRES_MAX_CONNECTIONS:-200}
+      - -c
+      - shared_buffers=${POSTGRES_SHARED_BUFFERS:-512MB}
+      - -c
+      - effective_cache_size=${POSTGRES_EFFECTIVE_CACHE_SIZE:-2GB}
+      - -c
+      - log_min_duration_statement=${POSTGRES_LOG_MIN_DURATION_MS:-1000}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      # Tạo tài khoản identity_service, api_service (có CREATEDB để mở năm học, QĐ-21) và hai cơ sở dữ liệu ở lần chạy đầu
+      - ../docker/postgres/create-databases.sh:/docker-entrypoint-initdb.d/create-databases.sh:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: *logging
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command:
+      - redis-server
+      - --appendonly
+      - 'yes'
+      - --requirepass
+      - ${REDIS_PASSWORD:?Thiếu REDIS_PASSWORD}
+    environment:
+      REDISCLI_AUTH: ${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: *logging
+
+  # Kho tệp tương thích S3 chạy cùng máy (YCTD-45). Khi dùng kho đối tượng của nhà cung cấp đám mây: đặt S3_ENDPOINT,
+  # S3_BUCKET, khóa truy cập của nhà cung cấp trong .env và chạy không có dịch vụ này (COMPOSE_PROFILES để trống)
+  seaweedfs:
+    image: chrislusf/seaweedfs:3.80
+    profiles: ['seaweedfs']
+    restart: unless-stopped
+    environment:
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?Thiếu S3_ACCESS_KEY_ID}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?Thiếu S3_SECRET_ACCESS_KEY}
+    # Bật kiểm tra khóa truy cập S3 bằng tệp cấu hình sinh lúc khởi động từ biến môi trường
+    entrypoint:
+      - /bin/sh
+      - -c
+      - >-
+        printf '{"identities":[{"name":"school","credentials":[{"accessKey":"%s","secretKey":"%s"}],"actions":["Admin","Read","Write","List","Tagging"]}]}'
+        "$$S3_ACCESS_KEY_ID" "$$S3_SECRET_ACCESS_KEY" > /tmp/s3.json &&
+        exec weed server -dir=/data -volume.max=0 -master.volumeSizeLimitMB=1024 -s3 -s3.config=/tmp/s3.json
+    volumes:
+      - seaweedfs-data:/data
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -q -O /dev/null http://127.0.0.1:9333/cluster/status || exit 1']
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    logging: *logging
+
+  # Chạy tệp thay đổi cấu trúc cho cơ sở dữ liệu định danh, hệ thống và năm học đang dùng rồi dừng; dịch vụ định danh và
+  # máy chủ API chỉ khởi động khi bước này thành công
+  migrate:
+    image: ${IMAGE_PREFIX:-school-management}/identity:${IMAGE_TAG:-latest}
+    build:
+      context: ..
+      dockerfile: deploy/docker/server.Dockerfile
+      target: identity
+    restart: 'no'
+    working_dir: /app/database
+    command: ['node', 'dist/src/migrate-command.js']
+    environment:
+      TZ: Asia/Ho_Chi_Minh
+      IDENTITY_DATABASE_URL: postgres://identity_service:${IDENTITY_DATABASE_PASSWORD}@postgres:5432/school_identity
+      SYSTEM_DATABASE_URL: postgres://api_service:${API_DATABASE_PASSWORD}@postgres:5432/school_system
+    healthcheck:
+      disable: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    logging: *logging
+
+  identity:
+    image: ${IMAGE_PREFIX:-school-management}/identity:${IMAGE_TAG:-latest}
+    build:
+      context: ..
+      dockerfile: deploy/docker/server.Dockerfile
+      target: identity
+    restart: unless-stopped
+    environment:
+      <<: *node-environment
+      IDENTITY_PORT: 3001
+      IDENTITY_DATABASE_URL: postgres://identity_service:${IDENTITY_DATABASE_PASSWORD}@postgres:5432/school_identity
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      IDENTITY_TOKEN_PRIVATE_KEY: ${IDENTITY_TOKEN_PRIVATE_KEY:?Thiếu IDENTITY_TOKEN_PRIVATE_KEY}
+      API_BASE_URL: http://api:3000
+      LOGIN_REQUESTS_PER_MINUTE: ${LOGIN_REQUESTS_PER_MINUTE:-10}
+      SMS_PROVIDER: ${SMS_PROVIDER:-log}
+      ESMS_API_KEY: ${ESMS_API_KEY:-}
+      ESMS_SECRET_KEY: ${ESMS_SECRET_KEY:-}
+      ESMS_BRANDNAME: ${ESMS_BRANDNAME:-}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    logging: *logging
+
+  api:
+    image: ${IMAGE_PREFIX:-school-management}/api:${IMAGE_TAG:-latest}
+    build:
+      context: ..
+      dockerfile: deploy/docker/server.Dockerfile
+      target: api
+    restart: unless-stopped
+    environment:
+      <<: *node-environment
+      API_PORT: 3000
+      IDENTITY_BASE_URL: http://identity:3001
+      SYSTEM_DATABASE_URL: postgres://api_service:${API_DATABASE_PASSWORD}@postgres:5432/school_system
+      SCHOOL_YEAR_DATABASE_PREFIX: school_year_
+      CHILD_DATA_ENCRYPTION_KEY: ${CHILD_DATA_ENCRYPTION_KEY:?Thiếu CHILD_DATA_ENCRYPTION_KEY}
+      CHILD_DATA_HASH_KEY: ${CHILD_DATA_HASH_KEY:?Thiếu CHILD_DATA_HASH_KEY}
+      S3_ENDPOINT: ${S3_ENDPOINT:-http://seaweedfs:8333}
+      S3_REGION: ${S3_REGION:-us-east-1}
+      S3_BUCKET: ${S3_BUCKET:-school-files}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?Thiếu S3_ACCESS_KEY_ID}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?Thiếu S3_SECRET_ACCESS_KEY}
+      PAYMENT_GATEWAY: ${PAYMENT_GATEWAY:-}
+      NOTIFICATION_DISPATCH_INTERVAL_SECONDS: ${NOTIFICATION_DISPATCH_INTERVAL_SECONDS:-60}
+      FACEBOOK_PUBLISHER: ${FACEBOOK_PUBLISHER:-}
+      FACEBOOK_PAGE_ACCESS_TOKEN: ${FACEBOOK_PAGE_ACCESS_TOKEN:-}
+      ZALO_SENDER: ${ZALO_SENDER:-}
+      ZALO_OA_ACCESS_TOKEN: ${ZALO_OA_ACCESS_TOKEN:-}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      seaweedfs:
+        condition: service_healthy
+        required: false
+    logging: *logging
+
+  # Caddy: phục vụ ba giao diện, chuyển /api/v1 sang hai dịch vụ, tự cấp và gia hạn chứng chỉ HTTPS
+  web:
+    image: ${IMAGE_PREFIX:-school-management}/web:${IMAGE_TAG:-latest}
+    build:
+      context: ..
+      dockerfile: deploy/docker/web.Dockerfile
+    restart: unless-stopped
+    environment:
+      ACME_EMAIL: ${ACME_EMAIL:?Thiếu ACME_EMAIL}
+      PORTAL_SITE: ${PORTAL_SITE:?Thiếu PORTAL_SITE}
+      PARENT_SITE: ${PARENT_SITE:?Thiếu PARENT_SITE}
+      TEACHER_SITE: ${TEACHER_SITE:?Thiếu TEACHER_SITE}
+      API_SITE: ${API_SITE:?Thiếu API_SITE}
+    ports:
+      - '${HTTP_PORT:-80}:80'
+      - '${HTTPS_PORT:-443}:443'
+      - '${HTTPS_PORT:-443}:443/udp'
+    volumes:
+      - caddy-data:/data
+      - caddy-config:/config
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -q -O /dev/null http://127.0.0.1:2019/config/ || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      identity:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    logging: *logging
+
+volumes:
+  postgres-data:
+  redis-data:
+  seaweedfs-data:
+  caddy-data:
+  caddy-config:

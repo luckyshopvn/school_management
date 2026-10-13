@@ -21,3 +21,4 @@ export {
   type AccessTokenClaims,
   type SessionChannel,
 } from './access-token.js';
+export { applyTrustProxy, parseTrustProxy } from './trust-proxy.js';
