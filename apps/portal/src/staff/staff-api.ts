@@ -1,3 +1,4 @@
+import type { MoetProfileEntry } from '../imports/MoetProfileSection.js';
 import { requestJson } from '../session/api-client.js';
 
 // Gọi nhóm điểm cuối hồ sơ nhân sự và hợp đồng lao động (P07-01, P07-02, P07-04; YCTD-58)
@@ -46,6 +47,9 @@ export interface Contract {
 
 export interface StaffDetail extends Staff {
   contracts: Contract[] | null;
+  // Mã định danh Bộ GD&ĐT và thông tin theo CSDL ngành, chỉ đọc (YCTD-100)
+  moet_staff_code?: string | null;
+  moet_profile?: MoetProfileEntry[] | null;
 }
 
 export interface StaffInput {

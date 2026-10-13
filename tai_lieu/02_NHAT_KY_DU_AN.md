@@ -14,6 +14,44 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-13 — DT-13 phần 13c: báo cáo điểm danh và suất ăn theo ngày, tuần, tháng
+
+#### Công việc đã thực hiện
+
+- Báo cáo điểm danh và suất ăn theo ngày, tuần, tháng trên màn hình và Excel theo mẫu của trường; suất ăn theo lớp cho bếp.
+- Thêm kịch bản CT-289 đến CT-299.
+
+#### Quyết định
+
+- Eric chọn nhà cung cấp ngày 13/10/2026 (YCTD-92); các điểm kỹ thuật Claude tự chọn ghi ở YCTD-103.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-103 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.55.0.
+
+#### Vấn đề tồn đọng
+
+- Kiểm với tài khoản thật khi Eric cấp khóa lúc triển khai (việc T6).
+
+### 2026-10-13 — DT-13 phần 13a: nhập thẳng tệp học sinh, cán bộ theo mẫu CSDL ngành
+
+#### Công việc đã thực hiện
+
+- Nhập thẳng tệp học sinh, cán bộ theo mẫu CSDL ngành (.xls, .xlsx), lưu đủ 82 và 75 cột; chạy thử với tệp mẫu thật của trường trên cơ sở dữ liệu tạm.
+- Thêm kịch bản CT-275 đến CT-288.
+
+#### Quyết định
+
+- Eric chọn nhà cung cấp ngày 13/10/2026 (YCTD-92); các điểm kỹ thuật Claude tự chọn ghi ở YCTD-100.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-100 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.54.0.
+
+#### Vấn đề tồn đọng
+
+- Kiểm với tài khoản thật khi Eric cấp khóa lúc triển khai (việc T6).
+
 ### 2026-10-13 — Menu sổ xuống chọn phân hệ
 
 #### Công việc đã thực hiện

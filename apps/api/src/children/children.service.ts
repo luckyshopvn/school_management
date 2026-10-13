@@ -18,6 +18,7 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { writeDataAccessLog } from '../common/data-access-log.js';
 import { queueNotification } from '../common/notification-queue.js';
 import { notFoundError } from '../common/request-fields.js';
+import { MOET_CHILD_COLUMNS, describeMoetProfile } from '../imports/moet-columns.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { ChildScope } from './child-scope.js';
 
@@ -821,6 +822,7 @@ export class ChildrenService {
         'reject_reason',
         'submitted_at',
         'approved_at',
+        'moet_profile',
       ])
       .where('id', '=', childId)
       .executeTakeFirstOrThrow();
@@ -869,11 +871,13 @@ export class ChildrenService {
           .where('child_id', '=', childId)
           .executeTakeFirst()) ?? null)
       : null;
-    const { national_id_last4: lastFour, special_needs_note: specialNeeds, ...rest } = child;
+    const { national_id_last4: lastFour, special_needs_note: specialNeeds, moet_profile: moetProfile, ...rest } = child;
     return {
       ...rest,
       national_id_masked: maskNationalId(lastFour),
       special_needs_note: canSeeHealth ? specialNeeds : null,
+      // Cột CSDL ngành (khuyết tật, bệnh về mắt, diện chính sách...) xem cùng nhóm vai trò xem sức khỏe (BR-53, YCTD-100)
+      moet_profile: canSeeHealth ? describeMoetProfile(moetProfile, MOET_CHILD_COLUMNS) : null,
       health,
       guardians: guardians.map(({ user_id: userId, ...guardian }) => ({ ...guardian, has_account: userId !== null })),
       enrollments,

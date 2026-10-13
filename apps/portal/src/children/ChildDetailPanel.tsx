@@ -5,6 +5,7 @@ import { Alert, Button, ConfirmDialog, StatusBadge, TextField } from '@school-ma
 import { listClasses } from '../classes/classes-api.js';
 import { ApiError, fetchWithSession } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
+import { MoetProfileSection } from '../imports/MoetProfileSection.js';
 import { AuthorizedPickupsSection } from './AuthorizedPickupsSection.js';
 import { ChildLifecycleSection } from './ChildLifecycleSection.js';
 import {
@@ -343,6 +344,8 @@ export function ChildDetailPanel({ childId, onChanged }: { childId: string; onCh
       ) : null}
 
       {data.status === 'active' ? <AuthorizedPickupsSection childId={data.id} childName={data.full_name} /> : null}
+
+      <MoetProfileSection entries={data.moet_profile} />
 
       {pendingCapacity ? (
         <ConfirmDialog

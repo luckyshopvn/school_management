@@ -6,7 +6,7 @@ import type { Request, Response } from 'express';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf } from '../common/audit-log.js';
-import type { RequestBody } from '../common/request-fields.js';
+import { isUuid, type RequestBody } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { MAXIMUM_IMPORT_BYTES } from './excel.js';
 import { ImportsService } from './imports.service.js';
@@ -26,16 +26,21 @@ function requireFile(file: UploadedPart | undefined): UploadedPart {
 
 const fileName = (file: UploadedPart) => Buffer.from(file.originalname, 'latin1').toString('utf8');
 
-// Quyền theo loại dữ liệu nhập: lớp và trẻ chỉ Hiệu trưởng, công nợ đầu kỳ cho kế toán (YCTD-54)
+// Quyền theo loại dữ liệu nhập: lớp và trẻ chỉ Hiệu trưởng, công nợ đầu kỳ cho kế toán (YCTD-54); tệp CSDL ngành của trẻ
+// như nhập trẻ, của nhân sự như nhập nhân sự (YCTD-100)
 function permissionOf(type: string): string {
   return type === 'moet_codes'
     ? PERMISSION_CODES.childManage
     : type === 'opening_debts'
       ? PERMISSION_CODES.openingDebtImport
-      : type === 'staff'
+      : type === 'staff' || type === 'moet_staff'
         ? PERMISSION_CODES.importStaff
         : PERMISSION_CODES.importChildren;
 }
+
+const UPLOAD_TYPES = ['classes', 'children', 'opening_debts', 'staff', 'moet_children', 'moet_staff'] as const;
+type UploadType = (typeof UPLOAD_TYPES)[number];
+const isUploadType = (value: unknown): value is UploadType => UPLOAD_TYPES.includes(value as UploadType);
 
 function assertCanImport(currentUser: CurrentUser, type: string): void {
   if (!currentUser.hasPermission(permissionOf(type))) {
@@ -97,10 +102,16 @@ export class ImportsController {
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
     const type = body?.type;
-    if (type !== 'classes' && type !== 'children' && type !== 'opening_debts' && type !== 'staff') {
-      throw validationError([{ field: 'type', message: 'Loại dữ liệu nhập là classes, children hoặc opening_debts' }]);
+    if (!isUploadType(type)) {
+      throw validationError([{ field: 'type', message: `Loại dữ liệu nhập là ${UPLOAD_TYPES.join(', ')}` }]);
     }
     assertCanImport(currentUser, type);
+    // Tệp CSDL ngành không có đơn vị: người nhập chọn đơn vị để so khớp lớp và gắn hồ sơ mới (YCTD-100)
+    const isMoet = type === 'moet_children' || type === 'moet_staff';
+    const orgUnitId = body?.org_unit_id;
+    if (isMoet && !isUuid(orgUnitId)) {
+      throw validationError([{ field: 'org_unit_id', message: 'Chọn đơn vị' }]);
+    }
     const uploaded = requireFile(file);
     return this.importsService.upload(
       currentUser,
@@ -108,6 +119,7 @@ export class ImportsController {
       fileName(uploaded),
       uploaded.buffer,
       originOf(request, currentUser),
+      isMoet ? (orgUnitId as string) : null,
     );
   }
 

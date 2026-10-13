@@ -1,3 +1,4 @@
+import type { MoetProfileEntry } from '../imports/MoetProfileSection.js';
 import { ApiError, requestJson } from '../session/api-client.js';
 
 // Gọi nhóm điểm cuối hồ sơ trẻ và tệp đính kèm của máy chủ API (QT-01, YCTD-45)
@@ -75,6 +76,8 @@ export interface ChildDetail extends Omit<ChildListItem, 'class_id' | 'class_nam
   guardians: ChildGuardian[];
   enrollments: ChildEnrollment[];
   current_class: ChildEnrollment | null;
+  // Thông tin theo CSDL ngành, chỉ đọc (YCTD-100)
+  moet_profile?: MoetProfileEntry[] | null;
 }
 
 export interface ChildPage {

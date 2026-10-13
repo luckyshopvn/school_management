@@ -55,6 +55,8 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.2.0 | Bốn thay đổi: Ban Giám hiệu, nhiều cấp đơn vị, tách giao diện và máy chủ, dịch vụ định danh | 01 đến 07 | Đã có |
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
+| 0.55.0 | DT-13 phần 13c, báo cáo điểm danh và suất ăn theo ngày, tuần, tháng (YCTD-103) | 13, 21 | Đã có |
+| 0.54.0 | DT-13 phần 13a, nhập thẳng tệp học sinh, cán bộ theo mẫu CSDL ngành (YCTD-100) | 13, 21 | Đã có |
 | 0.53.0 | DT-12 phần 12d, cấu hình triển khai môi trường chạy thật (YCTD-98) | 13, 21 | Đã có |
 | 0.52.0 | DT-12 phần 12c, Fanpage và Zalo Official Account chạy thật (YCTD-95) | 13, 21 | Đã có |
 | 0.51.0 | DT-12 phần 12b, cổng thanh toán PayOS, SePay, Casso, VNPay (YCTD-94) | 13, 21 | Đã có |

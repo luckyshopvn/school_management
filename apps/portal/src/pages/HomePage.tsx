@@ -6,6 +6,7 @@ import { useHasPermission } from '../session/permissions.js';
 import { BirthdayList, DashboardCards } from '../reports/DashboardCards.js';
 import { listExpiringContracts } from '../staff/staff-api.js';
 import { AppShell } from './AppShell.js';
+import { QuickAccess } from './QuickAccess.js';
 
 // Cảnh báo hợp đồng lao động sắp hết hạn theo số ngày cấu hình của đơn vị (BR-38, AC-38, YCTD-58)
 function ExpiringContracts() {
@@ -27,7 +28,7 @@ function ExpiringContracts() {
   );
 }
 
-// Trang chủ: lời chào, bảng điều khiển MH-01 theo quyền (YCTD-62), sinh nhật trẻ trong tháng, cảnh báo hợp đồng, vai trò
+// Trang chủ: lời chào, truy cập nhanh (YCTD-102), bảng điều khiển MH-01 theo quyền (YCTD-62), sinh nhật trẻ trong tháng, cảnh báo hợp đồng, vai trò
 export function HomePage() {
   const currentUser = useQuery({ queryKey: ['current-user'], queryFn: fetchCurrentUser });
   const canViewStaff = useHasPermission(PERMISSION_CODES.staffView);
@@ -44,6 +45,7 @@ export function HomePage() {
       ) : (
         <section className="flex flex-col gap-4">
           <h1 className="text-page-title font-bold text-text">Xin chào, {currentUser.data.full_name}</h1>
+          <QuickAccess />
           <DashboardCards />
           <BirthdayList />
           {canViewStaff ? <ExpiringContracts /> : null}
