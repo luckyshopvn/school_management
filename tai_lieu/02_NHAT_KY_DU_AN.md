@@ -34,6 +34,25 @@
 
 - Cấp toàn quyền cho VT-01 trong mã nguồn chưa làm: Eric tự cấp trên ma trận quyền ở máy phát triển.
 
+### 2026-10-13 — DT-12 phần 12b: cổng thanh toán PayOS, SePay, Casso, VNPay
+
+#### Công việc đã thực hiện
+
+- Viết bốn cổng thanh toán PayOS, SePay, Casso, VNPay và điểm cuối nhận thông báo; nút thanh toán VNPay trên ứng dụng phụ huynh.
+- Thêm kịch bản CT-250 đến CT-260.
+
+#### Quyết định
+
+- Eric chọn nhà cung cấp ngày 13/10/2026 (YCTD-92); các điểm kỹ thuật Claude tự chọn ghi ở YCTD-94.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-94 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.51.0.
+
+#### Vấn đề tồn đọng
+
+- Kiểm với tài khoản thật khi Eric cấp khóa lúc triển khai (việc T6).
+
 ### 2026-10-13 — DT-12 phần 12a: nối nhà cung cấp tin nhắn eSMS.vn
 
 #### Công việc đã thực hiện

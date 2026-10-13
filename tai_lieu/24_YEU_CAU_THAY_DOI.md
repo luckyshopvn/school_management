@@ -43,6 +43,25 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Kiểm thử cần thực hiện: kiểm thử giao diện `04-accounts.spec.ts` (chọn cả nhóm, bỏ chọn tất cả).
 - Trạng thái: Đã triển khai
 
+### YCTD-94: DT-12 phần 12b: cổng thanh toán PayOS, SePay, Casso, VNPay – 2026-10-13
+
+- Lý do: Eric chọn bốn nhà cung cấp thanh toán trực tuyến ngày 2026-10-13 (YCTD-92, việc T5). Các điểm kỹ thuật dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Thêm bốn cổng vào sổ đăng ký cổng thanh toán (YCTD-89): `payos` gọi API PayOS tạo yêu cầu thanh toán, nhận chuỗi VietQR theo đơn, thông báo tiền vào ký HMAC-SHA256; `sepay` và `casso` dựng VietQR tĩnh tới tài khoản thật của trường (cần mã BIN), SePay xác thực thông báo bằng khóa API, Casso bằng chữ ký HMAC-SHA512 của Webhook V2; `vnpay` dựng địa chỉ trang thanh toán đã ký HMAC-SHA512, hết hạn sau 15 phút, nhận kết quả qua IPN.
+  - Khóa chỉ đọc từ biến môi trường (`PAYOS_CLIENT_ID`, `PAYOS_API_KEY`, `PAYOS_CHECKSUM_KEY`, `PAYOS_RETURN_URL`, `SEPAY_WEBHOOK_API_KEY`, `CASSO_WEBHOOK_SECRET`, `VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET`, `VNPAY_RETURN_URL`, tùy chọn `PAYOS_CANCEL_URL`, `PAYOS_API_URL`, `VNPAY_PAYMENT_URL`). Cổng có trong `PAYMENT_GATEWAY` mà thiếu biến thì máy chủ API dừng khởi động và nêu tên biến thiếu.
+  - Điểm cuối nhận thông báo công khai, không dùng mã phiên: `POST /api/v1/payment-webhooks/payos`, `/sepay`, `/casso`, `GET /api/v1/payment-webhooks/vnpay-ipn`. Cổng chưa bật trả 404; chữ ký hoặc khóa sai trả 401 và không ghi giao dịch. IPN VNPay trả mã `00`, `97`, `01`, `04`, `02` theo quy định của VNPay.
+  - Đối chiếu giữ quy tắc YCTD-57: nội dung chuyển khoản trước, số tiền sau; PayOS và VNPay còn nối với yêu cầu thanh toán theo mã đơn của nhà cung cấp. Mã giao dịch có tiền tố nhà cung cấp (`payos-`, `sepay-`, `casso-`, `vnpay-`); gửi lại không lập phiếu thu lần hai. Giao dịch không khớp vào danh sách chờ kế toán, kể cả thông báo PayOS có mã đơn lạ (gồm dữ liệu thử khi đăng ký địa chỉ); SePay bỏ qua giao dịch tiền ra.
+  - Ứng dụng phụ huynh: mã thanh toán là địa chỉ http(s) (VNPay) thì hiện nút "Thanh toán qua VNPay" và mã QR của địa chỉ, không hiện dòng số tài khoản.
+  - Chưa thử với tài khoản thật; chưa làm truy vấn giao dịch và hoàn tiền VNPay; chưa kiểm độ lệch thời điểm của chữ ký Casso; SePay và Casso dùng VietQR tĩnh nên phụ huynh sửa được nội dung, nội dung sai thì vào danh sách chờ.
+- Thành phần bị ảnh hưởng: máy chủ API (tài chính), ứng dụng phụ huynh, `.env.example`; tài liệu `01`, `02`, `03`, `11`, `13`, `21`, `23`, `24`, `index.md`.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: bốn điểm cuối nhận thông báo của nhà cung cấp.
+- Giao diện bị ảnh hưởng: màn hình thanh toán của ứng dụng phụ huynh.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không; bộ giả lập và VietQR tĩnh giữ nguyên.
+- Kiểm thử cần thực hiện: kịch bản CT-250 đến CT-260.
+- Trạng thái: Đã triển khai
+
 ### YCTD-93: DT-12 phần 12a: nối nhà cung cấp tin nhắn eSMS.vn – 2026-10-13
 
 - Lý do: Eric chọn eSMS.vn làm nhà cung cấp tin nhắn thương hiệu ngày 2026-10-13 (YCTD-92, việc T1). Các điểm kỹ thuật dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.

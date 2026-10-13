@@ -89,7 +89,7 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | T2 | Gửi thư điện tử thông báo | Tài khoản gửi thư | Bị chặn, cần tài khoản |
 | T3 | Thông báo đẩy trên điện thoại | Khóa dịch vụ thông báo đẩy | Bị chặn, cần tài khoản |
 | T4 | Kết nối Facebook và Fanpage | Tài khoản quản trị trang và quyền ứng dụng | Đang thực hiện: nối thật ở DT-12 phần 12c; cần khóa trang khi triển khai |
-| T5 | Xác nhận chuyển khoản tự động cho thanh toán bằng mã QR | Tài khoản dịch vụ của ngân hàng hoặc đơn vị trung gian, xem Q-142 | Đang thực hiện: Eric chọn PayOS, SePay, Casso, VNPay ngày 13/10/2026, nối ở DT-12 phần 12b; cần tài khoản khi triển khai |
+| T5 | Xác nhận chuyển khoản tự động cho thanh toán bằng mã QR | Tài khoản dịch vụ của ngân hàng hoặc đơn vị trung gian, xem Q-142 | Đang thực hiện: Eric chọn PayOS, SePay, Casso, VNPay ngày 13/10/2026; kết nối đã viết ở DT-12 phần 12b (YCTD-94); cần tài khoản khi triển khai |
 | T6 | Hạ tầng chạy thật | Thuê máy chủ đám mây trong nước cho môi trường thử nghiệm và chạy thật: máy chủ, cơ sở dữ liệu, kho lưu trữ tệp | Claude chuẩn bị cấu hình triển khai ở DT-12 phần 12d; Eric thuê máy chủ sau (YCTD-92) |
 | T7 | Gửi thông báo qua Zalo | Tài khoản Zalo Official Account đã xác thực của trường | Đang thực hiện: nối thật kèm làm mới khóa ở DT-12 phần 12c; cần Official Account đã xác thực khi triển khai |
 | T8 | Kết nối tự động với cơ sở dữ liệu ngành | Tài khoản và tài liệu kết nối do Sở Giáo dục cung cấp | Bị chặn, cần tài khoản; giai đoạn 3 (G3-09) |

@@ -4,14 +4,17 @@ import { Alert } from '@school-management/ui';
 import { ApiError, requestJson } from '../session/api-client.js';
 
 // Mã QR thanh toán số còn phải nộp của một hóa đơn qua tài khoản ảo dùng một lần; trả xong thì mã hết hiệu lực
-// (P06-11; QT-04 bước 11; YCTD-57)
+// (P06-11; QT-04 bước 11; YCTD-57). Cổng VNPay trả địa chỉ trang thanh toán: hiện nút mở trang và mã QR của địa chỉ (YCTD-92)
 interface PaymentQrData {
+  provider?: string;
   amount: number;
   transfer_content: string;
   virtual_account_number: string;
   qr_content: string;
   bank_name: string | null;
 }
+
+const isPaymentUrl = (content: string) => /^https?:\/\//i.test(content);
 
 const money = (amount: number) => `${new Intl.NumberFormat('vi-VN').format(amount)} đ`;
 
@@ -48,14 +51,29 @@ export function PaymentQr({ invoiceId, invoiceCode }: { invoiceId: string; invoi
   if (!data || !image) {
     return <p className="text-content text-text-secondary">Đang tạo mã QR...</p>;
   }
+  const paymentUrl = isPaymentUrl(data.qr_content);
   return (
     <div className="flex flex-col items-center gap-2" role="group" aria-label={`Mã QR thanh toán ${invoiceCode}`}>
       <img src={image} alt={`Mã QR thanh toán ${invoiceCode}`} className="h-60 w-60" />
+      {paymentUrl ? (
+        <a
+          href={data.qr_content}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded-lg bg-brand px-4 py-2 text-label font-medium text-text hover:bg-brand-strong hover:text-white"
+        >
+          {data.provider === 'vnpay' ? 'Thanh toán qua VNPay' : 'Mở trang thanh toán'}
+        </a>
+      ) : null}
       <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-content">
         <dt className="text-text-secondary">Số tiền</dt>
         <dd className="font-semibold">{money(data.amount)}</dd>
-        <dt className="text-text-secondary">Tài khoản</dt>
-        <dd>{data.virtual_account_number}</dd>
+        {paymentUrl ? null : (
+          <>
+            <dt className="text-text-secondary">Tài khoản</dt>
+            <dd>{data.virtual_account_number}</dd>
+          </>
+        )}
         {data.bank_name ? (
           <>
             <dt className="text-text-secondary">Ngân hàng</dt>

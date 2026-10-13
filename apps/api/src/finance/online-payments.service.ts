@@ -1,7 +1,13 @@
 import { randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import type { OnlineMatchStatus, SchoolYearDatabase } from '@school-management/database';
-import { ApplicationError, Clock, ruleViolationError, validationError } from '@school-management/server';
+import {
+  ApplicationError,
+  Clock,
+  ruleViolationError,
+  unauthenticatedError,
+  validationError,
+} from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { Kysely, Transaction } from 'kysely';
 import { VIETNAM_DATE } from '../attendance/school-calendar.js';
@@ -13,6 +19,12 @@ import { notFoundError } from '../common/request-fields.js';
 import { invoiceAmounts } from '../fees/invoice-amounts.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { PaymentGatewayRegistry, type PaymentGateway } from './payment-gateway.js';
+import {
+  isWebhookGateway,
+  VnpayPaymentGateway,
+  WebhookAuthenticationError,
+  type WebhookRequest,
+} from './payment-providers.js';
 import { ReceiptsService } from './receipts.service.js';
 import { isGuardianOf } from './receivables.js';
 
@@ -30,6 +42,8 @@ export interface IncomingTransfer {
   // Cổng báo giao dịch (YCTD-89)
   provider: string;
   providerTransactionRef: string;
+  // Mã yêu cầu thanh toán ở nhà cung cấp (mã đơn PayOS, mã giao dịch VNPay): có thì tìm yêu cầu theo mã này (YCTD-92)
+  providerReference?: string | null;
   virtualAccountNumber: string | null;
   amount: number;
   transferContent: string;
@@ -257,6 +271,69 @@ export class OnlinePaymentsService {
     }
   }
 
+  // Thông báo tiền vào của nhà cung cấp thật (PayOS, SePay, Casso; YCTD-92): cổng chưa bật thì 404, chữ ký hoặc khóa sai
+  // thì 401 và không ghi giao dịch. Giao dịch có mã đơn ở nhà cung cấp mà không có yêu cầu thanh toán tương ứng vẫn ghi,
+  // đối chiếu theo nội dung và số tiền như thường; không khớp thì vào danh sách chờ kế toán, tiền không bị bỏ sót (dữ
+  // liệu thử PayOS gửi khi đăng ký địa chỉ nhận thông báo cũng vào danh sách chờ một lần)
+  async receiveWebhook(provider: string, request: WebhookRequest) {
+    const gateway = this.gateways.find(provider);
+    if (!gateway || !isWebhookGateway(gateway)) {
+      throw new ApplicationError('ERR_NOT_FOUND', 'Cổng thanh toán chưa được bật');
+    }
+    let incoming;
+    try {
+      incoming = gateway.parseWebhook(request, this.clock.now());
+    } catch (error) {
+      if (error instanceof WebhookAuthenticationError) {
+        throw unauthenticatedError(error.message);
+      }
+      throw error;
+    }
+    const received = [];
+    for (const transfer of incoming) {
+      received.push(await this.receive(transfer));
+    }
+    return received;
+  }
+
+  // Thông báo kết quả thanh toán VNPay (IPN): trả mã RspCode theo tài liệu VNPay; giao dịch không thành công vẫn xác
+  // nhận đã nhận để VNPay không gửi lại (YCTD-92)
+  async receiveVnpayIpn(query: Record<string, unknown>): Promise<{ RspCode: string; Message: string }> {
+    const gateway = this.gateways.find('vnpay');
+    if (!(gateway instanceof VnpayPaymentGateway)) {
+      throw new ApplicationError('ERR_NOT_FOUND', 'Cổng thanh toán chưa được bật');
+    }
+    const result = gateway.parseIpn(query, this.clock.now());
+    if (result.kind === 'invalid_signature') {
+      return { RspCode: '97', Message: 'Invalid signature' };
+    }
+    const request = await this.findRequest('vnpay', result.txnRef);
+    if (!request) {
+      return { RspCode: '01', Message: 'Order not found' };
+    }
+    if (result.amount !== Number(request.amount)) {
+      return { RspCode: '04', Message: 'Invalid amount' };
+    }
+    const { database } = await this.currentSchoolYear.require();
+    if (await this.findTransaction(database, `vnpay-${result.txnRef}`)) {
+      return { RspCode: '02', Message: 'Order already confirmed' };
+    }
+    if (result.incoming) {
+      await this.receive(result.incoming);
+    }
+    return { RspCode: '00', Message: 'Confirm Success' };
+  }
+
+  private async findRequest(provider: string, providerReference: string) {
+    const { database } = await this.currentSchoolYear.require();
+    return database
+      .selectFrom('payment_requests')
+      .select(['id', 'amount', 'status'])
+      .where('provider', '=', provider)
+      .where('provider_reference', '=', providerReference)
+      .executeTakeFirst();
+  }
+
   async list(currentUser: CurrentUser, filter: { pendingOnly: boolean }) {
     const units = await this.assertViewer(currentUser, null);
     const { database } = await this.currentSchoolYear.require();
@@ -345,14 +422,21 @@ export class OnlinePaymentsService {
   }
 
   private async match(transaction: Transaction<SchoolYearDatabase>, incoming: IncomingTransfer): Promise<string> {
-    const request = incoming.virtualAccountNumber
+    const request = incoming.providerReference
       ? await transaction
           .selectFrom('payment_requests')
           .select(['id', 'invoice_id', 'child_id', 'status'])
-          .where('virtual_account_number', '=', incoming.virtualAccountNumber)
-          .orderBy('created_at', 'desc')
+          .where('provider', '=', incoming.provider)
+          .where('provider_reference', '=', incoming.providerReference)
           .executeTakeFirst()
-      : undefined;
+      : incoming.virtualAccountNumber
+        ? await transaction
+            .selectFrom('payment_requests')
+            .select(['id', 'invoice_id', 'child_id', 'status'])
+            .where('virtual_account_number', '=', incoming.virtualAccountNumber)
+            .orderBy('created_at', 'desc')
+            .executeTakeFirst()
+        : undefined;
     // Nội dung có mã hóa đơn thì theo mã đó; không có thì theo hóa đơn của tài khoản ảo (Q nội dung trước, số tiền sau)
     const code = invoiceCodeIn(incoming.transferContent);
     let invoice = code
@@ -512,6 +596,7 @@ export class OnlinePaymentsService {
       receivingAccountNumber: account.account_number ?? '',
       receivingAccountName: account.name,
       receivingBankBin: account.bank_bin,
+      payerIpAddress: origin.ipAddress,
     });
     return database.transaction().execute(async (transaction) => {
       if (replacedId) {

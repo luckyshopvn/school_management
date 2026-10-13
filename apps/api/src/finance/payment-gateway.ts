@@ -2,7 +2,7 @@ import { randomInt, randomUUID } from 'node:crypto';
 import { ruleViolationError } from '@school-management/server';
 
 // Lớp nhà cung cấp tài khoản ảo và mã QR dùng một lần; tiền chuyển vào tài khoản ảo về tài khoản duy nhất của trường.
-// Nhà cung cấp thật nối khi chọn xong ở việc T1 (P06-11, Q-142, YCTD-57). Máy chủ bật được nhiều cổng cùng lúc qua sổ
+// Nhà cung cấp thật PayOS, SePay, Casso, VNPay ở payment-providers.ts (P06-11, Q-142, YCTD-57, YCTD-92). Máy chủ bật được nhiều cổng cùng lúc qua sổ
 // đăng ký cổng; mỗi tài khoản ngân hàng chọn cổng của mình, trống thì dùng cổng mặc định (G3-05, YCTD-89)
 export interface PaymentRequestInput {
   invoiceCode: string;
@@ -12,6 +12,8 @@ export interface PaymentRequestInput {
   receivingAccountNumber: string;
   receivingAccountName: string;
   receivingBankBin: string | null;
+  // Địa chỉ IP của người thanh toán; VNPay bắt buộc gửi (YCTD-92)
+  payerIpAddress?: string | null;
 }
 
 export interface CreatedPaymentRequest {
@@ -120,12 +122,9 @@ export class VietQrStaticPaymentGateway extends PaymentGateway {
   }
 }
 
-export const PAYMENT_PROVIDER_CODES = ['development', 'vietqr-static'] as const;
+// Mã các cổng; `payos`, `sepay`, `casso`, `vnpay` là nhà cung cấp thật, tạo cổng ở payment-providers.ts (YCTD-92)
+export const PAYMENT_PROVIDER_CODES = ['development', 'vietqr-static', 'payos', 'sepay', 'casso', 'vnpay'] as const;
 export type PaymentProviderCode = (typeof PAYMENT_PROVIDER_CODES)[number];
-
-export function createPaymentGateway(code: PaymentProviderCode): PaymentGateway {
-  return code === 'development' ? new DevelopmentPaymentGateway() : new VietQrStaticPaymentGateway();
-}
 
 // Các cổng máy chủ đã bật; cổng đầu tiên là cổng mặc định cho tài khoản chưa chọn cổng
 export class PaymentGatewayRegistry {
@@ -137,6 +136,11 @@ export class PaymentGatewayRegistry {
 
   get defaultGateway(): PaymentGateway {
     return this.gateways[0] as PaymentGateway;
+  }
+
+  // Cổng đã bật theo mã; không có thì undefined (điểm cuối nhận thông báo trả 404)
+  find(provider: string): PaymentGateway | undefined {
+    return provider === 'none' ? undefined : this.gateways.find((gateway) => gateway.provider === provider);
   }
 
   has(provider: string): boolean {

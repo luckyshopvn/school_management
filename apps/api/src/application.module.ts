@@ -143,8 +143,10 @@ import { PaymentsController } from './finance/payments.controller.js';
 import { PaymentsService } from './finance/payments.service.js';
 import { PaymentReversalsService } from './finance/payment-reversals.service.js';
 import { OnlinePaymentsController } from './finance/online-payments.controller.js';
+import { PaymentWebhooksController } from './finance/payment-webhooks.controller.js';
 import { OnlinePaymentsService } from './finance/online-payments.service.js';
-import { createPaymentGateway, PaymentGatewayRegistry } from './finance/payment-gateway.js';
+import { PaymentGatewayRegistry } from './finance/payment-gateway.js';
+import { createPaymentGateway } from './finance/payment-providers.js';
 import { DebtsService } from './fees/debts.service.js';
 import { ChildLifecycleController, ChildLifecycleService } from './children/child-lifecycle.js';
 import { WorkSchedulesController, WorkSchedulesService } from './staff-attendance/work-schedules.js';
@@ -282,6 +284,7 @@ export class ApplicationModule {
         ReceiptsController,
         PaymentsController,
         OnlinePaymentsController,
+        PaymentWebhooksController,
         StaffController,
         SchoolDaysController,
         StaffAttendanceController,
@@ -473,7 +476,11 @@ export class ApplicationModule {
         {
           provide: PaymentGatewayRegistry,
           useFactory: () =>
-            new PaymentGatewayRegistry((configuration.paymentGateways ?? []).map((code) => createPaymentGateway(code))),
+            new PaymentGatewayRegistry(
+              (configuration.paymentGateways ?? []).map((code) =>
+                createPaymentGateway(code, configuration.paymentProviders),
+              ),
+            ),
         },
         CashBooksService,
         WorkAccess,
