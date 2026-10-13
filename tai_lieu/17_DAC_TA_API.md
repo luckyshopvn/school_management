@@ -2,7 +2,7 @@
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
 - Phiên bản: 1.60
-- Ngày cập nhật: 2026-10-11
+- Ngày cập nhật: 2026-10-13
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -372,6 +372,7 @@ Giao kèo của thanh toán trực tuyến (DT-05 phần 5f, YCTD-57):
 2. `PUT /online-payment-settings` nhận `account_id` (tài khoản ngân hàng đang dùng của Trường chính) và `category_id` (khoản mục thu); cần `P06.cash-account.manage` ở Trường chính.
 3. `GET /online-payment-transactions?status=pending` trả giao dịch chưa khớp và chưa xử lý kèm `match_status` (`wrong_amount`, `unknown_invoice`, `already_paid`); giao dịch chưa xác định trẻ hiện cho kế toán mọi đơn vị. `POST /online-payment-transactions/{id}/resolve` nhận `note` bắt buộc, `receipt_id` không bắt buộc; giao dịch đã khớp hoặc đã xử lý trả mã P06-11.
 4. `POST /payment-webhooks/development` nhận `provider_transaction_ref`, `virtual_account_number`, `amount`, `transfer_content`; trả giao dịch kèm `match_status`, `receipt_id`.
+5. Bốn điểm cuối nhận thông báo của nhà cung cấp thật không dùng mã phiên: cổng chưa bật trả 404; chữ ký hoặc khóa sai trả 401 và không ghi giao dịch; giao dịch đã nhận thì không lập phiếu thu lần hai (YCTD-94).
 
 Giao kèo của phiếu đảo phiếu chi (DT-05 phần 5e-2, YCTD-56):
 
@@ -661,6 +662,10 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 | GET | /api/v1/invoices/{id}/payment-qr | Mã QR chuyển khoản cho số còn phải nộp của hóa đơn |
 | POST | /api/v1/payment-webhooks/bank-transfer | Nhận thông báo tiền vào từ ngân hàng hoặc đơn vị trung gian; không dùng mã phiên, xác thực bằng chữ ký; làm khi chọn nhà cung cấp (YCTD-57) |
 | POST | /api/v1/payment-webhooks/development | Giả lập thông báo tiền vào, chỉ có với bộ giả lập nhà cung cấp (YCTD-57) |
+| POST | /api/v1/payment-webhooks/payos | Thông báo tiền vào của PayOS, công khai, kiểm chữ ký HMAC-SHA256 (YCTD-94) |
+| POST | /api/v1/payment-webhooks/sepay | Thông báo giao dịch của SePay, công khai, kiểm khóa API ở tiêu đề Authorization (YCTD-94) |
+| POST | /api/v1/payment-webhooks/casso | Thông báo giao dịch Webhook V2 của Casso, công khai, kiểm chữ ký HMAC-SHA512 (YCTD-94) |
+| GET | /api/v1/payment-webhooks/vnpay-ipn | Kết quả thanh toán VNPay (IPN), công khai, kiểm chữ ký HMAC-SHA512, trả RspCode theo VNPay (YCTD-94) |
 | GET, PUT | /api/v1/online-payment-settings | Tài khoản nhận thanh toán trực tuyến của trường và khoản mục thu (YCTD-57) |
 | GET | /api/v1/online-payment-transactions | Danh sách giao dịch chuyển khoản, lọc theo trạng thái khớp |
 | POST | /api/v1/online-payment-transactions/{id}/resolve | Kế toán xử lý giao dịch không khớp |
