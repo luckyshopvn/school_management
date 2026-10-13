@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 import { NotificationBell } from '../notifications/NotificationBell.js';
 import { Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
@@ -73,11 +73,90 @@ function NavItem({ to, label }: { to: NavigationPath; label: string }) {
       <Link
         to={to}
         className="block rounded-lg px-3 py-2 text-label font-medium text-text hover:bg-selected"
-        activeProps={{ className: 'bg-selected' }}
+        activeProps={{ className: 'bg-selected text-brand-strong' }}
       >
         {label}
       </Link>
     </li>
+  );
+}
+
+// Trạng thái giao diện riêng của từng trình duyệt (ẩn thanh điều hướng, nhóm đã thu gọn); trình duyệt chặn lưu trữ thì
+// dùng mặc định (YCTD-99)
+const SIDEBAR_HIDDEN_KEY = 'portal.sidebar.hidden';
+const COLLAPSED_GROUPS_KEY = 'portal.nav.collapsed';
+
+function readStored<T>(key: string, fallback: T): T {
+  try {
+    const value = window.localStorage.getItem(key);
+    return value === null ? fallback : (JSON.parse(value) as T);
+  } catch {
+    return fallback;
+  }
+}
+
+function writeStored(key: string, value: unknown) {
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Không lưu được thì chỉ giữ trong phiên đang mở
+  }
+}
+
+const CollapsedGroupsContext = createContext<{ collapsed: Set<string>; toggle(title: string): void }>({
+  collapsed: new Set(),
+  toggle: () => undefined,
+});
+
+// Nhóm chức năng trên thanh điều hướng: bấm tiêu đề để thu gọn hoặc mở rộng
+function NavGroup({ title, children }: { title: string; children: ReactNode }) {
+  const { collapsed, toggle } = useContext(CollapsedGroupsContext);
+  const open = !collapsed.has(title);
+  const listId = `nhom-${title.toLowerCase().replace(/\s+/g, '-')}`;
+  return (
+    <div className="flex flex-col gap-1">
+      <button
+        type="button"
+        className="flex items-center justify-between rounded-lg px-3 py-1 text-left text-label font-semibold text-text-muted hover:bg-selected hover:text-text"
+        aria-label={`Nhóm ${title}`}
+        aria-expanded={open}
+        aria-controls={listId}
+        onClick={() => toggle(title)}
+      >
+        <span>{title}</span>
+        <svg
+          viewBox="0 0 20 20"
+          width="14"
+          height="14"
+          fill="currentColor"
+          aria-hidden="true"
+          className={`transition-transform ${open ? '' : '-rotate-90'}`}
+        >
+          <path d="M5.3 7.3a1 1 0 0 1 1.4 0L10 10.6l3.3-3.3a1 1 0 1 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 0-1.4Z" />
+        </svg>
+      </button>
+      {open ? (
+        <ul id={listId} className="flex flex-col gap-1">
+          {children}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
+function MenuIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="22"
+      height="22"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" />
+    </svg>
   );
 }
 
@@ -193,179 +272,214 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canManageLedger = useHasPermission(PERMISSION_CODES.ledgerManage);
   const canSeeLedger = canViewLedger || canManageLedger;
 
+  // Ẩn hoặc hiện thanh điều hướng, thu gọn nhóm chức năng; nhớ lựa chọn trên trình duyệt này (YCTD-99)
+  const [sidebarHidden, setSidebarHidden] = useState(() => readStored(SIDEBAR_HIDDEN_KEY, false));
+  const toggleSidebar = () => {
+    setSidebarHidden(!sidebarHidden);
+    writeStored(SIDEBAR_HIDDEN_KEY, !sidebarHidden);
+  };
+  const [collapsed, setCollapsed] = useState(() => new Set(readStored<string[]>(COLLAPSED_GROUPS_KEY, [])));
+  const groups = useMemo(
+    () => ({
+      collapsed,
+      toggle: (title: string) => {
+        const next = new Set(collapsed);
+        if (next.has(title)) {
+          next.delete(title);
+        } else {
+          next.add(title);
+        }
+        setCollapsed(next);
+        writeStored(COLLAPSED_GROUPS_KEY, [...next]);
+      },
+    }),
+    [collapsed],
+  );
+
   return (
-    <div className="flex min-h-screen">
-      <nav
-        aria-label="Điều hướng chính"
-        className="flex w-60 shrink-0 flex-col gap-4 border-r border-border bg-card p-4"
-      >
-        <span className="text-section-title font-semibold text-brand-strong">School Management</span>
-        <ul className="flex flex-col gap-1">
-          <NavItem to="/" label="Trang chủ" />
-        </ul>
-        {canManageClasses || canViewChildren || canEditChildren ? (
-          <>
-            <span className="px-3 text-label font-semibold text-text-muted">TRẺ VÀ LỚP</span>
-            <ul className="flex flex-col gap-1">
-              <NavItem to="/children" label="Hồ sơ trẻ" />
-              <NavItem to="/classes" label="Lớp học" />
-              <NavItem to="/attendance" label="Điểm danh" />
-              {canImport ? <NavItem to="/imports" label="Nhập dữ liệu" /> : null}
-            </ul>
-          </>
-        ) : null}
-        {canSeeAdmissions ? (
-          <>
-            <span className="px-3 text-label font-semibold text-text-muted">TUYỂN SINH</span>
-            <ul className="flex flex-col gap-1">
-              <NavItem to="/admissions" label="Tuyển sinh" />
-            </ul>
-          </>
-        ) : null}
-        {canSeeTeaching ? (
-          <>
-            <span className="px-3 text-label font-semibold text-text-muted">GIẢNG DẠY</span>
-            <ul className="flex flex-col gap-1">
-              <NavItem to="/teaching" label="Bài học và giáo án" />
-            </ul>
-          </>
-        ) : null}
-        {canManageHealth || canRecordMedicalEvents || canSeeMedicines ? (
-          <>
-            <span className="px-3 text-label font-semibold text-text-muted">Y TẾ</span>
-            <ul className="flex flex-col gap-1">
-              {canManageHealth || canRecordMedicalEvents ? <NavItem to="/health" label="Y tế học đường" /> : null}
-              {canSeeMedicines ? <NavItem to="/medicines" label="Thuốc và dặn thuốc" /> : null}
-            </ul>
-          </>
-        ) : null}
-        {canManageKitchen || canApproveMenus || canViewKitchenReport ? (
-          <>
-            <span className="px-3 text-label font-semibold text-text-muted">BẾP</span>
-            <ul className="flex flex-col gap-1">
-              <NavItem to="/kitchen" label="Bếp và thực đơn" />
-            </ul>
-          </>
-        ) : null}
-        {canManageInteractions || canSendMessages || canManageLostItems ? (
-          <>
-            <span className="px-3 text-label font-semibold text-text-muted">TƯƠNG TÁC</span>
-            <ul className="flex flex-col gap-1">
-              <NavItem to="/interactions" label="Tương tác với phụ huynh" />
-            </ul>
-          </>
-        ) : null}
-        {canSeeInventory || canSeePurchaseRequests ? (
-          <>
-            <span className="px-3 text-label font-semibold text-text-muted">KHO VÀ MUA HÀNG</span>
-            <ul className="flex flex-col gap-1">
-              {canSeeInventory ? <NavItem to="/inventory" label="Kho và tài sản" /> : null}
-              {canSeePurchaseRequests ? <NavItem to="/purchase-requests" label="Đề nghị mua hàng" /> : null}
-            </ul>
-          </>
-        ) : null}
-        {canSeeActivities ? (
-          <>
-            <span className="px-3 text-label font-semibold text-text-muted">HOẠT ĐỘNG VÀ TRUYỀN THÔNG</span>
-            <ul className="flex flex-col gap-1">
-              <NavItem to="/activities" label="Hoạt động và tin tức" />
-            </ul>
-          </>
-        ) : null}
-        {canViewFees ||
-        canViewCashflow ||
-        canSeeRegistrations ||
-        canViewDebts ||
-        canSeeDebtCollection ||
-        canSeeFiscalPeriods ||
-        canSeeLedger ? (
-          <>
-            <span className="px-3 text-label font-semibold text-text-muted">HỌC PHÍ VÀ TÀI CHÍNH</span>
-            <ul className="flex flex-col gap-1">
-              {canViewFees ? <NavItem to="/fees" label="Biểu phí và dịch vụ" /> : null}
-              {canSeeRegistrations ? <NavItem to="/registrations" label="Đăng ký dịch vụ" /> : null}
-              {canSeeInvoices ? <NavItem to="/invoices" label="Học phí" /> : null}
-              {canApproveFeeDocuments ? <NavItem to="/fee-approvals" label="Duyệt miễn giảm và điều chỉnh" /> : null}
-              {canViewDebts ? <NavItem to="/debts" label="Công nợ" /> : null}
-              {canSeeAccountsAndReceipts ? <NavItem to="/receipts" label="Phiếu thu" /> : null}
-              {canSeePayments ? <NavItem to="/payments" label="Phiếu chi" /> : null}
-              {canSeeAccountsAndReceipts ? <NavItem to="/cash-accounts" label="Quỹ và ngân hàng" /> : null}
-              {canSeeAccountsAndReceipts ? <NavItem to="/cash-book" label="Sổ quỹ" /> : null}
-              {canSeeDebtCollection ? <NavItem to="/debt-collection" label="Nhắc nợ và xử lý quá hạn" /> : null}
-              {canSeeBankReconciliation ? <NavItem to="/bank-reconciliation" label="Đối chiếu ngân hàng" /> : null}
-              {canSeePayables ? <NavItem to="/payables" label="Nợ nhà cung cấp" /> : null}
-              {canSeeFiscalPeriods ? <NavItem to="/fiscal-periods" label="Chốt kỳ tài chính" /> : null}
-              {canSeeLedger ? <NavItem to="/ledger" label="Sổ kế toán" /> : null}
-              {canViewCashflow ? <NavItem to="/cashflow-categories" label="Khoản mục thu chi" /> : null}
-            </ul>
-          </>
-        ) : null}
-        <span className="px-3 text-label font-semibold text-text-muted">NHÂN SỰ</span>
-        <ul className="flex flex-col gap-1">
-          {canViewStaff ? <NavItem to="/staff" label="Hồ sơ nhân sự" /> : null}
-          {canSeeRecruitment ? <NavItem to="/recruitment" label="Tuyển dụng" /> : null}
-          <NavItem to="/staff-attendance" label="Chấm công" />
-          <NavItem to="/leave-requests" label="Đơn nghỉ phép" />
-          <NavItem to="/school-days" label="Ngày lễ và lịch bù" />
-          {canSeeWorkSchedules ? <NavItem to="/work-schedules" label="Lịch công tác" /> : null}
-          <NavItem to="/leave-policies" label="Quy định phép năm" />
-          {canViewPayroll ? <NavItem to="/payrolls" label="Bảng lương" /> : null}
-          {canViewPayroll ? <NavItem to="/payroll-settlements" label="Quyết toán và điều chỉnh lương" /> : null}
-          {canViewPayroll || canManagePayItems ? <NavItem to="/pay-items" label="Danh mục lương và biểu thuế" /> : null}
-          {canViewPayroll || canManageBonusDeductions ? (
-            <NavItem to="/bonus-deductions" label="Thưởng và khấu trừ" />
-          ) : null}
-          <NavItem to="/my-payslips" label="Phiếu lương của tôi" />
-          <NavItem to="/work" label="Công việc và kế hoạch" />
-          <NavItem to="/evaluations" label="Đánh giá nhân sự" />
-          {canViewStaff && canImportStaff && !(canManageClasses || canViewChildren || canEditChildren) ? (
-            <NavItem to="/imports" label="Nhập dữ liệu" />
-          ) : null}
-        </ul>
-        <span className="px-3 text-label font-semibold text-text-muted">BÁO CÁO</span>
-        <ul className="flex flex-col gap-1">
-          <NavItem to="/reports" label="Báo cáo" />
-        </ul>
-        <span className="px-3 text-label font-semibold text-text-muted">THIẾT LẬP</span>
-        <ul className="flex flex-col gap-1">
-          <NavItem to="/academic-years" label="Năm học" />
-          <NavItem to="/org-units" label="Cây đơn vị" />
-          {canSeeAccounts ? (
-            <>
-              <NavItem to="/accounts" label="Tài khoản" />
-              <NavItem to="/roles" label="Vai trò và quyền" />
-              {canManageApiClients ? <NavItem to="/api-clients" label="Khóa API cho đối tác" /> : null}
-            </>
-          ) : null}
-          {canManageIntegrations ? <NavItem to="/integrations" label="Kết nối ngoài" /> : null}
-          {canViewPlatform || canManageDepartments ? (
-            <NavItem to="/departments" label="Phòng ban và chức danh" />
-          ) : null}
-          {canViewPlatform || canManageCatalogs ? <NavItem to="/catalogs" label="Danh mục dùng chung" /> : null}
-          {canViewPlatform ? <NavItem to="/approval-thresholds" label="Hạn mức phê duyệt" /> : null}
-          {canViewPlatform || canManageRooms || canManageCatalogs ? (
-            <NavItem to="/rooms" label="Phòng học và bậc học" />
-          ) : null}
-          {canViewPlatform || canManageSettings ? <NavItem to="/settings" label="Cấu hình" /> : null}
-          {canViewPlatform ? <NavItem to="/audit-logs" label="Nhật ký thao tác" /> : null}
-        </ul>
-      </nav>
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-end gap-4 border-b border-border bg-card px-6 py-3">
+    <div className="flex min-h-screen flex-col">
+      <header className="sticky top-0 z-20 flex h-14 items-center gap-3 bg-header px-4 text-white shadow-sm">
+        <button
+          type="button"
+          className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-header-strong"
+          aria-label={sidebarHidden ? 'Hiện thanh điều hướng' : 'Ẩn thanh điều hướng'}
+          aria-expanded={!sidebarHidden}
+          aria-controls="dieu-huong-chinh"
+          onClick={toggleSidebar}
+        >
+          <MenuIcon />
+        </button>
+        <span className="text-section-title font-bold text-header-accent">School Management</span>
+        <div className="ml-auto flex items-center gap-4">
           <NotificationBell />
           {currentUser.data ? (
-            <span className="text-label font-medium text-text" data-testid="current-user-name">
+            <span className="text-label font-semibold text-white" data-testid="current-user-name">
               {currentUser.data.full_name}
             </span>
           ) : (
-            <span className="h-4 w-32 animate-pulse rounded bg-border" aria-hidden="true" />
+            <span className="h-4 w-32 animate-pulse rounded bg-header-strong" aria-hidden="true" />
           )}
-          <Link to="/change-password" className="text-label text-link hover:underline">
+          <Link to="/change-password" className="text-label text-white hover:underline">
             Đổi mật khẩu
           </Link>
           <Button onClick={() => void session.logout()}>Đăng xuất</Button>
-        </header>
-        <main className="mx-auto w-full max-w-[1440px] flex-1 p-6">{children}</main>
+        </div>
+      </header>
+      <div className="flex flex-1">
+        {sidebarHidden ? null : (
+          <nav
+            id="dieu-huong-chinh"
+            aria-label="Điều hướng chính"
+            className="sticky top-14 flex h-[calc(100vh-3.5rem)] w-60 shrink-0 flex-col gap-3 overflow-y-auto border-r border-border bg-card p-4"
+          >
+            <CollapsedGroupsContext.Provider value={groups}>
+              <ul className="flex flex-col gap-1">
+                <NavItem to="/" label="Trang chủ" />
+              </ul>
+              {canManageClasses || canViewChildren || canEditChildren ? (
+                <>
+                  <NavGroup title="TRẺ VÀ LỚP">
+                    <NavItem to="/children" label="Hồ sơ trẻ" />
+                    <NavItem to="/classes" label="Lớp học" />
+                    <NavItem to="/attendance" label="Điểm danh" />
+                    {canImport ? <NavItem to="/imports" label="Nhập dữ liệu" /> : null}
+                  </NavGroup>
+                </>
+              ) : null}
+              {canSeeAdmissions ? (
+                <>
+                  <NavGroup title="TUYỂN SINH">
+                    <NavItem to="/admissions" label="Tuyển sinh" />
+                  </NavGroup>
+                </>
+              ) : null}
+              {canSeeTeaching ? (
+                <>
+                  <NavGroup title="GIẢNG DẠY">
+                    <NavItem to="/teaching" label="Bài học và giáo án" />
+                  </NavGroup>
+                </>
+              ) : null}
+              {canManageHealth || canRecordMedicalEvents || canSeeMedicines ? (
+                <>
+                  <NavGroup title="Y TẾ">
+                    {canManageHealth || canRecordMedicalEvents ? <NavItem to="/health" label="Y tế học đường" /> : null}
+                    {canSeeMedicines ? <NavItem to="/medicines" label="Thuốc và dặn thuốc" /> : null}
+                  </NavGroup>
+                </>
+              ) : null}
+              {canManageKitchen || canApproveMenus || canViewKitchenReport ? (
+                <>
+                  <NavGroup title="BẾP">
+                    <NavItem to="/kitchen" label="Bếp và thực đơn" />
+                  </NavGroup>
+                </>
+              ) : null}
+              {canManageInteractions || canSendMessages || canManageLostItems ? (
+                <>
+                  <NavGroup title="TƯƠNG TÁC">
+                    <NavItem to="/interactions" label="Tương tác với phụ huynh" />
+                  </NavGroup>
+                </>
+              ) : null}
+              {canSeeInventory || canSeePurchaseRequests ? (
+                <>
+                  <NavGroup title="KHO VÀ MUA HÀNG">
+                    {canSeeInventory ? <NavItem to="/inventory" label="Kho và tài sản" /> : null}
+                    {canSeePurchaseRequests ? <NavItem to="/purchase-requests" label="Đề nghị mua hàng" /> : null}
+                  </NavGroup>
+                </>
+              ) : null}
+              {canSeeActivities ? (
+                <>
+                  <NavGroup title="HOẠT ĐỘNG VÀ TRUYỀN THÔNG">
+                    <NavItem to="/activities" label="Hoạt động và tin tức" />
+                  </NavGroup>
+                </>
+              ) : null}
+              {canViewFees ||
+              canViewCashflow ||
+              canSeeRegistrations ||
+              canViewDebts ||
+              canSeeDebtCollection ||
+              canSeeFiscalPeriods ||
+              canSeeLedger ? (
+                <>
+                  <NavGroup title="HỌC PHÍ VÀ TÀI CHÍNH">
+                    {canViewFees ? <NavItem to="/fees" label="Biểu phí và dịch vụ" /> : null}
+                    {canSeeRegistrations ? <NavItem to="/registrations" label="Đăng ký dịch vụ" /> : null}
+                    {canSeeInvoices ? <NavItem to="/invoices" label="Học phí" /> : null}
+                    {canApproveFeeDocuments ? (
+                      <NavItem to="/fee-approvals" label="Duyệt miễn giảm và điều chỉnh" />
+                    ) : null}
+                    {canViewDebts ? <NavItem to="/debts" label="Công nợ" /> : null}
+                    {canSeeAccountsAndReceipts ? <NavItem to="/receipts" label="Phiếu thu" /> : null}
+                    {canSeePayments ? <NavItem to="/payments" label="Phiếu chi" /> : null}
+                    {canSeeAccountsAndReceipts ? <NavItem to="/cash-accounts" label="Quỹ và ngân hàng" /> : null}
+                    {canSeeAccountsAndReceipts ? <NavItem to="/cash-book" label="Sổ quỹ" /> : null}
+                    {canSeeDebtCollection ? <NavItem to="/debt-collection" label="Nhắc nợ và xử lý quá hạn" /> : null}
+                    {canSeeBankReconciliation ? (
+                      <NavItem to="/bank-reconciliation" label="Đối chiếu ngân hàng" />
+                    ) : null}
+                    {canSeePayables ? <NavItem to="/payables" label="Nợ nhà cung cấp" /> : null}
+                    {canSeeFiscalPeriods ? <NavItem to="/fiscal-periods" label="Chốt kỳ tài chính" /> : null}
+                    {canSeeLedger ? <NavItem to="/ledger" label="Sổ kế toán" /> : null}
+                    {canViewCashflow ? <NavItem to="/cashflow-categories" label="Khoản mục thu chi" /> : null}
+                  </NavGroup>
+                </>
+              ) : null}
+              <NavGroup title="NHÂN SỰ">
+                {canViewStaff ? <NavItem to="/staff" label="Hồ sơ nhân sự" /> : null}
+                {canSeeRecruitment ? <NavItem to="/recruitment" label="Tuyển dụng" /> : null}
+                <NavItem to="/staff-attendance" label="Chấm công" />
+                <NavItem to="/leave-requests" label="Đơn nghỉ phép" />
+                <NavItem to="/school-days" label="Ngày lễ và lịch bù" />
+                {canSeeWorkSchedules ? <NavItem to="/work-schedules" label="Lịch công tác" /> : null}
+                <NavItem to="/leave-policies" label="Quy định phép năm" />
+                {canViewPayroll ? <NavItem to="/payrolls" label="Bảng lương" /> : null}
+                {canViewPayroll ? <NavItem to="/payroll-settlements" label="Quyết toán và điều chỉnh lương" /> : null}
+                {canViewPayroll || canManagePayItems ? (
+                  <NavItem to="/pay-items" label="Danh mục lương và biểu thuế" />
+                ) : null}
+                {canViewPayroll || canManageBonusDeductions ? (
+                  <NavItem to="/bonus-deductions" label="Thưởng và khấu trừ" />
+                ) : null}
+                <NavItem to="/my-payslips" label="Phiếu lương của tôi" />
+                <NavItem to="/work" label="Công việc và kế hoạch" />
+                <NavItem to="/evaluations" label="Đánh giá nhân sự" />
+                {canViewStaff && canImportStaff && !(canManageClasses || canViewChildren || canEditChildren) ? (
+                  <NavItem to="/imports" label="Nhập dữ liệu" />
+                ) : null}
+              </NavGroup>
+              <NavGroup title="BÁO CÁO">
+                <NavItem to="/reports" label="Báo cáo" />
+              </NavGroup>
+              <NavGroup title="THIẾT LẬP">
+                <NavItem to="/academic-years" label="Năm học" />
+                <NavItem to="/org-units" label="Cây đơn vị" />
+                {canSeeAccounts ? (
+                  <>
+                    <NavItem to="/accounts" label="Tài khoản" />
+                    <NavItem to="/roles" label="Vai trò và quyền" />
+                    {canManageApiClients ? <NavItem to="/api-clients" label="Khóa API cho đối tác" /> : null}
+                  </>
+                ) : null}
+                {canManageIntegrations ? <NavItem to="/integrations" label="Kết nối ngoài" /> : null}
+                {canViewPlatform || canManageDepartments ? (
+                  <NavItem to="/departments" label="Phòng ban và chức danh" />
+                ) : null}
+                {canViewPlatform || canManageCatalogs ? <NavItem to="/catalogs" label="Danh mục dùng chung" /> : null}
+                {canViewPlatform ? <NavItem to="/approval-thresholds" label="Hạn mức phê duyệt" /> : null}
+                {canViewPlatform || canManageRooms || canManageCatalogs ? (
+                  <NavItem to="/rooms" label="Phòng học và bậc học" />
+                ) : null}
+                {canViewPlatform || canManageSettings ? <NavItem to="/settings" label="Cấu hình" /> : null}
+                {canViewPlatform ? <NavItem to="/audit-logs" label="Nhật ký thao tác" /> : null}
+              </NavGroup>
+            </CollapsedGroupsContext.Provider>
+          </nav>
+        )}
+        <main className="mx-auto w-full max-w-[1440px] min-w-0 flex-1 p-6">{children}</main>
       </div>
     </div>
   );

@@ -146,7 +146,7 @@ export function NotificationBell() {
     <div className="relative" ref={container}>
       <button
         type="button"
-        className="relative flex h-9 w-9 items-center justify-center rounded-full text-text hover:bg-selected"
+        className="relative flex h-9 w-9 items-center justify-center rounded-full text-white hover:bg-header-strong"
         aria-label={unread ? `Thông báo, ${unread} chưa đọc` : 'Thông báo'}
         aria-expanded={expanded}
         aria-haspopup="dialog"

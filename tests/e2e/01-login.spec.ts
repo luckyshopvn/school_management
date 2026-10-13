@@ -65,3 +65,31 @@ test('Tài khoản bắt buộc đổi mật khẩu được chuyển tới MH-4
   await page.getByRole('button', { name: 'Đổi mật khẩu' }).click();
   await expect(page.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
 });
+
+test('Ẩn, hiện thanh điều hướng và thu gọn nhóm chức năng; trình duyệt nhớ lựa chọn sau khi tải lại', async ({
+  page,
+}) => {
+  const user = await createTestUser(database, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
+  await fillLogin(page, user.username, user.password);
+  const navigation = page.getByRole('navigation', { name: 'Điều hướng chính' });
+  await expect(navigation.getByRole('link', { name: 'Năm học' })).toBeVisible();
+
+  // Thu gọn nhóm Thiết lập: các mục của nhóm ẩn đi; tải lại vẫn thu gọn; mở lại thì hiện
+  const group = navigation.getByRole('button', { name: 'Nhóm THIẾT LẬP' });
+  await group.click();
+  await expect(group).toHaveAttribute('aria-expanded', 'false');
+  await expect(navigation.getByRole('link', { name: 'Năm học' })).toHaveCount(0);
+  await page.reload();
+  await expect(navigation.getByRole('link', { name: 'Năm học' })).toHaveCount(0);
+  await navigation.getByRole('button', { name: 'Nhóm THIẾT LẬP' }).click();
+  await expect(navigation.getByRole('link', { name: 'Năm học' })).toBeVisible();
+
+  // Ẩn thanh điều hướng; tải lại vẫn ẩn; hiện lại
+  await page.getByRole('button', { name: 'Ẩn thanh điều hướng' }).click();
+  await expect(navigation).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
+  await expect(navigation).toHaveCount(0);
+  await page.getByRole('button', { name: 'Hiện thanh điều hướng' }).click();
+  await expect(navigation.getByRole('link', { name: 'Trang chủ' })).toBeVisible();
+});

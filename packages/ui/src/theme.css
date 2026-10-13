@@ -1,12 +1,16 @@
-/* Mã màu, cỡ chữ theo 15_HE_THONG_THIET_KE.md mục 2 và 3 */
+/* Mã màu, cỡ chữ theo 15_HE_THONG_THIET_KE.md mục 2 và 3; tông xanh dương theo mẫu Eric gửi ngày 2026-10-13 (YCTD-99) */
 @theme {
-  --color-brand: #f59e0b;
-  --color-brand-strong: #b45309;
-  --color-link: #0ea5e9;
+  --color-brand: #0a8be6;
+  --color-brand-strong: #0670c0;
+  --color-link: #0a7fd4;
   --color-positive: #10b981;
-  --color-page: #f8fafc;
+  --color-page: #f5f7fa;
   --color-card: #ffffff;
-  --color-selected: #eff6ff;
+  --color-selected: #e6f2fc;
+  /* Thanh đầu trang: nền xanh, chữ trắng, tên trường vàng */
+  --color-header: #0a8be6;
+  --color-header-strong: #0670c0;
+  --color-header-accent: #ffe600;
   --color-text: #0f172a;
   --color-text-secondary: #475569;
   --color-text-muted: #94a3b8;
