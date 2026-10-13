@@ -1,8 +1,8 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.34
-- Ngày cập nhật: 2026-10-13
+- Phiên bản: 1.35
+- Ngày cập nhật: 2026-10-14
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -170,6 +170,8 @@ Bổ sung ngày 2026-10-09 theo yêu cầu tách vai trò Ban Giám hiệu thàn
 | BR-97 | Hoàn thành chương trình giáo dục mầm non chỉ ghi cho lớp có bậc học bắt đầu từ 60 tháng tuổi (mẫu giáo 5-6 tuổi) và cho trẻ đang học ở lớp hiện tại; mỗi trẻ một kết quả mỗi năm học (Hoàn thành hoặc Chưa hoàn thành, ghi chú tối đa 500 ký tự), ghi lại thì thay kết quả cũ. Ban Giám hiệu chỉ xác nhận danh sách của lớp khi lớp có ít nhất một trẻ và mọi trẻ đang học đã có kết quả; danh sách đã xác nhận bị khóa, không ghi sửa được; hủy xác nhận bắt buộc lý do và ghi nhật ký thao tác, sau đó sửa và xác nhận lại (YCTD-104) |
 | BR-98 | Mỗi nhân sự có một phiếu đánh giá chuẩn nghề nghiệp mỗi năm học; loại chuẩn (giáo viên mầm non hoặc hiệu trưởng, chuẩn hiệu trưởng dùng cho Hiệu trưởng, Phó Hiệu trưởng, quản lý đơn vị) chọn lúc mở; phiếu giữ danh mục tiêu chí lúc mở, sửa danh mục chỉ áp cho phiếu mở sau. Nhân sự chỉ gửi tự đánh giá khi mọi tiêu chí có mức, đã gửi thì không tự sửa; người đánh giá chỉ chốt khi mọi tiêu chí có mức của mình, mức cuối của tiêu chí là mức của người đánh giá; phiếu đã chốt không sửa. Phiếu chuẩn giáo viên do người có quyền đánh giá trong phạm vi đơn vị chính của nhân sự; phiếu chuẩn hiệu trưởng chỉ Hiệu trưởng. Không ai mở, đánh giá hay chốt phiếu của chính mình (YCTD-104) |
 | BR-99 | Xếp loại chung của phiếu chuẩn nghề nghiệp khi chốt: Chưa đạt khi có tiêu chí Chưa đạt; Tốt khi mọi tiêu chí từ Khá trở lên, ít nhất 2/3 số tiêu chí đạt Tốt và mọi tiêu chí trọng yếu đạt Tốt; Khá khi mọi tiêu chí từ Đạt trở lên, ít nhất 2/3 số tiêu chí từ Khá trở lên và mọi tiêu chí trọng yếu từ Khá trở lên; còn lại là Đạt. "Ít nhất 2/3" so sánh số nguyên: số tiêu chí đạt mức × 3 ≥ tổng số tiêu chí × 2. Tiêu chí trọng yếu là tiêu chí đánh dấu trên danh mục, mặc định các tiêu chí của tiêu chuẩn 1 và 2. Quy tắc theo cách xếp loại của Thông tư 26/2018/TT-BGDĐT và Thông tư 25/2018/TT-BGDĐT, cần đối chiếu văn bản (YCTD-104) |
+| BR-100 | Đợt cân đo thuộc một đơn vị, tên duy nhất trong đơn vị, ngày cân đo không sau hôm nay; đợt đã có số đo thì không xóa. Mỗi học sinh có tối đa một số đo trong một đợt, lưu trong bảng số đo sức khỏe; chỉ ghi cho học sinh thuộc đơn vị của đợt, đang học trong lớp vào ngày cân đo và sinh không sau ngày cân đo; cân nặng 1 đến 150 kg, chiều cao 30 đến 200 cm; để trống cả hai số là xóa số đo của học sinh trong đợt. Nhập từ Excel kiểm tra cả tệp trước, có dòng lỗi thì không lưu dòng nào. Mở năm học mới thì số đo chuyển sang năm mới không kèm đợt (YCTD-105) |
+| BR-101 | Chỉ số Z cân nặng theo tuổi, chiều cao theo tuổi, cân nặng theo chiều cao và BMI theo tuổi tính theo chuẩn WHO 2006 (0 đến 60 tháng) và tham chiếu WHO 2007 (61 đến 84 tháng), tháng tuổi tròn bằng số ngày tuổi chia 30,4375, không tính trên 84 tháng; không lưu, tính lại mỗi lần đọc. Kênh tăng trưởng: cân nặng theo tuổi dưới −2SD là suy dinh dưỡng thể nhẹ cân, trên +2SD là cân nặng cao hơn tuổi; chiều cao theo tuổi dưới −2SD là suy dinh dưỡng thể thấp còi; dưới 61 tháng, cân nặng theo chiều cao dưới −2SD là suy dinh dưỡng thể gầy còm, trên +2SD là thừa cân, trên +3SD là béo phì; từ 61 tháng dùng BMI theo tuổi: dưới −2SD gầy còm, trên +1SD thừa cân, trên +2SD béo phì. Học sinh bình thường cả ba kênh khi đủ ba kênh và không kênh nào bất thường. Tỷ lệ kênh trong tổng hợp tính trên số học sinh có chỉ số tương ứng (YCTD-105) |
 
 Danh mục chứng từ áp dụng hạn mức: phiếu chi, phiếu đảo phiếu thu (YCTD-23), phiếu đảo phiếu chi (YCTD-24), đề nghị mua hàng, phiếu điều chỉnh hóa đơn, miễn giảm học phí, bảng lương kỳ, chốt kỳ tài chính. Mức hạn mức cụ thể chưa có, xem Q-22 và Q-112.
 

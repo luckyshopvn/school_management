@@ -1,8 +1,8 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.62
-- Ngày cập nhật: 2026-10-13
+- Phiên bản: 1.63
+- Ngày cập nhật: 2026-10-14
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -256,6 +256,16 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | POST | /api/v1/academic-years/{id}/open | Mở năm học: kiểm tra BR-89, BR-94, tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung, trẻ, lớp, quỹ, công nợ (YCTD-69), chuyển năm đang dùng sang đã đóng và chỉ đọc (BR-93) |
 | POST | /api/v1/academic-years/{id}/close | Bỏ ngày 09/10/2026: gộp vào mở năm học mới (YCTD-37) |
 | GET, PUT | /api/v1/me/quick-links | Đọc và lưu lối tắt Truy cập nhanh trên trang chủ cổng quản trị của chính người đăng nhập (YCTD-102) |
+
+Giao kèo của cân nặng, chiều cao, thống kê theo tiêu chí ngành, hồ sơ chưa nhập đủ (DT-14 phần 14a, YCTD-105):
+
+1. `POST /growth-rounds` nhận `org_unit_id`, `name` (trùng trong đơn vị trả `ERR_RULE_VIOLATION`), `measured_on` (sau hôm nay trả `ERR_VALIDATION`), `note`; lập, xóa đợt cần `P10.health.manage` trong phạm vi đơn vị. `GET /growth-rounds` cần `org_unit_id`, trả số số đo của từng đợt và `can_manage`. `DELETE` đợt đã có số đo trả `ERR_RULE_VIOLATION`.
+2. `GET /growth-rounds/{id}/measurements` nhận `class_id`, trả học sinh đang học trong lớp vào ngày cân đo kèm số đo, tháng tuổi, BMI, chỉ số Z, kênh và `can_edit`; giáo viên chủ nhiệm chỉ đọc lớp mình. `PUT` nhận `rows` (1 đến 500 dòng: `child_id`, `weight_kg` 1 đến 150, `height_cm` 30 đến 200, `note`), nhận dấu phẩy thập phân; trống cả hai số là xóa số đo của học sinh trong đợt; trả `saved_count`, `removed_count`. Học sinh không thuộc đơn vị của đợt trả `ERR_RULE_VIOLATION`; sinh sau ngày cân đo hoặc số đo ngoài khoảng trả `ERR_VALIDATION`.
+3. `GET /growth-rounds/{id}/template` trả tệp Excel mẫu của lớp (`class_id`). `POST /growth-rounds/{id}/import` nhận biểu mẫu nhiều phần (`file`), so khớp theo mã học sinh hoặc họ tên và ngày sinh; có dòng lỗi thì không lưu dòng nào, trả lỗi từng dòng; dòng trống cả hai số bỏ qua.
+4. `GET /children/{id}/growth` trả các lần đo (số đo sức khỏe, số đo của đợt, kết quả khám định kỳ; phụ huynh chỉ thấy kết quả khám đã công bố) kèm chỉ số Z, kênh và đường chuẩn WHO (trung vị, ±2SD, ±3SD) cho cân nặng, chiều cao theo tuổi. Quyền xem theo BR-53 và PQ-57.
+5. `GET /reports/growth` cần `P17.report.growth`; nhận `round_id` hoặc `month` (`YYYY-MM`, thiếu cả hai trả `ERR_VALIDATION`), lọc `org_unit_id`, `gender`, `channel`; trả theo lớp, theo khối kèm tổng cộng, theo đơn vị và danh sách học sinh. `GET /reports/growth/export` trả tệp Excel ba bảng, ghi một dòng `export_logs` mã báo cáo `growth` có dữ liệu cá nhân, trả mã nhật ký ở tiêu đề `x-export-log-id`; không cần `P17.data.export`.
+6. `GET /statistics/classes`, `/statistics/children`, `/statistics/missing-child-fields` cần `P17.child-statistics.view`; `GET /statistics/staff`, `/statistics/missing-staff-fields` cần `P17.staff-statistics.view`; đều lọc `org_unit_id` trong phạm vi. Hai điểm cuối hồ sơ chưa nhập đủ nhận `field` để trả danh sách hồ sơ thiếu trường đó; trường không có trong danh sách trả `ERR_VALIDATION`.
+7. Vi phạm quy tắc nghiệp vụ của phần này trả `ERR_RULE_VIOLATION` với mã chung của đợt DT-14 là `YCTD-102`.
 
 Giao kèo của hoàn thành chương trình, nhóm học sinh, chuẩn nghề nghiệp (DT-14 phần 14c, YCTD-104):
 
@@ -924,6 +934,12 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 | GET, POST | /api/v1/children/{id}/daily-care-logs | Nhật ký chăm sóc hằng ngày của trẻ (P10-12) |
 | GET, POST | /api/v1/health-check-schedules | Lịch khám sức khỏe |
 | GET, POST | /api/v1/health-standards | Tiêu chuẩn sức khỏe |
+| GET, POST | /api/v1/growth-rounds | Đợt cân đo của đơn vị (`org_unit_id` bắt buộc) kèm số số đo, `can_manage`; lập đợt (P10-13, YCTD-105) |
+| DELETE | /api/v1/growth-rounds/{id} | Xóa đợt chưa có số đo (BR-100) |
+| GET, PUT | /api/v1/growth-rounds/{id}/measurements | Bảng nhập của một lớp (`class_id`) kèm tháng tuổi, BMI, chỉ số Z, kênh, `can_edit`; Tính và lưu số đo cả lớp (YCTD-105) |
+| GET | /api/v1/growth-rounds/{id}/template | Tệp mẫu Excel của lớp (`class_id`) (YCTD-105) |
+| POST | /api/v1/growth-rounds/{id}/import | Nhập số đo từ Excel, trả số dòng đã lưu và lỗi từng dòng (BR-100) |
+| GET | /api/v1/children/{id}/growth | Biểu đồ tăng trưởng: các lần đo kèm kết quả, đường chuẩn WHO (BR-101) |
 
 ## 14. Xe đưa đón (đã bỏ)
 
@@ -1133,6 +1149,13 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | GET | /api/v1/reports/attendance-meals | Điểm danh và suất ăn theo ngày, tuần, tháng: mỗi lớp mỗi ngày sĩ số, có mặt, vắng P/K/B, suất ăn, tỷ lệ, theo khối (YCTD-103) |
 | GET | /api/v1/reports/attendance-meals/children | Bảng điểm danh từng trẻ của một lớp theo kỳ, mã P/K/B/N (YCTD-103) |
 | POST | /api/v1/reports/attendance-meals/export | Xuất Excel điểm danh và suất ăn theo mẫu của trường, ghi nhật ký xuất dữ liệu (YCTD-103) |
+| GET | /api/v1/reports/growth | Tổng hợp cân nặng, chiều cao theo đợt hoặc tháng, lọc đơn vị, giới tính, kênh (P10-14, YCTD-105) |
+| GET | /api/v1/reports/growth/export | Xuất Excel tổng hợp cân nặng, chiều cao, ghi nhật ký xuất (BR-74, YCTD-105) |
+| GET | /api/v1/statistics/classes | Thống kê lớp học theo nhóm tuổi (P17-16, YCTD-105) |
+| GET | /api/v1/statistics/children | Thống kê học sinh (P17-16, YCTD-105) |
+| GET | /api/v1/statistics/staff | Thống kê nhân sự (P17-16, YCTD-105) |
+| GET | /api/v1/statistics/missing-child-fields | Hồ sơ học sinh chưa nhập đủ; `field` để lấy danh sách (P17-17, YCTD-105) |
+| GET | /api/v1/statistics/missing-staff-fields | Hồ sơ nhân sự chưa nhập đủ; `field` để lấy danh sách (P17-17, YCTD-105) |
 | GET | /api/v1/notifications | Danh sách thông báo của người đăng nhập |
 | POST | /api/v1/notifications/{id}/read | Đánh dấu đã đọc |
 | POST | /api/v1/notifications/read-all | Đánh dấu đọc tất cả (YCTD-64) |
