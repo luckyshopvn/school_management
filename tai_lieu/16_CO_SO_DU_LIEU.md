@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.58
+- Phiên bản: 1.59
 - Ngày cập nhật: 2026-10-14
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -56,9 +56,10 @@
 | notification_recipients | Người nhận thông báo | notification_id, user_id (trống khi gửi theo vai trò), role_code và org_unit_id (mọi tài khoản có vai trò ở đơn vị, YCTD-47), channel (trong ứng dụng hoặc tin nhắn, YCTD-45), is_read, read_at, channel_status (chờ gửi, đã gửi, thất bại, vượt giới hạn trong ngày), sent_at, attempt_count, next_attempt_at, last_error (YCTD-71) |
 | notification_reads | Người đã đọc thông báo (BR-70, YCTD-64) | notification_id, user_id (duy nhất cùng notification_id), read_at |
 | notification_templates | Mẫu tiêu đề và nội dung theo mã thông báo, chung toàn trường (YCTD-64) | template_code (khóa chính), title_template, body_template, updated_by, updated_at |
-| rooms | Phòng học | org_unit_id, code (duy nhất trong đơn vị), name, capacity (lớn hơn 0), status |
+| rooms | Phòng học; khai báo cơ sở vật chất (P13-11, BR-103, YCTD-106) | org_unit_id, code (duy nhất trong đơn vị), name, capacity (lớn hơn 0), status, room_block (care_education, meal, support, administration, other; không bắt buộc), room_type (loại phòng thuộc khối), condition (permanent, semi_permanent, temporary, borrowed), area_m2 (không âm, hai chữ số thập phân), facility_attributes (jsonb khóa cố định: số chỗ ngủ, chiều cao thông thủy, sân chơi riêng và các thuộc tính khác) |
 | grade_levels | Bậc học | code (duy nhất, không đổi sau khi tạo), name, age_from_months, age_to_months (tháng tuổi, YCTD-42), order_no, status |
 | catalog_items | Mục danh mục dùng chung, không thuộc đơn vị (P01-05, YCTD-42) | catalog_type (loại do hệ thống định nghĩa), code (duy nhất trong loại), name, order_no, status, attributes (thuộc tính riêng của loại; loại nghỉ phép có is_paid, deducts_annual_leave, insurance_paid, YCTD-59) |
+| school_profiles | Hồ sơ trường của Trường chính, một dòng mỗi năm học (P01-15, BR-103, YCTD-106); mỗi thẻ một cột jsonb khóa cố định | org_unit_id (duy nhất, Trường chính), general, other_info, foreign_elements, internet, it_infrastructure, office_accounts (mảng, không có mật khẩu), updated_by |
 
 Ràng buộc: `org_units.parent_id` trỏ tới `org_units.id`. Chỉ một đơn vị `truong_chinh`, có `parent_id` trống; đơn vị `phan_hieu`, `diem_truong` có `parent_id` là Trường chính. Kiểm tra ở tầng ứng dụng và ở tầng dữ liệu (YCTD-38).
 
@@ -270,7 +271,7 @@ Bỏ ngày 09/10/2026 (YCTD-20): bảng `meal_registrations` đã gỡ vì khôn
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| assets | Tài sản (P13-01) | org_unit_id, code (duy nhất), name, category, unit, original_cost, purchase_date, location_type (store, room, class, staff, unit), location_id, location_name, status (in_stock, assigned, on_loan, damaged, lost, disposed) |
+| assets | Tài sản (P13-01) | org_unit_id, code (duy nhất), name, category, unit, original_cost, purchase_date, location_type (store, room, class, staff, unit), location_id, location_name, status (in_stock, assigned, on_loan, damaged, lost, disposed), equipment_item_id (thiết bị dạy học được tính vào số hiện có, YCTD-106) |
 | asset_assignments | Phiếu cấp phát và thu hồi (P13-02) | code, asset_id, assigned_to_type, assigned_to_id, assigned_to_name, received_by_name, assigned_on, handed_by, return_code, returned_on, returned_by_name, return_received_by, return_note; một phiếu đang mở mỗi tài sản |
 | asset_loans | Phiếu mượn trả (P13-03) | code, asset_id, borrower_name, borrower_user_id, from_date, due_date, status (open, returned), lent_by, returned_on, return_received_by; một phiếu đang mở mỗi tài sản |
 | asset_damages | Ghi nhận hỏng và mất (P13-04) | code, asset_id, org_unit_id, incident_type (damaged, lost), severity (minor, major, total), description, occurred_on, proposed_handling, status (pending, approved, rejected), reported_by, decided_by, decided_at, decision_note |
@@ -282,6 +283,10 @@ Bỏ ngày 09/10/2026 (YCTD-20): bảng `meal_registrations` đã gỡ vì khôn
 | purchase_request_items | Mặt hàng đề nghị | request_id, item_name, quantity, unit, estimated_price, note |
 | purchase_orders | Phiếu mua hàng (P13-06) | code, org_unit_id, request_id (duy nhất), supplier_id, order_date, total_amount, status (ordered, received), payment_status (awaiting_payment, paid), payment_id (duy nhất), note, created_by, received_by, received_at |
 | purchase_order_items | Mặt hàng đã mua | order_id, stock_item_id, item_name, quantity, unit_price, amount, received_qty |
+| equipment_items | Danh mục thiết bị dạy học dùng chung toàn trường (P13-12, BR-102, YCTD-106); gieo sẵn 56 thiết bị tối thiểu ghi chú "Cần đối chiếu văn bản" | code (duy nhất; tự đánh TT-0001, NDM-0001), name, unit, equipment_group (do_dung, thiet_bi_do_choi, sach_tai_lieu), development_area, age_group (nt_3_12, nt_12_24, nt_24_36, mg_3_4, mg_4_5, mg_5_6), quantity (số lượng một nhóm, lớp hoặc một học sinh, không âm), norm_basis (class, child), target_users (tre, giao_vien, tre_giao_vien), equipment_type, is_minimum, is_seeded, order_no, status (active, inactive), note, created_by |
+| equipment_holdings | Số lượng thiết bị hiện có nhập tay theo đơn vị (class_id trống) hoặc theo lớp (P13-12, YCTD-106) | equipment_item_id, org_unit_id, class_id, quantity (không âm), next_year_need (chỉ dòng của đơn vị), note, updated_by; duy nhất theo thiết bị, đơn vị, lớp |
+
+Bảng `equipment_items`, `equipment_holdings`, `school_profiles` và các cột mới `rooms.room_block`, `room_type`, `condition`, `area_m2`, `facility_attributes`, `assets.equipment_item_id` (DT-14 phần 14d) tạo bằng tệp `database/school-year/migrations/0049_create_equipment_and_facilities.ts` của cơ sở dữ liệu năm học. Mở năm học mới: phòng kèm các cột mới chuyển ở bước danh mục; bước chuyển `facilities` thay danh mục thiết bị gieo sẵn của năm mới bằng danh mục của năm cũ (giữ mã định danh), chuyển số hiện có theo đơn vị (số theo lớp cộng vào dòng của đơn vị, nhu cầu năm sau để trống) và hồ sơ trường. Bốn quyền `P13.equipment.manage`, `P17.report.facilities`, `P01.school-profile.manage`, `P17.report.emis` (PQ-60 đến PQ-63) thêm vào `permissions`, `role_permissions` của cơ sở dữ liệu định danh bằng tệp `database/identity/migrations/0039_add_facilities_emis_permissions.ts` (YCTD-106).
 
 ## 15. Phân hệ P14 — Hoạt động, nội dung và truyền thông
 
@@ -404,6 +409,8 @@ erDiagram
 | child_group_members | child_id | Lọc danh sách trẻ theo nhóm, tìm nhóm của trẻ (YCTD-104) |
 | professional_evaluations | org_unit_id | Phiếu chuẩn nghề nghiệp theo đơn vị (YCTD-104) |
 | health_measurements | growth_round_id kèm child_id, duy nhất khi có đợt | Mỗi học sinh một số đo trong một đợt, đọc số đo của đợt (YCTD-105) |
+| equipment_holdings | equipment_item_id kèm org_unit_id kèm class_id (class_id trống coi như một giá trị), duy nhất | Mỗi thiết bị một dòng số hiện có của đơn vị và của từng lớp (YCTD-106) |
+| school_profiles | org_unit_id, duy nhất | Một hồ sơ trường mỗi năm học (YCTD-106) |
 
 ## 21. Chính sách xóa dữ liệu
 

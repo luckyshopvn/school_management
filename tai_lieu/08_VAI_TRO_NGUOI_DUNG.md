@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.50
+- Phiên bản: 1.51
 - Ngày cập nhật: 2026-10-14
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -92,6 +92,7 @@ Ghi chú áp dụng cho bảng:
 17. Quyền S của VT-07 ở P10 gồm ghi sự kiện y tế ban đầu, ghi chăm sóc hằng ngày (BR-87), và nhận thuốc, ghi liều chỉ khi đơn vị bật cấu hình không có nhân viên y tế (BR-86).
 18. Ở P02, VT-07 ghi kết quả hoàn thành chương trình của lớp mình chủ nhiệm; VT-02, VT-15 xác nhận danh sách (PQ-54). Ở P07, VT-02 sửa danh mục chuẩn nghề nghiệp và đánh giá, VT-03 đánh giá phiếu chuẩn giáo viên trong đơn vị; mọi nhân sự có hồ sơ tự đánh giá phiếu của mình (PQ-56).
 19. Ở P10, chỉ VT-09 lập đợt cân đo và ghi cân nặng, chiều cao; giáo viên chủ nhiệm chỉ xem số đo của lớp mình. Ở P17, VT-09 xem tổng hợp cân nặng, chiều cao (PQ-57); VT-06 chỉ xem thống kê nhân sự và hồ sơ nhân sự chưa nhập đủ (PQ-59).
+20. Ở P13, VT-03 và VT-11 nhập số lượng thiết bị dạy học hiện có của đơn vị; chỉ người có quyền ở phạm vi toàn trường sửa danh mục thiết bị (PQ-60). Ở P01, chỉ VT-02 ghi hồ sơ trường (PQ-62). Ở P17, VT-11 xem tổng hợp thiết bị và khai báo cơ sở vật chất (PQ-61); báo cáo EMIS đầu năm chỉ VT-02, VT-15 ở phạm vi toàn trường (PQ-63).
 
 ## 4. Quy tắc phân quyền
 
@@ -156,6 +157,10 @@ Ghi chú áp dụng cho bảng:
 | PQ-57 | Báo cáo cân đo (YCTD-105): `P17.report.growth` cho VT-02, VT-15, VT-03, VT-09 xem và xuất Excel tổng hợp cân nặng, chiều cao trong phạm vi đơn vị, không cần `P17.data.export`; mỗi lần xuất ghi nhật ký xuất (BR-74). Lập, xóa đợt cân đo, ghi số đo, nhập từ Excel dùng quyền sẵn có `P10.health.manage` (VT-09) trong phạm vi đơn vị. Xem số đo theo BR-53: VT-02, VT-15, VT-03, VT-04, VT-09 trong đơn vị, giáo viên chủ nhiệm chỉ lớp mình chủ nhiệm, phụ huynh chỉ biểu đồ của con mình |
 | PQ-58 | Thống kê học sinh (YCTD-105): `P17.child-statistics.view` cho VT-02, VT-15, VT-03 xem thống kê lớp học, thống kê học sinh và hồ sơ học sinh chưa nhập đủ trong phạm vi đơn vị; mở hồ sơ học sinh từ danh sách vẫn theo phạm vi xem trẻ |
 | PQ-59 | Thống kê nhân sự (YCTD-105): `P17.staff-statistics.view` cho VT-02, VT-15, VT-03, VT-06 xem thống kê nhân sự và hồ sơ nhân sự chưa nhập đủ trong phạm vi đơn vị; mở hồ sơ nhân sự từ danh sách vẫn theo quyền xem nhân sự |
+| PQ-60 | Thiết bị dạy học (YCTD-106): `P13.equipment.manage` cho VT-02, VT-03, VT-11 nhập số lượng hiện có, nhu cầu năm sau và gắn tài sản với thiết bị trong phạm vi đơn vị; thêm, sửa, ngừng thiết bị trong danh mục dùng chung cần phạm vi toàn trường (VT-02, hoặc VT-11 gán ở Trường chính). Người có quyền này hoặc `P17.report.facilities` xem được danh mục thiết bị |
+| PQ-61 | Báo cáo cơ sở vật chất (YCTD-106): `P17.report.facilities` cho VT-02, VT-15, VT-03, VT-11 xem và xuất Excel tổng hợp thiết bị dạy học và khai báo cơ sở vật chất trong phạm vi đơn vị, không cần `P17.data.export`; mỗi lần xuất ghi nhật ký xuất (BR-74). Người có `P01.room.manage` cũng xem được khai báo cơ sở vật chất; thêm, sửa phòng vẫn dùng `P01.room.manage` (PQ-16) |
+| PQ-62 | Hồ sơ trường (YCTD-106): `P01.school-profile.manage` chỉ VT-02, ghi cần phạm vi toàn trường; người có `P17.report.emis` xem được hồ sơ trường |
+| PQ-63 | Báo cáo EMIS (YCTD-106): `P17.report.emis` cho VT-02, VT-15 xem và xuất Excel báo cáo EMIS đầu năm, cần phạm vi toàn trường (gán ở Trường chính); không cần `P17.data.export`, mỗi lần xuất ghi nhật ký xuất (BR-74) |
 
 ## 5. Phân cấp phê duyệt
 

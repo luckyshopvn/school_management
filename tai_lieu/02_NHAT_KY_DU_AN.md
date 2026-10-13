@@ -14,6 +14,25 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-14 — DT-14 phần 14d: hồ sơ trường, khai báo cơ sở vật chất, thiết bị dạy học, biểu EMIS đầu năm
+
+#### Công việc đã thực hiện
+
+- Hồ sơ trường sáu thẻ gắn với Trường chính; khai báo cơ sở vật chất trên danh mục phòng học (khối, loại, hiện trạng, diện tích, thuộc tính) kèm bảng tổng hợp; danh mục thiết bị dạy học tối thiểu gieo sẵn và thiết bị ngoài danh mục, số lượng hiện có theo đơn vị, lớp, tổng hợp theo định mức; báo cáo EMIS đầu năm Biểu 1 năm thẻ; xuất Excel kèm nhật ký xuất; chuyển hồ sơ, danh mục thiết bị, số hiện có khi mở năm học mới.
+- Thêm kịch bản CT-330 đến CT-339.
+
+#### Quyết định
+
+- Eric chọn bổ sung bốn nhóm chức năng theo hệ thống của Sở ngày 13/10/2026 (YCTD-102); các điểm kỹ thuật Claude tự chọn ghi ở YCTD-106.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-106 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.59.0.
+
+#### Vấn đề tồn đọng
+
+- Danh mục thiết bị tối thiểu gieo sẵn và mã số chỉ tiêu EMIS cần đối chiếu văn bản; chưa gửi báo cáo EMIS lên Sở; chưa có thẻ Ngân sách nhà nước, biểu cuối năm; gắn tài sản với thiết bị chưa có trên màn hình Kho và tài sản.
+
 ### 2026-10-14 — DT-14 phần 14a: cân nặng, chiều cao theo chuẩn WHO, thống kê theo tiêu chí ngành, hồ sơ chưa nhập đủ
 
 #### Công việc đã thực hiện

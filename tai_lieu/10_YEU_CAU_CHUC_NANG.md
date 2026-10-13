@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.36
+- Phiên bản: 1.37
 - Ngày cập nhật: 2026-10-14
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -32,6 +32,7 @@
 | P01-12 | Danh mục bậc học (G1) | VT-02 | Mã (không đổi sau khi tạo), tên bậc học, độ tuổi theo tháng (YCTD-42), thứ tự | Tạo, sửa, ngừng sử dụng; lớp và biểu phí chọn bậc học từ danh mục | Danh mục bậc học | BR-02, BR-17, BR-75 |
 | P01-13 | Nhập dữ liệu ban đầu từ Excel (G1) | VT-02, VT-04, VT-06 | Loại dữ liệu, tệp Excel theo mẫu tải từ hệ thống | Kiểm tra toàn bộ tệp, xuất báo cáo dòng lỗi; chỉ ghi khi không còn dòng lỗi; ghi nhật ký nhập; trẻ nhập ở trạng thái đang học, bổ sung giấy khai sinh sau (YCTD-46) | Trẻ, phụ huynh, lớp, nhân sự, công nợ đầu kỳ đã nhập | BR-06, BR-35, BR-75 |
 | P01-14 | Khóa API cho đối tác (G1) | VT-02 | Tên đối tác, loại đối tác, phạm vi dữ liệu (báo cáo tổng hợp, thu chi và công nợ, danh sách trẻ và phụ huynh, nhân sự và lương), căn cứ pháp lý, địa chỉ mạng cho phép, ngày hết hạn | Cấp, thu hồi khóa; đối tác chỉ đọc dữ liệu trong phạm vi; mọi lần đọc dữ liệu cá nhân ghi nhật ký; khóa chỉ hiện một lần, tối đa 60 yêu cầu mỗi phút (YCTD-63) | Danh sách khóa API | BR-74, BR-73 |
+| P01-15 | Hồ sơ trường (G3) | VT-02 ghi; VT-15 xem | Sáu thẻ: thông tin chung (loại hình, mã định danh, quyết định thành lập, diện tích, đơn vị quản lý), thông tin khác (28 tiêu chí), yếu tố nước ngoài, kết nối internet, hạ tầng và ứng dụng CNTT, tài khoản văn phòng điện tử (không có mật khẩu) | Một hồ sơ mỗi năm học gắn với Trường chính; Ghi các thẻ gửi lên, thẻ không gửi giữ nguyên; từ chối trường lạ, sai kiểu; ghi nhật ký thao tác; chuyển sang năm học mới (YCTD-106) | Hồ sơ trường, loại hình dùng cho báo cáo EMIS | BR-103, BR-73 |
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 
@@ -207,6 +208,8 @@
 | P13-08 | Nhập xuất tồn kho (G2) | VT-11 | Phiếu nhập, phiếu xuất, mặt hàng, số lượng | Tính tồn kho theo thời điểm | Sổ kho | BR-62 |
 | P13-09 | Kiểm kê (G2) | VT-11, VT-05 | Kỳ kiểm kê, số lượng thực tế | Đối chiếu và ghi nhận chênh lệch | Biên bản kiểm kê | LP-12, BR-62 |
 | P13-10 | Tồn kho ban đầu (G2) | VT-11 | Mặt hàng hoặc tài sản, số lượng, đơn giá, ngày khóa sổ | Nhập một lần khi bắt đầu dùng hệ thống; khóa sau khi xác nhận | Số tồn ban đầu | BR-62 |
+| P13-11 | Khai báo cơ sở vật chất (G3) | VT-02, VT-03 thêm, sửa; VT-15, VT-11 xem | Phòng học kèm khối phòng, loại phòng, hiện trạng, diện tích, thuộc tính theo quy chuẩn; lọc đơn vị, khối, loại, hiện trạng, trạng thái | Mở rộng danh mục phòng học (P01-11); danh sách phòng của các đơn vị trong phạm vi kèm nhóm, lớp; tổng hợp phòng đang dùng theo khối và hiện trạng kèm tổng diện tích; xuất Excel kèm nhật ký xuất (YCTD-106) | Danh sách cơ sở vật chất, bảng tổng hợp, tệp Excel | BR-103, BR-74, BR-75 |
+| P13-12 | Thiết bị dạy học tối thiểu (G3) | VT-02 sửa danh mục; VT-02, VT-03, VT-11 nhập số hiện có; VT-15 xem | Danh mục thiết bị tối thiểu (gieo sẵn, cần đối chiếu văn bản) và ngoài danh mục: nhóm tuổi, nhóm thiết bị, lĩnh vực phát triển, định mức theo nhóm, lớp hoặc theo học sinh; số hiện có theo đơn vị hoặc lớp, nhu cầu năm sau; tài sản gắn với thiết bị | Tính định mức, hiện có, thừa, thiếu, tỷ lệ đáp ứng, nhu cầu bổ sung theo nhóm tuổi của lớp; lọc đơn vị, nhóm tuổi, nhóm thiết bị, lĩnh vực, lớp, loại danh mục; xuất Excel kèm nhật ký xuất (YCTD-106) | Tổng hợp thiết bị dạy học, theo lớp, tệp Excel | BR-102, BR-74 |
 
 ## 15. Phân hệ P14 — Hoạt động, nội dung và truyền thông
 
@@ -267,6 +270,7 @@
 | P17-15 | Bỏ ngày 09/10/2026: trường không có bữa tối (YCTD-20) | — | — | — | — | — |
 | P17-16 | Thống kê theo tiêu chí ngành (G3) | VT-02, VT-15, VT-03; VT-06 thống kê nhân sự | Đơn vị | Thống kê lớp học theo nhóm tuổi của bậc học; thống kê học sinh đang học theo độ tuổi, dân tộc, khuyết tật, diện chính sách, biết bơi, bệnh về mắt; thống kê nhân sự đang làm việc theo trình độ, vị trí việc làm, hình thức hợp đồng, nhóm chức vụ; trường chưa có cột riêng đọc từ hồ sơ CSDL ngành đã nhập (YCTD-105) | Ba bảng thống kê lớp học, học sinh, nhân sự | BR-01, BR-72 |
 | P17-17 | Hồ sơ chưa nhập đủ (G3) | VT-02, VT-15, VT-03; VT-06 hồ sơ nhân sự | Đơn vị, trường thông tin | Đếm số hồ sơ học sinh đang học, nhân sự đang làm việc còn thiếu từng trường; bấm số để xem danh sách, bấm tên để mở hồ sơ (YCTD-105) | Bảng số hồ sơ thiếu theo trường, danh sách hồ sơ thiếu | BR-01, BR-72 |
+| P17-18 | Báo cáo EMIS đầu năm (G3) | VT-02, VT-15 (phạm vi toàn trường) | Năm học đang dùng | Tính Biểu 1 năm thẻ (trường, lớp học; học sinh; học sinh theo độ tuổi; đội ngũ; phòng học) với cột tổng số, công lập, tư thục, dân lập, nữ, dân tộc thiểu số tại thời điểm xem; cảnh báo khi chưa khai báo loại hình; xuất Excel năm trang kèm nhật ký xuất; không gửi lên Sở (YCTD-106) | Biểu 1 EMIS đầu năm, tệp Excel | BR-104, BR-74 |
 
 ## 19. Phân hệ P18 — Tuyển dụng
 

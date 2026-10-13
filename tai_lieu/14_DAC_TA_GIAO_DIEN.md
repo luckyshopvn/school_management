@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.48
+- Phiên bản: 1.49
 - Ngày cập nhật: 2026-10-14
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -122,6 +122,10 @@ flowchart TD
 | MH-76 | Tổng hợp cân nặng, chiều cao (nhóm Y tế, mục "Tổng hợp cân đo", đường dẫn `/growth-report`): lọc đơn vị, đợt hoặc tháng, giới tính, kênh; bảng theo khối kèm dòng tổng cộng, bảng theo lớp, danh sách học sinh theo kênh; xuất Excel (YCTD-105) | VT-02, VT-15, VT-03, VT-09 |
 | MH-77 | Thống kê theo tiêu chí ngành (nhóm Báo cáo, mục "Thống kê theo tiêu chí ngành", đường dẫn `/statistics`): ba thẻ Thống kê lớp học, Thống kê nhân sự, Thống kê học sinh, tiêu đề trang theo thẻ đang chọn; lọc đơn vị; mỗi nhóm có số lượng, nữ, tỷ lệ, giá trị trống gom vào "Chưa nhập" (YCTD-105) | VT-02, VT-15, VT-03; VT-06 thẻ nhân sự |
 | MH-78 | Hồ sơ chưa nhập đủ (nhóm Báo cáo, mục "Hồ sơ chưa nhập đủ", đường dẫn `/missing-profiles`): thẻ Hồ sơ học sinh chưa nhập đủ và Hồ sơ nhân sự chưa nhập đủ; số hồ sơ thiếu theo từng trường; bấm số để xem danh sách (họ tên, đơn vị, lớp), bấm họ tên để mở hồ sơ ngay trên trang (YCTD-105) | VT-02, VT-15, VT-03; VT-06 thẻ nhân sự |
+| MH-79 | Hồ sơ trường (nhóm Thiết lập, mục "1.1 Hồ sơ trường", đường dẫn `/school-profile`): sáu thẻ Thông tin chung, Thông tin khác, Trường có yếu tố nước ngoài, Kết nối internet, Hạ tầng, thiết bị, ứng dụng CNTT, Tài khoản văn phòng điện tử (bảng thêm, xóa dòng, không có ô mật khẩu); nút "Ghi" gửi cả sáu thẻ (YCTD-106) | VT-02 ghi; VT-15 xem |
+| MH-80 | Khai báo cơ sở vật chất (nhóm mới Cơ sở vật chất, mục "1.1 Khai báo cơ sở vật chất", đường dẫn `/facility-rooms`): thẻ năm khối phòng; lọc đơn vị, loại phòng, hiện trạng, trạng thái; danh sách phòng kèm nhóm, lớp; thêm và sửa phòng kèm khối, loại, hiện trạng, diện tích, thuộc tính; bảng tổng hợp theo khối và hiện trạng; Xuất Excel (YCTD-106) | VT-02, VT-03 thêm, sửa; VT-15, VT-11 xem |
+| MH-81 | Tổng hợp thiết bị dạy học (nhóm Cơ sở vật chất, mục "2.1 Tổng hợp thiết bị dạy học", đường dẫn `/equipment`): thẻ Tổng hợp (lọc đơn vị, nhóm tuổi, nhóm thiết bị, lĩnh vực, lớp, loại danh mục; tỷ lệ đáp ứng chung; lớp chưa xếp nhóm tuổi; Xuất Excel), Nhập số hiện có (theo đơn vị hoặc lớp, nhu cầu năm sau), 2.2 Thiết bị ngoài danh mục tối thiểu, Danh mục tối thiểu (sửa định mức, ghi chú "Cần đối chiếu văn bản") (YCTD-106) | VT-02 sửa danh mục; VT-02, VT-03, VT-11 nhập số hiện có; VT-15 xem |
+| MH-82 | Báo cáo EMIS đầu năm (nhóm Báo cáo, mục "1.1 Biểu EMIS đầu năm", đường dẫn `/emis`): năm thẻ của Biểu 1 (Trường – lớp học, Học sinh, Học sinh theo độ tuổi, Đội ngũ, Phòng học), cột tổng số, công lập, tư thục, dân lập, nữ, dân tộc thiểu số; cảnh báo chưa khai báo loại hình, lưu ý đối chiếu chỉ tiêu; Xuất Excel năm trang. Tên mục không chứa chữ "Báo cáo" để kiểm thử giao diện tìm mục theo chữ không trùng mục báo cáo hiện có (YCTD-106) | VT-02, VT-15 (phạm vi toàn trường) |
 
 ### 2.2 Ứng dụng giáo viên
 

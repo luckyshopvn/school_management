@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.59.0 – 2026-10-14
+
+- Phạm vi thay đổi: DT-14 phần 14d, hồ sơ trường, khai báo cơ sở vật chất, thiết bị dạy học, biểu EMIS đầu năm (YCTD-106).
+- Chức năng mới: hồ sơ trường sáu thẻ (P01); khai báo cơ sở vật chất theo khối phòng, loại phòng, hiện trạng kèm bảng tổng hợp, danh mục thiết bị dạy học tối thiểu và ngoài danh mục, số lượng hiện có, tổng hợp thiết bị theo định mức (P13); báo cáo EMIS đầu năm Biểu 1 năm thẻ (P17); xuất Excel kèm nhật ký xuất.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: ba bảng mới `equipment_items`, `equipment_holdings`, `school_profiles`, cột mới của `rooms` (khối, loại, hiện trạng, diện tích, thuộc tính) và `assets.equipment_item_id` (tệp 0049 của năm học); bốn quyền mới (tệp 0039 của định danh).
+- Thay đổi API: thêm `/school-profile`, `/facilities/rooms`, `/facilities/rooms/export`, `/equipment-items`, `/equipment-holdings`, `/equipment-assets`, `/equipment-report`, `/equipment-report/export`, `/reports/emis/start-of-year`, `/reports/emis/start-of-year/export`; `/rooms` thêm trường khai báo cơ sở vật chất.
+- Rủi ro: danh mục thiết bị tối thiểu gieo sẵn (56 thiết bị) và mã số chỉ tiêu EMIS do hệ thống đặt, cần đối chiếu văn bản; dân tộc, khuyết tật, nhóm chức vụ, đảng viên đọc từ hồ sơ CSDL ngành đã nhập (YCTD-100).
+- Khả năng tương thích: chức năng cũ giữ nguyên; trường mới của phòng học không bắt buộc; mở năm học mới thêm bước chuyển hồ sơ trường, danh mục thiết bị và số hiện có.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-14-phan-14d`; bảng, cột mới để lại không ảnh hưởng.
+
 ### Phiên bản 0.58.0 – 2026-10-14
 
 - Phạm vi thay đổi: DT-14 phần 14a, cân nặng, chiều cao theo chuẩn WHO, thống kê theo tiêu chí ngành, hồ sơ chưa nhập đủ (YCTD-105).
