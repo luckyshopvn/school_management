@@ -1,8 +1,8 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.49
-- Ngày cập nhật: 2026-10-13
+- Phiên bản: 1.50
+- Ngày cập nhật: 2026-10-14
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -91,6 +91,7 @@ Ghi chú áp dụng cho bảng:
 16. Quyền S của VT-03 ở P05 chỉ gồm lập đề xuất xử lý công nợ quá hạn (P05-12); quyết định do VT-15 hoặc VT-02 ghi.
 17. Quyền S của VT-07 ở P10 gồm ghi sự kiện y tế ban đầu, ghi chăm sóc hằng ngày (BR-87), và nhận thuốc, ghi liều chỉ khi đơn vị bật cấu hình không có nhân viên y tế (BR-86).
 18. Ở P02, VT-07 ghi kết quả hoàn thành chương trình của lớp mình chủ nhiệm; VT-02, VT-15 xác nhận danh sách (PQ-54). Ở P07, VT-02 sửa danh mục chuẩn nghề nghiệp và đánh giá, VT-03 đánh giá phiếu chuẩn giáo viên trong đơn vị; mọi nhân sự có hồ sơ tự đánh giá phiếu của mình (PQ-56).
+19. Ở P10, chỉ VT-09 lập đợt cân đo và ghi cân nặng, chiều cao; giáo viên chủ nhiệm chỉ xem số đo của lớp mình. Ở P17, VT-09 xem tổng hợp cân nặng, chiều cao (PQ-57); VT-06 chỉ xem thống kê nhân sự và hồ sơ nhân sự chưa nhập đủ (PQ-59).
 
 ## 4. Quy tắc phân quyền
 
@@ -152,6 +153,9 @@ Ghi chú áp dụng cho bảng:
 | PQ-54 | Hoàn thành chương trình giáo dục mầm non (YCTD-104): `P02.program-completion.manage` cho VT-03 (mọi lớp của đơn vị được gán), VT-07 (chỉ lớp đang chủ nhiệm) ghi kết quả của trẻ; `P02.program-completion.approve` cho VT-02 (toàn trường), VT-15 (đơn vị được gán) xác nhận, hủy xác nhận danh sách của lớp. Người có một trong hai quyền xem và xuất Excel danh sách trong phạm vi, không cần `P17.data.export`; mỗi lần xuất ghi nhật ký xuất (BR-74) |
 | PQ-55 | Nhóm học sinh (YCTD-104): `P02.child-group.manage` cho VT-02, VT-15, VT-03 lập, sửa, ngừng dùng nhóm, thêm, bớt trẻ trong phạm vi đơn vị. Giáo viên không cần quyền riêng: xem nhóm mình phụ trách (thấy mọi trẻ của nhóm) và nhóm có trẻ thuộc lớp mình được phân công (chỉ thấy trẻ trong phạm vi xem trẻ, BR-72) |
 | PQ-56 | Chuẩn nghề nghiệp (YCTD-104): `P07.professional-standard.manage` chỉ VT-02, cần phạm vi toàn trường, sửa danh mục tiêu chuẩn, tiêu chí, mở, đánh giá, chốt mọi phiếu kể cả phiếu chuẩn hiệu trưởng; `P07.professional-standard.assess` cho VT-03, VT-02 mở, đánh giá, chốt phiếu chuẩn giáo viên của nhân sự có đơn vị chính trong phạm vi. Mọi nhân sự tự đánh giá phiếu của chính mình; không ai mở, đánh giá, chốt phiếu của chính mình (BR-98) |
+| PQ-57 | Báo cáo cân đo (YCTD-105): `P17.report.growth` cho VT-02, VT-15, VT-03, VT-09 xem và xuất Excel tổng hợp cân nặng, chiều cao trong phạm vi đơn vị, không cần `P17.data.export`; mỗi lần xuất ghi nhật ký xuất (BR-74). Lập, xóa đợt cân đo, ghi số đo, nhập từ Excel dùng quyền sẵn có `P10.health.manage` (VT-09) trong phạm vi đơn vị. Xem số đo theo BR-53: VT-02, VT-15, VT-03, VT-04, VT-09 trong đơn vị, giáo viên chủ nhiệm chỉ lớp mình chủ nhiệm, phụ huynh chỉ biểu đồ của con mình |
+| PQ-58 | Thống kê học sinh (YCTD-105): `P17.child-statistics.view` cho VT-02, VT-15, VT-03 xem thống kê lớp học, thống kê học sinh và hồ sơ học sinh chưa nhập đủ trong phạm vi đơn vị; mở hồ sơ học sinh từ danh sách vẫn theo phạm vi xem trẻ |
+| PQ-59 | Thống kê nhân sự (YCTD-105): `P17.staff-statistics.view` cho VT-02, VT-15, VT-03, VT-06 xem thống kê nhân sự và hồ sơ nhân sự chưa nhập đủ trong phạm vi đơn vị; mở hồ sơ nhân sự từ danh sách vẫn theo quyền xem nhân sự |
 
 ## 5. Phân cấp phê duyệt
 

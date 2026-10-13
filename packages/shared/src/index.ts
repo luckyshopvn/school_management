@@ -133,6 +133,11 @@ export const PERMISSION_CODES = {
   staffAttendanceReport: 'P17.report.staff-attendance',
   saturdayReport: 'P17.report.saturday',
   birthdayView: 'P17.birthday.view',
+  // Báo cáo cân nặng, chiều cao theo đợt cân đo (YCTD-102)
+  growthReport: 'P17.report.growth',
+  // Thống kê theo tiêu chí ngành và hồ sơ chưa nhập đủ (YCTD-102)
+  childStatisticsView: 'P17.child-statistics.view',
+  staffStatisticsView: 'P17.staff-statistics.view',
   apiClientManage: 'P01.api-client.manage',
   notificationTemplateManage: 'P19.notification-template.manage',
   notificationReceiptView: 'P19.notification-receipt.view',

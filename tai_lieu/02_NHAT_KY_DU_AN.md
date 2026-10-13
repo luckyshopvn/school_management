@@ -2,7 +2,7 @@
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
 - Phiên bản: 0.4
-- Ngày cập nhật: 2026-10-13
+- Ngày cập nhật: 2026-10-14
 - Trạng thái: Đang cập nhật
 
 ## Quy ước ghi nhật ký
@@ -13,6 +13,25 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-14 — DT-14 phần 14a: cân nặng, chiều cao theo chuẩn WHO, thống kê theo tiêu chí ngành, hồ sơ chưa nhập đủ
+
+#### Công việc đã thực hiện
+
+- Đợt cân đo, nhập cân nặng, chiều cao theo lớp và từ Excel, chỉ số Z và kênh tăng trưởng theo chuẩn WHO, biểu đồ tăng trưởng, tổng hợp cân nặng, chiều cao kèm xuất Excel; thống kê lớp học, học sinh, nhân sự theo tiêu chí ngành; hồ sơ học sinh, nhân sự chưa nhập đủ.
+- Thêm kịch bản CT-320 đến CT-329.
+
+#### Quyết định
+
+- Eric chọn bổ sung bốn nhóm chức năng theo hệ thống của Sở ngày 13/10/2026 (YCTD-102); các điểm kỹ thuật Claude tự chọn ghi ở YCTD-105.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-105 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.58.0.
+
+#### Vấn đề tồn đọng
+
+- Dân tộc, khuyết tật, trình độ và các trường tương tự chưa có cột riêng, đọc từ hồ sơ CSDL ngành đã nhập; chưa có thông báo phụ huynh khi có kết quả cân đo, chưa tổng hợp theo học kỳ.
 
 ### 2026-10-13 — DT-14 phần 14c: hoàn thành chương trình mầm non, chuẩn nghề nghiệp, nhóm học sinh
 

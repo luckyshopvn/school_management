@@ -1,8 +1,8 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.47
-- Ngày cập nhật: 2026-10-13
+- Phiên bản: 1.48
+- Ngày cập nhật: 2026-10-14
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -118,6 +118,10 @@ flowchart TD
 | MH-72 | Hoàn thành chương trình (nhóm Trẻ và lớp, đường dẫn `/program-completion`): thống kê theo đơn vị; danh sách lớp mẫu giáo 5-6 tuổi kèm số trẻ, số hoàn thành, chưa ghi, tỷ lệ, trạng thái xác nhận; mở lớp để ghi kết quả từng trẻ hoặc đánh dấu cả lớp hoàn thành; xác nhận, hủy xác nhận kèm lý do; xuất Excel một lớp hoặc các lớp (YCTD-104) | VT-07 (lớp chủ nhiệm), VT-03 ghi; VT-02, VT-15 xác nhận |
 | MH-73 | Nhóm học sinh (nhóm Trẻ và lớp, đường dẫn `/child-groups`): danh sách nhóm theo đơn vị; lập, sửa nhóm, giáo viên phụ trách, ngừng dùng; xem trẻ của nhóm; thêm trẻ theo lớp (chọn trẻ hoặc cả lớp), bớt trẻ (YCTD-104) | VT-02, VT-15, VT-03; giáo viên chỉ xem |
 | MH-74 | Chuẩn nghề nghiệp (nhóm Nhân sự, đường dẫn `/professional-standards`): phiếu tự đánh giá của tôi (mức, minh chứng từng tiêu chí, lưu, gửi); mở phiếu cho nhiều nhân sự; thống kê xếp loại; phiếu của đơn vị, đánh giá từng tiêu chí, nhận xét, chốt; danh mục tiêu chuẩn, tiêu chí (sửa tên, tiêu chí trọng yếu, ngừng dùng, thêm tiêu chí) (YCTD-104) | Mọi nhân sự tự đánh giá; VT-03, VT-02 đánh giá; VT-02 sửa danh mục |
+| MH-75 | Nhập kết quả sức khỏe nuôi dưỡng (nhóm Y tế, mục "Nhập cân đo", đường dẫn `/growth`): chọn đơn vị, đợt cân đo, lớp; lập, xóa đợt; bảng học sinh nhập cân nặng, chiều cao, hiện tháng tuổi, BMI, kết quả cân nặng theo tuổi, chiều cao theo tuổi, cân nặng theo chiều cao, kênh tăng trưởng; nút "Tính và lưu"; tải tệp mẫu của lớp, nhập từ Excel kèm lỗi từng dòng; mở biểu đồ tăng trưởng của học sinh (cân nặng, chiều cao theo tuổi với đường trung vị, ±2SD, ±3SD theo WHO) (YCTD-105) | VT-09 nhập; VT-02, VT-15, VT-03, VT-04 và giáo viên chủ nhiệm (lớp mình) xem |
+| MH-76 | Tổng hợp cân nặng, chiều cao (nhóm Y tế, mục "Tổng hợp cân đo", đường dẫn `/growth-report`): lọc đơn vị, đợt hoặc tháng, giới tính, kênh; bảng theo khối kèm dòng tổng cộng, bảng theo lớp, danh sách học sinh theo kênh; xuất Excel (YCTD-105) | VT-02, VT-15, VT-03, VT-09 |
+| MH-77 | Thống kê theo tiêu chí ngành (nhóm Báo cáo, mục "Thống kê theo tiêu chí ngành", đường dẫn `/statistics`): ba thẻ Thống kê lớp học, Thống kê nhân sự, Thống kê học sinh, tiêu đề trang theo thẻ đang chọn; lọc đơn vị; mỗi nhóm có số lượng, nữ, tỷ lệ, giá trị trống gom vào "Chưa nhập" (YCTD-105) | VT-02, VT-15, VT-03; VT-06 thẻ nhân sự |
+| MH-78 | Hồ sơ chưa nhập đủ (nhóm Báo cáo, mục "Hồ sơ chưa nhập đủ", đường dẫn `/missing-profiles`): thẻ Hồ sơ học sinh chưa nhập đủ và Hồ sơ nhân sự chưa nhập đủ; số hồ sơ thiếu theo từng trường; bấm số để xem danh sách (họ tên, đơn vị, lớp), bấm họ tên để mở hồ sơ ngay trên trang (YCTD-105) | VT-02, VT-15, VT-03; VT-06 thẻ nhân sự |
 
 ### 2.2 Ứng dụng giáo viên
 

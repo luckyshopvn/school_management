@@ -1,8 +1,8 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.35
-- Ngày cập nhật: 2026-10-13
+- Phiên bản: 1.36
+- Ngày cập nhật: 2026-10-14
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -164,6 +164,8 @@
 | P10-10 | Lịch khám sức khỏe (G2) | VT-09 | Đợt khám, ngày, lớp, nơi khám | Lập lịch khám theo đợt, thông báo phụ huynh của trẻ trong lớp | Lịch khám | BR-51, BR-69 |
 | P10-11 | Tiêu chuẩn sức khỏe (G2) | VT-09 | Độ tuổi, giới tính, chỉ số, ngưỡng dưới, ngưỡng trên theo tiêu chuẩn của Bộ Y tế | Quản lý bảng tiêu chuẩn theo Bộ Y tế; so sánh kết quả khám với tiêu chuẩn | Bảng tiêu chuẩn và đánh giá chỉ số | BR-51 |
 | P10-12 | Theo dõi chăm sóc hằng ngày (G2) | VT-07, VT-09, VT-14 | Trẻ, ngày, thời điểm, nhiệt độ, tình trạng, chăm sóc đặc biệt theo lưu ý của phụ huynh | Giáo viên chủ nhiệm hoặc y tế ghi nhận; phụ huynh của trẻ xem trên ứng dụng | Nhật ký chăm sóc hằng ngày | BR-53, BR-87 |
+| P10-13 | Cân đo theo đợt và kênh tăng trưởng (G3) | VT-09 ghi; VT-02, VT-15, VT-03, VT-04 và giáo viên chủ nhiệm xem; VT-14 xem biểu đồ của con | Đợt cân đo (tên, ngày cân đo), lớp, cân nặng và chiều cao từng học sinh, hoặc tệp Excel theo mẫu của lớp | Lập đợt; nhập số đo cả lớp rồi "Tính và lưu"; nhập từ Excel so khớp theo mã học sinh hoặc họ tên và ngày sinh, có lỗi thì không lưu dòng nào; tính tháng tuổi, BMI, chỉ số Z và kênh tăng trưởng theo chuẩn WHO; biểu đồ tăng trưởng với đường trung vị, ±2SD, ±3SD (YCTD-105) | Số đo của đợt, kết quả theo kênh, biểu đồ tăng trưởng | BR-53, BR-100, BR-101 |
+| P10-14 | Tổng hợp cân nặng, chiều cao (G3) | VT-02, VT-15, VT-03, VT-09 | Một đợt hoặc một tháng, đơn vị, giới tính, kênh | Tổng hợp theo lớp, theo khối, theo đơn vị: số học sinh, nữ, số được cân đo, tỷ lệ, số và tỷ lệ từng kênh, bình thường cả ba kênh; danh sách học sinh theo kênh; xuất Excel kèm nhật ký xuất (YCTD-105) | Bảng tổng hợp, danh sách học sinh, tệp Excel | BR-74, BR-101 |
 
 ## 12. Phân hệ P11 — Xe đưa đón (đã bỏ ngày 09/10/2026)
 
@@ -263,6 +265,8 @@
 | P17-13 | Sinh nhật trẻ trong tháng trên bảng tin (G1) | VT-02, VT-15, VT-03, VT-07 | Đơn vị, lớp, tháng | Lọc trẻ đang học có ngày sinh trong tháng theo phạm vi quyền (YCTD-62: giáo viên xem lớp được phân công) | Danh sách sinh nhật trong tháng | BR-72 |
 | P17-14 | Báo cáo học thứ 7 (G1) | VT-04, VT-03 | Kỳ, đơn vị, lớp | Tổng hợp các ngày thứ bảy học bù trong kỳ và số trẻ đi học, số trẻ vắng của từng ngày (YCTD-62: theo lớp) | Báo cáo học thứ 7 | BR-84 |
 | P17-15 | Bỏ ngày 09/10/2026: trường không có bữa tối (YCTD-20) | — | — | — | — | — |
+| P17-16 | Thống kê theo tiêu chí ngành (G3) | VT-02, VT-15, VT-03; VT-06 thống kê nhân sự | Đơn vị | Thống kê lớp học theo nhóm tuổi của bậc học; thống kê học sinh đang học theo độ tuổi, dân tộc, khuyết tật, diện chính sách, biết bơi, bệnh về mắt; thống kê nhân sự đang làm việc theo trình độ, vị trí việc làm, hình thức hợp đồng, nhóm chức vụ; trường chưa có cột riêng đọc từ hồ sơ CSDL ngành đã nhập (YCTD-105) | Ba bảng thống kê lớp học, học sinh, nhân sự | BR-01, BR-72 |
+| P17-17 | Hồ sơ chưa nhập đủ (G3) | VT-02, VT-15, VT-03; VT-06 hồ sơ nhân sự | Đơn vị, trường thông tin | Đếm số hồ sơ học sinh đang học, nhân sự đang làm việc còn thiếu từng trường; bấm số để xem danh sách, bấm tên để mở hồ sơ (YCTD-105) | Bảng số hồ sơ thiếu theo trường, danh sách hồ sơ thiếu | BR-01, BR-72 |
 
 ## 19. Phân hệ P18 — Tuyển dụng
 
