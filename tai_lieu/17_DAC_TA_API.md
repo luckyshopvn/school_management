@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.60
+- Phiên bản: 1.61
 - Ngày cập nhật: 2026-10-13
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -255,6 +255,15 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | GET, PATCH | /api/v1/academic-years/{id}/weeks | Danh sách tuần; đánh dấu hoặc bỏ đánh dấu tuần nghỉ |
 | POST | /api/v1/academic-years/{id}/open | Mở năm học: kiểm tra BR-89, BR-94, tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung, trẻ, lớp, quỹ, công nợ (YCTD-69), chuyển năm đang dùng sang đã đóng và chỉ đọc (BR-93) |
 | POST | /api/v1/academic-years/{id}/close | Bỏ ngày 09/10/2026: gộp vào mở năm học mới (YCTD-37) |
+| GET, PUT | /api/v1/me/quick-links | Đọc và lưu lối tắt Truy cập nhanh trên trang chủ cổng quản trị của chính người đăng nhập (YCTD-102) |
+
+Giao kèo của Truy cập nhanh (DT-14 phần 14b, YCTD-102):
+
+1. Hai điểm cuối chỉ cần đăng nhập, không cần quyền riêng; chỉ đọc và sửa lối tắt của chính tài khoản gọi. Không có mã phiên trả `ERR_UNAUTHENTICATED` (401).
+2. `GET /me/quick-links` trả danh sách `{ path, label, position }` theo `position` tăng dần; tài khoản chưa ghim trang nào nhận danh sách rỗng.
+3. `PUT /me/quick-links` nhận `{ links: [{ path, label }] }` và thay cả danh sách trong một giao dịch, khóa theo tài khoản để hai lần lưu cùng lúc chạy lần lượt; thứ tự trong mảng là thứ tự hiển thị, `position` đánh lại từ 0; mảng rỗng xóa hết lối tắt.
+4. Trả `ERR_VALIDATION` (400) kèm trường lỗi (ví dụ `links[0].path`) và giữ nguyên dữ liệu cũ khi `links` không phải mảng, quá 12 mục (`MAX_QUICK_LINKS`), đường dẫn ngoài danh sách cho phép `PORTAL_QUICK_LINK_PATHS` ở gói dùng chung (không gồm Trang chủ và Đổi mật khẩu), trùng đường dẫn, nhãn rỗng hoặc dài hơn 100 ký tự.
+5. Máy chủ không đối chiếu quyền theo từng trang; mỗi trang vẫn tự kiểm tra quyền khi mở và gọi dữ liệu.
 
 Giao kèo của nhóm điểm cuối kho, tài sản và mua hàng (DT-10 phần 10d, YCTD-77):
 
