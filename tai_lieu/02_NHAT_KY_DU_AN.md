@@ -14,6 +14,25 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-13 — DT-14 phần 14c: hoàn thành chương trình mầm non, chuẩn nghề nghiệp, nhóm học sinh
+
+#### Công việc đã thực hiện
+
+- Hoàn thành chương trình mầm non theo lớp 5-6 tuổi, nhóm học sinh, đánh giá chuẩn nghề nghiệp giáo viên và hiệu trưởng.
+- Thêm kịch bản CT-310 đến CT-319.
+
+#### Quyết định
+
+- Eric chọn bổ sung bốn nhóm chức năng theo hệ thống của Sở ngày 13/10/2026 (YCTD-102); các điểm kỹ thuật Claude tự chọn ghi ở YCTD-104.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-104 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.57.0.
+
+#### Vấn đề tồn đọng
+
+- Đối chiếu tên tiêu chí và quy tắc xếp loại với Thông tư 25, 26/2018/TT-BGDĐT; chưa có nhập mức đánh giá từ Excel.
+
 ### 2026-10-13 — DT-14 phần 14b: năm học ở thanh đầu trang và Truy cập nhanh trên trang chủ
 
 #### Công việc đã thực hiện
