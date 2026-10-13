@@ -63,7 +63,8 @@ export function StatementImportSection({ accountId, onImported }: { accountId: s
       <p className="text-content text-text-secondary">
         Ghi tên cột đúng như dòng tiêu đề của tệp ngân hàng. Dòng trùng (cùng ngày, số tiền, số tham chiếu) được bỏ qua.
       </p>
-      <div className="flex flex-wrap items-end gap-3">
+      {/* Khóa ô nhập tới khi tải xong cấu hình đã lưu, để cấu hình tải về không ghi đè chữ người dùng vừa gõ */}
+      <fieldset disabled={!stored.isFetched} className="flex flex-wrap items-end gap-3">
         <div className="w-28">
           <TextField
             label="Dòng tiêu đề"
@@ -145,7 +146,7 @@ export function StatementImportSection({ accountId, onImported }: { accountId: s
         <Button disabled={save.isPending} onClick={() => save.mutate()}>
           Lưu cấu hình cột
         </Button>
-      </div>
+      </fieldset>
       {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
       {save.isSuccess ? <p className="text-content text-text-secondary">Đã lưu cấu hình cột.</p> : null}
       <div className="flex flex-wrap items-center gap-3">
