@@ -20,6 +20,8 @@ import {
 import type { Kysely } from 'kysely';
 import type { AcademicYearTransitionStep } from './academic-years/academic-year-transition.js';
 import { createApplication } from './create-application.js';
+import type { PaymentProviderCode } from './finance/payment-gateway.js';
+import type { PaymentProviderSettings } from './finance/payment-providers.js';
 import { RecordingSmsGateway } from './notifications/sms-gateway.js';
 import { MemoryFileStorage } from './files/file-storage.js';
 
@@ -44,7 +46,13 @@ export interface LoggedInUser {
 }
 
 export async function startApiTestEnvironment(
-  options: { additionalControllers?: Type[]; transitionSteps?: AcademicYearTransitionStep[] } = {},
+  options: {
+    additionalControllers?: Type[];
+    transitionSteps?: AcademicYearTransitionStep[];
+    // Cổng thanh toán bật thêm và khóa thử của nhà cung cấp thật (YCTD-92)
+    paymentGateways?: PaymentProviderCode[];
+    paymentProviders?: PaymentProviderSettings;
+  } = {},
 ): Promise<ApiTestEnvironment> {
   const suffix = randomUUID().replaceAll('-', '').slice(0, 10);
   const baseSystemUrl = readConnectionString('system');
@@ -68,7 +76,8 @@ export async function startApiTestEnvironment(
       childDataEncryptionKey: randomBytes(32),
       childDataHashKey: randomBytes(32),
       objectStorage: null,
-      paymentGateways: ['development', 'vietqr-static'],
+      paymentGateways: options.paymentGateways ?? ['development', 'vietqr-static'],
+      paymentProviders: options.paymentProviders,
       notificationDispatchIntervalSeconds: 0,
       facebookPublisher: 'development',
       zaloSender: 'development',

@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.51.0 – 2026-10-13
+
+- Phạm vi thay đổi: DT-12 phần 12b, cổng thanh toán PayOS, SePay, Casso, VNPay (YCTD-94).
+- Chức năng mới: bốn cổng thanh toán trực tuyến và điểm cuối nhận thông báo tiền vào (P06-11).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: không.
+- Thay đổi API: thêm `POST /api/v1/payment-webhooks/payos`, `/sepay`, `/casso` và `GET /api/v1/payment-webhooks/vnpay-ipn`.
+- Rủi ro: chưa thử với tài khoản thật của bốn nhà cung cấp; cần thử trên môi trường thử của từng nhà cung cấp trước khi chạy thật.
+- Khả năng tương thích: không đổi hành vi khi chưa bật nhà cung cấp; kiểm thử giữ bộ giả lập.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-12-phan-12b`; hoặc đặt lại biến môi trường về bộ giả lập.
+
 ### Phiên bản 0.50.0 – 2026-10-13
 
 - Phạm vi thay đổi: DT-12 phần 12a, nối nhà cung cấp tin nhắn eSMS.vn (YCTD-93).

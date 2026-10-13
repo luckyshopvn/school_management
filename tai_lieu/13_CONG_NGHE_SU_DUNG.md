@@ -98,7 +98,7 @@ Quản lý gói theo không gian làm việc, một kho mã nguồn cho toàn b�
 
 1. Đã có câu trả lời: nhóm phát triển vận hành hệ thống; nhà trường quản trị tài khoản và cấu hình (Q-80).
 2. Ngân sách cho hạ tầng và dịch vụ ngoài. Không có thông tin.
-3. Đã có câu trả lời: thanh toán bằng chuyển khoản mã QR chuẩn VietQR; dịch vụ xác nhận chuyển khoản và nhà cung cấp tin nhắn cấu hình được (Q-81, Q-142). Nhà cung cấp cấp tài khoản ảo và mã QR dùng một lần qua API, tiền về một tài khoản của trường (YCTD-57). Eric chọn ngày 13/10/2026: tin nhắn qua eSMS.vn (gói `packages/server`, `EsmsClient`, YCTD-93); thanh toán PayOS, SePay, Casso, VNPay (YCTD-92); khi phát triển và kiểm thử dùng bộ giả lập. Ứng dụng phụ huynh vẽ mã QR bằng thư viện `qrcode`.
+3. Đã có câu trả lời: thanh toán bằng chuyển khoản mã QR chuẩn VietQR; dịch vụ xác nhận chuyển khoản và nhà cung cấp tin nhắn cấu hình được (Q-81, Q-142). Nhà cung cấp cấp tài khoản ảo và mã QR dùng một lần qua API, tiền về một tài khoản của trường (YCTD-57). Eric chọn ngày 13/10/2026: tin nhắn qua eSMS.vn (gói `packages/server`, `EsmsClient`, YCTD-93); thanh toán PayOS, SePay, Casso, VNPay (YCTD-94); khi phát triển và kiểm thử dùng bộ giả lập. Ứng dụng phụ huynh vẽ mã QR bằng thư viện `qrcode`.
 4. Đã có câu trả lời: Android 9 hoặc iOS 14 trở lên; Chrome, Safari, Edge hai phiên bản gần nhất (Q-82).
 5. Đã có câu trả lời: dữ liệu lưu tại Việt Nam (Q-76).
 6. Đã xử lý: dịch vụ định danh tự sinh mã một lần cho phụ huynh, gửi qua kết nối tin nhắn dùng chung của TP-10 (XT-09); xác thực hai lớp đã bỏ (YCTD-31).
