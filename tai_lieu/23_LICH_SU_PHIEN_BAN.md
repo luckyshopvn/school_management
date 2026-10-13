@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.53.0 – 2026-10-13
+
+- Phạm vi thay đổi: DT-12 phần 12d, cấu hình triển khai môi trường chạy thật (YCTD-98).
+- Chức năng mới: cấu hình triển khai Docker Compose, sao lưu và khôi phục, hướng dẫn triển khai (XT-04, SL-01 đến SL-05).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: không.
+- Thay đổi API: không.
+- Rủi ro: chưa thử trên máy chủ thuê với tên miền và HTTPS thật.
+- Khả năng tương thích: không đổi hành vi khi chưa bật nhà cung cấp; kiểm thử giữ bộ giả lập.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-12-phan-12d`; hoặc đặt lại biến môi trường về bộ giả lập.
+
 ### Phiên bản 0.52.0 – 2026-10-13
 
 - Phạm vi thay đổi: DT-12 phần 12c, Fanpage và Zalo Official Account chạy thật (YCTD-95).
