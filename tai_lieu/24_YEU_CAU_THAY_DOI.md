@@ -27,6 +27,28 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Kiểm thử cần thực hiện: kiểm thử giao diện `01-login.spec.ts` (ẩn, hiện thanh điều hướng, thu gọn nhóm, nhớ sau khi tải lại) và toàn bộ kiểm thử giao diện.
 - Trạng thái: Đã triển khai
 
+### YCTD-98: DT-12 phần 12d: cấu hình triển khai môi trường chạy thật – 2026-10-13
+
+- Lý do: Eric quyết định ngày 2026-10-13 Claude chuẩn bị cấu hình triển khai trước, Eric thuê máy chủ đám mây trong nước sau (YCTD-92, việc T6). Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Một máy chủ Linux chạy Docker Compose (`deploy/docker-compose.production.yml`): PostgreSQL 17, Redis có mật khẩu, SeaweedFS (bật bằng profile, dùng kho đối tượng của nhà cung cấp thì tắt), dịch vụ `migrate` chạy một lần trước, dịch vụ định danh, máy chủ API, Caddy phục vụ ba giao diện; chỉ Caddy mở cổng; healthcheck, tự khởi động lại, xoay vòng nhật ký.
+  - Ảnh Node 24 Alpine nhiều tầng cho máy chủ API và dịch vụ định danh (chỉ thư viện chạy thật, chạy bằng tài khoản không phải root); ảnh Caddy chứa ba giao diện. Ảnh dựng ngay trên máy chủ, gắn `IMAGE_TAG` theo phiên bản để quay lui.
+  - Định tuyến: mỗi giao diện một tên miền con (`portal.`, `phuhuynh.`, `giaovien.`) gọi `/api/v1` cùng tên miền, Caddy chuyển nhóm xác thực và tài khoản sang dịch vụ định danh, phần còn lại sang máy chủ API; giữ nguyên cookie mã làm mới (BM-71), không cần CORS. Tên miền `api.` cho API đối tác, thông báo của cổng thanh toán, kiểm tra sức khỏe. HTTPS tự động.
+  - Biến `TRUST_PROXY` để hai dịch vụ lấy địa chỉ người dùng sau Caddy (giới hạn đăng nhập theo địa chỉ và nhật ký đúng địa chỉ). Máy chủ API khai `kysely` và gói cơ sở dữ liệu ở thư viện chạy thật.
+  - Tệp biến môi trường mẫu `deploy/.env.production.example` đủ biến của eSMS (YCTD-93), bốn cổng thanh toán (YCTD-94), Fanpage và Zalo (YCTD-95); `deploy/scripts/generate-keys.sh` sinh mật khẩu và khóa.
+  - Sao lưu theo SL-01 đến SL-05: hằng ngày mọi cơ sở dữ liệu (năm học tìm động) và kho tệp, giữ 30 ngày, năm học đã đóng lưu lâu dài; hằng giờ cơ sở dữ liệu định danh, hệ thống, năm học đang dùng, giữ 48 giờ; mã hóa AES-256, đọc lại ngay sau khi ghi, đẩy sang kho ngoài máy chủ; `deploy/scripts/restore.sh` khôi phục.
+  - `deploy/README.md`: cấu hình máy chủ, tên miền, triển khai lần đầu, tạo tài khoản VT-01, cập nhật, diễn tập phục hồi, cách chạy CT-086 đến CT-089, giám sát.
+  - Kiểm thử liên tục thêm việc `dung-anh-docker` dựng ba ảnh (không đẩy), kiểm tra cú pháp Compose và cấu hình Caddy.
+  - Chưa thử HTTPS thật và CT-086 đến CT-089 (cần máy chủ thuê, việc T6); tệp tải lên chỉ đẩy ra ngoài máy chủ mỗi ngày; chưa có hệ thống đo lường.
+- Thành phần bị ảnh hưởng: thư mục `deploy/`, `.github/workflows/ci.yml`, `.dockerignore`, `.gitignore`, `packages/server`, hai tệp `main.ts`, `apps/api/package.json`; tài liệu `01`, `02`, `03`, `11`, `21`, `23`, `24`, `index.md`.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không; `TRUST_PROXY` để trống thì như cũ.
+- Kiểm thử cần thực hiện: kịch bản CT-269 đến CT-274.
+- Trạng thái: Đã triển khai
+
 ### YCTD-97: Chuông thông báo ở đầu trang cổng quản trị – 2026-10-13
 
 - Lý do: Eric yêu cầu ngày 2026-10-13 thay mục Thông báo ở thanh điều hướng bằng biểu tượng chuông cạnh tên người dùng, xem một hoặc nhiều thông báo, có lối xem tất cả.

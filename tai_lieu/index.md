@@ -20,7 +20,7 @@
 | 08 | [08_VAI_TRO_NGUOI_DUNG.md](08_VAI_TRO_NGUOI_DUNG.md) | Vai trò người dùng | VT-01 đến VT-20 (VT-13 đã bỏ), ma trận quyền, phân cấp phê duyệt | 03 Phân tích nghiệp vụ | Đã phê duyệt |
 | 09 | [09_LUONG_NGHIEP_VU.md](09_LUONG_NGHIEP_VU.md) | Luồng nghiệp vụ | Bản đồ luồng, điểm nối, luồng phụ và ngoại lệ | 03 Phân tích nghiệp vụ | Đã phê duyệt |
 | 10 | [10_YEU_CAU_CHUC_NANG.md](10_YEU_CAU_CHUC_NANG.md) | Yêu cầu chức năng | 172 mã chức năng, 162 còn hiệu lực, và yêu cầu phi chức năng | 04 Đặc tả yêu cầu | Đã phê duyệt |
-| 11 | [11_TIEU_CHI_NGHIEM_THU.md](11_TIEU_CHI_NGHIEM_THU.md) | Tiêu chí nghiệm thu | AC-01 đến AC-312 dạng Cho, Khi, Thì | 04 Đặc tả yêu cầu | Đã phê duyệt |
+| 11 | [11_TIEU_CHI_NGHIEM_THU.md](11_TIEU_CHI_NGHIEM_THU.md) | Tiêu chí nghiệm thu | AC-01 đến AC-318 dạng Cho, Khi, Thì | 04 Đặc tả yêu cầu | Đã phê duyệt |
 | 12 | [12_KIEN_TRUC_HE_THONG.md](12_KIEN_TRUC_HE_THONG.md) | Kiến trúc hệ thống | Thành phần, xác thực, phân quyền, quyết định kiến trúc | 05 Thiết kế kiến trúc | Đã phê duyệt |
 | 13 | [13_CONG_NGHE_SU_DUNG.md](13_CONG_NGHE_SU_DUNG.md) | Công nghệ sử dụng | Bộ công nghệ đã chốt, cấu trúc mã nguồn, quy ước kỹ thuật | 05 Thiết kế kiến trúc | Đã phê duyệt |
 | 14 | [14_DAC_TA_GIAO_DIEN.md](14_DAC_TA_GIAO_DIEN.md) | Đặc tả giao diện | 86 màn hình, trạng thái, xử lý lỗi, ranh giới với máy chủ | 06 Thiết kế giao diện | Đã phê duyệt |
@@ -30,7 +30,7 @@
 | 18 | [18_QUY_TAC_PHAT_TRIEN_AI.md](18_QUY_TAC_PHAT_TRIEN_AI.md) | Quy tắc phát triển AI | AI-01 đến AI-42 | 08 Chuẩn bị môi trường AI | Đã phê duyệt |
 | 19 | [19_CHI_DAN_HE_THONG_AI.md](19_CHI_DAN_HE_THONG_AI.md) | Chỉ dẫn hệ thống AI | Ngữ cảnh, câu lệnh hệ thống, quy ước mã | 08 Chuẩn bị môi trường AI | Đã phê duyệt |
 | 20 | [20_KE_HOACH_KIEM_THU.md](20_KE_HOACH_KIEM_THU.md) | Kế hoạch kiểm thử | Phạm vi, lớp kiểm thử, dữ liệu, tiêu chí đạt | 10 Kiểm thử | Đã phê duyệt |
-| 21 | [21_KICH_BAN_KIEM_THU.md](21_KICH_BAN_KIEM_THU.md) | Kịch bản kiểm thử | CT-001 đến CT-268 | 10 Kiểm thử | Đã phê duyệt |
+| 21 | [21_KICH_BAN_KIEM_THU.md](21_KICH_BAN_KIEM_THU.md) | Kịch bản kiểm thử | CT-001 đến CT-274 | 10 Kiểm thử | Đã phê duyệt |
 | 22 | [22_BAO_MAT.md](22_BAO_MAT.md) | Bảo mật | BM-01 đến BM-70 | 10 Kiểm thử | Đã phê duyệt |
 | 23 | [23_LICH_SU_PHIEN_BAN.md](23_LICH_SU_PHIEN_BAN.md) | Lịch sử phiên bản | Các phiên bản từ 0.1.0 | 11 Nghiệm thu và phát hành | Đang cập nhật |
 | 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-99, đánh giá ảnh hưởng | 12 Vận hành và cải tiến | Đang cập nhật |
@@ -77,13 +77,13 @@ Mã quy trình dạng `QT-nn`, đánh số tăng dần, không tái sử dụng 
 | Vai trò đã xác định | 19 | Từ VT-01 đến VT-20, VT-13 đã bỏ; VT-02 Hiệu trưởng và VT-15 Phó Hiệu trưởng hợp thành Ban Giám hiệu |
 | Quy trình nghiệp vụ đã đặc tả | 10 | Đủ mười lăm mục theo khuôn đặc tả |
 | Chức năng đã liệt kê | 162 | 172 mã; P08-05, P11-01 đến P11-07, P17-09, P17-15 đã bỏ |
-| Tiêu chí nghiệm thu đã viết | 312 | Từ AC-01 đến AC-312; AC-42, AC-53 đến AC-57, AC-171 đã bỏ; AC-94 đến AC-134 nằm trong các đặc tả quy trình |
+| Tiêu chí nghiệm thu đã viết | 318 | Từ AC-01 đến AC-318; AC-42, AC-53 đến AC-57, AC-171 đã bỏ; AC-94 đến AC-134 nằm trong các đặc tả quy trình |
 | Quy tắc nghiệp vụ đã xác định | 96 | Từ BR-01 đến BR-96; BR-27, BR-42, BR-54, BR-55, BR-57 đã bỏ |
 | Giả định đã ghi nhận | 92 | Từ GD-01 đến GD-92; mọi giả định đã được xác nhận hoặc ghi không còn hiệu lực ngày 09/10/2026 |
 | Câu hỏi mở chờ trả lời | 0 | Đã cấp mã đến Q-156; mọi câu đã được trả lời ngày 09/10/2026 |
 | Bảng dữ liệu dự kiến | 162 | Xem `16_CO_SO_DU_LIEU.md`; tám bảng xe đưa đón và bảng `meal_registrations` đã gỡ |
 | Màn hình dự kiến | 86 | 51 màn hình cổng quản trị, 16 màn hình ứng dụng giáo viên, 19 màn hình ứng dụng phụ huynh; MG-13, MP-13 đã bỏ |
-| Ca kiểm thử khởi đầu | 268 | Từ CT-001 đến CT-268; CT-048, CT-059 đến CT-063, CT-127 không áp dụng |
+| Ca kiểm thử khởi đầu | 274 | Từ CT-001 đến CT-274; CT-048, CT-059 đến CT-063, CT-127 không áp dụng |
 | Cổng kiểm soát chất lượng | 12 | Từ CG-01 đến CG-12, xem `01_KE_HOACH_TONG_THE.md` |
 | Đợt xây dựng | 12 | Từ DT-00 đến DT-11, xem `01_KE_HOACH_TONG_THE.md` |
 | Rủi ro đã ghi nhận | 14 | Từ RR-01 đến RR-14, xem `01_KE_HOACH_TONG_THE.md` |

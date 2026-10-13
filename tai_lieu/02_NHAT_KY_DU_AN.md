@@ -52,6 +52,25 @@
 #### Vấn đề tồn đọng
 
 - Cấp toàn quyền cho VT-01 trong mã nguồn chưa làm: Eric tự cấp trên ma trận quyền ở máy phát triển.
+### 2026-10-13 — DT-12 phần 12d: cấu hình triển khai môi trường chạy thật
+
+#### Công việc đã thực hiện
+
+- Viết cấu hình triển khai Docker Compose, ảnh, Caddy, sao lưu và khôi phục, hướng dẫn triển khai; dựng thử, sao lưu và khôi phục thử trên máy cục bộ.
+- Thêm kịch bản CT-269 đến CT-274.
+
+#### Quyết định
+
+- Eric chọn nhà cung cấp ngày 13/10/2026 (YCTD-92); các điểm kỹ thuật Claude tự chọn ghi ở YCTD-98.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-98 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.53.0.
+
+#### Vấn đề tồn đọng
+
+- Kiểm với tài khoản thật khi Eric cấp khóa lúc triển khai (việc T6).
+
 ### 2026-10-13 — DT-12 phần 12c: Fanpage và Zalo Official Account chạy thật
 
 #### Công việc đã thực hiện
