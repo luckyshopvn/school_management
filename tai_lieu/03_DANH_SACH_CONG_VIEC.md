@@ -1,7 +1,7 @@
 # 03. DANH SÁCH KIỂM TRA CÔNG VIỆC
 
 - Mô tả: Danh sách công việc, trạng thái và thứ tự ưu tiên của dự án.
-- Phiên bản: 0.18
+- Phiên bản: 0.19
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đang cập nhật
 
@@ -63,7 +63,7 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | M13 | Xây dựng kho, tài sản, mua hàng | P13 | Hoàn thành | Đợt DT-10 phần 10d (YCTD-77) |
 | M14 | Xây dựng hoạt động, tin tức, thư viện, thông báo | P14 | Hoàn thành | Đợt DT-10 phần 10e (YCTD-78): hoạt động và hình ảnh, tin tức, thư viện, album, hình tô màu, ngoại khóa có phí |
 | M15 | Xây dựng tương tác, góp ý, bình chọn, khảo sát | P15 | Hoàn thành | Đợt DT-10 phần 10f (YCTD-79): trao đổi hai chiều, góp ý, bình chọn, biểu quyết, khảo sát, bình luận và thích; đồ bị mất của trẻ (P02-11) |
-| M16 | Xây dựng tuyển sinh trực tuyến | P16 | Chưa bắt đầu | Giai đoạn 3 |
+| M16 | Xây dựng tuyển sinh trực tuyến | P16 | Hoàn thành | Đợt DT-11 phần 11a (YCTD-86): đợt tuyển sinh, tin tuyển sinh, nộp hồ sơ trực tuyến không cần tài khoản, xét duyệt theo chỉ tiêu, chuyển thành hồ sơ trẻ theo QT-01 |
 | M18 | Xây dựng tuyển dụng | P18 | Hoàn thành | Đợt DT-11 phần 11b (YCTD-87): đề nghị tuyển dụng, tin tuyển dụng công khai, hồ sơ ứng viên, phỏng vấn, tạo hồ sơ nhân sự từ ứng viên đã tuyển |
 
 ### 2.2 Tính năng mới, mã N<số>

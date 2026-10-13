@@ -1,3 +1,9 @@
+import { AdmissionAccess } from './admissions/admission-access.js';
+import { AdmissionApplicationsController, AdmissionApplicationsService } from './admissions/admission-applications.js';
+import { AdmissionCampaignsController, AdmissionCampaignsService } from './admissions/admission-campaigns.js';
+import { AdmissionsPublicController, AdmissionsPublicService } from './admissions/admissions-public.js';
+import { admissionsTransitionStep } from './admissions/admissions-transition.js';
+import { AdmissionsRateLimiter } from './admissions/public-rate-limit.js';
 import { PublicRateLimiter, RecruitmentAccess } from './recruitment/recruitment-common.js';
 import { RecruitmentRequestsController, RecruitmentRequestsService } from './recruitment/recruitment-requests.js';
 import { JobPostingsController, JobPostingsService } from './recruitment/job-postings.js';
@@ -300,6 +306,9 @@ export class ApplicationModule {
         JobPostingsController,
         PublicRecruitmentController,
         CandidatesController,
+        AdmissionCampaignsController,
+        AdmissionApplicationsController,
+        AdmissionsPublicController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -331,6 +340,7 @@ export class ApplicationModule {
             workTransitionStep,
             integrationsTransitionStep,
             recruitmentTransitionStep,
+            admissionsTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -468,6 +478,11 @@ export class ApplicationModule {
         PayablesService,
         FiscalPeriodsService,
         RecruitmentAccess,
+        AdmissionAccess,
+        AdmissionCampaignsService,
+        AdmissionApplicationsService,
+        AdmissionsPublicService,
+        AdmissionsRateLimiter,
         PublicRateLimiter,
         RecruitmentRequestsService,
         JobPostingsService,

@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.31
+- Phiên bản: 1.32
 - Ngày cập nhật: 2026-10-11
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -138,8 +138,8 @@
 | CT-073 | Gửi phiếu bình chọn hai lần | Cùng tài khoản gửi hai phiếu | Từ chối phiếu thứ hai | Kiểm thử tự động `apps/api/src/interactions/interactions.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-074 | Gửi phiếu sau khi hết thời gian | Bình chọn đã kết thúc | Từ chối, báo đã hết thời gian | Kiểm thử tự động `apps/api/src/interactions/interactions.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-075 | Xử lý bình luận tiêu cực | Quản lý đơn vị xử lý | Bình luận còn nguyên, có bản ghi xử lý | Kiểm thử tự động `apps/api/src/interactions/interactions.test.ts` đạt ngày 11/10/2026 | Đạt |
-| CT-076 | Chuyển hồ sơ tuyển sinh đã đạt | Hồ sơ ở trạng thái đạt | Sinh hồ sơ trẻ, gắn phụ huynh, phân lớp | | Chưa chạy |
-| CT-077 | Chuyển hồ sơ tuyển sinh chưa đạt | Hồ sơ chưa đạt | Từ chối | | Chưa chạy |
+| CT-076 | Chuyển hồ sơ tuyển sinh đã đạt | Hồ sơ ở trạng thái đạt | Sinh hồ sơ trẻ, gắn phụ huynh, phân lớp | Kiểm thử tự động `apps/api/src/admissions/admissions.test.ts` đạt ngày 12/10/2026; Kiểm thử giao diện `tests/e2e/40-admissions.spec.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-077 | Chuyển hồ sơ tuyển sinh chưa đạt | Hồ sơ chưa đạt | Từ chối | Kiểm thử tự động `apps/api/src/admissions/admissions.test.ts` đạt ngày 12/10/2026 | Đạt |
 
 ## 12. Báo cáo và đối chiếu số liệu
 
@@ -206,7 +206,7 @@
 | CT-121 | P14-11 | Đăng ký hoạt động ngoại khóa đã đủ chỉ tiêu | Từ chối, báo hết chỗ | Kiểm thử tự động `apps/api/src/activities/activities.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-122 | P14-11 | Đăng ký hoạt động ngoại khóa có phí | Phí vào khoản phải thu như khoản phát sinh | Kiểm thử tự động `apps/api/src/activities/activities.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-123 | P14-12 | Xóa bình luận của phụ huynh trên tin tức | Chặn xóa | Kiểm thử tự động `apps/api/src/activities/activities.test.ts` đạt ngày 11/10/2026 | Đạt |
-| CT-124 | P16-05 | Mở danh sách tin tuyển sinh của đợt đang mở | Thấy tin kèm thời hạn | | Chưa chạy |
+| CT-124 | P16-05 | Mở danh sách tin tuyển sinh của đợt đang mở | Thấy tin kèm thời hạn | Kiểm thử tự động `apps/api/src/admissions/admissions.test.ts` đạt ngày 12/10/2026 | Đạt |
 | CT-125 | P17-13 | Giáo viên lớp Mầm 1 mở bảng tin | Chỉ thấy sinh nhật trẻ lớp Mầm 1 | Kiểm thử tự động `apps/api/src/reports/reports.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-126 | P17-14 | Kế toán mở báo cáo học thứ 7 | Có các ngày học bù, số trẻ đi học và vắng của từng ngày | Kiểm thử tự động `apps/api/src/reports/reports.test.ts` đạt ngày 11/10/2026 | Đạt |
 | CT-127 | P17-15 | Bỏ ngày 09/10/2026: trường không có bữa tối (YCTD-20) | — | | Không áp dụng |
@@ -298,8 +298,14 @@
 | CT-213 | P18-04 | Lên lịch với người phỏng vấn không phải nhân sự; giáo viên lên lịch; quyết định khi còn lịch chờ; vòng 1 không đạt rồi quyết định tuyển; vòng 2 đạt rồi quyết định tuyển | Lỗi dữ liệu; bị từ chối; trả BR-80 hai lần; tuyển được, nhật ký có người và thời điểm quyết định; đề nghị có số đã tuyển 1 | Kiểm thử tự động `apps/api/src/recruitment/recruitment.test.ts` đạt ngày 12/10/2026 | Đạt |
 | CT-214 | P18-04 | Quản lý đơn vị tạo hồ sơ nhân sự từ ứng viên đã tuyển; nhân sự tạo; tạo lần hai | Bị từ chối; hồ sơ nhân sự có họ tên, điện thoại, đơn vị của ứng viên; lần hai trả BR-37 | Kiểm thử tự động `apps/api/src/recruitment/recruitment.test.ts` đạt ngày 12/10/2026 | Đạt |
 | CT-215 | P18-01, P18-02 | Giáo viên đóng đề nghị; nhân sự đóng đề nghị; nộp hồ sơ vào tin đã đóng; nộp liên tục nhiều lần | Bị từ chối; đề nghị và tin đều đóng; tin đã đóng trả không tìm thấy; vượt giới hạn trả `ERR_RATE_LIMIT` | Kiểm thử tự động `apps/api/src/recruitment/recruitment.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-216 | P16-01 | Lập đợt nháp, mở đợt; giáo viên hoặc quản lý đơn vị khác lập đợt | Đợt nháp chưa nhận hồ sơ; mở xong nhận hồ sơ; người ngoài quyền hoặc ngoài đơn vị bị từ chối | Kiểm thử tự động `apps/api/src/admissions/admissions.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-217 | P16-02 | Phụ huynh không đăng nhập nộp hồ sơ, tra cứu bằng mã và số điện thoại | Nhận mã TS-000001; nộp trùng bị báo; sai số điện thoại không tra được; số định danh hiện dạng che | Kiểm thử tự động `apps/api/src/admissions/admissions.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-218 | P16-03 | Nhân viên tuyển sinh xét hồ sơ; quản lý đơn vị xét không đạt không ghi lý do | Bị từ chối; không đạt cần lý do, phụ huynh tra cứu thấy lý do | Kiểm thử tự động `apps/api/src/admissions/admissions.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-219 | P16-03 | Xét đạt khi đã đủ chỉ tiêu; đóng đợt rồi nộp trực tuyến | Bị chặn mã P16-03; hồ sơ trực tuyến bị chặn mã P16-02, đợt không còn trên trang công khai | Kiểm thử tự động `apps/api/src/admissions/admissions.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-220 | P16-04 | Nhân viên tuyển sinh chuyển hồ sơ đạt | Hồ sơ trẻ chờ duyệt; quản lý đơn vị duyệt ở trang Hồ sơ trẻ thì trẻ đang học | Kiểm thử tự động `apps/api/src/admissions/admissions.test.ts` đạt ngày 12/10/2026 | Đạt |
+| CT-221 | P16 | Gửi quá 10 hồ sơ trong một giờ từ một địa chỉ mạng | Bị chặn `ERR_RATE_LIMIT` | Kiểm thử tự động `apps/api/src/admissions/admissions.test.ts` đạt ngày 12/10/2026 | Đạt |
 
-Ca CT-105 đến CT-215 lần lượt kiểm tra AC-149 đến AC-259.
+Ca CT-105 đến CT-221 lần lượt kiểm tra AC-149 đến AC-265.
 
 ## 16. Chưa xác minh được
 
