@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { PERMISSION_CODES } from '@school-management/shared';
+import { MODULE_NAMES, PERMISSION_CODES } from '@school-management/shared';
 import { Alert, Button, StatusBadge, TextField, Toast } from '@school-management/ui';
 import { AppShell } from '../pages/AppShell.js';
 import { ApiError } from '../session/api-client.js';
@@ -51,7 +51,8 @@ function GroupToggle({
         onChange={(event) => onChange(event.target.checked)}
       />
       <span>
-        {moduleCode}{' '}
+        {moduleCode}
+        {MODULE_NAMES[moduleCode] ? ` · ${MODULE_NAMES[moduleCode]}` : ''}{' '}
         <span className="font-normal text-text-muted">
           ({count}/{codes.length})
         </span>
@@ -79,7 +80,7 @@ function RolePermissions({
     for (const permission of permissions) {
       groups.set(permission.module_code, [...(groups.get(permission.module_code) ?? []), permission]);
     }
-    return [...groups.entries()];
+    return [...groups.entries()].sort(([first], [second]) => first.localeCompare(second));
   }, [permissions]);
   const changed = selected.size !== role.permissions.length || role.permissions.some((code) => !selected.has(code));
   // Chọn hoặc bỏ chọn nhiều quyền cùng lúc
