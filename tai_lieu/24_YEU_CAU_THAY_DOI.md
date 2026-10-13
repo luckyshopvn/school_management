@@ -11,6 +11,26 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-103: DT-13 phần 13c: báo cáo điểm danh và suất ăn theo ngày, tuần, tháng – 2026-10-13
+
+- Lý do: Eric gửi mẫu báo cáo điểm danh, suất ăn ngày 2026-10-13 và chọn xuất Excel đúng mẫu, xem trên màn hình, báo suất ăn cho bếp (YCTD-100). Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - API `GET /reports/attendance-meals` (kỳ ngày, tuần, tháng; lọc đơn vị, lớp): mỗi lớp mỗi ngày sĩ số, có mặt, vắng theo mã P, K, B, chưa điểm danh, suất ăn, tỷ lệ; nhóm theo khối và toàn trường. `GET /reports/attendance-meals/children` cho bảng từng trẻ của một lớp. `GET /kitchen/meal-counts` cho bếp theo đơn vị, ngày hoặc tuần, hôm nay cộng trẻ chưa điểm danh chưa báo vắng.
+  - Xuất Excel `POST /reports/attendance-meals/export` theo mẫu của trường: trang Data (mã loại ngày, số ngày ăn, ngày lễ), Tổng hợp (theo khối, tổng phụ, toàn trường), Tổng hợp tháng (STT, lớp, sĩ số, tổng có mặt, tổng vắng, từng ngày, tỷ lệ, chữ ký), mỗi lớp một trang "Bảng điểm danh bệnh"; tuần và ngày cùng bố cục. Ô ghi giá trị đã tính, không dùng công thức; ghi nhật ký xuất dữ liệu.
+  - Loại ngày: HB học bù thứ bảy; T7, CN không phải ngày học trong tuần; NL ngày lễ; NB nghỉ bù; NK ngoài học kỳ hoặc tuần nghỉ; NH còn lại; thứ bảy, chủ nhật ưu tiên hơn ngày lễ. Ngày ăn là NH và HB.
+  - Mã vắng: B khi vắng và lý do hoặc ghi chú có từ chỉ bệnh (ốm, bệnh, sốt, ho, cảm, sổ mũi, tay chân miệng…); P khi vắng có báo hoặc báo vắng trước giờ vào lớp; K khi vắng không báo hoặc báo sau giờ vào lớp; N khi ngày không tính hoặc trẻ chưa vào lớp; ? khi ngày ăn đã qua mà chưa điểm danh. Sĩ số theo ngày vào và rời lớp; ngày hè chỉ tính trẻ đăng ký hè. Tổng vắng = sĩ số × số ngày ăn − có mặt (trẻ chưa điểm danh tính vắng), tỷ lệ = có mặt chia số lượt dự kiến.
+  - Khối: bậc học bắt đầu dưới 36 tháng là Khối Nhà trẻ, còn lại Khối Mẫu giáo; khối nhiều bậc thì thêm dòng tổng theo bậc.
+  - Cổng quản trị: thẻ "Điểm danh và suất ăn" trên màn hình Báo cáo (Ngày, Tuần, Tháng, lọc đơn vị, lớp, ngày, bảng từng trẻ khi chọn lớp, nút Xuất Excel); thẻ "Suất ăn theo lớp" trên màn hình Bếp.
+  - Quyền dùng lại mã sẵn có: xem cần P17.report.attendance (giáo viên chỉ lớp được phân công), xuất cần thêm P17.data.export, bếp dùng quyền đọc của bếp. Tên trường lấy từ Trường chính; người ký và địa danh để trống.
+- Thành phần bị ảnh hưởng: máy chủ API (báo cáo, bếp), cổng quản trị (Báo cáo, Bếp); tài liệu `01`, `02`, `11`, `17`, `21`, `23`, `24`, `index.md`.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: ba điểm cuối đọc và một điểm cuối xuất mới.
+- Giao diện bị ảnh hưởng: màn hình Báo cáo, Bếp.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: kịch bản CT-289 đến CT-299.
+- Trạng thái: Đã triển khai
+
 ### YCTD-100: DT-13 phần 13a: nhập thẳng tệp học sinh, cán bộ theo mẫu CSDL ngành – 2026-10-13
 
 - Lý do: Eric gửi ba tệp mẫu ngày 2026-10-13 (học sinh, giáo viên theo mẫu xuất của CSDL ngành TP.HCM; báo cáo điểm danh, suất ăn) và chọn: nhập thẳng tệp ngành, lưu đầy đủ mọi cột, báo cáo điểm danh xuất Excel đúng mẫu, xem trên màn hình, báo suất ăn cho bếp. Đợt DT-13 gồm 13a (nhập tệp ngành) và 13c (báo cáo điểm danh, suất ăn). Các điểm kỹ thuật dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.

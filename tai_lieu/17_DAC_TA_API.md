@@ -908,6 +908,7 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | GET | /api/v1/meal-plans | Số suất ăn theo ngày của đơn vị theo từng lớp |
 | POST | /api/v1/meal-plans/compute | Tính và lưu số suất ăn của ngày |
 | GET | /api/v1/kitchen/daily-norms | Định lượng nguyên liệu của ngày cho cả đơn vị |
+| GET | /api/v1/kitchen/meal-counts | Suất ăn theo lớp, khối, đơn vị cho ngày hoặc tuần; hôm nay cộng trẻ chưa điểm danh chưa báo vắng (YCTD-103) |
 | GET, POST | /api/v1/classes/{id}/meal-report | Xem và gửi báo cơm của lớp |
 | GET, POST | /api/v1/buffet-events | Tiệc buffet theo dịp |
 | POST | /api/v1/buffet-events/{id}/approve | Duyệt buffet |
@@ -1086,6 +1087,9 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | POST | /api/v1/reports/{code}/export | Xuất báo cáo ra tệp Excel, ghi nhật ký xuất (P17-12, BR-74, YCTD-83) |
 | GET | /api/v1/reports/export-logs | Nhật ký xuất dữ liệu (BR-74, YCTD-83) |
 | GET | /api/v1/reports/saturday-classes | Báo cáo học thứ 7: số trẻ đi học và vắng của từng ngày học bù |
+| GET | /api/v1/reports/attendance-meals | Điểm danh và suất ăn theo ngày, tuần, tháng: mỗi lớp mỗi ngày sĩ số, có mặt, vắng P/K/B, suất ăn, tỷ lệ, theo khối (YCTD-103) |
+| GET | /api/v1/reports/attendance-meals/children | Bảng điểm danh từng trẻ của một lớp theo kỳ, mã P/K/B/N (YCTD-103) |
+| POST | /api/v1/reports/attendance-meals/export | Xuất Excel điểm danh và suất ăn theo mẫu của trường, ghi nhật ký xuất dữ liệu (YCTD-103) |
 | GET | /api/v1/notifications | Danh sách thông báo của người đăng nhập |
 | POST | /api/v1/notifications/{id}/read | Đánh dấu đã đọc |
 | POST | /api/v1/notifications/read-all | Đánh dấu đọc tất cả (YCTD-64) |
