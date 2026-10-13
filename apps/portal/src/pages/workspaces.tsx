@@ -30,6 +30,7 @@ export const GROUP_WORKSPACE: Record<string, WorkspaceKey> = {
   'HỌC PHÍ VÀ TÀI CHÍNH': 'finance',
   'NHÂN SỰ': 'personnel',
   'KHO VÀ MUA HÀNG': 'facilities',
+  'CƠ SỞ VẬT CHẤT': 'facilities',
   'BÁO CÁO': 'reports',
   'THIẾT LẬP': 'system',
 };

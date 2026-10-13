@@ -19,9 +19,11 @@ import {
   type RequestBody,
 } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
+import { readRoomFacility, type RoomFacilityChanges } from '../facilities/facility-rules.js';
 import { CatalogAccess } from './catalog-access.js';
 
-// Phòng học theo đơn vị (P01-11); gán phòng cho lớp làm khi có lớp học
+// Phòng học theo đơn vị (P01-11); gán phòng cho lớp làm khi có lớp học. Khai báo cơ sở vật chất (YCTD-102) thêm khối
+// phòng, loại phòng, hiện trạng, diện tích và thuộc tính theo quy chuẩn
 export interface Room {
   id: string;
   org_unit_id: string;
@@ -29,16 +31,44 @@ export interface Room {
   name: string;
   capacity: number;
   status: CatalogStatus;
+  room_block: string | null;
+  room_type: string | null;
+  condition: string | null;
+  area_m2: number | null;
+  facility_attributes: Record<string, unknown>;
 }
 
-interface RoomChanges {
+interface RoomChanges extends RoomFacilityChanges {
   code?: string;
   name?: string;
   capacity?: number;
   status?: CatalogStatus;
 }
 
-const COLUMNS = ['id', 'org_unit_id', 'code', 'name', 'capacity', 'status'] as const;
+const COLUMNS = [
+  'id',
+  'org_unit_id',
+  'code',
+  'name',
+  'capacity',
+  'status',
+  'room_block',
+  'room_type',
+  'condition',
+  'area_m2',
+  'facility_attributes',
+] as const;
+
+function formatRoom<T extends { area_m2: string | null }>(row: T): Omit<T, 'area_m2'> & { area_m2: number | null } {
+  return { ...row, area_m2: row.area_m2 === null ? null : Number(row.area_m2) };
+}
+
+function storedChanges<T extends RoomFacilityChanges>(
+  changes: T,
+): Omit<T, 'facility_attributes'> & { facility_attributes?: string } {
+  const { facility_attributes: attributes, ...rest } = changes;
+  return attributes === undefined ? rest : { ...rest, facility_attributes: JSON.stringify(attributes) };
+}
 const PERMISSION = PERMISSION_CODES.roomManage;
 const DUPLICATE_MESSAGE = 'Mã phòng đã có trong đơn vị';
 const CAPACITY_RANGE = { min: 1, max: 1000 };
@@ -56,12 +86,14 @@ export class RoomsService {
     if (!database) {
       return [];
     }
-    return database.selectFrom('rooms').select(COLUMNS).where('org_unit_id', '=', orgUnitId).orderBy('code').execute();
+    return (
+      await database.selectFrom('rooms').select(COLUMNS).where('org_unit_id', '=', orgUnitId).orderBy('code').execute()
+    ).map(formatRoom);
   }
 
   async create(
     currentUser: CurrentUser,
-    input: { org_unit_id: string; code: string; name: string; capacity: number },
+    input: { org_unit_id: string; code: string; name: string; capacity: number } & RoomFacilityChanges,
     origin: ChangeOrigin,
   ): Promise<Room> {
     const database = await this.catalogAccess.writableDatabase(currentUser, PERMISSION, input.org_unit_id);
@@ -69,7 +101,7 @@ export class RoomsService {
       database.transaction().execute(async (transaction) => {
         const created = await transaction
           .insertInto('rooms')
-          .values({ ...input, created_by: origin.actorUserId })
+          .values({ ...storedChanges(input), created_by: origin.actorUserId })
           .returning(COLUMNS)
           .executeTakeFirstOrThrow();
         await writeAuditLog(transaction, {
@@ -81,25 +113,37 @@ export class RoomsService {
           before: null,
           after: created,
         });
-        return created;
+        return formatRoom(created);
       }),
       DUPLICATE_MESSAGE,
       'code',
     );
   }
 
-  async update(currentUser: CurrentUser, roomId: string, changes: RoomChanges, origin: ChangeOrigin): Promise<Room> {
+  async update(
+    currentUser: CurrentUser,
+    roomId: string,
+    body: RequestBody,
+    changes: RoomChanges,
+    origin: ChangeOrigin,
+  ): Promise<Room> {
     const { database: current } = await this.currentSchoolYear.require();
     const existing = await current.selectFrom('rooms').select(COLUMNS).where('id', '=', roomId).executeTakeFirst();
     if (!existing) {
       throw notFoundError('Không tìm thấy phòng học', 'room');
+    }
+    // Loại phòng kiểm tra theo khối phòng, loại phòng đang lưu khi lần sửa chỉ đổi một trong hai
+    const errors: FieldError[] = [];
+    Object.assign(changes, readRoomFacility(body, errors, existing));
+    if (errors.length > 0) {
+      throw validationError(errors);
     }
     const database = await this.catalogAccess.writableDatabase(currentUser, PERMISSION, existing.org_unit_id);
     return conflictOnDuplicate(
       database.transaction().execute(async (transaction) => {
         const updated = await transaction
           .updateTable('rooms')
-          .set({ ...changes, updated_at: this.clock.now() })
+          .set({ ...storedChanges(changes), updated_at: this.clock.now() })
           .where('id', '=', roomId)
           .returning(COLUMNS)
           .executeTakeFirstOrThrow();
@@ -112,7 +156,7 @@ export class RoomsService {
           before: existing,
           after: updated,
         });
-        return updated;
+        return formatRoom(updated);
       }),
       DUPLICATE_MESSAGE,
       'code',
@@ -142,6 +186,7 @@ export class RoomsController {
       code: readRequiredText(body, 'code', errors),
       name: readRequiredText(body, 'name', errors),
       capacity: readRequiredInteger(body, 'capacity', errors, CAPACITY_RANGE),
+      ...readRoomFacility(body, errors),
     };
     if (errors.length > 0) {
       throw validationError(errors);
@@ -167,6 +212,6 @@ export class RoomsController {
     if (errors.length > 0) {
       throw validationError(errors);
     }
-    return this.roomsService.update(currentUser, roomId, changes, originOf(request, currentUser));
+    return this.roomsService.update(currentUser, roomId, body, changes, originOf(request, currentUser));
   }
 }

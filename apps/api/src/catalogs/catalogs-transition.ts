@@ -40,7 +40,10 @@ export const catalogsTransitionStep: AcademicYearTransitionStep = {
       await next.insertInto('approval_thresholds').values(row).execute();
     }
     for (const row of await previous.selectFrom('rooms').selectAll().execute()) {
-      await next.insertInto('rooms').values(row).execute();
+      await next
+        .insertInto('rooms')
+        .values({ ...row, facility_attributes: JSON.stringify(row.facility_attributes) })
+        .execute();
     }
     for (const row of await previous.selectFrom('grade_levels').selectAll().execute()) {
       await next.insertInto('grade_levels').values(row).execute();
