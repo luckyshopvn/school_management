@@ -14,6 +14,26 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-13 — Ma trận quyền chọn nhanh, chuông thông báo, dữ liệu mẫu
+
+#### Công việc đã thực hiện
+
+- Ma trận quyền chọn nhanh theo nhóm, tên nhóm gồm mã và tên phân hệ; sửa lỗi báo nhầm mất kết nối ở Cây đơn vị (YCTD-96, yêu cầu gộp số 67).
+- Chuông thông báo ở đầu trang cổng quản trị (YCTD-97).
+- Chẩn đoán "chức năng chưa hoạt động" trên máy của Eric: cơ sở dữ liệu phát triển chưa có năm học đang dùng và tài khoản VT-01 chỉ có quyền quản lý tài khoản (PQ-10); dựng dữ liệu mẫu `pnpm demo:seed`.
+
+#### Quyết định
+
+- Eric yêu cầu hai thay đổi giao diện; cách trình bày Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-96, YCTD-97.
+
+#### Vấn đề tồn đọng
+
+- Cấp toàn quyền cho VT-01 trong mã nguồn chưa làm: Eric tự cấp trên ma trận quyền ở máy phát triển.
+
 ### 2026-10-13 — DT-12 phần 12a: nối nhà cung cấp tin nhắn eSMS.vn
 
 #### Công việc đã thực hiện
