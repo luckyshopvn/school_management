@@ -332,18 +332,26 @@ export function AppShell({ children }: { children: ReactNode }) {
           >
             <MenuIcon />
           </button>
-          <span className="hidden text-section-title font-bold text-header-accent sm:inline">School Management</span>
+          <span className="hidden whitespace-nowrap text-section-title font-bold text-header-accent lg:inline">
+            School Management
+          </span>
           <WorkspaceSwitcher state={workspaces} />
-          <div className="ml-auto flex items-center gap-4">
+          <div className="ml-auto flex shrink-0 items-center gap-4 whitespace-nowrap">
             <NotificationBell />
             {currentUser.data ? (
-              <span className="text-label font-semibold text-white" data-testid="current-user-name">
+              <span
+                className="hidden whitespace-nowrap text-label font-semibold text-white md:inline"
+                data-testid="current-user-name"
+              >
                 {currentUser.data.full_name}
               </span>
             ) : (
               <span className="h-4 w-32 animate-pulse rounded bg-header-strong" aria-hidden="true" />
             )}
-            <Link to="/change-password" className="text-label text-white hover:underline">
+            <Link
+              to="/change-password"
+              className="hidden whitespace-nowrap text-label text-white hover:underline md:inline"
+            >
               Đổi mật khẩu
             </Link>
             <Button onClick={() => void session.logout()}>Đăng xuất</Button>
