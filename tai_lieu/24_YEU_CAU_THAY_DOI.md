@@ -70,7 +70,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
   - Thanh đầu trang cổng quản trị có nút "<năm học> · <học kỳ>"; học kỳ là kỳ trong lịch năm học chứa ngày hôm nay (Học kỳ I, Học kỳ II, Kỳ hè, hoặc "Ngoài học kỳ"); bấm mở danh sách năm học đang dùng và đã đóng kèm học kỳ, ngày bắt đầu, kết thúc. Năm học đã đóng chưa chọn để xem được (máy chủ chỉ đọc năm học đang dùng, BR-93); học kỳ chỉ để hiển thị. Màn hình hẹp hơn 768 điểm ảnh ẩn nút.
   - Trang chủ có vùng "Truy cập nhanh" với nút "Thêm truy cập nhanh": ghim tối đa 12 trang người dùng đang thấy trên thanh điều hướng, nhóm theo phân hệ; đổi thứ tự bằng nút lên, xuống hoặc kéo thả; bỏ ô. Lối tắt lưu theo tài khoản ở cơ sở dữ liệu hệ thống nên giữ qua các năm học.
   - `GET`, `PUT /api/v1/me/quick-links` (chỉ cần đăng nhập, chỉ đọc, sửa của chính mình); PUT thay cả danh sách trong một giao dịch; đường dẫn phải nằm trong danh sách cho phép `PORTAL_QUICK_LINK_PATHS` ở gói dùng chung; mỗi trang vẫn tự kiểm tra quyền khi mở.
-- Thành phần bị ảnh hưởng: máy chủ API, cổng quản trị (thanh đầu trang, trang chủ), gói dùng chung; tài liệu `01`, `02`, `11`, `21`, `23`, `24`, `index.md`.
+- Thành phần bị ảnh hưởng: máy chủ API, cổng quản trị (thanh đầu trang, trang chủ), gói dùng chung; tài liệu `01`, `02`, `11`, `14` (MH-01, BC-09), `16` (bảng `user_quick_links`), `17` (giao kèo Truy cập nhanh), `21`, `23`, `24`, `index.md`.
 - Dữ liệu bị ảnh hưởng: bảng `user_quick_links` ở cơ sở dữ liệu hệ thống (tệp 0004).
 - API bị ảnh hưởng: thêm `GET`, `PUT /me/quick-links`.
 - Giao diện bị ảnh hưởng: thanh đầu trang, trang chủ.

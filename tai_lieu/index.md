@@ -25,7 +25,7 @@
 | 13 | [13_CONG_NGHE_SU_DUNG.md](13_CONG_NGHE_SU_DUNG.md) | Công nghệ sử dụng | Bộ công nghệ đã chốt, cấu trúc mã nguồn, quy ước kỹ thuật | 05 Thiết kế kiến trúc | Đã phê duyệt |
 | 14 | [14_DAC_TA_GIAO_DIEN.md](14_DAC_TA_GIAO_DIEN.md) | Đặc tả giao diện | 86 màn hình, trạng thái, xử lý lỗi, ranh giới với máy chủ | 06 Thiết kế giao diện | Đã phê duyệt |
 | 15 | [15_HE_THONG_THIET_KE.md](15_HE_THONG_THIET_KE.md) | Hệ thống thiết kế | Màu, chữ, khoảng cách, thành phần dùng chung | 06 Thiết kế giao diện | Đã phê duyệt |
-| 16 | [16_CO_SO_DU_LIEU.md](16_CO_SO_DU_LIEU.md) | Cơ sở dữ liệu | 162 bảng dự kiến, quan hệ, chỉ mục, chính sách xóa | 07 Thiết kế dữ liệu và API | Đã phê duyệt |
+| 16 | [16_CO_SO_DU_LIEU.md](16_CO_SO_DU_LIEU.md) | Cơ sở dữ liệu | 210 bảng dự kiến, quan hệ, chỉ mục, chính sách xóa | 07 Thiết kế dữ liệu và API | Đã phê duyệt |
 | 17 | [17_DAC_TA_API.md](17_DAC_TA_API.md) | Đặc tả API | Điểm cuối, mô hình lỗi, phân trang, kiểm tra dữ liệu | 07 Thiết kế dữ liệu và API | Đã phê duyệt |
 | 18 | [18_QUY_TAC_PHAT_TRIEN_AI.md](18_QUY_TAC_PHAT_TRIEN_AI.md) | Quy tắc phát triển AI | AI-01 đến AI-42 | 08 Chuẩn bị môi trường AI | Đã phê duyệt |
 | 19 | [19_CHI_DAN_HE_THONG_AI.md](19_CHI_DAN_HE_THONG_AI.md) | Chỉ dẫn hệ thống AI | Ngữ cảnh, câu lệnh hệ thống, quy ước mã | 08 Chuẩn bị môi trường AI | Đã phê duyệt |
@@ -81,7 +81,7 @@ Mã quy trình dạng `QT-nn`, đánh số tăng dần, không tái sử dụng 
 | Quy tắc nghiệp vụ đã xác định | 96 | Từ BR-01 đến BR-96; BR-27, BR-42, BR-54, BR-55, BR-57 đã bỏ |
 | Giả định đã ghi nhận | 92 | Từ GD-01 đến GD-92; mọi giả định đã được xác nhận hoặc ghi không còn hiệu lực ngày 09/10/2026 |
 | Câu hỏi mở chờ trả lời | 0 | Đã cấp mã đến Q-156; mọi câu đã được trả lời ngày 09/10/2026 |
-| Bảng dữ liệu dự kiến | 162 | Xem `16_CO_SO_DU_LIEU.md`; tám bảng xe đưa đón và bảng `meal_registrations` đã gỡ |
+| Bảng dữ liệu dự kiến | 210 | Xem `16_CO_SO_DU_LIEU.md`, đếm lại ngày 2026-10-13 theo tên bảng ở mục 2 đến mục 18 (mỗi tên đếm một lần), đã gồm `user_quick_links` (YCTD-102); tám bảng xe đưa đón và bảng `meal_registrations` đã gỡ |
 | Màn hình dự kiến | 86 | 51 màn hình cổng quản trị, 16 màn hình ứng dụng giáo viên, 19 màn hình ứng dụng phụ huynh; MG-13, MP-13 đã bỏ |
 | Ca kiểm thử khởi đầu | 319 | Từ CT-001 đến CT-319; CT-048, CT-059 đến CT-063, CT-127 không áp dụng |
 | Cổng kiểm soát chất lượng | 12 | Từ CG-01 đến CG-12, xem `01_KE_HOACH_TONG_THE.md` |
