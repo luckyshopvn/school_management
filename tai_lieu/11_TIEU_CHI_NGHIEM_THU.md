@@ -416,6 +416,16 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-341 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P17-02, nhà cung cấp được giả lập / Khi bếp xem suất ăn tuần của đơn vị mình theo lớp và khối; đơn vị khác, kỳ tháng, giáo viên bị từ chối / Thì bếp xem suất ăn tuần của đơn vị mình theo lớp và khối; đơn vị khác, kỳ tháng, giáo viên bị từ chối (YCTD-103) |
 | AC-342 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P17-02, nhà cung cấp được giả lập / Khi xuất Excel tháng / Thì tên tệp đúng, có các bảng Data, Tổng hợp, Tổng hợp tháng và một bảng mỗi lớp; tiêu đề, tên trường, sĩ số, tổng có mặt, mã B của trẻ đúng; ghi nhật ký xuất có dữ liệu cá nhân; xuất tuần có bảng "Tổng hợp tuần"; quản lý đơn vị không có quyền xuất bị từ chối (YCTD-103) |
 | AC-343 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P17-02, nhà cung cấp được giả lập / Khi giao diện (46-attendance-report.spec.ts) / Thì mở báo cáo, chuyển Ngày, Tuần, Tháng, tải tệp Excel đúng tên, mở được bằng exceljs và có bảng "Tổng hợp tháng" (YCTD-103) |
+| AC-344 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P01-01, nhà cung cấp được giả lập / Khi gọi `GET` hoặc `PUT /me/quick-links` không có mã phiên / Thì 401 (YCTD-102) |
+| AC-345 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P01-01, nhà cung cấp được giả lập / Khi tài khoản mới đọc lối tắt / Thì danh sách rỗng (YCTD-102) |
+| AC-346 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P01-01, nhà cung cấp được giả lập / Khi lưu ba lối tắt rồi đọc lại / Thì đúng thứ tự gửi lên, vị trí 0, 1, 2 (YCTD-102) |
+| AC-347 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P01-01, nhà cung cấp được giả lập / Khi gửi lại danh sách đã đổi thứ tự và bỏ một mục / Thì máy chủ lưu đúng thứ tự mới, còn hai mục (YCTD-102) |
+| AC-348 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P01-01, nhà cung cấp được giả lập / Khi tài khoản khác đọc và lưu lối tắt / Thì không thấy và không đổi lối tắt của tài khoản thứ nhất (YCTD-102) |
+| AC-349 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P01-01, nhà cung cấp được giả lập / Khi lưu đường dẫn ngoài danh sách cho phép (`/../admin`, địa chỉ ngoài, `/`, `/change-password`) / Thì 400 (YCTD-102) |
+| AC-350 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P01-01, nhà cung cấp được giả lập / Khi lưu 13 lối tắt hoặc hai mục trùng trang, nhãn rỗng hoặc quá 100 ký tự / Thì 400 (YCTD-102) |
+| AC-351 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P01-01, nhà cung cấp được giả lập / Khi lưu danh sách rỗng / Thì xóa hết lối tắt (YCTD-102) |
+| AC-352 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P01-01, nhà cung cấp được giả lập / Khi thanh đầu trang của Hiệu trưởng hiện tên năm học đang dùng; mở danh sách thấy năm học đó được đánh dấu đang / Thì thanh đầu trang của Hiệu trưởng hiện tên năm học đang dùng; mở danh sách thấy năm học đó được đánh dấu đang (YCTD-102) |
+| AC-353 | Cho cấu hình nhà cung cấp và dữ liệu theo kịch bản của P01-01, nhà cung cấp được giả lập / Khi hiệu trưởng ghim "Hồ sơ trẻ" và "Công nợ", đưa "Công nợ" lên trước, tải lại vẫn còn đúng thứ tự; bỏ "Công / Thì hiệu trưởng ghim "Hồ sơ trẻ" và "Công nợ", đưa "Công nợ" lên trước, tải lại vẫn còn đúng thứ tự; bỏ "Công (YCTD-102) |
 
 ## 20. Chưa xác minh được
 
