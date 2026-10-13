@@ -118,6 +118,7 @@ import { FileStorage, S3FileStorage } from './files/file-storage.js';
 import { FilesController, FilesService } from './files/files.js';
 import { ImportsController } from './imports/imports.controller.js';
 import { ImportsService } from './imports/imports.service.js';
+import { MoetImports } from './imports/moet-imports.js';
 import { AttendanceController } from './attendance/attendance.controller.js';
 import { AttendanceService } from './attendance/attendance.service.js';
 import { PickupsController } from './pickups/pickups.controller.js';
@@ -177,6 +178,7 @@ import {
 } from './reports/operations-report.js';
 import { ConsolidatedReportController, ConsolidatedReportService } from './reports/consolidated-report.js';
 import { ReportExportController, ReportExportService } from './reports/report-export.js';
+import { AttendanceMealsController, AttendanceMealsService } from './reports/attendance-meals.js';
 import { PartnerController, PartnerService } from './partner/partner.js';
 import { NotificationsController, NotificationsService } from './notifications/notifications.js';
 import { NotificationDispatcher } from './notifications/notification-dispatcher.js';
@@ -298,6 +300,7 @@ export class ApplicationModule {
         OperationsReportController,
         ConsolidatedReportController,
         ReportExportController,
+        AttendanceMealsController,
         PartnerController,
         NotificationsController,
         JournalsController,
@@ -416,6 +419,7 @@ export class ApplicationModule {
         ChildDataProtection,
         FilesService,
         ImportsService,
+        MoetImports,
         AttendanceService,
         PickupsService,
         ServicesService,
@@ -447,6 +451,7 @@ export class ApplicationModule {
         OperationsReportService,
         ConsolidatedReportService,
         ReportExportService,
+        AttendanceMealsService,
         PartnerService,
         NotificationsService,
         NotificationDispatcher,

@@ -32,11 +32,12 @@ import {
   type PurchaseDetail,
   type Supplier,
 } from './kitchen-api.js';
+import { MealCountsTab } from './MealCountsTab.js';
 
 // MH-18 Thực đơn và định lượng nguyên liệu, MH-38 Phiếu đi chợ và nhà cung cấp thực phẩm, báo cáo ăn và bếp (P12-01 đến
 // P12-09, P17-08; YCTD-76): bếp lập món, nguyên liệu, thực đơn tuần, trình duyệt; quản lý đơn vị duyệt và công bố; xem
 // suất ăn theo ngày, định lượng; lập và xác nhận nhập phiếu đi chợ; kế toán gắn phiếu chi; báo cáo đối chiếu suất ăn
-type Tab = 'menus' | 'meals' | 'dishes' | 'purchases' | 'buffets' | 'report';
+type Tab = 'menus' | 'meals' | 'meal-counts' | 'dishes' | 'purchases' | 'buffets' | 'report';
 const selectClass = 'mt-2 block w-full rounded-lg border border-border bg-card px-3 py-2 text-content font-normal';
 
 interface TabProps {
@@ -54,6 +55,8 @@ export function KitchenPage() {
   const tabs: Array<[Tab, string]> = [
     ['menus', 'Thực đơn tuần'],
     ['meals', 'Suất ăn theo ngày'],
+    // Suất ăn theo lớp và khối từ điểm danh (YCTD-100)
+    ['meal-counts', 'Suất ăn theo lớp'],
     ['dishes', 'Món ăn và nguyên liệu'],
     ['purchases', 'Phiếu đi chợ'],
     ['buffets', 'Buffet theo dịp'],
@@ -82,6 +85,7 @@ export function KitchenPage() {
           <>
             {tab === 'menus' ? <MenusTab key={orgUnitId} orgUnitId={orgUnitId} onDone={setToastMessage} /> : null}
             {tab === 'meals' ? <MealsTab key={orgUnitId} orgUnitId={orgUnitId} onDone={setToastMessage} /> : null}
+            {tab === 'meal-counts' ? <MealCountsTab key={orgUnitId} orgUnitId={orgUnitId} /> : null}
             {tab === 'dishes' ? <DishesTab key={orgUnitId} orgUnitId={orgUnitId} onDone={setToastMessage} /> : null}
             {tab === 'purchases' ? (
               <PurchasesTab key={orgUnitId} orgUnitId={orgUnitId} onDone={setToastMessage} />

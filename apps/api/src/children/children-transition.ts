@@ -54,7 +54,10 @@ export const childrenTransitionStep: AcademicYearTransitionStep = {
     }
 
     for (const child of children) {
-      await next.insertInto('children').values(child).execute();
+      await next
+        .insertInto('children')
+        .values({ ...child, moet_profile: child.moet_profile ? JSON.stringify(child.moet_profile) : null })
+        .execute();
     }
     for (const row of await previous
       .selectFrom('health_profiles')

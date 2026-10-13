@@ -9,6 +9,8 @@ import type { CurrentUser } from '../authentication/current-user.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { notFoundError } from '../common/request-fields.js';
 import { LedgerReportsService } from '../ledger/ledger-reports.js';
+import { AttendanceMealsService, readAttendanceMealsFilter, type AttendanceMealsFilter } from './attendance-meals.js';
+import { attendanceWorkbook } from './attendance-meals-workbook.js';
 import { ConsolidatedReportService } from './consolidated-report.js';
 import type { ReportColumn, ReportRow } from './operations-report.js';
 import {
@@ -333,6 +335,14 @@ export const EXPORT_DEFINITIONS: Record<string, ExportDefinition> = {
       return { orgUnitId: optionalUuid(query, 'org_unit_id', errors), accountId, ...dateRange(query, errors) };
     },
   },
+  // Điểm danh và suất ăn theo mẫu của nhà trường (YCTD-100): tệp theo bố cục riêng, không theo danh sách cột
+  'attendance-meals': {
+    title: 'Báo cáo điểm danh và suất ăn',
+    viewPermission: PERMISSION_CODES.attendanceReport,
+    personal: true,
+    sheets: [],
+    parse: (query, errors) => ({ ...readAttendanceMealsFilter(query, errors) }),
+  },
   consolidated: {
     title: 'Báo cáo hợp nhất nhiều đơn vị',
     viewPermission: PERMISSION_CODES.consolidatedReport,
@@ -368,6 +378,7 @@ export class ReportExportService {
     private readonly reports: ReportsService,
     private readonly consolidated: ConsolidatedReportService,
     private readonly ledger: LedgerReportsService,
+    private readonly attendanceMeals: AttendanceMealsService,
     private readonly clock: Clock,
   ) {}
 
@@ -387,6 +398,15 @@ export class ReportExportService {
       (filter.orgUnitId as string | null | undefined) ?? null,
       false,
     );
+    if (code === 'attendance-meals') {
+      return this.exportAttendanceMeals(
+        currentUser,
+        filter as unknown as AttendanceMealsFilter,
+        query,
+        scope,
+        ipAddress,
+      );
+    }
     const data = await this.run(currentUser, code, filter);
     const exportedAt = this.clock.now();
     const workbook = new ExcelJS.Workbook();
@@ -447,6 +467,50 @@ export class ReportExportService {
       code === 'consolidated'
         ? ((data.units as ReportRow[]).map((row) => row.org_unit_id) as string[])
         : scope.orgUnitIds;
+    const logId = await this.log(currentUser, code, query, orgUnitIds, rowCount, fileName, ipAddress);
+    return { buffer, fileName, logId };
+  }
+
+  // Tệp điểm danh theo mẫu: bảng Data, Tổng hợp, Tổng hợp tháng (tuần, ngày) và một bảng cho mỗi lớp (YCTD-100)
+  private async exportAttendanceMeals(
+    currentUser: CurrentUser,
+    filter: AttendanceMealsFilter,
+    query: QueryValues,
+    scope: { orgUnitIds: string[] },
+    ipAddress: string | null,
+  ) {
+    const report = await this.attendanceMeals.report(currentUser, filter);
+    const exportedAt = this.clock.now();
+    const { workbook, rowCount } = attendanceWorkbook(report, { createdAt: exportedAt, signedOn: report.today });
+    const suffix =
+      report.period === 'month'
+        ? `thang-${report.from.slice(0, 7)}`
+        : report.period === 'week'
+          ? `tuan-${report.from}`
+          : `ngay-${report.from}`;
+    const fileName = `diem-danh-suat-an-${suffix}.xlsx`;
+    const buffer = Buffer.from(await workbook.xlsx.writeBuffer());
+    const logId = await this.log(
+      currentUser,
+      'attendance-meals',
+      query,
+      scope.orgUnitIds,
+      rowCount,
+      fileName,
+      ipAddress,
+    );
+    return { buffer, fileName, logId };
+  }
+
+  private async log(
+    currentUser: CurrentUser,
+    code: string,
+    query: QueryValues,
+    orgUnitIds: string[],
+    rowCount: number,
+    fileName: string,
+    ipAddress: string | null,
+  ): Promise<string> {
     const { database } = await this.currentSchoolYear.require();
     const log = await database
       .insertInto('export_logs')
@@ -457,13 +521,13 @@ export class ReportExportService {
         filters_data: JSON.stringify(query),
         org_unit_ids: orgUnitIds,
         row_count: rowCount,
-        contains_personal_data: definition.personal,
+        contains_personal_data: EXPORT_DEFINITIONS[code]?.personal ?? true,
         file_name: fileName,
         ip_address: ipAddress,
       })
       .returning('id')
       .executeTakeFirstOrThrow();
-    return { buffer, fileName, logId: log.id };
+    return log.id;
   }
 
   private async run(currentUser: CurrentUser, code: string, filter: Record<string, unknown>) {

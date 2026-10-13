@@ -5,6 +5,7 @@ import { Alert, Button, StatusBadge, Toast } from '@school-management/ui';
 import { AppShell } from '../pages/AppShell.js';
 import { ApiError, fetchWithSession, requestJson } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
+import { MoetImportSection } from './MoetImportSection.js';
 
 // MH-40 Nhập dữ liệu ban đầu từ Excel (P01-13) và nhập mã định danh ngành (P02-12) (YCTD-46).
 // Giao diện chỉ chuyển tệp và hiện báo cáo; máy chủ kiểm tra toàn bộ và chỉ ghi khi không còn dòng lỗi
@@ -175,11 +176,17 @@ export function ImportsPage() {
           <>
             <ImportSection type="classes" onChanged={setToastMessage} />
             <ImportSection type="children" onChanged={setToastMessage} />
+            <MoetImportSection type="moet_children" onChanged={setToastMessage} />
           </>
         ) : null}
         {canImportMoetCodes ? <ImportSection type="moet_codes" onChanged={setToastMessage} /> : null}
         {canImportOpeningDebts ? <ImportSection type="opening_debts" onChanged={setToastMessage} /> : null}
-        {canImportStaff ? <ImportSection type="staff" onChanged={setToastMessage} /> : null}
+        {canImportStaff ? (
+          <>
+            <ImportSection type="staff" onChanged={setToastMessage} />
+            <MoetImportSection type="moet_staff" onChanged={setToastMessage} />
+          </>
+        ) : null}
       </div>
     </AppShell>
   );
