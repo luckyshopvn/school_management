@@ -64,6 +64,17 @@ test('Hiệu trưởng xem ma trận quyền và có nút lưu quyền', async (
   const matrix = page.getByRole('region', { name: 'Quyền của VT-02' });
   await expect(matrix.getByRole('checkbox', { name: /P01\.account\.manage\)/ })).toBeChecked();
   await expect(page.getByRole('button', { name: 'Lưu quyền của vai trò' })).toBeVisible();
+
+  // Chọn nhanh cả nhóm chức năng và bỏ chọn tất cả; không lưu để giữ nguyên quyền của vai trò dùng chung
+  const group = matrix.getByRole('group', { name: /P16/ });
+  await matrix.getByRole('checkbox', { name: 'Chọn cả nhóm P16' }).check();
+  for (const checkbox of await group.getByRole('checkbox').all()) {
+    await expect(checkbox).toBeChecked();
+  }
+  await expect(page.getByRole('button', { name: 'Lưu quyền của vai trò' })).toBeEnabled();
+  await matrix.getByRole('button', { name: 'Bỏ chọn tất cả' }).click();
+  await expect(matrix.getByRole('checkbox', { name: /P01\.account\.manage\)/ })).not.toBeChecked();
+  await expect(matrix.getByRole('checkbox', { name: 'Chọn cả nhóm P01' })).not.toBeChecked();
 });
 
 test('Giáo viên không thấy mục Tài khoản và Vai trò và quyền', async ({ page }) => {
