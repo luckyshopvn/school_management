@@ -2,7 +2,7 @@
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
 - Phiên bản: 1.6
-- Ngày cập nhật: 2026-10-11
+- Ngày cập nhật: 2026-10-13
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -170,9 +170,9 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.5.1 | Trả lời Q-136 đến Q-138: tiêu chuẩn sức khỏe theo Bộ Y tế, phí ngoại khóa theo hoạt động hoặc theo tháng, nghỉ thứ bảy định kỳ trừ lịch học bù | 01 đến 08 | Đã có |
 | 0.5.0 | Bổ sung hai mươi chức năng theo tám ảnh sơ đồ chức năng | 01 đến 08 | Đã có |
 | 0.4.0 | Chuyển bộ tài liệu sang cấu trúc Vibecoding_Flow, sửa các chỗ chưa khớp, thống nhất phân cấp phê duyệt, đổi mã dự án thành SM | 01 đến 08 | Đã có |
-| 1.0.0 | Giai đoạn 1 chạy thật: nền tảng, trẻ, điểm danh, học phí, thanh toán mã QR, phiếu thu, phiếu chi, quỹ tiền mặt, nhân sự, lương cơ bản, hai ứng dụng, báo cáo cơ bản, nhập dữ liệu từ Excel, nhập mã định danh của Bộ, API đối tác | 09 đến 11 | Chưa bắt đầu |
-| 1.1.0 | Giai đoạn 2: giảng dạy, y tế, bếp, kho, hoạt động, tương tác, công việc, tài khoản ngân hàng và công nợ phải trả, báo cáo hợp nhất | 09 đến 11 | Bản ứng viên 0.42.0, chờ 1.0.0 qua CG-11 và Eric nghiệm thu (YCTD-84) |
-| 1.2.0 | Giai đoạn 3: tuyển sinh, tuyển dụng, kết nối Facebook và Zalo, đối soát thanh toán, sổ kế toán kép | 09 đến 11 | Bản ứng viên 0.48.0, chờ 1.0.0 qua CG-11, 1.1.0 nghiệm thu và Eric nghiệm thu (YCTD-91) |
+| 1.0.0 | Giai đoạn 1 chạy thật: nền tảng, trẻ, điểm danh, học phí, thanh toán mã QR, phiếu thu, phiếu chi, quỹ tiền mặt, nhân sự, lương cơ bản, hai ứng dụng, báo cáo cơ bản, nhập dữ liệu từ Excel, nhập mã định danh của Bộ, API đối tác | 09 đến 11 | Eric nghiệm thu ngày 13/10/2026, thẻ `v1.0.0` (tài liệu 0.31.0, YCTD-92); chờ triển khai ở việc T6 |
+| 1.1.0 | Giai đoạn 2: giảng dạy, y tế, bếp, kho, hoạt động, tương tác, công việc, tài khoản ngân hàng và công nợ phải trả, báo cáo hợp nhất | 09 đến 11 | Eric nghiệm thu ngày 13/10/2026, thẻ `v1.1.0` (tài liệu 0.42.0, YCTD-92) |
+| 1.2.0 | Giai đoạn 3: tuyển sinh, tuyển dụng, kết nối Facebook và Zalo, đối soát thanh toán, sổ kế toán kép | 09 đến 11 | Eric nghiệm thu ngày 13/10/2026, thẻ `v1.2.0` (tài liệu 0.48.0, YCTD-92) |
 
 Ba giai đoạn sản phẩm nêu trong `05_PHAM_VI.md` mục 4 đến mục 6, đã được Eric xác nhận ngày 09/10/2026 (`Q-07`, `M00-3`).
 
@@ -192,10 +192,10 @@ Mỗi giai đoạn kết thúc bằng một cổng. Cổng không đạt thì kh
 | 08 Chuẩn bị môi trường | `18_QUY_TAC_PHAT_TRIEN_AI.md`, `19_CHI_DAN_HE_THONG_AI.md`, kho mã nguồn GitHub, môi trường phát triển | CG-08 | Đã đạt ngày 09/10/2026 |
 | 09 Xây dựng theo phân hệ | Mã nguồn, thay đổi dữ liệu, kiểm thử tự động | CG-09 | Đã đạt theo từng đợt DT-01 đến DT-09, mỗi phần qua tích hợp liên tục trước khi gộp |
 | 10 Kiểm thử và kiểm soát chất lượng | `20_KE_HOACH_KIEM_THU.md`, `21_KICH_BAN_KIEM_THU.md`, kết quả chạy thật | CG-10 | Đã đạt ngày 11/10/2026, xem `28_BAO_CAO_KIEM_THU_CG_10.md` (YCTD-72) |
-| 11 Nghiệm thu và phát hành | Bản phát hành 1.0.0, `23_LICH_SU_PHIEN_BAN.md`, biên bản triển khai | CG-11 | Đang chờ: bản ứng viên 0.31.0 chờ Eric nghiệm thu và triển khai ở việc T6 |
+| 11 Nghiệm thu và phát hành | Bản phát hành 1.0.0, `23_LICH_SU_PHIEN_BAN.md`, biên bản triển khai | CG-11 | Eric nghiệm thu 1.0.0, 1.1.0, 1.2.0 ngày 13/10/2026 (YCTD-92); còn xác nhận sau triển khai ở việc T6 |
 | 12 Vận hành và cải tiến | Sửa lỗi, cải tiến, `24_YEU_CAU_THAY_DOI.md`, tài liệu cập nhật | CG-12 | Chưa bắt đầu |
 
-Vị trí hiện tại của dự án (12/10/2026): các đợt DT-00 đến DT-11 đã gộp vào nhánh `main`; CG-01 đến CG-10 đã đạt; ba bản ứng viên chờ nghiệm thu: 1.0.0 (phiên bản tài liệu 0.31.0), 1.1.0 (0.42.0, `29_BAO_CAO_KIEM_THU_G2.md`), 1.2.0 (0.48.0, `30_BAO_CAO_KIEM_THU_G3.md`). Mọi chức năng trong kế hoạch đã làm, trừ G3-04 (chờ Eric quyết định) và G3-09 (chưa có giao diện lập trình của Bộ). Việc tiếp theo cần Eric: nghiệm thu ba bản ứng viên; cung cấp tài khoản nhà cung cấp tin nhắn, thanh toán, Facebook, Zalo (việc T1, T4, T7); dựng môi trường thử nghiệm và chạy thật trên đám mây, chạy kiểm thử hiệu năng và phục hồi, triển khai (việc T6); qua CG-11 thì gắn lần lượt 1.0.0, 1.1.0, 1.2.0.
+Vị trí hiện tại của dự án (13/10/2026): các đợt DT-00 đến DT-11 đã gộp vào nhánh `main`; CG-01 đến CG-10 đã đạt; Eric nghiệm thu ba bản 1.0.0, 1.1.0, 1.2.0 (thẻ `v1.0.0`, `v1.1.0`, `v1.2.0`, YCTD-92). G3-04 chưa làm theo quyết định của Eric, phụ huynh dùng ứng dụng trên trình duyệt; G3-09 chưa có giao diện lập trình của Bộ. Đang làm đợt DT-12: nối nhà cung cấp thật (eSMS, PayOS, SePay, Casso, VNPay, Fanpage, Zalo Official Account) và chuẩn bị cấu hình triển khai. Việc tiếp theo cần Eric: thuê máy chủ đám mây, cấp khóa của nhà cung cấp, triển khai và chạy kiểm thử hiệu năng, phục hồi (việc T6), xác nhận sau triển khai để đóng cổng CG-11.
 
 ### 4.1 Giai đoạn 01 — Xác định ý tưởng
 
@@ -334,6 +334,7 @@ Quy tắc bắt buộc: không thực hiện thay đổi trực tiếp trên h�
 | DT-09 | Kiểm thử toàn bộ giai đoạn 1, nghiệm thu, phát hành 1.0.0; làm theo bảy phần 9a đến 9g (YCTD-66) | Toàn dự án | — | DT-07, DT-08 | Qua cổng CG-10 và CG-11 |
 | DT-10 | Giai đoạn 2: giảng dạy, công việc, y tế, bếp, kho, hoạt động, tương tác, tài khoản ngân hàng và công nợ phải trả, báo cáo hợp nhất | P03, P06, P09, P10, P12 đến P15, P17 | `M03`, `M09`, `M10`, `M12` đến `M15` | 1.0.0 (làm song song khi 1.0.0 chờ nghiệm thu, YCTD-73) | Mười phần 10a đến 10j đã gộp vào `main` ngày 12/10/2026; báo cáo kiểm thử `29_BAO_CAO_KIEM_THU_G2.md`; bản ứng viên 1.1.0 là phiên bản tài liệu 0.42.0 (YCTD-84) |
 | DT-11 | Giai đoạn 3: tuyển sinh, tuyển dụng, kết nối Facebook và Zalo, đối soát thanh toán, sổ kế toán kép | P01, P06, P14, P16, P18 | `M16`, `M18`, `N3` đến `N5` | 1.1.0 (làm song song khi 1.0.0, 1.1.0 chờ nghiệm thu, YCTD-85) | Năm phần 11a đến 11e đã gộp vào `main` ngày 12/10/2026; báo cáo kiểm thử `30_BAO_CAO_KIEM_THU_G3.md`; bản ứng viên 1.2.0 là phiên bản tài liệu 0.48.0 (YCTD-91); G3-04, G3-09 chưa làm |
+| DT-12 | Nối nhà cung cấp thật và chuẩn bị triển khai: tin nhắn eSMS, cổng thanh toán PayOS, SePay, Casso, VNPay, Fanpage và Zalo Official Account, cấu hình triển khai Docker Compose, sao lưu và phục hồi | P01, P06, P14, P19 | `T1`, `T4`, `T5`, `T7`, chuẩn bị `T6` | 1.2.0 | Bốn phần 12a đến 12d (YCTD-92) |
 
 Thứ tự trong bảng là thứ tự đề xuất, không phải thứ tự cứng. Đổi thứ tự phải qua quản lý thay đổi và phải giữ nguyên các phụ thuộc ở cột thứ sáu.
 

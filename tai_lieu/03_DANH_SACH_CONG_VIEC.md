@@ -71,7 +71,7 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | Mã | Công việc | Trạng thái | Ghi chú |
 |---|---|---|---|
 | N1 | Xác thực hai lớp cho Hiệu trưởng, Phó Hiệu trưởng, kế toán trưởng, quản trị nền tảng | Đã bỏ | Bỏ ngày 09/10/2026 theo quyết định của Eric (YCTD-31) |
-| N2 | Bản cài riêng trên điện thoại cho phụ huynh | Bị chặn | G3-04, chờ Eric quyết định; hiện phụ huynh dùng ứng dụng web (YCTD-85) |
+| N2 | Bản cài riêng trên điện thoại cho phụ huynh | Đã bỏ | Eric quyết định ngày 13/10/2026 chưa làm, phụ huynh dùng ứng dụng trên trình duyệt; xem lại khi bản trên trình duyệt không đáp ứng (G3-04, YCTD-92) |
 | N3 | Kết nối Facebook và Fanpage để đăng nội dung đã duyệt | Hoàn thành | Đợt DT-11 phần 11e (YCTD-90), bản giả lập; nối tài khoản thật ở việc T1 |
 | N21 | Viết bộ ca kiểm thử chi tiết cho P01, P02 và P04, P05 và P06, P08 (Q-105) | Hoàn thành | Thư mục `27_BO_CA_KIEM_THU_CHI_TIET/`, 437 ca, năm đợt đã duyệt; xem mục 7 |
 | N17 | Gửi thông báo và nhắc nợ qua Zalo Official Account | Hoàn thành | Đợt DT-11 phần 11e (YCTD-90), bản giả lập; nối Official Account thật ở việc T7 |
@@ -85,13 +85,13 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 
 | Mã | Công việc | Cần gì | Trạng thái |
 |---|---|---|---|
-| T1 | Gửi thông báo và mã đăng nhập một lần qua tin nhắn tới phụ huynh | Tài khoản nhà cung cấp tin nhắn thương hiệu | Bị chặn, cần tài khoản; cần trước khi nghiệm thu P19-06 |
+| T1 | Gửi thông báo và mã đăng nhập một lần qua tin nhắn tới phụ huynh | Tài khoản nhà cung cấp tin nhắn thương hiệu | Đang thực hiện: Eric chọn eSMS.vn ngày 13/10/2026, nối ở DT-12 phần 12a; cần tài khoản và tên thương hiệu đã đăng ký khi triển khai |
 | T2 | Gửi thư điện tử thông báo | Tài khoản gửi thư | Bị chặn, cần tài khoản |
 | T3 | Thông báo đẩy trên điện thoại | Khóa dịch vụ thông báo đẩy | Bị chặn, cần tài khoản |
-| T4 | Kết nối Facebook và Fanpage | Tài khoản quản trị trang và quyền ứng dụng | Bị chặn, cần tài khoản |
-| T5 | Xác nhận chuyển khoản tự động cho thanh toán bằng mã QR | Tài khoản dịch vụ của ngân hàng hoặc đơn vị trung gian, xem Q-142 | Bị chặn, cần tài khoản; cần trước khi nghiệm thu P06-11 ở giai đoạn 1 |
-| T6 | Hạ tầng chạy thật | Thuê máy chủ đám mây trong nước cho môi trường thử nghiệm và chạy thật: máy chủ, cơ sở dữ liệu, kho lưu trữ tệp | Chờ đến khi triển khai (YCTD-32) |
-| T7 | Gửi thông báo qua Zalo | Tài khoản Zalo Official Account đã xác thực của trường | Bị chặn, cần tài khoản; giai đoạn 3 |
+| T4 | Kết nối Facebook và Fanpage | Tài khoản quản trị trang và quyền ứng dụng | Đang thực hiện: nối thật ở DT-12 phần 12c; cần khóa trang khi triển khai |
+| T5 | Xác nhận chuyển khoản tự động cho thanh toán bằng mã QR | Tài khoản dịch vụ của ngân hàng hoặc đơn vị trung gian, xem Q-142 | Đang thực hiện: Eric chọn PayOS, SePay, Casso, VNPay ngày 13/10/2026, nối ở DT-12 phần 12b; cần tài khoản khi triển khai |
+| T6 | Hạ tầng chạy thật | Thuê máy chủ đám mây trong nước cho môi trường thử nghiệm và chạy thật: máy chủ, cơ sở dữ liệu, kho lưu trữ tệp | Claude chuẩn bị cấu hình triển khai ở DT-12 phần 12d; Eric thuê máy chủ sau (YCTD-92) |
+| T7 | Gửi thông báo qua Zalo | Tài khoản Zalo Official Account đã xác thực của trường | Đang thực hiện: nối thật kèm làm mới khóa ở DT-12 phần 12c; cần Official Account đã xác thực khi triển khai |
 | T8 | Kết nối tự động với cơ sở dữ liệu ngành | Tài khoản và tài liệu kết nối do Sở Giáo dục cung cấp | Bị chặn, cần tài khoản; giai đoạn 3 (G3-09) |
 
 ### 2.4 Hệ thống lớn, làm theo đợt riêng
@@ -99,29 +99,28 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | Mã | Công việc | Trạng thái | Ghi chú |
 |---|---|---|---|
 | L1 | Nhập dữ liệu ban đầu từ Excel theo mẫu | Hoàn thành | Đợt DT-03 phần 3c (YCTD-46), nhân sự ở DT-06 phần 6a, số dư nợ đầu kỳ ở DT-05 phần 5d (P01-13) |
-| L2 | Ứng dụng phụ huynh bản cài riêng | Bị chặn | Trùng mã N2, chờ Eric quyết định |
+| L2 | Ứng dụng phụ huynh bản cài riêng | Đã bỏ | Trùng mã N2 (YCTD-92) |
 | L3 | Sổ kế toán kép | Hoàn thành | Trùng mã N5, đợt DT-11 phần 11c (YCTD-88) |
 
 ## 3. Thứ tự ưu tiên tiếp theo
 
 Chỉ liệt kê việc chưa xong. Mọi đợt xây dựng DT-00 đến DT-11 đã hoàn thành; bản ứng viên phát hành 1.0.0, 1.1.0, 1.2.0 đã đóng gói (`28_BAO_CAO_KIEM_THU_CG_10.md`, `29_BAO_CAO_KIEM_THU_G2.md`, `30_BAO_CAO_KIEM_THU_G3.md`).
 
-1. CG-11 — Eric nghiệm thu các bản ứng viên phát hành.
+1. DT-12 — Nối nhà cung cấp thật và chuẩn bị cấu hình triển khai (YCTD-92).
 2. T6 — Thuê máy chủ đám mây trong nước, triển khai, chạy kịch bản hiệu năng và phục hồi CT-086 đến CT-089.
 3. T1, T5, T4, T7 — Chọn nhà cung cấp tin nhắn, cổng thanh toán, nối Facebook và Zalo Official Account thật thay bộ giả lập.
-4. N2 — Eric quyết định có làm bản cài riêng trên điện thoại (G3-04).
 
 ## 4. Đang thực hiện
 
 | Mã | Công việc | Giai đoạn | Người thực hiện | Trạng thái | Hạn | Ghi chú |
 |---|---|---|---|---|---|---|
-| — | Không có việc nào đang thực hiện từ ngày 2026-10-13; các việc còn lại chờ Eric hoặc tài khoản bên ngoài (mục 2.3) | — | — | — | — | — |
+| DT-12 | Nối nhà cung cấp thật (eSMS, PayOS, SePay, Casso, VNPay, Fanpage, Zalo) và cấu hình triển khai | Sau giai đoạn 3 | Claude | Đang thực hiện | Chưa đặt | Bốn phần 12a đến 12d (YCTD-92) |
 
 ## 5. Bị chặn
 
 | Mã | Công việc | Giai đoạn | Người thực hiện | Lý do bị chặn |
 |---|---|---|---|---|
-| N2 | Bản cài riêng trên điện thoại cho phụ huynh | Giai đoạn 3 | — | Chờ Eric quyết định (G3-04) |
+| — | Không có việc nào bị chặn từ ngày 2026-10-13 | — | — | — |
 
 ## 6. Chờ phê duyệt (đề xuất của AI)
 

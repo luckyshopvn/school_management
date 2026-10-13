@@ -2,7 +2,7 @@
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
 - Phiên bản: 0.4
-- Ngày cập nhật: 2026-10-11
+- Ngày cập nhật: 2026-10-13
 - Trạng thái: Đang cập nhật
 
 ## Quy ước ghi nhật ký
@@ -13,6 +13,26 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-13 — Nghiệm thu ba bản phát hành, chọn nhà cung cấp, lập đợt DT-12
+
+#### Công việc đã thực hiện
+
+- Gắn thẻ `v1.0.0`, `v1.1.0`, `v1.2.0` và tạo bản phát hành trên GitHub.
+- Cập nhật bảng tiến độ phân hệ trong `03_DANH_SACH_CONG_VIEC.md` (yêu cầu gộp số 64).
+- Lập đợt DT-12 bốn phần 12a đến 12d.
+
+#### Quyết định
+
+- Eric nghiệm thu ba bản; G3-04 chưa làm; chọn eSMS.vn, PayOS, SePay, Casso, VNPay; nối Fanpage và Zalo thật; Claude chuẩn bị cấu hình triển khai (YCTD-92).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-92 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.49.0.
+
+#### Vấn đề tồn đọng
+
+- Eric thuê máy chủ đám mây, cấp khóa của nhà cung cấp; triển khai, kiểm thử hiệu năng và phục hồi, xác nhận sau triển khai (việc T6, cổng CG-11).
 
 ### 2026-10-11 — DT-11: báo cáo kiểm thử giai đoạn 3, bản ứng viên 1.2.0
 
