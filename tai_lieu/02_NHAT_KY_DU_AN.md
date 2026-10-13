@@ -14,6 +14,24 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-13 — Khảo sát hệ thống thông tin quản lý giáo dục của Sở
+
+#### Công việc đã thực hiện
+
+- Eric đăng nhập hệ thống của Sở GD&ĐT TP.HCM; Claude đọc giao diện 6 phân hệ, 98 màn hình, không thay đổi dữ liệu, không ghi dữ liệu cá nhân; viết `31_KHAO_SAT_HE_THONG_SO.md`.
+
+#### Quyết định
+
+- Eric chọn bổ sung bốn nhóm chức năng (đợt DT-14, YCTD-102); các đề xuất còn lại ở mục 8.3 của tài liệu khảo sát chờ Eric chọn.
+
+#### Thay đổi
+
+- Thêm `31_KHAO_SAT_HE_THONG_SO.md`.
+
+#### Vấn đề tồn đọng
+
+- Chưa xem được phân hệ Tuyển sinh đầu cấp (chỉ mở ở học kỳ II năm 2025-2026) và nội dung chỉ tiêu các biểu EMIS.
+
 ### 2026-10-13 — DT-13 phần 13c: báo cáo điểm danh và suất ăn theo ngày, tuần, tháng
 
 #### Công việc đã thực hiện
