@@ -93,3 +93,27 @@ test('Ẩn, hiện thanh điều hướng và thu gọn nhóm chức năng; trì
   await page.getByRole('button', { name: 'Hiện thanh điều hướng' }).click();
   await expect(navigation.getByRole('link', { name: 'Trang chủ' })).toBeVisible();
 });
+
+test('Menu phân hệ: chọn phân hệ thì thanh điều hướng chỉ hiện nhóm của phân hệ; mở trang phân hệ khác thì menu tự chuyển', async ({
+  page,
+}) => {
+  const user = await createTestUser(database, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
+  await fillLogin(page, user.username, user.password);
+  const navigation = page.getByRole('navigation', { name: 'Điều hướng chính' });
+  await page.getByRole('button', { name: 'Phân hệ: Tất cả chức năng' }).click();
+  await page.getByRole('menuitemradio', { name: 'Quản trị hệ thống' }).click();
+  await expect(navigation.getByRole('link', { name: 'Năm học' })).toBeVisible();
+  await expect(navigation.getByRole('link', { name: 'Hồ sơ trẻ' })).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Phân hệ: Quản trị hệ thống' })).toBeVisible();
+
+  // Mở trang thuộc phân hệ khác bằng đường dẫn thì menu chuyển sang phân hệ của trang
+  await page.goto('/children');
+  await expect(page.getByRole('button', { name: 'Phân hệ: Quản lý giáo dục mầm non' })).toBeVisible();
+  await expect(navigation.getByRole('link', { name: 'Hồ sơ trẻ' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Phân hệ: Quản lý giáo dục mầm non' }).click();
+  await page.getByRole('menuitemradio', { name: 'Tất cả chức năng' }).click();
+  await expect(navigation.getByRole('link', { name: 'Năm học' })).toBeVisible();
+  await expect(navigation.getByRole('link', { name: 'Hồ sơ trẻ' })).toBeVisible();
+});
