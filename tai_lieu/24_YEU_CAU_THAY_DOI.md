@@ -11,6 +11,29 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-100: DT-13 phần 13a: nhập thẳng tệp học sinh, cán bộ theo mẫu CSDL ngành – 2026-10-13
+
+- Lý do: Eric gửi ba tệp mẫu ngày 2026-10-13 (học sinh, giáo viên theo mẫu xuất của CSDL ngành TP.HCM; báo cáo điểm danh, suất ăn) và chọn: nhập thẳng tệp ngành, lưu đầy đủ mọi cột, báo cáo điểm danh xuất Excel đúng mẫu, xem trên màn hình, báo suất ăn cho bếp. Đợt DT-13 gồm 13a (nhập tệp ngành) và 13c (báo cáo điểm danh, suất ăn). Các điểm kỹ thuật dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Đọc được tệp .xls và .xlsx (thư viện SheetJS 0.20.3 từ nơi phát hành chính thức), tìm dòng tiêu đề trong năm dòng đầu, nhận cột theo tên tiêu đề. Tối đa 2.000 dòng, 5 MB, trang tính đầu tiên.
+  - Hai loại nhập mới trên màn hình Nhập dữ liệu: "Trẻ từ CSDL ngành" (quyền P01.import.children) và "Nhân sự từ CSDL ngành" (P01.import.staff), chọn đơn vị trong phạm vi người nhập, kiểm tra trước rồi xác nhận như các loại nhập cũ.
+  - Lưu đủ 82 cột học sinh và 75 cột cán bộ: cột chính vào trường sẵn có, còn lại vào `children.moet_profile`, `staff.moet_profile` (khóa tiếng Anh cố định); cột lạ vào `extra_columns`. Số hộ chiếu, căn cước, sổ bảo hiểm chỉ lưu mã hóa kèm bốn số cuối.
+  - Trẻ khớp theo số định danh cá nhân (12 chữ số, mất số 0 đầu thì bù), thiếu thì theo số căn cước; lớp khớp theo mã hoặc tên lớp không phân biệt hoa thường, dấu, trong đơn vị đã chọn và đơn vị con. Nhập lại thì cập nhật họ tên, ngày sinh, giới tính, nơi sinh, địa chỉ, mã học sinh, hồ sơ ngành; không đổi đơn vị, lớp, trạng thái (lớp khác thì ghi chú). Trẻ mới: dị ứng để "chưa khai báo" (bổ sung trên hồ sơ, BR-06), đang học ngay, giấy khai sinh bổ sung sau, đồng ý hình ảnh chờ; ngày vào lớp là ngày tuyển mới, hoặc ngày trạng thái khi chuyển đến, hoặc ngày nhập.
+  - Trạng thái học sinh: Đang học, Chuyển đến, Nghỉ học xin học lại là đang học; Chuyển đi, Thôi học với trẻ chưa có thì bỏ qua kèm ghi chú, với trẻ đã có thì chỉ ghi vào hồ sơ ngành, thôi học vẫn làm trên màn hình trẻ.
+  - Cha, mẹ, người giám hộ: tạo hoặc cập nhật kèm nghề nghiệp, năm sinh, số định danh mã hóa; bỏ qua khi tệp ghi không có thông tin; khớp theo số điện thoại, không có thì theo quan hệ và họ tên; người giám hộ trùng tên cha hoặc mẹ là cùng người; trẻ mới cần ít nhất một người thân có số điện thoại (thiếu thì lấy số điện thoại liên hệ). Tài khoản phụ huynh như nhập trẻ cũ.
+  - Cán bộ khớp theo mã định danh Bộ GD&ĐT rồi CMND/CCCD; mã nhân sự là mã định danh Bộ hoặc CSDL-000001; không tạo tài khoản đăng nhập, không tạo hợp đồng, không gán phòng ban, chức danh (danh mục ngành khác danh mục của trường); người đã chuyển đi, nghỉ hưu chưa có thì bỏ qua.
+  - Hồ sơ trẻ và hồ sơ nhân sự có mục "Thông tin theo CSDL ngành" chỉ xem; mục của trẻ chỉ hiện cho vai trò xem được dữ liệu sức khỏe (BR-53) vì có khuyết tật, bệnh mắt, diện chính sách. Chuyển năm học mang theo hồ sơ ngành.
+  - Chạy thử cục bộ với hai tệp mẫu thật của trường trên cơ sở dữ liệu tạm: đọc đủ cột, 0 dòng lỗi; không đưa dữ liệu thật vào kho mã.
+  - Chưa xuất ngược lên CSDL ngành; giá trị danh mục (dân tộc, tỉnh) lưu dạng chữ, chưa đối chiếu danh mục của Bộ.
+- Thành phần bị ảnh hưởng: máy chủ API (nhập dữ liệu, trẻ, nhân sự, chuyển năm học), cổng quản trị (Nhập dữ liệu, hồ sơ trẻ, hồ sơ nhân sự), `apps/api/package.json`; tài liệu `01`, `02`, `03`, `11`, `16`, `21`, `23`, `24`, `index.md`.
+- Dữ liệu bị ảnh hưởng: `children.moet_profile`; `guardians.birth_year`, `id_number_encrypted`, `id_number_last4`; `data_import_jobs.preview`; `staff.moet_staff_code`, `staff.moet_profile` (tệp 0045, 0046 của năm học).
+- API bị ảnh hưởng: loại nhập `moet_children`, `moet_staff`; tải tệp nhận thêm `org_unit_id`.
+- Giao diện bị ảnh hưởng: Nhập dữ liệu, hồ sơ trẻ, hồ sơ nhân sự.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không; các loại nhập cũ giữ nguyên.
+- Kiểm thử cần thực hiện: kịch bản CT-275 đến CT-288.
+- Trạng thái: Đã triển khai
+
 ### YCTD-101: Menu sổ xuống chọn phân hệ ở thanh đầu trang – 2026-10-13
 
 - Lý do: Eric gửi ảnh mẫu ngày 2026-10-13, yêu cầu tách các nhóm chức năng thành một menu sổ xuống như ảnh.
