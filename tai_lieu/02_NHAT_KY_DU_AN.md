@@ -14,6 +14,25 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-13 — DT-12 phần 12c: Fanpage và Zalo Official Account chạy thật
+
+#### Công việc đã thực hiện
+
+- Nâng kết nối Fanpage lên Graph API v21.0, thêm kho khóa và làm mới khóa Zalo tự động, nút kiểm tra kết nối trên MH-71.
+- Thêm kịch bản CT-261 đến CT-268.
+
+#### Quyết định
+
+- Eric chọn nhà cung cấp ngày 13/10/2026 (YCTD-92); các điểm kỹ thuật Claude tự chọn ghi ở YCTD-95.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-95 và `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.52.0.
+
+#### Vấn đề tồn đọng
+
+- Kiểm với tài khoản thật khi Eric cấp khóa lúc triển khai (việc T6).
+
 ### 2026-10-13 — DT-12 phần 12b: cổng thanh toán PayOS, SePay, Casso, VNPay
 
 #### Công việc đã thực hiện
