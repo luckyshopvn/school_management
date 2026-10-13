@@ -11,6 +11,22 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-91: Báo cáo kiểm thử giai đoạn 3 và bản ứng viên phát hành 1.2.0 – 2026-10-11
+
+- Lý do: năm phần 11a đến 11e của đợt DT-11 (YCTD-85) đã gộp vào `main`; cần chạy lại toàn bộ kiểm thử, phân loại ca chưa chạy và lỗi, đóng gói bản ứng viên 1.2.0. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Thêm `30_BAO_CAO_KIEM_THU_G3.md`: phạm vi G3, kết quả (CT 224/235 đạt, CTC 443/453 đạt), ca chưa chạy kèm quyết định, lỗi phát hiện khi gộp, giới hạn đã biết của bản 1.2.0, kết luận.
+  - Bản ứng viên phát hành 1.2.0 là phiên bản tài liệu 0.48.0. Không gắn 1.2.0 trước khi 1.0.0 qua cổng CG-11 và 1.1.0 được nghiệm thu.
+  - G3-04 (bản cài riêng) và G3-09 (kết nối cơ sở dữ liệu ngành) chưa làm, ghi ở mục 1 và 6 của báo cáo.
+- Thành phần bị ảnh hưởng: `01`, `02`, `03`, `23`, `24`, `30`, `index.md`.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: chạy lại toàn bộ kiểm thử máy chủ và giao diện.
+- Trạng thái: Đã triển khai
+
 ### YCTD-90: Kết nối Facebook, Fanpage và Zalo Official Account – 2026-10-11
 
 - Lý do: phần 11e của đợt DT-11 (giai đoạn 3): P14-08, G3-03, việc N3 (Fanpage) và G3-08, việc N17 (Zalo). Tài khoản thật chưa có (T4 Fanpage, T7 Zalo) nên làm lớp kết nối có bộ giả lập, kết nối thật bật khi có khóa. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
