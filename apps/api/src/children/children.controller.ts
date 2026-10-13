@@ -140,7 +140,7 @@ export class ChildrenController {
     if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 100) {
       errors.push({ field: 'page_size', message: 'Cỡ trang từ 1 đến 100' });
     }
-    for (const field of ['org_unit_id', 'class_id']) {
+    for (const field of ['org_unit_id', 'class_id', 'group_id']) {
       if (query[field] !== undefined && !isUuid(query[field])) {
         errors.push({ field, message: 'Mã không hợp lệ' });
       }
@@ -154,6 +154,7 @@ export class ChildrenController {
     return this.childrenService.list(currentUser, {
       orgUnitId: query.org_unit_id,
       classId: query.class_id,
+      groupId: query.group_id,
       status: query.status as ChildStatus | undefined,
       q: query.q?.trim() || undefined,
       missingBirthCertificate: query.missing_birth_certificate === 'true',

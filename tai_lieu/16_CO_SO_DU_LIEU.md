@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.56
+- Phiên bản: 1.57
 - Ngày cập nhật: 2026-10-13
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -79,6 +79,10 @@ Ràng buộc: `org_units.parent_id` trỏ tới `org_units.id`. Chỉ một đơ
 | health_profiles | Hồ sơ sức khỏe cơ bản | child_id (duy nhất), blood_type, has_allergies (trống là chưa khai báo, BR-06), allergies, chronic_conditions, note |
 | health_measurements | Chỉ số sức khỏe theo lần đo | child_id, measured_on, height_cm, weight_kg, vision_left, vision_right, bmi, note |
 | lost_items | Đồ bị mất của trẻ | code (DBM-000001), org_unit_id, child_id, class_id, report_type (lost, found), description, noticed_on, photo_file_id, status (reported, found, returned, not_found, cancelled), reported_by, reported_at, found_by, found_at, found_note, closed_by, closed_at, result_note, cancelled_by, cancelled_at |
+| program_completions | Kết quả hoàn thành chương trình giáo dục mầm non của trẻ, một dòng mỗi trẻ mỗi năm học (P02-13, BR-97, YCTD-104) | child_id (duy nhất), class_id, org_unit_id, result (completed, not_completed), note, recorded_by, recorded_by_name |
+| program_completion_confirmations | Xác nhận danh sách hoàn thành chương trình của lớp; có dòng là đã khóa, hủy xác nhận thì xóa dòng, nhật ký thao tác giữ lý do (BR-97, YCTD-104) | class_id (duy nhất), org_unit_id, completed_count, children_count, confirmed_by, confirmed_by_name, confirmed_at |
+| child_groups | Nhóm học sinh trong đơn vị, không chuyển sang năm học mới (P02-14, YCTD-104) | org_unit_id, name (duy nhất trong đơn vị), description, teacher_staff_id (giáo viên phụ trách, không bắt buộc), status (active, inactive), created_by |
+| child_group_members | Trẻ của nhóm; một trẻ thuộc nhiều nhóm (YCTD-104) | group_id, child_id (khóa chính hai cột), added_by, created_at |
 
 ## 4. Phân hệ P03 — Giảng dạy
 
@@ -169,6 +173,12 @@ Ràng buộc duy nhất: `receipts` trên bộ đôi đơn vị và mã phiếu 
 | employment_contracts | Hợp đồng lao động (YCTD-58) | staff_id, contract_no (duy nhất), contract_type (thử việc, có thời hạn, không thời hạn), start_date, end_date (bắt buộc trừ không thời hạn), base_salary, allowances (danh sách tên và số tiền), status (còn hiệu lực, đã chấm dứt), terminated_on, terminate_reason |
 | staff_work_history | Quá trình công tác (BR-37, YCTD-81) | staff_id, org_unit_id, from_date, to_date, department_id, job_title_id, note, created_by |
 | staff_certificates | Chứng chỉ (YCTD-81) | staff_id, name, certificate_no, issued_by, issued_date, expire_date, note, created_by |
+| professional_standards | Tiêu chuẩn của chuẩn nghề nghiệp, dùng chung toàn trường; gieo sẵn tên ngắn theo Thông tư 26/2018/TT-BGDĐT và Thông tư 25/2018/TT-BGDĐT khi tạo cơ sở dữ liệu năm học, mở năm học mới thì chép từ năm cũ (P07-05, YCTD-104) | standard_type (teacher, principal), code (TC1 đến TC5; duy nhất cùng standard_type), name, order_no |
+| professional_criteria | Tiêu chí của chuẩn, đánh số liên tục trong cả chuẩn (YCTD-104) | standard_id, standard_type, code (duy nhất theo loại chuẩn), name, is_key (tiêu chí trọng yếu, BR-99), order_no, status (active, inactive) |
+| professional_evaluations | Phiếu đánh giá chuẩn nghề nghiệp, một phiếu mỗi nhân sự mỗi năm học (BR-98, YCTD-104) | staff_id (duy nhất), org_unit_id, standard_type, status (self_assessing, self_submitted, finalized), self_submitted_at, overall_level (not_met, met, good, excellent), assessor_comment, opened_by, finalized_by, finalized_by_name, finalized_at |
+| professional_evaluation_items | Tiêu chí của phiếu, chụp lúc mở phiếu (YCTD-104) | evaluation_id, criterion_id (duy nhất cùng evaluation_id), standard_code, standard_name, criterion_code, criterion_name, is_key, order_no, self_rating, self_evidence, assessor_rating, assessor_note |
+
+Tám bảng của DT-14 phần 14c (bốn bảng ở mục 3 và bốn bảng trên) tạo bằng tệp `database/school-year/migrations/0047_create_standards_and_groups.ts` của cơ sở dữ liệu năm học. Năm quyền `P02.program-completion.manage`, `P02.program-completion.approve`, `P02.child-group.manage`, `P07.professional-standard.manage`, `P07.professional-standard.assess` (PQ-54 đến PQ-56) thêm vào `permissions`, `role_permissions` của cơ sở dữ liệu định danh bằng tệp `database/identity/migrations/0037_add_standards_and_groups_permissions.ts` (YCTD-104).
 
 ## 9. Phân hệ P08 — Chấm công và tiền lương
 
@@ -387,6 +397,9 @@ erDiagram
 | class_staff_assignments | staff_user_id kèm status, class_id | Giới hạn phạm vi giáo viên theo lớp được phân công |
 | data_access_logs | api_client_id kèm created_at, entity_name kèm entity_id | Tra nhật ký đọc dữ liệu nhạy cảm |
 | user_quick_links | user_id kèm position | Đọc lối tắt của tài khoản theo thứ tự (YCTD-102) |
+| program_completions | class_id | Danh sách và thống kê hoàn thành chương trình theo lớp (YCTD-104) |
+| child_group_members | child_id | Lọc danh sách trẻ theo nhóm, tìm nhóm của trẻ (YCTD-104) |
+| professional_evaluations | org_unit_id | Phiếu chuẩn nghề nghiệp theo đơn vị (YCTD-104) |
 
 ## 21. Chính sách xóa dữ liệu
 

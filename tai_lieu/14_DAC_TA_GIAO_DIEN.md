@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.46
+- Phiên bản: 1.47
 - Ngày cập nhật: 2026-10-13
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -47,7 +47,7 @@ flowchart TD
 | Mã | Màn hình | Vai trò chính |
 |---|---|---|
 | MH-01 | Bảng điều khiển trên trang chủ: số trẻ, lớp, nhân sự, học phí tháng, công nợ, tỷ lệ đi học; sinh nhật trẻ trong tháng (YCTD-62); vùng "Truy cập nhanh" ngay dưới lời chào: nút "Thêm truy cập nhanh" mở bộ chọn các trang người dùng đang thấy trên thanh điều hướng, nhóm theo phân hệ; mỗi ô có biểu tượng phân hệ, tên trang, nút đưa lên trước, đưa ra sau, bỏ; kéo thả để đổi chỗ; tối đa 12 ô, lưu theo tài khoản ở máy chủ (YCTD-102) | VT-02, VT-15, VT-03; sinh nhật cho cả giáo viên; Truy cập nhanh cho mọi người dùng cổng quản trị |
-| MH-02 | Danh sách trẻ và hồ sơ trẻ; chi tiết trẻ có lịch sử đồng ý hình ảnh, ghi nhận giấy ký tay, cờ trẻ con nhân viên, chuyển đơn vị, thôi học (YCTD-67) | VT-03, VT-04, VT-12 |
+| MH-02 | Danh sách trẻ và hồ sơ trẻ; chi tiết trẻ có lịch sử đồng ý hình ảnh, ghi nhận giấy ký tay, cờ trẻ con nhân viên, chuyển đơn vị, thôi học (YCTD-67); danh sách lọc theo nhóm học sinh, ô lọc chỉ hiện khi đơn vị có nhóm (YCTD-104) | VT-03, VT-04, VT-12 |
 | MH-03 | Danh sách lớp, phân công giáo viên và phân lớp (YCTD-44) | VT-03 |
 | MH-04 | Biểu phí và danh mục dịch vụ: dịch vụ, biểu phí theo phiên bản, loại miễn giảm (YCTD-49) | VT-04, VT-02 |
 | MH-05 | Đăng ký dịch vụ theo kỳ: bảng trẻ nhân dịch vụ, đăng ký học hè, chốt danh sách; duyệt đăng ký trễ và hủy trễ (YCTD-50) | VT-04, VT-15, VT-02 |
@@ -115,6 +115,9 @@ flowchart TD
 | MH-67 | Sổ kế toán, thẻ Nhật ký chung: lọc đơn vị (hoặc mọi đơn vị trong phạm vi) và khoảng ngày; nút Ghi sổ chứng từ; bút toán theo ngày kèm dòng Nợ / Có, loại (tự động, thủ công, số dư đầu năm, đã hủy); ghi bút toán thủ công nhiều dòng có tổng Nợ / Có; hủy bút toán thủ công kèm lý do; xuất Excel (YCTD-88) | VT-04, VT-05 ghi; VT-02, VT-15, VT-20 xem |
 | MH-68 | Sổ kế toán, thẻ Sổ cái (chọn tài khoản, số dư đầu, dòng có tài khoản đối ứng, số dư lũy kế, số dư cuối) và thẻ Cân đối số phát sinh (theo tài khoản, tài khoản chi tiết thụt vào, dòng tổng, báo sổ cân hoặc lệch); xuất Excel (YCTD-88) | VT-02, VT-15, VT-04, VT-05, VT-20 |
 | MH-69 | Sổ kế toán, thẻ Hệ thống tài khoản kế toán (danh sách theo cấp, thêm tài khoản chi tiết) và thẻ Quy tắc ghi sổ (theo loại chứng từ và khoản mục, sửa tài khoản Nợ / Có, bỏ quy tắc theo khoản mục) (YCTD-88) | VT-04, VT-05 ở Trường chính sửa; người xem sổ xem |
+| MH-72 | Hoàn thành chương trình (nhóm Trẻ và lớp, đường dẫn `/program-completion`): thống kê theo đơn vị; danh sách lớp mẫu giáo 5-6 tuổi kèm số trẻ, số hoàn thành, chưa ghi, tỷ lệ, trạng thái xác nhận; mở lớp để ghi kết quả từng trẻ hoặc đánh dấu cả lớp hoàn thành; xác nhận, hủy xác nhận kèm lý do; xuất Excel một lớp hoặc các lớp (YCTD-104) | VT-07 (lớp chủ nhiệm), VT-03 ghi; VT-02, VT-15 xác nhận |
+| MH-73 | Nhóm học sinh (nhóm Trẻ và lớp, đường dẫn `/child-groups`): danh sách nhóm theo đơn vị; lập, sửa nhóm, giáo viên phụ trách, ngừng dùng; xem trẻ của nhóm; thêm trẻ theo lớp (chọn trẻ hoặc cả lớp), bớt trẻ (YCTD-104) | VT-02, VT-15, VT-03; giáo viên chỉ xem |
+| MH-74 | Chuẩn nghề nghiệp (nhóm Nhân sự, đường dẫn `/professional-standards`): phiếu tự đánh giá của tôi (mức, minh chứng từng tiêu chí, lưu, gửi); mở phiếu cho nhiều nhân sự; thống kê xếp loại; phiếu của đơn vị, đánh giá từng tiêu chí, nhận xét, chốt; danh mục tiêu chuẩn, tiêu chí (sửa tên, tiêu chí trọng yếu, ngừng dùng, thêm tiêu chí) (YCTD-104) | Mọi nhân sự tự đánh giá; VT-03, VT-02 đánh giá; VT-02 sửa danh mục |
 
 ### 2.2 Ứng dụng giáo viên
 

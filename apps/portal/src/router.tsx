@@ -59,6 +59,9 @@ import { useSession } from './session/session.js';
 import { WorkPage } from './work/WorkPage.js';
 import { EvaluationsPage } from './work/EvaluationsPage.js';
 import { BonusDeductionsPage } from './work/BonusDeductionsPage.js';
+import { ProgramCompletionPage } from './program-completion/ProgramCompletionPage.js';
+import { ChildGroupsPage } from './child-groups/ChildGroupsPage.js';
+import { ProfessionalStandardsPage } from './professional-standards/ProfessionalStandardsPage.js';
 
 // Chuyển hướng theo trạng thái phiên: chưa đăng nhập về MH-47; bắt buộc đổi mật khẩu về MH-48 (BM-07)
 function SessionGate() {
@@ -142,6 +145,13 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/work', component: WorkPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/evaluations', component: EvaluationsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/bonus-deductions', component: BonusDeductionsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/program-completion', component: ProgramCompletionPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/child-groups', component: ChildGroupsPage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/professional-standards',
+    component: ProfessionalStandardsPage,
+  }),
 ]);
 
 export const router = createRouter({ routeTree });

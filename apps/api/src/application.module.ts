@@ -10,6 +10,13 @@ import { JobPostingsController, JobPostingsService } from './recruitment/job-pos
 import { PublicRecruitmentController, PublicRecruitmentService } from './recruitment/public-recruitment.js';
 import { CandidatesController, CandidatesService } from './recruitment/candidates.js';
 import { recruitmentTransitionStep } from './recruitment/recruitment-transition.js';
+import { professionalStandardsTransitionStep } from './professional-standards/professional-standards-transition.js';
+import {
+  ProfessionalStandardsController,
+  ProfessionalStandardsService,
+} from './professional-standards/professional-standards.js';
+import { ProgramCompletionController, ProgramCompletionService } from './program-completion/program-completion.js';
+import { ChildGroupsController, ChildGroupsService } from './child-groups/child-groups.js';
 import { Module, type DynamicModule, type Type } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { Clock } from '@school-management/server';
@@ -328,6 +335,9 @@ export class ApplicationModule {
         AdmissionsPublicController,
         LedgerAccountsController,
         LedgerEntriesController,
+        ProgramCompletionController,
+        ChildGroupsController,
+        ProfessionalStandardsController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -361,6 +371,7 @@ export class ApplicationModule {
             integrationsTransitionStep,
             recruitmentTransitionStep,
             admissionsTransitionStep,
+            professionalStandardsTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -509,6 +520,9 @@ export class ApplicationModule {
         },
         CashBooksService,
         WorkAccess,
+        ProgramCompletionService,
+        ChildGroupsService,
+        ProfessionalStandardsService,
         TasksService,
         PlansService,
         EvaluationsService,
