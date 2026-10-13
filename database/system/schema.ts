@@ -83,6 +83,21 @@ export interface UserQuickLinksTable {
   created_at: CreatedTimestamp;
 }
 
+// Cấu hình lưới dữ liệu riêng từng tài khoản: cột hiển thị theo thứ tự, số dòng mỗi trang (DT-15 phần 15a)
+export interface UserGridSettingsValue {
+  columns?: string[];
+  page_size?: number;
+}
+
+export interface UserGridSettingsTable {
+  id: Generated<string>;
+  user_id: string;
+  grid_key: string;
+  settings: ColumnType<UserGridSettingsValue, string, string>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
 export interface SystemDatabase {
   academic_years: AcademicYearsTable;
   academic_terms: AcademicTermsTable;
@@ -90,4 +105,5 @@ export interface SystemDatabase {
   academic_year_databases: AcademicYearDatabasesTable;
   integration_credentials: IntegrationCredentialsTable;
   user_quick_links: UserQuickLinksTable;
+  user_grid_settings: UserGridSettingsTable;
 }

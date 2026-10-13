@@ -210,6 +210,7 @@ import { WorkHistoryController, WorkHistoryService } from './staff/work-history.
 import { BonusDeductionsController, BonusDeductionsService } from './payroll/bonus-deductions.js';
 import { IntegrationsController, IntegrationsService } from './integrations/integrations.js';
 import { QuickLinksController, QuickLinksService } from './quick-links/quick-links.js';
+import { GridSettingsController, GridSettingsService } from './grid-settings/grid-settings.js';
 import { integrationsTransitionStep } from './integrations/integrations-transition.js';
 import { FacebookPostsController, FacebookPostsService } from './integrations/facebook-posts.js';
 import {
@@ -339,6 +340,7 @@ export class ApplicationModule {
         FiscalPeriodsController,
         IntegrationsController,
         QuickLinksController,
+        GridSettingsController,
         FacebookPostsController,
         RecruitmentRequestsController,
         JobPostingsController,
@@ -529,6 +531,7 @@ export class ApplicationModule {
         },
         IntegrationsService,
         QuickLinksService,
+        GridSettingsService,
         FacebookPostsService,
         JournalsService,
         {
