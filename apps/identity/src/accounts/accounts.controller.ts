@@ -118,6 +118,13 @@ export class AccountsController {
     if (query.status !== undefined && query.status !== 'active' && query.status !== 'locked') {
       errors.push({ field: 'status', message: 'Trạng thái là active hoặc locked' });
     }
+    if (
+      query.must_change_password !== undefined &&
+      query.must_change_password !== 'true' &&
+      query.must_change_password !== 'false'
+    ) {
+      errors.push({ field: 'must_change_password', message: 'Trạng thái đổi mật khẩu là true hoặc false' });
+    }
     if (errors.length > 0) {
       throw validationError(errors);
     }
@@ -125,6 +132,11 @@ export class AccountsController {
       q: query.q?.trim() || undefined,
       status: query.status as ListQuery['status'],
       role_code: query.role_code || undefined,
+      // Bộ lọc theo danh sách người dùng của Sở (DT-15 phần 15e)
+      login: query.login?.trim() || undefined,
+      full_name: query.full_name?.trim() || undefined,
+      must_change_password:
+        query.must_change_password === undefined ? undefined : query.must_change_password === 'true',
       page,
       page_size: pageSize,
     };
