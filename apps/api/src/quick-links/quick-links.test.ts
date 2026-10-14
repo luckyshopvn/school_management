@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { MAX_QUICK_LINKS, PORTAL_QUICK_LINK_PATHS } from '@school-management/shared';
+import {
+  MAX_QUICK_LINKS,
+  PORTAL_QUICK_LINK_PATHS,
+  PORTAL_WORKSPACES,
+  listPortalMenuEntries,
+  type PortalMenuNode,
+} from '@school-management/shared';
 import { sendJson, startApiTestEnvironment, type ApiTestEnvironment, type LoggedInUser } from '../test-support.js';
 import { parseQuickLinks } from './quick-links.js';
 
@@ -49,6 +55,36 @@ describe('Kiểm tra danh sách lối tắt', () => {
     const links = PORTAL_QUICK_LINK_PATHS.slice(0, MAX_QUICK_LINKS + 1).map((path) => ({ path, label: path }));
     assert.throws(() => parseQuickLinks({ links }), { code: 'ERR_VALIDATION' });
     assert.equal(parseQuickLinks({ links: links.slice(0, MAX_QUICK_LINKS) }).length, MAX_QUICK_LINKS);
+  });
+});
+
+// Cây menu ngang của cổng quản trị (DT-15 phần 15a): mỗi trang chỉ ở một chỗ, ghim được vào Truy cập nhanh, số thứ bậc
+// của mục con nối tiếp số của mục cha
+describe('Cây menu cổng quản trị', () => {
+  it('mỗi trang chỉ có ở một mục menu và đều ghim được vào Truy cập nhanh', () => {
+    const paths = listPortalMenuEntries().map((entry) => entry.node.path);
+    assert.equal(new Set(paths).size, paths.length);
+    for (const path of paths) {
+      assert.ok((PORTAL_QUICK_LINK_PATHS as readonly string[]).includes(path), path);
+    }
+  });
+
+  it('số thứ bậc dạng 1., 1.1., 1.1.1. nối tiếp mục cha, không trùng trong một phân hệ; nhóm có mục con, lá có đường dẫn', () => {
+    const check = (nodes: PortalMenuNode[], parent: string, seen: Set<string>) => {
+      for (const node of nodes) {
+        assert.match(node.number, /^(\d+\.)+$/);
+        assert.ok(node.number.startsWith(parent), node.number);
+        assert.equal(node.number.split('.').length, parent.split('.').length + 1, node.number);
+        assert.ok(!seen.has(node.number), node.number);
+        seen.add(node.number);
+        assert.ok(Boolean(node.path) !== Boolean(node.children?.length), node.number);
+        check(node.children ?? [], node.number, seen);
+      }
+    };
+    for (const workspace of PORTAL_WORKSPACES) {
+      check(workspace.menu, '', new Set());
+    }
+    assert.equal(new Set(PORTAL_WORKSPACES.map((workspace) => workspace.key)).size, PORTAL_WORKSPACES.length);
   });
 });
 
