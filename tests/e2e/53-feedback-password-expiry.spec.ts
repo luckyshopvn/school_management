@@ -88,9 +88,10 @@ test.describe.serial('Ý kiến phản hồi', () => {
     const row = page.getByRole('row').filter({ hasText: feedbackTitle });
     await expect(row).toContainText('Mới');
     await row.getByRole('button', { name: 'Xử lý' }).click();
-    await page.getByLabel('Trạng thái', { exact: true }).selectOption({ label: 'Đã xử lý' });
-    await page.getByLabel('Trả lời', { exact: true }).fill('Đã sửa lỗi lưu hồ sơ, mời thầy cô thử lại');
-    await page.getByRole('button', { name: 'Ghi', exact: true }).click();
+    const handle = page.getByRole('form', { name: 'Xử lý ý kiến' });
+    await handle.getByLabel('Trạng thái', { exact: true }).selectOption({ label: 'Đã xử lý' });
+    await handle.getByLabel('Trả lời', { exact: true }).fill('Đã sửa lỗi lưu hồ sơ, mời thầy cô thử lại');
+    await handle.getByRole('button', { name: 'Ghi', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: 'Đã ghi xử lý ý kiến' })).toBeVisible();
     await expect(row).toContainText('Đã xử lý');
 

@@ -1,7 +1,15 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, DataGrid, StatusBadge, Toast, type DataGridColumn, type StatusTone } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  DataGrid,
+  StatusBadge,
+  Toast,
+  type DataGridColumn,
+  type StatusTone,
+} from '@school-management/ui';
 import { AppShell } from '../pages/AppShell.js';
 import { useGridSettings } from '../pages/grid-settings.js';
 import { ApiError } from '../session/api-client.js';
@@ -83,7 +91,9 @@ function FeedbackDetail({ row, children }: { row: Feedback; children?: ReactNode
         ) : null}
         <dt className="text-label text-text-secondary">Trả lời</dt>
         <dd className="whitespace-pre-wrap">
-          {row.reply ? `${row.reply} (${row.replied_by_name ?? ''}, ${formatDateTime(row.replied_at)})` : 'Chưa trả lời'}
+          {row.reply
+            ? `${row.reply} (${row.replied_by_name ?? ''}, ${formatDateTime(row.replied_at)})`
+            : 'Chưa trả lời'}
         </dd>
       </dl>
       {attachmentError ? <Alert tone="danger">{attachmentError}</Alert> : null}
@@ -148,6 +158,7 @@ function HandleFeedbackForm({ row, onSaved }: { row: Feedback; onSaved(message: 
   });
   return (
     <form
+      aria-label="Xử lý ý kiến"
       className="flex flex-col gap-3 border-t border-border pt-3"
       onSubmit={(event) => {
         event.preventDefault();
@@ -243,9 +254,12 @@ export function FeedbackPage() {
             search={{ label: 'Tìm theo tiêu đề, nội dung, người gửi', value: search, onChange: setSearch }}
             advancedSearch={
               <div className="flex flex-wrap items-end gap-4">
-                <label className="flex flex-col gap-1 text-label font-medium text-text">
-                  Trạng thái
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="loc-trang-thai-y-kien" className="text-label font-medium text-text">
+                    Trạng thái
+                  </label>
                   <select
+                    id="loc-trang-thai-y-kien"
                     className={selectClass}
                     value={status}
                     onChange={(event) => setStatus(event.target.value as FeedbackStatus | '')}
@@ -257,10 +271,13 @@ export function FeedbackPage() {
                       </option>
                     ))}
                   </select>
-                </label>
-                <label className="flex flex-col gap-1 text-label font-medium text-text">
-                  Loại
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="loc-loai-y-kien" className="text-label font-medium text-text">
+                    Loại
+                  </label>
                   <select
+                    id="loc-loai-y-kien"
                     className={selectClass}
                     value={feedbackType}
                     onChange={(event) => setFeedbackType(event.target.value as FeedbackType | '')}
@@ -272,7 +289,7 @@ export function FeedbackPage() {
                       </option>
                     ))}
                   </select>
-                </label>
+                </div>
               </div>
             }
             rowActions={(row) => (
