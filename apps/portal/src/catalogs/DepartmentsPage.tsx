@@ -16,6 +16,7 @@ import {
   type JobTitle,
 } from './catalogs-api.js';
 import { UnitSelect, useUnitChoice } from './UnitSelect.js';
+import { menuPageTitle } from '../pages/page-title.js';
 
 // MH-49 Phòng ban và chức danh theo đơn vị (P01-03, P01-04); phòng ban hiện dạng cây theo phòng ban cha
 type Tab = 'departments' | 'job-titles';
@@ -161,7 +162,7 @@ export function DepartmentsPage() {
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Phòng ban và chức danh</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/departments')}</h1>
         <div className="flex flex-wrap items-end gap-6">
           <UnitSelect units={unitChoice.units} selectedId={unitChoice.selectedId} onSelect={unitChoice.select} />
           <div className="flex gap-2" role="tablist" aria-label="Danh mục">

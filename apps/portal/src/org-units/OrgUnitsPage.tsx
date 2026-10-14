@@ -4,6 +4,7 @@ import { PERMISSION_CODES } from '@school-management/shared';
 import { Alert, Button, ConfirmDialog, StatusBadge, TextField, Toast } from '@school-management/ui';
 import { listAcademicYears } from '../academic-years/academic-years-api.js';
 import { AppShell } from '../pages/AppShell.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import { OrgUnitForm } from './OrgUnitForm.js';
@@ -147,7 +148,7 @@ export function OrgUnitsPage() {
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-page-title font-bold text-text">Cây đơn vị</h1>
+          <h1 className="text-page-title font-bold text-text">{menuPageTitle('/org-units')}</h1>
           <div className="ml-auto flex gap-2" role="group" aria-label="Cách hiển thị">
             <Button variant={viewMode === 'tree' ? 'secondary' : 'text'} onClick={() => setViewMode('tree')}>
               Dạng cây

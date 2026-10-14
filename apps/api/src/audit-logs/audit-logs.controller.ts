@@ -22,8 +22,9 @@ function readPaging(query: Record<string, string | undefined>) {
   if (!Number.isInteger(page) || page < 1) {
     errors.push({ field: 'page', message: 'Số trang bắt đầu từ 1' });
   }
-  if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 100) {
-    errors.push({ field: 'page_size', message: 'Cỡ trang từ 1 đến 100' });
+  // Tối đa 200 dòng mỗi trang theo lưới dữ liệu dùng chung (DT-15 phần 15e)
+  if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 200) {
+    errors.push({ field: 'page_size', message: 'Cỡ trang từ 1 đến 200' });
   }
   for (const field of ['entity_id', 'actor_user_id', 'org_unit_id']) {
     if (query[field] && !UUID_PATTERN.test(query[field] ?? '')) {

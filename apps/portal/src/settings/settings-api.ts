@@ -69,14 +69,28 @@ export interface AuditLogPage {
   total_pages: number;
 }
 
+// Bộ lọc nhật ký: đối tượng (chỉ nhật ký nghiệp vụ), khoảng ngày; số dòng mỗi trang theo cấu hình lưới (DT-15 phần 15e)
+export interface AuditLogFilter {
+  entityName: string;
+  fromDate: string;
+  toDate: string;
+}
+
 export function listAuditLogs(
   source: 'business' | 'identity',
   page: number,
-  entityName: string,
+  pageSize: number,
+  filter: AuditLogFilter,
 ): Promise<AuditLogPage> {
-  const parameters = new URLSearchParams({ page: String(page), page_size: '20' });
-  if (entityName && source === 'business') {
-    parameters.set('entity_name', entityName);
+  const parameters = new URLSearchParams({ page: String(page), page_size: String(pageSize) });
+  if (filter.entityName && source === 'business') {
+    parameters.set('entity_name', filter.entityName);
+  }
+  if (filter.fromDate) {
+    parameters.set('from_date', filter.fromDate);
+  }
+  if (filter.toDate) {
+    parameters.set('to_date', filter.toDate);
   }
   const path = source === 'business' ? '/api/v1/audit-logs' : '/api/v1/users/audit-logs';
   return requestJson(`${path}?${parameters.toString()}`);

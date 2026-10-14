@@ -16,6 +16,7 @@ import {
   type Room,
 } from './catalogs-api.js';
 import { UnitSelect, useUnitChoice } from './UnitSelect.js';
+import { menuPageTitle } from '../pages/page-title.js';
 
 // MH-34 Danh mục phòng học theo đơn vị (P01-11) và bậc học toàn trường (P01-12), độ tuổi theo tháng (YCTD-42)
 type Tab = 'rooms' | 'grade-levels';
@@ -156,7 +157,7 @@ export function RoomsAndGradeLevelsPage() {
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Phòng học và bậc học</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/rooms')}</h1>
         <div className="flex gap-2" role="tablist" aria-label="Danh mục">
           <Button
             role="tab"

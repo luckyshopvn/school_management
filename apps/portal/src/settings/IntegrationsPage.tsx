@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, TextField, Toast } from '@school-management/ui';
 import { AppShell } from '../pages/AppShell.js';
 import { ApiError, requestJson } from '../session/api-client.js';
+import { menuPageTitle } from '../pages/page-title.js';
 
 // MH-71 Kết nối ngoài (P01.integration.manage; P14-08, G3-03, G3-08; YCTD-90): Hiệu trưởng bật, tắt Fanpage và Zalo Official
 // Account, nhập mã trang, mã Official Account; khóa truy cập đặt ở biến môi trường của máy chủ nên trang chỉ báo đã có hay
@@ -272,7 +273,7 @@ export function IntegrationsPage() {
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-4">
-        <h1 className="text-page-title font-bold text-text">Kết nối ngoài</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/integrations')}</h1>
         {integrations.error ? <Alert tone="danger">{messageOf(integrations.error)}</Alert> : null}
         {(integrations.data ?? []).map((integration) => (
           <ConnectorForm key={integration.connector} integration={integration} onSaved={setToastMessage} />
