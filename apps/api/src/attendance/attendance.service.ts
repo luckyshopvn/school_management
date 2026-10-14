@@ -12,6 +12,7 @@ import { ChildScope } from '../children/child-scope.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { SettingsService } from '../settings/settings.service.js';
 import { SchoolCalendar } from './school-calendar.js';
+import { pickSmsRecipients } from '../finance/receivables.js';
 
 // Điểm danh trong ngày, chốt ngày và báo vắng (P04-01, 02, 06; QT-02; BR-12, BR-13, BR-16; YCTD-47)
 export const ATTENDANCE_STATUSES: AttendanceStatus[] = [
@@ -259,7 +260,7 @@ export class AttendanceService {
       ? await database
           .selectFrom('child_guardians')
           .innerJoin('guardians', 'guardians.id', 'child_guardians.guardian_id')
-          .select(['child_guardians.child_id', 'guardians.user_id'])
+          .select(['child_guardians.child_id', 'guardians.user_id', 'child_guardians.receives_sms'])
           .where(
             'child_guardians.child_id',
             'in',
@@ -306,12 +307,12 @@ export class AttendanceService {
         ],
       });
       for (const child of absentees) {
-        const recipients = guardians
-          .filter((guardian) => guardian.child_id === child.child_id && guardian.user_id)
-          .flatMap((guardian) => [
-            { userId: guardian.user_id ?? '', channel: 'in_app' as const },
-            { userId: guardian.user_id ?? '', channel: 'sms' as const },
-          ]);
+        const ofChild = guardians.filter((guardian) => guardian.child_id === child.child_id && guardian.user_id);
+        // Tin nhắn gửi số điện thoại nhận tin của học sinh nếu đã chọn (YCTD-108)
+        const recipients = [
+          ...ofChild.map((guardian) => ({ userId: guardian.user_id ?? '', channel: 'in_app' as const })),
+          ...pickSmsRecipients(ofChild).map((userId) => ({ userId, channel: 'sms' as const })),
+        ];
         await queueNotification(transaction, {
           orgUnitId: classRecord.org_unit_id,
           templateCode: 'child_absent_unnotified',

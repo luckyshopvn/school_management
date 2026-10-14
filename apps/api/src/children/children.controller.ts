@@ -1,8 +1,8 @@
-import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query, Req } from '@nestjs/common';
-import type { ChildGender, ChildStatus, PhotoConsent } from '@school-management/database';
+import { Body, Controller, Get, HttpCode, Param, Patch, Post, Put, Query, Req, Res } from '@nestjs/common';
+import type { ChildGender, PhotoConsent } from '@school-management/database';
 import { readBearerToken, validationError, type FieldError } from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf } from '../common/audit-log.js';
@@ -17,13 +17,15 @@ import {
 } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { ChildrenService, type ChildChanges, type GuardianInput, type HealthInput } from './children.service.js';
+import { DEFAULT_STUDENT_EXPORT_COLUMNS, readStudentListFilter, STUDENT_EXPORT_COLUMNS } from './student-list.js';
+import { sendWorkbook } from './student-workbook.js';
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const NATIONAL_ID_PATTERN = /^\d{12}$/;
 const PHONE_PATTERN = /^0\d{9}$/;
 const GENDERS: ChildGender[] = ['male', 'female'];
 const CONSENTS: PhotoConsent[] = ['granted', 'refused', 'pending'];
-const STATUSES: ChildStatus[] = ['draft', 'pending', 'active', 'paused', 'withdrawn', 'graduated'];
+const BULK_LIMIT = 500;
 const VIETNAM_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
 
 function readLimitedText(
@@ -129,6 +131,7 @@ export class ChildrenController {
     private readonly accessLogger: DataAccessLogger,
   ) {}
 
+  // Danh sách học sinh có bộ lọc mở rộng theo mục 4.1.4 của Sở (YCTD-108)
   @Get('children')
   list(@Query() query: Record<string, string | undefined>, @AuthenticatedUser() currentUser: CurrentUser) {
     const errors: FieldError[] = [];
@@ -137,30 +140,82 @@ export class ChildrenController {
     if (!Number.isInteger(page) || page < 1) {
       errors.push({ field: 'page', message: 'Số trang bắt đầu từ 1' });
     }
-    if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 100) {
-      errors.push({ field: 'page_size', message: 'Cỡ trang từ 1 đến 100' });
+    if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 200) {
+      errors.push({ field: 'page_size', message: 'Cỡ trang từ 1 đến 200' });
     }
-    for (const field of ['org_unit_id', 'class_id', 'group_id']) {
-      if (query[field] !== undefined && !isUuid(query[field])) {
-        errors.push({ field, message: 'Mã không hợp lệ' });
+    const filter = readStudentListFilter(query, errors);
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.childrenService.list(currentUser, { ...filter, page, pageSize });
+  }
+
+  // Xuất Excel danh sách học sinh theo bộ lọc và các cột đang hiện trên lưới; cần quyền xuất dữ liệu (BR-74)
+  @Post('children/export')
+  @HttpCode(200)
+  @RequirePermission(PERMISSION_CODES.dataExport)
+  async exportList(
+    @Body() body: RequestBody,
+    @Req() request: Request,
+    @Res() response: Response,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const errors: FieldError[] = [];
+    const filter = readStudentListFilter(body ?? {}, errors);
+    const rawColumns = body?.columns;
+    let columns = DEFAULT_STUDENT_EXPORT_COLUMNS;
+    if (rawColumns !== undefined && rawColumns !== null) {
+      if (
+        !Array.isArray(rawColumns) ||
+        rawColumns.length === 0 ||
+        rawColumns.some((id) => !STUDENT_EXPORT_COLUMNS.some((column) => column.id === id)) ||
+        new Set(rawColumns).size !== rawColumns.length
+      ) {
+        errors.push({ field: 'columns', message: 'Danh sách cột không hợp lệ' });
+      } else {
+        columns = rawColumns as string[];
       }
-    }
-    if (query.status !== undefined && !STATUSES.includes(query.status as ChildStatus)) {
-      errors.push({ field: 'status', message: 'Trạng thái không hợp lệ' });
     }
     if (errors.length > 0) {
       throw validationError(errors);
     }
-    return this.childrenService.list(currentUser, {
-      orgUnitId: query.org_unit_id,
-      classId: query.class_id,
-      groupId: query.group_id,
-      status: query.status as ChildStatus | undefined,
-      q: query.q?.trim() || undefined,
-      missingBirthCertificate: query.missing_birth_certificate === 'true',
-      page,
-      pageSize,
-    });
+    sendWorkbook(response, await this.childrenService.exportList(currentUser, filter, columns, request.ip ?? null));
+  }
+
+  // Cập nhật hàng loạt học 2 buổi/ngày, bán trú (mục 4.1.12 của Sở, YCTD-108)
+  @Post('children/bulk-update')
+  @HttpCode(200)
+  @RequirePermission(PERMISSION_CODES.childManage, PERMISSION_CODES.childApprove)
+  bulkUpdate(@Body() body: RequestBody, @Req() request: Request, @AuthenticatedUser() currentUser: CurrentUser) {
+    const errors: FieldError[] = [];
+    const rawIds = body?.child_ids;
+    if (!Array.isArray(rawIds) || rawIds.length === 0 || rawIds.length > BULK_LIMIT || !rawIds.every(isUuid)) {
+      errors.push({ field: 'child_ids', message: `Chọn từ 1 đến ${BULK_LIMIT} học sinh` });
+    }
+    const changes: { two_sessions_per_day?: boolean; boarding?: boolean } = {};
+    for (const field of ['two_sessions_per_day', 'boarding'] as const) {
+      const value = body?.[field];
+      if (value === undefined || value === null) {
+        continue;
+      }
+      if (typeof value !== 'boolean') {
+        errors.push({ field, message: 'Chọn có hoặc không' });
+      } else {
+        changes[field] = value;
+      }
+    }
+    if (Object.keys(changes).length === 0) {
+      errors.push({ field: 'two_sessions_per_day', message: 'Chọn ít nhất một thông tin cần cập nhật' });
+    }
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.childrenService.bulkUpdate(
+      currentUser,
+      [...new Set(rawIds as string[])],
+      changes,
+      originOf(request, currentUser),
+    );
   }
 
   @Get('children/check-duplicate')
@@ -286,6 +341,17 @@ export class ChildrenController {
       note: readLimitedText(body, 'note', errors, 1000),
       reason: readLimitedText(body, 'reason', errors, 500),
     };
+    for (const field of ['two_sessions_per_day', 'boarding'] as const) {
+      const value = body?.[field];
+      if (value === undefined) {
+        continue;
+      }
+      if (typeof value !== 'boolean') {
+        errors.push({ field, message: 'Chọn có hoặc không' });
+      } else {
+        changes[field] = value;
+      }
+    }
     if (body?.gender !== undefined) {
       if (!GENDERS.includes(body.gender as ChildGender)) {
         errors.push({ field: 'gender', message: 'Giới tính là male hoặc female' });
@@ -401,6 +467,26 @@ export class ChildrenController {
       throw validationError([{ field: 'is_primary', message: 'Chỉ đặt được phụ huynh làm liên hệ chính' }]);
     }
     return this.childrenService.setPrimaryGuardian(currentUser, childId, guardianId, originOf(request, currentUser));
+  }
+
+  // Điện thoại nhận tin: chọn một phụ huynh của học sinh, null là bỏ chọn (mục 4.1.5 của Sở, YCTD-108)
+  @Put('children/:id/sms-guardian')
+  @RequirePermission(PERMISSION_CODES.childManage, PERMISSION_CODES.childApprove)
+  setSmsGuardian(
+    @Param('id', uuidParameter('Mã trẻ không hợp lệ')) childId: string,
+    @Body() body: RequestBody,
+    @Req() request: Request,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const errors: FieldError[] = [];
+    if (body?.guardian_id === undefined) {
+      errors.push({ field: 'guardian_id', message: 'Chọn phụ huynh hoặc gửi null để bỏ chọn' });
+    }
+    const guardianId = readOptionalUuid(body, 'guardian_id', errors) ?? null;
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.childrenService.setSmsGuardian(currentUser, childId, guardianId, originOf(request, currentUser));
   }
 
   @Post('children/:id/transfer-class')

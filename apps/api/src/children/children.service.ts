@@ -21,6 +21,14 @@ import { notFoundError } from '../common/request-fields.js';
 import { MOET_CHILD_COLUMNS, describeMoetProfile } from '../imports/moet-columns.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { ChildScope } from './child-scope.js';
+import { buildStudentWorkbook, fileStamp } from './student-workbook.js';
+import {
+  findStudents,
+  STUDENT_EXPORT_COLUMNS,
+  usesSensitiveFilter,
+  type StudentListFilter,
+  type StudentRecord,
+} from './student-list.js';
 
 // Hồ sơ trẻ từ lúc tiếp nhận đến khi vào lớp (QT-01, P02-01, 02, 03, 06, 10; YCTD-45)
 export interface GuardianInput {
@@ -77,7 +85,13 @@ export type ChildChanges = Partial<
     | 'special_needs_note'
     | 'note'
   >
-> & { health?: Partial<HealthInput>; reason?: string | null };
+> & {
+  health?: Partial<HealthInput>;
+  reason?: string | null;
+  // Học 2 buổi/ngày, bán trú (mục 4.1.12 của Sở, YCTD-108)
+  two_sessions_per_day?: boolean;
+  boarding?: boolean;
+};
 
 // Thông tin định danh của trẻ đang học chỉ quản lý đơn vị sửa được, kèm lý do (QT-01 E7)
 const IDENTITY_FIELDS = [
@@ -90,7 +104,8 @@ const IDENTITY_FIELDS = [
   'birth_certificate_file_id',
 ] as const;
 const VIETNAM_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
-const PAGE_SIZE_LIMIT = 100;
+const PAGE_SIZE_LIMIT = 200;
+const EXPORT_ROW_LIMIT = 10_000;
 
 type Executor = Kysely<SchoolYearDatabase> | Transaction<SchoolYearDatabase>;
 
@@ -114,89 +129,90 @@ export class ChildrenService {
     return VIETNAM_DATE.format(this.clock.now());
   }
 
-  async list(
-    currentUser: CurrentUser,
-    filter: {
-      orgUnitId?: string;
-      classId?: string;
-      // Lọc theo nhóm học sinh (YCTD-102); phạm vi xem trẻ vẫn áp dụng
-      groupId?: string;
-      status?: ChildStatus;
-      q?: string;
-      missingBirthCertificate?: boolean;
-      page: number;
-      pageSize: number;
-    },
-  ) {
+  // Danh sách học sinh theo mục 4.1.1, 4.1.4 của Sở (YCTD-108): bộ lọc mở rộng, sắp xếp A–Z theo tên rồi họ
+  async list(currentUser: CurrentUser, filter: StudentListFilter & { page: number; pageSize: number }) {
     const current = await this.currentSchoolYear.find();
     if (!current) {
       return { items: [], page: filter.page, page_size: filter.pageSize, total: 0, total_pages: 1 };
     }
-    const database = current.database;
-    const scope = await this.childScope.resolve(currentUser, database);
-    let selection = database
-      .selectFrom('children')
-      .leftJoin('class_enrollments', (join) =>
-        join.onRef('class_enrollments.child_id', '=', 'children.id').on('class_enrollments.is_current', '=', true),
-      )
-      .leftJoin('classes', 'classes.id', 'class_enrollments.class_id')
-      .where(this.childScope.filter(scope));
-    if (filter.orgUnitId) {
-      selection = selection.where('children.org_unit_id', '=', filter.orgUnitId);
-    }
-    if (filter.classId) {
-      selection = selection.where('class_enrollments.class_id', '=', filter.classId);
-    }
-    if (filter.groupId) {
-      const groupId = filter.groupId;
-      selection = selection.where('children.id', 'in', (expression) =>
-        expression
-          .selectFrom('child_group_members')
-          .select('child_group_members.child_id')
-          .where('group_id', '=', groupId),
-      );
-    }
-    if (filter.status) {
-      selection = selection.where('children.status', '=', filter.status);
-    }
-    if (filter.missingBirthCertificate) {
-      selection = selection.where('children.birth_certificate_file_id', 'is', null);
-    }
-    if (filter.q) {
-      selection = selection.where('children.full_name', 'ilike', `%${filter.q.replace(/[%_\\]/g, '\\$&')}%`);
-    }
-    const counted = await selection
-      .select((expression) => expression.fn.countAll<string>().as('count'))
-      .executeTakeFirstOrThrow();
-    const total = Number(counted.count);
-    const rows = await selection
-      .select([
-        'children.id',
-        'children.org_unit_id',
-        'children.full_name',
-        'children.dob',
-        'children.gender',
-        'children.status',
-        'children.national_id_last4',
-        'children.moet_student_code',
-        'children.photo_consent',
-        'classes.id as class_id',
-        'classes.name as class_name',
-      ])
-      .orderBy('children.full_name')
-      .limit(Math.min(filter.pageSize, PAGE_SIZE_LIMIT))
-      .offset((filter.page - 1) * filter.pageSize)
-      .execute();
-    const items = rows.map(({ national_id_last4: lastFour, ...row }) => ({
-      ...row,
-      national_id_masked: maskNationalId(lastFour),
-    }));
+    const { total, rows } = await this.studentPage(current.database, currentUser, filter, {
+      limit: Math.min(filter.pageSize, PAGE_SIZE_LIMIT),
+      offset: (filter.page - 1) * filter.pageSize,
+    });
+    const canSeeHealth = this.childScope.canSeeHealth(currentUser);
     return {
-      items,
+      items: rows.map((row) => this.studentRow(row, canSeeHealth)),
       page: filter.page,
       page_size: filter.pageSize,
       total,
       total_pages: Math.max(1, Math.ceil(total / filter.pageSize)),
+    };
+  }
+
+  // Xuất Excel đúng các cột đang hiện trên lưới, theo bộ lọc đang chọn; ghi nhật ký xuất trước khi trả tệp (BR-74)
+  async exportList(currentUser: CurrentUser, filter: StudentListFilter, columnIds: string[], ipAddress: string | null) {
+    const { database } = await this.currentSchoolYear.require();
+    const { total, rows } = await this.studentPage(database, currentUser, filter, {
+      limit: EXPORT_ROW_LIMIT,
+      offset: 0,
+    });
+    if (total > EXPORT_ROW_LIMIT) {
+      throw ruleViolationError(
+        'YCTD-108',
+        `Danh sách có hơn ${EXPORT_ROW_LIMIT} học sinh, hãy thu hẹp bộ lọc trước khi xuất Excel`,
+      );
+    }
+    const canSeeHealth = this.childScope.canSeeHealth(currentUser);
+    const columns = columnIds.flatMap((id) => STUDENT_EXPORT_COLUMNS.filter((column) => column.id === id));
+    const createdAt = this.clock.now();
+    return buildStudentWorkbook({
+      database,
+      currentUser,
+      reportCode: 'children',
+      title: 'Danh sách học sinh',
+      fileName: `danh-sach-hoc-sinh-${fileStamp(createdAt)}.xlsx`,
+      // Không ghi số định danh vào nhật ký (BM-64)
+      filters: { ...filter, nationalId: filter.nationalId ? 'đã nhập' : undefined, columns: columnIds },
+      orgUnitIds: [...new Set(rows.map((row) => row.org_unit_id))],
+      columns: columns.map((column) => ({ key: column.id, label: column.label })),
+      rows: rows.map((row) => {
+        const student = this.studentRow(row, canSeeHealth);
+        return Object.fromEntries(columns.map((column) => [column.id, column.value(student)]));
+      }),
+      ipAddress,
+      createdAt,
+    });
+  }
+
+  // Bộ lọc theo dân tộc, diện chính sách, khuyết tật chỉ cho nhóm vai trò xem sức khỏe (BR-53, YCTD-100)
+  private async studentPage(
+    database: Kysely<SchoolYearDatabase>,
+    currentUser: CurrentUser,
+    filter: StudentListFilter,
+    page: { limit: number; offset: number },
+  ) {
+    if (usesSensitiveFilter(filter) && !this.childScope.canSeeHealth(currentUser)) {
+      throw new ApplicationError(
+        'ERR_FORBIDDEN',
+        'Lọc theo dân tộc, diện chính sách, khuyết tật cần vai trò được xem thông tin sức khỏe của trẻ',
+      );
+    }
+    const scope = await this.childScope.resolve(currentUser, database);
+    const hash = filter.nationalId ? this.protection.hash(filter.nationalId) : null;
+    return findStudents(database, this.childScope, scope, filter, hash, page);
+  }
+
+  // Cột CSDL ngành của dòng học sinh xem cùng nhóm vai trò xem sức khỏe như ở hồ sơ (BR-53, YCTD-100)
+  private studentRow(row: StudentRecord, canSeeHealth: boolean) {
+    const { national_id_last4: lastFour, birth_certificate_file_id: certificate, ...rest } = row;
+    return {
+      ...rest,
+      national_id_masked: maskNationalId(lastFour),
+      has_birth_certificate: certificate !== null,
+      ethnicity: canSeeHealth ? row.ethnicity : null,
+      policy_target: canSeeHealth ? row.policy_target : null,
+      disability_type: canSeeHealth ? row.disability_type : null,
+      can_swim: canSeeHealth ? row.can_swim : null,
     };
   }
 
@@ -389,6 +405,8 @@ export class ChildrenService {
           birth_certificate_file_id: changes.birth_certificate_file_id,
           special_needs_note: changes.special_needs_note,
           note: changes.note,
+          two_sessions_per_day: changes.two_sessions_per_day,
+          boarding: changes.boarding,
           ...(changes.national_id
             ? {
                 national_id_encrypted: this.protection.encrypt(changes.national_id),
@@ -768,6 +786,109 @@ export class ChildrenService {
     });
   }
 
+  // Cập nhật hàng loạt học 2 buổi/ngày, bán trú cho các học sinh đã chọn (mục 4.1.12 của Sở, YCTD-108). Quyền như sửa hồ
+  // sơ: hồ sơ nháp cần quyền lập hồ sơ ở đơn vị, hồ sơ đã duyệt cần quyền duyệt ở đơn vị; hồ sơ chờ duyệt không sửa được.
+  // Có một học sinh không hợp lệ thì không cập nhật học sinh nào
+  async bulkUpdate(
+    currentUser: CurrentUser,
+    childIds: string[],
+    changes: { two_sessions_per_day?: boolean; boarding?: boolean },
+    origin: ChangeOrigin,
+  ) {
+    const { database } = await this.currentSchoolYear.require();
+    const children = await database
+      .selectFrom('children')
+      .select(['id', 'org_unit_id', 'status', 'full_name', 'two_sessions_per_day', 'boarding'])
+      .where('id', 'in', childIds)
+      .execute();
+    if (children.length !== childIds.length) {
+      throw notFoundError('Có học sinh không tồn tại hoặc đã bị xóa khỏi phạm vi của bạn', 'child');
+    }
+    const pending = children.filter((child) => child.status === 'pending');
+    if (pending.length > 0) {
+      throw ruleViolationError(
+        'YCTD-108',
+        'Có hồ sơ đang chờ duyệt; cần được duyệt hoặc từ chối về nháp trước khi cập nhật',
+        pending.map((child) => ({ field: 'child_ids', message: child.full_name })),
+      );
+    }
+    for (const child of children) {
+      if (child.status === 'draft') {
+        await this.organizationScopes.assertCanAccess(currentUser, PERMISSION_CODES.childManage, child.org_unit_id);
+      } else {
+        await this.organizationScopes.assertCanAccess(currentUser, PERMISSION_CODES.childApprove, child.org_unit_id);
+      }
+    }
+    return database.transaction().execute(async (transaction) => {
+      await transaction
+        .updateTable('children')
+        .set({ ...changes, updated_at: this.clock.now() })
+        .where('id', 'in', childIds)
+        .execute();
+      for (const child of children) {
+        await writeAuditLog(transaction, {
+          origin,
+          orgUnitId: child.org_unit_id,
+          entityName: 'children',
+          entityId: child.id,
+          action: 'update',
+          before: { two_sessions_per_day: child.two_sessions_per_day, boarding: child.boarding },
+          after: { ...changes, bulk_update: true },
+        });
+      }
+      return { updated: children.length };
+    });
+  }
+
+  // Chọn phụ huynh có số điện thoại nhận tin của học sinh (mục 4.1.5 của Sở, YCTD-108); null là bỏ chọn, tin nhắn khi đó
+  // gửi mọi phụ huynh có tài khoản như trước. Phụ huynh được chọn phải gắn với học sinh và có số điện thoại
+  async setSmsGuardian(currentUser: CurrentUser, childId: string, guardianId: string | null, origin: ChangeOrigin) {
+    const { database } = await this.currentSchoolYear.require();
+    const child = await this.findChild(database, childId);
+    await this.assertCanEditGuardians(currentUser, child);
+    const links = await database
+      .selectFrom('child_guardians')
+      .innerJoin('guardians', 'guardians.id', 'child_guardians.guardian_id')
+      .select(['child_guardians.id', 'child_guardians.guardian_id', 'child_guardians.receives_sms', 'guardians.phone'])
+      .where('child_guardians.child_id', '=', childId)
+      .execute();
+    const target = guardianId ? links.find((link) => link.guardian_id === guardianId) : undefined;
+    if (guardianId && !target) {
+      throw notFoundError('Phụ huynh không gắn với học sinh này', 'child_guardian');
+    }
+    if (target && !target.phone) {
+      throw ruleViolationError('YCTD-108', 'Phụ huynh chưa có số điện thoại, không chọn làm điện thoại nhận tin được', [
+        { field: 'guardian_id', message: 'Phụ huynh chưa có số điện thoại' },
+      ]);
+    }
+    const previous = links.find((link) => link.receives_sms);
+    return database.transaction().execute(async (transaction) => {
+      await transaction
+        .updateTable('child_guardians')
+        .set({ receives_sms: false, updated_at: this.clock.now() })
+        .where('child_id', '=', childId)
+        .where('receives_sms', '=', true)
+        .execute();
+      if (target) {
+        await transaction
+          .updateTable('child_guardians')
+          .set({ receives_sms: true, updated_at: this.clock.now() })
+          .where('id', '=', target.id)
+          .execute();
+      }
+      await writeAuditLog(transaction, {
+        origin,
+        orgUnitId: child.org_unit_id,
+        entityName: 'child_guardians',
+        entityId: childId,
+        action: 'update',
+        before: { sms_guardian_id: previous?.guardian_id ?? null },
+        after: { sms_guardian_id: target?.guardian_id ?? null },
+      });
+      return this.detail(transaction, currentUser, childId);
+    });
+  }
+
   // Danh sách trẻ của lớp: vai trò văn phòng trong đơn vị, hoặc giáo viên được phân công lớp đó (P02-10, BR-72)
   async classChildren(currentUser: CurrentUser, classId: string) {
     const { database } = await this.currentSchoolYear.require();
@@ -823,6 +944,8 @@ export class ChildrenService {
         'submitted_at',
         'approved_at',
         'moet_profile',
+        'two_sessions_per_day',
+        'boarding',
       ])
       .where('id', '=', childId)
       .executeTakeFirstOrThrow();
@@ -837,6 +960,7 @@ export class ChildrenService {
         'guardians.occupation',
         'guardians.user_id',
         'child_guardians.is_primary',
+        'child_guardians.receives_sms',
         'child_guardians.relationship_item_id',
         'catalog_items.name as relationship',
       ])
@@ -882,6 +1006,8 @@ export class ChildrenService {
       guardians: guardians.map(({ user_id: userId, ...guardian }) => ({ ...guardian, has_account: userId !== null })),
       enrollments,
       current_class: enrollments.find((enrollment) => enrollment.is_current) ?? null,
+      // Điện thoại nhận tin của học sinh (mục 4.1.5 của Sở, YCTD-108)
+      sms_phone: guardians.find((guardian) => guardian.receives_sms)?.phone ?? null,
     };
   }
 
