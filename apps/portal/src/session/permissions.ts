@@ -21,8 +21,5 @@ export function useHasPermissionOnlyThrough(permissionCode: string, roleCode: st
 export function useCurrentPermissions(): Set<string> {
   const currentUser = useQuery({ queryKey: ['current-user'], queryFn: fetchCurrentUser });
   const assignments = currentUser.data?.assignments;
-  return useMemo(
-    () => new Set((assignments ?? []).flatMap((assignment) => assignment.permissions)),
-    [assignments],
-  );
+  return useMemo(() => new Set((assignments ?? []).flatMap((assignment) => assignment.permissions)), [assignments]);
 }

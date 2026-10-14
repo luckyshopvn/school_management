@@ -47,18 +47,40 @@ export interface Permission {
   description: string;
 }
 
-export function listAccounts(filter: {
+// Bộ lọc của 1.4 Danh sách người dùng theo Sở (DT-15 phần 15e); ô trống thì không lọc
+export interface AccountFilter {
   q: string;
   status: string;
-  page: number;
-  pageSize: number;
-}): Promise<AccountPage> {
+  roleCode: string;
+  login: string;
+  fullName: string;
+  // "true", "false" hoặc trống
+  mustChangePassword: string;
+}
+
+export const EMPTY_ACCOUNT_FILTER: AccountFilter = {
+  q: '',
+  status: '',
+  roleCode: '',
+  login: '',
+  fullName: '',
+  mustChangePassword: '',
+};
+
+export function listAccounts(filter: AccountFilter & { page: number; pageSize: number }): Promise<AccountPage> {
   const parameters = new URLSearchParams({ page: String(filter.page), page_size: String(filter.pageSize) });
-  if (filter.q) {
-    parameters.set('q', filter.q);
-  }
-  if (filter.status) {
-    parameters.set('status', filter.status);
+  const optional: Array<[string, string]> = [
+    ['q', filter.q],
+    ['status', filter.status],
+    ['role_code', filter.roleCode],
+    ['login', filter.login],
+    ['full_name', filter.fullName],
+    ['must_change_password', filter.mustChangePassword],
+  ];
+  for (const [name, value] of optional) {
+    if (value.trim()) {
+      parameters.set(name, value.trim());
+    }
   }
   return requestJson(`/api/v1/users?${parameters.toString()}`);
 }

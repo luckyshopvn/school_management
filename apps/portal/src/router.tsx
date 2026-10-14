@@ -2,6 +2,7 @@ import { createRootRoute, createRoute, createRouter, Navigate, Outlet, useLocati
 import { AcademicYearsPage } from './academic-years/AcademicYearsPage.js';
 import { AccountsPage } from './accounts/AccountsPage.js';
 import { RolesPage } from './accounts/RolesPage.js';
+import { RolePermissionsPage } from './accounts/RolePermissionsPage.js';
 import { ApiClientsPage } from './accounts/ApiClientsPage.js';
 import { IntegrationsPage } from './settings/IntegrationsPage.js';
 import { NotificationsPage } from './notifications/NotificationsPage.js';
@@ -101,6 +102,14 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/org-units', component: OrgUnitsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/accounts', component: AccountsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/roles', component: RolesPage }),
+  // Nhóm người dùng mở sẵn ở 1.3 Phân quyền nhóm theo menu qua tham số role (DT-15 phần 15e)
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/role-permissions',
+    component: RolePermissionsPage,
+    validateSearch: (search: Record<string, unknown>): { role?: string } =>
+      typeof search.role === 'string' ? { role: search.role } : {},
+  }),
   createRoute({ getParentRoute: () => rootRoute, path: '/settings', component: SettingsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/audit-logs', component: AuditLogsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/departments', component: DepartmentsPage }),
