@@ -11,7 +11,17 @@ const MAXIMUM_ATTACHMENT_BYTES = 5 * 1024 * 1024;
 const inputClass =
   'w-full rounded-lg border bg-card px-3 py-2 text-content text-text outline-none focus:border-border-strong focus:ring-2 focus:ring-selected';
 
-function Row({ label, htmlFor, error, children }: { label: string; htmlFor: string; error?: string; children: ReactNode }) {
+function Row({
+  label,
+  htmlFor,
+  error,
+  children,
+}: {
+  label: string;
+  htmlFor: string;
+  error?: string;
+  children: ReactNode;
+}) {
   return (
     <div className="grid grid-cols-1 gap-1 md:grid-cols-[10rem_1fr] md:items-start md:gap-3">
       <label htmlFor={htmlFor} className="text-label font-medium text-text md:pt-2">
