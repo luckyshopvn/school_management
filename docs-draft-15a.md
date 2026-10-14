@@ -149,7 +149,27 @@ Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, dựa trên t�
 
 ## Kết quả kiểm thử
 
-TEST_RESULTS
+Kiểm thử tự động `apps/api/src/grid-settings/grid-settings.test.ts` và `apps/api/src/quick-links/quick-links.test.ts` ngày 14/10/2026:
+
+- CT-15a-1: Gọi đọc, ghi cấu hình lưới khi chưa đăng nhập: bị từ chối 401 — đạt.
+- CT-15a-2: Tài khoản mới đọc cấu hình lưới Hồ sơ nhân sự: trả `columns` null, `page_size` null — đạt.
+- CT-15a-3: Lưu cột theo thứ tự và 50 dòng mỗi trang, lưu lần hai, gửi hai giá trị null: đọc lại đúng thứ tự; lần hai ghi đè; trở về mặc định — đạt.
+- CT-15a-4: Hai tài khoản, hai lưới và lưới `default`: cấu hình riêng từng tài khoản, từng lưới; tài khoản khác không thấy — đạt.
+- CT-15a-5: Khóa lưới ngoài danh sách khi đọc, ghi: lỗi dữ liệu 400, trường `gridKey` — đạt.
+- CT-15a-6: Số dòng 30, cột trùng, cột rỗng, cột ở lưới `default`, quá 100 cột: lỗi dữ liệu kèm trường lỗi, cấu hình cũ giữ nguyên — đạt.
+- CT-15a-13: Cây menu của cổng quản trị: mỗi trang chỉ có ở một mục, mọi mục ghim được vào Truy cập nhanh, số thứ bậc nối tiếp mục cha và không trùng, nhóm có mục con, lá có đường dẫn — đạt.
+
+Kiểm thử giao diện ngày 14/10/2026:
+
+- CT-15a-7: Hiệu trưởng bấm "4. Học sinh", bấm ra ngoài, mở lại, rê "4.1. Hồ sơ học sinh", chọn "4.1.1. Quản lý hồ sơ học sinh"; mở trang qua trợ giúp theo tên mục và theo đường dẫn: menu mở, đóng khi bấm ra ngoài, menu cấp hai bật ra, vào `/children`, mục được tô sáng (`aria-current`, gạch chân mục cấp một), phân hệ tự chuyển — đạt.
+- CT-15a-8: Chỉ dùng bàn phím: mũi tên trái, phải vòng quanh mục cấp một; Enter mở menu; mũi tên phải mở menu con; mũi tên xuống; Esc hai lần; mũi tên lên; mũi tên trái sang menu "3. Nhân sự"; Space trên "3.1.1. Hồ sơ cán bộ, giáo viên": con trỏ đúng mục ở từng bước, Esc đóng từng cấp và trả con trỏ về mục cha, Space mở `/staff` — đạt.
+- CT-15a-9: Chọn phân hệ Quản trị hệ thống, tải lại, mở `/children` bằng đường dẫn; giáo viên đăng nhập: chỉ thanh menu của phân hệ đang chọn hiện, tải lại vẫn giữ, menu tự chuyển sang Quản lý giáo dục Mầm non; giáo viên không có mục Danh sách người dùng — đạt.
+- CT-15a-10: Màn hình rộng 375 điểm ảnh, bấm nút "Menu chức năng", mở "4. Học sinh", "4.1. Hồ sơ học sinh", chọn trang, mở lại: không có thanh menu ngang; cây menu gập mở, đóng từng nhóm; vào `/children`, cây đóng; mở lại thì nhánh của trang đã mở sẵn — đạt.
+- CT-15a-11: Mở menu người dùng, Esc, Cấu hình hiển thị lưới chọn 50 rồi tải lại, mở Tài khoản, Thông báo, Đổi mật khẩu: menu có đúng bốn mục, Esc đóng, số dòng mặc định 50 giữ sau khi tải lại và áp cho lưới Tài khoản, mở đúng trang — đạt.
+- CT-15a-12: Ở Tài khoản lọc 11 tài khoản cùng từ khóa, ẩn cột Vai trò, hiện Tên đăng nhập, đưa Trạng thái lên, chọn 10 dòng, tải lại, chọn cả trang, bỏ một dòng, sang trang 2, mở rộng tìm kiếm lọc trạng thái, tìm tài khoản, gỡ vai trò: thứ tự cột và số dòng giữ sau khi tải lại; "Đã chọn 10 dòng" rồi "9 dòng", sang trang thì bỏ lựa chọn; nút Gỡ chỉ bấm được sau khi tích "Tôi đã đọc và đồng ý xóa …", vai trò bị gỡ, vai trò còn lại giữ nguyên — đạt.
+- CT-15a-14: Mọi tệp kiểm thử giao diện mở trang qua trợ giúp `openMenu` (theo đường dẫn), kiểm tra người không có quyền bằng `expectNoMenuLink`; Truy cập nhanh ghim "Quản lý hồ sơ học sinh", "Công nợ" từ cây menu khi các menu đóng: các luồng cũ chạy như trước — đạt.
+
+Kiểm thử đơn vị toàn bộ (`pnpm -r --workspace-concurrency=1 --no-bail test`): 667 ca, 665 đạt; hai ca không đạt là PQ-10 và CTC-DD-041, đã biết chỉ hỏng trên máy phát triển (cơ sở dữ liệu định danh dùng chung), không liên quan phần này. Kiểm thử giao diện cả bộ 77 ca: 77 ca đạt ngày 14/10/2026 (`pnpm test:e2e`); hai lần chạy trước đó có ca của `05-settings.spec.ts` (giáo viên đăng nhập) chậm quá 5 giây vì ca lưới Tài khoản tải cả danh sách tài khoản nhiều lần làm dịch vụ định danh bận; đã sửa ca lưới lọc theo từ khóa.
 
 ## Hạn chế
 
@@ -157,5 +177,5 @@ TEST_RESULTS
 - Hộp "Cấu hình hiển thị lưới" mới có số dòng mỗi trang mặc định; chưa có "nhảy cột, nhảy dòng khi nhập trên lưới" của Sở vì lưới chưa cho nhập trực tiếp.
 - Chỉ hai màn hình Tài khoản và Hồ sơ nhân sự dùng lưới mới; các màn hình khác vẫn dùng bảng riêng đến phần 15f. Cột của hai màn hình chưa đổi theo đúng danh sách cột của Sở (làm ở 15d, 15e). Chọn nhiều dòng chưa có thao tác hàng loạt; nút Xuất Excel, Xuất PDF của lưới chưa làm.
 - Mục "4.1.2. Nhập dữ liệu từ Excel" dùng chung cho nhập học sinh, nhân sự, công nợ đầu kỳ; tách thành 2.2 Nhập lớp học, 3.1.3 Nhập nhân sự, 4.1.2 Nhập học sinh khi màn hình nhập dữ liệu được tách (15b, 15c, 15d). Khai báo tuần (3.4) và Chuyển hồ sơ lên năm học mới (5.7) vẫn nằm trong màn hình Năm học.
-- Danh sách tài khoản đọc ở dịch vụ định danh có lúc chậm khi cơ sở dữ liệu định danh có rất nhiều tài khoản (cơ sở dữ liệu dùng chung của máy phát triển); kiểm thử giao diện của lưới Tài khoản chờ đến 30 giây.
+- Danh sách tài khoản đọc ở dịch vụ định danh có lúc chậm khi cơ sở dữ liệu định danh có rất nhiều tài khoản (cơ sở dữ liệu dùng chung của máy phát triển); kiểm thử giao diện của lưới Tài khoản lọc theo từ khóa và chờ đến 30 giây. Cách đọc danh sách ở dịch vụ định danh (đọc hết rồi cắt trang) chưa đổi trong phần này.
 - Thứ tự Tab: chỉ một mục của thanh menu nằm trong thứ tự Tab; menu sổ xuống bên phải có thể tràn khỏi màn hình rộng vừa đủ khi mở cấp ba ở mục cuối thanh (chưa tự lật sang trái).
