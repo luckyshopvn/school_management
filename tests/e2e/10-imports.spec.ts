@@ -144,6 +144,7 @@ test('Hiệu trưởng nhập lớp rồi nhập trẻ kèm phụ huynh; trẻ n
   await expect(children).toContainText('Đã ghi dữ liệu');
 
   await openMenu(page, '/children');
+  await page.getByRole('button', { name: 'Mở rộng tìm kiếm' }).click();
   await page.getByLabel('Thiếu giấy khai sinh').check();
   const imported = page.getByRole('row').filter({ hasText: 'Trần Minh Khang' });
   await expect(imported).toContainText('Đang học');

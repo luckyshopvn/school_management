@@ -115,6 +115,7 @@ export interface ChildPage {
   page: number;
   total: number;
   total_pages: number;
+  health_fields_visible?: boolean;
 }
 
 export interface GuardianInput {

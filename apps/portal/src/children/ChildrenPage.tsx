@@ -1,233 +1,462 @@
-import { useCallback, useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useState, type ReactNode } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, StatusBadge, TextField, Toast } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  ConfirmDialog,
+  DataGrid,
+  resolveVisibleColumns,
+  StatusBadge,
+  Toast,
+  type DataGridColumn,
+} from '@school-management/ui';
+import { listGradeLevels } from '../catalogs/catalogs-api.js';
 import { useUnitChoice } from '../catalogs/UnitSelect.js';
+import { listChildGroups } from '../child-groups/child-groups-api.js';
+import { listClasses } from '../classes/classes-api.js';
 import { AppShell } from '../pages/AppShell.js';
+import { useGridSettings } from '../pages/grid-settings.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import { ChildDetailPanel } from './ChildDetailPanel.js';
-import { listChildGroups } from '../child-groups/child-groups-api.js';
-import { CHILD_STATUS_LABELS, listChildren, type ChildStatus } from './children-api.js';
+import {
+  bulkUpdateChildren,
+  CHILD_STATUS_LABELS,
+  exportChildren,
+  listChildren,
+  type ChildListItem,
+  type ChildStatus,
+  type StudentFilter,
+} from './children-api.js';
 import { CreateChildForm } from './CreateChildForm.js';
 
-// MH-02 Danh sách trẻ và hồ sơ trẻ (P02-01, P02-02, QT-01); ô mã ngành tô đỏ khi trống (AC-201)
+// MH-02 4.1.1. Quản lý hồ sơ học sinh theo hệ thống của Sở (DT-15 phần 15c, YCTD-108; trước là Hồ sơ trẻ, P02-01, P02-02,
+// QT-01): lưới dữ liệu chung có tìm theo họ tên, mở rộng tìm kiếm theo các bộ lọc của mục 4.1.4, cột theo danh sách của
+// Sở, sắp xếp A–Z theo tên; Thêm mới, Cập nhật hàng loạt học 2 buổi/ngày và bán trú (4.1.12), Xuất Excel; Hồ sơ mở ngay
+// dưới dòng. Ô mã định danh Bộ tô đỏ khi trống (AC-201)
 function messageOf(error: unknown): string {
-  return error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại';
+  return error instanceof ApiError
+    ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
+    : 'Không kết nối được tới máy chủ, vui lòng thử lại';
+}
+
+const selectClass = 'mt-1 block w-full rounded-lg border border-border bg-card px-3 py-2 text-content font-normal';
+const formatDate = (value: string) => value.split('-').reverse().join('/');
+const yes = (value: boolean | null) => (value ? 'Có' : '');
+
+function FilterSelect({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange(value: string): void;
+  options: Array<{ value: string; label: string }>;
+}) {
+  return (
+    <label className="text-label font-medium text-text">
+      {label}
+      <select value={value} onChange={(event) => onChange(event.target.value)} className={selectClass}>
+        <option value="">Tất cả</option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+const YES_NO = [
+  { value: 'true', label: 'Có' },
+  { value: 'false', label: 'Không' },
+];
+
+// Cột theo danh sách học sinh của Sở (4.1.1: mã định danh Bộ, họ tên, ngày sinh, giới tính, dân tộc, trạng thái, số điện
+// thoại liên hệ; 4.1.4: khối, lớp); cột còn lại ẩn mặc định. Mã cột trùng mã cột của tệp Excel ở máy chủ
+function studentColumns(): Array<DataGridColumn<ChildListItem>> {
+  return [
+    {
+      id: 'moet_student_code',
+      header: 'Mã định danh Bộ GD&ĐT',
+      cell: (row) => (
+        <span className={row.moet_student_code ? '' : 'rounded bg-danger/10 px-2 text-danger'}>
+          {row.moet_student_code ?? 'Chưa có'}
+        </span>
+      ),
+    },
+    { id: 'full_name', header: 'Họ tên', alwaysVisible: true, className: 'font-medium', cell: (row) => row.full_name },
+    { id: 'dob', header: 'Ngày sinh', cell: (row) => formatDate(row.dob) },
+    { id: 'gender', header: 'Giới tính', cell: (row) => (row.gender === 'male' ? 'Nam' : 'Nữ') },
+    { id: 'ethnicity', header: 'Dân tộc', cell: (row) => row.ethnicity ?? '' },
+    {
+      id: 'status',
+      header: 'Trạng thái',
+      cell: (row) => (
+        <StatusBadge
+          tone={row.status === 'active' ? 'success' : row.status === 'pending' ? 'warning' : 'neutral'}
+          label={CHILD_STATUS_LABELS[row.status]}
+        />
+      ),
+    },
+    { id: 'contact_phone', header: 'Số điện thoại liên hệ', cell: (row) => row.contact_phone ?? '' },
+    { id: 'grade', header: 'Khối', cell: (row) => row.grade_name ?? row.grade_level ?? '' },
+    { id: 'class', header: 'Lớp', cell: (row) => row.class_name ?? '' },
+    { id: 'sms_phone', header: 'Điện thoại nhận tin', hiddenByDefault: true, cell: (row) => row.sms_phone ?? '' },
+    {
+      id: 'two_sessions_per_day',
+      header: 'Học 2 buổi/ngày',
+      hiddenByDefault: true,
+      cell: (row) => yes(row.two_sessions_per_day),
+    },
+    { id: 'boarding', header: 'Bán trú', hiddenByDefault: true, cell: (row) => yes(row.boarding) },
+    { id: 'policy_target', header: 'Diện chính sách', hiddenByDefault: true, cell: (row) => row.policy_target ?? '' },
+    { id: 'disability_type', header: 'Khuyết tật', hiddenByDefault: true, cell: (row) => row.disability_type ?? '' },
+    { id: 'can_swim', header: 'Biết bơi', hiddenByDefault: true, cell: (row) => yes(row.can_swim) },
+    { id: 'national_id', header: 'Số định danh', hiddenByDefault: true, cell: (row) => row.national_id_masked },
+    { id: 'org_unit', header: 'Đơn vị', hiddenByDefault: true, cell: (row) => row.org_unit_name },
+  ];
+}
+
+// Hộp cập nhật hàng loạt (mục 4.1.12 của Sở): mỗi thông tin chọn giữ nguyên, có hoặc không
+function BulkUpdateDialog({
+  rows,
+  onDone,
+  onCancel,
+}: {
+  rows: ChildListItem[];
+  onDone(message: string): void;
+  onCancel(): void;
+}) {
+  const [twoSessions, setTwoSessions] = useState('');
+  const [boarding, setBoarding] = useState('');
+  const save = useMutation({
+    mutationFn: () =>
+      bulkUpdateChildren(
+        rows.map((row) => row.id),
+        {
+          ...(twoSessions ? { two_sessions_per_day: twoSessions === 'true' } : {}),
+          ...(boarding ? { boarding: boarding === 'true' } : {}),
+        },
+      ),
+    onSuccess: (result) => onDone(`Đã cập nhật ${result.updated} học sinh`),
+  });
+  const choice = (label: string, value: string, onChange: (value: string) => void): ReactNode => (
+    <label className="text-label font-medium text-text">
+      {label}
+      <select value={value} onChange={(event) => onChange(event.target.value)} className={selectClass}>
+        <option value="">Giữ nguyên</option>
+        <option value="true">Có</option>
+        <option value="false">Không</option>
+      </select>
+    </label>
+  );
+  return (
+    <ConfirmDialog
+      open
+      title="Cập nhật hàng loạt"
+      confirmLabel="Ghi"
+      busy={save.isPending || (!twoSessions && !boarding)}
+      onCancel={onCancel}
+      onConfirm={() => save.mutate()}
+    >
+      <div className="flex flex-col gap-3">
+        <p>Cập nhật cho {rows.length} học sinh đã chọn.</p>
+        {choice('Học 2 buổi/ngày', twoSessions, setTwoSessions)}
+        {choice('Học sinh lớp bán trú', boarding, setBoarding)}
+        {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
+      </div>
+    </ConfirmDialog>
+  );
 }
 
 export function ChildrenPage() {
   const canManage = useHasPermission(PERMISSION_CODES.childManage);
+  const canApprove = useHasPermission(PERMISSION_CODES.childApprove);
+  const canExport = useHasPermission(PERMISSION_CODES.dataExport);
   const queryClient = useQueryClient();
   const unitChoice = useUnitChoice();
-  const [orgUnitId, setOrgUnitId] = useState('');
-  const [status, setStatus] = useState<ChildStatus | ''>('');
-  // Lọc theo nhóm học sinh (YCTD-102)
-  const [groupId, setGroupId] = useState('');
-  const groups = useQuery({ queryKey: ['child-groups', 'list', ''], queryFn: () => listChildGroups('') });
+  const grid = useGridSettings('children');
   const [search, setSearch] = useState('');
-  const [missingCertificate, setMissingCertificate] = useState(false);
+  const [filter, setFilter] = useState<StudentFilter>({});
   const [page, setPage] = useState(1);
-  const [selectedId, setSelectedId] = useState<string>();
+  const [openId, setOpenId] = useState<string>();
   const [creating, setCreating] = useState(false);
+  const [bulkRows, setBulkRows] = useState<ChildListItem[]>();
   const [toastMessage, setToastMessage] = useState<string>();
+  const [exportError, setExportError] = useState<string>();
+  const [exporting, setExporting] = useState(false);
   const closeToast = useCallback(() => setToastMessage(undefined), []);
-
-  const children = useQuery({
-    queryKey: ['children', orgUnitId, groupId, status, search, missingCertificate, page],
-    queryFn: () =>
-      listChildren({
-        orgUnitId: orgUnitId || undefined,
-        groupId: groupId || undefined,
-        status: status || undefined,
-        q: search || undefined,
-        missingBirthCertificate: missingCertificate,
-        page,
-      }),
+  const groups = useQuery({ queryKey: ['child-groups', 'list', ''], queryFn: () => listChildGroups('') });
+  const gradeLevels = useQuery({ queryKey: ['grade-levels'], queryFn: listGradeLevels });
+  const classes = useQuery({
+    queryKey: ['classes', filter.org_unit_id],
+    queryFn: () => listClasses(filter.org_unit_id ?? ''),
+    enabled: Boolean(filter.org_unit_id),
   });
+  const activeFilter: StudentFilter = { ...filter, q: search || undefined };
+  const pageSize = grid.settings.pageSize;
+  const children = useQuery({
+    queryKey: ['children', activeFilter, page, pageSize],
+    queryFn: () => listChildren({ ...activeFilter, page, pageSize }),
+    enabled: grid.ready,
+  });
+  const healthVisible = children.data?.health_fields_visible === true;
+  const columns = studentColumns();
+
+  const change = (key: keyof StudentFilter, value: string | boolean) => {
+    setFilter((current) => ({
+      ...current,
+      [key]: value || undefined,
+      ...(key === 'org_unit_id' ? { class_id: undefined } : {}),
+    }));
+    setPage(1);
+  };
+  const runExport = async () => {
+    setExportError(undefined);
+    setExporting(true);
+    try {
+      await exportChildren(
+        activeFilter,
+        resolveVisibleColumns(columns, grid.settings.columns).map((column) => column.id),
+      );
+    } catch (error) {
+      setExportError(messageOf(error));
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const advancedSearch = (
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-4">
+      <FilterSelect
+        label="Đơn vị"
+        value={filter.org_unit_id ?? ''}
+        onChange={(value) => change('org_unit_id', value)}
+        options={unitChoice.units.map((unit) => ({ value: unit.id, label: unit.name }))}
+      />
+      <FilterSelect
+        label="Khối"
+        value={filter.grade_level ?? ''}
+        onChange={(value) => change('grade_level', value)}
+        options={(gradeLevels.data ?? []).map((grade) => ({ value: grade.code, label: grade.name }))}
+      />
+      {filter.org_unit_id ? (
+        <FilterSelect
+          label="Lớp"
+          value={filter.class_id ?? ''}
+          onChange={(value) => change('class_id', value)}
+          options={(classes.data ?? []).map((item) => ({ value: item.id, label: item.name }))}
+        />
+      ) : null}
+      <FilterSelect
+        label="Trạng thái"
+        value={filter.status ?? ''}
+        onChange={(value) => change('status', value)}
+        options={(Object.keys(CHILD_STATUS_LABELS) as ChildStatus[]).map((key) => ({
+          value: key,
+          label: CHILD_STATUS_LABELS[key],
+        }))}
+      />
+      <FilterSelect
+        label="Giới tính"
+        value={filter.gender ?? ''}
+        onChange={(value) => change('gender', value)}
+        options={[
+          { value: 'male', label: 'Nam' },
+          { value: 'female', label: 'Nữ' },
+        ]}
+      />
+      {healthVisible ? (
+        <>
+          <label className="text-label font-medium text-text">
+            Dân tộc
+            <input
+              value={filter.ethnicity ?? ''}
+              onChange={(event) => change('ethnicity', event.target.value)}
+              className={selectClass}
+            />
+          </label>
+          <FilterSelect
+            label="Diện chính sách"
+            value={filter.policy ?? ''}
+            onChange={(value) => change('policy', value)}
+            options={YES_NO}
+          />
+          <FilterSelect
+            label="Khuyết tật"
+            value={filter.disability ?? ''}
+            onChange={(value) => change('disability', value)}
+            options={YES_NO}
+          />
+        </>
+      ) : null}
+      <FilterSelect
+        label="Học 2 buổi/ngày"
+        value={filter.two_sessions_per_day ?? ''}
+        onChange={(value) => change('two_sessions_per_day', value)}
+        options={YES_NO}
+      />
+      <FilterSelect
+        label="Bán trú"
+        value={filter.boarding ?? ''}
+        onChange={(value) => change('boarding', value)}
+        options={YES_NO}
+      />
+      <FilterSelect
+        label="Biết bơi"
+        value={filter.can_swim ?? ''}
+        onChange={(value) => change('can_swim', value)}
+        options={YES_NO}
+      />
+      {(groups.data ?? []).length > 0 ? (
+        <FilterSelect
+          label="Nhóm học sinh"
+          value={filter.group_id ?? ''}
+          onChange={(value) => change('group_id', value)}
+          options={(groups.data ?? [])
+            .filter((group) => !filter.org_unit_id || group.org_unit_id === filter.org_unit_id)
+            .map((group) => ({ value: group.id, label: group.name }))}
+        />
+      ) : null}
+      <label className="text-label font-medium text-text">
+        Mã định danh Bộ GD&ĐT
+        <input
+          value={filter.moet_student_code ?? ''}
+          onChange={(event) => change('moet_student_code', event.target.value)}
+          className={selectClass}
+        />
+      </label>
+      <label className="text-label font-medium text-text">
+        Số định danh cá nhân
+        <input
+          inputMode="numeric"
+          maxLength={12}
+          value={filter.national_id ?? ''}
+          onChange={(event) => change('national_id', event.target.value)}
+          className={selectClass}
+        />
+      </label>
+      <label className="flex items-center gap-2 self-end pb-2 text-label">
+        <input
+          type="checkbox"
+          checked={filter.missing_birth_certificate === true}
+          onChange={(event) => change('missing_birth_certificate', event.target.checked)}
+        />
+        Thiếu giấy khai sinh
+      </label>
+    </div>
+  );
 
   return (
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-page-title font-bold text-text">Hồ sơ trẻ</h1>
-          {canManage ? (
-            <Button
-              variant="primary"
-              className="ml-auto"
-              onClick={() => {
-                setCreating(true);
-                setSelectedId(undefined);
-              }}
-            >
-              Tạo hồ sơ mới
-            </Button>
-          ) : null}
-        </div>
-        <div className="flex flex-wrap items-end gap-3">
-          <label className="flex flex-col gap-2 text-label font-medium text-text">
-            Đơn vị
-            <select
-              value={orgUnitId}
-              onChange={(event) => {
-                setOrgUnitId(event.target.value);
-                setPage(1);
-              }}
-              className="rounded-lg border border-border bg-card px-3 py-2 text-content font-normal"
-            >
-              <option value="">Tất cả trong phạm vi</option>
-              {unitChoice.units.map((unit) => (
-                <option key={unit.id} value={unit.id}>
-                  {unit.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          {(groups.data ?? []).length > 0 ? (
-            <label className="flex flex-col gap-2 text-label font-medium text-text">
-              Nhóm học sinh
-              <select
-                value={groupId}
-                onChange={(event) => {
-                  setGroupId(event.target.value);
-                  setPage(1);
-                }}
-                className="rounded-lg border border-border bg-card px-3 py-2 text-content font-normal"
-              >
-                <option value="">Tất cả</option>
-                {(groups.data ?? [])
-                  .filter((group) => !orgUnitId || group.org_unit_id === orgUnitId)
-                  .map((group) => (
-                    <option key={group.id} value={group.id}>
-                      {group.name}
-                    </option>
-                  ))}
-              </select>
-            </label>
-          ) : null}
-          <label className="flex flex-col gap-2 text-label font-medium text-text">
-            Trạng thái
-            <select
-              value={status}
-              onChange={(event) => {
-                setStatus(event.target.value as ChildStatus | '');
-                setPage(1);
-              }}
-              className="rounded-lg border border-border bg-card px-3 py-2 text-content font-normal"
-            >
-              <option value="">Tất cả</option>
-              {(Object.keys(CHILD_STATUS_LABELS) as ChildStatus[]).map((key) => (
-                <option key={key} value={key}>
-                  {CHILD_STATUS_LABELS[key]}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="flex items-center gap-2 pb-2 text-label">
-            <input
-              type="checkbox"
-              checked={missingCertificate}
-              onChange={(event) => {
-                setMissingCertificate(event.target.checked);
-                setPage(1);
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/children')}</h1>
+        {creating ? (
+          <section className="rounded-xl border border-border bg-card p-4" aria-label="Thêm mới học sinh">
+            <CreateChildForm
+              units={unitChoice.units}
+              defaultUnitId={unitChoice.selectedId}
+              onCancel={() => setCreating(false)}
+              onCreated={(child) => {
+                setCreating(false);
+                setOpenId(child.id);
+                setToastMessage(`Đã tạo hồ sơ nháp của ${child.full_name}`);
+                void queryClient.invalidateQueries({ queryKey: ['children'] });
               }}
             />
-            Thiếu giấy khai sinh
-          </label>
-          <TextField
-            label="Tìm theo họ tên"
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-              setPage(1);
-            }}
-          />
-        </div>
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_480px]">
-          <section className="rounded-xl border border-border bg-card p-4" aria-label="Danh sách trẻ">
-            {children.isPending ? <div className="h-40 animate-pulse rounded bg-border" aria-hidden="true" /> : null}
-            {children.isError ? <Alert tone="danger">{messageOf(children.error)}</Alert> : null}
-            {children.data && children.data.items.length === 0 ? (
-              <p className="text-content text-text-secondary">Không có hồ sơ nào.</p>
-            ) : null}
-            {children.data && children.data.items.length > 0 ? (
-              <>
-                <table className="w-full text-content">
-                  <thead className="text-left text-label font-medium text-text-secondary">
-                    <tr>
-                      <th className="px-3 py-2">Họ tên</th>
-                      <th className="px-3 py-2">Ngày sinh</th>
-                      <th className="px-3 py-2">Lớp</th>
-                      <th className="px-3 py-2">Mã ngành</th>
-                      <th className="px-3 py-2">Số định danh</th>
-                      <th className="px-3 py-2">Trạng thái</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {children.data.items.map((child) => (
-                      <tr
-                        key={child.id}
-                        className={`cursor-pointer border-t border-border hover:bg-selected ${child.id === selectedId ? 'bg-selected' : ''}`}
-                        onClick={() => {
-                          setSelectedId(child.id);
-                          setCreating(false);
-                        }}
-                      >
-                        <td className="px-3 py-2 font-medium">{child.full_name}</td>
-                        <td className="px-3 py-2">{child.dob}</td>
-                        <td className="px-3 py-2">{child.class_name ?? ''}</td>
-                        <td className={`px-3 py-2 ${child.moet_student_code ? '' : 'bg-danger/10 text-danger'}`}>
-                          {child.moet_student_code ?? 'Chưa có'}
-                        </td>
-                        <td className="px-3 py-2">{child.national_id_masked}</td>
-                        <td className="px-3 py-2">
-                          <StatusBadge
-                            tone={
-                              child.status === 'active' ? 'success' : child.status === 'pending' ? 'warning' : 'neutral'
-                            }
-                            label={CHILD_STATUS_LABELS[child.status]}
-                          />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <div className="mt-3 flex items-center gap-3 text-label">
-                  <Button variant="text" disabled={page <= 1} onClick={() => setPage(page - 1)}>
-                    Trang trước
-                  </Button>
-                  <span>
-                    Trang {children.data.page}/{children.data.total_pages} · {children.data.total} trẻ
-                  </span>
-                  <Button variant="text" disabled={page >= children.data.total_pages} onClick={() => setPage(page + 1)}>
-                    Trang sau
-                  </Button>
-                </div>
-              </>
-            ) : null}
           </section>
-          <aside className="rounded-xl border border-border bg-card p-4">
-            {creating ? (
-              <CreateChildForm
-                units={unitChoice.units}
-                defaultUnitId={unitChoice.selectedId}
-                onCancel={() => setCreating(false)}
-                onCreated={(child) => {
-                  setCreating(false);
-                  setSelectedId(child.id);
-                  setToastMessage(`Đã tạo hồ sơ nháp của ${child.full_name}`);
-                  void queryClient.invalidateQueries({ queryKey: ['children'] });
-                }}
-              />
-            ) : selectedId ? (
-              <ChildDetailPanel key={selectedId} childId={selectedId} onChanged={setToastMessage} />
-            ) : (
-              <p className="text-content text-text-secondary">Chọn một trẻ để xem hồ sơ.</p>
-            )}
-          </aside>
-        </div>
+        ) : null}
+        {children.isError ? <Alert tone="danger">{messageOf(children.error)}</Alert> : null}
+        {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+        {exportError ? <Alert tone="danger">{exportError}</Alert> : null}
+        <DataGrid
+          label="Danh sách học sinh"
+          columns={columns}
+          rows={children.data?.items ?? []}
+          getRowId={(row) => row.id}
+          getRowLabel={(row) => row.full_name}
+          getRowAriaLabel={(row) => `Học sinh ${row.full_name}`}
+          loading={!children.data && !children.isError}
+          emptyText="Không có hồ sơ nào."
+          search={{
+            label: 'Tìm theo họ tên',
+            value: search,
+            onChange: (value) => {
+              setSearch(value);
+              setPage(1);
+            },
+          }}
+          advancedSearch={advancedSearch}
+          toolbar={(selected) => (
+            <>
+              {canManage ? (
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    setCreating(true);
+                    setOpenId(undefined);
+                  }}
+                >
+                  Thêm mới
+                </Button>
+              ) : null}
+              {canManage || canApprove ? (
+                <Button disabled={selected.length === 0} onClick={() => setBulkRows(selected)}>
+                  Cập nhật hàng loạt
+                </Button>
+              ) : null}
+              {canExport ? (
+                <Button disabled={exporting} onClick={() => void runExport()}>
+                  Xuất Excel
+                </Button>
+              ) : null}
+            </>
+          )}
+          selectable
+          rowActions={(row) => (
+            <Button variant="text" onClick={() => setOpenId(openId === row.id ? undefined : row.id)}>
+              {openId === row.id ? 'Ẩn' : 'Hồ sơ'}
+            </Button>
+          )}
+          onRowClick={(row) => {
+            setOpenId(row.id);
+            setCreating(false);
+          }}
+          activeRowId={openId}
+          renderRowDetail={(row) =>
+            openId === row.id ? (
+              <ChildDetailPanel key={row.id} childId={row.id} onChanged={setToastMessage} />
+            ) : null
+          }
+          settings={grid.settings}
+          onSettingsChange={grid.update}
+          serverPagination={{ page, total: children.data?.total ?? 0, onPageChange: setPage }}
+        />
+        {openId && !(children.data?.items ?? []).some((row) => row.id === openId) ? (
+          <section className="rounded-xl border border-border bg-card p-4">
+            <ChildDetailPanel key={openId} childId={openId} onChanged={setToastMessage} />
+          </section>
+        ) : null}
       </div>
+      {bulkRows ? (
+        <BulkUpdateDialog
+          rows={bulkRows}
+          onCancel={() => setBulkRows(undefined)}
+          onDone={(message) => {
+            setBulkRows(undefined);
+            setToastMessage(message);
+            void queryClient.invalidateQueries({ queryKey: ['children'] });
+            void queryClient.invalidateQueries({ queryKey: ['child'] });
+          }}
+        />
+      ) : null}
     </AppShell>
   );
 }

@@ -146,6 +146,8 @@ export class ChildrenService {
       page_size: filter.pageSize,
       total,
       total_pages: Math.max(1, Math.ceil(total / filter.pageSize)),
+      // Màn hình hiện bộ lọc, cột dân tộc, diện chính sách, khuyết tật khi người xem được (BR-53)
+      health_fields_visible: canSeeHealth,
     };
   }
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
 import { Alert, Button, ConfirmDialog, StatusBadge, TextField } from '@school-management/ui';
@@ -8,6 +8,7 @@ import { useHasPermission } from '../session/permissions.js';
 import { MoetProfileSection } from '../imports/MoetProfileSection.js';
 import { AuthorizedPickupsSection } from './AuthorizedPickupsSection.js';
 import { ChildLifecycleSection } from './ChildLifecycleSection.js';
+import { StudentProfileForm, valuesOf } from './StudentProfileForm.js';
 import {
   approveChild,
   CHILD_STATUS_LABELS,
@@ -23,7 +24,9 @@ import {
   type ChildDetail,
 } from './children-api.js';
 
-// Chi tiết trẻ: mã trẻ, lịch sử lớp, phụ huynh; gửi trình duyệt, duyệt và phân lớp, từ chối, chuyển lớp (QT-01 mục 11)
+// Hồ sơ học sinh: thẻ "Hồ sơ học sinh" theo thứ tự ô nhập của Sở có nút Ghi, thẻ "Thông tin riêng của trường" (giấy khai
+// sinh, đồng ý hình ảnh, sức khỏe, lịch sử lớp; YCTD-108); bên dưới là các thao tác gửi trình duyệt, duyệt và phân lớp, từ
+// chối, chuyển lớp, chuyển đơn vị, thôi học, người đón (QT-01 mục 11)
 function messageOf(error: unknown): string {
   return error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại';
 }
@@ -94,6 +97,9 @@ export function ChildDetailPanel({ childId, onChanged }: { childId: string; onCh
   const [transferReason, setTransferReason] = useState('');
   const [pendingCapacity, setPendingCapacity] = useState<{ action: 'approve' | 'transfer'; classId: string }>();
   const [fileError, setFileError] = useState<string>();
+  // Thẻ Hồ sơ học sinh theo Sở và thẻ thông tin riêng của trường (YCTD-108)
+  const [tab, setTab] = useState<'profile' | 'school'>('profile');
+  const tabIdPrefix = useId();
 
   const refresh = async (message: string) => {
     await queryClient.invalidateQueries({ queryKey: ['child', childId] });
@@ -164,6 +170,36 @@ export function ChildDetailPanel({ childId, onChanged }: { childId: string; onCh
     (error) => error && !isOverCapacity(error),
   );
 
+  // Hồ sơ đã duyệt chỉ người có quyền duyệt sửa; hồ sơ chờ duyệt không sửa được (QT-01 E7)
+  const editable =
+    (data.status === 'draft' && canManage) || (data.status !== 'draft' && data.status !== 'pending' && canApprove);
+  const nationalIdCell = (
+    <span className="flex flex-wrap items-center gap-2 text-content">
+      <span data-testid="national-id">{nationalId ?? data.national_id_masked}</span>
+      {canViewNationalId && !nationalId ? (
+        <Button variant="text" onClick={() => revealNationalId.mutate()}>
+          Xem đầy đủ
+        </Button>
+      ) : null}
+      {canViewNationalId && data.birth_certificate_file_id ? (
+        <Button
+          variant="text"
+          onClick={() =>
+            openFile(data.birth_certificate_file_id ?? '', fetchWithSession).catch((error: unknown) =>
+              setFileError(messageOf(error)),
+            )
+          }
+        >
+          Xem giấy khai sinh
+        </Button>
+      ) : null}
+    </span>
+  );
+  const tabs = [
+    { id: 'profile', label: 'Hồ sơ học sinh' },
+    { id: 'school', label: 'Thông tin riêng của trường' },
+  ] as const;
+
   return (
     <section className="flex flex-col gap-4" aria-label={`Hồ sơ ${data.full_name}`}>
       <div className="flex flex-wrap items-center gap-3">
@@ -178,117 +214,122 @@ export function ChildDetailPanel({ childId, onChanged }: { childId: string; onCh
       {data.reject_reason && data.status === 'draft' ? (
         <Alert tone="warning">Bị từ chối: {data.reject_reason}</Alert>
       ) : null}
+      {data.birth_certificate_file_id === null ? (
+        <Alert tone="warning">Thiếu giấy khai sinh, bổ sung ở thẻ "Thông tin riêng của trường".</Alert>
+      ) : null}
 
-      <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-content">
-        <dt className="text-text-secondary">Ngày sinh</dt>
-        <dd>{data.dob}</dd>
-        <dt className="text-text-secondary">Giới tính</dt>
-        <dd>{data.gender === 'male' ? 'Nam' : 'Nữ'}</dd>
-        <dt className="text-text-secondary">Số định danh</dt>
-        <dd className="flex flex-wrap items-center gap-2">
-          <span data-testid="national-id">{nationalId ?? data.national_id_masked}</span>
-          {canViewNationalId && !nationalId ? (
-            <Button variant="text" onClick={() => revealNationalId.mutate()}>
-              Xem đầy đủ
-            </Button>
-          ) : null}
-          {canViewNationalId && data.birth_certificate_file_id ? (
-            <Button
-              variant="text"
-              onClick={() =>
-                openFile(data.birth_certificate_file_id ?? '', fetchWithSession).catch((error: unknown) =>
-                  setFileError(messageOf(error)),
-                )
-              }
-            >
-              Xem giấy khai sinh
-            </Button>
-          ) : null}
-        </dd>
-        {data.birth_certificate_file_id === null ? (
-          <>
-            <dt className="text-text-secondary">Giấy khai sinh</dt>
-            <dd className="flex flex-wrap items-center gap-2">
-              <span className="rounded bg-danger/10 px-2 text-danger">Thiếu giấy khai sinh</span>
-              {canApprove ? (
-                <input
-                  type="file"
-                  aria-label="Bổ sung giấy khai sinh"
-                  accept="image/jpeg,image/png,application/pdf"
-                  onChange={(event) => {
-                    const file = event.target.files?.[0];
-                    if (file) {
-                      supplementCertificate.mutate(file);
-                    }
-                  }}
-                />
-              ) : null}
-            </dd>
-          </>
-        ) : null}
-        <dt className="text-text-secondary">Mã định danh ngành</dt>
-        <dd className={data.moet_student_code ? '' : 'rounded bg-danger/10 px-2 text-danger'} data-testid="moet-code">
-          {data.moet_student_code ?? 'Chưa có'}
-        </dd>
-        <dt className="text-text-secondary">Lớp hiện tại</dt>
-        <dd>{data.current_class?.class_name ?? 'Chưa xếp lớp'}</dd>
-        <dt className="text-text-secondary">Đồng ý hình ảnh</dt>
-        <dd>{PHOTO_CONSENT_LABELS[data.photo_consent]}</dd>
-        {data.is_staff_child ? (
-          <>
-            <dt className="text-text-secondary">Trẻ con nhân viên</dt>
-            <dd>{data.related_staff_name}</dd>
-          </>
-        ) : null}
-      </dl>
-
-      <div>
-        <h3 className="mb-2 text-content font-semibold">Phụ huynh</h3>
-        <ul className="flex flex-col gap-1">
-          {data.guardians.map((guardian) => (
-            <li key={guardian.id} className="flex flex-wrap items-center gap-2 text-content">
-              <span className="font-medium">{guardian.full_name}</span>
-              <span>{guardian.relationship}</span>
-              <span className="text-text-secondary">{guardian.phone ?? 'Không có số điện thoại'}</span>
-              {guardian.is_primary ? <StatusBadge tone="info" label="Liên hệ chính" /> : null}
-              {guardian.has_account ? <StatusBadge tone="success" label="Đã có tài khoản" /> : null}
-            </li>
-          ))}
-        </ul>
+      <div role="tablist" aria-label="Thông tin hồ sơ" className="flex flex-wrap gap-1 border-b border-border">
+        {tabs.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            role="tab"
+            id={`${tabIdPrefix}-${item.id}`}
+            aria-selected={tab === item.id}
+            aria-controls={`${tabIdPrefix}-${item.id}-panel`}
+            onClick={() => setTab(item.id)}
+            className={`-mb-px rounded-t-lg border border-b-0 px-3 py-2 text-content ${
+              tab === item.id ? 'border-border bg-card font-semibold text-text' : 'border-transparent text-text-secondary'
+            }`}
+          >
+            {item.label}
+          </button>
+        ))}
       </div>
 
-      {data.health ? (
-        <div>
-          <h3 className="mb-2 text-content font-semibold">Sức khỏe</h3>
-          <p className="text-content">
-            Dị ứng:{' '}
-            {data.health.has_allergies === null
-              ? 'Chưa khai báo'
-              : data.health.has_allergies
-                ? data.health.allergies
-                : 'Không có'}
-          </p>
-          {data.health.chronic_conditions ? (
-            <p className="text-content">Bệnh nền: {data.health.chronic_conditions}</p>
-          ) : null}
-          {data.special_needs_note ? <p className="text-content">Lưu ý chăm sóc: {data.special_needs_note}</p> : null}
-        </div>
-      ) : null}
+      <div
+        role="tabpanel"
+        id={`${tabIdPrefix}-profile-panel`}
+        aria-labelledby={`${tabIdPrefix}-profile`}
+        hidden={tab !== 'profile'}
+        className="flex flex-col gap-4"
+      >
+        <StudentProfileForm
+          key={JSON.stringify(valuesOf(data))}
+          child={data}
+          editable={editable}
+          nationalId={nationalIdCell}
+          onSaved={(message) => void refresh(message)}
+        />
+        <MoetProfileSection entries={data.moet_profile} />
+      </div>
 
-      {data.enrollments.length > 0 ? (
-        <div>
-          <h3 className="mb-2 text-content font-semibold">Lịch sử lớp</h3>
-          <ul className="flex flex-col gap-1 text-content">
-            {data.enrollments.map((enrollment) => (
-              <li key={enrollment.id}>
-                {enrollment.class_name}: từ {enrollment.from_date}
-                {enrollment.to_date ? ` đến ${enrollment.to_date}` : ''}
-                {enrollment.reason ? ` — ${enrollment.reason}` : ''}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
+      <div
+        role="tabpanel"
+        id={`${tabIdPrefix}-school-panel`}
+        aria-labelledby={`${tabIdPrefix}-school`}
+        hidden={tab !== 'school'}
+        className="flex flex-col gap-4"
+      >
+        <dl className="grid grid-cols-1 gap-x-4 gap-y-2 text-content md:grid-cols-[12rem_1fr]">
+          <dt className="text-text-secondary md:text-right">Giấy khai sinh</dt>
+          <dd className="flex flex-wrap items-center gap-2">
+            {data.birth_certificate_file_id === null ? (
+              <>
+                <span className="rounded bg-danger/10 px-2 text-danger">Thiếu giấy khai sinh</span>
+                {canApprove ? (
+                  <input
+                    type="file"
+                    aria-label="Bổ sung giấy khai sinh"
+                    accept="image/jpeg,image/png,application/pdf"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) {
+                        supplementCertificate.mutate(file);
+                      }
+                    }}
+                  />
+                ) : null}
+              </>
+            ) : (
+              'Đã có bản chụp'
+            )}
+          </dd>
+          <dt className="text-text-secondary md:text-right">Đồng ý hình ảnh</dt>
+          <dd>{PHOTO_CONSENT_LABELS[data.photo_consent]}</dd>
+          <dt className="text-text-secondary md:text-right">Học sinh là con nhân viên</dt>
+          <dd>{data.is_staff_child ? data.related_staff_name : 'Không'}</dd>
+          <dt className="text-text-secondary md:text-right">Ngày nhập học</dt>
+          <dd>{data.enroll_date ?? 'Chưa có'}</dd>
+          <dt className="text-text-secondary md:text-right">Ghi chú</dt>
+          <dd>{data.note ?? ''}</dd>
+        </dl>
+
+        {data.health ? (
+          <div>
+            <h3 className="mb-2 text-content font-semibold">Sức khỏe</h3>
+            <p className="text-content">
+              Dị ứng:{' '}
+              {data.health.has_allergies === null
+                ? 'Chưa khai báo'
+                : data.health.has_allergies
+                  ? data.health.allergies
+                  : 'Không có'}
+            </p>
+            {data.health.chronic_conditions ? (
+              <p className="text-content">Bệnh nền: {data.health.chronic_conditions}</p>
+            ) : null}
+            {data.special_needs_note ? (
+              <p className="text-content">Lưu ý chăm sóc: {data.special_needs_note}</p>
+            ) : null}
+          </div>
+        ) : null}
+
+        {data.enrollments.length > 0 ? (
+          <div>
+            <h3 className="mb-2 text-content font-semibold">Lịch sử lớp</h3>
+            <ul className="flex flex-col gap-1 text-content">
+              {data.enrollments.map((enrollment) => (
+                <li key={enrollment.id}>
+                  {enrollment.class_name}: từ {enrollment.from_date}
+                  {enrollment.to_date ? ` đến ${enrollment.to_date}` : ''}
+                  {enrollment.reason ? ` — ${enrollment.reason}` : ''}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+      </div>
 
       {canManage && data.status === 'draft' ? (
         <div>
@@ -302,7 +343,7 @@ export function ChildDetailPanel({ childId, onChanged }: { childId: string; onCh
         <div className="flex flex-col gap-3 rounded-lg bg-page p-3">
           <ClassPicker
             child={data}
-            label="Lớp cho trẻ"
+            label="Lớp cho học sinh"
             actionLabel="Duyệt và phân lớp"
             busy={approve.isPending}
             sameUnitOnly={false}
@@ -345,8 +386,6 @@ export function ChildDetailPanel({ childId, onChanged }: { childId: string; onCh
 
       {data.status === 'active' ? <AuthorizedPickupsSection childId={data.id} childName={data.full_name} /> : null}
 
-      <MoetProfileSection entries={data.moet_profile} />
-
       {pendingCapacity ? (
         <ConfirmDialog
           open
@@ -360,7 +399,7 @@ export function ChildDetailPanel({ childId, onChanged }: { childId: string; onCh
               : transfer.mutate({ classId: pendingCapacity.classId, confirm: true })
           }
         >
-          Lớp đã đủ sĩ số tối đa. Quản lý đơn vị xác nhận để vẫn phân trẻ vào lớp này (BR-04).
+          Lớp đã đủ sĩ số tối đa. Quản lý đơn vị xác nhận để vẫn phân học sinh vào lớp này (BR-04).
         </ConfirmDialog>
       ) : null}
     </section>
