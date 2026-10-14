@@ -155,6 +155,8 @@ export const PERMISSION_CODES = {
   childGroupManage: 'P02.child-group.manage',
   professionalStandardManage: 'P07.professional-standard.manage',
   professionalStandardAssess: 'P07.professional-standard.assess',
+  // Xem mọi ý kiến phản hồi gửi từ chân trang, đổi trạng thái và trả lời (DT-15 phần 15g, YCTD-110)
+  feedbackManage: 'P01.feedback.manage',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
