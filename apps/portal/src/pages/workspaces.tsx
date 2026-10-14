@@ -1,94 +1,67 @@
 import { createContext, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import type { PortalWorkspace, PortalWorkspaceKey } from '@school-management/shared';
 
-// Phân hệ của cổng quản trị (YCTD-101): menu sổ xuống ở thanh đầu trang chọn phân hệ, thanh điều hướng chỉ hiện nhóm
-// chức năng của phân hệ đó; "Tất cả chức năng" hiện mọi nhóm (mặc định)
-export type WorkspaceKey =
-  'all' | 'education' | 'admissions' | 'finance' | 'personnel' | 'facilities' | 'reports' | 'system';
+// Phân hệ của cổng quản trị (YCTD-101, DT-15 phần 15a): ô chọn phân hệ ở thanh đầu trang chọn bộ menu ngang đánh số
+// đang hiện; danh sách phân hệ và cây menu ở @school-management/shared (PORTAL_WORKSPACES)
+export type WorkspaceKey = PortalWorkspaceKey;
 
-export type IconName = 'cap' | 'enroll' | 'coins' | 'people' | 'box' | 'chart' | 'gear' | 'grid';
+export type IconName =
+  'cap' | 'enroll' | 'coins' | 'people' | 'box' | 'chart' | 'gear' | 'cart' | 'chat' | 'book' | 'report';
 
-export const WORKSPACES: Array<{ key: WorkspaceKey; label: string; icon: IconName }> = [
-  { key: 'education', label: 'Quản lý giáo dục mầm non', icon: 'cap' },
-  { key: 'admissions', label: 'Tuyển sinh', icon: 'enroll' },
-  { key: 'finance', label: 'Học phí và tài chính', icon: 'coins' },
-  { key: 'personnel', label: 'Nhân sự', icon: 'people' },
-  { key: 'facilities', label: 'Cơ sở vật chất', icon: 'box' },
-  { key: 'reports', label: 'Báo cáo số liệu', icon: 'chart' },
-  { key: 'system', label: 'Quản trị hệ thống', icon: 'gear' },
-  { key: 'all', label: 'Tất cả chức năng', icon: 'grid' },
-];
-
-// Nhóm chức năng trên thanh điều hướng thuộc phân hệ nào
-export const GROUP_WORKSPACE: Record<string, WorkspaceKey> = {
-  'TRẺ VÀ LỚP': 'education',
-  'GIẢNG DẠY': 'education',
-  'Y TẾ': 'education',
-  BẾP: 'education',
-  'TƯƠNG TÁC': 'education',
-  'HOẠT ĐỘNG VÀ TRUYỀN THÔNG': 'education',
-  'TUYỂN SINH': 'admissions',
-  'HỌC PHÍ VÀ TÀI CHÍNH': 'finance',
-  'NHÂN SỰ': 'personnel',
-  'KHO VÀ MUA HÀNG': 'facilities',
-  'CƠ SỞ VẬT CHẤT': 'facilities',
-  'BÁO CÁO': 'reports',
-  'THIẾT LẬP': 'system',
+export const WORKSPACE_ICONS: Record<WorkspaceKey, IconName> = {
+  education: 'cap',
+  facilities: 'box',
+  emis: 'chart',
+  system: 'gear',
+  finance: 'coins',
+  personnel: 'people',
+  logistics: 'cart',
+  interaction: 'chat',
+  teaching: 'book',
+  admissions: 'enroll',
+  reports: 'report',
 };
 
 const WORKSPACE_KEY = 'portal.workspace';
 
-function readWorkspace(): WorkspaceKey {
+function readWorkspace(): string | null {
   try {
-    const value = window.localStorage.getItem(WORKSPACE_KEY);
-    return WORKSPACES.some((workspace) => workspace.key === value) ? (value as WorkspaceKey) : 'all';
+    return window.localStorage.getItem(WORKSPACE_KEY);
   } catch {
-    return 'all';
+    return null;
   }
 }
 
-interface WorkspaceState {
-  current: WorkspaceKey;
-  available: Set<WorkspaceKey>;
+export interface WorkspaceState {
+  // Phân hệ đang hiện, luôn thuộc danh sách phân hệ người dùng được thấy
+  current: WorkspaceKey | undefined;
+  workspaces: PortalWorkspace[];
   select(key: WorkspaceKey): void;
-  // Trang đang mở thuộc phân hệ khác phân hệ đang chọn thì chuyển sang phân hệ của trang
+  // Trang đang mở thuộc phân hệ khác thì chuyển sang phân hệ của trang (không ghi nhớ)
   ensure(key: WorkspaceKey): void;
-  register(key: WorkspaceKey): void;
 }
 
 export const WorkspaceContext = createContext<WorkspaceState>({
-  current: 'all',
-  available: new Set(),
+  current: undefined,
+  workspaces: [],
   select: () => undefined,
   ensure: () => undefined,
-  register: () => undefined,
 });
 
-// Tên nhóm chứa mục điều hướng, để mục biết mình thuộc phân hệ nào
-export const GroupContext = createContext<string | undefined>(undefined);
-
-export function useWorkspaceState(): WorkspaceState {
-  const [current, setCurrent] = useState<WorkspaceKey>(readWorkspace);
-  const [available, setAvailable] = useState<Set<WorkspaceKey>>(() => new Set());
+export function useWorkspaceState(workspaces: PortalWorkspace[]): WorkspaceState {
+  const [chosen, setChosen] = useState<string | null>(readWorkspace);
   const select = useCallback((key: WorkspaceKey) => {
-    setCurrent(key);
+    setChosen(key);
     try {
       window.localStorage.setItem(WORKSPACE_KEY, key);
     } catch {
       // Không lưu được thì chỉ giữ trong phiên đang mở
     }
   }, []);
-  const ensure = useCallback(
-    (key: WorkspaceKey) => setCurrent((previous) => (previous === 'all' || previous === key ? previous : key)),
-    [],
-  );
-  const register = useCallback(
-    (key: WorkspaceKey) => setAvailable((previous) => (previous.has(key) ? previous : new Set(previous).add(key))),
-    [],
-  );
-  return useMemo(
-    () => ({ current, available, select, ensure, register }),
-    [current, available, select, ensure, register],
-  );
+  const ensure = useCallback((key: WorkspaceKey) => setChosen(key), []);
+  // Phân hệ đã chọn không còn (đổi quyền, giá trị cũ) thì dùng phân hệ đầu tiên người dùng được thấy
+  const current = workspaces.find((workspace) => workspace.key === chosen)?.key ?? workspaces[0]?.key;
+  return useMemo(() => ({ current, workspaces, select, ensure }), [current, workspaces, select, ensure]);
 }
 
 const ICON_PATHS: Record<IconName, ReactNode> = {
@@ -109,7 +82,12 @@ const ICON_PATHS: Record<IconName, ReactNode> = {
   gear: (
     <path d="M19.4 13a7.5 7.5 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.3 7.3 0 0 0-1.7-1L15 3h-4l-.4 2.9a7.3 7.3 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.5 7.5 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.3 7.3 0 0 0 1.7 1L11 21h4l.4-2.9a7.3 7.3 0 0 0 1.7-1l2.5 1 2-3.5L19.4 13ZM13 15.5a3.5 3.5 0 1 1 3.5-3.5 3.5 3.5 0 0 1-3.5 3.5Z" />
   ),
-  grid: <path d="M3 3h7v7H3V3Zm11 0h7v7h-7V3ZM3 14h7v7H3v-7Zm11 0h7v7h-7v-7Z" />,
+  cart: (
+    <path d="M7 18a2 2 0 1 0 2 2 2 2 0 0 0-2-2Zm10 0a2 2 0 1 0 2 2 2 2 0 0 0-2-2ZM5.2 4H2V2h4.6l.9 2H21l-3.6 8H8.4l-.9 2H19v2H4.3l2.3-4.6L5.2 4Z" />
+  ),
+  chat: <path d="M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2Zm3 6v2h10V9H7Zm0 4v2h7v-2H7Z" />,
+  book: <path d="M5 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5V3Zm2 2v14h10V5H7Zm2 2h6v2H9V7Zm0 4h6v2H9v-2Z" />,
+  report: <path d="M6 2h9l5 5v15H6V2Zm8 1.5V8h4.5L14 3.5ZM8 12v2h8v-2H8Zm0 4v2h8v-2H8Z" />,
 };
 
 export function WorkspaceIcon({ name }: { name: IconName }) {
@@ -125,14 +103,11 @@ export function WorkspaceIcon({ name }: { name: IconName }) {
   );
 }
 
-// Menu sổ xuống chọn phân hệ ở thanh đầu trang
+// Ô chọn phân hệ ở thanh đầu trang
 export function WorkspaceSwitcher({ state }: { state: WorkspaceState }) {
   const [open, setOpen] = useState(false);
   const container = useRef<HTMLDivElement>(null);
-  const options = WORKSPACES.filter((workspace) => workspace.key === 'all' || state.available.has(workspace.key));
-  const current =
-    WORKSPACES.find((workspace) => workspace.key === state.current) ??
-    (WORKSPACES.at(-1) as (typeof WORKSPACES)[number]);
+  const current = state.workspaces.find((workspace) => workspace.key === state.current);
 
   useEffect(() => {
     if (!open) {
@@ -156,17 +131,20 @@ export function WorkspaceSwitcher({ state }: { state: WorkspaceState }) {
     };
   }, [open]);
 
+  if (!current) {
+    return null;
+  }
   return (
-    <div className="relative" ref={container}>
+    <div className="relative min-w-0" ref={container}>
       <button
         type="button"
-        className="flex h-9 w-72 max-w-[60vw] items-center gap-2 rounded-md border border-white/60 bg-card pl-1.5 pr-2 text-left text-label text-text shadow-sm"
+        className="flex h-9 w-72 max-w-[52vw] items-center gap-2 rounded-md border border-white/60 bg-card pl-1.5 pr-2 text-left text-label text-text shadow-sm"
         aria-label={`Phân hệ: ${current.label}`}
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen(!open)}
       >
-        <WorkspaceIcon name={current.icon} />
+        <WorkspaceIcon name={WORKSPACE_ICONS[current.key]} />
         <span className="min-w-0 flex-1 truncate">{current.label}</span>
         <span className="border-l border-border pl-2 text-text-secondary" aria-hidden="true">
           ▾
@@ -176,9 +154,9 @@ export function WorkspaceSwitcher({ state }: { state: WorkspaceState }) {
         <ul
           role="menu"
           aria-label="Chọn phân hệ"
-          className="absolute left-0 top-10 z-30 w-72 max-w-[calc(100vw-32px)] rounded-md border border-border bg-card py-1 shadow-lg"
+          className="absolute left-0 top-10 z-40 w-72 max-w-[calc(100vw-32px)] rounded-md border border-border bg-card py-1 shadow-lg"
         >
-          {options.map((workspace) => (
+          {state.workspaces.map((workspace) => (
             <li key={workspace.key} role="none">
               <button
                 type="button"
@@ -190,7 +168,7 @@ export function WorkspaceSwitcher({ state }: { state: WorkspaceState }) {
                   setOpen(false);
                 }}
               >
-                <WorkspaceIcon name={workspace.icon} />
+                <WorkspaceIcon name={WORKSPACE_ICONS[workspace.key]} />
                 {workspace.label}
               </button>
             </li>

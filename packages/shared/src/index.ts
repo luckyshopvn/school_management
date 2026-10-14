@@ -1,5 +1,6 @@
 // Gói dùng chung chỉ chứa kiểu dữ liệu và hằng số, không chứa truy vấn cơ sở dữ liệu và quy tắc nghiệp vụ
 export * from './facilities.js';
+export * from './portal-menu.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -198,7 +199,7 @@ export const WHOLE_SCHOOL_ROLE_CODES = ['VT-01', 'VT-02', 'VT-19', 'VT-20'] as c
 export const ROLE_CODES_RESERVED_FOR_PRINCIPAL = ['VT-01', 'VT-02'] as const;
 
 // Đường dẫn trang của cổng quản trị được ghim vào "Truy cập nhanh" trên trang chủ (YCTD-102); máy chủ API chỉ nhận các
-// đường dẫn này, giao diện chỉ cho chọn trang người dùng thấy trên thanh điều hướng
+// đường dẫn này, giao diện chỉ cho chọn trang người dùng thấy trên menu
 export const PORTAL_QUICK_LINK_PATHS = [
   '/academic-years',
   '/org-units',
@@ -256,6 +257,18 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/work',
   '/evaluations',
   '/bonus-deductions',
+  // Trang thêm ở DT-14 (YCTD-102), đưa vào cây menu ở DT-15 phần 15a
+  '/growth',
+  '/growth-report',
+  '/statistics',
+  '/missing-profiles',
+  '/school-profile',
+  '/facility-rooms',
+  '/equipment',
+  '/emis',
+  '/program-completion',
+  '/child-groups',
+  '/professional-standards',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];

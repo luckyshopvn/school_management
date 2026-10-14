@@ -1,24 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { MAX_QUICK_LINKS } from '@school-management/shared';
+import { MAX_QUICK_LINKS, PORTAL_WORKSPACES } from '@school-management/shared';
 import { Alert, Button } from '@school-management/ui';
 import { useState } from 'react';
 import { useNavigationEntries, type NavigationEntry } from './navigation-registry.js';
 import { listQuickLinks, saveQuickLinks, type QuickLink } from './quick-links-api.js';
-import { GROUP_WORKSPACE, WORKSPACES, WorkspaceIcon, type IconName } from './workspaces.js';
+import { WORKSPACE_ICONS, WorkspaceIcon, type IconName } from './workspaces.js';
 
 const QUICK_LINKS_KEY = ['quick-links'];
 
-function workspaceOf(group: string | undefined) {
-  const key = group ? GROUP_WORKSPACE[group] : undefined;
-  return WORKSPACES.find((workspace) => workspace.key === key) ?? WORKSPACES.find((item) => item.key === 'all');
-}
+const labelOf = (key: NavigationEntry['workspace']) =>
+  PORTAL_WORKSPACES.find((workspace) => workspace.key === key)?.label ?? key;
 
-function iconOf(group: string | undefined): IconName {
-  return workspaceOf(group)?.icon ?? 'grid';
-}
-
-// Bộ chọn trang để ghim: các trang người dùng thấy trên thanh điều hướng, nhóm theo phân hệ
+// Bộ chọn trang để ghim: các trang người dùng thấy trên menu, nhóm theo phân hệ
 function QuickLinkPicker({
   entries,
   pinned,
@@ -36,9 +30,8 @@ function QuickLinkPicker({
 }) {
   const groups = new Map<string, { icon: IconName; items: NavigationEntry[] }>();
   for (const entry of entries) {
-    const workspace = workspaceOf(entry.group);
-    const title = workspace?.key === 'all' || !workspace ? 'Khác' : workspace.label;
-    const group = groups.get(title) ?? { icon: workspace?.icon ?? 'grid', items: [] };
+    const title = labelOf(entry.workspace);
+    const group = groups.get(title) ?? { icon: WORKSPACE_ICONS[entry.workspace], items: [] };
     group.items.push(entry);
     groups.set(title, group);
   }
@@ -102,10 +95,10 @@ export function QuickAccess() {
   });
 
   const entryByPath = new Map(entries.map((entry) => [entry.path, entry]));
-  // Chỉ hiện lối tắt tới trang người dùng còn được mở; nhãn theo thanh điều hướng hiện hành
+  // Chỉ hiện lối tắt tới trang người dùng còn được mở; nhãn theo menu hiện hành
   const visible = (links.data ?? []).flatMap((link) => {
     const entry = entryByPath.get(link.path);
-    return entry ? [{ path: link.path, label: entry.label, group: entry.group }] : [];
+    return entry ? [{ path: link.path, label: entry.label, workspace: entry.workspace }] : [];
   });
   const pinned = new Set(visible.map((link) => link.path));
   const full = visible.length >= MAX_QUICK_LINKS;
@@ -183,7 +176,7 @@ export function QuickAccess() {
                 to={link.path}
                 className="flex min-h-12 items-center gap-2 text-label font-semibold text-text hover:text-brand-strong"
               >
-                <WorkspaceIcon name={iconOf(link.group)} />
+                <WorkspaceIcon name={WORKSPACE_ICONS[link.workspace]} />
                 <span>{link.label}</span>
               </Link>
               <div className="flex items-center justify-end gap-1 text-label">
