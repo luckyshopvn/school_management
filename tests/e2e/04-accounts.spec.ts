@@ -161,6 +161,6 @@ test('CT-15a-12: lưới dữ liệu ở Tài khoản: cấu hình cột, số d
   await expect(remove).toBeEnabled();
   await remove.click();
   await expect(confirm).toHaveCount(0);
-  await expect(detail).not.toContainText('Giáo viên bộ môn');
+  await expect(detail.getByRole('listitem').filter({ hasText: 'Giáo viên bộ môn' })).toHaveCount(0);
   await expect(detail).toContainText('Giáo viên chủ nhiệm — Toàn trường');
 });

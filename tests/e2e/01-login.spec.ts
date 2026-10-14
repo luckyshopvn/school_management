@@ -231,9 +231,10 @@ test('CT-15a-11: menu người dùng có Thông báo, Đổi mật khẩu, Cấu
   await expect(page.getByLabel('Số dòng mỗi trang', { exact: true })).toHaveValue('50');
 
   menu = await openUserMenu(page);
-  await menu.getByRole('menuitem', { name: 'Đổi mật khẩu' }).click();
-  await expect(page).toHaveURL(/\/change-password$/);
-  menu = await openUserMenu(page);
   await menu.getByRole('menuitem', { name: 'Thông báo' }).click();
   await expect(page).toHaveURL(/\/notifications$/);
+  // Trang Đổi mật khẩu không có khung trang nên mở sau cùng
+  menu = await openUserMenu(page);
+  await menu.getByRole('menuitem', { name: 'Đổi mật khẩu' }).click();
+  await expect(page).toHaveURL(/\/change-password$/);
 });
