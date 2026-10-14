@@ -14,6 +14,25 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-14 — DT-15 phần 15a: menu ngang đánh số, menu người dùng, lưới dữ liệu dùng chung
+
+#### Công việc đã thực hiện
+
+- Thay thanh điều hướng bên trái của cổng quản trị bằng menu ngang nhiều cấp đánh số theo phân hệ (mười một phân hệ, 66 trang), dùng được bằng chuột và bàn phím, cây menu gập trên màn hình hẹp; menu người dùng ở thanh đầu trang; lưới dữ liệu dùng chung, hộp cấu hình cột, hộp xác nhận xóa; cấu hình lưới lưu theo tài khoản ở cơ sở dữ liệu hệ thống; thí điểm lưới ở Tài khoản và Hồ sơ nhân sự; kiểm thử giao diện mở trang qua trợ giúp `tests/e2e/menu.ts`.
+- Thêm kịch bản CT-340 đến CT-353. Kiểm thử đơn vị toàn bộ 667 ca, 665 đạt (hai ca PQ-10, CTC-DD-041 đã biết chỉ hỏng trên máy phát triển do cơ sở dữ liệu định danh dùng chung, không liên quan phần này); kiểm thử giao diện 77/77 đạt ngày 14/10/2026.
+
+#### Quyết định
+
+- Eric chọn menu ngang đánh số thay thanh điều hướng bên trái ngày 13/10/2026 (`32_KE_HOACH_THEO_HE_THONG_SO.md` mục 2, lựa chọn 1); cây menu, menu người dùng, lưới dữ liệu và bỏ lựa chọn "Tất cả chức năng" Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-107.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-107, `14_DAC_TA_GIAO_DIEN.md` mục 1.1 và BC-10 đến BC-15, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.60.0.
+
+#### Vấn đề tồn đọng
+
+- Menu người dùng chưa có Hồ sơ cá nhân, Danh sách ý kiến đã gửi, Hướng dẫn; các màn hình khác chuyển sang lưới ở phần 15f; nút Xuất Excel, Xuất PDF và thao tác hàng loạt của lưới chưa làm; danh sách tài khoản ở dịch vụ định danh vẫn đọc hết rồi cắt trang.
+
 ### 2026-10-14 — DT-14 phần 14d: hồ sơ trường, khai báo cơ sở vật chất, thiết bị dạy học, biểu EMIS đầu năm
 
 #### Công việc đã thực hiện

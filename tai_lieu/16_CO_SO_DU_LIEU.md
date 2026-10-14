@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.59
+- Phiên bản: 1.60
 - Ngày cập nhật: 2026-10-14
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -18,7 +18,7 @@
 8. Đơn vị tổ chức lưu trong bảng `org_units` thành cây hai cấp (QĐ-23); `unit_type` là loại đơn vị; Trường chính có `parent_id` trống, Phân hiệu và Điểm trường có `parent_id` là Trường chính.
 9. Mỗi năm học một cơ sở dữ liệu nghiệp vụ (QĐ-15). Có ba loại cơ sở dữ liệu:
    - Cơ sở dữ liệu định danh, không theo năm học: `users`, `roles`, `permissions`, `role_permissions`, `user_roles`, `sessions`, `one_time_codes`, `api_clients`, `security_events` (YCTD-35), `identity_audit_logs` (YCTD-39), `identity_settings` (YCTD-40).
-   - Cơ sở dữ liệu hệ thống của máy chủ API, không theo năm học: `academic_year_databases` (QĐ-17), `academic_years`, `academic_terms`, `school_weeks` (YCTD-30), `integration_credentials` (YCTD-95), `user_quick_links` (YCTD-102).
+   - Cơ sở dữ liệu hệ thống của máy chủ API, không theo năm học: `academic_year_databases` (QĐ-17), `academic_years`, `academic_terms`, `school_weeks` (YCTD-30), `integration_credentials` (YCTD-95), `user_quick_links` (YCTD-102), `user_grid_settings` (YCTD-107).
    - Cơ sở dữ liệu năm học: mọi bảng còn lại.
 10. Khi mở năm học mới, dữ liệu chuyển sang giữ nguyên mã định danh (`id`) của đơn vị, trẻ, phụ huynh, nhân sự, danh mục và tài khoản quỹ, để phân quyền ở cơ sở dữ liệu định danh và báo cáo nhiều năm tham chiếu đúng.
 
@@ -32,6 +32,7 @@
 | academic_terms | Học kỳ và kỳ hè của năm học (BR-91) | academic_year_id, term_type (học kỳ 1, học kỳ 2, kỳ hè), start_date, end_date |
 | school_weeks | Tuần học tự đánh số (BR-91) | academic_year_id, week_no, start_date, end_date, is_off (tuần nghỉ), note |
 | user_quick_links | Lối tắt Truy cập nhanh trên trang chủ cổng quản trị của từng tài khoản, lưu ở cơ sở dữ liệu hệ thống để giữ qua các năm học (YCTD-102, tệp `database/system/migrations/0004_create_user_quick_links.ts`) | id, user_id (mã tài khoản ở dịch vụ định danh, không có khóa ngoại vì khác cơ sở dữ liệu), path (trong danh sách cho phép `PORTAL_QUICK_LINK_PATHS`), label (1 đến 100 ký tự), position (từ 0, thứ tự hiển thị), created_at; duy nhất trên user_id, path; tối đa 12 dòng mỗi tài khoản |
+| user_grid_settings | Cấu hình lưới dữ liệu riêng từng tài khoản trên cổng quản trị (cột hiển thị theo thứ tự, số dòng mỗi trang), lưu ở cơ sở dữ liệu hệ thống để giữ qua các năm học (YCTD-107, tệp `database/system/migrations/0005_create_user_grid_settings.ts`) | id, user_id (mã tài khoản ở dịch vụ định danh, không có khóa ngoại vì khác cơ sở dữ liệu), grid_key (1 đến 64 ký tự, thuộc `DATA_GRID_KEYS`: `default` giữ số dòng mặc định cho mọi lưới, `accounts`, `staff`; kiểm tra ở máy chủ API), settings (jsonb đối tượng: `columns` mảng mã cột theo thứ tự, không có là theo mặc định; `page_size` 10, 20, 50, 100 hoặc 200), created_at, updated_at; duy nhất trên user_id, grid_key |
 | departments | Phòng ban | org_unit_id, parent_id (phòng ban cha cùng đơn vị, không tạo vòng), name, status |
 | job_titles | Chức danh | org_unit_id, name (duy nhất trong đơn vị), level (cấp bậc, chữ tự do), status |
 | users | Tài khoản đăng nhập | full_name, phone (duy nhất), username (duy nhất), password_hash (để trống khi phụ huynh còn dùng mật khẩu mặc định chung, YCTD-43), status, last_login_at, failed_login_count, locked_until (hết hạn tạm khóa do sai mật khẩu, YCTD-35), must_change_password, valid_until (bắt buộc với VT-20) |
@@ -405,6 +406,7 @@ erDiagram
 | class_staff_assignments | staff_user_id kèm status, class_id | Giới hạn phạm vi giáo viên theo lớp được phân công |
 | data_access_logs | api_client_id kèm created_at, entity_name kèm entity_id | Tra nhật ký đọc dữ liệu nhạy cảm |
 | user_quick_links | user_id kèm position | Đọc lối tắt của tài khoản theo thứ tự (YCTD-102) |
+| user_grid_settings | user_id kèm grid_key, duy nhất | Một cấu hình mỗi lưới của tài khoản, đọc và ghi đè theo khóa lưới (YCTD-107) |
 | program_completions | class_id | Danh sách và thống kê hoàn thành chương trình theo lớp (YCTD-104) |
 | child_group_members | child_id | Lọc danh sách trẻ theo nhóm, tìm nhóm của trẻ (YCTD-104) |
 | professional_evaluations | org_unit_id | Phiếu chuẩn nghề nghiệp theo đơn vị (YCTD-104) |

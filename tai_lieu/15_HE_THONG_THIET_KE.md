@@ -1,8 +1,8 @@
 # 15. HỆ THỐNG THIẾT KẾ
 
 - Mô tả: Màu sắc, chữ, khoảng cách, thành phần dùng chung, quy tắc thiết kế thống nhất.
-- Phiên bản: 1.0
-- Ngày cập nhật: 2026-10-09
+- Phiên bản: 1.1
+- Ngày cập nhật: 2026-10-14
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -21,7 +21,7 @@
 | Mã | Tên | Giá trị | Dùng cho |
 |---|---|---|---|
 | M-01 | Xanh dương | #0A8BE6 | Màu chính, nền nút hành động chính (chữ trắng), nền thanh đầu trang của cổng quản trị (YCTD-99) |
-| M-02 | Xanh dương đậm | #0670C0 | Trạng thái nhấn của màu chính, chữ của mục đang chọn trên thanh điều hướng |
+| M-02 | Xanh dương đậm | #0670C0 | Trạng thái nhấn của màu chính, chữ và gạch chân của mục đang chọn trên menu ngang của cổng quản trị (YCTD-107) |
 | M-03 | Xanh liên kết | #0A7FD4 | Màu phụ, liên kết, biểu tượng thông tin |
 | M-04 | Xanh lá dịu | #10B981 | Màu phụ thứ hai, vùng tích cực |
 | M-05 | Vàng nhấn | #FFE600 | Tên hệ thống trên thanh đầu trang xanh (YCTD-99) |
@@ -85,7 +85,7 @@ Phông chữ dùng phông hệ thống có hỗ trợ đầy đủ dấu tiếng
 | KC-05 | Đệm trong thẻ | 16 điểm ảnh |
 | KC-06 | Bán kính góc | 8 điểm ảnh cho thành phần nhỏ, 12 điểm ảnh cho thẻ |
 | KC-07 | Chiều rộng vùng nội dung tối đa | 1440 điểm ảnh |
-| KC-08 | Chiều rộng thanh điều hướng bên | 240 điểm ảnh; ẩn hoặc hiện bằng nút ở thanh đầu trang, nhóm chức năng thu gọn được, trình duyệt nhớ lựa chọn (YCTD-99) |
+| KC-08 | Thanh menu ngang của cổng quản trị | Một dòng dưới thanh đầu trang, mục cấp một mở menu sổ xuống, cấp sâu hơn bật sang bên phải; dưới 768 điểm ảnh thay bằng cây menu gập mở từ nút "☰". Thay thanh điều hướng bên rộng 240 điểm ảnh, ẩn hiện được, nhóm thu gọn được của YCTD-99 (YCTD-107) |
 
 ## 5. Thành phần dùng chung
 
@@ -94,10 +94,10 @@ Phông chữ dùng phông hệ thống có hỗ trợ đầy đủ dấu tiếng
 | TD-01 | Nút | Bốn loại: chính, phụ, chỉ chữ, phá hủy. Mỗi màn hình chỉ một nút chính |
 | TD-02 | Ô nhập | Có nhãn phía trên, thông báo lỗi phía dưới, không dùng chỗ giữ chỗ làm nhãn |
 | TD-03 | Ô chọn | Có tìm kiếm khi danh sách trên hai mươi mục |
-| TD-04 | Bảng dữ liệu | Cột đầu cố định khi cuộn ngang, có sắp xếp, có chọn nhiều dòng khi cần |
+| TD-04 | Bảng dữ liệu | Cột đầu cố định khi cuộn ngang, có sắp xếp, có chọn nhiều dòng khi cần. Cổng quản trị dùng lưới dữ liệu dùng chung `DataGrid` ở `packages/ui`: tìm kiếm, Mở rộng tìm kiếm, chọn dòng, thao tác trên dòng, dòng chi tiết, cấu hình cột hiển thị, số dòng mỗi trang 10 đến 200, phân trang; cột và số dòng nhớ theo tài khoản (`14_DAC_TA_GIAO_DIEN.md` BC-13, BC-14; YCTD-107) |
 | TD-05 | Thẻ chỉ số | Nhãn, số liệu lớn, dòng so sánh với kỳ trước |
 | TD-06 | Nhãn trạng thái | Nền nhạt cùng tông với màu trạng thái ở mục 2.3, chữ đậm dùng chính màu trạng thái, luôn kèm chữ, không chỉ dùng màu |
-| TD-07 | Hộp thoại xác nhận | Bắt buộc với hành động không hoàn tác được, có mô tả hậu quả |
+| TD-07 | Hộp thoại xác nhận | Bắt buộc với hành động không hoàn tác được, có mô tả hậu quả. Xóa, gỡ trên cổng quản trị dùng hộp xác nhận xóa dùng chung `ConfirmDeleteDialog`: phải tích ô "Tôi đã đọc và đồng ý xóa <đối tượng>" thì nút Xóa mới bấm được (`14_DAC_TA_GIAO_DIEN.md` BC-15; YCTD-107) |
 | TD-08 | Thông báo nổi | Góc trên bên phải, tự ẩn sau năm giây, không che nút hành động |
 | TD-09 | Khung xương | Dùng khi tải, giữ đúng kích thước nội dung thật |
 | TD-10 | Bộ lọc | Hiển thị số lượng điều kiện đang áp dụng, có nút xóa toàn bộ |
@@ -108,6 +108,7 @@ Phông chữ dùng phông hệ thống có hỗ trợ đầy đủ dấu tiếng
 | TD-15 | Khối rỗng | Hình minh họa nhỏ, một câu giải thích, một nút hành động nếu có |
 | TD-16 | Ô dữ liệu ngành còn trống | Ô mã định danh ngành còn trống có nền đỏ nhạt và chữ "Chưa có mã" màu T-03 (BR-07) |
 | TD-17 | Số định danh đã che | Chỉ hiện bốn số cuối, phần còn lại thay bằng dấu sao; vai trò được xem đầy đủ có nút xem, mỗi lần bấm ghi nhật ký truy cập (BR-81) |
+| TD-18 | Menu ngang đánh số và menu người dùng | Vai trò `menubar`, `menu`, `menuitem` theo WAI-ARIA, dùng được bằng chuột và bàn phím; mục có số thứ bậc 1., 1.1., 1.1.1.; trang đang mở tô sáng ở mục lá và mục cấp một chứa nó; menu người dùng mở từ tên người dùng ở thanh đầu trang (`14_DAC_TA_GIAO_DIEN.md` BC-10 đến BC-12; YCTD-107) |
 
 ## 6. Biểu tượng và hình ảnh
 
