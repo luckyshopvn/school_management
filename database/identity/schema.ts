@@ -21,6 +21,8 @@ export interface UsersTable {
   locked_until: Date | null;
   must_change_password: Generated<boolean>;
   valid_until: ColumnType<string | null, string | null | undefined, string | null>;
+  // Thời điểm đặt mật khẩu gần nhất, dùng tính hạn mật khẩu (YCTD-110)
+  password_changed_at: ColumnType<Date, Date | undefined, Date>;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
   created_by: string | null;
@@ -134,6 +136,14 @@ export interface ApiClientsTable {
   revoked_at: Date | null;
   last_used_at: Date | null;
 }
+// Mật khẩu đã dùng của tài khoản (chỉ giá trị băm), không cho đặt lại (YCTD-110)
+export interface PasswordHistoryTable {
+  id: Generated<string>;
+  user_id: string;
+  password_hash: string;
+  created_at: CreatedTimestamp;
+}
+
 export interface IdentityDatabase {
   users: UsersTable;
   roles: RolesTable;
@@ -146,4 +156,5 @@ export interface IdentityDatabase {
   identity_settings: IdentitySettingsTable;
   one_time_codes: OneTimeCodesTable;
   api_clients: ApiClientsTable;
+  password_history: PasswordHistoryTable;
 }
