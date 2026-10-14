@@ -26,4 +26,15 @@ export class IdentitySettingsController {
   update(@Req() request: AuthenticatedRequest, @Body() body: Record<string, unknown> | undefined) {
     return this.identitySettings.update(this.caller(request), body);
   }
+
+  // Chính sách hạn mật khẩu (YCTD-110); người có quyền quản lý mọi tài khoản đọc và sửa
+  @Get('password-policy')
+  readPasswordPolicy(@Req() request: AuthenticatedRequest) {
+    return this.identitySettings.readPasswordPolicy(this.caller(request));
+  }
+
+  @Put('password-policy')
+  updatePasswordPolicy(@Req() request: AuthenticatedRequest, @Body() body: Record<string, unknown> | undefined) {
+    return this.identitySettings.updatePasswordPolicy(this.caller(request), body);
+  }
 }
