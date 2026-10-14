@@ -250,7 +250,6 @@ function selectStudentColumns(selection: ReturnType<typeof filteredStudents>) {
 const GIVEN_NAME_ORDER = sql`regexp_replace(trim(children.full_name), '^.*\\s', '') collate "vi-x-icu"`;
 const FULL_NAME_ORDER = sql`children.full_name collate "vi-x-icu"`;
 
-
 // Dòng học sinh đọc từ cơ sở dữ liệu, trước khi che số định danh và cột CSDL ngành
 export interface StudentRecord {
   id: string;

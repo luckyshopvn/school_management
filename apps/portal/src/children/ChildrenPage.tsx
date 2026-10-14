@@ -431,9 +431,7 @@ export function ChildrenPage() {
           }}
           activeRowId={openId}
           renderRowDetail={(row) =>
-            openId === row.id ? (
-              <ChildDetailPanel key={row.id} childId={row.id} onChanged={setToastMessage} />
-            ) : null
+            openId === row.id ? <ChildDetailPanel key={row.id} childId={row.id} onChanged={setToastMessage} /> : null
           }
           settings={grid.settings}
           onSettingsChange={grid.update}

@@ -85,7 +85,12 @@ test.beforeAll(async () => {
       .execute();
     const guardian = await schoolYear
       .insertInto('guardians')
-      .values({ full_name: `Mẹ ${fullName}`, phone: `07${String(suffix * 10 + index).padStart(8, '0').slice(-8)}` })
+      .values({
+        full_name: `Mẹ ${fullName}`,
+        phone: `07${String(suffix * 10 + index)
+          .padStart(8, '0')
+          .slice(-8)}`,
+      })
       .returning('id')
       .executeTakeFirstOrThrow();
     await schoolYear

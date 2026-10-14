@@ -288,9 +288,7 @@ export function CreateChildForm({
               {form.guardians.length > 1 ? (
                 <Button
                   variant="text"
-                  onClick={() =>
-                    update({ guardians: form.guardians.filter((_item, position) => position !== index) })
-                  }
+                  onClick={() => update({ guardians: form.guardians.filter((_item, position) => position !== index) })}
                 >
                   Bỏ phụ huynh này
                 </Button>
@@ -324,9 +322,7 @@ export function CreateChildForm({
             }}
           />
         </FormRow>
-        {form.birth_certificate_file_id ? (
-          <p className="text-label text-success md:pl-[12.75rem]">Đã tải lên</p>
-        ) : null}
+        {form.birth_certificate_file_id ? <p className="text-label text-success md:pl-[12.75rem]">Đã tải lên</p> : null}
         {uploadMessage ? <Alert tone="danger">{uploadMessage}</Alert> : null}
         <FormRow label="Dị ứng" error={errors['health.has_allergies']}>
           <span className="flex flex-wrap gap-4 text-label" role="radiogroup" aria-label="Dị ứng">
@@ -362,9 +358,7 @@ export function CreateChildForm({
         <FormRow label="Bệnh nền">
           <input
             value={form.health.chronic_conditions ?? ''}
-            onChange={(event) =>
-              update({ health: { ...form.health, chronic_conditions: event.target.value || null } })
-            }
+            onChange={(event) => update({ health: { ...form.health, chronic_conditions: event.target.value || null } })}
             className={FORM_CONTROL_CLASS}
           />
         </FormRow>

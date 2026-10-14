@@ -244,7 +244,11 @@ export function StudentProfileForm({
         <div className="flex flex-col gap-3">
           {child.status !== 'draft' ? (
             <FormRow label="Lý do sửa thông tin định danh" error={errors.reason}>
-              <input value={reason} onChange={(event) => setReason(event.target.value)} className={FORM_CONTROL_CLASS} />
+              <input
+                value={reason}
+                onChange={(event) => setReason(event.target.value)}
+                className={FORM_CONTROL_CLASS}
+              />
             </FormRow>
           ) : null}
           <div>

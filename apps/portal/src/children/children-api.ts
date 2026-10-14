@@ -69,21 +69,20 @@ export interface ChildEnrollment {
   is_current: boolean;
 }
 
-export interface ChildDetail
-  extends Pick<
-    ChildListItem,
-    | 'id'
-    | 'org_unit_id'
-    | 'full_name'
-    | 'dob'
-    | 'gender'
-    | 'status'
-    | 'national_id_masked'
-    | 'moet_student_code'
-    | 'two_sessions_per_day'
-    | 'boarding'
-    | 'sms_phone'
-  > {
+export interface ChildDetail extends Pick<
+  ChildListItem,
+  | 'id'
+  | 'org_unit_id'
+  | 'full_name'
+  | 'dob'
+  | 'gender'
+  | 'status'
+  | 'national_id_masked'
+  | 'moet_student_code'
+  | 'two_sessions_per_day'
+  | 'boarding'
+  | 'sms_phone'
+> {
   place_of_birth: string | null;
   address: string | null;
   birth_certificate_file_id: string | null;
@@ -273,7 +272,9 @@ export interface MovementPage {
 
 const movementParameters = (filter: MovementFilter) =>
   new URLSearchParams(
-    Object.entries(filter).filter((entry): entry is [string, string] => typeof entry[1] === 'string' && entry[1] !== ''),
+    Object.entries(filter).filter(
+      (entry): entry is [string, string] => typeof entry[1] === 'string' && entry[1] !== '',
+    ),
   );
 
 export function listMovements(filter: MovementFilter, page: number, pageSize: number): Promise<MovementPage> {

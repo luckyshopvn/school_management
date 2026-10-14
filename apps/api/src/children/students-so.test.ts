@@ -228,7 +228,11 @@ describe('Học sinh theo hệ thống của Sở (YCTD-108)', () => {
 
     it('CT-15c-2: lọc theo khối, giới tính, dân tộc, diện chính sách, biết bơi, số định danh; cỡ trang 200', async () => {
       const names = async (query: string) => {
-        const response = await api('GET', `/children?org_unit_id=${units.A}&page_size=200&${query}`, principal.accessToken);
+        const response = await api(
+          'GET',
+          `/children?org_unit_id=${units.A}&page_size=200&${query}`,
+          principal.accessToken,
+        );
         assert.equal(response.status, 200, JSON.stringify(response.body));
         return items(response.body).map((item) => item.full_name);
       };
@@ -243,12 +247,18 @@ describe('Học sinh theo hệ thống của Sở (YCTD-108)', () => {
     });
 
     it('CT-15c-3: bộ lọc sai trả lỗi dữ liệu; vai trò không xem sức khỏe lọc theo dân tộc bị từ chối, không thấy dân tộc', async () => {
-      const invalid = await api('GET', '/children?gender=x&policy=co&national_id=123&page_size=300', principal.accessToken);
-      assert.equal(invalid.status, 400);
-      assert.deepEqual(
-        (errorOf(invalid.body).details ?? []).map((detail) => detail.field).sort(),
-        ['gender', 'national_id', 'page_size', 'policy'],
+      const invalid = await api(
+        'GET',
+        '/children?gender=x&policy=co&national_id=123&page_size=300',
+        principal.accessToken,
       );
+      assert.equal(invalid.status, 400);
+      assert.deepEqual((errorOf(invalid.body).details ?? []).map((detail) => detail.field).sort(), [
+        'gender',
+        'national_id',
+        'page_size',
+        'policy',
+      ]);
       const forbidden = await api('GET', '/children?ethnicity=T%C3%A0y', users.admissions?.accessToken ?? '');
       assert.equal(forbidden.status, 403);
       const visible = await api('GET', `/children?org_unit_id=${units.A}`, users.admissions?.accessToken ?? '');
@@ -269,7 +279,10 @@ describe('Học sinh theo hệ thống của Sở (YCTD-108)', () => {
       assert.equal(response.status, 200, JSON.stringify(response.body));
       assert.equal(response.body.updated, 2);
       const twoSessions = await api('GET', '/children?two_sessions_per_day=true&boarding=true', principal.accessToken);
-      assert.deepEqual(items(twoSessions.body).map((item) => item.full_name), ['Trần Thị An', 'Lê Gia Bảo']);
+      assert.deepEqual(
+        items(twoSessions.body).map((item) => item.full_name),
+        ['Trần Thị An', 'Lê Gia Bảo'],
+      );
       const patched = await api('PATCH', `/children/${children.Bao}`, principal.accessToken, { boarding: false });
       assert.equal(patched.status, 200, JSON.stringify(patched.body));
       assert.equal(patched.body.boarding, false);
@@ -293,12 +306,20 @@ describe('Học sinh theo hệ thống của Sở (YCTD-108)', () => {
       });
       assert.equal(pending.status, 422);
       assert.equal(errorOf(pending.body).rule_code, 'YCTD-108');
-      assert.deepEqual(errorOf(pending.body).details?.map((detail) => detail.message), ['Phạm Đức Dũng']);
+      assert.deepEqual(
+        errorOf(pending.body).details?.map((detail) => detail.message),
+        ['Phạm Đức Dũng'],
+      );
       const anh = await api('GET', `/children/${children.Anh}`, principal.accessToken);
       assert.equal(anh.body.boarding, false);
       const empty = await api('POST', '/children/bulk-update', principal.accessToken, { child_ids: [], boarding: 'x' });
       assert.equal(empty.status, 400);
-      assert.deepEqual(errorOf(empty.body).details?.map((detail) => detail.field).sort(), ['boarding', 'child_ids']);
+      assert.deepEqual(
+        errorOf(empty.body)
+          .details?.map((detail) => detail.field)
+          .sort(),
+        ['boarding', 'child_ids'],
+      );
       const nothing = await api('POST', '/children/bulk-update', principal.accessToken, { child_ids: [children.Anh] });
       assert.equal(nothing.status, 400);
       const teacher = await api('POST', '/children/bulk-update', users.teacher?.accessToken ?? '', {
@@ -339,8 +360,11 @@ describe('Học sinh theo hệ thống của Sở (YCTD-108)', () => {
         404,
       );
       assert.equal(
-        (await api('PUT', `/children/${children.Anh}/sms-guardian`, users.teacher?.accessToken ?? '', { guardian_id: null }))
-          .status,
+        (
+          await api('PUT', `/children/${children.Anh}/sms-guardian`, users.teacher?.accessToken ?? '', {
+            guardian_id: null,
+          })
+        ).status,
         403,
       );
       assert.equal((await api('PUT', `/children/${children.Anh}/sms-guardian`, principal.accessToken, {})).status, 400);
@@ -444,7 +468,11 @@ describe('Học sinh theo hệ thống của Sở (YCTD-108)', () => {
       });
       assert.equal(withdrawn.status, 200, JSON.stringify(withdrawn.body));
 
-      const response = await api('GET', `/student-movements?from=${today}&to=${today}&page_size=50`, principal.accessToken);
+      const response = await api(
+        'GET',
+        `/student-movements?from=${today}&to=${today}&page_size=50`,
+        principal.accessToken,
+      );
       assert.equal(response.status, 200, JSON.stringify(response.body));
       const rows = items(response.body) as Array<Item & { kind: string; from_name: string; to_name: string }>;
       assert.deepEqual(response.body.counts, { enrolled: 4, class_transfer: 1, unit_transfer: 1, withdrawn: 1 });
@@ -462,7 +490,10 @@ describe('Học sinh theo hệ thống của Sở (YCTD-108)', () => {
       assert.equal(leave?.reason, 'Chuyển trường');
 
       const onlyWithdrawn = await api('GET', '/student-movements?kind=withdrawn', principal.accessToken);
-      assert.deepEqual(items(onlyWithdrawn.body).map((row) => row.full_name), ['Nguyễn Minh Ánh']);
+      assert.deepEqual(
+        items(onlyWithdrawn.body).map((row) => row.full_name),
+        ['Nguyễn Minh Ánh'],
+      );
       const earlier = await api('GET', '/student-movements?from=2020-01-01&to=2020-12-31', principal.accessToken);
       assert.equal(earlier.body.total, 0);
       const paged = await api('GET', `/student-movements?page_size=10&page=1&q=An`, principal.accessToken);
@@ -473,7 +504,11 @@ describe('Học sinh theo hệ thống của Sở (YCTD-108)', () => {
     });
 
     it('CT-15c-11: bộ lọc sai trả lỗi dữ liệu; giáo viên không xem được; xuất Excel ghi nhật ký, không có quyền xuất bị từ chối', async () => {
-      const invalid = await api('GET', '/student-movements?from=2026-13-01&to=2020-01-01&kind=x&page_size=7', principal.accessToken);
+      const invalid = await api(
+        'GET',
+        '/student-movements?from=2026-13-01&to=2020-01-01&kind=x&page_size=7',
+        principal.accessToken,
+      );
       assert.equal(invalid.status, 400);
       assert.equal((await api('GET', '/student-movements', users.teacher?.accessToken ?? '')).status, 403);
       const file = await download('/student-movements/export', principal.accessToken, { kind: 'class_transfer' });

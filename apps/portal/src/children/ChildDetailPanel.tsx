@@ -229,7 +229,9 @@ export function ChildDetailPanel({ childId, onChanged }: { childId: string; onCh
             aria-controls={`${tabIdPrefix}-${item.id}-panel`}
             onClick={() => setTab(item.id)}
             className={`-mb-px rounded-t-lg border border-b-0 px-3 py-2 text-content ${
-              tab === item.id ? 'border-border bg-card font-semibold text-text' : 'border-transparent text-text-secondary'
+              tab === item.id
+                ? 'border-border bg-card font-semibold text-text'
+                : 'border-transparent text-text-secondary'
             }`}
           >
             {item.label}
@@ -309,9 +311,7 @@ export function ChildDetailPanel({ childId, onChanged }: { childId: string; onCh
             {data.health.chronic_conditions ? (
               <p className="text-content">Bệnh nền: {data.health.chronic_conditions}</p>
             ) : null}
-            {data.special_needs_note ? (
-              <p className="text-content">Lưu ý chăm sóc: {data.special_needs_note}</p>
-            ) : null}
+            {data.special_needs_note ? <p className="text-content">Lưu ý chăm sóc: {data.special_needs_note}</p> : null}
           </div>
         ) : null}
 
