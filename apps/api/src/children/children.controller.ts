@@ -193,18 +193,20 @@ export class ChildrenController {
       errors.push({ field: 'child_ids', message: `Chọn từ 1 đến ${BULK_LIMIT} học sinh` });
     }
     const changes: { two_sessions_per_day?: boolean; boarding?: boolean } = {};
+    let provided = false;
     for (const field of ['two_sessions_per_day', 'boarding'] as const) {
       const value = body?.[field];
       if (value === undefined || value === null) {
         continue;
       }
+      provided = true;
       if (typeof value !== 'boolean') {
         errors.push({ field, message: 'Chọn có hoặc không' });
       } else {
         changes[field] = value;
       }
     }
-    if (Object.keys(changes).length === 0) {
+    if (!provided) {
       errors.push({ field: 'two_sessions_per_day', message: 'Chọn ít nhất một thông tin cần cập nhật' });
     }
     if (errors.length > 0) {

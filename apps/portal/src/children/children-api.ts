@@ -1,5 +1,5 @@
 import type { MoetProfileEntry } from '../imports/MoetProfileSection.js';
-import { ApiError, requestJson } from '../session/api-client.js';
+import { ApiError, fetchWithSession, readError, requestJson } from '../session/api-client.js';
 
 // Gọi nhóm điểm cuối hồ sơ trẻ và tệp đính kèm của máy chủ API (QT-01, YCTD-45)
 export type ChildStatus = 'draft' | 'pending' | 'active' | 'paused' | 'withdrawn' | 'graduated';
@@ -31,6 +31,20 @@ export interface ChildListItem {
   moet_student_code: string | null;
   class_id: string | null;
   class_name: string | null;
+  // Cột theo danh sách học sinh của Sở (4.1.1, 4.1.4; YCTD-108)
+  org_unit_name: string;
+  grade_level: string | null;
+  grade_name: string | null;
+  two_sessions_per_day: boolean;
+  boarding: boolean;
+  has_birth_certificate: boolean;
+  // Cột CSDL ngành, chỉ nhóm vai trò xem sức khỏe thấy (BR-53)
+  ethnicity: string | null;
+  policy_target: string | null;
+  disability_type: string | null;
+  can_swim: boolean | null;
+  contact_phone: string | null;
+  sms_phone: string | null;
 }
 
 export interface ChildGuardian {
@@ -41,6 +55,8 @@ export interface ChildGuardian {
   is_primary: boolean;
   relationship: string;
   has_account: boolean;
+  // Phụ huynh có điện thoại nhận tin của học sinh (YCTD-108)
+  receives_sms: boolean;
 }
 
 export interface ChildEnrollment {
@@ -53,7 +69,21 @@ export interface ChildEnrollment {
   is_current: boolean;
 }
 
-export interface ChildDetail extends Omit<ChildListItem, 'class_id' | 'class_name'> {
+export interface ChildDetail
+  extends Pick<
+    ChildListItem,
+    | 'id'
+    | 'org_unit_id'
+    | 'full_name'
+    | 'dob'
+    | 'gender'
+    | 'status'
+    | 'national_id_masked'
+    | 'moet_student_code'
+    | 'two_sessions_per_day'
+    | 'boarding'
+    | 'sms_phone'
+  > {
   place_of_birth: string | null;
   address: string | null;
   birth_certificate_file_id: string | null;
@@ -117,32 +147,147 @@ export interface ChildInput {
   confirm_possible_duplicate: boolean;
 }
 
-export function listChildren(filter: {
-  orgUnitId?: string;
-  classId?: string;
-  groupId?: string;
+// Bộ lọc danh sách học sinh (mục 4.1.4 của Sở, YCTD-108); giá trị rỗng là không lọc
+export interface StudentFilter {
+  org_unit_id?: string;
+  class_id?: string;
+  group_id?: string;
   status?: string;
   q?: string;
-  missingBirthCertificate?: boolean;
-  page: number;
-}): Promise<ChildPage> {
-  const parameters = new URLSearchParams({ page: String(filter.page), page_size: '20' });
-  if (filter.missingBirthCertificate) {
-    parameters.set('missing_birth_certificate', 'true');
-  }
-  for (const [key, value] of [
-    ['org_unit_id', filter.orgUnitId],
-    ['class_id', filter.classId],
-    ['group_id', filter.groupId],
-    ['status', filter.status],
-    ['q', filter.q],
-  ] as const) {
-    if (value) {
+  missing_birth_certificate?: boolean;
+  gender?: string;
+  grade_level?: string;
+  ethnicity?: string;
+  policy?: string;
+  disability?: string;
+  two_sessions_per_day?: string;
+  boarding?: string;
+  can_swim?: string;
+  moet_student_code?: string;
+  national_id?: string;
+}
+
+function filterParameters(filter: StudentFilter): URLSearchParams {
+  const parameters = new URLSearchParams();
+  for (const [key, value] of Object.entries(filter)) {
+    if (value === true) {
+      parameters.set(key, 'true');
+    } else if (typeof value === 'string' && value !== '') {
       parameters.set(key, value);
     }
   }
+  return parameters;
+}
+
+export function listChildren(filter: StudentFilter & { page: number; pageSize?: number }): Promise<ChildPage> {
+  const { page, pageSize, ...rest } = filter;
+  const parameters = filterParameters(rest);
+  parameters.set('page', String(page));
+  parameters.set('page_size', String(pageSize ?? 20));
   return requestJson(`/api/v1/children?${parameters.toString()}`);
 }
+
+// Tải tệp do máy chủ tạo; máy chủ ghi nhật ký xuất rồi trả tệp
+async function downloadPost(path: string, body: unknown, fallbackName: string): Promise<void> {
+  const response = await fetchWithSession(path, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!response.ok) {
+    throw await readError(response);
+  }
+  const disposition = response.headers.get('content-disposition') ?? '';
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(await response.blob());
+  link.download = /filename="([^"]+)"/.exec(disposition)?.[1] ?? fallbackName;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 10_000);
+}
+
+// Xuất Excel danh sách học sinh theo bộ lọc và các cột đang hiện trên lưới
+export const exportChildren = (filter: StudentFilter, columns: string[]) =>
+  downloadPost(
+    '/api/v1/children/export',
+    { ...Object.fromEntries(filterParameters(filter)), columns },
+    'danh-sach-hoc-sinh.xlsx',
+  );
+
+// Cập nhật hàng loạt học 2 buổi/ngày, bán trú (mục 4.1.12 của Sở)
+export const bulkUpdateChildren = (
+  childIds: string[],
+  changes: { two_sessions_per_day?: boolean; boarding?: boolean },
+): Promise<{ updated: number }> =>
+  requestJson('/api/v1/children/bulk-update', {
+    method: 'POST',
+    body: JSON.stringify({ child_ids: childIds, ...changes }),
+  });
+
+// Chọn phụ huynh có điện thoại nhận tin (mục 4.1.5 của Sở); null là bỏ chọn
+export const setSmsGuardian = (childId: string, guardianId: string | null): Promise<ChildDetail> =>
+  requestJson(`/api/v1/children/${childId}/sms-guardian`, {
+    method: 'PUT',
+    body: JSON.stringify({ guardian_id: guardianId }),
+  });
+
+// 4.2 Biến động học sinh (YCTD-108)
+export type MovementKind = 'enrolled' | 'class_transfer' | 'unit_transfer' | 'withdrawn';
+
+export const MOVEMENT_KIND_LABELS: Record<MovementKind, string> = {
+  enrolled: 'Nhập học',
+  class_transfer: 'Chuyển lớp',
+  unit_transfer: 'Chuyển đơn vị',
+  withdrawn: 'Thôi học',
+};
+
+export interface StudentMovement {
+  id: string;
+  kind: MovementKind;
+  date: string;
+  child_id: string;
+  full_name: string;
+  dob: string;
+  gender: 'male' | 'female';
+  moet_student_code: string | null;
+  from_name: string | null;
+  to_name: string | null;
+  reason: string | null;
+}
+
+export interface MovementFilter {
+  from?: string;
+  to?: string;
+  kind?: string;
+  org_unit_id?: string;
+  q?: string;
+}
+
+export interface MovementPage {
+  items: StudentMovement[];
+  page: number;
+  total: number;
+  total_pages: number;
+  counts: Record<MovementKind, number>;
+}
+
+const movementParameters = (filter: MovementFilter) =>
+  new URLSearchParams(
+    Object.entries(filter).filter((entry): entry is [string, string] => typeof entry[1] === 'string' && entry[1] !== ''),
+  );
+
+export function listMovements(filter: MovementFilter, page: number, pageSize: number): Promise<MovementPage> {
+  const parameters = movementParameters(filter);
+  parameters.set('page', String(page));
+  parameters.set('page_size', String(pageSize));
+  return requestJson(`/api/v1/student-movements?${parameters.toString()}`);
+}
+
+export const exportMovements = (filter: MovementFilter) =>
+  downloadPost(
+    '/api/v1/student-movements/export',
+    Object.fromEntries(movementParameters(filter)),
+    'bien-dong-hoc-sinh.xlsx',
+  );
 
 export const readChild = (childId: string): Promise<ChildDetail> => requestJson(`/api/v1/children/${childId}`);
 
