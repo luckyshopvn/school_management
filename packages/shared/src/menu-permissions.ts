@@ -15,7 +15,6 @@ export type MenuPermissionRule =
   | { gate: MenuPermissionRule; rule: MenuPermissionRule };
 
 const anyOf = (...rules: MenuPermissionRule[]): MenuPermissionRule => ({ anyOf: rules });
-const allOf = (...rules: MenuPermissionRule[]): MenuPermissionRule => ({ allOf: rules });
 const gated = (gate: MenuPermissionRule, rule: MenuPermissionRule): MenuPermissionRule => ({ gate, rule });
 
 const ACCOUNTS = anyOf('P01.account.manage', 'P01.account.manage-in-unit');
@@ -39,7 +38,6 @@ const FINANCE = anyOf(
   FISCAL_PERIODS,
   LEDGER,
 );
-const ACCOUNTS_AND_RECEIPTS = anyOf('P06.view', 'P06.receipt.manage', 'P06.cash-account.manage');
 
 // Mục có quyền thuộc sẵn cổng (ví dụ Biểu phí cần một quyền xem phí, quyền đó đã thỏa nhóm tài chính) thì viết gọn không
 // kèm cổng; kết quả hiện hay ẩn vẫn như điều kiện cũ

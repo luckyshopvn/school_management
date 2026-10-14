@@ -259,11 +259,18 @@ describe('Điều kiện hiện mục menu theo quyền', () => {
       const has = (code: string) => granted.has(code);
       const legacy = legacyVisibility(has);
       for (const [path, expected] of Object.entries(legacy)) {
-        assert.equal(isMenuPathVisible(path as PortalQuickLinkPath, has), expected, `${path}: ${[...granted].join(',')}`);
+        assert.equal(
+          isMenuPathVisible(path as PortalQuickLinkPath, has),
+          expected,
+          `${path}: ${[...granted].join(',')}`,
+        );
       }
     }
     // Mục chưa từng có điều kiện thì vẫn hiện với mọi người
-    assert.equal(isMenuPathVisible('/leave-requests', () => false), true);
+    assert.equal(
+      isMenuPathVisible('/leave-requests', () => false),
+      true,
+    );
     assert.equal(menuPermissionCodes('/leave-requests').length, 0);
   });
 
