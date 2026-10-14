@@ -1,6 +1,7 @@
 import { expect, test, type Browser, type Page } from '@playwright/test';
 import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
+import { openMenu } from './menu.js';
 
 // Danh mục học phí và tài chính (DT-05 phần 5a, YCTD-49). Chạy sau 06-catalogs.spec.ts: đã có bậc học Mầm
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
@@ -24,7 +25,7 @@ test('Kế toán thêm dịch vụ STEM, tạo biểu phí khối Mầm và lo�
   browser,
 }) => {
   const page = await signInAs(browser, 'VT-04');
-  await page.getByRole('link', { name: 'Biểu phí và dịch vụ' }).click();
+  await openMenu(page, '/fees');
   const services = page.getByRole('region', { name: 'Danh mục dịch vụ' });
   await expect(services.getByRole('row').filter({ hasText: 'BAN_TRU' })).toContainText('Bắt buộc');
   await services.getByLabel('Mã').fill('STEM');
@@ -58,7 +59,7 @@ test('Kế toán thêm dịch vụ STEM, tạo biểu phí khối Mầm và lo�
 
 test('Kế toán trưởng thêm khoản mục thu; quản lý đơn vị chỉ xem', async ({ browser }) => {
   const page = await signInAs(browser, 'VT-05');
-  await page.getByRole('link', { name: 'Khoản mục thu chi' }).click();
+  await openMenu(page, '/cashflow-categories');
   const categories = page.getByRole('region', { name: 'Khoản mục và nhóm thu chi' });
   await categories.getByLabel('Mã').fill('THU_HOC_PHI');
   await categories.getByLabel('Tên khoản mục').fill('Thu học phí');
@@ -67,7 +68,7 @@ test('Kế toán trưởng thêm khoản mục thu; quản lý đơn vị chỉ 
   await expect(categories.getByRole('row').filter({ hasText: 'THU_HOC_PHI' })).toContainText('Thu');
 
   const manager = await signInAs(browser, 'VT-03');
-  await manager.getByRole('link', { name: 'Biểu phí và dịch vụ' }).click();
+  await openMenu(manager, '/fees');
   await expect(manager.getByRole('region', { name: 'Biểu phí' })).toContainText('Biểu phí thử nghiệm');
   await expect(manager.getByRole('button', { name: 'Tạo phiên bản biểu phí' })).toHaveCount(0);
 });

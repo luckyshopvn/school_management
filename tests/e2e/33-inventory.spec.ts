@@ -9,6 +9,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Kho, tài sản và mua hàng (DT-10 phần 10d, YCTD-77): nhân sự lập đề nghị mua hàng, Hiệu trưởng duyệt, thủ kho lập phiếu
 // mua hàng từ đề nghị đã duyệt và nhận hàng vào kho
@@ -51,7 +52,7 @@ test('Nhân sự lập đề nghị mua hàng; Hiệu trưởng duyệt; thủ k
   });
 
   const teacherPage = await signIn(browser, teacher);
-  await teacherPage.getByRole('link', { name: 'Đề nghị mua hàng' }).click();
+  await openMenu(teacherPage, '/purchase-requests');
   await teacherPage.getByLabel('Lý do').fill(reason);
   await teacherPage.getByLabel('Tên mặt hàng').fill('Bút màu sáp');
   await teacherPage.getByLabel('Số lượng').fill('5');
@@ -62,7 +63,7 @@ test('Nhân sự lập đề nghị mua hàng; Hiệu trưởng duyệt; thủ k
   await expect(teacherPage.getByRole('row').filter({ hasText: reason })).toContainText('Chờ duyệt');
 
   const principalPage = await signIn(browser, principal);
-  await principalPage.getByRole('link', { name: 'Đề nghị mua hàng' }).click();
+  await openMenu(principalPage, '/purchase-requests');
   await principalPage.getByRole('tab', { name: 'Chờ duyệt' }).click();
   const pendingRow = principalPage.getByRole('row').filter({ hasText: reason });
   await expect(pendingRow).toContainText('100.000 đồng');
@@ -70,7 +71,7 @@ test('Nhân sự lập đề nghị mua hàng; Hiệu trưởng duyệt; thủ k
   await expect(principalPage.getByText(/Đã duyệt đề nghị DNMH-\d{6}/)).toBeVisible();
 
   const storePage = await signIn(browser, storekeeper);
-  await storePage.getByRole('link', { name: 'Kho và tài sản' }).click();
+  await openMenu(storePage, '/inventory');
   await storePage.getByLabel('Mã mặt hàng').fill(itemCode);
   await storePage.getByLabel('Tên mặt hàng').fill(itemName);
   await storePage.getByLabel('Đơn vị tính').fill('hộp');

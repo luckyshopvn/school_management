@@ -10,6 +10,7 @@ import {
 } from '@school-management/database';
 import { createTestUser, hashForTesting } from '@school-management/identity/testing';
 import { E2E_PARENT_PORT, E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Tuyển sinh trực tuyến (DT-11 phần 11a, YCTD-86): phụ huynh không đăng nhập xem tin tuyển sinh kèm thời hạn (CT-124)
 // và nộp hồ sơ trên ứng dụng phụ huynh; nhân viên tuyển sinh kiêm quản lý đơn vị tiếp nhận, xét đạt và chuyển thành hồ
@@ -144,7 +145,7 @@ test('CT-124, CT-076: phụ huynh nộp hồ sơ trực tuyến; nhà trường 
   await staffPage.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(staff.username);
   await staffPage.getByLabel('Mật khẩu', { exact: true }).fill(staff.password);
   await staffPage.getByRole('button', { name: 'Đăng nhập' }).click();
-  await staffPage.getByRole('link', { name: 'Tuyển sinh', exact: true }).click();
+  await openMenu(staffPage, '/admissions');
   await staffPage.getByLabel('Đợt đang xem').selectOption({ label: `${campaignName} (Đang mở)` });
   await staffPage.getByRole('button', { name: `Xem hồ sơ ${code}` }).click();
   const panel = staffPage.getByRole('region', { name: `Hồ sơ tuyển sinh ${code}` });

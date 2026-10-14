@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
+import { expectNoMenuLink, openMenu } from './menu.js';
 
 // MH-33, MH-34, MH-49, MH-50 các danh mục của P01 (YCTD-42). Chạy sau 03-org-units.spec.ts, khi đã có cây đơn vị.
 const database = createDatabase<IdentityDatabase>(readConnectionString('identity'));
@@ -20,7 +21,7 @@ async function loginWithRole(page: Page, roleCode: string) {
 
 test('Hiệu trưởng tạo phòng ban có phòng ban cha và chức danh của Phân hiệu A', async ({ page }) => {
   await loginWithRole(page, 'VT-02');
-  await page.getByRole('link', { name: 'Phòng ban và chức danh' }).click();
+  await openMenu(page, '/departments');
   await page.getByLabel('Đơn vị', { exact: true }).selectOption({ label: 'Phân hiệu A' });
 
   const departments = page.getByRole('region', { name: 'Phòng ban' });
@@ -50,7 +51,7 @@ test('Hiệu trưởng tạo phòng ban có phòng ban cha và chức danh của
 test('Hiệu trưởng thêm mục danh mục dùng chung, đặt hạn mức phiếu chi, tạo phòng học và bậc học', async ({ page }) => {
   await loginWithRole(page, 'VT-02');
 
-  await page.getByRole('link', { name: 'Danh mục dùng chung' }).click();
+  await openMenu(page, '/catalogs');
   await page.getByLabel('Loại danh mục').selectOption({ label: 'Quan hệ với trẻ' });
   const relationships = page.getByRole('region', { name: 'Quan hệ với trẻ' });
   await relationships.getByLabel('Mã', { exact: true }).fill('ME');
@@ -61,7 +62,7 @@ test('Hiệu trưởng thêm mục danh mục dùng chung, đặt hạn mức ph
   await mother.getByRole('button', { name: 'Ngừng sử dụng' }).click();
   await expect(mother).toContainText('Ngừng sử dụng');
 
-  await page.getByRole('link', { name: 'Hạn mức phê duyệt' }).click();
+  await openMenu(page, '/approval-thresholds');
   await page.getByLabel('Đơn vị', { exact: true }).selectOption({ label: 'Phân hiệu A' });
   const payment = page.getByRole('row').filter({ hasText: /^Phiếu chi/ });
   await expect(payment).toContainText('Chưa cấu hình, Hiệu trưởng phê duyệt');
@@ -69,7 +70,7 @@ test('Hiệu trưởng thêm mục danh mục dùng chung, đặt hạn mức ph
   await payment.getByRole('button', { name: 'Lưu' }).click();
   await expect(page.getByRole('row').filter({ hasText: /^Phiếu chi/ })).toContainText('10.000.000 đồng');
 
-  await page.getByRole('link', { name: 'Phòng học và bậc học' }).click();
+  await openMenu(page, '/rooms');
   await page.getByLabel('Đơn vị', { exact: true }).selectOption({ label: 'Điểm trường A1' });
   const rooms = page.getByRole('region', { name: 'Phòng học' });
   await rooms.getByLabel('Mã phòng').fill('P101');
@@ -90,7 +91,7 @@ test('Hiệu trưởng thêm mục danh mục dùng chung, đặt hạn mức ph
 
 test('Giáo viên không thấy các mục danh mục', async ({ page }) => {
   await loginWithRole(page, 'VT-07');
-  for (const name of ['Phòng ban và chức danh', 'Danh mục dùng chung', 'Hạn mức phê duyệt', 'Phòng học và bậc học']) {
-    await expect(page.getByRole('link', { name })).toHaveCount(0);
+  for (const path of ['/departments', '/catalogs', '/approval-thresholds', '/rooms']) {
+    await expectNoMenuLink(page, path);
   }
 });

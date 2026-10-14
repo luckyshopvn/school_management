@@ -9,6 +9,7 @@ import {
 } from '@school-management/database';
 import { createTestUser, hashForTesting } from '@school-management/identity/testing';
 import { E2E_PARENT_PORT, E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // QT-01 tiếp nhận trẻ mới (DT-03 phần 3b, YCTD-45): tuyển sinh lập hồ sơ, quản lý đơn vị duyệt vào lớp, phụ huynh đăng nhập lần đầu.
 // Chạy sau 08-classes.spec.ts, khi Phân hiệu A đã có lớp Mầm 1.
@@ -91,7 +92,7 @@ test('Tuyển sinh lập hồ sơ, quản lý đơn vị duyệt vào lớp Mầ
     .padStart(8, '0')}`;
 
   const admissions = await signInAs(browser, 'VT-12');
-  await admissions.getByRole('link', { name: 'Hồ sơ trẻ' }).click();
+  await openMenu(admissions, '/children');
   await admissions.getByRole('button', { name: 'Tạo hồ sơ mới' }).click();
   const form = admissions.getByRole('form', { name: 'Biểu mẫu hồ sơ trẻ' });
   await form.getByLabel('Họ tên trẻ').fill('Nguyễn Gia Bảo');
@@ -122,7 +123,7 @@ test('Tuyển sinh lập hồ sơ, quản lý đơn vị duyệt vào lớp Mầ
   await expect(detail).toContainText('Chờ duyệt');
 
   const manager = await signInAs(browser, 'VT-03');
-  await manager.getByRole('link', { name: 'Hồ sơ trẻ' }).click();
+  await openMenu(manager, '/children');
   await manager.getByRole('combobox', { name: /^Trạng thái/ }).selectOption({ label: 'Chờ duyệt' });
   await manager.getByRole('row').filter({ hasText: 'Nguyễn Gia Bảo' }).click();
   const pending = manager.getByRole('region', { name: 'Hồ sơ Nguyễn Gia Bảo' });
@@ -143,7 +144,7 @@ test('Tuyển sinh lập hồ sơ, quản lý đơn vị duyệt vào lớp Mầ
 
 test('Giáo viên không có nút tạo hồ sơ và không xem được số định danh đầy đủ', async ({ browser }) => {
   const teacher = await signInAs(browser, 'VT-07');
-  await teacher.getByRole('link', { name: 'Hồ sơ trẻ' }).click();
+  await openMenu(teacher, '/children');
   await expect(teacher.getByRole('heading', { name: 'Hồ sơ trẻ' })).toBeVisible();
   await expect(teacher.getByRole('button', { name: 'Tạo hồ sơ mới' })).toHaveCount(0);
 });

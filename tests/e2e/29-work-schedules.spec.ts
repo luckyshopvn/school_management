@@ -9,6 +9,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_TEACHER_PORT } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Lịch nghỉ và lịch công tác (DT-09 phần 9c, YCTD-68): phòng nhân sự lập và công bố trên cổng quản trị; giáo viên xem trên
 // ứng dụng giáo viên
@@ -59,7 +60,7 @@ test('Phòng nhân sự lập và công bố lịch công tác; giáo viên th�
   await page.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(personnel.username);
   await page.getByLabel('Mật khẩu', { exact: true }).fill(personnel.password);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
-  await page.getByRole('link', { name: 'Lịch công tác' }).click();
+  await openMenu(page, '/work-schedules');
   await page.getByLabel('Tháng của lịch').fill(nextMonth);
   const form = page.getByRole('form', { name: 'Thêm lịch' });
   await form.getByLabel('Nhân sự').selectOption({ label: fullName });

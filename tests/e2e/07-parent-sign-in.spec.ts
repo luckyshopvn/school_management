@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
 import { createTestUser, hashForTesting } from '@school-management/identity/testing';
 import { E2E_PARENT_PORT } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // DT-02: mật khẩu mặc định của phụ huynh, kích hoạt tài khoản, đăng nhập bằng mã một lần (PQ-06, XT-09, YCTD-43).
 // Chạy sau 03-org-units.spec.ts, khi đã có cây đơn vị.
@@ -44,14 +45,14 @@ test('Hiệu trưởng đặt mật khẩu mặc định và tạo tài khoản 
   page,
 }) => {
   await loginToPortal(page);
-  await page.getByRole('link', { name: 'Cấu hình' }).click();
+  await openMenu(page, '/settings');
   const accountSettings = page.getByRole('region', { name: 'Cấu hình tài khoản' });
   await accountSettings.getByLabel('Mật khẩu mặc định mới').fill(DEFAULT_PASSWORD);
   await accountSettings.getByRole('button', { name: 'Đặt mật khẩu mặc định' }).click();
   await expect(accountSettings).toContainText('Đã đặt.');
   await expect(accountSettings.getByLabel('Số phút mã một lần còn hiệu lực')).toHaveValue('5');
 
-  await page.getByRole('link', { name: 'Tài khoản' }).click();
+  await openMenu(page, '/accounts');
   const phone = `09${Math.floor(Math.random() * 100_000_000)
     .toString()
     .padStart(8, '0')}`;

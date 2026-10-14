@@ -9,6 +9,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_TEACHER_PORT } from '../e2e-environment.mjs';
+import { expectNoMenuLink, openMenu } from './menu.js';
 
 // Bảng lương toàn trường (DT-06 phần 6c-1, YCTD-60): kế toán tính bảng lương tháng này sau khi tháng trước đã chốt công
 // (kiểm thử 21), trình duyệt; Hiệu trưởng duyệt; giáo viên thấy phiếu lương của mình
@@ -76,7 +77,7 @@ test('Kế toán tính và trình bảng lương; Hiệu trưởng duyệt; giá
   }
 
   const page = await signIn(browser, accountant);
-  await page.getByRole('link', { name: 'Bảng lương' }).click();
+  await openMenu(page, '/payrolls');
   await page.getByLabel('Tháng lương').fill(vietnamToday.slice(0, 7));
   await page.getByRole('button', { name: 'Tính bảng lương' }).click();
   const row = page.getByRole('row', { name: `Lương của ${fullName}` });
@@ -85,22 +86,22 @@ test('Kế toán tính và trình bảng lương; Hiệu trưởng duyệt; giá
   await expect(page.getByText('Cần Hiệu trưởng duyệt')).toBeVisible();
 
   const principalPage = await signIn(browser, principal);
-  await principalPage.getByRole('link', { name: 'Bảng lương' }).click();
+  await openMenu(principalPage, '/payrolls');
   await principalPage.getByRole('button', { name: 'Duyệt bảng lương' }).click();
   await expect(principalPage.getByText('Trạng thái: Đã duyệt')).toBeVisible();
 
   const teacherPage = await signIn(browser, teacher);
-  await teacherPage.getByRole('link', { name: 'Phiếu lương của tôi' }).click();
+  await openMenu(teacherPage, '/my-payslips');
   const month = Number(vietnamToday.slice(5, 7));
   const slip = teacherPage.getByRole('region', { name: `Phiếu lương tháng ${month}/${vietnamToday.slice(0, 4)}` });
   await expect(slip).toContainText('10.000.000');
   await slip.getByRole('button', { name: 'Chi tiết' }).click();
   await expect(slip).toContainText('Lương hợp đồng');
-  await expect(teacherPage.getByRole('link', { name: 'Bảng lương' })).toHaveCount(0);
+  await expectNoMenuLink(teacherPage, '/payrolls');
 
   const slipTitle = `Phiếu lương tháng ${month}/${vietnamToday.slice(0, 4)}`;
   const personnelPage = await signIn(browser, personnel);
-  await personnelPage.getByRole('link', { name: 'Phiếu lương của tôi' }).click();
+  await openMenu(personnelPage, '/my-payslips');
   await expect(personnelPage.getByRole('region', { name: slipTitle })).toContainText('9.000.000');
 
   const teacherApp = await (await browser.newContext()).newPage();

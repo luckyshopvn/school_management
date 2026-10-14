@@ -5,3 +5,13 @@ export { ConfirmDialog, type ConfirmDialogProperties } from './ConfirmDialog.js'
 export { StatusBadge, type StatusTone } from './StatusBadge.js';
 export { TextField, type TextFieldProperties } from './TextField.js';
 export { Toast } from './Toast.js';
+export { ConfirmDeleteDialog, type ConfirmDeleteDialogProperties } from './ConfirmDeleteDialog.js';
+export {
+  DATA_GRID_PAGE_SIZE_OPTIONS,
+  DataGrid,
+  GridDisplaySettingsDialog,
+  resolveVisibleColumns,
+  type DataGridColumn,
+  type DataGridProperties,
+  type DataGridViewSettings,
+} from './DataGrid.js';

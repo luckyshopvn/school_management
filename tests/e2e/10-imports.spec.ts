@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import ExcelJS from 'exceljs';
 import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
 import { createTestUser, hashForTesting } from '@school-management/identity/testing';
+import { openMenu } from './menu.js';
 
 // MH-40 Nhập dữ liệu ban đầu từ Excel (P01-13, YCTD-46). Chạy sau 09-children.spec.ts, khi đã có Phân hiệu A,
 // bậc học MAM và quan hệ "Bố"
@@ -65,7 +66,7 @@ test('Hiệu trưởng nhập lớp rồi nhập trẻ kèm phụ huynh; trẻ n
   await page.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(principal.username);
   await page.getByLabel('Mật khẩu', { exact: true }).fill(principal.password);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
-  await page.getByRole('link', { name: 'Nhập dữ liệu' }).click();
+  await openMenu(page, '/imports');
 
   const classes = await upload(
     page,
@@ -142,7 +143,7 @@ test('Hiệu trưởng nhập lớp rồi nhập trẻ kèm phụ huynh; trẻ n
   await children.getByRole('button', { name: 'Ghi dữ liệu' }).click();
   await expect(children).toContainText('Đã ghi dữ liệu');
 
-  await page.getByRole('link', { name: 'Hồ sơ trẻ' }).click();
+  await openMenu(page, '/children');
   await page.getByLabel('Thiếu giấy khai sinh').check();
   const imported = page.getByRole('row').filter({ hasText: 'Trần Minh Khang' });
   await expect(imported).toContainText('Đang học');

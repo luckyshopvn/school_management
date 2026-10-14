@@ -9,6 +9,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Kết nối ngoài (DT-11 phần 11e, YCTD-90; CT-202, CT-203): Hiệu trưởng bật Fanpage trên trang Kết nối ngoài; quản lý đơn
 // vị đăng hoạt động đã công bố lên Fanpage (máy chủ kiểm thử dùng bộ giả lập FACEBOOK_PUBLISHER=development)
@@ -65,7 +66,7 @@ test('Hiệu trưởng bật Fanpage; quản lý đơn vị đăng hoạt độn
   await principalPage.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(principal.username);
   await principalPage.getByLabel('Mật khẩu', { exact: true }).fill(principal.password);
   await principalPage.getByRole('button', { name: 'Đăng nhập' }).click();
-  await principalPage.getByRole('link', { name: 'Kết nối ngoài' }).click();
+  await openMenu(principalPage, '/integrations');
   const facebookForm = principalPage.getByRole('form', { name: 'Fanpage Facebook' });
   await expect(facebookForm).toContainText('Đã có khóa truy cập ở máy chủ');
   await facebookForm.getByLabel('Bật kết nối Fanpage Facebook').check();
@@ -79,7 +80,7 @@ test('Hiệu trưởng bật Fanpage; quản lý đơn vị đăng hoạt độn
   await managerPage.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(manager.username);
   await managerPage.getByLabel('Mật khẩu', { exact: true }).fill(manager.password);
   await managerPage.getByRole('button', { name: 'Đăng nhập' }).click();
-  await managerPage.getByRole('link', { name: 'Hoạt động và tin tức' }).click();
+  await openMenu(managerPage, '/activities');
   await managerPage.getByLabel('Trạng thái').selectOption('published');
   const article = managerPage.getByRole('article', { name: title });
   await article.getByRole('button', { name: 'Đăng lên Fanpage' }).click();

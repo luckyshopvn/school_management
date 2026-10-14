@@ -10,6 +10,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Tài chính giai đoạn 2 (DT-10 phần 10i, YCTD-82): kế toán gửi nhắc nợ cho hóa đơn quá hạn và lập đề xuất xử lý; Phó Hiệu
 // trưởng ghi quyết định trên trang Nhắc nợ và xử lý quá hạn (MH-08); số tiền công nợ không đổi
@@ -85,7 +86,7 @@ test('Kế toán nhắc nợ và đề xuất xử lý công nợ quá hạn; Ph
     .execute();
 
   const accountantPage = await signIn(browser, accountant);
-  await accountantPage.getByRole('link', { name: 'Nhắc nợ và xử lý quá hạn' }).click();
+  await openMenu(accountantPage, '/debt-collection');
   const reminders = accountantPage.getByRole('region', { name: 'Danh sách nhắc nợ' });
   const row = reminders.getByRole('row').filter({ hasText: childName });
   await expect(row).toContainText('Cần nhắc mốc 7');
@@ -104,7 +105,7 @@ test('Kế toán nhắc nợ và đề xuất xử lý công nợ quá hạn; Ph
   await expect(proposal.getByRole('button', { name: 'Ghi quyết định' })).toHaveCount(0);
 
   const vicePage = await signIn(browser, vicePrincipal);
-  await vicePage.getByRole('link', { name: 'Nhắc nợ và xử lý quá hạn' }).click();
+  await openMenu(vicePage, '/debt-collection');
   const pending = vicePage
     .getByRole('region', { name: 'Đề xuất xử lý công nợ quá hạn' })
     .getByRole('listitem')

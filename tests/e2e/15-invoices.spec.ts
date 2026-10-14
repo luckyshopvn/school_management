@@ -10,6 +10,7 @@ import {
 } from '@school-management/database';
 import { createTestUser, hashForTesting, TEST_PASSWORD } from '@school-management/identity/testing';
 import { E2E_PARENT_PORT, E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Xem hóa đơn, lập và duyệt miễn giảm trên cổng quản trị, xem trên ứng dụng phụ huynh (DT-05 phần 5c, YCTD-51, YCTD-52). Tính học phí cần một tháng đã qua
 // chốt đủ điểm danh nên đã kiểm thử ở apps/api/src/fees/fee-calculation.test.ts; ở đây ghi sẵn một hóa đơn đã phát hành
@@ -96,7 +97,7 @@ test('Kế toán xem bảng học phí kỳ có hóa đơn đã phát hành; ph�
   await portal.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(accountant.username);
   await portal.getByLabel('Mật khẩu', { exact: true }).fill(accountant.password);
   await portal.getByRole('button', { name: 'Đăng nhập' }).click();
-  await portal.getByRole('link', { name: 'Học phí' }).click();
+  await openMenu(portal, '/invoices');
   await portal.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
   await portal.getByRole('combobox', { name: /^Kỳ/ }).selectOption(PERIOD);
   const sheet = portal.getByRole('region', { name: 'Bảng tính học phí' });
@@ -120,7 +121,7 @@ test('Kế toán xem bảng học phí kỳ có hóa đơn đã phát hành; ph�
   await approver.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(principal.username);
   await approver.getByLabel('Mật khẩu', { exact: true }).fill(principal.password);
   await approver.getByRole('button', { name: 'Đăng nhập' }).click();
-  await approver.getByRole('link', { name: 'Duyệt miễn giảm và điều chỉnh' }).click();
+  await openMenu(approver, '/fee-approvals');
   await approver.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
   const request = approver.getByRole('group', { name: `Miễn giảm của ${CHILD_NAME}` });
   await expect(request).toContainText('Có anh ruột cùng học');

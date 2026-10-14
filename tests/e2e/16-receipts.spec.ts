@@ -9,6 +9,7 @@ import {
 } from '@school-management/database';
 import { createTestUser, TEST_PASSWORD } from '@school-management/identity/testing';
 import { E2E_PARENT_PORT, E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Khai báo quỹ, lập phiếu thu từ màn hình công nợ, phụ huynh thấy hóa đơn đã thu đủ (DT-05 phần 5d-1, YCTD-53).
 // Dùng hóa đơn HD-900001 còn phải nộp 2 893 000 sau miễn giảm (15-invoices.spec.ts) và khoản mục thu của 13-fees.spec.ts
@@ -47,7 +48,7 @@ test('Kế toán khai báo quỹ, thu đủ hóa đơn từ màn hình công n�
   await portal.getByLabel('Mật khẩu', { exact: true }).fill(accountant.password);
   await portal.getByRole('button', { name: 'Đăng nhập' }).click();
 
-  await portal.getByRole('link', { name: 'Quỹ và ngân hàng' }).click();
+  await openMenu(portal, '/cash-accounts');
   await portal.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
   const accounts = portal.getByRole('region', { name: 'Quỹ và tài khoản của đơn vị' });
   await accounts.getByLabel('Tên quỹ hoặc tài khoản').fill('Quỹ tiền mặt cơ sở');
@@ -55,7 +56,7 @@ test('Kế toán khai báo quỹ, thu đủ hóa đơn từ màn hình công n�
   await accounts.getByRole('button', { name: 'Thêm' }).click();
   await expect(accounts.getByRole('row').filter({ hasText: 'Quỹ tiền mặt cơ sở' })).toContainText('1.000.000');
 
-  await portal.getByRole('link', { name: 'Công nợ' }).click();
+  await openMenu(portal, '/debts');
   await portal.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
   const row = portal.getByRole('row', { name: `Công nợ ${CHILD_NAME}` });
   await expect(row).toContainText('2.893.000');
@@ -70,7 +71,7 @@ test('Kế toán khai báo quỹ, thu đủ hóa đơn từ màn hình công n�
   await expect(panel).toContainText('Đã thu đủ');
   await expect(panel.getByRole('listitem').filter({ hasText: 'PT-' })).toContainText('2.893.000');
 
-  await portal.getByRole('link', { name: 'Quỹ và ngân hàng' }).click();
+  await openMenu(portal, '/cash-accounts');
   await portal.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
   await expect(
     portal.getByRole('region', { name: 'Quỹ và tài khoản của đơn vị' }).getByRole('row').filter({
@@ -109,7 +110,7 @@ test('Kế toán lập phiếu đảo phiếu thu; Hiệu trưởng duyệt thì
   };
 
   const accountant = await signIn('VT-04', child.org_unit_id);
-  await accountant.getByRole('link', { name: 'Phiếu thu' }).click();
+  await openMenu(accountant, '/receipts');
   await accountant.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
   const list = accountant.getByRole('region', { name: 'Danh sách phiếu thu' });
   const row = list.getByRole('row').filter({ hasText: CHILD_NAME }).filter({ hasText: '2.893.000' });
@@ -119,7 +120,7 @@ test('Kế toán lập phiếu đảo phiếu thu; Hiệu trưởng duyệt thì
   await expect(row).toContainText('Chờ duyệt đảo');
 
   const principal = await signIn('VT-02', null);
-  await principal.getByRole('link', { name: 'Phiếu thu' }).click();
+  await openMenu(principal, '/receipts');
   await principal.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
   const request = principal.getByRole('region', { name: 'Phiếu đảo chờ duyệt' }).getByRole('group');
   await expect(request).toContainText('Ghi nhầm người nộp');
@@ -130,7 +131,7 @@ test('Kế toán lập phiếu đảo phiếu thu; Hiệu trưởng duyệt thì
     principal.getByRole('region', { name: 'Danh sách phiếu thu' }).getByRole('row').filter({ hasText: CHILD_NAME }),
   ).toContainText('Đã đảo');
 
-  await accountant.getByRole('link', { name: 'Công nợ' }).click();
+  await openMenu(accountant, '/debts');
   await accountant.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
   await accountant
     .getByRole('row', { name: `Công nợ ${CHILD_NAME}` })

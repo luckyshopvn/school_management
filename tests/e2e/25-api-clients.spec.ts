@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
+import { openMenu } from './menu.js';
 
 // Khóa API cho đối tác (DT-07 phần 7b, YCTD-63): Hiệu trưởng cấp khóa, thấy khóa một lần, thu hồi khóa. Kiểm thử xóa
 // khóa đã tạo để trả lại dữ liệu dùng chung của cơ sở dữ liệu định danh
@@ -25,7 +26,7 @@ test('Hiệu trưởng cấp khóa API cho đối tác, thấy khóa một lần
   await page.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(principal.username);
   await page.getByLabel('Mật khẩu', { exact: true }).fill(principal.password);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
-  await page.getByRole('link', { name: 'Khóa API cho đối tác' }).click();
+  await openMenu(page, '/api-clients');
   const form = page.getByRole('form', { name: 'Cấp khóa API' });
   await form.getByLabel('Tên đối tác').fill(partnerName);
   await form.getByLabel('Loại đối tác').fill('Cơ quan quản lý');

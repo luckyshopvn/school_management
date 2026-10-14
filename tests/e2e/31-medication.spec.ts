@@ -10,6 +10,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_PARENT_PORT, E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Dặn thuốc (DT-10 phần 10b, YCTD-75): phụ huynh gửi yêu cầu dặn thuốc kèm ảnh thuốc trên ứng dụng phụ huynh; y tế nhận
 // thuốc và ghi liều trên cổng quản trị; phụ huynh thấy liều đã cho uống
@@ -114,7 +115,7 @@ test('Phụ huynh gửi dặn thuốc kèm ảnh; y tế nhận thuốc và ghi 
   await nursePage.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(nurse.username);
   await nursePage.getByLabel('Mật khẩu', { exact: true }).fill(nurse.password);
   await nursePage.getByRole('button', { name: 'Đăng nhập' }).click();
-  await nursePage.getByRole('link', { name: 'Thuốc và dặn thuốc' }).click();
+  await openMenu(nursePage, '/medicines');
   const requestRow = nursePage.getByRole('row').filter({ hasText: medicineName });
   await expect(requestRow).toContainText(childName);
   await requestRow.getByRole('button', { name: 'Nhận thuốc' }).click();

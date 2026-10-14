@@ -111,8 +111,9 @@ export class AccountsController {
     if (!Number.isInteger(page) || page < 1) {
       errors.push({ field: 'page', message: 'Số trang bắt đầu từ 1' });
     }
-    if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 100) {
-      errors.push({ field: 'page_size', message: 'Cỡ trang từ 1 đến 100' });
+    // Tối đa 200 dòng mỗi trang theo lưới dữ liệu dùng chung (DT-15 phần 15a)
+    if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 200) {
+      errors.push({ field: 'page_size', message: 'Cỡ trang từ 1 đến 200' });
     }
     if (query.status !== undefined && query.status !== 'active' && query.status !== 'locked') {
       errors.push({ field: 'status', message: 'Trạng thái là active hoặc locked' });

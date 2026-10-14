@@ -14,6 +14,7 @@ import {
   E2E_PARENT_PORT,
   E2E_SCHOOL_YEAR_DATABASE_PREFIX,
 } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Kế toán toàn trường chọn tài khoản nhận thanh toán trực tuyến; phụ huynh mở mã QR của HD-900001 (còn 2 893 000 sau khi
 // đảo phiếu thu ở 16-receipts.spec.ts); giả lập tiền vào qua bộ giả lập nhà cung cấp thì hóa đơn đã thu đủ (DT-05 phần 5f,
@@ -69,7 +70,7 @@ test('Phụ huynh thanh toán hóa đơn bằng mã QR; tiền vào khớp thì 
   await portal.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(accountant.username);
   await portal.getByLabel('Mật khẩu', { exact: true }).fill(accountant.password);
   await portal.getByRole('button', { name: 'Đăng nhập' }).click();
-  await portal.getByRole('link', { name: 'Quỹ và ngân hàng' }).click();
+  await openMenu(portal, '/cash-accounts');
   await portal.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: root.name });
   const settings = portal.getByRole('region', { name: 'Tài khoản nhận thanh toán trực tuyến' });
   await expect(settings.getByRole('combobox', { name: /^Tài khoản ngân hàng/ })).toContainText('Tài khoản thu học phí');

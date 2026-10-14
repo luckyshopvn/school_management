@@ -9,6 +9,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Đơn nghỉ phép và chốt bảng công (DT-06 phần 6b-2, YCTD-59): giáo viên gửi đơn nghỉ không lương, Phó Hiệu trưởng
 // duyệt; phòng nhân sự chốt bảng công tháng trước
@@ -91,7 +92,7 @@ test('Giáo viên gửi đơn nghỉ, Phó Hiệu trưởng duyệt; phòng nhâ
   }
 
   const teacherPage = await signIn(browser, teacher);
-  await teacherPage.getByRole('link', { name: 'Đơn nghỉ phép' }).click();
+  await openMenu(teacherPage, '/leave-requests');
   const form = teacherPage.getByRole('form', { name: 'Gửi đơn nghỉ của tôi' });
   await form.getByLabel('Loại nghỉ').selectOption({ label: leaveTypeName });
   await form.getByLabel('Từ ngày').fill(nextMonday);
@@ -101,7 +102,7 @@ test('Giáo viên gửi đơn nghỉ, Phó Hiệu trưởng duyệt; phòng nhâ
   await expect(mine.getByRole('row', { name: `Đơn nghỉ của ${fullName} ${nextMonday}` })).toContainText('Chờ duyệt');
 
   const vicePage = await signIn(browser, vicePrincipal);
-  await vicePage.getByRole('link', { name: 'Đơn nghỉ phép' }).click();
+  await openMenu(vicePage, '/leave-requests');
   const unitSection = vicePage.getByRole('region', { name: 'Đơn nghỉ của đơn vị' });
   await unitSection.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: unit.name });
   await unitSection.getByLabel('Trạng thái đơn').selectOption('');
@@ -110,7 +111,7 @@ test('Giáo viên gửi đơn nghỉ, Phó Hiệu trưởng duyệt; phòng nhâ
   await expect(row).toContainText('Đã duyệt');
 
   const page = await signIn(browser, personnel);
-  await page.getByRole('link', { name: 'Chấm công' }).click();
+  await openMenu(page, '/staff-attendance');
   await page.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: unit.name });
   await page.getByLabel('Tháng của bảng').fill(previousMonth);
   const period = page.getByRole('region', { name: 'Kỳ công' });

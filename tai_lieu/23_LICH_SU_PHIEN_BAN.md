@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.60.0 – 2026-10-14
+
+- Phạm vi thay đổi: DT-15 phần 15a, khung chung của cổng quản trị theo hệ thống của Sở: menu ngang đánh số, menu người dùng, lưới dữ liệu dùng chung, cấu hình lưới theo người dùng (YCTD-107).
+- Chức năng mới: menu ngang nhiều cấp đánh số theo phân hệ thay thanh điều hướng bên trái, dùng được bằng chuột và bàn phím, cây menu gập trên màn hình hẹp; menu người dùng (Thông báo, Đổi mật khẩu, Cấu hình hiển thị lưới, Thoát); lưới dữ liệu dùng chung (tìm kiếm, mở rộng tìm kiếm, chọn dòng, cấu hình cột hiển thị, số dòng mỗi trang 10 đến 200) và hộp xác nhận xóa có ô "Tôi đã đọc và đồng ý xóa"; cấu hình lưới lưu theo tài khoản; thí điểm lưới ở Tài khoản và Hồ sơ nhân sự (P19, P01, P07).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: bảng mới `user_grid_settings` ở cơ sở dữ liệu hệ thống (tệp 0005).
+- Thay đổi API: thêm `GET`, `PUT /me/grid-settings/{gridKey}`; `GET /users` của dịch vụ định danh nhận `page_size` đến 200.
+- Rủi ro: người dùng quen thanh điều hướng bên trái cần làm quen menu ngang; danh sách tài khoản ở dịch vụ định danh vẫn đọc hết rồi cắt trang nên có lúc chậm khi có rất nhiều tài khoản; menu cấp ba ở mục cuối thanh có thể tràn khỏi màn hình rộng vừa đủ.
+- Khả năng tương thích: đường dẫn các trang và lối tắt Truy cập nhanh giữ nguyên; lựa chọn ẩn thanh điều hướng, nhóm thu gọn (YCTD-99) và lựa chọn "Tất cả chức năng" của ô Phân hệ (YCTD-101) không còn dùng, giá trị cũ đã lưu thì dùng phân hệ đầu tiên người dùng được thấy; gỡ vai trò ở Tài khoản thêm bước xác nhận.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-15-phan-15a`; bảng `user_grid_settings` để lại không ảnh hưởng.
+
 ### Phiên bản 0.59.0 – 2026-10-14
 
 - Phạm vi thay đổi: DT-14 phần 14d, hồ sơ trường, khai báo cơ sở vật chất, thiết bị dạy học, biểu EMIS đầu năm (YCTD-106).

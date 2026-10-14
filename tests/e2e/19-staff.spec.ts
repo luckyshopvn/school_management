@@ -9,6 +9,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Phòng nhân sự tạo hồ sơ, liên kết tài khoản giáo viên, lập rồi chấm dứt hợp đồng; tài khoản bị khóa (DT-06 phần 6a,
 // YCTD-58)
@@ -45,7 +46,7 @@ test('Phòng nhân sự tạo hồ sơ, liên kết tài khoản, lập và ch�
   await page.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(personnel.username);
   await page.getByLabel('Mật khẩu', { exact: true }).fill(personnel.password);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
-  await page.getByRole('link', { name: 'Hồ sơ nhân sự' }).click();
+  await openMenu(page, '/staff');
   await page.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: unit.name });
   const form = page.getByRole('form', { name: 'Thêm hồ sơ nhân sự' });
   await form.getByLabel('Mã nhân sự').fill(code);

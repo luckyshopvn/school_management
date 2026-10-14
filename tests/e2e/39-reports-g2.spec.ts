@@ -9,6 +9,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Báo cáo giai đoạn 2 (DT-10 phần 10j, YCTD-83): quản lý đơn vị xem báo cáo hoạt động; cán bộ quản lý cấp trên xem báo
 // cáo hợp nhất, không thấy báo cáo có dữ liệu cá nhân; Hiệu trưởng xuất báo cáo hợp nhất ra Excel và thấy nhật ký xuất
@@ -48,7 +49,7 @@ test('Báo cáo hoạt động, báo cáo hợp nhất và xuất dữ liệu c�
   const principal = await createTestUser(identity, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
 
   const managerPage = await signIn(browser, manager);
-  await managerPage.getByRole('link', { name: 'Báo cáo' }).click();
+  await openMenu(managerPage, '/reports');
   await managerPage.getByRole('tab', { name: 'Hoạt động và công việc' }).click();
   await managerPage.getByRole('button', { name: 'Xem báo cáo' }).click();
   await expect(managerPage.getByRole('region', { name: 'Sổ liên lạc hằng ngày' })).toBeVisible();
@@ -56,7 +57,7 @@ test('Báo cáo hoạt động, báo cáo hợp nhất và xuất dữ liệu c�
   await expect(managerPage.getByRole('tab', { name: 'Hợp nhất đơn vị' })).toHaveCount(0);
 
   const upperPage = await signIn(browser, upper);
-  await upperPage.getByRole('link', { name: 'Báo cáo' }).click();
+  await openMenu(upperPage, '/reports');
   await expect(upperPage.getByRole('tab', { name: 'Công nợ' })).toHaveCount(0);
   await upperPage.getByRole('tab', { name: 'Hợp nhất đơn vị' }).click();
   await upperPage.getByRole('button', { name: 'Xem báo cáo' }).click();
@@ -65,7 +66,7 @@ test('Báo cáo hoạt động, báo cáo hợp nhất và xuất dữ liệu c�
   await expect(upperPage.getByRole('button', { name: 'Xuất Excel' })).toHaveCount(0);
 
   const page = await signIn(browser, principal);
-  await page.getByRole('link', { name: 'Báo cáo' }).click();
+  await openMenu(page, '/reports');
   await page.getByRole('tab', { name: 'Hợp nhất đơn vị' }).click();
   const downloading = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Xuất Excel' }).click();

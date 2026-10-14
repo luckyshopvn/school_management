@@ -1,7 +1,7 @@
 # 03. DANH SÁCH KIỂM TRA CÔNG VIỆC
 
 - Mô tả: Danh sách công việc, trạng thái và thứ tự ưu tiên của dự án.
-- Phiên bản: 0.26
+- Phiên bản: 0.27
 - Ngày cập nhật: 2026-10-14
 - Trạng thái: Đang cập nhật
 
@@ -31,7 +31,7 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | P16 Tuyển sinh | Hoàn thành | Đợt DT-11 phần 11a (YCTD-86) |
 | P17 Báo cáo và bảng điều khiển | Hoàn thành | Đợt DT-07 (YCTD-62, YCTD-63), DT-10 phần 10j (YCTD-83), DT-14 phần 14a (YCTD-105: thống kê theo tiêu chí ngành, hồ sơ chưa nhập đủ), 14d (YCTD-106: biểu EMIS đầu năm) |
 | P18 Tuyển dụng | Hoàn thành | Đợt DT-11 phần 11b (YCTD-87) |
-| P19 Kênh truy cập và thông báo | Hoàn thành | Đợt DT-08 (YCTD-64, YCTD-65), Zalo ở DT-11 phần 11e; bản cài riêng trên điện thoại (N2, G3-04) chờ Eric quyết định |
+| P19 Kênh truy cập và thông báo | Hoàn thành | Đợt DT-08 (YCTD-64, YCTD-65), Zalo ở DT-11 phần 11e; DT-15 phần 15a (YCTD-107: menu ngang đánh số, menu người dùng, lưới dữ liệu dùng chung; các phần 15b đến 15h theo `32_KE_HOACH_THEO_HE_THONG_SO.md`); bản cài riêng trên điện thoại (N2, G3-04) chờ Eric quyết định |
 
 ## 2. Việc còn lại
 

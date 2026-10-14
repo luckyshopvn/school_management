@@ -9,6 +9,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Lập phiếu chi kèm chứng từ, Hiệu trưởng duyệt, xem sổ quỹ (DT-05 phần 5e-1, YCTD-55). Dùng quỹ "Quỹ tiền mặt cơ sở"
 // còn 1 000 000 sau khi thu rồi đảo phiếu thu ở 16-receipts.spec.ts; Hiệu trưởng duyệt được mọi mức
@@ -59,7 +60,7 @@ test('Kế toán lập phiếu chi kèm chứng từ và trình duyệt; Hiệu 
       created_by: accountantUser.id,
     })
     .execute();
-  await accountant.getByRole('link', { name: 'Phiếu chi' }).click();
+  await openMenu(accountant, '/payments');
   await accountant.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
   const form = accountant.getByRole('form', { name: 'Lập phiếu chi' });
   await expect(form.getByRole('combobox', { name: /^Nguồn chi/ })).toContainText('Quỹ tiền mặt cơ sở');
@@ -75,7 +76,7 @@ test('Kế toán lập phiếu chi kèm chứng từ và trình duyệt; Hiệu 
   await expect(accountant.getByRole('row', { name: `Phiếu chi ${PAYEE}` })).toContainText('Chờ duyệt');
 
   const { page: principal } = await signIn('VT-02', null);
-  await principal.getByRole('link', { name: 'Phiếu chi' }).click();
+  await openMenu(principal, '/payments');
   await principal.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
   const request = principal.getByRole('group', { name: `Phiếu chi cho ${PAYEE}` });
   await expect(request).toContainText('Mua rau cho bữa trưa');
@@ -83,7 +84,7 @@ test('Kế toán lập phiếu chi kèm chứng từ và trình duyệt; Hiệu 
   await expect(principal.getByText('Không có phiếu chi chờ duyệt.')).toBeVisible();
   await expect(principal.getByRole('row', { name: `Phiếu chi ${PAYEE}` })).toContainText('Đã phát hành');
 
-  await accountant.getByRole('link', { name: 'Sổ quỹ' }).click();
+  await openMenu(accountant, '/cash-book');
   await accountant.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
   const book = accountant.getByRole('region', { name: 'Sổ quỹ theo ngày' });
   await expect(book.getByRole('row').filter({ hasText: PAYEE })).toContainText('PC-');
@@ -110,7 +111,7 @@ test('Kế toán lập phiếu đảo phiếu chi; Hiệu trưởng duyệt thì
   };
 
   const accountant = await signIn('VT-04', child.org_unit_id);
-  await accountant.getByRole('link', { name: 'Phiếu chi' }).click();
+  await openMenu(accountant, '/payments');
   await accountant.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
   const row = accountant.getByRole('row', { name: `Phiếu chi ${PAYEE}` });
   await row.getByRole('button', { name: 'Lập phiếu đảo' }).click();
@@ -119,7 +120,7 @@ test('Kế toán lập phiếu đảo phiếu chi; Hiệu trưởng duyệt thì
   await expect(row).toContainText('Chờ duyệt đảo');
 
   const principal = await signIn('VT-02', null);
-  await principal.getByRole('link', { name: 'Phiếu chi' }).click();
+  await openMenu(principal, '/payments');
   await principal.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
   const request = principal.getByRole('region', { name: 'Phiếu đảo phiếu chi chờ duyệt' }).getByRole('group');
   await expect(request).toContainText('Cửa hàng trả lại tiền');
@@ -127,7 +128,7 @@ test('Kế toán lập phiếu đảo phiếu chi; Hiệu trưởng duyệt thì
   await expect(principal.getByText('Không có phiếu đảo phiếu chi chờ duyệt.')).toBeVisible();
   await expect(principal.getByRole('row', { name: `Phiếu chi ${PAYEE}` })).toContainText('Đã đảo');
 
-  await accountant.getByRole('link', { name: 'Sổ quỹ' }).click();
+  await openMenu(accountant, '/cash-book');
   await accountant.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
   const book = accountant.getByRole('region', { name: 'Sổ quỹ theo ngày' });
   await expect(book.getByRole('row').filter({ hasText: 'DPC-' })).toContainText('200.000');

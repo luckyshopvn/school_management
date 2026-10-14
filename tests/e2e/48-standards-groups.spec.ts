@@ -10,6 +10,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // DT-14 phần 14c (YCTD-102): hoàn thành chương trình giáo dục mầm non (quản lý đơn vị ghi cả lớp, phó hiệu trưởng xác
 // nhận), nhóm học sinh (lập nhóm, thêm cả lớp), chuẩn nghề nghiệp (mở phiếu, giáo viên tự đánh giá, quản lý chốt phiếu)
@@ -91,7 +92,7 @@ test('Hoàn thành chương trình: quản lý đơn vị ghi cả lớp, phó h
   const manager = await createTestUser(identity, { roles: [{ roleCode: 'VT-03', orgUnitId: unitId }] });
   const vicePrincipal = await createTestUser(identity, { roles: [{ roleCode: 'VT-15', orgUnitId: unitId }] });
   const page = await signIn(browser, manager);
-  await page.getByRole('link', { name: 'Hoàn thành chương trình' }).click();
+  await openMenu(page, '/program-completion');
   await page.getByRole('button', { name: `Mở lớp ${className}` }).click();
   const panel = page.getByRole('region', { name: `Danh sách lớp ${className}` });
   await panel.getByRole('button', { name: 'Đánh dấu cả lớp hoàn thành' }).click();
@@ -100,7 +101,7 @@ test('Hoàn thành chương trình: quản lý đơn vị ghi cả lớp, phó h
   await expect(page.getByRole('row', { name: `Lớp ${className}` })).toContainText('100%');
 
   const approverPage = await signIn(browser, vicePrincipal);
-  await approverPage.getByRole('link', { name: 'Hoàn thành chương trình' }).click();
+  await openMenu(approverPage, '/program-completion');
   await approverPage.getByRole('button', { name: `Mở lớp ${className}` }).click();
   await approverPage.getByRole('button', { name: 'Xác nhận danh sách' }).click();
   await expect(approverPage.getByText('Đã xác nhận danh sách của lớp')).toBeVisible();
@@ -110,7 +111,7 @@ test('Hoàn thành chương trình: quản lý đơn vị ghi cả lớp, phó h
 test('Nhóm học sinh: quản lý đơn vị lập nhóm và thêm cả lớp vào nhóm', async ({ browser }) => {
   const manager = await createTestUser(identity, { roles: [{ roleCode: 'VT-03', orgUnitId: unitId }] });
   const page = await signIn(browser, manager);
-  await page.getByRole('link', { name: 'Nhóm học sinh' }).click();
+  await openMenu(page, '/child-groups');
   const form = page.getByRole('form', { name: 'Lập nhóm học sinh' });
   await form.getByLabel('Tên nhóm').fill(`Năng khiếu vẽ ${suffix}`);
   await form.getByRole('button', { name: 'Lập nhóm' }).click();
@@ -138,14 +139,14 @@ test('Chuẩn nghề nghiệp: giáo viên tự đánh giá, quản lý đơn v�
     .execute();
 
   const managerPage = await signIn(browser, manager);
-  await managerPage.getByRole('link', { name: 'Chuẩn nghề nghiệp' }).click();
+  await openMenu(managerPage, '/professional-standards');
   const open = managerPage.getByRole('region', { name: 'Mở phiếu đánh giá' });
   await open.getByLabel(teacherName).check();
   await open.getByRole('button', { name: 'Mở phiếu' }).click();
   await expect(managerPage.getByText('Đã mở 1 phiếu')).toBeVisible();
 
   const teacherPage = await signIn(browser, teacher);
-  await teacherPage.getByRole('link', { name: 'Chuẩn nghề nghiệp' }).click();
+  await openMenu(teacherPage, '/professional-standards');
   const own = teacherPage.getByRole('region', { name: 'Phiếu tự đánh giá của tôi' });
   await own.getByLabel('Mức cho mọi tiêu chí').selectOption({ label: 'Khá' });
   await own.getByRole('button', { name: 'Gửi tự đánh giá' }).click();

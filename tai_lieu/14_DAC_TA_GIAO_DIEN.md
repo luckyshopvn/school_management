@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.49
+- Phiên bản: 1.50
 - Ngày cập nhật: 2026-10-14
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -13,18 +13,22 @@ Ba kênh, ba cấu trúc điều hướng khác nhau, dùng chung một hệ th�
 ```mermaid
 flowchart TD
   R[Vai tro dang nhap] --> C{Kenh nao}
-  C -- Cong quan tri --> A[Dieu huong doc ben trai theo phan he]
+  C -- Cong quan tri --> A[Menu ngang danh so theo phan he]
   C -- Ung dung giao vien --> B[Dieu huong day theo lop phu trach]
   C -- Ung dung phu huynh --> D[Dieu huong day theo con]
-  A --> A1[Bang dieu khien]
-  A --> A2[Tre va lop]
-  A --> A3[Tai chinh va hoc phi]
-  A --> A4[Nhan su va cham cong]
-  A --> A5[Van hanh: y te, bep, kho]
-  A --> A6[Noi dung va tuong tac]
-  A --> A7[Bao cao]
-  A --> A8[Thiet lap]
-  A --> A9[Ca nhan]
+  A --> A0[Trang chu]
+  A --> A1[Quan ly giao duc Mam non]
+  A --> A2[Quan ly co so vat chat, TBDH]
+  A --> A3[Bao cao so lieu]
+  A --> A4[Quan tri he thong]
+  A --> A5[Tai chinh - hoc phi]
+  A --> A6[Nhan su - cham cong, luong]
+  A --> A7[Bep - kho, mua hang]
+  A --> A8[Tuong tac - truyen thong]
+  A --> A9[Giang day]
+  A --> A10[Tuyen sinh, tuyen dung]
+  A --> A11[Bao cao]
+  A --> A12[Menu nguoi dung: thong bao, doi mat khau, cau hinh luoi, thoat]
   B --> B1[Lop cua toi]
   B --> B2[Diem danh]
   B --> B3[Nhat ky cua be]
@@ -40,13 +44,109 @@ flowchart TD
   D --> D7[Y kien va tham gia]
 ```
 
+Sơ đồ chỉ vẽ cấp phân hệ của cổng quản trị (YCTD-107); cây menu nhiều cấp có gần chín mươi mục, vẽ bằng sơ đồ không đọc được nên ghi bằng bảng ở mục 1.1.
+
+### 1.1 Cây menu cổng quản trị
+
+Từ YCTD-107 (DT-15 phần 15a), cổng quản trị dùng menu ngang nhiều cấp đánh số thay thanh điều hướng bên trái (BC-01, BC-10). Cây menu Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, dựa trên `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 3: bốn phân hệ đầu giữ đúng số thứ tự của Sở, mục Sở có mà mình chưa có thì để trống số (ví dụ 1.2, 1.3 Phân hiệu, Điểm trường làm ở phần 15b); bảy phân hệ riêng đánh số liên tục cùng kiểu. Mỗi trang của cổng quản trị có đúng một mục (66 trang); Trang chủ ở đầu thanh menu; Thông báo, Đổi mật khẩu ở menu người dùng (MH-84). Cây menu đặt ở gói dùng chung (`PORTAL_WORKSPACES`), điều kiện hiện từng mục giữ như thanh điều hướng cũ (`apps/portal/src/pages/menu-permissions.ts`); nhóm không còn mục thì ẩn, phân hệ không còn mục thì không có trong ô Phân hệ. "(nhóm)" là mục mở menu con. Tên nhóm, mục ghi trong các dòng MH trước YCTD-107 là tên trên thanh điều hướng cũ; vị trí hiện hành theo bảng dưới; tên tiêu đề của từng màn hình đổi ở các phần 15c, 15e.
+
+| Phân hệ | Số | Mục | Đường dẫn |
+|---|---|---|---|
+| Quản lý giáo dục Mầm non | 1. | Trường học | (nhóm) |
+| Quản lý giáo dục Mầm non | 1.1. | Hồ sơ trường | `/school-profile` |
+| Quản lý giáo dục Mầm non | 1.4. | Cấu hình trường | `/settings` |
+| Quản lý giáo dục Mầm non | 2. | Lớp học | (nhóm) |
+| Quản lý giáo dục Mầm non | 2.1. | Hồ sơ lớp học | `/classes` |
+| Quản lý giáo dục Mầm non | 3. | Nhân sự | (nhóm) |
+| Quản lý giáo dục Mầm non | 3.1. | Hồ sơ nhân sự | (nhóm) |
+| Quản lý giáo dục Mầm non | 3.1.1. | Hồ sơ cán bộ, giáo viên | `/staff` |
+| Quản lý giáo dục Mầm non | 3.2. | Đánh giá chuẩn nghề nghiệp | `/professional-standards` |
+| Quản lý giáo dục Mầm non | 4. | Học sinh | (nhóm) |
+| Quản lý giáo dục Mầm non | 4.1. | Hồ sơ học sinh | (nhóm) |
+| Quản lý giáo dục Mầm non | 4.1.1. | Quản lý hồ sơ học sinh | `/children` |
+| Quản lý giáo dục Mầm non | 4.1.2. | Nhập dữ liệu từ Excel | `/imports` |
+| Quản lý giáo dục Mầm non | 4.1.6. | Nhóm học sinh | `/child-groups` |
+| Quản lý giáo dục Mầm non | 4.3. | Cân nặng, chiều cao | (nhóm) |
+| Quản lý giáo dục Mầm non | 4.3.1. | Nhập kết quả sức khỏe nuôi dưỡng | `/growth` |
+| Quản lý giáo dục Mầm non | 4.3.2. | Tổng hợp cân nặng, chiều cao | `/growth-report` |
+| Quản lý giáo dục Mầm non | 4.4. | Hoàn thành chương trình | `/program-completion` |
+| Quản lý giáo dục Mầm non | 4.5. | Thực đơn bữa ăn | `/kitchen` |
+| Quản lý giáo dục Mầm non | 4.6. | Sức khỏe học sinh | (nhóm) |
+| Quản lý giáo dục Mầm non | 4.6.1. | Y tế học đường | `/health` |
+| Quản lý giáo dục Mầm non | 4.6.2. | Thuốc và dặn thuốc | `/medicines` |
+| Quản lý giáo dục Mầm non | 4.7. | Điểm danh | `/attendance` |
+| Quản lý giáo dục Mầm non | 5. | Công cụ hỗ trợ | (nhóm) |
+| Quản lý giáo dục Mầm non | 5.1. | Thống kê lớp, nhân sự, học sinh | `/statistics` |
+| Quản lý giáo dục Mầm non | 5.8. | Thống kê hồ sơ chưa nhập đủ | `/missing-profiles` |
+| Quản lý cơ sở vật chất, TBDH | 1. | Cơ sở vật chất | (nhóm) |
+| Quản lý cơ sở vật chất, TBDH | 1.1. | Khai báo cơ sở vật chất | `/facility-rooms` |
+| Quản lý cơ sở vật chất, TBDH | 2. | Thiết bị dạy học | (nhóm) |
+| Quản lý cơ sở vật chất, TBDH | 2.1. | Tổng hợp thiết bị dạy học | `/equipment` |
+| Báo cáo số liệu | 1. | Báo cáo đầu năm | (nhóm) |
+| Báo cáo số liệu | 1.1. | Báo cáo EMIS đầu năm | `/emis` |
+| Quản trị hệ thống | 1. | Người dùng và phân quyền | (nhóm) |
+| Quản trị hệ thống | 1.1. | Nhóm người dùng | `/roles` |
+| Quản trị hệ thống | 1.4. | Danh sách người dùng | `/accounts` |
+| Quản trị hệ thống | 2. | Thiết lập | (nhóm) |
+| Quản trị hệ thống | 2.1. | Năm học | `/academic-years` |
+| Quản trị hệ thống | 2.2. | Cây đơn vị | `/org-units` |
+| Quản trị hệ thống | 2.3. | Phòng ban và chức danh | `/departments` |
+| Quản trị hệ thống | 2.4. | Danh mục dùng chung | `/catalogs` |
+| Quản trị hệ thống | 2.5. | Phòng học và bậc học | `/rooms` |
+| Quản trị hệ thống | 2.6. | Hạn mức phê duyệt | `/approval-thresholds` |
+| Quản trị hệ thống | 3. | Kết nối và nhật ký | (nhóm) |
+| Quản trị hệ thống | 3.1. | Khóa API cho đối tác | `/api-clients` |
+| Quản trị hệ thống | 3.2. | Kết nối ngoài | `/integrations` |
+| Quản trị hệ thống | 3.3. | Nhật ký thao tác | `/audit-logs` |
+| Tài chính – học phí | 1. | Học phí và dịch vụ | (nhóm) |
+| Tài chính – học phí | 1.1. | Biểu phí và dịch vụ | `/fees` |
+| Tài chính – học phí | 1.2. | Đăng ký dịch vụ | `/registrations` |
+| Tài chính – học phí | 1.3. | Học phí | `/invoices` |
+| Tài chính – học phí | 1.4. | Duyệt miễn giảm và điều chỉnh | `/fee-approvals` |
+| Tài chính – học phí | 1.5. | Công nợ | `/debts` |
+| Tài chính – học phí | 1.6. | Nhắc nợ và xử lý quá hạn | `/debt-collection` |
+| Tài chính – học phí | 2. | Thu chi | (nhóm) |
+| Tài chính – học phí | 2.1. | Phiếu thu | `/receipts` |
+| Tài chính – học phí | 2.2. | Phiếu chi | `/payments` |
+| Tài chính – học phí | 2.3. | Quỹ và ngân hàng | `/cash-accounts` |
+| Tài chính – học phí | 2.4. | Sổ quỹ | `/cash-book` |
+| Tài chính – học phí | 2.5. | Đối chiếu ngân hàng | `/bank-reconciliation` |
+| Tài chính – học phí | 2.6. | Nợ nhà cung cấp | `/payables` |
+| Tài chính – học phí | 2.7. | Khoản mục thu chi | `/cashflow-categories` |
+| Tài chính – học phí | 3. | Kế toán | (nhóm) |
+| Tài chính – học phí | 3.1. | Sổ kế toán | `/ledger` |
+| Tài chính – học phí | 3.2. | Chốt kỳ tài chính | `/fiscal-periods` |
+| Nhân sự – chấm công, lương | 1. | Chấm công và nghỉ phép | (nhóm) |
+| Nhân sự – chấm công, lương | 1.1. | Chấm công | `/staff-attendance` |
+| Nhân sự – chấm công, lương | 1.2. | Đơn nghỉ phép | `/leave-requests` |
+| Nhân sự – chấm công, lương | 1.3. | Quy định phép năm | `/leave-policies` |
+| Nhân sự – chấm công, lương | 1.4. | Ngày lễ và lịch bù | `/school-days` |
+| Nhân sự – chấm công, lương | 1.5. | Lịch công tác | `/work-schedules` |
+| Nhân sự – chấm công, lương | 2. | Lương | (nhóm) |
+| Nhân sự – chấm công, lương | 2.1. | Bảng lương | `/payrolls` |
+| Nhân sự – chấm công, lương | 2.2. | Quyết toán và điều chỉnh lương | `/payroll-settlements` |
+| Nhân sự – chấm công, lương | 2.3. | Danh mục lương và biểu thuế | `/pay-items` |
+| Nhân sự – chấm công, lương | 2.4. | Thưởng và khấu trừ | `/bonus-deductions` |
+| Nhân sự – chấm công, lương | 2.5. | Phiếu lương của tôi | `/my-payslips` |
+| Nhân sự – chấm công, lương | 3. | Công việc và đánh giá | (nhóm) |
+| Nhân sự – chấm công, lương | 3.1. | Công việc và kế hoạch | `/work` |
+| Nhân sự – chấm công, lương | 3.2. | Đánh giá nhân sự | `/evaluations` |
+| Bếp – kho, mua hàng | 1. | Kho và tài sản | `/inventory` |
+| Bếp – kho, mua hàng | 2. | Đề nghị mua hàng | `/purchase-requests` |
+| Tương tác – truyền thông | 1. | Tương tác với phụ huynh | `/interactions` |
+| Tương tác – truyền thông | 2. | Hoạt động và tin tức | `/activities` |
+| Giảng dạy | 1. | Bài học và giáo án | `/teaching` |
+| Tuyển sinh, tuyển dụng | 1. | Tuyển sinh | `/admissions` |
+| Tuyển sinh, tuyển dụng | 2. | Tuyển dụng | `/recruitment` |
+| Báo cáo | 1. | Báo cáo và bảng điều khiển | `/reports` |
+
 ## 2. Danh sách màn hình theo kênh
 
 ### 2.1 Cổng quản trị
 
 | Mã | Màn hình | Vai trò chính |
 |---|---|---|
-| MH-01 | Bảng điều khiển trên trang chủ: số trẻ, lớp, nhân sự, học phí tháng, công nợ, tỷ lệ đi học; sinh nhật trẻ trong tháng (YCTD-62); vùng "Truy cập nhanh" ngay dưới lời chào: nút "Thêm truy cập nhanh" mở bộ chọn các trang người dùng đang thấy trên thanh điều hướng, nhóm theo phân hệ; mỗi ô có biểu tượng phân hệ, tên trang, nút đưa lên trước, đưa ra sau, bỏ; kéo thả để đổi chỗ; tối đa 12 ô, lưu theo tài khoản ở máy chủ (YCTD-102) | VT-02, VT-15, VT-03; sinh nhật cho cả giáo viên; Truy cập nhanh cho mọi người dùng cổng quản trị |
+| MH-01 | Bảng điều khiển trên trang chủ: số trẻ, lớp, nhân sự, học phí tháng, công nợ, tỷ lệ đi học; sinh nhật trẻ trong tháng (YCTD-62); vùng "Truy cập nhanh" ngay dưới lời chào: nút "Thêm truy cập nhanh" mở bộ chọn các trang người dùng đang thấy trong cây menu đã lọc theo quyền (đủ mục kể cả khi các menu sổ xuống đang đóng), nhóm theo phân hệ của mục 1.1, nhãn theo tên mục menu không kèm số (YCTD-107); mỗi ô có biểu tượng phân hệ, tên trang, nút đưa lên trước, đưa ra sau, bỏ; kéo thả để đổi chỗ; tối đa 12 ô, lưu theo tài khoản ở máy chủ (YCTD-102) | VT-02, VT-15, VT-03; sinh nhật cho cả giáo viên; Truy cập nhanh cho mọi người dùng cổng quản trị |
 | MH-02 | Danh sách trẻ và hồ sơ trẻ; chi tiết trẻ có lịch sử đồng ý hình ảnh, ghi nhận giấy ký tay, cờ trẻ con nhân viên, chuyển đơn vị, thôi học (YCTD-67); danh sách lọc theo nhóm học sinh, ô lọc chỉ hiện khi đơn vị có nhóm (YCTD-104) | VT-03, VT-04, VT-12 |
 | MH-03 | Danh sách lớp, phân công giáo viên và phân lớp (YCTD-44) | VT-03 |
 | MH-04 | Biểu phí và danh mục dịch vụ: dịch vụ, biểu phí theo phiên bản, loại miễn giảm (YCTD-49) | VT-04, VT-02 |
@@ -57,7 +157,7 @@ flowchart TD
 | MH-09 | Phiếu thu và màn hình phân bổ: danh sách phiếu thu lọc theo đơn vị và ngày; lập phiếu thu và phân bổ trong chi tiết công nợ của trẻ ở MH-08 (YCTD-53); lập phiếu đảo kèm lý do; Ban Giám hiệu duyệt hoặc từ chối phiếu đảo chờ duyệt (YCTD-54); giao dịch chuyển khoản chờ xử lý (YCTD-57) | VT-04, VT-05, VT-16, VT-15, VT-02 |
 | MH-10 | Phiếu chi và phê duyệt: biểu mẫu lập phiếu chi kèm chứng từ, lưu nháp hoặc trình duyệt; danh sách phiếu chi; mục phiếu chi chờ duyệt cho Ban Giám hiệu (YCTD-55); lập phiếu đảo trên phiếu đã phát hành và mục phiếu đảo phiếu chi chờ duyệt (YCTD-56) | VT-04, VT-05, VT-16, VT-15, VT-02 |
 | MH-11 | Sổ quỹ và tài khoản ngân hàng: trang Quỹ và ngân hàng để khai báo và xem số dư (YCTD-53), chọn tài khoản nhận thanh toán trực tuyến (YCTD-57) kèm cổng thanh toán và mã BIN ngân hàng (YCTD-89); trang Sổ quỹ theo quỹ hoặc tài khoản và khoảng ngày, có số dư đầu kỳ, từng phiếu, tổng thu, tổng chi, số dư cuối kỳ (YCTD-55); trang Đối chiếu ngân hàng: ghi dòng sao kê, phát sinh theo sổ và sao kê, chênh lệch, khớp tay, khớp tự động, bỏ khớp (YCTD-82), đề xuất lập phiếu thu với nút Lập phiếu thu và Bỏ đề xuất, chọn khoản mục thu (YCTD-89) | VT-04, VT-05, VT-16 |
-| MH-12 | Hồ sơ nhân sự và hợp đồng: danh sách theo đơn vị, tìm theo tên hoặc mã; thêm hồ sơ; chi tiết có liên kết tài khoản, lập và chấm dứt hợp đồng (YCTD-58); mục Quá trình công tác và chứng chỉ: phòng nhân sự ghi thêm mốc công tác, ghi chứng chỉ; nhân sự và người xem hồ sơ xem (YCTD-81) | VT-06, VT-02, VT-15, VT-03, VT-04, VT-05 |
+| MH-12 | Hồ sơ nhân sự và hợp đồng: danh sách theo đơn vị, tìm theo tên hoặc mã; thêm hồ sơ; chi tiết có liên kết tài khoản, lập và chấm dứt hợp đồng (YCTD-58); mục Quá trình công tác và chứng chỉ: phòng nhân sự ghi thêm mốc công tác, ghi chứng chỉ; nhân sự và người xem hồ sơ xem (YCTD-81); danh sách dùng lưới dữ liệu chung (BC-13) phân trang tại chỗ: tìm theo tên hoặc mã, chọn dòng, nút Chi tiết trên dòng mở hồ sơ ngay dưới dòng, cấu hình cột, số dòng mỗi trang; cột ẩn mặc định Ngày sinh, Giới tính, Điện thoại, Email, Ngày vào làm, Đơn vị; ô chọn đơn vị và biểu mẫu thêm hồ sơ giữ nguyên (YCTD-107) | VT-06, VT-02, VT-15, VT-03, VT-04, VT-05 |
 | MH-13 | Chấm công: bảng chấm công của đơn vị theo tháng, nhập và sửa giờ, chốt bảng công, đề nghị và duyệt mở lại kỳ công; đơn nghỉ của đơn vị (YCTD-59) | VT-06, VT-15, VT-02, VT-03, VT-04, VT-05 |
 | MH-14 | Đơn nghỉ phép | VT-06, VT-03 |
 | MH-15 | Bảng lương toàn trường theo tháng: tính, trình, duyệt, trả lại; phiếu từng người kèm căn cứ; danh sách chưa tính lương (YCTD-60); lập phiếu chi lương (YCTD-61) | VT-04, VT-05, VT-06, VT-20, VT-15, VT-02 |
@@ -75,7 +175,7 @@ flowchart TD
 | MH-27 | Tuyển dụng (YCTD-87): đề nghị tuyển dụng (lập, đóng, số đã tuyển so với cần), đề nghị chờ duyệt (duyệt, từ chối kèm lý do), tin tuyển dụng (soạn từ đề nghị đã duyệt, công bố, đóng), ứng viên (danh sách theo tin, nhập ứng viên, chi tiết kèm hồ sơ xin việc, sàng lọc, lịch và kết quả phỏng vấn, quyết định tuyển, tạo hồ sơ nhân sự) | VT-06, VT-03; VT-02, VT-15 duyệt đề nghị và xem tin |
 | MH-28 | Báo cáo theo phân hệ: học phí, công nợ, thu chi, điểm danh, chấm công, học thứ 7; mỗi báo cáo một thẻ theo quyền (YCTD-62); báo cáo thu chi có bảng theo nhóm và theo tháng (YCTD-70); thẻ "Hoạt động và công việc" gồm các bảng điểm danh, sổ liên lạc, y tế, dặn thuốc, thông báo theo lớp và đơn vị; nút "Xuất Excel" trên từng báo cáo và thẻ "Nhật ký xuất" cho người có quyền xuất dữ liệu (YCTD-83) | VT-02, VT-15, VT-03, VT-04, VT-05, VT-06, VT-07, VT-08, VT-19, VT-20 |
 | MH-29 | Báo cáo hợp nhất nhiều đơn vị: thẻ "Hợp nhất đơn vị" trên trang Báo cáo, chọn tháng và các đơn vị so sánh (không chọn là mọi đơn vị), bảng so sánh theo đơn vị kèm dòng tổng, chỉ số liệu tổng hợp; nút "Xuất Excel" khi có quyền xuất (YCTD-83). VT-15 chưa được cấp quyền ở tệp 0034 nên chưa thấy thẻ này | VT-02, VT-19 |
-| MH-30 | Tài khoản, vai trò, quyền, cấu hình đơn vị | VT-02, VT-03 |
+| MH-30 | Tài khoản, vai trò, quyền, cấu hình đơn vị; danh sách tài khoản dùng lưới dữ liệu chung (BC-13) phân trang ở máy chủ: tìm kiếm, Mở rộng tìm kiếm theo trạng thái, Thêm mới mở biểu mẫu tạo tài khoản, chọn dòng, nút Hồ sơ trên dòng (bấm dòng vẫn mở chi tiết), cấu hình cột, số dòng mỗi trang đến 200; cột ẩn mặc định Tên đăng nhập, Số điện thoại, Ngày hết hiệu lực, Đổi mật khẩu; gỡ vai trò qua hộp xác nhận xóa (BC-15) (YCTD-107) | VT-02, VT-03 |
 | MH-31 | Nhật ký thao tác | VT-02, VT-03 |
 | MH-32 | Cây đơn vị tổ chức hai cấp, dạng cây và danh sách phẳng lọc theo loại (YCTD-38) | VT-02 |
 | MH-33 | Hạn mức phê duyệt theo đơn vị và loại chứng từ | VT-02 |
@@ -126,6 +226,8 @@ flowchart TD
 | MH-80 | Khai báo cơ sở vật chất (nhóm mới Cơ sở vật chất, mục "1.1 Khai báo cơ sở vật chất", đường dẫn `/facility-rooms`): thẻ năm khối phòng; lọc đơn vị, loại phòng, hiện trạng, trạng thái; danh sách phòng kèm nhóm, lớp; thêm và sửa phòng kèm khối, loại, hiện trạng, diện tích, thuộc tính; bảng tổng hợp theo khối và hiện trạng; Xuất Excel (YCTD-106) | VT-02, VT-03 thêm, sửa; VT-15, VT-11 xem |
 | MH-81 | Tổng hợp thiết bị dạy học (nhóm Cơ sở vật chất, mục "2.1 Tổng hợp thiết bị dạy học", đường dẫn `/equipment`): thẻ Tổng hợp (lọc đơn vị, nhóm tuổi, nhóm thiết bị, lĩnh vực, lớp, loại danh mục; tỷ lệ đáp ứng chung; lớp chưa xếp nhóm tuổi; Xuất Excel), Nhập số hiện có (theo đơn vị hoặc lớp, nhu cầu năm sau), 2.2 Thiết bị ngoài danh mục tối thiểu, Danh mục tối thiểu (sửa định mức, ghi chú "Cần đối chiếu văn bản") (YCTD-106) | VT-02 sửa danh mục; VT-02, VT-03, VT-11 nhập số hiện có; VT-15 xem |
 | MH-82 | Báo cáo EMIS đầu năm (nhóm Báo cáo, mục "1.1 Biểu EMIS đầu năm", đường dẫn `/emis`): năm thẻ của Biểu 1 (Trường – lớp học, Học sinh, Học sinh theo độ tuổi, Đội ngũ, Phòng học), cột tổng số, công lập, tư thục, dân lập, nữ, dân tộc thiểu số; cảnh báo chưa khai báo loại hình, lưu ý đối chiếu chỉ tiêu; Xuất Excel năm trang. Tên mục không chứa chữ "Báo cáo" để kiểm thử giao diện tìm mục theo chữ không trùng mục báo cáo hiện có (YCTD-106) | VT-02, VT-15 (phạm vi toàn trường) |
+| MH-83 | Khung trang cổng quản trị (YCTD-107, thay thanh điều hướng bên trái của YCTD-99): thanh đầu trang màu xanh (tên phần mềm, ô Phân hệ, ô năm học, chuông thông báo, menu người dùng) và thanh menu ngang đánh số của phân hệ đang chọn (BC-01, BC-10, cây menu mục 1.1); màn hình hẹp có nút "☰" mở cây menu gập (BC-11) | Mọi người dùng cổng quản trị |
+| MH-84 | Menu người dùng (YCTD-107): bấm tên người dùng ở thanh đầu trang mở Thông báo, Đổi mật khẩu, Cấu hình hiển thị lưới (hộp chọn số dòng mỗi trang mặc định cho mọi lưới), Thoát; thay nút "Đăng xuất" và liên kết "Đổi mật khẩu" trên thanh đầu trang (BC-12) | Mọi người dùng cổng quản trị |
 
 ### 2.2 Ứng dụng giáo viên
 
@@ -179,15 +281,21 @@ flowchart TD
 
 | Mã | Quy tắc |
 |---|---|
-| BC-01 | Cổng quản trị dùng điều hướng dọc ở cạnh trái, có thanh chọn đơn vị ở đầu trang |
+| BC-01 | Cổng quản trị dùng menu ngang nhiều cấp đánh số dưới thanh đầu trang, mỗi phân hệ (chọn ở ô Phân hệ) một thanh menu theo cây ở mục 1.1; có thanh chọn đơn vị ở đầu trang. Thay điều hướng dọc ở cạnh trái và lựa chọn giữ thanh bên ở YCTD-99 (YCTD-107) |
 | BC-02 | Ứng dụng giáo viên và phụ huynh dùng điều hướng dưới cùng, tối đa năm mục chính |
 | BC-03 | Mọi màn hình danh sách đều có ô tìm kiếm, bộ lọc, sắp xếp và phân trang |
 | BC-04 | Mọi màn hình chi tiết đều có đường dẫn quay lại danh sách và tiêu đề cố định khi cuộn |
 | BC-05 | Mọi thao tác thay đổi dữ liệu đều phải có bước xác nhận khi không hoàn tác được |
 | BC-06 | Thanh chọn đơn vị chỉ hiển thị với người dùng có nhiều hơn một đơn vị |
 | BC-07 | Màn hình tài chính luôn hiển thị đơn vị tiền tệ và định dạng số theo tiếng Việt |
-| BC-08 | Trong màn hình người dùng được phép vào, nút của thao tác không có quyền hiển thị ở trạng thái không cho thao tác kèm lý do; màn hình không có quyền thì không hiện trong điều hướng (mục 6) |
+| BC-08 | Trong màn hình người dùng được phép vào, nút của thao tác không có quyền hiển thị ở trạng thái không cho thao tác kèm lý do; màn hình không có quyền thì không hiện trong điều hướng, với cổng quản trị là menu ngang (mục 6) |
 | BC-09 | Thanh đầu trang cổng quản trị có nút "<năm học> · <học kỳ>" bên phải trước chuông thông báo; học kỳ là kỳ trong lịch năm học chứa ngày hôm nay (Học kỳ I, Học kỳ II, Kỳ hè), ngoài mọi kỳ thì hiện "Ngoài học kỳ", chưa mở năm học thì hiện "Chưa có năm học đang dùng". Bấm mở danh sách năm học đang dùng và đã đóng (không hiện năm học nháp) kèm học kỳ, ngày bắt đầu, kết thúc, học kỳ hiện tại đánh dấu "(hiện tại)"; phím Esc đóng. Năm học đã đóng chưa chọn được (chú thích "Chưa hỗ trợ xem năm học cũ"), học kỳ chỉ để xem. Màn hình hẹp hơn 768 điểm ảnh ẩn nút (YCTD-102) |
+| BC-10 | Menu ngang của cổng quản trị (YCTD-107): đầu thanh có mục "Trang chủ"; mục cấp một mở menu sổ xuống, cấp sâu hơn bật sang bên phải; mục có số thứ bậc dạng 1., 1.1., 1.1.1. như của Sở. Trang đang mở được tô sáng ở mục lá (`aria-current="page"`) và ở mục cấp một chứa nó (gạch chân màu chủ đạo). Chuột: bấm mục cấp một để mở hoặc đóng; khi đang mở một menu, rê sang mục cấp một khác thì chuyển menu; rê hoặc bấm mục có menu con để mở menu con; bấm ra ngoài hoặc mở trang khác thì đóng. Bàn phím theo mẫu menubar của WAI-ARIA (`menubar`, `menu`, `menuitem`): mũi tên trái, phải giữa các mục cấp một (vòng tròn), Home, End; Enter, Space, mũi tên xuống mở menu và tới mục đầu, mũi tên lên tới mục cuối; trong menu mũi tên lên, xuống (vòng tròn), mũi tên phải mở menu con hoặc sang menu cấp một bên phải, mũi tên trái đóng menu con hoặc sang menu cấp một bên trái; Esc đóng một cấp và trả con trỏ về mục cha; Tab đóng hết; Space trên mục lá mở trang; chỉ mục cấp một đang chọn nằm trong thứ tự Tab. Ô Phân hệ không còn lựa chọn "Tất cả chức năng" (YCTD-101); chọn ở ô Phân hệ thì trình duyệt ghi nhớ, mở trang thuộc phân hệ khác (đường dẫn, chuông thông báo, truy cập nhanh) thì menu tự chuyển sang phân hệ của trang mà không ghi nhớ |
+| BC-11 | Màn hình hẹp dưới 768 điểm ảnh, cổng quản trị ẩn thanh menu ngang; nút "☰" (nhãn "Menu chức năng") ở đầu thanh đầu trang mở cây menu gập theo chiều dọc của phân hệ đang chọn; nhóm mở, đóng bằng nút có `aria-expanded`; nhánh chứa trang đang mở đã mở sẵn; chọn trang thì cây đóng lại (YCTD-107) |
+| BC-12 | Menu người dùng ở thanh đầu trang cổng quản trị (MH-84): bấm tên người dùng mở Thông báo, Đổi mật khẩu, Cấu hình hiển thị lưới, Thoát; dùng được bằng bàn phím (mũi tên, Home, End, Esc); chuông thông báo và ô năm học (BC-09) giữ nguyên (YCTD-107) |
+| BC-13 | Lưới dữ liệu dùng chung của cổng quản trị (`DataGrid`, `15_HE_THONG_THIET_KE.md` TD-04): thanh công cụ có ô tìm kiếm (nhãn mặc định "Tìm kiếm"), nút "Mở rộng tìm kiếm" mở vùng bộ lọc mở rộng của màn hình, chỗ đặt nút riêng của màn hình (Thêm mới, Xuất Excel…), nút "Cấu hình cột hiển thị"; ô chọn từng dòng và ô "Chọn tất cả dòng trên trang" (trạng thái chọn một phần), dòng chữ "Đã chọn N dòng"; cột thao tác trên dòng; dòng chi tiết mở dưới dòng dữ liệu; số dòng mỗi trang 10, 20, 50, 100, 200 và phân trang (Trang trước, Trang x / y, Trang sau, tổng số dòng). Phân trang tại chỗ khi màn hình có đủ dữ liệu (giữ lựa chọn khi đổi trang) hoặc ở máy chủ (đổi trang thì bỏ lựa chọn). Bảng có `caption`, tiêu đề cột `scope="col"`, ô chọn có nhãn "Chọn <tên dòng>". Từ YCTD-107 áp cho Tài khoản (MH-30), Hồ sơ nhân sự (MH-12); các màn hình khác chuyển sang ở phần 15f |
+| BC-14 | Cấu hình lưới theo người dùng (YCTD-107): hộp "Cấu hình cột hiển thị" tích để ẩn, hiện cột, nút lên, xuống đổi thứ tự, cột luôn hiện (ví dụ Họ tên) không bỏ được, nút Mặc định, Hủy, Ghi; cấu hình trùng mặc định thì lưu là "theo mặc định" để cột thêm sau vẫn hiện. Cột và số dòng mỗi trang lưu theo tài khoản ở máy chủ cho từng lưới (`GET`, `PUT /me/grid-settings/{gridKey}`), dùng trên mọi máy, giữ qua các năm học. Số dòng của một lưới: số riêng của lưới, không có thì số mặc định ở hộp "Cấu hình hiển thị lưới" của menu người dùng, không có nữa thì 20 |
+| BC-15 | Thao tác xóa, gỡ trên cổng quản trị dùng hộp xác nhận xóa dùng chung (`ConfirmDeleteDialog`, `15_HE_THONG_THIET_KE.md` TD-07): có ô "Tôi đã đọc và đồng ý xóa <đối tượng>", phải tích thì nút Xóa (hoặc Gỡ) mới bấm được; mỗi lần mở phải tích lại. Từ YCTD-107 áp cho gỡ vai trò ở Tài khoản; các màn hình khác chuyển sang ở phần 15f |
 
 ## 4. Trạng thái màn hình
 
@@ -238,8 +346,8 @@ Ba kênh giao diện là ba ứng dụng chạy trên trình duyệt, tách hoà
 | Mã | Kích thước | Quy tắc |
 |---|---|---|
 | TN-01 | Dưới bốn trăm tám mươi điểm ảnh | Một cột, điều hướng dưới cùng, bảng chuyển thành danh sách thẻ |
-| TN-02 | Từ bốn trăm tám mươi đến một nghìn không trăm hai mươi bốn điểm ảnh | Một đến hai cột, bảng cuộn ngang có cột đầu cố định |
-| TN-03 | Trên một nghìn không trăm hai mươi bốn điểm ảnh | Bố cục đầy đủ, thanh điều hướng bên trái, bảng nhiều cột |
+| TN-02 | Từ bốn trăm tám mươi đến một nghìn không trăm hai mươi bốn điểm ảnh | Một đến hai cột, bảng cuộn ngang có cột đầu cố định; cổng quản trị dưới 768 điểm ảnh dùng cây menu gập thay menu ngang (BC-11) |
+| TN-03 | Trên một nghìn không trăm hai mươi bốn điểm ảnh | Bố cục đầy đủ, menu ngang đánh số dưới thanh đầu trang (BC-10, thay thanh điều hướng bên trái từ YCTD-107), bảng nhiều cột |
 | TN-04 | Mọi kích thước | Vùng bấm tối thiểu bốn mươi tư điểm ảnh, chữ tối thiểu mười bốn điểm ảnh |
 
 ## 9. Chưa xác minh được

@@ -1,9 +1,20 @@
 import { useCallback, useState, type FormEvent } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, ConfirmDialog, StatusBadge, TextField, Toast } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  ConfirmDeleteDialog,
+  ConfirmDialog,
+  DataGrid,
+  StatusBadge,
+  TextField,
+  Toast,
+  type DataGridColumn,
+} from '@school-management/ui';
 import { listOrgUnits, type OrgUnit } from '../org-units/org-units-api.js';
 import { AppShell } from '../pages/AppShell.js';
+import { useGridSettings } from '../pages/grid-settings.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import {
@@ -20,7 +31,8 @@ import {
 } from './accounts-api.js';
 import { RoleGrantFields } from './RoleGrantFields.js';
 
-// MH-30 phần tài khoản: danh sách, tạo, khóa, mở khóa, đặt lại mật khẩu, gán vai trò (P01-06, P01-07, PQ-13)
+// MH-30 phần tài khoản: danh sách, tạo, khóa, mở khóa, đặt lại mật khẩu, gán vai trò (P01-06, P01-07, PQ-13); danh sách
+// dùng lưới dữ liệu chung, gỡ vai trò qua hộp xác nhận xóa (DT-15 phần 15a)
 function messageOf(error: unknown): string {
   return error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại';
 }
@@ -144,6 +156,8 @@ function AccountDetail({
   const queryClient = useQueryClient();
   const [grant, setGrant] = useState<RoleGrant>({ role_code: '', org_unit_id: null });
   const [confirmingReset, setConfirmingReset] = useState(false);
+  // Vai trò đang chờ xác nhận gỡ (hộp xác nhận xóa theo mẫu của Sở, DT-15 phần 15a)
+  const [removing, setRemoving] = useState<Account['assignments'][number]>();
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['accounts'] });
 
   const toggleLock = useMutation({
@@ -172,9 +186,11 @@ function AccountDetail({
   const unassign = useMutation({
     mutationFn: (assignmentId: string) => removeRole(account.id, assignmentId),
     onSuccess: async () => {
+      setRemoving(undefined);
       await refresh();
       onChanged('Đã gỡ vai trò');
     },
+    onError: () => setRemoving(undefined),
   });
   const error = toggleLock.error ?? reset.error ?? assign.error ?? unassign.error;
 
@@ -209,7 +225,7 @@ function AccountDetail({
                 {assignment.role_name} — {unitName(units, assignment.org_unit_id)}
               </span>
               {canAssignRoles ? (
-                <Button variant="text" onClick={() => unassign.mutate(assignment.assignment_id)}>
+                <Button variant="text" onClick={() => setRemoving(assignment)}>
                   Gỡ
                 </Button>
               ) : null}
@@ -240,6 +256,19 @@ function AccountDetail({
           bạn chuyển cho người dùng.
         </ConfirmDialog>
       ) : null}
+      {removing ? (
+        <ConfirmDeleteDialog
+          open
+          title="Gỡ vai trò"
+          subject={`vai trò ${removing.role_name} — ${unitName(units, removing.org_unit_id)} của ${account.full_name}`}
+          confirmLabel="Gỡ"
+          busy={unassign.isPending}
+          onCancel={() => setRemoving(undefined)}
+          onConfirm={() => unassign.mutate(removing.assignment_id)}
+        >
+          Người dùng mất các quyền của vai trò này ở đơn vị đã gán; có thể gán lại sau.
+        </ConfirmDeleteDialog>
+      ) : null}
     </section>
   );
 }
@@ -254,14 +283,60 @@ export function AccountsPage() {
   const [temporaryPassword, setTemporaryPassword] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
   const queryClient = useQueryClient();
+  const grid = useGridSettings('accounts');
+  const pageSize = grid.settings.pageSize;
 
   const accounts = useQuery({
-    queryKey: ['accounts', q, status, page],
-    queryFn: () => listAccounts({ q, status, page }),
+    queryKey: ['accounts', q, status, page, pageSize],
+    queryFn: () => listAccounts({ q, status, page, pageSize }),
+    enabled: grid.ready,
+    // Giữ danh sách cũ trên lưới khi đổi trang, đổi bộ lọc
+    placeholderData: keepPreviousData,
   });
   const roles = useQuery({ queryKey: ['roles'], queryFn: listRoles });
   const units = useQuery({ queryKey: ['org-units', 'flat', ''], queryFn: () => listOrgUnits() });
   const selected = accounts.data?.items.find((account) => account.id === selectedId);
+
+  // Cột theo danh sách người dùng của Sở (1.4); cột ẩn mặc định bật ở "Cấu hình cột hiển thị"
+  const columns: Array<DataGridColumn<Account>> = [
+    {
+      id: 'full_name',
+      header: 'Họ tên',
+      alwaysVisible: true,
+      className: 'font-medium',
+      cell: (account) => account.full_name,
+    },
+    { id: 'login', header: 'Đăng nhập', cell: (account) => account.phone ?? account.username },
+    {
+      id: 'roles',
+      header: 'Vai trò',
+      cell: (account) => account.assignments.map((assignment) => assignment.role_code).join(', '),
+    },
+    {
+      id: 'status',
+      header: 'Trạng thái',
+      cell: (account) => (
+        <StatusBadge
+          tone={account.status === 'active' ? 'success' : 'danger'}
+          label={account.status === 'active' ? 'Đang hoạt động' : 'Đã khóa'}
+        />
+      ),
+    },
+    { id: 'username', header: 'Tên đăng nhập', hiddenByDefault: true, cell: (account) => account.username ?? '' },
+    { id: 'phone', header: 'Số điện thoại', hiddenByDefault: true, cell: (account) => account.phone ?? '' },
+    {
+      id: 'valid_until',
+      header: 'Ngày hết hiệu lực',
+      hiddenByDefault: true,
+      cell: (account) => account.valid_until ?? '',
+    },
+    {
+      id: 'must_change_password',
+      header: 'Đổi mật khẩu',
+      hiddenByDefault: true,
+      cell: (account) => (account.must_change_password ? 'Chờ đổi mật khẩu' : ''),
+    },
+  ];
 
   return (
     <AppShell>
@@ -270,21 +345,25 @@ export function AccountsPage() {
       <div className="flex flex-col gap-6">
         <h1 className="text-page-title font-bold text-text">Tài khoản</h1>
         {accounts.isError ? <Alert tone="danger">{messageOf(accounts.error)}</Alert> : null}
+        {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_400px]">
-          <section
-            className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
-            aria-label="Danh sách tài khoản"
-          >
-            <div className="flex flex-wrap items-end gap-3">
-              <TextField
-                label="Tìm theo tên, số điện thoại, tên đăng nhập"
-                value={q}
-                onChange={(event) => {
-                  setQ(event.target.value);
-                  setPage(1);
-                }}
-                className="min-w-64 flex-1"
-              />
+          <DataGrid
+            label="Danh sách tài khoản"
+            columns={columns}
+            rows={accounts.data?.items ?? []}
+            getRowId={(account) => account.id}
+            getRowLabel={(account) => account.full_name}
+            loading={accounts.isPending}
+            emptyText="Không có tài khoản phù hợp."
+            search={{
+              label: 'Tìm theo tên, số điện thoại, tên đăng nhập',
+              value: q,
+              onChange: (value) => {
+                setQ(value);
+                setPage(1);
+              },
+            }}
+            advancedSearch={
               <div className="flex flex-col gap-2">
                 <label htmlFor="account-status" className="text-label font-medium text-text">
                   Trạng thái
@@ -296,63 +375,38 @@ export function AccountsPage() {
                     setStatus(event.target.value);
                     setPage(1);
                   }}
-                  className="rounded-lg border border-border bg-card px-3 py-2 text-content"
+                  className="w-56 rounded-lg border border-border bg-card px-3 py-2 text-content"
                 >
                   <option value="">Tất cả</option>
                   <option value="active">Đang hoạt động</option>
                   <option value="locked">Đã khóa</option>
                 </select>
               </div>
-            </div>
-            {accounts.isPending ? (
-              <div className="h-40 animate-pulse rounded bg-border" aria-hidden="true" />
-            ) : (
-              <table className="w-full text-content">
-                <thead className="text-left text-label font-medium text-text-secondary">
-                  <tr>
-                    <th className="px-3 py-2">Họ tên</th>
-                    <th className="px-3 py-2">Đăng nhập</th>
-                    <th className="px-3 py-2">Vai trò</th>
-                    <th className="px-3 py-2">Trạng thái</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(accounts.data?.items ?? []).map((account) => (
-                    <tr
-                      key={account.id}
-                      onClick={() => setSelectedId(account.id)}
-                      className={`cursor-pointer border-t border-border hover:bg-selected ${account.id === selectedId ? 'bg-selected' : ''}`}
-                    >
-                      <td className="px-3 py-2 font-medium">{account.full_name}</td>
-                      <td className="px-3 py-2">{account.phone ?? account.username}</td>
-                      <td className="px-3 py-2">
-                        {account.assignments.map((assignment) => assignment.role_code).join(', ')}
-                      </td>
-                      <td className="px-3 py-2">
-                        <StatusBadge
-                          tone={account.status === 'active' ? 'success' : 'danger'}
-                          label={account.status === 'active' ? 'Đang hoạt động' : 'Đã khóa'}
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            }
+            toolbar={
+              <Button variant="primary" onClick={() => setSelectedId(undefined)}>
+                Thêm mới
+              </Button>
+            }
+            selectable
+            rowActions={(account) => (
+              <Button
+                variant="text"
+                aria-label={`Hồ sơ ${account.full_name}`}
+                onClick={() => setSelectedId(account.id)}
+              >
+                Hồ sơ
+              </Button>
             )}
-            {accounts.data && accounts.data.total_pages > 1 ? (
-              <div className="flex items-center gap-3">
-                <Button disabled={page <= 1} onClick={() => setPage(page - 1)}>
-                  Trang trước
-                </Button>
-                <span className="text-label text-text-secondary">
-                  Trang {page} / {accounts.data.total_pages}
-                </span>
-                <Button disabled={page >= accounts.data.total_pages} onClick={() => setPage(page + 1)}>
-                  Trang sau
-                </Button>
-              </div>
-            ) : null}
-          </section>
+            onRowClick={(account) => setSelectedId(account.id)}
+            activeRowId={selectedId}
+            settings={grid.settings}
+            onSettingsChange={(next) => {
+              grid.update(next);
+              setPage(1);
+            }}
+            serverPagination={{ page, total: accounts.data?.total ?? 0, onPageChange: setPage }}
+          />
 
           <aside className="flex flex-col gap-4 self-start rounded-xl border border-border bg-card p-4">
             {selected ? (

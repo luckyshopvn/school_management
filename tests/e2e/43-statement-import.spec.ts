@@ -10,6 +10,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Nhập tệp sao kê ngân hàng (DT-11 phần 11d, G3-05, YCTD-89): kế toán lưu cấu hình cột của tài khoản, nhập tệp CSV, hệ
 // thống đề xuất lập phiếu thu cho dòng có mã hóa đơn còn nợ; kế toán xác nhận thì phiếu thu được lập và dòng đã khớp
@@ -100,7 +101,7 @@ test('Kế toán nhập tệp sao kê CSV và xác nhận đề xuất lập phi
   await page.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(accountant.username);
   await page.getByLabel('Mật khẩu', { exact: true }).fill(accountant.password);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
-  await page.getByRole('link', { name: 'Đối chiếu ngân hàng' }).click();
+  await openMenu(page, '/bank-reconciliation');
   await page.getByLabel('Tài khoản ngân hàng').selectOption({ label: `${accountName} (${accountNumber})` });
 
   const section = page.getByRole('region', { name: 'Nhập tệp sao kê' });

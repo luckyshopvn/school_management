@@ -10,7 +10,8 @@ import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SYSTEM_DATABASE_NAME } from '../e2e-environment.mjs';
 
 // Truy cập nhanh và năm học ở thanh đầu trang (DT-14 phần 14b, YCTD-102; CT-14b-9, CT-14b-10): thanh đầu trang hiện năm
-// học đang dùng; Hiệu trưởng ghim hai trang vào Truy cập nhanh, tải lại vẫn còn, bỏ một trang
+// học đang dùng; Hiệu trưởng ghim hai trang vào Truy cập nhanh, tải lại vẫn còn, bỏ một trang. Từ DT-15 phần 15a danh
+// sách trang để ghim lấy từ cây menu ngang (tên theo Sở) dù các menu sổ xuống đang đóng
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 const system = createDatabase<SystemDatabase>(
   replaceDatabaseName(readConnectionString('system'), E2E_SYSTEM_DATABASE_NAME),
@@ -55,29 +56,29 @@ test('Thanh đầu trang hiện năm học đang dùng; ghim hai trang vào Truy
   await expect(quickAccess.getByText('Chưa có lối tắt.', { exact: false })).toBeVisible();
   await quickAccess.getByRole('button', { name: 'Thêm truy cập nhanh' }).click();
   const picker = quickAccess.getByRole('dialog', { name: 'Chọn trang thêm vào truy cập nhanh' });
-  await picker.getByRole('button', { name: 'Hồ sơ trẻ', exact: true }).click();
+  await picker.getByRole('button', { name: 'Quản lý hồ sơ học sinh', exact: true }).click();
   const tiles = quickAccess.getByRole('list', { name: 'Lối tắt đã ghim' });
-  await expect(tiles.getByRole('link', { name: 'Hồ sơ trẻ' })).toBeVisible();
+  await expect(tiles.getByRole('link', { name: 'Quản lý hồ sơ học sinh' })).toBeVisible();
   await picker.getByRole('button', { name: 'Công nợ', exact: true }).click();
   await expect(tiles.getByRole('link', { name: 'Công nợ' })).toBeVisible();
-  await expect(picker.getByRole('button', { name: 'Hồ sơ trẻ Đã ghim' })).toBeDisabled();
+  await expect(picker.getByRole('button', { name: 'Quản lý hồ sơ học sinh Đã ghim' })).toBeDisabled();
   await picker.getByRole('button', { name: 'Đóng' }).click();
 
   // Đổi thứ tự: Công nợ lên trước
   await tiles.getByRole('button', { name: 'Đưa Công nợ lên trước' }).click();
-  await expect(tiles.getByRole('link')).toHaveText(['Công nợ', 'Hồ sơ trẻ']);
+  await expect(tiles.getByRole('link')).toHaveText(['Công nợ', 'Quản lý hồ sơ học sinh']);
 
   // Tải lại vẫn còn đúng thứ tự (lưu ở máy chủ)
   await page.reload();
-  await expect(tiles.getByRole('link')).toHaveText(['Công nợ', 'Hồ sơ trẻ']);
+  await expect(tiles.getByRole('link')).toHaveText(['Công nợ', 'Quản lý hồ sơ học sinh']);
 
   // Bỏ một trang; tải lại chỉ còn một
   await tiles.getByRole('button', { name: 'Bỏ Công nợ khỏi truy cập nhanh' }).click();
-  await expect(tiles.getByRole('link')).toHaveText(['Hồ sơ trẻ']);
+  await expect(tiles.getByRole('link')).toHaveText(['Quản lý hồ sơ học sinh']);
   await page.reload();
-  await expect(tiles.getByRole('link')).toHaveText(['Hồ sơ trẻ']);
+  await expect(tiles.getByRole('link')).toHaveText(['Quản lý hồ sơ học sinh']);
 
   // Bấm lối tắt mở trang
-  await tiles.getByRole('link', { name: 'Hồ sơ trẻ' }).click();
+  await tiles.getByRole('link', { name: 'Quản lý hồ sơ học sinh' }).click();
   await expect(page).toHaveURL(/\/children$/);
 });

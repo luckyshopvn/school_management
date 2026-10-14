@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test';
 import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import ExcelJS from 'exceljs';
+import { openMenu } from './menu.js';
 
 // Hồ sơ trường, khai báo cơ sở vật chất, thiết bị dạy học, báo cáo EMIS đầu năm (DT-14 phần 14d, YCTD-102). Chạy sau
 // 02-academic-years và 03-org-units (năm học đang mở, có Trường chính). Dữ liệu là dữ liệu giả của riêng kịch bản này
@@ -21,7 +22,7 @@ test('Hiệu trưởng ghi hồ sơ trường, khai báo phòng, nhập thiết 
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
 
   // Hồ sơ trường: thông tin chung, một tiêu chí, Ghi
-  await page.getByRole('link', { name: '1.1 Hồ sơ trường' }).click();
+  await openMenu(page, '/school-profile');
   await expect(page.getByRole('heading', { name: '1.1 Hồ sơ trường' })).toBeVisible();
   await page.getByLabel('Loại hình trường').selectOption('private');
   await page.getByLabel('Tên theo quyết định thành lập').fill('Trường Mầm non Thử Nghiệm 50');
@@ -35,7 +36,7 @@ test('Hiệu trưởng ghi hồ sơ trường, khai báo phòng, nhập thiết 
 
   // Khai báo cơ sở vật chất: thêm phòng khối nuôi dưỡng, chăm sóc và giáo dục, lọc theo hiện trạng
   const roomCode = `CSVC50-${randomUUID().slice(0, 4)}`;
-  await page.getByRole('link', { name: '1.1 Khai báo cơ sở vật chất' }).click();
+  await openMenu(page, '/facility-rooms');
   await expect(page.getByRole('heading', { name: '1.1 Khai báo cơ sở vật chất' })).toBeVisible();
   await page.getByRole('button', { name: 'Thêm phòng' }).click();
   const form = page.getByRole('region', { name: 'Thêm phòng' });
@@ -56,7 +57,7 @@ test('Hiệu trưởng ghi hồ sơ trường, khai báo phòng, nhập thiết 
   await expect(page.getByRole('region', { name: 'Tổng hợp cơ sở vật chất' })).toContainText('Tổng số');
 
   // Thiết bị dạy học: nhập số hiện có của kho chung rồi xem tổng hợp
-  await page.getByRole('link', { name: '2.1 Tổng hợp thiết bị dạy học' }).click();
+  await openMenu(page, '/equipment');
   await page.getByRole('tab', { name: 'Nhập số hiện có' }).click();
   await page.getByLabel('Nhóm tuổi').selectOption('mg_5_6');
   await page.getByLabel('Hiện có MG5-DD-03').fill('3');
@@ -71,7 +72,7 @@ test('Hiệu trưởng ghi hồ sơ trường, khai báo phòng, nhập thiết 
   await expect(page.getByRole('region', { name: 'Danh mục thiết bị' })).toContainText('Cần đối chiếu văn bản');
 
   // Báo cáo EMIS đầu năm: xem thẻ Học sinh, xuất Excel năm trang
-  await page.getByRole('link', { name: '1.1 Biểu EMIS đầu năm' }).click();
+  await openMenu(page, '/emis');
   await expect(page.getByRole('heading', { name: '1.1 Báo cáo EMIS đầu năm' })).toBeVisible();
   await page.getByRole('tab', { name: 'Phòng học' }).click();
   await expect(page.getByRole('region', { name: 'Phòng học' })).toContainText('Kiên cố');

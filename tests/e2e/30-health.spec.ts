@@ -10,6 +10,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_PARENT_PORT, E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_TEACHER_PORT } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Y tế học đường (DT-10 phần 10a, YCTD-74): giáo viên chủ nhiệm ghi chăm sóc và sự kiện y tế trên ứng dụng giáo viên;
 // phụ huynh xem và xác nhận đã biết trên ứng dụng phụ huynh; y tế thấy trạng thái xác nhận trên cổng quản trị
@@ -132,7 +133,7 @@ test('Giáo viên ghi chăm sóc và sự kiện y tế; phụ huynh xác nhận
   await nursePage.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(nurse.username);
   await nursePage.getByLabel('Mật khẩu', { exact: true }).fill(nurse.password);
   await nursePage.getByRole('button', { name: 'Đăng nhập' }).click();
-  await nursePage.getByRole('link', { name: 'Y tế học đường' }).click();
+  await openMenu(nursePage, '/health');
   await nursePage.getByRole('tab', { name: 'Sự kiện y tế' }).click();
   const eventRow = nursePage.getByRole('row').filter({ hasText: childName });
   await expect(eventRow).toContainText('Sốt nhẹ buổi trưa');

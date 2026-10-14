@@ -10,6 +10,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_PARENT_PORT, E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Đồng ý hình ảnh trên ứng dụng phụ huynh và thôi học trên cổng quản trị (DT-09 phần 9b, YCTD-67)
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
@@ -101,7 +102,7 @@ test('Phụ huynh đồng ý sử dụng hình ảnh; quản lý đơn vị th�
   await page.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(manager.username);
   await page.getByLabel('Mật khẩu', { exact: true }).fill(manager.password);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
-  await page.getByRole('link', { name: 'Hồ sơ trẻ' }).click();
+  await openMenu(page, '/children');
   await page.getByLabel('Tìm theo họ tên').fill(childName);
   await page.getByRole('row').filter({ hasText: childName }).click();
   const detail = page.getByRole('region', { name: `Hồ sơ ${childName}` });

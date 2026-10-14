@@ -9,6 +9,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_PARENT_PORT, E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Tuyển dụng (DT-11 phần 11b, YCTD-87): quản lý đơn vị lập đề nghị tuyển dụng, Hiệu trưởng duyệt, nhân sự soạn và công bố
 // tin; người ngoài nộp hồ sơ trên trang công khai không cần tài khoản; nhân sự sàng lọc, quản lý đơn vị phỏng vấn và
@@ -63,7 +64,7 @@ test('Đề nghị tuyển dụng được duyệt, tin công bố, ứng viên 
 
   // Quản lý đơn vị lập đề nghị
   const managerPage = await signIn(browser, manager);
-  await managerPage.getByRole('link', { name: 'Tuyển dụng' }).click();
+  await openMenu(managerPage, '/recruitment');
   await managerPage.getByLabel('Vị trí cần tuyển').fill(position);
   await managerPage.getByLabel('Số lượng').fill('1');
   await managerPage.getByLabel('Yêu cầu', { exact: true }).fill('Cao đẳng sư phạm mầm non');
@@ -74,14 +75,14 @@ test('Đề nghị tuyển dụng được duyệt, tin công bố, ứng viên 
 
   // Hiệu trưởng duyệt
   const principalPage = await signIn(browser, principal);
-  await principalPage.getByRole('link', { name: 'Tuyển dụng' }).click();
+  await openMenu(principalPage, '/recruitment');
   await principalPage.getByRole('tab', { name: 'Đề nghị chờ duyệt' }).click();
   await principalPage.getByRole('row').filter({ hasText: position }).getByRole('button', { name: 'Duyệt' }).click();
   await expect(principalPage.getByText(/Đã duyệt đề nghị DNTD-\d{6}/)).toBeVisible();
 
   // Nhân sự soạn và công bố tin
   const hrPage = await signIn(browser, hr);
-  await hrPage.getByRole('link', { name: 'Tuyển dụng' }).click();
+  await openMenu(hrPage, '/recruitment');
   await hrPage.getByRole('tab', { name: 'Tin tuyển dụng' }).click();
   const requestSelect = hrPage.getByLabel('Đề nghị đã duyệt');
   const requestValue = await requestSelect.locator('option', { hasText: position }).getAttribute('value');

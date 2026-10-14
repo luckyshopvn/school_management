@@ -9,6 +9,7 @@ import {
 } from '@school-management/database';
 import { createTestUser, hashForTesting, TEST_PASSWORD } from '@school-management/identity/testing';
 import { E2E_PARENT_PORT, E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Đăng ký dịch vụ theo kỳ (DT-05 phần 5b, YCTD-50). Chạy sau 09-children.spec.ts và 13-fees.spec.ts: trẻ Nguyễn Gia Bảo
 // học Phân hiệu A, đã có dịch vụ STEM. Kỳ dùng là tháng hiện tại cộng hai để luôn còn trong thời gian đăng ký
@@ -52,7 +53,7 @@ test('Kế toán đăng ký STEM cho trẻ; phụ huynh thấy và hủy trên �
   await portal.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(accountant.username);
   await portal.getByLabel('Mật khẩu', { exact: true }).fill(accountant.password);
   await portal.getByRole('button', { name: 'Đăng nhập' }).click();
-  await portal.getByRole('link', { name: 'Đăng ký dịch vụ' }).click();
+  await openMenu(portal, '/registrations');
   await portal.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
   await portal.getByRole('combobox', { name: /^Kỳ/ }).selectOption(PERIOD);
   const sheet = portal.getByRole('region', { name: 'Bảng đăng ký dịch vụ' });

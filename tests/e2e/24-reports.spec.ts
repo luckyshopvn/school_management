@@ -9,6 +9,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Bảng điều khiển và báo cáo cơ bản (DT-07 phần 7a, YCTD-62): Hiệu trưởng thấy bảng điều khiển trên trang chủ; kế toán
 // xem báo cáo học phí và thu chi
@@ -52,7 +53,7 @@ test('Hiệu trưởng xem bảng điều khiển; kế toán xem báo cáo họ
   await expect(dashboard).toContainText('Công nợ còn phải thu');
 
   const page = await signIn(browser, accountant);
-  await page.getByRole('link', { name: 'Báo cáo' }).click();
+  await openMenu(page, '/reports');
   await page.getByRole('tab', { name: 'Học phí' }).click();
   await page.getByRole('button', { name: 'Xem báo cáo' }).click();
   await expect(page.getByRole('region', { name: 'Theo lớp' })).toBeVisible();
