@@ -63,7 +63,12 @@ describe('Dịch vụ định danh: hết hạn mật khẩu', () => {
       assert.equal((await getJson(policyUrl(), token)).status, 403);
       assert.equal((await putJson(policyUrl(), token, { password_max_age_days: 30 })).status, 403);
     }
-    for (const body of [{ password_max_age_days: -1 }, { password_max_age_days: 4000 }, { password_expiry_warning_days: 'a' }, {}]) {
+    for (const body of [
+      { password_max_age_days: -1 },
+      { password_max_age_days: 4000 },
+      { password_expiry_warning_days: 'a' },
+      {},
+    ]) {
       const rejected = await putJson(policyUrl(), administratorToken, body);
       assert.equal(rejected.status, 400);
       assert.equal(errorCode(rejected.body), 'ERR_VALIDATION');
@@ -93,7 +98,12 @@ describe('Dịch vụ định danh: hết hạn mật khẩu', () => {
     assert.ok(events.some((event) => event.event_type === 'login_password_expired'));
 
     // Phiên làm mới vẫn bắt buộc đổi mật khẩu
-    const refreshed = await postJson(`${context.baseUrl}/auth/refresh`, { channel: 'portal' }, undefined, expired.refreshToken);
+    const refreshed = await postJson(
+      `${context.baseUrl}/auth/refresh`,
+      { channel: 'portal' },
+      undefined,
+      expired.refreshToken,
+    );
     assert.equal(refreshed.status, 200);
     assert.equal(refreshed.body.password_change_required, true);
     assert.equal(refreshed.body.password_expired, true);

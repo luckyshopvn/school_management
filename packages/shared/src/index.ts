@@ -271,6 +271,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/program-completion',
   '/child-groups',
   '/professional-standards',
+  // Ý kiến phản hồi gửi từ chân trang (DT-15 phần 15g, YCTD-110)
+  '/feedback',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -281,7 +283,7 @@ export const MAX_QUICK_LINKS = 12;
 // Lưới dữ liệu dùng chung của cổng quản trị (DT-15 phần 15a): mỗi lưới có một khóa để nhớ cấu hình cột và số dòng mỗi
 // trang theo từng tài khoản; "default" là số dòng mặc định cho mọi lưới (Cấu hình hiển thị lưới ở menu người dùng). Máy
 // chủ API chỉ nhận các khóa này; lưới mới chuyển sang ở các phần sau thì thêm khóa vào đây
-export const DATA_GRID_KEYS = ['default', 'accounts', 'staff'] as const;
+export const DATA_GRID_KEYS = ['default', 'accounts', 'staff', 'my-feedback', 'feedback'] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;
 export const DEFAULT_DATA_GRID_PAGE_SIZE = 20;

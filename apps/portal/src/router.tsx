@@ -70,6 +70,7 @@ import { BonusDeductionsPage } from './work/BonusDeductionsPage.js';
 import { ProgramCompletionPage } from './program-completion/ProgramCompletionPage.js';
 import { ChildGroupsPage } from './child-groups/ChildGroupsPage.js';
 import { ProfessionalStandardsPage } from './professional-standards/ProfessionalStandardsPage.js';
+import { FeedbackPage, MyFeedbackPage } from './feedback/FeedbackPages.js';
 
 // Chuyển hướng theo trạng thái phiên: chưa đăng nhập về MH-47; bắt buộc đổi mật khẩu về MH-48 (BM-07)
 function SessionGate() {
@@ -158,6 +159,8 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/api-clients', component: ApiClientsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/integrations', component: IntegrationsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/notifications', component: NotificationsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/my-feedback', component: MyFeedbackPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/feedback', component: FeedbackPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/work', component: WorkPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/evaluations', component: EvaluationsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/bonus-deductions', component: BonusDeductionsPage }),

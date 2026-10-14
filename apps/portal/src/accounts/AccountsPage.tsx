@@ -30,6 +30,7 @@ import {
   type RoleGrant,
 } from './accounts-api.js';
 import { RoleGrantFields } from './RoleGrantFields.js';
+import { PasswordPolicySection } from './PasswordPolicySection.js';
 
 // MH-30 phần tài khoản: danh sách, tạo, khóa, mở khóa, đặt lại mật khẩu, gán vai trò (P01-06, P01-07, PQ-13); danh sách
 // dùng lưới dữ liệu chung, gỡ vai trò qua hộp xác nhận xóa (DT-15 phần 15a)
@@ -336,6 +337,17 @@ export function AccountsPage() {
       hiddenByDefault: true,
       cell: (account) => (account.must_change_password ? 'Chờ đổi mật khẩu' : ''),
     },
+    {
+      id: 'password_changed_at',
+      header: 'Thời gian đổi mật khẩu',
+      hiddenByDefault: true,
+      cell: (account) =>
+        account.password_changed_at
+          ? new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: 'short' }).format(
+              new Date(account.password_changed_at),
+            )
+          : '',
+    },
   ];
 
   return (
@@ -447,6 +459,7 @@ export function AccountsPage() {
             )}
           </aside>
         </div>
+        {canAssignRoles ? <PasswordPolicySection onSaved={setToastMessage} /> : null}
       </div>
     </AppShell>
   );

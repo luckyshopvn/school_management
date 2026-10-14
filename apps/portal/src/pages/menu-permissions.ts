@@ -69,6 +69,7 @@ function useMenuVisibility(): Partial<Record<PortalQuickLinkPath, boolean>> {
   const canManageExtracurricular = useHasPermission(PERMISSION_CODES.extracurricularManage);
   const canManageApiClients = useHasPermission(PERMISSION_CODES.apiClientManage);
   const canManageIntegrations = useHasPermission(PERMISSION_CODES.integrationManage);
+  const canManageFeedback = useHasPermission(PERMISSION_CODES.feedbackManage);
   const canManagePayItems = useHasPermission(PERMISSION_CODES.payItemTypeManage);
   const canManageBonusDeductions = useHasPermission(PERMISSION_CODES.bonusDeductionManage);
   const canViewTuition = useHasPermission('P05.view');
@@ -155,6 +156,7 @@ function useMenuVisibility(): Partial<Record<PortalQuickLinkPath, boolean>> {
     '/api-clients': canSeeAccounts && canManageApiClients,
     '/integrations': canManageIntegrations,
     '/audit-logs': canViewPlatform,
+    '/feedback': canManageFeedback,
     // Tài chính – học phí
     '/fees': canSeeFinance && canViewFees,
     '/registrations': canSeeFinance && canSeeRegistrations,

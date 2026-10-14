@@ -123,11 +123,12 @@ describe('Điểm cuối ý kiến phản hồi', () => {
       contact_email: 'sai',
     });
     assert.equal(rejected.status, 400);
-    assert.deepEqual(errorOf(rejected.body).details?.map((detail) => detail.field).sort(), [
-      'contact_email',
-      'feedback_type',
-      'title',
-    ]);
+    assert.deepEqual(
+      errorOf(rejected.body)
+        .details?.map((detail) => detail.field)
+        .sort(),
+      ['contact_email', 'feedback_type', 'title'],
+    );
   });
 
   it('CT-15g-4: gửi kèm ảnh chụp màn hình; người gửi và người xử lý xem được ảnh, người khác không', async () => {

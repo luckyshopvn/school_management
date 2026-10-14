@@ -13,6 +13,9 @@ export type SessionStatus = 'checking' | 'signed-out' | 'signed-in';
 interface SessionValue {
   status: SessionStatus;
   passwordChangeRequired: boolean;
+  // Mật khẩu đã hết hạn nên phải đổi; số ngày còn lại khi sắp hết hạn (YCTD-110)
+  passwordExpired: boolean;
+  passwordExpiresInDays: number | null;
   login(loginIdentifier: string, password: string): Promise<void>;
   changePassword(currentPassword: string, newPassword: string): Promise<void>;
   logout(): Promise<void>;
@@ -25,9 +28,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [status, setStatus] = useState<SessionStatus>('checking');
   const [passwordChangeRequired, setPasswordChangeRequired] = useState(false);
+  const [passwordExpired, setPasswordExpired] = useState(false);
+  const [passwordExpiresInDays, setPasswordExpiresInDays] = useState<number | null>(null);
 
   const applyTokens = useCallback((tokens: TokenResponse) => {
     setPasswordChangeRequired(tokens.password_change_required);
+    setPasswordExpired(tokens.password_expired ?? false);
+    setPasswordExpiresInDays(tokens.password_expires_in_days ?? null);
     setStatus('signed-in');
   }, []);
 
@@ -41,6 +48,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     () => ({
       status,
       passwordChangeRequired,
+      passwordExpired,
+      passwordExpiresInDays,
       async login(loginIdentifier, password) {
         applyTokens(await requestLogin(loginIdentifier, password));
       },
@@ -54,11 +63,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         } finally {
           queryClient.clear();
           setPasswordChangeRequired(false);
+          setPasswordExpired(false);
+          setPasswordExpiresInDays(null);
           setStatus('signed-out');
         }
       },
     }),
-    [status, passwordChangeRequired, applyTokens, queryClient],
+    [status, passwordChangeRequired, passwordExpired, passwordExpiresInDays, applyTokens, queryClient],
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

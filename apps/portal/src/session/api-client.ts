@@ -21,6 +21,9 @@ export interface TokenResponse {
   token_type: 'Bearer';
   expires_in: number;
   password_change_required: boolean;
+  // Hạn mật khẩu của tài khoản nhân sự (YCTD-110); máy chủ cũ không trả thì coi như không áp dụng
+  password_expired?: boolean;
+  password_expires_in_days?: number | null;
 }
 
 export interface CurrentUser {

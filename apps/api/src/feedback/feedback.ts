@@ -14,12 +14,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { UserFeedbackStatus, UserFeedbackType } from '@school-management/database';
-import {
-  ApplicationError,
-  Clock,
-  validationError,
-  type FieldError,
-} from '@school-management/server';
+import { ApplicationError, Clock, validationError, type FieldError } from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { Response } from 'express';
 import { sql } from 'kysely';
@@ -401,7 +396,10 @@ export class FeedbackService {
         names.set(unit.id, unit.name);
       }
     }
-    return rows.map((row) => ({ ...row, org_unit_name: row.org_unit_id ? (names.get(row.org_unit_id) ?? null) : null }));
+    return rows.map((row) => ({
+      ...row,
+      org_unit_name: row.org_unit_id ? (names.get(row.org_unit_id) ?? null) : null,
+    }));
   }
 
   // Thông báo nằm ở cơ sở dữ liệu năm học; chưa có năm học đang dùng thì không báo được, người gửi vẫn xem câu trả lời ở

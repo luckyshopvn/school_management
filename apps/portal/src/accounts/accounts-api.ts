@@ -17,6 +17,8 @@ export interface Account {
   must_change_password: boolean;
   valid_until: string | null;
   last_login_at: string | null;
+  // Thời điểm đặt mật khẩu gần nhất (YCTD-110)
+  password_changed_at: string;
   assignments: Assignment[];
 }
 
@@ -109,4 +111,18 @@ export function replaceRolePermissions(roleId: string, permissionCodes: string[]
 
 export function listPermissions(): Promise<Permission[]> {
   return requestJson('/api/v1/permissions');
+}
+
+// Chính sách hạn mật khẩu của tài khoản nhân sự (DT-15 phần 15g, YCTD-110)
+export interface PasswordPolicy {
+  password_max_age_days: number;
+  password_expiry_warning_days: number;
+}
+
+export function readPasswordPolicy(): Promise<PasswordPolicy> {
+  return requestJson('/api/v1/auth/settings/password-policy');
+}
+
+export function savePasswordPolicy(policy: PasswordPolicy): Promise<PasswordPolicy> {
+  return requestJson('/api/v1/auth/settings/password-policy', { method: 'PUT', body: JSON.stringify(policy) });
 }

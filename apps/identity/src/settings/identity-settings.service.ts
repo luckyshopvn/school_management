@@ -182,7 +182,10 @@ export class IdentitySettingsService {
     return this.passwordPolicy();
   }
 
-  async updatePasswordPolicy(caller: CallerContext, body: Record<string, unknown> | undefined): Promise<PasswordPolicy> {
+  async updatePasswordPolicy(
+    caller: CallerContext,
+    body: Record<string, unknown> | undefined,
+  ): Promise<PasswordPolicy> {
     const errors: FieldError[] = [];
     const changes: Partial<PasswordPolicy> = {};
     for (const key of PASSWORD_POLICY_KEYS) {
