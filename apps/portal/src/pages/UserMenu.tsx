@@ -40,8 +40,19 @@ export function UserMenu({ fullName, onLogout }: { fullName: string | undefined;
         setOpen(false);
       }
     };
+    // Esc đóng menu cả khi con trỏ bàn phím còn ở nút (mở bằng chuột)
+    const onKey = (event: globalThis.KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpen(false);
+        button.current?.focus();
+      }
+    };
     document.addEventListener('mousedown', onPointer);
-    return () => document.removeEventListener('mousedown', onPointer);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onPointer);
+      document.removeEventListener('keydown', onKey);
+    };
   }, [open]);
 
   const openAndFocus = (index: number) => {

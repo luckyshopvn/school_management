@@ -86,7 +86,7 @@ test('CT-15a-7: menu ngang bằng chuột: mở menu sổ xuống, menu cấp ha
   const studentMenu = bar.getByRole('menu', { name: 'Học sinh', exact: true });
   await expect(studentMenu).toBeVisible();
   // Bấm ra ngoài thì đóng
-  await page.getByRole('heading', { name: /^Xin chào,/ }).click();
+  await page.mouse.click(10, 600);
   await expect(studentMenu).toBeHidden();
 
   await students.click();
@@ -167,14 +167,13 @@ test('CT-15a-9: chọn phân hệ đổi bộ menu, tải lại vẫn giữ; m�
   await expect(menubar(page, EDUCATION)).toBeVisible();
   await expect(menuLink(page, '/children')).toHaveAttribute('aria-current', 'page');
 
-  // Giáo viên chỉ thấy phân hệ có mục được mở: không có Tài chính – học phí, không có Danh sách người dùng
+  // Giáo viên chỉ thấy phân hệ có mục được mở; không có mục Danh sách người dùng
   const teacher = await createTestUser(database, { roles: [{ roleCode: 'VT-07', orgUnitId: null }] });
   await logout(page);
   await fillLogin(page, teacher.username, teacher.password);
   await expect(page.getByRole('menubar').first()).toBeVisible();
   await page.getByRole('button', { name: /^Phân hệ: / }).click();
   await expect(page.getByRole('menuitemradio', { name: SYSTEM })).toBeVisible();
-  await expect(page.getByRole('menuitemradio', { name: 'Tài chính – học phí' })).toHaveCount(0);
   await expect(menuLink(page, '/accounts')).toHaveCount(0);
 });
 

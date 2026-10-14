@@ -1,5 +1,5 @@
 import { useCallback, useState, type FormEvent } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
 import {
   Alert,
@@ -290,6 +290,8 @@ export function AccountsPage() {
     queryKey: ['accounts', q, status, page, pageSize],
     queryFn: () => listAccounts({ q, status, page, pageSize }),
     enabled: grid.ready,
+    // Giữ danh sách cũ trên lưới khi đổi trang, đổi bộ lọc
+    placeholderData: keepPreviousData,
   });
   const roles = useQuery({ queryKey: ['roles'], queryFn: listRoles });
   const units = useQuery({ queryKey: ['org-units', 'flat', ''], queryFn: () => listOrgUnits() });

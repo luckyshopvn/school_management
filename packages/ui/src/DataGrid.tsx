@@ -434,7 +434,7 @@ export function DataGrid<Row>({
         </div>
       )}
       <div className="flex flex-wrap items-center gap-3 text-label text-text-secondary">
-        <span>Tổng {total} dòng</span>
+        <span>{loading ? 'Đang tải…' : `Tổng ${total} dòng`}</span>
         <label htmlFor={pageSizeId} className="ml-auto">
           Số dòng mỗi trang
         </label>

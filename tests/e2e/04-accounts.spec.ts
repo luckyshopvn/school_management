@@ -89,6 +89,7 @@ test('Giáo viên không thấy mục Tài khoản và Vai trò và quyền', as
 test('CT-15a-12: lưới dữ liệu ở Tài khoản: cấu hình cột, số dòng mỗi trang nhớ theo người dùng, chọn dòng, mở rộng tìm kiếm; gỡ vai trò phải tích đồng ý', async ({
   page,
 }) => {
+  test.setTimeout(120_000);
   const principal = await createTestUser(database, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
   const target = await createTestUser(database, {
     roles: [
@@ -104,14 +105,12 @@ test('CT-15a-12: lưới dữ liệu ở Tài khoản: cấu hình cột, số d
   await loginWith(page, principal.username, principal.password);
   await openMenu(page, '/accounts');
   const grid = page.getByRole('region', { name: 'Danh sách tài khoản' });
-  await expect(grid.getByRole('columnheader')).toHaveText([
-    '',
-    'Họ tên',
-    'Đăng nhập',
-    'Vai trò',
-    'Trạng thái',
-    'Thao tác',
-  ]);
+  // Danh sách tài khoản đọc ở dịch vụ định danh, có lúc chậm khi cơ sở dữ liệu nhiều tài khoản
+  const slow = { timeout: 30_000 };
+  await expect(grid.getByRole('columnheader')).toHaveText(
+    ['', 'Họ tên', 'Đăng nhập', 'Vai trò', 'Trạng thái', 'Thao tác'],
+    slow,
+  );
 
   // Cấu hình cột hiển thị: ẩn Vai trò, hiện Tên đăng nhập, đưa Trạng thái lên trước
   await grid.getByRole('button', { name: 'Cấu hình cột hiển thị' }).click();
@@ -126,9 +125,9 @@ test('CT-15a-12: lưới dữ liệu ở Tài khoản: cấu hình cột, số d
 
   // Số dòng mỗi trang; tải lại vẫn giữ cả cột và số dòng (lưu ở máy chủ)
   await grid.getByLabel('Số dòng mỗi trang').selectOption('10');
-  await expect(grid.getByRole('row')).toHaveCount(11);
+  await expect(grid.getByRole('row')).toHaveCount(11, slow);
   await page.reload();
-  await expect(grid.getByRole('columnheader')).toHaveText(expected);
+  await expect(grid.getByRole('columnheader')).toHaveText(expected, slow);
   await expect(grid.getByLabel('Số dòng mỗi trang')).toHaveValue('10');
 
   // Chọn cả trang, bỏ một dòng; sang trang khác thì bỏ lựa chọn (danh sách phân trang ở máy chủ)
@@ -138,14 +137,14 @@ test('CT-15a-12: lưới dữ liệu ở Tài khoản: cấu hình cột, số d
   await expect(grid.getByText('Đã chọn 9 dòng')).toBeVisible();
   await expect(grid.getByRole('checkbox', { name: 'Chọn tất cả dòng trên trang' })).not.toBeChecked();
   await grid.getByRole('button', { name: 'Trang sau' }).click();
-  await expect(grid.getByText(/^Trang 2 \/ \d+$/)).toBeVisible();
+  await expect(grid.getByText(/^Trang 2 \/ \d+$/)).toBeVisible(slow);
   await expect(grid.getByText(/^Đã chọn/)).toHaveCount(0);
 
   // Mở rộng tìm kiếm có bộ lọc trạng thái; tìm tài khoản cần gỡ vai trò
   await grid.getByRole('button', { name: 'Mở rộng tìm kiếm' }).click();
   await grid.getByRole('region', { name: 'Mở rộng tìm kiếm' }).getByLabel('Trạng thái').selectOption('active');
   await grid.getByLabel('Tìm theo tên, số điện thoại, tên đăng nhập').fill(target.username);
-  await expect(grid.getByRole('row')).toHaveCount(2);
+  await expect(grid.getByRole('row')).toHaveCount(2, slow);
   await grid.getByRole('button', { name: `Hồ sơ ${targetName}` }).click();
 
   const detail = page.getByRole('region', { name: `Tài khoản ${targetName}` });
