@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
+import { expectNoMenuLink, openMenu } from './menu.js';
 
 // Cấu hình theo đơn vị (P01-08) và MH-31 Nhật ký thao tác (P01-09). Chạy sau 03-org-units.spec.ts.
 const database = createDatabase<IdentityDatabase>(readConnectionString('identity'));
@@ -20,7 +21,7 @@ async function loginAsPrincipal(page: Page) {
 
 test('Hiệu trưởng đặt ngày chốt học phí của Phân hiệu A; nhật ký thao tác ghi lại thay đổi', async ({ page }) => {
   await loginAsPrincipal(page);
-  await page.getByRole('link', { name: 'Cấu hình' }).click();
+  await openMenu(page, '/settings');
   await page.getByLabel('Đơn vị', { exact: true }).selectOption({ label: 'Phân hiệu A' });
 
   const row = page.getByRole('row').filter({ hasText: 'Ngày chốt học phí' });
@@ -40,7 +41,7 @@ test('Hiệu trưởng đặt ngày chốt học phí của Phân hiệu A; nh�
 
   await expect(page.getByLabel('Số ngày không đăng nhập thì tự khóa tài khoản')).toHaveValue(/\d+/);
 
-  await page.getByRole('link', { name: 'Nhật ký thao tác' }).click();
+  await openMenu(page, '/audit-logs');
   await page.getByLabel('Đối tượng').selectOption({ label: 'Cấu hình' });
   const entry = page.getByRole('row').filter({ hasText: 'tuition_closing_day' }).first();
   await expect(entry).toContainText('Sửa');
@@ -55,6 +56,6 @@ test('Giáo viên không thấy mục Cấu hình và Nhật ký thao tác', asy
   await page.getByLabel('Mật khẩu', { exact: true }).fill(teacher.password);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
   await expect(page.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Cấu hình' })).toHaveCount(0);
-  await expect(page.getByRole('link', { name: 'Nhật ký thao tác' })).toHaveCount(0);
+  await expectNoMenuLink(page, '/settings');
+  await expectNoMenuLink(page, '/audit-logs');
 });

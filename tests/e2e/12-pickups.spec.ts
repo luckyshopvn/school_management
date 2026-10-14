@@ -9,6 +9,7 @@ import {
 } from '@school-management/database';
 import { createTestUser, hashForTesting, TEST_PASSWORD } from '@school-management/identity/testing';
 import { E2E_PARENT_PORT, E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_TEACHER_PORT } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Người được ủy quyền đón trẻ và đón trả (DT-04 phần 4b, YCTD-48). Chạy sau 09-children.spec.ts: trẻ Nguyễn Gia Bảo học
 // lớp Mầm 1 của Phân hiệu A, phụ huynh có tài khoản. Bàn giao của giáo viên phụ thuộc hôm nay là ngày học nên kiểm thử ở
@@ -75,7 +76,7 @@ test('Phụ huynh khai báo người đón trên ứng dụng phụ huynh; quả
   await portal.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(manager.username);
   await portal.getByLabel('Mật khẩu', { exact: true }).fill(manager.password);
   await portal.getByRole('button', { name: 'Đăng nhập' }).click();
-  await portal.getByRole('link', { name: 'Hồ sơ trẻ' }).click();
+  await openMenu(portal, '/children');
   await portal.getByRole('row').filter({ hasText: CHILD_NAME }).click();
   const section = portal.getByRole('region', { name: `Người được ủy quyền đón ${CHILD_NAME}` });
   await expect(section).toContainText('Trần Thị Lan');

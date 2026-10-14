@@ -10,6 +10,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Cân nặng, chiều cao và thống kê theo tiêu chí ngành (DT-14 phần 14a, YCTD-102): y tế lập đợt cân đo, nhập số đo, "Tính và
 // lưu" ra kênh tăng trưởng; quản lý đơn vị xem tổng hợp lọc theo kênh và xuất Excel, xem thống kê 5.1, 5.3 và hồ sơ chưa
@@ -89,7 +90,7 @@ test('Y tế nhập cân đo, tính kênh tăng trưởng; quản lý xem tổng
 
   // 4.3.1: y tế lập đợt, nhập số đo, tính và lưu
   const nursePage = await signIn(browser, nurse);
-  await nursePage.getByRole('link', { name: 'Nhập cân đo' }).click();
+  await openMenu(nursePage, '/growth');
   await expect(nursePage.getByRole('heading', { name: '4.3.1 Nhập kết quả sức khỏe nuôi dưỡng' })).toBeVisible();
   await nursePage.getByLabel('Tên đợt cân đo').fill(`Cân đo ${suffix}`);
   await nursePage.getByRole('button', { name: 'Lập đợt' }).click();
@@ -106,7 +107,7 @@ test('Y tế nhập cân đo, tính kênh tăng trưởng; quản lý xem tổng
 
   // 4.3.2: quản lý đơn vị lọc kênh nhẹ cân, xuất Excel
   const managerPage = await signIn(browser, manager);
-  await managerPage.getByRole('link', { name: 'Tổng hợp cân đo' }).click();
+  await openMenu(managerPage, '/growth-report');
   await expect(managerPage.getByRole('heading', { name: '4.3.2 Tổng hợp cân nặng, chiều cao' })).toBeVisible();
   await managerPage.getByLabel('Kênh').selectOption('underweight');
   await managerPage.getByRole('button', { name: 'Xem tổng hợp' }).click();
@@ -117,7 +118,7 @@ test('Y tế nhập cân đo, tính kênh tăng trưởng; quản lý xem tổng
   expect((await downloadPromise).suggestedFilename()).toMatch(/^tong-hop-can-do-.*\.xlsx$/);
 
   // 5.1, 5.3: thống kê lớp học, học sinh
-  await managerPage.getByRole('link', { name: 'Thống kê theo tiêu chí ngành' }).click();
+  await openMenu(managerPage, '/statistics');
   await expect(managerPage.getByRole('heading', { name: '5.1 Thống kê lớp học' })).toBeVisible();
   await expect(managerPage.getByRole('region', { name: 'Lớp theo nhóm tuổi' })).toContainText('Mẫu giáo 3–4 tuổi');
   await managerPage.getByRole('tab', { name: '5.3 Thống kê học sinh' }).click();
@@ -127,7 +128,7 @@ test('Y tế nhập cân đo, tính kênh tăng trưởng; quản lý xem tổng
   );
 
   // 5.8: hồ sơ học sinh thiếu tôn giáo, mở hồ sơ từ danh sách
-  await managerPage.getByRole('link', { name: 'Hồ sơ chưa nhập đủ' }).click();
+  await openMenu(managerPage, '/missing-profiles');
   await expect(managerPage.getByRole('heading', { name: '5.8 Thống kê hồ sơ học sinh chưa nhập đủ' })).toBeVisible();
   await managerPage.getByRole('button', { name: /hồ sơ thiếu Tôn giáo$/ }).click();
   const list = managerPage.getByRole('region', { name: 'Danh sách hồ sơ thiếu' });

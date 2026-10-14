@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
+import { openMenu } from './menu.js';
 
 // MH-45 Lịch năm học và MH-43 Mở năm học mới (P01-02, BR-91, BR-93)
 const database = createDatabase<IdentityDatabase>(readConnectionString('identity'));
@@ -20,7 +21,7 @@ async function loginAs(page: Page, roleCode: string, orgUnitId: string | null) {
 
 test('Hiệu trưởng tạo năm học, lưu lịch, đánh dấu tuần nghỉ Tết và mở năm học', async ({ page }) => {
   await loginAs(page, 'VT-02', null);
-  await page.getByRole('link', { name: 'Năm học' }).click();
+  await openMenu(page, '/academic-years');
   await expect(page.getByRole('heading', { name: 'Năm học', exact: true })).toBeVisible();
 
   await page.getByLabel('Tên năm học mới').fill('2026–2027');
@@ -63,7 +64,7 @@ test('Hiệu trưởng tạo năm học, lưu lịch, đánh dấu tuần nghỉ
 
 test('Giáo viên chỉ xem lịch năm học, không có nút tạo, lưu, mở', async ({ page }) => {
   await loginAs(page, 'VT-07', '00000000-0000-0000-0000-0000000000a1');
-  await page.getByRole('link', { name: 'Năm học' }).click();
+  await openMenu(page, '/academic-years');
   await expect(page.getByRole('heading', { name: 'Năm học 2026–2027' })).toBeVisible();
   await expect(page.getByRole('group', { name: 'Học kỳ 1' }).getByLabel('Từ ngày')).toHaveValue('2026-09-05');
   await expect(page.getByRole('group', { name: 'Học kỳ 1' }).getByLabel('Từ ngày')).toBeDisabled();

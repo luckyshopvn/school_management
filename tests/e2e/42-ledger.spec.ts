@@ -10,6 +10,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Sổ kế toán kép (DT-11 phần 11c, YCTD-88): kế toán trưởng ghi sổ chứng từ (hóa đơn đã phát hành thành bút toán Nợ 131 /
 // Có 531), ghi một bút toán thủ công cân và xem bảng cân đối số phát sinh trên trang Sổ kế toán (MH-67, MH-68)
@@ -77,7 +78,7 @@ test('Kế toán trưởng ghi sổ chứng từ, ghi bút toán thủ công và
     .execute();
 
   const page = await signIn(browser, chief);
-  await page.getByRole('link', { name: 'Sổ kế toán' }).click();
+  await openMenu(page, '/ledger');
   await expect(page.getByRole('heading', { name: 'Sổ kế toán' })).toBeVisible();
   await page.getByRole('button', { name: 'Ghi sổ chứng từ' }).click();
   await expect(page.getByText(/Đã ghi sổ \d+ chứng từ/)).toBeVisible();

@@ -9,6 +9,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_TEACHER_PORT } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Giao việc và theo dõi tiến độ (DT-10 phần 10h, YCTD-81): quản lý đơn vị giao việc trên cổng quản trị; giáo viên cập nhật
 // tiến độ trên ứng dụng giáo viên; quản lý thấy việc đã hoàn thành
@@ -57,7 +58,7 @@ test('Quản lý giao việc trên cổng quản trị; giáo viên cập nhật
   await page.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(manager.username);
   await page.getByLabel('Mật khẩu', { exact: true }).fill(manager.password);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
-  await page.getByRole('link', { name: 'Công việc và kế hoạch' }).click();
+  await openMenu(page, '/work');
   const form = page.getByRole('form', { name: 'Giao việc' });
   await form.getByLabel('Người nhận').selectOption({ label: fullName });
   await form.getByLabel('Nội dung việc').fill(title);

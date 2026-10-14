@@ -9,6 +9,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_TEACHER_PORT } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Giảng dạy (DT-10 phần 10g, YCTD-80): giáo viên tạo bài học, soạn giáo án và gửi duyệt trên ứng dụng giáo viên; tổ
 // trưởng chuyên môn duyệt trên cổng quản trị, giáo án chuyển sang chờ quản lý đơn vị duyệt
@@ -85,7 +86,7 @@ test('Giáo viên soạn giáo án và gửi duyệt; tổ trưởng chuyên mô
   await leaderPage.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(leader.username);
   await leaderPage.getByLabel('Mật khẩu', { exact: true }).fill(leader.password);
   await leaderPage.getByRole('button', { name: 'Đăng nhập' }).click();
-  await leaderPage.getByRole('link', { name: 'Bài học và giáo án' }).click();
+  await openMenu(leaderPage, '/teaching');
   await leaderPage.getByRole('tab', { name: 'Giáo án chờ duyệt' }).click();
   const row = leaderPage.getByRole('row').filter({ hasText: lessonName });
   await expect(row).toContainText(className);

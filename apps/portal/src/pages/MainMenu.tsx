@@ -39,6 +39,8 @@ function Menubar({ workspace, hidden }: { workspace: PortalWorkspace; hidden: bo
   const [focusedTop, setFocusedTop] = useState(HOME_KEY);
   const [pendingFocus, setPendingFocus] = useState<string>();
   const container = useRef<HTMLUListElement>(null);
+  // Menu cấp một vừa mở do rê chuột: cú bấm ngay sau đó giữ menu mở thay vì đóng lại
+  const hoverOpened = useRef<string | undefined>(undefined);
   const active = activeTrail(workspace.menu, pathname);
   const topKeys = [HOME_KEY, ...workspace.menu.map((node) => node.number)];
 
@@ -216,7 +218,7 @@ function Menubar({ workspace, hidden }: { workspace: PortalWorkspace; hidden: bo
                     aria-haspopup="menu"
                     aria-expanded={expanded}
                     className={className}
-                    onClick={() => setOpenTrail(expanded ? trail : [...trail, node.number])}
+                    onClick={() => setOpenTrail([...trail, node.number])}
                     onMouseEnter={() => setOpenTrail([...trail, node.number])}
                     onKeyDown={(event) => onItemKeyDown(event, node, children, trail)}
                   >
@@ -287,11 +289,19 @@ function Menubar({ workspace, hidden }: { workspace: PortalWorkspace; hidden: bo
                   aria-haspopup="menu"
                   aria-expanded={expanded}
                   className={topClass(isActive, expanded)}
-                  onClick={() => setOpenTrail(expanded ? [] : [node.number])}
+                  onClick={() => {
+                    const keepOpen = expanded && hoverOpened.current === node.number;
+                    hoverOpened.current = undefined;
+                    setOpenTrail(expanded && !keepOpen ? [] : [node.number]);
+                  }}
                   onMouseEnter={() => {
                     if (openTrail.length > 0 && !expanded) {
+                      hoverOpened.current = node.number;
                       setOpenTrail([node.number]);
                     }
+                  }}
+                  onMouseLeave={() => {
+                    hoverOpened.current = undefined;
                   }}
                   onFocus={() => setFocusedTop(node.number)}
                   onKeyDown={(event) => onTopKeyDown(event, node, node.number)}

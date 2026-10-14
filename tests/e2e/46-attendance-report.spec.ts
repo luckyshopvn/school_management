@@ -12,6 +12,7 @@ import {
 import { createTestUser } from '@school-management/identity/testing';
 import ExcelJS from 'exceljs';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_SYSTEM_DATABASE_NAME } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Báo cáo điểm danh và suất ăn (DT-13 phần 13c, YCTD-100): Hiệu trưởng mở báo cáo, chuyển kỳ ngày, tuần, tháng, xuất
 // Excel theo mẫu của nhà trường. Chạy sau 02-academic-years và 03-org-units (năm học đang mở, có đơn vị). Lớp và trẻ là
@@ -87,7 +88,7 @@ test('Báo cáo điểm danh và suất ăn theo ngày, tuần, tháng và xuấ
   await page.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(principal.username);
   await page.getByLabel('Mật khẩu', { exact: true }).fill(principal.password);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
-  await page.getByRole('link', { name: 'Báo cáo' }).click();
+  await openMenu(page, '/reports');
   await page.getByRole('tab', { name: 'Điểm danh và suất ăn', exact: true }).click();
   await page.getByRole('button', { name: 'Xem báo cáo' }).click();
   const table = page.getByRole('region', { name: 'Điểm danh và suất ăn theo lớp' });

@@ -9,6 +9,7 @@ import {
 } from '@school-management/database';
 import { createTestUser, hashForTesting, TEST_PASSWORD } from '@school-management/identity/testing';
 import { E2E_PARENT_PORT, E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_TEACHER_PORT } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // QT-02 điểm danh và báo vắng (DT-04 phần 4a, YCTD-47). Chạy sau 09-children.spec.ts: lớp Mầm 1 của Phân hiệu A
 // có trẻ Nguyễn Gia Bảo kèm phụ huynh có tài khoản
@@ -88,7 +89,7 @@ test('Giáo viên chủ nhiệm điểm danh lớp Mầm 1 trên ứng dụng gi
   await portal.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(manager.username);
   await portal.getByLabel('Mật khẩu', { exact: true }).fill(manager.password);
   await portal.getByRole('button', { name: 'Đăng nhập' }).click();
-  await portal.getByRole('link', { name: 'Điểm danh' }).click();
+  await openMenu(portal, '/attendance');
   await portal.getByRole('combobox', { name: /^Lớp/ }).selectOption({ label: 'Mầm 1' });
   await portal.getByLabel('Ngày').fill(SCHOOL_DAY);
   const sheet = portal.getByRole('region', { name: 'Bảng điểm danh' });

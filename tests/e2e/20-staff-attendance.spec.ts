@@ -9,6 +9,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Lịch ngày lễ, nghỉ bù và chấm công nhân sự (DT-06 phần 6b-1, YCTD-59): phòng nhân sự Trường chính lập ngày lễ, Hiệu
 // trưởng lập ngày nghỉ bù; giáo viên tự vào ca; phòng nhân sự đơn vị nhập giờ trên bảng chấm công
@@ -56,7 +57,7 @@ test('Phòng nhân sự Trường chính lập ngày lễ, Hiệu trưởng lậ
   const dayOffDate = futureWeekday(3, 400);
 
   const page = await signIn(browser, personnel);
-  await page.getByRole('link', { name: 'Ngày lễ và lịch bù' }).click();
+  await openMenu(page, '/school-days');
   await page.getByLabel('Năm', { exact: true }).fill(holidayDate.slice(0, 4));
   const holidayForm = page.getByRole('form', { name: 'Thêm ngày nghỉ lễ' });
   await holidayForm.getByLabel('Ngày lễ', { exact: true }).fill(holidayDate);
@@ -67,7 +68,7 @@ test('Phòng nhân sự Trường chính lập ngày lễ, Hiệu trưởng lậ
   await expect(page.getByRole('form', { name: 'Thêm ngày học bù hoặc nghỉ bù' })).toHaveCount(0);
 
   const principalPage = await signIn(browser, principal);
-  await principalPage.getByRole('link', { name: 'Ngày lễ và lịch bù' }).click();
+  await openMenu(principalPage, '/school-days');
   await principalPage.getByLabel('Năm', { exact: true }).fill(dayOffDate.slice(0, 4));
   const changeForm = principalPage.getByRole('form', { name: 'Thêm ngày học bù hoặc nghỉ bù' });
   await changeForm.getByLabel('Loại lịch').selectOption('compensatory_day_off');
@@ -108,7 +109,7 @@ test('Giáo viên tự vào ca; phòng nhân sự đơn vị nhập giờ ra tr�
     .execute();
 
   const teacherPage = await signIn(browser, teacher);
-  await teacherPage.getByRole('link', { name: 'Chấm công' }).click();
+  await openMenu(teacherPage, '/staff-attendance');
   const mine = teacherPage.getByRole('region', { name: 'Chấm công của tôi' });
   await expect(mine).toContainText('chưa vào ca');
   await mine.getByRole('button', { name: 'Vào ca' }).click();
@@ -117,7 +118,7 @@ test('Giáo viên tự vào ca; phòng nhân sự đơn vị nhập giờ ra tr�
   await expect(teacherPage.getByRole('region', { name: 'Bảng chấm công' })).toHaveCount(0);
 
   const page = await signIn(browser, personnel);
-  await page.getByRole('link', { name: 'Chấm công' }).click();
+  await openMenu(page, '/staff-attendance');
   await page.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: unit.name });
   const form = page.getByRole('form', { name: 'Nhập giờ chấm công' });
   await form.getByLabel('Nhân sự').selectOption({ label: `${code} – ${fullName}` });

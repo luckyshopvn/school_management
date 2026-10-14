@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import ExcelJS from 'exceljs';
 import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
 import { createTestUser, hashForTesting } from '@school-management/identity/testing';
+import { openMenu } from './menu.js';
 
 // Nhập tệp xuất từ CSDL ngành cho trẻ (DT-13 phần 13a, YCTD-100). Chạy sau 10-imports.spec.ts, khi đã có lớp MAM9 "Mầm 9"
 // ở Phân hiệu A. Tệp tổng hợp chỉ gồm vài cột của mẫu học sinh, dữ liệu không có thật
@@ -85,7 +86,7 @@ test('Hiệu trưởng tải tệp học sinh của CSDL ngành, xem trước r�
   await page.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(principal.username);
   await page.getByLabel('Mật khẩu', { exact: true }).fill(principal.password);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
-  await page.getByRole('link', { name: 'Nhập dữ liệu' }).click();
+  await openMenu(page, '/imports');
 
   const region = page.getByRole('region', { name: 'Trẻ từ CSDL ngành' });
   await region.getByLabel('Tệp Trẻ từ CSDL ngành').setInputFiles({
@@ -99,7 +100,7 @@ test('Hiệu trưởng tải tệp học sinh của CSDL ngành, xem trước r�
   await region.getByRole('button', { name: 'Ghi dữ liệu' }).click();
   await expect(region).toContainText('Đã ghi dữ liệu');
 
-  await page.getByRole('link', { name: 'Hồ sơ trẻ' }).click();
+  await openMenu(page, '/children');
   await page.getByLabel('Thiếu giấy khai sinh').check();
   const imported = page.getByRole('row').filter({ hasText: 'Lê Thị Mai Anh' });
   await expect(imported).toContainText('Đang học');

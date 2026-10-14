@@ -10,6 +10,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_PARENT_PORT, E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_TEACHER_PORT } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Hoạt động của lớp (DT-10 phần 10e, YCTD-78; CT-069, CT-070): giáo viên tạo hoạt động gửi duyệt trên ứng dụng giáo viên;
 // quản lý đơn vị duyệt trên cổng quản trị; phụ huynh của lớp thấy hoạt động đã công bố trên ứng dụng phụ huynh
@@ -132,7 +133,7 @@ test('Giáo viên tạo hoạt động; quản lý đơn vị duyệt; phụ huy
   await managerPage.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(manager.username);
   await managerPage.getByLabel('Mật khẩu', { exact: true }).fill(manager.password);
   await managerPage.getByRole('button', { name: 'Đăng nhập' }).click();
-  await managerPage.getByRole('link', { name: 'Hoạt động và tin tức' }).click();
+  await openMenu(managerPage, '/activities');
   const article = managerPage.getByRole('article', { name: title });
   await expect(article).toContainText(className);
   await article.getByRole('button', { name: 'Duyệt và công bố' }).click();

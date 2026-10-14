@@ -9,6 +9,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // MH-03 Lớp học và phân công giáo viên (P02-05, YCTD-44). Chạy sau 03-org-units và 06-catalogs, khi đã có đơn vị và bậc học.
 const database = createDatabase<IdentityDatabase>(readConnectionString('identity'));
@@ -54,7 +55,7 @@ test('Quản lý đơn vị tạo lớp của Phân hiệu A, phân công giáo 
   ).full_name;
 
   await loginWithRole(page, 'VT-03', unitId);
-  await page.getByRole('link', { name: 'Lớp học' }).click();
+  await openMenu(page, '/classes');
   await expect(page.getByLabel('Đơn vị', { exact: true })).toHaveValue(unitId);
 
   const form = page.getByRole('region', { name: 'Tạo lớp' });
@@ -84,7 +85,7 @@ test('Quản lý đơn vị tạo lớp của Phân hiệu A, phân công giáo 
 test('Giáo viên xem được danh sách lớp nhưng không có biểu mẫu tạo lớp', async ({ page }) => {
   const unitId = await findUnitId('Phân hiệu A');
   await loginWithRole(page, 'VT-07', unitId);
-  await page.getByRole('link', { name: 'Lớp học' }).click();
+  await openMenu(page, '/classes');
   await expect(page.getByRole('row').filter({ hasText: 'Mầm 1' })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Tạo lớp' })).toHaveCount(0);
 });

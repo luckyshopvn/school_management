@@ -12,6 +12,7 @@
     "@school-management/config": "workspace:*",
     "@school-management/database": "workspace:*",
     "@school-management/identity": "workspace:*",
+    "@school-management/shared": "workspace:*",
     "exceljs": "^4.4.0"
   }
 }

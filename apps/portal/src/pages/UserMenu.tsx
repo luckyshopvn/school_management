@@ -107,7 +107,10 @@ export function UserMenu({ fullName, onLogout }: { fullName: string | undefined;
       >
         <UserIcon />
         {fullName ? (
-          <span className="sr-only max-w-48 truncate md:not-sr-only" data-testid="current-user-name">
+          <span
+            className="sr-only max-w-48 truncate md:not-sr-only md:whitespace-nowrap"
+            data-testid="current-user-name"
+          >
             {fullName}
           </span>
         ) : (

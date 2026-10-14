@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
+import { openMenu } from './menu.js';
 
 // MH-32 Cây đơn vị hai cấp (P01-01, QĐ-23). Chạy sau 02-academic-years.spec.ts, khi năm học 2026–2027 đang dùng.
 const database = createDatabase<IdentityDatabase>(readConnectionString('identity'));
@@ -22,7 +23,7 @@ test('Hiệu trưởng tạo Trường chính, Phân hiệu, Điểm trường; 
   page,
 }) => {
   await loginAsPrincipal(page);
-  await page.getByRole('link', { name: 'Cây đơn vị' }).click();
+  await openMenu(page, '/org-units');
   await expect(page.getByRole('heading', { name: 'Tạo Trường chính' })).toBeVisible();
 
   await page.getByLabel('Mã đơn vị').fill('TC');
@@ -68,7 +69,7 @@ test('Giáo viên xem cây đơn vị, không có biểu mẫu tạo và nút s�
   await page.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(user.username);
   await page.getByLabel('Mật khẩu', { exact: true }).fill(user.password);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
-  await page.getByRole('link', { name: 'Cây đơn vị' }).click();
+  await openMenu(page, '/org-units');
   await expect(page.getByText('Trường Mầm non Hoa Mai')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Sửa' })).toHaveCount(0);
   await expect(page.getByLabel('Mã đơn vị')).toHaveCount(0);

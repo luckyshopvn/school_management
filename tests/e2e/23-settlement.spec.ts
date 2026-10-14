@@ -9,6 +9,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Bảng quyết toán khi nghỉ việc (DT-06 phần 6c-2, YCTD-61): hợp đồng của nhân sự đã chấm dứt ở kiểm thử 19; kế toán lập
 // và trình bảng quyết toán, Hiệu trưởng duyệt
@@ -45,7 +46,7 @@ test('Kế toán lập và trình bảng quyết toán của nhân sự đã ngh
   const principal = await createTestUser(identity, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
 
   const page = await signIn(browser, accountant);
-  await page.getByRole('link', { name: 'Quyết toán và điều chỉnh lương' }).click();
+  await openMenu(page, '/payroll-settlements');
   const row = page.getByRole('row', { name: 'Quyết toán của Đỗ Thị Hạnh' });
   await row.getByRole('button', { name: 'Lập bảng quyết toán' }).click();
   const detail = page.getByRole('region', { name: 'Bảng quyết toán của Đỗ Thị Hạnh' });
@@ -55,7 +56,7 @@ test('Kế toán lập và trình bảng quyết toán của nhân sự đã ngh
   await expect(detail).toContainText('Trạng thái: Chờ duyệt');
 
   const principalPage = await signIn(browser, principal);
-  await principalPage.getByRole('link', { name: 'Quyết toán và điều chỉnh lương' }).click();
+  await openMenu(principalPage, '/payroll-settlements');
   await principalPage
     .getByRole('row', { name: 'Quyết toán của Đỗ Thị Hạnh' })
     .getByRole('button', { name: 'Chi tiết' })

@@ -250,7 +250,15 @@ export function DataGrid<Row>({
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const page = Math.min(serverPagination ? serverPagination.page : clientPage, totalPages);
   const pageRows = serverPagination ? rows : rows.slice((page - 1) * pageSize, page * pageSize);
-  const goTo = (next: number) => (serverPagination ? serverPagination.onPageChange(next) : setClientPage(next));
+  // Phân trang ở máy chủ chỉ có dữ liệu của trang đang xem nên đổi trang thì bỏ lựa chọn; phân trang tại chỗ giữ lựa chọn
+  const goTo = (next: number) => {
+    if (serverPagination) {
+      setSelectedIds(new Set());
+      serverPagination.onPageChange(next);
+    } else {
+      setClientPage(next);
+    }
+  };
 
   // Chỉ giữ lựa chọn của dòng còn trong danh sách
   const rowIds = new Set(rows.map(getRowId));
@@ -356,7 +364,7 @@ export function DataGrid<Row>({
                   </th>
                 ) : null}
                 {visibleColumns.map((column) => (
-                  <th key={column.id} scope="col" className="px-3 py-2">
+                  <th key={column.id} scope="col" className="whitespace-nowrap px-3 py-2">
                     {column.header}
                   </th>
                 ))}

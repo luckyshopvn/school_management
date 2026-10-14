@@ -10,6 +10,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_PARENT_PORT, E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { openMenu } from './menu.js';
 
 // Bếp và thực đơn (DT-10 phần 10c, YCTD-76): bếp lập thực đơn tuần và trình duyệt trên cổng quản trị; phụ huynh chưa thấy
 // thực đơn chưa duyệt (CT-065); quản lý đơn vị duyệt và công bố thì phụ huynh thấy trên ứng dụng phụ huynh
@@ -40,7 +41,7 @@ async function signInPortal(page: import('@playwright/test').Page, user: { usern
   await page.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(user.username);
   await page.getByLabel('Mật khẩu', { exact: true }).fill(user.password);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
-  await page.getByRole('link', { name: 'Bếp và thực đơn' }).click();
+  await openMenu(page, '/kitchen');
 }
 
 test('Bếp lập thực đơn, quản lý đơn vị duyệt và công bố, phụ huynh thấy thực đơn', async ({ browser }) => {
