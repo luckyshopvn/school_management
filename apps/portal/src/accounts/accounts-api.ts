@@ -47,8 +47,13 @@ export interface Permission {
   description: string;
 }
 
-export function listAccounts(filter: { q: string; status: string; page: number }): Promise<AccountPage> {
-  const parameters = new URLSearchParams({ page: String(filter.page), page_size: '20' });
+export function listAccounts(filter: {
+  q: string;
+  status: string;
+  page: number;
+  pageSize: number;
+}): Promise<AccountPage> {
+  const parameters = new URLSearchParams({ page: String(filter.page), page_size: String(filter.pageSize) });
   if (filter.q) {
     parameters.set('q', filter.q);
   }

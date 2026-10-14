@@ -1,17 +1,19 @@
-import { Fragment, useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, StatusBadge, TextField, Toast } from '@school-management/ui';
+import { Alert, Button, DataGrid, StatusBadge, TextField, Toast, type DataGridColumn } from '@school-management/ui';
 import { listDepartments, listJobTitles } from '../catalogs/catalogs-api.js';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { AppShell } from '../pages/AppShell.js';
+import { useGridSettings } from '../pages/grid-settings.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
-import { createStaff, listStaff } from './staff-api.js';
+import { createStaff, listStaff, type Staff } from './staff-api.js';
 import { StaffDetailPanel } from './StaffDetailPanel.js';
 
 // MH-12 Hồ sơ nhân sự và hợp đồng (P07-01, P07-02, P07-04; BR-37, BR-38; YCTD-58): danh sách theo đơn vị, tìm theo tên
-// hoặc mã; phòng nhân sự tạo hồ sơ, liên kết tài khoản, lập và chấm dứt hợp đồng
+// hoặc mã; phòng nhân sự tạo hồ sơ, liên kết tài khoản, lập và chấm dứt hợp đồng. Danh sách dùng lưới dữ liệu chung
+// (DT-15 phần 15a)
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
@@ -132,6 +134,38 @@ export function StaffPage() {
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
   const rows = staff.data ?? [];
+  const grid = useGridSettings('staff');
+
+  // Cột chính theo hồ sơ cán bộ, giáo viên của Sở (3.1.1); cột ẩn mặc định bật ở "Cấu hình cột hiển thị". Đổi cột theo
+  // đúng danh sách của Sở làm ở phần 15d
+  const columns: Array<DataGridColumn<Staff>> = [
+    { id: 'code', header: 'Mã', cell: (row) => row.code },
+    { id: 'full_name', header: 'Họ tên', alwaysVisible: true, className: 'font-medium', cell: (row) => row.full_name },
+    { id: 'department', header: 'Phòng ban', cell: (row) => row.department_name ?? '' },
+    { id: 'job_title', header: 'Chức danh', cell: (row) => row.job_title_name ?? '' },
+    { id: 'account', header: 'Tài khoản', cell: (row) => (row.has_account ? 'Đã liên kết' : 'Chưa có') },
+    {
+      id: 'status',
+      header: 'Trạng thái',
+      cell: (row) => (
+        <StatusBadge
+          tone={row.status === 'active' ? 'success' : 'neutral'}
+          label={row.status === 'active' ? 'Đang làm' : 'Đã nghỉ'}
+        />
+      ),
+    },
+    { id: 'dob', header: 'Ngày sinh', hiddenByDefault: true, cell: (row) => row.dob ?? '' },
+    {
+      id: 'gender',
+      header: 'Giới tính',
+      hiddenByDefault: true,
+      cell: (row) => (row.gender === 'male' ? 'Nam' : row.gender === 'female' ? 'Nữ' : ''),
+    },
+    { id: 'phone', header: 'Điện thoại', hiddenByDefault: true, cell: (row) => row.phone ?? '' },
+    { id: 'email', header: 'Email', hiddenByDefault: true, cell: (row) => row.email ?? '' },
+    { id: 'start_date', header: 'Ngày vào làm', hiddenByDefault: true, cell: (row) => row.start_date },
+    { id: 'unit', header: 'Đơn vị', hiddenByDefault: true, cell: (row) => row.unit_name },
+  ];
 
   return (
     <AppShell>
@@ -140,13 +174,6 @@ export function StaffPage() {
         <h1 className="text-page-title font-bold text-text">Hồ sơ nhân sự</h1>
         <div className="flex flex-wrap items-end gap-4">
           <UnitSelect units={unitChoice.units} selectedId={orgUnitId} onSelect={unitChoice.select} />
-          <div className="w-64">
-            <TextField
-              label="Tìm theo tên hoặc mã"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-            />
-          </div>
         </div>
         {canManage && orgUnitId ? (
           <StaffForm
@@ -159,60 +186,29 @@ export function StaffPage() {
           />
         ) : null}
         {staff.error ? <Alert tone="danger">{messageOf(staff.error)}</Alert> : null}
-        <section
-          className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
-          aria-label="Danh sách nhân sự"
-        >
-          {staff.data && rows.length === 0 ? (
-            <p className="text-content text-text-secondary">Chưa có hồ sơ nhân sự.</p>
-          ) : null}
-          {rows.length > 0 ? (
-            <table className="w-full text-content">
-              <thead className="text-left text-label font-medium text-text-secondary">
-                <tr>
-                  <th className="px-3 py-2">Mã</th>
-                  <th className="px-3 py-2">Họ tên</th>
-                  <th className="px-3 py-2">Phòng ban</th>
-                  <th className="px-3 py-2">Chức danh</th>
-                  <th className="px-3 py-2">Tài khoản</th>
-                  <th className="px-3 py-2">Trạng thái</th>
-                  <th className="px-3 py-2" />
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => (
-                  <Fragment key={row.id}>
-                    <tr className="border-t border-border" aria-label={`Nhân sự ${row.full_name}`}>
-                      <td className="px-3 py-2">{row.code}</td>
-                      <td className="px-3 py-2 font-medium">{row.full_name}</td>
-                      <td className="px-3 py-2">{row.department_name ?? ''}</td>
-                      <td className="px-3 py-2">{row.job_title_name ?? ''}</td>
-                      <td className="px-3 py-2">{row.has_account ? 'Đã liên kết' : 'Chưa có'}</td>
-                      <td className="px-3 py-2">
-                        <StatusBadge
-                          tone={row.status === 'active' ? 'success' : 'neutral'}
-                          label={row.status === 'active' ? 'Đang làm' : 'Đã nghỉ'}
-                        />
-                      </td>
-                      <td className="px-3 py-2 text-right">
-                        <Button variant="text" onClick={() => setOpenId(openId === row.id ? undefined : row.id)}>
-                          {openId === row.id ? 'Ẩn' : 'Chi tiết'}
-                        </Button>
-                      </td>
-                    </tr>
-                    {openId === row.id ? (
-                      <tr>
-                        <td colSpan={7} className="px-3 pb-3">
-                          <StaffDetailPanel staffId={row.id} onChanged={setToastMessage} />
-                        </td>
-                      </tr>
-                    ) : null}
-                  </Fragment>
-                ))}
-              </tbody>
-            </table>
-          ) : null}
-        </section>
+        {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+        <DataGrid
+          label="Danh sách nhân sự"
+          columns={columns}
+          rows={rows}
+          getRowId={(row) => row.id}
+          getRowLabel={(row) => row.full_name}
+          getRowAriaLabel={(row) => `Nhân sự ${row.full_name}`}
+          loading={Boolean(orgUnitId) && staff.isPending}
+          emptyText="Chưa có hồ sơ nhân sự."
+          search={{ label: 'Tìm theo tên hoặc mã', value: search, onChange: setSearch }}
+          selectable
+          rowActions={(row) => (
+            <Button variant="text" onClick={() => setOpenId(openId === row.id ? undefined : row.id)}>
+              {openId === row.id ? 'Ẩn' : 'Chi tiết'}
+            </Button>
+          )}
+          renderRowDetail={(row) =>
+            openId === row.id ? <StaffDetailPanel staffId={row.id} onChanged={setToastMessage} /> : null
+          }
+          settings={grid.settings}
+          onSettingsChange={grid.update}
+        />
       </div>
     </AppShell>
   );
