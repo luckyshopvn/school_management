@@ -202,13 +202,19 @@ test('CT-15a-10: màn hình hẹp dùng nút menu mở cây menu gập', async (
   );
 });
 
-test('CT-15a-11: menu người dùng có Thông báo, Đổi mật khẩu, Cấu hình hiển thị lưới, Thoát; số dòng mặc định lưu theo tài khoản', async ({
+test('CT-15a-11: menu người dùng có Thông báo, Đổi mật khẩu, Cấu hình hiển thị lưới, Danh sách ý kiến đã gửi (15g), Thoát; số dòng mặc định lưu theo tài khoản', async ({
   page,
 }) => {
   const user = await createTestUser(database, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
   await fillLogin(page, user.username, user.password);
   let menu = await openUserMenu(page);
-  await expect(menu.getByRole('menuitem')).toHaveText(['Thông báo', 'Đổi mật khẩu', 'Cấu hình hiển thị lưới', 'Thoát']);
+  await expect(menu.getByRole('menuitem')).toHaveText([
+    'Thông báo',
+    'Đổi mật khẩu',
+    'Cấu hình hiển thị lưới',
+    'Danh sách ý kiến đã gửi',
+    'Thoát',
+  ]);
   await page.keyboard.press('Escape');
   await expect(menu).toBeHidden();
 
