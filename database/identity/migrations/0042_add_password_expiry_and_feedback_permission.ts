@@ -2,8 +2,8 @@ import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
 // DT-15 phần 15g (YCTD-110). Hết hạn mật khẩu: thời điểm đặt mật khẩu gần nhất của từng tài khoản; tài khoản đã có lấy
-// thời điểm cập nhật gần nhất, không có thì thời điểm tạo. Lịch sử mật khẩu đã dùng (chỉ giá trị băm) để không đặt lại
-// mật khẩu cũ. Quyền xem, xử lý và trả lời ý kiến phản hồi cho Quản trị nền tảng và Hiệu trưởng
+// thời điểm cập nhật gần nhất, không có thì thời điểm tạo. Quyền xem, xử lý và trả lời ý kiến phản hồi cho Quản trị nền
+// tảng và Hiệu trưởng
 export const FEEDBACK_MANAGE_PERMISSION = 'P01.feedback.manage';
 
 export const migration: Migration = {
@@ -19,19 +19,6 @@ export const migration: Migration = {
       .alterColumn('password_changed_at', (column) => column.setDefault(sql`now()`))
       .execute();
 
-    await database.schema
-      .createTable('password_history')
-      .addColumn('id', 'uuid', (column) => column.primaryKey().defaultTo(sql`gen_random_uuid()`))
-      .addColumn('user_id', 'uuid', (column) => column.notNull().references('users.id').onDelete('cascade'))
-      .addColumn('password_hash', 'text', (column) => column.notNull())
-      .addColumn('created_at', 'timestamptz', (column) => column.notNull().defaultTo(sql`now()`))
-      .execute();
-    await database.schema
-      .createIndex('password_history_user_created_index')
-      .on('password_history')
-      .columns(['user_id', 'created_at'])
-      .execute();
-
     const description = 'Xem mọi ý kiến phản hồi gửi từ chân trang, đổi trạng thái xử lý và trả lời người gửi';
     await sql`insert into permissions (code, module_code, description)
       values (${FEEDBACK_MANAGE_PERMISSION}, 'P01', ${description})`.execute(database);
@@ -44,7 +31,6 @@ export const migration: Migration = {
       database,
     );
     await sql`delete from permissions where code = ${FEEDBACK_MANAGE_PERMISSION}`.execute(database);
-    await database.schema.dropTable('password_history').execute();
     await database.schema.alterTable('users').dropColumn('password_changed_at').execute();
   },
 };
