@@ -53,95 +53,95 @@ Số MH do người điều phối đánh khi gộp tài liệu. Màn hình than
 
 Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, dựa trên tài liệu 32 mục 3. "(nhóm)" là mục mở menu con.
 
-| Phân hệ | Số | Mục | Đường dẫn |
-|---|---|---|---|
-| Quản lý giáo dục Mầm non | 1. | Trường học | (nhóm) |
-| Quản lý giáo dục Mầm non | 1.1. | Hồ sơ trường | `/school-profile` |
-| Quản lý giáo dục Mầm non | 1.4. | Cấu hình trường | `/settings` |
-| Quản lý giáo dục Mầm non | 2. | Lớp học | (nhóm) |
-| Quản lý giáo dục Mầm non | 2.1. | Hồ sơ lớp học | `/classes` |
-| Quản lý giáo dục Mầm non | 3. | Nhân sự | (nhóm) |
-| Quản lý giáo dục Mầm non | 3.1. | Hồ sơ nhân sự | (nhóm) |
-| Quản lý giáo dục Mầm non | 3.1.1. | Hồ sơ cán bộ, giáo viên | `/staff` |
-| Quản lý giáo dục Mầm non | 3.2. | Đánh giá chuẩn nghề nghiệp | `/professional-standards` |
-| Quản lý giáo dục Mầm non | 4. | Học sinh | (nhóm) |
-| Quản lý giáo dục Mầm non | 4.1. | Hồ sơ học sinh | (nhóm) |
-| Quản lý giáo dục Mầm non | 4.1.1. | Quản lý hồ sơ học sinh | `/children` |
-| Quản lý giáo dục Mầm non | 4.1.2. | Nhập dữ liệu từ Excel | `/imports` |
-| Quản lý giáo dục Mầm non | 4.1.6. | Nhóm học sinh | `/child-groups` |
-| Quản lý giáo dục Mầm non | 4.3. | Cân nặng, chiều cao | (nhóm) |
-| Quản lý giáo dục Mầm non | 4.3.1. | Nhập kết quả sức khỏe nuôi dưỡng | `/growth` |
-| Quản lý giáo dục Mầm non | 4.3.2. | Tổng hợp cân nặng, chiều cao | `/growth-report` |
-| Quản lý giáo dục Mầm non | 4.4. | Hoàn thành chương trình | `/program-completion` |
-| Quản lý giáo dục Mầm non | 4.5. | Thực đơn bữa ăn | `/kitchen` |
-| Quản lý giáo dục Mầm non | 4.6. | Sức khỏe học sinh | (nhóm) |
-| Quản lý giáo dục Mầm non | 4.6.1. | Y tế học đường | `/health` |
-| Quản lý giáo dục Mầm non | 4.6.2. | Thuốc và dặn thuốc | `/medicines` |
-| Quản lý giáo dục Mầm non | 4.7. | Điểm danh | `/attendance` |
-| Quản lý giáo dục Mầm non | 5. | Công cụ hỗ trợ | (nhóm) |
-| Quản lý giáo dục Mầm non | 5.1. | Thống kê lớp, nhân sự, học sinh | `/statistics` |
-| Quản lý giáo dục Mầm non | 5.8. | Thống kê hồ sơ chưa nhập đủ | `/missing-profiles` |
-| Quản lý cơ sở vật chất, TBDH | 1. | Cơ sở vật chất | (nhóm) |
-| Quản lý cơ sở vật chất, TBDH | 1.1. | Khai báo cơ sở vật chất | `/facility-rooms` |
-| Quản lý cơ sở vật chất, TBDH | 2. | Thiết bị dạy học | (nhóm) |
-| Quản lý cơ sở vật chất, TBDH | 2.1. | Tổng hợp thiết bị dạy học | `/equipment` |
-| Báo cáo số liệu | 1. | Báo cáo đầu năm | (nhóm) |
-| Báo cáo số liệu | 1.1. | Báo cáo EMIS đầu năm | `/emis` |
-| Quản trị hệ thống | 1. | Người dùng và phân quyền | (nhóm) |
-| Quản trị hệ thống | 1.1. | Nhóm người dùng | `/roles` |
-| Quản trị hệ thống | 1.4. | Danh sách người dùng | `/accounts` |
-| Quản trị hệ thống | 2. | Thiết lập | (nhóm) |
-| Quản trị hệ thống | 2.1. | Năm học | `/academic-years` |
-| Quản trị hệ thống | 2.2. | Cây đơn vị | `/org-units` |
-| Quản trị hệ thống | 2.3. | Phòng ban và chức danh | `/departments` |
-| Quản trị hệ thống | 2.4. | Danh mục dùng chung | `/catalogs` |
-| Quản trị hệ thống | 2.5. | Phòng học và bậc học | `/rooms` |
-| Quản trị hệ thống | 2.6. | Hạn mức phê duyệt | `/approval-thresholds` |
-| Quản trị hệ thống | 3. | Kết nối và nhật ký | (nhóm) |
-| Quản trị hệ thống | 3.1. | Khóa API cho đối tác | `/api-clients` |
-| Quản trị hệ thống | 3.2. | Kết nối ngoài | `/integrations` |
-| Quản trị hệ thống | 3.3. | Nhật ký thao tác | `/audit-logs` |
-| Tài chính – học phí | 1. | Học phí và dịch vụ | (nhóm) |
-| Tài chính – học phí | 1.1. | Biểu phí và dịch vụ | `/fees` |
-| Tài chính – học phí | 1.2. | Đăng ký dịch vụ | `/registrations` |
-| Tài chính – học phí | 1.3. | Học phí | `/invoices` |
-| Tài chính – học phí | 1.4. | Duyệt miễn giảm và điều chỉnh | `/fee-approvals` |
-| Tài chính – học phí | 1.5. | Công nợ | `/debts` |
-| Tài chính – học phí | 1.6. | Nhắc nợ và xử lý quá hạn | `/debt-collection` |
-| Tài chính – học phí | 2. | Thu chi | (nhóm) |
-| Tài chính – học phí | 2.1. | Phiếu thu | `/receipts` |
-| Tài chính – học phí | 2.2. | Phiếu chi | `/payments` |
-| Tài chính – học phí | 2.3. | Quỹ và ngân hàng | `/cash-accounts` |
-| Tài chính – học phí | 2.4. | Sổ quỹ | `/cash-book` |
-| Tài chính – học phí | 2.5. | Đối chiếu ngân hàng | `/bank-reconciliation` |
-| Tài chính – học phí | 2.6. | Nợ nhà cung cấp | `/payables` |
-| Tài chính – học phí | 2.7. | Khoản mục thu chi | `/cashflow-categories` |
-| Tài chính – học phí | 3. | Kế toán | (nhóm) |
-| Tài chính – học phí | 3.1. | Sổ kế toán | `/ledger` |
-| Tài chính – học phí | 3.2. | Chốt kỳ tài chính | `/fiscal-periods` |
-| Nhân sự – chấm công, lương | 1. | Chấm công và nghỉ phép | (nhóm) |
-| Nhân sự – chấm công, lương | 1.1. | Chấm công | `/staff-attendance` |
-| Nhân sự – chấm công, lương | 1.2. | Đơn nghỉ phép | `/leave-requests` |
-| Nhân sự – chấm công, lương | 1.3. | Quy định phép năm | `/leave-policies` |
-| Nhân sự – chấm công, lương | 1.4. | Ngày lễ và lịch bù | `/school-days` |
-| Nhân sự – chấm công, lương | 1.5. | Lịch công tác | `/work-schedules` |
-| Nhân sự – chấm công, lương | 2. | Lương | (nhóm) |
-| Nhân sự – chấm công, lương | 2.1. | Bảng lương | `/payrolls` |
-| Nhân sự – chấm công, lương | 2.2. | Quyết toán và điều chỉnh lương | `/payroll-settlements` |
-| Nhân sự – chấm công, lương | 2.3. | Danh mục lương và biểu thuế | `/pay-items` |
-| Nhân sự – chấm công, lương | 2.4. | Thưởng và khấu trừ | `/bonus-deductions` |
-| Nhân sự – chấm công, lương | 2.5. | Phiếu lương của tôi | `/my-payslips` |
-| Nhân sự – chấm công, lương | 3. | Công việc và đánh giá | (nhóm) |
-| Nhân sự – chấm công, lương | 3.1. | Công việc và kế hoạch | `/work` |
-| Nhân sự – chấm công, lương | 3.2. | Đánh giá nhân sự | `/evaluations` |
-| Bếp – kho, mua hàng | 1. | Kho và tài sản | `/inventory` |
-| Bếp – kho, mua hàng | 2. | Đề nghị mua hàng | `/purchase-requests` |
-| Tương tác – truyền thông | 1. | Tương tác với phụ huynh | `/interactions` |
-| Tương tác – truyền thông | 2. | Hoạt động và tin tức | `/activities` |
-| Giảng dạy | 1. | Bài học và giáo án | `/teaching` |
-| Tuyển sinh, tuyển dụng | 1. | Tuyển sinh | `/admissions` |
-| Tuyển sinh, tuyển dụng | 2. | Tuyển dụng | `/recruitment` |
-| Báo cáo | 1. | Báo cáo và bảng điều khiển | `/reports` |
+| Phân hệ                      | Số     | Mục                              | Đường dẫn                 |
+| ---------------------------- | ------ | -------------------------------- | ------------------------- |
+| Quản lý giáo dục Mầm non     | 1.     | Trường học                       | (nhóm)                    |
+| Quản lý giáo dục Mầm non     | 1.1.   | Hồ sơ trường                     | `/school-profile`         |
+| Quản lý giáo dục Mầm non     | 1.4.   | Cấu hình trường                  | `/settings`               |
+| Quản lý giáo dục Mầm non     | 2.     | Lớp học                          | (nhóm)                    |
+| Quản lý giáo dục Mầm non     | 2.1.   | Hồ sơ lớp học                    | `/classes`                |
+| Quản lý giáo dục Mầm non     | 3.     | Nhân sự                          | (nhóm)                    |
+| Quản lý giáo dục Mầm non     | 3.1.   | Hồ sơ nhân sự                    | (nhóm)                    |
+| Quản lý giáo dục Mầm non     | 3.1.1. | Hồ sơ cán bộ, giáo viên          | `/staff`                  |
+| Quản lý giáo dục Mầm non     | 3.2.   | Đánh giá chuẩn nghề nghiệp       | `/professional-standards` |
+| Quản lý giáo dục Mầm non     | 4.     | Học sinh                         | (nhóm)                    |
+| Quản lý giáo dục Mầm non     | 4.1.   | Hồ sơ học sinh                   | (nhóm)                    |
+| Quản lý giáo dục Mầm non     | 4.1.1. | Quản lý hồ sơ học sinh           | `/children`               |
+| Quản lý giáo dục Mầm non     | 4.1.2. | Nhập dữ liệu từ Excel            | `/imports`                |
+| Quản lý giáo dục Mầm non     | 4.1.6. | Nhóm học sinh                    | `/child-groups`           |
+| Quản lý giáo dục Mầm non     | 4.3.   | Cân nặng, chiều cao              | (nhóm)                    |
+| Quản lý giáo dục Mầm non     | 4.3.1. | Nhập kết quả sức khỏe nuôi dưỡng | `/growth`                 |
+| Quản lý giáo dục Mầm non     | 4.3.2. | Tổng hợp cân nặng, chiều cao     | `/growth-report`          |
+| Quản lý giáo dục Mầm non     | 4.4.   | Hoàn thành chương trình          | `/program-completion`     |
+| Quản lý giáo dục Mầm non     | 4.5.   | Thực đơn bữa ăn                  | `/kitchen`                |
+| Quản lý giáo dục Mầm non     | 4.6.   | Sức khỏe học sinh                | (nhóm)                    |
+| Quản lý giáo dục Mầm non     | 4.6.1. | Y tế học đường                   | `/health`                 |
+| Quản lý giáo dục Mầm non     | 4.6.2. | Thuốc và dặn thuốc               | `/medicines`              |
+| Quản lý giáo dục Mầm non     | 4.7.   | Điểm danh                        | `/attendance`             |
+| Quản lý giáo dục Mầm non     | 5.     | Công cụ hỗ trợ                   | (nhóm)                    |
+| Quản lý giáo dục Mầm non     | 5.1.   | Thống kê lớp, nhân sự, học sinh  | `/statistics`             |
+| Quản lý giáo dục Mầm non     | 5.8.   | Thống kê hồ sơ chưa nhập đủ      | `/missing-profiles`       |
+| Quản lý cơ sở vật chất, TBDH | 1.     | Cơ sở vật chất                   | (nhóm)                    |
+| Quản lý cơ sở vật chất, TBDH | 1.1.   | Khai báo cơ sở vật chất          | `/facility-rooms`         |
+| Quản lý cơ sở vật chất, TBDH | 2.     | Thiết bị dạy học                 | (nhóm)                    |
+| Quản lý cơ sở vật chất, TBDH | 2.1.   | Tổng hợp thiết bị dạy học        | `/equipment`              |
+| Báo cáo số liệu              | 1.     | Báo cáo đầu năm                  | (nhóm)                    |
+| Báo cáo số liệu              | 1.1.   | Báo cáo EMIS đầu năm             | `/emis`                   |
+| Quản trị hệ thống            | 1.     | Người dùng và phân quyền         | (nhóm)                    |
+| Quản trị hệ thống            | 1.1.   | Nhóm người dùng                  | `/roles`                  |
+| Quản trị hệ thống            | 1.4.   | Danh sách người dùng             | `/accounts`               |
+| Quản trị hệ thống            | 2.     | Thiết lập                        | (nhóm)                    |
+| Quản trị hệ thống            | 2.1.   | Năm học                          | `/academic-years`         |
+| Quản trị hệ thống            | 2.2.   | Cây đơn vị                       | `/org-units`              |
+| Quản trị hệ thống            | 2.3.   | Phòng ban và chức danh           | `/departments`            |
+| Quản trị hệ thống            | 2.4.   | Danh mục dùng chung              | `/catalogs`               |
+| Quản trị hệ thống            | 2.5.   | Phòng học và bậc học             | `/rooms`                  |
+| Quản trị hệ thống            | 2.6.   | Hạn mức phê duyệt                | `/approval-thresholds`    |
+| Quản trị hệ thống            | 3.     | Kết nối và nhật ký               | (nhóm)                    |
+| Quản trị hệ thống            | 3.1.   | Khóa API cho đối tác             | `/api-clients`            |
+| Quản trị hệ thống            | 3.2.   | Kết nối ngoài                    | `/integrations`           |
+| Quản trị hệ thống            | 3.3.   | Nhật ký thao tác                 | `/audit-logs`             |
+| Tài chính – học phí          | 1.     | Học phí và dịch vụ               | (nhóm)                    |
+| Tài chính – học phí          | 1.1.   | Biểu phí và dịch vụ              | `/fees`                   |
+| Tài chính – học phí          | 1.2.   | Đăng ký dịch vụ                  | `/registrations`          |
+| Tài chính – học phí          | 1.3.   | Học phí                          | `/invoices`               |
+| Tài chính – học phí          | 1.4.   | Duyệt miễn giảm và điều chỉnh    | `/fee-approvals`          |
+| Tài chính – học phí          | 1.5.   | Công nợ                          | `/debts`                  |
+| Tài chính – học phí          | 1.6.   | Nhắc nợ và xử lý quá hạn         | `/debt-collection`        |
+| Tài chính – học phí          | 2.     | Thu chi                          | (nhóm)                    |
+| Tài chính – học phí          | 2.1.   | Phiếu thu                        | `/receipts`               |
+| Tài chính – học phí          | 2.2.   | Phiếu chi                        | `/payments`               |
+| Tài chính – học phí          | 2.3.   | Quỹ và ngân hàng                 | `/cash-accounts`          |
+| Tài chính – học phí          | 2.4.   | Sổ quỹ                           | `/cash-book`              |
+| Tài chính – học phí          | 2.5.   | Đối chiếu ngân hàng              | `/bank-reconciliation`    |
+| Tài chính – học phí          | 2.6.   | Nợ nhà cung cấp                  | `/payables`               |
+| Tài chính – học phí          | 2.7.   | Khoản mục thu chi                | `/cashflow-categories`    |
+| Tài chính – học phí          | 3.     | Kế toán                          | (nhóm)                    |
+| Tài chính – học phí          | 3.1.   | Sổ kế toán                       | `/ledger`                 |
+| Tài chính – học phí          | 3.2.   | Chốt kỳ tài chính                | `/fiscal-periods`         |
+| Nhân sự – chấm công, lương   | 1.     | Chấm công và nghỉ phép           | (nhóm)                    |
+| Nhân sự – chấm công, lương   | 1.1.   | Chấm công                        | `/staff-attendance`       |
+| Nhân sự – chấm công, lương   | 1.2.   | Đơn nghỉ phép                    | `/leave-requests`         |
+| Nhân sự – chấm công, lương   | 1.3.   | Quy định phép năm                | `/leave-policies`         |
+| Nhân sự – chấm công, lương   | 1.4.   | Ngày lễ và lịch bù               | `/school-days`            |
+| Nhân sự – chấm công, lương   | 1.5.   | Lịch công tác                    | `/work-schedules`         |
+| Nhân sự – chấm công, lương   | 2.     | Lương                            | (nhóm)                    |
+| Nhân sự – chấm công, lương   | 2.1.   | Bảng lương                       | `/payrolls`               |
+| Nhân sự – chấm công, lương   | 2.2.   | Quyết toán và điều chỉnh lương   | `/payroll-settlements`    |
+| Nhân sự – chấm công, lương   | 2.3.   | Danh mục lương và biểu thuế      | `/pay-items`              |
+| Nhân sự – chấm công, lương   | 2.4.   | Thưởng và khấu trừ               | `/bonus-deductions`       |
+| Nhân sự – chấm công, lương   | 2.5.   | Phiếu lương của tôi              | `/my-payslips`            |
+| Nhân sự – chấm công, lương   | 3.     | Công việc và đánh giá            | (nhóm)                    |
+| Nhân sự – chấm công, lương   | 3.1.   | Công việc và kế hoạch            | `/work`                   |
+| Nhân sự – chấm công, lương   | 3.2.   | Đánh giá nhân sự                 | `/evaluations`            |
+| Bếp – kho, mua hàng          | 1.     | Kho và tài sản                   | `/inventory`              |
+| Bếp – kho, mua hàng          | 2.     | Đề nghị mua hàng                 | `/purchase-requests`      |
+| Tương tác – truyền thông     | 1.     | Tương tác với phụ huynh          | `/interactions`           |
+| Tương tác – truyền thông     | 2.     | Hoạt động và tin tức             | `/activities`             |
+| Giảng dạy                    | 1.     | Bài học và giáo án               | `/teaching`               |
+| Tuyển sinh, tuyển dụng       | 1.     | Tuyển sinh                       | `/admissions`             |
+| Tuyển sinh, tuyển dụng       | 2.     | Tuyển dụng                       | `/recruitment`            |
+| Báo cáo                      | 1.     | Báo cáo và bảng điều khiển       | `/reports`                |
 
 ## Quyền
 
