@@ -1,0 +1,189 @@
+import type { PortalQuickLinkPath } from './index.js';
+
+// Quyền quyết định mục menu nào hiện với người dùng (DT-15 phần 15e, chuyển từ cổng quản trị sang gói dùng chung để màn
+// hình "Phân quyền theo menu" dùng cùng một nguồn). Điều kiện giữ đúng như thanh điều hướng cũ trước DT-15; mục không có
+// điều kiện thì ai đăng nhập cũng thấy. Máy chủ vẫn kiểm tra quyền ở mọi yêu cầu (AI-12).
+//
+// Một điều kiện là một mã quyền, "một trong" (anyOf), "tất cả" (allOf) hoặc "cổng" (gate): mục hiện khi thỏa cả cổng lẫn
+// điều kiện chính. Cổng là điều kiện chung của cả nhóm menu cũ (ví dụ phải có một quyền tài chính bất kỳ); quyền của cổng
+// không tính là quyền của mục nên tích chọn mục không cấp kèm cả nhóm quyền của cổng. Mã quyền viết thẳng chuỗi vì tệp
+// này được index.ts xuất lại, đọc PERMISSION_CODES ở đây sẽ vướng vòng nạp mô đun
+export type MenuPermissionRule =
+  | string
+  | { anyOf: MenuPermissionRule[] }
+  | { allOf: MenuPermissionRule[] }
+  | { gate: MenuPermissionRule; rule: MenuPermissionRule };
+
+const anyOf = (...rules: MenuPermissionRule[]): MenuPermissionRule => ({ anyOf: rules });
+const allOf = (...rules: MenuPermissionRule[]): MenuPermissionRule => ({ allOf: rules });
+const gated = (gate: MenuPermissionRule, rule: MenuPermissionRule): MenuPermissionRule => ({ gate, rule });
+
+const ACCOUNTS = anyOf('P01.account.manage', 'P01.account.manage-in-unit');
+// Điều kiện của nhóm "Trẻ và lớp" cũ
+const CHILDREN_AND_CLASSES = anyOf('P02.class.manage', 'P02.view', 'P02.edit');
+const IMPORT = anyOf('P01.import.children', 'P02.child.manage', 'P05.opening-debt.import', 'P01.import.staff');
+const STATISTICS = anyOf('P17.child-statistics.view', 'P17.staff-statistics.view');
+const VIEW_FEES = anyOf('P05.view', 'P05.fee-catalog.manage', 'P05.discount-type.manage');
+const VIEW_CASHFLOW = anyOf('P06.view', 'P06.cashflow-category.manage');
+const REGISTRATIONS = anyOf('P05.view', 'P05.registration.manage', 'P05.late-registration.approve');
+const DEBT_COLLECTION = anyOf('P05.debt-reminder.manage', 'P05.overdue-debt.propose', 'P05.overdue-debt.decide');
+const FISCAL_PERIODS = anyOf('P06.period-close.request', 'P06.period-close.approve');
+const LEDGER = anyOf('P06.ledger.view', 'P06.ledger.manage');
+// Điều kiện của nhóm "Học phí và tài chính" cũ, áp cho từng mục của phân hệ Tài chính – học phí
+const FINANCE = anyOf(
+  VIEW_FEES,
+  VIEW_CASHFLOW,
+  REGISTRATIONS,
+  'P05.debt.view',
+  DEBT_COLLECTION,
+  FISCAL_PERIODS,
+  LEDGER,
+);
+const ACCOUNTS_AND_RECEIPTS = anyOf('P06.view', 'P06.receipt.manage', 'P06.cash-account.manage');
+
+// Mục có quyền thuộc sẵn cổng (ví dụ Biểu phí cần một quyền xem phí, quyền đó đã thỏa nhóm tài chính) thì viết gọn không
+// kèm cổng; kết quả hiện hay ẩn vẫn như điều kiện cũ
+export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPermissionRule>> = {
+  // Quản lý giáo dục Mầm non
+  '/school-profile': anyOf('P01.school-profile.manage', 'P17.report.emis'),
+  '/settings': anyOf('P01.view', 'P01.setting.manage'),
+  '/classes': CHILDREN_AND_CLASSES,
+  '/staff': 'P07.staff.view',
+  '/children': CHILDREN_AND_CLASSES,
+  // Trước đây hiện ở nhóm Trẻ và lớp, hoặc ở nhóm Nhân sự cho người chỉ nhập nhân sự
+  '/imports': anyOf(gated(CHILDREN_AND_CLASSES, IMPORT), gated('P07.staff.view', 'P01.import.staff')),
+  '/child-groups': gated(CHILDREN_AND_CLASSES, anyOf('P02.child-group.manage', 'P02.view')),
+  '/growth': anyOf('P10.health.manage', 'P17.report.growth'),
+  '/growth-report': 'P17.report.growth',
+  '/program-completion': gated(
+    CHILDREN_AND_CLASSES,
+    anyOf('P02.program-completion.manage', 'P02.program-completion.approve'),
+  ),
+  '/kitchen': anyOf('P12.kitchen.manage', 'P12.menu.approve', 'P17.report.kitchen'),
+  '/health': anyOf('P10.health.manage', 'P10.medical-event.record'),
+  '/medicines': anyOf('P10.medicine.manage', 'P10.medication.administer', 'P10.medicine-purchase.approve'),
+  '/attendance': CHILDREN_AND_CLASSES,
+  '/statistics': STATISTICS,
+  '/missing-profiles': STATISTICS,
+  // Cơ sở vật chất, TBDH; Báo cáo số liệu
+  '/facility-rooms': anyOf('P17.report.facilities', 'P13.equipment.manage', 'P01.room.manage'),
+  '/equipment': anyOf('P17.report.facilities', 'P13.equipment.manage'),
+  '/emis': 'P17.report.emis',
+  // Quản trị hệ thống
+  '/roles': ACCOUNTS,
+  '/role-permissions': ACCOUNTS,
+  '/accounts': ACCOUNTS,
+  '/departments': anyOf('P01.view', 'P01.department.manage'),
+  '/catalogs': anyOf('P01.view', 'P01.catalog.manage'),
+  '/rooms': anyOf('P01.view', 'P01.room.manage', 'P01.catalog.manage'),
+  '/approval-thresholds': 'P01.view',
+  '/api-clients': gated(ACCOUNTS, 'P01.api-client.manage'),
+  '/integrations': 'P01.integration.manage',
+  '/audit-logs': 'P01.view',
+  // Tài chính – học phí
+  '/fees': VIEW_FEES,
+  '/registrations': REGISTRATIONS,
+  '/invoices': anyOf('P05.view', gated(FINANCE, 'P05.fee-calculation.manage')),
+  '/fee-approvals': gated(FINANCE, 'P05.fee-document.approve'),
+  '/debts': 'P05.debt.view',
+  '/debt-collection': DEBT_COLLECTION,
+  '/receipts': anyOf('P06.view', gated(FINANCE, anyOf('P06.receipt.manage', 'P06.cash-account.manage'))),
+  '/payments': anyOf('P06.view', gated(FINANCE, anyOf('P06.payment.manage', 'P06.payment.approve'))),
+  '/cash-accounts': anyOf('P06.view', gated(FINANCE, anyOf('P06.receipt.manage', 'P06.cash-account.manage'))),
+  '/cash-book': anyOf('P06.view', gated(FINANCE, anyOf('P06.receipt.manage', 'P06.cash-account.manage'))),
+  '/bank-reconciliation': anyOf('P06.view', gated(FINANCE, 'P06.bank-transaction.manage')),
+  '/payables': anyOf('P06.view', gated(FINANCE, 'P06.payable.manage')),
+  '/cashflow-categories': VIEW_CASHFLOW,
+  '/ledger': LEDGER,
+  '/fiscal-periods': FISCAL_PERIODS,
+  // Nhân sự – chấm công, lương
+  '/work-schedules': anyOf('P08.work-schedule.manage', 'P08.attendance.view'),
+  '/payrolls': 'P08.payroll.view',
+  '/payroll-settlements': 'P08.payroll.view',
+  '/pay-items': anyOf('P08.payroll.view', 'P08.pay-item-type.manage'),
+  '/bonus-deductions': anyOf('P08.payroll.view', 'P08.bonus-deduction.manage'),
+  // Bếp – kho, mua hàng; Tương tác – truyền thông; Giảng dạy; Tuyển sinh, tuyển dụng
+  '/inventory': anyOf(
+    'P13.asset.manage',
+    'P13.purchase-order.manage',
+    'P13.stocktake.approve',
+    'P13.purchase-request.approve',
+  ),
+  '/purchase-requests': anyOf('P13.purchase-request.create', 'P13.purchase-request.approve'),
+  '/interactions': anyOf('P15.interaction.manage', 'P15.message.send', 'P02.lost-item.manage'),
+  '/activities': anyOf(
+    'P14.activity.approve',
+    'P14.content.manage',
+    'P14.library.manage',
+    'P14.extracurricular.manage',
+  ),
+  '/teaching': anyOf('P03.lesson-plan.review', 'P03.curriculum.manage', 'P03.lesson.manage'),
+  '/admissions': anyOf(
+    'P16.admission-campaign.manage',
+    'P16.application.manage',
+    'P16.application.review',
+    'P16.admission-post.manage',
+  ),
+  '/recruitment': anyOf(
+    'P18.recruitment-request.create',
+    'P18.recruitment-request.approve',
+    'P18.recruitment.manage',
+    'P18.interview.manage',
+  ),
+};
+
+export function isMenuRuleSatisfied(rule: MenuPermissionRule, has: (code: string) => boolean): boolean {
+  if (typeof rule === 'string') {
+    return has(rule);
+  }
+  if ('anyOf' in rule) {
+    return rule.anyOf.some((child) => isMenuRuleSatisfied(child, has));
+  }
+  if ('allOf' in rule) {
+    return rule.allOf.every((child) => isMenuRuleSatisfied(child, has));
+  }
+  return isMenuRuleSatisfied(rule.gate, has) && isMenuRuleSatisfied(rule.rule, has);
+}
+
+// Mục menu có hiện với người có các quyền này không; mục không có điều kiện thì luôn hiện
+export function isMenuPathVisible(path: PortalQuickLinkPath, has: (code: string) => boolean): boolean {
+  const rule = MENU_PERMISSION_RULES[path];
+  return rule === undefined || isMenuRuleSatisfied(rule, has);
+}
+
+function collect(rule: MenuPermissionRule, includeGates: boolean, inGate: boolean, into: string[]): void {
+  if (typeof rule === 'string') {
+    if (includeGates === inGate && !into.includes(rule)) {
+      into.push(rule);
+    }
+    return;
+  }
+  if ('anyOf' in rule || 'allOf' in rule) {
+    for (const child of 'anyOf' in rule ? rule.anyOf : rule.allOf) {
+      collect(child, includeGates, inGate, into);
+    }
+    return;
+  }
+  collect(rule.gate, includeGates, true, into);
+  collect(rule.rule, includeGates, inGate, into);
+}
+
+// Quyền của một mục menu: các mã trong điều kiện, không kể quyền chỉ nằm ở cổng; tích chọn mục là chọn hết các mã này
+export function menuPermissionCodes(path: PortalQuickLinkPath): string[] {
+  const rule = MENU_PERMISSION_RULES[path];
+  const codes: string[] = [];
+  if (rule !== undefined) {
+    collect(rule, false, false, codes);
+  }
+  return codes;
+}
+
+// Quyền ở cổng của mục: người dùng cần thêm ít nhất một trong các quyền này thì mục mới hiện
+export function menuGatePermissionCodes(path: PortalQuickLinkPath): string[] {
+  const rule = MENU_PERMISSION_RULES[path];
+  const codes: string[] = [];
+  if (rule !== undefined) {
+    collect(rule, true, false, codes);
+  }
+  return codes.filter((code) => !menuPermissionCodes(path).includes(code));
+}
