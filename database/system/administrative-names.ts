@@ -53,7 +53,9 @@ const ALIASES = new Map(
 export function administrativeNameKey(value: string): string {
   let key = baseKey(value);
   key = ALIASES.get(key) ?? key;
-  const prefix = TYPE_PREFIXES.find((candidate) => key.startsWith(`${candidate} `) && key.length > candidate.length + 1);
+  const prefix = TYPE_PREFIXES.find(
+    (candidate) => key.startsWith(`${candidate} `) && key.length > candidate.length + 1,
+  );
   if (prefix) {
     key = key.slice(prefix.length + 1);
   }
