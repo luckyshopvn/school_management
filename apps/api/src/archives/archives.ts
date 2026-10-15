@@ -191,11 +191,7 @@ export const DEFAULT_ARCHIVE_RECORD_EXPORT_COLUMNS = ARCHIVE_RECORD_EXPORT_COLUM
   (column) => column.id !== 'note',
 ).map((column) => column.id);
 
-type RecordQuery = SelectQueryBuilder<
-  SystemDatabase,
-  'archive_records' | 'archive_fonds',
-  Record<string, unknown>
->;
+type RecordQuery = SelectQueryBuilder<SystemDatabase, 'archive_records' | 'archive_fonds', Record<string, unknown>>;
 
 const NO_RECORD_FILTER: ArchiveRecordFilter = {
   status: null,
@@ -672,7 +668,7 @@ export class ArchivesService {
           .as('file_count'),
       ])
       .orderBy(sql`case when archive_records.status = 'pending' then 0 else 1 end`)
-      .orderBy(sql`archive_records.due_date asc nulls last`)
+      .orderBy(sql`case when archive_records.status = 'pending' then archive_records.due_date end asc nulls last`)
       .orderBy(sql`archive_records.completed_on desc nulls last`)
       .orderBy('archive_records.code')
       .limit(page.limit)
@@ -932,7 +928,11 @@ export class ArchivesService {
 
   async readFile(recordId: string, fileId: string) {
     const file = await this.findFile(recordId, fileId);
-    return { fileName: file.file_name, contentType: file.content_type, body: await this.fileStorage.get(file.storage_key) };
+    return {
+      fileName: file.file_name,
+      contentType: file.content_type,
+      body: await this.fileStorage.get(file.storage_key),
+    };
   }
 
   async deleteFile(recordId: string, fileId: string, origin: ChangeOrigin): Promise<void> {
