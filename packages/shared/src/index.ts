@@ -318,6 +318,16 @@ export const DATA_GRID_KEYS = [
   // Cập nhật địa danh hành chính (DT-15 phần 15h1)
   'administrative-addresses',
   'administrative-unit-mappings',
+  // Bếp – kho, Tương tác, Giảng dạy, Tuyển sinh, tuyển dụng (DT-15 phần 15f3)
+  'stock-items',
+  'stock-transactions',
+  'purchase-orders',
+  'assets',
+  'asset-damages',
+  'stock-counts',
+  'suppliers',
+  'my-purchase-requests',
+  'purchase-requests',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;
