@@ -14,6 +14,25 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-15 — 2.1 Hồ sơ lớp học: cột và số dòng mặc định theo Sở
+
+#### Công việc đã thực hiện
+
+- Claude đổi cột hiện, ẩn mặc định của lưới "2.1. Hồ sơ lớp học" theo quan sát màn hình của Sở (`31_KHAO_SAT_HE_THONG_SO.md` mục 9.8, 9.9): hiện Lớp ghép, Ghép vào lớp, Lớp giải thể; ẩn Phân hiệu, Giáo viên chủ nhiệm, Điểm trường. Số dòng mặc định của lưới 2.1 là 50; cột mặc định khi xuất Excel không chọn cột đổi theo.
+- Sửa CT-403, CT-406, kiểm thử `classes-so.test.ts`, `08-classes.spec.ts`, `54-school-classes-so.spec.ts`. Kết quả trên máy ngày 15/10/2026: build, kiểm tra kiểu, lint, kiểm tra định dạng đạt; `classes-so.test.ts` đạt; `08-classes.spec.ts`, `54-school-classes-so.spec.ts` đạt.
+
+#### Quyết định
+
+- Số dòng mặc định riêng của màn hình (50) chỉ dùng khi người dùng chưa chọn số dòng của lưới và chưa chọn số dòng mặc định chung; hằng số chung giữ 20. Cột Khối, Nhóm trẻ giữ hiện vì là hai phần của cột "Nhóm lớp" của Sở. Mã YCTD-113 đến YCTD-115 dành cho các phần 15f, YCTD-116 và phiên bản 0.66.0 đã dùng cho đợt 15h1 nên thay đổi này là YCTD-117, phiên bản 0.66.1.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-117, `14_DAC_TA_GIAO_DIEN.md` MH-03, `11_TIEU_CHI_NGHIEM_THU.md` AC-447, AC-450, `17_DAC_TA_API.md` mục 5, `21_KICH_BAN_KIEM_THU.md` CT-403, CT-406, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.66.1.
+
+#### Vấn đề tồn đọng
+
+- Không có.
+
 ### 2026-10-15 — DT-15 phần 15h1: cập nhật địa danh hành chính theo hệ thống của Sở
 
 #### Công việc đã thực hiện

@@ -55,9 +55,16 @@ const YES_NO = [
 ];
 const yes = (value: boolean) => (value ? 'Có' : '');
 
-// Mã cột trùng mã cột tệp Excel của máy chủ
+// Mã cột trùng mã cột tệp Excel của máy chủ. Cột hiện, ẩn mặc định và 50 dòng mỗi trang theo màn hình 2.1 của Sở
+// (tài liệu 31 mục 9.8, YCTD-117)
+const SO_PAGE_SIZE = 50;
 const COLUMNS: Array<DataGridColumn<ClassRecord>> = [
-  { id: 'branch', header: 'Phân hiệu', cell: (row) => (row.org_unit_type === 'phan_hieu' ? row.org_unit_name : '') },
+  {
+    id: 'branch',
+    header: 'Phân hiệu',
+    hiddenByDefault: true,
+    cell: (row) => (row.org_unit_type === 'phan_hieu' ? row.org_unit_name : ''),
+  },
   { id: 'code', header: 'Mã lớp', cell: (row) => row.code },
   { id: 'name', header: 'Tên lớp', alwaysVisible: true, className: 'font-medium', cell: (row) => row.name },
   { id: 'grade', header: 'Khối', cell: (row) => row.grade_name },
@@ -73,7 +80,7 @@ const COLUMNS: Array<DataGridColumn<ClassRecord>> = [
     cell: (row) => (row.stage === 'mau_giao' ? classAgeGroupLabel(row.age_group) : ''),
   },
   { id: 'sort_order', header: 'Thứ tự', cell: (row) => row.sort_order ?? '' },
-  { id: 'homeroom', header: 'Giáo viên chủ nhiệm', cell: (row) => row.homeroom_names },
+  { id: 'homeroom', header: 'Giáo viên chủ nhiệm', hiddenByDefault: true, cell: (row) => row.homeroom_names },
   { id: 'enrolled', header: 'Số học sinh', cell: (row) => `${row.enrolled_count}/${row.max_size}` },
   { id: 'two_sessions_per_day', header: 'Học 2 buổi/ngày', cell: (row) => yes(row.two_sessions_per_day) },
   {
@@ -82,18 +89,18 @@ const COLUMNS: Array<DataGridColumn<ClassRecord>> = [
     hiddenByDefault: true,
     cell: (row) => (row.mixed_age_count ? `Ghép ${row.mixed_age_count} độ tuổi` : ''),
   },
-  { id: 'is_combined', header: 'Lớp ghép', hiddenByDefault: true, cell: (row) => yes(row.is_combined) },
-  { id: 'combined_into', header: 'Ghép vào lớp', hiddenByDefault: true, cell: (row) => row.combined_into_name ?? '' },
+  { id: 'is_combined', header: 'Lớp ghép', cell: (row) => yes(row.is_combined) },
+  { id: 'combined_into', header: 'Ghép vào lớp', cell: (row) => row.combined_into_name ?? '' },
   { id: 'boarding', header: 'Lớp bán trú', cell: (row) => yes(row.boarding) },
   {
     id: 'dissolved',
     header: 'Lớp giải thể',
-    hiddenByDefault: true,
     cell: (row) => (row.status === 'closed' ? <StatusBadge tone="neutral" label="Đã giải thể" /> : ''),
   },
   {
     id: 'school_site',
     header: 'Điểm trường',
+    hiddenByDefault: true,
     cell: (row) => (row.org_unit_type === 'diem_truong' ? row.org_unit_name : ''),
   },
   { id: 'room', header: 'Phòng học', hiddenByDefault: true, cell: (row) => row.room_name ?? '' },
@@ -260,7 +267,7 @@ export function ClassesPage() {
   const canExport = useHasPermission(PERMISSION_CODES.dataExport);
   const queryClient = useQueryClient();
   const unitChoice = useUnitChoice();
-  const grid = useGridSettings('classes');
+  const grid = useGridSettings('classes', SO_PAGE_SIZE);
   const [filter, setFilter] = useState<ClassFilter>({});
   const [search, setSearch] = useState('');
   const [creating, setCreating] = useState(false);

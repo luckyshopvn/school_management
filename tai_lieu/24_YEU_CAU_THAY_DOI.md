@@ -11,6 +11,23 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-117: 2.1 Hồ sơ lớp học: cột hiện mặc định và 50 dòng mỗi trang theo Sở – 2026-10-15
+
+- Lý do: quan sát thụ động màn hình 2.1 Hồ sơ lớp học của Sở bằng REA (`31_KHAO_SAT_HE_THONG_SO.md` mục 9.8, 9.9) cho thấy lưới của Sở hiện mặc định Lớp ghép, Ghép vào lớp, Lớp giải thể, ẩn mặc định Phân hiệu, Giáo viên chủ nhiệm, Điểm trường, Lớp ghép 2/3 độ tuổi, và hiện 50 dòng mỗi trang. Phần 15b (YCTD-111) làm ngược ở sáu cột trên và dùng số dòng chung 20. Eric đã quyết định chức năng dùng chung theo giao diện của Sở; điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11. Mã YCTD-112, YCTD-116 đã dùng, YCTD-113 đến YCTD-115 dành cho các phần 15f.
+- Nội dung thay đổi:
+  - Lưới 2.1 (khóa `classes`) hiện mặc định theo thứ tự: Mã lớp, Tên lớp, Khối, Nhóm lớp, Nhóm trẻ, Nhóm tuổi, Thứ tự, Số học sinh (đang học/sĩ số tối đa), Học 2 buổi/ngày, Lớp ghép, Ghép vào lớp, Lớp bán trú, Lớp giải thể. Ẩn mặc định, bật ở "Cấu hình cột hiển thị": Phân hiệu, Giáo viên chủ nhiệm, Lớp mẫu giáo ghép 2 hoặc 3 độ tuổi, Điểm trường, Phòng học, Sĩ số tối đa. Các cột Sở không có (Số học sinh, Phòng học, Sĩ số tối đa) giữ như YCTD-111; cột Khối, Nhóm trẻ giữ hiện vì là hai phần của cột "Nhóm lớp" của Sở.
+  - Số dòng mỗi trang của 2.1: số dòng riêng của lưới, không có thì số dòng mặc định người dùng chọn ở "Cấu hình hiển thị lưới", không có nữa thì 50 (lưới khác vẫn 20). `useGridSettings` nhận thêm số dòng mặc định của màn hình; hằng chung `DEFAULT_DATA_GRID_PAGE_SIZE` giữ 20.
+  - Xuất Excel không gửi danh sách cột thì dùng 13 cột hiện mặc định mới (`DEFAULT_CLASS_EXPORT_COLUMNS`).
+  - Người dùng đã lưu cấu hình cột hoặc số dòng của lưới 2.1 vẫn giữ cấu hình đã lưu.
+- Thành phần bị ảnh hưởng: cổng quản trị (`ClassesPage.tsx`, `grid-settings.ts`); máy chủ API (`class-list.ts`); kiểm thử đơn vị `apps/api/src/classes/classes-so.test.ts`; kiểm thử giao diện `tests/e2e/08-classes.spec.ts`, `54-school-classes-so.spec.ts`; tài liệu `01`, `02`, `11` (AC-447, AC-450), `14` (MH-03), `17` (mục 5), `21` (CT-403, CT-406), `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: không có.
+- API bị ảnh hưởng: `POST /api/v1/classes/export` không gửi `columns` thì xuất 13 cột mặc định mới (bỏ `branch`, `homeroom`, `school_site`; thêm `is_combined`, `combined_into`, `dissolved`).
+- Giao diện bị ảnh hưởng: MH-03 "2.1. Hồ sơ lớp học".
+- Quyền bị ảnh hưởng: không có.
+- Ảnh hưởng chức năng cũ: người dùng chưa lưu cấu hình thấy cột mặc định mới và 50 dòng mỗi trang; tên giáo viên chủ nhiệm, phân hiệu, điểm trường không còn hiện mặc định, bật lại ở "Cấu hình cột hiển thị".
+- Kiểm thử cần thực hiện: sửa CT-403 (cột mặc định của tệp Excel), CT-406 (cột hiện, ẩn mặc định, 50 dòng, bật cột Điểm trường rồi xuất Excel); sửa `tests/e2e/08-classes.spec.ts` (không kiểm tra tên phân hiệu, giáo viên trên dòng; kiểm tra "Đã giải thể" ở cột Lớp giải thể). Kết quả trên máy ngày 15/10/2026: build, kiểm tra kiểu, lint, kiểm tra định dạng đạt; `classes-so.test.ts` đạt; `08-classes.spec.ts`, `54-school-classes-so.spec.ts` đạt.
+- Trạng thái: Đã triển khai
+
 ### YCTD-116: DT-15 phần 15h1: cập nhật địa danh hành chính theo hệ thống của Sở – 2026-10-15
 
 - Lý do: Eric quyết định ngày 2026-10-13 đồng bộ cổng quản trị theo hệ thống quản lý trường học của Sở GD&ĐT TP.HCM (`32_KE_HOACH_THEO_HE_THONG_SO.md` mục 2 điểm 4, 3.1 dòng 4.1.11, mục 5 đợt 15h; khảo sát `31_KHAO_SAT_HE_THONG_SO.md` dòng 4.1.11 "Chuyển địa danh cũ sang mới (sau sáp nhập) cho năm loại địa chỉ; nhập từ Excel", bảng khoảng trống dòng 10). Đợt 15h chia hai phần làm song song: 15h1 địa danh hành chính (yêu cầu này), 15h2 văn thư lưu trữ. Phần này dựa trên khung chung của phần 15a (YCTD-107) và năm loại địa chỉ của tệp CSDL ngành (YCTD-100) như phần 15c (YCTD-108). Các điểm chi tiết dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
