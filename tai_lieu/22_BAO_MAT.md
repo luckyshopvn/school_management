@@ -1,8 +1,8 @@
 # 22. BẢO MẬT
 
 - Mô tả: Xác thực, phân quyền, phiên làm việc, kiểm tra dữ liệu đầu vào, bảo mật API, truy cập dữ liệu.
-- Phiên bản: 1.7
-- Ngày cập nhật: 2026-10-10
+- Phiên bản: 1.8
+- Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -34,6 +34,7 @@
 | BM-61 | Mã một lần: chỉ dùng một lần, hết hạn sau số phút cấu hình, lưu dạng băm, giới hạn số lần gửi theo số điện thoại và số lần nhập sai; không tiết lộ số điện thoại có tồn tại trong hệ thống hay không |
 | BM-68 | Tài khoản kiểm toán viên (VT-20) bắt buộc có ngày hết hiệu lực; hết hạn thì tự khóa |
 | BM-69 | Mật khẩu mặc định chung của tài khoản phụ huynh do nhà trường cấu hình, lưu dạng băm, không gửi qua tin nhắn; phiên đăng nhập bằng mật khẩu mặc định chỉ dùng được màn hình đổi mật khẩu; phiên đăng nhập bằng mã một lần dùng bình thường dù chưa đổi mật khẩu mặc định (Q-147); theo dõi đăng nhập sai bất thường trên tài khoản chưa đổi mật khẩu |
+| BM-72 | Mật khẩu của tài khoản nhân sự hết hạn sau số ngày do VT-01, VT-02 đặt (0 đến 3650, mặc định 0 là không giới hạn); quá hạn thì bắt buộc đổi như BM-07, mật khẩu mới phải khác mật khẩu hiện tại; báo trước số ngày cấu hình (mặc định 7). Không áp cho tài khoản chỉ có vai trò Phụ huynh, tài khoản còn dùng mật khẩu mặc định chung, phiên đăng nhập bằng mã một lần. Đăng nhập bằng mật khẩu đã hết hạn ghi nhật ký bảo mật `login_password_expired` (YCTD-110, BR-110) |
 
 ## 3. Phân quyền
 

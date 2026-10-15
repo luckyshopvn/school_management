@@ -1,8 +1,8 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.65
-- Ngày cập nhật: 2026-10-14
+- Phiên bản: 1.68
+- Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -44,7 +44,7 @@ Cấu trúc phản hồi lỗi gồm mã lỗi, thông điệp tiếng Việt hi
 | Tham số | Kiểu | Mặc định | Ghi chú |
 |---|---|---|---|
 | page | số nguyên | 1 | Bắt đầu từ một |
-| page_size | số nguyên | 20 | Tối đa 100; riêng `GET /users` của dịch vụ định danh tối đa 200 cho lưới dữ liệu của cổng quản trị (YCTD-107) |
+| page_size | số nguyên | 20 | Tối đa 100; riêng `GET /users` của dịch vụ định danh (YCTD-107), `GET /children` và `GET /student-movements` (YCTD-108), `GET /audit-logs` và `GET /users/audit-logs` (YCTD-109) tối đa 200 cho lưới dữ liệu của cổng quản trị |
 | sort | chuỗi | tùy điểm cuối | Dạng tên trường kèm dấu trừ để giảm dần |
 | q | chuỗi | trống | Tìm kiếm theo từ khóa trên các trường được khai báo |
 | org_unit_id | mã định danh | theo phiên | Chỉ nhận giá trị trong phạm vi quyền |
@@ -67,6 +67,7 @@ Nhóm điểm cuối dưới đây do dịch vụ định danh phục vụ.
 | POST | /api/v1/auth/change-password | Đổi mật khẩu |
 | POST | /api/v1/auth/verify-otp | Bỏ ngày 09/10/2026: không dùng xác thực hai lớp (YCTD-31) |
 | GET | /api/v1/auth/me | Lấy thông tin tài khoản, vai trò, đơn vị, danh sách quyền |
+| GET, PUT | /api/v1/auth/settings/password-policy | Đọc và sửa chính sách hết hạn mật khẩu; cần `P01.account.manage` (BR-110, YCTD-110) |
 
 Thay bảng phần bếp ở mục 15 của `17_DAC_TA_API.md`:
 
@@ -240,6 +241,8 @@ Giao kèo của nhóm điểm cuối xác thực (DT-01 phần 1):
 8. Tài khoản phụ huynh còn dùng mật khẩu mặc định thì `login` so với mật khẩu mặc định chung và trả `password_change_required` đúng; `change-password` nhận mật khẩu mặc định làm mật khẩu hiện tại, mật khẩu mới phải khác (YCTD-43).
 9. `otp/request` nhận `phone`; trả `message`, `expires_in_seconds` như nhau dù số điện thoại có hay không; chỉ gửi mã khi số thuộc tài khoản có duy nhất vai trò VT-14 đang hoạt động; quá số lần gửi trong giờ trả `ERR_RATE_LIMIT` cho mọi số. `otp/login` nhận `phone`, `code`; đúng thì cấp phiên kênh phụ huynh không bị giới hạn đổi mật khẩu (Q-147); sai thì trả `ERR_UNAUTHENTICATED`, nhập sai đủ số lần thì mã hết hiệu lực.
 10. `GET`, `PUT /auth/settings` có thêm `one_time_code_lifetime_minutes`, `one_time_code_maximum_attempts`, `one_time_code_maximum_sends_per_hour`; `PUT` nhận `parent_default_password`, `GET` chỉ trả `parent_default_password_configured`. `POST /users` với tài khoản chỉ có vai trò VT-14 trả `temporary_password` trống và `uses_default_password` đúng.
+11. Hết hạn mật khẩu (DT-15 phần 15g, YCTD-110, BR-110): `login`, `refresh`, `change-password` trả thêm `password_expired` (đúng thì `password_change_required` cũng đúng, mã phiên chỉ dùng được như mục 4) và `password_expires_in_days` (số ngày còn lại khi trong khoảng báo trước, ngoài ra null). Chỉ xét tài khoản có ít nhất một vai trò khác VT-14, đăng nhập hoặc làm mới phiên bằng mật khẩu; tài khoản còn dùng mật khẩu mặc định chung và phiên bằng mã một lần không xét. Đăng nhập bằng mật khẩu đã hết hạn ghi `security_events` loại `login_password_expired`. `change-password` và `POST /users/{id}/reset-password` ghi lại `password_changed_at`; mật khẩu mới trùng mật khẩu hiện tại trả `ERR_VALIDATION`.
+12. `GET /auth/settings/password-policy` trả `password_max_age_days` (mặc định 0 là không giới hạn), `password_expiry_warning_days` (mặc định 7). `PUT` nhận một hoặc cả hai trường: `password_max_age_days` số nguyên 0 đến 3650, `password_expiry_warning_days` số nguyên 0 đến 90; sai hoặc thân rỗng trả `ERR_VALIDATION`; ghi `identity_audit_logs`. Cả hai cần `P01.account.manage` (VT-01, VT-02), thiếu quyền trả `ERR_FORBIDDEN`.
 
 ## 5. Nền tảng và phân quyền
 
@@ -258,14 +261,37 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | GET, PUT | /api/v1/me/quick-links | Đọc và lưu lối tắt Truy cập nhanh trên trang chủ cổng quản trị của chính người đăng nhập (YCTD-102) |
 | GET, PUT | /api/v1/me/grid-settings/{gridKey} | Đọc và ghi đè cấu hình lưới dữ liệu (cột hiển thị theo thứ tự, số dòng mỗi trang) của chính người đăng nhập (YCTD-107) |
 | GET, PUT | /api/v1/school-profile | Đọc hồ sơ trường kèm Trường chính; ghi các thẻ gửi lên (P01-15, YCTD-106) |
+| POST | /api/v1/user-feedback | Gửi ý kiến phản hồi từ chân trang cổng quản trị; mọi tài khoản đăng nhập, tối đa 10 ý kiến mỗi giờ (P01-16, BR-108, YCTD-110) |
+| GET | /api/v1/me/user-feedback | Ý kiến phản hồi của chính người đăng nhập, mới nhất trước (YCTD-110) |
+| GET | /api/v1/user-feedback | Mọi ý kiến phản hồi, lọc `status`; cần `P01.feedback.manage` (YCTD-110) |
+| PUT | /api/v1/user-feedback/{id} | Đổi trạng thái, trả lời ý kiến; cần `P01.feedback.manage` (BR-109, YCTD-110) |
+| GET | /api/v1/user-feedback/{id}/attachment | Ảnh đính kèm của ý kiến; người gửi hoặc người có `P01.feedback.manage` (YCTD-110) |
+
+Giao kèo của học sinh theo hệ thống của Sở (DT-15 phần 15c, YCTD-108):
+
+1. `GET /children` giữ `org_unit_id`, `class_id`, `group_id`, `status`, `q`, `missing_birth_certificate`; thêm `gender`, `grade_level`, `ethnicity` (khớp một phần), `policy`, `disability`, `two_sessions_per_day`, `boarding`, `can_swim` (true/false), `moet_student_code` (khớp một phần), `national_id` (đủ 12 số, so bằng mã băm); `page_size` từ 1 đến 200. Dòng trả thêm `org_unit_name`, `grade_level`, `grade_name`, `two_sessions_per_day`, `boarding`, `has_birth_certificate`, `ethnicity`, `policy_target`, `disability_type`, `can_swim` (null với người không xem được sức khỏe, BR-53), `contact_phone`, `sms_phone`; kèm `health_fields_visible`. Thứ tự A–Z theo tên rồi họ tên (BR-107). Lọc theo dân tộc, diện chính sách, khuyết tật khi không được xem sức khỏe trả `ERR_FORBIDDEN` (403); bộ lọc sai trả `ERR_VALIDATION` (400) kèm trường lỗi.
+2. `POST /children/export` cần `P17.data.export` và phạm vi xem trẻ (BR-72). Thân gồm các bộ lọc như mục 1 và `columns` (mảng mã cột không trùng trong `moet_student_code`, `full_name`, `dob`, `gender`, `ethnicity`, `status`, `contact_phone`, `grade`, `class`, `sms_phone`, `two_sessions_per_day`, `boarding`, `policy_target`, `disability_type`, `can_swim`, `national_id`, `org_unit`; bỏ trống là 9 cột mặc định). Trả tệp xlsx có cột STT và các cột theo thứ tự gửi, đầu `x-export-log-id`; ghi `export_logs` mã báo cáo `children`, có dữ liệu cá nhân, không ghi số định danh của bộ lọc (BR-74). Quá 10 000 dòng trả `ERR_RULE_VIOLATION` mã YCTD-108.
+3. `POST /children/bulk-update` cần `P02.child.manage` hoặc `P02.approve`. Thân `child_ids` (1 đến 500 mã), `two_sessions_per_day`, `boarding` (boolean, ít nhất một). Hồ sơ nháp cần quyền lập hồ sơ ở đơn vị, hồ sơ khác cần quyền duyệt ở đơn vị; có hồ sơ chờ duyệt trả `ERR_RULE_VIOLATION` mã YCTD-108 kèm tên, không cập nhật học sinh nào (BR-106). Trả `updated`; mỗi học sinh ghi một dòng `audit_logs`.
+4. `PATCH /children/{id}` nhận thêm `two_sessions_per_day`, `boarding` (boolean, không phải thông tin định danh nên không cần `reason`). `GET /children/{id}` trả thêm `two_sessions_per_day`, `boarding`, `sms_phone` và `receives_sms` của từng phụ huynh.
+5. `PUT /children/{id}/sms-guardian` cần `P02.child.manage` hoặc `P02.approve`, quyền như sửa phụ huynh. Thân `guardian_id` bắt buộc có trường: mã phụ huynh của học sinh hoặc null để bỏ chọn. Phụ huynh không gắn với học sinh trả `ERR_NOT_FOUND`; phụ huynh chưa có số điện thoại trả `ERR_RULE_VIOLATION` mã YCTD-108; trả hồ sơ học sinh. Tin nhắn SMS, Zalo theo học sinh gửi phụ huynh nhận tin theo BR-105.
+6. `GET /student-movements` cần `P02.child.manage` hoặc `P02.approve`, trong phạm vi xem trẻ. Tham số `from`, `to` (YYYY-MM-DD), `kind` (`enrolled`, `class_transfer`, `unit_transfer`, `withdrawn`), `org_unit_id`, `q`, `page`, `page_size` (10, 20, 50, 100, 200). Trả `items` (`id`, `kind`, `date`, `child_id`, `full_name`, `dob`, `gender`, `moet_student_code`, `org_unit_id`, `from_name`, `to_name`, `reason`) mới nhất trước, `total`, `total_pages`, `counts` theo loại. `POST /student-movements/export` cần `P17.data.export`, thân là bộ lọc như trên, trả tệp xlsx và ghi `export_logs` mã `student-movements`.
 
 Giao kèo của cấu hình lưới theo người dùng (DT-15 phần 15a, YCTD-107):
 
 1. Hai điểm cuối chỉ cần đăng nhập, không cần quyền riêng; chỉ đọc và ghi cấu hình của chính tài khoản gọi. Không có mã phiên trả `ERR_UNAUTHENTICATED` (401).
-2. `gridKey` phải thuộc `DATA_GRID_KEYS` ở gói dùng chung (`default`, `accounts`, `staff`; lưới chuyển sang ở các phần sau thêm khóa); khóa lạ trả `ERR_VALIDATION` (400), trường lỗi `gridKey`. Khóa `default` giữ số dòng mỗi trang mặc định cho mọi lưới.
+2. `gridKey` phải thuộc `DATA_GRID_KEYS` ở gói dùng chung (`default`, `accounts`, `staff`, từ YCTD-108 thêm `children`, `student-movements`, từ YCTD-109 thêm `roles`, `api-clients`, `audit-logs`, từ YCTD-110 thêm `my-feedback`, `feedback`; lưới chuyển sang ở các phần sau thêm khóa); khóa lạ trả `ERR_VALIDATION` (400), trường lỗi `gridKey`. Khóa `default` giữ số dòng mỗi trang mặc định cho mọi lưới.
 3. `GET /me/grid-settings/{gridKey}` trả `{ columns, page_size }`: `columns` là mảng mã cột theo thứ tự hiển thị hoặc null (theo mặc định của màn hình), `page_size` là số hoặc null; chưa lưu thì cả hai null.
 4. `PUT /me/grid-settings/{gridKey}` nhận `{ columns, page_size }` và ghi đè cả cấu hình: `columns` từ 1 đến 100 mã cột, không trùng, mỗi mã 1 đến 64 ký tự chữ, số, `_`, `.`, `-`, null là theo mặc định, lưới `default` không nhận cột; `page_size` là 10, 20, 50, 100, 200 hoặc null. Dữ liệu sai trả `ERR_VALIDATION` (400) kèm trường lỗi và giữ nguyên cấu hình cũ.
 5. Số dòng mỗi trang của một lưới trên giao diện: `page_size` của lưới, không có thì của `default`, không có nữa thì 20 (`14_DAC_TA_GIAO_DIEN.md` BC-14).
+
+Giao kèo của ý kiến phản hồi (DT-15 phần 15g, YCTD-110, do máy chủ API phục vụ, lưu ở cơ sở dữ liệu hệ thống):
+
+1. `POST /user-feedback` nhận biểu mẫu nhiều phần hoặc JSON: `feedback_type` (`suggestion`, `bug`, `request`), `title` (1 đến 200 ký tự), `content` (1 đến 5000 ký tự) bắt buộc; `page_url` (bắt đầu bằng `/`, tối đa 500 ký tự), `contact_phone` (9 đến 15 chữ số, có thể có dấu `+` đầu), `contact_email`, tệp `attachment` (JPEG hoặc PNG đến 5 MB, nhận diện theo các byte đầu của tệp, lưu ở kho tệp) không bắt buộc. Mọi tài khoản đăng nhập gửi được; không có mã phiên trả `ERR_UNAUTHENTICATED` (401). Dữ liệu sai trả `ERR_VALIDATION` (400) kèm từng trường lỗi. Trả ý kiến vừa ghi, trạng thái `new`; máy chủ ghi `user_id`, `user_name`, `org_unit_id` (đơn vị của vai trò đầu tiên gán theo đơn vị, vai trò toàn trường thì trống).
+2. Giới hạn tần suất (BR-108): tài khoản đã gửi 10 ý kiến trong 60 phút liền trước thì trả `ERR_RATE_LIMIT` (429) kèm `rule_code` YCTD-110 và `retry_after_seconds` (số giây tới khi ý kiến cũ nhất trong khoảng ra khỏi một giờ); đếm trong giao dịch có khóa theo tài khoản nên hai yêu cầu cùng lúc không vượt giới hạn. Giới hạn tính riêng từng tài khoản.
+3. `GET /me/user-feedback` trả ý kiến của chính người gọi, `GET /user-feedback` trả mọi ý kiến, mới nhất trước, mỗi dòng gồm `id`, `user_id`, `user_name`, `org_unit_id`, `org_unit_name`, `page_url`, `feedback_type`, `title`, `content`, `contact_phone`, `contact_email`, `attachment_name`, `status`, `reply`, `replied_by_name`, `replied_at`, `created_at`, `updated_at`. `GET /user-feedback` nhận `status` (`new`, `in_progress`, `resolved`), giá trị khác trả `ERR_VALIDATION`. Hai danh sách trả cả danh sách, giao diện phân trang ở trình duyệt.
+4. `PUT /user-feedback/{id}` nhận `status` và/hoặc `reply` (tối đa 5000 ký tự, chuỗi rỗng là xóa câu trả lời), phải có ít nhất một trường; không thấy ý kiến trả `ERR_NOT_FOUND` (404). Câu trả lời mới hoặc khác câu cũ thì ghi `replied_by`, `replied_by_name`, `replied_at` và xếp một thông báo trong ứng dụng mã mẫu `feedback_reply` ("Ý kiến phản hồi đã được trả lời") cho người gửi khi có năm học đang dùng; lưu lại đúng câu cũ không báo lại; xóa câu trả lời thì bỏ người và thời điểm trả lời (BR-109).
+5. `GET /user-feedback/{id}/attachment` trả ảnh với kiểu nội dung đã lưu; chỉ người gửi hoặc người có `P01.feedback.manage` xem được, người khác và ý kiến không có ảnh nhận `ERR_NOT_FOUND` (404).
+6. `GET /user-feedback`, `PUT /user-feedback/{id}` cần `P01.feedback.manage` (VT-01, VT-02, PQ-64), thiếu quyền trả `ERR_FORBIDDEN` (403). `DATA_GRID_KEYS` thêm `my-feedback`, `feedback` cho hai lưới của cổng quản trị. Góp ý của phụ huynh ở `/feedbacks` (mục 16) là chức năng khác, không đổi.
 
 Giao kèo của hồ sơ trường, khai báo cơ sở vật chất, thiết bị dạy học, báo cáo EMIS đầu năm (DT-14 phần 14d, YCTD-106):
 
@@ -537,8 +563,8 @@ Giao kèo của cấu hình và nhật ký thao tác (DT-01 phần 6a):
 
 1. `GET /settings?org_unit_id=` trả danh sách mục cấu hình, mỗi mục gồm `key`, `label`, `value_type`, `value` (giá trị đang áp dụng), `source` (`unit`, `truong_chinh`, `default`, `missing`), `unit_value`. Ai có vai trò ở đơn vị đó đều đọc được (YCTD-40).
 2. `PUT /settings` nhận `org_unit_id` và `values` là bảng khóa và giá trị; giá trị `null` xóa giá trị riêng để kế thừa lại; cần `P01.setting.manage` trong phạm vi đơn vị (PQ-15). Khóa lạ hoặc giá trị sai trả `ERR_VALIDATION`.
-3. `GET /audit-logs` theo mục 3, lọc `org_unit_id`, `entity_name`, `entity_id`, `actor_user_id`, `from_date`, `to_date`; cần `P01.view`; chỉ trả nhật ký trong phạm vi đơn vị. Mỗi bản ghi có `actor_name` là tên người thực hiện lúc thao tác.
-4. Dịch vụ định danh: `GET`, `PUT /auth/settings` đọc và sửa `account_inactivity_lock_days` (mặc định 90, từ 7 đến 3650; sửa cần `P01.setting.manage` ở phạm vi toàn trường); `GET /users/audit-logs` trả nhật ký tài khoản và quyền, chỉ VT-01, VT-02 xem.
+3. `GET /audit-logs` theo mục 3 (riêng `page_size` từ 1 đến 200 từ YCTD-109, trước là 100), lọc `org_unit_id`, `entity_name`, `entity_id`, `actor_user_id`, `from_date`, `to_date`; cần `P01.view`; chỉ trả nhật ký trong phạm vi đơn vị. Mỗi bản ghi có `actor_name` là tên người thực hiện lúc thao tác.
+4. Dịch vụ định danh: `GET`, `PUT /auth/settings` đọc và sửa `account_inactivity_lock_days` (mặc định 90, từ 7 đến 3650; sửa cần `P01.setting.manage` ở phạm vi toàn trường); `GET /users/audit-logs` trả nhật ký tài khoản và quyền, chỉ VT-01, VT-02 xem; `page_size` từ 1 đến 200 (YCTD-109).
 
 Giao kèo của nhóm điểm cuối cây đơn vị (DT-01 phần 4):
 
@@ -562,7 +588,7 @@ Giao kèo của nhóm điểm cuối năm học (DT-01 phần 3):
 | GET | /api/v1/catalog-types | Các loại danh mục dùng chung do hệ thống định nghĩa |
 | GET, POST | /api/v1/catalog-items | Danh sách và tạo mục danh mục dùng chung |
 | PATCH | /api/v1/catalog-items/{id} | Sửa, ngừng sử dụng hoặc dùng lại mục danh mục dùng chung |
-| GET, POST | /api/v1/users | Danh sách và tạo tài khoản |
+| GET, POST | /api/v1/users | Danh sách và tạo tài khoản; từ YCTD-109 lọc thêm `login`, `full_name`, `must_change_password`, lọc và phân trang trong câu truy vấn; từ YCTD-110 mỗi dòng có thêm `password_changed_at` |
 | GET | /api/v1/users/directory | Danh bạ nhân sự theo vai trò và đơn vị để phân công giáo viên; cần `P02.class.manage` (YCTD-44) |
 | PATCH | /api/v1/users/{id} | Cập nhật tài khoản, khóa hoặc mở khóa |
 | POST | /api/v1/users/guardian-accounts | Tạo tài khoản phụ huynh hoặc thêm vai trò VT-14 khi duyệt hồ sơ trẻ; cần `P02.approve` ở đơn vị (YCTD-45) |
@@ -578,8 +604,8 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 1. `POST /users` nhận `full_name`, `phone` (10 chữ số, bắt đầu bằng 0), `username`, `valid_until`, `roles` (mỗi phần tử gồm `role_code`, `org_unit_id`); trả `account` và `temporary_password` chỉ một lần (PQ-14).
 2. Vai trò VT-01, VT-02, VT-19, VT-20 không chọn đơn vị; vai trò khác bắt buộc chọn đơn vị đang hoạt động (PQ-03); VT-20 bắt buộc `valid_until` (BM-68); trùng số điện thoại hoặc tên đăng nhập trả `ERR_CONFLICT`.
 3. `PATCH /users/{id}` sửa `full_name`, `phone`, `username`, `valid_until`, `status` (`active`, `locked`); không ai tự sửa tài khoản của mình (PQ-08). Khóa, đặt lại mật khẩu, gán hoặc gỡ vai trò thì thu hồi mọi phiên (BM-56).
-4. `GET /users` theo mục 3 (riêng `page_size` từ 1 đến 200, YCTD-107), lọc `q`, `status`, `role_code`; chỉ trả tài khoản trong phạm vi quản lý của người gọi (PQ-13).
-5. `PUT /roles/{id}/permissions` nhận `permission_codes` thay toàn bộ quyền của vai trò; quyền mới có hiệu lực ở yêu cầu kế tiếp. `POST /roles` nhận `code`, `name`.
+4. `GET /users` theo mục 3 (riêng `page_size` từ 1 đến 200, YCTD-107), lọc `q`, `status`, `role_code`; chỉ trả tài khoản trong phạm vi quản lý của người gọi (PQ-13). Từ YCTD-109 (DT-15 phần 15e) nhận thêm `login` (khớp một phần tên đăng nhập hoặc số điện thoại), `full_name` (khớp một phần họ tên), `must_change_password` (`true`, `false`); từ khóa thoát ký tự `%`, `_`. Dịch vụ định danh lọc, đếm (`count(*)`) và cắt trang (`limit`, `offset`) ngay trong câu truy vấn, sắp theo họ tên rồi mã, chỉ đọc vai trò của các tài khoản trên trang (trước đây đọc mọi tài khoản cùng vai trò, quyền rồi mới cắt trang); `total` là số tài khoản sau lọc và sau phạm vi; dạng trả về giữ nguyên. Phạm vi của VT-03 viết bằng điều kiện `exists` đúng như kiểm tra quyền quản lý tài khoản (`canManageAccount`): tài khoản có ít nhất một vai trò, mọi vai trò nằm trong đơn vị được gán (gán ở Trường chính là toàn trường) và không phải VT-01, VT-02. Giá trị sai (ví dụ `must_change_password=co`, `page=0`, `page_size=201`, `status` lạ) trả `ERR_VALIDATION` (400). Từ YCTD-110 mỗi tài khoản trả thêm `password_changed_at` (thời điểm đặt mật khẩu gần nhất, BR-110).
+5. `PUT /roles/{id}/permissions` nhận `permission_codes` thay toàn bộ quyền của vai trò; quyền mới có hiệu lực ở yêu cầu kế tiếp. `POST /roles` nhận `code`, `name`. Từ YCTD-109, màn hình 1.3 Phân quyền nhóm theo menu của cổng quản trị (đường dẫn giao diện `/role-permissions`, không có điểm cuối mới) ghi bằng chính `PUT /roles/{id}/permissions`; chỉ người có `P01.account.manage` ghi được như trước.
 6. Mọi thao tác ghi `identity_audit_logs` kèm giá trị trước và sau. Dịch vụ định danh đọc cây đơn vị qua `GET /api/v1/org-units` của máy chủ API bằng mã phiên của người gọi.
 | GET, PUT | /api/v1/settings | Đọc và ghi cấu hình theo đơn vị |
 | GET, PUT | /api/v1/approval-thresholds | Đọc và ghi hạn mức phê duyệt theo đơn vị và loại chứng từ |
@@ -587,7 +613,7 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | PATCH | /api/v1/rooms/{id} | Sửa, ngừng sử dụng hoặc dùng lại phòng học; sửa khai báo cơ sở vật chất (YCTD-106) |
 | GET, POST | /api/v1/grade-levels | Danh mục bậc học |
 | PATCH | /api/v1/grade-levels/{id} | Sửa, ngừng sử dụng hoặc dùng lại bậc học; không đổi mã |
-| GET | /api/v1/audit-logs | Tra nhật ký thao tác |
+| GET | /api/v1/audit-logs | Tra nhật ký thao tác; `page_size` đến 200 (YCTD-109) |
 | GET, POST | /api/v1/api-clients | Danh sách và cấp khóa API cho đối tác |
 | POST | /api/v1/api-clients/{id}/revoke | Thu hồi khóa API |
 | POST | /api/v1/api-clients/verify | Máy chủ API kiểm tra khóa và địa chỉ mạng của đối tác, trả phạm vi (YCTD-63) |
@@ -605,14 +631,19 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 
 | Phương thức | Đường dẫn | Mô tả |
 |---|---|---|
-| GET | /api/v1/children | Danh sách trẻ có lọc và phân trang; lọc theo nhóm học sinh `group_id` (YCTD-104) |
+| GET | /api/v1/children | Danh sách trẻ có lọc và phân trang; lọc theo nhóm học sinh `group_id` (YCTD-104); bộ lọc, cột theo Sở, thứ tự A–Z, cỡ trang đến 200 (YCTD-108) |
+| POST | /api/v1/children/export | Xuất Excel danh sách học sinh theo bộ lọc và cột đang hiện; cần `P17.data.export`, ghi nhật ký xuất (YCTD-108) |
+| POST | /api/v1/children/bulk-update | Cập nhật hàng loạt học 2 buổi/ngày, bán trú (BR-106, YCTD-108) |
 | POST | /api/v1/children | Tạo hồ sơ trẻ |
-| GET | /api/v1/children/{id} | Chi tiết hồ sơ trẻ |
+| GET | /api/v1/children/{id} | Chi tiết hồ sơ trẻ; từ YCTD-108 có `two_sessions_per_day`, `boarding`, `sms_phone` |
+| PUT | /api/v1/children/{id}/sms-guardian | Chọn hoặc bỏ chọn phụ huynh có điện thoại nhận tin (BR-105, YCTD-108) |
+| GET | /api/v1/student-movements | Biến động học sinh của năm học: nhập học, chuyển lớp, chuyển đơn vị, thôi học (P02-15, YCTD-108) |
+| POST | /api/v1/student-movements/export | Xuất Excel biến động học sinh; cần `P17.data.export`, ghi nhật ký xuất (YCTD-108) |
 | GET | /api/v1/children/{id}/national-id | Xem đầy đủ số định danh cá nhân; chỉ VT-02, VT-15, VT-03, VT-12; ghi nhật ký truy cập |
 | GET | /api/v1/children/{id}/photo-consent | Trạng thái và lịch sử đồng ý hình ảnh (YCTD-67) |
 | POST | /api/v1/children/{id}/photo-consent | Phụ huynh đồng ý hoặc rút đồng ý; nhà trường ghi nhận giấy ký tay |
 | PUT | /api/v1/children/{id}/staff-child | Gắn hoặc bỏ cờ trẻ con nhân viên (YCTD-67) |
-| PATCH | /api/v1/children/{id} | Cập nhật hồ sơ trẻ |
+| PATCH | /api/v1/children/{id} | Cập nhật hồ sơ trẻ; nhận thêm `two_sessions_per_day`, `boarding` (YCTD-108) |
 | POST | /api/v1/children/{id}/submit | Gửi trình duyệt hồ sơ |
 | POST | /api/v1/children/{id}/approve | Duyệt hồ sơ và phân lớp |
 | POST | /api/v1/children/{id}/reject | Từ chối hồ sơ kèm lý do |

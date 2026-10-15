@@ -1,8 +1,8 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.60
-- Ngày cập nhật: 2026-10-14
+- Phiên bản: 1.63
+- Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -18,7 +18,7 @@
 8. Đơn vị tổ chức lưu trong bảng `org_units` thành cây hai cấp (QĐ-23); `unit_type` là loại đơn vị; Trường chính có `parent_id` trống, Phân hiệu và Điểm trường có `parent_id` là Trường chính.
 9. Mỗi năm học một cơ sở dữ liệu nghiệp vụ (QĐ-15). Có ba loại cơ sở dữ liệu:
    - Cơ sở dữ liệu định danh, không theo năm học: `users`, `roles`, `permissions`, `role_permissions`, `user_roles`, `sessions`, `one_time_codes`, `api_clients`, `security_events` (YCTD-35), `identity_audit_logs` (YCTD-39), `identity_settings` (YCTD-40).
-   - Cơ sở dữ liệu hệ thống của máy chủ API, không theo năm học: `academic_year_databases` (QĐ-17), `academic_years`, `academic_terms`, `school_weeks` (YCTD-30), `integration_credentials` (YCTD-95), `user_quick_links` (YCTD-102), `user_grid_settings` (YCTD-107).
+   - Cơ sở dữ liệu hệ thống của máy chủ API, không theo năm học: `academic_year_databases` (QĐ-17), `academic_years`, `academic_terms`, `school_weeks` (YCTD-30), `integration_credentials` (YCTD-95), `user_quick_links` (YCTD-102), `user_grid_settings` (YCTD-107), `feedback` (YCTD-110).
    - Cơ sở dữ liệu năm học: mọi bảng còn lại.
 10. Khi mở năm học mới, dữ liệu chuyển sang giữ nguyên mã định danh (`id`) của đơn vị, trẻ, phụ huynh, nhân sự, danh mục và tài khoản quỹ, để phân quyền ở cơ sở dữ liệu định danh và báo cáo nhiều năm tham chiếu đúng.
 
@@ -32,10 +32,11 @@
 | academic_terms | Học kỳ và kỳ hè của năm học (BR-91) | academic_year_id, term_type (học kỳ 1, học kỳ 2, kỳ hè), start_date, end_date |
 | school_weeks | Tuần học tự đánh số (BR-91) | academic_year_id, week_no, start_date, end_date, is_off (tuần nghỉ), note |
 | user_quick_links | Lối tắt Truy cập nhanh trên trang chủ cổng quản trị của từng tài khoản, lưu ở cơ sở dữ liệu hệ thống để giữ qua các năm học (YCTD-102, tệp `database/system/migrations/0004_create_user_quick_links.ts`) | id, user_id (mã tài khoản ở dịch vụ định danh, không có khóa ngoại vì khác cơ sở dữ liệu), path (trong danh sách cho phép `PORTAL_QUICK_LINK_PATHS`), label (1 đến 100 ký tự), position (từ 0, thứ tự hiển thị), created_at; duy nhất trên user_id, path; tối đa 12 dòng mỗi tài khoản |
-| user_grid_settings | Cấu hình lưới dữ liệu riêng từng tài khoản trên cổng quản trị (cột hiển thị theo thứ tự, số dòng mỗi trang), lưu ở cơ sở dữ liệu hệ thống để giữ qua các năm học (YCTD-107, tệp `database/system/migrations/0005_create_user_grid_settings.ts`) | id, user_id (mã tài khoản ở dịch vụ định danh, không có khóa ngoại vì khác cơ sở dữ liệu), grid_key (1 đến 64 ký tự, thuộc `DATA_GRID_KEYS`: `default` giữ số dòng mặc định cho mọi lưới, `accounts`, `staff`; kiểm tra ở máy chủ API), settings (jsonb đối tượng: `columns` mảng mã cột theo thứ tự, không có là theo mặc định; `page_size` 10, 20, 50, 100 hoặc 200), created_at, updated_at; duy nhất trên user_id, grid_key |
+| user_grid_settings | Cấu hình lưới dữ liệu riêng từng tài khoản trên cổng quản trị (cột hiển thị theo thứ tự, số dòng mỗi trang), lưu ở cơ sở dữ liệu hệ thống để giữ qua các năm học (YCTD-107, tệp `database/system/migrations/0005_create_user_grid_settings.ts`) | id, user_id (mã tài khoản ở dịch vụ định danh, không có khóa ngoại vì khác cơ sở dữ liệu), grid_key (1 đến 64 ký tự, thuộc `DATA_GRID_KEYS`: `default` giữ số dòng mặc định cho mọi lưới, `accounts`, `staff`, `children`, `student-movements` (YCTD-108), `roles`, `api-clients`, `audit-logs` (YCTD-109), `my-feedback`, `feedback` (YCTD-110); kiểm tra ở máy chủ API), settings (jsonb đối tượng: `columns` mảng mã cột theo thứ tự, không có là theo mặc định; `page_size` 10, 20, 50, 100 hoặc 200), created_at, updated_at; duy nhất trên user_id, grid_key |
+| feedback | Ý kiến phản hồi gửi từ chân trang cổng quản trị (P01-16, BR-108, BR-109, YCTD-110, tệp `database/system/migrations/0007_create_feedback.ts`), lưu ở cơ sở dữ liệu hệ thống để giữ qua các năm học; `user_id`, `org_unit_id`, `replied_by` là mã ở dịch vụ định danh và cây đơn vị, không có khóa ngoại vì khác cơ sở dữ liệu; tên người gửi, người trả lời ghi lại lúc thao tác. Khác bảng `feedbacks` (góp ý của phụ huynh, P15) | id, user_id, user_name, org_unit_id (đơn vị của vai trò đầu tiên gán theo đơn vị, trống với vai trò toàn trường), page_url, feedback_type (`suggestion`, `bug`, `request`), title (1 đến 200 ký tự), content (1 đến 5000 ký tự), contact_phone, contact_email, attachment_key (khóa ảnh ở kho tệp), attachment_name, attachment_content_type, attachment_size, status (`new`, `in_progress`, `resolved`; mặc định `new`), reply, replied_by, replied_by_name, replied_at, created_at, updated_at, updated_by |
 | departments | Phòng ban | org_unit_id, parent_id (phòng ban cha cùng đơn vị, không tạo vòng), name, status |
 | job_titles | Chức danh | org_unit_id, name (duy nhất trong đơn vị), level (cấp bậc, chữ tự do), status |
-| users | Tài khoản đăng nhập | full_name, phone (duy nhất), username (duy nhất), password_hash (để trống khi phụ huynh còn dùng mật khẩu mặc định chung, YCTD-43), status, last_login_at, failed_login_count, locked_until (hết hạn tạm khóa do sai mật khẩu, YCTD-35), must_change_password, valid_until (bắt buộc với VT-20) |
+| users | Tài khoản đăng nhập | full_name, phone (duy nhất), username (duy nhất), password_hash (để trống khi phụ huynh còn dùng mật khẩu mặc định chung, YCTD-43), status, last_login_at, failed_login_count, locked_until (hết hạn tạm khóa do sai mật khẩu, YCTD-35), must_change_password, valid_until (bắt buộc với VT-20), password_changed_at (thời điểm đặt mật khẩu gần nhất, bắt buộc, mặc định now(); tài khoản có trước YCTD-110 lấy coalesce(updated_at, created_at); BR-110) |
 | roles | Vai trò | code (duy nhất), name, is_system |
 | permissions | Quyền theo chức năng | code (duy nhất), module_code, description |
 | role_permissions | Gán quyền cho vai trò | role_id, permission_id |
@@ -44,7 +45,7 @@
 | one_time_codes | Mã một lần đăng nhập của phụ huynh | user_id, phone, purpose (đăng nhập; xác thực hai lớp đã bỏ theo YCTD-31), code_hash, expires_at, attempt_count, used_at, created_at; số lần gửi đếm theo số điện thoại trong bộ nhớ đệm, không lưu cột riêng (YCTD-43) |
 | security_events | Nhật ký bảo mật của dịch vụ định danh: đăng nhập sai, tạm khóa, làm mới bằng mã đã thu hồi (BM-36, YCTD-35) | event_type, user_id (trống khi không tìm thấy tài khoản), login_identifier, ip_address, created_at |
 | identity_audit_logs | Nhật ký thao tác của dịch vụ định danh: tạo, sửa, khóa, mở khóa tài khoản, đặt lại mật khẩu, gán và gỡ vai trò, sửa quyền của vai trò (PQ-05, YCTD-39) | actor_user_id, entity_name, entity_id, action, before_data, after_data, ip_address, created_at |
-| identity_settings | Cấu hình chung toàn trường của dịch vụ định danh: số ngày không đăng nhập thì tự khóa (PQ-07, YCTD-40), giá trị băm của mật khẩu mặc định của phụ huynh, ba thông số mã một lần (YCTD-43) | key (duy nhất), value, updated_at, updated_by |
+| identity_settings | Cấu hình chung toàn trường của dịch vụ định danh: số ngày không đăng nhập thì tự khóa (PQ-07, YCTD-40), giá trị băm của mật khẩu mặc định của phụ huynh, ba thông số mã một lần (YCTD-43), chính sách hết hạn mật khẩu `password_max_age_days` (mặc định 0 là không giới hạn), `password_expiry_warning_days` (mặc định 7) (BR-110, YCTD-110); khóa chưa có dòng thì dùng mặc định | key (duy nhất), value, updated_at, updated_by |
 | settings | Cấu hình theo đơn vị; mục chưa cấu hình lấy từ Trường chính, rồi mặc định (YCTD-40) | org_unit_id, key, value, value_type, updated_at, updated_by; duy nhất theo org_unit_id kèm key |
 | audit_logs | Nhật ký thao tác | actor_user_id, actor_name (tên lúc thao tác, YCTD-40), org_unit_id, entity_name, entity_id, action, before_data, after_data, ip_address, created_at |
 | data_access_logs | Nhật ký truy cập dữ liệu nhạy cảm | actor_user_id, actor_name, api_client_id (khi đối tác đọc qua API), org_unit_id, entity_name, entity_id, scope (ví dụ số định danh, giấy khai sinh), record_count, purpose, ip_address, created_at |
@@ -64,14 +65,18 @@
 
 Ràng buộc: `org_units.parent_id` trỏ tới `org_units.id`. Chỉ một đơn vị `truong_chinh`, có `parent_id` trống; đơn vị `phan_hieu`, `diem_truong` có `parent_id` là Trường chính. Kiểm tra ở tầng ứng dụng và ở tầng dữ liệu (YCTD-38).
 
+Chỉ mục `users_full_name_id_index` trên `users (full_name, id)` và `user_roles_role_id_index` trên `user_roles (role_id)` (DT-15 phần 15e, YCTD-109) tạo bằng tệp `database/identity/migrations/0041_add_account_list_indexes.ts` của cơ sở dữ liệu định danh, phục vụ danh sách người dùng sắp theo họ tên, phân trang trong câu truy vấn và lọc theo nhóm quyền; không đổi bảng, không đổi dữ liệu.
+
+Tệp `database/identity/migrations/0042_add_password_expiry_and_feedback_permission.ts` của cơ sở dữ liệu định danh (DT-15 phần 15g, YCTD-110) thêm cột `users.password_changed_at` (điền coalesce(updated_at, created_at) cho tài khoản đã có, rồi đặt bắt buộc, mặc định now()), thêm quyền `P01.feedback.manage` và gán cho VT-01, VT-02; phần quay lui gỡ quyền và cột. Tệp `database/system/migrations/0007_create_feedback.ts` của cơ sở dữ liệu hệ thống tạo bảng `feedback` với ràng buộc kiểm tra loại, trạng thái, độ dài tiêu đề, nội dung và hai chỉ mục ở mục 20.
+
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| children | Hồ sơ trẻ | moet_student_code (mã do cơ sở dữ liệu ngành cấp, duy nhất khi có), national_id_hash (băm có khóa, duy nhất, bắt buộc), national_id_encrypted, national_id_last4 (hiển thị dạng che), org_unit_id, full_name, dob, gender, place_of_birth, address, status (nháp, chờ duyệt, đang học, tạm nghỉ, thôi học, đã tốt nghiệp), is_staff_child, related_staff_user_id và related_staff_name (tạm theo tài khoản, YCTD-44), special_needs_note, photo_consent (chờ xác nhận, đồng ý, không đồng ý), photo_consent_method (ứng dụng hoặc giấy ký tay), photo_consent_by, photo_consent_at, photo_consent_file_id, birth_certificate_file_id (trống được với trẻ nhập từ dữ liệu ban đầu, YCTD-46), enroll_date, leave_date, leave_reason, note, reject_reason, submitted_by, submitted_at, approved_by, approved_at (YCTD-45), moet_profile (đủ 82 cột của mẫu CSDL ngành, YCTD-100) |
+| children | Hồ sơ trẻ | moet_student_code (mã do cơ sở dữ liệu ngành cấp, duy nhất khi có), national_id_hash (băm có khóa, duy nhất, bắt buộc), national_id_encrypted, national_id_last4 (hiển thị dạng che), org_unit_id, full_name, dob, gender, place_of_birth, address, status (nháp, chờ duyệt, đang học, tạm nghỉ, thôi học, đã tốt nghiệp), is_staff_child, related_staff_user_id và related_staff_name (tạm theo tài khoản, YCTD-44), special_needs_note, photo_consent (chờ xác nhận, đồng ý, không đồng ý), photo_consent_method (ứng dụng hoặc giấy ký tay), photo_consent_by, photo_consent_at, photo_consent_file_id, birth_certificate_file_id (trống được với trẻ nhập từ dữ liệu ban đầu, YCTD-46), enroll_date, leave_date, leave_reason, note, reject_reason, submitted_by, submitted_at, approved_by, approved_at (YCTD-45), moet_profile (đủ 82 cột của mẫu CSDL ngành, YCTD-100), two_sessions_per_day (boolean, mặc định false; học 2 buổi/ngày), boarding (boolean, mặc định false; học sinh lớp bán trú) (YCTD-108) |
 | photo_consent_histories | Lịch sử đồng ý sử dụng hình ảnh | child_id, action (đồng ý hoặc rút), method, file_id, actor_user_id, created_at |
 | guardians | Hồ sơ phụ huynh | full_name, phone (duy nhất khi có tài khoản), email, occupation, address, user_id, birth_year, id_number_encrypted, id_number_last4 (YCTD-100) |
-| child_guardians | Quan hệ trẻ và phụ huynh | child_id, guardian_id, relationship, is_primary, can_pickup |
+| child_guardians | Quan hệ trẻ và phụ huynh | child_id, guardian_id, relationship, is_primary, can_pickup, receives_sms (boolean, mặc định false; phụ huynh có điện thoại nhận tin của học sinh, mỗi học sinh tối đa một dòng, BR-105, YCTD-108) |
 | authorized_pickups | Người được ủy quyền đón trẻ | child_id, full_name, relationship, phone (bắt buộc), valid_from, valid_to (trống là không thời hạn), status (đang hiệu lực hoặc đã hủy), source (phụ huynh hoặc nhà trường), created_by, revoked_by, revoked_at (YCTD-48) |
 | classes | Lớp học | org_unit_id, academic_year_id, code (duy nhất trong đơn vị), name, grade_level (tham chiếu grade_levels.code), room_id (phòng cùng đơn vị), max_size, status (đang dùng hoặc đã đóng); giáo viên của lớp ở `class_staff_assignments` (YCTD-44) |
 | class_enrollments | Lịch sử lớp của trẻ | child_id, class_id, from_date, to_date, reason, is_current |
@@ -85,6 +90,8 @@ Ràng buộc: `org_units.parent_id` trỏ tới `org_units.id`. Chỉ một đơ
 | program_completion_confirmations | Xác nhận danh sách hoàn thành chương trình của lớp; có dòng là đã khóa, hủy xác nhận thì xóa dòng, nhật ký thao tác giữ lý do (BR-97, YCTD-104) | class_id (duy nhất), org_unit_id, completed_count, children_count, confirmed_by, confirmed_by_name, confirmed_at |
 | child_groups | Nhóm học sinh trong đơn vị, không chuyển sang năm học mới (P02-14, YCTD-104) | org_unit_id, name (duy nhất trong đơn vị), description, teacher_staff_id (giáo viên phụ trách, không bắt buộc), status (active, inactive), created_by |
 | child_group_members | Trẻ của nhóm; một trẻ thuộc nhiều nhóm (YCTD-104) | group_id, child_id (khóa chính hai cột), added_by, created_at |
+
+Các cột `children.two_sessions_per_day`, `children.boarding`, `child_guardians.receives_sms` và chỉ mục `child_guardians_receives_sms_unique` (DT-15 phần 15c) tạo bằng tệp `database/school-year/migrations/0050_add_student_flags_and_sms_guardian.ts` của cơ sở dữ liệu năm học; hai cột của `children` lấy giá trị ban đầu từ `moet_profile` (`two_sessions_per_day`, `boarding_class`) của học sinh đã nhập tệp CSDL ngành. Mở năm học mới chép nguyên dòng `children`, `child_guardians` nên ba cột chuyển sang năm mới. Biến động học sinh (P02-15) dựng từ `children.enroll_date`, `leave_date`, `leave_reason`, `class_enrollments` và `child_unit_transfers`, không thêm bảng (YCTD-108).
 
 ## 4. Phân hệ P03 — Giảng dạy
 
@@ -393,6 +400,7 @@ erDiagram
 | Bảng | Chỉ mục | Lý do |
 |---|---|---|
 | children | org_unit_id, status, full_name | Danh sách trẻ theo đơn vị và trạng thái |
+| child_guardians | child_id khi receives_sms, duy nhất (`child_guardians_receives_sms_unique`) | Mỗi học sinh tối đa một phụ huynh nhận tin (BR-105, YCTD-108) |
 | class_enrollments | child_id kèm is_current | Tìm lớp hiện tại của trẻ |
 | attendance_records | child_id kèm attendance_date, class_id kèm attendance_date | Tính tiền ăn và báo cáo điểm danh |
 | invoices | child_id kèm period_year kèm period_month, org_unit_id kèm status | Tra công nợ và báo cáo học phí |
@@ -402,11 +410,14 @@ erDiagram
 | payslips | payroll_id, staff_id | Bảng lương và phiếu lương |
 | activities | class_id kèm status kèm published_at | Danh sách hoạt động cho phụ huynh |
 | audit_logs | entity_name kèm entity_id, actor_user_id kèm created_at | Tra nhật ký thao tác |
+| users | full_name kèm id (`users_full_name_id_index`) | Danh sách người dùng sắp theo họ tên rồi mã và phân trang (YCTD-109) |
+| user_roles | role_id (`user_roles_role_id_index`) | Lọc danh sách người dùng theo nhóm quyền (YCTD-109) |
 | notifications | target_type kèm target_id | Tra thông báo theo đối tượng |
 | class_staff_assignments | staff_user_id kèm status, class_id | Giới hạn phạm vi giáo viên theo lớp được phân công |
 | data_access_logs | api_client_id kèm created_at, entity_name kèm entity_id | Tra nhật ký đọc dữ liệu nhạy cảm |
 | user_quick_links | user_id kèm position | Đọc lối tắt của tài khoản theo thứ tự (YCTD-102) |
 | user_grid_settings | user_id kèm grid_key, duy nhất | Một cấu hình mỗi lưới của tài khoản, đọc và ghi đè theo khóa lưới (YCTD-107) |
+| feedback | user_id kèm created_at (`feedback_user_created_index`); status kèm created_at (`feedback_status_created_index`) | Danh sách ý kiến đã gửi của một tài khoản và đếm số ý kiến trong một giờ để giới hạn (BR-108); danh sách ý kiến phản hồi lọc theo trạng thái (YCTD-110) |
 | program_completions | class_id | Danh sách và thống kê hoàn thành chương trình theo lớp (YCTD-104) |
 | child_group_members | child_id | Lọc danh sách trẻ theo nhóm, tìm nhóm của trẻ (YCTD-104) |
 | professional_evaluations | org_unit_id | Phiếu chuẩn nghề nghiệp theo đơn vị (YCTD-104) |

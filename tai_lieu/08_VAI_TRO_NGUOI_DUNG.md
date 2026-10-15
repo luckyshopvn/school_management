@@ -1,8 +1,8 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.51
-- Ngày cập nhật: 2026-10-14
+- Phiên bản: 1.53
+- Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -107,10 +107,10 @@ Ghi chú áp dụng cho bảng:
 | PQ-07 | Tài khoản không đăng nhập quá số ngày cấu hình (mặc định 90, Hiệu trưởng sửa trên cổng quản trị) thì bị tạm khóa ở lần đăng nhập kế tiếp và phải được mở khóa lại (YCTD-40) |
 | PQ-08 | Phụ huynh không tự đổi số điện thoại đăng nhập; muốn đổi phải gửi yêu cầu để nhà trường xác nhận |
 | PQ-09 | Mã quyền có dạng `<phân hệ>.<hành động>`: `view` ứng với X, `edit` ứng với S, `approve` ứng với D; Q gồm cả ba. Giới hạn chi tiết trong ghi chú của ma trận mục 3 kiểm tra trong mã nghiệp vụ (YCTD-35) |
-| PQ-10 | VT-01 có thêm quyền `P01.account.manage`: tạo tài khoản, khóa, mở khóa, đặt lại mật khẩu, gán vai trò (P01-06, P01-07); không xem dữ liệu nghiệp vụ. Tài khoản đầu tiên của hệ thống là VT-01, tạo bằng lệnh trên máy chủ (YCTD-35) |
+| PQ-10 | VT-01 có thêm quyền `P01.account.manage`: tạo tài khoản, khóa, mở khóa, đặt lại mật khẩu, gán vai trò (P01-06, P01-07); không xem dữ liệu nghiệp vụ. Tài khoản đầu tiên của hệ thống là VT-01, tạo bằng lệnh trên máy chủ (YCTD-35). Từ YCTD-110 (DT-15 phần 15g), VT-01 có thêm quyền `P01.feedback.manage`: xem và xử lý ý kiến phản hồi gửi từ chân trang cổng quản trị (P01-16, PQ-64); ý kiến không phải dữ liệu nghiệp vụ của trẻ, nhân sự hay tài chính. VT-01 cũng sửa chính sách hết hạn mật khẩu bằng `P01.account.manage` (P01-17) |
 | PQ-11 | Quyền `P01.academic-year.manage` chỉ VT-02 có: tạo năm học, lưu lịch năm học, đánh dấu tuần nghỉ, mở năm học mới (BR-91, BR-93). Mọi người đã đăng nhập đều xem được lịch năm học (YCTD-37) |
 | PQ-12 | Quyền `P01.org-unit.manage` chỉ VT-02 có: tạo, sửa, ngừng sử dụng đơn vị (P01-01). Mọi người đã đăng nhập đều xem được cây đơn vị (YCTD-38) |
-| PQ-13 | Quản lý tài khoản (P01-06, P01-07, YCTD-39): VT-01 và VT-02 có `P01.account.manage`, tạo và quản lý mọi tài khoản, gán và gỡ vai trò, tạo vai trò, sửa ma trận quyền. VT-03 có `P01.account.manage-in-unit`: tạo tài khoản với mọi vai trò trừ VT-01, VT-02, chỉ trong các đơn vị được gán; khóa, mở khóa, đặt lại mật khẩu tài khoản có mọi vai trò nằm trong đơn vị của mình; không gán, gỡ vai trò sau khi tạo (CTC-P01-042). VT-15 không quản lý tài khoản |
+| PQ-13 | Quản lý tài khoản (P01-06, P01-07, YCTD-39): VT-01 và VT-02 có `P01.account.manage`, tạo và quản lý mọi tài khoản, gán và gỡ vai trò, tạo vai trò, sửa ma trận quyền. VT-03 có `P01.account.manage-in-unit`: tạo tài khoản với mọi vai trò trừ VT-01, VT-02, chỉ trong các đơn vị được gán; khóa, mở khóa, đặt lại mật khẩu tài khoản có mọi vai trò nằm trong đơn vị của mình; không gán, gỡ vai trò sau khi tạo (CTC-P01-042). VT-15 không quản lý tài khoản. Từ YCTD-109 (DT-15 phần 15e), ma trận quyền của vai trò sửa ở màn hình "1.3. Phân quyền nhóm theo menu" (`14_DAC_TA_GIAO_DIEN.md` MH-86): quyền hiển thị theo cây menu đánh số, mỗi mục menu có các quyền của mục (mã trong điều kiện hiện mục) và quyền ở cổng (điều kiện chung của cả nhóm menu, không tính là quyền của mục); quyền không gắn với mục nào nằm ở khối "Quyền khác" theo phân hệ chức năng. Mã quyền vẫn theo thao tác như mục 3, không có quyền mới; điều kiện hiện mục menu đặt ở gói dùng chung (`packages/shared/src/menu-permissions.ts`), kết quả như trước. Mục 1.1, 1.3, 1.4 hiện cho người có `P01.account.manage` hoặc `P01.account.manage-in-unit`; chỉ `P01.account.manage` (VT-01, VT-02) ghi được quyền, VT-03 xem chỉ đọc; máy chủ kiểm tra lại (AI-12). Danh sách người dùng của VT-03 vẫn chỉ gồm tài khoản có mọi vai trò trong đơn vị của mình |
 | PQ-14 | Đặt lại mật khẩu thì hệ thống sinh mật khẩu tạm, hiển thị một lần cho người đặt lại; người được đặt lại bắt buộc đổi ở lần đăng nhập kế tiếp (BM-07, YCTD-39) |
 | PQ-15 | Quyền `P01.setting.manage`: VT-02 sửa cấu hình mọi đơn vị và cấu hình chung toàn trường, VT-03 sửa cấu hình của đơn vị được gán; VT-15 và vai trò khác chỉ xem cấu hình của đơn vị trong phạm vi (P01-08, YCTD-40) |
 | PQ-16 | Quyền quản lý danh mục (YCTD-42): `P01.department.manage` cho VT-02 toàn trường và VT-06 trong đơn vị được gán, dùng cho phòng ban và chức danh; `P01.catalog.manage` chỉ VT-02, dùng cho danh mục dùng chung và bậc học; `P01.approval-threshold.manage` chỉ VT-02; `P01.room.manage` cho VT-02 toàn trường và VT-03 trong đơn vị được gán. Ai có vai trò ở đơn vị đều xem được phòng ban, chức danh, phòng học của đơn vị đó; mọi người đã đăng nhập xem được danh mục dùng chung và bậc học; hạn mức phê duyệt xem bằng `P01.view` trong phạm vi đơn vị |
@@ -161,6 +161,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-61 | Báo cáo cơ sở vật chất (YCTD-106): `P17.report.facilities` cho VT-02, VT-15, VT-03, VT-11 xem và xuất Excel tổng hợp thiết bị dạy học và khai báo cơ sở vật chất trong phạm vi đơn vị, không cần `P17.data.export`; mỗi lần xuất ghi nhật ký xuất (BR-74). Người có `P01.room.manage` cũng xem được khai báo cơ sở vật chất; thêm, sửa phòng vẫn dùng `P01.room.manage` (PQ-16) |
 | PQ-62 | Hồ sơ trường (YCTD-106): `P01.school-profile.manage` chỉ VT-02, ghi cần phạm vi toàn trường; người có `P17.report.emis` xem được hồ sơ trường |
 | PQ-63 | Báo cáo EMIS (YCTD-106): `P17.report.emis` cho VT-02, VT-15 xem và xuất Excel báo cáo EMIS đầu năm, cần phạm vi toàn trường (gán ở Trường chính); không cần `P17.data.export`, mỗi lần xuất ghi nhật ký xuất (BR-74) |
+| PQ-64 | Ý kiến phản hồi và chính sách mật khẩu (YCTD-110): `P01.feedback.manage` (mới) cho VT-01, VT-02 xem mọi ý kiến phản hồi, ảnh đính kèm, đổi trạng thái, trả lời (P01-16, BR-109). Gửi ý kiến và xem ý kiến, ảnh của chính mình không cần quyền riêng; người khác xem ảnh nhận 404. Sửa chính sách hết hạn mật khẩu dùng quyền có sẵn `P01.account.manage` (VT-01, VT-02; P01-17, BR-110). Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12) |
 
 ## 5. Phân cấp phê duyệt
 
