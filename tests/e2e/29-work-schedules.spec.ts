@@ -62,11 +62,12 @@ test('Phòng nhân sự lập và công bố lịch công tác; giáo viên th�
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
   await openMenu(page, '/work-schedules');
   await page.getByLabel('Tháng của lịch').fill(nextMonth);
+  await page.getByRole('button', { name: 'Thêm mới' }).click();
   const form = page.getByRole('form', { name: 'Thêm lịch' });
   await form.getByLabel('Nhân sự').selectOption({ label: fullName });
   await form.getByLabel('Ngày').fill(tripDate);
   await form.getByLabel('Ghi chú lịch').fill('Tập huấn tại Sở');
-  await form.getByRole('button', { name: 'Thêm lịch' }).click();
+  await form.getByRole('button', { name: 'Ghi' }).click();
   const row = page.getByRole('row', { name: `Lịch của ${fullName} ngày ${tripDate}` });
   await expect(row).toContainText('Nháp');
   await page.getByRole('button', { name: 'Công bố lịch tháng' }).click();
