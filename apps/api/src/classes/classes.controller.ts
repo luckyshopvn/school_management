@@ -1,13 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, Req } from '@nestjs/common';
-import type { AssignmentRole, ClassStatus } from '@school-management/database';
+import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query, Req, Res } from '@nestjs/common';
+import type { AssignmentRole, ClassAgeGroup, ClassStatus } from '@school-management/database';
 import { readBearerToken, validationError, type FieldError } from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf } from '../common/audit-log.js';
 import {
-  isUuid,
   readInteger,
   readOptionalText,
   readOptionalUuid,
@@ -17,10 +16,20 @@ import {
   type RequestBody,
 } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
-import { ClassesService, type ClassChanges } from './classes.service.js';
+import { sendWorkbook } from '../children/student-workbook.js';
+import {
+  CLASS_AGE_GROUP_KEYS,
+  CLASS_EXPORT_COLUMNS,
+  CLASS_STATUSES,
+  DEFAULT_CLASS_EXPORT_COLUMNS,
+  readClassListFilter,
+  readExportColumns,
+} from './class-list.js';
+import { ClassesService, type AssignmentListFilter, type ClassChanges, type ClassInput } from './classes.service.js';
 
 const SIZE_RANGE = { min: 1, max: 200 };
-const CLASS_STATUSES: ClassStatus[] = ['active', 'closed'];
+const SORT_ORDER_RANGE = { min: 0, max: 9999 };
+const MIXED_AGE_COUNTS = [2, 3];
 const ASSIGNMENT_ROLES: AssignmentRole[] = ['homeroom', 'subject'];
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -36,6 +45,66 @@ function readOptionalDate(body: RequestBody, field: string, errors: FieldError[]
   return value;
 }
 
+type SoClassFields = Pick<
+  ClassInput,
+  | 'age_group'
+  | 'sort_order'
+  | 'two_sessions_per_day'
+  | 'mixed_age_count'
+  | 'is_combined'
+  | 'combined_into_class_id'
+  | 'boarding'
+>;
+
+// Thông tin lớp theo Sở (YCTD-111); trường không gửi thì không đổi (sửa) hoặc lấy mặc định (tạo)
+function readSoClassFields(body: RequestBody, errors: FieldError[]): Partial<SoClassFields> {
+  const fields: Partial<SoClassFields> = {};
+  const ageGroup = body?.age_group;
+  if (ageGroup !== undefined) {
+    if (ageGroup === null || ageGroup === '') {
+      fields.age_group = null;
+    } else if (CLASS_AGE_GROUP_KEYS.includes(ageGroup as ClassAgeGroup)) {
+      fields.age_group = ageGroup as ClassAgeGroup;
+    } else {
+      errors.push({ field: 'age_group', message: 'Nhóm tuổi không có trong danh mục' });
+    }
+  }
+  if (body?.sort_order === null) {
+    fields.sort_order = null;
+  } else {
+    const sortOrder = readInteger(body, 'sort_order', errors, SORT_ORDER_RANGE);
+    if (sortOrder !== undefined) {
+      fields.sort_order = sortOrder;
+    }
+  }
+  const mixedAge = body?.mixed_age_count;
+  if (mixedAge !== undefined) {
+    if (mixedAge === null) {
+      fields.mixed_age_count = null;
+    } else if (MIXED_AGE_COUNTS.includes(mixedAge as number)) {
+      fields.mixed_age_count = mixedAge as number;
+    } else {
+      errors.push({ field: 'mixed_age_count', message: 'Lớp ghép 2 hoặc 3 độ tuổi, hoặc bỏ trống' });
+    }
+  }
+  for (const field of ['two_sessions_per_day', 'is_combined', 'boarding'] as const) {
+    const value = body?.[field];
+    if (value === undefined) {
+      continue;
+    }
+    if (typeof value !== 'boolean') {
+      errors.push({ field, message: 'Chọn true hoặc false' });
+    } else {
+      fields[field] = value;
+    }
+  }
+  const combinedInto = readOptionalUuid(body, 'combined_into_class_id', errors);
+  if (combinedInto !== undefined) {
+    fields.combined_into_class_id = combinedInto;
+  }
+  return fields;
+}
+
 // Lớp học và phân công giáo viên (P02-05); ai có vai trò ở đơn vị đều xem được, P02.class.manage mới sửa được (YCTD-44)
 @Controller('classes')
 export class ClassesController {
@@ -44,21 +113,30 @@ export class ClassesController {
   @Get()
   list(@Query() query: Record<string, string | undefined>, @AuthenticatedUser() currentUser: CurrentUser) {
     const errors: FieldError[] = [];
-    if (query.org_unit_id !== undefined && !isUuid(query.org_unit_id)) {
-      errors.push({ field: 'org_unit_id', message: 'Mã không hợp lệ' });
-    }
-    if (query.status !== undefined && !CLASS_STATUSES.includes(query.status as ClassStatus)) {
-      errors.push({ field: 'status', message: 'Trạng thái là active hoặc closed' });
-    }
+    const filter = readClassListFilter(query, errors);
     if (errors.length > 0) {
       throw validationError(errors);
     }
-    return this.classesService.list(currentUser, {
-      orgUnitId: query.org_unit_id,
-      status: query.status as ClassStatus | undefined,
-      gradeLevel: query.grade_level || undefined,
-      mine: query.mine === 'true',
-    });
+    return this.classesService.list(currentUser, { ...filter, mine: query.mine === 'true' });
+  }
+
+  // Xuất Excel danh sách lớp theo bộ lọc và các cột đang hiện trên lưới; cần quyền xuất dữ liệu (BR-74, YCTD-111)
+  @Post('export')
+  @HttpCode(200)
+  @RequirePermission(PERMISSION_CODES.dataExport)
+  async exportList(
+    @Body() body: RequestBody,
+    @Req() request: Request,
+    @Res() response: Response,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const errors: FieldError[] = [];
+    const filter = readClassListFilter(body ?? {}, errors);
+    const columns = readExportColumns(body, CLASS_EXPORT_COLUMNS, DEFAULT_CLASS_EXPORT_COLUMNS, errors);
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    sendWorkbook(response, await this.classesService.exportList(currentUser, filter, columns, request.ip ?? null));
   }
 
   @Post()
@@ -72,7 +150,18 @@ export class ClassesController {
       grade_level: readRequiredText(body, 'grade_level', errors),
       room_id: readOptionalUuid(body, 'room_id', errors) ?? null,
       max_size: readRequiredInteger(body, 'max_size', errors, SIZE_RANGE),
+      age_group: null,
+      sort_order: null,
+      two_sessions_per_day: false,
+      mixed_age_count: null,
+      is_combined: false,
+      combined_into_class_id: null,
+      boarding: false,
+      ...readSoClassFields(body, errors),
     };
+    if (!input.is_combined) {
+      input.combined_into_class_id = null;
+    }
     if (errors.length > 0) {
       throw validationError(errors);
     }
@@ -94,6 +183,7 @@ export class ClassesController {
       grade_level: body?.grade_level === undefined ? undefined : readRequiredText(body, 'grade_level', errors),
       room_id: readOptionalUuid(body, 'room_id', errors),
       max_size: readInteger(body, 'max_size', errors, SIZE_RANGE),
+      ...readSoClassFields(body, errors),
     };
     if (body?.status !== undefined) {
       if (!CLASS_STATUSES.includes(body.status as ClassStatus)) {
@@ -176,5 +266,56 @@ export class ClassesController {
       toDate,
       originOf(request, currentUser),
     );
+  }
+}
+
+// 3.3 Phân công phụ trách lớp (khảo sát mục 3.3, YCTD-111): ai xem được lớp đều xem được; phân công, kết thúc phân công vẫn
+// qua nhóm điểm cuối của lớp (cần P02.class.manage); Xuất Excel cần quyền xuất dữ liệu
+function readAssignmentFilter(query: Record<string, unknown>, errors: FieldError[]): AssignmentListFilter {
+  const filter = readClassListFilter(
+    { org_unit_id: query.org_unit_id, grade_level: query.grade_level, q: query.q },
+    errors,
+  );
+  const role = query.assignment_role;
+  if (role !== undefined && role !== null && role !== '' && !ASSIGNMENT_ROLES.includes(role as AssignmentRole)) {
+    errors.push({ field: 'assignment_role', message: 'Vai trò trong lớp là homeroom hoặc subject' });
+  }
+  return {
+    orgUnitId: filter.orgUnitId,
+    gradeLevel: filter.gradeLevel,
+    q: filter.q,
+    role: ASSIGNMENT_ROLES.includes(role as AssignmentRole) ? (role as AssignmentRole) : undefined,
+  };
+}
+
+@Controller('class-assignments')
+export class ClassAssignmentsController {
+  constructor(private readonly classesService: ClassesService) {}
+
+  @Get()
+  list(@Query() query: Record<string, string | undefined>, @AuthenticatedUser() currentUser: CurrentUser) {
+    const errors: FieldError[] = [];
+    const filter = readAssignmentFilter(query, errors);
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.classesService.listAssignmentRows(currentUser, filter);
+  }
+
+  @Post('export')
+  @HttpCode(200)
+  @RequirePermission(PERMISSION_CODES.dataExport)
+  async export(
+    @Body() body: RequestBody,
+    @Req() request: Request,
+    @Res() response: Response,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const errors: FieldError[] = [];
+    const filter = readAssignmentFilter(body ?? {}, errors);
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    sendWorkbook(response, await this.classesService.exportAssignments(currentUser, filter, request.ip ?? null));
   }
 }

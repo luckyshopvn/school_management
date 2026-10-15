@@ -15,6 +15,9 @@ export interface OrgUnit {
   phone: string | null;
   manager_user_id: string | null;
   status: OrgUnitStatus;
+  // Khoảng cách đến cơ sở chính (km), diện tích (m²) của phân hiệu, điểm trường (mục 1.2, 1.3 của Sở, YCTD-111)
+  distance_km: number | null;
+  area_m2: number | null;
 }
 
 export interface OrgUnitTree extends OrgUnit {
@@ -29,6 +32,8 @@ export interface OrgUnitInput {
   address: string | null;
   phone: string | null;
   manager_user_id: string | null;
+  distance_km: number | null;
+  area_m2: number | null;
 }
 
 export type OrgUnitChanges = Partial<Omit<OrgUnitInput, 'unit_type'>> & {
@@ -46,7 +51,29 @@ const COLUMNS = [
   'phone',
   'manager_user_id',
   'status',
+  'distance_km',
+  'area_m2',
 ] as const;
+
+// Cột numeric đọc ra chuỗi để không mất chính xác; trả số cho giao diện
+function present(
+  row: Omit<OrgUnit, 'distance_km' | 'area_m2'> & { distance_km: string | null; area_m2: string | null },
+): OrgUnit {
+  return {
+    ...row,
+    distance_km: row.distance_km === null ? null : Number(row.distance_km),
+    area_m2: row.area_m2 === null ? null : Number(row.area_m2),
+  };
+}
+
+// Trường chính là cơ sở chính nên không có khoảng cách đến cơ sở chính (YCTD-111)
+function assertDistance(unitType: OrgUnitType, distanceKm: number | null | undefined): void {
+  if (unitType === 'truong_chinh' && distanceKm !== undefined && distanceKm !== null) {
+    throw ruleViolationError('YCTD-111', 'Trường chính là cơ sở chính, không nhập khoảng cách đến cơ sở chính', [
+      { field: 'distance_km', message: 'Chỉ nhập cho phân hiệu, điểm trường' },
+    ]);
+  }
+}
 
 function notFound(): ApplicationError {
   return new ApplicationError('ERR_NOT_FOUND', 'Không tìm thấy đơn vị', [{ field: 'entity', message: 'org_unit' }]);
@@ -71,7 +98,7 @@ export class OrgUnitsService {
     if (filter.status) {
       query = query.where('status', '=', filter.status);
     }
-    return query.orderBy('parent_id', 'desc').orderBy('code').execute();
+    return (await query.orderBy('parent_id', 'desc').orderBy('code').execute()).map(present);
   }
 
   async tree(): Promise<OrgUnitTree | null> {
@@ -109,6 +136,7 @@ export class OrgUnitsService {
         );
       }
     }
+    assertDistance(input.unit_type, input.distance_km);
     await this.assertCodeAvailable(input.code, null);
 
     return database.transaction().execute(async (transaction) => {
@@ -130,7 +158,7 @@ export class OrgUnitsService {
         before: null,
         after: created,
       });
-      return created;
+      return present(created);
     });
   }
 
@@ -153,6 +181,7 @@ export class OrgUnitsService {
     if (changes.parent_id !== undefined && changes.parent_id !== existing.parent_id) {
       throw ruleViolationError('BR-01', 'Cây đơn vị chỉ có hai cấp; không đổi được đơn vị cha');
     }
+    assertDistance(changes.unit_type ?? existing.unit_type, changes.distance_km);
     if (changes.code !== undefined && changes.code !== existing.code) {
       await this.assertCodeAvailable(changes.code, orgUnitId);
     }
@@ -183,6 +212,8 @@ export class OrgUnitsService {
       phone: changes.phone,
       manager_user_id: changes.manager_user_id,
       status: changes.status,
+      distance_km: changes.distance_km,
+      area_m2: changes.area_m2,
     };
     return database.transaction().execute(async (transaction) => {
       const updated = await transaction
@@ -200,7 +231,7 @@ export class OrgUnitsService {
         before: existing,
         after: updated,
       });
-      return updated;
+      return present(updated);
     });
   }
 

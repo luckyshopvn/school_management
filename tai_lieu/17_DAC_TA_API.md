@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.68
+- Phiên bản: 1.69
 - Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -250,9 +250,9 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 
 | Phương thức | Đường dẫn | Mô tả |
 |---|---|---|
-| GET, POST | /api/v1/org-units | Danh sách và tạo đơn vị; lọc được theo cấp và theo đơn vị cha |
+| GET, POST | /api/v1/org-units | Danh sách và tạo đơn vị; lọc được theo cấp và theo đơn vị cha; từ YCTD-111 có thêm `distance_km`, `area_m2` |
 | GET | /api/v1/org-units/tree | Cây đơn vị hai cấp (QĐ-23) |
-| PATCH | /api/v1/org-units/{id} | Cập nhật tên, mã, loại cấp 2, địa chỉ, điện thoại, người phụ trách, trạng thái; không đổi được đơn vị cha vì cây chỉ có hai cấp (YCTD-38) |
+| PATCH | /api/v1/org-units/{id} | Cập nhật tên, mã, loại cấp 2, địa chỉ, điện thoại, người phụ trách, trạng thái; không đổi được đơn vị cha vì cây chỉ có hai cấp (YCTD-38); từ YCTD-111 sửa thêm khoảng cách đến cơ sở chính, diện tích |
 | GET, POST | /api/v1/academic-years | Danh sách và tạo năm học kèm lịch năm học |
 | GET, PUT | /api/v1/academic-years/{id}/calendar | Đọc và lưu học kỳ, kỳ hè, ngày học trong tuần; hệ thống tự đánh số tuần (BR-91) |
 | GET, PATCH | /api/v1/academic-years/{id}/weeks | Danh sách tuần; đánh dấu hoặc bỏ đánh dấu tuần nghỉ |
@@ -279,7 +279,7 @@ Giao kèo của học sinh theo hệ thống của Sở (DT-15 phần 15c, YCTD-
 Giao kèo của cấu hình lưới theo người dùng (DT-15 phần 15a, YCTD-107):
 
 1. Hai điểm cuối chỉ cần đăng nhập, không cần quyền riêng; chỉ đọc và ghi cấu hình của chính tài khoản gọi. Không có mã phiên trả `ERR_UNAUTHENTICATED` (401).
-2. `gridKey` phải thuộc `DATA_GRID_KEYS` ở gói dùng chung (`default`, `accounts`, `staff`, từ YCTD-108 thêm `children`, `student-movements`, từ YCTD-109 thêm `roles`, `api-clients`, `audit-logs`, từ YCTD-110 thêm `my-feedback`, `feedback`; lưới chuyển sang ở các phần sau thêm khóa); khóa lạ trả `ERR_VALIDATION` (400), trường lỗi `gridKey`. Khóa `default` giữ số dòng mỗi trang mặc định cho mọi lưới.
+2. `gridKey` phải thuộc `DATA_GRID_KEYS` ở gói dùng chung (`default`, `accounts`, `staff`, từ YCTD-108 thêm `children`, `student-movements`, từ YCTD-109 thêm `roles`, `api-clients`, `audit-logs`, từ YCTD-110 thêm `my-feedback`, `feedback`, từ YCTD-111 thêm `branches`, `school-sites`, `classes`, `class-assignments`; lưới chuyển sang ở các phần sau thêm khóa); khóa lạ trả `ERR_VALIDATION` (400), trường lỗi `gridKey`. Khóa `default` giữ số dòng mỗi trang mặc định cho mọi lưới.
 3. `GET /me/grid-settings/{gridKey}` trả `{ columns, page_size }`: `columns` là mảng mã cột theo thứ tự hiển thị hoặc null (theo mặc định của màn hình), `page_size` là số hoặc null; chưa lưu thì cả hai null.
 4. `PUT /me/grid-settings/{gridKey}` nhận `{ columns, page_size }` và ghi đè cả cấu hình: `columns` từ 1 đến 100 mã cột, không trùng, mỗi mã 1 đến 64 ký tự chữ, số, `_`, `.`, `-`, null là theo mặc định, lưới `default` không nhận cột; `page_size` là 10, 20, 50, 100, 200 hoặc null. Dữ liệu sai trả `ERR_VALIDATION` (400) kèm trường lỗi và giữ nguyên cấu hình cũ.
 5. Số dòng mỗi trang của một lưới trên giao diện: `page_size` của lưới, không có thì của `default`, không có nữa thì 20 (`14_DAC_TA_GIAO_DIEN.md` BC-14).
@@ -551,6 +551,15 @@ Giao kèo của lớp học (DT-03 phần 3a, YCTD-44):
 3. `POST /classes/{id}/staff-assignments` nhận `staff_user_id`, `assignment_role` (`homeroom`, `subject`), `subject_name` (bắt buộc với bộ môn), `from_date` (mặc định hôm nay). Người được chọn phải có VT-07 với chủ nhiệm, VT-08 với bộ môn, ở đơn vị của lớp hoặc Trường chính; máy chủ API kiểm tra qua `GET /users/directory` bằng mã phiên của người gọi. Lớp đã đóng thì trả `ERR_RULE_VIOLATION`. `PATCH .../{assignmentId}` nhận `status: ended` và `to_date`.
 4. `GET /users/directory?role_code=&org_unit_id=` trả `user_id`, `full_name`, `role_code`, `org_unit_id` của tài khoản đang hoạt động có vai trò đó ở đơn vị hoặc Trường chính.
 
+Giao kèo của lớp học theo hệ thống của Sở (DT-15 phần 15b, YCTD-111):
+
+1. `GET /classes` nhận thêm `q` (khớp một phần tên hoặc mã lớp), `stage` (`nhom_tre`, `mau_giao`), `age_group`, `two_sessions_per_day`, `boarding`, `is_combined` (`true`, `false`); giữ `org_unit_id`, `status`, `grade_level`, `mine`; giá trị sai trả `ERR_VALIDATION`. Dòng trả thêm `org_unit_name`, `org_unit_type`, `grade_name`, `age_group` (nhóm tuổi đang áp dụng), `age_group_from_grade`, `stage`, `sort_order`, `room_name`, `homeroom_names`, `enrolled_count`, `two_sessions_per_day`, `mixed_age_count`, `is_combined`, `combined_into_class_id`, `combined_into_name`, `boarding`. Thứ tự theo `sort_order` (trống ở cuối) rồi mã lớp.
+2. `POST /classes` nhận thêm `age_group` (một trong sáu nhóm tuổi hoặc null), `sort_order` (0 đến 9999 hoặc null), `two_sessions_per_day`, `is_combined`, `boarding` (boolean, mặc định false), `mixed_age_count` (2, 3 hoặc null), `combined_into_class_id` (chỉ giữ khi `is_combined`). `PATCH /classes/{id}` nhận các trường đó, trường không gửi thì không đổi; `is_combined` false thì bỏ lớp được ghép vào; đổi khối, nhóm tuổi thì kiểm tra lại quy tắc ghép độ tuổi. Vi phạm BR-112 trả `ERR_RULE_VIOLATION` mã YCTD-111.
+3. `POST /classes/export` cần `P17.data.export`. Thân gồm các bộ lọc như mục 1 và `columns` (mảng mã cột không trùng trong `branch`, `code`, `name`, `grade`, `stage`, `nursery_group`, `age_group`, `sort_order`, `homeroom`, `enrolled`, `two_sessions_per_day`, `mixed_age`, `is_combined`, `combined_into`, `boarding`, `dissolved`, `school_site`, `room`, `max_size`; bỏ trống là 13 cột mặc định); mã lạ hoặc trùng trả `ERR_VALIDATION`. Trả tệp xlsx có cột STT, đầu `x-export-log-id`, ghi nhật ký xuất mã `classes` (BR-74). Quá 10 000 dòng trả `ERR_RULE_VIOLATION` mã YCTD-111.
+4. `GET /class-assignments`: ai có vai trò ở đơn vị đều xem, trong phạm vi xem lớp. Tham số `org_unit_id`, `grade_level`, `assignment_role` (`homeroom`, `subject`), `q` (tên giáo viên); giá trị sai trả `ERR_VALIDATION`. Trả mảng (`id`, `class_id`, `class_code`, `class_name`, `grade_name`, `org_unit_id`, `org_unit_name`, `staff_user_id`, `staff_name`, `assignment_role`, `subject_name`, `from_date`) xếp theo tên giáo viên rồi tên lớp. Phân công, kết thúc phân công vẫn qua `POST /classes/{id}/staff-assignments`, `PATCH .../{assignmentId}` (cần `P02.class.manage`).
+5. `POST /class-assignments/export` cần `P17.data.export`; thân là bộ lọc như mục 4; trả tệp xlsx có cột STT và bảy cột Giáo viên, Vai trò trong lớp, Môn dạy, Lớp, Khối, Đơn vị, Từ ngày; ghi nhật ký xuất mã `class-assignments` (BR-113).
+6. `DATA_GRID_KEYS` thêm `branches`, `school-sites`, `classes`, `class-assignments`; `PORTAL_QUICK_LINK_PATHS` thêm `/branches`, `/school-sites`, `/class-imports`, `/class-assignments` nên Truy cập nhanh ghim được bốn trang mới.
+
 Giao kèo của các danh mục (DT-01 phần 6b, YCTD-42):
 
 1. `GET /departments`, `GET /job-titles`, `GET /rooms` bắt buộc `org_unit_id`; ai có vai trò ở đơn vị đó đều đọc được. `POST` nhận `org_unit_id` và các trường của bảng; `PATCH /{id}` nhận các trường sửa được và `status` (`active`, `inactive`). Ghi cần `P01.department.manage` (phòng ban, chức danh) hoặc `P01.room.manage` (phòng học) trong phạm vi đơn vị; đơn vị phải đang hoạt động.
@@ -572,6 +581,7 @@ Giao kèo của nhóm điểm cuối cây đơn vị (DT-01 phần 4):
 2. Vi phạm cây hai cấp trả `ERR_RULE_VIOLATION` mã BR-01: Trường chính thứ hai, đơn vị dưới đơn vị cấp 2, đổi đơn vị cha, đổi loại giữa hai cấp, ngừng sử dụng Trường chính, ngừng sử dụng đơn vị còn đơn vị con đang hoạt động. Mã trùng trả `ERR_CONFLICT`.
 3. `GET /org-units` lọc được theo `unit_type` và `status`; `GET /org-units/tree` trả Trường chính kèm `children`. Mọi người đã đăng nhập đọc được; ghi cần `P01.org-unit.manage` (PQ-12).
 4. Mọi thao tác tạo, sửa ghi `audit_logs` kèm giá trị trước và sau (QU-04).
+5. Từ YCTD-111 (DT-15 phần 15b, BR-111), dòng của `GET /org-units` trả thêm `distance_km`, `area_m2` (số hoặc null). `POST`, `PATCH /org-units` nhận thêm `distance_km` (0 đến 999 999), `area_m2` (0 đến 9 999 999 999), số không âm tối đa hai chữ số thập phân, null hoặc chuỗi rỗng là bỏ trống; sai trả `ERR_VALIDATION`; `PATCH` không gửi trường thì không đổi. Trường chính có khoảng cách trả `ERR_RULE_VIOLATION` mã YCTD-111. Màn hình 1.2, 1.3 của cổng quản trị dùng chính các điểm cuối này, không có điểm cuối mới.
 
 Giao kèo của nhóm điểm cuối năm học (DT-01 phần 3):
 
@@ -658,8 +668,11 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | GET | /api/v1/files/{id} | Tải tệp đính kèm; giấy khai sinh cần `P02.national-id.view` và luôn ghi nhật ký truy cập |
 | GET, POST | /api/v1/children/{id}/authorized-pickups | Danh sách và khai báo người được ủy quyền đón trẻ |
 | DELETE | /api/v1/authorized-pickups/{id} | Hủy ủy quyền đón trẻ |
-| GET, POST | /api/v1/classes | Danh sách và tạo lớp |
+| GET, POST | /api/v1/classes | Danh sách và tạo lớp; từ YCTD-111 thêm bộ lọc, cột và thông tin lớp theo Sở |
 | PATCH | /api/v1/classes/{id} | Cập nhật lớp |
+| POST | /api/v1/classes/export | Xuất Excel danh sách lớp theo bộ lọc và cột đang hiện; cần `P17.data.export`, ghi nhật ký xuất (YCTD-111) |
+| GET | /api/v1/class-assignments | Phân công phụ trách lớp: phân công còn hiệu lực của lớp đang dùng trong phạm vi xem (YCTD-111) |
+| POST | /api/v1/class-assignments/export | Xuất Excel phân công phụ trách lớp; cần `P17.data.export`, ghi nhật ký xuất (YCTD-111) |
 | GET | /api/v1/classes/{id}/children | Danh sách trẻ trong lớp |
 | POST | /api/v1/imports/moet-codes | Nhập mã định danh ngành từ tệp (P02-12) |
 | GET, POST | /api/v1/classes/{id}/staff-assignments | Phân công giáo viên chủ nhiệm và giáo viên bộ môn vào lớp |

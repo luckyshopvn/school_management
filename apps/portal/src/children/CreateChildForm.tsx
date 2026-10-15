@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Alert, Button, FORM_CONTROL_CLASS, FormBlock, FormRow } from '@school-management/ui';
 import { listCatalogItems } from '../catalogs/catalogs-api.js';
@@ -69,6 +69,14 @@ export function CreateChildForm({
     guardians: [emptyGuardian(true)],
     confirm_possible_duplicate: false,
   });
+  // Đơn vị của người dùng đọc xong sau khi mở biểu mẫu thì điền đơn vị mặc định (tránh tải giấy khai sinh khi chưa
+  // có đơn vị, YCTD-111)
+  useEffect(() => {
+    if (defaultUnitId) {
+      setForm((current) => (current.org_unit_id === '' ? { ...current, org_unit_id: defaultUnitId } : current));
+    }
+  }, [defaultUnitId]);
+
   const [uploadMessage, setUploadMessage] = useState<string>();
   const [duplicates, setDuplicates] = useState<string[]>([]);
   const relationships = useQuery({

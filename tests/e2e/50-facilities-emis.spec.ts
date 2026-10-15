@@ -23,7 +23,7 @@ test('Hiệu trưởng ghi hồ sơ trường, khai báo phòng, nhập thiết 
 
   // Hồ sơ trường: thông tin chung, một tiêu chí, Ghi
   await openMenu(page, '/school-profile');
-  await expect(page.getByRole('heading', { name: '1.1 Hồ sơ trường' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '1.1. Hồ sơ trường' })).toBeVisible();
   await page.getByLabel('Loại hình trường').selectOption('private');
   await page.getByLabel('Tên theo quyết định thành lập').fill('Trường Mầm non Thử Nghiệm 50');
   await page.getByLabel('Diện tích đất (m²)').fill('1500');

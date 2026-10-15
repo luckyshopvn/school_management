@@ -14,6 +14,9 @@ export interface OrgUnit {
   phone: string | null;
   manager_user_id: string | null;
   status: OrgUnitStatus;
+  // Khoảng cách đến cơ sở chính (km), diện tích (m²) của phân hiệu, điểm trường (DT-15 phần 15b)
+  distance_km: number | null;
+  area_m2: number | null;
 }
 
 export interface OrgUnitTree extends OrgUnit {
@@ -26,6 +29,8 @@ export interface OrgUnitInput {
   unit_type: OrgUnitType;
   address: string | null;
   phone: string | null;
+  distance_km?: number | null;
+  area_m2?: number | null;
 }
 
 export const UNIT_TYPE_LABELS: Record<OrgUnitType, string> = {
@@ -48,7 +53,9 @@ export function createOrgUnit(input: OrgUnitInput): Promise<OrgUnit> {
 
 export function updateOrgUnit(
   orgUnitId: string,
-  changes: Partial<Pick<OrgUnit, 'code' | 'name' | 'unit_type' | 'address' | 'phone' | 'status'>>,
+  changes: Partial<
+    Pick<OrgUnit, 'code' | 'name' | 'unit_type' | 'address' | 'phone' | 'status' | 'distance_km' | 'area_m2'>
+  >,
 ): Promise<OrgUnit> {
   return requestJson(`/api/v1/org-units/${orgUnitId}`, { method: 'PATCH', body: JSON.stringify(changes) });
 }

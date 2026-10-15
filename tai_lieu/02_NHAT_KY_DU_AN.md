@@ -14,6 +14,25 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-15 — DT-15 phần 15b: trường học, lớp học theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Thêm mục "1.2. Quản lý phân hiệu", "1.3. Quản lý điểm trường" (lưới theo cột của Sở, khoảng cách đến cơ sở chính, diện tích, Ngừng sử dụng, Dùng lại); chuyển "2.1. Hồ sơ lớp học" sang lưới dữ liệu chung và biểu mẫu theo khối với nhóm tuổi, nhóm lớp, thứ tự, học 2 buổi/ngày, lớp mẫu giáo ghép 2 hoặc 3 độ tuổi, lớp ghép, lớp bán trú, Mở rộng tìm kiếm, Xuất Excel, "Giải thể lớp"; tách "2.2. Nhập lớp học từ Excel" khỏi màn hình Nhập dữ liệu; thêm "3.3. Phân công phụ trách lớp" lấy từ phân công giáo viên của lớp; tiêu đề 1.1, 1.4 kèm số menu. Cột mới ở cơ sở dữ liệu năm học (tệp 0051), không có quyền mới.
+- Thêm kịch bản CT-398 đến CT-408, tiêu chí AC-442 đến AC-452, quy tắc BR-111 đến BR-113, quy tắc phân quyền PQ-65, màn hình MH-90 đến MH-93. Kết quả ngày 15/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 650/650 ca đạt; toàn bộ kiểm thử giao diện 91/91 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện đợt 15b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 5. Phân hiệu, điểm trường là hai danh sách của cây đơn vị (Trường chính vẫn tạo ở Cây đơn vị), Ngừng sử dụng thay Xóa; lớp giải thể là lớp đã đóng; nhóm tuổi bỏ trống là theo bậc học; quy tắc ghép độ tuổi, lớp ghép; phân công phụ trách lớp lấy từ phân công giáo viên của lớp, không thêm bảng; nhập lớp học tách màn hình riêng giữ mẫu cũ; không thêm quyền mới, Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-111.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-111, `07_QUY_TAC_NGHIEP_VU.md` BR-111 đến BR-113, `08_VAI_TRO_NGUOI_DUNG.md` PQ-65, `10_YEU_CAU_CHUC_NANG.md` P01-01, P01-13, P02-05, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-03, MH-32, MH-40, MH-90 đến MH-93, BC-16, `16_CO_SO_DU_LIEU.md` mục 2, 3, `17_DAC_TA_API.md` mục 5, giao kèo lớp học theo Sở, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.64.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 5.
+
+#### Vấn đề tồn đọng
+
+- 1.4 Cấu hình trường chưa có ba ô của Sở; 1.2, 1.3 chưa có Xuất Excel, chưa có Xóa; 2.1 chưa có thao tác hàng loạt, Xuất PDF, nhóm tuổi của lớp chưa dùng cho thống kê; mẫu nhập lớp học chưa có các ô mới; 3.3 chưa hiện giáo viên chưa được phân công.
+
 ### 2026-10-15 — DT-15 phần 15g: gửi phản hồi, hết hạn mật khẩu
 
 #### Công việc đã thực hiện
