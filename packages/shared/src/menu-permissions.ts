@@ -72,6 +72,11 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/attendance': CHILDREN_AND_CLASSES,
   '/statistics': STATISTICS,
   '/missing-profiles': STATISTICS,
+  // Văn thư lưu trữ (YCTD-117): người có quyền quản lý, xuất thì cũng được cấp quyền xem
+  '/archive-records': anyOf('P09.archive.view', 'P09.archive.manage', 'P09.archive.export'),
+  '/archive-fonds': anyOf('P09.archive.view', 'P09.archive.manage'),
+  '/archive-holdings': anyOf('P09.archive.view', 'P09.archive.manage'),
+  '/archive-report': anyOf('P09.archive.view', 'P09.archive.export'),
   // Cơ sở vật chất, TBDH; Báo cáo số liệu
   '/facility-rooms': anyOf('P17.report.facilities', 'P13.equipment.manage', 'P01.room.manage'),
   '/equipment': anyOf('P17.report.facilities', 'P13.equipment.manage'),

@@ -12,6 +12,8 @@ export type {
   AcademicTermType,
   AcademicYearDatabaseStatus,
   AcademicYearStatus,
+  ArchiveRecordStatus,
+  ArchiveRetention,
   UserFeedbackStatus,
   UserFeedbackType,
   IntegrationCredentialConnector,
