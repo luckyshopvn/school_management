@@ -282,7 +282,23 @@ describe('Trường học, lớp học theo Sở (YCTD-111)', () => {
     const l1 = file.rows.find((row) => row[1] === 'L1');
     assert.deepEqual(l1, ['2', 'L1', 'Lớp L1', 'Lớp mẫu giáo', '5–6 tuổi', 'Có', 'Có', 'Đơn vị PH-A', '']);
     const defaults = await download('/classes/export', principal, {});
-    assert.equal(defaults.rows[0]?.length, 14);
+    // Cột hiện mặc định theo màn hình 2.1 của Sở (YCTD-113)
+    assert.deepEqual(defaults.rows[0], [
+      'STT',
+      'Mã lớp',
+      'Tên lớp',
+      'Khối',
+      'Nhóm lớp',
+      'Nhóm trẻ',
+      'Nhóm tuổi',
+      'Thứ tự',
+      'Số học sinh',
+      'Học 2 buổi/ngày',
+      'Lớp ghép',
+      'Ghép vào lớp',
+      'Lớp bán trú',
+      'Lớp giải thể',
+    ]);
 
     const teacher = await environment.loginAs('VT-07', unit('PH-A'));
     assert.equal((await download('/classes/export', teacher.accessToken, {})).status, 403);

@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.65.1 – 2026-10-15
+
+- Phạm vi thay đổi: 2.1 Hồ sơ lớp học, cột hiện mặc định và số dòng mỗi trang theo hệ thống của Sở (YCTD-113).
+- Chức năng mới: không có.
+- Lỗi đã sửa: lưới 2.1 hiện mặc định Lớp ghép, Ghép vào lớp, Lớp giải thể và ẩn Phân hiệu, Giáo viên chủ nhiệm, Điểm trường như Sở; 50 dòng mỗi trang khi người dùng chưa chọn số dòng; xuất Excel không chọn cột theo cột mặc định mới.
+- Thay đổi dữ liệu: không có.
+- Thay đổi API: `POST /classes/export` không gửi `columns` thì xuất 13 cột mặc định mới.
+- Rủi ro: người dùng quen thấy tên giáo viên chủ nhiệm trên lưới phải bật lại cột.
+- Khả năng tương thích: cấu hình cột, số dòng đã lưu của người dùng giữ nguyên; số dòng mặc định chung người dùng đã chọn vẫn được ưu tiên hơn 50; lưới khác không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh; không có thay đổi cơ sở dữ liệu.
+
 ### Phiên bản 0.64.0 – 2026-10-15
 
 - Phạm vi thay đổi: DT-15 phần 15b, trường học, lớp học theo hệ thống của Sở (YCTD-111).

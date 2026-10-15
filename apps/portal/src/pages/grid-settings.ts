@@ -21,8 +21,11 @@ export function saveGridSettings(gridKey: DataGridKey, settings: StoredGridSetti
 }
 
 // Cấu hình đang áp dụng cho một lưới: số dòng riêng của lưới, không có thì số dòng mặc định của người dùng, không có nữa
-// thì 20. Đổi cấu hình thì hiện ngay rồi lưu ở máy chủ
-export function useGridSettings(gridKey: DataGridKey): {
+// thì số dòng mặc định của màn hình (theo Sở, ví dụ 2.1 là 50), mặc định 20. Đổi cấu hình thì hiện ngay rồi lưu ở máy chủ
+export function useGridSettings(
+  gridKey: DataGridKey,
+  defaultPageSize: number = DEFAULT_DATA_GRID_PAGE_SIZE,
+): {
   settings: DataGridViewSettings;
   update(next: DataGridViewSettings): void;
   error: Error | null;
@@ -40,7 +43,7 @@ export function useGridSettings(gridKey: DataGridKey): {
   });
   const settings: DataGridViewSettings = {
     columns: own.data?.columns ?? null,
-    pageSize: own.data?.page_size ?? fallback.data?.page_size ?? DEFAULT_DATA_GRID_PAGE_SIZE,
+    pageSize: own.data?.page_size ?? fallback.data?.page_size ?? defaultPageSize,
   };
   return {
     settings,
