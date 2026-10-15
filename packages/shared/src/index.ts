@@ -337,6 +337,12 @@ export const DATA_GRID_KEYS = [
   'news',
   'library-items',
   'extracurricular-activities',
+  'lesson-plan-reviews',
+  'lessons',
+  'lesson-domains',
+  'lesson-groups',
+  'lesson-themes',
+  'teaching-plans',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;
