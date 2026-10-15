@@ -148,7 +148,7 @@ test('CT-15a-8: menu ngang bằng bàn phím: mũi tên, Enter, Space, Esc theo 
   await expect(item('3.1.1. Hồ sơ cán bộ, giáo viên')).toBeFocused();
   await page.keyboard.press(' ');
   await expect(page).toHaveURL(/\/staff$/);
-  await expect(page.getByRole('heading', { name: 'Hồ sơ nhân sự', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '3.1.1. Hồ sơ cán bộ, giáo viên', exact: true })).toBeVisible();
 });
 
 test('CT-15a-9: chọn phân hệ đổi bộ menu, tải lại vẫn giữ; mở trang phân hệ khác bằng đường dẫn thì menu tự chuyển', async ({

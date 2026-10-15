@@ -187,7 +187,7 @@ export function listChildren(filter: StudentFilter & { page: number; pageSize?: 
   return requestJson(`/api/v1/children?${parameters.toString()}`);
 }
 
-// Tải tệp do máy chủ tạo; máy chủ ghi nhật ký xuất rồi trả tệp (dùng chung cho danh sách lớp, YCTD-111)
+// Tải tệp do máy chủ tạo; máy chủ ghi nhật ký xuất rồi trả tệp (dùng chung cho danh sách lớp, YCTD-111, và nhân sự)
 export async function downloadPost(path: string, body: unknown, fallbackName: string): Promise<void> {
   const response = await fetchWithSession(path, {
     method: 'POST',

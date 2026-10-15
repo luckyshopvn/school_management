@@ -84,7 +84,7 @@ test('Quản lý đơn vị tạo lớp của Phân hiệu A, phân công giáo 
   await row.getByRole('button', { name: 'Giải thể lớp' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Giải thể lớp' }).click();
   await expect(row.getByRole('button', { name: 'Mở lại' })).toBeVisible();
-  // Cột Lớp giải thể hiện mặc định như màn hình 2.1 của Sở (YCTD-113)
+  // Cột Lớp giải thể hiện mặc định như màn hình 2.1 của Sở (YCTD-117)
   await expect(row).toContainText('Đã giải thể');
   await row.getByRole('button', { name: 'Mở lại' }).click();
   await expect(row.getByRole('button', { name: 'Giải thể lớp' })).toBeVisible();

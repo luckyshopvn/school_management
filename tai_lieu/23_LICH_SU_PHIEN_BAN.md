@@ -16,9 +16,9 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.65.1 – 2026-10-15
+### Phiên bản 0.66.1 – 2026-10-15
 
-- Phạm vi thay đổi: 2.1 Hồ sơ lớp học, cột hiện mặc định và số dòng mỗi trang theo hệ thống của Sở (YCTD-113).
+- Phạm vi thay đổi: 2.1 Hồ sơ lớp học, cột hiện mặc định và số dòng mỗi trang theo hệ thống của Sở (YCTD-117).
 - Chức năng mới: không có.
 - Lỗi đã sửa: lưới 2.1 hiện mặc định Lớp ghép, Ghép vào lớp, Lớp giải thể và ẩn Phân hiệu, Giáo viên chủ nhiệm, Điểm trường như Sở; 50 dòng mỗi trang khi người dùng chưa chọn số dòng; xuất Excel không chọn cột theo cột mặc định mới.
 - Thay đổi dữ liệu: không có.
@@ -26,6 +26,28 @@
 - Rủi ro: người dùng quen thấy tên giáo viên chủ nhiệm trên lưới phải bật lại cột.
 - Khả năng tương thích: cấu hình cột, số dòng đã lưu của người dùng giữ nguyên; số dòng mặc định chung người dùng đã chọn vẫn được ưu tiên hơn 50; lưới khác không đổi.
 - Phương án quay lui: hoàn lại commit gộp của nhánh; không có thay đổi cơ sở dữ liệu.
+
+### Phiên bản 0.66.0 – 2026-10-15
+
+- Phạm vi thay đổi: DT-15 phần 15h1, cập nhật địa danh hành chính theo hệ thống của Sở (YCTD-116).
+- Chức năng mới: màn hình "4.1.11. Cập nhật địa danh hành chính": lưới địa chỉ của học sinh còn theo địa danh trước sắp xếp năm 2025 ở năm loại địa chỉ của tệp CSDL ngành, địa danh mới đề xuất theo bảng đối chiếu, chọn xã mới khi xã cũ chia cho nhiều xã, chuyển hàng loạt có ghi nhật ký trước và sau; bảng đối chiếu địa danh gieo sẵn Thành phố Hồ Chí Minh theo Nghị quyết 1685/NQ-UBTVQH15 và mã số của Cục Thống kê, nhập thêm từ Excel.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp `0008_create_administrative_units` của cơ sở dữ liệu hệ thống tạo `administrative_units`, `administrative_unit_mappings` và gieo 651 đơn vị, 493 dòng đối chiếu.
+- Thay đổi API: điểm cuối mới `GET /administrative-units/addresses`, `POST /administrative-units/addresses/convert`, `GET /administrative-units/mappings`, `GET /administrative-units/mappings/template`, `POST /administrative-units/mappings/import`.
+- Rủi ro: danh mục chỉ có Thành phố Hồ Chí Minh; mã mới lấy từ danh mục của Cục Thống kê, chưa đọc trực tiếp phụ lục Quyết định 19/2025/QĐ-TTg; nhập lại tệp CSDL ngành ghi đè địa chỉ đã chuyển.
+- Khả năng tương thích: không đổi điểm cuối, màn hình đã có; không có quyền mới; ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-15-phan-15h1`; phần quay lui của tệp 0008 xóa hai bảng; địa chỉ đã chuyển giữ nguyên, xem giá trị cũ ở nhật ký thao tác.
+
+### Phiên bản 0.65.0 – 2026-10-15
+
+- Phạm vi thay đổi: DT-15 phần 15d, nhân sự theo hệ thống của Sở (YCTD-112).
+- Chức năng mới: màn hình hồ sơ nhân sự đổi tên "3.1.1. Hồ sơ cán bộ, giáo viên" với lưới theo cột của Sở (Mã định danh Bộ GD&ĐT, Mã nhân sự, Họ tên, Ngày sinh, Giới tính, Trạng thái, Dân tộc, Điện thoại, Vị trí việc làm, Nhóm chức vụ, Hình thức hợp đồng, Trình độ chuyên môn), phân trang ở máy chủ, xếp A–Z theo tên; Mở rộng tìm kiếm theo đơn vị, phòng ban, trạng thái, giới tính, vị trí việc làm, Đảng viên, tuổi từ–đến, mã định danh Bộ, số định danh (gộp mục 3.1.4 của Sở); Xuất Excel theo cột đang hiện; hồ sơ hai thẻ "Hồ sơ cán bộ, giáo viên" (bảy khối theo thứ tự cột của tệp CSDL ngành, nút Ghi) và "Thông tin riêng của trường" (thông tin của trường, tài khoản, hợp đồng, lương và phụ cấp, quá trình công tác); biểu mẫu Thêm mới theo khối (P07).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: không có bảng, cột mới; các ô của Sở ghi vào `staff.moet_profile` (đã có từ tệp 0046) theo khóa của tệp CSDL ngành.
+- Thay đổi API: điểm cuối mới `GET /staff/search`, `POST /staff/export`, `PATCH /staff/{id}/profile`; `GET /staff/{id}` trả thêm `moet_fields`; `GET /staff` giữ nguyên.
+- Rủi ro: ô theo Sở là chữ tự do, chưa có danh mục của Bộ; nhập lại tệp CSDL ngành ghi đè các ô đã sửa ở biểu mẫu; lọc số định danh giải mã các hồ sơ cùng bốn số cuối trong phạm vi.
+- Khả năng tương thích: đường dẫn `/staff`, `GET /staff`, `POST /staff`, `PUT /staff/{id}` không đổi; cấu hình cột đã lưu của lưới `staff` bỏ qua mã cột không còn dùng; không có quyền mới; ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-15-phan-15d`; không có tệp thay đổi cấu trúc dữ liệu cần quay lui, các khóa đã ghi vào `moet_profile` vẫn đọc được ở khối "Thông tin theo CSDL ngành".
 
 ### Phiên bản 0.64.0 – 2026-10-15
 

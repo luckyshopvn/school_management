@@ -1,7 +1,7 @@
 # 03. DANH SÁCH KIỂM TRA CÔNG VIỆC
 
 - Mô tả: Danh sách công việc, trạng thái và thứ tự ưu tiên của dự án.
-- Phiên bản: 0.31
+- Phiên bản: 0.33
 - Ngày cập nhật: 2026-10-15
 - Trạng thái: Đang cập nhật
 
@@ -14,12 +14,12 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | Phân hệ | Trạng thái | Việc còn lại |
 |---|---|---|
 | P01 Nền tảng, đơn vị và phân quyền | Hoàn thành | Đợt DT-01 (YCTD-34 đến YCTD-42); kết nối ngoài ở DT-11 phần 11e; DT-14 phần 14d (YCTD-106: hồ sơ trường); DT-15 phần 15e (YCTD-109: quản trị hệ thống theo Sở: 1.1 Nhóm người dùng, 1.3 Phân quyền nhóm theo menu, 1.4 Danh sách người dùng, lưới dữ liệu chung cho Khóa API và Nhật ký thao tác); DT-15 phần 15g (YCTD-110: Gửi phản hồi ở chân trang, Danh sách ý kiến đã gửi, 3.4 Ý kiến phản hồi, hết hạn mật khẩu); DT-15 phần 15b (YCTD-111: 1.2 Quản lý phân hiệu, 1.3 Quản lý điểm trường, 2.2 Nhập lớp học từ Excel) |
-| P02 Trẻ, phụ huynh và lớp học | Hoàn thành | Đợt DT-03 (YCTD-44 đến YCTD-46), DT-09 phần 9b, 9d, DT-14 phần 14c (YCTD-104: hoàn thành chương trình, nhóm học sinh), DT-15 phần 15c (YCTD-108: Quản lý hồ sơ học sinh theo Sở, điện thoại nhận tin, học 2 buổi/ngày và bán trú, biến động học sinh), DT-15 phần 15b (YCTD-111: 2.1 Hồ sơ lớp học theo Sở, 3.3 Phân công phụ trách lớp); kết nối tự động cơ sở dữ liệu ngành (G3-09) chưa có giao diện lập trình công khai, tiếp tục nhập từ tệp |
+| P02 Trẻ, phụ huynh và lớp học | Hoàn thành | Đợt DT-03 (YCTD-44 đến YCTD-46), DT-09 phần 9b, 9d, DT-14 phần 14c (YCTD-104: hoàn thành chương trình, nhóm học sinh), DT-15 phần 15c (YCTD-108: Quản lý hồ sơ học sinh theo Sở, điện thoại nhận tin, học 2 buổi/ngày và bán trú, biến động học sinh), DT-15 phần 15b (YCTD-111: 2.1 Hồ sơ lớp học theo Sở, 3.3 Phân công phụ trách lớp); kết nối tự động cơ sở dữ liệu ngành (G3-09) chưa có giao diện lập trình công khai, tiếp tục nhập từ tệp, DT-15 phần 15h1 (YCTD-116: 4.1.11 Cập nhật địa danh hành chính) |
 | P03 Giảng dạy | Hoàn thành | Đợt DT-10 phần 10g (YCTD-80); tổ chuyên môn chưa làm |
 | P04 Điểm danh và chăm sóc hằng ngày | Hoàn thành | Đợt DT-04 (YCTD-47, YCTD-48), DT-08 phần 8b |
 | P05 Học phí, khoản thu và giảm trừ | Hoàn thành | Đợt DT-05 (YCTD-49 đến YCTD-57); cổng thanh toán thật chờ việc T1 |
 | P06 Tài chính | Hoàn thành | Đợt DT-05 phần 5d đến 5f, DT-10 phần 10i, DT-11 phần 11c, 11d (YCTD-88, YCTD-89) |
-| P07 Nhân sự | Hoàn thành | Đợt DT-06 phần 6a (YCTD-58), DT-10 phần 10h, DT-14 phần 14c (YCTD-104: đánh giá chuẩn nghề nghiệp) |
+| P07 Nhân sự | Hoàn thành | Đợt DT-06 phần 6a (YCTD-58), DT-10 phần 10h, DT-14 phần 14c (YCTD-104: đánh giá chuẩn nghề nghiệp), DT-15 phần 15d (YCTD-112: 3.1.1 Hồ sơ cán bộ, giáo viên theo Sở, mở rộng tìm kiếm 3.1.4, xuất Excel, hồ sơ hai thẻ) |
 | P08 Chấm công và tiền lương | Hoàn thành | Đợt DT-06 phần 6b, 6c (YCTD-59 đến YCTD-61) |
 | P09 Công việc, kế hoạch và đánh giá | Hoàn thành | Đợt DT-10 phần 10h (YCTD-81) |
 | P10 Y tế học đường | Hoàn thành | Đợt DT-10 phần 10a, 10b (YCTD-74, YCTD-75), DT-14 phần 14a (YCTD-105: đợt cân đo, kênh tăng trưởng theo chuẩn WHO, tổng hợp cân nặng, chiều cao) |

@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from './fixtures.js';
 import {
   createDatabase,
   listDatabasesWithPrefix,
@@ -108,7 +108,7 @@ test('CT-15b-9: 2.1 Hồ sơ lớp học: cột của Sở, thêm lớp theo kh�
   const siteId = await findUnitId('Điểm trường A1');
   await openMenu(page, '/classes');
   const grid = page.getByRole('region', { name: 'Danh sách lớp' });
-  // Cột hiện, ẩn mặc định và 50 dòng mỗi trang như màn hình 2.1 của Sở (YCTD-113)
+  // Cột hiện, ẩn mặc định và 50 dòng mỗi trang như màn hình 2.1 của Sở (YCTD-117)
   const headers = grid.getByRole('columnheader');
   for (const header of [
     'Mã lớp',

@@ -165,7 +165,7 @@ export const CLASS_EXPORT_COLUMNS: Array<{ id: string; label: string; value(row:
   { id: 'max_size', label: 'Sĩ số tối đa', value: (row) => row.max_size },
 ];
 
-// Cột hiện mặc định trên lưới (theo màn hình 2.1 của Sở, YCTD-113), dùng khi người xuất không gửi danh sách cột
+// Cột hiện mặc định trên lưới (theo màn hình 2.1 của Sở, YCTD-117), dùng khi người xuất không gửi danh sách cột
 export const DEFAULT_CLASS_EXPORT_COLUMNS = [
   'code',
   'name',

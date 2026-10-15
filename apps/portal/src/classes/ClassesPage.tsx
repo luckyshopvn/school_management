@@ -56,7 +56,7 @@ const YES_NO = [
 const yes = (value: boolean) => (value ? 'Có' : '');
 
 // Mã cột trùng mã cột tệp Excel của máy chủ. Cột hiện, ẩn mặc định và 50 dòng mỗi trang theo màn hình 2.1 của Sở
-// (tài liệu 31 mục 9.8, YCTD-113)
+// (tài liệu 31 mục 9.8, YCTD-117)
 const SO_PAGE_SIZE = 50;
 const COLUMNS: Array<DataGridColumn<ClassRecord>> = [
   {

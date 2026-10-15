@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.41
+- Phiên bản: 1.43
 - Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -56,6 +56,7 @@
 | P02-14 | Nhóm học sinh (G3) | VT-02, VT-15, VT-03; giáo viên xem | Tên nhóm (duy nhất trong đơn vị), mô tả, giáo viên phụ trách, trạng thái, trẻ của nhóm | Lập, sửa, ngừng dùng nhóm; thêm trẻ đang học của đơn vị theo lớp, bớt trẻ; một trẻ thuộc nhiều nhóm; lọc danh sách trẻ theo nhóm; nhóm không chuyển sang năm học mới (YCTD-104) | Danh sách nhóm và trẻ của nhóm | BR-01, BR-72 |
 | P02-15 | Biến động học sinh (G3) | VT-02, VT-15, VT-03, VT-12 | Khoảng ngày, loại biến động (nhập học, chuyển lớp, chuyển đơn vị, thôi học), đơn vị, họ tên | Dựng danh sách từ lịch sử đã có của năm học, mới nhất trước, đếm theo loại; xuất Excel theo bộ lọc kèm nhật ký xuất (YCTD-108) | Danh sách biến động, tệp Excel | BR-72, BR-74, BR-107 |
 | P02-16 | Điện thoại nhận tin, học 2 buổi/ngày và bán trú (G3) | VT-12, VT-03, VT-02, VT-15 | Phụ huynh nhận tin của học sinh; học 2 buổi/ngày, học sinh lớp bán trú của một hoặc nhiều học sinh | Chọn hoặc bỏ chọn phụ huynh nhận tin; tin nhắn theo học sinh gửi phụ huynh nhận tin; sửa ở hồ sơ hoặc cập nhật hàng loạt, có học sinh chờ duyệt thì không cập nhật học sinh nào (YCTD-108) | Số nhận tin, cờ học 2 buổi/ngày, bán trú của học sinh | BR-105, BR-106 |
+| P02-17 | Cập nhật địa danh hành chính (G3) | VT-12, VT-03, VT-02, VT-15 | Năm loại địa chỉ của học sinh theo tệp CSDL ngành (thường trú, quê quán, nơi khai sinh, nơi sinh, chỗ ở hiện nay); bảng đối chiếu địa danh cũ sang mới; tệp Excel bảng đối chiếu | Liệt kê địa chỉ còn theo địa danh trước sắp xếp năm 2025, đề xuất địa danh mới, chuyển hàng loạt có nhật ký trước và sau; nhập bảng đối chiếu từ Excel (mục 4.1.11 của Sở, YCTD-116) | Lưới địa chỉ, bảng đối chiếu, báo cáo dòng lỗi | BR-115, BR-72 |
 
 ## 4. Phân hệ P03 — Giảng dạy
 
@@ -120,10 +121,10 @@
 
 | Mã | Tên chức năng | Người dùng | Đầu vào chính | Xử lý chính | Đầu ra chính | Quy tắc |
 |---|---|---|---|---|---|---|
-| P07-01 | Hồ sơ nhân sự (G1) | VT-06 | Thông tin định danh, liên hệ, phòng ban, chức danh, đơn vị chính | Tạo, sửa, ngừng sử dụng hồ sơ | Hồ sơ nhân sự | BR-37 |
+| P07-01 | Hồ sơ nhân sự (G1) | VT-06 | Thông tin định danh, liên hệ, phòng ban, chức danh, đơn vị chính; từ YCTD-112 các ô theo thứ tự cột của tệp CSDL ngành (thông tin chung, địa chỉ, Đoàn, Đảng, tuyển dụng, công tác, lương, phụ cấp theo ngạch bậc, trình độ, đánh giá, khen thưởng) | Tạo, sửa, ngừng sử dụng hồ sơ; từ YCTD-112 Thêm mới theo khối, ghi hồ sơ theo biểu mẫu của Sở ở thẻ "Hồ sơ cán bộ, giáo viên" (chỉ gửi ô đã đổi, ô chưa có cột riêng lưu ở `moet_profile`) và thông tin của trường ở thẻ "Thông tin riêng của trường" | Hồ sơ nhân sự ("3.1.1. Hồ sơ cán bộ, giáo viên" từ YCTD-112) | BR-37, BR-114 |
 | P07-02 | Hợp đồng lao động (G1) | VT-06 | Loại hợp đồng, ngày bắt đầu, ngày kết thúc, lương thỏa thuận, phụ cấp | Tạo, gia hạn, chấm dứt hợp đồng; chấm dứt hợp đồng thì chuyển kế toán lập bảng quyết toán cuối cùng | Hợp đồng và lịch sử hợp đồng | BR-38, BR-05, BR-90 |
 | P07-03 | Quá trình công tác và chứng chỉ (G2) | VT-06 | Mốc công tác, chức danh, chứng chỉ, ngày cấp | Ghi thêm lịch sử | Lịch sử công tác | BR-37 |
-| P07-04 | Danh sách nhân sự theo đơn vị và phòng ban (G1) | VT-03, VT-06 | Bộ lọc đơn vị, phòng ban, chức danh, trạng thái | Truy vấn theo quyền | Danh sách nhân sự | BR-01, BR-72 |
+| P07-04 | Danh sách nhân sự theo đơn vị và phòng ban (G1) | VT-03, VT-06 | Bộ lọc đơn vị, phòng ban, chức danh, trạng thái; từ YCTD-112 thêm giới tính, vị trí việc làm, Đảng viên, tuổi từ–đến, mã định danh Bộ GD&ĐT, số định danh cá nhân (mục 3.1.4 của Sở) | Truy vấn theo quyền; từ YCTD-112 phân trang ở máy chủ, xếp A–Z theo tên, xuất Excel theo cột đang hiện | Danh sách nhân sự (lưới theo cột của Sở từ YCTD-112), tệp Excel | BR-01, BR-72, BR-114 |
 | P07-05 | Đánh giá chuẩn nghề nghiệp (G3) | Mọi nhân sự tự đánh giá; VT-03, VT-02 đánh giá; VT-02 sửa danh mục | Danh mục tiêu chuẩn, tiêu chí theo Thông tư 26/2018/TT-BGDĐT (giáo viên mầm non) và Thông tư 25/2018/TT-BGDĐT (hiệu trưởng); mức và minh chứng từng tiêu chí; nhận xét của người đánh giá | Mở phiếu cho nhân sự theo năm học, nhân sự tự đánh giá rồi gửi, người đánh giá ghi mức, nhận xét rồi chốt, hệ thống xếp loại chung; thống kê xếp loại theo loại chuẩn (YCTD-104) | Phiếu đánh giá đã chốt kèm xếp loại chung, thống kê | BR-98, BR-99 |
 
 ## 9. Phân hệ P08 — Chấm công và tiền lương

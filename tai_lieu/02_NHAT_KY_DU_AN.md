@@ -23,15 +23,54 @@
 
 #### Quyết định
 
-- Số dòng mặc định riêng của màn hình (50) chỉ dùng khi người dùng chưa chọn số dòng của lưới và chưa chọn số dòng mặc định chung; hằng số chung giữ 20. Cột Khối, Nhóm trẻ giữ hiện vì là hai phần của cột "Nhóm lớp" của Sở. Mã YCTD-112, phiên bản 0.65.0 đã dùng cho đợt 15d nên thay đổi này là YCTD-113, phiên bản 0.65.1.
+- Số dòng mặc định riêng của màn hình (50) chỉ dùng khi người dùng chưa chọn số dòng của lưới và chưa chọn số dòng mặc định chung; hằng số chung giữ 20. Cột Khối, Nhóm trẻ giữ hiện vì là hai phần của cột "Nhóm lớp" của Sở. Mã YCTD-113 đến YCTD-115 dành cho các phần 15f, YCTD-116 và phiên bản 0.66.0 đã dùng cho đợt 15h1 nên thay đổi này là YCTD-117, phiên bản 0.66.1.
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-113, `14_DAC_TA_GIAO_DIEN.md` MH-03, `11_TIEU_CHI_NGHIEM_THU.md` AC-447, AC-450, `17_DAC_TA_API.md` mục 5, `21_KICH_BAN_KIEM_THU.md` CT-403, CT-406, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.65.1.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-117, `14_DAC_TA_GIAO_DIEN.md` MH-03, `11_TIEU_CHI_NGHIEM_THU.md` AC-447, AC-450, `17_DAC_TA_API.md` mục 5, `21_KICH_BAN_KIEM_THU.md` CT-403, CT-406, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.66.1.
 
 #### Vấn đề tồn đọng
 
 - Không có.
+
+### 2026-10-15 — DT-15 phần 15h1: cập nhật địa danh hành chính theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Thêm danh mục địa danh hành chính ở cơ sở dữ liệu hệ thống (đơn vị cũ, đơn vị mới, bảng đối chiếu) và gieo sẵn Thành phố Hồ Chí Minh mới: 168 đơn vị cấp xã, 441 xã cũ của Thành phố Hồ Chí Minh, Bình Dương, Bà Rịa - Vũng Tàu, 493 dòng đối chiếu, lấy từ Nghị quyết 1685/NQ-UBTVQH15 và danh mục của Cục Thống kê (mã theo Quyết định 19/2025/QĐ-TTg).
+- Thêm màn hình "4.1.11. Cập nhật địa danh hành chính": lưới địa chỉ học sinh còn theo địa danh cũ ở năm loại địa chỉ, đề xuất địa danh mới, chọn xã mới khi xã cũ chia cho nhiều xã, chuyển hàng loạt có nhật ký trước và sau; bảng đối chiếu, nhập bảng đối chiếu từ Excel.
+- Thêm kịch bản CT-421 đến CT-430, tiêu chí AC-465 đến AC-474, quy tắc BR-115, quy tắc phân quyền PQ-67, chức năng P02-17, màn hình MH-94. Kết quả ngày 15/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 725/727 ca đạt, hai ca CTC-DD-041, PQ-10 chỉ hỏng trên máy phát triển do cơ sở dữ liệu phát triển cho VT-01 mọi quyền, không liên quan phần này; tệp mới `administrative-units.test.ts` 8/8 ca đạt; toàn bộ kiểm thử giao diện 96/96 ca đạt (lần chạy trước 95/96, ca hỏng ở `50-facilities-emis.spec.ts` chờ thông báo "Đã lưu phòng", không liên quan, chạy lại đạt); tệp mới `56-administrative-units.spec.ts` 2/2 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện đợt 15h phần 15h1 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 5 (15h2 văn thư lưu trữ làm song song). Danh mục chỉ lấy từ văn bản và danh mục chính thức, phần chưa kiểm chứng (tỉnh khác) để người dùng nhập từ Excel; so khớp tên giữ dấu vì có tên chỉ khác dấu; dùng lại quyền lập, duyệt hồ sơ học sinh và quyền quản lý danh mục, không thêm quyền. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-116, `07_QUY_TAC_NGHIEP_VU.md` BR-115, `08_VAI_TRO_NGUOI_DUNG.md` PQ-67, `10_YEU_CAU_CHUC_NANG.md` P02-17, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-94, `16_CO_SO_DU_LIEU.md` mục P01, `17_DAC_TA_API.md` giao kèo địa danh hành chính, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.66.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 6.
+
+#### Vấn đề tồn đọng
+
+- Chỉ gieo sẵn Thành phố Hồ Chí Minh; chưa đọc trực tiếp phụ lục Quyết định 19/2025/QĐ-TTg; chưa có nhập danh sách học sinh kèm địa chỉ mới từ Excel, xuất Excel lưới địa chỉ, sửa từng dòng đối chiếu; nhập lại tệp CSDL ngành ghi đè địa chỉ đã chuyển.
+
+### 2026-10-15 — DT-15 phần 15d: nhân sự theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Đổi màn hình hồ sơ nhân sự thành "3.1.1. Hồ sơ cán bộ, giáo viên": lưới dữ liệu chung phân trang ở máy chủ với cột của Sở, xếp A–Z theo tên, Mở rộng tìm kiếm gộp mục 3.1.4 (đơn vị, phòng ban, trạng thái, giới tính, vị trí việc làm, Đảng viên, tuổi từ–đến, mã định danh Bộ, số định danh), Xuất Excel theo cột đang hiện; hồ sơ hai thẻ "Hồ sơ cán bộ, giáo viên" (bảy khối theo thứ tự cột của tệp CSDL ngành, nút Ghi) và "Thông tin riêng của trường"; biểu mẫu Thêm mới theo khối. Ba điểm cuối mới `GET /staff/search`, `POST /staff/export`, `PATCH /staff/{id}/profile`; không có tệp thay đổi cấu trúc dữ liệu, không có quyền mới.
+- Thêm kịch bản CT-409 đến CT-420, tiêu chí AC-453 đến AC-464, quy tắc BR-114, quy tắc phân quyền PQ-66; không có màn hình mới (MH-12 đổi). Kết quả ngày 15/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 659/659 ca đạt; toàn bộ kiểm thử giao diện 94/94 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện đợt 15d của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 5. Cột của Sở chưa có cột riêng lấy từ `staff.moet_profile` và biểu mẫu ghi lại đúng khóa của tệp CSDL ngành, không thêm cột; thêm cột Mã nhân sự của trường; gộp 3.1.4 vào Mở rộng tìm kiếm của 3.1.1; hợp đồng, lương ở thẻ riêng và chỉ người xem được hợp đồng thấy (BR-46); `GET /staff` giữ nguyên cho các màn hình khác; không làm cập nhật hàng loạt; không thêm quyền mới, Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-112.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-112, `07_QUY_TAC_NGHIEP_VU.md` BR-114, `08_VAI_TRO_NGUOI_DUNG.md` PQ-66, `10_YEU_CAU_CHUC_NANG.md` P07-01, P07-04, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-12, BC-16, `16_CO_SO_DU_LIEU.md` mục `staff`, `17_DAC_TA_API.md` giao kèo hồ sơ nhân sự, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.65.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 6.
+
+#### Vấn đề tồn đọng
+
+- Chưa có Đồng bộ hồ sơ lên CSDL Bộ, Xuất file lỗi, Xóa hồ sơ, Xuất PDF; chưa có bộ lọc xã ĐBKK; chưa tách 3.1.2, 3.1.3, 3.1.5, 3.5; ô theo Sở là chữ tự do, chưa có danh mục của Bộ; nhập lại tệp CSDL ngành ghi đè các ô đã sửa ở biểu mẫu.
 
 ### 2026-10-15 — DT-15 phần 15b: trường học, lớp học theo hệ thống của Sở
 
