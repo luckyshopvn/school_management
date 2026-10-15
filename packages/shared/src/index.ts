@@ -312,6 +312,24 @@ export const DATA_GRID_KEYS = [
   'school-sites',
   'classes',
   'class-assignments',
+  // Nhân sự – chấm công, lương (DT-15 phần 15f2)
+  'my-leave-requests',
+  'leave-requests',
+  'leave-policies',
+  'leave-balances',
+  'holidays',
+  'school-day-changes',
+  'work-schedules',
+  'payslips',
+  'payroll-settlements',
+  'payroll-adjustments',
+  'pay-item-types',
+  'bonus-deductions',
+  'my-tasks',
+  'unit-tasks',
+  'work-plans',
+  'evaluation-criteria',
+  'evaluations',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;
