@@ -124,9 +124,10 @@ test('Kế toán lập phiếu đảo phiếu thu; Hiệu trưởng duyệt thì
   const principal = await signIn('VT-02', null);
   await openMenu(principal, '/receipts');
   await principal.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
-  const request = principal.getByRole('region', { name: 'Phiếu đảo chờ duyệt' }).getByRole('group');
-  await expect(request).toContainText('Ghi nhầm người nộp');
-  await expect(request).toContainText('Cần Hiệu trưởng duyệt');
+  const reversals = principal.getByRole('region', { name: 'Phiếu đảo chờ duyệt' });
+  await expect(reversals.getByRole('row').filter({ hasText: CHILD_NAME })).toContainText('Ghi nhầm người nộp');
+  await expect(reversals.getByRole('row').filter({ hasText: CHILD_NAME })).toContainText('Cần Hiệu trưởng duyệt');
+  const request = reversals.getByRole('group', { name: /^Phiếu đảo / });
   await request.getByRole('button', { name: 'Duyệt' }).click();
   await expect(principal.getByText('Không có phiếu đảo chờ duyệt.')).toBeVisible();
   await expect(

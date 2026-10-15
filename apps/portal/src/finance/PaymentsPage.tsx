@@ -1,13 +1,28 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, StatusBadge, TextField, Toast } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  ConfirmDeleteDialog,
+  DataGrid,
+  FORM_CONTROL_CLASS,
+  FormBlock,
+  FormRow,
+  StatusBadge,
+  TextField,
+  Toast,
+  type DataGridColumn,
+} from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { uploadFile } from '../children/children-api.js';
 import { formatMoney, listCashflowCategories } from '../fees/fees-api.js';
 import { AppShell } from '../pages/AppShell.js';
+import { useGridSettings } from '../pages/grid-settings.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission, useHasPermissionOnlyThrough } from '../session/permissions.js';
+import { ApprovalQueueGrid } from './ApprovalQueueGrid.js';
 import {
   createPayment,
   decidePayment,
@@ -22,21 +37,81 @@ import {
   PAYMENT_TYPE_LABELS,
   reversePayment,
   submitPayment,
+  type Payment,
+  type PaymentReversal,
   type PaymentType,
 } from './finance-api.js';
 
 // MH-10 Phiếu chi và phê duyệt (P06-04; QT-05; BR-24, BR-28, BR-34, BR-77; YCTD-55): lập nháp kèm chứng từ, trình duyệt;
 // Ban Giám hiệu duyệt theo hạn mức, duyệt là phát hành; phiếu hoàn tiền thôi học chỉ Hiệu trưởng duyệt; lập và duyệt
-// phiếu đảo phiếu chi (YCTD-56)
+// phiếu đảo phiếu chi (YCTD-56). Danh sách và hai danh sách chờ duyệt dùng lưới dữ liệu chung; Thêm mới mở biểu mẫu theo
+// khối: Ghi lưu nháp, Ghi và trình duyệt; xóa nháp phải xác nhận (DT-15 phần 15f1)
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
     : 'Không kết nối được tới máy chủ, vui lòng thử lại';
 }
 
-const selectClass = 'mt-2 block w-full rounded-lg border border-border bg-card px-3 py-2 text-content font-normal';
+const principalBadge = (required: boolean | null) =>
+  required ? <StatusBadge tone="warning" label="Cần Hiệu trưởng duyệt" /> : null;
 
-function PaymentForm({ orgUnitId, onCreated }: { orgUnitId: string; onCreated(message: string): void }) {
+const PAYMENT_COLUMNS: Array<DataGridColumn<Payment>> = [
+  { id: 'code', header: 'Số phiếu', className: 'font-medium', cell: (row) => row.code ?? '' },
+  { id: 'payment_date', header: 'Ngày chi', cell: (row) => row.payment_date ?? '' },
+  { id: 'payment_type', header: 'Loại', cell: (row) => PAYMENT_TYPE_LABELS[row.payment_type] },
+  { id: 'payee_name', header: 'Người nhận', alwaysVisible: true, cell: (row) => row.payee_name },
+  { id: 'account_name', header: 'Nguồn chi', cell: (row) => row.account_name },
+  { id: 'amount', header: 'Số tiền', className: 'text-right', cell: (row) => formatMoney(row.amount) },
+  {
+    id: 'status',
+    header: 'Trạng thái',
+    cell: (row) => (
+      <>
+        <StatusBadge
+          tone={row.status === 'issued' ? 'success' : row.status === 'draft' ? 'neutral' : 'warning'}
+          label={PAYMENT_STATUS_TEXT[row.status]}
+        />
+        {row.reject_reason && row.status === 'draft' ? (
+          <span className="block text-label text-danger">Bị từ chối: {row.reject_reason}</span>
+        ) : null}
+      </>
+    ),
+  },
+];
+
+const PENDING_COLUMNS: Array<DataGridColumn<Payment>> = [
+  { id: 'payment_type', header: 'Loại', cell: (row) => PAYMENT_TYPE_LABELS[row.payment_type] },
+  {
+    id: 'payee_name',
+    header: 'Người nhận',
+    alwaysVisible: true,
+    className: 'font-medium',
+    cell: (row) => `${row.payee_name}${row.child_name ? ` (học sinh ${row.child_name})` : ''}`,
+  },
+  { id: 'amount', header: 'Số tiền', className: 'text-right', cell: (row) => formatMoney(row.amount) },
+  { id: 'account_name', header: 'Nguồn chi', cell: (row) => row.account_name },
+  { id: 'content', header: 'Nội dung chi', cell: (row) => row.content },
+  { id: 'requires_principal', header: 'Cấp duyệt', cell: (row) => principalBadge(row.requires_principal) },
+];
+
+const REVERSAL_COLUMNS: Array<DataGridColumn<PaymentReversal>> = [
+  { id: 'code', header: 'Số phiếu đảo', alwaysVisible: true, className: 'font-medium', cell: (row) => row.code },
+  { id: 'payment_code', header: 'Phiếu chi gốc', cell: (row) => row.payment_code ?? '' },
+  { id: 'payee_name', header: 'Người nhận', cell: (row) => row.payee_name },
+  { id: 'amount', header: 'Số tiền', className: 'text-right', cell: (row) => formatMoney(row.amount) },
+  { id: 'reason', header: 'Lý do', cell: (row) => row.reason },
+  { id: 'requires_principal', header: 'Cấp duyệt', cell: (row) => principalBadge(row.requires_principal) },
+];
+
+function PaymentForm({
+  orgUnitId,
+  onCreated,
+  onCancel,
+}: {
+  orgUnitId: string;
+  onCreated(message: string): void;
+  onCancel(): void;
+}) {
   const cashOnly = useHasPermissionOnlyThrough(PERMISSION_CODES.paymentManage, 'VT-16');
   const accounts = useQuery({ queryKey: ['cash-accounts', orgUnitId], queryFn: () => listCashAccounts(orgUnitId) });
   const categories = useQuery({ queryKey: ['cashflow-categories'], queryFn: listCashflowCategories });
@@ -94,7 +169,8 @@ function PaymentForm({ orgUnitId, onCreated }: { orgUnitId: string; onCreated(me
 
   return (
     <form
-      className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
+      noValidate
+      className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4"
       aria-label="Lập phiếu chi"
       onSubmit={(event) => {
         event.preventDefault();
@@ -102,13 +178,13 @@ function PaymentForm({ orgUnitId, onCreated }: { orgUnitId: string; onCreated(me
       }}
     >
       <h2 className="text-section-title font-semibold text-text">Lập phiếu chi</h2>
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-        <label className="text-label font-medium text-text">
-          Loại phiếu chi
+      {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
+      <FormBlock title="Thông tin phiếu chi">
+        <FormRow label="Loại phiếu chi">
           <select
+            className={FORM_CONTROL_CLASS}
             value={paymentType}
             onChange={(event) => setPaymentType(event.target.value as PaymentType)}
-            className={selectClass}
           >
             {(['regular', 'refund', 'payroll'] as const).map((value) => (
               <option key={value} value={value}>
@@ -116,65 +192,81 @@ function PaymentForm({ orgUnitId, onCreated }: { orgUnitId: string; onCreated(me
               </option>
             ))}
           </select>
-        </label>
+        </FormRow>
         {paymentType === 'refund' ? (
-          <label className="text-label font-medium text-text">
-            Trẻ được hoàn tiền
-            <select value={childId} onChange={(event) => setChildId(event.target.value)} className={selectClass}>
+          <FormRow label="Học sinh được hoàn tiền">
+            <select className={FORM_CONTROL_CLASS} value={childId} onChange={(event) => setChildId(event.target.value)}>
               {refundable.map((row) => (
                 <option key={row.id} value={row.id}>
                   {row.full_name} (số dư có {formatMoney(row.credit_amount)})
                 </option>
               ))}
             </select>
-          </label>
+          </FormRow>
         ) : null}
-        <TextField label="Người nhận" value={payeeName} onChange={(event) => setPayeeName(event.target.value)} />
-        <TextField
-          label="Số tiền chi"
-          type="number"
-          value={amount}
-          onChange={(event) => setAmount(event.target.value)}
-        />
-        <label className="text-label font-medium text-text">
-          Nguồn chi
-          <select value={accountId} onChange={(event) => setAccountId(event.target.value)} className={selectClass}>
+        <FormRow label="Người nhận">
+          <input
+            className={FORM_CONTROL_CLASS}
+            value={payeeName}
+            onChange={(event) => setPayeeName(event.target.value)}
+          />
+        </FormRow>
+        <FormRow label="Số tiền chi">
+          <input
+            className={FORM_CONTROL_CLASS}
+            type="number"
+            value={amount}
+            onChange={(event) => setAmount(event.target.value)}
+          />
+        </FormRow>
+        <FormRow label="Nguồn chi">
+          <select
+            className={FORM_CONTROL_CLASS}
+            value={accountId}
+            onChange={(event) => setAccountId(event.target.value)}
+          >
             {usableAccounts.map((account) => (
               <option key={account.id} value={account.id}>
                 {account.name} ({formatMoney(account.current_balance)})
               </option>
             ))}
           </select>
-        </label>
-        <label className="text-label font-medium text-text">
-          Khoản mục chi
-          <select value={categoryId} onChange={(event) => setCategoryId(event.target.value)} className={selectClass}>
+        </FormRow>
+        <FormRow label="Khoản mục chi">
+          <select
+            className={FORM_CONTROL_CLASS}
+            value={categoryId}
+            onChange={(event) => setCategoryId(event.target.value)}
+          >
             {expenseCategories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
               </option>
             ))}
           </select>
-        </label>
-      </div>
-      <TextField label="Nội dung chi" value={content} onChange={(event) => setContent(event.target.value)} />
-      <label className="text-label font-medium text-text">
-        Chứng từ kèm theo (ảnh hoặc PDF)
-        <input
-          type="file"
-          multiple
-          accept="image/jpeg,image/png,application/pdf"
-          className="mt-2 block text-content"
-          onChange={(event) => setFiles([...(event.target.files ?? [])])}
-        />
-      </label>
-      {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
+        </FormRow>
+        <FormRow label="Nội dung chi">
+          <input className={FORM_CONTROL_CLASS} value={content} onChange={(event) => setContent(event.target.value)} />
+        </FormRow>
+        <FormRow label="Chứng từ kèm theo (ảnh hoặc PDF)">
+          <input
+            type="file"
+            multiple
+            accept="image/jpeg,image/png,application/pdf"
+            className="block text-content"
+            onChange={(event) => setFiles([...(event.target.files ?? [])])}
+          />
+        </FormRow>
+      </FormBlock>
       <div className="flex gap-2">
         <Button type="submit" variant="primary" disabled={save.isPending}>
-          Lưu và trình duyệt
+          Ghi và trình duyệt
         </Button>
         <Button disabled={save.isPending} onClick={() => save.mutate(false)}>
-          Lưu nháp
+          Ghi
+        </Button>
+        <Button variant="text" onClick={onCancel}>
+          Hủy
         </Button>
       </div>
     </form>
@@ -190,6 +282,7 @@ export function PaymentsPage() {
   const unitChoice = useUnitChoice();
   const orgUnitId = unitChoice.selectedId;
   const queryClient = useQueryClient();
+  const grid = useGridSettings('payments');
   const payments = useQuery({
     queryKey: ['payments', orgUnitId],
     queryFn: () => listPayments(orgUnitId ?? ''),
@@ -207,6 +300,11 @@ export function PaymentsPage() {
   });
   const [reasons, setReasons] = useState<Record<string, string>>({});
   const [reversingId, setReversingId] = useState<string>();
+  const [creating, setCreating] = useState(false);
+  const [deleting, setDeleting] = useState<Payment>();
+  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState('');
+  const [paymentType, setPaymentType] = useState('');
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
   const refresh = async (message: string) => {
@@ -244,208 +342,211 @@ export function PaymentsPage() {
           approveReversal: 'Đã duyệt phiếu đảo phiếu chi',
           rejectReversal: 'Đã từ chối phiếu đảo phiếu chi',
         }[input.kind],
-      ).then(() => setReversingId(undefined)),
+      ).then(() => {
+        setReversingId(undefined);
+        setDeleting(undefined);
+      }),
+    onError: () => setDeleting(undefined),
   });
-  const rows = payments.data ?? [];
+  const keyword = search.trim().toLocaleLowerCase('vi');
+  const rows = (payments.data ?? []).filter(
+    (row) =>
+      (status === '' || row.status === status) &&
+      (paymentType === '' || row.payment_type === paymentType) &&
+      (keyword === '' ||
+        `${row.code ?? ''} ${row.payee_name} ${row.content}`.toLocaleLowerCase('vi').includes(keyword)),
+  );
+  const decisionButtons = (paymentId: string, reasonLabel: string, approve: ActionKind, reject: ActionKind) => (
+    <>
+      <Button variant="primary" disabled={action.isPending} onClick={() => action.mutate({ paymentId, kind: approve })}>
+        Duyệt
+      </Button>
+      <TextField
+        label={reasonLabel}
+        value={reasons[paymentId] ?? ''}
+        onChange={(event) => setReasons({ ...reasons, [paymentId]: event.target.value })}
+      />
+      <Button variant="danger" disabled={action.isPending} onClick={() => action.mutate({ paymentId, kind: reject })}>
+        Từ chối
+      </Button>
+    </>
+  );
 
   return (
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Phiếu chi</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/payments')}</h1>
         <UnitSelect units={unitChoice.units} selectedId={orgUnitId} onSelect={unitChoice.select} />
         {payments.error ? <Alert tone="danger">{messageOf(payments.error)}</Alert> : null}
         {action.error ? <Alert tone="danger">{messageOf(action.error)}</Alert> : null}
-        {canManage && orgUnitId ? (
-          <PaymentForm key={orgUnitId} orgUnitId={orgUnitId} onCreated={(message) => void refresh(message)} />
+        {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+        {canManage && orgUnitId && creating ? (
+          <PaymentForm
+            key={orgUnitId}
+            orgUnitId={orgUnitId}
+            onCancel={() => setCreating(false)}
+            onCreated={(message) => {
+              setCreating(false);
+              void refresh(message);
+            }}
+          />
         ) : null}
         {canApprove ? (
-          <section
-            className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
-            aria-label="Phiếu chi chờ duyệt"
-          >
+          <div className="flex flex-col gap-3">
             <h2 className="text-section-title font-semibold text-text">Phiếu chi chờ duyệt</h2>
-            {pending.data && pending.data.length === 0 ? (
-              <p className="text-content text-text-secondary">Không có phiếu chi chờ duyệt.</p>
-            ) : null}
-            {(pending.data ?? []).map((payment) => (
-              <div
-                key={payment.id}
-                className="flex flex-col gap-2 border-t border-border pt-3"
-                role="group"
-                aria-label={`Phiếu chi cho ${payment.payee_name}`}
-              >
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="font-medium">
-                    {PAYMENT_TYPE_LABELS[payment.payment_type]}: {payment.payee_name}
-                    {payment.child_name ? ` (trẻ ${payment.child_name})` : ''}
-                  </span>
-                  <span>{formatMoney(payment.amount)}</span>
-                  <span className="text-text-secondary">{payment.account_name}</span>
-                  {payment.requires_principal ? <StatusBadge tone="warning" label="Cần Hiệu trưởng duyệt" /> : null}
-                </div>
-                <span className="text-label text-text-secondary">{payment.content}</span>
-                <div className="flex flex-wrap items-end gap-2">
-                  <Button
-                    variant="primary"
-                    disabled={action.isPending}
-                    onClick={() => action.mutate({ paymentId: payment.id, kind: 'approve' })}
-                  >
-                    Duyệt
-                  </Button>
-                  <TextField
-                    label={`Lý do từ chối phiếu chi cho ${payment.payee_name}`}
-                    value={reasons[payment.id] ?? ''}
-                    onChange={(event) => setReasons({ ...reasons, [payment.id]: event.target.value })}
-                  />
-                  <Button
-                    variant="danger"
-                    disabled={action.isPending}
-                    onClick={() => action.mutate({ paymentId: payment.id, kind: 'reject' })}
-                  >
-                    Từ chối
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </section>
+            <ApprovalQueueGrid
+              label="Phiếu chi chờ duyệt"
+              gridKey="payment-approvals"
+              rows={pending.data ?? []}
+              loading={Boolean(orgUnitId) && pending.isPending}
+              columns={PENDING_COLUMNS}
+              getRowId={(row) => row.id}
+              getRowLabel={(row) => row.payee_name}
+              searchText={(row) => `${row.payee_name} ${row.child_name ?? ''} ${row.content}`}
+              searchLabel="Tìm theo người nhận, nội dung"
+              emptyText="Không có phiếu chi chờ duyệt."
+              groupLabel={(row) => `Phiếu chi cho ${row.payee_name}`}
+              renderActions={(row) =>
+                decisionButtons(row.id, `Lý do từ chối phiếu chi cho ${row.payee_name}`, 'approve', 'reject')
+              }
+            />
+          </div>
         ) : null}
         {canApprove ? (
-          <section
-            className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
-            aria-label="Phiếu đảo phiếu chi chờ duyệt"
-          >
+          <div className="flex flex-col gap-3">
             <h2 className="text-section-title font-semibold text-text">Phiếu đảo phiếu chi chờ duyệt</h2>
-            {pendingReversals.data && pendingReversals.data.length === 0 ? (
-              <p className="text-content text-text-secondary">Không có phiếu đảo phiếu chi chờ duyệt.</p>
-            ) : null}
-            {(pendingReversals.data ?? []).map((reversal) => (
-              <div
-                key={reversal.id}
-                className="flex flex-col gap-2 border-t border-border pt-3"
-                role="group"
-                aria-label={`Phiếu đảo ${reversal.code}`}
-              >
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="font-medium">
-                    {reversal.code}: đảo {reversal.payment_code} chi cho {reversal.payee_name}
-                  </span>
-                  <span>{formatMoney(reversal.amount)}</span>
-                  {reversal.requires_principal ? <StatusBadge tone="warning" label="Cần Hiệu trưởng duyệt" /> : null}
-                </div>
-                <span className="text-label text-text-secondary">Lý do: {reversal.reason}</span>
-                <div className="flex flex-wrap items-end gap-2">
-                  <Button
-                    variant="primary"
-                    disabled={action.isPending}
-                    onClick={() => action.mutate({ paymentId: reversal.payment_id, kind: 'approveReversal' })}
-                  >
-                    Duyệt
-                  </Button>
-                  <TextField
-                    label={`Lý do từ chối ${reversal.code}`}
-                    value={reasons[reversal.payment_id] ?? ''}
-                    onChange={(event) => setReasons({ ...reasons, [reversal.payment_id]: event.target.value })}
-                  />
-                  <Button
-                    variant="danger"
-                    disabled={action.isPending}
-                    onClick={() => action.mutate({ paymentId: reversal.payment_id, kind: 'rejectReversal' })}
-                  >
-                    Từ chối
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </section>
+            <ApprovalQueueGrid
+              label="Phiếu đảo phiếu chi chờ duyệt"
+              gridKey="payment-reversals"
+              rows={pendingReversals.data ?? []}
+              loading={Boolean(orgUnitId) && pendingReversals.isPending}
+              columns={REVERSAL_COLUMNS}
+              getRowId={(row) => row.id}
+              getRowLabel={(row) => row.code}
+              searchText={(row) => `${row.code} ${row.payment_code ?? ''} ${row.payee_name}`}
+              searchLabel="Tìm theo số phiếu, người nhận"
+              emptyText="Không có phiếu đảo phiếu chi chờ duyệt."
+              groupLabel={(row) => `Phiếu đảo ${row.code}`}
+              renderActions={(row) =>
+                decisionButtons(row.payment_id, `Lý do từ chối ${row.code}`, 'approveReversal', 'rejectReversal')
+              }
+            />
+          </div>
         ) : null}
-        <section
-          className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
-          aria-label="Danh sách phiếu chi"
-        >
-          {payments.data && rows.length === 0 ? (
-            <p className="text-content text-text-secondary">Chưa có phiếu chi.</p>
-          ) : null}
-          {rows.length > 0 ? (
-            <table className="w-full text-content">
-              <thead className="text-left text-label font-medium text-text-secondary">
-                <tr>
-                  <th className="px-3 py-2">Số phiếu</th>
-                  <th className="px-3 py-2">Ngày chi</th>
-                  <th className="px-3 py-2">Loại</th>
-                  <th className="px-3 py-2">Người nhận</th>
-                  <th className="px-3 py-2">Nguồn chi</th>
-                  <th className="px-3 py-2 text-right">Số tiền</th>
-                  <th className="px-3 py-2">Trạng thái</th>
-                  <th className="px-3 py-2" />
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => (
-                  <tr key={row.id} className="border-t border-border" aria-label={`Phiếu chi ${row.payee_name}`}>
-                    <td className="px-3 py-2 font-medium">{row.code ?? ''}</td>
-                    <td className="px-3 py-2">{row.payment_date ?? ''}</td>
-                    <td className="px-3 py-2">{PAYMENT_TYPE_LABELS[row.payment_type]}</td>
-                    <td className="px-3 py-2">{row.payee_name}</td>
-                    <td className="px-3 py-2">{row.account_name}</td>
-                    <td className="px-3 py-2 text-right">{formatMoney(row.amount)}</td>
-                    <td className="px-3 py-2">
-                      <StatusBadge
-                        tone={row.status === 'issued' ? 'success' : row.status === 'draft' ? 'neutral' : 'warning'}
-                        label={PAYMENT_STATUS_TEXT[row.status]}
-                      />
-                      {row.reject_reason && row.status === 'draft' ? (
-                        <span className="block text-label text-danger">Bị từ chối: {row.reject_reason}</span>
-                      ) : null}
-                    </td>
-                    <td className="px-3 py-2 whitespace-nowrap text-right">
-                      {canManage && row.status === 'draft' ? (
-                        <>
-                          <Button
-                            variant="text"
-                            disabled={action.isPending}
-                            onClick={() => action.mutate({ paymentId: row.id, kind: 'submit' })}
-                          >
-                            Trình duyệt
-                          </Button>
-                          <Button
-                            variant="text"
-                            disabled={action.isPending}
-                            onClick={() => action.mutate({ paymentId: row.id, kind: 'delete' })}
-                          >
-                            Xóa
-                          </Button>
-                        </>
-                      ) : null}
-                      {canReverse && row.status === 'issued' && reversingId !== row.id ? (
-                        <Button variant="text" onClick={() => setReversingId(row.id)}>
-                          Lập phiếu đảo
-                        </Button>
-                      ) : null}
-                      {reversingId === row.id ? (
-                        <div className="flex flex-wrap items-end justify-end gap-2">
-                          <TextField
-                            label={`Lý do đảo ${row.code ?? ''}`}
-                            value={reasons[row.id] ?? ''}
-                            onChange={(event) => setReasons({ ...reasons, [row.id]: event.target.value })}
-                          />
-                          <Button
-                            variant="primary"
-                            disabled={action.isPending}
-                            onClick={() => action.mutate({ paymentId: row.id, kind: 'reverse' })}
-                          >
-                            Gửi duyệt phiếu đảo
-                          </Button>
-                        </div>
-                      ) : null}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : null}
-        </section>
+        <DataGrid
+          label="Danh sách phiếu chi"
+          columns={PAYMENT_COLUMNS}
+          rows={rows}
+          getRowId={(row) => row.id}
+          getRowLabel={(row) => row.code ?? row.payee_name}
+          getRowAriaLabel={(row) => `Phiếu chi ${row.payee_name}`}
+          loading={Boolean(orgUnitId) && payments.isPending}
+          emptyText="Chưa có phiếu chi."
+          search={{ label: 'Tìm theo số phiếu, người nhận, nội dung', value: search, onChange: setSearch }}
+          advancedSearch={
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+              <label className="text-label font-medium text-text">
+                Loại phiếu
+                <select
+                  value={paymentType}
+                  onChange={(event) => setPaymentType(event.target.value)}
+                  className={`mt-1 ${FORM_CONTROL_CLASS}`}
+                >
+                  <option value="">Tất cả</option>
+                  {Object.entries(PAYMENT_TYPE_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-label font-medium text-text">
+                Trạng thái
+                <select
+                  value={status}
+                  onChange={(event) => setStatus(event.target.value)}
+                  className={`mt-1 ${FORM_CONTROL_CLASS}`}
+                >
+                  <option value="">Tất cả</option>
+                  {Object.entries(PAYMENT_STATUS_TEXT).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          }
+          toolbar={
+            canManage && orgUnitId ? (
+              <Button variant="primary" onClick={() => setCreating(true)}>
+                Thêm mới
+              </Button>
+            ) : null
+          }
+          rowActions={(row) => (
+            <span className="flex flex-wrap justify-end gap-1 whitespace-nowrap">
+              {canManage && row.status === 'draft' ? (
+                <>
+                  <Button
+                    variant="text"
+                    disabled={action.isPending}
+                    onClick={() => action.mutate({ paymentId: row.id, kind: 'submit' })}
+                  >
+                    Trình duyệt
+                  </Button>
+                  <Button variant="text" disabled={action.isPending} onClick={() => setDeleting(row)}>
+                    Xóa
+                  </Button>
+                </>
+              ) : null}
+              {canReverse && row.status === 'issued' && reversingId !== row.id ? (
+                <Button variant="text" onClick={() => setReversingId(row.id)}>
+                  Lập phiếu đảo
+                </Button>
+              ) : null}
+            </span>
+          )}
+          activeRowId={reversingId}
+          renderRowDetail={(row) =>
+            reversingId === row.id ? (
+              <div className="flex flex-wrap items-end gap-2">
+                <TextField
+                  label={`Lý do đảo ${row.code ?? ''}`}
+                  value={reasons[row.id] ?? ''}
+                  onChange={(event) => setReasons({ ...reasons, [row.id]: event.target.value })}
+                />
+                <Button
+                  variant="primary"
+                  disabled={action.isPending}
+                  onClick={() => action.mutate({ paymentId: row.id, kind: 'reverse' })}
+                >
+                  Gửi duyệt phiếu đảo
+                </Button>
+                <Button variant="text" onClick={() => setReversingId(undefined)}>
+                  Hủy
+                </Button>
+              </div>
+            ) : null
+          }
+          settings={grid.settings}
+          onSettingsChange={grid.update}
+        />
       </div>
+      <ConfirmDeleteDialog
+        open={deleting !== undefined}
+        subject={`phiếu chi nháp cho ${deleting?.payee_name ?? ''}`}
+        busy={action.isPending}
+        onCancel={() => setDeleting(undefined)}
+        onConfirm={() => {
+          if (deleting) {
+            action.mutate({ paymentId: deleting.id, kind: 'delete' });
+          }
+        }}
+      >
+        Chỉ xóa được phiếu chi còn nháp, chưa trình duyệt.
+      </ConfirmDeleteDialog>
     </AppShell>
   );
 }
