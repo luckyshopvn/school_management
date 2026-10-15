@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.37
+- Phiên bản: 1.38
 - Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -178,6 +178,9 @@ Bổ sung ngày 2026-10-09 theo yêu cầu tách vai trò Ban Giám hiệu thàn
 | BR-105 | Điện thoại nhận tin của học sinh (YCTD-108): mỗi học sinh có tối đa một phụ huynh nhận tin, chọn trong các phụ huynh gắn với học sinh và đã có số điện thoại; phụ huynh không gắn với học sinh hoặc chưa có số thì không chọn được; bỏ chọn được. Tin nhắn SMS, Zalo gửi theo từng học sinh (học phí, phiếu thu, nhắc nợ, sự kiện y tế nặng, vắng không báo khi chốt điểm danh) chỉ đi tới phụ huynh nhận tin khi phụ huynh đó có tài khoản; chưa chọn, hoặc phụ huynh được chọn chưa có tài khoản, thì gửi mọi phụ huynh có tài khoản. Thông báo trong ứng dụng và tin nhắn không gắn với một học sinh không theo quy tắc này. Lựa chọn chuyển sang năm học mới cùng dòng gắn phụ huynh |
 | BR-106 | Học 2 buổi/ngày, học sinh lớp bán trú (YCTD-108) là hai thông tin có hoặc không của hồ sơ học sinh, không phải thông tin định danh nên sửa không cần lý do; nhập lại tệp CSDL ngành thì cập nhật theo tệp. Cập nhật hàng loạt nhận 1 đến 500 học sinh và ít nhất một thông tin; người cập nhật cần quyền như sửa hồ sơ (hồ sơ nháp cần quyền lập hồ sơ, hồ sơ khác cần quyền duyệt ở đơn vị của học sinh); có học sinh chờ duyệt hoặc học sinh không được sửa thì không cập nhật học sinh nào; mỗi học sinh được cập nhật ghi một dòng nhật ký thao tác |
 | BR-107 | Danh sách học sinh theo Sở (YCTD-108) xếp A–Z theo tên (từ cuối của họ tên) rồi theo cả họ tên, so theo thứ tự chữ cái tiếng Việt; tệp Excel theo cùng thứ tự và chỉ có các cột người xuất đang hiện. Xuất danh sách học sinh tối đa 10 000 dòng một lần, theo BR-74. Dân tộc, diện chính sách, khuyết tật, biết bơi chỉ hiện và lọc được với người xem được dữ liệu sức khỏe (BR-53). Biến động học sinh dựng từ lịch sử đã có của năm học (ngày nhập học, lịch sử lớp, chuyển đơn vị, thôi học), không ghi riêng; dòng lớp mới do chuyển đơn vị không tính là chuyển lớp |
+| BR-108 | Ý kiến phản hồi gửi từ chân trang cổng quản trị (YCTD-110): mọi tài khoản đăng nhập được gửi, không cần quyền riêng; loại ý kiến là Góp ý, Báo lỗi hoặc Đề nghị; tiêu đề 1 đến 200 ký tự, nội dung 1 đến 5000 ký tự bắt buộc; đường dẫn trang bắt đầu bằng `/`, tối đa 500 ký tự; số điện thoại 9 đến 15 chữ số, thư điện tử đúng định dạng, không bắt buộc; tối đa một ảnh JPEG hoặc PNG đến 5 MB, nhận diện theo các byte đầu của tệp. Mỗi tài khoản gửi tối đa 10 ý kiến trong 60 phút liền trước; quá thì từ chối `ERR_RATE_LIMIT` mã YCTD-110 kèm số giây phải chờ; đếm trong giao dịch có khóa theo tài khoản. Ý kiến ghi tên người gửi và đơn vị của vai trò đầu tiên gán theo đơn vị lúc gửi. Người gửi chỉ xem ý kiến và ảnh của mình; người có quyền xử lý xem mọi ý kiến; ý kiến không bị xóa |
+| BR-109 | Xử lý ý kiến phản hồi (YCTD-110): người có quyền `P01.feedback.manage` chọn trạng thái Mới, Đang xử lý hoặc Đã xử lý và ghi câu trả lời (tối đa 5000 ký tự), mỗi lần ghi phải có trạng thái hoặc câu trả lời. Câu trả lời mới hoặc khác câu cũ thì ghi người trả lời, thời điểm trả lời và gửi một thông báo trong ứng dụng cho người gửi khi có năm học đang dùng; lưu lại đúng câu cũ không báo lại; xóa trắng câu trả lời thì bỏ người và thời điểm trả lời |
+| BR-110 | Hết hạn mật khẩu (YCTD-110): số ngày hết hạn mật khẩu từ 0 đến 3650 (mặc định 0 là không giới hạn), số ngày báo trước từ 0 đến 90 (mặc định 7), chung toàn trường, do người có `P01.account.manage` sửa. Hạn tính từ thời điểm đặt mật khẩu gần nhất (đổi mật khẩu hoặc được đặt lại mật khẩu tạm; tài khoản có trước YCTD-110 tính từ thời điểm cập nhật gần nhất). Chỉ áp cho tài khoản có ít nhất một vai trò khác VT-14, đăng nhập hoặc làm mới phiên bằng mật khẩu; tài khoản chỉ có VT-14, tài khoản còn dùng mật khẩu mặc định chung và phiên bằng mã một lần không hết hạn. Quá hạn thì phiên chỉ được đổi mật khẩu (như BM-07), mật khẩu mới phải khác mật khẩu hiện tại; còn từ số ngày báo trước trở xuống thì báo số ngày còn lại, chưa bắt buộc đổi |
 
 Danh mục chứng từ áp dụng hạn mức: phiếu chi, phiếu đảo phiếu thu (YCTD-23), phiếu đảo phiếu chi (YCTD-24), đề nghị mua hàng, phiếu điều chỉnh hóa đơn, miễn giảm học phí, bảng lương kỳ, chốt kỳ tài chính. Mức hạn mức cụ thể chưa có, xem Q-22 và Q-112.
 
@@ -197,6 +200,7 @@ Chỉ Ban Giám hiệu phê duyệt chứng từ thuộc danh mục trên theo B
 | Hồ sơ tuyển sinh | Tiếp nhận → Đang xét → Đạt → Đã nhập học, hoặc Không đạt |
 | Danh sách hoàn thành chương trình của lớp | Đang ghi → Đã xác nhận (khóa) → Đang ghi khi hủy xác nhận kèm lý do (BR-97) |
 | Phiếu đánh giá chuẩn nghề nghiệp | Chờ tự đánh giá → Chờ đánh giá → Đã chốt (BR-98) |
+| Ý kiến phản hồi | Mới → Đang xử lý → Đã xử lý; người xử lý chọn được bất kỳ trạng thái nào trong ba trạng thái, kể cả quay lại (BR-109) |
 
 ## 14. Chưa xác minh được
 
