@@ -20,7 +20,7 @@
 
 - Thêm danh mục địa danh hành chính ở cơ sở dữ liệu hệ thống (đơn vị cũ, đơn vị mới, bảng đối chiếu) và gieo sẵn Thành phố Hồ Chí Minh mới: 168 đơn vị cấp xã, 441 xã cũ của Thành phố Hồ Chí Minh, Bình Dương, Bà Rịa - Vũng Tàu, 493 dòng đối chiếu, lấy từ Nghị quyết 1685/NQ-UBTVQH15 và danh mục của Cục Thống kê (mã theo Quyết định 19/2025/QĐ-TTg).
 - Thêm màn hình "4.1.11. Cập nhật địa danh hành chính": lưới địa chỉ học sinh còn theo địa danh cũ ở năm loại địa chỉ, đề xuất địa danh mới, chọn xã mới khi xã cũ chia cho nhiều xã, chuyển hàng loạt có nhật ký trước và sau; bảng đối chiếu, nhập bảng đối chiếu từ Excel.
-- Thêm kịch bản CT-421 đến CT-430, tiêu chí AC-465 đến AC-474, quy tắc BR-115, quy tắc phân quyền PQ-67, chức năng P02-17, màn hình MH-94. Kết quả ngày 15/10/2026: UNIT_KET_QUA; E2E_KET_QUA; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm kịch bản CT-421 đến CT-430, tiêu chí AC-465 đến AC-474, quy tắc BR-115, quy tắc phân quyền PQ-67, chức năng P02-17, màn hình MH-94. Kết quả ngày 15/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 725/727 ca đạt, hai ca CTC-DD-041, PQ-10 chỉ hỏng trên máy phát triển do cơ sở dữ liệu phát triển cho VT-01 mọi quyền, không liên quan phần này; tệp mới `administrative-units.test.ts` 8/8 ca đạt; toàn bộ kiểm thử giao diện 96/96 ca đạt (lần chạy trước 95/96, ca hỏng ở `50-facilities-emis.spec.ts` chờ thông báo "Đã lưu phòng", không liên quan, chạy lại đạt); tệp mới `56-administrative-units.spec.ts` 2/2 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
