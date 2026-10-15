@@ -101,6 +101,7 @@ test('Hiệu trưởng tải tệp học sinh của CSDL ngành, xem trước r�
   await expect(region).toContainText('Đã ghi dữ liệu');
 
   await openMenu(page, '/children');
+  await page.getByRole('button', { name: 'Mở rộng tìm kiếm' }).click();
   await page.getByLabel('Thiếu giấy khai sinh').check();
   const imported = page.getByRole('row').filter({ hasText: 'Lê Thị Mai Anh' });
   await expect(imported).toContainText('Đang học');

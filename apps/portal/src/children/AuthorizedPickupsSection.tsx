@@ -5,7 +5,7 @@ import { Alert, Button, TextField } from '@school-management/ui';
 import { ApiError, requestJson } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 
-// Người được ủy quyền đón trẻ trong chi tiết hồ sơ trẻ (P02-04, BR-11): ai xem được trẻ thì xem danh sách;
+// Người được ủy quyền đón học sinh trong chi tiết hồ sơ trẻ (P02-04, BR-11): ai xem được trẻ thì xem danh sách;
 // P02.authorized-pickup.manage khai báo và hủy (YCTD-48)
 interface AuthorizedPickup {
   id: string;
@@ -62,7 +62,7 @@ export function AuthorizedPickupsSection({ childId, childName }: { childId: stri
       className="flex flex-col gap-3 border-t border-border pt-4"
       aria-label={`Người được ủy quyền đón ${childName}`}
     >
-      <h3 className="text-content font-semibold text-text">Người được ủy quyền đón trẻ</h3>
+      <h3 className="text-content font-semibold text-text">Người được ủy quyền đón học sinh</h3>
       {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
       <table className="w-full text-left text-content">
         <thead className="text-label text-text-secondary">
@@ -117,7 +117,7 @@ export function AuthorizedPickupsSection({ childId, childName }: { childId: stri
             onChange={(event) => setForm({ ...form, full_name: event.target.value })}
           />
           <TextField
-            label="Quan hệ với trẻ"
+            label="Quan hệ với học sinh"
             value={form.relationship}
             onChange={(event) => setForm({ ...form, relationship: event.target.value })}
           />

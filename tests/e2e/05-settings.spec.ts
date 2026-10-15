@@ -42,7 +42,10 @@ test('Hiệu trưởng đặt ngày chốt học phí của Phân hiệu A; nh�
   await expect(page.getByLabel('Số ngày không đăng nhập thì tự khóa tài khoản')).toHaveValue(/\d+/);
 
   await openMenu(page, '/audit-logs');
-  await page.getByLabel('Đối tượng').selectOption({ label: 'Cấu hình' });
+  // Nhật ký trên lưới dữ liệu chung, bộ lọc đối tượng ở Mở rộng tìm kiếm (DT-15 phần 15e)
+  const logs = page.getByRole('region', { name: 'Nhật ký nghiệp vụ' });
+  await logs.getByRole('button', { name: 'Mở rộng tìm kiếm' }).click();
+  await logs.getByLabel('Đối tượng').selectOption({ label: 'Cấu hình' });
   const entry = page.getByRole('row').filter({ hasText: 'tuition_closing_day' }).first();
   await expect(entry).toContainText('Sửa');
   await expect(entry).toContainText('25');

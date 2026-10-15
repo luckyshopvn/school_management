@@ -18,6 +18,7 @@ import {
 } from './academic-years-api.js';
 import { CalendarForm } from './CalendarForm.js';
 import { WeeksTable } from './WeeksTable.js';
+import { menuPageTitle } from '../pages/page-title.js';
 
 // MH-45 Lịch năm học và MH-43 Mở năm học mới (P01-02, BR-91, BR-93)
 const STATUS_LABELS: Record<AcademicYearStatus, { label: string; tone: StatusTone }> = {
@@ -176,7 +177,7 @@ export function AcademicYearsPage() {
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Năm học</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/academic-years')}</h1>
         {academicYears.isError ? <Alert tone="danger">{messageOf(academicYears.error)}</Alert> : null}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
           <aside className="flex flex-col gap-3 self-start rounded-xl border border-border bg-card p-4">

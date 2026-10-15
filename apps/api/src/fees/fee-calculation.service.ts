@@ -16,6 +16,7 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { queueNotification } from '../common/notification-queue.js';
 import { notFoundError } from '../common/request-fields.js';
 import { assertPeriodOpen } from '../finance/fiscal-period-lock.js';
+import { pickSmsRecipients } from '../finance/receivables.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { extracurricularItems } from '../activities/extracurricular-fees.js';
 import { DiscountsService } from './discounts.service.js';
@@ -930,11 +931,13 @@ export class FeeCalculationService {
     const guardians = await transaction
       .selectFrom('child_guardians')
       .innerJoin('guardians', 'guardians.id', 'child_guardians.guardian_id')
-      .select('guardians.user_id')
+      .select(['guardians.user_id', 'child_guardians.receives_sms'])
       .where('child_guardians.child_id', '=', childId)
       .where('guardians.user_id', 'is not', null)
       .execute();
     const userIds = [...new Set(guardians.map((row) => row.user_id).filter((id): id is string => id !== null))];
+    // Tin nhắn gửi số điện thoại nhận tin của học sinh nếu đã chọn (YCTD-108)
+    const smsUserIds = message.sms ? pickSmsRecipients(guardians) : [];
     await queueNotification(transaction, {
       orgUnitId,
       templateCode: message.templateCode,
@@ -942,10 +945,10 @@ export class FeeCalculationService {
       body: message.body,
       targetType: 'invoices',
       targetId: message.invoiceId,
-      recipients: userIds.flatMap((userId) => [
-        { userId, channel: 'in_app' as const },
-        ...(message.sms ? [{ userId, channel: 'sms' as const }] : []),
-      ]),
+      recipients: [
+        ...userIds.map((userId) => ({ userId, channel: 'in_app' as const })),
+        ...smsUserIds.map((userId) => ({ userId, channel: 'sms' as const })),
+      ],
     });
   }
 

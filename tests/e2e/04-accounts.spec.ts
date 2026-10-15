@@ -57,33 +57,32 @@ test('Hiệu trưởng tạo tài khoản giáo viên, nhận mật khẩu tạm
   await teacherContext.close();
 });
 
-test('Hiệu trưởng xem ma trận quyền và có nút lưu quyền', async ({ page }) => {
+test('Hiệu trưởng xem ma trận quyền theo cây menu và có nút Ghi', async ({ page }) => {
   const principal = await createTestUser(database, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
   await loginWith(page, principal.username, principal.password);
-  await openMenu(page, '/roles');
-  await page.getByRole('button', { name: 'VT-02 Hiệu trưởng' }).click();
+  // Ma trận quyền ở 1.3 Phân quyền nhóm theo menu (DT-15 phần 15e)
+  await openMenu(page, '/role-permissions');
+  await page.getByLabel('Nhóm người dùng', { exact: true }).selectOption({ label: 'VT-02 Hiệu trưởng' });
   const matrix = page.getByRole('region', { name: 'Quyền của VT-02' });
-  await expect(matrix.getByRole('checkbox', { name: /P01\.account\.manage\)/ })).toBeChecked();
-  await expect(page.getByRole('button', { name: 'Lưu quyền của vai trò' })).toBeVisible();
+  await expect(matrix.getByRole('checkbox', { name: /P01\.account\.manage\)/ }).first()).toBeChecked();
+  await expect(matrix.getByRole('button', { name: 'Ghi', exact: true }).first()).toBeVisible();
 
-  // Chọn nhanh cả nhóm chức năng và bỏ chọn tất cả; không lưu để giữ nguyên quyền của vai trò dùng chung
-  const group = matrix.getByRole('group', { name: /P16/ });
-  await matrix.getByRole('checkbox', { name: 'Chọn cả nhóm P16' }).check();
-  for (const checkbox of await group.getByRole('checkbox').all()) {
-    await expect(checkbox).toBeChecked();
-  }
-  await expect(page.getByRole('button', { name: 'Lưu quyền của vai trò' })).toBeEnabled();
+  // Bỏ chọn tất cả; không ghi để giữ nguyên quyền của vai trò dùng chung
   await matrix.getByRole('button', { name: 'Bỏ chọn tất cả' }).click();
-  await expect(matrix.getByRole('checkbox', { name: /P01\.account\.manage\)/ })).not.toBeChecked();
-  await expect(matrix.getByRole('checkbox', { name: 'Chọn cả nhóm P01' })).not.toBeChecked();
+  await expect(matrix.getByRole('checkbox', { name: /P01\.account\.manage\)/ }).first()).not.toBeChecked();
+  await expect(matrix.getByRole('checkbox', { name: 'Chọn mục 1.4. Danh sách người dùng' })).not.toBeChecked();
+  await expect(matrix.getByRole('button', { name: 'Ghi', exact: true }).first()).toBeEnabled();
 });
 
-test('Giáo viên không thấy mục Tài khoản và Vai trò và quyền', async ({ page }) => {
+test('Giáo viên không thấy mục Danh sách người dùng, Nhóm người dùng và Phân quyền nhóm theo menu', async ({
+  page,
+}) => {
   const teacher = await createTestUser(database, { roles: [{ roleCode: 'VT-07', orgUnitId: null }] });
   await loginWith(page, teacher.username, teacher.password);
   await expect(page.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
   await expectNoMenuLink(page, '/accounts');
   await expectNoMenuLink(page, '/roles');
+  await expectNoMenuLink(page, '/role-permissions');
 });
 
 test('CT-15a-12: lưới dữ liệu ở Tài khoản: cấu hình cột, số dòng mỗi trang nhớ theo người dùng, chọn dòng, mở rộng tìm kiếm; gỡ vai trò phải tích đồng ý', async ({
@@ -112,25 +111,43 @@ test('CT-15a-12: lưới dữ liệu ở Tài khoản: cấu hình cột, số d
   }
   await loginWith(page, principal.username, principal.password);
   await openMenu(page, '/accounts');
-  const grid = page.getByRole('region', { name: 'Danh sách tài khoản' });
+  const grid = page.getByRole('region', { name: 'Danh sách người dùng' });
   const slow = { timeout: 30_000 };
   await expect(grid.getByRole('columnheader')).toHaveText(
-    ['', 'Họ tên', 'Đăng nhập', 'Vai trò', 'Trạng thái', 'Thao tác'],
+    [
+      '',
+      'Tên đăng nhập',
+      'Tên hiển thị',
+      'Nhóm quyền',
+      'Loại tài khoản',
+      'Trạng thái',
+      'Trạng thái đổi mật khẩu',
+      'Thao tác',
+    ],
     slow,
   );
   const search = grid.getByLabel('Tìm theo tên, số điện thoại, tên đăng nhập');
   await search.fill(tag);
   await expect(grid.getByRole('row')).toHaveCount(12, slow);
 
-  // Cấu hình cột hiển thị: ẩn Vai trò, hiện Tên đăng nhập, đưa Trạng thái lên trước
+  // Cấu hình cột hiển thị: ẩn Nhóm quyền, hiện Số điện thoại, đưa Trạng thái lên trước
   await grid.getByRole('button', { name: 'Cấu hình cột hiển thị' }).click();
   const columns = page.getByRole('dialog', { name: 'Cấu hình cột hiển thị' });
-  await expect(columns.getByRole('checkbox', { name: 'Họ tên' })).toBeDisabled();
-  await columns.getByRole('checkbox', { name: 'Vai trò' }).uncheck();
-  await columns.getByRole('checkbox', { name: 'Tên đăng nhập' }).check();
-  await columns.getByRole('button', { name: 'Đưa cột Trạng thái lên' }).click();
+  await expect(columns.getByRole('checkbox', { name: 'Tên hiển thị' })).toBeDisabled();
+  await columns.getByRole('checkbox', { name: 'Nhóm quyền' }).uncheck();
+  await columns.getByRole('checkbox', { name: 'Số điện thoại' }).check();
+  await columns.getByRole('button', { name: 'Đưa cột Trạng thái lên', exact: true }).click();
   await columns.getByRole('button', { name: 'Ghi' }).click();
-  const expected = ['', 'Họ tên', 'Đăng nhập', 'Trạng thái', 'Tên đăng nhập', 'Thao tác'];
+  const expected = [
+    '',
+    'Tên đăng nhập',
+    'Tên hiển thị',
+    'Trạng thái',
+    'Loại tài khoản',
+    'Trạng thái đổi mật khẩu',
+    'Số điện thoại',
+    'Thao tác',
+  ];
   await expect(grid.getByRole('columnheader')).toHaveText(expected);
 
   // Số dòng mỗi trang; tải lại vẫn giữ cả cột và số dòng (lưu ở máy chủ)
@@ -156,7 +173,10 @@ test('CT-15a-12: lưới dữ liệu ở Tài khoản: cấu hình cột, số d
 
   // Mở rộng tìm kiếm có bộ lọc trạng thái; tìm tài khoản cần gỡ vai trò
   await grid.getByRole('button', { name: 'Mở rộng tìm kiếm' }).click();
-  await grid.getByRole('region', { name: 'Mở rộng tìm kiếm' }).getByLabel('Trạng thái').selectOption('active');
+  await grid
+    .getByRole('region', { name: 'Mở rộng tìm kiếm' })
+    .getByLabel('Trạng thái', { exact: true })
+    .selectOption('active');
   await search.fill(target.username);
   await expect(grid.getByRole('row')).toHaveCount(2, slow);
   await grid.getByRole('button', { name: `Hồ sơ ${targetName}` }).click();

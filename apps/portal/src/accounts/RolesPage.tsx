@@ -1,252 +1,171 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useState, type FormEvent } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { MODULE_NAMES, PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, StatusBadge, TextField, Toast } from '@school-management/ui';
+import { PERMISSION_CODES } from '@school-management/shared';
+import { Alert, Button, DataGrid, StatusBadge, Toast, type DataGridColumn } from '@school-management/ui';
 import { AppShell } from '../pages/AppShell.js';
+import { useGridSettings } from '../pages/grid-settings.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
-import {
-  createRole,
-  listPermissions,
-  listRoles,
-  replaceRolePermissions,
-  type Permission,
-  type Role,
-} from './accounts-api.js';
+import { createRole, listRoles, type Role } from './accounts-api.js';
 
-// MH-30 phần vai trò và ma trận quyền (P01-07, PQ-09, PQ-13)
+// MH-30 phần vai trò, theo màn hình 1.1 Nhóm người dùng của Sở (DT-15 phần 15e): danh sách trên lưới dữ liệu chung, thêm
+// nhóm bằng biểu mẫu nhãn bên trái và nút Ghi; ma trận quyền chuyển sang 1.3 Phân quyền nhóm theo menu (P01-07, PQ-13)
 function messageOf(error: unknown): string {
   return error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại';
 }
 
-// Ô chọn cả nhóm chức năng: đánh dấu khi đã chọn hết, trạng thái lưng chừng khi mới chọn một phần
-function GroupToggle({
-  moduleCode,
-  codes,
-  selected,
-  disabled,
-  onChange,
-}: {
-  moduleCode: string;
-  codes: string[];
-  selected: Set<string>;
-  disabled: boolean;
-  onChange(checked: boolean): void;
-}) {
-  const ref = useRef<HTMLInputElement>(null);
-  const count = codes.filter((code) => selected.has(code)).length;
-  useEffect(() => {
-    if (ref.current) {
-      ref.current.indeterminate = count > 0 && count < codes.length;
-    }
-  }, [count, codes.length]);
+function fieldErrorsOf(error: unknown): Record<string, string> {
+  return error instanceof ApiError
+    ? Object.fromEntries(error.details.map((detail) => [detail.field, detail.message]))
+    : {};
+}
+
+// Nhóm quản trị là nhóm có quyền quản lý tài khoản (toàn trường hoặc theo đơn vị)
+function isAdministratorRole(role: Role): boolean {
   return (
-    <label className="flex items-center gap-2 text-label font-semibold text-text">
-      <input
-        ref={ref}
-        type="checkbox"
-        checked={count === codes.length}
-        disabled={disabled}
-        aria-label={`Chọn cả nhóm ${moduleCode}`}
-        onChange={(event) => onChange(event.target.checked)}
-      />
-      <span>
-        {moduleCode}
-        {MODULE_NAMES[moduleCode] ? ` · ${MODULE_NAMES[moduleCode]}` : ''}{' '}
-        <span className="font-normal text-text-muted">
-          ({count}/{codes.length})
-        </span>
-      </span>
-    </label>
+    role.permissions.includes(PERMISSION_CODES.accountManage) ||
+    role.permissions.includes(PERMISSION_CODES.accountManageInUnit)
   );
 }
 
-function RolePermissions({
-  role,
-  permissions,
-  editable,
-  onSaved,
-}: {
-  role: Role;
-  permissions: Permission[];
-  editable: boolean;
-  onSaved(): void;
-}) {
-  const [selected, setSelected] = useState(new Set(role.permissions));
-  useEffect(() => setSelected(new Set(role.permissions)), [role]);
-  const save = useMutation({ mutationFn: () => replaceRolePermissions(role.id, [...selected]), onSuccess: onSaved });
-  const byModule = useMemo(() => {
-    const groups = new Map<string, Permission[]>();
-    for (const permission of permissions) {
-      groups.set(permission.module_code, [...(groups.get(permission.module_code) ?? []), permission]);
-    }
-    return [...groups.entries()].sort(([first], [second]) => first.localeCompare(second));
-  }, [permissions]);
-  const changed = selected.size !== role.permissions.length || role.permissions.some((code) => !selected.has(code));
-  // Chọn hoặc bỏ chọn nhiều quyền cùng lúc
-  const setMany = (codes: string[], checked: boolean) => {
-    const next = new Set(selected);
-    for (const code of codes) {
-      if (checked) {
-        next.add(code);
-      } else {
-        next.delete(code);
-      }
-    }
-    setSelected(next);
-  };
-  const allCodes = permissions.map((permission) => permission.code);
+function CreateRoleForm({ onCreated, onCancel }: { onCreated(role: Role): void; onCancel(): void }) {
+  const [code, setCode] = useState('');
+  const [name, setName] = useState('');
+  const create = useMutation({ mutationFn: () => createRole(code, name), onSuccess: onCreated });
+  const fieldErrors = fieldErrorsOf(create.error);
+
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    create.mutate();
+  }
 
   return (
-    <section className="flex flex-col gap-4" aria-label={`Quyền của ${role.code}`}>
-      <div className="flex flex-wrap items-center gap-3">
-        <h2 className="text-section-title font-semibold text-text">
-          {role.code} {role.name}
-        </h2>
-        {role.is_system ? <StatusBadge tone="neutral" label="Vai trò hệ thống" /> : null}
-      </div>
-      {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
-      {editable ? (
-        <div className="flex flex-wrap items-center gap-2">
-          <Button onClick={() => setMany(allCodes, true)} disabled={selected.size === allCodes.length}>
-            Chọn tất cả quyền
-          </Button>
-          <Button onClick={() => setMany(allCodes, false)} disabled={selected.size === 0}>
-            Bỏ chọn tất cả
-          </Button>
-          <span className="text-label text-text-muted">
-            Đã chọn {selected.size}/{allCodes.length} quyền
-          </span>
-        </div>
+    <form
+      onSubmit={submit}
+      noValidate
+      aria-label="Thêm nhóm người dùng"
+      className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4"
+    >
+      <h2 className="text-section-title font-semibold text-text">Thêm nhóm người dùng</h2>
+      {create.error && Object.keys(fieldErrors).length === 0 ? (
+        <Alert tone="danger">{messageOf(create.error)}</Alert>
       ) : null}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {byModule.map(([moduleCode, modulePermissions]) => (
-          <fieldset key={moduleCode} className="flex flex-col gap-1 rounded-lg border border-border p-3">
-            <legend className="px-1">
-              <GroupToggle
-                moduleCode={moduleCode}
-                codes={modulePermissions.map((permission) => permission.code)}
-                selected={selected}
-                disabled={!editable}
-                onChange={(checked) =>
-                  setMany(
-                    modulePermissions.map((permission) => permission.code),
-                    checked,
-                  )
-                }
-              />
-            </legend>
-            {modulePermissions.map((permission) => (
-              <label key={permission.code} className="flex items-start gap-2 text-content text-text">
-                <input
-                  type="checkbox"
-                  className="mt-1"
-                  checked={selected.has(permission.code)}
-                  disabled={!editable}
-                  onChange={(event) => {
-                    const next = new Set(selected);
-                    if (event.target.checked) {
-                      next.add(permission.code);
-                    } else {
-                      next.delete(permission.code);
-                    }
-                    setSelected(next);
-                  }}
-                />
-                <span>
-                  {permission.description} <span className="text-label text-text-muted">({permission.code})</span>
-                </span>
-              </label>
-            ))}
-          </fieldset>
-        ))}
-      </div>
-      {editable ? (
-        <div>
-          <Button variant="primary" disabled={!changed || save.isPending} onClick={() => save.mutate()}>
-            {save.isPending ? 'Đang lưu…' : 'Lưu quyền của vai trò'}
-          </Button>
+      <fieldset className="flex flex-col gap-3">
+        <legend className="mb-2 text-label font-semibold text-text-secondary">THÔNG TIN CHUNG</legend>
+        <div className="grid grid-cols-1 items-start gap-2 md:grid-cols-[180px_1fr]">
+          <label htmlFor="role-code" className="pt-2 text-label font-medium text-text">
+            Mã nhóm
+          </label>
+          <div className="flex flex-col gap-1">
+            <input
+              id="role-code"
+              value={code}
+              onChange={(event) => setCode(event.target.value.toUpperCase())}
+              aria-invalid={fieldErrors.code ? true : undefined}
+              className="w-full max-w-sm rounded-lg border border-border bg-card px-3 py-2 text-content"
+            />
+            {fieldErrors.code ? <p className="text-label text-danger">{fieldErrors.code}</p> : null}
+          </div>
+          <label htmlFor="role-name" className="pt-2 text-label font-medium text-text">
+            Tên nhóm
+          </label>
+          <div className="flex flex-col gap-1">
+            <input
+              id="role-name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              aria-invalid={fieldErrors.name ? true : undefined}
+              className="w-full max-w-xl rounded-lg border border-border bg-card px-3 py-2 text-content"
+            />
+            {fieldErrors.name ? <p className="text-label text-danger">{fieldErrors.name}</p> : null}
+          </div>
         </div>
-      ) : null}
-    </section>
+      </fieldset>
+      <div className="flex gap-2">
+        <Button type="submit" variant="primary" disabled={create.isPending}>
+          {create.isPending ? 'Đang ghi…' : 'Ghi'}
+        </Button>
+        <Button onClick={onCancel}>Đóng</Button>
+      </div>
+    </form>
   );
 }
 
 export function RolesPage() {
   const editable = useHasPermission(PERMISSION_CODES.accountManage);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const roles = useQuery({ queryKey: ['roles'], queryFn: listRoles });
-  const permissions = useQuery({ queryKey: ['permissions'], queryFn: listPermissions });
-  const [selectedId, setSelectedId] = useState<string>();
-  const [code, setCode] = useState('');
-  const [name, setName] = useState('');
+  const grid = useGridSettings('roles');
+  const [keyword, setKeyword] = useState('');
+  const [creating, setCreating] = useState(false);
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
-  const create = useMutation({
-    mutationFn: () => createRole(code, name),
-    onSuccess: async (role) => {
-      setCode('');
-      setName('');
-      setSelectedId(role.id);
-      await queryClient.invalidateQueries({ queryKey: ['roles'] });
-      setToastMessage(`Đã tạo vai trò ${role.code}`);
+
+  const normalized = keyword.trim().toLowerCase();
+  const rows = (roles.data ?? []).filter(
+    (role) => !normalized || `${role.code} ${role.name}`.toLowerCase().includes(normalized),
+  );
+  const openPermissions = (role: Role) => void navigate({ to: '/role-permissions', search: { role: role.id } });
+
+  // Cột theo màn hình Nhóm người dùng của Sở; mọi nhóm đang dùng được nên Hiệu lực luôn là "Có"
+  const columns: Array<DataGridColumn<Role>> = [
+    { id: 'code', header: 'Mã nhóm', alwaysVisible: true, className: 'font-medium', cell: (role) => role.code },
+    { id: 'name', header: 'Tên nhóm', cell: (role) => role.name },
+    { id: 'active', header: 'Hiệu lực', cell: () => <StatusBadge tone="success" label="Có" /> },
+    { id: 'administrator', header: 'Là nhóm quản trị', cell: (role) => (isAdministratorRole(role) ? 'Có' : '') },
+    { id: 'system', header: 'Là nhóm hệ thống', cell: (role) => (role.is_system ? 'Có' : '') },
+    {
+      id: 'permission_count',
+      header: 'Số quyền',
+      hiddenByDefault: true,
+      cell: (role) => role.permissions.length,
     },
-  });
-  const selected = roles.data?.find((role) => role.id === selectedId) ?? roles.data?.[0];
+  ];
 
   return (
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Vai trò và quyền</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/roles')}</h1>
         {roles.isError ? <Alert tone="danger">{messageOf(roles.error)}</Alert> : null}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
-          <aside className="flex flex-col gap-3 self-start rounded-xl border border-border bg-card p-4">
-            <ul className="flex flex-col gap-1" aria-label="Danh sách vai trò">
-              {(roles.data ?? []).map((role) => (
-                <li key={role.id}>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedId(role.id)}
-                    className={`w-full rounded-lg px-3 py-2 text-left text-content hover:bg-selected ${selected?.id === role.id ? 'bg-selected font-medium' : ''}`}
-                  >
-                    {role.code} {role.name}
-                  </button>
-                </li>
-              ))}
-            </ul>
-            {editable ? (
-              <div className="flex flex-col gap-3 border-t border-border pt-4">
-                {create.error ? <Alert tone="danger">{messageOf(create.error)}</Alert> : null}
-                <TextField
-                  label="Mã vai trò mới"
-                  value={code}
-                  onChange={(event) => setCode(event.target.value.toUpperCase())}
-                />
-                <TextField label="Tên vai trò mới" value={name} onChange={(event) => setName(event.target.value)} />
-                <Button onClick={() => create.mutate()} disabled={create.isPending}>
-                  Tạo vai trò
-                </Button>
-              </div>
-            ) : null}
-          </aside>
-          <div className="rounded-xl border border-border bg-card p-4">
-            {selected && permissions.data ? (
-              <RolePermissions
-                key={selected.id}
-                role={selected}
-                permissions={permissions.data}
-                editable={editable}
-                onSaved={() => {
-                  void queryClient.invalidateQueries({ queryKey: ['roles'] });
-                  setToastMessage(`Đã lưu quyền của ${selected.code}`);
-                }}
-              />
-            ) : (
-              <div className="h-40 animate-pulse rounded bg-border" aria-hidden="true" />
-            )}
-          </div>
-        </div>
+        {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+        {creating ? (
+          <CreateRoleForm
+            onCancel={() => setCreating(false)}
+            onCreated={async (role) => {
+              setCreating(false);
+              await queryClient.invalidateQueries({ queryKey: ['roles'] });
+              setToastMessage(`Đã thêm nhóm người dùng ${role.code}`);
+            }}
+          />
+        ) : null}
+        <DataGrid
+          label="Danh sách nhóm người dùng"
+          columns={columns}
+          rows={rows}
+          getRowId={(role) => role.id}
+          getRowLabel={(role) => `${role.code} ${role.name}`}
+          loading={roles.isPending}
+          emptyText="Không có nhóm người dùng phù hợp."
+          search={{ label: 'Tìm theo mã, tên nhóm', value: keyword, onChange: setKeyword }}
+          toolbar={
+            editable ? (
+              <Button variant="primary" onClick={() => setCreating(true)} disabled={creating}>
+                Thêm mới
+              </Button>
+            ) : null
+          }
+          rowActions={(role) => (
+            <Button variant="text" aria-label={`Phân quyền ${role.code}`} onClick={() => openPermissions(role)}>
+              Phân quyền
+            </Button>
+          )}
+          settings={grid.settings}
+          onSettingsChange={grid.update}
+        />
       </div>
     </AppShell>
   );

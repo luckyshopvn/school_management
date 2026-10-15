@@ -101,7 +101,7 @@ test('CT-15a-7: menu ngang bằng chuột: mở menu sổ xuống, menu cấp ha
 
   // Trợ giúp mở theo tên mục (khớp một phần) và theo đường dẫn
   await openMenu(page, 'Danh sách người dùng');
-  await expect(page.getByRole('heading', { name: 'Tài khoản', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '1.4. Danh sách người dùng', exact: true })).toBeVisible();
   await openMenu(page, '/classes');
   await expect(page.getByRole('button', { name: `Phân hệ: ${EDUCATION}` })).toBeVisible();
 });

@@ -2,6 +2,7 @@ import { createRootRoute, createRoute, createRouter, Navigate, Outlet, useLocati
 import { AcademicYearsPage } from './academic-years/AcademicYearsPage.js';
 import { AccountsPage } from './accounts/AccountsPage.js';
 import { RolesPage } from './accounts/RolesPage.js';
+import { RolePermissionsPage } from './accounts/RolePermissionsPage.js';
 import { ApiClientsPage } from './accounts/ApiClientsPage.js';
 import { IntegrationsPage } from './settings/IntegrationsPage.js';
 import { NotificationsPage } from './notifications/NotificationsPage.js';
@@ -10,6 +11,7 @@ import { CommonCatalogPage } from './catalogs/CommonCatalogPage.js';
 import { DepartmentsPage } from './catalogs/DepartmentsPage.js';
 import { RoomsAndGradeLevelsPage } from './catalogs/RoomsAndGradeLevelsPage.js';
 import { ChildrenPage } from './children/ChildrenPage.js';
+import { StudentMovementsPage } from './children/StudentMovementsPage.js';
 import { AttendancePage } from './attendance/AttendancePage.js';
 import { ClassesPage } from './classes/ClassesPage.js';
 import { CashflowCategoriesPage } from './fees/CashflowCategoriesPage.js';
@@ -102,6 +104,14 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/org-units', component: OrgUnitsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/accounts', component: AccountsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/roles', component: RolesPage }),
+  // Nhóm người dùng mở sẵn ở 1.3 Phân quyền nhóm theo menu qua tham số role (DT-15 phần 15e)
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/role-permissions',
+    component: RolePermissionsPage,
+    validateSearch: (search: Record<string, unknown>): { role?: string } =>
+      typeof search.role === 'string' ? { role: search.role } : {},
+  }),
   createRoute({ getParentRoute: () => rootRoute, path: '/settings', component: SettingsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/audit-logs', component: AuditLogsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/departments', component: DepartmentsPage }),
@@ -110,6 +120,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/rooms', component: RoomsAndGradeLevelsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/classes', component: ClassesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/children', component: ChildrenPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/student-movements', component: StudentMovementsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/imports', component: ImportsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/attendance', component: AttendancePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/fees', component: FeesPage }),

@@ -93,9 +93,9 @@ test('Tuyển sinh lập hồ sơ, quản lý đơn vị duyệt vào lớp Mầ
 
   const admissions = await signInAs(browser, 'VT-12');
   await openMenu(admissions, '/children');
-  await admissions.getByRole('button', { name: 'Tạo hồ sơ mới' }).click();
-  const form = admissions.getByRole('form', { name: 'Biểu mẫu hồ sơ trẻ' });
-  await form.getByLabel('Họ tên trẻ').fill('Nguyễn Gia Bảo');
+  await admissions.getByRole('button', { name: 'Thêm mới', exact: true }).click();
+  const form = admissions.getByRole('form', { name: 'Biểu mẫu hồ sơ học sinh' });
+  await form.getByLabel('Họ tên', { exact: true }).fill('Nguyễn Gia Bảo');
   await form.getByLabel('Ngày sinh').fill('2022-04-18');
   await form.getByRole('combobox', { name: /^Giới tính/ }).selectOption({ label: 'Nam' });
   await form.getByLabel('Số định danh cá nhân').fill(nationalId);
@@ -111,11 +111,11 @@ test('Tuyển sinh lập hồ sơ, quản lý đơn vị duyệt vào lớp Mầ
   await form
     .getByRole('combobox', { name: /^Đồng ý sử dụng hình ảnh/ })
     .selectOption({ label: 'Chờ phụ huynh xác nhận trên ứng dụng' });
-  await form.getByRole('button', { name: 'Lưu hồ sơ nháp' }).click();
+  await form.getByRole('button', { name: 'Ghi', exact: true }).click();
 
   const detail = admissions.getByRole('region', { name: 'Hồ sơ Nguyễn Gia Bảo' });
   await expect(detail).toContainText('Nháp');
-  await expect(detail.getByTestId('moet-code')).toHaveText('Chưa có');
+  await expect(detail.getByTestId('moet-code')).toHaveValue('');
   // Ô mã ngành tô đỏ khi chưa có (CT-157)
   await expect(detail.getByTestId('moet-code')).toHaveClass(/text-danger/);
   await expect(detail.getByTestId('national-id')).toHaveText(`********${nationalId.slice(-4)}`);
@@ -124,11 +124,12 @@ test('Tuyển sinh lập hồ sơ, quản lý đơn vị duyệt vào lớp Mầ
 
   const manager = await signInAs(browser, 'VT-03');
   await openMenu(manager, '/children');
+  await manager.getByRole('button', { name: 'Mở rộng tìm kiếm' }).click();
   await manager.getByRole('combobox', { name: /^Trạng thái/ }).selectOption({ label: 'Chờ duyệt' });
   await manager.getByRole('row').filter({ hasText: 'Nguyễn Gia Bảo' }).click();
   const pending = manager.getByRole('region', { name: 'Hồ sơ Nguyễn Gia Bảo' });
   const classOption = await pending.locator('option', { hasText: 'Mầm 1' }).first().getAttribute('value');
-  await pending.getByRole('combobox', { name: /^Lớp cho trẻ/ }).selectOption(classOption ?? '');
+  await pending.getByRole('combobox', { name: /^Lớp cho học sinh/ }).selectOption(classOption ?? '');
   await pending.getByRole('button', { name: 'Duyệt và phân lớp' }).click();
   await expect(pending).toContainText('Đang học');
   await expect(pending).toContainText('Đã có tài khoản');
@@ -145,6 +146,6 @@ test('Tuyển sinh lập hồ sơ, quản lý đơn vị duyệt vào lớp Mầ
 test('Giáo viên không có nút tạo hồ sơ và không xem được số định danh đầy đủ', async ({ browser }) => {
   const teacher = await signInAs(browser, 'VT-07');
   await openMenu(teacher, '/children');
-  await expect(teacher.getByRole('heading', { name: 'Hồ sơ trẻ' })).toBeVisible();
-  await expect(teacher.getByRole('button', { name: 'Tạo hồ sơ mới' })).toHaveCount(0);
+  await expect(teacher.getByRole('heading', { name: '4.1.1. Quản lý hồ sơ học sinh' })).toBeVisible();
+  await expect(teacher.getByRole('button', { name: 'Thêm mới', exact: true })).toHaveCount(0);
 });

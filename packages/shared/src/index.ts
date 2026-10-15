@@ -1,6 +1,7 @@
 // Gói dùng chung chỉ chứa kiểu dữ liệu và hằng số, không chứa truy vấn cơ sở dữ liệu và quy tắc nghiệp vụ
 export * from './facilities.js';
 export * from './portal-menu.js';
+export * from './menu-permissions.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -207,6 +208,7 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/org-units',
   '/accounts',
   '/roles',
+  '/role-permissions',
   '/settings',
   '/audit-logs',
   '/departments',
@@ -271,6 +273,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/program-completion',
   '/child-groups',
   '/professional-standards',
+  // Biến động học sinh (DT-15 phần 15c, YCTD-108)
+  '/student-movements',
   // Ý kiến phản hồi gửi từ chân trang (DT-15 phần 15g, YCTD-110)
   '/feedback',
 ] as const;
@@ -283,7 +287,21 @@ export const MAX_QUICK_LINKS = 12;
 // Lưới dữ liệu dùng chung của cổng quản trị (DT-15 phần 15a): mỗi lưới có một khóa để nhớ cấu hình cột và số dòng mỗi
 // trang theo từng tài khoản; "default" là số dòng mặc định cho mọi lưới (Cấu hình hiển thị lưới ở menu người dùng). Máy
 // chủ API chỉ nhận các khóa này; lưới mới chuyển sang ở các phần sau thì thêm khóa vào đây
-export const DATA_GRID_KEYS = ['default', 'accounts', 'staff', 'my-feedback', 'feedback'] as const;
+export const DATA_GRID_KEYS = [
+  'default',
+  'accounts',
+  'staff',
+  // Học sinh (DT-15 phần 15c)
+  'children',
+  'student-movements',
+  // Quản trị hệ thống (DT-15 phần 15e)
+  'roles',
+  'api-clients',
+  'audit-logs',
+  // Ý kiến phản hồi (DT-15 phần 15g)
+  'my-feedback',
+  'feedback',
+] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;
 export const DEFAULT_DATA_GRID_PAGE_SIZE = 20;

@@ -37,6 +37,7 @@ import { migration as addPhaseThreePermissions } from './migrations/0035_add_pha
 import { migration as addStandardsAndGroupsPermissions } from './migrations/0037_add_standards_and_groups_permissions.js';
 import { migration as addGrowthReportPermission } from './migrations/0038_add_growth_report_permission.js';
 import { migration as addFacilitiesEmisPermissions } from './migrations/0039_add_facilities_emis_permissions.js';
+import { migration as addAccountListIndexes } from './migrations/0041_add_account_list_indexes.js';
 import { migration as addPasswordExpiryAndFeedbackPermission } from './migrations/0042_add_password_expiry_and_feedback_permission.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu định danh, theo số thứ tự (QU-01)
@@ -79,5 +80,6 @@ export const identityMigrations: Record<string, Migration> = {
   '0037_add_standards_and_groups_permissions': addStandardsAndGroupsPermissions,
   '0038_add_growth_report_permission': addGrowthReportPermission,
   '0039_add_facilities_emis_permissions': addFacilitiesEmisPermissions,
+  '0041_add_account_list_indexes': addAccountListIndexes,
   '0042_add_password_expiry_and_feedback_permission': addPasswordExpiryAndFeedbackPermission,
 };
