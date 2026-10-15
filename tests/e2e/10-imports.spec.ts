@@ -66,7 +66,9 @@ test('Hiệu trưởng nhập lớp rồi nhập trẻ kèm phụ huynh; trẻ n
   await page.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(principal.username);
   await page.getByLabel('Mật khẩu', { exact: true }).fill(principal.password);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
-  await openMenu(page, '/imports');
+  // Nhập lớp học ở màn hình riêng "2.2. Nhập lớp học từ Excel" (YCTD-111)
+  await openMenu(page, '/class-imports');
+  await expect(page.getByRole('heading', { name: '2.2. Nhập lớp học từ Excel' })).toBeVisible();
 
   const classes = await upload(
     page,
@@ -80,6 +82,8 @@ test('Hiệu trưởng nhập lớp rồi nhập trẻ kèm phụ huynh; trẻ n
   await expect(classes).toContainText('Không có dòng lỗi, sẵn sàng ghi');
   await classes.getByRole('button', { name: 'Ghi dữ liệu' }).click();
   await expect(classes).toContainText('Đã ghi dữ liệu');
+  await openMenu(page, '/imports');
+  await expect(page.getByRole('region', { name: 'Lớp học' })).toHaveCount(0);
 
   const childHeaders = [
     'Mã đơn vị',
