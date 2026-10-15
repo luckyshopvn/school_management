@@ -51,9 +51,11 @@ test('Kế toán khai báo quỹ, thu đủ hóa đơn từ màn hình công n�
   await openMenu(portal, '/cash-accounts');
   await portal.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
   const accounts = portal.getByRole('region', { name: 'Quỹ và tài khoản của đơn vị' });
-  await accounts.getByLabel('Tên quỹ hoặc tài khoản').fill('Quỹ tiền mặt cơ sở');
-  await accounts.getByLabel('Số dư đầu').fill('1000000');
-  await accounts.getByRole('button', { name: 'Thêm' }).click();
+  await accounts.getByRole('button', { name: 'Thêm mới' }).click();
+  const accountForm = portal.getByRole('form', { name: 'Thêm mới vào quỹ và tài khoản của đơn vị' });
+  await accountForm.getByLabel('Tên quỹ hoặc tài khoản').fill('Quỹ tiền mặt cơ sở');
+  await accountForm.getByLabel('Số dư đầu').fill('1000000');
+  await accountForm.getByRole('button', { name: 'Ghi' }).click();
   await expect(accounts.getByRole('row').filter({ hasText: 'Quỹ tiền mặt cơ sở' })).toContainText('1.000.000');
 
   await openMenu(portal, '/debts');
