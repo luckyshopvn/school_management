@@ -2,7 +2,7 @@
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
 - Phiên bản: 0.4
-- Ngày cập nhật: 2026-10-14
+- Ngày cập nhật: 2026-10-15
 - Trạng thái: Đang cập nhật
 
 ## Quy ước ghi nhật ký
@@ -13,6 +13,67 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-15 — DT-15 phần 15g: gửi phản hồi, hết hạn mật khẩu
+
+#### Công việc đã thực hiện
+
+- Thêm nút "Gửi phản hồi" ở chân mọi trang của cổng quản trị (hộp thoại theo biểu mẫu của Sở, kèm ảnh chụp màn hình, tối đa 10 ý kiến mỗi giờ mỗi tài khoản); mục "Danh sách ý kiến đã gửi" ở menu người dùng; mục "3.4. Ý kiến phản hồi" của Quản trị hệ thống để VT-01, VT-02 đổi trạng thái, trả lời, người gửi nhận thông báo trong ứng dụng; bảng `feedback` ở cơ sở dữ liệu hệ thống (tệp 0007), quyền mới `P01.feedback.manage`.
+- Thêm hết hạn mật khẩu cho tài khoản nhân sự ở dịch vụ định danh: cột `users.password_changed_at`, chính sách số ngày hết hạn và số ngày báo trước (tệp 0042, mặc định tắt), sửa ở khối "Chính sách mật khẩu" của "1.4. Danh sách người dùng"; mật khẩu quá hạn thì bắt buộc đổi ở màn hình Đổi mật khẩu, sắp hết hạn thì đầu trang báo số ngày còn lại; cột ẩn "Thời gian đổi mật khẩu".
+- Thêm kịch bản CT-382 đến CT-397, tiêu chí AC-426 đến AC-441, chức năng P01-16, P01-17, quy tắc BR-108 đến BR-110, quy tắc phân quyền PQ-64, màn hình MH-87 đến MH-89, biện pháp BM-72, XT-10. Kiểm thử đơn vị máy chủ API 642/643 ca đạt, dịch vụ định danh 45/46 ca đạt (hai ca CTC-DD-041, PQ-10 đã biết chỉ hỏng trên máy phát triển do cơ sở dữ liệu phát triển cho VT-01 mọi quyền, không liên quan phần này; ca PQ-10 đã sửa vì VT-01 nay có thêm `P01.feedback.manage`); toàn bộ kiểm thử giao diện 87/87 ca đạt ngày 15/10/2026.
+
+#### Quyết định
+
+- Thực hiện lựa chọn 4 của Eric ngày 13/10/2026 (`32_KE_HOACH_THEO_HE_THONG_SO.md` mục 2, 4, 5 đợt 15g): biểu mẫu Gửi phản hồi ở chân trang; hết hạn mật khẩu và bắt buộc đổi định kỳ. Các ô của biểu mẫu (thêm ảnh đính kèm, số điện thoại, thư điện tử), người xử lý ý kiến là VT-01, VT-02, giới hạn 10 ý kiến mỗi giờ, chỉ áp hết hạn mật khẩu cho tài khoản nhân sự, đặt chính sách ở Danh sách người dùng theo quyền `P01.account.manage` (không ở màn hình Cấu hình vì VT-01 không có `P01.setting.manage`), mặc định tắt Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-110.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-110, `07_QUY_TAC_NGHIEP_VU.md` BR-108 đến BR-110, `08_VAI_TRO_NGUOI_DUNG.md` PQ-10, PQ-64, `10_YEU_CAU_CHUC_NANG.md` P01-16, P01-17, `12_KIEN_TRUC_HE_THONG.md` XT-10, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-30, MH-48, MH-83, MH-84, MH-87 đến MH-89, `16_CO_SO_DU_LIEU.md` mục 1, 2 và 20, `17_DAC_TA_API.md` mục 4, 5, `22_BAO_MAT.md` BM-72, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.63.0.
+
+#### Vấn đề tồn đọng
+
+- Thông báo trả lời ý kiến cần năm học đang dùng; chưa gửi thư điện tử, tin nhắn; ý kiến chưa gửi về đơn vị hỗ trợ bên ngoài; đổi trạng thái, trả lời chưa ghi nhật ký thao tác; hai màn hình ý kiến phân trang ở trình duyệt.
+- Ứng dụng giáo viên chưa hiện dòng "Mật khẩu đã hết hạn" và chưa báo sắp hết hạn; chưa chặn dùng lại mật khẩu cũ hơn mật khẩu hiện tại; chưa có bộ lọc Ngày hết hạn mật khẩu ở Danh sách người dùng; báo sắp hết hạn chưa là hộp thông báo bật lên như của Sở.
+
+### 2026-10-15 — DT-15 phần 15e: quản trị hệ thống theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Đưa phân hệ Quản trị hệ thống của cổng quản trị theo Sở: "1.1. Nhóm người dùng" trên lưới dữ liệu chung, biểu mẫu thêm nhóm theo khối; mục mới "1.3. Phân quyền nhóm theo menu" chọn quyền theo cây menu đánh số; "1.4. Danh sách người dùng" với cột, bộ lọc theo Sở; Khóa API cho đối tác và Nhật ký thao tác trên lưới dữ liệu chung; tiêu đề các màn hình quản trị kèm số menu; điều kiện hiện mục menu chuyển sang gói dùng chung `packages/shared/src/menu-permissions.ts`; dịch vụ định danh lọc, đếm, phân trang danh sách người dùng trong câu truy vấn, tệp chuyển đổi 0041 thêm hai chỉ mục của cơ sở dữ liệu định danh.
+- Thêm kịch bản CT-368 đến CT-381, tiêu chí AC-412 đến AC-425, màn hình MH-86. Kiểm thử đơn vị máy chủ API 631/632 ca đạt, dịch vụ định danh 40/41 ca đạt (hai ca CTC-DD-041, PQ-10 đã biết chỉ hỏng trên máy phát triển do cơ sở dữ liệu phát triển cho VT-01 mọi quyền, không liên quan phần này); toàn bộ kiểm thử giao diện 84/84 ca đạt ngày 15/10/2026.
+
+#### Quyết định
+
+- Thực hiện lựa chọn 3 của Eric ngày 13/10/2026 (`32_KE_HOACH_THEO_HE_THONG_SO.md` mục 2, 3.2, 5 đợt 15e): giữ mã quyền theo thao tác, màn hình phân quyền hiển thị theo cây menu. Cách suy ra quyền của mục và quyền ở cổng (quyền ở cổng không tính là quyền của mục), cột Hiệu lực, Là nhóm quản trị, cột và bộ lọc của danh sách người dùng, việc chỉ đổi tiêu đề ở các màn hình quản trị không phải danh sách thuần Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-109.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-109, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-30, MH-31, MH-42, MH-86, `08_VAI_TRO_NGUOI_DUNG.md` PQ-13, `16_CO_SO_DU_LIEU.md` mục 2 và 20, `17_DAC_TA_API.md` mục 3, 5, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.62.0.
+
+#### Vấn đề tồn đọng
+
+- Chưa có cột Mã nhân sự, Mã Bộ, Thời gian đổi mật khẩu, Ngày hết hạn mật khẩu và bộ lọc Mã định danh, Ngày hết hạn mật khẩu của Sở (hết hạn mật khẩu làm ở phần 15g); chưa có Phân nhóm quyền hàng loạt, Cấp mật khẩu hàng loạt, Lấy danh sách CBQL/GV, Xuất Excel ở 1.4.
+- Chưa có 1.2 Phân quyền nhóm theo phần mềm của Sở; chưa sửa, xóa, ngừng dùng nhóm người dùng (không có điểm cuối).
+- Năm học, Cây đơn vị, Phòng ban và chức danh, Danh mục dùng chung, Phòng học và bậc học, Hạn mức phê duyệt, Kết nối ngoài chỉ đổi tiêu đề, chưa chuyển sang lưới dữ liệu chung; tìm theo từ khóa ở danh sách người dùng cần chỉ mục trigram khi nhiều hơn khoảng 30 nghìn tài khoản.
+
+### 2026-10-15 — DT-15 phần 15c: học sinh theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Đưa nhóm "4. Học sinh" của cổng quản trị theo Sở: màn hình "4.1.1. Quản lý hồ sơ học sinh" dùng lưới dữ liệu chung (cột, bộ lọc theo Sở, thứ tự A–Z theo tên, Xuất Excel theo cột đang hiện, cập nhật hàng loạt học 2 buổi/ngày và bán trú); hồ sơ học sinh hai thẻ theo khối của Sở và "Thông tin riêng của trường"; điện thoại nhận tin và chọn người nhận tin nhắn theo học sinh; mục mới "4.2. Biến động học sinh"; đổi chữ "trẻ" thành "học sinh" trên các màn hình học sinh; khối biểu mẫu dùng chung `FormBlock`, `FormRow`; tệp chuyển đổi 0050 của cơ sở dữ liệu năm học.
+- Thêm kịch bản CT-354 đến CT-367, tiêu chí AC-398 đến AC-411, chức năng P02-15, P02-16, quy tắc BR-105 đến BR-107, màn hình MH-85. Kiểm thử đơn vị máy chủ API 622/623 ca đạt, dịch vụ định danh 40/41 ca đạt (hai ca CTC-DD-041, PQ-10 đã biết chỉ hỏng trên máy phát triển do cơ sở dữ liệu phát triển cho VT-01 mọi quyền, không liên quan phần này); toàn bộ kiểm thử giao diện 78/80 ca đạt, hai ca CT-365, CT-366 của `tests/e2e/51-students-so.spec.ts` hỏng do bộ chọn ô đánh dấu trong hộp cấu hình cột khớp nhiều phần tử, đã sửa và chạy lại tệp 3/3 ca đạt ngày 15/10/2026.
+
+#### Quyết định
+
+- Eric chọn ngày 13/10/2026 đồng bộ nhóm học sinh theo Sở và dùng chữ "học sinh" thay "trẻ" trên cổng quản trị (`32_KE_HOACH_THEO_HE_THONG_SO.md` mục 1, 5 đợt 15c); cột, bộ lọc, thứ tự A–Z, cách lưu điện thoại nhận tin, cập nhật hàng loạt và biến động học sinh dựng từ lịch sử đã có Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-108.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-108, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-02, MH-85 và BC-16, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.61.0.
+
+#### Vấn đề tồn đọng
+
+- Chưa có chuyển đến, chuyển đi giữa các trường ở mục 4.2 của Sở; chưa ghi số thứ tự cố định trong lớp; điện thoại nhận tin chưa nhập từ Excel; dân tộc, diện chính sách, khuyết tật, biết bơi chưa sửa được trên hồ sơ; chưa có Xuất PDF, Xuất file lỗi, Cấp mã định danh Bộ; thông báo lỗi của máy chủ API vẫn dùng chữ "trẻ".
 
 ### 2026-10-14 — DT-15 phần 15a: menu ngang đánh số, menu người dùng, lưới dữ liệu dùng chung
 

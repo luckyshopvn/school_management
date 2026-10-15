@@ -2,7 +2,7 @@
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
 - Phiên bản: 0.4
-- Ngày cập nhật: 2026-10-14
+- Ngày cập nhật: 2026-10-15
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
 
@@ -15,6 +15,39 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.63.0 – 2026-10-15
+
+- Phạm vi thay đổi: DT-15 phần 15g, gửi phản hồi và hết hạn mật khẩu theo hệ thống của Sở (YCTD-110).
+- Chức năng mới: nút "Gửi phản hồi" ở chân mọi trang của cổng quản trị mở hộp thoại gửi ý kiến (Đường dẫn trang, Loại ý kiến, Tiêu đề, Nội dung, Số điện thoại, Thư điện tử, Ảnh chụp màn hình), tối đa 10 ý kiến mỗi giờ mỗi tài khoản; mục "Danh sách ý kiến đã gửi" ở menu người dùng (`/my-feedback`); mục "3.4. Ý kiến phản hồi" của Quản trị hệ thống (`/feedback`) cho VT-01, VT-02 xem mọi ý kiến, đổi trạng thái (Mới, Đang xử lý, Đã xử lý), trả lời, người gửi nhận thông báo trong ứng dụng; chính sách hết hạn mật khẩu (số ngày hết hạn, số ngày báo trước) ở khối "Chính sách mật khẩu" của "1.4. Danh sách người dùng", mật khẩu quá hạn thì bắt buộc đổi ở màn hình Đổi mật khẩu, sắp hết hạn thì đầu trang báo số ngày còn lại; cột ẩn "Thời gian đổi mật khẩu" ở danh sách người dùng (P01, P19).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: bảng mới `feedback` ở cơ sở dữ liệu hệ thống (tệp `database/system/migrations/0007_create_feedback.ts`); cột `users.password_changed_at` (tài khoản đã có lấy thời điểm cập nhật gần nhất, không có thì thời điểm tạo) và quyền `P01.feedback.manage` gán VT-01, VT-02 ở cơ sở dữ liệu định danh (tệp `database/identity/migrations/0042_add_password_expiry_and_feedback_permission.ts`); khóa `password_max_age_days` (mặc định 0), `password_expiry_warning_days` (mặc định 7) ở `identity_settings`.
+- Thay đổi API: điểm cuối mới `POST /user-feedback`, `GET /me/user-feedback`, `GET /user-feedback`, `PUT /user-feedback/{id}`, `GET /user-feedback/{id}/attachment`, `GET`, `PUT /auth/settings/password-policy`; `login`, `refresh`, `change-password` trả thêm `password_expired`, `password_expires_in_days`; `GET /users` trả thêm `password_changed_at`; `DATA_GRID_KEYS` thêm `my-feedback`, `feedback`.
+- Rủi ro: bật chính sách hết hạn lần đầu thì tài khoản đã có tính hạn từ thời điểm cập nhật gần nhất, nhiều tài khoản có thể phải đổi mật khẩu ngay; thông báo trả lời ý kiến cần năm học đang dùng; hai màn hình ý kiến phân trang ở trình duyệt nên chậm khi số ý kiến rất lớn.
+- Khả năng tương thích: chính sách hết hạn mặc định tắt (0 ngày) nên đăng nhập như cũ cho tới khi người quản trị đặt số ngày; tài khoản chỉ có vai trò Phụ huynh, tài khoản còn dùng mật khẩu mặc định chung và phiên đăng nhập bằng mã một lần không bị hết hạn mật khẩu; ứng dụng giáo viên dùng cờ `password_change_required` có sẵn nên vẫn bắt đổi mật khẩu; VT-01 có thêm quyền `P01.feedback.manage` (PQ-10); góp ý của phụ huynh ở phân hệ Tương tác (`/feedbacks`) không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-15-phan-15g`; chạy phần quay lui của tệp 0042 của cơ sở dữ liệu định danh (gỡ quyền `P01.feedback.manage` và cột `password_changed_at`; dòng chính sách đã lưu ở `identity_settings` còn lại nhưng không được đọc) và tệp 0007 của cơ sở dữ liệu hệ thống (gỡ bảng `feedback`, mất các ý kiến đã gửi; ảnh đính kèm còn ở kho tệp).
+
+### Phiên bản 0.62.0 – 2026-10-15
+
+- Phạm vi thay đổi: DT-15 phần 15e, quản trị hệ thống theo hệ thống của Sở: nhóm người dùng, phân quyền nhóm theo menu, danh sách người dùng (YCTD-109).
+- Chức năng mới: "1.1. Nhóm người dùng" trên lưới dữ liệu chung (Mã nhóm, Tên nhóm, Hiệu lực, Là nhóm quản trị, Là nhóm hệ thống), biểu mẫu thêm nhóm theo khối, nút Phân quyền trên dòng; mục mới "1.3. Phân quyền nhóm theo menu" (`/role-permissions`): chọn quyền theo cây menu đánh số, chọn cả mục hoặc từng quyền, khối Quyền khác; "1.4. Danh sách người dùng" với cột và bộ lọc theo Sở (nhóm quyền, loại tài khoản, trạng thái đổi mật khẩu, tên đăng nhập, tên nhân sự); Khóa API cho đối tác và Nhật ký thao tác dùng lưới dữ liệu chung; tiêu đề các màn hình quản trị kèm số menu; điều kiện hiện mục menu chuyển sang gói dùng chung `packages/shared/src/menu-permissions.ts` (P01, P19).
+- Lỗi đã sửa: danh sách người dùng chậm khi có khoảng 30 nghìn tài khoản (dịch vụ định danh đọc mọi tài khoản cùng vai trò, quyền rồi mới cắt trang); nay lọc, đếm, phân trang trong câu truy vấn, một trang 50 dòng dưới 1,5 giây trên máy phát triển.
+- Thay đổi dữ liệu: hai chỉ mục `users_full_name_id_index` (`users (full_name, id)`) và `user_roles_role_id_index` (`user_roles (role_id)`) ở cơ sở dữ liệu định danh (tệp 0041); không đổi bảng, không đổi dữ liệu.
+- Thay đổi API: `GET /users` thêm tham số `login`, `full_name`, `must_change_password`, dạng trả về giữ nguyên; `GET /audit-logs`, `GET /users/audit-logs` nhận `page_size` đến 200; `DATA_GRID_KEYS` thêm `roles`, `api-clients`, `audit-logs`. Không có điểm cuối mới, không có quyền mới.
+- Rủi ro: người quản trị quen ma trận quyền theo phân hệ chức năng cần làm quen chọn quyền theo cây menu; một quyền thuộc nhiều mục nên tích ở một mục làm đổi các mục khác; tìm theo từ khóa vẫn so khớp một phần, nhiều hơn 30 nghìn tài khoản cần chỉ mục trigram.
+- Khả năng tương thích: đường dẫn `/roles`, `/accounts`, `/api-clients`, `/audit-logs` giữ nguyên; điểm cuối ghi quyền `PUT /roles/{id}/permissions` không đổi; kết quả hiện, ẩn mục menu như trước; cấu hình cột đã lưu của lưới `accounts` có mã cột `username` cũ thì bỏ qua mã đó; nút "Lưu quyền của vai trò", "Tạo vai trò" đổi thành "Ghi"; bộ lọc Trạng thái, Đối tượng của Nhật ký thao tác chuyển vào "Mở rộng tìm kiếm".
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-15-phan-15e`; chạy phần quay lui của tệp 0041 của cơ sở dữ liệu định danh để gỡ hai chỉ mục (không mất dữ liệu).
+
+### Phiên bản 0.61.0 – 2026-10-15
+
+- Phạm vi thay đổi: DT-15 phần 15c, học sinh theo hệ thống của Sở: Quản lý hồ sơ học sinh, điện thoại nhận tin, học 2 buổi/ngày và bán trú, biến động học sinh (YCTD-108).
+- Chức năng mới: màn hình "4.1.1. Quản lý hồ sơ học sinh" dùng lưới dữ liệu chung với cột, bộ lọc "Mở rộng tìm kiếm" theo Sở, thứ tự A–Z theo tên, Xuất Excel theo cột đang hiện; hồ sơ học sinh hai thẻ "Hồ sơ học sinh" (khối của Sở, nhãn bên trái, nút Ghi) và "Thông tin riêng của trường"; biểu mẫu Thêm mới theo khối; điện thoại nhận tin của học sinh, tin nhắn theo học sinh gửi số nhận tin; học 2 buổi/ngày, bán trú sửa ở hồ sơ hoặc cập nhật hàng loạt; mục mới "4.2. Biến động học sinh" (nhập học, chuyển lớp, chuyển đơn vị, thôi học) kèm Xuất Excel; chữ "trẻ" trên các màn hình học sinh của cổng quản trị đổi thành "học sinh" (P02, P17).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: cột mới `children.two_sessions_per_day`, `children.boarding` (giá trị ban đầu từ `moet_profile`), `child_guardians.receives_sms` và chỉ mục duy nhất `child_guardians_receives_sms_unique` ở cơ sở dữ liệu năm học (tệp 0050).
+- Thay đổi API: `GET /children` thêm bộ lọc, cột, thứ tự A–Z, cỡ trang đến 200; `GET`, `PATCH /children/{id}` thêm `two_sessions_per_day`, `boarding`, `sms_phone`; thêm `POST /children/export`, `POST /children/bulk-update`, `PUT /children/{id}/sms-guardian`, `GET /student-movements`, `POST /student-movements/export`.
+- Rủi ro: người dùng quen danh sách sắp theo họ tên và khung hồ sơ bên phải cần làm quen thứ tự theo tên và hồ sơ mở dưới dòng; tin nhắn theo học sinh chỉ đi tới một phụ huynh khi đã chọn số nhận tin; dân tộc, diện chính sách, khuyết tật, biết bơi trống với học sinh chưa nhập tệp CSDL ngành.
+- Khả năng tương thích: đường dẫn `/children` và lối tắt Truy cập nhanh giữ nguyên; bộ lọc cũ chuyển vào "Mở rộng tìm kiếm"; nút "Tạo hồ sơ mới", "Lưu hồ sơ nháp" đổi thành "Thêm mới", "Ghi"; học sinh chưa chọn số nhận tin vẫn nhận tin như trước; thông báo lỗi của máy chủ API và ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-15-phan-15c`; chạy phần quay lui của tệp 0050 để gỡ ba cột và chỉ mục (mất lựa chọn số nhận tin, học 2 buổi/ngày, bán trú đã ghi sau khi phát hành).
 
 ### Phiên bản 0.60.0 – 2026-10-14
 
