@@ -63,6 +63,7 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           leaf('4.1.1.', 'Quản lý hồ sơ học sinh', '/children'),
           leaf('4.1.2.', 'Nhập dữ liệu từ Excel', '/imports'),
           leaf('4.1.6.', 'Nhóm học sinh', '/child-groups'),
+          leaf('4.1.11.', 'Cập nhật địa danh hành chính', '/administrative-units'),
         ]),
         leaf('4.2.', 'Biến động học sinh', '/student-movements'),
         group('4.3.', 'Cân nặng, chiều cao', [

@@ -60,6 +60,8 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   // Trước đây hiện ở nhóm Trẻ và lớp, hoặc ở nhóm Nhân sự cho người chỉ nhập nhân sự
   '/imports': anyOf(gated(CHILDREN_AND_CLASSES, IMPORT), gated('P07.staff.view', 'P01.import.staff')),
   '/child-groups': gated(CHILDREN_AND_CLASSES, anyOf('P02.child-group.manage', 'P02.view')),
+  // Cập nhật địa danh hành chính: như Biến động học sinh, người lập hoặc duyệt hồ sơ học sinh (YCTD-116)
+  '/administrative-units': gated(CHILDREN_AND_CLASSES, anyOf('P02.child.manage', 'P02.approve')),
   '/growth': anyOf('P10.health.manage', 'P17.report.growth'),
   '/growth-report': 'P17.report.growth',
   '/program-completion': gated(

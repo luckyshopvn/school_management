@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.70
+- Phiên bản: 1.71
 - Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -44,7 +44,7 @@ Cấu trúc phản hồi lỗi gồm mã lỗi, thông điệp tiếng Việt hi
 | Tham số | Kiểu | Mặc định | Ghi chú |
 |---|---|---|---|
 | page | số nguyên | 1 | Bắt đầu từ một |
-| page_size | số nguyên | 20 | Tối đa 100; riêng `GET /users` của dịch vụ định danh (YCTD-107), `GET /children` và `GET /student-movements` (YCTD-108), `GET /audit-logs` và `GET /users/audit-logs` (YCTD-109) tối đa 200 cho lưới dữ liệu của cổng quản trị |
+| page_size | số nguyên | 20 | Tối đa 100; riêng `GET /users` của dịch vụ định danh (YCTD-107), `GET /children` và `GET /student-movements` (YCTD-108), `GET /audit-logs` và `GET /users/audit-logs` (YCTD-109), `GET /administrative-units/addresses` và `GET /administrative-units/mappings` (YCTD-116) tối đa 200 cho lưới dữ liệu của cổng quản trị |
 | sort | chuỗi | tùy điểm cuối | Dạng tên trường kèm dấu trừ để giảm dần |
 | q | chuỗi | trống | Tìm kiếm theo từ khóa trên các trường được khai báo |
 | org_unit_id | mã định danh | theo phiên | Chỉ nhận giá trị trong phạm vi quyền |
@@ -276,10 +276,17 @@ Giao kèo của học sinh theo hệ thống của Sở (DT-15 phần 15c, YCTD-
 5. `PUT /children/{id}/sms-guardian` cần `P02.child.manage` hoặc `P02.approve`, quyền như sửa phụ huynh. Thân `guardian_id` bắt buộc có trường: mã phụ huynh của học sinh hoặc null để bỏ chọn. Phụ huynh không gắn với học sinh trả `ERR_NOT_FOUND`; phụ huynh chưa có số điện thoại trả `ERR_RULE_VIOLATION` mã YCTD-108; trả hồ sơ học sinh. Tin nhắn SMS, Zalo theo học sinh gửi phụ huynh nhận tin theo BR-105.
 6. `GET /student-movements` cần `P02.child.manage` hoặc `P02.approve`, trong phạm vi xem trẻ. Tham số `from`, `to` (YYYY-MM-DD), `kind` (`enrolled`, `class_transfer`, `unit_transfer`, `withdrawn`), `org_unit_id`, `q`, `page`, `page_size` (10, 20, 50, 100, 200). Trả `items` (`id`, `kind`, `date`, `child_id`, `full_name`, `dob`, `gender`, `moet_student_code`, `org_unit_id`, `from_name`, `to_name`, `reason`) mới nhất trước, `total`, `total_pages`, `counts` theo loại. `POST /student-movements/export` cần `P17.data.export`, thân là bộ lọc như trên, trả tệp xlsx và ghi `export_logs` mã `student-movements`.
 
+Giao kèo của cập nhật địa danh hành chính (DT-15 phần 15h1, YCTD-116):
+
+1. `GET /administrative-units/addresses` cần `P02.child.manage` hoặc `P02.approve`, trong phạm vi xem trẻ (BR-72); chỉ học sinh nháp, chờ duyệt, đang học, tạm nghỉ có `moet_profile`. Tham số `address_type` (`permanent`, `hometown`, `birth_registration`, `birthplace`, `current`), `suggestion` (`suggested`, `multiple`, `none`), `org_unit_id`, `q` (họ tên, tối đa 100 ký tự), `page`, `page_size` (10, 20, 50, 100, 200). Trả `items` (mỗi phần tử: `id` dạng `<mã học sinh>:<loại địa chỉ>`, `child_id`, `moet_student_code`, `full_name`, `dob`, `org_unit_id`, `class_name`, `child_status`, `address_type`, `old_province`, `old_district`, `old_ward`, `old_ward_code`, `suggestion`, `candidates` gồm `id`, `code`, `ward_name`, `province_name`), `page`, `page_size`, `total`, `total_pages`, `counts` (số địa chỉ theo tình trạng, không tính bộ lọc tình trạng). Không có năm học đang dùng thì danh sách rỗng.
+2. `POST /administrative-units/addresses/convert` cần `P02.child.manage` hoặc `P02.approve`. Thân `items` (1 đến 500 phần tử `{ child_id, address_type, new_unit_id? }`; trùng thì gộp). Lỗi dạng trả 400; học sinh ngoài phạm vi trả 404; quyền ở đơn vị như cập nhật hàng loạt (403); hồ sơ chờ duyệt, địa chỉ không còn theo địa danh cũ, chưa có đối chiếu, nhiều xã mới chưa chọn, `new_unit_id` không thuộc các xã đối chiếu thì trả 422 `ERR_RULE_VIOLATION` mã YCTD-116, chi tiết nêu từng địa chỉ, không chuyển địa chỉ nào (BR-115). Thành công trả `{ updated, children }`.
+3. `GET /administrative-units/mappings` cần `P02.child.manage`, `P02.approve` hoặc `P01.catalog.manage`. Tham số `q` (tìm theo khóa tên xã cũ, quận/huyện cũ, xã mới), `page`, `page_size`. Mỗi dòng có `id`, `source`, `old_province`, `old_district`, `old_ward` (trống khi đối chiếu theo huyện), `old_ward_code`, `new_province`, `new_ward`, `new_ward_code`.
+4. `GET /administrative-units/mappings/template` cần `P01.catalog.manage`, trả tệp mẫu Excel bảy cột kèm trang hướng dẫn. `POST /administrative-units/mappings/import` cần `P01.catalog.manage`, nhận tệp `file` (xlsx, tối đa 5 MB, 2000 dòng). Trả `{ status: 'failed' | 'committed', total_rows, error_rows, errors: [{ row, column, message }], created_units, created_mappings }`; còn dòng lỗi thì không ghi dòng nào.
+
 Giao kèo của cấu hình lưới theo người dùng (DT-15 phần 15a, YCTD-107):
 
 1. Hai điểm cuối chỉ cần đăng nhập, không cần quyền riêng; chỉ đọc và ghi cấu hình của chính tài khoản gọi. Không có mã phiên trả `ERR_UNAUTHENTICATED` (401).
-2. `gridKey` phải thuộc `DATA_GRID_KEYS` ở gói dùng chung (`default`, `accounts`, `staff`, từ YCTD-108 thêm `children`, `student-movements`, từ YCTD-109 thêm `roles`, `api-clients`, `audit-logs`, từ YCTD-110 thêm `my-feedback`, `feedback`, từ YCTD-111 thêm `branches`, `school-sites`, `classes`, `class-assignments`; lưới chuyển sang ở các phần sau thêm khóa); khóa lạ trả `ERR_VALIDATION` (400), trường lỗi `gridKey`. Khóa `default` giữ số dòng mỗi trang mặc định cho mọi lưới.
+2. `gridKey` phải thuộc `DATA_GRID_KEYS` ở gói dùng chung (`default`, `accounts`, `staff`, từ YCTD-108 thêm `children`, `student-movements`, từ YCTD-109 thêm `roles`, `api-clients`, `audit-logs`, từ YCTD-116 thêm `administrative-addresses`, `administrative-unit-mappings`, từ YCTD-110 thêm `my-feedback`, `feedback`, từ YCTD-111 thêm `branches`, `school-sites`, `classes`, `class-assignments`; lưới chuyển sang ở các phần sau thêm khóa); khóa lạ trả `ERR_VALIDATION` (400), trường lỗi `gridKey`. Khóa `default` giữ số dòng mỗi trang mặc định cho mọi lưới.
 3. `GET /me/grid-settings/{gridKey}` trả `{ columns, page_size }`: `columns` là mảng mã cột theo thứ tự hiển thị hoặc null (theo mặc định của màn hình), `page_size` là số hoặc null; chưa lưu thì cả hai null.
 4. `PUT /me/grid-settings/{gridKey}` nhận `{ columns, page_size }` và ghi đè cả cấu hình: `columns` từ 1 đến 100 mã cột, không trùng, mỗi mã 1 đến 64 ký tự chữ, số, `_`, `.`, `-`, null là theo mặc định, lưới `default` không nhận cột; `page_size` là 10, 20, 50, 100, 200 hoặc null. Dữ liệu sai trả `ERR_VALIDATION` (400) kèm trường lỗi và giữ nguyên cấu hình cũ.
 5. Số dòng mỗi trang của một lưới trên giao diện: `page_size` của lưới, không có thì của `default`, không có nữa thì 20 (`14_DAC_TA_GIAO_DIEN.md` BC-14).
@@ -656,6 +663,11 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | PUT | /api/v1/children/{id}/sms-guardian | Chọn hoặc bỏ chọn phụ huynh có điện thoại nhận tin (BR-105, YCTD-108) |
 | GET | /api/v1/student-movements | Biến động học sinh của năm học: nhập học, chuyển lớp, chuyển đơn vị, thôi học (P02-15, YCTD-108) |
 | POST | /api/v1/student-movements/export | Xuất Excel biến động học sinh; cần `P17.data.export`, ghi nhật ký xuất (YCTD-108) |
+| GET | /api/v1/administrative-units/addresses | Địa chỉ học sinh còn theo địa danh cũ, đề xuất địa danh mới (P02-17, YCTD-116) |
+| POST | /api/v1/administrative-units/addresses/convert | Chuyển hàng loạt địa chỉ sang địa danh mới, ghi nhật ký trước và sau (YCTD-116) |
+| GET | /api/v1/administrative-units/mappings | Bảng đối chiếu địa danh cũ sang mới (YCTD-116) |
+| GET | /api/v1/administrative-units/mappings/template | Tệp mẫu Excel bảng đối chiếu; cần `P01.catalog.manage` (YCTD-116) |
+| POST | /api/v1/administrative-units/mappings/import | Nhập bảng đối chiếu từ Excel; cần `P01.catalog.manage` (YCTD-116) |
 | GET | /api/v1/children/{id}/national-id | Xem đầy đủ số định danh cá nhân; chỉ VT-02, VT-15, VT-03, VT-12; ghi nhật ký truy cập |
 | GET | /api/v1/children/{id}/photo-consent | Trạng thái và lịch sử đồng ý hình ảnh (YCTD-67) |
 | POST | /api/v1/children/{id}/photo-consent | Phụ huynh đồng ý hoặc rút đồng ý; nhà trường ghi nhận giấy ký tay |

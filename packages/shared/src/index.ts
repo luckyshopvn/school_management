@@ -288,6 +288,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/school-sites',
   '/class-imports',
   '/class-assignments',
+  // Cập nhật địa danh hành chính (DT-15 phần 15h1)
+  '/administrative-units',
   // Văn thư lưu trữ (DT-15 phần 15h2, YCTD-117)
   '/archive-records',
   '/archive-fonds',
@@ -322,6 +324,9 @@ export const DATA_GRID_KEYS = [
   'school-sites',
   'classes',
   'class-assignments',
+  // Cập nhật địa danh hành chính (DT-15 phần 15h1)
+  'administrative-addresses',
+  'administrative-unit-mappings',
   // Văn thư lưu trữ (DT-15 phần 15h2)
   'archive-records',
   'archive-fonds',

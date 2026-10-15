@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.42
+- Phiên bản: 1.43
 - Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -56,6 +56,7 @@
 | P02-14 | Nhóm học sinh (G3) | VT-02, VT-15, VT-03; giáo viên xem | Tên nhóm (duy nhất trong đơn vị), mô tả, giáo viên phụ trách, trạng thái, trẻ của nhóm | Lập, sửa, ngừng dùng nhóm; thêm trẻ đang học của đơn vị theo lớp, bớt trẻ; một trẻ thuộc nhiều nhóm; lọc danh sách trẻ theo nhóm; nhóm không chuyển sang năm học mới (YCTD-104) | Danh sách nhóm và trẻ của nhóm | BR-01, BR-72 |
 | P02-15 | Biến động học sinh (G3) | VT-02, VT-15, VT-03, VT-12 | Khoảng ngày, loại biến động (nhập học, chuyển lớp, chuyển đơn vị, thôi học), đơn vị, họ tên | Dựng danh sách từ lịch sử đã có của năm học, mới nhất trước, đếm theo loại; xuất Excel theo bộ lọc kèm nhật ký xuất (YCTD-108) | Danh sách biến động, tệp Excel | BR-72, BR-74, BR-107 |
 | P02-16 | Điện thoại nhận tin, học 2 buổi/ngày và bán trú (G3) | VT-12, VT-03, VT-02, VT-15 | Phụ huynh nhận tin của học sinh; học 2 buổi/ngày, học sinh lớp bán trú của một hoặc nhiều học sinh | Chọn hoặc bỏ chọn phụ huynh nhận tin; tin nhắn theo học sinh gửi phụ huynh nhận tin; sửa ở hồ sơ hoặc cập nhật hàng loạt, có học sinh chờ duyệt thì không cập nhật học sinh nào (YCTD-108) | Số nhận tin, cờ học 2 buổi/ngày, bán trú của học sinh | BR-105, BR-106 |
+| P02-17 | Cập nhật địa danh hành chính (G3) | VT-12, VT-03, VT-02, VT-15 | Năm loại địa chỉ của học sinh theo tệp CSDL ngành (thường trú, quê quán, nơi khai sinh, nơi sinh, chỗ ở hiện nay); bảng đối chiếu địa danh cũ sang mới; tệp Excel bảng đối chiếu | Liệt kê địa chỉ còn theo địa danh trước sắp xếp năm 2025, đề xuất địa danh mới, chuyển hàng loạt có nhật ký trước và sau; nhập bảng đối chiếu từ Excel (mục 4.1.11 của Sở, YCTD-116) | Lưới địa chỉ, bảng đối chiếu, báo cáo dòng lỗi | BR-115, BR-72 |
 
 ## 4. Phân hệ P03 — Giảng dạy
 

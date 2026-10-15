@@ -12,6 +12,7 @@ import { DepartmentsPage } from './catalogs/DepartmentsPage.js';
 import { RoomsAndGradeLevelsPage } from './catalogs/RoomsAndGradeLevelsPage.js';
 import { ChildrenPage } from './children/ChildrenPage.js';
 import { StudentMovementsPage } from './children/StudentMovementsPage.js';
+import { AdministrativeUnitsPage } from './children/AdministrativeUnitsPage.js';
 import { AttendancePage } from './attendance/AttendancePage.js';
 import { ClassAssignmentsPage } from './classes/ClassAssignmentsPage.js';
 import { ClassesPage } from './classes/ClassesPage.js';
@@ -133,6 +134,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/class-assignments', component: ClassAssignmentsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/children', component: ChildrenPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/student-movements', component: StudentMovementsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/administrative-units', component: AdministrativeUnitsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/imports', component: ImportsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/attendance', component: AttendancePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/fees', component: FeesPage }),

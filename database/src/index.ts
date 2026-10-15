@@ -8,8 +8,12 @@ export {
 export { readConnectionString, replaceDatabaseName, type ServiceDatabaseKind } from './environment.js';
 export { migrateToLatest, schoolYearDatabasesToMigrate, type DatabaseKind } from './migrate.js';
 export type { ApiClientScope, IdentityDatabase, LoginMethod, SessionChannel, UserStatus } from '../identity/schema.js';
+export { administrativeNameKey } from '../system/administrative-names.js';
 export type {
   AcademicTermType,
+  AdministrativeLevel,
+  AdministrativePeriod,
+  AdministrativeSource,
   AcademicYearDatabaseStatus,
   AcademicYearStatus,
   ArchiveRecordStatus,

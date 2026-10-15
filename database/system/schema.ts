@@ -127,6 +127,36 @@ export interface UserFeedbackTable {
   updated_by: string | null;
 }
 
+export type AdministrativePeriod = 'old' | 'new';
+export type AdministrativeLevel = 'province' | 'district' | 'ward';
+export type AdministrativeSource = 'official' | 'import';
+
+// Danh mục địa danh hành chính trước và sau sắp xếp năm 2025 (DT-15 phần 15h1): đơn vị cũ có tỉnh, quận/huyện, xã; đơn vị
+// mới có tỉnh, xã; name_key là khóa so khớp tên (administrativeNameKey)
+export interface AdministrativeUnitsTable {
+  id: Generated<string>;
+  period: AdministrativePeriod;
+  level: AdministrativeLevel;
+  code: string | null;
+  name: string;
+  name_key: string;
+  parent_id: string | null;
+  source: Generated<AdministrativeSource>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+  updated_by: string | null;
+}
+
+// Đối chiếu xã/phường cũ sang xã/phường mới; một xã cũ chia cho nhiều xã mới thì có nhiều dòng
+export interface AdministrativeUnitMappingsTable {
+  id: Generated<string>;
+  old_unit_id: string;
+  new_unit_id: string;
+  source: Generated<AdministrativeSource>;
+  created_at: CreatedTimestamp;
+  created_by: string | null;
+}
+
 export type ArchiveRetention = 'permanent' | 'limited';
 export type ArchiveRecordStatus = 'pending' | 'completed';
 
@@ -205,6 +235,8 @@ export interface SystemDatabase {
   user_quick_links: UserQuickLinksTable;
   user_grid_settings: UserGridSettingsTable;
   feedback: UserFeedbackTable;
+  administrative_units: AdministrativeUnitsTable;
+  administrative_unit_mappings: AdministrativeUnitMappingsTable;
   archive_fonds: ArchiveFondsTable;
   archive_holdings: ArchiveHoldingsTable;
   archive_records: ArchiveRecordsTable;
