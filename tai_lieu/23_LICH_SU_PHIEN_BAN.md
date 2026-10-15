@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.63.0 – 2026-10-15
+
+- Phạm vi thay đổi: DT-15 phần 15g, gửi phản hồi và hết hạn mật khẩu theo hệ thống của Sở (YCTD-110).
+- Chức năng mới: nút "Gửi phản hồi" ở chân mọi trang của cổng quản trị mở hộp thoại gửi ý kiến (Đường dẫn trang, Loại ý kiến, Tiêu đề, Nội dung, Số điện thoại, Thư điện tử, Ảnh chụp màn hình), tối đa 10 ý kiến mỗi giờ mỗi tài khoản; mục "Danh sách ý kiến đã gửi" ở menu người dùng (`/my-feedback`); mục "3.4. Ý kiến phản hồi" của Quản trị hệ thống (`/feedback`) cho VT-01, VT-02 xem mọi ý kiến, đổi trạng thái (Mới, Đang xử lý, Đã xử lý), trả lời, người gửi nhận thông báo trong ứng dụng; chính sách hết hạn mật khẩu (số ngày hết hạn, số ngày báo trước) ở khối "Chính sách mật khẩu" của "1.4. Danh sách người dùng", mật khẩu quá hạn thì bắt buộc đổi ở màn hình Đổi mật khẩu, sắp hết hạn thì đầu trang báo số ngày còn lại; cột ẩn "Thời gian đổi mật khẩu" ở danh sách người dùng (P01, P19).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: bảng mới `feedback` ở cơ sở dữ liệu hệ thống (tệp `database/system/migrations/0007_create_feedback.ts`); cột `users.password_changed_at` (tài khoản đã có lấy thời điểm cập nhật gần nhất, không có thì thời điểm tạo) và quyền `P01.feedback.manage` gán VT-01, VT-02 ở cơ sở dữ liệu định danh (tệp `database/identity/migrations/0042_add_password_expiry_and_feedback_permission.ts`); khóa `password_max_age_days` (mặc định 0), `password_expiry_warning_days` (mặc định 7) ở `identity_settings`.
+- Thay đổi API: điểm cuối mới `POST /user-feedback`, `GET /me/user-feedback`, `GET /user-feedback`, `PUT /user-feedback/{id}`, `GET /user-feedback/{id}/attachment`, `GET`, `PUT /auth/settings/password-policy`; `login`, `refresh`, `change-password` trả thêm `password_expired`, `password_expires_in_days`; `GET /users` trả thêm `password_changed_at`; `DATA_GRID_KEYS` thêm `my-feedback`, `feedback`.
+- Rủi ro: bật chính sách hết hạn lần đầu thì tài khoản đã có tính hạn từ thời điểm cập nhật gần nhất, nhiều tài khoản có thể phải đổi mật khẩu ngay; thông báo trả lời ý kiến cần năm học đang dùng; hai màn hình ý kiến phân trang ở trình duyệt nên chậm khi số ý kiến rất lớn.
+- Khả năng tương thích: chính sách hết hạn mặc định tắt (0 ngày) nên đăng nhập như cũ cho tới khi người quản trị đặt số ngày; tài khoản chỉ có vai trò Phụ huynh, tài khoản còn dùng mật khẩu mặc định chung và phiên đăng nhập bằng mã một lần không bị hết hạn mật khẩu; ứng dụng giáo viên dùng cờ `password_change_required` có sẵn nên vẫn bắt đổi mật khẩu; VT-01 có thêm quyền `P01.feedback.manage` (PQ-10); góp ý của phụ huynh ở phân hệ Tương tác (`/feedbacks`) không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-15-phan-15g`; chạy phần quay lui của tệp 0042 của cơ sở dữ liệu định danh (gỡ cột `password_changed_at`, quyền `P01.feedback.manage` và hai khóa cấu hình) và tệp 0007 của cơ sở dữ liệu hệ thống (gỡ bảng `feedback`, mất các ý kiến đã gửi; ảnh đính kèm còn ở kho tệp).
+
 ### Phiên bản 0.62.0 – 2026-10-15
 
 - Phạm vi thay đổi: DT-15 phần 15e, quản trị hệ thống theo hệ thống của Sở: nhóm người dùng, phân quyền nhóm theo menu, danh sách người dùng (YCTD-109).
