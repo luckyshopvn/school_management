@@ -54,7 +54,7 @@ test.describe.serial('Văn thư lưu trữ', () => {
     await fondGrid.getByRole('button', { name: 'Thêm mới' }).click();
     const fondForm = page.getByRole('form', { name: 'Thêm mới phông lưu trữ' });
     await fondForm.getByRole('button', { name: 'Ghi' }).click();
-    await expect(fondForm.getByText('Bắt buộc nhập')).toHaveCount(2);
+    await expect(fondForm.getByText('Bắt buộc nhập', { exact: true })).toHaveCount(2);
     await fondForm.getByLabel('Mã phông').fill(fondCode);
     await fondForm.getByLabel('Tên phông').fill(fondName);
     await fondForm.getByRole('button', { name: 'Ghi' }).click();
@@ -101,13 +101,13 @@ test.describe.serial('Văn thư lưu trữ', () => {
     await createForm.getByLabel('Ngày mở hồ sơ').fill('2026-01-05');
     await createForm.getByLabel('Thời hạn giải quyết').fill('2026-01-01');
     await createForm.getByRole('button', { name: 'Ghi' }).click();
-    await expect(createForm.getByText('Thời hạn không được trước ngày mở hồ sơ')).toBeVisible();
+    await expect(createForm.getByText('Thời hạn không được trước ngày mở hồ sơ', { exact: true })).toBeVisible();
     await createForm.getByLabel('Thời hạn giải quyết').fill('2026-02-10');
     await createForm.getByRole('button', { name: 'Ghi' }).click();
     await expect(page.getByRole('status').filter({ hasText: `Đã tạo hồ sơ ${recordCode}` })).toBeVisible();
 
     // Hồ sơ vừa tạo mở sẵn ở danh sách của nó để đính kèm tệp
-    const row = grid.getByRole('row', { name: `Hồ sơ ${recordCode}` });
+    const row = grid.getByRole('row', { name: `Hồ sơ ${recordCode}`, exact: true });
     await expect(row).toContainText('Quá hạn');
     await expect(row).toContainText('Nguyễn Văn Thư');
     await page
@@ -122,11 +122,11 @@ test.describe.serial('Văn thư lưu trữ', () => {
     await editForm.getByLabel('Ngày hoàn thành').fill('2026-02-09');
     await editForm.getByRole('button', { name: 'Ghi' }).click();
     await expect(page.getByRole('status').filter({ hasText: `Đã ghi hồ sơ ${recordCode}` })).toBeVisible();
-    await expect(grid.getByRole('row', { name: `Hồ sơ ${recordCode}` })).toHaveCount(0);
-    await page.getByRole('tab', { name: 'Hoàn thành' }).click();
+    await expect(grid.getByRole('row', { name: `Hồ sơ ${recordCode}`, exact: true })).toHaveCount(0);
+    await page.getByRole('tab', { name: 'Hoàn thành', exact: true }).click();
     grid = page.getByRole('region', { name: 'Danh sách hồ sơ hoàn thành' });
     await grid.getByLabel('Tìm theo số, ký hiệu hoặc tiêu đề').fill(recordCode);
-    const completedRow = grid.getByRole('row', { name: `Hồ sơ ${recordCode}` });
+    const completedRow = grid.getByRole('row', { name: `Hồ sơ ${recordCode}`, exact: true });
     await expect(completedRow).toContainText('09/02/2026');
     await expect(completedRow).not.toContainText('Quá hạn');
 
@@ -169,11 +169,11 @@ test.describe.serial('Văn thư lưu trữ', () => {
 
     // Xóa hồ sơ qua hộp xác nhận
     await openMenu(page, '/archive-records');
-    await page.getByRole('tab', { name: 'Hoàn thành' }).click();
+    await page.getByRole('tab', { name: 'Hoàn thành', exact: true }).click();
     grid = page.getByRole('region', { name: 'Danh sách hồ sơ hoàn thành' });
     await grid.getByLabel('Tìm theo số, ký hiệu hoặc tiêu đề').fill(recordCode);
     await grid
-      .getByRole('row', { name: `Hồ sơ ${recordCode}` })
+      .getByRole('row', { name: `Hồ sơ ${recordCode}`, exact: true })
       .getByRole('button', { name: 'Xóa' })
       .click();
     confirm = page.getByRole('dialog', { name: 'Xác nhận xóa' });
@@ -182,7 +182,7 @@ test.describe.serial('Văn thư lưu trữ', () => {
     await confirm.getByLabel(`Tôi đã đọc và đồng ý xóa hồ sơ ${recordCode}`).check();
     await remove.click();
     await expect(page.getByRole('status').filter({ hasText: `Đã xóa hồ sơ ${recordCode}` })).toBeVisible();
-    await expect(grid.getByRole('row', { name: `Hồ sơ ${recordCode}` })).toHaveCount(0);
+    await expect(grid.getByRole('row', { name: `Hồ sơ ${recordCode}`, exact: true })).toHaveCount(0);
   });
 
   test('CT-15h2-12: báo cáo lưu trữ cộng theo phông, giai đoạn và xuất Excel; Phó Hiệu trưởng chỉ xem, giáo viên không có mục', async ({
