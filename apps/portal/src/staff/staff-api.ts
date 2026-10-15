@@ -1,4 +1,5 @@
 import type { MoetProfileEntry } from '../imports/MoetProfileSection.js';
+import { downloadPost } from '../children/children-api.js';
 import { requestJson } from '../session/api-client.js';
 
 // Gọi nhóm điểm cuối hồ sơ nhân sự và hợp đồng lao động (P07-01, P07-02, P07-04; YCTD-58)
@@ -50,6 +51,8 @@ export interface StaffDetail extends Staff {
   // Mã định danh Bộ GD&ĐT và thông tin theo CSDL ngành, chỉ đọc (YCTD-100)
   moet_staff_code?: string | null;
   moet_profile?: MoetProfileEntry[] | null;
+  // Giá trị gốc của các ô theo Sở, ô bí mật đã che (YCTD-112)
+  moet_fields?: Record<string, string | boolean>;
 }
 
 export interface StaffInput {
@@ -100,3 +103,86 @@ export const terminateContract = (contractId: string, terminatedOn: string, reas
     body: JSON.stringify({ terminated_on: terminatedOn, reason }),
   });
 export const listExpiringContracts = (): Promise<ExpiringContract[]> => requestJson('/api/v1/staff/expiring-contracts');
+
+// 3.1.1 Hồ sơ cán bộ, giáo viên theo Sở (DT-15 phần 15d, YCTD-112)
+export const STAFF_STATUS_LABELS: Record<Staff['status'], string> = {
+  active: 'Đang làm việc',
+  terminated: 'Đã nghỉ việc',
+};
+
+// Dòng của lưới; cột hợp đồng chỉ có giá trị khi người dùng xem được hợp đồng của đơn vị (BR-46)
+export interface StaffListItem {
+  id: string;
+  org_unit_id: string;
+  unit_name: string;
+  code: string;
+  full_name: string;
+  dob: string | null;
+  gender: 'male' | 'female' | null;
+  phone: string | null;
+  email: string | null;
+  status: Staff['status'];
+  start_date: string;
+  moet_staff_code: string | null;
+  department_name: string | null;
+  job_title_name: string | null;
+  ethnicity: string | null;
+  job_position: string | null;
+  position_group: string | null;
+  contract_form: string | null;
+  professional_qualification: string | null;
+  party_member: boolean;
+  id_number_masked: string | null;
+  has_account: boolean;
+  contract_no: string | null;
+  contract_type: ContractType | null;
+  contract_end_date: string | null;
+  base_salary: number | null;
+}
+
+export interface StaffPage {
+  items: StaffListItem[];
+  page: number;
+  page_size: number;
+  total: number;
+  total_pages: number;
+  contract_fields_visible: boolean;
+}
+
+// Bộ lọc mở rộng (mục 3.1.1, 3.1.4 của Sở); giá trị rỗng là không lọc
+export interface StaffFilter {
+  org_unit_id?: string;
+  department_id?: string;
+  status?: string;
+  q?: string;
+  gender?: string;
+  moet_staff_code?: string;
+  id_number?: string;
+  party_member?: string;
+  age_from?: string;
+  age_to?: string;
+  job_position?: string;
+}
+
+const filterEntries = (filter: StaffFilter) =>
+  Object.entries(filter).filter((entry): entry is [string, string] => typeof entry[1] === 'string' && entry[1] !== '');
+
+export function searchStaff(filter: StaffFilter & { page: number; pageSize: number }): Promise<StaffPage> {
+  const { page, pageSize, ...rest } = filter;
+  const parameters = new URLSearchParams(filterEntries(rest));
+  parameters.set('page', String(page));
+  parameters.set('page_size', String(pageSize));
+  return requestJson(`/api/v1/staff/search?${parameters.toString()}`);
+}
+
+// Xuất Excel theo bộ lọc và các cột đang hiện trên lưới
+export const exportStaff = (filter: StaffFilter, columns: string[]) =>
+  downloadPost(
+    '/api/v1/staff/export',
+    { ...Object.fromEntries(filterEntries(filter)), columns },
+    'danh-sach-can-bo-giao-vien.xlsx',
+  );
+
+// Ghi hồ sơ theo biểu mẫu của Sở và thông tin riêng của trường; chỉ gửi ô đã đổi
+export const updateStaffProfile = (staffId: string, changes: Record<string, unknown>) =>
+  requestJson<StaffDetail>(`/api/v1/staff/${staffId}/profile`, { method: 'PATCH', body: JSON.stringify(changes) });

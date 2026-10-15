@@ -85,7 +85,11 @@ export function readStaffListFilter(query: Record<string, unknown>, errors: Fiel
     errors.push({ field: 'id_number', message: 'Số định danh cá nhân gồm mười hai chữ số' });
   }
   const partyMember = query.party_member;
-  if (partyMember !== undefined && partyMember !== '' && !['true', 'false', true, false].includes(partyMember as string)) {
+  if (
+    partyMember !== undefined &&
+    partyMember !== '' &&
+    !['true', 'false', true, false].includes(partyMember as string)
+  ) {
     errors.push({ field: 'party_member', message: 'Chọn true hoặc false' });
   }
   const ageFrom = readAge(query, 'age_from', errors);
@@ -155,7 +159,11 @@ function filteredStaff(
     selection = selection.where('staff.moet_staff_code', 'ilike', `%${escapeLike(filter.moetCode)}%`);
   }
   if (matchedIds) {
-    selection = selection.where('staff.id', 'in', matchedIds.length > 0 ? matchedIds : ['00000000-0000-0000-0000-000000000000']);
+    selection = selection.where(
+      'staff.id',
+      'in',
+      matchedIds.length > 0 ? matchedIds : ['00000000-0000-0000-0000-000000000000'],
+    );
   }
   if (filter.partyMember !== undefined) {
     selection = selection.where(filter.partyMember ? PARTY_MEMBER : sql<boolean>`not ${PARTY_MEMBER}`);
@@ -295,7 +303,12 @@ export interface StaffRow {
 const formatDate = (value: string | null) => (value ? value.split('-').reverse().join('/') : '');
 const GENDER_LABELS = { male: 'Nam', female: 'Nữ' } as const;
 
-export const STAFF_EXPORT_COLUMNS: Array<{ id: string; label: string; contract?: boolean; value(row: StaffRow): string }> = [
+export const STAFF_EXPORT_COLUMNS: Array<{
+  id: string;
+  label: string;
+  contract?: boolean;
+  value(row: StaffRow): string;
+}> = [
   { id: 'moet_staff_code', label: 'Mã định danh Bộ GD&ĐT', value: (row) => row.moet_staff_code ?? '' },
   { id: 'code', label: 'Mã nhân sự', value: (row) => row.code },
   { id: 'full_name', label: 'Họ tên', value: (row) => row.full_name },
@@ -321,7 +334,12 @@ export const STAFF_EXPORT_COLUMNS: Array<{ id: string; label: string; contract?:
   { id: 'account', label: 'Tài khoản', value: (row) => (row.has_account ? 'Đã liên kết' : 'Chưa có') },
   { id: 'unit', label: 'Đơn vị', value: (row) => row.unit_name },
   { id: 'contract_no', label: 'Số hợp đồng', contract: true, value: (row) => row.contract_no ?? '' },
-  { id: 'contract_end_date', label: 'Hợp đồng đến ngày', contract: true, value: (row) => formatDate(row.contract_end_date) },
+  {
+    id: 'contract_end_date',
+    label: 'Hợp đồng đến ngày',
+    contract: true,
+    value: (row) => formatDate(row.contract_end_date),
+  },
   {
     id: 'base_salary',
     label: 'Lương thỏa thuận',

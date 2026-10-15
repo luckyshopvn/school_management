@@ -2,6 +2,7 @@
 export * from './facilities.js';
 export * from './portal-menu.js';
 export * from './menu-permissions.js';
+export * from './staff-profile.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 

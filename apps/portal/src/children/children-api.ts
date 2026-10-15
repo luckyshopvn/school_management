@@ -188,7 +188,7 @@ export function listChildren(filter: StudentFilter & { page: number; pageSize?: 
 }
 
 // Tải tệp do máy chủ tạo; máy chủ ghi nhật ký xuất rồi trả tệp
-async function downloadPost(path: string, body: unknown, fallbackName: string): Promise<void> {
+export async function downloadPost(path: string, body: unknown, fallbackName: string): Promise<void> {
   const response = await fetchWithSession(path, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
