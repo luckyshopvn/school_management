@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.65.0 – 2026-10-15
+
+- Phạm vi thay đổi: DT-15 phần 15d, nhân sự theo hệ thống của Sở (YCTD-112).
+- Chức năng mới: màn hình hồ sơ nhân sự đổi tên "3.1.1. Hồ sơ cán bộ, giáo viên" với lưới theo cột của Sở (Mã định danh Bộ GD&ĐT, Mã nhân sự, Họ tên, Ngày sinh, Giới tính, Trạng thái, Dân tộc, Điện thoại, Vị trí việc làm, Nhóm chức vụ, Hình thức hợp đồng, Trình độ chuyên môn), phân trang ở máy chủ, xếp A–Z theo tên; Mở rộng tìm kiếm theo đơn vị, phòng ban, trạng thái, giới tính, vị trí việc làm, Đảng viên, tuổi từ–đến, mã định danh Bộ, số định danh (gộp mục 3.1.4 của Sở); Xuất Excel theo cột đang hiện; hồ sơ hai thẻ "Hồ sơ cán bộ, giáo viên" (bảy khối theo thứ tự cột của tệp CSDL ngành, nút Ghi) và "Thông tin riêng của trường" (thông tin của trường, tài khoản, hợp đồng, lương và phụ cấp, quá trình công tác); biểu mẫu Thêm mới theo khối (P07).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: không có bảng, cột mới; các ô của Sở ghi vào `staff.moet_profile` (đã có từ tệp 0046) theo khóa của tệp CSDL ngành.
+- Thay đổi API: điểm cuối mới `GET /staff/search`, `POST /staff/export`, `PATCH /staff/{id}/profile`; `GET /staff/{id}` trả thêm `moet_fields`; `GET /staff` giữ nguyên.
+- Rủi ro: ô theo Sở là chữ tự do, chưa có danh mục của Bộ; nhập lại tệp CSDL ngành ghi đè các ô đã sửa ở biểu mẫu; lọc số định danh giải mã các hồ sơ cùng bốn số cuối trong phạm vi.
+- Khả năng tương thích: đường dẫn `/staff`, `GET /staff`, `POST /staff`, `PUT /staff/{id}` không đổi; cấu hình cột đã lưu của lưới `staff` bỏ qua mã cột không còn dùng; không có quyền mới; ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-15-phan-15d`; không có tệp thay đổi cấu trúc dữ liệu cần quay lui, các khóa đã ghi vào `moet_profile` vẫn đọc được ở khối "Thông tin theo CSDL ngành".
+
 ### Phiên bản 0.64.0 – 2026-10-15
 
 - Phạm vi thay đổi: DT-15 phần 15b, trường học, lớp học theo hệ thống của Sở (YCTD-111).

@@ -1,8 +1,10 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Put, Query, Req, Res } from '@nestjs/common';
 import type { ContractType } from '@school-management/database';
 import { readBearerToken, validationError, type FieldError } from '@school-management/server';
-import type { Request } from 'express';
-import { AuthenticatedUser } from '../authentication/authentication.guard.js';
+import { PERMISSION_CODES } from '@school-management/shared';
+import type { Request, Response } from 'express';
+import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
+import { sendWorkbook } from '../children/student-workbook.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf } from '../common/audit-log.js';
 import {
@@ -15,6 +17,8 @@ import {
 } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { readAmount, readEnum } from '../fees/fee-catalog-fields.js';
+import { DEFAULT_STAFF_EXPORT_COLUMNS, readStaffListFilter, STAFF_EXPORT_COLUMNS } from './staff-list.js';
+import { readStaffProfileChanges } from './staff-profile.js';
 import { StaffService, type ContractInput, type StaffInput } from './staff.service.js';
 
 // Hồ sơ nhân sự và hợp đồng lao động (P07-01, P07-02, P07-04; YCTD-58). Quyền kiểm tra ở tầng nghiệp vụ theo đơn vị
@@ -97,6 +101,58 @@ export class StaffController {
     });
   }
 
+  // Lưới 3.1.1 Hồ sơ cán bộ, giáo viên theo Sở: phân trang, bộ lọc mở rộng của mục 3.1.4, A–Z (YCTD-112). `GET /staff`
+  // giữ nguyên cho các màn hình khác và giao diện lập trình cho đối tác
+  @Get('staff/search')
+  search(@Query() query: Record<string, string | undefined>, @AuthenticatedUser() currentUser: CurrentUser) {
+    const errors: FieldError[] = [];
+    const page = Number(query.page ?? 1);
+    const pageSize = Number(query.page_size ?? 20);
+    if (!Number.isInteger(page) || page < 1) {
+      errors.push({ field: 'page', message: 'Số trang bắt đầu từ 1' });
+    }
+    if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 200) {
+      errors.push({ field: 'page_size', message: 'Cỡ trang từ 1 đến 200' });
+    }
+    const filter = readStaffListFilter(query, errors);
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.staff.search(currentUser, { ...filter, page, pageSize });
+  }
+
+  // Xuất Excel theo bộ lọc và các cột đang hiện trên lưới; cần quyền xuất dữ liệu, ghi nhật ký xuất (BR-74)
+  @Post('staff/export')
+  @HttpCode(200)
+  @RequirePermission(PERMISSION_CODES.dataExport)
+  async exportList(
+    @Body() body: RequestBody,
+    @Req() request: Request,
+    @Res() response: Response,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const errors: FieldError[] = [];
+    const filter = readStaffListFilter(body ?? {}, errors);
+    const rawColumns = body?.columns;
+    let columns = DEFAULT_STAFF_EXPORT_COLUMNS;
+    if (rawColumns !== undefined && rawColumns !== null) {
+      if (
+        !Array.isArray(rawColumns) ||
+        rawColumns.length === 0 ||
+        rawColumns.some((id) => !STAFF_EXPORT_COLUMNS.some((column) => column.id === id)) ||
+        new Set(rawColumns).size !== rawColumns.length
+      ) {
+        errors.push({ field: 'columns', message: 'Danh sách cột không hợp lệ' });
+      } else {
+        columns = rawColumns as string[];
+      }
+    }
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    sendWorkbook(response, await this.staff.exportList(currentUser, filter, columns, request.ip ?? null));
+  }
+
   @Get('staff/me')
   me(@AuthenticatedUser() currentUser: CurrentUser) {
     return this.staff.me(currentUser);
@@ -139,6 +195,22 @@ export class StaffController {
       throw validationError(errors);
     }
     return this.staff.update(currentUser, staffId, input, originOf(request, currentUser));
+  }
+
+  // Ghi hồ sơ theo biểu mẫu của Sở (ô của Sở lưu ở moet_profile) và thông tin riêng của trường (YCTD-112)
+  @Patch('staff/:id/profile')
+  updateProfile(
+    @Param('id', uuidParameter('Mã nhân sự không hợp lệ')) staffId: string,
+    @Body() body: RequestBody,
+    @Req() request: Request,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const errors: FieldError[] = [];
+    const changes = readStaffProfileChanges(body, errors);
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.staff.updateProfile(currentUser, staffId, changes, originOf(request, currentUser));
   }
 
   @Post('staff/:id/account')

@@ -14,6 +14,25 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-15 — DT-15 phần 15d: nhân sự theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Đổi màn hình hồ sơ nhân sự thành "3.1.1. Hồ sơ cán bộ, giáo viên": lưới dữ liệu chung phân trang ở máy chủ với cột của Sở, xếp A–Z theo tên, Mở rộng tìm kiếm gộp mục 3.1.4 (đơn vị, phòng ban, trạng thái, giới tính, vị trí việc làm, Đảng viên, tuổi từ–đến, mã định danh Bộ, số định danh), Xuất Excel theo cột đang hiện; hồ sơ hai thẻ "Hồ sơ cán bộ, giáo viên" (bảy khối theo thứ tự cột của tệp CSDL ngành, nút Ghi) và "Thông tin riêng của trường"; biểu mẫu Thêm mới theo khối. Ba điểm cuối mới `GET /staff/search`, `POST /staff/export`, `PATCH /staff/{id}/profile`; không có tệp thay đổi cấu trúc dữ liệu, không có quyền mới.
+- Thêm kịch bản CT-409 đến CT-420, tiêu chí AC-453 đến AC-464, quy tắc BR-114, quy tắc phân quyền PQ-66; không có màn hình mới (MH-12 đổi). Kết quả ngày 15/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 659/659 ca đạt; toàn bộ kiểm thử giao diện 94/94 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện đợt 15d của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 5. Cột của Sở chưa có cột riêng lấy từ `staff.moet_profile` và biểu mẫu ghi lại đúng khóa của tệp CSDL ngành, không thêm cột; thêm cột Mã nhân sự của trường; gộp 3.1.4 vào Mở rộng tìm kiếm của 3.1.1; hợp đồng, lương ở thẻ riêng và chỉ người xem được hợp đồng thấy (BR-46); `GET /staff` giữ nguyên cho các màn hình khác; không làm cập nhật hàng loạt; không thêm quyền mới, Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-112.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-112, `07_QUY_TAC_NGHIEP_VU.md` BR-114, `08_VAI_TRO_NGUOI_DUNG.md` PQ-66, `10_YEU_CAU_CHUC_NANG.md` P07-01, P07-04, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-12, BC-16, `16_CO_SO_DU_LIEU.md` mục `staff`, `17_DAC_TA_API.md` giao kèo hồ sơ nhân sự, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.65.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 6.
+
+#### Vấn đề tồn đọng
+
+- Chưa có Đồng bộ hồ sơ lên CSDL Bộ, Xuất file lỗi, Xóa hồ sơ, Xuất PDF; chưa có bộ lọc xã ĐBKK; chưa tách 3.1.2, 3.1.3, 3.1.5, 3.5; ô theo Sở là chữ tự do, chưa có danh mục của Bộ; nhập lại tệp CSDL ngành ghi đè các ô đã sửa ở biểu mẫu.
+
 ### 2026-10-15 — DT-15 phần 15b: trường học, lớp học theo hệ thống của Sở
 
 #### Công việc đã thực hiện

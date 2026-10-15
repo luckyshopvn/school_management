@@ -12,8 +12,19 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { queueNotification } from '../common/notification-queue.js';
 import { conflictOnDuplicate, notFoundError } from '../common/request-fields.js';
 import { MOET_STAFF_COLUMNS, describeMoetProfile } from '../imports/moet-columns.js';
+import { buildStudentWorkbook, fileStamp } from '../children/student-workbook.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { SettingsService } from '../settings/settings.service.js';
+import {
+  CONTRACT_TYPE_LABELS,
+  idNumberCandidates,
+  findStaff,
+  STAFF_EXPORT_COLUMNS,
+  type StaffListFilter,
+  type StaffRecord,
+  type StaffRow,
+} from './staff-list.js';
+import { mergeProfile, profileFieldsOf, type StaffProfileChanges } from './staff-profile.js';
 
 // Hồ sơ nhân sự và hợp đồng lao động (P07-01, P07-02, P07-04; QT-06 mục 2; BR-05, BR-37, BR-38, BR-46; YCTD-58).
 // Nhân sự xem được hồ sơ và hợp đồng của chính mình; lương thỏa thuận chỉ người có quyền xem hợp đồng thấy
@@ -40,6 +51,9 @@ export interface ContractInput {
   baseSalary: number;
   allowances: Array<{ name: string; amount: number }>;
 }
+
+const PAGE_SIZE_LIMIT = 200;
+const EXPORT_ROW_LIMIT = 10_000;
 
 const STAFF_COLUMNS = [
   'staff.id',
@@ -127,7 +141,243 @@ export class StaffService {
       // Thông tin theo CSDL ngành, chỉ đọc (YCTD-100)
       moet_staff_code: moet.moet_staff_code,
       moet_profile: describeMoetProfile(moet.moet_profile, MOET_STAFF_COLUMNS),
+      // Giá trị gốc của các ô theo Sở cho biểu mẫu hồ sơ (YCTD-112)
+      moet_fields: profileFieldsOf(moet.moet_profile),
     };
+  }
+
+  // Danh sách cán bộ, giáo viên theo mục 3.1.1, 3.1.4 của Sở (YCTD-112): phân trang ở máy chủ, bộ lọc mở rộng, A–Z
+  async search(currentUser: CurrentUser, filter: StaffListFilter & { page: number; pageSize: number }) {
+    const current = await this.currentSchoolYear.find();
+    if (!current) {
+      return {
+        items: [],
+        page: filter.page,
+        page_size: filter.pageSize,
+        total: 0,
+        total_pages: 1,
+        contract_fields_visible: false,
+      };
+    }
+    const pageSize = Math.min(filter.pageSize, PAGE_SIZE_LIMIT);
+    const { total, rows, contractUnits } = await this.staffPage(current.database, currentUser, filter, {
+      limit: pageSize,
+      offset: (filter.page - 1) * pageSize,
+    });
+    return {
+      items: await this.staffRows(current.database, rows, contractUnits),
+      page: filter.page,
+      page_size: pageSize,
+      total,
+      total_pages: Math.max(1, Math.ceil(total / pageSize)),
+      // Màn hình hiện cột số hợp đồng, hạn hợp đồng, lương khi người dùng xem được hợp đồng (BR-46)
+      contract_fields_visible: contractUnits.wholeSchool || contractUnits.orgUnitIds.length > 0,
+    };
+  }
+
+  // Xuất Excel đúng các cột đang hiện trên lưới, theo bộ lọc đang chọn; ghi nhật ký xuất trước khi trả tệp (BR-74)
+  async exportList(currentUser: CurrentUser, filter: StaffListFilter, columnIds: string[], ipAddress: string | null) {
+    const { database } = await this.currentSchoolYear.require();
+    const { total, rows, contractUnits } = await this.staffPage(database, currentUser, filter, {
+      limit: EXPORT_ROW_LIMIT,
+      offset: 0,
+    });
+    if (total > EXPORT_ROW_LIMIT) {
+      throw ruleViolationError(
+        'YCTD-112',
+        `Danh sách có hơn ${EXPORT_ROW_LIMIT} nhân sự, hãy thu hẹp bộ lọc trước khi xuất Excel`,
+      );
+    }
+    const columns = columnIds.flatMap((id) => STAFF_EXPORT_COLUMNS.filter((column) => column.id === id));
+    const items = await this.staffRows(database, rows, contractUnits);
+    const createdAt = this.clock.now();
+    return buildStudentWorkbook({
+      database,
+      currentUser,
+      reportCode: 'staff',
+      title: 'Danh sách cán bộ, giáo viên',
+      fileName: `danh-sach-can-bo-giao-vien-${fileStamp(createdAt)}.xlsx`,
+      // Không ghi số định danh vào nhật ký (BM-64)
+      filters: { ...filter, idNumber: filter.idNumber ? 'đã nhập' : undefined, columns: columnIds },
+      orgUnitIds: [...new Set(rows.map((row) => row.org_unit_id))],
+      columns: columns.map((column) => ({ key: column.id, label: column.label })),
+      rows: items.map((item) => Object.fromEntries(columns.map((column) => [column.id, column.value(item)]))),
+      ipAddress,
+      createdAt,
+    });
+  }
+
+  // Ghi hồ sơ theo biểu mẫu của Sở và thông tin riêng của trường; chỉ các ô gửi lên được đổi (YCTD-112)
+  async updateProfile(currentUser: CurrentUser, staffId: string, changes: StaffProfileChanges, origin: ChangeOrigin) {
+    const { database } = await this.currentSchoolYear.require();
+    const existing = await database
+      .selectFrom('staff')
+      .select([
+        'id',
+        'org_unit_id',
+        'code',
+        'moet_staff_code',
+        'full_name',
+        'dob',
+        'gender',
+        'phone',
+        'email',
+        'address',
+        'id_number_last4',
+        'department_id',
+        'job_title_id',
+        'start_date',
+        'moet_profile',
+      ])
+      .where('id', '=', staffId)
+      .executeTakeFirst();
+    if (!existing) {
+      throw notFoundError('Không tìm thấy hồ sơ nhân sự', 'staff');
+    }
+    await this.assertManager(currentUser, existing.org_unit_id);
+    await this.assertCatalogs(database, {
+      orgUnitId: existing.org_unit_id,
+      departmentId: changes.departmentId ?? null,
+      jobTitleId: changes.jobTitleId ?? null,
+    });
+    const columns = {
+      ...(changes.moetStaffCode !== undefined ? { moet_staff_code: changes.moetStaffCode } : {}),
+      ...(changes.fullName !== undefined ? { full_name: changes.fullName } : {}),
+      ...(changes.code !== undefined ? { code: changes.code } : {}),
+      ...(changes.dob !== undefined ? { dob: changes.dob } : {}),
+      ...(changes.gender !== undefined ? { gender: changes.gender } : {}),
+      ...(changes.phone !== undefined ? { phone: changes.phone } : {}),
+      ...(changes.email !== undefined ? { email: changes.email } : {}),
+      ...(changes.address !== undefined ? { address: changes.address } : {}),
+      ...(changes.departmentId !== undefined ? { department_id: changes.departmentId } : {}),
+      ...(changes.jobTitleId !== undefined ? { job_title_id: changes.jobTitleId } : {}),
+      ...(changes.startDate !== undefined ? { start_date: changes.startDate } : {}),
+      ...(changes.idNumber !== undefined
+        ? {
+            id_number_encrypted: changes.idNumber ? this.protection.encrypt(changes.idNumber) : null,
+            id_number_last4: changes.idNumber ? changes.idNumber.slice(-4) : null,
+          }
+        : {}),
+    };
+    const profileKeys = Object.keys(changes.profile);
+    if (Object.keys(columns).length === 0 && profileKeys.length === 0) {
+      throw validationError([{ field: 'moet_profile', message: 'Không có thông tin nào thay đổi' }]);
+    }
+    const before: Record<string, unknown> = {};
+    const after: Record<string, unknown> = {};
+    for (const key of Object.keys(columns)) {
+      if (key === 'id_number_encrypted') {
+        continue;
+      }
+      before[key] = existing[key as keyof typeof existing];
+      after[key] = columns[key as keyof typeof columns];
+    }
+    // Ô bí mật không ghi giá trị vào nhật ký
+    const oldProfile = profileFieldsOf(existing.moet_profile);
+    for (const key of profileKeys) {
+      before[`moet_profile.${key}`] = oldProfile[key] ?? null;
+      after[`moet_profile.${key}`] = key === 'social_insurance_number' ? 'đã đổi' : changes.profile[key];
+    }
+    await conflictOnDuplicate(
+      database.transaction().execute(async (transaction) => {
+        await transaction
+          .updateTable('staff')
+          .set({
+            ...columns,
+            ...(profileKeys.length > 0
+              ? {
+                  moet_profile: JSON.stringify(
+                    mergeProfile(existing.moet_profile, changes.profile, (plain) => this.protection.encrypt(plain)),
+                  ),
+                }
+              : {}),
+            updated_at: this.clock.now(),
+          })
+          .where('id', '=', staffId)
+          .execute();
+        await writeAuditLog(transaction, {
+          origin,
+          orgUnitId: existing.org_unit_id,
+          entityName: 'staff',
+          entityId: staffId,
+          action: 'update',
+          before,
+          after,
+        });
+      }),
+      'Mã nhân sự hoặc mã định danh Bộ GD&ĐT đã có ở hồ sơ khác',
+      changes.code !== undefined ? 'code' : 'moet_staff_code',
+    );
+    return this.read(currentUser, staffId);
+  }
+
+  // Lọc theo phạm vi xem nhân sự; số định danh so bằng bốn số cuối rồi giải mã để so đủ mười hai số
+  private async staffPage(
+    database: Kysely<SchoolYearDatabase>,
+    currentUser: CurrentUser,
+    filter: StaffListFilter,
+    page: { limit: number; offset: number },
+  ) {
+    const scope = await this.organizationScopes.resolveStaff(currentUser, PERMISSION_CODES.staffView);
+    if (!scope.wholeSchool && scope.orgUnitIds.length === 0) {
+      throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không có quyền xem danh sách nhân sự');
+    }
+    if (filter.orgUnitId && !scope.wholeSchool && !scope.orgUnitIds.includes(filter.orgUnitId)) {
+      throw new ApplicationError('ERR_FORBIDDEN', 'Đơn vị này nằm ngoài phạm vi của bạn');
+    }
+    const orgUnitIds = scope.wholeSchool ? null : scope.orgUnitIds;
+    const today = VIETNAM_DATE.format(this.clock.now());
+    let matchedIds: string[] | null = null;
+    if (filter.idNumber) {
+      const idNumber = filter.idNumber;
+      const candidates = await idNumberCandidates(database, orgUnitIds, filter, today, idNumber.slice(-4));
+      matchedIds = candidates
+        .filter((row) => row.id_number_encrypted && this.protection.decrypt(row.id_number_encrypted) === idNumber)
+        .map((row) => row.id);
+    }
+    const result = await findStaff(database, orgUnitIds, filter, today, matchedIds, page);
+    const contractUnits = await this.organizationScopes.resolveStaff(currentUser, PERMISSION_CODES.contractView);
+    return { ...result, contractUnits };
+  }
+
+  // Dòng của lưới: che số định danh; hợp đồng còn hiệu lực chỉ với người xem được hợp đồng của đơn vị (BR-46). Hình thức
+  // hợp đồng theo CSDL ngành, trống thì lấy loại hợp đồng còn hiệu lực khi được xem
+  private async staffRows(
+    database: Kysely<SchoolYearDatabase>,
+    rows: StaffRecord[],
+    contractUnits: { wholeSchool: boolean; orgUnitIds: string[] },
+  ): Promise<Array<StaffRow & { id: string; org_unit_id: string }>> {
+    const visible = rows.filter(
+      (row) => contractUnits.wholeSchool || contractUnits.orgUnitIds.includes(row.org_unit_id),
+    );
+    const contracts =
+      visible.length > 0
+        ? await database
+            .selectFrom('employment_contracts')
+            .select(['staff_id', 'contract_no', 'contract_type', 'end_date', 'base_salary'])
+            .where(
+              'staff_id',
+              'in',
+              visible.map((row) => row.id),
+            )
+            .where('status', '=', 'active')
+            .orderBy('start_date', 'desc')
+            .execute()
+        : [];
+    return rows.map((row) => {
+      const { id_number_last4: lastFour, user_id: userId, ...rest } = row;
+      const contract = contracts.find((item) => item.staff_id === row.id);
+      return {
+        ...rest,
+        id_number_masked: lastFour ? maskNationalId(lastFour) : null,
+        has_account: Boolean(userId),
+        contract_form: row.contract_form || (contract ? CONTRACT_TYPE_LABELS[contract.contract_type] : null),
+        contract_no: contract?.contract_no ?? null,
+        contract_type: contract?.contract_type ?? null,
+        contract_end_date: contract?.end_date ?? null,
+        base_salary: contract ? Number(contract.base_salary) : null,
+      };
+    });
   }
 
   async me(currentUser: CurrentUser) {
@@ -524,7 +774,10 @@ export class StaffService {
   }
 
   // Phòng ban và chức danh phải thuộc đơn vị chính của nhân sự và đang dùng
-  private async assertCatalogs(database: Kysely<SchoolYearDatabase>, input: StaffInput): Promise<void> {
+  private async assertCatalogs(
+    database: Kysely<SchoolYearDatabase>,
+    input: Pick<StaffInput, 'orgUnitId' | 'departmentId' | 'jobTitleId'>,
+  ): Promise<void> {
     if (input.departmentId) {
       const department = await database
         .selectFrom('departments')
