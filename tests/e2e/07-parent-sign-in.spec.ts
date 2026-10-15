@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './fixtures.js';
 import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
 import { createTestUser, hashForTesting } from '@school-management/identity/testing';
 import { E2E_PARENT_PORT } from '../e2e-environment.mjs';
