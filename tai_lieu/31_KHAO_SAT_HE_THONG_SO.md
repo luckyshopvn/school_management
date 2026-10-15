@@ -1,6 +1,6 @@
 # 31. KHẢO SÁT HỆ THỐNG THÔNG TIN QUẢN LÝ GIÁO DỤC CỦA SỞ GD&ĐT TP.HCM
 
-- Mô tả: Kết quả khảo sát chi tiết chức năng và giao diện của Hệ thống thông tin quản lý giáo dục (cấp Trường, Mầm non) tại `truong.hcm.edu.vn`, đối chiếu với hệ thống School Management và đề xuất bổ sung; mục 9 phân tích kỹ thuật bằng REA (trang công khai và trang chủ sau đăng nhập).
+- Mô tả: Kết quả khảo sát chi tiết chức năng và giao diện của Hệ thống thông tin quản lý giáo dục (cấp Trường, Mầm non) tại `truong.hcm.edu.vn`, đối chiếu với hệ thống School Management và đề xuất bổ sung; mục 9 phân tích kỹ thuật bằng REA (trang công khai, trang chủ và màn hình 2.1 sau đăng nhập).
 - Phiên bản: 1.1
 - Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã khảo sát
@@ -187,7 +187,7 @@ Hoàn thành chương trình mầm non; đánh giá chuẩn nghề nghiệp giá
 
 1. Dùng công cụ REA (rea-agents) mở trình duyệt Chrome không giao diện, chỉ tải các trang công khai không cần đăng nhập: `/` (chuyển về `Login.aspx`), `QuenMatKhau.aspx`, `LoginTruongSapNhap.aspx`, `robots.txt`. Không nhập tài khoản, không bấm Đăng nhập, Khôi phục mật khẩu hay thao tác ghi nào.
 2. REA ghi lại 31 yêu cầu mạng của trang đăng nhập, tiêu đề phản hồi, cấu trúc trang (DOM), cây trợ năng và tên cookie (giá trị chỉ lưu dạng băm). Mã bằng chứng: `ev_1a2daec6…f194e380` (trang đăng nhập), `ev_f827ecb9…e34805` (các trang công khai còn lại).
-3. Phần sau đăng nhập: chỉ quan sát thụ động trang chủ (mục 9.6). Mục 2 đến mục 7 vẫn là kết quả đọc giao diện ngày 2026-10-13.
+3. Phần sau đăng nhập: chỉ quan sát thụ động trang chủ (mục 9.6) và màn hình 2.1 Hồ sơ lớp học (mục 9.8). Mục 2 đến mục 7 vẫn là kết quả đọc giao diện ngày 2026-10-13.
 4. Mỗi nhận định ghi rõ là quan sát (thấy trực tiếp trong dữ liệu thu được) hay suy luận.
 
 ### 9.2 Nền tảng công nghệ (quan sát)
@@ -217,7 +217,7 @@ Hoàn thành chương trình mầm non; đánh giá chuẩn nghề nghiệp giá
 
 1. Đây là sản phẩm dùng chung cho nhiều Sở: trang Quên mật khẩu có ô "Chọn sở", trang có lớp `SoGD-79`, cookie `MA_SO_GD`, đường dẫn ảnh `images/CSDLDiaPhuong/HoChiMinh/`. Mỗi Sở có thể có tên miền và bộ ảnh riêng trên cùng mã nguồn.
 2. Dữ liệu năm học được tách theo năm (trang đăng nhập năm cũ riêng, cookie `NAM_HOC`), tương tự cách School Management tách cơ sở dữ liệu theo năm học.
-3. Màn hình nghiệp vụ phía sau đăng nhập nhiều khả năng cũng là Web Forms dùng RadGrid của Telerik (lưới có cấu hình cột, số dòng 10–200, xuất Excel/PDF như mục 2.3). Mã dùng chung `main.js` có các hàm xử lý RadGrid (`keyDownRadgrid`, `RepaintGrid`, `setCssTotalRadGrid`), nhưng chưa quan sát trực tiếp một màn hình lưới.
+3. Màn hình nghiệp vụ phía sau đăng nhập nhiều khả năng cũng là Web Forms dùng RadGrid của Telerik (lưới có cấu hình cột, số dòng 10–200, xuất Excel/PDF như mục 2.3). Mã dùng chung `main.js` có các hàm xử lý RadGrid (`keyDownRadgrid`, `RepaintGrid`, `setCssTotalRadGrid`), mục 9.8 xác nhận màn hình 2.1 dùng RadGrid.
 
 ### 9.5 Bài học cho School Management
 
@@ -330,6 +330,52 @@ Hoàn thành chương trình mầm non; đánh giá chuẩn nghề nghiệp giá
 | 10 | Kiểm tra dữ liệu chưa hợp lệ trước khi thao tác bằng lệnh gọi chặn trang | Dùng thông báo không chặn, kèm danh sách cần sửa (tương tự "Thống kê hồ sơ chưa nhập đủ", mục 8.3 số 3) |
 | 11 | Đường dẫn và số mục ổn định cho từng màn hình | Dùng bảng ở mục 9.6 khi đặt số mục, tên màn hình của các đợt 15d, 15f, 15h |
 
-### 9.8 Việc còn lại
+### 9.8 Màn hình 2.1 Hồ sơ lớp học (quan sát thụ động)
 
-- Lần quan sát này chỉ ở trang chủ. Chưa quan sát một màn hình lưới (ví dụ 2.1 Hồ sơ lớp học) để xác nhận RadGrid, cách phân trang, xuất Excel và tác vụ nền; cách làm như mục 9.6.
+1. Eric tự mở `/MN/Lop.aspx` trên cửa sổ Chrome gỡ lỗi; REA chỉ đọc cấu trúc trang và mã, không đọc văn bản trên lưới, không ghi nội dung mạng. Mã bằng chứng: `ev_69a5cdf9…f7835a2`. Không ghi tên lớp, tên giáo viên hay giá trị khóa vào tài liệu.
+2. Lưới là một RadGrid (`RadGrid1`), khóa dòng là cột `ID` (số nguyên), cho chọn nhiều dòng, chọn bằng cách kéo chuột, tiêu đề cột cố định khi cuộn, sửa bằng biểu mẫu (`EditMode: EditForms`). Phân trang bật, 50 dòng mỗi trang, 10 nút số trang, thanh phân trang luôn hiện; không dùng đếm ảo (`VirtualItemCount` bằng 0), không lọc theo cột, không sắp xếp nhiều cột. Có phím tắt bàn phím của Telerik (Insert, Delete, Enter, Esc, mũi tên).
+3. Cột của lưới theo thứ tự (tên trường dữ liệu; "ẩn" là cột có nhưng không hiện mặc định, người dùng bật ở "Cấu hình cột hiển thị"):
+
+| Thứ tự | Cột | Kiểu | Hiện mặc định |
+|---|---|---|---|
+| 1 | `STT` | mẫu | có |
+| 2 | `chkChon` (ô chọn dòng) | chọn | có |
+| 3 | `EditCommandColumn` (Sửa) | lệnh | có |
+| 4 | `MA_PHAN_HIEU` | dữ liệu | ẩn |
+| 5 | `TEN_PHAN_HIEU` | dữ liệu | ẩn |
+| 6 | `MA_GIAO_VIEN_CHU_NHIEM` | dữ liệu | ẩn |
+| 7 | `MA` (mã lớp) | dữ liệu | có |
+| 8 | `TEN` (tên lớp) | dữ liệu | có |
+| 9 | `MA_KHOI` | dữ liệu | ẩn |
+| 10 | `TEN_KHOI` (nhóm lớp) | mẫu | có |
+| 11 | `MA_NHOM_TUOI_MN` | dữ liệu | ẩn |
+| 12 | `TEN_NHOM_TUOI_MN` (nhóm tuổi) | mẫu | có |
+| 13 | `THU_TU` | dữ liệu | có |
+| 14 | `HO_TEN` (giáo viên chủ nhiệm) | dữ liệu | ẩn |
+| 15 | `IS_DAY_2_BUOI_NGAY` | mẫu (ô tích) | có |
+| 16 | `IS_LOP_GHEP_2_TUOI` | mẫu (ô tích) | ẩn |
+| 17 | `IS_LOP_GHEP_3_TUOI` | mẫu (ô tích) | ẩn |
+| 18 | `IS_LOP_GHEP` | mẫu (ô tích) | có |
+| 19 | `GHEP_VAO_LOP` | mẫu | có |
+| 20 | `ID_LOP_GHEP` | dữ liệu | ẩn |
+| 21 | `IS_BAN_TRU` | mẫu (ô tích) | có |
+| 22 | `TRANG_THAI` (lớp giải thể) | mẫu | có |
+| 23 | `MA_DIEM_TRUONG` | dữ liệu | ẩn |
+| 24 | cột mẫu cuối (Hồ sơ) | mẫu | có |
+
+4. Ô lọc trên lưới: Phân hiệu (`rcbPhanHieu`), Khối (`rcbKhoi`), Nhóm tuổi (`rcbNhomTuoi`); đổi ô nào thì RadAjaxManager gửi postback không đồng bộ để nạp lại lưới. Nút có trên trang: `btnOK`, `btnDongBoKy2` (đồng bộ học kỳ II), ô xác nhận `chkDelete` của hộp thoại xóa. Mọi thao tác đều là postback của Web Forms, trang này không gọi giao diện lập trình JSON.
+5. "Mở rộng tìm kiếm" chỉ ẩn/hiện khối lọc thêm trên trình duyệt (`Open_ShowExtentFilter`). Xuất tệp chạy bằng postback trả về tệp tải xuống; trong lúc chờ, trang hiện màn hình chờ và cứ mỗi giây kiểm tra cookie `downloadStarted` do máy chủ đặt để tắt màn hình chờ.
+
+### 9.9 Đối chiếu màn hình 2.1 với School Management (đợt 15b)
+
+| Số | Hệ thống của Sở | School Management |
+|---|---|---|
+| 1 | 24 cột, 10 cột ẩn mặc định, người dùng bật thêm. Hiện mặc định Lớp ghép, Ghép vào lớp, Lớp giải thể; ẩn mặc định Phân hiệu, Giáo viên chủ nhiệm, Điểm trường, Lớp ghép 2/3 độ tuổi | Lưới dữ liệu chung có cấu hình cột hiển thị (đợt 15a), nhưng `ClassesPage.tsx` đang làm ngược: hiện Phân hiệu, Giáo viên chủ nhiệm, Điểm trường; ẩn Lớp ghép, Ghép vào lớp, Lớp giải thể. Nên đổi cờ ẩn mặc định cho giống Sở |
+| 2 | Phân trang, mặc định 50 dòng | Số dòng mặc định của lưới chung là 20 khi người dùng chưa chọn; nên đặt mặc định 50 dòng cho 2.1 để giống Sở |
+| 3 | Lọc theo Phân hiệu, Khối, Nhóm tuổi, nạp lại cả lưới | Giữ ô lọc tương ứng; nạp lại lưới qua API, bỏ qua phản hồi cũ |
+| 4 | Xuất tệp bằng postback, theo dõi bằng cookie | Giữ cách tải tệp qua API; tác vụ lớn chạy nền như mục 2.3 |
+| 5 | Có nút đồng bộ học kỳ II | Chưa có; chỉ cần khi liên thông với CSDL ngành (G3-09) |
+
+### 9.10 Việc còn lại
+
+- Chưa quan sát màn hình nhập Excel, tác vụ nền và "Tệp đã tạo"; cách làm như mục 9.8 (Eric tự mở màn hình, Claude chỉ đọc).
