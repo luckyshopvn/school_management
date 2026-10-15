@@ -4,6 +4,7 @@ import { PERMISSION_CODES } from '@school-management/shared';
 import { Alert, Button, TextField } from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { AppShell } from '../pages/AppShell.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import { AttendanceMealsView } from './AttendanceMealsReport.js';
@@ -13,7 +14,9 @@ import { ReportTable, type Column } from './ReportTable.js';
 
 // MH-28 Báo cáo cơ bản (P17-03 đến P17-07, P17-14; BR-36; YCTD-62): mỗi báo cáo một thẻ, chỉ hiện báo cáo người dùng có
 // quyền; số liệu do máy chủ tính, giao diện chỉ hiển thị. Giai đoạn 2 (YCTD-83) thêm thẻ báo cáo hoạt động (P17-10), báo
-// cáo hợp nhất (MH-29, P17-11), nhật ký xuất và nút xuất Excel cho người có quyền xuất dữ liệu (P17-12)
+// cáo hợp nhất (MH-29, P17-11), nhật ký xuất và nút xuất Excel cho người có quyền xuất dữ liệu (P17-12). Giao diện chung
+// theo Sở (DT-15 phần 15f3, YCTD-115): tiêu đề đánh số theo menu; các bảng báo cáo là số liệu tổng hợp nên giữ bố cục, chỉ
+// nhật ký xuất là danh sách nên dùng lưới dữ liệu chung
 type ReportCode = 'tuition' | 'debts' | 'cash-flow' | 'attendance' | 'staff-attendance' | 'saturday-classes';
 type TabCode = ReportCode | 'attendance-meals' | 'activities' | 'consolidated' | 'export-logs';
 
@@ -309,7 +312,7 @@ export function ReportsPage() {
   return (
     <AppShell>
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Báo cáo</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/reports')}</h1>
         {tabs.length === 0 ? (
           <p className="text-content text-text-secondary">Bạn chưa có quyền xem báo cáo nào.</p>
         ) : null}
