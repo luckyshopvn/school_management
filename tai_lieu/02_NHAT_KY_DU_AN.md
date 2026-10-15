@@ -19,7 +19,7 @@
 #### Công việc đã thực hiện
 
 - Đổi màn hình hồ sơ nhân sự thành "3.1.1. Hồ sơ cán bộ, giáo viên": lưới dữ liệu chung phân trang ở máy chủ với cột của Sở, xếp A–Z theo tên, Mở rộng tìm kiếm gộp mục 3.1.4 (đơn vị, phòng ban, trạng thái, giới tính, vị trí việc làm, Đảng viên, tuổi từ–đến, mã định danh Bộ, số định danh), Xuất Excel theo cột đang hiện; hồ sơ hai thẻ "Hồ sơ cán bộ, giáo viên" (bảy khối theo thứ tự cột của tệp CSDL ngành, nút Ghi) và "Thông tin riêng của trường"; biểu mẫu Thêm mới theo khối. Ba điểm cuối mới `GET /staff/search`, `POST /staff/export`, `PATCH /staff/{id}/profile`; không có tệp thay đổi cấu trúc dữ liệu, không có quyền mới.
-- Thêm kịch bản CT-409 đến CT-420, tiêu chí AC-453 đến AC-464, quy tắc BR-114, quy tắc phân quyền PQ-66; không có màn hình mới (MH-12 đổi). Kết quả ngày 15/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) UNIT_KET_QUA ca đạt; toàn bộ kiểm thử giao diện E2E_KET_QUA ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm kịch bản CT-409 đến CT-420, tiêu chí AC-453 đến AC-464, quy tắc BR-114, quy tắc phân quyền PQ-66; không có màn hình mới (MH-12 đổi). Kết quả ngày 15/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 659/659 ca đạt; toàn bộ kiểm thử giao diện 94/94 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
