@@ -21,6 +21,8 @@ export interface UsersTable {
   locked_until: Date | null;
   must_change_password: Generated<boolean>;
   valid_until: ColumnType<string | null, string | null | undefined, string | null>;
+  // Thời điểm đặt mật khẩu gần nhất, dùng tính hạn mật khẩu (YCTD-110)
+  password_changed_at: ColumnType<Date, Date | undefined, Date>;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
   created_by: string | null;

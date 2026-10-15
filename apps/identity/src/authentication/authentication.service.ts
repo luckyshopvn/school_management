@@ -37,7 +37,22 @@ export interface TokenResponse {
   token_type: 'Bearer';
   expires_in: number;
   password_change_required: boolean;
+  // Mật khẩu của tài khoản nhân sự đã quá số ngày tối đa (YCTD-110); khi đó password_change_required cũng là true
+  password_expired: boolean;
+  // Số ngày còn lại khi đã vào khoảng báo trước hết hạn; ngoài khoảng đó hoặc không áp dụng thì null
+  password_expires_in_days: number | null;
 }
+
+// Hạn mật khẩu của tài khoản tại lúc đăng nhập hoặc làm mới phiên
+export interface PasswordExpiry {
+  expired: boolean;
+  expiresInDays: number | null;
+}
+
+const NO_PASSWORD_EXPIRY: PasswordExpiry = { expired: false, expiresInDays: null };
+const DAY_MILLISECONDS = 24 * 60 * 60 * 1000;
+// Vai trò Phụ huynh không áp hạn mật khẩu; tài khoản có thêm vai trò khác là tài khoản nhân sự
+const PARENT_ROLE_CODE = 'VT-14';
 
 // Mã làm mới không trả trong nội dung phản hồi; bộ điều khiển đặt vào cookie httpOnly (BM-71)
 export interface IssuedTokens {
@@ -104,8 +119,21 @@ export class AuthenticationService {
       throw unauthenticatedError(INVALID_CREDENTIALS_MESSAGE);
     }
 
-    // Đăng nhập bằng mật khẩu mặc định hoặc mật khẩu tạm chỉ dùng được điểm cuối đổi mật khẩu (BM-07, BM-69)
-    return this.completeSignIn(user, channel, origin, 'password', requiresPasswordChange(user), now);
+    // Đăng nhập bằng mật khẩu mặc định, mật khẩu tạm hoặc mật khẩu đã hết hạn chỉ dùng được điểm cuối đổi mật khẩu (BM-07,
+    // BM-69, YCTD-110)
+    const expiry = await this.passwordExpiry(user, now);
+    if (expiry.expired) {
+      await this.recordSecurityEvent('login_password_expired', user.id, loginIdentifier, origin.ipAddress);
+    }
+    return this.completeSignIn(
+      user,
+      channel,
+      origin,
+      'password',
+      requiresPasswordChange(user) || expiry.expired,
+      now,
+      expiry,
+    );
   }
 
   // Tài khoản còn hiệu lực, đang hoạt động và không bị tạm khóa do nhập sai
@@ -142,6 +170,7 @@ export class AuthenticationService {
     loginMethod: LoginMethod,
     passwordChangeRequired: boolean,
     now: Date,
+    expiry: PasswordExpiry = NO_PASSWORD_EXPIRY,
   ): Promise<IssuedTokens> {
     // Không đăng nhập quá số ngày cấu hình thì tạm khóa, phải được mở khóa lại (PQ-07, BM-09)
     const lockDays = await this.identitySettings.accountInactivityLockDays();
@@ -186,6 +215,7 @@ export class AuthenticationService {
       { userId: user.id, sessionId, channel, passwordChangeRequired },
       refreshToken.token,
       expiresAt,
+      expiry,
     );
   }
 
@@ -220,6 +250,9 @@ export class AuthenticationService {
       throw unauthenticatedError();
     }
     const user = await this.findActiveUser(session.user_id, now);
+    // Phiên đăng nhập bằng mã một lần luôn là phiên đầy đủ (Q-147)
+    const oneTimeCodeSession = session.login_method === 'one_time_code';
+    const expiry = oneTimeCodeSession ? NO_PASSWORD_EXPIRY : await this.passwordExpiry(user, now);
 
     const refreshToken = createRefreshToken(session.id);
     await this.database
@@ -233,11 +266,11 @@ export class AuthenticationService {
         userId: user.id,
         sessionId: session.id,
         channel: session.channel,
-        // Phiên đăng nhập bằng mã một lần luôn là phiên đầy đủ (Q-147)
-        passwordChangeRequired: session.login_method === 'one_time_code' ? false : requiresPasswordChange(user),
+        passwordChangeRequired: oneTimeCodeSession ? false : requiresPasswordChange(user) || expiry.expired,
       },
       refreshToken.token,
       session.expires_at,
+      expiry,
     );
   }
 
@@ -268,7 +301,12 @@ export class AuthenticationService {
 
     await this.database
       .updateTable('users')
-      .set({ password_hash: await hashPassword(newPassword), must_change_password: false, updated_at: now })
+      .set({
+        password_hash: await hashPassword(newPassword),
+        password_changed_at: now,
+        must_change_password: false,
+        updated_at: now,
+      })
       .where('id', '=', user.id)
       .execute();
     await this.database
@@ -285,7 +323,40 @@ export class AuthenticationService {
       token_type: 'Bearer',
       expires_in: ACCESS_TOKEN_LIFETIME_SECONDS,
       password_change_required: false,
+      password_expired: false,
+      password_expires_in_days: null,
     };
+  }
+
+  // Hạn mật khẩu theo chính sách (YCTD-110): chỉ tài khoản nhân sự có mật khẩu riêng; tài khoản chỉ có vai trò Phụ huynh
+  // và tài khoản còn dùng mật khẩu mặc định chung không áp dụng. Số ngày tối đa bằng 0 là không giới hạn
+  async passwordExpiry(
+    user: Pick<Selectable<IdentityDatabase['users']>, 'id' | 'password_hash' | 'password_changed_at'>,
+    now: Date,
+  ): Promise<PasswordExpiry> {
+    if (user.password_hash === null) {
+      return NO_PASSWORD_EXPIRY;
+    }
+    const policy = await this.identitySettings.passwordPolicy();
+    if (policy.password_max_age_days === 0) {
+      return NO_PASSWORD_EXPIRY;
+    }
+    const staffRole = await this.database
+      .selectFrom('user_roles')
+      .innerJoin('roles', 'roles.id', 'user_roles.role_id')
+      .select('roles.code')
+      .where('user_roles.user_id', '=', user.id)
+      .where('roles.code', '!=', PARENT_ROLE_CODE)
+      .executeTakeFirst();
+    if (!staffRole) {
+      return NO_PASSWORD_EXPIRY;
+    }
+    const expiresAt = user.password_changed_at.getTime() + policy.password_max_age_days * DAY_MILLISECONDS;
+    if (now.getTime() >= expiresAt) {
+      return { expired: true, expiresInDays: 0 };
+    }
+    const daysLeft = Math.ceil((expiresAt - now.getTime()) / DAY_MILLISECONDS);
+    return { expired: false, expiresInDays: daysLeft <= policy.password_expiry_warning_days ? daysLeft : null };
   }
 
   // Mỗi lần gọi đều kiểm tra lại phiên và tài khoản để thu hồi có hiệu lực ngay (PQ-04, QĐ-20)
@@ -342,6 +413,7 @@ export class AuthenticationService {
     claims: AccessTokenClaims,
     refreshToken: string,
     refreshExpiresAt: Date,
+    expiry: PasswordExpiry,
   ): Promise<IssuedTokens> {
     return {
       response: {
@@ -349,6 +421,8 @@ export class AuthenticationService {
         token_type: 'Bearer',
         expires_in: ACCESS_TOKEN_LIFETIME_SECONDS,
         password_change_required: claims.passwordChangeRequired,
+        password_expired: expiry.expired,
+        password_expires_in_days: expiry.expiresInDays,
       },
       refreshToken,
       refreshExpiresAt,

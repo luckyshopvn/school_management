@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.35
+- Phiên bản: 1.36
 - Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -464,8 +464,24 @@
 | CT-379 | P01-06 | Ba tài khoản cùng nhãn, ở 1.4 lọc theo Tên nhân sự, Nhóm quyền, Trạng thái đổi mật khẩu, Tên đăng nhập | tổng 3, 2, 1, 1 dòng; cột Tên đăng nhập, Nhóm quyền, Loại tài khoản, Trạng thái đổi mật khẩu đúng | Kiểm thử tự động `tests/e2e/52-system-admin-so.spec.ts` đạt ngày 15/10/2026 | Đạt |
 | CT-380 | P01-07 | VT-03 mở 1.3 | thông báo chỉ Hiệu trưởng và quản trị nền tảng sửa được, không có nút Ghi, ô chọn bị khóa | Kiểm thử tự động `tests/e2e/52-system-admin-so.spec.ts` đạt ngày 15/10/2026 | Đạt |
 | CT-381 | P01-09, P01-14 | Mở lần lượt chín màn hình quản trị; Nhật ký thao tác lọc từ ngày 01/01/2100 rồi bỏ lọc, chuyển thẻ Tài khoản và quyền; mở Khóa API | tiêu đề đúng số menu; lưới nhật ký có đủ cột, lọc ra 0 dòng rồi có dòng; lưới khóa API có đủ cột | Kiểm thử tự động `tests/e2e/52-system-admin-so.spec.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-382 | P01-16 | Gửi ý kiến, xem danh sách ý kiến của mình khi chưa đăng nhập | bị từ chối 401 | Kiểm thử tự động `apps/api/src/feedback/feedback.test.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-383 | P01-16 | Giáo viên gửi ý kiến, xem danh sách của mình; giáo viên khác xem danh sách của mình | ý kiến trạng thái Mới, đúng người gửi và trang; người khác không thấy | Kiểm thử tự động `apps/api/src/feedback/feedback.test.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-384 | P01-16 | Gửi loại lạ, tiêu đề rỗng, thư điện tử sai | lỗi dữ liệu 400 kèm ba trường lỗi | Kiểm thử tự động `apps/api/src/feedback/feedback.test.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-385 | P01-16 | Gửi kèm ảnh PNG, tải ảnh bằng người gửi, Hiệu trưởng, giáo viên khác; gửi tệp không phải ảnh | người gửi và Hiệu trưởng nhận đúng ảnh, người khác nhận 404; tệp không phải ảnh bị từ chối 400 | Kiểm thử tự động `apps/api/src/feedback/feedback.test.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-386 | P01-16 | Giáo viên xem mọi ý kiến, đổi trạng thái; Hiệu trưởng, Quản trị nền tảng xem mọi ý kiến; lọc trạng thái lạ | giáo viên bị từ chối 403; hai vai trò quản trị thấy ý kiến; trạng thái lạ lỗi 400 | Kiểm thử tự động `apps/api/src/feedback/feedback.test.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-387 | P01-16, P19-04 | Hiệu trưởng chuyển Đang xử lý, lọc theo trạng thái, trả lời và chuyển Đã xử lý, lưu lại đúng câu trả lời cũ | trạng thái, câu trả lời, người và thời điểm trả lời được ghi; người gửi thấy câu trả lời và có một thông báo trong ứng dụng, người khác không có; lưu lại không báo lần hai | Kiểm thử tự động `apps/api/src/feedback/feedback.test.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-388 | P01-16 | Sửa ý kiến không tồn tại | 404 | Kiểm thử tự động `apps/api/src/feedback/feedback.test.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-389 | P01-16 | Gửi 11 ý kiến trong một giờ, người khác gửi, lùi thời điểm gửi quá một giờ rồi gửi lại | lần 11 bị chặn 429 `ERR_RATE_LIMIT`, `rule_code` YCTD-110, có số giây chờ; người khác vẫn gửi được; sau một giờ gửi lại được | Kiểm thử tự động `apps/api/src/feedback/feedback.test.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-390 | P01-17 | Đọc chính sách mặc định; giáo viên, Quản lý đơn vị đọc, sửa; sửa số âm, 4000, chữ, thân rỗng; Hiệu trưởng đặt 90 ngày | mặc định 0 và 7; hai vai trò không có quyền bị từ chối 403; dữ liệu sai lỗi 400; lưu được 90 ngày | Kiểm thử tự động `apps/identity/src/authentication/password-expiry.test.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-391 | P01-17, P19-06 | Tài khoản giáo viên đặt mật khẩu 100 ngày trước đăng nhập, làm mới phiên, gọi điểm cuối khác, đổi sang mật khẩu cũ rồi mật khẩu mới, đăng nhập lại | đăng nhập và làm mới đều bắt buộc đổi mật khẩu, `password_expired` true, nhật ký bảo mật ghi `login_password_expired`; điểm cuối khác bị từ chối; mật khẩu trùng bị từ chối 400; đổi xong đăng nhập bình thường | Kiểm thử tự động `apps/identity/src/authentication/password-expiry.test.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-392 | P01-17 | Mật khẩu đặt 85 ngày, 80 ngày trước; số ngày báo trước 0 | còn 5 ngày thì trả `password_expires_in_days` 5 và chưa bắt buộc đổi; 80 ngày không báo; báo trước 0 thì không báo | Kiểm thử tự động `apps/identity/src/authentication/password-expiry.test.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-393 | P01-17 | Tài khoản chỉ có vai trò Phụ huynh, tài khoản Phụ huynh kiêm giáo viên, mật khẩu đặt 400 ngày trước | phụ huynh không bị hết hạn; tài khoản kiêm nhân sự bị hết hạn | Kiểm thử tự động `apps/identity/src/authentication/password-expiry.test.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-394 | P01-17 | Đặt số ngày tối đa 0, tài khoản đặt mật khẩu 1000 ngày trước | không hết hạn, không báo | Kiểm thử tự động `apps/identity/src/authentication/password-expiry.test.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-395 | P01-16 | Giáo viên bấm "Gửi phản hồi" ở chân trang, bấm Gửi khi chưa nhập, nhập đủ kèm ảnh chụp màn hình, mở Danh sách ý kiến đã gửi ở menu người dùng | ô Đường dẫn trang tự điền; lỗi hiện dưới Loại ý kiến, Tiêu đề, Nội dung; gửi xong báo "Đã gửi ý kiến phản hồi"; danh sách có ý kiến loại Báo lỗi, trạng thái Mới, chi tiết có nội dung, tên ảnh, "Chưa trả lời"; giáo viên không có mục Ý kiến phản hồi | Kiểm thử tự động `tests/e2e/53-feedback-password-expiry.spec.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-396 | P01-16 | Hiệu trưởng mở "3.4. Ý kiến phản hồi", tìm ý kiến, Xử lý chọn Đã xử lý, nhập trả lời, Ghi, lọc trạng thái Mới; giáo viên mở lại danh sách của mình | báo "Đã ghi xử lý ý kiến", dòng chuyển Đã xử lý, lọc Mới thì không còn dòng; giáo viên thấy Đã xử lý và câu trả lời | Kiểm thử tự động `tests/e2e/53-feedback-password-expiry.spec.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-397 | P01-06, P01-17 | Quản trị nền tảng mở Danh sách người dùng, nhập 5000 rồi 90 ở Số ngày hết hạn mật khẩu, Ghi; giáo viên có mật khẩu 100 ngày đăng nhập, đổi sang mật khẩu cũ rồi mật khẩu mới; nhân sự có mật khẩu 85 ngày đăng nhập | khối hiện 0 và 7; 5000 báo lỗi dưới ô; 90 lưu được; giáo viên bị chuyển sang Đổi mật khẩu với dòng "Mật khẩu đã hết hạn, vui lòng đổi mật khẩu", mật khẩu cũ bị từ chối, đổi xong vào trang chủ; nhân sự thấy "Mật khẩu sẽ hết hạn sau 5 ngày." và liên kết Đổi mật khẩu | Kiểm thử tự động `tests/e2e/53-feedback-password-expiry.spec.ts` đạt ngày 15/10/2026 | Đạt |
 
-Ca CT-105 đến CT-381 lần lượt kiểm tra AC-149 đến AC-425.
+Ca CT-105 đến CT-397 lần lượt kiểm tra AC-149 đến AC-441.
 
 ## 16. Chưa xác minh được
 

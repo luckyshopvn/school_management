@@ -5,7 +5,8 @@ import { ApiError } from '../session/api-client.js';
 import { useDefaultGridPageSize } from './grid-settings.js';
 
 // Menu người dùng theo Sở (DT-15 phần 15a): bấm tên người dùng ở thanh đầu trang mở Thông báo, Đổi mật khẩu, Cấu hình
-// hiển thị lưới, Thoát. Mục Hồ sơ cá nhân chưa có vì cổng quản trị chưa có trang hồ sơ của chính người dùng
+// hiển thị lưới, Danh sách ý kiến đã gửi (phần 15g), Thoát. Mục Hồ sơ cá nhân chưa có vì cổng quản trị chưa có trang hồ sơ
+// của chính người dùng
 function UserIcon() {
   return (
     <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
@@ -168,6 +169,11 @@ export function UserMenu({ fullName, onLogout }: { fullName: string | undefined;
           >
             Cấu hình hiển thị lưới
           </button>
+        </li>
+        <li role="none">
+          <Link to="/my-feedback" role="menuitem" tabIndex={-1} className={itemClass} onClick={() => setOpen(false)}>
+            Danh sách ý kiến đã gửi
+          </Link>
         </li>
         <li role="none" className="border-t border-border">
           <button type="button" role="menuitem" tabIndex={-1} className={itemClass} onClick={onLogout}>

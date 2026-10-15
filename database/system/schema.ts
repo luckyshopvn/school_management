@@ -98,6 +98,35 @@ export interface UserGridSettingsTable {
   updated_at: UpdatedTimestamp;
 }
 
+export type UserFeedbackType = 'suggestion' | 'bug' | 'request';
+export type UserFeedbackStatus = 'new' | 'in_progress' | 'resolved';
+
+// Ý kiến phản hồi gửi từ chân trang cổng quản trị và trả lời của quản trị (DT-15 phần 15g, YCTD-110)
+export interface UserFeedbackTable {
+  id: Generated<string>;
+  user_id: string;
+  user_name: string;
+  org_unit_id: string | null;
+  page_url: string | null;
+  feedback_type: UserFeedbackType;
+  title: string;
+  content: string;
+  contact_phone: string | null;
+  contact_email: string | null;
+  attachment_key: string | null;
+  attachment_name: string | null;
+  attachment_content_type: string | null;
+  attachment_size: number | null;
+  status: Generated<UserFeedbackStatus>;
+  reply: string | null;
+  replied_by: string | null;
+  replied_by_name: string | null;
+  replied_at: Date | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+  updated_by: string | null;
+}
+
 export interface SystemDatabase {
   academic_years: AcademicYearsTable;
   academic_terms: AcademicTermsTable;
@@ -106,4 +135,5 @@ export interface SystemDatabase {
   integration_credentials: IntegrationCredentialsTable;
   user_quick_links: UserQuickLinksTable;
   user_grid_settings: UserGridSettingsTable;
+  feedback: UserFeedbackTable;
 }

@@ -4,7 +4,7 @@ import { Alert, Button, TextField } from '@school-management/ui';
 import { ApiError } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
 
-// MH-48 Đổi mật khẩu; quy tắc mật khẩu do máy chủ kiểm tra (BM-03)
+// MH-48 Đổi mật khẩu; quy tắc mật khẩu do máy chủ kiểm tra (BM-03). Mật khẩu hết hạn thì báo rõ lý do (YCTD-110)
 export function ChangePasswordPage() {
   const session = useSession();
   const navigate = useNavigate();
@@ -54,7 +54,9 @@ export function ChangePasswordPage() {
       >
         <div className="flex flex-col gap-1">
           <h1 className="text-page-title font-bold text-text">Đổi mật khẩu</h1>
-          {session.passwordChangeRequired ? (
+          {session.passwordExpired ? (
+            <Alert tone="warning">Mật khẩu đã hết hạn, vui lòng đổi mật khẩu</Alert>
+          ) : session.passwordChangeRequired ? (
             <p className="text-label text-text-secondary">Bạn cần đổi mật khẩu trước khi tiếp tục sử dụng hệ thống.</p>
           ) : null}
         </div>

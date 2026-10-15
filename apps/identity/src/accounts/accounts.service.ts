@@ -89,6 +89,7 @@ const USER_COLUMNS = [
   'must_change_password',
   'valid_until',
   'last_login_at',
+  'password_changed_at',
   'locked_until',
 ] as const;
 
@@ -455,6 +456,7 @@ export class AccountsService {
         .updateTable('users')
         .set({
           password_hash: passwordHash,
+          password_changed_at: now,
           must_change_password: true,
           failed_login_count: 0,
           locked_until: null,

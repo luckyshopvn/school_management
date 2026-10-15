@@ -156,6 +156,8 @@ export const PERMISSION_CODES = {
   childGroupManage: 'P02.child-group.manage',
   professionalStandardManage: 'P07.professional-standard.manage',
   professionalStandardAssess: 'P07.professional-standard.assess',
+  // Xem mọi ý kiến phản hồi gửi từ chân trang, đổi trạng thái và trả lời (DT-15 phần 15g, YCTD-110)
+  feedbackManage: 'P01.feedback.manage',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -273,6 +275,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/professional-standards',
   // Biến động học sinh (DT-15 phần 15c, YCTD-108)
   '/student-movements',
+  // Ý kiến phản hồi gửi từ chân trang (DT-15 phần 15g, YCTD-110)
+  '/feedback',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -294,6 +298,9 @@ export const DATA_GRID_KEYS = [
   'roles',
   'api-clients',
   'audit-logs',
+  // Ý kiến phản hồi (DT-15 phần 15g)
+  'my-feedback',
+  'feedback',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

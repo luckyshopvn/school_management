@@ -212,6 +212,7 @@ import { BonusDeductionsController, BonusDeductionsService } from './payroll/bon
 import { IntegrationsController, IntegrationsService } from './integrations/integrations.js';
 import { QuickLinksController, QuickLinksService } from './quick-links/quick-links.js';
 import { GridSettingsController, GridSettingsService } from './grid-settings/grid-settings.js';
+import { FeedbackController, FeedbackService } from './feedback/feedback.js';
 import { integrationsTransitionStep } from './integrations/integrations-transition.js';
 import { FacebookPostsController, FacebookPostsService } from './integrations/facebook-posts.js';
 import {
@@ -343,6 +344,7 @@ export class ApplicationModule {
         IntegrationsController,
         QuickLinksController,
         GridSettingsController,
+        FeedbackController,
         FacebookPostsController,
         RecruitmentRequestsController,
         JobPostingsController,
@@ -535,6 +537,7 @@ export class ApplicationModule {
         IntegrationsService,
         QuickLinksService,
         GridSettingsService,
+        FeedbackService,
         FacebookPostsService,
         JournalsService,
         {

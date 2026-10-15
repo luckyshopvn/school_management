@@ -4,6 +4,7 @@ import { migration as createAcademicYearTables } from './migrations/0002_create_
 import { migration as createIntegrationCredentials } from './migrations/0003_create_integration_credentials.js';
 import { migration as createUserQuickLinks } from './migrations/0004_create_user_quick_links.js';
 import { migration as createUserGridSettings } from './migrations/0005_create_user_grid_settings.js';
+import { migration as createFeedback } from './migrations/0007_create_feedback.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu hệ thống, theo số thứ tự (QU-01, QĐ-17)
 export const systemMigrations: Record<string, Migration> = {
@@ -12,4 +13,5 @@ export const systemMigrations: Record<string, Migration> = {
   '0003_create_integration_credentials': createIntegrationCredentials,
   '0004_create_user_quick_links': createUserQuickLinks,
   '0005_create_user_grid_settings': createUserGridSettings,
+  '0007_create_feedback': createFeedback,
 };

@@ -11,6 +11,8 @@ import { useSession } from '../session/session.js';
 import { MainMenu, MobileMenu } from './MainMenu.js';
 import { usePortalMenu } from './menu-permissions.js';
 import { UserMenu } from './UserMenu.js';
+import { Alert, Toast } from '@school-management/ui';
+import { FeedbackDialog } from '../feedback/FeedbackDialog.js';
 
 function MenuIcon() {
   return (
@@ -30,7 +32,8 @@ function MenuIcon() {
 
 // Khung trang của cổng quản trị theo hệ thống của Sở (DT-15 phần 15a, thay thanh điều hướng bên trái của YCTD-99): thanh
 // đầu trang màu xanh (tên phần mềm, ô chọn phân hệ, năm học, chuông thông báo, menu người dùng), dưới là menu ngang đánh
-// số của phân hệ đang chọn; màn hình hẹp dùng nút "☰" mở cây menu gập
+// số của phân hệ đang chọn; màn hình hẹp dùng nút "☰" mở cây menu gập. Chân trang có nút "Gửi phản hồi"; mật khẩu sắp
+// hết hạn thì báo ở đầu trang (DT-15 phần 15g, YCTD-110)
 export function AppShell({ children }: { children: ReactNode }) {
   const session = useSession();
   const currentUser = useQuery({ queryKey: ['current-user'], queryFn: fetchCurrentUser });
@@ -40,6 +43,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navigationRegistry = useNavigationRegistryState(menu);
   const [mobileOpen, setMobileOpen] = useState(false);
   const closeMobile = useCallback(() => setMobileOpen(false), []);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string>();
+  const closeToast = useCallback(() => setToastMessage(undefined), []);
   const { pathname } = useLocation();
   const { ensure } = workspaces;
 
@@ -89,7 +95,40 @@ export function AppShell({ children }: { children: ReactNode }) {
               onClose={closeMobile}
             />
           ) : null}
-          <main className="mx-auto w-full max-w-[1440px] min-w-0 flex-1 p-4 md:p-6">{children}</main>
+          <main className="mx-auto w-full max-w-[1440px] min-w-0 flex-1 p-4 md:p-6">
+            {session.passwordExpiresInDays !== null ? (
+              <div className="mb-4">
+                <Alert tone="warning">
+                  Mật khẩu sẽ hết hạn sau {session.passwordExpiresInDays} ngày.{' '}
+                  <Link to="/change-password" className="underline">
+                    Đổi mật khẩu
+                  </Link>
+                </Alert>
+              </div>
+            ) : null}
+            {children}
+          </main>
+          <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-border bg-card px-4 py-3 text-label text-text-secondary">
+            <span>School Management</span>
+            <button
+              type="button"
+              className="font-medium text-link hover:underline"
+              onClick={() => setFeedbackOpen(true)}
+            >
+              Gửi phản hồi
+            </button>
+          </footer>
+          {feedbackOpen ? (
+            <FeedbackDialog
+              pageUrl={pathname}
+              onClose={() => setFeedbackOpen(false)}
+              onSent={(message) => {
+                setFeedbackOpen(false);
+                setToastMessage(message);
+              }}
+            />
+          ) : null}
+          <Toast message={toastMessage} onClose={closeToast} />
         </div>
       </NavigationRegistryContext.Provider>
     </WorkspaceContext.Provider>

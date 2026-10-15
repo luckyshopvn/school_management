@@ -80,6 +80,8 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/api-clients': gated(ACCOUNTS, 'P01.api-client.manage'),
   '/integrations': 'P01.integration.manage',
   '/audit-logs': 'P01.view',
+  // Ý kiến phản hồi (YCTD-110)
+  '/feedback': 'P01.feedback.manage',
   // Tài chính – học phí
   '/fees': VIEW_FEES,
   '/registrations': REGISTRATIONS,

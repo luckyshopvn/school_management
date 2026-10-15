@@ -40,6 +40,23 @@ const NUMERIC_SETTINGS: Record<
 
 const NUMERIC_KEYS = Object.keys(NUMERIC_SETTINGS) as NumericSettingKey[];
 
+// Chính sách hạn mật khẩu của tài khoản nhân sự (DT-15 phần 15g, YCTD-110): số ngày tối đa dùng một mật khẩu (0 là không
+// giới hạn) và số ngày báo trước khi hết hạn. Quản trị nền tảng, Hiệu trưởng (quyền quản lý mọi tài khoản) sửa ở màn hình
+// Danh sách người dùng
+type PasswordPolicyKey = 'password_max_age_days' | 'password_expiry_warning_days';
+
+const PASSWORD_POLICY_SETTINGS: Record<
+  PasswordPolicyKey,
+  { defaultValue: number; minimum: number; maximum: number; label: string }
+> = {
+  password_max_age_days: { defaultValue: 0, minimum: 0, maximum: 3650, label: 'Số ngày' },
+  password_expiry_warning_days: { defaultValue: 7, minimum: 0, maximum: 90, label: 'Số ngày báo trước' },
+};
+
+const PASSWORD_POLICY_KEYS = Object.keys(PASSWORD_POLICY_SETTINGS) as PasswordPolicyKey[];
+
+export type PasswordPolicy = Record<PasswordPolicyKey, number>;
+
 export type IdentitySettingsView = Record<NumericSettingKey, number> & { parent_default_password_configured: boolean };
 
 @Injectable()
@@ -150,6 +167,91 @@ export class IdentitySettingsService {
     return this.view();
   }
 
+  // Chính sách hạn mật khẩu đang áp dụng, dùng khi đăng nhập
+  async passwordPolicy(): Promise<PasswordPolicy> {
+    const entries = await Promise.all(
+      PASSWORD_POLICY_KEYS.map(
+        async (key) => [key, await this.readNumber(key, PASSWORD_POLICY_SETTINGS[key].defaultValue)] as const,
+      ),
+    );
+    return Object.fromEntries(entries) as PasswordPolicy;
+  }
+
+  async readPasswordPolicy(caller: CallerContext): Promise<PasswordPolicy> {
+    await this.requireAccountManager(caller);
+    return this.passwordPolicy();
+  }
+
+  async updatePasswordPolicy(
+    caller: CallerContext,
+    body: Record<string, unknown> | undefined,
+  ): Promise<PasswordPolicy> {
+    const errors: FieldError[] = [];
+    const changes: Partial<PasswordPolicy> = {};
+    for (const key of PASSWORD_POLICY_KEYS) {
+      const value = body?.[key];
+      if (value === undefined) {
+        continue;
+      }
+      const rule = PASSWORD_POLICY_SETTINGS[key];
+      if (!Number.isInteger(value) || (value as number) < rule.minimum || (value as number) > rule.maximum) {
+        errors.push({ field: key, message: `${rule.label} là số nguyên từ ${rule.minimum} đến ${rule.maximum}` });
+      } else {
+        changes[key] = value as number;
+      }
+    }
+    if (errors.length === 0 && Object.keys(changes).length === 0) {
+      errors.push({ field: 'settings', message: 'Cần ít nhất một mục cấu hình' });
+    }
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    await this.requireAccountManager(caller);
+    const before = await this.passwordPolicy();
+    const now = this.clock.now();
+    await this.database.transaction().execute(async (transaction) => {
+      for (const [key, value] of Object.entries(changes)) {
+        await transaction
+          .insertInto('identity_settings')
+          .values({ key, value: JSON.stringify(value), updated_at: now, updated_by: caller.claims.userId })
+          .onConflict((conflict) =>
+            conflict
+              .column('key')
+              .doUpdateSet({ value: JSON.stringify(value), updated_at: now, updated_by: caller.claims.userId }),
+          )
+          .execute();
+      }
+      const changedKeys = Object.keys(changes) as PasswordPolicyKey[];
+      await writeIdentityAuditLog(transaction, {
+        actorUserId: caller.claims.userId,
+        entityName: 'identity_settings',
+        entityId: SCHOOL_WIDE_ENTITY_ID,
+        action: 'update',
+        before: Object.fromEntries(changedKeys.map((key) => [key, before[key]])),
+        after: changes,
+        ipAddress: caller.ipAddress,
+      });
+    });
+    return this.passwordPolicy();
+  }
+
+  // Quyền quản lý mọi tài khoản chỉ gán cho Quản trị nền tảng và Hiệu trưởng, đều là vai trò toàn trường
+  private async requireAccountManager(caller: CallerContext): Promise<void> {
+    const assignments = (await loadAssignments(this.database, [caller.claims.userId])).get(caller.claims.userId) ?? [];
+    if (!assignments.some((assignment) => assignment.permissions.includes(PERMISSION_CODES.accountManage))) {
+      throw forbidden('Bạn không có quyền cấu hình chính sách mật khẩu');
+    }
+  }
+
+  private async readNumber(key: string, defaultValue: number): Promise<number> {
+    const row = await this.database
+      .selectFrom('identity_settings')
+      .select('value')
+      .where('key', '=', key)
+      .executeTakeFirst();
+    return typeof row?.value === 'number' ? row.value : defaultValue;
+  }
+
   private async view(): Promise<IdentitySettingsView> {
     const values = Object.fromEntries(
       await Promise.all(NUMERIC_KEYS.map(async (key) => [key, await this.numeric(key)] as const)),
@@ -157,13 +259,8 @@ export class IdentitySettingsService {
     return { ...values, parent_default_password_configured: (await this.parentDefaultPasswordHash()) !== null };
   }
 
-  private async numeric(key: NumericSettingKey): Promise<number> {
-    const row = await this.database
-      .selectFrom('identity_settings')
-      .select('value')
-      .where('key', '=', key)
-      .executeTakeFirst();
-    return typeof row?.value === 'number' ? row.value : NUMERIC_SETTINGS[key].defaultValue;
+  private numeric(key: NumericSettingKey): Promise<number> {
+    return this.readNumber(key, NUMERIC_SETTINGS[key].defaultValue);
   }
 
   private async requireSettingPermission(caller: CallerContext, wholeSchool: boolean): Promise<void> {
