@@ -1,8 +1,8 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.37
-- Ngày cập nhật: 2026-10-14
+- Phiên bản: 1.39
+- Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -23,10 +23,10 @@
 | P01-03 | Quản lý phòng ban (G1) | VT-02, VT-06 | Tên, đơn vị, phòng ban cha | Tạo, sửa, ngừng sử dụng | Sơ đồ phòng ban | BR-01 |
 | P01-04 | Quản lý chức danh (G1) | VT-02, VT-06 | Tên chức danh, cấp bậc | Tạo, sửa, ngừng sử dụng | Danh sách chức danh | BR-37 |
 | P01-05 | Quản lý danh mục dùng chung (G1) | VT-02 | Loại danh mục (do hệ thống định nghĩa: quan hệ với trẻ, loại nghỉ phép, loại hợp đồng, nhóm tài sản; YCTD-42), mã, tên, thứ tự | Tạo, sửa, ngừng sử dụng mục trong từng loại | Danh mục dùng chung | BR-75 |
-| P01-06 | Quản lý tài khoản (G1) | VT-02, VT-03 | Họ tên, số điện thoại, vai trò, đơn vị | Tạo, khóa, mở khóa, đặt lại mật khẩu; người được đặt lại bắt buộc đổi mật khẩu ở lần đăng nhập kế tiếp (Q-148) | Danh sách tài khoản | PQ-06, PQ-07, BM-07 |
-| P01-07 | Quản lý vai trò và quyền (G1) | VT-02 | Vai trò, danh sách quyền, phạm vi đơn vị | Gán và thu hồi quyền | Ma trận quyền hiện hành | PQ-01, PQ-03, PQ-04 |
+| P01-06 | Quản lý tài khoản (G1) | VT-02, VT-03 | Họ tên, số điện thoại, vai trò, đơn vị; từ YCTD-109 bộ lọc theo Sở: nhóm quyền, trạng thái, trạng thái đổi mật khẩu, tên đăng nhập, tên nhân sự | Tạo, khóa, mở khóa, đặt lại mật khẩu; người được đặt lại bắt buộc đổi mật khẩu ở lần đăng nhập kế tiếp (Q-148) | Danh sách tài khoản ("1.4. Danh sách người dùng" từ YCTD-109: tên đăng nhập, tên hiển thị, nhóm quyền, loại tài khoản, trạng thái, trạng thái đổi mật khẩu; lọc và phân trang ở máy chủ) | PQ-06, PQ-07, BM-07 |
+| P01-07 | Quản lý vai trò và quyền (G1) | VT-02 | Vai trò, danh sách quyền, phạm vi đơn vị | Gán và thu hồi quyền; từ YCTD-109 tạo nhóm ở "1.1. Nhóm người dùng", gán quyền ở "1.3. Phân quyền nhóm theo menu" theo cây menu (chọn cả mục hoặc từng quyền của mục, khối Quyền khác) | Ma trận quyền hiện hành; danh sách nhóm người dùng (mã, tên, hiệu lực, là nhóm quản trị, là nhóm hệ thống) | PQ-01, PQ-03, PQ-04 |
 | P01-08 | Cấu hình tham số theo đơn vị (G1) | VT-02, VT-03 | Ngày chốt học phí (mặc định mùng 1 tháng sau, cấu hình được; ngày chốt công cố định mùng 1 tháng sau, không cấu hình, YCTD-41), ngày đến hạn, giờ bắt đầu học (mặc định 07:30, YCTD-47), ngày chốt đăng ký dịch vụ (mặc định ngày 25 của tháng trước kỳ, YCTD-49), mốc nhắc nợ (mặc định 3, 7 và 15 ngày sau ngày đến hạn), bật hoặc tắt chặn đăng ký dịch vụ khi nợ quá hạn, bật hoặc tắt ghi nhật ký truy cập, bật hoặc tắt kiểm tra số dư tài khoản ngân hàng, bật hoặc tắt chặn xuất quá tồn kho, bật hoặc tắt không có nhân viên y tế (BR-86), sĩ số tối đa, giờ nhắc ghi nhật ký (YCTD-71) | Lưu và áp dụng cấu hình; đơn vị chưa cấu hình một mục thì dùng giá trị của Trường chính, rồi tới mặc định; chỉ ngày chốt học phí (mùng 1 tháng sau), giờ bắt đầu học, ngày chốt đăng ký dịch vụ và mốc nhắc nợ (3, 7, 15 ngày) có mặc định, các mục khác để trống cho tới khi nhà trường cấu hình; mật khẩu mặc định của phụ huynh lưu ở dịch vụ định danh, làm ở DT-02 (YCTD-40) | Bộ tham số của đơn vị | BR-18, BR-33, BR-34, BR-62, BR-73, BR-86 |
-| P01-09 | Nhật ký thao tác (G1) | VT-02, VT-03 | Bộ lọc người dùng, thời gian, đối tượng | Ghi và tra cứu nhật ký thao tác | Danh sách nhật ký | BR-35, BR-73 |
+| P01-09 | Nhật ký thao tác (G1) | VT-02, VT-03 | Bộ lọc người dùng, thời gian, đối tượng (từ YCTD-109 ở "Mở rộng tìm kiếm" của lưới dữ liệu chung, đến 200 dòng mỗi trang) | Ghi và tra cứu nhật ký thao tác | Danh sách nhật ký | BR-35, BR-73 |
 | P01-10 | Cấu hình hạn mức phê duyệt (G1) | VT-02 | Loại chứng từ, hạn mức theo đơn vị | Lưu và áp dụng hạn mức phê duyệt | Danh sách hạn mức | BR-77, BR-79 |
 | P01-11 | Danh mục phòng học (G1) | VT-02, VT-03 | Đơn vị, mã phòng, tên phòng, sức chứa, trạng thái | Tạo, sửa, ngừng sử dụng phòng học; gán phòng cho lớp | Danh mục phòng học | BR-01, BR-75 |
 | P01-12 | Danh mục bậc học (G1) | VT-02 | Mã (không đổi sau khi tạo), tên bậc học, độ tuổi theo tháng (YCTD-42), thứ tự | Tạo, sửa, ngừng sử dụng; lớp và biểu phí chọn bậc học từ danh mục | Danh mục bậc học | BR-02, BR-17, BR-75 |
@@ -38,7 +38,7 @@
 
 | Mã | Tên chức năng | Người dùng | Đầu vào chính | Xử lý chính | Đầu ra chính | Quy tắc |
 |---|---|---|---|---|---|---|
-| P02-01 | Danh sách trẻ (G1) | VT-03, VT-04, VT-07 | Bộ lọc đơn vị, lớp, trạng thái, từ khóa | Truy vấn có phân trang và lọc theo quyền | Danh sách trẻ | BR-01, BR-72 |
+| P02-01 | Danh sách trẻ (G1) | VT-03, VT-04, VT-07 | Bộ lọc đơn vị, lớp, trạng thái, từ khóa; từ YCTD-108 thêm khối, giới tính, dân tộc, diện chính sách, khuyết tật, học 2 buổi/ngày, bán trú, biết bơi, nhóm học sinh, mã định danh Bộ GD&ĐT, số định danh cá nhân, thiếu giấy khai sinh | Truy vấn có phân trang và lọc theo quyền; trên cổng quản trị là màn hình "4.1.1. Quản lý hồ sơ học sinh" theo cột của Sở, xếp A–Z theo tên, xuất Excel theo cột đang hiện kèm nhật ký xuất (YCTD-108) | Danh sách trẻ, tệp Excel | BR-01, BR-72, BR-74, BR-107 |
 | P02-02 | Hồ sơ trẻ (G1) | VT-12, VT-03 | Thông tin định danh, ngày sinh, giới tính, địa chỉ, số định danh cá nhân, bản chụp giấy khai sinh, mã định danh do cơ sở dữ liệu ngành cấp, ghi chú | Tạo, sửa, trình duyệt; kiểm tra số định danh không trùng; tô đỏ khi chưa có mã ngành; che số định danh với vai trò không được xem đầy đủ | Hồ sơ trẻ hoàn chỉnh | BR-06, BR-07, BR-81 |
 | P02-03 | Hồ sơ phụ huynh và quan hệ với trẻ (G1) | VT-12, VT-03 | Họ tên, quan hệ, số điện thoại, nghề nghiệp | Gắn phụ huynh vào trẻ, đặt phụ huynh liên hệ chính; phụ huynh có số điện thoại được tạo tài khoản với mật khẩu mặc định chung | Danh sách phụ huynh của trẻ | BR-08, PQ-06 |
 | P02-04 | Người được ủy quyền đón trẻ (G1) | VT-14, VT-02, VT-15, VT-03 | Họ tên, quan hệ, số điện thoại, hiệu lực từ ngày đến ngày | Khai báo và hủy ủy quyền; phụ huynh khai báo cho con mình (YCTD-48) | Danh sách người được ủy quyền | BR-11 |
@@ -52,6 +52,8 @@
 | P02-12 | Nhập mã định danh ngành từ tệp (G1) | VT-12, VT-03 | Tệp theo mẫu của hệ thống gồm số định danh cá nhân, mã định danh ngành, họ tên, chép từ tệp xuất của cơ sở dữ liệu ngành (YCTD-46) | Đối chiếu theo số định danh cá nhân, gán mã ngành, báo dòng không khớp hoặc trùng; kết nối tự động để giai đoạn 3 (G3-09) | Mã ngành trên hồ sơ trẻ | BR-07 |
 | P02-13 | Hoàn thành chương trình giáo dục mầm non (G3) | VT-07, VT-03; xác nhận VT-02, VT-15 | Lớp mẫu giáo 5-6 tuổi (bậc học bắt đầu từ 60 tháng tuổi), kết quả Hoàn thành hoặc Chưa hoàn thành và ghi chú của từng trẻ đang học | Ghi kết quả từng trẻ hoặc đánh dấu cả lớp; Ban Giám hiệu xác nhận danh sách khi đủ kết quả thì khóa, hủy xác nhận kèm lý do; thống kê tỷ lệ hoàn thành theo lớp, đơn vị; xuất Excel kèm nhật ký xuất (YCTD-104) | Danh sách hoàn thành chương trình đã xác nhận, thống kê, tệp Excel | BR-72, BR-74, BR-97 |
 | P02-14 | Nhóm học sinh (G3) | VT-02, VT-15, VT-03; giáo viên xem | Tên nhóm (duy nhất trong đơn vị), mô tả, giáo viên phụ trách, trạng thái, trẻ của nhóm | Lập, sửa, ngừng dùng nhóm; thêm trẻ đang học của đơn vị theo lớp, bớt trẻ; một trẻ thuộc nhiều nhóm; lọc danh sách trẻ theo nhóm; nhóm không chuyển sang năm học mới (YCTD-104) | Danh sách nhóm và trẻ của nhóm | BR-01, BR-72 |
+| P02-15 | Biến động học sinh (G3) | VT-02, VT-15, VT-03, VT-12 | Khoảng ngày, loại biến động (nhập học, chuyển lớp, chuyển đơn vị, thôi học), đơn vị, họ tên | Dựng danh sách từ lịch sử đã có của năm học, mới nhất trước, đếm theo loại; xuất Excel theo bộ lọc kèm nhật ký xuất (YCTD-108) | Danh sách biến động, tệp Excel | BR-72, BR-74, BR-107 |
+| P02-16 | Điện thoại nhận tin, học 2 buổi/ngày và bán trú (G3) | VT-12, VT-03, VT-02, VT-15 | Phụ huynh nhận tin của học sinh; học 2 buổi/ngày, học sinh lớp bán trú của một hoặc nhiều học sinh | Chọn hoặc bỏ chọn phụ huynh nhận tin; tin nhắn theo học sinh gửi phụ huynh nhận tin; sửa ở hồ sơ hoặc cập nhật hàng loạt, có học sinh chờ duyệt thì không cập nhật học sinh nào (YCTD-108) | Số nhận tin, cờ học 2 buổi/ngày, bán trú của học sinh | BR-105, BR-106 |
 
 ## 4. Phân hệ P03 — Giảng dạy
 

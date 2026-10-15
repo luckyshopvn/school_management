@@ -1,8 +1,8 @@
 # 03. DANH SÁCH KIỂM TRA CÔNG VIỆC
 
 - Mô tả: Danh sách công việc, trạng thái và thứ tự ưu tiên của dự án.
-- Phiên bản: 0.27
-- Ngày cập nhật: 2026-10-14
+- Phiên bản: 0.29
+- Ngày cập nhật: 2026-10-15
 - Trạng thái: Đang cập nhật
 
 ## Quy ước trạng thái
@@ -13,8 +13,8 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 
 | Phân hệ | Trạng thái | Việc còn lại |
 |---|---|---|
-| P01 Nền tảng, đơn vị và phân quyền | Hoàn thành | Đợt DT-01 (YCTD-34 đến YCTD-42); kết nối ngoài ở DT-11 phần 11e; DT-14 phần 14d (YCTD-106: hồ sơ trường) |
-| P02 Trẻ, phụ huynh và lớp học | Hoàn thành | Đợt DT-03 (YCTD-44 đến YCTD-46), DT-09 phần 9b, 9d, DT-14 phần 14c (YCTD-104: hoàn thành chương trình, nhóm học sinh); kết nối tự động cơ sở dữ liệu ngành (G3-09) chưa có giao diện lập trình công khai, tiếp tục nhập từ tệp |
+| P01 Nền tảng, đơn vị và phân quyền | Hoàn thành | Đợt DT-01 (YCTD-34 đến YCTD-42); kết nối ngoài ở DT-11 phần 11e; DT-14 phần 14d (YCTD-106: hồ sơ trường); DT-15 phần 15e (YCTD-109: quản trị hệ thống theo Sở: 1.1 Nhóm người dùng, 1.3 Phân quyền nhóm theo menu, 1.4 Danh sách người dùng, lưới dữ liệu chung cho Khóa API và Nhật ký thao tác) |
+| P02 Trẻ, phụ huynh và lớp học | Hoàn thành | Đợt DT-03 (YCTD-44 đến YCTD-46), DT-09 phần 9b, 9d, DT-14 phần 14c (YCTD-104: hoàn thành chương trình, nhóm học sinh), DT-15 phần 15c (YCTD-108: Quản lý hồ sơ học sinh theo Sở, điện thoại nhận tin, học 2 buổi/ngày và bán trú, biến động học sinh); kết nối tự động cơ sở dữ liệu ngành (G3-09) chưa có giao diện lập trình công khai, tiếp tục nhập từ tệp |
 | P03 Giảng dạy | Hoàn thành | Đợt DT-10 phần 10g (YCTD-80); tổ chuyên môn chưa làm |
 | P04 Điểm danh và chăm sóc hằng ngày | Hoàn thành | Đợt DT-04 (YCTD-47, YCTD-48), DT-08 phần 8b |
 | P05 Học phí, khoản thu và giảm trừ | Hoàn thành | Đợt DT-05 (YCTD-49 đến YCTD-57); cổng thanh toán thật chờ việc T1 |
