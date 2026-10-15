@@ -318,6 +318,12 @@ export const DATA_GRID_KEYS = [
   // Cập nhật địa danh hành chính (DT-15 phần 15h1)
   'administrative-addresses',
   'administrative-unit-mappings',
+  // Màn hình còn lại của các phân hệ theo Sở (DT-16 phần 16b): cơ sở vật chất, thiết bị dạy học
+  // 16b: cân đo, thống kê, hồ sơ chưa nhập đủ, hoàn thành chương trình
+  // 16b: nhóm học sinh, đánh giá chuẩn nghề nghiệp
+  // 16b: thực đơn bữa ăn
+  // 16b: y tế, thuốc
+  // 16b: quản trị hệ thống
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;
