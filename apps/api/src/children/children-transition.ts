@@ -117,6 +117,13 @@ export const childrenTransitionStep: AcademicYearTransitionStep = {
         .values({ ...row, academic_year_id: context.academicYear.id })
         .execute();
     }
+    // Lớp ghép vào một lớp không chép sang thì bỏ lớp được ghép vào (YCTD-111)
+    const carriedIds = new Set(classes.map((row) => row.id));
+    for (const row of classes) {
+      if (row.combined_into_class_id && !carriedIds.has(row.combined_into_class_id)) {
+        await next.updateTable('classes').set({ combined_into_class_id: null }).where('id', '=', row.id).execute();
+      }
+    }
     if (classes.length > 0) {
       for (const row of await previous
         .selectFrom('class_staff_assignments')

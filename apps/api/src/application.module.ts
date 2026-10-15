@@ -123,7 +123,7 @@ import { facilitiesTransitionStep } from './facilities/facilities-transition.js'
 import { FacilityRoomsController, FacilityRoomsService } from './facilities/facility-rooms.js';
 import { SchoolProfileController, SchoolProfileService } from './facilities/school-profile.js';
 import { GradeLevelsController, GradeLevelsService } from './catalogs/grade-levels.js';
-import { ClassesController } from './classes/classes.controller.js';
+import { ClassAssignmentsController, ClassesController } from './classes/classes.controller.js';
 import { ClassesService } from './classes/classes.service.js';
 import { ChildScope } from './children/child-scope.js';
 import { ChildrenController } from './children/children.controller.js';
@@ -260,6 +260,7 @@ export class ApplicationModule {
         EmisReportController,
         GradeLevelsController,
         ClassesController,
+        ClassAssignmentsController,
         ChildrenController,
         ChildLifecycleController,
         StudentMovementsController,

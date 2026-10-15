@@ -44,8 +44,15 @@ const FINANCE = anyOf(
 export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPermissionRule>> = {
   // Quản lý giáo dục Mầm non
   '/school-profile': anyOf('P01.school-profile.manage', 'P17.report.emis'),
+  // Phân hiệu, điểm trường: như mục Phòng ban, sửa cần quyền quản lý cây đơn vị (YCTD-111)
+  '/branches': anyOf('P01.view', 'P01.org-unit.manage'),
+  '/school-sites': anyOf('P01.view', 'P01.org-unit.manage'),
   '/settings': anyOf('P01.view', 'P01.setting.manage'),
   '/classes': CHILDREN_AND_CLASSES,
+  // Nhập lớp học tách khỏi trang Nhập dữ liệu; cùng quyền nhập dữ liệu ban đầu của máy chủ (YCTD-111)
+  '/class-imports': gated(CHILDREN_AND_CLASSES, 'P01.import.children'),
+  // Phân công phụ trách lớp: ai xem được lớp đều xem được, phân công cần quyền quản lý lớp (YCTD-111)
+  '/class-assignments': CHILDREN_AND_CLASSES,
   '/staff': 'P07.staff.view',
   '/children': CHILDREN_AND_CLASSES,
   // Biến động học sinh: người lập hoặc duyệt hồ sơ học sinh (YCTD-108)

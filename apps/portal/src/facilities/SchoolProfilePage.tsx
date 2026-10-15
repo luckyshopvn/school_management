@@ -8,6 +8,7 @@ import {
 } from '@school-management/shared';
 import { Alert, Button, Toast } from '@school-management/ui';
 import { AppShell } from '../pages/AppShell.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
 import {
   fieldErrorsOf,
@@ -66,7 +67,7 @@ export function SchoolProfilePage() {
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-page-title font-bold text-text">1.1 Hồ sơ trường</h1>
+          <h1 className="text-page-title font-bold text-text">{menuPageTitle('/school-profile')}</h1>
           {canManage && draft ? (
             <Button variant="primary" disabled={save.isPending} onClick={() => save.mutate()}>
               Ghi

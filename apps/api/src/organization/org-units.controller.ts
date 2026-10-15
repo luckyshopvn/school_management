@@ -13,6 +13,8 @@ type RequestBody = Record<string, unknown> | undefined;
 
 const UNIT_TYPES: OrgUnitType[] = ['truong_chinh', 'phan_hieu', 'diem_truong'];
 const STATUSES: OrgUnitStatus[] = ['active', 'inactive'];
+const MAX_DISTANCE_KM = 999_999;
+const MAX_AREA_M2 = 9_999_999_999;
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function readOptionalText(body: RequestBody, field: string, errors: FieldError[]): string | null | undefined {
@@ -43,6 +45,31 @@ function readOptionalUuid(body: RequestBody, field: string, errors: FieldError[]
   const value = readOptionalText(body, field, errors);
   if (value && !UUID_PATTERN.test(value)) {
     errors.push({ field, message: 'Mã không hợp lệ' });
+    return undefined;
+  }
+  return value;
+}
+
+// Số không âm, tối đa hai chữ số thập phân (khoảng cách km, diện tích m²); null hoặc chuỗi rỗng là bỏ trống (YCTD-111)
+function readOptionalDecimal(
+  body: RequestBody,
+  field: string,
+  errors: FieldError[],
+  max: number,
+): number | null | undefined {
+  const value = body?.[field];
+  if (value === undefined) {
+    return undefined;
+  }
+  if (value === null || value === '') {
+    return null;
+  }
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > max) {
+    errors.push({ field, message: `Phải là số từ 0 đến ${max}` });
+    return undefined;
+  }
+  if (Math.abs(Math.round(value * 100) - value * 100) > 1e-6) {
+    errors.push({ field, message: 'Tối đa hai chữ số thập phân' });
     return undefined;
   }
   return value;
@@ -98,6 +125,8 @@ export class OrgUnitsController {
       address: readOptionalText(body, 'address', errors) ?? null,
       phone: readOptionalText(body, 'phone', errors) ?? null,
       manager_user_id: readOptionalUuid(body, 'manager_user_id', errors) ?? null,
+      distance_km: readOptionalDecimal(body, 'distance_km', errors, MAX_DISTANCE_KM) ?? null,
+      area_m2: readOptionalDecimal(body, 'area_m2', errors, MAX_AREA_M2) ?? null,
     };
     if (errors.length > 0) {
       throw validationError(errors);
@@ -122,6 +151,8 @@ export class OrgUnitsController {
       address: readOptionalText(body, 'address', errors),
       phone: readOptionalText(body, 'phone', errors),
       manager_user_id: readOptionalUuid(body, 'manager_user_id', errors),
+      distance_km: readOptionalDecimal(body, 'distance_km', errors, MAX_DISTANCE_KM),
+      area_m2: readOptionalDecimal(body, 'area_m2', errors, MAX_AREA_M2),
     };
     if (body?.status !== undefined) {
       if (!STATUSES.includes(body.status as OrgUnitStatus)) {

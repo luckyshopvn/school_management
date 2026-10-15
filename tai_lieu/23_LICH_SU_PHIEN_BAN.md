@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.64.0 – 2026-10-15
+
+- Phạm vi thay đổi: DT-15 phần 15b, trường học, lớp học theo hệ thống của Sở (YCTD-111).
+- Chức năng mới: mục "1.2. Quản lý phân hiệu" (`/branches`), "1.3. Quản lý điểm trường" (`/school-sites`) với lưới theo cột của Sở (Mã, Tên, Địa chỉ, Khoảng cách đến cơ sở chính, Diện tích, Điện thoại, Trạng thái), Thêm mới, Sửa theo biểu mẫu khối, Ngừng sử dụng, Dùng lại; "2.1. Hồ sơ lớp học" chuyển sang lưới dữ liệu chung với cột, Mở rộng tìm kiếm, Xuất Excel theo Sở và biểu mẫu theo khối có nhóm tuổi, thứ tự, học 2 buổi/ngày, lớp mẫu giáo ghép 2 hoặc 3 độ tuổi, lớp ghép, lớp bán trú; "2.2. Nhập lớp học từ Excel" (`/class-imports`) tách khỏi màn hình Nhập dữ liệu; "3.3. Phân công phụ trách lớp" (`/class-assignments`) liệt kê, phân công, kết thúc phân công, xuất Excel; tiêu đề 1.1, 1.4 kèm số menu (P01, P02).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: cột `org_units.distance_km`, `org_units.area_m2` và `classes.age_group`, `sort_order`, `two_sessions_per_day`, `mixed_age_count`, `is_combined`, `combined_into_class_id`, `boarding` cùng ràng buộc `classes_combined_check` ở cơ sở dữ liệu năm học (tệp `database/school-year/migrations/0051_add_so_school_and_class_fields.ts`); ba cột boolean mặc định false.
+- Thay đổi API: `GET`, `POST`, `PATCH /org-units` thêm `distance_km`, `area_m2`; `GET /classes` thêm bộ lọc `q`, `stage`, `age_group`, `two_sessions_per_day`, `boarding`, `is_combined` và các cột mới, thứ tự theo `sort_order` rồi mã lớp; `POST`, `PATCH /classes` nhận các ô mới; điểm cuối mới `POST /classes/export`, `GET /class-assignments`, `POST /class-assignments/export`; `DATA_GRID_KEYS` thêm `branches`, `school-sites`, `classes`, `class-assignments`.
+- Rủi ro: danh sách lớp và phân công phụ trách lớp tải cả danh sách trong phạm vi rồi phân trang ở trình duyệt; nhóm tuổi chọn riêng ở lớp chưa dùng cho thống kê nên thống kê theo bậc học có thể khác cột Nhóm tuổi; mẫu nhập lớp học chưa có các ô mới.
+- Khả năng tương thích: lớp đã có không có thứ tự nên vẫn xếp theo mã lớp; nhóm tuổi trống là theo bậc học như trước; đường dẫn `/classes`, `/org-units`, `/imports` không đổi, nhập lớp học chuyển sang `/class-imports`; không có quyền mới; ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-15-phan-15b`; chạy phần quay lui của tệp 0051 của cơ sở dữ liệu năm học (gỡ hai cột của `org_units` và bảy cột của `classes`, mất khoảng cách, diện tích và thông tin lớp theo Sở đã nhập).
+
 ### Phiên bản 0.63.0 – 2026-10-15
 
 - Phạm vi thay đổi: DT-15 phần 15g, gửi phản hồi và hết hạn mật khẩu theo hệ thống của Sở (YCTD-110).

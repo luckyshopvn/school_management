@@ -29,6 +29,7 @@ export type {
   CatalogStatus,
   ChildGender,
   ChildStatus,
+  ClassAgeGroup,
   ClassStatus,
   ContractType,
   DiscountCalculationMethod,

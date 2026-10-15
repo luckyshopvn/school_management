@@ -45,12 +45,18 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
     menu: [
       group('1.', 'Trường học', [
         leaf('1.1.', 'Hồ sơ trường', '/school-profile'),
+        leaf('1.2.', 'Quản lý phân hiệu', '/branches'),
+        leaf('1.3.', 'Quản lý điểm trường', '/school-sites'),
         leaf('1.4.', 'Cấu hình trường', '/settings'),
       ]),
-      group('2.', 'Lớp học', [leaf('2.1.', 'Hồ sơ lớp học', '/classes')]),
+      group('2.', 'Lớp học', [
+        leaf('2.1.', 'Hồ sơ lớp học', '/classes'),
+        leaf('2.2.', 'Nhập lớp học từ Excel', '/class-imports'),
+      ]),
       group('3.', 'Nhân sự', [
         group('3.1.', 'Hồ sơ nhân sự', [leaf('3.1.1.', 'Hồ sơ cán bộ, giáo viên', '/staff')]),
         leaf('3.2.', 'Đánh giá chuẩn nghề nghiệp', '/professional-standards'),
+        leaf('3.3.', 'Phân công phụ trách lớp', '/class-assignments'),
       ]),
       group('4.', 'Học sinh', [
         group('4.1.', 'Hồ sơ học sinh', [

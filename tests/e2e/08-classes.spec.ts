@@ -11,7 +11,8 @@ import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
 import { openMenu } from './menu.js';
 
-// MH-03 Lớp học và phân công giáo viên (P02-05, YCTD-44). Chạy sau 03-org-units và 06-catalogs, khi đã có đơn vị và bậc học.
+// MH-03 2.1. Hồ sơ lớp học và phân công giáo viên (P02-05, YCTD-44; lưới, biểu mẫu theo Sở YCTD-111). Chạy sau
+// 03-org-units và 06-catalogs, khi đã có đơn vị và bậc học.
 const database = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 
 test.afterAll(async () => {
@@ -47,7 +48,9 @@ async function loginWithRole(page: Page, roleCode: string, orgUnitId: string | n
   await expect(page.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
 }
 
-test('Quản lý đơn vị tạo lớp của Phân hiệu A, phân công giáo viên chủ nhiệm, đóng và mở lại lớp', async ({ page }) => {
+test('Quản lý đơn vị tạo lớp của Phân hiệu A, phân công giáo viên chủ nhiệm, giải thể và mở lại lớp', async ({
+  page,
+}) => {
   const unitId = await findUnitId('Phân hiệu A');
   const teacher = await createTestUser(database, { roles: [{ roleCode: 'VT-07', orgUnitId: unitId }] });
   const teacherName = (
@@ -56,17 +59,22 @@ test('Quản lý đơn vị tạo lớp của Phân hiệu A, phân công giáo 
 
   await loginWithRole(page, 'VT-03', unitId);
   await openMenu(page, '/classes');
-  await expect(page.getByLabel('Đơn vị', { exact: true })).toHaveValue(unitId);
+  await expect(page.getByRole('heading', { name: '2.1. Hồ sơ lớp học', exact: true })).toBeVisible();
 
-  const form = page.getByRole('region', { name: 'Tạo lớp' });
+  // Biểu mẫu theo khối của Sở, nút Ghi (YCTD-111); đơn vị mặc định là đơn vị của người dùng
+  await page.getByRole('button', { name: 'Thêm mới' }).click();
+  const form = page.getByRole('form', { name: 'Thêm mới lớp học' });
+  await expect(form.getByLabel('Đơn vị')).toHaveValue(unitId);
   await form.getByLabel('Mã lớp').fill('MAM1');
   await form.getByLabel('Tên lớp').fill('Mầm 1');
-  await form.getByLabel('Bậc học').selectOption({ label: 'Mầm' });
+  await form.getByLabel('Khối').selectOption({ label: 'Mầm' });
   await form.getByLabel('Sĩ số tối đa').fill('25');
-  await form.getByRole('button', { name: 'Tạo lớp' }).click();
-  const row = page.getByRole('row').filter({ hasText: 'Mầm 1' });
-  await expect(row).toContainText('25');
-  await expect(row).toContainText('Đang dùng');
+  await form.getByRole('button', { name: 'Ghi' }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'Đã tạo lớp Mầm 1' })).toBeVisible();
+  const grid = page.getByRole('region', { name: 'Danh sách lớp' });
+  const row = grid.getByRole('row', { name: 'Lớp Mầm 1', exact: true });
+  await expect(row).toContainText('0/25');
+  await expect(row).toContainText('Phân hiệu A');
 
   await row.getByRole('button', { name: 'Giáo viên' }).click();
   const staff = page.getByRole('region', { name: 'Giáo viên lớp Mầm 1' });
@@ -75,17 +83,18 @@ test('Quản lý đơn vị tạo lớp của Phân hiệu A, phân công giáo 
   await expect(staff).toContainText(teacherName);
   await expect(row).toContainText(teacherName);
 
-  await row.getByRole('button', { name: 'Đóng lớp' }).click();
-  await page.getByRole('dialog').getByRole('button', { name: 'Đóng lớp' }).click();
-  await expect(row).toContainText('Đã đóng');
+  await row.getByRole('button', { name: 'Giải thể lớp' }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Giải thể lớp' }).click();
+  await expect(row.getByRole('button', { name: 'Mở lại' })).toBeVisible();
   await row.getByRole('button', { name: 'Mở lại' }).click();
-  await expect(row).toContainText('Đang dùng');
+  await expect(row.getByRole('button', { name: 'Giải thể lớp' })).toBeVisible();
 });
 
-test('Giáo viên xem được danh sách lớp nhưng không có biểu mẫu tạo lớp', async ({ page }) => {
+test('Giáo viên xem được danh sách lớp nhưng không thêm, sửa được lớp', async ({ page }) => {
   const unitId = await findUnitId('Phân hiệu A');
   await loginWithRole(page, 'VT-07', unitId);
   await openMenu(page, '/classes');
-  await expect(page.getByRole('row').filter({ hasText: 'Mầm 1' })).toBeVisible();
-  await expect(page.getByRole('region', { name: 'Tạo lớp' })).toHaveCount(0);
+  await expect(page.getByRole('row', { name: 'Lớp Mầm 1', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Thêm mới' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Sửa' })).toHaveCount(0);
 });
