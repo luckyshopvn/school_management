@@ -348,7 +348,11 @@ export class AdministrativeUnitsService {
         targets.push({ item, target });
       }
       if (problems.length > 0) {
-        throw ruleViolationError(ADMINISTRATIVE_RULE_CODE, 'Có địa chỉ không chuyển được, chưa chuyển địa chỉ nào', problems);
+        throw ruleViolationError(
+          ADMINISTRATIVE_RULE_CODE,
+          'Có địa chỉ không chuyển được, chưa chuyển địa chỉ nào',
+          problems,
+        );
       }
       const now = this.clock.now();
       for (const child of children) {
@@ -361,7 +365,12 @@ export class AdministrativeUnitsService {
           profile[`${type}_province`] = target.province_name;
           profile[`${type}_ward`] = target.ward_name;
           delete profile[`${type}_district`];
-          afterValues[type] = { province: target.province_name, district: '', ward: target.ward_name, code: target.code };
+          afterValues[type] = {
+            province: target.province_name,
+            district: '',
+            ward: target.ward_name,
+            code: target.code,
+          };
         }
         await transaction
           .updateTable('children')
@@ -522,7 +531,12 @@ export class AdministrativeUnitsService {
         entityId: randomUUID(),
         action: 'create',
         before: null,
-        after: { file_name: fileName, total_rows: rows.length, created_units: created.units, ...created },
+        after: {
+          file_name: fileName,
+          total_rows: rows.length,
+          created_units: created.units,
+          created_mappings: created.mappings,
+        },
       });
     }
     return report(created);

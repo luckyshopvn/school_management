@@ -1,45 +1,62 @@
-// Khóa so khớp tên đơn vị hành chính (DT-15 phần 15h1): bỏ dấu, chữ thường, bỏ dấu câu và khoảng trắng thừa, bỏ tiền tố
-// loại đơn vị ("Phường", "Xã", "Quận", "Thành phố"…), bỏ số 0 đầu của tên là số. Nhờ vậy "Phường Bến Nghé", "P. Bến
-// Nghé", "bến nghé" cùng một khóa; "Phường 01" và "Phường 1" cùng khóa "1". Tên trùng khóa chỉ phân biệt theo đơn vị cha
+// Khóa so khớp tên đơn vị hành chính (DT-15 phần 15h1): chữ thường, bỏ dấu câu và khoảng trắng thừa, dấu thanh đặt cùng
+// một chỗ trong từng tiếng (kiểu cũ "Hoà" và kiểu mới "Hòa" như nhau), bỏ tiền tố loại đơn vị ("Phường", "Xã", "Quận",
+// "Thành phố"…), bỏ số 0 đầu của tên là số. Nhờ vậy "Phường Bến Nghé", "P. Bến Nghé", "bến nghé" cùng một khóa; "Phường
+// 01" và "Phường 1" cùng khóa "1". Giữ dấu vì có tên chỉ khác nhau ở dấu (Xã Thanh An, Xã Thạnh An). Tên trùng khóa chỉ
+// phân biệt theo đơn vị cha
+const TONE_MARKS = /[̣̀́̃̉]/g;
+
+// Dấu thanh của mỗi tiếng chuyển xuống cuối tiếng; dấu mũ, dấu trăng, dấu móc giữ nguyên chỗ
+function normalizeTones(value: string): string {
+  return value
+    .normalize('NFD')
+    .split(' ')
+    .map((word) => word.replace(TONE_MARKS, '') + (word.match(TONE_MARKS) ?? []).join(''))
+    .join(' ');
+}
+
+function baseKey(value: string): string {
+  return normalizeTones(
+    value
+      .toLowerCase()
+      .replace(/[.,\-–()]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim(),
+  );
+}
+
 const TYPE_PREFIXES = [
-  'thanh pho ',
+  'thành phố ',
   'tp ',
-  'tinh ',
-  'thi xa ',
-  'thi tran ',
-  'quan ',
-  'huyen ',
-  'phuong ',
-  'xa ',
-  'dac khu ',
+  'tỉnh ',
+  'thị xã ',
+  'thị trấn ',
+  'quận ',
+  'huyện ',
+  'phường ',
+  'xã ',
+  'đặc khu ',
   'p ',
   'q ',
   'tt ',
-];
+].map(baseKey);
 
 // Tên viết tắt hay gặp trong tệp CSDL ngành
-const ALIASES: Record<string, string> = {
-  hcm: 'ho chi minh',
-  'tp hcm': 'ho chi minh',
-  tphcm: 'ho chi minh',
-  brvt: 'ba ria vung tau',
-};
+const ALIASES = new Map(
+  [
+    ['hcm', 'hồ chí minh'],
+    ['tp hcm', 'hồ chí minh'],
+    ['tphcm', 'hồ chí minh'],
+    ['brvt', 'bà rịa vũng tàu'],
+  ].map(([alias, name]) => [baseKey(alias ?? ''), baseKey(name ?? '')]),
+);
 
 export function administrativeNameKey(value: string): string {
-  let key = value
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/đ/g, 'd')
-    .replace(/Đ/g, 'D')
-    .toLowerCase()
-    .replace(/[.,\-–()]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-  key = ALIASES[key] ?? key;
-  const prefix = TYPE_PREFIXES.find((candidate) => key.startsWith(candidate) && key.length > candidate.length);
+  let key = baseKey(value);
+  key = ALIASES.get(key) ?? key;
+  const prefix = TYPE_PREFIXES.find((candidate) => key.startsWith(`${candidate} `) && key.length > candidate.length + 1);
   if (prefix) {
-    key = key.slice(prefix.length);
+    key = key.slice(prefix.length + 1);
   }
-  key = ALIASES[key] ?? key;
-  return /^\d+$/.test(key) ? String(Number(key)) : key;
+  key = ALIASES.get(key) ?? key;
+  return (/^\d+$/.test(key) ? String(Number(key)) : key).normalize('NFC');
 }

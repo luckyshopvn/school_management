@@ -1,4 +1,8 @@
-import { administrativeNameKey, type AdministrativeLevel, type AdministrativePeriod } from '@school-management/database';
+import {
+  administrativeNameKey,
+  type AdministrativeLevel,
+  type AdministrativePeriod,
+} from '@school-management/database';
 
 // Đối chiếu địa chỉ của học sinh với danh mục địa danh hành chính (DT-15 phần 15h1, mục 4.1.11 của Sở). Năm loại địa chỉ
 // lấy từ tệp CSDL ngành (YCTD-100), lưu ở `children.moet_profile` theo khóa `<loại>_province`, `<loại>_district` (quận/
@@ -43,8 +47,7 @@ export interface NewUnitChoice {
 }
 
 export type AddressClassification =
-  | { status: 'new' | 'unknown' }
-  | { status: 'old'; old_ward_code: string | null; candidates: NewUnitChoice[] };
+  { status: 'new' | 'unknown' } | { status: 'old'; old_ward_code: string | null; candidates: NewUnitChoice[] };
 
 const text = (value: unknown) => (typeof value === 'string' ? value.trim() : '');
 
