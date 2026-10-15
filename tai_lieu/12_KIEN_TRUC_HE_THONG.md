@@ -1,8 +1,8 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, thành phần, xác thực, phân quyền, lưu trữ tệp, ghi nhật ký, giám sát, sao lưu, phục hồi, triển khai.
-- Phiên bản: 1.11
-- Ngày cập nhật: 2026-10-10
+- Phiên bản: 1.12
+- Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -115,6 +115,7 @@ Xác thực do dịch vụ định danh đảm nhiệm, tách khỏi máy chủ 
 | XT-07 | Bỏ ngày 09/10/2026: không dùng xác thực hai lớp (YCTD-31); Hiệu trưởng, Phó Hiệu trưởng, kế toán trưởng và quản trị nền tảng đăng nhập bằng mật khẩu như các vai trò khác |
 | XT-08 | Dịch vụ định danh phát hành mã có thời hạn ngắn; máy chủ API nghiệp vụ không lưu mật khẩu và không tự xác thực mật khẩu |
 | XT-09 | Mã một lần gồm sáu chữ số, chỉ dùng một lần; mặc định hết hạn sau 5 phút, nhập sai tối đa 5 lần, gửi tối đa 5 lần mỗi giờ cho một số điện thoại, Hiệu trưởng sửa được (YCTD-43); gửi qua lớp gửi tin nhắn của dịch vụ định danh, nối nhà cung cấp thật khi có tài khoản ở việc T1 |
+| XT-10 | Hết hạn mật khẩu (YCTD-110): dịch vụ định danh lưu thời điểm đặt mật khẩu gần nhất của từng tài khoản (`users.password_changed_at`) và chính sách chung số ngày hết hạn, số ngày báo trước ở `identity_settings` (mặc định 0 là tắt, 7). Đăng nhập, làm mới phiên bằng mật khẩu của tài khoản nhân sự đã quá hạn thì cấp phiên chỉ được đổi mật khẩu như XT-03, ghi nhật ký bảo mật `login_password_expired`; phản hồi có `password_expired`, `password_expires_in_days` để giao diện báo (BR-110, BM-72) |
 
 ## 5. Phân quyền
 
