@@ -40,7 +40,7 @@
 | 28 | [28_BAO_CAO_KIEM_THU_CG_10.md](28_BAO_CAO_KIEM_THU_CG_10.md) | Báo cáo kiểm thử và cổng CG-10 | Kết quả chạy thật, ca chưa chạy và quyết định xử lý, lỗi của DT-09, kết luận CG-10 (YCTD-72) | 10 Kiểm thử | Đã đánh giá |
 | 29 | [29_BAO_CAO_KIEM_THU_G2.md](29_BAO_CAO_KIEM_THU_G2.md) | Báo cáo kiểm thử giai đoạn 2 | Kết quả chạy thật sau đợt DT-10, ca chưa chạy và quyết định xử lý, lỗi khi gộp các phần, giới hạn bản 1.1.0 (YCTD-84) | 10 Kiểm thử | Đã đánh giá |
 | 30 | [30_BAO_CAO_KIEM_THU_G3.md](30_BAO_CAO_KIEM_THU_G3.md) | Báo cáo kiểm thử giai đoạn 3 | Kết quả chạy thật sau đợt DT-11, ca chưa chạy và quyết định xử lý, lỗi khi gộp các phần, giới hạn bản 1.2.0 (YCTD-91) | 10 Kiểm thử | Đã đánh giá |
-| 31 | [31_KHAO_SAT_HE_THONG_SO.md](31_KHAO_SAT_HE_THONG_SO.md) | Khảo sát hệ thống của Sở | Chức năng và giao diện của Hệ thống thông tin quản lý giáo dục cấp Trường (Mầm non) của Sở GD&ĐT TP.HCM, đối chiếu và đề xuất bổ sung | 02 Phân tích | Đã khảo sát |
+| 31 | [31_KHAO_SAT_HE_THONG_SO.md](31_KHAO_SAT_HE_THONG_SO.md) | Khảo sát hệ thống của Sở | Chức năng và giao diện của Hệ thống thông tin quản lý giáo dục cấp Trường (Mầm non) của Sở GD&ĐT TP.HCM, đối chiếu và đề xuất bổ sung; nền tảng kỹ thuật trang công khai (REA) | 02 Phân tích | Đã khảo sát |
 
 ## Quy trình nghiệp vụ
 
