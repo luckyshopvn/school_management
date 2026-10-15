@@ -80,6 +80,7 @@ test('Kế toán tính và trình bảng lương; Hiệu trưởng duyệt; giá
   await openMenu(page, '/payrolls');
   await page.getByLabel('Tháng lương').fill(vietnamToday.slice(0, 7));
   await page.getByRole('button', { name: 'Tính bảng lương' }).click();
+  await page.getByLabel('Tìm theo tên, mã nhân sự, đơn vị').fill(fullName);
   const row = page.getByRole('row', { name: `Lương của ${fullName}` });
   await expect(row).toContainText('10.000.000');
   await page.getByRole('button', { name: 'Trình duyệt' }).click();

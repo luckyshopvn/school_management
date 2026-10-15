@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Alert, Button } from '@school-management/ui';
 import { AppShell } from '../pages/AppShell.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { formatMoney, readMyPayslips } from './payroll-api.js';
 import { PayslipView } from './PayslipView.js';
 
-// MH-44 Phiếu lương của tôi (P08-08, BR-46, YCTD-60): phiếu lương đã duyệt của chính người đăng nhập
+// MH-44 Phiếu lương của tôi (P08-08, BR-46, YCTD-60): phiếu lương đã duyệt của chính người đăng nhập. Phiếu lương giữ
+// bố cục từng tháng; DT-15 phần 15f2 chỉ đổi tiêu đề có số theo menu
 export function MyPayslipsPage() {
   const payslips = useQuery({ queryKey: ['my-payslips'], queryFn: readMyPayslips, retry: false });
   const [openId, setOpenId] = useState<string>();
@@ -15,7 +17,7 @@ export function MyPayslipsPage() {
   return (
     <AppShell>
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Phiếu lương của tôi</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/my-payslips')}</h1>
         {notLinked ? (
           <p className="text-content text-text-secondary">
             Tài khoản chưa gắn với hồ sơ nhân sự nên chưa có phiếu lương.
