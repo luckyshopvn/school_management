@@ -79,7 +79,7 @@ export const APPLICATION_STATUS_LABELS: Record<ApplicationStatus, string> = {
   received: 'Đã tiếp nhận',
   passed: 'Đạt',
   rejected: 'Không đạt',
-  converted: 'Đã chuyển hồ sơ trẻ',
+  converted: 'Đã chuyển hồ sơ học sinh',
 };
 export const POST_STATUS_LABELS: Record<PostStatus, string> = {
   draft: 'Nháp',
