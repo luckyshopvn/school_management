@@ -1,9 +1,11 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, StatusBadge, TextField, Toast } from '@school-management/ui';
+import { Alert, Button, StatusBadge, TextField, Toast, type DataGridColumn } from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
+import { ApprovalQueueGrid } from '../finance/ApprovalQueueGrid.js';
 import { AppShell } from '../pages/AppShell.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import {
@@ -21,7 +23,8 @@ import {
   type Registration,
 } from './registrations-api.js';
 
-// MH-05 Đăng ký dịch vụ theo kỳ và duyệt đăng ký trễ (P05-03, P05-04, P05-13; BR-26, BR-83, BR-92; YCTD-50)
+// MH-05 Đăng ký dịch vụ theo kỳ và duyệt đăng ký trễ (P05-03, P05-04, P05-13; BR-26, BR-83, BR-92; YCTD-50). Bảng đăng
+// ký là ma trận học sinh nhân dịch vụ nên giữ bố cục riêng; danh sách chờ duyệt dùng lưới dữ liệu chung (DT-15 phần 15f1)
 const LIVE_STATUSES = ['active', 'pending_late', 'pending_cancel'];
 
 function messageOf(error: unknown): string {
@@ -35,6 +38,27 @@ function nextMonth(): string {
   const date = new Date(Date.UTC(Number(today.slice(0, 4)), Number(today.slice(5, 7)), 1));
   return date.toISOString().slice(0, 7);
 }
+
+const PENDING_COLUMNS: Array<DataGridColumn<PendingRegistration>> = [
+  {
+    id: 'child_name',
+    header: 'Học sinh',
+    alwaysVisible: true,
+    className: 'font-medium',
+    cell: (row) => row.child_name,
+  },
+  {
+    id: 'request',
+    header: 'Yêu cầu',
+    cell: (row) => `${row.status === 'pending_late' ? 'Đăng ký' : 'Hủy'} ${row.service_name}`,
+  },
+  {
+    id: 'period',
+    header: 'Kỳ',
+    cell: (row) => `${row.period_year}-${String(row.period_month).padStart(2, '0')}`,
+  },
+  { id: 'service_start_date', header: 'Bắt đầu học', cell: (row) => row.service_start_date ?? '' },
+];
 
 function PendingSection({ orgUnitId, onChanged }: { orgUnitId: string; onChanged(message: string): void }) {
   const queryClient = useQueryClient();
@@ -53,60 +77,53 @@ function PendingSection({ orgUnitId, onChanged }: { orgUnitId: string; onChanged
     },
   });
   return (
-    <section
-      className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
-      aria-label="Chờ Ban Giám hiệu duyệt"
-    >
+    <div className="flex flex-col gap-3">
       <h2 className="text-section-title font-semibold text-text">Đăng ký và hủy sau ngày chốt chờ duyệt</h2>
       {decide.error ? <Alert tone="danger">{messageOf(decide.error)}</Alert> : null}
-      {pending.data && pending.data.length === 0 ? (
-        <p className="text-content text-text-secondary">Không có yêu cầu chờ duyệt.</p>
-      ) : null}
-      {(pending.data ?? []).map((row) => (
-        <div
-          key={row.id}
-          className="flex flex-wrap items-end gap-3 border-t border-border pt-3"
-          role="group"
-          aria-label={`Yêu cầu của ${row.child_name}`}
-        >
-          <div className="flex flex-col">
-            <span className="font-medium">
-              {row.child_name}: {row.status === 'pending_late' ? 'đăng ký' : 'hủy'} {row.service_name}
-            </span>
-            <span className="text-label text-text-secondary">
-              Kỳ {row.period_year}-{String(row.period_month).padStart(2, '0')}
-              {row.service_start_date ? `, bắt đầu học ${row.service_start_date}` : ''}
-            </span>
-          </div>
-          {row.status === 'pending_late' ? (
-            <label className="text-label font-medium text-text">
-              Cách thu
-              <select
-                value={methods[row.id] ?? 'full_month'}
-                onChange={(event) =>
-                  setMethods({ ...methods, [row.id]: event.target.value as 'full_month' | 'actual_days' })
-                }
-                className="mt-1 block rounded-lg border border-border bg-card px-3 py-2 text-content font-normal"
-              >
-                <option value="full_month">Thu cả tháng</option>
-                <option value="actual_days">Thu theo ngày thực tế</option>
-              </select>
-            </label>
-          ) : null}
-          <Button variant="primary" disabled={decide.isPending} onClick={() => decide.mutate({ row, approve: true })}>
-            Duyệt
-          </Button>
-          <TextField
-            label="Lý do từ chối"
-            value={reasons[row.id] ?? ''}
-            onChange={(event) => setReasons({ ...reasons, [row.id]: event.target.value })}
-          />
-          <Button variant="danger" disabled={decide.isPending} onClick={() => decide.mutate({ row, approve: false })}>
-            Từ chối
-          </Button>
-        </div>
-      ))}
-    </section>
+      <ApprovalQueueGrid
+        label="Chờ Ban Giám hiệu duyệt"
+        gridKey="late-registrations"
+        rows={pending.data ?? []}
+        loading={pending.isPending}
+        columns={PENDING_COLUMNS}
+        getRowId={(row) => row.id}
+        getRowLabel={(row) => row.child_name}
+        searchText={(row) => `${row.child_name} ${row.service_name}`}
+        searchLabel="Tìm theo học sinh, dịch vụ"
+        emptyText="Không có yêu cầu chờ duyệt."
+        groupLabel={(row) => `Yêu cầu của ${row.child_name}`}
+        renderActions={(row) => (
+          <>
+            {row.status === 'pending_late' ? (
+              <label className="text-label font-medium text-text">
+                Cách thu
+                <select
+                  value={methods[row.id] ?? 'full_month'}
+                  onChange={(event) =>
+                    setMethods({ ...methods, [row.id]: event.target.value as 'full_month' | 'actual_days' })
+                  }
+                  className="mt-1 block rounded-lg border border-border bg-card px-3 py-2 text-content font-normal"
+                >
+                  <option value="full_month">Thu cả tháng</option>
+                  <option value="actual_days">Thu theo ngày thực tế</option>
+                </select>
+              </label>
+            ) : null}
+            <Button variant="primary" disabled={decide.isPending} onClick={() => decide.mutate({ row, approve: true })}>
+              Duyệt
+            </Button>
+            <TextField
+              label="Lý do từ chối"
+              value={reasons[row.id] ?? ''}
+              onChange={(event) => setReasons({ ...reasons, [row.id]: event.target.value })}
+            />
+            <Button variant="danger" disabled={decide.isPending} onClick={() => decide.mutate({ row, approve: false })}>
+              Từ chối
+            </Button>
+          </>
+        )}
+      />
+    </div>
   );
 }
 
@@ -175,7 +192,7 @@ export function RegistrationsPage() {
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Đăng ký dịch vụ</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/registrations')}</h1>
         <div className="flex flex-wrap items-end gap-4">
           <UnitSelect units={unitChoice.units} selectedId={orgUnitId} onSelect={unitChoice.select} />
           <label className="flex flex-col gap-2 text-label font-medium text-text">
@@ -226,7 +243,7 @@ export function RegistrationsPage() {
             <table className="w-full text-content">
               <thead className="text-left text-label font-medium text-text-secondary">
                 <tr>
-                  <th className="px-3 py-2">Trẻ</th>
+                  <th className="px-3 py-2">Học sinh</th>
                   <th className="px-3 py-2">Lớp</th>
                   {sheet.data.is_summer ? <th className="px-3 py-2">Học hè</th> : null}
                   {mandatoryServices.map((service) => (
