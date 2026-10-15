@@ -53,7 +53,7 @@ export function FacebookPostButton({
       {post?.status === 'posted' ? (
         <p className="text-label text-text-secondary">
           Đã đăng lên Fanpage (mã bài {post.external_post_id}, {post.photo_file_ids.length} hình
-          {post.excluded_photo_count > 0 ? `, bỏ ${post.excluded_photo_count} hình có trẻ chưa đồng ý` : ''})
+          {post.excluded_photo_count > 0 ? `, bỏ ${post.excluded_photo_count} hình có học sinh chưa đồng ý` : ''})
         </p>
       ) : (
         <div>
