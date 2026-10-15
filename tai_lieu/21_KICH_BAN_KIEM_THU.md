@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.34
+- Phiên bản: 1.35
 - Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -450,8 +450,22 @@
 | CT-365 | P02-01, P02-16 | Hiệu trưởng mở 4.1.1, tìm ba học sinh, bật cột Điện thoại nhận tin và Học 2 buổi/ngày, chọn hai dòng, cập nhật hàng loạt, mở rộng tìm kiếm theo học 2 buổi/ngày, xuất Excel | tiêu đề "4.1.1. Quản lý hồ sơ học sinh"; đủ cột của Sở; thứ tự An, Ánh, Bảo; hai học sinh có "Có"; lọc còn hai dòng; tệp có đúng các cột đang hiện và hai học sinh | Kiểm thử tự động `tests/e2e/51-students-so.spec.ts` đạt ngày 15/10/2026 (lần chạy toàn bộ đầu tiên hỏng do bộ chọn ô đánh dấu trong hộp cấu hình cột khớp nhiều phần tử; đã sửa, chạy lại tệp 3/3 ca đạt) | Đạt |
 | CT-366 | P02-02, P02-16 | Mở hồ sơ, chọn điện thoại nhận tin, Ghi; sửa chỗ ở không lý do rồi có lý do; mở thẻ "Thông tin riêng của trường" | hồ sơ có bốn khối của Sở và cảnh báo thiếu giấy khai sinh; lưới hiện số nhận tin; thiếu lý do báo lỗi, có lý do thì ghi được; thẻ riêng có lịch sử lớp, thẻ Sở ẩn | Kiểm thử tự động `tests/e2e/51-students-so.spec.ts` đạt ngày 15/10/2026 (lần chạy toàn bộ đầu tiên hỏng cùng lý do với CT-365; đã sửa, chạy lại tệp 3/3 ca đạt) | Đạt |
 | CT-367 | P02-06, P02-15 | Chuyển lớp một học sinh ở hồ sơ, mở 4.2, lọc theo loại, xuất Excel; giáo viên đăng nhập | có dòng chuyển lớp với lớp đi, lớp đến, lý do; lọc còn một dòng; tệp có loại "Chuyển lớp"; giáo viên không có mục 4.2 | Kiểm thử tự động `tests/e2e/51-students-so.spec.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-368 | P01-07, P19-01 | Duyệt mọi điều kiện quyền của mục menu (`MENU_PERMISSION_RULES`) | mọi mã quyền là mã có thật, mọi điều kiện gắn với một mục của cây menu, mục có điều kiện có ít nhất một quyền | Kiểm thử tự động `apps/api/src/quick-links/menu-permissions.test.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-369 | P01-07, P19-01 | So điều kiện mới với điều kiện cũ của thanh điều hướng trên hơn 3 nghìn tổ hợp quyền (không quyền, đủ quyền, từng quyền một, tổ hợp ngẫu nhiên cố định hạt) | mục hiện hay ẩn giống hệt; mục không có điều kiện luôn hiện | Kiểm thử tự động `apps/api/src/quick-links/menu-permissions.test.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-370 | P01-07 | Tính quyền của mục 1.4, 3.1, Duyệt chứng từ học phí, Phiếu thu | là các mã trong điều kiện; quyền ở cổng (nhóm tài chính, quản lý tài khoản) tách riêng; mã vừa ở điều kiện vừa ở cổng chỉ tính là quyền của mục | Kiểm thử tự động `apps/api/src/quick-links/menu-permissions.test.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-371 | P01-07, P19-01 | Với mọi mục menu, nhóm chỉ có các quyền của mục và một quyền ở cổng | mục hiện | Kiểm thử tự động `apps/api/src/quick-links/menu-permissions.test.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-372 | P01-06 | Mười tài khoản cùng nhãn, lọc theo tên nhân sự, 4 dòng mỗi trang, đọc trang 1, 2, 3, 9 | tổng 10, 3 trang, sắp theo họ tên, trang sau nối tiếp trang trước, trang vượt quá trống vẫn trả tổng; dòng vẫn kèm vai trò | Kiểm thử tự động `apps/api/src/accounts-list.test.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-373 | P01-06 | Lọc theo nhóm quyền, trạng thái khóa, trạng thái đổi mật khẩu, tên đăng nhập (kể cả có ký tự `%`, `_`), từ khóa, kết hợp nhiều bộ lọc | đúng tài khoản, đúng tổng số | Kiểm thử tự động `apps/api/src/accounts-list.test.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-374 | P01-06 | VT-03 gán ở Phân hiệu A, VT-03 gán ở Trường chính, Hiệu trưởng xem cùng danh sách | VT-03 Phân hiệu A chỉ thấy 5 tài khoản có mọi vai trò ở Phân hiệu A (tổng và số trang tính sau phạm vi); VT-03 Trường chính thấy mọi tài khoản có vai trò trừ VT-01, VT-02; Hiệu trưởng thấy cả tài khoản chưa có vai trò | Kiểm thử tự động `apps/api/src/accounts-list.test.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-375 | P01-06 | Tham số sai (`must_change_password=co`, `page=0`, `page_size=201`, `status=khac`) | lỗi dữ liệu 400 | Kiểm thử tự động `apps/api/src/accounts-list.test.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-376 | P01-06 | Thêm 30 nghìn tài khoản phụ huynh, đọc trang 2 cỡ 50 lọc theo VT-14, tìm theo tên | dưới 1,5 giây trên máy phát triển, tổng từ 30 nghìn, đúng 50 dòng, tìm đúng 10 tài khoản | Kiểm thử tự động `apps/api/src/accounts-list.test.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-377 | P01-07 | Hiệu trưởng mở 1.1 Nhóm người dùng, tìm VT-02, thêm nhóm mới bằng biểu mẫu, nút Ghi | tiêu đề "1.1. Nhóm người dùng", cột theo Sở, VT-02 là nhóm quản trị và nhóm hệ thống, nhóm mới hiện trên lưới | Kiểm thử tự động `tests/e2e/52-system-admin-so.spec.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-378 | P01-07 | Bấm Phân quyền của nhóm mới, tích mục "1.4. Danh sách người dùng", bỏ một quyền, Ghi, tải lại; người dùng của nhóm đăng nhập | mở đúng 1.3 với nhóm chọn sẵn; tích mục chọn cả hai quyền của mục và mục 1.1 cùng quyền cũng được chọn; bỏ một quyền thì mục lưng chừng; có khối Quyền khác; ghi xong tải lại vẫn còn quyền; người dùng của nhóm mở được 1.4 | Kiểm thử tự động `tests/e2e/52-system-admin-so.spec.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-379 | P01-06 | Ba tài khoản cùng nhãn, ở 1.4 lọc theo Tên nhân sự, Nhóm quyền, Trạng thái đổi mật khẩu, Tên đăng nhập | tổng 3, 2, 1, 1 dòng; cột Tên đăng nhập, Nhóm quyền, Loại tài khoản, Trạng thái đổi mật khẩu đúng | Kiểm thử tự động `tests/e2e/52-system-admin-so.spec.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-380 | P01-07 | VT-03 mở 1.3 | thông báo chỉ Hiệu trưởng và quản trị nền tảng sửa được, không có nút Ghi, ô chọn bị khóa | Kiểm thử tự động `tests/e2e/52-system-admin-so.spec.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-381 | P01-09, P01-14 | Mở lần lượt chín màn hình quản trị; Nhật ký thao tác lọc từ ngày 01/01/2100 rồi bỏ lọc, chuyển thẻ Tài khoản và quyền; mở Khóa API | tiêu đề đúng số menu; lưới nhật ký có đủ cột, lọc ra 0 dòng rồi có dòng; lưới khóa API có đủ cột | Kiểm thử tự động `tests/e2e/52-system-admin-so.spec.ts` đạt ngày 15/10/2026 | Đạt |
 
-Ca CT-105 đến CT-367 lần lượt kiểm tra AC-149 đến AC-411.
+Ca CT-105 đến CT-381 lần lượt kiểm tra AC-149 đến AC-425.
 
 ## 16. Chưa xác minh được
 

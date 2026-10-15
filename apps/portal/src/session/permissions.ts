@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchCurrentUser } from './api-client.js';
 
@@ -14,4 +15,11 @@ export function useHasPermissionOnlyThrough(permissionCode: string, roleCode: st
     assignment.permissions.includes(permissionCode),
   );
   return granting.length > 0 && granting.every((assignment) => assignment.role_code === roleCode);
+}
+
+// Mọi mã quyền của tài khoản đang đăng nhập qua các phân công, dùng khi cần xét nhiều quyền một lúc (menu theo quyền)
+export function useCurrentPermissions(): Set<string> {
+  const currentUser = useQuery({ queryKey: ['current-user'], queryFn: fetchCurrentUser });
+  const assignments = currentUser.data?.assignments;
+  return useMemo(() => new Set((assignments ?? []).flatMap((assignment) => assignment.permissions)), [assignments]);
 }

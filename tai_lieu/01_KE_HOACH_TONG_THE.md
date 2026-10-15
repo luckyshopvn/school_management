@@ -55,6 +55,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.2.0 | Bốn thay đổi: Ban Giám hiệu, nhiều cấp đơn vị, tách giao diện và máy chủ, dịch vụ định danh | 01 đến 07 | Đã có |
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
+| 0.62.0 | DT-15 phần 15e, quản trị hệ thống theo hệ thống của Sở: nhóm người dùng, phân quyền nhóm theo menu, danh sách người dùng (YCTD-109) | 13, 21 | Đã có |
 | 0.61.0 | DT-15 phần 15c, học sinh theo hệ thống của Sở: Quản lý hồ sơ học sinh, điện thoại nhận tin, học 2 buổi/ngày và bán trú, biến động học sinh (YCTD-108) | 13, 21 | Đã có |
 | 0.60.0 | DT-15 phần 15a, menu ngang đánh số, menu người dùng, lưới dữ liệu dùng chung, cấu hình lưới theo người dùng (YCTD-107) | 13, 21 | Đã có |
 | 0.59.0 | DT-14 phần 14d, hồ sơ trường, khai báo cơ sở vật chất, thiết bị dạy học, biểu EMIS đầu năm (YCTD-106) | 13, 21 | Đã có |

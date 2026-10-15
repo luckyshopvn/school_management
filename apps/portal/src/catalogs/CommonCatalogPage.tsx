@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
 import { Toast } from '@school-management/ui';
 import { AppShell } from '../pages/AppShell.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
 import { CatalogTable } from './CatalogTable.js';
 import {
@@ -132,7 +133,7 @@ export function CommonCatalogPage() {
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Danh mục dùng chung</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/catalogs')}</h1>
         <div className="flex flex-col gap-2">
           <label htmlFor="catalog-type" className="text-label font-medium text-text">
             Loại danh mục

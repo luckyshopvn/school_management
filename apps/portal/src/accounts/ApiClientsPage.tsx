@@ -1,8 +1,10 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Alert, Button, TextField, Toast } from '@school-management/ui';
+import { Alert, Button, DataGrid, TextField, Toast, type DataGridColumn } from '@school-management/ui';
 import { AppShell } from '../pages/AppShell.js';
 import { ApiError, requestJson } from '../session/api-client.js';
+import { useGridSettings } from '../pages/grid-settings.js';
+import { menuPageTitle } from '../pages/page-title.js';
 
 // MH-42 Khóa API của đối tác (P01-14; BM-65, BM-66; YCTD-63): Hiệu trưởng cấp khóa theo phạm vi dữ liệu, căn cứ pháp lý,
 // địa chỉ mạng cho phép, ngày hết hạn; khóa chỉ hiện một lần khi cấp; thu hồi có hiệu lực ngay
@@ -129,12 +131,35 @@ export function ApiClientsPage() {
       setToastMessage('Đã thu hồi khóa');
     },
   });
+  const grid = useGridSettings('api-clients');
+  // Danh sách khóa trên lưới dữ liệu chung (DT-15 phần 15e)
+  const columns: Array<DataGridColumn<ApiClient>> = [
+    {
+      id: 'name',
+      header: 'Đối tác',
+      alwaysVisible: true,
+      className: 'font-medium',
+      cell: (client) => `${client.name} (${client.partner_type})`,
+    },
+    { id: 'scopes', header: 'Phạm vi', cell: (client) => client.scopes.map((scope) => SCOPE_LABELS[scope]).join(', ') },
+    { id: 'key_prefix', header: 'Khóa', cell: (client) => `${client.key_prefix}…` },
+    { id: 'valid_until', header: 'Hết hạn', cell: (client) => client.valid_until },
+    { id: 'status', header: 'Trạng thái', cell: (client) => (client.status === 'active' ? 'Đang dùng' : 'Đã thu hồi') },
+    {
+      id: 'allowed_ips',
+      header: 'Địa chỉ mạng cho phép',
+      hiddenByDefault: true,
+      cell: (client) => client.allowed_ips.join(', '),
+    },
+    { id: 'legal_basis', header: 'Căn cứ pháp lý', hiddenByDefault: true, cell: (client) => client.legal_basis ?? '' },
+    { id: 'last_used_at', header: 'Dùng gần nhất', hiddenByDefault: true, cell: (client) => client.last_used_at ?? '' },
+  ];
 
   return (
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Khóa API cho đối tác</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/api-clients')}</h1>
         <CreateForm
           onCreated={async (key) => {
             setNewKey(key);
@@ -149,40 +174,25 @@ export function ApiClientsPage() {
         ) : null}
         {clients.error ? <Alert tone="danger">{messageOf(clients.error)}</Alert> : null}
         {revoke.error ? <Alert tone="danger">{messageOf(revoke.error)}</Alert> : null}
-        {clients.data && clients.data.length > 0 ? (
-          <table className="w-full text-content">
-            <thead className="text-left text-label font-medium text-text-secondary">
-              <tr>
-                <th className="px-3 py-2">Đối tác</th>
-                <th className="px-3 py-2">Phạm vi</th>
-                <th className="px-3 py-2">Khóa</th>
-                <th className="px-3 py-2">Hết hạn</th>
-                <th className="px-3 py-2">Trạng thái</th>
-                <th className="px-3 py-2" />
-              </tr>
-            </thead>
-            <tbody>
-              {clients.data.map((client) => (
-                <tr key={client.id} className="border-t border-border" aria-label={`Khóa của ${client.name}`}>
-                  <td className="px-3 py-2 font-medium">
-                    {client.name} ({client.partner_type})
-                  </td>
-                  <td className="px-3 py-2">{client.scopes.map((scope) => SCOPE_LABELS[scope]).join(', ')}</td>
-                  <td className="px-3 py-2">{client.key_prefix}…</td>
-                  <td className="px-3 py-2">{client.valid_until}</td>
-                  <td className="px-3 py-2">{client.status === 'active' ? 'Đang dùng' : 'Đã thu hồi'}</td>
-                  <td className="px-3 py-2 text-right">
-                    {client.status === 'active' ? (
-                      <Button variant="danger" disabled={revoke.isPending} onClick={() => revoke.mutate(client.id)}>
-                        Thu hồi
-                      </Button>
-                    ) : null}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : null}
+        <DataGrid
+          label="Danh sách khóa API"
+          columns={columns}
+          rows={clients.data ?? []}
+          getRowId={(client) => client.id}
+          getRowLabel={(client) => client.name}
+          getRowAriaLabel={(client) => `Khóa của ${client.name}`}
+          loading={clients.isPending}
+          emptyText="Chưa cấp khóa API nào."
+          rowActions={(client) =>
+            client.status === 'active' ? (
+              <Button variant="danger" disabled={revoke.isPending} onClick={() => revoke.mutate(client.id)}>
+                Thu hồi
+              </Button>
+            ) : null
+          }
+          settings={grid.settings}
+          onSettingsChange={grid.update}
+        />
       </div>
     </AppShell>
   );

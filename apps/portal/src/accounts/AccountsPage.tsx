@@ -15,9 +15,11 @@ import {
 import { listOrgUnits, type OrgUnit } from '../org-units/org-units-api.js';
 import { AppShell } from '../pages/AppShell.js';
 import { useGridSettings } from '../pages/grid-settings.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import {
+  EMPTY_ACCOUNT_FILTER,
   addRole,
   createAccount,
   listAccounts,
@@ -26,6 +28,7 @@ import {
   resetPassword,
   updateAccount,
   type Account,
+  type AccountFilter,
   type Role,
   type RoleGrant,
 } from './accounts-api.js';
@@ -273,10 +276,25 @@ function AccountDetail({
   );
 }
 
+// Loại tài khoản theo vai trò: chỉ có vai trò phụ huynh là tài khoản phụ huynh, có vai trò khác là cán bộ, nhân viên
+function accountType(account: Account): string {
+  if (account.assignments.length === 0) {
+    return 'Chưa có nhóm quyền';
+  }
+  return account.assignments.every((assignment) => assignment.role_code === 'VT-14')
+    ? 'Phụ huynh'
+    : 'Cán bộ, nhân viên';
+}
+
+function formatDateTime(value: string | null): string {
+  return value ? new Date(value).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : '';
+}
+
+const FILTER_CONTROL_CLASS = 'w-full rounded-lg border border-border bg-card px-3 py-2 text-content';
+
 export function AccountsPage() {
   const canAssignRoles = useHasPermission(PERMISSION_CODES.accountManage);
-  const [q, setQ] = useState('');
-  const [status, setStatus] = useState('');
+  const [filter, setFilter] = useState<AccountFilter>(EMPTY_ACCOUNT_FILTER);
   const [page, setPage] = useState(1);
   const [selectedId, setSelectedId] = useState<string>();
   const [toastMessage, setToastMessage] = useState<string>();
@@ -285,10 +303,15 @@ export function AccountsPage() {
   const queryClient = useQueryClient();
   const grid = useGridSettings('accounts');
   const pageSize = grid.settings.pageSize;
+  // Đổi bộ lọc thì về trang 1
+  const changeFilter = (changes: Partial<AccountFilter>) => {
+    setFilter((current) => ({ ...current, ...changes }));
+    setPage(1);
+  };
 
   const accounts = useQuery({
-    queryKey: ['accounts', q, status, page, pageSize],
-    queryFn: () => listAccounts({ q, status, page, pageSize }),
+    queryKey: ['accounts', filter, page, pageSize],
+    queryFn: () => listAccounts({ ...filter, page, pageSize }),
     enabled: grid.ready,
     // Giữ danh sách cũ trên lưới khi đổi trang, đổi bộ lọc
     placeholderData: keepPreviousData,
@@ -297,21 +320,23 @@ export function AccountsPage() {
   const units = useQuery({ queryKey: ['org-units', 'flat', ''], queryFn: () => listOrgUnits() });
   const selected = accounts.data?.items.find((account) => account.id === selectedId);
 
-  // Cột theo danh sách người dùng của Sở (1.4); cột ẩn mặc định bật ở "Cấu hình cột hiển thị"
+  // Cột theo 1.4 Danh sách người dùng của Sở (DT-15 phần 15e); mã nhân sự, mã Bộ và thời gian đổi mật khẩu chưa có ở dịch
+  // vụ định danh nên chưa có cột; cột ẩn mặc định bật ở "Cấu hình cột hiển thị"
   const columns: Array<DataGridColumn<Account>> = [
+    { id: 'login', header: 'Tên đăng nhập', cell: (account) => account.username ?? account.phone },
     {
       id: 'full_name',
-      header: 'Họ tên',
+      header: 'Tên hiển thị',
       alwaysVisible: true,
       className: 'font-medium',
       cell: (account) => account.full_name,
     },
-    { id: 'login', header: 'Đăng nhập', cell: (account) => account.phone ?? account.username },
     {
       id: 'roles',
-      header: 'Vai trò',
-      cell: (account) => account.assignments.map((assignment) => assignment.role_code).join(', '),
+      header: 'Nhóm quyền',
+      cell: (account) => [...new Set(account.assignments.map((assignment) => assignment.role_name))].join(', '),
     },
+    { id: 'account_type', header: 'Loại tài khoản', cell: accountType },
     {
       id: 'status',
       header: 'Trạng thái',
@@ -322,19 +347,23 @@ export function AccountsPage() {
         />
       ),
     },
-    { id: 'username', header: 'Tên đăng nhập', hiddenByDefault: true, cell: (account) => account.username ?? '' },
-    { id: 'phone', header: 'Số điện thoại', hiddenByDefault: true, cell: (account) => account.phone ?? '' },
+    {
+      id: 'must_change_password',
+      header: 'Trạng thái đổi mật khẩu',
+      cell: (account) => (account.must_change_password ? 'Chờ đổi mật khẩu' : 'Đã đổi'),
+    },
     {
       id: 'valid_until',
       header: 'Ngày hết hiệu lực',
       hiddenByDefault: true,
       cell: (account) => account.valid_until ?? '',
     },
+    { id: 'phone', header: 'Số điện thoại', hiddenByDefault: true, cell: (account) => account.phone ?? '' },
     {
-      id: 'must_change_password',
-      header: 'Đổi mật khẩu',
+      id: 'last_login_at',
+      header: 'Đăng nhập gần nhất',
       hiddenByDefault: true,
-      cell: (account) => (account.must_change_password ? 'Chờ đổi mật khẩu' : ''),
+      cell: (account) => formatDateTime(account.last_login_at),
     },
   ];
 
@@ -343,44 +372,96 @@ export function AccountsPage() {
       <Toast message={toastMessage} onClose={closeToast} />
       <TemporaryPasswordDialog password={temporaryPassword} onClose={() => setTemporaryPassword(undefined)} />
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Tài khoản</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/accounts')}</h1>
         {accounts.isError ? <Alert tone="danger">{messageOf(accounts.error)}</Alert> : null}
         {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_400px]">
           <DataGrid
-            label="Danh sách tài khoản"
+            label="Danh sách người dùng"
             columns={columns}
             rows={accounts.data?.items ?? []}
             getRowId={(account) => account.id}
             getRowLabel={(account) => account.full_name}
             loading={accounts.isPending}
-            emptyText="Không có tài khoản phù hợp."
+            emptyText="Không có người dùng phù hợp."
             search={{
               label: 'Tìm theo tên, số điện thoại, tên đăng nhập',
-              value: q,
-              onChange: (value) => {
-                setQ(value);
-                setPage(1);
-              },
+              value: filter.q,
+              onChange: (value) => changeFilter({ q: value }),
             }}
+            // Bộ lọc theo Sở: nhóm quyền, trạng thái, trạng thái đổi mật khẩu, tên đăng nhập, tên nhân sự
             advancedSearch={
-              <div className="flex flex-col gap-2">
-                <label htmlFor="account-status" className="text-label font-medium text-text">
-                  Trạng thái
-                </label>
-                <select
-                  id="account-status"
-                  value={status}
-                  onChange={(event) => {
-                    setStatus(event.target.value);
-                    setPage(1);
-                  }}
-                  className="w-56 rounded-lg border border-border bg-card px-3 py-2 text-content"
-                >
-                  <option value="">Tất cả</option>
-                  <option value="active">Đang hoạt động</option>
-                  <option value="locked">Đã khóa</option>
-                </select>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="account-role" className="text-label font-medium text-text">
+                    Nhóm quyền
+                  </label>
+                  <select
+                    id="account-role"
+                    value={filter.roleCode}
+                    onChange={(event) => changeFilter({ roleCode: event.target.value })}
+                    className={FILTER_CONTROL_CLASS}
+                  >
+                    <option value="">Tất cả</option>
+                    {(roles.data ?? []).map((role) => (
+                      <option key={role.id} value={role.code}>
+                        {role.code} {role.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="account-status" className="text-label font-medium text-text">
+                    Trạng thái
+                  </label>
+                  <select
+                    id="account-status"
+                    value={filter.status}
+                    onChange={(event) => changeFilter({ status: event.target.value })}
+                    className={FILTER_CONTROL_CLASS}
+                  >
+                    <option value="">Tất cả</option>
+                    <option value="active">Đang hoạt động</option>
+                    <option value="locked">Đã khóa</option>
+                  </select>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="account-password-state" className="text-label font-medium text-text">
+                    Trạng thái đổi mật khẩu
+                  </label>
+                  <select
+                    id="account-password-state"
+                    value={filter.mustChangePassword}
+                    onChange={(event) => changeFilter({ mustChangePassword: event.target.value })}
+                    className={FILTER_CONTROL_CLASS}
+                  >
+                    <option value="">Tất cả</option>
+                    <option value="true">Chờ đổi mật khẩu</option>
+                    <option value="false">Đã đổi</option>
+                  </select>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="account-login" className="text-label font-medium text-text">
+                    Tên đăng nhập
+                  </label>
+                  <input
+                    id="account-login"
+                    value={filter.login}
+                    onChange={(event) => changeFilter({ login: event.target.value })}
+                    className={FILTER_CONTROL_CLASS}
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="account-full-name" className="text-label font-medium text-text">
+                    Tên nhân sự
+                  </label>
+                  <input
+                    id="account-full-name"
+                    value={filter.fullName}
+                    onChange={(event) => changeFilter({ fullName: event.target.value })}
+                    className={FILTER_CONTROL_CLASS}
+                  />
+                </div>
               </div>
             }
             toolbar={

@@ -96,6 +96,7 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
     menu: [
       group('1.', 'Người dùng và phân quyền', [
         leaf('1.1.', 'Nhóm người dùng', '/roles'),
+        leaf('1.3.', 'Phân quyền nhóm theo menu', '/role-permissions'),
         leaf('1.4.', 'Danh sách người dùng', '/accounts'),
       ]),
       group('2.', 'Thiết lập', [

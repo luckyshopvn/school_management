@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button } from '@school-management/ui';
+import { Alert, Button, DataGrid, type DataGridColumn } from '@school-management/ui';
 import { AppShell } from '../pages/AppShell.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
-import { listAuditLogs, type AuditLogEntry } from './settings-api.js';
+import { listAuditLogs, type AuditLogEntry, type AuditLogFilter } from './settings-api.js';
+import { useGridSettings } from '../pages/grid-settings.js';
+import { menuPageTitle } from '../pages/page-title.js';
 
 // MH-31 Nhật ký thao tác (P01-09): thẻ nghiệp vụ đọc máy chủ API, thẻ tài khoản và quyền đọc dịch vụ định danh
 type Source = 'business' | 'identity';
@@ -87,92 +89,122 @@ function describeChange(entry: AuditLogEntry): string[] {
   return lines;
 }
 
+const FILTER_CONTROL_CLASS = 'w-full rounded-lg border border-border bg-card px-3 py-2 text-content';
+
+// Danh sách nhật ký trên lưới dữ liệu chung, phân trang ở máy chủ; bộ lọc đối tượng (nhật ký nghiệp vụ) và khoảng ngày ở
+// "Mở rộng tìm kiếm" (DT-15 phần 15e)
 function AuditLogTable({ source }: { source: Source }) {
   const [page, setPage] = useState(1);
-  const [entityName, setEntityName] = useState('');
+  const [filter, setFilter] = useState<AuditLogFilter>({ entityName: '', fromDate: '', toDate: '' });
+  const grid = useGridSettings('audit-logs');
+  const pageSize = grid.settings.pageSize;
   const logs = useQuery({
-    queryKey: ['audit-logs', source, page, entityName],
-    queryFn: () => listAuditLogs(source, page, entityName),
+    queryKey: ['audit-logs', source, page, pageSize, filter],
+    queryFn: () => listAuditLogs(source, page, pageSize, filter),
+    enabled: grid.ready,
+    placeholderData: keepPreviousData,
   });
+  const changeFilter = (changes: Partial<AuditLogFilter>) => {
+    setFilter((current) => ({ ...current, ...changes }));
+    setPage(1);
+  };
+
+  const columns: Array<DataGridColumn<AuditLogEntry>> = [
+    {
+      id: 'created_at',
+      header: 'Thời điểm',
+      alwaysVisible: true,
+      className: 'whitespace-nowrap',
+      cell: (entry) => formatTime(entry.created_at),
+    },
+    { id: 'actor', header: 'Người thực hiện', cell: (entry) => entry.actor_name ?? entry.actor_user_id },
+    { id: 'entity', header: 'Đối tượng', cell: (entry) => ENTITY_LABELS[entry.entity_name] ?? entry.entity_name },
+    { id: 'action', header: 'Thao tác', cell: (entry) => ACTION_LABELS[entry.action] ?? entry.action },
+    {
+      id: 'changes',
+      header: 'Nội dung thay đổi',
+      className: 'text-label text-text-secondary',
+      cell: (entry) => (
+        <ul>
+          {describeChange(entry).map((line) => (
+            <li key={line} className="break-all">
+              {line}
+            </li>
+          ))}
+        </ul>
+      ),
+    },
+  ];
 
   return (
     <div className="flex flex-col gap-3">
-      {source === 'business' ? (
-        <div className="flex items-center gap-2">
-          <label htmlFor="audit-entity" className="text-label font-medium text-text">
-            Đối tượng
-          </label>
-          <select
-            id="audit-entity"
-            value={entityName}
-            onChange={(event) => {
-              setEntityName(event.target.value);
-              setPage(1);
-            }}
-            className="rounded-lg border border-border bg-card px-3 py-2 text-content"
-          >
-            <option value="">Tất cả</option>
-            {BUSINESS_ENTITIES.map((entity) => (
-              <option key={entity} value={entity}>
-                {ENTITY_LABELS[entity]}
-              </option>
-            ))}
-          </select>
-        </div>
-      ) : null}
       {logs.isError ? (
         <Alert tone="danger">{logs.error instanceof ApiError ? logs.error.message : 'Không tải được nhật ký'}</Alert>
-      ) : logs.isPending ? (
-        <div className="h-40 animate-pulse rounded bg-border" aria-hidden="true" />
-      ) : logs.data.items.length === 0 ? (
-        <p className="text-content text-text-secondary">Chưa có nhật ký.</p>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-content">
-            <thead className="text-left text-label font-medium text-text-secondary">
-              <tr>
-                <th className="px-3 py-2">Thời điểm</th>
-                <th className="px-3 py-2">Người thực hiện</th>
-                <th className="px-3 py-2">Đối tượng</th>
-                <th className="px-3 py-2">Thao tác</th>
-                <th className="px-3 py-2">Nội dung thay đổi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {logs.data.items.map((entry: AuditLogEntry) => (
-                <tr key={entry.id} className="border-t border-border align-top">
-                  <td className="whitespace-nowrap px-3 py-2">{formatTime(entry.created_at)}</td>
-                  <td className="px-3 py-2">{entry.actor_name ?? entry.actor_user_id}</td>
-                  <td className="px-3 py-2">{ENTITY_LABELS[entry.entity_name] ?? entry.entity_name}</td>
-                  <td className="px-3 py-2">{ACTION_LABELS[entry.action] ?? entry.action}</td>
-                  <td className="px-3 py-2 text-label text-text-secondary">
-                    <ul>
-                      {describeChange(entry).map((line) => (
-                        <li key={line} className="break-all">
-                          {line}
-                        </li>
-                      ))}
-                    </ul>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-      {logs.data && logs.data.total_pages > 1 ? (
-        <div className="flex items-center gap-3">
-          <Button disabled={page <= 1} onClick={() => setPage(page - 1)}>
-            Trang trước
-          </Button>
-          <span className="text-label text-text-secondary">
-            Trang {page} / {logs.data.total_pages}
-          </span>
-          <Button disabled={page >= logs.data.total_pages} onClick={() => setPage(page + 1)}>
-            Trang sau
-          </Button>
-        </div>
       ) : null}
+      {grid.error ? <Alert tone="danger">{grid.error.message}</Alert> : null}
+      <DataGrid
+        label={source === 'business' ? 'Nhật ký nghiệp vụ' : 'Nhật ký tài khoản và quyền'}
+        columns={columns}
+        rows={logs.data?.items ?? []}
+        getRowId={(entry) => entry.id}
+        getRowLabel={(entry) => `${formatTime(entry.created_at)} ${ACTION_LABELS[entry.action] ?? entry.action}`}
+        loading={logs.isPending}
+        emptyText="Chưa có nhật ký."
+        advancedSearch={
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            {source === 'business' ? (
+              <div className="flex flex-col gap-2">
+                <label htmlFor="audit-entity" className="text-label font-medium text-text">
+                  Đối tượng
+                </label>
+                <select
+                  id="audit-entity"
+                  value={filter.entityName}
+                  onChange={(event) => changeFilter({ entityName: event.target.value })}
+                  className={FILTER_CONTROL_CLASS}
+                >
+                  <option value="">Tất cả</option>
+                  {BUSINESS_ENTITIES.map((entity) => (
+                    <option key={entity} value={entity}>
+                      {ENTITY_LABELS[entity]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : null}
+            <div className="flex flex-col gap-2">
+              <label htmlFor={`audit-from-${source}`} className="text-label font-medium text-text">
+                Từ ngày
+              </label>
+              <input
+                id={`audit-from-${source}`}
+                type="date"
+                value={filter.fromDate}
+                onChange={(event) => changeFilter({ fromDate: event.target.value })}
+                className={FILTER_CONTROL_CLASS}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label htmlFor={`audit-to-${source}`} className="text-label font-medium text-text">
+                Đến ngày
+              </label>
+              <input
+                id={`audit-to-${source}`}
+                type="date"
+                value={filter.toDate}
+                onChange={(event) => changeFilter({ toDate: event.target.value })}
+                className={FILTER_CONTROL_CLASS}
+              />
+            </div>
+          </div>
+        }
+        settings={grid.settings}
+        onSettingsChange={(next) => {
+          grid.update(next);
+          setPage(1);
+        }}
+        serverPagination={{ page, total: logs.data?.total ?? 0, onPageChange: setPage }}
+      />
     </div>
   );
 }
@@ -184,7 +216,7 @@ export function AuditLogsPage() {
   return (
     <AppShell>
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Nhật ký thao tác</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/audit-logs')}</h1>
         <div className="flex gap-2" role="tablist" aria-label="Nguồn nhật ký">
           <Button
             role="tab"

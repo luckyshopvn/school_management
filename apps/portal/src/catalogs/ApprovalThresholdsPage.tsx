@@ -7,6 +7,7 @@ import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import { listApprovalThresholds, saveApprovalThreshold, type ApprovalThreshold } from './catalogs-api.js';
 import { UnitSelect, useUnitChoice } from './UnitSelect.js';
+import { menuPageTitle } from '../pages/page-title.js';
 
 // MH-33 Hạn mức phê duyệt theo đơn vị và loại chứng từ (P01-10, BR-77); có hiệu lực ngay khi lưu (YCTD-42)
 const MONEY = new Intl.NumberFormat('vi-VN');
@@ -98,7 +99,7 @@ export function ApprovalThresholdsPage() {
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Hạn mức phê duyệt</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/approval-thresholds')}</h1>
         <p className="text-label text-text-secondary">
           Phó Hiệu trưởng phê duyệt chứng từ dưới hạn mức; bằng hoặc trên hạn mức thì Hiệu trưởng phê duyệt. Loại chứng
           từ chưa cấu hình thì Hiệu trưởng phê duyệt. Hạn mức có hiệu lực ngay khi lưu.

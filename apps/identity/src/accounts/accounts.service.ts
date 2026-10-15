@@ -8,7 +8,7 @@ import {
   type AccessTokenClaims,
   type FieldError,
 } from '@school-management/server';
-import { WHOLE_SCHOOL_ROLE_CODES } from '@school-management/shared';
+import { ROLE_CODES_RESERVED_FOR_PRINCIPAL, WHOLE_SCHOOL_ROLE_CODES } from '@school-management/shared';
 import type { Transaction } from 'kysely';
 import { hashPassword } from '../authentication/password.js';
 import { IdentitySettingsService } from '../settings/identity-settings.service.js';
@@ -67,6 +67,9 @@ export interface ListQuery {
   q?: string;
   status?: 'active' | 'locked';
   role_code?: string;
+  login?: string;
+  full_name?: string;
+  must_change_password?: boolean;
   page: number;
   page_size: number;
 }
@@ -88,6 +91,11 @@ const USER_COLUMNS = [
   'last_login_at',
   'locked_until',
 ] as const;
+
+// Thoát ký tự đại diện của LIKE để từ khóa có "%" hoặc "_" vẫn tìm đúng nguyên văn
+function escapeLike(value: string): string {
+  return value.replace(/[\\%_]/g, (character) => `\\${character}`);
+}
 
 function notFound(): ApplicationError {
   return new ApplicationError('ERR_NOT_FOUND', 'Không tìm thấy tài khoản', [{ field: 'entity', message: 'user' }]);
@@ -130,40 +138,108 @@ export class AccountsService {
     return { authority, units };
   }
 
+  // Lọc, đếm và cắt trang ngay trong câu truy vấn, chỉ đọc vai trò của các tài khoản trên trang (DT-15 phần 15e): trường
+  // có khoảng 30 nghìn tài khoản phụ huynh nên không đọc cả bảng rồi mới cắt. Điều kiện phạm vi viết lại đúng như
+  // canManageAccount: VT-03 chỉ thấy tài khoản có ít nhất một vai trò và mọi vai trò đều nằm trong đơn vị của mình, không
+  // phải VT-01, VT-02
   async list(caller: CallerContext, query: ListQuery) {
     const { authority } = await this.authority(caller);
-    let selection = this.database.selectFrom('users').select(USER_COLUMNS);
+    let selection = this.database.selectFrom('users');
     if (query.q) {
-      const pattern = `%${query.q.toLowerCase()}%`;
+      const pattern = `%${escapeLike(query.q.toLowerCase())}%`;
       selection = selection.where((expression) =>
         expression.or([
-          expression(expression.fn('lower', ['full_name']), 'like', pattern),
-          expression('phone', 'like', pattern),
-          expression(expression.fn('lower', ['username']), 'like', pattern),
+          expression(expression.fn('lower', ['users.full_name']), 'like', pattern),
+          expression('users.phone', 'like', pattern),
+          expression(expression.fn('lower', ['users.username']), 'like', pattern),
         ]),
       );
     }
-    if (query.status) {
-      selection = selection.where('status', '=', query.status);
+    // Bộ lọc của danh sách người dùng theo Sở: tên đăng nhập (tên đăng nhập hoặc số điện thoại), tên nhân sự
+    if (query.login) {
+      const pattern = `%${escapeLike(query.login.toLowerCase())}%`;
+      selection = selection.where((expression) =>
+        expression.or([
+          expression('users.phone', 'like', pattern),
+          expression(expression.fn('lower', ['users.username']), 'like', pattern),
+        ]),
+      );
     }
-    const users = await selection.orderBy('full_name').execute();
+    if (query.full_name) {
+      selection = selection.where(
+        (expression) => expression.fn('lower', ['users.full_name']),
+        'like',
+        `%${escapeLike(query.full_name.toLowerCase())}%`,
+      );
+    }
+    if (query.status) {
+      selection = selection.where('users.status', '=', query.status);
+    }
+    if (query.must_change_password !== undefined) {
+      selection = selection.where('users.must_change_password', '=', query.must_change_password);
+    }
+    if (query.role_code) {
+      const roleCode = query.role_code;
+      selection = selection.where(({ exists, selectFrom }) =>
+        exists(
+          selectFrom('user_roles')
+            .innerJoin('roles', 'roles.id', 'user_roles.role_id')
+            .select('user_roles.id')
+            .whereRef('user_roles.user_id', '=', 'users.id')
+            .where('roles.code', '=', roleCode),
+        ),
+      );
+    }
+    if (!authority.manageAll) {
+      const unitIds = [...authority.manageInUnitIds];
+      selection = selection
+        .where(({ exists, selectFrom }) =>
+          exists(selectFrom('user_roles').select('user_roles.id').whereRef('user_roles.user_id', '=', 'users.id')),
+        )
+        .where(({ exists, not, selectFrom }) =>
+          not(
+            exists(
+              selectFrom('user_roles')
+                .innerJoin('roles', 'roles.id', 'user_roles.role_id')
+                .select('user_roles.id')
+                .whereRef('user_roles.user_id', '=', 'users.id')
+                .where((expression) => {
+                  const outOfScope = [expression('roles.code', 'in', [...ROLE_CODES_RESERVED_FOR_PRINCIPAL])];
+                  if (!authority.manageInUnitWholeSchool) {
+                    outOfScope.push(expression('user_roles.org_unit_id', 'is', null));
+                    outOfScope.push(
+                      unitIds.length > 0
+                        ? expression('user_roles.org_unit_id', 'not in', unitIds)
+                        : expression.lit(true),
+                    );
+                  }
+                  return expression.or(outOfScope);
+                }),
+            ),
+          ),
+        );
+    }
+    const total = Number(
+      (await selection.select((expression) => expression.fn.countAll<string>().as('count')).executeTakeFirstOrThrow())
+        .count,
+    );
+    const users = await selection
+      .select(USER_COLUMNS.map((column) => `users.${column}` as const))
+      .orderBy('users.full_name')
+      .orderBy('users.id')
+      .limit(query.page_size)
+      .offset((query.page - 1) * query.page_size)
+      .execute();
     const assignments = await loadAssignments(
       this.database,
       users.map((user) => user.id),
     );
-    const visible = users
-      .map((user) => toView(user, assignments.get(user.id)))
-      .filter(
-        (view) => !query.role_code || view.assignments.some((assignment) => assignment.role_code === query.role_code),
-      )
-      .filter((view) => canManageAccount(authority, assignments.get(view.id) ?? []));
-    const start = (query.page - 1) * query.page_size;
     return {
-      items: visible.slice(start, start + query.page_size),
+      items: users.map((user) => toView(user, assignments.get(user.id))),
       page: query.page,
       page_size: query.page_size,
-      total: visible.length,
-      total_pages: Math.max(1, Math.ceil(visible.length / query.page_size)),
+      total,
+      total_pages: Math.max(1, Math.ceil(total / query.page_size)),
     };
   }
 

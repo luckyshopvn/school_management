@@ -22,7 +22,7 @@ async function loginAs(page: Page, roleCode: string, orgUnitId: string | null) {
 test('Hiệu trưởng tạo năm học, lưu lịch, đánh dấu tuần nghỉ Tết và mở năm học', async ({ page }) => {
   await loginAs(page, 'VT-02', null);
   await openMenu(page, '/academic-years');
-  await expect(page.getByRole('heading', { name: 'Năm học', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '2.1. Năm học', exact: true })).toBeVisible();
 
   await page.getByLabel('Tên năm học mới').fill('2026–2027');
   await page.getByRole('button', { name: 'Tạo năm học' }).click();
