@@ -5,6 +5,7 @@ import { Alert, Button, StatusBadge, TextField, Toast, type StatusTone } from '@
 import { fetchCurrentUser, ApiError } from '../session/api-client.js';
 import { listOrgUnits } from '../org-units/org-units-api.js';
 import { AppShell } from '../pages/AppShell.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
 import {
   readIdentitySettings,
@@ -325,7 +326,7 @@ export function SettingsPage() {
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Cấu hình</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/settings')}</h1>
         <section
           className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4"
           aria-label="Cấu hình theo đơn vị"

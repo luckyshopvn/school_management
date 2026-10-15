@@ -8,7 +8,8 @@ import { useHasPermission } from '../session/permissions.js';
 import { MoetImportSection } from './MoetImportSection.js';
 
 // MH-40 Nhập dữ liệu ban đầu từ Excel (P01-13) và nhập mã định danh ngành (P02-12) (YCTD-46).
-// Giao diện chỉ chuyển tệp và hiện báo cáo; máy chủ kiểm tra toàn bộ và chỉ ghi khi không còn dòng lỗi
+// Giao diện chỉ chuyển tệp và hiện báo cáo; máy chủ kiểm tra toàn bộ và chỉ ghi khi không còn dòng lỗi. Nhập lớp học tách
+// sang màn hình "2.2. Nhập lớp học từ Excel" (DT-15 phần 15b, YCTD-111)
 type ImportType = 'classes' | 'children' | 'moet_codes' | 'opening_debts' | 'staff';
 
 interface ImportJob {
@@ -53,7 +54,7 @@ async function downloadTemplate(type: ImportType): Promise<void> {
   link.click();
 }
 
-function ImportSection({ type, onChanged }: { type: ImportType; onChanged(message: string): void }) {
+export function ImportSection({ type, onChanged }: { type: ImportType; onChanged(message: string): void }) {
   const queryClient = useQueryClient();
   const [file, setFile] = useState<File>();
   const [job, setJob] = useState<ImportJob>();
@@ -174,7 +175,6 @@ export function ImportsPage() {
         </p>
         {canImportChildren ? (
           <>
-            <ImportSection type="classes" onChanged={setToastMessage} />
             <ImportSection type="children" onChanged={setToastMessage} />
             <MoetImportSection type="moet_children" onChanged={setToastMessage} />
           </>

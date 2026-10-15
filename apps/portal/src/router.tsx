@@ -13,6 +13,7 @@ import { RoomsAndGradeLevelsPage } from './catalogs/RoomsAndGradeLevelsPage.js';
 import { ChildrenPage } from './children/ChildrenPage.js';
 import { StudentMovementsPage } from './children/StudentMovementsPage.js';
 import { AttendancePage } from './attendance/AttendancePage.js';
+import { ClassAssignmentsPage } from './classes/ClassAssignmentsPage.js';
 import { ClassesPage } from './classes/ClassesPage.js';
 import { CashflowCategoriesPage } from './fees/CashflowCategoriesPage.js';
 import { FeesPage } from './fees/FeesPage.js';
@@ -58,8 +59,10 @@ import { PurchaseRequestsPage } from './inventory/PurchaseRequestsPage.js';
 import { RecruitmentPage } from './recruitment/RecruitmentPage.js';
 import { TeachingPage } from './teaching/TeachingPage.js';
 import { StaffAttendancePage } from './staff-attendance/StaffAttendancePage.js';
+import { ClassImportsPage } from './imports/ClassImportsPage.js';
 import { ImportsPage } from './imports/ImportsPage.js';
 import { OrgUnitsPage } from './org-units/OrgUnitsPage.js';
+import { BranchesPage, SchoolSitesPage } from './org-units/SchoolSitesPage.js';
 import { AuditLogsPage } from './settings/AuditLogsPage.js';
 import { SettingsPage } from './settings/SettingsPage.js';
 import { ChangePasswordPage } from './pages/ChangePasswordPage.js';
@@ -119,6 +122,11 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/approval-thresholds', component: ApprovalThresholdsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/rooms', component: RoomsAndGradeLevelsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/classes', component: ClassesPage }),
+  // Trường học, lớp học theo Sở (DT-15 phần 15b, YCTD-111)
+  createRoute({ getParentRoute: () => rootRoute, path: '/branches', component: BranchesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/school-sites', component: SchoolSitesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/class-imports', component: ClassImportsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/class-assignments', component: ClassAssignmentsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/children', component: ChildrenPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/student-movements', component: StudentMovementsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/imports', component: ImportsPage }),

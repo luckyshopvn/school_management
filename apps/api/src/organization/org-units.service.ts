@@ -56,7 +56,9 @@ const COLUMNS = [
 ] as const;
 
 // Cột numeric đọc ra chuỗi để không mất chính xác; trả số cho giao diện
-function present(row: Omit<OrgUnit, 'distance_km' | 'area_m2'> & { distance_km: string | null; area_m2: string | null }): OrgUnit {
+function present(
+  row: Omit<OrgUnit, 'distance_km' | 'area_m2'> & { distance_km: string | null; area_m2: string | null },
+): OrgUnit {
   return {
     ...row,
     distance_km: row.distance_km === null ? null : Number(row.distance_km),

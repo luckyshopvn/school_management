@@ -12,12 +12,7 @@ import { CatalogAccess } from '../catalogs/catalog-access.js';
 import { buildStudentWorkbook, fileStamp } from '../children/student-workbook.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { classAgeGroup } from '../statistics/statistics-calc.js';
-import {
-  CLASS_EXPORT_COLUMNS,
-  matchesClassFilter,
-  type ClassListFilter,
-  type ClassListRow,
-} from './class-list.js';
+import { CLASS_EXPORT_COLUMNS, matchesClassFilter, type ClassListFilter, type ClassListRow } from './class-list.js';
 
 // Lớp học và phân công giáo viên (P02-05, BR-02, YCTD-44)
 export interface ClassRecord {
@@ -174,7 +169,9 @@ export class ClassesService {
     let query = current.database.selectFrom('classes').select(CLASS_COLUMNS);
     if (filter.q) {
       const pattern = `%${filter.q.replace(/[\\%_]/g, (character) => `\\${character}`)}%`;
-      query = query.where((builder) => builder.or([builder('name', 'ilike', pattern), builder('code', 'ilike', pattern)]));
+      query = query.where((builder) =>
+        builder.or([builder('name', 'ilike', pattern), builder('code', 'ilike', pattern)]),
+      );
     }
     if (filter.mine) {
       query = query.where('id', 'in', (subquery) =>
@@ -199,7 +196,10 @@ export class ClassesService {
     if (filter.gradeLevel) {
       query = query.where('grade_level', '=', filter.gradeLevel);
     }
-    const classes = await query.orderBy(sql`sort_order asc nulls last`).orderBy('code').execute();
+    const classes = await query
+      .orderBy(sql`sort_order asc nulls last`)
+      .orderBy('code')
+      .execute();
     if (classes.length === 0) {
       return [];
     }
@@ -579,7 +579,10 @@ export class ClassesService {
     database: Executor,
     orgUnitId: string,
     classId: string | null,
-    values: Pick<ClassInput, 'grade_level' | 'age_group' | 'mixed_age_count' | 'is_combined' | 'combined_into_class_id'>,
+    values: Pick<
+      ClassInput,
+      'grade_level' | 'age_group' | 'mixed_age_count' | 'is_combined' | 'combined_into_class_id'
+    >,
   ): Promise<void> {
     if (values.mixed_age_count !== null) {
       let ageGroup = values.age_group;
@@ -630,9 +633,11 @@ export class ClassesService {
         .where('combined_into_class_id', '=', classId)
         .executeTakeFirst();
       if (dependent) {
-        throw ruleViolationError('YCTD-111', `Lớp ${dependent.name} đang ghép vào lớp này; không ghép lớp này vào lớp khác`, [
-          { field: 'combined_into_class_id', message: 'Lớp đã có lớp ghép vào' },
-        ]);
+        throw ruleViolationError(
+          'YCTD-111',
+          `Lớp ${dependent.name} đang ghép vào lớp này; không ghép lớp này vào lớp khác`,
+          [{ field: 'combined_into_class_id', message: 'Lớp đã có lớp ghép vào' }],
+        );
       }
     }
   }

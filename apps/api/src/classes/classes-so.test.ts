@@ -334,7 +334,16 @@ describe('Trường học, lớp học theo Sở (YCTD-111)', () => {
 
     const file = await download('/class-assignments/export', principal, { assignment_role: 'subject' });
     assert.equal(file.status, 200);
-    assert.deepEqual(file.rows[0], ['STT', 'Giáo viên', 'Vai trò trong lớp', 'Môn dạy', 'Lớp', 'Khối', 'Đơn vị', 'Từ ngày']);
+    assert.deepEqual(file.rows[0], [
+      'STT',
+      'Giáo viên',
+      'Vai trò trong lớp',
+      'Môn dạy',
+      'Lớp',
+      'Khối',
+      'Đơn vị',
+      'Từ ngày',
+    ]);
     assert.equal(file.rows.length, 2);
     assert.equal(file.rows[1]?.[3], 'Âm nhạc');
     assert.equal((await download('/class-assignments/export', homeroom.accessToken, {})).status, 403);

@@ -1,11 +1,6 @@
 import type { ClassAgeGroup, ClassStatus, OrgUnitType } from '@school-management/database';
 import type { FieldError } from '@school-management/server';
-import {
-  CLASS_AGE_GROUPS,
-  CLASS_STAGE_LABELS,
-  classAgeGroupLabel,
-  type ClassStage,
-} from '@school-management/shared';
+import { CLASS_AGE_GROUPS, CLASS_STAGE_LABELS, classAgeGroupLabel, type ClassStage } from '@school-management/shared';
 import { isUuid } from '../common/request-fields.js';
 
 // Danh sách lớp theo mục 2.1 "Hồ sơ lớp học" của Sở (DT-15 phần 15b, YCTD-111): bộ lọc mở rộng, cột và tệp Excel dùng
@@ -73,7 +68,8 @@ export function readClassListFilter(query: Record<string, unknown>, errors: Fiel
     errors.push({ field: 'age_group', message: 'Nhóm tuổi không có trong danh mục' });
   }
   const stage = query.stage;
-  const isStage = (value: unknown): value is ClassStage => typeof value === 'string' && Object.hasOwn(CLASS_STAGE_LABELS, value);
+  const isStage = (value: unknown): value is ClassStage =>
+    typeof value === 'string' && Object.hasOwn(CLASS_STAGE_LABELS, value);
   if (stage !== undefined && stage !== null && stage !== '' && !isStage(stage)) {
     errors.push({ field: 'stage', message: 'Nhóm lớp là nhom_tre hoặc mau_giao' });
   }
@@ -160,7 +156,11 @@ export const CLASS_EXPORT_COLUMNS: Array<{ id: string; label: string; value(row:
   { id: 'combined_into', label: 'Ghép vào lớp', value: (row) => row.combined_into_name ?? '' },
   { id: 'boarding', label: 'Lớp bán trú', value: (row) => yes(row.boarding) },
   { id: 'dissolved', label: 'Lớp giải thể', value: (row) => yes(row.status === 'closed') },
-  { id: 'school_site', label: 'Điểm trường', value: (row) => (row.org_unit_type === 'diem_truong' ? row.org_unit_name : '') },
+  {
+    id: 'school_site',
+    label: 'Điểm trường',
+    value: (row) => (row.org_unit_type === 'diem_truong' ? row.org_unit_name : ''),
+  },
   { id: 'room', label: 'Phòng học', value: (row) => row.room_name ?? '' },
   { id: 'max_size', label: 'Sĩ số tối đa', value: (row) => row.max_size },
 ];

@@ -47,7 +47,13 @@ function readOptionalDate(body: RequestBody, field: string, errors: FieldError[]
 
 type SoClassFields = Pick<
   ClassInput,
-  'age_group' | 'sort_order' | 'two_sessions_per_day' | 'mixed_age_count' | 'is_combined' | 'combined_into_class_id' | 'boarding'
+  | 'age_group'
+  | 'sort_order'
+  | 'two_sessions_per_day'
+  | 'mixed_age_count'
+  | 'is_combined'
+  | 'combined_into_class_id'
+  | 'boarding'
 >;
 
 // Thông tin lớp theo Sở (YCTD-111); trường không gửi thì không đổi (sửa) hoặc lấy mặc định (tạo)
