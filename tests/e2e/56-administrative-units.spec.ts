@@ -172,7 +172,7 @@ test('CT-15h1-10: nhập bảng đối chiếu từ Excel, địa chỉ chưa c�
   });
   await mappings.getByRole('button', { name: 'Nhập từ Excel' }).click();
   await expect(mappings).toContainText('Đã ghi dữ liệu');
-  await expect(mappings).toContainText('thêm 4 đơn vị, 1 dòng đối chiếu');
+  await expect(mappings).toContainText('thêm 5 đơn vị, 1 dòng đối chiếu');
   await expect(hometown).toContainText('Có đề xuất');
   await expect(hometown).toContainText(`Xã Mới ${suffix}`);
   await mappings.getByLabel('Tìm theo tên xã/phường, quận/huyện').fill(testWard);
