@@ -11,6 +11,7 @@ import { CommonCatalogPage } from './catalogs/CommonCatalogPage.js';
 import { DepartmentsPage } from './catalogs/DepartmentsPage.js';
 import { RoomsAndGradeLevelsPage } from './catalogs/RoomsAndGradeLevelsPage.js';
 import { ChildrenPage } from './children/ChildrenPage.js';
+import { StudentMovementsPage } from './children/StudentMovementsPage.js';
 import { AttendancePage } from './attendance/AttendancePage.js';
 import { ClassesPage } from './classes/ClassesPage.js';
 import { CashflowCategoriesPage } from './fees/CashflowCategoriesPage.js';
@@ -118,6 +119,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/rooms', component: RoomsAndGradeLevelsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/classes', component: ClassesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/children', component: ChildrenPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/student-movements', component: StudentMovementsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/imports', component: ImportsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/attendance', component: AttendancePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/fees', component: FeesPage }),

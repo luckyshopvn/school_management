@@ -71,7 +71,7 @@ export function ChildLifecycleSection({ child, onChanged }: { child: ChildDetail
   const transfer = useMutation({
     mutationFn: () =>
       transferUnit(child.id, { class_id: classId, reason: transferReason, confirm_over_capacity: overCapacity }),
-    onSuccess: () => refresh('Đã chuyển trẻ sang đơn vị mới'),
+    onSuccess: () => refresh('Đã chuyển học sinh sang đơn vị mới'),
   });
   const withdraw = useMutation({
     mutationFn: () => withdrawChild(child.id, { reason: leaveReason, ...(leaveDate ? { leave_date: leaveDate } : {}) }),
@@ -99,7 +99,7 @@ export function ChildLifecycleSection({ child, onChanged }: { child: ChildDetail
         related_staff_user_id: isStaffChild ? staffUserId || null : null,
         related_staff_role_code: isStaffChild ? staffRole : null,
       }),
-    onSuccess: () => refresh('Đã lưu cờ trẻ con nhân viên'),
+    onSuccess: () => refresh('Đã lưu cờ học sinh là con nhân viên'),
   });
   const error = [transfer.error, withdraw.error, recordConsent.error, staffChild.error].find(Boolean);
   const targets = (classes.data ?? []).filter(
@@ -144,10 +144,10 @@ export function ChildLifecycleSection({ child, onChanged }: { child: ChildDetail
         </div>
       </section>
 
-      <section className="flex flex-col gap-2 rounded-lg bg-page p-3" aria-label="Cờ trẻ con nhân viên">
+      <section className="flex flex-col gap-2 rounded-lg bg-page p-3" aria-label="Cờ học sinh là con nhân viên">
         <label className="flex items-center gap-2 text-content">
           <input type="checkbox" checked={isStaffChild} onChange={(event) => setIsStaffChild(event.target.checked)} />
-          Trẻ là con của nhân sự trong trường
+          Học sinh là con của nhân sự trong trường
         </label>
         {isStaffChild ? (
           <div className="flex flex-wrap items-end gap-3">
@@ -187,7 +187,7 @@ export function ChildLifecycleSection({ child, onChanged }: { child: ChildDetail
         ) : null}
         <div>
           <Button disabled={staffChild.isPending} onClick={() => staffChild.mutate()}>
-            Lưu cờ trẻ con nhân viên
+            Lưu cờ học sinh là con nhân viên
           </Button>
         </div>
       </section>

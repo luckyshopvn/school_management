@@ -165,6 +165,7 @@ import { PaymentGatewayRegistry } from './finance/payment-gateway.js';
 import { createPaymentGateway } from './finance/payment-providers.js';
 import { DebtsService } from './fees/debts.service.js';
 import { ChildLifecycleController, ChildLifecycleService } from './children/child-lifecycle.js';
+import { StudentMovementsController, StudentMovementsService } from './children/student-movements.js';
 import { WorkSchedulesController, WorkSchedulesService } from './staff-attendance/work-schedules.js';
 import { StaffController } from './staff/staff.controller.js';
 import { StaffService } from './staff/staff.service.js';
@@ -260,6 +261,7 @@ export class ApplicationModule {
         ClassesController,
         ChildrenController,
         ChildLifecycleController,
+        StudentMovementsController,
         WorkSchedulesController,
         HealthRecordsController,
         HealthCareController,
@@ -415,6 +417,7 @@ export class ApplicationModule {
         ChildScope,
         ChildrenService,
         ChildLifecycleService,
+        StudentMovementsService,
         WorkSchedulesService,
         HealthAccess,
         HealthRecordsService,

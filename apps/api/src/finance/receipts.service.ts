@@ -14,7 +14,7 @@ import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { nextDocumentCode } from '../fees/document-codes.js';
 import { assertDateOpen } from './fiscal-period-lock.js';
 import { ReceiptReversalsService } from './receipt-reversals.service.js';
-import { guardianUserIds, isGuardianOf, unallocatedReceipts } from './receivables.js';
+import { guardianUserIds, isGuardianOf, smsGuardianUserIds, unallocatedReceipts } from './receivables.js';
 
 // Phiếu thu, phân bổ vào hóa đơn, phân bổ số dư có của trẻ (P06-01, P06-02; QT-04 bước 2 đến 7;
 // BR-28, BR-30, BR-31, BR-34, BR-35; Q-47, Q-152; YCTD-53). Phiếu thu phát hành ngay khi lập, không có bản nháp
@@ -195,10 +195,10 @@ export class ReceiptsService {
       }`,
       targetType: 'receipts',
       targetId: receipt.id,
-      recipients: (await guardianUserIds(transaction, child.id)).flatMap((userId) => [
-        { userId, channel: 'in_app' as const },
-        { userId, channel: 'sms' as const },
-      ]),
+      recipients: [
+        ...(await guardianUserIds(transaction, child.id)).map((userId) => ({ userId, channel: 'in_app' as const })),
+        ...(await smsGuardianUserIds(transaction, child.id)).map((userId) => ({ userId, channel: 'sms' as const })),
+      ],
     });
     await this.notifySettled(transaction, child, settled);
     return receipt.id;

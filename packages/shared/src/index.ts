@@ -271,6 +271,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/program-completion',
   '/child-groups',
   '/professional-standards',
+  // Biến động học sinh (DT-15 phần 15c, YCTD-108)
+  '/student-movements',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -285,6 +287,9 @@ export const DATA_GRID_KEYS = [
   'default',
   'accounts',
   'staff',
+  // Học sinh (DT-15 phần 15c)
+  'children',
+  'student-movements',
   // Quản trị hệ thống (DT-15 phần 15e)
   'roles',
   'api-clients',

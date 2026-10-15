@@ -201,6 +201,9 @@ export interface ChildrenTable extends CatalogRecordColumns {
   approved_at: Date | null;
   // Các cột của tệp CSDL ngành không có cột riêng, khóa tiếng Anh cố định (YCTD-100)
   moet_profile: ColumnType<Record<string, unknown> | null, string | null | undefined, string | null>;
+  // Học 2 buổi/ngày, học sinh lớp bán trú (YCTD-108)
+  two_sessions_per_day: Generated<boolean>;
+  boarding: Generated<boolean>;
 }
 
 export interface HealthProfilesTable extends CatalogRecordColumns {
@@ -231,6 +234,8 @@ export interface ChildGuardiansTable extends CatalogRecordColumns {
   relationship_item_id: string;
   is_primary: Generated<boolean>;
   can_pickup: Generated<boolean>;
+  // Phụ huynh có số điện thoại nhận tin của học sinh, tối đa một mỗi học sinh (YCTD-108)
+  receives_sms: Generated<boolean>;
 }
 
 export interface ClassEnrollmentsTable extends CatalogRecordColumns {
