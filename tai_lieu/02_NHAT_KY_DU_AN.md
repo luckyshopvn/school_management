@@ -14,6 +14,26 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-15 — DT-15 phần 15h1: cập nhật địa danh hành chính theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Thêm danh mục địa danh hành chính ở cơ sở dữ liệu hệ thống (đơn vị cũ, đơn vị mới, bảng đối chiếu) và gieo sẵn Thành phố Hồ Chí Minh mới: 168 đơn vị cấp xã, 441 xã cũ của Thành phố Hồ Chí Minh, Bình Dương, Bà Rịa - Vũng Tàu, 493 dòng đối chiếu, lấy từ Nghị quyết 1685/NQ-UBTVQH15 và danh mục của Cục Thống kê (mã theo Quyết định 19/2025/QĐ-TTg).
+- Thêm màn hình "4.1.11. Cập nhật địa danh hành chính": lưới địa chỉ học sinh còn theo địa danh cũ ở năm loại địa chỉ, đề xuất địa danh mới, chọn xã mới khi xã cũ chia cho nhiều xã, chuyển hàng loạt có nhật ký trước và sau; bảng đối chiếu, nhập bảng đối chiếu từ Excel.
+- Thêm kịch bản CT-421 đến CT-430, tiêu chí AC-465 đến AC-474, quy tắc BR-115, quy tắc phân quyền PQ-67, chức năng P02-17, màn hình MH-94. Kết quả ngày 15/10/2026: UNIT_KET_QUA; E2E_KET_QUA; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện đợt 15h phần 15h1 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 5 (15h2 văn thư lưu trữ làm song song). Danh mục chỉ lấy từ văn bản và danh mục chính thức, phần chưa kiểm chứng (tỉnh khác) để người dùng nhập từ Excel; so khớp tên giữ dấu vì có tên chỉ khác dấu; dùng lại quyền lập, duyệt hồ sơ học sinh và quyền quản lý danh mục, không thêm quyền. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-116, `07_QUY_TAC_NGHIEP_VU.md` BR-115, `08_VAI_TRO_NGUOI_DUNG.md` PQ-67, `10_YEU_CAU_CHUC_NANG.md` P02-17, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-94, `16_CO_SO_DU_LIEU.md` mục P01, `17_DAC_TA_API.md` giao kèo địa danh hành chính, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.66.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 6.
+
+#### Vấn đề tồn đọng
+
+- Chỉ gieo sẵn Thành phố Hồ Chí Minh; chưa đọc trực tiếp phụ lục Quyết định 19/2025/QĐ-TTg; chưa có nhập danh sách học sinh kèm địa chỉ mới từ Excel, xuất Excel lưới địa chỉ, sửa từng dòng đối chiếu; nhập lại tệp CSDL ngành ghi đè địa chỉ đã chuyển.
+
 ### 2026-10-15 — DT-15 phần 15d: nhân sự theo hệ thống của Sở
 
 #### Công việc đã thực hiện

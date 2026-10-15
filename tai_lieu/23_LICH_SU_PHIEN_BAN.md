@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.66.0 – 2026-10-15
+
+- Phạm vi thay đổi: DT-15 phần 15h1, cập nhật địa danh hành chính theo hệ thống của Sở (YCTD-116).
+- Chức năng mới: màn hình "4.1.11. Cập nhật địa danh hành chính": lưới địa chỉ của học sinh còn theo địa danh trước sắp xếp năm 2025 ở năm loại địa chỉ của tệp CSDL ngành, địa danh mới đề xuất theo bảng đối chiếu, chọn xã mới khi xã cũ chia cho nhiều xã, chuyển hàng loạt có ghi nhật ký trước và sau; bảng đối chiếu địa danh gieo sẵn Thành phố Hồ Chí Minh theo Nghị quyết 1685/NQ-UBTVQH15 và mã số của Cục Thống kê, nhập thêm từ Excel.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp `0008_create_administrative_units` của cơ sở dữ liệu hệ thống tạo `administrative_units`, `administrative_unit_mappings` và gieo 651 đơn vị, 493 dòng đối chiếu.
+- Thay đổi API: điểm cuối mới `GET /administrative-units/addresses`, `POST /administrative-units/addresses/convert`, `GET /administrative-units/mappings`, `GET /administrative-units/mappings/template`, `POST /administrative-units/mappings/import`.
+- Rủi ro: danh mục chỉ có Thành phố Hồ Chí Minh; mã mới lấy từ danh mục của Cục Thống kê, chưa đọc trực tiếp phụ lục Quyết định 19/2025/QĐ-TTg; nhập lại tệp CSDL ngành ghi đè địa chỉ đã chuyển.
+- Khả năng tương thích: không đổi điểm cuối, màn hình đã có; không có quyền mới; ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-15-phan-15h1`; phần quay lui của tệp 0008 xóa hai bảng; địa chỉ đã chuyển giữ nguyên, xem giá trị cũ ở nhật ký thao tác.
+
 ### Phiên bản 0.65.0 – 2026-10-15
 
 - Phạm vi thay đổi: DT-15 phần 15d, nhân sự theo hệ thống của Sở (YCTD-112).
