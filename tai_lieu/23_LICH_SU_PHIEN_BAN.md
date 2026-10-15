@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.62.0 – 2026-10-15
+
+- Phạm vi thay đổi: DT-15 phần 15e, quản trị hệ thống theo hệ thống của Sở: nhóm người dùng, phân quyền nhóm theo menu, danh sách người dùng (YCTD-109).
+- Chức năng mới: "1.1. Nhóm người dùng" trên lưới dữ liệu chung (Mã nhóm, Tên nhóm, Hiệu lực, Là nhóm quản trị, Là nhóm hệ thống), biểu mẫu thêm nhóm theo khối, nút Phân quyền trên dòng; mục mới "1.3. Phân quyền nhóm theo menu" (`/role-permissions`): chọn quyền theo cây menu đánh số, chọn cả mục hoặc từng quyền, khối Quyền khác; "1.4. Danh sách người dùng" với cột và bộ lọc theo Sở (nhóm quyền, loại tài khoản, trạng thái đổi mật khẩu, tên đăng nhập, tên nhân sự); Khóa API cho đối tác và Nhật ký thao tác dùng lưới dữ liệu chung; tiêu đề các màn hình quản trị kèm số menu; điều kiện hiện mục menu chuyển sang gói dùng chung `packages/shared/src/menu-permissions.ts` (P01, P19).
+- Lỗi đã sửa: danh sách người dùng chậm khi có khoảng 30 nghìn tài khoản (dịch vụ định danh đọc mọi tài khoản cùng vai trò, quyền rồi mới cắt trang); nay lọc, đếm, phân trang trong câu truy vấn, một trang 50 dòng dưới 1,5 giây trên máy phát triển.
+- Thay đổi dữ liệu: hai chỉ mục `users_full_name_id_index` (`users (full_name, id)`) và `user_roles_role_id_index` (`user_roles (role_id)`) ở cơ sở dữ liệu định danh (tệp 0041); không đổi bảng, không đổi dữ liệu.
+- Thay đổi API: `GET /users` thêm tham số `login`, `full_name`, `must_change_password`, dạng trả về giữ nguyên; `GET /audit-logs`, `GET /users/audit-logs` nhận `page_size` đến 200; `DATA_GRID_KEYS` thêm `roles`, `api-clients`, `audit-logs`. Không có điểm cuối mới, không có quyền mới.
+- Rủi ro: người quản trị quen ma trận quyền theo phân hệ chức năng cần làm quen chọn quyền theo cây menu; một quyền thuộc nhiều mục nên tích ở một mục làm đổi các mục khác; tìm theo từ khóa vẫn so khớp một phần, nhiều hơn 30 nghìn tài khoản cần chỉ mục trigram.
+- Khả năng tương thích: đường dẫn `/roles`, `/accounts`, `/api-clients`, `/audit-logs` giữ nguyên; điểm cuối ghi quyền `PUT /roles/{id}/permissions` không đổi; kết quả hiện, ẩn mục menu như trước; cấu hình cột đã lưu của lưới `accounts` có mã cột `username` cũ thì bỏ qua mã đó; nút "Lưu quyền của vai trò", "Tạo vai trò" đổi thành "Ghi"; bộ lọc Trạng thái, Đối tượng của Nhật ký thao tác chuyển vào "Mở rộng tìm kiếm".
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-15-phan-15e`; chạy phần quay lui của tệp 0041 của cơ sở dữ liệu định danh để gỡ hai chỉ mục (không mất dữ liệu).
+
 ### Phiên bản 0.61.0 – 2026-10-15
 
 - Phạm vi thay đổi: DT-15 phần 15c, học sinh theo hệ thống của Sở: Quản lý hồ sơ học sinh, điện thoại nhận tin, học 2 buổi/ngày và bán trú, biến động học sinh (YCTD-108).

@@ -14,6 +14,27 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-15 — DT-15 phần 15e: quản trị hệ thống theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Đưa phân hệ Quản trị hệ thống của cổng quản trị theo Sở: "1.1. Nhóm người dùng" trên lưới dữ liệu chung, biểu mẫu thêm nhóm theo khối; mục mới "1.3. Phân quyền nhóm theo menu" chọn quyền theo cây menu đánh số; "1.4. Danh sách người dùng" với cột, bộ lọc theo Sở; Khóa API cho đối tác và Nhật ký thao tác trên lưới dữ liệu chung; tiêu đề các màn hình quản trị kèm số menu; điều kiện hiện mục menu chuyển sang gói dùng chung `packages/shared/src/menu-permissions.ts`; dịch vụ định danh lọc, đếm, phân trang danh sách người dùng trong câu truy vấn, tệp chuyển đổi 0041 thêm hai chỉ mục của cơ sở dữ liệu định danh.
+- Thêm kịch bản CT-368 đến CT-381, tiêu chí AC-412 đến AC-425, màn hình MH-86. Kiểm thử đơn vị máy chủ API 631/632 ca đạt, dịch vụ định danh 40/41 ca đạt (hai ca CTC-DD-041, PQ-10 đã biết chỉ hỏng trên máy phát triển do cơ sở dữ liệu phát triển cho VT-01 mọi quyền, không liên quan phần này); toàn bộ kiểm thử giao diện 84/84 ca đạt ngày 15/10/2026.
+
+#### Quyết định
+
+- Thực hiện lựa chọn 3 của Eric ngày 13/10/2026 (`32_KE_HOACH_THEO_HE_THONG_SO.md` mục 2, 3.2, 5 đợt 15e): giữ mã quyền theo thao tác, màn hình phân quyền hiển thị theo cây menu. Cách suy ra quyền của mục và quyền ở cổng (quyền ở cổng không tính là quyền của mục), cột Hiệu lực, Là nhóm quản trị, cột và bộ lọc của danh sách người dùng, việc chỉ đổi tiêu đề ở các màn hình quản trị không phải danh sách thuần Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-109.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-109, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-30, MH-31, MH-42, MH-86, `08_VAI_TRO_NGUOI_DUNG.md` PQ-13, `16_CO_SO_DU_LIEU.md` mục 2 và 20, `17_DAC_TA_API.md` mục 3, 5, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.62.0.
+
+#### Vấn đề tồn đọng
+
+- Chưa có cột Mã nhân sự, Mã Bộ, Thời gian đổi mật khẩu, Ngày hết hạn mật khẩu và bộ lọc Mã định danh, Ngày hết hạn mật khẩu của Sở (hết hạn mật khẩu làm ở phần 15g); chưa có Phân nhóm quyền hàng loạt, Cấp mật khẩu hàng loạt, Lấy danh sách CBQL/GV, Xuất Excel ở 1.4.
+- Chưa có 1.2 Phân quyền nhóm theo phần mềm của Sở; chưa sửa, xóa, ngừng dùng nhóm người dùng (không có điểm cuối).
+- Năm học, Cây đơn vị, Phòng ban và chức danh, Danh mục dùng chung, Phòng học và bậc học, Hạn mức phê duyệt, Kết nối ngoài chỉ đổi tiêu đề, chưa chuyển sang lưới dữ liệu chung; tìm theo từ khóa ở danh sách người dùng cần chỉ mục trigram khi nhiều hơn khoảng 30 nghìn tài khoản.
+
 ### 2026-10-15 — DT-15 phần 15c: học sinh theo hệ thống của Sở
 
 #### Công việc đã thực hiện
