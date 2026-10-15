@@ -2,7 +2,7 @@
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
 - Phiên bản: 0.4
-- Ngày cập nhật: 2026-10-15
+- Ngày cập nhật: 2026-10-16
 - Trạng thái: Đang cập nhật
 
 ## Quy ước
@@ -10,6 +10,45 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-113: DT-15 phần 15f2: phân hệ Nhân sự – chấm công, lương theo giao diện chung của Sở – 2026-10-16
+
+- Lý do: `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 1, dòng "Đã có, Sở không có": chấm công, nghỉ phép, lương, công việc và đánh giá nhân sự là nghiệp vụ riêng của mình nên giữ nguyên nghiệp vụ, chỉ dùng giao diện chung của mục 4 (lưới dữ liệu dùng chung, hộp xác nhận xóa, biểu mẫu theo khối có nút Ghi, tiêu đề trang có số theo menu). Phần 15f chia theo phân hệ của cây menu thành ba phần làm song song: 15f1 Tài chính – học phí, 15f2 Nhân sự – chấm công, lương (yêu cầu này), 15f3 các phân hệ riêng còn lại. Ba mã YCTD-113 đến YCTD-115 được giữ cho ba phần 15f khi phần 15h1 lấy mã YCTD-116; phần 15f2 gộp trước nên lấy YCTD-113, phần 15f1 lấy YCTD-114 (mã nháp và commit mã nguồn của phần này ghi YCTD-114). Phần này dựa trên khung chung của phần 15a (YCTD-107). Cách chia và các điểm chi tiết dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Tiêu đề của 12 trang trong phân hệ lấy từ cây menu (`menuPageTitle`), có số thứ bậc như của Sở, tên giữ như trước: "1.1. Chấm công", "1.2. Đơn nghỉ phép", "1.3. Quy định phép năm", "1.4. Ngày lễ và lịch bù", "1.5. Lịch công tác", "2.1. Bảng lương", "2.2. Quyết toán và điều chỉnh lương", "2.3. Danh mục lương và biểu thuế", "2.4. Thưởng và khấu trừ", "2.5. Phiếu lương của tôi", "3.1. Công việc và kế hoạch", "3.2. Đánh giá nhân sự".
+  - Danh sách chuyển sang lưới dữ liệu dùng chung (BC-13: tìm kiếm tại chỗ, "Mở rộng tìm kiếm" ở lưới có bộ lọc, cấu hình cột và số dòng mỗi trang theo người dùng, phân trang tại chỗ trên dữ liệu của điểm cuối cũ): 17 lưới ở 10 trang, khóa lưới thêm vào `DATA_GRID_KEYS` (`packages/shared/src/index.ts`):
+    - 1.2: `my-leave-requests` "Đơn nghỉ của tôi" (tìm theo loại nghỉ, lý do; Thêm mới; Hủy đơn chờ duyệt trên dòng); `leave-requests` "Đơn nghỉ của đơn vị" (tìm theo tên, mã nhân sự, loại nghỉ, lý do; Mở rộng tìm kiếm theo Trạng thái đơn; Thêm mới để lập đơn hộ; Duyệt, ô lý do và Từ chối, Hủy đơn trên dòng).
+    - 1.3: `leave-policies` "Quy định theo chức danh" (tìm theo chức danh; Mở rộng tìm kiếm theo Trạng thái; Thêm mới; Ngừng dùng, Dùng lại); `leave-balances` "Số ngày phép năm" (tìm theo tên, mã nhân sự; Chỉnh số ngày trên dòng).
+    - 1.4: `holidays` "Ngày nghỉ lễ" (tìm theo tên, ngày; Thêm mới; Đổi thành có lương hoặc không lương, Xóa); `school-day-changes` "Lịch học bù và nghỉ bù" (tìm theo ngày, ghi chú; Mở rộng tìm kiếm theo Loại lịch; Thêm mới; Xóa).
+    - 1.5: `work-schedules` "Danh sách lịch công tác" (tìm theo nhân sự; Mở rộng tìm kiếm theo Loại, Trạng thái; Thêm mới, Công bố lịch tháng; Xóa).
+    - 2.1: `payslips` "Danh sách phiếu lương" (tìm theo tên, mã nhân sự, đơn vị; Chi tiết, Ẩn trên dòng).
+    - 2.2: `payroll-settlements` "Hợp đồng đã chấm dứt" (tìm theo tên nhân sự, số hợp đồng; Lập bảng quyết toán, Tính lại, Chi tiết); `payroll-adjustments` "Khoản điều chỉnh lương" (tìm theo tên nhân sự, lý do; Mở rộng tìm kiếm theo Trạng thái; Thêm mới; Duyệt, ô lý do và Từ chối).
+    - 2.3: `pay-item-types` "Khoản phụ cấp và khấu trừ" (tìm theo mã, tên khoản; Mở rộng tìm kiếm theo Loại, Trạng thái; Thêm mới; Ngừng dùng, Dùng lại).
+    - 2.4: `bonus-deductions` "Khoản thưởng và khấu trừ" (tìm theo nhân sự, khoản, căn cứ; Mở rộng tìm kiếm theo Loại, Trạng thái; Thêm mới; Hủy).
+    - 3.1: `my-tasks` "Danh sách việc của tôi" (Thêm mới; cập nhật tiến độ trên dòng), `unit-tasks` "Việc đã giao trong đơn vị" (Thêm mới để giao việc), cả hai tìm theo nội dung việc, người nhận và Mở rộng tìm kiếm theo Trạng thái việc, Ưu tiên; `work-plans` "Danh sách kế hoạch" (tìm theo tên kế hoạch; Mở rộng tìm kiếm theo Trạng thái kế hoạch; Thêm mới; Kích hoạt, Đóng kế hoạch).
+    - 3.2: `evaluation-criteria` "Chỉ số đánh giá" (tìm theo mã, tên chỉ số; Thêm mới; Ngừng dùng, Dùng lại); `evaluations` "Phiếu đánh giá của đơn vị" (tìm theo tên nhân sự, kỳ; Mở rộng tìm kiếm theo Trạng thái phiếu; Chi tiết, Công bố).
+    - Cột ẩn mặc định (bật ở "Cấu hình cột hiển thị"): Mã nhân sự (`leave-balances`, `payslips`), Thu nhập chịu thuế (`payslips`), Người đánh giá và Nhận xét (`evaluations`). Lưới `payslips` thêm cột Mã nhân sự, Thu nhập chịu thuế đã có trong dữ liệu trả về.
+    - Tên vùng của lưới và tên dòng giữ như bảng cũ (ví dụ vùng "Đơn nghỉ của đơn vị", dòng "Đơn nghỉ của <họ tên> <ngày>", "Lương của <họ tên>", "Quyết toán của <họ tên>"). Không có thao tác hàng loạt nên lưới không có ô chọn dòng.
+  - Thêm mới theo mẫu của Sở: nút "Thêm mới" trên thanh công cụ của lưới mở biểu mẫu phía trên lưới; biểu mẫu theo khối có tiêu đề, nhãn bên trái, nút "Ghi" và "Hủy" (BC-16); ghi xong thì đóng biểu mẫu. Nút ghi cũ đổi thành "Ghi": Thêm ngày lễ, Thêm lịch (1.4, 1.5), Lưu chấm công, Gửi đơn nghỉ, Thêm quy định, Chỉnh số ngày, Lập khoản điều chỉnh, Thêm khoản, Thêm biểu thuế, Ghi khoản, Thêm việc cá nhân, Giao việc, Lập kế hoạch, Thêm chỉ số, Lưu phiếu nháp. Thao tác nghiệp vụ giữ tên cũ (Vào ca, Ra ca, Chốt bảng công, Đề nghị mở lại, Duyệt, Từ chối, Hủy đơn, Trình duyệt, Duyệt bảng lương, Trả lại, Tính bảng lương, Lập bảng quyết toán, Tính lại, Công bố lịch tháng, Ngừng dùng, Dùng lại, Kích hoạt, Đóng kế hoạch, Công bố, Cập nhật).
+  - Xóa qua hộp xác nhận xóa dùng chung (BC-15, phải tích "Tôi đã đọc và đồng ý xóa …"): ngày lễ, lịch học bù hoặc nghỉ bù (1.4, trước dùng hộp xác nhận thường) và lịch công tác (1.5, trước xóa ngay không hỏi).
+  - Màn hình không phải danh sách giữ bố cục, chỉ đổi tiêu đề và biểu mẫu: bảng chấm công theo tháng (ma trận ngày × nhân sự), kỳ công, chấm công của tôi (1.1); bảng lương tháng là chứng từ có trạng thái và thao tác duyệt (2.1, chỉ phần phiếu lương từng người vào lưới); bảng quyết toán (2.2); các phiên bản biểu thuế (2.3); phiếu lương của tôi (2.5); bảng tiến độ theo người nhận (3.1); kết quả đánh giá của tôi (3.2); biểu mẫu lập phiếu đánh giá (3.2) chuyển sang khối, nút Ghi.
+  - Đổi cách bày một số thao tác cho hợp lưới: chỉnh số ngày phép năm (1.3) bấm "Chỉnh số ngày" trên dòng nhân sự, biểu mẫu mở dưới dòng và không còn ô chọn nhân sự; bộ lọc "Trạng thái đơn" (1.2, mặc định Chờ duyệt) chuyển vào "Mở rộng tìm kiếm"; ô chọn đơn vị của biểu mẫu quy định phép năm, khoản điều chỉnh lương, thưởng và khấu trừ chuyển vào biểu mẫu (dòng "Đơn vị"); chi tiết phiếu lương (2.1) và điểm từng chỉ số của phiếu đánh giá (3.2, nút "Chi tiết") mở dưới dòng. Duyệt, từ chối có lý do (đơn nghỉ, khoản điều chỉnh) và cập nhật tiến độ việc nằm ở cột thao tác của dòng như trước.
+  - Cổng quản trị nói "học sinh" thay "trẻ" ở chữ của trang Ngày lễ và lịch bù và chú thích mã nguồn trang Quyết toán.
+  - Hạn chế:
+    - Không chuyển sang lưới vì không phải danh sách: bảng chấm công tháng và kỳ công (ma trận, chứng từ chốt), bảng chấm công trong tháng của "Chấm công của tôi", bảng lương tháng ngoài phần phiếu lương, bảng quyết toán, các phiên bản biểu thuế, phiếu lương của tôi, bảng tiến độ theo người nhận, kết quả đánh giá của tôi.
+    - Lưới lọc và phân trang tại chỗ trên dữ liệu các điểm cuối cũ trả về (không đổi API); danh sách rất dài (ví dụ phiếu lương toàn trường) vẫn tải một lần như trước.
+    - Không có Xuất Excel, Xóa hàng loạt hay ô chọn dòng vì các màn hình này chưa có các chức năng đó.
+    - Duyệt, từ chối có lý do (đơn nghỉ, khoản điều chỉnh) và cập nhật tiến độ việc vẫn là ô nhập ngay trong cột thao tác của dòng, chưa thành biểu mẫu riêng.
+    - Hủy khoản thưởng, khấu trừ vẫn hủy ngay với lý do cố định "Hủy khoản ghi nhầm" như trước (không phải xóa nên không dùng hộp xác nhận xóa).
+    - Tiêu đề cột tiền của lưới canh trái trong khi số tiền canh phải (lưới dùng chung chưa có canh cột theo tiêu đề).
+- Thành phần bị ảnh hưởng: cổng quản trị (12 trang của `apps/portal/src/staff-attendance`, `payroll`, `work`); gói dùng chung `@school-management/shared` (khóa lưới); kiểm thử giao diện; tài liệu `01`, `02`, `03` (P08, P09), `11`, `14` (cây menu mục 1.1, MH-13, MH-14, MH-15, MH-37, MH-44, MH-52, MH-53, MH-54, MH-56, MH-58, MH-59, MH-60, BC-13, BC-15, BC-16), `16` (`user_grid_settings`), `17` (khóa lưới), `21`, `23`, `24`, `32` mục 6, `index.md`.
+- Dữ liệu bị ảnh hưởng: không có bảng, cột mới, không có tệp thay đổi cấu trúc dữ liệu; cấu hình lưới mới lưu ở bảng `user_grid_settings` sẵn có theo khóa lưới mới.
+- API bị ảnh hưởng: không có điểm cuối mới, không đổi điểm cuối đã có; `GET`, `PUT /api/v1/me/grid-settings/{gridKey}` nhận thêm 17 khóa lưới.
+- Giao diện bị ảnh hưởng: MH-13, MH-14, MH-15, MH-37, MH-44, MH-52, MH-53, MH-54, MH-56, MH-58, MH-59, MH-60. Không có màn hình mới. Ứng dụng giáo viên, phụ huynh không đổi.
+- Quyền bị ảnh hưởng: không có quyền mới, không đổi mã quyền, không thêm PQ. Nút, biểu mẫu và lưới hiện theo đúng điều kiện cũ; máy chủ vẫn kiểm tra quyền ở mọi yêu cầu (AI-12). Cấu hình lưới không cần quyền riêng.
+- Ảnh hưởng chức năng cũ: nghiệp vụ, kiểm tra dữ liệu, thông báo lỗi và thứ tự bước không đổi, không thêm quy tắc nghiệp vụ; biểu mẫu thêm phải bấm "Thêm mới" mới hiện; xóa lịch công tác thêm bước xác nhận; các nút ghi đổi tên thành "Ghi".
+- Kiểm thử cần thực hiện: kịch bản CT-431 đến CT-437 (ca CT-15f2-1 đến CT-15f2-7 của bản nháp, chưa ghi mã trong mã kiểm thử); sửa kiểm thử giao diện `tests/e2e/20-staff-attendance.spec.ts`, `21-leave.spec.ts`, `22-payroll.spec.ts`, `29-work-schedules.spec.ts`, `37-work.spec.ts` theo nút Thêm mới, Ghi, hộp xác nhận xóa và ô tìm kiếm của lưới; `23-settlement.spec.ts` chạy không cần sửa. Kết quả ngày 15/10/2026 trên nhánh `dt-15-phan-15f2` trước khi gộp phần 15h1 (YCTD-116) từ nhánh chính: build, kiểm tra kiểu, lint, kiểm tra định dạng đạt; kiểm thử đơn vị toàn bộ kho mã (`pnpm -r --workspace-concurrency=1 --no-bail test`, cơ sở dữ liệu riêng của nhánh) 709/710 ca đạt, một ca không đạt là CT-15g-11 (dịch vụ định danh, số ngày còn lại trước khi hết hạn mật khẩu ra 6 thay vì 5, phụ thuộc thời điểm chạy ở ranh giới ngày), không liên quan phần này vì phần 15f2 không đổi dịch vụ định danh, chạy lại riêng tệp `password-expiry.test.js` thì 5/5 ca đạt; PQ-10 và CTC-DD-041 đạt; toàn bộ kiểm thử giao diện (`pnpm test:e2e`) 91/91 ca đạt.
+- Trạng thái: Đã triển khai
 
 ### YCTD-116: DT-15 phần 15h1: cập nhật địa danh hành chính theo hệ thống của Sở – 2026-10-15
 

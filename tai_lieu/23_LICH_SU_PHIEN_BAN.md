@@ -2,7 +2,7 @@
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
 - Phiên bản: 0.4
-- Ngày cập nhật: 2026-10-15
+- Ngày cập nhật: 2026-10-16
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
 
@@ -15,6 +15,17 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.67.0 – 2026-10-16
+
+- Phạm vi thay đổi: DT-15 phần 15f2, phân hệ Nhân sự – chấm công, lương theo giao diện chung của Sở (YCTD-113).
+- Chức năng mới: tiêu đề 12 trang của phân hệ có số theo menu (1.1. Chấm công đến 3.2. Đánh giá nhân sự); 17 lưới dữ liệu dùng chung ở 10 trang (tìm kiếm, Mở rộng tìm kiếm, cấu hình cột và số dòng theo người dùng); nút Thêm mới mở biểu mẫu theo khối có nút Ghi, Hủy; xóa ngày lễ, lịch học bù hoặc nghỉ bù, lịch công tác qua hộp xác nhận xóa dùng chung (P08, P09). Nghiệp vụ không đổi.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: không có bảng, cột mới; cấu hình lưới mới lưu ở `user_grid_settings` sẵn có.
+- Thay đổi API: không có điểm cuối mới; `GET`, `PUT /me/grid-settings/{gridKey}` nhận thêm 17 khóa lưới.
+- Rủi ro: lưới lọc, phân trang tại chỗ nên danh sách rất dài vẫn tải một lần như trước; người dùng quen nút cũ phải bấm "Thêm mới" để mở biểu mẫu.
+- Khả năng tương thích: đường dẫn, điểm cuối, quyền không đổi; không có quyền mới; ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-15-phan-15f2`; không có tệp thay đổi cấu trúc dữ liệu; dòng cấu hình của 17 khóa lưới ở `user_grid_settings` để lại không ảnh hưởng (khóa lạ không còn được đọc).
 
 ### Phiên bản 0.66.0 – 2026-10-15
 

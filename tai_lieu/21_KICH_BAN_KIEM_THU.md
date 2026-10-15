@@ -1,8 +1,8 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.39
-- Ngày cập nhật: 2026-10-15
+- Phiên bản: 1.40
+- Ngày cập nhật: 2026-10-16
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -513,8 +513,15 @@
 | CT-428 | P02-17 | Nhập bảng đối chiếu từ Excel: tệp có dòng thiếu quận/huyện và mã ba chữ số; tệp có mã xã mới đã dùng cho xã khác; tệp đúng; nhập lại cùng dòng viết không tiền tố; tải mẫu | tệp lỗi trả báo cáo dòng lỗi, không ghi; mã trùng báo "Mã 26737 đã dùng cho Phường Tân Định"; tệp đúng thêm 5 đơn vị, 1 dòng đối chiếu; nhập lại không thêm; địa chỉ quê quán có đề xuất; mỗi lần nhập thành công một dòng nhật ký; mẫu có bảy cột |
 | CT-429 | P02-17 | Hiệu trưởng mở 4.1.11, tìm học sinh của lần chạy, chọn xã mới cho dòng nơi sinh, lọc tình trạng, chọn hai dòng, bấm "Chuyển địa danh mới" và xác nhận | tiêu đề "4.1.11. Cập nhật địa danh hành chính"; ba dòng có tình trạng đúng; thông báo "Đã chuyển 2 địa chỉ của 1 học sinh sang địa danh mới"; còn dòng quê quán; hồ sơ và nhật ký đúng |
 | CT-430 | P02-17 | Hiệu trưởng nhập tệp bảng đối chiếu cho tỉnh thử ở khối "Bảng đối chiếu địa danh"; giáo viên đăng nhập | báo "Đã ghi dữ liệu", thêm 5 đơn vị, 1 dòng đối chiếu; dòng quê quán chuyển sang "Có đề xuất" với xã mới; tìm thấy dòng trong bảng đối chiếu; giáo viên không có mục 4.1.11 |
+| CT-431 | P08-09, P08-10 | Phòng nhân sự Trường chính mở "1.4. Ngày lễ và lịch bù", bấm Thêm mới ở lưới Ngày nghỉ lễ, nhập ngày lễ, bấm Ghi; Hiệu trưởng bấm Thêm mới ở lưới Lịch học bù và nghỉ bù, thêm ngày nghỉ bù rồi xóa; phòng nhân sự xóa ngày lễ | dòng mới hiện trong lưới; phòng nhân sự không có nút Thêm mới ở lưới học bù và nghỉ bù; nút Xóa của hộp chỉ bấm được sau khi tích "Tôi đã đọc và đồng ý xóa …", dòng bị xóa | Kiểm thử tự động `tests/e2e/20-staff-attendance.spec.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-432 | P08-01 | Giáo viên vào ca; phòng nhân sự đơn vị mở "1.1. Chấm công", nhập giờ ra ở biểu mẫu "Nhập giờ chấm công" theo khối, bấm Ghi | bảng chấm công hiện giờ vào, giờ ra | Kiểm thử tự động `tests/e2e/20-staff-attendance.spec.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-433 | P08-03, P08-04 | Giáo viên mở "1.2. Đơn nghỉ phép", bấm Thêm mới ở lưới Đơn nghỉ của tôi, gửi đơn bằng nút Ghi; Phó Hiệu trưởng chọn đơn vị, Mở rộng tìm kiếm chọn trạng thái Tất cả, tìm theo tên, bấm Duyệt; phòng nhân sự chốt bảng công tháng trước | đơn "Chờ duyệt" rồi "Đã duyệt"; kỳ công "Đã chốt" | Kiểm thử tự động `tests/e2e/21-leave.spec.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-434 | P08-06, P08-08 | Kế toán tính bảng lương ở "2.1. Bảng lương", tìm nhân sự trong lưới phiếu lương, trình duyệt; Hiệu trưởng duyệt; giáo viên, phòng nhân sự xem "2.5. Phiếu lương của tôi" | dòng "Lương của …" đúng số tiền; trạng thái Đã duyệt; phiếu lương đúng tháng | Kiểm thử tự động `tests/e2e/22-payroll.spec.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-435 | P07-02, P08-06 | Kế toán mở "2.2. Quyết toán và điều chỉnh lương", bấm Lập bảng quyết toán trên dòng của lưới Hợp đồng đã chấm dứt, trình duyệt; Hiệu trưởng mở Chi tiết, duyệt | bảng quyết toán Nháp, Chờ duyệt, Đã duyệt | Kiểm thử tự động `tests/e2e/23-settlement.spec.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-436 | P08-02 | Phòng nhân sự mở "1.5. Lịch công tác", bấm Thêm mới ở lưới, nhập lịch, bấm Ghi, rồi Công bố lịch tháng; giáo viên xem trên ứng dụng giáo viên | dòng Nháp rồi Đã công bố; giáo viên thấy lịch | Kiểm thử tự động `tests/e2e/29-work-schedules.spec.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-437 | P09-01, P09-04 | Quản lý đơn vị mở "3.1. Công việc và kế hoạch", bấm Thêm mới ở lưới Việc đã giao trong đơn vị, giao việc bằng nút Ghi; giáo viên cập nhật 100% trên ứng dụng giáo viên | dòng việc "Chưa làm" rồi "Hoàn thành" trong lưới "Việc đã giao trong đơn vị" | Kiểm thử tự động `tests/e2e/37-work.spec.ts` đạt ngày 15/10/2026 | Đạt |
 
-Ca CT-105 đến CT-430 lần lượt kiểm tra AC-149 đến AC-474. CT-398 đến CT-408 ứng với các ca CT-15b-1 đến CT-15b-11, CT-409 đến CT-420 ứng với các ca CT-15d-1 đến CT-15d-12, CT-421 đến CT-430 ứng với các ca CT-15h1-1 đến CT-15h1-10 trong mã kiểm thử.
+Ca CT-105 đến CT-437 lần lượt kiểm tra AC-149 đến AC-481. CT-398 đến CT-408 ứng với các ca CT-15b-1 đến CT-15b-11, CT-409 đến CT-420 ứng với các ca CT-15d-1 đến CT-15d-12, CT-421 đến CT-430 ứng với các ca CT-15h1-1 đến CT-15h1-10 trong mã kiểm thử. CT-431 đến CT-437 là các ca CT-15f2-1 đến CT-15f2-7 của bản nháp YCTD-113, kiểm bằng các ca kiểm thử giao diện đã có (không mang mã CT trong mã kiểm thử).
 
 ## 16. Chưa xác minh được
 
