@@ -14,6 +14,24 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-15 — Phân tích kỹ thuật hệ thống của Sở bằng REA
+
+#### Công việc đã thực hiện
+
+- Theo yêu cầu của Eric, Claude dùng REA tải các trang công khai của `truong.hcm.edu.vn` (đăng nhập, quên mật khẩu, đăng nhập năm cũ), không đăng nhập, không thao tác ghi; ghi kết quả vào mục 9 của `31_KHAO_SAT_HE_THONG_SO.md`: nền tảng ASP.NET Web Forms trên IIS 10, Telerik UI for ASP.NET AJAX 2025.1, tường lửa Imperva Incapsula, cách chọn đơn vị nối tầng, mã phường/xã 5 chữ số, bài học áp dụng.
+
+#### Quyết định
+
+- Không ghi tên, mã từng trường vào tài liệu vì kho mã công khai; chỉ ghi số lượng và định dạng mã.
+
+#### Thay đổi
+
+- `31_KHAO_SAT_HE_THONG_SO.md` phiên bản 1.1, thêm mục 9; `index.md` cập nhật mô tả tài liệu 31.
+
+#### Vấn đề tồn đọng
+
+- Chưa phân tích kỹ thuật phần sau đăng nhập; cần Eric tự đăng nhập trên Chrome mở cổng gỡ lỗi cục bộ để REA quan sát thụ động.
+
 ### 2026-10-15 — DT-15 phần 15b: trường học, lớp học theo hệ thống của Sở
 
 #### Công việc đã thực hiện

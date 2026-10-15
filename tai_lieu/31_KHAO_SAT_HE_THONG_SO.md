@@ -1,8 +1,8 @@
 # 31. KHẢO SÁT HỆ THỐNG THÔNG TIN QUẢN LÝ GIÁO DỤC CỦA SỞ GD&ĐT TP.HCM
 
-- Mô tả: Kết quả khảo sát chi tiết chức năng và giao diện của Hệ thống thông tin quản lý giáo dục (cấp Trường, Mầm non) tại `truong.hcm.edu.vn`, đối chiếu với hệ thống School Management và đề xuất bổ sung.
-- Phiên bản: 1.0
-- Ngày cập nhật: 2026-10-13
+- Mô tả: Kết quả khảo sát chi tiết chức năng và giao diện của Hệ thống thông tin quản lý giáo dục (cấp Trường, Mầm non) tại `truong.hcm.edu.vn`, đối chiếu với hệ thống School Management và đề xuất bổ sung; mục 9 phân tích kỹ thuật trang công khai bằng REA.
+- Phiên bản: 1.1
+- Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã khảo sát
 - Người khảo sát: Claude, theo yêu cầu của Eric ngày 2026-10-13
 
@@ -180,3 +180,57 @@ Hoàn thành chương trình mầm non; đánh giá chuẩn nghề nghiệp giá
 | 10 | Chuyển địa danh hành chính cũ sang mới | Trung bình | Danh mục tỉnh, xã sau sáp nhập |
 | 11 | Biểu mẫu "Gửi phản hồi" ở chân trang, danh sách ý kiến đã gửi | Thấp | Kênh hỗ trợ người dùng |
 | 12 | Thông báo hết hạn mật khẩu, bắt buộc đổi mật khẩu định kỳ | Thấp | Cấu hình bảo mật |
+
+## 9. Phân tích kỹ thuật bằng REA (bổ sung ngày 2026-10-15)
+
+### 9.1 Phạm vi và cách phân tích
+
+1. Dùng công cụ REA (rea-agents) mở trình duyệt Chrome không giao diện, chỉ tải các trang công khai không cần đăng nhập: `/` (chuyển về `Login.aspx`), `QuenMatKhau.aspx`, `LoginTruongSapNhap.aspx`, `robots.txt`. Không nhập tài khoản, không bấm Đăng nhập, Khôi phục mật khẩu hay thao tác ghi nào.
+2. REA ghi lại 31 yêu cầu mạng của trang đăng nhập, tiêu đề phản hồi, cấu trúc trang (DOM), cây trợ năng và tên cookie (giá trị chỉ lưu dạng băm). Mã bằng chứng: `ev_1a2daec6…f194e380` (trang đăng nhập), `ev_f827ecb9…e34805` (các trang công khai còn lại).
+3. Phần sau đăng nhập chưa phân tích bằng REA. Mục 2 đến mục 7 vẫn là kết quả đọc giao diện ngày 2026-10-13.
+4. Mỗi nhận định ghi rõ là quan sát (thấy trực tiếp trong dữ liệu thu được) hay suy luận.
+
+### 9.2 Nền tảng công nghệ (quan sát)
+
+| Thành phần | Giá trị quan sát | Nguồn |
+|---|---|---|
+| Máy chủ web | Microsoft-IIS/10.0 | Tiêu đề `Server` |
+| Nền tảng | ASP.NET Web Forms, .NET Framework 4 (`X-AspNet-Version: 4.0.30319`, `X-Powered-By: ASP.NET`) | Tiêu đề phản hồi; trang `.aspx`, `__VIEWSTATE`, `__EVENTVALIDATION`, `__doPostBack` |
+| Bộ điều khiển giao diện | Telerik UI for ASP.NET AJAX bản 2025.1.416.462, giao diện (skin) `Bootstrap`: RadScriptManager, RadAjaxManager, RadAjaxPanel, RadAjaxLoadingPanel, RadComboBox, RadTabStrip | Đường dẫn `Telerik.Web.UI.WebResource.axd`, lệnh `$create(Telerik.Web.UI.…)` |
+| Thư viện phía trình duyệt | jQuery 2.1.4, Bootstrap 3 (phông glyphicons), toastr (thông báo góc dưới phải), tinyfade (ảnh trình chiếu) | Tệp tải về |
+| Mã xác nhận | Ảnh do `CaptchaImage.axd?guid=…` sinh ra, làm mới bằng postback | Yêu cầu mạng |
+| Tường lửa ứng dụng | Imperva Incapsula (`_Incapsula_Resource`, cookie `___utmvc`, `___utmvm`, `TBMCookie_…`) | Yêu cầu mạng, cookie |
+| Phiên làm việc | Cookie `ASP.NET_SessionId`; cookie riêng `NAM_HOC`, `MA_SO_GD` lưu năm học và mã Sở đã chọn | Kho cookie |
+
+### 9.3 Cách trang đăng nhập hoạt động (quan sát)
+
+1. Một biểu mẫu `form1` duy nhất gửi lại chính trang (postback). Thẻ `form` có lớp `SoGD-79`; 79 là mã tỉnh của TP.HCM.
+2. Hai thẻ đăng nhập (RadTabStrip): đăng nhập SSO và tài khoản QLTH. Trường ẩn `isDangNhapSSO` quyết định phím Enter bấm nút nào. Mã trang có tên các nút `btnDangNhapSSOHcm`, `btLoginIDP`, `btLoginVNEID`, tức là có ba kiểu đăng nhập liên kết: SSO của Sở TP.HCM, một nhà cung cấp định danh (IdP) khác và VNeID.
+3. Bốn ô chọn nối tầng: Năm học (giá trị `2026`, `2025`, bị khóa) → Cấp học (`01` Mầm non đến `05`) → Phường/Xã (169 mục) → Trường. Đổi một ô thì RadAjaxManager gửi postback không đồng bộ để nạp lại các ô sau. Ô Phường/Xã dùng mã đơn vị hành chính cấp xã 5 chữ số theo danh mục mới (ví dụ `26732` Đặc khu Côn Đảo). Ô Trường có tính năng lọc khi gõ.
+4. Danh sách trường của cấp Mầm non được nhúng sẵn trong trang: 4.839 mục, mỗi mục ghi tên, mã trường trong ngoặc và phường/xã. Mã trường dài 8 chữ số (2.828 mục), 10 chữ số (1.787), 9 (145), 12 (11), 7 (7), 11 (1). Tên bắt đầu bằng "Lớp", "Trường", "MN", "LMG", "Nhóm", "LMN", "NT", tức là danh sách gồm cả trường, nhóm trẻ và lớp mầm non độc lập.
+5. Trang đăng nhập nặng khoảng 2,1 MB: riêng `__VIEWSTATE` khoảng 1,16 MB (giải mã base64 được 867 KB dữ liệu không đọc được, nhiều khả năng đã mã hóa), thêm một đoạn mã nội tuyến khoảng 410 KB chứa dữ liệu các ô chọn.
+6. Kiểm tra dữ liệu bằng bộ kiểm tra của Web Forms (RequiredFieldValidator: "Thông tin bắt buộc", "Nhập mật khẩu"). Có ô "Ghi nhớ tài khoản" mặc định được tích.
+7. "Quên mật khẩu" yêu cầu chọn Sở GD&ĐT, Phường/Xã, Cấp học, Đơn vị, nhập tài khoản, email và mã xác nhận. "Đăng nhập năm cũ" (`LoginTruongSapNhap.aspx`) là trang đăng nhập riêng cho năm học 2025-2026, có thêm ô chọn tỉnh/thành, dùng cho dữ liệu trước sáp nhập địa giới.
+8. `robots.txt` trả về 404.
+
+### 9.4 Suy luận
+
+1. Đây là sản phẩm dùng chung cho nhiều Sở: trang Quên mật khẩu có ô "Chọn sở", trang có lớp `SoGD-79`, cookie `MA_SO_GD`, đường dẫn ảnh `images/CSDLDiaPhuong/HoChiMinh/`. Mỗi Sở có thể có tên miền và bộ ảnh riêng trên cùng mã nguồn.
+2. Dữ liệu năm học được tách theo năm (trang đăng nhập năm cũ riêng, cookie `NAM_HOC`), tương tự cách School Management tách cơ sở dữ liệu theo năm học.
+3. Màn hình nghiệp vụ phía sau đăng nhập nhiều khả năng cũng là Web Forms dùng RadGrid của Telerik (lưới có cấu hình cột, số dòng 10–200, xuất Excel/PDF như mục 2.3). Điều này chưa được kiểm chứng bằng REA.
+
+### 9.5 Bài học cho School Management
+
+| Số | Quan sát ở hệ thống của Sở | Áp dụng cho School Management |
+|---|---|---|
+| 1 | Nhúng toàn bộ 4.839 trường và ViewState lớn vào trang đăng nhập, trang nặng 2,1 MB | Giữ cách tải danh sách đơn vị theo yêu cầu, có lọc ở máy chủ và phân trang; không nhúng danh mục lớn vào trang |
+| 2 | Chọn năm học, cấp học, phường/xã, trường ngay khi đăng nhập | Giữ cách hiện tại: đăng nhập trước, chọn đơn vị và năm học sau trong ô ngữ cảnh (YCTD-101) |
+| 3 | Mã phường/xã 5 chữ số theo danh mục hành chính mới | Dùng cùng mã khi làm đợt 15h chuyển địa danh hành chính, để dữ liệu nhập/xuất khớp với hệ thống của Sở |
+| 4 | Cookie `ASP.NET_SessionId`, `NAM_HOC`, `MA_SO_GD` không có cờ `Secure`; tiêu đề lộ phiên bản ASP.NET; trang HTML trả `Access-Control-Allow-Origin: *` | Giữ cookie mã làm mới `HttpOnly`, `Secure`, `SameSite=Strict` (BM-71); khi triển khai, kiểm tra máy chủ không trả tiêu đề lộ phiên bản và CORS chỉ cho nguồn được phép (đối chiếu `22_BAO_MAT.md`) |
+| 5 | jQuery 2.1.4 (đã hết hỗ trợ) | Giữ quy trình cập nhật thư viện và kiểm tra lỗ hổng phụ thuộc |
+| 6 | Liên kết tải TeamViewer, UltraViewer qua `http://` từ máy chủ bên thứ ba ở chân trang | Kênh hỗ trợ dùng biểu mẫu "Gửi phản hồi" (đợt 15g), không đặt liên kết tải tệp chạy từ nguồn ngoài |
+| 7 | Có ba kiểu đăng nhập liên kết (SSO Sở, IdP, VNeID) | Ghi nhận cho giai đoạn sau; hiện chưa có giao diện lập trình của Sở (G3-09) |
+
+### 9.6 Việc còn lại
+
+- Phân tích kỹ thuật phần sau đăng nhập (lưới, cách xuất Excel, tác vụ nền, gửi dữ liệu lên cấp trên) bằng chế độ quan sát thụ động của REA: Eric tự đăng nhập trên Chrome mở cổng gỡ lỗi cục bộ, Claude chỉ đọc trang đang mở, không thao tác ghi.
