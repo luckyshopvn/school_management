@@ -13,6 +13,7 @@ import {
 } from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { AppShell } from '../pages/AppShell.js';
+import { FormButtons, FormPanel } from '../pages/FormPanel.js';
 import { useGridSettings } from '../pages/grid-settings.js';
 import { matchesSearch } from '../pages/grid-search.js';
 import { menuPageTitle } from '../pages/page-title.js';
@@ -134,25 +135,6 @@ function itemOptions(items: StockItem[], optional?: boolean): ReactNode {
         ))}
     </>
   );
-}
-
-// Nút Ghi và Hủy dưới biểu mẫu theo khối
-function FormButtons({ busy, disabled, onCancel }: { busy: boolean; disabled?: boolean; onCancel(): void }) {
-  return (
-    <div className="flex gap-2">
-      <Button type="submit" variant="primary" disabled={busy || disabled}>
-        Ghi
-      </Button>
-      <Button variant="text" onClick={onCancel}>
-        Hủy
-      </Button>
-    </div>
-  );
-}
-
-// Khung bao biểu mẫu mở từ nút trên thanh công cụ của lưới
-function FormPanel({ children }: { children: ReactNode }) {
-  return <section className="rounded-xl border border-border bg-card p-4">{children}</section>;
 }
 
 const STOCK_ITEM_COLUMNS: Array<DataGridColumn<StockItem>> = [

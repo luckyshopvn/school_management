@@ -13,6 +13,7 @@ import {
 } from '@school-management/ui';
 import { useUnitChoice } from '../catalogs/UnitSelect.js';
 import { AppShell } from '../pages/AppShell.js';
+import { FormButtons, FormPanel } from '../pages/FormPanel.js';
 import { useGridSettings } from '../pages/grid-settings.js';
 import { matchesSearch } from '../pages/grid-search.js';
 import { menuPageTitle } from '../pages/page-title.js';
@@ -187,17 +188,11 @@ function RequestForm({ onSaved, onCancel }: { onSaved(message: string): void; on
           </FormRow>
         </FormBlock>
       ))}
-      <div className="flex flex-wrap gap-2">
-        <Button type="submit" variant="primary" disabled={create.isPending || !complete || !unitChoice.selectedId}>
-          Ghi
-        </Button>
+      <FormButtons busy={create.isPending} disabled={!complete || !unitChoice.selectedId} onCancel={onCancel}>
         <Button variant="text" onClick={() => setLines((previous) => [...previous, emptyLine()])}>
           Thêm mặt hàng
         </Button>
-        <Button variant="text" onClick={onCancel}>
-          Hủy
-        </Button>
-      </div>
+      </FormButtons>
     </form>
   );
 }
@@ -221,7 +216,7 @@ function MineTab({ onDone }: { onDone(message: string): void }) {
     <div className="flex flex-col gap-4">
       {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
       {creating ? (
-        <section className="rounded-xl border border-border bg-card p-4">
+        <FormPanel>
           <RequestForm
             onCancel={() => setCreating(false)}
             onSaved={async (message) => {
@@ -230,7 +225,7 @@ function MineTab({ onDone }: { onDone(message: string): void }) {
               onDone(message);
             }}
           />
-        </section>
+        </FormPanel>
       ) : null}
       <DataGrid
         label="Đề nghị của tôi"
