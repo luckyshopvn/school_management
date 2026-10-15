@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.69
+- Phiên bản: 1.70
 - Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -445,6 +445,13 @@ Giao kèo của hồ sơ nhân sự và hợp đồng (DT-06 phần 6a, YCTD-58)
 3. `POST /staff/{id}/contracts` nhận `contract_no`, `contract_type` (`probation`, `fixed_term`, `indefinite`), `start_date`, `end_date`, `base_salary`, `allowances` (danh sách `name`, `amount`); trùng thời gian với hợp đồng còn hiệu lực trả mã BR-38.
 4. `POST /employment-contracts/{id}/terminate` nhận `terminated_on`, `reason` bắt buộc; dịch vụ định danh khóa tài khoản liên kết qua `POST /users/{id}/terminate-employment` bằng mã phiên của người thao tác.
 
+Giao kèo của nhân sự theo hệ thống của Sở (DT-15 phần 15d, YCTD-112):
+
+1. `GET /staff/search` cần `P07.staff.view` trong phạm vi (người không có trả `ERR_FORBIDDEN`). Tham số `org_unit_id`, `department_id`, `status` (`active`, `terminated`), `q` (họ tên hoặc mã nhân sự, khớp một phần), `gender` (`male`, `female`), `moet_staff_code` (khớp một phần), `id_number` (đủ 12 số), `party_member` (`true`, `false`), `age_from`, `age_to` (0 đến 100, tuổi từ không lớn hơn tuổi đến), `job_position` (khớp một phần), `page` (từ 1), `page_size` (1 đến 200, mặc định 20). Trả `items` (`id`, `org_unit_id`, `unit_name`, `code`, `full_name`, `dob`, `gender`, `phone`, `email`, `status`, `start_date`, `moet_staff_code`, `department_name`, `job_title_name`, `ethnicity`, `job_position`, `position_group`, `contract_form`, `professional_qualification`, `party_member`, `id_number_masked`, `has_account`, `contract_no`, `contract_type`, `contract_end_date`, `base_salary`), `page`, `page_size`, `total`, `total_pages`, `contract_fields_visible`. Thứ tự A–Z theo tên rồi họ tên (BR-114). Bốn cột hợp đồng là null với nhân sự ngoài phạm vi `P07.contract.view`. Đơn vị ngoài phạm vi trả `ERR_FORBIDDEN`; giá trị sai trả `ERR_VALIDATION`.
+2. `POST /staff/export` cần `P17.data.export`. Thân gồm các bộ lọc như mục 1 và `columns` (mảng mã cột không trùng trong `moet_staff_code`, `code`, `full_name`, `dob`, `gender`, `status`, `ethnicity`, `phone`, `job_position`, `position_group`, `contract_form`, `professional_qualification`, `department`, `job_title`, `party_member`, `email`, `start_date`, `id_number`, `account`, `unit`, `contract_no`, `contract_end_date`, `base_salary`; bỏ trống là 12 cột mặc định); mã lạ, trùng hoặc mảng rỗng trả `ERR_VALIDATION`. Trả tệp xlsx có cột STT, đầu `x-export-log-id`, ghi nhật ký xuất mã `staff` có dữ liệu cá nhân (BR-74), bộ lọc trong nhật ký không có số định danh. Quá 10 000 dòng trả `ERR_RULE_VIOLATION` mã YCTD-112.
+3. `PATCH /staff/{id}/profile` cần `P07.staff.manage` ở đơn vị của nhân sự. Thân chỉ gồm ô cần đổi: `moet_staff_code`, `full_name`, `code`, `start_date` (ba ô này không được để trống khi gửi), `dob`, `gender`, `phone`, `email`, `address`, `id_number` (12 số), `department_id`, `job_title_id` (thuộc đơn vị và đang dùng), `moet_profile` (đối tượng: khóa của tệp ngành không có cột riêng; chữ tối đa 500 ký tự, ngày YYYY-MM-DD, ô đánh dấu `true`, `null`, `false` hoặc chuỗi rỗng là xóa; số sổ BHXH 4 đến 20 chữ hoặc số). Khóa lạ, giá trị sai, không có ô nào trả `ERR_VALIDATION`; trùng mã nhân sự hoặc mã định danh Bộ trả `ERR_CONFLICT`. Ghi nhật ký thao tác có giá trị trước và sau (số sổ BHXH ghi "đã đổi"). Trả hồ sơ như `GET /staff/{id}`.
+4. `GET /staff/{id}` trả thêm `moet_fields`: giá trị gốc của các ô theo Sở (chữ, ngày YYYY-MM-DD, ô đánh dấu `true`; số sổ BHXH đã che). `GET /staff` giữ nguyên dạng trả về (danh sách) cho các màn hình chọn nhân sự và giao diện lập trình cho đối tác.
+
 Giao kèo của thanh toán trực tuyến (DT-05 phần 5f, YCTD-57):
 
 1. `GET /invoices/{id}/payment-qr` cho phụ huynh của trẻ hoặc người có `P06.receipt.manage` ở đơn vị; trả `amount`, `transfer_content`, `virtual_account_number`, `qr_content`, `bank_name`, `account_name`, `expires_at`. Hóa đơn đã thu đủ trả `ERR_RULE_VIOLATION` mã BR-31; chưa cấu hình tài khoản nhận hoặc chưa nối nhà cung cấp trả mã P06-11.
@@ -864,6 +871,9 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 |---|---|---|
 | GET, POST | /api/v1/staff | Danh sách và tạo hồ sơ nhân sự |
 | GET, PUT | /api/v1/staff/{id} | Chi tiết kèm hợp đồng và cập nhật hồ sơ nhân sự (YCTD-58) |
+| GET | /api/v1/staff/search | Lưới 3.1.1 Hồ sơ cán bộ, giáo viên: phân trang, bộ lọc mở rộng, A–Z (YCTD-112) |
+| POST | /api/v1/staff/export | Xuất Excel danh sách cán bộ, giáo viên theo bộ lọc và cột đang hiện; cần `P17.data.export`, ghi nhật ký xuất (YCTD-112) |
+| PATCH | /api/v1/staff/{id}/profile | Ghi hồ sơ theo biểu mẫu của Sở và thông tin riêng của trường, chỉ ô gửi lên (YCTD-112) |
 | GET | /api/v1/staff/me | Hồ sơ và hợp đồng của chính mình (YCTD-58) |
 | GET | /api/v1/staff/expiring-contracts | Hợp đồng sắp hết hạn theo cấu hình đơn vị (YCTD-58) |
 | POST, DELETE | /api/v1/staff/{id}/account | Liên kết và bỏ liên kết tài khoản có sẵn (YCTD-58) |
