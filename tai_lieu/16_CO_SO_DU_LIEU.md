@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.61
+- Phiên bản: 1.62
 - Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -63,6 +63,8 @@
 | school_profiles | Hồ sơ trường của Trường chính, một dòng mỗi năm học (P01-15, BR-103, YCTD-106); mỗi thẻ một cột jsonb khóa cố định | org_unit_id (duy nhất, Trường chính), general, other_info, foreign_elements, internet, it_infrastructure, office_accounts (mảng, không có mật khẩu), updated_by |
 
 Ràng buộc: `org_units.parent_id` trỏ tới `org_units.id`. Chỉ một đơn vị `truong_chinh`, có `parent_id` trống; đơn vị `phan_hieu`, `diem_truong` có `parent_id` là Trường chính. Kiểm tra ở tầng ứng dụng và ở tầng dữ liệu (YCTD-38).
+
+Chỉ mục `users_full_name_id_index` trên `users (full_name, id)` và `user_roles_role_id_index` trên `user_roles (role_id)` (DT-15 phần 15e, YCTD-109) tạo bằng tệp `database/identity/migrations/0041_add_account_list_indexes.ts` của cơ sở dữ liệu định danh, phục vụ danh sách người dùng sắp theo họ tên, phân trang trong câu truy vấn và lọc theo nhóm quyền; không đổi bảng, không đổi dữ liệu.
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 
@@ -405,6 +407,8 @@ erDiagram
 | payslips | payroll_id, staff_id | Bảng lương và phiếu lương |
 | activities | class_id kèm status kèm published_at | Danh sách hoạt động cho phụ huynh |
 | audit_logs | entity_name kèm entity_id, actor_user_id kèm created_at | Tra nhật ký thao tác |
+| users | full_name kèm id (`users_full_name_id_index`) | Danh sách người dùng sắp theo họ tên rồi mã và phân trang (YCTD-109) |
+| user_roles | role_id (`user_roles_role_id_index`) | Lọc danh sách người dùng theo nhóm quyền (YCTD-109) |
 | notifications | target_type kèm target_id | Tra thông báo theo đối tượng |
 | class_staff_assignments | staff_user_id kèm status, class_id | Giới hạn phạm vi giáo viên theo lớp được phân công |
 | data_access_logs | api_client_id kèm created_at, entity_name kèm entity_id | Tra nhật ký đọc dữ liệu nhạy cảm |
