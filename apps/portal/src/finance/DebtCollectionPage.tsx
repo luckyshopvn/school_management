@@ -1,10 +1,22 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, StatusBadge, Toast } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  DataGrid,
+  FORM_CONTROL_CLASS,
+  FormBlock,
+  FormRow,
+  StatusBadge,
+  Toast,
+  type DataGridColumn,
+} from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { formatMoney } from '../fees/fees-api.js';
 import { AppShell } from '../pages/AppShell.js';
+import { useGridSettings } from '../pages/grid-settings.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import {
@@ -14,15 +26,79 @@ import {
   proposeResolution,
   sendReminders,
   type DebtResolution,
+  type ReminderRow,
 } from './finance-g2-api.js';
 
 // MH-08 phần nhắc nợ và xử lý công nợ quá hạn (P05-10, P05-12; BR-33; YCTD-23, YCTD-82): danh sách hóa đơn quá hạn theo
-// mốc, gửi nhắc cho phụ huynh; quản lý đơn vị, kế toán lập đề xuất xử lý; Phó Hiệu trưởng, Hiệu trưởng ghi quyết định
+// mốc, gửi nhắc cho phụ huynh; quản lý đơn vị, kế toán lập đề xuất xử lý; Phó Hiệu trưởng, Hiệu trưởng ghi quyết định.
+// Hai danh sách dùng lưới dữ liệu chung: chọn dòng để gửi nhắc nợ, quyết định ghi dưới dòng đề xuất (DT-15 phần 15f1)
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
     : 'Không kết nối được tới máy chủ, vui lòng thử lại';
 }
+
+const REMINDER_COLUMNS: Array<DataGridColumn<ReminderRow>> = [
+  {
+    id: 'child_name',
+    header: 'Học sinh',
+    alwaysVisible: true,
+    className: 'font-medium',
+    cell: (row) => row.child_name,
+  },
+  { id: 'class_name', header: 'Lớp', cell: (row) => row.class_name ?? '' },
+  { id: 'invoice_code', header: 'Hóa đơn', cell: (row) => `${row.invoice_code ?? ''} (${row.period})` },
+  { id: 'due_date', header: 'Hạn', cell: (row) => row.due_date ?? '' },
+  {
+    id: 'outstanding_amount',
+    header: 'Còn nợ',
+    className: 'text-right',
+    cell: (row) => formatMoney(row.outstanding_amount),
+  },
+  { id: 'overdue_days', header: 'Quá hạn', className: 'text-right', cell: (row) => `${row.overdue_days} ngày` },
+  {
+    id: 'milestone',
+    header: 'Mốc',
+    cell: (row) =>
+      row.needs_reminder ? (
+        <StatusBadge tone="danger" label={`Cần nhắc mốc ${row.milestone_days}`} />
+      ) : (
+        <StatusBadge tone="neutral" label={row.milestone_days ? `Mốc ${row.milestone_days}` : 'Chưa tới mốc'} />
+      ),
+  },
+  {
+    id: 'last_reminded_at',
+    header: 'Đã nhắc',
+    cell: (row) => (row.last_reminded_at ? new Date(row.last_reminded_at).toLocaleDateString('vi-VN') : ''),
+  },
+];
+
+const RESOLUTION_COLUMNS: Array<DataGridColumn<DebtResolution>> = [
+  {
+    id: 'child_name',
+    header: 'Học sinh',
+    alwaysVisible: true,
+    className: 'font-medium',
+    cell: (row) => row.child_name,
+  },
+  {
+    id: 'overdue',
+    header: 'Nợ quá hạn',
+    cell: (row) => `${formatMoney(row.overdue_amount)}, ${row.overdue_days} ngày`,
+  },
+  { id: 'proposal', header: 'Đề xuất', cell: (row) => row.proposal },
+  { id: 'decision', header: 'Quyết định', cell: (row) => row.decision ?? '' },
+  {
+    id: 'status',
+    header: 'Trạng thái',
+    cell: (row) => (
+      <StatusBadge
+        tone={row.status === 'pending' ? 'warning' : 'success'}
+        label={row.status === 'pending' ? 'Chờ quyết định' : 'Đã quyết định'}
+      />
+    ),
+  },
+];
 
 function DecisionForm({ resolution, onDone }: { resolution: DebtResolution; onDone(message: string): void }) {
   const [decision, setDecision] = useState('');
@@ -35,19 +111,20 @@ function DecisionForm({ resolution, onDone }: { resolution: DebtResolution; onDo
     },
   });
   return (
-    <div className="flex flex-col gap-2">
-      <label className="flex flex-col gap-1 text-label font-medium text-text">
-        Quyết định
+    <div className="flex flex-col gap-2" role="group" aria-label={`Quyết định cho ${resolution.child_name}`}>
+      <FormRow label="Quyết định">
         <textarea
+          className={FORM_CONTROL_CLASS}
           value={decision}
           onChange={(event) => setDecision(event.target.value)}
-          className="rounded-lg border border-border bg-card px-3 py-2 text-content font-normal"
         />
-      </label>
+      </FormRow>
       {decide.error ? <Alert tone="danger">{messageOf(decide.error)}</Alert> : null}
-      <Button variant="primary" disabled={!decision.trim() || decide.isPending} onClick={() => decide.mutate()}>
-        Ghi quyết định
-      </Button>
+      <div>
+        <Button variant="primary" disabled={!decision.trim() || decide.isPending} onClick={() => decide.mutate()}>
+          Ghi quyết định
+        </Button>
+      </div>
     </div>
   );
 }
@@ -59,8 +136,13 @@ export function DebtCollectionPage() {
   const canPropose = useHasPermission(PERMISSION_CODES.overdueDebtPropose);
   const canDecide = useHasPermission(PERMISSION_CODES.overdueDebtDecide);
   const queryClient = useQueryClient();
+  const reminderGrid = useGridSettings('debt-reminders');
+  const resolutionGrid = useGridSettings('debt-resolutions');
   const [dueOnly, setDueOnly] = useState(false);
-  const [selected, setSelected] = useState<string[]>([]);
+  const [reminderSearch, setReminderSearch] = useState('');
+  const [resolutionSearch, setResolutionSearch] = useState('');
+  // Đổi sau mỗi lần gửi để lưới bỏ các dòng đã chọn
+  const [sentCount, setSentCount] = useState(0);
   const [proposalChild, setProposalChild] = useState<{ id: string; name: string }>();
   const [proposal, setProposal] = useState('');
   const [toastMessage, setToastMessage] = useState<string>();
@@ -77,9 +159,9 @@ export function DebtCollectionPage() {
     enabled: Boolean(orgUnitId),
   });
   const send = useMutation({
-    mutationFn: () => sendReminders(orgUnitId ?? '', selected),
+    mutationFn: (invoiceIds: string[]) => sendReminders(orgUnitId ?? '', invoiceIds),
     onSuccess: async (result) => {
-      setSelected([]);
+      setSentCount((count) => count + 1);
       await queryClient.invalidateQueries({ queryKey: ['debt-reminders'] });
       setToastMessage(`Đã gửi ${result.sent_count} nhắc nợ, bỏ qua ${result.skipped.length}`);
     },
@@ -93,31 +175,27 @@ export function DebtCollectionPage() {
       setToastMessage('Đã lập đề xuất xử lý công nợ');
     },
   });
-  const rows = reminders.data?.rows ?? [];
-  const toggle = (invoiceId: string) =>
-    setSelected((current) =>
-      current.includes(invoiceId) ? current.filter((id) => id !== invoiceId) : [...current, invoiceId],
-    );
+  const reminderKeyword = reminderSearch.trim().toLocaleLowerCase('vi');
+  const reminderRows = (reminders.data?.rows ?? []).filter(
+    (row) =>
+      reminderKeyword === '' ||
+      `${row.child_name} ${row.class_name ?? ''} ${row.invoice_code ?? ''}`
+        .toLocaleLowerCase('vi')
+        .includes(reminderKeyword),
+  );
+  const resolutionKeyword = resolutionSearch.trim().toLocaleLowerCase('vi');
+  const resolutionRows = (resolutions.data ?? []).filter(
+    (row) => resolutionKeyword === '' || row.child_name.toLocaleLowerCase('vi').includes(resolutionKeyword),
+  );
 
   return (
     <AppShell>
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Nhắc nợ và xử lý quá hạn</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/debt-collection')}</h1>
         <Toast message={toastMessage} onClose={closeToast} />
-        <div className="flex flex-wrap items-end gap-4">
-          <UnitSelect units={unitChoice.units} selectedId={orgUnitId} onSelect={unitChoice.select} />
-          {canRemind ? (
-            <label className="flex items-center gap-2 text-label font-medium text-text">
-              <input type="checkbox" checked={dueOnly} onChange={(event) => setDueOnly(event.target.checked)} />
-              Chỉ hóa đơn cần nhắc ở mốc hiện tại
-            </label>
-          ) : null}
-        </div>
+        <UnitSelect units={unitChoice.units} selectedId={orgUnitId} onSelect={unitChoice.select} />
         {canRemind ? (
-          <section
-            className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
-            aria-label="Danh sách nhắc nợ"
-          >
+          <div className="flex flex-col gap-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-section-title font-semibold text-text">Danh sách nhắc nợ</h2>
               <span className="text-content text-text-secondary">
@@ -127,81 +205,49 @@ export function DebtCollectionPage() {
             </div>
             {reminders.error ? <Alert tone="danger">{messageOf(reminders.error)}</Alert> : null}
             {send.error ? <Alert tone="danger">{messageOf(send.error)}</Alert> : null}
-            {rows.length === 0 ? (
-              <p className="text-content text-text-secondary">Không có hóa đơn quá hạn.</p>
-            ) : (
-              <table className="w-full text-content">
-                <thead className="text-left text-label font-medium text-text-secondary">
-                  <tr>
-                    <th className="px-3 py-2" />
-                    <th className="px-3 py-2">Trẻ</th>
-                    <th className="px-3 py-2">Lớp</th>
-                    <th className="px-3 py-2">Hóa đơn</th>
-                    <th className="px-3 py-2">Hạn</th>
-                    <th className="px-3 py-2 text-right">Còn nợ</th>
-                    <th className="px-3 py-2 text-right">Quá hạn</th>
-                    <th className="px-3 py-2">Mốc</th>
-                    <th className="px-3 py-2">Đã nhắc</th>
-                    <th className="px-3 py-2" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((row) => (
-                    <tr key={row.invoice_id} className="border-t border-border">
-                      <td className="px-3 py-2">
-                        <input
-                          type="checkbox"
-                          aria-label={`Chọn ${row.child_name} ${row.invoice_code ?? ''}`}
-                          checked={selected.includes(row.invoice_id)}
-                          onChange={() => toggle(row.invoice_id)}
-                        />
-                      </td>
-                      <td className="px-3 py-2 font-medium">{row.child_name}</td>
-                      <td className="px-3 py-2">{row.class_name ?? ''}</td>
-                      <td className="px-3 py-2">
-                        {row.invoice_code} ({row.period})
-                      </td>
-                      <td className="px-3 py-2">{row.due_date}</td>
-                      <td className="px-3 py-2 text-right">{formatMoney(row.outstanding_amount)}</td>
-                      <td className="px-3 py-2 text-right">{row.overdue_days} ngày</td>
-                      <td className="px-3 py-2">
-                        {row.needs_reminder ? (
-                          <StatusBadge tone="danger" label={`Cần nhắc mốc ${row.milestone_days}`} />
-                        ) : (
-                          <StatusBadge
-                            tone="neutral"
-                            label={row.milestone_days ? `Mốc ${row.milestone_days}` : 'Chưa tới mốc'}
-                          />
-                        )}
-                      </td>
-                      <td className="px-3 py-2">
-                        {row.last_reminded_at ? new Date(row.last_reminded_at).toLocaleDateString('vi-VN') : ''}
-                      </td>
-                      <td className="px-3 py-2">
-                        {canPropose ? (
-                          <Button
-                            variant="text"
-                            onClick={() => setProposalChild({ id: row.child_id, name: row.child_name })}
-                          >
-                            Đề xuất xử lý
-                          </Button>
-                        ) : null}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-            <div>
-              <Button
-                variant="primary"
-                disabled={selected.length === 0 || send.isPending}
-                onClick={() => send.mutate()}
-              >
-                Gửi nhắc nợ ({selected.length})
-              </Button>
-            </div>
-          </section>
+            {reminderGrid.error ? <Alert tone="danger">{messageOf(reminderGrid.error)}</Alert> : null}
+            <DataGrid
+              key={sentCount}
+              label="Danh sách nhắc nợ"
+              columns={REMINDER_COLUMNS}
+              rows={reminderRows}
+              getRowId={(row) => row.invoice_id}
+              getRowLabel={(row) => `${row.child_name} ${row.invoice_code ?? ''}`.trim()}
+              loading={Boolean(orgUnitId) && reminders.isPending}
+              emptyText="Không có hóa đơn quá hạn."
+              search={{ label: 'Tìm theo học sinh, lớp, hóa đơn', value: reminderSearch, onChange: setReminderSearch }}
+              advancedSearch={
+                <label className="flex items-center gap-2 text-content">
+                  <input type="checkbox" checked={dueOnly} onChange={(event) => setDueOnly(event.target.checked)} />
+                  Chỉ hóa đơn cần nhắc ở mốc hiện tại
+                </label>
+              }
+              selectable
+              toolbar={(selectedRows) => (
+                <Button
+                  variant="primary"
+                  disabled={selectedRows.length === 0 || send.isPending}
+                  onClick={() => send.mutate(selectedRows.map((row) => row.invoice_id))}
+                >
+                  Gửi nhắc nợ ({selectedRows.length})
+                </Button>
+              )}
+              rowActions={
+                canPropose
+                  ? (row) => (
+                      <Button
+                        variant="text"
+                        onClick={() => setProposalChild({ id: row.child_id, name: row.child_name })}
+                      >
+                        Đề xuất xử lý
+                      </Button>
+                    )
+                  : undefined
+              }
+              settings={reminderGrid.settings}
+              onSettingsChange={reminderGrid.update}
+            />
+          </div>
         ) : null}
         {proposalChild ? (
           <section
@@ -209,14 +255,15 @@ export function DebtCollectionPage() {
             aria-label="Lập đề xuất xử lý công nợ"
           >
             <h2 className="text-section-title font-semibold text-text">Đề xuất xử lý cho {proposalChild.name}</h2>
-            <label className="flex flex-col gap-1 text-label font-medium text-text">
-              Nội dung đề xuất
-              <textarea
-                value={proposal}
-                onChange={(event) => setProposal(event.target.value)}
-                className="rounded-lg border border-border bg-card px-3 py-2 text-content font-normal"
-              />
-            </label>
+            <FormBlock title="Nội dung">
+              <FormRow label="Nội dung đề xuất">
+                <textarea
+                  className={FORM_CONTROL_CLASS}
+                  value={proposal}
+                  onChange={(event) => setProposal(event.target.value)}
+                />
+              </FormRow>
+            </FormBlock>
             {propose.error ? <Alert tone="danger">{messageOf(propose.error)}</Alert> : null}
             <div className="flex gap-3">
               <Button
@@ -230,41 +277,29 @@ export function DebtCollectionPage() {
             </div>
           </section>
         ) : null}
-        <section
-          className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
-          aria-label="Đề xuất xử lý công nợ quá hạn"
-        >
+        <div className="flex flex-col gap-3">
           <h2 className="text-section-title font-semibold text-text">Đề xuất xử lý công nợ quá hạn</h2>
           <p className="text-content text-text-secondary">
             Đề xuất và quyết định chỉ ghi nhận cách xử lý, không thay đổi số tiền công nợ.
           </p>
           {resolutions.error ? <Alert tone="danger">{messageOf(resolutions.error)}</Alert> : null}
-          {(resolutions.data ?? []).length === 0 ? (
-            <p className="text-content text-text-secondary">Chưa có đề xuất.</p>
-          ) : (
-            <ul className="flex flex-col gap-3">
-              {(resolutions.data ?? []).map((resolution) => (
-                <li key={resolution.id} className="flex flex-col gap-2 border-t border-border pt-3">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <span className="font-medium">{resolution.child_name}</span>
-                    <span>
-                      Nợ quá hạn {formatMoney(resolution.overdue_amount)}, {resolution.overdue_days} ngày
-                    </span>
-                    <StatusBadge
-                      tone={resolution.status === 'pending' ? 'warning' : 'success'}
-                      label={resolution.status === 'pending' ? 'Chờ quyết định' : 'Đã quyết định'}
-                    />
-                  </div>
-                  <p className="text-content">Đề xuất: {resolution.proposal}</p>
-                  {resolution.decision ? <p className="text-content">Quyết định: {resolution.decision}</p> : null}
-                  {resolution.status === 'pending' && canDecide ? (
-                    <DecisionForm resolution={resolution} onDone={setToastMessage} />
-                  ) : null}
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+          {resolutionGrid.error ? <Alert tone="danger">{messageOf(resolutionGrid.error)}</Alert> : null}
+          <DataGrid
+            label="Đề xuất xử lý công nợ quá hạn"
+            columns={RESOLUTION_COLUMNS}
+            rows={resolutionRows}
+            getRowId={(row) => row.id}
+            getRowLabel={(row) => row.child_name}
+            loading={Boolean(orgUnitId) && resolutions.isPending}
+            emptyText="Chưa có đề xuất."
+            search={{ label: 'Tìm theo học sinh', value: resolutionSearch, onChange: setResolutionSearch }}
+            renderRowDetail={(row) =>
+              row.status === 'pending' && canDecide ? <DecisionForm resolution={row} onDone={setToastMessage} /> : null
+            }
+            settings={resolutionGrid.settings}
+            onSettingsChange={resolutionGrid.update}
+          />
+        </div>
       </div>
     </AppShell>
   );
