@@ -19,7 +19,7 @@
 #### Công việc đã thực hiện
 
 - Thêm mục "1.2. Quản lý phân hiệu", "1.3. Quản lý điểm trường" (lưới theo cột của Sở, khoảng cách đến cơ sở chính, diện tích, Ngừng sử dụng, Dùng lại); chuyển "2.1. Hồ sơ lớp học" sang lưới dữ liệu chung và biểu mẫu theo khối với nhóm tuổi, nhóm lớp, thứ tự, học 2 buổi/ngày, lớp mẫu giáo ghép 2 hoặc 3 độ tuổi, lớp ghép, lớp bán trú, Mở rộng tìm kiếm, Xuất Excel, "Giải thể lớp"; tách "2.2. Nhập lớp học từ Excel" khỏi màn hình Nhập dữ liệu; thêm "3.3. Phân công phụ trách lớp" lấy từ phân công giáo viên của lớp; tiêu đề 1.1, 1.4 kèm số menu. Cột mới ở cơ sở dữ liệu năm học (tệp 0051), không có quyền mới.
-- Thêm kịch bản CT-398 đến CT-408, tiêu chí AC-442 đến AC-452, quy tắc BR-111 đến BR-113, quy tắc phân quyền PQ-65, màn hình MH-90 đến MH-93. Kết quả ngày 15/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 650/650 ca đạt; toàn bộ kiểm thử giao diện E2E_KET_QUA ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm kịch bản CT-398 đến CT-408, tiêu chí AC-442 đến AC-452, quy tắc BR-111 đến BR-113, quy tắc phân quyền PQ-65, màn hình MH-90 đến MH-93. Kết quả ngày 15/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 650/650 ca đạt; toàn bộ kiểm thử giao diện 91/91 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
