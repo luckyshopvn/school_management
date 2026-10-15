@@ -5,9 +5,10 @@ import { HCM_ADMINISTRATIVE_UNITS } from '../data/hcm-administrative-units.js';
 
 // Danh mục địa danh hành chính trước và sau sắp xếp năm 2025 (DT-15 phần 15h1, mục 4.1.11 của Sở): đơn vị cũ gồm tỉnh,
 // quận/huyện, xã/phường/thị trấn; đơn vị mới gồm tỉnh và xã/phường/đặc khu (chính quyền địa phương hai cấp, không còn cấp
-// huyện); bảng đối chiếu xã cũ sang xã mới. Gieo sẵn TP.HCM mới cùng đơn vị cũ của TP.HCM, Bình Dương, Bà Rịa - Vũng Tàu
-// theo Nghị quyết 202/2025/QH15, Nghị quyết 1685/NQ-UBTVQH15 và mã số theo Quyết định 19/2025/QĐ-TTg; tỉnh khác do
-// người dùng nhập từ Excel (nguồn `import`). Đặt ở cơ sở dữ liệu hệ thống vì dùng chung mọi năm học
+// huyện); bảng đối chiếu xã cũ sang xã mới (huyện Côn Đảo không có cấp xã nên đối chiếu theo huyện). Gieo sẵn TP.HCM mới
+// cùng đơn vị cũ của TP.HCM, Bình Dương, Bà Rịa - Vũng Tàu theo Nghị quyết 202/2025/QH15, Nghị quyết 1685/NQ-UBTVQH15, mã số
+// theo danh mục của Cục Thống kê (Quyết định 19/2025/QĐ-TTg); tỉnh khác do người dùng nhập từ Excel (nguồn `import`). Đặt
+// ở cơ sở dữ liệu hệ thống vì dùng chung mọi năm học
 const ZERO_ID = '00000000-0000-0000-0000-000000000000';
 const BATCH = 500;
 
@@ -119,9 +120,15 @@ export const migration: Migration = {
         parent_id: provinceIds[province] ?? null,
       })),
     );
-    const mappings = data.newWards.flatMap(([, , , from], index) =>
-      from.map((oldWard) => ({ old_unit_id: oldWardIds[oldWard] ?? '', new_unit_id: newWardIds[index] ?? '' })),
-    );
+    const mappings = [
+      ...data.newWards.flatMap(([, , , from], index) =>
+        from.map((oldWard) => ({ old_unit_id: oldWardIds[oldWard] ?? '', new_unit_id: newWardIds[index] ?? '' })),
+      ),
+      ...data.districtMappings.map(([district, newWard]) => ({
+        old_unit_id: districtIds[district] ?? '',
+        new_unit_id: newWardIds[newWard] ?? '',
+      })),
+    ];
     for (let start = 0; start < mappings.length; start += BATCH) {
       await database
         .insertInto('administrative_unit_mappings')
