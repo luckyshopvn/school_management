@@ -144,8 +144,8 @@ test('CT-15c-12: lưới học sinh theo Sở: cột, A–Z, cấu hình cột, 
   // Bật cột Điện thoại nhận tin, Học 2 buổi/ngày
   await grid.getByRole('button', { name: 'Cấu hình cột hiển thị' }).click();
   const dialog = page.getByRole('dialog', { name: 'Cấu hình cột hiển thị' });
-  await dialog.getByLabel('Điện thoại nhận tin').check();
-  await dialog.getByLabel('Học 2 buổi/ngày').check();
+  await dialog.getByRole('checkbox', { name: 'Điện thoại nhận tin', exact: true }).check();
+  await dialog.getByRole('checkbox', { name: 'Học 2 buổi/ngày', exact: true }).check();
   await dialog.getByRole('button', { name: 'Ghi' }).click();
   await expect(headers.filter({ hasText: 'Học 2 buổi/ngày' })).toBeVisible();
 
@@ -203,7 +203,7 @@ test('CT-15c-13: hồ sơ theo khối có nút Ghi; điện thoại nhận tin; 
   const phone = await form.getByLabel('Điện thoại nhận tin').locator('option:checked').textContent();
   await grid.getByRole('button', { name: 'Cấu hình cột hiển thị' }).click();
   const dialog = page.getByRole('dialog', { name: 'Cấu hình cột hiển thị' });
-  await dialog.getByLabel('Điện thoại nhận tin').check();
+  await dialog.getByRole('checkbox', { name: 'Điện thoại nhận tin', exact: true }).check();
   await dialog.getByRole('button', { name: 'Ghi' }).click();
   await expect(grid.getByRole('row').filter({ hasText: names.anh }).first()).toContainText(
     (phone ?? '').split(' ')[0] ?? '',
