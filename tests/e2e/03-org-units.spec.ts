@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './fixtures.js';
 import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { openMenu } from './menu.js';
