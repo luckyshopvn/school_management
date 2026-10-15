@@ -1,10 +1,21 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, StatusBadge, TextField, Toast } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  DataGrid,
+  FORM_CONTROL_CLASS,
+  StatusBadge,
+  TextField,
+  Toast,
+  type DataGridColumn,
+} from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { formatMoney } from '../fees/fees-api.js';
 import { AppShell } from '../pages/AppShell.js';
+import { useGridSettings } from '../pages/grid-settings.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import {
@@ -18,7 +29,8 @@ import {
 } from './finance-g2-api.js';
 
 // MH-62 Chốt kỳ tài chính (P06-09; BR-25, BR-29, BR-77; Q-133; YCTD-82): kế toán trưởng đề nghị chốt tháng đã kết thúc,
-// Hiệu trưởng duyệt hoặc từ chối; kỳ đã chốt khóa phiếu thu, phiếu chi, phiếu đảo, hóa đơn của kỳ
+// Hiệu trưởng duyệt hoặc từ chối; kỳ đã chốt khóa phiếu thu, phiếu chi, phiếu đảo, hóa đơn của kỳ. Danh sách kỳ dùng lưới
+// dữ liệu chung (DT-15 phần 15f1)
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => `${detail.field}: ${detail.message}`)].join('. ')
@@ -32,12 +44,43 @@ const STATUS_TONES: Record<FiscalPeriodStatus, 'neutral' | 'warning' | 'success'
   rejected: 'danger',
 };
 
+const COLUMNS: Array<DataGridColumn<FiscalPeriodRow>> = [
+  { id: 'period', header: 'Kỳ', alwaysVisible: true, className: 'font-medium', cell: (row) => row.period },
+  {
+    id: 'status',
+    header: 'Trạng thái',
+    cell: (row) => <StatusBadge tone={STATUS_TONES[row.status]} label={FISCAL_STATUS_LABELS[row.status]} />,
+  },
+  {
+    id: 'receipt_amount',
+    header: 'Thu',
+    className: 'text-right',
+    cell: (row) => (row.summary ? formatMoney(row.summary.receipt_amount) : ''),
+  },
+  {
+    id: 'payment_amount',
+    header: 'Chi',
+    className: 'text-right',
+    cell: (row) => (row.summary ? formatMoney(row.summary.payment_amount) : ''),
+  },
+  {
+    id: 'invoice_amount',
+    header: 'Hóa đơn',
+    className: 'text-right',
+    cell: (row) => (row.summary ? formatMoney(row.summary.invoice_amount) : ''),
+  },
+  { id: 'note', header: 'Ghi chú', cell: (row) => row.reject_reason ?? row.request_note ?? '' },
+];
+
 export function FiscalPeriodsPage() {
   const unitChoice = useUnitChoice();
   const orgUnitId = unitChoice.selectedId;
   const canRequest = useHasPermission(PERMISSION_CODES.periodCloseRequest);
   const canApprove = useHasPermission(PERMISSION_CODES.periodCloseApprove);
   const queryClient = useQueryClient();
+  const grid = useGridSettings('fiscal-periods');
+  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState('');
   const [note, setNote] = useState('');
   const [reason, setReason] = useState('');
   const [toastMessage, setToastMessage] = useState<string>();
@@ -56,6 +99,9 @@ export function FiscalPeriodsPage() {
       setToastMessage(variables.message);
     },
   });
+  const rows = (periods.data ?? []).filter(
+    (row) => (status === '' || row.status === status) && (search.trim() === '' || row.period.includes(search.trim())),
+  );
   const actions = (row: FiscalPeriodRow) => {
     if (canRequest && row.can_request && orgUnitId) {
       return (
@@ -100,7 +146,7 @@ export function FiscalPeriodsPage() {
   return (
     <AppShell>
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Chốt kỳ tài chính</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/fiscal-periods')}</h1>
         <Toast message={toastMessage} onClose={closeToast} />
         <div className="flex flex-wrap items-end gap-4">
           <UnitSelect units={unitChoice.units} selectedId={orgUnitId} onSelect={unitChoice.select} />
@@ -121,36 +167,39 @@ export function FiscalPeriodsPage() {
         </p>
         {periods.error ? <Alert tone="danger">{messageOf(periods.error)}</Alert> : null}
         {action.error ? <Alert tone="danger">{messageOf(action.error)}</Alert> : null}
-        <section className="rounded-xl border border-border bg-card p-4" aria-label="Kỳ tài chính">
-          <table className="w-full text-content">
-            <thead className="text-left text-label font-medium text-text-secondary">
-              <tr>
-                <th className="px-3 py-2">Kỳ</th>
-                <th className="px-3 py-2">Trạng thái</th>
-                <th className="px-3 py-2 text-right">Thu</th>
-                <th className="px-3 py-2 text-right">Chi</th>
-                <th className="px-3 py-2 text-right">Hóa đơn</th>
-                <th className="px-3 py-2">Ghi chú</th>
-                <th className="px-3 py-2" />
-              </tr>
-            </thead>
-            <tbody>
-              {(periods.data ?? []).map((row) => (
-                <tr key={row.period} className="border-t border-border">
-                  <td className="px-3 py-2 font-medium">{row.period}</td>
-                  <td className="px-3 py-2">
-                    <StatusBadge tone={STATUS_TONES[row.status]} label={FISCAL_STATUS_LABELS[row.status]} />
-                  </td>
-                  <td className="px-3 py-2 text-right">{row.summary ? formatMoney(row.summary.receipt_amount) : ''}</td>
-                  <td className="px-3 py-2 text-right">{row.summary ? formatMoney(row.summary.payment_amount) : ''}</td>
-                  <td className="px-3 py-2 text-right">{row.summary ? formatMoney(row.summary.invoice_amount) : ''}</td>
-                  <td className="px-3 py-2">{row.reject_reason ?? row.request_note ?? ''}</td>
-                  <td className="px-3 py-2">{actions(row)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
+        {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+        <DataGrid
+          label="Kỳ tài chính"
+          columns={COLUMNS}
+          rows={rows}
+          getRowId={(row) => row.period}
+          getRowLabel={(row) => row.period}
+          loading={Boolean(orgUnitId) && periods.isPending}
+          emptyText="Chưa có kỳ tài chính."
+          search={{ label: 'Tìm theo kỳ', value: search, onChange: setSearch }}
+          advancedSearch={
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+              <label className="text-label font-medium text-text">
+                Trạng thái
+                <select
+                  value={status}
+                  onChange={(event) => setStatus(event.target.value)}
+                  className={`mt-1 ${FORM_CONTROL_CLASS}`}
+                >
+                  <option value="">Tất cả</option>
+                  {Object.entries(FISCAL_STATUS_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          }
+          rowActions={actions}
+          settings={grid.settings}
+          onSettingsChange={grid.update}
+        />
       </div>
     </AppShell>
   );
