@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.38
+- Phiên bản: 1.39
 - Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -503,8 +503,18 @@
 | CT-418 | P07-04 | Hiệu trưởng mở 3.1.1, tìm ba nhân sự của lần chạy, Mở rộng tìm kiếm chọn Đảng viên là Có, Xuất Excel | tiêu đề "3.1.1. Hồ sơ cán bộ, giáo viên"; đủ 11 cột của Sở, không có cột Lương thỏa thuận khi chưa bật; thứ tự An, Ánh, Bảo; vị trí việc làm, dân tộc từ CSDL ngành, hình thức hợp đồng lấy loại hợp đồng "Không thời hạn"; lọc còn một dòng; tệp bắt đầu bằng STT, Mã định danh Bộ GD&ĐT, Mã nhân sự, Họ tên và có đúng một nhân sự | Kiểm thử tự động `tests/e2e/55-staff-so.spec.ts` đạt ngày 15/10/2026 | Đạt |
 | CT-419 | P07-01, P07-02 | Phòng nhân sự mở Hồ sơ, ghi dân tộc, Là Đảng viên, vị trí việc làm, ngày tuyển dụng; mở thẻ "Thông tin riêng của trường"; mở hồ sơ nhân sự có hợp đồng | thẻ hồ sơ theo Sở có các khối Thông tin chung, Địa chỉ, Đoàn, Đảng, Tuyển dụng, công tác, Trình độ; báo "Đã ghi hồ sơ cán bộ, giáo viên", lưới hiện vị trí việc làm và dân tộc mới; thẻ riêng có Mã nhân sự, khối Hợp đồng lao động, thẻ theo Sở ẩn; hợp đồng có số hợp đồng và lương 8.500.000 | Kiểm thử tự động `tests/e2e/55-staff-so.spec.ts` đạt ngày 15/10/2026 | Đạt |
 | CT-420 | P07-01, P07-04 | Quản lý đơn vị mở 3.1.1, mở Cấu hình cột hiển thị, mở hồ sơ nhân sự có hợp đồng và thẻ "Thông tin riêng của trường" | không có Thêm mới, Xuất Excel; hình thức hợp đồng không lấy từ hợp đồng; cấu hình cột có Phòng ban, không có Lương thỏa thuận; hồ sơ chỉ đọc, không có nút Ghi; thẻ riêng không có hợp đồng | Kiểm thử tự động `tests/e2e/55-staff-so.spec.ts` đạt ngày 15/10/2026 | Đạt |
+| CT-421 | P02-17 | Khóa so khớp tên đơn vị hành chính: "Phường Bến Nghé" và "p. bến  nghé", "Xã Hoà Phú" và "Xã Hòa Phú", "TP. Hồ Chí Minh", "TP HCM" và "Thành phố Hồ Chí Minh", "Phường 01", "Xã Thanh An" và "Xã Thạnh An" | cùng khóa ở các cặp viết khác nhau; "Phường 01" có khóa "1"; "Xã Thanh An" khác "Xã Thạnh An" |
+| CT-422 | P02-17 | Đối chiếu địa chỉ với danh mục mẫu: xã cũ một xã mới, xã cũ chia cho hai xã mới, thiếu quận/huyện khi tên xã không trùng và khi trùng, huyện không có cấp xã, địa chỉ đã theo tên mới, tỉnh không có trong danh mục | lần lượt một đề xuất, hai đề xuất, một đề xuất, không đề xuất, đề xuất theo huyện, "mới", "không xác định" khi không ghi quận/huyện và "cũ, chưa có đối chiếu" khi có ghi quận/huyện |
+| CT-423 | P02-17 | Đếm danh mục gieo sẵn; tìm bảng đối chiếu "Bến Nghé", "Côn Đảo" | một tỉnh mới, 168 xã mới, ba tỉnh cũ, 38 quận/huyện cũ, 441 xã cũ, 493 dòng đối chiếu; Phường Sài Gòn mã 26740; Phường Bến Nghé (Quận 1) sang Phường Sài Gòn; Huyện Côn Đảo sang Đặc khu Côn Đảo |
+| CT-424 | P02-17 | Bốn học sinh (đang học, nháp, chờ duyệt, đang học) có địa chỉ thường trú, quê quán, nơi khai sinh, nơi sinh, chỗ ở hiện nay theo tên cũ, tên mới, tỉnh ngoài danh mục; Hiệu trưởng đọc lưới, lọc theo loại địa chỉ, tình trạng, họ tên | sáu dòng xếp A–Z theo tên rồi theo loại địa chỉ; số theo tình trạng có đề xuất 3, nhiều xã mới 2, chưa có đối chiếu 1; địa chỉ đã theo tên mới và tỉnh ngoài danh mục không ghi quận/huyện không có dòng; bộ lọc ra đúng số dòng; tình trạng lạ lỗi 400 |
+| CT-425 | P02-17 | Giáo viên đọc lưới, chuyển địa chỉ, nhập bảng đối chiếu | cả ba bị từ chối 403 |
+| CT-426 | P02-17 | Chuyển cùng lúc địa chỉ có đề xuất, địa chỉ có nhiều xã mới chưa chọn, địa chỉ chưa có đối chiếu, địa chỉ đã theo tên mới; chuyển hồ sơ chờ duyệt; chọn xã mới không thuộc bảng đối chiếu; gửi danh sách rỗng | lỗi 422 mã YCTD-116 nêu từng địa chỉ; hồ sơ chờ duyệt báo tên học sinh; xã mới sai lỗi 422; danh sách rỗng lỗi 400; hồ sơ không đổi |
+| CT-427 | P02-17 | Chuyển thường trú, nơi khai sinh (huyện Côn Đảo), nơi sinh (chọn Phường Phú Lợi) của học sinh đang học và thường trú của hồ sơ nháp | cập nhật 4 địa chỉ của 2 học sinh; tỉnh, xã theo tên mới, bỏ quận/huyện cũ, giữ tổ/thôn và các cột khác; nhật ký thao tác có địa chỉ trước và sau kèm mã xã mới; lưới chỉ còn hai dòng chưa chuyển |
+| CT-428 | P02-17 | Nhập bảng đối chiếu từ Excel: tệp có dòng thiếu quận/huyện và mã ba chữ số; tệp có mã xã mới đã dùng cho xã khác; tệp đúng; nhập lại cùng dòng viết không tiền tố; tải mẫu | tệp lỗi trả báo cáo dòng lỗi, không ghi; mã trùng báo "Mã 26737 đã dùng cho Phường Tân Định"; tệp đúng thêm 5 đơn vị, 1 dòng đối chiếu; nhập lại không thêm; địa chỉ quê quán có đề xuất; mỗi lần nhập thành công một dòng nhật ký; mẫu có bảy cột |
+| CT-429 | P02-17 | Hiệu trưởng mở 4.1.11, tìm học sinh của lần chạy, chọn xã mới cho dòng nơi sinh, lọc tình trạng, chọn hai dòng, bấm "Chuyển địa danh mới" và xác nhận | tiêu đề "4.1.11. Cập nhật địa danh hành chính"; ba dòng có tình trạng đúng; thông báo "Đã chuyển 2 địa chỉ của 1 học sinh sang địa danh mới"; còn dòng quê quán; hồ sơ và nhật ký đúng |
+| CT-430 | P02-17 | Hiệu trưởng nhập tệp bảng đối chiếu cho tỉnh thử ở khối "Bảng đối chiếu địa danh"; giáo viên đăng nhập | báo "Đã ghi dữ liệu", thêm 5 đơn vị, 1 dòng đối chiếu; dòng quê quán chuyển sang "Có đề xuất" với xã mới; tìm thấy dòng trong bảng đối chiếu; giáo viên không có mục 4.1.11 |
 
-Ca CT-105 đến CT-420 lần lượt kiểm tra AC-149 đến AC-464. CT-398 đến CT-408 ứng với các ca CT-15b-1 đến CT-15b-11, CT-409 đến CT-420 ứng với các ca CT-15d-1 đến CT-15d-12 trong mã kiểm thử.
+Ca CT-105 đến CT-430 lần lượt kiểm tra AC-149 đến AC-474. CT-398 đến CT-408 ứng với các ca CT-15b-1 đến CT-15b-11, CT-409 đến CT-420 ứng với các ca CT-15d-1 đến CT-15d-12, CT-421 đến CT-430 ứng với các ca CT-15h1-1 đến CT-15h1-10 trong mã kiểm thử.
 
 ## 16. Chưa xác minh được
 

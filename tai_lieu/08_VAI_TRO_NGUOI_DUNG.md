@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.55
+- Phiên bản: 1.56
 - Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -164,6 +164,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-64 | Ý kiến phản hồi và chính sách mật khẩu (YCTD-110): `P01.feedback.manage` (mới) cho VT-01, VT-02 xem mọi ý kiến phản hồi, ảnh đính kèm, đổi trạng thái, trả lời (P01-16, BR-109). Gửi ý kiến và xem ý kiến, ảnh của chính mình không cần quyền riêng; người khác xem ảnh nhận 404. Sửa chính sách hết hạn mật khẩu dùng quyền có sẵn `P01.account.manage` (VT-01, VT-02; P01-17, BR-110). Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12) |
 | PQ-65 | Trường học, lớp học theo Sở (YCTD-111), không có quyền mới. Mục "1.2. Quản lý phân hiệu", "1.3. Quản lý điểm trường" hiện khi có `P01.view` hoặc `P01.org-unit.manage` (như mục Phòng ban); thêm, sửa, ngừng sử dụng, dùng lại cần `P01.org-unit.manage`, chỉ VT-02 có (PQ-12). Mục "2.2. Nhập lớp học từ Excel" hiện khi thấy nhóm lớp học và có `P01.import.children`, như phần nhập lớp học ở màn hình Nhập dữ liệu trước đây (P01-13). Mục "3.3. Phân công phụ trách lớp" hiện như "2.1. Hồ sơ lớp học", ai xem được lớp đều xem được phân công của lớp trong phạm vi; Thêm mới, Kết thúc phân công cần `P02.class.manage` (PQ-17). Xuất Excel ở 2.1 và 3.3 cần `P17.data.export`. Máy chủ kiểm tra quyền và phạm vi đơn vị ở mọi yêu cầu (AI-12) |
 | PQ-66 | Nhân sự theo Sở (YCTD-112), không có quyền mới. Mục "3.1.1. Hồ sơ cán bộ, giáo viên" hiện như trước; lưới và hồ sơ theo `P07.staff.view` trong phạm vi đơn vị (người không có nhận `ERR_FORBIDDEN`); nút Thêm mới, Ghi theo `P07.staff.manage` ở đơn vị của nhân sự (VT-06), người khác xem hồ sơ chỉ đọc; nút Xuất Excel theo `P17.data.export`; cột Số hợp đồng, Hợp đồng đến ngày, Lương thỏa thuận và khối hợp đồng ở thẻ "Thông tin riêng của trường" theo `P07.contract.view` (BR-46). Máy chủ kiểm tra quyền và phạm vi đơn vị ở mọi yêu cầu (AI-12): lưới, tệp Excel chỉ có nhân sự trong phạm vi `P07.staff.view`, giá trị hợp đồng chỉ với đơn vị trong phạm vi `P07.contract.view`, ghi hồ sơ chỉ ở đơn vị trong phạm vi `P07.staff.manage` |
+| PQ-67 | Cập nhật địa danh hành chính (YCTD-116), không có quyền mới. Mục "4.1.11. Cập nhật địa danh hành chính" hiện như mục 4.2 Biến động học sinh: thấy nhóm học sinh và có `P02.child.manage` hoặc `P02.approve`. Lưới và chuyển địa chỉ theo `P02.child.manage` hoặc `P02.approve` trong phạm vi xem trẻ (BR-72), từng học sinh như cập nhật hàng loạt (BR-115); người không có nhận `ERR_FORBIDDEN`. Nhập bảng đối chiếu, tải mẫu theo `P01.catalog.manage` vì danh mục dùng chung mọi năm học; xem bảng đối chiếu cần một trong ba quyền trên. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12) |
 
 ## 5. Phân cấp phê duyệt
 
