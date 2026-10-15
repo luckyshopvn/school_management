@@ -2,6 +2,7 @@
 export * from './facilities.js';
 export * from './portal-menu.js';
 export * from './menu-permissions.js';
+export * from './classes.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -277,6 +278,11 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/student-movements',
   // Ý kiến phản hồi gửi từ chân trang (DT-15 phần 15g, YCTD-110)
   '/feedback',
+  // Trường học, lớp học theo Sở (DT-15 phần 15b, YCTD-111)
+  '/branches',
+  '/school-sites',
+  '/class-imports',
+  '/class-assignments',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -301,6 +307,11 @@ export const DATA_GRID_KEYS = [
   // Ý kiến phản hồi (DT-15 phần 15g)
   'my-feedback',
   'feedback',
+  // Trường học, lớp học (DT-15 phần 15b)
+  'branches',
+  'school-sites',
+  'classes',
+  'class-assignments',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

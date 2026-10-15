@@ -18,6 +18,9 @@ export interface OrgUnitsTable {
   phone: string | null;
   manager_user_id: string | null;
   status: Generated<OrgUnitStatus>;
+  // Khoảng cách đến cơ sở chính (km) và diện tích (m²) của phân hiệu, điểm trường (DT-15 phần 15b); numeric đọc ra chuỗi
+  distance_km: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+  area_m2: ColumnType<string | null, string | number | null | undefined, string | number | null>;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
   created_by: string | null;
@@ -116,6 +119,7 @@ export interface GradeLevelsTable extends CatalogRecordColumns {
 }
 
 export type ClassStatus = 'active' | 'closed';
+export type ClassAgeGroup = 'months_3_12' | 'months_13_24' | 'months_25_36' | 'years_3_4' | 'years_4_5' | 'years_5_6';
 
 export interface ClassesTable extends CatalogRecordColumns {
   org_unit_id: string;
@@ -126,6 +130,15 @@ export interface ClassesTable extends CatalogRecordColumns {
   room_id: string | null;
   max_size: number;
   status: Generated<ClassStatus>;
+  // Thông tin lớp theo Sở (DT-15 phần 15b): nhóm tuổi (trống là theo bậc học), thứ tự, học 2 buổi/ngày, lớp mẫu giáo ghép 2
+  // hoặc 3 độ tuổi, lớp ghép và lớp được ghép vào, lớp bán trú
+  age_group: ColumnType<ClassAgeGroup | null, ClassAgeGroup | null | undefined, ClassAgeGroup | null>;
+  sort_order: ColumnType<number | null, number | null | undefined, number | null>;
+  two_sessions_per_day: Generated<boolean>;
+  mixed_age_count: ColumnType<number | null, number | null | undefined, number | null>;
+  is_combined: Generated<boolean>;
+  combined_into_class_id: ColumnType<string | null, string | null | undefined, string | null>;
+  boarding: Generated<boolean>;
 }
 
 export type AssignmentRole = 'homeroom' | 'subject';
