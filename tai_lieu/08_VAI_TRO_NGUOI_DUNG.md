@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.53
+- Phiên bản: 1.54
 - Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -162,6 +162,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-62 | Hồ sơ trường (YCTD-106): `P01.school-profile.manage` chỉ VT-02, ghi cần phạm vi toàn trường; người có `P17.report.emis` xem được hồ sơ trường |
 | PQ-63 | Báo cáo EMIS (YCTD-106): `P17.report.emis` cho VT-02, VT-15 xem và xuất Excel báo cáo EMIS đầu năm, cần phạm vi toàn trường (gán ở Trường chính); không cần `P17.data.export`, mỗi lần xuất ghi nhật ký xuất (BR-74) |
 | PQ-64 | Ý kiến phản hồi và chính sách mật khẩu (YCTD-110): `P01.feedback.manage` (mới) cho VT-01, VT-02 xem mọi ý kiến phản hồi, ảnh đính kèm, đổi trạng thái, trả lời (P01-16, BR-109). Gửi ý kiến và xem ý kiến, ảnh của chính mình không cần quyền riêng; người khác xem ảnh nhận 404. Sửa chính sách hết hạn mật khẩu dùng quyền có sẵn `P01.account.manage` (VT-01, VT-02; P01-17, BR-110). Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12) |
+| PQ-65 | Trường học, lớp học theo Sở (YCTD-111), không có quyền mới. Mục "1.2. Quản lý phân hiệu", "1.3. Quản lý điểm trường" hiện khi có `P01.view` hoặc `P01.org-unit.manage` (như mục Phòng ban); thêm, sửa, ngừng sử dụng, dùng lại cần `P01.org-unit.manage`, chỉ VT-02 có (PQ-12). Mục "2.2. Nhập lớp học từ Excel" hiện khi thấy nhóm lớp học và có `P01.import.children`, như phần nhập lớp học ở màn hình Nhập dữ liệu trước đây (P01-13). Mục "3.3. Phân công phụ trách lớp" hiện như "2.1. Hồ sơ lớp học", ai xem được lớp đều xem được phân công của lớp trong phạm vi; Thêm mới, Kết thúc phân công cần `P02.class.manage` (PQ-17). Xuất Excel ở 2.1 và 3.3 cần `P17.data.export`. Máy chủ kiểm tra quyền và phạm vi đơn vị ở mọi yêu cầu (AI-12) |
 
 ## 5. Phân cấp phê duyệt
 
