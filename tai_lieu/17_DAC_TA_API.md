@@ -1,8 +1,8 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.65
-- Ngày cập nhật: 2026-10-14
+- Phiên bản: 1.66
+- Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -44,7 +44,7 @@ Cấu trúc phản hồi lỗi gồm mã lỗi, thông điệp tiếng Việt hi
 | Tham số | Kiểu | Mặc định | Ghi chú |
 |---|---|---|---|
 | page | số nguyên | 1 | Bắt đầu từ một |
-| page_size | số nguyên | 20 | Tối đa 100; riêng `GET /users` của dịch vụ định danh tối đa 200 cho lưới dữ liệu của cổng quản trị (YCTD-107) |
+| page_size | số nguyên | 20 | Tối đa 100; riêng `GET /users` của dịch vụ định danh (YCTD-107), `GET /children` và `GET /student-movements` (YCTD-108) tối đa 200 cho lưới dữ liệu của cổng quản trị |
 | sort | chuỗi | tùy điểm cuối | Dạng tên trường kèm dấu trừ để giảm dần |
 | q | chuỗi | trống | Tìm kiếm theo từ khóa trên các trường được khai báo |
 | org_unit_id | mã định danh | theo phiên | Chỉ nhận giá trị trong phạm vi quyền |
@@ -259,10 +259,19 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | GET, PUT | /api/v1/me/grid-settings/{gridKey} | Đọc và ghi đè cấu hình lưới dữ liệu (cột hiển thị theo thứ tự, số dòng mỗi trang) của chính người đăng nhập (YCTD-107) |
 | GET, PUT | /api/v1/school-profile | Đọc hồ sơ trường kèm Trường chính; ghi các thẻ gửi lên (P01-15, YCTD-106) |
 
+Giao kèo của học sinh theo hệ thống của Sở (DT-15 phần 15c, YCTD-108):
+
+1. `GET /children` giữ `org_unit_id`, `class_id`, `group_id`, `status`, `q`, `missing_birth_certificate`; thêm `gender`, `grade_level`, `ethnicity` (khớp một phần), `policy`, `disability`, `two_sessions_per_day`, `boarding`, `can_swim` (true/false), `moet_student_code` (khớp một phần), `national_id` (đủ 12 số, so bằng mã băm); `page_size` từ 1 đến 200. Dòng trả thêm `org_unit_name`, `grade_level`, `grade_name`, `two_sessions_per_day`, `boarding`, `has_birth_certificate`, `ethnicity`, `policy_target`, `disability_type`, `can_swim` (null với người không xem được sức khỏe, BR-53), `contact_phone`, `sms_phone`; kèm `health_fields_visible`. Thứ tự A–Z theo tên rồi họ tên (BR-107). Lọc theo dân tộc, diện chính sách, khuyết tật khi không được xem sức khỏe trả `ERR_FORBIDDEN` (403); bộ lọc sai trả `ERR_VALIDATION` (400) kèm trường lỗi.
+2. `POST /children/export` cần `P17.data.export` và phạm vi xem trẻ (BR-72). Thân gồm các bộ lọc như mục 1 và `columns` (mảng mã cột không trùng trong `moet_student_code`, `full_name`, `dob`, `gender`, `ethnicity`, `status`, `contact_phone`, `grade`, `class`, `sms_phone`, `two_sessions_per_day`, `boarding`, `policy_target`, `disability_type`, `can_swim`, `national_id`, `org_unit`; bỏ trống là 9 cột mặc định). Trả tệp xlsx có cột STT và các cột theo thứ tự gửi, đầu `x-export-log-id`; ghi `export_logs` mã báo cáo `children`, có dữ liệu cá nhân, không ghi số định danh của bộ lọc (BR-74). Quá 10 000 dòng trả `ERR_RULE_VIOLATION` mã YCTD-108.
+3. `POST /children/bulk-update` cần `P02.child.manage` hoặc `P02.approve`. Thân `child_ids` (1 đến 500 mã), `two_sessions_per_day`, `boarding` (boolean, ít nhất một). Hồ sơ nháp cần quyền lập hồ sơ ở đơn vị, hồ sơ khác cần quyền duyệt ở đơn vị; có hồ sơ chờ duyệt trả `ERR_RULE_VIOLATION` mã YCTD-108 kèm tên, không cập nhật học sinh nào (BR-106). Trả `updated`; mỗi học sinh ghi một dòng `audit_logs`.
+4. `PATCH /children/{id}` nhận thêm `two_sessions_per_day`, `boarding` (boolean, không phải thông tin định danh nên không cần `reason`). `GET /children/{id}` trả thêm `two_sessions_per_day`, `boarding`, `sms_phone` và `receives_sms` của từng phụ huynh.
+5. `PUT /children/{id}/sms-guardian` cần `P02.child.manage` hoặc `P02.approve`, quyền như sửa phụ huynh. Thân `guardian_id` bắt buộc có trường: mã phụ huynh của học sinh hoặc null để bỏ chọn. Phụ huynh không gắn với học sinh trả `ERR_NOT_FOUND`; phụ huynh chưa có số điện thoại trả `ERR_RULE_VIOLATION` mã YCTD-108; trả hồ sơ học sinh. Tin nhắn SMS, Zalo theo học sinh gửi phụ huynh nhận tin theo BR-105.
+6. `GET /student-movements` cần `P02.child.manage` hoặc `P02.approve`, trong phạm vi xem trẻ. Tham số `from`, `to` (YYYY-MM-DD), `kind` (`enrolled`, `class_transfer`, `unit_transfer`, `withdrawn`), `org_unit_id`, `q`, `page`, `page_size` (10, 20, 50, 100, 200). Trả `items` (`id`, `kind`, `date`, `child_id`, `full_name`, `dob`, `gender`, `moet_student_code`, `org_unit_id`, `from_name`, `to_name`, `reason`) mới nhất trước, `total`, `total_pages`, `counts` theo loại. `POST /student-movements/export` cần `P17.data.export`, thân là bộ lọc như trên, trả tệp xlsx và ghi `export_logs` mã `student-movements`.
+
 Giao kèo của cấu hình lưới theo người dùng (DT-15 phần 15a, YCTD-107):
 
 1. Hai điểm cuối chỉ cần đăng nhập, không cần quyền riêng; chỉ đọc và ghi cấu hình của chính tài khoản gọi. Không có mã phiên trả `ERR_UNAUTHENTICATED` (401).
-2. `gridKey` phải thuộc `DATA_GRID_KEYS` ở gói dùng chung (`default`, `accounts`, `staff`; lưới chuyển sang ở các phần sau thêm khóa); khóa lạ trả `ERR_VALIDATION` (400), trường lỗi `gridKey`. Khóa `default` giữ số dòng mỗi trang mặc định cho mọi lưới.
+2. `gridKey` phải thuộc `DATA_GRID_KEYS` ở gói dùng chung (`default`, `accounts`, `staff`, từ YCTD-108 thêm `children`, `student-movements`; lưới chuyển sang ở các phần sau thêm khóa); khóa lạ trả `ERR_VALIDATION` (400), trường lỗi `gridKey`. Khóa `default` giữ số dòng mỗi trang mặc định cho mọi lưới.
 3. `GET /me/grid-settings/{gridKey}` trả `{ columns, page_size }`: `columns` là mảng mã cột theo thứ tự hiển thị hoặc null (theo mặc định của màn hình), `page_size` là số hoặc null; chưa lưu thì cả hai null.
 4. `PUT /me/grid-settings/{gridKey}` nhận `{ columns, page_size }` và ghi đè cả cấu hình: `columns` từ 1 đến 100 mã cột, không trùng, mỗi mã 1 đến 64 ký tự chữ, số, `_`, `.`, `-`, null là theo mặc định, lưới `default` không nhận cột; `page_size` là 10, 20, 50, 100, 200 hoặc null. Dữ liệu sai trả `ERR_VALIDATION` (400) kèm trường lỗi và giữ nguyên cấu hình cũ.
 5. Số dòng mỗi trang của một lưới trên giao diện: `page_size` của lưới, không có thì của `default`, không có nữa thì 20 (`14_DAC_TA_GIAO_DIEN.md` BC-14).
@@ -605,14 +614,19 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 
 | Phương thức | Đường dẫn | Mô tả |
 |---|---|---|
-| GET | /api/v1/children | Danh sách trẻ có lọc và phân trang; lọc theo nhóm học sinh `group_id` (YCTD-104) |
+| GET | /api/v1/children | Danh sách trẻ có lọc và phân trang; lọc theo nhóm học sinh `group_id` (YCTD-104); bộ lọc, cột theo Sở, thứ tự A–Z, cỡ trang đến 200 (YCTD-108) |
+| POST | /api/v1/children/export | Xuất Excel danh sách học sinh theo bộ lọc và cột đang hiện; cần `P17.data.export`, ghi nhật ký xuất (YCTD-108) |
+| POST | /api/v1/children/bulk-update | Cập nhật hàng loạt học 2 buổi/ngày, bán trú (BR-106, YCTD-108) |
 | POST | /api/v1/children | Tạo hồ sơ trẻ |
-| GET | /api/v1/children/{id} | Chi tiết hồ sơ trẻ |
+| GET | /api/v1/children/{id} | Chi tiết hồ sơ trẻ; từ YCTD-108 có `two_sessions_per_day`, `boarding`, `sms_phone` |
+| PUT | /api/v1/children/{id}/sms-guardian | Chọn hoặc bỏ chọn phụ huynh có điện thoại nhận tin (BR-105, YCTD-108) |
+| GET | /api/v1/student-movements | Biến động học sinh của năm học: nhập học, chuyển lớp, chuyển đơn vị, thôi học (P02-15, YCTD-108) |
+| POST | /api/v1/student-movements/export | Xuất Excel biến động học sinh; cần `P17.data.export`, ghi nhật ký xuất (YCTD-108) |
 | GET | /api/v1/children/{id}/national-id | Xem đầy đủ số định danh cá nhân; chỉ VT-02, VT-15, VT-03, VT-12; ghi nhật ký truy cập |
 | GET | /api/v1/children/{id}/photo-consent | Trạng thái và lịch sử đồng ý hình ảnh (YCTD-67) |
 | POST | /api/v1/children/{id}/photo-consent | Phụ huynh đồng ý hoặc rút đồng ý; nhà trường ghi nhận giấy ký tay |
 | PUT | /api/v1/children/{id}/staff-child | Gắn hoặc bỏ cờ trẻ con nhân viên (YCTD-67) |
-| PATCH | /api/v1/children/{id} | Cập nhật hồ sơ trẻ |
+| PATCH | /api/v1/children/{id} | Cập nhật hồ sơ trẻ; nhận thêm `two_sessions_per_day`, `boarding` (YCTD-108) |
 | POST | /api/v1/children/{id}/submit | Gửi trình duyệt hồ sơ |
 | POST | /api/v1/children/{id}/approve | Duyệt hồ sơ và phân lớp |
 | POST | /api/v1/children/{id}/reject | Từ chối hồ sơ kèm lý do |

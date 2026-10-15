@@ -16,6 +16,25 @@ export async function guardianUserIds(executor: Executor, childId: string): Prom
   return [...new Set(rows.map((row) => row.user_id).filter((id): id is string => id !== null))];
 }
 
+// Người nhận tin nhắn (SMS, Zalo) của học sinh: phụ huynh được chọn ở "Điện thoại nhận tin" (mục 4.1.5 của Sở, YCTD-108)
+// khi phụ huynh đó có tài khoản; chưa chọn hoặc phụ huynh được chọn chưa có tài khoản thì mọi phụ huynh có tài khoản như
+// trước. Thông báo trong ứng dụng vẫn gửi mọi phụ huynh
+export function pickSmsRecipients(rows: Array<{ user_id: string | null; receives_sms: boolean }>): string[] {
+  const withAccount = rows.filter((row) => row.user_id !== null);
+  const chosen = withAccount.filter((row) => row.receives_sms);
+  return [...new Set((chosen.length > 0 ? chosen : withAccount).map((row) => row.user_id as string))];
+}
+
+export async function smsGuardianUserIds(executor: Executor, childId: string): Promise<string[]> {
+  const rows = await executor
+    .selectFrom('child_guardians')
+    .innerJoin('guardians', 'guardians.id', 'child_guardians.guardian_id')
+    .select(['guardians.user_id', 'child_guardians.receives_sms'])
+    .where('child_guardians.child_id', '=', childId)
+    .execute();
+  return pickSmsRecipients(rows);
+}
+
 export async function isGuardianOf(executor: Executor, childId: string, userId: string): Promise<boolean> {
   return (await guardianUserIds(executor, childId)).includes(userId);
 }

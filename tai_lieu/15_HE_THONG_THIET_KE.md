@@ -1,8 +1,8 @@
 # 15. HỆ THỐNG THIẾT KẾ
 
 - Mô tả: Màu sắc, chữ, khoảng cách, thành phần dùng chung, quy tắc thiết kế thống nhất.
-- Phiên bản: 1.1
-- Ngày cập nhật: 2026-10-14
+- Phiên bản: 1.2
+- Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -109,6 +109,7 @@ Phông chữ dùng phông hệ thống có hỗ trợ đầy đủ dấu tiếng
 | TD-16 | Ô dữ liệu ngành còn trống | Ô mã định danh ngành còn trống có nền đỏ nhạt và chữ "Chưa có mã" màu T-03 (BR-07) |
 | TD-17 | Số định danh đã che | Chỉ hiện bốn số cuối, phần còn lại thay bằng dấu sao; vai trò được xem đầy đủ có nút xem, mỗi lần bấm ghi nhật ký truy cập (BR-81) |
 | TD-18 | Menu ngang đánh số và menu người dùng | Vai trò `menubar`, `menu`, `menuitem` theo WAI-ARIA, dùng được bằng chuột và bàn phím; mục có số thứ bậc 1., 1.1., 1.1.1.; trang đang mở tô sáng ở mục lá và mục cấp một chứa nó; menu người dùng mở từ tên người dùng ở thanh đầu trang (`14_DAC_TA_GIAO_DIEN.md` BC-10 đến BC-12; YCTD-107) |
+| TD-19 | Khối biểu mẫu | `FormBlock` (khối có tiêu đề), `FormRow` (một dòng nhãn và ô nhập) và lớp `FORM_CONTROL_CLASS` cho ô nhập ở `packages/ui`: nhãn bên trái, ô nhập bên phải; dưới 768 điểm ảnh nhãn nằm trên ô nhập; dùng cho biểu mẫu theo khối như của Sở (`14_DAC_TA_GIAO_DIEN.md` BC-16; YCTD-108) |
 
 ## 6. Biểu tượng và hình ảnh
 

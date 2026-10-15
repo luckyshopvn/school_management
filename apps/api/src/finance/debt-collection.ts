@@ -33,7 +33,7 @@ import {
 } from '../inventory/inventory-common.js';
 import { readIntegration } from '../integrations/integrations.js';
 import { SettingsService } from '../settings/settings.service.js';
-import { guardianUserIds } from './receivables.js';
+import { guardianUserIds, smsGuardianUserIds } from './receivables.js';
 
 // Nhắc nợ và xử lý công nợ quá hạn (P05-10, P05-12; BR-33; YCTD-23, YCTD-82). Danh sách nhắc nợ gồm hóa đơn đã phát hành
 // còn nợ và đã quá hạn; mốc là mốc cấu hình lớn nhất đã tới (mặc định 3, 7, 15 ngày). Mỗi hóa đơn nhắc một lần ở mỗi mốc,
@@ -205,10 +205,16 @@ export class DebtCollectionService {
           body: `${row.child_name} còn ${row.outstanding_amount} đồng của hóa đơn ${row.invoice_code ?? ''} kỳ ${periodLabel(Number(year), Number(month))}, đã quá hạn ${row.overdue_days} ngày (hạn ${row.due_date ?? ''})`,
           targetType: 'invoices',
           targetId: row.invoice_id,
-          recipients: (await guardianUserIds(transaction, row.child_id)).flatMap((userId) => [
-            { userId, channel: 'in_app' as const },
-            ...(viaZalo ? [{ userId, channel: 'zalo' as const }] : []),
-          ]),
+          recipients: [
+            ...(await guardianUserIds(transaction, row.child_id)).map((userId) => ({
+              userId,
+              channel: 'in_app' as const,
+            })),
+            ...(viaZalo ? await smsGuardianUserIds(transaction, row.child_id) : []).map((userId) => ({
+              userId,
+              channel: 'zalo' as const,
+            })),
+          ],
         });
         await writeAuditLog(transaction, {
           origin,

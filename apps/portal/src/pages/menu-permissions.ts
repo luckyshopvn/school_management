@@ -26,6 +26,7 @@ function useMenuVisibility(): Partial<Record<PortalQuickLinkPath, boolean>> {
   const canSeeChildrenAndClasses = canManageClasses || canViewChildren || canEditChildren;
   const canImportChildren = useHasPermission(PERMISSION_CODES.importChildren);
   const canManageChildren = useHasPermission(PERMISSION_CODES.childManage);
+  const canApproveChildren = useHasPermission(PERMISSION_CODES.childApprove);
   const canImportOpeningDebts = useHasPermission(PERMISSION_CODES.openingDebtImport);
   const canImportStaff = useHasPermission(PERMISSION_CODES.importStaff);
   const canViewStaff = useHasPermission(PERMISSION_CODES.staffView);
@@ -129,6 +130,8 @@ function useMenuVisibility(): Partial<Record<PortalQuickLinkPath, boolean>> {
     '/classes': canSeeChildrenAndClasses,
     '/staff': canViewStaff,
     '/children': canSeeChildrenAndClasses,
+    // Biến động học sinh: người lập hoặc duyệt hồ sơ trẻ (YCTD-108)
+    '/student-movements': canSeeChildrenAndClasses && (canManageChildren || canApproveChildren),
     // Trước đây hiện ở nhóm Trẻ và lớp, hoặc ở nhóm Nhân sự cho người chỉ nhập nhân sự
     '/imports': (canSeeChildrenAndClasses && canImport) || (canViewStaff && canImportStaff),
     '/child-groups': canSeeChildrenAndClasses && (canManageChildGroups || canViewChildren),

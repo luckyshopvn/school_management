@@ -18,7 +18,7 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { queueNotification } from '../common/notification-queue.js';
 import { isUuid, notFoundError, readRequiredUuid, type RequestBody } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
-import { guardianUserIds, isGuardianOf } from '../finance/receivables.js';
+import { guardianUserIds, isGuardianOf, smsGuardianUserIds } from '../finance/receivables.js';
 import { HealthAccess, type HealthChild } from './health-access.js';
 import { readDecimal, readHealthDate, readNote } from './health-fields.js';
 import { HealthRecordsService } from './health-records.js';
@@ -94,10 +94,13 @@ export class HealthCareService {
         body: `${child.full_name} (${SEVERITY_LABELS[input.severity]}): ${input.symptoms}. Đã xử lý: ${input.handling}`,
         targetType: 'medical_events',
         targetId: created.id,
-        recipients: guardians.flatMap((userId) => [
-          { userId, channel: 'in_app' as const },
-          ...(input.severity === 'severe' ? [{ userId, channel: 'sms' as const }] : []),
-        ]),
+        recipients: [
+          ...guardians.map((userId) => ({ userId, channel: 'in_app' as const })),
+          ...(input.severity === 'severe' ? await smsGuardianUserIds(transaction, child.id) : []).map((userId) => ({
+            userId,
+            channel: 'sms' as const,
+          })),
+        ],
       });
       await writeAuditLog(transaction, {
         origin,

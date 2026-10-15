@@ -1,8 +1,8 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.37
-- Ngày cập nhật: 2026-10-14
+- Phiên bản: 1.38
+- Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -38,7 +38,7 @@
 
 | Mã | Tên chức năng | Người dùng | Đầu vào chính | Xử lý chính | Đầu ra chính | Quy tắc |
 |---|---|---|---|---|---|---|
-| P02-01 | Danh sách trẻ (G1) | VT-03, VT-04, VT-07 | Bộ lọc đơn vị, lớp, trạng thái, từ khóa | Truy vấn có phân trang và lọc theo quyền | Danh sách trẻ | BR-01, BR-72 |
+| P02-01 | Danh sách trẻ (G1) | VT-03, VT-04, VT-07 | Bộ lọc đơn vị, lớp, trạng thái, từ khóa; từ YCTD-108 thêm khối, giới tính, dân tộc, diện chính sách, khuyết tật, học 2 buổi/ngày, bán trú, biết bơi, nhóm học sinh, mã định danh Bộ GD&ĐT, số định danh cá nhân, thiếu giấy khai sinh | Truy vấn có phân trang và lọc theo quyền; trên cổng quản trị là màn hình "4.1.1. Quản lý hồ sơ học sinh" theo cột của Sở, xếp A–Z theo tên, xuất Excel theo cột đang hiện kèm nhật ký xuất (YCTD-108) | Danh sách trẻ, tệp Excel | BR-01, BR-72, BR-74, BR-107 |
 | P02-02 | Hồ sơ trẻ (G1) | VT-12, VT-03 | Thông tin định danh, ngày sinh, giới tính, địa chỉ, số định danh cá nhân, bản chụp giấy khai sinh, mã định danh do cơ sở dữ liệu ngành cấp, ghi chú | Tạo, sửa, trình duyệt; kiểm tra số định danh không trùng; tô đỏ khi chưa có mã ngành; che số định danh với vai trò không được xem đầy đủ | Hồ sơ trẻ hoàn chỉnh | BR-06, BR-07, BR-81 |
 | P02-03 | Hồ sơ phụ huynh và quan hệ với trẻ (G1) | VT-12, VT-03 | Họ tên, quan hệ, số điện thoại, nghề nghiệp | Gắn phụ huynh vào trẻ, đặt phụ huynh liên hệ chính; phụ huynh có số điện thoại được tạo tài khoản với mật khẩu mặc định chung | Danh sách phụ huynh của trẻ | BR-08, PQ-06 |
 | P02-04 | Người được ủy quyền đón trẻ (G1) | VT-14, VT-02, VT-15, VT-03 | Họ tên, quan hệ, số điện thoại, hiệu lực từ ngày đến ngày | Khai báo và hủy ủy quyền; phụ huynh khai báo cho con mình (YCTD-48) | Danh sách người được ủy quyền | BR-11 |
@@ -52,6 +52,8 @@
 | P02-12 | Nhập mã định danh ngành từ tệp (G1) | VT-12, VT-03 | Tệp theo mẫu của hệ thống gồm số định danh cá nhân, mã định danh ngành, họ tên, chép từ tệp xuất của cơ sở dữ liệu ngành (YCTD-46) | Đối chiếu theo số định danh cá nhân, gán mã ngành, báo dòng không khớp hoặc trùng; kết nối tự động để giai đoạn 3 (G3-09) | Mã ngành trên hồ sơ trẻ | BR-07 |
 | P02-13 | Hoàn thành chương trình giáo dục mầm non (G3) | VT-07, VT-03; xác nhận VT-02, VT-15 | Lớp mẫu giáo 5-6 tuổi (bậc học bắt đầu từ 60 tháng tuổi), kết quả Hoàn thành hoặc Chưa hoàn thành và ghi chú của từng trẻ đang học | Ghi kết quả từng trẻ hoặc đánh dấu cả lớp; Ban Giám hiệu xác nhận danh sách khi đủ kết quả thì khóa, hủy xác nhận kèm lý do; thống kê tỷ lệ hoàn thành theo lớp, đơn vị; xuất Excel kèm nhật ký xuất (YCTD-104) | Danh sách hoàn thành chương trình đã xác nhận, thống kê, tệp Excel | BR-72, BR-74, BR-97 |
 | P02-14 | Nhóm học sinh (G3) | VT-02, VT-15, VT-03; giáo viên xem | Tên nhóm (duy nhất trong đơn vị), mô tả, giáo viên phụ trách, trạng thái, trẻ của nhóm | Lập, sửa, ngừng dùng nhóm; thêm trẻ đang học của đơn vị theo lớp, bớt trẻ; một trẻ thuộc nhiều nhóm; lọc danh sách trẻ theo nhóm; nhóm không chuyển sang năm học mới (YCTD-104) | Danh sách nhóm và trẻ của nhóm | BR-01, BR-72 |
+| P02-15 | Biến động học sinh (G3) | VT-02, VT-15, VT-03, VT-12 | Khoảng ngày, loại biến động (nhập học, chuyển lớp, chuyển đơn vị, thôi học), đơn vị, họ tên | Dựng danh sách từ lịch sử đã có của năm học, mới nhất trước, đếm theo loại; xuất Excel theo bộ lọc kèm nhật ký xuất (YCTD-108) | Danh sách biến động, tệp Excel | BR-72, BR-74, BR-107 |
+| P02-16 | Điện thoại nhận tin, học 2 buổi/ngày và bán trú (G3) | VT-12, VT-03, VT-02, VT-15 | Phụ huynh nhận tin của học sinh; học 2 buổi/ngày, học sinh lớp bán trú của một hoặc nhiều học sinh | Chọn hoặc bỏ chọn phụ huynh nhận tin; tin nhắn theo học sinh gửi phụ huynh nhận tin; sửa ở hồ sơ hoặc cập nhật hàng loạt, có học sinh chờ duyệt thì không cập nhật học sinh nào (YCTD-108) | Số nhận tin, cờ học 2 buổi/ngày, bán trú của học sinh | BR-105, BR-106 |
 
 ## 4. Phân hệ P03 — Giảng dạy
 

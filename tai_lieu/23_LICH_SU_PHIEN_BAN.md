@@ -2,7 +2,7 @@
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
 - Phiên bản: 0.4
-- Ngày cập nhật: 2026-10-14
+- Ngày cập nhật: 2026-10-15
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
 
@@ -15,6 +15,17 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.61.0 – 2026-10-15
+
+- Phạm vi thay đổi: DT-15 phần 15c, học sinh theo hệ thống của Sở: Quản lý hồ sơ học sinh, điện thoại nhận tin, học 2 buổi/ngày và bán trú, biến động học sinh (YCTD-108).
+- Chức năng mới: màn hình "4.1.1. Quản lý hồ sơ học sinh" dùng lưới dữ liệu chung với cột, bộ lọc "Mở rộng tìm kiếm" theo Sở, thứ tự A–Z theo tên, Xuất Excel theo cột đang hiện; hồ sơ học sinh hai thẻ "Hồ sơ học sinh" (khối của Sở, nhãn bên trái, nút Ghi) và "Thông tin riêng của trường"; biểu mẫu Thêm mới theo khối; điện thoại nhận tin của học sinh, tin nhắn theo học sinh gửi số nhận tin; học 2 buổi/ngày, bán trú sửa ở hồ sơ hoặc cập nhật hàng loạt; mục mới "4.2. Biến động học sinh" (nhập học, chuyển lớp, chuyển đơn vị, thôi học) kèm Xuất Excel; chữ "trẻ" trên các màn hình học sinh của cổng quản trị đổi thành "học sinh" (P02, P17).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: cột mới `children.two_sessions_per_day`, `children.boarding` (giá trị ban đầu từ `moet_profile`), `child_guardians.receives_sms` và chỉ mục duy nhất `child_guardians_receives_sms_unique` ở cơ sở dữ liệu năm học (tệp 0050).
+- Thay đổi API: `GET /children` thêm bộ lọc, cột, thứ tự A–Z, cỡ trang đến 200; `GET`, `PATCH /children/{id}` thêm `two_sessions_per_day`, `boarding`, `sms_phone`; thêm `POST /children/export`, `POST /children/bulk-update`, `PUT /children/{id}/sms-guardian`, `GET /student-movements`, `POST /student-movements/export`.
+- Rủi ro: người dùng quen danh sách sắp theo họ tên và khung hồ sơ bên phải cần làm quen thứ tự theo tên và hồ sơ mở dưới dòng; tin nhắn theo học sinh chỉ đi tới một phụ huynh khi đã chọn số nhận tin; dân tộc, diện chính sách, khuyết tật, biết bơi trống với học sinh chưa nhập tệp CSDL ngành.
+- Khả năng tương thích: đường dẫn `/children` và lối tắt Truy cập nhanh giữ nguyên; bộ lọc cũ chuyển vào "Mở rộng tìm kiếm"; nút "Tạo hồ sơ mới", "Lưu hồ sơ nháp" đổi thành "Thêm mới", "Ghi"; học sinh chưa chọn số nhận tin vẫn nhận tin như trước; thông báo lỗi của máy chủ API và ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-15-phan-15c`; chạy phần quay lui của tệp 0050 để gỡ ba cột và chỉ mục (mất lựa chọn số nhận tin, học 2 buổi/ngày, bán trú đã ghi sau khi phát hành).
 
 ### Phiên bản 0.60.0 – 2026-10-14
 

@@ -548,6 +548,9 @@ export class MoetImports {
         national_id_last4: plan.national_id.slice(-4),
         moet_student_code: plan.moet_student_code,
         moet_profile: JSON.stringify(plan.profile),
+        // Học 2 buổi/ngày, bán trú lấy từ cột của tệp ngành (YCTD-108)
+        two_sessions_per_day: plan.profile.two_sessions_per_day === true,
+        boarding: plan.profile.boarding_class === true,
         birth_certificate_file_id: null,
         status: 'active',
         photo_consent: 'pending',
@@ -622,7 +625,13 @@ export class MoetImports {
     };
     await transaction
       .updateTable('children')
-      .set({ ...changes, moet_profile: JSON.stringify(plan.profile), updated_at: this.clock.now() })
+      .set({
+        ...changes,
+        moet_profile: JSON.stringify(plan.profile),
+        two_sessions_per_day: plan.profile.two_sessions_per_day === true,
+        boarding: plan.profile.boarding_class === true,
+        updated_at: this.clock.now(),
+      })
       .where('id', '=', childId)
       .execute();
     await writeAuditLog(transaction, {
