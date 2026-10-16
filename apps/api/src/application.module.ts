@@ -170,6 +170,13 @@ import {
   AdministrativeUnitsController,
   AdministrativeUnitsService,
 } from './administrative-units/administrative-units.js';
+import { AccountDirectoryController, AccountDirectoryService } from './account-directory/account-directory.js';
+import {
+  MinistrySyncGateway,
+  SyncAccountsController,
+  SyncAccountsService,
+  UnavailableMinistrySyncGateway,
+} from './sync-accounts/sync-accounts.js';
 import { WorkSchedulesController, WorkSchedulesService } from './staff-attendance/work-schedules.js';
 import { StaffController } from './staff/staff.controller.js';
 import { StaffService } from './staff/staff.service.js';
@@ -269,6 +276,8 @@ export class ApplicationModule {
         ChildLifecycleController,
         StudentMovementsController,
         AdministrativeUnitsController,
+        AccountDirectoryController,
+        SyncAccountsController,
         WorkSchedulesController,
         HealthRecordsController,
         HealthCareController,
@@ -427,6 +436,10 @@ export class ApplicationModule {
         ChildLifecycleService,
         StudentMovementsService,
         AdministrativeUnitsService,
+        AccountDirectoryService,
+        SyncAccountsService,
+        // Đồng bộ tài khoản lên CSDL ngành của Bộ, Sở: chưa có giao diện lập trình nên chưa đồng bộ được (DT-16 phần 16d)
+        { provide: MinistrySyncGateway, useClass: UnavailableMinistrySyncGateway },
         WorkSchedulesService,
         HealthAccess,
         HealthRecordsService,

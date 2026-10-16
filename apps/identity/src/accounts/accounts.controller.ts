@@ -103,9 +103,7 @@ function readUserIds(body: RequestBody): string[] {
     value.length > MAXIMUM_BULK ||
     value.some((id) => typeof id !== 'string' || !UUID_PATTERN.test(id))
   ) {
-    throw validationError([
-      { field: 'user_ids', message: `Chọn từ 1 đến ${MAXIMUM_BULK} tài khoản` },
-    ]);
+    throw validationError([{ field: 'user_ids', message: `Chọn từ 1 đến ${MAXIMUM_BULK} tài khoản` }]);
   }
   return [...new Set(value as string[])];
 }
