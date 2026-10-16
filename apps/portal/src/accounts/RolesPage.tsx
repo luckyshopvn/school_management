@@ -4,14 +4,16 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
 import { Alert, Button, DataGrid, StatusBadge, Toast, type DataGridColumn } from '@school-management/ui';
 import { AppShell } from '../pages/AppShell.js';
+import { useGridExport, visibleColumnIds } from '../pages/grid-export.js';
 import { useGridSettings } from '../pages/grid-settings.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
-import { createRole, listRoles, type Role } from './accounts-api.js';
+import { createRole, exportRoles, listRoles, type Role } from './accounts-api.js';
 
 // MH-30 phần vai trò, theo màn hình 1.1 Nhóm người dùng của Sở (DT-15 phần 15e): danh sách trên lưới dữ liệu chung, thêm
-// nhóm bằng biểu mẫu nhãn bên trái và nút Ghi; ma trận quyền chuyển sang 1.3 Phân quyền nhóm theo menu (P01-07, PQ-13)
+// nhóm bằng biểu mẫu nhãn bên trái và nút Ghi; ma trận quyền chuyển sang 1.3 Phân quyền nhóm theo menu (P01-07, PQ-13);
+// Xuất Excel theo từ khóa và các cột đang hiện (DT-16 phần 16b)
 function messageOf(error: unknown): string {
   return error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại';
 }
@@ -99,6 +101,8 @@ export function RolesPage() {
   const navigate = useNavigate();
   const roles = useQuery({ queryKey: ['roles'], queryFn: listRoles });
   const grid = useGridSettings('roles');
+  const canExport = useHasPermission(PERMISSION_CODES.dataExport);
+  const exporter = useGridExport();
   const [keyword, setKeyword] = useState('');
   const [creating, setCreating] = useState(false);
   const [toastMessage, setToastMessage] = useState<string>();
@@ -132,6 +136,7 @@ export function RolesPage() {
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/roles')}</h1>
         {roles.isError ? <Alert tone="danger">{messageOf(roles.error)}</Alert> : null}
         {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+        {exporter.error ? <Alert tone="danger">{exporter.error}</Alert> : null}
         {creating ? (
           <CreateRoleForm
             onCancel={() => setCreating(false)}
@@ -152,11 +157,23 @@ export function RolesPage() {
           emptyText="Không có nhóm người dùng phù hợp."
           search={{ label: 'Tìm theo mã, tên nhóm', value: keyword, onChange: setKeyword }}
           toolbar={
-            editable ? (
-              <Button variant="primary" onClick={() => setCreating(true)} disabled={creating}>
-                Thêm mới
-              </Button>
-            ) : null
+            <>
+              {editable ? (
+                <Button variant="primary" onClick={() => setCreating(true)} disabled={creating}>
+                  Thêm mới
+                </Button>
+              ) : null}
+              {canExport ? (
+                <Button
+                  disabled={exporter.exporting}
+                  onClick={() =>
+                    void exporter.run(() => exportRoles(keyword, visibleColumnIds(columns, grid.settings)))
+                  }
+                >
+                  Xuất Excel
+                </Button>
+              ) : null}
+            </>
           }
           rowActions={(role) => (
             <Button variant="text" aria-label={`Phân quyền ${role.code}`} onClick={() => openPermissions(role)}>

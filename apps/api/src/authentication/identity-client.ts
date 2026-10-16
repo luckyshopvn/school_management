@@ -147,14 +147,35 @@ export class IdentityClient {
     return (await response.json()) as ApiClientIdentity;
   }
 
+  // Danh sách tài khoản, nhóm người dùng để xuất Excel (DT-16 phần 16b); dịch vụ định danh tự kiểm tra quyền xem
+  listAccounts(accessToken: string, query: URLSearchParams): Promise<IdentityAccountPage> {
+    return this.getJson(accessToken, `/users?${query.toString()}`, 'đọc danh sách người dùng');
+  }
+
+  listRoles(accessToken: string): Promise<IdentityRole[]> {
+    return this.getJson(accessToken, '/roles', 'đọc danh sách nhóm người dùng');
+  }
+
+  private postJson<Result>(accessToken: string, path: string, body: unknown, action: string): Promise<Result> {
+    return this.sendJson(accessToken, path, { method: 'POST', body: JSON.stringify(body) }, action);
+  }
+
+  private getJson<Result>(accessToken: string, path: string, action: string): Promise<Result> {
+    return this.sendJson(accessToken, path, { method: 'GET' }, action);
+  }
+
   // Gọi dịch vụ định danh bằng mã phiên của người thao tác; lỗi nghiệp vụ trả nguyên mã lỗi và nội dung
-  private async postJson<Result>(accessToken: string, path: string, body: unknown, action: string): Promise<Result> {
+  private async sendJson<Result>(
+    accessToken: string,
+    path: string,
+    init: { method: 'GET' | 'POST'; body?: string },
+    action: string,
+  ): Promise<Result> {
     let response: Response;
     try {
       response = await fetch(`${this.configuration.identityBaseUrl}${API_VERSION_PREFIX}${path}`, {
-        method: 'POST',
+        ...init,
         headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json' },
-        body: JSON.stringify(body),
         signal: AbortSignal.timeout(IDENTITY_TIMEOUT_MILLISECONDS),
       });
     } catch (error) {
@@ -205,4 +226,34 @@ export interface StaffDirectoryEntry {
   full_name: string;
   role_code: string;
   org_unit_id: string | null;
+}
+
+// Tài khoản, nhóm người dùng như dịch vụ định danh trả cho 1.4 và 1.1 của Quản trị hệ thống
+export interface IdentityAccount {
+  id: string;
+  full_name: string;
+  phone: string | null;
+  username: string | null;
+  status: 'active' | 'locked';
+  must_change_password: boolean;
+  valid_until: string | null;
+  last_login_at: string | null;
+  password_changed_at: string | null;
+  assignments: Array<{ role_code: string; role_name: string; org_unit_id: string | null }>;
+}
+
+export interface IdentityAccountPage {
+  items: IdentityAccount[];
+  page: number;
+  page_size: number;
+  total: number;
+  total_pages: number;
+}
+
+export interface IdentityRole {
+  id: string;
+  code: string;
+  name: string;
+  is_system: boolean;
+  permissions: string[];
 }

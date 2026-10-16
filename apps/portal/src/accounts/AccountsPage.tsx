@@ -14,6 +14,7 @@ import {
 } from '@school-management/ui';
 import { listOrgUnits, type OrgUnit } from '../org-units/org-units-api.js';
 import { AppShell } from '../pages/AppShell.js';
+import { useGridExport, visibleColumnIds } from '../pages/grid-export.js';
 import { useGridSettings } from '../pages/grid-settings.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
@@ -22,6 +23,7 @@ import {
   EMPTY_ACCOUNT_FILTER,
   addRole,
   createAccount,
+  exportAccounts,
   listAccounts,
   listRoles,
   removeRole,
@@ -303,6 +305,9 @@ export function AccountsPage() {
   const closeToast = useCallback(() => setToastMessage(undefined), []);
   const queryClient = useQueryClient();
   const grid = useGridSettings('accounts');
+  // Xuất Excel theo bộ lọc và các cột đang hiện (DT-16 phần 16b)
+  const canExport = useHasPermission(PERMISSION_CODES.dataExport);
+  const exporter = useGridExport();
   const pageSize = grid.settings.pageSize;
   // Đổi bộ lọc thì về trang 1
   const changeFilter = (changes: Partial<AccountFilter>) => {
@@ -387,6 +392,7 @@ export function AccountsPage() {
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/accounts')}</h1>
         {accounts.isError ? <Alert tone="danger">{messageOf(accounts.error)}</Alert> : null}
         {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+        {exporter.error ? <Alert tone="danger">{exporter.error}</Alert> : null}
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_400px]">
           <DataGrid
             label="Danh sách người dùng"
@@ -477,9 +483,21 @@ export function AccountsPage() {
               </div>
             }
             toolbar={
-              <Button variant="primary" onClick={() => setSelectedId(undefined)}>
-                Thêm mới
-              </Button>
+              <>
+                <Button variant="primary" onClick={() => setSelectedId(undefined)}>
+                  Thêm mới
+                </Button>
+                {canExport ? (
+                  <Button
+                    disabled={exporter.exporting}
+                    onClick={() =>
+                      void exporter.run(() => exportAccounts(filter, visibleColumnIds(columns, grid.settings)))
+                    }
+                  >
+                    Xuất Excel
+                  </Button>
+                ) : null}
+              </>
             }
             selectable
             rowActions={(account) => (

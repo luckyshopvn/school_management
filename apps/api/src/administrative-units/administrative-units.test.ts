@@ -386,6 +386,48 @@ describe('Cập nhật địa danh hành chính (YCTD-116)', () => {
     assert.equal(invalid.status, 400);
   });
 
+  it('CT-16b-1: xuất Excel lưới địa chỉ theo bộ lọc và cột đang hiện, ghi nhật ký xuất có dữ liệu cá nhân', async () => {
+    const download = async (token: string, body: unknown) => {
+      const response = await fetch(`${environment.baseUrl}/administrative-units/addresses/export`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
+        body: JSON.stringify(body),
+      });
+      const buffer = Buffer.from(await response.arrayBuffer());
+      const sheetRows: string[][] = [];
+      if (response.status === 200) {
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.load(buffer as unknown as ArrayBuffer);
+        workbook.worksheets[0]?.eachRow((row) => {
+          sheetRows.push(Array.from((row.values as unknown[]).slice(1), (value) => String(value ?? '')));
+        });
+      }
+      return { status: response.status, rows: sheetRows, logId: response.headers.get('x-export-log-id') };
+    };
+    const file = await download(principal.accessToken, {
+      suggestion: 'multiple',
+      columns: ['full_name', 'address_type', 'old_ward', 'new_ward', 'suggestion'],
+    });
+    assert.equal(file.status, 200);
+    assert.deepEqual(file.rows[0], ['STT', 'Họ tên', 'Loại địa chỉ', 'Xã/Phường cũ', 'Xã/Phường mới', 'Tình trạng']);
+    assert.deepEqual(
+      file.rows.slice(1).map((row) => [row[1], row[2], row[4], row[5]]),
+      [
+        ['Trần Thị An', 'Nơi sinh', 'Phường Phú Lợi; Phường Thủ Dầu Một', 'Nhiều xã/phường mới'],
+        ['Ngô Bảo Chi', 'Thường trú', 'Phường Sài Gòn; Phường Tân Định', 'Nhiều xã/phường mới'],
+      ],
+    );
+    const log = await schoolYear
+      .selectFrom('export_logs')
+      .select(['report_code', 'row_count', 'contains_personal_data'])
+      .where('id', '=', file.logId ?? '')
+      .executeTakeFirstOrThrow();
+    assert.deepEqual(log, { report_code: 'administrative-addresses', row_count: 2, contains_personal_data: true });
+    assert.equal((await download(principal.accessToken, {})).rows[0]?.length, 12);
+    assert.equal((await download(principal.accessToken, { columns: ['full_name', 'salary'] })).status, 400);
+    assert.equal((await download(teacher.accessToken, {})).status, 403);
+  });
+
   it('CT-15h1-5: giáo viên không có quyền lập, duyệt hồ sơ học sinh thì không xem, không chuyển được', async () => {
     const list = await api('GET', '/administrative-units/addresses', teacher.accessToken);
     assert.equal(list.status, 403);

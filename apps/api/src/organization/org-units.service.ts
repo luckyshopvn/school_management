@@ -3,6 +3,14 @@ import type { OrgUnitStatus, OrgUnitType } from '@school-management/database';
 import { ApplicationError, Clock, ruleViolationError } from '@school-management/server';
 import { writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
+import type { CurrentUser } from '../authentication/current-user.js';
+import { buildStudentWorkbook, fileStamp } from '../children/student-workbook.js';
+import {
+  matchesOrgUnitExport,
+  ORG_UNIT_EXPORT_COLUMNS,
+  ORG_UNIT_EXPORT_SCREENS,
+  type OrgUnitExportFilter,
+} from './org-unit-export.js';
 
 // Cây đơn vị hai cấp: Trường chính; Phân hiệu, Điểm trường trực thuộc (BR-01, QĐ-23)
 export interface OrgUnit {
@@ -99,6 +107,29 @@ export class OrgUnitsService {
       query = query.where('status', '=', filter.status);
     }
     return (await query.orderBy('parent_id', 'desc').orderBy('code').execute()).map(present);
+  }
+
+  // Xuất Excel danh sách phân hiệu hoặc điểm trường (DT-16 phần 16b); ghi nhật ký xuất trước khi trả tệp (BR-74)
+  async exportList(currentUser: CurrentUser, filter: OrgUnitExportFilter, columns: string[], ipAddress: string | null) {
+    const { database } = await this.currentSchoolYear.require();
+    const rows = (await this.list({ unitType: filter.unitType })).filter((unit) => matchesOrgUnitExport(unit, filter));
+    const selected = columns.flatMap((id) => ORG_UNIT_EXPORT_COLUMNS.filter((column) => column.id === id));
+    const screen = ORG_UNIT_EXPORT_SCREENS[filter.unitType];
+    const createdAt = this.clock.now();
+    return buildStudentWorkbook({
+      database,
+      currentUser,
+      reportCode: screen.reportCode,
+      title: screen.title,
+      fileName: `${screen.file}-${fileStamp(createdAt)}.xlsx`,
+      filters: { ...filter },
+      orgUnitIds: rows.map((row) => row.id),
+      columns: selected.map((column) => ({ key: column.id, label: column.label })),
+      rows: rows.map((row) => Object.fromEntries(selected.map((column) => [column.id, column.value(row)]))),
+      ipAddress,
+      createdAt,
+      containsPersonalData: false,
+    });
   }
 
   async tree(): Promise<OrgUnitTree | null> {

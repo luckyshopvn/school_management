@@ -32,7 +32,9 @@ import { sql, type Transaction } from 'kysely';
 import { randomUUID } from 'node:crypto';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
+import { readExportColumns } from '../classes/class-list.js';
 import { ChildScope } from '../children/child-scope.js';
+import { buildStudentWorkbook, fileStamp, sendWorkbook } from '../children/student-workbook.js';
 import { originOf, writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
@@ -51,6 +53,7 @@ import {
   type NewUnitChoice,
   type SuggestionStatus,
 } from './address-catalog.js';
+import { ADDRESS_EXPORT_COLUMNS, DEFAULT_ADDRESS_EXPORT_COLUMNS } from './address-export.js';
 
 // 4.1.11. Cập nhật địa danh hành chính (DT-15 phần 15h1): liệt kê địa chỉ của học sinh còn theo địa danh cũ (trước sắp
 // xếp đơn vị hành chính năm 2025) ở năm loại địa chỉ, đề xuất địa danh mới theo bảng đối chiếu, chuyển hàng loạt; nhập
@@ -59,6 +62,7 @@ import {
 export const ADMINISTRATIVE_RULE_CODE = 'YCTD-116';
 const PAGE_SIZES = new Set([10, 20, 50, 100, 200]);
 const CONVERT_LIMIT = 500;
+const ADDRESS_EXPORT_LIMIT = 10_000;
 const LISTED_STATUSES: ChildStatus[] = ['draft', 'pending', 'active', 'paused'];
 const XLSX_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 const WARD_CODE = /^\d{5}$/;
@@ -283,6 +287,42 @@ export class AdministrativeUnitsService {
       total_pages: Math.max(1, Math.ceil(filtered.length / pageSize)),
       counts,
     };
+  }
+
+  // Xuất Excel lưới địa chỉ theo địa danh cũ (DT-16 phần 16b): cùng phạm vi, bộ lọc như khi xem; tệp có tên học sinh nên
+  // ghi nhật ký xuất có dữ liệu cá nhân (BR-74). Xem lưới cần quyền lập hoặc duyệt hồ sơ, xuất cần thêm quyền xuất dữ liệu
+  async exportAddresses(currentUser: CurrentUser, filter: AddressFilter, columns: string[], ipAddress: string | null) {
+    if (
+      !currentUser.hasPermission(PERMISSION_CODES.childManage) &&
+      !currentUser.hasPermission(PERMISSION_CODES.childApprove)
+    ) {
+      throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không có quyền thực hiện thao tác này', [
+        { field: 'permission', message: `${PERMISSION_CODES.childManage}, ${PERMISSION_CODES.childApprove}` },
+      ]);
+    }
+    const { database } = await this.currentSchoolYear.require();
+    const rows = await this.rows(currentUser, filter);
+    if (rows.length > ADDRESS_EXPORT_LIMIT) {
+      throw ruleViolationError(
+        ADMINISTRATIVE_RULE_CODE,
+        `Danh sách có hơn ${ADDRESS_EXPORT_LIMIT} địa chỉ; hãy thu hẹp bộ lọc trước khi xuất`,
+      );
+    }
+    const selected = columns.flatMap((id) => ADDRESS_EXPORT_COLUMNS.filter((column) => column.id === id));
+    const createdAt = this.clock.now();
+    return buildStudentWorkbook({
+      database,
+      currentUser,
+      reportCode: 'administrative-addresses',
+      title: 'Cập nhật địa danh hành chính',
+      fileName: `dia-chi-dia-danh-cu-${fileStamp(createdAt)}.xlsx`,
+      filters: { ...filter },
+      orgUnitIds: [...new Set(rows.map((row) => row.org_unit_id))],
+      columns: selected.map((column) => ({ key: column.id, label: column.label })),
+      rows: rows.map((row) => Object.fromEntries(selected.map((column) => [column.id, column.value(row)]))),
+      ipAddress,
+      createdAt,
+    });
   }
 
   // Chuyển địa chỉ đã chọn sang địa danh mới: tỉnh, xã theo tên mới, bỏ quận/huyện cũ; giữ tổ/thôn/xóm. Quyền như cập nhật
@@ -656,6 +696,25 @@ export class AdministrativeUnitsController {
       throw validationError(errors);
     }
     return this.service.list(currentUser, filter, page, pageSize);
+  }
+
+  // Xuất Excel lưới địa chỉ theo bộ lọc và các cột đang hiện (DT-16 phần 16b, BR-74)
+  @Post('addresses/export')
+  @HttpCode(200)
+  @RequirePermission(PERMISSION_CODES.dataExport)
+  async exportAddresses(
+    @Body() body: RequestBody,
+    @Req() request: Request,
+    @Res() response: Response,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const errors: FieldError[] = [];
+    const filter = readAddressFilter(body ?? {}, errors);
+    const columns = readExportColumns(body, ADDRESS_EXPORT_COLUMNS, DEFAULT_ADDRESS_EXPORT_COLUMNS, errors);
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    sendWorkbook(response, await this.service.exportAddresses(currentUser, filter, columns, request.ip ?? null));
   }
 
   @Post('addresses/convert')

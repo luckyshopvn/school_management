@@ -334,8 +334,36 @@ export const DATA_GRID_KEYS = [
   'child-group-members',
   'professional-evaluations',
   // 16b: thực đơn bữa ăn
+  'kitchen-menus',
+  'kitchen-ingredients',
+  'kitchen-dishes',
+  'kitchen-suppliers',
+  'kitchen-purchases',
+  'kitchen-buffets',
   // 16b: y tế, thuốc
+  'health-campaigns',
+  'health-schedules',
+  'medical-events',
+  'health-report-requests',
+  'health-standards',
+  'medication-requests',
+  'medication-schedule',
+  'medicines',
+  'pharmacies',
+  'medicine-purchase-requests',
+  'medicine-purchase-orders',
+  'medicine-issues',
   // 16b: quản trị hệ thống
+  'academic-years',
+  'departments',
+  'job-titles',
+  'catalog-items',
+  'rooms',
+  'grade-levels',
+  'fee-services',
+  'cashflow-categories',
+  'cash-accounts',
+  'zalo-followers',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

@@ -1,4 +1,5 @@
 import { requestJson } from '../session/api-client.js';
+import { downloadPost } from '../children/children-api.js';
 
 // Gọi nhóm điểm cuối tài khoản, vai trò, quyền của dịch vụ định danh (P01-06, P01-07)
 export interface Assignment {
@@ -147,4 +148,26 @@ export function readPasswordPolicy(): Promise<PasswordPolicy> {
 
 export function savePasswordPolicy(policy: PasswordPolicy): Promise<PasswordPolicy> {
   return requestJson('/api/v1/auth/settings/password-policy', { method: 'PUT', body: JSON.stringify(policy) });
+}
+
+// Xuất Excel 1.4 Danh sách người dùng và 1.1 Nhóm người dùng theo bộ lọc, các cột đang hiện (DT-16 phần 16b); máy chủ API
+// đọc lại dữ liệu ở dịch vụ định danh và ghi nhật ký xuất
+export function exportAccounts(filter: AccountFilter, columns: string[]): Promise<void> {
+  return downloadPost(
+    '/api/v1/account-exports/users',
+    {
+      q: filter.q,
+      status: filter.status,
+      role_code: filter.roleCode,
+      login: filter.login,
+      full_name: filter.fullName,
+      must_change_password: filter.mustChangePassword,
+      columns,
+    },
+    'danh-sach-nguoi-dung.xlsx',
+  );
+}
+
+export function exportRoles(keyword: string, columns: string[]): Promise<void> {
+  return downloadPost('/api/v1/account-exports/roles', { q: keyword, columns }, 'nhom-nguoi-dung.xlsx');
 }
