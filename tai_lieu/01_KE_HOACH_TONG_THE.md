@@ -1,8 +1,8 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.7
-- Ngày cập nhật: 2026-10-15
+- Phiên bản: 1.8
+- Ngày cập nhật: 2026-10-16
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -55,6 +55,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.2.0 | Bốn thay đổi: Ban Giám hiệu, nhiều cấp đơn vị, tách giao diện và máy chủ, dịch vụ định danh | 01 đến 07 | Đã có |
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
+| 0.70.0 | DT-16 phần 16c, khung trang và đăng nhập theo hệ thống của Sở: tên trường và ngữ cảnh trên thanh đầu trang, ứng dụng liên kết, menu người dùng bảy mục, hộp thông báo khi vào trang, mã xác nhận, ghi nhớ tài khoản, quên mật khẩu, lịch sử mật khẩu, đường dây nóng, mã định danh tổ chức theo NĐ 69 (YCTD-120) | 13, 21 | Đã có |
 | 0.68.0 | DT-15 phần 15h2, văn thư lưu trữ theo hệ thống của Sở: hồ sơ tài liệu hoàn thành, chưa hoàn thành, phông lưu trữ, thông tin lưu trữ, báo cáo lưu trữ (YCTD-118) | 13, 21 | Đã có |
 | 0.66.0 | DT-15 phần 15h1, cập nhật địa danh hành chính theo hệ thống của Sở: lưới 4.1.11 địa chỉ học sinh theo địa danh cũ, đề xuất và chuyển hàng loạt, bảng đối chiếu Thành phố Hồ Chí Minh, nhập từ Excel (YCTD-116) | 13, 21 | Đã có |
 | 0.65.0 | DT-15 phần 15d, nhân sự theo hệ thống của Sở: lưới 3.1.1 Hồ sơ cán bộ, giáo viên, mở rộng tìm kiếm, xuất Excel, hồ sơ hai thẻ, biểu mẫu thêm mới theo khối (YCTD-112) | 13, 21 | Đã có |
