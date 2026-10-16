@@ -159,7 +159,9 @@ describe('Xuất Excel phân hiệu, điểm trường, nhóm người dùng, ng
     assert.equal(file.status, 200);
     assert.deepEqual(file.rows[0], ['STT', 'Tên hiển thị', 'Nhóm quyền', 'Loại tài khoản', 'Trạng thái']);
     assert.equal(file.rows.length, total + 1);
-    assert.ok(file.rows.slice(1).every((row) => row[3] === 'Cán bộ, nhân viên' && row[4] === 'Đang hoạt động'));
+    const distinct = (index: number) => [...new Set(file.rows.slice(1).map((row) => row[index]))];
+    assert.deepEqual(distinct(3), ['Cán bộ, nhân viên'], JSON.stringify(file.rows.slice(0, 3)));
+    assert.deepEqual(distinct(4), ['Đang hoạt động'], JSON.stringify(file.rows.slice(0, 3)));
     assert.deepEqual(await exportLog(file.logId), {
       report_code: 'accounts',
       row_count: total,
