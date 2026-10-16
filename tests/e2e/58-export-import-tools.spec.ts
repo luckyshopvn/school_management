@@ -2,12 +2,14 @@ import { expect, test, type Page } from './fixtures.js';
 import {
   createDatabase,
   readConnectionString,
+  replaceDatabaseName,
   type IdentityDatabase,
   type SystemDatabase,
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import ExcelJS from 'exceljs';
 import { readFile } from 'node:fs/promises';
+import { E2E_SYSTEM_DATABASE_NAME } from '../e2e-environment.mjs';
 import { openMenu } from './menu.js';
 
 // Công cụ xuất, nhập dùng chung và mẫu gửi lên cấp trên chạy nội bộ (DT-16 phần 16a, YCTD-120): Xuất PDF trên lưới, 3.5 Tệp
@@ -15,7 +17,9 @@ import { openMenu } from './menu.js';
 // Báo cáo EMIS đầu năm lên cấp trên. Chạy sau 03-org-units, 06-catalogs, 08-classes (Phân hiệu A mã PH-A, bậc học MAM,
 // lớp Mầm 1). Dữ liệu là dữ liệu giả
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
-const system = createDatabase<SystemDatabase>(readConnectionString('system'));
+const system = createDatabase<SystemDatabase>(
+  replaceDatabaseName(readConnectionString('system'), E2E_SYSTEM_DATABASE_NAME),
+);
 const suffix = Date.now() % 1_000_000;
 const classCode = `NK${suffix}`;
 
@@ -93,7 +97,7 @@ test('CT-16a-9: 2.2 Nhập lớp học: file mẫu kèm dữ liệu, tra cứu d
 
   await region.getByRole('button', { name: 'Tra cứu danh mục' }).click();
   const lookup = region.getByRole('region', { name: 'Tra cứu danh mục' });
-  await lookup.getByLabel('Danh mục').selectOption({ label: 'Bậc học' });
+  await lookup.getByLabel('Danh mục', { exact: true }).selectOption({ label: 'Bậc học' });
   await expect(lookup.getByRole('table')).toContainText('MAM');
 
   // Thêm lớp mới đủ cột
