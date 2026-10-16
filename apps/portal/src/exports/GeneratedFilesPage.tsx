@@ -29,7 +29,11 @@ const DATE_TIME = new Intl.DateTimeFormat('vi-VN', {
 
 const formatDateTime = (value: string | null) => (value ? DATE_TIME.format(new Date(value)) : '');
 const formatSize = (bytes: number | null) =>
-  bytes === null ? '' : bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1048576).toFixed(1)} MB`;
+  bytes === null
+    ? ''
+    : bytes < 1024 * 1024
+      ? `${Math.max(1, Math.round(bytes / 1024))} KB`
+      : `${(bytes / 1048576).toFixed(1)} MB`;
 
 function messageOf(error: unknown): string {
   return error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại';
@@ -43,7 +47,11 @@ const COLUMNS: Array<DataGridColumn<ExportJob>> = [
     header: 'Trạng thái',
     cell: (row) => <StatusBadge tone={STATUS[row.status].tone} label={STATUS[row.status].label} />,
   },
-  { id: 'row_count', header: 'Số dòng', cell: (row) => (row.row_count === null ? '' : row.row_count.toLocaleString('vi-VN')) },
+  {
+    id: 'row_count',
+    header: 'Số dòng',
+    cell: (row) => (row.row_count === null ? '' : row.row_count.toLocaleString('vi-VN')),
+  },
   { id: 'created_at', header: 'Thời gian tạo', cell: (row) => formatDateTime(row.created_at) },
   { id: 'finished_at', header: 'Thời gian xong', cell: (row) => formatDateTime(row.finished_at) },
   { id: 'expires_at', header: 'Hạn tải về', cell: (row) => formatDateTime(row.expires_at) },

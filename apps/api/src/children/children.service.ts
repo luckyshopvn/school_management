@@ -130,12 +130,7 @@ export class ChildrenService {
     exportJobs.register('children', {
       title: 'Danh sách học sinh',
       run: (currentUser, parameters, context) =>
-        this.buildExport(
-          currentUser,
-          parameters.filter as StudentListFilter,
-          parameters.columns as string[],
-          context,
-        ),
+        this.buildExport(currentUser, parameters.filter as StudentListFilter, parameters.columns as string[], context),
     });
   }
 

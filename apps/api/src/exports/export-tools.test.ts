@@ -137,7 +137,9 @@ describe('Công cụ xuất, nhập và gửi lên cấp trên (YCTD-118)', () =
       birth_certificate_file_id: file.id,
       photo_consent: 'pending',
       health: { has_allergies: false },
-      guardians: [{ full_name: `Mẹ của ${fullName}`, phone: randomPhone(), relationship_item_id: mother, is_primary: true }],
+      guardians: [
+        { full_name: `Mẹ của ${fullName}`, phone: randomPhone(), relationship_item_id: mother, is_primary: true },
+      ],
     });
     assert.equal(created.status, 201, JSON.stringify(created.body));
     const id = created.body.id as string;
@@ -179,14 +181,23 @@ describe('Công cụ xuất, nhập và gửi lên cấp trên (YCTD-118)', () =
       ['TC', 'TC', 'truong_chinh'],
       ['A', 'ĐT-A', 'diem_truong'],
     ] as const) {
-      const created = await api('POST', '/org-units', principal.accessToken, { code, name: `Đơn vị ${code}`, unit_type: type });
+      const created = await api('POST', '/org-units', principal.accessToken, {
+        code,
+        name: `Đơn vị ${code}`,
+        unit_type: type,
+      });
       units[key] = created.body.id as string;
     }
     for (const [code, name, from, to] of [
       ['MAM', 'Mầm', 36, 47],
       ['CHOI', 'Chồi', 48, 59],
     ] as const) {
-      await api('POST', '/grade-levels', principal.accessToken, { code, name, age_from_months: from, age_to_months: to });
+      await api('POST', '/grade-levels', principal.accessToken, {
+        code,
+        name,
+        age_from_months: from,
+        age_to_months: to,
+      });
     }
     for (const code of ['M1', 'M2']) {
       const created = await api('POST', '/classes', principal.accessToken, {
@@ -291,7 +302,10 @@ describe('Công cụ xuất, nhập và gửi lên cấp trên (YCTD-118)', () =
     assert.equal((await get(`/export-jobs/${job.id}/file`, statistician.accessToken)).response.status, 404);
 
     // Hết hạn thì xóa tệp, chuyển trạng thái Hết hạn, không tải được nữa
-    await environment.system.updateTable('export_jobs').set({ expires_at: new Date(Date.now() - 1000) }).execute();
+    await environment.system
+      .updateTable('export_jobs')
+      .set({ expires_at: new Date(Date.now() - 1000) })
+      .execute();
     await jobs().tick();
     const expired = await environment.system
       .selectFrom('export_jobs')
@@ -465,7 +479,9 @@ describe('Công cụ xuất, nhập và gửi lên cấp trên (YCTD-118)', () =
     assert.equal(errorOf(incomplete.body).rule_code, 'YCTD-118');
 
     // Khai báo loại hình trường rồi xuất lại; tệp gửi là Excel của Biểu 1, bản chụp lưu số liệu
-    const profile = await api('PUT', '/school-profile', principal.accessToken, { general: { ownership_type: 'private' } });
+    const profile = await api('PUT', '/school-profile', principal.accessToken, {
+      general: { ownership_type: 'private' },
+    });
     assert.equal(profile.status, 200, JSON.stringify(profile.body));
     const again = await api('POST', `/upper-level-submissions/${form}/export`, statistician.accessToken);
     assert.equal(again.body.exported_data_complete, true);
@@ -500,7 +516,8 @@ describe('Công cụ xuất, nhập và gửi lên cấp trên (YCTD-118)', () =
 
     // Người lập không mở khóa được; gửi yêu cầu mở khóa cần lý do
     assert.equal(
-      (await api('POST', `/upper-level-submissions/${form}/unlock`, statistician.accessToken, { approve: true })).status,
+      (await api('POST', `/upper-level-submissions/${form}/unlock`, statistician.accessToken, { approve: true }))
+        .status,
       403,
     );
     assert.equal(
@@ -516,7 +533,9 @@ describe('Công cụ xuất, nhập và gửi lên cấp trên (YCTD-118)', () =
       note: 'Số liệu đúng',
     });
     assert.equal(rejected.body.status, 'sent');
-    await api('POST', `/upper-level-submissions/${form}/unlock-request`, statistician.accessToken, { reason: 'Sửa lại' });
+    await api('POST', `/upper-level-submissions/${form}/unlock-request`, statistician.accessToken, {
+      reason: 'Sửa lại',
+    });
     const unlocked = await api('POST', `/upper-level-submissions/${form}/unlock`, principal.accessToken, {
       approve: true,
     });
@@ -532,10 +551,18 @@ describe('Công cụ xuất, nhập và gửi lên cấp trên (YCTD-118)', () =
     assert.equal(resend.body.status, 'resend');
 
     const events = await api('GET', `/upper-level-submissions/${form}/events`, principal.accessToken);
-    assert.deepEqual(
-      (events.body.items as Array<{ action: string }>).map((event) => event.action).reverse(),
-      ['export', 'export', 'mark_sent', 'unlock_request', 'unlock_reject', 'unlock_request', 'unlock', 'export', 'mark_sent', 'resend'],
-    );
+    assert.deepEqual((events.body.items as Array<{ action: string }>).map((event) => event.action).reverse(), [
+      'export',
+      'export',
+      'mark_sent',
+      'unlock_request',
+      'unlock_reject',
+      'unlock_request',
+      'unlock',
+      'export',
+      'mark_sent',
+      'resend',
+    ]);
     // Biểu mẫu lạ, người không có quyền
     assert.equal((await api('GET', '/upper-level-submissions?forms=khong-co', principal.accessToken)).status, 404);
     const teacher = await environment.loginAs('VT-07', units.A ?? null);

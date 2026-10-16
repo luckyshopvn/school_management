@@ -16,9 +16,9 @@ export function ClassImportsPage() {
       <div className="flex flex-col gap-6">
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/class-imports')}</h1>
         <p className="text-label text-text-secondary">
-          Tải file mẫu (hoặc file mẫu kèm các lớp đang có), điền dữ liệu rồi tải tệp lên. Lớp đã có (cùng mã đơn vị, mã lớp)
-          được cập nhật các cột đã chọn, lớp chưa có được thêm mới. Hệ thống kiểm tra toàn bộ tệp và chỉ ghi khi không còn
-          dòng lỗi.
+          Tải file mẫu (hoặc file mẫu kèm các lớp đang có), điền dữ liệu rồi tải tệp lên. Lớp đã có (cùng mã đơn vị, mã
+          lớp) được cập nhật các cột đã chọn, lớp chưa có được thêm mới. Hệ thống kiểm tra toàn bộ tệp và chỉ ghi khi
+          không còn dòng lỗi.
         </p>
         <ImportSection type="classes" onChanged={setToastMessage} />
       </div>

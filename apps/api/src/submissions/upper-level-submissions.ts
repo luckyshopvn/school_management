@@ -1,6 +1,12 @@
 import { Body, Controller, Get, HttpCode, Injectable, Param, Post, Query, Req, Res } from '@nestjs/common';
 import type { UpperLevelSubmissionAction, UpperLevelSubmissionStatus } from '@school-management/database';
-import { ApplicationError, Clock, ruleViolationError, validationError, type FieldError } from '@school-management/server';
+import {
+  ApplicationError,
+  Clock,
+  ruleViolationError,
+  validationError,
+  type FieldError,
+} from '@school-management/server';
 import type { Request, Response } from 'express';
 import type { Transaction } from 'kysely';
 import type { SystemDatabase } from '@school-management/database';
@@ -258,7 +264,10 @@ export class UpperLevelSubmissions {
     }
     if (!input.noData) {
       if (!row.storage_key) {
-        throw ruleViolationError(SUBMISSION_RULE_CODE, 'Chưa có tệp gửi; bấm "Xuất tệp gửi" rồi nộp tệp trước khi đánh dấu');
+        throw ruleViolationError(
+          SUBMISSION_RULE_CODE,
+          'Chưa có tệp gửi; bấm "Xuất tệp gửi" rồi nộp tệp trước khi đánh dấu',
+        );
       }
       if (row.data_complete !== true) {
         throw ruleViolationError(
@@ -398,7 +407,12 @@ export class UpperLevelSubmissions {
         .set({
           status,
           ...(status === 'resend'
-            ? { unlock_reason: null, unlock_requested_by: null, unlock_requested_by_name: null, unlock_requested_at: null }
+            ? {
+                unlock_reason: null,
+                unlock_requested_by: null,
+                unlock_requested_by_name: null,
+                unlock_requested_at: null,
+              }
             : {}),
           updated_at: this.clock.now(),
           updated_by: currentUser.id,
@@ -447,7 +461,14 @@ export class UpperLevelSubmissionsController {
 
   @Get()
   async list(@Query('forms') forms: string | undefined, @AuthenticatedUser() currentUser: CurrentUser) {
-    const codes = [...new Set((forms ?? '').split(',').map((code) => code.trim()).filter(Boolean))];
+    const codes = [
+      ...new Set(
+        (forms ?? '')
+          .split(',')
+          .map((code) => code.trim())
+          .filter(Boolean),
+      ),
+    ];
     if (codes.length === 0) {
       throw validationError([{ field: 'forms', message: 'Chọn ít nhất một biểu mẫu' }]);
     }

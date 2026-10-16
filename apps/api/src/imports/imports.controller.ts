@@ -75,7 +75,14 @@ function readColumnKeys(value: unknown): string[] | undefined {
   if (typeof value !== 'string') {
     throw validationError([{ field: 'columns', message: 'Danh sách cột không hợp lệ' }]);
   }
-  return [...new Set(value.split(',').map((key) => key.trim()).filter(Boolean))];
+  return [
+    ...new Set(
+      value
+        .split(',')
+        .map((key) => key.trim())
+        .filter(Boolean),
+    ),
+  ];
 }
 
 // Nhập dữ liệu ban đầu từ Excel (P01-13): lớp và trẻ chỉ Hiệu trưởng, công nợ đầu kỳ cho kế toán; nhập mã ngành (P02-12)

@@ -187,12 +187,7 @@ export interface ExportJobsTable {
 
 export type UpperLevelSubmissionStatus = 'draft' | 'sent' | 'unlock_requested' | 'resend';
 export type UpperLevelSubmissionAction =
-  | 'export'
-  | 'mark_sent'
-  | 'unlock_request'
-  | 'unlock'
-  | 'unlock_reject'
-  | 'resend';
+  'export' | 'mark_sent' | 'unlock_request' | 'unlock' | 'unlock_reject' | 'resend';
 
 // Trạng thái gửi biểu mẫu lên cấp trên theo năm học, chạy nội bộ (DT-16 phần 16a)
 export interface UpperLevelSubmissionsTable {

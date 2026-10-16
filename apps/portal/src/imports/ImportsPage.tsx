@@ -60,9 +60,9 @@ export function ImportsPage() {
       <div className="flex flex-col gap-6">
         <h1 className="text-page-title font-bold text-text">Nhập dữ liệu</h1>
         <p className="text-label text-text-secondary">
-          Tải file mẫu, điền dữ liệu rồi tải tệp lên. Hệ thống kiểm tra toàn bộ tệp và chỉ ghi khi không còn dòng lỗi; tệp
-          có lỗi thì bấm "Xuất file lỗi" để nhận lại tệp kèm cột nội dung lỗi. Trẻ nhập vào thẳng trạng thái đang học; giấy
-          khai sinh bổ sung sau ở màn hình Hồ sơ trẻ.
+          Tải file mẫu, điền dữ liệu rồi tải tệp lên. Hệ thống kiểm tra toàn bộ tệp và chỉ ghi khi không còn dòng lỗi;
+          tệp có lỗi thì bấm "Xuất file lỗi" để nhận lại tệp kèm cột nội dung lỗi. Trẻ nhập vào thẳng trạng thái đang
+          học; giấy khai sinh bổ sung sau ở màn hình Hồ sơ trẻ.
         </p>
         {canImportChildren ? (
           <>

@@ -125,7 +125,10 @@ async function buildPdf(sheets: TableFileSheet[], createdAt: Date): Promise<Buff
       ...sheetRows(sheet).map((row) => columns.map((column) => ({ text: cellText(row[column.key]) }))),
     ];
     if (sheet.rows.length === 0) {
-      body.push([{ text: 'Không có dữ liệu.', colSpan: columns.length }, ...columns.slice(1).map(() => ({ text: '' }))]);
+      body.push([
+        { text: 'Không có dữ liệu.', colSpan: columns.length },
+        ...columns.slice(1).map(() => ({ text: '' })),
+      ]);
     }
     content.push({
       table: {

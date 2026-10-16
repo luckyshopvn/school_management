@@ -256,7 +256,12 @@ export function ExcelImportPanel({
         ) : null}
       </div>
       {panel === 'catalogs' ? (
-        <div id={catalogsId} role="region" aria-label="Tra cứu danh mục" className="rounded-lg border border-border bg-page p-3">
+        <div
+          id={catalogsId}
+          role="region"
+          aria-label="Tra cứu danh mục"
+          className="rounded-lg border border-border bg-page p-3"
+        >
           <CatalogLookup type={type} />
         </div>
       ) : null}

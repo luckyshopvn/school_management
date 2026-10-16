@@ -328,6 +328,9 @@ export class ClassAssignmentsController {
     if (errors.length > 0 || !format) {
       throw validationError(errors);
     }
-    sendWorkbook(response, await this.classesService.exportAssignments(currentUser, filter, request.ip ?? null, format));
+    sendWorkbook(
+      response,
+      await this.classesService.exportAssignments(currentUser, filter, request.ip ?? null, format),
+    );
   }
 }

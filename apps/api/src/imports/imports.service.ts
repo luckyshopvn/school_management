@@ -296,9 +296,10 @@ export class ImportsService {
   // Cột của mẫu kèm cờ cột khóa, bắt buộc (luôn nhập) để màn hình cho chọn cột
   columns(type: TemplateImportType) {
     return {
-      columns: IMPORT_COLUMNS[type].map(
-        (column): ImportColumnInfo => ({ ...column, locked: LOCKED_IMPORT_COLUMNS[type].includes(column.key) }),
-      ),
+      columns: IMPORT_COLUMNS[type].map((column): ImportColumnInfo => ({
+        ...column,
+        locked: LOCKED_IMPORT_COLUMNS[type].includes(column.key),
+      })),
       updates_existing: UPDATING_IMPORT_TYPES.includes(type),
       template_with_data: UPDATING_IMPORT_TYPES.includes(type),
     };
@@ -392,7 +393,12 @@ export class ImportsService {
           column: 'Mã lớp',
           items: classes.map((row) => ({ code: row.code, name: row.name, note: inUnit(row.org_unit_id) })),
         },
-        { key: 'parent_relationships', title: 'Quan hệ với trẻ', column: 'Quan hệ phụ huynh 1, 2', items: relationships },
+        {
+          key: 'parent_relationships',
+          title: 'Quan hệ với trẻ',
+          column: 'Quan hệ phụ huynh 1, 2',
+          items: relationships,
+        },
       ];
     }
     if (type === 'staff') {
@@ -407,7 +413,11 @@ export class ImportsService {
                 .where('org_unit_id', 'in', unitIds)
                 .orderBy('name')
                 .execute()
-            ).map((row) => ({ code: unitCode.get(row.org_unit_id) ?? '', name: row.name, note: 'Ghi tên; mã là mã đơn vị' }));
+            ).map((row) => ({
+              code: unitCode.get(row.org_unit_id) ?? '',
+              name: row.name,
+              note: 'Ghi tên; mã là mã đơn vị',
+            }));
       return [
         unitCatalog,
         { key: 'departments', title: 'Phòng ban', column: 'Phòng ban', items: await named('departments') },
@@ -1240,7 +1250,12 @@ export class ImportsService {
       }
       if (values.grade_level && !gradeLevels.some((level) => level.code === values.grade_level)) {
         errors.push({ row, column: 'Mã bậc học', message: 'Bậc học không có hoặc đã ngừng sử dụng' });
-      } else if (current && selected.has('grade_level') && values.grade_level && values.grade_level !== current.grade_level) {
+      } else if (
+        current &&
+        selected.has('grade_level') &&
+        values.grade_level &&
+        values.grade_level !== current.grade_level
+      ) {
         errors.push({
           row,
           column: 'Mã bậc học',

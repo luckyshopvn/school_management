@@ -26,7 +26,15 @@ export async function buildStudentWorkbook(input: {
   const format = input.format ?? 'xlsx';
   const buffer = await buildTableFile(
     format,
-    [{ title: input.title, heading: format === 'pdf' ? [input.title] : undefined, columns: input.columns, rows: input.rows, numbered: true }],
+    [
+      {
+        title: input.title,
+        heading: format === 'pdf' ? [input.title] : undefined,
+        columns: input.columns,
+        rows: input.rows,
+        numbered: true,
+      },
+    ],
     input.createdAt,
   );
   const fileName = withExtension(input.fileName, format);

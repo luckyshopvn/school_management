@@ -84,7 +84,10 @@ export async function readSheet(body: Buffer, columns: ImportColumn[], selected?
     const mismatched = columns.filter((column, index) => cellText(header.getCell(index + 1)) !== column.header);
     if (mismatched.length > 0) {
       throw validationError([
-        { field: 'file', message: `Tiêu đề cột không đúng mẫu: ${mismatched.map((column) => column.header).join(', ')}` },
+        {
+          field: 'file',
+          message: `Tiêu đề cột không đúng mẫu: ${mismatched.map((column) => column.header).join(', ')}`,
+        },
       ]);
     }
     positions = columns.map((_column, index) => index + 1);

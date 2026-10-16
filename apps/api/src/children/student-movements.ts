@@ -318,7 +318,12 @@ export class StudentMovementsService {
   }
 
   // Tệp Excel hoặc PDF (DT-16 phần 16a) theo bộ lọc đang chọn; ghi nhật ký xuất có dữ liệu cá nhân (BR-74)
-  async export(currentUser: CurrentUser, filter: MovementFilter, ipAddress: string | null, format: TableFileFormat = 'xlsx') {
+  async export(
+    currentUser: CurrentUser,
+    filter: MovementFilter,
+    ipAddress: string | null,
+    format: TableFileFormat = 'xlsx',
+  ) {
     const { database } = await this.currentSchoolYear.require();
     const rows = await this.rows(currentUser, filter);
     const createdAt = this.clock.now();

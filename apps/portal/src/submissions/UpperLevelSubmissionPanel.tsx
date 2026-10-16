@@ -68,7 +68,11 @@ async function downloadSubmissionFile(submission: Submission): Promise<void> {
   if (!response.ok) {
     throw await readError(response);
   }
-  saveResponseFile(await response.blob(), response.headers.get('content-disposition') ?? '', submission.file_name ?? 'tep-gui');
+  saveResponseFile(
+    await response.blob(),
+    response.headers.get('content-disposition') ?? '',
+    submission.file_name ?? 'tep-gui',
+  );
 }
 
 type DialogKind = 'mark-sent' | 'unlock-request' | 'unlock' | 'resend';
@@ -160,7 +164,8 @@ function SubmissionRow({ submission, onChanged }: { submission: Submission; onCh
               {submission.file_name}
             </Button>
             <p className="text-label text-text-secondary">
-              {submission.exported_at ? DATE_TIME.format(new Date(submission.exported_at)) : ''}, {submission.exported_by_name}
+              {submission.exported_at ? DATE_TIME.format(new Date(submission.exported_at)) : ''},{' '}
+              {submission.exported_by_name}
             </p>
           </>
         ) : (
@@ -210,14 +215,21 @@ function SubmissionRow({ submission, onChanged }: { submission: Submission; onCh
             confirmLabel="Đánh dấu đã gửi"
             busy={action.isPending}
             onCancel={() => setDialog(undefined)}
-            onConfirm={() => action.mutate({ kind: 'mark-sent', message: `Đã đánh dấu đã gửi ${submission.form_name}` })}
+            onConfirm={() =>
+              action.mutate({ kind: 'mark-sent', message: `Đã đánh dấu đã gửi ${submission.form_name}` })
+            }
           >
             <div className="flex flex-col gap-3">
               <p className="text-label text-text-secondary">
-                Hệ thống chưa kết nối với Bộ, Sở nên không tự gửi đi. Nộp tệp gửi cho cấp trên theo cách của đơn vị rồi ghi
-                ngày đã gửi ở đây; biểu mẫu sẽ khóa cho đến khi được mở khóa.
+                Hệ thống chưa kết nối với Bộ, Sở nên không tự gửi đi. Nộp tệp gửi cho cấp trên theo cách của đơn vị rồi
+                ghi ngày đã gửi ở đây; biểu mẫu sẽ khóa cho đến khi được mở khóa.
               </p>
-              <TextField label="Ngày gửi" type="date" value={sentOn} onChange={(event) => setSentOn(event.target.value)} />
+              <TextField
+                label="Ngày gửi"
+                type="date"
+                value={sentOn}
+                onChange={(event) => setSentOn(event.target.value)}
+              />
               <TextField label="Ghi chú" value={note} onChange={(event) => setNote(event.target.value)} />
               {submission.allow_no_data ? (
                 <label className="flex items-center gap-2 text-content">
@@ -326,8 +338,8 @@ export function UpperLevelSubmissionPanel({
     <section className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4" aria-label="Gửi lên cấp trên">
       <h2 className="text-section-title font-semibold text-text">Gửi lên cấp trên</h2>
       <p className="text-label text-text-secondary">
-        Chưa kết nối với hệ thống của Bộ, Sở: bấm "Xuất tệp gửi" để lập tệp và lưu số liệu tại thời điểm xuất, nộp tệp cho
-        cấp trên, rồi "Đánh dấu đã gửi".
+        Chưa kết nối với hệ thống của Bộ, Sở: bấm "Xuất tệp gửi" để lập tệp và lưu số liệu tại thời điểm xuất, nộp tệp
+        cho cấp trên, rồi "Đánh dấu đã gửi".
       </p>
       {submissions.error ? <Alert tone="danger">{messageOf(submissions.error)}</Alert> : null}
       <div className="overflow-x-auto">

@@ -49,7 +49,11 @@ export interface ExportRequestContext {
 // Màn hình đăng ký hàm xuất theo mã báo cáo để tiến trình nền gọi lại với cùng tham số
 export interface ExportJobHandler {
   title: string;
-  run(currentUser: CurrentUser, parameters: Record<string, unknown>, context: ExportRequestContext): Promise<ExportedFile>;
+  run(
+    currentUser: CurrentUser,
+    parameters: Record<string, unknown>,
+    context: ExportRequestContext,
+  ): Promise<ExportedFile>;
 }
 
 export interface ExportJobView {
@@ -159,7 +163,10 @@ export class ExportJobs implements OnApplicationBootstrap, OnModuleDestroy {
           `Danh sách có ${error.total} dòng, vượt ${BACKGROUND_EXPORT_ROW_LIMIT} dòng của tác vụ xuất nền; hãy thu hẹp bộ lọc`,
         );
       }
-      return { kind: 'job', job: await this.create(currentUser, reportCode, handler.title, parameters, format, ipAddress) };
+      return {
+        kind: 'job',
+        job: await this.create(currentUser, reportCode, handler.title, parameters, format, ipAddress),
+      };
     }
   }
 
