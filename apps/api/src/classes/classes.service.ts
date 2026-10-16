@@ -10,6 +10,7 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { conflictOnDuplicate, notFoundError } from '../common/request-fields.js';
 import { CatalogAccess } from '../catalogs/catalog-access.js';
 import { buildStudentWorkbook, fileStamp } from '../children/student-workbook.js';
+import type { TableFileFormat } from '../exports/table-file.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { classAgeGroup } from '../statistics/statistics-calc.js';
 import { CLASS_EXPORT_COLUMNS, matchesClassFilter, type ClassListFilter, type ClassListRow } from './class-list.js';
@@ -262,7 +263,13 @@ export class ClassesService {
 
   // Xuất Excel theo bộ lọc và các cột đang hiện trên lưới; tệp có tên giáo viên nên ghi nhật ký xuất có dữ liệu cá nhân
   // (BR-74). Nhiều hơn 10 000 dòng thì báo thu hẹp bộ lọc
-  async exportList(currentUser: CurrentUser, filter: ClassListFilter, columns: string[], ipAddress: string | null) {
+  async exportList(
+    currentUser: CurrentUser,
+    filter: ClassListFilter,
+    columns: string[],
+    ipAddress: string | null,
+    format: TableFileFormat = 'xlsx',
+  ) {
     const { database } = await this.currentSchoolYear.require();
     const rows = await this.list(currentUser, { ...filter, mine: false });
     if (rows.length > EXPORT_LIMIT) {
@@ -282,6 +289,7 @@ export class ClassesService {
       rows: rows.map((row) => Object.fromEntries(selected.map((column) => [column.id, column.value(row)]))),
       ipAddress,
       createdAt,
+      format,
     });
   }
 
@@ -326,7 +334,12 @@ export class ClassesService {
       );
   }
 
-  async exportAssignments(currentUser: CurrentUser, filter: AssignmentListFilter, ipAddress: string | null) {
+  async exportAssignments(
+    currentUser: CurrentUser,
+    filter: AssignmentListFilter,
+    ipAddress: string | null,
+    format: TableFileFormat = 'xlsx',
+  ) {
     const { database } = await this.currentSchoolYear.require();
     const rows = await this.listAssignmentRows(currentUser, filter);
     const createdAt = this.clock.now();
@@ -344,6 +357,7 @@ export class ClassesService {
       ),
       ipAddress,
       createdAt,
+      format,
     });
   }
 
