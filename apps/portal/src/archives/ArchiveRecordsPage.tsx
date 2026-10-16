@@ -1,4 +1,4 @@
-import { useCallback, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
 import {
@@ -18,7 +18,8 @@ import { AppShell } from '../pages/AppShell.js';
 import { useGridSettings } from '../pages/grid-settings.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
-import { fieldErrorsOf, formatDate, messageOf, numberOrText, selectClass } from './archive-ui.js';
+import { ArchiveUnitField, useDefaultArchiveUnit } from './ArchiveUnitField.js';
+import { fieldErrorsOf, formatDate, messageOf, numberOrText, selectClass, useArchiveUnits } from './archive-ui.js';
 import {
   ARCHIVE_STATUS_LABELS,
   createArchiveRecord,
@@ -27,6 +28,7 @@ import {
   downloadArchiveFile,
   exportArchiveRecords,
   listArchiveFonds,
+  listArchiveHandlers,
   readArchiveRecord,
   retentionText,
   searchArchiveRecords,
@@ -43,7 +45,9 @@ import {
 // 5.10.1. Hồ sơ tài liệu (DT-15 phần 15h2, YCTD-118): hai danh sách "Chưa hoàn thành" và "Hoàn thành" theo mục 5.10 của
 // Sở, có người giải quyết và thời hạn; hồ sơ chưa hoàn thành đã qua thời hạn hiện "Quá hạn". Lưới dùng chung phân trang ở
 // máy chủ, tìm theo số, ký hiệu hoặc tiêu đề, Mở rộng tìm kiếm theo phông, người giải quyết, thời hạn; Thêm mới, Sửa bằng
-// biểu mẫu theo khối với nút Ghi, Xóa qua hộp xác nhận, Xuất Excel các cột đang hiện. Tệp đính kèm lưu ở kho tệp chung
+// biểu mẫu theo khối với nút Ghi, Xóa qua hộp xác nhận, Xuất Excel các cột đang hiện. Tệp đính kèm lưu ở kho tệp chung.
+// YCTD-119: hồ sơ thuộc một đơn vị hoặc toàn trường, lọc theo đơn vị; người giải quyết chọn từ nhân sự đang làm việc (người
+// ngoài danh sách thì nhập tên); hồ sơ chưa hoàn thành có thời hạn trong 3 ngày tới hiện "Sắp đến hạn"
 const TABS: Array<{ status: ArchiveRecordStatus; label: string }> = [
   { status: 'pending', label: 'Chưa hoàn thành' },
   { status: 'completed', label: 'Hoàn thành' },
@@ -56,6 +60,7 @@ function columnsOf(status: ArchiveRecordStatus): Array<DataGridColumn<ArchiveRec
     { id: 'code', header: 'Số, ký hiệu', cell: (row) => row.code },
     { id: 'title', header: 'Tiêu đề hồ sơ', alwaysVisible: true, className: 'font-medium', cell: (row) => row.title },
     { id: 'fond', header: 'Phông', cell: (row) => row.fond_name ?? '' },
+    { id: 'org_unit', header: 'Đơn vị', cell: (row) => row.org_unit_name ?? 'Toàn trường' },
     { id: 'handler_name', header: 'Người giải quyết', cell: (row) => row.handler_name },
     { id: 'opened_on', header: 'Ngày mở hồ sơ', cell: (row) => formatDate(row.opened_on) },
     {
@@ -65,6 +70,7 @@ function columnsOf(status: ArchiveRecordStatus): Array<DataGridColumn<ArchiveRec
         <span className="flex flex-wrap items-center gap-2">
           {formatDate(row.due_date)}
           {row.overdue ? <StatusBadge tone="danger" label="Quá hạn" /> : null}
+          {row.due_soon ? <StatusBadge tone="warning" label="Sắp đến hạn" /> : null}
         </span>
       ),
     },
@@ -78,6 +84,7 @@ function columnsOf(status: ArchiveRecordStatus): Array<DataGridColumn<ArchiveRec
   ];
 }
 
+const OTHER_HANDLER = 'other';
 const VIETNAM_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
 
 function RecordForm({
@@ -99,6 +106,9 @@ function RecordForm({
     fond_id: record?.fond_id ?? '',
     sheet_count: record?.sheet_count === null || !record ? '' : String(record.sheet_count),
     note: record?.note ?? '',
+    org_unit_id: record?.org_unit_id ?? '',
+    // Mã nhân sự giải quyết; OTHER_HANDLER là người ngoài danh sách, nhập tên
+    handler_staff_id: record ? (record.handler_staff_id ?? OTHER_HANDLER) : '',
     handler_name: record?.handler_name ?? '',
     opened_on: record?.opened_on ?? VIETNAM_DATE.format(new Date()),
     due_date: record?.due_date ?? '',
@@ -109,13 +119,30 @@ function RecordForm({
   });
   const set = <Key extends keyof typeof values>(key: Key, value: (typeof values)[Key]) =>
     setValues((current) => ({ ...current, [key]: value }));
+  const defaultUnit = useDefaultArchiveUnit();
+  // Đơn vị mặc định có sau khi đọc xong danh sách đơn vị
+  useEffect(() => {
+    if (!record && defaultUnit) {
+      setValues((current) => (current.org_unit_id ? current : { ...current, org_unit_id: defaultUnit }));
+    }
+  }, [record, defaultUnit]);
+  const handlers = useQuery({ queryKey: ['archive-handlers'], queryFn: listArchiveHandlers });
+  const handlerChoices = (handlers.data ?? []).filter(
+    (handler) =>
+      !values.org_unit_id || handler.org_unit_id === values.org_unit_id || handler.id === values.handler_staff_id,
+  );
+  // Phông toàn trường hoặc cùng đơn vị với hồ sơ
+  const fondChoices = fonds.filter((fond) => fond.org_unit_id === null || fond.org_unit_id === values.org_unit_id);
+  const otherHandler = values.handler_staff_id === OTHER_HANDLER;
   const save = useMutation({
     mutationFn: () => {
       const input = {
         code: values.code,
         title: values.title,
         fond_id: values.fond_id || null,
-        handler_name: values.handler_name,
+        org_unit_id: values.org_unit_id || null,
+        handler_staff_id: otherHandler ? null : values.handler_staff_id || null,
+        handler_name: otherHandler ? values.handler_name : '',
         opened_on: values.opened_on,
         due_date: values.due_date || null,
         status: values.status,
@@ -173,7 +200,7 @@ function RecordForm({
             onChange={(event) => set('fond_id', event.target.value)}
           >
             <option value="">-- Không thuộc phông --</option>
-            {fonds.map((fond) => (
+            {fondChoices.map((fond) => (
               <option key={fond.id} value={fond.id}>
                 {fond.code} - {fond.name}
               </option>
@@ -191,7 +218,30 @@ function RecordForm({
         </FormRow>
       </FormBlock>
       <FormBlock title="Giải quyết">
-        {input('handler_name', 'Người giải quyết')}
+        <ArchiveUnitField
+          value={values.org_unit_id}
+          onChange={(value) => set('org_unit_id', value)}
+          error={errors.org_unit_id}
+        />
+        <FormRow
+          label="Người giải quyết"
+          error={errors.handler_staff_id ?? (otherHandler ? undefined : errors.handler_name)}
+        >
+          <select
+            className={FORM_CONTROL_CLASS}
+            value={values.handler_staff_id}
+            onChange={(event) => set('handler_staff_id', event.target.value)}
+          >
+            <option value="">-- Chọn nhân sự --</option>
+            {handlerChoices.map((handler) => (
+              <option key={handler.id} value={handler.id}>
+                {handler.full_name} ({handler.code})
+              </option>
+            ))}
+            <option value={OTHER_HANDLER}>Người khác (nhập tên)</option>
+          </select>
+        </FormRow>
+        {otherHandler ? input('handler_name', 'Tên người giải quyết') : null}
         {date('opened_on', 'Ngày mở hồ sơ')}
         {date('due_date', 'Thời hạn giải quyết')}
         <FormRow label="Trạng thái" error={errors.status}>
@@ -356,6 +406,7 @@ export function ArchiveRecordsPage() {
   const activeFilter: ArchiveRecordFilter = {
     ...filter,
     overdue: status === 'pending' ? filter.overdue : undefined,
+    due_soon: status === 'pending' ? filter.due_soon : undefined,
     status,
     search: search.trim() || undefined,
   };
@@ -400,6 +451,7 @@ export function ArchiveRecordsPage() {
     }
   };
   const fondList = fonds.data ?? [];
+  const viewUnits = useArchiveUnits(PERMISSION_CODES.archiveView);
 
   return (
     <AppShell>
@@ -476,6 +528,21 @@ export function ArchiveRecordsPage() {
           advancedSearch={
             <div className="grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-4">
               <label className="text-label font-medium text-text">
+                Đơn vị
+                <select
+                  value={filter.org_unit_id ?? ''}
+                  onChange={(event) => change('org_unit_id', event.target.value)}
+                  className={selectClass}
+                >
+                  <option value="">Tất cả</option>
+                  {viewUnits.units.map((unit) => (
+                    <option key={unit.id} value={unit.id}>
+                      {unit.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-label font-medium text-text">
                 Phông lưu trữ
                 <select
                   value={filter.fond_id ?? ''}
@@ -525,6 +592,17 @@ export function ArchiveRecordsPage() {
                     onChange={(event) => change('overdue', event.target.checked)}
                   />
                   Chỉ hồ sơ quá hạn
+                </label>
+              ) : null}
+              {status === 'pending' ? (
+                <label className="flex items-center gap-2 text-label font-medium text-text">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4"
+                    checked={filter.due_soon === true}
+                    onChange={(event) => change('due_soon', event.target.checked)}
+                  />
+                  Chỉ hồ sơ sắp đến hạn
                 </label>
               ) : null}
             </div>

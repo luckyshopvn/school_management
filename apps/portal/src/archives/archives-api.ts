@@ -26,6 +26,8 @@ export interface ArchiveFond {
   code: string;
   name: string;
   note: string | null;
+  org_unit_id: string | null;
+  org_unit_name: string | null;
   holding_count: number;
   record_count: number;
   updated_at: string;
@@ -35,6 +37,8 @@ export interface ArchiveFondInput {
   code: string;
   name: string;
   note: string | null;
+  // Trống là toàn trường (YCTD-119)
+  org_unit_id: string | null;
 }
 
 export interface ArchiveHolding {
@@ -42,6 +46,7 @@ export interface ArchiveHolding {
   fond_id: string;
   fond_code: string;
   fond_name: string;
+  org_unit_id: string | null;
   period_from_year: number;
   period_to_year: number;
   arranged: boolean;
@@ -90,6 +95,9 @@ export interface ArchiveRecord {
   fond_id: string | null;
   fond_code: string | null;
   fond_name: string | null;
+  org_unit_id: string | null;
+  org_unit_name: string | null;
+  handler_staff_id: string | null;
   handler_name: string;
   opened_on: string;
   due_date: string | null;
@@ -101,6 +109,8 @@ export interface ArchiveRecord {
   note: string | null;
   file_count: number;
   overdue: boolean;
+  // Chưa hoàn thành, thời hạn trong 3 ngày tới (YCTD-119)
+  due_soon: boolean;
   updated_at: string;
 }
 
@@ -112,6 +122,8 @@ export interface ArchiveRecordInput {
   code: string;
   title: string;
   fond_id: string | null;
+  org_unit_id: string | null;
+  handler_staff_id: string | null;
   handler_name: string;
   opened_on: string;
   due_date: string | null;
@@ -127,10 +139,20 @@ export interface ArchiveRecordFilter {
   status?: ArchiveRecordStatus;
   search?: string;
   fond_id?: string;
+  org_unit_id?: string;
   handler?: string;
   due_from?: string;
   due_to?: string;
   overdue?: boolean;
+  due_soon?: boolean;
+}
+
+// Nhân sự đang làm việc để chọn người giải quyết (YCTD-119)
+export interface ArchiveHandler {
+  id: string;
+  code: string;
+  full_name: string;
+  org_unit_id: string;
 }
 
 export interface ArchiveRecordPage {
@@ -143,6 +165,7 @@ export interface ArchiveRecordPage {
 
 export interface ArchiveReportFilter {
   fond_id?: string;
+  org_unit_id?: string;
   storage_location?: string;
 }
 
@@ -207,6 +230,7 @@ export function searchArchiveRecords(
   parameters.set('page_size', String(pageSize));
   return requestJson(`/api/v1/archive-records?${parameters.toString()}`);
 }
+export const listArchiveHandlers = (): Promise<ArchiveHandler[]> => requestJson('/api/v1/archive-handlers');
 export const readArchiveRecord = (id: string): Promise<ArchiveRecordDetail> =>
   requestJson(`/api/v1/archive-records/${id}`);
 export const createArchiveRecord = (input: ArchiveRecordInput): Promise<ArchiveRecordDetail> =>
