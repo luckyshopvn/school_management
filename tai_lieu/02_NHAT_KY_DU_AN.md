@@ -20,7 +20,7 @@
 
 - Chuyển danh sách của các màn hình còn lại sang lưới dữ liệu chung (38 khóa lưới mới): 1.1 Khai báo cơ sở vật chất, 2.1 Tổng hợp thiết bị dạy học của phân hệ Quản lý cơ sở vật chất, TBDH; 4.3.2, 5.8, 4.4, 4.1.6, 3.2, 4.5, 4.6.1, 4.6.2 của phân hệ Quản lý giáo dục Mầm non; 2.1 đến 2.5, 3.2 của phân hệ Quản trị hệ thống. Bỏ học sinh khỏi nhóm (một hoặc nhiều), bỏ món, bỏ nguyên liệu, xóa tiêu chuẩn sức khỏe, bỏ liên kết Zalo qua hộp xác nhận xóa; tiêu đề trang theo số menu.
 - Thêm Xuất Excel theo cột đang hiện cho 1.2 Quản lý phân hiệu, 1.3 Quản lý điểm trường, 4.1.11 Cập nhật địa danh hành chính, 1.4 Danh sách người dùng, 1.1 Nhóm người dùng (bốn điểm cuối mới, ghi nhật ký xuất).
-- Thêm kịch bản CT-451 đến CT-457, tiêu chí AC-495 đến AC-501, quy tắc BR-117. Cơ sở dữ liệu ở máy phát triển không chạy được nên kết quả lấy trên CI của PR 94 ngày 16/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) KẾT QUẢ_ĐƠN_VỊ ca đạt; toàn bộ kiểm thử giao diện KẾT QUẢ_GIAO_DIỆN ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm kịch bản CT-451 đến CT-457, tiêu chí AC-495 đến AC-501, quy tắc BR-117. Cơ sở dữ liệu ở máy phát triển không chạy được nên kết quả lấy trên CI của PR 94 ngày 16/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 742/742 ca đạt; toàn bộ kiểm thử giao diện 99/99 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
