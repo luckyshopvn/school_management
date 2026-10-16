@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, StatusBadge } from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
+import { ErrorFileButton } from './ExcelImportPanel.js';
 import { ApiError, requestJson } from '../session/api-client.js';
 
 // Nhập tệp xuất từ CSDL ngành (xls hoặc xlsx) cho trẻ hoặc nhân sự (YCTD-100): chọn đơn vị, kiểm tra tệp để xem trước số
@@ -135,6 +136,7 @@ export function MoetImportSection({ type, onChanged }: { type: MoetImportType; o
                 ? `; ${job.preview.created} tạo mới, ${job.preview.updated} cập nhật, ${job.preview.skipped} bỏ qua`
                 : ''}
             </span>
+            {job.errors.length > 0 ? <ErrorFileButton jobId={job.id} /> : null}
           </div>
           {job.errors.length > 0 ? <MessageTable label="Báo cáo dòng lỗi" rows={job.errors} /> : null}
           {job.preview && job.preview.notices.length > 0 ? (
