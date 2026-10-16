@@ -37,8 +37,8 @@ test('Hiệu trưởng ghi hồ sơ trường, khai báo phòng, nhập thiết 
   // Khai báo cơ sở vật chất: thêm phòng khối nuôi dưỡng, chăm sóc và giáo dục, lọc theo hiện trạng
   const roomCode = `CSVC50-${randomUUID().slice(0, 4)}`;
   await openMenu(page, '/facility-rooms');
-  await expect(page.getByRole('heading', { name: '1.1 Khai báo cơ sở vật chất' })).toBeVisible();
-  await page.getByRole('button', { name: 'Thêm phòng' }).click();
+  await expect(page.getByRole('heading', { name: '1.1. Khai báo cơ sở vật chất' })).toBeVisible();
+  await page.getByRole('button', { name: 'Thêm mới' }).click();
   const form = page.getByRole('region', { name: 'Thêm phòng' });
   await form.getByLabel('Mã phòng').fill(roomCode);
   await form.getByLabel('Tên phòng').fill('Phòng sinh hoạt chung thử 50');
@@ -50,24 +50,28 @@ test('Hiệu trưởng ghi hồ sơ trường, khai báo phòng, nhập thiết 
   await form.getByLabel('Số chỗ ngủ').fill('28');
   await form.getByRole('button', { name: 'Lưu phòng' }).click();
   await expect(page.getByText('Đã lưu phòng')).toBeVisible();
-  await page.getByLabel('Hiện trạng').selectOption('permanent');
+  // Danh sách phòng là lưới dữ liệu chung (DT-16 phần 16b): lọc hiện trạng ở Mở rộng tìm kiếm, tìm tại chỗ theo mã phòng
   const list = page.getByRole('region', { name: 'Danh sách phòng' });
+  await list.getByRole('button', { name: 'Mở rộng tìm kiếm' }).click();
+  await list.getByLabel('Hiện trạng').selectOption('permanent');
+  await list.getByRole('searchbox', { name: 'Tìm theo tên, mã phòng, điểm trường' }).fill(roomCode);
   await expect(list).toContainText('Phòng sinh hoạt chung thử 50');
   await expect(list).toContainText('Số chỗ ngủ: 28');
   await expect(page.getByRole('region', { name: 'Tổng hợp cơ sở vật chất' })).toContainText('Tổng số');
 
   // Thiết bị dạy học: nhập số hiện có của kho chung rồi xem tổng hợp
   await openMenu(page, '/equipment');
+  await expect(page.getByRole('heading', { name: '2.1. Tổng hợp thiết bị dạy học' })).toBeVisible();
   await page.getByRole('tab', { name: 'Nhập số hiện có' }).click();
   await page.getByLabel('Nhóm tuổi').selectOption('mg_5_6');
   await page.getByLabel('Hiện có MG5-DD-03').fill('3');
   await page.getByRole('button', { name: 'Ghi số hiện có' }).click();
   await expect(page.getByText('Đã ghi số hiện có của 1 thiết bị')).toBeVisible();
   await page.getByRole('tab', { name: 'Tổng hợp' }).click();
-  await page.getByLabel('Nhóm tuổi').selectOption('mg_5_6');
-  await expect(page.getByRole('region', { name: 'Tổng hợp thiết bị dạy học' })).toContainText(
-    'Giá để đồ chơi và học liệu',
-  );
+  const summary = page.getByRole('region', { name: 'Tổng hợp thiết bị dạy học' });
+  await summary.getByRole('button', { name: 'Mở rộng tìm kiếm' }).click();
+  await summary.getByLabel('Nhóm tuổi').selectOption('mg_5_6');
+  await expect(summary).toContainText('Giá để đồ chơi và học liệu');
   await page.getByRole('tab', { name: 'Danh mục tối thiểu', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Danh mục thiết bị' })).toContainText('Cần đối chiếu văn bản');
 
