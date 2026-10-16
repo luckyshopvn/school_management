@@ -99,7 +99,11 @@ describe('Xuất Excel phân hiệu, điểm trường, nhóm người dùng, ng
       row_count: 2,
       contains_personal_data: false,
     });
-    const active = await download('/org-units/export', principal, { unit_type: 'phan_hieu', status: 'active', q: 'an' });
+    const active = await download('/org-units/export', principal, {
+      unit_type: 'phan_hieu',
+      status: 'active',
+      q: 'an',
+    });
     assert.deepEqual(
       active.rows.slice(1).map((row) => row[1]),
       ['PH-A'],
@@ -124,7 +128,11 @@ describe('Xuất Excel phân hiệu, điểm trường, nhóm người dùng, ng
     assert.equal(file.rows.length, 2);
     assert.equal(file.rows[1]?.[1], 'VT-02');
     assert.deepEqual(file.rows[1]?.slice(3), ['Có', 'Có', 'Có']);
-    assert.deepEqual(await exportLog(file.logId), { report_code: 'roles', row_count: 1, contains_personal_data: false });
+    assert.deepEqual(await exportLog(file.logId), {
+      report_code: 'roles',
+      row_count: 1,
+      contains_personal_data: false,
+    });
     const counted = await download('/account-exports/roles', principal, { columns: ['code', 'permission_count'] });
     assert.ok(counted.rows.length > 2);
     assert.ok(Number(counted.rows.find((row) => row[1] === 'VT-02')?.[2]) > 0);

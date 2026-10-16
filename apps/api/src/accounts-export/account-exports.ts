@@ -22,7 +22,8 @@ import type { RequestBody } from '../common/request-fields.js';
 // /account-exports để không trùng nhóm /users, /roles chuyển thẳng sang dịch vụ định danh
 const EXPORT_LIMIT = 10_000;
 const IDENTITY_PAGE_SIZE = 200;
-const ACCOUNT_RULE_CODE = 'YCTD-118';
+// Quy tắc xuất dữ liệu ra tệp (BR-74)
+const ACCOUNT_RULE_CODE = 'BR-74';
 
 const formatDateTime = (value: string | null) =>
   value ? new Date(value).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : '';
