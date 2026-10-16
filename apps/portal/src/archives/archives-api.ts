@@ -37,7 +37,7 @@ export interface ArchiveFondInput {
   code: string;
   name: string;
   note: string | null;
-  // Trống là toàn trường (YCTD-119)
+  // Trống là toàn trường (YCTD-120)
   org_unit_id: string | null;
 }
 
@@ -109,7 +109,7 @@ export interface ArchiveRecord {
   note: string | null;
   file_count: number;
   overdue: boolean;
-  // Chưa hoàn thành, thời hạn trong 3 ngày tới (YCTD-119)
+  // Chưa hoàn thành, thời hạn trong 3 ngày tới (YCTD-120)
   due_soon: boolean;
   updated_at: string;
 }
@@ -147,7 +147,7 @@ export interface ArchiveRecordFilter {
   due_soon?: boolean;
 }
 
-// Nhân sự đang làm việc để chọn người giải quyết (YCTD-119)
+// Nhân sự đang làm việc để chọn người giải quyết (YCTD-120)
 export interface ArchiveHandler {
   id: string;
   code: string;

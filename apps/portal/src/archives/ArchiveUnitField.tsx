@@ -2,7 +2,7 @@ import { PERMISSION_CODES } from '@school-management/shared';
 import { FORM_CONTROL_CLASS, FormRow } from '@school-management/ui';
 import { useArchiveUnits } from './archive-ui.js';
 
-// Ô "Đơn vị" của biểu mẫu phông, hồ sơ (YCTD-119): trống là toàn trường, chỉ người có quyền quản lý văn thư toàn trường
+// Ô "Đơn vị" của biểu mẫu phông, hồ sơ (YCTD-120): trống là toàn trường, chỉ người có quyền quản lý văn thư toàn trường
 // chọn được; người chỉ quản lý một số đơn vị chọn trong các đơn vị đó
 export function ArchiveUnitField({
   value,

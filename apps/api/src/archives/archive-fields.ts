@@ -22,7 +22,7 @@ export interface ArchiveFondInput {
   code: string;
   name: string;
   note: string | null;
-  // Đơn vị của phông; trống là toàn trường (YCTD-119)
+  // Đơn vị của phông; trống là toàn trường (YCTD-120)
   org_unit_id: string | null;
 }
 
@@ -45,7 +45,7 @@ export interface ArchiveRecordInput {
   code: string;
   title: string;
   fond_id: string | null;
-  // Đơn vị của hồ sơ; trống là toàn trường (YCTD-119)
+  // Đơn vị của hồ sơ; trống là toàn trường (YCTD-120)
   org_unit_id: string | null;
   // Người giải quyết chọn từ danh sách nhân sự; có mã thì máy chủ ghi tên theo hồ sơ nhân sự, không có thì nhập tên
   handler_staff_id: string | null;
@@ -70,7 +70,7 @@ export interface ArchiveRecordFilter {
   due_to: string | null;
   // Chỉ hồ sơ chưa hoàn thành đã quá thời hạn
   overdue: boolean;
-  // Chỉ hồ sơ chưa hoàn thành sắp đến hạn (YCTD-119)
+  // Chỉ hồ sơ chưa hoàn thành sắp đến hạn (YCTD-120)
   due_soon: boolean;
 }
 

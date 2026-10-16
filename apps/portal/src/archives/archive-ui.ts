@@ -31,7 +31,7 @@ export function numberOrText(text: string): number | string | null {
   return Number.isFinite(value) ? value : text;
 }
 
-// Đơn vị chọn được cho phông, hồ sơ (YCTD-119): người có quyền văn thư toàn trường chọn "Toàn trường" hoặc một phân hiệu,
+// Đơn vị chọn được cho phông, hồ sơ (YCTD-120): người có quyền văn thư toàn trường chọn "Toàn trường" hoặc một phân hiệu,
 // điểm trường; người chỉ có quyền ở một số đơn vị chỉ chọn các đơn vị đó. Trường chính là "Toàn trường" nên không liệt kê
 export function useArchiveUnits(permissionCode: string): {
   units: OrgUnit[];

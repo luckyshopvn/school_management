@@ -22,7 +22,7 @@ export async function migrateToLatest(kind: DatabaseKind, connectionString: stri
     const migrator = new Migrator({
       db: database,
       provider: { getMigrations: async () => migrations },
-      // Các phần làm song song giữ trước số tệp và gộp không theo thứ tự số (YCTD-119): tệp số nhỏ đến sau tệp số lớn đã
+      // Các phần làm song song giữ trước số tệp và gộp không theo thứ tự số (YCTD-120): tệp số nhỏ đến sau tệp số lớn đã
       // chạy thì vẫn chạy, không báo lỗi thứ tự
       allowUnorderedMigrations: true,
     });

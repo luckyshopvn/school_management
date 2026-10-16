@@ -34,7 +34,7 @@ import {
 // Văn thư lưu trữ, mục 5.10 của Sở (DT-15 phần 15h2, YCTD-118): hồ sơ tài liệu hoàn thành, chưa hoàn thành kèm tệp đính
 // kèm; phông lưu trữ; thông tin lưu trữ theo phông và giai đoạn; báo cáo lưu trữ cộng theo phông, giai đoạn. Dữ liệu ở cơ
 // sở dữ liệu hệ thống nên giữ qua các năm học; nhật ký thao tác và nhật ký xuất ghi vào năm học đang dùng như các màn hình
-// khác, nên chưa mở năm học thì không ghi, không xuất được (BR-93). YCTD-119: phông, hồ sơ thuộc đơn vị và lọc theo phạm vi
+// khác, nên chưa mở năm học thì không ghi, không xuất được (BR-93). YCTD-120: phông, hồ sơ thuộc đơn vị và lọc theo phạm vi
 // đơn vị của người dùng; người giải quyết chọn từ nhân sự; nhắc hạn; tệp xóa lỗi ở kho tệp được thử xóa lại
 export const MAXIMUM_ARCHIVE_FILE_BYTES = 10 * 1024 * 1024;
 export const MAXIMUM_FILES_PER_RECORD = 20;
@@ -136,7 +136,7 @@ export interface ArchiveRecordView {
   file_count: number;
   // Chưa hoàn thành mà đã qua thời hạn (theo ngày ở Việt Nam)
   overdue: boolean;
-  // Chưa hoàn thành, thời hạn trong ARCHIVE_DUE_SOON_DAYS ngày tới, kể cả hôm nay (YCTD-119)
+  // Chưa hoàn thành, thời hạn trong ARCHIVE_DUE_SOON_DAYS ngày tới, kể cả hôm nay (YCTD-120)
   due_soon: boolean;
   updated_at: Date;
 }
@@ -219,7 +219,7 @@ export const DEFAULT_ARCHIVE_RECORD_EXPORT_COLUMNS = ARCHIVE_RECORD_EXPORT_COLUM
   (column) => column.id !== 'note',
 ).map((column) => column.id);
 
-// Nhắc hạn (YCTD-119): hồ sơ chưa hoàn thành có thời hạn trong 3 ngày tới thì nhắc "sắp đến hạn" một lần, đã qua thời hạn
+// Nhắc hạn (YCTD-120): hồ sơ chưa hoàn thành có thời hạn trong 3 ngày tới thì nhắc "sắp đến hạn" một lần, đã qua thời hạn
 // thì nhắc "quá hạn" một lần, gửi trong ứng dụng cho tài khoản của nhân sự giải quyết. Tệp chờ xóa ở kho tệp thử lại tối
 // đa 20 lần
 export const ARCHIVE_DUE_SOON_DAYS = 3;
@@ -285,7 +285,7 @@ export class ArchivesService {
     return VIETNAM_DATE.format(this.clock.now());
   }
 
-  // ---- Phạm vi đơn vị (YCTD-119) ----
+  // ---- Phạm vi đơn vị (YCTD-120) ----
 
   // Xem: hợp phạm vi của ba quyền văn thư lưu trữ
   async viewScope(currentUser: CurrentUser): Promise<OrganizationScope> {
@@ -1229,7 +1229,7 @@ export class ArchivesService {
     await this.removeStoredFile(file.storage_key);
   }
 
-  // Xóa ở kho tệp lỗi thì ghi vào hàng chờ để tiến trình chạy nền thử lại, không để tệp mồ côi (YCTD-119)
+  // Xóa ở kho tệp lỗi thì ghi vào hàng chờ để tiến trình chạy nền thử lại, không để tệp mồ côi (YCTD-120)
   private async removeStoredFile(storageKey: string): Promise<void> {
     try {
       await this.fileStorage.delete(storageKey);
@@ -1279,7 +1279,7 @@ export class ArchivesService {
     return { deleted, failed };
   }
 
-  // ---- Nhắc hạn (YCTD-119) ----
+  // ---- Nhắc hạn (YCTD-120) ----
 
   // Hồ sơ chưa hoàn thành có nhân sự giải quyết đã liên kết tài khoản: sắp đến hạn (trong 3 ngày tới, kể cả hôm nay) nhắc
   // một lần, quá hạn nhắc một lần; thông báo trong ứng dụng ghi ở năm học đang dùng, chưa có năm học thì không nhắc
@@ -1355,7 +1355,7 @@ export class ArchivesService {
   }
 }
 
-// Tiến trình chạy nền của văn thư lưu trữ (YCTD-119): nhắc hạn hồ sơ và thử xóa lại tệp ở kho tệp, cùng nhịp với tiến
+// Tiến trình chạy nền của văn thư lưu trữ (YCTD-120): nhắc hạn hồ sơ và thử xóa lại tệp ở kho tệp, cùng nhịp với tiến
 // trình gửi thông báo; nhịp bằng 0 (kiểm thử) thì không chạy, kiểm thử gọi trực tiếp các hàm của ArchivesService
 @Injectable()
 export class ArchiveJobs implements OnApplicationBootstrap, OnModuleDestroy {

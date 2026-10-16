@@ -231,7 +231,7 @@ export interface ArchiveRecordFilesTable {
   created_by: string | null;
 }
 
-// Tệp ở kho tệp chờ xóa lại sau lần xóa lỗi (YCTD-119)
+// Tệp ở kho tệp chờ xóa lại sau lần xóa lỗi (YCTD-120)
 export interface ArchiveFileDeletionsTable {
   storage_key: string;
   attempts: Generated<number>;
