@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.44
+- Phiên bản: 1.45
 - Ngày cập nhật: 2026-10-16
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -35,6 +35,7 @@
 | P01-15 | Hồ sơ trường (G3) | VT-02 ghi; VT-15 xem | Sáu thẻ: thông tin chung (loại hình, mã định danh, quyết định thành lập, diện tích, đơn vị quản lý), thông tin khác (28 tiêu chí), yếu tố nước ngoài, kết nối internet, hạ tầng và ứng dụng CNTT, tài khoản văn phòng điện tử (không có mật khẩu) | Một hồ sơ mỗi năm học gắn với Trường chính; Ghi các thẻ gửi lên, thẻ không gửi giữ nguyên; từ chối trường lạ, sai kiểu; ghi nhật ký thao tác; chuyển sang năm học mới (YCTD-106) | Hồ sơ trường, loại hình dùng cho báo cáo EMIS | BR-103, BR-73 |
 | P01-16 | Ý kiến phản hồi (G3) | Mọi người dùng cổng quản trị gửi; VT-01, VT-02 xử lý | Đường dẫn trang (tự điền), loại ý kiến (Góp ý, Báo lỗi, Đề nghị), tiêu đề, nội dung, số điện thoại, thư điện tử, ảnh chụp màn hình JPEG hoặc PNG; khi xử lý: trạng thái, câu trả lời | Gửi từ nút "Gửi phản hồi" ở chân trang, tối đa 10 ý kiến mỗi giờ mỗi tài khoản; người gửi xem ý kiến của mình ở "Danh sách ý kiến đã gửi" (menu người dùng); người có `P01.feedback.manage` xem mọi ý kiến ở "3.4. Ý kiến phản hồi", lọc theo trạng thái, loại, đổi trạng thái, trả lời; trả lời mới thì báo người gửi trong ứng dụng (YCTD-110) | Danh sách ý kiến đã gửi, danh sách ý kiến phản hồi, thông báo trả lời | BR-108, BR-109, PQ-64 |
 | P01-17 | Hết hạn mật khẩu (G3) | VT-01, VT-02 đặt chính sách; mọi tài khoản nhân sự | Số ngày hết hạn mật khẩu (0 là không giới hạn), số ngày báo trước khi hết hạn | Lưu chính sách chung ở dịch vụ định danh; ghi thời điểm đặt mật khẩu khi đổi và khi đặt lại; đăng nhập, làm mới phiên bằng mật khẩu đã quá hạn thì bắt buộc đổi mật khẩu (MH-48); trong khoảng báo trước thì báo số ngày còn lại; không áp cho tài khoản chỉ có vai trò Phụ huynh (YCTD-110) | Khối "Chính sách mật khẩu" và cột "Thời gian đổi mật khẩu" ở "1.4. Danh sách người dùng"; dòng báo sắp hết hạn trên đầu trang | BR-110, BM-07, BM-72, PQ-64 |
+| P01-18 | Công cụ nhập Excel dùng chung (G3, YCTD-120) | Người có quyền nhập của loại dữ liệu (P01-13) | Loại dữ liệu nhập, tệp Excel, cột được chọn | Tải file mẫu có trang Danh mục; tải file mẫu kèm dữ liệu (lớp học); tra cứu danh mục trong phạm vi; chọn cột để nhập (cột khóa, bắt buộc luôn nhập); lớp đã có cập nhật cột được chọn; xuất file lỗi là tệp gốc kèm cột Nội dung lỗi | Tệp mẫu, báo cáo dòng lỗi, tệp lỗi, dữ liệu đã ghi | BR-118, P01-13 |
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 
@@ -279,6 +280,8 @@
 | P17-16 | Thống kê theo tiêu chí ngành (G3) | VT-02, VT-15, VT-03; VT-06 thống kê nhân sự | Đơn vị | Thống kê lớp học theo nhóm tuổi của bậc học; thống kê học sinh đang học theo độ tuổi, dân tộc, khuyết tật, diện chính sách, biết bơi, bệnh về mắt; thống kê nhân sự đang làm việc theo trình độ, vị trí việc làm, hình thức hợp đồng, nhóm chức vụ; trường chưa có cột riêng đọc từ hồ sơ CSDL ngành đã nhập (YCTD-105) | Ba bảng thống kê lớp học, học sinh, nhân sự | BR-01, BR-72 |
 | P17-17 | Hồ sơ chưa nhập đủ (G3) | VT-02, VT-15, VT-03; VT-06 hồ sơ nhân sự | Đơn vị, trường thông tin | Đếm số hồ sơ học sinh đang học, nhân sự đang làm việc còn thiếu từng trường; bấm số để xem danh sách, bấm tên để mở hồ sơ (YCTD-105) | Bảng số hồ sơ thiếu theo trường, danh sách hồ sơ thiếu | BR-01, BR-72 |
 | P17-18 | Báo cáo EMIS đầu năm (G3) | VT-02, VT-15 (phạm vi toàn trường) | Năm học đang dùng | Tính Biểu 1 năm thẻ (trường, lớp học; học sinh; học sinh theo độ tuổi; đội ngũ; phòng học) với cột tổng số, công lập, tư thục, dân lập, nữ, dân tộc thiểu số tại thời điểm xem; cảnh báo khi chưa khai báo loại hình; xuất Excel năm trang kèm nhật ký xuất; không gửi lên Sở (YCTD-106) | Biểu 1 EMIS đầu năm, tệp Excel | BR-104, BR-74 |
+| P17-19 | Xuất PDF và tác vụ xuất nền (G3, YCTD-120) | Người có `P17.data.export` | Bộ lọc, cột đang hiện của lưới, định dạng | Xuất PDF cùng cột, bộ lọc như Xuất Excel; danh sách vượt 10 000 dòng tạo tác vụ xuất nền, tiến trình nền dựng tệp và lưu ở kho tệp; "3.5. Tệp đã tạo" liệt kê tác vụ của người dùng với trạng thái, thời gian tạo, thời gian xong, hạn tải, tải về; tệp hết hạn sau 7 ngày | Tệp PDF, tệp Excel, danh sách Tệp đã tạo; nhật ký xuất | BR-118, BR-74 |
+| P17-20 | Gửi lên cấp trên chạy nội bộ (G3, YCTD-120) | Người có quyền của biểu mẫu; người có quyền mở khóa | Biểu mẫu, ngày gửi, ghi chú, lý do mở khóa | Tính hoàn thành dữ liệu; xuất tệp gửi và lưu bản chụp số liệu; đánh dấu đã gửi (ngày, người) và khóa; gửi yêu cầu mở khóa; mở khóa, từ chối, đặt trạng thái gửi lại; ghi lịch sử; không truyền đi vì chưa có giao diện lập trình của Bộ, Sở. Biểu mẫu đầu tiên: Biểu 1 EMIS đầu năm | Danh sách biểu mẫu kèm hoàn thành dữ liệu, trạng thái, ngày gửi, tệp gửi | BR-118, P17-18 |
 
 ## 19. Phân hệ P18 — Tuyển dụng
 

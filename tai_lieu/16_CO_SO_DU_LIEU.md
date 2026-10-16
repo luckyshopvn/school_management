@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.67
+- Phiên bản: 1.68
 - Ngày cập nhật: 2026-10-16
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -18,7 +18,7 @@
 8. Đơn vị tổ chức lưu trong bảng `org_units` thành cây hai cấp (QĐ-23); `unit_type` là loại đơn vị; Trường chính có `parent_id` trống, Phân hiệu và Điểm trường có `parent_id` là Trường chính.
 9. Mỗi năm học một cơ sở dữ liệu nghiệp vụ (QĐ-15). Có ba loại cơ sở dữ liệu:
    - Cơ sở dữ liệu định danh, không theo năm học: `users`, `roles`, `permissions`, `role_permissions`, `user_roles`, `sessions`, `one_time_codes`, `api_clients`, `security_events` (YCTD-35), `identity_audit_logs` (YCTD-39), `identity_settings` (YCTD-40).
-   - Cơ sở dữ liệu hệ thống của máy chủ API, không theo năm học: `academic_year_databases` (QĐ-17), `academic_years`, `academic_terms`, `school_weeks` (YCTD-30), `integration_credentials` (YCTD-95), `user_quick_links` (YCTD-102), `user_grid_settings` (YCTD-107), `administrative_units`, `administrative_unit_mappings` (YCTD-116), `feedback` (YCTD-110), `archive_fonds`, `archive_holdings`, `archive_records`, `archive_record_files` (YCTD-118).
+   - Cơ sở dữ liệu hệ thống của máy chủ API, không theo năm học: `academic_year_databases` (QĐ-17), `academic_years`, `academic_terms`, `school_weeks` (YCTD-30), `integration_credentials` (YCTD-95), `user_quick_links` (YCTD-102), `user_grid_settings` (YCTD-107), `administrative_units`, `administrative_unit_mappings` (YCTD-116), `feedback` (YCTD-110), `archive_fonds`, `archive_holdings`, `archive_records`, `archive_record_files` (YCTD-118); `export_jobs`, `upper_level_submissions`, `upper_level_submission_events` (YCTD-120, tệp `0010`).
    - Cơ sở dữ liệu năm học: mọi bảng còn lại.
 10. Khi mở năm học mới, dữ liệu chuyển sang giữ nguyên mã định danh (`id`) của đơn vị, trẻ, phụ huynh, nhân sự, danh mục và tài khoản quỹ, để phân quyền ở cơ sở dữ liệu định danh và báo cáo nhiều năm tham chiếu đúng.
 
@@ -374,6 +374,9 @@ Ràng buộc duy nhất: `poll_responses` trên bộ đôi bình chọn và tài
 |---|---|---|
 | report_snapshots | Số liệu tổng hợp sẵn | org_unit_id, snapshot_type, period_type, period_value, payload_data, generated_at |
 | export_logs | Nhật ký xuất dữ liệu (BR-74, YCTD-83); tệp không lưu lại nên không có file_id | user_id, actor_name, report_code, filters_data, org_unit_ids, row_count, contains_personal_data, file_name, ip_address, exported_at |
+| export_jobs | Tác vụ xuất nền và "Tệp đã tạo" (P17-19, BR-118, YCTD-120, tệp `database/system/migrations/0010_create_export_jobs_and_submissions.ts`), ở cơ sở dữ liệu hệ thống | id, user_id, user_name, user_snapshot (jsonb vai trò, quyền lúc tạo), report_code, title, format (`xlsx`, `pdf`), parameters (jsonb bộ lọc, cột), ip_address, status (`pending`, `running`, `done`, `failed`, `expired`), attempts, row_count, file_name, content_type, size_bytes, storage_key (kho tệp, khóa `export/{id}`, xóa khi hết hạn), error_message, created_at, started_at, finished_at, expires_at; chỉ mục (user_id, created_at), (status, created_at) |
+| upper_level_submissions | Trạng thái gửi biểu mẫu lên cấp trên chạy nội bộ (P17-20, BR-118, YCTD-120), ở cơ sở dữ liệu hệ thống, mỗi biểu mẫu một dòng mỗi năm học | id, academic_year_id (khóa ngoại `academic_years`), form_code (duy nhất cùng năm học), status (`draft`, `sent`, `unlock_requested`, `resend`), no_data, data_complete (tại lần xuất tệp gửi gần nhất), snapshot (jsonb số liệu lúc xuất), file_name, content_type, size_bytes, storage_key (khóa `submission/{id}/…`), exported_at, exported_by, exported_by_name, sent_on, sent_note, sent_by, sent_by_name, marked_sent_at, unlock_reason, unlock_requested_by, unlock_requested_by_name, unlock_requested_at, created_at, updated_at, updated_by |
+| upper_level_submission_events | Lịch sử thao tác gửi lên cấp trên (YCTD-120) | id, submission_id (khóa ngoại `upper_level_submissions`, xóa theo), action (`export`, `mark_sent`, `unlock_request`, `unlock`, `unlock_reject`, `resend`), note, actor_id, actor_name, created_at; chỉ mục (submission_id, created_at) |
 
 ## 19. Quan hệ chính giữa các bảng
 
