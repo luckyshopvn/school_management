@@ -1,8 +1,8 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.56
-- Ngày cập nhật: 2026-10-15
+- Phiên bản: 1.57
+- Ngày cập nhật: 2026-10-16
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -84,6 +84,11 @@ Từ YCTD-107 (DT-15 phần 15a), cổng quản trị dùng menu ngang nhiều c
 | Quản lý giáo dục Mầm non | 5. | Công cụ hỗ trợ | (nhóm) |
 | Quản lý giáo dục Mầm non | 5.1. | Thống kê lớp, nhân sự, học sinh | `/statistics` |
 | Quản lý giáo dục Mầm non | 5.8. | Thống kê hồ sơ chưa nhập đủ | `/missing-profiles` |
+| Quản lý giáo dục Mầm non | 5.10. | Văn thư lưu trữ | (nhóm) |
+| Quản lý giáo dục Mầm non | 5.10.1. | Hồ sơ tài liệu | `/archive-records` |
+| Quản lý giáo dục Mầm non | 5.10.2. | Phông lưu trữ | `/archive-fonds` |
+| Quản lý giáo dục Mầm non | 5.10.3. | Thông tin lưu trữ | `/archive-holdings` |
+| Quản lý giáo dục Mầm non | 5.10.4. | Báo cáo lưu trữ | `/archive-report` |
 | Quản lý cơ sở vật chất, TBDH | 1. | Cơ sở vật chất | (nhóm) |
 | Quản lý cơ sở vật chất, TBDH | 1.1. | Khai báo cơ sở vật chất | `/facility-rooms` |
 | Quản lý cơ sở vật chất, TBDH | 2. | Thiết bị dạy học | (nhóm) |
@@ -246,6 +251,10 @@ Từ YCTD-107 (DT-15 phần 15a), cổng quản trị dùng menu ngang nhiều c
 | MH-92 | Nhập lớp học từ Excel (YCTD-111; mục "2.2. Nhập lớp học từ Excel", đường dẫn `/class-imports`): phần "Lớp học" tách khỏi MH-40, giữ nguyên tải mẫu Excel, kiểm tra tệp, báo dòng lỗi, ghi dữ liệu (P01-13) | Người có `P01.import.children` và thấy nhóm lớp học |
 | MH-93 | Phân công phụ trách lớp (YCTD-111; mục "3.3. Phân công phụ trách lớp", đường dẫn `/class-assignments`, theo mục 3.3 của Sở): lưới dữ liệu chung (khóa `class-assignments`), mỗi dòng là một phân công còn hiệu lực của lớp đang dùng; cột Giáo viên, Vai trò trong lớp, Môn dạy, Lớp, Khối, Đơn vị, Từ ngày; xếp theo tên giáo viên rồi tên lớp; ô "Tìm theo tên giáo viên"; Mở rộng tìm kiếm theo đơn vị, vai trò trong lớp; Xuất Excel; Thêm mới chọn lớp rồi phân công giáo viên như nút "Giáo viên" của MH-03; "Kết thúc phân công" trên dòng có hộp xác nhận (BR-113) | Xem: như MH-03; Thêm mới, Kết thúc phân công: `P02.class.manage`; Xuất Excel: `P17.data.export` |
 | MH-94 | Cập nhật địa danh hành chính (YCTD-116; mục "4.1.11. Cập nhật địa danh hành chính", đường dẫn `/administrative-units`, theo mục 4.1.11 của Sở): số địa chỉ theo tình trạng (Có đề xuất, Nhiều xã/phường mới, Chưa có đối chiếu); lưới dữ liệu chung (khóa `administrative-addresses`), mỗi dòng là một địa chỉ của học sinh còn theo địa danh cũ ở năm loại địa chỉ (Thường trú, Quê quán, Nơi khai sinh, Nơi sinh, Chỗ ở hiện nay); cột Mã định danh Bộ GD&ĐT, Họ tên, Ngày sinh, Lớp, Loại địa chỉ, Tỉnh/Thành phố cũ, Quận/Huyện cũ, Xã/Phường cũ, Tỉnh/Thành phố mới, Xã/Phường mới (ô chọn khi có nhiều xã mới), Tình trạng; ẩn mặc định Mã xã/phường cũ, Mã xã/phường mới; ô "Tìm theo họ tên", Mở rộng tìm kiếm theo Loại địa chỉ, Tình trạng, Đơn vị; ô chọn từng dòng, nút "Chuyển địa danh mới" mở hộp xác nhận, nút "Chuyển". Khối "Bảng đối chiếu địa danh": lưới (khóa `administrative-unit-mappings`) tìm theo tên xã, quận/huyện; người có quyền quản lý danh mục có "Tải mẫu Excel", ô chọn tệp, "Nhập từ Excel", báo cáo dòng lỗi (BR-115) | VT-12, VT-03, VT-02, VT-15; nhập bảng đối chiếu cho người có `P01.catalog.manage` |
+| MH-95 | Hồ sơ tài liệu (YCTD-118; mục "5.10.1. Hồ sơ tài liệu", đường dẫn `/archive-records`, theo mục 5.10 của Sở): hai thẻ "Chưa hoàn thành", "Hoàn thành" trên lưới dữ liệu chung (khóa `archive-records`) phân trang ở máy chủ; cột Số, ký hiệu, Tiêu đề hồ sơ, Phông, Người giải quyết, Ngày mở hồ sơ, Thời hạn (nhãn "Quá hạn"), Ngày hoàn thành (thẻ Hoàn thành), Thời hạn bảo quản, Tệp đính kèm, ẩn mặc định Số tờ, Ghi chú; ô "Tìm theo số, ký hiệu hoặc tiêu đề"; Mở rộng tìm kiếm theo phông, người giải quyết, thời hạn từ, đến ngày, chỉ hồ sơ quá hạn; Thêm mới, Sửa bằng biểu mẫu khối "Thông tin hồ sơ", "Giải quyết", "Bảo quản" với nút Ghi; khối "Tệp đính kèm" (Tải về, Xóa tệp, chọn tệp để tải lên); Xóa qua hộp xác nhận xóa; Xuất Excel các cột đang hiện | Xem: `P09.archive.view`; Thêm mới, Sửa, Xóa, tải lên tệp: `P09.archive.manage`; Xuất Excel: `P09.archive.export` |
+| MH-96 | Phông lưu trữ (YCTD-118; mục "5.10.2. Phông lưu trữ", đường dẫn `/archive-fonds`): lưới dữ liệu chung (khóa `archive-fonds`) cột Mã phông, Tên phông, Số dòng thông tin lưu trữ, Số hồ sơ, Ghi chú; ô tìm theo mã, tên; Thêm mới, Sửa bằng biểu mẫu khối "Thông tin phông" với nút Ghi; Xóa qua hộp xác nhận xóa, phông còn dữ liệu thì báo không xóa được | Xem: `P09.archive.view`; Thêm mới, Sửa, Xóa: `P09.archive.manage` |
+| MH-97 | Thông tin lưu trữ (YCTD-118; mục "5.10.3. Thông tin lưu trữ", đường dẫn `/archive-holdings`): lưới dữ liệu chung (khóa `archive-holdings`) cột Phông, Giai đoạn, Chỉnh lý, Giá trị, Thời hạn bảo quản, Số bó, Số hộp, Số mét giá, Nơi bảo quản, ẩn mặc định Ghi chú; ô tìm theo phông, nơi bảo quản; Mở rộng tìm kiếm theo phông, tình trạng chỉnh lý; Thêm mới, Sửa bằng biểu mẫu khối "Phông và giai đoạn", "Tình trạng tài liệu" (ô Hết giá trị chỉ hiện khi có thời hạn), "Số lượng và nơi bảo quản" với nút Ghi; Xóa qua hộp xác nhận xóa | Xem: `P09.archive.view`; Thêm mới, Sửa, Xóa: `P09.archive.manage` |
+| MH-98 | Báo cáo lưu trữ (YCTD-118; mục "5.10.4. Báo cáo lưu trữ", đường dẫn `/archive-report`): lưới dữ liệu chung (khóa `archive-report`) mỗi dòng một phông và giai đoạn, cột Phông lưu trữ, Giai đoạn, Tổng số mét giá, Đã chỉnh lý, Chưa chỉnh lý, Hết giá trị, Vĩnh viễn, Có thời hạn (mét), Số bó, Số hộp, Nơi bảo quản; dòng cuối Tổng cộng; ô Nơi bảo quản; Mở rộng tìm kiếm theo phông; Xuất Excel theo bộ lọc | Xem: `P09.archive.view`; Xuất Excel: `P09.archive.export` |
 
 ### 2.2 Ứng dụng giáo viên
 

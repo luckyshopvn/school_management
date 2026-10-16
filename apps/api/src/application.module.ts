@@ -218,6 +218,8 @@ import { IntegrationsController, IntegrationsService } from './integrations/inte
 import { QuickLinksController, QuickLinksService } from './quick-links/quick-links.js';
 import { GridSettingsController, GridSettingsService } from './grid-settings/grid-settings.js';
 import { FeedbackController, FeedbackService } from './feedback/feedback.js';
+import { ArchivesController } from './archives/archives.controller.js';
+import { ArchivesService } from './archives/archives.js';
 import { integrationsTransitionStep } from './integrations/integrations-transition.js';
 import { FacebookPostsController, FacebookPostsService } from './integrations/facebook-posts.js';
 import {
@@ -352,6 +354,7 @@ export class ApplicationModule {
         QuickLinksController,
         GridSettingsController,
         FeedbackController,
+        ArchivesController,
         FacebookPostsController,
         RecruitmentRequestsController,
         JobPostingsController,
@@ -547,6 +550,7 @@ export class ApplicationModule {
         QuickLinksService,
         GridSettingsService,
         FeedbackService,
+        ArchivesService,
         FacebookPostsService,
         JournalsService,
         {
