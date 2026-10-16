@@ -160,6 +160,10 @@ export const PERMISSION_CODES = {
   professionalStandardAssess: 'P07.professional-standard.assess',
   // Xem mọi ý kiến phản hồi gửi từ chân trang, đổi trạng thái và trả lời (DT-15 phần 15g, YCTD-110)
   feedbackManage: 'P01.feedback.manage',
+  // Văn thư lưu trữ, mục 5.10 của Sở (DT-15 phần 15h2, YCTD-118)
+  archiveView: 'P09.archive.view',
+  archiveManage: 'P09.archive.manage',
+  archiveExport: 'P09.archive.export',
   // Soạn thông báo hệ thống bật lên khi vào cổng quản trị, cấu hình ứng dụng liên kết (DT-16 phần 16c)
   announcementManage: 'P01.announcement.manage',
 } as const;
@@ -288,6 +292,11 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/class-assignments',
   // Cập nhật địa danh hành chính (DT-15 phần 15h1)
   '/administrative-units',
+  // Văn thư lưu trữ (DT-15 phần 15h2, YCTD-118)
+  '/archive-records',
+  '/archive-fonds',
+  '/archive-holdings',
+  '/archive-report',
   // Thông báo hệ thống, ứng dụng liên kết (DT-16 phần 16c)
   '/system-announcements',
   '/app-links',
@@ -323,6 +332,11 @@ export const DATA_GRID_KEYS = [
   // Cập nhật địa danh hành chính (DT-15 phần 15h1)
   'administrative-addresses',
   'administrative-unit-mappings',
+  // Văn thư lưu trữ (DT-15 phần 15h2)
+  'archive-records',
+  'archive-fonds',
+  'archive-holdings',
+  'archive-report',
   // Thông báo hệ thống (DT-16 phần 16c)
   'system-announcements',
 ] as const;

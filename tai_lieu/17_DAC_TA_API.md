@@ -1,8 +1,8 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.71
-- Ngày cập nhật: 2026-10-15
+- Phiên bản: 1.72
+- Ngày cập nhật: 2026-10-16
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -981,6 +981,26 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 | DELETE | /api/v1/staff-certificates/{id} | Xóa chứng chỉ ghi nhầm |
 | GET, POST | /api/v1/bonus-deductions | Khoản thưởng, khấu trừ theo `month` và `staff_id` kèm `can_cancel`; ghi khoản |
 | POST | /api/v1/bonus-deductions/{id}/cancel | Hủy khoản kèm lý do khi bảng lương của tháng còn nháp |
+| GET, POST | /api/v1/archive-fonds | Danh sách phông lưu trữ kèm `holding_count`, `record_count`; thêm phông (P09-07, YCTD-118) |
+| PUT, DELETE | /api/v1/archive-fonds/{id} | Sửa phông; xóa phông không còn thông tin lưu trữ, hồ sơ (BR-116) |
+| GET, POST | /api/v1/archive-holdings | Thông tin lưu trữ, lọc `fond_id`; thêm dòng (P09-07) |
+| PUT, DELETE | /api/v1/archive-holdings/{id} | Sửa, xóa dòng thông tin lưu trữ |
+| GET | /api/v1/archive-report | Báo cáo lưu trữ theo phông, giai đoạn kèm `totals`, lọc `fond_id`, `storage_location` (P09-08) |
+| POST | /api/v1/archive-report/export | Xuất Excel báo cáo lưu trữ, ghi nhật ký xuất `archive-report` (BR-74) |
+| GET, POST | /api/v1/archive-records | Hồ sơ tài liệu phân trang, lọc `status`, `search`, `fond_id`, `handler`, `due_from`, `due_to`, `overdue`; thêm hồ sơ (P09-06) |
+| POST | /api/v1/archive-records/export | Xuất Excel hồ sơ theo bộ lọc và `columns`, ghi nhật ký xuất `archive-records` (BR-74) |
+| GET, PUT, DELETE | /api/v1/archive-records/{id} | Hồ sơ kèm `files`; sửa (thay toàn bộ); xóa hồ sơ cùng tệp đính kèm |
+| POST | /api/v1/archive-records/{id}/files | Tải lên một tệp đính kèm (biểu mẫu nhiều phần, trường `file`) |
+| GET, DELETE | /api/v1/archive-records/{id}/files/{fileId} | Tải về, xóa tệp đính kèm |
+
+Giao kèo văn thư lưu trữ (YCTD-118):
+
+1. Xem (`GET`) cần một trong `P09.archive.view`, `P09.archive.manage`, `P09.archive.export`; thêm, sửa, xóa, tải lên, xóa tệp cần `P09.archive.manage`; hai điểm cuối `/export` cần `P09.archive.export`; thiếu quyền trả `ERR_FORBIDDEN` (403). Ghi và xuất cần năm học đang dùng để ghi nhật ký thao tác, nhật ký xuất, chưa có thì trả `ERR_RULE_VIOLATION` mã BR-93 (422).
+2. Hồ sơ nhận `code` (1 đến 50 ký tự), `title` (1 đến 500), `handler_name` (1 đến 200), `opened_on` (YYYY-MM-DD) bắt buộc; `fond_id`, `due_date`, `sheet_count` (0 đến 100 000), `note` (đến 2000) không bắt buộc; `status` (`pending`, `completed`), `completed_on` (bắt buộc khi `completed`, không gửi khi `pending`), `retention` (`permanent`, `limited`), `retention_years` (1 đến 100 khi `limited`) theo BR-116. Phông lưu trữ nhận `code` (1 đến 50), `name` (1 đến 200), `note`. Thông tin lưu trữ nhận `fond_id`, `period_from_year`, `period_to_year`, `arranged` (đúng hoặc sai), `expired` (mặc định sai), `retention`, `retention_years`, `bundle_count`, `box_count`, `shelf_meters` (số, tối đa hai chữ số thập phân), `storage_location`, `note`. Dữ liệu sai trả `ERR_VALIDATION` (400) kèm từng trường; số, ký hiệu hoặc mã phông trùng trả `ERR_CONFLICT` (409); phông không có trả lỗi trường `fond_id`.
+3. `GET /archive-records` trả `items`, `page`, `page_size` (1 đến 200), `total`, `total_pages`; mỗi hồ sơ có `fond_code`, `fond_name`, `file_count`, `overdue` (chưa hoàn thành, thời hạn trước hôm nay theo giờ Việt Nam). Chưa hoàn thành xếp theo thời hạn gần nhất trước, hoàn thành theo ngày hoàn thành mới nhất trước. `search` khớp một phần số, ký hiệu hoặc tiêu đề; ký tự `%`, `_` được hiểu đúng là ký tự.
+4. Tệp đính kèm: PDF, JPEG, PNG nhận theo các byte đầu; .doc, .docx, .xls, .xlsx nhận theo các byte đầu kèm đuôi tên tệp; tối đa 10 MB; tệp khác trả `ERR_VALIDATION` trường `file`; quá 20 tệp mỗi hồ sơ trả `ERR_RULE_VIOLATION` mã YCTD-118. Tải về trả đúng kiểu nội dung, `content-disposition: attachment`; tệp không thuộc hồ sơ trả `ERR_NOT_FOUND` (404).
+5. Xóa phông còn thông tin lưu trữ hoặc hồ sơ trả `ERR_RULE_VIOLATION` mã YCTD-118 (422). Xóa hồ sơ xóa luôn tệp ở kho tệp. Mọi thao tác ghi ghi nhật ký thao tác (`archive_fonds`, `archive_holdings`, `archive_records`, `archive_record_files`).
+6. Xuất Excel hồ sơ: `columns` là mã cột của lưới (`code`, `title`, `fond`, `handler_name`, `opened_on`, `due_date`, `status`, `completed_on`, `retention`, `sheet_count`, `file_count`, `note`), không trùng, không gửi thì theo mặc định; tối đa 5 000 dòng, nhiều hơn trả `ERR_RULE_VIOLATION` mã YCTD-118. Báo cáo lưu trữ xuất một bảng tính có dòng tiêu đề, các dòng theo phông, giai đoạn và dòng Tổng cộng. Mỗi lần xuất ghi nhật ký xuất trước khi trả tệp, trả mã nhật ký ở `x-export-log-id`.
 
 ## 13. Y tế học đường
 
