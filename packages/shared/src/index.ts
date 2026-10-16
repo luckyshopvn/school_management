@@ -286,6 +286,9 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/class-assignments',
   // Cập nhật địa danh hành chính (DT-15 phần 15h1)
   '/administrative-units',
+  // Quản trị hệ thống đủ theo Sở: 1.2 Phân quyền nhóm theo phần mềm, 1.6 Tài khoản đồng bộ của Bộ, của Sở (DT-16 phần 16d)
+  '/role-workspaces',
+  '/sync-accounts',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];

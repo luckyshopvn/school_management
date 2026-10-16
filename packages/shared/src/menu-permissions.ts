@@ -80,6 +80,7 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/emis': 'P17.report.emis',
   // Quản trị hệ thống
   '/roles': ACCOUNTS,
+  '/role-workspaces': ACCOUNTS,
   '/role-permissions': ACCOUNTS,
   '/accounts': ACCOUNTS,
   '/departments': anyOf('P01.view', 'P01.department.manage'),
@@ -88,6 +89,8 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/approval-thresholds': 'P01.view',
   '/api-clients': gated(ACCOUNTS, 'P01.api-client.manage'),
   '/integrations': 'P01.integration.manage',
+  // Tài khoản đồng bộ của Bộ, của Sở (DT-16 phần 16d)
+  '/sync-accounts': 'P01.integration.manage',
   '/audit-logs': 'P01.view',
   // Ý kiến phản hồi (YCTD-110)
   '/feedback': 'P01.feedback.manage',
