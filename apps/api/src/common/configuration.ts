@@ -32,6 +32,10 @@ export interface ApiConfiguration {
   paymentProviders?: PaymentProviderSettings;
   // Chu kỳ tiến trình gửi thông báo và nhắc nhật ký, tính bằng giây; 0 là tắt, kiểm thử tự gọi (YCTD-71)
   notificationDispatchIntervalSeconds?: number;
+  // Tác vụ xuất nền (DT-16 phần 16a): chu kỳ tiến trình xuất nền tính bằng giây, 0 là tắt, kiểm thử tự gọi; số dòng tối đa
+  // của một lần xuất trực tiếp, vượt thì tạo tác vụ nền (mặc định 10 000)
+  exportJobIntervalSeconds?: number;
+  syncExportRowLimit?: number;
   // Đăng Fanpage và gửi Zalo: `development` là bộ giả lập (YCTD-90). Khóa trang Facebook chỉ đặt ở biến môi trường;
   // Graph API dùng phiên bản facebookGraphVersion, mặc định v21.0 (YCTD-92)
   facebookPublisher?: 'development' | null;
@@ -142,6 +146,7 @@ export function readConfigurationFromEnvironment(): ApiConfiguration {
     paymentGateways,
     paymentProviders: readPaymentProviderSettings(paymentGateways),
     notificationDispatchIntervalSeconds: Number(process.env.NOTIFICATION_DISPATCH_INTERVAL_SECONDS ?? 60),
+    exportJobIntervalSeconds: Number(process.env.EXPORT_JOB_INTERVAL_SECONDS ?? 15),
     ...readIntegrationConfiguration(process.env),
     smsProvider: readSmsProviderSettings(),
   };
