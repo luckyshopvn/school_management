@@ -33,6 +33,27 @@
 
 - Chưa có Xuất Excel, xóa hàng loạt ở các lưới của phân hệ; duyệt, từ chối có lý do và cập nhật tiến độ việc vẫn là ô nhập trong cột thao tác; danh sách rất dài vẫn tải một lần; tiêu đề cột tiền canh trái trong khi số tiền canh phải.
 
+
+### 2026-10-16 — Kế hoạch DT-16: bổ sung đủ tính năng theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Đối chiếu từng dòng của `31_KHAO_SAT_HE_THONG_SO.md` (mục 2 đến 7) với mã nguồn hiện tại: liệt kê màn hình, thẻ, cột, bộ lọc, nút còn thiếu hoặc mới làm một phần.
+- Thêm mục 7 vào `32_KE_HOACH_THEO_HE_THONG_SO.md` (phiên bản 1.4): đợt DT-16 gồm 11 phần (16a đến 16k), chia ba lượt.
+
+#### Quyết định
+
+- Eric yêu cầu ngày 2026-10-16 làm đủ mọi tính năng đã khảo sát của Sở.
+- Eric chọn ngày 2026-10-16: tính năng cần hệ thống bên ngoài (đồng bộ lên CSDL Bộ, Sở; xác thực với CSDLQG về dân cư; ký số; tách trường; gửi lên cấp trên; biến động liên trường; đăng nhập chọn trường) làm bản chạy nội bộ, thay cho dòng "Không áp dụng" của mục 1 tài liệu 32.
+- Eric chọn ngày 2026-10-16: phân hệ Tuyển sinh đầu cấp và Hồ sơ điện tử chờ khảo sát bổ sung.
+
+#### Thay đổi
+
+- `32_KE_HOACH_THEO_HE_THONG_SO.md`, `02_NHAT_KY_DU_AN.md`.
+
+#### Vấn đề tồn đọng
+
+- Lượt 1 (16a đến 16d) đang làm; lượt 2, 3 chờ lượt trước gộp.
 ### 2026-10-15 — DT-15 phần 15h1: cập nhật địa danh hành chính theo hệ thống của Sở
 
 #### Công việc đã thực hiện
