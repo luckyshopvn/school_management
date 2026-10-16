@@ -161,7 +161,17 @@ describe('Xuất Excel phân hiệu, điểm trường, nhóm người dùng, ng
     assert.equal(file.rows.length, total + 1);
     const distinct = (index: number) => [...new Set(file.rows.slice(1).map((row) => row[index]))];
     assert.deepEqual(distinct(3), ['Cán bộ, nhân viên'], JSON.stringify(file.rows.slice(0, 3)));
-    assert.deepEqual(distinct(4), ['Đang hoạt động'], JSON.stringify(file.rows.slice(0, 3)));
+    // Trạng thái theo đúng dịch vụ định danh (có thể có tài khoản đã khóa)
+    const statuses = (identityList.body.items as Array<{ status: string }>).map((item) =>
+      item.status === 'active' ? 'Đang hoạt động' : 'Đã khóa',
+    );
+    assert.deepEqual(
+      file.rows
+        .slice(1)
+        .map((row) => row[4])
+        .sort(),
+      statuses.sort(),
+    );
     assert.deepEqual(await exportLog(file.logId), {
       report_code: 'accounts',
       row_count: total,
