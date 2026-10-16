@@ -11,6 +11,7 @@ import { createApplication } from './create-application.js';
 import type { OrganizationDirectory } from './accounts/organization-directory.js';
 import { RecordingSmsSender } from './messaging/sms-sender.js';
 import { Infrastructure } from './common/infrastructure.js';
+import { Redis } from 'ioredis';
 
 // Hỗ trợ kiểm thử tích hợp trên cơ sở dữ liệu định danh và Redis thật
 
@@ -151,6 +152,20 @@ export async function solvedCaptcha(context: TestContext): Promise<{ captcha_id:
     throw new Error('Không đọc được đáp án mã xác nhận');
   }
   return { captcha_id: captchaId, captcha_text: text };
+}
+
+// Kiểm thử giao diện chạy dịch vụ định danh thật (tiền tố khóa Redis "identity"); đọc đáp án mã xác nhận theo mã ảnh
+export async function readCaptchaAnswerForTesting(captchaId: string): Promise<string | null> {
+  const redisUrl = process.env.REDIS_URL;
+  if (!redisUrl) {
+    throw new Error('Thiếu biến môi trường REDIS_URL');
+  }
+  const redis = new Redis(redisUrl, { maxRetriesPerRequest: 3 });
+  try {
+    return await redis.get(`identity:captcha:${captchaId}`);
+  } finally {
+    redis.disconnect();
+  }
 }
 
 export interface JsonResponse {

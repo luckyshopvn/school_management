@@ -10,6 +10,9 @@ const TERM_LABELS: Record<TermKey, string> = {
   summer_term: 'Kỳ hè',
 };
 
+// Phần mềm phục vụ trường mầm non nên cấp học luôn là Mầm non
+const EDUCATION_LEVEL = 'Cấp MN';
+
 const TERM_KEYS: TermKey[] = ['first_term', 'second_term', 'summer_term'];
 
 // Ngày hôm nay theo giờ Việt Nam, dạng YYYY-MM-DD
@@ -106,14 +109,19 @@ export function AcademicYearSwitcher() {
   if (years.isPending) {
     return <span className="hidden h-4 w-36 animate-pulse rounded bg-header-strong md:inline" aria-hidden="true" />;
   }
-  const buttonText = currentYear ? `${currentYear.name} · ${termLabel}` : 'Chưa có năm học đang dùng';
+  // Ô ngữ cảnh "Cấp MN · năm học · học kỳ" như của Sở (DT-16 phần 16c)
+  const buttonText = currentYear ? `${EDUCATION_LEVEL} · ${currentYear.name} · ${termLabel}` : 'Chưa có năm học đang dùng';
 
   return (
     <div className="relative hidden md:block" ref={container}>
       <button
         type="button"
         className="flex h-9 items-center gap-2 rounded-md border border-white/60 px-2.5 text-label font-semibold text-white hover:bg-header-strong"
-        aria-label={currentYear ? `Năm học đang dùng: ${currentYear.name}, ${termLabel}` : 'Chưa có năm học đang dùng'}
+        aria-label={
+          currentYear
+            ? `${EDUCATION_LEVEL}, năm học đang dùng: ${currentYear.name}, ${termLabel}`
+            : 'Chưa có năm học đang dùng'
+        }
         aria-haspopup="dialog"
         aria-expanded={open}
         data-testid="academic-year-context"

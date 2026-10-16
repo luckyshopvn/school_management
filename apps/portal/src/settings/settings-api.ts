@@ -35,6 +35,11 @@ export interface IdentitySettings {
   one_time_code_maximum_attempts: number;
   one_time_code_maximum_sends_per_hour: number;
   parent_default_password_configured: boolean;
+  // Đăng nhập cổng quản trị (DT-16 phần 16c)
+  captcha_failure_threshold: number;
+  captcha_always: boolean;
+  password_history_count: number;
+  login_hotline: string | null;
 }
 
 export type IdentitySettingsChanges = Partial<Omit<IdentitySettings, 'parent_default_password_configured'>> & {

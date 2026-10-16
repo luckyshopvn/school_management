@@ -77,6 +77,14 @@ import { ProgramCompletionPage } from './program-completion/ProgramCompletionPag
 import { ChildGroupsPage } from './child-groups/ChildGroupsPage.js';
 import { ProfessionalStandardsPage } from './professional-standards/ProfessionalStandardsPage.js';
 import { FeedbackPage, MyFeedbackPage } from './feedback/FeedbackPages.js';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage.js';
+import { HelpPage } from './portal-shell/HelpPage.js';
+import { MyProfilePage } from './portal-shell/MyProfilePage.js';
+import { SystemAnnouncementsPage } from './portal-shell/SystemAnnouncementsPage.js';
+import { AppLinksPage } from './portal-shell/AppLinksPage.js';
+
+// Trang dùng được khi chưa đăng nhập (DT-16 phần 16c thêm Quên mật khẩu)
+const PUBLIC_PATHS = ['/login', '/forgot-password'];
 
 // Chuyển hướng theo trạng thái phiên: chưa đăng nhập về MH-47; bắt buộc đổi mật khẩu về MH-48 (BM-07)
 function SessionGate() {
@@ -87,12 +95,12 @@ function SessionGate() {
     return <div className="min-h-screen animate-pulse bg-page" aria-busy="true" />;
   }
   if (session.status === 'signed-out') {
-    return pathname === '/login' ? <Outlet /> : <Navigate to="/login" replace />;
+    return PUBLIC_PATHS.includes(pathname) ? <Outlet /> : <Navigate to="/login" replace />;
   }
   if (session.passwordChangeRequired && pathname !== '/change-password') {
     return <Navigate to="/change-password" replace />;
   }
-  if (pathname === '/login') {
+  if (PUBLIC_PATHS.includes(pathname)) {
     return <Navigate to="/" replace />;
   }
   return <Outlet />;
@@ -104,6 +112,12 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/', component: HomePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/login', component: LoginPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/change-password', component: ChangePasswordPage }),
+  // Quên mật khẩu, hồ sơ nhân sự cá nhân, hướng dẫn, thông báo hệ thống, ứng dụng liên kết (DT-16 phần 16c)
+  createRoute({ getParentRoute: () => rootRoute, path: '/forgot-password', component: ForgotPasswordPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/my-profile', component: MyProfilePage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/help', component: HelpPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/system-announcements', component: SystemAnnouncementsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/app-links', component: AppLinksPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/academic-years', component: AcademicYearsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/org-units', component: OrgUnitsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/accounts', component: AccountsPage }),

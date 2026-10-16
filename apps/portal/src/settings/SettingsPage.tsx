@@ -307,6 +307,84 @@ function AccountLockSettings({ onSaved }: { onSaved(message: string): void }) {
   );
 }
 
+// Đăng nhập và bảo mật của cổng quản trị (DT-16 phần 16c): mã xác nhận, lịch sử mật khẩu, đường dây nóng ở trang đăng nhập
+function LoginSecuritySettings({ onSaved }: { onSaved(message: string): void }) {
+  const queryClient = useQueryClient();
+  const settings = useQuery({ queryKey: ['identity-settings'], queryFn: readIdentitySettings });
+  const [threshold, setThreshold] = useState('');
+  const [historyCount, setHistoryCount] = useState('');
+  const [captchaAlways, setCaptchaAlways] = useState(false);
+  const [hotline, setHotline] = useState('');
+  useEffect(() => {
+    if (settings.data) {
+      setThreshold(String(settings.data.captcha_failure_threshold));
+      setHistoryCount(String(settings.data.password_history_count));
+      setCaptchaAlways(settings.data.captcha_always);
+      setHotline(settings.data.login_hotline ?? '');
+    }
+  }, [settings.data]);
+  const save = useMutation({
+    mutationFn: () =>
+      saveIdentitySettings({
+        captcha_failure_threshold: Number(threshold),
+        password_history_count: Number(historyCount),
+        captcha_always: captchaAlways,
+        login_hotline: hotline,
+      }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['identity-settings'] });
+      onSaved('Đã lưu cấu hình đăng nhập');
+    },
+  });
+  const fieldError = (field: string) =>
+    save.error instanceof ApiError ? save.error.details.find((detail) => detail.field === field)?.message : undefined;
+  if (settings.isError) {
+    return null;
+  }
+  return (
+    <section
+      className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4"
+      aria-label="Đăng nhập và bảo mật"
+    >
+      <h2 className="text-section-title font-semibold text-text">Đăng nhập và bảo mật</h2>
+      {save.error && !(save.error instanceof ApiError && save.error.details.length > 0) ? (
+        <Alert tone="danger">{messageOf(save.error)}</Alert>
+      ) : null}
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <TextField
+          label="Số lần nhập sai mật khẩu thì hiện mã xác nhận"
+          inputMode="numeric"
+          value={threshold}
+          error={fieldError('captcha_failure_threshold')}
+          onChange={(event) => setThreshold(event.target.value)}
+        />
+        <TextField
+          label="Số mật khẩu gần nhất không được dùng lại (0 là không kiểm tra)"
+          inputMode="numeric"
+          value={historyCount}
+          error={fieldError('password_history_count')}
+          onChange={(event) => setHistoryCount(event.target.value)}
+        />
+        <TextField
+          label="Đường dây nóng hiện ở trang đăng nhập"
+          value={hotline}
+          error={fieldError('login_hotline')}
+          onChange={(event) => setHotline(event.target.value)}
+        />
+        <label className="flex items-center gap-2 self-end pb-2 text-label text-text">
+          <input type="checkbox" checked={captchaAlways} onChange={(event) => setCaptchaAlways(event.target.checked)} />
+          Luôn hiện mã xác nhận ở trang đăng nhập
+        </label>
+      </div>
+      <div>
+        <Button onClick={() => save.mutate()} disabled={save.isPending}>
+          Lưu cấu hình đăng nhập
+        </Button>
+      </div>
+    </section>
+  );
+}
+
 export function SettingsPage() {
   const canManage = useHasPermission(PERMISSION_CODES.settingManage);
   const currentUser = useQuery({ queryKey: ['current-user'], queryFn: fetchCurrentUser });
@@ -367,6 +445,7 @@ export function SettingsPage() {
           )}
         </section>
         {wholeSchoolSettingManager ? <AccountLockSettings onSaved={setToastMessage} /> : null}
+        {wholeSchoolSettingManager ? <LoginSecuritySettings onSaved={setToastMessage} /> : null}
       </div>
     </AppShell>
   );

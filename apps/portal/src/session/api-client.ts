@@ -77,6 +77,11 @@ async function send<T>(path: string, init: RequestInit = {}): Promise<T> {
   return (text ? JSON.parse(text) : null) as T;
 }
 
+// Yêu cầu không cần phiên đăng nhập: trang đăng nhập, quên mật khẩu (DT-16 phần 16c)
+export function publicJson<T>(path: string, init: RequestInit = {}): Promise<T> {
+  return send<T>(path, init);
+}
+
 let pendingRefresh: Promise<TokenResponse> | undefined;
 
 // Nhiều yêu cầu cùng gặp mã hết hạn chỉ làm mới một lần
@@ -122,10 +127,16 @@ export async function fetchWithSession(path: string, init: RequestInit = {}): Pr
   return attempt();
 }
 
-export async function login(loginIdentifier: string, password: string): Promise<TokenResponse> {
+// Mã xác nhận gửi kèm khi trang đăng nhập đang hiện ảnh mã (DT-16 phần 16c)
+export interface CaptchaAnswer {
+  captcha_id: string;
+  captcha_text: string;
+}
+
+export async function login(loginIdentifier: string, password: string, captcha?: CaptchaAnswer): Promise<TokenResponse> {
   const tokens = await send<TokenResponse>('/api/v1/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ login: loginIdentifier, password, channel: 'portal' }),
+    body: JSON.stringify({ login: loginIdentifier, password, channel: 'portal', ...captcha }),
   });
   setAccessToken(tokens.access_token);
   return tokens;
