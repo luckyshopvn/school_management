@@ -82,6 +82,12 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
       group('5.', 'Công cụ hỗ trợ', [
         leaf('5.1.', 'Thống kê lớp, nhân sự, học sinh', '/statistics'),
         leaf('5.8.', 'Thống kê hồ sơ chưa nhập đủ', '/missing-profiles'),
+        group('5.10.', 'Văn thư lưu trữ', [
+          leaf('5.10.1.', 'Hồ sơ tài liệu', '/archive-records'),
+          leaf('5.10.2.', 'Phông lưu trữ', '/archive-fonds'),
+          leaf('5.10.3.', 'Thông tin lưu trữ', '/archive-holdings'),
+          leaf('5.10.4.', 'Báo cáo lưu trữ', '/archive-report'),
+        ]),
       ]),
     ],
   },

@@ -160,6 +160,10 @@ export const PERMISSION_CODES = {
   professionalStandardAssess: 'P07.professional-standard.assess',
   // Xem mọi ý kiến phản hồi gửi từ chân trang, đổi trạng thái và trả lời (DT-15 phần 15g, YCTD-110)
   feedbackManage: 'P01.feedback.manage',
+  // Văn thư lưu trữ, mục 5.10 của Sở (DT-15 phần 15h2, YCTD-118)
+  archiveView: 'P09.archive.view',
+  archiveManage: 'P09.archive.manage',
+  archiveExport: 'P09.archive.export',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -289,6 +293,11 @@ export const PORTAL_QUICK_LINK_PATHS = [
   // Quản trị hệ thống đủ theo Sở: 1.2 Phân quyền nhóm theo phần mềm, 1.6 Tài khoản đồng bộ của Bộ, của Sở (DT-16 phần 16d)
   '/role-workspaces',
   '/sync-accounts',
+  // Văn thư lưu trữ (DT-15 phần 15h2, YCTD-118)
+  '/archive-records',
+  '/archive-fonds',
+  '/archive-holdings',
+  '/archive-report',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -321,6 +330,11 @@ export const DATA_GRID_KEYS = [
   // Cập nhật địa danh hành chính (DT-15 phần 15h1)
   'administrative-addresses',
   'administrative-unit-mappings',
+  // Văn thư lưu trữ (DT-15 phần 15h2)
+  'archive-records',
+  'archive-fonds',
+  'archive-holdings',
+  'archive-report',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

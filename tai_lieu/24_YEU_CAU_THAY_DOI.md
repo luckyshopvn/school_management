@@ -2,7 +2,7 @@
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
 - Phiên bản: 0.4
-- Ngày cập nhật: 2026-10-15
+- Ngày cập nhật: 2026-10-16
 - Trạng thái: Đang cập nhật
 
 ## Quy ước
@@ -10,6 +10,39 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-118: DT-15 phần 15h2: văn thư lưu trữ theo hệ thống của Sở – 2026-10-16
+
+- Lý do: Eric quyết định ngày 2026-10-13 đồng bộ cổng quản trị theo hệ thống quản lý trường học của Sở GD&ĐT TP.HCM (`32_KE_HOACH_THEO_HE_THONG_SO.md` mục 2 ý 4, mục 3.1 dòng 5.10, mục 5 đợt 15h; khảo sát `31_KHAO_SAT_HE_THONG_SO.md` dòng 5.10 và bảng khoảng trống dòng 7). Mục "5.10. Văn thư lưu trữ" là chức năng Sở có, trường chưa có: hồ sơ tài liệu hoàn thành, chưa hoàn thành có người giải quyết và thời hạn; báo cáo lưu trữ theo phông, giai đoạn, tài liệu đã chỉnh lý, hết giá trị, bảo quản vĩnh viễn, có thời hạn, số bó, số mét giá, số hộp, nơi bảo quản. Đợt 15h chia hai phần chạy song song: 15h1 (4.1.11 địa danh hành chính) và 15h2 (5.10, yêu cầu này). Phần này dùng lưới dữ liệu chung, hộp xác nhận xóa, biểu mẫu theo khối của phần 15a (YCTD-107) và tiêu đề trang theo menu của phần 15e (YCTD-109). Khảo sát chỉ ghi tiêu chí, không có cột và ô nhập chi tiết, nên các điểm chi tiết dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Cây menu: nhóm "5. Công cụ hỗ trợ" của phân hệ Quản lý giáo dục Mầm non thêm nhóm "5.10. Văn thư lưu trữ" với bốn mục: "5.10.1. Hồ sơ tài liệu" (`/archive-records`), "5.10.2. Phông lưu trữ" (`/archive-fonds`), "5.10.3. Thông tin lưu trữ" (`/archive-holdings`), "5.10.4. Báo cáo lưu trữ" (`/archive-report`). Số mục con 5.10.1 đến 5.10.4 do Claude đặt vì khảo sát không ghi mục con.
+  - Dữ liệu ở cơ sở dữ liệu hệ thống (tệp `0009`) vì hồ sơ, phông lưu trữ không gắn với một năm học; không dùng tệp năm học `0053` đã giữ cho phần này. Nhật ký thao tác và nhật ký xuất vẫn ghi vào năm học đang dùng như các màn hình khác (như kết nối ngoài, YCTD-90), nên chưa mở năm học thì thêm, sửa, xóa, xuất bị từ chối theo BR-93; xem vẫn được.
+  - Hồ sơ tài liệu (MH-98): mỗi hồ sơ có số, ký hiệu (duy nhất), tiêu đề, phông (không bắt buộc), người giải quyết (chữ tự do vì hồ sơ dùng qua nhiều năm học còn nhân sự nằm ở từng năm học), ngày mở hồ sơ, thời hạn giải quyết, trạng thái hoàn thành hoặc chưa hoàn thành, ngày hoàn thành, thời hạn bảo quản (vĩnh viễn hoặc có thời hạn kèm số năm), số tờ, ghi chú (BR-116).
+    - Hai thẻ "Chưa hoàn thành" và "Hoàn thành" trên cùng một lưới dữ liệu chung (khóa `archive-records`), phân trang ở máy chủ. Chưa hoàn thành xếp theo thời hạn gần nhất trước, không có thời hạn ở cuối; hoàn thành xếp theo ngày hoàn thành mới nhất trước. Hồ sơ chưa hoàn thành đã qua thời hạn (theo ngày ở Việt Nam) hiện nhãn "Quá hạn" ở cột Thời hạn.
+    - Cột: Số, ký hiệu; Tiêu đề hồ sơ; Phông; Người giải quyết; Ngày mở hồ sơ; Thời hạn; Ngày hoàn thành (chỉ ở thẻ Hoàn thành); Thời hạn bảo quản; Tệp đính kèm (số tệp); ẩn mặc định Số tờ, Ghi chú.
+    - Ô "Tìm theo số, ký hiệu hoặc tiêu đề"; Mở rộng tìm kiếm theo phông, người giải quyết (khớp một phần), thời hạn từ ngày, đến ngày, "Chỉ hồ sơ quá hạn" (thẻ Chưa hoàn thành).
+    - Thêm mới, Sửa bằng biểu mẫu theo khối "Thông tin hồ sơ", "Giải quyết", "Bảo quản" với nút Ghi; Xóa qua hộp xác nhận xóa, xóa hồ sơ xóa luôn tệp đính kèm ở kho tệp. Đổi trạng thái sang Hoàn thành ở biểu mẫu thì hồ sơ chuyển sang thẻ Hoàn thành. Thêm mới xong mở sẵn hồ sơ vừa tạo để đính kèm tệp ngay.
+    - Tệp đính kèm dùng kho tệp chung của dự án (YCTD-45, khóa `archive-records/{mã hồ sơ}/…`): PDF, ảnh JPEG, PNG, Word (.doc, .docx), Excel (.xls, .xlsx), nhận diện theo các byte đầu của tệp (tệp Office mới theo thêm đuôi tên), tối đa 10 MB mỗi tệp, 20 tệp mỗi hồ sơ (vượt thì lỗi quy tắc mã YCTD-118). Người xem tải về, người quản lý tải lên và xóa (hộp xác nhận xóa).
+    - Xuất Excel: tệp có cột STT và đúng các cột đang hiện, theo thẻ, bộ lọc và ô tìm kiếm đang chọn; tối đa 5 000 dòng (nhiều hơn thì lỗi quy tắc mã YCTD-118); ghi nhật ký xuất mã báo cáo `archive-records`, có dữ liệu cá nhân vì có tên người giải quyết (BR-74).
+  - Phông lưu trữ (MH-98): mã phông (duy nhất), tên phông, ghi chú; lưới (khóa `archive-fonds`) có thêm số dòng thông tin lưu trữ và số hồ sơ thuộc phông. Phông còn thông tin lưu trữ hoặc hồ sơ thì không xóa được (lỗi quy tắc mã YCTD-118).
+  - Thông tin lưu trữ (MH-98): mỗi dòng là tài liệu của một phông trong một giai đoạn (từ năm, đến năm), đã chỉnh lý hay chưa, còn hay hết giá trị, thời hạn bảo quản, số bó, số hộp, số mét giá (hai chữ số thập phân), nơi bảo quản, ghi chú; lưới (khóa `archive-holdings`) lọc theo phông, tình trạng chỉnh lý. Tài liệu bảo quản vĩnh viễn không hết giá trị (BR-116). Đặt thành màn hình riêng vì khảo sát ghi tiêu chí của báo cáo mà không có màn hình nhập; báo cáo cộng từ các dòng này.
+  - Báo cáo lưu trữ (MH-98): cộng thông tin lưu trữ theo phông và giai đoạn: tổng số mét giá; số mét đã chỉnh lý, chưa chỉnh lý, hết giá trị, bảo quản vĩnh viễn, có thời hạn; số bó, số hộp; các nơi bảo quản; dòng cuối Tổng cộng. Lọc theo phông, nơi bảo quản (khớp một phần). Xuất Excel theo bộ lọc, ghi nhật ký xuất mã `archive-report`, không có dữ liệu cá nhân. Tiêu chí đo theo mét giá vì là đơn vị thống kê lưu trữ thường dùng; số bó, số hộp cộng riêng.
+  - Quyền tách theo thao tác, phân hệ P09 (văn thư là công việc hành chính của trường): `P09.archive.view` xem, `P09.archive.manage` thêm, sửa, xóa, đính kèm, `P09.archive.export` xuất Excel (PQ-68). Ma trận mặc định: Hiệu trưởng (VT-02), Kế toán (VT-04), Nhân sự (VT-06) có đủ ba quyền vì trường mầm non thường giao văn thư cho kế toán hoặc nhân viên hành chính; Phó Hiệu trưởng (VT-15) xem và xuất; Quản lý đơn vị (VT-03) xem; Quản trị nền tảng (VT-01) không có vì là dữ liệu nghiệp vụ. Người có quyền quản lý hoặc xuất cũng gọi được các điểm cuối xem. Màn hình "Phân quyền nhóm theo menu" (YCTD-109) hiện ba quyền dưới các mục 5.10.1 đến 5.10.4.
+  - Mọi thao tác ghi (phông, thông tin lưu trữ, hồ sơ, tệp đính kèm) ghi một dòng nhật ký thao tác có giá trị trước và sau (QU-04).
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu hệ thống (tệp `database/system/migrations/0009_create_archive_tables.ts`); cơ sở dữ liệu định danh (tệp `database/identity/migrations/0044_add_archive_permissions.ts`); máy chủ API (mô đun mới `apps/api/src/archives/`; kho tệp `FileStorage` thêm thao tác xóa tệp); cổng quản trị (bốn màn hình mới `apps/portal/src/archives/`); gói dùng chung `@school-management/shared` (`PERMISSION_CODES`, `PORTAL_QUICK_LINK_PATHS`, `DATA_GRID_KEYS`, cây menu, `MENU_PERMISSION_RULES`); kiểm thử đơn vị và kiểm thử giao diện; tài liệu `01`, `02`, `03` (P09), `07` (BR-116), `08` (PQ-68), `10` (P09-06 đến P09-08), `11`, `14` (cây menu mục 1.1, MH-98 đến MH-98), `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: bốn bảng mới ở cơ sở dữ liệu hệ thống `archive_fonds`, `archive_holdings`, `archive_records`, `archive_record_files`; ba quyền mới và gán vai trò ở cơ sở dữ liệu định danh. Không đổi bảng cũ.
+- API bị ảnh hưởng: điểm cuối mới `GET, POST /api/v1/archive-fonds`, `PUT, DELETE /api/v1/archive-fonds/{id}`, `GET, POST /api/v1/archive-holdings`, `PUT, DELETE /api/v1/archive-holdings/{id}`, `GET /api/v1/archive-report`, `POST /api/v1/archive-report/export`, `GET, POST /api/v1/archive-records`, `POST /api/v1/archive-records/export`, `GET, PUT, DELETE /api/v1/archive-records/{id}`, `POST /api/v1/archive-records/{id}/files`, `GET, DELETE /api/v1/archive-records/{id}/files/{fileId}`. Không đổi điểm cuối cũ.
+- Giao diện bị ảnh hưởng: bốn màn hình mới MH-98 đến MH-98; menu thêm nhóm 5.10. Ứng dụng giáo viên, phụ huynh không đổi.
+- Quyền bị ảnh hưởng: ba mã quyền mới `P09.archive.view`, `P09.archive.manage`, `P09.archive.export` (PQ-68). Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
+- Ảnh hưởng chức năng cũ: không có. Kho tệp thêm thao tác xóa tệp, chỉ văn thư lưu trữ dùng.
+- Hạn chế:
+  - Người giải quyết là chữ tự do, chưa chọn từ danh sách nhân sự; chưa có thông báo nhắc hồ sơ sắp đến hạn hoặc quá hạn.
+  - Chưa có sổ đăng ký văn bản đến, văn bản đi, mục lục hồ sơ, biên bản giao nộp hay tiêu hủy tài liệu hết giá trị; khảo sát của Sở chỉ ghi hai danh sách hồ sơ và báo cáo lưu trữ.
+  - Hồ sơ, phông dùng chung toàn trường, chưa phân theo đơn vị (phân hiệu, điểm trường).
+  - Báo cáo lưu trữ đo theo mét giá; số hộp, số bó cộng riêng, chưa tách theo tình trạng chỉnh lý, giá trị.
+  - Xóa tệp ở kho tệp làm sau khi xóa dòng trong cơ sở dữ liệu; lỗi kho tệp chỉ ghi cảnh báo nên có thể còn tệp mồ côi.
+- Kiểm thử cần thực hiện: kịch bản CT-438 đến CT-450 (trong mã kiểm thử là CT-15h2-1 đến CT-15h2-13); kiểm thử đơn vị mới `apps/api/src/archives/archives.test.ts` (CT-438 đến CT-447); kiểm thử giao diện mới `tests/e2e/57-archives.spec.ts` (CT-448 đến CT-450). Kết quả ngày 16/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 738/738 ca đạt; toàn bộ kiểm thử giao diện 99/99 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt..
+- Trạng thái: Đã triển khai
 
 ### YCTD-116: DT-15 phần 15h1: cập nhật địa danh hành chính theo hệ thống của Sở – 2026-10-15
 

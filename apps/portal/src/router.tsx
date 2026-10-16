@@ -79,6 +79,10 @@ import { ProgramCompletionPage } from './program-completion/ProgramCompletionPag
 import { ChildGroupsPage } from './child-groups/ChildGroupsPage.js';
 import { ProfessionalStandardsPage } from './professional-standards/ProfessionalStandardsPage.js';
 import { FeedbackPage, MyFeedbackPage } from './feedback/FeedbackPages.js';
+import { ArchiveFondsPage } from './archives/ArchiveFondsPage.js';
+import { ArchiveHoldingsPage } from './archives/ArchiveHoldingsPage.js';
+import { ArchiveRecordsPage } from './archives/ArchiveRecordsPage.js';
+import { ArchiveReportPage } from './archives/ArchiveReportPage.js';
 
 // Chuyển hướng theo trạng thái phiên: chưa đăng nhập về MH-47; bắt buộc đổi mật khẩu về MH-48 (BM-07)
 function SessionGate() {
@@ -193,6 +197,11 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/notifications', component: NotificationsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/my-feedback', component: MyFeedbackPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/feedback', component: FeedbackPage }),
+  // Văn thư lưu trữ (DT-15 phần 15h2, YCTD-118)
+  createRoute({ getParentRoute: () => rootRoute, path: '/archive-records', component: ArchiveRecordsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/archive-fonds', component: ArchiveFondsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/archive-holdings', component: ArchiveHoldingsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/archive-report', component: ArchiveReportPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/work', component: WorkPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/evaluations', component: EvaluationsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/bonus-deductions', component: BonusDeductionsPage }),
