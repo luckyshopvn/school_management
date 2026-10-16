@@ -161,6 +161,7 @@ export function StudentMovementsPage() {
           }
           settings={grid.settings}
           onSettingsChange={grid.update}
+          exportPdf={canExport ? () => exportMovements(activeFilter, 'pdf') : undefined}
           serverPagination={{ page, total: movements.data?.total ?? 0, onPageChange: setPage }}
         />
       </div>

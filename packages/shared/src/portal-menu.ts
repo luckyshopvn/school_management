@@ -119,6 +119,7 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('3.2.', 'Kết nối ngoài', '/integrations'),
         leaf('3.3.', 'Nhật ký thao tác', '/audit-logs'),
         leaf('3.4.', 'Ý kiến phản hồi', '/feedback'),
+        leaf('3.5.', 'Tệp đã tạo', '/generated-files'),
       ]),
     ],
   },

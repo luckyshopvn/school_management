@@ -91,6 +91,8 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/audit-logs': 'P01.view',
   // Ý kiến phản hồi (YCTD-110)
   '/feedback': 'P01.feedback.manage',
+  // Tệp đã tạo của tác vụ xuất nền (DT-16 phần 16a): người xuất được dữ liệu
+  '/generated-files': 'P17.data.export',
   // Tài chính – học phí
   '/fees': VIEW_FEES,
   '/registrations': REGISTRATIONS,
