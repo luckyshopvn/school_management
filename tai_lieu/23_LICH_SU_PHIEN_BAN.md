@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.69.0 – 2026-10-16
+
+- Phạm vi thay đổi: DT-16 phần 16b, lưới dữ liệu chung, hộp xác nhận xóa, Xuất Excel cho các màn hình còn lại theo hệ thống của Sở (YCTD-119).
+- Chức năng mới: lưới dữ liệu chung (tìm kiếm, Mở rộng tìm kiếm, cấu hình cột, số dòng mỗi trang theo người dùng, tiêu đề theo menu) cho 1.1 Khai báo cơ sở vật chất, 2.1 Tổng hợp thiết bị dạy học, 4.3.2 Tổng hợp cân nặng, chiều cao, 5.8 Thống kê hồ sơ chưa nhập đủ, 4.4 Hoàn thành chương trình, 4.1.6 Nhóm học sinh (bỏ nhiều học sinh khỏi nhóm), 3.2 Đánh giá chuẩn nghề nghiệp (lọc Loại chuẩn, Trạng thái), 4.5 Thực đơn bữa ăn, 4.6.1 Y tế học đường, 4.6.2 Thuốc và dặn thuốc, 2.1 Năm học, 2.2 Cây đơn vị (danh sách phẳng), 2.3 Phòng ban và chức danh, 2.4 Danh mục dùng chung, 2.5 Phòng học và bậc học, 3.2 Kết nối ngoài; hộp xác nhận xóa cho bỏ học sinh khỏi nhóm, bỏ món, bỏ nguyên liệu, xóa tiêu chuẩn sức khỏe, bỏ liên kết Zalo; Xuất Excel theo cột đang hiện cho 1.2 Quản lý phân hiệu, 1.3 Quản lý điểm trường, 4.1.11 Cập nhật địa danh hành chính, 1.4 Danh sách người dùng, 1.1 Nhóm người dùng (BR-117).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: không có tệp thay đổi cấu trúc dữ liệu; 38 khóa lưới mới trong `DATA_GRID_KEYS` dùng cho `user_grid_settings`; các lần xuất mới ghi `export_logs`, phân hiệu, điểm trường, nhóm người dùng ghi không có dữ liệu cá nhân.
+- Thay đổi API: điểm cuối mới `POST /org-units/export`, `POST /administrative-units/addresses/export`, `POST /account-exports/users`, `POST /account-exports/roles`; `/me/grid-settings/{gridKey}` nhận thêm 38 khóa lưới.
+- Rủi ro: xuất 1.4 đọc lần lượt mọi trang ở dịch vụ định danh (200 tài khoản mỗi trang, tối đa 10 000) nên danh sách lớn xuất chậm hơn các tệp khác; ô tìm kiếm của các lưới mới chỉ tìm trên dữ liệu đã tải.
+- Khả năng tương thích: không đổi bảng, quyền, điểm cuối cũ; điểm cuối của dịch vụ định danh không đổi; cấu hình lưới đã lưu của các lưới cũ giữ nguyên; ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16b; không có phần quay lui cơ sở dữ liệu; dòng `user_grid_settings` của 38 khóa mới không còn được đọc, xóa nếu cần.
+
 ### Phiên bản 0.68.0 – 2026-10-16
 
 - Phạm vi thay đổi: DT-15 phần 15h2, văn thư lưu trữ theo hệ thống của Sở (YCTD-118).
