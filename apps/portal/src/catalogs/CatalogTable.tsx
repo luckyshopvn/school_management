@@ -1,11 +1,16 @@
 import { useState, type ReactNode } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Alert, Button, StatusBadge, TextField } from '@school-management/ui';
+import type { DataGridKey } from '@school-management/shared';
+import { Alert, Button, DataGrid, StatusBadge, TextField, type DataGridColumn } from '@school-management/ui';
+import { matchesSearch } from '../pages/grid-search.js';
+import { useGridSettings } from '../pages/grid-settings.js';
 import { ApiError } from '../session/api-client.js';
 import type { CatalogStatus } from './catalogs-api.js';
 
 // Bảng danh mục dùng chung cho các màn hình MH-33, MH-34, MH-49, MH-50: thêm, sửa tại chỗ, ngừng sử dụng, dùng lại (BR-75).
-// Giao diện chỉ chuyển dữ liệu; máy chủ kiểm tra giá trị và quyền
+// Giao diện chỉ chuyển dữ liệu; máy chủ kiểm tra giá trị và quyền. Màn hình truyền gridKey thì danh sách theo lưới dữ liệu chung,
+// mỗi danh mục một cấu hình lưới riêng; tìm tại chỗ theo các trường của mục, Thêm mới mở biểu mẫu trên lưới, Sửa mở biểu
+// mẫu ngay dưới dòng (DT-16 phần 16b)
 export interface CatalogField {
   key: string;
   label: string;
@@ -16,8 +21,12 @@ export interface CatalogField {
 }
 
 export interface CatalogColumn<Row> {
+  // Mã cột lưu trong cấu hình lưới, bỏ trống thì dùng tên cột
+  id?: string;
   label: string;
   render(row: Row): ReactNode;
+  // Cột luôn hiện (cột tên); không cột nào đặt thì cột đầu tiên luôn hiện
+  alwaysVisible?: boolean;
 }
 
 interface CatalogRow {
@@ -26,6 +35,8 @@ interface CatalogRow {
 }
 
 export type FieldValues = Record<string, string>;
+
+type Changes = FieldValues | { status: CatalogStatus };
 
 function messageOf(error: unknown): string {
   return error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại';
@@ -88,6 +99,236 @@ function FieldInputs({
   );
 }
 
+// Biểu mẫu thêm hoặc sửa một mục: các trường theo hàng, nút Ghi và Hủy
+function CatalogForm({
+  label,
+  fields,
+  values,
+  error,
+  editing,
+  busy,
+  onChange,
+  onSubmit,
+  onCancel,
+}: {
+  label: string;
+  fields: CatalogField[];
+  values: FieldValues;
+  error: unknown;
+  editing: boolean;
+  busy: boolean;
+  onChange(values: FieldValues): void;
+  onSubmit(): void;
+  onCancel(): void;
+}) {
+  return (
+    <form
+      aria-label={label}
+      noValidate
+      className="grid grid-cols-1 gap-3 rounded-lg border border-border bg-card p-4 md:grid-cols-4"
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSubmit();
+      }}
+    >
+      {error ? (
+        <div className="md:col-span-4">
+          <Alert tone="danger">{messageOf(error)}</Alert>
+        </div>
+      ) : null}
+      <FieldInputs
+        fields={fields}
+        values={values}
+        errors={fieldErrorsOf(error)}
+        onChange={onChange}
+        editing={editing}
+      />
+      <div className="flex items-end gap-2">
+        <Button type="submit" variant="primary" disabled={busy}>
+          Ghi
+        </Button>
+        <Button variant="text" onClick={onCancel}>
+          Hủy
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+function GridCatalogTable<Row extends CatalogRow>({
+  title,
+  gridKey,
+  rows,
+  isPending,
+  error,
+  columns,
+  fields,
+  canManage,
+  initialValues,
+  valuesOf,
+  onCreate,
+  onUpdate,
+  onChanged,
+}: {
+  title: string;
+  gridKey: DataGridKey;
+  rows: Row[] | undefined;
+  isPending: boolean;
+  error: unknown;
+  columns: CatalogColumn<Row>[];
+  fields: CatalogField[];
+  canManage: boolean;
+  initialValues: FieldValues;
+  valuesOf(row: Row): FieldValues;
+  onCreate(values: FieldValues): Promise<unknown>;
+  onUpdate(row: Row, changes: Changes): Promise<unknown>;
+  onChanged(message: string): void;
+}) {
+  const grid = useGridSettings(gridKey);
+  const [search, setSearch] = useState('');
+  const [adding, setAdding] = useState(false);
+  const [values, setValues] = useState<FieldValues>(initialValues);
+  const [editingId, setEditingId] = useState<string>();
+  const [editValues, setEditValues] = useState<FieldValues>({});
+  const noun = title.toLowerCase();
+  const create = useMutation({
+    mutationFn: () => onCreate(values),
+    onSuccess: () => {
+      setValues(initialValues);
+      setAdding(false);
+      onChanged(`Đã thêm vào ${noun}`);
+    },
+  });
+  const update = useMutation({
+    mutationFn: ({ row, changes }: { row: Row; changes: Changes }) => onUpdate(row, changes),
+    onSuccess: (_result, { changes }) => {
+      setEditingId(undefined);
+      onChanged('status' in changes ? 'Đã cập nhật trạng thái' : 'Đã lưu');
+    },
+  });
+  // Lỗi đổi trạng thái hiện ngay dưới dòng vừa bấm, lỗi khi sửa hiện trong biểu mẫu sửa
+  const failedRowId = update.error ? update.variables?.row.id : undefined;
+  const statusFailed = update.variables !== undefined && 'status' in update.variables.changes;
+
+  const gridColumns: Array<DataGridColumn<Row>> = [
+    ...columns.map((column, index) => ({
+      id: column.id ?? column.label,
+      header: column.label,
+      alwaysVisible: column.alwaysVisible ?? (index === 0 && !columns.some((item) => item.alwaysVisible)),
+      cell: column.render,
+    })),
+    {
+      id: 'status',
+      header: 'Trạng thái',
+      cell: (row: Row) => (
+        <StatusBadge
+          tone={row.status === 'active' ? 'success' : 'neutral'}
+          label={row.status === 'active' ? 'Đang dùng' : 'Ngừng sử dụng'}
+        />
+      ),
+    },
+  ];
+  // Tìm theo giá trị các trường của mục; trường chọn tìm theo nhãn đang hiện
+  const searchValuesOf = (row: Row) => {
+    const rowValues = valuesOf(row);
+    return fields.map((field) => {
+      const value = rowValues[field.key];
+      return field.kind === 'select' ? field.options?.find((option) => option.value === value)?.label : value;
+    });
+  };
+  const shown = (rows ?? []).filter((row) => matchesSearch(search, ...searchValuesOf(row)));
+
+  return (
+    <div className="flex flex-col gap-4">
+      {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
+      {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+      {canManage && adding ? (
+        <CatalogForm
+          label={`Thêm mới ${noun}`}
+          fields={fields}
+          values={values}
+          error={create.error}
+          editing={false}
+          busy={create.isPending}
+          onChange={setValues}
+          onSubmit={() => create.mutate()}
+          onCancel={() => {
+            setAdding(false);
+            setValues(initialValues);
+            create.reset();
+          }}
+        />
+      ) : null}
+      <DataGrid
+        label={title}
+        columns={gridColumns}
+        rows={shown}
+        getRowId={(row) => row.id}
+        getRowLabel={(row) => valuesOf(row).name ?? row.id}
+        loading={isPending}
+        emptyText="Chưa có mục nào."
+        search={{ label: `Tìm trong ${noun}`, value: search, onChange: setSearch }}
+        toolbar={
+          canManage ? (
+            <Button variant="primary" onClick={() => setAdding(true)}>
+              Thêm mới
+            </Button>
+          ) : null
+        }
+        rowActions={
+          canManage
+            ? (row) => (
+                <>
+                  <Button
+                    variant="text"
+                    onClick={() => {
+                      update.reset();
+                      setEditValues(valuesOf(row));
+                      setEditingId(row.id);
+                    }}
+                  >
+                    Sửa
+                  </Button>
+                  <Button
+                    variant="text"
+                    disabled={update.isPending}
+                    onClick={() =>
+                      update.mutate({ row, changes: { status: row.status === 'active' ? 'inactive' : 'active' } })
+                    }
+                  >
+                    {row.status === 'active' ? 'Ngừng sử dụng' : 'Dùng lại'}
+                  </Button>
+                </>
+              )
+            : undefined
+        }
+        renderRowDetail={(row) => {
+          if (row.id === editingId) {
+            return (
+              <CatalogForm
+                label={`Sửa ${valuesOf(row).name ?? ''}`}
+                fields={fields}
+                values={editValues}
+                error={failedRowId === row.id && !statusFailed ? update.error : null}
+                editing
+                busy={update.isPending}
+                onChange={setEditValues}
+                onSubmit={() => update.mutate({ row, changes: editValues })}
+                onCancel={() => setEditingId(undefined)}
+              />
+            );
+          }
+          return failedRowId === row.id && statusFailed ? <Alert tone="danger">{messageOf(update.error)}</Alert> : null;
+        }}
+        activeRowId={editingId}
+        settings={grid.settings}
+        onSettingsChange={grid.update}
+      />
+    </div>
+  );
+}
+
+// Bảng thường cho các màn hình chưa chuyển sang lưới dữ liệu chung (không truyền gridKey)
 function CatalogTableRow<Row extends CatalogRow>({
   row,
   columns,
@@ -189,7 +430,7 @@ function CatalogTableRow<Row extends CatalogRow>({
   );
 }
 
-export function CatalogTable<Row extends CatalogRow>({
+function PlainCatalogTable<Row extends CatalogRow>({
   title,
   rows,
   isPending,
@@ -279,5 +520,18 @@ export function CatalogTable<Row extends CatalogRow>({
         </table>
       ) : null}
     </section>
+  );
+}
+
+// Có gridKey thì danh sách theo lưới dữ liệu chung (các màn hình Quản trị hệ thống, DT-16 phần 16b); không có thì giữ
+// bảng thường
+export function CatalogTable<Row extends CatalogRow>({
+  gridKey,
+  ...properties
+}: Omit<Parameters<typeof GridCatalogTable<Row>>[0], 'gridKey'> & { gridKey?: DataGridKey }) {
+  return gridKey ? (
+    <GridCatalogTable<Row> {...properties} gridKey={gridKey} />
+  ) : (
+    <PlainCatalogTable<Row> {...properties} />
   );
 }

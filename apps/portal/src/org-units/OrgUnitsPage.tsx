@@ -1,9 +1,20 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, ConfirmDialog, StatusBadge, TextField, Toast } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  ConfirmDialog,
+  DataGrid,
+  StatusBadge,
+  TextField,
+  Toast,
+  type DataGridColumn,
+} from '@school-management/ui';
 import { listAcademicYears } from '../academic-years/academic-years-api.js';
 import { AppShell } from '../pages/AppShell.js';
+import { matchesSearch } from '../pages/grid-search.js';
+import { useGridSettings } from '../pages/grid-settings.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
@@ -18,7 +29,8 @@ import {
   type OrgUnitType,
 } from './org-units-api.js';
 
-// MH-32 Cây đơn vị hai cấp: dạng cây mặc định, danh sách phẳng lọc theo loại (Q-119, QĐ-23)
+// MH-32 Cây đơn vị hai cấp: dạng cây mặc định, danh sách phẳng lọc theo loại (Q-119, QĐ-23). Danh sách phẳng theo lưới dữ
+// liệu chung, dạng cây giữ nguyên (DT-16 phần 16b)
 type ViewMode = 'tree' | 'flat';
 
 function messageOf(error: unknown): string {
@@ -120,21 +132,190 @@ function OrgUnitRow({
   );
 }
 
+const FLAT_COLUMNS: Array<DataGridColumn<OrgUnit>> = [
+  { id: 'name', header: 'Tên đơn vị', alwaysVisible: true, className: 'font-medium', cell: (row) => row.name },
+  { id: 'code', header: 'Mã đơn vị', cell: (row) => row.code },
+  { id: 'unit_type', header: 'Loại đơn vị', cell: (row) => UNIT_TYPE_LABELS[row.unit_type] },
+  { id: 'address', header: 'Địa chỉ', cell: (row) => row.address ?? '' },
+  { id: 'phone', header: 'Số điện thoại', cell: (row) => row.phone ?? '' },
+  {
+    id: 'status',
+    header: 'Trạng thái',
+    cell: (row) =>
+      row.status === 'active' ? (
+        <StatusBadge tone="success" label="Đang dùng" />
+      ) : (
+        <StatusBadge tone="neutral" label="Ngừng sử dụng" />
+      ),
+  },
+];
+
+// Biểu mẫu sửa tên, địa chỉ, số điện thoại của một đơn vị ngay dưới dòng của danh sách phẳng
+function FlatOrgUnitEditor({
+  unit,
+  busy,
+  onSave,
+  onCancel,
+}: {
+  unit: OrgUnit;
+  busy: boolean;
+  onSave(changes: Parameters<typeof updateOrgUnit>[1]): void;
+  onCancel(): void;
+}) {
+  const [name, setName] = useState(unit.name);
+  const [address, setAddress] = useState(unit.address ?? '');
+  const [phone, setPhone] = useState(unit.phone ?? '');
+  return (
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-3" role="group" aria-label={`Sửa ${unit.name}`}>
+      <TextField label="Tên đơn vị" value={name} onChange={(event) => setName(event.target.value)} />
+      <TextField label="Địa chỉ" value={address} onChange={(event) => setAddress(event.target.value)} />
+      <TextField label="Số điện thoại" value={phone} onChange={(event) => setPhone(event.target.value)} />
+      <div className="flex gap-2 md:col-span-3">
+        <Button disabled={busy} onClick={() => onSave({ name, address: address || null, phone: phone || null })}>
+          Lưu
+        </Button>
+        <Button variant="text" onClick={onCancel}>
+          Hủy
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// Danh sách phẳng theo lưới dữ liệu chung: tìm tại chỗ theo mã, tên, địa chỉ; lọc theo loại ở Mở rộng tìm kiếm; Sửa mở
+// biểu mẫu dưới dòng; Ngừng sử dụng vẫn qua hộp xác nhận vì đơn vị không bị xóa (DT-16 phần 16b)
+function FlatOrgUnits({ canManage, onChanged }: { canManage: boolean; onChanged(message: string): void }) {
+  const queryClient = useQueryClient();
+  const grid = useGridSettings('org-units');
+  const [typeFilter, setTypeFilter] = useState<OrgUnitType | ''>('');
+  const [search, setSearch] = useState('');
+  const [editingId, setEditingId] = useState<string>();
+  const [stopping, setStopping] = useState<OrgUnit>();
+  const flat = useQuery({
+    queryKey: ['org-units', 'flat', typeFilter],
+    queryFn: () => listOrgUnits(typeFilter || undefined),
+  });
+  const update = useMutation({
+    mutationFn: ({ unit, changes }: { unit: OrgUnit; changes: Parameters<typeof updateOrgUnit>[1] }) =>
+      updateOrgUnit(unit.id, changes),
+    onSuccess: async (_updated, { changes }) => {
+      setEditingId(undefined);
+      setStopping(undefined);
+      await queryClient.invalidateQueries({ queryKey: ['org-units'] });
+      onChanged(changes.status ? 'Đã cập nhật trạng thái đơn vị' : 'Đã lưu đơn vị');
+    },
+    onError: () => setStopping(undefined),
+  });
+  const failedId = update.error ? update.variables?.unit.id : undefined;
+  const rows = (flat.data ?? []).filter((unit) => matchesSearch(search, unit.code, unit.name, unit.address));
+  return (
+    <div className="flex flex-col gap-3">
+      {flat.error ? <Alert tone="danger">{messageOf(flat.error)}</Alert> : null}
+      {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+      <DataGrid
+        label="Danh sách đơn vị"
+        columns={FLAT_COLUMNS}
+        rows={rows}
+        getRowId={(row) => row.id}
+        getRowLabel={(row) => row.name}
+        loading={flat.isPending}
+        emptyText="Chưa có đơn vị nào."
+        search={{ label: 'Tìm theo mã, tên, địa chỉ', value: search, onChange: setSearch }}
+        advancedSearch={
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <label className="text-label font-medium text-text">
+              Lọc theo loại
+              <select
+                value={typeFilter}
+                onChange={(event) => setTypeFilter(event.target.value as OrgUnitType | '')}
+                className="mt-2 block w-full rounded-lg border border-border bg-card px-3 py-2 text-content font-normal"
+              >
+                <option value="">Tất cả</option>
+                {Object.entries(UNIT_TYPE_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        }
+        rowActions={
+          canManage
+            ? (row) => (
+                <>
+                  <Button
+                    variant="text"
+                    onClick={() => {
+                      update.reset();
+                      setEditingId(row.id);
+                    }}
+                  >
+                    Sửa
+                  </Button>
+                  {row.unit_type !== 'truong_chinh' ? (
+                    row.status === 'active' ? (
+                      <Button variant="text" onClick={() => setStopping(row)}>
+                        Ngừng sử dụng
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="text"
+                        disabled={update.isPending}
+                        onClick={() => update.mutate({ unit: row, changes: { status: 'active' } })}
+                      >
+                        Dùng lại
+                      </Button>
+                    )
+                  ) : null}
+                </>
+              )
+            : undefined
+        }
+        renderRowDetail={(row) =>
+          row.id === editingId || row.id === failedId ? (
+            <div className="flex flex-col gap-2">
+              {row.id === failedId ? <Alert tone="danger">{messageOf(update.error)}</Alert> : null}
+              {row.id === editingId ? (
+                <FlatOrgUnitEditor
+                  unit={row}
+                  busy={update.isPending}
+                  onSave={(changes) => update.mutate({ unit: row, changes })}
+                  onCancel={() => setEditingId(undefined)}
+                />
+              ) : null}
+            </div>
+          ) : null
+        }
+        activeRowId={editingId}
+        settings={grid.settings}
+        onSettingsChange={grid.update}
+      />
+      {stopping ? (
+        <ConfirmDialog
+          open
+          title={`Ngừng sử dụng ${stopping.name}?`}
+          confirmLabel="Ngừng sử dụng"
+          busy={update.isPending}
+          onCancel={() => setStopping(undefined)}
+          onConfirm={() => update.mutate({ unit: stopping, changes: { status: 'inactive' } })}
+        >
+          Đơn vị không bị xóa và vẫn giữ dữ liệu cũ, nhưng không chọn được khi tạo lớp mới. Có thể dùng lại sau.
+        </ConfirmDialog>
+      ) : null}
+    </div>
+  );
+}
+
 export function OrgUnitsPage() {
   const canManage = useHasPermission(PERMISSION_CODES.orgUnitManage);
   const queryClient = useQueryClient();
   const [viewMode, setViewMode] = useState<ViewMode>('tree');
-  const [typeFilter, setTypeFilter] = useState<OrgUnitType | ''>('');
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
 
   const academicYears = useQuery({ queryKey: ['academic-years'], queryFn: listAcademicYears });
   const tree = useQuery({ queryKey: ['org-units', 'tree'], queryFn: readOrgUnitTree });
-  const flat = useQuery({
-    queryKey: ['org-units', 'flat', typeFilter],
-    queryFn: () => listOrgUnits(typeFilter || undefined),
-    enabled: viewMode === 'flat',
-  });
   const hasOpenYear = academicYears.data?.some((year) => year.status === 'open') ?? true;
 
   async function create(input: Parameters<typeof createOrgUnit>[0]) {
@@ -163,9 +344,9 @@ export function OrgUnitsPage() {
         ) : null}
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
-          <section className="rounded-xl border border-border bg-card p-4" aria-label="Danh sách đơn vị">
-            {viewMode === 'tree' ? (
-              tree.isPending ? (
+          {viewMode === 'tree' ? (
+            <section className="rounded-xl border border-border bg-card p-4" aria-label="Danh sách đơn vị">
+              {tree.isPending ? (
                 <div className="h-32 animate-pulse rounded bg-border" aria-hidden="true" />
               ) : tree.isError ? (
                 <Alert tone="danger">{messageOf(tree.error)}</Alert>
@@ -178,47 +359,11 @@ export function OrgUnitsPage() {
                 </ul>
               ) : (
                 <p className="text-content text-text-secondary">Chưa có đơn vị nào.</p>
-              )
-            ) : (
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2">
-                  <label htmlFor="org-unit-filter" className="text-label font-medium text-text">
-                    Lọc theo loại
-                  </label>
-                  <select
-                    id="org-unit-filter"
-                    value={typeFilter}
-                    onChange={(event) => setTypeFilter(event.target.value as OrgUnitType | '')}
-                    className="rounded-lg border border-border bg-card px-3 py-2 text-content"
-                  >
-                    <option value="">Tất cả</option>
-                    {Object.entries(UNIT_TYPE_LABELS).map(([value, label]) => (
-                      <option key={value} value={value}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                {flat.isPending ? (
-                  <div className="h-32 animate-pulse rounded bg-border" aria-hidden="true" />
-                ) : flat.isError ? (
-                  <Alert tone="danger">{messageOf(flat.error)}</Alert>
-                ) : (
-                  <ul>
-                    {flat.data.map((unit) => (
-                      <OrgUnitRow
-                        key={unit.id}
-                        unit={unit}
-                        canManage={canManage}
-                        indent={false}
-                        onChanged={setToastMessage}
-                      />
-                    ))}
-                  </ul>
-                )}
-              </div>
-            )}
-          </section>
+              )}
+            </section>
+          ) : (
+            <FlatOrgUnits canManage={canManage} onChanged={setToastMessage} />
+          )}
 
           {canManage && hasOpenYear && !tree.isPending ? (
             <aside className="flex flex-col gap-3 self-start rounded-xl border border-border bg-card p-4">
