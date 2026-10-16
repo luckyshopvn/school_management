@@ -142,7 +142,7 @@ describe('Quản trị hệ thống đủ theo Sở', () => {
     const deactivate = await sendJson('PATCH', `${identityUrl}/roles/${systemRole}`, principal, { is_active: false });
     assert.equal(deactivate.status, 422);
     assert.equal(deactivate.body.error?.code, 'ERR_RULE_VIOLATION');
-    assert.equal(deactivate.body.error?.rule_code, 'YCTD-118');
+    assert.equal(deactivate.body.error?.rule_code, 'YCTD-120');
     const deleteSystem = await sendJson('DELETE', `${identityUrl}/roles/${systemRole}`, principal);
     assert.equal(deleteSystem.status, 422);
 

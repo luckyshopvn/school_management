@@ -23,7 +23,7 @@ export interface RoleView {
   workspaces: string[];
 }
 
-export const ROLE_RULE_CODE = 'YCTD-118';
+export const ROLE_RULE_CODE = 'YCTD-120';
 const ROLE_CODE_PATTERN = /^[A-Z0-9-]{2,20}$/;
 export const WORKSPACE_KEYS: string[] = PORTAL_WORKSPACES.map((workspace) => workspace.key);
 

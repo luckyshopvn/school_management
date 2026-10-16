@@ -13,6 +13,11 @@ function messageOf(error: unknown): string {
   return error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại';
 }
 
+// "Tài khoản đồng bộ của Bộ GD&ĐT" thành "tài khoản đồng bộ của Bộ GD&ĐT" để đặt giữa câu
+function lowerFirst(text: string): string {
+  return text.charAt(0).toLowerCase() + text.slice(1);
+}
+
 function fieldErrorsOf(error: unknown): Record<string, string> {
   return error instanceof ApiError
     ? Object.fromEntries(error.details.map((detail) => [detail.field, detail.message]))
@@ -34,7 +39,7 @@ function SyncAccountForm({
     mutationFn: () => saveSyncAccount(account.target, { username, password }),
     onSuccess: () => {
       setPassword('');
-      onSaved(`Đã ghi ${account.label.toLowerCase()}`);
+      onSaved(`Đã ghi ${lowerFirst(account.label)}`);
     },
   });
   const fieldErrors = fieldErrorsOf(save.error);
@@ -128,7 +133,7 @@ export function SyncAccountsPage() {
     onSuccess: async (_result, account) => {
       setDeleting(undefined);
       await refresh();
-      setToastMessage(`Đã xóa ${account.label.toLowerCase()}`);
+      setToastMessage(`Đã xóa ${lowerFirst(account.label)}`);
     },
     onError: () => setDeleting(undefined),
   });
@@ -161,7 +166,7 @@ export function SyncAccountsPage() {
         <ConfirmDeleteDialog
           open
           title="Xóa tài khoản đồng bộ"
-          subject={deleting.label.toLowerCase()}
+          subject={lowerFirst(deleting.label)}
           busy={remove.isPending}
           onCancel={() => setDeleting(undefined)}
           onConfirm={() => remove.mutate(deleting)}

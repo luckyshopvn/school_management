@@ -25,7 +25,7 @@ import { OrganizationScopes } from '../organization/organization-scopes.js';
 // sách mã tài khoản, gọi dịch vụ định danh bằng mã phiên của người thao tác (dịch vụ định danh vẫn tự kiểm tra phạm vi), rồi
 // thêm cột Mã nhân sự, Mã Bộ. Xuất Excel theo bộ lọc và cột đang hiện, ghi nhật ký xuất (BR-74). "Lấy danh sách CBQL/GV"
 // tạo tài khoản cho nhân sự đang làm việc chưa có tài khoản, mỗi tài khoản một mật khẩu tạm (PQ-14) và liên kết vào hồ sơ
-export const ACCOUNT_DIRECTORY_RULE_CODE = 'YCTD-118';
+export const ACCOUNT_DIRECTORY_RULE_CODE = 'YCTD-120';
 const ACCOUNT_PERMISSIONS = [PERMISSION_CODES.accountManage, PERMISSION_CODES.accountManageInUnit];
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const PAGE_SIZES = new Set([10, 20, 50, 100, 200]);
