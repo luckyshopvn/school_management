@@ -20,7 +20,9 @@ type NumericSettingKey =
   | 'account_inactivity_lock_days'
   | 'one_time_code_lifetime_minutes'
   | 'one_time_code_maximum_attempts'
-  | 'one_time_code_maximum_sends_per_hour';
+  | 'one_time_code_maximum_sends_per_hour'
+  | 'captcha_failure_threshold'
+  | 'password_history_count';
 
 // Mặc định của mã một lần theo tham số ở 27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md mục 3 (YCTD-43)
 const NUMERIC_SETTINGS: Record<
@@ -36,7 +38,15 @@ const NUMERIC_SETTINGS: Record<
   one_time_code_lifetime_minutes: { defaultValue: 5, minimum: 1, maximum: 30, label: 'Số phút' },
   one_time_code_maximum_attempts: { defaultValue: 5, minimum: 1, maximum: 10, label: 'Số lần nhập sai' },
   one_time_code_maximum_sends_per_hour: { defaultValue: 5, minimum: 1, maximum: 20, label: 'Số lần gửi' },
+  // Đăng nhập cổng quản trị (DT-16 phần 16c, Claude tự chọn mặc định theo ủy quyền của Eric ngày 2026-10-11): nhập sai 3
+  // lần với một tài khoản thì hiện mã xác nhận; không cho dùng lại 5 mật khẩu gần nhất (0 là không kiểm tra)
+  captcha_failure_threshold: { defaultValue: 3, minimum: 1, maximum: 10, label: 'Số lần nhập sai' },
+  password_history_count: { defaultValue: 5, minimum: 0, maximum: 24, label: 'Số mật khẩu gần nhất' },
 };
+
+const CAPTCHA_ALWAYS_KEY = 'captcha_always';
+const LOGIN_HOTLINE_KEY = 'login_hotline';
+const MAXIMUM_HOTLINE_LENGTH = 100;
 
 const NUMERIC_KEYS = Object.keys(NUMERIC_SETTINGS) as NumericSettingKey[];
 
@@ -57,7 +67,17 @@ const PASSWORD_POLICY_KEYS = Object.keys(PASSWORD_POLICY_SETTINGS) as PasswordPo
 
 export type PasswordPolicy = Record<PasswordPolicyKey, number>;
 
-export type IdentitySettingsView = Record<NumericSettingKey, number> & { parent_default_password_configured: boolean };
+export type IdentitySettingsView = Record<NumericSettingKey, number> & {
+  parent_default_password_configured: boolean;
+  captcha_always: boolean;
+  login_hotline: string | null;
+};
+
+// Thông tin công khai của trang đăng nhập cổng quản trị (DT-16 phần 16c)
+export interface LoginPageOptions {
+  hotline: string | null;
+  captcha_always: boolean;
+}
 
 @Injectable()
 export class IdentitySettingsService {
@@ -80,6 +100,25 @@ export class IdentitySettingsService {
       lifetimeMinutes: await this.numeric('one_time_code_lifetime_minutes'),
       maximumAttempts: await this.numeric('one_time_code_maximum_attempts'),
       maximumSendsPerHour: await this.numeric('one_time_code_maximum_sends_per_hour'),
+    };
+  }
+
+  async captchaRules(): Promise<{ always: boolean; failureThreshold: number }> {
+    return {
+      always: (await this.readValue(CAPTCHA_ALWAYS_KEY)) === true,
+      failureThreshold: await this.numeric('captcha_failure_threshold'),
+    };
+  }
+
+  async passwordHistoryCount(): Promise<number> {
+    return this.numeric('password_history_count');
+  }
+
+  async loginPageOptions(): Promise<LoginPageOptions> {
+    const hotline = await this.readValue(LOGIN_HOTLINE_KEY);
+    return {
+      hotline: typeof hotline === 'string' && hotline !== '' ? hotline : null,
+      captcha_always: (await this.captchaRules()).always,
     };
   }
 
@@ -122,7 +161,35 @@ export class IdentitySettingsService {
         errors.push(...checkPasswordPolicy('parent_default_password', defaultPassword));
       }
     }
-    if (errors.length === 0 && Object.keys(numericChanges).length === 0 && defaultPassword === undefined) {
+    const captchaAlways = body?.captcha_always;
+    if (captchaAlways !== undefined && typeof captchaAlways !== 'boolean') {
+      errors.push({ field: 'captcha_always', message: 'Chọn có hoặc không' });
+    }
+    const hotlineValue = body?.login_hotline;
+    let hotline: string | undefined;
+    if (hotlineValue !== undefined) {
+      if (hotlineValue !== null && typeof hotlineValue !== 'string') {
+        errors.push({ field: 'login_hotline', message: 'Đường dây nóng phải là chuỗi' });
+      } else {
+        hotline = (hotlineValue ?? '').trim();
+        if (hotline.length > MAXIMUM_HOTLINE_LENGTH) {
+          errors.push({ field: 'login_hotline', message: `Đường dây nóng tối đa ${MAXIMUM_HOTLINE_LENGTH} ký tự` });
+        }
+      }
+    }
+    const otherChanges: Array<[string, unknown]> = [];
+    if (typeof captchaAlways === 'boolean') {
+      otherChanges.push([CAPTCHA_ALWAYS_KEY, captchaAlways]);
+    }
+    if (hotline !== undefined) {
+      otherChanges.push([LOGIN_HOTLINE_KEY, hotline]);
+    }
+    if (
+      errors.length === 0 &&
+      Object.keys(numericChanges).length === 0 &&
+      defaultPassword === undefined &&
+      otherChanges.length === 0
+    ) {
       errors.push({ field: 'settings', message: 'Cần ít nhất một mục cấu hình' });
     }
     if (errors.length > 0) {
@@ -134,7 +201,7 @@ export class IdentitySettingsService {
     const now = this.clock.now();
     const newHash = typeof defaultPassword === 'string' ? await hashPassword(defaultPassword) : null;
     await this.database.transaction().execute(async (transaction) => {
-      const entries: Array<[string, unknown]> = Object.entries(numericChanges);
+      const entries: Array<[string, unknown]> = [...Object.entries(numericChanges), ...otherChanges];
       if (newHash) {
         entries.push([PARENT_DEFAULT_PASSWORD_HASH_KEY, newHash]);
       }
@@ -158,9 +225,13 @@ export class IdentitySettingsService {
         action: 'update',
         before: {
           ...Object.fromEntries(changedKeys.map((key) => [key, before[key]])),
+          ...Object.fromEntries(otherChanges.map(([key]) => [key, before[key as keyof IdentitySettingsView]])),
           ...(newHash ? { parent_default_password_configured: before.parent_default_password_configured } : {}),
         },
-        after: { ...numericChanges, ...(newHash ? { parent_default_password: 'đã đặt mật khẩu mới' } : {}) },
+        after: {
+          ...numericChanges,
+          ...Object.fromEntries(otherChanges),
+          ...(newHash ? { parent_default_password: 'đã đặt mật khẩu mới' } : {}) },
         ipAddress: caller.ipAddress,
       });
     });
@@ -243,20 +314,31 @@ export class IdentitySettingsService {
     }
   }
 
-  private async readNumber(key: string, defaultValue: number): Promise<number> {
+  private async readValue(key: string): Promise<unknown> {
     const row = await this.database
       .selectFrom('identity_settings')
       .select('value')
       .where('key', '=', key)
       .executeTakeFirst();
-    return typeof row?.value === 'number' ? row.value : defaultValue;
+    return row?.value;
+  }
+
+  private async readNumber(key: string, defaultValue: number): Promise<number> {
+    const value = await this.readValue(key);
+    return typeof value === 'number' ? value : defaultValue;
   }
 
   private async view(): Promise<IdentitySettingsView> {
     const values = Object.fromEntries(
       await Promise.all(NUMERIC_KEYS.map(async (key) => [key, await this.numeric(key)] as const)),
     ) as Record<NumericSettingKey, number>;
-    return { ...values, parent_default_password_configured: (await this.parentDefaultPasswordHash()) !== null };
+    const options = await this.loginPageOptions();
+    return {
+      ...values,
+      parent_default_password_configured: (await this.parentDefaultPasswordHash()) !== null,
+      captcha_always: options.captcha_always,
+      login_hotline: options.hotline,
+    };
   }
 
   private numeric(key: NumericSettingKey): Promise<number> {

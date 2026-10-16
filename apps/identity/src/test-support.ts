@@ -10,6 +10,7 @@ import { generateTokenKeyPair } from './common/token-keys.js';
 import { createApplication } from './create-application.js';
 import type { OrganizationDirectory } from './accounts/organization-directory.js';
 import { RecordingSmsSender } from './messaging/sms-sender.js';
+import { Infrastructure } from './common/infrastructure.js';
 
 // Hỗ trợ kiểm thử tích hợp trên cơ sở dữ liệu định danh và Redis thật
 
@@ -138,6 +139,18 @@ export async function createTestUser(
 // Kiểm thử giao diện không đọc được tin nhắn thật; dùng để gán mã một lần đã biết cho tài khoản kiểm thử
 export function hashForTesting(value: string): Promise<string> {
   return hashPassword(value);
+}
+
+// Lấy ảnh mã xác nhận mới và đọc đáp án ở Redis để kiểm thử gửi kèm yêu cầu đăng nhập, quên mật khẩu (DT-16 phần 16c)
+export async function solvedCaptcha(context: TestContext): Promise<{ captcha_id: string; captcha_text: string }> {
+  const issued = await postJson(`${context.baseUrl}/auth/captcha`, {});
+  const captchaId = issued.body.captcha_id as string;
+  const redis = context.application.get(Infrastructure).redis;
+  const text = await redis.get(`${context.configuration.redisKeyPrefix}:captcha:${captchaId}`);
+  if (!text) {
+    throw new Error('Không đọc được đáp án mã xác nhận');
+  }
+  return { captcha_id: captchaId, captcha_text: text };
 }
 
 export interface JsonResponse {

@@ -6,6 +6,7 @@ import {
   errorCode,
   getJson,
   postJson,
+  solvedCaptcha,
   startTestApplication,
   TEST_PASSWORD,
   type JsonResponse,
@@ -14,8 +15,14 @@ import {
 
 // Ca kiểm thử theo 27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md
 
-async function login(context: TestContext, loginIdentifier: string, password: string, channel = 'portal') {
-  return postJson(`${context.baseUrl}/auth/login`, { login: loginIdentifier, password, channel });
+async function login(
+  context: TestContext,
+  loginIdentifier: string,
+  password: string,
+  channel = 'portal',
+  captcha?: { captcha_id: string; captcha_text: string },
+) {
+  return postJson(`${context.baseUrl}/auth/login`, { login: loginIdentifier, password, channel, ...captcha });
 }
 
 function readTokens(response: JsonResponse): { accessToken: string; refreshToken: string } {
@@ -92,11 +99,13 @@ describe('Dịch vụ định danh: đăng nhập và phiên', () => {
 
   it('CTC-DD-004: sai 5 lần thì tạm khóa 15 phút rồi tự mở, nhật ký ghi theo tài khoản và địa chỉ mạng', async () => {
     const staff = await createTestUser(context.database);
+    // Từ lần thứ tư phải nhập mã xác nhận vì đã sai 3 lần (DT-16 phần 16c)
     for (let attempt = 0; attempt < 5; attempt++) {
-      const failed = await login(context, staff.phone, 'SaiMatKhau1');
+      const captcha = attempt >= 3 ? await solvedCaptcha(context) : undefined;
+      const failed = await login(context, staff.phone, 'SaiMatKhau1', 'portal', captcha);
       assert.equal(failed.status, 401);
     }
-    const locked = await login(context, staff.phone, staff.password);
+    const locked = await login(context, staff.phone, staff.password, 'portal', await solvedCaptcha(context));
     assert.equal(locked.status, 401);
     assert.match(String((locked.body.error as Record<string, unknown>).message), /thử lại sau 15 phút/);
 
@@ -110,7 +119,7 @@ describe('Dịch vụ định danh: đăng nhập và phiên', () => {
     assert.ok(events.every((event) => event.ip_address !== null));
 
     context.clock.advanceMinutes(15);
-    const unlocked = await login(context, staff.phone, staff.password);
+    const unlocked = await login(context, staff.phone, staff.password, 'portal', await solvedCaptcha(context));
     assert.equal(unlocked.status, 200);
   });
 
@@ -240,12 +249,12 @@ describe('Dịch vụ định danh: đăng nhập và phiên', () => {
     assert.equal(verifyOtp.status, 404);
   });
 
-  it('PQ-10: VT-01 chỉ có quyền quản lý tài khoản và xử lý ý kiến phản hồi (YCTD-110), không có quyền nghiệp vụ', async () => {
+  it('PQ-10: VT-01 chỉ có quyền quản lý tài khoản, xử lý ý kiến phản hồi (YCTD-110), soạn thông báo hệ thống (DT-16 phần 16c), không có quyền nghiệp vụ', async () => {
     const administrator = await createTestUser(context.database, { roles: [{ roleCode: 'VT-01', orgUnitId: null }] });
     const { accessToken } = readTokens(await login(context, administrator.username, administrator.password));
     const me = await getJson(`${context.baseUrl}/auth/me`, accessToken);
     const assignments = me.body.assignments as Array<{ permissions: string[] }>;
-    assert.deepEqual(assignments[0]?.permissions, ['P01.account.manage', 'P01.feedback.manage']);
+    assert.deepEqual(assignments[0]?.permissions, ['P01.account.manage', 'P01.announcement.manage', 'P01.feedback.manage']);
   });
 
   it('BM-07: tài khoản bắt buộc đổi mật khẩu chỉ dùng được đổi mật khẩu; đổi xong cấp mã đầy đủ', async () => {

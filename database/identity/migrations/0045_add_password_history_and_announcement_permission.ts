@@ -3,7 +3,8 @@ import type { Migration } from 'kysely/migration';
 
 // DT-16 phần 16c. Lịch sử mật khẩu để không cho đặt lại mật khẩu đã dùng gần đây: mỗi lần người dùng tự đổi hoặc tự đặt
 // lại mật khẩu thì lưu giá trị băm của mật khẩu mới; mật khẩu tạm do quản trị cấp không lưu. Quyền soạn thông báo hệ
-// thống bật lên khi vào cổng quản trị và cấu hình ứng dụng liên kết cho Quản trị nền tảng và Hiệu trưởng
+// thống bật lên khi vào cổng quản trị và cấu hình ứng dụng liên kết cho Quản trị nền tảng và Hiệu trưởng. Mã một lần có
+// thêm mục đích đặt lại mật khẩu (quên mật khẩu tự phục vụ)
 export const ANNOUNCEMENT_MANAGE_PERMISSION = 'P01.announcement.manage';
 
 export const migration: Migration = {
@@ -21,6 +22,10 @@ export const migration: Migration = {
       .columns(['user_id', 'created_at'])
       .execute();
 
+    await sql`alter table one_time_codes drop constraint one_time_codes_purpose_check`.execute(database);
+    await sql`alter table one_time_codes add constraint one_time_codes_purpose_check
+      check (purpose in ('login', 'password_reset'))`.execute(database);
+
     const description = 'Soạn thông báo hệ thống bật lên khi vào cổng quản trị và cấu hình ứng dụng liên kết';
     await sql`insert into permissions (code, module_code, description)
       values (${ANNOUNCEMENT_MANAGE_PERMISSION}, 'P01', ${description})`.execute(database);
@@ -33,6 +38,11 @@ export const migration: Migration = {
       database,
     );
     await sql`delete from permissions where code = ${ANNOUNCEMENT_MANAGE_PERMISSION}`.execute(database);
+    await sql`delete from one_time_codes where purpose = 'password_reset'`.execute(database);
+    await sql`alter table one_time_codes drop constraint one_time_codes_purpose_check`.execute(database);
+    await sql`alter table one_time_codes add constraint one_time_codes_purpose_check check (purpose in ('login'))`.execute(
+      database,
+    );
     await database.schema.dropTable('password_history').execute();
   },
 };
