@@ -146,6 +146,13 @@ const flag = (key: string, label: string): ProfileField => ({ key, label, kind: 
 
 // Sáu thẻ của hồ sơ trường (khảo sát mục 3.1, dòng 1.1). Thẻ tài khoản văn phòng điện tử là bảng nhiều dòng, không lưu mật
 // khẩu
+// Mã định danh điện tử của tổ chức theo Nghị định 69/2024/NĐ-CP gồm đúng 12 chữ số (DT-16 phần 16c)
+export const ORGANIZATION_IDENTIFIER_PATTERN = /^\d{12}$/;
+
+export function isValidOrganizationIdentifier(value: string | null | undefined): boolean {
+  return typeof value === 'string' && ORGANIZATION_IDENTIFIER_PATTERN.test(value);
+}
+
 export const SCHOOL_PROFILE_SECTIONS: ReadonlyArray<{
   key: string;
   label: string;
@@ -168,7 +175,8 @@ export const SCHOOL_PROFILE_SECTIONS: ReadonlyArray<{
       },
       { key: 'ownership_type', label: 'Loại hình trường', kind: 'choice', options: SCHOOL_OWNERSHIP_TYPES },
       { key: 'moet_code', label: 'Mã định danh', kind: 'text' },
-      { key: 'electronic_id_code', label: 'Mã định danh điện tử', kind: 'text' },
+      // Mã định danh điện tử của tổ chức theo Nghị định 69/2024/NĐ-CP: 12 chữ số (DT-16 phần 16c)
+      { key: 'electronic_id_code', label: 'Mã định danh điện tử (NĐ 69, 12 chữ số)', kind: 'text' },
       { key: 'tax_code', label: 'Mã số thuế', kind: 'text' },
       { key: 'name_by_decision', label: 'Tên theo quyết định thành lập', kind: 'text' },
       { key: 'principal_name', label: 'Hiệu trưởng', kind: 'text' },

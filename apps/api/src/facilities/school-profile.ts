@@ -1,6 +1,11 @@
 import { Body, Controller, Get, Injectable, Put, Req } from '@nestjs/common';
 import { Clock, validationError, type FieldError } from '@school-management/server';
-import { OFFICE_ACCOUNT_FIELDS, PERMISSION_CODES, SCHOOL_PROFILE_SECTIONS } from '@school-management/shared';
+import {
+  isValidOrganizationIdentifier,
+  OFFICE_ACCOUNT_FIELDS,
+  PERMISSION_CODES,
+  SCHOOL_PROFILE_SECTIONS,
+} from '@school-management/shared';
 import type { Request } from 'express';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
@@ -35,6 +40,11 @@ export function readSchoolProfile(body: RequestBody, errors: FieldError[]): Scho
     if (value !== undefined) {
       input.sections[section.key as SectionKey] = readProfileValues(value, section.fields, section.key, errors);
     }
+  }
+  // Mã định danh điện tử của tổ chức theo NĐ 69 có thì phải đủ 12 chữ số (DT-16 phần 16c)
+  const electronicId = input.sections.general?.electronic_id_code;
+  if (typeof electronicId === 'string' && electronicId !== '' && !isValidOrganizationIdentifier(electronicId)) {
+    errors.push({ field: 'general.electronic_id_code', message: 'Mã định danh điện tử của tổ chức gồm đúng 12 chữ số' });
   }
   const accounts = body?.office_accounts;
   if (accounts !== undefined) {

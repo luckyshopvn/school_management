@@ -393,6 +393,42 @@ export class StaffService {
     return this.read(currentUser, staff.id);
   }
 
+  // Người dùng tự sửa thông tin liên hệ trên hồ sơ nhân sự của mình (DT-16 phần 16c); mục không gửi giữ nguyên
+  async updateOwnContact(
+    currentUser: CurrentUser,
+    contact: { phone?: string | null; email?: string | null; address?: string | null },
+    origin: ChangeOrigin,
+  ) {
+    const { database } = await this.currentSchoolYear.require();
+    const changes = Object.fromEntries(Object.entries(contact).filter(([, value]) => value !== undefined));
+    await database.transaction().execute(async (transaction) => {
+      const existing = await transaction
+        .selectFrom('staff')
+        .select(['id', 'org_unit_id', 'phone', 'email', 'address'])
+        .where('user_id', '=', currentUser.id)
+        .forUpdate()
+        .executeTakeFirst();
+      if (!existing) {
+        throw notFoundError('Tài khoản chưa gắn với hồ sơ nhân sự', 'staff');
+      }
+      await transaction
+        .updateTable('staff')
+        .set({ ...changes, updated_at: this.clock.now() })
+        .where('id', '=', existing.id)
+        .execute();
+      await writeAuditLog(transaction, {
+        origin,
+        orgUnitId: existing.org_unit_id,
+        entityName: 'staff',
+        entityId: existing.id,
+        action: 'update',
+        before: Object.fromEntries(Object.keys(changes).map((key) => [key, existing[key as 'phone' | 'email' | 'address']])),
+        after: changes,
+      });
+    });
+    return this.me(currentUser);
+  }
+
   async create(currentUser: CurrentUser, input: StaffInput, origin: ChangeOrigin) {
     await this.assertManager(currentUser, input.orgUnitId);
     const { database } = await this.currentSchoolYear.require();

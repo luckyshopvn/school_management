@@ -91,6 +91,9 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/audit-logs': 'P01.view',
   // Ý kiến phản hồi (YCTD-110)
   '/feedback': 'P01.feedback.manage',
+  // Thông báo hệ thống, ứng dụng liên kết (DT-16 phần 16c)
+  '/system-announcements': 'P01.announcement.manage',
+  '/app-links': 'P01.announcement.manage',
   // Tài chính – học phí
   '/fees': VIEW_FEES,
   '/registrations': REGISTRATIONS,

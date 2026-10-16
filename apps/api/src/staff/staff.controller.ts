@@ -158,6 +158,35 @@ export class StaffController {
     return this.staff.me(currentUser);
   }
 
+  // Hồ sơ nhân sự cá nhân ở menu người dùng (DT-16 phần 16c): người dùng tự sửa điện thoại, thư điện tử, chỗ ở của mình
+  @Patch('staff/me/contact')
+  updateOwnContact(@Body() body: RequestBody, @Req() request: Request, @AuthenticatedUser() currentUser: CurrentUser) {
+    const errors: FieldError[] = [];
+    const contact = {
+      phone: readOptionalText(body, 'phone', errors),
+      email: readOptionalText(body, 'email', errors),
+      address: readOptionalText(body, 'address', errors),
+    };
+    if (contact.phone && !/^\+?[0-9]{9,15}$/.test(contact.phone)) {
+      errors.push({ field: 'phone', message: 'Số điện thoại gồm 9 đến 15 chữ số' });
+    }
+    if (contact.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email)) {
+      errors.push({ field: 'email', message: 'Thư điện tử không đúng định dạng' });
+    }
+    for (const [field, value] of Object.entries(contact)) {
+      if (value && value.length > MAXIMUM_TEXT) {
+        errors.push({ field, message: `Tối đa ${MAXIMUM_TEXT} ký tự` });
+      }
+    }
+    if (errors.length === 0 && Object.values(contact).every((value) => value === undefined)) {
+      errors.push({ field: 'contact', message: 'Cần ít nhất một mục liên hệ' });
+    }
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.staff.updateOwnContact(currentUser, contact, originOf(request, currentUser));
+  }
+
   @Get('staff/expiring-contracts')
   expiring(@AuthenticatedUser() currentUser: CurrentUser) {
     return this.staff.expiring(currentUser);

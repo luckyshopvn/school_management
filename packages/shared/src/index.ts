@@ -288,6 +288,9 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/class-assignments',
   // Cập nhật địa danh hành chính (DT-15 phần 15h1)
   '/administrative-units',
+  // Thông báo hệ thống, ứng dụng liên kết (DT-16 phần 16c)
+  '/system-announcements',
+  '/app-links',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -320,6 +323,8 @@ export const DATA_GRID_KEYS = [
   // Cập nhật địa danh hành chính (DT-15 phần 15h1)
   'administrative-addresses',
   'administrative-unit-mappings',
+  // Thông báo hệ thống (DT-16 phần 16c)
+  'system-announcements',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;
