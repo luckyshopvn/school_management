@@ -27,6 +27,17 @@
 - Khả năng tương thích: không đổi bảng, điểm cuối, màn hình cũ; kho tệp thêm thao tác xóa tệp; ứng dụng giáo viên, phụ huynh không đổi.
 - Phương án quay lui: hoàn lại commit gộp của nhánh phần 15h2; chạy phần quay lui của tệp `0009` (xóa bốn bảng) và `0044` (gỡ ba quyền); tệp đính kèm đã tải lên nằm dưới khóa `archive-records/` của kho tệp, xóa thủ công nếu cần.
 
+### Phiên bản 0.67.0 – 2026-10-16
+
+- Phạm vi thay đổi: DT-15 phần 15f2, phân hệ Nhân sự – chấm công, lương theo giao diện chung của Sở (YCTD-113).
+- Chức năng mới: tiêu đề 12 trang của phân hệ có số theo menu (1.1. Chấm công đến 3.2. Đánh giá nhân sự); 17 lưới dữ liệu dùng chung ở 10 trang (tìm kiếm, Mở rộng tìm kiếm, cấu hình cột và số dòng theo người dùng); nút Thêm mới mở biểu mẫu theo khối có nút Ghi, Hủy; xóa ngày lễ, lịch học bù hoặc nghỉ bù, lịch công tác qua hộp xác nhận xóa dùng chung (P08, P09). Nghiệp vụ không đổi.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: không có bảng, cột mới; cấu hình lưới mới lưu ở `user_grid_settings` sẵn có.
+- Thay đổi API: không có điểm cuối mới; `GET`, `PUT /me/grid-settings/{gridKey}` nhận thêm 17 khóa lưới.
+- Rủi ro: lưới lọc, phân trang tại chỗ nên danh sách rất dài vẫn tải một lần như trước; người dùng quen nút cũ phải bấm "Thêm mới" để mở biểu mẫu.
+- Khả năng tương thích: đường dẫn, điểm cuối, quyền không đổi; không có quyền mới; ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-15-phan-15f2`; không có tệp thay đổi cấu trúc dữ liệu; dòng cấu hình của 17 khóa lưới ở `user_grid_settings` để lại không ảnh hưởng (khóa lạ không còn được đọc).
+
 ### Phiên bản 0.66.0 – 2026-10-15
 
 - Phạm vi thay đổi: DT-15 phần 15h1, cập nhật địa danh hành chính theo hệ thống của Sở (YCTD-116).

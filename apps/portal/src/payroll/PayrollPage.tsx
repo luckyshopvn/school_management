@@ -1,8 +1,10 @@
-import { Fragment, useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, StatusBadge, TextField, Toast } from '@school-management/ui';
+import { Alert, Button, DataGrid, StatusBadge, TextField, Toast, type DataGridColumn } from '@school-management/ui';
 import { AppShell } from '../pages/AppShell.js';
+import { useGridSettings } from '../pages/grid-settings.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import {
@@ -17,12 +19,15 @@ import {
   returnPayroll,
   submitPayroll,
   type Payroll,
+  type Payslip,
 } from './payroll-api.js';
 import { AccountCategoryFields } from './PaymentSourceForm.js';
 import { PayslipView } from './PayslipView.js';
 
 // MH-15 Bảng lương và phê duyệt (P08-06, BR-43, BR-45, BR-77; YCTD-60): bảng lương toàn trường theo tháng, kế toán tính
-// và trình; Hiệu trưởng hoặc Phó Hiệu trưởng duyệt theo hạn mức của Trường chính; người xem chỉ thấy nhân sự trong phạm vi
+// và trình; Hiệu trưởng hoặc Phó Hiệu trưởng duyệt theo hạn mức của Trường chính; người xem chỉ thấy nhân sự trong phạm vi.
+// Bảng lương là chứng từ nên giữ bố cục; DT-15 phần 15f2 đổi tiêu đề có số theo menu và đưa các phiếu lương vào lưới dữ
+// liệu chung (khóa `payslips`) có tìm kiếm, chi tiết phiếu mở ngay dưới dòng
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
@@ -32,11 +37,44 @@ function messageOf(error: unknown): string {
 const vietnamMonth = () =>
   new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date()).slice(0, 7);
 const STATUS_TONES = { draft: 'neutral', pending: 'warning', approved: 'success' } as const;
+type MoneyField = 'prepaid_amount' | 'adjustment_amount' | 'taxable_income' | 'tax_amount' | 'net_amount';
+const money = (
+  header: string,
+  id: MoneyField,
+  options: { strong?: boolean; hiddenByDefault?: boolean } = {},
+): DataGridColumn<Payslip> => ({
+  id,
+  header,
+  hiddenByDefault: options.hiddenByDefault,
+  className: options.strong ? 'text-right font-semibold' : 'text-right',
+  cell: (row) => formatMoney(row[id]),
+});
+
+const PAYSLIP_COLUMNS: Array<DataGridColumn<Payslip>> = [
+  { id: 'code', header: 'Mã nhân sự', hiddenByDefault: true, cell: (row) => row.code ?? '' },
+  { id: 'full_name', header: 'Nhân sự', alwaysVisible: true, className: 'font-medium', cell: (row) => row.full_name },
+  { id: 'unit_name', header: 'Đơn vị', cell: (row) => row.unit_name },
+  money('Trả trước', 'prepaid_amount'),
+  money('Điều chỉnh', 'adjustment_amount'),
+  money('Thu nhập chịu thuế', 'taxable_income', { hiddenByDefault: true }),
+  money('Thuế', 'tax_amount'),
+  money('Thực nhận', 'net_amount', { strong: true }),
+];
 
 function PayrollDetail({ payroll, onChanged }: { payroll: Payroll; onChanged(message: string): void }) {
   const queryClient = useQueryClient();
+  const grid = useGridSettings('payslips');
   const [openId, setOpenId] = useState<string>();
+  const [search, setSearch] = useState('');
   const [reason, setReason] = useState('');
+  const keyword = search.trim().toLocaleLowerCase('vi');
+  const payslips = payroll.payslips.filter(
+    (payslip) =>
+      keyword === '' ||
+      [payslip.full_name, payslip.code, payslip.unit_name].some((value) =>
+        (value ?? '').toLocaleLowerCase('vi').includes(keyword),
+      ),
+  );
   const refresh = async (message: string) => {
     await queryClient.invalidateQueries({ queryKey: ['payrolls'] });
     await queryClient.invalidateQueries({ queryKey: ['payroll', payroll.id] });
@@ -133,45 +171,26 @@ function PayrollDetail({ payroll, onChanged }: { payroll: Payroll; onChanged(mes
         />
       ) : null}
       {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
-      <table className="w-full text-content">
-        <thead className="text-left text-label font-medium text-text-secondary">
-          <tr>
-            <th className="px-3 py-2">Nhân sự</th>
-            <th className="px-3 py-2">Đơn vị</th>
-            <th className="px-3 py-2 text-right">Trả trước</th>
-            <th className="px-3 py-2 text-right">Điều chỉnh</th>
-            <th className="px-3 py-2 text-right">Thuế</th>
-            <th className="px-3 py-2 text-right">Thực nhận</th>
-            <th className="px-3 py-2" />
-          </tr>
-        </thead>
-        <tbody>
-          {payroll.payslips.map((payslip) => (
-            <Fragment key={payslip.id}>
-              <tr className="border-t border-border" aria-label={`Lương của ${payslip.full_name ?? ''}`}>
-                <td className="px-3 py-2 font-medium">{payslip.full_name}</td>
-                <td className="px-3 py-2">{payslip.unit_name}</td>
-                <td className="px-3 py-2 text-right">{formatMoney(payslip.prepaid_amount)}</td>
-                <td className="px-3 py-2 text-right">{formatMoney(payslip.adjustment_amount)}</td>
-                <td className="px-3 py-2 text-right">{formatMoney(payslip.tax_amount)}</td>
-                <td className="px-3 py-2 text-right font-semibold">{formatMoney(payslip.net_amount)}</td>
-                <td className="px-3 py-2 text-right">
-                  <Button variant="text" onClick={() => setOpenId(openId === payslip.id ? undefined : payslip.id)}>
-                    {openId === payslip.id ? 'Ẩn' : 'Chi tiết'}
-                  </Button>
-                </td>
-              </tr>
-              {openId === payslip.id ? (
-                <tr>
-                  <td colSpan={7} className="px-3 py-2">
-                    <PayslipView payslip={payslip} />
-                  </td>
-                </tr>
-              ) : null}
-            </Fragment>
-          ))}
-        </tbody>
-      </table>
+      {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+      <DataGrid
+        label="Danh sách phiếu lương"
+        columns={PAYSLIP_COLUMNS}
+        rows={payslips}
+        getRowId={(row) => row.id}
+        getRowLabel={(row) => row.full_name ?? ''}
+        getRowAriaLabel={(row) => `Lương của ${row.full_name ?? ''}`}
+        emptyText="Bảng lương chưa có phiếu lương."
+        search={{ label: 'Tìm theo tên, mã nhân sự, đơn vị', value: search, onChange: setSearch }}
+        rowActions={(row) => (
+          <Button variant="text" onClick={() => setOpenId(openId === row.id ? undefined : row.id)}>
+            {openId === row.id ? 'Ẩn' : 'Chi tiết'}
+          </Button>
+        )}
+        activeRowId={openId}
+        renderRowDetail={(row) => (openId === row.id ? <PayslipView payslip={row} /> : null)}
+        settings={grid.settings}
+        onSettingsChange={grid.update}
+      />
     </section>
   );
 }
@@ -204,7 +223,7 @@ export function PayrollPage() {
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Bảng lương</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/payrolls')}</h1>
         <p className="text-content text-text-secondary">
           Đầu tháng tính lương trả trước của tháng, kèm điều chỉnh theo bảng công đã chốt của tháng trước. Bảng đã duyệt
           không sửa trực tiếp.

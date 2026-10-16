@@ -59,29 +59,40 @@ test('Phòng nhân sự Trường chính lập ngày lễ, Hiệu trưởng lậ
   const page = await signIn(browser, personnel);
   await openMenu(page, '/school-days');
   await page.getByLabel('Năm', { exact: true }).fill(holidayDate.slice(0, 4));
+  await page.getByRole('region', { name: 'Ngày nghỉ lễ' }).getByRole('button', { name: 'Thêm mới' }).click();
   const holidayForm = page.getByRole('form', { name: 'Thêm ngày nghỉ lễ' });
   await holidayForm.getByLabel('Ngày lễ', { exact: true }).fill(holidayDate);
   await holidayForm.getByLabel('Tên ngày lễ').fill('Ngày lễ kiểm thử');
-  await holidayForm.getByRole('button', { name: 'Thêm ngày lễ' }).click();
+  await holidayForm.getByRole('button', { name: 'Ghi' }).click();
   const holidayRow = page.getByRole('row', { name: `Ngày lễ ${holidayDate}` });
   await expect(holidayRow).toContainText('Ngày lễ kiểm thử');
-  await expect(page.getByRole('form', { name: 'Thêm ngày học bù hoặc nghỉ bù' })).toHaveCount(0);
+  await expect(
+    page.getByRole('region', { name: 'Lịch học bù và nghỉ bù' }).getByRole('button', { name: 'Thêm mới' }),
+  ).toHaveCount(0);
 
   const principalPage = await signIn(browser, principal);
   await openMenu(principalPage, '/school-days');
   await principalPage.getByLabel('Năm', { exact: true }).fill(dayOffDate.slice(0, 4));
+  await principalPage
+    .getByRole('region', { name: 'Lịch học bù và nghỉ bù' })
+    .getByRole('button', { name: 'Thêm mới' })
+    .click();
   const changeForm = principalPage.getByRole('form', { name: 'Thêm ngày học bù hoặc nghỉ bù' });
   await changeForm.getByLabel('Loại lịch').selectOption('compensatory_day_off');
   await changeForm.getByLabel('Ngày áp dụng').fill(dayOffDate);
-  await changeForm.getByRole('button', { name: 'Thêm lịch' }).click();
+  await changeForm.getByRole('button', { name: 'Ghi' }).click();
   const changeRow = principalPage.getByRole('row', { name: `Lịch ngày ${dayOffDate}` });
   await expect(changeRow).toContainText('Nghỉ bù');
   await changeRow.getByRole('button', { name: 'Xóa' }).click();
-  await principalPage.getByRole('dialog').getByRole('button', { name: 'Xóa' }).click();
+  const changeDialog = principalPage.getByRole('dialog');
+  await changeDialog.getByLabel(`Tôi đã đọc và đồng ý xóa lịch ngày ${dayOffDate}`).check();
+  await changeDialog.getByRole('button', { name: 'Xóa', exact: true }).click();
   await expect(changeRow).toHaveCount(0);
 
   await holidayRow.getByRole('button', { name: 'Xóa' }).click();
-  await page.getByRole('dialog').getByRole('button', { name: 'Xóa' }).click();
+  const holidayDialog = page.getByRole('dialog');
+  await holidayDialog.getByLabel(`Tôi đã đọc và đồng ý xóa ngày lễ ${holidayDate}`).check();
+  await holidayDialog.getByRole('button', { name: 'Xóa', exact: true }).click();
   await expect(holidayRow).toHaveCount(0);
 });
 
@@ -125,7 +136,7 @@ test('Giáo viên tự vào ca; phòng nhân sự đơn vị nhập giờ ra tr�
   await form.getByLabel('Ngày chấm công').fill(vietnamToday);
   await form.getByLabel('Giờ vào').fill('07:25');
   await form.getByLabel('Giờ ra').fill('23:59');
-  await form.getByRole('button', { name: 'Lưu chấm công' }).click();
+  await form.getByRole('button', { name: 'Ghi' }).click();
   const row = page.getByRole('row', { name: `Chấm công của ${fullName}` });
   await expect(row).toContainText('07:25');
   await expect(row).toContainText('23:59');

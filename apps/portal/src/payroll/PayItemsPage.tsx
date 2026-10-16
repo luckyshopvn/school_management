@@ -1,8 +1,19 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, TextField, Toast } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  DataGrid,
+  FORM_CONTROL_CLASS,
+  FormBlock,
+  FormRow,
+  Toast,
+  type DataGridColumn,
+} from '@school-management/ui';
 import { AppShell } from '../pages/AppShell.js';
+import { useGridSettings } from '../pages/grid-settings.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import {
@@ -19,14 +30,17 @@ import {
 } from './payroll-api.js';
 
 // MH-53 Danh mục lương và biểu thuế (P08-11, BR-44, YCTD-60): kế toán khai phụ cấp, thưởng, khấu trừ chung toàn trường;
-// kế toán trưởng thêm phiên bản biểu thuế thu nhập cá nhân khi luật thay đổi
+// kế toán trưởng thêm phiên bản biểu thuế thu nhập cá nhân khi luật thay đổi. Giao diện chung theo Sở (DT-15 phần 15f2):
+// lưới khoản lương (khóa `pay-item-types`) tìm theo mã, tên, mở rộng tìm kiếm theo loại và trạng thái; Thêm mới mở biểu
+// mẫu theo khối có nút Ghi. Các phiên bản biểu thuế giữ dạng từng biểu, biểu mẫu thêm biểu thuế theo khối
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
     : 'Không kết nối được tới máy chủ, vui lòng thử lại';
 }
 
-const selectClass = 'mt-2 block w-full rounded-lg border border-border bg-card px-3 py-2 text-content font-normal';
+const KIND_LABELS: Record<PayItemKind, string> = { allowance: 'Phụ cấp, thưởng', deduction: 'Khấu trừ' };
+const filterClass = `mt-1 ${FORM_CONTROL_CLASS}`;
 
 function describeLevel(type: Pick<PayItemType, 'calculation_method' | 'default_amount' | 'rate_percent'>): string {
   if (type.calculation_method === 'percent_of_base') {
@@ -35,7 +49,21 @@ function describeLevel(type: Pick<PayItemType, 'calculation_method' | 'default_a
   return type.default_amount === null ? 'Gán riêng từng người' : formatMoney(type.default_amount);
 }
 
-function TypeForm({ onSaved }: { onSaved(message: string): void }) {
+const TYPE_COLUMNS: Array<DataGridColumn<PayItemType>> = [
+  { id: 'kind', header: 'Loại', cell: (row) => KIND_LABELS[row.kind] },
+  { id: 'code', header: 'Mã', cell: (row) => row.code },
+  { id: 'name', header: 'Tên', alwaysVisible: true, className: 'font-medium', cell: (row) => row.name },
+  { id: 'calculation_method', header: 'Cách tính', cell: (row) => METHOD_LABELS[row.calculation_method] },
+  { id: 'level', header: 'Mức chung', cell: (row) => describeLevel(row) },
+  {
+    id: 'tax',
+    header: 'Thuế',
+    cell: (row) => (row.is_tax_exempt ? 'Miễn thuế' : row.is_mandatory_insurance ? 'Bảo hiểm bắt buộc' : ''),
+  },
+  { id: 'status', header: 'Trạng thái', cell: (row) => (row.status === 'active' ? 'Đang dùng' : 'Ngừng dùng') },
+];
+
+function TypeForm({ onSaved, onCancel }: { onSaved(message: string): void; onCancel(): void }) {
   const [kind, setKind] = useState<PayItemKind>('allowance');
   const [code, setCode] = useState('');
   const [name, setName] = useState('');
@@ -54,12 +82,7 @@ function TypeForm({ onSaved }: { onSaved(message: string): void }) {
         is_tax_exempt: kind === 'allowance' && flag,
         is_mandatory_insurance: kind === 'deduction' && flag,
       }),
-    onSuccess: (type) => {
-      setCode('');
-      setName('');
-      setLevel('');
-      onSaved(`Đã thêm ${type.name}`);
-    },
+    onSuccess: (type) => onSaved(`Đã thêm ${type.name}`),
   });
   return (
     <form
@@ -70,22 +93,29 @@ function TypeForm({ onSaved }: { onSaved(message: string): void }) {
         save.mutate();
       }}
     >
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-6">
-        <label className="text-label font-medium text-text">
-          Loại khoản
-          <select value={kind} onChange={(event) => setKind(event.target.value as PayItemKind)} className={selectClass}>
-            <option value="allowance">Phụ cấp, thưởng</option>
-            <option value="deduction">Khấu trừ</option>
-          </select>
-        </label>
-        <TextField label="Mã khoản" value={code} onChange={(event) => setCode(event.target.value)} />
-        <TextField label="Tên khoản" value={name} onChange={(event) => setName(event.target.value)} />
-        <label className="text-label font-medium text-text">
-          Cách tính
+      {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
+      <FormBlock title="Thêm khoản lương">
+        <FormRow label="Loại khoản">
           <select
+            className={FORM_CONTROL_CLASS}
+            value={kind}
+            onChange={(event) => setKind(event.target.value as PayItemKind)}
+          >
+            <option value="allowance">{KIND_LABELS.allowance}</option>
+            <option value="deduction">{KIND_LABELS.deduction}</option>
+          </select>
+        </FormRow>
+        <FormRow label="Mã khoản">
+          <input className={FORM_CONTROL_CLASS} value={code} onChange={(event) => setCode(event.target.value)} />
+        </FormRow>
+        <FormRow label="Tên khoản">
+          <input className={FORM_CONTROL_CLASS} value={name} onChange={(event) => setName(event.target.value)} />
+        </FormRow>
+        <FormRow label="Cách tính">
+          <select
+            className={FORM_CONTROL_CLASS}
             value={method}
             onChange={(event) => setMethod(event.target.value as PayCalculationMethod)}
-            className={selectClass}
           >
             {(Object.keys(METHOD_LABELS) as PayCalculationMethod[]).map((value) => (
               <option key={value} value={value}>
@@ -93,37 +123,37 @@ function TypeForm({ onSaved }: { onSaved(message: string): void }) {
               </option>
             ))}
           </select>
-        </label>
-        <TextField
-          label={method === 'percent_of_base' ? 'Tỷ lệ chung (%)' : 'Số tiền chung'}
-          type="number"
-          value={level}
-          onChange={(event) => setLevel(event.target.value)}
-        />
-        <label className="flex items-center gap-2 text-label font-medium text-text">
-          <input type="checkbox" checked={flag} onChange={(event) => setFlag(event.target.checked)} />
-          {kind === 'allowance' ? 'Miễn thuế' : 'Bảo hiểm bắt buộc'}
-        </label>
-      </div>
-      {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
-      <div>
+        </FormRow>
+        <FormRow label={method === 'percent_of_base' ? 'Tỷ lệ chung (%)' : 'Số tiền chung'}>
+          <input
+            type="number"
+            className={FORM_CONTROL_CLASS}
+            value={level}
+            onChange={(event) => setLevel(event.target.value)}
+          />
+        </FormRow>
+        <FormRow label={kind === 'allowance' ? 'Miễn thuế' : 'Bảo hiểm bắt buộc'}>
+          <input
+            type="checkbox"
+            className="h-4 w-4"
+            checked={flag}
+            onChange={(event) => setFlag(event.target.checked)}
+          />
+        </FormRow>
+      </FormBlock>
+      <div className="flex gap-2">
         <Button type="submit" variant="primary" disabled={save.isPending}>
-          Thêm khoản
+          Ghi
+        </Button>
+        <Button variant="text" onClick={onCancel}>
+          Hủy
         </Button>
       </div>
     </form>
   );
 }
 
-function TypeRow({
-  type,
-  canManage,
-  onChanged,
-}: {
-  type: PayItemType;
-  canManage: boolean;
-  onChanged(message: string): void;
-}) {
+function TypeActions({ type, onChanged }: { type: PayItemType; onChanged(message: string): void }) {
   const toggle = useMutation({
     mutationFn: () =>
       updatePayItemType(type.id, {
@@ -140,29 +170,16 @@ function TypeRow({
     onSuccess: () => onChanged('Đã cập nhật khoản lương'),
   });
   return (
-    <tr className="border-t border-border" aria-label={`Khoản ${type.code}`}>
-      <td className="px-3 py-2">{type.kind === 'allowance' ? 'Phụ cấp, thưởng' : 'Khấu trừ'}</td>
-      <td className="px-3 py-2">{type.code}</td>
-      <td className="px-3 py-2 font-medium">{type.name}</td>
-      <td className="px-3 py-2">{METHOD_LABELS[type.calculation_method]}</td>
-      <td className="px-3 py-2">{describeLevel(type)}</td>
-      <td className="px-3 py-2">
-        {type.is_tax_exempt ? 'Miễn thuế' : type.is_mandatory_insurance ? 'Bảo hiểm bắt buộc' : ''}
-      </td>
-      <td className="px-3 py-2">{type.status === 'active' ? 'Đang dùng' : 'Ngừng dùng'}</td>
-      <td className="px-3 py-2 text-right">
-        {canManage ? (
-          <Button variant="text" disabled={toggle.isPending} onClick={() => toggle.mutate()}>
-            {type.status === 'active' ? 'Ngừng dùng' : 'Dùng lại'}
-          </Button>
-        ) : null}
-        {toggle.error ? <p className="text-label text-danger">{messageOf(toggle.error)}</p> : null}
-      </td>
-    </tr>
+    <span className="flex flex-col items-end gap-1">
+      <Button variant="text" disabled={toggle.isPending} onClick={() => toggle.mutate()}>
+        {type.status === 'active' ? 'Ngừng dùng' : 'Dùng lại'}
+      </Button>
+      {toggle.error ? <span className="text-label text-danger">{messageOf(toggle.error)}</span> : null}
+    </span>
   );
 }
 
-function TaxTableForm({ onSaved }: { onSaved(message: string): void }) {
+function TaxTableForm({ onSaved, onCancel }: { onSaved(message: string): void; onCancel(): void }) {
   const [effectiveFrom, setEffectiveFrom] = useState('');
   const [personal, setPersonal] = useState('');
   const [dependent, setDependent] = useState('');
@@ -194,39 +211,47 @@ function TaxTableForm({ onSaved }: { onSaved(message: string): void }) {
         save.mutate();
       }}
     >
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
-        <TextField
-          label="Hiệu lực từ tháng"
-          type="month"
-          value={effectiveFrom}
-          onChange={(event) => setEffectiveFrom(event.target.value)}
-        />
-        <TextField
-          label="Giảm trừ bản thân"
-          type="number"
-          value={personal}
-          onChange={(event) => setPersonal(event.target.value)}
-        />
-        <TextField
-          label="Giảm trừ mỗi người phụ thuộc"
-          type="number"
-          value={dependent}
-          onChange={(event) => setDependent(event.target.value)}
-        />
-        <label className="text-label font-medium text-text">
-          Các bậc (mỗi dòng mức trần:thuế suất, dòng cuối chỉ thuế suất)
+      {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
+      <FormBlock title="Thêm biểu thuế">
+        <FormRow label="Hiệu lực từ tháng">
+          <input
+            type="month"
+            className={FORM_CONTROL_CLASS}
+            value={effectiveFrom}
+            onChange={(event) => setEffectiveFrom(event.target.value)}
+          />
+        </FormRow>
+        <FormRow label="Giảm trừ bản thân">
+          <input
+            type="number"
+            className={FORM_CONTROL_CLASS}
+            value={personal}
+            onChange={(event) => setPersonal(event.target.value)}
+          />
+        </FormRow>
+        <FormRow label="Giảm trừ mỗi người phụ thuộc">
+          <input
+            type="number"
+            className={FORM_CONTROL_CLASS}
+            value={dependent}
+            onChange={(event) => setDependent(event.target.value)}
+          />
+        </FormRow>
+        <FormRow label="Các bậc (mỗi dòng mức trần:thuế suất, dòng cuối chỉ thuế suất)">
           <textarea
+            rows={5}
+            className={FORM_CONTROL_CLASS}
             value={brackets}
             onChange={(event) => setBrackets(event.target.value)}
-            rows={5}
-            className="mt-2 block w-full rounded-lg border border-border bg-card px-3 py-2 text-content font-normal"
           />
-        </label>
-      </div>
-      {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
-      <div>
+        </FormRow>
+      </FormBlock>
+      <div className="flex gap-2">
         <Button type="submit" variant="primary" disabled={save.isPending}>
-          Thêm biểu thuế
+          Ghi
+        </Button>
+        <Button variant="text" onClick={onCancel}>
+          Hủy
         </Button>
       </div>
     </form>
@@ -238,6 +263,7 @@ export function PayItemsPage() {
   const canManageTax = useHasPermission(PERMISSION_CODES.taxTableManage);
   const canViewPayroll = useHasPermission(PERMISSION_CODES.payrollView);
   const queryClient = useQueryClient();
+  const grid = useGridSettings('pay-item-types');
   const types = useQuery({ queryKey: ['pay-item-types'], queryFn: listPayItemTypes });
   const taxTables = useQuery({
     queryKey: ['tax-tables'],
@@ -246,57 +272,122 @@ export function PayItemsPage() {
   });
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
+  const [search, setSearch] = useState('');
+  const [kind, setKind] = useState<PayItemKind | ''>('');
+  const [status, setStatus] = useState<PayItemType['status'] | ''>('');
+  const [creatingType, setCreatingType] = useState(false);
+  const [creatingTax, setCreatingTax] = useState(false);
   const refresh = async (message: string) => {
     await queryClient.invalidateQueries({ queryKey: ['pay-item-types'] });
     await queryClient.invalidateQueries({ queryKey: ['tax-tables'] });
     setToastMessage(message);
   };
+  const keyword = search.trim().toLocaleLowerCase('vi');
+  const rows = (types.data ?? []).filter(
+    (type) =>
+      (kind === '' || type.kind === kind) &&
+      (status === '' || type.status === status) &&
+      (keyword === '' ||
+        type.code.toLocaleLowerCase('vi').includes(keyword) ||
+        type.name.toLocaleLowerCase('vi').includes(keyword)),
+  );
 
   return (
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Danh mục lương và biểu thuế</h1>
-        <section
-          className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
-          aria-label="Khoản phụ cấp và khấu trừ"
-        >
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/pay-items')}</h1>
+        <div className="flex flex-col gap-3">
           <h2 className="text-section-title font-semibold text-text">Phụ cấp, thưởng và khấu trừ</h2>
-          {canManageTypes ? <TypeForm onSaved={refresh} /> : null}
+          {creatingType ? (
+            <section className="rounded-xl border border-border bg-card p-4">
+              <TypeForm
+                onCancel={() => setCreatingType(false)}
+                onSaved={(message) => {
+                  setCreatingType(false);
+                  void refresh(message);
+                }}
+              />
+            </section>
+          ) : null}
           {types.error ? <Alert tone="danger">{messageOf(types.error)}</Alert> : null}
-          {types.data && types.data.length === 0 ? (
-            <p className="text-content text-text-secondary">Chưa có khoản nào.</p>
-          ) : null}
-          {types.data && types.data.length > 0 ? (
-            <table className="w-full text-content">
-              <thead className="text-left text-label font-medium text-text-secondary">
-                <tr>
-                  <th className="px-3 py-2">Loại</th>
-                  <th className="px-3 py-2">Mã</th>
-                  <th className="px-3 py-2">Tên</th>
-                  <th className="px-3 py-2">Cách tính</th>
-                  <th className="px-3 py-2">Mức chung</th>
-                  <th className="px-3 py-2">Thuế</th>
-                  <th className="px-3 py-2">Trạng thái</th>
-                  <th className="px-3 py-2" />
-                </tr>
-              </thead>
-              <tbody>
-                {types.data.map((type) => (
-                  <TypeRow key={type.id} type={type} canManage={canManageTypes} onChanged={refresh} />
-                ))}
-              </tbody>
-            </table>
-          ) : null}
-        </section>
+          {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+          <DataGrid
+            label="Khoản phụ cấp và khấu trừ"
+            columns={TYPE_COLUMNS}
+            rows={rows}
+            getRowId={(row) => row.id}
+            getRowLabel={(row) => `khoản ${row.code}`}
+            getRowAriaLabel={(row) => `Khoản ${row.code}`}
+            loading={types.isPending}
+            emptyText="Chưa có khoản nào."
+            search={{ label: 'Tìm theo mã, tên khoản', value: search, onChange: setSearch }}
+            advancedSearch={
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                <label className="text-label font-medium text-text">
+                  Loại
+                  <select
+                    value={kind}
+                    onChange={(event) => setKind(event.target.value as PayItemKind | '')}
+                    className={filterClass}
+                  >
+                    <option value="">Tất cả</option>
+                    <option value="allowance">{KIND_LABELS.allowance}</option>
+                    <option value="deduction">{KIND_LABELS.deduction}</option>
+                  </select>
+                </label>
+                <label className="text-label font-medium text-text">
+                  Trạng thái
+                  <select
+                    value={status}
+                    onChange={(event) => setStatus(event.target.value as PayItemType['status'] | '')}
+                    className={filterClass}
+                  >
+                    <option value="">Tất cả</option>
+                    <option value="active">Đang dùng</option>
+                    <option value="inactive">Ngừng dùng</option>
+                  </select>
+                </label>
+              </div>
+            }
+            toolbar={
+              canManageTypes ? (
+                <Button variant="primary" onClick={() => setCreatingType(true)}>
+                  Thêm mới
+                </Button>
+              ) : null
+            }
+            rowActions={canManageTypes ? (row) => <TypeActions type={row} onChanged={refresh} /> : undefined}
+            settings={grid.settings}
+            onSettingsChange={grid.update}
+          />
+        </div>
         {canViewPayroll || canManageTax ? (
           <section
             className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
             aria-label="Biểu thuế thu nhập cá nhân"
           >
-            <h2 className="text-section-title font-semibold text-text">Biểu thuế thu nhập cá nhân</h2>
-            {canManageTax ? <TaxTableForm onSaved={refresh} /> : null}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-section-title font-semibold text-text">Biểu thuế thu nhập cá nhân</h2>
+              {canManageTax && !creatingTax ? (
+                <Button variant="primary" onClick={() => setCreatingTax(true)}>
+                  Thêm mới
+                </Button>
+              ) : null}
+            </div>
+            {canManageTax && creatingTax ? (
+              <TaxTableForm
+                onCancel={() => setCreatingTax(false)}
+                onSaved={(message) => {
+                  setCreatingTax(false);
+                  void refresh(message);
+                }}
+              />
+            ) : null}
             {taxTables.error ? <Alert tone="danger">{messageOf(taxTables.error)}</Alert> : null}
+            {taxTables.data && taxTables.data.length === 0 ? (
+              <p className="text-content text-text-secondary">Chưa có biểu thuế.</p>
+            ) : null}
             {(taxTables.data ?? []).map((table) => (
               <div
                 key={table.id}

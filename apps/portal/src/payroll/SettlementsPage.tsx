@@ -1,9 +1,21 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, TextField, Toast } from '@school-management/ui';
-import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
+import {
+  Alert,
+  Button,
+  DataGrid,
+  FORM_CONTROL_CLASS,
+  FormBlock,
+  FormRow,
+  TextField,
+  Toast,
+  type DataGridColumn,
+} from '@school-management/ui';
+import { useUnitChoice } from '../catalogs/UnitSelect.js';
 import { AppShell } from '../pages/AppShell.js';
+import { useGridSettings } from '../pages/grid-settings.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import { listStaff } from '../staff/staff-api.js';
@@ -25,19 +37,21 @@ import {
   submitSettlement,
   type PayrollAdjustment,
   type Settlement,
+  type SettlementRow,
 } from './payroll-api.js';
 import { AccountCategoryFields } from './PaymentSourceForm.js';
 
 // MH-54 Quyết toán và điều chỉnh lương (P08-06; BR-45, BR-90; YCTD-61): kế toán lập bảng quyết toán khi chấm dứt hợp
 // đồng, trình Ban Giám hiệu duyệt theo hạn mức; trả thêm thì lập phiếu chi lương, trả thừa thì thu hồi bằng phiếu thu
-// không gắn trẻ. Khoản điều chỉnh lương cho kỳ sau có lý do và người phê duyệt
+// không gắn học sinh. Khoản điều chỉnh lương cho kỳ sau có lý do và người phê duyệt. Giao diện chung theo Sở (DT-15 phần
+// 15f2): lưới hợp đồng đã chấm dứt (khóa `payroll-settlements`) và lưới khoản điều chỉnh (khóa `payroll-adjustments`);
+// bảng quyết toán là chứng từ nên giữ bố cục; lập khoản điều chỉnh bằng biểu mẫu theo khối có nút Ghi
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
     : 'Không kết nối được tới máy chủ, vui lòng thử lại';
 }
 
-const selectClass = 'mt-2 block w-full rounded-lg border border-border bg-card px-3 py-2 text-content font-normal';
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 
 function SettlementDetail({ settlement, onChanged }: { settlement: Settlement; onChanged(message: string): void }) {
@@ -188,7 +202,46 @@ function SettlementDetail({ settlement, onChanged }: { settlement: Settlement; o
   );
 }
 
-function AdjustmentRow({ adjustment, onChanged }: { adjustment: PayrollAdjustment; onChanged(message: string): void }) {
+const ADJUSTMENT_STATUS_LABELS: Record<PayrollAdjustment['status'], string> = {
+  pending: 'Chờ duyệt',
+  approved: 'Đã duyệt',
+  rejected: 'Bị từ chối',
+};
+
+const SETTLEMENT_COLUMNS: Array<DataGridColumn<SettlementRow>> = [
+  { id: 'full_name', header: 'Nhân sự', alwaysVisible: true, className: 'font-medium', cell: (row) => row.full_name },
+  { id: 'contract_no', header: 'Hợp đồng', cell: (row) => row.contract_no },
+  { id: 'terminated_on', header: 'Ngày nghỉ', cell: (row) => row.terminated_on },
+  {
+    id: 'settlement',
+    header: 'Quyết toán',
+    cell: (row) =>
+      row.status ? `${PAYROLL_STATUS_LABELS[row.status]}, ${formatMoney(row.payable_amount ?? 0)}` : 'Chưa lập',
+  },
+];
+
+const ADJUSTMENT_COLUMNS: Array<DataGridColumn<PayrollAdjustment>> = [
+  { id: 'full_name', header: 'Nhân sự', alwaysVisible: true, className: 'font-medium', cell: (row) => row.full_name },
+  { id: 'target', header: 'Vào lương tháng', cell: (row) => `${row.target_month}/${row.target_year}` },
+  { id: 'amount', header: 'Số tiền', className: 'text-right', cell: (row) => formatMoney(row.amount) },
+  { id: 'reason', header: 'Lý do', cell: (row) => row.reason },
+  {
+    id: 'status',
+    header: 'Trạng thái',
+    cell: (row) =>
+      row.status === 'rejected'
+        ? `${ADJUSTMENT_STATUS_LABELS.rejected}: ${row.reject_reason ?? ''}`
+        : ADJUSTMENT_STATUS_LABELS[row.status],
+  },
+];
+
+function AdjustmentActions({
+  adjustment,
+  onChanged,
+}: {
+  adjustment: PayrollAdjustment;
+  onChanged(message: string): void;
+}) {
   const [reason, setReason] = useState('');
   const approve = useMutation({
     mutationFn: () => approvePayrollAdjustment(adjustment.id),
@@ -199,135 +252,194 @@ function AdjustmentRow({ adjustment, onChanged }: { adjustment: PayrollAdjustmen
     onSuccess: () => onChanged('Đã từ chối khoản điều chỉnh'),
   });
   const error = approve.error ?? reject.error;
+  if (!adjustment.can_decide) {
+    return null;
+  }
   return (
-    <tr className="border-t border-border align-top" aria-label={`Điều chỉnh lương của ${adjustment.full_name}`}>
-      <td className="px-3 py-2 font-medium">{adjustment.full_name}</td>
-      <td className="px-3 py-2">
-        {adjustment.target_month}/{adjustment.target_year}
-      </td>
-      <td className="px-3 py-2 text-right">{formatMoney(adjustment.amount)}</td>
-      <td className="px-3 py-2">{adjustment.reason}</td>
-      <td className="px-3 py-2">
-        {adjustment.status === 'pending'
-          ? 'Chờ duyệt'
-          : adjustment.status === 'approved'
-            ? 'Đã duyệt'
-            : `Bị từ chối: ${adjustment.reject_reason ?? ''}`}
-      </td>
-      <td className="px-3 py-2">
-        {adjustment.can_decide ? (
-          <div className="flex flex-col items-end gap-2">
-            <Button variant="primary" disabled={approve.isPending} onClick={() => approve.mutate()}>
-              Duyệt
-            </Button>
-            <TextField label="Lý do từ chối" value={reason} onChange={(event) => setReason(event.target.value)} />
-            <Button variant="danger" disabled={reject.isPending} onClick={() => reject.mutate()}>
-              Từ chối
-            </Button>
-          </div>
-        ) : null}
-        {error ? <p className="text-label text-danger">{messageOf(error)}</p> : null}
-      </td>
-    </tr>
+    <div className="flex flex-col items-end gap-2 whitespace-normal">
+      <Button variant="primary" disabled={approve.isPending} onClick={() => approve.mutate()}>
+        Duyệt
+      </Button>
+      <TextField label="Lý do từ chối" value={reason} onChange={(event) => setReason(event.target.value)} />
+      <Button variant="danger" disabled={reject.isPending} onClick={() => reject.mutate()}>
+        Từ chối
+      </Button>
+      {error ? <p className="text-label text-danger">{messageOf(error)}</p> : null}
+    </div>
   );
 }
 
-function AdjustmentsSection({ canManage, onChanged }: { canManage: boolean; onChanged(message: string): void }) {
-  const queryClient = useQueryClient();
-  const adjustments = useQuery({ queryKey: ['payroll-adjustments'], queryFn: listPayrollAdjustments });
+function AdjustmentForm({ onSaved, onCancel }: { onSaved(message: string): void; onCancel(): void }) {
   const unitChoice = useUnitChoice();
   const orgUnitId = unitChoice.selectedId;
   const staff = useQuery({
     queryKey: ['staff', orgUnitId, ''],
     queryFn: () => listStaff(orgUnitId ?? '', ''),
-    enabled: canManage && Boolean(orgUnitId),
+    enabled: Boolean(orgUnitId),
   });
   const [staffId, setStaffId] = useState('');
   const [month, setMonth] = useState('');
   const [amount, setAmount] = useState('');
   const [reason, setReason] = useState('');
+  const create = useMutation({
+    mutationFn: () => createPayrollAdjustment({ staff_id: staffId, month, amount: Number(amount), reason }),
+    onSuccess: () => onSaved('Đã lập khoản điều chỉnh lương, chờ duyệt'),
+  });
+  return (
+    <form
+      className="flex flex-col gap-3"
+      aria-label="Lập khoản điều chỉnh"
+      onSubmit={(event) => {
+        event.preventDefault();
+        create.mutate();
+      }}
+    >
+      {create.error ? <Alert tone="danger">{messageOf(create.error)}</Alert> : null}
+      <FormBlock title="Lập khoản điều chỉnh">
+        <FormRow label="Đơn vị">
+          <select
+            className={FORM_CONTROL_CLASS}
+            value={orgUnitId ?? ''}
+            onChange={(event) => {
+              setStaffId('');
+              unitChoice.select(event.target.value);
+            }}
+          >
+            {unitChoice.units.map((unit) => (
+              <option key={unit.id} value={unit.id}>
+                {unit.name}
+              </option>
+            ))}
+          </select>
+        </FormRow>
+        <FormRow label="Nhân sự">
+          <select className={FORM_CONTROL_CLASS} value={staffId} onChange={(event) => setStaffId(event.target.value)}>
+            <option value="">Chọn nhân sự</option>
+            {(staff.data ?? []).map((row) => (
+              <option key={row.id} value={row.id}>
+                {row.code} – {row.full_name}
+              </option>
+            ))}
+          </select>
+        </FormRow>
+        <FormRow label="Vào lương tháng">
+          <input
+            type="month"
+            className={FORM_CONTROL_CLASS}
+            value={month}
+            onChange={(event) => setMonth(event.target.value)}
+          />
+        </FormRow>
+        <FormRow label="Số tiền (âm là trừ)">
+          <input
+            type="number"
+            className={FORM_CONTROL_CLASS}
+            value={amount}
+            onChange={(event) => setAmount(event.target.value)}
+          />
+        </FormRow>
+        <FormRow label="Lý do điều chỉnh">
+          <input className={FORM_CONTROL_CLASS} value={reason} onChange={(event) => setReason(event.target.value)} />
+        </FormRow>
+      </FormBlock>
+      <div className="flex gap-2">
+        <Button type="submit" variant="primary" disabled={create.isPending}>
+          Ghi
+        </Button>
+        <Button variant="text" onClick={onCancel}>
+          Hủy
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+function AdjustmentsSection({ canManage, onChanged }: { canManage: boolean; onChanged(message: string): void }) {
+  const queryClient = useQueryClient();
+  const grid = useGridSettings('payroll-adjustments');
+  const adjustments = useQuery({ queryKey: ['payroll-adjustments'], queryFn: listPayrollAdjustments });
+  const [creating, setCreating] = useState(false);
+  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState<PayrollAdjustment['status'] | ''>('');
   const refresh = async (message: string) => {
     await queryClient.invalidateQueries({ queryKey: ['payroll-adjustments'] });
     onChanged(message);
   };
-  const create = useMutation({
-    mutationFn: () => createPayrollAdjustment({ staff_id: staffId, month, amount: Number(amount), reason }),
-    onSuccess: () => {
-      setAmount('');
-      setReason('');
-      return refresh('Đã lập khoản điều chỉnh lương, chờ duyệt');
-    },
-  });
+  const keyword = search.trim().toLocaleLowerCase('vi');
+  const rows = (adjustments.data ?? []).filter(
+    (row) =>
+      (status === '' || row.status === status) &&
+      (keyword === '' ||
+        row.full_name.toLocaleLowerCase('vi').includes(keyword) ||
+        row.reason.toLocaleLowerCase('vi').includes(keyword)),
+  );
   return (
-    <section
-      className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
-      aria-label="Khoản điều chỉnh lương"
-    >
+    <div className="flex flex-col gap-3">
       <h2 className="text-section-title font-semibold text-text">Khoản điều chỉnh lương cho kỳ sau</h2>
-      {canManage ? (
-        <form
-          className="grid grid-cols-1 items-end gap-3 md:grid-cols-6"
-          aria-label="Lập khoản điều chỉnh"
-          onSubmit={(event) => {
-            event.preventDefault();
-            create.mutate();
-          }}
-        >
-          <UnitSelect units={unitChoice.units} selectedId={orgUnitId} onSelect={unitChoice.select} />
-          <label className="text-label font-medium text-text">
-            Nhân sự
-            <select value={staffId} onChange={(event) => setStaffId(event.target.value)} className={selectClass}>
-              <option value="">Chọn nhân sự</option>
-              {(staff.data ?? []).map((row) => (
-                <option key={row.id} value={row.id}>
-                  {row.code} – {row.full_name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <TextField
-            label="Vào lương tháng"
-            type="month"
-            value={month}
-            onChange={(event) => setMonth(event.target.value)}
+      {creating ? (
+        <section className="rounded-xl border border-border bg-card p-4">
+          <AdjustmentForm
+            onCancel={() => setCreating(false)}
+            onSaved={(message) => {
+              setCreating(false);
+              void refresh(message);
+            }}
           />
-          <TextField
-            label="Số tiền (âm là trừ)"
-            type="number"
-            value={amount}
-            onChange={(event) => setAmount(event.target.value)}
-          />
-          <TextField label="Lý do điều chỉnh" value={reason} onChange={(event) => setReason(event.target.value)} />
-          <div>
-            <Button type="submit" variant="primary" disabled={create.isPending}>
-              Lập khoản điều chỉnh
-            </Button>
-          </div>
-        </form>
+        </section>
       ) : null}
-      {create.error ? <Alert tone="danger">{messageOf(create.error)}</Alert> : null}
       {adjustments.error ? <Alert tone="danger">{messageOf(adjustments.error)}</Alert> : null}
-      {adjustments.data && adjustments.data.length === 0 ? (
-        <p className="text-content text-text-secondary">Chưa có khoản điều chỉnh.</p>
-      ) : null}
-      {adjustments.data && adjustments.data.length > 0 ? (
-        <table className="w-full text-content">
-          <tbody>
-            {adjustments.data.map((row) => (
-              <AdjustmentRow key={row.id} adjustment={row} onChanged={refresh} />
-            ))}
-          </tbody>
-        </table>
-      ) : null}
-    </section>
+      {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+      <DataGrid
+        label="Khoản điều chỉnh lương"
+        columns={ADJUSTMENT_COLUMNS}
+        rows={rows}
+        getRowId={(row) => row.id}
+        getRowLabel={(row) => `điều chỉnh lương của ${row.full_name}`}
+        getRowAriaLabel={(row) => `Điều chỉnh lương của ${row.full_name}`}
+        loading={adjustments.isPending}
+        emptyText="Chưa có khoản điều chỉnh."
+        search={{ label: 'Tìm theo tên nhân sự, lý do', value: search, onChange: setSearch }}
+        advancedSearch={
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <label className="text-label font-medium text-text">
+              Trạng thái
+              <select
+                value={status}
+                onChange={(event) => setStatus(event.target.value as PayrollAdjustment['status'] | '')}
+                className={`mt-1 ${FORM_CONTROL_CLASS}`}
+              >
+                <option value="">Tất cả</option>
+                {(Object.keys(ADJUSTMENT_STATUS_LABELS) as Array<PayrollAdjustment['status']>).map((value) => (
+                  <option key={value} value={value}>
+                    {ADJUSTMENT_STATUS_LABELS[value]}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        }
+        toolbar={
+          canManage ? (
+            <Button variant="primary" onClick={() => setCreating(true)}>
+              Thêm mới
+            </Button>
+          ) : null
+        }
+        rowActions={(row) => <AdjustmentActions adjustment={row} onChanged={refresh} />}
+        settings={grid.settings}
+        onSettingsChange={grid.update}
+      />
+    </div>
   );
 }
 
 export function SettlementsPage() {
   const canManage = useHasPermission(PERMISSION_CODES.payrollManage);
   const queryClient = useQueryClient();
+  const grid = useGridSettings('payroll-settlements');
   const settlements = useQuery({ queryKey: ['settlements'], queryFn: listSettlements });
   const [openId, setOpenId] = useState<string>();
+  const [search, setSearch] = useState('');
   const detail = useQuery({
     queryKey: ['settlement', openId],
     queryFn: () => readSettlement(openId ?? ''),
@@ -344,66 +456,53 @@ export function SettlementsPage() {
       setToastMessage('Đã tính bảng quyết toán');
     },
   });
+  const keyword = search.trim().toLocaleLowerCase('vi');
+  const rows = (settlements.data ?? []).filter(
+    (row) =>
+      keyword === '' ||
+      row.full_name.toLocaleLowerCase('vi').includes(keyword) ||
+      row.contract_no.toLocaleLowerCase('vi').includes(keyword),
+  );
 
   return (
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Quyết toán và điều chỉnh lương</h1>
-        <section
-          className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
-          aria-label="Hợp đồng đã chấm dứt"
-        >
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/payroll-settlements')}</h1>
+        <div className="flex flex-col gap-3">
           <h2 className="text-section-title font-semibold text-text">Hợp đồng đã chấm dứt</h2>
           {settlements.error ? <Alert tone="danger">{messageOf(settlements.error)}</Alert> : null}
           {calculate.error ? <Alert tone="danger">{messageOf(calculate.error)}</Alert> : null}
-          {settlements.data && settlements.data.length === 0 ? (
-            <p className="text-content text-text-secondary">Chưa có hợp đồng chấm dứt.</p>
-          ) : null}
-          {settlements.data && settlements.data.length > 0 ? (
-            <table className="w-full text-content">
-              <thead className="text-left text-label font-medium text-text-secondary">
-                <tr>
-                  <th className="px-3 py-2">Nhân sự</th>
-                  <th className="px-3 py-2">Hợp đồng</th>
-                  <th className="px-3 py-2">Ngày nghỉ</th>
-                  <th className="px-3 py-2">Quyết toán</th>
-                  <th className="px-3 py-2" />
-                </tr>
-              </thead>
-              <tbody>
-                {settlements.data.map((row) => (
-                  <tr
-                    key={row.contract_id}
-                    className="border-t border-border"
-                    aria-label={`Quyết toán của ${row.full_name}`}
-                  >
-                    <td className="px-3 py-2 font-medium">{row.full_name}</td>
-                    <td className="px-3 py-2">{row.contract_no}</td>
-                    <td className="px-3 py-2">{row.terminated_on}</td>
-                    <td className="px-3 py-2">
-                      {row.status
-                        ? `${PAYROLL_STATUS_LABELS[row.status]}, ${formatMoney(row.payable_amount ?? 0)}`
-                        : 'Chưa lập'}
-                    </td>
-                    <td className="px-3 py-2 text-right">
-                      {canManage && (!row.status || row.status === 'draft') ? (
-                        <Button disabled={calculate.isPending} onClick={() => calculate.mutate(row.contract_id)}>
-                          {row.status ? 'Tính lại' : 'Lập bảng quyết toán'}
-                        </Button>
-                      ) : null}
-                      {row.settlement_id ? (
-                        <Button variant="text" onClick={() => setOpenId(row.settlement_id ?? undefined)}>
-                          Chi tiết
-                        </Button>
-                      ) : null}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : null}
-        </section>
+          {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+          <DataGrid
+            label="Hợp đồng đã chấm dứt"
+            columns={SETTLEMENT_COLUMNS}
+            rows={rows}
+            getRowId={(row) => row.contract_id}
+            getRowLabel={(row) => `quyết toán của ${row.full_name}`}
+            getRowAriaLabel={(row) => `Quyết toán của ${row.full_name}`}
+            loading={settlements.isPending}
+            emptyText="Chưa có hợp đồng chấm dứt."
+            search={{ label: 'Tìm theo tên nhân sự, số hợp đồng', value: search, onChange: setSearch }}
+            rowActions={(row) => (
+              <span className="flex justify-end gap-2">
+                {canManage && (!row.status || row.status === 'draft') ? (
+                  <Button disabled={calculate.isPending} onClick={() => calculate.mutate(row.contract_id)}>
+                    {row.status ? 'Tính lại' : 'Lập bảng quyết toán'}
+                  </Button>
+                ) : null}
+                {row.settlement_id ? (
+                  <Button variant="text" onClick={() => setOpenId(row.settlement_id ?? undefined)}>
+                    Chi tiết
+                  </Button>
+                ) : null}
+              </span>
+            )}
+            activeRowId={rows.find((row) => row.settlement_id !== null && row.settlement_id === openId)?.contract_id}
+            settings={grid.settings}
+            onSettingsChange={grid.update}
+          />
+        </div>
         {detail.error ? <Alert tone="danger">{messageOf(detail.error)}</Alert> : null}
         {detail.data ? <SettlementDetail settlement={detail.data} onChanged={setToastMessage} /> : null}
         <AdjustmentsSection canManage={canManage} onChanged={setToastMessage} />

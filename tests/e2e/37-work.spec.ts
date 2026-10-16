@@ -59,10 +59,14 @@ test('Quản lý giao việc trên cổng quản trị; giáo viên cập nhật
   await page.getByLabel('Mật khẩu', { exact: true }).fill(manager.password);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
   await openMenu(page, '/work');
+  await page
+    .getByRole('region', { name: 'Việc đã giao trong đơn vị' })
+    .getByRole('button', { name: 'Thêm mới' })
+    .click();
   const form = page.getByRole('form', { name: 'Giao việc' });
   await form.getByLabel('Người nhận').selectOption({ label: fullName });
   await form.getByLabel('Nội dung việc').fill(title);
-  await form.getByRole('button', { name: 'Giao việc' }).click();
+  await form.getByRole('button', { name: 'Ghi' }).click();
   const unitTasks = page.getByRole('table', { name: 'Việc đã giao trong đơn vị' });
   await expect(unitTasks.getByRole('row', { name: `Việc ${title}` })).toContainText('Chưa làm');
 
