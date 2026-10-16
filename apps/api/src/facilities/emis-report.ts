@@ -9,11 +9,13 @@ import { Databases } from '../common/databases.js';
 import { buildEmisStartOfYear, type EmisChild, type EmisStaff } from './emis-calc.js';
 import { FacilitiesData } from './facilities-data.js';
 import { buildFacilitiesWorkbook, fileStamp, sendWorkbook } from './facilities-workbook.js';
+import { UpperLevelForms } from '../submissions/upper-level-submissions.js';
 
 // Báo cáo EMIS đầu năm, Biểu 1 (khảo sát mục 5, dòng 1.1; YCTD-102): tính trên dữ liệu của năm học đang dùng, xem trên
 // màn hình và xuất Excel. Chưa gửi lên Sở (chưa có giao diện lập trình của Sở); thẻ Ngân sách nhà nước chưa làm. Cần phạm
 // vi toàn trường theo quyền P17.report.emis
 const PERMISSION = PERMISSION_CODES.emisReport;
+export const EMIS_START_OF_YEAR_FORM = 'emis-start-of-year';
 
 const text = (profile: Record<string, unknown> | null, key: string): string | null => {
   const value = profile?.[key];
@@ -27,7 +29,35 @@ export class EmisReportService {
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly databases: Databases,
     private readonly clock: Clock,
-  ) {}
+    forms: UpperLevelForms,
+  ) {
+    // Biểu mẫu đầu tiên dùng mẫu gửi lên cấp trên chạy nội bộ (DT-16 phần 16a): hoàn thành dữ liệu theo các cảnh báo của
+    // Biểu 1; tệp gửi là tệp Excel của Biểu 1, bản chụp là số liệu các thẻ tại thời điểm xuất
+    forms.register({
+      code: EMIS_START_OF_YEAR_FORM,
+      name: 'Báo cáo EMIS đầu năm – Biểu 1',
+      permission: PERMISSION,
+      unlockPermission: PERMISSION_CODES.schoolProfileManage,
+      completeness: async (currentUser) => {
+        const report = await this.startOfYear(currentUser);
+        return [
+          { label: 'Đã khai báo loại hình trường trong hồ sơ trường', done: report.ownership !== null },
+          {
+            label: 'Mọi nhóm, lớp đã xếp được nhóm tuổi theo bậc học',
+            done: !report.warnings.some((warning) => warning.includes('chưa xếp được nhóm tuổi')),
+          },
+          {
+            label: 'Mọi phòng đã khai báo hiện trạng',
+            done: !report.warnings.some((warning) => warning.includes('chưa khai báo hiện trạng')),
+          },
+        ];
+      },
+      snapshot: async (currentUser, ipAddress) => {
+        const report = await this.startOfYear(currentUser);
+        return { file: await this.export(currentUser, ipAddress), data: report };
+      },
+    });
+  }
 
   async startOfYear(currentUser: CurrentUser) {
     await this.data.assertWholeSchool(
