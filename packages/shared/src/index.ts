@@ -319,8 +319,20 @@ export const DATA_GRID_KEYS = [
   'administrative-addresses',
   'administrative-unit-mappings',
   // Màn hình còn lại của các phân hệ theo Sở (DT-16 phần 16b): cơ sở vật chất, thiết bị dạy học
+  'facility-rooms',
+  'equipment-summary',
+  'equipment-outside',
+  'equipment-catalog',
   // 16b: cân đo, thống kê, hồ sơ chưa nhập đủ, hoàn thành chương trình
+  'growth-report-children',
+  'missing-child-profiles',
+  'missing-staff-profiles',
+  'program-completion-classes',
+  'program-completion-children',
   // 16b: nhóm học sinh, đánh giá chuẩn nghề nghiệp
+  'child-groups',
+  'child-group-members',
+  'professional-evaluations',
   // 16b: thực đơn bữa ăn
   // 16b: y tế, thuốc
   // 16b: quản trị hệ thống
