@@ -160,7 +160,9 @@ export class SystemAnnouncementsService {
       .select(['id', 'title', 'content', 'valid_from', 'valid_until', 'updated_at'])
       .where('is_active', '=', true)
       .where('valid_from', '<=', today)
-      .where((expression) => expression.or([expression('valid_until', 'is', null), expression('valid_until', '>=', today)]))
+      .where((expression) =>
+        expression.or([expression('valid_until', 'is', null), expression('valid_until', '>=', today)]),
+      )
       .orderBy('valid_from', 'desc')
       .orderBy('created_at', 'desc')
       .execute();
@@ -343,7 +345,9 @@ export class PortalContextService {
       academic_year: identity.academic_year,
       education_level: EDUCATION_LEVEL_LABEL,
       organization_id_reminder:
-        canUpdateProfile && identity.school_name !== null && !isValidOrganizationIdentifier(identity.electronic_id_code),
+        canUpdateProfile &&
+        identity.school_name !== null &&
+        !isValidOrganizationIdentifier(identity.electronic_id_code),
     };
   }
 }
@@ -428,6 +432,10 @@ export class PublicLoginInfoController {
   @Get()
   async info(): Promise<SchoolIdentity> {
     const identity = await this.portalContext.schoolIdentity();
-    return { school_name: identity.school_name, school_code: identity.school_code, academic_year: identity.academic_year };
+    return {
+      school_name: identity.school_name,
+      school_code: identity.school_code,
+      academic_year: identity.academic_year,
+    };
   }
 }

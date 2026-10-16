@@ -51,9 +51,12 @@ describe('Kiểm tra dữ liệu thông báo hệ thống và ứng dụng liên
       code: 'ERR_VALIDATION',
     });
     assert.throws(() => parseAppLinks({ links: [{ name: '', url: 'https://a.vn' }] }), { code: 'ERR_VALIDATION' });
-    assert.throws(() => parseAppLinks({ links: Array.from({ length: 21 }, () => ({ name: 'a', url: 'https://a.vn' })) }), {
-      code: 'ERR_VALIDATION',
-    });
+    assert.throws(
+      () => parseAppLinks({ links: Array.from({ length: 21 }, () => ({ name: 'a', url: 'https://a.vn' })) }),
+      {
+        code: 'ERR_VALIDATION',
+      },
+    );
     assert.throws(() => parseAppLinks({}), { code: 'ERR_VALIDATION' });
   });
 });
@@ -121,12 +124,17 @@ describe('Điểm cuối khung trang cổng quản trị', () => {
     const all = await sendJson('GET', url('/system-announcements'), principal.accessToken);
     assert.equal((all.body as unknown as unknown[]).length, 4);
 
-    const updated = await sendJson('PUT', url(`/system-announcements/${hidden.body.id as string}`), principal.accessToken, {
-      title: 'Đã bật',
-      content: 'b',
-      valid_from: vietnamDate(0),
-      valid_until: vietnamDate(0),
-    });
+    const updated = await sendJson(
+      'PUT',
+      url(`/system-announcements/${hidden.body.id as string}`),
+      principal.accessToken,
+      {
+        title: 'Đã bật',
+        content: 'b',
+        valid_from: vietnamDate(0),
+        valid_until: vietnamDate(0),
+      },
+    );
     assert.equal(updated.status, 200);
     assert.equal(updated.body.is_active, true);
     const afterUpdate = await sendJson('GET', url('/system-announcements/active'), teacher.accessToken);

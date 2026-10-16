@@ -315,7 +315,11 @@ function darkColor(): [number, number, number] {
 export function renderCaptchaPng(text: string): Buffer {
   const canvas = new Canvas([randomInt(225, 246), randomInt(230, 248), randomInt(235, 250)]);
   for (let index = 0; index < 140; index++) {
-    canvas.dot(randomInt(0, WIDTH), randomInt(0, HEIGHT), 0.8, [randomInt(120, 200), randomInt(120, 200), randomInt(120, 200)]);
+    canvas.dot(randomInt(0, WIDTH), randomInt(0, HEIGHT), 0.8, [
+      randomInt(120, 200),
+      randomInt(120, 200),
+      randomInt(120, 200),
+    ]);
   }
   const cellWidth = (WIDTH - 16) / text.length;
   [...text].forEach((character, index) => {

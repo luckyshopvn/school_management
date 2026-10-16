@@ -155,7 +155,11 @@ function AnnouncementForm({
 export function SystemAnnouncementsPage() {
   const queryClient = useQueryClient();
   const canManage = useHasPermission(PERMISSION_CODES.announcementManage);
-  const announcements = useQuery({ queryKey: ['system-announcements'], queryFn: listAnnouncements, enabled: canManage });
+  const announcements = useQuery({
+    queryKey: ['system-announcements'],
+    queryFn: listAnnouncements,
+    enabled: canManage,
+  });
   const grid = useGridSettings('system-announcements');
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<SystemAnnouncement | 'new'>();

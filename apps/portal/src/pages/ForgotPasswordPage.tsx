@@ -69,7 +69,11 @@ export function ForgotPasswordPage() {
       return;
     }
     void run(async () => {
-      const response = await confirmPasswordReset({ login: loginIdentifier.trim(), code: code.trim(), new_password: newPassword });
+      const response = await confirmPasswordReset({
+        login: loginIdentifier.trim(),
+        code: code.trim(),
+        new_password: newPassword,
+      });
       setNotice(response.message);
       setStep('done');
     });

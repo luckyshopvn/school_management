@@ -26,34 +26,35 @@ export function HelpPage() {
             điền sẵn tên đăng nhập; mật khẩu không bao giờ được ghi nhớ.
           </p>
           <p>
-            Nhập sai mật khẩu nhiều lần thì phải nhập thêm mã xác nhận trong ảnh; bấm "Làm mới mã" nếu ảnh khó đọc. Sai 5 lần
-            liên tiếp thì tài khoản tạm khóa 15 phút.
+            Nhập sai mật khẩu nhiều lần thì phải nhập thêm mã xác nhận trong ảnh; bấm "Làm mới mã" nếu ảnh khó đọc. Sai
+            5 lần liên tiếp thì tài khoản tạm khóa 15 phút.
           </p>
           <p>
-            Quên mật khẩu: bấm "Quên mật khẩu?" ở trang đăng nhập, nhập số điện thoại hoặc tên đăng nhập, nhận mã qua tin
-            nhắn rồi đặt mật khẩu mới. Mật khẩu mới phải có ít nhất 8 ký tự, có cả chữ và số, khác các mật khẩu dùng gần
-            đây.
+            Quên mật khẩu: bấm "Quên mật khẩu?" ở trang đăng nhập, nhập số điện thoại hoặc tên đăng nhập, nhận mã qua
+            tin nhắn rồi đặt mật khẩu mới. Mật khẩu mới phải có ít nhất 8 ký tự, có cả chữ và số, khác các mật khẩu dùng
+            gần đây.
           </p>
         </Section>
         <Section title="2. Thanh đầu trang">
           <p>
-            Bên trái là tên trường và ô chọn phân hệ (Quản lý giáo dục Mầm non, Cơ sở vật chất, Báo cáo số liệu, Quản trị hệ
-            thống…). Mỗi phân hệ có menu ngang đánh số riêng ngay dưới thanh đầu trang.
+            Bên trái là tên trường và ô chọn phân hệ (Quản lý giáo dục Mầm non, Cơ sở vật chất, Báo cáo số liệu, Quản
+            trị hệ thống…). Mỗi phân hệ có menu ngang đánh số riêng ngay dưới thanh đầu trang.
           </p>
           <p>
-            Bên phải là ô ngữ cảnh "Cấp MN · năm học · học kỳ", chuông thông báo, lưới ứng dụng liên kết và menu người dùng.
-            Menu người dùng có Thông báo, Hồ sơ nhân sự cá nhân, Đổi mật khẩu, Cấu hình hiển thị lưới, Danh sách ý kiến đã
-            gửi, Hướng dẫn và Thoát.
+            Bên phải là ô ngữ cảnh "Cấp MN · năm học · học kỳ", chuông thông báo, lưới ứng dụng liên kết và menu người
+            dùng. Menu người dùng có Thông báo, Hồ sơ nhân sự cá nhân, Đổi mật khẩu, Cấu hình hiển thị lưới, Danh sách ý
+            kiến đã gửi, Hướng dẫn và Thoát.
           </p>
           <p>
-            Khi vào trang, hộp "Thông báo" hiện các thông báo của nhà trường, nhắc mật khẩu sắp hết hạn và nhắc cập nhật mã
-            định danh điện tử của tổ chức theo Nghị định 69 (người quản lý hồ sơ trường).
+            Khi vào trang, hộp "Thông báo" hiện các thông báo của nhà trường, nhắc mật khẩu sắp hết hạn và nhắc cập nhật
+            mã định danh điện tử của tổ chức theo Nghị định 69 (người quản lý hồ sơ trường).
           </p>
         </Section>
         <Section title="3. Màn hình danh sách">
           <p>
-            Lưới dữ liệu có ô tìm kiếm, "Mở rộng tìm kiếm", chọn cột hiển thị, số dòng mỗi trang và phân trang. Cấu hình của
-            từng lưới được lưu theo tài khoản; số dòng mặc định đặt ở "Cấu hình hiển thị lưới" trong menu người dùng.
+            Lưới dữ liệu có ô tìm kiếm, "Mở rộng tìm kiếm", chọn cột hiển thị, số dòng mỗi trang và phân trang. Cấu hình
+            của từng lưới được lưu theo tài khoản; số dòng mặc định đặt ở "Cấu hình hiển thị lưới" trong menu người
+            dùng.
           </p>
           <p>Xóa dữ liệu cần tích "Tôi đã đọc và đồng ý xóa" trong hộp xác nhận.</p>
         </Section>

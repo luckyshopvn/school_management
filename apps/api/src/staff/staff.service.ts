@@ -422,7 +422,9 @@ export class StaffService {
         entityName: 'staff',
         entityId: existing.id,
         action: 'update',
-        before: Object.fromEntries(Object.keys(changes).map((key) => [key, existing[key as 'phone' | 'email' | 'address']])),
+        before: Object.fromEntries(
+          Object.keys(changes).map((key) => [key, existing[key as 'phone' | 'email' | 'address']]),
+        ),
         after: changes,
       });
     });

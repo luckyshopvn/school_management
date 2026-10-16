@@ -300,12 +300,7 @@ export class AuthenticationService {
       throw validationError([{ field: 'new_password', message: 'Mật khẩu mới phải khác mật khẩu hiện tại' }]);
     }
     // Không cho dùng lại mật khẩu gần đây (DT-16 phần 16c)
-    await assertPasswordNotReused(
-      this.database,
-      user,
-      newPassword,
-      await this.identitySettings.passwordHistoryCount(),
-    );
+    await assertPasswordNotReused(this.database, user, newPassword, await this.identitySettings.passwordHistoryCount());
 
     const newHash = await hashPassword(newPassword);
     await this.database.transaction().execute(async (transaction) => {

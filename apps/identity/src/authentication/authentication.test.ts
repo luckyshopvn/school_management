@@ -254,7 +254,11 @@ describe('Dịch vụ định danh: đăng nhập và phiên', () => {
     const { accessToken } = readTokens(await login(context, administrator.username, administrator.password));
     const me = await getJson(`${context.baseUrl}/auth/me`, accessToken);
     const assignments = me.body.assignments as Array<{ permissions: string[] }>;
-    assert.deepEqual(assignments[0]?.permissions, ['P01.account.manage', 'P01.announcement.manage', 'P01.feedback.manage']);
+    assert.deepEqual(assignments[0]?.permissions, [
+      'P01.account.manage',
+      'P01.announcement.manage',
+      'P01.feedback.manage',
+    ]);
   });
 
   it('BM-07: tài khoản bắt buộc đổi mật khẩu chỉ dùng được đổi mật khẩu; đổi xong cấp mã đầy đủ', async () => {

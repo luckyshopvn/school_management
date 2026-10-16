@@ -22,10 +22,7 @@ export const migration: Migration = {
       .addColumn('updated_at', 'timestamptz', (column) => column.notNull().defaultTo(sql`now()`))
       .addCheckConstraint('system_announcements_title_check', sql`length(title) between 1 and 200`)
       .addCheckConstraint('system_announcements_content_check', sql`length(content) between 1 and 5000`)
-      .addCheckConstraint(
-        'system_announcements_period_check',
-        sql`valid_until is null or valid_until >= valid_from`,
-      )
+      .addCheckConstraint('system_announcements_period_check', sql`valid_until is null or valid_until >= valid_from`)
       .execute();
     await database.schema
       .createIndex('system_announcements_period_index')

@@ -72,7 +72,10 @@ describe('Dịch vụ định danh: bảo mật đăng nhập cổng quản tr�
     assert.deepEqual(fieldsOf(missing.body), ['captcha']);
 
     const captcha = await solvedCaptcha(context);
-    const wrong = await login(staff.username, staff.password, { captcha_id: captcha.captcha_id, captcha_text: 'XXXXX' });
+    const wrong = await login(staff.username, staff.password, {
+      captcha_id: captcha.captcha_id,
+      captcha_text: 'XXXXX',
+    });
     assert.equal(wrong.status, 400);
     // Mã đã so một lần thì hết hiệu lực dù lần trước nhập sai
     const reused = await login(staff.username, staff.password, captcha);

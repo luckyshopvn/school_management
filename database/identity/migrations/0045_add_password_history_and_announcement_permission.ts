@@ -31,7 +31,9 @@ export const migration: Migration = {
       values (${ANNOUNCEMENT_MANAGE_PERMISSION}, 'P01', ${description})`.execute(database);
     await sql`insert into role_permissions (role_id, permission_id)
       select roles.id, permissions.id from roles, permissions
-      where roles.code in ('VT-01', 'VT-02') and permissions.code = ${ANNOUNCEMENT_MANAGE_PERMISSION}`.execute(database);
+      where roles.code in ('VT-01', 'VT-02') and permissions.code = ${ANNOUNCEMENT_MANAGE_PERMISSION}`.execute(
+      database,
+    );
   },
   async down(database) {
     await sql`delete from role_permissions where permission_id in (select id from permissions where code = ${ANNOUNCEMENT_MANAGE_PERMISSION})`.execute(

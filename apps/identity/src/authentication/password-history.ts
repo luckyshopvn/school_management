@@ -56,9 +56,5 @@ export async function recordPasswordHistory(
     .where('user_id', '=', userId)
     .orderBy('created_at', 'desc')
     .limit(MAXIMUM_KEPT);
-  await executor
-    .deleteFrom('password_history')
-    .where('user_id', '=', userId)
-    .where('id', 'not in', kept)
-    .execute();
+  await executor.deleteFrom('password_history').where('user_id', '=', userId).where('id', 'not in', kept).execute();
 }

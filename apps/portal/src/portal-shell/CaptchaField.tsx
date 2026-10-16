@@ -31,13 +31,7 @@ export function useCaptcha(enabled: boolean) {
   return { challenge, text, setText, refresh, answer, loadError };
 }
 
-export function CaptchaField({
-  captcha,
-  error,
-}: {
-  captcha: ReturnType<typeof useCaptcha>;
-  error?: string;
-}) {
+export function CaptchaField({ captcha, error }: { captcha: ReturnType<typeof useCaptcha>; error?: string }) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">

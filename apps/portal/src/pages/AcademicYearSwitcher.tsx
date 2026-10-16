@@ -110,7 +110,9 @@ export function AcademicYearSwitcher() {
     return <span className="hidden h-4 w-36 animate-pulse rounded bg-header-strong md:inline" aria-hidden="true" />;
   }
   // Ô ngữ cảnh "Cấp MN · năm học · học kỳ" như của Sở (DT-16 phần 16c)
-  const buttonText = currentYear ? `${EDUCATION_LEVEL} · ${currentYear.name} · ${termLabel}` : 'Chưa có năm học đang dùng';
+  const buttonText = currentYear
+    ? `${EDUCATION_LEVEL} · ${currentYear.name} · ${termLabel}`
+    : 'Chưa có năm học đang dùng';
 
   return (
     <div className="relative hidden md:block" ref={container}>

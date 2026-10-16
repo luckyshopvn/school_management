@@ -71,9 +71,7 @@ export function AppLauncher() {
                   onClick={() => setOpen(false)}
                 >
                   <span className="text-label font-semibold text-text">{link.name}</span>
-                  {link.description ? (
-                    <span className="text-label text-text-secondary">{link.description}</span>
-                  ) : null}
+                  {link.description ? <span className="text-label text-text-secondary">{link.description}</span> : null}
                 </a>
               </li>
             ))}

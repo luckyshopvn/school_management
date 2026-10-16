@@ -150,7 +150,11 @@ export class PasswordResetService {
       const attempts = current.attempt_count + 1;
       await this.database
         .updateTable('one_time_codes')
-        .set(attempts >= rules.maximumAttempts ? { attempt_count: attempts, expires_at: now } : { attempt_count: attempts })
+        .set(
+          attempts >= rules.maximumAttempts
+            ? { attempt_count: attempts, expires_at: now }
+            : { attempt_count: attempts },
+        )
         .where('id', '=', current.id)
         .execute();
       await this.authenticationService.recordSecurityEvent(

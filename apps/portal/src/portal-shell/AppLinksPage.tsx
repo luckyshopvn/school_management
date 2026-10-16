@@ -68,8 +68,8 @@ export function AppLinksPage() {
       <div className="flex flex-col gap-6">
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/app-links')}</h1>
         <p className="text-label text-text-secondary">
-          Ứng dụng trong danh sách hiện ở nút lưới ứng dụng trên thanh đầu trang của mọi người dùng, theo thứ tự dưới đây.
-          Đường dẫn bắt đầu bằng http:// hoặc https://, mở ở thẻ mới.
+          Ứng dụng trong danh sách hiện ở nút lưới ứng dụng trên thanh đầu trang của mọi người dùng, theo thứ tự dưới
+          đây. Đường dẫn bắt đầu bằng http:// hoặc https://, mở ở thẻ mới.
         </p>
         {links.error ? <Alert tone="danger">{messageOf(links.error)}</Alert> : null}
         {save.error && !(save.error instanceof ApiError && save.error.details.length > 0) ? (
@@ -139,7 +139,11 @@ export function AppLinksPage() {
                         <Button variant="text" aria-label={`Đưa dòng ${index + 1} lên`} onClick={() => move(index, -1)}>
                           ↑
                         </Button>
-                        <Button variant="text" aria-label={`Đưa dòng ${index + 1} xuống`} onClick={() => move(index, 1)}>
+                        <Button
+                          variant="text"
+                          aria-label={`Đưa dòng ${index + 1} xuống`}
+                          onClick={() => move(index, 1)}
+                        >
                           ↓
                         </Button>
                         <Button

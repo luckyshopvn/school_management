@@ -90,10 +90,14 @@ export function StartupNotices() {
           </section>
         ) : null}
         {reminder ? (
-          <section className="flex flex-col gap-1 rounded-lg border border-warning p-3" aria-label="Mã định danh tổ chức">
+          <section
+            className="flex flex-col gap-1 rounded-lg border border-warning p-3"
+            aria-label="Mã định danh tổ chức"
+          >
             <h3 className="font-semibold">Cập nhật mã định danh điện tử của tổ chức</h3>
             <p>
-              Theo Nghị định 69/2024/NĐ-CP, trường cần cập nhật mã định danh điện tử của tổ chức (12 chữ số) vào hồ sơ trường.{' '}
+              Theo Nghị định 69/2024/NĐ-CP, trường cần cập nhật mã định danh điện tử của tổ chức (12 chữ số) vào hồ sơ
+              trường.{' '}
               <Link to="/school-profile" className="font-medium text-link underline" onClick={close}>
                 Cập nhật hồ sơ trường
               </Link>

@@ -231,7 +231,8 @@ export class IdentitySettingsService {
         after: {
           ...numericChanges,
           ...Object.fromEntries(otherChanges),
-          ...(newHash ? { parent_default_password: 'đã đặt mật khẩu mới' } : {}) },
+          ...(newHash ? { parent_default_password: 'đã đặt mật khẩu mới' } : {}),
+        },
         ipAddress: caller.ipAddress,
       });
     });

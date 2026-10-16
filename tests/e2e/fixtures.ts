@@ -11,7 +11,10 @@ const STARTUP_NOTICES_KEY = 'portal.startup-notices-shown';
 async function suppressStartupNotices(context: BrowserContext): Promise<void> {
   await context.addInitScript((key) => {
     try {
-      window.sessionStorage.setItem(key, '1');
+      // Tệp kiểm thử không nạp kiểu của trình duyệt; đoạn này chạy trong trang
+      (
+        globalThis as unknown as { sessionStorage: { setItem(name: string, value: string): void } }
+      ).sessionStorage.setItem(key, '1');
     } catch {
       // Trang không có bộ nhớ phiên (ví dụ about:blank) thì bỏ qua
     }
