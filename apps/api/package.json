@@ -30,7 +30,6 @@
     "@school-management/config": "workspace:*",
     "@school-management/identity": "workspace:*",
     "@types/express": "^5.0.6",
-    "@types/multer": "^1.4.12",
-    "@types/pdfmake": "0.3.3"
+    "@types/multer": "^1.4.12"
   }
 }

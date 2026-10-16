@@ -1,6 +1,5 @@
 import ExcelJS from 'exceljs';
-import pdfmake from 'pdfmake';
-import type { Content, TableCell, TDocumentDefinitions } from 'pdfmake/interfaces.js';
+import pdfmake, { type PdfContent, type PdfDocumentDefinition } from 'pdfmake';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 
@@ -41,10 +40,8 @@ function ensureFonts(): void {
   }
   const require = createRequire(import.meta.url);
   // Ghi phông vào bộ nhớ của pdfmake rồi gọi theo tên tệp, không cho thư viện đọc ổ đĩa
-  const virtualFiles = (pdfmake as unknown as { virtualfs: { writeFileSync(name: string, body: Buffer): void } })
-    .virtualfs;
   for (const name of FONT_FILES) {
-    virtualFiles.writeFileSync(name, readFileSync(require.resolve(`pdfmake/build/fonts/Roboto/${name}`)));
+    pdfmake.virtualfs.writeFileSync(name, readFileSync(require.resolve(`pdfmake/build/fonts/Roboto/${name}`)));
   }
   pdfmake.setFonts({
     Roboto: {
@@ -111,7 +108,7 @@ async function buildWorkbook(sheets: TableFileSheet[], createdAt: Date): Promise
 
 async function buildPdf(sheets: TableFileSheet[], createdAt: Date): Promise<Buffer> {
   ensureFonts();
-  const content: Content[] = [];
+  const content: PdfContent[] = [];
   sheets.forEach((sheet, sheetIndex) => {
     const columns = sheetColumns(sheet);
     const heading = sheet.heading?.length ? sheet.heading : [sheet.title];
@@ -119,11 +116,11 @@ async function buildPdf(sheets: TableFileSheet[], createdAt: Date): Promise<Buff
       content.push({
         text: line,
         style: index === 0 ? 'title' : 'note',
-        ...(index === 0 && sheetIndex > 0 ? { pageBreak: 'before' as const } : {}),
+        ...(index === 0 && sheetIndex > 0 ? { pageBreak: 'before' } : {}),
       });
     });
-    const header: TableCell[] = columns.map((column) => ({ text: column.label, style: 'header' }));
-    const body: TableCell[][] = [
+    const header: PdfContent[] = columns.map((column) => ({ text: column.label, style: 'header' }));
+    const body: PdfContent[][] = [
       header,
       ...sheetRows(sheet).map((row) => columns.map((column) => ({ text: cellText(row[column.key]) }))),
     ];
@@ -141,7 +138,7 @@ async function buildPdf(sheets: TableFileSheet[], createdAt: Date): Promise<Buff
     });
   });
   const stamp = createdAt.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
-  const definition: TDocumentDefinitions = {
+  const definition: PdfDocumentDefinition = {
     pageSize: 'A4',
     pageOrientation: 'landscape',
     pageMargins: [24, 28, 24, 32],

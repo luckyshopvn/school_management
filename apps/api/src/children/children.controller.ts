@@ -18,7 +18,8 @@ import {
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { ChildrenService, type ChildChanges, type GuardianInput, type HealthInput } from './children.service.js';
 import { DEFAULT_STUDENT_EXPORT_COLUMNS, readStudentListFilter, STUDENT_EXPORT_COLUMNS } from './student-list.js';
-import { sendWorkbook } from './student-workbook.js';
+import { sendExportOutcome } from '../exports/export-jobs.js';
+import { readTableFileFormat } from '../exports/table-file.js';
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const NATIONAL_ID_PATTERN = /^\d{12}$/;
@@ -150,7 +151,8 @@ export class ChildrenController {
     return this.childrenService.list(currentUser, { ...filter, page, pageSize });
   }
 
-  // Xuất Excel danh sách học sinh theo bộ lọc và các cột đang hiện trên lưới; cần quyền xuất dữ liệu (BR-74)
+  // Xuất Excel hoặc PDF danh sách học sinh theo bộ lọc và các cột đang hiện trên lưới; cần quyền xuất dữ liệu (BR-74).
+  // Danh sách lớn trả 202 kèm tác vụ xuất nền (DT-16 phần 16a)
   @Post('children/export')
   @HttpCode(200)
   @RequirePermission(PERMISSION_CODES.dataExport)
@@ -176,10 +178,17 @@ export class ChildrenController {
         columns = rawColumns as string[];
       }
     }
-    if (errors.length > 0) {
+    const format = readTableFileFormat(body?.format);
+    if (!format) {
+      errors.push({ field: 'format', message: 'Định dạng xuất là xlsx hoặc pdf' });
+    }
+    if (errors.length > 0 || !format) {
       throw validationError(errors);
     }
-    sendWorkbook(response, await this.childrenService.exportList(currentUser, filter, columns, request.ip ?? null));
+    sendExportOutcome(
+      response,
+      await this.childrenService.exportList(currentUser, filter, columns, format, request.ip ?? null),
+    );
   }
 
   // Cập nhật hàng loạt học 2 buổi/ngày, bán trú (mục 4.1.12 của Sở, YCTD-108)

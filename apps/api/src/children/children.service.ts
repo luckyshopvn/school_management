@@ -18,10 +18,12 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { writeDataAccessLog } from '../common/data-access-log.js';
 import { queueNotification } from '../common/notification-queue.js';
 import { notFoundError } from '../common/request-fields.js';
+import { ExportJobs, ExportTooLargeError, type ExportRequestContext } from '../exports/export-jobs.js';
 import { MOET_CHILD_COLUMNS, describeMoetProfile } from '../imports/moet-columns.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { ChildScope } from './child-scope.js';
 import { buildStudentWorkbook, fileStamp } from './student-workbook.js';
+import type { TableFileFormat } from '../exports/table-file.js';
 import {
   findStudents,
   STUDENT_EXPORT_COLUMNS,
@@ -105,7 +107,6 @@ const IDENTITY_FIELDS = [
 ] as const;
 const VIETNAM_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
 const PAGE_SIZE_LIMIT = 200;
-const EXPORT_ROW_LIMIT = 10_000;
 
 type Executor = Kysely<SchoolYearDatabase> | Transaction<SchoolYearDatabase>;
 
@@ -123,7 +124,20 @@ export class ChildrenService {
     private readonly identityClient: IdentityClient,
     private readonly capacity: ClassCapacity,
     private readonly clock: Clock,
-  ) {}
+    private readonly exportJobs: ExportJobs,
+  ) {
+    // Danh sách lớn xuất bằng tác vụ nền với cùng bộ lọc, cùng cột (DT-16 phần 16a)
+    exportJobs.register('children', {
+      title: 'Danh sách học sinh',
+      run: (currentUser, parameters, context) =>
+        this.buildExport(
+          currentUser,
+          parameters.filter as StudentListFilter,
+          parameters.columns as string[],
+          context,
+        ),
+    });
+  }
 
   private today(): string {
     return VIETNAM_DATE.format(this.clock.now());
@@ -151,18 +165,31 @@ export class ChildrenService {
     };
   }
 
-  // Xuất Excel đúng các cột đang hiện trên lưới, theo bộ lọc đang chọn; ghi nhật ký xuất trước khi trả tệp (BR-74)
-  async exportList(currentUser: CurrentUser, filter: StudentListFilter, columnIds: string[], ipAddress: string | null) {
+  // Xuất Excel, PDF đúng các cột đang hiện trên lưới, theo bộ lọc đang chọn; ghi nhật ký xuất trước khi trả tệp (BR-74).
+  // Danh sách vượt số dòng xuất trực tiếp thì tạo tác vụ nền (DT-16 phần 16a)
+  exportList(
+    currentUser: CurrentUser,
+    filter: StudentListFilter,
+    columnIds: string[],
+    format: TableFileFormat,
+    ipAddress: string | null,
+  ) {
+    return this.exportJobs.exportOrQueue(currentUser, 'children', { filter, columns: columnIds }, format, ipAddress);
+  }
+
+  private async buildExport(
+    currentUser: CurrentUser,
+    filter: StudentListFilter,
+    columnIds: string[],
+    { format, ipAddress, rowLimit }: ExportRequestContext,
+  ) {
     const { database } = await this.currentSchoolYear.require();
     const { total, rows } = await this.studentPage(database, currentUser, filter, {
-      limit: EXPORT_ROW_LIMIT,
+      limit: rowLimit,
       offset: 0,
     });
-    if (total > EXPORT_ROW_LIMIT) {
-      throw ruleViolationError(
-        'YCTD-108',
-        `Danh sách có hơn ${EXPORT_ROW_LIMIT} học sinh, hãy thu hẹp bộ lọc trước khi xuất Excel`,
-      );
+    if (total > rowLimit) {
+      throw new ExportTooLargeError(total);
     }
     const canSeeHealth = this.childScope.canSeeHealth(currentUser);
     const columns = columnIds.flatMap((id) => STUDENT_EXPORT_COLUMNS.filter((column) => column.id === id));
@@ -183,6 +210,7 @@ export class ChildrenService {
       }),
       ipAddress,
       createdAt,
+      format,
     });
   }
 
