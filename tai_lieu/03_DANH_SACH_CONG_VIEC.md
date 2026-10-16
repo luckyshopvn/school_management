@@ -21,7 +21,7 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | P06 Tài chính | Hoàn thành | Đợt DT-05 phần 5d đến 5f, DT-10 phần 10i, DT-11 phần 11c, 11d (YCTD-88, YCTD-89) |
 | P07 Nhân sự | Hoàn thành | Đợt DT-06 phần 6a (YCTD-58), DT-10 phần 10h, DT-14 phần 14c (YCTD-104: đánh giá chuẩn nghề nghiệp), DT-15 phần 15d (YCTD-112: 3.1.1 Hồ sơ cán bộ, giáo viên theo Sở, mở rộng tìm kiếm 3.1.4, xuất Excel, hồ sơ hai thẻ) |
 | P08 Chấm công và tiền lương | Hoàn thành | Đợt DT-06 phần 6b, 6c (YCTD-59 đến YCTD-61), DT-15 phần 15f2 (YCTD-113: giao diện chung của Sở cho chấm công, nghỉ phép, lịch công tác, lương, quyết toán) |
-| P09 Công việc, kế hoạch và đánh giá | Hoàn thành | Đợt DT-10 phần 10h (YCTD-81), DT-15 phần 15f2 (YCTD-113: lưới và biểu mẫu chung cho công việc, kế hoạch, đánh giá nhân sự) |
+| P09 Công việc, kế hoạch và đánh giá | Hoàn thành | Đợt DT-10 phần 10h (YCTD-81), DT-15 phần 15f2 (YCTD-113: lưới và biểu mẫu chung cho công việc, kế hoạch, đánh giá nhân sự), DT-15 phần 15h2 (YCTD-118: 5.10 Văn thư lưu trữ theo Sở) |
 | P10 Y tế học đường | Hoàn thành | Đợt DT-10 phần 10a, 10b (YCTD-74, YCTD-75), DT-14 phần 14a (YCTD-105: đợt cân đo, kênh tăng trưởng theo chuẩn WHO, tổng hợp cân nặng, chiều cao) |
 | P11 Xe đưa đón | Đã bỏ | Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62) |
 | P12 Bếp và dinh dưỡng | Hoàn thành | Đợt DT-10 phần 10c (YCTD-76) |

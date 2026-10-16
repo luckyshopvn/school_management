@@ -103,6 +103,7 @@ Mỗi đợt: ghi YCTD, chạy đủ kiểm thử đơn vị và e2e, mở PR, g
 | 15f2 | Đã triển khai (YCTD-113): 12 trang của phân hệ Nhân sự – chấm công, lương có tiêu đề đánh số theo menu; 17 lưới dữ liệu chung ở 10 trang; biểu mẫu Thêm mới theo khối, nút Ghi; hộp xác nhận xóa ở ngày lễ, lịch bù, lịch công tác; nghiệp vụ không đổi; bảng chấm công tháng, bảng lương tháng, bảng quyết toán, biểu thuế, phiếu lương của tôi, bảng tiến độ, kết quả đánh giá của tôi giữ bố cục |
 | 15g | Đã triển khai (YCTD-110) |
 | 15h1 | Đã triển khai (YCTD-116): 4.1.11 Cập nhật địa danh hành chính (lưới địa chỉ học sinh theo địa danh cũ ở năm loại địa chỉ, đề xuất, chuyển hàng loạt; bảng đối chiếu Thành phố Hồ Chí Minh, nhập từ Excel); chưa có nhập danh sách học sinh kèm địa chỉ mới từ Excel |
+| 15h2 | Đã triển khai (YCTD-118): 5.10 Văn thư lưu trữ gồm 5.10.1 Hồ sơ tài liệu (hoàn thành, chưa hoàn thành, người giải quyết, thời hạn, tệp đính kèm, Xuất Excel), 5.10.2 Phông lưu trữ, 5.10.3 Thông tin lưu trữ, 5.10.4 Báo cáo lưu trữ (Xuất Excel); chưa có sổ văn bản đến, đi |
 
 ## 7. Bổ sung đủ tính năng theo Sở (DT-16)
 

@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.68.0 – 2026-10-16
+
+- Phạm vi thay đổi: DT-15 phần 15h2, văn thư lưu trữ theo hệ thống của Sở (YCTD-118).
+- Chức năng mới: nhóm menu "5.10. Văn thư lưu trữ" của phân hệ Quản lý giáo dục Mầm non với bốn màn hình: 5.10.1 Hồ sơ tài liệu (hai thẻ Chưa hoàn thành, Hoàn thành; người giải quyết, thời hạn, nhãn Quá hạn; tệp đính kèm ở kho tệp; Xuất Excel), 5.10.2 Phông lưu trữ, 5.10.3 Thông tin lưu trữ (phông, giai đoạn, chỉnh lý, hết giá trị, thời hạn bảo quản, số bó, số hộp, số mét giá, nơi bảo quản), 5.10.4 Báo cáo lưu trữ cộng theo phông, giai đoạn có Xuất Excel (P09-06 đến P09-08).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp hệ thống `0009_create_archive_tables` tạo bốn bảng `archive_fonds`, `archive_holdings`, `archive_records`, `archive_record_files`; tệp định danh `0044_add_archive_permissions` thêm ba quyền `P09.archive.view`, `P09.archive.manage`, `P09.archive.export` và gán cho VT-02, VT-04, VT-06 (đủ ba), VT-15 (xem, xuất), VT-03 (xem).
+- Thay đổi API: điểm cuối mới `/archive-fonds`, `/archive-holdings`, `/archive-report`, `/archive-report/export`, `/archive-records`, `/archive-records/export`, `/archive-records/{id}`, `/archive-records/{id}/files`, `/archive-records/{id}/files/{fileId}`.
+- Rủi ro: người giải quyết là chữ tự do; xóa tệp ở kho tệp sau khi xóa dòng nên lỗi kho tệp có thể để lại tệp mồ côi.
+- Khả năng tương thích: không đổi bảng, điểm cuối, màn hình cũ; kho tệp thêm thao tác xóa tệp; ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 15h2; chạy phần quay lui của tệp `0009` (xóa bốn bảng) và `0044` (gỡ ba quyền); tệp đính kèm đã tải lên nằm dưới khóa `archive-records/` của kho tệp, xóa thủ công nếu cần.
+
 ### Phiên bản 0.67.0 – 2026-10-16
 
 - Phạm vi thay đổi: DT-15 phần 15f2, phân hệ Nhân sự – chấm công, lương theo giao diện chung của Sở (YCTD-113).
