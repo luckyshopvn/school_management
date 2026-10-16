@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Văn thư lưu trữ, mục 5.10 của Sở (DT-15 phần 15h2, YCTD-117). Đặt ở cơ sở dữ liệu hệ thống vì hồ sơ, phông lưu trữ không
+// Văn thư lưu trữ, mục 5.10 của Sở (DT-15 phần 15h2, YCTD-118). Đặt ở cơ sở dữ liệu hệ thống vì hồ sơ, phông lưu trữ không
 // gắn với một năm học. archive_fonds: phông lưu trữ của trường. archive_holdings: thông tin lưu trữ của một phông theo giai
 // đoạn (từ năm, đến năm), đã chỉnh lý hay chưa, còn hay hết giá trị, thời hạn bảo quản, số bó, số hộp, số mét giá, nơi bảo
 // quản; Báo cáo lưu trữ cộng các dòng này. archive_records: hồ sơ tài liệu hoàn thành, chưa hoàn thành, có người giải

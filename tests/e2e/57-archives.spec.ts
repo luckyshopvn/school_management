@@ -4,7 +4,7 @@ import { createTestUser } from '@school-management/identity/testing';
 import ExcelJS from 'exceljs';
 import { expectNoMenuLink, menuLink, openMenu } from './menu.js';
 
-// Văn thư lưu trữ, mục 5.10 của Sở (DT-15 phần 15h2, YCTD-117; CT-15h2-11 đến CT-15h2-13): phông, thông tin lưu trữ,
+// Văn thư lưu trữ, mục 5.10 của Sở (DT-15 phần 15h2, YCTD-118; CT-15h2-11 đến CT-15h2-13): phông, thông tin lưu trữ,
 // hồ sơ tài liệu hoàn thành và chưa hoàn thành có tệp đính kèm, báo cáo lưu trữ, quyền theo thao tác. Dữ liệu là dữ liệu
 // giả của riêng kịch bản này, mã có hậu tố theo lần chạy
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));

@@ -13,7 +13,7 @@ import type { ObjectStorageSettings } from '../common/configuration.js';
 export abstract class FileStorage {
   abstract put(key: string, body: Buffer, contentType: string): Promise<void>;
   abstract get(key: string): Promise<Buffer>;
-  // Xóa tệp khi bản ghi sở hữu bị xóa (tệp đính kèm hồ sơ văn thư, YCTD-117); tệp không còn thì bỏ qua
+  // Xóa tệp khi bản ghi sở hữu bị xóa (tệp đính kèm hồ sơ văn thư, YCTD-118); tệp không còn thì bỏ qua
   abstract delete(key: string): Promise<void>;
 }
 

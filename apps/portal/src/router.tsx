@@ -186,7 +186,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/notifications', component: NotificationsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/my-feedback', component: MyFeedbackPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/feedback', component: FeedbackPage }),
-  // Văn thư lưu trữ (DT-15 phần 15h2, YCTD-117)
+  // Văn thư lưu trữ (DT-15 phần 15h2, YCTD-118)
   createRoute({ getParentRoute: () => rootRoute, path: '/archive-records', component: ArchiveRecordsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/archive-fonds', component: ArchiveFondsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/archive-holdings', component: ArchiveHoldingsPage }),

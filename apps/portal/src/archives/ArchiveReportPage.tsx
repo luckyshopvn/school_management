@@ -16,7 +16,7 @@ import {
   type ArchiveReportRow,
 } from './archives-api.js';
 
-// 5.10.4. Báo cáo lưu trữ (DT-15 phần 15h2, YCTD-117): cộng thông tin lưu trữ theo phông và giai đoạn với các tiêu chí của
+// 5.10.4. Báo cáo lưu trữ (DT-15 phần 15h2, YCTD-118): cộng thông tin lưu trữ theo phông và giai đoạn với các tiêu chí của
 // Sở: tổng số mét giá, đã chỉnh lý, chưa chỉnh lý, hết giá trị, bảo quản vĩnh viễn, có thời hạn, số bó, số hộp, nơi bảo
 // quản; dòng cuối là tổng cộng. Lọc theo phông, nơi bảo quản; Xuất Excel theo bộ lọc đang chọn, máy chủ ghi nhật ký xuất
 const TOTAL_ROW_ID = 'total';

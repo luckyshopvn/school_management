@@ -60,7 +60,7 @@ function readReportFilter(query: Record<string, unknown>): ArchiveReportFilter {
   return { fond_id: fondId, storage_location: location || null };
 }
 
-// Văn thư lưu trữ (DT-15 phần 15h2, YCTD-117). Xem cần P09.archive.view; người có quyền quản lý hoặc xuất cũng xem được
+// Văn thư lưu trữ (DT-15 phần 15h2, YCTD-118). Xem cần P09.archive.view; người có quyền quản lý hoặc xuất cũng xem được
 // để dùng màn hình của mình. Thêm, sửa, xóa, đính kèm cần P09.archive.manage; xuất Excel cần P09.archive.export và ghi
 // nhật ký xuất (BR-74). Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12)
 @Controller()

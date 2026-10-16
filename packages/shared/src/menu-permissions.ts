@@ -74,7 +74,7 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/attendance': CHILDREN_AND_CLASSES,
   '/statistics': STATISTICS,
   '/missing-profiles': STATISTICS,
-  // Văn thư lưu trữ (YCTD-117): người có quyền quản lý, xuất thì cũng được cấp quyền xem
+  // Văn thư lưu trữ (YCTD-118): người có quyền quản lý, xuất thì cũng được cấp quyền xem
   '/archive-records': anyOf('P09.archive.view', 'P09.archive.manage', 'P09.archive.export'),
   '/archive-fonds': anyOf('P09.archive.view', 'P09.archive.manage'),
   '/archive-holdings': anyOf('P09.archive.view', 'P09.archive.manage'),

@@ -40,7 +40,7 @@ import {
   type ArchiveRetention,
 } from './archives-api.js';
 
-// 5.10.1. Hồ sơ tài liệu (DT-15 phần 15h2, YCTD-117): hai danh sách "Chưa hoàn thành" và "Hoàn thành" theo mục 5.10 của
+// 5.10.1. Hồ sơ tài liệu (DT-15 phần 15h2, YCTD-118): hai danh sách "Chưa hoàn thành" và "Hoàn thành" theo mục 5.10 của
 // Sở, có người giải quyết và thời hạn; hồ sơ chưa hoàn thành đã qua thời hạn hiện "Quá hạn". Lưới dùng chung phân trang ở
 // máy chủ, tìm theo số, ký hiệu hoặc tiêu đề, Mở rộng tìm kiếm theo phông, người giải quyết, thời hạn; Thêm mới, Sửa bằng
 // biểu mẫu theo khối với nút Ghi, Xóa qua hộp xác nhận, Xuất Excel các cột đang hiện. Tệp đính kèm lưu ở kho tệp chung

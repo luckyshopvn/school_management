@@ -14,6 +14,25 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-16 — DT-15 phần 15h2: văn thư lưu trữ theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Thêm nhóm menu "5.10. Văn thư lưu trữ" với bốn màn hình: 5.10.1 Hồ sơ tài liệu (hai thẻ Chưa hoàn thành, Hoàn thành trên lưới dữ liệu chung phân trang ở máy chủ, nhãn Quá hạn, Mở rộng tìm kiếm, biểu mẫu theo khối với nút Ghi, Xóa qua hộp xác nhận, tệp đính kèm ở kho tệp, Xuất Excel), 5.10.2 Phông lưu trữ, 5.10.3 Thông tin lưu trữ, 5.10.4 Báo cáo lưu trữ có Xuất Excel. Bốn bảng mới ở cơ sở dữ liệu hệ thống (tệp `0009`), ba quyền mới (tệp định danh `0044`).
+- Thêm chức năng P09-06 đến P09-08, kịch bản CT-438 đến CT-450, tiêu chí AC-482 đến AC-494, quy tắc BR-116, quy tắc phân quyền PQ-68, màn hình MH-95 đến MH-98. Kết quả ngày 16/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 738/738 ca đạt; toàn bộ kiểm thử giao diện 99/99 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện đợt 15h2 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 5. Dữ liệu ở cơ sở dữ liệu hệ thống vì không gắn năm học, nhật ký vẫn ghi ở năm học đang dùng; thông tin lưu trữ là màn hình nhập riêng để báo cáo cộng lại; quyền `P09.archive.view`, `P09.archive.manage`, `P09.archive.export` thuộc P09, gán đủ cho VT-02, VT-04, VT-06, xem và xuất cho VT-15, xem cho VT-03; người giải quyết là chữ tự do; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-118.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-118, `07_QUY_TAC_NGHIEP_VU.md` BR-116, `08_VAI_TRO_NGUOI_DUNG.md` PQ-68, `10_YEU_CAU_CHUC_NANG.md` P09-06 đến P09-08, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-95 đến MH-98, `16_CO_SO_DU_LIEU.md` mục 2, 20, `17_DAC_TA_API.md` mục 12, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.68.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 6.
+
+#### Vấn đề tồn đọng
+
+- Người giải quyết chưa chọn từ danh sách nhân sự; chưa có nhắc hạn; chưa có sổ văn bản đến, đi, biên bản giao nộp, tiêu hủy; hồ sơ chưa phân theo đơn vị.
+
 ### 2026-10-16 — Kế hoạch DT-16: bổ sung đủ tính năng theo hệ thống của Sở
 
 #### Công việc đã thực hiện

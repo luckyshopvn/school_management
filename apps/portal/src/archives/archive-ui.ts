@@ -1,6 +1,6 @@
 import { ApiError } from '../session/api-client.js';
 
-// Phần dùng chung của các màn hình văn thư lưu trữ (DT-15 phần 15h2, YCTD-117)
+// Phần dùng chung của các màn hình văn thư lưu trữ (DT-15 phần 15h2, YCTD-118)
 export function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')

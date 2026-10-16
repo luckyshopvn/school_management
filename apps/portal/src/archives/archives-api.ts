@@ -1,7 +1,7 @@
 import { downloadPost } from '../children/children-api.js';
 import { fetchWithSession, readError, requestJson } from '../session/api-client.js';
 
-// Văn thư lưu trữ, mục 5.10 của Sở (DT-15 phần 15h2, YCTD-117)
+// Văn thư lưu trữ, mục 5.10 của Sở (DT-15 phần 15h2, YCTD-118)
 export type ArchiveRecordStatus = 'pending' | 'completed';
 export type ArchiveRetention = 'permanent' | 'limited';
 

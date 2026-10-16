@@ -25,7 +25,7 @@ import {
   type ArchiveFond,
 } from './archives-api.js';
 
-// 5.10.2. Phông lưu trữ (DT-15 phần 15h2, YCTD-117): danh sách phông của trường với mã, tên, ghi chú, số dòng thông tin
+// 5.10.2. Phông lưu trữ (DT-15 phần 15h2, YCTD-118): danh sách phông của trường với mã, tên, ghi chú, số dòng thông tin
 // lưu trữ và số hồ sơ thuộc phông; Thêm mới, Sửa bằng biểu mẫu theo khối với nút Ghi; Xóa qua hộp xác nhận, phông còn dữ
 // liệu thì máy chủ từ chối
 const COLUMNS: Array<DataGridColumn<ArchiveFond>> = [

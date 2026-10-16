@@ -2,9 +2,9 @@ import type { ArchiveRecordStatus, ArchiveRetention } from '@school-management/d
 import { validationError, type FieldError } from '@school-management/server';
 import { isUuid, readOptionalText, type RequestBody } from '../common/request-fields.js';
 
-// Kiểm tra biểu mẫu của văn thư lưu trữ (DT-15 phần 15h2, YCTD-117): hồ sơ tài liệu, phông lưu trữ, thông tin lưu trữ và
+// Kiểm tra biểu mẫu của văn thư lưu trữ (DT-15 phần 15h2, YCTD-118): hồ sơ tài liệu, phông lưu trữ, thông tin lưu trữ và
 // bộ lọc danh sách. Mọi lỗi của biểu mẫu gom lại trả một lần ERR_VALIDATION kèm tên ô
-export const ARCHIVE_RULE_CODE = 'YCTD-117';
+export const ARCHIVE_RULE_CODE = 'YCTD-118';
 export const ARCHIVE_STATUS_LABELS: Record<ArchiveRecordStatus, string> = {
   pending: 'Chưa hoàn thành',
   completed: 'Hoàn thành',

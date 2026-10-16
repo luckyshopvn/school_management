@@ -22,7 +22,7 @@ import {
   type ArchiveRecordInput,
 } from './archive-fields.js';
 
-// Văn thư lưu trữ, mục 5.10 của Sở (DT-15 phần 15h2, YCTD-117): hồ sơ tài liệu hoàn thành, chưa hoàn thành kèm tệp đính
+// Văn thư lưu trữ, mục 5.10 của Sở (DT-15 phần 15h2, YCTD-118): hồ sơ tài liệu hoàn thành, chưa hoàn thành kèm tệp đính
 // kèm; phông lưu trữ; thông tin lưu trữ theo phông và giai đoạn; báo cáo lưu trữ cộng theo phông, giai đoạn. Dữ liệu ở cơ
 // sở dữ liệu hệ thống nên giữ qua các năm học; nhật ký thao tác và nhật ký xuất ghi vào năm học đang dùng như các màn hình
 // khác, nên chưa mở năm học thì không ghi, không xuất được (BR-93)

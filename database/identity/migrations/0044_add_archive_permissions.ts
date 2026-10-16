@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// DT-15 phần 15h2 (YCTD-117). Văn thư lưu trữ (mục 5.10 của Sở) thuộc phân hệ P09 Công việc, kế hoạch, đánh giá; quyền
+// DT-15 phần 15h2 (YCTD-118). Văn thư lưu trữ (mục 5.10 của Sở) thuộc phân hệ P09 Công việc, kế hoạch, đánh giá; quyền
 // tách theo thao tác: xem hồ sơ, phông, thông tin và báo cáo lưu trữ; quản lý (thêm, sửa, xóa, đính kèm tệp); xuất Excel.
 // Trường mầm non thường giao văn thư cho kế toán hoặc nhân viên hành chính nên VT-04, VT-06 có đủ ba quyền như Hiệu
 // trưởng; Phó Hiệu trưởng xem và xuất; Quản lý đơn vị chỉ xem

@@ -31,7 +31,7 @@ import {
   type ArchiveRetention,
 } from './archives-api.js';
 
-// 5.10.3. Thông tin lưu trữ (DT-15 phần 15h2, YCTD-117): mỗi dòng là tài liệu của một phông trong một giai đoạn, cùng tình
+// 5.10.3. Thông tin lưu trữ (DT-15 phần 15h2, YCTD-118): mỗi dòng là tài liệu của một phông trong một giai đoạn, cùng tình
 // trạng chỉnh lý, còn hay hết giá trị, thời hạn bảo quản, số bó, số hộp, số mét giá và nơi bảo quản theo mục 5.10 của Sở;
 // Báo cáo lưu trữ cộng các dòng này. Thêm mới, Sửa bằng biểu mẫu theo khối với nút Ghi, Xóa qua hộp xác nhận
 const COLUMNS: Array<DataGridColumn<ArchiveHolding>> = [

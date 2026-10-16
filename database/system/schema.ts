@@ -160,7 +160,7 @@ export interface AdministrativeUnitMappingsTable {
 export type ArchiveRetention = 'permanent' | 'limited';
 export type ArchiveRecordStatus = 'pending' | 'completed';
 
-// Phông lưu trữ của trường (DT-15 phần 15h2, YCTD-117)
+// Phông lưu trữ của trường (DT-15 phần 15h2, YCTD-118)
 export interface ArchiveFondsTable {
   id: Generated<string>;
   code: string;

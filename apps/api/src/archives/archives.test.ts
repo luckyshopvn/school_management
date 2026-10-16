@@ -14,7 +14,7 @@ import {
 import { parseHoldingInput, parseRecordInput, readRecordFilter } from './archive-fields.js';
 import { detectArchiveFileType } from './archives.js';
 
-// Văn thư lưu trữ, mục 5.10 của Sở (DT-15 phần 15h2, YCTD-117); kịch bản CT-15h2-1 đến CT-15h2-10
+// Văn thư lưu trữ, mục 5.10 của Sở (DT-15 phần 15h2, YCTD-118); kịch bản CT-15h2-1 đến CT-15h2-10
 const errorOf = (body: Record<string, unknown>) =>
   (body.error ?? {}) as { code?: string; rule_code?: string; details?: Array<{ field: string; message: string }> };
 const fieldsOf = (body: Record<string, unknown>) => (errorOf(body).details ?? []).map((detail) => detail.field).sort();
@@ -467,7 +467,7 @@ describe('Điểm cuối văn thư lưu trữ', () => {
   it('CT-15h2-10: phông còn hồ sơ hoặc thông tin lưu trữ không xóa được; xóa hồ sơ xóa luôn tệp đính kèm', async () => {
     const blocked = await api('DELETE', `/archive-fonds/${fondId}`, principal);
     assert.equal(blocked.status, 422);
-    assert.equal(errorOf(blocked.body).rule_code, 'YCTD-117');
+    assert.equal(errorOf(blocked.body).rule_code, 'YCTD-118');
 
     assert.equal((await api('DELETE', `/archive-records/${pendingId}`, vicePrincipal)).status, 403);
     assert.equal((await api('DELETE', `/archive-records/${pendingId}`, accountant)).status, 204);
