@@ -28,7 +28,7 @@ import { FileStorage } from '../files/file-storage.js';
 // - Đặt trạng thái gửi lại: người có quyền mở khóa chuyển biểu mẫu đã gửi sang "Cần gửi lại".
 // Chưa có giao diện lập trình của Bộ, Sở nên UpperLevelGateway chỉ có bản thủ công; khi có kết nối thật thì thay bản này.
 // Các phần 16i, 16j đăng ký biểu mẫu của mình bằng UpperLevelForms.register (hướng dẫn ở tài liệu 17)
-export const SUBMISSION_RULE_CODE = 'YCTD-118';
+export const SUBMISSION_RULE_CODE = 'YCTD-120';
 const MAXIMUM_NOTE = 500;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const VIETNAM_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });

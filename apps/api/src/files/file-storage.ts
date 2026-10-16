@@ -13,7 +13,8 @@ import type { ObjectStorageSettings } from '../common/configuration.js';
 export abstract class FileStorage {
   abstract put(key: string, body: Buffer, contentType: string): Promise<void>;
   abstract get(key: string): Promise<Buffer>;
-  // Xóa tệp hết hạn (tệp xuất nền, DT-16 phần 16a); không có tệp thì bỏ qua
+  // Xóa tệp khi bản ghi sở hữu bị xóa (tệp đính kèm hồ sơ văn thư) hoặc tệp xuất nền hết hạn (DT-16 phần 16a); tệp không
+  // còn thì bỏ qua
   abstract delete(key: string): Promise<void>;
 }
 

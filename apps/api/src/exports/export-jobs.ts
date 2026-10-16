@@ -28,7 +28,7 @@ import type { TableFileFormat } from './table-file.js';
 // chủ API như tiến trình gửi thông báo, nhận từng tác vụ bằng khóa dòng (nhiều máy chủ không nhận trùng), dựng tệp bằng
 // đúng hàm xuất của màn hình với vai trò, quyền của người tạo tại thời điểm tạo (vẫn ghi nhật ký xuất, BR-74), lưu tệp ở kho
 // tệp. Chỉ người tạo xem và tải tệp của mình; tệp giữ 7 ngày rồi xóa khỏi kho tệp, tác vụ chuyển "Hết hạn"
-export const EXPORT_RULE_CODE = 'YCTD-118';
+export const EXPORT_RULE_CODE = 'YCTD-120';
 export const DEFAULT_SYNC_EXPORT_ROW_LIMIT = 10_000;
 // Tác vụ nền cũng có giới hạn để một tệp không làm chậm cả máy chủ
 export const BACKGROUND_EXPORT_ROW_LIMIT = 200_000;

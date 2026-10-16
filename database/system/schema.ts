@@ -157,6 +157,75 @@ export interface AdministrativeUnitMappingsTable {
   created_by: string | null;
 }
 
+export type ArchiveRetention = 'permanent' | 'limited';
+export type ArchiveRecordStatus = 'pending' | 'completed';
+
+// Phông lưu trữ của trường (DT-15 phần 15h2, YCTD-118)
+export interface ArchiveFondsTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  note: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+  created_by: string | null;
+  updated_by: string | null;
+}
+
+// Thông tin lưu trữ của một phông theo giai đoạn; số mét giá kiểu numeric nên đọc ra là chuỗi
+export interface ArchiveHoldingsTable {
+  id: Generated<string>;
+  fond_id: string;
+  period_from_year: number;
+  period_to_year: number;
+  arranged: boolean;
+  expired: Generated<boolean>;
+  retention: ArchiveRetention;
+  retention_years: number | null;
+  bundle_count: Generated<number>;
+  box_count: Generated<number>;
+  shelf_meters: ColumnType<string, number | string | undefined, number | string>;
+  storage_location: string;
+  note: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+  created_by: string | null;
+  updated_by: string | null;
+}
+
+// Hồ sơ tài liệu hoàn thành, chưa hoàn thành
+export interface ArchiveRecordsTable {
+  id: Generated<string>;
+  code: string;
+  title: string;
+  fond_id: string | null;
+  handler_name: string;
+  opened_on: DateText;
+  due_date: ColumnType<string | null, string | null | undefined, string | null>;
+  status: Generated<ArchiveRecordStatus>;
+  completed_on: ColumnType<string | null, string | null | undefined, string | null>;
+  retention: ArchiveRetention;
+  retention_years: number | null;
+  sheet_count: number | null;
+  note: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+  created_by: string | null;
+  updated_by: string | null;
+}
+
+// Tệp đính kèm của hồ sơ tài liệu; nội dung ở kho tệp theo storage_key
+export interface ArchiveRecordFilesTable {
+  id: Generated<string>;
+  record_id: string;
+  storage_key: string;
+  file_name: string;
+  content_type: string;
+  size: number;
+  created_at: CreatedTimestamp;
+  created_by: string | null;
+}
+
 export type ExportJobFormat = 'xlsx' | 'pdf';
 export type ExportJobStatus = 'pending' | 'running' | 'done' | 'failed' | 'expired';
 
@@ -240,6 +309,10 @@ export interface SystemDatabase {
   feedback: UserFeedbackTable;
   administrative_units: AdministrativeUnitsTable;
   administrative_unit_mappings: AdministrativeUnitMappingsTable;
+  archive_fonds: ArchiveFondsTable;
+  archive_holdings: ArchiveHoldingsTable;
+  archive_records: ArchiveRecordsTable;
+  archive_record_files: ArchiveRecordFilesTable;
   export_jobs: ExportJobsTable;
   upper_level_submissions: UpperLevelSubmissionsTable;
   upper_level_submission_events: UpperLevelSubmissionEventsTable;

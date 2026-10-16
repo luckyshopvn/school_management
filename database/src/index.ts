@@ -16,6 +16,8 @@ export type {
   AdministrativeSource,
   AcademicYearDatabaseStatus,
   AcademicYearStatus,
+  ArchiveRecordStatus,
+  ArchiveRetention,
   ExportJobFormat,
   ExportJobStatus,
   UpperLevelSubmissionAction,

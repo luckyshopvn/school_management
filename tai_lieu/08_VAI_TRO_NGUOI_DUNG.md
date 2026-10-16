@@ -1,8 +1,8 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.56
-- Ngày cập nhật: 2026-10-15
+- Phiên bản: 1.57
+- Ngày cập nhật: 2026-10-16
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -165,6 +165,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-65 | Trường học, lớp học theo Sở (YCTD-111), không có quyền mới. Mục "1.2. Quản lý phân hiệu", "1.3. Quản lý điểm trường" hiện khi có `P01.view` hoặc `P01.org-unit.manage` (như mục Phòng ban); thêm, sửa, ngừng sử dụng, dùng lại cần `P01.org-unit.manage`, chỉ VT-02 có (PQ-12). Mục "2.2. Nhập lớp học từ Excel" hiện khi thấy nhóm lớp học và có `P01.import.children`, như phần nhập lớp học ở màn hình Nhập dữ liệu trước đây (P01-13). Mục "3.3. Phân công phụ trách lớp" hiện như "2.1. Hồ sơ lớp học", ai xem được lớp đều xem được phân công của lớp trong phạm vi; Thêm mới, Kết thúc phân công cần `P02.class.manage` (PQ-17). Xuất Excel ở 2.1 và 3.3 cần `P17.data.export`. Máy chủ kiểm tra quyền và phạm vi đơn vị ở mọi yêu cầu (AI-12) |
 | PQ-66 | Nhân sự theo Sở (YCTD-112), không có quyền mới. Mục "3.1.1. Hồ sơ cán bộ, giáo viên" hiện như trước; lưới và hồ sơ theo `P07.staff.view` trong phạm vi đơn vị (người không có nhận `ERR_FORBIDDEN`); nút Thêm mới, Ghi theo `P07.staff.manage` ở đơn vị của nhân sự (VT-06), người khác xem hồ sơ chỉ đọc; nút Xuất Excel theo `P17.data.export`; cột Số hợp đồng, Hợp đồng đến ngày, Lương thỏa thuận và khối hợp đồng ở thẻ "Thông tin riêng của trường" theo `P07.contract.view` (BR-46). Máy chủ kiểm tra quyền và phạm vi đơn vị ở mọi yêu cầu (AI-12): lưới, tệp Excel chỉ có nhân sự trong phạm vi `P07.staff.view`, giá trị hợp đồng chỉ với đơn vị trong phạm vi `P07.contract.view`, ghi hồ sơ chỉ ở đơn vị trong phạm vi `P07.staff.manage` |
 | PQ-67 | Cập nhật địa danh hành chính (YCTD-116), không có quyền mới. Mục "4.1.11. Cập nhật địa danh hành chính" hiện như mục 4.2 Biến động học sinh: thấy nhóm học sinh và có `P02.child.manage` hoặc `P02.approve`. Lưới và chuyển địa chỉ theo `P02.child.manage` hoặc `P02.approve` trong phạm vi xem trẻ (BR-72), từng học sinh như cập nhật hàng loạt (BR-115); người không có nhận `ERR_FORBIDDEN`. Nhập bảng đối chiếu, tải mẫu theo `P01.catalog.manage` vì danh mục dùng chung mọi năm học; xem bảng đối chiếu cần một trong ba quyền trên. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12) |
+| PQ-68 | Văn thư lưu trữ (YCTD-118): ba quyền mới thuộc P09. `P09.archive.view` xem hồ sơ tài liệu, tệp đính kèm, phông, thông tin lưu trữ, báo cáo lưu trữ: VT-02, VT-15, VT-03, VT-04, VT-06. `P09.archive.manage` thêm, sửa, xóa hồ sơ, phông, thông tin lưu trữ, tải lên và xóa tệp đính kèm: VT-02, VT-04, VT-06. `P09.archive.export` xuất Excel hồ sơ và báo cáo lưu trữ: VT-02, VT-15, VT-04, VT-06. Người có quyền quản lý hoặc xuất cũng gọi được các điểm cuối xem. VT-01 không có vì là dữ liệu nghiệp vụ. Dữ liệu dùng chung toàn trường, không lọc theo đơn vị. Mục 5.10.1 đến 5.10.4 hiện theo các quyền này; màn hình Phân quyền nhóm theo menu (PQ-65) hiện ba quyền dưới các mục. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12) |
 
 ## 5. Phân cấp phê duyệt
 

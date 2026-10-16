@@ -217,6 +217,8 @@ import { IntegrationsController, IntegrationsService } from './integrations/inte
 import { QuickLinksController, QuickLinksService } from './quick-links/quick-links.js';
 import { GridSettingsController, GridSettingsService } from './grid-settings/grid-settings.js';
 import { FeedbackController, FeedbackService } from './feedback/feedback.js';
+import { ArchivesController } from './archives/archives.controller.js';
+import { ArchivesService } from './archives/archives.js';
 import { ExportJobs, ExportJobsController } from './exports/export-jobs.js';
 import {
   ManualUpperLevelGateway,
@@ -359,6 +361,7 @@ export class ApplicationModule {
         QuickLinksController,
         GridSettingsController,
         FeedbackController,
+        ArchivesController,
         ExportJobsController,
         UpperLevelSubmissionsController,
         FacebookPostsController,
@@ -555,6 +558,7 @@ export class ApplicationModule {
         QuickLinksService,
         GridSettingsService,
         FeedbackService,
+        ArchivesService,
         ExportJobs,
         UpperLevelForms,
         UpperLevelSubmissions,

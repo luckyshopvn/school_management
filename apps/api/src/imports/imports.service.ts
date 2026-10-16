@@ -110,7 +110,7 @@ const TEMPLATE_TITLES: Record<TemplateImportType, string> = {
 // Công cụ nhập dùng chung (DT-16 phần 16a, khảo sát mục 2.3 của Sở: tải file mẫu kèm dữ liệu, tra cứu danh mục, chọn cột để
 // nhập, xuất file lỗi). Cột khóa và cột bắt buộc luôn nhập; cột khác người dùng chọn có nhập hay không, cột không chọn coi
 // như để trống. Lớp học khớp theo mã đơn vị và mã lớp: dòng của lớp đã có thì cập nhật các cột được chọn, dòng mới thì thêm
-export const IMPORT_TOOLS_RULE_CODE = 'YCTD-118';
+export const IMPORT_TOOLS_RULE_CODE = 'YCTD-120';
 export const LOCKED_IMPORT_COLUMNS: Record<TemplateImportType, string[]> = {
   classes: ['unit_code', 'class_code'],
   children: [
