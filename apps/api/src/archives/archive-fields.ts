@@ -22,6 +22,8 @@ export interface ArchiveFondInput {
   code: string;
   name: string;
   note: string | null;
+  // Đơn vị của phông; trống là toàn trường (YCTD-119)
+  org_unit_id: string | null;
 }
 
 export interface ArchiveHoldingInput {
@@ -43,6 +45,10 @@ export interface ArchiveRecordInput {
   code: string;
   title: string;
   fond_id: string | null;
+  // Đơn vị của hồ sơ; trống là toàn trường (YCTD-119)
+  org_unit_id: string | null;
+  // Người giải quyết chọn từ danh sách nhân sự; có mã thì máy chủ ghi tên theo hồ sơ nhân sự, không có thì nhập tên
+  handler_staff_id: string | null;
   handler_name: string;
   opened_on: string;
   due_date: string | null;
@@ -58,11 +64,14 @@ export interface ArchiveRecordFilter {
   status: ArchiveRecordStatus | null;
   search: string | null;
   fond_id: string | null;
+  org_unit_id: string | null;
   handler: string | null;
   due_from: string | null;
   due_to: string | null;
   // Chỉ hồ sơ chưa hoàn thành đã quá thời hạn
   overdue: boolean;
+  // Chỉ hồ sơ chưa hoàn thành sắp đến hạn (YCTD-119)
+  due_soon: boolean;
 }
 
 function readText(
@@ -170,20 +179,35 @@ function readRetention(
   return { retention: retention ?? 'permanent', retention_years: years };
 }
 
-function readOptionalFond(body: RequestBody, errors: FieldError[], required: boolean): string | null {
-  const value = body?.fond_id;
+function readOptionalId(
+  body: RequestBody,
+  field: string,
+  errors: FieldError[],
+  messages: { required?: string; invalid: string },
+): string | null {
+  const value = body?.[field];
   if (value === undefined || value === null || value === '') {
-    if (required) {
-      errors.push({ field: 'fond_id', message: 'Chọn phông lưu trữ' });
+    if (messages.required) {
+      errors.push({ field, message: messages.required });
     }
     return null;
   }
   if (!isUuid(value)) {
-    errors.push({ field: 'fond_id', message: 'Mã phông không hợp lệ' });
+    errors.push({ field, message: messages.invalid });
     return null;
   }
   return value;
 }
+
+function readOptionalFond(body: RequestBody, errors: FieldError[], required: boolean): string | null {
+  return readOptionalId(body, 'fond_id', errors, {
+    required: required ? 'Chọn phông lưu trữ' : undefined,
+    invalid: 'Mã phông không hợp lệ',
+  });
+}
+
+const readOrgUnit = (body: RequestBody, errors: FieldError[]) =>
+  readOptionalId(body, 'org_unit_id', errors, { invalid: 'Mã đơn vị không hợp lệ' });
 
 function throwIfAny(errors: FieldError[]): void {
   if (errors.length > 0) {
@@ -196,8 +220,9 @@ export function parseFondInput(body: RequestBody): ArchiveFondInput {
   const code = readText(body, 'code', errors, 50, true);
   const name = readText(body, 'name', errors, 200, true);
   const note = readText(body, 'note', errors, MAXIMUM_NOTE, false);
+  const orgUnitId = readOrgUnit(body, errors);
   throwIfAny(errors);
-  return { code: code ?? '', name: name ?? '', note };
+  return { code: code ?? '', name: name ?? '', note, org_unit_id: orgUnitId };
 }
 
 // Thông tin lưu trữ: giai đoạn theo năm, từ năm không sau đến năm; chỉ tài liệu có thời hạn mới hết giá trị
@@ -254,7 +279,12 @@ export function parseRecordInput(body: RequestBody): ArchiveRecordInput {
   const code = readText(body, 'code', errors, 50, true);
   const title = readText(body, 'title', errors, 500, true);
   const fondId = readOptionalFond(body, errors, false);
-  const handlerName = readText(body, 'handler_name', errors, 200, true);
+  const orgUnitId = readOrgUnit(body, errors);
+  const handlerStaffId = readOptionalId(body, 'handler_staff_id', errors, { invalid: 'Mã nhân sự không hợp lệ' });
+  // Chọn nhân sự thì tên lấy theo hồ sơ nhân sự; người ngoài danh sách thì nhập tên. Mã nhân sự sai đã báo lỗi ở ô của nó
+  const staffGiven =
+    body?.handler_staff_id !== undefined && body?.handler_staff_id !== null && body?.handler_staff_id !== '';
+  const handlerName = handlerStaffId ? null : readText(body, 'handler_name', errors, 200, !staffGiven);
   const openedOn = readDate(body, 'opened_on', errors, true);
   const dueDate = readDate(body, 'due_date', errors, false);
   if (openedOn && dueDate && dueDate < openedOn) {
@@ -282,6 +312,8 @@ export function parseRecordInput(body: RequestBody): ArchiveRecordInput {
     code: code ?? '',
     title: title ?? '',
     fond_id: fondId,
+    org_unit_id: orgUnitId,
+    handler_staff_id: handlerStaffId,
     handler_name: handlerName ?? '',
     opened_on: openedOn ?? '',
     due_date: dueDate,
@@ -315,6 +347,10 @@ export function readRecordFilter(query: Record<string, unknown>, errors: FieldEr
   if (fondId && !isUuid(fondId)) {
     errors.push({ field: 'fond_id', message: 'Mã phông không hợp lệ' });
   }
+  const orgUnitId = text('org_unit_id');
+  if (orgUnitId && !isUuid(orgUnitId)) {
+    errors.push({ field: 'org_unit_id', message: 'Mã đơn vị không hợp lệ' });
+  }
   const dates: Record<'due_from' | 'due_to', string | null> = { due_from: null, due_to: null };
   for (const field of ['due_from', 'due_to'] as const) {
     const value = text(field);
@@ -324,14 +360,16 @@ export function readRecordFilter(query: Record<string, unknown>, errors: FieldEr
       dates[field] = value;
     }
   }
-  const overdue = query.overdue;
+  const flag = (field: string) => query[field] === true || query[field] === 'true';
   return {
     status: status && STATUSES.includes(status) ? (status as ArchiveRecordStatus) : null,
     search: text('search'),
     fond_id: fondId && isUuid(fondId) ? fondId : null,
+    org_unit_id: orgUnitId && isUuid(orgUnitId) ? orgUnitId : null,
     handler: text('handler'),
     due_from: dates.due_from,
     due_to: dates.due_to,
-    overdue: overdue === true || overdue === 'true',
+    overdue: flag('overdue'),
+    due_soon: flag('due_soon'),
   };
 }

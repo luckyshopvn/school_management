@@ -53,11 +53,15 @@ function readReportFilter(query: Record<string, unknown>): ArchiveReportFilter {
   if (fondId && !isUuid(fondId)) {
     errors.push({ field: 'fond_id', message: FOND_MESSAGE });
   }
+  const orgUnitId = typeof query.org_unit_id === 'string' && query.org_unit_id !== '' ? query.org_unit_id : null;
+  if (orgUnitId && !isUuid(orgUnitId)) {
+    errors.push({ field: 'org_unit_id', message: 'Mã đơn vị không hợp lệ' });
+  }
   const location = typeof query.storage_location === 'string' ? query.storage_location.trim() : '';
   if (errors.length > 0) {
     throw validationError(errors);
   }
-  return { fond_id: fondId, storage_location: location || null };
+  return { fond_id: fondId, org_unit_id: orgUnitId, storage_location: location || null };
 }
 
 // Văn thư lưu trữ (DT-15 phần 15h2, YCTD-118). Xem cần P09.archive.view; người có quyền quản lý hoặc xuất cũng xem được
@@ -71,14 +75,14 @@ export class ArchivesController {
 
   @Get('archive-fonds')
   @RequirePermission(VIEW, MANAGE, EXPORT)
-  listFonds() {
-    return this.archives.listFonds();
+  async listFonds(@AuthenticatedUser() currentUser: CurrentUser) {
+    return this.archives.listFonds(await this.archives.viewScope(currentUser));
   }
 
   @Post('archive-fonds')
   @RequirePermission(MANAGE)
   createFond(@Body() body: RequestBody, @Req() request: Request, @AuthenticatedUser() currentUser: CurrentUser) {
-    return this.archives.createFond(parseFondInput(body), originOf(request, currentUser));
+    return this.archives.createFond(currentUser, parseFondInput(body), originOf(request, currentUser));
   }
 
   @Put('archive-fonds/:id')
@@ -89,7 +93,7 @@ export class ArchivesController {
     @Req() request: Request,
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
-    return this.archives.updateFond(fondId, parseFondInput(body), originOf(request, currentUser));
+    return this.archives.updateFond(currentUser, fondId, parseFondInput(body), originOf(request, currentUser));
   }
 
   @Delete('archive-fonds/:id')
@@ -100,24 +104,24 @@ export class ArchivesController {
     @Req() request: Request,
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
-    await this.archives.deleteFond(fondId, originOf(request, currentUser));
+    await this.archives.deleteFond(currentUser, fondId, originOf(request, currentUser));
   }
 
   // ---- Thông tin lưu trữ ----
 
   @Get('archive-holdings')
   @RequirePermission(VIEW, MANAGE, EXPORT)
-  listHoldings(@Query('fond_id') fondId: string | undefined) {
+  async listHoldings(@Query('fond_id') fondId: string | undefined, @AuthenticatedUser() currentUser: CurrentUser) {
     if (fondId && !isUuid(fondId)) {
       throw validationError([{ field: 'fond_id', message: FOND_MESSAGE }]);
     }
-    return this.archives.listHoldings(fondId || null);
+    return this.archives.listHoldings(await this.archives.viewScope(currentUser), fondId || null);
   }
 
   @Post('archive-holdings')
   @RequirePermission(MANAGE)
   createHolding(@Body() body: RequestBody, @Req() request: Request, @AuthenticatedUser() currentUser: CurrentUser) {
-    return this.archives.createHolding(parseHoldingInput(body), originOf(request, currentUser));
+    return this.archives.createHolding(currentUser, parseHoldingInput(body), originOf(request, currentUser));
   }
 
   @Put('archive-holdings/:id')
@@ -128,7 +132,7 @@ export class ArchivesController {
     @Req() request: Request,
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
-    return this.archives.updateHolding(holdingId, parseHoldingInput(body), originOf(request, currentUser));
+    return this.archives.updateHolding(currentUser, holdingId, parseHoldingInput(body), originOf(request, currentUser));
   }
 
   @Delete('archive-holdings/:id')
@@ -139,15 +143,15 @@ export class ArchivesController {
     @Req() request: Request,
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
-    await this.archives.deleteHolding(holdingId, originOf(request, currentUser));
+    await this.archives.deleteHolding(currentUser, holdingId, originOf(request, currentUser));
   }
 
   // ---- Báo cáo lưu trữ ----
 
   @Get('archive-report')
   @RequirePermission(VIEW, MANAGE, EXPORT)
-  report(@Query() query: Record<string, unknown>) {
-    return this.archives.report(readReportFilter(query));
+  async report(@Query() query: Record<string, unknown>, @AuthenticatedUser() currentUser: CurrentUser) {
+    return this.archives.report(await this.archives.viewScope(currentUser), readReportFilter(query));
   }
 
   @Post('archive-report/export')
@@ -167,7 +171,7 @@ export class ArchivesController {
 
   @Get('archive-records')
   @RequirePermission(VIEW, MANAGE, EXPORT)
-  searchRecords(@Query() query: Record<string, string | undefined>) {
+  searchRecords(@Query() query: Record<string, string | undefined>, @AuthenticatedUser() currentUser: CurrentUser) {
     const errors: FieldError[] = [];
     const page = Number(query.page ?? 1);
     const pageSize = Number(query.page_size ?? 20);
@@ -181,7 +185,7 @@ export class ArchivesController {
     if (errors.length > 0) {
       throw validationError(errors);
     }
-    return this.archives.searchRecords(filter, page, pageSize);
+    return this.archives.searchRecords(currentUser, filter, page, pageSize);
   }
 
   // Xuất theo bộ lọc và các cột đang hiện trên lưới
@@ -216,16 +220,26 @@ export class ArchivesController {
     sendWorkbook(response, await this.archives.exportRecords(currentUser, filter, columns, request.ip ?? null));
   }
 
+  // Nhân sự đang làm việc để chọn người giải quyết (YCTD-119)
+  @Get('archive-handlers')
+  @RequirePermission(MANAGE)
+  listHandlers(@AuthenticatedUser() currentUser: CurrentUser) {
+    return this.archives.listHandlers(currentUser);
+  }
+
   @Get('archive-records/:id')
   @RequirePermission(VIEW, MANAGE, EXPORT)
-  readRecord(@Param('id', uuidParameter(RECORD_MESSAGE)) recordId: string) {
-    return this.archives.findRecord(recordId);
+  readRecord(
+    @Param('id', uuidParameter(RECORD_MESSAGE)) recordId: string,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    return this.archives.readRecord(currentUser, recordId);
   }
 
   @Post('archive-records')
   @RequirePermission(MANAGE)
   createRecord(@Body() body: RequestBody, @Req() request: Request, @AuthenticatedUser() currentUser: CurrentUser) {
-    return this.archives.createRecord(parseRecordInput(body), originOf(request, currentUser));
+    return this.archives.createRecord(currentUser, parseRecordInput(body), originOf(request, currentUser));
   }
 
   @Put('archive-records/:id')
@@ -236,7 +250,7 @@ export class ArchivesController {
     @Req() request: Request,
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
-    return this.archives.updateRecord(recordId, parseRecordInput(body), originOf(request, currentUser));
+    return this.archives.updateRecord(currentUser, recordId, parseRecordInput(body), originOf(request, currentUser));
   }
 
   @Delete('archive-records/:id')
@@ -247,7 +261,7 @@ export class ArchivesController {
     @Req() request: Request,
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
-    await this.archives.deleteRecord(recordId, originOf(request, currentUser));
+    await this.archives.deleteRecord(currentUser, recordId, originOf(request, currentUser));
   }
 
   // ---- Tệp đính kèm ----
@@ -265,6 +279,7 @@ export class ArchivesController {
       throw validationError([{ field: 'file', message: 'Chọn tệp đính kèm' }]);
     }
     return this.archives.addFile(
+      currentUser,
       recordId,
       { fileName: Buffer.from(file.originalname, 'latin1').toString('utf8'), body: file.buffer },
       originOf(request, currentUser),
@@ -277,8 +292,9 @@ export class ArchivesController {
     @Param('id', uuidParameter(RECORD_MESSAGE)) recordId: string,
     @Param('fileId', uuidParameter(FILE_MESSAGE)) fileId: string,
     @Res() response: Response,
+    @AuthenticatedUser() currentUser: CurrentUser,
   ) {
-    const file = await this.archives.readFile(recordId, fileId);
+    const file = await this.archives.readFile(currentUser, recordId, fileId);
     response.setHeader('content-type', file.contentType);
     response.setHeader('content-disposition', `attachment; filename*=UTF-8''${encodeURIComponent(file.fileName)}`);
     response.setHeader('cache-control', 'no-store');
@@ -294,6 +310,6 @@ export class ArchivesController {
     @Req() request: Request,
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
-    await this.archives.deleteFile(recordId, fileId, originOf(request, currentUser));
+    await this.archives.deleteFile(currentUser, recordId, fileId, originOf(request, currentUser));
   }
 }

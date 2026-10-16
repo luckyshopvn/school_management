@@ -166,6 +166,7 @@ export interface ArchiveFondsTable {
   code: string;
   name: string;
   note: string | null;
+  org_unit_id: string | null;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
   created_by: string | null;
@@ -200,6 +201,10 @@ export interface ArchiveRecordsTable {
   title: string;
   fond_id: string | null;
   handler_name: string;
+  org_unit_id: string | null;
+  handler_staff_id: string | null;
+  due_reminded_at: Date | null;
+  overdue_reminded_at: Date | null;
   opened_on: DateText;
   due_date: ColumnType<string | null, string | null | undefined, string | null>;
   status: Generated<ArchiveRecordStatus>;
@@ -226,6 +231,15 @@ export interface ArchiveRecordFilesTable {
   created_by: string | null;
 }
 
+// Tệp ở kho tệp chờ xóa lại sau lần xóa lỗi (YCTD-119)
+export interface ArchiveFileDeletionsTable {
+  storage_key: string;
+  attempts: Generated<number>;
+  last_error: string | null;
+  created_at: CreatedTimestamp;
+  last_attempt_at: Date | null;
+}
+
 export interface SystemDatabase {
   academic_years: AcademicYearsTable;
   academic_terms: AcademicTermsTable;
@@ -241,4 +255,5 @@ export interface SystemDatabase {
   archive_holdings: ArchiveHoldingsTable;
   archive_records: ArchiveRecordsTable;
   archive_record_files: ArchiveRecordFilesTable;
+  archive_file_deletions: ArchiveFileDeletionsTable;
 }
