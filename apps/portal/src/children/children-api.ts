@@ -1,6 +1,6 @@
 import type { MoetProfileEntry } from '../imports/MoetProfileSection.js';
 import { downloadExport, type ExportFormat } from '../exports/export-api.js';
-import { ApiError, fetchWithSession, readError, requestJson } from '../session/api-client.js';
+import { ApiError, requestJson } from '../session/api-client.js';
 
 // Gọi nhóm điểm cuối hồ sơ trẻ và tệp đính kèm của máy chủ API (QT-01, YCTD-45)
 export type ChildStatus = 'draft' | 'pending' | 'active' | 'paused' | 'withdrawn' | 'graduated';
