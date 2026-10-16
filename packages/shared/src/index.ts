@@ -160,6 +160,8 @@ export const PERMISSION_CODES = {
   professionalStandardAssess: 'P07.professional-standard.assess',
   // Xem mọi ý kiến phản hồi gửi từ chân trang, đổi trạng thái và trả lời (DT-15 phần 15g, YCTD-110)
   feedbackManage: 'P01.feedback.manage',
+  // Soạn thông báo hệ thống bật lên khi vào cổng quản trị, cấu hình ứng dụng liên kết (DT-16 phần 16c)
+  announcementManage: 'P01.announcement.manage',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
