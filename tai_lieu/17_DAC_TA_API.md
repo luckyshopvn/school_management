@@ -1,8 +1,8 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.72
-- Ngày cập nhật: 2026-10-16
+- Phiên bản: 1.73
+- Ngày cập nhật: 2026-10-17
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -612,13 +612,17 @@ Giao kèo của nhóm điểm cuối năm học (DT-01 phần 3):
 | GET | /api/v1/catalog-types | Các loại danh mục dùng chung do hệ thống định nghĩa |
 | GET, POST | /api/v1/catalog-items | Danh sách và tạo mục danh mục dùng chung |
 | PATCH | /api/v1/catalog-items/{id} | Sửa, ngừng sử dụng hoặc dùng lại mục danh mục dùng chung |
-| GET, POST | /api/v1/users | Danh sách và tạo tài khoản; từ YCTD-109 lọc thêm `login`, `full_name`, `must_change_password`, lọc và phân trang trong câu truy vấn; từ YCTD-110 mỗi dòng có thêm `password_changed_at` |
+| GET, POST | /api/v1/users | Danh sách và tạo tài khoản; từ YCTD-109 lọc thêm `login`, `full_name`, `must_change_password`, lọc và phân trang trong câu truy vấn; từ YCTD-110 mỗi dòng có thêm `password_changed_at`; từ YCTD-120 lọc thêm `user_ids` (tối đa 200, phân tách bằng dấu phẩy), `password_expires_from`, `password_expires_to` (YYYY-MM-DD), mỗi dòng có `password_expires_at` |
 | GET | /api/v1/users/directory | Danh bạ nhân sự theo vai trò và đơn vị để phân công giáo viên; cần `P02.class.manage` (YCTD-44) |
 | PATCH | /api/v1/users/{id} | Cập nhật tài khoản, khóa hoặc mở khóa |
 | POST | /api/v1/users/guardian-accounts | Tạo tài khoản phụ huynh hoặc thêm vai trò VT-14 khi duyệt hồ sơ trẻ; cần `P02.approve` ở đơn vị (YCTD-45) |
 | POST | /api/v1/users/{id}/reset-password | Đặt lại mật khẩu |
 | GET, POST | /api/v1/roles | Danh sách và tạo vai trò |
 | PUT | /api/v1/roles/{id}/permissions | Gán danh sách quyền cho vai trò |
+| PATCH, DELETE | /api/v1/roles/{id} | Sửa `name`, `is_active`; xóa nhóm không phải nhóm hệ thống, chưa có người dùng (BR-118, YCTD-120) |
+| PUT | /api/v1/roles/{id}/workspaces | Thay toàn bộ phân hệ nhóm được dùng: `workspace_keys` là khóa phân hệ của `PORTAL_WORKSPACES` (P01-18) |
+| POST | /api/v1/users/bulk-reset-password | Cấp mật khẩu hàng loạt: `user_ids` (1 đến 200); trả từng dòng `temporary_password` hoặc `skipped_reason` (YCTD-120) |
+| POST | /api/v1/users/bulk-roles | Phân nhóm quyền hàng loạt: `user_ids`, `role` (`role_code`, `org_unit_id`); trả từng dòng `added`, `skipped_reason`; cần `P01.account.manage` |
 | POST | /api/v1/users/{id}/roles | Gán vai trò kèm phạm vi đơn vị |
 | DELETE | /api/v1/users/{id}/roles/{assignmentId} | Gỡ một vai trò của tài khoản; thu hồi mọi phiên của tài khoản (YCTD-39) |
 | GET | /api/v1/permissions | Danh sách quyền theo phân hệ |
@@ -1133,6 +1137,12 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | POST | /api/v1/integrations/facebook/test | Kiểm tra kết nối Fanpage: trả mã và tên trang; lỗi trả 422 kèm lời báo (YCTD-95) |
 | POST | /api/v1/integrations/zalo/test | Kiểm tra kết nối Zalo Official Account: trả mã và tên Official Account; lỗi trả 422 (YCTD-95) |
 | PUT | /api/v1/integrations/zalo/refresh-token | Lưu khóa làm mới Zalo mới (mã hóa), bỏ khóa truy cập cũ; không bao giờ trả lại khóa, nhật ký chỉ ghi đã thay (YCTD-95) |
+| GET | /api/v1/sync-accounts | Tài khoản đồng bộ của Bộ (`moet`), của Sở (`doet`): `username`, `password_configured`, `updated_at`, `sync_available`; không bao giờ trả mật khẩu; cần `P01.integration.manage` (P01-19, YCTD-120) |
+| PUT, DELETE | /api/v1/sync-accounts/{target} | Ghi `username` (bắt buộc, đến 100 ký tự), `password` (đến 200 ký tự; trống thì giữ mật khẩu đã lưu, lần đầu bắt buộc); xóa thông tin đã lưu |
+| GET | /api/v1/account-directory | Danh sách người dùng của 1.4 ghép hồ sơ nhân sự: tham số như `GET /users` (`q`, `status`, `role_code`, `login`, `full_name`, `must_change_password`, `password_expires_from`, `password_expires_to`, `page`, `page_size` 10, 20, 50, 100, 200) và `identifier` (mã nhân sự hoặc mã Bộ, khớp một phần); mỗi dòng thêm `staff_id`, `staff_code`, `moet_staff_code`; cần `P01.account.manage` hoặc `P01.account.manage-in-unit` (YCTD-120) |
+| POST | /api/v1/account-directory/export | Xuất Excel theo bộ lọc và `columns`; cần thêm `P17.data.export`; tối đa 10 000 dòng; ghi nhật ký xuất `accounts` (BR-74) |
+| GET | /api/v1/account-directory/staff-without-account | Nhân sự đang làm việc chưa có tài khoản trong phạm vi: `id`, `code`, `full_name`, `phone`, `org_unit_id`, `org_unit_name`, `suggested_username` |
+| POST | /api/v1/account-directory/staff-accounts | Lấy danh sách CBQL/GV: `staff_ids` (1 đến 200), `role_code`; tạo tài khoản từng người qua dịch vụ định danh, liên kết hồ sơ nhân sự; trả từng dòng `login`, `temporary_password` hoặc `error` |
 | POST | /api/v1/activities/{id}/facebook-post | Đăng hoạt động đã công bố lên Fanpage (P14.facebook.manage) |
 | POST | /api/v1/news/{id}/facebook-post | Đăng tin tức đã công bố, phạm vi toàn trường hoặc đơn vị, lên Fanpage |
 | GET | /api/v1/facebook-posts | Bài đăng Fanpage trong phạm vi đơn vị; lọc `source_type`, `source_id` |

@@ -2,7 +2,7 @@
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
 - Phiên bản: 0.4
-- Ngày cập nhật: 2026-10-16
+- Ngày cập nhật: 2026-10-17
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
 
@@ -15,6 +15,17 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.70.0 – 2026-10-17
+
+- Phạm vi thay đổi: DT-16 phần 16d, quản trị hệ thống đủ theo hệ thống của Sở (YCTD-120).
+- Chức năng mới: 1.1 Nhóm người dùng có Hiệu lực, Sửa, Xóa; màn hình 1.2 Phân quyền nhóm theo phần mềm (phân hệ nhóm được dùng, ẩn phân hệ khỏi ô chọn phân hệ và menu); 1.4 Danh sách người dùng có Mã nhân sự, Mã Bộ, Ngày hết hạn mật khẩu, lọc Mã định danh, ngày hết hạn mật khẩu, Phân nhóm quyền, Cấp mật khẩu hàng loạt, Lấy danh sách CBQL/GV, Xuất Excel; màn hình 1.6 Tài khoản đồng bộ của Bộ, của Sở (lưu mã hóa, bản chạy nội bộ).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp định danh `0046_add_role_status_and_workspaces` thêm `roles.is_active`, bảng `role_workspace_exclusions`; tệp hệ thống `0012_add_sync_account_credentials` thêm hai loại kết nối và hai cột của `integration_credentials`.
+- Thay đổi API: dịch vụ định danh thêm `PATCH, DELETE /roles/{id}`, `PUT /roles/{id}/workspaces`, `POST /users/bulk-reset-password`, `POST /users/bulk-roles`, tham số mới của `GET /users`, trường `workspaces` ở `/auth/me`; máy chủ API thêm `/account-directory`, `/account-directory/export`, `/account-directory/staff-without-account`, `/account-directory/staff-accounts`, `/sync-accounts`.
+- Rủi ro: ngừng hiệu lực một nhóm đang dùng làm người dùng mất quyền ngay; thao tác hàng loạt không gộp một giao dịch.
+- Khả năng tương thích: điểm cuối cũ giữ nguyên dạng trả về, chỉ thêm trường; không có mã quyền mới; nhóm cũ giữ đủ phân hệ trừ Phụ huynh; ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16d; chạy phần quay lui của tệp định danh `0046` (bỏ cột, bảng) và tệp hệ thống `0012` (xóa hai loại tài khoản đồng bộ, bỏ hai cột).
 
 ### Phiên bản 0.68.0 – 2026-10-16
 
