@@ -24,14 +24,18 @@ test('Hiệu trưởng tạo phòng ban có phòng ban cha và chức danh của
   await openMenu(page, '/departments');
   await page.getByLabel('Đơn vị', { exact: true }).selectOption({ label: 'Phân hiệu A' });
 
-  const departments = page.getByRole('region', { name: 'Phòng ban' });
-  await departments.getByLabel('Tên phòng ban').fill('Khối chuyên môn');
-  await departments.getByRole('button', { name: 'Thêm' }).click();
+  // Danh sách trên lưới dữ liệu chung, Thêm mới mở biểu mẫu với nút Ghi (DT-16 phần 16b)
+  const departments = page.getByRole('region', { name: 'Phòng ban', exact: true });
+  const addDepartment = page.getByRole('form', { name: 'Thêm mới phòng ban' });
+  await departments.getByRole('button', { name: 'Thêm mới' }).click();
+  await addDepartment.getByLabel('Tên phòng ban').fill('Khối chuyên môn');
+  await addDepartment.getByRole('button', { name: 'Ghi' }).click();
   await expect(departments.getByRole('row').filter({ hasText: 'Khối chuyên môn' })).toBeVisible();
 
-  await departments.getByLabel('Tên phòng ban').fill('Tổ chuyên môn');
-  await departments.getByLabel('Phòng ban cha').selectOption({ label: 'Khối chuyên môn' });
-  await departments.getByRole('button', { name: 'Thêm' }).click();
+  await departments.getByRole('button', { name: 'Thêm mới' }).click();
+  await addDepartment.getByLabel('Tên phòng ban').fill('Tổ chuyên môn');
+  await addDepartment.getByLabel('Phòng ban cha').selectOption({ label: 'Khối chuyên môn' });
+  await addDepartment.getByRole('button', { name: 'Ghi' }).click();
   const child = departments.getByRole('row').filter({ hasText: 'Tổ chuyên môn' });
   await expect(child).toContainText('Khối chuyên môn');
 
@@ -41,10 +45,12 @@ test('Hiệu trưởng tạo phòng ban có phòng ban cha và chức danh của
   await expect(departments.getByText('Hãy ngừng sử dụng các phòng ban con trước')).toBeVisible();
 
   await page.getByRole('tab', { name: 'Chức danh' }).click();
-  const jobTitles = page.getByRole('region', { name: 'Chức danh' });
-  await jobTitles.getByLabel('Tên chức danh').fill('Giáo viên mầm non hạng III');
-  await jobTitles.getByLabel('Cấp bậc').fill('Hạng III');
-  await jobTitles.getByRole('button', { name: 'Thêm' }).click();
+  const jobTitles = page.getByRole('region', { name: 'Chức danh', exact: true });
+  await jobTitles.getByRole('button', { name: 'Thêm mới' }).click();
+  const addJobTitle = page.getByRole('form', { name: 'Thêm mới chức danh' });
+  await addJobTitle.getByLabel('Tên chức danh').fill('Giáo viên mầm non hạng III');
+  await addJobTitle.getByLabel('Cấp bậc').fill('Hạng III');
+  await addJobTitle.getByRole('button', { name: 'Ghi' }).click();
   await expect(jobTitles.getByRole('row').filter({ hasText: 'Giáo viên mầm non hạng III' })).toContainText('Hạng III');
 });
 
@@ -54,9 +60,12 @@ test('Hiệu trưởng thêm mục danh mục dùng chung, đặt hạn mức ph
   await openMenu(page, '/catalogs');
   await page.getByLabel('Loại danh mục').selectOption({ label: 'Quan hệ với trẻ' });
   const relationships = page.getByRole('region', { name: 'Quan hệ với trẻ' });
-  await relationships.getByLabel('Mã', { exact: true }).fill('ME');
-  await relationships.getByLabel('Tên', { exact: true }).fill('Mẹ');
-  await relationships.getByRole('button', { name: 'Thêm' }).click();
+  await relationships.getByRole('button', { name: 'Thêm mới' }).click();
+  const addRelationship = page.getByRole('form', { name: 'Thêm mới quan hệ với trẻ' });
+  await addRelationship.getByLabel('Mã', { exact: true }).fill('ME');
+  await addRelationship.getByLabel('Tên', { exact: true }).fill('Mẹ');
+  await addRelationship.getByRole('button', { name: 'Ghi' }).click();
+  await relationships.getByLabel('Tìm trong quan hệ với trẻ').fill('Mẹ');
   const mother = relationships.getByRole('row').filter({ hasText: 'Mẹ' });
   await expect(mother).toContainText('Đang dùng');
   await mother.getByRole('button', { name: 'Ngừng sử dụng' }).click();
@@ -72,20 +81,24 @@ test('Hiệu trưởng thêm mục danh mục dùng chung, đặt hạn mức ph
 
   await openMenu(page, '/rooms');
   await page.getByLabel('Đơn vị', { exact: true }).selectOption({ label: 'Điểm trường A1' });
-  const rooms = page.getByRole('region', { name: 'Phòng học' });
-  await rooms.getByLabel('Mã phòng').fill('P101');
-  await rooms.getByLabel('Tên phòng').fill('Phòng 101');
-  await rooms.getByLabel('Sức chứa').fill('30');
-  await rooms.getByRole('button', { name: 'Thêm' }).click();
+  const rooms = page.getByRole('region', { name: 'Phòng học', exact: true });
+  await rooms.getByRole('button', { name: 'Thêm mới' }).click();
+  const addRoom = page.getByRole('form', { name: 'Thêm mới phòng học' });
+  await addRoom.getByLabel('Mã phòng').fill('P101');
+  await addRoom.getByLabel('Tên phòng').fill('Phòng 101');
+  await addRoom.getByLabel('Sức chứa').fill('30');
+  await addRoom.getByRole('button', { name: 'Ghi' }).click();
   await expect(rooms.getByRole('row').filter({ hasText: 'P101' })).toContainText('30');
 
   await page.getByRole('tab', { name: 'Bậc học' }).click();
-  const gradeLevels = page.getByRole('region', { name: 'Bậc học' });
-  await gradeLevels.getByLabel('Mã bậc học').fill('MAM');
-  await gradeLevels.getByLabel('Tên bậc học').fill('Mầm');
-  await gradeLevels.getByLabel('Từ tháng tuổi').fill('48');
-  await gradeLevels.getByLabel('Đến tháng tuổi').fill('59');
-  await gradeLevels.getByRole('button', { name: 'Thêm' }).click();
+  const gradeLevels = page.getByRole('region', { name: 'Bậc học', exact: true });
+  await gradeLevels.getByRole('button', { name: 'Thêm mới' }).click();
+  const addGradeLevel = page.getByRole('form', { name: 'Thêm mới bậc học' });
+  await addGradeLevel.getByLabel('Mã bậc học').fill('MAM');
+  await addGradeLevel.getByLabel('Tên bậc học').fill('Mầm');
+  await addGradeLevel.getByLabel('Từ tháng tuổi').fill('48');
+  await addGradeLevel.getByLabel('Đến tháng tuổi').fill('59');
+  await addGradeLevel.getByRole('button', { name: 'Ghi' }).click();
   await expect(gradeLevels.getByRole('row').filter({ hasText: 'MAM' })).toContainText('48 đến 59 tháng');
 });
 

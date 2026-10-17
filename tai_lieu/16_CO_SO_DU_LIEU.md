@@ -1,8 +1,8 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.67
-- Ngày cập nhật: 2026-10-16
+- Phiên bản: 1.68
+- Ngày cập nhật: 2026-10-17
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -43,7 +43,8 @@
 | departments | Phòng ban | org_unit_id, parent_id (phòng ban cha cùng đơn vị, không tạo vòng), name, status |
 | job_titles | Chức danh | org_unit_id, name (duy nhất trong đơn vị), level (cấp bậc, chữ tự do), status |
 | users | Tài khoản đăng nhập | full_name, phone (duy nhất), username (duy nhất), password_hash (để trống khi phụ huynh còn dùng mật khẩu mặc định chung, YCTD-43), status, last_login_at, failed_login_count, locked_until (hết hạn tạm khóa do sai mật khẩu, YCTD-35), must_change_password, valid_until (bắt buộc với VT-20), password_changed_at (thời điểm đặt mật khẩu gần nhất, bắt buộc, mặc định now(); tài khoản có trước YCTD-110 lấy coalesce(updated_at, created_at); BR-110) |
-| roles | Vai trò | code (duy nhất), name, is_system |
+| roles | Vai trò | code (duy nhất), name, is_system, is_active (hiệu lực, mặc định đúng, YCTD-120) |
+| role_workspace_exclusions | Phân hệ của cổng quản trị nhóm không được dùng (1.2, YCTD-120, tệp `0046`) | role_id (khóa ngoại `roles`, xóa theo nhóm), workspace_key (khóa phân hệ của `PORTAL_WORKSPACES`), created_at; khóa chính (role_id, workspace_key) |
 | permissions | Quyền theo chức năng | code (duy nhất), module_code, description |
 | role_permissions | Gán quyền cho vai trò | role_id, permission_id |
 | user_roles | Gán vai trò cho tài khoản | user_id, role_id, org_unit_id (cho phép trống nghĩa là toàn trường; tham chiếu theo mã, không có khóa ngoại vì nằm khác cơ sở dữ liệu) |
@@ -72,6 +73,8 @@
 Ràng buộc: `org_units.parent_id` trỏ tới `org_units.id`. Chỉ một đơn vị `truong_chinh`, có `parent_id` trống; đơn vị `phan_hieu`, `diem_truong` có `parent_id` là Trường chính. Kiểm tra ở tầng ứng dụng và ở tầng dữ liệu (YCTD-38).
 
 Chỉ mục `users_full_name_id_index` trên `users (full_name, id)` và `user_roles_role_id_index` trên `user_roles (role_id)` (DT-15 phần 15e, YCTD-109) tạo bằng tệp `database/identity/migrations/0041_add_account_list_indexes.ts` của cơ sở dữ liệu định danh, phục vụ danh sách người dùng sắp theo họ tên, phân trang trong câu truy vấn và lọc theo nhóm quyền; không đổi bảng, không đổi dữ liệu.
+
+Tệp `database/identity/migrations/0046_add_role_status_and_workspaces.ts` của cơ sở dữ liệu định danh (DT-16 phần 16d, YCTD-120) thêm cột `roles.is_active` và bảng `role_workspace_exclusions`, gieo nhóm VT-14 bỏ 11 phân hệ. Tệp `database/system/migrations/0012_add_sync_account_credentials.ts` của cơ sở dữ liệu hệ thống cho `integration_credentials.connector` nhận thêm `moet_sync`, `doet_sync` (tài khoản đồng bộ của Bộ, của Sở) và thêm hai cột `account_username`, `account_secret_encrypted` (mã hóa AES-256-GCM, không trả qua API).
 
 Tệp `database/identity/migrations/0042_add_password_expiry_and_feedback_permission.ts` của cơ sở dữ liệu định danh (DT-15 phần 15g, YCTD-110) thêm cột `users.password_changed_at` (điền coalesce(updated_at, created_at) cho tài khoản đã có, rồi đặt bắt buộc, mặc định now()), thêm quyền `P01.feedback.manage` và gán cho VT-01, VT-02; phần quay lui gỡ quyền và cột. Tệp `database/system/migrations/0007_create_feedback.ts` của cơ sở dữ liệu hệ thống tạo bảng `feedback` với ràng buộc kiểm tra loại, trạng thái, độ dài tiêu đề, nội dung và hai chỉ mục ở mục 20.
 
@@ -330,7 +333,7 @@ Bảng `equipment_items`, `equipment_holdings`, `school_profiles` và các cột
 | content_comments | Bình luận trên hoạt động, tin tức, nội dung và album thư viện (P14-12, BR-66) | target_type (activity, news, library_item, library_album), target_id, org_unit_id, user_id, author_name, is_parent, content, created_at, hidden_reason, hidden_by, hidden_at; không xóa |
 | activity_media_children | Trẻ được gắn thẻ trong ảnh (BR-65) | media_id, child_id (khóa chính đôi); ảnh hiển thị cho phụ huynh khi mọi trẻ được gắn đang đồng ý hình ảnh |
 | integration_settings | Cấu hình kết nối ngoài toàn trường: Fanpage, Zalo Official Account; không chứa khóa bí mật (YCTD-90) | id, connector (facebook, zalo; duy nhất), enabled, config_data (page_id, page_name hoặc oa_id, oa_name), updated_by, updated_at |
-| integration_credentials | Khóa của kết nối ngoài cần làm mới định kỳ, lưu ở cơ sở dữ liệu hệ thống vì dùng chung toàn trường và giữ qua các năm học; hiện chỉ có Zalo (YCTD-95) | connector (duy nhất), access_token_encrypted, access_token_expires_at, refresh_token_encrypted (mã hóa AES-256-GCM bằng khóa dữ liệu trẻ), refreshed_at, updated_by, updated_at |
+| integration_credentials | Khóa của kết nối ngoài cần làm mới định kỳ, lưu ở cơ sở dữ liệu hệ thống vì dùng chung toàn trường và giữ qua các năm học; hiện chỉ có Zalo (YCTD-95); từ YCTD-120 còn lưu tài khoản đồng bộ của Bộ, của Sở | connector (duy nhất), access_token_encrypted, access_token_expires_at, refresh_token_encrypted (mã hóa AES-256-GCM bằng khóa dữ liệu trẻ), refreshed_at, updated_by, updated_at |; account_username, account_secret_encrypted (YCTD-120)
 | zalo_followers | Số điện thoại phụ huynh đã quan tâm Official Account kèm mã người dùng Zalo, do người quản trị liên kết (G3-08) | id, phone (duy nhất), zalo_user_id (duy nhất), display_name, linked_by, linked_at |
 | facebook_posts | Bài đăng Fanpage của hoạt động hoặc tin tức, mỗi nội dung một bài (P14-08) | id, source_type (activity, news), source_id, org_unit_id, title, message, photo_file_ids, excluded_photo_count, status (posted, failed), page_id, provider, external_post_id, last_error, attempt_count, posted_by, posted_at |
 | notification_recipients (sửa) | Thêm kênh `zalo` và kênh thực tế đã gửi | channel (in_app, sms, zalo), delivered_via (in_app, sms, zalo) |

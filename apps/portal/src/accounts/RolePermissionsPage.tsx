@@ -274,6 +274,21 @@ function RoleMatrix({
         {role.is_system ? <StatusBadge tone="neutral" label="Nhóm hệ thống" /> : null}
       </div>
       {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
+      {!role.is_active ? (
+        <Alert tone="warning">Nhóm đang hết hiệu lực (1.1): các quyền dưới đây chưa có tác dụng.</Alert>
+      ) : null}
+      {/* Quan hệ với 1.2 (DT-16 phần 16d): phân hệ quyết định menu hiện gì, quyền quyết định được làm gì */}
+      {workspaces.some((workspace) => !role.workspaces.includes(workspace.key)) ? (
+        <Alert tone="info">
+          Nhóm chưa được dùng phân hệ{' '}
+          {workspaces
+            .filter((workspace) => !role.workspaces.includes(workspace.key))
+            .map((workspace) => workspace.label)
+            .join(', ')}{' '}
+          ở 1.2 Phân quyền nhóm theo phần mềm nên các mục của phân hệ đó không hiện trên menu; quyền tích ở đây vẫn có
+          tác dụng khi thao tác (máy chủ kiểm tra theo quyền).
+        </Alert>
+      ) : null}
       {editable ? (
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="primary" disabled={!changed || save.isPending} onClick={() => save.mutate()}>

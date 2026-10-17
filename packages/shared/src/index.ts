@@ -290,6 +290,9 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/class-assignments',
   // Cập nhật địa danh hành chính (DT-15 phần 15h1)
   '/administrative-units',
+  // Quản trị hệ thống đủ theo Sở: 1.2 Phân quyền nhóm theo phần mềm, 1.6 Tài khoản đồng bộ của Bộ, của Sở (DT-16 phần 16d)
+  '/role-workspaces',
+  '/sync-accounts',
   // Văn thư lưu trữ (DT-15 phần 15h2, YCTD-118)
   '/archive-records',
   '/archive-fonds',
@@ -327,6 +330,50 @@ export const DATA_GRID_KEYS = [
   // Cập nhật địa danh hành chính (DT-15 phần 15h1)
   'administrative-addresses',
   'administrative-unit-mappings',
+  // Màn hình còn lại của các phân hệ theo Sở (DT-16 phần 16b): cơ sở vật chất, thiết bị dạy học
+  'facility-rooms',
+  'equipment-summary',
+  'equipment-outside',
+  'equipment-catalog',
+  // 16b: cân đo, thống kê, hồ sơ chưa nhập đủ, hoàn thành chương trình
+  'growth-report-children',
+  'missing-child-profiles',
+  'missing-staff-profiles',
+  'program-completion-classes',
+  'program-completion-children',
+  // 16b: nhóm học sinh, đánh giá chuẩn nghề nghiệp
+  'child-groups',
+  'child-group-members',
+  'professional-evaluations',
+  // 16b: thực đơn bữa ăn
+  'kitchen-menus',
+  'kitchen-ingredients',
+  'kitchen-dishes',
+  'kitchen-suppliers',
+  'kitchen-purchases',
+  'kitchen-buffets',
+  // 16b: y tế, thuốc
+  'health-campaigns',
+  'health-schedules',
+  'medical-events',
+  'health-report-requests',
+  'health-standards',
+  'medication-requests',
+  'medication-schedule',
+  'medicines',
+  'pharmacies',
+  'medicine-purchase-requests',
+  'medicine-purchase-orders',
+  'medicine-issues',
+  // 16b: quản trị hệ thống
+  'academic-years',
+  'departments',
+  'job-titles',
+  'catalog-items',
+  'rooms',
+  'grade-levels',
+  'zalo-followers',
+  'org-units',
   // Văn thư lưu trữ (DT-15 phần 15h2)
   'archive-records',
   'archive-fonds',

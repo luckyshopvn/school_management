@@ -1,7 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Alert, Button, TextField, Toast } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  ConfirmDeleteDialog,
+  DataGrid,
+  TextField,
+  Toast,
+  type DataGridColumn,
+} from '@school-management/ui';
 import { AppShell } from '../pages/AppShell.js';
+import { matchesSearch } from '../pages/grid-search.js';
+import { useGridSettings } from '../pages/grid-settings.js';
 import { ApiError, requestJson } from '../session/api-client.js';
 import { menuPageTitle } from '../pages/page-title.js';
 
@@ -9,7 +19,8 @@ import { menuPageTitle } from '../pages/page-title.js';
 // Account, nhập mã trang, mã Official Account; khóa truy cập đặt ở biến môi trường của máy chủ nên trang chỉ báo đã có hay
 // chưa. Liên kết số điện thoại phụ huynh đã quan tâm Official Account với mã người dùng Zalo. YCTD-92: nút Kiểm tra kết nối
 // cho từng kết nối (máy chủ gọi Facebook, Zalo và trả tên trang, tên Official Account hoặc lỗi) và ô nhập khóa làm mới Zalo
-// (ô mật khẩu; máy chủ lưu mã hóa, không trả lại) khi khóa cũ hết hạn sau 3 tháng
+// (ô mật khẩu; máy chủ lưu mã hóa, không trả lại) khi khóa cũ hết hạn sau 3 tháng. Danh sách phụ huynh quan tâm Zalo theo
+// lưới dữ liệu chung, tìm tại chỗ; Bỏ liên kết qua hộp xác nhận xóa (DT-16 phần 16b)
 type Connector = 'facebook' | 'zalo';
 
 interface Integration {
@@ -189,10 +200,19 @@ function ZaloRefreshToken({ onSaved }: { onSaved(message: string): void }) {
   );
 }
 
+const FOLLOWER_COLUMNS: Array<DataGridColumn<Follower>> = [
+  { id: 'phone', header: 'Số điện thoại', alwaysVisible: true, className: 'font-medium', cell: (row) => row.phone },
+  { id: 'guardian', header: 'Phụ huynh', cell: (row) => row.guardian_name ?? row.display_name ?? '' },
+  { id: 'zalo_user_id', header: 'Mã người dùng Zalo', cell: (row) => row.zalo_user_id },
+];
+
 function Followers({ onSaved }: { onSaved(message: string): void }) {
   const queryClient = useQueryClient();
+  const grid = useGridSettings('zalo-followers');
+  const [search, setSearch] = useState('');
   const [phone, setPhone] = useState('');
   const [zaloUserId, setZaloUserId] = useState('');
+  const [unlinking, setUnlinking] = useState<Follower>();
   const followers = useQuery({
     queryKey: ['zalo-followers'],
     queryFn: () => requestJson<Follower[]>('/api/v1/integrations/zalo/followers'),
@@ -209,12 +229,21 @@ function Followers({ onSaved }: { onSaved(message: string): void }) {
   });
   const unlink = useMutation({
     mutationFn: (id: string) => send<void>('DELETE', `/api/v1/integrations/zalo/followers/${id}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['zalo-followers'] }),
+    onSuccess: async () => {
+      setUnlinking(undefined);
+      await queryClient.invalidateQueries({ queryKey: ['zalo-followers'] });
+    },
+    onError: () => setUnlinking(undefined),
   });
+  const rows = (followers.data ?? []).filter((follower) =>
+    matchesSearch(search, follower.phone, follower.guardian_name, follower.display_name, follower.zalo_user_id),
+  );
+  const error = [followers.error, unlink.error, grid.error].find(Boolean);
   return (
-    <section className="flex flex-col gap-3 rounded-lg bg-card p-4" aria-label="Phụ huynh quan tâm Zalo">
+    <div className="flex flex-col gap-3 rounded-lg bg-card p-4">
       <h2 className="text-section-title font-semibold text-text">Phụ huynh quan tâm Zalo</h2>
       <form
+        aria-label="Liên kết Zalo phụ huynh"
         className="grid grid-cols-1 gap-3 md:grid-cols-3"
         onSubmit={(event) => {
           event.preventDefault();
@@ -234,31 +263,38 @@ function Followers({ onSaved }: { onSaved(message: string): void }) {
         </div>
       </form>
       {link.error ? <Alert tone="danger">{messageOf(link.error)}</Alert> : null}
-      <table className="w-full text-left text-content text-text">
-        <thead>
-          <tr>
-            <th>Số điện thoại</th>
-            <th>Phụ huynh</th>
-            <th>Mã người dùng Zalo</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {(followers.data ?? []).map((follower) => (
-            <tr key={follower.id}>
-              <td>{follower.phone}</td>
-              <td>{follower.guardian_name ?? follower.display_name ?? ''}</td>
-              <td>{follower.zalo_user_id}</td>
-              <td>
-                <Button variant="text" onClick={() => unlink.mutate(follower.id)}>
-                  Bỏ liên kết
-                </Button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </section>
+      {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
+      <DataGrid
+        label="Phụ huynh quan tâm Zalo"
+        columns={FOLLOWER_COLUMNS}
+        rows={rows}
+        getRowId={(row) => row.id}
+        getRowLabel={(row) => row.phone}
+        loading={followers.isPending}
+        emptyText="Chưa có phụ huynh liên kết Zalo."
+        search={{ label: 'Tìm theo số điện thoại, phụ huynh, mã Zalo', value: search, onChange: setSearch }}
+        rowActions={(row) => (
+          <Button variant="text" disabled={unlink.isPending} onClick={() => setUnlinking(row)}>
+            Bỏ liên kết
+          </Button>
+        )}
+        settings={grid.settings}
+        onSettingsChange={grid.update}
+      />
+      {unlinking ? (
+        <ConfirmDeleteDialog
+          open
+          title="Bỏ liên kết Zalo"
+          subject={`liên kết Zalo của số điện thoại ${unlinking.phone}`}
+          confirmLabel="Bỏ liên kết"
+          busy={unlink.isPending}
+          onCancel={() => setUnlinking(undefined)}
+          onConfirm={() => unlink.mutate(unlinking.id)}
+        >
+          Phụ huynh không nhận tin qua Zalo Official Account nữa cho đến khi liên kết lại.
+        </ConfirmDeleteDialog>
+      ) : null}
+    </div>
   );
 }
 

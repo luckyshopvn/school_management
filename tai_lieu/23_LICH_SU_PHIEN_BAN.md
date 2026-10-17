@@ -2,7 +2,7 @@
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
 - Phiên bản: 0.4
-- Ngày cập nhật: 2026-10-16
+- Ngày cập nhật: 2026-10-17
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
 
@@ -15,6 +15,27 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.70.0 – 2026-10-17
+
+- Phạm vi thay đổi: DT-16 phần 16d, quản trị hệ thống đủ theo hệ thống của Sở (YCTD-120).
+- Chức năng mới: 1.1 Nhóm người dùng có Hiệu lực, Sửa, Xóa; màn hình 1.2 Phân quyền nhóm theo phần mềm (phân hệ nhóm được dùng, ẩn phân hệ khỏi ô chọn phân hệ và menu); 1.4 Danh sách người dùng có Mã nhân sự, Mã Bộ, Ngày hết hạn mật khẩu, lọc Mã định danh, ngày hết hạn mật khẩu, Phân nhóm quyền, Cấp mật khẩu hàng loạt, Lấy danh sách CBQL/GV, Xuất Excel; màn hình 1.6 Tài khoản đồng bộ của Bộ, của Sở (lưu mã hóa, bản chạy nội bộ).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp định danh `0046_add_role_status_and_workspaces` thêm `roles.is_active`, bảng `role_workspace_exclusions`; tệp hệ thống `0012_add_sync_account_credentials` thêm hai loại kết nối và hai cột của `integration_credentials`.
+- Thay đổi API: dịch vụ định danh thêm `PATCH, DELETE /roles/{id}`, `PUT /roles/{id}/workspaces`, `POST /users/bulk-reset-password`, `POST /users/bulk-roles`, tham số mới của `GET /users`, trường `workspaces` ở `/auth/me`; máy chủ API thêm `/account-directory`, `/account-directory/export`, `/account-directory/staff-without-account`, `/account-directory/staff-accounts`, `/sync-accounts`.
+- Rủi ro: ngừng hiệu lực một nhóm đang dùng làm người dùng mất quyền ngay; thao tác hàng loạt không gộp một giao dịch.
+- Khả năng tương thích: điểm cuối cũ giữ nguyên dạng trả về, chỉ thêm trường; không có mã quyền mới; nhóm cũ giữ đủ phân hệ trừ Phụ huynh; ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16d; chạy phần quay lui của tệp định danh `0046` (bỏ cột, bảng) và tệp hệ thống `0012` (xóa hai loại tài khoản đồng bộ, bỏ hai cột).
+### Phiên bản 0.69.0 – 2026-10-16
+
+- Phạm vi thay đổi: DT-16 phần 16b, lưới dữ liệu chung, hộp xác nhận xóa, Xuất Excel cho các màn hình còn lại theo hệ thống của Sở (YCTD-119).
+- Chức năng mới: lưới dữ liệu chung (tìm kiếm, Mở rộng tìm kiếm, cấu hình cột, số dòng mỗi trang theo người dùng, tiêu đề theo menu) cho 1.1 Khai báo cơ sở vật chất, 2.1 Tổng hợp thiết bị dạy học, 4.3.2 Tổng hợp cân nặng, chiều cao, 5.8 Thống kê hồ sơ chưa nhập đủ, 4.4 Hoàn thành chương trình, 4.1.6 Nhóm học sinh (bỏ nhiều học sinh khỏi nhóm), 3.2 Đánh giá chuẩn nghề nghiệp (lọc Loại chuẩn, Trạng thái), 4.5 Thực đơn bữa ăn, 4.6.1 Y tế học đường, 4.6.2 Thuốc và dặn thuốc, 2.1 Năm học, 2.2 Cây đơn vị (danh sách phẳng), 2.3 Phòng ban và chức danh, 2.4 Danh mục dùng chung, 2.5 Phòng học và bậc học, 3.2 Kết nối ngoài; hộp xác nhận xóa cho bỏ học sinh khỏi nhóm, bỏ món, bỏ nguyên liệu, xóa tiêu chuẩn sức khỏe, bỏ liên kết Zalo; Xuất Excel theo cột đang hiện cho 1.2 Quản lý phân hiệu, 1.3 Quản lý điểm trường, 4.1.11 Cập nhật địa danh hành chính, 1.1 Nhóm người dùng (BR-117); Xuất Excel 1.4 dùng điểm cuối của phần 16d.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: không có tệp thay đổi cấu trúc dữ liệu; 38 khóa lưới mới trong `DATA_GRID_KEYS` dùng cho `user_grid_settings`; các lần xuất mới ghi `export_logs`, phân hiệu, điểm trường, nhóm người dùng ghi không có dữ liệu cá nhân.
+- Thay đổi API: điểm cuối mới `POST /org-units/export`, `POST /administrative-units/addresses/export`, `POST /account-exports/roles`; `/me/grid-settings/{gridKey}` nhận thêm 38 khóa lưới.
+- Rủi ro: ô tìm kiếm của các lưới mới chỉ tìm trên dữ liệu đã tải.
+- Khả năng tương thích: không đổi bảng, quyền, điểm cuối cũ; điểm cuối của dịch vụ định danh không đổi; cấu hình lưới đã lưu của các lưới cũ giữ nguyên; ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16b; không có phần quay lui cơ sở dữ liệu; dòng `user_grid_settings` của 38 khóa mới không còn được đọc, xóa nếu cần.
 
 ### Phiên bản 0.68.0 – 2026-10-16
 

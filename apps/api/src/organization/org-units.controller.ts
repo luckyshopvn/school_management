@@ -1,9 +1,16 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query, Req, Res } from '@nestjs/common';
 import type { OrgUnitStatus, OrgUnitType } from '@school-management/database';
 import { validationError, type FieldError } from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
+import { readExportColumns } from '../classes/class-list.js';
+import { sendWorkbook } from '../children/student-workbook.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
+import {
+  DEFAULT_ORG_UNIT_EXPORT_COLUMNS,
+  ORG_UNIT_EXPORT_COLUMNS,
+  readOrgUnitExportFilter,
+} from './org-unit-export.js';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf } from '../common/audit-log.js';
@@ -107,6 +114,26 @@ export class OrgUnitsController {
   @Get('tree')
   tree() {
     return this.orgUnitsService.tree();
+  }
+
+  // Xuất Excel 1.2 phân hiệu, 1.3 điểm trường theo bộ lọc và các cột đang hiện trên lưới; cần quyền xuất dữ liệu
+  // (BR-74, DT-16 phần 16b)
+  @Post('export')
+  @HttpCode(200)
+  @RequirePermission(PERMISSION_CODES.dataExport)
+  async exportList(
+    @Body() body: RequestBody,
+    @Req() request: Request,
+    @Res() response: Response,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const errors: FieldError[] = [];
+    const filter = readOrgUnitExportFilter(body ?? {}, errors);
+    const columns = readExportColumns(body, ORG_UNIT_EXPORT_COLUMNS, DEFAULT_ORG_UNIT_EXPORT_COLUMNS, errors);
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    sendWorkbook(response, await this.orgUnitsService.exportList(currentUser, filter, columns, request.ip ?? null));
   }
 
   @Post()

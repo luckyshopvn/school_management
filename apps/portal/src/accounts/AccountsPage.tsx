@@ -7,6 +7,7 @@ import {
   ConfirmDeleteDialog,
   ConfirmDialog,
   DataGrid,
+  resolveVisibleColumns,
   StatusBadge,
   TextField,
   Toast,
@@ -22,21 +23,24 @@ import {
   EMPTY_ACCOUNT_FILTER,
   addRole,
   createAccount,
-  listAccounts,
+  exportAccounts,
+  listAccountDirectory,
   listRoles,
   removeRole,
   resetPassword,
   updateAccount,
   type Account,
   type AccountFilter,
+  type DirectoryAccount,
   type Role,
   type RoleGrant,
 } from './accounts-api.js';
+import { BulkPasswordDialog, BulkRoleDialog, StaffAccountsDialog } from './AccountBulkDialogs.js';
 import { RoleGrantFields } from './RoleGrantFields.js';
 import { PasswordPolicySection } from './PasswordPolicySection.js';
 
 // MH-30 phần tài khoản: danh sách, tạo, khóa, mở khóa, đặt lại mật khẩu, gán vai trò (P01-06, P01-07, PQ-13); danh sách
-// dùng lưới dữ liệu chung, gỡ vai trò qua hộp xác nhận xóa (DT-15 phần 15a)
+// dùng lưới dữ liệu chung, gỡ vai trò qua hộp xác nhận xóa (DT-15 phần 15a). DT-16 phần 16d: đủ cột, bộ lọc, nút của Sở
 function messageOf(error: unknown): string {
   return error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại';
 }
@@ -291,15 +295,55 @@ function formatDateTime(value: string | null): string {
   return value ? new Date(value).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : '';
 }
 
+function formatDate(value: string | null): string {
+  return value ? new Date(value).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : '';
+}
+
 const FILTER_CONTROL_CLASS = 'w-full rounded-lg border border-border bg-card px-3 py-2 text-content';
+
+function FilterInput({
+  id,
+  label,
+  value,
+  type,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  type?: string;
+  onChange(value: string): void;
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <label htmlFor={id} className="text-label font-medium text-text">
+        {label}
+      </label>
+      <input
+        id={id}
+        type={type}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className={FILTER_CONTROL_CLASS}
+      />
+    </div>
+  );
+}
+
+type BulkAction = 'roles' | 'password' | 'staff';
 
 export function AccountsPage() {
   const canAssignRoles = useHasPermission(PERMISSION_CODES.accountManage);
+  const canExport = useHasPermission(PERMISSION_CODES.dataExport);
   const [filter, setFilter] = useState<AccountFilter>(EMPTY_ACCOUNT_FILTER);
   const [page, setPage] = useState(1);
   const [selectedId, setSelectedId] = useState<string>();
   const [toastMessage, setToastMessage] = useState<string>();
   const [temporaryPassword, setTemporaryPassword] = useState<string>();
+  // Thao tác hàng loạt đang mở và các tài khoản đã chọn trên lưới lúc mở (DT-16 phần 16d)
+  const [bulk, setBulk] = useState<{ action: BulkAction; accounts: DirectoryAccount[] }>();
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
   const queryClient = useQueryClient();
   const grid = useGridSettings('accounts');
@@ -310,9 +354,10 @@ export function AccountsPage() {
     setPage(1);
   };
 
+  // Máy chủ API ghép tài khoản với hồ sơ nhân sự để có Mã nhân sự, Mã Bộ, lọc Mã định danh (DT-16 phần 16d)
   const accounts = useQuery({
     queryKey: ['accounts', filter, page, pageSize],
-    queryFn: () => listAccounts({ ...filter, page, pageSize }),
+    queryFn: () => listAccountDirectory({ ...filter, page, pageSize }),
     enabled: grid.ready,
     // Giữ danh sách cũ trên lưới khi đổi trang, đổi bộ lọc
     placeholderData: keepPreviousData,
@@ -321,9 +366,9 @@ export function AccountsPage() {
   const units = useQuery({ queryKey: ['org-units', 'flat', ''], queryFn: () => listOrgUnits() });
   const selected = accounts.data?.items.find((account) => account.id === selectedId);
 
-  // Cột theo 1.4 Danh sách người dùng của Sở (DT-15 phần 15e); mã nhân sự, mã Bộ và thời gian đổi mật khẩu chưa có ở dịch
-  // vụ định danh nên chưa có cột; cột ẩn mặc định bật ở "Cấu hình cột hiển thị"
-  const columns: Array<DataGridColumn<Account>> = [
+  // Cột theo 1.4 Danh sách người dùng của Sở (DT-15 phần 15e, đủ cột ở DT-16 phần 16d); cột ẩn mặc định bật ở "Cấu hình
+  // cột hiển thị". Mã cột trùng với cột của tệp Excel ở máy chủ API
+  const columns: Array<DataGridColumn<DirectoryAccount>> = [
     { id: 'login', header: 'Tên đăng nhập', cell: (account) => account.username ?? account.phone },
     {
       id: 'full_name',
@@ -337,6 +382,8 @@ export function AccountsPage() {
       header: 'Nhóm quyền',
       cell: (account) => [...new Set(account.assignments.map((assignment) => assignment.role_name))].join(', '),
     },
+    { id: 'staff_code', header: 'Mã nhân sự', cell: (account) => account.staff_code ?? '' },
+    { id: 'moet_staff_code', header: 'Mã Bộ', cell: (account) => account.moet_staff_code ?? '' },
     { id: 'account_type', header: 'Loại tài khoản', cell: accountType },
     {
       id: 'status',
@@ -354,6 +401,16 @@ export function AccountsPage() {
       cell: (account) => (account.must_change_password ? 'Chờ đổi mật khẩu' : 'Đã đổi'),
     },
     {
+      id: 'password_changed_at',
+      header: 'Thời gian đổi mật khẩu',
+      cell: (account) => formatDateTime(account.password_changed_at),
+    },
+    {
+      id: 'password_expires_at',
+      header: 'Ngày hết hạn mật khẩu',
+      cell: (account) => formatDate(account.password_expires_at),
+    },
+    {
       id: 'valid_until',
       header: 'Ngày hết hiệu lực',
       hiddenByDefault: true,
@@ -366,27 +423,53 @@ export function AccountsPage() {
       hiddenByDefault: true,
       cell: (account) => formatDateTime(account.last_login_at),
     },
-    {
-      id: 'password_changed_at',
-      header: 'Thời gian đổi mật khẩu',
-      hiddenByDefault: true,
-      cell: (account) =>
-        account.password_changed_at
-          ? new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: 'short' }).format(
-              new Date(account.password_changed_at),
-            )
-          : '',
-    },
   ];
+
+  const runExport = async () => {
+    setExportError(undefined);
+    setExporting(true);
+    try {
+      await exportAccounts(
+        filter,
+        resolveVisibleColumns(columns, grid.settings.columns).map((column) => column.id),
+      );
+    } catch (error) {
+      setExportError(messageOf(error));
+    } finally {
+      setExporting(false);
+    }
+  };
+  const afterBulk = async (message?: string) => {
+    await queryClient.invalidateQueries({ queryKey: ['accounts'] });
+    if (message) {
+      setToastMessage(message);
+    }
+  };
 
   return (
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <TemporaryPasswordDialog password={temporaryPassword} onClose={() => setTemporaryPassword(undefined)} />
+      {bulk?.action === 'roles' ? (
+        <BulkRoleDialog
+          accounts={bulk.accounts}
+          roles={roles.data ?? []}
+          units={units.data ?? []}
+          onClose={() => setBulk(undefined)}
+          onDone={afterBulk}
+        />
+      ) : null}
+      {bulk?.action === 'password' ? (
+        <BulkPasswordDialog accounts={bulk.accounts} onClose={() => setBulk(undefined)} onDone={afterBulk} />
+      ) : null}
+      {bulk?.action === 'staff' ? (
+        <StaffAccountsDialog roles={roles.data ?? []} onClose={() => setBulk(undefined)} onDone={afterBulk} />
+      ) : null}
       <div className="flex flex-col gap-6">
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/accounts')}</h1>
         {accounts.isError ? <Alert tone="danger">{messageOf(accounts.error)}</Alert> : null}
         {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+        {exportError ? <Alert tone="danger">{exportError}</Alert> : null}
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_400px]">
           <DataGrid
             label="Danh sách người dùng"
@@ -401,7 +484,8 @@ export function AccountsPage() {
               value: filter.q,
               onChange: (value) => changeFilter({ q: value }),
             }}
-            // Bộ lọc theo Sở: nhóm quyền, trạng thái, trạng thái đổi mật khẩu, tên đăng nhập, tên nhân sự
+            // Bộ lọc theo Sở: nhóm quyền, mã định danh, trạng thái, tên đăng nhập, tên nhân sự, trạng thái đổi mật khẩu,
+            // ngày hết hạn mật khẩu
             advancedSearch={
               <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                 <div className="flex flex-col gap-2">
@@ -422,6 +506,12 @@ export function AccountsPage() {
                     ))}
                   </select>
                 </div>
+                <FilterInput
+                  id="account-identifier"
+                  label="Mã định danh"
+                  value={filter.identifier}
+                  onChange={(value) => changeFilter({ identifier: value })}
+                />
                 <div className="flex flex-col gap-2">
                   <label htmlFor="account-status" className="text-label font-medium text-text">
                     Trạng thái
@@ -437,6 +527,18 @@ export function AccountsPage() {
                     <option value="locked">Đã khóa</option>
                   </select>
                 </div>
+                <FilterInput
+                  id="account-login"
+                  label="Tên đăng nhập"
+                  value={filter.login}
+                  onChange={(value) => changeFilter({ login: value })}
+                />
+                <FilterInput
+                  id="account-full-name"
+                  label="Tên nhân sự"
+                  value={filter.fullName}
+                  onChange={(value) => changeFilter({ fullName: value })}
+                />
                 <div className="flex flex-col gap-2">
                   <label htmlFor="account-password-state" className="text-label font-medium text-text">
                     Trạng thái đổi mật khẩu
@@ -452,35 +554,50 @@ export function AccountsPage() {
                     <option value="false">Đã đổi</option>
                   </select>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <label htmlFor="account-login" className="text-label font-medium text-text">
-                    Tên đăng nhập
-                  </label>
-                  <input
-                    id="account-login"
-                    value={filter.login}
-                    onChange={(event) => changeFilter({ login: event.target.value })}
-                    className={FILTER_CONTROL_CLASS}
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label htmlFor="account-full-name" className="text-label font-medium text-text">
-                    Tên nhân sự
-                  </label>
-                  <input
-                    id="account-full-name"
-                    value={filter.fullName}
-                    onChange={(event) => changeFilter({ fullName: event.target.value })}
-                    className={FILTER_CONTROL_CLASS}
-                  />
-                </div>
+                <FilterInput
+                  id="account-expires-from"
+                  label="Hết hạn mật khẩu từ ngày"
+                  type="date"
+                  value={filter.passwordExpiresFrom}
+                  onChange={(value) => changeFilter({ passwordExpiresFrom: value })}
+                />
+                <FilterInput
+                  id="account-expires-to"
+                  label="Hết hạn mật khẩu đến ngày"
+                  type="date"
+                  value={filter.passwordExpiresTo}
+                  onChange={(value) => changeFilter({ passwordExpiresTo: value })}
+                />
               </div>
             }
-            toolbar={
-              <Button variant="primary" onClick={() => setSelectedId(undefined)}>
-                Thêm mới
-              </Button>
-            }
+            // Nút theo Sở: Phân nhóm quyền, Cấp mật khẩu cho các dòng đã chọn; Lấy danh sách CBQL/GV; Xuất Excel
+            toolbar={(selectedRows) => (
+              <>
+                <Button variant="primary" onClick={() => setSelectedId(undefined)}>
+                  Thêm mới
+                </Button>
+                {canAssignRoles ? (
+                  <Button
+                    disabled={selectedRows.length === 0}
+                    onClick={() => setBulk({ action: 'roles', accounts: selectedRows })}
+                  >
+                    Phân nhóm quyền
+                  </Button>
+                ) : null}
+                <Button
+                  disabled={selectedRows.length === 0}
+                  onClick={() => setBulk({ action: 'password', accounts: selectedRows })}
+                >
+                  Cấp mật khẩu
+                </Button>
+                <Button onClick={() => setBulk({ action: 'staff', accounts: [] })}>Lấy danh sách CBQL/GV</Button>
+                {canExport ? (
+                  <Button onClick={() => void runExport()} disabled={exporting}>
+                    {exporting ? 'Đang xuất…' : 'Xuất Excel'}
+                  </Button>
+                ) : null}
+              </>
+            )}
             selectable
             rowActions={(account) => (
               <Button

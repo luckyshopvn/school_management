@@ -1,4 +1,5 @@
 import { ApiError, fetchWithSession, requestJson } from '../session/api-client.js';
+import { downloadPost } from './children-api.js';
 
 // 4.1.11. Cập nhật địa danh hành chính (DT-15 phần 15h1, YCTD-116): địa chỉ của học sinh còn theo địa danh cũ, chuyển
 // sang địa danh mới, bảng đối chiếu và nhập bảng đối chiếu từ Excel
@@ -120,3 +121,7 @@ export function importMappings(file: File): Promise<MappingImportReport> {
   form.set('file', file);
   return requestJson('/api/v1/administrative-units/mappings/import', { method: 'POST', body: form });
 }
+
+// Xuất Excel lưới địa chỉ theo bộ lọc và các cột đang hiện (DT-16 phần 16b)
+export const exportOldAddresses = (filter: AddressFilter, columns: string[]) =>
+  downloadPost('/api/v1/administrative-units/addresses/export', { ...filter, columns }, 'dia-chi-dia-danh-cu.xlsx');
