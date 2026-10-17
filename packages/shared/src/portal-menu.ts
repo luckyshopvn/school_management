@@ -87,14 +87,16 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('4.4.', 'Hoàn thành chương trình', '/program-completion'),
         leaf('4.5.', 'Thực đơn bữa ăn', '/kitchen'),
         group('4.6.', 'Sức khỏe học sinh', [
-          leaf('4.6.1.', 'Y tế học đường', '/health'),
-          leaf('4.6.2.', 'Thuốc và dặn thuốc', '/medicines'),
+          leaf('4.6.1.', 'Nhập thông tin sức khỏe học sinh', '/student-health'),
+          leaf('4.6.2.', 'Y tế học đường', '/health'),
+          leaf('4.6.3.', 'Thuốc và dặn thuốc', '/medicines'),
         ]),
         leaf('4.7.', 'Điểm danh', '/attendance'),
       ]),
       group('5.', 'Công cụ hỗ trợ', [
         leaf('5.1.', 'Thống kê lớp, nhân sự, học sinh', '/statistics'),
         leaf('5.2.', 'Thống kê nhân sự', '/staff-statistics'),
+        leaf('5.3.', 'Thống kê học sinh', '/student-statistics'),
         // Mã định danh, mật khẩu mặc định; tiến độ xác thực số định danh học sinh (DT-16 phần 16g)
         leaf('5.4.', 'Mã định danh, mật khẩu mặc định', '/default-passwords'),
         leaf('5.5.', 'Tiến độ xác thực số định danh học sinh', '/national-id-progress'),

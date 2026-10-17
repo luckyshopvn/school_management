@@ -49,13 +49,18 @@ import { financeTransitionStep } from './finance/finance-transition.js';
 import { HealthAccess } from './health/health-access.js';
 import { HealthCareController, HealthCareService } from './health/health-care.js';
 import { GrowthController, GrowthService } from './health/growth.js';
+import { StudentHealthController, StudentHealthService } from './health/student-health.js';
+import { SchoolTerms } from './health/school-terms.js';
 import { StatisticsController, StatisticsService } from './statistics/statistics.js';
+import { StudentStatisticsController, StudentStatisticsService } from './statistics/student-statistics.js';
+import { EmisHealthReportController, EmisHealthReportService } from './health/emis-health-report.js';
 import { HealthRecordsController, HealthRecordsService } from './health/health-records.js';
 import { healthTransitionStep } from './health/health-transition.js';
 import { KitchenAccess } from './kitchen/kitchen-access.js';
 import { KitchenCatalogsController, KitchenCatalogsService } from './kitchen/kitchen-catalogs.js';
 import { KitchenMealsController, KitchenMealsService } from './kitchen/kitchen-meals.js';
 import { KitchenMenusController, KitchenMenusService } from './kitchen/kitchen-menus.js';
+import { MenuImportsController, MenuImportsService } from './kitchen/menu-imports.js';
 import { KitchenPurchasesController, KitchenPurchasesService } from './kitchen/kitchen-purchases.js';
 import { kitchenTransitionStep } from './kitchen/kitchen-transition.js';
 import { MedicationAccess } from './medicines/medication-access.js';
@@ -324,9 +329,13 @@ export class ApplicationModule {
         HealthRecordsController,
         HealthCareController,
         GrowthController,
+        StudentHealthController,
         StatisticsController,
+        StudentStatisticsController,
+        EmisHealthReportController,
         KitchenCatalogsController,
         KitchenMenusController,
+        MenuImportsController,
         KitchenMealsController,
         KitchenPurchasesController,
         MedicineCatalogController,
@@ -499,11 +508,16 @@ export class ApplicationModule {
         HealthRecordsService,
         HealthCareService,
         GrowthService,
+        StudentHealthService,
+        SchoolTerms,
         StatisticsService,
+        StudentStatisticsService,
+        EmisHealthReportService,
         KitchenAccess,
         KitchenCatalogsService,
         KitchenMealsService,
         KitchenMenusService,
+        MenuImportsService,
         KitchenPurchasesService,
         MedicationAccess,
         MedicineCatalogService,

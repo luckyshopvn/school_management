@@ -3,6 +3,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Alert, Button, StatusBadge } from '@school-management/ui';
 import { requestJson } from '../session/api-client.js';
 import {
+  IMPORTS_API_BASE,
   downloadImportErrorFile,
   downloadImportTemplate,
   messageOf,
@@ -43,6 +44,10 @@ export interface ExcelImportPanelProperties {
   writesOnUpload?: boolean;
   onUploaded?(job: ImportJobResult): void | Promise<void>;
   onCommitted(job: ImportJobResult): void | Promise<void>;
+  // Đường dẫn gốc của điểm cuối mẫu, danh mục, ghi, file lỗi; mặc định công cụ nhập chung /api/v1/imports (DT-16 phần 16h)
+  apiBase?: string;
+  // Tham số thêm khi tra danh mục, tải file mẫu (ví dụ org_unit_id)
+  catalogSearch?: Record<string, string>;
 }
 
 // Bảng dòng lỗi của một lần nhập
@@ -70,14 +75,14 @@ export function RowMessageTable({ label, rows }: { label: string; rows: RowMessa
 }
 
 // Nút "Xuất file lỗi" dùng chung cho mọi lần nhập có dòng lỗi
-export function ErrorFileButton({ jobId }: { jobId: string }) {
+export function ErrorFileButton({ jobId, apiBase = IMPORTS_API_BASE }: { jobId: string; apiBase?: string }) {
   const [error, setError] = useState<string>();
   return (
     <>
       <Button
         onClick={() => {
           setError(undefined);
-          downloadImportErrorFile(jobId).catch((reason: unknown) => setError(messageOf(reason)));
+          downloadImportErrorFile(jobId, apiBase).catch((reason: unknown) => setError(messageOf(reason)));
         }}
       >
         Xuất file lỗi
@@ -88,12 +93,25 @@ export function ErrorFileButton({ jobId }: { jobId: string }) {
 }
 
 // Vùng "Tra cứu danh mục"; màn hình có danh mục riêng (nhập học sinh 82 cột, DT-16 phần 16g) truyền hàm đọc danh mục
-export function CatalogLookup({ type, load }: { type: string; load?: () => Promise<ImportCatalog[]> }) {
+export function CatalogLookup({
+  type,
+  apiBase = '/api/v1/imports',
+  search: catalogSearch = {},
+  load,
+}: {
+  type: string;
+  apiBase?: string;
+  search?: Record<string, string>;
+  load?: () => Promise<ImportCatalog[]>;
+}) {
   const [catalogKey, setCatalogKey] = useState<string>();
   const [search, setSearch] = useState('');
   const selectId = useId();
   const searchId = useId();
-  const catalogs = useQuery({ queryKey: ['import-catalogs', type], queryFn: load ?? (() => readImportCatalogs(type)) });
+  const catalogs = useQuery({
+    queryKey: ['import-catalogs', apiBase, type, catalogSearch],
+    queryFn: load ?? (() => readImportCatalogs(type, apiBase, catalogSearch)),
+  });
   const current = catalogs.data?.find((catalog) => catalog.key === catalogKey) ?? catalogs.data?.[0];
   const keyword = search.trim().toLowerCase();
   const items = (current?.items ?? []).filter(
@@ -179,6 +197,8 @@ export function ExcelImportPanel({
   writesOnUpload = false,
   onUploaded,
   onCommitted,
+  apiBase = IMPORTS_API_BASE,
+  catalogSearch = {},
 }: ExcelImportPanelProperties) {
   const [file, setFile] = useState<File>();
   const [job, setJob] = useState<ImportJobResult>();
@@ -188,7 +208,10 @@ export function ExcelImportPanel({
   const [unselected, setUnselected] = useState<Set<string>>(() => new Set());
   const columnsId = useId();
   const catalogsId = useId();
-  const info = useQuery({ queryKey: ['import-columns', type], queryFn: () => readImportColumns(type) });
+  const info = useQuery({
+    queryKey: ['import-columns', apiBase, type],
+    queryFn: () => readImportColumns(type, apiBase),
+  });
   const selectable = (info.data?.columns ?? []).filter((column) => !column.locked);
   const upload = useMutation({
     mutationFn: () => {
@@ -215,7 +238,7 @@ export function ExcelImportPanel({
     },
   });
   const commit = useMutation({
-    mutationFn: () => requestJson<ImportJobResult>(`/api/v1/imports/${job?.id}/commit`, { method: 'POST' }),
+    mutationFn: () => requestJson<ImportJobResult>(`${apiBase}/${job?.id}/commit`, { method: 'POST' }),
     onSuccess: async (result) => {
       setJob(result);
       await onCommitted(result);
@@ -223,7 +246,9 @@ export function ExcelImportPanel({
   });
   const template = (withData: boolean) => {
     setTemplateError(undefined);
-    downloadImportTemplate(type, withData).catch((error: unknown) => setTemplateError(messageOf(error)));
+    downloadImportTemplate(type, withData, apiBase, catalogSearch).catch((error: unknown) =>
+      setTemplateError(messageOf(error)),
+    );
   };
 
   return (
@@ -264,7 +289,7 @@ export function ExcelImportPanel({
           aria-label="Tra cứu danh mục"
           className="rounded-lg border border-border bg-page p-3"
         >
-          <CatalogLookup type={type} />
+          <CatalogLookup type={type} apiBase={apiBase} search={catalogSearch} />
         </div>
       ) : null}
       {panel === 'columns' && info.data ? (
@@ -326,7 +351,7 @@ export function ExcelImportPanel({
               {job.total_rows} dòng, {job.error_rows} dòng lỗi
               {job.assigned_rows !== undefined ? `, đã gán ${job.assigned_rows} dòng` : ''}
             </span>
-            {job.errors.length > 0 ? <ErrorFileButton jobId={job.id} /> : null}
+            {job.errors.length > 0 ? <ErrorFileButton jobId={job.id} apiBase={apiBase} /> : null}
           </div>
           {job.errors.length > 0 ? <RowMessageTable label="Báo cáo dòng lỗi" rows={job.errors} /> : null}
           {job.status === 'validated' && !writesOnUpload ? (

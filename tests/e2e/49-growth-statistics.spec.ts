@@ -123,6 +123,8 @@ test('Y tế nhập cân đo, tính kênh tăng trưởng; quản lý xem tổng
   await expect(managerPage.getByRole('region', { name: 'Lớp theo nhóm tuổi' })).toContainText('Mẫu giáo 3–4 tuổi');
   await managerPage.getByRole('tab', { name: '5.3 Thống kê học sinh' }).click();
   await expect(managerPage.getByRole('heading', { name: '5.3 Thống kê học sinh', level: 1 })).toBeVisible();
+  // Thẻ 5.3 dùng màn hình thống kê học sinh đủ các phần của Sở (DT-16 phần 16h): bảng dân tộc ở phần Học sinh dân tộc
+  await managerPage.getByRole('tab', { name: 'Học sinh dân tộc' }).click();
   await expect(managerPage.getByRole('region', { name: 'Học sinh theo dân tộc' })).toContainText(
     `Dân tộc thử ${suffix}`,
   );

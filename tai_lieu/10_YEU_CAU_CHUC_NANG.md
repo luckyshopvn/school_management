@@ -1,8 +1,8 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.48
-- Ngày cập nhật: 2026-10-17
+- Phiên bản: 1.49
+- Ngày cập nhật: 2026-10-18
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -185,7 +185,8 @@
 | P10-11 | Tiêu chuẩn sức khỏe (G2) | VT-09 | Độ tuổi, giới tính, chỉ số, ngưỡng dưới, ngưỡng trên theo tiêu chuẩn của Bộ Y tế | Quản lý bảng tiêu chuẩn theo Bộ Y tế; so sánh kết quả khám với tiêu chuẩn | Bảng tiêu chuẩn và đánh giá chỉ số | BR-51 |
 | P10-12 | Theo dõi chăm sóc hằng ngày (G2) | VT-07, VT-09, VT-14 | Trẻ, ngày, thời điểm, nhiệt độ, tình trạng, chăm sóc đặc biệt theo lưu ý của phụ huynh | Giáo viên chủ nhiệm hoặc y tế ghi nhận; phụ huynh của trẻ xem trên ứng dụng | Nhật ký chăm sóc hằng ngày | BR-53, BR-87 |
 | P10-13 | Cân đo theo đợt và kênh tăng trưởng (G3) | VT-09 ghi; VT-02, VT-15, VT-03, VT-04 và giáo viên chủ nhiệm xem; VT-14 xem biểu đồ của con | Đợt cân đo (tên, ngày cân đo), lớp, cân nặng và chiều cao từng học sinh, hoặc tệp Excel theo mẫu của lớp | Lập đợt; nhập số đo cả lớp rồi "Tính và lưu"; nhập từ Excel so khớp theo mã học sinh hoặc họ tên và ngày sinh, có lỗi thì không lưu dòng nào; tính tháng tuổi, BMI, chỉ số Z và kênh tăng trưởng theo chuẩn WHO; biểu đồ tăng trưởng với đường trung vị, ±2SD, ±3SD (YCTD-105) | Số đo của đợt, kết quả theo kênh, biểu đồ tăng trưởng | BR-53, BR-100, BR-101 |
-| P10-14 | Tổng hợp cân nặng, chiều cao (G3) | VT-02, VT-15, VT-03, VT-09 | Một đợt hoặc một tháng, đơn vị, giới tính, kênh | Tổng hợp theo lớp, theo khối, theo đơn vị: số học sinh, nữ, số được cân đo, tỷ lệ, số và tỷ lệ từng kênh, bình thường cả ba kênh; danh sách học sinh theo kênh; xuất Excel kèm nhật ký xuất (YCTD-105) | Bảng tổng hợp, danh sách học sinh, tệp Excel | BR-74, BR-101 |
+| P10-14 | Tổng hợp cân nặng, chiều cao (G3) | VT-02, VT-15, VT-03, VT-09 | Một đợt hoặc một tháng, đơn vị, giới tính, kênh | Tổng hợp theo lớp, theo khối, theo đơn vị: số học sinh, nữ, số được cân đo, tỷ lệ, số và tỷ lệ từng kênh, bình thường cả ba kênh; danh sách học sinh theo kênh; xuất Excel kèm nhật ký xuất (YCTD-105). Từ YCTD-125 tổng hợp được theo học kỳ (mọi đợt có ngày thuộc học kỳ); so sánh hai lần cân đo theo lớp (đợt đang xem với đợt so sánh, hoặc đợt sớm nhất với đợt muộn nhất của học kỳ); cột "Được khám định kỳ" | Bảng tổng hợp, bảng so sánh hai lần cân đo, danh sách học sinh, tệp Excel | BR-74, BR-101, BR-123 |
+| P10-15 | Thông tin sức khỏe học sinh theo học kỳ (4.6.1 của Sở, G3, YCTD-125) | VT-09 ghi; người xem số đo cân đo của đơn vị và giáo viên chủ nhiệm xem | Lớp, học kỳ; cân nặng, chiều cao, ngày đo, kết quả giáo dục thể chất (Đạt, Chưa đạt), biết bơi, bệnh về mắt (bảy loại), ghi chú của từng học sinh | Nhập theo lớp và học kỳ; dòng để trống mọi ô thì xóa; "Lấy dữ liệu từ 4.3" chép số đo gần nhất của các đợt cân đo trong học kỳ; xuất Excel kèm nhật ký xuất có dữ liệu cá nhân; ghi nhật ký thao tác | Bảng thông tin sức khỏe của lớp theo học kỳ, tệp Excel; dữ liệu cho thống kê 5.3 và báo cáo sức khỏe đầu năm | BR-123, BR-74 |
 
 ## 12. Phân hệ P11 — Xe đưa đón (đã bỏ ngày 09/10/2026)
 
@@ -212,6 +213,7 @@
 | P12-07 | Báo cơm (G2) | VT-07, VT-10 | Lớp, ngày | Tổng hợp số trẻ có mặt từ điểm danh gửi bếp; phần đăng ký ăn tối bỏ ngày 09/10/2026 (YCTD-20) | Danh sách báo cơm | BR-58 |
 | P12-08 | Nhà cung cấp thực phẩm (G2) | VT-10, VT-04 | Nhà cung cấp, nhóm thực phẩm cung cấp | Dùng chung danh mục nhà cung cấp, đánh dấu nhà cung cấp thực phẩm | Danh sách nhà cung cấp thực phẩm | BR-63 |
 | P12-09 | Phiếu đi chợ (G2) | VT-10 | Ngày, nhà cung cấp, nguyên liệu, số lượng, đơn giá | Lập phiếu đi chợ từ định lượng của ngày, xác nhận nhập nguyên liệu, chuyển đề nghị thanh toán theo QT-05 | Phiếu đi chợ | BR-60, BR-63, BR-28 |
+| P12-10 | Thực đơn theo mẫu của Sở và nhập thực đơn từ Excel (4.5 của Sở, G3, YCTD-125) | VT-10 | Tên thực đơn, tháng, tuần, từ ngày, đến ngày, khối áp dụng; tệp Excel mỗi dòng một món của một bữa trong một thứ | Lập thực đơn với thông tin chung theo Sở, thiếu thì tính từ từ ngày và khai báo tuần; không cho trùng khối trong cùng tuần; "Thay đổi" thông tin chung của thực đơn nháp; nhập từ Excel bằng công cụ nhập chung (file mẫu có danh mục, tra cứu danh mục, chọn cột, kiểm tra cả tệp, xuất file lỗi), ghi thành thực đơn nháp | Thực đơn nháp, danh sách thực đơn theo tháng, tệp lỗi | BR-123, BR-59 |
 
 ## 14. Phân hệ P13 — Kho, tài sản và mua hàng
 
@@ -292,6 +294,8 @@
 | P17-18 | Báo cáo EMIS đầu năm (G3) | VT-02, VT-15 (phạm vi toàn trường) | Năm học đang dùng | Tính Biểu 1 năm thẻ (trường, lớp học; học sinh; học sinh theo độ tuổi; đội ngũ; phòng học) với cột tổng số, công lập, tư thục, dân lập, nữ, dân tộc thiểu số tại thời điểm xem; cảnh báo khi chưa khai báo loại hình; xuất Excel năm trang kèm nhật ký xuất; không gửi lên Sở (YCTD-106) | Biểu 1 EMIS đầu năm, tệp Excel | BR-104, BR-74 |
 | P17-19 | Xuất PDF và tác vụ xuất nền (G3, YCTD-121) | Người có `P17.data.export` | Bộ lọc, cột đang hiện của lưới, định dạng | Xuất PDF cùng cột, bộ lọc như Xuất Excel; danh sách vượt 10 000 dòng tạo tác vụ xuất nền, tiến trình nền dựng tệp và lưu ở kho tệp; "3.5. Tệp đã tạo" liệt kê tác vụ của người dùng với trạng thái, thời gian tạo, thời gian xong, hạn tải, tải về; tệp hết hạn sau 7 ngày | Tệp PDF, tệp Excel, danh sách Tệp đã tạo; nhật ký xuất | BR-119, BR-74 |
 | P17-20 | Gửi lên cấp trên chạy nội bộ (G3, YCTD-121) | Người có quyền của biểu mẫu; người có quyền mở khóa | Biểu mẫu, ngày gửi, ghi chú, lý do mở khóa | Tính hoàn thành dữ liệu; xuất tệp gửi và lưu bản chụp số liệu; đánh dấu đã gửi (ngày, người) và khóa; gửi yêu cầu mở khóa; mở khóa, từ chối, đặt trạng thái gửi lại; ghi lịch sử; không truyền đi vì chưa có giao diện lập trình của Bộ, Sở. Biểu mẫu đầu tiên: Biểu 1 EMIS đầu năm | Danh sách biểu mẫu kèm hoàn thành dữ liệu, trạng thái, ngày gửi, tệp gửi | BR-119, P17-18 |
+| P17-21 | Thống kê học sinh theo Sở (5.3 của Sở, G3, YCTD-125) | VT-02, VT-15, VT-03 (người có `P17.child-statistics.view`, trong phạm vi) | Đơn vị, học kỳ | Tính trẻ trong độ tuổi theo nhóm và theo lớp; biểu đồ hoàn thành chương trình (số lớp mẫu giáo 5–6 tuổi, số trẻ, nữ, khuyết tật, dân tộc thiểu số, con thương binh, liệt sĩ); diện chính sách theo độ tuổi; biết bơi, bệnh về mắt theo học kỳ; học sinh dân tộc kèm danh sách; tìm học sinh thiếu thông tin; xuất Excel, PDF kèm nhật ký xuất có dữ liệu cá nhân | Sáu thẻ thống kê, tệp Excel, PDF năm bảng | BR-123, BR-74 |
+| P17-22 | Số liệu báo cáo sức khỏe học sinh đầu năm (dòng 1.3 của phân hệ Báo cáo số liệu, G3, YCTD-125) | VT-02, VT-15 (phạm vi toàn trường) | Năm học đang dùng, học kỳ I | Tính 17 dòng chỉ tiêu 1.3.01 đến 1.3.17 (học sinh, được khám, được cân đo, năm kênh dinh dưỡng, bệnh về mắt theo loại, khuyết tật) với cột tổng số, công lập, tư thục, dân lập, nữ, dân tộc thiểu số; cảnh báo thiếu dữ liệu. Màn hình, xuất tệp, gửi lên cấp trên làm ở phần 16j | Các dòng số liệu cùng dạng Biểu 1 EMIS | BR-123, BR-104 |
 
 ## 19. Phân hệ P18 — Tuyển dụng
 

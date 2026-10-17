@@ -5,6 +5,7 @@ export * from './menu-permissions.js';
 export * from './staff-profile.js';
 export * from './staff-catalogs.js';
 export * from './classes.js';
+export * from './student-health.js';
 export * from './students.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
@@ -314,6 +315,9 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/staff-movements',
   '/staff-statistics',
   '/staff-identity-progress',
+  // Sức khỏe học sinh, thống kê học sinh (DT-16 phần 16h)
+  '/student-health',
+  '/student-statistics',
   // Học sinh đủ theo Sở (DT-16 phần 16g)
   '/student-imports',
   '/student-order',
@@ -414,6 +418,8 @@ export const DATA_GRID_KEYS = [
   'generated-files',
   // Thông báo hệ thống (DT-16 phần 16c)
   'system-announcements',
+  // Sức khỏe, thực đơn, thống kê học sinh (DT-16 phần 16h)
+  'student-statistics-ethnic',
   // Học sinh đủ theo Sở (DT-16 phần 16g)
   'student-order',
   'sms-phones',

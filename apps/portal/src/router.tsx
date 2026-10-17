@@ -63,6 +63,8 @@ import { WorkSchedulesPage } from './staff-attendance/WorkSchedulesPage.js';
 import { HealthPage } from './health/HealthPage.js';
 import { GrowthPage } from './growth/GrowthPage.js';
 import { GrowthReportPage } from './growth/GrowthReportPage.js';
+import { StudentHealthPage } from './health/StudentHealthPage.js';
+import { StudentStatisticsPage } from './statistics/StudentStatisticsPage.js';
 import { StatisticsPage } from './statistics/StatisticsPage.js';
 import { MissingProfilesPage } from './statistics/MissingProfilesPage.js';
 import { AdmissionsPage } from './admissions/AdmissionsPage.js';
@@ -217,6 +219,8 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/health', component: HealthPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/growth', component: GrowthPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/growth-report', component: GrowthReportPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/student-health', component: StudentHealthPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/student-statistics', component: StudentStatisticsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/statistics', component: StatisticsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/missing-profiles', component: MissingProfilesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/admissions', component: AdmissionsPage }),
