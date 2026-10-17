@@ -203,7 +203,7 @@ describe('Trường học, lớp học theo Sở đủ tính năng (DT-16 phần
       values: { administrative_unit_name: 'Xã Khác' },
     });
     assert.equal(branch.status, 422);
-    assert.equal(errorOf(branch.body).rule_code, 'YCTD-124');
+    assert.equal(errorOf(branch.body).rule_code, 'YCTD-127');
     for (const value of ['   ', 'x'.repeat(201), 12]) {
       const invalid = await api('PUT', '/settings', principal.accessToken, {
         org_unit_id: unit('TC'),
@@ -630,7 +630,7 @@ describe('Trường học, lớp học theo Sở đủ tính năng (DT-16 phần
       child_ids: [child.id],
     });
     assert.equal(locked.status, 422);
-    assert.equal(errorOf(locked.body).rule_code, 'YCTD-124');
+    assert.equal(errorOf(locked.body).rule_code, 'YCTD-127');
     assert.equal((await api('DELETE', `/school-splits/${requestId}`, principal.accessToken)).status, 422);
     const received = await api('POST', `/school-splits/${requestId}/status`, principal.accessToken, {
       action: 'receive',
@@ -757,7 +757,7 @@ describe('5.7 Chuyển hồ sơ lên năm học mới: Thực hiện, Hủy (DT-
     assert.match(before.cancel.reason ?? '', /năm học đầu tiên/);
     const refused = await api('POST', `/academic-years/${firstYear}/cancel-open`, principal.accessToken);
     assert.equal(refused.status, 422);
-    assert.equal(errorOf(refused.body).rule_code, 'YCTD-124');
+    assert.equal(errorOf(refused.body).rule_code, 'YCTD-127');
   });
 
   it('CT-16e-11: chuyển xong chưa phát sinh dữ liệu thì Hủy được; năm học trước mở lại và ghi được', async () => {

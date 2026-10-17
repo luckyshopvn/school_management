@@ -63,7 +63,15 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   // Biến động học sinh: người lập hoặc duyệt hồ sơ học sinh (YCTD-108)
   '/student-movements': gated(CHILDREN_AND_CLASSES, anyOf('P02.child.manage', 'P02.approve')),
   // Trước đây hiện ở nhóm Trẻ và lớp, hoặc ở nhóm Nhân sự cho người chỉ nhập nhân sự
-  '/imports': anyOf(gated(CHILDREN_AND_CLASSES, IMPORT), gated('P07.staff.view', 'P01.import.staff')),
+  // Nhập nhân sự tách sang "3.1.3. Nhập nhân sự từ Excel" (DT-16 phần 16f)
+  '/imports': gated(CHILDREN_AND_CLASSES, IMPORT),
+  '/staff-imports': gated('P07.staff.view', 'P01.import.staff'),
+  // Nhân sự đủ theo Sở (DT-16 phần 16f): xem như hồ sơ nhân sự, thao tác cần quyền quản lý hồ sơ (máy chủ kiểm tra)
+  '/staff-branches': 'P07.staff.view',
+  '/staff-identity': 'P07.staff.view',
+  '/staff-movements': 'P07.staff.view',
+  '/staff-statistics': 'P17.staff-statistics.view',
+  '/staff-identity-progress': 'P17.staff-statistics.view',
   '/child-groups': gated(CHILDREN_AND_CLASSES, anyOf('P02.child-group.manage', 'P02.view')),
   // Cập nhật địa danh hành chính: như Biến động học sinh, người lập hoặc duyệt hồ sơ học sinh (YCTD-116)
   '/administrative-units': gated(CHILDREN_AND_CLASSES, anyOf('P02.child.manage', 'P02.approve')),
@@ -74,6 +82,8 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
     anyOf('P02.program-completion.manage', 'P02.program-completion.approve'),
   ),
   '/kitchen': anyOf('P12.kitchen.manage', 'P12.menu.approve', 'P17.report.kitchen'),
+  // Thông tin sức khỏe học sinh theo học kỳ (DT-16 phần 16h): như nhập cân đo
+  '/student-health': anyOf('P10.health.manage', 'P17.report.growth'),
   '/health': anyOf('P10.health.manage', 'P10.medical-event.record'),
   '/medicines': anyOf('P10.medicine.manage', 'P10.medication.administer', 'P10.medicine-purchase.approve'),
   '/attendance': CHILDREN_AND_CLASSES,
@@ -81,6 +91,7 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   // Chuyển hồ sơ lên năm học mới: như mở năm học (DT-16 phần 16e)
   '/year-rollover': 'P01.academic-year.manage',
   '/missing-profiles': STATISTICS,
+  '/student-statistics': STATISTICS,
   // Văn thư lưu trữ (YCTD-118): người có quyền quản lý, xuất thì cũng được cấp quyền xem
   '/archive-records': anyOf('P09.archive.view', 'P09.archive.manage', 'P09.archive.export'),
   '/archive-fonds': anyOf('P09.archive.view', 'P09.archive.manage'),

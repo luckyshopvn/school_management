@@ -133,18 +133,22 @@ function legacyVisibility(has: (code: string) => boolean): Partial<Record<Portal
     '/classes': canSeeChildrenAndClasses,
     '/staff': canViewStaff,
     '/children': canSeeChildrenAndClasses,
-    // Trước đây hiện ở nhóm Trẻ và lớp, hoặc ở nhóm Nhân sự cho người chỉ nhập nhân sự
-    '/imports': (canSeeChildrenAndClasses && canImport) || (canViewStaff && canImportStaff),
+    // Trước đây hiện ở nhóm Trẻ và lớp, hoặc ở nhóm Nhân sự cho người chỉ nhập nhân sự; phần nhân sự tách sang 3.1.3 Nhập
+    // nhân sự từ Excel (DT-16 phần 16f) với đúng điều kiện cũ của nhóm Nhân sự
+    '/imports': canSeeChildrenAndClasses && canImport,
+    '/staff-imports': canViewStaff && canImportStaff,
     '/child-groups': canSeeChildrenAndClasses && (canManageChildGroups || canViewChildren),
     '/growth': canManageHealth || canViewGrowthReport,
     '/growth-report': canViewGrowthReport,
     '/program-completion': canSeeChildrenAndClasses && (canManageProgramCompletion || canApproveProgramCompletion),
     '/kitchen': canManageKitchen || canApproveMenus || canViewKitchenReport,
+    '/student-health': canManageHealth || canViewGrowthReport,
     '/health': canManageHealth || canRecordMedicalEvents,
     '/medicines': canManageMedicines || canAdministerMedication || canApproveMedicinePurchases,
     '/attendance': canSeeChildrenAndClasses,
     '/statistics': canSeeStatistics,
     '/missing-profiles': canSeeStatistics,
+    '/student-statistics': canSeeStatistics,
     // Cơ sở vật chất, TBDH; Báo cáo số liệu
     '/facility-rooms': canViewFacilities || canManageEquipment || canManageRooms,
     '/equipment': canViewFacilities || canManageEquipment,

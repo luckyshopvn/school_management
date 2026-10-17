@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, StatusBadge } from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
@@ -71,7 +71,16 @@ function MessageTable({ label, rows }: { label: string; rows: RowMessage[] }) {
   );
 }
 
-export function MoetImportSection({ type, onChanged }: { type: MoetImportType; onChanged(message: string): void }) {
+// Công cụ đi kèm (tải file mẫu, tra cứu danh mục) do màn hình truyền vào, hiện dưới lời hướng dẫn (DT-16 phần 16f)
+export function MoetImportSection({
+  type,
+  onChanged,
+  tools,
+}: {
+  type: MoetImportType;
+  onChanged(message: string): void;
+  tools?: ReactNode;
+}) {
   const queryClient = useQueryClient();
   const unitChoice = useUnitChoice();
   const [file, setFile] = useState<File>();
@@ -102,6 +111,7 @@ export function MoetImportSection({ type, onChanged }: { type: MoetImportType; o
     <section className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4" aria-label={labels.title}>
       <h2 className="text-section-title font-semibold text-text">{labels.title}</h2>
       <p className="text-label text-text-secondary">{labels.hint}</p>
+      {tools}
       <div className="flex flex-wrap items-end gap-3">
         <UnitSelect
           units={unitChoice.units}

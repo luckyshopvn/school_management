@@ -112,7 +112,7 @@ const PERMISSION = PERMISSION_CODES.classManage;
 // Giáo viên chủ nhiệm là VT-07, giáo viên bộ môn là VT-08 (YCTD-44)
 const ROLE_OF_ASSIGNMENT: Record<AssignmentRole, string> = { homeroom: 'VT-07', subject: 'VT-08' };
 // Xóa lớp, thao tác hàng loạt, nhập cột mới của lớp theo Sở (DT-16 phần 16e)
-const CLASS_DELETE_RULE_CODE = 'YCTD-124';
+const CLASS_DELETE_RULE_CODE = 'YCTD-127';
 const DUPLICATE_CODE_MESSAGE = 'Mã lớp đã có trong đơn vị';
 const VIETNAM_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
 // Tệp Excel tối đa 10 000 dòng như danh sách học sinh (YCTD-108)

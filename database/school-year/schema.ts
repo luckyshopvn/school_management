@@ -319,7 +319,14 @@ export interface NotificationRecipientsTable {
 }
 
 export type ImportType =
-  'classes' | 'children' | 'moet_codes' | 'opening_debts' | 'staff' | 'moet_children' | 'moet_staff';
+  | 'classes'
+  | 'children'
+  | 'moet_codes'
+  | 'opening_debts'
+  | 'staff'
+  | 'moet_children'
+  | 'moet_staff'
+  | 'professional_ratings';
 export type ImportStatus = 'validated' | 'failed' | 'committed';
 
 export interface DataImportJobsTable {
@@ -846,6 +853,63 @@ export interface StaffTable {
   // Mã định danh Bộ GD&ĐT và các cột khác của tệp CSDL ngành (YCTD-100)
   moet_staff_code: ColumnType<string | null, string | null | undefined, string | null>;
   moet_profile: ColumnType<Record<string, unknown> | null, string | null | undefined, string | null>;
+  // Tài khoản ngân hàng, mã số thuế (mục 5.9 của Sở), xã đặc biệt khó khăn, xác thực số định danh bản chạy nội bộ (DT-16
+  // phần 16f)
+  bank_account_number: ColumnType<string | null, string | null | undefined, string | null>;
+  bank_name: ColumnType<string | null, string | null | undefined, string | null>;
+  tax_code: ColumnType<string | null, string | null | undefined, string | null>;
+  special_difficulty_commune: Generated<boolean>;
+  id_verification_status: Generated<StaffIdVerificationStatus>;
+  id_verified_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  id_verified_by: ColumnType<string | null, string | null | undefined, string | null>;
+  id_verified_by_name: ColumnType<string | null, string | null | undefined, string | null>;
+  id_verification_note: ColumnType<string | null, string | null | undefined, string | null>;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export type StaffIdVerificationStatus = 'unverified' | 'verified' | 'invalid';
+
+// Phân hiệu, điểm trường nhân sự làm việc ngoài đơn vị chính (mục 3.1.2 của Sở, DT-16 phần 16f)
+export interface StaffBranchAssignmentsTable {
+  id: Generated<string>;
+  staff_id: string;
+  org_unit_id: string;
+  source: 'manual' | 'teaching';
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export type StaffMovementType = 'transfer_in' | 'transfer_out' | 'guest_out' | 'guest_in';
+export type StaffMovementStatus = 'pending' | 'approved' | 'rejected';
+
+// Biến động nhân sự (mục 3.5 của Sở, DT-16 phần 16f), mỗi trường tự ghi vì chưa liên thông giữa các trường
+export interface StaffMovementsTable {
+  id: Generated<string>;
+  movement_type: StaffMovementType;
+  status: Generated<StaffMovementStatus>;
+  org_unit_id: string;
+  staff_id: string | null;
+  full_name: string;
+  dob: string | null;
+  gender: 'male' | 'female' | null;
+  other_province: string | null;
+  other_ward: string | null;
+  other_school: string | null;
+  movement_date: string;
+  end_date: string | null;
+  subject: string | null;
+  decision_no: string | null;
+  reason: string | null;
+  note: string | null;
+  confirmed: Generated<boolean>;
+  confirmed_on: string | null;
+  dossier: ColumnType<Record<string, unknown> | null, string | null | undefined, string | null>;
+  decided_by: string | null;
+  decided_by_name: string | null;
+  decided_at: Date | null;
+  decision_note: string | null;
   created_by: string | null;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
@@ -2076,6 +2140,50 @@ export interface MenusTable {
   created_by: string;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
+  // Tên thực đơn, tháng (YYYY-MM), tuần, từ ngày–đến ngày, khối áp dụng như màn hình 4.5 của Sở (DT-16 phần 16h)
+  name: ColumnType<string | null, string | null | undefined, string | null>;
+  month: ColumnType<string | null, string | null | undefined, string | null>;
+  week_no: ColumnType<number | null, number | null | undefined, number | null>;
+  from_date: ColumnType<string | null, string | null | undefined, string | null>;
+  to_date: ColumnType<string | null, string | null | undefined, string | null>;
+  grade_levels: ColumnType<string[], string[] | undefined, string[]>;
+}
+
+// Lần nhập thực đơn từ Excel (DT-16 phần 16h): dòng lỗi và các thực đơn đọc được chờ ghi
+export interface MenuImportJobsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  file_id: string;
+  status: 'validated' | 'failed' | 'committed';
+  total_rows: number;
+  error_rows: number;
+  errors: ColumnType<unknown[], string | undefined, string>;
+  menus: ColumnType<unknown[], string | undefined, string>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  committed_at: Date | null;
+}
+
+// Thông tin sức khỏe học sinh theo học kỳ (mục 4.6 của Sở; DT-16 phần 16h)
+export type StudentHealthTerm = 'first_term' | 'second_term';
+export type PhysicalEducationResult = 'passed' | 'not_passed';
+
+export interface StudentHealthRecordsTable {
+  id: Generated<string>;
+  child_id: string;
+  org_unit_id: string;
+  term_type: StudentHealthTerm;
+  measured_on: string | null;
+  weight_kg: Decimal | null;
+  height_cm: Decimal | null;
+  growth_round_id: string | null;
+  physical_education: PhysicalEducationResult | null;
+  can_swim: boolean | null;
+  eye_conditions: ColumnType<string[], string[] | undefined, string[]>;
+  note: string | null;
+  recorded_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
 }
 
 export interface MenuItemsTable {
@@ -3120,6 +3228,8 @@ export interface SchoolYearDatabase {
   payment_requests: PaymentRequestsTable;
   online_payment_transactions: OnlinePaymentTransactionsTable;
   staff: StaffTable;
+  staff_branch_assignments: StaffBranchAssignmentsTable;
+  staff_movements: StaffMovementsTable;
   employment_contracts: EmploymentContractsTable;
   holidays: HolidaysTable;
   school_day_changes: SchoolDayChangesTable;
@@ -3208,6 +3318,8 @@ export interface SchoolYearDatabase {
   ingredient_norms: IngredientNormsTable;
   menus: MenusTable;
   menu_items: MenuItemsTable;
+  menu_import_jobs: MenuImportJobsTable;
+  student_health_records: StudentHealthRecordsTable;
   meal_reports: MealReportsTable;
   meal_plans: MealPlansTable;
   buffet_events: BuffetEventsTable;

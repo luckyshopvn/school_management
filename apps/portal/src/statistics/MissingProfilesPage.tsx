@@ -65,7 +65,7 @@ function recordColumns(tab: Tab, openRecord: (record: ListedRecord) => void): Ar
       ];
 }
 
-function MissingView({ tab, orgUnitId }: { tab: Tab; orgUnitId: string }) {
+export function MissingView({ tab, orgUnitId }: { tab: Tab; orgUnitId: string }) {
   const [field, setField] = useState('');
   const [openId, setOpenId] = useState<string>();
   const [search, setSearch] = useState('');

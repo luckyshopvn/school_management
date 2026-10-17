@@ -1,8 +1,8 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.5
-- Ngày cập nhật: 2026-10-17
+- Phiên bản: 0.7
+- Ngày cập nhật: 2026-10-18
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
 
@@ -15,6 +15,30 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.75.0 – 2026-10-17
+
+- Phạm vi thay đổi: DT-16 phần 16h, sức khỏe, dinh dưỡng và thống kê học sinh theo hệ thống của Sở (YCTD-125).
+- Chức năng mới: mục "4.6.1. Nhập thông tin sức khỏe học sinh" theo học kỳ (cân nặng, chiều cao, giáo dục thể chất, biết bơi, bảy loại bệnh về mắt, "Lấy dữ liệu từ 4.3", Xuất Excel); 4.3.2 tổng hợp theo học kỳ, so sánh hai lần cân đo, cột "Được khám định kỳ"; 4.5 thực đơn có tên, tháng, tuần, từ ngày, đến ngày, nhiều khối áp dụng, nút "Thay đổi" cho thực đơn nháp, nhập thực đơn từ Excel bằng công cụ nhập chung; mục "5.3. Thống kê học sinh" sáu thẻ, Xuất Excel, Xuất PDF; số liệu báo cáo sức khỏe học sinh đầu năm (dòng 1.3) cho phần 16j (P10-15, P12-10, P17-21, P17-22).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0057_add_student_health_and_menu_fields` thêm sáu cột của `menus` (`name`, `month`, `week_no`, `from_date`, `to_date`, `grade_levels`; thực đơn cũ lấy giá trị từ tuần bắt đầu và độ tuổi) kèm hai ràng buộc kiểm tra, tạo hai bảng `menu_import_jobs`, `student_health_records`.
+- Thay đổi API: điểm cuối mới `/student-health`, `/student-health/pull-growth`, `/student-health/export`, `/statistics/students`, `/statistics/students/export`, `/reports/emis/start-of-year-health`, `PUT /menus/{id}`, nhóm `/menu-imports`; `POST /menus` nhận thêm thông tin chung theo Sở; `GET /menus` lọc thêm `month`; `/reports/growth` nhận thêm `term`, `compare_round_id`, trả thêm `comparison` và số được khám định kỳ.
+- Kiểm thử: kịch bản CT-524 đến CT-533. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 787/787 ca đạt; toàn bộ kiểm thử giao diện 115/115 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: chỉ tiêu của báo cáo sức khỏe đầu năm do Claude đặt, chưa đối chiếu biểu mẫu chính thức của Sở; con thương binh, liệt sĩ nhận biết theo chữ trong đối tượng chính sách nên có thể sót khi hồ sơ ghi cách khác.
+- Khả năng tương thích: `POST /menus` vẫn nhận `week_start_date`, `age_group`; cột `age_group` giữ làm khóa không trùng; thực đơn chung và thực đơn riêng của khối cùng tuần vẫn cùng tồn tại được; `GET /statistics/children` không đổi; Y tế học đường, Thuốc và dặn thuốc đổi số mục thành 4.6.2, 4.6.3, đường dẫn giữ nguyên.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16h; chạy phần quay lui của tệp `0057` (xóa `student_health_records`, `menu_import_jobs`, hai ràng buộc và sáu cột mới của `menus`). Thực đơn lập sau khi gộp vẫn dùng được vì `week_start_date`, `age_group` vẫn được ghi.
+
+### Phiên bản 0.74.0 – 2026-10-17
+
+- Phạm vi thay đổi: DT-16 phần 16f, nhóm Nhân sự của phân hệ Quản lý giáo dục Mầm non đủ theo hệ thống của Sở (YCTD-124).
+- Chức năng mới: 3.1.1 có Thay đổi, Xóa hồ sơ nhập nhầm, Xuất tệp theo mẫu Bộ (75 cột kèm kiểm tra dữ liệu), Xuất file lỗi, lọc xã ĐBKK và trạng thái xác thực số định danh; hồ sơ có danh mục của Bộ, tài khoản ngân hàng, mã số thuế, xã ĐBKK; 3.1.2 Nhân sự phân hiệu; 3.1.3 Nhập nhân sự từ Excel (mẫu 75 cột kèm dữ liệu, tra cứu danh mục); 3.1.5 Xác thực số định danh nhân sự (bản chạy nội bộ: Đánh dấu đã xác thực, Đánh dấu sai thông tin); 3.2 Nhập mức đánh giá từ Excel; 3.5 Biến động nhân sự (tiếp nhận chuyển đến, duyệt chuyển đi, đi thỉnh giảng, đến thỉnh giảng, bản chạy nội bộ); 5.2 Thống kê nhân sự theo danh mục Bộ và chuẩn nghề nghiệp; 5.6 Tiến độ xác thực số định danh nhân sự; 5.9 thêm tài khoản ngân hàng, mã số thuế (P07-06 đến P07-10).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0055_add_staff_so_parity` thêm chín cột của `staff` (tài khoản ngân hàng, tên ngân hàng, mã số thuế, xã ĐBKK, trạng thái xác thực số định danh kèm ngày, người, ghi chú), tạo hai bảng `staff_branch_assignments`, `staff_movements`, cho `data_import_jobs.import_type` nhận thêm `professional_ratings`. Không đổi cơ sở dữ liệu định danh, hệ thống.
+- Thay đổi API: điểm cuối mới `/staff/delete`, `/staff/ministry-export`, `/staff/ministry-errors`, `/staff/ministry-template`, `/staff/ministry-catalogs`, `/staff-branches` (bốn điểm cuối), `/staff-identity` (bốn điểm cuối), `/staff-movements` (chín điểm cuối), `/statistics/staff-so`; `/staff/search`, `/staff/export` thêm bộ lọc, cột; `PATCH /staff/{id}/profile` nhận bốn trường mới; `/imports` nhận loại `professional_ratings`; `/statistics/missing-staff-fields` thêm hai trường.
+- Kiểm thử: kịch bản CT-510 đến CT-523. Kết quả ngày 17/10/2026: 10 ca kiểm thử đơn vị và 4 ca kiểm thử giao diện của phần 16f đạt; kiểm thử đơn vị toàn bộ kho mã 788/788 ca đạt; toàn bộ kiểm thử giao diện 118/118 ca đạt.
+- Rủi ro: danh mục của Bộ do Claude tổng hợp, có thể lệch danh mục chính thức; duyệt chuyển đi cho nhân sự nghỉ việc, chấm dứt hợp đồng và khóa tài khoản, duyệt nhầm phải lập lại hồ sơ, hợp đồng bằng tay; tệp theo mẫu Bộ có số định danh đủ 12 chữ số nên chỉ người có quyền xuất dữ liệu tải được và mỗi lần tải ghi nhật ký xuất.
+- Khả năng tương thích: các cột mới có giá trị mặc định (xã ĐBKK sai, chưa xác thực) nên hồ sơ đã có không đổi nghĩa; giá trị chữ tự do cũ của các ô nay theo danh mục vẫn giữ và hiện "(giá trị cũ, ngoài danh mục)"; phần nhập nhân sự rời khỏi 4.1.2 sang 3.1.3; 5.9 thêm hai trường; không đổi điểm cuối cũ ngoài các điểm đã nêu.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16f; chạy phần quay lui của tệp `0055` (xóa lần nhập `professional_ratings`, trả ràng buộc loại nhập, xóa hai bảng, xóa chín cột của `staff`).
 
 ### Phiên bản 0.73.0 – 2026-10-17
 

@@ -1,8 +1,8 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.75
-- Ngày cập nhật: 2026-10-17
+- Phiên bản: 1.77
+- Ngày cập nhật: 2026-10-18
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -352,6 +352,19 @@ Giao kèo của cân nặng, chiều cao, thống kê theo tiêu chí ngành, h�
 6. `GET /statistics/classes`, `/statistics/children`, `/statistics/missing-child-fields` cần `P17.child-statistics.view`; `GET /statistics/staff`, `/statistics/missing-staff-fields` cần `P17.staff-statistics.view`; đều lọc `org_unit_id` trong phạm vi. Hai điểm cuối hồ sơ chưa nhập đủ nhận `field` để trả danh sách hồ sơ thiếu trường đó; trường không có trong danh sách trả `ERR_VALIDATION`.
 7. Vi phạm quy tắc nghiệp vụ của phần này trả `ERR_RULE_VIOLATION` với mã chung của đợt DT-14 là `YCTD-102`.
 
+Giao kèo sức khỏe, dinh dưỡng và thống kê học sinh theo Sở (DT-16 phần 16h, YCTD-125, BR-123):
+
+1. `GET /student-health` nhận `class_id`, `term` (`first_term` hoặc `second_term`), thiếu hoặc sai trả `ERR_VALIDATION`. Trả `class`, `term`, `term_range` (học kỳ trong lịch năm học, chưa khai báo thì null), `can_edit` và `rows` của học sinh đang học trong lớp: `child_id`, `full_name`, `dob`, `gender`, `record_id`, `measured_on`, `weight_kg`, `height_cm`, `growth_round_id`, `physical_education`, `can_swim`, `eye_conditions`, `note`, `latest_growth` (số đo gần nhất trong các đợt cân đo của đơn vị thuộc học kỳ, không có thì null). Xem được khi là vai trò văn phòng được xem dữ liệu y tế của đơn vị, có `P10.health.manage` hoặc `P17.report.growth` của đơn vị, hoặc là giáo viên chủ nhiệm của lớp; người khác nhận `ERR_FORBIDDEN`.
+2. `PUT /student-health` nhận `class_id`, `term`, `rows` (1 đến 500 dòng: `child_id` không lặp và đang học trong lớp, sai trả lỗi trường `rows[i].child_id`; `weight_kg` 1 đến 150, `height_cm` 30 đến 200, nhận dấu phẩy thập phân; `measured_on` dạng `YYYY-MM-DD`; `physical_education` `passed`, `not_passed` hoặc trống; `can_swim` đúng, sai hoặc null; `eye_conditions` mảng mã thuộc `myopia`, `hyperopia`, `astigmatism`, `cataract`, `macular_degeneration`, `dry_eye`, `strabismus`; `note`). Dòng trống mọi ô thì xóa dòng của học sinh trong học kỳ. Trả `saved_count`, `removed_count`. Cần `P10.health.manage` trong đơn vị của lớp, thiếu trả `ERR_FORBIDDEN`. Mỗi dòng ghi `audit_logs` (`student_health_records`).
+3. `POST /student-health/pull-growth` nhận `class_id`, `term`; chép `weight_kg`, `height_cm`, `measured_on`, `growth_round_id` của số đo gần nhất trong học kỳ, không đổi ô khác; trả `updated_count`, `missing_count` (học sinh chưa có số đo). Không có số đo nào trả `ERR_RULE_VIOLATION` (422) mã `YCTD-125`. Quyền như `PUT`.
+4. `GET /student-health/export` nhận `class_id`, `term`; trả tệp `suc-khoe-hoc-sinh-hk1.xlsx` hoặc `suc-khoe-hoc-sinh-hk2.xlsx` một trang "Sức khỏe học sinh"; ghi `export_logs` mã báo cáo `student-health` có dữ liệu cá nhân, trả mã nhật ký ở tiêu đề `x-export-log-id`. Quyền như xem; không cần `P17.data.export`.
+5. `GET /reports/growth` nhận thêm `term` (thay `round_id`, `month`; thiếu cả ba trả `ERR_VALIDATION` trường `round_id`) và `compare_round_id` (chỉ đi kèm `round_id`, không thì `ERR_VALIDATION` trường `compare_round_id`; trùng đợt đang xem trả `ERR_VALIDATION`; ngoài phạm vi trả `ERR_FORBIDDEN`). Trả thêm `term`, `term_range`, `comparison` (`first_rounds`, `last_rounds`, `classes` mỗi lớp có `first`, `last`, `change` cho tám khóa `enrolled`, `measured`, `underweight`, `stunted`, `wasted`, `overweight`, `obese`, `all_normal`, và `totals` cùng dạng; không có so sánh thì null); mỗi dòng tổng hợp có thêm `examined`, `examined_female`, `examined_percent`. `GET /reports/growth/export` thêm cột "Được khám định kỳ", "Tỷ lệ khám định kỳ (%)" và trang "So sánh hai lần cân đo" khi có so sánh; tên tệp theo học kỳ là `tong-hop-can-do-hk1.xlsx`, `tong-hop-can-do-hk2.xlsx`.
+6. `GET /statistics/students` cần `P17.child-statistics.view`, nhận `org_unit_id` (trong phạm vi), `term` (mặc định học kỳ chứa hôm nay; sai trả `ERR_VALIDATION`). Trả `on_date`, `term`, `term_range`, `org_unit_ids`, `totals`, `age_groups`, `by_age`, `by_class` (mỗi lớp `total`, `female`, `ages`), `by_ethnicity`, `completion` (`class_count`, `categories` với khóa `children`, `female`, `disabled`, `ethnic`, `martyr_family`, mỗi khóa có `count`, `completed`, `not_completed`, `percent`), `policy_by_age`, `term_health` (`recorded`, `totals`, `by_age`; mỗi phần có `swimming`, `not_swimming`, `eye_any`, `eye_conditions`, `physical_education_passed`, `physical_education_not_passed` dạng số và số nữ), `ethnic` (`count`, `female`, `by_ethnicity`, `students`), `eye_condition_labels`. `GET /statistics/students/export` nhận thêm `format` (`xlsx` mặc định hoặc `pdf`), dựng năm bảng bằng `buildTableFile` của 16a, tên tệp `thong-ke-hoc-sinh-hk1.xlsx` (hoặc `.pdf`), ghi `export_logs` mã báo cáo `student-statistics` có dữ liệu cá nhân; không cần `P17.data.export`. `GET /statistics/children` giữ nguyên.
+7. `GET /reports/emis/start-of-year-health` cần `P17.report.emis` ở phạm vi toàn trường, thiếu trả `ERR_FORBIDDEN`. Trả `school_name`, `ownership`, `term_range` (học kỳ I), `generated_on`, `rows` cùng dạng dòng của Biểu 1 (`code` 1.3.01 đến 1.3.17, `label`, `unit`, `total`, `public`, `private`, `people_founded`, `female`, `ethnic_minority`; ba cột loại hình null khi chưa khai báo loại hình), `warnings`. Điểm nối cho phần 16j: màn hình 1.3, xuất tệp và đăng ký biểu mẫu với `UpperLevelForms` (mục 17.1 ý 4) dùng hàm `EmisHealthReportService.startOfYearHealth`; tên, mã chỉ tiêu cần đối chiếu biểu mẫu chính thức của Sở trước khi gửi.
+8. `POST /menus` nhận thêm `name` (tối đa 200 ký tự), `month` (`YYYY-MM` hoặc `MM/YYYY`), `week_no` (1 đến 60), `from_date` (bắt buộc khi không gửi `week_start_date`), `to_date`, `grade_levels` (mảng mã khối hoặc chuỗi cách nhau bằng dấu phẩy, chấm phẩy; mã không có trong danh mục trả `ERR_VALIDATION`); `week_start_date`, `age_group` cũ vẫn nhận. Đến ngày ngoài tuần của từ ngày trả `ERR_VALIDATION` trường `to_date`; trùng khối với thực đơn khác cùng tuần trả `ERR_VALIDATION` trường `grade_levels`. Danh sách, chi tiết trả thêm `name`, `month`, `week_no`, `from_date`, `to_date`, `grade_levels`; `GET /menus` lọc thêm `month`. `PUT /menus/{id}` nhận các trường thông tin chung (không gửi thì giữ), chỉ thực đơn nháp, khác trả `ERR_RULE_VIOLATION` mã BR-59; ghi `audit_logs`. `GET /children/{id}/menus` chọn thực đơn đã công bố có khối của trẻ, không có thì thực đơn mọi khối.
+9. `/menu-imports` cùng dạng điểm cuối với `/imports` (mục 17.1) cho loại `menus` (loại khác trả `ERR_VALIDATION`); mọi điểm cuối cần `P12.kitchen.manage`, tải lên, ghi, tệp lỗi cần thêm quyền quản lý bếp của đơn vị. Cột mẫu: Tên thực đơn, Tháng, Tuần, Từ ngày, Đến ngày, Khối áp dụng, Thứ (2 đến 7 hoặc CN), Bữa, Món ăn, Ghi chú; cột luôn nhập `menu_name`, `from_date`, `weekday`, `meal_type`, `dish`; `updates_existing`, `template_with_data` sai. `POST /menu-imports` nhận biểu mẫu nhiều phần `file`, `org_unit_id` (bắt buộc), `columns` (mã cột cách nhau bằng dấu phẩy); trả 201 kèm `id`, `status` (`validated` hoặc `failed`), `total_rows`, `error_rows`, `errors` (dòng, cột, nội dung), `menu_count`. `POST /menu-imports/{id}/commit` chỉ khi `validated`, lần nhập còn lỗi hoặc đã ghi trả `ERR_RULE_VIOLATION` mã YCTD-121; kiểm tra lại trùng tuần, trùng khối rồi ghi thực đơn nháp kèm món, ghi `audit_logs`. `GET /menu-imports/{id}/error-file` chỉ khi có lỗi.
+10. `PORTAL_QUICK_LINK_PATHS` thêm `/student-health`, `/student-statistics`; `DATA_GRID_KEYS` thêm `student-statistics-ethnic`. Không có mã quyền mới.
+
 Giao kèo của hoàn thành chương trình, nhóm học sinh, chuẩn nghề nghiệp (DT-14 phần 14c, YCTD-104):
 
 1. `PUT /program-completion/classes/{id}` nhận `items` (`child_id`, `result` là `completed` hoặc `not_completed`, `note` tối đa 500 ký tự); cần `P02.program-completion.manage` (VT-07 chỉ lớp đang chủ nhiệm). Lớp không phải mẫu giáo 5-6 tuổi, lớp đã xác nhận trả `ERR_RULE_VIOLATION`; trẻ không học lớp hoặc giá trị sai trả `ERR_VALIDATION`.
@@ -488,6 +501,24 @@ Giao kèo của nhân sự theo hệ thống của Sở (DT-15 phần 15d, YCTD-
 2. `POST /staff/export` cần `P17.data.export`. Thân gồm các bộ lọc như mục 1 và `columns` (mảng mã cột không trùng trong `moet_staff_code`, `code`, `full_name`, `dob`, `gender`, `status`, `ethnicity`, `phone`, `job_position`, `position_group`, `contract_form`, `professional_qualification`, `department`, `job_title`, `party_member`, `email`, `start_date`, `id_number`, `account`, `unit`, `contract_no`, `contract_end_date`, `base_salary`; bỏ trống là 12 cột mặc định); mã lạ, trùng hoặc mảng rỗng trả `ERR_VALIDATION`. Trả tệp xlsx có cột STT, đầu `x-export-log-id`, ghi nhật ký xuất mã `staff` có dữ liệu cá nhân (BR-74), bộ lọc trong nhật ký không có số định danh. Quá 10 000 dòng trả `ERR_RULE_VIOLATION` mã YCTD-112.
 3. `PATCH /staff/{id}/profile` cần `P07.staff.manage` ở đơn vị của nhân sự. Thân chỉ gồm ô cần đổi: `moet_staff_code`, `full_name`, `code`, `start_date` (ba ô này không được để trống khi gửi), `dob`, `gender`, `phone`, `email`, `address`, `id_number` (12 số), `department_id`, `job_title_id` (thuộc đơn vị và đang dùng), `moet_profile` (đối tượng: khóa của tệp ngành không có cột riêng; chữ tối đa 500 ký tự, ngày YYYY-MM-DD, ô đánh dấu `true`, `null`, `false` hoặc chuỗi rỗng là xóa; số sổ BHXH 4 đến 20 chữ hoặc số). Khóa lạ, giá trị sai, không có ô nào trả `ERR_VALIDATION`; trùng mã nhân sự hoặc mã định danh Bộ trả `ERR_CONFLICT`. Ghi nhật ký thao tác có giá trị trước và sau (số sổ BHXH ghi "đã đổi"). Trả hồ sơ như `GET /staff/{id}`.
 4. `GET /staff/{id}` trả thêm `moet_fields`: giá trị gốc của các ô theo Sở (chữ, ngày YYYY-MM-DD, ô đánh dấu `true`; số sổ BHXH đã che). `GET /staff` giữ nguyên dạng trả về (danh sách) cho các màn hình chọn nhân sự và giao diện lập trình cho đối tác.
+
+Giao kèo của nhân sự đủ theo hệ thống của Sở (DT-16 phần 16f, YCTD-124, BR-122; vi phạm quy tắc trả `ERR_RULE_VIOLATION` mã YCTD-124):
+
+1. `GET /staff/search`, `POST /staff/export` nhận thêm bộ lọc `special_difficulty_commune` (`true`, `false`), `id_verification` (`unverified`, `verified`, `invalid`); dòng trả thêm `special_difficulty_commune`, `id_verification_status`, `bank_account_number`, `tax_code`; mã cột xuất thêm `special_difficulty_commune`, `id_verification`, `bank_account`, `tax_code` (không thuộc 12 cột mặc định).
+2. `PATCH /staff/{id}/profile` nhận thêm `bank_account_number` (bỏ khoảng trắng, dấu chấm; 6 đến 20 chữ số), `bank_name`, `tax_code` (10 chữ số, `10 số-3 số` hoặc 12 chữ số), `special_difficulty_commune` (đúng hoặc sai); `null` là xóa; sai trả `ERR_VALIDATION`.
+3. `POST /staff/delete` nhận `staff_ids` (1 đến 200 mã); cần `P07.staff.manage` ở đơn vị của từng hồ sơ (thiếu trả `ERR_FORBIDDEN`), mã không tồn tại trả `ERR_NOT_FOUND`. Trả `deleted_count` và `results` (`id`, `full_name`, `deleted`, `reason`): hồ sơ đã liên kết tài khoản hoặc có dữ liệu tham chiếu (khóa ngoại) không xóa, `reason` nêu loại dữ liệu (ví dụ "hợp đồng lao động"); xóa ghi nhật ký thao tác `delete` có mã nhân sự, họ tên, mã định danh Bộ trước khi xóa.
+4. `POST /staff/ministry-export` cần `P17.data.export`; thân là bộ lọc như mục 1 của giao kèo YCTD-112; trả tệp xlsx (trang "Hồ sơ" 75 cột theo mẫu tệp CSDL ngành, số định danh, số sổ BHXH đủ số; "Kiểm tra dữ liệu"; "Danh mục"); quá 5000 hồ sơ trả lỗi quy tắc; ghi nhật ký xuất mã `staff-ministry` có dữ liệu cá nhân, bộ lọc không có số định danh. Không gửi đi đâu.
+5. `POST /staff/ministry-errors` như mục 4, trả tệp cột STT, Mã nhân sự, Họ tên, Cột, Lỗi chỉ gồm hồ sơ thiếu hoặc sai ô bắt buộc; không có hồ sơ lỗi trả 422 mã YCTD-124; ghi nhật ký xuất mã `staff-ministry-errors`.
+6. `GET /staff/ministry-template` cần `P01.import.staff`, trả mẫu 75 cột không có dòng; `?with_data=true` kèm hồ sơ trong phạm vi nhập và ghi nhật ký xuất mã `import-template-moet_staff`. Tệp nhập lại được bằng `POST /imports` loại `moet_staff` (hồ sơ đã có cập nhật, không tạo trùng). `GET /staff/ministry-catalogs` cần `P01.import.staff` hoặc `P07.staff.view`, trả `items` (`key`, `title`, `items`).
+7. `GET /staff-branches` cần `P07.staff.view`; tham số `org_unit_id`, `branch_id`, `q`, `page`, `page_size`; trả nhân sự kèm `branches` (`org_unit_id`, tên, `source`). `POST /staff-branches/assign`, `/unassign` nhận `staff_ids`, `org_unit_ids` (phân hiệu, điểm trường đang hoạt động; Trường chính hoặc đơn vị ngừng dùng trả `ERR_VALIDATION`), trả `assigned_count` hoặc `removed_count`; đơn vị chính của nhân sự không gán. `POST /staff-branches/from-teaching` nhận `staff_ids`, lấy đơn vị của các lớp đang hoạt động mà tài khoản liên kết đang được phân công, thay dòng `teaching` cũ, giữ dòng `manual`; trả `assigned_count`, `without_account_count`. Ba điểm cuối ghi cần `P07.staff.manage` với nhân sự trong phạm vi.
+8. `GET /staff-identity` cần `P07.staff.view`; tham số `org_unit_id`, `status`, `q`, `page`, `page_size`; trả `automatic` (sai ở bản chạy nội bộ) và dòng có số định danh đã che, thông tin thường trú, trạng thái, ngày, người đánh dấu, ghi chú; không trả số định danh đủ. `POST /staff-identity/mark` cần `P07.staff.manage`, nhận `staff_ids`, `status` (`verified`, `invalid`, `unverified`), `note` (bắt buộc với `invalid`, thiếu trả `ERR_VALIDATION`); trả `updated_count`, `results` (`id`, `error`; hồ sơ chưa có số định danh 12 chữ số không đánh dấu đã xác thực được). Không gọi dịch vụ ngoài; chỗ nối `IdentityVerificationGateway`.
+9. `GET /staff-identity/progress` cần `P17.staff-statistics.view`; tham số `org_unit_id`, `group_by` (`unit` mặc định, `department`); trả `items` (tên, tổng số, đã xác thực, sai thông tin, tỷ lệ) và `totals`. `GET /staff-identity/duplicates` trả `groups` (`id_number_masked`, `staff`) các hồ sơ trong phạm vi trùng đủ 12 số.
+10. `GET /staff-movements` cần `P07.staff.view`; tham số `type` bắt buộc (`transfer_in`, `transfer_out`, `guest_out`, `guest_in`), `status`, `q`, `page`, `page_size`; mỗi dòng có `status_label`. `POST /staff-movements` cần `P07.staff.manage`, nhận `movement_type`, `staff_id` (chuyển đi, đi thỉnh giảng; nhân sự đang làm việc) hoặc `org_unit_id`, `full_name`, `dob`, `gender` (chuyển đến, đến thỉnh giảng), `other_province`, `other_ward`, `other_school`, `movement_date`, `end_date` (không trước `movement_date`), `subject`, `decision_no`, `reason`, `note`; nhân sự đã có phiếu chuyển đi chờ duyệt trả lỗi quy tắc; trả 201. `POST /staff-movements/transfer-in-file` nhận tệp `file` (tệp 75 cột đúng một dòng) kèm `org_unit_id`, `other_school`, `movement_date`, tạo phiếu tiếp nhận có `dossier` (số định danh đã che trong phản hồi).
+11. `POST /staff-movements/{id}/approve` với phiếu chờ xử lý: chuyển đến tạo hồ sơ nháp mã `CDN-` kèm sáu chữ số, trả `staff_id` (trùng mã định danh Bộ trả `ERR_CONFLICT`); chuyển đi cho nhân sự nghỉ việc từ ngày chuyển, chấm dứt hợp đồng còn hiệu lực, khóa tài khoản liên kết qua dịch vụ định danh như chấm dứt hợp đồng; đi thỉnh giảng, đến thỉnh giảng chỉ đổi trạng thái. `POST /{id}/reject` cần `note`. Phiếu đã xử lý trả lỗi quy tắc. `POST /{id}/confirm` nhận `confirmed_on` (không sau hôm nay), chỉ với phiếu chuyển đi đã duyệt. Mọi thao tác ghi nhật ký thao tác.
+12. `GET /staff-movements/{id}/pdf` (cần `P07.staff.view`) trả phiếu PDF, số định danh, số sổ BHXH chỉ hiện bốn số cuối, ghi nhật ký xuất mã `staff-movement-pdf`. `GET /{id}/ministry-file` cần `P17.data.export`, chỉ phiếu có hồ sơ chuyển, trả tệp 75 cột một dòng, ghi nhật ký xuất mã `staff-movement-ministry`.
+13. `POST /imports` loại `professional_ratings` cần `P07.professional-standard.assess`; mẫu `GET /imports/templates/professional_ratings[?with_data=true]`, danh mục `GET /imports/catalogs/professional_ratings`; dòng lỗi khi phiếu chưa gửi tự đánh giá, đã chốt, ngoài quyền đánh giá hoặc mức sai; ghi bằng `POST /imports/{id}/commit`, dòng có "Chốt phiếu" thì chốt phiếu.
+14. `GET /statistics/staff-so` cần `P17.staff-statistics.view`; tham số `org_unit_id`; trả `by_qualification`, `by_job_position`, `by_contract_form`, `by_position_group` (mỗi dòng `value`, `count`, `female`, `in_catalog`) và `standards` (theo `standard_type`: `finalized`, `overall`, `criteria` với `levels`). `GET /statistics/missing-staff-fields` thêm trường `bank_account`, `tax_code`.
+15. `DATA_GRID_KEYS` thêm `staff-branches`, `staff-identity`, `staff-movements-in`, `staff-movements-out`, `staff-guests-out`, `staff-guests-in`.
 
 Giao kèo của thanh toán trực tuyến (DT-05 phần 5f, YCTD-57):
 
@@ -930,6 +961,22 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 | GET | /api/v1/staff/search | Lưới 3.1.1 Hồ sơ cán bộ, giáo viên: phân trang, bộ lọc mở rộng, A–Z (YCTD-112) |
 | POST | /api/v1/staff/export | Xuất Excel danh sách cán bộ, giáo viên theo bộ lọc và cột đang hiện; cần `P17.data.export`, ghi nhật ký xuất (YCTD-112) |
 | PATCH | /api/v1/staff/{id}/profile | Ghi hồ sơ theo biểu mẫu của Sở và thông tin riêng của trường, chỉ ô gửi lên (YCTD-112) |
+| POST | /api/v1/staff/delete | Xóa hồ sơ nhập nhầm chưa có dữ liệu liên quan, trả kết quả và lý do từng hồ sơ; cần `P07.staff.manage` (YCTD-124) |
+| POST | /api/v1/staff/ministry-export | Xuất tệp theo mẫu Bộ 75 cột kèm kiểm tra dữ liệu, danh mục; không gửi đi; cần `P17.data.export`, ghi nhật ký xuất (YCTD-124) |
+| POST | /api/v1/staff/ministry-errors | Xuất file lỗi: hồ sơ thiếu, sai ô bắt buộc theo mẫu Bộ; cần `P17.data.export` (YCTD-124) |
+| GET | /api/v1/staff/ministry-template | Mẫu 75 cột của 3.1.3, `?with_data=true` kèm hồ sơ; cần `P01.import.staff` (YCTD-124) |
+| GET | /api/v1/staff/ministry-catalogs | Danh mục của Bộ để tra cứu (YCTD-124) |
+| GET | /api/v1/staff-branches | Nhân sự kèm phân hiệu, điểm trường đã gán (3.1.2, YCTD-124) |
+| POST | /api/v1/staff-branches/assign, /unassign, /from-teaching | Gán, bỏ gán phân hiệu; lấy theo phân hiệu giảng dạy; cần `P07.staff.manage` |
+| GET | /api/v1/staff-identity | Danh sách xác thực số định danh, bản chạy nội bộ (3.1.5, YCTD-124) |
+| POST | /api/v1/staff-identity/mark | Đánh dấu đã xác thực, sai thông tin, đặt lại chưa xác thực; cần `P07.staff.manage` |
+| GET | /api/v1/staff-identity/progress | Tiến độ xác thực theo đơn vị hoặc bộ phận (5.6); cần `P17.staff-statistics.view` |
+| GET | /api/v1/staff-identity/duplicates | Hồ sơ trùng số định danh (5.6); cần `P17.staff-statistics.view` |
+| GET, POST | /api/v1/staff-movements | Danh sách biến động theo loại; lập phiếu (3.5, YCTD-124) |
+| POST | /api/v1/staff-movements/transfer-in-file | Lập phiếu tiếp nhận chuyển đến từ tệp hồ sơ chuyển 75 cột một dòng |
+| GET | /api/v1/staff-movements/{id} | Chi tiết phiếu biến động |
+| POST | /api/v1/staff-movements/{id}/approve, /reject, /confirm | Duyệt, tiếp nhận hoặc xác nhận; từ chối kèm lý do; đánh dấu trường đến đã tiếp nhận |
+| GET | /api/v1/staff-movements/{id}/pdf, /ministry-file | Phiếu PDF; tệp theo mẫu Bộ của phiếu chuyển đi (cần `P17.data.export`); ghi nhật ký xuất |
 | GET | /api/v1/staff/me | Hồ sơ và hợp đồng của chính mình (YCTD-58) |
 | PATCH | /api/v1/staff/me/contact | Người dùng tự sửa `phone` (9 đến 15 chữ số, có thể có dấu + ở đầu), `email`, `address` trên hồ sơ nhân sự gắn với tài khoản của mình; chưa gắn trả `ERR_NOT_FOUND` (404); ghi nhật ký thao tác `staff`; trả hồ sơ như `GET /staff/me` (YCTD-123) |
 | GET | /api/v1/staff/expiring-contracts | Hợp đồng sắp hết hạn theo cấu hình đơn vị (YCTD-58) |
@@ -1093,6 +1140,9 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, PUT | /api/v1/growth-rounds/{id}/measurements | Bảng nhập của một lớp (`class_id`) kèm tháng tuổi, BMI, chỉ số Z, kênh, `can_edit`; Tính và lưu số đo cả lớp (YCTD-105) |
 | GET | /api/v1/growth-rounds/{id}/template | Tệp mẫu Excel của lớp (`class_id`) (YCTD-105) |
 | POST | /api/v1/growth-rounds/{id}/import | Nhập số đo từ Excel, trả số dòng đã lưu và lỗi từng dòng (BR-100) |
+| GET, PUT | /api/v1/student-health | Bảng thông tin sức khỏe của lớp (`class_id`) theo học kỳ (`term`) kèm số đo 4.3 gần nhất, `can_edit`; ghi nhiều học sinh (P10-15, BR-123, YCTD-125) |
+| POST | /api/v1/student-health/pull-growth | "Lấy dữ liệu từ 4.3": chép số đo gần nhất của các đợt cân đo trong học kỳ cho lớp (YCTD-125) |
+| GET | /api/v1/student-health/export | Xuất Excel bảng của lớp theo học kỳ, ghi nhật ký xuất (BR-74, YCTD-125) |
 | GET | /api/v1/children/{id}/growth | Biểu đồ tăng trưởng: các lần đo kèm kết quả, đường chuẩn WHO (BR-101) |
 
 ## 14. Xe đưa đón (đã bỏ)
@@ -1110,8 +1160,15 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | PUT | /api/v1/dishes/{id}/norms | Thay toàn bộ định lượng trên một suất của món |
 | GET, POST | /api/v1/food-suppliers | Nhà cung cấp thực phẩm của đơn vị |
 | PATCH | /api/v1/food-suppliers/{id} | Sửa, ngừng hoặc dùng lại nhà cung cấp thực phẩm |
-| GET, POST | /api/v1/menus | Thực đơn tuần của đơn vị; lập thực đơn nháp |
+| GET, POST | /api/v1/menus | Thực đơn tuần của đơn vị (lọc `week_start_date`, từ YCTD-125 thêm `month`); lập thực đơn nháp (từ YCTD-125 nhận tên, tháng, tuần, từ ngày, đến ngày, khối áp dụng) |
 | GET | /api/v1/menus/{id} | Chi tiết thực đơn kèm món |
+| PUT | /api/v1/menus/{id} | "Thay đổi" thông tin chung của thực đơn nháp (P12-10, BR-123, YCTD-125) |
+| GET | /api/v1/menu-imports/templates/menus/columns | Cột của mẫu nhập thực đơn, cờ `locked` (YCTD-125) |
+| GET | /api/v1/menu-imports/catalogs/menus | Tra cứu danh mục khối, bữa, thứ, món ăn của đơn vị (`org_unit_id`) (YCTD-125) |
+| GET | /api/v1/menu-imports/templates/menus | Tệp mẫu nhập thực đơn kèm trang Danh mục (YCTD-125) |
+| POST | /api/v1/menu-imports | Tải tệp Excel thực đơn lên, kiểm tra cả tệp (YCTD-125) |
+| POST | /api/v1/menu-imports/{id}/commit | Ghi các thực đơn đọc được thành thực đơn nháp (YCTD-125) |
+| GET | /api/v1/menu-imports/{id}/error-file | Tệp lỗi: tệp gốc kèm cột Nội dung lỗi (YCTD-125) |
 | PUT | /api/v1/menus/{id}/items | Thay toàn bộ món của thực đơn nháp |
 | POST | /api/v1/menus/{id}/submit | Bếp trình duyệt thực đơn |
 | POST | /api/v1/menus/{id}/approve | Duyệt và công bố thực đơn |
@@ -1317,15 +1374,19 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | GET | /api/v1/reports/attendance-meals | Điểm danh và suất ăn theo ngày, tuần, tháng: mỗi lớp mỗi ngày sĩ số, có mặt, vắng P/K/B, suất ăn, tỷ lệ, theo khối (YCTD-103) |
 | GET | /api/v1/reports/attendance-meals/children | Bảng điểm danh từng trẻ của một lớp theo kỳ, mã P/K/B/N (YCTD-103) |
 | POST | /api/v1/reports/attendance-meals/export | Xuất Excel điểm danh và suất ăn theo mẫu của trường, ghi nhật ký xuất dữ liệu (YCTD-103) |
-| GET | /api/v1/reports/growth | Tổng hợp cân nặng, chiều cao theo đợt hoặc tháng, lọc đơn vị, giới tính, kênh (P10-14, YCTD-105) |
+| GET | /api/v1/reports/growth | Tổng hợp cân nặng, chiều cao theo đợt hoặc tháng, lọc đơn vị, giới tính, kênh (P10-14, YCTD-105); từ YCTD-125 theo học kỳ (`term`), so sánh với đợt khác (`compare_round_id`), số được khám định kỳ |
 | GET | /api/v1/reports/growth/export | Xuất Excel tổng hợp cân nặng, chiều cao, ghi nhật ký xuất (BR-74, YCTD-105) |
 | GET | /api/v1/statistics/classes | Thống kê lớp học theo nhóm tuổi (P17-16, YCTD-105) |
 | GET | /api/v1/statistics/children | Thống kê học sinh (P17-16, YCTD-105) |
+| GET | /api/v1/statistics/students | 5.3 Thống kê học sinh theo Sở theo học kỳ (`term`), lọc `org_unit_id` (P17-21, BR-123, YCTD-125) |
+| GET | /api/v1/statistics/students/export | Xuất Excel hoặc PDF (`format`) năm bảng của 5.3, ghi nhật ký xuất (BR-74, YCTD-125) |
 | GET | /api/v1/statistics/staff | Thống kê nhân sự (P17-16, YCTD-105) |
 | GET | /api/v1/statistics/missing-child-fields | Hồ sơ học sinh chưa nhập đủ; `field` để lấy danh sách (P17-17, YCTD-105) |
-| GET | /api/v1/statistics/missing-staff-fields | Hồ sơ nhân sự chưa nhập đủ; `field` để lấy danh sách (P17-17, YCTD-105) |
+| GET | /api/v1/statistics/missing-staff-fields | Hồ sơ nhân sự chưa nhập đủ; `field` để lấy danh sách (P17-17, YCTD-105); từ YCTD-124 thêm `bank_account`, `tax_code` |
+| GET | /api/v1/statistics/staff-so | 5.2 Thống kê nhân sự theo danh mục Bộ và chuẩn nghề nghiệp (P07-10, YCTD-124) |
 | GET | /api/v1/reports/emis/start-of-year | Báo cáo EMIS đầu năm Biểu 1: năm thẻ, cảnh báo (P17-18, BR-104, YCTD-106) |
 | POST | /api/v1/reports/emis/start-of-year/export | Xuất Excel năm trang, ghi nhật ký xuất (BR-74, YCTD-106) |
+| GET | /api/v1/reports/emis/start-of-year-health | Số liệu báo cáo sức khỏe học sinh đầu năm (dòng 1.3 của Sở): 17 dòng chỉ tiêu, cảnh báo; màn hình, xuất tệp, gửi lên cấp trên ở phần 16j (P17-22, YCTD-125) |
 | GET | /api/v1/export-jobs | "Tệp đã tạo": 100 tác vụ xuất nền gần nhất của người đăng nhập (P17-19, YCTD-121) |
 | GET | /api/v1/export-jobs/{id}/file | Tải tệp của tác vụ đã tạo xong, chưa hết hạn; chỉ người tạo; chưa xong, lỗi, hết hạn trả 422 mã YCTD-121 |
 | GET | /api/v1/upper-level-submissions?forms={mã,…} | Danh sách biểu mẫu gửi lên cấp trên của năm học đang dùng kèm hoàn thành dữ liệu, trạng thái, ngày gửi, tệp gửi, quyền của người xem (P17-20, YCTD-121) |
@@ -1346,7 +1407,7 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 
 ### 17.1. Công cụ xuất, nhập và gửi lên cấp trên dùng chung (YCTD-121)
 
-Điểm cuối nhập bổ sung: `GET /api/v1/imports/templates/{type}?with_data=true` (tệp mẫu kèm dữ liệu, hiện có ở `classes`, ghi nhật ký xuất), `GET /api/v1/imports/templates/{type}/columns` (cột của mẫu, cờ `locked`, `updates_existing`, `template_with_data`), `GET /api/v1/imports/catalogs/{type}` (danh mục tra cứu: `key`, `title`, `column`, `items` mã, tên, ghi chú), `GET /api/v1/imports/{id}/error-file` (tệp gốc kèm cột Nội dung lỗi; không có lỗi trả 422 mã YCTD-121). `POST /api/v1/imports` và `/imports/moet-codes` nhận trường `columns` dạng `khóa1,khóa2`; lần nhập trả `selected_columns`. Các điểm cuối xuất danh sách (`/children/export`, `/staff/export`, `/classes/export`, `/class-assignments/export`, `/student-movements/export`) nhận `format` `xlsx` hoặc `pdf`; `/children/export`, `/staff/export` trả 202 `{ job }` khi danh sách vượt số dòng xuất trực tiếp.
+Điểm cuối nhập bổ sung: `GET /api/v1/imports/templates/{type}?with_data=true` (tệp mẫu kèm dữ liệu, hiện có ở `classes`, từ YCTD-124 thêm `professional_ratings`, ghi nhật ký xuất), `GET /api/v1/imports/templates/{type}/columns` (cột của mẫu, cờ `locked`, `updates_existing`, `template_with_data`), `GET /api/v1/imports/catalogs/{type}` (danh mục tra cứu: `key`, `title`, `column`, `items` mã, tên, ghi chú), `GET /api/v1/imports/{id}/error-file` (tệp gốc kèm cột Nội dung lỗi; không có lỗi trả 422 mã YCTD-121). `POST /api/v1/imports` và `/imports/moet-codes` nhận trường `columns` dạng `khóa1,khóa2`; lần nhập trả `selected_columns`. Các điểm cuối xuất danh sách (`/children/export`, `/staff/export`, `/classes/export`, `/class-assignments/export`, `/student-movements/export`) nhận `format` `xlsx` hoặc `pdf`; `/children/export`, `/staff/export` trả 202 `{ job }` khi danh sách vượt số dòng xuất trực tiếp.
 
 Hướng dẫn dùng cho các phần sau (16b, 16e đến 16k):
 

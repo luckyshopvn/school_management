@@ -3,7 +3,9 @@ export * from './facilities.js';
 export * from './portal-menu.js';
 export * from './menu-permissions.js';
 export * from './staff-profile.js';
+export * from './staff-catalogs.js';
 export * from './classes.js';
+export * from './student-health.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -310,6 +312,16 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/school-splits',
   '/school-weeks',
   '/year-rollover',
+  // Nhân sự đủ theo Sở (DT-16 phần 16f): 3.1.2, 3.1.3, 3.1.5, 3.5, 5.2, 5.6
+  '/staff-branches',
+  '/staff-imports',
+  '/staff-identity',
+  '/staff-movements',
+  '/staff-statistics',
+  '/staff-identity-progress',
+  // Sức khỏe học sinh, thống kê học sinh (DT-16 phần 16h)
+  '/student-health',
+  '/student-statistics',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -322,6 +334,13 @@ export const MAX_QUICK_LINKS = 12;
 // chủ API chỉ nhận các khóa này; lưới mới chuyển sang ở các phần sau thì thêm khóa vào đây
 export const DATA_GRID_KEYS = [
   'default',
+  // Nhân sự đủ theo Sở (DT-16 phần 16f)
+  'staff-branches',
+  'staff-identity',
+  'staff-movements-in',
+  'staff-movements-out',
+  'staff-guests-out',
+  'staff-guests-in',
   'accounts',
   'staff',
   // Học sinh (DT-15 phần 15c)
@@ -397,6 +416,8 @@ export const DATA_GRID_KEYS = [
   'system-announcements',
   // Tách trường (DT-16 phần 16e)
   'school-splits',
+  // Sức khỏe, thực đơn, thống kê học sinh (DT-16 phần 16h)
+  'student-statistics-ethnic',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

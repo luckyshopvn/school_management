@@ -15,7 +15,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import type { ChildGender, SchoolYearDatabase } from '@school-management/database';
+import type { ChildGender, SchoolYearDatabase, StudentHealthTerm } from '@school-management/database';
 import {
   ApplicationError,
   Clock,
@@ -41,7 +41,9 @@ import { ReportsService } from '../reports/reports.service.js';
 import { assessGrowth, referenceCurve, type GrowthAssessment } from './growth-calc.js';
 import {
   applyUnderweightOption,
+  COMPARED_KEYS,
   GROWTH_STATUS_LABELS,
+  compareGrowth,
   inChannel,
   summarizeGrowth,
   type GrowthChannel,
@@ -49,6 +51,8 @@ import {
 } from './growth-summary.js';
 import { HealthAccess } from './health-access.js';
 import { readHealthDate, readNote } from './health-fields.js';
+import { SchoolTerms } from './school-terms.js';
+import { TERMS, termOfDate, termRangeOf } from './student-health-calc.js';
 
 // Cân nặng, chiều cao theo đợt cân đo (DT-14 phần 14a, YCTD-102; mục 4.3.1, 4.3.2 của hệ thống Sở). Nhân viên y tế
 // (P10.health.manage trong phạm vi đơn vị) lập đợt, nhập số đo theo lớp hoặc từ Excel; số đo lưu trong bảng số đo sức
@@ -95,6 +99,9 @@ export interface MeasurementInput {
 export interface GrowthReportFilter {
   roundId: string | null;
   month: string | null;
+  // Tổng hợp theo học kỳ và so sánh với một đợt khác (DT-16 phần 16h)
+  term: StudentHealthTerm | null;
+  compareRoundId: string | null;
   orgUnitId: string | null;
   gender: ChildGender | null;
   channel: GrowthChannel | null;
@@ -106,8 +113,16 @@ export function readGrowthReportFilter(query: QueryValues, errors: FieldError[])
   if (month !== null && !MONTH_PATTERN.test(month)) {
     errors.push({ field: 'month', message: 'Tháng theo dạng YYYY-MM' });
   }
-  if (!roundId && !month) {
-    errors.push({ field: 'round_id', message: 'Chọn đợt cân đo hoặc tháng' });
+  const term = query.term?.trim() || null;
+  if (term !== null && !TERMS.includes(term as StudentHealthTerm)) {
+    errors.push({ field: 'term', message: 'Học kỳ là first_term hoặc second_term' });
+  }
+  if (!roundId && !month && !term) {
+    errors.push({ field: 'round_id', message: 'Chọn đợt cân đo, tháng hoặc học kỳ' });
+  }
+  const compareRoundId = optionalUuid(query, 'compare_round_id', errors);
+  if (compareRoundId && !roundId) {
+    errors.push({ field: 'compare_round_id', message: 'So sánh hai đợt thì chọn cả đợt cân đo' });
   }
   const gender = query.gender?.trim() || null;
   if (gender !== null && gender !== 'male' && gender !== 'female') {
@@ -120,6 +135,8 @@ export function readGrowthReportFilter(query: QueryValues, errors: FieldError[])
   return {
     roundId,
     month,
+    term: term as StudentHealthTerm | null,
+    compareRoundId,
     orgUnitId: optionalUuid(query, 'org_unit_id', errors),
     gender: gender as ChildGender | null,
     channel: channel as GrowthChannel | null,
@@ -159,6 +176,7 @@ export class GrowthService {
     private readonly access: HealthAccess,
     private readonly reports: ReportsService,
     private readonly clock: Clock,
+    private readonly schoolTerms: SchoolTerms,
   ) {}
 
   private today(): string {
@@ -361,6 +379,19 @@ export class GrowthService {
         .where('health_measurements.child_id', 'in', nonEmpty(enrolled.map((row) => row.child_id)))
         .orderBy('growth_rounds.measured_on', 'desc')
         .execute();
+      // Được khám định kỳ: có kết quả của một đợt khám sức khỏe của đơn vị bắt đầu trước ngày xét (DT-16 phần 16h)
+      const examined = new Set(
+        (
+          await database
+            .selectFrom('health_check_results')
+            .innerJoin('health_check_campaigns', 'health_check_campaigns.id', 'health_check_results.campaign_id')
+            .select('health_check_results.child_id')
+            .where('health_check_campaigns.org_unit_id', '=', orgUnitId)
+            .where('health_check_campaigns.from_date', '<=', referenceDate)
+            .where('health_check_results.child_id', 'in', nonEmpty(enrolled.map((row) => row.child_id)))
+            .execute()
+        ).map((row) => row.child_id),
+      );
       const latest = new Map<string, (typeof measurements)[number]>();
       for (const row of measurements) {
         if (!latest.has(row.child_id)) {
@@ -390,6 +421,7 @@ export class GrowthService {
           assessment: measurement
             ? assessGrowth(child, measurement.measured_on, { weight_kg: weight, height_cm: height })
             : null,
+          examined: examined.has(child.child_id),
         });
       }
     }
@@ -711,12 +743,23 @@ export class GrowthService {
     const scope = await this.reports.unitScope(currentUser, PERMISSION_CODES.growthReport, filter.orgUnitId, false);
     const { database } = await this.currentSchoolYear.require();
     let rounds: RoundRecord[];
+    let termRange: ReturnType<typeof termRangeOf> = null;
     if (filter.roundId) {
       const round = await this.findRound(database, filter.roundId);
       if (!scope.orgUnitIds.includes(round.org_unit_id)) {
         throw new ApplicationError('ERR_FORBIDDEN', 'Đợt cân đo nằm ngoài phạm vi của bạn');
       }
       rounds = [round];
+    } else if (filter.term) {
+      // Theo học kỳ: mọi đợt có ngày cân đo thuộc học kỳ theo lịch năm học; số đo của trẻ lấy theo đợt muộn nhất
+      const terms = await this.schoolTerms.ranges();
+      const all = await database
+        .selectFrom('growth_rounds')
+        .select(['id', 'org_unit_id', 'name', 'measured_on', 'note'])
+        .where('org_unit_id', 'in', scope.orgUnitIds)
+        .execute();
+      rounds = all.filter((round) => termOfDate(String(round.measured_on).slice(0, 10), terms) === filter.term);
+      termRange = termRangeOf(terms, filter.term);
     } else {
       const month = filter.month ?? '';
       const [year = 0, monthNumber = 0] = month.split('-').map(Number);
@@ -740,6 +783,9 @@ export class GrowthService {
       .map((row) => flattenChild(row));
     return {
       rounds,
+      term: filter.term,
+      term_range: termRange,
+      comparison: await this.comparison(database, scope.orgUnitIds, rounds, filter),
       gender: filter.gender,
       channel: filter.channel,
       classes: summary.classes,
@@ -760,6 +806,54 @@ export class GrowthService {
       .where('settings.key', '=', 'underweight_growth_calculation')
       .executeTakeFirst();
     return setting?.value !== false;
+  }
+
+  // So sánh hai lần cân đo (DT-16 phần 16h): đợt đang chọn với đợt so sánh; hoặc theo học kỳ, đợt sớm nhất với đợt muộn
+  // nhất của học kỳ ở mỗi đơn vị (đơn vị chỉ có một đợt trong học kỳ thì không so sánh)
+  private async comparison(
+    database: Kysely<SchoolYearDatabase>,
+    orgUnitIds: string[],
+    rounds: RoundRecord[],
+    filter: GrowthReportFilter,
+  ) {
+    let firstRounds: RoundRecord[] = [];
+    let lastRounds: RoundRecord[] = [];
+    if (filter.roundId && filter.compareRoundId) {
+      const other = await this.findRound(database, filter.compareRoundId);
+      if (!orgUnitIds.includes(other.org_unit_id)) {
+        throw new ApplicationError('ERR_FORBIDDEN', 'Đợt so sánh nằm ngoài phạm vi của bạn');
+      }
+      const [chosen] = rounds;
+      if (!chosen || chosen.id === other.id) {
+        throw validationError([{ field: 'compare_round_id', message: 'Chọn đợt so sánh khác đợt đang xem' }]);
+      }
+      [firstRounds, lastRounds] = other.measured_on <= chosen.measured_on ? [[other], [chosen]] : [[chosen], [other]];
+    } else if (filter.term) {
+      const byUnit = new Map<string, RoundRecord[]>();
+      for (const round of rounds) {
+        byUnit.set(round.org_unit_id, [...(byUnit.get(round.org_unit_id) ?? []), round]);
+      }
+      for (const unitRounds of byUnit.values()) {
+        if (unitRounds.length < 2) {
+          continue;
+        }
+        const sorted = [...unitRounds].sort((a, b) => String(a.measured_on).localeCompare(String(b.measured_on)));
+        firstRounds.push(sorted[0] as RoundRecord);
+        lastRounds.push(sorted[sorted.length - 1] as RoundRecord);
+      }
+    }
+    if (firstRounds.length === 0) {
+      return null;
+    }
+    const [firstRows, lastRows] = await Promise.all([
+      this.roundRows(database, firstRounds, null),
+      this.roundRows(database, lastRounds, null),
+    ]);
+    return {
+      first_rounds: firstRounds,
+      last_rounds: lastRounds,
+      ...compareGrowth(firstRows, lastRows, filter.gender),
+    };
   }
 
   // Xuất tổng hợp ra Excel (4.3.2): bảng theo lớp, theo khối và danh sách học sinh theo kênh đang lọc; ghi nhật ký xuất có
@@ -796,7 +890,27 @@ export class GrowthService {
       [...report.grades, { grade_name: 'Tổng cộng', class_count: report.classes.length, ...report.totals }],
     );
     addSheet('Danh sách học sinh', CHILD_COLUMNS, report.children);
-    const fileName = `tong-hop-can-do-${filter.month ?? report.rounds[0]?.measured_on ?? 'dot'}.xlsx`;
+    if (report.comparison) {
+      const comparison = report.comparison;
+      const columns: Array<[string, string]> = [['class_name', 'Lớp']];
+      for (const key of COMPARED_KEYS) {
+        const label = COMPARED_LABELS[key];
+        columns.push([`first_${key}`, `${label}: lần đầu`], [`last_${key}`, `${label}: lần sau`]);
+      }
+      const flatten = (name: string, row: { first: Record<string, number>; last: Record<string, number> }) => ({
+        class_name: name,
+        ...Object.fromEntries(COMPARED_KEYS.map((key) => [`first_${key}`, row.first[key]])),
+        ...Object.fromEntries(COMPARED_KEYS.map((key) => [`last_${key}`, row.last[key]])),
+      });
+      addSheet('So sánh hai lần cân đo', columns, [
+        ...comparison.classes.map((row) => flatten(row.class_name, row)),
+        flatten('Tổng cộng', comparison.totals),
+      ]);
+    }
+    const period =
+      filter.month ??
+      (filter.term === 'second_term' ? 'hk2' : filter.term ? 'hk1' : (report.rounds[0]?.measured_on ?? 'dot'));
+    const fileName = `tong-hop-can-do-${period}.xlsx`;
     const { database } = await this.currentSchoolYear.require();
     const log = await database
       .insertInto('export_logs')
@@ -817,9 +931,22 @@ export class GrowthService {
   }
 }
 
+export const COMPARED_LABELS: Record<(typeof COMPARED_KEYS)[number], string> = {
+  enrolled: 'Số học sinh',
+  measured: 'Được cân đo',
+  underweight: 'SDD thể nhẹ cân',
+  stunted: 'SDD thể thấp còi',
+  wasted: 'SDD thể gầy còm',
+  overweight: 'Thừa cân',
+  obese: 'Béo phì',
+  all_normal: 'Bình thường cả ba kênh',
+};
+
 const SUMMARY_COLUMNS: Array<[string, string]> = [
   ['enrolled', 'Số học sinh'],
   ['enrolled_female', 'Trong đó nữ'],
+  ['examined', 'Được khám định kỳ'],
+  ['examined_percent', 'Tỷ lệ khám định kỳ (%)'],
   ['measured', 'Được cân đo'],
   ['measured_percent', 'Tỷ lệ cân đo (%)'],
   ['weight_normal', 'Cân nặng bình thường'],

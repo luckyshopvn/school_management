@@ -126,7 +126,7 @@ export class SettingsService {
         .executeTakeFirst();
       if (unit && unit.unit_type !== 'truong_chinh') {
         throw ruleViolationError(
-          'YCTD-124',
+          'YCTD-127',
           'Cấu hình trường theo Sở chỉ đặt ở Trường chính',
           schoolKeys.map((key) => ({ field: `values.${key}`, message: 'Chỉ đặt ở Trường chính' })),
         );

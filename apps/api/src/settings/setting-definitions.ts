@@ -161,7 +161,7 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
     label: 'Tên trường hiển thị',
     valueType: 'text',
     defaultValue: null,
-    rule: 'YCTD-124',
+    rule: 'YCTD-127',
     school: true,
   },
   {
@@ -169,7 +169,7 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
     label: 'Tên đơn vị hành chính',
     valueType: 'text',
     defaultValue: null,
-    rule: 'YCTD-124',
+    rule: 'YCTD-127',
     school: true,
   },
   {
@@ -177,7 +177,7 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
     label: 'Tính cân nặng/chiều cao cho trẻ suy dinh dưỡng thể nhẹ cân',
     valueType: 'boolean',
     defaultValue: true,
-    rule: 'YCTD-124',
+    rule: 'YCTD-127',
     school: true,
   },
 ];

@@ -15,6 +15,7 @@ import {
   ProfessionalStandardsController,
   ProfessionalStandardsService,
 } from './professional-standards/professional-standards.js';
+import { ProfessionalRatingImports } from './professional-standards/rating-import.js';
 import { ProgramCompletionController, ProgramCompletionService } from './program-completion/program-completion.js';
 import { ChildGroupsController, ChildGroupsService } from './child-groups/child-groups.js';
 import { AccountExportsController, AccountExportsService } from './accounts-export/account-exports.js';
@@ -48,13 +49,18 @@ import { financeTransitionStep } from './finance/finance-transition.js';
 import { HealthAccess } from './health/health-access.js';
 import { HealthCareController, HealthCareService } from './health/health-care.js';
 import { GrowthController, GrowthService } from './health/growth.js';
+import { StudentHealthController, StudentHealthService } from './health/student-health.js';
+import { SchoolTerms } from './health/school-terms.js';
 import { StatisticsController, StatisticsService } from './statistics/statistics.js';
+import { StudentStatisticsController, StudentStatisticsService } from './statistics/student-statistics.js';
+import { EmisHealthReportController, EmisHealthReportService } from './health/emis-health-report.js';
 import { HealthRecordsController, HealthRecordsService } from './health/health-records.js';
 import { healthTransitionStep } from './health/health-transition.js';
 import { KitchenAccess } from './kitchen/kitchen-access.js';
 import { KitchenCatalogsController, KitchenCatalogsService } from './kitchen/kitchen-catalogs.js';
 import { KitchenMealsController, KitchenMealsService } from './kitchen/kitchen-meals.js';
 import { KitchenMenusController, KitchenMenusService } from './kitchen/kitchen-menus.js';
+import { MenuImportsController, MenuImportsService } from './kitchen/menu-imports.js';
 import { KitchenPurchasesController, KitchenPurchasesService } from './kitchen/kitchen-purchases.js';
 import { kitchenTransitionStep } from './kitchen/kitchen-transition.js';
 import { MedicationAccess } from './medicines/medication-access.js';
@@ -183,6 +189,15 @@ import {
 import { WorkSchedulesController, WorkSchedulesService } from './staff-attendance/work-schedules.js';
 import { StaffController } from './staff/staff.controller.js';
 import { StaffService } from './staff/staff.service.js';
+import { StaffBranchesController, StaffBranchesService } from './staff/staff-branches.js';
+import {
+  IdentityVerificationGateway,
+  ManualIdentityVerificationGateway,
+  StaffIdentityController,
+  StaffIdentityService,
+} from './staff/staff-identity.js';
+import { StaffMovementsController, StaffMovementsService } from './staff/staff-movements.js';
+import { StaffStatisticsController, StaffStatisticsService } from './statistics/staff-statistics.js';
 import { staffTransitionStep } from './staff/staff-transition.js';
 import { SchoolDaysController, SchoolDaysService } from './staff-attendance/school-days.js';
 import { StaffAttendanceController } from './staff-attendance/staff-attendance.controller.js';
@@ -306,9 +321,13 @@ export class ApplicationModule {
         HealthRecordsController,
         HealthCareController,
         GrowthController,
+        StudentHealthController,
         StatisticsController,
+        StudentStatisticsController,
+        EmisHealthReportController,
         KitchenCatalogsController,
         KitchenMenusController,
+        MenuImportsController,
         KitchenMealsController,
         KitchenPurchasesController,
         MedicineCatalogController,
@@ -354,6 +373,10 @@ export class ApplicationModule {
         OnlinePaymentsController,
         PaymentWebhooksController,
         StaffController,
+        StaffBranchesController,
+        StaffIdentityController,
+        StaffMovementsController,
+        StaffStatisticsController,
         SchoolDaysController,
         StaffAttendanceController,
         LeaveController,
@@ -479,11 +502,16 @@ export class ApplicationModule {
         HealthRecordsService,
         HealthCareService,
         GrowthService,
+        StudentHealthService,
+        SchoolTerms,
         StatisticsService,
+        StudentStatisticsService,
+        EmisHealthReportService,
         KitchenAccess,
         KitchenCatalogsService,
         KitchenMealsService,
         KitchenMenusService,
+        MenuImportsService,
         KitchenPurchasesService,
         MedicationAccess,
         MedicineCatalogService,
@@ -533,6 +561,11 @@ export class ApplicationModule {
         PaymentReversalsService,
         OnlinePaymentsService,
         StaffService,
+        StaffBranchesService,
+        StaffIdentityService,
+        { provide: IdentityVerificationGateway, useClass: ManualIdentityVerificationGateway },
+        StaffMovementsService,
+        StaffStatisticsService,
         SchoolDaysService,
         StaffAttendanceService,
         LeaveService,
@@ -619,6 +652,7 @@ export class ApplicationModule {
         ChildGroupsService,
         AccountExportsService,
         ProfessionalStandardsService,
+        ProfessionalRatingImports,
         TasksService,
         PlansService,
         EvaluationsService,

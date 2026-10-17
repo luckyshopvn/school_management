@@ -58,11 +58,17 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('2.2.', 'Nhập lớp học từ Excel', '/class-imports'),
       ]),
       group('3.', 'Nhân sự', [
-        group('3.1.', 'Hồ sơ nhân sự', [leaf('3.1.1.', 'Hồ sơ cán bộ, giáo viên', '/staff')]),
+        group('3.1.', 'Hồ sơ nhân sự', [
+          leaf('3.1.1.', 'Hồ sơ cán bộ, giáo viên', '/staff'),
+          leaf('3.1.2.', 'Nhân sự phân hiệu', '/staff-branches'),
+          leaf('3.1.3.', 'Nhập nhân sự từ Excel', '/staff-imports'),
+          leaf('3.1.5.', 'Xác thực số định danh nhân sự với CSDLQG về dân cư', '/staff-identity'),
+        ]),
         leaf('3.2.', 'Đánh giá chuẩn nghề nghiệp', '/professional-standards'),
         leaf('3.3.', 'Phân công phụ trách lớp', '/class-assignments'),
         // Khai báo tuần dùng chung lịch năm học (DT-16 phần 16e)
         leaf('3.4.', 'Khai báo tuần', '/school-weeks'),
+        leaf('3.5.', 'Biến động nhân sự', '/staff-movements'),
       ]),
       group('4.', 'Học sinh', [
         group('4.1.', 'Hồ sơ học sinh', [
@@ -79,13 +85,17 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('4.4.', 'Hoàn thành chương trình', '/program-completion'),
         leaf('4.5.', 'Thực đơn bữa ăn', '/kitchen'),
         group('4.6.', 'Sức khỏe học sinh', [
-          leaf('4.6.1.', 'Y tế học đường', '/health'),
-          leaf('4.6.2.', 'Thuốc và dặn thuốc', '/medicines'),
+          leaf('4.6.1.', 'Nhập thông tin sức khỏe học sinh', '/student-health'),
+          leaf('4.6.2.', 'Y tế học đường', '/health'),
+          leaf('4.6.3.', 'Thuốc và dặn thuốc', '/medicines'),
         ]),
         leaf('4.7.', 'Điểm danh', '/attendance'),
       ]),
       group('5.', 'Công cụ hỗ trợ', [
         leaf('5.1.', 'Thống kê lớp, nhân sự, học sinh', '/statistics'),
+        leaf('5.2.', 'Thống kê nhân sự', '/staff-statistics'),
+        leaf('5.3.', 'Thống kê học sinh', '/student-statistics'),
+        leaf('5.6.', 'Tiến độ xác thực số định danh nhân sự', '/staff-identity-progress'),
         // Chuyển hồ sơ lên năm học mới: Thực hiện, Hủy (DT-16 phần 16e)
         leaf('5.7.', 'Chuyển hồ sơ lên năm học mới', '/year-rollover'),
         leaf('5.8.', 'Thống kê hồ sơ chưa nhập đủ', '/missing-profiles'),

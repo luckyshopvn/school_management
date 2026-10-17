@@ -69,7 +69,7 @@ export function termOfWeek(
 }
 
 // Điều kiện hủy chuyển hồ sơ lên năm học mới ghi ở yêu cầu thay đổi của phần 16e
-const CANCEL_RULE_CODE = 'YCTD-124';
+const CANCEL_RULE_CODE = 'YCTD-127';
 
 export interface RolloverStatus {
   current: AcademicYearSummary | null;

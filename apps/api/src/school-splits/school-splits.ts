@@ -43,7 +43,7 @@ import { OrganizationScopes } from '../organization/organization-scopes.js';
 // động học sinh và hồ sơ nhân sự như mọi trường hợp. Chỗ nối để thay bằng truyền thật sau này là `SchoolSplitTransport`.
 // Cần quyền cập nhật hồ sơ trường và phạm vi toàn trường; tải tệp hồ sơ cần thêm quyền xuất dữ liệu (BR-74)
 const MANAGE = PERMISSION_CODES.schoolProfileManage;
-const RULE_CODE = 'YCTD-124';
+const RULE_CODE = 'YCTD-127';
 const MAXIMUM_SUBJECTS = 2000;
 const MAXIMUM_TEXT = 500;
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
