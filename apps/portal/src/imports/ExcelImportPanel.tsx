@@ -8,6 +8,7 @@ import {
   messageOf,
   readImportCatalogs,
   readImportColumns,
+  type ImportCatalog,
   type RowMessage,
 } from './import-api.js';
 
@@ -86,12 +87,13 @@ export function ErrorFileButton({ jobId }: { jobId: string }) {
   );
 }
 
-function CatalogLookup({ type }: { type: string }) {
+// Vùng "Tra cứu danh mục"; màn hình có danh mục riêng (nhập học sinh 82 cột, DT-16 phần 16g) truyền hàm đọc danh mục
+export function CatalogLookup({ type, load }: { type: string; load?: () => Promise<ImportCatalog[]> }) {
   const [catalogKey, setCatalogKey] = useState<string>();
   const [search, setSearch] = useState('');
   const selectId = useId();
   const searchId = useId();
-  const catalogs = useQuery({ queryKey: ['import-catalogs', type], queryFn: () => readImportCatalogs(type) });
+  const catalogs = useQuery({ queryKey: ['import-catalogs', type], queryFn: load ?? (() => readImportCatalogs(type)) });
   const current = catalogs.data?.find((catalog) => catalog.key === catalogKey) ?? catalogs.data?.[0];
   const keyword = search.trim().toLowerCase();
   const items = (current?.items ?? []).filter(
