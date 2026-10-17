@@ -45,7 +45,7 @@ test('CT-15e-10, CT-15e-11: thêm nhóm người dùng, tích mục menu để c
   ]);
   await grid.getByLabel('Tìm theo mã, tên nhóm').fill('VT-02');
   const principalRow = grid.getByRole('row').filter({ hasText: 'Hiệu trưởng' });
-  await expect(principalRow.getByRole('cell')).toHaveText(['VT-02', 'Hiệu trưởng', 'Có', 'Có', 'Có', 'Phân quyền']);
+  await expect(principalRow.getByRole('cell')).toHaveText(['VT-02', 'Hiệu trưởng', 'Có', 'Có', 'Có', 'SửaPhân quyền']);
 
   // Thêm nhóm: biểu mẫu nhãn bên trái, nút Ghi
   const code = `E2E-${Date.now() % 1_000_000}`;
@@ -57,7 +57,14 @@ test('CT-15e-10, CT-15e-11: thêm nhóm người dùng, tích mục menu để c
   await expect(page.getByRole('status').filter({ hasText: `Đã thêm nhóm người dùng ${code}` })).toBeVisible();
   await grid.getByLabel('Tìm theo mã, tên nhóm').fill(code);
   const row = grid.getByRole('row').filter({ hasText: code });
-  await expect(row.getByRole('cell')).toHaveText([code, 'Nhóm thử phân quyền theo menu', 'Có', '', '', 'Phân quyền']);
+  await expect(row.getByRole('cell')).toHaveText([
+    code,
+    'Nhóm thử phân quyền theo menu',
+    'Có',
+    '',
+    '',
+    'SửaPhân quyềnXóa',
+  ]);
 
   // 1.3 mở sẵn nhóm vừa thêm; tích mục 1.4 là chọn cả hai quyền của mục, bỏ một quyền thì mục lưng chừng
   await row.getByRole('button', { name: `Phân quyền ${code}` }).click();

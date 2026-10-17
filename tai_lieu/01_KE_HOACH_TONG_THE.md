@@ -2,7 +2,7 @@
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
 - Phiên bản: 1.7
-- Ngày cập nhật: 2026-10-15
+- Ngày cập nhật: 2026-10-17
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -56,6 +56,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
 | 0.68.0 | DT-15 phần 15h2, văn thư lưu trữ theo hệ thống của Sở: hồ sơ tài liệu hoàn thành, chưa hoàn thành, phông lưu trữ, thông tin lưu trữ, báo cáo lưu trữ (YCTD-118) | 13, 21 | Đã có |
+| 0.70.0 | DT-16 phần 16d, quản trị hệ thống đủ theo hệ thống của Sở: hiệu lực, sửa, xóa nhóm; 1.2 phân quyền nhóm theo phần mềm; 1.4 đủ cột, bộ lọc, thao tác hàng loạt; 1.6 tài khoản đồng bộ của Bộ, của Sở (YCTD-120) | 13, 21 | Đã có |
 | 0.66.0 | DT-15 phần 15h1, cập nhật địa danh hành chính theo hệ thống của Sở: lưới 4.1.11 địa chỉ học sinh theo địa danh cũ, đề xuất và chuyển hàng loạt, bảng đối chiếu Thành phố Hồ Chí Minh, nhập từ Excel (YCTD-116) | 13, 21 | Đã có |
 | 0.65.0 | DT-15 phần 15d, nhân sự theo hệ thống của Sở: lưới 3.1.1 Hồ sơ cán bộ, giáo viên, mở rộng tìm kiếm, xuất Excel, hồ sơ hai thẻ, biểu mẫu thêm mới theo khối (YCTD-112) | 13, 21 | Đã có |
 | 0.64.0 | DT-15 phần 15b, trường học, lớp học theo hệ thống của Sở: quản lý phân hiệu, điểm trường, hồ sơ lớp học, nhập lớp học, phân công phụ trách lớp (YCTD-111) | 13, 21 | Đã có |

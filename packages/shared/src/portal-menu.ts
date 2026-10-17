@@ -48,6 +48,7 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('1.2.', 'Quản lý phân hiệu', '/branches'),
         leaf('1.3.', 'Quản lý điểm trường', '/school-sites'),
         leaf('1.4.', 'Cấu hình trường', '/settings'),
+        leaf('1.6.', 'Tài khoản đồng bộ của Bộ, của Sở', '/sync-accounts'),
       ]),
       group('2.', 'Lớp học', [
         leaf('2.1.', 'Hồ sơ lớp học', '/classes'),
@@ -109,6 +110,7 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
     menu: [
       group('1.', 'Người dùng và phân quyền', [
         leaf('1.1.', 'Nhóm người dùng', '/roles'),
+        leaf('1.2.', 'Phân quyền nhóm theo phần mềm', '/role-workspaces'),
         leaf('1.3.', 'Phân quyền nhóm theo menu', '/role-permissions'),
         leaf('1.4.', 'Danh sách người dùng', '/accounts'),
       ]),
