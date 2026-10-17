@@ -59,6 +59,7 @@ import { KitchenAccess } from './kitchen/kitchen-access.js';
 import { KitchenCatalogsController, KitchenCatalogsService } from './kitchen/kitchen-catalogs.js';
 import { KitchenMealsController, KitchenMealsService } from './kitchen/kitchen-meals.js';
 import { KitchenMenusController, KitchenMenusService } from './kitchen/kitchen-menus.js';
+import { MenuImportsController, MenuImportsService } from './kitchen/menu-imports.js';
 import { KitchenPurchasesController, KitchenPurchasesService } from './kitchen/kitchen-purchases.js';
 import { kitchenTransitionStep } from './kitchen/kitchen-transition.js';
 import { MedicationAccess } from './medicines/medication-access.js';
@@ -312,6 +313,7 @@ export class ApplicationModule {
         EmisHealthReportController,
         KitchenCatalogsController,
         KitchenMenusController,
+        MenuImportsController,
         KitchenMealsController,
         KitchenPurchasesController,
         MedicineCatalogController,
@@ -489,6 +491,7 @@ export class ApplicationModule {
         KitchenCatalogsService,
         KitchenMealsService,
         KitchenMenusService,
+        MenuImportsService,
         KitchenPurchasesService,
         MedicationAccess,
         MedicineCatalogService,
