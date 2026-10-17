@@ -198,7 +198,12 @@ export function statisticsSheets(report: StudentStatistics & { term: StudentHeal
         { key: 'female', label: 'Nữ' },
         ...ageColumns,
       ],
-      rows: report.by_class.map((row) => ({ class_name: row.class_name, total: row.total, female: row.female, ...withAges(row) })),
+      rows: report.by_class.map((row) => ({
+        class_name: row.class_name,
+        total: row.total,
+        female: row.female,
+        ...withAges(row),
+      })),
     },
     {
       title: 'Hoàn thành chương trình',
@@ -221,7 +226,12 @@ export function statisticsSheets(report: StudentStatistics & { term: StudentHeal
         { key: 'female', label: 'Nữ' },
         ...ageColumns,
       ],
-      rows: report.policy_by_age.map((row) => ({ value: row.value, total: row.total, female: row.female, ...withAges(row) })),
+      rows: report.policy_by_age.map((row) => ({
+        value: row.value,
+        total: row.total,
+        female: row.female,
+        ...withAges(row),
+      })),
     },
     {
       title: 'Biết bơi, bệnh về mắt',

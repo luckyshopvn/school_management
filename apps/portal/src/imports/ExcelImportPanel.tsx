@@ -242,7 +242,9 @@ export function ExcelImportPanel({
   });
   const template = (withData: boolean) => {
     setTemplateError(undefined);
-    downloadImportTemplate(type, withData, apiBase, catalogSearch).catch((error: unknown) => setTemplateError(messageOf(error)));
+    downloadImportTemplate(type, withData, apiBase, catalogSearch).catch((error: unknown) =>
+      setTemplateError(messageOf(error)),
+    );
   };
 
   return (

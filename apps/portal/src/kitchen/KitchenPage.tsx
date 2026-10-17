@@ -386,12 +386,7 @@ function MenusTab({ orgUnitId, onDone }: TabProps) {
             placeholder="Để trống: Thực đơn tuần dd/mm/yyyy"
             onChange={(event) => setMenuName(event.target.value)}
           />
-          <TextField
-            label="Tháng"
-            type="month"
-            value={month}
-            onChange={(event) => setMonth(event.target.value)}
-          />
+          <TextField label="Tháng" type="month" value={month} onChange={(event) => setMonth(event.target.value)} />
           <TextField
             label="Tuần"
             inputMode="numeric"
@@ -399,7 +394,12 @@ function MenusTab({ orgUnitId, onDone }: TabProps) {
             placeholder="Để trống: theo khai báo tuần"
             onChange={(event) => setWeekNo(event.target.value)}
           />
-          <TextField label="Từ ngày" type="date" value={weekStart} onChange={(event) => setWeekStart(event.target.value)} />
+          <TextField
+            label="Từ ngày"
+            type="date"
+            value={weekStart}
+            onChange={(event) => setWeekStart(event.target.value)}
+          />
           <TextField label="Đến ngày" type="date" value={toDate} onChange={(event) => setToDate(event.target.value)} />
           <GradeChoice
             label="Khối áp dụng"
@@ -411,7 +411,12 @@ function MenusTab({ orgUnitId, onDone }: TabProps) {
             <Button type="submit" variant="primary" disabled={create.isPending || weekStart === ''}>
               Lập thực đơn
             </Button>
-            <Button type="button" variant="secondary" aria-expanded={importing} onClick={() => setImporting(!importing)}>
+            <Button
+              type="button"
+              variant="secondary"
+              aria-expanded={importing}
+              onClick={() => setImporting(!importing)}
+            >
               Nhập từ Excel
             </Button>
           </div>
@@ -671,9 +676,7 @@ function GradeChoice({
               aria-label={`Khối ${grade.name}`}
               checked={value.includes(grade.code)}
               onChange={(event) =>
-                onChange(
-                  event.target.checked ? [...value, grade.code] : value.filter((code) => code !== grade.code),
-                )
+                onChange(event.target.checked ? [...value, grade.code] : value.filter((code) => code !== grade.code))
               }
             />
             {grade.name}

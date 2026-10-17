@@ -49,7 +49,11 @@ export function buildStartOfYearHealthReport(input: HealthReportInput): { rows: 
     measured.filter((child) => child.assessment !== null && test(child.assessment));
   const rows: EmisRow[] = [
     row('1.3.01', 'Tổng số học sinh', children),
-    row('1.3.02', 'Số học sinh được khám sức khỏe đầu năm', children.filter((child) => child.examined)),
+    row(
+      '1.3.02',
+      'Số học sinh được khám sức khỏe đầu năm',
+      children.filter((child) => child.examined),
+    ),
     row('1.3.03', 'Số học sinh được cân đo, theo dõi biểu đồ tăng trưởng', measured),
     row(
       '1.3.04',

@@ -478,7 +478,11 @@ export function readStudentHealthRows(body: RequestBody, errors: FieldError[]): 
       return parsed;
     };
     const physical = row.physical_education ?? null;
-    if (physical !== null && physical !== '' && !PHYSICAL_EDUCATION_VALUES.includes(physical as PhysicalEducationResult)) {
+    if (
+      physical !== null &&
+      physical !== '' &&
+      !PHYSICAL_EDUCATION_VALUES.includes(physical as PhysicalEducationResult)
+    ) {
       errors.push({ field: field('physical_education'), message: 'Giáo dục thể chất là passed hoặc not_passed' });
     }
     const canSwim = row.can_swim ?? null;

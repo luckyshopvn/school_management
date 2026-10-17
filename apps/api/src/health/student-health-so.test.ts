@@ -63,7 +63,12 @@ describe('Hàm thuần của phần 16h', () => {
       height_cm: null,
     });
     const latest = latestGrowthByChild(
-      [point('a', '2026-09-20', 12), point('a', '2026-12-01', 13), point('a', '2027-03-01', 14), point('b', '2026-10-01', null)],
+      [
+        point('a', '2026-09-20', 12),
+        point('a', '2026-12-01', 13),
+        point('a', '2027-03-01', 14),
+        point('b', '2026-10-01', null),
+      ],
       terms,
       'first_term',
     );
@@ -153,11 +158,23 @@ describe('Hàm thuần của phần 16h', () => {
     assert.equal(parseMealType('tối'), null);
     const parsed = parseMenuRows(
       [
-        { row: 2, values: { menu_name: 'T1', from_date: '2026-10-19', weekday: '2', meal_type: 'Bữa trưa', dish: 'Cơm' } },
-        { row: 3, values: { menu_name: 'T1', from_date: '2026-10-19', weekday: '3', meal_type: 'Bữa sáng', dish: 'cháo' } },
-        { row: 4, values: { menu_name: 'T1', from_date: '2026-10-19', weekday: '2', meal_type: 'Bữa trưa', dish: 'Cơm' } },
+        {
+          row: 2,
+          values: { menu_name: 'T1', from_date: '2026-10-19', weekday: '2', meal_type: 'Bữa trưa', dish: 'Cơm' },
+        },
+        {
+          row: 3,
+          values: { menu_name: 'T1', from_date: '2026-10-19', weekday: '3', meal_type: 'Bữa sáng', dish: 'cháo' },
+        },
+        {
+          row: 4,
+          values: { menu_name: 'T1', from_date: '2026-10-19', weekday: '2', meal_type: 'Bữa trưa', dish: 'Cơm' },
+        },
         { row: 5, values: { menu_name: 'T2', from_date: '2026-10-19', weekday: '9', meal_type: 'Bữa', dish: 'Phở' } },
-      ].map((row) => ({ row: row.row, values: { month: '', week_no: '', to_date: '', grade_levels: '', note: '', ...row.values } })),
+      ].map((row) => ({
+        row: row.row,
+        values: { month: '', week_no: '', to_date: '', grade_levels: '', note: '', ...row.values },
+      })),
       {
         dishes: [
           { id: 'com', name: 'Cơm' },
@@ -199,13 +216,33 @@ describe('Hàm thuần của phần 16h', () => {
     const report = buildStartOfYearHealthReport({
       ownership: 'private',
       children: [
-        { gender: 'female', ethnicity: 'Hoa', disability: null, examined: true, assessment: assessment('underweight', 'stunted'), eye_conditions: ['myopia'] },
-        { gender: 'male', ethnicity: 'Kinh', disability: 'Khuyết tật nghe', examined: false, assessment: null, eye_conditions: [] },
+        {
+          gender: 'female',
+          ethnicity: 'Hoa',
+          disability: null,
+          examined: true,
+          assessment: assessment('underweight', 'stunted'),
+          eye_conditions: ['myopia'],
+        },
+        {
+          gender: 'male',
+          ethnicity: 'Kinh',
+          disability: 'Khuyết tật nghe',
+          examined: false,
+          assessment: null,
+          eye_conditions: [],
+        },
       ],
     });
     const row = (code: string) => report.rows.find((item) => item.code === code);
     assert.deepEqual(
-      [row('1.3.01')?.total, row('1.3.01')?.private, row('1.3.01')?.public, row('1.3.01')?.female, row('1.3.01')?.ethnic_minority],
+      [
+        row('1.3.01')?.total,
+        row('1.3.01')?.private,
+        row('1.3.01')?.public,
+        row('1.3.01')?.female,
+        row('1.3.01')?.ethnic_minority,
+      ],
       [2, 2, 0, 1, 1],
     );
     assert.equal(row('1.3.02')?.total, 1);
@@ -268,8 +305,14 @@ describe('Sức khỏe, thực đơn, thống kê học sinh theo Sở (16h)', (
   const api = (method: string, path: string, accessToken: string, body?: unknown) =>
     sendJson(method, `${environment.baseUrl}${path}`, accessToken, body);
   const download = async (path: string, accessToken: string) => {
-    const response = await fetch(`${environment.baseUrl}${path}`, { headers: { authorization: `Bearer ${accessToken}` } });
-    return { status: response.status, type: response.headers.get('content-type') ?? '', buffer: Buffer.from(await response.arrayBuffer()) };
+    const response = await fetch(`${environment.baseUrl}${path}`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    });
+    return {
+      status: response.status,
+      type: response.headers.get('content-type') ?? '',
+      buffer: Buffer.from(await response.arrayBuffer()),
+    };
   };
   const upload = async (path: string, accessToken: string, buffer: Buffer, fields: Record<string, string>) => {
     const form = new FormData();
@@ -333,7 +376,14 @@ describe('Sức khỏe, thực đơn, thống kê học sinh theo Sở (16h)', (
       classes[code] = (
         await schoolYear
           .insertInto('classes')
-          .values({ org_unit_id: unitA, academic_year_id: academicYearId, code, name: code, grade_level: grade, max_size: 25 })
+          .values({
+            org_unit_id: unitA,
+            academic_year_id: academicYearId,
+            code,
+            name: code,
+            grade_level: grade,
+            max_size: 25,
+          })
           .returning('id')
           .executeTakeFirstOrThrow()
       ).id;
@@ -412,7 +462,14 @@ describe('Sức khỏe, thực đơn, thống kê học sinh theo Sở (16h)', (
           eye_conditions: ['myopia', 'astigmatism'],
           note: 'Đeo kính',
         },
-        { child_id: children.B, weight_kg: null, height_cm: null, physical_education: 'not_passed', can_swim: false, eye_conditions: [] },
+        {
+          child_id: children.B,
+          weight_kg: null,
+          height_cm: null,
+          physical_education: 'not_passed',
+          can_swim: false,
+          eye_conditions: [],
+        },
       ],
     });
     assert.equal(saved.status, 200, JSON.stringify(saved.body));
@@ -425,7 +482,10 @@ describe('Sức khỏe, thực đơn, thống kê học sinh theo Sở (16h)', (
     assert.deepEqual(rowA?.eye_conditions, ['myopia', 'astigmatism']);
     assert.equal(rowA?.physical_education, 'passed');
     const second = await api('GET', `/student-health?class_id=${classId}&term=second_term`, token('nurse'));
-    assert.equal((second.body.rows as HealthRow[]).every((row) => row.eye_conditions.length === 0), true);
+    assert.equal(
+      (second.body.rows as HealthRow[]).every((row) => row.eye_conditions.length === 0),
+      true,
+    );
     // Dòng để trống mọi ô thì xóa thông tin của học sinh trong học kỳ
     const cleared = await api('PUT', '/student-health', token('nurse'), {
       class_id: classId,
@@ -433,8 +493,14 @@ describe('Sức khỏe, thực đơn, thống kê học sinh theo Sở (16h)', (
       rows: [{ child_id: children.B, eye_conditions: [] }],
     });
     assert.equal(cleared.body.removed_count, 1);
-    assert.equal((await api('GET', `/student-health?class_id=${classId}&term=first_term`, token('otherNurse'))).status, 403);
-    assert.equal((await api('GET', `/student-health?class_id=${classId}&term=first_term`, token('parent'))).status, 403);
+    assert.equal(
+      (await api('GET', `/student-health?class_id=${classId}&term=first_term`, token('otherNurse'))).status,
+      403,
+    );
+    assert.equal(
+      (await api('GET', `/student-health?class_id=${classId}&term=first_term`, token('parent'))).status,
+      403,
+    );
     const homeroomWrite = await api('PUT', '/student-health', token('homeroom'), {
       class_id: classId,
       term: 'first_term',
@@ -464,7 +530,11 @@ describe('Sức khỏe, thực đơn, thống kê học sinh theo Sở (16h)', (
       ['Cân đo đầu năm', addDays(vietnamToday, -40), 13],
       ['Cân đo tháng này', addDays(vietnamToday, -1), 15],
     ] as const) {
-      const round = await api('POST', '/growth-rounds', token('nurse'), { org_unit_id: unitA, name, measured_on: date });
+      const round = await api('POST', '/growth-rounds', token('nurse'), {
+        org_unit_id: unitA,
+        name,
+        measured_on: date,
+      });
       assert.equal(round.status, 201, JSON.stringify(round.body));
       rounds.push(round.body.id as string);
       const measured = await api('PUT', `/growth-rounds/${round.body.id as string}/measurements`, token('nurse'), {
@@ -475,7 +545,10 @@ describe('Sức khỏe, thực đơn, thống kê học sinh theo Sở (16h)', (
       });
       assert.equal(measured.status, 200, JSON.stringify(measured.body));
     }
-    const pulled = await api('POST', '/student-health/pull-growth', token('nurse'), { class_id: classId, term: 'first_term' });
+    const pulled = await api('POST', '/student-health/pull-growth', token('nurse'), {
+      class_id: classId,
+      term: 'first_term',
+    });
     assert.equal(pulled.status, 200, JSON.stringify(pulled.body));
     assert.deepEqual(pulled.body, { updated_count: 2, missing_count: 0 });
     const grid = await api('GET', `/student-health?class_id=${classId}&term=first_term`, token('nurse'));
@@ -484,11 +557,15 @@ describe('Sức khỏe, thực đơn, thống kê học sinh theo Sở (16h)', (
     assert.equal(rowA?.can_swim, true);
     assert.deepEqual(rowA?.eye_conditions, ['myopia', 'astigmatism']);
     assert.equal(rowA?.latest_growth?.round_name, 'Cân đo tháng này');
-    const empty = await api('POST', '/student-health/pull-growth', token('nurse'), { class_id: classId, term: 'second_term' });
+    const empty = await api('POST', '/student-health/pull-growth', token('nurse'), {
+      class_id: classId,
+      term: 'second_term',
+    });
     assert.equal(empty.status, 422);
     assert.equal(errorOf(empty.body).rule_code, 'YCTD-124');
     assert.equal(
-      (await api('POST', '/student-health/pull-growth', token('homeroom'), { class_id: classId, term: 'first_term' })).status,
+      (await api('POST', '/student-health/pull-growth', token('homeroom'), { class_id: classId, term: 'first_term' }))
+        .status,
       403,
     );
     const exported = await download(`/student-health/export?class_id=${classId}&term=first_term`, token('nurse'));
@@ -508,23 +585,48 @@ describe('Sức khỏe, thực đơn, thống kê học sinh theo Sở (16h)', (
     // 4.3.2: tổng hợp theo học kỳ có so sánh đợt đầu với đợt sau, cột được khám định kỳ
     const campaign = await schoolYear
       .insertInto('health_check_campaigns')
-      .values({ org_unit_id: unitA, name: 'Khám đầu năm', from_date: firstTermStart, to_date: addDays(firstTermStart, 5), created_by: randomUUID() })
+      .values({
+        org_unit_id: unitA,
+        name: 'Khám đầu năm',
+        from_date: firstTermStart,
+        to_date: addDays(firstTermStart, 5),
+        created_by: randomUUID(),
+      })
       .returning('id')
       .executeTakeFirstOrThrow();
     await schoolYear
       .insertInto('health_check_results')
-      .values({ campaign_id: campaign.id, child_id: children.A ?? '', height_cm: 95, weight_kg: 13, result_data: '{}', conclusion: 'Bình thường', note: null, recorded_by: randomUUID(), published_at: null })
+      .values({
+        campaign_id: campaign.id,
+        child_id: children.A ?? '',
+        height_cm: 95,
+        weight_kg: 13,
+        result_data: '{}',
+        conclusion: 'Bình thường',
+        note: null,
+        recorded_by: randomUUID(),
+        published_at: null,
+      })
       .execute();
     const report = await api('GET', `/reports/growth?term=first_term&org_unit_id=${unitA}`, principal.accessToken);
     assert.equal(report.status, 200, JSON.stringify(report.body));
     assert.equal((report.body.rounds as unknown[]).length, 2);
     assert.equal((report.body.totals as Record<string, number>).examined, 1);
-    const comparison = report.body.comparison as { classes: Array<{ class_name: string; first: Record<string, number>; last: Record<string, number> }> };
+    const comparison = report.body.comparison as {
+      classes: Array<{ class_name: string; first: Record<string, number>; last: Record<string, number> }>;
+    };
     assert.equal(comparison.classes.find((row) => row.class_name === 'MAM-1')?.last.measured, 2);
-    const pair = await api('GET', `/reports/growth?round_id=${rounds[1]}&compare_round_id=${rounds[0]}`, principal.accessToken);
+    const pair = await api(
+      'GET',
+      `/reports/growth?round_id=${rounds[1]}&compare_round_id=${rounds[0]}`,
+      principal.accessToken,
+    );
     assert.equal(pair.status, 200, JSON.stringify(pair.body));
     assert.equal((pair.body.comparison as { first_rounds: Array<{ id: string }> }).first_rounds[0]?.id, rounds[0]);
-    assert.equal((await api('GET', `/reports/growth?term=first_term&compare_round_id=${rounds[0]}`, principal.accessToken)).status, 400);
+    assert.equal(
+      (await api('GET', `/reports/growth?term=first_term&compare_round_id=${rounds[0]}`, principal.accessToken)).status,
+      400,
+    );
     const secondTerm = await api('GET', '/reports/growth?term=second_term', principal.accessToken);
     assert.equal((secondTerm.body.rounds as unknown[]).length, 0);
     assert.equal(secondTerm.body.comparison, null);
@@ -537,26 +639,50 @@ describe('Sức khỏe, thực đơn, thống kê học sinh theo Sở (16h)', (
   it('CT-16h-6: 5.3 thống kê học sinh: độ tuổi theo lớp, hoàn thành chương trình, chính sách, bơi, mắt theo học kỳ, dân tộc; xuất tệp', async () => {
     await schoolYear
       .insertInto('program_completions')
-      .values({ child_id: children.C ?? '', class_id: classes['LA-1'] ?? '', org_unit_id: units['ĐT-A1'] ?? '', result: 'completed', note: null, recorded_by: randomUUID(), recorded_by_name: 'Thử' })
+      .values({
+        child_id: children.C ?? '',
+        class_id: classes['LA-1'] ?? '',
+        org_unit_id: units['ĐT-A1'] ?? '',
+        result: 'completed',
+        note: null,
+        recorded_by: randomUUID(),
+        recorded_by_name: 'Thử',
+      })
       .execute();
     const stats = await api('GET', '/statistics/students?term=first_term', token('manager'));
     assert.equal(stats.status, 200, JSON.stringify(stats.body));
     assert.equal(stats.body.term, 'first_term');
-    const completion = stats.body.completion as { class_count: number; categories: Array<{ key: string; count: number; completed: number }> };
+    const completion = stats.body.completion as {
+      class_count: number;
+      categories: Array<{ key: string; count: number; completed: number }>;
+    };
     assert.equal(completion.class_count, 1);
     const category = (key: string) => completion.categories.find((item) => item.key === key);
     assert.deepEqual([category('children')?.count, category('children')?.completed], [2, 1]);
     assert.deepEqual([category('female')?.count, category('female')?.completed], [1, 1]);
     assert.deepEqual([category('ethnic')?.count, category('martyr_family')?.completed], [1, 1]);
     const byClass = stats.body.by_class as Array<{ class_name: string; total: number }>;
-    assert.deepEqual(byClass.map((row) => [row.class_name, row.total]), [
-      ['LA-1', 2],
-      ['MAM-1', 2],
-    ]);
+    assert.deepEqual(
+      byClass.map((row) => [row.class_name, row.total]),
+      [
+        ['LA-1', 2],
+        ['MAM-1', 2],
+      ],
+    );
     const policy = stats.body.policy_by_age as Array<{ value: string; total: number; ages: Record<string, number> }>;
-    assert.deepEqual(policy.map((row) => row.value), ['Con hộ nghèo', 'Con thương binh']);
+    assert.deepEqual(
+      policy.map((row) => row.value),
+      ['Con hộ nghèo', 'Con thương binh'],
+    );
     assert.equal(policy[1]?.ages.years_5_6, 1);
-    const health = stats.body.term_health as { recorded: number; totals: { swimming: { count: number }; eye_any: { count: number }; eye_conditions: Array<{ value: string; count: number }> } };
+    const health = stats.body.term_health as {
+      recorded: number;
+      totals: {
+        swimming: { count: number };
+        eye_any: { count: number };
+        eye_conditions: Array<{ value: string; count: number }>;
+      };
+    };
     assert.equal(health.recorded, 2);
     assert.equal(health.totals.swimming.count, 1);
     assert.equal(health.totals.eye_any.count, 1);
@@ -576,7 +702,13 @@ describe('Sức khỏe, thực đơn, thống kê học sinh theo Sở (16h)', (
     await workbook.xlsx.load(xlsx.buffer as unknown as ArrayBuffer);
     assert.deepEqual(
       workbook.worksheets.map((sheet) => sheet.name),
-      ['Độ tuổi theo lớp', 'Hoàn thành chương trình', 'Diện chính sách theo tuổi', 'Biết bơi, bệnh về mắt', 'Học sinh dân tộc'],
+      [
+        'Độ tuổi theo lớp',
+        'Hoàn thành chương trình',
+        'Diện chính sách theo tuổi',
+        'Biết bơi, bệnh về mắt',
+        'Học sinh dân tộc',
+      ],
     );
     const pdf = await download('/statistics/students/export?term=first_term&format=pdf', token('manager'));
     assert.equal(pdf.status, 200);
@@ -586,7 +718,13 @@ describe('Sức khỏe, thực đơn, thống kê học sinh theo Sở (16h)', (
   it('CT-16h-7: số liệu báo cáo sức khỏe đầu năm (EMIS 1.3) cho toàn trường; người không có phạm vi toàn trường bị từ chối', async () => {
     const report = await api('GET', '/reports/emis/start-of-year-health', token('vice'));
     assert.equal(report.status, 200, JSON.stringify(report.body));
-    const rows = report.body.rows as Array<{ code: string; total: number; female: number; ethnic_minority: number; public: number | null }>;
+    const rows = report.body.rows as Array<{
+      code: string;
+      total: number;
+      female: number;
+      ethnic_minority: number;
+      public: number | null;
+    }>;
     const row = (code: string) => rows.find((item) => item.code === code);
     assert.equal(row('1.3.01')?.total, 4);
     assert.equal(row('1.3.01')?.ethnic_minority, 2);
@@ -618,7 +756,11 @@ describe('Sức khỏe, thực đơn, thống kê học sinh theo Sở (16h)', (
     assert.equal(created.body.week_no, 9);
     assert.deepEqual(created.body.grade_levels, ['LA', 'MAM']);
     assert.equal(created.body.age_group, 'LA,MAM');
-    const overlap = await api('POST', '/menus', token('kitchen'), { org_unit_id: unitA, from_date: monday, grade_levels: ['LA'] });
+    const overlap = await api('POST', '/menus', token('kitchen'), {
+      org_unit_id: unitA,
+      from_date: monday,
+      grade_levels: ['LA'],
+    });
     assert.equal(overlap.status, 400);
     const general = await api('POST', '/menus', token('kitchen'), { org_unit_id: unitA, from_date: monday });
     assert.equal(general.status, 201, JSON.stringify(general.body));
@@ -630,7 +772,11 @@ describe('Sức khỏe, thực đơn, thống kê học sinh theo Sở (16h)', (
       grade_levels: ['MAM'],
     });
     assert.equal(outside.status, 400);
-    const unknownGrade = await api('POST', '/menus', token('kitchen'), { org_unit_id: unitA, from_date: addDays(monday, 7), grade_levels: ['KHONG'] });
+    const unknownGrade = await api('POST', '/menus', token('kitchen'), {
+      org_unit_id: unitA,
+      from_date: addDays(monday, 7),
+      grade_levels: ['KHONG'],
+    });
     assert.equal(unknownGrade.status, 400);
     const changed = await api('PUT', `/menus/${created.body.id as string}`, token('kitchen'), {
       name: 'Thực đơn mùa thu (sửa)',
@@ -662,10 +808,18 @@ describe('Sức khỏe, thực đơn, thống kê học sinh theo Sở (16h)', (
     const unitA = units['ĐT-A1'] ?? '';
     const columns = await api('GET', '/menu-imports/templates/menus/columns', token('kitchen'));
     assert.equal(columns.status, 200, JSON.stringify(columns.body));
-    assert.equal((columns.body.columns as Array<{ key: string; locked: boolean }>).find((column) => column.key === 'dish')?.locked, true);
+    assert.equal(
+      (columns.body.columns as Array<{ key: string; locked: boolean }>).find((column) => column.key === 'dish')?.locked,
+      true,
+    );
     const catalogs = await api('GET', `/menu-imports/catalogs/menus?org_unit_id=${unitA}`, token('kitchen'));
-    const dishCatalog = (catalogs.body.items as Array<{ key: string; items: Array<{ name: string }> }>).find((item) => item.key === 'dishes');
-    assert.deepEqual(dishCatalog?.items.map((item) => item.name), ['Cháo thịt', 'Cơm thịt kho']);
+    const dishCatalog = (catalogs.body.items as Array<{ key: string; items: Array<{ name: string }> }>).find(
+      (item) => item.key === 'dishes',
+    );
+    assert.deepEqual(
+      dishCatalog?.items.map((item) => item.name),
+      ['Cháo thịt', 'Cơm thịt kho'],
+    );
     const template = await download(`/menu-imports/templates/menus?org_unit_id=${unitA}`, token('kitchen'));
     assert.equal(template.status, 200);
     const monday = mondayOf(addDays(vietnamToday, 28));
@@ -676,7 +830,9 @@ describe('Sức khỏe, thực đơn, thống kê học sinh theo Sở (16h)', (
     assert.ok(workbook.getWorksheet('Danh mục'));
     sheet.addRow(['Thực đơn nhập', '', '', monday, addDays(monday, 4), 'MAM', '2', 'Bữa trưa', 'Cơm thịt kho', '']);
     sheet.addRow(['Thực đơn nhập', '', '', monday, addDays(monday, 4), 'MAM', 'CN', 'Bữa sáng', 'Cháo thịt', '']);
-    const wrong = await upload('/menu-imports', token('kitchen'), Buffer.from(await workbook.xlsx.writeBuffer()), { org_unit_id: unitA });
+    const wrong = await upload('/menu-imports', token('kitchen'), Buffer.from(await workbook.xlsx.writeBuffer()), {
+      org_unit_id: unitA,
+    });
     assert.equal(wrong.status, 201, JSON.stringify(wrong.body));
     assert.equal(wrong.body.status, 'failed');
     assert.equal((wrong.body.errors as Array<{ column: string }>)[0]?.column, 'Thứ');
@@ -685,7 +841,9 @@ describe('Sức khỏe, thực đơn, thống kê học sinh theo Sở (16h)', (
     const failedCommit = await api('POST', `/menu-imports/${wrong.body.id as string}/commit`, token('kitchen'));
     assert.equal(failedCommit.status, 422);
     sheet.getRow(3).getCell(7).value = '3';
-    const right = await upload('/menu-imports', token('kitchen'), Buffer.from(await workbook.xlsx.writeBuffer()), { org_unit_id: unitA });
+    const right = await upload('/menu-imports', token('kitchen'), Buffer.from(await workbook.xlsx.writeBuffer()), {
+      org_unit_id: unitA,
+    });
     assert.equal(right.body.status, 'validated', JSON.stringify(right.body));
     assert.equal(right.body.menu_count, 1);
     assert.equal((await api('POST', `/menu-imports/${right.body.id as string}/commit`, token('manager'))).status, 403);
@@ -693,11 +851,18 @@ describe('Sức khỏe, thực đơn, thống kê học sinh theo Sở (16h)', (
     assert.equal(committed.status, 200, JSON.stringify(committed.body));
     assert.equal(committed.body.status, 'committed');
     const menus = await api('GET', `/menus?org_unit_id=${unitA}&week_start_date=${monday}`, token('kitchen'));
-    const menu = (menus.body as unknown as Array<{ name: string; status: string; item_count: number; grade_levels: string[] }>)[0];
-    assert.deepEqual([menu?.name, menu?.status, menu?.item_count, menu?.grade_levels], ['Thực đơn nhập', 'draft', 2, ['MAM']]);
+    const menu = (
+      menus.body as unknown as Array<{ name: string; status: string; item_count: number; grade_levels: string[] }>
+    )[0];
+    assert.deepEqual(
+      [menu?.name, menu?.status, menu?.item_count, menu?.grade_levels],
+      ['Thực đơn nhập', 'draft', 2, ['MAM']],
+    );
     assert.equal((await api('POST', `/menu-imports/${right.body.id as string}/commit`, token('kitchen'))).status, 422);
     // Tải lại cùng tệp: trùng tuần, trùng khối với thực đơn vừa ghi
-    const again = await upload('/menu-imports', token('kitchen'), Buffer.from(await workbook.xlsx.writeBuffer()), { org_unit_id: unitA });
+    const again = await upload('/menu-imports', token('kitchen'), Buffer.from(await workbook.xlsx.writeBuffer()), {
+      org_unit_id: unitA,
+    });
     assert.equal(again.body.status, 'failed');
     assert.equal((await upload('/menu-imports', token('nurse'), Buffer.from('x'), { org_unit_id: unitA })).status, 403);
   });

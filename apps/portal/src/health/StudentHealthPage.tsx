@@ -342,7 +342,9 @@ export function StudentHealthPage() {
                             </fieldset>
                           ) : (
                             row.eye_conditions
-                              .map((item) => EYE_CONDITIONS.find((condition) => condition.value === item)?.label ?? item)
+                              .map(
+                                (item) => EYE_CONDITIONS.find((condition) => condition.value === item)?.label ?? item,
+                              )
                               .join(', ')
                           )}
                         </td>

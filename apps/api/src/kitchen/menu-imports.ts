@@ -77,7 +77,9 @@ const columnHeader = (key: string) => MENU_IMPORT_COLUMNS.find((column) => colum
 
 // Thứ: 2 đến 7 là thứ hai đến thứ bảy (1 đến 6 trong tuần), CN là chủ nhật (7)
 export function parseWeekday(text: string): number | null {
-  const value = foldText(text).replace(/^thu\s*/, '').replace(/^t(?=\d)/, '');
+  const value = foldText(text)
+    .replace(/^thu\s*/, '')
+    .replace(/^t(?=\d)/, '');
   if (['cn', 'chu nhat'].includes(value)) {
     return 7;
   }
@@ -206,7 +208,9 @@ export function parseMenuRows(rows: SheetRow[], context: MenuImportContext) {
         add(null, `Tháng, tuần, đến ngày phải giống các dòng khác của thực đơn "${name}" (dòng ${group.rows[0]})`);
         continue;
       }
-      if (group.items.some((item) => item.weekday === weekday && item.meal_type === mealType && item.dish_id === dishId)) {
+      if (
+        group.items.some((item) => item.weekday === weekday && item.meal_type === mealType && item.dish_id === dishId)
+      ) {
         add('dish', 'Món này đã có ở cùng thứ, cùng bữa của thực đơn');
         continue;
       }
@@ -617,4 +621,3 @@ export class MenuImportsController {
     response.send(file.buffer);
   }
 }
-

@@ -65,8 +65,7 @@ export function buildStudentStatistics(rows: StudentFacts[]) {
       ages: ageCounts(members),
     }))
     .sort(
-      (a, b) =>
-        a.org_unit_name.localeCompare(b.org_unit_name, 'vi') || a.class_name.localeCompare(b.class_name, 'vi'),
+      (a, b) => a.org_unit_name.localeCompare(b.org_unit_name, 'vi') || a.class_name.localeCompare(b.class_name, 'vi'),
     );
 
   // Hoàn thành chương trình: lớp mẫu giáo 5–6 tuổi và trẻ đang học trong các lớp đó
@@ -84,7 +83,11 @@ export function buildStudentStatistics(rows: StudentFacts[]) {
     categories: [
       { key: 'children', label: 'Số trẻ 5–6 tuổi', ...completionOf(eligible) },
       { key: 'female', label: 'Nữ', ...completionOf(eligible.filter((row) => row.gender === 'female')) },
-      { key: 'disabled', label: 'Khuyết tật', ...completionOf(eligible.filter((row) => hasDisability(row.disability))) },
+      {
+        key: 'disabled',
+        label: 'Khuyết tật',
+        ...completionOf(eligible.filter((row) => hasDisability(row.disability))),
+      },
       {
         key: 'ethnic',
         label: 'Dân tộc thiểu số',
