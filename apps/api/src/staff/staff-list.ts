@@ -218,8 +218,8 @@ export function idNumberCandidates(
 }
 
 // A–Z theo tên (từ cuối của họ tên) rồi theo họ tên, thứ tự chữ cái tiếng Việt, như danh sách học sinh (YCTD-108)
-const GIVEN_NAME_ORDER = sql`regexp_replace(trim(staff.full_name), '^.*\\s', '') collate "vi-x-icu"`;
-const FULL_NAME_ORDER = sql`staff.full_name collate "vi-x-icu"`;
+export const GIVEN_NAME_ORDER = sql`regexp_replace(trim(staff.full_name), '^.*\\s', '') collate "vi-x-icu"`;
+export const FULL_NAME_ORDER = sql`staff.full_name collate "vi-x-icu"`;
 
 export interface StaffRecord {
   id: string;

@@ -32,6 +32,12 @@ export interface Staff {
   end_date: string | null;
   status: 'active' | 'terminated';
   has_account: boolean;
+  // DT-16 phần 16f
+  bank_account_number?: string | null;
+  bank_name?: string | null;
+  tax_code?: string | null;
+  special_difficulty_commune?: boolean;
+  id_verification_status?: 'unverified' | 'verified' | 'invalid';
 }
 
 export interface Contract {
@@ -133,6 +139,10 @@ export interface StaffListItem {
   contract_form: string | null;
   professional_qualification: string | null;
   party_member: boolean;
+  special_difficulty_commune: boolean;
+  id_verification_status: 'unverified' | 'verified' | 'invalid';
+  bank_account_number: string | null;
+  tax_code: string | null;
   id_number_masked: string | null;
   has_account: boolean;
   contract_no: string | null;
@@ -163,6 +173,9 @@ export interface StaffFilter {
   age_from?: string;
   age_to?: string;
   job_position?: string;
+  // Xã đặc biệt khó khăn, trạng thái xác thực số định danh (DT-16 phần 16f)
+  special_difficulty_commune?: string;
+  id_verification?: string;
 }
 
 const filterEntries = (filter: StaffFilter) =>
