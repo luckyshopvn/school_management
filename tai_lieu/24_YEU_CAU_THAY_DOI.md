@@ -38,7 +38,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
   - Nhập thực đơn từ Excel chỉ tạo thực đơn nháp mới, không cập nhật thực đơn đã có.
   - 4.6.1 chưa có nhập từ Excel vì khảo sát không ghi.
   - Thống kê 5.3 và số liệu báo cáo sức khỏe đầu năm tính lúc xem, không lưu bản chụp.
-- Kiểm thử cần thực hiện: kịch bản CT-510 đến CT-519; kiểm thử đơn vị mới `apps/api/src/health/student-health-so.test.ts` (CT-510 đến CT-518, trong mã kiểm thử là CT-16h-1 đến CT-16h-9); kiểm thử giao diện mới `tests/e2e/60-health-nutrition-so.spec.ts` (CT-519). Sửa ca cũ: kiểm thử giao diện `32-kitchen` điền ô "Từ ngày" thay "Tuần bắt đầu (thứ hai)"; `49-growth-statistics` bấm thẻ "Học sinh dân tộc" trước khi kiểm tra bảng dân tộc vì thẻ 5.3 của `/statistics` nay là màn hình 5.3 đủ phần; `apps/api/src/quick-links/menu-permissions.test.ts` thêm hai đường dẫn `/student-health`, `/student-statistics`. Kết quả ngày 17/10/2026: [KẾT QUẢ ĐƠN VỊ]; [KẾT QUẢ GIAO DIỆN].
+- Kiểm thử cần thực hiện: kịch bản CT-510 đến CT-519; kiểm thử đơn vị mới `apps/api/src/health/student-health-so.test.ts` (CT-510 đến CT-518, trong mã kiểm thử là CT-16h-1 đến CT-16h-9); kiểm thử giao diện mới `tests/e2e/61-health-nutrition-so.spec.ts` (CT-519). Sửa ca cũ: kiểm thử giao diện `32-kitchen` điền ô "Từ ngày" thay "Tuần bắt đầu (thứ hai)"; `49-growth-statistics` bấm thẻ "Học sinh dân tộc" trước khi kiểm tra bảng dân tộc vì thẻ 5.3 của `/statistics` nay là màn hình 5.3 đủ phần; `apps/api/src/quick-links/menu-permissions.test.ts` thêm hai đường dẫn `/student-health`, `/student-statistics`. Kết quả ngày 17/10/2026: [KẾT QUẢ ĐƠN VỊ]; [KẾT QUẢ GIAO DIỆN].
 - Trạng thái: Đã triển khai
 
 ### YCTD-123: DT-16 phần 16c: khung trang và đăng nhập theo hệ thống của Sở – 2026-10-17
