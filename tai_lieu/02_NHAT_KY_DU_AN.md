@@ -21,7 +21,7 @@
 - Cơ sở dữ liệu năm học: tệp `0057_add_student_health_and_menu_fields` thêm tên thực đơn, tháng, tuần, từ ngày, đến ngày, khối áp dụng cho `menus`; tạo bảng `student_health_records` (thông tin sức khỏe học sinh theo học kỳ) và `menu_import_jobs` (lần nhập thực đơn từ Excel).
 - Máy chủ API: 4.6 thông tin sức khỏe theo học kỳ (`/student-health`, "Lấy dữ liệu từ 4.3", Xuất Excel); 4.3.2 tổng hợp theo học kỳ, so sánh hai lần cân đo, số được khám định kỳ; 4.5 thông tin chung của thực đơn theo Sở, "Thay đổi" thực đơn nháp, nhập thực đơn từ Excel (`/menu-imports`); 5.3 thống kê học sinh đủ các phần, Xuất Excel, PDF (`/statistics/students`); số liệu báo cáo sức khỏe học sinh đầu năm (`/reports/emis/start-of-year-health`) làm điểm nối cho phần 16j.
 - Cổng quản trị: màn hình "4.6.1. Nhập thông tin sức khỏe học sinh"; "5.3. Thống kê học sinh" sáu thẻ (dùng chung cho thẻ 5.3 của trang Thống kê theo tiêu chí ngành); 4.3.2 có ô Tổng hợp theo Tháng hoặc Học kỳ, ô So sánh với đợt, bảng so sánh, cột Được khám định kỳ; 4.5 có biểu mẫu lập thực đơn theo Sở, cột lưới mới, nút "Thay đổi", "Nhập từ Excel"; thành phần nhập Excel dùng chung nhận đường dẫn gốc riêng của phân hệ.
-- Thêm chức năng P10-15, P12-10, P17-21, P17-22 (sửa P10-14), kịch bản CT-510 đến CT-519, tiêu chí AC-554 đến AC-563, quy tắc BR-122, màn hình MH-108, MH-109. Kết quả ngày 17/10/2026: [KẾT QUẢ ĐƠN VỊ]; [KẾT QUẢ GIAO DIỆN].
+- Thêm chức năng P10-15, P12-10, P17-21, P17-22 (sửa P10-14), kịch bản CT-510 đến CT-519, tiêu chí AC-554 đến AC-563, quy tắc BR-122, màn hình MH-108, MH-109. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 787/787 ca đạt; toàn bộ kiểm thử giao diện 115/115 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
