@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
 import { Alert, Button, DataGrid, TextField, Toast, type DataGridColumn } from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
+import { ExcelImportPanel } from '../imports/ExcelImportPanel.js';
 import { AppShell } from '../pages/AppShell.js';
 import { matchesSearch } from '../pages/grid-search.js';
 import { useGridSettings } from '../pages/grid-settings.js';
@@ -589,6 +590,16 @@ export function ProfessionalStandardsPage() {
             <UnitSelect units={unitChoice.units} selectedId={unitChoice.selectedId} onSelect={unitChoice.select} />
             <ManageSection key={unitChoice.selectedId} orgUnitId={unitChoice.selectedId} onChanged={changed} />
           </>
+        ) : null}
+        {canAssess ? (
+          // Nhập mức đánh giá từ Excel (DT-16 phần 16f, mục 3.2 của Sở): file mẫu, file mẫu kèm dữ liệu (phiếu chưa chốt)
+          <ExcelImportPanel
+            type="professional_ratings"
+            title="Nhập mức đánh giá từ Excel"
+            uploadPath="/api/v1/imports"
+            uploadFields={{ type: 'professional_ratings' }}
+            onCommitted={(result) => changed(`Đã ghi mức đánh giá của ${result.total_rows} phiếu`)}
+          />
         ) : null}
         <CatalogSection canEdit={canManage} onChanged={changed} />
       </div>

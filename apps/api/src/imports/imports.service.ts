@@ -39,6 +39,11 @@ import {
   StudentImports,
   type StudentImportType,
 } from './student-imports.js';
+import {
+  PROFESSIONAL_RATING_COLUMNS,
+  ProfessionalRatingImports,
+  type RatingImportPlan,
+} from '../professional-standards/rating-import.js';
 
 // Loại nhập theo mẫu của trường (có tệp mẫu); tệp CSDL ngành dùng mẫu của Bộ, không có tệp mẫu ở đây (YCTD-100)
 export type TemplateImportType = Exclude<ImportType, 'moet_children' | 'moet_staff'>;
@@ -110,6 +115,8 @@ export const IMPORT_COLUMNS: Record<TemplateImportType, ImportColumn[]> = {
   ],
   // Điện thoại nhận tin, số định danh, địa chỉ mới của học sinh (DT-16 phần 16g)
   ...STUDENT_IMPORT_COLUMNS,
+  // Mức đánh giá chuẩn nghề nghiệp (DT-16 phần 16f, mục 3.2 của Sở)
+  professional_ratings: PROFESSIONAL_RATING_COLUMNS,
 };
 
 const TEMPLATE_TITLES: Record<TemplateImportType, string> = {
@@ -119,6 +126,7 @@ const TEMPLATE_TITLES: Record<TemplateImportType, string> = {
   opening_debts: 'Công nợ đầu kỳ',
   staff: 'Nhân sự',
   ...STUDENT_IMPORT_TITLES,
+  professional_ratings: 'Mức đánh giá chuẩn nghề nghiệp',
 };
 
 // Công cụ nhập dùng chung (DT-16 phần 16a, khảo sát mục 2.3 của Sở: tải file mẫu kèm dữ liệu, tra cứu danh mục, chọn cột để
@@ -141,10 +149,11 @@ export const LOCKED_IMPORT_COLUMNS: Record<TemplateImportType, string[]> = {
   moet_codes: ['national_id', 'moet_code'],
   staff: ['unit_code', 'code', 'full_name', 'start_date'],
   opening_debts: ['national_id', 'amount', 'due_date'],
+  professional_ratings: ['staff_code', 'standard_type'],
   ...STUDENT_IMPORT_LOCKED,
 };
 // Loại nhập cập nhật được bản ghi đã có và có "Tải file mẫu kèm dữ liệu"
-export const UPDATING_IMPORT_TYPES: TemplateImportType[] = ['classes', ...STUDENT_IMPORT_TYPES];
+export const UPDATING_IMPORT_TYPES: TemplateImportType[] = ['classes', 'professional_ratings', ...STUDENT_IMPORT_TYPES];
 // Cột phải chọn khi thêm lớp mới
 const CLASS_CREATE_COLUMNS: Array<[string, string]> = [
   ['class_name', 'Tên lớp'],
@@ -170,7 +179,9 @@ function permissionOfImport(type: TemplateImportType): string {
       ? PERMISSION_CODES.openingDebtImport
       : type === 'staff'
         ? PERMISSION_CODES.importStaff
-        : PERMISSION_CODES.importChildren;
+        : type === 'professional_ratings'
+          ? PERMISSION_CODES.professionalStandardAssess
+          : PERMISSION_CODES.importChildren;
 }
 
 const PHONE_PATTERN = /^0\d{9}$/;
@@ -232,7 +243,8 @@ interface OpeningDebtRow {
   note: string | null;
 }
 
-type UploadType = 'classes' | 'children' | 'opening_debts' | 'staff' | MoetImportType | StudentImportType;
+type UploadType =
+  'classes' | 'children' | 'opening_debts' | 'staff' | 'professional_ratings' | MoetImportType | StudentImportType;
 type TemplateUploadType = Exclude<UploadType, MoetImportType | StudentImportType>;
 
 const isMoetType = (type: string): type is MoetImportType => type === 'moet_children' || type === 'moet_staff';
@@ -276,6 +288,7 @@ export class ImportsService {
     private readonly clock: Clock,
     private readonly moet: MoetImports,
     private readonly studentImports: StudentImports,
+    private readonly ratings: ProfessionalRatingImports,
   ) {}
 
   // Tệp mẫu có trang Danh mục; kèm dữ liệu thì điền các bản ghi đang có trong phạm vi người tải để sửa rồi nhập lại
@@ -423,6 +436,9 @@ export class ImportsService {
         },
       ];
     }
+    if (type === 'professional_ratings') {
+      return this.ratings.catalogs(database);
+    }
     if (type === 'staff') {
       const named = async (table: 'departments' | 'job_titles') =>
         unitIds.length === 0
@@ -457,6 +473,9 @@ export class ImportsService {
   ): Promise<Array<Record<string, unknown>>> {
     if (isStudentImportType(type)) {
       return this.studentImports.templateRows(database, currentUser, type);
+    }
+    if (type === 'professional_ratings') {
+      return this.ratings.templateRows(database, currentUser);
     }
     if (type !== 'classes') {
       return [];
@@ -655,6 +674,16 @@ export class ImportsService {
     }
     if (type === 'staff') {
       return this.commitStaff(database, validated.staff, jobId, origin);
+    }
+    if (type === 'professional_ratings') {
+      await this.ratings.commit(database, currentUser, validated.ratings, jobId, origin, async (transaction) => {
+        await transaction
+          .updateTable('data_import_jobs')
+          .set({ status: 'committed', committed_by: origin.actorUserId, committed_at: this.clock.now() })
+          .where('id', '=', jobId)
+          .execute();
+      });
+      return this.readJob(database, jobId);
     }
     if (type === 'children') {
       for (const row of validated.children) {
@@ -981,16 +1010,23 @@ export class ImportsService {
     children: ChildRow[];
     openingDebts: OpeningDebtRow[];
     staff: StaffRow[];
+    ratings: RatingImportPlan[];
   }> {
+    const empty = { classes: [], classUpdates: [], children: [], openingDebts: [], staff: [], ratings: [] };
     if (type === 'opening_debts') {
       const errors: RowError[] = [];
       const openingDebts = await this.validateOpeningDebts(database, currentUser, rows, errors);
-      return { errors, classes: [], classUpdates: [], children: [], openingDebts, staff: [] };
+      return { ...empty, errors, openingDebts };
     }
     if (type === 'staff') {
       const errors: RowError[] = [];
       const staff = await this.validateStaff(database, currentUser, rows, errors);
-      return { errors, classes: [], classUpdates: [], children: [], openingDebts: [], staff };
+      return { ...empty, errors, staff };
+    }
+    if (type === 'professional_ratings') {
+      const errors: RowError[] = [];
+      const ratings = await this.ratings.validate(database, currentUser, rows, errors);
+      return { ...empty, errors, ratings };
     }
     const units = await database.selectFrom('org_units').select(['id', 'code', 'status']).execute();
     const scope = await this.organizationScopes.resolve(currentUser, PERMISSION_CODES.importChildren);
@@ -1009,16 +1045,9 @@ export class ImportsService {
     };
     if (type === 'classes') {
       const { creates, updates } = await this.validateClasses(database, rows, resolveUnit, errors, selected);
-      return { errors, classes: creates, classUpdates: updates, children: [], openingDebts: [], staff: [] };
+      return { ...empty, errors, classes: creates, classUpdates: updates };
     }
-    return {
-      errors,
-      classes: [],
-      classUpdates: [],
-      children: await this.validateChildren(database, rows, resolveUnit, errors),
-      openingDebts: [],
-      staff: [],
-    };
+    return { ...empty, errors, children: await this.validateChildren(database, rows, resolveUnit, errors) };
   }
 
   // Trẻ tìm theo số định danh trong phạm vi của kế toán; mỗi trẻ một hóa đơn đầu kỳ trong năm học (YCTD-54)
@@ -1647,6 +1676,7 @@ export class ImportsService {
       value === 'moet_codes' ||
       value === 'opening_debts' ||
       value === 'staff' ||
+      value === 'professional_ratings' ||
       isStudentImportType(String(value))
     ) {
       return value as TemplateImportType;

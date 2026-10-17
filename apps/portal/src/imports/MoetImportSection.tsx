@@ -1,9 +1,8 @@
-import { useId, useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, StatusBadge } from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
-import { CatalogLookup, ErrorFileButton } from './ExcelImportPanel.js';
-import { downloadMoetTemplate, readMoetCatalogs } from '../students/students-api.js';
+import { ErrorFileButton } from './ExcelImportPanel.js';
 import { ApiError, requestJson } from '../session/api-client.js';
 
 // Nhập tệp xuất từ CSDL ngành (xls hoặc xlsx) cho trẻ hoặc nhân sự (YCTD-100): chọn đơn vị, kiểm tra tệp để xem trước số
@@ -72,30 +71,27 @@ function MessageTable({ label, rows }: { label: string; rows: RowMessage[] }) {
   );
 }
 
-// Màn hình "4.1.2. Nhập học sinh từ Excel" (DT-16 phần 16g) bật công cụ như Sở: tải file mẫu 82 cột, kèm dữ liệu, tra cứu
-// danh mục và ô xác nhận "Đồng ý cập nhật dữ liệu học sinh" khi tệp cập nhật học sinh đã có
+// Công cụ đi kèm (tải file mẫu, tra cứu danh mục) do màn hình truyền vào, hiện dưới lời hướng dẫn (DT-16 phần 16f).
+// "4.1.2. Nhập học sinh từ Excel" (DT-16 phần 16g) bật confirmUpdates: tệp cập nhật học sinh đã có chỉ ghi khi đánh dấu
+// "Đồng ý cập nhật dữ liệu học sinh" như của Sở
 export function MoetImportSection({
   type,
   onChanged,
-  tools = false,
+  tools,
+  confirmUpdates = false,
 }: {
   type: MoetImportType;
   onChanged(message: string): void;
-  tools?: boolean;
+  tools?: ReactNode;
+  confirmUpdates?: boolean;
 }) {
   const queryClient = useQueryClient();
   const unitChoice = useUnitChoice();
   const [file, setFile] = useState<File>();
   const [job, setJob] = useState<MoetImportJob>();
   const [consent, setConsent] = useState(false);
-  const [lookup, setLookup] = useState(false);
-  const [templateError, setTemplateError] = useState<string>();
-  const lookupId = useId();
   const labels = LABELS[type];
-  const template = (withData: boolean) => {
-    setTemplateError(undefined);
-    downloadMoetTemplate(withData).catch((error: unknown) => setTemplateError(messageOf(error)));
-  };
+  const needsConsent = confirmUpdates && (job?.preview?.updated ?? 0) > 0;
   const upload = useMutation({
     mutationFn: () => {
       const form = new FormData();
@@ -104,7 +100,10 @@ export function MoetImportSection({
       form.set('file', file ?? new Blob());
       return requestJson<MoetImportJob>('/api/v1/imports', { method: 'POST', body: form });
     },
-    onSuccess: setJob,
+    onSuccess: (result) => {
+      setJob(result);
+      setConsent(false);
+    },
   });
   const commit = useMutation({
     mutationFn: () =>
@@ -125,30 +124,7 @@ export function MoetImportSection({
     <section className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4" aria-label={labels.title}>
       <h2 className="text-section-title font-semibold text-text">{labels.title}</h2>
       <p className="text-label text-text-secondary">{labels.hint}</p>
-      {tools ? (
-        <div className="flex flex-wrap items-center gap-2">
-          <Button variant="text" onClick={() => template(false)}>
-            Tải file mẫu
-          </Button>
-          <Button variant="text" onClick={() => template(true)}>
-            Tải file mẫu kèm dữ liệu
-          </Button>
-          <Button variant="text" aria-expanded={lookup} aria-controls={lookupId} onClick={() => setLookup(!lookup)}>
-            Tra cứu danh mục
-          </Button>
-        </div>
-      ) : null}
-      {templateError ? <Alert tone="danger">{templateError}</Alert> : null}
-      {tools && lookup ? (
-        <div
-          id={lookupId}
-          role="region"
-          aria-label="Tra cứu danh mục"
-          className="rounded-lg border border-border bg-page p-3"
-        >
-          <CatalogLookup type="moet_children" load={readMoetCatalogs} />
-        </div>
-      ) : null}
+      {tools}
       <div className="flex flex-wrap items-end gap-3">
         <UnitSelect
           units={unitChoice.units}
@@ -189,7 +165,7 @@ export function MoetImportSection({
           {job.preview && job.preview.notices.length > 0 ? (
             <MessageTable label="Ghi chú từng dòng" rows={job.preview.notices} />
           ) : null}
-          {job.status === 'validated' && tools && (job.preview?.updated ?? 0) > 0 ? (
+          {job.status === 'validated' && needsConsent ? (
             <label className="flex items-center gap-2 text-content">
               <input
                 type="checkbox"
@@ -197,14 +173,14 @@ export function MoetImportSection({
                 checked={consent}
                 onChange={(event) => setConsent(event.target.checked)}
               />
-              Đồng ý cập nhật dữ liệu học sinh ({job.preview?.updated} học sinh đã có sẽ được ghi đè theo tệp)
+              Đồng ý cập nhật dữ liệu học sinh ({job.preview?.updated} học sinh đã có sẽ được ghi theo tệp)
             </label>
           ) : null}
           {job.status === 'validated' ? (
             <div>
               <Button
                 variant="primary"
-                disabled={commit.isPending || (tools && (job.preview?.updated ?? 0) > 0 && !consent)}
+                disabled={commit.isPending || (needsConsent && !consent)}
                 onClick={() => commit.mutate()}
               >
                 Ghi dữ liệu

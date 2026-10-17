@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { STAFF_PROFILE_BLOCKS, type StaffField } from '@school-management/shared';
+import { matchStaffCatalog, STAFF_CATALOGS, STAFF_PROFILE_BLOCKS, type StaffField } from '@school-management/shared';
 import { Alert, Button, FORM_CONTROL_CLASS, FormBlock, FormRow } from '@school-management/ui';
 import { ApiError } from '../session/api-client.js';
 import { updateStaffProfile, type StaffDetail } from './staff-api.js';
@@ -29,10 +29,15 @@ export function staffProfileValues(staff: StaffDetail): Values {
     email: staff.email,
     phone: staff.phone,
     address: staff.address,
+    bank_account_number: staff.bank_account_number ?? null,
+    bank_name: staff.bank_name ?? null,
+    tax_code: staff.tax_code ?? null,
   };
   for (const field of FIELDS) {
     if (field.kind === 'secret') {
       values[field.key] = '';
+    } else if (field.core && field.kind === 'flag') {
+      values[field.key] = field.key === 'special_difficulty_commune' && staff.special_difficulty_commune === true;
     } else if (field.core) {
       values[field.key] = coreValues[field.key] ?? '';
     } else {
@@ -135,6 +140,27 @@ export function StaffProfileForm({
           <option value="">Chưa chọn</option>
           <option value="male">Nam</option>
           <option value="female">Nữ</option>
+        </select>
+      );
+    }
+    // Ô theo danh mục của Bộ (DT-16 phần 16f): giá trị cũ ngoài danh mục vẫn hiện, ghi kèm "giá trị cũ"
+    if (field.catalog) {
+      const current = String(value);
+      const legacy = current !== '' && !matchStaffCatalog(field.catalog, current);
+      return (
+        <select
+          value={legacy ? current : (matchStaffCatalog(field.catalog, current) ?? '')}
+          disabled={!editable}
+          onChange={(event) => update(field.key, event.target.value)}
+          className={FORM_CONTROL_CLASS}
+        >
+          <option value="">Chưa chọn</option>
+          {legacy ? <option value={current}>{`${current} (giá trị cũ, ngoài danh mục)`}</option> : null}
+          {STAFF_CATALOGS[field.catalog].items.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
         </select>
       );
     }

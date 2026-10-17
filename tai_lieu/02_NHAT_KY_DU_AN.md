@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.5
+- Phiên bản: 0.6
 - Ngày cập nhật: 2026-10-17
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,28 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-17 — DT-16 phần 16f: nhóm Nhân sự đủ theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu năm học: tệp `0055_add_staff_so_parity` thêm chín cột của `staff` (tài khoản ngân hàng, tên ngân hàng, mã số thuế, xã ĐBKK, trạng thái xác thực số định danh kèm ngày, người, ghi chú), hai bảng mới `staff_branch_assignments`, `staff_movements`, loại nhập `professional_ratings`. Không thêm tệp định danh (số `0047` giữ cho phần này không dùng), không thêm mã quyền.
+- Gói dùng chung: danh mục của Bộ cho hồ sơ cán bộ (trạng thái cán bộ, dân tộc, tôn giáo, vị trí việc làm, nhóm chức vụ, hình thức hợp đồng, trình độ chuyên môn); biểu mẫu hồ sơ chọn theo danh mục, giữ giá trị cũ; khối "Tài khoản ngân hàng, mã số thuế", ô "Ở xã đặc biệt khó khăn (ĐBKK)"; menu thêm 3.1.2, 3.1.3, 3.1.5, 3.5, 5.2, 5.6.
+- Máy chủ API: xóa hồ sơ nhập nhầm, Xuất tệp theo mẫu Bộ 75 cột kèm kiểm tra dữ liệu, Xuất file lỗi, tệp mẫu 75 cột kèm dữ liệu, tra cứu danh mục của Bộ; nhân sự phân hiệu; đánh dấu xác thực số định danh (bản chạy nội bộ, chỗ nối `IdentityVerificationGateway`), tiến độ và trùng số định danh; biến động nhân sự bốn loại; nhập mức đánh giá chuẩn nghề nghiệp từ Excel; thống kê nhân sự theo danh mục Bộ và chuẩn nghề nghiệp; 5.9 thêm tài khoản ngân hàng, mã số thuế.
+- Cổng quản trị: 3.1.1 thêm Thay đổi, Xóa, Xuất tệp theo mẫu Bộ, Xuất file lỗi, lọc Xã ĐBKK, Xác thực số định danh; màn hình mới 3.1.2 Nhân sự phân hiệu, 3.1.3 Nhập nhân sự từ Excel, 3.1.5 Xác thực số định danh nhân sự với CSDLQG về dân cư, 3.5 Biến động nhân sự (bốn thẻ), 5.2 Thống kê nhân sự, 5.6 Tiến độ xác thực số định danh nhân sự; 3.2 thêm "Nhập mức đánh giá từ Excel"; 4.1.2 Nhập dữ liệu từ Excel bỏ hai phần nhân sự.
+- Thêm chức năng P07-06 đến P07-10, kịch bản CT-510 đến CT-523, tiêu chí AC-554 đến AC-567, quy tắc BR-122, quy tắc phân quyền PQ-73, màn hình MH-108 đến MH-113. Kết quả ngày 17/10/2026: 10 ca kiểm thử đơn vị (`apps/api/src/staff/staff-parity.test.ts`) và 4 ca kiểm thử giao diện (`tests/e2e/60-staff-full-so.spec.ts`) của phần 16f đạt; kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 788/788 ca đạt; toàn bộ kiểm thử giao diện 118/118 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt. Kiểm thử giao diện `55-staff-so` sửa cách chọn Dân tộc, Vị trí việc làm vì hai ô thành danh sách chọn.
+
+#### Quyết định
+
+- Eric quyết định ngày 2026-10-16 làm đủ mọi tính năng đã khảo sát của hệ thống Sở (tài liệu 31); tính năng cần hệ thống ngoài làm bản chạy nội bộ với nhãn đúng việc làm được ("Đánh dấu đã xác thực", "Xuất tệp theo mẫu Bộ"), không giả như đã gửi đi. Thực hiện phần 16f của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7. Xóa hồ sơ chỉ với hồ sơ chưa có dữ liệu liên quan; xã ĐBKK đánh dấu theo nhân sự; gán phân hiệu không đổi phạm vi quyền; duyệt chuyển đi cho nghỉ việc, chấm dứt hợp đồng, khóa tài khoản; tiếp nhận chuyển đến tạo hồ sơ nháp; không thêm mã quyền; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-124.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-124, `07_QUY_TAC_NGHIEP_VU.md` BR-122, `08_VAI_TRO_NGUOI_DUNG.md` PQ-73, `10_YEU_CAU_CHUC_NANG.md` P07-01, P07-04, P07-05, P07-06 đến P07-10, P17-17, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-12, MH-40, MH-74, MH-78, MH-108 đến MH-113, `16_CO_SO_DU_LIEU.md` mục 2, 8, 20, `17_DAC_TA_API.md` mục 11, 17, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.74.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7.
+
+#### Vấn đề tồn đọng
+
+- Chưa có kết nối thật tới CSDL Bộ, CSDLQG về dân cư, liên thông giữa các trường; 5.1 vẫn giữ thẻ nhân sự cũ; danh mục của Bộ cần đối chiếu bản chính thức; xã ĐBKK chưa có cờ ở danh mục địa danh hành chính; tệp hồ sơ chuyển đến một dòng; nhập mức đánh giá tối đa 20 tiêu chí.
 
 ### 2026-10-17 — DT-16 phần 16c: khung trang và đăng nhập theo hệ thống của Sở
 

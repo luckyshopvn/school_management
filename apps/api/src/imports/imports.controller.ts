@@ -51,7 +51,9 @@ function permissionOf(type: string): string {
       ? PERMISSION_CODES.openingDebtImport
       : type === 'staff' || type === 'moet_staff'
         ? PERMISSION_CODES.importStaff
-        : PERMISSION_CODES.importChildren;
+        : type === 'professional_ratings'
+          ? PERMISSION_CODES.professionalStandardAssess
+          : PERMISSION_CODES.importChildren;
 }
 
 const UPLOAD_TYPES = [
@@ -62,6 +64,7 @@ const UPLOAD_TYPES = [
   'moet_children',
   'moet_staff',
   ...STUDENT_IMPORT_TYPES,
+  'professional_ratings',
 ] as const;
 type UploadType = (typeof UPLOAD_TYPES)[number];
 const isUploadType = (value: unknown): value is UploadType => UPLOAD_TYPES.includes(value as UploadType);
@@ -77,16 +80,18 @@ const TEMPLATE_PERMISSIONS = [
   PERMISSION_CODES.childManage,
   PERMISSION_CODES.openingDebtImport,
   PERMISSION_CODES.importStaff,
+  PERMISSION_CODES.professionalStandardAssess,
   // Nhập của nhóm Học sinh (DT-16 phần 16g)
   PERMISSION_CODES.childApprove,
 ];
-// Tải lên, xem, ghi lần nhập
+// Tải lên, xem, ghi lần nhập: người có một trong các quyền nhập; quyền theo loại kiểm ở assertCanImport
 const UPLOAD_PERMISSIONS = [
   PERMISSION_CODES.importChildren,
   PERMISSION_CODES.openingDebtImport,
   PERMISSION_CODES.importStaff,
   PERMISSION_CODES.childManage,
   PERMISSION_CODES.childApprove,
+  PERMISSION_CODES.professionalStandardAssess,
 ];
 
 // Cột được chọn để nhập gửi kèm tệp dạng "khóa1,khóa2"; bỏ trống là mọi cột (DT-16 phần 16a)

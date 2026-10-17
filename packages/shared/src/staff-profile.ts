@@ -1,6 +1,8 @@
 // Khối và thứ tự ô của hồ sơ cán bộ, giáo viên theo Sở (DT-15 phần 15d, YCTD-112), theo thứ tự cột của tệp CSDL ngành 75
 // cột (YCTD-100). Ô `core` ghi vào cột riêng của hồ sơ; ô còn lại ghi vào thông tin theo Sở (`moet_profile`) đúng khóa của
 // tệp ngành. Nhãn viết đủ chữ thay cho tiêu đề viết tắt của tệp
+import type { StaffCatalogKey } from './staff-catalogs.js';
+
 export type StaffFieldKind = 'text' | 'date' | 'flag' | 'secret' | 'gender';
 
 export interface StaffField {
@@ -8,11 +10,19 @@ export interface StaffField {
   label: string;
   kind: StaffFieldKind;
   core?: boolean;
+  // Ô chọn theo danh mục của Bộ (DT-16 phần 16f); giá trị cũ ngoài danh mục vẫn giữ
+  catalog?: StaffCatalogKey;
 }
 
 const text = (key: string, label: string): StaffField => ({ key, label, kind: 'text' });
 const date = (key: string, label: string): StaffField => ({ key, label, kind: 'date' });
 const flag = (key: string, label: string): StaffField => ({ key, label, kind: 'flag' });
+const choice = (key: string, label: string, catalog: StaffCatalogKey): StaffField => ({
+  key,
+  label,
+  kind: 'text',
+  catalog,
+});
 const core = (key: string, label: string, kind: StaffFieldKind = 'text'): StaffField => ({
   key,
   label,
@@ -36,7 +46,7 @@ export const STAFF_PROFILE_BLOCKS: Array<{ title: string; fields: StaffField[] }
       core('full_name', 'Họ tên'),
       core('gender', 'Giới tính', 'gender'),
       core('dob', 'Ngày sinh', 'date'),
-      text('staff_status', 'Trạng thái cán bộ'),
+      choice('staff_status', 'Trạng thái cán bộ', 'staff_status'),
       date('status_date', 'Ngày nhập trạng thái'),
       core('id_number', 'Số định danh cá nhân', 'secret'),
       date('id_issued_date', 'Ngày cấp'),
@@ -44,8 +54,8 @@ export const STAFF_PROFILE_BLOCKS: Array<{ title: string; fields: StaffField[] }
       flag('vneid_level2', 'VNeID mức độ 2'),
       core('email', 'Email'),
       core('phone', 'Điện thoại'),
-      text('ethnicity', 'Dân tộc'),
-      text('religion', 'Tôn giáo'),
+      choice('ethnicity', 'Dân tộc', 'ethnicity'),
+      choice('religion', 'Tôn giáo', 'religion'),
     ],
   },
   {
@@ -56,6 +66,8 @@ export const STAFF_PROFILE_BLOCKS: Array<{ title: string; fields: StaffField[] }
       ...address('birth_registration', 'nơi khai sinh', false),
       ...address('current', 'chỗ ở hiện nay', false),
       core('address', 'Chỗ ở hiện nay chi tiết'),
+      // Tệp CSDL ngành chưa có thông tin xã đặc biệt khó khăn nên đánh dấu theo nhân sự (DT-16 phần 16f, lọc của mục 3.1.4)
+      core('special_difficulty_commune', 'Ở xã đặc biệt khó khăn (ĐBKK)', 'flag'),
     ],
   },
   {
@@ -71,9 +83,9 @@ export const STAFF_PROFILE_BLOCKS: Array<{ title: string; fields: StaffField[] }
     title: 'Tuyển dụng, công tác',
     fields: [
       { key: 'social_insurance_number', label: 'Số sổ BHXH', kind: 'secret' },
-      text('job_position', 'Vị trí việc làm'),
-      text('position_group', 'Nhóm chức vụ'),
-      text('contract_form', 'Hình thức hợp đồng'),
+      choice('job_position', 'Vị trí việc làm', 'job_position'),
+      choice('position_group', 'Nhóm chức vụ', 'position_group'),
+      choice('contract_form', 'Hình thức hợp đồng', 'contract_form'),
       date('recruitment_date', 'Ngày tuyển dụng'),
       text('recruiting_agency', 'Cơ quan tuyển dụng'),
       text('occupation_at_recruitment', 'Nghề nghiệp khi được tuyển dụng'),
@@ -101,10 +113,19 @@ export const STAFF_PROFILE_BLOCKS: Array<{ title: string; fields: StaffField[] }
     ],
   },
   {
+    // Mục 5.9 của Sở xét thiếu tài khoản ngân hàng, mã số thuế (DT-16 phần 16f); tệp CSDL ngành không có hai ô này
+    title: 'Tài khoản ngân hàng, mã số thuế',
+    fields: [
+      core('bank_account_number', 'Số tài khoản ngân hàng'),
+      core('bank_name', 'Ngân hàng'),
+      core('tax_code', 'Mã số thuế cá nhân'),
+    ],
+  },
+  {
     title: 'Trình độ',
     fields: [
       text('regular_training_result', 'Kết quả bồi dưỡng thường xuyên'),
-      text('professional_qualification', 'Trình độ chuyên môn nghiệp vụ'),
+      choice('professional_qualification', 'Trình độ chuyên môn nghiệp vụ', 'professional_qualification'),
       text('political_theory_level', 'Trình độ lý luận chính trị'),
       text('education_management_level', 'Trình độ quản lý giáo dục'),
       text('main_foreign_language', 'Ngoại ngữ chính'),
