@@ -378,7 +378,7 @@ function LoginSecuritySettings({ onSaved }: { onSaved(message: string): void }) 
       </div>
       <div>
         <Button onClick={() => save.mutate()} disabled={save.isPending}>
-          Lưu cấu hình đăng nhập
+          Lưu đăng nhập và bảo mật
         </Button>
       </div>
     </section>

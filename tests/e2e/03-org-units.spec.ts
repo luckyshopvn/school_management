@@ -70,7 +70,10 @@ test('Giáo viên xem cây đơn vị, không có biểu mẫu tạo và nút s�
   await page.getByLabel('Mật khẩu', { exact: true }).fill(user.password);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
   await openMenu(page, '/org-units');
-  await expect(page.getByText('Trường Mầm non Hoa Mai')).toBeVisible();
+  // Tên trường còn hiện ở thanh đầu trang (DT-16 phần 16c) nên tìm trong danh sách đơn vị
+  await expect(
+    page.getByRole('region', { name: 'Danh sách đơn vị' }).getByText('Trường Mầm non Hoa Mai'),
+  ).toBeVisible();
   await expect(page.getByRole('button', { name: 'Sửa' })).toHaveCount(0);
   await expect(page.getByLabel('Mã đơn vị')).toHaveCount(0);
 });

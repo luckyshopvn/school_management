@@ -1,4 +1,5 @@
 import { expect, test, type Page } from './fixtures.js';
+import type { Response } from '@playwright/test';
 import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
 import {
   createTestUser,
@@ -32,14 +33,25 @@ async function loginWith(page: Page, user: TestUser) {
   await fillLogin(page, user.username, user.password);
 }
 
-// Bấm nút rồi đọc đáp án của ảnh mã xác nhận mới mà nút đó tải về
+// Bấm nút rồi đọc đáp án của ảnh mã xác nhận đang hiện. Khi phát triển, React gọi lấy ảnh hai lần lúc dựng trang; trang chỉ
+// hiện ảnh của lần lấy cuối nên đọc đáp án của phản hồi cuối cùng
 async function captchaAnswerAfter(page: Page, action: () => Promise<unknown>): Promise<string> {
-  const response = page.waitForResponse(
-    (candidate) => candidate.url().endsWith('/api/v1/auth/captcha') && candidate.request().method() === 'POST',
-  );
-  await action();
-  const body = (await (await response).json()) as { captcha_id: string };
-  const answer = await readCaptchaAnswerForTesting(body.captcha_id);
+  const issued: Array<Promise<{ captcha_id: string }>> = [];
+  const listener = (response: Response) => {
+    if (response.url().endsWith('/api/v1/auth/captcha') && response.request().method() === 'POST') {
+      issued.push(response.json() as Promise<{ captcha_id: string }>);
+    }
+  };
+  page.on('response', listener);
+  try {
+    await action();
+    await expect.poll(() => issued.length).toBeGreaterThan(0);
+    await page.waitForLoadState('networkidle');
+  } finally {
+    page.off('response', listener);
+  }
+  const last = await issued[issued.length - 1];
+  const answer = await readCaptchaAnswerForTesting(last?.captcha_id ?? '');
   expect(answer).toBeTruthy();
   return answer ?? '';
 }

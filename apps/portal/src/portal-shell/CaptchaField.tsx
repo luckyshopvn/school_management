@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { TextField } from '@school-management/ui';
 import type { CaptchaAnswer } from '../session/api-client.js';
 import { issueCaptcha, type CaptchaChallenge } from './portal-shell-api.js';
@@ -9,13 +9,24 @@ export function useCaptcha(enabled: boolean) {
   const [challenge, setChallenge] = useState<CaptchaChallenge>();
   const [text, setText] = useState('');
   const [loadError, setLoadError] = useState(false);
+  // Chỉ nhận ảnh của lần lấy mới nhất, để ảnh đang hiện luôn khớp mã gửi đi
+  const latest = useRef(0);
 
   const refresh = useCallback(() => {
+    const request = ++latest.current;
     setText('');
     setLoadError(false);
     issueCaptcha()
-      .then(setChallenge)
-      .catch(() => setLoadError(true));
+      .then((issued) => {
+        if (request === latest.current) {
+          setChallenge(issued);
+        }
+      })
+      .catch(() => {
+        if (request === latest.current) {
+          setLoadError(true);
+        }
+      });
   }, []);
 
   useEffect(() => {
