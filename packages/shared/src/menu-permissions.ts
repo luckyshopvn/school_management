@@ -62,6 +62,15 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/child-groups': gated(CHILDREN_AND_CLASSES, anyOf('P02.child-group.manage', 'P02.view')),
   // Cập nhật địa danh hành chính: như Biến động học sinh, người lập hoặc duyệt hồ sơ học sinh (YCTD-116)
   '/administrative-units': gated(CHILDREN_AND_CLASSES, anyOf('P02.child.manage', 'P02.approve')),
+  // Học sinh đủ theo Sở (DT-16 phần 16g): nhập học sinh như nhập trẻ; sắp xếp, điện thoại nhận tin, số định danh, tiến độ
+  // xác thực cho người lập hoặc duyệt hồ sơ; tài khoản học và thi, mật khẩu mặc định cho người quản lý tài khoản
+  '/student-imports': gated(CHILDREN_AND_CLASSES, anyOf('P01.import.children', 'P02.child.manage', 'P02.approve')),
+  '/student-order': gated(CHILDREN_AND_CLASSES, anyOf('P02.child.manage', 'P02.approve')),
+  '/sms-phones': gated(CHILDREN_AND_CLASSES, anyOf('P02.child.manage', 'P02.approve')),
+  '/national-ids': gated(CHILDREN_AND_CLASSES, anyOf('P02.child.manage', 'P02.approve')),
+  '/learning-accounts': gated(CHILDREN_AND_CLASSES, 'P01.account.manage'),
+  '/default-passwords': 'P01.account.manage',
+  '/national-id-progress': anyOf('P02.child.manage', 'P02.approve'),
   '/growth': anyOf('P10.health.manage', 'P17.report.growth'),
   '/growth-report': 'P17.report.growth',
   '/program-completion': gated(

@@ -980,16 +980,18 @@ export class ChildrenService {
     if (!allowed) {
       throw new ApplicationError('ERR_FORBIDDEN', 'Lớp này nằm ngoài phạm vi của bạn');
     }
-    return database
-      .selectFrom('class_enrollments')
-      .innerJoin('children', 'children.id', 'class_enrollments.child_id')
-      .select(['children.id', 'children.full_name', 'children.dob', 'children.gender', 'children.status'])
-      .where('class_enrollments.class_id', '=', classId)
-      .where('class_enrollments.is_current', '=', true)
-      // Theo số thứ tự cố định trong lớp (mục 4.1.3 của Sở, DT-16 phần 16g), học sinh chưa có số xếp sau theo họ tên
-      .orderBy(sql`class_enrollments.order_number nulls last`)
-      .orderBy('children.full_name')
-      .execute();
+    return (
+      database
+        .selectFrom('class_enrollments')
+        .innerJoin('children', 'children.id', 'class_enrollments.child_id')
+        .select(['children.id', 'children.full_name', 'children.dob', 'children.gender', 'children.status'])
+        .where('class_enrollments.class_id', '=', classId)
+        .where('class_enrollments.is_current', '=', true)
+        // Theo số thứ tự cố định trong lớp (mục 4.1.3 của Sở, DT-16 phần 16g), học sinh chưa có số xếp sau theo họ tên
+        .orderBy(sql`class_enrollments.order_number nulls last`)
+        .orderBy('children.full_name')
+        .execute()
+    );
   }
 
   private async detail(database: Executor, currentUser: CurrentUser, childId: string) {

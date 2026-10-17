@@ -26,7 +26,11 @@ export const isStudentImportType = (type: string): type is StudentImportType =>
   STUDENT_IMPORT_TYPES.includes(type as StudentImportType);
 
 const IDENTIFY_COLUMNS: ImportColumn[] = [
-  { key: 'moet_code', header: 'Mã định danh Bộ GD&ĐT', note: 'Mã của học sinh; để trống thì tìm theo họ tên và ngày sinh' },
+  {
+    key: 'moet_code',
+    header: 'Mã định danh Bộ GD&ĐT',
+    note: 'Mã của học sinh; để trống thì tìm theo họ tên và ngày sinh',
+  },
   { key: 'full_name', header: 'Họ tên học sinh', note: 'Bắt buộc, phải khớp hồ sơ' },
   { key: 'dob', header: 'Ngày sinh', note: 'Dạng ngày/tháng/năm; bắt buộc khi không có mã định danh Bộ GD&ĐT' },
   { key: 'class_name', header: 'Lớp', note: 'Tên lớp đang học, để đối chiếu' },
@@ -43,7 +47,11 @@ export const STUDENT_IMPORT_COLUMNS: Record<StudentImportType, ImportColumn[]> =
   ],
   national_ids: [
     ...IDENTIFY_COLUMNS,
-    { key: 'national_id', header: 'Số định danh cá nhân', note: 'Mười hai chữ số, không trùng học sinh khác; bắt buộc' },
+    {
+      key: 'national_id',
+      header: 'Số định danh cá nhân',
+      note: 'Mười hai chữ số, không trùng học sinh khác; bắt buộc',
+    },
   ],
   student_addresses: [
     ...IDENTIFY_COLUMNS,
@@ -99,7 +107,14 @@ interface StudentMatch {
 type PlannedChange =
   | { type: 'sms_phones'; child: StudentMatch; guardianId: string | null }
   | { type: 'national_ids'; child: StudentMatch; nationalId: string }
-  | { type: 'student_addresses'; child: StudentMatch; addressType: AddressType; province: string; ward: string; hamlet: string };
+  | {
+      type: 'student_addresses';
+      child: StudentMatch;
+      addressType: AddressType;
+      province: string;
+      ward: string;
+      hamlet: string;
+    };
 
 const ddmmyyyy = (value: string) => value.split('-').reverse().join('/');
 
@@ -312,7 +327,10 @@ export class StudentImports {
           ? guardianLinks.find((item) => item.child_id === child.id && item.phone === phone)
           : undefined;
         if (phone && !link) {
-          fail('sms_phone', 'Số này không phải số của cha, mẹ hoặc người giám hộ của học sinh; thêm phụ huynh ở hồ sơ trước');
+          fail(
+            'sms_phone',
+            'Số này không phải số của cha, mẹ hoặc người giám hộ của học sinh; thêm phụ huynh ở hồ sơ trước',
+          );
           continue;
         }
         if (this.duplicate(seen, child.id, row, fail)) {
@@ -471,7 +489,12 @@ export class StudentImports {
           .execute();
         await audit(
           { address_type: prefix, ...before },
-          { address_type: prefix, province: change.province, ward: change.ward, hamlet: change.hamlet || before.hamlet },
+          {
+            address_type: prefix,
+            province: change.province,
+            ward: change.ward,
+            hamlet: change.hamlet || before.hamlet,
+          },
         );
       }
     }

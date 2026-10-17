@@ -239,6 +239,7 @@ export class ImportsController {
   @RequirePermission(...UPLOAD_PERMISSIONS)
   async commit(
     @Param('id', uuidParameter('Mã lần nhập không hợp lệ')) jobId: string,
+    @Body() body: RequestBody,
     @Req() request: Request,
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
@@ -248,6 +249,7 @@ export class ImportsController {
       readBearerToken(request.header('authorization')),
       jobId,
       originOf(request, currentUser),
+      body?.confirm_update === true,
     );
   }
 }

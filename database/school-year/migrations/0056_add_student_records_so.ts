@@ -12,7 +12,15 @@ import type { Migration } from 'kysely/migration';
 // - `student_transfers`: chuyển đi (chờ duyệt, đã duyệt, từ chối) và tiếp nhận chuyển đến giữa các trường chạy nội bộ (mục
 //   4.2), hồ sơ chuyển là tệp theo mẫu của Bộ
 // - loại nhập mới của `data_import_jobs`: điện thoại nhận tin, số định danh, địa chỉ mới của học sinh
-const IMPORT_TYPES_BEFORE = ['classes', 'children', 'moet_codes', 'opening_debts', 'staff', 'moet_children', 'moet_staff'];
+const IMPORT_TYPES_BEFORE = [
+  'classes',
+  'children',
+  'moet_codes',
+  'opening_debts',
+  'staff',
+  'moet_children',
+  'moet_staff',
+];
 const IMPORT_TYPES_AFTER = [...IMPORT_TYPES_BEFORE, 'sms_phones', 'national_ids', 'student_addresses'];
 
 const typeList = (types: string[]) => sql.raw(types.map((type) => `'${type}'`).join(', '));

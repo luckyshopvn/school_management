@@ -28,6 +28,7 @@ import {
   type SheetRow,
 } from './excel.js';
 import { MOET_CHILD_HEADERS, MOET_STAFF_HEADERS, MoetImports, type MoetPreview } from './moet-imports.js';
+import { STUDENT_RECORDS_RULE_CODE } from '../student-records/student-records-common.js';
 import {
   isStudentImportType,
   STUDENT_IMPORT_COLUMNS,
@@ -580,11 +581,14 @@ export class ImportsService {
   }
 
   // Kiểm tra lại toàn bộ rồi mới ghi; còn dòng lỗi thì không ghi dòng nào (AC-183)
+  // Tệp CSDL ngành của học sinh cập nhật hồ sơ đã có chỉ ghi khi người nhập đánh dấu "Đồng ý cập nhật dữ liệu học sinh"
+  // như của Sở (mục 4.1.2, DT-16 phần 16g); bộ điều khiển truyền đúng lựa chọn của người dùng
   async commit(
     currentUser: CurrentUser,
     accessToken: string,
     jobId: string,
     origin: ChangeOrigin,
+    confirmUpdate = true,
   ): Promise<ImportJobView> {
     const { database, academicYearId } = await this.currentSchoolYear.require();
     const job = await database
@@ -611,6 +615,13 @@ export class ImportsService {
     }
     const type = job.import_type;
     if (isMoetType(type)) {
+      const updated = (job.preview as MoetPreview | null)?.updated ?? 0;
+      if (type === 'moet_children' && updated > 0 && !confirmUpdate) {
+        throw ruleViolationError(
+          STUDENT_RECORDS_RULE_CODE,
+          `Tệp cập nhật ${updated} học sinh đã có; đánh dấu "Đồng ý cập nhật dữ liệu học sinh" để ghi`,
+        );
+      }
       return this.commitMoet(database, currentUser, accessToken, type, job, origin);
     }
     const selectedKeys = selectedColumnsOf(job.preview);

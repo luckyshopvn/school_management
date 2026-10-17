@@ -136,6 +136,11 @@ import { ImportsController } from './imports/imports.controller.js';
 import { ImportsService } from './imports/imports.service.js';
 import { MoetImports } from './imports/moet-imports.js';
 import { StudentImports } from './imports/student-imports.js';
+import { LearningAccountsController, LearningAccountsService } from './student-records/learning-accounts.js';
+import { NationalIdsController, NationalIdsService } from './student-records/national-ids.js';
+import { StudentImportToolsController, StudentImportToolsService } from './student-records/student-import-tools.js';
+import { StudentRecordsController, StudentRecordsService } from './student-records/student-records.js';
+import { StudentTransfersController, StudentTransfersService } from './student-records/student-transfers.js';
 import { AttendanceController } from './attendance/attendance.controller.js';
 import { AttendanceService } from './attendance/attendance.service.js';
 import { PickupsController } from './pickups/pickups.controller.js';
@@ -294,6 +299,12 @@ export class ApplicationModule {
         ClassesController,
         ClassAssignmentsController,
         ChildrenController,
+        // Hồ sơ học sinh đủ theo Sở (DT-16 phần 16g)
+        StudentRecordsController,
+        NationalIdsController,
+        LearningAccountsController,
+        StudentTransfersController,
+        StudentImportToolsController,
         ChildLifecycleController,
         StudentMovementsController,
         AdministrativeUnitsController,
@@ -512,6 +523,11 @@ export class ApplicationModule {
         ImportsService,
         MoetImports,
         StudentImports,
+        StudentRecordsService,
+        NationalIdsService,
+        LearningAccountsService,
+        StudentTransfersService,
+        StudentImportToolsService,
         AttendanceService,
         PickupsService,
         ServicesService,

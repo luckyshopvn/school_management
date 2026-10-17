@@ -62,9 +62,16 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
       group('4.', 'Học sinh', [
         group('4.1.', 'Hồ sơ học sinh', [
           leaf('4.1.1.', 'Quản lý hồ sơ học sinh', '/children'),
-          leaf('4.1.2.', 'Nhập dữ liệu từ Excel', '/imports'),
+          // Nhập học sinh, sắp xếp, điện thoại nhận tin, số định danh, tài khoản học và thi (DT-16 phần 16g); nhập dữ liệu
+          // khác (công nợ đầu kỳ, nhân sự) giữ trang chung, chưa có số của Sở
+          leaf('4.1.2.', 'Nhập học sinh từ Excel', '/student-imports'),
+          leaf('4.1.3.', 'Sắp xếp học sinh', '/student-order'),
+          leaf('4.1.5.', 'Điện thoại nhận tin của phụ huynh', '/sms-phones'),
           leaf('4.1.6.', 'Nhóm học sinh', '/child-groups'),
+          leaf('4.1.8.', 'Thu thập, xác thực số định danh', '/national-ids'),
+          leaf('4.1.10.', 'Tài khoản học và thi', '/learning-accounts'),
           leaf('4.1.11.', 'Cập nhật địa danh hành chính', '/administrative-units'),
+          leaf('', 'Nhập dữ liệu khác từ Excel', '/imports'),
         ]),
         leaf('4.2.', 'Biến động học sinh', '/student-movements'),
         group('4.3.', 'Cân nặng, chiều cao', [
@@ -81,6 +88,9 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
       ]),
       group('5.', 'Công cụ hỗ trợ', [
         leaf('5.1.', 'Thống kê lớp, nhân sự, học sinh', '/statistics'),
+        // Mã định danh, mật khẩu mặc định; tiến độ xác thực số định danh học sinh (DT-16 phần 16g)
+        leaf('5.4.', 'Mã định danh, mật khẩu mặc định', '/default-passwords'),
+        leaf('5.5.', 'Tiến độ xác thực số định danh học sinh', '/national-id-progress'),
         leaf('5.8.', 'Thống kê hồ sơ chưa nhập đủ', '/missing-profiles'),
         group('5.10.', 'Văn thư lưu trữ', [
           leaf('5.10.1.', 'Hồ sơ tài liệu', '/archive-records'),

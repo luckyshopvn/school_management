@@ -1,10 +1,13 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Injectable,
+  Param,
   Post,
+  Put,
   Query,
   Req,
   Res,
@@ -41,6 +44,7 @@ import { Databases } from '../common/databases.js';
 import { isUuid, notFoundError, type RequestBody } from '../common/request-fields.js';
 import { buildTemplate, MAXIMUM_IMPORT_BYTES, readSheet, type ImportColumn, type RowError } from '../imports/excel.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
+import { uuidParameter } from '../common/uuid-parameter.js';
 import {
   ADDRESS_TYPE_LABELS,
   ADDRESS_TYPES,
@@ -495,6 +499,85 @@ export class AdministrativeUnitsService {
     return buildTemplate('Bảng đối chiếu', MAPPING_COLUMNS);
   }
 
+  // Xã mới để chọn khi sửa dòng đối chiếu (DT-16 phần 16g)
+  async newWards() {
+    return { items: (await this.catalog()).newWards() };
+  }
+
+  // Sửa dòng đối chiếu: đổi xã mới của xã cũ; trùng dòng đã có thì báo lỗi (DT-16 phần 16g, hạn chế của YCTD-116)
+  async updateMapping(mappingId: string, newUnitId: string, origin: ChangeOrigin) {
+    const mapping = await this.findMapping(mappingId);
+    const ward = (await this.catalog()).newWard(newUnitId);
+    if (!ward) {
+      throw validationError([{ field: 'new_unit_id', message: 'Chọn xã/phường mới trong danh mục' }]);
+    }
+    const duplicate = await this.databases.system
+      .selectFrom('administrative_unit_mappings')
+      .select('id')
+      .where('old_unit_id', '=', mapping.old_unit_id)
+      .where('new_unit_id', '=', newUnitId)
+      .where('id', '!=', mappingId)
+      .executeTakeFirst();
+    if (duplicate) {
+      throw ruleViolationError(ADMINISTRATIVE_RULE_CODE, 'Xã cũ đã có dòng đối chiếu sang xã mới này');
+    }
+    await this.databases.system
+      .updateTable('administrative_unit_mappings')
+      .set({ new_unit_id: newUnitId })
+      .where('id', '=', mappingId)
+      .execute();
+    await this.auditMapping(
+      origin,
+      mappingId,
+      'update',
+      { new_unit_id: mapping.new_unit_id },
+      { new_unit_id: newUnitId, new_ward: ward.ward_name },
+    );
+    return { id: mappingId, new_unit_id: newUnitId, new_ward: ward.ward_name, new_province: ward.province_name };
+  }
+
+  // Xóa dòng đối chiếu sai; địa chỉ đã chuyển của học sinh không đổi
+  async deleteMapping(mappingId: string, origin: ChangeOrigin) {
+    const mapping = await this.findMapping(mappingId);
+    await this.databases.system.deleteFrom('administrative_unit_mappings').where('id', '=', mappingId).execute();
+    await this.auditMapping(origin, mappingId, 'delete', mapping, null);
+    return { deleted: true };
+  }
+
+  private async findMapping(mappingId: string) {
+    const mapping = await this.databases.system
+      .selectFrom('administrative_unit_mappings')
+      .select(['id', 'old_unit_id', 'new_unit_id', 'source'])
+      .where('id', '=', mappingId)
+      .executeTakeFirst();
+    if (!mapping) {
+      throw notFoundError('Không tìm thấy dòng đối chiếu', 'administrative_unit_mapping');
+    }
+    return mapping;
+  }
+
+  // Bảng đối chiếu dùng chung mọi năm học; nhật ký ghi ở năm học đang dùng như nhập bảng đối chiếu
+  private async auditMapping(
+    origin: ChangeOrigin,
+    mappingId: string,
+    action: 'update' | 'delete',
+    before: unknown,
+    after: unknown,
+  ) {
+    const current = await this.currentSchoolYear.find();
+    if (current) {
+      await writeAuditLog(current.database, {
+        origin,
+        orgUnitId: null,
+        entityName: 'administrative_unit_mappings',
+        entityId: mappingId,
+        action,
+        before,
+        after,
+      });
+    }
+  }
+
   // Nhập bảng đối chiếu: đơn vị chưa có thì thêm (nguồn `import`), dòng đối chiếu đã có thì bỏ qua. Có dòng lỗi thì không
   // ghi dòng nào và trả báo cáo dòng lỗi
   async importMappings(currentUser: CurrentUser, fileName: string, body: Buffer, origin: ChangeOrigin) {
@@ -737,6 +820,36 @@ export class AdministrativeUnitsController {
       throw validationError(errors);
     }
     return this.service.mappings(q || null, page, pageSize);
+  }
+
+  @Get('new-wards')
+  @RequirePermission(PERMISSION_CODES.catalogManage)
+  newWards() {
+    return this.service.newWards();
+  }
+
+  @Put('mappings/:id')
+  @RequirePermission(PERMISSION_CODES.catalogManage)
+  updateMapping(
+    @Param('id', uuidParameter('Mã dòng đối chiếu không hợp lệ')) mappingId: string,
+    @Body() body: RequestBody,
+    @Req() request: Request,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    if (!isUuid(body?.new_unit_id)) {
+      throw validationError([{ field: 'new_unit_id', message: 'Chọn xã/phường mới' }]);
+    }
+    return this.service.updateMapping(mappingId, body?.new_unit_id as string, originOf(request, currentUser));
+  }
+
+  @Delete('mappings/:id')
+  @RequirePermission(PERMISSION_CODES.catalogManage)
+  deleteMapping(
+    @Param('id', uuidParameter('Mã dòng đối chiếu không hợp lệ')) mappingId: string,
+    @Req() request: Request,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    return this.service.deleteMapping(mappingId, originOf(request, currentUser));
   }
 
   @Get('mappings/template')
