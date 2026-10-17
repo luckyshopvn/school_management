@@ -50,6 +50,7 @@ import { migration as createGrowthRounds } from './migrations/0048_create_growth
 import { migration as createEquipmentAndFacilities } from './migrations/0049_create_equipment_and_facilities.js';
 import { migration as addStudentFlagsAndSmsGuardian } from './migrations/0050_add_student_flags_and_sms_guardian.js';
 import { migration as addSoSchoolAndClassFields } from './migrations/0051_add_so_school_and_class_fields.js';
+import { migration as addStudentRecordsSo } from './migrations/0056_add_student_records_so.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
@@ -104,4 +105,5 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0049_create_equipment_and_facilities': createEquipmentAndFacilities,
   '0050_add_student_flags_and_sms_guardian': addStudentFlagsAndSmsGuardian,
   '0051_add_so_school_and_class_fields': addSoSchoolAndClassFields,
+  '0056_add_student_records_so': addStudentRecordsSo,
 };
