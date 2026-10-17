@@ -41,7 +41,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
   - Thao tác hàng loạt gọi lần lượt từng tài khoản (tối đa 200), không gộp một giao dịch; lỗi giữa chừng để lại phần đã làm, bảng kết quả nêu từng dòng.
   - Mật khẩu tạm hàng loạt chỉ hiện trên màn hình một lần, chưa in hay xuất tệp.
   - Tài khoản không còn nhóm nào có hiệu lực thì không thấy phân hệ nào trên ô chọn phân hệ, kể cả mục không cần quyền như Báo cáo.
-- Kiểm thử cần thực hiện: kịch bản CT-458 đến CT-471 (trong mã kiểm thử là CT-16d-1 đến CT-16d-14); kiểm thử đơn vị mới `apps/api/src/system-admin-so.test.ts` (CT-458 đến CT-467); kiểm thử giao diện mới `tests/e2e/58-system-admin-full-so.spec.ts` (CT-468 đến CT-471); sửa `tests/e2e/04-accounts.spec.ts`, `52-system-admin-so.spec.ts` theo cột, nút mới. Kết quả ngày 17/10/2026: (điền sau)
+- Kiểm thử cần thực hiện: kịch bản CT-458 đến CT-471 (trong mã kiểm thử là CT-16d-1 đến CT-16d-14); kiểm thử đơn vị mới `apps/api/src/system-admin-so.test.ts` (CT-458 đến CT-467); kiểm thử giao diện mới `tests/e2e/58-system-admin-full-so.spec.ts` (CT-468 đến CT-471); sửa `tests/e2e/04-accounts.spec.ts`, `52-system-admin-so.spec.ts` theo cột, nút mới. Kết quả ngày 17/10/2026 trên CI của PR 96: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 748/748 ca đạt (thêm 10 ca CT-458 đến CT-467); toàn bộ kiểm thử giao diện 103/103 ca đạt (thêm 4 ca CT-468 đến CT-471); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt. Trên máy phát triển kiểm thử đơn vị 748 ca đạt; kiểm thử giao diện chạy trên CI vì các phiên khác dùng chung cổng và cơ sở dữ liệu kiểm thử giao diện.
 - Trạng thái: Đã triển khai
 
 ### YCTD-118: DT-15 phần 15h2: văn thư lưu trữ theo hệ thống của Sở – 2026-10-16
