@@ -224,6 +224,8 @@ export interface ArchiveRecordFilesTable {
   size: number;
   created_at: CreatedTimestamp;
   created_by: string | null;
+}
+
 // Thông báo hệ thống bật lên khi vào cổng quản trị (DT-16 phần 16c); ngày dạng YYYY-MM-DD
 export interface SystemAnnouncementsTable {
   id: Generated<string>;
