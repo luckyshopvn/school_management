@@ -76,14 +76,14 @@ test('CT-16f-11: 3.1.1 Thay đổi mở hồ sơ dòng đã chọn, Xóa có h�
   await expect(grid.getByRole('row').filter({ hasText: token })).toHaveCount(3);
   const change = grid.getByRole('button', { name: 'Thay đổi', exact: true });
   await expect(change).toBeDisabled();
-  await grid.getByRole('row').filter({ hasText: names.verify }).getByRole('checkbox').check();
+  await grid.getByRole('checkbox', { name: `Chọn ${names.verify}` }).check();
   await change.click();
   await expect(page.getByRole('group', { name: `Hồ sơ của ${names.verify}` })).toBeVisible();
   await expect(page.getByLabel('Dân tộc').first()).toHaveJSProperty('tagName', 'SELECT');
-  await grid.getByRole('row').filter({ hasText: names.verify }).getByRole('checkbox').uncheck();
+  await grid.getByRole('checkbox', { name: `Chọn ${names.verify}` }).uncheck();
 
   // Xóa hồ sơ nhập nhầm
-  await grid.getByRole('row').filter({ hasText: names.delete }).getByRole('checkbox').check();
+  await grid.getByRole('checkbox', { name: `Chọn ${names.delete}` }).check();
   await grid.getByRole('button', { name: 'Xóa', exact: true }).click();
   const dialog = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Xác nhận xóa' }) });
   await dialog.getByRole('checkbox').check();
@@ -114,7 +114,7 @@ test('CT-16f-12: 3.1.5 đánh dấu đã xác thực, sai thông tin cần ghi c
   await expect(page.getByText('Chưa kết nối CSDLQG về dân cư')).toBeVisible();
   await page.getByLabel('Tìm theo tên hoặc mã').fill(token);
   const grid = page.getByRole('region', { name: 'Danh sách xác thực số định danh' });
-  await grid.getByRole('row').filter({ hasText: names.verify }).getByRole('checkbox').check();
+  await grid.getByRole('checkbox', { name: `Chọn ${names.verify}` }).check();
   await expect(grid.getByRole('button', { name: 'Đánh dấu sai thông tin' })).toBeDisabled();
   await grid.getByRole('button', { name: 'Đánh dấu đã xác thực' }).click();
   // Hồ sơ chưa có số định danh 12 chữ số thì không đánh dấu được
@@ -170,7 +170,7 @@ test('CT-16f-14: 3.1.3 mẫu 75 cột, tra cứu danh mục của Bộ; 5.2 th�
   expect((await downloading).suggestedFilename()).toBe('mau-nhap-nhan-su-75-cot.xlsx');
   await section.getByRole('button', { name: 'Tra cứu danh mục' }).click();
   const lookup = section.getByRole('region', { name: 'Tra cứu danh mục' });
-  await lookup.getByLabel('Danh mục').selectOption({ label: 'Vị trí việc làm' });
+  await lookup.getByRole('combobox', { name: 'Danh mục' }).selectOption({ label: 'Vị trí việc làm' });
   await expect(lookup.getByRole('list')).toContainText('Bảo mẫu');
   await expect(page.getByRole('region', { name: 'Nhân sự', exact: true })).toBeVisible();
 

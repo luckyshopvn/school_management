@@ -208,7 +208,9 @@ test('CT-15d-12: quản lý đơn vị xem được lưới và hồ sơ nhưng 
   await expect(panel.getByRole('form', { name: 'Hồ sơ cán bộ, giáo viên theo Sở' })).toBeVisible();
   await expect(panel.getByRole('button', { name: 'Ghi', exact: true })).toHaveCount(0);
   await panel.getByRole('tab', { name: 'Thông tin riêng của trường' }).click();
-  await expect(panel.getByRole('tabpanel', { name: 'Thông tin riêng của trường' })).toBeVisible();
-  await expect(panel).not.toContainText('Hợp đồng lao động');
+  const school = panel.getByRole('tabpanel', { name: 'Thông tin riêng của trường' });
+  await expect(school).toBeVisible();
+  // Xét trong thẻ thông tin riêng: danh sách chọn hình thức hợp đồng theo danh mục Bộ ở thẻ Sở có chữ "Hợp đồng lao động"
+  await expect(school).not.toContainText('Hợp đồng lao động');
   await expect(panel).not.toContainText(`HD-${token}`);
 });
