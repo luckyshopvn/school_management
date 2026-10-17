@@ -15,6 +15,7 @@ import {
   ProfessionalStandardsController,
   ProfessionalStandardsService,
 } from './professional-standards/professional-standards.js';
+import { ProfessionalRatingImports } from './professional-standards/rating-import.js';
 import { ProgramCompletionController, ProgramCompletionService } from './program-completion/program-completion.js';
 import { ChildGroupsController, ChildGroupsService } from './child-groups/child-groups.js';
 import { AccountExportsController, AccountExportsService } from './accounts-export/account-exports.js';
@@ -613,6 +614,7 @@ export class ApplicationModule {
         ChildGroupsService,
         AccountExportsService,
         ProfessionalStandardsService,
+        ProfessionalRatingImports,
         TasksService,
         PlansService,
         EvaluationsService,
