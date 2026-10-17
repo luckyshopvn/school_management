@@ -11,7 +11,8 @@ import type { Migration } from 'kysely/migration';
 // - `student_learning_accounts`: tài khoản học và thi của học sinh (mục 4.1.10) lưu nội bộ, mật khẩu chỉ lưu giá trị băm;
 // - `student_transfers`: chuyển đi (chờ duyệt, đã duyệt, từ chối) và tiếp nhận chuyển đến giữa các trường chạy nội bộ (mục
 //   4.2), hồ sơ chuyển là tệp theo mẫu của Bộ
-// - loại nhập mới của `data_import_jobs`: điện thoại nhận tin, số định danh, địa chỉ mới của học sinh
+// - loại nhập mới của `data_import_jobs`: điện thoại nhận tin, số định danh, địa chỉ mới của học sinh. Danh sách giữ cả loại
+//   `professional_ratings` của phần 16f (tệp 0055) vì hai tệp chạy được theo thứ tự bất kỳ
 const IMPORT_TYPES_BEFORE = [
   'classes',
   'children',
@@ -20,6 +21,7 @@ const IMPORT_TYPES_BEFORE = [
   'staff',
   'moet_children',
   'moet_staff',
+  'professional_ratings',
 ];
 const IMPORT_TYPES_AFTER = [...IMPORT_TYPES_BEFORE, 'sms_phones', 'national_ids', 'student_addresses'];
 
