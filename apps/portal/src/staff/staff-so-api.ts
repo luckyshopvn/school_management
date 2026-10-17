@@ -151,7 +151,9 @@ export interface IdentityProgress {
   totals: { total: number; verified: number; invalid: number; rate: number };
 }
 export const readIdentityProgress = (orgUnitId: string | undefined, groupBy: 'unit' | 'department') =>
-  requestJson<IdentityProgress>(`/api/v1/staff-identity/progress?${query({ org_unit_id: orgUnitId, group_by: groupBy })}`);
+  requestJson<IdentityProgress>(
+    `/api/v1/staff-identity/progress?${query({ org_unit_id: orgUnitId, group_by: groupBy })}`,
+  );
 export interface DuplicateGroup {
   id_number_masked: string;
   staff: Array<{ id: string; code: string; full_name: string; dob: string | null; status: string; unit_name: string }>;

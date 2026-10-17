@@ -5,7 +5,12 @@ import { useUnitChoice } from '../catalogs/UnitSelect.js';
 import { messageOf } from '../imports/import-api.js';
 import { AppShell } from '../pages/AppShell.js';
 import { menuPageTitle } from '../pages/page-title.js';
-import { readStaffStatistics, type CatalogCount, type LevelCounts, type StandardStatistics } from '../staff/staff-so-api.js';
+import {
+  readStaffStatistics,
+  type CatalogCount,
+  type LevelCounts,
+  type StandardStatistics,
+} from '../staff/staff-so-api.js';
 
 // 5.2. Thống kê nhân sự theo hệ thống của Sở (DT-16 phần 16f): theo trình độ đào tạo, vị trí việc làm, hình thức hợp đồng,
 // nhóm chức vụ (đủ các dòng của danh mục Bộ, giá trị ngoài danh mục ghi thêm dòng riêng), theo chuẩn nghề nghiệp cán bộ quản

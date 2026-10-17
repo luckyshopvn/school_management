@@ -47,7 +47,10 @@ const columns: Array<DataGridColumn<StaffIdentityRow>> = [
     id: 'status',
     header: 'Trạng thái xác thực',
     cell: (row) => (
-      <StatusBadge tone={TONES[row.id_verification_status]} label={ID_VERIFICATION_LABELS[row.id_verification_status]} />
+      <StatusBadge
+        tone={TONES[row.id_verification_status]}
+        label={ID_VERIFICATION_LABELS[row.id_verification_status]}
+      />
     ),
   },
   { id: 'note', header: 'Ghi chú', cell: (row) => row.id_verification_note ?? '' },
@@ -106,9 +109,9 @@ export function StaffIdentityPage() {
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/staff-identity')}</h1>
         {list.data && !list.data.automatic ? (
           <Alert tone="info">
-            Chưa kết nối CSDLQG về dân cư: hệ thống không gửi số định danh đi đâu. Đối chiếu trên VNeID hoặc CCCD gốc rồi bấm
-            "Đánh dấu đã xác thực" hoặc "Đánh dấu sai thông tin"; hệ thống ghi ngày, người đánh dấu và kiểm tra số đủ 12 chữ
-            số.
+            Chưa kết nối CSDLQG về dân cư: hệ thống không gửi số định danh đi đâu. Đối chiếu trên VNeID hoặc CCCD gốc
+            rồi bấm "Đánh dấu đã xác thực" hoặc "Đánh dấu sai thông tin"; hệ thống ghi ngày, người đánh dấu và kiểm tra
+            số đủ 12 chữ số.
           </Alert>
         ) : null}
         {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
@@ -186,7 +189,11 @@ export function StaffIdentityPage() {
               <>
                 <label className="flex items-center gap-2 text-label font-medium text-text">
                   Ghi chú
-                  <input value={note} onChange={(event) => setNote(event.target.value)} className={FORM_CONTROL_CLASS} />
+                  <input
+                    value={note}
+                    onChange={(event) => setNote(event.target.value)}
+                    className={FORM_CONTROL_CLASS}
+                  />
                 </label>
                 <Button
                   variant="primary"

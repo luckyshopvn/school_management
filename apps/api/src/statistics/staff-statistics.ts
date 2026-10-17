@@ -104,10 +104,16 @@ export class StaffStatisticsService {
       by_qualification: catalogBreakdown(staff, 'professional_qualification', (row) =>
         text(row, 'professional_qualification'),
       ),
-      by_job_position: catalogBreakdown(staff, 'job_position', (row) => text(row, 'job_position') ?? row.job_title_name),
+      by_job_position: catalogBreakdown(
+        staff,
+        'job_position',
+        (row) => text(row, 'job_position') ?? row.job_title_name,
+      ),
       by_contract_form: catalogBreakdown(staff, 'contract_form', (row) => {
         const contractType = contractOf.get(row.id);
-        return text(row, 'contract_form') ?? (contractType ? (CONTRACT_TYPE_LABELS[contractType] ?? contractType) : null);
+        return (
+          text(row, 'contract_form') ?? (contractType ? (CONTRACT_TYPE_LABELS[contractType] ?? contractType) : null)
+        );
       }),
       by_position_group: catalogBreakdown(staff, 'position_group', (row) => text(row, 'position_group')),
       standards: await this.standards(units),
@@ -188,7 +194,13 @@ export class StaffStatisticsService {
         ) as LevelCounts,
         criteria: [...criteria.values()]
           .sort((a, b) => a.order - b.order)
-          .map(({ order: _order, ...criterion }) => criterion),
+          .map((criterion) => ({
+            standard_code: criterion.standard_code,
+            standard_name: criterion.standard_name,
+            code: criterion.code,
+            name: criterion.name,
+            levels: criterion.levels,
+          })),
       };
     });
   }

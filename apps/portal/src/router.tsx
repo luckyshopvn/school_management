@@ -191,7 +191,11 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/staff-identity', component: StaffIdentityPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/staff-movements', component: StaffMovementsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/staff-statistics', component: StaffStatisticsPage }),
-  createRoute({ getParentRoute: () => rootRoute, path: '/staff-identity-progress', component: StaffIdentityProgressPage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/staff-identity-progress',
+    component: StaffIdentityProgressPage,
+  }),
   createRoute({ getParentRoute: () => rootRoute, path: '/staff-attendance', component: StaffAttendancePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/school-days', component: SchoolDaysPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/work-schedules', component: WorkSchedulesPage }),

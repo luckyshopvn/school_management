@@ -243,7 +243,12 @@ describe('Nhân sự đủ tính năng theo hệ thống của Sở (DT-16 phầ
     const filledRows = rowsOf((await readWorkbook(filled.buffer)).getWorksheet('Hồ sơ'));
     assert.ok(filledRows.some((row) => row.includes('Võ Thị Lan')));
     assert.ok(!filledRows.some((row) => row.includes('Tạ Thị Phương')), 'chỉ hồ sơ trong phạm vi nhập');
-    const job = await upload('/imports', token('personnel'), { type: 'moet_staff', org_unit_id: units.A ?? '' }, filled.buffer);
+    const job = await upload(
+      '/imports',
+      token('personnel'),
+      { type: 'moet_staff', org_unit_id: units.A ?? '' },
+      filled.buffer,
+    );
     assert.equal(job.status, 201, JSON.stringify(job.body));
     const preview = job.body.preview as { created: number; updated: number };
     assert.equal(job.body.status, 'validated', JSON.stringify(job.body.errors));
@@ -276,7 +281,11 @@ describe('Nhân sự đủ tính năng theo hệ thống của Sở (DT-16 phầ
       (filtered.body.items as Array<{ full_name: string }>).map((item) => item.full_name),
       ['Đỗ Thị Mai'],
     );
-    const missing = await api('GET', `/statistics/missing-staff-fields?org_unit_id=${units.A}&field=tax_code`, principal.accessToken);
+    const missing = await api(
+      'GET',
+      `/statistics/missing-staff-fields?org_unit_id=${units.A}&field=tax_code`,
+      principal.accessToken,
+    );
     const names = (missing.body.records as Array<{ full_name: string }>).map((item) => item.full_name);
     assert.ok(names.includes('Võ Thị Lan'));
     assert.ok(!names.includes('Đỗ Thị Mai'));
@@ -320,7 +329,8 @@ describe('Nhân sự đủ tính năng theo hệ thống của Sở (DT-16 phầ
     assert.ok(rows[0]?.id_verified_at);
     assert.ok(!JSON.stringify(list.body).includes(idNumbers.Lan ?? ''));
     assert.equal(
-      (await api('POST', '/staff-identity/mark', token('teacher'), { staff_ids: [staff.Lan], status: 'verified' })).status,
+      (await api('POST', '/staff-identity/mark', token('teacher'), { staff_ids: [staff.Lan], status: 'verified' }))
+        .status,
       403,
     );
     // Hai hồ sơ cùng số định danh
@@ -342,7 +352,9 @@ describe('Nhân sự đủ tính năng theo hệ thống của Sở (DT-16 phầ
     assert.equal(totals.invalid, 1);
     assert.equal(totals.rate, Math.round((10000 * 1) / totals.total) / 100);
     const byDepartment = await api('GET', `/staff-identity/progress?group_by=department`, principal.accessToken);
-    assert.ok((byDepartment.body.items as Array<{ name: string }>).some((item) => item.name.includes('Chưa xếp phòng ban')));
+    assert.ok(
+      (byDepartment.body.items as Array<{ name: string }>).some((item) => item.name.includes('Chưa xếp phòng ban')),
+    );
     const duplicates = await api('GET', '/staff-identity/duplicates', principal.accessToken);
     const groups = duplicates.body.groups as Array<{ staff: Array<{ full_name: string }> }>;
     assert.equal(groups.length, 1);
@@ -368,7 +380,12 @@ describe('Nhân sự đủ tính năng theo hệ thống của Sở (DT-16 phầ
     });
     assert.equal(notBranch.status, 400);
     // Lớp ở điểm trường B do Nga dạy (theo tài khoản liên kết)
-    await api('POST', '/grade-levels', principal.accessToken, { code: 'LA', name: 'Lá', age_from_months: 60, age_to_months: 72 });
+    await api('POST', '/grade-levels', principal.accessToken, {
+      code: 'LA',
+      name: 'Lá',
+      age_from_months: 60,
+      age_to_months: 72,
+    });
     const createdClass = await api('POST', '/classes', principal.accessToken, {
       org_unit_id: units.B,
       code: 'L1',
@@ -472,8 +489,15 @@ describe('Nhân sự đủ tính năng theo hệ thống của Sở (DT-16 phầ
     );
     assert.equal(incoming.status, 201, JSON.stringify(incoming.body));
     assert.equal(incoming.body.full_name, 'Võ Thị Lan');
-    assert.equal((incoming.body.dossier as { id_number_masked: string }).id_number_masked, `********${idNumbers.Lan?.slice(-4)}`);
-    const duplicate = await api('POST', `/staff-movements/${incoming.body.id as string}/approve`, token('otherPersonnel'));
+    assert.equal(
+      (incoming.body.dossier as { id_number_masked: string }).id_number_masked,
+      `********${idNumbers.Lan?.slice(-4)}`,
+    );
+    const duplicate = await api(
+      'POST',
+      `/staff-movements/${incoming.body.id as string}/approve`,
+      token('otherPersonnel'),
+    );
     assert.equal(duplicate.status, 409);
   });
 
@@ -513,7 +537,10 @@ describe('Nhân sự đủ tính năng theo hệ thống của Sở (DT-16 phầ
       movement_date: '2026-11-01',
       end_date: '2026-12-01',
     });
-    assert.equal((await api('POST', `/staff-movements/${guest.body.id as string}/approve`, token('personnel'))).body.status_label, 'Đã duyệt');
+    assert.equal(
+      (await api('POST', `/staff-movements/${guest.body.id as string}/approve`, token('personnel'))).body.status_label,
+      'Đã duyệt',
+    );
     const visiting = await api('POST', '/staff-movements', token('personnel'), {
       movement_type: 'guest_in',
       org_unit_id: units.A,
@@ -526,10 +553,7 @@ describe('Nhân sự đủ tính năng theo hệ thống của Sở (DT-16 phầ
     assert.equal(noReason.status, 400);
     const confirmed = await api('POST', `/staff-movements/${visiting.body.id as string}/approve`, token('personnel'));
     assert.equal(confirmed.body.status_label, 'Đã xác nhận');
-    assert.equal(
-      (await api('POST', '/staff-movements', token('teacher'), { movement_type: 'guest_in' })).status,
-      403,
-    );
+    assert.equal((await api('POST', '/staff-movements', token('teacher'), { movement_type: 'guest_in' })).status, 403);
   });
 
   it('CT-16f-9: nhập mức đánh giá chuẩn nghề nghiệp từ Excel: mẫu kèm dữ liệu, kiểm tra quyền và trạng thái, ghi, chốt phiếu', async () => {
@@ -543,16 +567,25 @@ describe('Nhân sự đủ tính năng theo hệ thống của Sở (DT-16 phầ
       .set({ status: 'self_submitted' })
       .where('staff_id', '=', staff.Mai ?? '')
       .execute();
-    const template = await download('GET', '/imports/templates/professional_ratings?with_data=true', principal.accessToken);
+    const template = await download(
+      'GET',
+      '/imports/templates/professional_ratings?with_data=true',
+      principal.accessToken,
+    );
     assert.equal(template.status, 200);
     const book = await readWorkbook(template.buffer);
     const sheet = book.worksheets[0];
+    assert.ok(sheet);
     const rows = rowsOf(sheet);
     assert.equal(rows[0]?.[0], 'Mã nhân sự');
     const criteriaCount = (
       await schoolYear
         .selectFrom('professional_evaluation_items')
-        .innerJoin('professional_evaluations', 'professional_evaluations.id', 'professional_evaluation_items.evaluation_id')
+        .innerJoin(
+          'professional_evaluations',
+          'professional_evaluations.id',
+          'professional_evaluation_items.evaluation_id',
+        )
         .select('professional_evaluation_items.id')
         .where('professional_evaluations.staff_id', '=', staff.Mai ?? '')
         .execute()
@@ -561,19 +594,36 @@ describe('Nhân sự đủ tính năng theo hệ thống của Sở (DT-16 phầ
     const ngaRow = rows.findIndex((row) => row[0] === codes.Nga);
     assert.ok(maiRow > 0 && ngaRow > 0, 'mẫu kèm dữ liệu có các phiếu chưa chốt');
     for (let position = 1; position <= criteriaCount; position += 1) {
-      sheet?.getRow(maiRow + 1).getCell(3 + position).value = 'Tốt';
-      sheet?.getRow(ngaRow + 1).getCell(3 + position).value = 'Khá';
+      sheet.getRow(maiRow + 1).getCell(3 + position).value = 'Tốt';
+      sheet.getRow(ngaRow + 1).getCell(3 + position).value = 'Khá';
     }
-    sheet?.getRow(maiRow + 1).getCell(3 + 20 + 2).value = 'x';
-    const failing = await upload('/imports', principal.accessToken, { type: 'professional_ratings' }, Buffer.from(await book.xlsx.writeBuffer()));
+    sheet.getRow(maiRow + 1).getCell(3 + 20 + 2).value = 'x';
+    const failing = await upload(
+      '/imports',
+      principal.accessToken,
+      { type: 'professional_ratings' },
+      Buffer.from(await book.xlsx.writeBuffer()),
+    );
     assert.equal(failing.body.status, 'failed');
     assert.ok(
-      (failing.body.errors as Array<{ message: string }>).some((error) => error.message.includes('chưa gửi tự đánh giá')),
+      (failing.body.errors as Array<{ message: string }>).some((error) =>
+        error.message.includes('chưa gửi tự đánh giá'),
+      ),
     );
-    sheet?.spliceRows(ngaRow + 1, 1);
-    const job = await upload('/imports', principal.accessToken, { type: 'professional_ratings' }, Buffer.from(await book.xlsx.writeBuffer()));
+    sheet.spliceRows(ngaRow + 1, 1);
+    const job = await upload(
+      '/imports',
+      principal.accessToken,
+      { type: 'professional_ratings' },
+      Buffer.from(await book.xlsx.writeBuffer()),
+    );
     assert.equal(job.body.status, 'validated', JSON.stringify(job.body.errors));
-    const denied = await upload('/imports', token('teacher'), { type: 'professional_ratings' }, Buffer.from(await book.xlsx.writeBuffer()));
+    const denied = await upload(
+      '/imports',
+      token('teacher'),
+      { type: 'professional_ratings' },
+      Buffer.from(await book.xlsx.writeBuffer()),
+    );
     assert.equal(denied.status, 403);
     const committed = await api('POST', `/imports/${job.body.id as string}/commit`, principal.accessToken);
     assert.equal(committed.status, 200, JSON.stringify(committed.body));
@@ -609,9 +659,6 @@ describe('Nhân sự đủ tính năng theo hệ thống của Sở (DT-16 phầ
     assert.equal(teacher?.overall.excellent, 1);
     assert.ok((teacher?.criteria.length ?? 0) > 0);
     assert.ok(teacher?.criteria.every((criterion) => criterion.levels.excellent === 1));
-    assert.equal(
-      (await api('GET', '/statistics/staff-so', token('teacher'))).status,
-      403,
-    );
+    assert.equal((await api('GET', '/statistics/staff-so', token('teacher'))).status, 403);
   });
 });

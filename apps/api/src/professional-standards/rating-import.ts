@@ -85,9 +85,7 @@ export class ProfessionalRatingImports {
         'staff.code as staff_code',
         'staff.full_name',
       ])
-      .$if(!scope.wholeSchool, (query) =>
-        query.where('professional_evaluations.org_unit_id', 'in', scope.orgUnitIds),
-      )
+      .$if(!scope.wholeSchool, (query) => query.where('professional_evaluations.org_unit_id', 'in', scope.orgUnitIds))
       .orderBy('staff.full_name')
       .execute();
   }
@@ -119,10 +117,17 @@ export class ProfessionalRatingImports {
         key: 'levels',
         title: 'Mức đánh giá',
         column: 'Tiêu chí 1 đến Tiêu chí 20',
-        items: [...PROFESSIONAL_LEVELS].reverse().map((level) => ({ code: LEVEL_LABELS[level], name: LEVEL_LABELS[level] })),
+        items: [...PROFESSIONAL_LEVELS]
+          .reverse()
+          .map((level) => ({ code: LEVEL_LABELS[level], name: LEVEL_LABELS[level] })),
       },
       { key: 'teacher_criteria', title: 'Tiêu chí chuẩn giáo viên', column: 'Tiêu chí 1…', items: byType('teacher') },
-      { key: 'principal_criteria', title: 'Tiêu chí chuẩn hiệu trưởng', column: 'Tiêu chí 1…', items: byType('principal') },
+      {
+        key: 'principal_criteria',
+        title: 'Tiêu chí chuẩn hiệu trưởng',
+        column: 'Tiêu chí 1…',
+        items: byType('principal'),
+      },
     ];
   }
 
@@ -150,7 +155,10 @@ export class ProfessionalRatingImports {
         full_name: evaluation.full_name,
         standard_type: STANDARD_LABELS[evaluation.standard_type],
         ...Object.fromEntries(
-          own.map((item, index) => [criterionKey(index + 1), item.assessor_rating ? LEVEL_LABELS[item.assessor_rating] : '']),
+          own.map((item, index) => [
+            criterionKey(index + 1),
+            item.assessor_rating ? LEVEL_LABELS[item.assessor_rating] : '',
+          ]),
         ),
         comment: evaluation.assessor_comment ?? '',
       };

@@ -170,7 +170,12 @@ function staffColumns(contractVisible: boolean): Array<DataGridColumn<StaffListI
       hiddenByDefault: true,
       cell: (row) => ID_VERIFICATION_LABELS[row.id_verification_status],
     },
-    { id: 'bank_account', header: 'Tài khoản ngân hàng', hiddenByDefault: true, cell: (row) => row.bank_account_number ?? '' },
+    {
+      id: 'bank_account',
+      header: 'Tài khoản ngân hàng',
+      hiddenByDefault: true,
+      cell: (row) => row.bank_account_number ?? '',
+    },
     { id: 'tax_code', header: 'Mã số thuế', hiddenByDefault: true, cell: (row) => row.tax_code ?? '' },
     ...(contractVisible
       ? ([
@@ -584,7 +589,11 @@ export function StaffPage() {
         ) : null}
         <ConfirmDeleteDialog
           open={deleting.length > 0}
-          subject={deleting.length === 1 ? `hồ sơ ${deleting[0]?.full_name ?? ''}` : `${deleting.length} hồ sơ cán bộ, giáo viên`}
+          subject={
+            deleting.length === 1
+              ? `hồ sơ ${deleting[0]?.full_name ?? ''}`
+              : `${deleting.length} hồ sơ cán bộ, giáo viên`
+          }
           busy={remove.isPending}
           onConfirm={() => remove.mutate()}
           onCancel={() => setDeleting([])}

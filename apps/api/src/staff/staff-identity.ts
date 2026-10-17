@@ -157,8 +157,12 @@ export class StaffIdentityService {
       ])
       .where('id', 'in', input.staffIds)
       .execute();
-    const results: Array<{ id: string; full_name: string; status: StaffIdVerificationStatus | null; error: string | null }> =
-      [];
+    const results: Array<{
+      id: string;
+      full_name: string;
+      status: StaffIdVerificationStatus | null;
+      error: string | null;
+    }> = [];
     for (const staffId of input.staffIds) {
       const row = rows.find((item) => item.id === staffId);
       if (!row) {
@@ -166,7 +170,12 @@ export class StaffIdentityService {
         continue;
       }
       if (!scope.orgUnitIds.includes(row.org_unit_id)) {
-        results.push({ id: row.id, full_name: row.full_name, status: null, error: 'Hồ sơ ngoài phạm vi quản lý của bạn' });
+        results.push({
+          id: row.id,
+          full_name: row.full_name,
+          status: null,
+          error: 'Hồ sơ ngoài phạm vi quản lý của bạn',
+        });
         continue;
       }
       const idNumber = row.id_number_encrypted ? this.protection.decrypt(row.id_number_encrypted) : null;
@@ -204,7 +213,10 @@ export class StaffIdentityService {
           entityName: 'staff',
           entityId: row.id,
           action: 'update',
-          before: { id_verification_status: row.id_verification_status, id_verification_note: row.id_verification_note },
+          before: {
+            id_verification_status: row.id_verification_status,
+            id_verification_note: row.id_verification_note,
+          },
           after: { id_verification_status: status, id_verification_note: input.note, manual: automatic === null },
         });
       });
@@ -228,7 +240,11 @@ export class StaffIdentityService {
     const groups = new Map<string, { total: number; verified: number; invalid: number }>();
     for (const row of rows) {
       const name =
-        groupBy === 'unit' ? row.unit_name : row.department_name ? `${row.unit_name} – ${row.department_name}` : `${row.unit_name} – Chưa xếp phòng ban`;
+        groupBy === 'unit'
+          ? row.unit_name
+          : row.department_name
+            ? `${row.unit_name} – ${row.department_name}`
+            : `${row.unit_name} – Chưa xếp phòng ban`;
       const entry = groups.get(name) ?? { total: 0, verified: 0, invalid: 0 };
       entry.total += 1;
       entry.verified += row.id_verification_status === 'verified' ? 1 : 0;
@@ -284,7 +300,14 @@ export class StaffIdentityService {
         if (number && same.length > 1) {
           groups.push({
             id_number_masked: maskNationalId(number.slice(-4)),
-            staff: same.map(({ id_number_encrypted: _encrypted, id_number_last4: _lastFour, ...row }) => row),
+            staff: same.map((row) => ({
+              id: row.id,
+              code: row.code,
+              full_name: row.full_name,
+              dob: row.dob,
+              status: row.status,
+              unit_name: row.unit_name,
+            })),
           });
         }
       }
@@ -382,4 +405,3 @@ export class StaffIdentityController {
     return this.identity.duplicates(currentUser, orgUnitId);
   }
 }
-

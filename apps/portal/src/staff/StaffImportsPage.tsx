@@ -92,7 +92,12 @@ function MinistryTemplateTools() {
       </div>
       {error ? <Alert tone="danger">{error}</Alert> : null}
       {lookup ? (
-        <div id={regionId} role="region" aria-label="Tra cứu danh mục" className="rounded-lg border border-border bg-page p-3">
+        <div
+          id={regionId}
+          role="region"
+          aria-label="Tra cứu danh mục"
+          className="rounded-lg border border-border bg-page p-3"
+        >
           <MinistryCatalogLookup />
         </div>
       ) : null}
@@ -109,8 +114,8 @@ export function StaffImportsPage() {
       <div className="flex flex-col gap-6">
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/staff-imports')}</h1>
         <p className="text-label text-text-secondary">
-          Tải file mẫu 75 cột theo CSDL ngành (kèm dữ liệu để sửa hồ sơ đang có), điền rồi tải tệp lên. Hệ thống kiểm tra
-          toàn bộ tệp và chỉ ghi khi không còn dòng lỗi; tệp có lỗi thì bấm "Xuất file lỗi".
+          Tải file mẫu 75 cột theo CSDL ngành (kèm dữ liệu để sửa hồ sơ đang có), điền rồi tải tệp lên. Hệ thống kiểm
+          tra toàn bộ tệp và chỉ ghi khi không còn dòng lỗi; tệp có lỗi thì bấm "Xuất file lỗi".
         </p>
         <MoetImportSection type="moet_staff" onChanged={setToastMessage} tools={<MinistryTemplateTools />} />
         <ImportSection type="staff" onChanged={setToastMessage} />

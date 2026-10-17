@@ -35,7 +35,12 @@ const columns: Array<DataGridColumn<StaffBranchRow>> = [
             .map((branch) => (branch.source === 'teaching' ? `${branch.name} (theo giảng dạy)` : branch.name))
             .join('; '),
   },
-  { id: 'account', header: 'Tài khoản', hiddenByDefault: true, cell: (row) => (row.has_account ? 'Đã liên kết' : 'Chưa có') },
+  {
+    id: 'account',
+    header: 'Tài khoản',
+    hiddenByDefault: true,
+    cell: (row) => (row.has_account ? 'Đã liên kết' : 'Chưa có'),
+  },
 ];
 
 export function StaffBranchesPage() {

@@ -60,7 +60,10 @@ export const migration: Migration = {
         column.notNull().check(sql`movement_type in ('transfer_in', 'transfer_out', 'guest_out', 'guest_in')`),
       )
       .addColumn('status', 'text', (column) =>
-        column.notNull().defaultTo('pending').check(sql`status in ('pending', 'approved', 'rejected')`),
+        column
+          .notNull()
+          .defaultTo('pending')
+          .check(sql`status in ('pending', 'approved', 'rejected')`),
       )
       .addColumn('org_unit_id', 'uuid', (column) => column.notNull().references('org_units.id'))
       .addColumn('staff_id', 'uuid', (column) => column.references('staff.id').onDelete('set null'))

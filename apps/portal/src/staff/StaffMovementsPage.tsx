@@ -92,14 +92,30 @@ function columnsOf(tab: TabInfo): Array<DataGridColumn<StaffMovement>> {
     { id: 'dob', header: 'Ngày sinh', hiddenByDefault: guest, cell: (row) => formatDate(row.dob) },
     ...(tab.type === 'transfer_in' || tab.type === 'transfer_out'
       ? ([
-          { id: 'province', header: tab.type === 'transfer_in' ? 'Chuyển từ tỉnh' : 'Chuyển đến tỉnh', cell: (row) => row.other_province ?? '' },
-          { id: 'ward', header: tab.type === 'transfer_in' ? 'Chuyển từ xã' : 'Chuyển đến xã', cell: (row) => row.other_ward ?? '' },
+          {
+            id: 'province',
+            header: tab.type === 'transfer_in' ? 'Chuyển từ tỉnh' : 'Chuyển đến tỉnh',
+            cell: (row) => row.other_province ?? '',
+          },
+          {
+            id: 'ward',
+            header: tab.type === 'transfer_in' ? 'Chuyển từ xã' : 'Chuyển đến xã',
+            cell: (row) => row.other_ward ?? '',
+          },
         ] satisfies Array<DataGridColumn<StaffMovement>>)
       : []),
     { id: 'school', header: tab.schoolLabel, cell: (row) => row.other_school ?? '' },
-    ...(guest ? ([{ id: 'subject', header: 'Môn dạy', cell: (row) => row.subject ?? '' }] satisfies Array<DataGridColumn<StaffMovement>>) : []),
+    ...(guest
+      ? ([{ id: 'subject', header: 'Môn dạy', cell: (row) => row.subject ?? '' }] satisfies Array<
+          DataGridColumn<StaffMovement>
+        >)
+      : []),
     { id: 'date', header: tab.dateLabel, cell: (row) => formatDate(row.movement_date) },
-    ...(guest ? ([{ id: 'end_date', header: 'Đến ngày', cell: (row) => formatDate(row.end_date) }] satisfies Array<DataGridColumn<StaffMovement>>) : []),
+    ...(guest
+      ? ([{ id: 'end_date', header: 'Đến ngày', cell: (row) => formatDate(row.end_date) }] satisfies Array<
+          DataGridColumn<StaffMovement>
+        >)
+      : []),
     ...(tab.type === 'transfer_out'
       ? ([
           {
@@ -120,7 +136,15 @@ function columnsOf(tab: TabInfo): Array<DataGridColumn<StaffMovement>> {
   ];
 }
 
-function CreateMovementForm({ tab, onCreated, onCancel }: { tab: TabInfo; onCreated(message: string): void; onCancel(): void }) {
+function CreateMovementForm({
+  tab,
+  onCreated,
+  onCancel,
+}: {
+  tab: TabInfo;
+  onCreated(message: string): void;
+  onCancel(): void;
+}) {
   const unitChoice = useUnitChoice();
   const forStaff = tab.type === 'transfer_out' || tab.type === 'guest_out';
   const guest = tab.type === 'guest_in' || tab.type === 'guest_out';
@@ -148,7 +172,12 @@ function CreateMovementForm({ tab, onCreated, onCancel }: { tab: TabInfo; onCrea
       ? Object.fromEntries(save.error.details.map((detail) => [detail.field, detail.message]))
       : {};
   const input = (key: string, type = 'text') => (
-    <input type={type} value={values[key] ?? ''} onChange={(event) => set(key, event.target.value)} className={FORM_CONTROL_CLASS} />
+    <input
+      type={type}
+      value={values[key] ?? ''}
+      onChange={(event) => set(key, event.target.value)}
+      className={FORM_CONTROL_CLASS}
+    />
   );
   return (
     <form
@@ -165,7 +194,11 @@ function CreateMovementForm({ tab, onCreated, onCancel }: { tab: TabInfo; onCrea
       <FormBlock title="Thông tin">
         {forStaff ? (
           <FormRow label="Nhân sự" error={errors.staff_id}>
-            <select value={values.staff_id ?? ''} onChange={(event) => set('staff_id', event.target.value)} className={FORM_CONTROL_CLASS}>
+            <select
+              value={values.staff_id ?? ''}
+              onChange={(event) => set('staff_id', event.target.value)}
+              className={FORM_CONTROL_CLASS}
+            >
               <option value="">Chọn nhân sự</option>
               {(staff.data?.items ?? []).map((item) => (
                 <option key={item.id} value={item.id}>
@@ -208,7 +241,11 @@ function CreateMovementForm({ tab, onCreated, onCancel }: { tab: TabInfo; onCrea
                   {input('dob', 'date')}
                 </FormRow>
                 <FormRow label="Giới tính" error={errors.gender}>
-                  <select value={values.gender ?? ''} onChange={(event) => set('gender', event.target.value)} className={FORM_CONTROL_CLASS}>
+                  <select
+                    value={values.gender ?? ''}
+                    onChange={(event) => set('gender', event.target.value)}
+                    className={FORM_CONTROL_CLASS}
+                  >
                     <option value="">Chưa chọn</option>
                     <option value="male">Nam</option>
                     <option value="female">Nữ</option>
@@ -220,7 +257,10 @@ function CreateMovementForm({ tab, onCreated, onCancel }: { tab: TabInfo; onCrea
         )}
         {tab.type === 'transfer_in' || tab.type === 'transfer_out' ? (
           <>
-            <FormRow label={tab.type === 'transfer_in' ? 'Chuyển từ tỉnh' : 'Chuyển đến tỉnh'} error={errors.other_province}>
+            <FormRow
+              label={tab.type === 'transfer_in' ? 'Chuyển từ tỉnh' : 'Chuyển đến tỉnh'}
+              error={errors.other_province}
+            >
               {input('other_province')}
             </FormRow>
             <FormRow label={tab.type === 'transfer_in' ? 'Chuyển từ xã' : 'Chuyển đến xã'} error={errors.other_ward}>
@@ -308,11 +348,19 @@ function MovementActions({
   };
   const error = approve.error ?? reject.error ?? confirm.error;
   return (
-    <section className="flex flex-col gap-3 rounded-lg border border-border bg-page p-3" aria-label={`Biến động ${movement.full_name}`}>
+    <section
+      className="flex flex-col gap-3 rounded-lg border border-border bg-page p-3"
+      aria-label={`Biến động ${movement.full_name}`}
+    >
       {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
       {fileError ? <Alert tone="danger">{fileError}</Alert> : null}
       <p className="text-content text-text">
-        {[movement.decision_no && `Số quyết định ${movement.decision_no}`, movement.reason, movement.note, movement.decision_note]
+        {[
+          movement.decision_no && `Số quyết định ${movement.decision_no}`,
+          movement.reason,
+          movement.note,
+          movement.decision_note,
+        ]
           .filter(Boolean)
           .join(' · ') || 'Không có ghi chú.'}
       </p>
@@ -335,7 +383,12 @@ function MovementActions({
           <>
             <label className="flex items-center gap-2 text-label font-medium text-text">
               Ngày trường đến tiếp nhận
-              <input type="date" value={confirmedOn} onChange={(event) => setConfirmedOn(event.target.value)} className={FORM_CONTROL_CLASS} />
+              <input
+                type="date"
+                value={confirmedOn}
+                onChange={(event) => setConfirmedOn(event.target.value)}
+                className={FORM_CONTROL_CLASS}
+              />
             </label>
             <Button disabled={confirm.isPending} onClick={() => confirm.mutate()}>
               Đánh dấu trường đến đã tiếp nhận
@@ -370,7 +423,13 @@ function MovementTab({ tab, onChanged }: { tab: TabInfo; onChanged(message: stri
   const list = useQuery({
     queryKey: ['staff-movements', tab.type, status, search, page, pageSize],
     queryFn: () =>
-      listStaffMovements({ type: tab.type, status: status || undefined, q: search || undefined, page, page_size: pageSize }),
+      listStaffMovements({
+        type: tab.type,
+        status: status || undefined,
+        q: search || undefined,
+        page,
+        page_size: pageSize,
+      }),
     enabled: grid.ready,
   });
   const error = list.error ?? grid.error;
@@ -420,7 +479,9 @@ function MovementTab({ tab, onChanged }: { tab: TabInfo; onChanged(message: stri
             >
               <option value="">Tất cả</option>
               <option value="pending">Chờ xử lý</option>
-              <option value="approved">{tab.type === 'transfer_in' ? 'Đã tiếp nhận' : tab.type === 'guest_in' ? 'Đã xác nhận' : 'Đã duyệt'}</option>
+              <option value="approved">
+                {tab.type === 'transfer_in' ? 'Đã tiếp nhận' : tab.type === 'guest_in' ? 'Đã xác nhận' : 'Đã duyệt'}
+              </option>
               <option value="rejected">Từ chối</option>
             </select>
           </label>
@@ -440,7 +501,13 @@ function MovementTab({ tab, onChanged }: { tab: TabInfo; onChanged(message: stri
         activeRowId={openId}
         renderRowDetail={(row) =>
           openId === row.id ? (
-            <MovementActions tab={tab} movement={row} canManage={canManage} canExport={canExport} onChanged={onChanged} />
+            <MovementActions
+              tab={tab}
+              movement={row}
+              canManage={canManage}
+              canExport={canExport}
+              onChanged={onChanged}
+            />
           ) : null
         }
         settings={grid.settings}
@@ -474,7 +541,9 @@ export function StaffMovementsPage() {
               aria-selected={active === item.type}
               onClick={() => setActive(item.type)}
               className={`-mb-px rounded-t-lg border border-b-0 px-3 py-2 text-content ${
-                active === item.type ? 'border-border bg-card font-semibold text-text' : 'border-transparent text-text-secondary'
+                active === item.type
+                  ? 'border-border bg-card font-semibold text-text'
+                  : 'border-transparent text-text-secondary'
               }`}
             >
               {item.label}

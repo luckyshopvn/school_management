@@ -279,7 +279,10 @@ export class StaffService {
       offset: 0,
     });
     if (total > MINISTRY_FILE_ROW_LIMIT) {
-      throw ruleViolationError(STAFF_PARITY_RULE, `Tối đa ${MINISTRY_FILE_ROW_LIMIT} hồ sơ mỗi tệp, hãy thu hẹp bộ lọc`);
+      throw ruleViolationError(
+        STAFF_PARITY_RULE,
+        `Tối đa ${MINISTRY_FILE_ROW_LIMIT} hồ sơ mỗi tệp, hãy thu hẹp bộ lọc`,
+      );
     }
     const details =
       rows.length === 0

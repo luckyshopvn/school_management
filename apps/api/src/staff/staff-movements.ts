@@ -511,7 +511,11 @@ export class StaffMovementsService {
           entityId: movementId,
           action: 'update',
           before: { status: 'pending' },
-          after: { status: 'approved', staff_id: createdStaffId ?? movement.staff_id, account_locked: Boolean(staffAccount) },
+          after: {
+            status: 'approved',
+            staff_id: createdStaffId ?? movement.staff_id,
+            account_locked: Boolean(staffAccount),
+          },
         });
       }),
       'Mã định danh Bộ GD&ĐT của tệp hồ sơ chuyển đã có ở hồ sơ nhân sự khác',
@@ -524,7 +528,14 @@ export class StaffMovementsService {
   // bộ theo Sở là "Chuyển đến"; chưa có tài khoản, hợp đồng (lập ở 3.1.1 như nhân sự mới)
   private async receive(
     transaction: Transaction<SchoolYearDatabase>,
-    movement: { org_unit_id: string; full_name: string; dob: string | null; gender: 'male' | 'female' | null; movement_date: string; dossier: unknown },
+    movement: {
+      org_unit_id: string;
+      full_name: string;
+      dob: string | null;
+      gender: 'male' | 'female' | null;
+      movement_date: string;
+      dossier: unknown;
+    },
     origin: ChangeOrigin,
   ): Promise<string> {
     const dossier = movement.dossier as MovementDossier | null;
@@ -706,10 +717,14 @@ export class StaffMovementsService {
       { label: 'Giới tính', value: view.gender === 'male' ? 'Nam' : view.gender === 'female' ? 'Nữ' : '' },
       { label: 'Đơn vị', value: view.unit_name },
       {
-        label: view.movement_type === 'transfer_in' || view.movement_type === 'guest_in' ? 'Trường cử đi' : 'Trường đến',
+        label:
+          view.movement_type === 'transfer_in' || view.movement_type === 'guest_in' ? 'Trường cử đi' : 'Trường đến',
         value: [view.other_school, view.other_ward, view.other_province].filter(Boolean).join(', '),
       },
-      { label: view.movement_type.startsWith('guest') ? 'Từ ngày' : 'Ngày chuyển', value: formatDate(view.movement_date) },
+      {
+        label: view.movement_type.startsWith('guest') ? 'Từ ngày' : 'Ngày chuyển',
+        value: formatDate(view.movement_date),
+      },
       ...(view.end_date ? [{ label: 'Đến ngày', value: formatDate(view.end_date) }] : []),
       ...(view.subject ? [{ label: 'Môn dạy, nội dung', value: view.subject }] : []),
       ...(view.decision_no ? [{ label: 'Số quyết định', value: view.decision_no }] : []),
@@ -717,7 +732,12 @@ export class StaffMovementsService {
       { label: 'Trạng thái', value: statusLabel },
       ...(view.decided_by_name ? [{ label: 'Người xử lý', value: view.decided_by_name }] : []),
       ...(view.movement_type === 'transfer_out'
-        ? [{ label: 'Trường đến đã tiếp nhận', value: view.confirmed ? `Có, ngày ${formatDate(view.confirmed_on)}` : 'Chưa' }]
+        ? [
+            {
+              label: 'Trường đến đã tiếp nhận',
+              value: view.confirmed ? `Có, ngày ${formatDate(view.confirmed_on)}` : 'Chưa',
+            },
+          ]
         : []),
       ...(view.dossier
         ? [

@@ -58,7 +58,10 @@ export function StaffIdentityProgressPage() {
           </label>
         </div>
         {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
-        <section className="flex flex-col gap-2 rounded-xl border border-border bg-card p-4" aria-label="Tiến độ xác thực">
+        <section
+          className="flex flex-col gap-2 rounded-xl border border-border bg-card p-4"
+          aria-label="Tiến độ xác thực"
+        >
           <h2 className="text-section-title font-semibold text-text">Tiến độ xác thực</h2>
           <table className="w-full text-content" aria-label="Bảng tiến độ xác thực">
             <thead className="text-left text-label font-medium text-text-secondary">
@@ -92,7 +95,10 @@ export function StaffIdentityProgressPage() {
             </tbody>
           </table>
         </section>
-        <section className="flex flex-col gap-2 rounded-xl border border-border bg-card p-4" aria-label="Danh sách trùng số định danh">
+        <section
+          className="flex flex-col gap-2 rounded-xl border border-border bg-card p-4"
+          aria-label="Danh sách trùng số định danh"
+        >
           <h2 className="text-section-title font-semibold text-text">Danh sách trùng số định danh</h2>
           {duplicates.data && duplicates.data.groups.length === 0 ? (
             <p className="text-content text-text-secondary">Không có hồ sơ trùng số định danh.</p>
