@@ -220,6 +220,7 @@ export function ClassAssignmentsPage() {
           }
           settings={grid.settings}
           onSettingsChange={grid.update}
+          exportPdf={canExport ? () => exportClassAssignments(activeFilter, 'pdf') : undefined}
         />
       </div>
       {ending ? (

@@ -139,7 +139,9 @@ describe('Nhập dữ liệu ban đầu từ Excel và nhập mã ngành', () =>
     );
   });
 
-  it('P01-13: nhập lớp học từ Excel; mã lớp trùng bị báo', async () => {
+  // Từ DT-16 phần 16a (YCTD-121) dòng của lớp đã có (cùng mã đơn vị, mã lớp) cập nhật lớp đó thay vì báo trùng; mã lớp
+  // trùng giữa các dòng trong tệp vẫn bị báo
+  it('P01-13: nhập lớp học từ Excel; lớp đã có được cập nhật, mã lớp trùng trong tệp bị báo', async () => {
     const file = await workbook('classes', [
       { unit_code: 'ĐT-A1', class_code: 'LA1', class_name: 'Lá 1', grade_level: 'LA', max_size: '25' },
       { unit_code: 'ĐT-A1', class_code: 'LA2', class_name: 'Lá 2', grade_level: 'LA', max_size: '25' },
@@ -155,11 +157,29 @@ describe('Nhập dữ liệu ban đầu từ Excel và nhập mã ngành', () =>
       .body as unknown as unknown[];
     assert.equal(classes.length, 2);
 
+    const existing = await send(
+      '/imports',
+      principal.accessToken,
+      await workbook('classes', [
+        { unit_code: 'ĐT-A1', class_code: 'LA1', class_name: 'Lá 1A', grade_level: 'LA', max_size: '28' },
+      ]),
+      { type: 'classes' },
+    );
+    assert.equal(existing.body.status, 'validated', JSON.stringify(existing.body));
+    const updated = await api('POST', `/imports/${existing.body.id}/commit`, principal.accessToken);
+    assert.equal(updated.status, 200, JSON.stringify(updated.body));
+    const afterUpdate = (await api('GET', `/classes?org_unit_id=${units['ĐT-A1']}`, principal.accessToken))
+      .body as unknown as Array<{ code: string; name: string; max_size: number }>;
+    assert.equal(afterUpdate.length, 2);
+    const la1 = afterUpdate.find((row) => row.code === 'LA1');
+    assert.deepEqual([la1?.name, la1?.max_size], ['Lá 1A', 28]);
+
     const duplicate = await send(
       '/imports',
       principal.accessToken,
       await workbook('classes', [
-        { unit_code: 'ĐT-A1', class_code: 'LA1', class_name: 'Lá 1', grade_level: 'LA', max_size: '25' },
+        { unit_code: 'ĐT-A1', class_code: 'LA3', class_name: 'Lá 3', grade_level: 'LA', max_size: '25' },
+        { unit_code: 'ĐT-A1', class_code: 'LA3', class_name: 'Lá 3', grade_level: 'LA', max_size: '25' },
       ]),
       { type: 'classes' },
     );

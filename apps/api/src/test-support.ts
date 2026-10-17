@@ -52,6 +52,8 @@ export async function startApiTestEnvironment(
     // Cổng thanh toán bật thêm và khóa thử của nhà cung cấp thật (YCTD-92)
     paymentGateways?: PaymentProviderCode[];
     paymentProviders?: PaymentProviderSettings;
+    // Số dòng tối đa của một lần xuất trực tiếp, đặt nhỏ để kiểm thử tác vụ xuất nền (DT-16 phần 16a)
+    syncExportRowLimit?: number;
   } = {},
 ): Promise<ApiTestEnvironment> {
   const suffix = randomUUID().replaceAll('-', '').slice(0, 10);
@@ -79,6 +81,8 @@ export async function startApiTestEnvironment(
       paymentGateways: options.paymentGateways ?? ['development', 'vietqr-static'],
       paymentProviders: options.paymentProviders,
       notificationDispatchIntervalSeconds: 0,
+      exportJobIntervalSeconds: 0,
+      syncExportRowLimit: options.syncExportRowLimit,
       facebookPublisher: 'development',
       zaloSender: 'development',
     },

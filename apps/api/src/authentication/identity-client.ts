@@ -157,6 +157,11 @@ export class IdentityClient {
     );
   }
 
+  // Danh sách nhóm người dùng để xuất Excel 1.1 (DT-16 phần 16b); dịch vụ định danh tự kiểm tra quyền xem
+  listRoles(accessToken: string) {
+    return this.requestJson<IdentityRole[]>(accessToken, '/roles', undefined, 'đọc danh sách nhóm người dùng');
+  }
+
   // Tạo tài khoản kèm nhóm quyền cho nhân sự chưa có tài khoản (Lấy danh sách CBQL/GV, DT-16 phần 16d)
   createAccount(
     accessToken: string,
@@ -245,7 +250,7 @@ export interface StaffDirectoryEntry {
   org_unit_id: string | null;
 }
 
-// Một trang của danh sách người dùng ở dịch vụ định danh (GET /users)
+// Tài khoản, nhóm người dùng như dịch vụ định danh trả cho 1.4 và 1.1 của Quản trị hệ thống
 export interface IdentityAccount {
   id: string;
   full_name: string;
@@ -266,4 +271,14 @@ export interface IdentityAccountPage {
   page_size: number;
   total: number;
   total_pages: number;
+}
+
+export interface IdentityRole {
+  id: string;
+  code: string;
+  name: string;
+  is_system: boolean;
+  is_active: boolean;
+  user_count: number;
+  permissions: string[];
 }

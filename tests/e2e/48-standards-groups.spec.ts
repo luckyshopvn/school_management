@@ -93,7 +93,9 @@ test('Hoàn thành chương trình: quản lý đơn vị ghi cả lớp, phó h
   const vicePrincipal = await createTestUser(identity, { roles: [{ roleCode: 'VT-15', orgUnitId: unitId }] });
   const page = await signIn(browser, manager);
   await openMenu(page, '/program-completion');
-  await page.getByRole('button', { name: `Mở lớp ${className}` }).click();
+  const classes = page.getByRole('region', { name: 'Lớp mẫu giáo 5-6 tuổi' });
+  await classes.getByLabel('Tìm theo lớp, đơn vị').fill(className);
+  await classes.getByRole('button', { name: `Mở lớp ${className}` }).click();
   const panel = page.getByRole('region', { name: `Danh sách lớp ${className}` });
   await panel.getByRole('button', { name: 'Đánh dấu cả lớp hoàn thành' }).click();
   await panel.getByRole('button', { name: 'Lưu kết quả' }).click();
@@ -112,15 +114,31 @@ test('Nhóm học sinh: quản lý đơn vị lập nhóm và thêm cả lớp v
   const manager = await createTestUser(identity, { roles: [{ roleCode: 'VT-03', orgUnitId: unitId }] });
   const page = await signIn(browser, manager);
   await openMenu(page, '/child-groups');
+  // Danh sách nhóm theo lưới dữ liệu chung (DT-16 phần 16b): Thêm mới mở biểu mẫu lập nhóm
+  await page.getByRole('region', { name: 'Danh sách nhóm học sinh' }).getByRole('button', { name: 'Thêm mới' }).click();
   const form = page.getByRole('form', { name: 'Lập nhóm học sinh' });
   await form.getByLabel('Tên nhóm').fill(`Năng khiếu vẽ ${suffix}`);
   await form.getByRole('button', { name: 'Lập nhóm' }).click();
+  await expect(page.getByRole('region', { name: 'Danh sách nhóm học sinh' })).toContainText(`Năng khiếu vẽ ${suffix}`);
   const panel = page.getByRole('region', { name: `Nhóm Năng khiếu vẽ ${suffix}` });
-  await panel.getByLabel('Chọn lớp để thêm trẻ').selectOption({ label: className });
+  await panel.getByLabel('Chọn lớp để thêm học sinh').selectOption({ label: className });
   await panel.getByLabel('Chọn cả lớp').check();
   await panel.getByRole('button', { name: 'Thêm vào nhóm' }).click();
-  await expect(page.getByText('Đã thêm trẻ vào nhóm')).toBeVisible();
-  await expect(panel.getByRole('table', { name: 'Trẻ trong nhóm' }).getByRole('row')).toHaveCount(3);
+  await expect(page.getByText('Đã thêm học sinh vào nhóm')).toBeVisible();
+  const members = panel.getByRole('table', { name: 'Học sinh trong nhóm' });
+  await expect(members.getByRole('row', { name: `Lê Minh An ${suffix}` })).toBeVisible();
+  await expect(members.getByRole('row', { name: `Phạm Thu Bình ${suffix}` })).toBeVisible();
+
+  // Bỏ học sinh khỏi nhóm qua hộp xác nhận xóa: phải tích đồng ý thì nút mới bấm được
+  await members.getByRole('button', { name: `Bỏ Lê Minh An ${suffix}` }).click();
+  const confirm = page.getByRole('dialog', { name: 'Bỏ học sinh khỏi nhóm' });
+  const removeButton = confirm.getByRole('button', { name: 'Bỏ khỏi nhóm', exact: true });
+  await expect(removeButton).toBeDisabled();
+  await confirm.getByLabel(/^Tôi đã đọc và đồng ý xóa học sinh Lê Minh An/).check();
+  await removeButton.click();
+  await expect(page.getByText('Đã bỏ học sinh khỏi nhóm')).toBeVisible();
+  await expect(members.getByRole('row', { name: `Lê Minh An ${suffix}` })).toHaveCount(0);
+  await expect(members.getByRole('row', { name: `Phạm Thu Bình ${suffix}` })).toBeVisible();
 });
 
 test('Chuẩn nghề nghiệp: giáo viên tự đánh giá, quản lý đơn vị đánh giá và chốt phiếu', async ({ browser }) => {

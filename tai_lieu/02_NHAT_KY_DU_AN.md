@@ -14,6 +14,43 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-17 — DT-15 phần 15h2: sửa các hạn chế của văn thư lưu trữ
+
+#### Công việc đã thực hiện
+
+- Phông, hồ sơ văn thư chia theo đơn vị và lọc theo phạm vi; người giải quyết chọn từ nhân sự; nhắc sắp đến hạn, quá hạn; hàng chờ xóa lại tệp ở kho tệp. Tệp hệ thống `0016`.
+- Thêm kịch bản CT-483 đến CT-488, tiêu chí AC-527 đến AC-532, quy tắc BR-120, quy tắc phân quyền PQ-71. Kết quả: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 743/743 ca đạt, toàn bộ kiểm thử giao diện 100/100 ca đạt ngày 17/10/2026 trước khi gộp PR 94, 96, 97; sau khi gộp, build, kiểm tra kiểu, lint, kiểm tra định dạng đạt và CI chạy lại đủ kiểm thử đơn vị, giao diện.
+
+#### Quyết định
+
+- Eric chọn ngày 2026-10-16: sổ văn bản đến, đi và biên bản giao nộp, tiêu hủy chờ khảo sát; dùng tệp `0016`. Phạm vi đơn vị, nhắc 3 ngày trước, 20 lần thử xóa lại Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-122.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-122, `07_QUY_TAC_NGHIEP_VU.md` BR-120, `08_VAI_TRO_NGUOI_DUNG.md` PQ-71, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.72.0.
+
+#### Vấn đề tồn đọng
+
+- Sổ văn bản đến, đi và biên bản giao nộp, tiêu hủy chờ khảo sát bổ sung; nhắc hạn chưa gửi tin nhắn.
+
+### 2026-10-17 — DT-16 phần 16a: công cụ xuất, nhập dùng chung và mẫu gửi lên cấp trên
+
+#### Công việc đã thực hiện
+
+- Thêm nút "Xuất PDF" cho lưới dữ liệu dùng chung (bật bằng thuộc tính tùy chọn, năm màn hình), tác vụ xuất nền cho danh sách lớn với màn hình "3.5. Tệp đã tạo", thành phần nhập Excel dùng chung (tải file mẫu kèm dữ liệu, tra cứu danh mục, chọn cột để nhập, xuất file lỗi) áp cho Nhập dữ liệu từ Excel và 2.2 Nhập lớp học từ Excel, mẫu "gửi lên cấp trên" chạy nội bộ áp cho Biểu 1 EMIS đầu năm. Ba bảng mới ở cơ sở dữ liệu hệ thống (tệp `0010`), không thêm quyền.
+- Thêm chức năng P01-20, P17-19, P17-20, kịch bản CT-472 đến CT-482, tiêu chí AC-516 đến AC-526, quy tắc BR-119, quy tắc phân quyền PQ-70, màn hình MH-101, quy tắc bố cục BC-17. Kết quả ngày 17/10/2026 trên CI của PR 97: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 758/758 ca đạt (gồm 7 ca CT-472 đến CT-478 của `export-tools.test.ts`); toàn bộ kiểm thử giao diện 107/107 ca đạt (gồm 4 ca CT-479 đến CT-482 của `58-export-import-tools.spec.ts`; ca 23 quyết toán từng hỏng vì vượt giới hạn đăng nhập mỗi phút nên các ca 20 đến 24 chờ rồi đăng nhập lại qua `submitSignIn` của `tests/e2e/fixtures.ts`). Trên máy phát triển toàn bộ kiểm thử giao diện 107/107 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 16a của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7 theo lựa chọn của Eric ngày 2026-10-16 (bản chạy nội bộ, nút ghi đúng việc làm, để sẵn chỗ nối). Tiến trình xuất nền chạy trong máy chủ API thay cho `apps/worker`; nhập lớp học cập nhật lớp đã có theo cột được chọn; quyền mở khóa của Biểu 1 EMIS là `P01.school-profile.manage`; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-121.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-121, `07_QUY_TAC_NGHIEP_VU.md` BR-119, `08_VAI_TRO_NGUOI_DUNG.md` PQ-70, `10_YEU_CAU_CHUC_NANG.md` P01-20, P17-19, P17-20, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-40, MH-82, MH-92, MH-101, BC-17, `16_CO_SO_DU_LIEU.md` mục 1, 18, `17_DAC_TA_API.md` mục 17, 17.1, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.71.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7.
+
+#### Vấn đề tồn đọng
+
+- Xuất PDF, tác vụ nền còn bật dần ở các màn hình khác (16b, lượt 2, 3); tệp mẫu kèm dữ liệu mới có ở lớp học; gửi lên cấp trên mới có Biểu 1 EMIS, chưa truyền đi được.
 ### 2026-10-17 — DT-16 phần 16d: quản trị hệ thống đủ theo hệ thống của Sở
 
 #### Công việc đã thực hiện
@@ -35,6 +72,27 @@
 #### Vấn đề tồn đọng
 
 - Chưa đồng bộ được lên CSDL ngành của Bộ, Sở (chưa có giao diện lập trình); 1.2 theo phân hệ của cổng quản trị, không theo sáu phần mềm của Sở; Lấy danh sách CBQL/GV dùng một nhóm quyền chung.
+### 2026-10-16 — DT-16 phần 16b: lưới dữ liệu chung, hộp xác nhận xóa, Xuất Excel cho các màn hình còn lại theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Chuyển danh sách của các màn hình còn lại sang lưới dữ liệu chung (38 khóa lưới mới): 1.1 Khai báo cơ sở vật chất, 2.1 Tổng hợp thiết bị dạy học của phân hệ Quản lý cơ sở vật chất, TBDH; 4.3.2, 5.8, 4.4, 4.1.6, 3.2, 4.5, 4.6.1, 4.6.2 của phân hệ Quản lý giáo dục Mầm non; 2.1 đến 2.5, 3.2 của phân hệ Quản trị hệ thống. Bỏ học sinh khỏi nhóm (một hoặc nhiều), bỏ món, bỏ nguyên liệu, xóa tiêu chuẩn sức khỏe, bỏ liên kết Zalo qua hộp xác nhận xóa; tiêu đề trang theo số menu.
+- Thêm Xuất Excel theo cột đang hiện cho 1.2 Quản lý phân hiệu, 1.3 Quản lý điểm trường, 4.1.11 Cập nhật địa danh hành chính, 1.4 Danh sách người dùng, 1.1 Nhóm người dùng (bốn điểm cuối mới, ghi nhật ký xuất).
+- Thêm kịch bản CT-451 đến CT-457, tiêu chí AC-495 đến AC-501, quy tắc BR-117. Cơ sở dữ liệu ở máy phát triển không chạy được nên kết quả lấy trên CI của PR 94 ngày 16/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 742/742 ca đạt; toàn bộ kiểm thử giao diện 99/99 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 16b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7 theo yêu cầu của Eric ngày 2026-10-16 làm đủ mọi tính năng đã khảo sát của hệ thống của Sở. Không thêm bảng, quyền; tìm kiếm trên các lưới mới tìm tại chỗ; bảng nhập theo ô và bảng số liệu cố định giữ dạng bảng; xuất 1.4, 1.1 do máy chủ API đọc lại ở dịch vụ định danh bằng mã phiên của người xuất, đường dẫn `/account-exports` để cổng vào không chuyển sang dịch vụ định danh; tệp phân hiệu, điểm trường, nhóm người dùng ghi không có dữ liệu cá nhân; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-119.
+
+- Ngày 2026-10-17 gộp nhánh chính có phần 16d (YCTD-120): Xuất Excel 1.4 dùng `POST /account-directory/export` của phần 16d (đủ cột Mã nhân sự, Mã Bộ, hạn mật khẩu), bỏ `POST /account-exports/users` của phần này và kiểm thử CT-454 (thay bằng CT-466); tệp 1.1 lấy Hiệu lực theo dữ liệu, thêm cột Số người dùng.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-119, `07_QUY_TAC_NGHIEP_VU.md` BR-117, `10_YEU_CAU_CHUC_NANG.md` P01-01, P01-06, P01-07, P02-17, `14_DAC_TA_GIAO_DIEN.md` BC-13, BC-15 và các MH ở YCTD-119, `17_DAC_TA_API.md` mục 5, 6, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.69.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7.
+
+#### Vấn đề tồn đọng
+
+- Chưa có Xuất PDF trên các lưới (chờ phần 16a gộp); 1.1, 1.4 còn thiếu cột, bộ lọc, thao tác của Sở (phần 16d); các màn hình tài chính dùng bảng danh mục chung chuyển ở phần 15f1.
 
 ### 2026-10-16 — DT-15 phần 15h2: văn thư lưu trữ theo hệ thống của Sở
 

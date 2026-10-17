@@ -13,6 +13,8 @@ import { queueNotification } from '../common/notification-queue.js';
 import { conflictOnDuplicate, notFoundError } from '../common/request-fields.js';
 import { MOET_STAFF_COLUMNS, describeMoetProfile } from '../imports/moet-columns.js';
 import { buildStudentWorkbook, fileStamp } from '../children/student-workbook.js';
+import { ExportJobs, ExportTooLargeError, type ExportRequestContext } from '../exports/export-jobs.js';
+import type { TableFileFormat } from '../exports/table-file.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { SettingsService } from '../settings/settings.service.js';
 import {
@@ -53,7 +55,6 @@ export interface ContractInput {
 }
 
 const PAGE_SIZE_LIMIT = 200;
-const EXPORT_ROW_LIMIT = 10_000;
 
 const STAFF_COLUMNS = [
   'staff.id',
@@ -83,7 +84,15 @@ export class StaffService {
     private readonly identityClient: IdentityClient,
     private readonly settings: SettingsService,
     private readonly clock: Clock,
-  ) {}
+    private readonly exportJobs: ExportJobs,
+  ) {
+    // Danh sách lớn xuất bằng tác vụ nền với cùng bộ lọc, cùng cột (DT-16 phần 16a)
+    exportJobs.register('staff', {
+      title: 'Danh sách cán bộ, giáo viên',
+      run: (currentUser, parameters, context) =>
+        this.buildExport(currentUser, parameters.filter as StaffListFilter, parameters.columns as string[], context),
+    });
+  }
 
   async list(
     currentUser: CurrentUser,
@@ -175,18 +184,31 @@ export class StaffService {
     };
   }
 
-  // Xuất Excel đúng các cột đang hiện trên lưới, theo bộ lọc đang chọn; ghi nhật ký xuất trước khi trả tệp (BR-74)
-  async exportList(currentUser: CurrentUser, filter: StaffListFilter, columnIds: string[], ipAddress: string | null) {
+  // Xuất Excel, PDF đúng các cột đang hiện trên lưới, theo bộ lọc đang chọn; ghi nhật ký xuất trước khi trả tệp (BR-74).
+  // Danh sách vượt số dòng xuất trực tiếp thì tạo tác vụ nền (DT-16 phần 16a)
+  exportList(
+    currentUser: CurrentUser,
+    filter: StaffListFilter,
+    columnIds: string[],
+    format: TableFileFormat,
+    ipAddress: string | null,
+  ) {
+    return this.exportJobs.exportOrQueue(currentUser, 'staff', { filter, columns: columnIds }, format, ipAddress);
+  }
+
+  private async buildExport(
+    currentUser: CurrentUser,
+    filter: StaffListFilter,
+    columnIds: string[],
+    { format, ipAddress, rowLimit }: ExportRequestContext,
+  ) {
     const { database } = await this.currentSchoolYear.require();
     const { total, rows, contractUnits } = await this.staffPage(database, currentUser, filter, {
-      limit: EXPORT_ROW_LIMIT,
+      limit: rowLimit,
       offset: 0,
     });
-    if (total > EXPORT_ROW_LIMIT) {
-      throw ruleViolationError(
-        'YCTD-112',
-        `Danh sách có hơn ${EXPORT_ROW_LIMIT} nhân sự, hãy thu hẹp bộ lọc trước khi xuất Excel`,
-      );
+    if (total > rowLimit) {
+      throw new ExportTooLargeError(total);
     }
     const columns = columnIds.flatMap((id) => STAFF_EXPORT_COLUMNS.filter((column) => column.id === id));
     const items = await this.staffRows(database, rows, contractUnits);
@@ -204,6 +226,7 @@ export class StaffService {
       rows: items.map((item) => Object.fromEntries(columns.map((column) => [column.id, column.value(item)]))),
       ipAddress,
       createdAt,
+      format,
     });
   }
 

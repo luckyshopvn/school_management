@@ -16,6 +16,27 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.72.0 – 2026-10-17
+
+- Phạm vi thay đổi: DT-15 phần 15h2, sửa các hạn chế của văn thư lưu trữ (YCTD-122).
+- Chức năng mới: phông, hồ sơ chia theo đơn vị và lọc theo phạm vi đơn vị; người giải quyết chọn từ nhân sự; nhắc sắp đến hạn, quá hạn trong ứng dụng; nhãn và bộ lọc "Sắp đến hạn"; hàng chờ xóa lại tệp ở kho tệp (P09-06 đến P09-08).
+- Lỗi đã sửa: tệp đính kèm có thể còn ở kho tệp khi kho lỗi lúc xóa.
+- Thay đổi dữ liệu: tệp hệ thống `0016_add_archive_units_handlers_reminders` thêm cột `org_unit_id` (phông, hồ sơ), `handler_staff_id`, `due_reminded_at`, `overdue_reminded_at` (hồ sơ), bảng `archive_file_deletions`.
+- Thay đổi API: điểm cuối mới `GET /archive-handlers`; trường và bộ lọc mới `org_unit_id`, `handler_staff_id`, `due_soon`.
+- Rủi ro: người chỉ có vai trò theo đơn vị không còn thấy dữ liệu văn thư toàn trường đã nhập trước.
+- Khả năng tương thích: dữ liệu cũ có đơn vị trống (toàn trường), tên người giải quyết giữ nguyên; điểm cuối cũ giữ đường dẫn và nhận thêm trường không bắt buộc.
+- Phương án quay lui: hoàn lại commit gộp; chạy phần quay lui của tệp `0016` (xóa cột và bảng mới).
+
+### Phiên bản 0.71.0 – 2026-10-17
+
+- Phạm vi thay đổi: DT-16 phần 16a, công cụ xuất, nhập dùng chung và mẫu gửi lên cấp trên chạy nội bộ theo hệ thống của Sở (YCTD-121).
+- Chức năng mới: nút "Xuất PDF" của lưới dữ liệu dùng chung (bật ở 4.1.1, 4.1.9, 2.1, 3.3, 3.1.1); tác vụ xuất nền cho danh sách lớn và màn hình "3.5. Tệp đã tạo"; thành phần nhập Excel dùng chung với tải file mẫu kèm dữ liệu, tra cứu danh mục, chọn cột để nhập, xuất file lỗi (MH-40, MH-92); nhập lớp học cập nhật lớp đã có; khối "Gửi lên cấp trên" ở 1.1 Báo cáo EMIS đầu năm với Xuất tệp gửi, Đánh dấu đã gửi, Gửi yêu cầu mở khóa, Mở khóa, Đặt trạng thái gửi lại (P01-20, P17-19, P17-20).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp hệ thống `0010_create_export_jobs_and_submissions` tạo ba bảng `export_jobs`, `upper_level_submissions`, `upper_level_submission_events`. Không thêm quyền.
+- Thay đổi API: điểm cuối mới `/export-jobs`, `/export-jobs/{id}/file`, `/imports/templates/{type}/columns`, `/imports/catalogs/{type}`, `/imports/{id}/error-file`, `/upper-level-submissions` và các thao tác theo biểu mẫu; điểm cuối xuất của năm danh sách nhận `format`, hai danh sách trả 202 kèm tác vụ khi lớn.
+- Rủi ro: tiến trình xuất nền chạy trong máy chủ API nên tệp rất lớn dùng bộ nhớ của máy chủ API; nhập lớp học nay cập nhật lớp đã có (trước báo trùng) nên tệp cũ nhập lại sẽ ghi đè tên, sĩ số, phòng của lớp.
+- Khả năng tương thích: điểm cuối cũ nhận thêm trường tùy chọn, không gửi thì như trước, trừ trả 202 thay cho 422 khi danh sách vượt 10 000 dòng; màn hình không bật Xuất PDF không đổi; ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16a; chạy phần quay lui của tệp `0010` (xóa ba bảng); tệp ở kho tệp dưới khóa `export/`, `submission/` xóa thủ công nếu cần.
 ### Phiên bản 0.70.0 – 2026-10-17
 
 - Phạm vi thay đổi: DT-16 phần 16d, quản trị hệ thống đủ theo hệ thống của Sở (YCTD-120).
@@ -26,6 +47,16 @@
 - Rủi ro: ngừng hiệu lực một nhóm đang dùng làm người dùng mất quyền ngay; thao tác hàng loạt không gộp một giao dịch.
 - Khả năng tương thích: điểm cuối cũ giữ nguyên dạng trả về, chỉ thêm trường; không có mã quyền mới; nhóm cũ giữ đủ phân hệ trừ Phụ huynh; ứng dụng giáo viên, phụ huynh không đổi.
 - Phương án quay lui: hoàn lại commit gộp của nhánh phần 16d; chạy phần quay lui của tệp định danh `0046` (bỏ cột, bảng) và tệp hệ thống `0012` (xóa hai loại tài khoản đồng bộ, bỏ hai cột).
+### Phiên bản 0.69.0 – 2026-10-16
+
+- Phạm vi thay đổi: DT-16 phần 16b, lưới dữ liệu chung, hộp xác nhận xóa, Xuất Excel cho các màn hình còn lại theo hệ thống của Sở (YCTD-119).
+- Chức năng mới: lưới dữ liệu chung (tìm kiếm, Mở rộng tìm kiếm, cấu hình cột, số dòng mỗi trang theo người dùng, tiêu đề theo menu) cho 1.1 Khai báo cơ sở vật chất, 2.1 Tổng hợp thiết bị dạy học, 4.3.2 Tổng hợp cân nặng, chiều cao, 5.8 Thống kê hồ sơ chưa nhập đủ, 4.4 Hoàn thành chương trình, 4.1.6 Nhóm học sinh (bỏ nhiều học sinh khỏi nhóm), 3.2 Đánh giá chuẩn nghề nghiệp (lọc Loại chuẩn, Trạng thái), 4.5 Thực đơn bữa ăn, 4.6.1 Y tế học đường, 4.6.2 Thuốc và dặn thuốc, 2.1 Năm học, 2.2 Cây đơn vị (danh sách phẳng), 2.3 Phòng ban và chức danh, 2.4 Danh mục dùng chung, 2.5 Phòng học và bậc học, 3.2 Kết nối ngoài; hộp xác nhận xóa cho bỏ học sinh khỏi nhóm, bỏ món, bỏ nguyên liệu, xóa tiêu chuẩn sức khỏe, bỏ liên kết Zalo; Xuất Excel theo cột đang hiện cho 1.2 Quản lý phân hiệu, 1.3 Quản lý điểm trường, 4.1.11 Cập nhật địa danh hành chính, 1.1 Nhóm người dùng (BR-117); Xuất Excel 1.4 dùng điểm cuối của phần 16d.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: không có tệp thay đổi cấu trúc dữ liệu; 38 khóa lưới mới trong `DATA_GRID_KEYS` dùng cho `user_grid_settings`; các lần xuất mới ghi `export_logs`, phân hiệu, điểm trường, nhóm người dùng ghi không có dữ liệu cá nhân.
+- Thay đổi API: điểm cuối mới `POST /org-units/export`, `POST /administrative-units/addresses/export`, `POST /account-exports/roles`; `/me/grid-settings/{gridKey}` nhận thêm 38 khóa lưới.
+- Rủi ro: ô tìm kiếm của các lưới mới chỉ tìm trên dữ liệu đã tải.
+- Khả năng tương thích: không đổi bảng, quyền, điểm cuối cũ; điểm cuối của dịch vụ định danh không đổi; cấu hình lưới đã lưu của các lưới cũ giữ nguyên; ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16b; không có phần quay lui cơ sở dữ liệu; dòng `user_grid_settings` của 38 khóa mới không còn được đọc, xóa nếu cần.
 
 ### Phiên bản 0.68.0 – 2026-10-16
 

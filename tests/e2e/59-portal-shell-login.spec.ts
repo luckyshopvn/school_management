@@ -177,7 +177,7 @@ test.describe.serial('Thông báo bật lên khi vào trang', () => {
     await expect(page.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
 
     await openMenu(page, '/system-announcements');
-    await expect(page.getByRole('heading', { name: '3.5. Thông báo hệ thống' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '3.6. Thông báo hệ thống' })).toBeVisible();
     await page.getByRole('button', { name: 'Thêm mới' }).click();
     const form = page.getByRole('form', { name: 'Biểu mẫu thông báo' });
     await form.getByRole('button', { name: 'Ghi' }).click();
@@ -190,7 +190,7 @@ test.describe.serial('Thông báo bật lên khi vào trang', () => {
     await expect(grid.getByRole('row', { name: `Thông báo ${title}` })).toContainText('Đang hiển thị');
 
     await openMenu(page, '/app-links');
-    await expect(page.getByRole('heading', { name: '3.6. Ứng dụng liên kết' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '3.7. Ứng dụng liên kết' })).toBeVisible();
     await page.getByRole('button', { name: 'Thêm ứng dụng' }).click();
     await page.getByLabel('Tên ứng dụng dòng 1').fill(appName);
     await page.getByLabel('Đường dẫn dòng 1').fill('ftp://sai.vi-du.test');

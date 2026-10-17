@@ -221,10 +221,13 @@ export function ChildrenPage() {
     setExportError(undefined);
     setExporting(true);
     try {
-      await exportChildren(
+      const notice = await exportChildren(
         activeFilter,
         resolveVisibleColumns(columns, grid.settings.columns).map((column) => column.id),
       );
+      if (notice) {
+        setToastMessage(notice);
+      }
     } catch (error) {
       setExportError(messageOf(error));
     } finally {
@@ -436,6 +439,7 @@ export function ChildrenPage() {
           settings={grid.settings}
           onSettingsChange={grid.update}
           serverPagination={{ page, total: children.data?.total ?? 0, onPageChange: setPage }}
+          exportPdf={canExport ? (columnIds) => exportChildren(activeFilter, columnIds, 'pdf') : undefined}
         />
         {openId && !(children.data?.items ?? []).some((row) => row.id === openId) ? (
           <section className="rounded-xl border border-border bg-card p-4">

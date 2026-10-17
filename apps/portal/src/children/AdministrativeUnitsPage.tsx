@@ -4,6 +4,7 @@ import { PERMISSION_CODES } from '@school-management/shared';
 import { Alert, Button, ConfirmDialog, DataGrid, StatusBadge, Toast, type DataGridColumn } from '@school-management/ui';
 import { useUnitChoice } from '../catalogs/UnitSelect.js';
 import { AppShell } from '../pages/AppShell.js';
+import { useGridExport, visibleColumnIds } from '../pages/grid-export.js';
 import { useGridSettings } from '../pages/grid-settings.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
@@ -11,6 +12,7 @@ import { useHasPermission } from '../session/permissions.js';
 import {
   ADDRESS_TYPE_LABELS,
   convertAddresses,
+  exportOldAddresses,
   downloadMappingTemplate,
   importMappings,
   listMappings,
@@ -27,7 +29,7 @@ import {
 // 4.1.11. Cập nhật địa danh hành chính (DT-15 phần 15h1, YCTD-116): địa chỉ của học sinh (năm loại địa chỉ theo tệp CSDL
 // ngành) còn ghi theo địa danh trước sắp xếp năm 2025, địa danh mới đề xuất theo bảng đối chiếu; chọn nhiều dòng rồi
 // "Chuyển địa danh mới". Dòng có nhiều xã/phường mới thì chọn xã mới ngay trên dòng. Bên dưới là bảng đối chiếu, người có
-// quyền quản lý danh mục nhập thêm từ Excel
+// quyền quản lý danh mục nhập thêm từ Excel. Xuất Excel lưới địa chỉ theo bộ lọc và các cột đang hiện (DT-16 phần 16b)
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
@@ -181,6 +183,8 @@ export function AdministrativeUnitsPage() {
   const queryClient = useQueryClient();
   const unitChoice = useUnitChoice();
   const grid = useGridSettings('administrative-addresses');
+  const canExport = useHasPermission(PERMISSION_CODES.dataExport);
+  const exporter = useGridExport();
   const [filter, setFilter] = useState<AddressFilter>({});
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -294,6 +298,7 @@ export function AdministrativeUnitsPage() {
         ) : null}
         {addresses.isError ? <Alert tone="danger">{messageOf(addresses.error)}</Alert> : null}
         {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+        {exporter.error ? <Alert tone="danger">{exporter.error}</Alert> : null}
         <DataGrid
           label="Địa chỉ học sinh theo địa danh cũ"
           columns={columns}
@@ -361,15 +366,27 @@ export function AdministrativeUnitsPage() {
             </div>
           }
           toolbar={(selected) => (
-            <Button
-              disabled={selected.length === 0}
-              onClick={() => {
-                convert.reset();
-                setConfirming(selected);
-              }}
-            >
-              Chuyển địa danh mới
-            </Button>
+            <>
+              <Button
+                disabled={selected.length === 0}
+                onClick={() => {
+                  convert.reset();
+                  setConfirming(selected);
+                }}
+              >
+                Chuyển địa danh mới
+              </Button>
+              {canExport ? (
+                <Button
+                  disabled={exporter.exporting}
+                  onClick={() =>
+                    void exporter.run(() => exportOldAddresses(activeFilter, visibleColumnIds(columns, grid.settings)))
+                  }
+                >
+                  Xuất Excel
+                </Button>
+              ) : null}
+            </>
           )}
           settings={grid.settings}
           onSettingsChange={grid.update}

@@ -39,6 +39,8 @@ describe('Kiểm tra biểu mẫu văn thư lưu trữ', () => {
     assert.deepEqual(parseRecordInput({ ...pendingRecord, note: ' ' }), {
       ...pendingRecord,
       fond_id: null,
+      org_unit_id: null,
+      handler_staff_id: null,
       completed_on: null,
       note: null,
     });
@@ -108,10 +110,12 @@ describe('Kiểm tra biểu mẫu văn thư lưu trữ', () => {
       status: 'pending',
       search: 'HS',
       fond_id: null,
+      org_unit_id: null,
       handler: null,
       due_from: null,
       due_to: null,
       overdue: true,
+      due_soon: false,
     });
     readRecordFilter({ status: 'x', due_from: '2026-13-45', fond_id: 'x' }, errors);
     assert.deepEqual(errors.map((error) => error.field).sort(), ['due_from', 'fond_id', 'status']);

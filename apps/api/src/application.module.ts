@@ -17,6 +17,7 @@ import {
 } from './professional-standards/professional-standards.js';
 import { ProgramCompletionController, ProgramCompletionService } from './program-completion/program-completion.js';
 import { ChildGroupsController, ChildGroupsService } from './child-groups/child-groups.js';
+import { AccountExportsController, AccountExportsService } from './accounts-export/account-exports.js';
 import { Module, type DynamicModule, type Type } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { Clock } from '@school-management/server';
@@ -225,7 +226,15 @@ import { QuickLinksController, QuickLinksService } from './quick-links/quick-lin
 import { GridSettingsController, GridSettingsService } from './grid-settings/grid-settings.js';
 import { FeedbackController, FeedbackService } from './feedback/feedback.js';
 import { ArchivesController } from './archives/archives.controller.js';
-import { ArchivesService } from './archives/archives.js';
+import { ArchiveJobs, ArchivesService } from './archives/archives.js';
+import { ExportJobs, ExportJobsController } from './exports/export-jobs.js';
+import {
+  ManualUpperLevelGateway,
+  UpperLevelForms,
+  UpperLevelGateway,
+  UpperLevelSubmissions,
+  UpperLevelSubmissionsController,
+} from './submissions/upper-level-submissions.js';
 import {
   AppLinksController,
   AppLinksService,
@@ -372,6 +381,8 @@ export class ApplicationModule {
         GridSettingsController,
         FeedbackController,
         ArchivesController,
+        ExportJobsController,
+        UpperLevelSubmissionsController,
         SystemAnnouncementsController,
         AppLinksController,
         PortalContextController,
@@ -388,6 +399,7 @@ export class ApplicationModule {
         LedgerEntriesController,
         ProgramCompletionController,
         ChildGroupsController,
+        AccountExportsController,
         ProfessionalStandardsController,
         ...(options.additionalControllers ?? []),
       ],
@@ -575,6 +587,12 @@ export class ApplicationModule {
         GridSettingsService,
         FeedbackService,
         ArchivesService,
+        ArchiveJobs,
+        ExportJobs,
+        UpperLevelForms,
+        UpperLevelSubmissions,
+        // Chưa có kết nối với hệ thống của Bộ, Sở: gửi lên cấp trên làm thủ công (DT-16 phần 16a)
+        { provide: UpperLevelGateway, useClass: ManualUpperLevelGateway },
         SystemAnnouncementsService,
         AppLinksService,
         PortalContextService,
@@ -593,6 +611,7 @@ export class ApplicationModule {
         WorkAccess,
         ProgramCompletionService,
         ChildGroupsService,
+        AccountExportsService,
         ProfessionalStandardsService,
         TasksService,
         PlansService,

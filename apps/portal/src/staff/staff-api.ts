@@ -1,5 +1,6 @@
 import type { MoetProfileEntry } from '../imports/MoetProfileSection.js';
 import { downloadPost } from '../children/children-api.js';
+import type { ExportFormat } from '../exports/export-api.js';
 import { requestJson } from '../session/api-client.js';
 
 // Gọi nhóm điểm cuối hồ sơ nhân sự và hợp đồng lao động (P07-01, P07-02, P07-04; YCTD-58)
@@ -175,12 +176,12 @@ export function searchStaff(filter: StaffFilter & { page: number; pageSize: numb
   return requestJson(`/api/v1/staff/search?${parameters.toString()}`);
 }
 
-// Xuất Excel theo bộ lọc và các cột đang hiện trên lưới
-export const exportStaff = (filter: StaffFilter, columns: string[]) =>
+// Xuất Excel hoặc PDF theo bộ lọc và các cột đang hiện trên lưới
+export const exportStaff = (filter: StaffFilter, columns: string[], format: ExportFormat = 'xlsx') =>
   downloadPost(
     '/api/v1/staff/export',
-    { ...Object.fromEntries(filterEntries(filter)), columns },
-    'danh-sach-can-bo-giao-vien.xlsx',
+    { ...Object.fromEntries(filterEntries(filter)), columns, format },
+    `danh-sach-can-bo-giao-vien.${format}`,
   );
 
 // Ghi hồ sơ theo biểu mẫu của Sở và thông tin riêng của trường; chỉ gửi ô đã đổi
