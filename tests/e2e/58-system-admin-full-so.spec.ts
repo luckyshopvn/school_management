@@ -36,6 +36,11 @@ async function loginWith(page: Page, loginIdentifier: string, password: string) 
   await expect(page.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
 }
 
+// Hộp thoại xác nhận chung (ConfirmDialog) không có tên truy cập; tìm theo tiêu đề
+function dialogTitled(page: Page, title: string) {
+  return page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: title, exact: true }) });
+}
+
 async function addRole(page: Page, code: string, name: string) {
   const grid = page.getByRole('region', { name: 'Danh sách nhóm người dùng' });
   await grid.getByRole('button', { name: 'Thêm mới' }).click();
@@ -78,7 +83,8 @@ test('CT-16d-11: 1.1 sửa tên, ngừng hiệu lực nhóm; không xóa đượ
   // Nhóm đang có người dùng: hộp xác nhận xóa, máy chủ báo lỗi quy tắc
   await row.getByRole('button', { name: `Xóa ${used}` }).click();
   let dialog = page.getByRole('dialog', { name: 'Xóa nhóm người dùng' });
-  await dialog.getByRole('button', { name: 'Xóa' }).click();
+  await dialog.getByLabel(/^Tôi đã đọc và đồng ý xóa/).check();
+  await dialog.getByRole('button', { name: 'Xóa', exact: true }).click();
   await expect(page.getByRole('alert').filter({ hasText: 'đang có 1 người dùng' })).toBeVisible();
 
   // Nhóm hệ thống không có nút Xóa, hiệu lực không tắt được
@@ -93,7 +99,8 @@ test('CT-16d-11: 1.1 sửa tên, ngừng hiệu lực nhóm; không xóa đượ
     .getByRole('button', { name: `Xóa ${empty}` })
     .click();
   dialog = page.getByRole('dialog', { name: 'Xóa nhóm người dùng' });
-  await dialog.getByRole('button', { name: 'Xóa' }).click();
+  await dialog.getByLabel(/^Tôi đã đọc và đồng ý xóa/).check();
+  await dialog.getByRole('button', { name: 'Xóa', exact: true }).click();
   await expect(page.getByRole('status').filter({ hasText: `Đã xóa nhóm người dùng ${empty}` })).toBeVisible();
   await expect(grid.getByText('Không có nhóm người dùng phù hợp.')).toBeVisible();
 });
@@ -129,7 +136,7 @@ test('CT-16d-12: 1.2 bỏ phân hệ của nhóm thì người dùng của nhóm
     await expect(memberPage.getByRole('menuitemradio', { name: 'Báo cáo', exact: true })).toHaveCount(0);
   } finally {
     // Trả lại phân hệ để các kịch bản khác không bị ảnh hưởng
-    await section.getByRole('button', { name: 'Chọn tất cả' }).click();
+    await section.getByRole('button', { name: 'Chọn tất cả', exact: true }).click();
     await section.getByRole('button', { name: 'Ghi' }).click();
     await expect(section.getByText('Đã chọn 11/11 phân hệ')).toBeVisible();
     await memberPage.close();
@@ -168,7 +175,7 @@ test('CT-16d-13: 1.4 lấy danh sách CBQL/GV, cột mã nhân sự, mã Bộ, l
 
   // Lấy danh sách CBQL/GV: chỉ chọn nhân sự của kịch bản này
   await grid.getByRole('button', { name: 'Lấy danh sách CBQL/GV' }).click();
-  let dialog = page.getByRole('dialog', { name: 'Lấy danh sách CBQL/GV' });
+  let dialog = dialogTitled(page, 'Lấy danh sách CBQL/GV');
   const table = dialog.getByRole('table', { name: 'Nhân sự chưa có tài khoản' });
   await expect(table.getByRole('row').filter({ hasText: staffCode })).toBeVisible(slow);
   for (const box of await table.getByRole('checkbox').all()) {
@@ -179,7 +186,7 @@ test('CT-16d-13: 1.4 lấy danh sách CBQL/GV, cột mã nhân sự, mã Bộ, l
   }
   await dialog.getByLabel('Nhóm quyền').selectOption('VT-07');
   await dialog.getByRole('button', { name: 'Tạo tài khoản' }).click();
-  dialog = page.getByRole('dialog', { name: 'Kết quả lấy danh sách CBQL/GV' });
+  dialog = dialogTitled(page, 'Kết quả lấy danh sách CBQL/GV');
   await expect(dialog.getByText('Đã tạo 1/1 tài khoản')).toBeVisible(slow);
   await expect(dialog.getByTestId('bulk-temporary-password')).toHaveText(/^[A-Za-z0-9]{12}$/);
   await dialog.getByRole('button', { name: 'Đã ghi lại' }).click();
@@ -197,9 +204,9 @@ test('CT-16d-13: 1.4 lấy danh sách CBQL/GV, cột mã nhân sự, mã Bộ, l
   // Cấp mật khẩu cho dòng đã chọn
   await row.getByRole('checkbox').check();
   await grid.getByRole('button', { name: 'Cấp mật khẩu' }).click();
-  dialog = page.getByRole('dialog', { name: 'Cấp mật khẩu cho 1 tài khoản?' });
+  dialog = dialogTitled(page, 'Cấp mật khẩu cho 1 tài khoản?');
   await dialog.getByRole('button', { name: 'Cấp mật khẩu' }).click();
-  dialog = page.getByRole('dialog', { name: 'Mật khẩu tạm' });
+  dialog = dialogTitled(page, 'Mật khẩu tạm');
   await expect(dialog.getByTestId('bulk-temporary-password')).toHaveText(/^[A-Za-z0-9]{12}$/);
   await dialog.getByRole('button', { name: 'Đã ghi lại' }).click();
   await expect(page.getByRole('status').filter({ hasText: 'Đã cấp mật khẩu cho 1 tài khoản' })).toBeVisible();
@@ -207,11 +214,11 @@ test('CT-16d-13: 1.4 lấy danh sách CBQL/GV, cột mã nhân sự, mã Bộ, l
   // Phân nhóm quyền: thêm Nhân viên y tế ở đơn vị của nhân sự
   await row.getByRole('checkbox').check();
   await grid.getByRole('button', { name: 'Phân nhóm quyền' }).click();
-  dialog = page.getByRole('dialog', { name: 'Phân nhóm quyền cho 1 tài khoản' });
+  dialog = dialogTitled(page, 'Phân nhóm quyền cho 1 tài khoản');
   await dialog.getByLabel('Vai trò').selectOption('VT-09');
   await dialog.getByLabel('Đơn vị').selectOption(unit.id);
   await dialog.getByRole('button', { name: 'Ghi' }).click();
-  dialog = page.getByRole('dialog', { name: 'Kết quả phân nhóm quyền' });
+  dialog = dialogTitled(page, 'Kết quả phân nhóm quyền');
   await expect(dialog.getByText('Đã gán nhóm cho 1/1 tài khoản')).toBeVisible(slow);
   await dialog.getByRole('button', { name: 'Đóng' }).click();
   await expect(row).toContainText('Nhân viên y tế', slow);
@@ -244,6 +251,8 @@ test('CT-16d-14: 1.6 tài khoản đồng bộ của Bộ, của Sở ghi tên �
   await expect(page.getByText('Mat-khau-thu-e2e')).toHaveCount(0);
 
   await saved.getByRole('button', { name: 'Xóa thông tin' }).click();
-  await page.getByRole('dialog', { name: 'Xóa tài khoản đồng bộ' }).getByRole('button', { name: 'Xóa' }).click();
+  const confirm = page.getByRole('dialog', { name: 'Xóa tài khoản đồng bộ' });
+  await confirm.getByLabel(/^Tôi đã đọc và đồng ý xóa/).check();
+  await confirm.getByRole('button', { name: 'Xóa', exact: true }).click();
   await expect(page.getByRole('status').filter({ hasText: 'Đã xóa tài khoản đồng bộ của Sở GD&ĐT' })).toBeVisible();
 });

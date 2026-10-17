@@ -40,6 +40,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
   - Lấy danh sách CBQL/GV chọn một nhóm quyền chung cho mọi nhân sự được chọn; chưa suy nhóm từ chức danh; mã nhân sự không dùng làm tên đăng nhập được (dưới 3 ký tự sau khi bỏ dấu, ký tự lạ) và không có số điện thoại hợp lệ thì báo lỗi ở dòng đó.
   - Thao tác hàng loạt gọi lần lượt từng tài khoản (tối đa 200), không gộp một giao dịch; lỗi giữa chừng để lại phần đã làm, bảng kết quả nêu từng dòng.
   - Mật khẩu tạm hàng loạt chỉ hiện trên màn hình một lần, chưa in hay xuất tệp.
+  - Tài khoản không còn nhóm nào có hiệu lực thì không thấy phân hệ nào trên ô chọn phân hệ, kể cả mục không cần quyền như Báo cáo.
 - Kiểm thử cần thực hiện: kịch bản CT-458 đến CT-471 (trong mã kiểm thử là CT-16d-1 đến CT-16d-14); kiểm thử đơn vị mới `apps/api/src/system-admin-so.test.ts` (CT-458 đến CT-467); kiểm thử giao diện mới `tests/e2e/58-system-admin-full-so.spec.ts` (CT-468 đến CT-471); sửa `tests/e2e/04-accounts.spec.ts`, `52-system-admin-so.spec.ts` theo cột, nút mới. Kết quả ngày 17/10/2026: (điền sau)
 - Trạng thái: Đã triển khai
 
