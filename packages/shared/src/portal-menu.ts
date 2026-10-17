@@ -63,7 +63,7 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         group('4.1.', 'Hồ sơ học sinh', [
           leaf('4.1.1.', 'Quản lý hồ sơ học sinh', '/children'),
           // Nhập học sinh, sắp xếp, điện thoại nhận tin, số định danh, tài khoản học và thi (DT-16 phần 16g); nhập dữ liệu
-          // khác (công nợ đầu kỳ, nhân sự) giữ trang chung, chưa có số của Sở
+          // khác (công nợ đầu kỳ) giữ trang chung, đánh số tiếp sau mục cuối 4.1.12 của Sở
           leaf('4.1.2.', 'Nhập học sinh từ Excel', '/student-imports'),
           leaf('4.1.3.', 'Sắp xếp học sinh', '/student-order'),
           leaf('4.1.5.', 'Điện thoại nhận tin của phụ huynh', '/sms-phones'),
@@ -71,7 +71,7 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           leaf('4.1.8.', 'Thu thập, xác thực số định danh', '/national-ids'),
           leaf('4.1.10.', 'Tài khoản học và thi', '/learning-accounts'),
           leaf('4.1.11.', 'Cập nhật địa danh hành chính', '/administrative-units'),
-          leaf('', 'Nhập dữ liệu khác từ Excel', '/imports'),
+          leaf('4.1.13.', 'Nhập dữ liệu khác từ Excel', '/imports'),
         ]),
         leaf('4.2.', 'Biến động học sinh', '/student-movements'),
         group('4.3.', 'Cân nặng, chiều cao', [
