@@ -494,10 +494,10 @@ describe('Quản trị hệ thống đủ theo Sở', () => {
     assert.ok(!JSON.stringify(saved.body).includes(testPassword));
     const stored = await environment.system
       .selectFrom('integration_credentials')
-      .select(['account_username', 'account_password_encrypted'])
+      .select(['account_username', 'account_secret_encrypted'])
       .where('connector', '=', 'moet_sync')
       .executeTakeFirstOrThrow();
-    assert.ok(stored.account_password_encrypted && !stored.account_password_encrypted.includes(testPassword));
+    assert.ok(stored.account_secret_encrypted && !stored.account_secret_encrypted.includes(testPassword));
     // Để trống mật khẩu thì giữ mật khẩu đã lưu
     const renamed = await sendJson('PUT', `${environment.baseUrl}/sync-accounts/moet`, principal, {
       username: 'truong.thu2',
@@ -506,14 +506,14 @@ describe('Quản trị hệ thống đủ theo Sở', () => {
     assert.equal(renamed.status, 200);
     const after = await environment.system
       .selectFrom('integration_credentials')
-      .select(['account_username', 'account_password_encrypted'])
+      .select(['account_username', 'account_secret_encrypted'])
       .where('connector', '=', 'moet_sync')
       .executeTakeFirstOrThrow();
     assert.equal(after.account_username, 'truong.thu2');
-    assert.equal(after.account_password_encrypted, stored.account_password_encrypted);
+    assert.equal(after.account_secret_encrypted, stored.account_secret_encrypted);
     const listed = await sendJson('GET', `${environment.baseUrl}/sync-accounts`, principal);
     assert.ok(!JSON.stringify(listed.body).includes(testPassword));
-    assert.ok(!JSON.stringify(listed.body).includes(stored.account_password_encrypted ?? '-'));
+    assert.ok(!JSON.stringify(listed.body).includes(stored.account_secret_encrypted ?? '-'));
 
     const manager = await environment.loginAs('VT-03', units['PH-A'] ?? null);
     assert.equal((await sendJson('GET', `${environment.baseUrl}/sync-accounts`, manager.accessToken)).status, 403);

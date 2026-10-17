@@ -71,7 +71,7 @@ export interface IntegrationCredentialsTable {
   refreshed_at: Date | null;
   // Tài khoản đồng bộ của Bộ, của Sở: tên đăng nhập và mật khẩu đã mã hóa (DT-16 phần 16d)
   account_username: ColumnType<string | null, string | null | undefined, string | null>;
-  account_password_encrypted: ColumnType<string | null, string | null | undefined, string | null>;
+  account_secret_encrypted: ColumnType<string | null, string | null | undefined, string | null>;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
   updated_by: string | null;

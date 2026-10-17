@@ -14,7 +14,7 @@ export const migration: Migration = {
     await database.schema
       .alterTable('integration_credentials')
       .addColumn('account_username', 'text')
-      .addColumn('account_password_encrypted', 'text')
+      .addColumn('account_secret_encrypted', 'text')
       .execute();
   },
   async down(database) {
@@ -22,7 +22,7 @@ export const migration: Migration = {
     await database.schema
       .alterTable('integration_credentials')
       .dropColumn('account_username')
-      .dropColumn('account_password_encrypted')
+      .dropColumn('account_secret_encrypted')
       .execute();
     await sql`alter table integration_credentials drop constraint integration_credentials_connector_check`.execute(
       database,

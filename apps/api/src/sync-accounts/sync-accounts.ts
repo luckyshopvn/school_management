@@ -60,7 +60,7 @@ export class SyncAccountsService {
   async list(): Promise<SyncAccountView[]> {
     const rows = await this.databases.system
       .selectFrom('integration_credentials')
-      .select(['connector', 'account_username', 'account_password_encrypted', 'updated_at'])
+      .select(['connector', 'account_username', 'account_secret_encrypted', 'updated_at'])
       .where('connector', 'in', ['moet_sync', 'doet_sync'])
       .execute();
     return (Object.keys(SYNC_TARGETS) as SyncTarget[]).map((target) => {
@@ -69,7 +69,7 @@ export class SyncAccountsService {
         target,
         label: SYNC_TARGETS[target].label,
         username: row?.account_username ?? null,
-        password_configured: Boolean(row?.account_password_encrypted),
+        password_configured: Boolean(row?.account_secret_encrypted),
         updated_at: row?.updated_at ?? null,
         sync_available: this.gateway.available(target),
       };
@@ -80,13 +80,13 @@ export class SyncAccountsService {
   async save(target: SyncTarget, input: { username: string; password: string | null }, origin: ChangeOrigin) {
     const connector = SYNC_TARGETS[target].connector;
     const before = await this.read(connector);
-    if (!input.password && !before?.account_password_encrypted) {
+    if (!input.password && !before?.account_secret_encrypted) {
       throw validationError([{ field: 'password', message: 'Bắt buộc nhập mật khẩu' }]);
     }
     const values = {
       account_username: input.username,
       ...(input.password
-        ? { account_password_encrypted: encryptSecret(this.configuration.childDataEncryptionKey, input.password) }
+        ? { account_secret_encrypted: encryptSecret(this.configuration.childDataEncryptionKey, input.password) }
         : {}),
       updated_by: origin.actorUserId,
     };
@@ -119,19 +119,19 @@ export class SyncAccountsService {
   // Chỗ nối: bộ đồng bộ với Bộ, Sở đọc tên đăng nhập, mật khẩu đã giải mã; không trả qua API
   async readCredentials(target: SyncTarget): Promise<{ username: string; password: string } | null> {
     const row = await this.read(SYNC_TARGETS[target].connector);
-    if (!row?.account_username || !row.account_password_encrypted) {
+    if (!row?.account_username || !row.account_secret_encrypted) {
       return null;
     }
     return {
       username: row.account_username,
-      password: decryptSecret(this.configuration.childDataEncryptionKey, row.account_password_encrypted),
+      password: decryptSecret(this.configuration.childDataEncryptionKey, row.account_secret_encrypted),
     };
   }
 
   private read(connector: IntegrationCredentialConnector) {
     return this.databases.system
       .selectFrom('integration_credentials')
-      .select(['id', 'account_username', 'account_password_encrypted'])
+      .select(['id', 'account_username', 'account_secret_encrypted'])
       .where('connector', '=', connector)
       .executeTakeFirst();
   }
