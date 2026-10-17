@@ -12,7 +12,7 @@ import { createTestUser } from '@school-management/identity/testing';
 import { E2E_PARENT_PORT, E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
 import { openMenu } from './menu.js';
 
-// Bếp và thực đơn (DT-10 phần 10c, YCTD-76): bếp lập thực đơn tuần và trình duyệt trên cổng quản trị; phụ huynh chưa thấy
+// Thực đơn bữa ăn (DT-10 phần 10c, YCTD-76): bếp lập thực đơn tuần và trình duyệt trên cổng quản trị; phụ huynh chưa thấy
 // thực đơn chưa duyệt (CT-065); quản lý đơn vị duyệt và công bố thì phụ huynh thấy trên ứng dụng phụ huynh
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 let schoolYear: ReturnType<typeof createDatabase<SchoolYearDatabase>>;
@@ -137,7 +137,10 @@ test('Bếp lập thực đơn, quản lý đơn vị duyệt và công bố, ph
 
   const managerPage = await (await browser.newContext()).newPage();
   await signInPortal(managerPage, manager);
-  await managerPage.getByRole('button', { name: `Xem thực đơn tuần ${week} all` }).click();
+  // Danh sách thực đơn tuần là lưới dữ liệu chung có phân trang (DT-16 phần 16b): tìm theo tuần trước khi mở
+  const menuGrid = managerPage.getByRole('region', { name: 'Danh sách thực đơn tuần' });
+  await menuGrid.getByLabel('Tìm theo tuần, độ tuổi').fill(week);
+  await menuGrid.getByRole('button', { name: `Xem thực đơn tuần ${week} all` }).click();
   const managerDetail = managerPage.getByRole('region', { name: 'Chi tiết thực đơn' });
   await expect(managerDetail).toContainText(dishName);
   await managerDetail.getByRole('button', { name: 'Duyệt và công bố' }).click();

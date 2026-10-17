@@ -58,7 +58,8 @@ export interface AcademicYearDatabasesTable {
   created_by: string | null;
 }
 
-export type IntegrationCredentialConnector = 'zalo';
+// Tài khoản đồng bộ của Bộ, của Sở (DT-16 phần 16d)
+export type IntegrationCredentialConnector = 'zalo' | 'moet_sync' | 'doet_sync';
 
 // Khóa truy cập kết nối ngoài đã mã hóa, dùng chung toàn trường qua các năm học (YCTD-92)
 export interface IntegrationCredentialsTable {
@@ -68,6 +69,9 @@ export interface IntegrationCredentialsTable {
   access_token_expires_at: Date | null;
   refresh_token_encrypted: string | null;
   refreshed_at: Date | null;
+  // Tài khoản đồng bộ của Bộ, của Sở: tên đăng nhập và mật khẩu đã mã hóa (DT-16 phần 16d)
+  account_username: ColumnType<string | null, string | null | undefined, string | null>;
+  account_secret_encrypted: ColumnType<string | null, string | null | undefined, string | null>;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
   updated_by: string | null;

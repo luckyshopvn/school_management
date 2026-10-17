@@ -1,10 +1,21 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, TextField, Toast } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  ConfirmDeleteDialog,
+  DataGrid,
+  TextField,
+  Toast,
+  type DataGridColumn,
+} from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { listClasses } from '../classes/classes-api.js';
 import { AppShell } from '../pages/AppShell.js';
+import { matchesSearch } from '../pages/grid-search.js';
+import { useGridSettings } from '../pages/grid-settings.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { requestJson } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import {
@@ -23,10 +34,67 @@ import {
 } from './health-api.js';
 
 // MH-16 Hồ sơ sức khỏe và đợt khám (P10-06, P10-07, P10-08, P10-10, P10-11; YCTD-74): y tế lập đợt khám, lịch khám,
-// ghi và công bố kết quả; xem sự kiện y tế; gửi báo cáo sức khỏe phụ huynh yêu cầu; quản lý tiêu chuẩn sức khỏe
+// ghi và công bố kết quả; xem sự kiện y tế; gửi báo cáo sức khỏe phụ huynh yêu cầu; quản lý tiêu chuẩn sức khỏe.
+// Danh sách đợt khám, lịch khám, sự kiện y tế, yêu cầu báo cáo và tiêu chuẩn theo lưới dữ liệu chung, tìm tại chỗ, Mở
+// rộng tìm kiếm, Thêm mới mở biểu mẫu; bảng nhập kết quả khám từng học sinh giữ dạng nhập liệu; xóa tiêu chuẩn qua hộp xác
+// nhận xóa (DT-16 phần 16b)
 type Tab = 'campaigns' | 'events' | 'reports' | 'standards';
 const selectClass = 'mt-2 block w-full rounded-lg border border-border bg-card px-3 py-2 text-content font-normal';
 const vietnamToday = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
+const CAMPAIGN_STATUS_LABELS: Record<Campaign['status'], string> = { open: 'Đang mở', closed: 'Đã đóng' };
+const GENDER_LABELS: Record<Standard['gender'], string> = { female: 'Nữ', male: 'Nam' };
+const parentStatusOf = (event: MedicalEvent) =>
+  event.parent_acknowledged_at
+    ? `Đã biết lúc ${new Date(event.parent_acknowledged_at).toLocaleString('vi-VN')}`
+    : 'Chưa xác nhận';
+
+const CAMPAIGN_COLUMNS: Array<DataGridColumn<Campaign>> = [
+  { id: 'name', header: 'Tên đợt khám', alwaysVisible: true, className: 'font-medium', cell: (row) => row.name },
+  { id: 'from_date', header: 'Từ ngày', cell: (row) => row.from_date },
+  { id: 'to_date', header: 'Đến ngày', cell: (row) => row.to_date },
+  { id: 'status', header: 'Trạng thái', cell: (row) => CAMPAIGN_STATUS_LABELS[row.status] },
+];
+
+const SCHEDULE_COLUMNS: Array<DataGridColumn<Schedule>> = [
+  { id: 'class_name', header: 'Lớp', alwaysVisible: true, className: 'font-medium', cell: (row) => row.class_name },
+  { id: 'check_date', header: 'Ngày khám', cell: (row) => row.check_date },
+  { id: 'location', header: 'Nơi khám', cell: (row) => row.location },
+];
+
+const EVENT_COLUMNS: Array<DataGridColumn<MedicalEvent>> = [
+  { id: 'occurred_at', header: 'Thời điểm', cell: (row) => new Date(row.occurred_at).toLocaleString('vi-VN') },
+  { id: 'full_name', header: 'Học sinh', alwaysVisible: true, className: 'font-medium', cell: (row) => row.full_name },
+  { id: 'symptoms', header: 'Triệu chứng', cell: (row) => row.symptoms },
+  { id: 'handling', header: 'Xử lý', cell: (row) => row.handling },
+  { id: 'handler_name', header: 'Người xử lý', cell: (row) => row.handler_name },
+  { id: 'severity', header: 'Mức độ', cell: (row) => SEVERITY_LABELS[row.severity] },
+  { id: 'parent', header: 'Phụ huynh', cell: parentStatusOf },
+];
+
+const REPORT_COLUMNS: Array<DataGridColumn<ReportRequest>> = [
+  { id: 'full_name', header: 'Học sinh', alwaysVisible: true, className: 'font-medium', cell: (row) => row.full_name },
+  { id: 'report_type', header: 'Loại', cell: (row) => REPORT_TYPE_LABELS[row.report_type] },
+  { id: 'period', header: 'Kỳ', cell: (row) => `${row.period_from} đến ${row.period_to}` },
+  { id: 'note', header: 'Ghi chú', cell: (row) => row.note ?? '' },
+  { id: 'status', header: 'Trạng thái', cell: (row) => (row.status === 'sent' ? 'Đã gửi' : 'Chờ gửi') },
+];
+
+const STANDARD_COLUMNS: Array<DataGridColumn<Standard>> = [
+  {
+    id: 'indicator_code',
+    header: 'Chỉ số',
+    alwaysVisible: true,
+    className: 'font-medium',
+    cell: (row) => INDICATOR_LABELS[row.indicator_code],
+  },
+  { id: 'gender', header: 'Giới tính', cell: (row) => GENDER_LABELS[row.gender] },
+  { id: 'age_months', header: 'Tháng tuổi', cell: (row) => `${row.age_month_from} đến ${row.age_month_to}` },
+  { id: 'range', header: 'Ngưỡng', cell: (row) => `${Number(row.lower_value)} đến ${Number(row.upper_value)}` },
+  { id: 'source_document', header: 'Nguồn', cell: (row) => row.source_document },
+];
+
+const standardLabelOf = (row: Standard) =>
+  `${INDICATOR_LABELS[row.indicator_code]}, ${GENDER_LABELS[row.gender]}, ${row.age_month_from} đến ${row.age_month_to} tháng tuổi`;
 
 export function HealthPage() {
   const [tab, setTab] = useState<Tab>('campaigns');
@@ -42,7 +110,7 @@ export function HealthPage() {
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-4">
-        <h1 className="text-page-title font-bold text-text">Y tế học đường</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/health')}</h1>
         <div className="flex flex-wrap gap-2" role="tablist" aria-label="Y tế">
           {tabs.map(([code, label]) => (
             <Button
@@ -69,7 +137,13 @@ function CampaignsTab({ onDone }: { onDone(message: string): void }) {
   const queryClient = useQueryClient();
   const unitChoice = useUnitChoice();
   const orgUnitId = unitChoice.selectedId;
+  const grid = useGridSettings('health-campaigns');
+  const scheduleGrid = useGridSettings('health-schedules');
   const [campaignId, setCampaignId] = useState('');
+  const [creating, setCreating] = useState(false);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [scheduleSearch, setScheduleSearch] = useState('');
   const [name, setName] = useState('');
   const [fromDate, setFromDate] = useState(vietnamToday);
   const [toDate, setToDate] = useState(vietnamToday);
@@ -112,6 +186,7 @@ function CampaignsTab({ onDone }: { onDone(message: string): void }) {
       }),
     onSuccess: (campaign) => {
       setName('');
+      setCreating(false);
       setCampaignId(campaign.id);
       return refresh('Đã lập đợt khám');
     },
@@ -135,46 +210,106 @@ function CampaignsTab({ onDone }: { onDone(message: string): void }) {
     mutationFn: () => postJson(`/api/v1/health-check-campaigns/${campaignId}/close`, {}),
     onSuccess: () => refresh('Đã đóng đợt khám'),
   });
-  const error = [campaigns.error, createCampaign.error, createSchedule.error, publish.error, close.error].find(Boolean);
+  const error = [
+    campaigns.error,
+    createCampaign.error,
+    createSchedule.error,
+    publish.error,
+    close.error,
+    grid.error,
+    scheduleGrid.error,
+  ].find(Boolean);
   const selected = campaigns.data?.find((campaign) => campaign.id === campaignId);
+  const rows = (campaigns.data ?? []).filter(
+    (campaign) => (statusFilter === '' || campaign.status === statusFilter) && matchesSearch(search, campaign.name),
+  );
+  const scheduleRows = (schedules.data ?? []).filter((schedule) =>
+    matchesSearch(scheduleSearch, schedule.class_name, schedule.location, schedule.check_date),
+  );
 
   return (
     <div className="flex flex-col gap-4">
       {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
-      <div className="flex flex-wrap items-end gap-4">
-        <UnitSelect units={unitChoice.units} selectedId={orgUnitId} onSelect={unitChoice.select} />
-        <label className="text-label font-medium text-text">
-          Đợt khám
-          <select value={campaignId} onChange={(event) => setCampaignId(event.target.value)} className={selectClass}>
-            <option value="">Chọn đợt khám</option>
-            {(campaigns.data ?? []).map((campaign) => (
-              <option key={campaign.id} value={campaign.id}>
-                {campaign.name} ({campaign.status === 'open' ? 'đang mở' : 'đã đóng'})
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-      <form
-        aria-label="Lập đợt khám"
-        className="grid grid-cols-1 gap-3 rounded-lg bg-card p-4 md:grid-cols-4"
-        onSubmit={(event) => {
-          event.preventDefault();
-          createCampaign.mutate();
+      <UnitSelect
+        units={unitChoice.units}
+        selectedId={orgUnitId}
+        onSelect={(id) => {
+          unitChoice.select(id);
+          setCampaignId('');
         }}
-      >
-        <TextField label="Tên đợt khám" value={name} onChange={(event) => setName(event.target.value)} />
-        <TextField label="Từ ngày" type="date" value={fromDate} onChange={(event) => setFromDate(event.target.value)} />
-        <TextField label="Đến ngày" type="date" value={toDate} onChange={(event) => setToDate(event.target.value)} />
-        <div className="flex items-end">
-          <Button type="submit" variant="primary" disabled={createCampaign.isPending || name === '' || !orgUnitId}>
-            Lập đợt khám
+      />
+      {creating ? (
+        <form
+          aria-label="Lập đợt khám"
+          className="grid grid-cols-1 gap-3 rounded-lg bg-card p-4 md:grid-cols-4"
+          onSubmit={(event) => {
+            event.preventDefault();
+            createCampaign.mutate();
+          }}
+        >
+          <TextField label="Tên đợt khám" value={name} onChange={(event) => setName(event.target.value)} />
+          <TextField
+            label="Từ ngày"
+            type="date"
+            value={fromDate}
+            onChange={(event) => setFromDate(event.target.value)}
+          />
+          <TextField label="Đến ngày" type="date" value={toDate} onChange={(event) => setToDate(event.target.value)} />
+          <div className="flex items-end gap-2">
+            <Button type="submit" variant="primary" disabled={createCampaign.isPending || name === '' || !orgUnitId}>
+              Lập đợt khám
+            </Button>
+            <Button variant="text" onClick={() => setCreating(false)}>
+              Hủy
+            </Button>
+          </div>
+        </form>
+      ) : null}
+      <DataGrid
+        label="Danh sách đợt khám"
+        columns={CAMPAIGN_COLUMNS}
+        rows={rows}
+        getRowId={(row) => row.id}
+        getRowLabel={(row) => row.name}
+        loading={campaigns.isLoading}
+        emptyText="Chưa có đợt khám."
+        search={{ label: 'Tìm theo tên đợt khám', value: search, onChange: setSearch }}
+        advancedSearch={
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <label className="text-label font-medium text-text">
+              Trạng thái
+              <select
+                value={statusFilter}
+                onChange={(event) => setStatusFilter(event.target.value)}
+                className={selectClass}
+              >
+                <option value="">Tất cả</option>
+                <option value="open">Đang mở</option>
+                <option value="closed">Đã đóng</option>
+              </select>
+            </label>
+          </div>
+        }
+        toolbar={
+          orgUnitId ? (
+            <Button variant="primary" onClick={() => setCreating(true)}>
+              Thêm mới
+            </Button>
+          ) : null
+        }
+        rowActions={(row) => (
+          <Button variant="text" onClick={() => setCampaignId(row.id)}>
+            Xem đợt khám {row.name}
           </Button>
-        </div>
-      </form>
+        )}
+        activeRowId={campaignId}
+        settings={grid.settings}
+        onSettingsChange={grid.update}
+      />
 
       {selected ? (
         <section className="flex flex-col gap-3" aria-label="Chi tiết đợt khám">
+          <h2 className="text-section-title font-semibold text-text">Đợt khám {selected.name}</h2>
           <div className="flex flex-wrap gap-2">
             <Button disabled={publish.isPending} onClick={() => publish.mutate()}>
               Công bố kết quả
@@ -225,17 +360,23 @@ function CampaignsTab({ onDone }: { onDone(message: string): void }) {
               </div>
             </form>
           ) : null}
-          <ul className="text-content text-text">
-            {(schedules.data ?? []).map((schedule) => (
-              <li key={schedule.id}>
-                Lớp {schedule.class_name}: {schedule.check_date} tại {schedule.location}
-              </li>
-            ))}
-          </ul>
-          <table className="w-full text-content">
+          <DataGrid
+            label="Lịch khám"
+            columns={SCHEDULE_COLUMNS}
+            rows={scheduleRows}
+            getRowId={(row) => row.id}
+            getRowLabel={(row) => `Lớp ${row.class_name}`}
+            loading={schedules.isLoading}
+            emptyText="Đợt khám chưa có lịch khám."
+            search={{ label: 'Tìm theo lớp, nơi khám', value: scheduleSearch, onChange: setScheduleSearch }}
+            settings={scheduleGrid.settings}
+            onSettingsChange={scheduleGrid.update}
+          />
+          {/* Bảng nhập kết quả khám từng học sinh giữ dạng nhập liệu (DT-16 phần 16b) */}
+          <table className="w-full text-content" aria-label="Kết quả khám">
             <thead>
               <tr className="text-left text-text-secondary">
-                <th className="py-2">Trẻ</th>
+                <th className="py-2">Học sinh</th>
                 <th>Lớp</th>
                 <th>{INDICATOR_LABELS.height_cm}</th>
                 <th>{INDICATOR_LABELS.weight_kg}</th>
@@ -342,6 +483,11 @@ function EventsTab({ onDone }: { onDone(message: string): void }) {
   const canRecord = useHasPermission(PERMISSION_CODES.medicalEventRecord);
   const unitChoice = useUnitChoice();
   const orgUnitId = unitChoice.selectedId;
+  const grid = useGridSettings('medical-events');
+  const [creating, setCreating] = useState(false);
+  const [search, setSearch] = useState('');
+  const [severityFilter, setSeverityFilter] = useState('');
+  const [parentFilter, setParentFilter] = useState('');
   const [childId, setChildId] = useState('');
   const [symptoms, setSymptoms] = useState('');
   const [handling, setHandling] = useState('');
@@ -371,16 +517,23 @@ function EventsTab({ onDone }: { onDone(message: string): void }) {
     onSuccess: async () => {
       setSymptoms('');
       setHandling('');
+      setCreating(false);
       await queryClient.invalidateQueries({ queryKey: ['medical-events'] });
       onDone('Đã ghi sự kiện y tế và báo phụ huynh');
     },
   });
-  const error = [events.error, record.error].find(Boolean);
+  const error = [events.error, record.error, grid.error].find(Boolean);
+  const rows = (events.data ?? []).filter(
+    (event) =>
+      (severityFilter === '' || event.severity === severityFilter) &&
+      (parentFilter === '' || (parentFilter === 'acknowledged') === Boolean(event.parent_acknowledged_at)) &&
+      matchesSearch(search, event.full_name, event.symptoms, event.handling, event.handler_name),
+  );
   return (
     <div className="flex flex-col gap-4">
       {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
       <UnitSelect units={unitChoice.units} selectedId={orgUnitId} onSelect={unitChoice.select} />
-      {canRecord ? (
+      {canRecord && creating ? (
         <form
           aria-label="Ghi sự kiện y tế"
           className="grid grid-cols-1 gap-3 rounded-lg bg-card p-4 md:grid-cols-5"
@@ -390,9 +543,9 @@ function EventsTab({ onDone }: { onDone(message: string): void }) {
           }}
         >
           <label className="text-label font-medium text-text">
-            Trẻ
+            Học sinh
             <select value={childId} onChange={(event) => setChildId(event.target.value)} className={selectClass}>
-              <option value="">Chọn trẻ</option>
+              <option value="">Chọn học sinh</option>
               {(children.data?.items ?? []).map((child) => (
                 <option key={child.id} value={child.id}>
                   {child.full_name}
@@ -414,7 +567,7 @@ function EventsTab({ onDone }: { onDone(message: string): void }) {
               <option value="severe">Nặng</option>
             </select>
           </label>
-          <div className="flex items-end">
+          <div className="flex items-end gap-2">
             <Button
               type="submit"
               variant="primary"
@@ -422,45 +575,72 @@ function EventsTab({ onDone }: { onDone(message: string): void }) {
             >
               Ghi sự kiện
             </Button>
+            <Button variant="text" onClick={() => setCreating(false)}>
+              Hủy
+            </Button>
           </div>
         </form>
       ) : null}
-      <table className="w-full text-content">
-        <thead>
-          <tr className="text-left text-text-secondary">
-            <th className="py-2">Thời điểm</th>
-            <th>Trẻ</th>
-            <th>Triệu chứng</th>
-            <th>Xử lý</th>
-            <th>Người xử lý</th>
-            <th>Mức độ</th>
-            <th>Phụ huynh</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(events.data ?? []).map((event) => (
-            <tr key={event.id} className="border-t border-border">
-              <td className="py-2">{new Date(event.occurred_at).toLocaleString('vi-VN')}</td>
-              <td>{event.full_name}</td>
-              <td>{event.symptoms}</td>
-              <td>{event.handling}</td>
-              <td>{event.handler_name}</td>
-              <td>{SEVERITY_LABELS[event.severity]}</td>
-              <td>
-                {event.parent_acknowledged_at
-                  ? `Đã biết lúc ${new Date(event.parent_acknowledged_at).toLocaleString('vi-VN')}`
-                  : 'Chưa xác nhận'}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DataGrid
+        label="Danh sách sự kiện y tế"
+        columns={EVENT_COLUMNS}
+        rows={rows}
+        getRowId={(row) => row.id}
+        getRowLabel={(row) => row.full_name}
+        loading={events.isLoading}
+        emptyText="Chưa có sự kiện y tế."
+        search={{ label: 'Tìm theo học sinh, triệu chứng, xử lý', value: search, onChange: setSearch }}
+        advancedSearch={
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <label className="text-label font-medium text-text">
+              Mức độ
+              <select
+                value={severityFilter}
+                onChange={(event) => setSeverityFilter(event.target.value)}
+                className={selectClass}
+              >
+                <option value="">Tất cả</option>
+                {Object.entries(SEVERITY_LABELS).map(([code, label]) => (
+                  <option key={code} value={code}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-label font-medium text-text">
+              Phụ huynh
+              <select
+                value={parentFilter}
+                onChange={(event) => setParentFilter(event.target.value)}
+                className={selectClass}
+              >
+                <option value="">Tất cả</option>
+                <option value="acknowledged">Đã biết</option>
+                <option value="pending">Chưa xác nhận</option>
+              </select>
+            </label>
+          </div>
+        }
+        toolbar={
+          canRecord && orgUnitId ? (
+            <Button variant="primary" onClick={() => setCreating(true)}>
+              Thêm mới
+            </Button>
+          ) : null
+        }
+        settings={grid.settings}
+        onSettingsChange={grid.update}
+      />
     </div>
   );
 }
 
 function ReportsTab({ onDone }: { onDone(message: string): void }) {
   const queryClient = useQueryClient();
+  const grid = useGridSettings('health-report-requests');
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
   const reports = useQuery({
     queryKey: ['health-reports'],
     queryFn: () => requestJson<ReportRequest[]>('/api/v1/health-report-requests'),
@@ -472,49 +652,79 @@ function ReportsTab({ onDone }: { onDone(message: string): void }) {
       onDone('Đã gửi báo cáo sức khỏe cho phụ huynh');
     },
   });
-  const error = [reports.error, send.error].find(Boolean);
+  const error = [reports.error, send.error, grid.error].find(Boolean);
+  const rows = (reports.data ?? []).filter(
+    (report) =>
+      (statusFilter === '' || report.status === statusFilter) &&
+      (typeFilter === '' || report.report_type === typeFilter) &&
+      matchesSearch(search, report.full_name, report.note),
+  );
   return (
     <div className="flex flex-col gap-4">
       {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
-      <table className="w-full text-content">
-        <thead>
-          <tr className="text-left text-text-secondary">
-            <th className="py-2">Trẻ</th>
-            <th>Loại</th>
-            <th>Kỳ</th>
-            <th>Ghi chú</th>
-            <th>Trạng thái</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {(reports.data ?? []).map((report) => (
-            <tr key={report.id} className="border-t border-border" aria-label={`Yêu cầu của ${report.full_name}`}>
-              <td className="py-2">{report.full_name}</td>
-              <td>{REPORT_TYPE_LABELS[report.report_type]}</td>
-              <td>
-                {report.period_from} đến {report.period_to}
-              </td>
-              <td>{report.note}</td>
-              <td>{report.status === 'sent' ? 'Đã gửi' : 'Chờ gửi'}</td>
-              <td>
-                {report.status === 'pending' ? (
-                  <Button variant="text" disabled={send.isPending} onClick={() => send.mutate(report.id)}>
-                    Tổng hợp và gửi
-                  </Button>
-                ) : null}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {reports.data?.length === 0 ? <p className="text-content text-text-secondary">Chưa có yêu cầu báo cáo.</p> : null}
+      <DataGrid
+        label="Danh sách yêu cầu báo cáo sức khỏe"
+        columns={REPORT_COLUMNS}
+        rows={rows}
+        getRowId={(row) => row.id}
+        getRowLabel={(row) => row.full_name}
+        getRowAriaLabel={(row) => `Yêu cầu của ${row.full_name}`}
+        loading={reports.isLoading}
+        emptyText="Chưa có yêu cầu báo cáo."
+        search={{ label: 'Tìm theo học sinh, ghi chú', value: search, onChange: setSearch }}
+        advancedSearch={
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <label className="text-label font-medium text-text">
+              Loại
+              <select
+                value={typeFilter}
+                onChange={(event) => setTypeFilter(event.target.value)}
+                className={selectClass}
+              >
+                <option value="">Tất cả</option>
+                {Object.entries(REPORT_TYPE_LABELS).map(([code, label]) => (
+                  <option key={code} value={code}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-label font-medium text-text">
+              Trạng thái
+              <select
+                value={statusFilter}
+                onChange={(event) => setStatusFilter(event.target.value)}
+                className={selectClass}
+              >
+                <option value="">Tất cả</option>
+                <option value="pending">Chờ gửi</option>
+                <option value="sent">Đã gửi</option>
+              </select>
+            </label>
+          </div>
+        }
+        rowActions={(row) =>
+          row.status === 'pending' ? (
+            <Button variant="text" disabled={send.isPending} onClick={() => send.mutate(row.id)}>
+              Tổng hợp và gửi
+            </Button>
+          ) : null
+        }
+        settings={grid.settings}
+        onSettingsChange={grid.update}
+      />
     </div>
   );
 }
 
 function StandardsTab({ onDone }: { onDone(message: string): void }) {
   const queryClient = useQueryClient();
+  const grid = useGridSettings('health-standards');
+  const [creating, setCreating] = useState(false);
+  const [removing, setRemoving] = useState<Standard>();
+  const [search, setSearch] = useState('');
+  const [indicatorFilter, setIndicatorFilter] = useState('');
+  const [genderFilter, setGenderFilter] = useState('');
   const [indicator, setIndicator] = useState<'height_cm' | 'weight_kg' | 'bmi'>('weight_kg');
   const [gender, setGender] = useState<'male' | 'female'>('female');
   const [fromMonth, setFromMonth] = useState('');
@@ -541,92 +751,141 @@ function StandardsTab({ onDone }: { onDone(message: string): void }) {
         upper_value: Number(upper),
         source_document: source,
       }),
-    onSuccess: () => refresh('Đã thêm tiêu chuẩn'),
+    onSuccess: () => {
+      setCreating(false);
+      return refresh('Đã thêm tiêu chuẩn');
+    },
   });
   const remove = useMutation({
     mutationFn: (standardId: string) => requestJson(`/api/v1/health-standards/${standardId}`, { method: 'DELETE' }),
-    onSuccess: () => refresh('Đã xóa tiêu chuẩn'),
+    onSuccess: () => {
+      setRemoving(undefined);
+      return refresh('Đã xóa tiêu chuẩn');
+    },
+    onError: () => setRemoving(undefined),
   });
-  const error = [standards.error, create.error, remove.error].find(Boolean);
+  const error = [standards.error, create.error, remove.error, grid.error].find(Boolean);
+  const rows = (standards.data ?? []).filter(
+    (row) =>
+      (indicatorFilter === '' || row.indicator_code === indicatorFilter) &&
+      (genderFilter === '' || row.gender === genderFilter) &&
+      matchesSearch(search, INDICATOR_LABELS[row.indicator_code], row.source_document),
+  );
   return (
     <div className="flex flex-col gap-4">
       {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
-      <form
-        aria-label="Thêm tiêu chuẩn"
-        className="grid grid-cols-1 gap-3 rounded-lg bg-card p-4 md:grid-cols-4"
-        onSubmit={(event) => {
-          event.preventDefault();
-          create.mutate();
-        }}
-      >
-        <label className="text-label font-medium text-text">
-          Chỉ số
-          <select
-            value={indicator}
-            onChange={(event) => setIndicator(event.target.value as 'height_cm' | 'weight_kg' | 'bmi')}
-            className={selectClass}
-          >
-            {Object.entries(INDICATOR_LABELS).map(([code, label]) => (
-              <option key={code} value={code}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="text-label font-medium text-text">
-          Giới tính
-          <select
-            value={gender}
-            onChange={(event) => setGender(event.target.value as 'male' | 'female')}
-            className={selectClass}
-          >
-            <option value="female">Nữ</option>
-            <option value="male">Nam</option>
-          </select>
-        </label>
-        <TextField label="Từ tháng tuổi" value={fromMonth} onChange={(event) => setFromMonth(event.target.value)} />
-        <TextField label="Đến tháng tuổi" value={toMonth} onChange={(event) => setToMonth(event.target.value)} />
-        <TextField label="Ngưỡng dưới" value={lower} onChange={(event) => setLower(event.target.value)} />
-        <TextField label="Ngưỡng trên" value={upper} onChange={(event) => setUpper(event.target.value)} />
-        <TextField label="Văn bản nguồn" value={source} onChange={(event) => setSource(event.target.value)} />
-        <div className="flex items-end">
-          <Button type="submit" variant="primary" disabled={create.isPending || source === ''}>
-            Thêm tiêu chuẩn
+      {creating ? (
+        <form
+          aria-label="Thêm tiêu chuẩn"
+          className="grid grid-cols-1 gap-3 rounded-lg bg-card p-4 md:grid-cols-4"
+          onSubmit={(event) => {
+            event.preventDefault();
+            create.mutate();
+          }}
+        >
+          <label className="text-label font-medium text-text">
+            Chỉ số
+            <select
+              value={indicator}
+              onChange={(event) => setIndicator(event.target.value as 'height_cm' | 'weight_kg' | 'bmi')}
+              className={selectClass}
+            >
+              {Object.entries(INDICATOR_LABELS).map(([code, label]) => (
+                <option key={code} value={code}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="text-label font-medium text-text">
+            Giới tính
+            <select
+              value={gender}
+              onChange={(event) => setGender(event.target.value as 'male' | 'female')}
+              className={selectClass}
+            >
+              <option value="female">Nữ</option>
+              <option value="male">Nam</option>
+            </select>
+          </label>
+          <TextField label="Từ tháng tuổi" value={fromMonth} onChange={(event) => setFromMonth(event.target.value)} />
+          <TextField label="Đến tháng tuổi" value={toMonth} onChange={(event) => setToMonth(event.target.value)} />
+          <TextField label="Ngưỡng dưới" value={lower} onChange={(event) => setLower(event.target.value)} />
+          <TextField label="Ngưỡng trên" value={upper} onChange={(event) => setUpper(event.target.value)} />
+          <TextField label="Văn bản nguồn" value={source} onChange={(event) => setSource(event.target.value)} />
+          <div className="flex items-end gap-2">
+            <Button type="submit" variant="primary" disabled={create.isPending || source === ''}>
+              Thêm tiêu chuẩn
+            </Button>
+            <Button variant="text" onClick={() => setCreating(false)}>
+              Hủy
+            </Button>
+          </div>
+        </form>
+      ) : null}
+      <DataGrid
+        label="Danh sách tiêu chuẩn sức khỏe"
+        columns={STANDARD_COLUMNS}
+        rows={rows}
+        getRowId={(row) => row.id}
+        getRowLabel={standardLabelOf}
+        loading={standards.isLoading}
+        emptyText="Chưa có tiêu chuẩn sức khỏe."
+        search={{ label: 'Tìm theo chỉ số, văn bản nguồn', value: search, onChange: setSearch }}
+        advancedSearch={
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <label className="text-label font-medium text-text">
+              Chỉ số
+              <select
+                value={indicatorFilter}
+                onChange={(event) => setIndicatorFilter(event.target.value)}
+                className={selectClass}
+              >
+                <option value="">Tất cả</option>
+                {Object.entries(INDICATOR_LABELS).map(([code, label]) => (
+                  <option key={code} value={code}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-label font-medium text-text">
+              Giới tính
+              <select
+                value={genderFilter}
+                onChange={(event) => setGenderFilter(event.target.value)}
+                className={selectClass}
+              >
+                <option value="">Tất cả</option>
+                <option value="female">Nữ</option>
+                <option value="male">Nam</option>
+              </select>
+            </label>
+          </div>
+        }
+        toolbar={
+          <Button variant="primary" onClick={() => setCreating(true)}>
+            Thêm mới
           </Button>
-        </div>
-      </form>
-      <table className="w-full text-content">
-        <thead>
-          <tr className="text-left text-text-secondary">
-            <th className="py-2">Chỉ số</th>
-            <th>Giới tính</th>
-            <th>Tháng tuổi</th>
-            <th>Ngưỡng</th>
-            <th>Nguồn</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {(standards.data ?? []).map((row) => (
-            <tr key={row.id} className="border-t border-border">
-              <td className="py-2">{INDICATOR_LABELS[row.indicator_code]}</td>
-              <td>{row.gender === 'female' ? 'Nữ' : 'Nam'}</td>
-              <td>
-                {row.age_month_from} đến {row.age_month_to}
-              </td>
-              <td>
-                {Number(row.lower_value)} đến {Number(row.upper_value)}
-              </td>
-              <td>{row.source_document}</td>
-              <td>
-                <Button variant="text" disabled={remove.isPending} onClick={() => remove.mutate(row.id)}>
-                  Xóa
-                </Button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        }
+        rowActions={(row) => (
+          <Button variant="text" disabled={remove.isPending} onClick={() => setRemoving(row)}>
+            Xóa
+          </Button>
+        )}
+        settings={grid.settings}
+        onSettingsChange={grid.update}
+      />
+      {removing ? (
+        <ConfirmDeleteDialog
+          open
+          title="Xóa tiêu chuẩn sức khỏe"
+          subject={`tiêu chuẩn ${standardLabelOf(removing)}`}
+          busy={remove.isPending}
+          onCancel={() => setRemoving(undefined)}
+          onConfirm={() => remove.mutate(removing.id)}
+        />
+      ) : null}
     </div>
   );
 }

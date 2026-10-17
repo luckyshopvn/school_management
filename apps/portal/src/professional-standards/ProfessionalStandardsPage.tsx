@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, TextField, Toast } from '@school-management/ui';
+import { Alert, Button, DataGrid, TextField, Toast, type DataGridColumn } from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { AppShell } from '../pages/AppShell.js';
+import { matchesSearch } from '../pages/grid-search.js';
+import { useGridSettings } from '../pages/grid-settings.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
 import { listStaff } from '../staff/staff-api.js';
 import { messageOf, selectClass } from '../work/work-api.js';
@@ -24,6 +27,8 @@ import {
   submitSelf,
   updateCriterion,
   type EvaluationDetail,
+  type EvaluationStatus,
+  type EvaluationSummary,
   type Level,
   type StandardType,
 } from './professional-standards-api.js';
@@ -31,8 +36,21 @@ import {
 // Đánh giá chuẩn nghề nghiệp (YCTD-102): nhân sự tự đánh giá từng tiêu chí kèm minh chứng rồi gửi; quản lý đơn vị đánh giá
 // giáo viên trong đơn vị, Hiệu trưởng đánh giá chuẩn hiệu trưởng; chốt phiếu thì hệ thống xếp loại chung. Thống kê theo
 // mức; Hiệu trưởng sửa danh mục tiêu chí (tiêu chí trọng yếu, ngừng dùng, thêm tiêu chí)
+// Danh sách phiếu đánh giá của đơn vị theo lưới dữ liệu chung: tìm tại chỗ theo tên nhân sự, Mở rộng tìm kiếm theo loại
+// chuẩn, trạng thái (DT-16 phần 16b); phiếu tự đánh giá, thống kê xếp loại và bảng tiêu chí giữ bố cục cũ
 type Ratings = Record<string, { rating: Level | ''; text: string }>;
 const LEVELS = Object.keys(LEVEL_LABELS) as Level[];
+
+const EVALUATION_COLUMNS: Array<DataGridColumn<EvaluationSummary>> = [
+  { id: 'full_name', header: 'Nhân sự', alwaysVisible: true, className: 'font-medium', cell: (row) => row.full_name },
+  { id: 'standard_type', header: 'Loại chuẩn', cell: (row) => STANDARD_TYPE_LABELS[row.standard_type] },
+  { id: 'status', header: 'Trạng thái', cell: (row) => STATUS_LABELS[row.status] },
+  {
+    id: 'overall_level',
+    header: 'Xếp loại',
+    cell: (row) => (row.overall_level ? LEVEL_LABELS[row.overall_level] : ''),
+  },
+];
 
 function LevelSelect({
   label,
@@ -355,8 +373,18 @@ function ManageSection({ orgUnitId, onChanged }: { orgUnitId: string; onChanged(
     queryKey: ['professional-evaluations', 'statistics', orgUnitId],
     queryFn: () => readStatistics(orgUnitId),
   });
+  const grid = useGridSettings('professional-evaluations');
   const [selectedId, setSelectedId] = useState<string>();
+  const [search, setSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState<StandardType | ''>('');
+  const [statusFilter, setStatusFilter] = useState<EvaluationStatus | ''>('');
   const error = [evaluations.error, statistics.error].find(Boolean);
+  const rows = (evaluations.data ?? []).filter(
+    (row) =>
+      (typeFilter === '' || row.standard_type === typeFilter) &&
+      (statusFilter === '' || row.status === statusFilter) &&
+      matchesSearch(search, row.full_name),
+  );
   return (
     <>
       {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
@@ -390,36 +418,60 @@ function ManageSection({ orgUnitId, onChanged }: { orgUnitId: string; onChanged(
           </tbody>
         </table>
       </section>
-      <section className="flex flex-col gap-2 rounded-lg bg-card p-4" aria-label="Phiếu đánh giá của đơn vị">
-        <h2 className="text-section-title font-semibold text-text">Phiếu đánh giá của đơn vị</h2>
-        <table className="w-full text-content">
-          <thead>
-            <tr className="text-left text-text-secondary">
-              <th className="py-2">Nhân sự</th>
-              <th>Loại chuẩn</th>
-              <th>Trạng thái</th>
-              <th>Xếp loại</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {(evaluations.data ?? []).map((row) => (
-              <tr key={row.id} className="border-t border-border" aria-label={`Phiếu ${row.full_name}`}>
-                <td className="py-2">{row.full_name}</td>
-                <td>{STANDARD_TYPE_LABELS[row.standard_type]}</td>
-                <td>{STATUS_LABELS[row.status]}</td>
-                <td>{row.overall_level ? LEVEL_LABELS[row.overall_level] : ''}</td>
-                <td>
-                  <Button variant="text" onClick={() => setSelectedId(row.id)}>
-                    {row.can_assess && row.status === 'self_submitted' ? 'Đánh giá' : 'Xem'} {row.full_name}
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {evaluations.data?.length === 0 ? <p className="text-text-secondary">Chưa mở phiếu nào.</p> : null}
-      </section>
+      {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+      <DataGrid
+        label="Phiếu đánh giá của đơn vị"
+        columns={EVALUATION_COLUMNS}
+        rows={rows}
+        getRowId={(row) => row.id}
+        getRowLabel={(row) => row.full_name}
+        getRowAriaLabel={(row) => `Phiếu ${row.full_name}`}
+        loading={evaluations.isPending}
+        emptyText="Chưa mở phiếu nào."
+        search={{ label: 'Tìm theo tên nhân sự', value: search, onChange: setSearch }}
+        advancedSearch={
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <label className="text-label font-medium text-text">
+              Loại chuẩn
+              <select
+                value={typeFilter}
+                className={selectClass}
+                onChange={(event) => setTypeFilter(event.target.value as StandardType | '')}
+              >
+                <option value="">Tất cả</option>
+                {(Object.keys(STANDARD_TYPE_LABELS) as StandardType[]).map((type) => (
+                  <option key={type} value={type}>
+                    {STANDARD_TYPE_LABELS[type]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-label font-medium text-text">
+              Trạng thái
+              <select
+                value={statusFilter}
+                className={selectClass}
+                onChange={(event) => setStatusFilter(event.target.value as EvaluationStatus | '')}
+              >
+                <option value="">Tất cả</option>
+                {(Object.keys(STATUS_LABELS) as EvaluationStatus[]).map((status) => (
+                  <option key={status} value={status}>
+                    {STATUS_LABELS[status]}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        }
+        rowActions={(row) => (
+          <Button variant="text" onClick={() => setSelectedId(row.id)}>
+            {row.can_assess && row.status === 'self_submitted' ? 'Đánh giá' : 'Xem'} {row.full_name}
+          </Button>
+        )}
+        activeRowId={selectedId}
+        settings={grid.settings}
+        onSettingsChange={grid.update}
+      />
       {selectedId ? <AssessmentPanel key={selectedId} evaluationId={selectedId} onChanged={onChanged} /> : null}
     </>
   );
@@ -530,7 +582,7 @@ export function ProfessionalStandardsPage() {
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-4">
-        <h1 className="text-page-title font-bold text-text">Đánh giá chuẩn nghề nghiệp</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/professional-standards')}</h1>
         <MyEvaluation onChanged={changed} />
         {(canManage || canAssess) && unitChoice.selectedId ? (
           <>

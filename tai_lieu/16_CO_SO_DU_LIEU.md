@@ -2,7 +2,7 @@
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
 - Phiên bản: 1.68
-- Ngày cập nhật: 2026-10-16
+- Ngày cập nhật: 2026-10-17
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -18,7 +18,7 @@
 8. Đơn vị tổ chức lưu trong bảng `org_units` thành cây hai cấp (QĐ-23); `unit_type` là loại đơn vị; Trường chính có `parent_id` trống, Phân hiệu và Điểm trường có `parent_id` là Trường chính.
 9. Mỗi năm học một cơ sở dữ liệu nghiệp vụ (QĐ-15). Có ba loại cơ sở dữ liệu:
    - Cơ sở dữ liệu định danh, không theo năm học: `users`, `roles`, `permissions`, `role_permissions`, `user_roles`, `sessions`, `one_time_codes`, `api_clients`, `security_events` (YCTD-35), `identity_audit_logs` (YCTD-39), `identity_settings` (YCTD-40).
-   - Cơ sở dữ liệu hệ thống của máy chủ API, không theo năm học: `academic_year_databases` (QĐ-17), `academic_years`, `academic_terms`, `school_weeks` (YCTD-30), `integration_credentials` (YCTD-95), `user_quick_links` (YCTD-102), `user_grid_settings` (YCTD-107), `administrative_units`, `administrative_unit_mappings` (YCTD-116), `feedback` (YCTD-110), `archive_fonds`, `archive_holdings`, `archive_records`, `archive_record_files` (YCTD-118); `export_jobs`, `upper_level_submissions`, `upper_level_submission_events` (YCTD-120, tệp `0010`).
+   - Cơ sở dữ liệu hệ thống của máy chủ API, không theo năm học: `academic_year_databases` (QĐ-17), `academic_years`, `academic_terms`, `school_weeks` (YCTD-30), `integration_credentials` (YCTD-95), `user_quick_links` (YCTD-102), `user_grid_settings` (YCTD-107), `administrative_units`, `administrative_unit_mappings` (YCTD-116), `feedback` (YCTD-110), `archive_fonds`, `archive_holdings`, `archive_records`, `archive_record_files` (YCTD-118); `export_jobs`, `upper_level_submissions`, `upper_level_submission_events` (YCTD-121, tệp `0010`).
    - Cơ sở dữ liệu năm học: mọi bảng còn lại.
 10. Khi mở năm học mới, dữ liệu chuyển sang giữ nguyên mã định danh (`id`) của đơn vị, trẻ, phụ huynh, nhân sự, danh mục và tài khoản quỹ, để phân quyền ở cơ sở dữ liệu định danh và báo cáo nhiều năm tham chiếu đúng.
 
@@ -43,7 +43,8 @@
 | departments | Phòng ban | org_unit_id, parent_id (phòng ban cha cùng đơn vị, không tạo vòng), name, status |
 | job_titles | Chức danh | org_unit_id, name (duy nhất trong đơn vị), level (cấp bậc, chữ tự do), status |
 | users | Tài khoản đăng nhập | full_name, phone (duy nhất), username (duy nhất), password_hash (để trống khi phụ huynh còn dùng mật khẩu mặc định chung, YCTD-43), status, last_login_at, failed_login_count, locked_until (hết hạn tạm khóa do sai mật khẩu, YCTD-35), must_change_password, valid_until (bắt buộc với VT-20), password_changed_at (thời điểm đặt mật khẩu gần nhất, bắt buộc, mặc định now(); tài khoản có trước YCTD-110 lấy coalesce(updated_at, created_at); BR-110) |
-| roles | Vai trò | code (duy nhất), name, is_system |
+| roles | Vai trò | code (duy nhất), name, is_system, is_active (hiệu lực, mặc định đúng, YCTD-120) |
+| role_workspace_exclusions | Phân hệ của cổng quản trị nhóm không được dùng (1.2, YCTD-120, tệp `0046`) | role_id (khóa ngoại `roles`, xóa theo nhóm), workspace_key (khóa phân hệ của `PORTAL_WORKSPACES`), created_at; khóa chính (role_id, workspace_key) |
 | permissions | Quyền theo chức năng | code (duy nhất), module_code, description |
 | role_permissions | Gán quyền cho vai trò | role_id, permission_id |
 | user_roles | Gán vai trò cho tài khoản | user_id, role_id, org_unit_id (cho phép trống nghĩa là toàn trường; tham chiếu theo mã, không có khóa ngoại vì nằm khác cơ sở dữ liệu) |
@@ -72,6 +73,8 @@
 Ràng buộc: `org_units.parent_id` trỏ tới `org_units.id`. Chỉ một đơn vị `truong_chinh`, có `parent_id` trống; đơn vị `phan_hieu`, `diem_truong` có `parent_id` là Trường chính. Kiểm tra ở tầng ứng dụng và ở tầng dữ liệu (YCTD-38).
 
 Chỉ mục `users_full_name_id_index` trên `users (full_name, id)` và `user_roles_role_id_index` trên `user_roles (role_id)` (DT-15 phần 15e, YCTD-109) tạo bằng tệp `database/identity/migrations/0041_add_account_list_indexes.ts` của cơ sở dữ liệu định danh, phục vụ danh sách người dùng sắp theo họ tên, phân trang trong câu truy vấn và lọc theo nhóm quyền; không đổi bảng, không đổi dữ liệu.
+
+Tệp `database/identity/migrations/0046_add_role_status_and_workspaces.ts` của cơ sở dữ liệu định danh (DT-16 phần 16d, YCTD-120) thêm cột `roles.is_active` và bảng `role_workspace_exclusions`, gieo nhóm VT-14 bỏ 11 phân hệ. Tệp `database/system/migrations/0012_add_sync_account_credentials.ts` của cơ sở dữ liệu hệ thống cho `integration_credentials.connector` nhận thêm `moet_sync`, `doet_sync` (tài khoản đồng bộ của Bộ, của Sở) và thêm hai cột `account_username`, `account_secret_encrypted` (mã hóa AES-256-GCM, không trả qua API).
 
 Tệp `database/identity/migrations/0042_add_password_expiry_and_feedback_permission.ts` của cơ sở dữ liệu định danh (DT-15 phần 15g, YCTD-110) thêm cột `users.password_changed_at` (điền coalesce(updated_at, created_at) cho tài khoản đã có, rồi đặt bắt buộc, mặc định now()), thêm quyền `P01.feedback.manage` và gán cho VT-01, VT-02; phần quay lui gỡ quyền và cột. Tệp `database/system/migrations/0007_create_feedback.ts` của cơ sở dữ liệu hệ thống tạo bảng `feedback` với ràng buộc kiểm tra loại, trạng thái, độ dài tiêu đề, nội dung và hai chỉ mục ở mục 20.
 
@@ -330,7 +333,7 @@ Bảng `equipment_items`, `equipment_holdings`, `school_profiles` và các cột
 | content_comments | Bình luận trên hoạt động, tin tức, nội dung và album thư viện (P14-12, BR-66) | target_type (activity, news, library_item, library_album), target_id, org_unit_id, user_id, author_name, is_parent, content, created_at, hidden_reason, hidden_by, hidden_at; không xóa |
 | activity_media_children | Trẻ được gắn thẻ trong ảnh (BR-65) | media_id, child_id (khóa chính đôi); ảnh hiển thị cho phụ huynh khi mọi trẻ được gắn đang đồng ý hình ảnh |
 | integration_settings | Cấu hình kết nối ngoài toàn trường: Fanpage, Zalo Official Account; không chứa khóa bí mật (YCTD-90) | id, connector (facebook, zalo; duy nhất), enabled, config_data (page_id, page_name hoặc oa_id, oa_name), updated_by, updated_at |
-| integration_credentials | Khóa của kết nối ngoài cần làm mới định kỳ, lưu ở cơ sở dữ liệu hệ thống vì dùng chung toàn trường và giữ qua các năm học; hiện chỉ có Zalo (YCTD-95) | connector (duy nhất), access_token_encrypted, access_token_expires_at, refresh_token_encrypted (mã hóa AES-256-GCM bằng khóa dữ liệu trẻ), refreshed_at, updated_by, updated_at |
+| integration_credentials | Khóa của kết nối ngoài cần làm mới định kỳ, lưu ở cơ sở dữ liệu hệ thống vì dùng chung toàn trường và giữ qua các năm học; hiện chỉ có Zalo (YCTD-95); từ YCTD-120 còn lưu tài khoản đồng bộ của Bộ, của Sở | connector (duy nhất), access_token_encrypted, access_token_expires_at, refresh_token_encrypted (mã hóa AES-256-GCM bằng khóa dữ liệu trẻ), refreshed_at, updated_by, updated_at |; account_username, account_secret_encrypted (YCTD-120)
 | zalo_followers | Số điện thoại phụ huynh đã quan tâm Official Account kèm mã người dùng Zalo, do người quản trị liên kết (G3-08) | id, phone (duy nhất), zalo_user_id (duy nhất), display_name, linked_by, linked_at |
 | facebook_posts | Bài đăng Fanpage của hoạt động hoặc tin tức, mỗi nội dung một bài (P14-08) | id, source_type (activity, news), source_id, org_unit_id, title, message, photo_file_ids, excluded_photo_count, status (posted, failed), page_id, provider, external_post_id, last_error, attempt_count, posted_by, posted_at |
 | notification_recipients (sửa) | Thêm kênh `zalo` và kênh thực tế đã gửi | channel (in_app, sms, zalo), delivered_via (in_app, sms, zalo) |
@@ -374,9 +377,9 @@ Ràng buộc duy nhất: `poll_responses` trên bộ đôi bình chọn và tài
 |---|---|---|
 | report_snapshots | Số liệu tổng hợp sẵn | org_unit_id, snapshot_type, period_type, period_value, payload_data, generated_at |
 | export_logs | Nhật ký xuất dữ liệu (BR-74, YCTD-83); tệp không lưu lại nên không có file_id | user_id, actor_name, report_code, filters_data, org_unit_ids, row_count, contains_personal_data, file_name, ip_address, exported_at |
-| export_jobs | Tác vụ xuất nền và "Tệp đã tạo" (P17-19, BR-118, YCTD-120, tệp `database/system/migrations/0010_create_export_jobs_and_submissions.ts`), ở cơ sở dữ liệu hệ thống | id, user_id, user_name, user_snapshot (jsonb vai trò, quyền lúc tạo), report_code, title, format (`xlsx`, `pdf`), parameters (jsonb bộ lọc, cột), ip_address, status (`pending`, `running`, `done`, `failed`, `expired`), attempts, row_count, file_name, content_type, size_bytes, storage_key (kho tệp, khóa `export/{id}`, xóa khi hết hạn), error_message, created_at, started_at, finished_at, expires_at; chỉ mục (user_id, created_at), (status, created_at) |
-| upper_level_submissions | Trạng thái gửi biểu mẫu lên cấp trên chạy nội bộ (P17-20, BR-118, YCTD-120), ở cơ sở dữ liệu hệ thống, mỗi biểu mẫu một dòng mỗi năm học | id, academic_year_id (khóa ngoại `academic_years`), form_code (duy nhất cùng năm học), status (`draft`, `sent`, `unlock_requested`, `resend`), no_data, data_complete (tại lần xuất tệp gửi gần nhất), snapshot (jsonb số liệu lúc xuất), file_name, content_type, size_bytes, storage_key (khóa `submission/{id}/…`), exported_at, exported_by, exported_by_name, sent_on, sent_note, sent_by, sent_by_name, marked_sent_at, unlock_reason, unlock_requested_by, unlock_requested_by_name, unlock_requested_at, created_at, updated_at, updated_by |
-| upper_level_submission_events | Lịch sử thao tác gửi lên cấp trên (YCTD-120) | id, submission_id (khóa ngoại `upper_level_submissions`, xóa theo), action (`export`, `mark_sent`, `unlock_request`, `unlock`, `unlock_reject`, `resend`), note, actor_id, actor_name, created_at; chỉ mục (submission_id, created_at) |
+| export_jobs | Tác vụ xuất nền và "Tệp đã tạo" (P17-19, BR-119, YCTD-121, tệp `database/system/migrations/0010_create_export_jobs_and_submissions.ts`), ở cơ sở dữ liệu hệ thống | id, user_id, user_name, user_snapshot (jsonb vai trò, quyền lúc tạo), report_code, title, format (`xlsx`, `pdf`), parameters (jsonb bộ lọc, cột), ip_address, status (`pending`, `running`, `done`, `failed`, `expired`), attempts, row_count, file_name, content_type, size_bytes, storage_key (kho tệp, khóa `export/{id}`, xóa khi hết hạn), error_message, created_at, started_at, finished_at, expires_at; chỉ mục (user_id, created_at), (status, created_at) |
+| upper_level_submissions | Trạng thái gửi biểu mẫu lên cấp trên chạy nội bộ (P17-20, BR-119, YCTD-121), ở cơ sở dữ liệu hệ thống, mỗi biểu mẫu một dòng mỗi năm học | id, academic_year_id (khóa ngoại `academic_years`), form_code (duy nhất cùng năm học), status (`draft`, `sent`, `unlock_requested`, `resend`), no_data, data_complete (tại lần xuất tệp gửi gần nhất), snapshot (jsonb số liệu lúc xuất), file_name, content_type, size_bytes, storage_key (khóa `submission/{id}/…`), exported_at, exported_by, exported_by_name, sent_on, sent_note, sent_by, sent_by_name, marked_sent_at, unlock_reason, unlock_requested_by, unlock_requested_by_name, unlock_requested_at, created_at, updated_at, updated_by |
+| upper_level_submission_events | Lịch sử thao tác gửi lên cấp trên (YCTD-121) | id, submission_id (khóa ngoại `upper_level_submissions`, xóa theo), action (`export`, `mark_sent`, `unlock_request`, `unlock`, `unlock_reject`, `resend`), note, actor_id, actor_name, created_at; chỉ mục (submission_id, created_at) |
 
 ## 19. Quan hệ chính giữa các bảng
 

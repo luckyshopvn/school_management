@@ -12,7 +12,7 @@ import { readFile } from 'node:fs/promises';
 import { E2E_SYSTEM_DATABASE_NAME } from '../e2e-environment.mjs';
 import { openMenu } from './menu.js';
 
-// Công cụ xuất, nhập dùng chung và mẫu gửi lên cấp trên chạy nội bộ (DT-16 phần 16a, YCTD-120): Xuất PDF trên lưới, 3.5 Tệp
+// Công cụ xuất, nhập dùng chung và mẫu gửi lên cấp trên chạy nội bộ (DT-16 phần 16a, YCTD-121): Xuất PDF trên lưới, 3.5 Tệp
 // đã tạo, 2.2 Nhập lớp học từ Excel với tải file mẫu kèm dữ liệu, tra cứu danh mục, chọn cột để nhập, xuất file lỗi; gửi
 // Báo cáo EMIS đầu năm lên cấp trên. Chạy sau 03-org-units, 06-catalogs, 08-classes (Phân hiệu A mã PH-A, bậc học MAM,
 // lớp Mầm 1). Dữ liệu là dữ liệu giả

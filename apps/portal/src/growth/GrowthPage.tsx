@@ -6,6 +6,7 @@ import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { listClasses } from '../classes/classes-api.js';
 import { messageOf } from '../health/health-api.js';
 import { AppShell } from '../pages/AppShell.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
 import { GrowthChart } from './GrowthChart.js';
 import {
@@ -23,7 +24,8 @@ import {
 
 // 4.3.1 Nhập kết quả sức khỏe nuôi dưỡng (DT-14 phần 14a, YCTD-102): y tế lập đợt cân đo, chọn lớp, nhập cân nặng, chiều
 // cao từng học sinh hoặc nhập từ Excel; "Tính và lưu" ghi số đo rồi hiện tháng tuổi, BMI, kết quả theo chuẩn WHO do máy chủ
-// tính; xem biểu đồ tăng trưởng của học sinh. Giáo viên chủ nhiệm, Ban Giám hiệu xem
+// tính; xem biểu đồ tăng trưởng của học sinh. Giáo viên chủ nhiệm, Ban Giám hiệu xem. Bảng cân đo là bảng nhập số đo theo
+// từng ô nên giữ nguyên, tiêu đề trang theo menu có số thứ bậc (DT-16 phần 16b)
 const vietnamToday = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const selectClass = 'rounded-lg border border-border bg-card px-3 py-2 text-content';
 const inputClass = 'w-24 rounded-lg border border-border bg-card px-2 py-1 text-content';
@@ -148,7 +150,7 @@ export function GrowthPage() {
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-4">
-        <h1 className="text-page-title font-bold text-text">4.3.1 Nhập kết quả sức khỏe nuôi dưỡng</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/growth')}</h1>
         <div className="flex flex-wrap items-end gap-3">
           <UnitSelect
             units={unitChoice.units}

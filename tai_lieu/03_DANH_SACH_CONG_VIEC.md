@@ -1,8 +1,8 @@
 # 03. DANH SÁCH KIỂM TRA CÔNG VIỆC
 
 - Mô tả: Danh sách công việc, trạng thái và thứ tự ưu tiên của dự án.
-- Phiên bản: 0.34
-- Ngày cập nhật: 2026-10-16
+- Phiên bản: 0.35
+- Ngày cập nhật: 2026-10-17
 - Trạng thái: Đang cập nhật
 
 ## Quy ước trạng thái
@@ -13,7 +13,7 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 
 | Phân hệ | Trạng thái | Việc còn lại |
 |---|---|---|
-| P01 Nền tảng, đơn vị và phân quyền | Hoàn thành | Đợt DT-01 (YCTD-34 đến YCTD-42); kết nối ngoài ở DT-11 phần 11e; DT-14 phần 14d (YCTD-106: hồ sơ trường); DT-15 phần 15e (YCTD-109: quản trị hệ thống theo Sở: 1.1 Nhóm người dùng, 1.3 Phân quyền nhóm theo menu, 1.4 Danh sách người dùng, lưới dữ liệu chung cho Khóa API và Nhật ký thao tác); DT-15 phần 15g (YCTD-110: Gửi phản hồi ở chân trang, Danh sách ý kiến đã gửi, 3.4 Ý kiến phản hồi, hết hạn mật khẩu); DT-15 phần 15b (YCTD-111: 1.2 Quản lý phân hiệu, 1.3 Quản lý điểm trường, 2.2 Nhập lớp học từ Excel) |
+| P01 Nền tảng, đơn vị và phân quyền | Hoàn thành | Đợt DT-01 (YCTD-34 đến YCTD-42); kết nối ngoài ở DT-11 phần 11e; DT-14 phần 14d (YCTD-106: hồ sơ trường); DT-15 phần 15e (YCTD-109: quản trị hệ thống theo Sở: 1.1 Nhóm người dùng, 1.3 Phân quyền nhóm theo menu, 1.4 Danh sách người dùng, lưới dữ liệu chung cho Khóa API và Nhật ký thao tác); DT-15 phần 15g (YCTD-110: Gửi phản hồi ở chân trang, Danh sách ý kiến đã gửi, 3.4 Ý kiến phản hồi, hết hạn mật khẩu); DT-15 phần 15b (YCTD-111: 1.2 Quản lý phân hiệu, 1.3 Quản lý điểm trường, 2.2 Nhập lớp học từ Excel); DT-16 phần 16b (YCTD-119: Xuất Excel 1.1, 1.2, 1.3; 2.1 đến 2.5, 3.2 Quản trị hệ thống theo lưới dữ liệu chung); DT-16 phần 16d (YCTD-120: quản trị hệ thống đủ theo Sở: 1.2, 1.6, 1.4 đủ cột, thao tác) |
 | P02 Trẻ, phụ huynh và lớp học | Hoàn thành | Đợt DT-03 (YCTD-44 đến YCTD-46), DT-09 phần 9b, 9d, DT-14 phần 14c (YCTD-104: hoàn thành chương trình, nhóm học sinh), DT-15 phần 15c (YCTD-108: Quản lý hồ sơ học sinh theo Sở, điện thoại nhận tin, học 2 buổi/ngày và bán trú, biến động học sinh), DT-15 phần 15b (YCTD-111: 2.1 Hồ sơ lớp học theo Sở, 3.3 Phân công phụ trách lớp); kết nối tự động cơ sở dữ liệu ngành (G3-09) chưa có giao diện lập trình công khai, tiếp tục nhập từ tệp, DT-15 phần 15h1 (YCTD-116: 4.1.11 Cập nhật địa danh hành chính) |
 | P03 Giảng dạy | Hoàn thành | Đợt DT-10 phần 10g (YCTD-80); tổ chuyên môn chưa làm |
 | P04 Điểm danh và chăm sóc hằng ngày | Hoàn thành | Đợt DT-04 (YCTD-47, YCTD-48), DT-08 phần 8b |
@@ -29,9 +29,9 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | P14 Hoạt động, nội dung và truyền thông | Hoàn thành | Đợt DT-10 phần 10e (YCTD-78); Fanpage ở DT-11 phần 11e, tài khoản thật chờ việc T1 |
 | P15 Tương tác và ý kiến | Hoàn thành | Đợt DT-10 phần 10f (YCTD-79) |
 | P16 Tuyển sinh | Hoàn thành | Đợt DT-11 phần 11a (YCTD-86) |
-| P17 Báo cáo và bảng điều khiển | Hoàn thành | Đợt DT-07 (YCTD-62, YCTD-63), DT-10 phần 10j (YCTD-83), DT-14 phần 14a (YCTD-105: thống kê theo tiêu chí ngành, hồ sơ chưa nhập đủ), 14d (YCTD-106: biểu EMIS đầu năm), DT-16 phần 16a (YCTD-120: Xuất PDF, tác vụ xuất nền, Tệp đã tạo, công cụ nhập Excel dùng chung, gửi lên cấp trên chạy nội bộ) |
+| P17 Báo cáo và bảng điều khiển | Hoàn thành | Đợt DT-07 (YCTD-62, YCTD-63), DT-10 phần 10j (YCTD-83), DT-14 phần 14a (YCTD-105: thống kê theo tiêu chí ngành, hồ sơ chưa nhập đủ), 14d (YCTD-106: biểu EMIS đầu năm), DT-16 phần 16a (YCTD-121: Xuất PDF, tác vụ xuất nền, Tệp đã tạo, công cụ nhập Excel dùng chung, gửi lên cấp trên chạy nội bộ) |
 | P18 Tuyển dụng | Hoàn thành | Đợt DT-11 phần 11b (YCTD-87) |
-| P19 Kênh truy cập và thông báo | Hoàn thành | Đợt DT-08 (YCTD-64, YCTD-65), Zalo ở DT-11 phần 11e; DT-15 phần 15a (YCTD-107: menu ngang đánh số, menu người dùng, lưới dữ liệu dùng chung; các phần 15b đến 15h theo `32_KE_HOACH_THEO_HE_THONG_SO.md`); bản cài riêng trên điện thoại (N2, G3-04) chờ Eric quyết định |
+| P19 Kênh truy cập và thông báo | Hoàn thành | Đợt DT-08 (YCTD-64, YCTD-65), Zalo ở DT-11 phần 11e; DT-15 phần 15a (YCTD-107: menu ngang đánh số, menu người dùng, lưới dữ liệu dùng chung; các phần 15b đến 15h theo `32_KE_HOACH_THEO_HE_THONG_SO.md`); DT-16 phần 16b (YCTD-119: lưới dữ liệu chung, hộp xác nhận xóa cho các màn hình còn lại của Mầm non, Cơ sở vật chất, Quản trị hệ thống); bản cài riêng trên điện thoại (N2, G3-04) chờ Eric quyết định |
 
 ## 2. Việc còn lại
 

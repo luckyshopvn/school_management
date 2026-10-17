@@ -139,7 +139,7 @@ describe('Nhập dữ liệu ban đầu từ Excel và nhập mã ngành', () =>
     );
   });
 
-  // Từ DT-16 phần 16a (YCTD-120) dòng của lớp đã có (cùng mã đơn vị, mã lớp) cập nhật lớp đó thay vì báo trùng; mã lớp
+  // Từ DT-16 phần 16a (YCTD-121) dòng của lớp đã có (cùng mã đơn vị, mã lớp) cập nhật lớp đó thay vì báo trùng; mã lớp
   // trùng giữa các dòng trong tệp vẫn bị báo
   it('P01-13: nhập lớp học từ Excel; lớp đã có được cập nhật, mã lớp trùng trong tệp bị báo', async () => {
     const file = await workbook('classes', [

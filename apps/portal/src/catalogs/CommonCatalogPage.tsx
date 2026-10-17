@@ -54,6 +54,7 @@ function CatalogItemsSection({
   return (
     <CatalogTable<CatalogItem>
       title={label}
+      gridKey="catalog-items"
       rows={items.data}
       isPending={items.isPending}
       error={items.error}

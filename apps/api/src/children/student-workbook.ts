@@ -22,6 +22,8 @@ export async function buildStudentWorkbook(input: {
   ipAddress: string | null;
   createdAt: Date;
   format?: TableFileFormat;
+  // Danh sách đơn vị, nhóm người dùng không có dữ liệu cá nhân (DT-16 phần 16b); mặc định là có
+  containsPersonalData?: boolean;
 }): Promise<ExportedFile> {
   const format = input.format ?? 'xlsx';
   const buffer = await buildTableFile(
@@ -47,7 +49,7 @@ export async function buildStudentWorkbook(input: {
       filters_data: JSON.stringify(format === 'xlsx' ? input.filters : { ...input.filters, format }),
       org_unit_ids: input.orgUnitIds,
       row_count: input.rows.length,
-      contains_personal_data: true,
+      contains_personal_data: input.containsPersonalData ?? true,
       file_name: fileName,
       ip_address: input.ipAddress,
     })

@@ -15,7 +15,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 
-// Công cụ xuất, nhập dùng chung và mẫu gửi lên cấp trên chạy nội bộ (DT-16 phần 16a, YCTD-120): Xuất PDF từ lưới, tác vụ
+// Công cụ xuất, nhập dùng chung và mẫu gửi lên cấp trên chạy nội bộ (DT-16 phần 16a, YCTD-121): Xuất PDF từ lưới, tác vụ
 // xuất nền và Tệp đã tạo, Xuất file lỗi, tải file mẫu kèm dữ liệu, tra cứu danh mục, chọn cột để nhập, gửi lên cấp trên
 const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1, 2, 3, 4]);
 const XLSX_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
@@ -55,7 +55,7 @@ describe('Hàm dựng tệp bảng Excel, PDF', () => {
   });
 });
 
-describe('Công cụ xuất, nhập và gửi lên cấp trên (YCTD-120)', () => {
+describe('Công cụ xuất, nhập và gửi lên cấp trên (YCTD-121)', () => {
   let environment: ApiTestEnvironment;
   let principal: LoggedInUser;
   let statistician: LoggedInUser;
@@ -315,7 +315,7 @@ describe('Công cụ xuất, nhập và gửi lên cấp trên (YCTD-120)', () =
     assert.deepEqual(expired, { status: 'expired', storage_key: null });
     const gone = await get(`/export-jobs/${job.id}/file`, principal.accessToken);
     assert.equal(gone.response.status, 422);
-    assert.equal(errorOf(JSON.parse(gone.buffer.toString())).rule_code, 'YCTD-120');
+    assert.equal(errorOf(JSON.parse(gone.buffer.toString())).rule_code, 'YCTD-121');
   });
 
   it('CT-16a-4: danh sách trong số dòng xuất trực tiếp thì trả tệp ngay; tác vụ nền lỗi chuyển trạng thái Lỗi kèm ghi chú', async () => {
@@ -476,7 +476,7 @@ describe('Công cụ xuất, nhập và gửi lên cấp trên (YCTD-120)', () =
       sent_on: today,
     });
     assert.equal(incomplete.status, 422);
-    assert.equal(errorOf(incomplete.body).rule_code, 'YCTD-120');
+    assert.equal(errorOf(incomplete.body).rule_code, 'YCTD-121');
 
     // Khai báo loại hình trường rồi xuất lại; tệp gửi là Excel của Biểu 1, bản chụp lưu số liệu
     const profile = await api('PUT', '/school-profile', principal.accessToken, {

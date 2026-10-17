@@ -3,6 +3,8 @@ import { AcademicYearsPage } from './academic-years/AcademicYearsPage.js';
 import { AccountsPage } from './accounts/AccountsPage.js';
 import { RolesPage } from './accounts/RolesPage.js';
 import { RolePermissionsPage } from './accounts/RolePermissionsPage.js';
+import { RoleWorkspacesPage } from './accounts/RoleWorkspacesPage.js';
+import { SyncAccountsPage } from './accounts/SyncAccountsPage.js';
 import { ApiClientsPage } from './accounts/ApiClientsPage.js';
 import { IntegrationsPage } from './settings/IntegrationsPage.js';
 import { NotificationsPage } from './notifications/NotificationsPage.js';
@@ -113,6 +115,15 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/org-units', component: OrgUnitsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/accounts', component: AccountsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/roles', component: RolesPage }),
+  // 1.2 Phân quyền nhóm theo phần mềm, 1.6 Tài khoản đồng bộ của Bộ, của Sở (DT-16 phần 16d)
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/role-workspaces',
+    component: RoleWorkspacesPage,
+    validateSearch: (search: Record<string, unknown>): { role?: string } =>
+      typeof search.role === 'string' ? { role: search.role } : {},
+  }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/sync-accounts', component: SyncAccountsPage }),
   // Nhóm người dùng mở sẵn ở 1.3 Phân quyền nhóm theo menu qua tham số role (DT-15 phần 15e)
   createRoute({
     getParentRoute: () => rootRoute,
