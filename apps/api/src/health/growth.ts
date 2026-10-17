@@ -40,6 +40,7 @@ import { check, optionalUuid, type QueryValues } from '../reports/report-filters
 import { ReportsService } from '../reports/reports.service.js';
 import { assessGrowth, referenceCurve, type GrowthAssessment } from './growth-calc.js';
 import {
+  applyUnderweightOption,
   GROWTH_STATUS_LABELS,
   inChannel,
   summarizeGrowth,
@@ -729,7 +730,10 @@ export class GrowthService {
         .where('measured_on', '<', nextMonth)
         .execute();
     }
-    const rows = await this.roundRows(database, rounds, null);
+    const rows = applyUnderweightOption(
+      await this.roundRows(database, rounds, null),
+      await this.underweightWeightForHeight(database),
+    );
     const summary = summarizeGrowth(rows, filter.gender);
     const children = summary.children
       .filter((row) => !filter.channel || inChannel(row, filter.channel))
@@ -744,6 +748,18 @@ export class GrowthService {
       totals: summary.totals,
       children,
     };
+  }
+
+  // Ô tính cân nặng/chiều cao cho trẻ nhẹ cân ở 1.4 Cấu hình trường của Trường chính (DT-16 phần 16e), chưa đặt là bật
+  private async underweightWeightForHeight(database: Kysely<SchoolYearDatabase>): Promise<boolean> {
+    const setting = await database
+      .selectFrom('settings')
+      .innerJoin('org_units', 'org_units.id', 'settings.org_unit_id')
+      .select('settings.value')
+      .where('org_units.unit_type', '=', 'truong_chinh')
+      .where('settings.key', '=', 'underweight_growth_calculation')
+      .executeTakeFirst();
+    return setting?.value !== false;
   }
 
   // Xuất tổng hợp ra Excel (4.3.2): bảng theo lớp, theo khối và danh sách học sinh theo kênh đang lọc; ghi nhật ký xuất có

@@ -3017,6 +3017,54 @@ export interface SchoolProfilesTable {
   updated_at: UpdatedTimestamp;
 }
 
+// 1.7 Rà soát thông tin kiểm định CLGD (DT-16 phần 16e): một bản mỗi năm học, gắn với Trường chính
+type OptionalArea = ColumnType<string | null, string | number | null | undefined, string | number | null>;
+
+export interface AccreditationReviewsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  class_count: number | null;
+  classroom_count: number | null;
+  subject_room_count: number | null;
+  land_area_m2: OptionalArea;
+  floor_area_m2: OptionalArea;
+  child_count: number | null;
+  area_per_child_m2: OptionalArea;
+  note: string | null;
+  collected_at: Date | null;
+  updated_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+// 1.8 Tách trường bản chạy nội bộ (DT-16 phần 16e): chưa xác nhận, đã xác nhận đi, trường đến đã tiếp nhận
+export type SchoolSplitStatus = 'draft' | 'confirmed' | 'received';
+
+export interface SchoolSplitRequestsTable {
+  id: Generated<string>;
+  code: string;
+  destination_school: string;
+  destination_code: string | null;
+  reason: string;
+  status: Generated<SchoolSplitStatus>;
+  confirmed_at: Date | null;
+  confirmed_by: string | null;
+  received_at: Date | null;
+  received_by: string | null;
+  received_note: string | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface SchoolSplitItemsTable {
+  id: Generated<string>;
+  request_id: string;
+  child_id: string | null;
+  staff_id: string | null;
+  created_at: CreatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -3217,4 +3265,7 @@ export interface SchoolYearDatabase {
   equipment_items: EquipmentItemsTable;
   equipment_holdings: EquipmentHoldingsTable;
   school_profiles: SchoolProfilesTable;
+  accreditation_reviews: AccreditationReviewsTable;
+  school_split_requests: SchoolSplitRequestsTable;
+  school_split_items: SchoolSplitItemsTable;
 }

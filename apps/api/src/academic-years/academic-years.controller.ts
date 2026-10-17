@@ -4,12 +4,17 @@ import { PERMISSION_CODES } from '@school-management/shared';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
-import { AcademicYearsService } from './academic-years.service.js';
+import type { AcademicTermType } from '@school-management/database';
+import { AcademicYearsService, type WeekChange } from './academic-years.service.js';
 import { parseCalendar } from './calendar.js';
 
 type RequestBody = Record<string, unknown> | undefined;
 
-function parseWeekChanges(body: RequestBody): Array<{ week_no: number; is_off: boolean; note: string | null }> {
+const TERM_TYPES: AcademicTermType[] = ['first_term', 'second_term', 'summer_term'];
+
+// Tuần nghỉ (tuần đệm) và ghi chú (tên tuần đệm) luôn gửi; học kỳ chọn khác lịch, hiển thị chỉ gửi khi đổi (DT-16 phần 16e,
+// 3.4 Khai báo tuần của Sở)
+function parseWeekChanges(body: RequestBody): WeekChange[] {
   const weeks = body?.weeks;
   const errors: FieldError[] = [];
   if (!Array.isArray(weeks) || weeks.length === 0) {
@@ -27,7 +32,19 @@ function parseWeekChanges(body: RequestBody): Array<{ week_no: number; is_off: b
       errors.push({ field: `weeks[${index}].note`, message: 'Ghi chú phải là chữ' });
     }
     const note = typeof week.note === 'string' && week.note.trim() !== '' ? week.note.trim() : null;
-    return { week_no: week.week_no as number, is_off: week.is_off as boolean, note };
+    if (week.term_type !== undefined && week.term_type !== null && !TERM_TYPES.includes(week.term_type as AcademicTermType)) {
+      errors.push({ field: `weeks[${index}].term_type`, message: 'Học kỳ là first_term, second_term, summer_term hoặc trống' });
+    }
+    if (week.is_visible !== undefined && typeof week.is_visible !== 'boolean') {
+      errors.push({ field: `weeks[${index}].is_visible`, message: 'Phải là đúng hoặc sai' });
+    }
+    return {
+      week_no: week.week_no as number,
+      is_off: week.is_off as boolean,
+      note,
+      ...(week.term_type !== undefined ? { term_type: (week.term_type ?? null) as AcademicTermType | null } : {}),
+      ...(typeof week.is_visible === 'boolean' ? { is_visible: week.is_visible } : {}),
+    };
   });
   if (errors.length > 0) {
     throw validationError(errors);
@@ -96,5 +113,19 @@ export class AcademicYearsController {
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
     return this.academicYearsService.openAcademicYear(academicYearId, currentUser.id);
+  }
+
+  // 5.7 Chuyển hồ sơ lên năm học mới (DT-16 phần 16e): Thực hiện là mở năm học ở trên; Hủy khi năm mới chưa phát sinh dữ liệu
+  @Get('rollover/status')
+  @RequirePermission(PERMISSION_CODES.academicYearManage)
+  rolloverStatus() {
+    return this.academicYearsService.rolloverStatus();
+  }
+
+  @Post(':id/cancel-open')
+  @HttpCode(200)
+  @RequirePermission(PERMISSION_CODES.academicYearManage)
+  cancelOpen(@Param('id', uuidParameter('Mã năm học không hợp lệ')) academicYearId: string) {
+    return this.academicYearsService.cancelOpen(academicYearId);
   }
 }

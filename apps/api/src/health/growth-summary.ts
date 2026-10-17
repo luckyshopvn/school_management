@@ -136,6 +136,20 @@ export function inChannel(row: GrowthChildRow, channel: GrowthChannel): boolean 
   }
 }
 
+// Ô "Tính cân nặng/chiều cao cho trẻ suy dinh dưỡng thể nhẹ cân" của 1.4 Cấu hình trường (DT-16 phần 16e): bật (mặc định)
+// thì trẻ nhẹ cân vẫn xếp kênh cân nặng theo chiều cao như mọi trẻ; tắt thì trẻ nhẹ cân không xếp kênh này (không tính
+// gầy còm, thừa cân, béo phì), chỉ tính ở kênh cân nặng theo tuổi và chiều cao theo tuổi
+export function applyUnderweightOption(rows: GrowthChildRow[], includeWeightForHeight: boolean): GrowthChildRow[] {
+  if (includeWeightForHeight) {
+    return rows;
+  }
+  return rows.map((row) =>
+    row.assessment?.weight_status === 'underweight'
+      ? { ...row, assessment: { ...row.assessment, weight_height_status: null } }
+      : row,
+  );
+}
+
 export function summarizeGrowth(rows: GrowthChildRow[], gender: ChildGender | null) {
   const filtered = gender ? rows.filter((row) => row.gender === gender) : rows;
   const group = <K extends string>(keyOf: (row: GrowthChildRow) => K) => {

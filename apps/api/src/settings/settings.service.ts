@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ApplicationError, Clock, validationError, type FieldError } from '@school-management/server';
+import { ApplicationError, Clock, ruleViolationError, validationError, type FieldError } from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
@@ -17,6 +17,8 @@ export interface EffectiveSetting {
   value: unknown;
   source: SettingSource;
   unit_value: unknown;
+  // Mục của khối Cấu hình trường theo Sở (DT-16 phần 16e), chỉ đặt ở Trường chính
+  school: boolean;
 }
 
 @Injectable()
@@ -74,6 +76,7 @@ export class SettingsService {
         value,
         source,
         unit_value: own?.value ?? null,
+        school: definition.school === true,
       };
     });
   }
@@ -100,6 +103,28 @@ export class SettingsService {
     }
     if (errors.length > 0) {
       throw validationError(errors);
+    }
+    for (const [key, value] of Object.entries(values)) {
+      if (typeof value === 'string' && findDefinition(key)?.valueType === 'text') {
+        values[key] = value.trim();
+      }
+    }
+    // Mục Cấu hình trường của Sở chỉ đặt ở Trường chính (DT-16 phần 16e)
+    const schoolKeys = Object.keys(values).filter((key) => findDefinition(key)?.school);
+    if (schoolKeys.length > 0) {
+      const { database } = await this.currentSchoolYear.require();
+      const unit = await database
+        .selectFrom('org_units')
+        .select('unit_type')
+        .where('id', '=', orgUnitId)
+        .executeTakeFirst();
+      if (unit && unit.unit_type !== 'truong_chinh') {
+        throw ruleViolationError(
+          'YCTD-124',
+          'Cấu hình trường theo Sở chỉ đặt ở Trường chính',
+          schoolKeys.map((key) => ({ field: `values.${key}`, message: 'Chỉ đặt ở Trường chính' })),
+        );
+      }
     }
 
     const before = await this.effective(orgUnitId);
