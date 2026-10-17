@@ -2,7 +2,7 @@
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
 - Phiên bản: 1.73
-- Ngày cập nhật: 2026-10-16
+- Ngày cập nhật: 2026-10-17
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -254,7 +254,6 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | GET | /api/v1/org-units/tree | Cây đơn vị hai cấp (QĐ-23) |
 | PATCH | /api/v1/org-units/{id} | Cập nhật tên, mã, loại cấp 2, địa chỉ, điện thoại, người phụ trách, trạng thái; không đổi được đơn vị cha vì cây chỉ có hai cấp (YCTD-38); từ YCTD-111 sửa thêm khoảng cách đến cơ sở chính, diện tích |
 | POST | /api/v1/org-units/export | Xuất Excel 1.2 phân hiệu hoặc 1.3 điểm trường theo bộ lọc và `columns`; cần `P17.data.export`, ghi nhật ký xuất (BR-117, YCTD-119) |
-| POST | /api/v1/account-exports/users | Xuất Excel 1.4 Danh sách người dùng theo bộ lọc và `columns`, đọc tài khoản ở dịch vụ định danh; cần `P17.data.export`, ghi nhật ký xuất (BR-117, YCTD-119) |
 | POST | /api/v1/account-exports/roles | Xuất Excel 1.1 Nhóm người dùng theo từ khóa và `columns`; cần `P17.data.export`, ghi nhật ký xuất (BR-117, YCTD-119) |
 | GET, POST | /api/v1/academic-years | Danh sách và tạo năm học kèm lịch năm học |
 | GET, PUT | /api/v1/academic-years/{id}/calendar | Đọc và lưu học kỳ, kỳ hè, ngày học trong tuần; hệ thống tự đánh số tuần (BR-91) |
@@ -602,11 +601,11 @@ Giao kèo của nhóm điểm cuối cây đơn vị (DT-01 phần 4):
 
 Giao kèo của Xuất Excel còn thiếu theo Sở (DT-16 phần 16b, YCTD-119, BR-117):
 
-1. Bốn điểm cuối `POST /org-units/export`, `POST /administrative-units/addresses/export`, `POST /account-exports/users`, `POST /account-exports/roles` cần `P17.data.export`; thiếu quyền trả `ERR_FORBIDDEN` (403). Thân JSON gồm bộ lọc của màn hình và `columns` (mảng mã cột không trùng, không rỗng; không gửi là các cột mặc định); cột lạ, trùng hoặc bộ lọc sai trả `ERR_VALIDATION` (400) kèm trường lỗi. Trả tệp xlsx có cột STT và các cột theo thứ tự gửi, đầu `x-export-log-id`; mỗi lần xuất ghi `export_logs` ở năm học đang dùng trước khi trả tệp; chưa có năm học đang dùng trả `ERR_RULE_VIOLATION` mã BR-93.
+1. Ba điểm cuối `POST /org-units/export`, `POST /administrative-units/addresses/export`, `POST /account-exports/roles` cần `P17.data.export`; thiếu quyền trả `ERR_FORBIDDEN` (403). Thân JSON gồm bộ lọc của màn hình và `columns` (mảng mã cột không trùng, không rỗng; không gửi là các cột mặc định); cột lạ, trùng hoặc bộ lọc sai trả `ERR_VALIDATION` (400) kèm trường lỗi. Trả tệp xlsx có cột STT và các cột theo thứ tự gửi, đầu `x-export-log-id`; mỗi lần xuất ghi `export_logs` ở năm học đang dùng trước khi trả tệp; chưa có năm học đang dùng trả `ERR_RULE_VIOLATION` mã BR-93.
 2. `POST /org-units/export`: `unit_type` bắt buộc (`phan_hieu`, `diem_truong`; giá trị khác, kể cả `truong_chinh`, trả 400), `status` (`active`, `inactive`), `q` (tên hoặc mã chứa từ khóa, tối đa 100 ký tự); mã cột `code`, `name`, `address`, `distance_km`, `area_m2`, `phone`, `status` (mặc định cả bảy), nhãn Mã, Tên, Địa chỉ, Khoảng cách đến cơ sở chính (km), Diện tích (m²), Điện thoại, Trạng thái (Đang dùng, Ngừng sử dụng); xếp như `GET /org-units`. Nhật ký mã `branches` hoặc `school-sites`, `contains_personal_data` false; tên tệp `danh-sach-phan-hieu-…`, `danh-sach-diem-truong-…`.
 3. `POST /administrative-units/addresses/export`: cần thêm `P02.child.manage` hoặc `P02.approve`, trong phạm vi xem trẻ (BR-72); bộ lọc `address_type`, `suggestion`, `org_unit_id`, `q` như `GET /administrative-units/addresses`; mã cột `moet_student_code`, `full_name`, `dob`, `class_name`, `address_type`, `old_province`, `old_district`, `old_ward`, `old_ward_code`, `new_province`, `new_ward`, `new_ward_code`, `suggestion` (mặc định bỏ `old_ward_code`, `new_ward_code`); nhiều xã mới ghi cách nhau "; ". Quá 10 000 địa chỉ trả `ERR_RULE_VIOLATION` mã YCTD-116. Nhật ký mã `administrative-addresses`, có dữ liệu cá nhân; tên tệp `dia-chi-dia-danh-cu-…`.
-4. `POST /account-exports/users`: bộ lọc `q`, `status`, `role_code`, `login`, `full_name`, `must_change_password` (chữ, tối đa 100 ký tự) gửi nguyên cho `GET /users` của dịch vụ định danh, đọc lần lượt mọi trang 200 tài khoản bằng mã phiên của người xuất; dịch vụ định danh kiểm tra quyền xem, phạm vi (PQ-13) và giá trị bộ lọc, lỗi của dịch vụ định danh trả lại nguyên mã. Mã cột `login`, `full_name`, `roles`, `account_type`, `status`, `must_change_password`, `valid_until`, `phone`, `last_login_at`, `password_changed_at` (mặc định sáu cột đầu). Quá 10 000 tài khoản trả `ERR_RULE_VIOLATION` mã BR-74. Nhật ký mã `accounts`, có dữ liệu cá nhân; tên tệp `danh-sach-nguoi-dung-…`.
-5. `POST /account-exports/roles`: `q` (mã hoặc tên nhóm chứa từ khóa, không phân biệt hoa thường) lọc trên `GET /roles` của dịch vụ định danh; mã cột `code`, `name`, `active` (luôn "Có"), `administrator` (nhóm có `P01.account.manage` hoặc `P01.account.manage-in-unit`), `system`, `permission_count` (mặc định năm cột đầu). Nhật ký mã `roles`, `contains_personal_data` false; tên tệp `nhom-nguoi-dung-…`.
+4. Xuất Excel 1.4 Danh sách người dùng dùng `POST /account-directory/export` của phần 16d (YCTD-120); bản đầu `POST /account-exports/users` của phần 16b đã bỏ khi gộp.
+5. `POST /account-exports/roles`: `q` (mã hoặc tên nhóm chứa từ khóa, không phân biệt hoa thường) lọc trên `GET /roles` của dịch vụ định danh; mã cột `code`, `name`, `active` (Có khi nhóm có hiệu lực), `administrator` (nhóm có `P01.account.manage` hoặc `P01.account.manage-in-unit`), `system`, `permission_count`, `user_count` (mặc định năm cột đầu). Nhật ký mã `roles`, `contains_personal_data` false; tên tệp `nhom-nguoi-dung-…`.
 6. `GET`, `PUT /me/grid-settings/{gridKey}` nhận thêm 38 khóa lưới của phần 16b: `facility-rooms`, `equipment-summary`, `equipment-outside`, `equipment-catalog`, `growth-report-children`, `missing-child-profiles`, `missing-staff-profiles`, `program-completion-classes`, `program-completion-children`, `child-groups`, `child-group-members`, `professional-evaluations`, `kitchen-menus`, `kitchen-ingredients`, `kitchen-dishes`, `kitchen-suppliers`, `kitchen-purchases`, `kitchen-buffets`, `health-campaigns`, `health-schedules`, `medical-events`, `health-report-requests`, `health-standards`, `medication-requests`, `medication-schedule`, `medicines`, `pharmacies`, `medicine-purchase-requests`, `medicine-purchase-orders`, `medicine-issues`, `academic-years`, `departments`, `job-titles`, `catalog-items`, `rooms`, `grade-levels`, `zalo-followers`, `org-units`.
 
 Giao kèo của nhóm điểm cuối năm học (DT-01 phần 3):
@@ -624,13 +623,17 @@ Giao kèo của nhóm điểm cuối năm học (DT-01 phần 3):
 | GET | /api/v1/catalog-types | Các loại danh mục dùng chung do hệ thống định nghĩa |
 | GET, POST | /api/v1/catalog-items | Danh sách và tạo mục danh mục dùng chung |
 | PATCH | /api/v1/catalog-items/{id} | Sửa, ngừng sử dụng hoặc dùng lại mục danh mục dùng chung |
-| GET, POST | /api/v1/users | Danh sách và tạo tài khoản; từ YCTD-109 lọc thêm `login`, `full_name`, `must_change_password`, lọc và phân trang trong câu truy vấn; từ YCTD-110 mỗi dòng có thêm `password_changed_at` |
+| GET, POST | /api/v1/users | Danh sách và tạo tài khoản; từ YCTD-109 lọc thêm `login`, `full_name`, `must_change_password`, lọc và phân trang trong câu truy vấn; từ YCTD-110 mỗi dòng có thêm `password_changed_at`; từ YCTD-120 lọc thêm `user_ids` (tối đa 200, phân tách bằng dấu phẩy), `password_expires_from`, `password_expires_to` (YYYY-MM-DD), mỗi dòng có `password_expires_at` |
 | GET | /api/v1/users/directory | Danh bạ nhân sự theo vai trò và đơn vị để phân công giáo viên; cần `P02.class.manage` (YCTD-44) |
 | PATCH | /api/v1/users/{id} | Cập nhật tài khoản, khóa hoặc mở khóa |
 | POST | /api/v1/users/guardian-accounts | Tạo tài khoản phụ huynh hoặc thêm vai trò VT-14 khi duyệt hồ sơ trẻ; cần `P02.approve` ở đơn vị (YCTD-45) |
 | POST | /api/v1/users/{id}/reset-password | Đặt lại mật khẩu |
 | GET, POST | /api/v1/roles | Danh sách và tạo vai trò |
 | PUT | /api/v1/roles/{id}/permissions | Gán danh sách quyền cho vai trò |
+| PATCH, DELETE | /api/v1/roles/{id} | Sửa `name`, `is_active`; xóa nhóm không phải nhóm hệ thống, chưa có người dùng (BR-118, YCTD-120) |
+| PUT | /api/v1/roles/{id}/workspaces | Thay toàn bộ phân hệ nhóm được dùng: `workspace_keys` là khóa phân hệ của `PORTAL_WORKSPACES` (P01-18) |
+| POST | /api/v1/users/bulk-reset-password | Cấp mật khẩu hàng loạt: `user_ids` (1 đến 200); trả từng dòng `temporary_password` hoặc `skipped_reason` (YCTD-120) |
+| POST | /api/v1/users/bulk-roles | Phân nhóm quyền hàng loạt: `user_ids`, `role` (`role_code`, `org_unit_id`); trả từng dòng `added`, `skipped_reason`; cần `P01.account.manage` |
 | POST | /api/v1/users/{id}/roles | Gán vai trò kèm phạm vi đơn vị |
 | DELETE | /api/v1/users/{id}/roles/{assignmentId} | Gỡ một vai trò của tài khoản; thu hồi mọi phiên của tài khoản (YCTD-39) |
 | GET | /api/v1/permissions | Danh sách quyền theo phân hệ |
@@ -1146,6 +1149,12 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | POST | /api/v1/integrations/facebook/test | Kiểm tra kết nối Fanpage: trả mã và tên trang; lỗi trả 422 kèm lời báo (YCTD-95) |
 | POST | /api/v1/integrations/zalo/test | Kiểm tra kết nối Zalo Official Account: trả mã và tên Official Account; lỗi trả 422 (YCTD-95) |
 | PUT | /api/v1/integrations/zalo/refresh-token | Lưu khóa làm mới Zalo mới (mã hóa), bỏ khóa truy cập cũ; không bao giờ trả lại khóa, nhật ký chỉ ghi đã thay (YCTD-95) |
+| GET | /api/v1/sync-accounts | Tài khoản đồng bộ của Bộ (`moet`), của Sở (`doet`): `username`, `password_configured`, `updated_at`, `sync_available`; không bao giờ trả mật khẩu; cần `P01.integration.manage` (P01-19, YCTD-120) |
+| PUT, DELETE | /api/v1/sync-accounts/{target} | Ghi `username` (bắt buộc, đến 100 ký tự), `password` (đến 200 ký tự; trống thì giữ mật khẩu đã lưu, lần đầu bắt buộc); xóa thông tin đã lưu |
+| GET | /api/v1/account-directory | Danh sách người dùng của 1.4 ghép hồ sơ nhân sự: tham số như `GET /users` (`q`, `status`, `role_code`, `login`, `full_name`, `must_change_password`, `password_expires_from`, `password_expires_to`, `page`, `page_size` 10, 20, 50, 100, 200) và `identifier` (mã nhân sự hoặc mã Bộ, khớp một phần); mỗi dòng thêm `staff_id`, `staff_code`, `moet_staff_code`; cần `P01.account.manage` hoặc `P01.account.manage-in-unit` (YCTD-120) |
+| POST | /api/v1/account-directory/export | Xuất Excel theo bộ lọc và `columns`; cần thêm `P17.data.export`; tối đa 10 000 dòng; ghi nhật ký xuất `accounts` (BR-74) |
+| GET | /api/v1/account-directory/staff-without-account | Nhân sự đang làm việc chưa có tài khoản trong phạm vi: `id`, `code`, `full_name`, `phone`, `org_unit_id`, `org_unit_name`, `suggested_username` |
+| POST | /api/v1/account-directory/staff-accounts | Lấy danh sách CBQL/GV: `staff_ids` (1 đến 200), `role_code`; tạo tài khoản từng người qua dịch vụ định danh, liên kết hồ sơ nhân sự; trả từng dòng `login`, `temporary_password` hoặc `error` |
 | POST | /api/v1/activities/{id}/facebook-post | Đăng hoạt động đã công bố lên Fanpage (P14.facebook.manage) |
 | POST | /api/v1/news/{id}/facebook-post | Đăng tin tức đã công bố, phạm vi toàn trường hoặc đơn vị, lên Fanpage |
 | GET | /api/v1/facebook-posts | Bài đăng Fanpage trong phạm vi đơn vị; lọc `source_type`, `source_id` |

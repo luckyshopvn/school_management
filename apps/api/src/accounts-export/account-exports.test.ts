@@ -5,10 +5,10 @@ import ExcelJS from 'exceljs';
 import type { Kysely } from 'kysely';
 import { openTestAcademicYear, sendJson, startApiTestEnvironment, type ApiTestEnvironment } from '../test-support.js';
 
-// Xuất Excel còn thiếu theo Sở (DT-16 phần 16b): 1.2 Quản lý phân hiệu, 1.3 Quản lý điểm trường, 1.1 Nhóm người dùng, 1.4
-// Danh sách người dùng theo bộ lọc và cột đang hiện; cần quyền xuất dữ liệu; mỗi lần xuất ghi nhật ký xuất. Kịch bản
-// CT-16b-2 đến CT-16b-4
-describe('Xuất Excel phân hiệu, điểm trường, nhóm người dùng, người dùng (DT-16 phần 16b)', () => {
+// Xuất Excel còn thiếu theo Sở (DT-16 phần 16b): 1.2 Quản lý phân hiệu, 1.3 Quản lý điểm trường, 1.1 Nhóm người dùng theo
+// bộ lọc và cột đang hiện; cần quyền xuất dữ liệu; mỗi lần xuất ghi nhật ký xuất. Kịch bản CT-16b-2, CT-16b-3 (1.4 Danh sách
+// người dùng xuất ở /account-directory/export, DT-16 phần 16d)
+describe('Xuất Excel phân hiệu, điểm trường, nhóm người dùng (DT-16 phần 16b)', () => {
   let environment: ApiTestEnvironment;
   let principal: string;
   let teacher: string;
@@ -138,48 +138,5 @@ describe('Xuất Excel phân hiệu, điểm trường, nhóm người dùng, ng
     assert.ok(Number(counted.rows.find((row) => row[1] === 'VT-02')?.[2]) > 0);
     assert.equal((await download('/account-exports/roles', principal, { columns: ['code', 'secret'] })).status, 400);
     assert.equal((await download('/account-exports/roles', teacher, {})).status, 403);
-  });
-
-  it('CT-16b-4: xuất Excel người dùng theo bộ lọc của 1.4, đọc đủ mọi trang ở dịch vụ định danh, ghi nhật ký xuất', async () => {
-    for (let index = 0; index < 3; index += 1) {
-      await environment.loginAs('VT-07', null);
-    }
-    const identityList = await sendJson(
-      'GET',
-      `${environment.identity.origin}/api/v1/users?role_code=VT-07&page_size=200`,
-      principal,
-    );
-    assert.equal(identityList.status, 200, JSON.stringify(identityList.body));
-    const total = identityList.body.total as number;
-    assert.ok(total >= 4);
-    const file = await download('/account-exports/users', principal, {
-      role_code: 'VT-07',
-      columns: ['full_name', 'roles', 'account_type', 'status'],
-    });
-    assert.equal(file.status, 200);
-    assert.deepEqual(file.rows[0], ['STT', 'Tên hiển thị', 'Nhóm quyền', 'Loại tài khoản', 'Trạng thái']);
-    assert.equal(file.rows.length, total + 1);
-    const distinct = (index: number) => [...new Set(file.rows.slice(1).map((row) => row[index]))];
-    assert.deepEqual(distinct(3), ['Cán bộ, nhân viên'], JSON.stringify(file.rows.slice(0, 3)));
-    // Trạng thái theo đúng dịch vụ định danh (có thể có tài khoản đã khóa)
-    const statuses = (identityList.body.items as Array<{ status: string }>).map((item) =>
-      item.status === 'active' ? 'Đang hoạt động' : 'Đã khóa',
-    );
-    assert.deepEqual(
-      file.rows
-        .slice(1)
-        .map((row) => row[4])
-        .sort(),
-      statuses.sort(),
-    );
-    assert.deepEqual(await exportLog(file.logId), {
-      report_code: 'accounts',
-      row_count: total,
-      contains_personal_data: true,
-    });
-    const defaults = await download('/account-exports/users', principal, {});
-    assert.equal(defaults.rows[0]?.length, 7);
-    assert.equal((await download('/account-exports/users', principal, { status: 'deleted' })).status, 400);
-    assert.equal((await download('/account-exports/users', teacher, {})).status, 403);
   });
 });

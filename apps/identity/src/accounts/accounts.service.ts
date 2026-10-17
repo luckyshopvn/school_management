@@ -9,7 +9,7 @@ import {
   type FieldError,
 } from '@school-management/server';
 import { ROLE_CODES_RESERVED_FOR_PRINCIPAL, WHOLE_SCHOOL_ROLE_CODES } from '@school-management/shared';
-import type { Transaction } from 'kysely';
+import { sql, type Transaction } from 'kysely';
 import { hashPassword } from '../authentication/password.js';
 import { IdentitySettingsService } from '../settings/identity-settings.service.js';
 import { Infrastructure } from '../common/infrastructure.js';
@@ -63,6 +63,11 @@ export interface AccountView {
   assignments: Array<Omit<AssignmentWithPermissions, 'permissions'>>;
 }
 
+// Dòng của 1.4 Danh sách người dùng: thêm ngày hết hạn mật khẩu theo chính sách (YCTD-110); null khi không áp dụng
+export interface AccountListItem extends AccountView {
+  password_expires_at: Date | null;
+}
+
 export interface ListQuery {
   q?: string;
   status?: 'active' | 'locked';
@@ -70,8 +75,19 @@ export interface ListQuery {
   login?: string;
   full_name?: string;
   must_change_password?: boolean;
+  // Lọc theo danh sách mã tài khoản: máy chủ API đổi "Mã định danh" (mã nhân sự, mã Bộ) thành mã tài khoản (DT-16 phần 16d)
+  user_ids?: string[];
+  // Ngày hết hạn mật khẩu từ, đến (YYYY-MM-DD, giờ Việt Nam)
+  password_expires_from?: string;
+  password_expires_to?: string;
   page: number;
   page_size: number;
+}
+
+const DAY_MILLISECONDS = 86_400_000;
+
+function vietnamDayStart(date: string): Date {
+  return new Date(`${date}T00:00:00+07:00`);
 }
 
 export interface CallerContext {
@@ -179,6 +195,42 @@ export class AccountsService {
     if (query.must_change_password !== undefined) {
       selection = selection.where('users.must_change_password', '=', query.must_change_password);
     }
+    if (query.user_ids) {
+      selection =
+        query.user_ids.length > 0
+          ? selection.where('users.id', 'in', query.user_ids)
+          : selection.where(sql<boolean>`false`);
+    }
+    // Hạn mật khẩu chỉ áp dụng cho tài khoản nhân sự có mật khẩu riêng, khi chính sách có số ngày tối đa (như khi đăng nhập)
+    const policy = await this.identitySettings.passwordPolicy();
+    if (query.password_expires_from || query.password_expires_to) {
+      if (policy.password_max_age_days === 0) {
+        selection = selection.where(sql<boolean>`false`);
+      } else {
+        const expiresAt = sql<Date>`users.password_changed_at + make_interval(days => ${policy.password_max_age_days})`;
+        selection = selection
+          .where('users.password_hash', 'is not', null)
+          .where(({ exists, selectFrom }) =>
+            exists(
+              selectFrom('user_roles')
+                .innerJoin('roles', 'roles.id', 'user_roles.role_id')
+                .select('user_roles.id')
+                .whereRef('user_roles.user_id', '=', 'users.id')
+                .where('roles.code', '!=', PARENT_ROLE_CODE),
+            ),
+          );
+        if (query.password_expires_from) {
+          selection = selection.where(expiresAt, '>=', vietnamDayStart(query.password_expires_from));
+        }
+        if (query.password_expires_to) {
+          selection = selection.where(
+            expiresAt,
+            '<',
+            new Date(vietnamDayStart(query.password_expires_to).getTime() + DAY_MILLISECONDS),
+          );
+        }
+      }
+    }
     if (query.role_code) {
       const roleCode = query.role_code;
       selection = selection.where(({ exists, selectFrom }) =>
@@ -226,6 +278,7 @@ export class AccountsService {
     );
     const users = await selection
       .select(USER_COLUMNS.map((column) => `users.${column}` as const))
+      .select(sql<boolean>`users.password_hash is not null`.as('has_own_password'))
       .orderBy('users.full_name')
       .orderBy('users.id')
       .limit(query.page_size)
@@ -235,8 +288,21 @@ export class AccountsService {
       this.database,
       users.map((user) => user.id),
     );
+    const items: AccountListItem[] = users.map(({ has_own_password: hasOwnPassword, ...user }) => {
+      const userAssignments = assignments.get(user.id) ?? [];
+      const expires =
+        hasOwnPassword &&
+        policy.password_max_age_days > 0 &&
+        userAssignments.some((assignment) => assignment.role_code !== PARENT_ROLE_CODE);
+      return {
+        ...toView(user, userAssignments),
+        password_expires_at: expires
+          ? new Date(user.password_changed_at.getTime() + policy.password_max_age_days * DAY_MILLISECONDS)
+          : null,
+      };
+    });
     return {
-      items: users.map((user) => toView(user, assignments.get(user.id))),
+      items,
       page: query.page,
       page_size: query.page_size,
       total,
@@ -476,6 +542,157 @@ export class AccountsService {
       });
     });
     return { temporary_password: temporaryPassword };
+  }
+
+  // Cấp mật khẩu hàng loạt ở 1.4 Danh sách người dùng của Sở (DT-16 phần 16d): như đặt lại mật khẩu từng tài khoản, mỗi
+  // tài khoản một mật khẩu tạm, bắt buộc đổi ở lần đăng nhập sau, thu hồi mọi phiên. Mật khẩu tạm chỉ trả một lần trong
+  // phản hồi, không ghi vào nhật ký. Bỏ qua tài khoản của chính người thao tác và tài khoản ngoài phạm vi, kèm lý do
+  async bulkResetPassword(caller: CallerContext, userIds: string[]) {
+    const { authority } = await this.authority(caller);
+    const users = await this.database
+      .selectFrom('users')
+      .select(['id', 'full_name', 'username', 'phone'])
+      .where('id', 'in', userIds)
+      .execute();
+    const assignments = await loadAssignments(this.database, userIds);
+    const now = this.clock.now();
+    const results: Array<{
+      user_id: string;
+      full_name: string | null;
+      login: string | null;
+      temporary_password: string | null;
+      skipped_reason: string | null;
+    }> = [];
+    for (const userId of userIds) {
+      const user = users.find((item) => item.id === userId);
+      const skip = (reason: string) =>
+        results.push({
+          user_id: userId,
+          full_name: user?.full_name ?? null,
+          login: user ? (user.username ?? user.phone) : null,
+          temporary_password: null,
+          skipped_reason: reason,
+        });
+      if (!user) {
+        skip('Không tìm thấy tài khoản');
+        continue;
+      }
+      if (userId === caller.claims.userId) {
+        skip('Không cấp lại mật khẩu cho tài khoản đang đăng nhập; đổi ở menu người dùng');
+        continue;
+      }
+      if (!canManageAccount(authority, assignments.get(userId) ?? [])) {
+        skip('Tài khoản nằm ngoài phạm vi của bạn');
+        continue;
+      }
+      const temporaryPassword = generateTemporaryPassword();
+      const passwordHash = await hashPassword(temporaryPassword);
+      await this.database.transaction().execute(async (transaction) => {
+        await transaction
+          .updateTable('users')
+          .set({
+            password_hash: passwordHash,
+            password_changed_at: now,
+            must_change_password: true,
+            failed_login_count: 0,
+            locked_until: null,
+            updated_at: now,
+          })
+          .where('id', '=', userId)
+          .execute();
+        await this.revokeSessions(transaction, userId, now);
+        await writeIdentityAuditLog(transaction, {
+          actorUserId: caller.claims.userId,
+          entityName: 'users',
+          entityId: userId,
+          action: 'reset_password',
+          before: null,
+          after: { must_change_password: true, bulk: true },
+          ipAddress: caller.ipAddress,
+        });
+      });
+      results.push({
+        user_id: userId,
+        full_name: user.full_name,
+        login: user.username ?? user.phone,
+        temporary_password: temporaryPassword,
+        skipped_reason: null,
+      });
+    }
+    return { items: results };
+  }
+
+  // Phân nhóm quyền hàng loạt (DT-16 phần 16d): gán một nhóm ở một đơn vị cho nhiều tài khoản; như gán từng tài khoản,
+  // chỉ VT-01, VT-02 làm được; tài khoản đã có nhóm ở đơn vị đó thì bỏ qua
+  async bulkAddRole(caller: CallerContext, userIds: string[], grant: RoleGrant) {
+    const { authority, units } = await this.authority(caller);
+    if (!authority.manageAll) {
+      throw forbidden('Chỉ Hiệu trưởng và quản trị nền tảng gán được vai trò');
+    }
+    const users = await this.database
+      .selectFrom('users')
+      .select(['id', 'full_name', 'valid_until'])
+      .where('id', 'in', userIds)
+      .execute();
+    const assignments = await loadAssignments(this.database, userIds);
+    // Ngày hết hiệu lực của VT-20 kiểm tra riêng từng tài khoản ở dưới
+    const roles = await this.validateGrants([grant], 'bulk', units, 'role');
+    const now = this.clock.now();
+    const results: Array<{ user_id: string; full_name: string | null; added: boolean; skipped_reason: string | null }> =
+      [];
+    for (const userId of userIds) {
+      const user = users.find((item) => item.id === userId);
+      if (!user) {
+        results.push({ user_id: userId, full_name: null, added: false, skipped_reason: 'Không tìm thấy tài khoản' });
+        continue;
+      }
+      if (grant.role_code === 'VT-20' && !user.valid_until) {
+        results.push({
+          user_id: userId,
+          full_name: user.full_name,
+          added: false,
+          skipped_reason: 'Tài khoản kiểm toán viên bắt buộc có ngày hết hiệu lực (BM-68)',
+        });
+        continue;
+      }
+      if (
+        (assignments.get(userId) ?? []).some(
+          (assignment) => assignment.role_code === grant.role_code && assignment.org_unit_id === grant.org_unit_id,
+        )
+      ) {
+        results.push({
+          user_id: userId,
+          full_name: user.full_name,
+          added: false,
+          skipped_reason: 'Tài khoản đã có nhóm này ở đơn vị này',
+        });
+        continue;
+      }
+      await this.database.transaction().execute(async (transaction) => {
+        const created = await transaction
+          .insertInto('user_roles')
+          .values({
+            user_id: userId,
+            role_id: roles.get(grant.role_code) ?? '',
+            org_unit_id: grant.org_unit_id,
+            created_by: caller.claims.userId,
+          })
+          .returning('id')
+          .executeTakeFirstOrThrow();
+        await this.revokeSessions(transaction, userId, now);
+        await writeIdentityAuditLog(transaction, {
+          actorUserId: caller.claims.userId,
+          entityName: 'user_roles',
+          entityId: created.id,
+          action: 'assign_role',
+          before: null,
+          after: { user_id: userId, ...grant, bulk: true },
+          ipAddress: caller.ipAddress,
+        });
+      });
+      results.push({ user_id: userId, full_name: user.full_name, added: true, skipped_reason: null });
+    }
+    return { items: results };
   }
 
   // Gán vai trò sau khi tạo chỉ VT-01, VT-02 làm được (CTC-P01-042); thu hồi phiên vì quyền thay đổi (BM-56)

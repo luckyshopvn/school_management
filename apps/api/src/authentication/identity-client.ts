@@ -147,35 +147,57 @@ export class IdentityClient {
     return (await response.json()) as ApiClientIdentity;
   }
 
-  // Danh sách tài khoản, nhóm người dùng để xuất Excel (DT-16 phần 16b); dịch vụ định danh tự kiểm tra quyền xem
-  listAccounts(accessToken: string, query: URLSearchParams): Promise<IdentityAccountPage> {
-    return this.getJson(accessToken, `/users?${query.toString()}`, 'đọc danh sách người dùng');
+  // Danh sách người dùng của 1.4 (P01-06), bằng mã phiên của người thao tác; dịch vụ định danh lọc theo phạm vi (DT-16 16d)
+  listAccounts(accessToken: string, query: URLSearchParams) {
+    return this.requestJson<IdentityAccountPage>(
+      accessToken,
+      `/users?${query.toString()}`,
+      undefined,
+      'đọc danh sách người dùng',
+    );
   }
 
-  listRoles(accessToken: string): Promise<IdentityRole[]> {
-    return this.getJson(accessToken, '/roles', 'đọc danh sách nhóm người dùng');
+  // Danh sách nhóm người dùng để xuất Excel 1.1 (DT-16 phần 16b); dịch vụ định danh tự kiểm tra quyền xem
+  listRoles(accessToken: string) {
+    return this.requestJson<IdentityRole[]>(accessToken, '/roles', undefined, 'đọc danh sách nhóm người dùng');
   }
 
-  private postJson<Result>(accessToken: string, path: string, body: unknown, action: string): Promise<Result> {
-    return this.sendJson(accessToken, path, { method: 'POST', body: JSON.stringify(body) }, action);
-  }
-
-  private getJson<Result>(accessToken: string, path: string, action: string): Promise<Result> {
-    return this.sendJson(accessToken, path, { method: 'GET' }, action);
+  // Tạo tài khoản kèm nhóm quyền cho nhân sự chưa có tài khoản (Lấy danh sách CBQL/GV, DT-16 phần 16d)
+  createAccount(
+    accessToken: string,
+    input: {
+      full_name: string;
+      phone: string | null;
+      username: string | null;
+      valid_until: null;
+      roles: Array<{ role_code: string; org_unit_id: string | null }>;
+    },
+  ) {
+    return this.postJson<{ account: { id: string }; temporary_password: string | null }>(
+      accessToken,
+      '/users',
+      input,
+      'tạo tài khoản',
+    );
   }
 
   // Gọi dịch vụ định danh bằng mã phiên của người thao tác; lỗi nghiệp vụ trả nguyên mã lỗi và nội dung
-  private async sendJson<Result>(
-    accessToken: string,
-    path: string,
-    init: { method: 'GET' | 'POST'; body?: string },
-    action: string,
-  ): Promise<Result> {
+  private postJson<Result>(accessToken: string, path: string, body: unknown, action: string): Promise<Result> {
+    return this.requestJson<Result>(accessToken, path, body, action);
+  }
+
+  // Có nội dung thì gửi POST, không có thì GET
+  private async requestJson<Result>(accessToken: string, path: string, body: unknown, action: string): Promise<Result> {
     let response: Response;
     try {
       response = await fetch(`${this.configuration.identityBaseUrl}${API_VERSION_PREFIX}${path}`, {
-        ...init,
-        headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json' },
+        ...(body === undefined
+          ? { headers: { authorization: `Bearer ${accessToken}` } }
+          : {
+              method: 'POST',
+              headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json' },
+              body: JSON.stringify(body),
+            }),
         signal: AbortSignal.timeout(IDENTITY_TIMEOUT_MILLISECONDS),
       });
     } catch (error) {
@@ -191,7 +213,7 @@ export class IdentityClient {
           rule_code?: string;
         };
       };
-      if ([400, 403, 404, 422].includes(response.status) && payload.error?.code) {
+      if ([400, 403, 404, 409, 422].includes(response.status) && payload.error?.code) {
         throw new ApplicationError(
           payload.error.code as 'ERR_FORBIDDEN',
           payload.error.message ?? `Không ${action} được`,
@@ -238,8 +260,9 @@ export interface IdentityAccount {
   must_change_password: boolean;
   valid_until: string | null;
   last_login_at: string | null;
-  password_changed_at: string | null;
-  assignments: Array<{ role_code: string; role_name: string; org_unit_id: string | null }>;
+  password_changed_at: string;
+  password_expires_at: string | null;
+  assignments: Array<{ assignment_id: string; role_code: string; role_name: string; org_unit_id: string | null }>;
 }
 
 export interface IdentityAccountPage {
@@ -255,5 +278,7 @@ export interface IdentityRole {
   code: string;
   name: string;
   is_system: boolean;
+  is_active: boolean;
+  user_count: number;
   permissions: string[];
 }

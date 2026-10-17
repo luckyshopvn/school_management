@@ -7,6 +7,7 @@ import { migration as createUserGridSettings } from './migrations/0005_create_us
 import { migration as createFeedback } from './migrations/0007_create_feedback.js';
 import { migration as createAdministrativeUnits } from './migrations/0008_create_administrative_units.js';
 import { migration as createArchiveTables } from './migrations/0009_create_archive_tables.js';
+import { migration as addSyncAccountCredentials } from './migrations/0012_add_sync_account_credentials.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu hệ thống, theo số thứ tự (QU-01, QĐ-17)
 export const systemMigrations: Record<string, Migration> = {
@@ -18,4 +19,5 @@ export const systemMigrations: Record<string, Migration> = {
   '0007_create_feedback': createFeedback,
   '0008_create_administrative_units': createAdministrativeUnits,
   '0009_create_archive_tables': createArchiveTables,
+  '0012_add_sync_account_credentials': addSyncAccountCredentials,
 };

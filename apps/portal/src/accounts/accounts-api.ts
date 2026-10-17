@@ -1,5 +1,5 @@
-import { requestJson } from '../session/api-client.js';
 import { downloadPost } from '../children/children-api.js';
+import { requestJson } from '../session/api-client.js';
 
 // Gọi nhóm điểm cuối tài khoản, vai trò, quyền của dịch vụ định danh (P01-06, P01-07)
 export interface Assignment {
@@ -41,7 +41,11 @@ export interface Role {
   code: string;
   name: string;
   is_system: boolean;
+  // Hiệu lực, số người dùng, phân hệ được dùng (DT-16 phần 16d)
+  is_active: boolean;
+  user_count: number;
   permissions: string[];
+  workspaces: string[];
 }
 
 export interface Permission {
@@ -59,6 +63,10 @@ export interface AccountFilter {
   fullName: string;
   // "true", "false" hoặc trống
   mustChangePassword: string;
+  // Mã nhân sự hoặc mã định danh Bộ GD&ĐT; ngày hết hạn mật khẩu từ, đến (DT-16 phần 16d)
+  identifier: string;
+  passwordExpiresFrom: string;
+  passwordExpiresTo: string;
 }
 
 export const EMPTY_ACCOUNT_FILTER: AccountFilter = {
@@ -68,6 +76,9 @@ export const EMPTY_ACCOUNT_FILTER: AccountFilter = {
   login: '',
   fullName: '',
   mustChangePassword: '',
+  identifier: '',
+  passwordExpiresFrom: '',
+  passwordExpiresTo: '',
 };
 
 export function listAccounts(filter: AccountFilter & { page: number; pageSize: number }): Promise<AccountPage> {
@@ -150,24 +161,148 @@ export function savePasswordPolicy(policy: PasswordPolicy): Promise<PasswordPoli
   return requestJson('/api/v1/auth/settings/password-policy', { method: 'PUT', body: JSON.stringify(policy) });
 }
 
-// Xuất Excel 1.4 Danh sách người dùng và 1.1 Nhóm người dùng theo bộ lọc, các cột đang hiện (DT-16 phần 16b); máy chủ API
-// đọc lại dữ liệu ở dịch vụ định danh và ghi nhật ký xuất
-export function exportAccounts(filter: AccountFilter, columns: string[]): Promise<void> {
-  return downloadPost(
-    '/api/v1/account-exports/users',
-    {
-      q: filter.q,
-      status: filter.status,
-      role_code: filter.roleCode,
-      login: filter.login,
-      full_name: filter.fullName,
-      must_change_password: filter.mustChangePassword,
-      columns,
-    },
-    'danh-sach-nguoi-dung.xlsx',
-  );
+// 1.1 Nhóm người dùng: sửa tên, hiệu lực; xóa nhóm chưa có người dùng (DT-16 phần 16d)
+export function updateRole(roleId: string, changes: { name?: string; is_active?: boolean }): Promise<Role> {
+  return requestJson(`/api/v1/roles/${roleId}`, { method: 'PATCH', body: JSON.stringify(changes) });
 }
 
+export function deleteRole(roleId: string): Promise<void> {
+  return requestJson(`/api/v1/roles/${roleId}`, { method: 'DELETE' });
+}
+
+// 1.2 Phân quyền nhóm theo phần mềm: thay toàn bộ phân hệ nhóm được dùng
+export function replaceRoleWorkspaces(roleId: string, workspaceKeys: string[]): Promise<Role> {
+  return requestJson(`/api/v1/roles/${roleId}/workspaces`, {
+    method: 'PUT',
+    body: JSON.stringify({ workspace_keys: workspaceKeys }),
+  });
+}
+
+// Xuất Excel 1.1 Nhóm người dùng theo từ khóa, các cột đang hiện (DT-16 phần 16b); máy chủ API đọc lại nhóm ở dịch vụ định
+// danh và ghi nhật ký xuất
 export function exportRoles(keyword: string, columns: string[]): Promise<void> {
   return downloadPost('/api/v1/account-exports/roles', { q: keyword, columns }, 'nhom-nguoi-dung.xlsx');
+}
+
+// 1.4 Danh sách người dùng đủ theo Sở: máy chủ API ghép tài khoản với hồ sơ nhân sự (mã nhân sự, mã Bộ)
+export interface DirectoryAccount extends Account {
+  password_expires_at: string | null;
+  staff_id: string | null;
+  staff_code: string | null;
+  moet_staff_code: string | null;
+}
+
+export interface DirectoryPage {
+  items: DirectoryAccount[];
+  page: number;
+  page_size: number;
+  total: number;
+  total_pages: number;
+}
+
+function directoryEntries(filter: AccountFilter): Array<[string, string]> {
+  const entries: Array<[string, string]> = [
+    ['q', filter.q],
+    ['status', filter.status],
+    ['role_code', filter.roleCode],
+    ['login', filter.login],
+    ['full_name', filter.fullName],
+    ['must_change_password', filter.mustChangePassword],
+    ['identifier', filter.identifier],
+    ['password_expires_from', filter.passwordExpiresFrom],
+    ['password_expires_to', filter.passwordExpiresTo],
+  ];
+  return entries.filter(([, value]) => value.trim() !== '').map(([name, value]) => [name, value.trim()]);
+}
+
+export function listAccountDirectory(
+  filter: AccountFilter & { page: number; pageSize: number },
+): Promise<DirectoryPage> {
+  const parameters = new URLSearchParams(directoryEntries(filter));
+  parameters.set('page', String(filter.page));
+  parameters.set('page_size', String(filter.pageSize));
+  return requestJson(`/api/v1/account-directory?${parameters.toString()}`);
+}
+
+export const exportAccounts = (filter: AccountFilter, columns: string[]) =>
+  downloadPost(
+    '/api/v1/account-directory/export',
+    { ...Object.fromEntries(directoryEntries(filter)), columns },
+    'danh-sach-nguoi-dung.xlsx',
+  );
+
+export interface BulkPasswordResult {
+  user_id: string;
+  full_name: string | null;
+  login: string | null;
+  temporary_password: string | null;
+  skipped_reason: string | null;
+}
+
+export function bulkResetPassword(userIds: string[]): Promise<{ items: BulkPasswordResult[] }> {
+  return requestJson('/api/v1/users/bulk-reset-password', {
+    method: 'POST',
+    body: JSON.stringify({ user_ids: userIds }),
+  });
+}
+
+export function bulkAddRole(
+  userIds: string[],
+  role: RoleGrant,
+): Promise<{
+  items: Array<{ user_id: string; full_name: string | null; added: boolean; skipped_reason: string | null }>;
+}> {
+  return requestJson('/api/v1/users/bulk-roles', { method: 'POST', body: JSON.stringify({ user_ids: userIds, role }) });
+}
+
+export interface StaffWithoutAccount {
+  id: string;
+  code: string;
+  full_name: string;
+  phone: string | null;
+  org_unit_id: string;
+  org_unit_name: string | null;
+  suggested_username: string | null;
+}
+
+export function listStaffWithoutAccount(): Promise<StaffWithoutAccount[]> {
+  return requestJson('/api/v1/account-directory/staff-without-account');
+}
+
+export interface StaffAccountResult {
+  staff_id: string;
+  code: string | null;
+  full_name: string | null;
+  login: string | null;
+  temporary_password: string | null;
+  error: string | null;
+}
+
+export function createStaffAccounts(staffIds: string[], roleCode: string): Promise<{ items: StaffAccountResult[] }> {
+  return requestJson('/api/v1/account-directory/staff-accounts', {
+    method: 'POST',
+    body: JSON.stringify({ staff_ids: staffIds, role_code: roleCode }),
+  });
+}
+
+// 1.6 Tài khoản đồng bộ của Bộ, của Sở; máy chủ không bao giờ trả mật khẩu
+export interface SyncAccount {
+  target: 'moet' | 'doet';
+  label: string;
+  username: string | null;
+  password_configured: boolean;
+  updated_at: string | null;
+  sync_available: boolean;
+}
+
+export function listSyncAccounts(): Promise<SyncAccount[]> {
+  return requestJson('/api/v1/sync-accounts');
+}
+
+export function saveSyncAccount(target: SyncAccount['target'], input: { username: string; password: string }) {
+  return requestJson<SyncAccount>(`/api/v1/sync-accounts/${target}`, { method: 'PUT', body: JSON.stringify(input) });
+}
+
+export function deleteSyncAccount(target: SyncAccount['target']): Promise<void> {
+  return requestJson(`/api/v1/sync-accounts/${target}`, { method: 'DELETE' });
 }
