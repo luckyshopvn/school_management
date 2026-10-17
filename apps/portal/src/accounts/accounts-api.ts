@@ -180,7 +180,7 @@ export function replaceRoleWorkspaces(roleId: string, workspaceKeys: string[]): 
 
 // Xuất Excel 1.1 Nhóm người dùng theo từ khóa, các cột đang hiện (DT-16 phần 16b); máy chủ API đọc lại nhóm ở dịch vụ định
 // danh và ghi nhật ký xuất
-export function exportRoles(keyword: string, columns: string[]): Promise<void> {
+export function exportRoles(keyword: string, columns: string[]): Promise<string | undefined> {
   return downloadPost('/api/v1/account-exports/roles', { q: keyword, columns }, 'nhom-nguoi-dung.xlsx');
 }
 

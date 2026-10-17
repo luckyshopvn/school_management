@@ -14,6 +14,24 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-17 — DT-16 phần 16a: công cụ xuất, nhập dùng chung và mẫu gửi lên cấp trên
+
+#### Công việc đã thực hiện
+
+- Thêm nút "Xuất PDF" cho lưới dữ liệu dùng chung (bật bằng thuộc tính tùy chọn, năm màn hình), tác vụ xuất nền cho danh sách lớn với màn hình "3.5. Tệp đã tạo", thành phần nhập Excel dùng chung (tải file mẫu kèm dữ liệu, tra cứu danh mục, chọn cột để nhập, xuất file lỗi) áp cho Nhập dữ liệu từ Excel và 2.2 Nhập lớp học từ Excel, mẫu "gửi lên cấp trên" chạy nội bộ áp cho Biểu 1 EMIS đầu năm. Ba bảng mới ở cơ sở dữ liệu hệ thống (tệp `0010`), không thêm quyền.
+- Thêm chức năng P01-20, P17-19, P17-20, kịch bản CT-472 đến CT-482, tiêu chí AC-516 đến AC-526, quy tắc BR-119, quy tắc phân quyền PQ-70, màn hình MH-101, quy tắc bố cục BC-17. Kết quả ngày 17/10/2026 trên CI của PR 97: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 758/758 ca đạt (gồm 7 ca CT-472 đến CT-478 của `export-tools.test.ts`); toàn bộ kiểm thử giao diện 107/107 ca đạt (gồm 4 ca CT-479 đến CT-482 của `58-export-import-tools.spec.ts`; ca 23 quyết toán từng hỏng vì vượt giới hạn đăng nhập mỗi phút nên các ca 20 đến 24 chờ rồi đăng nhập lại qua `submitSignIn` của `tests/e2e/fixtures.ts`). Trên máy phát triển toàn bộ kiểm thử giao diện 107/107 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 16a của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7 theo lựa chọn của Eric ngày 2026-10-16 (bản chạy nội bộ, nút ghi đúng việc làm, để sẵn chỗ nối). Tiến trình xuất nền chạy trong máy chủ API thay cho `apps/worker`; nhập lớp học cập nhật lớp đã có theo cột được chọn; quyền mở khóa của Biểu 1 EMIS là `P01.school-profile.manage`; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-121.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-121, `07_QUY_TAC_NGHIEP_VU.md` BR-119, `08_VAI_TRO_NGUOI_DUNG.md` PQ-70, `10_YEU_CAU_CHUC_NANG.md` P01-20, P17-19, P17-20, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-40, MH-82, MH-92, MH-101, BC-17, `16_CO_SO_DU_LIEU.md` mục 1, 18, `17_DAC_TA_API.md` mục 17, 17.1, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.71.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7.
+
+#### Vấn đề tồn đọng
+
+- Xuất PDF, tác vụ nền còn bật dần ở các màn hình khác (16b, lượt 2, 3); tệp mẫu kèm dữ liệu mới có ở lớp học; gửi lên cấp trên mới có Biểu 1 EMIS, chưa truyền đi được.
 ### 2026-10-17 — DT-16 phần 16d: quản trị hệ thống đủ theo hệ thống của Sở
 
 #### Công việc đã thực hiện

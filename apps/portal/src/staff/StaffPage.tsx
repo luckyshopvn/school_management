@@ -393,10 +393,13 @@ export function StaffPage() {
     setExportError(undefined);
     setExporting(true);
     try {
-      await exportStaff(
+      const notice = await exportStaff(
         activeFilter,
         resolveVisibleColumns(columns, grid.settings.columns).map((column) => column.id),
       );
+      if (notice) {
+        setToastMessage(notice);
+      }
     } catch (error) {
       setExportError(messageOf(error));
     } finally {
@@ -550,6 +553,7 @@ export function StaffPage() {
           }
           settings={grid.settings}
           onSettingsChange={grid.update}
+          exportPdf={canExport ? (columnIds) => exportStaff(activeFilter, columnIds, 'pdf') : undefined}
           serverPagination={{ page, total: staff.data?.total ?? 0, onPageChange: setPage }}
         />
         {openId && !(staff.data?.items ?? []).some((row) => row.id === openId) ? (

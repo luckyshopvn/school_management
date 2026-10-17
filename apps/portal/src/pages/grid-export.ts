@@ -11,7 +11,7 @@ export function visibleColumnIds<Row>(columns: Array<DataGridColumn<Row>>, setti
 export function useGridExport() {
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState<string>();
-  const run = async (download: () => Promise<void>) => {
+  const run = async (download: () => Promise<unknown>) => {
     setError(undefined);
     setExporting(true);
     try {

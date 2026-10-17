@@ -227,6 +227,14 @@ import { GridSettingsController, GridSettingsService } from './grid-settings/gri
 import { FeedbackController, FeedbackService } from './feedback/feedback.js';
 import { ArchivesController } from './archives/archives.controller.js';
 import { ArchivesService } from './archives/archives.js';
+import { ExportJobs, ExportJobsController } from './exports/export-jobs.js';
+import {
+  ManualUpperLevelGateway,
+  UpperLevelForms,
+  UpperLevelGateway,
+  UpperLevelSubmissions,
+  UpperLevelSubmissionsController,
+} from './submissions/upper-level-submissions.js';
 import { integrationsTransitionStep } from './integrations/integrations-transition.js';
 import { FacebookPostsController, FacebookPostsService } from './integrations/facebook-posts.js';
 import {
@@ -364,6 +372,8 @@ export class ApplicationModule {
         GridSettingsController,
         FeedbackController,
         ArchivesController,
+        ExportJobsController,
+        UpperLevelSubmissionsController,
         FacebookPostsController,
         RecruitmentRequestsController,
         JobPostingsController,
@@ -564,6 +574,11 @@ export class ApplicationModule {
         GridSettingsService,
         FeedbackService,
         ArchivesService,
+        ExportJobs,
+        UpperLevelForms,
+        UpperLevelSubmissions,
+        // Chưa có kết nối với hệ thống của Bộ, Sở: gửi lên cấp trên làm thủ công (DT-16 phần 16a)
+        { provide: UpperLevelGateway, useClass: ManualUpperLevelGateway },
         FacebookPostsService,
         JournalsService,
         {

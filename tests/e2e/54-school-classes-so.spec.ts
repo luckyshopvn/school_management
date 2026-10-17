@@ -238,7 +238,7 @@ test('CT-15b-11: 2.2 Nhập lớp học từ Excel tách riêng; giáo viên kh�
   await expect(page.getByRole('heading', { name: '2.2. Nhập lớp học từ Excel', exact: true })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Lớp học' })).toBeVisible();
   await expect(
-    page.getByRole('region', { name: 'Lớp học' }).getByRole('button', { name: 'Tải mẫu Excel' }),
+    page.getByRole('region', { name: 'Lớp học' }).getByRole('button', { name: 'Tải file mẫu', exact: true }),
   ).toBeVisible();
 
   const unitId = await findUnitId('Phân hiệu A');

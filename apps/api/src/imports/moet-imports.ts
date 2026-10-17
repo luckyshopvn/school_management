@@ -27,6 +27,10 @@ import {
 // trực thuộc (chọn Trường chính là toàn trường), không phân biệt hoa thường, dấu, khoảng trắng thừa. Kiểm tra trước, chỉ
 // ghi khi không còn dòng lỗi; nhập lại cùng tệp thì cập nhật, không tạo trùng
 
+// Tiêu đề nhận diện dòng tiêu đề của tệp CSDL ngành (dùng cả khi xuất file lỗi, DT-16 phần 16a)
+export const MOET_CHILD_HEADERS = ['Mã lớp', 'Họ tên', 'Ngày sinh'];
+export const MOET_STAFF_HEADERS = ['Họ tên', 'CMND/CCCD'];
+
 const PHONE_PATTERN = /^0\d{9}$/;
 const NATIONAL_ID_PATTERN = /^\d{12}$/;
 // Người lớn còn có thể dùng chứng minh nhân dân chín số
@@ -188,7 +192,7 @@ export class MoetImports {
     orgUnitId: string,
     body: Buffer,
   ): Promise<MoetValidation<MoetChildPlan>> {
-    const records = mapMoetRows(readWorkbookTable(body, ['Mã lớp', 'Họ tên', 'Ngày sinh']), MOET_CHILD_COLUMNS, [
+    const records = mapMoetRows(readWorkbookTable(body, MOET_CHILD_HEADERS), MOET_CHILD_COLUMNS, [
       ['national_id', 'citizen_id'],
     ]);
     const { unitIds, inScope } = await this.unitsOf(database, currentUser, orgUnitId, PERMISSION_CODES.importChildren);
@@ -748,7 +752,7 @@ export class MoetImports {
     orgUnitId: string,
     body: Buffer,
   ): Promise<MoetValidation<MoetStaffPlan>> {
-    const records = mapMoetRows(readWorkbookTable(body, ['Họ tên', 'CMND/CCCD']), MOET_STAFF_COLUMNS);
+    const records = mapMoetRows(readWorkbookTable(body, MOET_STAFF_HEADERS), MOET_STAFF_COLUMNS);
     const { inScope } = await this.unitsOf(database, currentUser, orgUnitId, PERMISSION_CODES.importStaff);
     const staff = await database
       .selectFrom('staff')

@@ -1,5 +1,6 @@
 import type { ClassAgeGroupKey, ClassStage } from '@school-management/shared';
 import { downloadPost } from '../children/children-api.js';
+import type { ExportFormat } from '../exports/export-api.js';
 import { requestJson } from '../session/api-client.js';
 
 // Gọi nhóm điểm cuối lớp học (máy chủ API) và danh bạ giáo viên (dịch vụ định danh) (P02-05, YCTD-44); thông tin lớp, bộ
@@ -130,8 +131,8 @@ export const searchClasses = (filter: ClassFilter = {}): Promise<ClassRecord[]> 
   return requestJson(`/api/v1/classes${parameters ? `?${parameters}` : ''}`);
 };
 
-export const exportClasses = (filter: ClassFilter, columns: string[]) =>
-  downloadPost('/api/v1/classes/export', { ...cleaned(filter), columns }, 'danh-sach-lop.xlsx');
+export const exportClasses = (filter: ClassFilter, columns: string[], format: ExportFormat = 'xlsx') =>
+  downloadPost('/api/v1/classes/export', { ...cleaned(filter), columns, format }, `danh-sach-lop.${format}`);
 
 export const createClass = (input: ClassInput): Promise<ClassRecord> =>
   requestJson('/api/v1/classes', { method: 'POST', body: JSON.stringify(input) });
@@ -163,5 +164,5 @@ export const listClassAssignments = (filter: ClassAssignmentFilter = {}): Promis
   return requestJson(`/api/v1/class-assignments${parameters ? `?${parameters}` : ''}`);
 };
 
-export const exportClassAssignments = (filter: ClassAssignmentFilter) =>
-  downloadPost('/api/v1/class-assignments/export', cleaned(filter), 'phan-cong-phu-trach-lop.xlsx');
+export const exportClassAssignments = (filter: ClassAssignmentFilter, format: ExportFormat = 'xlsx') =>
+  downloadPost('/api/v1/class-assignments/export', { ...cleaned(filter), format }, `phan-cong-phu-trach-lop.${format}`);

@@ -230,6 +230,78 @@ export interface ArchiveRecordFilesTable {
   created_by: string | null;
 }
 
+export type ExportJobFormat = 'xlsx' | 'pdf';
+export type ExportJobStatus = 'pending' | 'running' | 'done' | 'failed' | 'expired';
+
+// Tác vụ xuất nền và danh sách "Tệp đã tạo" (DT-16 phần 16a): user_snapshot là vai trò, quyền của người tạo lúc tạo
+export interface ExportJobsTable {
+  id: Generated<string>;
+  user_id: string;
+  user_name: string;
+  user_snapshot: ColumnType<unknown, string, string>;
+  report_code: string;
+  title: string;
+  format: ExportJobFormat;
+  parameters: ColumnType<Record<string, unknown>, string, string>;
+  ip_address: string | null;
+  status: Generated<ExportJobStatus>;
+  attempts: Generated<number>;
+  row_count: number | null;
+  file_name: string | null;
+  content_type: string | null;
+  size_bytes: number | null;
+  storage_key: string | null;
+  error_message: string | null;
+  created_at: CreatedTimestamp;
+  started_at: Date | null;
+  finished_at: Date | null;
+  expires_at: Date | null;
+}
+
+export type UpperLevelSubmissionStatus = 'draft' | 'sent' | 'unlock_requested' | 'resend';
+export type UpperLevelSubmissionAction =
+  'export' | 'mark_sent' | 'unlock_request' | 'unlock' | 'unlock_reject' | 'resend';
+
+// Trạng thái gửi biểu mẫu lên cấp trên theo năm học, chạy nội bộ (DT-16 phần 16a)
+export interface UpperLevelSubmissionsTable {
+  id: Generated<string>;
+  academic_year_id: string;
+  form_code: string;
+  status: Generated<UpperLevelSubmissionStatus>;
+  no_data: Generated<boolean>;
+  data_complete: boolean | null;
+  snapshot: ColumnType<unknown, string | null, string | null>;
+  file_name: string | null;
+  content_type: string | null;
+  size_bytes: number | null;
+  storage_key: string | null;
+  exported_at: Date | null;
+  exported_by: string | null;
+  exported_by_name: string | null;
+  sent_on: DateText | null;
+  sent_note: string | null;
+  sent_by: string | null;
+  sent_by_name: string | null;
+  marked_sent_at: Date | null;
+  unlock_reason: string | null;
+  unlock_requested_by: string | null;
+  unlock_requested_by_name: string | null;
+  unlock_requested_at: Date | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+  updated_by: string | null;
+}
+
+export interface UpperLevelSubmissionEventsTable {
+  id: Generated<string>;
+  submission_id: string;
+  action: UpperLevelSubmissionAction;
+  note: string | null;
+  actor_id: string;
+  actor_name: string;
+  created_at: CreatedTimestamp;
+}
+
 export interface SystemDatabase {
   academic_years: AcademicYearsTable;
   academic_terms: AcademicTermsTable;
@@ -245,4 +317,7 @@ export interface SystemDatabase {
   archive_holdings: ArchiveHoldingsTable;
   archive_records: ArchiveRecordsTable;
   archive_record_files: ArchiveRecordFilesTable;
+  export_jobs: ExportJobsTable;
+  upper_level_submissions: UpperLevelSubmissionsTable;
+  upper_level_submission_events: UpperLevelSubmissionEventsTable;
 }
