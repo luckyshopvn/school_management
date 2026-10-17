@@ -223,7 +223,7 @@ describe('Hồ sơ học sinh đủ theo hệ thống của Sở (DT-16 phần 1
   it('CT-16g-1: Xóa hồ sơ nháp không xóa cứng, giải phóng số định danh; hồ sơ đã duyệt không xóa được', async () => {
     const active = await api('DELETE', `/children/${children.Yen}`, principal.accessToken);
     assert.equal(active.status, 422, JSON.stringify(active.body));
-    assert.equal(errorOf(active.body).rule_code, 'YCTD-124');
+    assert.equal(errorOf(active.body).rule_code, 'YCTD-126');
     const deleted = await api('DELETE', `/children/${children.Draft}`, principal.accessToken);
     assert.equal(deleted.status, 200, JSON.stringify(deleted.body));
     const row = await schoolYear
@@ -571,7 +571,7 @@ describe('Hồ sơ học sinh đủ theo hệ thống của Sở (DT-16 phần 1
     assert.ok(((job.body.preview as { updated: number }).updated ?? 0) > 0);
     const refused = await api('POST', `/imports/${job.body.id}/commit`, principal.accessToken, {});
     assert.equal(refused.status, 422);
-    assert.equal(errorOf(refused.body).rule_code, 'YCTD-124');
+    assert.equal(errorOf(refused.body).rule_code, 'YCTD-126');
     const committed = await api('POST', `/imports/${job.body.id}/commit`, principal.accessToken, {
       confirm_update: true,
     });

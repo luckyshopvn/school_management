@@ -7,7 +7,7 @@ import type { ExportedFile } from '../facilities/facilities-workbook.js';
 import type { OrganizationScopes } from '../organization/organization-scopes.js';
 
 // Dùng chung cho các chức năng hồ sơ học sinh theo hệ thống của Sở (DT-16 phần 16g)
-export const STUDENT_RECORDS_RULE_CODE = 'YCTD-124';
+export const STUDENT_RECORDS_RULE_CODE = 'YCTD-126';
 export const BULK_LIMIT = 500;
 export const XLSX_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const VIETNAM_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
