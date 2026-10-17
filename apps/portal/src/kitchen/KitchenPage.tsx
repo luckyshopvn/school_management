@@ -10,11 +10,13 @@ import {
   Toast,
   type DataGridColumn,
 } from '@school-management/ui';
+import { listGradeLevels } from '../catalogs/catalogs-api.js';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { listClasses } from '../classes/classes-api.js';
 import { AppShell } from '../pages/AppShell.js';
 import { matchesSearch } from '../pages/grid-search.js';
 import { useGridSettings } from '../pages/grid-settings.js';
+import { ExcelImportPanel } from '../imports/ExcelImportPanel.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { requestJson } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
@@ -50,7 +52,9 @@ import { MealCountsTab } from './MealCountsTab.js';
 // suất ăn theo ngày, định lượng; lập và xác nhận nhập phiếu đi chợ; kế toán gắn phiếu chi; báo cáo đối chiếu suất ăn.
 // Danh sách thực đơn tuần, nguyên liệu, món ăn, nhà cung cấp, phiếu đi chợ, buffet theo lưới dữ liệu chung, tìm tại chỗ,
 // Mở rộng tìm kiếm theo trạng thái; bỏ món khỏi thực đơn, bỏ nguyên liệu khỏi định lượng qua hộp xác nhận xóa. Ma trận
-// thực đơn tuần, bảng định lượng, suất ăn theo lớp và báo cáo giữ dạng bảng (DT-16 phần 16b)
+// thực đơn tuần, bảng định lượng, suất ăn theo lớp và báo cáo giữ dạng bảng (DT-16 phần 16b). Thực đơn có tên thực đơn,
+// tháng, tuần, từ ngày–đến ngày, khối áp dụng; "Thay đổi" thông tin chung của thực đơn nháp; "Nhập từ Excel" bằng công cụ
+// nhập chung (mục 4.5 của Sở, DT-16 phần 16h)
 type Tab = 'menus' | 'meals' | 'meal-counts' | 'dishes' | 'purchases' | 'buffets' | 'report';
 const selectClass = 'mt-2 block w-full rounded-lg border border-border bg-card px-3 py-2 text-content font-normal';
 
@@ -129,9 +133,25 @@ function useIngredients(orgUnitId: string) {
 
 const ageGroupLabel = (ageGroup: string) => (ageGroup === 'all' ? 'Chung' : ageGroup);
 
+const formatDate = (value: string | null) => (value ? value.split('-').reverse().join('/') : '');
+const formatMonth = (value: string | null) => (value ? value.split('-').reverse().join('/') : '');
+const gradesLabel = (grades: string[]) => (grades.length === 0 ? 'Mọi khối' : grades.join(', '));
+
 const MENU_COLUMNS: Array<DataGridColumn<MenuSummary>> = [
-  { id: 'week', header: 'Tuần', alwaysVisible: true, className: 'font-medium', cell: (row) => row.week_start_date },
-  { id: 'age_group', header: 'Độ tuổi', cell: (row) => ageGroupLabel(row.age_group) },
+  {
+    id: 'name',
+    header: 'Tên thực đơn',
+    alwaysVisible: true,
+    className: 'font-medium',
+    cell: (row) => row.name ?? `Thực đơn tuần ${formatDate(row.week_start_date)}`,
+  },
+  { id: 'month', header: 'Tháng', cell: (row) => formatMonth(row.month) },
+  { id: 'week_no', header: 'Tuần', cell: (row) => row.week_no ?? '' },
+  { id: 'from_date', header: 'Từ ngày', cell: (row) => formatDate(row.from_date ?? row.week_start_date) },
+  { id: 'to_date', header: 'Đến ngày', cell: (row) => formatDate(row.to_date) },
+  { id: 'grade_levels', header: 'Khối áp dụng', cell: (row) => gradesLabel(row.grade_levels ?? []) },
+  { id: 'week', header: 'Tuần bắt đầu', hiddenByDefault: true, cell: (row) => row.week_start_date },
+  { id: 'age_group', header: 'Độ tuổi', hiddenByDefault: true, cell: (row) => ageGroupLabel(row.age_group) },
   { id: 'item_count', header: 'Số món', cell: (row) => row.item_count },
   { id: 'status', header: 'Trạng thái', cell: (row) => MENU_STATUS_LABELS[row.status] },
 ];
@@ -235,7 +255,13 @@ function MenusTab({ orgUnitId, onDone }: TabProps) {
   const canApprove = useHasPermission(PERMISSION_CODES.menuApprove);
   const [menuId, setMenuId] = useState('');
   const [weekStart, setWeekStart] = useState(() => mondayOf(vietnamToday()));
-  const [ageGroup, setAgeGroup] = useState('all');
+  const [menuName, setMenuName] = useState('');
+  const [month, setMonth] = useState('');
+  const [weekNo, setWeekNo] = useState('');
+  const [toDate, setToDate] = useState('');
+  const [grades, setGrades] = useState<string[]>([]);
+  const [importing, setImporting] = useState(false);
+  const [editingHeader, setEditingHeader] = useState(false);
   const [weekday, setWeekday] = useState(1);
   const [mealType, setMealType] = useState<MealType>('lunch');
   const [dishId, setDishId] = useState('');
@@ -255,6 +281,7 @@ function MenusTab({ orgUnitId, onDone }: TabProps) {
     enabled: Boolean(menuId),
   });
   const dishes = useDishes(orgUnitId);
+  const gradeLevels = useQuery({ queryKey: ['grade-levels'], queryFn: () => listGradeLevels() });
   const norms = useQuery({
     queryKey: ['kitchen-menu-norms', menuId, normsDate],
     queryFn: () =>
@@ -273,12 +300,24 @@ function MenusTab({ orgUnitId, onDone }: TabProps) {
     mutationFn: () =>
       postJson<MenuDetail>('/api/v1/menus', {
         org_unit_id: orgUnitId,
-        week_start_date: weekStart,
-        age_group: ageGroup,
+        name: menuName.trim() || null,
+        month: month || null,
+        week_no: weekNo.trim() || null,
+        from_date: weekStart,
+        to_date: toDate || null,
+        grade_levels: grades,
       }),
     onSuccess: (menu) => {
       setMenuId(menu.id);
+      setMenuName('');
       return refresh('Đã lập thực đơn nháp');
+    },
+  });
+  const updateHeader = useMutation({
+    mutationFn: (input: Record<string, unknown>) => postJson<MenuDetail>(`/api/v1/menus/${menuId}`, input, 'PUT'),
+    onSuccess: () => {
+      setEditingHeader(false);
+      return refresh('Đã thay đổi thông tin thực đơn');
     },
   });
   const saveItems = useMutation({
@@ -310,16 +349,23 @@ function MenusTab({ orgUnitId, onDone }: TabProps) {
       );
     },
   });
-  const error = [menus.error, detail.error, create.error, saveItems.error, action.error, norms.error, grid.error].find(
-    Boolean,
-  );
+  const error = [
+    menus.error,
+    detail.error,
+    create.error,
+    updateHeader.error,
+    saveItems.error,
+    action.error,
+    norms.error,
+    grid.error,
+  ].find(Boolean);
   const menu = detail.data;
   const items = menu?.items ?? [];
   const activeDishes = (dishes.data ?? []).filter((dish) => dish.status === 'active');
   const rows = (menus.data ?? []).filter(
     (row) =>
       (status === '' || row.status === status) &&
-      matchesSearch(search, row.week_start_date, row.age_group, ageGroupLabel(row.age_group)),
+      matchesSearch(search, row.week_start_date, row.age_group, ageGroupLabel(row.age_group), row.name ?? ''),
   );
 
   return (
@@ -335,22 +381,59 @@ function MenusTab({ orgUnitId, onDone }: TabProps) {
           }}
         >
           <TextField
-            label="Tuần bắt đầu (thứ hai)"
+            label="Tên thực đơn"
+            value={menuName}
+            placeholder="Để trống: Thực đơn tuần dd/mm/yyyy"
+            onChange={(event) => setMenuName(event.target.value)}
+          />
+          <TextField label="Tháng" type="month" value={month} onChange={(event) => setMonth(event.target.value)} />
+          <TextField
+            label="Tuần"
+            inputMode="numeric"
+            value={weekNo}
+            placeholder="Để trống: theo khai báo tuần"
+            onChange={(event) => setWeekNo(event.target.value)}
+          />
+          <TextField
+            label="Từ ngày"
             type="date"
             value={weekStart}
             onChange={(event) => setWeekStart(event.target.value)}
           />
-          <TextField
-            label="Độ tuổi (mã khối hoặc all)"
-            value={ageGroup}
-            onChange={(event) => setAgeGroup(event.target.value)}
+          <TextField label="Đến ngày" type="date" value={toDate} onChange={(event) => setToDate(event.target.value)} />
+          <GradeChoice
+            label="Khối áp dụng"
+            options={(gradeLevels.data ?? []).filter((grade) => grade.status === 'active')}
+            value={grades}
+            onChange={setGrades}
           />
-          <div className="flex items-end">
+          <div className="flex items-end gap-2 md:col-span-3">
             <Button type="submit" variant="primary" disabled={create.isPending || weekStart === ''}>
               Lập thực đơn
             </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              aria-expanded={importing}
+              onClick={() => setImporting(!importing)}
+            >
+              Nhập từ Excel
+            </Button>
           </div>
         </form>
+      ) : null}
+      {canManage && importing ? (
+        <ExcelImportPanel
+          type="menus"
+          title="Nhập thực đơn bữa ăn từ Excel"
+          apiBase="/api/v1/menu-imports"
+          uploadPath="/api/v1/menu-imports"
+          uploadFields={{ org_unit_id: orgUnitId }}
+          catalogSearch={{ org_unit_id: orgUnitId }}
+          onCommitted={(job) =>
+            refresh(`Đã nhập ${(job as { menu_count?: number }).menu_count ?? 0} thực đơn nháp từ Excel`)
+          }
+        />
       ) : null}
       <DataGrid
         label="Danh sách thực đơn tuần"
@@ -382,6 +465,28 @@ function MenusTab({ orgUnitId, onDone }: TabProps) {
             Thực đơn tuần {menu.week_start_date} ({menu.age_group === 'all' ? 'chung' : menu.age_group}):{' '}
             {MENU_STATUS_LABELS[menu.status]}
           </h2>
+          <p className="text-content text-text">
+            {menu.name ?? ''}; tháng {formatMonth(menu.month)}
+            {menu.week_no ? `; tuần ${menu.week_no}` : ''}; từ ngày {formatDate(menu.from_date)} đến ngày{' '}
+            {formatDate(menu.to_date)}; khối áp dụng: {gradesLabel(menu.grade_levels ?? [])}.
+          </p>
+          {canManage && menu.status === 'draft' ? (
+            editingHeader ? (
+              <MenuHeaderForm
+                menu={menu}
+                grades={(gradeLevels.data ?? []).filter((grade) => grade.status === 'active')}
+                busy={updateHeader.isPending}
+                onCancel={() => setEditingHeader(false)}
+                onSave={(input) => updateHeader.mutate(input)}
+              />
+            ) : (
+              <div>
+                <Button type="button" variant="secondary" onClick={() => setEditingHeader(true)}>
+                  Thay đổi
+                </Button>
+              </div>
+            )
+          ) : null}
           {menu.reject_reason && menu.status === 'draft' ? (
             <Alert tone="warning">Bị trả lại: {menu.reject_reason}</Alert>
           ) : null}
@@ -545,6 +650,93 @@ function MenusTab({ orgUnitId, onDone }: TabProps) {
         </section>
       ) : null}
     </div>
+  );
+}
+
+// Chọn nhiều khối áp dụng; không chọn khối nào là mọi khối
+function GradeChoice({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: Array<{ code: string; name: string }>;
+  value: string[];
+  onChange(next: string[]): void;
+}) {
+  return (
+    <fieldset className="flex flex-col gap-2">
+      <legend className="text-label font-medium text-text">{label} (không chọn là mọi khối)</legend>
+      <div className="flex flex-wrap gap-x-4 gap-y-1">
+        {options.map((grade) => (
+          <label key={grade.code} className="flex items-center gap-1 text-content text-text">
+            <input
+              type="checkbox"
+              aria-label={`Khối ${grade.name}`}
+              checked={value.includes(grade.code)}
+              onChange={(event) =>
+                onChange(event.target.checked ? [...value, grade.code] : value.filter((code) => code !== grade.code))
+              }
+            />
+            {grade.name}
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  );
+}
+
+function MenuHeaderForm({
+  menu,
+  grades,
+  busy,
+  onCancel,
+  onSave,
+}: {
+  menu: MenuDetail;
+  grades: Array<{ code: string; name: string }>;
+  busy: boolean;
+  onCancel(): void;
+  onSave(input: Record<string, unknown>): void;
+}) {
+  const [name, setName] = useState(menu.name ?? '');
+  const [month, setMonth] = useState(menu.month ?? '');
+  const [weekNo, setWeekNo] = useState(menu.week_no?.toString() ?? '');
+  const [fromDate, setFromDate] = useState(menu.from_date ?? menu.week_start_date);
+  const [toDate, setToDate] = useState(menu.to_date ?? '');
+  const [chosen, setChosen] = useState<string[]>(menu.grade_levels ?? []);
+  return (
+    <form
+      aria-label="Thay đổi thông tin thực đơn"
+      className="grid grid-cols-1 gap-3 rounded-lg border border-border p-4 md:grid-cols-3"
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSave({
+          name: name.trim() || null,
+          month: month || null,
+          week_no: weekNo.trim() || null,
+          from_date: fromDate,
+          to_date: toDate || null,
+          grade_levels: chosen,
+        });
+      }}
+    >
+      <TextField label="Tên thực đơn" value={name} onChange={(event) => setName(event.target.value)} />
+      <TextField label="Tháng" type="month" value={month} onChange={(event) => setMonth(event.target.value)} />
+      <TextField label="Tuần" inputMode="numeric" value={weekNo} onChange={(event) => setWeekNo(event.target.value)} />
+      <TextField label="Từ ngày" type="date" value={fromDate} onChange={(event) => setFromDate(event.target.value)} />
+      <TextField label="Đến ngày" type="date" value={toDate} onChange={(event) => setToDate(event.target.value)} />
+      <GradeChoice label="Khối áp dụng" options={grades} value={chosen} onChange={setChosen} />
+      <div className="flex gap-2 md:col-span-3">
+        <Button type="submit" variant="primary" disabled={busy || fromDate === ''}>
+          Ghi
+        </Button>
+        <Button type="button" variant="text" onClick={onCancel}>
+          Hủy
+        </Button>
+      </div>
+    </form>
   );
 }
 

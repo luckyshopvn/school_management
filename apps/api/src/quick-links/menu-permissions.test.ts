@@ -142,11 +142,13 @@ function legacyVisibility(has: (code: string) => boolean): Partial<Record<Portal
     '/growth-report': canViewGrowthReport,
     '/program-completion': canSeeChildrenAndClasses && (canManageProgramCompletion || canApproveProgramCompletion),
     '/kitchen': canManageKitchen || canApproveMenus || canViewKitchenReport,
+    '/student-health': canManageHealth || canViewGrowthReport,
     '/health': canManageHealth || canRecordMedicalEvents,
     '/medicines': canManageMedicines || canAdministerMedication || canApproveMedicinePurchases,
     '/attendance': canSeeChildrenAndClasses,
     '/statistics': canSeeStatistics,
     '/missing-profiles': canSeeStatistics,
+    '/student-statistics': canSeeStatistics,
     // Cơ sở vật chất, TBDH; Báo cáo số liệu
     '/facility-rooms': canViewFacilities || canManageEquipment || canManageRooms,
     '/equipment': canViewFacilities || canManageEquipment,

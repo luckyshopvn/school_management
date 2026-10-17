@@ -97,6 +97,8 @@ export type {
   MedicalEventSeverity,
   MealType,
   MenuStatus,
+  PhysicalEducationResult,
+  StudentHealthTerm,
   MarketPurchaseStatus,
   MarketPurchasePaymentStatus,
   MedicationRequestStatus,

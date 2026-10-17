@@ -1,8 +1,8 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.6
-- Ngày cập nhật: 2026-10-17
+- Phiên bản: 0.7
+- Ngày cập nhật: 2026-10-18
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
 
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.75.0 – 2026-10-17
+
+- Phạm vi thay đổi: DT-16 phần 16h, sức khỏe, dinh dưỡng và thống kê học sinh theo hệ thống của Sở (YCTD-125).
+- Chức năng mới: mục "4.6.1. Nhập thông tin sức khỏe học sinh" theo học kỳ (cân nặng, chiều cao, giáo dục thể chất, biết bơi, bảy loại bệnh về mắt, "Lấy dữ liệu từ 4.3", Xuất Excel); 4.3.2 tổng hợp theo học kỳ, so sánh hai lần cân đo, cột "Được khám định kỳ"; 4.5 thực đơn có tên, tháng, tuần, từ ngày, đến ngày, nhiều khối áp dụng, nút "Thay đổi" cho thực đơn nháp, nhập thực đơn từ Excel bằng công cụ nhập chung; mục "5.3. Thống kê học sinh" sáu thẻ, Xuất Excel, Xuất PDF; số liệu báo cáo sức khỏe học sinh đầu năm (dòng 1.3) cho phần 16j (P10-15, P12-10, P17-21, P17-22).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0057_add_student_health_and_menu_fields` thêm sáu cột của `menus` (`name`, `month`, `week_no`, `from_date`, `to_date`, `grade_levels`; thực đơn cũ lấy giá trị từ tuần bắt đầu và độ tuổi) kèm hai ràng buộc kiểm tra, tạo hai bảng `menu_import_jobs`, `student_health_records`.
+- Thay đổi API: điểm cuối mới `/student-health`, `/student-health/pull-growth`, `/student-health/export`, `/statistics/students`, `/statistics/students/export`, `/reports/emis/start-of-year-health`, `PUT /menus/{id}`, nhóm `/menu-imports`; `POST /menus` nhận thêm thông tin chung theo Sở; `GET /menus` lọc thêm `month`; `/reports/growth` nhận thêm `term`, `compare_round_id`, trả thêm `comparison` và số được khám định kỳ.
+- Kiểm thử: kịch bản CT-524 đến CT-533. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 787/787 ca đạt; toàn bộ kiểm thử giao diện 115/115 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: chỉ tiêu của báo cáo sức khỏe đầu năm do Claude đặt, chưa đối chiếu biểu mẫu chính thức của Sở; con thương binh, liệt sĩ nhận biết theo chữ trong đối tượng chính sách nên có thể sót khi hồ sơ ghi cách khác.
+- Khả năng tương thích: `POST /menus` vẫn nhận `week_start_date`, `age_group`; cột `age_group` giữ làm khóa không trùng; thực đơn chung và thực đơn riêng của khối cùng tuần vẫn cùng tồn tại được; `GET /statistics/children` không đổi; Y tế học đường, Thuốc và dặn thuốc đổi số mục thành 4.6.2, 4.6.3, đường dẫn giữ nguyên.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16h; chạy phần quay lui của tệp `0057` (xóa `student_health_records`, `menu_import_jobs`, hai ràng buộc và sáu cột mới của `menus`). Thực đơn lập sau khi gộp vẫn dùng được vì `week_start_date`, `age_group` vẫn được ghi.
 
 ### Phiên bản 0.74.0 – 2026-10-17
 

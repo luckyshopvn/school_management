@@ -5,6 +5,7 @@ export * from './menu-permissions.js';
 export * from './staff-profile.js';
 export * from './staff-catalogs.js';
 export * from './classes.js';
+export * from './student-health.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -313,6 +314,9 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/staff-movements',
   '/staff-statistics',
   '/staff-identity-progress',
+  // Sức khỏe học sinh, thống kê học sinh (DT-16 phần 16h)
+  '/student-health',
+  '/student-statistics',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -405,6 +409,8 @@ export const DATA_GRID_KEYS = [
   'generated-files',
   // Thông báo hệ thống (DT-16 phần 16c)
   'system-announcements',
+  // Sức khỏe, thực đơn, thống kê học sinh (DT-16 phần 16h)
+  'student-statistics-ethnic',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

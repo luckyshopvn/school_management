@@ -109,7 +109,7 @@ test('Bếp lập thực đơn, quản lý đơn vị duyệt và công bố, ph
   const kitchenPage = await (await browser.newContext()).newPage();
   await signInPortal(kitchenPage, kitchen);
   const createForm = kitchenPage.getByRole('form', { name: 'Lập thực đơn' });
-  await createForm.getByLabel('Tuần bắt đầu (thứ hai)').fill(week);
+  await createForm.getByLabel('Từ ngày').fill(week);
   await createForm.getByRole('button', { name: 'Lập thực đơn' }).click();
   await expect(kitchenPage.getByText('Đã lập thực đơn nháp')).toBeVisible();
   const addForm = kitchenPage.getByRole('form', { name: 'Thêm món' });

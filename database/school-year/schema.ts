@@ -2140,6 +2140,50 @@ export interface MenusTable {
   created_by: string;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
+  // Tên thực đơn, tháng (YYYY-MM), tuần, từ ngày–đến ngày, khối áp dụng như màn hình 4.5 của Sở (DT-16 phần 16h)
+  name: ColumnType<string | null, string | null | undefined, string | null>;
+  month: ColumnType<string | null, string | null | undefined, string | null>;
+  week_no: ColumnType<number | null, number | null | undefined, number | null>;
+  from_date: ColumnType<string | null, string | null | undefined, string | null>;
+  to_date: ColumnType<string | null, string | null | undefined, string | null>;
+  grade_levels: ColumnType<string[], string[] | undefined, string[]>;
+}
+
+// Lần nhập thực đơn từ Excel (DT-16 phần 16h): dòng lỗi và các thực đơn đọc được chờ ghi
+export interface MenuImportJobsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  file_id: string;
+  status: 'validated' | 'failed' | 'committed';
+  total_rows: number;
+  error_rows: number;
+  errors: ColumnType<unknown[], string | undefined, string>;
+  menus: ColumnType<unknown[], string | undefined, string>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  committed_at: Date | null;
+}
+
+// Thông tin sức khỏe học sinh theo học kỳ (mục 4.6 của Sở; DT-16 phần 16h)
+export type StudentHealthTerm = 'first_term' | 'second_term';
+export type PhysicalEducationResult = 'passed' | 'not_passed';
+
+export interface StudentHealthRecordsTable {
+  id: Generated<string>;
+  child_id: string;
+  org_unit_id: string;
+  term_type: StudentHealthTerm;
+  measured_on: string | null;
+  weight_kg: Decimal | null;
+  height_cm: Decimal | null;
+  growth_round_id: string | null;
+  physical_education: PhysicalEducationResult | null;
+  can_swim: boolean | null;
+  eye_conditions: ColumnType<string[], string[] | undefined, string[]>;
+  note: string | null;
+  recorded_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
 }
 
 export interface MenuItemsTable {
@@ -3226,6 +3270,8 @@ export interface SchoolYearDatabase {
   ingredient_norms: IngredientNormsTable;
   menus: MenusTable;
   menu_items: MenuItemsTable;
+  menu_import_jobs: MenuImportJobsTable;
+  student_health_records: StudentHealthRecordsTable;
   meal_reports: MealReportsTable;
   meal_plans: MealPlansTable;
   buffet_events: BuffetEventsTable;

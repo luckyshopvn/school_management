@@ -1,8 +1,8 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.6
-- Ngày cập nhật: 2026-10-17
+- Phiên bản: 0.7
+- Ngày cập nhật: 2026-10-18
 - Trạng thái: Đang cập nhật
 
 ## Quy ước ghi nhật ký
@@ -13,6 +13,27 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-17 — DT-16 phần 16h: sức khỏe, dinh dưỡng và thống kê học sinh theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu năm học: tệp `0057_add_student_health_and_menu_fields` thêm tên thực đơn, tháng, tuần, từ ngày, đến ngày, khối áp dụng cho `menus`; tạo bảng `student_health_records` (thông tin sức khỏe học sinh theo học kỳ) và `menu_import_jobs` (lần nhập thực đơn từ Excel).
+- Máy chủ API: 4.6 thông tin sức khỏe theo học kỳ (`/student-health`, "Lấy dữ liệu từ 4.3", Xuất Excel); 4.3.2 tổng hợp theo học kỳ, so sánh hai lần cân đo, số được khám định kỳ; 4.5 thông tin chung của thực đơn theo Sở, "Thay đổi" thực đơn nháp, nhập thực đơn từ Excel (`/menu-imports`); 5.3 thống kê học sinh đủ các phần, Xuất Excel, PDF (`/statistics/students`); số liệu báo cáo sức khỏe học sinh đầu năm (`/reports/emis/start-of-year-health`) làm điểm nối cho phần 16j.
+- Cổng quản trị: màn hình "4.6.1. Nhập thông tin sức khỏe học sinh"; "5.3. Thống kê học sinh" sáu thẻ (dùng chung cho thẻ 5.3 của trang Thống kê theo tiêu chí ngành); 4.3.2 có ô Tổng hợp theo Tháng hoặc Học kỳ, ô So sánh với đợt, bảng so sánh, cột Được khám định kỳ; 4.5 có biểu mẫu lập thực đơn theo Sở, cột lưới mới, nút "Thay đổi", "Nhập từ Excel"; thành phần nhập Excel dùng chung nhận đường dẫn gốc riêng của phân hệ.
+- Thêm chức năng P10-15, P12-10, P17-21, P17-22 (sửa P10-14), kịch bản CT-524 đến CT-533, tiêu chí AC-568 đến AC-577, quy tắc BR-123, màn hình MH-114, MH-115. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 787/787 ca đạt; toàn bộ kiểm thử giao diện 115/115 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Eric quyết định ngày 2026-10-16 làm đủ mọi tính năng đã khảo sát của hệ thống Sở (tài liệu 31); tính năng cần hệ thống ngoài làm bản chạy nội bộ. Thực hiện phần 16h của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7. Kết quả giáo dục thể chất hai mức Đạt, Chưa đạt; học kỳ theo lịch năm học, chưa khai báo thì tháng 8 đến tháng 12 là học kỳ I; con thương binh, liệt sĩ nhận biết theo chữ trong đối tượng chính sách; thực đơn vẫn theo tuần, từ ngày đến ngày trong một tuần; lần nhập thực đơn dùng bảng riêng thay vì đổi ràng buộc loại nhập của `data_import_jobs`; tên và mã chỉ tiêu báo cáo sức khỏe đầu năm đặt theo dữ liệu có sẵn, màn hình và gửi lên cấp trên để phần 16j; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-125.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-125, `07_QUY_TAC_NGHIEP_VU.md` BR-123, `10_YEU_CAU_CHUC_NANG.md` P10-14, P10-15, P12-10, P17-21, P17-22, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-16, MH-17, MH-18, MH-76, MH-77, MH-114, MH-115, `16_CO_SO_DU_LIEU.md` mục 2, 11, 13, 20, `17_DAC_TA_API.md` mục 5, 13, 15, 17, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.75.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7.
+
+#### Vấn đề tồn đọng
+
+- Chỉ tiêu báo cáo sức khỏe đầu năm chưa đối chiếu biểu mẫu chính thức của Sở; màn hình 1.3, xuất tệp, gửi lên cấp trên chờ phần 16j; bệnh về mắt dạng chữ trong hồ sơ CSDL ngành chưa chuyển sang bảy loại; nhập thực đơn chưa cập nhật thực đơn đã có; 4.6.1 chưa có nhập từ Excel.
 
 ### 2026-10-17 — DT-16 phần 16f: nhóm Nhân sự đủ theo hệ thống của Sở
 
