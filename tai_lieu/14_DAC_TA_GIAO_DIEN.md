@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.58
+- Phiên bản: 1.59
 - Ngày cập nhật: 2026-10-17
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -261,6 +261,8 @@ Từ YCTD-107 (DT-15 phần 15a), cổng quản trị dùng menu ngang nhiều c
 | MH-99 | Phân quyền nhóm theo phần mềm (YCTD-120; mục "1.2. Phân quyền nhóm theo phần mềm", đường dẫn `/role-workspaces`, mở sẵn nhóm qua `?role=`): ô Nhóm người dùng; khối "Phân hệ của <mã nhóm>" có nhãn Nhóm hệ thống, Hết hiệu lực; danh sách 11 phân hệ của cổng quản trị dạng ô tích; dòng giải thích phân hệ chỉ quyết định menu, quyền vẫn theo 1.3; nút Ghi, Chọn tất cả, Bỏ chọn tất cả, dòng "Đã chọn N/11 phân hệ". Người không có `P01.account.manage` xem chỉ đọc kèm thông báo | P01-18 |
 | MH-100 | Tài khoản đồng bộ của Bộ, của Sở (YCTD-120; mục "1.6. Tài khoản đồng bộ của Bộ, của Sở" của phân hệ Mầm non, đường dẫn `/sync-accounts`): dòng thông báo chưa đồng bộ được vì chưa có giao diện lập trình của Bộ, Sở; hai biểu mẫu theo khối "Tài khoản đồng bộ của Bộ GD&ĐT", "Tài khoản đồng bộ của Sở GD&ĐT", nhãn bên trái Tên đăng nhập, Mật khẩu (ô mật khẩu luôn trống, gợi ý "Để trống để giữ mật khẩu đã lưu"), Cập nhật lúc; nhãn Đã lưu hoặc Chưa lưu, "Chưa đồng bộ được"; nút Ghi, Xóa thông tin (hộp xác nhận xóa) | P01-19 |
 | MH-101 | Tệp đã tạo (YCTD-121; mục "3.5. Tệp đã tạo", đường dẫn `/generated-files`, theo mục 2.3 của Sở "Tác vụ nền: xuất tệp lớn tạo tác vụ, danh sách Tệp đã tạo"): lưới dữ liệu chung (khóa `generated-files`) các tác vụ xuất nền của chính người dùng, mới nhất trước; cột Tệp, Định dạng, Trạng thái (Đang chờ, Đang tạo, Đã tạo xong, Lỗi, Hết hạn), Số dòng, Thời gian tạo, Thời gian xong, Hạn tải về, Ghi chú (lỗi), ẩn mặc định Dung lượng; nút "Tải về" trên dòng đã tạo xong; nút "Làm mới"; tự làm mới mỗi 5 giây khi còn tác vụ đang chờ hoặc đang tạo | Người có `P17.data.export`; máy chủ chỉ trả tác vụ của người dùng |
+
+Từ YCTD-122: MH-95 có cột Đơn vị, nhãn "Sắp đến hạn" cạnh thời hạn, Mở rộng tìm kiếm thêm Đơn vị và "Chỉ hồ sơ sắp đến hạn"; biểu mẫu thêm ô Đơn vị và ô chọn Người giải quyết từ nhân sự đang làm việc (chọn "Người khác (nhập tên)" thì hiện ô Tên người giải quyết). MH-96, MH-97 có cột Đơn vị, biểu mẫu phông có ô Đơn vị. MH-98 lọc thêm theo Đơn vị. Ô Đơn vị có "Toàn trường" chỉ với người quản lý văn thư toàn trường.
 
 ### 2.2 Ứng dụng giáo viên
 

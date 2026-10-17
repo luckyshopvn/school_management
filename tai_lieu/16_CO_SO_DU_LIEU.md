@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.68
+- Phiên bản: 1.69
 - Ngày cập nhật: 2026-10-17
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -18,7 +18,7 @@
 8. Đơn vị tổ chức lưu trong bảng `org_units` thành cây hai cấp (QĐ-23); `unit_type` là loại đơn vị; Trường chính có `parent_id` trống, Phân hiệu và Điểm trường có `parent_id` là Trường chính.
 9. Mỗi năm học một cơ sở dữ liệu nghiệp vụ (QĐ-15). Có ba loại cơ sở dữ liệu:
    - Cơ sở dữ liệu định danh, không theo năm học: `users`, `roles`, `permissions`, `role_permissions`, `user_roles`, `sessions`, `one_time_codes`, `api_clients`, `security_events` (YCTD-35), `identity_audit_logs` (YCTD-39), `identity_settings` (YCTD-40).
-   - Cơ sở dữ liệu hệ thống của máy chủ API, không theo năm học: `academic_year_databases` (QĐ-17), `academic_years`, `academic_terms`, `school_weeks` (YCTD-30), `integration_credentials` (YCTD-95), `user_quick_links` (YCTD-102), `user_grid_settings` (YCTD-107), `administrative_units`, `administrative_unit_mappings` (YCTD-116), `feedback` (YCTD-110), `archive_fonds`, `archive_holdings`, `archive_records`, `archive_record_files` (YCTD-118); `export_jobs`, `upper_level_submissions`, `upper_level_submission_events` (YCTD-121, tệp `0010`).
+   - Cơ sở dữ liệu hệ thống của máy chủ API, không theo năm học: `academic_year_databases` (QĐ-17), `academic_years`, `academic_terms`, `school_weeks` (YCTD-30), `integration_credentials` (YCTD-95), `user_quick_links` (YCTD-102), `user_grid_settings` (YCTD-107), `administrative_units`, `administrative_unit_mappings` (YCTD-116), `feedback` (YCTD-110), `archive_fonds`, `archive_holdings`, `archive_records`, `archive_record_files` (YCTD-118), `archive_file_deletions` (YCTD-122, tệp `0016`); `export_jobs`, `upper_level_submissions`, `upper_level_submission_events` (YCTD-121, tệp `0010`).
    - Cơ sở dữ liệu năm học: mọi bảng còn lại.
 10. Khi mở năm học mới, dữ liệu chuyển sang giữ nguyên mã định danh (`id`) của đơn vị, trẻ, phụ huynh, nhân sự, danh mục và tài khoản quỹ, để phân quyền ở cơ sở dữ liệu định danh và báo cáo nhiều năm tham chiếu đúng.
 
@@ -79,6 +79,8 @@ Tệp `database/identity/migrations/0046_add_role_status_and_workspaces.ts` củ
 Tệp `database/identity/migrations/0042_add_password_expiry_and_feedback_permission.ts` của cơ sở dữ liệu định danh (DT-15 phần 15g, YCTD-110) thêm cột `users.password_changed_at` (điền coalesce(updated_at, created_at) cho tài khoản đã có, rồi đặt bắt buộc, mặc định now()), thêm quyền `P01.feedback.manage` và gán cho VT-01, VT-02; phần quay lui gỡ quyền và cột. Tệp `database/system/migrations/0007_create_feedback.ts` của cơ sở dữ liệu hệ thống tạo bảng `feedback` với ràng buộc kiểm tra loại, trạng thái, độ dài tiêu đề, nội dung và hai chỉ mục ở mục 20.
 
 Tệp `database/system/migrations/0009_create_archive_tables.ts` của cơ sở dữ liệu hệ thống (DT-15 phần 15h2, YCTD-118) tạo bốn bảng `archive_fonds`, `archive_holdings`, `archive_records`, `archive_record_files` với ràng buộc kiểm tra ở mục này (BR-116) và bốn chỉ mục ở mục 20; phần quay lui xóa bốn bảng. Tệp `database/identity/migrations/0044_add_archive_permissions.ts` của cơ sở dữ liệu định danh thêm ba quyền `P09.archive.view`, `P09.archive.manage`, `P09.archive.export` và gán vai trò theo PQ-68; phần quay lui gỡ quyền. Số `0053` của cơ sở dữ liệu năm học giữ cho phần này không dùng.
+
+Tệp `database/system/migrations/0016_add_archive_units_handlers_reminders.ts` (YCTD-122) thêm `archive_fonds.org_unit_id`, `archive_records.org_unit_id`, `archive_records.handler_staff_id` (mã nhân sự ở năm học đang dùng, không có khóa ngoại), `archive_records.due_reminded_at`, `archive_records.overdue_reminded_at` (thời điểm đã nhắc; đổi thời hạn, người giải quyết, trạng thái thì về trống), hai chỉ mục `archive_fonds_unit_index`, `archive_records_unit_index` và bảng `archive_file_deletions` (storage_key khóa chính, attempts, last_error, created_at, last_attempt_at: tệp chờ xóa lại ở kho tệp, BR-120). Đơn vị trống là toàn trường. Số `0010` đến `0015` giữ cho DT-16; công cụ chạy tệp thay đổi cấu trúc cho chạy lệch thứ tự từ YCTD-120 nên tệp số nhỏ gộp sau vẫn chạy.
 
 Tệp `database/system/migrations/0008_create_administrative_units.ts` của cơ sở dữ liệu hệ thống (DT-15 phần 15h1, YCTD-116) tạo `administrative_units` với ràng buộc kiểm tra thời kỳ, cấp, nguồn, độ dài tên, mã 2 đến 5 chữ số, tỉnh không có cha và cấp khác có cha, đơn vị mới không có cấp huyện; tạo `administrative_unit_mappings` với ràng buộc duy nhất cặp đơn vị cũ, mới; gieo 4 tỉnh (3 cũ, 1 mới), 38 quận/huyện cũ, 441 xã cũ, 168 xã mới, 493 dòng đối chiếu theo Nghị quyết 1685/NQ-UBTVQH15 và danh mục của Cục Thống kê. Phần quay lui xóa hai bảng.
 

@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.73
+- Phiên bản: 1.74
 - Ngày cập nhật: 2026-10-17
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -1017,6 +1017,7 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 4. Tệp đính kèm: PDF, JPEG, PNG nhận theo các byte đầu; .doc, .docx, .xls, .xlsx nhận theo các byte đầu kèm đuôi tên tệp; tối đa 10 MB; tệp khác trả `ERR_VALIDATION` trường `file`; quá 20 tệp mỗi hồ sơ trả `ERR_RULE_VIOLATION` mã YCTD-118. Tải về trả đúng kiểu nội dung, `content-disposition: attachment`; tệp không thuộc hồ sơ trả `ERR_NOT_FOUND` (404).
 5. Xóa phông còn thông tin lưu trữ hoặc hồ sơ trả `ERR_RULE_VIOLATION` mã YCTD-118 (422). Xóa hồ sơ xóa luôn tệp ở kho tệp. Mọi thao tác ghi ghi nhật ký thao tác (`archive_fonds`, `archive_holdings`, `archive_records`, `archive_record_files`).
 6. Xuất Excel hồ sơ: `columns` là mã cột của lưới (`code`, `title`, `fond`, `handler_name`, `opened_on`, `due_date`, `status`, `completed_on`, `retention`, `sheet_count`, `file_count`, `note`), không trùng, không gửi thì theo mặc định; tối đa 5 000 dòng, nhiều hơn trả `ERR_RULE_VIOLATION` mã YCTD-118. Báo cáo lưu trữ xuất một bảng tính có dòng tiêu đề, các dòng theo phông, giai đoạn và dòng Tổng cộng. Mỗi lần xuất ghi nhật ký xuất trước khi trả tệp, trả mã nhật ký ở `x-export-log-id`.
+7. Từ YCTD-122: `GET /archive-handlers` (cần `P09.archive.manage`) trả nhân sự đang làm việc trong phạm vi quản lý: `id`, `code`, `full_name`, `org_unit_id`. Phông nhận `org_unit_id` (trống là toàn trường) và trả `org_unit_id`, `org_unit_name`; hồ sơ nhận `org_unit_id`, `handler_staff_id` (có mã thì `handler_name` không bắt buộc, máy chủ ghi tên theo hồ sơ nhân sự; nhân sự không có hoặc đã nghỉ lỗi trường `handler_staff_id`) và trả thêm `org_unit_name`, `due_soon`. `GET /archive-records`, `POST /archive-records/export` lọc thêm `org_unit_id`, `due_soon=true`; `GET /archive-report`, `POST /archive-report/export` lọc thêm `org_unit_id`; cột xuất Excel thêm `org_unit`. Mọi điểm cuối lọc theo phạm vi đơn vị (PQ-71): bản ghi ngoài phạm vi trả `ERR_NOT_FOUND`, ghi vào đơn vị ngoài phạm vi trả `ERR_FORBIDDEN`; đơn vị không có lỗi trường `org_unit_id`; phông khác đơn vị với hồ sơ lỗi trường `fond_id`.
 
 ## 13. Y tế học đường
 

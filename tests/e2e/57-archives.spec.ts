@@ -1,10 +1,18 @@
 import { expect, test, type Page } from './fixtures.js';
-import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
+import {
+  createDatabase,
+  listDatabasesWithPrefix,
+  readConnectionString,
+  replaceDatabaseName,
+  type IdentityDatabase,
+  type SchoolYearDatabase,
+} from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import ExcelJS from 'exceljs';
+import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
 import { expectNoMenuLink, menuLink, openMenu } from './menu.js';
 
-// Văn thư lưu trữ, mục 5.10 của Sở (DT-15 phần 15h2, YCTD-118; CT-15h2-11 đến CT-15h2-13): phông, thông tin lưu trữ,
+// Văn thư lưu trữ, mục 5.10 của Sở (DT-15 phần 15h2, YCTD-118, YCTD-122; CT-15h2-11 đến CT-15h2-13, CT-15h2-19): phông, thông tin lưu trữ,
 // hồ sơ tài liệu hoàn thành và chưa hoàn thành có tệp đính kèm, báo cáo lưu trữ, quyền theo thao tác. Dữ liệu là dữ liệu
 // giả của riêng kịch bản này, mã có hậu tố theo lần chạy
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
@@ -18,8 +26,8 @@ test.afterAll(async () => {
   await identity.destroy();
 });
 
-async function signIn(page: Page, roleCode: string) {
-  const user = await createTestUser(identity, { roles: [{ roleCode, orgUnitId: null }] });
+async function signIn(page: Page, roleCode: string, orgUnitId: string | null = null) {
+  const user = await createTestUser(identity, { roles: [{ roleCode, orgUnitId }] });
   await page.goto('/');
   await page.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(user.username);
   await page.getByLabel('Mật khẩu', { exact: true }).fill(user.password);
@@ -97,7 +105,9 @@ test.describe.serial('Văn thư lưu trữ', () => {
     await createForm.getByLabel('Số, ký hiệu hồ sơ').fill(recordCode);
     await createForm.getByLabel('Tiêu đề hồ sơ').fill(`Hồ sơ tuyển sinh ${suffix}`);
     await createForm.getByLabel('Phông lưu trữ').selectOption({ label: `${fondCode} - ${fondName}` });
-    await createForm.getByLabel('Người giải quyết').fill('Nguyễn Văn Thư');
+    await expect(createForm.getByLabel('Đơn vị', { exact: true })).toHaveValue('');
+    await createForm.getByLabel('Người giải quyết', { exact: true }).selectOption({ label: 'Người khác (nhập tên)' });
+    await createForm.getByLabel('Tên người giải quyết', { exact: true }).fill('Nguyễn Văn Thư');
     await createForm.getByLabel('Ngày mở hồ sơ').fill('2026-01-05');
     await createForm.getByLabel('Thời hạn giải quyết').fill('2026-01-01');
     await createForm.getByRole('button', { name: 'Ghi' }).click();
@@ -137,6 +147,7 @@ test.describe.serial('Văn thư lưu trữ', () => {
       'Số, ký hiệu hồ sơ',
       'Tiêu đề hồ sơ',
       'Phông lưu trữ',
+      'Đơn vị',
       'Người giải quyết',
       'Ngày mở hồ sơ',
       'Thời hạn giải quyết',
@@ -150,6 +161,7 @@ test.describe.serial('Văn thư lưu trữ', () => {
         recordCode,
         `Hồ sơ tuyển sinh ${suffix}`,
         fondName,
+        'Toàn trường',
         'Nguyễn Văn Thư',
         '05/01/2026',
         '10/02/2026',
@@ -238,5 +250,66 @@ test.describe.serial('Văn thư lưu trữ', () => {
       ).toBeChecked();
     }
     await expect(page.getByRole('listitem', { name: 'Mục 5.10.4. Báo cáo lưu trữ' })).toBeVisible();
+  });
+
+  test('CT-15h2-19: hồ sơ của một đơn vị, người giải quyết chọn từ nhân sự, nhãn Sắp đến hạn; kế toán đơn vị khác không thấy', async ({
+    page,
+  }) => {
+    test.setTimeout(90_000);
+    const systemUrl = readConnectionString('system');
+    const [databaseName] = await listDatabasesWithPrefix(systemUrl, E2E_SCHOOL_YEAR_DATABASE_PREFIX);
+    const schoolYear = createDatabase<SchoolYearDatabase>(replaceDatabaseName(systemUrl, databaseName ?? ''));
+    const [unit, otherUnit] = await schoolYear
+      .selectFrom('org_units')
+      .select(['id', 'name'])
+      .where('unit_type', '!=', 'truong_chinh')
+      .where('status', '=', 'active')
+      .orderBy('code')
+      .limit(2)
+      .execute();
+    const staffName = `Đỗ Thị Văn Thư ${suffix}`;
+    await schoolYear
+      .insertInto('staff')
+      .values({ org_unit_id: unit?.id ?? '', code: `VT${suffix}`, full_name: staffName, start_date: '2025-08-01' })
+      .execute();
+    await schoolYear.destroy();
+    const tomorrow = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(
+      new Date(Date.now() + 86_400_000),
+    );
+    const code = `${suffix}/HS-DV`;
+
+    await signIn(page, 'VT-02');
+    await openMenu(page, '/archive-records');
+    const grid = page.getByRole('region', { name: 'Danh sách hồ sơ chưa hoàn thành' });
+    await grid.getByRole('button', { name: 'Thêm mới' }).click();
+    const form = page.getByRole('form', { name: 'Thêm mới hồ sơ tài liệu' });
+    await form.getByLabel('Số, ký hiệu hồ sơ').fill(code);
+    await form.getByLabel('Tiêu đề hồ sơ').fill(`Hồ sơ đơn vị ${suffix}`);
+    await form.getByLabel('Đơn vị', { exact: true }).selectOption({ label: unit?.name ?? '' });
+    await form.getByLabel('Người giải quyết', { exact: true }).selectOption({ label: `${staffName} (VT${suffix})` });
+    await expect(form.getByLabel('Tên người giải quyết', { exact: true })).toHaveCount(0);
+    await form.getByLabel('Ngày mở hồ sơ').fill('2026-01-05');
+    await form.getByLabel('Thời hạn giải quyết').fill(tomorrow);
+    await form.getByRole('button', { name: 'Ghi' }).click();
+    await expect(page.getByRole('status').filter({ hasText: `Đã tạo hồ sơ ${code}` })).toBeVisible();
+    const row = grid.getByRole('row', { name: `Hồ sơ ${code}`, exact: true });
+    await expect(row).toContainText(staffName);
+    await expect(row).toContainText(unit?.name ?? '');
+    await expect(row).toContainText('Sắp đến hạn');
+
+    // Mở rộng tìm kiếm: chỉ hồ sơ sắp đến hạn của đơn vị
+    await grid.getByLabel('Tìm theo số, ký hiệu hoặc tiêu đề').fill('');
+    await grid.getByRole('button', { name: 'Mở rộng tìm kiếm' }).click();
+    await grid.getByLabel('Đơn vị', { exact: true }).selectOption({ label: unit?.name ?? '' });
+    await grid.getByLabel('Chỉ hồ sơ sắp đến hạn').check();
+    await expect(grid.getByRole('row', { name: `Hồ sơ ${code}`, exact: true })).toBeVisible();
+
+    // Kế toán của đơn vị khác không thấy hồ sơ này
+    await page.context().clearCookies();
+    await signIn(page, 'VT-04', otherUnit?.id ?? null);
+    await openMenu(page, '/archive-records');
+    const otherGrid = page.getByRole('region', { name: 'Danh sách hồ sơ chưa hoàn thành' });
+    await otherGrid.getByLabel('Tìm theo số, ký hiệu hoặc tiêu đề').fill(code);
+    await expect(otherGrid.getByText('Chưa có hồ sơ nào.')).toBeVisible();
   });
 });

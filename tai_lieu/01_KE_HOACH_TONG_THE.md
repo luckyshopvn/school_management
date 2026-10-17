@@ -56,6 +56,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
 | 0.69.0 | DT-16 phần 16b, lưới dữ liệu chung, hộp xác nhận xóa, Xuất Excel cho các màn hình còn lại theo hệ thống của Sở: cơ sở vật chất, thiết bị dạy học, cân đo, hồ sơ chưa nhập đủ, hoàn thành chương trình, nhóm học sinh, chuẩn nghề nghiệp, thực đơn, y tế, thuốc, quản trị hệ thống; Xuất Excel phân hiệu, điểm trường, địa danh hành chính, người dùng, nhóm người dùng (YCTD-119) | 13, 21 | Đã có |
+| 0.72.0 | DT-15 phần 15h2, sửa hạn chế của văn thư lưu trữ: chia theo đơn vị, người giải quyết theo nhân sự, nhắc hạn, xóa lại tệp (YCTD-122) | 13, 21 | Đã có |
 | 0.71.0 | DT-16 phần 16a, công cụ xuất, nhập dùng chung theo hệ thống của Sở: Xuất PDF trên lưới, tác vụ xuất nền và Tệp đã tạo, nhập Excel với file mẫu kèm dữ liệu, tra cứu danh mục, chọn cột, xuất file lỗi; mẫu gửi lên cấp trên chạy nội bộ (YCTD-121) | 13, 21 | Đã có |
 | 0.68.0 | DT-15 phần 15h2, văn thư lưu trữ theo hệ thống của Sở: hồ sơ tài liệu hoàn thành, chưa hoàn thành, phông lưu trữ, thông tin lưu trữ, báo cáo lưu trữ (YCTD-118) | 13, 21 | Đã có |
 | 0.70.0 | DT-16 phần 16d, quản trị hệ thống đủ theo hệ thống của Sở: hiệu lực, sửa, xóa nhóm; 1.2 phân quyền nhóm theo phần mềm; 1.4 đủ cột, bộ lọc, thao tác hàng loạt; 1.6 tài khoản đồng bộ của Bộ, của Sở (YCTD-120) | 13, 21 | Đã có |

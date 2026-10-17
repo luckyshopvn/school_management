@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.58
+- Phiên bản: 1.59
 - Ngày cập nhật: 2026-10-17
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -168,6 +168,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-68 | Văn thư lưu trữ (YCTD-118): ba quyền mới thuộc P09. `P09.archive.view` xem hồ sơ tài liệu, tệp đính kèm, phông, thông tin lưu trữ, báo cáo lưu trữ: VT-02, VT-15, VT-03, VT-04, VT-06. `P09.archive.manage` thêm, sửa, xóa hồ sơ, phông, thông tin lưu trữ, tải lên và xóa tệp đính kèm: VT-02, VT-04, VT-06. `P09.archive.export` xuất Excel hồ sơ và báo cáo lưu trữ: VT-02, VT-15, VT-04, VT-06. Người có quyền quản lý hoặc xuất cũng gọi được các điểm cuối xem. VT-01 không có vì là dữ liệu nghiệp vụ. Dữ liệu dùng chung toàn trường, không lọc theo đơn vị. Mục 5.10.1 đến 5.10.4 hiện theo các quyền này; màn hình Phân quyền nhóm theo menu (PQ-65) hiện ba quyền dưới các mục. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12) |
 | PQ-69 | Quản trị hệ thống đủ theo Sở (YCTD-120), không có mã quyền mới. 1.1 sửa, xóa nhóm và 1.2 Phân quyền nhóm theo phần mềm sửa cần `P01.account.manage` (VT-01, VT-02); người có `P01.account.manage-in-unit` (VT-03) xem 1.2 chỉ đọc. 1.4: Phân nhóm quyền hàng loạt cần `P01.account.manage`; Cấp mật khẩu hàng loạt và Lấy danh sách CBQL/GV cần `P01.account.manage` hoặc `P01.account.manage-in-unit`, chỉ với tài khoản, nhân sự trong phạm vi (như PQ-13); Xuất Excel cần thêm `P17.data.export`. 1.6 Tài khoản đồng bộ của Bộ, của Sở cần `P01.integration.manage` (VT-02). Ma trận phân hệ mặc định: VT-14 không có phân hệ nào của cổng quản trị, các vai trò khác có đủ; nhóm mới có đủ. Máy chủ kiểm tra quyền theo thao tác ở mọi yêu cầu, kể cả khi phân hệ bị ẩn. |
 | PQ-70 | Công cụ xuất, nhập và gửi lên cấp trên (YCTD-121): không thêm mã quyền. Xuất PDF, tác vụ xuất nền của danh sách cần `P17.data.export` như Xuất Excel; "3.5. Tệp đã tạo" hiện với người có `P17.data.export`, máy chủ chỉ trả tác vụ, tệp của chính người tạo. Tải file mẫu kèm dữ liệu, tra cứu danh mục, xuất file lỗi theo quyền nhập của loại dữ liệu (P01-13). Gửi lên cấp trên: quyền của biểu mẫu để xem, xuất tệp gửi, đánh dấu đã gửi, gửi yêu cầu mở khóa; quyền mở khóa của biểu mẫu để mở khóa, từ chối, đặt trạng thái gửi lại. Biểu 1 EMIS đầu năm: `P17.report.emis` (VT-02, VT-15), mở khóa `P01.school-profile.manage` (VT-02) |
+| PQ-71 | Phạm vi đơn vị của văn thư lưu trữ (YCTD-122), không có mã quyền mới. Vai trò gán toàn trường hoặc ở Trường chính có `P09.archive.*` thấy và ghi mọi phông, hồ sơ, thông tin lưu trữ; vai trò gán ở phân hiệu, điểm trường chỉ thấy, ghi, xuất dữ liệu của đơn vị đó, không thấy dữ liệu toàn trường; hồ sơ ngoài phạm vi trả 404, ghi vào đơn vị ngoài phạm vi trả `ERR_FORBIDDEN`. Danh sách người giải quyết (`GET /archive-handlers`) cần `P09.archive.manage` và chỉ có nhân sự trong phạm vi quản lý. Máy chủ kiểm tra ở mọi yêu cầu (AI-12) |
 
 ## 5. Phân cấp phê duyệt
 

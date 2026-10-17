@@ -14,6 +14,25 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-17 — DT-15 phần 15h2: sửa các hạn chế của văn thư lưu trữ
+
+#### Công việc đã thực hiện
+
+- Phông, hồ sơ văn thư chia theo đơn vị và lọc theo phạm vi; người giải quyết chọn từ nhân sự; nhắc sắp đến hạn, quá hạn; hàng chờ xóa lại tệp ở kho tệp. Tệp hệ thống `0016`.
+- Thêm kịch bản CT-483 đến CT-488, tiêu chí AC-527 đến AC-532, quy tắc BR-120, quy tắc phân quyền PQ-71. Kết quả: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 743/743 ca đạt, toàn bộ kiểm thử giao diện 100/100 ca đạt ngày 17/10/2026 trước khi gộp PR 94, 96, 97; sau khi gộp, build, kiểm tra kiểu, lint, kiểm tra định dạng đạt và CI chạy lại đủ kiểm thử đơn vị, giao diện.
+
+#### Quyết định
+
+- Eric chọn ngày 2026-10-16: sổ văn bản đến, đi và biên bản giao nộp, tiêu hủy chờ khảo sát; dùng tệp `0016`. Phạm vi đơn vị, nhắc 3 ngày trước, 20 lần thử xóa lại Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-122.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-122, `07_QUY_TAC_NGHIEP_VU.md` BR-120, `08_VAI_TRO_NGUOI_DUNG.md` PQ-71, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.72.0.
+
+#### Vấn đề tồn đọng
+
+- Sổ văn bản đến, đi và biên bản giao nộp, tiêu hủy chờ khảo sát bổ sung; nhắc hạn chưa gửi tin nhắn.
+
 ### 2026-10-17 — DT-16 phần 16a: công cụ xuất, nhập dùng chung và mẫu gửi lên cấp trên
 
 #### Công việc đã thực hiện

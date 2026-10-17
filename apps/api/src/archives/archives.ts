@@ -1,17 +1,26 @@
-import { Injectable, Logger } from '@nestjs/common';
-import type { ArchiveRecordStatus, ArchiveRetention, SystemDatabase } from '@school-management/database';
+import { Inject, Injectable, Logger, type OnApplicationBootstrap, type OnModuleDestroy } from '@nestjs/common';
+import type {
+  ArchiveRecordStatus,
+  ArchiveRetention,
+  SchoolYearDatabase,
+  SystemDatabase,
+} from '@school-management/database';
 import { ApplicationError, Clock, ruleViolationError, validationError } from '@school-management/server';
 import { sql, type Kysely, type SelectQueryBuilder } from 'kysely';
 import { randomUUID } from 'node:crypto';
-import type { CurrentUser } from '../authentication/current-user.js';
+import { PERMISSION_CODES } from '@school-management/shared';
+import type { CurrentUser, OrganizationScope } from '../authentication/current-user.js';
 import { VIETNAM_DATE } from '../attendance/school-calendar.js';
 import { writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
+import { API_CONFIGURATION, type ApiConfiguration } from '../common/configuration.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
+import { queueNotification } from '../common/notification-queue.js';
 import { conflictOnDuplicate, notFoundError } from '../common/request-fields.js';
 import { buildStudentWorkbook, fileStamp } from '../children/student-workbook.js';
 import { buildFacilitiesWorkbook } from '../facilities/facilities-workbook.js';
 import { FileStorage } from '../files/file-storage.js';
+import { OrganizationScopes } from '../organization/organization-scopes.js';
 import {
   ARCHIVE_RETENTION_LABELS,
   ARCHIVE_RULE_CODE,
@@ -25,7 +34,8 @@ import {
 // Văn thư lưu trữ, mục 5.10 của Sở (DT-15 phần 15h2, YCTD-118): hồ sơ tài liệu hoàn thành, chưa hoàn thành kèm tệp đính
 // kèm; phông lưu trữ; thông tin lưu trữ theo phông và giai đoạn; báo cáo lưu trữ cộng theo phông, giai đoạn. Dữ liệu ở cơ
 // sở dữ liệu hệ thống nên giữ qua các năm học; nhật ký thao tác và nhật ký xuất ghi vào năm học đang dùng như các màn hình
-// khác, nên chưa mở năm học thì không ghi, không xuất được (BR-93)
+// khác, nên chưa mở năm học thì không ghi, không xuất được (BR-93). YCTD-122: phông, hồ sơ thuộc đơn vị và lọc theo phạm vi
+// đơn vị của người dùng; người giải quyết chọn từ nhân sự; nhắc hạn; tệp xóa lỗi ở kho tệp được thử xóa lại
 export const MAXIMUM_ARCHIVE_FILE_BYTES = 10 * 1024 * 1024;
 export const MAXIMUM_FILES_PER_RECORD = 20;
 export const ARCHIVE_EXPORT_ROW_LIMIT = 5000;
@@ -68,6 +78,8 @@ export interface ArchiveFondView {
   code: string;
   name: string;
   note: string | null;
+  org_unit_id: string | null;
+  org_unit_name: string | null;
   holding_count: number;
   record_count: number;
   updated_at: Date;
@@ -78,6 +90,8 @@ export interface ArchiveHoldingView {
   fond_id: string;
   fond_code: string;
   fond_name: string;
+  // Đơn vị của phông chứa dòng thông tin lưu trữ
+  org_unit_id: string | null;
   period_from_year: number;
   period_to_year: number;
   arranged: boolean;
@@ -107,6 +121,9 @@ export interface ArchiveRecordView {
   fond_id: string | null;
   fond_code: string | null;
   fond_name: string | null;
+  org_unit_id: string | null;
+  org_unit_name: string | null;
+  handler_staff_id: string | null;
   handler_name: string;
   opened_on: string;
   due_date: string | null;
@@ -119,11 +136,21 @@ export interface ArchiveRecordView {
   file_count: number;
   // Chưa hoàn thành mà đã qua thời hạn (theo ngày ở Việt Nam)
   overdue: boolean;
+  // Chưa hoàn thành, thời hạn trong ARCHIVE_DUE_SOON_DAYS ngày tới, kể cả hôm nay (YCTD-122)
+  due_soon: boolean;
   updated_at: Date;
+}
+
+export interface ArchiveHandlerView {
+  id: string;
+  code: string;
+  full_name: string;
+  org_unit_id: string;
 }
 
 export interface ArchiveReportFilter {
   fond_id: string | null;
+  org_unit_id: string | null;
   storage_location: string | null;
 }
 
@@ -173,6 +200,7 @@ export const ARCHIVE_RECORD_EXPORT_COLUMNS: Array<{
   { id: 'code', label: 'Số, ký hiệu hồ sơ', value: (row) => row.code },
   { id: 'title', label: 'Tiêu đề hồ sơ', value: (row) => row.title },
   { id: 'fond', label: 'Phông lưu trữ', value: (row) => row.fond_name ?? '' },
+  { id: 'org_unit', label: 'Đơn vị', value: (row) => row.org_unit_name ?? 'Toàn trường' },
   { id: 'handler_name', label: 'Người giải quyết', value: (row) => row.handler_name },
   { id: 'opened_on', label: 'Ngày mở hồ sơ', value: (row) => formatDate(row.opened_on) },
   { id: 'due_date', label: 'Thời hạn giải quyết', value: (row) => formatDate(row.due_date) },
@@ -191,19 +219,51 @@ export const DEFAULT_ARCHIVE_RECORD_EXPORT_COLUMNS = ARCHIVE_RECORD_EXPORT_COLUM
   (column) => column.id !== 'note',
 ).map((column) => column.id);
 
+// Nhắc hạn (YCTD-122): hồ sơ chưa hoàn thành có thời hạn trong 3 ngày tới thì nhắc "sắp đến hạn" một lần, đã qua thời hạn
+// thì nhắc "quá hạn" một lần, gửi trong ứng dụng cho tài khoản của nhân sự giải quyết. Tệp chờ xóa ở kho tệp thử lại tối
+// đa 20 lần
+export const ARCHIVE_DUE_SOON_DAYS = 3;
+export const MAXIMUM_FILE_DELETION_ATTEMPTS = 20;
+const NO_UNIT = '00000000-0000-0000-0000-000000000000';
+const DAY_MILLISECONDS = 86_400_000;
+
 type RecordQuery = SelectQueryBuilder<SystemDatabase, 'archive_records' | 'archive_fonds', Record<string, unknown>>;
 
 const NO_RECORD_FILTER: ArchiveRecordFilter = {
   status: null,
   search: null,
   fond_id: null,
+  org_unit_id: null,
   handler: null,
   due_from: null,
   due_to: null,
   overdue: false,
+  due_soon: false,
 };
 
 const toNumber = (value: string | number | null | undefined) => Number(value ?? 0);
+
+const addDays = (date: string, days: number) =>
+  new Date(Date.parse(`${date}T00:00:00Z`) + days * DAY_MILLISECONDS).toISOString().slice(0, 10);
+
+// Mã đơn vị được lọc; null là toàn trường, không lọc. Người chỉ có phạm vi đơn vị không thấy dữ liệu toàn trường
+// (đơn vị trống) vì dữ liệu đó thuộc Trường chính
+function scopeIds(scope: OrganizationScope): string[] | null {
+  if (scope.wholeSchool) {
+    return null;
+  }
+  return scope.orgUnitIds.length > 0 ? scope.orgUnitIds : [NO_UNIT];
+}
+
+function inScope(scope: OrganizationScope, orgUnitId: string | null): boolean {
+  return scope.wholeSchool || (orgUnitId !== null && scope.orgUnitIds.includes(orgUnitId));
+}
+
+function outOfScopeError(): ApplicationError {
+  return new ApplicationError('ERR_FORBIDDEN', 'Đơn vị này nằm ngoài phạm vi của bạn', [
+    { field: 'org_unit_id', message: PERMISSION_CODES.archiveManage },
+  ]);
+}
 
 @Injectable()
 export class ArchivesService {
@@ -213,6 +273,7 @@ export class ArchivesService {
     private readonly databases: Databases,
     private readonly fileStorage: FileStorage,
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
+    private readonly organizationScopes: OrganizationScopes,
     private readonly clock: Clock,
   ) {}
 
@@ -224,16 +285,64 @@ export class ArchivesService {
     return VIETNAM_DATE.format(this.clock.now());
   }
 
+  // ---- Phạm vi đơn vị (YCTD-122) ----
+
+  // Xem: hợp phạm vi của ba quyền văn thư lưu trữ
+  async viewScope(currentUser: CurrentUser): Promise<OrganizationScope> {
+    const scopes = await Promise.all(
+      [PERMISSION_CODES.archiveView, PERMISSION_CODES.archiveManage, PERMISSION_CODES.archiveExport]
+        .filter((code) => currentUser.hasPermission(code))
+        .map((code) => this.organizationScopes.resolve(currentUser, code)),
+    );
+    if (scopes.some((scope) => scope.wholeSchool)) {
+      return { wholeSchool: true, orgUnitIds: [] };
+    }
+    return { wholeSchool: false, orgUnitIds: [...new Set(scopes.flatMap((scope) => scope.orgUnitIds))] };
+  }
+
+  manageScope(currentUser: CurrentUser): Promise<OrganizationScope> {
+    return this.organizationScopes.resolve(currentUser, PERMISSION_CODES.archiveManage);
+  }
+
+  // Đơn vị phải có ở năm học đang dùng
+  private async assertUnit(schoolYear: Kysely<SchoolYearDatabase>, orgUnitId: string | null): Promise<void> {
+    if (!orgUnitId) {
+      return;
+    }
+    const unit = await schoolYear.selectFrom('org_units').select('id').where('id', '=', orgUnitId).executeTakeFirst();
+    if (!unit) {
+      throw validationError([{ field: 'org_unit_id', message: 'Không tìm thấy đơn vị' }]);
+    }
+  }
+
+  // Tên đơn vị đọc ở năm học đang dùng; chưa có năm học thì để trống
+  private async unitNames(ids: Array<string | null>): Promise<Map<string, string>> {
+    const unitIds = [...new Set(ids.filter((id): id is string => id !== null))];
+    const names = new Map<string, string>();
+    const current = unitIds.length > 0 ? await this.currentSchoolYear.find() : undefined;
+    if (current) {
+      for (const unit of await current.database
+        .selectFrom('org_units')
+        .select(['id', 'name'])
+        .where('id', 'in', unitIds)
+        .execute()) {
+        names.set(unit.id, unit.name);
+      }
+    }
+    return names;
+  }
+
   // ---- Phông lưu trữ ----
 
-  async listFonds(): Promise<ArchiveFondView[]> {
-    const rows = await this.database
+  async listFonds(scope: OrganizationScope): Promise<ArchiveFondView[]> {
+    let query = this.database
       .selectFrom('archive_fonds')
       .select((expression) => [
         'archive_fonds.id',
         'archive_fonds.code',
         'archive_fonds.name',
         'archive_fonds.note',
+        'archive_fonds.org_unit_id',
         'archive_fonds.updated_at',
         expression
           .selectFrom('archive_holdings')
@@ -245,18 +354,28 @@ export class ArchivesService {
           .select(expression.fn.countAll<string>().as('count'))
           .whereRef('archive_records.fond_id', '=', 'archive_fonds.id')
           .as('record_count'),
-      ])
-      .orderBy('archive_fonds.code')
-      .execute();
+      ]);
+    const ids = scopeIds(scope);
+    if (ids) {
+      query = query.where('archive_fonds.org_unit_id', 'in', ids);
+    }
+    const rows = await query.orderBy('archive_fonds.code').execute();
+    const names = await this.unitNames(rows.map((row) => row.org_unit_id));
     return rows.map((row) => ({
       ...row,
+      org_unit_name: row.org_unit_id ? (names.get(row.org_unit_id) ?? null) : null,
       holding_count: toNumber(row.holding_count),
       record_count: toNumber(row.record_count),
     }));
   }
 
-  async createFond(input: ArchiveFondInput, origin: ChangeOrigin): Promise<ArchiveFondView> {
+  async createFond(currentUser: CurrentUser, input: ArchiveFondInput, origin: ChangeOrigin): Promise<ArchiveFondView> {
     const { database: schoolYear } = await this.currentSchoolYear.require();
+    const scope = await this.manageScope(currentUser);
+    if (!inScope(scope, input.org_unit_id)) {
+      throw outOfScopeError();
+    }
+    await this.assertUnit(schoolYear, input.org_unit_id);
     const now = this.clock.now();
     const row = await conflictOnDuplicate(
       this.database
@@ -269,25 +388,45 @@ export class ArchivesService {
     );
     await writeAuditLog(schoolYear, {
       origin,
-      orgUnitId: null,
+      orgUnitId: input.org_unit_id,
       entityName: 'archive_fonds',
       entityId: row.id,
       action: 'create',
       before: null,
       after: input,
     });
-    return this.findFond(row.id);
+    return this.findFond(scope, row.id);
   }
 
-  async updateFond(fondId: string, input: ArchiveFondInput, origin: ChangeOrigin): Promise<ArchiveFondView> {
+  async updateFond(
+    currentUser: CurrentUser,
+    fondId: string,
+    input: ArchiveFondInput,
+    origin: ChangeOrigin,
+  ): Promise<ArchiveFondView> {
     const { database: schoolYear } = await this.currentSchoolYear.require();
-    const before = await this.database
-      .selectFrom('archive_fonds')
-      .select(['code', 'name', 'note'])
-      .where('id', '=', fondId)
-      .executeTakeFirst();
-    if (!before) {
-      throw notFoundError('Không tìm thấy phông lưu trữ', 'archive_fond');
+    const scope = await this.manageScope(currentUser);
+    const before = await this.findFond(scope, fondId);
+    if (!inScope(scope, input.org_unit_id)) {
+      throw outOfScopeError();
+    }
+    await this.assertUnit(schoolYear, input.org_unit_id);
+    // Phông thuộc một đơn vị thì hồ sơ của phông phải cùng đơn vị đó
+    if (input.org_unit_id) {
+      const other = await this.database
+        .selectFrom('archive_records')
+        .select('id')
+        .where('fond_id', '=', fondId)
+        .where((expression) =>
+          expression.or([
+            expression('org_unit_id', 'is', null),
+            expression('org_unit_id', '!=', input.org_unit_id as string),
+          ]),
+        )
+        .executeTakeFirst();
+      if (other) {
+        throw validationError([{ field: 'org_unit_id', message: 'Phông còn hồ sơ của đơn vị khác hoặc toàn trường' }]);
+      }
     }
     await conflictOnDuplicate(
       this.database
@@ -300,20 +439,21 @@ export class ArchivesService {
     );
     await writeAuditLog(schoolYear, {
       origin,
-      orgUnitId: null,
+      orgUnitId: input.org_unit_id,
       entityName: 'archive_fonds',
       entityId: fondId,
       action: 'update',
-      before,
+      before: { code: before.code, name: before.name, note: before.note, org_unit_id: before.org_unit_id },
       after: input,
     });
-    return this.findFond(fondId);
+    return this.findFond(scope, fondId);
   }
 
   // Phông còn thông tin lưu trữ hoặc hồ sơ thì không xóa được, phải chuyển hoặc xóa các dòng đó trước
-  async deleteFond(fondId: string, origin: ChangeOrigin): Promise<void> {
+  async deleteFond(currentUser: CurrentUser, fondId: string, origin: ChangeOrigin): Promise<void> {
     const { database: schoolYear } = await this.currentSchoolYear.require();
-    const fond = await this.findFond(fondId);
+    const scope = await this.manageScope(currentUser);
+    const fond = await this.findFond(scope, fondId);
     if (fond.holding_count > 0 || fond.record_count > 0) {
       throw this.fondInUseError(fond);
     }
@@ -322,17 +462,17 @@ export class ArchivesService {
     } catch (error) {
       // Dòng mới thêm cùng lúc vào phông này
       if ((error as { code?: string }).code === '23503') {
-        throw this.fondInUseError(await this.findFond(fondId));
+        throw this.fondInUseError(await this.findFond(scope, fondId));
       }
       throw error;
     }
     await writeAuditLog(schoolYear, {
       origin,
-      orgUnitId: null,
+      orgUnitId: fond.org_unit_id,
       entityName: 'archive_fonds',
       entityId: fondId,
       action: 'delete',
-      before: { code: fond.code, name: fond.name, note: fond.note },
+      before: { code: fond.code, name: fond.name, note: fond.note, org_unit_id: fond.org_unit_id },
       after: null,
     });
   }
@@ -344,26 +484,36 @@ export class ArchivesService {
     );
   }
 
-  private async findFond(fondId: string): Promise<ArchiveFondView> {
-    const fond = (await this.listFonds()).find((row) => row.id === fondId);
+  // Phông ngoài phạm vi coi như không có
+  private async findFond(scope: OrganizationScope, fondId: string): Promise<ArchiveFondView> {
+    const fond = (await this.listFonds(scope)).find((row) => row.id === fondId);
     if (!fond) {
       throw notFoundError('Không tìm thấy phông lưu trữ', 'archive_fond');
     }
     return fond;
   }
 
-  private async assertFondExists(fondId: string | null): Promise<void> {
+  // Phông phải có và nằm trong phạm vi; phông của một đơn vị chỉ nhận hồ sơ của đúng đơn vị đó
+  private async assertFond(
+    scope: OrganizationScope,
+    fondId: string | null,
+    recordUnitId?: string | null,
+  ): Promise<{ org_unit_id: string | null } | undefined> {
     if (!fondId) {
-      return;
+      return undefined;
     }
     const fond = await this.database
       .selectFrom('archive_fonds')
-      .select('id')
+      .select(['id', 'org_unit_id'])
       .where('id', '=', fondId)
       .executeTakeFirst();
-    if (!fond) {
+    if (!fond || !inScope(scope, fond.org_unit_id)) {
       throw validationError([{ field: 'fond_id', message: 'Không tìm thấy phông lưu trữ' }]);
     }
+    if (recordUnitId !== undefined && fond.org_unit_id !== null && fond.org_unit_id !== recordUnitId) {
+      throw validationError([{ field: 'fond_id', message: 'Phông thuộc đơn vị khác với hồ sơ' }]);
+    }
+    return fond;
   }
 
   // ---- Thông tin lưu trữ ----
@@ -377,6 +527,7 @@ export class ArchivesService {
         'archive_holdings.fond_id',
         'archive_fonds.code as fond_code',
         'archive_fonds.name as fond_name',
+        'archive_fonds.org_unit_id',
         'archive_holdings.period_from_year',
         'archive_holdings.period_to_year',
         'archive_holdings.arranged',
@@ -392,10 +543,14 @@ export class ArchivesService {
       ]);
   }
 
-  async listHoldings(fondId: string | null): Promise<ArchiveHoldingView[]> {
+  async listHoldings(scope: OrganizationScope, fondId: string | null): Promise<ArchiveHoldingView[]> {
     let query = this.holdingsQuery();
     if (fondId) {
       query = query.where('archive_holdings.fond_id', '=', fondId);
+    }
+    const ids = scopeIds(scope);
+    if (ids) {
+      query = query.where('archive_fonds.org_unit_id', 'in', ids);
     }
     const rows = await query
       .orderBy('archive_fonds.code')
@@ -405,17 +560,22 @@ export class ArchivesService {
     return rows.map((row) => ({ ...row, shelf_meters: toNumber(row.shelf_meters) }));
   }
 
-  private async findHolding(holdingId: string): Promise<ArchiveHoldingView> {
+  private async findHolding(scope: OrganizationScope, holdingId: string): Promise<ArchiveHoldingView> {
     const row = await this.holdingsQuery().where('archive_holdings.id', '=', holdingId).executeTakeFirst();
-    if (!row) {
+    if (!row || !inScope(scope, row.org_unit_id)) {
       throw notFoundError('Không tìm thấy thông tin lưu trữ', 'archive_holding');
     }
     return { ...row, shelf_meters: toNumber(row.shelf_meters) };
   }
 
-  async createHolding(input: ArchiveHoldingInput, origin: ChangeOrigin): Promise<ArchiveHoldingView> {
+  async createHolding(
+    currentUser: CurrentUser,
+    input: ArchiveHoldingInput,
+    origin: ChangeOrigin,
+  ): Promise<ArchiveHoldingView> {
     const { database: schoolYear } = await this.currentSchoolYear.require();
-    await this.assertFondExists(input.fond_id);
+    const scope = await this.manageScope(currentUser);
+    const fond = await this.assertFond(scope, input.fond_id);
     const now = this.clock.now();
     const row = await this.database
       .insertInto('archive_holdings')
@@ -424,20 +584,21 @@ export class ArchivesService {
       .executeTakeFirstOrThrow();
     await writeAuditLog(schoolYear, {
       origin,
-      orgUnitId: null,
+      orgUnitId: fond?.org_unit_id ?? null,
       entityName: 'archive_holdings',
       entityId: row.id,
       action: 'create',
       before: null,
       after: input,
     });
-    return this.findHolding(row.id);
+    return this.findHolding(scope, row.id);
   }
 
-  async updateHolding(holdingId: string, input: ArchiveHoldingInput, origin: ChangeOrigin) {
+  async updateHolding(currentUser: CurrentUser, holdingId: string, input: ArchiveHoldingInput, origin: ChangeOrigin) {
     const { database: schoolYear } = await this.currentSchoolYear.require();
-    const before = await this.findHolding(holdingId);
-    await this.assertFondExists(input.fond_id);
+    const scope = await this.manageScope(currentUser);
+    const before = await this.findHolding(scope, holdingId);
+    const fond = await this.assertFond(scope, input.fond_id);
     await this.database
       .updateTable('archive_holdings')
       .set({ ...input, updated_at: this.clock.now(), updated_by: origin.actorUserId })
@@ -445,23 +606,24 @@ export class ArchivesService {
       .execute();
     await writeAuditLog(schoolYear, {
       origin,
-      orgUnitId: null,
+      orgUnitId: fond?.org_unit_id ?? null,
       entityName: 'archive_holdings',
       entityId: holdingId,
       action: 'update',
       before,
       after: input,
     });
-    return this.findHolding(holdingId);
+    return this.findHolding(scope, holdingId);
   }
 
-  async deleteHolding(holdingId: string, origin: ChangeOrigin): Promise<void> {
+  async deleteHolding(currentUser: CurrentUser, holdingId: string, origin: ChangeOrigin): Promise<void> {
     const { database: schoolYear } = await this.currentSchoolYear.require();
-    const before = await this.findHolding(holdingId);
+    const scope = await this.manageScope(currentUser);
+    const before = await this.findHolding(scope, holdingId);
     await this.database.deleteFrom('archive_holdings').where('id', '=', holdingId).execute();
     await writeAuditLog(schoolYear, {
       origin,
-      orgUnitId: null,
+      orgUnitId: before.org_unit_id,
       entityName: 'archive_holdings',
       entityId: holdingId,
       action: 'delete',
@@ -473,8 +635,8 @@ export class ArchivesService {
   // ---- Báo cáo lưu trữ ----
 
   // Cộng thông tin lưu trữ theo phông và giai đoạn: tổng số mét giá, chia theo đã chỉnh lý, chưa chỉnh lý, hết giá trị,
-  // vĩnh viễn, có thời hạn; số bó, số hộp; các nơi bảo quản
-  async report(filter: ArchiveReportFilter): Promise<ArchiveReport> {
+  // vĩnh viễn, có thời hạn; số bó, số hộp; các nơi bảo quản. Chỉ phông trong phạm vi đơn vị của người xem
+  async report(scope: OrganizationScope, filter: ArchiveReportFilter): Promise<ArchiveReport> {
     const meters = (condition: ReturnType<typeof sql<boolean>>) =>
       sql<string>`coalesce(sum(archive_holdings.shelf_meters) filter (where ${condition}), 0)`;
     let query = this.database
@@ -505,6 +667,13 @@ export class ArchivesService {
         'archive_holdings.period_from_year',
         'archive_holdings.period_to_year',
       ]);
+    const ids = scopeIds(scope);
+    if (ids) {
+      query = query.where('archive_fonds.org_unit_id', 'in', ids);
+    }
+    if (filter.org_unit_id) {
+      query = query.where('archive_fonds.org_unit_id', '=', filter.org_unit_id);
+    }
     if (filter.fond_id) {
       query = query.where('archive_holdings.fond_id', '=', filter.fond_id);
     }
@@ -541,8 +710,12 @@ export class ArchivesService {
 
   async exportReport(currentUser: CurrentUser, filter: ArchiveReportFilter, ipAddress: string | null) {
     const { database } = await this.currentSchoolYear.require();
-    const report = await this.report(filter);
+    const scope = await this.viewScope(currentUser);
+    const report = await this.report(scope, filter);
     const fondName = filter.fond_id ? report.rows[0]?.fond_name : undefined;
+    const unitName = filter.org_unit_id
+      ? (await this.unitNames([filter.org_unit_id])).get(filter.org_unit_id)
+      : undefined;
     const createdAt = this.clock.now();
     const totalRow = { fond: 'Tổng cộng', period: '', ...report.totals, storage_locations: '' };
     return buildFacilitiesWorkbook({
@@ -551,12 +724,13 @@ export class ArchivesService {
       reportCode: 'archive-report',
       fileName: `bao-cao-luu-tru-${fileStamp(createdAt)}.xlsx`,
       filters: { ...filter },
-      orgUnitIds: [],
+      orgUnitIds: filter.org_unit_id ? [filter.org_unit_id] : scope.orgUnitIds,
       sheets: [
         {
           title: 'Báo cáo lưu trữ',
           heading: [
             'BÁO CÁO LƯU TRỮ',
+            ...(unitName ? [`Đơn vị: ${unitName}`] : []),
             ...(fondName ? [`Phông: ${fondName}`] : []),
             ...(filter.storage_location ? [`Nơi bảo quản: ${filter.storage_location}`] : []),
             `Ngày lập: ${formatDate(this.today())}`,
@@ -597,8 +771,20 @@ export class ArchivesService {
       .leftJoin('archive_fonds', 'archive_fonds.id', 'archive_records.fond_id') as unknown as RecordQuery;
   }
 
-  private applyRecordFilter(query: RecordQuery, filter: ArchiveRecordFilter, today: string): RecordQuery {
+  private applyRecordFilter(
+    query: RecordQuery,
+    scope: OrganizationScope,
+    filter: ArchiveRecordFilter,
+    today: string,
+  ): RecordQuery {
     let result = query;
+    const ids = scopeIds(scope);
+    if (ids) {
+      result = result.where('archive_records.org_unit_id', 'in', ids);
+    }
+    if (filter.org_unit_id) {
+      result = result.where('archive_records.org_unit_id', '=', filter.org_unit_id);
+    }
     if (filter.status) {
       result = result.where('archive_records.status', '=', filter.status);
     }
@@ -626,16 +812,24 @@ export class ArchivesService {
     if (filter.overdue) {
       result = result.where('archive_records.status', '=', 'pending').where('archive_records.due_date', '<', today);
     }
+    if (filter.due_soon) {
+      result = result
+        .where('archive_records.status', '=', 'pending')
+        .where('archive_records.due_date', '>=', today)
+        .where('archive_records.due_date', '<=', addDays(today, ARCHIVE_DUE_SOON_DAYS));
+    }
     return result;
   }
 
   private async recordRows(
+    scope: OrganizationScope,
     filter: ArchiveRecordFilter,
     page: { limit: number; offset: number },
     recordId?: string,
   ): Promise<{ total: number; items: ArchiveRecordView[] }> {
     const today = this.today();
-    let filtered = this.applyRecordFilter(this.recordsQuery(), filter, today);
+    const soon = addDays(today, ARCHIVE_DUE_SOON_DAYS);
+    let filtered = this.applyRecordFilter(this.recordsQuery(), scope, filter, today);
     if (recordId) {
       filtered = filtered.where('archive_records.id', '=', recordId);
     }
@@ -651,6 +845,8 @@ export class ArchivesService {
         'archive_records.fond_id',
         'archive_fonds.code as fond_code',
         'archive_fonds.name as fond_name',
+        'archive_records.org_unit_id',
+        'archive_records.handler_staff_id',
         'archive_records.handler_name',
         'archive_records.opened_on',
         'archive_records.due_date',
@@ -674,28 +870,40 @@ export class ArchivesService {
       .limit(page.limit)
       .offset(page.offset)
       .execute();
+    const records = rows as unknown as Array<
+      Omit<ArchiveRecordView, 'file_count' | 'overdue' | 'due_soon' | 'org_unit_name'> & { file_count: string | null }
+    >;
+    const names = await this.unitNames(records.map((record) => record.org_unit_id));
     return {
       total: toNumber(count.count as string),
-      items: rows.map((row) => {
-        const record = row as unknown as Omit<ArchiveRecordView, 'file_count' | 'overdue'> & {
-          file_count: string | null;
-        };
+      items: records.map((record) => {
+        const pending = record.status === 'pending' && record.due_date !== null;
         return {
           ...record,
+          org_unit_name: record.org_unit_id ? (names.get(record.org_unit_id) ?? null) : null,
           file_count: toNumber(record.file_count),
-          overdue: record.status === 'pending' && record.due_date !== null && record.due_date < today,
+          overdue: pending && (record.due_date as string) < today,
+          due_soon: pending && (record.due_date as string) >= today && (record.due_date as string) <= soon,
         };
       }),
     };
   }
 
-  async searchRecords(filter: ArchiveRecordFilter, page: number, pageSize: number) {
-    const { total, items } = await this.recordRows(filter, { limit: pageSize, offset: (page - 1) * pageSize });
+  async searchRecords(currentUser: CurrentUser, filter: ArchiveRecordFilter, page: number, pageSize: number) {
+    const scope = await this.viewScope(currentUser);
+    const { total, items } = await this.recordRows(scope, filter, {
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
+    });
     return { items, page, page_size: pageSize, total, total_pages: Math.max(1, Math.ceil(total / pageSize)) };
   }
 
-  async findRecord(recordId: string): Promise<ArchiveRecordView & { files: ArchiveRecordFileView[] }> {
-    const { items } = await this.recordRows(NO_RECORD_FILTER, { limit: 1, offset: 0 }, recordId);
+  // Hồ sơ ngoài phạm vi coi như không có
+  async findRecord(
+    scope: OrganizationScope,
+    recordId: string,
+  ): Promise<ArchiveRecordView & { files: ArchiveRecordFileView[] }> {
+    const { items } = await this.recordRows(scope, NO_RECORD_FILTER, { limit: 1, offset: 0 }, recordId);
     const record = items[0];
     if (!record) {
       throw notFoundError('Không tìm thấy hồ sơ tài liệu', 'archive_record');
@@ -709,9 +917,56 @@ export class ArchivesService {
     return { ...record, files };
   }
 
-  async createRecord(input: ArchiveRecordInput, origin: ChangeOrigin) {
+  async readRecord(currentUser: CurrentUser, recordId: string) {
+    return this.findRecord(await this.viewScope(currentUser), recordId);
+  }
+
+  // Nhân sự đang làm việc để chọn người giải quyết, trong phạm vi quản lý văn thư; chưa có năm học thì trống
+  async listHandlers(currentUser: CurrentUser): Promise<ArchiveHandlerView[]> {
+    const current = await this.currentSchoolYear.find();
+    if (!current) {
+      return [];
+    }
+    let query = current.database
+      .selectFrom('staff')
+      .select(['id', 'code', 'full_name', 'org_unit_id'])
+      .where('status', '=', 'active');
+    const ids = scopeIds(await this.manageScope(currentUser));
+    if (ids) {
+      query = query.where('org_unit_id', 'in', ids);
+    }
+    return query.orderBy('full_name').orderBy('code').execute();
+  }
+
+  // Chọn nhân sự thì tên người giải quyết lấy theo hồ sơ nhân sự đang làm việc ở năm học đang dùng
+  private async resolveHandler(
+    schoolYear: Kysely<SchoolYearDatabase>,
+    input: ArchiveRecordInput,
+  ): Promise<ArchiveRecordInput> {
+    if (!input.handler_staff_id) {
+      return input;
+    }
+    const staff = await schoolYear
+      .selectFrom('staff')
+      .select(['full_name'])
+      .where('id', '=', input.handler_staff_id)
+      .where('status', '=', 'active')
+      .executeTakeFirst();
+    if (!staff) {
+      throw validationError([{ field: 'handler_staff_id', message: 'Không tìm thấy nhân sự đang làm việc' }]);
+    }
+    return { ...input, handler_name: staff.full_name.slice(0, 200) };
+  }
+
+  async createRecord(currentUser: CurrentUser, rawInput: ArchiveRecordInput, origin: ChangeOrigin) {
     const { database: schoolYear } = await this.currentSchoolYear.require();
-    await this.assertFondExists(input.fond_id);
+    const scope = await this.manageScope(currentUser);
+    if (!inScope(scope, rawInput.org_unit_id)) {
+      throw outOfScopeError();
+    }
+    await this.assertUnit(schoolYear, rawInput.org_unit_id);
+    await this.assertFond(scope, rawInput.fond_id, rawInput.org_unit_id);
+    const input = await this.resolveHandler(schoolYear, rawInput);
     const now = this.clock.now();
     const row = await conflictOnDuplicate(
       this.database
@@ -724,24 +979,40 @@ export class ArchivesService {
     );
     await writeAuditLog(schoolYear, {
       origin,
-      orgUnitId: null,
+      orgUnitId: input.org_unit_id,
       entityName: 'archive_records',
       entityId: row.id,
       action: 'create',
       before: null,
       after: input,
     });
-    return this.findRecord(row.id);
+    return this.findRecord(scope, row.id);
   }
 
-  async updateRecord(recordId: string, input: ArchiveRecordInput, origin: ChangeOrigin) {
+  // Đổi thời hạn, người giải quyết hoặc trạng thái thì nhắc hạn lại từ đầu
+  async updateRecord(currentUser: CurrentUser, recordId: string, rawInput: ArchiveRecordInput, origin: ChangeOrigin) {
     const { database: schoolYear } = await this.currentSchoolYear.require();
-    const before = await this.recordSnapshot(recordId);
-    await this.assertFondExists(input.fond_id);
+    const scope = await this.manageScope(currentUser);
+    const before = await this.recordSnapshot(scope, recordId);
+    if (!inScope(scope, rawInput.org_unit_id)) {
+      throw outOfScopeError();
+    }
+    await this.assertUnit(schoolYear, rawInput.org_unit_id);
+    await this.assertFond(scope, rawInput.fond_id, rawInput.org_unit_id);
+    const input = await this.resolveHandler(schoolYear, rawInput);
+    const remindAgain =
+      before.due_date !== input.due_date ||
+      before.handler_staff_id !== input.handler_staff_id ||
+      before.status !== input.status;
     await conflictOnDuplicate(
       this.database
         .updateTable('archive_records')
-        .set({ ...input, updated_at: this.clock.now(), updated_by: origin.actorUserId })
+        .set({
+          ...input,
+          ...(remindAgain ? { due_reminded_at: null, overdue_reminded_at: null } : {}),
+          updated_at: this.clock.now(),
+          updated_by: origin.actorUserId,
+        })
         .where('id', '=', recordId)
         .execute(),
       'Số, ký hiệu hồ sơ đã có',
@@ -749,20 +1020,21 @@ export class ArchivesService {
     );
     await writeAuditLog(schoolYear, {
       origin,
-      orgUnitId: null,
+      orgUnitId: input.org_unit_id,
       entityName: 'archive_records',
       entityId: recordId,
       action: 'update',
       before,
       after: input,
     });
-    return this.findRecord(recordId);
+    return this.findRecord(scope, recordId);
   }
 
-  // Xóa hồ sơ xóa luôn tệp đính kèm ở kho tệp; tệp không xóa được ở kho thì chỉ ghi cảnh báo, hồ sơ vẫn xóa
-  async deleteRecord(recordId: string, origin: ChangeOrigin): Promise<void> {
+  // Xóa hồ sơ xóa luôn tệp đính kèm ở kho tệp; tệp chưa xóa được ở kho thì vào hàng chờ xóa lại
+  async deleteRecord(currentUser: CurrentUser, recordId: string, origin: ChangeOrigin): Promise<void> {
     const { database: schoolYear } = await this.currentSchoolYear.require();
-    const before = await this.recordSnapshot(recordId);
+    const scope = await this.manageScope(currentUser);
+    const before = await this.recordSnapshot(scope, recordId);
     const files = await this.database
       .selectFrom('archive_record_files')
       .select(['storage_key', 'file_name'])
@@ -771,7 +1043,7 @@ export class ArchivesService {
     await this.database.deleteFrom('archive_records').where('id', '=', recordId).execute();
     await writeAuditLog(schoolYear, {
       origin,
-      orgUnitId: null,
+      orgUnitId: before.org_unit_id,
       entityName: 'archive_records',
       entityId: recordId,
       action: 'delete',
@@ -783,13 +1055,15 @@ export class ArchivesService {
     }
   }
 
-  private async recordSnapshot(recordId: string) {
+  private async recordSnapshot(scope: OrganizationScope, recordId: string) {
     const row = await this.database
       .selectFrom('archive_records')
       .select([
         'code',
         'title',
         'fond_id',
+        'org_unit_id',
+        'handler_staff_id',
         'handler_name',
         'opened_on',
         'due_date',
@@ -802,7 +1076,7 @@ export class ArchivesService {
       ])
       .where('id', '=', recordId)
       .executeTakeFirst();
-    if (!row) {
+    if (!row || !inScope(scope, row.org_unit_id)) {
       throw notFoundError('Không tìm thấy hồ sơ tài liệu', 'archive_record');
     }
     return row;
@@ -815,7 +1089,8 @@ export class ArchivesService {
     ipAddress: string | null,
   ) {
     const { database } = await this.currentSchoolYear.require();
-    const { total, items } = await this.recordRows(filter, { limit: ARCHIVE_EXPORT_ROW_LIMIT, offset: 0 });
+    const scope = await this.viewScope(currentUser);
+    const { total, items } = await this.recordRows(scope, filter, { limit: ARCHIVE_EXPORT_ROW_LIMIT, offset: 0 });
     if (total > ARCHIVE_EXPORT_ROW_LIMIT) {
       throw ruleViolationError(
         ARCHIVE_RULE_CODE,
@@ -838,7 +1113,7 @@ export class ArchivesService {
       title,
       fileName: `ho-so-tai-lieu-${fileStamp(createdAt)}.xlsx`,
       filters: { ...filter, columns: columnIds },
-      orgUnitIds: [],
+      orgUnitIds: [...new Set(items.map((item) => item.org_unit_id).filter((id): id is string => id !== null))],
       columns: columns.map((column) => ({ key: column.id, label: column.label })),
       rows: items.map((item) => Object.fromEntries(columns.map((column) => [column.id, column.value(item)]))),
       ipAddress,
@@ -849,12 +1124,13 @@ export class ArchivesService {
   // ---- Tệp đính kèm của hồ sơ ----
 
   async addFile(
+    currentUser: CurrentUser,
     recordId: string,
     upload: { fileName: string; body: Buffer },
     origin: ChangeOrigin,
   ): Promise<ArchiveRecordFileView> {
     const { database: schoolYear } = await this.currentSchoolYear.require();
-    await this.recordSnapshot(recordId);
+    const record = await this.recordSnapshot(await this.manageScope(currentUser), recordId);
     if (upload.body.length > MAXIMUM_ARCHIVE_FILE_BYTES) {
       throw validationError([{ field: 'file', message: 'Tệp đính kèm tối đa 10 MB' }]);
     }
@@ -903,7 +1179,7 @@ export class ArchivesService {
     }
     await writeAuditLog(schoolYear, {
       origin,
-      orgUnitId: null,
+      orgUnitId: record.org_unit_id,
       entityName: 'archive_record_files',
       entityId: fileId,
       action: 'create',
@@ -926,7 +1202,8 @@ export class ArchivesService {
     return file;
   }
 
-  async readFile(recordId: string, fileId: string) {
+  async readFile(currentUser: CurrentUser, recordId: string, fileId: string) {
+    await this.recordSnapshot(await this.viewScope(currentUser), recordId);
     const file = await this.findFile(recordId, fileId);
     return {
       fileName: file.file_name,
@@ -935,13 +1212,14 @@ export class ArchivesService {
     };
   }
 
-  async deleteFile(recordId: string, fileId: string, origin: ChangeOrigin): Promise<void> {
+  async deleteFile(currentUser: CurrentUser, recordId: string, fileId: string, origin: ChangeOrigin): Promise<void> {
     const { database: schoolYear } = await this.currentSchoolYear.require();
+    const record = await this.recordSnapshot(await this.manageScope(currentUser), recordId);
     const file = await this.findFile(recordId, fileId);
     await this.database.deleteFrom('archive_record_files').where('id', '=', fileId).execute();
     await writeAuditLog(schoolYear, {
       origin,
-      orgUnitId: null,
+      orgUnitId: record.org_unit_id,
       entityName: 'archive_record_files',
       entityId: fileId,
       action: 'delete',
@@ -951,11 +1229,171 @@ export class ArchivesService {
     await this.removeStoredFile(file.storage_key);
   }
 
+  // Xóa ở kho tệp lỗi thì ghi vào hàng chờ để tiến trình chạy nền thử lại, không để tệp mồ côi (YCTD-122)
   private async removeStoredFile(storageKey: string): Promise<void> {
     try {
       await this.fileStorage.delete(storageKey);
     } catch (error) {
-      this.logger.warn(`Không xóa được tệp ${storageKey} ở kho tệp: ${(error as Error).message}`);
+      const message = (error as Error).message.slice(0, 500);
+      this.logger.warn(`Không xóa được tệp ${storageKey} ở kho tệp, sẽ thử lại: ${message}`);
+      await this.database
+        .insertInto('archive_file_deletions')
+        .values({ storage_key: storageKey, attempts: 1, last_error: message, last_attempt_at: this.clock.now() })
+        .onConflict((conflict) => conflict.column('storage_key').doNothing())
+        .execute();
+    }
+  }
+
+  // Thử xóa lại các tệp trong hàng chờ; xóa được thì bỏ khỏi hàng chờ, lỗi thì tăng số lần thử
+  async retryFileDeletions(): Promise<{ deleted: number; failed: number }> {
+    const pending = await this.database
+      .selectFrom('archive_file_deletions')
+      .select(['storage_key', 'attempts'])
+      .where('attempts', '<', MAXIMUM_FILE_DELETION_ATTEMPTS)
+      .orderBy('created_at')
+      .limit(50)
+      .execute();
+    let deleted = 0;
+    let failed = 0;
+    for (const item of pending) {
+      try {
+        await this.fileStorage.delete(item.storage_key);
+        await this.database.deleteFrom('archive_file_deletions').where('storage_key', '=', item.storage_key).execute();
+        deleted += 1;
+      } catch (error) {
+        failed += 1;
+        await this.database
+          .updateTable('archive_file_deletions')
+          .set({
+            attempts: item.attempts + 1,
+            last_error: (error as Error).message.slice(0, 500),
+            last_attempt_at: this.clock.now(),
+          })
+          .where('storage_key', '=', item.storage_key)
+          .execute();
+        if (item.attempts + 1 >= MAXIMUM_FILE_DELETION_ATTEMPTS) {
+          this.logger.error(`Thôi thử xóa tệp ${item.storage_key} sau ${MAXIMUM_FILE_DELETION_ATTEMPTS} lần lỗi`);
+        }
+      }
+    }
+    return { deleted, failed };
+  }
+
+  // ---- Nhắc hạn (YCTD-122) ----
+
+  // Hồ sơ chưa hoàn thành có nhân sự giải quyết đã liên kết tài khoản: sắp đến hạn (trong 3 ngày tới, kể cả hôm nay) nhắc
+  // một lần, quá hạn nhắc một lần; thông báo trong ứng dụng ghi ở năm học đang dùng, chưa có năm học thì không nhắc
+  async remindDueRecords(): Promise<{ dueSoon: number; overdue: number }> {
+    const current = await this.currentSchoolYear.find();
+    if (!current) {
+      return { dueSoon: 0, overdue: 0 };
+    }
+    const today = this.today();
+    const soon = addDays(today, ARCHIVE_DUE_SOON_DAYS);
+    const candidates = await this.database
+      .selectFrom('archive_records')
+      .select(['id', 'code', 'title', 'due_date', 'org_unit_id', 'handler_staff_id', 'due_reminded_at'])
+      .where('status', '=', 'pending')
+      .where('handler_staff_id', 'is not', null)
+      .where('due_date', 'is not', null)
+      .where((expression) =>
+        expression.or([
+          expression.and([expression('due_date', '<', today), expression('overdue_reminded_at', 'is', null)]),
+          expression.and([
+            expression('due_date', '>=', today),
+            expression('due_date', '<=', soon),
+            expression('due_reminded_at', 'is', null),
+          ]),
+        ]),
+      )
+      .limit(500)
+      .execute();
+    if (candidates.length === 0) {
+      return { dueSoon: 0, overdue: 0 };
+    }
+    const accounts = new Map(
+      (
+        await current.database
+          .selectFrom('staff')
+          .select(['id', 'user_id'])
+          .where('id', 'in', [...new Set(candidates.map((record) => record.handler_staff_id as string))])
+          .where('user_id', 'is not', null)
+          .execute()
+      ).map((staff) => [staff.id, staff.user_id as string]),
+    );
+    const counts = { dueSoon: 0, overdue: 0 };
+    for (const record of candidates) {
+      const userId = accounts.get(record.handler_staff_id as string);
+      if (!userId) {
+        // Nhân sự chưa có tài khoản thì chưa nhắc được; liên kết tài khoản rồi sẽ được nhắc ở lượt sau
+        continue;
+      }
+      const overdue = (record.due_date as string) < today;
+      await queueNotification(current.database, {
+        orgUnitId: record.org_unit_id,
+        templateCode: overdue ? 'archive_record_overdue' : 'archive_record_due_soon',
+        title: overdue ? 'Hồ sơ tài liệu đã quá hạn' : 'Hồ sơ tài liệu sắp đến hạn',
+        body: `Hồ sơ ${record.code} "${record.title.slice(0, 200)}" có thời hạn giải quyết ${formatDate(record.due_date)}`,
+        targetType: 'archive_record',
+        targetId: record.id,
+        recipients: [{ userId, channel: 'in_app' }],
+      });
+      const now = this.clock.now();
+      await this.database
+        .updateTable('archive_records')
+        // Quá hạn thì nhắc sắp đến hạn coi như đã qua
+        .set(
+          overdue
+            ? { overdue_reminded_at: now, due_reminded_at: record.due_reminded_at ?? now }
+            : { due_reminded_at: now },
+        )
+        .where('id', '=', record.id)
+        .execute();
+      counts[overdue ? 'overdue' : 'dueSoon'] += 1;
+    }
+    return counts;
+  }
+}
+
+// Tiến trình chạy nền của văn thư lưu trữ (YCTD-122): nhắc hạn hồ sơ và thử xóa lại tệp ở kho tệp, cùng nhịp với tiến
+// trình gửi thông báo; nhịp bằng 0 (kiểm thử) thì không chạy, kiểm thử gọi trực tiếp các hàm của ArchivesService
+@Injectable()
+export class ArchiveJobs implements OnApplicationBootstrap, OnModuleDestroy {
+  private readonly logger = new Logger('ArchiveJobs');
+  private timer: NodeJS.Timeout | null = null;
+  private running = false;
+
+  constructor(
+    @Inject(API_CONFIGURATION) private readonly configuration: ApiConfiguration,
+    private readonly archives: ArchivesService,
+  ) {}
+
+  onApplicationBootstrap() {
+    const seconds = this.configuration.notificationDispatchIntervalSeconds ?? 60;
+    if (seconds > 0) {
+      this.timer = setInterval(() => void this.tick(), seconds * 1000);
+      this.timer.unref();
+    }
+  }
+
+  onModuleDestroy() {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+  }
+
+  async tick(): Promise<void> {
+    if (this.running) {
+      return;
+    }
+    this.running = true;
+    try {
+      await this.archives.remindDueRecords();
+      await this.archives.retryFileDeletions();
+    } catch (error) {
+      this.logger.error('Tiến trình văn thư lưu trữ lỗi', error instanceof Error ? error.stack : String(error));
+    } finally {
+      this.running = false;
     }
   }
 }

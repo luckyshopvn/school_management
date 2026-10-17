@@ -17,7 +17,7 @@ import { AppShell } from '../pages/AppShell.js';
 import { useGridSettings } from '../pages/grid-settings.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
-import { fieldErrorsOf, formatNumber, messageOf, numberOrText, selectClass } from './archive-ui.js';
+import { fieldErrorsOf, formatNumber, messageOf, numberOrText, selectClass, useArchiveUnits } from './archive-ui.js';
 import {
   createArchiveHolding,
   deleteArchiveHolding,
@@ -34,36 +34,39 @@ import {
 // 5.10.3. Thông tin lưu trữ (DT-15 phần 15h2, YCTD-118): mỗi dòng là tài liệu của một phông trong một giai đoạn, cùng tình
 // trạng chỉnh lý, còn hay hết giá trị, thời hạn bảo quản, số bó, số hộp, số mét giá và nơi bảo quản theo mục 5.10 của Sở;
 // Báo cáo lưu trữ cộng các dòng này. Thêm mới, Sửa bằng biểu mẫu theo khối với nút Ghi, Xóa qua hộp xác nhận
-const COLUMNS: Array<DataGridColumn<ArchiveHolding>> = [
-  { id: 'fond', header: 'Phông', alwaysVisible: true, className: 'font-medium', cell: (row) => row.fond_name },
-  { id: 'period', header: 'Giai đoạn', cell: (row) => periodText(row.period_from_year, row.period_to_year) },
-  {
-    id: 'arranged',
-    header: 'Chỉnh lý',
-    cell: (row) =>
-      row.arranged ? (
-        <StatusBadge tone="success" label="Đã chỉnh lý" />
-      ) : (
-        <StatusBadge tone="warning" label="Chưa chỉnh lý" />
-      ),
-  },
-  {
-    id: 'expired',
-    header: 'Giá trị',
-    cell: (row) =>
-      row.expired ? (
-        <StatusBadge tone="danger" label="Hết giá trị" />
-      ) : (
-        <StatusBadge tone="neutral" label="Còn giá trị" />
-      ),
-  },
-  { id: 'retention', header: 'Thời hạn bảo quản', cell: (row) => retentionText(row.retention, row.retention_years) },
-  { id: 'bundle_count', header: 'Số bó', cell: (row) => formatNumber(row.bundle_count) },
-  { id: 'box_count', header: 'Số hộp', cell: (row) => formatNumber(row.box_count) },
-  { id: 'shelf_meters', header: 'Số mét giá', cell: (row) => formatNumber(row.shelf_meters) },
-  { id: 'storage_location', header: 'Nơi bảo quản', cell: (row) => row.storage_location },
-  { id: 'note', header: 'Ghi chú', hiddenByDefault: true, cell: (row) => row.note ?? '' },
-];
+function columnsOf(unitName: (orgUnitId: string | null) => string): Array<DataGridColumn<ArchiveHolding>> {
+  return [
+    { id: 'fond', header: 'Phông', alwaysVisible: true, className: 'font-medium', cell: (row) => row.fond_name },
+    { id: 'org_unit', header: 'Đơn vị', cell: (row) => unitName(row.org_unit_id) },
+    { id: 'period', header: 'Giai đoạn', cell: (row) => periodText(row.period_from_year, row.period_to_year) },
+    {
+      id: 'arranged',
+      header: 'Chỉnh lý',
+      cell: (row) =>
+        row.arranged ? (
+          <StatusBadge tone="success" label="Đã chỉnh lý" />
+        ) : (
+          <StatusBadge tone="warning" label="Chưa chỉnh lý" />
+        ),
+    },
+    {
+      id: 'expired',
+      header: 'Giá trị',
+      cell: (row) =>
+        row.expired ? (
+          <StatusBadge tone="danger" label="Hết giá trị" />
+        ) : (
+          <StatusBadge tone="neutral" label="Còn giá trị" />
+        ),
+    },
+    { id: 'retention', header: 'Thời hạn bảo quản', cell: (row) => retentionText(row.retention, row.retention_years) },
+    { id: 'bundle_count', header: 'Số bó', cell: (row) => formatNumber(row.bundle_count) },
+    { id: 'box_count', header: 'Số hộp', cell: (row) => formatNumber(row.box_count) },
+    { id: 'shelf_meters', header: 'Số mét giá', cell: (row) => formatNumber(row.shelf_meters) },
+    { id: 'storage_location', header: 'Nơi bảo quản', cell: (row) => row.storage_location },
+    { id: 'note', header: 'Ghi chú', hiddenByDefault: true, cell: (row) => row.note ?? '' },
+  ];
+}
 
 const text = (value: number | null | undefined) => (value === null || value === undefined ? '' : String(value));
 
@@ -264,6 +267,7 @@ export function ArchiveHoldingsPage() {
         holding.storage_location.toLocaleLowerCase('vi').includes(keyword)),
   );
   const fondList = fonds.data ?? [];
+  const units = useArchiveUnits(PERMISSION_CODES.archiveView);
 
   return (
     <AppShell>
@@ -291,7 +295,7 @@ export function ArchiveHoldingsPage() {
         {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
         <DataGrid
           label="Danh sách thông tin lưu trữ"
-          columns={COLUMNS}
+          columns={columnsOf(units.nameOf)}
           rows={rows}
           getRowId={(row) => row.id}
           getRowLabel={(row) => `${row.fond_name} ${periodText(row.period_from_year, row.period_to_year)}`}

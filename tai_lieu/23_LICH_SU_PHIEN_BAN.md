@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.72.0 – 2026-10-17
+
+- Phạm vi thay đổi: DT-15 phần 15h2, sửa các hạn chế của văn thư lưu trữ (YCTD-122).
+- Chức năng mới: phông, hồ sơ chia theo đơn vị và lọc theo phạm vi đơn vị; người giải quyết chọn từ nhân sự; nhắc sắp đến hạn, quá hạn trong ứng dụng; nhãn và bộ lọc "Sắp đến hạn"; hàng chờ xóa lại tệp ở kho tệp (P09-06 đến P09-08).
+- Lỗi đã sửa: tệp đính kèm có thể còn ở kho tệp khi kho lỗi lúc xóa.
+- Thay đổi dữ liệu: tệp hệ thống `0016_add_archive_units_handlers_reminders` thêm cột `org_unit_id` (phông, hồ sơ), `handler_staff_id`, `due_reminded_at`, `overdue_reminded_at` (hồ sơ), bảng `archive_file_deletions`.
+- Thay đổi API: điểm cuối mới `GET /archive-handlers`; trường và bộ lọc mới `org_unit_id`, `handler_staff_id`, `due_soon`.
+- Rủi ro: người chỉ có vai trò theo đơn vị không còn thấy dữ liệu văn thư toàn trường đã nhập trước.
+- Khả năng tương thích: dữ liệu cũ có đơn vị trống (toàn trường), tên người giải quyết giữ nguyên; điểm cuối cũ giữ đường dẫn và nhận thêm trường không bắt buộc.
+- Phương án quay lui: hoàn lại commit gộp; chạy phần quay lui của tệp `0016` (xóa cột và bảng mới).
+
 ### Phiên bản 0.71.0 – 2026-10-17
 
 - Phạm vi thay đổi: DT-16 phần 16a, công cụ xuất, nhập dùng chung và mẫu gửi lên cấp trên chạy nội bộ theo hệ thống của Sở (YCTD-121).

@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.45
+- Phiên bản: 1.46
 - Ngày cập nhật: 2026-10-17
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -156,7 +156,7 @@
 | P09-03 | Kế hoạch (G2) | VT-03 | Kỳ, mục tiêu, đầu việc, người phụ trách | Lập kế hoạch và theo dõi | Kế hoạch của kỳ | BR-01 |
 | P09-04 | Theo dõi tiến độ (G2) | VT-03, VT-06 | Trạng thái, phần trăm hoàn thành, ghi chú | Cập nhật và tổng hợp tiến độ | Bảng tiến độ | BR-01 |
 | P09-05 | Đánh giá theo kỳ và chỉ số (G2) | VT-03, VT-06 | Kỳ, chỉ số, điểm, nhận xét | Tính kết quả đánh giá, công bố | Phiếu đánh giá | BR-47 |
-| P09-06 | Hồ sơ tài liệu (5.10.1 của Sở, YCTD-118) | VT-02, VT-04, VT-06; xem VT-15, VT-03 | Số, ký hiệu, tiêu đề, phông, người giải quyết, ngày mở, thời hạn, trạng thái, ngày hoàn thành, thời hạn bảo quản, số tờ, ghi chú, tệp đính kèm | Ghi hồ sơ, tính quá hạn, lưu tệp ở kho tệp, ghi nhật ký thao tác | Hai danh sách hoàn thành, chưa hoàn thành; tệp Excel | BR-116, BR-74 |
+| P09-06 | Hồ sơ tài liệu (5.10.1 của Sở, YCTD-118; đơn vị, người giải quyết theo nhân sự, nhắc hạn: YCTD-122) | VT-02, VT-04, VT-06; xem VT-15, VT-03 | Số, ký hiệu, tiêu đề, phông, người giải quyết, ngày mở, thời hạn, trạng thái, ngày hoàn thành, thời hạn bảo quản, số tờ, ghi chú, tệp đính kèm | Ghi hồ sơ, tính quá hạn, lưu tệp ở kho tệp, ghi nhật ký thao tác | Hai danh sách hoàn thành, chưa hoàn thành; tệp Excel | BR-116, BR-120, BR-74 |
 | P09-07 | Phông và thông tin lưu trữ (5.10.2, 5.10.3, YCTD-118) | VT-02, VT-04, VT-06; xem VT-15, VT-03 | Mã, tên phông; phông, giai đoạn, chỉnh lý, hết giá trị, thời hạn bảo quản, số bó, số hộp, số mét giá, nơi bảo quản | Ghi phông, thông tin lưu trữ; chặn xóa phông còn dữ liệu | Danh sách phông, thông tin lưu trữ | BR-116 |
 | P09-08 | Báo cáo lưu trữ (5.10.4, YCTD-118) | VT-02, VT-15, VT-03, VT-04, VT-06 | Phông, nơi bảo quản | Cộng số mét giá theo đã chỉnh lý, chưa chỉnh lý, hết giá trị, vĩnh viễn, có thời hạn, cộng số bó, số hộp theo phông và giai đoạn | Bảng báo cáo có dòng tổng cộng; tệp Excel | BR-116, BR-74 |
 
