@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { AssignmentRole, ClassAgeGroup, ClassStatus, SchoolYearDatabase } from '@school-management/database';
-import { Clock, ruleViolationError, validationError } from '@school-management/server';
+import { ApplicationError, Clock, ruleViolationError, validationError } from '@school-management/server';
 import { PERMISSION_CODES, classStageOf } from '@school-management/shared';
 import { sql, type Kysely, type Transaction } from 'kysely';
 import { IdentityClient } from '../authentication/identity-client.js';
@@ -64,6 +64,12 @@ export interface ClassInput {
   boarding: boolean;
 }
 
+// Kết quả thao tác hàng loạt trên lớp (DT-16 phần 16e): lớp làm được và lớp không làm được kèm lý do
+export interface BulkClassResult {
+  succeeded: Array<{ id: string; name: string }>;
+  failed: Array<{ id: string; name: string; message: string }>;
+}
+
 export type ClassChanges = Partial<Omit<ClassInput, 'org_unit_id'>> & { status?: ClassStatus };
 
 export interface AssignmentInput {
@@ -105,6 +111,8 @@ const ASSIGNMENT_COLUMNS = [
 const PERMISSION = PERMISSION_CODES.classManage;
 // Giáo viên chủ nhiệm là VT-07, giáo viên bộ môn là VT-08 (YCTD-44)
 const ROLE_OF_ASSIGNMENT: Record<AssignmentRole, string> = { homeroom: 'VT-07', subject: 'VT-08' };
+// Xóa lớp, thao tác hàng loạt, nhập cột mới của lớp theo Sở (DT-16 phần 16e)
+const CLASS_DELETE_RULE_CODE = 'YCTD-124';
 const DUPLICATE_CODE_MESSAGE = 'Mã lớp đã có trong đơn vị';
 const VIETNAM_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
 // Tệp Excel tối đa 10 000 dòng như danh sách học sinh (YCTD-108)
@@ -118,11 +126,14 @@ export interface AssignmentListFilter {
   gradeLevel?: string;
   role?: AssignmentRole;
   q?: string;
+  // Tình trạng phân công (DT-16 phần 16e): đã phân công, chưa phân công; trống là cả hai
+  assignment?: 'assigned' | 'unassigned';
 }
 
+// Dòng của giáo viên chưa phân công (DT-16 phần 16e) để trống lớp, vai trò, ngày
 export interface AssignmentRow {
   id: string;
-  class_id: string;
+  class_id: string | null;
   class_code: string;
   class_name: string;
   grade_name: string;
@@ -130,9 +141,9 @@ export interface AssignmentRow {
   org_unit_name: string;
   staff_user_id: string;
   staff_name: string;
-  assignment_role: AssignmentRole;
+  assignment_role: AssignmentRole | null;
   subject_name: string | null;
-  from_date: string;
+  from_date: string | null;
 }
 
 const ASSIGNMENT_EXPORT_COLUMNS: Array<{ id: string; label: string; value(row: AssignmentRow): string }> = [
@@ -140,13 +151,14 @@ const ASSIGNMENT_EXPORT_COLUMNS: Array<{ id: string; label: string; value(row: A
   {
     id: 'assignment_role',
     label: 'Vai trò trong lớp',
-    value: (row) => (row.assignment_role === 'homeroom' ? 'Chủ nhiệm' : 'Bộ môn'),
+    value: (row) =>
+      row.assignment_role === null ? 'Chưa phân công' : row.assignment_role === 'homeroom' ? 'Chủ nhiệm' : 'Bộ môn',
   },
   { id: 'subject_name', label: 'Môn dạy', value: (row) => row.subject_name ?? '' },
   { id: 'class_name', label: 'Lớp', value: (row) => row.class_name },
   { id: 'grade_name', label: 'Khối', value: (row) => row.grade_name },
   { id: 'org_unit_name', label: 'Đơn vị', value: (row) => row.org_unit_name },
-  { id: 'from_date', label: 'Từ ngày', value: (row) => row.from_date.split('-').reverse().join('/') },
+  { id: 'from_date', label: 'Từ ngày', value: (row) => row.from_date?.split('-').reverse().join('/') ?? '' },
 ];
 
 @Injectable()
@@ -294,8 +306,15 @@ export class ClassesService {
   }
 
   // 3.3 Phân công phụ trách lớp (YCTD-111): mỗi dòng là một phân công còn hiệu lực của lớp trong phạm vi xem, sắp theo tên
-  // giáo viên rồi tên lớp; lấy từ giáo viên của lớp, không thêm bảng
-  async listAssignmentRows(currentUser: CurrentUser, filter: AssignmentListFilter): Promise<AssignmentRow[]> {
+  // giáo viên rồi tên lớp; lấy từ giáo viên của lớp, không thêm bảng. Theo Sở (DT-16 phần 16e) danh sách hiện cả giáo viên
+  // chưa phụ trách lớp nào: người có vai trò giáo viên chủ nhiệm (VT-07) hoặc bộ môn (VT-08) ở đơn vị trong phạm vi, đọc từ
+  // danh bạ nhân sự của dịch vụ định danh, mỗi người một dòng để trống lớp. Người xem không có quyền đọc danh bạ (quyền
+  // quản lý lớp hoặc hồ sơ học sinh) chỉ thấy các dòng đã phân công
+  async listAssignmentRows(
+    currentUser: CurrentUser,
+    filter: AssignmentListFilter,
+    accessToken: string | null = null,
+  ): Promise<AssignmentRow[]> {
     const classes = await this.list(currentUser, {
       orgUnitId: filter.orgUnitId,
       status: 'active',
@@ -304,34 +323,105 @@ export class ClassesService {
     });
     const keyword = filter.q?.toLocaleLowerCase('vi');
     const collator = new Intl.Collator('vi');
-    return classes
-      .flatMap((classRecord) =>
-        classRecord.staff.map((assignment) => ({
-          id: assignment.id,
-          class_id: classRecord.id,
-          class_code: classRecord.code,
-          class_name: classRecord.name,
-          grade_name: classRecord.grade_name,
-          org_unit_id: classRecord.org_unit_id,
-          org_unit_name: classRecord.org_unit_name,
-          staff_user_id: assignment.staff_user_id,
-          staff_name: assignment.staff_name,
-          assignment_role: assignment.assignment_role,
-          subject_name: assignment.subject_name,
-          from_date: assignment.from_date,
-        })),
-      )
+    const assigned: AssignmentRow[] =
+      filter.assignment === 'unassigned'
+        ? []
+        : classes.flatMap((classRecord) =>
+            classRecord.staff.map((assignment) => ({
+              id: assignment.id,
+              class_id: classRecord.id,
+              class_code: classRecord.code,
+              class_name: classRecord.name,
+              grade_name: classRecord.grade_name,
+              org_unit_id: classRecord.org_unit_id,
+              org_unit_name: classRecord.org_unit_name,
+              staff_user_id: assignment.staff_user_id,
+              staff_name: assignment.staff_name,
+              assignment_role: assignment.assignment_role,
+              subject_name: assignment.subject_name,
+              from_date: assignment.from_date,
+            })),
+          );
+    const unassigned =
+      filter.assignment === 'assigned' || accessToken === null || filter.gradeLevel
+        ? []
+        : await this.unassignedTeachers(currentUser, accessToken, filter);
+    return [...assigned, ...unassigned]
       .filter(
         (row) =>
-          (filter.role === undefined || row.assignment_role === filter.role) &&
+          (filter.role === undefined || row.assignment_role === filter.role || row.assignment_role === null) &&
           (keyword === undefined || row.staff_name.toLocaleLowerCase('vi').includes(keyword)),
       )
       .sort(
         (left, right) =>
           collator.compare(left.staff_name, right.staff_name) ||
           collator.compare(left.class_name, right.class_name) ||
-          left.assignment_role.localeCompare(right.assignment_role),
+          (left.assignment_role ?? '').localeCompare(right.assignment_role ?? ''),
       );
+  }
+
+  // Giáo viên chưa có phân công còn hiệu lực ở lớp nào của năm học; vai trò lọc theo bộ lọc Vai trò trong lớp
+  private async unassignedTeachers(
+    currentUser: CurrentUser,
+    accessToken: string,
+    filter: AssignmentListFilter,
+  ): Promise<AssignmentRow[]> {
+    const { database } = await this.currentSchoolYear.require();
+    let units = await database.selectFrom('org_units').select(['id', 'name']).where('status', '=', 'active').execute();
+    if (filter.orgUnitId) {
+      units = units.filter((unit) => unit.id === filter.orgUnitId);
+    } else {
+      const scope = await this.organizationScopes.resolveAnyRole(currentUser);
+      if (!scope.wholeSchool) {
+        units = units.filter((unit) => scope.orgUnitIds.includes(unit.id));
+      }
+    }
+    const busy = new Set(
+      (
+        await database
+          .selectFrom('class_staff_assignments')
+          .select('staff_user_id')
+          .where('status', '=', 'active')
+          .execute()
+      ).map((row) => row.staff_user_id),
+    );
+    const roles = filter.role ? [ROLE_OF_ASSIGNMENT[filter.role]] : Object.values(ROLE_OF_ASSIGNMENT);
+    const found = new Map<string, AssignmentRow>();
+    for (const unit of units) {
+      for (const roleCode of roles) {
+        let entries: Awaited<ReturnType<IdentityClient['listStaff']>>;
+        try {
+          entries = await this.identityClient.listStaff(accessToken, roleCode, unit.id);
+        } catch (error) {
+          if (error instanceof ApplicationError && error.code === 'ERR_FORBIDDEN') {
+            return [];
+          }
+          throw error;
+        }
+        for (const entry of entries) {
+          if (busy.has(entry.user_id) || found.has(entry.user_id)) {
+            continue;
+          }
+          // Người gán ở Trường chính hiện ở mọi đơn vị; ghi đơn vị là đơn vị của vai trò
+          const ownUnit = units.find((item) => item.id === entry.org_unit_id) ?? unit;
+          found.set(entry.user_id, {
+            id: `unassigned-${entry.user_id}`,
+            class_id: null,
+            class_code: '',
+            class_name: '',
+            grade_name: '',
+            org_unit_id: ownUnit.id,
+            org_unit_name: ownUnit.name,
+            staff_user_id: entry.user_id,
+            staff_name: entry.full_name,
+            assignment_role: null,
+            subject_name: null,
+            from_date: null,
+          });
+        }
+      }
+    }
+    return [...found.values()];
   }
 
   async exportAssignments(
@@ -339,9 +429,10 @@ export class ClassesService {
     filter: AssignmentListFilter,
     ipAddress: string | null,
     format: TableFileFormat = 'xlsx',
+    accessToken: string | null = null,
   ) {
     const { database } = await this.currentSchoolYear.require();
-    const rows = await this.listAssignmentRows(currentUser, filter);
+    const rows = await this.listAssignmentRows(currentUser, filter, accessToken);
     const createdAt = this.clock.now();
     return buildStudentWorkbook({
       database,
@@ -454,6 +545,88 @@ export class ClassesService {
       DUPLICATE_CODE_MESSAGE,
       'code',
     );
+  }
+
+  // Xóa lớp theo Sở (DT-16 phần 16e, khảo sát mục 3.2 dòng 2.1): chỉ xóa lớp chưa phát sinh dữ liệu (chưa có học sinh, điểm
+  // danh, sổ, thực đơn…; cơ sở dữ liệu từ chối xóa khi còn dòng tham chiếu) và không có lớp khác ghép vào; phân công giáo
+  // viên của lớp xóa theo. Lớp đã có dữ liệu thì giải thể. Chọn nhiều lớp thì xóa từng lớp, lớp không xóa được báo lý do
+  async remove(currentUser: CurrentUser, classIds: string[], origin: ChangeOrigin): Promise<BulkClassResult> {
+    const result: BulkClassResult = { succeeded: [], failed: [] };
+    for (const classId of classIds) {
+      let name = classId;
+      try {
+        const existing = await this.find(classId);
+        name = existing.name;
+        const database = await this.catalogAccess.writableDatabase(currentUser, PERMISSION, existing.org_unit_id);
+        const dependent = await database
+          .selectFrom('classes')
+          .select('name')
+          .where('combined_into_class_id', '=', classId)
+          .executeTakeFirst();
+        if (dependent) {
+          throw ruleViolationError(CLASS_DELETE_RULE_CODE, `Lớp ${dependent.name} đang ghép vào lớp này`);
+        }
+        await database.transaction().execute(async (transaction) => {
+          const assignments = await transaction
+            .deleteFrom('class_staff_assignments')
+            .where('class_id', '=', classId)
+            .returning(ASSIGNMENT_COLUMNS)
+            .execute();
+          await transaction.deleteFrom('classes').where('id', '=', classId).execute();
+          await writeAuditLog(transaction, {
+            origin,
+            orgUnitId: existing.org_unit_id,
+            entityName: 'classes',
+            entityId: classId,
+            action: 'delete',
+            before: { ...existing, staff_assignments: assignments },
+            after: null,
+          });
+        });
+        result.succeeded.push({ id: classId, name });
+      } catch (error) {
+        const inUse = (error as { code?: string }).code === '23503';
+        result.failed.push({
+          id: classId,
+          name,
+          message: inUse
+            ? 'Lớp đã phát sinh dữ liệu (học sinh, điểm danh, sổ…); không xóa được, hãy giải thể lớp'
+            : error instanceof ApplicationError
+              ? error.message
+              : 'Không xóa được lớp',
+        });
+      }
+    }
+    return result;
+  }
+
+  // Thao tác hàng loạt trên các lớp đã chọn (DT-16 phần 16e): giải thể, mở lại, đặt học 2 buổi/ngày, lớp bán trú; mỗi lớp
+  // ghi như sửa từng lớp nên giữ mọi kiểm tra (không giải thể lớp còn học sinh, BR-02)
+  async bulkUpdate(
+    currentUser: CurrentUser,
+    classIds: string[],
+    changes: Pick<ClassChanges, 'status' | 'two_sessions_per_day' | 'boarding'>,
+    origin: ChangeOrigin,
+  ): Promise<BulkClassResult> {
+    const result: BulkClassResult = { succeeded: [], failed: [] };
+    for (const classId of classIds) {
+      try {
+        const updated = await this.update(currentUser, classId, { ...changes }, origin);
+        result.succeeded.push({ id: classId, name: updated.name });
+      } catch (error) {
+        const existing = await this.currentSchoolYear
+          .require()
+          .then(({ database }) =>
+            database.selectFrom('classes').select('name').where('id', '=', classId).executeTakeFirst(),
+          );
+        result.failed.push({
+          id: classId,
+          name: existing?.name ?? classId,
+          message: error instanceof ApplicationError ? error.message : 'Không cập nhật được lớp',
+        });
+      }
+    }
+    return result;
   }
 
   async listAssignments(currentUser: CurrentUser, classId: string): Promise<StaffAssignment[]> {
