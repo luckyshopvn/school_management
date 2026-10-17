@@ -3,6 +3,7 @@ export * from './facilities.js';
 export * from './portal-menu.js';
 export * from './menu-permissions.js';
 export * from './staff-profile.js';
+export * from './staff-catalogs.js';
 export * from './classes.js';
 export * from './student-health.js';
 
@@ -306,6 +307,13 @@ export const PORTAL_QUICK_LINK_PATHS = [
   // Thông báo hệ thống, ứng dụng liên kết (DT-16 phần 16c)
   '/system-announcements',
   '/app-links',
+  // Nhân sự đủ theo Sở (DT-16 phần 16f): 3.1.2, 3.1.3, 3.1.5, 3.5, 5.2, 5.6
+  '/staff-branches',
+  '/staff-imports',
+  '/staff-identity',
+  '/staff-movements',
+  '/staff-statistics',
+  '/staff-identity-progress',
   // Sức khỏe học sinh, thống kê học sinh (DT-16 phần 16h)
   '/student-health',
   '/student-statistics',
@@ -321,6 +329,13 @@ export const MAX_QUICK_LINKS = 12;
 // chủ API chỉ nhận các khóa này; lưới mới chuyển sang ở các phần sau thì thêm khóa vào đây
 export const DATA_GRID_KEYS = [
   'default',
+  // Nhân sự đủ theo Sở (DT-16 phần 16f)
+  'staff-branches',
+  'staff-identity',
+  'staff-movements-in',
+  'staff-movements-out',
+  'staff-guests-out',
+  'staff-guests-in',
   'accounts',
   'staff',
   // Học sinh (DT-15 phần 15c)

@@ -2,7 +2,7 @@ import type { StudentHealthTerm } from '@school-management/database';
 import { EYE_CONDITIONS, type EyeConditionValue } from '@school-management/shared';
 
 // Thông tin sức khỏe học sinh theo học kỳ (DT-16 phần 16h; khảo sát mục 4.6, 5.3). Hàm thuần, không đọc cơ sở dữ liệu
-export const STUDENT_HEALTH_RULE = 'YCTD-124';
+export const STUDENT_HEALTH_RULE = 'YCTD-125';
 export const TERMS: StudentHealthTerm[] = ['first_term', 'second_term'];
 export const EYE_CONDITION_VALUES = EYE_CONDITIONS.map((item) => item.value) as EyeConditionValue[];
 

@@ -562,7 +562,7 @@ describe('Sức khỏe, thực đơn, thống kê học sinh theo Sở (16h)', (
       term: 'second_term',
     });
     assert.equal(empty.status, 422);
-    assert.equal(errorOf(empty.body).rule_code, 'YCTD-124');
+    assert.equal(errorOf(empty.body).rule_code, 'YCTD-125');
     assert.equal(
       (await api('POST', '/student-health/pull-growth', token('homeroom'), { class_id: classId, term: 'first_term' }))
         .status,

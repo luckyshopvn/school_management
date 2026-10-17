@@ -55,9 +55,15 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('2.2.', 'Nhập lớp học từ Excel', '/class-imports'),
       ]),
       group('3.', 'Nhân sự', [
-        group('3.1.', 'Hồ sơ nhân sự', [leaf('3.1.1.', 'Hồ sơ cán bộ, giáo viên', '/staff')]),
+        group('3.1.', 'Hồ sơ nhân sự', [
+          leaf('3.1.1.', 'Hồ sơ cán bộ, giáo viên', '/staff'),
+          leaf('3.1.2.', 'Nhân sự phân hiệu', '/staff-branches'),
+          leaf('3.1.3.', 'Nhập nhân sự từ Excel', '/staff-imports'),
+          leaf('3.1.5.', 'Xác thực số định danh nhân sự với CSDLQG về dân cư', '/staff-identity'),
+        ]),
         leaf('3.2.', 'Đánh giá chuẩn nghề nghiệp', '/professional-standards'),
         leaf('3.3.', 'Phân công phụ trách lớp', '/class-assignments'),
+        leaf('3.5.', 'Biến động nhân sự', '/staff-movements'),
       ]),
       group('4.', 'Học sinh', [
         group('4.1.', 'Hồ sơ học sinh', [
@@ -82,7 +88,9 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
       ]),
       group('5.', 'Công cụ hỗ trợ', [
         leaf('5.1.', 'Thống kê lớp, nhân sự, học sinh', '/statistics'),
+        leaf('5.2.', 'Thống kê nhân sự', '/staff-statistics'),
         leaf('5.3.', 'Thống kê học sinh', '/student-statistics'),
+        leaf('5.6.', 'Tiến độ xác thực số định danh nhân sự', '/staff-identity-progress'),
         leaf('5.8.', 'Thống kê hồ sơ chưa nhập đủ', '/missing-profiles'),
         group('5.10.', 'Văn thư lưu trữ', [
           leaf('5.10.1.', 'Hồ sơ tài liệu', '/archive-records'),

@@ -26,7 +26,14 @@ import {
   type StaffRecord,
   type StaffRow,
 } from './staff-list.js';
+import {
+  buildMinistryErrorWorkbook,
+  buildMinistryWorkbook,
+  checkMinistryRecord,
+  type MinistryStaffRecord,
+} from './staff-ministry-file.js';
 import { mergeProfile, profileFieldsOf, type StaffProfileChanges } from './staff-profile.js';
+import { STAFF_PARITY_RULE } from './staff-rules.js';
 
 // Hồ sơ nhân sự và hợp đồng lao động (P07-01, P07-02, P07-04; QT-06 mục 2; BR-05, BR-37, BR-38, BR-46; YCTD-58).
 // Nhân sự xem được hồ sơ và hợp đồng của chính mình; lương thỏa thuận chỉ người có quyền xem hợp đồng thấy
@@ -55,6 +62,32 @@ export interface ContractInput {
 }
 
 const PAGE_SIZE_LIMIT = 200;
+// Tệp theo mẫu Bộ, tệp lỗi dựng trực tiếp, tối đa số dòng này (một trường có vài trăm nhân sự)
+const MINISTRY_FILE_ROW_LIMIT = 5000;
+const NO_UNIT = '00000000-0000-0000-0000-000000000000';
+
+// Dữ liệu liên quan làm hồ sơ không xóa được (bảng tham chiếu tới hồ sơ nhân sự)
+const RELATED_DATA_LABELS: Record<string, string> = {
+  employment_contracts: 'hợp đồng lao động',
+  attendance_logs: 'chấm công',
+  leave_balances: 'ngày phép',
+  leave_requests: 'đơn nghỉ phép',
+  timesheet_days: 'bảng công',
+  staff_pay_items: 'khoản lương',
+  payslips: 'phiếu lương',
+  payroll_settlements: 'quyết toán lương',
+  payroll_adjustments: 'điều chỉnh lương',
+  work_schedules: 'lịch làm việc',
+  tasks: 'công việc được giao',
+  plan_items: 'kế hoạch',
+  evaluations: 'đánh giá công việc',
+  professional_evaluations: 'phiếu đánh giá chuẩn nghề nghiệp',
+  child_groups: 'nhóm học sinh',
+  staff_work_history: 'quá trình công tác',
+  staff_certificates: 'chứng chỉ',
+  staff_bonus_deductions: 'khen thưởng, kỷ luật',
+  candidates: 'tuyển dụng',
+};
 
 const STAFF_COLUMNS = [
   'staff.id',
@@ -73,6 +106,14 @@ const STAFF_COLUMNS = [
   'staff.end_date',
   'staff.status',
   'staff.user_id',
+  'staff.bank_account_number',
+  'staff.bank_name',
+  'staff.tax_code',
+  'staff.special_difficulty_commune',
+  'staff.id_verification_status',
+  'staff.id_verified_at',
+  'staff.id_verified_by_name',
+  'staff.id_verification_note',
 ] as const;
 
 @Injectable()
@@ -230,6 +271,198 @@ export class StaffService {
     });
   }
 
+  // Hồ sơ theo bộ lọc của lưới kèm số định danh, số sổ BHXH đã giải mã để dựng tệp theo mẫu Bộ (DT-16 phần 16f)
+  private async ministryRecords(currentUser: CurrentUser, filter: StaffListFilter) {
+    const { database } = await this.currentSchoolYear.require();
+    const { total, rows } = await this.staffPage(database, currentUser, filter, {
+      limit: MINISTRY_FILE_ROW_LIMIT,
+      offset: 0,
+    });
+    if (total > MINISTRY_FILE_ROW_LIMIT) {
+      throw ruleViolationError(
+        STAFF_PARITY_RULE,
+        `Tối đa ${MINISTRY_FILE_ROW_LIMIT} hồ sơ mỗi tệp, hãy thu hẹp bộ lọc`,
+      );
+    }
+    const details =
+      rows.length === 0
+        ? []
+        : await database
+            .selectFrom('staff')
+            .select(['id', 'email', 'phone', 'id_number_encrypted', 'moet_profile'])
+            .where(
+              'id',
+              'in',
+              rows.map((row) => row.id),
+            )
+            .execute();
+    const byId = new Map(details.map((row) => [row.id, row]));
+    const records: MinistryStaffRecord[] = rows.map((row) => {
+      const detail = byId.get(row.id);
+      const profile = detail?.moet_profile ?? null;
+      const insurance = profile?.social_insurance_number_encrypted;
+      return {
+        code: row.code,
+        moet_staff_code: row.moet_staff_code,
+        full_name: row.full_name,
+        gender: row.gender,
+        dob: row.dob,
+        email: detail?.email ?? null,
+        phone: detail?.phone ?? null,
+        id_number: detail?.id_number_encrypted ? this.protection.decrypt(detail.id_number_encrypted) : null,
+        social_insurance_number: typeof insurance === 'string' ? this.protection.decrypt(insurance) : null,
+        moet_profile: profile,
+      };
+    });
+    return { database, records, orgUnitIds: [...new Set(rows.map((row) => row.org_unit_id))] };
+  }
+
+  private async logMinistryFile(
+    database: Kysely<SchoolYearDatabase>,
+    currentUser: CurrentUser,
+    input: { reportCode: string; filter: StaffListFilter; orgUnitIds: string[]; rowCount: number; fileName: string },
+    ipAddress: string | null,
+  ) {
+    await database
+      .insertInto('export_logs')
+      .values({
+        user_id: currentUser.id,
+        actor_name: currentUser.description.full_name,
+        report_code: input.reportCode,
+        // Không ghi số định danh đã nhập ở bộ lọc (BM-64)
+        filters_data: JSON.stringify({ ...input.filter, idNumber: input.filter.idNumber ? 'đã nhập' : undefined }),
+        org_unit_ids: input.orgUnitIds,
+        row_count: input.rowCount,
+        contains_personal_data: true,
+        file_name: input.fileName,
+        ip_address: ipAddress,
+      })
+      .execute();
+  }
+
+  // "Xuất tệp theo mẫu Bộ" (bản chạy nội bộ của "Đồng bộ hồ sơ lên CSDL Bộ"): tệp 75 cột kèm trang kiểm tra dữ liệu; không
+  // gửi đi đâu, trường tự nộp tệp. Có số định danh đủ 12 số nên cần quyền xuất dữ liệu và ghi nhật ký xuất (BR-74)
+  async ministryExport(currentUser: CurrentUser, filter: StaffListFilter, ipAddress: string | null) {
+    const { database, records, orgUnitIds } = await this.ministryRecords(currentUser, filter);
+    const fileName = `ho-so-can-bo-theo-mau-bo-${fileStamp(this.clock.now())}.xlsx`;
+    const buffer = await buildMinistryWorkbook(records, { checks: true, catalogs: true });
+    await this.logMinistryFile(
+      database,
+      currentUser,
+      { reportCode: 'staff-ministry', filter, orgUnitIds, rowCount: records.length, fileName },
+      ipAddress,
+    );
+    return { buffer, fileName };
+  }
+
+  // "Xuất file lỗi": hồ sơ thiếu hoặc sai ô bắt buộc theo mẫu Bộ, mỗi lỗi một dòng
+  async ministryErrorFile(currentUser: CurrentUser, filter: StaffListFilter, ipAddress: string | null) {
+    const { database, records, orgUnitIds } = await this.ministryRecords(currentUser, filter);
+    const issues = records.flatMap(checkMinistryRecord);
+    if (issues.length === 0) {
+      throw ruleViolationError(STAFF_PARITY_RULE, 'Không có hồ sơ nào thiếu hoặc sai thông tin bắt buộc');
+    }
+    const fileName = `ho-so-can-bo-loi-${fileStamp(this.clock.now())}.xlsx`;
+    await this.logMinistryFile(
+      database,
+      currentUser,
+      {
+        reportCode: 'staff-ministry-errors',
+        filter,
+        orgUnitIds,
+        rowCount: new Set(issues.map((issue) => issue.code)).size,
+        fileName,
+      },
+      ipAddress,
+    );
+    return { buffer: await buildMinistryErrorWorkbook(issues), fileName };
+  }
+
+  // "Tải file mẫu" của 3.1.3 Nhập nhân sự từ Excel theo mẫu 75 cột; kèm dữ liệu thì điền mọi hồ sơ trong phạm vi nhập nhân
+  // sự của người tải để sửa rồi nhập lại (ghi nhật ký xuất)
+  async ministryTemplate(currentUser: CurrentUser, withData: boolean, ipAddress: string | null) {
+    if (!withData) {
+      return { buffer: await buildMinistryWorkbook([], { catalogs: true }), fileName: 'mau-nhap-nhan-su-75-cot.xlsx' };
+    }
+    const scope = await this.organizationScopes.resolveStaff(currentUser, PERMISSION_CODES.importStaff);
+    const { database, records, orgUnitIds } = await this.ministryRecords(currentUser, {});
+    const inScope = await database
+      .selectFrom('staff')
+      .select('code')
+      .$if(!scope.wholeSchool, (query) =>
+        query.where('org_unit_id', 'in', scope.orgUnitIds.length > 0 ? scope.orgUnitIds : [NO_UNIT]),
+      )
+      .execute();
+    const codes = new Set(inScope.map((row) => row.code));
+    const rows = records.filter((record) => codes.has(record.code));
+    const fileName = 'mau-nhap-nhan-su-75-cot-kem-du-lieu.xlsx';
+    await this.logMinistryFile(
+      database,
+      currentUser,
+      { reportCode: 'import-template-moet_staff', filter: {}, orgUnitIds, rowCount: rows.length, fileName },
+      ipAddress,
+    );
+    return { buffer: await buildMinistryWorkbook(rows, { catalogs: true }), fileName };
+  }
+
+  // Xóa hồ sơ nhập nhầm (mục 3.1.1 của Sở). Chỉ xóa hẳn hồ sơ chưa có dữ liệu liên quan; hồ sơ đã có tài khoản, hợp đồng,
+  // chấm công, lương… không xóa được (cho nghỉ việc bằng chấm dứt hợp đồng như trước). Mỗi hồ sơ xử lý riêng, trả kết quả
+  // từng hồ sơ; hồ sơ xóa được ghi nhật ký thao tác kèm nội dung chính trước khi xóa
+  async remove(currentUser: CurrentUser, staffIds: string[], origin: ChangeOrigin) {
+    const { database } = await this.currentSchoolYear.require();
+    const rows = await database
+      .selectFrom('staff')
+      .select(['id', 'org_unit_id', 'code', 'full_name', 'user_id', 'moet_staff_code'])
+      .where('id', 'in', staffIds)
+      .execute();
+    if (rows.length !== staffIds.length) {
+      throw notFoundError('Không tìm thấy hồ sơ nhân sự', 'staff');
+    }
+    for (const row of rows) {
+      await this.assertManager(currentUser, row.org_unit_id);
+    }
+    const results: Array<{ id: string; full_name: string; deleted: boolean; reason: string | null }> = [];
+    for (const row of rows) {
+      if (row.user_id) {
+        results.push({
+          id: row.id,
+          full_name: row.full_name,
+          deleted: false,
+          reason: 'Hồ sơ đã liên kết tài khoản đăng nhập; bỏ liên kết trước khi xóa',
+        });
+        continue;
+      }
+      try {
+        await database.transaction().execute(async (transaction) => {
+          await transaction.deleteFrom('staff').where('id', '=', row.id).execute();
+          await writeAuditLog(transaction, {
+            origin,
+            orgUnitId: row.org_unit_id,
+            entityName: 'staff',
+            entityId: row.id,
+            action: 'delete',
+            before: { code: row.code, full_name: row.full_name, moet_staff_code: row.moet_staff_code },
+            after: null,
+          });
+        });
+        results.push({ id: row.id, full_name: row.full_name, deleted: true, reason: null });
+      } catch (error) {
+        const failure = error as { code?: string; table?: string };
+        if (failure.code !== '23503') {
+          throw error;
+        }
+        const related = (failure.table && RELATED_DATA_LABELS[failure.table]) || 'dữ liệu nghiệp vụ khác';
+        results.push({
+          id: row.id,
+          full_name: row.full_name,
+          deleted: false,
+          reason: `Hồ sơ đã có ${related}; không xóa được, cho nghỉ việc bằng chấm dứt hợp đồng`,
+        });
+      }
+    }
+    return { deleted_count: results.filter((result) => result.deleted).length, results };
+  }
+
   // Ghi hồ sơ theo biểu mẫu của Sở và thông tin riêng của trường; chỉ các ô gửi lên được đổi (YCTD-112)
   async updateProfile(currentUser: CurrentUser, staffId: string, changes: StaffProfileChanges, origin: ChangeOrigin) {
     const { database } = await this.currentSchoolYear.require();
@@ -251,6 +484,10 @@ export class StaffService {
         'job_title_id',
         'start_date',
         'moet_profile',
+        'bank_account_number',
+        'bank_name',
+        'tax_code',
+        'special_difficulty_commune',
       ])
       .where('id', '=', staffId)
       .executeTakeFirst();
@@ -275,6 +512,12 @@ export class StaffService {
       ...(changes.departmentId !== undefined ? { department_id: changes.departmentId } : {}),
       ...(changes.jobTitleId !== undefined ? { job_title_id: changes.jobTitleId } : {}),
       ...(changes.startDate !== undefined ? { start_date: changes.startDate } : {}),
+      ...(changes.bankAccountNumber !== undefined ? { bank_account_number: changes.bankAccountNumber } : {}),
+      ...(changes.bankName !== undefined ? { bank_name: changes.bankName } : {}),
+      ...(changes.taxCode !== undefined ? { tax_code: changes.taxCode } : {}),
+      ...(changes.specialDifficultyCommune !== undefined
+        ? { special_difficulty_commune: changes.specialDifficultyCommune }
+        : {}),
       ...(changes.idNumber !== undefined
         ? {
             id_number_encrypted: changes.idNumber ? this.protection.encrypt(changes.idNumber) : null,

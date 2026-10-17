@@ -161,9 +161,9 @@ test('CT-15d-11: phòng nhân sự ghi hồ sơ theo khối của Sở; lưới 
   for (const block of ['Thông tin chung', 'Địa chỉ', 'Đoàn, Đảng', 'Tuyển dụng, công tác', 'Trình độ']) {
     await expect(form.getByRole('group', { name: block })).toBeVisible();
   }
-  await form.getByLabel('Dân tộc').fill('Kinh');
+  await form.getByLabel('Dân tộc').selectOption('Kinh');
   await form.getByLabel('Là Đảng viên').check();
-  await form.getByLabel('Vị trí việc làm').fill('Giáo viên nhà trẻ');
+  await form.getByLabel('Vị trí việc làm').selectOption('Giáo viên nhà trẻ');
   await form.getByLabel('Ngày tuyển dụng').fill('2015-09-01');
   await form.getByRole('button', { name: 'Ghi', exact: true }).click();
   await expect(page.getByText('Đã ghi hồ sơ cán bộ, giáo viên')).toBeVisible();
@@ -208,7 +208,9 @@ test('CT-15d-12: quản lý đơn vị xem được lưới và hồ sơ nhưng 
   await expect(panel.getByRole('form', { name: 'Hồ sơ cán bộ, giáo viên theo Sở' })).toBeVisible();
   await expect(panel.getByRole('button', { name: 'Ghi', exact: true })).toHaveCount(0);
   await panel.getByRole('tab', { name: 'Thông tin riêng của trường' }).click();
-  await expect(panel.getByRole('tabpanel', { name: 'Thông tin riêng của trường' })).toBeVisible();
-  await expect(panel).not.toContainText('Hợp đồng lao động');
+  const school = panel.getByRole('tabpanel', { name: 'Thông tin riêng của trường' });
+  await expect(school).toBeVisible();
+  // Xét trong thẻ thông tin riêng: danh sách chọn hình thức hợp đồng theo danh mục Bộ ở thẻ Sở có chữ "Hợp đồng lao động"
+  await expect(school).not.toContainText('Hợp đồng lao động');
   await expect(panel).not.toContainText(`HD-${token}`);
 });
