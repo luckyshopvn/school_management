@@ -57,6 +57,13 @@ export interface MenuSummary {
   id: string;
   week_start_date: string;
   age_group: string;
+  // Tên thực đơn, tháng, tuần, từ ngày–đến ngày, khối áp dụng như màn hình 4.5 của Sở (DT-16 phần 16h)
+  name: string | null;
+  month: string | null;
+  week_no: number | null;
+  from_date: string | null;
+  to_date: string | null;
+  grade_levels: string[];
   status: keyof typeof MENU_STATUS_LABELS;
   reject_reason: string | null;
   item_count: number;

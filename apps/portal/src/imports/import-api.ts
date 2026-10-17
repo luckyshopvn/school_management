@@ -45,18 +45,35 @@ async function download(path: string, fallbackName: string): Promise<void> {
   saveResponseFile(await response.blob(), response.headers.get('content-disposition') ?? '', fallbackName);
 }
 
-export const readImportColumns = (type: string): Promise<ImportColumnsResponse> =>
-  requestJson(`/api/v1/imports/templates/${type}/columns`);
+// Đường dẫn gốc của công cụ nhập chung; phân hệ có lần nhập riêng (thực đơn bữa ăn, DT-16 phần 16h) dùng đường dẫn gốc của
+// mình với cùng dạng điểm cuối. `search` là tham số thêm (ví dụ đơn vị) gửi kèm khi tra danh mục, tải file mẫu
+export const IMPORTS_API_BASE = '/api/v1/imports';
+const withSearch = (path: string, search: Record<string, string>) => {
+  const query = new URLSearchParams(Object.entries(search).filter(([, value]) => value !== '')).toString();
+  return query ? `${path}${path.includes('?') ? '&' : '?'}${query}` : path;
+};
 
-export async function readImportCatalogs(type: string): Promise<ImportCatalog[]> {
-  return (await requestJson<{ items: ImportCatalog[] }>(`/api/v1/imports/catalogs/${type}`)).items;
+export const readImportColumns = (type: string, base = IMPORTS_API_BASE): Promise<ImportColumnsResponse> =>
+  requestJson(`${base}/templates/${type}/columns`);
+
+export async function readImportCatalogs(
+  type: string,
+  base = IMPORTS_API_BASE,
+  search: Record<string, string> = {},
+): Promise<ImportCatalog[]> {
+  return (await requestJson<{ items: ImportCatalog[] }>(withSearch(`${base}/catalogs/${type}`, search))).items;
 }
 
-export const downloadImportTemplate = (type: string, withData: boolean) =>
+export const downloadImportTemplate = (
+  type: string,
+  withData: boolean,
+  base = IMPORTS_API_BASE,
+  search: Record<string, string> = {},
+) =>
   download(
-    `/api/v1/imports/templates/${type}${withData ? '?with_data=true' : ''}`,
+    withSearch(`${base}/templates/${type}${withData ? '?with_data=true' : ''}`, search),
     `mau-nhap-${type}${withData ? '-kem-du-lieu' : ''}.xlsx`,
   );
 
-export const downloadImportErrorFile = (jobId: string) =>
-  download(`/api/v1/imports/${jobId}/error-file`, 'tep-loi.xlsx');
+export const downloadImportErrorFile = (jobId: string, base = IMPORTS_API_BASE) =>
+  download(`${base}/${jobId}/error-file`, 'tep-loi.xlsx');
