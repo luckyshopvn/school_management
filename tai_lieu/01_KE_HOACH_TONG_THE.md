@@ -1,7 +1,7 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.8
+- Phiên bản: 1.9
 - Ngày cập nhật: 2026-10-17
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -55,6 +55,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.2.0 | Bốn thay đổi: Ban Giám hiệu, nhiều cấp đơn vị, tách giao diện và máy chủ, dịch vụ định danh | 01 đến 07 | Đã có |
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
+| 0.74.0 | DT-16 phần 16h, sức khỏe, dinh dưỡng và thống kê học sinh theo hệ thống của Sở: nhập thông tin sức khỏe học sinh theo học kỳ, lấy số đo từ 4.3, tổng hợp cân đo theo học kỳ và so sánh hai lần cân đo, thực đơn theo mẫu của Sở và nhập thực đơn từ Excel, 5.3 Thống kê học sinh đủ các phần, số liệu báo cáo sức khỏe học sinh đầu năm (YCTD-124) | 13, 21 | Đã có |
 | 0.73.0 | DT-16 phần 16c, khung trang và đăng nhập theo hệ thống của Sở: tên trường và ngữ cảnh trên thanh đầu trang, ứng dụng liên kết, menu người dùng bảy mục, hộp thông báo khi vào trang, mã xác nhận, ghi nhớ tài khoản, quên mật khẩu, lịch sử mật khẩu, đường dây nóng, mã định danh tổ chức theo NĐ 69 (YCTD-123) | 13, 21 | Đã có |
 | 0.69.0 | DT-16 phần 16b, lưới dữ liệu chung, hộp xác nhận xóa, Xuất Excel cho các màn hình còn lại theo hệ thống của Sở: cơ sở vật chất, thiết bị dạy học, cân đo, hồ sơ chưa nhập đủ, hoàn thành chương trình, nhóm học sinh, chuẩn nghề nghiệp, thực đơn, y tế, thuốc, quản trị hệ thống; Xuất Excel phân hiệu, điểm trường, địa danh hành chính, người dùng, nhóm người dùng (YCTD-119) | 13, 21 | Đã có |
 | 0.72.0 | DT-15 phần 15h2, sửa hạn chế của văn thư lưu trữ: chia theo đơn vị, người giải quyết theo nhân sự, nhắc hạn, xóa lại tệp (YCTD-122) | 13, 21 | Đã có |
