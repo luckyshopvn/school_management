@@ -48,11 +48,16 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/branches': anyOf('P01.view', 'P01.org-unit.manage'),
   '/school-sites': anyOf('P01.view', 'P01.org-unit.manage'),
   '/settings': anyOf('P01.view', 'P01.setting.manage'),
+  // Rà soát kiểm định xem như hồ sơ trường; tách trường cần quyền cập nhật hồ sơ trường (DT-16 phần 16e)
+  '/accreditation-review': anyOf('P01.school-profile.manage', 'P17.report.emis'),
+  '/school-splits': 'P01.school-profile.manage',
   '/classes': CHILDREN_AND_CLASSES,
   // Nhập lớp học tách khỏi trang Nhập dữ liệu; cùng quyền nhập dữ liệu ban đầu của máy chủ (YCTD-111)
   '/class-imports': gated(CHILDREN_AND_CLASSES, 'P01.import.children'),
   // Phân công phụ trách lớp: ai xem được lớp đều xem được, phân công cần quyền quản lý lớp (YCTD-111)
   '/class-assignments': CHILDREN_AND_CLASSES,
+  // Khai báo tuần: ai xem được thiết lập thì xem, sửa cần quyền quản lý năm học như 2.1 Năm học (DT-16 phần 16e)
+  '/school-weeks': anyOf('P01.view', 'P01.academic-year.manage'),
   '/staff': 'P07.staff.view',
   '/children': CHILDREN_AND_CLASSES,
   // Biến động học sinh: người lập hoặc duyệt hồ sơ học sinh (YCTD-108)
@@ -73,6 +78,8 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/medicines': anyOf('P10.medicine.manage', 'P10.medication.administer', 'P10.medicine-purchase.approve'),
   '/attendance': CHILDREN_AND_CLASSES,
   '/statistics': STATISTICS,
+  // Chuyển hồ sơ lên năm học mới: như mở năm học (DT-16 phần 16e)
+  '/year-rollover': 'P01.academic-year.manage',
   '/missing-profiles': STATISTICS,
   // Văn thư lưu trữ (YCTD-118): người có quyền quản lý, xuất thì cũng được cấp quyền xem
   '/archive-records': anyOf('P09.archive.view', 'P09.archive.manage', 'P09.archive.export'),

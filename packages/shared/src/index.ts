@@ -305,6 +305,11 @@ export const PORTAL_QUICK_LINK_PATHS = [
   // Thông báo hệ thống, ứng dụng liên kết (DT-16 phần 16c)
   '/system-announcements',
   '/app-links',
+  // Trường học, lớp học, lịch năm học đủ theo Sở (DT-16 phần 16e)
+  '/accreditation-review',
+  '/school-splits',
+  '/school-weeks',
+  '/year-rollover',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -390,6 +395,8 @@ export const DATA_GRID_KEYS = [
   'generated-files',
   // Thông báo hệ thống (DT-16 phần 16c)
   'system-announcements',
+  // Tách trường (DT-16 phần 16e)
+  'school-splits',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

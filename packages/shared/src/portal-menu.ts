@@ -49,6 +49,9 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('1.3.', 'Quản lý điểm trường', '/school-sites'),
         leaf('1.4.', 'Cấu hình trường', '/settings'),
         leaf('1.6.', 'Tài khoản đồng bộ của Bộ, của Sở', '/sync-accounts'),
+        // Rà soát kiểm định, tách trường bản chạy nội bộ (DT-16 phần 16e)
+        leaf('1.7.', 'Rà soát thông tin kiểm định CLGD', '/accreditation-review'),
+        leaf('1.8.', 'Tách trường', '/school-splits'),
       ]),
       group('2.', 'Lớp học', [
         leaf('2.1.', 'Hồ sơ lớp học', '/classes'),
@@ -58,6 +61,8 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         group('3.1.', 'Hồ sơ nhân sự', [leaf('3.1.1.', 'Hồ sơ cán bộ, giáo viên', '/staff')]),
         leaf('3.2.', 'Đánh giá chuẩn nghề nghiệp', '/professional-standards'),
         leaf('3.3.', 'Phân công phụ trách lớp', '/class-assignments'),
+        // Khai báo tuần dùng chung lịch năm học (DT-16 phần 16e)
+        leaf('3.4.', 'Khai báo tuần', '/school-weeks'),
       ]),
       group('4.', 'Học sinh', [
         group('4.1.', 'Hồ sơ học sinh', [
@@ -81,6 +86,8 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
       ]),
       group('5.', 'Công cụ hỗ trợ', [
         leaf('5.1.', 'Thống kê lớp, nhân sự, học sinh', '/statistics'),
+        // Chuyển hồ sơ lên năm học mới: Thực hiện, Hủy (DT-16 phần 16e)
+        leaf('5.7.', 'Chuyển hồ sơ lên năm học mới', '/year-rollover'),
         leaf('5.8.', 'Thống kê hồ sơ chưa nhập đủ', '/missing-profiles'),
         group('5.10.', 'Văn thư lưu trữ', [
           leaf('5.10.1.', 'Hồ sơ tài liệu', '/archive-records'),
