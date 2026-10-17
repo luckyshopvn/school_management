@@ -241,8 +241,9 @@ test('CT-15c-14: chuyển lớp hiện ở 4.2 Biến động học sinh; lọc 
 
   await openMenu(page, '/student-movements');
   await expect(page.getByRole('heading', { name: '4.2. Biến động học sinh', exact: true })).toBeVisible();
-  await page.getByLabel('Tìm theo họ tên').fill(token);
   const movements = page.getByRole('region', { name: 'Danh sách biến động học sinh' });
+  // Trang có thêm lưới chuyển trường (DT-16 phần 16g) nên tìm trong lưới biến động
+  await movements.getByLabel('Tìm theo họ tên').fill(token);
   const transfer = movements.getByRole('row').filter({ hasText: 'Chuyển lớp' });
   await expect(transfer).toHaveCount(1);
   await expect(transfer).toContainText(names.bao);

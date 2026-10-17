@@ -59,6 +59,7 @@ export function BulkTransferDialog({ onDone, onCancel }: { onDone(message: strin
         <label className="text-label font-medium text-text">
           Lớp hiện tại
           <select
+            aria-label="Lớp hiện tại"
             value={sourceId}
             onChange={(event) => {
               setSourceId(event.target.value);
@@ -78,6 +79,7 @@ export function BulkTransferDialog({ onDone, onCancel }: { onDone(message: strin
           <label className="text-label font-medium text-text">
             Áp dụng lớp mới cho tất cả
             <select
+              aria-label="Áp dụng lớp mới cho tất cả"
               value=""
               onChange={(event) =>
                 setTargets(Object.fromEntries((students.data?.items ?? []).map((row) => [row.id, event.target.value])))

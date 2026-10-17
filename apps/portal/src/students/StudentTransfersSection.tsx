@@ -88,7 +88,12 @@ function RequestOutDialog({ onDone, onCancel }: { onDone(message: string): void;
         </label>
         <label className="text-label font-medium text-text">
           Học sinh
-          <select value={childId} onChange={(event) => setChildId(event.target.value)} className={inputClass}>
+          <select
+            aria-label="Học sinh"
+            value={childId}
+            onChange={(event) => setChildId(event.target.value)}
+            className={inputClass}
+          >
             <option value="">Chọn học sinh</option>
             {(students.data?.items ?? []).map((row) => (
               <option key={row.id} value={row.id}>
@@ -134,7 +139,12 @@ function ReceiveDialog({ onDone, onCancel }: { onDone(message: string): void; on
         </p>
         <label className="text-label font-medium text-text">
           Đơn vị tiếp nhận
-          <select value={unitId} onChange={(event) => setOrgUnitId(event.target.value)} className={inputClass}>
+          <select
+            aria-label="Đơn vị tiếp nhận"
+            value={unitId}
+            onChange={(event) => setOrgUnitId(event.target.value)}
+            className={inputClass}
+          >
             {unitChoice.units.map((unit) => (
               <option key={unit.id} value={unit.id}>
                 {unit.name}

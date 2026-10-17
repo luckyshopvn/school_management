@@ -86,7 +86,12 @@ export function StudentOrderPage() {
         <div className="flex flex-wrap items-end gap-3">
           <label className="text-label font-medium text-text">
             Lớp
-            <select value={classId} onChange={(event) => setClassId(event.target.value)} className={selectClass}>
+            <select
+              aria-label="Lớp"
+              value={classId}
+              onChange={(event) => setClassId(event.target.value)}
+              className={selectClass}
+            >
               <option value="">Chọn lớp</option>
               {(classes.data ?? []).map((item) => (
                 <option key={item.id} value={item.id}>

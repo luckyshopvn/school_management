@@ -164,7 +164,7 @@ test('CT-16g-14: 4.1.1 Thay đổi mở hồ sơ, sửa dân tộc; Xóa hồ s�
   await form.getByLabel('Lý do sửa thông tin định danh').fill('Bổ sung theo giấy khai sinh');
   await form.getByRole('button', { name: 'Ghi' }).click();
   await expect(page.getByText('Đã ghi hồ sơ học sinh')).toBeVisible();
-  await expect(grid.getByRole('row').filter({ hasText: names.an })).toContainText('Tày');
+  await expect(grid.getByRole('row', { name: `Học sinh ${names.an}` })).toContainText('Tày');
 
   // Cấp mã định danh Bộ nhập tay cho học sinh đã chọn
   await grid.getByRole('button', { name: 'Cấp mã định danh Bộ' }).click();
@@ -173,7 +173,7 @@ test('CT-16g-14: 4.1.1 Thay đổi mở hồ sơ, sửa dân tộc; Xóa hồ s�
   await codes.getByLabel(`Mã định danh Bộ của ${names.an}`).fill(`HS${suffix}`);
   await codes.getByRole('button', { name: 'Ghi mã đã cấp' }).click();
   await expect(page.getByText('Đã ghi mã định danh Bộ GD&ĐT cho 1 học sinh')).toBeVisible();
-  await expect(grid.getByRole('row').filter({ hasText: names.an })).toContainText(`HS${suffix}`);
+  await expect(grid.getByRole('row', { name: `Học sinh ${names.an}` })).toContainText(`HS${suffix}`);
   await grid.getByLabel(`Chọn ${names.an}`).uncheck();
 
   // Xóa chỉ bật với hồ sơ nháp; phải tích đồng ý trong hộp xác nhận
@@ -203,7 +203,7 @@ test('CT-16g-14: 4.1.1 Thay đổi mở hồ sơ, sửa dân tộc; Xóa hồ s�
 test('CT-16g-15: 4.1.3 Sắp xếp A–Z rồi đổi thứ tự, Ghi; 4.1.5 sửa hàng loạt điện thoại nhận tin', async ({ page }) => {
   await signIn(page);
   await openMenu(page, '/student-order');
-  await page.getByLabel('Lớp').selectOption(classIds[0] ?? '');
+  await page.getByRole('combobox', { name: 'Lớp', exact: true }).selectOption(classIds[0] ?? '');
   const order = page.getByRole('region', { name: 'Thứ tự học sinh trong lớp' });
   await page.getByRole('button', { name: 'Sắp xếp A–Z lớp đã chọn' }).click();
   await expect(page.getByText(/Đã sắp xếp A–Z 3 học sinh của 1 lớp/)).toBeVisible();
@@ -218,20 +218,20 @@ test('CT-16g-15: 4.1.3 Sắp xếp A–Z rồi đổi thứ tự, Ghi; 4.1.5 s�
 
   await openMenu(page, '/sms-phones');
   const grid = await search(page, 'Điện thoại nhận tin của học sinh');
-  await expect(grid.getByRole('row').filter({ hasText: names.binh })).toContainText('Chưa chọn');
+  await expect(grid.getByRole('row').filter({ hasText: names.binh }).first()).toContainText('Chưa chọn');
   await grid.getByLabel(`Chọn ${names.binh}`).check();
   await grid.getByLabel(`Chọn ${names.chi}`).check();
   await grid.getByRole('button', { name: 'Sửa hàng loạt' }).click();
   const dialog = page.getByRole('dialog').filter({ hasText: 'Sửa hàng loạt điện thoại nhận tin' });
-  await dialog.getByLabel('Điện thoại nhận tin').selectOption('primary');
+  await dialog.getByRole('combobox', { name: 'Điện thoại nhận tin', exact: true }).selectOption('primary');
   await dialog.getByRole('button', { name: 'Ghi' }).click();
   await expect(page.getByText('Đã cập nhật 2 học sinh')).toBeVisible();
-  await expect(grid.getByRole('row').filter({ hasText: names.binh })).toContainText(motherPhones.binh ?? '-');
+  await expect(grid.getByRole('row').filter({ hasText: names.binh }).first()).toContainText(motherPhones.binh ?? '-');
   // Mở dòng xem phụ huynh và bỏ chọn
   await grid.getByRole('row').filter({ hasText: names.chi }).getByRole('button', { name: 'Phụ huynh' }).click();
   await page.getByRole('table', { name: 'Cha, mẹ, người giám hộ' }).getByRole('button', { name: 'Bỏ chọn' }).click();
   await expect(page.getByText('Đã cập nhật điện thoại nhận tin')).toBeVisible();
-  await expect(grid.getByRole('row').filter({ hasText: names.chi })).toContainText('Chưa chọn');
+  await expect(grid.getByRole('row').filter({ hasText: names.chi }).first()).toContainText('Chưa chọn');
 });
 
 test('CT-16g-16: 4.1.8 thu thập số định danh từ Excel, đánh dấu đã xác thực; 5.5 tiến độ; 4.1.10 khởi tạo tài khoản', async ({
@@ -248,7 +248,7 @@ test('CT-16g-16: 4.1.8 thu thập số định danh từ Excel, đánh dấu đ�
 
   // Thu thập số định danh bằng bộ nhập chung rồi đánh dấu
   const nationalId = `0791${String(suffix).padStart(8, '0')}`;
-  const region = page.getByRole('region', { name: 'Số định danh' });
+  const region = page.getByRole('region', { name: 'Số định danh', exact: true });
   await region.getByLabel('Tệp Số định danh').setInputFiles({
     name: 'so-dinh-danh.xlsx',
     mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -290,7 +290,7 @@ test('CT-16g-17: 4.2 chuyển lớp hàng loạt, đề nghị chuyển đi rồ
   await openMenu(page, '/student-movements');
   await page.getByRole('button', { name: 'Chuyển lớp hàng loạt' }).click();
   const bulk = page.getByRole('dialog').filter({ hasText: 'Chuyển lớp hàng loạt' });
-  await bulk.getByLabel('Lớp hiện tại').selectOption(classIds[0] ?? '');
+  await bulk.getByRole('combobox', { name: 'Lớp hiện tại', exact: true }).selectOption(classIds[0] ?? '');
   await bulk.getByLabel(`Lớp mới của ${names.an}`).selectOption({ label: classNames.second });
   await bulk.getByLabel('Lý do').fill('Cân đối sĩ số');
   await bulk.getByRole('button', { name: 'Chuyển lớp' }).click();
@@ -299,7 +299,7 @@ test('CT-16g-17: 4.2 chuyển lớp hàng loạt, đề nghị chuyển đi rồ
   await page.getByRole('button', { name: 'Đề nghị chuyển đi' }).click();
   const request = page.getByRole('dialog').filter({ hasText: 'Đề nghị chuyển đi' });
   await request.getByLabel('Tìm học sinh theo họ tên').fill(token);
-  await request.getByLabel('Học sinh', { exact: true }).selectOption({ index: 1 });
+  await request.getByRole('combobox', { name: 'Học sinh', exact: true }).selectOption({ index: 1 });
   await request.getByLabel('Trường chuyển đến').fill('Trường Mầm non Hoa Sen');
   await request.getByLabel('Tỉnh/Thành phố chuyển đến').fill('Thành phố Hồ Chí Minh');
   await request.getByRole('button', { name: 'Ghi' }).click();

@@ -173,6 +173,7 @@ export function SmsPhonesPage() {
             <label className="text-label font-medium text-text">
               Điện thoại nhận tin
               <select
+                aria-label="Điện thoại nhận tin"
                 value={relation}
                 onChange={(event) => setRelation(event.target.value as SmsRelation)}
                 className={selectClass}
