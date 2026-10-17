@@ -112,6 +112,21 @@ test('CT-15h1-9: lưới địa chỉ theo địa danh cũ, chọn xã mới khi
   await grid.getByRole('combobox', { name: /^Tình trạng/ }).selectOption({ label: 'Tất cả' });
   await expect(rows).toHaveCount(3);
 
+  // CT-16b-7: Xuất Excel lưới địa chỉ theo từ khóa đang tìm và các cột đang hiện (DT-16 phần 16b)
+  const downloading = page.waitForEvent('download');
+  await grid.getByRole('button', { name: 'Xuất Excel' }).click();
+  const download = await downloading;
+  expect(download.suggestedFilename()).toMatch(/^dia-chi-dia-danh-cu-.*\.xlsx$/);
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.readFile(await download.path());
+  const exported: string[][] = [];
+  workbook.worksheets[0]?.eachRow((row) => {
+    exported.push(Array.from((row.values as unknown[]).slice(1), (value) => String(value ?? '')));
+  });
+  expect(exported[0]?.slice(0, 3)).toEqual(['STT', 'Mã định danh Bộ GD&ĐT', 'Họ tên']);
+  expect(exported.length).toBe(4);
+  expect(exported.find((row) => row.includes('Nơi sinh'))).toContain('Nhiều xã/phường mới');
+
   await grid.getByLabel(`Chọn ${fullName} – Thường trú`).check();
   await grid.getByLabel(`Chọn ${fullName} – Nơi sinh`).check();
   await grid.getByRole('button', { name: 'Chuyển địa danh mới' }).click();

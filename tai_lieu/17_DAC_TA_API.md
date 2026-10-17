@@ -15,7 +15,7 @@
 5. Mọi điểm cuối kiểm tra quyền ở máy chủ theo ba lớp: vai trò, đơn vị, bản ghi.
 6. Mọi yêu cầu thay đổi dữ liệu phải kèm mã chống gửi trùng do giao diện sinh; máy chủ bỏ qua yêu cầu trùng và trả lại kết quả của lần đầu.
 7. Mọi điểm cuối thay đổi dữ liệu đều ghi nhật ký thao tác.
-8. Giao diện lập trình ứng dụng này do hai dịch vụ máy chủ phục vụ (cổng vào chuyển `/api/v1/auth`, `/api/v1/users`, `/api/v1/roles`, `/api/v1/permissions`, `/api/v1/api-clients` sang dịch vụ định danh, phần còn lại sang máy chủ API): nhóm điểm cuối xác thực, quản lý tài khoản và quản lý khóa API của đối tác do **dịch vụ định danh** phục vụ (QĐ-17); các nhóm còn lại do **máy chủ API nghiệp vụ** phục vụ. Hai dịch vụ dùng chung một tiền tố phiên bản và một mô hình lỗi.
+8. Giao diện lập trình ứng dụng này do hai dịch vụ máy chủ phục vụ (cổng vào chuyển `/api/v1/auth`, `/api/v1/users`, `/api/v1/roles`, `/api/v1/permissions`, `/api/v1/api-clients` sang dịch vụ định danh, phần còn lại sang máy chủ API): nhóm điểm cuối xác thực, quản lý tài khoản và quản lý khóa API của đối tác do **dịch vụ định danh** phục vụ (QĐ-17); các nhóm còn lại do **máy chủ API nghiệp vụ** phục vụ. Hai dịch vụ dùng chung một tiền tố phiên bản và một mô hình lỗi. Xuất Excel tài khoản, nhóm người dùng ở `/api/v1/account-exports` (YCTD-119) do máy chủ API phục vụ, đặt ngoài tiền tố `/users`, `/roles` để cổng vào không chuyển sang dịch vụ định danh.
 9. Tầng giao diện không truy cập cơ sở dữ liệu; mọi thao tác dữ liệu đều đi qua giao diện lập trình ứng dụng này.
 
 ## 2. Mô hình lỗi
@@ -253,6 +253,8 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | GET, POST | /api/v1/org-units | Danh sách và tạo đơn vị; lọc được theo cấp và theo đơn vị cha; từ YCTD-111 có thêm `distance_km`, `area_m2` |
 | GET | /api/v1/org-units/tree | Cây đơn vị hai cấp (QĐ-23) |
 | PATCH | /api/v1/org-units/{id} | Cập nhật tên, mã, loại cấp 2, địa chỉ, điện thoại, người phụ trách, trạng thái; không đổi được đơn vị cha vì cây chỉ có hai cấp (YCTD-38); từ YCTD-111 sửa thêm khoảng cách đến cơ sở chính, diện tích |
+| POST | /api/v1/org-units/export | Xuất Excel 1.2 phân hiệu hoặc 1.3 điểm trường theo bộ lọc và `columns`; cần `P17.data.export`, ghi nhật ký xuất (BR-117, YCTD-119) |
+| POST | /api/v1/account-exports/roles | Xuất Excel 1.1 Nhóm người dùng theo từ khóa và `columns`; cần `P17.data.export`, ghi nhật ký xuất (BR-117, YCTD-119) |
 | GET, POST | /api/v1/academic-years | Danh sách và tạo năm học kèm lịch năm học |
 | GET, PUT | /api/v1/academic-years/{id}/calendar | Đọc và lưu học kỳ, kỳ hè, ngày học trong tuần; hệ thống tự đánh số tuần (BR-91) |
 | GET, PATCH | /api/v1/academic-years/{id}/weeks | Danh sách tuần; đánh dấu hoặc bỏ đánh dấu tuần nghỉ |
@@ -597,6 +599,15 @@ Giao kèo của nhóm điểm cuối cây đơn vị (DT-01 phần 4):
 4. Mọi thao tác tạo, sửa ghi `audit_logs` kèm giá trị trước và sau (QU-04).
 5. Từ YCTD-111 (DT-15 phần 15b, BR-111), dòng của `GET /org-units` trả thêm `distance_km`, `area_m2` (số hoặc null). `POST`, `PATCH /org-units` nhận thêm `distance_km` (0 đến 999 999), `area_m2` (0 đến 9 999 999 999), số không âm tối đa hai chữ số thập phân, null hoặc chuỗi rỗng là bỏ trống; sai trả `ERR_VALIDATION`; `PATCH` không gửi trường thì không đổi. Trường chính có khoảng cách trả `ERR_RULE_VIOLATION` mã YCTD-111. Màn hình 1.2, 1.3 của cổng quản trị dùng chính các điểm cuối này, không có điểm cuối mới.
 
+Giao kèo của Xuất Excel còn thiếu theo Sở (DT-16 phần 16b, YCTD-119, BR-117):
+
+1. Ba điểm cuối `POST /org-units/export`, `POST /administrative-units/addresses/export`, `POST /account-exports/roles` cần `P17.data.export`; thiếu quyền trả `ERR_FORBIDDEN` (403). Thân JSON gồm bộ lọc của màn hình và `columns` (mảng mã cột không trùng, không rỗng; không gửi là các cột mặc định); cột lạ, trùng hoặc bộ lọc sai trả `ERR_VALIDATION` (400) kèm trường lỗi. Trả tệp xlsx có cột STT và các cột theo thứ tự gửi, đầu `x-export-log-id`; mỗi lần xuất ghi `export_logs` ở năm học đang dùng trước khi trả tệp; chưa có năm học đang dùng trả `ERR_RULE_VIOLATION` mã BR-93.
+2. `POST /org-units/export`: `unit_type` bắt buộc (`phan_hieu`, `diem_truong`; giá trị khác, kể cả `truong_chinh`, trả 400), `status` (`active`, `inactive`), `q` (tên hoặc mã chứa từ khóa, tối đa 100 ký tự); mã cột `code`, `name`, `address`, `distance_km`, `area_m2`, `phone`, `status` (mặc định cả bảy), nhãn Mã, Tên, Địa chỉ, Khoảng cách đến cơ sở chính (km), Diện tích (m²), Điện thoại, Trạng thái (Đang dùng, Ngừng sử dụng); xếp như `GET /org-units`. Nhật ký mã `branches` hoặc `school-sites`, `contains_personal_data` false; tên tệp `danh-sach-phan-hieu-…`, `danh-sach-diem-truong-…`.
+3. `POST /administrative-units/addresses/export`: cần thêm `P02.child.manage` hoặc `P02.approve`, trong phạm vi xem trẻ (BR-72); bộ lọc `address_type`, `suggestion`, `org_unit_id`, `q` như `GET /administrative-units/addresses`; mã cột `moet_student_code`, `full_name`, `dob`, `class_name`, `address_type`, `old_province`, `old_district`, `old_ward`, `old_ward_code`, `new_province`, `new_ward`, `new_ward_code`, `suggestion` (mặc định bỏ `old_ward_code`, `new_ward_code`); nhiều xã mới ghi cách nhau "; ". Quá 10 000 địa chỉ trả `ERR_RULE_VIOLATION` mã YCTD-116. Nhật ký mã `administrative-addresses`, có dữ liệu cá nhân; tên tệp `dia-chi-dia-danh-cu-…`.
+4. Xuất Excel 1.4 Danh sách người dùng dùng `POST /account-directory/export` của phần 16d (YCTD-120); bản đầu `POST /account-exports/users` của phần 16b đã bỏ khi gộp.
+5. `POST /account-exports/roles`: `q` (mã hoặc tên nhóm chứa từ khóa, không phân biệt hoa thường) lọc trên `GET /roles` của dịch vụ định danh; mã cột `code`, `name`, `active` (Có khi nhóm có hiệu lực), `administrator` (nhóm có `P01.account.manage` hoặc `P01.account.manage-in-unit`), `system`, `permission_count`, `user_count` (mặc định năm cột đầu). Nhật ký mã `roles`, `contains_personal_data` false; tên tệp `nhom-nguoi-dung-…`.
+6. `GET`, `PUT /me/grid-settings/{gridKey}` nhận thêm 38 khóa lưới của phần 16b: `facility-rooms`, `equipment-summary`, `equipment-outside`, `equipment-catalog`, `growth-report-children`, `missing-child-profiles`, `missing-staff-profiles`, `program-completion-classes`, `program-completion-children`, `child-groups`, `child-group-members`, `professional-evaluations`, `kitchen-menus`, `kitchen-ingredients`, `kitchen-dishes`, `kitchen-suppliers`, `kitchen-purchases`, `kitchen-buffets`, `health-campaigns`, `health-schedules`, `medical-events`, `health-report-requests`, `health-standards`, `medication-requests`, `medication-schedule`, `medicines`, `pharmacies`, `medicine-purchase-requests`, `medicine-purchase-orders`, `medicine-issues`, `academic-years`, `departments`, `job-titles`, `catalog-items`, `rooms`, `grade-levels`, `zalo-followers`, `org-units`.
+
 Giao kèo của nhóm điểm cuối năm học (DT-01 phần 3):
 
 1. `POST /academic-years` nhận `name`; năm học mới có `status` là `draft` (chưa mở). `status` khác là `open` (đang dùng), `closed` (đã đóng).
@@ -668,6 +679,7 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | GET | /api/v1/student-movements | Biến động học sinh của năm học: nhập học, chuyển lớp, chuyển đơn vị, thôi học (P02-15, YCTD-108) |
 | POST | /api/v1/student-movements/export | Xuất Excel biến động học sinh; cần `P17.data.export`, ghi nhật ký xuất (YCTD-108) |
 | GET | /api/v1/administrative-units/addresses | Địa chỉ học sinh còn theo địa danh cũ, đề xuất địa danh mới (P02-17, YCTD-116) |
+| POST | /api/v1/administrative-units/addresses/export | Xuất Excel lưới địa chỉ theo bộ lọc và `columns`; cần `P17.data.export` và `P02.child.manage` hoặc `P02.approve`, ghi nhật ký xuất (BR-117, YCTD-119) |
 | POST | /api/v1/administrative-units/addresses/convert | Chuyển hàng loạt địa chỉ sang địa danh mới, ghi nhật ký trước và sau (YCTD-116) |
 | GET | /api/v1/administrative-units/mappings | Bảng đối chiếu địa danh cũ sang mới (YCTD-116) |
 | GET | /api/v1/administrative-units/mappings/template | Tệp mẫu Excel bảng đối chiếu; cần `P01.catalog.manage` (YCTD-116) |

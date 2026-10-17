@@ -21,6 +21,8 @@ export async function buildStudentWorkbook(input: {
   rows: Array<Record<string, unknown>>;
   ipAddress: string | null;
   createdAt: Date;
+  // Danh sách đơn vị, nhóm người dùng không có dữ liệu cá nhân (DT-16 phần 16b); mặc định là có
+  containsPersonalData?: boolean;
 }): Promise<ExportedFile> {
   const workbook = new ExcelJS.Workbook();
   workbook.creator = 'School Management';
@@ -44,7 +46,7 @@ export async function buildStudentWorkbook(input: {
       filters_data: JSON.stringify(input.filters),
       org_unit_ids: input.orgUnitIds,
       row_count: input.rows.length,
-      contains_personal_data: true,
+      contains_personal_data: input.containsPersonalData ?? true,
       file_name: input.fileName,
       ip_address: input.ipAddress,
     })

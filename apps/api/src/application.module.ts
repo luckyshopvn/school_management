@@ -17,6 +17,7 @@ import {
 } from './professional-standards/professional-standards.js';
 import { ProgramCompletionController, ProgramCompletionService } from './program-completion/program-completion.js';
 import { ChildGroupsController, ChildGroupsService } from './child-groups/child-groups.js';
+import { AccountExportsController, AccountExportsService } from './accounts-export/account-exports.js';
 import { Module, type DynamicModule, type Type } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { Clock } from '@school-management/server';
@@ -375,6 +376,7 @@ export class ApplicationModule {
         LedgerEntriesController,
         ProgramCompletionController,
         ChildGroupsController,
+        AccountExportsController,
         ProfessionalStandardsController,
         ...(options.additionalControllers ?? []),
       ],
@@ -577,6 +579,7 @@ export class ApplicationModule {
         WorkAccess,
         ProgramCompletionService,
         ChildGroupsService,
+        AccountExportsService,
         ProfessionalStandardsService,
         TasksService,
         PlansService,

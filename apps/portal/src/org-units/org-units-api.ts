@@ -1,4 +1,5 @@
 import { requestJson } from '../session/api-client.js';
+import { downloadPost } from '../children/children-api.js';
 
 // Gọi nhóm điểm cuối cây đơn vị của máy chủ API (P01-01)
 export type OrgUnitType = 'truong_chinh' | 'phan_hieu' | 'diem_truong';
@@ -59,3 +60,14 @@ export function updateOrgUnit(
 ): Promise<OrgUnit> {
   return requestJson(`/api/v1/org-units/${orgUnitId}`, { method: 'PATCH', body: JSON.stringify(changes) });
 }
+
+// Xuất Excel 1.2 phân hiệu, 1.3 điểm trường theo bộ lọc và các cột đang hiện (DT-16 phần 16b)
+export const exportSites = (
+  filter: { unit_type: 'phan_hieu' | 'diem_truong'; status: string; q: string },
+  columns: string[],
+) =>
+  downloadPost(
+    '/api/v1/org-units/export',
+    { unit_type: filter.unit_type, status: filter.status || undefined, q: filter.q.trim() || undefined, columns },
+    filter.unit_type === 'phan_hieu' ? 'danh-sach-phan-hieu.xlsx' : 'danh-sach-diem-truong.xlsx',
+  );

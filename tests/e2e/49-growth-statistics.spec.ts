@@ -91,7 +91,7 @@ test('Y tế nhập cân đo, tính kênh tăng trưởng; quản lý xem tổng
   // 4.3.1: y tế lập đợt, nhập số đo, tính và lưu
   const nursePage = await signIn(browser, nurse);
   await openMenu(nursePage, '/growth');
-  await expect(nursePage.getByRole('heading', { name: '4.3.1 Nhập kết quả sức khỏe nuôi dưỡng' })).toBeVisible();
+  await expect(nursePage.getByRole('heading', { name: '4.3.1. Nhập kết quả sức khỏe nuôi dưỡng' })).toBeVisible();
   await nursePage.getByLabel('Tên đợt cân đo').fill(`Cân đo ${suffix}`);
   await nursePage.getByRole('button', { name: 'Lập đợt' }).click();
   await expect(nursePage.getByText('Đã lập đợt cân đo')).toBeVisible();
@@ -108,7 +108,7 @@ test('Y tế nhập cân đo, tính kênh tăng trưởng; quản lý xem tổng
   // 4.3.2: quản lý đơn vị lọc kênh nhẹ cân, xuất Excel
   const managerPage = await signIn(browser, manager);
   await openMenu(managerPage, '/growth-report');
-  await expect(managerPage.getByRole('heading', { name: '4.3.2 Tổng hợp cân nặng, chiều cao' })).toBeVisible();
+  await expect(managerPage.getByRole('heading', { name: '4.3.2. Tổng hợp cân nặng, chiều cao' })).toBeVisible();
   await managerPage.getByLabel('Kênh').selectOption('underweight');
   await managerPage.getByRole('button', { name: 'Xem tổng hợp' }).click();
   await expect(managerPage.getByRole('region', { name: /Danh sách học sinh/ })).toContainText(childName);

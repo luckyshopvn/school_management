@@ -44,6 +44,7 @@ function RoomsSection({ canManage, onChanged }: { canManage: boolean; onChanged(
         <CatalogTable<Room>
           key={orgUnitId}
           title="Phòng học"
+          gridKey="rooms"
           rows={rooms.data}
           isPending={rooms.isPending}
           error={rooms.error}
@@ -93,6 +94,7 @@ function GradeLevelsSection({ canManage, onChanged }: { canManage: boolean; onCh
   return (
     <CatalogTable<GradeLevel>
       title="Bậc học"
+      gridKey="grade-levels"
       rows={gradeLevels.data}
       isPending={gradeLevels.isPending}
       error={gradeLevels.error}
@@ -112,6 +114,7 @@ function GradeLevelsSection({ canManage, onChanged }: { canManage: boolean; onCh
       canManage={canManage}
       initialValues={{ code: '', name: '', age_from_months: '', age_to_months: '', order_no: '' }}
       valuesOf={(row) => ({
+        code: row.code,
         name: row.name,
         age_from_months: String(row.age_from_months),
         age_to_months: String(row.age_to_months),

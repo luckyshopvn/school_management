@@ -51,12 +51,14 @@ test('Hiệu trưởng tạo Trường chính, Phân hiệu, Điểm trường; 
   await page.getByRole('button', { name: 'Thêm đơn vị' }).click();
   await expect(page.getByRole('alert')).toContainText('Mã đơn vị đã tồn tại');
 
+  // Danh sách phẳng trên lưới dữ liệu chung, lọc theo loại ở Mở rộng tìm kiếm (DT-16 phần 16b)
   await page.getByRole('button', { name: 'Danh sách phẳng' }).click();
-  await page.getByLabel('Lọc theo loại').selectOption({ label: 'Điểm trường' });
+  await list.getByRole('button', { name: 'Mở rộng tìm kiếm' }).click();
+  await list.getByLabel('Lọc theo loại').selectOption({ label: 'Điểm trường' });
   await expect(list.getByText('Điểm trường A1', { exact: true })).toBeVisible();
   await expect(list.getByText('Phân hiệu A', { exact: true })).toHaveCount(0);
 
-  const row = list.getByRole('listitem').filter({ hasText: 'Điểm trường A2' });
+  const row = list.getByRole('row').filter({ hasText: 'Điểm trường A2' });
   await row.getByRole('button', { name: 'Ngừng sử dụng' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Ngừng sử dụng' }).click();
   await expect(row.getByRole('button', { name: 'Dùng lại' })).toBeVisible();

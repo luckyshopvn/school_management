@@ -99,6 +99,22 @@ test('CT-15b-8: 1.2 và 1.3 liệt kê phân hiệu, điểm trường theo cộ
   await create.getByRole('button', { name: 'Ghi' }).click();
   await expect(page.getByRole('status').filter({ hasText: `Đã tạo điểm trường ${siteName}` })).toBeVisible();
   await expect(sites.getByRole('row').filter({ hasText: siteName })).toContainText('0280000054');
+
+  // CT-16b-5: Xuất Excel 1.3 và 1.2 theo các cột đang hiện trên lưới (DT-16 phần 16b)
+  expect(await headerOf(page, sites, /^danh-sach-diem-truong-.*\.xlsx$/)).toEqual([
+    'STT',
+    'Mã',
+    'Tên',
+    'Địa chỉ',
+    'Khoảng cách đến cơ sở chính (km)',
+    'Diện tích (m²)',
+    'Điện thoại',
+    'Trạng thái',
+  ]);
+  await openMenu(page, 'Quản lý phân hiệu', { exact: true });
+  expect(await headerOf(page, branches, /^danh-sach-phan-hieu-.*\.xlsx$/)).toContain(
+    'Khoảng cách đến cơ sở chính (km)',
+  );
 });
 
 test('CT-15b-9: 2.1 Hồ sơ lớp học: cột của Sở, thêm lớp theo khối, quy tắc lớp ghép, mở rộng tìm kiếm, xuất Excel', async ({
