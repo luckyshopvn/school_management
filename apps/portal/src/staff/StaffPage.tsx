@@ -4,6 +4,7 @@ import { PERMISSION_CODES } from '@school-management/shared';
 import {
   Alert,
   Button,
+  ConfirmDeleteDialog,
   DataGrid,
   FORM_CONTROL_CLASS,
   FormBlock,
@@ -31,12 +32,21 @@ import {
   type StaffListItem,
 } from './staff-api.js';
 import { StaffDetailPanel } from './StaffDetailPanel.js';
+import {
+  deleteStaff,
+  exportMinistryErrors,
+  exportMinistryFile,
+  ID_VERIFICATION_LABELS,
+  type DeleteResult,
+} from './staff-so-api.js';
 
 // MH-12 3.1.1. Hồ sơ cán bộ, giáo viên theo hệ thống của Sở (DT-15 phần 15d, YCTD-112; trước là Hồ sơ nhân sự, P07-01,
 // P07-02, P07-04; BR-37, BR-38; YCTD-58): lưới dữ liệu chung phân trang ở máy chủ, tìm theo họ tên hoặc mã, mở rộng tìm
 // kiếm theo các bộ lọc của mục 3.1.4, cột theo danh sách của Sở, sắp xếp A–Z theo tên; Thêm mới, Xuất Excel; Hồ sơ mở ngay
 // dưới dòng. Ô mã định danh Bộ tô đỏ khi trống như danh sách học sinh. Cột hợp đồng, lương chỉ hiện cho người xem được
-// hợp đồng (BR-46)
+// hợp đồng (BR-46). DT-16 phần 16f thêm Thay đổi (mở hồ sơ dòng đã chọn), Xóa (chỉ hồ sơ chưa có dữ liệu liên quan), Xuất tệp
+// theo mẫu Bộ kèm kiểm tra dữ liệu, Xuất file lỗi (bản chạy nội bộ của "Đồng bộ hồ sơ lên CSDL Bộ", không gửi đi), lọc xã
+// ĐBKK, trạng thái xác thực số định danh
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
@@ -148,6 +158,20 @@ function staffColumns(contractVisible: boolean): Array<DataGridColumn<StaffListI
       cell: (row) => (row.has_account ? 'Đã liên kết' : 'Chưa có'),
     },
     { id: 'unit', header: 'Đơn vị', hiddenByDefault: true, cell: (row) => row.unit_name },
+    {
+      id: 'special_difficulty_commune',
+      header: 'Xã ĐBKK',
+      hiddenByDefault: true,
+      cell: (row) => (row.special_difficulty_commune ? 'Có' : ''),
+    },
+    {
+      id: 'id_verification',
+      header: 'Xác thực số định danh',
+      hiddenByDefault: true,
+      cell: (row) => ID_VERIFICATION_LABELS[row.id_verification_status],
+    },
+    { id: 'bank_account', header: 'Tài khoản ngân hàng', hiddenByDefault: true, cell: (row) => row.bank_account_number ?? '' },
+    { id: 'tax_code', header: 'Mã số thuế', hiddenByDefault: true, cell: (row) => row.tax_code ?? '' },
     ...(contractVisible
       ? ([
           {
@@ -366,6 +390,8 @@ export function StaffPage() {
   const [toastMessage, setToastMessage] = useState<string>();
   const [exportError, setExportError] = useState<string>();
   const [exporting, setExporting] = useState(false);
+  const [deleting, setDeleting] = useState<StaffListItem[]>([]);
+  const [deleteResult, setDeleteResult] = useState<DeleteResult>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
   const departments = useQuery({
     queryKey: ['departments', filter.org_unit_id],
@@ -406,6 +432,32 @@ export function StaffPage() {
       setExporting(false);
     }
   };
+
+  // Tệp theo mẫu Bộ, tệp lỗi theo bộ lọc đang chọn
+  const runFile = async (build: (filter: StaffFilter) => Promise<void>) => {
+    setExportError(undefined);
+    setExporting(true);
+    try {
+      await build(activeFilter);
+    } catch (error) {
+      setExportError(messageOf(error));
+    } finally {
+      setExporting(false);
+    }
+  };
+  const remove = useMutation({
+    mutationFn: () => deleteStaff(deleting.map((row) => row.id)),
+    onSuccess: async (result) => {
+      setDeleting([]);
+      setDeleteResult(result);
+      if (result.deleted_count > 0) {
+        setToastMessage(`Đã xóa ${result.deleted_count} hồ sơ`);
+        setOpenId(undefined);
+      }
+      await queryClient.invalidateQueries({ queryKey: ['staff'] });
+    },
+  });
+  const refused = (deleteResult?.results ?? []).filter((result) => !result.deleted);
 
   const advancedSearch = (
     <div className="grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-4">
@@ -473,6 +525,24 @@ export function StaffPage() {
         value={filter.id_number ?? ''}
         onChange={(value) => change('id_number', value)}
       />
+      <FilterSelect
+        label="Xã ĐBKK"
+        value={filter.special_difficulty_commune ?? ''}
+        onChange={(value) => change('special_difficulty_commune', value)}
+        options={[
+          { value: 'true', label: 'Có' },
+          { value: 'false', label: 'Không' },
+        ]}
+      />
+      <FilterSelect
+        label="Xác thực số định danh"
+        value={filter.id_verification ?? ''}
+        onChange={(value) => change('id_verification', value)}
+        options={(Object.keys(ID_VERIFICATION_LABELS) as Array<keyof typeof ID_VERIFICATION_LABELS>).map((key) => ({
+          value: key,
+          label: ID_VERIFICATION_LABELS[key],
+        }))}
+      />
     </div>
   );
 
@@ -499,6 +569,31 @@ export function StaffPage() {
         {staff.isError ? <Alert tone="danger">{messageOf(staff.error)}</Alert> : null}
         {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
         {exportError ? <Alert tone="danger">{exportError}</Alert> : null}
+        {remove.error ? <Alert tone="danger">{messageOf(remove.error)}</Alert> : null}
+        {refused.length > 0 ? (
+          <Alert tone="warning">
+            <span>Không xóa được {refused.length} hồ sơ:</span>
+            <ul className="ml-4 list-disc" aria-label="Hồ sơ không xóa được">
+              {refused.map((result) => (
+                <li key={result.id}>
+                  {result.full_name}: {result.reason}
+                </li>
+              ))}
+            </ul>
+          </Alert>
+        ) : null}
+        <ConfirmDeleteDialog
+          open={deleting.length > 0}
+          subject={deleting.length === 1 ? `hồ sơ ${deleting[0]?.full_name ?? ''}` : `${deleting.length} hồ sơ cán bộ, giáo viên`}
+          busy={remove.isPending}
+          onConfirm={() => remove.mutate()}
+          onCancel={() => setDeleting([])}
+        >
+          <p className="text-content text-text-secondary">
+            Chỉ xóa được hồ sơ nhập nhầm chưa có tài khoản, hợp đồng, chấm công, lương hay dữ liệu liên quan khác. Hồ sơ
+            đã có dữ liệu liên quan được giữ lại; cho nghỉ việc bằng chấm dứt hợp đồng.
+          </p>
+        </ConfirmDeleteDialog>
         <DataGrid
           label="Danh sách nhân sự"
           columns={columns}
@@ -517,7 +612,7 @@ export function StaffPage() {
             },
           }}
           advancedSearch={advancedSearch}
-          toolbar={() => (
+          toolbar={(selectedRows) => (
             <>
               {canManage ? (
                 <Button
@@ -530,10 +625,44 @@ export function StaffPage() {
                   Thêm mới
                 </Button>
               ) : null}
-              {canExport ? (
-                <Button disabled={exporting} onClick={() => void runExport()}>
-                  Xuất Excel
+              <Button
+                disabled={selectedRows.length !== 1}
+                title={selectedRows.length !== 1 ? 'Chọn một hồ sơ để thay đổi' : undefined}
+                onClick={() => {
+                  setCreating(false);
+                  setOpenId(selectedRows[0]?.id);
+                }}
+              >
+                Thay đổi
+              </Button>
+              {canManage ? (
+                <Button
+                  variant="danger"
+                  disabled={selectedRows.length === 0}
+                  onClick={() => {
+                    setDeleteResult(undefined);
+                    setDeleting(selectedRows);
+                  }}
+                >
+                  Xóa
                 </Button>
+              ) : null}
+              {canExport ? (
+                <>
+                  <Button disabled={exporting} onClick={() => void runExport()}>
+                    Xuất Excel
+                  </Button>
+                  <Button
+                    disabled={exporting}
+                    title="Tệp 75 cột theo mẫu CSDL ngành kèm trang kiểm tra dữ liệu; trường tự nộp tệp, hệ thống không gửi đi"
+                    onClick={() => void runFile(exportMinistryFile)}
+                  >
+                    Xuất tệp theo mẫu Bộ
+                  </Button>
+                  <Button disabled={exporting} onClick={() => void runFile(exportMinistryErrors)}>
+                    Xuất file lỗi
+                  </Button>
+                </>
               ) : null}
             </>
           )}

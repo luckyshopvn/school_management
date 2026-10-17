@@ -296,8 +296,14 @@ export class StaffMovementsService {
       throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không có quyền xem biến động này');
     }
     const dossier = row.dossier as MovementDossier | null;
+    const unit = await database
+      .selectFrom('org_units')
+      .select('name')
+      .where('id', '=', row.org_unit_id)
+      .executeTakeFirstOrThrow();
     return {
       ...this.toView(row),
+      unit_name: unit.name,
       dossier: dossier
         ? {
             moet_staff_code: dossier.moet_staff_code,

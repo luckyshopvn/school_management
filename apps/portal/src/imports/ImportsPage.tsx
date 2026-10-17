@@ -10,7 +10,8 @@ import { MoetImportSection } from './MoetImportSection.js';
 // MH-40 Nhập dữ liệu ban đầu từ Excel (P01-13) và nhập mã định danh ngành (P02-12) (YCTD-46).
 // Giao diện chỉ chuyển tệp và hiện báo cáo; máy chủ kiểm tra toàn bộ và chỉ ghi khi không còn dòng lỗi. Nhập lớp học tách
 // sang màn hình "2.2. Nhập lớp học từ Excel" (DT-15 phần 15b, YCTD-111). Từ DT-16 phần 16a mỗi phần nhập dùng thành phần nhập
-// Excel dùng chung theo mẫu của Sở (tải file mẫu, tra cứu danh mục, chọn cột để nhập, xuất file lỗi)
+// Excel dùng chung theo mẫu của Sở (tải file mẫu, tra cứu danh mục, chọn cột để nhập, xuất file lỗi). Nhập nhân sự tách sang
+// "3.1.3. Nhập nhân sự từ Excel" (DT-16 phần 16f)
 type ImportType = 'classes' | 'children' | 'moet_codes' | 'opening_debts' | 'staff';
 
 const TYPE_LABELS: Record<ImportType, string> = {
@@ -50,7 +51,6 @@ export function ImportsPage() {
   const canImportChildren = useHasPermission(PERMISSION_CODES.importChildren);
   const canImportMoetCodes = useHasPermission(PERMISSION_CODES.childManage);
   const canImportOpeningDebts = useHasPermission(PERMISSION_CODES.openingDebtImport);
-  const canImportStaff = useHasPermission(PERMISSION_CODES.importStaff);
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
 
@@ -72,12 +72,6 @@ export function ImportsPage() {
         ) : null}
         {canImportMoetCodes ? <ImportSection type="moet_codes" onChanged={setToastMessage} /> : null}
         {canImportOpeningDebts ? <ImportSection type="opening_debts" onChanged={setToastMessage} /> : null}
-        {canImportStaff ? (
-          <>
-            <ImportSection type="staff" onChanged={setToastMessage} />
-            <MoetImportSection type="moet_staff" onChanged={setToastMessage} />
-          </>
-        ) : null}
       </div>
     </AppShell>
   );
