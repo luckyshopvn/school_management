@@ -97,7 +97,7 @@ test('CT-16a-9: 2.2 Nhập lớp học: file mẫu kèm dữ liệu, tra cứu d
 
   await region.getByRole('button', { name: 'Tra cứu danh mục' }).click();
   const lookup = region.getByRole('region', { name: 'Tra cứu danh mục' });
-  await lookup.getByLabel('Danh mục', { exact: true }).selectOption({ label: 'Bậc học' });
+  await lookup.getByRole('combobox', { name: 'Danh mục', exact: true }).selectOption({ label: 'Bậc học' });
   await expect(lookup.getByRole('table')).toContainText('MAM');
 
   // Thêm lớp mới đủ cột
