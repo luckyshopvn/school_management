@@ -104,8 +104,8 @@ export function SchoolWeeksPage() {
             </select>
           </label>
           <p className="text-label text-text-secondary">
-            Tuần được đánh số theo lịch năm học ở 2.1 Năm học. Tuần đệm là tuần nghỉ học; tên tuần đệm ghi lý do nghỉ. Bỏ
-            tích Hiển thị thì tuần không hiện ở các màn hình chọn tuần.
+            Tuần được đánh số theo lịch năm học ở 2.1 Năm học. Tuần đệm là tuần nghỉ học; tên tuần đệm ghi lý do nghỉ.
+            Bỏ tích Hiển thị thì tuần không hiện ở các màn hình chọn tuần.
           </p>
         </div>
         {years.isError ? <Alert tone="danger">{messageOf(years.error)}</Alert> : null}

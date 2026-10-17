@@ -32,8 +32,15 @@ function parseWeekChanges(body: RequestBody): WeekChange[] {
       errors.push({ field: `weeks[${index}].note`, message: 'Ghi chú phải là chữ' });
     }
     const note = typeof week.note === 'string' && week.note.trim() !== '' ? week.note.trim() : null;
-    if (week.term_type !== undefined && week.term_type !== null && !TERM_TYPES.includes(week.term_type as AcademicTermType)) {
-      errors.push({ field: `weeks[${index}].term_type`, message: 'Học kỳ là first_term, second_term, summer_term hoặc trống' });
+    if (
+      week.term_type !== undefined &&
+      week.term_type !== null &&
+      !TERM_TYPES.includes(week.term_type as AcademicTermType)
+    ) {
+      errors.push({
+        field: `weeks[${index}].term_type`,
+        message: 'Học kỳ là first_term, second_term, summer_term hoặc trống',
+      });
     }
     if (week.is_visible !== undefined && typeof week.is_visible !== 'boolean') {
       errors.push({ field: `weeks[${index}].is_visible`, message: 'Phải là đúng hoặc sai' });

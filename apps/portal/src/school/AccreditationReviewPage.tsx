@@ -132,10 +132,10 @@ export function AccreditationReviewPage() {
             </FormRow>
           </FormBlock>
           <p className="text-label text-text-secondary">
-            Lấy dữ liệu: số lớp đang dùng; phòng học là phòng sinh hoạt chung, phòng bộ môn là phòng giáo dục thể chất, nghệ
-            thuật, đa chức năng, tiếng Anh, tin học (khai báo ở Cơ sở vật chất 1.1); diện tích đất ở 1.1 Hồ sơ trường; diện
-            tích sàn là tổng diện tích các phòng đang dùng; số học sinh đang học; diện tích trên học sinh là diện tích đất
-            chia số học sinh.
+            Lấy dữ liệu: số lớp đang dùng; phòng học là phòng sinh hoạt chung, phòng bộ môn là phòng giáo dục thể chất,
+            nghệ thuật, đa chức năng, tiếng Anh, tin học (khai báo ở Cơ sở vật chất 1.1); diện tích đất ở 1.1 Hồ sơ
+            trường; diện tích sàn là tổng diện tích các phòng đang dùng; số học sinh đang học; diện tích trên học sinh
+            là diện tích đất chia số học sinh.
             {saved
               ? ` Đã ghi lúc ${new Date(saved.updated_at).toLocaleString('vi-VN')}${saved.collected_at ? `, lấy dữ liệu lúc ${new Date(saved.collected_at).toLocaleString('vi-VN')}` : ''}.`
               : ' Chưa ghi bản rà soát của năm học.'}

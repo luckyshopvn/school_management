@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { ApplicationError, Clock, ruleViolationError, validationError, type FieldError } from '@school-management/server';
+import {
+  ApplicationError,
+  Clock,
+  ruleViolationError,
+  validationError,
+  type FieldError,
+} from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';

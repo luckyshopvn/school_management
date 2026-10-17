@@ -77,10 +77,7 @@ export function listWeeks(academicYearId: string): Promise<SchoolWeek[]> {
   return requestJson(`/api/v1/academic-years/${academicYearId}/weeks`);
 }
 
-export function updateWeeks(
-  academicYearId: string,
-  weeks: WeekChange[],
-): Promise<SchoolWeek[]> {
+export function updateWeeks(academicYearId: string, weeks: WeekChange[]): Promise<SchoolWeek[]> {
   return requestJson(`/api/v1/academic-years/${academicYearId}/weeks`, {
     method: 'PATCH',
     body: JSON.stringify({ weeks }),

@@ -170,40 +170,40 @@ function UnitSettingsForm({ orgUnitId, editable, onSaved }: { orgUnitId: string;
           {settings.data
             .filter((setting) => !setting.school)
             .map((setting) => (
-            <tr key={setting.key} className="border-t border-border align-top">
-              <td className="px-3 py-2 font-medium">{setting.label}</td>
-              <td className="px-3 py-2">{describeValue(setting)}</td>
-              <td className="px-3 py-2">
-                <StatusBadge {...SOURCE_LABELS[setting.source]} />
-              </td>
-              {editable ? (
+              <tr key={setting.key} className="border-t border-border align-top">
+                <td className="px-3 py-2 font-medium">{setting.label}</td>
+                <td className="px-3 py-2">{describeValue(setting)}</td>
                 <td className="px-3 py-2">
-                  {setting.value_type === 'boolean' ? (
-                    <select
-                      aria-label={setting.label}
-                      value={draft[setting.key] ?? ''}
-                      onChange={(event) => setDraft({ ...draft, [setting.key]: event.target.value })}
-                      className="rounded-lg border border-border bg-card px-3 py-2"
-                    >
-                      <option value="">Kế thừa</option>
-                      <option value="bat">Bật</option>
-                      <option value="tat">Tắt</option>
-                    </select>
-                  ) : (
-                    <input
-                      aria-label={setting.label}
-                      value={draft[setting.key] ?? ''}
-                      placeholder="Để trống là kế thừa"
-                      onChange={(event) => setDraft({ ...draft, [setting.key]: event.target.value })}
-                      className="w-48 rounded-lg border border-border bg-card px-3 py-2"
-                    />
-                  )}
-                  {fieldErrors[`values.${setting.key}`] ? (
-                    <p className="mt-1 text-label text-danger">{fieldErrors[`values.${setting.key}`]}</p>
-                  ) : null}
+                  <StatusBadge {...SOURCE_LABELS[setting.source]} />
                 </td>
-              ) : null}
-            </tr>
+                {editable ? (
+                  <td className="px-3 py-2">
+                    {setting.value_type === 'boolean' ? (
+                      <select
+                        aria-label={setting.label}
+                        value={draft[setting.key] ?? ''}
+                        onChange={(event) => setDraft({ ...draft, [setting.key]: event.target.value })}
+                        className="rounded-lg border border-border bg-card px-3 py-2"
+                      >
+                        <option value="">Kế thừa</option>
+                        <option value="bat">Bật</option>
+                        <option value="tat">Tắt</option>
+                      </select>
+                    ) : (
+                      <input
+                        aria-label={setting.label}
+                        value={draft[setting.key] ?? ''}
+                        placeholder="Để trống là kế thừa"
+                        onChange={(event) => setDraft({ ...draft, [setting.key]: event.target.value })}
+                        className="w-48 rounded-lg border border-border bg-card px-3 py-2"
+                      />
+                    )}
+                    {fieldErrors[`values.${setting.key}`] ? (
+                      <p className="mt-1 text-label text-danger">{fieldErrors[`values.${setting.key}`]}</p>
+                    ) : null}
+                  </td>
+                ) : null}
+              </tr>
             ))}
         </tbody>
       </table>
@@ -243,7 +243,9 @@ function SchoolSettingsBlock({
       };
       setDisplayName(text('school_display_name'));
       setUnitName(text('administrative_unit_name'));
-      setUnderweight(settings.data.find((setting) => setting.key === 'underweight_growth_calculation')?.value !== false);
+      setUnderweight(
+        settings.data.find((setting) => setting.key === 'underweight_growth_calculation')?.value !== false,
+      );
     }
   }, [settings.data]);
   const save = useMutation({
@@ -302,8 +304,9 @@ function SchoolSettingsBlock({
         </FormRow>
       </FormBlock>
       <p className="text-label text-text-secondary">
-        Tên trường hiển thị dùng ở thanh đầu trang và trang đăng nhập. Bỏ tích ô cân nặng, chiều cao thì trẻ suy dinh dưỡng
-        thể nhẹ cân không xếp kênh cân nặng theo chiều cao (gầy còm, thừa cân, béo phì) ở 4.3.2 Tổng hợp cân nặng, chiều cao.
+        Tên trường hiển thị dùng ở thanh đầu trang và trang đăng nhập. Bỏ tích ô cân nặng, chiều cao thì trẻ suy dinh
+        dưỡng thể nhẹ cân không xếp kênh cân nặng theo chiều cao (gầy còm, thừa cân, béo phì) ở 4.3.2 Tổng hợp cân nặng,
+        chiều cao.
       </p>
       {editable ? (
         <div>
@@ -517,7 +520,11 @@ export function SettingsPage() {
       <div className="flex flex-col gap-6">
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/settings')}</h1>
         {rootId ? (
-          <SchoolSettingsBlock rootId={rootId} editable={canManage && wholeSchoolSettingManager} onSaved={setToastMessage} />
+          <SchoolSettingsBlock
+            rootId={rootId}
+            editable={canManage && wholeSchoolSettingManager}
+            onSaved={setToastMessage}
+          />
         ) : null}
         <section
           className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4"

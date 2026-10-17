@@ -355,7 +355,12 @@ function readAssignmentFilter(query: Record<string, unknown>, errors: FieldError
     errors.push({ field: 'assignment_role', message: 'Vai trò trong lớp là homeroom hoặc subject' });
   }
   const assignment = query.assignment;
-  if (assignment !== undefined && assignment !== null && assignment !== '' && !ASSIGNMENT_STATES.includes(assignment as never)) {
+  if (
+    assignment !== undefined &&
+    assignment !== null &&
+    assignment !== '' &&
+    !ASSIGNMENT_STATES.includes(assignment as never)
+  ) {
     errors.push({ field: 'assignment', message: 'Tình trạng phân công là assigned hoặc unassigned' });
   }
   return {

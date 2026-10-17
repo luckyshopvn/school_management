@@ -13,7 +13,13 @@ import {
   Res,
 } from '@nestjs/common';
 import type { SchoolSplitStatus, SchoolYearDatabase } from '@school-management/database';
-import { ApplicationError, Clock, ruleViolationError, validationError, type FieldError } from '@school-management/server';
+import {
+  ApplicationError,
+  Clock,
+  ruleViolationError,
+  validationError,
+  type FieldError,
+} from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { Request, Response } from 'express';
 import type { Kysely, Transaction } from 'kysely';
@@ -219,10 +225,7 @@ export class SchoolSplitsService {
       }
       return query.orderBy('classes.name').orderBy('children.full_name').limit(500).execute();
     }
-    let query = database
-      .selectFrom('staff')
-      .select(['id', 'code', 'full_name', 'dob'])
-      .where('status', '=', 'active');
+    let query = database.selectFrom('staff').select(['id', 'code', 'full_name', 'dob']).where('status', '=', 'active');
     if (pattern) {
       query = query.where((builder) =>
         builder.or([builder('full_name', 'ilike', pattern), builder('code', 'ilike', pattern)]),

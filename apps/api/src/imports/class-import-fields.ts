@@ -41,13 +41,18 @@ const NO = new Set(['khong', '0', 'false', '']);
 
 // Nhóm tuổi nhận mã (years_3_4) hoặc tên ("3–4 tuổi", "3-4 tuổi")
 export function parseAgeGroup(text: string): ClassAgeGroup | null | undefined {
-  const folded = foldText(text).replace(/[–—]/g, '-').replace(/\s*-\s*/g, '-');
+  const folded = foldText(text)
+    .replace(/[–—]/g, '-')
+    .replace(/\s*-\s*/g, '-');
   if (folded === '') {
     return null;
   }
   const found = CLASS_AGE_GROUPS.find(
     (group) =>
-      group.key === folded || foldText(group.label).replace(/[–—]/g, '-').replace(/\s*-\s*/g, '-') === folded,
+      group.key === folded ||
+      foldText(group.label)
+        .replace(/[–—]/g, '-')
+        .replace(/\s*-\s*/g, '-') === folded,
   );
   return found ? (found.key as ClassAgeGroup) : undefined;
 }
@@ -118,7 +123,12 @@ export function readClassSoValues(
 // Ràng buộc như 2.1 Hồ sơ lớp học (YCTD-111): chỉ lớp mẫu giáo ghép 2 hoặc 3 độ tuổi; chỉ lớp ghép mới ghi lớp ghép vào
 export function checkClassSoRules(
   row: number,
-  merged: { age_group: ClassAgeGroup; mixed_age_count: number | null; is_combined: boolean; combined_into_code: string | null },
+  merged: {
+    age_group: ClassAgeGroup;
+    mixed_age_count: number | null;
+    is_combined: boolean;
+    combined_into_code: string | null;
+  },
   errors: RowError[],
 ): void {
   if (merged.mixed_age_count !== null && classStageOf(merged.age_group) !== 'mau_giao') {

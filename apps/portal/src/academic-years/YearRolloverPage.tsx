@@ -21,8 +21,7 @@ function messageOf(error: unknown): string {
 }
 
 const formatDate = (value: string | null) => (value ? value.split('-').reverse().join('/') : '');
-const describe = (year: AcademicYear) =>
-  `${year.name} (${formatDate(year.start_date)} – ${formatDate(year.end_date)})`;
+const describe = (year: AcademicYear) => `${year.name} (${formatDate(year.start_date)} – ${formatDate(year.end_date)})`;
 
 export function YearRolloverPage() {
   const queryClient = useQueryClient();
@@ -69,7 +68,9 @@ export function YearRolloverPage() {
         >
           <FormBlock title="Chuyển hồ sơ lên năm học mới">
             <FormRow label="Năm học đang dùng">
-              <span className="text-content text-text">{current ? describe(current) : 'Chưa có năm học đang dùng'}</span>
+              <span className="text-content text-text">
+                {current ? describe(current) : 'Chưa có năm học đang dùng'}
+              </span>
             </FormRow>
             <FormRow label="Năm học mới">
               {status.data && status.data.candidates.length > 0 ? (
@@ -92,9 +93,10 @@ export function YearRolloverPage() {
             </FormRow>
           </FormBlock>
           <p className="text-label text-text-secondary">
-            Thực hiện: tạo dữ liệu năm học mới, chuyển hồ sơ đang dùng (cây đơn vị, danh mục, học sinh, nhân sự, công nợ…)
-            sang năm mới rồi khóa năm học cũ chỉ đọc. Hủy: đưa năm học mới về chờ mở và mở lại năm học cũ; chỉ hủy được khi năm học mới
-            chưa phát sinh dữ liệu (chưa thêm, sửa dữ liệu nào sau khi chuyển, chưa gửi biểu mẫu lên cấp trên).
+            Thực hiện: tạo dữ liệu năm học mới, chuyển hồ sơ đang dùng (cây đơn vị, danh mục, học sinh, nhân sự, công
+            nợ…) sang năm mới rồi khóa năm học cũ chỉ đọc. Hủy: đưa năm học mới về chờ mở và mở lại năm học cũ; chỉ hủy
+            được khi năm học mới chưa phát sinh dữ liệu (chưa thêm, sửa dữ liệu nào sau khi chuyển, chưa gửi biểu mẫu
+            lên cấp trên).
           </p>
           {status.data && !status.data.cancel.allowed && current ? (
             <p className="text-label text-text-secondary">Không hủy được: {status.data.cancel.reason}</p>
@@ -131,8 +133,8 @@ export function YearRolloverPage() {
           onCancel={() => setConfirming(undefined)}
           onConfirm={() => cancel.mutate()}
         >
-          Dữ liệu năm học {current.name} bị xóa, năm học về trạng thái chờ mở; năm học trước mở lại và ghi được như trước khi
-          chuyển.
+          Dữ liệu năm học {current.name} bị xóa, năm học về trạng thái chờ mở; năm học trước mở lại và ghi được như
+          trước khi chuyển.
         </ConfirmDialog>
       ) : null}
     </AppShell>

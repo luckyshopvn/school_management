@@ -175,16 +175,7 @@ export async function staffMoetSheet(
   }
   const staff = await database
     .selectFrom('staff')
-    .select([
-      'full_name',
-      'dob',
-      'gender',
-      'phone',
-      'email',
-      'id_number_encrypted',
-      'moet_staff_code',
-      'moet_profile',
-    ])
+    .select(['full_name', 'dob', 'gender', 'phone', 'email', 'id_number_encrypted', 'moet_staff_code', 'moet_profile'])
     .where('id', 'in', staffIds)
     .orderBy('full_name')
     .execute();

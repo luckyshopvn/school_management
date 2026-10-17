@@ -35,7 +35,10 @@ export const migration: Migration = {
       .addColumn('destination_code', 'text')
       .addColumn('reason', 'text', (column) => column.notNull())
       .addColumn('status', 'text', (column) =>
-        column.notNull().defaultTo('draft').check(sql`status in ('draft', 'confirmed', 'received')`),
+        column
+          .notNull()
+          .defaultTo('draft')
+          .check(sql`status in ('draft', 'confirmed', 'received')`),
       )
       .addColumn('confirmed_at', 'timestamptz')
       .addColumn('confirmed_by', 'uuid')

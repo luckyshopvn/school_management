@@ -90,7 +90,9 @@ function SubjectPicker({
   });
   const selectedIds = new Set(selected.map((item) => item.id));
   const describe = (item: SplitCandidate) =>
-    [item.full_name, item.class_name ?? item.code, item.dob?.split('-').reverse().join('/')].filter(Boolean).join(' – ');
+    [item.full_name, item.class_name ?? item.code, item.dob?.split('-').reverse().join('/')]
+      .filter(Boolean)
+      .join(' – ');
   return (
     <FormBlock title={title}>
       <FormRow label="Tìm">
@@ -113,9 +115,7 @@ function SubjectPicker({
                   checked={selectedIds.has(item.id)}
                   onChange={(event) =>
                     onChange(
-                      event.target.checked
-                        ? [...selected, item]
-                        : selected.filter((chosen) => chosen.id !== item.id),
+                      event.target.checked ? [...selected, item] : selected.filter((chosen) => chosen.id !== item.id),
                     )
                   }
                 />
@@ -159,10 +159,17 @@ function SplitForm({
     reason: reason ?? loaded?.reason ?? '',
     children:
       children ??
-      loaded?.children.map((item) => ({ id: item.id, full_name: item.full_name, dob: item.dob, class_name: item.class_name })) ??
+      loaded?.children.map((item) => ({
+        id: item.id,
+        full_name: item.full_name,
+        dob: item.dob,
+        class_name: item.class_name,
+      })) ??
       [],
     staff:
-      staff ?? loaded?.staff.map((item) => ({ id: item.id, full_name: item.full_name, dob: null, code: item.code })) ?? [],
+      staff ??
+      loaded?.staff.map((item) => ({ id: item.id, full_name: item.full_name, dob: null, code: item.code })) ??
+      [],
   };
   const save = useMutation({
     mutationFn: () => {
@@ -287,10 +294,10 @@ export function SchoolSplitsPage() {
       <div className="flex flex-col gap-6">
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/school-splits')}</h1>
         <Alert tone="info">
-          Phần mềm không gửi dữ liệu sang trường khác. Sau khi tạo yêu cầu, bấm "Xuất hồ sơ học sinh", "Xuất hồ sơ nhân sự" để
-          tải tệp theo mẫu CSDL ngành (82 cột học sinh, 75 cột nhân sự) rồi gửi cho trường đến; trường đến nhập tệp ở mục
-          "Tiếp nhận hồ sơ tách trường". Xác nhận đi, đã tiếp nhận là trạng thái nhà trường tự đánh dấu. Chuyển đi, thôi việc
-          của từng hồ sơ làm ở 4.2 Biến động học sinh và hồ sơ nhân sự.
+          Phần mềm không gửi dữ liệu sang trường khác. Sau khi tạo yêu cầu, bấm "Xuất hồ sơ học sinh", "Xuất hồ sơ nhân
+          sự" để tải tệp theo mẫu CSDL ngành (82 cột học sinh, 75 cột nhân sự) rồi gửi cho trường đến; trường đến nhập
+          tệp ở mục "Tiếp nhận hồ sơ tách trường". Xác nhận đi, đã tiếp nhận là trạng thái nhà trường tự đánh dấu.
+          Chuyển đi, thôi việc của từng hồ sơ làm ở 4.2 Biến động học sinh và hồ sơ nhân sự.
         </Alert>
         {editing !== undefined ? (
           <SplitForm
@@ -371,8 +378,8 @@ export function SchoolSplitsPage() {
           <section className="flex flex-col gap-4" aria-label="Tiếp nhận hồ sơ tách trường">
             <h2 className="text-section-title font-semibold text-text">Tiếp nhận hồ sơ tách trường</h2>
             <p className="text-label text-text-secondary">
-              Trường nhận hồ sơ tách từ trường khác: chọn đơn vị, tải lên tệp hồ sơ học sinh hoặc nhân sự theo mẫu CSDL ngành
-              mà trường đi gửi. Hệ thống kiểm tra toàn bộ tệp và chỉ ghi khi không còn dòng lỗi.
+              Trường nhận hồ sơ tách từ trường khác: chọn đơn vị, tải lên tệp hồ sơ học sinh hoặc nhân sự theo mẫu CSDL
+              ngành mà trường đi gửi. Hệ thống kiểm tra toàn bộ tệp và chỉ ghi khi không còn dòng lỗi.
             </p>
             {canImportChildren ? <MoetImportSection type="moet_children" onChanged={setToastMessage} /> : null}
             {canImportStaff ? <MoetImportSection type="moet_staff" onChanged={setToastMessage} /> : null}

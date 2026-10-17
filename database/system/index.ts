@@ -27,5 +27,5 @@ export const systemMigrations: Record<string, Migration> = {
   '0011_create_announcements_and_app_links': createAnnouncementsAndAppLinks,
   '0012_add_sync_account_credentials': addSyncAccountCredentials,
   '0013_add_school_week_fields_and_carry_over_time': addSchoolWeekFieldsAndCarryOverTime,
-  '0016_add_archive_units_handlers_reminders':addArchiveUnitsHandlersReminders,
+  '0016_add_archive_units_handlers_reminders': addArchiveUnitsHandlersReminders,
 };

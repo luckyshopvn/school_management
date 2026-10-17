@@ -28,7 +28,12 @@ import {
   type SheetRow,
 } from './excel.js';
 import { classAgeGroup } from '../statistics/statistics-calc.js';
-import { CLASS_SO_IMPORT_COLUMNS, checkClassSoRules, classSoTemplateValues, readClassSoValues } from './class-import-fields.js';
+import {
+  CLASS_SO_IMPORT_COLUMNS,
+  checkClassSoRules,
+  classSoTemplateValues,
+  readClassSoValues,
+} from './class-import-fields.js';
 import { MOET_CHILD_HEADERS, MOET_STAFF_HEADERS, MoetImports, type MoetPreview } from './moet-imports.js';
 
 // Loại nhập theo mẫu của trường (có tệp mẫu); tệp CSDL ngành dùng mẫu của Bộ, không có tệp mẫu ở đây (YCTD-100)
@@ -1361,8 +1366,7 @@ export class ImportsService {
         age_group: so.age_group !== undefined ? so.age_group : (current?.age_group ?? null),
         mixed_age_count: so.mixed_age_count !== undefined ? so.mixed_age_count : (current?.mixed_age_count ?? null),
         is_combined: so.is_combined ?? current?.is_combined ?? false,
-        combined_into_code:
-          so.combined_into_code !== undefined ? so.combined_into_code : (currentTarget?.code ?? null),
+        combined_into_code: so.combined_into_code !== undefined ? so.combined_into_code : (currentTarget?.code ?? null),
       };
       checkClassSoRules(
         row,
