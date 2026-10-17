@@ -318,7 +318,7 @@ test('CT-16g-17: 4.2 chuyển lớp hàng loạt, đề nghị chuyển đi rồ
   const moet = page.getByRole('region', { name: 'Trẻ từ CSDL ngành' });
   await moet.getByRole('button', { name: 'Tra cứu danh mục' }).click();
   const lookup = moet.getByRole('region', { name: 'Tra cứu danh mục' });
-  await lookup.getByLabel('Danh mục').selectOption({ label: 'Dân tộc' });
+  await lookup.getByRole('combobox', { name: 'Danh mục', exact: true }).selectOption({ label: 'Dân tộc' });
   await lookup.getByLabel('Tìm mã, tên').fill('Tày');
   await expect(lookup.getByRole('table')).toContainText('Tày');
   const downloading = page.waitForEvent('download');
