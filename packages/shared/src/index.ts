@@ -395,8 +395,7 @@ export const DATA_GRID_KEYS = [
   // Thông báo hệ thống (DT-16 phần 16c)
   'system-announcements',
   // Sức khỏe, thực đơn, thống kê học sinh (DT-16 phần 16h)
-  'student-health',
-  'student-statistics-children',
+  'student-statistics-ethnic',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;
