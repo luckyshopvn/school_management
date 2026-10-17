@@ -14,6 +14,7 @@ import { isUuid, notFoundError, type RequestBody } from '../common/request-field
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { foldText } from '../imports/moet-columns.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
+import { readNationalId } from './moet-child-file.js';
 import { BULK_LIMIT, inScope, STUDENT_RECORDS_RULE_CODE } from './student-records-common.js';
 
 // Thu thập, xác thực số định danh với CSDLQG về dân cư chạy nội bộ (mục 4.1.8–4.1.9 của Sở, DT-16 phần 16g). Chưa có giao
@@ -73,7 +74,7 @@ export class NationalIdsService {
   async verify(currentUser: CurrentUser, childIds: string[], origin: ChangeOrigin) {
     const { database } = await this.currentSchoolYear.require();
     const rows = await this.children(database, currentUser, childIds);
-    const invalid = rows.filter((row) => !NATIONAL_ID_PATTERN.test(this.protection.decrypt(row.national_id_encrypted)));
+    const invalid = rows.filter((row) => !NATIONAL_ID_PATTERN.test(readNationalId(this.protection, row.national_id_encrypted)));
     if (invalid.length > 0) {
       throw ruleViolationError(
         STUDENT_RECORDS_RULE_CODE,

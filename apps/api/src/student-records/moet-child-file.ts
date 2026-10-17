@@ -27,6 +27,15 @@ const RELATION_ROLES: Array<{ prefix: string; names: string[] }> = [
   { prefix: 'legal_guardian', names: ['nguoi giam ho', 'giam ho'] },
 ];
 
+// Số định danh không giải mã được (dữ liệu hỏng) ghi trống để tệp vẫn xuất được và báo ở Xuất file lỗi
+export function readNationalId(protection: ChildDataProtection, encrypted: string): string {
+  try {
+    return protection.decrypt(encrypted);
+  } catch {
+    return '';
+  }
+}
+
 const formatDate = (value: string | null | undefined) => (value ? value.split('-').reverse().join('/') : '');
 
 // Giá trị từng cột của một học sinh, khóa theo khóa cột của tệp CSDL ngành
@@ -99,7 +108,7 @@ export async function loadMoetChildRows(
       values.full_name = child.full_name;
       values.dob = formatDate(child.dob);
       values.gender = child.gender === 'male' ? 'Nam' : 'Nữ';
-      values.national_id = protection.decrypt(child.national_id_encrypted);
+      values.national_id = readNationalId(protection, child.national_id_encrypted);
       values.place_of_birth = child.place_of_birth ?? '';
       values.address = child.address ?? '';
       values.two_sessions_per_day = child.two_sessions_per_day ? 'x' : '';
