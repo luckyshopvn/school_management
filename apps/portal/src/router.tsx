@@ -34,6 +34,12 @@ import { PayablesPage } from './finance/PayablesPage.js';
 import { FiscalPeriodsPage } from './finance/FiscalPeriodsPage.js';
 import { LedgerPage } from './ledger/LedgerPage.js';
 import { StaffPage } from './staff/StaffPage.js';
+import { StaffBranchesPage } from './staff/StaffBranchesPage.js';
+import { StaffIdentityPage } from './staff/StaffIdentityPage.js';
+import { StaffImportsPage } from './staff/StaffImportsPage.js';
+import { StaffMovementsPage } from './staff/StaffMovementsPage.js';
+import { StaffIdentityProgressPage } from './statistics/StaffIdentityProgressPage.js';
+import { StaffStatisticsPage } from './statistics/StaffStatisticsPage.js';
 import { LeavePoliciesPage } from './staff-attendance/LeavePoliciesPage.js';
 import { MyPayslipsPage } from './payroll/MyPayslipsPage.js';
 import { PayItemsPage } from './payroll/PayItemsPage.js';
@@ -179,6 +185,17 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/fiscal-periods', component: FiscalPeriodsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/ledger', component: LedgerPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/staff', component: StaffPage }),
+  // Nhân sự đủ theo Sở (DT-16 phần 16f)
+  createRoute({ getParentRoute: () => rootRoute, path: '/staff-branches', component: StaffBranchesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/staff-imports', component: StaffImportsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/staff-identity', component: StaffIdentityPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/staff-movements', component: StaffMovementsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/staff-statistics', component: StaffStatisticsPage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/staff-identity-progress',
+    component: StaffIdentityProgressPage,
+  }),
   createRoute({ getParentRoute: () => rootRoute, path: '/staff-attendance', component: StaffAttendancePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/school-days', component: SchoolDaysPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/work-schedules', component: WorkSchedulesPage }),

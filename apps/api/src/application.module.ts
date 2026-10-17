@@ -15,6 +15,7 @@ import {
   ProfessionalStandardsController,
   ProfessionalStandardsService,
 } from './professional-standards/professional-standards.js';
+import { ProfessionalRatingImports } from './professional-standards/rating-import.js';
 import { ProgramCompletionController, ProgramCompletionService } from './program-completion/program-completion.js';
 import { ChildGroupsController, ChildGroupsService } from './child-groups/child-groups.js';
 import { AccountExportsController, AccountExportsService } from './accounts-export/account-exports.js';
@@ -181,6 +182,15 @@ import {
 import { WorkSchedulesController, WorkSchedulesService } from './staff-attendance/work-schedules.js';
 import { StaffController } from './staff/staff.controller.js';
 import { StaffService } from './staff/staff.service.js';
+import { StaffBranchesController, StaffBranchesService } from './staff/staff-branches.js';
+import {
+  IdentityVerificationGateway,
+  ManualIdentityVerificationGateway,
+  StaffIdentityController,
+  StaffIdentityService,
+} from './staff/staff-identity.js';
+import { StaffMovementsController, StaffMovementsService } from './staff/staff-movements.js';
+import { StaffStatisticsController, StaffStatisticsService } from './statistics/staff-statistics.js';
 import { staffTransitionStep } from './staff/staff-transition.js';
 import { SchoolDaysController, SchoolDaysService } from './staff-attendance/school-days.js';
 import { StaffAttendanceController } from './staff-attendance/staff-attendance.controller.js';
@@ -350,6 +360,10 @@ export class ApplicationModule {
         OnlinePaymentsController,
         PaymentWebhooksController,
         StaffController,
+        StaffBranchesController,
+        StaffIdentityController,
+        StaffMovementsController,
+        StaffStatisticsController,
         SchoolDaysController,
         StaffAttendanceController,
         LeaveController,
@@ -527,6 +541,11 @@ export class ApplicationModule {
         PaymentReversalsService,
         OnlinePaymentsService,
         StaffService,
+        StaffBranchesService,
+        StaffIdentityService,
+        { provide: IdentityVerificationGateway, useClass: ManualIdentityVerificationGateway },
+        StaffMovementsService,
+        StaffStatisticsService,
         SchoolDaysService,
         StaffAttendanceService,
         LeaveService,
@@ -613,6 +632,7 @@ export class ApplicationModule {
         ChildGroupsService,
         AccountExportsService,
         ProfessionalStandardsService,
+        ProfessionalRatingImports,
         TasksService,
         PlansService,
         EvaluationsService,

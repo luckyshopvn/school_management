@@ -47,10 +47,20 @@ function permissionOf(type: string): string {
       ? PERMISSION_CODES.openingDebtImport
       : type === 'staff' || type === 'moet_staff'
         ? PERMISSION_CODES.importStaff
-        : PERMISSION_CODES.importChildren;
+        : type === 'professional_ratings'
+          ? PERMISSION_CODES.professionalStandardAssess
+          : PERMISSION_CODES.importChildren;
 }
 
-const UPLOAD_TYPES = ['classes', 'children', 'opening_debts', 'staff', 'moet_children', 'moet_staff'] as const;
+const UPLOAD_TYPES = [
+  'classes',
+  'children',
+  'opening_debts',
+  'staff',
+  'moet_children',
+  'moet_staff',
+  'professional_ratings',
+] as const;
 type UploadType = (typeof UPLOAD_TYPES)[number];
 const isUploadType = (value: unknown): value is UploadType => UPLOAD_TYPES.includes(value as UploadType);
 
@@ -65,6 +75,14 @@ const TEMPLATE_PERMISSIONS = [
   PERMISSION_CODES.childManage,
   PERMISSION_CODES.openingDebtImport,
   PERMISSION_CODES.importStaff,
+  PERMISSION_CODES.professionalStandardAssess,
+];
+// Tải lên, xem, ghi lần nhập: người có một trong các quyền nhập; quyền theo loại kiểm ở assertCanImport
+const UPLOAD_PERMISSIONS = [
+  PERMISSION_CODES.importChildren,
+  PERMISSION_CODES.openingDebtImport,
+  PERMISSION_CODES.importStaff,
+  PERMISSION_CODES.professionalStandardAssess,
 ];
 
 // Cột được chọn để nhập gửi kèm tệp dạng "khóa1,khóa2"; bỏ trống là mọi cột (DT-16 phần 16a)
@@ -150,7 +168,7 @@ export class ImportsController {
   }
 
   @Post()
-  @RequirePermission(PERMISSION_CODES.importChildren, PERMISSION_CODES.openingDebtImport, PERMISSION_CODES.importStaff)
+  @RequirePermission(...UPLOAD_PERMISSIONS)
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: MAXIMUM_IMPORT_BYTES, files: 1 } }))
   upload(
     @UploadedFile() file: UploadedPart | undefined,
@@ -202,7 +220,7 @@ export class ImportsController {
   }
 
   @Get(':id')
-  @RequirePermission(PERMISSION_CODES.importChildren, PERMISSION_CODES.openingDebtImport, PERMISSION_CODES.importStaff)
+  @RequirePermission(...UPLOAD_PERMISSIONS)
   async get(
     @Param('id', uuidParameter('Mã lần nhập không hợp lệ')) jobId: string,
     @AuthenticatedUser() currentUser: CurrentUser,
@@ -214,7 +232,7 @@ export class ImportsController {
 
   @Post(':id/commit')
   @HttpCode(200)
-  @RequirePermission(PERMISSION_CODES.importChildren, PERMISSION_CODES.openingDebtImport, PERMISSION_CODES.importStaff)
+  @RequirePermission(...UPLOAD_PERMISSIONS)
   async commit(
     @Param('id', uuidParameter('Mã lần nhập không hợp lệ')) jobId: string,
     @Req() request: Request,

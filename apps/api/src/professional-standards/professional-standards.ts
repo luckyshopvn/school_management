@@ -73,7 +73,7 @@ export class ProfessionalStandardsService {
   }
 
   // Phạm vi xem phiếu của người đánh giá: hợp phạm vi quyền đánh giá và quyền quản lý chuẩn
-  private async readerScope(currentUser: CurrentUser): Promise<OrganizationScope> {
+  async readerScope(currentUser: CurrentUser): Promise<OrganizationScope> {
     const [manage, assess] = await Promise.all([this.manageScope(currentUser), this.assessScope(currentUser)]);
     if (manage.wholeSchool || assess.wholeSchool) {
       return { wholeSchool: true, orgUnitIds: [] };
