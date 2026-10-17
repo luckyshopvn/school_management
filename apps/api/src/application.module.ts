@@ -49,6 +49,7 @@ import { HealthAccess } from './health/health-access.js';
 import { HealthCareController, HealthCareService } from './health/health-care.js';
 import { GrowthController, GrowthService } from './health/growth.js';
 import { StudentHealthController, StudentHealthService } from './health/student-health.js';
+import { SchoolTerms } from './health/school-terms.js';
 import { StatisticsController, StatisticsService } from './statistics/statistics.js';
 import { HealthRecordsController, HealthRecordsService } from './health/health-records.js';
 import { healthTransitionStep } from './health/health-transition.js';
@@ -476,6 +477,7 @@ export class ApplicationModule {
         HealthCareService,
         GrowthService,
         StudentHealthService,
+        SchoolTerms,
         StatisticsService,
         KitchenAccess,
         KitchenCatalogsService,

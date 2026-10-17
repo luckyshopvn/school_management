@@ -16,10 +16,10 @@ import type { CurrentUser } from '../authentication/current-user.js';
 import { VIETNAM_DATE } from '../attendance/school-calendar.js';
 import { originOf, writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
-import { Databases } from '../common/databases.js';
 import { isUuid, notFoundError, type RequestBody } from '../common/request-fields.js';
 import { HealthAccess } from './health-access.js';
 import { readNote } from './health-fields.js';
+import { SchoolTerms } from './school-terms.js';
 import { parseMeasure } from './growth.js';
 import {
   EYE_CONDITION_VALUES,
@@ -27,7 +27,6 @@ import {
   TERMS,
   latestGrowthByChild,
   termRangeOf,
-  type TermRange,
 } from './student-health-calc.js';
 
 // Thông tin sức khỏe học sinh theo học kỳ (DT-16 phần 16h; khảo sát mục 4.6 của Sở): nhân viên y tế (P10.health.manage
@@ -73,28 +72,13 @@ const isEmpty = (input: StudentHealthInput) =>
 export class StudentHealthService {
   constructor(
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
-    private readonly databases: Databases,
+    private readonly schoolTerms: SchoolTerms,
     private readonly access: HealthAccess,
     private readonly clock: Clock,
   ) {}
 
   private today(): string {
     return VIETNAM_DATE.format(this.clock.now());
-  }
-
-  // Học kỳ của năm học đang dùng theo lịch năm học
-  async termRanges(): Promise<TermRange[]> {
-    const { academicYearId } = await this.currentSchoolYear.require();
-    const rows = await this.databases.system
-      .selectFrom('academic_terms')
-      .select(['term_type', 'start_date', 'end_date'])
-      .where('academic_year_id', '=', academicYearId)
-      .execute();
-    return rows.map((row) => ({
-      term_type: row.term_type,
-      start_date: dateText(row.start_date),
-      end_date: dateText(row.end_date),
-    }));
   }
 
   private async findClass(database: Kysely<SchoolYearDatabase>, classId: string): Promise<ClassRecord> {
@@ -184,7 +168,7 @@ export class StudentHealthService {
       .where('child_id', 'in', nonEmpty(childIds))
       .execute();
     const byChild = new Map(records.map((record) => [record.child_id, record]));
-    const terms = await this.termRanges();
+    const terms = await this.schoolTerms.ranges();
     const growth = latestGrowthByChild(
       await this.growthPoints(database, classRecord.org_unit_id, childIds),
       terms,
@@ -348,7 +332,7 @@ export class StudentHealthService {
         classRecord.org_unit_id,
         children.map((child) => child.id),
       ),
-      await this.termRanges(),
+      await this.schoolTerms.ranges(),
       term,
     );
     if (latest.size === 0) {
