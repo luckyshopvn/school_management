@@ -74,13 +74,15 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('4.4.', 'Hoàn thành chương trình', '/program-completion'),
         leaf('4.5.', 'Thực đơn bữa ăn', '/kitchen'),
         group('4.6.', 'Sức khỏe học sinh', [
-          leaf('4.6.1.', 'Y tế học đường', '/health'),
-          leaf('4.6.2.', 'Thuốc và dặn thuốc', '/medicines'),
+          leaf('4.6.1.', 'Nhập thông tin sức khỏe học sinh', '/student-health'),
+          leaf('4.6.2.', 'Y tế học đường', '/health'),
+          leaf('4.6.3.', 'Thuốc và dặn thuốc', '/medicines'),
         ]),
         leaf('4.7.', 'Điểm danh', '/attendance'),
       ]),
       group('5.', 'Công cụ hỗ trợ', [
         leaf('5.1.', 'Thống kê lớp, nhân sự, học sinh', '/statistics'),
+        leaf('5.3.', 'Thống kê học sinh', '/student-statistics'),
         leaf('5.8.', 'Thống kê hồ sơ chưa nhập đủ', '/missing-profiles'),
         group('5.10.', 'Văn thư lưu trữ', [
           leaf('5.10.1.', 'Hồ sơ tài liệu', '/archive-records'),

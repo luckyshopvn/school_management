@@ -69,11 +69,14 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
     anyOf('P02.program-completion.manage', 'P02.program-completion.approve'),
   ),
   '/kitchen': anyOf('P12.kitchen.manage', 'P12.menu.approve', 'P17.report.kitchen'),
+  // Thông tin sức khỏe học sinh theo học kỳ (DT-16 phần 16h): như nhập cân đo
+  '/student-health': anyOf('P10.health.manage', 'P17.report.growth'),
   '/health': anyOf('P10.health.manage', 'P10.medical-event.record'),
   '/medicines': anyOf('P10.medicine.manage', 'P10.medication.administer', 'P10.medicine-purchase.approve'),
   '/attendance': CHILDREN_AND_CLASSES,
   '/statistics': STATISTICS,
   '/missing-profiles': STATISTICS,
+  '/student-statistics': STATISTICS,
   // Văn thư lưu trữ (YCTD-118): người có quyền quản lý, xuất thì cũng được cấp quyền xem
   '/archive-records': anyOf('P09.archive.view', 'P09.archive.manage', 'P09.archive.export'),
   '/archive-fonds': anyOf('P09.archive.view', 'P09.archive.manage'),
