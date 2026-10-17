@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.4
+- Phiên bản: 0.5
 - Ngày cập nhật: 2026-10-17
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,28 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-17 — DT-16 phần 16c: khung trang và đăng nhập theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Dịch vụ định danh: mã xác nhận dạng ảnh tự vẽ ở máy chủ cho kênh cổng quản trị (bắt buộc khi bật "luôn hiện" hoặc sau số lần nhập sai cấu hình được), quên mật khẩu tự phục vụ bằng mã gửi qua tin nhắn, lịch sử mật khẩu (bảng mới `password_history`), bốn cấu hình mới (số lần sai thì hiện mã xác nhận, số mật khẩu gần nhất không được dùng lại, luôn hiện mã xác nhận, đường dây nóng), điểm cuối công khai `/auth/login-options`, `/auth/captcha`, `/auth/password-reset/request`, `/auth/password-reset/confirm`; tệp định danh `0045` thêm quyền `P01.announcement.manage`.
+- Máy chủ API: thông báo hệ thống, ứng dụng liên kết (hai bảng mới ở cơ sở dữ liệu hệ thống, tệp `0011`), ngữ cảnh trường của cổng quản trị, thông tin công khai của trang đăng nhập, kiểm tra mã định danh điện tử của tổ chức 12 chữ số (Nghị định 69/2024/NĐ-CP), người dùng tự sửa thông tin liên hệ trên hồ sơ nhân sự của mình.
+- Cổng quản trị: thanh đầu trang có tên trường, ô "Cấp MN · năm học · học kỳ", nút lưới ứng dụng liên kết; menu người dùng đủ bảy mục theo Sở (thêm Hồ sơ nhân sự cá nhân, Hướng dẫn); hộp "Thông báo" khi vào trang; trang đăng nhập có tên, mã trường, ghi nhớ tài khoản, mã xác nhận, liên kết Quên mật khẩu, đường dây nóng; trang Quên mật khẩu; mục "3.6. Thông báo hệ thống", "3.7. Ứng dụng liên kết" của Quản trị hệ thống; khối "Đăng nhập và bảo mật" ở 1.4 Cấu hình trường.
+- Thêm chức năng P01-21 đến P01-23, kịch bản CT-489 đến CT-509, tiêu chí AC-533 đến AC-553, quy tắc BR-121, quy tắc phân quyền PQ-72, màn hình MH-102 đến MH-107. Kết quả ngày 17/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 778/778 ca đạt; toàn bộ kiểm thử giao diện 114/114 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Ngày 2026-10-17 gộp nhánh chính có phần 16b, 16d, 16a, 15h2: đổi số tài liệu của phần này (YCTD-123, phiên bản 0.73.0, P01-21 đến P01-23, CT-489 đến CT-509, AC-533 đến AC-553, BR-121, PQ-72, MH-102 đến MH-107); hai mục của Quản trị hệ thống thành "3.6. Thông báo hệ thống", "3.7. Ứng dụng liên kết" vì 3.5 là "Tệp đã tạo" của phần 16a; nút ở khối "Đăng nhập và bảo mật" đổi tên "Lưu đăng nhập và bảo mật"; kịch bản giao diện đổi tên `tests/e2e/59-portal-shell-login.spec.ts`; sửa kiểm thử giao diện `03-org-units` tìm tên trường trong danh sách đơn vị vì thanh đầu trang nay hiện tên trường.
+
+#### Quyết định
+
+- Eric quyết định ngày 2026-10-16 làm đủ mọi tính năng đã khảo sát của hệ thống Sở (tài liệu 31); tính năng cần hệ thống ngoài làm bản chạy nội bộ, gồm đăng nhập chọn trường của Sở. Thực hiện phần 16c của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7. Trang đăng nhập hiện tên, mã trường và năm học đang dùng thay bước chọn trường; mã xác nhận tự sinh ở máy chủ, không dùng dịch vụ ngoài; quên mật khẩu chỉ qua tin nhắn; quyền `P01.announcement.manage` cho VT-01, VT-02; không làm "Đăng nhập năm cũ"; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-123.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-123, `07_QUY_TAC_NGHIEP_VU.md` BR-121, `08_VAI_TRO_NGUOI_DUNG.md` PQ-72, `10_YEU_CAU_CHUC_NANG.md` P01-21 đến P01-23, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-47, MH-83, MH-84, MH-102 đến MH-107, `16_CO_SO_DU_LIEU.md` mục 1, 2, 20, `17_DAC_TA_API.md` mục 4, 5, 11, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.73.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7.
+
+#### Vấn đề tồn đọng
+
+- Quên mật khẩu chưa có kênh thư điện tử; chưa có "Đăng nhập năm cũ"; không có đăng nhập một lần của Sở; Cấu hình hiển thị lưới vẫn chỉ có số dòng mặc định; hướng dẫn là trang tĩnh ngắn.
 
 ### 2026-10-17 — DT-15 phần 15h2: sửa các hạn chế của văn thư lưu trữ
 

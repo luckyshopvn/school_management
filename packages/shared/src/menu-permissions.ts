@@ -101,6 +101,9 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/feedback': 'P01.feedback.manage',
   // Tệp đã tạo của tác vụ xuất nền (DT-16 phần 16a): người xuất được dữ liệu
   '/generated-files': 'P17.data.export',
+  // Thông báo hệ thống, ứng dụng liên kết (DT-16 phần 16c)
+  '/system-announcements': 'P01.announcement.manage',
+  '/app-links': 'P01.announcement.manage',
   // Tài chính – học phí
   '/fees': VIEW_FEES,
   '/registrations': REGISTRATIONS,

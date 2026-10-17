@@ -13,6 +13,7 @@ import { PORTAL_WORKSPACES } from '@school-management/shared';
 import { Infrastructure } from '../common/infrastructure.js';
 import { IdentitySettingsService } from '../settings/identity-settings.service.js';
 import { checkPasswordPolicy, hashPassword, placeholderPasswordHash, verifyPassword } from './password.js';
+import { assertPasswordNotReused, recordPasswordHistory } from './password-history.js';
 import { createRefreshToken, hashRefreshToken, readSessionIdFromRefreshToken, TokenService } from './token.service.js';
 
 // Sai mật khẩu 5 lần liên tiếp thì tạm khóa 15 phút rồi tự mở (BM-04, XT-05)
@@ -301,24 +302,25 @@ export class AuthenticationService {
     if (newPassword === currentPassword) {
       throw validationError([{ field: 'new_password', message: 'Mật khẩu mới phải khác mật khẩu hiện tại' }]);
     }
+    // Không cho dùng lại mật khẩu gần đây (DT-16 phần 16c)
+    await assertPasswordNotReused(this.database, user, newPassword, await this.identitySettings.passwordHistoryCount());
 
-    await this.database
-      .updateTable('users')
-      .set({
-        password_hash: await hashPassword(newPassword),
-        password_changed_at: now,
-        must_change_password: false,
-        updated_at: now,
-      })
-      .where('id', '=', user.id)
-      .execute();
-    await this.database
-      .updateTable('sessions')
-      .set({ revoked_at: now })
-      .where('user_id', '=', user.id)
-      .where('id', '!=', claims.sessionId)
-      .where('revoked_at', 'is', null)
-      .execute();
+    const newHash = await hashPassword(newPassword);
+    await this.database.transaction().execute(async (transaction) => {
+      await transaction
+        .updateTable('users')
+        .set({ password_hash: newHash, password_changed_at: now, must_change_password: false, updated_at: now })
+        .where('id', '=', user.id)
+        .execute();
+      await recordPasswordHistory(transaction, user.id, newHash, now);
+      await transaction
+        .updateTable('sessions')
+        .set({ revoked_at: now })
+        .where('user_id', '=', user.id)
+        .where('id', '!=', claims.sessionId)
+        .where('revoked_at', 'is', null)
+        .execute();
+    });
 
     const accessToken = await this.tokenService.signAccessToken({ ...claims, passwordChangeRequired: false });
     return {
@@ -500,7 +502,7 @@ export class AuthenticationService {
       .execute();
   }
 
-  private async recordSecurityEvent(
+  async recordSecurityEvent(
     eventType: string,
     userId: string | null,
     loginIdentifier: string | null,

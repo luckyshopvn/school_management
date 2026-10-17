@@ -13,6 +13,9 @@ import { usePortalMenu } from './menu-permissions.js';
 import { UserMenu } from './UserMenu.js';
 import { Alert, Toast } from '@school-management/ui';
 import { FeedbackDialog } from '../feedback/FeedbackDialog.js';
+import { AppLauncher } from '../portal-shell/AppLauncher.js';
+import { StartupNotices } from '../portal-shell/StartupNotices.js';
+import { readPortalContext } from '../portal-shell/portal-shell-api.js';
 
 function MenuIcon() {
   return (
@@ -33,10 +36,13 @@ function MenuIcon() {
 // Khung trang của cổng quản trị theo hệ thống của Sở (DT-15 phần 15a, thay thanh điều hướng bên trái của YCTD-99): thanh
 // đầu trang màu xanh (tên phần mềm, ô chọn phân hệ, năm học, chuông thông báo, menu người dùng), dưới là menu ngang đánh
 // số của phân hệ đang chọn; màn hình hẹp dùng nút "☰" mở cây menu gập. Chân trang có nút "Gửi phản hồi"; mật khẩu sắp
-// hết hạn thì báo ở đầu trang (DT-15 phần 15g, YCTD-110)
+// hết hạn thì báo ở đầu trang (DT-15 phần 15g, YCTD-110). DT-16 phần 16c: tên trường màu vàng thay tên phần mềm, lưới
+// ứng dụng liên kết, hộp thông báo bật lên khi vào trang
 export function AppShell({ children }: { children: ReactNode }) {
   const session = useSession();
   const currentUser = useQuery({ queryKey: ['current-user'], queryFn: fetchCurrentUser });
+  const portalContext = useQuery({ queryKey: ['portal-context'], queryFn: readPortalContext });
+  const schoolName = portalContext.data?.school_name ?? 'School Management';
   // Chỉ hiện mục người dùng có quyền; máy chủ vẫn kiểm tra quyền ở mọi yêu cầu
   const menu = usePortalMenu();
   const workspaces = useWorkspaceState(menu);
@@ -74,13 +80,19 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               <MenuIcon />
             </button>
-            <Link to="/" className="hidden whitespace-nowrap text-section-title font-bold text-header-accent lg:inline">
-              School Management
+            <Link
+              to="/"
+              className="hidden max-w-80 truncate whitespace-nowrap text-section-title font-bold text-header-accent lg:inline"
+              title={schoolName}
+              data-testid="school-name"
+            >
+              {schoolName}
             </Link>
             <WorkspaceSwitcher state={workspaces} />
             <div className="ml-auto flex shrink-0 items-center gap-3 whitespace-nowrap">
               <AcademicYearSwitcher />
               <NotificationBell />
+              <AppLauncher />
               {currentUser.isPending ? (
                 <span className="h-4 w-32 animate-pulse rounded bg-header-strong" aria-hidden="true" />
               ) : (
@@ -129,6 +141,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             />
           ) : null}
           <Toast message={toastMessage} onClose={closeToast} />
+          <StartupNotices />
         </div>
       </NavigationRegistryContext.Provider>
     </WorkspaceContext.Provider>

@@ -164,6 +164,8 @@ export const PERMISSION_CODES = {
   archiveView: 'P09.archive.view',
   archiveManage: 'P09.archive.manage',
   archiveExport: 'P09.archive.export',
+  // Soạn thông báo hệ thống bật lên khi vào cổng quản trị, cấu hình ứng dụng liên kết (DT-16 phần 16c)
+  announcementManage: 'P01.announcement.manage',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -300,6 +302,9 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/archive-report',
   // Tệp đã tạo của tác vụ xuất nền (DT-16 phần 16a)
   '/generated-files',
+  // Thông báo hệ thống, ứng dụng liên kết (DT-16 phần 16c)
+  '/system-announcements',
+  '/app-links',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -383,6 +388,8 @@ export const DATA_GRID_KEYS = [
   'archive-report',
   // Tệp đã tạo (DT-16 phần 16a)
   'generated-files',
+  // Thông báo hệ thống (DT-16 phần 16c)
+  'system-announcements',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

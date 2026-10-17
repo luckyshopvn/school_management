@@ -126,6 +126,14 @@ export interface OneTimeCodesTable {
   created_at: CreatedTimestamp;
 }
 
+// Giá trị băm các mật khẩu người dùng đã tự đặt, để không cho dùng lại mật khẩu gần đây (DT-16 phần 16c)
+export interface PasswordHistoryTable {
+  id: Generated<string>;
+  user_id: string;
+  password_hash: string;
+  created_at: CreatedTimestamp;
+}
+
 export type ApiClientScope = 'reports' | 'finance' | 'children' | 'staff';
 
 export interface ApiClientsTable {
@@ -158,4 +166,5 @@ export interface IdentityDatabase {
   identity_settings: IdentitySettingsTable;
   one_time_codes: OneTimeCodesTable;
   api_clients: ApiClientsTable;
+  password_history: PasswordHistoryTable;
 }

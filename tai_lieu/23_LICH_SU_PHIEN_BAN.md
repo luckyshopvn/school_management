@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.4
+- Phiên bản: 0.5
 - Ngày cập nhật: 2026-10-17
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.73.0 – 2026-10-17
+
+- Phạm vi thay đổi: DT-16 phần 16c, khung trang và đăng nhập cổng quản trị theo hệ thống của Sở (YCTD-123).
+- Chức năng mới: thanh đầu trang có tên trường, ô "Cấp MN · năm học · học kỳ", lưới ứng dụng liên kết; menu người dùng đủ bảy mục (thêm Hồ sơ nhân sự cá nhân, Hướng dẫn); hộp "Thông báo" khi vào trang (thông báo hệ thống, mật khẩu sắp hết hạn, nhắc mã định danh điện tử của tổ chức theo NĐ 69); trang đăng nhập có tên, mã trường, ghi nhớ tài khoản, mã xác nhận dạng ảnh, liên kết Quên mật khẩu, đường dây nóng; trang Quên mật khẩu gửi mã qua tin nhắn; lịch sử mật khẩu; Quản trị hệ thống thêm 3.6 Thông báo hệ thống, 3.7 Ứng dụng liên kết; 1.4 Cấu hình trường thêm khối "Đăng nhập và bảo mật" (P01-21 đến P01-23).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp định danh `0045_add_password_history_and_announcement_permission` tạo bảng `password_history`, cho `one_time_codes.purpose` nhận thêm `password_reset`, thêm quyền `P01.announcement.manage` và gán cho VT-01, VT-02; tệp hệ thống `0011_create_announcements_and_app_links` tạo hai bảng `system_announcements`, `portal_app_links`; `identity_settings` có thêm bốn khóa cấu hình đăng nhập.
+- Thay đổi API: điểm cuối mới của dịch vụ định danh `/auth/login-options`, `/auth/captcha`, `/auth/password-reset/request`, `/auth/password-reset/confirm`; `login` kênh cổng quản trị nhận `captcha_id`, `captcha_text`; `/auth/settings` thêm bốn cấu hình. Điểm cuối mới của máy chủ API `/system-announcements`, `/system-announcements/{id}`, `/system-announcements/active`, `/app-links`, `/portal-context`, `/public/login-info`, `/staff/me/contact`; `PUT /school-profile` kiểm tra mã định danh điện tử 12 chữ số.
+- Kiểm thử: kịch bản CT-489 đến CT-509. Kết quả ngày 17/10/2026: kiểm thử đơn vị toàn bộ kho mã 778/778 ca đạt; toàn bộ kiểm thử giao diện 114/114 ca đạt.
+- Rủi ro: ảnh mã xác nhận tự sinh ở mức cơ bản, không bằng dịch vụ chuyên dụng; quên mật khẩu phụ thuộc kênh tin nhắn, chưa có thư điện tử; ghi thẻ thông tin chung của hồ sơ trường cần mã định danh điện tử đúng 12 chữ số hoặc để trống.
+- Khả năng tương thích: đăng nhập cổng quản trị đòi mã xác nhận từ lần thứ tư sau ba lần sai (mặc định), ứng dụng giáo viên, phụ huynh không đổi; mã một lần của phụ huynh chỉ đọc mã mục đích đăng nhập; menu người dùng thêm hai mục; không đổi điểm cuối cũ ngoài các điểm đã nêu. Tệp `0045`, `0011` có số nhỏ hơn tệp đã gộp trước (`0046`, `0016`) nhưng vẫn chạy vì công cụ chạy tệp thay đổi cấu trúc cho chạy lệch thứ tự.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16c; chạy phần quay lui của tệp `0011` (xóa hai bảng) và `0045` (gỡ quyền, xóa mã đặt lại mật khẩu, trả ràng buộc mục đích về `login`, xóa bảng `password_history`); bốn khóa cấu hình đăng nhập ở `identity_settings` không còn được đọc, xóa thủ công nếu cần.
 
 ### Phiên bản 0.72.0 – 2026-10-17
 

@@ -316,6 +316,32 @@ export interface UpperLevelSubmissionEventsTable {
   created_at: CreatedTimestamp;
 }
 
+// Thông báo hệ thống bật lên khi vào cổng quản trị (DT-16 phần 16c); ngày dạng YYYY-MM-DD
+export interface SystemAnnouncementsTable {
+  id: Generated<string>;
+  title: string;
+  content: string;
+  valid_from: ColumnType<string, string, string>;
+  valid_until: ColumnType<string | null, string | null | undefined, string | null>;
+  is_active: Generated<boolean>;
+  created_by: string | null;
+  created_by_name: string | null;
+  created_at: CreatedTimestamp;
+  updated_by: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+// Ứng dụng liên kết ở lưới ứng dụng trên thanh đầu trang (DT-16 phần 16c)
+export interface PortalAppLinksTable {
+  id: Generated<string>;
+  name: string;
+  url: string;
+  description: string | null;
+  position: number;
+  updated_by: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
 export interface SystemDatabase {
   academic_years: AcademicYearsTable;
   academic_terms: AcademicTermsTable;
@@ -335,4 +361,6 @@ export interface SystemDatabase {
   export_jobs: ExportJobsTable;
   upper_level_submissions: UpperLevelSubmissionsTable;
   upper_level_submission_events: UpperLevelSubmissionEventsTable;
+  system_announcements: SystemAnnouncementsTable;
+  portal_app_links: PortalAppLinksTable;
 }

@@ -128,6 +128,9 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('3.3.', 'Nhật ký thao tác', '/audit-logs'),
         leaf('3.4.', 'Ý kiến phản hồi', '/feedback'),
         leaf('3.5.', 'Tệp đã tạo', '/generated-files'),
+        // Thông báo bật lên khi vào trang, lưới ứng dụng liên kết (DT-16 phần 16c)
+        leaf('3.6.', 'Thông báo hệ thống', '/system-announcements'),
+        leaf('3.7.', 'Ứng dụng liên kết', '/app-links'),
       ]),
     ],
   },

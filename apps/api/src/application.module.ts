@@ -235,6 +235,15 @@ import {
   UpperLevelSubmissions,
   UpperLevelSubmissionsController,
 } from './submissions/upper-level-submissions.js';
+import {
+  AppLinksController,
+  AppLinksService,
+  PortalContextController,
+  PortalContextService,
+  PublicLoginInfoController,
+  SystemAnnouncementsController,
+  SystemAnnouncementsService,
+} from './portal-shell/portal-shell.js';
 import { integrationsTransitionStep } from './integrations/integrations-transition.js';
 import { FacebookPostsController, FacebookPostsService } from './integrations/facebook-posts.js';
 import {
@@ -374,6 +383,10 @@ export class ApplicationModule {
         ArchivesController,
         ExportJobsController,
         UpperLevelSubmissionsController,
+        SystemAnnouncementsController,
+        AppLinksController,
+        PortalContextController,
+        PublicLoginInfoController,
         FacebookPostsController,
         RecruitmentRequestsController,
         JobPostingsController,
@@ -580,6 +593,9 @@ export class ApplicationModule {
         UpperLevelSubmissions,
         // Chưa có kết nối với hệ thống của Bộ, Sở: gửi lên cấp trên làm thủ công (DT-16 phần 16a)
         { provide: UpperLevelGateway, useClass: ManualUpperLevelGateway },
+        SystemAnnouncementsService,
+        AppLinksService,
+        PortalContextService,
         FacebookPostsService,
         JournalsService,
         {

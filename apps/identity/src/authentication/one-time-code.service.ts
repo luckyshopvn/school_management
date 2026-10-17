@@ -73,6 +73,7 @@ export class OneTimeCodeService {
         .updateTable('one_time_codes')
         .set({ expires_at: now })
         .where('user_id', '=', user.id)
+        .where('purpose', '=', 'login')
         .where('used_at', 'is', null)
         .where('expires_at', '>', now)
         .execute();
@@ -107,6 +108,7 @@ export class OneTimeCodeService {
             .selectAll()
             .where('user_id', '=', user.id)
             .where('phone', '=', phone)
+            .where('purpose', '=', 'login')
             .where('used_at', 'is', null)
             .where('expires_at', '>', now)
             .where('attempt_count', '<', rules.maximumAttempts)

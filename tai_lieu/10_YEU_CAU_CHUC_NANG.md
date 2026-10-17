@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.46
+- Phiên bản: 1.47
 - Ngày cập nhật: 2026-10-17
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -38,6 +38,9 @@
 | P01-18 | Phân quyền nhóm theo phần mềm (1.2 của Sở, YCTD-120) | VT-01, VT-02; xem VT-03 | Nhóm người dùng, các phân hệ của cổng quản trị | Ghi phân hệ nhóm được dùng; phân hệ không nhóm nào còn hiệu lực của tài khoản được dùng thì ẩn khỏi ô chọn phân hệ và menu | Phân hệ hiện theo nhóm; quyền theo thao tác vẫn theo 1.3 |
 | P01-19 | Tài khoản đồng bộ của Bộ, của Sở (1.6 của Sở, bản chạy nội bộ, YCTD-120) | VT-02 | Tên đăng nhập, mật khẩu đồng bộ của Bộ GD&ĐT, của Sở GD&ĐT | Ghi (mật khẩu mã hóa, không trả lại), xóa; chưa đồng bộ được vì chưa có giao diện lập trình của Bộ, Sở | Trạng thái đã lưu, chưa đồng bộ được |
 | P01-20 | Công cụ nhập Excel dùng chung (G3, YCTD-121) | Người có quyền nhập của loại dữ liệu (P01-13) | Loại dữ liệu nhập, tệp Excel, cột được chọn | Tải file mẫu có trang Danh mục; tải file mẫu kèm dữ liệu (lớp học); tra cứu danh mục trong phạm vi; chọn cột để nhập (cột khóa, bắt buộc luôn nhập); lớp đã có cập nhật cột được chọn; xuất file lỗi là tệp gốc kèm cột Nội dung lỗi | Tệp mẫu, báo cáo dòng lỗi, tệp lỗi, dữ liệu đã ghi | BR-119, P01-13 |
+| P01-21 | Đăng nhập an toàn và quên mật khẩu (G3, YCTD-123) | Mọi tài khoản nhân sự trên cổng quản trị; VT-01, VT-02 cấu hình | Tên đăng nhập, mật khẩu, mã xác nhận, ghi nhớ tài khoản; khi quên mật khẩu: số điện thoại hoặc tên đăng nhập, mã trong tin nhắn, mật khẩu mới; cấu hình: số lần sai thì hiện mã xác nhận, số mật khẩu gần nhất không được dùng lại, đường dây nóng, luôn hiện mã xác nhận | Sinh ảnh mã xác nhận ở máy chủ, bắt nhập mã theo cấu hình hoặc sau số lần sai; gửi mã đặt lại qua tin nhắn, kiểm tra mã, chính sách và lịch sử mật khẩu, đặt mật khẩu mới, mở tạm khóa, thu hồi phiên; ghi nhật ký an ninh | Trang đăng nhập có mã xác nhận, đường dây nóng; trang Quên mật khẩu; khối "Đăng nhập và bảo mật" ở 1.4 Cấu hình trường | BR-121, BM-03, BM-04, PQ-72 |
+| P01-22 | Thông báo hệ thống và ứng dụng liên kết (G3, YCTD-123) | VT-01, VT-02 soạn, cấu hình; mọi người dùng cổng quản trị xem | Tiêu đề, nội dung, hiệu lực từ ngày, đến ngày, đang bật; tên ứng dụng, đường dẫn, mô tả, thứ tự | Ghi thông báo, chọn thông báo đang bật và còn hiệu lực hôm nay theo giờ Việt Nam; thay cả danh sách ứng dụng liên kết; ghi nhật ký thao tác | Mục 3.6, 3.7 của Quản trị hệ thống; hộp "Thông báo" khi vào trang; lưới ứng dụng liên kết trên thanh đầu trang | BR-121, PQ-72 |
+| P01-23 | Khung trang cổng quản trị theo Sở (G3, YCTD-123) | Mọi người dùng cổng quản trị | Tên, mã Trường chính, năm học đang dùng, học kỳ, mã định danh điện tử của tổ chức; điện thoại, thư điện tử, chỗ ở của chính mình | Lấy tên, mã trường cho trang đăng nhập và thanh đầu trang; nhắc cập nhật mã định danh tổ chức khi chưa đúng 12 chữ số; cho người dùng tự sửa thông tin liên hệ trên hồ sơ nhân sự của mình, ghi nhật ký thao tác | Thanh đầu trang có tên trường, ô "Cấp MN · năm học · học kỳ"; menu người dùng bảy mục; Hồ sơ nhân sự cá nhân; Hướng dẫn | BR-121, PQ-72 |
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 
