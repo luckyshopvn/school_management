@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.73
+- Phiên bản: 1.74
 - Ngày cập nhật: 2026-10-17
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -1017,6 +1017,7 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 4. Tệp đính kèm: PDF, JPEG, PNG nhận theo các byte đầu; .doc, .docx, .xls, .xlsx nhận theo các byte đầu kèm đuôi tên tệp; tối đa 10 MB; tệp khác trả `ERR_VALIDATION` trường `file`; quá 20 tệp mỗi hồ sơ trả `ERR_RULE_VIOLATION` mã YCTD-118. Tải về trả đúng kiểu nội dung, `content-disposition: attachment`; tệp không thuộc hồ sơ trả `ERR_NOT_FOUND` (404).
 5. Xóa phông còn thông tin lưu trữ hoặc hồ sơ trả `ERR_RULE_VIOLATION` mã YCTD-118 (422). Xóa hồ sơ xóa luôn tệp ở kho tệp. Mọi thao tác ghi ghi nhật ký thao tác (`archive_fonds`, `archive_holdings`, `archive_records`, `archive_record_files`).
 6. Xuất Excel hồ sơ: `columns` là mã cột của lưới (`code`, `title`, `fond`, `handler_name`, `opened_on`, `due_date`, `status`, `completed_on`, `retention`, `sheet_count`, `file_count`, `note`), không trùng, không gửi thì theo mặc định; tối đa 5 000 dòng, nhiều hơn trả `ERR_RULE_VIOLATION` mã YCTD-118. Báo cáo lưu trữ xuất một bảng tính có dòng tiêu đề, các dòng theo phông, giai đoạn và dòng Tổng cộng. Mỗi lần xuất ghi nhật ký xuất trước khi trả tệp, trả mã nhật ký ở `x-export-log-id`.
+7. Từ YCTD-122: `GET /archive-handlers` (cần `P09.archive.manage`) trả nhân sự đang làm việc trong phạm vi quản lý: `id`, `code`, `full_name`, `org_unit_id`. Phông nhận `org_unit_id` (trống là toàn trường) và trả `org_unit_id`, `org_unit_name`; hồ sơ nhận `org_unit_id`, `handler_staff_id` (có mã thì `handler_name` không bắt buộc, máy chủ ghi tên theo hồ sơ nhân sự; nhân sự không có hoặc đã nghỉ lỗi trường `handler_staff_id`) và trả thêm `org_unit_name`, `due_soon`. `GET /archive-records`, `POST /archive-records/export` lọc thêm `org_unit_id`, `due_soon=true`; `GET /archive-report`, `POST /archive-report/export` lọc thêm `org_unit_id`; cột xuất Excel thêm `org_unit`. Mọi điểm cuối lọc theo phạm vi đơn vị (PQ-71): bản ghi ngoài phạm vi trả `ERR_NOT_FOUND`, ghi vào đơn vị ngoài phạm vi trả `ERR_FORBIDDEN`; đơn vị không có lỗi trường `org_unit_id`; phông khác đơn vị với hồ sơ lỗi trường `fond_id`.
 
 ## 13. Y tế học đường
 
@@ -1296,6 +1297,16 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | GET | /api/v1/statistics/missing-staff-fields | Hồ sơ nhân sự chưa nhập đủ; `field` để lấy danh sách (P17-17, YCTD-105) |
 | GET | /api/v1/reports/emis/start-of-year | Báo cáo EMIS đầu năm Biểu 1: năm thẻ, cảnh báo (P17-18, BR-104, YCTD-106) |
 | POST | /api/v1/reports/emis/start-of-year/export | Xuất Excel năm trang, ghi nhật ký xuất (BR-74, YCTD-106) |
+| GET | /api/v1/export-jobs | "Tệp đã tạo": 100 tác vụ xuất nền gần nhất của người đăng nhập (P17-19, YCTD-121) |
+| GET | /api/v1/export-jobs/{id}/file | Tải tệp của tác vụ đã tạo xong, chưa hết hạn; chỉ người tạo; chưa xong, lỗi, hết hạn trả 422 mã YCTD-121 |
+| GET | /api/v1/upper-level-submissions?forms={mã,…} | Danh sách biểu mẫu gửi lên cấp trên của năm học đang dùng kèm hoàn thành dữ liệu, trạng thái, ngày gửi, tệp gửi, quyền của người xem (P17-20, YCTD-121) |
+| POST | /api/v1/upper-level-submissions/{form}/export | Xuất tệp gửi, lưu tệp và bản chụp số liệu; biểu mẫu đang khóa trả 422 |
+| GET | /api/v1/upper-level-submissions/{form}/file | Tải tệp gửi gần nhất |
+| POST | /api/v1/upper-level-submissions/{form}/mark-sent | Đánh dấu đã gửi: `sent_on` (YYYY-MM-DD, không sau hôm nay), `note`, `no_data` |
+| POST | /api/v1/upper-level-submissions/{form}/unlock-request | Gửi yêu cầu mở khóa: `reason` bắt buộc, tối đa 500 ký tự |
+| POST | /api/v1/upper-level-submissions/{form}/unlock | Người có quyền mở khóa: `approve` (true mở khóa, false từ chối), `note` |
+| POST | /api/v1/upper-level-submissions/{form}/resend | Người có quyền mở khóa đặt trạng thái gửi lại: `note` |
+| GET | /api/v1/upper-level-submissions/{form}/events | Lịch sử thao tác của biểu mẫu, mới nhất trước |
 | GET | /api/v1/notifications | Danh sách thông báo của người đăng nhập |
 | POST | /api/v1/notifications/{id}/read | Đánh dấu đã đọc |
 | POST | /api/v1/notifications/read-all | Đánh dấu đọc tất cả (YCTD-64) |
@@ -1303,6 +1314,17 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | GET | /api/v1/notification-templates | Mẫu thông báo theo mã (YCTD-64) |
 | PUT, DELETE | /api/v1/notification-templates/{code} | Sửa mẫu hoặc dùng lại nội dung gốc |
 | GET, POST | /api/v1/notification-templates | Mẫu thông báo |
+
+### 17.1. Công cụ xuất, nhập và gửi lên cấp trên dùng chung (YCTD-121)
+
+Điểm cuối nhập bổ sung: `GET /api/v1/imports/templates/{type}?with_data=true` (tệp mẫu kèm dữ liệu, hiện có ở `classes`, ghi nhật ký xuất), `GET /api/v1/imports/templates/{type}/columns` (cột của mẫu, cờ `locked`, `updates_existing`, `template_with_data`), `GET /api/v1/imports/catalogs/{type}` (danh mục tra cứu: `key`, `title`, `column`, `items` mã, tên, ghi chú), `GET /api/v1/imports/{id}/error-file` (tệp gốc kèm cột Nội dung lỗi; không có lỗi trả 422 mã YCTD-121). `POST /api/v1/imports` và `/imports/moet-codes` nhận trường `columns` dạng `khóa1,khóa2`; lần nhập trả `selected_columns`. Các điểm cuối xuất danh sách (`/children/export`, `/staff/export`, `/classes/export`, `/class-assignments/export`, `/student-movements/export`) nhận `format` `xlsx` hoặc `pdf`; `/children/export`, `/staff/export` trả 202 `{ job }` khi danh sách vượt số dòng xuất trực tiếp.
+
+Hướng dẫn dùng cho các phần sau (16b, 16e đến 16k):
+
+1. Xuất PDF trên lưới: điểm cuối xuất của màn hình đọc định dạng bằng `readTableFileFormat(body.format)` và dựng tệp bằng `buildStudentWorkbook` hoặc `buildFacilitiesWorkbook` với `format` (hai hàm dùng `buildTableFile`, tự đổi đuôi tên tệp, ghi nhật ký xuất kèm định dạng). Ở cổng quản trị, hàm gọi xuất nhận thêm `format` và gọi `downloadExport` (`apps/portal/src/exports/export-api.ts`); truyền `exportPdf={(columnIds) => exportX(filter, columnIds, 'pdf')}` cho `DataGrid`.
+2. Tác vụ xuất nền: trong hàm khởi tạo của dịch vụ gọi `exportJobs.register('<mã báo cáo>', { title, run(currentUser, parameters, { format, ipAddress, rowLimit }) })`; hàm `run` truy vấn tối đa `rowLimit` dòng, vượt thì ném `ExportTooLargeError(total)`, rồi trả `ExportedFile` (có `rowCount`). Điểm cuối gọi `exportJobs.exportOrQueue(currentUser, mã, parameters, format, ip)` và trả bằng `sendExportOutcome`. `parameters` phải là dữ liệu JSON, không chứa số định danh hay dữ liệu bí mật vì lưu ở cơ sở dữ liệu hệ thống.
+3. Nhập Excel: dùng `ExcelImportPanel` (`apps/portal/src/imports/ExcelImportPanel.tsx`) với `type`, `title`, `uploadPath`; máy chủ khai báo cột ở `IMPORT_COLUMNS`, cột luôn nhập ở `LOCKED_IMPORT_COLUMNS`, danh mục ở `ImportsService.catalogs`, dữ liệu mẫu ở `templateRows`, loại cập nhật được bản ghi đã có ở `UPDATING_IMPORT_TYPES`; đọc tệp bằng `readSheet(body, columns, selected)`; tệp lỗi dùng `buildErrorWorkbook`. Màn hình nhập riêng (ví dụ 3.1.3, 4.1.2) có thể đặt `ErrorFileButton`, `RowMessageTable` vào phần của mình.
+4. Gửi lên cấp trên: trong dịch vụ của biểu mẫu gọi `upperLevelForms.register({ code, name, permission, unlockPermission, allowNoData, completeness(currentUser), snapshot(currentUser, ip) })`; `completeness` trả danh sách `{ label, done }`, `snapshot` trả `{ file: ExportedFile, data }` (dựng tệp theo mẫu nộp, ghi nhật ký xuất). Ở cổng quản trị đặt `<UpperLevelSubmissionPanel formCodes={['<mã>']} onChanged={…} />`. Không thêm nút "Gửi" truyền đi; khi có giao diện lập trình của Bộ, Sở thì thay `ManualUpperLevelGateway` bằng bản kết nối thật cung cấp cho `UpperLevelGateway`.
 
 ## 18. Quy tắc kiểm tra dữ liệu
 

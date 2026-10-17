@@ -46,7 +46,7 @@ import {
 // Sở, có người giải quyết và thời hạn; hồ sơ chưa hoàn thành đã qua thời hạn hiện "Quá hạn". Lưới dùng chung phân trang ở
 // máy chủ, tìm theo số, ký hiệu hoặc tiêu đề, Mở rộng tìm kiếm theo phông, người giải quyết, thời hạn; Thêm mới, Sửa bằng
 // biểu mẫu theo khối với nút Ghi, Xóa qua hộp xác nhận, Xuất Excel các cột đang hiện. Tệp đính kèm lưu ở kho tệp chung.
-// YCTD-120: hồ sơ thuộc một đơn vị hoặc toàn trường, lọc theo đơn vị; người giải quyết chọn từ nhân sự đang làm việc (người
+// YCTD-122: hồ sơ thuộc một đơn vị hoặc toàn trường, lọc theo đơn vị; người giải quyết chọn từ nhân sự đang làm việc (người
 // ngoài danh sách thì nhập tên); hồ sơ chưa hoàn thành có thời hạn trong 3 ngày tới hiện "Sắp đến hạn"
 const TABS: Array<{ status: ArchiveRecordStatus; label: string }> = [
   { status: 'pending', label: 'Chưa hoàn thành' },

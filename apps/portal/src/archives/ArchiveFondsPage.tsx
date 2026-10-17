@@ -28,7 +28,7 @@ import {
 
 // 5.10.2. Phông lưu trữ (DT-15 phần 15h2, YCTD-118): danh sách phông của trường với mã, tên, ghi chú, số dòng thông tin
 // lưu trữ và số hồ sơ thuộc phông; Thêm mới, Sửa bằng biểu mẫu theo khối với nút Ghi; Xóa qua hộp xác nhận, phông còn dữ
-// liệu thì máy chủ từ chối. YCTD-120: phông thuộc một đơn vị hoặc toàn trường, danh sách theo phạm vi đơn vị của người xem
+// liệu thì máy chủ từ chối. YCTD-122: phông thuộc một đơn vị hoặc toàn trường, danh sách theo phạm vi đơn vị của người xem
 const COLUMNS: Array<DataGridColumn<ArchiveFond>> = [
   { id: 'code', header: 'Mã phông', cell: (row) => row.code },
   { id: 'name', header: 'Tên phông', alwaysVisible: true, className: 'font-medium', cell: (row) => row.name },

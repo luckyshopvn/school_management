@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { ImportType, SchoolYearDatabase } from '@school-management/database';
-import { ApplicationError, Clock, ruleViolationError } from '@school-management/server';
+import { ApplicationError, Clock, ruleViolationError, validationError } from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { Kysely, Transaction } from 'kysely';
 import { randomUUID } from 'node:crypto';
@@ -16,8 +16,18 @@ import { MAXIMUM_AMOUNT } from '../fees/fee-catalog-fields.js';
 import { RegistrationPeriods } from '../fees/registration-periods.js';
 import { FileStorage } from '../files/file-storage.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
-import { buildTemplate, parseDate, readSheet, type ImportColumn, type RowError, type SheetRow } from './excel.js';
-import { MoetImports, type MoetPreview } from './moet-imports.js';
+import {
+  buildErrorWorkbook,
+  buildTemplate,
+  findHeaderRowNumber,
+  parseDate,
+  readSheet,
+  type ImportCatalog,
+  type ImportColumn,
+  type RowError,
+  type SheetRow,
+} from './excel.js';
+import { MOET_CHILD_HEADERS, MOET_STAFF_HEADERS, MoetImports, type MoetPreview } from './moet-imports.js';
 
 // Loại nhập theo mẫu của trường (có tệp mẫu); tệp CSDL ngành dùng mẫu của Bộ, không có tệp mẫu ở đây (YCTD-100)
 export type TemplateImportType = Exclude<ImportType, 'moet_children' | 'moet_staff'>;
@@ -97,6 +107,54 @@ const TEMPLATE_TITLES: Record<TemplateImportType, string> = {
   staff: 'Nhân sự',
 };
 
+// Công cụ nhập dùng chung (DT-16 phần 16a, khảo sát mục 2.3 của Sở: tải file mẫu kèm dữ liệu, tra cứu danh mục, chọn cột để
+// nhập, xuất file lỗi). Cột khóa và cột bắt buộc luôn nhập; cột khác người dùng chọn có nhập hay không, cột không chọn coi
+// như để trống. Lớp học khớp theo mã đơn vị và mã lớp: dòng của lớp đã có thì cập nhật các cột được chọn, dòng mới thì thêm
+export const IMPORT_TOOLS_RULE_CODE = 'YCTD-121';
+export const LOCKED_IMPORT_COLUMNS: Record<TemplateImportType, string[]> = {
+  classes: ['unit_code', 'class_code'],
+  children: [
+    'unit_code',
+    'class_code',
+    'full_name',
+    'dob',
+    'gender',
+    'national_id',
+    'allergies',
+    'guardian1_name',
+    'guardian1_relationship',
+  ],
+  moet_codes: ['national_id', 'moet_code'],
+  staff: ['unit_code', 'code', 'full_name', 'start_date'],
+  opening_debts: ['national_id', 'amount', 'due_date'],
+};
+// Loại nhập cập nhật được bản ghi đã có và có "Tải file mẫu kèm dữ liệu"
+export const UPDATING_IMPORT_TYPES: TemplateImportType[] = ['classes'];
+// Cột phải chọn khi thêm lớp mới
+const CLASS_CREATE_COLUMNS: Array<[string, string]> = [
+  ['class_name', 'Tên lớp'],
+  ['grade_level', 'Mã bậc học'],
+  ['max_size', 'Sĩ số tối đa'],
+];
+
+export interface ImportColumnInfo {
+  key: string;
+  header: string;
+  note: string;
+  locked: boolean;
+}
+
+// Quyền nhập theo loại, như máy chủ kiểm tra ở bộ điều khiển
+function permissionOfImport(type: TemplateImportType): string {
+  return type === 'moet_codes'
+    ? PERMISSION_CODES.childManage
+    : type === 'opening_debts'
+      ? PERMISSION_CODES.openingDebtImport
+      : type === 'staff'
+        ? PERMISSION_CODES.importStaff
+        : PERMISSION_CODES.importChildren;
+}
+
 const PHONE_PATTERN = /^0\d{9}$/;
 const NATIONAL_ID_PATTERN = /^\d{12}$/;
 const VIETNAM_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
@@ -108,6 +166,13 @@ interface ClassRow {
   grade_level: string;
   max_size: number;
   room_id: string | null;
+}
+
+// Dòng của lớp đã có: cập nhật các cột được chọn
+interface ClassUpdate {
+  id: string;
+  org_unit_id: string;
+  changes: Partial<Pick<ClassRow, 'name' | 'max_size' | 'room_id'>>;
 }
 
 interface ChildRow {
@@ -154,6 +219,11 @@ type TemplateUploadType = Exclude<UploadType, MoetImportType>;
 
 const isMoetType = (type: string): type is MoetImportType => type === 'moet_children' || type === 'moet_staff';
 
+function selectedColumnsOf(preview: unknown): string[] | null {
+  const value = (preview as { selected_columns?: unknown } | null)?.selected_columns;
+  return Array.isArray(value) ? (value as string[]) : null;
+}
+
 const XLSX_CONTENT_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 // Tệp xls bắt đầu bằng chữ ký OLE2 D0 CF
 const contentTypeOf = (body: Buffer) =>
@@ -164,6 +234,8 @@ export interface ImportJobView {
   import_type: ImportType;
   org_unit_id: string | null;
   preview: MoetPreview | null;
+  // Cột được chọn để nhập; null là mọi cột (DT-16 phần 16a)
+  selected_columns: string[] | null;
   status: 'validated' | 'failed' | 'committed';
   total_rows: number;
   error_rows: number;
@@ -187,8 +259,233 @@ export class ImportsService {
     private readonly moet: MoetImports,
   ) {}
 
-  template(type: TemplateImportType): Promise<Buffer> {
-    return buildTemplate(TEMPLATE_TITLES[type], IMPORT_COLUMNS[type]);
+  // Tệp mẫu có trang Danh mục; kèm dữ liệu thì điền các bản ghi đang có trong phạm vi người tải để sửa rồi nhập lại
+  // Tệp kèm dữ liệu là một lần xuất dữ liệu nên ghi nhật ký xuất (BR-74)
+  async template(
+    currentUser: CurrentUser,
+    type: TemplateImportType,
+    withData: boolean,
+    ipAddress: string | null = null,
+  ): Promise<Buffer> {
+    const { database } = await this.currentSchoolYear.require();
+    if (withData && !UPDATING_IMPORT_TYPES.includes(type)) {
+      throw ruleViolationError(IMPORT_TOOLS_RULE_CODE, 'Loại dữ liệu này chưa có tệp mẫu kèm dữ liệu');
+    }
+    const catalogs = await this.catalogs(currentUser, type);
+    const rows = withData ? await this.templateRows(database, currentUser, type) : undefined;
+    const buffer = await buildTemplate(TEMPLATE_TITLES[type], IMPORT_COLUMNS[type], { rows, catalogs });
+    if (rows) {
+      await database
+        .insertInto('export_logs')
+        .values({
+          user_id: currentUser.id,
+          actor_name: currentUser.description.full_name,
+          report_code: `import-template-${type}`,
+          filters_data: JSON.stringify({ with_data: true }),
+          org_unit_ids: [],
+          row_count: rows.length,
+          contains_personal_data: false,
+          file_name: `mau-nhap-${type}-kem-du-lieu.xlsx`,
+          ip_address: ipAddress,
+        })
+        .execute();
+    }
+    return buffer;
+  }
+
+  // Cột của mẫu kèm cờ cột khóa, bắt buộc (luôn nhập) để màn hình cho chọn cột
+  columns(type: TemplateImportType) {
+    return {
+      columns: IMPORT_COLUMNS[type].map((column): ImportColumnInfo => ({
+        ...column,
+        locked: LOCKED_IMPORT_COLUMNS[type].includes(column.key),
+      })),
+      updates_existing: UPDATING_IMPORT_TYPES.includes(type),
+      template_with_data: UPDATING_IMPORT_TYPES.includes(type),
+    };
+  }
+
+  // Cột được chọn để nhập; bỏ trống là mọi cột. Cột khóa, bắt buộc luôn được thêm vào
+  selection(type: TemplateImportType, keys: string[] | undefined): Set<string> {
+    const all = IMPORT_COLUMNS[type].map((column) => column.key);
+    if (!keys) {
+      return new Set(all);
+    }
+    const unknown = keys.filter((key) => !all.includes(key));
+    if (unknown.length > 0) {
+      throw validationError([{ field: 'columns', message: `Cột không có trong mẫu: ${unknown.join(', ')}` }]);
+    }
+    return new Set([...LOCKED_IMPORT_COLUMNS[type], ...keys]);
+  }
+
+  // "Tra cứu danh mục": mã, tên của các danh mục dùng trong tệp, trong phạm vi của người nhập
+  async catalogs(currentUser: CurrentUser, type: TemplateImportType): Promise<ImportCatalog[]> {
+    const { database } = await this.currentSchoolYear.require();
+    const scope = await this.organizationScopes.resolve(currentUser, permissionOfImport(type));
+    const units = (
+      await database
+        .selectFrom('org_units')
+        .select(['id', 'code', 'name'])
+        .where('status', '=', 'active')
+        .orderBy('code')
+        .execute()
+    ).filter((unit) => scope.wholeSchool || scope.orgUnitIds.includes(unit.id));
+    const unitIds = units.map((unit) => unit.id);
+    const unitCode = new Map(units.map((unit) => [unit.id, unit.code]));
+    const inUnit = (orgUnitId: string) => `Đơn vị ${unitCode.get(orgUnitId) ?? ''}`;
+    const unitCatalog: ImportCatalog = {
+      key: 'org_units',
+      title: 'Đơn vị',
+      column: 'Mã đơn vị',
+      items: units.map((unit) => ({ code: unit.code, name: unit.name })),
+    };
+    if (type === 'classes') {
+      const gradeLevels = await database
+        .selectFrom('grade_levels')
+        .select(['code', 'name'])
+        .where('status', '=', 'active')
+        .orderBy('code')
+        .execute();
+      const rooms =
+        unitIds.length === 0
+          ? []
+          : await database
+              .selectFrom('rooms')
+              .select(['code', 'name', 'org_unit_id'])
+              .where('status', '=', 'active')
+              .where('org_unit_id', 'in', unitIds)
+              .orderBy('code')
+              .execute();
+      return [
+        unitCatalog,
+        { key: 'grade_levels', title: 'Bậc học', column: 'Mã bậc học', items: gradeLevels },
+        {
+          key: 'rooms',
+          title: 'Phòng học',
+          column: 'Mã phòng',
+          items: rooms.map((room) => ({ code: room.code, name: room.name, note: inUnit(room.org_unit_id) })),
+        },
+      ];
+    }
+    if (type === 'children') {
+      const classes =
+        unitIds.length === 0
+          ? []
+          : await database
+              .selectFrom('classes')
+              .select(['code', 'name', 'org_unit_id'])
+              .where('status', '=', 'active')
+              .where('org_unit_id', 'in', unitIds)
+              .orderBy('code')
+              .execute();
+      const relationships = await database
+        .selectFrom('catalog_items')
+        .select(['code', 'name'])
+        .where('catalog_type', '=', 'parent_relationship')
+        .where('status', '=', 'active')
+        .orderBy('code')
+        .execute();
+      return [
+        unitCatalog,
+        {
+          key: 'classes',
+          title: 'Lớp học',
+          column: 'Mã lớp',
+          items: classes.map((row) => ({ code: row.code, name: row.name, note: inUnit(row.org_unit_id) })),
+        },
+        {
+          key: 'parent_relationships',
+          title: 'Quan hệ với trẻ',
+          column: 'Quan hệ phụ huynh 1, 2',
+          items: relationships,
+        },
+      ];
+    }
+    if (type === 'staff') {
+      const named = async (table: 'departments' | 'job_titles') =>
+        unitIds.length === 0
+          ? []
+          : (
+              await database
+                .selectFrom(table)
+                .select(['name', 'org_unit_id'])
+                .where('status', '=', 'active')
+                .where('org_unit_id', 'in', unitIds)
+                .orderBy('name')
+                .execute()
+            ).map((row) => ({
+              code: unitCode.get(row.org_unit_id) ?? '',
+              name: row.name,
+              note: 'Ghi tên; mã là mã đơn vị',
+            }));
+      return [
+        unitCatalog,
+        { key: 'departments', title: 'Phòng ban', column: 'Phòng ban', items: await named('departments') },
+        { key: 'job_titles', title: 'Chức danh', column: 'Chức danh', items: await named('job_titles') },
+      ];
+    }
+    return [];
+  }
+
+  // Dữ liệu điền sẵn của "Tải file mẫu kèm dữ liệu": lớp đang dùng trong phạm vi của người tải
+  private async templateRows(
+    database: Executor,
+    currentUser: CurrentUser,
+    type: TemplateImportType,
+  ): Promise<Array<Record<string, unknown>>> {
+    if (type !== 'classes') {
+      return [];
+    }
+    const scope = await this.organizationScopes.resolve(currentUser, permissionOfImport(type));
+    if (!scope.wholeSchool && scope.orgUnitIds.length === 0) {
+      return [];
+    }
+    let query = database
+      .selectFrom('classes')
+      .innerJoin('org_units', 'org_units.id', 'classes.org_unit_id')
+      .leftJoin('rooms', 'rooms.id', 'classes.room_id')
+      .select([
+        'org_units.code as unit_code',
+        'classes.code as class_code',
+        'classes.name as class_name',
+        'classes.grade_level',
+        'classes.max_size',
+        'rooms.code as room_code',
+      ])
+      .where('classes.status', '=', 'active')
+      .orderBy('org_units.code')
+      .orderBy('classes.code');
+    if (!scope.wholeSchool) {
+      query = query.where('classes.org_unit_id', 'in', scope.orgUnitIds);
+    }
+    return query.execute();
+  }
+
+  // "Xuất file lỗi": tệp gốc của lần nhập kèm cột Nội dung lỗi theo từng dòng
+  async errorFile(jobId: string): Promise<{ buffer: Buffer; fileName: string }> {
+    const { database } = await this.currentSchoolYear.require();
+    const job = await database
+      .selectFrom('data_import_jobs')
+      .innerJoin('files', 'files.id', 'data_import_jobs.file_id')
+      .select(['data_import_jobs.import_type', 'data_import_jobs.errors', 'files.storage_key', 'files.file_name'])
+      .where('data_import_jobs.id', '=', jobId)
+      .executeTakeFirst();
+    if (!job) {
+      throw notFoundError('Không tìm thấy lần nhập', 'data_import_job');
+    }
+    const errors = job.errors as RowError[];
+    if (errors.length === 0) {
+      throw ruleViolationError(IMPORT_TOOLS_RULE_CODE, 'Lần nhập này không có dòng lỗi');
+    }
+    const body = await this.fileStorage.get(job.storage_key);
+    const headerRow =
+      job.import_type === 'moet_children'
+        ? findHeaderRowNumber(body, MOET_CHILD_HEADERS)
+        : job.import_type === 'moet_staff'
+          ? findHeaderRowNumber(body, MOET_STAFF_HEADERS)
+          : 1;
+    const baseName = job.file_name.replace(/\.(xlsx|xls)$/i, '');
+    return { buffer: buildErrorWorkbook(body, errors, headerRow), fileName: `${baseName}-loi.xlsx` };
   }
 
   // Tải tệp lên và kiểm tra toàn bộ; lưu tệp gốc ở kho tệp để ghi lại khi không còn dòng lỗi (P01-13)
@@ -199,17 +496,21 @@ export class ImportsService {
     body: Buffer,
     origin: ChangeOrigin,
     orgUnitId: string | null = null,
+    selectedKeys?: string[],
   ): Promise<ImportJobView> {
     const { database } = await this.currentSchoolYear.require();
     let errors: RowError[];
     let totalRows: number;
-    let preview: MoetPreview | null = null;
+    let preview: MoetPreview | { selected_columns: string[] } | null = null;
     if (isMoetType(type)) {
       ({ errors, totalRows, preview } = await this.validateMoet(database, currentUser, type, orgUnitId ?? '', body));
     } else {
-      const rows = await readSheet(body, IMPORT_COLUMNS[type]);
-      errors = (await this.validate(database, currentUser, type, rows)).errors;
+      // Cột được chọn lưu kèm lần nhập để bước ghi đọc tệp đúng như lúc kiểm tra (DT-16 phần 16a)
+      const selected = this.selection(type, selectedKeys);
+      const rows = await readSheet(body, IMPORT_COLUMNS[type], selectedKeys ? selected : undefined);
+      errors = (await this.validate(database, currentUser, type, rows, selected)).errors;
       totalRows = rows.length;
+      preview = selectedKeys ? { selected_columns: [...selected] } : null;
     }
     const storageKey = `import/${randomUUID()}`;
     const contentType = contentTypeOf(body);
@@ -268,6 +569,7 @@ export class ImportsService {
         'data_import_jobs.import_type',
         'data_import_jobs.org_unit_id',
         'data_import_jobs.status',
+        'data_import_jobs.preview',
         'files.storage_key',
       ])
       .where('data_import_jobs.id', '=', jobId)
@@ -285,8 +587,14 @@ export class ImportsService {
     if (isMoetType(type)) {
       return this.commitMoet(database, currentUser, accessToken, type, job, origin);
     }
-    const rows = await readSheet(await this.fileStorage.get(job.storage_key), IMPORT_COLUMNS[type]);
-    const validated = await this.validate(database, currentUser, type, rows);
+    const selectedKeys = selectedColumnsOf(job.preview);
+    const selected = this.selection(type, selectedKeys ?? undefined);
+    const rows = await readSheet(
+      await this.fileStorage.get(job.storage_key),
+      IMPORT_COLUMNS[type],
+      selectedKeys ? selected : undefined,
+    );
+    const validated = await this.validate(database, currentUser, type, rows, selected);
     if (validated.errors.length > 0) {
       await database
         .updateTable('data_import_jobs')
@@ -341,6 +649,29 @@ export class ImportsService {
             after: { ...created, import_job_id: jobId },
           });
         }
+        // Lớp đã có: cập nhật các cột được chọn (DT-16 phần 16a)
+        for (const update of validated.classUpdates) {
+          const before = await transaction
+            .selectFrom('classes')
+            .select(['id', 'org_unit_id', 'code', 'name', 'grade_level', 'room_id', 'max_size'])
+            .where('id', '=', update.id)
+            .executeTakeFirstOrThrow();
+          const updated = await transaction
+            .updateTable('classes')
+            .set({ ...update.changes, updated_at: this.clock.now() })
+            .where('id', '=', update.id)
+            .returning(['id', 'org_unit_id', 'code', 'name', 'grade_level', 'room_id', 'max_size'])
+            .executeTakeFirstOrThrow();
+          await writeAuditLog(transaction, {
+            origin,
+            orgUnitId: update.org_unit_id,
+            entityName: 'classes',
+            entityId: update.id,
+            action: 'update',
+            before,
+            after: { ...updated, import_job_id: jobId },
+          });
+        }
       } else {
         for (const row of validated.children) {
           await this.insertImportedChild(transaction, row, accounts, origin, jobId);
@@ -367,9 +698,16 @@ export class ImportsService {
   }
 
   // Nhập mã ngành: dòng khớp số định danh được gán ngay; dòng không khớp hoặc trùng mã được báo (P02-12, AC-202)
-  async importMoetCodes(currentUser: CurrentUser, fileName: string, body: Buffer, origin: ChangeOrigin) {
+  async importMoetCodes(
+    currentUser: CurrentUser,
+    fileName: string,
+    body: Buffer,
+    origin: ChangeOrigin,
+    selectedKeys?: string[],
+  ) {
     const { database } = await this.currentSchoolYear.require();
-    const rows = await readSheet(body, IMPORT_COLUMNS.moet_codes);
+    const selected = this.selection('moet_codes', selectedKeys);
+    const rows = await readSheet(body, IMPORT_COLUMNS.moet_codes, selectedKeys ? selected : undefined);
     const scope = await this.organizationScopes.resolve(currentUser, PERMISSION_CODES.childManage);
     const errors: RowError[] = [];
     const codesInFile = new Map<string, number>();
@@ -490,7 +828,14 @@ export class ImportsService {
     if (!job) {
       throw notFoundError('Không tìm thấy lần nhập', 'data_import_job');
     }
-    return { ...job, errors: job.errors as RowError[], preview: (job.preview ?? null) as MoetPreview | null };
+    // Lần nhập theo mẫu của trường dùng cột preview để lưu cột được chọn; lần nhập tệp CSDL ngành lưu bản xem trước
+    const moet = isMoetType(job.import_type);
+    return {
+      ...job,
+      errors: job.errors as RowError[],
+      preview: moet ? ((job.preview ?? null) as MoetPreview | null) : null,
+      selected_columns: moet ? null : selectedColumnsOf(job.preview),
+    };
   }
 
   private validateMoet(
@@ -554,9 +899,11 @@ export class ImportsService {
     currentUser: CurrentUser,
     type: TemplateUploadType,
     rows: SheetRow[],
+    selected: Set<string>,
   ): Promise<{
     errors: RowError[];
     classes: ClassRow[];
+    classUpdates: ClassUpdate[];
     children: ChildRow[];
     openingDebts: OpeningDebtRow[];
     staff: StaffRow[];
@@ -564,12 +911,12 @@ export class ImportsService {
     if (type === 'opening_debts') {
       const errors: RowError[] = [];
       const openingDebts = await this.validateOpeningDebts(database, currentUser, rows, errors);
-      return { errors, classes: [], children: [], openingDebts, staff: [] };
+      return { errors, classes: [], classUpdates: [], children: [], openingDebts, staff: [] };
     }
     if (type === 'staff') {
       const errors: RowError[] = [];
       const staff = await this.validateStaff(database, currentUser, rows, errors);
-      return { errors, classes: [], children: [], openingDebts: [], staff };
+      return { errors, classes: [], classUpdates: [], children: [], openingDebts: [], staff };
     }
     const units = await database.selectFrom('org_units').select(['id', 'code', 'status']).execute();
     const scope = await this.organizationScopes.resolve(currentUser, PERMISSION_CODES.importChildren);
@@ -587,17 +934,13 @@ export class ImportsService {
       return unit.id;
     };
     if (type === 'classes') {
-      return {
-        errors,
-        classes: await this.validateClasses(database, rows, resolveUnit, errors),
-        children: [],
-        openingDebts: [],
-        staff: [],
-      };
+      const { creates, updates } = await this.validateClasses(database, rows, resolveUnit, errors, selected);
+      return { errors, classes: creates, classUpdates: updates, children: [], openingDebts: [], staff: [] };
     }
     return {
       errors,
       classes: [],
+      classUpdates: [],
       children: await this.validateChildren(database, rows, resolveUnit, errors),
       openingDebts: [],
       staff: [],
@@ -862,12 +1205,15 @@ export class ImportsService {
     });
   }
 
+  // Lớp mới cần đủ cột bắt buộc; lớp đã có (cùng mã đơn vị, mã lớp) cập nhật các cột được chọn, không đổi bậc học ở đây vì
+  // bậc học ràng buộc nhóm tuổi, lớp ghép của 2.1 Hồ sơ lớp học (DT-16 phần 16a)
   private async validateClasses(
     database: Executor,
     rows: SheetRow[],
     resolveUnit: (row: number, code: string | undefined) => string | undefined,
     errors: RowError[],
-  ): Promise<ClassRow[]> {
+    selected: Set<string>,
+  ): Promise<{ creates: ClassRow[]; updates: ClassUpdate[] }> {
     const gradeLevels = await database
       .selectFrom('grade_levels')
       .select('code')
@@ -878,26 +1224,46 @@ export class ImportsService {
       .select(['id', 'org_unit_id', 'code'])
       .where('status', '=', 'active')
       .execute();
-    const existing = await database.selectFrom('classes').select(['org_unit_id', 'code']).execute();
+    const existing = await database
+      .selectFrom('classes')
+      .select(['id', 'org_unit_id', 'code', 'grade_level'])
+      .execute();
     const seen = new Set<string>();
-    const result: ClassRow[] = [];
+    const creates: ClassRow[] = [];
+    const updates: ClassUpdate[] = [];
     for (const { row, values } of rows) {
       const before = errors.length;
       const orgUnitId = resolveUnit(row, values.unit_code);
-      for (const [key, header] of [
-        ['class_code', 'Mã lớp'],
-        ['class_name', 'Tên lớp'],
-        ['grade_level', 'Mã bậc học'],
-      ] as const) {
-        if (!values[key]) {
+      if (!values.class_code) {
+        errors.push({ row, column: 'Mã lớp', message: 'Bắt buộc nhập' });
+      }
+      const current = orgUnitId
+        ? existing.find((item) => item.org_unit_id === orgUnitId && item.code === values.class_code)
+        : undefined;
+      // Lớp mới: cột bắt buộc phải được chọn và có giá trị; lớp đã có: cột được chọn không để trống tên lớp
+      for (const [key, header] of CLASS_CREATE_COLUMNS) {
+        if (!current && !selected.has(key)) {
+          errors.push({ row, column: header, message: 'Thêm lớp mới cần chọn nhập cột này' });
+        } else if (selected.has(key) && !values[key]) {
           errors.push({ row, column: header, message: 'Bắt buộc nhập' });
         }
       }
       if (values.grade_level && !gradeLevels.some((level) => level.code === values.grade_level)) {
         errors.push({ row, column: 'Mã bậc học', message: 'Bậc học không có hoặc đã ngừng sử dụng' });
+      } else if (
+        current &&
+        selected.has('grade_level') &&
+        values.grade_level &&
+        values.grade_level !== current.grade_level
+      ) {
+        errors.push({
+          row,
+          column: 'Mã bậc học',
+          message: 'Đổi bậc học của lớp đã có làm ở 2.1 Hồ sơ lớp học; bỏ chọn cột này hoặc giữ bậc học hiện tại',
+        });
       }
       const maxSize = Number(values.max_size);
-      if (!Number.isInteger(maxSize) || maxSize < 1 || maxSize > 200) {
+      if (selected.has('max_size') && values.max_size && (!Number.isInteger(maxSize) || maxSize < 1 || maxSize > 200)) {
         errors.push({ row, column: 'Sĩ số tối đa', message: 'Số nguyên từ 1 đến 200' });
       }
       const room = values.room_code
@@ -910,13 +1276,26 @@ export class ImportsService {
       if (orgUnitId && values.class_code) {
         if (seen.has(key)) {
           errors.push({ row, column: 'Mã lớp', message: 'Mã lớp trùng với dòng khác trong tệp' });
-        } else if (existing.some((item) => item.org_unit_id === orgUnitId && item.code === values.class_code)) {
-          errors.push({ row, column: 'Mã lớp', message: 'Mã lớp đã có trong đơn vị' });
         }
         seen.add(key);
       }
-      if (errors.length === before && orgUnitId) {
-        result.push({
+      if (errors.length !== before || !orgUnitId) {
+        continue;
+      }
+      if (current) {
+        const changes: ClassUpdate['changes'] = {};
+        if (selected.has('class_name')) {
+          changes.name = values.class_name ?? '';
+        }
+        if (selected.has('max_size')) {
+          changes.max_size = maxSize;
+        }
+        if (selected.has('room_code')) {
+          changes.room_id = room?.id ?? null;
+        }
+        updates.push({ id: current.id, org_unit_id: orgUnitId, changes });
+      } else {
+        creates.push({
           org_unit_id: orgUnitId,
           code: values.class_code ?? '',
           name: values.class_name ?? '',
@@ -926,7 +1305,7 @@ export class ImportsService {
         });
       }
     }
-    return result;
+    return { creates, updates };
   }
 
   private async validateChildren(

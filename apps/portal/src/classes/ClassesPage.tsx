@@ -474,6 +474,7 @@ export function ClassesPage() {
           }}
           settings={grid.settings}
           onSettingsChange={grid.update}
+          exportPdf={canExport ? (columnIds) => exportClasses(activeFilter, columnIds, 'pdf') : undefined}
         />
       </div>
       {closing ? (

@@ -7,6 +7,7 @@ import { migration as createUserGridSettings } from './migrations/0005_create_us
 import { migration as createFeedback } from './migrations/0007_create_feedback.js';
 import { migration as createAdministrativeUnits } from './migrations/0008_create_administrative_units.js';
 import { migration as createArchiveTables } from './migrations/0009_create_archive_tables.js';
+import { migration as createExportJobsAndSubmissions } from './migrations/0010_create_export_jobs_and_submissions.js';
 import { migration as addSyncAccountCredentials } from './migrations/0012_add_sync_account_credentials.js';
 import { migration as addArchiveUnitsHandlersReminders } from './migrations/0016_add_archive_units_handlers_reminders.js';
 
@@ -20,6 +21,7 @@ export const systemMigrations: Record<string, Migration> = {
   '0007_create_feedback': createFeedback,
   '0008_create_administrative_units': createAdministrativeUnits,
   '0009_create_archive_tables': createArchiveTables,
+  '0010_create_export_jobs_and_submissions': createExportJobsAndSubmissions,
   '0012_add_sync_account_credentials': addSyncAccountCredentials,
   '0016_add_archive_units_handlers_reminders': addArchiveUnitsHandlersReminders,
 };

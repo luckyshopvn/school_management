@@ -13,7 +13,7 @@ import {
 import { parseRecordInput } from './archive-fields.js';
 import { ArchivesService } from './archives.js';
 
-// Văn thư lưu trữ, sửa các hạn chế của YCTD-118 (YCTD-120): phông, hồ sơ thuộc đơn vị và lọc theo phạm vi; người giải
+// Văn thư lưu trữ, sửa các hạn chế của YCTD-118 (YCTD-122): phông, hồ sơ thuộc đơn vị và lọc theo phạm vi; người giải
 // quyết chọn từ nhân sự; nhắc sắp đến hạn, quá hạn; thử xóa lại tệp ở kho tệp. Kịch bản CT-15h2-14 đến CT-15h2-18
 const errorOf = (body: Record<string, unknown>) =>
   (body.error ?? {}) as { code?: string; details?: Array<{ field: string; message: string }> };

@@ -17,6 +17,7 @@ import {
 } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { sendWorkbook } from '../children/student-workbook.js';
+import { readTableFileFormat } from '../exports/table-file.js';
 import {
   CLASS_AGE_GROUP_KEYS,
   CLASS_EXPORT_COLUMNS,
@@ -120,7 +121,7 @@ export class ClassesController {
     return this.classesService.list(currentUser, { ...filter, mine: query.mine === 'true' });
   }
 
-  // Xuất Excel danh sách lớp theo bộ lọc và các cột đang hiện trên lưới; cần quyền xuất dữ liệu (BR-74, YCTD-111)
+  // Xuất Excel hoặc PDF (DT-16 phần 16a) danh sách lớp theo bộ lọc và các cột đang hiện trên lưới; cần quyền xuất dữ liệu (BR-74, YCTD-111)
   @Post('export')
   @HttpCode(200)
   @RequirePermission(PERMISSION_CODES.dataExport)
@@ -133,10 +134,17 @@ export class ClassesController {
     const errors: FieldError[] = [];
     const filter = readClassListFilter(body ?? {}, errors);
     const columns = readExportColumns(body, CLASS_EXPORT_COLUMNS, DEFAULT_CLASS_EXPORT_COLUMNS, errors);
-    if (errors.length > 0) {
+    const format = readTableFileFormat(body?.format);
+    if (!format) {
+      errors.push({ field: 'format', message: 'Định dạng xuất là xlsx hoặc pdf' });
+    }
+    if (errors.length > 0 || !format) {
       throw validationError(errors);
     }
-    sendWorkbook(response, await this.classesService.exportList(currentUser, filter, columns, request.ip ?? null));
+    sendWorkbook(
+      response,
+      await this.classesService.exportList(currentUser, filter, columns, request.ip ?? null, format),
+    );
   }
 
   @Post()
@@ -313,9 +321,16 @@ export class ClassAssignmentsController {
   ) {
     const errors: FieldError[] = [];
     const filter = readAssignmentFilter(body ?? {}, errors);
-    if (errors.length > 0) {
+    const format = readTableFileFormat(body?.format);
+    if (!format) {
+      errors.push({ field: 'format', message: 'Định dạng xuất là xlsx hoặc pdf' });
+    }
+    if (errors.length > 0 || !format) {
       throw validationError(errors);
     }
-    sendWorkbook(response, await this.classesService.exportAssignments(currentUser, filter, request.ip ?? null));
+    sendWorkbook(
+      response,
+      await this.classesService.exportAssignments(currentUser, filter, request.ip ?? null, format),
+    );
   }
 }

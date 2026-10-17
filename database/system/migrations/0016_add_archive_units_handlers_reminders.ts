@@ -1,14 +1,14 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Văn thư lưu trữ, sửa các hạn chế của YCTD-118 (DT-15 phần 15h2, YCTD-120):
+// Văn thư lưu trữ, sửa các hạn chế của YCTD-118 (DT-15 phần 15h2, YCTD-122):
 // - phông và hồ sơ thuộc một đơn vị (`org_unit_id`, trống là toàn trường) để lọc theo phạm vi đơn vị của người dùng;
 // - người giải quyết chọn từ danh sách nhân sự (`handler_staff_id`, mã nhân sự ở năm học đang dùng, khác cơ sở dữ liệu nên
 //   không có khóa ngoại; tên vẫn ghi ở `handler_name`);
 // - nhắc hạn: thời điểm đã gửi nhắc sắp đến hạn và nhắc quá hạn, mỗi loại một lần, đổi thời hạn hoặc người giải quyết thì
 //   nhắc lại;
 // - tệp chờ xóa ở kho tệp: lần xóa lỗi được ghi lại để tiến trình chạy nền thử lại, không để tệp mồ côi.
-// Số 0010 đến 0015 giữ cho DT-16; công cụ chạy tệp thay đổi cấu trúc cho chạy lệch thứ tự (YCTD-120)
+// Số 0010 đến 0015 giữ cho DT-16; công cụ chạy tệp thay đổi cấu trúc cho chạy lệch thứ tự từ DT-16 phần 16d (YCTD-120)
 export const migration: Migration = {
   async up(database) {
     await database.schema.alterTable('archive_fonds').addColumn('org_unit_id', 'uuid').execute();

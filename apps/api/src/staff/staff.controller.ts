@@ -4,7 +4,8 @@ import { readBearerToken, validationError, type FieldError } from '@school-manag
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { Request, Response } from 'express';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
-import { sendWorkbook } from '../children/student-workbook.js';
+import { sendExportOutcome } from '../exports/export-jobs.js';
+import { readTableFileFormat } from '../exports/table-file.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf } from '../common/audit-log.js';
 import {
@@ -121,7 +122,8 @@ export class StaffController {
     return this.staff.search(currentUser, { ...filter, page, pageSize });
   }
 
-  // Xuất Excel theo bộ lọc và các cột đang hiện trên lưới; cần quyền xuất dữ liệu, ghi nhật ký xuất (BR-74)
+  // Xuất Excel hoặc PDF theo bộ lọc và các cột đang hiện trên lưới; cần quyền xuất dữ liệu, ghi nhật ký xuất (BR-74).
+  // Danh sách lớn trả 202 kèm tác vụ xuất nền (DT-16 phần 16a)
   @Post('staff/export')
   @HttpCode(200)
   @RequirePermission(PERMISSION_CODES.dataExport)
@@ -147,10 +149,14 @@ export class StaffController {
         columns = rawColumns as string[];
       }
     }
-    if (errors.length > 0) {
+    const format = readTableFileFormat(body?.format);
+    if (!format) {
+      errors.push({ field: 'format', message: 'Định dạng xuất là xlsx hoặc pdf' });
+    }
+    if (errors.length > 0 || !format) {
       throw validationError(errors);
     }
-    sendWorkbook(response, await this.staff.exportList(currentUser, filter, columns, request.ip ?? null));
+    sendExportOutcome(response, await this.staff.exportList(currentUser, filter, columns, format, request.ip ?? null));
   }
 
   @Get('staff/me')

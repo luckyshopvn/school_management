@@ -220,7 +220,7 @@ export class ArchivesController {
     sendWorkbook(response, await this.archives.exportRecords(currentUser, filter, columns, request.ip ?? null));
   }
 
-  // Nhân sự đang làm việc để chọn người giải quyết (YCTD-120)
+  // Nhân sự đang làm việc để chọn người giải quyết (YCTD-122)
   @Get('archive-handlers')
   @RequirePermission(MANAGE)
   listHandlers(@AuthenticatedUser() currentUser: CurrentUser) {

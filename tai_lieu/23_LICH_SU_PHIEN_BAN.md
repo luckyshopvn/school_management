@@ -16,6 +16,27 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.72.0 – 2026-10-17
+
+- Phạm vi thay đổi: DT-15 phần 15h2, sửa các hạn chế của văn thư lưu trữ (YCTD-122).
+- Chức năng mới: phông, hồ sơ chia theo đơn vị và lọc theo phạm vi đơn vị; người giải quyết chọn từ nhân sự; nhắc sắp đến hạn, quá hạn trong ứng dụng; nhãn và bộ lọc "Sắp đến hạn"; hàng chờ xóa lại tệp ở kho tệp (P09-06 đến P09-08).
+- Lỗi đã sửa: tệp đính kèm có thể còn ở kho tệp khi kho lỗi lúc xóa.
+- Thay đổi dữ liệu: tệp hệ thống `0016_add_archive_units_handlers_reminders` thêm cột `org_unit_id` (phông, hồ sơ), `handler_staff_id`, `due_reminded_at`, `overdue_reminded_at` (hồ sơ), bảng `archive_file_deletions`.
+- Thay đổi API: điểm cuối mới `GET /archive-handlers`; trường và bộ lọc mới `org_unit_id`, `handler_staff_id`, `due_soon`.
+- Rủi ro: người chỉ có vai trò theo đơn vị không còn thấy dữ liệu văn thư toàn trường đã nhập trước.
+- Khả năng tương thích: dữ liệu cũ có đơn vị trống (toàn trường), tên người giải quyết giữ nguyên; điểm cuối cũ giữ đường dẫn và nhận thêm trường không bắt buộc.
+- Phương án quay lui: hoàn lại commit gộp; chạy phần quay lui của tệp `0016` (xóa cột và bảng mới).
+
+### Phiên bản 0.71.0 – 2026-10-17
+
+- Phạm vi thay đổi: DT-16 phần 16a, công cụ xuất, nhập dùng chung và mẫu gửi lên cấp trên chạy nội bộ theo hệ thống của Sở (YCTD-121).
+- Chức năng mới: nút "Xuất PDF" của lưới dữ liệu dùng chung (bật ở 4.1.1, 4.1.9, 2.1, 3.3, 3.1.1); tác vụ xuất nền cho danh sách lớn và màn hình "3.5. Tệp đã tạo"; thành phần nhập Excel dùng chung với tải file mẫu kèm dữ liệu, tra cứu danh mục, chọn cột để nhập, xuất file lỗi (MH-40, MH-92); nhập lớp học cập nhật lớp đã có; khối "Gửi lên cấp trên" ở 1.1 Báo cáo EMIS đầu năm với Xuất tệp gửi, Đánh dấu đã gửi, Gửi yêu cầu mở khóa, Mở khóa, Đặt trạng thái gửi lại (P01-20, P17-19, P17-20).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp hệ thống `0010_create_export_jobs_and_submissions` tạo ba bảng `export_jobs`, `upper_level_submissions`, `upper_level_submission_events`. Không thêm quyền.
+- Thay đổi API: điểm cuối mới `/export-jobs`, `/export-jobs/{id}/file`, `/imports/templates/{type}/columns`, `/imports/catalogs/{type}`, `/imports/{id}/error-file`, `/upper-level-submissions` và các thao tác theo biểu mẫu; điểm cuối xuất của năm danh sách nhận `format`, hai danh sách trả 202 kèm tác vụ khi lớn.
+- Rủi ro: tiến trình xuất nền chạy trong máy chủ API nên tệp rất lớn dùng bộ nhớ của máy chủ API; nhập lớp học nay cập nhật lớp đã có (trước báo trùng) nên tệp cũ nhập lại sẽ ghi đè tên, sĩ số, phòng của lớp.
+- Khả năng tương thích: điểm cuối cũ nhận thêm trường tùy chọn, không gửi thì như trước, trừ trả 202 thay cho 422 khi danh sách vượt 10 000 dòng; màn hình không bật Xuất PDF không đổi; ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16a; chạy phần quay lui của tệp `0010` (xóa ba bảng); tệp ở kho tệp dưới khóa `export/`, `submission/` xóa thủ công nếu cần.
 ### Phiên bản 0.70.0 – 2026-10-17
 
 - Phạm vi thay đổi: DT-16 phần 16d, quản trị hệ thống đủ theo hệ thống của Sở (YCTD-120).

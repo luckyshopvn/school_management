@@ -29,7 +29,7 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | P14 Hoạt động, nội dung và truyền thông | Hoàn thành | Đợt DT-10 phần 10e (YCTD-78); Fanpage ở DT-11 phần 11e, tài khoản thật chờ việc T1 |
 | P15 Tương tác và ý kiến | Hoàn thành | Đợt DT-10 phần 10f (YCTD-79) |
 | P16 Tuyển sinh | Hoàn thành | Đợt DT-11 phần 11a (YCTD-86) |
-| P17 Báo cáo và bảng điều khiển | Hoàn thành | Đợt DT-07 (YCTD-62, YCTD-63), DT-10 phần 10j (YCTD-83), DT-14 phần 14a (YCTD-105: thống kê theo tiêu chí ngành, hồ sơ chưa nhập đủ), 14d (YCTD-106: biểu EMIS đầu năm) |
+| P17 Báo cáo và bảng điều khiển | Hoàn thành | Đợt DT-07 (YCTD-62, YCTD-63), DT-10 phần 10j (YCTD-83), DT-14 phần 14a (YCTD-105: thống kê theo tiêu chí ngành, hồ sơ chưa nhập đủ), 14d (YCTD-106: biểu EMIS đầu năm), DT-16 phần 16a (YCTD-121: Xuất PDF, tác vụ xuất nền, Tệp đã tạo, công cụ nhập Excel dùng chung, gửi lên cấp trên chạy nội bộ) |
 | P18 Tuyển dụng | Hoàn thành | Đợt DT-11 phần 11b (YCTD-87) |
 | P19 Kênh truy cập và thông báo | Hoàn thành | Đợt DT-08 (YCTD-64, YCTD-65), Zalo ở DT-11 phần 11e; DT-15 phần 15a (YCTD-107: menu ngang đánh số, menu người dùng, lưới dữ liệu dùng chung; các phần 15b đến 15h theo `32_KE_HOACH_THEO_HE_THONG_SO.md`); DT-16 phần 16b (YCTD-119: lưới dữ liệu chung, hộp xác nhận xóa cho các màn hình còn lại của Mầm non, Cơ sở vật chất, Quản trị hệ thống); bản cài riêng trên điện thoại (N2, G3-04) chờ Eric quyết định |
 
