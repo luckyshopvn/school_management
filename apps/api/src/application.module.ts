@@ -51,6 +51,8 @@ import { GrowthController, GrowthService } from './health/growth.js';
 import { StudentHealthController, StudentHealthService } from './health/student-health.js';
 import { SchoolTerms } from './health/school-terms.js';
 import { StatisticsController, StatisticsService } from './statistics/statistics.js';
+import { StudentStatisticsController, StudentStatisticsService } from './statistics/student-statistics.js';
+import { EmisHealthReportController, EmisHealthReportService } from './health/emis-health-report.js';
 import { HealthRecordsController, HealthRecordsService } from './health/health-records.js';
 import { healthTransitionStep } from './health/health-transition.js';
 import { KitchenAccess } from './kitchen/kitchen-access.js';
@@ -306,6 +308,8 @@ export class ApplicationModule {
         GrowthController,
         StudentHealthController,
         StatisticsController,
+        StudentStatisticsController,
+        EmisHealthReportController,
         KitchenCatalogsController,
         KitchenMenusController,
         KitchenMealsController,
@@ -479,6 +483,8 @@ export class ApplicationModule {
         StudentHealthService,
         SchoolTerms,
         StatisticsService,
+        StudentStatisticsService,
+        EmisHealthReportService,
         KitchenAccess,
         KitchenCatalogsService,
         KitchenMealsService,
