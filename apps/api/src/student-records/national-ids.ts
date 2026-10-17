@@ -74,7 +74,9 @@ export class NationalIdsService {
   async verify(currentUser: CurrentUser, childIds: string[], origin: ChangeOrigin) {
     const { database } = await this.currentSchoolYear.require();
     const rows = await this.children(database, currentUser, childIds);
-    const invalid = rows.filter((row) => !NATIONAL_ID_PATTERN.test(readNationalId(this.protection, row.national_id_encrypted)));
+    const invalid = rows.filter(
+      (row) => !NATIONAL_ID_PATTERN.test(readNationalId(this.protection, row.national_id_encrypted)),
+    );
     if (invalid.length > 0) {
       throw ruleViolationError(
         STUDENT_RECORDS_RULE_CODE,
