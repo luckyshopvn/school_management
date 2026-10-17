@@ -133,19 +133,19 @@ export function MoetImportSection({
           <Button variant="text" onClick={() => template(true)}>
             Tải file mẫu kèm dữ liệu
           </Button>
-          <Button
-            variant="text"
-            aria-expanded={lookup}
-            aria-controls={lookupId}
-            onClick={() => setLookup(!lookup)}
-          >
+          <Button variant="text" aria-expanded={lookup} aria-controls={lookupId} onClick={() => setLookup(!lookup)}>
             Tra cứu danh mục
           </Button>
         </div>
       ) : null}
       {templateError ? <Alert tone="danger">{templateError}</Alert> : null}
       {tools && lookup ? (
-        <div id={lookupId} role="region" aria-label="Tra cứu danh mục" className="rounded-lg border border-border bg-page p-3">
+        <div
+          id={lookupId}
+          role="region"
+          aria-label="Tra cứu danh mục"
+          className="rounded-lg border border-border bg-page p-3"
+        >
           <CatalogLookup type="moet_children" load={readMoetCatalogs} />
         </div>
       ) : null}

@@ -99,7 +99,13 @@ function AccountsTab({ roleCode, staffOnly }: { roleCode: string; staffOnly: boo
         serverPagination={{ page, total: accounts.data?.total ?? 0, onPageChange: setPage }}
       />
       {issued ? (
-        <ConfirmDialog open title="Mật khẩu vừa tạo" confirmLabel="Đóng" onCancel={() => setIssued(undefined)} onConfirm={() => setIssued(undefined)}>
+        <ConfirmDialog
+          open
+          title="Mật khẩu vừa tạo"
+          confirmLabel="Đóng"
+          onCancel={() => setIssued(undefined)}
+          onConfirm={() => setIssued(undefined)}
+        >
           <div className="flex flex-col gap-3">
             <Alert tone="warning">
               Mật khẩu tạm chỉ hiện một lần; người dùng phải đổi mật khẩu khi đăng nhập lần đầu.

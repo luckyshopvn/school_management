@@ -1,8 +1,18 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, ConfirmDialog, DataGrid, StatusBadge, Toast, type DataGridColumn } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  ConfirmDeleteDialog,
+  ConfirmDialog,
+  DataGrid,
+  StatusBadge,
+  Toast,
+  type DataGridColumn,
+} from '@school-management/ui';
 import { useUnitChoice } from '../catalogs/UnitSelect.js';
+import { ImportSection } from '../imports/ImportsPage.js';
 import { AppShell } from '../pages/AppShell.js';
 import { useGridExport, visibleColumnIds } from '../pages/grid-export.js';
 import { useGridSettings } from '../pages/grid-settings.js';
@@ -12,7 +22,10 @@ import { useHasPermission } from '../session/permissions.js';
 import {
   ADDRESS_TYPE_LABELS,
   convertAddresses,
+  deleteMapping,
   exportOldAddresses,
+  listNewWards,
+  updateMapping,
   downloadMappingTemplate,
   importMappings,
   listMappings,
@@ -29,7 +42,9 @@ import {
 // 4.1.11. Cập nhật địa danh hành chính (DT-15 phần 15h1, YCTD-116): địa chỉ của học sinh (năm loại địa chỉ theo tệp CSDL
 // ngành) còn ghi theo địa danh trước sắp xếp năm 2025, địa danh mới đề xuất theo bảng đối chiếu; chọn nhiều dòng rồi
 // "Chuyển địa danh mới". Dòng có nhiều xã/phường mới thì chọn xã mới ngay trên dòng. Bên dưới là bảng đối chiếu, người có
-// quyền quản lý danh mục nhập thêm từ Excel. Xuất Excel lưới địa chỉ theo bộ lọc và các cột đang hiện (DT-16 phần 16b)
+// quyền quản lý danh mục nhập thêm từ Excel. Xuất Excel lưới địa chỉ theo bộ lọc và các cột đang hiện (DT-16 phần 16b).
+// DT-16 phần 16g: thêm loại địa chỉ "Chuyển đến từ", nhập danh sách học sinh kèm địa chỉ mới từ Excel (bộ nhập chung), sửa
+// xã mới hoặc xóa từng dòng đối chiếu
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
@@ -54,7 +69,30 @@ function MappingSection({ onImported }: { onImported(message: string): void }) {
   const [file, setFile] = useState<File>();
   const [report, setReport] = useState<MappingImportReport>();
   const [templateError, setTemplateError] = useState<string>();
+  const [editing, setEditing] = useState<UnitMapping>();
+  const [newWardId, setNewWardId] = useState('');
+  const [removing, setRemoving] = useState<UnitMapping>();
   const pageSize = grid.settings.pageSize;
+  const wards = useQuery({ queryKey: ['new-wards'], queryFn: listNewWards, enabled: Boolean(editing) });
+  const afterChange = async (message: string) => {
+    await queryClient.invalidateQueries({ queryKey: ['administrative-unit-mappings'] });
+    await queryClient.invalidateQueries({ queryKey: ['administrative-addresses'] });
+    onImported(message);
+  };
+  const save = useMutation({
+    mutationFn: () => updateMapping(editing?.id ?? '', newWardId),
+    onSuccess: async () => {
+      setEditing(undefined);
+      await afterChange('Đã sửa dòng đối chiếu');
+    },
+  });
+  const remove = useMutation({
+    mutationFn: () => deleteMapping(removing?.id ?? ''),
+    onSuccess: async () => {
+      setRemoving(undefined);
+      await afterChange('Đã xóa dòng đối chiếu');
+    },
+  });
   const mappings = useQuery({
     queryKey: ['administrative-unit-mappings', search, page, pageSize],
     queryFn: () => listMappings(search, page, pageSize),
@@ -171,10 +209,70 @@ function MappingSection({ onImported }: { onImported(message: string): void }) {
             setPage(1);
           },
         }}
+        rowActions={
+          canImport
+            ? (row) => (
+                <span className="flex gap-1">
+                  <Button
+                    variant="text"
+                    onClick={() => {
+                      setNewWardId('');
+                      save.reset();
+                      setEditing(row);
+                    }}
+                  >
+                    Sửa
+                  </Button>
+                  <Button variant="text" onClick={() => setRemoving(row)}>
+                    Xóa
+                  </Button>
+                </span>
+              )
+            : undefined
+        }
         settings={grid.settings}
         onSettingsChange={grid.update}
         serverPagination={{ page, total: mappings.data?.total ?? 0, onPageChange: setPage }}
       />
+      {editing ? (
+        <ConfirmDialog
+          open
+          title="Sửa dòng đối chiếu"
+          confirmLabel="Ghi"
+          busy={save.isPending || !newWardId}
+          onCancel={() => setEditing(undefined)}
+          onConfirm={() => save.mutate()}
+        >
+          <div className="flex flex-col gap-3">
+            <p>
+              {[editing.old_ward, editing.old_district, editing.old_province].filter(Boolean).join(', ')} hiện đối chiếu
+              sang {editing.new_ward}, {editing.new_province}.
+            </p>
+            <label className="text-label font-medium text-text">
+              Xã/Phường mới
+              <select value={newWardId} onChange={(event) => setNewWardId(event.target.value)} className={selectClass}>
+                <option value="">Chọn xã/phường mới</option>
+                {(wards.data ?? []).map((ward) => (
+                  <option key={ward.id} value={ward.id}>
+                    {ward.ward_name} – {ward.province_name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
+          </div>
+        </ConfirmDialog>
+      ) : null}
+      <ConfirmDeleteDialog
+        open={Boolean(removing)}
+        subject={`dòng đối chiếu ${removing?.old_ward || removing?.old_district || ''} sang ${removing?.new_ward ?? ''}`}
+        busy={remove.isPending}
+        onCancel={() => setRemoving(undefined)}
+        onConfirm={() => remove.mutate()}
+      >
+        <p>Địa chỉ đã chuyển của học sinh không đổi.</p>
+        {remove.error ? <Alert tone="danger">{messageOf(remove.error)}</Alert> : null}
+      </ConfirmDeleteDialog>
     </section>
   );
 }
@@ -184,6 +282,8 @@ export function AdministrativeUnitsPage() {
   const unitChoice = useUnitChoice();
   const grid = useGridSettings('administrative-addresses');
   const canExport = useHasPermission(PERMISSION_CODES.dataExport);
+  // Nhập danh sách học sinh kèm địa chỉ mới cần quyền duyệt hồ sơ (DT-16 phần 16g)
+  const canImportAddresses = useHasPermission(PERMISSION_CODES.childApprove);
   const exporter = useGridExport();
   const [filter, setFilter] = useState<AddressFilter>({});
   const [search, setSearch] = useState('');
@@ -410,6 +510,7 @@ export function AdministrativeUnitsPage() {
             </div>
           </ConfirmDialog>
         ) : null}
+        {canImportAddresses ? <ImportSection type="student_addresses" onChanged={setToastMessage} /> : null}
         <MappingSection onImported={setToastMessage} />
       </div>
     </AppShell>

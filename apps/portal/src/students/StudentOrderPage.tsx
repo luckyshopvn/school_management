@@ -22,7 +22,10 @@ export function StudentOrderPage() {
   const [dirty, setDirty] = useState(false);
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
-  const classes = useQuery({ queryKey: ['classes', 'search', 'active'], queryFn: () => searchClasses({ status: 'active' }) });
+  const classes = useQuery({
+    queryKey: ['classes', 'search', 'active'],
+    queryFn: () => searchClasses({ status: 'active' }),
+  });
   const order = useQuery({
     queryKey: ['student-order', classId],
     queryFn: () => readClassOrder(classId),

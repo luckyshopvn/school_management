@@ -107,7 +107,9 @@ export function SmsPhonesPage() {
       setBulkRows(undefined);
       setToastMessage(
         `Đã cập nhật ${result.updated} học sinh` +
-          (result.skipped.length ? `; giữ nguyên ${result.skipped.length} học sinh không có số theo quan hệ đã chọn` : ''),
+          (result.skipped.length
+            ? `; giữ nguyên ${result.skipped.length} học sinh không có số theo quan hệ đã chọn`
+            : ''),
       );
       await queryClient.invalidateQueries({ queryKey: ['children'] });
     },

@@ -72,8 +72,8 @@ export function ImportsPage() {
         <h1 className="text-page-title font-bold text-text">Nhập dữ liệu khác từ Excel</h1>
         <p className="text-label text-text-secondary">
           Tải file mẫu, điền dữ liệu rồi tải tệp lên. Hệ thống kiểm tra toàn bộ tệp và chỉ ghi khi không còn dòng lỗi;
-          tệp có lỗi thì bấm "Xuất file lỗi" để nhận lại tệp kèm cột nội dung lỗi. Nhập học sinh ở "4.1.2. Nhập học
-          sinh từ Excel".
+          tệp có lỗi thì bấm "Xuất file lỗi" để nhận lại tệp kèm cột nội dung lỗi. Nhập học sinh ở "4.1.2. Nhập học sinh
+          từ Excel".
         </p>
         {canImportOpeningDebts ? <ImportSection type="opening_debts" onChanged={setToastMessage} /> : null}
         {canImportStaff ? (
