@@ -363,6 +363,23 @@ export class ChildrenController {
         changes[field] = value;
       }
     }
+    // Dân tộc, diện chính sách, khuyết tật, biết bơi (DT-16 phần 16g)
+    const moetFields: NonNullable<ChildChanges['moet_fields']> = {};
+    for (const field of ['ethnicity', 'policy_target', 'disability_type'] as const) {
+      if (body?.[field] !== undefined) {
+        moetFields[field] = readLimitedText(body, field, errors, 100) ?? null;
+      }
+    }
+    if (body?.can_swim !== undefined) {
+      if (typeof body.can_swim !== 'boolean') {
+        errors.push({ field: 'can_swim', message: 'Chọn có hoặc không' });
+      } else {
+        moetFields.can_swim = body.can_swim;
+      }
+    }
+    if (Object.keys(moetFields).length > 0) {
+      changes.moet_fields = moetFields;
+    }
     if (body?.gender !== undefined) {
       if (!GENDERS.includes(body.gender as ChildGender)) {
         errors.push({ field: 'gender', message: 'Giới tính là male hoặc female' });

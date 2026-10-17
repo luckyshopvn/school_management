@@ -40,6 +40,8 @@ export interface StudentListFilter {
   canSwim?: boolean;
   moetCode?: string;
   nationalId?: string;
+  // Học sinh chưa có mã định danh Bộ GD&ĐT (DT-16 phần 16g)
+  missingMoetCode?: boolean;
 }
 
 // Bộ lọc theo cột CSDL ngành cùng nhóm vai trò xem sức khỏe (BR-53, YCTD-100)
@@ -113,6 +115,7 @@ export function readStudentListFilter(query: Record<string, unknown>, errors: Fi
     canSwim: readYesNo(query, 'can_swim', errors),
     moetCode: readText(query, 'moet_student_code', errors, 50),
     nationalId: nationalId && NATIONAL_ID_PATTERN.test(nationalId) ? nationalId : undefined,
+    missingMoetCode: query.missing_moet_code === 'true' || query.missing_moet_code === true,
   };
 }
 
@@ -198,6 +201,14 @@ function filteredStudents(
   }
   if (nationalIdHash) {
     selection = selection.where('children.national_id_hash', '=', nationalIdHash);
+  }
+  if (filter.missingMoetCode) {
+    selection = selection.where((expression) =>
+      expression.or([
+        expression('children.moet_student_code', 'is', null),
+        expression('children.moet_student_code', '=', ''),
+      ]),
+    );
   }
   return selection;
 }
@@ -290,7 +301,12 @@ export async function findStudents(
   const counted = await selection
     .select((expression) => expression.fn.countAll<string>().as('count'))
     .executeTakeFirstOrThrow();
-  let query = selectStudentColumns(selection).orderBy(GIVEN_NAME_ORDER).orderBy(FULL_NAME_ORDER).orderBy('children.id');
+  let query = selectStudentColumns(selection);
+  // Lọc theo một lớp thì theo số thứ tự cố định trong lớp (mục 4.1.3 của Sở, DT-16 phần 16g), chưa có số thì xếp sau
+  if (filter.classId) {
+    query = query.orderBy(sql`class_enrollments.order_number nulls last`);
+  }
+  query = query.orderBy(GIVEN_NAME_ORDER).orderBy(FULL_NAME_ORDER).orderBy('children.id');
   if (page) {
     query = query.limit(page.limit).offset(page.offset);
   }

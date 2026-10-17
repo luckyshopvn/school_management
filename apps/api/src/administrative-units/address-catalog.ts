@@ -8,7 +8,15 @@ import {
 // lấy từ tệp CSDL ngành (YCTD-100), lưu ở `children.moet_profile` theo khóa `<loại>_province`, `<loại>_district` (quận/
 // huyện cũ), `<loại>_ward`. Địa chỉ còn theo địa danh cũ khi còn ghi quận/huyện, khi tỉnh chỉ có ở danh mục cũ, hoặc khi
 // xã không có trong danh sách xã mới của tỉnh. Địa danh mới đề xuất lấy theo bảng đối chiếu xã cũ sang xã mới
-export const ADDRESS_TYPES = ['permanent', 'hometown', 'birth_registration', 'birthplace', 'current'] as const;
+// Từ DT-16 phần 16g có thêm "Chuyển đến từ" (tỉnh, xã của cột "Chuyển đến từ Tỉnh/Thành Phố", "Chuyển đến từ Xã")
+export const ADDRESS_TYPES = [
+  'permanent',
+  'hometown',
+  'birth_registration',
+  'birthplace',
+  'current',
+  'transfer_from',
+] as const;
 export type AddressType = (typeof ADDRESS_TYPES)[number];
 
 export const ADDRESS_TYPE_LABELS: Record<AddressType, string> = {
@@ -17,6 +25,7 @@ export const ADDRESS_TYPE_LABELS: Record<AddressType, string> = {
   birth_registration: 'Nơi khai sinh',
   birthplace: 'Nơi sinh',
   current: 'Chỗ ở hiện nay',
+  transfer_from: 'Chuyển đến từ',
 };
 
 // Tình trạng đề xuất: một xã mới, nhiều xã mới (xã cũ chia cho nhiều xã), chưa có trong bảng đối chiếu
@@ -114,6 +123,25 @@ export class AddressCatalog {
       ward_name: unit.name,
       province_name: this.byId.get(unit.parent_id ?? '')?.name ?? '',
     };
+  }
+
+  // Xã mới theo tên tỉnh, tên xã (nhập danh sách học sinh kèm địa chỉ mới, DT-16 phần 16g)
+  findNewWard(province: string, ward: string): NewUnitChoice | undefined {
+    const newProvince = this.provinces.new.get(administrativeNameKey(province));
+    const unit = newProvince ? this.child(newProvince.id, 'ward', administrativeNameKey(ward))[0] : undefined;
+    return unit ? this.choice(unit) : undefined;
+  }
+
+  // Mọi xã mới (chọn xã mới khi sửa dòng đối chiếu, DT-16 phần 16g)
+  newWards(): NewUnitChoice[] {
+    return [...this.byId.values()]
+      .filter((unit) => unit.period === 'new' && unit.level === 'ward')
+      .map((unit) => this.choice(unit))
+      .sort(
+        (left, right) =>
+          left.province_name.localeCompare(right.province_name, 'vi') ||
+          left.ward_name.localeCompare(right.ward_name, 'vi'),
+      );
   }
 
   // Đơn vị mới theo mã, dùng khi người dùng chọn một trong nhiều xã mới

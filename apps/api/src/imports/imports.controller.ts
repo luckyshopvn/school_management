@@ -22,6 +22,7 @@ import { isUuid, type RequestBody } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { MAXIMUM_IMPORT_BYTES } from './excel.js';
 import { ImportsService } from './imports.service.js';
+import { isStudentImportType, STUDENT_IMPORT_PERMISSIONS, STUDENT_IMPORT_TYPES } from './student-imports.js';
 
 interface UploadedPart {
   originalname: string;
@@ -41,6 +42,9 @@ const fileName = (file: UploadedPart) => Buffer.from(file.originalname, 'latin1'
 // Quyền theo loại dữ liệu nhập: lớp và trẻ chỉ Hiệu trưởng, công nợ đầu kỳ cho kế toán (YCTD-54); tệp CSDL ngành của trẻ
 // như nhập trẻ, của nhân sự như nhập nhân sự (YCTD-100)
 function permissionOf(type: string): string {
+  if (isStudentImportType(type)) {
+    return STUDENT_IMPORT_PERMISSIONS[type];
+  }
   return type === 'moet_codes'
     ? PERMISSION_CODES.childManage
     : type === 'opening_debts'
@@ -50,7 +54,15 @@ function permissionOf(type: string): string {
         : PERMISSION_CODES.importChildren;
 }
 
-const UPLOAD_TYPES = ['classes', 'children', 'opening_debts', 'staff', 'moet_children', 'moet_staff'] as const;
+const UPLOAD_TYPES = [
+  'classes',
+  'children',
+  'opening_debts',
+  'staff',
+  'moet_children',
+  'moet_staff',
+  ...STUDENT_IMPORT_TYPES,
+] as const;
 type UploadType = (typeof UPLOAD_TYPES)[number];
 const isUploadType = (value: unknown): value is UploadType => UPLOAD_TYPES.includes(value as UploadType);
 
@@ -65,6 +77,16 @@ const TEMPLATE_PERMISSIONS = [
   PERMISSION_CODES.childManage,
   PERMISSION_CODES.openingDebtImport,
   PERMISSION_CODES.importStaff,
+  // Nhập của nhóm Học sinh (DT-16 phần 16g)
+  PERMISSION_CODES.childApprove,
+];
+// Tải lên, xem, ghi lần nhập
+const UPLOAD_PERMISSIONS = [
+  PERMISSION_CODES.importChildren,
+  PERMISSION_CODES.openingDebtImport,
+  PERMISSION_CODES.importStaff,
+  PERMISSION_CODES.childManage,
+  PERMISSION_CODES.childApprove,
 ];
 
 // Cột được chọn để nhập gửi kèm tệp dạng "khóa1,khóa2"; bỏ trống là mọi cột (DT-16 phần 16a)
@@ -150,7 +172,7 @@ export class ImportsController {
   }
 
   @Post()
-  @RequirePermission(PERMISSION_CODES.importChildren, PERMISSION_CODES.openingDebtImport, PERMISSION_CODES.importStaff)
+  @RequirePermission(...UPLOAD_PERMISSIONS)
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: MAXIMUM_IMPORT_BYTES, files: 1 } }))
   upload(
     @UploadedFile() file: UploadedPart | undefined,
@@ -202,7 +224,7 @@ export class ImportsController {
   }
 
   @Get(':id')
-  @RequirePermission(PERMISSION_CODES.importChildren, PERMISSION_CODES.openingDebtImport, PERMISSION_CODES.importStaff)
+  @RequirePermission(...UPLOAD_PERMISSIONS)
   async get(
     @Param('id', uuidParameter('Mã lần nhập không hợp lệ')) jobId: string,
     @AuthenticatedUser() currentUser: CurrentUser,
@@ -214,7 +236,7 @@ export class ImportsController {
 
   @Post(':id/commit')
   @HttpCode(200)
-  @RequirePermission(PERMISSION_CODES.importChildren, PERMISSION_CODES.openingDebtImport, PERMISSION_CODES.importStaff)
+  @RequirePermission(...UPLOAD_PERMISSIONS)
   async commit(
     @Param('id', uuidParameter('Mã lần nhập không hợp lệ')) jobId: string,
     @Req() request: Request,

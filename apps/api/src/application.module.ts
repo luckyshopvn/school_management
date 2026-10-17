@@ -135,6 +135,7 @@ import { FilesController, FilesService } from './files/files.js';
 import { ImportsController } from './imports/imports.controller.js';
 import { ImportsService } from './imports/imports.service.js';
 import { MoetImports } from './imports/moet-imports.js';
+import { StudentImports } from './imports/student-imports.js';
 import { AttendanceController } from './attendance/attendance.controller.js';
 import { AttendanceService } from './attendance/attendance.service.js';
 import { PickupsController } from './pickups/pickups.controller.js';
@@ -510,6 +511,7 @@ export class ApplicationModule {
         FilesService,
         ImportsService,
         MoetImports,
+        StudentImports,
         AttendanceService,
         PickupsService,
         ServicesService,
