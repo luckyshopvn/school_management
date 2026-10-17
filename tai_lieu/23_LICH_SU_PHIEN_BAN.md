@@ -1,8 +1,8 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.5
-- Ngày cập nhật: 2026-10-16
+- Phiên bản: 0.4
+- Ngày cập nhật: 2026-10-17
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
 
@@ -16,17 +16,16 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.70.0 – 2026-10-16
+### Phiên bản 0.70.0 – 2026-10-17
 
-- Phạm vi thay đổi: DT-16 phần 16c, khung trang và đăng nhập cổng quản trị theo hệ thống của Sở (YCTD-120).
-- Chức năng mới: thanh đầu trang có tên trường, ô "Cấp MN · năm học · học kỳ", lưới ứng dụng liên kết; menu người dùng đủ bảy mục (thêm Hồ sơ nhân sự cá nhân, Hướng dẫn); hộp "Thông báo" khi vào trang (thông báo hệ thống, mật khẩu sắp hết hạn, nhắc mã định danh điện tử của tổ chức theo NĐ 69); trang đăng nhập có tên, mã trường, ghi nhớ tài khoản, mã xác nhận dạng ảnh, liên kết Quên mật khẩu, đường dây nóng; trang Quên mật khẩu gửi mã qua tin nhắn; lịch sử mật khẩu; Quản trị hệ thống thêm 3.5 Thông báo hệ thống, 3.6 Ứng dụng liên kết; 1.4 Cấu hình trường thêm khối "Đăng nhập và bảo mật" (P01-18 đến P01-20).
+- Phạm vi thay đổi: DT-16 phần 16d, quản trị hệ thống đủ theo hệ thống của Sở (YCTD-120).
+- Chức năng mới: 1.1 Nhóm người dùng có Hiệu lực, Sửa, Xóa; màn hình 1.2 Phân quyền nhóm theo phần mềm (phân hệ nhóm được dùng, ẩn phân hệ khỏi ô chọn phân hệ và menu); 1.4 Danh sách người dùng có Mã nhân sự, Mã Bộ, Ngày hết hạn mật khẩu, lọc Mã định danh, ngày hết hạn mật khẩu, Phân nhóm quyền, Cấp mật khẩu hàng loạt, Lấy danh sách CBQL/GV, Xuất Excel; màn hình 1.6 Tài khoản đồng bộ của Bộ, của Sở (lưu mã hóa, bản chạy nội bộ).
 - Lỗi đã sửa: không có.
-- Thay đổi dữ liệu: tệp định danh `0045_add_password_history_and_announcement_permission` tạo bảng `password_history`, cho `one_time_codes.purpose` nhận thêm `password_reset`, thêm quyền `P01.announcement.manage` và gán cho VT-01, VT-02; tệp hệ thống `0011_create_announcements_and_app_links` tạo hai bảng `system_announcements`, `portal_app_links`; `identity_settings` có thêm bốn khóa cấu hình đăng nhập.
-- Thay đổi API: điểm cuối mới của dịch vụ định danh `/auth/login-options`, `/auth/captcha`, `/auth/password-reset/request`, `/auth/password-reset/confirm`; `login` kênh cổng quản trị nhận `captcha_id`, `captcha_text`; `/auth/settings` thêm bốn cấu hình. Điểm cuối mới của máy chủ API `/system-announcements`, `/system-announcements/{id}`, `/system-announcements/active`, `/app-links`, `/portal-context`, `/public/login-info`, `/staff/me/contact`; `PUT /school-profile` kiểm tra mã định danh điện tử 12 chữ số.
-- Kiểm thử: kịch bản CT-458 đến CT-478. Kết quả ngày 16/10/2026: kiểm thử đơn vị toàn bộ kho mã 742/742 ca đạt; toàn bộ kiểm thử giao diện [GIAO DIỆN]/[GIAO DIỆN] ca đạt.
-- Rủi ro: ảnh mã xác nhận tự sinh ở mức cơ bản, không bằng dịch vụ chuyên dụng; quên mật khẩu phụ thuộc kênh tin nhắn, chưa có thư điện tử; ghi thẻ thông tin chung của hồ sơ trường cần mã định danh điện tử đúng 12 chữ số hoặc để trống.
-- Khả năng tương thích: đăng nhập cổng quản trị đòi mã xác nhận từ lần thứ tư sau ba lần sai (mặc định), ứng dụng giáo viên, phụ huynh không đổi; mã một lần của phụ huynh chỉ đọc mã mục đích đăng nhập; menu người dùng thêm hai mục; không đổi điểm cuối cũ ngoài các điểm đã nêu.
-- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16c; chạy phần quay lui của tệp `0011` (xóa hai bảng) và `0045` (gỡ quyền, xóa mã đặt lại mật khẩu, trả ràng buộc mục đích về `login`, xóa bảng `password_history`); bốn khóa cấu hình đăng nhập ở `identity_settings` không còn được đọc, xóa thủ công nếu cần.
+- Thay đổi dữ liệu: tệp định danh `0046_add_role_status_and_workspaces` thêm `roles.is_active`, bảng `role_workspace_exclusions`; tệp hệ thống `0012_add_sync_account_credentials` thêm hai loại kết nối và hai cột của `integration_credentials`.
+- Thay đổi API: dịch vụ định danh thêm `PATCH, DELETE /roles/{id}`, `PUT /roles/{id}/workspaces`, `POST /users/bulk-reset-password`, `POST /users/bulk-roles`, tham số mới của `GET /users`, trường `workspaces` ở `/auth/me`; máy chủ API thêm `/account-directory`, `/account-directory/export`, `/account-directory/staff-without-account`, `/account-directory/staff-accounts`, `/sync-accounts`.
+- Rủi ro: ngừng hiệu lực một nhóm đang dùng làm người dùng mất quyền ngay; thao tác hàng loạt không gộp một giao dịch.
+- Khả năng tương thích: điểm cuối cũ giữ nguyên dạng trả về, chỉ thêm trường; không có mã quyền mới; nhóm cũ giữ đủ phân hệ trừ Phụ huynh; ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16d; chạy phần quay lui của tệp định danh `0046` (bỏ cột, bảng) và tệp hệ thống `0012` (xóa hai loại tài khoản đồng bộ, bỏ hai cột).
 
 ### Phiên bản 0.68.0 – 2026-10-16
 

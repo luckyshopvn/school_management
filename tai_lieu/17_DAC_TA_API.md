@@ -2,7 +2,7 @@
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
 - Phiên bản: 1.73
-- Ngày cập nhật: 2026-10-16
+- Ngày cập nhật: 2026-10-17
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -68,10 +68,6 @@ Nhóm điểm cuối dưới đây do dịch vụ định danh phục vụ.
 | POST | /api/v1/auth/verify-otp | Bỏ ngày 09/10/2026: không dùng xác thực hai lớp (YCTD-31) |
 | GET | /api/v1/auth/me | Lấy thông tin tài khoản, vai trò, đơn vị, danh sách quyền |
 | GET, PUT | /api/v1/auth/settings/password-policy | Đọc và sửa chính sách hết hạn mật khẩu; cần `P01.account.manage` (BR-110, YCTD-110) |
-| GET | /api/v1/auth/login-options | Công khai: đường dây nóng và có luôn hiện mã xác nhận của trang đăng nhập cổng quản trị (YCTD-120) |
-| POST | /api/v1/auth/captcha | Công khai: cấp ảnh mã xác nhận mới (YCTD-120) |
-| POST | /api/v1/auth/password-reset/request | Công khai: quên mật khẩu, yêu cầu mã đặt lại gửi qua tin nhắn; cần mã xác nhận (YCTD-120) |
-| POST | /api/v1/auth/password-reset/confirm | Công khai: đặt mật khẩu mới bằng mã trong tin nhắn (YCTD-120) |
 
 Thay bảng phần bếp ở mục 15 của `17_DAC_TA_API.md`:
 
@@ -247,15 +243,6 @@ Giao kèo của nhóm điểm cuối xác thực (DT-01 phần 1):
 10. `GET`, `PUT /auth/settings` có thêm `one_time_code_lifetime_minutes`, `one_time_code_maximum_attempts`, `one_time_code_maximum_sends_per_hour`; `PUT` nhận `parent_default_password`, `GET` chỉ trả `parent_default_password_configured`. `POST /users` với tài khoản chỉ có vai trò VT-14 trả `temporary_password` trống và `uses_default_password` đúng.
 11. Hết hạn mật khẩu (DT-15 phần 15g, YCTD-110, BR-110): `login`, `refresh`, `change-password` trả thêm `password_expired` (đúng thì `password_change_required` cũng đúng, mã phiên chỉ dùng được như mục 4) và `password_expires_in_days` (số ngày còn lại khi trong khoảng báo trước, ngoài ra null). Chỉ xét tài khoản có ít nhất một vai trò khác VT-14, đăng nhập hoặc làm mới phiên bằng mật khẩu; tài khoản còn dùng mật khẩu mặc định chung và phiên bằng mã một lần không xét. Đăng nhập bằng mật khẩu đã hết hạn ghi `security_events` loại `login_password_expired`. `change-password` và `POST /users/{id}/reset-password` ghi lại `password_changed_at`; mật khẩu mới trùng mật khẩu hiện tại trả `ERR_VALIDATION`.
 12. `GET /auth/settings/password-policy` trả `password_max_age_days` (mặc định 0 là không giới hạn), `password_expiry_warning_days` (mặc định 7). `PUT` nhận một hoặc cả hai trường: `password_max_age_days` số nguyên 0 đến 3650, `password_expiry_warning_days` số nguyên 0 đến 90; sai hoặc thân rỗng trả `ERR_VALIDATION`; ghi `identity_audit_logs`. Cả hai cần `P01.account.manage` (VT-01, VT-02), thiếu quyền trả `ERR_FORBIDDEN`.
-13. Mã xác nhận, quên mật khẩu, lịch sử mật khẩu (DT-16 phần 16c, YCTD-120, BR-118):
-    - `POST /auth/captcha` không cần thân yêu cầu, trả `captcha_id`, `image` (`data:image/png;base64,…`, ảnh 170 × 56 điểm ảnh vẽ ở máy chủ), `expires_in_seconds` (300); giới hạn tần suất theo địa chỉ mạng như `login`. Đáp án lưu ở Redis 5 phút, dùng một lần.
-    - `login` kênh `portal` nhận thêm `captcha_id`, `captcha_text` (không phân biệt hoa thường). Khi bắt buộc (`captcha_always` đúng hoặc tên đăng nhập đã sai từ `captcha_failure_threshold` lần trong 15 phút) mà thiếu mã trả `ERR_VALIDATION` (400) trường `captcha` "Nhập mã xác nhận trong ảnh", sai hoặc hết hạn trả trường `captcha` "Mã xác nhận không đúng hoặc đã hết hạn", trước khi kiểm tra mật khẩu. Kênh `teacher`, `parent` không áp dụng.
-    - `GET /auth/login-options` trả `{ hotline, captcha_always }`; `hotline` null khi chưa cấu hình.
-    - `POST /auth/password-reset/request` nhận `login` (số điện thoại hoặc tên đăng nhập), `captcha_id`, `captcha_text` (luôn bắt buộc); trả 200 cùng nội dung dù tài khoản có hay không; chỉ gửi mã 6 chữ số khi tài khoản đang hoạt động, có số điện thoại và có vai trò khác VT-14; quá `one_time_code_maximum_sends_per_hour` lần mỗi giờ theo tên đã nhập trả `ERR_RATE_LIMIT` (429).
-    - `POST /auth/password-reset/confirm` nhận `login`, `code`, `new_password`; mật khẩu không đạt chính sách (BM-03) hoặc trùng mật khẩu gần đây trả `ERR_VALIDATION` trường `new_password` và giữ mã; mã sai, hết hạn hoặc đã dùng trả `ERR_UNAUTHENTICATED` (401) "Mã không đúng hoặc đã hết hạn, vui lòng yêu cầu mã mới"; thành công trả `message`, thu hồi mọi phiên, mở tạm khóa, bỏ bắt buộc đổi mật khẩu. Nhật ký an ninh: `password_reset_code_sent`, `password_reset`, `password_reset_failed`, `password_reset_request_ignored`, `password_reset_send_limit`.
-    - `change-password` và `password-reset/confirm` từ chối mật khẩu trùng mật khẩu hiện tại hoặc `password_history_count` mật khẩu gần nhất: trường `new_password` "Mật khẩu mới phải khác mật khẩu hiện tại và N mật khẩu gần nhất".
-    - `GET`, `PUT /auth/settings` có thêm `captcha_failure_threshold` (1 đến 10), `password_history_count` (0 đến 24), `captcha_always` (đúng hoặc sai), `login_hotline` (tối đa 100 ký tự, chuỗi rỗng là bỏ); sửa cần `P01.setting.manage` ở phạm vi toàn trường như mục 10.
-    - `otp/login` của phụ huynh chỉ nhận mã có `purpose` là `login`.
 
 ## 5. Nền tảng và phân quyền
 
@@ -273,12 +260,6 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | POST | /api/v1/academic-years/{id}/close | Bỏ ngày 09/10/2026: gộp vào mở năm học mới (YCTD-37) |
 | GET, PUT | /api/v1/me/quick-links | Đọc và lưu lối tắt Truy cập nhanh trên trang chủ cổng quản trị của chính người đăng nhập (YCTD-102) |
 | GET, PUT | /api/v1/me/grid-settings/{gridKey} | Đọc và ghi đè cấu hình lưới dữ liệu (cột hiển thị theo thứ tự, số dòng mỗi trang) của chính người đăng nhập (YCTD-107) |
-| GET, POST | /api/v1/system-announcements | Danh sách thông báo hệ thống; soạn thông báo; cần `P01.announcement.manage` (YCTD-120) |
-| PUT, DELETE | /api/v1/system-announcements/{id} | Sửa (thay toàn bộ), xóa thông báo; cần `P01.announcement.manage` |
-| GET | /api/v1/system-announcements/active | Thông báo đang bật và còn hiệu lực hôm nay; mọi người đã đăng nhập |
-| GET, PUT | /api/v1/app-links | Ứng dụng liên kết theo thứ tự (mọi người đã đăng nhập); thay cả danh sách (cần `P01.announcement.manage`) |
-| GET | /api/v1/portal-context | Tên, mã trường, năm học đang dùng, cấp học, lời nhắc mã định danh tổ chức cho thanh đầu trang; mọi người đã đăng nhập |
-| GET | /api/v1/public/login-info | Công khai: tên, mã trường, năm học đang dùng cho trang đăng nhập (YCTD-120) |
 | GET, PUT | /api/v1/school-profile | Đọc hồ sơ trường kèm Trường chính; ghi các thẻ gửi lên (P01-15, YCTD-106) |
 | POST | /api/v1/user-feedback | Gửi ý kiến phản hồi từ chân trang cổng quản trị; mọi tài khoản đăng nhập, tối đa 10 ý kiến mỗi giờ (P01-16, BR-108, YCTD-110) |
 | GET | /api/v1/me/user-feedback | Ý kiến phản hồi của chính người đăng nhập, mới nhất trước (YCTD-110) |
@@ -318,15 +299,6 @@ Giao kèo của ý kiến phản hồi (DT-15 phần 15g, YCTD-110, do máy ch�
 4. `PUT /user-feedback/{id}` nhận `status` và/hoặc `reply` (tối đa 5000 ký tự, chuỗi rỗng là xóa câu trả lời), phải có ít nhất một trường; không thấy ý kiến trả `ERR_NOT_FOUND` (404). Câu trả lời mới hoặc khác câu cũ thì ghi `replied_by`, `replied_by_name`, `replied_at` và xếp một thông báo trong ứng dụng mã mẫu `feedback_reply` ("Ý kiến phản hồi đã được trả lời") cho người gửi khi có năm học đang dùng; lưu lại đúng câu cũ không báo lại; xóa câu trả lời thì bỏ người và thời điểm trả lời (BR-109).
 5. `GET /user-feedback/{id}/attachment` trả ảnh với kiểu nội dung đã lưu; chỉ người gửi hoặc người có `P01.feedback.manage` xem được, người khác và ý kiến không có ảnh nhận `ERR_NOT_FOUND` (404).
 6. `GET /user-feedback`, `PUT /user-feedback/{id}` cần `P01.feedback.manage` (VT-01, VT-02, PQ-64), thiếu quyền trả `ERR_FORBIDDEN` (403). `DATA_GRID_KEYS` thêm `my-feedback`, `feedback` cho hai lưới của cổng quản trị. Góp ý của phụ huynh ở `/feedbacks` (mục 16) là chức năng khác, không đổi.
-
-Giao kèo khung trang cổng quản trị (DT-16 phần 16c, YCTD-120, do máy chủ API phục vụ; hai bảng ở cơ sở dữ liệu hệ thống):
-
-1. `POST /system-announcements` nhận `title` (1 đến 200 ký tự), `content` (1 đến 5000 ký tự), `valid_from` (YYYY-MM-DD) bắt buộc, `valid_until` (không trước `valid_from`, không gửi là không hết hạn), `is_active` (đúng hoặc sai, mặc định đúng); trả 201 kèm `id`, `created_by`, `created_by_name`. `PUT /system-announcements/{id}` nhận như `POST` và thay toàn bộ, trả 200. `DELETE` trả 204, không có thông báo trả `ERR_NOT_FOUND` (404). Dữ liệu sai trả `ERR_VALIDATION` (400) kèm từng trường. Mọi thao tác ghi ghi nhật ký thao tác (`system_announcements`) ở năm học đang dùng nếu có.
-2. `GET /system-announcements/active` trả các thông báo có `is_active` đúng và hôm nay theo giờ Việt Nam nằm trong `valid_from` đến `valid_until`.
-3. `PUT /app-links` nhận `{ links: [{ name, url, description }] }` (0 đến 20 dòng; `name` 1 đến 100 ký tự; `url` bắt đầu bằng `http://` hoặc `https://`; lỗi chỉ rõ trường dạng `links[0].url`), thay cả danh sách theo thứ tự gửi lên; ghi nhật ký thao tác `portal_app_links`. `GET /app-links` trả `name`, `url`, `description`, `position` theo thứ tự.
-4. `GET /portal-context` trả `school_name` (tên Trường chính trong cây đơn vị của năm học đang dùng), `school_code` (`general.moet_code` ở hồ sơ trường, chưa có thì mã đơn vị), `academic_year` (tên năm học đang dùng), `education_level` ("Cấp MN"), `organization_id_reminder` (đúng khi người gọi có `P01.school-profile.manage`, đã có Trường chính và `general.electronic_id_code` chưa đúng 12 chữ số). `GET /public/login-info` trả `school_name`, `school_code`, `academic_year`; chưa có năm học hoặc Trường chính thì các trường là null.
-5. `PUT /school-profile`: `general.electronic_id_code` có thì phải đúng 12 chữ số (Nghị định 69/2024/NĐ-CP), sai trả `ERR_VALIDATION` trường `general.electronic_id_code` "Mã định danh điện tử của tổ chức gồm đúng 12 chữ số".
-6. Thiếu quyền trả `ERR_FORBIDDEN` (403); chưa đăng nhập gọi `/portal-context`, `/system-announcements/active`, `/app-links` trả 401. `DATA_GRID_KEYS` thêm `system-announcements` cho lưới của mục 3.5.
 
 Giao kèo của hồ sơ trường, khai báo cơ sở vật chất, thiết bị dạy học, báo cáo EMIS đầu năm (DT-14 phần 14d, YCTD-106):
 
@@ -640,13 +612,17 @@ Giao kèo của nhóm điểm cuối năm học (DT-01 phần 3):
 | GET | /api/v1/catalog-types | Các loại danh mục dùng chung do hệ thống định nghĩa |
 | GET, POST | /api/v1/catalog-items | Danh sách và tạo mục danh mục dùng chung |
 | PATCH | /api/v1/catalog-items/{id} | Sửa, ngừng sử dụng hoặc dùng lại mục danh mục dùng chung |
-| GET, POST | /api/v1/users | Danh sách và tạo tài khoản; từ YCTD-109 lọc thêm `login`, `full_name`, `must_change_password`, lọc và phân trang trong câu truy vấn; từ YCTD-110 mỗi dòng có thêm `password_changed_at` |
+| GET, POST | /api/v1/users | Danh sách và tạo tài khoản; từ YCTD-109 lọc thêm `login`, `full_name`, `must_change_password`, lọc và phân trang trong câu truy vấn; từ YCTD-110 mỗi dòng có thêm `password_changed_at`; từ YCTD-120 lọc thêm `user_ids` (tối đa 200, phân tách bằng dấu phẩy), `password_expires_from`, `password_expires_to` (YYYY-MM-DD), mỗi dòng có `password_expires_at` |
 | GET | /api/v1/users/directory | Danh bạ nhân sự theo vai trò và đơn vị để phân công giáo viên; cần `P02.class.manage` (YCTD-44) |
 | PATCH | /api/v1/users/{id} | Cập nhật tài khoản, khóa hoặc mở khóa |
 | POST | /api/v1/users/guardian-accounts | Tạo tài khoản phụ huynh hoặc thêm vai trò VT-14 khi duyệt hồ sơ trẻ; cần `P02.approve` ở đơn vị (YCTD-45) |
 | POST | /api/v1/users/{id}/reset-password | Đặt lại mật khẩu |
 | GET, POST | /api/v1/roles | Danh sách và tạo vai trò |
 | PUT | /api/v1/roles/{id}/permissions | Gán danh sách quyền cho vai trò |
+| PATCH, DELETE | /api/v1/roles/{id} | Sửa `name`, `is_active`; xóa nhóm không phải nhóm hệ thống, chưa có người dùng (BR-118, YCTD-120) |
+| PUT | /api/v1/roles/{id}/workspaces | Thay toàn bộ phân hệ nhóm được dùng: `workspace_keys` là khóa phân hệ của `PORTAL_WORKSPACES` (P01-18) |
+| POST | /api/v1/users/bulk-reset-password | Cấp mật khẩu hàng loạt: `user_ids` (1 đến 200); trả từng dòng `temporary_password` hoặc `skipped_reason` (YCTD-120) |
+| POST | /api/v1/users/bulk-roles | Phân nhóm quyền hàng loạt: `user_ids`, `role` (`role_code`, `org_unit_id`); trả từng dòng `added`, `skipped_reason`; cần `P01.account.manage` |
 | POST | /api/v1/users/{id}/roles | Gán vai trò kèm phạm vi đơn vị |
 | DELETE | /api/v1/users/{id}/roles/{assignmentId} | Gỡ một vai trò của tài khoản; thu hồi mọi phiên của tài khoản (YCTD-39) |
 | GET | /api/v1/permissions | Danh sách quyền theo phân hệ |
@@ -915,7 +891,6 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 | POST | /api/v1/staff/export | Xuất Excel danh sách cán bộ, giáo viên theo bộ lọc và cột đang hiện; cần `P17.data.export`, ghi nhật ký xuất (YCTD-112) |
 | PATCH | /api/v1/staff/{id}/profile | Ghi hồ sơ theo biểu mẫu của Sở và thông tin riêng của trường, chỉ ô gửi lên (YCTD-112) |
 | GET | /api/v1/staff/me | Hồ sơ và hợp đồng của chính mình (YCTD-58) |
-| PATCH | /api/v1/staff/me/contact | Người dùng tự sửa `phone` (9 đến 15 chữ số, có thể có dấu + ở đầu), `email`, `address` trên hồ sơ nhân sự gắn với tài khoản của mình; chưa gắn trả `ERR_NOT_FOUND` (404); ghi nhật ký thao tác `staff`; trả hồ sơ như `GET /staff/me` (YCTD-120) |
 | GET | /api/v1/staff/expiring-contracts | Hợp đồng sắp hết hạn theo cấu hình đơn vị (YCTD-58) |
 | POST, DELETE | /api/v1/staff/{id}/account | Liên kết và bỏ liên kết tài khoản có sẵn (YCTD-58) |
 | POST | /api/v1/staff/{id}/contracts | Lập hợp đồng lao động |
@@ -1162,6 +1137,12 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | POST | /api/v1/integrations/facebook/test | Kiểm tra kết nối Fanpage: trả mã và tên trang; lỗi trả 422 kèm lời báo (YCTD-95) |
 | POST | /api/v1/integrations/zalo/test | Kiểm tra kết nối Zalo Official Account: trả mã và tên Official Account; lỗi trả 422 (YCTD-95) |
 | PUT | /api/v1/integrations/zalo/refresh-token | Lưu khóa làm mới Zalo mới (mã hóa), bỏ khóa truy cập cũ; không bao giờ trả lại khóa, nhật ký chỉ ghi đã thay (YCTD-95) |
+| GET | /api/v1/sync-accounts | Tài khoản đồng bộ của Bộ (`moet`), của Sở (`doet`): `username`, `password_configured`, `updated_at`, `sync_available`; không bao giờ trả mật khẩu; cần `P01.integration.manage` (P01-19, YCTD-120) |
+| PUT, DELETE | /api/v1/sync-accounts/{target} | Ghi `username` (bắt buộc, đến 100 ký tự), `password` (đến 200 ký tự; trống thì giữ mật khẩu đã lưu, lần đầu bắt buộc); xóa thông tin đã lưu |
+| GET | /api/v1/account-directory | Danh sách người dùng của 1.4 ghép hồ sơ nhân sự: tham số như `GET /users` (`q`, `status`, `role_code`, `login`, `full_name`, `must_change_password`, `password_expires_from`, `password_expires_to`, `page`, `page_size` 10, 20, 50, 100, 200) và `identifier` (mã nhân sự hoặc mã Bộ, khớp một phần); mỗi dòng thêm `staff_id`, `staff_code`, `moet_staff_code`; cần `P01.account.manage` hoặc `P01.account.manage-in-unit` (YCTD-120) |
+| POST | /api/v1/account-directory/export | Xuất Excel theo bộ lọc và `columns`; cần thêm `P17.data.export`; tối đa 10 000 dòng; ghi nhật ký xuất `accounts` (BR-74) |
+| GET | /api/v1/account-directory/staff-without-account | Nhân sự đang làm việc chưa có tài khoản trong phạm vi: `id`, `code`, `full_name`, `phone`, `org_unit_id`, `org_unit_name`, `suggested_username` |
+| POST | /api/v1/account-directory/staff-accounts | Lấy danh sách CBQL/GV: `staff_ids` (1 đến 200), `role_code`; tạo tài khoản từng người qua dịch vụ định danh, liên kết hồ sơ nhân sự; trả từng dòng `login`, `temporary_password` hoặc `error` |
 | POST | /api/v1/activities/{id}/facebook-post | Đăng hoạt động đã công bố lên Fanpage (P14.facebook.manage) |
 | POST | /api/v1/news/{id}/facebook-post | Đăng tin tức đã công bố, phạm vi toàn trường hoặc đơn vị, lên Fanpage |
 | GET | /api/v1/facebook-posts | Bài đăng Fanpage trong phạm vi đơn vị; lọc `source_type`, `source_id` |

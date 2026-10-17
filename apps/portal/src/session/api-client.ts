@@ -33,6 +33,8 @@ export interface CurrentUser {
   username: string | null;
   must_change_password: boolean;
   assignments: Array<{ role_code: string; role_name: string; org_unit_id: string | null; permissions: string[] }>;
+  // Phân hệ của cổng quản trị được dùng theo 1.2 Phân quyền nhóm theo phần mềm (DT-16 phần 16d); máy cũ không trả thì hiện đủ
+  workspaces?: string[];
 }
 
 // Mã phiên chỉ giữ trong bộ nhớ của trang; mã làm mới nằm trong cookie httpOnly (RG-04, BM-71)

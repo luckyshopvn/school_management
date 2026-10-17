@@ -8,6 +8,7 @@ import { migration as createFeedback } from './migrations/0007_create_feedback.j
 import { migration as createAdministrativeUnits } from './migrations/0008_create_administrative_units.js';
 import { migration as createArchiveTables } from './migrations/0009_create_archive_tables.js';
 import { migration as createAnnouncementsAndAppLinks } from './migrations/0011_create_announcements_and_app_links.js';
+import { migration as addSyncAccountCredentials } from './migrations/0012_add_sync_account_credentials.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu hệ thống, theo số thứ tự (QU-01, QĐ-17)
 export const systemMigrations: Record<string, Migration> = {
@@ -20,4 +21,5 @@ export const systemMigrations: Record<string, Migration> = {
   '0008_create_administrative_units': createAdministrativeUnits,
   '0009_create_archive_tables': createArchiveTables,
   '0011_create_announcements_and_app_links': createAnnouncementsAndAppLinks,
+  '0012_add_sync_account_credentials': addSyncAccountCredentials,
 };
