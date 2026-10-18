@@ -23,7 +23,7 @@
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp năm học `0059_create_emis_report_values` tạo bảng `emis_report_values`. Không có migration hệ thống, định danh.
 - Thay đổi API: điểm cuối mới `GET /reports/emis/forms/{form}`, `PUT /reports/emis/forms/{form}/tabs/{tab}`, `POST /reports/emis/forms/{form}/tabs/{tab}/fill`, `POST /reports/emis/forms/{form}/export`, `POST /upper-level-submissions/{form}/error-file`; nhóm `/upper-level-submissions` nhận thêm mã sáu biểu mới; tệp gửi của 1.1 sáu trang.
-- Kiểm thử: kịch bản CT-572 đến CT-580. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) <UNIT_PASS>/<UNIT_TOTAL> ca đạt; toàn bộ kiểm thử giao diện <E2E_PASS>/<E2E_TOTAL> ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử: kịch bản CT-572 đến CT-580. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 832/832 ca đạt; toàn bộ kiểm thử giao diện 131/131 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Rủi ro: tên, mã số chỉ tiêu của bảy biểu do Claude đặt, chưa đối chiếu biểu mẫu chính thức của Sở; không truyền dữ liệu lên Bộ, Sở, người dùng phải gửi tệp và đánh dấu trạng thái; 2.1, 2.4 tính tại thời điểm xem.
 - Khả năng tương thích: giữ `GET /reports/emis/start-of-year`, `POST /reports/emis/start-of-year/export`, `GET /reports/emis/start-of-year-health`; trạng thái gửi đã có của 1.1 giữ nguyên (cùng mã `emis-start-of-year`); tệp Excel 1.1 thêm trang thứ sáu ở cuối, năm trang đầu như cũ.
 - Phương án quay lui: hoàn lại commit gộp của nhánh phần 16j; chạy phần quay lui của tệp năm học `0059` (xóa bảng `emis_report_values`). Dòng `upper_level_submissions` của sáu biểu mới không còn được đọc, xóa tay nếu cần.

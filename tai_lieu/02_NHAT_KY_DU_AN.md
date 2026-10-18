@@ -21,7 +21,7 @@
 - Cơ sở dữ liệu năm học: tệp `0059_create_emis_report_values` tạo bảng `emis_report_values` (số liệu nhập tay theo biểu, thẻ, mã chỉ tiêu). Không có migration hệ thống (số 0014 dành cho phần 16j không dùng), không có migration định danh.
 - Máy chủ API: dịch vụ bảy biểu EMIS (`apps/api/src/emis/`) với `/reports/emis/forms/{form}` (xem), `/tabs/{tab}` (ghi), `/tabs/{tab}/fill` (Lấy dữ liệu, Lấy dữ liệu năm trước, không lưu), `/export` (Excel mỗi thẻ một trang, in tên đơn vị hành chính); bảy biểu đăng ký gửi lên cấp trên; `/upper-level-submissions/{form}/error-file` (Xuất file lỗi dùng chung); màn hình nhập khóa khi biểu đã đánh dấu đã gửi hoặc đang chờ mở khóa.
 - Cổng quản trị: phân hệ "Báo cáo số liệu" có nhóm "1. Báo cáo đầu năm" (1.1, 1.2, 1.3) và "2. Báo cáo cuối năm" (2.1 đến 2.4) dùng một màn hình chung; 1.1 thêm thẻ "Ngân sách nhà nước" và danh sách gửi báo cáo bảy biểu kèm dòng "Số đã gửi, Số cần gửi, Lần gửi cuối"; mỗi dòng biểu có "Xuất file lỗi".
-- Thêm chức năng P17-23 đến P17-27 (sửa P17-18, P17-20, P17-22), kịch bản CT-572 đến CT-580, tiêu chí AC-602 đến AC-606, quy tắc BR-126, màn hình MH-127 đến MH-132. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) <UNIT_PASS>/<UNIT_TOTAL> ca đạt; toàn bộ kiểm thử giao diện <E2E_PASS>/<E2E_TOTAL> ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm chức năng P17-23 đến P17-27 (sửa P17-18, P17-20, P17-22), kịch bản CT-572 đến CT-580, tiêu chí AC-602 đến AC-606, quy tắc BR-126, màn hình MH-127 đến MH-132. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 832/832 ca đạt; toàn bộ kiểm thử giao diện 131/131 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
