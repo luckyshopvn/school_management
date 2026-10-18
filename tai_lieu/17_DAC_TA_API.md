@@ -377,6 +377,15 @@ Giao kèo của hồ sơ trường, khai báo cơ sở vật chất, thiết b�
 8. Ba điểm cuối xuất ghi một dòng `export_logs` (mã báo cáo `facility-rooms`, `equipment-summary`, `emis-start-of-year`, không có dữ liệu cá nhân), trả mã nhật ký ở tiêu đề `x-export-log-id`; không cần `P17.data.export`.
 9. Vi phạm quy tắc nghiệp vụ của phần này (ghi số lượng hoặc gắn tài sản cho thiết bị ngừng dùng, gắn tài sản đã thanh lý) trả `ERR_RULE_VIOLATION` với mã chung của đợt DT-14 là `YCTD-102`.
 
+Giao kèo cơ sở vật chất theo Sở (DT-16 phần 16i, YCTD-128, BR-126):
+
+1. `GET /facilities/report` cần `P17.report.facilities` hoặc `P01.school-profile.manage`; `org_unit_id` trong phạm vi (trống là mọi đơn vị trong phạm vi); trả `figures` (dòng khối, loại phòng, tổng), `toilets` (`rows`, `group_rooms`, `group_rooms_ensuite`, `group_rooms_adjacent`), `standard` (năm khối kèm `level`, `note`, `hints`), `overall_level` (mức thấp nhất hoặc null), `completeness`, `whole_school`.
+2. `PUT /facilities/report/standard-levels` cần `P01.school-profile.manage` toàn trường; nhận `items` (`room_block` trong năm khối không lặp, `level` not_met, level_1, level_2, `note` tối đa 500 ký tự); ghi nhật ký thao tác; trả báo cáo toàn trường.
+3. `GET /facilities/investments` cần `P17.report.facilities` hoặc `P01.school-profile.manage` toàn trường; trả `items` (classroom, teacher_housing kèm `suggestion`), `class_count`, `classes_without_room`, `can_manage`. `PUT` cần `P01.school-profile.manage` toàn trường; số nguyên không âm (tối đa 100 000), `need_budget_million` không âm làm tròn hai chữ số.
+4. `/facility-imports` cùng dạng điểm cuối với `/imports` (mục 17.1) cho loại `rooms` (cần `P01.room.manage`, đơn vị của dòng trong phạm vi) và `equipment_items` (cần `P13.equipment.manage` toàn trường); loại khác trả `ERR_VALIDATION`; ghi lần nhập còn dòng lỗi hoặc đã ghi trả `ERR_RULE_VIOLATION` mã YCTD-128.
+5. Biểu mẫu gửi lên cấp trên mới (mục 17.1, P17-20): `facilities-report` ("Báo cáo cơ sở vật chất", quyền `P17.report.facilities`, không cho trường không có dữ liệu) và `equipment-summary` ("Tổng hợp thiết bị dạy học", cho trường không có dữ liệu); quyền mở khóa `P01.school-profile.manage`; cả hai cần phạm vi toàn trường. Tệp gửi là tệp Excel của 1.2 (mã báo cáo `facilities-report`) và của 2.1 (`equipment-summary`).
+6. `POST /rooms`, `PATCH /rooms/{id}` nhận thêm `facility_attributes.toilet_users`, `toilet_standard`, `toilet_separate_gender`, `toilet_seats`; gửi cho phòng không phải loại `toilet` trả `ERR_VALIDATION`.
+
 Giao kèo của cân nặng, chiều cao, thống kê theo tiêu chí ngành, hồ sơ chưa nhập đủ (DT-14 phần 14a, YCTD-105):
 
 1. `POST /growth-rounds` nhận `org_unit_id`, `name` (trùng trong đơn vị trả `ERR_RULE_VIOLATION`), `measured_on` (sau hôm nay trả `ERR_VALIDATION`), `note`; lập, xóa đợt cần `P10.health.manage` trong phạm vi đơn vị. `GET /growth-rounds` cần `org_unit_id`, trả số số đo của từng đợt và `can_manage`. `DELETE` đợt đã có số đo trả `ERR_RULE_VIOLATION`.
@@ -1275,6 +1284,17 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | POST | /api/v1/equipment-assets | Gắn hoặc bỏ gắn tài sản với thiết bị (YCTD-106) |
 | GET | /api/v1/equipment-report | Tổng hợp thiết bị dạy học theo định mức (BR-102, YCTD-106) |
 | POST | /api/v1/equipment-report/export | Xuất Excel tổng hợp thiết bị, ghi nhật ký xuất (BR-74, YCTD-106) |
+| GET | /api/v1/facilities/report | "1.2. Báo cáo cơ sở vật chất": số liệu phòng, nhà vệ sinh, mức độ đạt chuẩn, hoàn thành dữ liệu; lọc `org_unit_id` (P17-23, BR-126, YCTD-128) |
+| PUT | /api/v1/facilities/report/standard-levels | Ghi mức độ đạt chuẩn các khối phòng cho toàn trường (YCTD-128) |
+| POST | /api/v1/facilities/report/export | Xuất Excel hoặc PDF (`format`) ba trang của 1.2, ghi nhật ký xuất (BR-74, YCTD-128) |
+| GET, PUT | /api/v1/facilities/investments | "6.1. Thực trạng và nhu cầu đầu tư phòng học, nhà công vụ": đọc kèm gợi ý từ khai báo phòng; ghi (P13-13, YCTD-128) |
+| POST | /api/v1/facilities/investments/export | Xuất Excel hoặc PDF 6.1, ghi nhật ký xuất (YCTD-128) |
+| GET | /api/v1/facility-imports/templates/{type}/columns | Cột của mẫu nhập phòng (`rooms`) hoặc danh mục thiết bị (`equipment_items`), cờ `locked` (P13-14, YCTD-128) |
+| GET | /api/v1/facility-imports/catalogs/{type} | Tra cứu danh mục của tệp nhập (YCTD-128) |
+| GET | /api/v1/facility-imports/templates/{type} | Tệp mẫu; `with_data=true` kèm phòng trong phạm vi hoặc cả danh mục thiết bị (YCTD-128) |
+| POST | /api/v1/facility-imports | Tải tệp lên (`type`, `file`, `columns`), kiểm tra cả tệp (YCTD-128) |
+| POST | /api/v1/facility-imports/{id}/commit | Ghi dữ liệu khi không còn dòng lỗi (YCTD-128) |
+| GET | /api/v1/facility-imports/{id}/error-file | Tệp lỗi: tệp gốc kèm cột Nội dung lỗi (YCTD-128) |
 
 ## 16. Nội dung, tương tác và tuyển sinh
 
