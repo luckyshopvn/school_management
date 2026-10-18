@@ -1,9 +1,12 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, TextField, Toast } from '@school-management/ui';
+import { Alert, Button, DataGrid, TextField, Toast, type DataGridColumn } from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { AppShell } from '../pages/AppShell.js';
+import { matchesSearch } from '../pages/grid-search.js';
+import { useGridSettings } from '../pages/grid-settings.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { requestJson } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import {
@@ -26,10 +29,116 @@ import {
 
 // MH-17 Thuốc và dặn thuốc (P10-02 đến P10-05, P10-09; BR-48 đến BR-50, BR-63, BR-86, BR-88; YCTD-75): y tế nhận hoặc từ
 // chối yêu cầu dặn thuốc, ghi liều và bỏ liều theo khung giờ, thấy trạng thái phụ huynh đã biết bỏ liều; quản lý danh mục
-// thuốc, nhà thuốc; đề nghị mua thuốc duyệt theo hạn mức, phiếu mua thuốc tăng tồn, phiếu cấp thuốc trừ tồn
+// thuốc, nhà thuốc; đề nghị mua thuốc duyệt theo hạn mức, phiếu mua thuốc tăng tồn, phiếu cấp thuốc trừ tồn.
+// Mọi danh sách theo lưới dữ liệu chung, tìm tại chỗ, Mở rộng tìm kiếm, Thêm mới mở biểu mẫu; từ chối nhận thuốc, bỏ liều
+// và lập phiếu mua mở ngay dưới dòng (DT-16 phần 16b)
 type Tab = 'requests' | 'schedule' | 'catalog' | 'purchases' | 'issues';
 const selectClass = 'mt-2 block w-full rounded-lg border border-border bg-card px-3 py-2 text-content font-normal';
 const money = (amount: number) => amount.toLocaleString('vi-VN');
+const ACTIVE_LABELS: Record<'active' | 'inactive', string> = { active: 'Đang dùng', inactive: 'Ngừng dùng' };
+const doseKeyOf = (row: ScheduleRow) => `${row.request_id}:${row.scheduled_time}`;
+
+function NameWithClass({ name, className }: { name: string; className: string | null }) {
+  return (
+    <>
+      {name}
+      <br />
+      <span className="text-text-secondary">{className ?? ''}</span>
+    </>
+  );
+}
+
+function StatusSelect({
+  value,
+  onChange,
+  labels,
+}: {
+  value: string;
+  onChange(value: string): void;
+  labels: Record<string, string>;
+}) {
+  return (
+    <label className="text-label font-medium text-text">
+      Trạng thái
+      <select value={value} onChange={(event) => onChange(event.target.value)} className={selectClass}>
+        <option value="">Tất cả</option>
+        {Object.entries(labels).map(([code, label]) => (
+          <option key={code} value={code}>
+            {label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+const SCHEDULE_COLUMNS: Array<DataGridColumn<ScheduleRow>> = [
+  { id: 'scheduled_time', header: 'Giờ', cell: (row) => row.scheduled_time },
+  {
+    id: 'full_name',
+    header: 'Học sinh',
+    alwaysVisible: true,
+    className: 'font-medium',
+    cell: (row) => <NameWithClass name={row.full_name} className={row.class_name} />,
+  },
+  { id: 'medicine_name', header: 'Thuốc', cell: (row) => row.medicine_name },
+  { id: 'dosage', header: 'Liều', cell: (row) => row.dosage },
+  {
+    id: 'administration',
+    header: 'Ghi nhận',
+    cell: (row) => (row.administration ? describeDose(row.administration) : 'Chưa ghi'),
+  },
+];
+
+const PURCHASE_REQUEST_COLUMNS: Array<DataGridColumn<PurchaseRequest>> = [
+  {
+    id: 'medicine_name',
+    header: 'Thuốc',
+    alwaysVisible: true,
+    className: 'font-medium',
+    cell: (row) => row.medicine_name,
+  },
+  { id: 'quantity', header: 'Số lượng', cell: (row) => `${row.quantity} ${row.unit}` },
+  { id: 'estimated_amount', header: 'Dự kiến', cell: (row) => `${money(row.estimated_amount)} đ` },
+  { id: 'reason', header: 'Lý do', cell: (row) => row.reason },
+  {
+    id: 'status',
+    header: 'Trạng thái',
+    cell: (row) =>
+      `${PURCHASE_STATUS_LABELS[row.status]}${row.status === 'pending' && row.requires_principal ? ' (Hiệu trưởng duyệt)' : ''}${row.reject_reason ? `: ${row.reject_reason}` : ''}`,
+  },
+];
+
+const ORDER_COLUMNS: Array<DataGridColumn<PurchaseOrder>> = [
+  { id: 'code', header: 'Mã phiếu', alwaysVisible: true, className: 'font-medium', cell: (row) => row.code },
+  { id: 'order_date', header: 'Ngày mua', cell: (row) => row.order_date },
+  { id: 'pharmacy_name', header: 'Nhà thuốc', cell: (row) => row.pharmacy_name },
+  {
+    id: 'items',
+    header: 'Thuốc đã mua',
+    cell: (row) =>
+      row.items
+        .map((item) => `${item.medicine_name}: ${item.quantity} ${item.unit} x ${money(item.unit_price)} đ`)
+        .join('; '),
+  },
+  { id: 'total_amount', header: 'Tổng tiền', cell: (row) => `${money(row.total_amount)} đ` },
+];
+
+const ISSUE_COLUMNS: Array<DataGridColumn<MedicineIssue>> = [
+  { id: 'code', header: 'Mã phiếu', alwaysVisible: true, className: 'font-medium', cell: (row) => row.code },
+  { id: 'issued_at', header: 'Thời điểm', cell: (row) => new Date(row.issued_at).toLocaleString('vi-VN') },
+  { id: 'medicine_name', header: 'Thuốc', cell: (row) => row.medicine_name },
+  { id: 'quantity', header: 'Số lượng', cell: (row) => `${row.quantity} ${row.unit}` },
+  { id: 'recipient', header: 'Người nhận', cell: (row) => row.recipient },
+  { id: 'reason', header: 'Lý do', cell: (row) => row.reason },
+];
+
+const PHARMACY_COLUMNS: Array<DataGridColumn<Pharmacy>> = [
+  { id: 'name', header: 'Tên nhà thuốc', alwaysVisible: true, className: 'font-medium', cell: (row) => row.name },
+  { id: 'phone', header: 'Điện thoại', cell: (row) => row.phone ?? '' },
+  { id: 'address', header: 'Địa chỉ', cell: (row) => row.address ?? '' },
+  { id: 'status', header: 'Trạng thái', cell: (row) => ACTIVE_LABELS[row.status] },
+];
 
 export function MedicinesPage() {
   const canManage = useHasPermission(PERMISSION_CODES.medicineManage);
@@ -49,7 +158,7 @@ export function MedicinesPage() {
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-4">
-        <h1 className="text-page-title font-bold text-text">Thuốc và dặn thuốc</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/medicines')}</h1>
         <div className="flex flex-wrap gap-2" role="tablist" aria-label="Thuốc">
           {tabs
             .filter(([, , visible]) => visible)
@@ -81,7 +190,9 @@ function RequestsTab({ onDone }: { onDone(message: string): void }) {
   const queryClient = useQueryClient();
   const unitChoice = useUnitChoice();
   const orgUnitId = unitChoice.selectedId;
+  const grid = useGridSettings('medication-requests');
   const [status, setStatus] = useState<MedicationStatus | ''>('pending');
+  const [search, setSearch] = useState('');
   const [rejecting, setRejecting] = useState<string>();
   const [reason, setReason] = useState('');
   const [failure, setFailure] = useState<string>();
@@ -114,117 +225,128 @@ function RequestsTab({ onDone }: { onDone(message: string): void }) {
     mutationFn: (requestId: string) => postJson(`/api/v1/medication-requests/${requestId}/complete`, {}),
     onSuccess: () => refresh('Đã kết thúc yêu cầu dặn thuốc'),
   });
-  const error = [requests.error, receive.error, reject.error, complete.error].find(Boolean);
+  const error = [requests.error, receive.error, reject.error, complete.error, grid.error].find(Boolean);
+  const columns: Array<DataGridColumn<MedicationRequest>> = [
+    {
+      id: 'full_name',
+      header: 'Học sinh',
+      alwaysVisible: true,
+      className: 'font-medium',
+      cell: (row) => <NameWithClass name={row.full_name} className={row.class_name} />,
+    },
+    {
+      id: 'medicine',
+      header: 'Thuốc',
+      cell: (row) => (
+        <>
+          {row.medicine_name}, {row.dosage}
+          {row.note ? <div className="text-text-secondary">{row.note}</div> : null}
+          <div className="flex flex-wrap gap-1">
+            {[...row.medicine_photo_ids, ...(row.prescription_photo_id ? [row.prescription_photo_id] : [])].map(
+              (fileId, index) => (
+                <Button
+                  key={fileId}
+                  variant="text"
+                  onClick={() => void openFile(fileId).catch((cause: unknown) => setFailure(messageOf(cause)))}
+                >
+                  {index < row.medicine_photo_ids.length ? `Ảnh thuốc ${index + 1}` : 'Đơn thuốc'}
+                </Button>
+              ),
+            )}
+          </div>
+        </>
+      ),
+    },
+    { id: 'times', header: 'Giờ uống', cell: (row) => row.times.join(', ') },
+    { id: 'period', header: 'Thời gian', cell: (row) => `${row.from_date} đến ${row.to_date}` },
+    { id: 'allergy_note', header: 'Dị ứng', cell: (row) => row.allergy_note },
+    {
+      id: 'status',
+      header: 'Trạng thái',
+      cell: (row) =>
+        `${MEDICATION_STATUS_LABELS[row.status]}${row.assigned_role === 'homeroom' ? ' (giáo viên chủ nhiệm nhận)' : ''}${row.reject_reason ? `: ${row.reject_reason}` : ''}`,
+    },
+    {
+      id: 'administrations',
+      header: 'Liều đã ghi',
+      cell: (row) =>
+        row.administrations.map((dose) => (
+          <div key={dose.id}>
+            {dose.scheduled_date} {dose.scheduled_time}: {describeDose(dose)}
+          </div>
+        )),
+    },
+  ];
+  const rows = (requests.data ?? []).filter((request) =>
+    matchesSearch(search, request.full_name, request.class_name, request.medicine_name),
+  );
   return (
     <div className="flex flex-col gap-4">
       {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
       {failure ? <Alert tone="danger">{failure}</Alert> : null}
+      {/* Đơn vị và trạng thái chọn tập yêu cầu tải từ máy chủ nên giữ trên lưới */}
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         <UnitSelect units={unitChoice.units} selectedId={orgUnitId} onSelect={unitChoice.select} />
-        <label className="text-label font-medium text-text">
-          Trạng thái
-          <select
-            value={status}
-            onChange={(event) => setStatus(event.target.value as MedicationStatus | '')}
-            className={selectClass}
-          >
-            <option value="">Tất cả</option>
-            {Object.entries(MEDICATION_STATUS_LABELS).map(([code, label]) => (
-              <option key={code} value={code}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <StatusSelect
+          value={status}
+          onChange={(value) => setStatus(value as MedicationStatus | '')}
+          labels={MEDICATION_STATUS_LABELS}
+        />
       </div>
-      <table className="w-full text-content">
-        <thead>
-          <tr className="text-left text-text-secondary">
-            <th className="py-2">Trẻ</th>
-            <th>Thuốc</th>
-            <th>Giờ uống</th>
-            <th>Thời gian</th>
-            <th>Dị ứng</th>
-            <th>Trạng thái</th>
-            <th>Liều đã ghi</th>
-            <th>Thao tác</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(requests.data ?? []).map((request) => (
-            <tr key={request.id} className="border-t border-border align-top">
-              <td className="py-2">
-                {request.full_name}
-                <br />
-                <span className="text-text-secondary">{request.class_name ?? ''}</span>
-              </td>
-              <td>
-                {request.medicine_name}, {request.dosage}
-                {request.note ? <div className="text-text-secondary">{request.note}</div> : null}
-                <div className="flex flex-wrap gap-1">
-                  {[
-                    ...request.medicine_photo_ids,
-                    ...(request.prescription_photo_id ? [request.prescription_photo_id] : []),
-                  ].map((fileId, index) => (
-                    <Button
-                      key={fileId}
-                      variant="text"
-                      onClick={() => void openFile(fileId).catch((cause: unknown) => setFailure(messageOf(cause)))}
-                    >
-                      {index < request.medicine_photo_ids.length ? `Ảnh thuốc ${index + 1}` : 'Đơn thuốc'}
-                    </Button>
-                  ))}
-                </div>
-              </td>
-              <td>{request.times.join(', ')}</td>
-              <td>
-                {request.from_date} đến {request.to_date}
-              </td>
-              <td>{request.allergy_note}</td>
-              <td>
-                {MEDICATION_STATUS_LABELS[request.status]}
-                {request.assigned_role === 'homeroom' ? ' (giáo viên chủ nhiệm nhận)' : ''}
-                {request.reject_reason ? `: ${request.reject_reason}` : ''}
-              </td>
-              <td>
-                {request.administrations.map((dose) => (
-                  <div key={dose.id}>
-                    {dose.scheduled_date} {dose.scheduled_time}: {describeDose(dose)}
-                  </div>
-                ))}
-              </td>
-              <td>
-                {request.status === 'pending' ? (
-                  <div className="flex flex-col gap-2">
-                    <Button variant="primary" onClick={() => receive.mutate(request.id)} disabled={receive.isPending}>
-                      Nhận thuốc
-                    </Button>
-                    {rejecting === request.id ? (
-                      <>
-                        <TextField
-                          label="Lý do từ chối"
-                          value={reason}
-                          onChange={(event) => setReason(event.target.value)}
-                        />
-                        <Button onClick={() => reject.mutate(request.id)} disabled={reason === '' || reject.isPending}>
-                          Xác nhận từ chối
-                        </Button>
-                      </>
-                    ) : (
-                      <Button onClick={() => setRejecting(request.id)}>Từ chối</Button>
-                    )}
-                  </div>
-                ) : null}
-                {request.status === 'administering' ? (
-                  <Button onClick={() => complete.mutate(request.id)} disabled={complete.isPending}>
-                    Kết thúc
-                  </Button>
-                ) : null}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DataGrid
+        label="Danh sách dặn thuốc"
+        columns={columns}
+        rows={rows}
+        getRowId={(row) => row.id}
+        getRowLabel={(row) => `${row.medicine_name} của ${row.full_name}`}
+        loading={requests.isLoading}
+        emptyText="Không có yêu cầu dặn thuốc."
+        search={{ label: 'Tìm theo học sinh, lớp, thuốc', value: search, onChange: setSearch }}
+        rowActions={(row) => (
+          <div className="flex flex-wrap justify-end gap-2">
+            {row.status === 'pending' ? (
+              <>
+                <Button variant="primary" onClick={() => receive.mutate(row.id)} disabled={receive.isPending}>
+                  Nhận thuốc
+                </Button>
+                <Button
+                  onClick={() => {
+                    setRejecting(row.id);
+                    setReason('');
+                  }}
+                >
+                  Từ chối
+                </Button>
+              </>
+            ) : null}
+            {row.status === 'administering' ? (
+              <Button onClick={() => complete.mutate(row.id)} disabled={complete.isPending}>
+                Kết thúc
+              </Button>
+            ) : null}
+          </div>
+        )}
+        renderRowDetail={(row) =>
+          rejecting === row.id && row.status === 'pending' ? (
+            <div
+              className="flex flex-wrap items-end gap-2"
+              role="group"
+              aria-label={`Từ chối thuốc của ${row.full_name}`}
+            >
+              <TextField label="Lý do từ chối" value={reason} onChange={(event) => setReason(event.target.value)} />
+              <Button onClick={() => reject.mutate(row.id)} disabled={reason === '' || reject.isPending}>
+                Xác nhận từ chối
+              </Button>
+              <Button variant="text" onClick={() => setRejecting(undefined)}>
+                Hủy
+              </Button>
+            </div>
+          ) : null
+        }
+        activeRowId={rejecting}
+        settings={grid.settings}
+        onSettingsChange={grid.update}
+      />
     </div>
   );
 }
@@ -233,7 +355,11 @@ function ScheduleTab({ onDone }: { onDone(message: string): void }) {
   const queryClient = useQueryClient();
   const unitChoice = useUnitChoice();
   const orgUnitId = unitChoice.selectedId;
+  const grid = useGridSettings('medication-schedule');
   const [date, setDate] = useState(vietnamToday);
+  const [search, setSearch] = useState('');
+  const [recordedFilter, setRecordedFilter] = useState('');
+  const [skipping, setSkipping] = useState<string>();
   const [skipReasons, setSkipReasons] = useState<Record<string, string>>({});
   const schedule = useQuery({
     queryKey: ['medication-schedule', orgUnitId, date],
@@ -247,15 +373,21 @@ function ScheduleTab({ onDone }: { onDone(message: string): void }) {
         scheduled_date: row.scheduled_date,
         scheduled_time: row.scheduled_time,
         is_skipped: skipped,
-        skip_reason: skipped ? (skipReasons[`${row.request_id}:${row.scheduled_time}`] ?? '') : null,
+        skip_reason: skipped ? (skipReasons[doseKeyOf(row)] ?? '') : null,
       }),
     onSuccess: async (_result, { skipped }) => {
+      setSkipping(undefined);
       await queryClient.invalidateQueries({ queryKey: ['medication-schedule'] });
       await queryClient.invalidateQueries({ queryKey: ['medication-requests'] });
       onDone(skipped ? 'Đã ghi bỏ liều và báo phụ huynh' : 'Đã ghi liều đã cho uống');
     },
   });
-  const error = [schedule.error, record.error].find(Boolean);
+  const error = [schedule.error, record.error, grid.error].find(Boolean);
+  const rows = (schedule.data ?? []).filter(
+    (row) =>
+      (recordedFilter === '' || (recordedFilter === 'recorded') === Boolean(row.administration)) &&
+      matchesSearch(search, row.full_name, row.class_name, row.medicine_name),
+  );
   return (
     <div className="flex flex-col gap-4">
       {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
@@ -263,62 +395,69 @@ function ScheduleTab({ onDone }: { onDone(message: string): void }) {
         <UnitSelect units={unitChoice.units} selectedId={orgUnitId} onSelect={unitChoice.select} />
         <TextField label="Ngày cho uống" type="date" value={date} onChange={(event) => setDate(event.target.value)} />
       </div>
-      {schedule.data && schedule.data.length === 0 ? (
-        <p className="text-content text-text-secondary">Không có liều cần cho uống trong ngày.</p>
-      ) : null}
-      <table className="w-full text-content">
-        <thead>
-          <tr className="text-left text-text-secondary">
-            <th className="py-2">Giờ</th>
-            <th>Trẻ</th>
-            <th>Thuốc</th>
-            <th>Liều</th>
-            <th>Ghi nhận</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(schedule.data ?? []).map((row) => {
-            const key = `${row.request_id}:${row.scheduled_time}`;
-            return (
-              <tr key={key} className="border-t border-border align-top">
-                <td className="py-2">{row.scheduled_time}</td>
-                <td>
-                  {row.full_name}
-                  <br />
-                  <span className="text-text-secondary">{row.class_name ?? ''}</span>
-                </td>
-                <td>{row.medicine_name}</td>
-                <td>{row.dosage}</td>
-                <td>
-                  {row.administration ? (
-                    describeDose(row.administration)
-                  ) : row.can_administer ? (
-                    <div className="flex flex-wrap items-end gap-2">
-                      <Button
-                        variant="primary"
-                        onClick={() => record.mutate({ row, skipped: false })}
-                        disabled={record.isPending}
-                      >
-                        Đã cho uống
-                      </Button>
-                      <TextField
-                        label="Lý do bỏ liều"
-                        value={skipReasons[key] ?? ''}
-                        onChange={(event) => setSkipReasons({ ...skipReasons, [key]: event.target.value })}
-                      />
-                      <Button onClick={() => record.mutate({ row, skipped: true })} disabled={record.isPending}>
-                        Bỏ liều
-                      </Button>
-                    </div>
-                  ) : (
-                    'Chưa ghi'
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <DataGrid
+        label="Danh sách liều cho uống"
+        columns={SCHEDULE_COLUMNS}
+        rows={rows}
+        getRowId={doseKeyOf}
+        getRowLabel={(row) => `${row.medicine_name} của ${row.full_name} lúc ${row.scheduled_time}`}
+        loading={schedule.isLoading}
+        emptyText="Không có liều cần cho uống trong ngày."
+        search={{ label: 'Tìm theo học sinh, lớp, thuốc', value: search, onChange: setSearch }}
+        advancedSearch={
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <label className="text-label font-medium text-text">
+              Ghi nhận
+              <select
+                value={recordedFilter}
+                onChange={(event) => setRecordedFilter(event.target.value)}
+                className={selectClass}
+              >
+                <option value="">Tất cả</option>
+                <option value="pending">Chưa ghi</option>
+                <option value="recorded">Đã ghi</option>
+              </select>
+            </label>
+          </div>
+        }
+        rowActions={(row) =>
+          !row.administration && row.can_administer ? (
+            <div className="flex flex-wrap justify-end gap-2">
+              <Button
+                variant="primary"
+                onClick={() => record.mutate({ row, skipped: false })}
+                disabled={record.isPending}
+              >
+                Đã cho uống
+              </Button>
+              <Button onClick={() => setSkipping(doseKeyOf(row))} disabled={record.isPending}>
+                Bỏ liều
+              </Button>
+            </div>
+          ) : null
+        }
+        renderRowDetail={(row) => {
+          const key = doseKeyOf(row);
+          return skipping === key && !row.administration ? (
+            <div className="flex flex-wrap items-end gap-2" role="group" aria-label={`Bỏ liều của ${row.full_name}`}>
+              <TextField
+                label="Lý do bỏ liều"
+                value={skipReasons[key] ?? ''}
+                onChange={(event) => setSkipReasons({ ...skipReasons, [key]: event.target.value })}
+              />
+              <Button onClick={() => record.mutate({ row, skipped: true })} disabled={record.isPending}>
+                Xác nhận bỏ liều
+              </Button>
+              <Button variant="text" onClick={() => setSkipping(undefined)}>
+                Hủy
+              </Button>
+            </div>
+          ) : null;
+        }}
+        activeRowId={skipping}
+        settings={grid.settings}
+        onSettingsChange={grid.update}
+      />
     </div>
   );
 }
@@ -327,6 +466,14 @@ function CatalogTab({ canManage, onDone }: { canManage: boolean; onDone(message:
   const queryClient = useQueryClient();
   const unitChoice = useUnitChoice();
   const orgUnitId = unitChoice.selectedId;
+  const grid = useGridSettings('medicines');
+  const pharmacyGrid = useGridSettings('pharmacies');
+  const [creating, setCreating] = useState(false);
+  const [creatingPharmacy, setCreatingPharmacy] = useState(false);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [pharmacyFilter, setPharmacyFilter] = useState('');
+  const [pharmacySearch, setPharmacySearch] = useState('');
   const [code, setCode] = useState('');
   const [name, setName] = useState('');
   const [ingredient, setIngredient] = useState('');
@@ -367,6 +514,7 @@ function CatalogTab({ canManage, onDone }: { canManage: boolean; onDone(message:
       setName('');
       setIngredient('');
       setStock('0');
+      setCreating(false);
       return refresh('Đã thêm thuốc vào danh mục');
     },
   });
@@ -382,6 +530,7 @@ function CatalogTab({ canManage, onDone }: { canManage: boolean; onDone(message:
       setPharmacyName('');
       setPhone('');
       setAddress('');
+      setCreatingPharmacy(false);
       return refresh('Đã thêm nhà thuốc');
     },
   });
@@ -394,14 +543,38 @@ function CatalogTab({ canManage, onDone }: { canManage: boolean; onDone(message:
       ),
     onSuccess: () => refresh('Đã cập nhật trạng thái thuốc'),
   });
-  const error = [medicines.error, pharmacies.error, createMedicine.error, createPharmacy.error, toggle.error].find(
-    Boolean,
+  const error = [
+    medicines.error,
+    pharmacies.error,
+    createMedicine.error,
+    createPharmacy.error,
+    toggle.error,
+    grid.error,
+    pharmacyGrid.error,
+  ].find(Boolean);
+  const columns: Array<DataGridColumn<Medicine>> = [
+    { id: 'code', header: 'Mã', cell: (row) => row.code },
+    { id: 'name', header: 'Tên thuốc', alwaysVisible: true, className: 'font-medium', cell: (row) => row.name },
+    { id: 'active_ingredient', header: 'Hoạt chất', cell: (row) => row.active_ingredient ?? '' },
+    { id: 'unit', header: 'Đơn vị', cell: (row) => row.unit },
+    { id: 'pharmacy_name', header: 'Nhà thuốc', cell: (row) => row.pharmacy_name ?? '' },
+    { id: 'stock_qty', header: 'Tồn', cell: (row) => row.stock_qty },
+    { id: 'status', header: 'Trạng thái', cell: (row) => ACTIVE_LABELS[row.status] },
+  ];
+  const rows = (medicines.data ?? []).filter(
+    (medicine) =>
+      (statusFilter === '' || medicine.status === statusFilter) &&
+      (pharmacyFilter === '' || medicine.pharmacy_id === pharmacyFilter) &&
+      matchesSearch(search, medicine.code, medicine.name, medicine.active_ingredient),
+  );
+  const pharmacyRows = (pharmacies.data ?? []).filter((pharmacy) =>
+    matchesSearch(pharmacySearch, pharmacy.name, pharmacy.phone, pharmacy.address),
   );
   return (
     <div className="flex flex-col gap-4">
       {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
       <UnitSelect units={unitChoice.units} selectedId={orgUnitId} onSelect={unitChoice.select} />
-      {canManage ? (
+      {canManage && creating ? (
         <form
           aria-label="Thêm thuốc"
           className="grid grid-cols-1 gap-3 rounded-lg bg-card p-4 md:grid-cols-4"
@@ -428,49 +601,67 @@ function CatalogTab({ canManage, onDone }: { canManage: boolean; onDone(message:
             </select>
           </label>
           <TextField label="Tồn đầu" type="number" value={stock} onChange={(event) => setStock(event.target.value)} />
-          <div className="flex items-end">
+          <div className="flex items-end gap-2">
             <Button type="submit" variant="primary" disabled={createMedicine.isPending || !code || !name || !unit}>
               Thêm thuốc
+            </Button>
+            <Button variant="text" onClick={() => setCreating(false)}>
+              Hủy
             </Button>
           </div>
         </form>
       ) : null}
-      <table className="w-full text-content">
-        <thead>
-          <tr className="text-left text-text-secondary">
-            <th className="py-2">Mã</th>
-            <th>Tên thuốc</th>
-            <th>Hoạt chất</th>
-            <th>Đơn vị</th>
-            <th>Nhà thuốc</th>
-            <th>Tồn</th>
-            <th>Trạng thái</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(medicines.data ?? []).map((medicine) => (
-            <tr key={medicine.id} className="border-t border-border">
-              <td className="py-2">{medicine.code}</td>
-              <td>{medicine.name}</td>
-              <td>{medicine.active_ingredient ?? ''}</td>
-              <td>{medicine.unit}</td>
-              <td>{medicine.pharmacy_name ?? ''}</td>
-              <td>{medicine.stock_qty}</td>
-              <td>
-                {medicine.status === 'active' ? 'Đang dùng' : 'Ngừng dùng'}
-                {canManage ? (
-                  <Button variant="text" onClick={() => toggle.mutate(medicine)} disabled={toggle.isPending}>
-                    {medicine.status === 'active' ? 'Ngừng' : 'Dùng lại'}
-                  </Button>
-                ) : null}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DataGrid
+        label="Danh mục thuốc"
+        columns={columns}
+        rows={rows}
+        getRowId={(row) => row.id}
+        getRowLabel={(row) => row.name}
+        loading={medicines.isLoading}
+        emptyText="Chưa có thuốc trong danh mục."
+        search={{ label: 'Tìm theo mã, tên thuốc, hoạt chất', value: search, onChange: setSearch }}
+        advancedSearch={
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <StatusSelect value={statusFilter} onChange={setStatusFilter} labels={ACTIVE_LABELS} />
+            <label className="text-label font-medium text-text">
+              Nhà thuốc
+              <select
+                value={pharmacyFilter}
+                onChange={(event) => setPharmacyFilter(event.target.value)}
+                className={selectClass}
+              >
+                <option value="">Tất cả</option>
+                {(pharmacies.data ?? []).map((pharmacy) => (
+                  <option key={pharmacy.id} value={pharmacy.id}>
+                    {pharmacy.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        }
+        toolbar={
+          canManage && orgUnitId ? (
+            <Button variant="primary" onClick={() => setCreating(true)}>
+              Thêm mới
+            </Button>
+          ) : null
+        }
+        rowActions={
+          canManage
+            ? (row) => (
+                <Button variant="text" onClick={() => toggle.mutate(row)} disabled={toggle.isPending}>
+                  {row.status === 'active' ? 'Ngừng' : 'Dùng lại'}
+                </Button>
+              )
+            : undefined
+        }
+        settings={grid.settings}
+        onSettingsChange={grid.update}
+      />
 
       <h2 className="text-section-title font-semibold text-text">Nhà thuốc</h2>
-      {canManage ? (
+      {canManage && creatingPharmacy ? (
         <form
           aria-label="Thêm nhà thuốc"
           className="grid grid-cols-1 gap-3 rounded-lg bg-card p-4 md:grid-cols-4"
@@ -486,21 +677,35 @@ function CatalogTab({ canManage, onDone }: { canManage: boolean; onDone(message:
           />
           <TextField label="Điện thoại" value={phone} onChange={(event) => setPhone(event.target.value)} />
           <TextField label="Địa chỉ" value={address} onChange={(event) => setAddress(event.target.value)} />
-          <div className="flex items-end">
+          <div className="flex items-end gap-2">
             <Button type="submit" variant="primary" disabled={createPharmacy.isPending || !pharmacyName}>
               Thêm nhà thuốc
+            </Button>
+            <Button variant="text" onClick={() => setCreatingPharmacy(false)}>
+              Hủy
             </Button>
           </div>
         </form>
       ) : null}
-      <ul className="flex flex-col gap-1 text-content">
-        {(pharmacies.data ?? []).map((pharmacy) => (
-          <li key={pharmacy.id}>
-            {pharmacy.name} {pharmacy.phone ? `, ${pharmacy.phone}` : ''}{' '}
-            {pharmacy.address ? `, ${pharmacy.address}` : ''}
-          </li>
-        ))}
-      </ul>
+      <DataGrid
+        label="Danh sách nhà thuốc"
+        columns={PHARMACY_COLUMNS}
+        rows={pharmacyRows}
+        getRowId={(row) => row.id}
+        getRowLabel={(row) => row.name}
+        loading={pharmacies.isLoading}
+        emptyText="Chưa có nhà thuốc."
+        search={{ label: 'Tìm theo tên, điện thoại, địa chỉ', value: pharmacySearch, onChange: setPharmacySearch }}
+        toolbar={
+          canManage && orgUnitId ? (
+            <Button variant="primary" onClick={() => setCreatingPharmacy(true)}>
+              Thêm mới
+            </Button>
+          ) : null
+        }
+        settings={pharmacyGrid.settings}
+        onSettingsChange={pharmacyGrid.update}
+      />
     </div>
   );
 }
@@ -517,6 +722,12 @@ function PurchasesTab({
   const queryClient = useQueryClient();
   const unitChoice = useUnitChoice();
   const orgUnitId = unitChoice.selectedId;
+  const grid = useGridSettings('medicine-purchase-requests');
+  const orderGrid = useGridSettings('medicine-purchase-orders');
+  const [creating, setCreating] = useState(false);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [orderSearch, setOrderSearch] = useState('');
   const [medicineId, setMedicineId] = useState('');
   const [quantity, setQuantity] = useState('');
   const [price, setPrice] = useState('');
@@ -564,6 +775,7 @@ function PurchasesTab({
       setQuantity('');
       setPrice('');
       setReason('');
+      setCreating(false);
       return refresh('Đã gửi đề nghị mua thuốc chờ duyệt');
     },
   });
@@ -590,12 +802,28 @@ function PurchasesTab({
       return refresh(`Đã lập phiếu mua thuốc ${order.code}, số lượng thuốc đã tăng`);
     },
   });
-  const error = [requests.error, orders.error, createRequest.error, decide.error, createOrder.error].find(Boolean);
+  const error = [
+    requests.error,
+    orders.error,
+    createRequest.error,
+    decide.error,
+    createOrder.error,
+    grid.error,
+    orderGrid.error,
+  ].find(Boolean);
+  const rows = (requests.data ?? []).filter(
+    (request) =>
+      (statusFilter === '' || request.status === statusFilter) &&
+      matchesSearch(search, request.medicine_name, request.reason),
+  );
+  const orderRows = (orders.data ?? []).filter((order) =>
+    matchesSearch(orderSearch, order.code, order.pharmacy_name, ...order.items.map((item) => item.medicine_name)),
+  );
   return (
     <div className="flex flex-col gap-4">
       {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
       <UnitSelect units={unitChoice.units} selectedId={orgUnitId} onSelect={unitChoice.select} />
-      {canManage ? (
+      {canManage && creating ? (
         <form
           aria-label="Đề nghị mua thuốc"
           className="grid grid-cols-1 gap-3 rounded-lg bg-card p-4 md:grid-cols-5"
@@ -628,13 +856,16 @@ function PurchasesTab({
             onChange={(event) => setPrice(event.target.value)}
           />
           <TextField label="Lý do" value={reason} onChange={(event) => setReason(event.target.value)} />
-          <div className="flex items-end">
+          <div className="flex items-end gap-2">
             <Button
               type="submit"
               variant="primary"
               disabled={createRequest.isPending || !medicineId || !quantity || price === '' || !reason}
             >
               Gửi đề nghị
+            </Button>
+            <Button variant="text" onClick={() => setCreating(false)}>
+              Hủy
             </Button>
           </div>
         </form>
@@ -646,134 +877,128 @@ function PurchasesTab({
           onChange={(event) => setRejectReason(event.target.value)}
         />
       ) : null}
-      <table className="w-full text-content">
-        <thead>
-          <tr className="text-left text-text-secondary">
-            <th className="py-2">Thuốc</th>
-            <th>Số lượng</th>
-            <th>Dự kiến</th>
-            <th>Lý do</th>
-            <th>Trạng thái</th>
-            <th>Thao tác</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(requests.data ?? []).map((request) => (
-            <tr key={request.id} className="border-t border-border align-top">
-              <td className="py-2">{request.medicine_name}</td>
-              <td>
-                {request.quantity} {request.unit}
-              </td>
-              <td>{money(request.estimated_amount)} đ</td>
-              <td>{request.reason}</td>
-              <td>
-                {PURCHASE_STATUS_LABELS[request.status]}
-                {request.status === 'pending' && request.requires_principal ? ' (Hiệu trưởng duyệt)' : ''}
-                {request.reject_reason ? `: ${request.reject_reason}` : ''}
-              </td>
-              <td>
-                {canApprove && request.status === 'pending' ? (
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      variant="primary"
-                      onClick={() => decide.mutate({ id: request.id, approve: true })}
-                      disabled={decide.isPending}
-                    >
-                      Duyệt
-                    </Button>
-                    <Button
-                      onClick={() => decide.mutate({ id: request.id, approve: false })}
-                      disabled={decide.isPending || !rejectReason}
-                    >
-                      Từ chối
-                    </Button>
-                  </div>
-                ) : null}
-                {canManage && request.status === 'approved' ? (
-                  ordering?.id === request.id ? (
-                    <div className="flex flex-col gap-2">
-                      <label className="text-label font-medium text-text">
-                        Nhà thuốc mua
-                        <select
-                          value={pharmacyId}
-                          onChange={(event) => setPharmacyId(event.target.value)}
-                          className={selectClass}
-                        >
-                          <option value="">Chọn nhà thuốc</option>
-                          {(pharmacies.data ?? [])
-                            .filter((pharmacy) => pharmacy.status === 'active')
-                            .map((pharmacy) => (
-                              <option key={pharmacy.id} value={pharmacy.id}>
-                                {pharmacy.name}
-                              </option>
-                            ))}
-                        </select>
-                      </label>
-                      <TextField
-                        label="Số lượng đã mua"
-                        type="number"
-                        value={orderQuantity}
-                        onChange={(event) => setOrderQuantity(event.target.value)}
-                      />
-                      <TextField
-                        label="Đơn giá"
-                        type="number"
-                        value={orderPrice}
-                        onChange={(event) => setOrderPrice(event.target.value)}
-                      />
-                      <Button
-                        variant="primary"
-                        onClick={() => createOrder.mutate(request)}
-                        disabled={createOrder.isPending || !pharmacyId || !orderQuantity || orderPrice === ''}
-                      >
-                        Ghi thuốc đã mua
-                      </Button>
-                    </div>
-                  ) : (
-                    <Button
-                      onClick={() => {
-                        setOrdering(request);
-                        setOrderQuantity(String(request.quantity));
-                        setOrderPrice(String(request.estimated_unit_price));
-                      }}
-                    >
-                      Lập phiếu mua
-                    </Button>
-                  )
-                ) : null}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DataGrid
+        label="Danh sách đề nghị mua thuốc"
+        columns={PURCHASE_REQUEST_COLUMNS}
+        rows={rows}
+        getRowId={(row) => row.id}
+        getRowLabel={(row) => row.medicine_name}
+        loading={requests.isLoading}
+        emptyText="Chưa có đề nghị mua thuốc."
+        search={{ label: 'Tìm theo thuốc, lý do', value: search, onChange: setSearch }}
+        advancedSearch={
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <StatusSelect value={statusFilter} onChange={setStatusFilter} labels={PURCHASE_STATUS_LABELS} />
+          </div>
+        }
+        toolbar={
+          canManage && orgUnitId ? (
+            <Button variant="primary" onClick={() => setCreating(true)}>
+              Thêm mới
+            </Button>
+          ) : null
+        }
+        rowActions={(row) => (
+          <div className="flex flex-wrap justify-end gap-2">
+            {canApprove && row.status === 'pending' ? (
+              <>
+                <Button
+                  variant="primary"
+                  onClick={() => decide.mutate({ id: row.id, approve: true })}
+                  disabled={decide.isPending}
+                >
+                  Duyệt
+                </Button>
+                <Button
+                  onClick={() => decide.mutate({ id: row.id, approve: false })}
+                  disabled={decide.isPending || !rejectReason}
+                >
+                  Từ chối
+                </Button>
+              </>
+            ) : null}
+            {canManage && row.status === 'approved' && ordering?.id !== row.id ? (
+              <Button
+                onClick={() => {
+                  setOrdering(row);
+                  setOrderQuantity(String(row.quantity));
+                  setOrderPrice(String(row.estimated_unit_price));
+                }}
+              >
+                Lập phiếu mua
+              </Button>
+            ) : null}
+          </div>
+        )}
+        renderRowDetail={(row) =>
+          canManage && row.status === 'approved' && ordering?.id === row.id ? (
+            <div
+              className="grid grid-cols-1 gap-3 md:grid-cols-5"
+              role="group"
+              aria-label={`Lập phiếu mua ${row.medicine_name}`}
+            >
+              <label className="text-label font-medium text-text">
+                Nhà thuốc mua
+                <select
+                  value={pharmacyId}
+                  onChange={(event) => setPharmacyId(event.target.value)}
+                  className={selectClass}
+                >
+                  <option value="">Chọn nhà thuốc</option>
+                  {(pharmacies.data ?? [])
+                    .filter((pharmacy) => pharmacy.status === 'active')
+                    .map((pharmacy) => (
+                      <option key={pharmacy.id} value={pharmacy.id}>
+                        {pharmacy.name}
+                      </option>
+                    ))}
+                </select>
+              </label>
+              <TextField
+                label="Số lượng đã mua"
+                type="number"
+                value={orderQuantity}
+                onChange={(event) => setOrderQuantity(event.target.value)}
+              />
+              <TextField
+                label="Đơn giá"
+                type="number"
+                value={orderPrice}
+                onChange={(event) => setOrderPrice(event.target.value)}
+              />
+              <div className="flex items-end gap-2">
+                <Button
+                  variant="primary"
+                  onClick={() => createOrder.mutate(row)}
+                  disabled={createOrder.isPending || !pharmacyId || !orderQuantity || orderPrice === ''}
+                >
+                  Ghi thuốc đã mua
+                </Button>
+                <Button variant="text" onClick={() => setOrdering(undefined)}>
+                  Hủy
+                </Button>
+              </div>
+            </div>
+          ) : null
+        }
+        activeRowId={ordering?.id}
+        settings={grid.settings}
+        onSettingsChange={grid.update}
+      />
 
       <h2 className="text-section-title font-semibold text-text">Phiếu mua thuốc</h2>
-      <table className="w-full text-content">
-        <thead>
-          <tr className="text-left text-text-secondary">
-            <th className="py-2">Mã phiếu</th>
-            <th>Ngày mua</th>
-            <th>Nhà thuốc</th>
-            <th>Thuốc đã mua</th>
-            <th>Tổng tiền</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(orders.data ?? []).map((order) => (
-            <tr key={order.id} className="border-t border-border">
-              <td className="py-2">{order.code}</td>
-              <td>{order.order_date}</td>
-              <td>{order.pharmacy_name}</td>
-              <td>
-                {order.items
-                  .map((item) => `${item.medicine_name}: ${item.quantity} ${item.unit} x ${money(item.unit_price)} đ`)
-                  .join('; ')}
-              </td>
-              <td>{money(order.total_amount)} đ</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DataGrid
+        label="Danh sách phiếu mua thuốc"
+        columns={ORDER_COLUMNS}
+        rows={orderRows}
+        getRowId={(row) => row.id}
+        getRowLabel={(row) => row.code}
+        loading={orders.isLoading}
+        emptyText="Chưa có phiếu mua thuốc."
+        search={{ label: 'Tìm theo mã phiếu, nhà thuốc, thuốc', value: orderSearch, onChange: setOrderSearch }}
+        settings={orderGrid.settings}
+        onSettingsChange={orderGrid.update}
+      />
     </div>
   );
 }
@@ -782,6 +1007,9 @@ function IssuesTab({ onDone }: { onDone(message: string): void }) {
   const queryClient = useQueryClient();
   const unitChoice = useUnitChoice();
   const orgUnitId = unitChoice.selectedId;
+  const grid = useGridSettings('medicine-issues');
+  const [creating, setCreating] = useState(false);
+  const [search, setSearch] = useState('');
   const [medicineId, setMedicineId] = useState('');
   const [quantity, setQuantity] = useState('');
   const [recipient, setRecipient] = useState('');
@@ -808,79 +1036,81 @@ function IssuesTab({ onDone }: { onDone(message: string): void }) {
       setQuantity('');
       setRecipient('');
       setReason('');
+      setCreating(false);
       await queryClient.invalidateQueries({ queryKey: ['medicine-issues'] });
       await queryClient.invalidateQueries({ queryKey: ['medicines'] });
       onDone(`Đã lập phiếu cấp thuốc ${created.code}`);
     },
   });
-  const error = [medicines.error, issues.error, issue.error].find(Boolean);
+  const error = [medicines.error, issues.error, issue.error, grid.error].find(Boolean);
+  const rows = (issues.data ?? []).filter((row) =>
+    matchesSearch(search, row.code, row.medicine_name, row.recipient, row.reason),
+  );
   return (
     <div className="flex flex-col gap-4">
       {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
       <UnitSelect units={unitChoice.units} selectedId={orgUnitId} onSelect={unitChoice.select} />
-      <form
-        aria-label="Cấp thuốc"
-        className="grid grid-cols-1 gap-3 rounded-lg bg-card p-4 md:grid-cols-5"
-        onSubmit={(event) => {
-          event.preventDefault();
-          issue.mutate();
-        }}
-      >
-        <label className="text-label font-medium text-text">
-          Thuốc cấp
-          <select value={medicineId} onChange={(event) => setMedicineId(event.target.value)} className={selectClass}>
-            <option value="">Chọn thuốc</option>
-            {(medicines.data ?? []).map((medicine) => (
-              <option key={medicine.id} value={medicine.id}>
-                {medicine.name} (còn {medicine.stock_qty} {medicine.unit})
-              </option>
-            ))}
-          </select>
-        </label>
-        <TextField
-          label="Số lượng cấp"
-          type="number"
-          value={quantity}
-          onChange={(event) => setQuantity(event.target.value)}
-        />
-        <TextField label="Người nhận" value={recipient} onChange={(event) => setRecipient(event.target.value)} />
-        <TextField label="Lý do cấp" value={reason} onChange={(event) => setReason(event.target.value)} />
-        <div className="flex items-end">
-          <Button
-            type="submit"
-            variant="primary"
-            disabled={issue.isPending || !medicineId || !quantity || !recipient || !reason}
-          >
-            Cấp thuốc
-          </Button>
-        </div>
-      </form>
-      <table className="w-full text-content">
-        <thead>
-          <tr className="text-left text-text-secondary">
-            <th className="py-2">Mã phiếu</th>
-            <th>Thời điểm</th>
-            <th>Thuốc</th>
-            <th>Số lượng</th>
-            <th>Người nhận</th>
-            <th>Lý do</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(issues.data ?? []).map((row) => (
-            <tr key={row.id} className="border-t border-border">
-              <td className="py-2">{row.code}</td>
-              <td>{new Date(row.issued_at).toLocaleString('vi-VN')}</td>
-              <td>{row.medicine_name}</td>
-              <td>
-                {row.quantity} {row.unit}
-              </td>
-              <td>{row.recipient}</td>
-              <td>{row.reason}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {creating ? (
+        <form
+          aria-label="Cấp thuốc"
+          className="grid grid-cols-1 gap-3 rounded-lg bg-card p-4 md:grid-cols-5"
+          onSubmit={(event) => {
+            event.preventDefault();
+            issue.mutate();
+          }}
+        >
+          <label className="text-label font-medium text-text">
+            Thuốc cấp
+            <select value={medicineId} onChange={(event) => setMedicineId(event.target.value)} className={selectClass}>
+              <option value="">Chọn thuốc</option>
+              {(medicines.data ?? []).map((medicine) => (
+                <option key={medicine.id} value={medicine.id}>
+                  {medicine.name} (còn {medicine.stock_qty} {medicine.unit})
+                </option>
+              ))}
+            </select>
+          </label>
+          <TextField
+            label="Số lượng cấp"
+            type="number"
+            value={quantity}
+            onChange={(event) => setQuantity(event.target.value)}
+          />
+          <TextField label="Người nhận" value={recipient} onChange={(event) => setRecipient(event.target.value)} />
+          <TextField label="Lý do cấp" value={reason} onChange={(event) => setReason(event.target.value)} />
+          <div className="flex items-end gap-2">
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={issue.isPending || !medicineId || !quantity || !recipient || !reason}
+            >
+              Cấp thuốc
+            </Button>
+            <Button variant="text" onClick={() => setCreating(false)}>
+              Hủy
+            </Button>
+          </div>
+        </form>
+      ) : null}
+      <DataGrid
+        label="Danh sách phiếu cấp thuốc"
+        columns={ISSUE_COLUMNS}
+        rows={rows}
+        getRowId={(row) => row.id}
+        getRowLabel={(row) => row.code}
+        loading={issues.isLoading}
+        emptyText="Chưa có phiếu cấp thuốc."
+        search={{ label: 'Tìm theo mã phiếu, thuốc, người nhận', value: search, onChange: setSearch }}
+        toolbar={
+          orgUnitId ? (
+            <Button variant="primary" onClick={() => setCreating(true)}>
+              Thêm mới
+            </Button>
+          ) : null
+        }
+        settings={grid.settings}
+        onSettingsChange={grid.update}
+      />
     </div>
   );
 }

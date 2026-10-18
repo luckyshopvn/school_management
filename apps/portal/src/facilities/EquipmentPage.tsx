@@ -8,13 +8,20 @@ import {
   EQUIPMENT_TARGET_USERS,
   PERMISSION_CODES,
   type CodeLabel,
+  type DataGridKey,
 } from '@school-management/shared';
-import { Alert, Button, StatusBadge, TextField, Toast } from '@school-management/ui';
+import { Alert, Button, DataGrid, StatusBadge, TextField, Toast, type DataGridColumn } from '@school-management/ui';
 import { useUnitChoice } from '../catalogs/UnitSelect.js';
 import { listClasses } from '../classes/classes-api.js';
+import { ExcelImportPanel } from '../imports/ExcelImportPanel.js';
 import { AppShell } from '../pages/AppShell.js';
+import { matchesSearch } from '../pages/grid-search.js';
+import { useGridSettings } from '../pages/grid-settings.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
+import { UpperLevelSubmissionPanel } from '../submissions/UpperLevelSubmissionPanel.js';
 import {
+  FACILITY_IMPORTS_API_BASE,
   createEquipmentItem,
   downloadExcel,
   fieldErrorsOf,
@@ -26,21 +33,83 @@ import {
   saveHoldings,
   updateEquipmentItem,
   type EquipmentItem,
+  type EquipmentReportRow,
 } from './facilities-api.js';
 import { SelectBox, TabBar } from './facilities-ui.js';
 
 // 2.1 Tổng hợp thiết bị dạy học, 2.2 Thiết bị ngoài danh mục tối thiểu (YCTD-102): tổng hợp định mức, hiện có, thừa,
-// thiếu, nhu cầu, tỷ lệ đáp ứng; nhập số hiện có theo đơn vị hoặc lớp; danh mục tối thiểu do Hiệu trưởng chỉnh
-type Tab = 'summary' | 'holdings' | 'outside' | 'catalog';
+// thiếu, nhu cầu, tỷ lệ đáp ứng; nhập số hiện có theo đơn vị hoặc lớp; danh mục tối thiểu do Hiệu trưởng chỉnh. Tổng
+// hợp, thiết bị ngoài danh mục và danh mục tối thiểu là lưới dữ liệu chung (DT-16 phần 16b): tìm tại chỗ, nhóm tuổi và
+// nhóm thiết bị của tổng hợp ở "Mở rộng tìm kiếm"; bảng nhập số hiện có là bảng nhập liệu theo ô nên giữ nguyên. DT-16 phần
+// 16i: 2.2 Thiết bị ngoài danh mục tối thiểu thành mục menu riêng, 2.3 Gửi thiết bị dạy học lên cấp trên (mẫu gửi chạy nội
+// bộ của 16a), nhập danh mục thiết bị từ Excel ở thẻ Danh mục tối thiểu và ở 2.2
+type Tab = 'summary' | 'holdings' | 'catalog';
+
+// Nhập danh mục thiết bị từ Excel bằng công cụ nhập chung (mã đã có thì cập nhật, mã trống là thiết bị mới)
+function EquipmentImport({ onSaved }: { onSaved(message: string): void }) {
+  const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="flex flex-col gap-3">
+      <div>
+        <Button variant="secondary" onClick={() => setOpen(!open)}>
+          Nhập từ Excel
+        </Button>
+      </div>
+      {open ? (
+        <ExcelImportPanel
+          type="equipment_items"
+          title="Nhập danh mục thiết bị từ Excel"
+          apiBase={FACILITY_IMPORTS_API_BASE}
+          uploadPath={FACILITY_IMPORTS_API_BASE}
+          uploadFields={{ type: 'equipment_items' }}
+          onCommitted={async (job) => {
+            onSaved(`Đã ghi ${job.assigned_rows ?? 0} thiết bị từ Excel`);
+            await queryClient.invalidateQueries({ queryKey: ['equipment-items'] });
+            await queryClient.invalidateQueries({ queryKey: ['equipment-report'] });
+          }}
+        />
+      ) : null}
+    </div>
+  );
+}
 const labelOf = (values: ReadonlyArray<CodeLabel>, value: string | null) =>
   values.find((item) => item.value === value)?.label ?? '';
 
+const SUMMARY_COLUMNS: Array<DataGridColumn<EquipmentReportRow>> = [
+  {
+    id: 'name',
+    header: 'Tên thiết bị',
+    alwaysVisible: true,
+    cell: (row) => (
+      <>
+        <span className="font-medium">{row.name}</span>
+        {row.is_minimum ? null : <span className="text-label text-text-secondary"> (ngoài danh mục)</span>}
+      </>
+    ),
+  },
+  { id: 'unit', header: 'Đơn vị tính', cell: (row) => row.unit },
+  { id: 'age_group', header: 'Nhóm tuổi', cell: (row) => labelOf(EQUIPMENT_AGE_GROUPS, row.age_group) },
+  { id: 'norm', header: 'Định mức', cell: (row) => formatNumber(row.norm) },
+  { id: 'available', header: 'Hiện có', cell: (row) => formatNumber(row.available) },
+  { id: 'next_year_need', header: 'Nhu cầu bổ sung năm sau', cell: (row) => formatNumber(row.next_year_need) },
+  { id: 'surplus', header: 'Thừa', cell: (row) => formatNumber(row.surplus) },
+  { id: 'shortage', header: 'Thiếu', cell: (row) => formatNumber(row.shortage) },
+  {
+    id: 'rate_percent',
+    header: 'Tỷ lệ đáp ứng',
+    cell: (row) => (row.rate_percent === null ? '' : `${formatNumber(row.rate_percent)}%`),
+  },
+];
+
 function SummaryTab() {
   const unitChoice = useUnitChoice();
+  const grid = useGridSettings('equipment-summary');
   const [orgUnitId, setOrgUnitId] = useState('');
   const [ageGroup, setAgeGroup] = useState('');
   const [group, setGroup] = useState('');
   const [classId, setClassId] = useState('');
+  const [search, setSearch] = useState('');
   const classes = useQuery({
     queryKey: ['classes', orgUnitId],
     queryFn: () => listClasses(orgUnitId),
@@ -48,12 +117,14 @@ function SummaryTab() {
   });
   const filters = { org_unit_id: orgUnitId, age_group: ageGroup, equipment_group: group, class_id: classId };
   const report = useQuery({ queryKey: ['equipment-report', filters], queryFn: () => readEquipmentReport(filters) });
+  // Xuất Excel theo đúng bộ lọc gửi máy chủ như trước, từ khóa tìm tại chỗ không gửi
   const exportFile = useMutation({
     mutationFn: () => downloadExcel('/api/v1/equipment-report/export', filters, 'tong-hop-thiet-bi-day-hoc.xlsx'),
   });
+  const rows = (report.data?.rows ?? []).filter((row) => matchesSearch(search, row.name, row.unit));
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid gap-3 md:grid-cols-5">
+      <div className="grid gap-3 md:grid-cols-4">
         <SelectBox
           label="Đơn vị"
           value={orgUnitId}
@@ -65,34 +136,16 @@ function SummaryTab() {
           }}
         />
         <SelectBox
-          label="Nhóm tuổi"
-          value={ageGroup}
-          options={EQUIPMENT_AGE_GROUPS}
-          emptyLabel="Mọi nhóm tuổi"
-          onChange={setAgeGroup}
-        />
-        <SelectBox
-          label="Nhóm thiết bị"
-          value={group}
-          options={EQUIPMENT_GROUPS}
-          emptyLabel="Mọi nhóm thiết bị"
-          onChange={setGroup}
-        />
-        <SelectBox
           label="Lớp"
           value={classId}
           options={(classes.data ?? []).map((item) => ({ value: item.id, label: item.name }))}
           emptyLabel={orgUnitId ? 'Mọi lớp' : 'Chọn đơn vị để lọc lớp'}
           onChange={setClassId}
         />
-        <div className="flex items-end">
-          <Button variant="secondary" disabled={exportFile.isPending} onClick={() => exportFile.mutate()}>
-            Xuất Excel
-          </Button>
-        </div>
       </div>
       {exportFile.error ? <Alert tone="danger">{messageOf(exportFile.error)}</Alert> : null}
       {report.error ? <Alert tone="danger">{messageOf(report.error)}</Alert> : null}
+      {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
       {report.data ? (
         <>
           <p className="text-content text-text" aria-label="Tỷ lệ đáp ứng chung">
@@ -106,54 +159,43 @@ function SummaryTab() {
               {report.data.unclassified_classes.join(', ')}
             </Alert>
           ) : null}
-          <section
-            className="overflow-x-auto rounded-xl border border-border bg-card p-4"
-            aria-label="Tổng hợp thiết bị dạy học"
-          >
-            {report.data.rows.length === 0 ? (
-              <p className="text-content text-text-secondary">Không có số liệu.</p>
-            ) : (
-              <table className="w-full text-content">
-                <thead className="text-left text-label font-medium text-text-secondary">
-                  <tr>
-                    <th className="px-3 py-2">Tên thiết bị</th>
-                    <th className="px-3 py-2">Đơn vị tính</th>
-                    <th className="px-3 py-2">Nhóm tuổi</th>
-                    <th className="px-3 py-2">Định mức</th>
-                    <th className="px-3 py-2">Hiện có</th>
-                    <th className="px-3 py-2">Nhu cầu bổ sung năm sau</th>
-                    <th className="px-3 py-2">Thừa</th>
-                    <th className="px-3 py-2">Thiếu</th>
-                    <th className="px-3 py-2">Tỷ lệ đáp ứng</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {report.data.rows.map((row) => (
-                    <tr key={row.equipment_item_id} className="border-t border-border">
-                      <td className="px-3 py-2">
-                        <span className="font-medium">{row.name}</span>
-                        {row.is_minimum ? null : (
-                          <span className="text-label text-text-secondary"> (ngoài danh mục)</span>
-                        )}
-                      </td>
-                      <td className="px-3 py-2">{row.unit}</td>
-                      <td className="px-3 py-2">{labelOf(EQUIPMENT_AGE_GROUPS, row.age_group)}</td>
-                      <td className="px-3 py-2">{formatNumber(row.norm)}</td>
-                      <td className="px-3 py-2">{formatNumber(row.available)}</td>
-                      <td className="px-3 py-2">{formatNumber(row.next_year_need)}</td>
-                      <td className="px-3 py-2">{formatNumber(row.surplus)}</td>
-                      <td className="px-3 py-2">{formatNumber(row.shortage)}</td>
-                      <td className="px-3 py-2">
-                        {row.rate_percent === null ? '' : `${formatNumber(row.rate_percent)}%`}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </section>
         </>
       ) : null}
+      <DataGrid
+        label="Tổng hợp thiết bị dạy học"
+        columns={SUMMARY_COLUMNS}
+        rows={rows}
+        getRowId={(row) => row.equipment_item_id}
+        getRowLabel={(row) => row.name}
+        loading={report.isPending}
+        emptyText="Không có số liệu."
+        search={{ label: 'Tìm theo tên thiết bị', value: search, onChange: setSearch }}
+        advancedSearch={
+          <div className="grid gap-3 md:grid-cols-3">
+            <SelectBox
+              label="Nhóm tuổi"
+              value={ageGroup}
+              options={EQUIPMENT_AGE_GROUPS}
+              emptyLabel="Mọi nhóm tuổi"
+              onChange={setAgeGroup}
+            />
+            <SelectBox
+              label="Nhóm thiết bị"
+              value={group}
+              options={EQUIPMENT_GROUPS}
+              emptyLabel="Mọi nhóm thiết bị"
+              onChange={setGroup}
+            />
+          </div>
+        }
+        toolbar={
+          <Button variant="secondary" disabled={exportFile.isPending} onClick={() => exportFile.mutate()}>
+            Xuất Excel
+          </Button>
+        }
+        settings={grid.settings}
+        onSettingsChange={grid.update}
+      />
     </div>
   );
 }
@@ -345,6 +387,7 @@ function OutsideTab({ canManage, onSaved }: { canManage: boolean; onSaved(messag
   const errors = fieldErrorsOf(create.error);
   return (
     <div className="flex flex-col gap-4">
+      {canManage ? <EquipmentImport onSaved={onSaved} /> : null}
       {canManage ? (
         <section
           className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
@@ -410,120 +453,143 @@ function OutsideTab({ canManage, onSaved }: { canManage: boolean; onSaved(messag
         </section>
       ) : null}
       {items.error ? <Alert tone="danger">{messageOf(items.error)}</Alert> : null}
-      <ItemTable items={items.data ?? []} canManage={false} onSaved={onSaved} />
+      <ItemGrid
+        label="Thiết bị ngoài danh mục"
+        gridKey="equipment-outside"
+        items={items.data ?? []}
+        loading={items.isPending}
+        canManage={false}
+        onSaved={onSaved}
+      />
     </div>
   );
 }
 
-function ItemRow({
-  item,
+// Lưới thiết bị của danh mục tối thiểu và thiết bị ngoài danh mục: Hiệu trưởng sửa định mức ngay trong ô Số lượng rồi
+// bấm Lưu ở dòng; Ngừng sử dụng, Dùng lại đổi trạng thái như trước (không xóa thiết bị)
+function ItemGrid({
+  label,
+  gridKey,
+  items,
+  loading,
   canManage,
   onSaved,
 }: {
-  item: EquipmentItem;
+  label: string;
+  gridKey: DataGridKey;
+  items: EquipmentItem[];
+  loading: boolean;
   canManage: boolean;
   onSaved(message: string): void;
 }) {
   const queryClient = useQueryClient();
-  const [quantity, setQuantity] = useState(String(item.quantity));
+  const grid = useGridSettings(gridKey);
+  const [search, setSearch] = useState('');
+  const [quantities, setQuantities] = useState<Record<string, string>>({});
+  const [failed, setFailed] = useState<{ itemId: string; error: unknown }>();
   const update = useMutation({
-    mutationFn: (changes: Record<string, unknown>) => updateEquipmentItem(item.id, changes),
-    onSuccess: async () => {
+    mutationFn: ({ item, changes }: { item: EquipmentItem; changes: Record<string, unknown> }) =>
+      updateEquipmentItem(item.id, changes),
+    onMutate: () => setFailed(undefined),
+    onSuccess: async (_saved, { item }) => {
       onSaved(`Đã cập nhật ${item.name}`);
       await queryClient.invalidateQueries({ queryKey: ['equipment-items'] });
     },
+    onError: (error, { item }) => setFailed({ itemId: item.id, error }),
   });
-  return (
-    <tr className="border-t border-border align-top">
-      <td className="px-3 py-2">{item.code}</td>
-      <td className="px-3 py-2">
-        <span className="font-medium">{item.name}</span>
-        {update.error ? <p className="text-label text-danger">{messageOf(update.error)}</p> : null}
-      </td>
-      <td className="px-3 py-2">{item.unit}</td>
-      <td className="px-3 py-2">{labelOf(EQUIPMENT_AGE_GROUPS, item.age_group)}</td>
-      <td className="px-3 py-2">{labelOf(EQUIPMENT_GROUPS, item.equipment_group)}</td>
-      <td className="px-3 py-2">
-        {canManage ? (
+  const quantityOf = (item: EquipmentItem) => quantities[item.id] ?? String(item.quantity);
+  const busy = (item: EquipmentItem) => update.isPending && update.variables.item.id === item.id;
+  const columns: Array<DataGridColumn<EquipmentItem>> = [
+    { id: 'code', header: 'Mã', cell: (item) => item.code },
+    {
+      id: 'name',
+      header: 'Tên thiết bị',
+      alwaysVisible: true,
+      cell: (item) => (
+        <>
+          <span className="font-medium">{item.name}</span>
+          {failed?.itemId === item.id ? <p className="text-label text-danger">{messageOf(failed.error)}</p> : null}
+        </>
+      ),
+    },
+    { id: 'unit', header: 'Đơn vị tính', cell: (item) => item.unit },
+    { id: 'age_group', header: 'Nhóm tuổi', cell: (item) => labelOf(EQUIPMENT_AGE_GROUPS, item.age_group) },
+    { id: 'equipment_group', header: 'Nhóm thiết bị', cell: (item) => labelOf(EQUIPMENT_GROUPS, item.equipment_group) },
+    {
+      id: 'quantity',
+      header: 'Số lượng',
+      cell: (item) =>
+        canManage ? (
           <input
             type="number"
             min="0"
             step="0.01"
             aria-label={`Định mức ${item.code}`}
-            value={quantity}
-            onChange={(event) => setQuantity(event.target.value)}
+            value={quantityOf(item)}
+            onChange={(event) => setQuantities({ ...quantities, [item.id]: event.target.value })}
             className="w-20 rounded-lg border border-border bg-card px-2 py-1"
           />
         ) : (
           formatNumber(item.quantity)
-        )}
-      </td>
-      <td className="px-3 py-2">{labelOf(EQUIPMENT_NORM_BASES, item.norm_basis)}</td>
-      <td className="px-3 py-2 text-label">{item.note ?? ''}</td>
-      <td className="px-3 py-2">
+        ),
+    },
+    { id: 'norm_basis', header: 'Tính theo', cell: (item) => labelOf(EQUIPMENT_NORM_BASES, item.norm_basis) },
+    { id: 'note', header: 'Ghi chú', className: 'text-label', cell: (item) => item.note ?? '' },
+    {
+      id: 'status',
+      header: 'Trạng thái',
+      cell: (item) => (
         <StatusBadge
           tone={item.status === 'active' ? 'success' : 'neutral'}
           label={item.status === 'active' ? 'Đang dùng' : 'Ngừng sử dụng'}
         />
-      </td>
-      {canManage ? (
-        <td className="px-3 py-2 whitespace-nowrap text-right">
-          <Button
-            variant="text"
-            disabled={update.isPending}
-            onClick={() => update.mutate({ quantity: quantity === '' ? Number.NaN : Number(quantity) })}
-          >
-            Lưu
-          </Button>
-          <Button
-            variant="text"
-            disabled={update.isPending}
-            onClick={() => update.mutate({ status: item.status === 'active' ? 'inactive' : 'active' })}
-          >
-            {item.status === 'active' ? 'Ngừng sử dụng' : 'Dùng lại'}
-          </Button>
-        </td>
-      ) : null}
-    </tr>
-  );
-}
-
-function ItemTable({
-  items,
-  canManage,
-  onSaved,
-}: {
-  items: EquipmentItem[];
-  canManage: boolean;
-  onSaved(message: string): void;
-}) {
-  if (items.length === 0) {
-    return <p className="text-content text-text-secondary">Chưa có thiết bị nào.</p>;
-  }
+      ),
+    },
+  ];
+  const rows = items.filter((item) => matchesSearch(search, item.code, item.name, item.equipment_type));
   return (
-    <section className="overflow-x-auto rounded-xl border border-border bg-card p-4" aria-label="Danh mục thiết bị">
-      <table className="w-full text-content">
-        <thead className="text-left text-label font-medium text-text-secondary">
-          <tr>
-            <th className="px-3 py-2">Mã</th>
-            <th className="px-3 py-2">Tên thiết bị</th>
-            <th className="px-3 py-2">Đơn vị tính</th>
-            <th className="px-3 py-2">Nhóm tuổi</th>
-            <th className="px-3 py-2">Nhóm thiết bị</th>
-            <th className="px-3 py-2">Số lượng</th>
-            <th className="px-3 py-2">Tính theo</th>
-            <th className="px-3 py-2">Ghi chú</th>
-            <th className="px-3 py-2">Trạng thái</th>
-            {canManage ? <th className="px-3 py-2" /> : null}
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((item) => (
-            <ItemRow key={item.id} item={item} canManage={canManage} onSaved={onSaved} />
-          ))}
-        </tbody>
-      </table>
-    </section>
+    <>
+      {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+      <DataGrid
+        label={label}
+        columns={columns}
+        rows={rows}
+        getRowId={(item) => item.id}
+        getRowLabel={(item) => item.name}
+        loading={loading}
+        emptyText="Chưa có thiết bị nào."
+        search={{ label: 'Tìm theo mã, tên thiết bị', value: search, onChange: setSearch }}
+        rowActions={
+          canManage
+            ? (item) => (
+                <span className="flex flex-wrap justify-end gap-1 whitespace-nowrap">
+                  <Button
+                    variant="text"
+                    disabled={busy(item)}
+                    onClick={() => {
+                      const quantity = quantityOf(item);
+                      update.mutate({ item, changes: { quantity: quantity === '' ? Number.NaN : Number(quantity) } });
+                    }}
+                  >
+                    Lưu
+                  </Button>
+                  <Button
+                    variant="text"
+                    disabled={busy(item)}
+                    onClick={() =>
+                      update.mutate({ item, changes: { status: item.status === 'active' ? 'inactive' : 'active' } })
+                    }
+                  >
+                    {item.status === 'active' ? 'Ngừng sử dụng' : 'Dùng lại'}
+                  </Button>
+                </span>
+              )
+            : undefined
+        }
+        settings={grid.settings}
+        onSettingsChange={grid.update}
+      />
+    </>
   );
 }
 
@@ -539,11 +605,19 @@ function CatalogTab({ canManage, onSaved }: { canManage: boolean; onSaved(messag
         Danh mục gieo sẵn chỉ là tên ngắn và số lượng gợi ý, cần đối chiếu văn bản quy định danh mục thiết bị tối thiểu
         hiện hành rồi chỉnh định mức.
       </Alert>
+      {canManage ? <EquipmentImport onSaved={onSaved} /> : null}
       <div className="grid gap-3 md:grid-cols-4">
         <SelectBox label="Nhóm tuổi" value={ageGroup} options={EQUIPMENT_AGE_GROUPS} onChange={setAgeGroup} />
       </div>
       {items.error ? <Alert tone="danger">{messageOf(items.error)}</Alert> : null}
-      <ItemTable items={items.data ?? []} canManage={canManage} onSaved={onSaved} />
+      <ItemGrid
+        label="Danh mục thiết bị"
+        gridKey="equipment-catalog"
+        items={items.data ?? []}
+        loading={items.isPending}
+        canManage={canManage}
+        onSaved={onSaved}
+      />
     </div>
   );
 }
@@ -556,19 +630,67 @@ export function EquipmentPage() {
   const tabs: Array<{ key: Tab; label: string }> = [
     { key: 'summary', label: 'Tổng hợp' },
     ...(canManage ? [{ key: 'holdings' as const, label: 'Nhập số hiện có' }] : []),
-    { key: 'outside', label: '2.2 Thiết bị ngoài danh mục tối thiểu' },
     { key: 'catalog', label: 'Danh mục tối thiểu' },
   ];
   return (
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">2.1 Tổng hợp thiết bị dạy học</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/equipment')}</h1>
         <TabBar<Tab> tabs={tabs} current={tab} onSelect={setTab} label="Thiết bị dạy học" />
         {tab === 'summary' ? <SummaryTab /> : null}
         {tab === 'holdings' ? <HoldingsTab onSaved={setToastMessage} /> : null}
-        {tab === 'outside' ? <OutsideTab canManage={canManage} onSaved={setToastMessage} /> : null}
         {tab === 'catalog' ? <CatalogTab canManage={canManage} onSaved={setToastMessage} /> : null}
+      </div>
+    </AppShell>
+  );
+}
+
+// 2.2 Thiết bị ngoài danh mục tối thiểu: mục menu riêng như của Sở (DT-16 phần 16i)
+export function EquipmentOutsidePage() {
+  const canManage = useHasPermission(PERMISSION_CODES.equipmentManage);
+  const [toastMessage, setToastMessage] = useState<string>();
+  const closeToast = useCallback(() => setToastMessage(undefined), []);
+  return (
+    <AppShell>
+      <Toast message={toastMessage} onClose={closeToast} />
+      <div className="flex flex-col gap-6">
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/equipment-outside')}</h1>
+        <OutsideTab canManage={canManage} onSaved={setToastMessage} />
+      </div>
+    </AppShell>
+  );
+}
+
+// 2.3 Gửi thiết bị dạy học lên cấp trên (DT-16 phần 16i): biểu mẫu tổng hợp thiết bị toàn trường, hoàn thiện dữ liệu,
+// "Trường không có dữ liệu", Xuất tệp gửi, Đánh dấu đã gửi, Gửi yêu cầu mở khóa theo mẫu chạy nội bộ của 16a
+export function EquipmentSubmissionPage() {
+  const [toastMessage, setToastMessage] = useState<string>();
+  const closeToast = useCallback(() => setToastMessage(undefined), []);
+  const report = useQuery({ queryKey: ['equipment-report', 'whole-school'], queryFn: () => readEquipmentReport({}) });
+  return (
+    <AppShell>
+      <Toast message={toastMessage} onClose={closeToast} />
+      <div className="flex flex-col gap-6">
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/equipment-submission')}</h1>
+        {report.error ? <Alert tone="danger">{messageOf(report.error)}</Alert> : null}
+        {report.data ? (
+          <section
+            className="flex flex-col gap-1 rounded-xl border border-border bg-card p-4"
+            aria-label="Biểu mẫu gửi"
+          >
+            <h2 className="text-section-title font-semibold text-text">Biểu mẫu: Tổng hợp thiết bị dạy học</h2>
+            <p className="text-content text-text">
+              {report.data.totals.item_count} thiết bị trong danh mục đang dùng, {report.data.totals.met_count} thiết bị
+              đủ định mức; tỷ lệ đáp ứng chung {formatNumber(report.data.totals.rate_percent ?? 0)}%.
+            </p>
+            <p className="text-label text-text-secondary">
+              Tệp gửi gồm tổng hợp theo thiết bị (danh mục tối thiểu và ngoài danh mục) và theo lớp của toàn trường, như
+              Xuất Excel ở 2.1. Trường chưa có số liệu thiết bị thì chọn "Trường không có dữ liệu" khi đánh dấu đã gửi.
+            </p>
+          </section>
+        ) : null}
+        <UpperLevelSubmissionPanel formCodes={['equipment-summary']} onChanged={setToastMessage} />
       </div>
     </AppShell>
   );

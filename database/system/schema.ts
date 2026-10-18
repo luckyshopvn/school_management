@@ -40,6 +40,9 @@ export interface SchoolWeeksTable {
   end_date: DateText;
   is_off: Generated<boolean>;
   note: string | null;
+  // Khai báo tuần theo Sở (DT-16 phần 16e): học kỳ chọn khác lịch, hiển thị
+  term_type: ColumnType<AcademicTermType | null, AcademicTermType | null | undefined, AcademicTermType | null>;
+  is_visible: Generated<boolean>;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
   created_by: string | null;
@@ -53,12 +56,15 @@ export interface AcademicYearDatabasesTable {
   opened_at: Date;
   closed_at: Date | null;
   carried_over_by: string | null;
+  // Giờ chuyển xong hồ sơ lên năm học (DT-16 phần 16e), dùng cho "Hủy" chuyển hồ sơ
+  carried_over_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
   created_by: string | null;
 }
 
-export type IntegrationCredentialConnector = 'zalo';
+// Tài khoản đồng bộ của Bộ, của Sở (DT-16 phần 16d)
+export type IntegrationCredentialConnector = 'zalo' | 'moet_sync' | 'doet_sync';
 
 // Khóa truy cập kết nối ngoài đã mã hóa, dùng chung toàn trường qua các năm học (YCTD-92)
 export interface IntegrationCredentialsTable {
@@ -68,6 +74,9 @@ export interface IntegrationCredentialsTable {
   access_token_expires_at: Date | null;
   refresh_token_encrypted: string | null;
   refreshed_at: Date | null;
+  // Tài khoản đồng bộ của Bộ, của Sở: tên đăng nhập và mật khẩu đã mã hóa (DT-16 phần 16d)
+  account_username: ColumnType<string | null, string | null | undefined, string | null>;
+  account_secret_encrypted: ColumnType<string | null, string | null | undefined, string | null>;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
   updated_by: string | null;
@@ -166,6 +175,7 @@ export interface ArchiveFondsTable {
   code: string;
   name: string;
   note: string | null;
+  org_unit_id: string | null;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
   created_by: string | null;
@@ -200,6 +210,10 @@ export interface ArchiveRecordsTable {
   title: string;
   fond_id: string | null;
   handler_name: string;
+  org_unit_id: string | null;
+  handler_staff_id: string | null;
+  due_reminded_at: Date | null;
+  overdue_reminded_at: Date | null;
   opened_on: DateText;
   due_date: ColumnType<string | null, string | null | undefined, string | null>;
   status: Generated<ArchiveRecordStatus>;
@@ -226,6 +240,219 @@ export interface ArchiveRecordFilesTable {
   created_by: string | null;
 }
 
+// Tệp ở kho tệp chờ xóa lại sau lần xóa lỗi (YCTD-122)
+export interface ArchiveFileDeletionsTable {
+  storage_key: string;
+  attempts: Generated<number>;
+  last_error: string | null;
+  created_at: CreatedTimestamp;
+  last_attempt_at: Date | null;
+}
+
+export type ExportJobFormat = 'xlsx' | 'pdf';
+export type ExportJobStatus = 'pending' | 'running' | 'done' | 'failed' | 'expired';
+
+// Tác vụ xuất nền và danh sách "Tệp đã tạo" (DT-16 phần 16a): user_snapshot là vai trò, quyền của người tạo lúc tạo
+export interface ExportJobsTable {
+  id: Generated<string>;
+  user_id: string;
+  user_name: string;
+  user_snapshot: ColumnType<unknown, string, string>;
+  report_code: string;
+  title: string;
+  format: ExportJobFormat;
+  parameters: ColumnType<Record<string, unknown>, string, string>;
+  ip_address: string | null;
+  status: Generated<ExportJobStatus>;
+  attempts: Generated<number>;
+  row_count: number | null;
+  file_name: string | null;
+  content_type: string | null;
+  size_bytes: number | null;
+  storage_key: string | null;
+  error_message: string | null;
+  created_at: CreatedTimestamp;
+  started_at: Date | null;
+  finished_at: Date | null;
+  expires_at: Date | null;
+}
+
+export type UpperLevelSubmissionStatus = 'draft' | 'sent' | 'unlock_requested' | 'resend';
+export type UpperLevelSubmissionAction =
+  'export' | 'mark_sent' | 'unlock_request' | 'unlock' | 'unlock_reject' | 'resend';
+
+// Trạng thái gửi biểu mẫu lên cấp trên theo năm học, chạy nội bộ (DT-16 phần 16a)
+export interface UpperLevelSubmissionsTable {
+  id: Generated<string>;
+  academic_year_id: string;
+  form_code: string;
+  status: Generated<UpperLevelSubmissionStatus>;
+  no_data: Generated<boolean>;
+  data_complete: boolean | null;
+  snapshot: ColumnType<unknown, string | null, string | null>;
+  file_name: string | null;
+  content_type: string | null;
+  size_bytes: number | null;
+  storage_key: string | null;
+  exported_at: Date | null;
+  exported_by: string | null;
+  exported_by_name: string | null;
+  sent_on: DateText | null;
+  sent_note: string | null;
+  sent_by: string | null;
+  sent_by_name: string | null;
+  marked_sent_at: Date | null;
+  unlock_reason: string | null;
+  unlock_requested_by: string | null;
+  unlock_requested_by_name: string | null;
+  unlock_requested_at: Date | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+  updated_by: string | null;
+}
+
+export interface UpperLevelSubmissionEventsTable {
+  id: Generated<string>;
+  submission_id: string;
+  action: UpperLevelSubmissionAction;
+  note: string | null;
+  actor_id: string;
+  actor_name: string;
+  created_at: CreatedTimestamp;
+}
+
+// Thông báo hệ thống bật lên khi vào cổng quản trị (DT-16 phần 16c); ngày dạng YYYY-MM-DD
+export interface SystemAnnouncementsTable {
+  id: Generated<string>;
+  title: string;
+  content: string;
+  valid_from: ColumnType<string, string, string>;
+  valid_until: ColumnType<string | null, string | null | undefined, string | null>;
+  is_active: Generated<boolean>;
+  created_by: string | null;
+  created_by_name: string | null;
+  created_at: CreatedTimestamp;
+  updated_by: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+// Ứng dụng liên kết ở lưới ứng dụng trên thanh đầu trang (DT-16 phần 16c)
+export interface PortalAppLinksTable {
+  id: Generated<string>;
+  name: string;
+  url: string;
+  description: string | null;
+  position: number;
+  updated_by: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+// Phân hệ Quản lý kí hồ sơ, bản chạy nội bộ (DT-16 phần 16k): chứng thư số nhà trường, hồ sơ kí theo năm học, lịch sử thao tác
+export type SigningSignatureType = 'remote' | 'usb_token' | 'hsm';
+export type SigningCertificateStatus = 'draft' | 'registered' | 'revoked';
+export type SigningSyncStatus = 'not_synced' | 'synced';
+export type SigningObjectType = 'school' | 'class' | 'staff' | 'child' | 'class_log';
+export type SigningDossierStatus = 'created' | 'signed' | 'completed' | 'sent' | 'cancelled';
+export type SigningEventAction =
+  | 'certificate_save'
+  | 'certificate_register'
+  | 'certificate_revoke'
+  | 'seal_upload'
+  | 'seal_delete'
+  | 'certificate_sync'
+  | 'certificate_unsync'
+  | 'create'
+  | 'sign'
+  | 'check_changes'
+  | 'cancel'
+  | 'complete'
+  | 'uncomplete'
+  | 'mark_sent';
+
+export interface SigningCertificatesTable {
+  id: Generated<string>;
+  singleton: Generated<boolean>;
+  signature_type: Generated<SigningSignatureType>;
+  provider: string | null;
+  login_name: string | null;
+  holder_name: string | null;
+  holder_title: string | null;
+  serial_number: string | null;
+  valid_from: DateText | null;
+  valid_to: DateText | null;
+  status: Generated<SigningCertificateStatus>;
+  registered_at: Date | null;
+  registered_by: string | null;
+  registered_by_name: string | null;
+  sync_status: Generated<SigningSyncStatus>;
+  synced_on: DateText | null;
+  sync_note: string | null;
+  synced_by: string | null;
+  synced_by_name: string | null;
+  seal_file_name: string | null;
+  seal_content_type: string | null;
+  seal_storage_key: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+  updated_by: string | null;
+}
+
+export interface SigningDossiersTable {
+  id: Generated<string>;
+  academic_year_id: string;
+  code: string;
+  object_type: SigningObjectType;
+  object_id: string;
+  // Tháng của sổ đầu bài (YYYY-MM); đối tượng khác để trống
+  period: Generated<string>;
+  object_label: string;
+  status: Generated<SigningDossierStatus>;
+  snapshot: ColumnType<unknown, string, string>;
+  content_hash: string;
+  file_name: string;
+  storage_key: string;
+  file_sha256: string;
+  size_bytes: number;
+  created_by: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+  signature_method: string | null;
+  signed_file_name: string | null;
+  signed_storage_key: string | null;
+  signed_sha256: string | null;
+  signed_size_bytes: number | null;
+  signed_at: Date | null;
+  signed_by: string | null;
+  signed_by_name: string | null;
+  changed_at: Date | null;
+  change_summary: string | null;
+  checked_at: Date | null;
+  completed_at: Date | null;
+  completed_by: string | null;
+  completed_by_name: string | null;
+  sent_on: DateText | null;
+  sent_note: string | null;
+  sent_by: string | null;
+  sent_by_name: string | null;
+  marked_sent_at: Date | null;
+  cancelled_at: Date | null;
+  cancelled_by: string | null;
+  cancelled_by_name: string | null;
+  cancel_reason: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface SigningEventsTable {
+  id: Generated<string>;
+  // Trống là thao tác trên chứng thư số
+  dossier_id: string | null;
+  action: SigningEventAction;
+  note: string | null;
+  actor_id: string;
+  actor_name: string;
+  created_at: CreatedTimestamp;
+}
+
 export interface SystemDatabase {
   academic_years: AcademicYearsTable;
   academic_terms: AcademicTermsTable;
@@ -241,4 +468,13 @@ export interface SystemDatabase {
   archive_holdings: ArchiveHoldingsTable;
   archive_records: ArchiveRecordsTable;
   archive_record_files: ArchiveRecordFilesTable;
+  archive_file_deletions: ArchiveFileDeletionsTable;
+  export_jobs: ExportJobsTable;
+  upper_level_submissions: UpperLevelSubmissionsTable;
+  upper_level_submission_events: UpperLevelSubmissionEventsTable;
+  system_announcements: SystemAnnouncementsTable;
+  portal_app_links: PortalAppLinksTable;
+  signing_certificates: SigningCertificatesTable;
+  signing_dossiers: SigningDossiersTable;
+  signing_events: SigningEventsTable;
 }

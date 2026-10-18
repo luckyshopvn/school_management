@@ -20,7 +20,6 @@ const gated = (gate: MenuPermissionRule, rule: MenuPermissionRule): MenuPermissi
 const ACCOUNTS = anyOf('P01.account.manage', 'P01.account.manage-in-unit');
 // Điều kiện của nhóm "Trẻ và lớp" cũ
 const CHILDREN_AND_CLASSES = anyOf('P02.class.manage', 'P02.view', 'P02.edit');
-const IMPORT = anyOf('P01.import.children', 'P02.child.manage', 'P05.opening-debt.import', 'P01.import.staff');
 const STATISTICS = anyOf('P17.child-statistics.view', 'P17.staff-statistics.view');
 const VIEW_FEES = anyOf('P05.view', 'P05.fee-catalog.manage', 'P05.discount-type.manage');
 const VIEW_CASHFLOW = anyOf('P06.view', 'P06.cashflow-category.manage');
@@ -48,20 +47,43 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/branches': anyOf('P01.view', 'P01.org-unit.manage'),
   '/school-sites': anyOf('P01.view', 'P01.org-unit.manage'),
   '/settings': anyOf('P01.view', 'P01.setting.manage'),
+  // Rà soát kiểm định xem như hồ sơ trường; tách trường cần quyền cập nhật hồ sơ trường (DT-16 phần 16e)
+  '/accreditation-review': anyOf('P01.school-profile.manage', 'P17.report.emis'),
+  '/school-splits': 'P01.school-profile.manage',
   '/classes': CHILDREN_AND_CLASSES,
   // Nhập lớp học tách khỏi trang Nhập dữ liệu; cùng quyền nhập dữ liệu ban đầu của máy chủ (YCTD-111)
   '/class-imports': gated(CHILDREN_AND_CLASSES, 'P01.import.children'),
   // Phân công phụ trách lớp: ai xem được lớp đều xem được, phân công cần quyền quản lý lớp (YCTD-111)
   '/class-assignments': CHILDREN_AND_CLASSES,
+  // Khai báo tuần: ai xem được thiết lập thì xem, sửa cần quyền quản lý năm học như 2.1 Năm học (DT-16 phần 16e)
+  '/school-weeks': anyOf('P01.view', 'P01.academic-year.manage'),
   '/staff': 'P07.staff.view',
   '/children': CHILDREN_AND_CLASSES,
   // Biến động học sinh: người lập hoặc duyệt hồ sơ học sinh (YCTD-108)
   '/student-movements': gated(CHILDREN_AND_CLASSES, anyOf('P02.child.manage', 'P02.approve')),
   // Trước đây hiện ở nhóm Trẻ và lớp, hoặc ở nhóm Nhân sự cho người chỉ nhập nhân sự
-  '/imports': anyOf(gated(CHILDREN_AND_CLASSES, IMPORT), gated('P07.staff.view', 'P01.import.staff')),
+  // Nhập nhân sự tách sang "3.1.3. Nhập nhân sự từ Excel" (DT-16 phần 16f); nhập học sinh sang "4.1.2. Nhập học sinh từ Excel"
+  // (DT-16 phần 16g): trang còn công nợ đầu kỳ cho kế toán
+  '/imports': 'P05.opening-debt.import',
+  '/staff-imports': gated('P07.staff.view', 'P01.import.staff'),
+  // Nhân sự đủ theo Sở (DT-16 phần 16f): xem như hồ sơ nhân sự, thao tác cần quyền quản lý hồ sơ (máy chủ kiểm tra)
+  '/staff-branches': 'P07.staff.view',
+  '/staff-identity': 'P07.staff.view',
+  '/staff-movements': 'P07.staff.view',
+  '/staff-statistics': 'P17.staff-statistics.view',
+  '/staff-identity-progress': 'P17.staff-statistics.view',
   '/child-groups': gated(CHILDREN_AND_CLASSES, anyOf('P02.child-group.manage', 'P02.view')),
   // Cập nhật địa danh hành chính: như Biến động học sinh, người lập hoặc duyệt hồ sơ học sinh (YCTD-116)
   '/administrative-units': gated(CHILDREN_AND_CLASSES, anyOf('P02.child.manage', 'P02.approve')),
+  // Học sinh đủ theo Sở (DT-16 phần 16g): nhập học sinh như nhập trẻ; sắp xếp, điện thoại nhận tin, số định danh, tiến độ
+  // xác thực cho người lập hoặc duyệt hồ sơ; tài khoản học và thi, mật khẩu mặc định cho người quản lý tài khoản
+  '/student-imports': gated(CHILDREN_AND_CLASSES, anyOf('P01.import.children', 'P02.child.manage', 'P02.approve')),
+  '/student-order': gated(CHILDREN_AND_CLASSES, anyOf('P02.child.manage', 'P02.approve')),
+  '/sms-phones': gated(CHILDREN_AND_CLASSES, anyOf('P02.child.manage', 'P02.approve')),
+  '/national-ids': gated(CHILDREN_AND_CLASSES, anyOf('P02.child.manage', 'P02.approve')),
+  '/learning-accounts': gated(CHILDREN_AND_CLASSES, 'P01.account.manage'),
+  '/default-passwords': 'P01.account.manage',
+  '/national-id-progress': anyOf('P02.child.manage', 'P02.approve'),
   '/growth': anyOf('P10.health.manage', 'P17.report.growth'),
   '/growth-report': 'P17.report.growth',
   '/program-completion': gated(
@@ -69,11 +91,16 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
     anyOf('P02.program-completion.manage', 'P02.program-completion.approve'),
   ),
   '/kitchen': anyOf('P12.kitchen.manage', 'P12.menu.approve', 'P17.report.kitchen'),
+  // Thông tin sức khỏe học sinh theo học kỳ (DT-16 phần 16h): như nhập cân đo
+  '/student-health': anyOf('P10.health.manage', 'P17.report.growth'),
   '/health': anyOf('P10.health.manage', 'P10.medical-event.record'),
   '/medicines': anyOf('P10.medicine.manage', 'P10.medication.administer', 'P10.medicine-purchase.approve'),
   '/attendance': CHILDREN_AND_CLASSES,
   '/statistics': STATISTICS,
+  // Chuyển hồ sơ lên năm học mới: như mở năm học (DT-16 phần 16e)
+  '/year-rollover': 'P01.academic-year.manage',
   '/missing-profiles': STATISTICS,
+  '/student-statistics': STATISTICS,
   // Văn thư lưu trữ (YCTD-118): người có quyền quản lý, xuất thì cũng được cấp quyền xem
   '/archive-records': anyOf('P09.archive.view', 'P09.archive.manage', 'P09.archive.export'),
   '/archive-fonds': anyOf('P09.archive.view', 'P09.archive.manage'),
@@ -83,8 +110,27 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/facility-rooms': anyOf('P17.report.facilities', 'P13.equipment.manage', 'P01.room.manage'),
   '/equipment': anyOf('P17.report.facilities', 'P13.equipment.manage'),
   '/emis': 'P17.report.emis',
+  // Quản lý kí hồ sơ (DT-16 phần 16k): ai có một quyền của phân hệ đều xem được các mục; thao tác kiểm tra ở máy chủ
+  '/signing-certificate': anyOf('P01.signing.view', 'P01.signing.certificate'),
+  '/signing-certificate-sync': anyOf('P01.signing.view', 'P01.signing.certificate'),
+  '/signing-dossiers': anyOf('P01.signing.view', 'P01.signing.manage', 'P01.signing.sign'),
+  '/signing-submissions': anyOf('P01.signing.view', 'P01.signing.manage'),
+  '/emis/facilities': 'P17.report.emis',
+  '/emis/health': 'P17.report.emis',
+  '/emis/end-of-year': 'P17.report.emis',
+  '/emis/staff': 'P17.report.emis',
+  '/emis/foreign-language': 'P17.report.emis',
+  '/emis/preschool-end-of-year': 'P17.report.emis',
+  // Cơ sở vật chất đủ theo Sở (DT-16 phần 16i): 6.1 xem như báo cáo cơ sở vật chất, ghi cần quyền cập nhật hồ sơ trường; 6.2
+  // như 1.1; 1.2 như báo cáo cơ sở vật chất; 2.2 như 2.1; 2.3 gửi theo quyền báo cáo cơ sở vật chất
+  '/facility-investments': anyOf('P17.report.facilities', 'P01.school-profile.manage'),
+  '/facility-input': anyOf('P17.report.facilities', 'P13.equipment.manage', 'P01.room.manage'),
+  '/facility-report': anyOf('P17.report.facilities', 'P01.school-profile.manage'),
+  '/equipment-outside': anyOf('P17.report.facilities', 'P13.equipment.manage'),
+  '/equipment-submission': 'P17.report.facilities',
   // Quản trị hệ thống
   '/roles': ACCOUNTS,
+  '/role-workspaces': ACCOUNTS,
   '/role-permissions': ACCOUNTS,
   '/accounts': ACCOUNTS,
   '/departments': anyOf('P01.view', 'P01.department.manage'),
@@ -93,9 +139,16 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/approval-thresholds': 'P01.view',
   '/api-clients': gated(ACCOUNTS, 'P01.api-client.manage'),
   '/integrations': 'P01.integration.manage',
+  // Tài khoản đồng bộ của Bộ, của Sở (DT-16 phần 16d)
+  '/sync-accounts': 'P01.integration.manage',
   '/audit-logs': 'P01.view',
   // Ý kiến phản hồi (YCTD-110)
   '/feedback': 'P01.feedback.manage',
+  // Tệp đã tạo của tác vụ xuất nền (DT-16 phần 16a): người xuất được dữ liệu
+  '/generated-files': 'P17.data.export',
+  // Thông báo hệ thống, ứng dụng liên kết (DT-16 phần 16c)
+  '/system-announcements': 'P01.announcement.manage',
+  '/app-links': 'P01.announcement.manage',
   // Tài chính – học phí
   '/fees': VIEW_FEES,
   '/registrations': REGISTRATIONS,

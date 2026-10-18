@@ -1,5 +1,6 @@
 import type { ClassAgeGroupKey, ClassStage } from '@school-management/shared';
 import { downloadPost } from '../children/children-api.js';
+import type { ExportFormat } from '../exports/export-api.js';
 import { requestJson } from '../session/api-client.js';
 
 // Gọi nhóm điểm cuối lớp học (máy chủ API) và danh bạ giáo viên (dịch vụ định danh) (P02-05, YCTD-44); thông tin lớp, bộ
@@ -86,9 +87,10 @@ export interface StaffDirectoryEntry {
   role_code: string;
 }
 
+// Dòng của giáo viên chưa phân công (DT-16 phần 16e) để trống lớp, vai trò, ngày
 export interface ClassAssignmentRow {
   id: string;
-  class_id: string;
+  class_id: string | null;
   class_code: string;
   class_name: string;
   grade_name: string;
@@ -96,15 +98,23 @@ export interface ClassAssignmentRow {
   org_unit_name: string;
   staff_user_id: string;
   staff_name: string;
-  assignment_role: AssignmentRole;
+  assignment_role: AssignmentRole | null;
   subject_name: string | null;
-  from_date: string;
+  from_date: string | null;
 }
 
 export interface ClassAssignmentFilter {
   q?: string;
   org_unit_id?: string;
   assignment_role?: string;
+  // Tình trạng phân công: assigned, unassigned; trống là cả hai
+  assignment?: string;
+}
+
+// Kết quả xóa lớp, thao tác hàng loạt (DT-16 phần 16e)
+export interface BulkClassResult {
+  succeeded: Array<{ id: string; name: string }>;
+  failed: Array<{ id: string; name: string; message: string }>;
 }
 
 export const ASSIGNMENT_ROLE_LABELS: Record<AssignmentRole, string> = {
@@ -130,14 +140,27 @@ export const searchClasses = (filter: ClassFilter = {}): Promise<ClassRecord[]> 
   return requestJson(`/api/v1/classes${parameters ? `?${parameters}` : ''}`);
 };
 
-export const exportClasses = (filter: ClassFilter, columns: string[]) =>
-  downloadPost('/api/v1/classes/export', { ...cleaned(filter), columns }, 'danh-sach-lop.xlsx');
+export const exportClasses = (filter: ClassFilter, columns: string[], format: ExportFormat = 'xlsx') =>
+  downloadPost('/api/v1/classes/export', { ...cleaned(filter), columns, format }, `danh-sach-lop.${format}`);
 
 export const createClass = (input: ClassInput): Promise<ClassRecord> =>
   requestJson('/api/v1/classes', { method: 'POST', body: JSON.stringify(input) });
 
 export const updateClass = (classId: string, changes: ClassChanges): Promise<ClassRecord> =>
   requestJson(`/api/v1/classes/${classId}`, { method: 'PATCH', body: JSON.stringify(changes) });
+
+// Xóa lớp chưa phát sinh dữ liệu và thao tác hàng loạt trên các lớp đã chọn (DT-16 phần 16e)
+export const deleteClasses = (classIds: string[]): Promise<BulkClassResult> =>
+  requestJson('/api/v1/classes/delete', { method: 'POST', body: JSON.stringify({ class_ids: classIds }) });
+
+export const bulkUpdateClasses = (
+  classIds: string[],
+  changes: { status?: ClassStatus; two_sessions_per_day?: boolean; boarding?: boolean },
+): Promise<BulkClassResult> =>
+  requestJson('/api/v1/classes/bulk-update', {
+    method: 'POST',
+    body: JSON.stringify({ class_ids: classIds, ...changes }),
+  });
 
 export const listAssignments = (classId: string): Promise<StaffAssignment[]> =>
   requestJson(`/api/v1/classes/${classId}/staff-assignments`);
@@ -163,5 +186,5 @@ export const listClassAssignments = (filter: ClassAssignmentFilter = {}): Promis
   return requestJson(`/api/v1/class-assignments${parameters ? `?${parameters}` : ''}`);
 };
 
-export const exportClassAssignments = (filter: ClassAssignmentFilter) =>
-  downloadPost('/api/v1/class-assignments/export', cleaned(filter), 'phan-cong-phu-trach-lop.xlsx');
+export const exportClassAssignments = (filter: ClassAssignmentFilter, format: ExportFormat = 'xlsx') =>
+  downloadPost('/api/v1/class-assignments/export', { ...cleaned(filter), format }, `phan-cong-phu-trach-lop.${format}`);

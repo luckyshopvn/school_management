@@ -6,7 +6,7 @@ import type { AcademicYearTransitionStep } from '../academic-years/academic-year
 export const CARRIED_CHILD_STATUSES = ['draft', 'pending', 'active', 'paused'] as const;
 
 // Mở năm học mới thì chuyển hồ sơ trẻ chưa thôi học kèm phụ huynh, sức khỏe, đồng ý hình ảnh, người được ủy quyền đón,
-// lớp đang học và lịch sử lớp gần nhất (GD-90), đăng ký dịch vụ gần nhất để dịch vụ không bắt buộc giữ tiếp cho tới khi
+// lớp đang học và lịch sử lớp gần nhất (GD-90) kèm số thứ tự trong lớp, tài khoản học và thi (DT-16 phần 16g), đăng ký dịch vụ gần nhất để dịch vụ không bắt buộc giữ tiếp cho tới khi
 // hủy; giữ nguyên mã định danh (QĐ-17, YCTD-69). Lịch sử lớp đầy đủ, điểm danh, đón trả, nhật ký tra ở năm cũ. Chạy sau
 // bước danh mục và bước khoản thu vì hồ sơ tham chiếu quan hệ phụ huynh, phòng học, dịch vụ
 export const childrenTransitionStep: AcademicYearTransitionStep = {
@@ -22,6 +22,7 @@ export const childrenTransitionStep: AcademicYearTransitionStep = {
       .selectFrom('children')
       .selectAll()
       .where('status', 'in', [...CARRIED_CHILD_STATUSES])
+      .where('deleted_at', 'is', null)
       .execute();
     if (children.length === 0) {
       return;
@@ -140,6 +141,14 @@ export const childrenTransitionStep: AcademicYearTransitionStep = {
     }
     for (const row of enrollments) {
       await next.insertInto('class_enrollments').values(row).execute();
+    }
+    // Tài khoản học và thi của học sinh đi cùng hồ sơ (DT-16 phần 16g)
+    for (const row of await previous
+      .selectFrom('student_learning_accounts')
+      .selectAll()
+      .where('child_id', 'in', childIds)
+      .execute()) {
+      await next.insertInto('student_learning_accounts').values(row).execute();
     }
 
     // Dịch vụ không bắt buộc giữ từ tháng gần nhất có đăng ký nên chỉ cần dòng gần nhất của mỗi trẻ, mỗi dịch vụ

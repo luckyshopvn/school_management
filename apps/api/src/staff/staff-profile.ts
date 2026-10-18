@@ -8,6 +8,9 @@ import { MOET_STAFF_COLUMNS, type MoetValueKind } from '../imports/moet-columns.
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const ID_NUMBER_PATTERN = /^\d{12}$/;
 const SECRET_PATTERN = /^[0-9A-Za-z]{4,20}$/;
+// Mã số thuế cá nhân 10 số (hoặc 10 số-3 số), từ 2025 dùng số định danh 12 số; số tài khoản ngân hàng 6 đến 20 chữ số
+export const TAX_CODE_PATTERN = /^(\d{10}|\d{12}|\d{10}-\d{3})$/;
+export const BANK_ACCOUNT_PATTERN = /^\d{6,20}$/;
 const MAXIMUM_TEXT = 500;
 
 // Khóa sửa được: mọi cột không phải cột riêng của tệp ngành, kể cả quận/huyện cũ ở cột không tên
@@ -31,6 +34,11 @@ export interface StaffProfileChanges {
   departmentId?: string | null;
   jobTitleId?: string | null;
   startDate?: string;
+  // Tài khoản ngân hàng, mã số thuế, xã đặc biệt khó khăn (DT-16 phần 16f)
+  bankAccountNumber?: string | null;
+  bankName?: string | null;
+  taxCode?: string | null;
+  specialDifficultyCommune?: boolean;
   // Giá trị null là xóa ô; ô bí mật (số sổ bảo hiểm xã hội) chỉ nhận số mới
   profile: Record<string, string | boolean | null>;
 }
@@ -107,6 +115,33 @@ export function readStaffProfileChanges(body: RequestBody, errors: FieldError[])
   ] as const) {
     if (has(field)) {
       changes[key] = readLimited(body, field, errors, MAXIMUM_TEXT) ?? null;
+    }
+  }
+  if (has('bank_account_number')) {
+    const value = readOptionalText(body, 'bank_account_number', errors)?.replace(/[\s.]/g, '') || null;
+    if (value && !BANK_ACCOUNT_PATTERN.test(value)) {
+      errors.push({ field: 'bank_account_number', message: 'Số tài khoản gồm 6 đến 20 chữ số' });
+    } else {
+      changes.bankAccountNumber = value;
+    }
+  }
+  if (has('bank_name')) {
+    changes.bankName = readLimited(body, 'bank_name', errors, 200) ?? null;
+  }
+  if (has('tax_code')) {
+    const value = readOptionalText(body, 'tax_code', errors)?.replace(/\s/g, '') || null;
+    if (value && !TAX_CODE_PATTERN.test(value)) {
+      errors.push({ field: 'tax_code', message: 'Mã số thuế gồm 10 chữ số (hoặc 10 số-3 số), hoặc 12 số định danh' });
+    } else {
+      changes.taxCode = value;
+    }
+  }
+  if (has('special_difficulty_commune')) {
+    const value = body?.special_difficulty_commune;
+    if (value !== true && value !== false && value !== null) {
+      errors.push({ field: 'special_difficulty_commune', message: 'Chọn có hoặc không' });
+    } else {
+      changes.specialDifficultyCommune = value === true;
     }
   }
   if (has('id_number')) {

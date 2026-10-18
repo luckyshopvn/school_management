@@ -14,10 +14,13 @@ export interface EffectiveSetting {
     | 'positive_integer'
     | 'time_of_day'
     | 'minutes'
-    | 'percent';
+    | 'percent'
+    | 'text';
   value: unknown;
   source: SettingSource;
   unit_value: unknown;
+  // Mục của khối Cấu hình trường theo Sở (DT-16 phần 16e), chỉ đặt ở Trường chính
+  school: boolean;
 }
 
 export function readSettings(orgUnitId: string): Promise<EffectiveSetting[]> {
@@ -35,6 +38,11 @@ export interface IdentitySettings {
   one_time_code_maximum_attempts: number;
   one_time_code_maximum_sends_per_hour: number;
   parent_default_password_configured: boolean;
+  // Đăng nhập cổng quản trị (DT-16 phần 16c)
+  captcha_failure_threshold: number;
+  captcha_always: boolean;
+  password_history_count: number;
+  login_hotline: string | null;
 }
 
 export type IdentitySettingsChanges = Partial<Omit<IdentitySettings, 'parent_default_password_configured'>> & {

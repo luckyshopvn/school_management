@@ -118,6 +118,9 @@ test('CT-15a-8: menu ngang bằng bàn phím: mũi tên, Enter, Space, Esc theo 
   await expect(item('1. Trường học')).toBeFocused();
   await page.keyboard.press('ArrowLeft');
   await page.keyboard.press('ArrowLeft');
+  // Mục cuối là nhóm 6. Cơ sở vật chất (DT-16 phần 16i)
+  await expect(item('6. Cơ sở vật chất')).toBeFocused();
+  await page.keyboard.press('ArrowLeft');
   await expect(item('5. Công cụ hỗ trợ')).toBeFocused();
   await page.keyboard.press('ArrowLeft');
   await expect(item('4. Học sinh')).toBeFocused();
@@ -128,7 +131,7 @@ test('CT-15a-8: menu ngang bằng bàn phím: mũi tên, Enter, Space, Esc theo 
   await page.keyboard.press('ArrowRight');
   await expect(item('4.1.1. Quản lý hồ sơ học sinh')).toBeFocused();
   await page.keyboard.press('ArrowDown');
-  await expect(item('4.1.2. Nhập dữ liệu từ Excel')).toBeFocused();
+  await expect(item('4.1.2. Nhập học sinh từ Excel')).toBeFocused();
   // Esc đóng từng cấp, con trỏ về mục cha
   await page.keyboard.press('Escape');
   await expect(bar.getByRole('menu', { name: 'Hồ sơ học sinh', exact: true })).toBeHidden();
@@ -202,7 +205,7 @@ test('CT-15a-10: màn hình hẹp dùng nút menu mở cây menu gập', async (
   );
 });
 
-test('CT-15a-11: menu người dùng có Thông báo, Đổi mật khẩu, Cấu hình hiển thị lưới, Danh sách ý kiến đã gửi (15g), Thoát; số dòng mặc định lưu theo tài khoản', async ({
+test('CT-15a-11: menu người dùng có Thông báo, Hồ sơ nhân sự cá nhân (16c), Đổi mật khẩu, Cấu hình hiển thị lưới, Danh sách ý kiến đã gửi (15g), Hướng dẫn (16c), Thoát; số dòng mặc định lưu theo tài khoản', async ({
   page,
 }) => {
   const user = await createTestUser(database, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
@@ -210,9 +213,11 @@ test('CT-15a-11: menu người dùng có Thông báo, Đổi mật khẩu, Cấu
   let menu = await openUserMenu(page);
   await expect(menu.getByRole('menuitem')).toHaveText([
     'Thông báo',
+    'Hồ sơ nhân sự cá nhân',
     'Đổi mật khẩu',
     'Cấu hình hiển thị lưới',
     'Danh sách ý kiến đã gửi',
+    'Hướng dẫn',
     'Thoát',
   ]);
   await page.keyboard.press('Escape');

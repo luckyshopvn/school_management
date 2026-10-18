@@ -6,7 +6,7 @@ import { AppShell } from '../pages/AppShell.js';
 import { useGridSettings } from '../pages/grid-settings.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
-import { formatNumber, messageOf, selectClass } from './archive-ui.js';
+import { formatNumber, messageOf, selectClass, useArchiveUnits } from './archive-ui.js';
 import {
   exportArchiveReport,
   listArchiveFonds,
@@ -53,6 +53,7 @@ export function ArchiveReportPage() {
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState<string>();
   const fonds = useQuery({ queryKey: ['archive-fonds'], queryFn: listArchiveFonds });
+  const units = useArchiveUnits(PERMISSION_CODES.archiveView);
   const report = useQuery({ queryKey: ['archive-report', filter], queryFn: () => readArchiveReport(filter) });
   const rows: ArchiveReportRow[] =
     report.data && report.data.rows.length > 0
@@ -107,6 +108,23 @@ export function ArchiveReportPage() {
           }}
           advancedSearch={
             <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+              <label className="text-label font-medium text-text">
+                Đơn vị
+                <select
+                  value={filter.org_unit_id ?? ''}
+                  onChange={(event) =>
+                    setFilter((current) => ({ ...current, org_unit_id: event.target.value || undefined }))
+                  }
+                  className={selectClass}
+                >
+                  <option value="">Tất cả</option>
+                  {units.units.map((unit) => (
+                    <option key={unit.id} value={unit.id}>
+                      {unit.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <label className="text-label font-medium text-text">
                 Phông lưu trữ
                 <select

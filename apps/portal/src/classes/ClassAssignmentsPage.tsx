@@ -9,6 +9,7 @@ import {
   FORM_CONTROL_CLASS,
   FormBlock,
   FormRow,
+  StatusBadge,
   Toast,
   type DataGridColumn,
 } from '@school-management/ui';
@@ -32,7 +33,9 @@ import {
 
 // 3.3. Phân công phụ trách lớp theo Sở (DT-15 phần 15b, YCTD-111): danh sách giáo viên và lớp phụ trách lấy từ phân công
 // giáo viên của lớp (P02-05), lưới dữ liệu chung (khóa `class-assignments`), tìm theo tên giáo viên, mở rộng tìm kiếm theo
-// đơn vị và vai trò, Xuất Excel. Thêm mới chọn lớp rồi phân công như ở 2.1; kết thúc phân công trên từng dòng
+// đơn vị và vai trò, Xuất Excel. Thêm mới chọn lớp rồi phân công như ở 2.1; kết thúc phân công trên từng dòng. Theo Sở
+// (DT-16 phần 16e) lưới hiện cả giáo viên chưa phụ trách lớp nào (dòng để trống lớp, ghi "Chưa phân công"), lọc theo tình
+// trạng phân công
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
@@ -50,12 +53,21 @@ const COLUMNS: Array<DataGridColumn<ClassAssignmentRow>> = [
     className: 'font-medium',
     cell: (row) => row.staff_name,
   },
-  { id: 'assignment_role', header: 'Vai trò trong lớp', cell: (row) => ASSIGNMENT_ROLE_LABELS[row.assignment_role] },
+  {
+    id: 'assignment_role',
+    header: 'Vai trò trong lớp',
+    cell: (row) =>
+      row.assignment_role === null ? (
+        <StatusBadge tone="warning" label="Chưa phân công" />
+      ) : (
+        ASSIGNMENT_ROLE_LABELS[row.assignment_role]
+      ),
+  },
   { id: 'subject_name', header: 'Môn dạy', cell: (row) => row.subject_name ?? '' },
   { id: 'class_name', header: 'Lớp', cell: (row) => row.class_name },
   { id: 'grade_name', header: 'Khối', cell: (row) => row.grade_name },
   { id: 'org_unit_name', header: 'Đơn vị', cell: (row) => row.org_unit_name },
-  { id: 'from_date', header: 'Từ ngày', cell: (row) => formatDate(row.from_date) },
+  { id: 'from_date', header: 'Từ ngày', cell: (row) => (row.from_date ? formatDate(row.from_date) : '') },
 ];
 
 function NewAssignment({ onChanged, onClose }: { onChanged(message: string): void; onClose(): void }) {
@@ -113,7 +125,7 @@ export function ClassAssignmentsPage() {
     queryFn: () => listClassAssignments(activeFilter),
   });
   const end = useMutation({
-    mutationFn: (row: ClassAssignmentRow) => endAssignment(row.class_id, row.id),
+    mutationFn: (row: ClassAssignmentRow) => endAssignment(row.class_id ?? '', row.id),
     onSuccess: async () => {
       setEnding(undefined);
       await queryClient.invalidateQueries({ queryKey: ['class-assignments'] });
@@ -150,7 +162,7 @@ export function ClassAssignmentsPage() {
           getRowId={(row) => row.id}
           getRowLabel={(row) => `${row.staff_name} ${row.class_name}`}
           loading={rows.isPending}
-          emptyText="Chưa có phân công nào."
+          emptyText="Không có giáo viên nào."
           search={{ label: 'Tìm theo tên giáo viên', value: search, onChange: setSearch }}
           advancedSearch={
             <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -184,6 +196,18 @@ export function ClassAssignmentsPage() {
                   ))}
                 </select>
               </label>
+              <label className="text-label font-medium text-text">
+                Tình trạng phân công
+                <select
+                  value={filter.assignment ?? ''}
+                  onChange={(event) => change('assignment', event.target.value)}
+                  className={selectClass}
+                >
+                  <option value="">Tất cả</option>
+                  <option value="assigned">Đã phân công</option>
+                  <option value="unassigned">Chưa phân công</option>
+                </select>
+              </label>
             </div>
           }
           toolbar={
@@ -211,15 +235,17 @@ export function ClassAssignmentsPage() {
           }
           rowActions={
             canManage
-              ? (row) => (
-                  <Button variant="text" onClick={() => setEnding(row)}>
-                    Kết thúc phân công
-                  </Button>
-                )
+              ? (row) =>
+                  row.class_id === null ? null : (
+                    <Button variant="text" onClick={() => setEnding(row)}>
+                      Kết thúc phân công
+                    </Button>
+                  )
               : undefined
           }
           settings={grid.settings}
           onSettingsChange={grid.update}
+          exportPdf={canExport ? () => exportClassAssignments(activeFilter, 'pdf') : undefined}
         />
       </div>
       {ending ? (

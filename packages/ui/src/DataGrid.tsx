@@ -53,6 +53,10 @@ export interface DataGridProperties<Row> {
   onSettingsChange(next: DataGridViewSettings): void;
   // Phân trang ở máy chủ: lưới hiện đúng các dòng được truyền vào, tổng số dòng do máy chủ trả
   serverPagination?: { page: number; total: number; onPageChange(page: number): void };
+  // Xuất PDF (DT-16 phần 16a): có thì lưới hiện nút "Xuất PDF" cạnh nút của màn hình; nhận mã các cột đang hiện theo thứ tự
+  // để máy chủ xuất đúng cột như Xuất Excel. Trả chuỗi thì lưới hiện thành thông báo (ví dụ đã tạo tác vụ xuất nền); lỗi thì
+  // lưới hiện nội dung lỗi
+  exportPdf?(visibleColumnIds: string[]): Promise<string | void>;
 }
 
 // Cột đang hiển thị theo cấu hình; cột luôn hiện mà cấu hình thiếu thì thêm vào cuối
@@ -235,11 +239,14 @@ export function DataGrid<Row>({
   settings,
   onSettingsChange,
   serverPagination,
+  exportPdf,
 }: DataGridProperties<Row>) {
   const [clientPage, setClientPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [configuring, setConfiguring] = useState(false);
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const [pdfMessage, setPdfMessage] = useState<{ tone: 'info' | 'danger'; text: string }>();
   const advancedId = useId();
   const pageSizeId = useId();
   const selectAllReference = useRef<HTMLInputElement>(null);
@@ -296,6 +303,21 @@ export function DataGrid<Row>({
 
   const columnCount = visibleColumns.length + (selectable ? 1 : 0) + (rowActions ? 1 : 0);
   const toolbarContent = typeof toolbar === 'function' ? toolbar(selectedRows) : toolbar;
+  const runPdfExport = async () => {
+    if (!exportPdf) {
+      return;
+    }
+    setPdfBusy(true);
+    setPdfMessage(undefined);
+    try {
+      const notice = await exportPdf(visibleColumns.map((column) => column.id));
+      setPdfMessage(notice ? { tone: 'info', text: notice } : undefined);
+    } catch (error) {
+      setPdfMessage({ tone: 'danger', text: error instanceof Error ? error.message : 'Không xuất được tệp PDF' });
+    } finally {
+      setPdfBusy(false);
+    }
+  };
 
   return (
     <section className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4" aria-label={label}>
@@ -323,9 +345,22 @@ export function DataGrid<Row>({
         ) : null}
         <div className="ml-auto flex flex-wrap items-center gap-2">
           {toolbarContent}
+          {exportPdf ? (
+            <Button disabled={pdfBusy} onClick={() => void runPdfExport()}>
+              Xuất PDF
+            </Button>
+          ) : null}
           <Button onClick={() => setConfiguring(true)}>Cấu hình cột hiển thị</Button>
         </div>
       </div>
+      {pdfMessage ? (
+        <p
+          role={pdfMessage.tone === 'danger' ? 'alert' : 'status'}
+          className={`text-label ${pdfMessage.tone === 'danger' ? 'text-danger' : 'text-text-secondary'}`}
+        >
+          {pdfMessage.text}
+        </p>
+      ) : null}
       {advancedSearch ? (
         <div
           id={advancedId}

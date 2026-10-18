@@ -1,7 +1,9 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useCallback, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, DataGrid, TextField, type DataGridColumn } from '@school-management/ui';
+import { Alert, Button, DataGrid, TextField, Toast, type DataGridColumn } from '@school-management/ui';
+import { BulkTransferDialog } from '../students/BulkTransferDialog.js';
+import { StudentTransfersSection } from '../students/StudentTransfersSection.js';
 import { useUnitChoice } from '../catalogs/UnitSelect.js';
 import { AppShell } from '../pages/AppShell.js';
 import { useGridSettings } from '../pages/grid-settings.js';
@@ -19,7 +21,8 @@ import {
 
 // 4.2. Biến động học sinh (DT-15 phần 15c, YCTD-108): nhập học, chuyển lớp, chuyển đơn vị, thôi học theo khoảng ngày, dựng
 // từ lịch sử đã có; lưới dữ liệu chung, tìm theo họ tên, mở rộng tìm kiếm theo loại và đơn vị, Xuất Excel. Ghi nhận chuyển
-// lớp, chuyển đơn vị, thôi học vẫn làm ở hồ sơ học sinh
+// lớp, chuyển đơn vị, thôi học vẫn làm ở hồ sơ học sinh. Từ DT-16 phần 16g có "Chuyển lớp hàng loạt" và khối chuyển đi, tiếp
+// nhận chuyển đến giữa các trường chạy nội bộ
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
@@ -43,6 +46,11 @@ const COLUMNS: Array<DataGridColumn<StudentMovement>> = [
 
 export function StudentMovementsPage() {
   const canExport = useHasPermission(PERMISSION_CODES.dataExport);
+  const canApprove = useHasPermission(PERMISSION_CODES.childApprove);
+  const queryClient = useQueryClient();
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string>();
+  const closeToast = useCallback(() => setToastMessage(undefined), []);
   const unitChoice = useUnitChoice();
   const grid = useGridSettings('student-movements');
   const [filter, setFilter] = useState<MovementFilter>({});
@@ -65,6 +73,7 @@ export function StudentMovementsPage() {
 
   return (
     <AppShell>
+      <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/student-movements')}</h1>
         <div className="flex flex-wrap items-end gap-3">
@@ -144,26 +153,42 @@ export function StudentMovementsPage() {
             </div>
           }
           toolbar={
-            canExport ? (
-              <Button
-                disabled={exporting}
-                onClick={() => {
-                  setExportError(undefined);
-                  setExporting(true);
-                  exportMovements(activeFilter)
-                    .catch((error: unknown) => setExportError(messageOf(error)))
-                    .finally(() => setExporting(false));
-                }}
-              >
-                Xuất Excel
-              </Button>
-            ) : null
+            <>
+              {canApprove ? <Button onClick={() => setBulkOpen(true)}>Chuyển lớp hàng loạt</Button> : null}
+              {canExport ? (
+                <Button
+                  disabled={exporting}
+                  onClick={() => {
+                    setExportError(undefined);
+                    setExporting(true);
+                    exportMovements(activeFilter)
+                      .catch((error: unknown) => setExportError(messageOf(error)))
+                      .finally(() => setExporting(false));
+                  }}
+                >
+                  Xuất Excel
+                </Button>
+              ) : null}
+            </>
           }
           settings={grid.settings}
           onSettingsChange={grid.update}
+          exportPdf={canExport ? () => exportMovements(activeFilter, 'pdf') : undefined}
           serverPagination={{ page, total: movements.data?.total ?? 0, onPageChange: setPage }}
         />
+        <StudentTransfersSection onChanged={setToastMessage} />
       </div>
+      {bulkOpen ? (
+        <BulkTransferDialog
+          onCancel={() => setBulkOpen(false)}
+          onDone={(message) => {
+            setBulkOpen(false);
+            setToastMessage(message);
+            void queryClient.invalidateQueries({ queryKey: ['student-movements'] });
+            void queryClient.invalidateQueries({ queryKey: ['children'] });
+          }}
+        />
+      ) : null}
     </AppShell>
   );
 }

@@ -1,5 +1,6 @@
 import type { MoetProfileEntry } from '../imports/MoetProfileSection.js';
 import { downloadPost } from '../children/children-api.js';
+import type { ExportFormat } from '../exports/export-api.js';
 import { requestJson } from '../session/api-client.js';
 
 // Gọi nhóm điểm cuối hồ sơ nhân sự và hợp đồng lao động (P07-01, P07-02, P07-04; YCTD-58)
@@ -31,6 +32,12 @@ export interface Staff {
   end_date: string | null;
   status: 'active' | 'terminated';
   has_account: boolean;
+  // DT-16 phần 16f
+  bank_account_number?: string | null;
+  bank_name?: string | null;
+  tax_code?: string | null;
+  special_difficulty_commune?: boolean;
+  id_verification_status?: 'unverified' | 'verified' | 'invalid';
 }
 
 export interface Contract {
@@ -132,6 +139,10 @@ export interface StaffListItem {
   contract_form: string | null;
   professional_qualification: string | null;
   party_member: boolean;
+  special_difficulty_commune: boolean;
+  id_verification_status: 'unverified' | 'verified' | 'invalid';
+  bank_account_number: string | null;
+  tax_code: string | null;
   id_number_masked: string | null;
   has_account: boolean;
   contract_no: string | null;
@@ -162,6 +173,9 @@ export interface StaffFilter {
   age_from?: string;
   age_to?: string;
   job_position?: string;
+  // Xã đặc biệt khó khăn, trạng thái xác thực số định danh (DT-16 phần 16f)
+  special_difficulty_commune?: string;
+  id_verification?: string;
 }
 
 const filterEntries = (filter: StaffFilter) =>
@@ -175,12 +189,12 @@ export function searchStaff(filter: StaffFilter & { page: number; pageSize: numb
   return requestJson(`/api/v1/staff/search?${parameters.toString()}`);
 }
 
-// Xuất Excel theo bộ lọc và các cột đang hiện trên lưới
-export const exportStaff = (filter: StaffFilter, columns: string[]) =>
+// Xuất Excel hoặc PDF theo bộ lọc và các cột đang hiện trên lưới
+export const exportStaff = (filter: StaffFilter, columns: string[], format: ExportFormat = 'xlsx') =>
   downloadPost(
     '/api/v1/staff/export',
-    { ...Object.fromEntries(filterEntries(filter)), columns },
-    'danh-sach-can-bo-giao-vien.xlsx',
+    { ...Object.fromEntries(filterEntries(filter)), columns, format },
+    `danh-sach-can-bo-giao-vien.${format}`,
   );
 
 // Ghi hồ sơ theo biểu mẫu của Sở và thông tin riêng của trường; chỉ gửi ô đã đổi

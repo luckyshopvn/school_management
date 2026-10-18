@@ -1,8 +1,8 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.7
-- Ngày cập nhật: 2026-10-15
+- Phiên bản: 1.13
+- Ngày cập nhật: 2026-10-18
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -55,8 +55,20 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.2.0 | Bốn thay đổi: Ban Giám hiệu, nhiều cấp đơn vị, tách giao diện và máy chủ, dịch vụ định danh | 01 đến 07 | Đã có |
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
-| 0.67.0 | DT-15 phần 15f2, phân hệ Nhân sự – chấm công, lương theo giao diện chung của Sở: tiêu đề đánh số theo menu, 17 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối, hộp xác nhận xóa; nghiệp vụ không đổi (YCTD-113) | 13, 21 | Đã có |
+| 0.81.0 | DT-15 phần 15f2, phân hệ Nhân sự – chấm công, lương theo giao diện chung của Sở: tiêu đề đánh số theo menu, 17 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối, hộp xác nhận xóa; nghiệp vụ không đổi (YCTD-113) | 13, 21 | Đã có |
+| 0.76.0 | DT-16 phần 16g, nhóm Học sinh đủ theo hệ thống của Sở: 4.1.1 Thay đổi, Xóa, Cấp mã định danh Bộ, Xuất file lỗi; 4.1.2, 4.1.3, 4.1.5, 4.1.8, 4.1.10, 5.4, 5.5; 4.1.11 nhập địa chỉ mới; 4.2 chuyển lớp hàng loạt, chuyển trường chạy nội bộ (YCTD-126) | 13, 21 | Đã có |
+| 0.74.0 | DT-16 phần 16f, nhóm Nhân sự đủ theo hệ thống của Sở: 3.1.1 Thay đổi, Xóa, Xuất tệp theo mẫu Bộ, Xuất file lỗi, danh mục của Bộ, tài khoản ngân hàng, mã số thuế, xã ĐBKK; 3.1.2 Nhân sự phân hiệu; 3.1.3 Nhập nhân sự từ Excel; 3.1.5 Xác thực số định danh nhân sự (bản chạy nội bộ); 3.2 nhập mức đánh giá từ Excel; 3.5 Biến động nhân sự (bản chạy nội bộ); 5.2, 5.6, 5.9 (YCTD-124) | 13, 21 | Đã có |
+| 0.75.0 | DT-16 phần 16h, sức khỏe, dinh dưỡng và thống kê học sinh theo hệ thống của Sở: nhập thông tin sức khỏe học sinh theo học kỳ, lấy số đo từ 4.3, tổng hợp cân đo theo học kỳ và so sánh hai lần cân đo, thực đơn theo mẫu của Sở và nhập thực đơn từ Excel, 5.3 Thống kê học sinh đủ các phần, số liệu báo cáo sức khỏe học sinh đầu năm (YCTD-125) | 13, 21 | Đã có |
+| 0.78.0 | DT-16 phần 16i, cơ sở vật chất và thiết bị dạy học đủ theo hệ thống của Sở: 1.2 Báo cáo cơ sở vật chất (số liệu phòng, nhà vệ sinh, mức độ đạt chuẩn, gửi lên cấp trên chạy nội bộ), 6.1 Thực trạng và nhu cầu đầu tư, 6.2, 2.2 mục riêng, 2.3 Gửi thiết bị dạy học lên cấp trên (chạy nội bộ), nhập phòng và danh mục thiết bị từ Excel, gắn tài sản với thiết bị (YCTD-128) | 01, 02, 03, 07, 10, 11, 14, 16, 17, 21, 23, 24, 32, index | Đã có |
+| 0.79.0 | DT-16 phần 16j, báo cáo số liệu EMIS theo hệ thống của Sở: đủ bảy biểu 1.1 (thêm thẻ Ngân sách nhà nước), 1.2 Báo cáo cơ sở vật chất, 1.3 Báo cáo sức khỏe học sinh đầu năm, 2.1 Báo cáo EMIS cuối năm, 2.2 Báo cáo đội ngũ, 2.3 Đề án ngoại ngữ, 2.4 Báo cáo giáo dục mầm non cuối năm; thẻ nhập tay có Lấy dữ liệu, Lấy dữ liệu năm trước, Ghi; danh sách gửi báo cáo bảy biểu, Xuất file lỗi (bản chạy nội bộ) (YCTD-129) | 13, 21 | Đã có |
+| 0.80.0 | DT-16 phần 16k, phân hệ Quản lý kí hồ sơ theo hệ thống của Sở, bản chạy nội bộ: 1.1 Chứng thư số nhà trường (thông tin chứng thư, ảnh con dấu, đăng ký kí nội bộ), 2.1 Đồng bộ chứng thư số (đánh dấu đã đồng bộ), 2.2 Kí hồ sơ trường, lớp, nhân sự, học sinh, sổ đầu bài (tạo hồ sơ PDF, kí xác nhận nội bộ, tải thông tin thay đổi, hủy hồ sơ, xuất dữ liệu sổ đầu bài), 2.3 Xác nhận hoàn thành và gửi hồ sơ (đánh dấu đã gửi); không có chữ ký số thật (YCTD-130) |
+| 0.77.0 | DT-16 phần 16e, trường, lớp và lịch năm học theo hệ thống của Sở: 1.4 khối Cấu hình trường (tên trường hiển thị, tên đơn vị hành chính, tính cân nặng/chiều cao cho trẻ suy dinh dưỡng thể nhẹ cân), 1.7 Rà soát thông tin kiểm định CLGD, 1.8 Tách trường (bản chạy nội bộ), 2.1 chọn nhiều lớp, thay đổi hàng loạt, xóa lớp, 2.2 nhập lớp đủ cột của Sở, 3.3 giáo viên chưa phân công, 3.4 Khai báo tuần, 5.7 Chuyển hồ sơ lên năm học mới (Thực hiện, Hủy) (YCTD-127) | 13, 21 | Đã có |
+| 0.73.0 | DT-16 phần 16c, khung trang và đăng nhập theo hệ thống của Sở: tên trường và ngữ cảnh trên thanh đầu trang, ứng dụng liên kết, menu người dùng bảy mục, hộp thông báo khi vào trang, mã xác nhận, ghi nhớ tài khoản, quên mật khẩu, lịch sử mật khẩu, đường dây nóng, mã định danh tổ chức theo NĐ 69 (YCTD-123) | 13, 21 | Đã có |
+| 0.69.0 | DT-16 phần 16b, lưới dữ liệu chung, hộp xác nhận xóa, Xuất Excel cho các màn hình còn lại theo hệ thống của Sở: cơ sở vật chất, thiết bị dạy học, cân đo, hồ sơ chưa nhập đủ, hoàn thành chương trình, nhóm học sinh, chuẩn nghề nghiệp, thực đơn, y tế, thuốc, quản trị hệ thống; Xuất Excel phân hiệu, điểm trường, địa danh hành chính, người dùng, nhóm người dùng (YCTD-119) | 13, 21 | Đã có |
+| 0.72.0 | DT-15 phần 15h2, sửa hạn chế của văn thư lưu trữ: chia theo đơn vị, người giải quyết theo nhân sự, nhắc hạn, xóa lại tệp (YCTD-122) | 13, 21 | Đã có |
+| 0.71.0 | DT-16 phần 16a, công cụ xuất, nhập dùng chung theo hệ thống của Sở: Xuất PDF trên lưới, tác vụ xuất nền và Tệp đã tạo, nhập Excel với file mẫu kèm dữ liệu, tra cứu danh mục, chọn cột, xuất file lỗi; mẫu gửi lên cấp trên chạy nội bộ (YCTD-121) | 13, 21 | Đã có |
 | 0.68.0 | DT-15 phần 15h2, văn thư lưu trữ theo hệ thống của Sở: hồ sơ tài liệu hoàn thành, chưa hoàn thành, phông lưu trữ, thông tin lưu trữ, báo cáo lưu trữ (YCTD-118) | 13, 21 | Đã có |
+| 0.70.0 | DT-16 phần 16d, quản trị hệ thống đủ theo hệ thống của Sở: hiệu lực, sửa, xóa nhóm; 1.2 phân quyền nhóm theo phần mềm; 1.4 đủ cột, bộ lọc, thao tác hàng loạt; 1.6 tài khoản đồng bộ của Bộ, của Sở (YCTD-120) | 13, 21 | Đã có |
 | 0.66.0 | DT-15 phần 15h1, cập nhật địa danh hành chính theo hệ thống của Sở: lưới 4.1.11 địa chỉ học sinh theo địa danh cũ, đề xuất và chuyển hàng loạt, bảng đối chiếu Thành phố Hồ Chí Minh, nhập từ Excel (YCTD-116) | 13, 21 | Đã có |
 | 0.65.0 | DT-15 phần 15d, nhân sự theo hệ thống của Sở: lưới 3.1.1 Hồ sơ cán bộ, giáo viên, mở rộng tìm kiếm, xuất Excel, hồ sơ hai thẻ, biểu mẫu thêm mới theo khối (YCTD-112) | 13, 21 | Đã có |
 | 0.64.0 | DT-15 phần 15b, trường học, lớp học theo hệ thống của Sở: quản lý phân hiệu, điểm trường, hồ sơ lớp học, nhập lớp học, phân công phụ trách lớp (YCTD-111) | 13, 21 | Đã có |

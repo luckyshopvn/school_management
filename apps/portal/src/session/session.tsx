@@ -5,8 +5,11 @@ import {
   login as requestLogin,
   logout as requestLogout,
   refreshSession,
+  type CaptchaAnswer,
   type TokenResponse,
 } from './api-client.js';
+
+import { clearStartupNoticesShown } from '../pages/startup-notices-state.js';
 
 export type SessionStatus = 'checking' | 'signed-out' | 'signed-in';
 
@@ -16,7 +19,7 @@ interface SessionValue {
   // Mật khẩu đã hết hạn nên phải đổi; số ngày còn lại khi sắp hết hạn (YCTD-110)
   passwordExpired: boolean;
   passwordExpiresInDays: number | null;
-  login(loginIdentifier: string, password: string): Promise<void>;
+  login(loginIdentifier: string, password: string, captcha?: CaptchaAnswer): Promise<void>;
   changePassword(currentPassword: string, newPassword: string): Promise<void>;
   logout(): Promise<void>;
 }
@@ -50,8 +53,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       passwordChangeRequired,
       passwordExpired,
       passwordExpiresInDays,
-      async login(loginIdentifier, password) {
-        applyTokens(await requestLogin(loginIdentifier, password));
+      async login(loginIdentifier, password, captcha) {
+        applyTokens(await requestLogin(loginIdentifier, password, captcha));
       },
       async changePassword(currentPassword, newPassword) {
         applyTokens(await requestPasswordChange(currentPassword, newPassword));
@@ -62,6 +65,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           await requestLogout();
         } finally {
           queryClient.clear();
+          // Lần đăng nhập sau lại hiện hộp thông báo khi vào trang (DT-16 phần 16c)
+          clearStartupNoticesShown();
           setPasswordChangeRequired(false);
           setPasswordExpired(false);
           setPasswordExpiresInDays(null);

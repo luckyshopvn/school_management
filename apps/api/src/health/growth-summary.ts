@@ -19,11 +19,15 @@ export interface GrowthChildRow {
   weight_kg: number | null;
   height_cm: number | null;
   assessment: GrowthAssessment | null;
+  // Đã được khám sức khỏe định kỳ trong năm học (có kết quả của một đợt khám), cột "được khám định kỳ" của Sở (16h)
+  examined?: boolean;
 }
 
 export const GROWTH_COUNT_KEYS = [
   'enrolled',
   'enrolled_female',
+  'examined',
+  'examined_female',
   'measured',
   'measured_female',
   'weight_normal',
@@ -52,6 +56,7 @@ export type GrowthCounts = Record<GrowthCountKey, number> & {
   overweight_percent: number | null;
   obese_percent: number | null;
   measured_percent: number | null;
+  examined_percent: number | null;
 };
 
 const percent = (part: number, whole: number) => (whole > 0 ? Math.round((part * 1000) / whole) / 10 : null);
@@ -71,6 +76,9 @@ export function countGrowth(rows: GrowthChildRow[]): GrowthCounts {
   for (const row of rows) {
     const female = row.gender === 'female';
     add('enrolled', female);
+    if (row.examined) {
+      add('examined', female);
+    }
     const assessment = row.assessment;
     if (!assessment || (row.weight_kg === null && row.height_cm === null)) {
       continue;
@@ -105,6 +113,7 @@ export function countGrowth(rows: GrowthChildRow[]): GrowthCounts {
   return {
     ...counts,
     measured_percent: percent(counts.measured, counts.enrolled),
+    examined_percent: percent(counts.examined, counts.enrolled),
     underweight_percent: percent(counts.underweight, weighed),
     above_age_percent: percent(counts.above_age, weighed),
     stunted_percent: percent(counts.stunted, heightMeasured),
@@ -134,6 +143,20 @@ export function inChannel(row: GrowthChildRow, channel: GrowthChannel): boolean 
     default:
       return assessment?.weight_height_status === channel;
   }
+}
+
+// Ô "Tính cân nặng/chiều cao cho trẻ suy dinh dưỡng thể nhẹ cân" của 1.4 Cấu hình trường (DT-16 phần 16e): bật (mặc định)
+// thì trẻ nhẹ cân vẫn xếp kênh cân nặng theo chiều cao như mọi trẻ; tắt thì trẻ nhẹ cân không xếp kênh này (không tính
+// gầy còm, thừa cân, béo phì), chỉ tính ở kênh cân nặng theo tuổi và chiều cao theo tuổi
+export function applyUnderweightOption(rows: GrowthChildRow[], includeWeightForHeight: boolean): GrowthChildRow[] {
+  if (includeWeightForHeight) {
+    return rows;
+  }
+  return rows.map((row) =>
+    row.assessment?.weight_status === 'underweight'
+      ? { ...row, assessment: { ...row.assessment, weight_height_status: null } }
+      : row,
+  );
 }
 
 export function summarizeGrowth(rows: GrowthChildRow[], gender: ChildGender | null) {
@@ -198,3 +221,56 @@ export const GROWTH_STATUS_LABELS: Record<string, string> = {
   obese: 'Béo phì',
   not_measured: 'Chưa cân đo',
 };
+
+// So sánh hai lần cân đo (DT-16 phần 16h; tổng hợp theo học kỳ của mục 4.3.2): số của lần đầu và lần sau theo lớp, theo
+// khối và toàn bộ; chênh lệch là số của lần sau trừ lần đầu. Lớp chỉ có ở một lần thì lần kia để số 0
+export const COMPARED_KEYS = [
+  'enrolled',
+  'measured',
+  'underweight',
+  'stunted',
+  'wasted',
+  'overweight',
+  'obese',
+  'all_normal',
+] as const;
+type ComparedKey = (typeof COMPARED_KEYS)[number];
+type Compared = Record<ComparedKey, number>;
+
+const pick = (counts: GrowthCounts): Compared =>
+  Object.fromEntries(COMPARED_KEYS.map((key) => [key, counts[key]])) as Compared;
+const difference = (first: Compared, last: Compared): Compared =>
+  Object.fromEntries(COMPARED_KEYS.map((key) => [key, last[key] - first[key]])) as Compared;
+
+export function compareGrowth(firstRows: GrowthChildRow[], lastRows: GrowthChildRow[], gender: ChildGender | null) {
+  const first = summarizeGrowth(firstRows, gender);
+  const last = summarizeGrowth(lastRows, gender);
+  const empty = pick(countGrowth([]));
+  const classIds = [...new Set([...first.classes, ...last.classes].map((row) => row.class_id))];
+  const classes = classIds
+    .map((classId) => {
+      const before = first.classes.find((row) => row.class_id === classId);
+      const after = last.classes.find((row) => row.class_id === classId);
+      const info = (after ?? before) as (typeof first.classes)[number];
+      const firstCounts = before ? pick(before) : empty;
+      const lastCounts = after ? pick(after) : empty;
+      return {
+        class_id: classId,
+        class_name: info.class_name,
+        grade_name: info.grade_name,
+        grade_order: info.grade_order,
+        org_unit_name: info.org_unit_name,
+        first: firstCounts,
+        last: lastCounts,
+        change: difference(firstCounts, lastCounts),
+      };
+    })
+    .sort(
+      (a, b) =>
+        a.org_unit_name.localeCompare(b.org_unit_name, 'vi') ||
+        a.grade_order - b.grade_order ||
+        a.class_name.localeCompare(b.class_name, 'vi'),
+    );
+  const totals = { first: pick(first.totals), last: pick(last.totals) };
+  return { classes, totals: { ...totals, change: difference(totals.first, totals.last) } };
+}

@@ -109,6 +109,8 @@ export class StatisticsService {
         'staff.address',
         'staff.id_number_last4',
         'staff.moet_profile',
+        'staff.bank_account_number',
+        'staff.tax_code',
         'org_units.name as org_unit_name',
         'job_titles.name as job_title_name',
       ])

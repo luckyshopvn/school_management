@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures.js';
+import { expect, submitSignIn, test } from './fixtures.js';
 import {
   createDatabase,
   listDatabasesWithPrefix,
@@ -33,7 +33,7 @@ async function signIn(browser: import('@playwright/test').Browser, user: { usern
   await page.goto('/');
   await page.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(user.username);
   await page.getByLabel('Mật khẩu', { exact: true }).fill(user.password);
-  await page.getByRole('button', { name: 'Đăng nhập' }).click();
+  await submitSignIn(page);
   return page;
 }
 

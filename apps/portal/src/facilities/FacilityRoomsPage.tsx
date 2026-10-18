@@ -6,13 +6,20 @@ import {
   ROOM_BLOCKS,
   ROOM_CONDITIONS,
   ROOM_TYPES,
+  roomAttributesFor,
   type CodeLabel,
+  type PortalQuickLinkPath,
 } from '@school-management/shared';
-import { Alert, Button, StatusBadge, TextField, Toast } from '@school-management/ui';
+import { Alert, Button, DataGrid, StatusBadge, TextField, Toast, type DataGridColumn } from '@school-management/ui';
 import { useUnitChoice } from '../catalogs/UnitSelect.js';
+import { ExcelImportPanel } from '../imports/ExcelImportPanel.js';
 import { AppShell } from '../pages/AppShell.js';
+import { matchesSearch } from '../pages/grid-search.js';
+import { useGridSettings } from '../pages/grid-settings.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
 import {
+  FACILITY_IMPORTS_API_BASE,
   createRoom,
   downloadExcel,
   fieldErrorsOf,
@@ -27,9 +34,56 @@ import {
 import { ProfileFieldInput, SelectBox, TabBar } from './facilities-ui.js';
 
 // 1.1 Khai báo cơ sở vật chất (YCTD-102): phòng theo năm khối, lọc loại phòng, hiện trạng; tổng hợp theo khối và hiện
-// trạng (1.2); thêm, sửa phòng kèm thuộc tính theo quy chuẩn; xuất Excel
+// trạng (1.2); thêm, sửa phòng kèm thuộc tính theo quy chuẩn; xuất Excel. Danh sách phòng là lưới dữ liệu chung (DT-16
+// phần 16b): tìm tại chỗ, loại phòng và hiện trạng ở "Mở rộng tìm kiếm", Thêm mới và Xuất Excel trên lưới, Sửa mở biểu
+// mẫu ngay dưới dòng; Đơn vị và khối phòng chọn dữ liệu tải về nên vẫn ở trên lưới. DT-16 phần 16i thêm Nhập từ Excel
+// (công cụ nhập chung của 16a), thông tin nhà vệ sinh chỉ hiện với Phòng vệ sinh; màn hình mở cả từ mục 6.2 Nhập liệu cơ sở
+// vật chất của phân hệ Mầm non
 const labelOf = (values: ReadonlyArray<CodeLabel>, value: string | null) =>
   values.find((item) => item.value === value)?.label ?? '';
+
+// Thuộc tính đã khai báo của phòng, ví dụ "Số chỗ ngủ: 28"
+const attributesText = (room: FacilityRoom) =>
+  ROOM_ATTRIBUTES.filter((field) => {
+    const value = room.facility_attributes[field.key];
+    return value !== undefined && value !== null && value !== false;
+  })
+    .map((field) => {
+      const value = room.facility_attributes[field.key];
+      return value === true
+        ? field.label
+        : `${field.label}: ${field.kind === 'choice' ? labelOf(field.options ?? [], String(value)) : String(value)}`;
+    })
+    .join('; ');
+
+const COLUMNS: Array<DataGridColumn<FacilityRoom>> = [
+  { id: 'org_unit', header: 'Điểm trường', cell: (room) => room.org_unit_name },
+  {
+    id: 'name',
+    header: 'Tên phòng',
+    alwaysVisible: true,
+    cell: (room) => (
+      <>
+        <span className="font-medium">{room.name}</span> ({room.code})
+      </>
+    ),
+  },
+  { id: 'room_type', header: 'Loại', cell: (room) => labelOf(ROOM_TYPES, room.room_type) },
+  { id: 'condition', header: 'Hiện trạng', cell: (room) => labelOf(ROOM_CONDITIONS, room.condition) },
+  { id: 'area_m2', header: 'Diện tích (m²)', cell: (room) => formatNumber(room.area_m2) },
+  { id: 'classes', header: 'Nhóm, lớp', cell: (room) => room.class_names.join(', ') },
+  { id: 'attributes', header: 'Thuộc tính', className: 'text-label', cell: attributesText },
+  {
+    id: 'status',
+    header: 'Trạng thái',
+    cell: (room) => (
+      <StatusBadge
+        tone={room.status === 'active' ? 'success' : 'neutral'}
+        label={room.status === 'active' ? 'Đang dùng' : 'Ngừng sử dụng'}
+      />
+    ),
+  },
+];
 
 interface RoomDraft {
   org_unit_id: string;
@@ -63,8 +117,14 @@ const toInput = (draft: RoomDraft): RoomInput => ({
   room_type: draft.room_type || null,
   condition: draft.condition || null,
   area_m2: draft.area_m2 === '' ? null : Number(draft.area_m2),
+  // Chỉ gửi thuộc tính khai báo được cho loại phòng đang chọn (thông tin nhà vệ sinh chỉ cho Phòng vệ sinh)
   facility_attributes: Object.fromEntries(
-    Object.entries(draft.facility_attributes).filter(([, value]) => value !== null && value !== undefined),
+    Object.entries(draft.facility_attributes).filter(
+      ([key, value]) =>
+        value !== null &&
+        value !== undefined &&
+        roomAttributesFor(draft.room_type || null).some((field) => field.key === key),
+    ),
   ),
 });
 
@@ -159,7 +219,7 @@ function RoomForm({
           error={errors.area_m2}
           onChange={(event) => onChange({ ...draft, area_m2: event.target.value })}
         />
-        {ROOM_ATTRIBUTES.map((field) => (
+        {roomAttributesFor(draft.room_type || null).map((field) => (
           <ProfileFieldInput
             key={field.key}
             field={field}
@@ -183,14 +243,17 @@ function RoomForm({
   );
 }
 
-export function FacilityRoomsPage() {
+export function FacilityRoomsPage({ path = '/facility-rooms' }: { path?: PortalQuickLinkPath } = {}) {
   const canManage = useHasPermission(PERMISSION_CODES.roomManage);
+  const [importing, setImporting] = useState(false);
   const queryClient = useQueryClient();
   const unitChoice = useUnitChoice();
+  const grid = useGridSettings('facility-rooms');
   const [orgUnitId, setOrgUnitId] = useState('');
   const [block, setBlock] = useState('');
   const [roomType, setRoomType] = useState('');
   const [condition, setCondition] = useState('');
+  const [search, setSearch] = useState('');
   const [draft, setDraft] = useState<{ value: RoomDraft; roomId: string | null }>();
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
@@ -212,10 +275,12 @@ export function FacilityRoomsPage() {
       await queryClient.invalidateQueries({ queryKey: ['facility-rooms'] });
     },
   });
+  // Xuất Excel theo đúng bộ lọc gửi máy chủ như trước, từ khóa tìm tại chỗ không gửi
   const exportFile = useMutation({
     mutationFn: () => downloadExcel('/api/v1/facilities/rooms/export', filters, 'khai-bao-co-so-vat-chat.xlsx'),
   });
-  const edit = (room: FacilityRoom) =>
+  const edit = (room: FacilityRoom) => {
+    save.reset();
     setDraft({
       roomId: room.id,
       value: {
@@ -230,32 +295,28 @@ export function FacilityRoomsPage() {
         facility_attributes: room.facility_attributes,
       },
     });
+  };
+  const roomForm = (current: { value: RoomDraft; roomId: string | null }) => (
+    <RoomForm
+      draft={current.value}
+      units={unitChoice.units}
+      creating={current.roomId === null}
+      error={save.error}
+      pending={save.isPending}
+      onChange={(value) => setDraft({ ...current, value })}
+      onSubmit={() => save.mutate()}
+      onCancel={() => setDraft(undefined)}
+    />
+  );
+  const rows = (rooms.data?.rooms ?? []).filter((room) =>
+    matchesSearch(search, room.name, room.code, room.org_unit_name, room.class_names.join(', ')),
+  );
 
   return (
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-page-title font-bold text-text">1.1 Khai báo cơ sở vật chất</h1>
-          <div className="flex gap-2">
-            {canManage ? (
-              <Button
-                variant="secondary"
-                onClick={() =>
-                  setDraft({
-                    roomId: null,
-                    value: emptyDraft(orgUnitId || unitChoice.selectedId || '', block),
-                  })
-                }
-              >
-                Thêm phòng
-              </Button>
-            ) : null}
-            <Button variant="secondary" disabled={exportFile.isPending} onClick={() => exportFile.mutate()}>
-              Xuất Excel
-            </Button>
-          </div>
-        </div>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle(path)}</h1>
         {exportFile.error ? <Alert tone="danger">{messageOf(exportFile.error)}</Alert> : null}
         <TabBar
           tabs={[
@@ -277,141 +338,135 @@ export function FacilityRoomsPage() {
             emptyLabel="Mọi đơn vị trong phạm vi"
             onChange={setOrgUnitId}
           />
-          <SelectBox
-            label="Loại phòng"
-            value={roomType}
-            options={ROOM_TYPES.filter((type) => !block || type.block === block)}
-            emptyLabel="Mọi loại phòng"
-            onChange={setRoomType}
-          />
-          <SelectBox
-            label="Hiện trạng"
-            value={condition}
-            options={ROOM_CONDITIONS}
-            emptyLabel="Mọi hiện trạng"
-            onChange={setCondition}
-          />
         </div>
-        {draft ? (
-          <RoomForm
-            draft={draft.value}
-            units={unitChoice.units}
-            creating={draft.roomId === null}
-            error={save.error}
-            pending={save.isPending}
-            onChange={(value) => setDraft({ ...draft, value })}
-            onSubmit={() => save.mutate()}
-            onCancel={() => setDraft(undefined)}
+        {draft && draft.roomId === null ? roomForm(draft) : null}
+        {importing && canManage ? (
+          <ExcelImportPanel
+            type="rooms"
+            title="Nhập phòng từ Excel"
+            apiBase={FACILITY_IMPORTS_API_BASE}
+            uploadPath={FACILITY_IMPORTS_API_BASE}
+            uploadFields={{ type: 'rooms' }}
+            onCommitted={async (job) => {
+              setToastMessage(`Đã ghi ${job.assigned_rows ?? 0} phòng từ Excel`);
+              await queryClient.invalidateQueries({ queryKey: ['facility-rooms'] });
+            }}
           />
         ) : null}
         {rooms.error ? <Alert tone="danger">{messageOf(rooms.error)}</Alert> : null}
+        {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+        <DataGrid
+          label="Danh sách phòng"
+          columns={COLUMNS}
+          rows={rows}
+          getRowId={(room) => room.id}
+          getRowLabel={(room) => room.name}
+          loading={rooms.isPending}
+          emptyText="Chưa có phòng nào."
+          search={{ label: 'Tìm theo tên, mã phòng, điểm trường', value: search, onChange: setSearch }}
+          advancedSearch={
+            <div className="grid gap-3 md:grid-cols-3">
+              <SelectBox
+                label="Loại phòng"
+                value={roomType}
+                options={ROOM_TYPES.filter((type) => !block || type.block === block)}
+                emptyLabel="Mọi loại phòng"
+                onChange={setRoomType}
+              />
+              <SelectBox
+                label="Hiện trạng"
+                value={condition}
+                options={ROOM_CONDITIONS}
+                emptyLabel="Mọi hiện trạng"
+                onChange={setCondition}
+              />
+            </div>
+          }
+          toolbar={
+            <>
+              {canManage ? (
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    save.reset();
+                    setDraft({
+                      roomId: null,
+                      value: emptyDraft(orgUnitId || unitChoice.selectedId || '', block),
+                    });
+                  }}
+                >
+                  Thêm mới
+                </Button>
+              ) : null}
+              {canManage ? (
+                <Button variant="secondary" onClick={() => setImporting(!importing)}>
+                  Nhập từ Excel
+                </Button>
+              ) : null}
+              <Button variant="secondary" disabled={exportFile.isPending} onClick={() => exportFile.mutate()}>
+                Xuất Excel
+              </Button>
+            </>
+          }
+          rowActions={
+            canManage
+              ? (room) => (
+                  <Button variant="text" onClick={() => (draft?.roomId === room.id ? setDraft(undefined) : edit(room))}>
+                    Sửa
+                  </Button>
+                )
+              : undefined
+          }
+          activeRowId={draft?.roomId ?? undefined}
+          renderRowDetail={(room) => (draft && draft.roomId === room.id ? roomForm(draft) : null)}
+          settings={grid.settings}
+          onSettingsChange={grid.update}
+        />
         {rooms.data ? (
-          <>
-            <section
-              className="flex flex-col gap-2 overflow-x-auto rounded-xl border border-border bg-card p-4"
-              aria-label="Danh sách phòng"
-            >
-              <h2 className="text-section-title font-semibold text-text">Danh sách phòng</h2>
-              {rooms.data.rooms.length === 0 ? (
-                <p className="text-content text-text-secondary">Chưa có phòng nào.</p>
-              ) : (
-                <table className="w-full text-content">
-                  <thead className="text-left text-label font-medium text-text-secondary">
-                    <tr>
-                      <th className="px-3 py-2">Điểm trường</th>
-                      <th className="px-3 py-2">Tên phòng</th>
-                      <th className="px-3 py-2">Loại</th>
-                      <th className="px-3 py-2">Hiện trạng</th>
-                      <th className="px-3 py-2">Diện tích (m²)</th>
-                      <th className="px-3 py-2">Nhóm, lớp</th>
-                      <th className="px-3 py-2">Thuộc tính</th>
-                      <th className="px-3 py-2">Trạng thái</th>
-                      {canManage ? <th className="px-3 py-2" /> : null}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rooms.data.rooms.map((room) => (
-                      <tr key={room.id} className="border-t border-border align-top">
-                        <td className="px-3 py-2">{room.org_unit_name}</td>
-                        <td className="px-3 py-2">
-                          <span className="font-medium">{room.name}</span> ({room.code})
-                        </td>
-                        <td className="px-3 py-2">{labelOf(ROOM_TYPES, room.room_type)}</td>
-                        <td className="px-3 py-2">{labelOf(ROOM_CONDITIONS, room.condition)}</td>
-                        <td className="px-3 py-2">{formatNumber(room.area_m2)}</td>
-                        <td className="px-3 py-2">{room.class_names.join(', ')}</td>
-                        <td className="px-3 py-2 text-label">
-                          {ROOM_ATTRIBUTES.filter((field) => {
-                            const value = room.facility_attributes[field.key];
-                            return value !== undefined && value !== null && value !== false;
-                          })
-                            .map((field) => {
-                              const value = room.facility_attributes[field.key];
-                              return value === true
-                                ? field.label
-                                : `${field.label}: ${field.kind === 'choice' ? labelOf(field.options ?? [], String(value)) : String(value)}`;
-                            })
-                            .join('; ')}
-                        </td>
-                        <td className="px-3 py-2">
-                          <StatusBadge
-                            tone={room.status === 'active' ? 'success' : 'neutral'}
-                            label={room.status === 'active' ? 'Đang dùng' : 'Ngừng sử dụng'}
-                          />
-                        </td>
-                        {canManage ? (
-                          <td className="px-3 py-2 text-right">
-                            <Button variant="text" onClick={() => edit(room)}>
-                              Sửa
-                            </Button>
-                          </td>
-                        ) : null}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </section>
-            <section
-              className="flex flex-col gap-2 overflow-x-auto rounded-xl border border-border bg-card p-4"
-              aria-label="Tổng hợp cơ sở vật chất"
-            >
-              <h2 className="text-section-title font-semibold text-text">Tổng hợp phòng đang dùng</h2>
-              <table className="w-full text-content">
-                <thead className="text-left text-label font-medium text-text-secondary">
-                  <tr>
-                    <th className="px-3 py-2">Chỉ tiêu</th>
-                    <th className="px-3 py-2">Tổng số</th>
-                    <th className="px-3 py-2">Kiên cố</th>
-                    <th className="px-3 py-2">Bán kiên cố</th>
-                    <th className="px-3 py-2">Tạm</th>
-                    <th className="px-3 py-2">Nhờ, mượn, thuê</th>
-                    <th className="px-3 py-2">Chưa khai báo</th>
-                    <th className="px-3 py-2">Diện tích (m²)</th>
+          <section
+            className="flex flex-col gap-2 overflow-x-auto rounded-xl border border-border bg-card p-4"
+            aria-label="Tổng hợp cơ sở vật chất"
+          >
+            <h2 className="text-section-title font-semibold text-text">Tổng hợp phòng đang dùng</h2>
+            <table className="w-full text-content">
+              <thead className="text-left text-label font-medium text-text-secondary">
+                <tr>
+                  <th className="px-3 py-2">Chỉ tiêu</th>
+                  <th className="px-3 py-2">Tổng số</th>
+                  <th className="px-3 py-2">Kiên cố</th>
+                  <th className="px-3 py-2">Bán kiên cố</th>
+                  <th className="px-3 py-2">Tạm</th>
+                  <th className="px-3 py-2">Nhờ, mượn, thuê</th>
+                  <th className="px-3 py-2">Chưa khai báo</th>
+                  <th className="px-3 py-2">Diện tích (m²)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rooms.data.summary.map((row) => (
+                  <tr
+                    key={row.room_block}
+                    className={`border-t border-border ${row.room_block === 'total' ? 'font-semibold' : ''}`}
+                  >
+                    <td className="px-3 py-2">{row.label}</td>
+                    <td className="px-3 py-2">{row.total}</td>
+                    <td className="px-3 py-2">{row.permanent}</td>
+                    <td className="px-3 py-2">{row.semi_permanent}</td>
+                    <td className="px-3 py-2">{row.temporary}</td>
+                    <td className="px-3 py-2">{row.borrowed}</td>
+                    <td className="px-3 py-2">{row.unspecified}</td>
+                    <td className="px-3 py-2">{formatNumber(row.area_m2)}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {rooms.data.summary.map((row) => (
-                    <tr
-                      key={row.room_block}
-                      className={`border-t border-border ${row.room_block === 'total' ? 'font-semibold' : ''}`}
-                    >
-                      <td className="px-3 py-2">{row.label}</td>
-                      <td className="px-3 py-2">{row.total}</td>
-                      <td className="px-3 py-2">{row.permanent}</td>
-                      <td className="px-3 py-2">{row.semi_permanent}</td>
-                      <td className="px-3 py-2">{row.temporary}</td>
-                      <td className="px-3 py-2">{row.borrowed}</td>
-                      <td className="px-3 py-2">{row.unspecified}</td>
-                      <td className="px-3 py-2">{formatNumber(row.area_m2)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </section>
-          </>
+                ))}
+              </tbody>
+            </table>
+          </section>
         ) : null}
       </div>
     </AppShell>
   );
+}
+
+// 6.2 Nhập liệu cơ sở vật chất của phân hệ Mầm non: cùng màn hình khai báo cơ sở vật chất (DT-16 phần 16i)
+export function FacilityInputPage() {
+  return <FacilityRoomsPage path="/facility-input" />;
 }

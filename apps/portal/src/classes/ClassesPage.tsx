@@ -10,6 +10,7 @@ import {
 import {
   Alert,
   Button,
+  ConfirmDeleteDialog,
   ConfirmDialog,
   DataGrid,
   resolveVisibleColumns,
@@ -29,19 +30,23 @@ import { ClassForm } from './ClassForm.js';
 import {
   addAssignment,
   ASSIGNMENT_ROLE_LABELS,
+  bulkUpdateClasses,
+  deleteClasses,
   endAssignment,
   exportClasses,
   listStaff,
   searchClasses,
   updateClass,
   type AssignmentRole,
+  type BulkClassResult,
   type ClassFilter,
   type ClassRecord,
 } from './classes-api.js';
 
 // MH-03 2.1. Hồ sơ lớp học theo Sở (DT-15 phần 15b, YCTD-111): lưới dữ liệu chung (khóa `classes`) với cột theo thứ tự cột
 // của Sở, tìm theo tên hoặc mã lớp, mở rộng tìm kiếm, Thêm mới, Xuất Excel; Sửa mở biểu mẫu theo khối ngay dưới dòng.
-// Phân công giáo viên (P02-05, YCTD-44) ở nút "Giáo viên" của dòng; giải thể lớp là đóng lớp, không xóa (BR-02)
+// Phân công giáo viên (P02-05, YCTD-44) ở nút "Giáo viên" của dòng; giải thể lớp là đóng lớp, không xóa (BR-02). DT-16
+// phần 16e thêm ô chọn dòng, Xóa lớp (lớp chưa phát sinh dữ liệu), giải thể và thay đổi hàng loạt các lớp đã chọn
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
@@ -254,6 +259,18 @@ export function StaffPanel({
 }
 
 type OpenPanel = { id: string; kind: 'edit' | 'staff' };
+// Thao tác trên các lớp đã chọn (DT-16 phần 16e): Xóa lớp theo hộp xác nhận của Sở, giải thể, thay đổi hàng loạt
+type BulkAction = { kind: 'delete' | 'dissolve' | 'change'; rows: ClassRecord[] };
+type FlagChoice = '' | 'true' | 'false';
+
+// Số lớp làm được và không làm được của thao tác hàng loạt
+function bulkMessage(result: BulkClassResult, done: string): string {
+  const parts = [result.succeeded.length > 0 ? `${done} ${result.succeeded.length} lớp` : ''];
+  if (result.failed.length > 0) {
+    parts.push(`${result.failed.length} lớp không làm được`);
+  }
+  return parts.filter(Boolean).join('; ');
+}
 
 export function ClassesPage() {
   const canManage = useHasPermission(PERMISSION_CODES.classManage);
@@ -266,6 +283,10 @@ export function ClassesPage() {
   const [creating, setCreating] = useState(false);
   const [open, setOpen] = useState<OpenPanel>();
   const [closing, setClosing] = useState<ClassRecord>();
+  const [bulk, setBulk] = useState<BulkAction>();
+  const [bulkFailures, setBulkFailures] = useState<BulkClassResult['failed']>([]);
+  const [twoSessionsChoice, setTwoSessionsChoice] = useState<FlagChoice>('');
+  const [boardingChoice, setBoardingChoice] = useState<FlagChoice>('');
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState<string>();
   const [toastMessage, setToastMessage] = useState<string>();
@@ -285,6 +306,39 @@ export function ClassesPage() {
     },
     onError: () => setClosing(undefined),
   });
+  const runBulk = useMutation({
+    mutationFn: (action: BulkAction) => {
+      const ids = action.rows.map((row) => row.id);
+      if (action.kind === 'delete') {
+        return deleteClasses(ids);
+      }
+      if (action.kind === 'dissolve') {
+        return bulkUpdateClasses(ids, { status: 'closed' });
+      }
+      return bulkUpdateClasses(ids, {
+        ...(twoSessionsChoice ? { two_sessions_per_day: twoSessionsChoice === 'true' } : {}),
+        ...(boardingChoice ? { boarding: boardingChoice === 'true' } : {}),
+      });
+    },
+    onSuccess: async (result, action) => {
+      setBulk(undefined);
+      setBulkFailures(result.failed);
+      await refresh();
+      setToastMessage(
+        bulkMessage(
+          result,
+          action.kind === 'delete' ? 'Đã xóa' : action.kind === 'dissolve' ? 'Đã giải thể' : 'Đã cập nhật',
+        ),
+      );
+    },
+    onError: () => setBulk(undefined),
+  });
+  const openBulk = (kind: BulkAction['kind'], rows: ClassRecord[]) => {
+    setBulkFailures([]);
+    setTwoSessionsChoice('');
+    setBoardingChoice('');
+    setBulk({ kind, rows });
+  };
   const change = (key: keyof ClassFilter, value: string) =>
     setFilter((current) => ({ ...current, [key]: value || undefined }));
   const toggle = (id: string, kind: OpenPanel['kind']) => {
@@ -390,6 +444,18 @@ export function ClassesPage() {
         ) : null}
         {classes.isError ? <Alert tone="danger">{messageOf(classes.error)}</Alert> : null}
         {changeStatus.error ? <Alert tone="danger">{messageOf(changeStatus.error)}</Alert> : null}
+        {runBulk.error ? <Alert tone="danger">{messageOf(runBulk.error)}</Alert> : null}
+        {bulkFailures.length > 0 ? (
+          <Alert tone="warning">
+            <ul className="flex flex-col gap-1">
+              {bulkFailures.map((failure) => (
+                <li key={failure.id}>
+                  Lớp {failure.name}: {failure.message}
+                </li>
+              ))}
+            </ul>
+          </Alert>
+        ) : null}
         {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
         {exportError ? <Alert tone="danger">{exportError}</Alert> : null}
         <DataGrid
@@ -403,7 +469,8 @@ export function ClassesPage() {
           emptyText="Không có lớp nào."
           search={{ label: 'Tìm theo tên, mã lớp', value: search, onChange: setSearch }}
           advancedSearch={advancedSearch}
-          toolbar={
+          selectable={canManage}
+          toolbar={(selectedRows) => (
             <>
               {canManage && unitChoice.selectedId ? (
                 <Button
@@ -416,13 +483,26 @@ export function ClassesPage() {
                   Thêm mới
                 </Button>
               ) : null}
+              {canManage ? (
+                <>
+                  <Button disabled={selectedRows.length === 0} onClick={() => openBulk('change', selectedRows)}>
+                    Thay đổi
+                  </Button>
+                  <Button disabled={selectedRows.length === 0} onClick={() => openBulk('dissolve', selectedRows)}>
+                    Giải thể lớp đã chọn
+                  </Button>
+                  <Button disabled={selectedRows.length === 0} onClick={() => openBulk('delete', selectedRows)}>
+                    Xóa lớp
+                  </Button>
+                </>
+              ) : null}
               {canExport ? (
                 <Button disabled={exporting} onClick={() => void runExport()}>
                   Xuất Excel
                 </Button>
               ) : null}
             </>
-          }
+          )}
           rowActions={(row) => (
             <span className="flex flex-wrap justify-end gap-1">
               {canManage ? (
@@ -474,8 +554,71 @@ export function ClassesPage() {
           }}
           settings={grid.settings}
           onSettingsChange={grid.update}
+          exportPdf={canExport ? (columnIds) => exportClasses(activeFilter, columnIds, 'pdf') : undefined}
         />
       </div>
+      <ConfirmDeleteDialog
+        open={bulk?.kind === 'delete'}
+        title="Xóa lớp"
+        subject={bulk?.kind === 'delete' ? `${bulk.rows.length} lớp đã chọn` : ''}
+        busy={runBulk.isPending}
+        onCancel={() => setBulk(undefined)}
+        onConfirm={() => bulk && runBulk.mutate(bulk)}
+      >
+        Chỉ xóa được lớp chưa phát sinh dữ liệu (chưa có học sinh, điểm danh, sổ, thực đơn…) và không có lớp khác ghép
+        vào; phân công giáo viên của lớp bị xóa theo. Lớp đã có dữ liệu thì giải thể. Lớp đã chọn:{' '}
+        {bulk?.rows.map((row) => row.name).join(', ')}.
+      </ConfirmDeleteDialog>
+      {bulk?.kind === 'dissolve' ? (
+        <ConfirmDialog
+          open
+          title={`Giải thể ${bulk.rows.length} lớp đã chọn?`}
+          confirmLabel="Giải thể lớp"
+          busy={runBulk.isPending}
+          onCancel={() => setBulk(undefined)}
+          onConfirm={() => runBulk.mutate(bulk)}
+        >
+          Lớp không bị xóa, vẫn giữ lịch sử. Lớp còn học sinh đang học không giải thể được. Lớp đã chọn:{' '}
+          {bulk.rows.map((row) => row.name).join(', ')}.
+        </ConfirmDialog>
+      ) : null}
+      {bulk?.kind === 'change' ? (
+        <ConfirmDialog
+          open
+          title={`Thay đổi ${bulk.rows.length} lớp đã chọn`}
+          confirmLabel="Ghi"
+          busy={runBulk.isPending || (twoSessionsChoice === '' && boardingChoice === '')}
+          onCancel={() => setBulk(undefined)}
+          onConfirm={() => runBulk.mutate(bulk)}
+        >
+          <div className="flex flex-col gap-3">
+            <label className="text-label font-medium text-text">
+              Học 2 buổi/ngày
+              <select
+                value={twoSessionsChoice}
+                onChange={(event) => setTwoSessionsChoice(event.target.value as FlagChoice)}
+                className={selectClass}
+              >
+                <option value="">Không đổi</option>
+                <option value="true">Có</option>
+                <option value="false">Không</option>
+              </select>
+            </label>
+            <label className="text-label font-medium text-text">
+              Lớp bán trú
+              <select
+                value={boardingChoice}
+                onChange={(event) => setBoardingChoice(event.target.value as FlagChoice)}
+                className={selectClass}
+              >
+                <option value="">Không đổi</option>
+                <option value="true">Có</option>
+                <option value="false">Không</option>
+              </select>
+            </label>
+          </div>
+        </ConfirmDialog>
+      ) : null}
       {closing ? (
         <ConfirmDialog
           open

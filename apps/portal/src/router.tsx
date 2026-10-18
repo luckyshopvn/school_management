@@ -3,6 +3,8 @@ import { AcademicYearsPage } from './academic-years/AcademicYearsPage.js';
 import { AccountsPage } from './accounts/AccountsPage.js';
 import { RolesPage } from './accounts/RolesPage.js';
 import { RolePermissionsPage } from './accounts/RolePermissionsPage.js';
+import { RoleWorkspacesPage } from './accounts/RoleWorkspacesPage.js';
+import { SyncAccountsPage } from './accounts/SyncAccountsPage.js';
 import { ApiClientsPage } from './accounts/ApiClientsPage.js';
 import { IntegrationsPage } from './settings/IntegrationsPage.js';
 import { NotificationsPage } from './notifications/NotificationsPage.js';
@@ -12,6 +14,13 @@ import { DepartmentsPage } from './catalogs/DepartmentsPage.js';
 import { RoomsAndGradeLevelsPage } from './catalogs/RoomsAndGradeLevelsPage.js';
 import { ChildrenPage } from './children/ChildrenPage.js';
 import { StudentMovementsPage } from './children/StudentMovementsPage.js';
+import { DefaultPasswordsPage } from './students/DefaultPasswordsPage.js';
+import { LearningAccountsPage } from './students/LearningAccountsPage.js';
+import { NationalIdProgressPage } from './students/NationalIdProgressPage.js';
+import { NationalIdsPage } from './students/NationalIdsPage.js';
+import { SmsPhonesPage } from './students/SmsPhonesPage.js';
+import { StudentImportsPage } from './students/StudentImportsPage.js';
+import { StudentOrderPage } from './students/StudentOrderPage.js';
 import { AdministrativeUnitsPage } from './children/AdministrativeUnitsPage.js';
 import { AttendancePage } from './attendance/AttendancePage.js';
 import { ClassAssignmentsPage } from './classes/ClassAssignmentsPage.js';
@@ -32,15 +41,24 @@ import { PayablesPage } from './finance/PayablesPage.js';
 import { FiscalPeriodsPage } from './finance/FiscalPeriodsPage.js';
 import { LedgerPage } from './ledger/LedgerPage.js';
 import { StaffPage } from './staff/StaffPage.js';
+import { StaffBranchesPage } from './staff/StaffBranchesPage.js';
+import { StaffIdentityPage } from './staff/StaffIdentityPage.js';
+import { StaffImportsPage } from './staff/StaffImportsPage.js';
+import { StaffMovementsPage } from './staff/StaffMovementsPage.js';
+import { StaffIdentityProgressPage } from './statistics/StaffIdentityProgressPage.js';
+import { StaffStatisticsPage } from './statistics/StaffStatisticsPage.js';
 import { LeavePoliciesPage } from './staff-attendance/LeavePoliciesPage.js';
 import { MyPayslipsPage } from './payroll/MyPayslipsPage.js';
 import { PayItemsPage } from './payroll/PayItemsPage.js';
 import { PayrollPage } from './payroll/PayrollPage.js';
 import { SettlementsPage } from './payroll/SettlementsPage.js';
 import { ReportsPage } from './reports/ReportsPage.js';
-import { EmisPage } from './facilities/EmisPage.js';
-import { EquipmentPage } from './facilities/EquipmentPage.js';
-import { FacilityRoomsPage } from './facilities/FacilityRoomsPage.js';
+import { EmisFormPage } from './emis/EmisFormPage.js';
+import { EMIS_FORMS } from '@school-management/shared';
+import { EquipmentOutsidePage, EquipmentPage, EquipmentSubmissionPage } from './facilities/EquipmentPage.js';
+import { FacilityInputPage, FacilityRoomsPage } from './facilities/FacilityRoomsPage.js';
+import { FacilityReportPage } from './facilities/FacilityReportPage.js';
+import { FacilityInvestmentsPage } from './facilities/FacilityInvestmentsPage.js';
 import { SchoolProfilePage } from './facilities/SchoolProfilePage.js';
 import { LeaveRequestsPage } from './staff-attendance/LeaveRequestsPage.js';
 import { SchoolDaysPage } from './staff-attendance/SchoolDaysPage.js';
@@ -48,6 +66,8 @@ import { WorkSchedulesPage } from './staff-attendance/WorkSchedulesPage.js';
 import { HealthPage } from './health/HealthPage.js';
 import { GrowthPage } from './growth/GrowthPage.js';
 import { GrowthReportPage } from './growth/GrowthReportPage.js';
+import { StudentHealthPage } from './health/StudentHealthPage.js';
+import { StudentStatisticsPage } from './statistics/StudentStatisticsPage.js';
 import { StatisticsPage } from './statistics/StatisticsPage.js';
 import { MissingProfilesPage } from './statistics/MissingProfilesPage.js';
 import { AdmissionsPage } from './admissions/AdmissionsPage.js';
@@ -81,6 +101,22 @@ import { ArchiveFondsPage } from './archives/ArchiveFondsPage.js';
 import { ArchiveHoldingsPage } from './archives/ArchiveHoldingsPage.js';
 import { ArchiveRecordsPage } from './archives/ArchiveRecordsPage.js';
 import { ArchiveReportPage } from './archives/ArchiveReportPage.js';
+import { GeneratedFilesPage } from './exports/GeneratedFilesPage.js';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage.js';
+import { HelpPage } from './portal-shell/HelpPage.js';
+import { MyProfilePage } from './portal-shell/MyProfilePage.js';
+import { SystemAnnouncementsPage } from './portal-shell/SystemAnnouncementsPage.js';
+import { AppLinksPage } from './portal-shell/AppLinksPage.js';
+import { SchoolWeeksPage } from './academic-years/SchoolWeeksPage.js';
+import { YearRolloverPage } from './academic-years/YearRolloverPage.js';
+import { AccreditationReviewPage } from './school/AccreditationReviewPage.js';
+import { SchoolSplitsPage } from './school/SchoolSplitsPage.js';
+import { SigningCertificatePage, SigningCertificateSyncPage } from './signing/SigningCertificatePage.js';
+import { SigningDossiersPage } from './signing/SigningDossiersPage.js';
+import { SigningSubmissionsPage } from './signing/SigningSubmissionsPage.js';
+
+// Trang dùng được khi chưa đăng nhập (DT-16 phần 16c thêm Quên mật khẩu)
+const PUBLIC_PATHS = ['/login', '/forgot-password'];
 
 // Chuyển hướng theo trạng thái phiên: chưa đăng nhập về MH-47; bắt buộc đổi mật khẩu về MH-48 (BM-07)
 function SessionGate() {
@@ -91,12 +127,12 @@ function SessionGate() {
     return <div className="min-h-screen animate-pulse bg-page" aria-busy="true" />;
   }
   if (session.status === 'signed-out') {
-    return pathname === '/login' ? <Outlet /> : <Navigate to="/login" replace />;
+    return PUBLIC_PATHS.includes(pathname) ? <Outlet /> : <Navigate to="/login" replace />;
   }
   if (session.passwordChangeRequired && pathname !== '/change-password') {
     return <Navigate to="/change-password" replace />;
   }
-  if (pathname === '/login') {
+  if (PUBLIC_PATHS.includes(pathname)) {
     return <Navigate to="/" replace />;
   }
   return <Outlet />;
@@ -108,10 +144,25 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/', component: HomePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/login', component: LoginPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/change-password', component: ChangePasswordPage }),
+  // Quên mật khẩu, hồ sơ nhân sự cá nhân, hướng dẫn, thông báo hệ thống, ứng dụng liên kết (DT-16 phần 16c)
+  createRoute({ getParentRoute: () => rootRoute, path: '/forgot-password', component: ForgotPasswordPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/my-profile', component: MyProfilePage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/help', component: HelpPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/system-announcements', component: SystemAnnouncementsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/app-links', component: AppLinksPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/academic-years', component: AcademicYearsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/org-units', component: OrgUnitsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/accounts', component: AccountsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/roles', component: RolesPage }),
+  // 1.2 Phân quyền nhóm theo phần mềm, 1.6 Tài khoản đồng bộ của Bộ, của Sở (DT-16 phần 16d)
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/role-workspaces',
+    component: RoleWorkspacesPage,
+    validateSearch: (search: Record<string, unknown>): { role?: string } =>
+      typeof search.role === 'string' ? { role: search.role } : {},
+  }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/sync-accounts', component: SyncAccountsPage }),
   // Nhóm người dùng mở sẵn ở 1.3 Phân quyền nhóm theo menu qua tham số role (DT-15 phần 15e)
   createRoute({
     getParentRoute: () => rootRoute,
@@ -132,9 +183,31 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/school-sites', component: SchoolSitesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/class-imports', component: ClassImportsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/class-assignments', component: ClassAssignmentsPage }),
+  // Trường học, lớp học, lịch năm học đủ theo Sở (DT-16 phần 16e)
+  createRoute({ getParentRoute: () => rootRoute, path: '/accreditation-review', component: AccreditationReviewPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/school-splits', component: SchoolSplitsPage }),
+  // Quản lý kí hồ sơ, bản chạy nội bộ (DT-16 phần 16k)
+  createRoute({ getParentRoute: () => rootRoute, path: '/signing-certificate', component: SigningCertificatePage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/signing-certificate-sync',
+    component: SigningCertificateSyncPage,
+  }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/signing-dossiers', component: SigningDossiersPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/signing-submissions', component: SigningSubmissionsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/school-weeks', component: SchoolWeeksPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/year-rollover', component: YearRolloverPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/children', component: ChildrenPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/student-movements', component: StudentMovementsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/administrative-units', component: AdministrativeUnitsPage }),
+  // Học sinh đủ theo Sở (DT-16 phần 16g)
+  createRoute({ getParentRoute: () => rootRoute, path: '/student-imports', component: StudentImportsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/student-order', component: StudentOrderPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/sms-phones', component: SmsPhonesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/national-ids', component: NationalIdsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/learning-accounts', component: LearningAccountsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/default-passwords', component: DefaultPasswordsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/national-id-progress', component: NationalIdProgressPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/imports', component: ImportsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/attendance', component: AttendancePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/fees', component: FeesPage }),
@@ -153,12 +226,25 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/fiscal-periods', component: FiscalPeriodsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/ledger', component: LedgerPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/staff', component: StaffPage }),
+  // Nhân sự đủ theo Sở (DT-16 phần 16f)
+  createRoute({ getParentRoute: () => rootRoute, path: '/staff-branches', component: StaffBranchesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/staff-imports', component: StaffImportsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/staff-identity', component: StaffIdentityPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/staff-movements', component: StaffMovementsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/staff-statistics', component: StaffStatisticsPage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/staff-identity-progress',
+    component: StaffIdentityProgressPage,
+  }),
   createRoute({ getParentRoute: () => rootRoute, path: '/staff-attendance', component: StaffAttendancePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/school-days', component: SchoolDaysPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/work-schedules', component: WorkSchedulesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/health', component: HealthPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/growth', component: GrowthPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/growth-report', component: GrowthReportPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/student-health', component: StudentHealthPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/student-statistics', component: StudentStatisticsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/statistics', component: StatisticsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/missing-profiles', component: MissingProfilesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/admissions', component: AdmissionsPage }),
@@ -180,7 +266,20 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/school-profile', component: SchoolProfilePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/facility-rooms', component: FacilityRoomsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/equipment', component: EquipmentPage }),
-  createRoute({ getParentRoute: () => rootRoute, path: '/emis', component: EmisPage }),
+  // Bảy biểu báo cáo EMIS (DT-16 phần 16j)
+  ...EMIS_FORMS.map((form) =>
+    createRoute({
+      getParentRoute: () => rootRoute,
+      path: form.path,
+      component: () => <EmisFormPage code={form.code} />,
+    }),
+  ),
+  // Cơ sở vật chất đủ theo Sở (DT-16 phần 16i)
+  createRoute({ getParentRoute: () => rootRoute, path: '/facility-report', component: FacilityReportPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/facility-investments', component: FacilityInvestmentsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/facility-input', component: FacilityInputPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/equipment-outside', component: EquipmentOutsidePage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/equipment-submission', component: EquipmentSubmissionPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/api-clients', component: ApiClientsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/integrations', component: IntegrationsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/notifications', component: NotificationsPage }),
@@ -191,6 +290,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/archive-fonds', component: ArchiveFondsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/archive-holdings', component: ArchiveHoldingsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/archive-report', component: ArchiveReportPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/generated-files', component: GeneratedFilesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/work', component: WorkPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/evaluations', component: EvaluationsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/bonus-deductions', component: BonusDeductionsPage }),

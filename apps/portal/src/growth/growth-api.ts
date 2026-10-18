@@ -85,8 +85,26 @@ export interface ChildGrowth {
 
 export type SummaryRow = Record<string, string | number | null>;
 
+export interface GrowthComparison {
+  first_rounds: Array<{ id: string; name: string; measured_on: string }>;
+  last_rounds: Array<{ id: string; name: string; measured_on: string }>;
+  classes: Array<{
+    class_id: string;
+    class_name: string;
+    grade_name: string;
+    first: Record<string, number>;
+    last: Record<string, number>;
+    change: Record<string, number>;
+  }>;
+  totals: { first: Record<string, number>; last: Record<string, number>; change: Record<string, number> };
+}
+
 export interface GrowthReport {
   rounds: Array<{ id: string; org_unit_id: string; name: string; measured_on: string }>;
+  // Tổng hợp theo học kỳ và so sánh hai lần cân đo (DT-16 phần 16h)
+  term: string | null;
+  term_range: { start_date: string; end_date: string } | null;
+  comparison: GrowthComparison | null;
   classes: SummaryRow[];
   grades: SummaryRow[];
   units: SummaryRow[];

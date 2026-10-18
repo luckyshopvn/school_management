@@ -4,6 +4,7 @@ import { PERMISSION_CODES } from '@school-management/shared';
 import {
   Alert,
   Button,
+  ConfirmDeleteDialog,
   ConfirmDialog,
   DataGrid,
   resolveVisibleColumns,
@@ -31,11 +32,13 @@ import {
   type StudentFilter,
 } from './children-api.js';
 import { CreateChildForm } from './CreateChildForm.js';
+import { assignMoetCodes, deleteChild, downloadErrorFile, downloadMoetFile } from '../students/students-api.js';
 
 // MH-02 4.1.1. Quản lý hồ sơ học sinh theo hệ thống của Sở (DT-15 phần 15c, YCTD-108; trước là Hồ sơ trẻ, P02-01, P02-02,
 // QT-01): lưới dữ liệu chung có tìm theo họ tên, mở rộng tìm kiếm theo các bộ lọc của mục 4.1.4, cột theo danh sách của
 // Sở, sắp xếp A–Z theo tên; Thêm mới, Cập nhật hàng loạt học 2 buổi/ngày và bán trú (4.1.12), Xuất Excel; Hồ sơ mở ngay
-// dưới dòng. Ô mã định danh Bộ tô đỏ khi trống (AC-201)
+// dưới dòng. Ô mã định danh Bộ tô đỏ khi trống (AC-201). Từ DT-16 phần 16g đủ nút của Sở: Thay đổi (mở hồ sơ để sửa), Xóa
+// (hồ sơ nháp), Cấp mã định danh Bộ (nhập tay mã do Bộ cấp, xuất tệp theo mẫu Bộ cho học sinh chưa có mã), Xuất file lỗi
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
@@ -175,6 +178,95 @@ function BulkUpdateDialog({
   );
 }
 
+// "Cấp mã định danh Bộ" chạy nội bộ: chưa có giao diện lập trình của Bộ nên nhà trường xuất tệp theo mẫu của Bộ để nộp, rồi
+// ghi mã Bộ cấp bằng tay ở đây hoặc nhập từ Excel ở 4.1.2 (Mã định danh ngành)
+function MoetCodeDialog({
+  rows,
+  filter,
+  canExport,
+  onDone,
+  onCancel,
+}: {
+  rows: ChildListItem[];
+  filter: StudentFilter;
+  canExport: boolean;
+  onDone(message: string): void;
+  onCancel(): void;
+}) {
+  const [codes, setCodes] = useState<Record<string, string>>(() =>
+    Object.fromEntries(rows.map((row) => [row.id, row.moet_student_code ?? ''])),
+  );
+  const [fileError, setFileError] = useState<string>();
+  const items = rows
+    .map((row) => ({ child_id: row.id, moet_student_code: (codes[row.id] ?? '').trim() }))
+    .filter((item) => item.moet_student_code !== '');
+  const save = useMutation({
+    mutationFn: () => assignMoetCodes(items),
+    onSuccess: (result) => onDone(`Đã ghi mã định danh Bộ GD&ĐT cho ${result.assigned} học sinh`),
+  });
+  return (
+    <ConfirmDialog
+      open
+      title="Cấp mã định danh Bộ"
+      confirmLabel="Ghi mã đã cấp"
+      busy={save.isPending || items.length === 0}
+      onCancel={onCancel}
+      onConfirm={() => save.mutate()}
+    >
+      <div className="flex flex-col gap-3">
+        <Alert tone="info">
+          Hệ thống chưa kết nối CSDL của Bộ. Xuất tệp theo mẫu của Bộ cho học sinh chưa có mã để nộp, rồi ghi mã Bộ cấp
+          vào ô dưới đây hoặc nhập từ Excel ở mục 4.1.2 (Mã định danh ngành).
+        </Alert>
+        {canExport ? (
+          <div>
+            <Button
+              onClick={() => {
+                setFileError(undefined);
+                downloadMoetFile({ ...filter, missing_moet_code: true }).catch((error: unknown) =>
+                  setFileError(messageOf(error)),
+                );
+              }}
+            >
+              Xuất tệp theo mẫu Bộ (học sinh chưa có mã)
+            </Button>
+          </div>
+        ) : null}
+        {fileError ? <Alert tone="danger">{fileError}</Alert> : null}
+        {rows.length > 0 ? (
+          <table className="w-full text-content" aria-label="Mã định danh Bộ của học sinh đã chọn">
+            <thead className="text-left text-label font-medium text-text-secondary">
+              <tr>
+                <th className="px-3 py-1">Họ tên</th>
+                <th className="px-3 py-1">Mã định danh Bộ GD&ĐT</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={row.id} className="border-t border-border">
+                  <td className="px-3 py-1">{row.full_name}</td>
+                  <td className="px-3 py-1">
+                    <input
+                      aria-label={`Mã định danh Bộ của ${row.full_name}`}
+                      value={codes[row.id] ?? ''}
+                      maxLength={50}
+                      onChange={(event) => setCodes((current) => ({ ...current, [row.id]: event.target.value }))}
+                      className={selectClass}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p className="text-label text-text-secondary">Chọn học sinh trên lưới để ghi mã Bộ đã cấp.</p>
+        )}
+        {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
+      </div>
+    </ConfirmDialog>
+  );
+}
+
 export function ChildrenPage() {
   const canManage = useHasPermission(PERMISSION_CODES.childManage);
   const canApprove = useHasPermission(PERMISSION_CODES.childApprove);
@@ -188,6 +280,8 @@ export function ChildrenPage() {
   const [openId, setOpenId] = useState<string>();
   const [creating, setCreating] = useState(false);
   const [bulkRows, setBulkRows] = useState<ChildListItem[]>();
+  const [deleting, setDeleting] = useState<ChildListItem>();
+  const [codeRows, setCodeRows] = useState<ChildListItem[]>();
   const [toastMessage, setToastMessage] = useState<string>();
   const [exportError, setExportError] = useState<string>();
   const [exporting, setExporting] = useState(false);
@@ -221,14 +315,35 @@ export function ChildrenPage() {
     setExportError(undefined);
     setExporting(true);
     try {
-      await exportChildren(
+      const notice = await exportChildren(
         activeFilter,
         resolveVisibleColumns(columns, grid.settings.columns).map((column) => column.id),
       );
+      if (notice) {
+        setToastMessage(notice);
+      }
     } catch (error) {
       setExportError(messageOf(error));
     } finally {
       setExporting(false);
+    }
+  };
+
+  const remove = useMutation({
+    mutationFn: (row: ChildListItem) => deleteChild(row.id),
+    onSuccess: async (_result, row) => {
+      setDeleting(undefined);
+      setOpenId(undefined);
+      setToastMessage(`Đã xóa hồ sơ của ${row.full_name}`);
+      await queryClient.invalidateQueries({ queryKey: ['children'] });
+    },
+  });
+  const runErrorFile = async () => {
+    setExportError(undefined);
+    try {
+      await downloadErrorFile(activeFilter);
+    } catch (error) {
+      setExportError(messageOf(error));
     }
   };
 
@@ -345,6 +460,14 @@ export function ChildrenPage() {
       <label className="flex items-center gap-2 self-end pb-2 text-label">
         <input
           type="checkbox"
+          checked={filter.missing_moet_code === true}
+          onChange={(event) => change('missing_moet_code', event.target.checked)}
+        />
+        Chưa có mã định danh Bộ GD&ĐT
+      </label>
+      <label className="flex items-center gap-2 self-end pb-2 text-label">
+        <input
+          type="checkbox"
           checked={filter.missing_birth_certificate === true}
           onChange={(event) => change('missing_birth_certificate', event.target.checked)}
         />
@@ -408,15 +531,36 @@ export function ChildrenPage() {
                 </Button>
               ) : null}
               {canManage || canApprove ? (
+                <Button
+                  disabled={selected.length !== 1}
+                  onClick={() => {
+                    setOpenId(selected[0]?.id);
+                    setCreating(false);
+                  }}
+                >
+                  Thay đổi
+                </Button>
+              ) : null}
+              {canManage ? (
+                <Button
+                  disabled={selected.length !== 1 || selected[0]?.status !== 'draft'}
+                  onClick={() => setDeleting(selected[0])}
+                >
+                  Xóa
+                </Button>
+              ) : null}
+              {canManage || canApprove ? (
                 <Button disabled={selected.length === 0} onClick={() => setBulkRows(selected)}>
                   Cập nhật hàng loạt
                 </Button>
               ) : null}
+              {canManage ? <Button onClick={() => setCodeRows(selected)}>Cấp mã định danh Bộ</Button> : null}
               {canExport ? (
                 <Button disabled={exporting} onClick={() => void runExport()}>
                   Xuất Excel
                 </Button>
               ) : null}
+              {canExport ? <Button onClick={() => void runErrorFile()}>Xuất file lỗi</Button> : null}
             </>
           )}
           selectable
@@ -436,6 +580,7 @@ export function ChildrenPage() {
           settings={grid.settings}
           onSettingsChange={grid.update}
           serverPagination={{ page, total: children.data?.total ?? 0, onPageChange: setPage }}
+          exportPdf={canExport ? (columnIds) => exportChildren(activeFilter, columnIds, 'pdf') : undefined}
         />
         {openId && !(children.data?.items ?? []).some((row) => row.id === openId) ? (
           <section className="rounded-xl border border-border bg-card p-4">
@@ -443,6 +588,33 @@ export function ChildrenPage() {
           </section>
         ) : null}
       </div>
+      <ConfirmDeleteDialog
+        open={Boolean(deleting)}
+        subject={`hồ sơ nháp của ${deleting?.full_name ?? ''}`}
+        busy={remove.isPending}
+        onCancel={() => setDeleting(undefined)}
+        onConfirm={() => {
+          if (deleting) {
+            remove.mutate(deleting);
+          }
+        }}
+      >
+        <p>Chỉ xóa được hồ sơ nháp; hồ sơ được giữ lại trong nhật ký, không hiện ở các danh sách.</p>
+        {remove.error ? <Alert tone="danger">{messageOf(remove.error)}</Alert> : null}
+      </ConfirmDeleteDialog>
+      {codeRows ? (
+        <MoetCodeDialog
+          rows={codeRows}
+          filter={activeFilter}
+          canExport={canExport}
+          onCancel={() => setCodeRows(undefined)}
+          onDone={(message) => {
+            setCodeRows(undefined);
+            setToastMessage(message);
+            void queryClient.invalidateQueries({ queryKey: ['children'] });
+          }}
+        />
+      ) : null}
       {bulkRows ? (
         <BulkUpdateDialog
           rows={bulkRows}
