@@ -16,14 +16,14 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.76.0 – 2026-10-18
+### Phiên bản 0.77.0 – 2026-10-18
 
 - Phạm vi thay đổi: DT-16 phần 16e, trường, lớp và lịch năm học theo hệ thống của Sở (YCTD-127).
 - Chức năng mới: 1.4 khối "Cấu hình trường" (Tên trường hiển thị, Tên đơn vị hành chính, tính cân nặng/chiều cao cho trẻ suy dinh dưỡng thể nhẹ cân); mục "1.7. Rà soát thông tin kiểm định CLGD" (Lấy dữ liệu, Ghi); mục "1.8. Tách trường" bản chạy nội bộ (yêu cầu tách, xác nhận đi, đánh dấu đã tiếp nhận, xuất hồ sơ 82 cột, 75 cột theo mẫu CSDL ngành); 2.1 chọn nhiều lớp, Thay đổi hàng loạt, Giải thể lớp đã chọn, Xóa lớp; 2.2 bảy cột lớp theo Sở; 3.3 dòng giáo viên chưa phân công, lọc tình trạng phân công; mục "3.4. Khai báo tuần"; mục "5.7. Chuyển hồ sơ lên năm học mới" (Thực hiện, Hủy) (P01-24 đến P01-27, sửa P01-08, P01-13, P02-05).
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp năm học `0054_create_accreditation_reviews_and_school_splits` tạo ba bảng `accreditation_reviews`, `school_split_requests`, `school_split_items`; tệp hệ thống `0013_add_school_week_fields_and_carry_over_time` thêm `school_weeks.term_type`, `school_weeks.is_visible`, `academic_year_databases.carried_over_at`; bảng `settings` có thêm kiểu giá trị `text` và ba khóa của Trường chính, không đổi cấu trúc.
 - Thay đổi API: điểm cuối mới `/academic-years/rollover/status`, `/academic-years/{id}/cancel-open`, `/classes/delete`, `/classes/bulk-update`, `/accreditation-review`, `/accreditation-review/collect`, nhóm `/school-splits`; `PUT /settings` nhận ba khóa mới; `/academic-years/{id}/weeks` thêm `term`, `term_type`, `is_visible`; `/class-assignments` lọc thêm `assignment`; nhập lớp thêm bảy cột; `/portal-context`, `/public/login-info` lấy tên trường hiển thị.
-- Kiểm thử: kịch bản CT-534 đến CT-554. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 812/812 ca đạt; toàn bộ kiểm thử giao diện <E2E_PASS>/<E2E_TOTAL> ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử: kịch bản CT-551 đến CT-571. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 812/812 ca đạt; toàn bộ kiểm thử giao diện <E2E_PASS>/<E2E_TOTAL> ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Rủi ro: Hủy chuyển hồ sơ xóa cơ sở dữ liệu năm học mới, không hoàn tác được (chỉ cho khi năm mới chưa phát sinh dữ liệu); tách trường không truyền dữ liệu, người dùng phải gửi tệp và đánh dấu trạng thái; phòng bộ môn, diện tích sàn ở 1.7 do Claude chọn cách tính, chưa đối chiếu biểu mẫu kiểm định.
 - Khả năng tương thích: ô cân nặng/chiều cao cho trẻ nhẹ cân mặc định bật nên 4.3.2 tính như cũ; chưa đặt tên trường hiển thị thì vẫn dùng tên Trường chính; `PATCH /academic-years/{id}/weeks` không gửi `term_type`, `is_visible` thì giữ giá trị cũ; `GET /class-assignments` không gửi `assignment` vẫn trả dòng đã phân công như cũ, thêm dòng chưa phân công khi người gọi đọc được danh bạ; năm học mở trước phần 16e không có `carried_over_at` nên không hủy được.
 - Phương án quay lui: hoàn lại commit gộp của nhánh phần 16e; chạy phần quay lui của tệp năm học `0054` (xóa ba bảng) và tệp hệ thống `0013` (xóa ba cột). Ba khóa cấu hình đã lưu ở bảng `settings` không còn được đọc, xóa tay nếu cần.
