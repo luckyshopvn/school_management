@@ -14,6 +14,25 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-18 — DT-15 phần 15f3: các phân hệ Bếp – kho, Tương tác, Giảng dạy, Tuyển sinh – tuyển dụng, Báo cáo theo giao diện chung của Sở
+
+#### Công việc đã thực hiện
+
+- Đưa 8 trang của năm phân hệ Bếp – kho, mua hàng; Tương tác – truyền thông; Giảng dạy; Tuyển sinh, tuyển dụng; Báo cáo sang giao diện chung của Sở: tiêu đề có số theo menu (1. Kho và tài sản, 2. Đề nghị mua hàng, 1. Tương tác với phụ huynh, 2. Hoạt động và tin tức, 1. Bài học và giáo án, 1. Tuyển sinh, 2. Tuyển dụng, 1. Báo cáo và bảng điều khiển); 32 lưới dữ liệu chung (tồn kho, sổ kho, tài sản, hỏng và mất, kiểm kê, phiếu mua hàng, nhà cung cấp, đề nghị mua hàng, bình chọn, khảo sát, góp ý, đồ bị mất, bình luận, danh mục nội dung, tin tức, thư viện, ngoại khóa, giáo án chờ duyệt, bài học, danh mục bài học, kế hoạch giảng dạy, tuyển sinh, tuyển dụng, nhật ký xuất); nút Thêm mới mở biểu mẫu theo khối, nút Ghi. Lưới Danh mục tài sản có cột "Thiết bị dạy học" khi người dùng có quyền quản lý thiết bị dạy học, giữ phần gắn tài sản với thiết bị dạy học của DT-16 phần 16i (YCTD-128). Thêm thành phần `FormPanel.tsx` của cổng quản trị. Nghiệp vụ, điểm cuối, quyền không đổi; không có tệp thay đổi cấu trúc dữ liệu.
+- Thêm kịch bản CT-599 đến CT-606, tiêu chí AC-616 đến AC-623; không có quy tắc nghiệp vụ, quy tắc phân quyền, chức năng, màn hình mới (đổi MH-20 đến MH-29, MH-36, MH-57, MH-63); thêm kiểm thử giao diện `tests/e2e/67-communication-grids.spec.ts`. Kết quả: build, kiểm tra kiểu, lint, kiểm tra định dạng đạt; kiểm thử đơn vị toàn bộ kho mã: 848/848 ca đạt; toàn bộ kiểm thử giao diện: 134/134 ca đạt.
+
+#### Quyết định
+
+- Phần 15f3 lấy mã YCTD-115 đã giữ cho phần này. Thẻ Duyệt hoạt động, thẻ Trao đổi, thời khóa biểu, các bảng báo cáo tổng hợp và hồ sơ ứng viên giữ bố cục vì không phải danh sách; lưới phân trang tại chỗ trên điểm cuối cũ; không thêm ô chọn dòng vì không có thao tác hàng loạt; trang Thực đơn bữa ăn (`/kitchen`, MH-18) không thuộc nhóm Bếp – kho, mua hàng nên không đổi trong 15f3. Cột "Thiết bị dạy học" của lưới Danh mục tài sản chỉ hiện khi người dùng có quyền quản lý thiết bị dạy học, cùng điều kiện với khối gắn tài sản của phần 16i. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-115.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-115, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-20 đến MH-29, MH-36, MH-57, MH-63, BC-13, BC-16, `11_TIEU_CHI_NGHIEM_THU.md` AC-616 đến AC-623, `16_CO_SO_DU_LIEU.md` mục `user_grid_settings`, `17_DAC_TA_API.md` giao kèo cấu hình lưới, `21_KICH_BAN_KIEM_THU.md` CT-599 đến CT-606, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.82.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 6.
+
+#### Vấn đề tồn đọng
+
+- Chưa có Xuất Excel, thao tác hàng loạt ở các lưới của năm phân hệ; duyệt, từ chối có lý do vẫn nhập ở từng dòng; danh sách rất dài vẫn tải một lần.
+
 ### 2026-10-18 — DT-15 phần 15f2: phân hệ Nhân sự – chấm công, lương theo giao diện chung của Sở
 
 #### Công việc đã thực hiện
