@@ -53,12 +53,14 @@ test('Nhân sự lập đề nghị mua hàng; Hiệu trưởng duyệt; thủ k
 
   const teacherPage = await signIn(browser, teacher);
   await openMenu(teacherPage, '/purchase-requests');
-  await teacherPage.getByLabel('Lý do').fill(reason);
-  await teacherPage.getByLabel('Tên mặt hàng').fill('Bút màu sáp');
-  await teacherPage.getByLabel('Số lượng').fill('5');
-  await teacherPage.getByLabel('Đơn vị tính').fill('hộp');
-  await teacherPage.getByLabel('Đơn giá dự kiến').fill('20000');
-  await teacherPage.getByRole('button', { name: 'Gửi đề nghị' }).click();
+  await teacherPage.getByRole('region', { name: 'Đề nghị của tôi' }).getByRole('button', { name: 'Thêm mới' }).click();
+  const requestForm = teacherPage.getByRole('form', { name: 'Lập đề nghị mua hàng' });
+  await requestForm.getByLabel('Lý do').fill(reason);
+  await requestForm.getByLabel('Tên mặt hàng').fill('Bút màu sáp');
+  await requestForm.getByLabel('Số lượng').fill('5');
+  await requestForm.getByLabel('Đơn vị tính').fill('hộp');
+  await requestForm.getByLabel('Đơn giá dự kiến').fill('20000');
+  await requestForm.getByRole('button', { name: 'Ghi' }).click();
   await expect(teacherPage.getByText(/Đã gửi đề nghị DNMH-\d{6}/)).toBeVisible();
   await expect(teacherPage.getByRole('row').filter({ hasText: reason })).toContainText('Chờ duyệt');
 
@@ -72,25 +74,31 @@ test('Nhân sự lập đề nghị mua hàng; Hiệu trưởng duyệt; thủ k
 
   const storePage = await signIn(browser, storekeeper);
   await openMenu(storePage, '/inventory');
-  await storePage.getByLabel('Mã mặt hàng').fill(itemCode);
-  await storePage.getByLabel('Tên mặt hàng').fill(itemName);
-  await storePage.getByLabel('Đơn vị tính').fill('hộp');
-  await storePage.getByRole('button', { name: 'Thêm mặt hàng' }).click();
+  await storePage.getByRole('region', { name: 'Tồn kho' }).getByRole('button', { name: 'Thêm mới' }).click();
+  const itemForm = storePage.getByRole('form', { name: 'Thêm mặt hàng' });
+  await itemForm.getByLabel('Mã mặt hàng').fill(itemCode);
+  await itemForm.getByLabel('Tên mặt hàng').fill(itemName);
+  await itemForm.getByLabel('Đơn vị tính').fill('hộp');
+  await itemForm.getByRole('button', { name: 'Ghi' }).click();
   await expect(storePage.getByText(`Đã thêm mặt hàng ${itemCode}`)).toBeVisible();
 
   await storePage.getByRole('tab', { name: 'Nhà cung cấp' }).click();
-  await storePage.getByLabel('Tên nhà cung cấp').fill(supplierName);
-  await storePage.getByRole('button', { name: 'Thêm nhà cung cấp' }).click();
+  await storePage.getByRole('region', { name: 'Nhà cung cấp' }).getByRole('button', { name: 'Thêm mới' }).click();
+  const supplierForm = storePage.getByRole('form', { name: 'Thêm nhà cung cấp' });
+  await supplierForm.getByLabel('Tên nhà cung cấp').fill(supplierName);
+  await supplierForm.getByRole('button', { name: 'Ghi' }).click();
   await expect(storePage.getByText(`Đã thêm nhà cung cấp ${supplierName}`)).toBeVisible();
 
   await storePage.getByRole('tab', { name: 'Phiếu mua hàng' }).click();
-  const requestSelect = storePage.getByLabel('Đề nghị đã duyệt');
+  await storePage.getByRole('region', { name: 'Phiếu mua hàng' }).getByRole('button', { name: 'Thêm mới' }).click();
+  const orderForm = storePage.getByRole('form', { name: 'Lập phiếu mua hàng' });
+  const requestSelect = orderForm.getByLabel('Đề nghị đã duyệt');
   const requestValue = await requestSelect.locator('option', { hasText: reason }).getAttribute('value');
   await requestSelect.selectOption(requestValue ?? '');
-  await storePage.getByLabel('Nhà cung cấp').selectOption({ label: supplierName });
-  await storePage.getByLabel('Nhập vào mặt hàng kho').selectOption({ label: `${itemCode} ${itemName}` });
-  await storePage.getByLabel('Đơn giá mua').fill('18000');
-  await storePage.getByRole('button', { name: 'Lập phiếu mua hàng' }).click();
+  await orderForm.getByLabel('Nhà cung cấp', { exact: true }).selectOption({ label: supplierName });
+  await orderForm.getByLabel('Nhập vào mặt hàng kho').selectOption({ label: `${itemCode} ${itemName}` });
+  await orderForm.getByLabel('Đơn giá mua').fill('18000');
+  await orderForm.getByRole('button', { name: 'Ghi' }).click();
   await expect(storePage.getByText(/Đã lập phiếu mua hàng PMH-\d{6}/)).toBeVisible();
   const orderRow = storePage.getByRole('row').filter({ hasText: supplierName });
   await expect(orderRow).toContainText('90.000 đồng');

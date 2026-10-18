@@ -153,17 +153,17 @@ test('CT-124, CT-076: phụ huynh nộp hồ sơ trực tuyến; nhà trường 
   await expect(staffPage.getByText('Đã tiếp nhận hồ sơ')).toBeVisible();
   await panel.getByRole('button', { name: 'Xét đạt' }).click();
   await expect(staffPage.getByText('Đã xét hồ sơ đạt')).toBeVisible();
-  const convert = panel.getByRole('form', { name: 'Chuyển thành hồ sơ trẻ' });
+  const convert = panel.getByRole('form', { name: 'Chuyển thành hồ sơ học sinh' });
   await convert.getByRole('combobox', { name: 'Lớp', exact: true }).selectOption({ label: `${className} (0/30)` });
   await convert
-    .getByLabel('Số định danh cá nhân của trẻ')
+    .getByLabel('Số định danh cá nhân của học sinh')
     .fill(`079${String(randomInt(0, 1_000_000_000)).padStart(9, '0')}`);
   await convert
     .getByLabel('Bản chụp giấy khai sinh')
     .setInputFiles({ name: 'giay-khai-sinh.png', mimeType: 'image/png', buffer: PNG });
-  await convert.getByRole('button', { name: 'Chuyển thành hồ sơ trẻ' }).click();
+  await convert.getByRole('button', { name: 'Chuyển thành hồ sơ học sinh' }).click();
   // Chờ thông báo kết quả chuyển hồ sơ rồi mới kiểm nội dung, để khi duyệt lỗi thấy được lý do trong thông báo
-  const converted = staffPage.getByText(/^Đã chuyển thành hồ sơ trẻ/).first();
+  const converted = staffPage.getByText(/^Đã chuyển thành hồ sơ học sinh/).first();
   await expect(converted).toBeVisible({ timeout: 20_000 });
   await expect(converted).toContainText(`${childName} đang học lớp ${className}`);
 
