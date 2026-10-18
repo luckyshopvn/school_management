@@ -104,6 +104,10 @@ import { HelpPage } from './portal-shell/HelpPage.js';
 import { MyProfilePage } from './portal-shell/MyProfilePage.js';
 import { SystemAnnouncementsPage } from './portal-shell/SystemAnnouncementsPage.js';
 import { AppLinksPage } from './portal-shell/AppLinksPage.js';
+import { SchoolWeeksPage } from './academic-years/SchoolWeeksPage.js';
+import { YearRolloverPage } from './academic-years/YearRolloverPage.js';
+import { AccreditationReviewPage } from './school/AccreditationReviewPage.js';
+import { SchoolSplitsPage } from './school/SchoolSplitsPage.js';
 
 // Trang dùng được khi chưa đăng nhập (DT-16 phần 16c thêm Quên mật khẩu)
 const PUBLIC_PATHS = ['/login', '/forgot-password'];
@@ -173,6 +177,11 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/school-sites', component: SchoolSitesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/class-imports', component: ClassImportsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/class-assignments', component: ClassAssignmentsPage }),
+  // Trường học, lớp học, lịch năm học đủ theo Sở (DT-16 phần 16e)
+  createRoute({ getParentRoute: () => rootRoute, path: '/accreditation-review', component: AccreditationReviewPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/school-splits', component: SchoolSplitsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/school-weeks', component: SchoolWeeksPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/year-rollover', component: YearRolloverPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/children', component: ChildrenPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/student-movements', component: StudentMovementsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/administrative-units', component: AdministrativeUnitsPage }),

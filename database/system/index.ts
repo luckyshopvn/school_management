@@ -10,6 +10,7 @@ import { migration as createArchiveTables } from './migrations/0009_create_archi
 import { migration as createExportJobsAndSubmissions } from './migrations/0010_create_export_jobs_and_submissions.js';
 import { migration as createAnnouncementsAndAppLinks } from './migrations/0011_create_announcements_and_app_links.js';
 import { migration as addSyncAccountCredentials } from './migrations/0012_add_sync_account_credentials.js';
+import { migration as addSchoolWeekFieldsAndCarryOverTime } from './migrations/0013_add_school_week_fields_and_carry_over_time.js';
 import { migration as addArchiveUnitsHandlersReminders } from './migrations/0016_add_archive_units_handlers_reminders.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu hệ thống, theo số thứ tự (QU-01, QĐ-17)
@@ -25,5 +26,6 @@ export const systemMigrations: Record<string, Migration> = {
   '0010_create_export_jobs_and_submissions': createExportJobsAndSubmissions,
   '0011_create_announcements_and_app_links': createAnnouncementsAndAppLinks,
   '0012_add_sync_account_credentials': addSyncAccountCredentials,
+  '0013_add_school_week_fields_and_carry_over_time': addSchoolWeekFieldsAndCarryOverTime,
   '0016_add_archive_units_handlers_reminders': addArchiveUnitsHandlersReminders,
 };

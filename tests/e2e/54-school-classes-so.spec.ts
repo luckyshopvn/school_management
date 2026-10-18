@@ -227,7 +227,10 @@ test('CT-15b-10: 3.3 Phân công phụ trách lớp: liệt kê, thêm mới, k�
   await assigned.getByRole('button', { name: 'Kết thúc phân công' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Kết thúc phân công' }).click();
   await expect(page.getByRole('status').filter({ hasText: 'Đã kết thúc phân công' })).toBeVisible();
-  await expect(grid.getByRole('row').filter({ hasText: teacherName })).toHaveCount(0);
+  // Từ DT-16 phần 16e giáo viên chưa phụ trách lớp nào vẫn có một dòng "Chưa phân công"
+  await expect(grid.getByRole('row').filter({ hasText: teacherName })).toHaveCount(1);
+  await expect(grid.getByRole('row').filter({ hasText: teacherName })).toContainText('Chưa phân công');
+  await expect(grid.getByRole('row').filter({ hasText: teacherName })).not.toContainText(className);
 });
 
 test('CT-15b-11: 2.2 Nhập lớp học từ Excel tách riêng; giáo viên không có mục nhập lớp, không phân công được', async ({

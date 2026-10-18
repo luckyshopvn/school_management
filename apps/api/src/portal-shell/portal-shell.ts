@@ -327,8 +327,18 @@ export class PortalContextService {
     const general = (profile?.general ?? {}) as Record<string, unknown>;
     const moetCode = typeof general.moet_code === 'string' && general.moet_code !== '' ? general.moet_code : null;
     const electronicId = typeof general.electronic_id_code === 'string' ? general.electronic_id_code : null;
+    // Tên trường hiển thị đặt ở 1.4 Cấu hình trường (DT-16 phần 16e), trống thì lấy tên Trường chính
+    const displayName = root
+      ? await current.database
+          .selectFrom('settings')
+          .select('value')
+          .where('org_unit_id', '=', root.id)
+          .where('key', '=', 'school_display_name')
+          .executeTakeFirst()
+      : undefined;
     return {
-      school_name: root?.name ?? null,
+      school_name:
+        typeof displayName?.value === 'string' && displayName.value !== '' ? displayName.value : (root?.name ?? null),
       school_code: moetCode ?? root?.code ?? null,
       academic_year: year?.name ?? null,
       electronic_id_code: electronicId,

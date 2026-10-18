@@ -1,7 +1,15 @@
 // Danh mục cấu hình theo đơn vị (P01-08, YCTD-40); giờ bắt đầu học mặc định 07:30 (YCTD-47). Ngày chốt công cố định mùng 1 tháng sau nên không có trong danh mục (YCTD-41). Chỉ mục tài liệu đã ghi mặc định mới có mặc định;
 // mục khác trống cho tới khi nhà trường cấu hình. Không có mục tắt kiểm tra quỹ tiền mặt vì BR-34 bắt buộc.
 export type SettingValueType =
-  'closing_day' | 'day_of_month' | 'day_list' | 'boolean' | 'positive_integer' | 'time_of_day' | 'minutes' | 'percent';
+  | 'closing_day'
+  | 'day_of_month'
+  | 'day_list'
+  | 'boolean'
+  | 'positive_integer'
+  | 'time_of_day'
+  | 'minutes'
+  | 'percent'
+  | 'text';
 
 export interface SettingDefinition {
   key: string;
@@ -9,6 +17,8 @@ export interface SettingDefinition {
   valueType: SettingValueType;
   defaultValue: unknown;
   rule: string;
+  // Mục của khối "Cấu hình trường" theo Sở (mục 1.4, DT-16 phần 16e): chỉ đặt ở Trường chính, không kế thừa theo đơn vị
+  school?: boolean;
 }
 
 export const SETTING_DEFINITIONS: SettingDefinition[] = [
@@ -143,6 +153,33 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
     defaultValue: null,
     rule: 'BR-04',
   },
+  // 1.4 Cấu hình trường theo Sở (DT-16 phần 16e): tên trường hiển thị ở thanh đầu trang và trang đăng nhập (trống là tên
+  // Trường chính trong cây đơn vị), tên đơn vị hành chính in ở đầu báo cáo, tính kênh cân nặng theo chiều cao cho trẻ suy
+  // dinh dưỡng thể nhẹ cân (mặc định bật như trước; tắt thì trẻ nhẹ cân không xếp kênh gầy còm, thừa cân, béo phì ở 4.3.2)
+  {
+    key: 'school_display_name',
+    label: 'Tên trường hiển thị',
+    valueType: 'text',
+    defaultValue: null,
+    rule: 'YCTD-127',
+    school: true,
+  },
+  {
+    key: 'administrative_unit_name',
+    label: 'Tên đơn vị hành chính',
+    valueType: 'text',
+    defaultValue: null,
+    rule: 'YCTD-127',
+    school: true,
+  },
+  {
+    key: 'underweight_growth_calculation',
+    label: 'Tính cân nặng/chiều cao cho trẻ suy dinh dưỡng thể nhẹ cân',
+    valueType: 'boolean',
+    defaultValue: true,
+    rule: 'YCTD-127',
+    school: true,
+  },
 ];
 
 export function findDefinition(key: string): SettingDefinition | undefined {
@@ -189,5 +226,9 @@ export function validateSettingValue(definition: SettingDefinition, value: unkno
       return typeof value === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(value)
         ? null
         : 'Giờ dạng HH:MM, ví dụ 07:30';
+    case 'text':
+      return typeof value === 'string' && value.trim() !== '' && value.trim().length <= 200
+        ? null
+        : 'Nhập chữ, tối đa 200 ký tự';
   }
 }

@@ -14,10 +14,13 @@ export interface EffectiveSetting {
     | 'positive_integer'
     | 'time_of_day'
     | 'minutes'
-    | 'percent';
+    | 'percent'
+    | 'text';
   value: unknown;
   source: SettingSource;
   unit_value: unknown;
+  // Mục của khối Cấu hình trường theo Sở (DT-16 phần 16e), chỉ đặt ở Trường chính
+  school: boolean;
 }
 
 export function readSettings(orgUnitId: string): Promise<EffectiveSetting[]> {
