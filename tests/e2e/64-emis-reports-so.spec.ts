@@ -36,7 +36,7 @@ test('CT-16j-8: 1.1 thẻ Ngân sách nhà nước, danh sách gửi báo cáo b
   await expect(page.getByRole('heading', { name: '1.1 Báo cáo EMIS đầu năm' })).toBeVisible();
   const panel = page.getByRole('region', { name: 'Gửi lên cấp trên' });
   await expect(panel.getByLabel('Tổng hợp gửi báo cáo')).toContainText('Số cần gửi');
-  await expect(panel.getByRole('row', { name: /^Biểu mẫu / })).toHaveCount(7);
+  await expect(panel.getByRole('row', { name: /^Biểu mẫu \d/ })).toHaveCount(7);
   await expect(panel.getByRole('row', { name: 'Biểu mẫu 2.3 Đề án ngoại ngữ' })).toContainText('Chưa gửi');
   await expect(panel.getByRole('button', { name: 'Gửi', exact: true })).toHaveCount(0);
 
