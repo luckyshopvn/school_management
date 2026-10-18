@@ -128,6 +128,10 @@ import { EquipmentController, EquipmentService } from './facilities/equipment.js
 import { FacilitiesData } from './facilities/facilities-data.js';
 import { facilitiesTransitionStep } from './facilities/facilities-transition.js';
 import { FacilityRoomsController, FacilityRoomsService } from './facilities/facility-rooms.js';
+import { FacilityReportController, FacilityReportService } from './facilities/facility-report.js';
+import { FacilityInvestmentsController, FacilityInvestmentsService } from './facilities/facility-investments.js';
+import { FacilityImportsController, FacilityImportsService } from './facilities/facility-imports.js';
+import { EquipmentSubmissionForm } from './facilities/equipment-submission.js';
 import { SchoolProfileController, SchoolProfileService } from './facilities/school-profile.js';
 import { AccreditationReviewController, AccreditationReviewService } from './facilities/accreditation-review.js';
 import { SchoolSplitsController, SchoolSplitsService } from './school-splits/school-splits.js';
@@ -309,6 +313,9 @@ export class ApplicationModule {
         ApprovalThresholdsController,
         RoomsController,
         FacilityRoomsController,
+        FacilityReportController,
+        FacilityInvestmentsController,
+        FacilityImportsController,
         EquipmentController,
         SchoolProfileController,
         AccreditationReviewController,
@@ -493,6 +500,10 @@ export class ApplicationModule {
         RoomsService,
         FacilitiesData,
         FacilityRoomsService,
+        FacilityReportService,
+        FacilityInvestmentsService,
+        FacilityImportsService,
+        EquipmentSubmissionForm,
         EquipmentService,
         SchoolProfileService,
         AccreditationReviewService,
