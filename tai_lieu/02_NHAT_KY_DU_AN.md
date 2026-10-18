@@ -14,6 +14,27 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-18 — DT-16 phần 16g: nhóm Học sinh đủ theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu năm học: tệp `0056_add_student_records_so` thêm số thứ tự trong lớp, cột xóa hồ sơ, xác thực số định danh, biến động cư trú của `children`, bảng `student_learning_accounts`, `student_transfers`, ba loại nhập mới.
+- Máy chủ API: mô đun `student-records` (xóa hồ sơ nháp, mã Bộ, tệp 82 cột theo mẫu Bộ, file lỗi, sắp xếp học sinh, điện thoại nhận tin hàng loạt, chuyển lớp hàng loạt, số định danh, tài khoản học và thi, chuyển trường, công cụ nhập 82 cột); nhập điện thoại nhận tin, số định danh, địa chỉ mới bằng bộ nhập chung; sửa, xóa dòng đối chiếu địa danh.
+- Cổng quản trị: 4.1.1 đủ nút; màn hình mới 4.1.2, 4.1.3, 4.1.5, 4.1.8, 4.1.10, 5.4, 5.5; 4.2 chuyển lớp hàng loạt và khối chuyển trường; 4.1.11 nhập địa chỉ mới, sửa, xóa dòng đối chiếu.
+- Thêm chức năng P02-18 đến P02-23, kịch bản CT-534 đến CT-550, tiêu chí AC-578 đến AC-594, quy tắc BR-124, quy tắc phân quyền PQ-74, màn hình MH-116 đến MH-122. Kết quả ngày 18/10/2026: 13 ca kiểm thử đơn vị và 4 ca kiểm thử giao diện của phần 16g đạt; kiểm thử đơn vị toàn bộ 810/810, kiểm thử giao diện toàn bộ 122/123 ca đạt (ca hỏng là CT-15a-7 của `01-login.spec.ts`: trang đăng nhập chưa hiện kịp ở đầu lượt chạy, không liên quan phần này, đạt ở các lần chạy trước và sau; ở lần chạy khác hỏng `04-accounts` do tài khoản còn lại trong cơ sở dữ liệu định danh của lần chạy trước và CT-16a-10 do tiến trình xuất nền nhận tác vụ sớm, cũng không liên quan).
+
+#### Quyết định
+
+- Eric quyết định ngày 2026-10-16 làm đủ mọi tính năng đã khảo sát của hệ thống Sở (tài liệu 31); tính năng cần hệ thống ngoài làm bản chạy nội bộ với nhãn đúng việc làm được. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: chỉ xóa hồ sơ nháp và không xóa cứng; tài khoản học và thi lưu nội bộ vì trẻ mầm non không tự đăng nhập; danh sách trùng là hồ sơ nghi trùng cùng họ tên, ngày sinh; danh mục tổ/thôn lấy từ hồ sơ đang có; trang nhập chung đánh số 4.1.13; không dùng tệp định danh `0048`.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-126, `07_QUY_TAC_NGHIEP_VU.md` BR-124, `08_VAI_TRO_NGUOI_DUNG.md` PQ-74, `10_YEU_CAU_CHUC_NANG.md` P02-18 đến P02-23, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-02, MH-40, MH-85, MH-94, MH-116 đến MH-122, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.76.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7.
+
+#### Vấn đề tồn đọng
+
+- Kết nối thật tới CSDL Bộ, CSDLQG về dân cư, liên thông giữa các trường chờ giao diện lập trình; tài khoản học và thi chờ phần mềm học, thi.
+
 ### 2026-10-17 — DT-16 phần 16h: sức khỏe, dinh dưỡng và thống kê học sinh theo hệ thống của Sở
 
 #### Công việc đã thực hiện
