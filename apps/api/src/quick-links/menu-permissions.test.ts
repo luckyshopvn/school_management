@@ -166,6 +166,11 @@ function legacyVisibility(has: (code: string) => boolean): Partial<Record<Portal
     '/facility-report': canViewFacilities || canManageSchoolProfile,
     '/equipment-outside': canViewFacilities || canManageEquipment,
     '/equipment-submission': canViewFacilities,
+    // Quản lý kí hồ sơ (DT-16 phần 16k), mục mới không có điều kiện cũ
+    '/signing-certificate': has('P01.signing.view') || has('P01.signing.certificate'),
+    '/signing-certificate-sync': has('P01.signing.view') || has('P01.signing.certificate'),
+    '/signing-dossiers': has('P01.signing.view') || has('P01.signing.manage') || has('P01.signing.sign'),
+    '/signing-submissions': has('P01.signing.view') || has('P01.signing.manage'),
     // Quản trị hệ thống
     '/roles': canSeeAccounts,
     '/accounts': canSeeAccounts,

@@ -106,7 +106,15 @@ async function buildWorkbook(sheets: TableFileSheet[], createdAt: Date): Promise
   return Buffer.from(await workbook.xlsx.writeBuffer());
 }
 
-async function buildPdf(sheets: TableFileSheet[], createdAt: Date): Promise<Buffer> {
+// Tùy chọn của tệp PDF: khổ dọc cho hồ sơ in (Quản lý kí hồ sơ, DT-16 phần 16k); closing là phần thêm sau các bảng (ví dụ
+// khối xác nhận kí, ảnh con dấu dạng data:image) và subject ghi vào thông tin tệp
+export interface PdfOptions {
+  orientation?: 'portrait' | 'landscape';
+  closing?: PdfContent[];
+  subject?: string;
+}
+
+export async function buildPdf(sheets: TableFileSheet[], createdAt: Date, options: PdfOptions = {}): Promise<Buffer> {
   ensureFonts();
   const content: PdfContent[] = [];
   sheets.forEach((sheet, sheetIndex) => {
@@ -143,16 +151,20 @@ async function buildPdf(sheets: TableFileSheet[], createdAt: Date): Promise<Buff
   const stamp = createdAt.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
   const definition: PdfDocumentDefinition = {
     pageSize: 'A4',
-    pageOrientation: 'landscape',
+    pageOrientation: options.orientation ?? 'landscape',
     pageMargins: [24, 28, 24, 32],
-    info: { title: sheets[0]?.title ?? 'Danh sách', creator: 'School Management' },
+    info: {
+      title: sheets[0]?.title ?? 'Danh sách',
+      creator: 'School Management',
+      ...(options.subject ? { subject: options.subject } : {}),
+    },
     defaultStyle: { font: 'Roboto', fontSize: 8 },
     styles: {
       title: { fontSize: 12, bold: true, margin: [0, 0, 0, 2] },
       note: { fontSize: 9, margin: [0, 0, 0, 2] },
       header: { bold: true },
     },
-    content: [...content],
+    content: [...content, ...(options.closing ?? [])],
     footer: (currentPage: number, pageCount: number) => ({
       columns: [
         { text: `Xuất lúc ${stamp}`, fontSize: 7 },

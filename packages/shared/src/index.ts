@@ -8,6 +8,7 @@ export * from './classes.js';
 export * from './student-health.js';
 export * from './students.js';
 export * from './emis.js';
+export * from './signing.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -170,6 +171,11 @@ export const PERMISSION_CODES = {
   archiveExport: 'P09.archive.export',
   // Soạn thông báo hệ thống bật lên khi vào cổng quản trị, cấu hình ứng dụng liên kết (DT-16 phần 16c)
   announcementManage: 'P01.announcement.manage',
+  // Quản lý kí hồ sơ, mục 6 của Sở, bản chạy nội bộ (DT-16 phần 16k)
+  signingView: 'P01.signing.view',
+  signingManage: 'P01.signing.manage',
+  signingSign: 'P01.signing.sign',
+  signingCertificate: 'P01.signing.certificate',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -345,6 +351,11 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/facility-report',
   '/equipment-outside',
   '/equipment-submission',
+  // Quản lý kí hồ sơ (DT-16 phần 16k)
+  '/signing-certificate',
+  '/signing-certificate-sync',
+  '/signing-dossiers',
+  '/signing-submissions',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -449,6 +460,9 @@ export const DATA_GRID_KEYS = [
   'national-id-progress',
   'national-id-duplicates',
   'student-transfers',
+  // Quản lý kí hồ sơ (DT-16 phần 16k)
+  'signing-dossiers',
+  'signing-submissions',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

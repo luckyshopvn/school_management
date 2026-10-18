@@ -8,6 +8,7 @@ export type PortalWorkspaceKey =
   | 'education'
   | 'facilities'
   | 'emis'
+  | 'signing'
   | 'system'
   | 'finance'
   | 'personnel'
@@ -155,6 +156,20 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('2.2.', 'Báo cáo đội ngũ', '/emis/staff'),
         leaf('2.3.', 'Đề án ngoại ngữ', '/emis/foreign-language'),
         leaf('2.4.', 'Báo cáo giáo dục mầm non cuối năm', '/emis/preschool-end-of-year'),
+      ]),
+    ],
+  },
+  {
+    // Mục 6 của Sở, bản chạy nội bộ (DT-16 phần 16k): không có chữ ký số thật nên mục 2.2 gọi "Kí hồ sơ" thay cho "Ký số
+    // hồ sơ"; tên nhóm 1., 2. khảo sát chưa ghi, Claude tự đặt
+    key: 'signing',
+    label: 'Quản lý kí hồ sơ',
+    menu: [
+      group('1.', 'Chứng thư số', [leaf('1.1.', 'Chứng thư số nhà trường', '/signing-certificate')]),
+      group('2.', 'Kí hồ sơ', [
+        leaf('2.1.', 'Đồng bộ chứng thư số', '/signing-certificate-sync'),
+        leaf('2.2.', 'Kí hồ sơ trường, lớp, nhân sự, học sinh', '/signing-dossiers'),
+        leaf('2.3.', 'Xác nhận hoàn thành và gửi hồ sơ', '/signing-submissions'),
       ]),
     ],
   },
