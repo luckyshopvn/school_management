@@ -205,7 +205,7 @@ test('CT-16a-11: 1.1 Báo cáo EMIS đầu năm gửi lên cấp trên: xuất t
   await signIn(page, 'VT-02', null);
   await openMenu(page, '/emis');
   const panel = page.getByRole('region', { name: 'Gửi lên cấp trên' });
-  const row = panel.getByRole('row', { name: 'Biểu mẫu Báo cáo EMIS đầu năm – Biểu 1' });
+  const row = panel.getByRole('row', { name: 'Biểu mẫu 1.1 Báo cáo EMIS đầu năm' });
   await expect(row).toContainText('Chưa gửi');
   await expect(panel.getByRole('button', { name: 'Gửi', exact: true })).toHaveCount(0);
   await row.getByRole('button', { name: 'Xuất tệp gửi' }).click();

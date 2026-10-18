@@ -75,7 +75,7 @@ test('Hiệu trưởng ghi hồ sơ trường, khai báo phòng, nhập thiết 
   await page.getByRole('tab', { name: 'Danh mục tối thiểu', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Danh mục thiết bị' })).toContainText('Cần đối chiếu văn bản');
 
-  // Báo cáo EMIS đầu năm: xem thẻ Học sinh, xuất Excel năm trang
+  // Báo cáo EMIS đầu năm: xem thẻ Học sinh, xuất Excel sáu trang (thẻ Ngân sách nhà nước từ DT-16 phần 16j)
   await openMenu(page, '/emis');
   await expect(page.getByRole('heading', { name: '1.1 Báo cáo EMIS đầu năm' })).toBeVisible();
   await page.getByRole('tab', { name: 'Phòng học' }).click();
@@ -94,5 +94,6 @@ test('Hiệu trưởng ghi hồ sơ trường, khai báo phòng, nhập thiết 
     'Học sinh theo độ tuổi',
     'Đội ngũ',
     'Phòng học',
+    'Ngân sách nhà nước',
   ]);
 });
