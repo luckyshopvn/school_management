@@ -1,5 +1,6 @@
 import type { MoetProfileEntry } from '../imports/MoetProfileSection.js';
-import { ApiError, fetchWithSession, readError, requestJson } from '../session/api-client.js';
+import { downloadExport, type ExportFormat } from '../exports/export-api.js';
+import { ApiError, requestJson } from '../session/api-client.js';
 
 // Gọi nhóm điểm cuối hồ sơ trẻ và tệp đính kèm của máy chủ API (QT-01, YCTD-45)
 export type ChildStatus = 'draft' | 'pending' | 'active' | 'paused' | 'withdrawn' | 'graduated';
@@ -45,6 +46,10 @@ export interface ChildListItem {
   can_swim: boolean | null;
   contact_phone: string | null;
   sms_phone: string | null;
+  // Xác thực số định danh, biến động cư trú (DT-16 phần 16g)
+  national_id_verified_at?: string | null;
+  national_id_verified_by_name?: string | null;
+  residence_change_note?: string | null;
 }
 
 export interface ChildGuardian {
@@ -107,6 +112,16 @@ export interface ChildDetail extends Pick<
   current_class: ChildEnrollment | null;
   // Thông tin theo CSDL ngành, chỉ đọc (YCTD-100)
   moet_profile?: MoetProfileEntry[] | null;
+  // Dân tộc, diện chính sách, khuyết tật, biết bơi sửa được (DT-16 phần 16g); null khi không được xem
+  moet_fields?: {
+    ethnicity: string | null;
+    policy_target: string | null;
+    disability_type: string | null;
+    can_swim: boolean;
+  } | null;
+  national_id_verified_at?: string | null;
+  national_id_verified_by_name?: string | null;
+  residence_change_note?: string | null;
 }
 
 export interface ChildPage {
@@ -165,9 +180,12 @@ export interface StudentFilter {
   can_swim?: string;
   moet_student_code?: string;
   national_id?: string;
+  // Chưa có mã định danh Bộ GD&ĐT; số định danh đã xác thực (DT-16 phần 16g)
+  missing_moet_code?: boolean;
+  national_id_verified?: string;
 }
 
-function filterParameters(filter: StudentFilter): URLSearchParams {
+export function filterParameters(filter: StudentFilter): URLSearchParams {
   const parameters = new URLSearchParams();
   for (const [key, value] of Object.entries(filter)) {
     if (value === true) {
@@ -187,30 +205,16 @@ export function listChildren(filter: StudentFilter & { page: number; pageSize?: 
   return requestJson(`/api/v1/children?${parameters.toString()}`);
 }
 
-// Tải tệp do máy chủ tạo; máy chủ ghi nhật ký xuất rồi trả tệp (dùng chung cho danh sách lớp, YCTD-111)
-export async function downloadPost(path: string, body: unknown, fallbackName: string): Promise<void> {
-  const response = await fetchWithSession(path, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  if (!response.ok) {
-    throw await readError(response);
-  }
-  const disposition = response.headers.get('content-disposition') ?? '';
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(await response.blob());
-  link.download = /filename="([^"]+)"/.exec(disposition)?.[1] ?? fallbackName;
-  link.click();
-  setTimeout(() => URL.revokeObjectURL(link.href), 10_000);
-}
+// Tải tệp do máy chủ tạo; máy chủ ghi nhật ký xuất rồi trả tệp (dùng chung cho danh sách lớp, YCTD-111, và nhân sự); danh
+// sách lớn trả lời nhắn đã tạo tác vụ xuất nền (DT-16 phần 16a)
+export const downloadPost = downloadExport;
 
 // Xuất Excel danh sách học sinh theo bộ lọc và các cột đang hiện trên lưới
-export const exportChildren = (filter: StudentFilter, columns: string[]) =>
+export const exportChildren = (filter: StudentFilter, columns: string[], format: ExportFormat = 'xlsx') =>
   downloadPost(
     '/api/v1/children/export',
-    { ...Object.fromEntries(filterParameters(filter)), columns },
-    'danh-sach-hoc-sinh.xlsx',
+    { ...Object.fromEntries(filterParameters(filter)), columns, format },
+    `danh-sach-hoc-sinh.${format}`,
   );
 
 // Cập nhật hàng loạt học 2 buổi/ngày, bán trú (mục 4.1.12 của Sở)
@@ -284,11 +288,11 @@ export function listMovements(filter: MovementFilter, page: number, pageSize: nu
   return requestJson(`/api/v1/student-movements?${parameters.toString()}`);
 }
 
-export const exportMovements = (filter: MovementFilter) =>
+export const exportMovements = (filter: MovementFilter, format: ExportFormat = 'xlsx') =>
   downloadPost(
     '/api/v1/student-movements/export',
-    Object.fromEntries(movementParameters(filter)),
-    'bien-dong-hoc-sinh.xlsx',
+    { ...Object.fromEntries(movementParameters(filter)), format },
+    `bien-dong-hoc-sinh.${format}`,
   );
 
 export const readChild = (childId: string): Promise<ChildDetail> => requestJson(`/api/v1/children/${childId}`);

@@ -4,14 +4,31 @@ export {
   dropDatabaseIfExists,
   listDatabasesWithPrefix,
   makeDatabaseReadOnly,
+  makeDatabaseWritable,
 } from './database-administration.js';
 export { readConnectionString, replaceDatabaseName, type ServiceDatabaseKind } from './environment.js';
 export { migrateToLatest, schoolYearDatabasesToMigrate, type DatabaseKind } from './migrate.js';
 export type { ApiClientScope, IdentityDatabase, LoginMethod, SessionChannel, UserStatus } from '../identity/schema.js';
+export { administrativeNameKey } from '../system/administrative-names.js';
 export type {
   AcademicTermType,
+  AdministrativeLevel,
+  AdministrativePeriod,
+  AdministrativeSource,
   AcademicYearDatabaseStatus,
   AcademicYearStatus,
+  ArchiveRecordStatus,
+  ArchiveRetention,
+  ExportJobFormat,
+  ExportJobStatus,
+  UpperLevelSubmissionAction,
+  SigningSignatureType,
+  SigningCertificateStatus,
+  SigningSyncStatus,
+  SigningObjectType,
+  SigningDossierStatus,
+  SigningEventAction,
+  UpperLevelSubmissionStatus,
   UserFeedbackStatus,
   UserFeedbackType,
   IntegrationCredentialConnector,
@@ -29,6 +46,8 @@ export type {
   CatalogStatus,
   ChildGender,
   ChildStatus,
+  StudentTransferDirection,
+  StudentTransferStatus,
   ClassAgeGroup,
   ClassStatus,
   ContractType,
@@ -76,6 +95,7 @@ export type {
   SettlementLine,
   JournalMood,
   SchoolYearDatabase,
+  SchoolSplitStatus,
   ServiceCalculationMethod,
   WorkScheduleType,
   HealthIndicator,
@@ -87,6 +107,9 @@ export type {
   MedicalEventSeverity,
   MealType,
   MenuStatus,
+  PhysicalEducationResult,
+  StudentHealthTerm,
+  EmisValues,
   MarketPurchaseStatus,
   MarketPurchasePaymentStatus,
   MedicationRequestStatus,
@@ -143,6 +166,12 @@ export type {
   ProfessionalStandardType,
   ProfessionalLevel,
   ProfessionalEvaluationStatus,
+  StaffIdVerificationStatus,
+  StaffMovementType,
+  StaffMovementStatus,
+  FacilityInvestmentCategory,
+  FacilityStandardLevel,
+  FacilityImportType,
 } from '../school-year/schema.js';
 export { DEFAULT_TAX_TABLE_ID } from '../school-year/migrations/0022_create_payrolls.js';
 export { MEAL_SERVICE_ID } from '../school-year/migrations/0010_create_fee_catalogs.js';

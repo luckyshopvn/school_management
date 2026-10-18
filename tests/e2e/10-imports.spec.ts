@@ -77,12 +77,12 @@ test('Hiệu trưởng nhập lớp rồi nhập trẻ kèm phụ huynh; trẻ n
       ['Mã đơn vị', 'Mã lớp', 'Tên lớp', 'Mã bậc học', 'Sĩ số tối đa', 'Mã phòng'],
       [['PH-A', 'MAM9', 'Mầm 9', 'MAM', '20', '']],
     ),
-    'Kiểm tra tệp',
+    'Tải lên',
   );
   await expect(classes).toContainText('Không có dòng lỗi, sẵn sàng ghi');
   await classes.getByRole('button', { name: 'Ghi dữ liệu' }).click();
   await expect(classes).toContainText('Đã ghi dữ liệu');
-  await openMenu(page, '/imports');
+  await openMenu(page, '/student-imports');
   await expect(page.getByRole('region', { name: 'Lớp học' })).toHaveCount(0);
 
   const childHeaders = [
@@ -136,13 +136,13 @@ test('Hiệu trưởng nhập lớp rồi nhập trẻ kèm phụ huynh; trẻ n
     page,
     'Trẻ và phụ huynh',
     await workbook(childHeaders, [[...row.slice(0, 9), '', ...row.slice(10)]]),
-    'Kiểm tra tệp',
+    'Tải lên',
   );
   await expect(broken).toContainText('Còn dòng lỗi');
   await expect(broken.getByRole('table', { name: 'Báo cáo dòng lỗi' })).toContainText('Dị ứng');
   await expect(broken.getByRole('button', { name: 'Ghi dữ liệu' })).toHaveCount(0);
 
-  const children = await upload(page, 'Trẻ và phụ huynh', await workbook(childHeaders, [row]), 'Kiểm tra tệp');
+  const children = await upload(page, 'Trẻ và phụ huynh', await workbook(childHeaders, [row]), 'Tải lên');
   await expect(children).toContainText('Không có dòng lỗi, sẵn sàng ghi');
   await children.getByRole('button', { name: 'Ghi dữ liệu' }).click();
   await expect(children).toContainText('Đã ghi dữ liệu');

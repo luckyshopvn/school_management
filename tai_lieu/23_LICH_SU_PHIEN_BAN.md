@@ -1,8 +1,8 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.4
-- Ngày cập nhật: 2026-10-15
+- Phiên bản: 0.10
+- Ngày cập nhật: 2026-10-18
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
 
@@ -15,6 +15,177 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.80.0 – 2026-10-18
+
+- Phạm vi thay đổi: DT-16 phần 16k, phân hệ Quản lý kí hồ sơ theo hệ thống của Sở, bản chạy nội bộ (YCTD-130). Phần cuối của DT-16.
+- Chức năng mới: phân hệ "Quản lý kí hồ sơ" trên ô chọn phân hệ: "1.1. Chứng thư số nhà trường" (thông tin chứng thư, ảnh con dấu, Đăng ký kí nội bộ), "2.1. Đồng bộ chứng thư số" (Đánh dấu đã đồng bộ), "2.2. Kí hồ sơ trường, lớp, nhân sự, học sinh" (thẻ Trường, Lớp, Nhân sự, Học sinh, Sổ đầu bài; Tạo hồ sơ PDF, Kí xác nhận nội bộ, Tải thông tin thay đổi, Hủy hồ sơ, Xuất dữ liệu sổ đầu bài), "2.3. Xác nhận hoàn thành và gửi hồ sơ" (Xác nhận hoàn thành, Hủy xác nhận, Tải tệp gửi, Đánh dấu đã gửi) (P01-28 đến P01-31). Không có chữ ký số thật.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp hệ thống `0015_create_signing_tables` (bảng `signing_certificates`, `signing_dossiers`, `signing_events`, dãy số `signing_dossier_code`); tệp định danh `0049_add_signing_permissions` (bốn quyền P01, bỏ phân hệ mới khỏi nhóm Phụ huynh). Không có migration năm học.
+- Thay đổi API: nhóm điểm cuối mới `/signing` (tài liệu 17 mục 5, mục 17); `buildPdf` của công cụ xuất dùng chung nhận thêm khổ dọc và phần cuối tài liệu.
+- Kiểm thử: kịch bản CT-589 đến CT-598. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 848/848 ca đạt; toàn bộ kiểm thử giao diện 133/133 ca đạt (CI, lượt chạy 39121128162); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: tệp đã kí là xác nhận trên phần mềm, không có giá trị pháp lý của chữ ký số; nội dung hồ sơ PDF chưa đối chiếu mẫu của Sở; hồ sơ không truyền lên cấp trên, người dùng nộp tệp và đánh dấu.
+- Khả năng tương thích: thêm phân hệ, không đổi chức năng cũ; nhóm người dùng tự tạo thấy phân hệ mới khi có quyền (phân hệ thêm sau mặc định hiện, YCTD-120).
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16k; chạy phần quay lui của tệp hệ thống `0015` (xóa ba bảng, dãy số) và tệp định danh `0049` (xóa quyền, dòng loại trừ phân hệ). Tệp PDF, ảnh con dấu ở kho tệp (tiền tố `signing-dossier/`, `signing-seal/`) xóa tay nếu cần.
+
+### Phiên bản 0.79.0 – 2026-10-18
+
+- Phạm vi thay đổi: DT-16 phần 16j, báo cáo số liệu EMIS theo hệ thống của Sở (YCTD-129).
+- Chức năng mới: phân hệ "Báo cáo số liệu" đủ bảy biểu: 1.1 thêm thẻ nhập tay "Ngân sách nhà nước"; mục mới "1.2. Báo cáo cơ sở vật chất" (năm thẻ nhập tay, Lấy dữ liệu, Lấy dữ liệu năm trước), "1.3. Báo cáo sức khỏe học sinh đầu năm" (cột theo Sở), "2.1. Báo cáo EMIS cuối năm" (sáu mục I đến VI), "2.2. Báo cáo đội ngũ" (ba thẻ), "2.3. Đề án ngoại ngữ" (hai thẻ nhập tay, đánh dấu trường không có dữ liệu), "2.4. Báo cáo giáo dục mầm non cuối năm"; màn hình chung có Ghi, khóa khi đã đánh dấu đã gửi, Xuất Excel in tên đơn vị hành chính; danh sách gửi báo cáo bảy biểu kèm số đã gửi, số cần gửi, lần gửi cuối; nút "Xuất file lỗi" ở mỗi dòng biểu (P17-24 đến P17-28, sửa P17-18, P17-20, P17-22).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0059_create_emis_report_values` tạo bảng `emis_report_values`. Không có migration hệ thống, định danh.
+- Thay đổi API: điểm cuối mới `GET /reports/emis/forms/{form}`, `PUT /reports/emis/forms/{form}/tabs/{tab}`, `POST /reports/emis/forms/{form}/tabs/{tab}/fill`, `POST /reports/emis/forms/{form}/export`, `POST /upper-level-submissions/{form}/error-file`; nhóm `/upper-level-submissions` nhận thêm mã sáu biểu mới; tệp gửi của 1.1 sáu trang.
+- Kiểm thử: kịch bản CT-580 đến CT-588. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 832/832 ca đạt; toàn bộ kiểm thử giao diện 131/131 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: tên, mã số chỉ tiêu của bảy biểu do Claude đặt, chưa đối chiếu biểu mẫu chính thức của Sở; không truyền dữ liệu lên Bộ, Sở, người dùng phải gửi tệp và đánh dấu trạng thái; 2.1, 2.4 tính tại thời điểm xem.
+- Khả năng tương thích: giữ `GET /reports/emis/start-of-year`, `POST /reports/emis/start-of-year/export`, `GET /reports/emis/start-of-year-health`; trạng thái gửi đã có của 1.1 giữ nguyên (cùng mã `emis-start-of-year`); tệp Excel 1.1 thêm trang thứ sáu ở cuối, năm trang đầu như cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16j; chạy phần quay lui của tệp năm học `0059` (xóa bảng `emis_report_values`). Dòng `upper_level_submissions` của sáu biểu mới không còn được đọc, xóa tay nếu cần.
+
+### Phiên bản 0.78.0 – 2026-10-18
+
+- Phạm vi thay đổi: DT-16 phần 16i, cơ sở vật chất và thiết bị dạy học đủ theo hệ thống của Sở (YCTD-128).
+- Chức năng mới: mục "1.2. Báo cáo cơ sở vật chất" (số liệu phòng theo khối, loại phòng và hiện trạng; nhà vệ sinh; mức độ đạt chuẩn theo khối; Xuất Excel, Xuất PDF; gửi lên cấp trên chạy nội bộ); "6.1. Thực trạng và nhu cầu đầu tư phòng học, nhà công vụ" (lấy số liệu từ khai báo phòng, Ghi, Xuất Excel); "6.2. Nhập liệu cơ sở vật chất"; "2.2. Thiết bị ngoài danh mục tối thiểu" thành mục riêng; "2.3. Gửi thiết bị dạy học lên cấp trên" (Xuất tệp gửi, Đánh dấu đã gửi, Trường không có dữ liệu); nhập phòng và danh mục thiết bị từ Excel; thông tin nhà vệ sinh của phòng; gắn tài sản với thiết bị ở Kho.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0058_add_facilities_so_parity` tạo ba bảng `facility_investments`, `facility_standard_levels`, `facility_import_jobs`; bốn khóa nhà vệ sinh mới trong `rooms.facility_attributes` (jsonb, không đổi cấu trúc).
+- Thay đổi API: điểm cuối mới `/facilities/report`, `/facilities/report/standard-levels`, `/facilities/report/export`, `/facilities/investments`, `/facilities/investments/export`, nhóm `/facility-imports`; hai biểu mẫu gửi lên cấp trên `facilities-report`, `equipment-summary`; `/rooms` nhận bốn thuộc tính nhà vệ sinh.
+- Kiểm thử: kịch bản CT-572 đến CT-579. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 832/832 ca đạt; toàn bộ kiểm thử giao diện 130/130 ca đạt (CI, lượt chạy 39103041728; CT-15a-8 của `01-login.spec.ts` sửa theo nhóm menu mới "6. Cơ sở vật chất"); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: gửi lên cấp trên không truyền dữ liệu, người dùng phải nộp tệp và đánh dấu; mức độ đạt chuẩn, thuộc tính nhà vệ sinh do Claude chọn, chưa đối chiếu biểu mẫu chính thức.
+- Khả năng tương thích: phòng cũ không có thuộc tính nhà vệ sinh vẫn hợp lệ; `/rooms` không gửi thuộc tính mới thì như cũ; 2.1 bỏ thẻ 2.2 nhưng dữ liệu, điểm cuối không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16i; chạy phần quay lui của tệp năm học `0058` (xóa ba bảng). Khóa nhà vệ sinh đã lưu trong `facility_attributes` khiến bản cũ từ chối khi sửa phòng đó, xóa tay các khóa này nếu quay lui.
+
+### Phiên bản 0.77.0 – 2026-10-18
+
+- Phạm vi thay đổi: DT-16 phần 16e, trường, lớp và lịch năm học theo hệ thống của Sở (YCTD-127).
+- Chức năng mới: 1.4 khối "Cấu hình trường" (Tên trường hiển thị, Tên đơn vị hành chính, tính cân nặng/chiều cao cho trẻ suy dinh dưỡng thể nhẹ cân); mục "1.7. Rà soát thông tin kiểm định CLGD" (Lấy dữ liệu, Ghi); mục "1.8. Tách trường" bản chạy nội bộ (yêu cầu tách, xác nhận đi, đánh dấu đã tiếp nhận, xuất hồ sơ 82 cột, 75 cột theo mẫu CSDL ngành); 2.1 chọn nhiều lớp, Thay đổi hàng loạt, Giải thể lớp đã chọn, Xóa lớp; 2.2 bảy cột lớp theo Sở; 3.3 dòng giáo viên chưa phân công, lọc tình trạng phân công; mục "3.4. Khai báo tuần"; mục "5.7. Chuyển hồ sơ lên năm học mới" (Thực hiện, Hủy) (P01-24 đến P01-27, sửa P01-08, P01-13, P02-05).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0054_create_accreditation_reviews_and_school_splits` tạo ba bảng `accreditation_reviews`, `school_split_requests`, `school_split_items`; tệp hệ thống `0013_add_school_week_fields_and_carry_over_time` thêm `school_weeks.term_type`, `school_weeks.is_visible`, `academic_year_databases.carried_over_at`; bảng `settings` có thêm kiểu giá trị `text` và ba khóa của Trường chính, không đổi cấu trúc.
+- Thay đổi API: điểm cuối mới `/academic-years/rollover/status`, `/academic-years/{id}/cancel-open`, `/classes/delete`, `/classes/bulk-update`, `/accreditation-review`, `/accreditation-review/collect`, nhóm `/school-splits`; `PUT /settings` nhận ba khóa mới; `/academic-years/{id}/weeks` thêm `term`, `term_type`, `is_visible`; `/class-assignments` lọc thêm `assignment`; nhập lớp thêm bảy cột; `/portal-context`, `/public/login-info` lấy tên trường hiển thị.
+- Kiểm thử: kịch bản CT-551 đến CT-571. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 825/825 ca đạt; toàn bộ kiểm thử giao diện 129/129 ca đạt (CI, lượt chạy 39086989582); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: Hủy chuyển hồ sơ xóa cơ sở dữ liệu năm học mới, không hoàn tác được (chỉ cho khi năm mới chưa phát sinh dữ liệu); tách trường không truyền dữ liệu, người dùng phải gửi tệp và đánh dấu trạng thái; phòng bộ môn, diện tích sàn ở 1.7 do Claude chọn cách tính, chưa đối chiếu biểu mẫu kiểm định.
+- Khả năng tương thích: ô cân nặng/chiều cao cho trẻ nhẹ cân mặc định bật nên 4.3.2 tính như cũ; chưa đặt tên trường hiển thị thì vẫn dùng tên Trường chính; `PATCH /academic-years/{id}/weeks` không gửi `term_type`, `is_visible` thì giữ giá trị cũ; `GET /class-assignments` không gửi `assignment` vẫn trả dòng đã phân công như cũ, thêm dòng chưa phân công khi người gọi đọc được danh bạ; năm học mở trước phần 16e không có `carried_over_at` nên không hủy được.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16e; chạy phần quay lui của tệp năm học `0054` (xóa ba bảng) và tệp hệ thống `0013` (xóa ba cột). Ba khóa cấu hình đã lưu ở bảng `settings` không còn được đọc, xóa tay nếu cần.
+
+### Phiên bản 0.76.0 – 2026-10-18
+
+- Phạm vi thay đổi: DT-16 phần 16g, nhóm Học sinh của phân hệ Quản lý giáo dục Mầm non đủ theo hệ thống của Sở (YCTD-126).
+- Chức năng mới: 4.1.1 có Thay đổi, Xóa hồ sơ nháp, Cấp mã định danh Bộ (ghi tay, xuất tệp 82 cột theo mẫu Bộ), Xuất file lỗi, sửa dân tộc, diện chính sách, khuyết tật, biết bơi; màn hình mới 4.1.2 Nhập học sinh từ Excel (mẫu 82 cột, kèm dữ liệu, tra cứu danh mục, đồng ý cập nhật), 4.1.3 Sắp xếp học sinh, 4.1.5 Điện thoại nhận tin của phụ huynh, 4.1.8 Thu thập, xác thực số định danh (nội bộ), 4.1.10 Tài khoản học và thi (nội bộ), 5.4 Mã định danh, mật khẩu mặc định, 5.5 Tiến độ xác thực số định danh học sinh; 4.1.11 nhập địa chỉ mới, sửa, xóa dòng đối chiếu, loại "Chuyển đến từ"; 4.2 chuyển lớp hàng loạt, chuyển đi, tiếp nhận chuyển đến (nội bộ).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0056_add_student_records_so` thêm `class_enrollments.order_number`, sáu cột của `children`, bảng `student_learning_accounts`, `student_transfers`, ba loại nhập mới của `data_import_jobs`.
+- Thay đổi API: điểm cuối mới của xóa hồ sơ, mã Bộ, tệp theo mẫu Bộ, file lỗi, điện thoại nhận tin, chuyển lớp hàng loạt, thứ tự học sinh, số định danh, tài khoản học và thi, chuyển trường, công cụ nhập 82 cột, sửa, xóa dòng đối chiếu; `POST /imports/{id}/commit` nhận `confirm_update` (xem `17_DAC_TA_API.md`).
+- Kiểm thử: kịch bản CT-534 đến CT-550. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã 810/810 ca đạt; toàn bộ kiểm thử giao diện 122/123 ca đạt (ca hỏng là CT-15a-7 của `01-login.spec.ts`: trang đăng nhập chưa hiện kịp ở đầu lượt chạy, không liên quan phần này, đạt ở các lần chạy trước và sau; ở lần chạy khác hỏng `04-accounts` do tài khoản còn lại trong cơ sở dữ liệu định danh của lần chạy trước và CT-16a-10 do tiến trình xuất nền nhận tác vụ sớm, cũng không liên quan).
+- Rủi ro: chưa có kết nối thật tới CSDL Bộ, CSDLQG về dân cư, trường khác; tài khoản học và thi chưa dùng đăng nhập được; tệp CSDL ngành cập nhật học sinh đã có cần đánh dấu đồng ý nên cách nhập cũ qua giao diện lập trình phải gửi `confirm_update`.
+- Khả năng tương thích: cột mới mặc định null nên hồ sơ đã có không đổi nghĩa; hồ sơ chưa sắp xếp theo A–Z như trước; trang nhập dữ liệu chung chỉ còn công nợ đầu kỳ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16g; chạy phần quay lui của tệp `0056` (xóa lần nhập ba loại mới, trả ràng buộc loại nhập, xóa hai bảng và các cột mới).
+
+### Phiên bản 0.75.0 – 2026-10-17
+
+- Phạm vi thay đổi: DT-16 phần 16h, sức khỏe, dinh dưỡng và thống kê học sinh theo hệ thống của Sở (YCTD-125).
+- Chức năng mới: mục "4.6.1. Nhập thông tin sức khỏe học sinh" theo học kỳ (cân nặng, chiều cao, giáo dục thể chất, biết bơi, bảy loại bệnh về mắt, "Lấy dữ liệu từ 4.3", Xuất Excel); 4.3.2 tổng hợp theo học kỳ, so sánh hai lần cân đo, cột "Được khám định kỳ"; 4.5 thực đơn có tên, tháng, tuần, từ ngày, đến ngày, nhiều khối áp dụng, nút "Thay đổi" cho thực đơn nháp, nhập thực đơn từ Excel bằng công cụ nhập chung; mục "5.3. Thống kê học sinh" sáu thẻ, Xuất Excel, Xuất PDF; số liệu báo cáo sức khỏe học sinh đầu năm (dòng 1.3) cho phần 16j (P10-15, P12-10, P17-21, P17-22).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0057_add_student_health_and_menu_fields` thêm sáu cột của `menus` (`name`, `month`, `week_no`, `from_date`, `to_date`, `grade_levels`; thực đơn cũ lấy giá trị từ tuần bắt đầu và độ tuổi) kèm hai ràng buộc kiểm tra, tạo hai bảng `menu_import_jobs`, `student_health_records`.
+- Thay đổi API: điểm cuối mới `/student-health`, `/student-health/pull-growth`, `/student-health/export`, `/statistics/students`, `/statistics/students/export`, `/reports/emis/start-of-year-health`, `PUT /menus/{id}`, nhóm `/menu-imports`; `POST /menus` nhận thêm thông tin chung theo Sở; `GET /menus` lọc thêm `month`; `/reports/growth` nhận thêm `term`, `compare_round_id`, trả thêm `comparison` và số được khám định kỳ.
+- Kiểm thử: kịch bản CT-524 đến CT-533. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 787/787 ca đạt; toàn bộ kiểm thử giao diện 115/115 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: chỉ tiêu của báo cáo sức khỏe đầu năm do Claude đặt, chưa đối chiếu biểu mẫu chính thức của Sở; con thương binh, liệt sĩ nhận biết theo chữ trong đối tượng chính sách nên có thể sót khi hồ sơ ghi cách khác.
+- Khả năng tương thích: `POST /menus` vẫn nhận `week_start_date`, `age_group`; cột `age_group` giữ làm khóa không trùng; thực đơn chung và thực đơn riêng của khối cùng tuần vẫn cùng tồn tại được; `GET /statistics/children` không đổi; Y tế học đường, Thuốc và dặn thuốc đổi số mục thành 4.6.2, 4.6.3, đường dẫn giữ nguyên.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16h; chạy phần quay lui của tệp `0057` (xóa `student_health_records`, `menu_import_jobs`, hai ràng buộc và sáu cột mới của `menus`). Thực đơn lập sau khi gộp vẫn dùng được vì `week_start_date`, `age_group` vẫn được ghi.
+
+### Phiên bản 0.74.0 – 2026-10-17
+
+- Phạm vi thay đổi: DT-16 phần 16f, nhóm Nhân sự của phân hệ Quản lý giáo dục Mầm non đủ theo hệ thống của Sở (YCTD-124).
+- Chức năng mới: 3.1.1 có Thay đổi, Xóa hồ sơ nhập nhầm, Xuất tệp theo mẫu Bộ (75 cột kèm kiểm tra dữ liệu), Xuất file lỗi, lọc xã ĐBKK và trạng thái xác thực số định danh; hồ sơ có danh mục của Bộ, tài khoản ngân hàng, mã số thuế, xã ĐBKK; 3.1.2 Nhân sự phân hiệu; 3.1.3 Nhập nhân sự từ Excel (mẫu 75 cột kèm dữ liệu, tra cứu danh mục); 3.1.5 Xác thực số định danh nhân sự (bản chạy nội bộ: Đánh dấu đã xác thực, Đánh dấu sai thông tin); 3.2 Nhập mức đánh giá từ Excel; 3.5 Biến động nhân sự (tiếp nhận chuyển đến, duyệt chuyển đi, đi thỉnh giảng, đến thỉnh giảng, bản chạy nội bộ); 5.2 Thống kê nhân sự theo danh mục Bộ và chuẩn nghề nghiệp; 5.6 Tiến độ xác thực số định danh nhân sự; 5.9 thêm tài khoản ngân hàng, mã số thuế (P07-06 đến P07-10).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0055_add_staff_so_parity` thêm chín cột của `staff` (tài khoản ngân hàng, tên ngân hàng, mã số thuế, xã ĐBKK, trạng thái xác thực số định danh kèm ngày, người, ghi chú), tạo hai bảng `staff_branch_assignments`, `staff_movements`, cho `data_import_jobs.import_type` nhận thêm `professional_ratings`. Không đổi cơ sở dữ liệu định danh, hệ thống.
+- Thay đổi API: điểm cuối mới `/staff/delete`, `/staff/ministry-export`, `/staff/ministry-errors`, `/staff/ministry-template`, `/staff/ministry-catalogs`, `/staff-branches` (bốn điểm cuối), `/staff-identity` (bốn điểm cuối), `/staff-movements` (chín điểm cuối), `/statistics/staff-so`; `/staff/search`, `/staff/export` thêm bộ lọc, cột; `PATCH /staff/{id}/profile` nhận bốn trường mới; `/imports` nhận loại `professional_ratings`; `/statistics/missing-staff-fields` thêm hai trường.
+- Kiểm thử: kịch bản CT-510 đến CT-523. Kết quả ngày 17/10/2026: 10 ca kiểm thử đơn vị và 4 ca kiểm thử giao diện của phần 16f đạt; kiểm thử đơn vị toàn bộ kho mã 788/788 ca đạt; toàn bộ kiểm thử giao diện 118/118 ca đạt.
+- Rủi ro: danh mục của Bộ do Claude tổng hợp, có thể lệch danh mục chính thức; duyệt chuyển đi cho nhân sự nghỉ việc, chấm dứt hợp đồng và khóa tài khoản, duyệt nhầm phải lập lại hồ sơ, hợp đồng bằng tay; tệp theo mẫu Bộ có số định danh đủ 12 chữ số nên chỉ người có quyền xuất dữ liệu tải được và mỗi lần tải ghi nhật ký xuất.
+- Khả năng tương thích: các cột mới có giá trị mặc định (xã ĐBKK sai, chưa xác thực) nên hồ sơ đã có không đổi nghĩa; giá trị chữ tự do cũ của các ô nay theo danh mục vẫn giữ và hiện "(giá trị cũ, ngoài danh mục)"; phần nhập nhân sự rời khỏi 4.1.2 sang 3.1.3; 5.9 thêm hai trường; không đổi điểm cuối cũ ngoài các điểm đã nêu.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16f; chạy phần quay lui của tệp `0055` (xóa lần nhập `professional_ratings`, trả ràng buộc loại nhập, xóa hai bảng, xóa chín cột của `staff`).
+
+### Phiên bản 0.73.0 – 2026-10-17
+
+- Phạm vi thay đổi: DT-16 phần 16c, khung trang và đăng nhập cổng quản trị theo hệ thống của Sở (YCTD-123).
+- Chức năng mới: thanh đầu trang có tên trường, ô "Cấp MN · năm học · học kỳ", lưới ứng dụng liên kết; menu người dùng đủ bảy mục (thêm Hồ sơ nhân sự cá nhân, Hướng dẫn); hộp "Thông báo" khi vào trang (thông báo hệ thống, mật khẩu sắp hết hạn, nhắc mã định danh điện tử của tổ chức theo NĐ 69); trang đăng nhập có tên, mã trường, ghi nhớ tài khoản, mã xác nhận dạng ảnh, liên kết Quên mật khẩu, đường dây nóng; trang Quên mật khẩu gửi mã qua tin nhắn; lịch sử mật khẩu; Quản trị hệ thống thêm 3.6 Thông báo hệ thống, 3.7 Ứng dụng liên kết; 1.4 Cấu hình trường thêm khối "Đăng nhập và bảo mật" (P01-21 đến P01-23).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp định danh `0045_add_password_history_and_announcement_permission` tạo bảng `password_history`, cho `one_time_codes.purpose` nhận thêm `password_reset`, thêm quyền `P01.announcement.manage` và gán cho VT-01, VT-02; tệp hệ thống `0011_create_announcements_and_app_links` tạo hai bảng `system_announcements`, `portal_app_links`; `identity_settings` có thêm bốn khóa cấu hình đăng nhập.
+- Thay đổi API: điểm cuối mới của dịch vụ định danh `/auth/login-options`, `/auth/captcha`, `/auth/password-reset/request`, `/auth/password-reset/confirm`; `login` kênh cổng quản trị nhận `captcha_id`, `captcha_text`; `/auth/settings` thêm bốn cấu hình. Điểm cuối mới của máy chủ API `/system-announcements`, `/system-announcements/{id}`, `/system-announcements/active`, `/app-links`, `/portal-context`, `/public/login-info`, `/staff/me/contact`; `PUT /school-profile` kiểm tra mã định danh điện tử 12 chữ số.
+- Kiểm thử: kịch bản CT-489 đến CT-509. Kết quả ngày 17/10/2026: kiểm thử đơn vị toàn bộ kho mã 778/778 ca đạt; toàn bộ kiểm thử giao diện 114/114 ca đạt.
+- Rủi ro: ảnh mã xác nhận tự sinh ở mức cơ bản, không bằng dịch vụ chuyên dụng; quên mật khẩu phụ thuộc kênh tin nhắn, chưa có thư điện tử; ghi thẻ thông tin chung của hồ sơ trường cần mã định danh điện tử đúng 12 chữ số hoặc để trống.
+- Khả năng tương thích: đăng nhập cổng quản trị đòi mã xác nhận từ lần thứ tư sau ba lần sai (mặc định), ứng dụng giáo viên, phụ huynh không đổi; mã một lần của phụ huynh chỉ đọc mã mục đích đăng nhập; menu người dùng thêm hai mục; không đổi điểm cuối cũ ngoài các điểm đã nêu. Tệp `0045`, `0011` có số nhỏ hơn tệp đã gộp trước (`0046`, `0016`) nhưng vẫn chạy vì công cụ chạy tệp thay đổi cấu trúc cho chạy lệch thứ tự.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16c; chạy phần quay lui của tệp `0011` (xóa hai bảng) và `0045` (gỡ quyền, xóa mã đặt lại mật khẩu, trả ràng buộc mục đích về `login`, xóa bảng `password_history`); bốn khóa cấu hình đăng nhập ở `identity_settings` không còn được đọc, xóa thủ công nếu cần.
+
+### Phiên bản 0.72.0 – 2026-10-17
+
+- Phạm vi thay đổi: DT-15 phần 15h2, sửa các hạn chế của văn thư lưu trữ (YCTD-122).
+- Chức năng mới: phông, hồ sơ chia theo đơn vị và lọc theo phạm vi đơn vị; người giải quyết chọn từ nhân sự; nhắc sắp đến hạn, quá hạn trong ứng dụng; nhãn và bộ lọc "Sắp đến hạn"; hàng chờ xóa lại tệp ở kho tệp (P09-06 đến P09-08).
+- Lỗi đã sửa: tệp đính kèm có thể còn ở kho tệp khi kho lỗi lúc xóa.
+- Thay đổi dữ liệu: tệp hệ thống `0016_add_archive_units_handlers_reminders` thêm cột `org_unit_id` (phông, hồ sơ), `handler_staff_id`, `due_reminded_at`, `overdue_reminded_at` (hồ sơ), bảng `archive_file_deletions`.
+- Thay đổi API: điểm cuối mới `GET /archive-handlers`; trường và bộ lọc mới `org_unit_id`, `handler_staff_id`, `due_soon`.
+- Rủi ro: người chỉ có vai trò theo đơn vị không còn thấy dữ liệu văn thư toàn trường đã nhập trước.
+- Khả năng tương thích: dữ liệu cũ có đơn vị trống (toàn trường), tên người giải quyết giữ nguyên; điểm cuối cũ giữ đường dẫn và nhận thêm trường không bắt buộc.
+- Phương án quay lui: hoàn lại commit gộp; chạy phần quay lui của tệp `0016` (xóa cột và bảng mới).
+
+### Phiên bản 0.71.0 – 2026-10-17
+
+- Phạm vi thay đổi: DT-16 phần 16a, công cụ xuất, nhập dùng chung và mẫu gửi lên cấp trên chạy nội bộ theo hệ thống của Sở (YCTD-121).
+- Chức năng mới: nút "Xuất PDF" của lưới dữ liệu dùng chung (bật ở 4.1.1, 4.1.9, 2.1, 3.3, 3.1.1); tác vụ xuất nền cho danh sách lớn và màn hình "3.5. Tệp đã tạo"; thành phần nhập Excel dùng chung với tải file mẫu kèm dữ liệu, tra cứu danh mục, chọn cột để nhập, xuất file lỗi (MH-40, MH-92); nhập lớp học cập nhật lớp đã có; khối "Gửi lên cấp trên" ở 1.1 Báo cáo EMIS đầu năm với Xuất tệp gửi, Đánh dấu đã gửi, Gửi yêu cầu mở khóa, Mở khóa, Đặt trạng thái gửi lại (P01-20, P17-19, P17-20).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp hệ thống `0010_create_export_jobs_and_submissions` tạo ba bảng `export_jobs`, `upper_level_submissions`, `upper_level_submission_events`. Không thêm quyền.
+- Thay đổi API: điểm cuối mới `/export-jobs`, `/export-jobs/{id}/file`, `/imports/templates/{type}/columns`, `/imports/catalogs/{type}`, `/imports/{id}/error-file`, `/upper-level-submissions` và các thao tác theo biểu mẫu; điểm cuối xuất của năm danh sách nhận `format`, hai danh sách trả 202 kèm tác vụ khi lớn.
+- Rủi ro: tiến trình xuất nền chạy trong máy chủ API nên tệp rất lớn dùng bộ nhớ của máy chủ API; nhập lớp học nay cập nhật lớp đã có (trước báo trùng) nên tệp cũ nhập lại sẽ ghi đè tên, sĩ số, phòng của lớp.
+- Khả năng tương thích: điểm cuối cũ nhận thêm trường tùy chọn, không gửi thì như trước, trừ trả 202 thay cho 422 khi danh sách vượt 10 000 dòng; màn hình không bật Xuất PDF không đổi; ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16a; chạy phần quay lui của tệp `0010` (xóa ba bảng); tệp ở kho tệp dưới khóa `export/`, `submission/` xóa thủ công nếu cần.
+### Phiên bản 0.70.0 – 2026-10-17
+
+- Phạm vi thay đổi: DT-16 phần 16d, quản trị hệ thống đủ theo hệ thống của Sở (YCTD-120).
+- Chức năng mới: 1.1 Nhóm người dùng có Hiệu lực, Sửa, Xóa; màn hình 1.2 Phân quyền nhóm theo phần mềm (phân hệ nhóm được dùng, ẩn phân hệ khỏi ô chọn phân hệ và menu); 1.4 Danh sách người dùng có Mã nhân sự, Mã Bộ, Ngày hết hạn mật khẩu, lọc Mã định danh, ngày hết hạn mật khẩu, Phân nhóm quyền, Cấp mật khẩu hàng loạt, Lấy danh sách CBQL/GV, Xuất Excel; màn hình 1.6 Tài khoản đồng bộ của Bộ, của Sở (lưu mã hóa, bản chạy nội bộ).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp định danh `0046_add_role_status_and_workspaces` thêm `roles.is_active`, bảng `role_workspace_exclusions`; tệp hệ thống `0012_add_sync_account_credentials` thêm hai loại kết nối và hai cột của `integration_credentials`.
+- Thay đổi API: dịch vụ định danh thêm `PATCH, DELETE /roles/{id}`, `PUT /roles/{id}/workspaces`, `POST /users/bulk-reset-password`, `POST /users/bulk-roles`, tham số mới của `GET /users`, trường `workspaces` ở `/auth/me`; máy chủ API thêm `/account-directory`, `/account-directory/export`, `/account-directory/staff-without-account`, `/account-directory/staff-accounts`, `/sync-accounts`.
+- Rủi ro: ngừng hiệu lực một nhóm đang dùng làm người dùng mất quyền ngay; thao tác hàng loạt không gộp một giao dịch.
+- Khả năng tương thích: điểm cuối cũ giữ nguyên dạng trả về, chỉ thêm trường; không có mã quyền mới; nhóm cũ giữ đủ phân hệ trừ Phụ huynh; ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16d; chạy phần quay lui của tệp định danh `0046` (bỏ cột, bảng) và tệp hệ thống `0012` (xóa hai loại tài khoản đồng bộ, bỏ hai cột).
+### Phiên bản 0.69.0 – 2026-10-16
+
+- Phạm vi thay đổi: DT-16 phần 16b, lưới dữ liệu chung, hộp xác nhận xóa, Xuất Excel cho các màn hình còn lại theo hệ thống của Sở (YCTD-119).
+- Chức năng mới: lưới dữ liệu chung (tìm kiếm, Mở rộng tìm kiếm, cấu hình cột, số dòng mỗi trang theo người dùng, tiêu đề theo menu) cho 1.1 Khai báo cơ sở vật chất, 2.1 Tổng hợp thiết bị dạy học, 4.3.2 Tổng hợp cân nặng, chiều cao, 5.8 Thống kê hồ sơ chưa nhập đủ, 4.4 Hoàn thành chương trình, 4.1.6 Nhóm học sinh (bỏ nhiều học sinh khỏi nhóm), 3.2 Đánh giá chuẩn nghề nghiệp (lọc Loại chuẩn, Trạng thái), 4.5 Thực đơn bữa ăn, 4.6.1 Y tế học đường, 4.6.2 Thuốc và dặn thuốc, 2.1 Năm học, 2.2 Cây đơn vị (danh sách phẳng), 2.3 Phòng ban và chức danh, 2.4 Danh mục dùng chung, 2.5 Phòng học và bậc học, 3.2 Kết nối ngoài; hộp xác nhận xóa cho bỏ học sinh khỏi nhóm, bỏ món, bỏ nguyên liệu, xóa tiêu chuẩn sức khỏe, bỏ liên kết Zalo; Xuất Excel theo cột đang hiện cho 1.2 Quản lý phân hiệu, 1.3 Quản lý điểm trường, 4.1.11 Cập nhật địa danh hành chính, 1.1 Nhóm người dùng (BR-117); Xuất Excel 1.4 dùng điểm cuối của phần 16d.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: không có tệp thay đổi cấu trúc dữ liệu; 38 khóa lưới mới trong `DATA_GRID_KEYS` dùng cho `user_grid_settings`; các lần xuất mới ghi `export_logs`, phân hiệu, điểm trường, nhóm người dùng ghi không có dữ liệu cá nhân.
+- Thay đổi API: điểm cuối mới `POST /org-units/export`, `POST /administrative-units/addresses/export`, `POST /account-exports/roles`; `/me/grid-settings/{gridKey}` nhận thêm 38 khóa lưới.
+- Rủi ro: ô tìm kiếm của các lưới mới chỉ tìm trên dữ liệu đã tải.
+- Khả năng tương thích: không đổi bảng, quyền, điểm cuối cũ; điểm cuối của dịch vụ định danh không đổi; cấu hình lưới đã lưu của các lưới cũ giữ nguyên; ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16b; không có phần quay lui cơ sở dữ liệu; dòng `user_grid_settings` của 38 khóa mới không còn được đọc, xóa nếu cần.
+
+### Phiên bản 0.68.0 – 2026-10-16
+
+- Phạm vi thay đổi: DT-15 phần 15h2, văn thư lưu trữ theo hệ thống của Sở (YCTD-118).
+- Chức năng mới: nhóm menu "5.10. Văn thư lưu trữ" của phân hệ Quản lý giáo dục Mầm non với bốn màn hình: 5.10.1 Hồ sơ tài liệu (hai thẻ Chưa hoàn thành, Hoàn thành; người giải quyết, thời hạn, nhãn Quá hạn; tệp đính kèm ở kho tệp; Xuất Excel), 5.10.2 Phông lưu trữ, 5.10.3 Thông tin lưu trữ (phông, giai đoạn, chỉnh lý, hết giá trị, thời hạn bảo quản, số bó, số hộp, số mét giá, nơi bảo quản), 5.10.4 Báo cáo lưu trữ cộng theo phông, giai đoạn có Xuất Excel (P09-06 đến P09-08).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp hệ thống `0009_create_archive_tables` tạo bốn bảng `archive_fonds`, `archive_holdings`, `archive_records`, `archive_record_files`; tệp định danh `0044_add_archive_permissions` thêm ba quyền `P09.archive.view`, `P09.archive.manage`, `P09.archive.export` và gán cho VT-02, VT-04, VT-06 (đủ ba), VT-15 (xem, xuất), VT-03 (xem).
+- Thay đổi API: điểm cuối mới `/archive-fonds`, `/archive-holdings`, `/archive-report`, `/archive-report/export`, `/archive-records`, `/archive-records/export`, `/archive-records/{id}`, `/archive-records/{id}/files`, `/archive-records/{id}/files/{fileId}`.
+- Rủi ro: người giải quyết là chữ tự do; xóa tệp ở kho tệp sau khi xóa dòng nên lỗi kho tệp có thể để lại tệp mồ côi.
+- Khả năng tương thích: không đổi bảng, điểm cuối, màn hình cũ; kho tệp thêm thao tác xóa tệp; ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 15h2; chạy phần quay lui của tệp `0009` (xóa bốn bảng) và `0044` (gỡ ba quyền); tệp đính kèm đã tải lên nằm dưới khóa `archive-records/` của kho tệp, xóa thủ công nếu cần.
+
+### Phiên bản 0.66.0 – 2026-10-15
+
+- Phạm vi thay đổi: DT-15 phần 15h1, cập nhật địa danh hành chính theo hệ thống của Sở (YCTD-116).
+- Chức năng mới: màn hình "4.1.11. Cập nhật địa danh hành chính": lưới địa chỉ của học sinh còn theo địa danh trước sắp xếp năm 2025 ở năm loại địa chỉ của tệp CSDL ngành, địa danh mới đề xuất theo bảng đối chiếu, chọn xã mới khi xã cũ chia cho nhiều xã, chuyển hàng loạt có ghi nhật ký trước và sau; bảng đối chiếu địa danh gieo sẵn Thành phố Hồ Chí Minh theo Nghị quyết 1685/NQ-UBTVQH15 và mã số của Cục Thống kê, nhập thêm từ Excel.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp `0008_create_administrative_units` của cơ sở dữ liệu hệ thống tạo `administrative_units`, `administrative_unit_mappings` và gieo 651 đơn vị, 493 dòng đối chiếu.
+- Thay đổi API: điểm cuối mới `GET /administrative-units/addresses`, `POST /administrative-units/addresses/convert`, `GET /administrative-units/mappings`, `GET /administrative-units/mappings/template`, `POST /administrative-units/mappings/import`.
+- Rủi ro: danh mục chỉ có Thành phố Hồ Chí Minh; mã mới lấy từ danh mục của Cục Thống kê, chưa đọc trực tiếp phụ lục Quyết định 19/2025/QĐ-TTg; nhập lại tệp CSDL ngành ghi đè địa chỉ đã chuyển.
+- Khả năng tương thích: không đổi điểm cuối, màn hình đã có; không có quyền mới; ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-15-phan-15h1`; phần quay lui của tệp 0008 xóa hai bảng; địa chỉ đã chuyển giữ nguyên, xem giá trị cũ ở nhật ký thao tác.
+
+### Phiên bản 0.65.0 – 2026-10-15
+
+- Phạm vi thay đổi: DT-15 phần 15d, nhân sự theo hệ thống của Sở (YCTD-112).
+- Chức năng mới: màn hình hồ sơ nhân sự đổi tên "3.1.1. Hồ sơ cán bộ, giáo viên" với lưới theo cột của Sở (Mã định danh Bộ GD&ĐT, Mã nhân sự, Họ tên, Ngày sinh, Giới tính, Trạng thái, Dân tộc, Điện thoại, Vị trí việc làm, Nhóm chức vụ, Hình thức hợp đồng, Trình độ chuyên môn), phân trang ở máy chủ, xếp A–Z theo tên; Mở rộng tìm kiếm theo đơn vị, phòng ban, trạng thái, giới tính, vị trí việc làm, Đảng viên, tuổi từ–đến, mã định danh Bộ, số định danh (gộp mục 3.1.4 của Sở); Xuất Excel theo cột đang hiện; hồ sơ hai thẻ "Hồ sơ cán bộ, giáo viên" (bảy khối theo thứ tự cột của tệp CSDL ngành, nút Ghi) và "Thông tin riêng của trường" (thông tin của trường, tài khoản, hợp đồng, lương và phụ cấp, quá trình công tác); biểu mẫu Thêm mới theo khối (P07).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: không có bảng, cột mới; các ô của Sở ghi vào `staff.moet_profile` (đã có từ tệp 0046) theo khóa của tệp CSDL ngành.
+- Thay đổi API: điểm cuối mới `GET /staff/search`, `POST /staff/export`, `PATCH /staff/{id}/profile`; `GET /staff/{id}` trả thêm `moet_fields`; `GET /staff` giữ nguyên.
+- Rủi ro: ô theo Sở là chữ tự do, chưa có danh mục của Bộ; nhập lại tệp CSDL ngành ghi đè các ô đã sửa ở biểu mẫu; lọc số định danh giải mã các hồ sơ cùng bốn số cuối trong phạm vi.
+- Khả năng tương thích: đường dẫn `/staff`, `GET /staff`, `POST /staff`, `PUT /staff/{id}` không đổi; cấu hình cột đã lưu của lưới `staff` bỏ qua mã cột không còn dùng; không có quyền mới; ứng dụng giáo viên, phụ huynh không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-15-phan-15d`; không có tệp thay đổi cấu trúc dữ liệu cần quay lui, các khóa đã ghi vào `moet_profile` vẫn đọc được ở khối "Thông tin theo CSDL ngành".
 
 ### Phiên bản 0.64.0 – 2026-10-15
 

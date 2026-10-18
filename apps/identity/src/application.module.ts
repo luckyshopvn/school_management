@@ -20,6 +20,8 @@ import { Infrastructure } from './common/infrastructure.js';
 import { HealthController } from './health.controller.js';
 import { createSmsSender, SmsSender } from './messaging/sms-sender.js';
 import { OneTimeCodeService } from './authentication/one-time-code.service.js';
+import { CaptchaService } from './authentication/captcha.service.js';
+import { PasswordResetService } from './authentication/password-reset.service.js';
 
 @Module({})
 export class ApplicationModule {
@@ -47,6 +49,8 @@ export class ApplicationModule {
         LoginRateLimiter,
         AuthenticationService,
         OneTimeCodeService,
+        CaptchaService,
+        PasswordResetService,
         { provide: SmsSender, useValue: smsSender ?? createSmsSender(configuration.smsProvider) },
         AccessTokenGuard,
         ApiClientsService,

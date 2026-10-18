@@ -1,10 +1,15 @@
 import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Alert, Button, TextField } from '@school-management/ui';
+import { STUDENT_HEALTH_TERMS } from '@school-management/shared';
+import { Alert, Button, DataGrid, TextField, type DataGridColumn } from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { messageOf } from '../health/health-api.js';
 import { AppShell } from '../pages/AppShell.js';
+import { matchesSearch } from '../pages/grid-search.js';
+import { useGridSettings } from '../pages/grid-settings.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { ReportTable, type Column } from '../reports/ReportTable.js';
+import { formatNumber } from '../reports/reports-api.js';
 import {
   GROWTH_STATUS_LABELS,
   exportGrowthReport,
@@ -12,10 +17,14 @@ import {
   readGrowthReport,
   statusLabel,
   type GrowthChannel,
+  type SummaryRow,
 } from './growth-api.js';
 
 // 4.3.2 Tổng hợp cân nặng, chiều cao (DT-14 phần 14a, YCTD-102): tổng hợp một đợt cân đo hoặc mọi đợt trong tháng theo lớp,
-// theo khối; lọc giới tính, kênh tăng trưởng; xuất Excel (ghi nhật ký xuất). Số liệu do máy chủ tính
+// theo khối; lọc giới tính, kênh tăng trưởng; xuất Excel (ghi nhật ký xuất). Số liệu do máy chủ tính. Danh sách học sinh
+// trên lưới dữ liệu chung, tìm tại chỗ theo họ tên, lớp; bảng theo khối, theo lớp là bảng tổng hợp nên giữ nguyên (DT-16
+// phần 16b). Tổng hợp theo học kỳ (mọi đợt trong học kỳ theo lịch năm học), so sánh lần cân đo đầu và sau của học kỳ hoặc
+// với một đợt chọn thêm, cột được khám định kỳ (DT-16 phần 16h)
 const vietnamMonth = () =>
   new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date()).slice(0, 7);
 const selectClass = 'rounded-lg border border-border bg-card px-3 py-2 text-content';
@@ -23,6 +32,7 @@ const selectClass = 'rounded-lg border border-border bg-card px-3 py-2 text-cont
 const COUNT_COLUMNS: Column[] = [
   { key: 'enrolled', label: 'Số học sinh' },
   { key: 'enrolled_female', label: 'Nữ' },
+  { key: 'examined', label: 'Được khám định kỳ' },
   { key: 'measured', label: 'Được cân đo' },
   { key: 'measured_percent', label: 'Tỷ lệ cân đo (%)' },
   { key: 'underweight', label: 'SDD thể nhẹ cân' },
@@ -37,13 +47,47 @@ const COUNT_COLUMNS: Column[] = [
   { key: 'all_normal', label: 'Bình thường cả ba kênh' },
 ];
 
+const COMPARED_COLUMNS: Array<[string, string]> = [
+  ['enrolled', 'Số học sinh'],
+  ['measured', 'Được cân đo'],
+  ['underweight', 'SDD thể nhẹ cân'],
+  ['stunted', 'SDD thể thấp còi'],
+  ['wasted', 'SDD thể gầy còm'],
+  ['overweight', 'Thừa cân'],
+  ['obese', 'Béo phì'],
+  ['all_normal', 'Bình thường cả ba kênh'],
+];
+const signed = (value: number) => (value > 0 ? `+${formatNumber(value)}` : formatNumber(value));
+
+const CHILD_COLUMNS: Array<DataGridColumn<SummaryRow>> = [
+  { id: 'class_name', header: 'Lớp', cell: (row) => row.class_name },
+  { id: 'full_name', header: 'Họ tên', alwaysVisible: true, className: 'font-medium', cell: (row) => row.full_name },
+  { id: 'gender', header: 'Giới tính', cell: (row) => (row.gender === 'female' ? 'Nữ' : 'Nam') },
+  { id: 'age_months', header: 'Tháng tuổi', cell: (row) => formatNumber(row.age_months) },
+  { id: 'weight_kg', header: 'Cân nặng (kg)', cell: (row) => formatNumber(row.weight_kg) },
+  { id: 'height_cm', header: 'Chiều cao (cm)', cell: (row) => formatNumber(row.height_cm) },
+  { id: 'bmi', header: 'BMI', cell: (row) => formatNumber(row.bmi) },
+  { id: 'weight_status', header: 'Kết quả cân nặng', cell: (row) => statusLabel(row.weight_status as string | null) },
+  { id: 'height_status', header: 'Kết quả chiều cao', cell: (row) => statusLabel(row.height_status as string | null) },
+  {
+    id: 'weight_height_status',
+    header: 'Cân nặng theo chiều cao',
+    cell: (row) => statusLabel(row.weight_height_status as string | null),
+  },
+];
+
 export function GrowthReportPage() {
   const unitChoice = useUnitChoice();
+  const grid = useGridSettings('growth-report-children');
   const [orgUnitId, setOrgUnitId] = useState('');
   const [roundId, setRoundId] = useState('');
   const [month, setMonth] = useState(vietnamMonth);
+  const [period, setPeriod] = useState<'month' | 'term'>('month');
+  const [term, setTerm] = useState('first_term');
+  const [compareRoundId, setCompareRoundId] = useState('');
   const [gender, setGender] = useState('');
   const [channel, setChannel] = useState('');
+  const [search, setSearch] = useState('');
   const [applied, setApplied] = useState<Record<string, string | null>>();
   const rounds = useQuery({
     queryKey: ['growth-rounds', orgUnitId],
@@ -58,17 +102,12 @@ export function GrowthReportPage() {
     retry: false,
   });
   const download = useMutation({ mutationFn: () => exportGrowthReport(applied ?? {}) });
-  const childRows = (report.data?.children ?? []).map((row) => ({
-    ...row,
-    gender: row.gender === 'female' ? 'Nữ' : 'Nam',
-    weight_status: statusLabel(row.weight_status as string | null),
-    height_status: statusLabel(row.height_status as string | null),
-    weight_height_status: statusLabel(row.weight_height_status as string | null),
-  }));
+  const appliedChannel = applied?.channel ?? '';
+  const childRows = (report.data?.children ?? []).filter((row) => matchesSearch(search, row.full_name, row.class_name));
   return (
     <AppShell>
       <div className="flex flex-col gap-4">
-        <h1 className="text-page-title font-bold text-text">4.3.2 Tổng hợp cân nặng, chiều cao</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/growth-report')}</h1>
         <form
           className="flex flex-wrap items-end gap-3"
           aria-label="Bộ lọc tổng hợp cân đo"
@@ -77,7 +116,9 @@ export function GrowthReportPage() {
             setApplied({
               org_unit_id: orgUnitId || null,
               round_id: roundId || null,
-              month: roundId ? null : month,
+              month: roundId || period === 'term' ? null : month,
+              term: roundId || period !== 'term' ? null : term,
+              compare_round_id: roundId && compareRoundId ? compareRoundId : null,
               gender: gender || null,
               channel: channel || null,
             });
@@ -89,8 +130,22 @@ export function GrowthReportPage() {
             onSelect={(id) => {
               setOrgUnitId(id);
               setRoundId('');
+              setCompareRoundId('');
             }}
           />
+          <label className="flex flex-col gap-2 text-label font-medium text-text">
+            Tổng hợp theo
+            <select
+              aria-label="Tổng hợp theo"
+              className={selectClass}
+              value={period}
+              disabled={roundId !== ''}
+              onChange={(event) => setPeriod(event.target.value as 'month' | 'term')}
+            >
+              <option value="month">Tháng</option>
+              <option value="term">Học kỳ</option>
+            </select>
+          </label>
           <label className="flex flex-col gap-2 text-label font-medium text-text">
             Đợt cân đo
             <select
@@ -98,9 +153,12 @@ export function GrowthReportPage() {
               className={selectClass}
               value={roundId}
               disabled={orgUnitId === ''}
-              onChange={(event) => setRoundId(event.target.value)}
+              onChange={(event) => {
+                setRoundId(event.target.value);
+                setCompareRoundId('');
+              }}
             >
-              <option value="">Mọi đợt trong tháng</option>
+              <option value="">{period === 'term' ? 'Mọi đợt trong học kỳ' : 'Mọi đợt trong tháng'}</option>
               {(rounds.data ?? []).map((round) => (
                 <option key={round.id} value={round.id}>
                   {round.name}
@@ -108,13 +166,44 @@ export function GrowthReportPage() {
               ))}
             </select>
           </label>
-          <TextField
-            label="Tháng"
-            type="month"
-            value={month}
-            disabled={roundId !== ''}
-            onChange={(event) => setMonth(event.target.value)}
-          />
+          {roundId ? (
+            <label className="flex flex-col gap-2 text-label font-medium text-text">
+              So sánh với đợt
+              <select
+                aria-label="So sánh với đợt"
+                className={selectClass}
+                value={compareRoundId}
+                onChange={(event) => setCompareRoundId(event.target.value)}
+              >
+                <option value="">Không so sánh</option>
+                {(rounds.data ?? [])
+                  .filter((round) => round.id !== roundId)
+                  .map((round) => (
+                    <option key={round.id} value={round.id}>
+                      {round.name}
+                    </option>
+                  ))}
+              </select>
+            </label>
+          ) : period === 'term' ? (
+            <label className="flex flex-col gap-2 text-label font-medium text-text">
+              Học kỳ
+              <select
+                aria-label="Học kỳ"
+                className={selectClass}
+                value={term}
+                onChange={(event) => setTerm(event.target.value)}
+              >
+                {STUDENT_HEALTH_TERMS.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : (
+            <TextField label="Tháng" type="month" value={month} onChange={(event) => setMonth(event.target.value)} />
+          )}
           <label className="flex flex-col gap-2 text-label font-medium text-text">
             Giới tính
             <select
@@ -155,11 +244,12 @@ export function GrowthReportPage() {
         </form>
         {report.error ? <Alert tone="danger">{messageOf(report.error)}</Alert> : null}
         {download.error ? <Alert tone="danger">{messageOf(download.error)}</Alert> : null}
+        {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
         {report.data ? (
           <>
             <p className="text-label text-text-secondary">
               {report.data.rounds.length === 0
-                ? 'Không có đợt cân đo nào trong tháng.'
+                ? `Không có đợt cân đo nào trong ${report.data.term ? 'học kỳ' : 'tháng'}.`
                 : `Đợt: ${report.data.rounds.map((round) => `${round.name} (${round.measured_on.split('-').reverse().join('/')})`).join(', ')}`}
             </p>
             <ReportTable
@@ -180,21 +270,57 @@ export function GrowthReportPage() {
               ]}
               rows={report.data.classes}
             />
-            <ReportTable
-              title={`Danh sách học sinh${channel ? `: ${statusLabel(channel)}` : ''}`}
-              columns={[
-                { key: 'class_name', label: 'Lớp' },
-                { key: 'full_name', label: 'Họ tên' },
-                { key: 'gender', label: 'Giới tính' },
-                { key: 'age_months', label: 'Tháng tuổi' },
-                { key: 'weight_kg', label: 'Cân nặng (kg)' },
-                { key: 'height_cm', label: 'Chiều cao (cm)' },
-                { key: 'bmi', label: 'BMI' },
-                { key: 'weight_status', label: 'Kết quả cân nặng' },
-                { key: 'height_status', label: 'Kết quả chiều cao' },
-                { key: 'weight_height_status', label: 'Cân nặng theo chiều cao' },
-              ]}
+            {report.data.comparison ? (
+              <section
+                className="flex flex-col gap-2 overflow-x-auto rounded-xl border border-border bg-card p-4"
+                aria-label="So sánh hai lần cân đo"
+              >
+                <h2 className="text-section-title font-semibold text-text">So sánh hai lần cân đo</h2>
+                <p className="text-label text-text-secondary">
+                  Lần đầu: {report.data.comparison.first_rounds.map((round) => round.name).join(', ')}; lần sau:{' '}
+                  {report.data.comparison.last_rounds.map((round) => round.name).join(', ')}. Ô ghi số lần đầu → lần sau
+                  (chênh lệch).
+                </p>
+                <table className="w-full text-content">
+                  <thead className="text-left text-label font-medium text-text-secondary">
+                    <tr>
+                      <th className="px-3 py-2">Lớp</th>
+                      {COMPARED_COLUMNS.map(([key, label]) => (
+                        <th key={key} className="px-3 py-2">
+                          {label}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      ...report.data.comparison.classes.map((row) => ({ name: row.class_name, ...row })),
+                      { name: 'Tổng cộng', ...report.data.comparison.totals },
+                    ].map((row) => (
+                      <tr key={row.name} className="border-t border-border">
+                        <td className="px-3 py-2">{row.name}</td>
+                        {COMPARED_COLUMNS.map(([key]) => (
+                          <td key={key} className="px-3 py-2">
+                            {formatNumber(row.first[key] ?? 0)} → {formatNumber(row.last[key] ?? 0)} (
+                            {signed(row.change[key] ?? 0)})
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </section>
+            ) : null}
+            <DataGrid
+              label={`Danh sách học sinh${appliedChannel ? `: ${statusLabel(appliedChannel)}` : ''}`}
+              columns={CHILD_COLUMNS}
               rows={childRows}
+              getRowId={(row) => `${String(row.child_id)}-${String(row.measured_on)}-${String(row.class_name)}`}
+              getRowLabel={(row) => String(row.full_name ?? '')}
+              emptyText="Không có học sinh nào."
+              search={{ label: 'Tìm theo họ tên, lớp', value: search, onChange: setSearch }}
+              settings={grid.settings}
+              onSettingsChange={grid.update}
             />
           </>
         ) : null}

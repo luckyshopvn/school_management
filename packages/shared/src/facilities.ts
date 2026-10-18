@@ -87,6 +87,8 @@ export const ROOM_TYPES: ReadonlyArray<CodeLabel & { block: RoomBlock }> = [
   { value: 'meeting_room', label: 'Phòng họp', block: 'administration' },
   { value: 'guard_house', label: 'Phòng bảo vệ', block: 'other' },
   { value: 'parking', label: 'Nhà để xe', block: 'other' },
+  // Nhà công vụ cho giáo viên, chỉ tiêu của 6.1 (DT-16 phần 16i)
+  { value: 'teacher_housing', label: 'Nhà công vụ giáo viên', block: 'other' },
   { value: 'other', label: 'Phòng khác', block: 'other' },
 ];
 
@@ -109,8 +111,14 @@ export interface ProfileField {
   options?: ReadonlyArray<CodeLabel>;
 }
 
-// Thuộc tính thêm của phòng theo quy chuẩn (khảo sát mục 4, dòng 1.1)
-export const ROOM_ATTRIBUTES: ReadonlyArray<ProfileField> = [
+// Thuộc tính chỉ khai báo cho một số loại phòng (ví dụ thông tin nhà vệ sinh chỉ cho Phòng vệ sinh); không ghi là mọi loại
+export interface RoomAttributeField extends ProfileField {
+  roomTypes?: ReadonlyArray<string>;
+}
+
+// Thuộc tính thêm của phòng theo quy chuẩn (khảo sát mục 4, dòng 1.1); thông tin nhà vệ sinh cho báo cáo cơ sở vật chất
+// (dòng 1.2 mục 4, thẻ Nhà vệ sinh của mục 5 dòng 1.2) thêm ở DT-16 phần 16i
+export const ROOM_ATTRIBUTES: ReadonlyArray<RoomAttributeField> = [
   { key: 'sleeping_places', label: 'Số chỗ ngủ', kind: 'integer' },
   { key: 'clear_height_m', label: 'Chiều cao thông thủy (m)', kind: 'number' },
   { key: 'exercise_floor_size', label: 'Kích thước sàn tập', kind: 'text' },
@@ -131,7 +139,57 @@ export const ROOM_ATTRIBUTES: ReadonlyArray<ProfileField> = [
   { key: 'combined_nap', label: 'Phòng học kết hợp nghỉ trưa', kind: 'boolean' },
   { key: 'has_book_storage', label: 'Kho sách', kind: 'boolean' },
   { key: 'library_seats', label: 'Số chỗ thư viện', kind: 'integer' },
+  {
+    key: 'toilet_users',
+    label: 'Đối tượng sử dụng nhà vệ sinh',
+    kind: 'choice',
+    options: [
+      { value: 'children', label: 'Học sinh' },
+      { value: 'staff', label: 'Cán bộ, giáo viên, nhân viên' },
+      { value: 'shared', label: 'Dùng chung' },
+    ],
+    roomTypes: ['toilet'],
+  },
+  {
+    key: 'toilet_standard',
+    label: 'Nhà vệ sinh đạt chuẩn',
+    kind: 'choice',
+    options: [
+      { value: 'met', label: 'Đạt chuẩn' },
+      { value: 'not_met', label: 'Chưa đạt chuẩn' },
+    ],
+    roomTypes: ['toilet'],
+  },
+  { key: 'toilet_separate_gender', label: 'Riêng nam, nữ', kind: 'boolean', roomTypes: ['toilet'] },
+  { key: 'toilet_seats', label: 'Số chỗ (bệ xí, tiểu)', kind: 'integer', roomTypes: ['toilet'] },
 ];
+
+// Thuộc tính khai báo được cho một loại phòng
+export function roomAttributesFor(roomType: string | null): ReadonlyArray<RoomAttributeField> {
+  return ROOM_ATTRIBUTES.filter(
+    (field) => !field.roomTypes || (roomType !== null && field.roomTypes.includes(roomType)),
+  );
+}
+
+// Mức độ đạt chuẩn cơ sở vật chất của từng khối phòng (1.2 Báo cáo cơ sở vật chất của Sở; mức theo Thông tư 13/2020/TT-
+// BGDĐT về tiêu chuẩn cơ sở vật chất trường mầm non, cần đối chiếu văn bản hiện hành). Mức của trường là mức thấp nhất
+// của các khối (DT-16 phần 16i)
+export const FACILITY_STANDARD_LEVELS = [
+  { value: 'not_met', label: 'Chưa đạt' },
+  { value: 'level_1', label: 'Mức độ 1' },
+  { value: 'level_2', label: 'Mức độ 2' },
+] as const satisfies ReadonlyArray<CodeLabel>;
+
+export type FacilityStandardLevelCode = (typeof FACILITY_STANDARD_LEVELS)[number]['value'];
+
+// Chỉ tiêu của 6.1 Thực trạng và nhu cầu đầu tư phòng học, nhà công vụ; loại phòng dùng để lấy số liệu hiện trạng từ
+// khai báo phòng (phòng học của trường mầm non là phòng sinh hoạt chung của nhóm, lớp)
+export const FACILITY_INVESTMENT_CATEGORIES = [
+  { value: 'classroom', label: 'Phòng học', roomType: 'group_room' },
+  { value: 'teacher_housing', label: 'Nhà công vụ cho giáo viên', roomType: 'teacher_housing' },
+] as const satisfies ReadonlyArray<CodeLabel & { roomType: string }>;
+
+export type FacilityInvestmentCategoryCode = (typeof FACILITY_INVESTMENT_CATEGORIES)[number]['value'];
 
 // Loại hình trường, quyết định cột công lập, tư thục, dân lập của biểu EMIS
 export const SCHOOL_OWNERSHIP_TYPES = [
@@ -146,6 +204,13 @@ const flag = (key: string, label: string): ProfileField => ({ key, label, kind: 
 
 // Sáu thẻ của hồ sơ trường (khảo sát mục 3.1, dòng 1.1). Thẻ tài khoản văn phòng điện tử là bảng nhiều dòng, không lưu mật
 // khẩu
+// Mã định danh điện tử của tổ chức theo Nghị định 69/2024/NĐ-CP gồm đúng 12 chữ số (DT-16 phần 16c)
+export const ORGANIZATION_IDENTIFIER_PATTERN = /^\d{12}$/;
+
+export function isValidOrganizationIdentifier(value: string | null | undefined): boolean {
+  return typeof value === 'string' && ORGANIZATION_IDENTIFIER_PATTERN.test(value);
+}
+
 export const SCHOOL_PROFILE_SECTIONS: ReadonlyArray<{
   key: string;
   label: string;
@@ -168,7 +233,8 @@ export const SCHOOL_PROFILE_SECTIONS: ReadonlyArray<{
       },
       { key: 'ownership_type', label: 'Loại hình trường', kind: 'choice', options: SCHOOL_OWNERSHIP_TYPES },
       { key: 'moet_code', label: 'Mã định danh', kind: 'text' },
-      { key: 'electronic_id_code', label: 'Mã định danh điện tử', kind: 'text' },
+      // Mã định danh điện tử của tổ chức theo Nghị định 69/2024/NĐ-CP: 12 chữ số (DT-16 phần 16c)
+      { key: 'electronic_id_code', label: 'Mã định danh điện tử (NĐ 69, 12 chữ số)', kind: 'text' },
       { key: 'tax_code', label: 'Mã số thuế', kind: 'text' },
       { key: 'name_by_decision', label: 'Tên theo quyết định thành lập', kind: 'text' },
       { key: 'principal_name', label: 'Hiệu trưởng', kind: 'text' },

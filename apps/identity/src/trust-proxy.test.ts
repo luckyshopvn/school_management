@@ -29,7 +29,8 @@ describe('Dịch vụ định danh: chạy sau máy chủ chuyển tiếp (YCTD-
       const response = await fetch(`${context.baseUrl}/auth/login`, {
         method: 'POST',
         headers: { 'content-type': 'application/json', 'x-forwarded-for': address },
-        body: JSON.stringify({ login: 'khong_ton_tai', password: 'SaiMatKhau1', channel: 'portal' }),
+        // Mỗi địa chỉ một tên đăng nhập để số lần sai tính theo tài khoản (mã xác nhận, DT-16 phần 16c) không lẫn vào giới hạn
+        body: JSON.stringify({ login: `khong_ton_tai_${address}`, password: 'SaiMatKhau1', channel: 'portal' }),
       });
       await response.text();
       return response.status;

@@ -5,8 +5,8 @@ import { ApiError } from '../session/api-client.js';
 import { useDefaultGridPageSize } from './grid-settings.js';
 
 // Menu người dùng theo Sở (DT-15 phần 15a): bấm tên người dùng ở thanh đầu trang mở Thông báo, Đổi mật khẩu, Cấu hình
-// hiển thị lưới, Danh sách ý kiến đã gửi (phần 15g), Thoát. Mục Hồ sơ cá nhân chưa có vì cổng quản trị chưa có trang hồ sơ
-// của chính người dùng
+// hiển thị lưới, Danh sách ý kiến đã gửi (phần 15g), Thoát. DT-16 phần 16c thêm Hồ sơ nhân sự cá nhân và Hướng dẫn cho đủ
+// các mục như của Sở
 function UserIcon() {
   return (
     <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
@@ -145,6 +145,11 @@ export function UserMenu({ fullName, onLogout }: { fullName: string | undefined;
           </Link>
         </li>
         <li role="none">
+          <Link to="/my-profile" role="menuitem" tabIndex={-1} className={itemClass} onClick={() => setOpen(false)}>
+            Hồ sơ nhân sự cá nhân
+          </Link>
+        </li>
+        <li role="none">
           <Link
             to="/change-password"
             role="menuitem"
@@ -173,6 +178,11 @@ export function UserMenu({ fullName, onLogout }: { fullName: string | undefined;
         <li role="none">
           <Link to="/my-feedback" role="menuitem" tabIndex={-1} className={itemClass} onClick={() => setOpen(false)}>
             Danh sách ý kiến đã gửi
+          </Link>
+        </li>
+        <li role="none">
+          <Link to="/help" role="menuitem" tabIndex={-1} className={itemClass} onClick={() => setOpen(false)}>
+            Hướng dẫn
           </Link>
         </li>
         <li role="none" className="border-t border-border">

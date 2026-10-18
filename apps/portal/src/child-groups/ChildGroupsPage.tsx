@@ -1,10 +1,22 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, TextField, Toast } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  ConfirmDeleteDialog,
+  DataGrid,
+  StatusBadge,
+  TextField,
+  Toast,
+  type DataGridColumn,
+} from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { listClasses } from '../classes/classes-api.js';
 import { AppShell } from '../pages/AppShell.js';
+import { matchesSearch } from '../pages/grid-search.js';
+import { useGridSettings } from '../pages/grid-settings.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
 import { listStaff } from '../staff/staff-api.js';
 import { messageOf, selectClass } from '../work/work-api.js';
@@ -15,12 +27,53 @@ import {
   listClassChildren,
   readChildGroup,
   removeGroupMembers,
+  type ChildGroup,
   type ChildGroupDetail,
 } from './child-groups-api.js';
 
 // Nhóm học sinh (YCTD-102): Ban Giám hiệu, quản lý đơn vị lập nhóm trong đơn vị (năng khiếu, chăm sóc đặc biệt...), chọn giáo
-// viên phụ trách, thêm nhiều trẻ theo lớp, bớt trẻ; giáo viên xem nhóm có trẻ của lớp mình hoặc nhóm mình phụ trách
-function CreateGroupForm({ orgUnitId, onCreated }: { orgUnitId: string; onCreated(group: ChildGroupDetail): void }) {
+// viên phụ trách, thêm nhiều học sinh theo lớp, bớt học sinh; giáo viên xem nhóm có học sinh của lớp mình hoặc nhóm mình phụ
+// trách. Danh sách nhóm và danh sách học sinh trong nhóm theo lưới dữ liệu chung, tìm tại chỗ, Mở rộng tìm kiếm theo trạng
+// thái, Thêm mới mở biểu mẫu lập nhóm; bỏ một hoặc nhiều học sinh khỏi nhóm đều qua hộp xác nhận xóa (DT-16 phần 16b)
+type Member = ChildGroupDetail['members'][number];
+
+const GROUP_COLUMNS: Array<DataGridColumn<ChildGroup>> = [
+  { id: 'name', header: 'Tên nhóm', alwaysVisible: true, className: 'font-medium', cell: (row) => row.name },
+  { id: 'teacher', header: 'Giáo viên phụ trách', cell: (row) => row.teacher_name ?? '' },
+  { id: 'member_count', header: 'Số học sinh', cell: (row) => row.member_count },
+  {
+    id: 'status',
+    header: 'Trạng thái',
+    cell: (row) =>
+      row.status === 'active' ? (
+        <StatusBadge tone="success" label="Đang dùng" />
+      ) : (
+        <StatusBadge tone="neutral" label="Ngừng dùng" />
+      ),
+  },
+];
+
+const MEMBER_COLUMNS: Array<DataGridColumn<Member>> = [
+  {
+    id: 'full_name',
+    header: 'Họ tên học sinh',
+    alwaysVisible: true,
+    className: 'font-medium',
+    cell: (row) => row.full_name,
+  },
+  { id: 'class_name', header: 'Lớp', cell: (row) => row.class_name ?? '' },
+  { id: 'dob', header: 'Ngày sinh', cell: (row) => row.dob },
+];
+
+function CreateGroupForm({
+  orgUnitId,
+  onCreated,
+  onCancel,
+}: {
+  orgUnitId: string;
+  onCreated(group: ChildGroupDetail): void;
+  onCancel(): void;
+}) {
   const staff = useQuery({ queryKey: ['staff', orgUnitId, ''], queryFn: () => listStaff(orgUnitId, ''), retry: false });
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -73,9 +126,12 @@ function CreateGroupForm({ orgUnitId, onCreated }: { orgUnitId: string; onCreate
             ))}
         </select>
       </label>
-      <div className="flex items-end">
+      <div className="flex items-end gap-2">
         <Button type="submit" variant="primary" disabled={create.isPending || name.trim() === ''}>
           Lập nhóm
+        </Button>
+        <Button variant="text" onClick={onCancel}>
+          Hủy
         </Button>
       </div>
     </form>
@@ -101,10 +157,10 @@ function AddMembers({ group, onChanged }: { group: ChildGroupDetail; onChanged(g
   });
   const candidates = (children.data ?? []).filter((child) => !members.has(child.id));
   return (
-    <div className="flex flex-col gap-2" aria-label="Thêm trẻ vào nhóm" role="group">
+    <div className="flex flex-col gap-2" aria-label="Thêm học sinh vào nhóm" role="group">
       {add.error ? <Alert tone="danger">{messageOf(add.error)}</Alert> : null}
       <label className="text-label font-medium text-text">
-        Chọn lớp để thêm trẻ
+        Chọn lớp để thêm học sinh
         <select
           value={classId}
           className={selectClass}
@@ -150,7 +206,7 @@ function AddMembers({ group, onChanged }: { group: ChildGroupDetail; onChanged(g
             </label>
           ))}
           {children.data && candidates.length === 0 ? (
-            <span className="text-text-secondary">Mọi trẻ của lớp đã trong nhóm.</span>
+            <span className="text-text-secondary">Mọi học sinh của lớp đã trong nhóm.</span>
           ) : null}
         </div>
       ) : null}
@@ -165,54 +221,86 @@ function AddMembers({ group, onChanged }: { group: ChildGroupDetail; onChanged(g
 
 function GroupPanel({ groupId, onChanged }: { groupId: string; onChanged(message: string): void }) {
   const queryClient = useQueryClient();
+  const grid = useGridSettings('child-group-members');
+  const [search, setSearch] = useState('');
+  const [removing, setRemoving] = useState<Member[]>();
   const group = useQuery({ queryKey: ['child-groups', 'detail', groupId], queryFn: () => readChildGroup(groupId) });
   const updated = (message: string) => (data: ChildGroupDetail) => {
     queryClient.setQueryData(['child-groups', 'detail', groupId], data);
     onChanged(message);
   };
   const remove = useMutation({
-    mutationFn: (childId: string) => removeGroupMembers(groupId, [childId]),
-    onSuccess: updated('Đã bỏ trẻ khỏi nhóm'),
+    mutationFn: (childIds: string[]) => removeGroupMembers(groupId, childIds),
+    onSuccess: (data) => {
+      setRemoving(undefined);
+      updated('Đã bỏ học sinh khỏi nhóm')(data);
+    },
+    onError: () => setRemoving(undefined),
   });
   const data = group.data;
-  const error = [group.error, remove.error].find(Boolean);
+  const error = [group.error, remove.error, grid.error].find(Boolean);
   if (!data) {
     return error ? <Alert tone="danger">{messageOf(error)}</Alert> : null;
   }
+  const rows = data.members.filter((member) => matchesSearch(search, member.full_name, member.class_name));
   return (
     <section className="flex flex-col gap-3 rounded-lg bg-card p-4" aria-label={`Nhóm ${data.name}`}>
       <h2 className="text-section-title font-semibold text-text">Nhóm {data.name}</h2>
       {data.description ? <p>{data.description}</p> : null}
       <p className="text-text-secondary">Giáo viên phụ trách: {data.teacher_name ?? 'Chưa có'}</p>
       {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
-      <table className="w-full text-content" aria-label="Trẻ trong nhóm">
-        <thead>
-          <tr className="text-left text-text-secondary">
-            <th className="py-2">Họ tên trẻ</th>
-            <th>Lớp</th>
-            <th>Ngày sinh</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {data.members.map((member) => (
-            <tr key={member.child_id} className="border-t border-border">
-              <td className="py-2">{member.full_name}</td>
-              <td>{member.class_name ?? ''}</td>
-              <td>{member.dob}</td>
-              <td>
-                {data.can_manage ? (
-                  <Button variant="text" disabled={remove.isPending} onClick={() => remove.mutate(member.child_id)}>
-                    Bỏ {member.full_name}
-                  </Button>
-                ) : null}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {data.members.length === 0 ? <p className="text-text-secondary">Nhóm chưa có trẻ.</p> : null}
-      {data.can_manage ? <AddMembers group={data} onChanged={updated('Đã thêm trẻ vào nhóm')} /> : null}
+      <DataGrid
+        label="Học sinh trong nhóm"
+        columns={MEMBER_COLUMNS}
+        rows={rows}
+        getRowId={(row) => row.child_id}
+        getRowLabel={(row) => row.full_name}
+        emptyText="Nhóm chưa có học sinh."
+        search={{ label: 'Tìm theo họ tên, lớp', value: search, onChange: setSearch }}
+        selectable={data.can_manage}
+        toolbar={
+          data.can_manage
+            ? (selected: Member[]) => (
+                <Button
+                  variant="danger"
+                  disabled={selected.length === 0 || remove.isPending}
+                  onClick={() => setRemoving(selected)}
+                >
+                  Bỏ khỏi nhóm
+                </Button>
+              )
+            : undefined
+        }
+        rowActions={
+          data.can_manage
+            ? (row) => (
+                <Button variant="text" disabled={remove.isPending} onClick={() => setRemoving([row])}>
+                  Bỏ {row.full_name}
+                </Button>
+              )
+            : undefined
+        }
+        settings={grid.settings}
+        onSettingsChange={grid.update}
+      />
+      {data.can_manage ? <AddMembers group={data} onChanged={updated('Đã thêm học sinh vào nhóm')} /> : null}
+      {removing ? (
+        <ConfirmDeleteDialog
+          open
+          title="Bỏ học sinh khỏi nhóm"
+          subject={
+            removing.length === 1
+              ? `học sinh ${removing[0]?.full_name ?? ''} khỏi nhóm ${data.name}`
+              : `${removing.length} học sinh khỏi nhóm ${data.name}`
+          }
+          confirmLabel="Bỏ khỏi nhóm"
+          busy={remove.isPending}
+          onCancel={() => setRemoving(undefined)}
+          onConfirm={() => remove.mutate(removing.map((member) => member.child_id))}
+        >
+          Học sinh chỉ ra khỏi nhóm, hồ sơ học sinh không bị xóa; có thể thêm lại sau.
+        </ConfirmDeleteDialog>
+      ) : null}
     </section>
   );
 }
@@ -221,7 +309,11 @@ export function ChildGroupsPage() {
   const queryClient = useQueryClient();
   const canManage = useHasPermission(PERMISSION_CODES.childGroupManage);
   const unitChoice = useUnitChoice();
+  const grid = useGridSettings('child-groups');
   const [groupId, setGroupId] = useState<string>();
+  const [creating, setCreating] = useState(false);
+  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState('');
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
   const orgUnitId = canManage ? (unitChoice.selectedId ?? '') : '';
@@ -234,60 +326,75 @@ export function ChildGroupsPage() {
     void queryClient.invalidateQueries({ queryKey: ['child-groups', 'list'] });
     setToastMessage(message);
   };
+  const rows = (groups.data ?? []).filter(
+    (group) => (status === '' || group.status === status) && matchesSearch(search, group.name),
+  );
   return (
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-4">
-        <h1 className="text-page-title font-bold text-text">Nhóm học sinh</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/child-groups')}</h1>
         {canManage && orgUnitId ? (
-          <>
-            <UnitSelect
-              units={unitChoice.units}
-              selectedId={orgUnitId}
-              onSelect={(id) => {
-                unitChoice.select(id);
-                setGroupId(undefined);
-              }}
-            />
-            <CreateGroupForm
-              orgUnitId={orgUnitId}
-              onCreated={(group) => {
-                setGroupId(group.id);
-                changed(`Đã lập nhóm ${group.name}`);
-              }}
-            />
-          </>
+          <UnitSelect
+            units={unitChoice.units}
+            selectedId={orgUnitId}
+            onSelect={(id) => {
+              unitChoice.select(id);
+              setGroupId(undefined);
+              setCreating(false);
+            }}
+          />
+        ) : null}
+        {canManage && orgUnitId && creating ? (
+          <CreateGroupForm
+            orgUnitId={orgUnitId}
+            onCancel={() => setCreating(false)}
+            onCreated={(group) => {
+              setCreating(false);
+              setGroupId(group.id);
+              changed(`Đã lập nhóm ${group.name}`);
+            }}
+          />
         ) : null}
         {groups.error ? <Alert tone="danger">{messageOf(groups.error)}</Alert> : null}
-        <section className="flex flex-col gap-2 rounded-lg bg-card p-4" aria-label="Danh sách nhóm học sinh">
-          <table className="w-full text-content">
-            <thead>
-              <tr className="text-left text-text-secondary">
-                <th className="py-2">Tên nhóm</th>
-                <th>Giáo viên phụ trách</th>
-                <th>Số trẻ</th>
-                <th>Trạng thái</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {(groups.data ?? []).map((group) => (
-                <tr key={group.id} className="border-t border-border">
-                  <td className="py-2">{group.name}</td>
-                  <td>{group.teacher_name ?? ''}</td>
-                  <td>{group.member_count}</td>
-                  <td>{group.status === 'active' ? 'Đang dùng' : 'Ngừng dùng'}</td>
-                  <td>
-                    <Button variant="text" onClick={() => setGroupId(group.id)}>
-                      Xem nhóm {group.name}
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {groups.data?.length === 0 ? <p className="text-text-secondary">Chưa có nhóm học sinh.</p> : null}
-        </section>
+        {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+        <DataGrid
+          label="Danh sách nhóm học sinh"
+          columns={GROUP_COLUMNS}
+          rows={rows}
+          getRowId={(row) => row.id}
+          getRowLabel={(row) => row.name}
+          loading={groups.isLoading}
+          emptyText="Chưa có nhóm học sinh."
+          search={{ label: 'Tìm theo tên nhóm', value: search, onChange: setSearch }}
+          advancedSearch={
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+              <label className="text-label font-medium text-text">
+                Trạng thái
+                <select value={status} onChange={(event) => setStatus(event.target.value)} className={selectClass}>
+                  <option value="">Tất cả</option>
+                  <option value="active">Đang dùng</option>
+                  <option value="inactive">Ngừng dùng</option>
+                </select>
+              </label>
+            </div>
+          }
+          toolbar={
+            canManage && orgUnitId ? (
+              <Button variant="primary" onClick={() => setCreating(true)}>
+                Thêm mới
+              </Button>
+            ) : null
+          }
+          rowActions={(row) => (
+            <Button variant="text" onClick={() => setGroupId(row.id)}>
+              Xem nhóm {row.name}
+            </Button>
+          )}
+          activeRowId={groupId}
+          settings={grid.settings}
+          onSettingsChange={grid.update}
+        />
         {groupId ? <GroupPanel key={groupId} groupId={groupId} onChanged={changed} /> : null}
       </div>
     </AppShell>

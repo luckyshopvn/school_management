@@ -86,7 +86,7 @@ test('Hiệu trưởng tải tệp học sinh của CSDL ngành, xem trước r�
   await page.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(principal.username);
   await page.getByLabel('Mật khẩu', { exact: true }).fill(principal.password);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
-  await openMenu(page, '/imports');
+  await openMenu(page, '/student-imports');
 
   const region = page.getByRole('region', { name: 'Trẻ từ CSDL ngành' });
   await region.getByLabel('Tệp Trẻ từ CSDL ngành').setInputFiles({

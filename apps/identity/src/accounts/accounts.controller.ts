@@ -92,6 +92,22 @@ function readGrant(value: unknown, field: string, errors: FieldError[]): RoleGra
   return { role_code: grant.role_code, org_unit_id: orgUnitId as string | null };
 }
 
+// Thao tác hàng loạt và bộ lọc theo mã tài khoản nhận tối đa 200 tài khoản, bằng cỡ trang lớn nhất của lưới
+const MAXIMUM_BULK = 200;
+
+function readUserIds(body: RequestBody): string[] {
+  const value = body?.user_ids;
+  if (
+    !Array.isArray(value) ||
+    value.length === 0 ||
+    value.length > MAXIMUM_BULK ||
+    value.some((id) => typeof id !== 'string' || !UUID_PATTERN.test(id))
+  ) {
+    throw validationError([{ field: 'user_ids', message: `Chọn từ 1 đến ${MAXIMUM_BULK} tài khoản` }]);
+  }
+  return [...new Set(value as string[])];
+}
+
 // Tài khoản (P01-06) và gán vai trò (P01-07) do dịch vụ định danh phục vụ (17_DAC_TA_API.md)
 @Controller('users')
 @UseGuards(AccessTokenGuard)
@@ -125,10 +141,26 @@ export class AccountsController {
     ) {
       errors.push({ field: 'must_change_password', message: 'Trạng thái đổi mật khẩu là true hoặc false' });
     }
+    // Bộ lọc thêm của DT-16 phần 16d: danh sách mã tài khoản (tối đa 200), ngày hết hạn mật khẩu từ, đến
+    let userIds: string[] | undefined;
+    if (query.user_ids !== undefined) {
+      userIds = query.user_ids === '' ? [] : query.user_ids.split(',');
+      if (userIds.length > MAXIMUM_BULK || userIds.some((id) => !UUID_PATTERN.test(id))) {
+        errors.push({ field: 'user_ids', message: `Danh sách mã tài khoản không hợp lệ (tối đa ${MAXIMUM_BULK})` });
+      }
+    }
+    for (const field of ['password_expires_from', 'password_expires_to'] as const) {
+      if (query[field] && !DATE_PATTERN.test(query[field] ?? '')) {
+        errors.push({ field, message: 'Ngày dạng YYYY-MM-DD' });
+      }
+    }
     if (errors.length > 0) {
       throw validationError(errors);
     }
     const listQuery: ListQuery = {
+      user_ids: userIds,
+      password_expires_from: query.password_expires_from || undefined,
+      password_expires_to: query.password_expires_to || undefined,
       q: query.q?.trim() || undefined,
       status: query.status as ListQuery['status'],
       role_code: query.role_code || undefined,
@@ -238,6 +270,26 @@ export class AccountsController {
       throw validationError(errors);
     }
     return this.staffAccounts.lookup(callerOf(request), { login, org_unit_id: orgUnitId as string });
+  }
+
+  // 1.4 Danh sách người dùng của Sở: Cấp mật khẩu hàng loạt (DT-16 phần 16d)
+  @Post('bulk-reset-password')
+  @HttpCode(200)
+  bulkResetPassword(@Req() request: AuthenticatedRequest, @Body() body: RequestBody) {
+    return this.accountsService.bulkResetPassword(callerOf(request), readUserIds(body));
+  }
+
+  // 1.4 Danh sách người dùng của Sở: Phân nhóm quyền hàng loạt (DT-16 phần 16d)
+  @Post('bulk-roles')
+  @HttpCode(200)
+  bulkAddRole(@Req() request: AuthenticatedRequest, @Body() body: RequestBody) {
+    const userIds = readUserIds(body);
+    const errors: FieldError[] = [];
+    const grant = readGrant(body?.role, 'role', errors);
+    if (!grant || errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.accountsService.bulkAddRole(callerOf(request), userIds, grant);
   }
 
   // Máy chủ API gọi khi chấm dứt hợp đồng lao động: khóa tài khoản ngay (BR-05)
@@ -391,6 +443,57 @@ export class RolesController {
       throw validationError([{ field: 'permission_codes', message: 'Danh sách mã quyền không hợp lệ' }]);
     }
     return this.rolesService.replacePermissions(callerOf(request), roleId, codes as string[]);
+  }
+
+  // 1.1 Nhóm người dùng: sửa tên, hiệu lực (DT-16 phần 16d)
+  @Patch('roles/:id')
+  updateRole(
+    @Req() request: AuthenticatedRequest,
+    @Param('id', uuidParameter('id')) roleId: string,
+    @Body() body: RequestBody,
+  ) {
+    const errors: FieldError[] = [];
+    const changes: { name?: string; is_active?: boolean } = {};
+    if (body?.name !== undefined) {
+      if (typeof body.name !== 'string' || body.name.trim() === '') {
+        errors.push({ field: 'name', message: 'Bắt buộc nhập tên nhóm' });
+      } else if (body.name.trim().length > 200) {
+        errors.push({ field: 'name', message: 'Tên nhóm tối đa 200 ký tự' });
+      } else {
+        changes.name = body.name.trim();
+      }
+    }
+    if (body?.is_active !== undefined) {
+      if (typeof body.is_active !== 'boolean') {
+        errors.push({ field: 'is_active', message: 'Hiệu lực là đúng hoặc sai' });
+      } else {
+        changes.is_active = body.is_active;
+      }
+    }
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.rolesService.updateRole(callerOf(request), roleId, changes);
+  }
+
+  @Delete('roles/:id')
+  @HttpCode(204)
+  async deleteRole(@Req() request: AuthenticatedRequest, @Param('id', uuidParameter('id')) roleId: string) {
+    await this.rolesService.deleteRole(callerOf(request), roleId);
+  }
+
+  // 1.2 Phân quyền nhóm theo phần mềm: thay toàn bộ phân hệ của cổng quản trị nhóm được dùng
+  @Put('roles/:id/workspaces')
+  replaceWorkspaces(
+    @Req() request: AuthenticatedRequest,
+    @Param('id', uuidParameter('id')) roleId: string,
+    @Body() body: RequestBody,
+  ) {
+    const keys = body?.workspace_keys;
+    if (!Array.isArray(keys) || keys.some((key) => typeof key !== 'string')) {
+      throw validationError([{ field: 'workspace_keys', message: 'Danh sách phân hệ không hợp lệ' }]);
+    }
+    return this.rolesService.replaceWorkspaces(callerOf(request), roleId, [...new Set(keys as string[])]);
   }
 
   @Get('permissions')

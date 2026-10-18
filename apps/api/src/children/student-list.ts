@@ -40,6 +40,9 @@ export interface StudentListFilter {
   canSwim?: boolean;
   moetCode?: string;
   nationalId?: string;
+  // Học sinh chưa có mã định danh Bộ GD&ĐT; số định danh đã xác thực hay chưa (DT-16 phần 16g)
+  missingMoetCode?: boolean;
+  nationalIdVerified?: boolean;
 }
 
 // Bộ lọc theo cột CSDL ngành cùng nhóm vai trò xem sức khỏe (BR-53, YCTD-100)
@@ -113,6 +116,8 @@ export function readStudentListFilter(query: Record<string, unknown>, errors: Fi
     canSwim: readYesNo(query, 'can_swim', errors),
     moetCode: readText(query, 'moet_student_code', errors, 50),
     nationalId: nationalId && NATIONAL_ID_PATTERN.test(nationalId) ? nationalId : undefined,
+    missingMoetCode: query.missing_moet_code === 'true' || query.missing_moet_code === true,
+    nationalIdVerified: readYesNo(query, 'national_id_verified', errors),
   };
 }
 
@@ -199,6 +204,17 @@ function filteredStudents(
   if (nationalIdHash) {
     selection = selection.where('children.national_id_hash', '=', nationalIdHash);
   }
+  if (filter.nationalIdVerified !== undefined) {
+    selection = selection.where('children.national_id_verified_at', filter.nationalIdVerified ? 'is not' : 'is', null);
+  }
+  if (filter.missingMoetCode) {
+    selection = selection.where((expression) =>
+      expression.or([
+        expression('children.moet_student_code', 'is', null),
+        expression('children.moet_student_code', '=', ''),
+      ]),
+    );
+  }
   return selection;
 }
 
@@ -219,6 +235,10 @@ function selectStudentColumns(selection: ReturnType<typeof filteredStudents>) {
     'children.two_sessions_per_day',
     'children.boarding',
     'children.birth_certificate_file_id',
+    // Xác thực số định danh, biến động cư trú (mục 4.1.8–4.1.9 của Sở, DT-16 phần 16g)
+    'children.national_id_verified_at',
+    'children.national_id_verified_by_name',
+    'children.residence_change_note',
     'classes.id as class_id',
     'classes.name as class_name',
     'classes.grade_level',
@@ -265,6 +285,9 @@ export interface StudentRecord {
   two_sessions_per_day: boolean;
   boarding: boolean;
   birth_certificate_file_id: string | null;
+  national_id_verified_at: Date | null;
+  national_id_verified_by_name: string | null;
+  residence_change_note: string | null;
   class_id: string | null;
   class_name: string | null;
   grade_level: string | null;
@@ -290,7 +313,12 @@ export async function findStudents(
   const counted = await selection
     .select((expression) => expression.fn.countAll<string>().as('count'))
     .executeTakeFirstOrThrow();
-  let query = selectStudentColumns(selection).orderBy(GIVEN_NAME_ORDER).orderBy(FULL_NAME_ORDER).orderBy('children.id');
+  let query = selectStudentColumns(selection);
+  // Lọc theo một lớp thì theo số thứ tự cố định trong lớp (mục 4.1.3 của Sở, DT-16 phần 16g), chưa có số thì xếp sau
+  if (filter.classId) {
+    query = query.orderBy(sql`class_enrollments.order_number nulls last`);
+  }
+  query = query.orderBy(GIVEN_NAME_ORDER).orderBy(FULL_NAME_ORDER).orderBy('children.id');
   if (page) {
     query = query.limit(page.limit).offset(page.offset);
   }

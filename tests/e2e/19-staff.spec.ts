@@ -47,19 +47,22 @@ test('Phòng nhân sự tạo hồ sơ, liên kết tài khoản, lập và ch�
   await page.getByLabel('Mật khẩu', { exact: true }).fill(personnel.password);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
   await openMenu(page, '/staff');
-  await page.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: unit.name });
+  // Thêm mới theo khối của Sở, nút Ghi; hồ sơ vừa tạo mở ngay (DT-15 phần 15d)
+  await page.getByRole('button', { name: 'Thêm mới' }).click();
   const form = page.getByRole('form', { name: 'Thêm hồ sơ nhân sự' });
+  await form.getByRole('combobox', { name: 'Đơn vị' }).selectOption({ label: unit.name });
   await form.getByLabel('Mã nhân sự').fill(code);
   await form.getByLabel('Họ tên').fill('Đỗ Thị Hạnh');
   await form.getByLabel('Số định danh cá nhân').fill('079190005678');
   await form.getByLabel('Ngày vào làm').fill('2026-08-01');
-  await form.getByRole('button', { name: 'Thêm hồ sơ' }).click();
+  await form.getByRole('button', { name: 'Ghi' }).click();
+  await page.getByLabel('Tìm theo tên hoặc mã').fill(code);
   const row = page.getByRole('row', { name: 'Nhân sự Đỗ Thị Hạnh' });
   await expect(row).toContainText(code);
-  await row.getByRole('button', { name: 'Chi tiết' }).click();
 
   const panel = page.getByRole('group', { name: 'Hồ sơ của Đỗ Thị Hạnh' });
-  await expect(panel).toContainText('********5678');
+  await expect(panel.getByLabel('Số định danh cá nhân')).toHaveAttribute('placeholder', '********5678');
+  await panel.getByRole('tab', { name: 'Thông tin riêng của trường' }).click();
   await panel.getByLabel('Tên đăng nhập hoặc số điện thoại').fill(teacher.username);
   await panel.getByRole('button', { name: 'Liên kết tài khoản' }).click();
   await expect(panel).toContainText('Tài khoản: đã liên kết');

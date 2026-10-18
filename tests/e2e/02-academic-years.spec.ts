@@ -27,6 +27,10 @@ test('Hiệu trưởng tạo năm học, lưu lịch, đánh dấu tuần nghỉ
   await page.getByLabel('Tên năm học mới').fill('2026–2027');
   await page.getByRole('button', { name: 'Tạo năm học' }).click();
   await expect(page.getByRole('heading', { name: 'Năm học 2026–2027' })).toBeVisible();
+  // Danh sách năm học trên lưới dữ liệu chung (DT-16 phần 16b)
+  const years = page.getByRole('region', { name: 'Danh sách năm học' });
+  await years.getByLabel('Tìm theo tên năm học').fill('2026–2027');
+  await expect(years.getByRole('row').filter({ hasText: '2026–2027' })).toContainText('Chưa mở');
 
   await page.getByRole('group', { name: 'Học kỳ 1' }).getByLabel('Từ ngày').fill('2026-09-05');
   await page.getByRole('group', { name: 'Học kỳ 1' }).getByLabel('Đến ngày').fill('2027-01-20');

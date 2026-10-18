@@ -9,6 +9,7 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { isUuid } from '../common/request-fields.js';
 import { ChildScope } from './child-scope.js';
 import { buildStudentWorkbook, fileStamp, sendWorkbook } from './student-workbook.js';
+import { readTableFileFormat, type TableFileFormat } from '../exports/table-file.js';
 
 // 4.2 Biến động học sinh (DT-15 phần 15c, YCTD-108): danh sách thay đổi của học sinh theo khoảng ngày, dựng từ lịch sử đã
 // có trong năm học, không có bảng riêng: nhập học (ngày nhập học của hồ sơ), chuyển lớp (dòng lịch sử lớp nối tiếp dòng
@@ -316,8 +317,13 @@ export class StudentMovementsService {
     };
   }
 
-  // Tệp Excel theo bộ lọc đang chọn; ghi nhật ký xuất có dữ liệu cá nhân (BR-74)
-  async export(currentUser: CurrentUser, filter: MovementFilter, ipAddress: string | null) {
+  // Tệp Excel hoặc PDF (DT-16 phần 16a) theo bộ lọc đang chọn; ghi nhật ký xuất có dữ liệu cá nhân (BR-74)
+  async export(
+    currentUser: CurrentUser,
+    filter: MovementFilter,
+    ipAddress: string | null,
+    format: TableFileFormat = 'xlsx',
+  ) {
     const { database } = await this.currentSchoolYear.require();
     const rows = await this.rows(currentUser, filter);
     const createdAt = this.clock.now();
@@ -333,6 +339,7 @@ export class StudentMovementsService {
       rows: rows.map((row) => Object.fromEntries(MOVEMENT_COLUMNS.map((column) => [column.key, column.value(row)]))),
       ipAddress,
       createdAt,
+      format,
     });
   }
 
@@ -390,9 +397,13 @@ export class StudentMovementsController {
   ) {
     const errors: FieldError[] = [];
     const filter = readMovementFilter(body ?? {}, errors);
-    if (errors.length > 0) {
+    const format = readTableFileFormat(body?.format);
+    if (!format) {
+      errors.push({ field: 'format', message: 'Định dạng xuất là xlsx hoặc pdf' });
+    }
+    if (errors.length > 0 || !format) {
       throw validationError(errors);
     }
-    sendWorkbook(response, await this.movements.export(currentUser, filter, request.ip ?? null));
+    sendWorkbook(response, await this.movements.export(currentUser, filter, request.ip ?? null, format));
   }
 }

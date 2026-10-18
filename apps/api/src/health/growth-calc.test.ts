@@ -266,6 +266,8 @@ describe('Chỉ số Z và kênh tăng trưởng theo chuẩn WHO', () => {
           id_number_last4: null,
           has_active_contract: true,
           moet_profile: null,
+          bank_account_number: null,
+          tax_code: '8012345678',
         },
       ]).map((item) => [item.key, item.missing_count]),
     );
@@ -275,5 +277,8 @@ describe('Chỉ số Z và kênh tăng trưởng theo chuẩn WHO', () => {
     assert.equal(staffMissing.permanent_address, 0);
     assert.equal(staffMissing.contract, 0);
     assert.equal(staffMissing.qualification, 1);
+    // Tài khoản ngân hàng, mã số thuế (DT-16 phần 16f)
+    assert.equal(staffMissing.bank_account, 1);
+    assert.equal(staffMissing.tax_code, 0);
   });
 });

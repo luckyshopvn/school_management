@@ -15,6 +15,7 @@ import type { CurrentUser } from '../authentication/current-user.js';
 import { dayOfWeek } from '../attendance/school-calendar.js';
 import { originOf, writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
+import { Databases } from '../common/databases.js';
 import { queueNotification } from '../common/notification-queue.js';
 import {
   conflictOnDuplicate,
@@ -38,13 +39,21 @@ import {
   weekStartOf,
 } from './kitchen-fields.js';
 import { KitchenMealsService } from './kitchen-meals.js';
+import {
+  gradesOverlap,
+  menuForGrade,
+  readMenuHeader,
+  resolveMenuHeader,
+  type MenuHeader,
+  type MenuHeaderInput,
+} from './menu-header.js';
 
 // Thực đơn tuần, duyệt và công bố, định lượng theo số suất, buffet theo dịp, thực đơn của con cho phụ huynh (P12-02,
 // P12-03, P12-04, P12-06; BR-59, BR-69, BR-83; YCTD-76). Bếp lập nháp rồi trình; quản lý đơn vị duyệt là công bố ngay cho
 // phụ huynh của đơn vị, hoặc trả lại kèm lý do; thực đơn đã công bố không sửa. Phụ huynh chỉ thấy thực đơn đã công bố
-// (CT-065) và buffet đã duyệt
+// (CT-065) và buffet đã duyệt. Thực đơn có tên, tháng, tuần, từ ngày–đến ngày, khối áp dụng như màn hình 4.5 của Sở; nhập
+// từ Excel ở menu-imports.ts (DT-16 phần 16h)
 const MAXIMUM_ITEMS = 120;
-const ALL_AGES = 'all';
 
 interface MenuItemInput {
   weekday: number;
@@ -60,9 +69,10 @@ export class KitchenMenusService {
     private readonly access: KitchenAccess,
     private readonly meals: KitchenMealsService,
     private readonly clock: Clock,
+    private readonly databases: Databases,
   ) {}
 
-  async list(currentUser: CurrentUser, orgUnitId: string, weekStartDate: string | null) {
+  async list(currentUser: CurrentUser, orgUnitId: string, weekStartDate: string | null, month: string | null = null) {
     const { database } = await this.currentSchoolYear.require();
     await this.access.assertRead(currentUser, orgUnitId);
     return database
@@ -72,6 +82,12 @@ export class KitchenMenusService {
         'menus.org_unit_id',
         'menus.week_start_date',
         'menus.age_group',
+        'menus.name',
+        'menus.month',
+        'menus.week_no',
+        'menus.from_date',
+        'menus.to_date',
+        'menus.grade_levels',
         'menus.status',
         'menus.note',
         'menus.reject_reason',
@@ -85,18 +101,88 @@ export class KitchenMenusService {
       ])
       .where('menus.org_unit_id', '=', orgUnitId)
       .$if(weekStartDate !== null, (query) => query.where('menus.week_start_date', '=', weekStartDate ?? ''))
+      .$if(month !== null, (query) => query.where('menus.month', '=', month ?? ''))
       .orderBy('menus.week_start_date', 'desc')
       .orderBy('menus.age_group')
       .execute()
       .then((rows) => rows.map((row) => ({ ...row, item_count: Number(row.item_count ?? 0) })));
   }
 
+  // Tuần học (khai báo tuần của năm học đang dùng) chứa tuần của thực đơn; chưa khai báo thì để trống
+  async weekNumbers(): Promise<(weekStart: string) => number | null> {
+    const { academicYearId } = await this.currentSchoolYear.require();
+    const weeks = await this.databases.system
+      .selectFrom('school_weeks')
+      .select(['week_no', 'start_date', 'end_date'])
+      .where('academic_year_id', '=', academicYearId)
+      .execute();
+    const text = (value: unknown) => String(value instanceof Date ? value.toISOString() : value).slice(0, 10);
+    return (weekStart) =>
+      weeks.find((week) => text(week.start_date) <= weekStart && text(week.end_date) >= weekStart)?.week_no ?? null;
+  }
+
+  // Thông tin chung đầy đủ đã kiểm tra khối trong danh mục; lỗi trả ERR_VALIDATION
+  async header(database: Kysely<SchoolYearDatabase>, input: MenuHeaderInput): Promise<MenuHeader> {
+    const { errors, header } = resolveMenuHeader(input, await this.weekNumbers());
+    if (header) {
+      const unknown = await this.unknownGrades(database, header.grade_levels);
+      if (unknown.length > 0) {
+        errors.push({ field: 'grade_levels', message: `Mã khối không có trong danh mục: ${unknown.join(', ')}` });
+      }
+    }
+    if (errors.length > 0 || !header) {
+      throw validationError(errors);
+    }
+    return header;
+  }
+
+  async unknownGrades(database: Kysely<SchoolYearDatabase>, codes: string[]): Promise<string[]> {
+    if (codes.length === 0) {
+      return [];
+    }
+    const found = await database.selectFrom('grade_levels').select('code').where('code', 'in', codes).execute();
+    const known = new Set(found.map((row) => row.code));
+    return codes.filter((code) => !known.has(code));
+  }
+
+  // Thực đơn khác cùng đơn vị, cùng tuần trùng khối áp dụng
+  async overlapping(
+    database: Kysely<SchoolYearDatabase>,
+    orgUnitId: string,
+    header: Pick<MenuHeader, 'week_start_date' | 'grade_levels'>,
+    exceptId: string | null,
+  ) {
+    const others = await database
+      .selectFrom('menus')
+      .select(['id', 'name', 'grade_levels'])
+      .where('org_unit_id', '=', orgUnitId)
+      .where('week_start_date', '=', header.week_start_date)
+      .$if(exceptId !== null, (query) => query.where('id', '!=', exceptId ?? ''))
+      .execute();
+    return others.find((other) => gradesOverlap(other.grade_levels ?? [], header.grade_levels));
+  }
+
+  private async assertNoOverlap(
+    database: Kysely<SchoolYearDatabase>,
+    orgUnitId: string,
+    header: MenuHeader,
+    exceptId: string | null,
+  ) {
+    const other = await this.overlapping(database, orgUnitId, header, exceptId);
+    if (other) {
+      throw validationError([
+        {
+          field: 'grade_levels',
+          message: `Tuần này đã có thực đơn "${other.name ?? ''}" áp dụng cho ${header.grade_levels.length === 0 ? 'mọi khối' : 'khối đã chọn'}`,
+        },
+      ]);
+    }
+  }
+
   async create(
     currentUser: CurrentUser,
-    input: {
+    input: MenuHeaderInput & {
       org_unit_id: string;
-      week_start_date: string;
-      age_group: string;
       note: string | null;
       items: MenuItemInput[] | undefined;
     },
@@ -104,22 +190,20 @@ export class KitchenMenusService {
   ) {
     const { database } = await this.currentSchoolYear.require();
     await this.access.assertManage(currentUser, input.org_unit_id);
-    if (dayOfWeek(input.week_start_date) !== 1) {
-      throw validationError([{ field: 'week_start_date', message: 'Tuần bắt đầu từ thứ hai' }]);
-    }
-    await this.assertAgeGroup(database, input.age_group);
+    const header = await this.header(database, input);
+    await this.assertNoOverlap(database, input.org_unit_id, header, null);
     if (input.items) {
       await this.assertDishes(database, input.org_unit_id, input.items);
     }
-    const { items, ...values } = input;
+    const items = input.items;
     const created = await database.transaction().execute(async (transaction) => {
       const menu = await conflictOnDuplicate(
         transaction
           .insertInto('menus')
-          .values({ ...values, created_by: origin.actorUserId })
+          .values({ org_unit_id: input.org_unit_id, note: input.note, ...header, created_by: origin.actorUserId })
           .returningAll()
           .executeTakeFirstOrThrow(),
-        'Đơn vị đã có thực đơn của tuần này cho độ tuổi này',
+        'Đơn vị đã có thực đơn của tuần này cho khối này',
         'week_start_date',
       );
       if (items && items.length > 0) {
@@ -140,6 +224,46 @@ export class KitchenMenusService {
       return menu;
     });
     return this.detailOf(database, created.id);
+  }
+
+  // "Thay đổi" thông tin chung của thực đơn nháp (4.5): tên, tháng, tuần, từ ngày–đến ngày, khối áp dụng. Đổi sang tuần
+  // khác thì món giữ theo thứ trong tuần
+  async updateHeader(currentUser: CurrentUser, menuId: string, input: MenuHeaderInput, origin: ChangeOrigin) {
+    const { database } = await this.currentSchoolYear.require();
+    const menu = await this.findMenu(database, menuId);
+    await this.access.assertManage(currentUser, menu.org_unit_id);
+    if (menu.status !== 'draft') {
+      throw ruleViolationError('BR-59', 'Chỉ sửa được thực đơn nháp; thực đơn đã trình hoặc đã công bố không sửa');
+    }
+    const header = await this.header(database, {
+      ...input,
+      name: input.name ?? menu.name,
+      from_date: input.from_date ?? menu.from_date ?? menu.week_start_date,
+      grade_levels: input.grade_levels ?? (input.age_group ? null : menu.grade_levels),
+    });
+    await this.assertNoOverlap(database, menu.org_unit_id, header, menuId);
+    await database.transaction().execute(async (transaction) => {
+      const updated = await conflictOnDuplicate(
+        transaction
+          .updateTable('menus')
+          .set({ ...header, updated_at: new Date() })
+          .where('id', '=', menuId)
+          .returningAll()
+          .executeTakeFirstOrThrow(),
+        'Đơn vị đã có thực đơn của tuần này cho khối này',
+        'week_start_date',
+      );
+      await writeAuditLog(transaction, {
+        origin,
+        orgUnitId: menu.org_unit_id,
+        entityName: 'menus',
+        entityId: menuId,
+        action: 'update',
+        before: menu,
+        after: updated,
+      });
+    });
+    return this.detailOf(database, menuId);
   }
 
   async detail(currentUser: CurrentUser, menuId: string) {
@@ -401,14 +525,12 @@ export class KitchenMenusService {
     const week = weekStartOf(weekStartDate ?? this.meals.today());
     const menus = await database
       .selectFrom('menus')
-      .select(['id', 'age_group'])
+      .select(['id', 'grade_levels'])
       .where('org_unit_id', '=', child.org_unit_id)
       .where('week_start_date', '=', week)
       .where('status', '=', 'published')
       .execute();
-    const menu =
-      menus.find((row) => child.grade_level !== null && row.age_group === child.grade_level) ??
-      menus.find((row) => row.age_group === ALL_AGES);
+    const menu = menuForGrade(menus, child.grade_level);
     const buffets = await database
       .selectFrom('buffet_events')
       .select(['id', 'buffet_date', 'occasion', 'menu_note'])
@@ -588,6 +710,12 @@ export class KitchenMenusService {
       org_unit_id: menu.org_unit_id,
       week_start_date: menu.week_start_date,
       age_group: menu.age_group,
+      name: menu.name,
+      month: menu.month,
+      week_no: menu.week_no,
+      from_date: menu.from_date,
+      to_date: menu.to_date,
+      grade_levels: menu.grade_levels,
       status: menu.status,
       note: menu.note,
       reject_reason: menu.reject_reason,
@@ -601,21 +729,7 @@ export class KitchenMenusService {
     };
   }
 
-  private async assertAgeGroup(database: Kysely<SchoolYearDatabase>, ageGroup: string) {
-    if (ageGroup === ALL_AGES) {
-      return;
-    }
-    const grade = await database
-      .selectFrom('grade_levels')
-      .select('id')
-      .where('code', '=', ageGroup)
-      .executeTakeFirst();
-    if (!grade) {
-      throw validationError([{ field: 'age_group', message: 'Độ tuổi là all hoặc mã khối học trong danh mục' }]);
-    }
-  }
-
-  private async assertDishes(database: Kysely<SchoolYearDatabase>, orgUnitId: string, items: MenuItemInput[]) {
+  async assertDishes(database: Kysely<SchoolYearDatabase>, orgUnitId: string, items: MenuItemInput[]) {
     if (items.length === 0) {
       return;
     }
@@ -676,6 +790,7 @@ export class KitchenMenusController {
       currentUser,
       queryUuid(query.org_unit_id, 'org_unit_id', true) ?? '',
       queryDate(query.week_start_date, 'week_start_date'),
+      typeof query.month === 'string' && query.month !== '' ? query.month : null,
     );
   }
 
@@ -685,8 +800,7 @@ export class KitchenMenusController {
     const errors: FieldError[] = [];
     const input = {
       org_unit_id: readRequiredUuid(body, 'org_unit_id', errors, 'Bắt buộc chọn đơn vị'),
-      week_start_date: readDate(body, 'week_start_date', errors, true) ?? '',
-      age_group: readText(body, 'age_group', errors) ?? ALL_AGES,
+      ...readMenuHeader(body, errors),
       note: readText(body, 'note', errors),
       items: readItems(body, errors),
     };
@@ -700,6 +814,19 @@ export class KitchenMenusController {
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
     return this.menus.detail(currentUser, id);
+  }
+
+  @Put('menus/:id')
+  updateHeader(
+    @Param('id', uuidParameter('Mã thực đơn không hợp lệ')) id: string,
+    @Body() body: RequestBody,
+    @Req() request: Request,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const errors: FieldError[] = [];
+    const input = readMenuHeader(body, errors);
+    check(errors);
+    return this.menus.updateHeader(currentUser, id, input, originOf(request, currentUser));
   }
 
   @Put('menus/:id/items')

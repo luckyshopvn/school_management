@@ -7,11 +7,13 @@ import { messageOf } from '../health/health-api.js';
 import { AppShell } from '../pages/AppShell.js';
 import { formatNumber } from '../reports/reports-api.js';
 import { useHasPermission } from '../session/permissions.js';
-import { readChildStatistics, readClassStatistics, readStaffStatistics, type Breakdown } from './statistics-api.js';
+import { readClassStatistics, readStaffStatistics, type Breakdown } from './statistics-api.js';
+import { StudentStatisticsView } from './StudentStatisticsPage.js';
 
 // Thống kê theo tiêu chí ngành (DT-14 phần 14a, YCTD-102): 5.1 lớp học theo nhóm tuổi, 5.2 nhân sự, 5.3 học sinh. Dữ liệu
 // chưa có trong hồ sơ (dân tộc, khuyết tật, diện chính sách, biết bơi, bệnh về mắt, trình độ, vị trí việc làm) lấy từ tệp
-// CSDL ngành đã nhập; chưa nhập thì gom vào "Chưa nhập"
+// CSDL ngành đã nhập; chưa nhập thì gom vào "Chưa nhập". Thẻ 5.3 dùng màn hình Thống kê học sinh đủ các phần của Sở (DT-16
+// phần 16h)
 type Tab = 'classes' | 'staff' | 'children';
 const TITLES: Record<Tab, string> = {
   classes: '5.1 Thống kê lớp học',
@@ -100,40 +102,6 @@ function ClassesView({ orgUnitId }: { orgUnitId: string }) {
   );
 }
 
-function ChildrenView({ orgUnitId }: { orgUnitId: string }) {
-  const stats = useQuery({
-    queryKey: ['statistics', 'children', orgUnitId],
-    queryFn: () => readChildStatistics(orgUnitId),
-    retry: false,
-  });
-  if (stats.error) {
-    return <Alert tone="danger">{messageOf(stats.error)}</Alert>;
-  }
-  if (!stats.data) {
-    return null;
-  }
-  const data = stats.data;
-  return (
-    <>
-      <p className="text-content text-text">
-        Học sinh đang học: {data.totals.children_count} (nữ {data.totals.female_count}); khuyết tật:{' '}
-        {data.disability.count}; diện chính sách: {data.policy.count}; biết bơi: {data.swimming.count} (
-        {data.swimming.percent}%); bệnh về mắt: {data.eye_disease.count}. Tuổi tính đến ngày{' '}
-        {data.on_date.split('-').reverse().join('/')}.
-      </p>
-      <Table
-        title="Học sinh theo độ tuổi"
-        headers={['Độ tuổi', 'Số lượng', 'Nữ', 'Tỷ lệ (%)']}
-        rows={data.by_age.map((group) => [group.label, group.count, group.female, group.percent])}
-      />
-      <BreakdownTable title="Học sinh theo dân tộc" label="Dân tộc" items={data.by_ethnicity} />
-      <BreakdownTable title="Học sinh khuyết tật" label="Loại khuyết tật" items={data.disability.by_type} />
-      <BreakdownTable title="Học sinh diện chính sách" label="Đối tượng chính sách" items={data.policy.by_type} />
-      <BreakdownTable title="Học sinh có bệnh về mắt" label="Bệnh về mắt" items={data.eye_disease.by_type} />
-    </>
-  );
-}
-
 function StaffView({ orgUnitId }: { orgUnitId: string }) {
   const stats = useQuery({
     queryKey: ['statistics', 'staff', orgUnitId],
@@ -194,7 +162,7 @@ export function StatisticsPage() {
         {tab === undefined ? <Alert tone="info">Bạn chưa được cấp quyền xem thống kê.</Alert> : null}
         {tab === 'classes' ? <ClassesView orgUnitId={orgUnitId} /> : null}
         {tab === 'staff' ? <StaffView orgUnitId={orgUnitId} /> : null}
-        {tab === 'children' ? <ChildrenView orgUnitId={orgUnitId} /> : null}
+        {tab === 'children' ? <StudentStatisticsView orgUnitId={orgUnitId} /> : null}
       </div>
     </AppShell>
   );

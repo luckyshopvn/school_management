@@ -9,9 +9,11 @@ import {
   validationError,
   type AccessTokenClaims,
 } from '@school-management/server';
+import { PORTAL_WORKSPACES } from '@school-management/shared';
 import { Infrastructure } from '../common/infrastructure.js';
 import { IdentitySettingsService } from '../settings/identity-settings.service.js';
 import { checkPasswordPolicy, hashPassword, placeholderPasswordHash, verifyPassword } from './password.js';
+import { assertPasswordNotReused, recordPasswordHistory } from './password-history.js';
 import { createRefreshToken, hashRefreshToken, readSessionIdFromRefreshToken, TokenService } from './token.service.js';
 
 // Sai mật khẩu 5 lần liên tiếp thì tạm khóa 15 phút rồi tự mở (BM-04, XT-05)
@@ -68,6 +70,8 @@ export interface CurrentUserResponse {
   username: string | null;
   must_change_password: boolean;
   assignments: Array<{ role_code: string; role_name: string; org_unit_id: string | null; permissions: string[] }>;
+  // Phân hệ của cổng quản trị tài khoản được dùng (1.2 Phân quyền nhóm theo phần mềm, DT-16 phần 16d)
+  workspaces: string[];
 }
 
 const INVALID_CREDENTIALS_MESSAGE = 'Số điện thoại, tên đăng nhập hoặc mật khẩu không đúng';
@@ -298,24 +302,25 @@ export class AuthenticationService {
     if (newPassword === currentPassword) {
       throw validationError([{ field: 'new_password', message: 'Mật khẩu mới phải khác mật khẩu hiện tại' }]);
     }
+    // Không cho dùng lại mật khẩu gần đây (DT-16 phần 16c)
+    await assertPasswordNotReused(this.database, user, newPassword, await this.identitySettings.passwordHistoryCount());
 
-    await this.database
-      .updateTable('users')
-      .set({
-        password_hash: await hashPassword(newPassword),
-        password_changed_at: now,
-        must_change_password: false,
-        updated_at: now,
-      })
-      .where('id', '=', user.id)
-      .execute();
-    await this.database
-      .updateTable('sessions')
-      .set({ revoked_at: now })
-      .where('user_id', '=', user.id)
-      .where('id', '!=', claims.sessionId)
-      .where('revoked_at', 'is', null)
-      .execute();
+    const newHash = await hashPassword(newPassword);
+    await this.database.transaction().execute(async (transaction) => {
+      await transaction
+        .updateTable('users')
+        .set({ password_hash: newHash, password_changed_at: now, must_change_password: false, updated_at: now })
+        .where('id', '=', user.id)
+        .execute();
+      await recordPasswordHistory(transaction, user.id, newHash, now);
+      await transaction
+        .updateTable('sessions')
+        .set({ revoked_at: now })
+        .where('user_id', '=', user.id)
+        .where('id', '!=', claims.sessionId)
+        .where('revoked_at', 'is', null)
+        .execute();
+    });
 
     const accessToken = await this.tokenService.signAccessToken({ ...claims, passwordChangeRequired: false });
     return {
@@ -378,9 +383,25 @@ export class AuthenticationService {
         'permissions.code as permission_code',
       ])
       .where('user_roles.user_id', '=', user.id)
+      // Nhóm hết hiệu lực không cấp quyền, phân hệ (DT-16 phần 16d)
+      .where('roles.is_active', '=', true)
       .orderBy('roles.code')
       .orderBy('permissions.code')
       .execute();
+
+    // Phân hệ của cổng quản trị: phân hệ hiện khi có ít nhất một nhóm còn hiệu lực của tài khoản không bỏ phân hệ đó (1.2)
+    const roleCodes = [...new Set(rows.map((row) => row.role_code))];
+    const exclusions = roleCodes.length
+      ? await this.database
+          .selectFrom('role_workspace_exclusions')
+          .innerJoin('roles', 'roles.id', 'role_workspace_exclusions.role_id')
+          .select(['roles.code', 'role_workspace_exclusions.workspace_key'])
+          .where('roles.code', 'in', roleCodes)
+          .execute()
+      : [];
+    const workspaces = PORTAL_WORKSPACES.map((workspace) => workspace.key).filter((key) =>
+      roleCodes.some((code) => !exclusions.some((item) => item.code === code && item.workspace_key === key)),
+    );
 
     const assignments = new Map<string, CurrentUserResponse['assignments'][number]>();
     for (const row of rows) {
@@ -406,6 +427,7 @@ export class AuthenticationService {
       username: user.username,
       must_change_password: user.must_change_password,
       assignments: [...assignments.values()],
+      workspaces,
     };
   }
 
@@ -480,7 +502,7 @@ export class AuthenticationService {
       .execute();
   }
 
-  private async recordSecurityEvent(
+  async recordSecurityEvent(
     eventType: string,
     userId: string | null,
     loginIdentifier: string | null,

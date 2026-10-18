@@ -30,6 +30,7 @@ export async function loadAssignments(
       'roles.name as role_name',
       'user_roles.org_unit_id',
       'permissions.code as permission_code',
+      'roles.is_active',
     ])
     .where('user_roles.user_id', 'in', userIds)
     .orderBy('roles.code')
@@ -50,7 +51,8 @@ export async function loadAssignments(
       byAssignment.set(row.assignment_id, assignment);
       result.get(row.user_id)?.push(assignment);
     }
-    if (row.permission_code) {
+    // Nhóm hết hiệu lực vẫn hiện trong danh sách vai trò của tài khoản nhưng không cấp quyền nào (DT-16 phần 16d)
+    if (row.permission_code && row.is_active) {
       assignment.permissions.push(row.permission_code);
     }
   }

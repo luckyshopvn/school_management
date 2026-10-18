@@ -67,6 +67,8 @@ export interface Asset {
   location_type: 'store' | 'room' | 'class' | 'staff' | 'unit';
   location_name: string | null;
   status: 'in_stock' | 'assigned' | 'on_loan' | 'damaged' | 'lost' | 'disposed';
+  // Thiết bị dạy học gắn với tài sản (DT-16 phần 16i)
+  equipment_item_id: string | null;
 }
 
 export interface AssetDetail extends Asset {

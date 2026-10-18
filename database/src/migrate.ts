@@ -22,6 +22,9 @@ export async function migrateToLatest(kind: DatabaseKind, connectionString: stri
     const migrator = new Migrator({
       db: database,
       provider: { getMigrations: async () => migrations },
+      // Mỗi phần làm song song được dành trước số tệp riêng nên các tệp có thể gộp vào không theo thứ tự số; tệp số nhỏ
+      // gộp sau vẫn chạy được trên cơ sở dữ liệu đã chạy tệp số lớn hơn
+      allowUnorderedMigrations: true,
     });
     return await migrator.migrateToLatest();
   } finally {

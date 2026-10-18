@@ -1,6 +1,7 @@
 import { Logger } from '@nestjs/common';
 import {
   CreateBucketCommand,
+  DeleteObjectCommand,
   GetObjectCommand,
   HeadBucketCommand,
   PutObjectCommand,
@@ -12,6 +13,9 @@ import type { ObjectStorageSettings } from '../common/configuration.js';
 export abstract class FileStorage {
   abstract put(key: string, body: Buffer, contentType: string): Promise<void>;
   abstract get(key: string): Promise<Buffer>;
+  // Xóa tệp khi bản ghi sở hữu bị xóa (tệp đính kèm hồ sơ văn thư) hoặc tệp xuất nền hết hạn (DT-16 phần 16a); tệp không
+  // còn thì bỏ qua
+  abstract delete(key: string): Promise<void>;
 }
 
 export class S3FileStorage extends FileStorage {
@@ -39,6 +43,10 @@ export class S3FileStorage extends FileStorage {
   async get(key: string): Promise<Buffer> {
     const result = await this.client.send(new GetObjectCommand({ Bucket: this.settings.bucket, Key: key }));
     return Buffer.from(await (result.Body as { transformToByteArray(): Promise<Uint8Array> }).transformToByteArray());
+  }
+
+  async delete(key: string): Promise<void> {
+    await this.client.send(new DeleteObjectCommand({ Bucket: this.settings.bucket, Key: key }));
   }
 
   // Tạo thùng chứa ở lần ghi đầu nếu chưa có
@@ -71,5 +79,13 @@ export class MemoryFileStorage extends FileStorage {
       throw new Error(`Không có tệp ${key}`);
     }
     return body;
+  }
+
+  async delete(key: string): Promise<void> {
+    this.objects.delete(key);
+  }
+
+  has(key: string): boolean {
+    return this.objects.has(key);
   }
 }

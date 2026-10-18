@@ -1,4 +1,16 @@
-import { Body, Controller, Get, HttpCode, Param, Post, Req, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Query,
+  Req,
+  Res,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApplicationError, readBearerToken, validationError } from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
@@ -10,6 +22,7 @@ import { isUuid, type RequestBody } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { MAXIMUM_IMPORT_BYTES } from './excel.js';
 import { ImportsService } from './imports.service.js';
+import { isStudentImportType, STUDENT_IMPORT_PERMISSIONS, STUDENT_IMPORT_TYPES } from './student-imports.js';
 
 interface UploadedPart {
   originalname: string;
@@ -29,16 +42,30 @@ const fileName = (file: UploadedPart) => Buffer.from(file.originalname, 'latin1'
 // Quyền theo loại dữ liệu nhập: lớp và trẻ chỉ Hiệu trưởng, công nợ đầu kỳ cho kế toán (YCTD-54); tệp CSDL ngành của trẻ
 // như nhập trẻ, của nhân sự như nhập nhân sự (YCTD-100)
 function permissionOf(type: string): string {
+  if (isStudentImportType(type)) {
+    return STUDENT_IMPORT_PERMISSIONS[type];
+  }
   return type === 'moet_codes'
     ? PERMISSION_CODES.childManage
     : type === 'opening_debts'
       ? PERMISSION_CODES.openingDebtImport
       : type === 'staff' || type === 'moet_staff'
         ? PERMISSION_CODES.importStaff
-        : PERMISSION_CODES.importChildren;
+        : type === 'professional_ratings'
+          ? PERMISSION_CODES.professionalStandardAssess
+          : PERMISSION_CODES.importChildren;
 }
 
-const UPLOAD_TYPES = ['classes', 'children', 'opening_debts', 'staff', 'moet_children', 'moet_staff'] as const;
+const UPLOAD_TYPES = [
+  'classes',
+  'children',
+  'opening_debts',
+  'staff',
+  'moet_children',
+  'moet_staff',
+  ...STUDENT_IMPORT_TYPES,
+  'professional_ratings',
+] as const;
 type UploadType = (typeof UPLOAD_TYPES)[number];
 const isUploadType = (value: unknown): value is UploadType => UPLOAD_TYPES.includes(value as UploadType);
 
@@ -48,6 +75,42 @@ function assertCanImport(currentUser: CurrentUser, type: string): void {
   }
 }
 const XLSX_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+const TEMPLATE_PERMISSIONS = [
+  PERMISSION_CODES.importChildren,
+  PERMISSION_CODES.childManage,
+  PERMISSION_CODES.openingDebtImport,
+  PERMISSION_CODES.importStaff,
+  PERMISSION_CODES.professionalStandardAssess,
+  // Nhập của nhóm Học sinh (DT-16 phần 16g)
+  PERMISSION_CODES.childApprove,
+];
+// Tải lên, xem, ghi lần nhập: người có một trong các quyền nhập; quyền theo loại kiểm ở assertCanImport
+const UPLOAD_PERMISSIONS = [
+  PERMISSION_CODES.importChildren,
+  PERMISSION_CODES.openingDebtImport,
+  PERMISSION_CODES.importStaff,
+  PERMISSION_CODES.childManage,
+  PERMISSION_CODES.childApprove,
+  PERMISSION_CODES.professionalStandardAssess,
+];
+
+// Cột được chọn để nhập gửi kèm tệp dạng "khóa1,khóa2"; bỏ trống là mọi cột (DT-16 phần 16a)
+function readColumnKeys(value: unknown): string[] | undefined {
+  if (value === undefined || value === null || value === '') {
+    return undefined;
+  }
+  if (typeof value !== 'string') {
+    throw validationError([{ field: 'columns', message: 'Danh sách cột không hợp lệ' }]);
+  }
+  return [
+    ...new Set(
+      value
+        .split(',')
+        .map((key) => key.trim())
+        .filter(Boolean),
+    ),
+  ];
+}
 
 // Nhập dữ liệu ban đầu từ Excel (P01-13): lớp và trẻ chỉ Hiệu trưởng, công nợ đầu kỳ cho kế toán; nhập mã ngành (P02-12)
 // cho người lập hồ sơ trẻ (BM-63, YCTD-46, YCTD-54)
@@ -56,22 +119,41 @@ export class ImportsController {
   constructor(private readonly importsService: ImportsService) {}
 
   @Get('templates/:type')
-  @RequirePermission(
-    PERMISSION_CODES.importChildren,
-    PERMISSION_CODES.childManage,
-    PERMISSION_CODES.openingDebtImport,
-    PERMISSION_CODES.importStaff,
-  )
+  @RequirePermission(...TEMPLATE_PERMISSIONS)
   async template(
     @Param('type') rawType: string,
+    @Query('with_data') withData: string | undefined,
+    @Req() request: Request,
     @Res() response: Response,
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
     const type = this.importsService.assertImportType(rawType);
     assertCanImport(currentUser, type);
+    const buffer = await this.importsService.template(currentUser, type, withData === 'true', request.ip ?? null);
     response.setHeader('content-type', XLSX_TYPE);
-    response.setHeader('content-disposition', `attachment; filename="mau-nhap-${type}.xlsx"`);
-    response.send(await this.importsService.template(type));
+    response.setHeader(
+      'content-disposition',
+      `attachment; filename="mau-nhap-${type}${withData === 'true' ? '-kem-du-lieu' : ''}.xlsx"`,
+    );
+    response.send(buffer);
+  }
+
+  // Cột của mẫu để chọn cột nhập (DT-16 phần 16a)
+  @Get('templates/:type/columns')
+  @RequirePermission(...TEMPLATE_PERMISSIONS)
+  columns(@Param('type') rawType: string, @AuthenticatedUser() currentUser: CurrentUser) {
+    const type = this.importsService.assertImportType(rawType);
+    assertCanImport(currentUser, type);
+    return this.importsService.columns(type);
+  }
+
+  // "Tra cứu danh mục": mã, tên các danh mục dùng trong tệp (DT-16 phần 16a)
+  @Get('catalogs/:type')
+  @RequirePermission(...TEMPLATE_PERMISSIONS)
+  async catalogs(@Param('type') rawType: string, @AuthenticatedUser() currentUser: CurrentUser) {
+    const type = this.importsService.assertImportType(rawType);
+    assertCanImport(currentUser, type);
+    return { items: await this.importsService.catalogs(currentUser, type) };
   }
 
   @Post('moet-codes')
@@ -80,6 +162,7 @@ export class ImportsController {
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: MAXIMUM_IMPORT_BYTES, files: 1 } }))
   importMoetCodes(
     @UploadedFile() file: UploadedPart | undefined,
+    @Body() body: RequestBody,
     @Req() request: Request,
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
@@ -89,11 +172,12 @@ export class ImportsController {
       fileName(uploaded),
       uploaded.buffer,
       originOf(request, currentUser),
+      readColumnKeys(body?.columns),
     );
   }
 
   @Post()
-  @RequirePermission(PERMISSION_CODES.importChildren, PERMISSION_CODES.openingDebtImport, PERMISSION_CODES.importStaff)
+  @RequirePermission(...UPLOAD_PERMISSIONS)
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: MAXIMUM_IMPORT_BYTES, files: 1 } }))
   upload(
     @UploadedFile() file: UploadedPart | undefined,
@@ -120,11 +204,32 @@ export class ImportsController {
       uploaded.buffer,
       originOf(request, currentUser),
       isMoet ? (orgUnitId as string) : null,
+      isMoet ? undefined : readColumnKeys(body?.columns),
     );
   }
 
+  // "Xuất file lỗi": tệp gốc kèm cột Nội dung lỗi theo từng dòng (DT-16 phần 16a)
+  @Get(':id/error-file')
+  @RequirePermission(...TEMPLATE_PERMISSIONS)
+  async errorFile(
+    @Param('id', uuidParameter('Mã lần nhập không hợp lệ')) jobId: string,
+    @Res() response: Response,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    assertCanImport(currentUser, (await this.importsService.get(jobId)).import_type);
+    const file = await this.importsService.errorFile(jobId);
+    response.setHeader('content-type', XLSX_TYPE);
+    // Tên tệp gốc có thể có dấu nên thêm filename* theo RFC 5987; filename là tên không dấu
+    response.setHeader(
+      'content-disposition',
+      `attachment; filename="tep-loi-${jobId.slice(0, 8)}.xlsx"; filename*=UTF-8''${encodeURIComponent(file.fileName)}`,
+    );
+    response.setHeader('cache-control', 'no-store');
+    response.send(file.buffer);
+  }
+
   @Get(':id')
-  @RequirePermission(PERMISSION_CODES.importChildren, PERMISSION_CODES.openingDebtImport, PERMISSION_CODES.importStaff)
+  @RequirePermission(...UPLOAD_PERMISSIONS)
   async get(
     @Param('id', uuidParameter('Mã lần nhập không hợp lệ')) jobId: string,
     @AuthenticatedUser() currentUser: CurrentUser,
@@ -136,9 +241,10 @@ export class ImportsController {
 
   @Post(':id/commit')
   @HttpCode(200)
-  @RequirePermission(PERMISSION_CODES.importChildren, PERMISSION_CODES.openingDebtImport, PERMISSION_CODES.importStaff)
+  @RequirePermission(...UPLOAD_PERMISSIONS)
   async commit(
     @Param('id', uuidParameter('Mã lần nhập không hợp lệ')) jobId: string,
+    @Body() body: RequestBody,
     @Req() request: Request,
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
@@ -148,6 +254,7 @@ export class ImportsController {
       readBearerToken(request.header('authorization')),
       jobId,
       originOf(request, currentUser),
+      body?.confirm_update === true,
     );
   }
 }

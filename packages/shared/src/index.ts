@@ -2,7 +2,13 @@
 export * from './facilities.js';
 export * from './portal-menu.js';
 export * from './menu-permissions.js';
+export * from './staff-profile.js';
+export * from './staff-catalogs.js';
 export * from './classes.js';
+export * from './student-health.js';
+export * from './students.js';
+export * from './emis.js';
+export * from './signing.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -159,6 +165,17 @@ export const PERMISSION_CODES = {
   professionalStandardAssess: 'P07.professional-standard.assess',
   // Xem mọi ý kiến phản hồi gửi từ chân trang, đổi trạng thái và trả lời (DT-15 phần 15g, YCTD-110)
   feedbackManage: 'P01.feedback.manage',
+  // Văn thư lưu trữ, mục 5.10 của Sở (DT-15 phần 15h2, YCTD-118)
+  archiveView: 'P09.archive.view',
+  archiveManage: 'P09.archive.manage',
+  archiveExport: 'P09.archive.export',
+  // Soạn thông báo hệ thống bật lên khi vào cổng quản trị, cấu hình ứng dụng liên kết (DT-16 phần 16c)
+  announcementManage: 'P01.announcement.manage',
+  // Quản lý kí hồ sơ, mục 6 của Sở, bản chạy nội bộ (DT-16 phần 16k)
+  signingView: 'P01.signing.view',
+  signingManage: 'P01.signing.manage',
+  signingSign: 'P01.signing.sign',
+  signingCertificate: 'P01.signing.certificate',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -283,6 +300,62 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/school-sites',
   '/class-imports',
   '/class-assignments',
+  // Cập nhật địa danh hành chính (DT-15 phần 15h1)
+  '/administrative-units',
+  // Quản trị hệ thống đủ theo Sở: 1.2 Phân quyền nhóm theo phần mềm, 1.6 Tài khoản đồng bộ của Bộ, của Sở (DT-16 phần 16d)
+  '/role-workspaces',
+  '/sync-accounts',
+  // Văn thư lưu trữ (DT-15 phần 15h2, YCTD-118)
+  '/archive-records',
+  '/archive-fonds',
+  '/archive-holdings',
+  '/archive-report',
+  // Tệp đã tạo của tác vụ xuất nền (DT-16 phần 16a)
+  '/generated-files',
+  // Thông báo hệ thống, ứng dụng liên kết (DT-16 phần 16c)
+  '/system-announcements',
+  '/app-links',
+  // Trường học, lớp học, lịch năm học đủ theo Sở (DT-16 phần 16e)
+  '/accreditation-review',
+  '/school-splits',
+  '/school-weeks',
+  '/year-rollover',
+  // Nhân sự đủ theo Sở (DT-16 phần 16f): 3.1.2, 3.1.3, 3.1.5, 3.5, 5.2, 5.6
+  '/staff-branches',
+  '/staff-imports',
+  '/staff-identity',
+  '/staff-movements',
+  '/staff-statistics',
+  '/staff-identity-progress',
+  // Sức khỏe học sinh, thống kê học sinh (DT-16 phần 16h)
+  '/student-health',
+  '/student-statistics',
+  // Học sinh đủ theo Sở (DT-16 phần 16g)
+  '/student-imports',
+  '/student-order',
+  '/sms-phones',
+  '/national-ids',
+  '/learning-accounts',
+  '/default-passwords',
+  '/national-id-progress',
+  // Báo cáo số liệu EMIS đủ bảy biểu (DT-16 phần 16j)
+  '/emis/facilities',
+  '/emis/health',
+  '/emis/end-of-year',
+  '/emis/staff',
+  '/emis/foreign-language',
+  '/emis/preschool-end-of-year',
+  // Cơ sở vật chất đủ theo Sở (DT-16 phần 16i)
+  '/facility-investments',
+  '/facility-input',
+  '/facility-report',
+  '/equipment-outside',
+  '/equipment-submission',
+  // Quản lý kí hồ sơ (DT-16 phần 16k)
+  '/signing-certificate',
+  '/signing-certificate-sync',
+  '/signing-dossiers',
+  '/signing-submissions',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -295,6 +368,13 @@ export const MAX_QUICK_LINKS = 12;
 // chủ API chỉ nhận các khóa này; lưới mới chuyển sang ở các phần sau thì thêm khóa vào đây
 export const DATA_GRID_KEYS = [
   'default',
+  // Nhân sự đủ theo Sở (DT-16 phần 16f)
+  'staff-branches',
+  'staff-identity',
+  'staff-movements-in',
+  'staff-movements-out',
+  'staff-guests-out',
+  'staff-guests-in',
   'accounts',
   'staff',
   // Học sinh (DT-15 phần 15c)
@@ -312,6 +392,77 @@ export const DATA_GRID_KEYS = [
   'school-sites',
   'classes',
   'class-assignments',
+  // Cập nhật địa danh hành chính (DT-15 phần 15h1)
+  'administrative-addresses',
+  'administrative-unit-mappings',
+  // Màn hình còn lại của các phân hệ theo Sở (DT-16 phần 16b): cơ sở vật chất, thiết bị dạy học
+  'facility-rooms',
+  'equipment-summary',
+  'equipment-outside',
+  'equipment-catalog',
+  // 16b: cân đo, thống kê, hồ sơ chưa nhập đủ, hoàn thành chương trình
+  'growth-report-children',
+  'missing-child-profiles',
+  'missing-staff-profiles',
+  'program-completion-classes',
+  'program-completion-children',
+  // 16b: nhóm học sinh, đánh giá chuẩn nghề nghiệp
+  'child-groups',
+  'child-group-members',
+  'professional-evaluations',
+  // 16b: thực đơn bữa ăn
+  'kitchen-menus',
+  'kitchen-ingredients',
+  'kitchen-dishes',
+  'kitchen-suppliers',
+  'kitchen-purchases',
+  'kitchen-buffets',
+  // 16b: y tế, thuốc
+  'health-campaigns',
+  'health-schedules',
+  'medical-events',
+  'health-report-requests',
+  'health-standards',
+  'medication-requests',
+  'medication-schedule',
+  'medicines',
+  'pharmacies',
+  'medicine-purchase-requests',
+  'medicine-purchase-orders',
+  'medicine-issues',
+  // 16b: quản trị hệ thống
+  'academic-years',
+  'departments',
+  'job-titles',
+  'catalog-items',
+  'rooms',
+  'grade-levels',
+  'zalo-followers',
+  'org-units',
+  // Văn thư lưu trữ (DT-15 phần 15h2)
+  'archive-records',
+  'archive-fonds',
+  'archive-holdings',
+  'archive-report',
+  // Tệp đã tạo (DT-16 phần 16a)
+  'generated-files',
+  // Thông báo hệ thống (DT-16 phần 16c)
+  'system-announcements',
+  // Tách trường (DT-16 phần 16e)
+  'school-splits',
+  // Sức khỏe, thực đơn, thống kê học sinh (DT-16 phần 16h)
+  'student-statistics-ethnic',
+  // Học sinh đủ theo Sở (DT-16 phần 16g)
+  'student-order',
+  'sms-phones',
+  'national-ids',
+  'learning-accounts',
+  'national-id-progress',
+  'national-id-duplicates',
+  'student-transfers',
+  // Quản lý kí hồ sơ (DT-16 phần 16k)
+  'signing-dossiers',
+  'signing-submissions',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

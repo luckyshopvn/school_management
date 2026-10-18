@@ -7,7 +7,10 @@ import {
   type AuthenticatedRequest,
 } from './access-token.guard.js';
 import { assertChannel, AuthenticationService, type RequestOrigin } from './authentication.service.js';
+import { CaptchaService, type CaptchaAnswer } from './captcha.service.js';
 import { LoginRateLimiter } from './login-rate-limiter.js';
+import { PasswordResetService } from './password-reset.service.js';
+import { IdentitySettingsService } from '../settings/identity-settings.service.js';
 import { OneTimeCodeService } from './one-time-code.service.js';
 import { clearRefreshTokenCookie, readRefreshTokenCookie, setRefreshTokenCookie } from './refresh-token-cookie.js';
 
@@ -22,6 +25,15 @@ function readText(body: RequestBody, field: string, errors: FieldError[]): strin
   return value;
 }
 
+function readCaptcha(body: RequestBody): CaptchaAnswer {
+  const captchaId = body?.captcha_id;
+  const captchaText = body?.captcha_text;
+  return {
+    captchaId: typeof captchaId === 'string' ? captchaId : undefined,
+    captchaText: typeof captchaText === 'string' && captchaText.trim() !== '' ? captchaText : undefined,
+  };
+}
+
 function readOrigin(request: Request): RequestOrigin {
   return { ipAddress: request.ip ?? 'unknown', userAgent: request.header('user-agent') ?? null };
 }
@@ -33,8 +45,57 @@ export class AuthenticationController {
     private readonly authenticationService: AuthenticationService,
     private readonly loginRateLimiter: LoginRateLimiter,
     private readonly oneTimeCodeService: OneTimeCodeService,
+    private readonly captchaService: CaptchaService,
+    private readonly passwordResetService: PasswordResetService,
+    private readonly identitySettings: IdentitySettingsService,
     private readonly clock: Clock,
   ) {}
+
+  // Thông tin công khai của trang đăng nhập cổng quản trị: đường dây nóng, có luôn hiện mã xác nhận (DT-16 phần 16c)
+  @Get('login-options')
+  loginOptions() {
+    return this.identitySettings.loginPageOptions();
+  }
+
+  // Ảnh mã xác nhận mới; nút làm mới gọi lại điểm cuối này
+  @Post('captcha')
+  @HttpCode(200)
+  async captcha(@Req() request: Request) {
+    await this.loginRateLimiter.check(readOrigin(request).ipAddress);
+    return this.captchaService.issue();
+  }
+
+  // Quên mật khẩu: luôn cần mã xác nhận; phản hồi như nhau dù tài khoản có hay không
+  @Post('password-reset/request')
+  @HttpCode(200)
+  async requestPasswordReset(@Body() body: RequestBody, @Req() request: Request) {
+    const origin = readOrigin(request);
+    await this.loginRateLimiter.check(origin.ipAddress);
+    const errors: FieldError[] = [];
+    const login = readText(body, 'login', errors).trim();
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    await this.captchaService.assertSolved(readCaptcha(body));
+    return this.passwordResetService.request(login, origin);
+  }
+
+  @Post('password-reset/confirm')
+  @HttpCode(200)
+  async confirmPasswordReset(@Body() body: RequestBody, @Req() request: Request) {
+    const origin = readOrigin(request);
+    await this.loginRateLimiter.check(origin.ipAddress);
+    const errors: FieldError[] = [];
+    const login = readText(body, 'login', errors).trim();
+    const code = readText(body, 'code', errors).trim();
+    const newPassword = readText(body, 'new_password', errors);
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    await this.passwordResetService.confirm(login, code, newPassword, origin);
+    await this.captchaService.clearFailures(login);
+    return { message: 'Đã đặt lại mật khẩu, vui lòng đăng nhập bằng mật khẩu mới' };
+  }
 
   @Post('login')
   @HttpCode(200)
@@ -48,7 +109,23 @@ export class AuthenticationController {
       throw validationError(errors);
     }
     const channel = assertChannel(body?.channel);
-    const issued = await this.authenticationService.login(login, password, channel, origin);
+    // Mã xác nhận chỉ áp dụng cho cổng quản trị (DT-16 phần 16c)
+    const portal = channel === 'portal';
+    if (portal && (await this.captchaService.requiredForLogin(login))) {
+      await this.captchaService.assertSolved(readCaptcha(body));
+    }
+    let issued;
+    try {
+      issued = await this.authenticationService.login(login, password, channel, origin);
+    } catch (error) {
+      if (portal) {
+        await this.captchaService.registerFailure(login);
+      }
+      throw error;
+    }
+    if (portal) {
+      await this.captchaService.clearFailures(login);
+    }
     setRefreshTokenCookie(response, channel, issued.refreshToken, issued.refreshExpiresAt, this.clock);
     return issued.response;
   }
