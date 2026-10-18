@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.79
+- Phiên bản: 1.80
 - Ngày cập nhật: 2026-10-18
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -373,6 +373,15 @@ Giao kèo báo cáo số liệu EMIS theo Sở (DT-16 phần 16j, YCTD-129, BR-1
 4. `POST /reports/emis/forms/{form}/tabs/{tab}/fill` nhận `source` (`data` là Lấy dữ liệu, `previous_year` là Lấy dữ liệu năm trước; khác trả `ERR_VALIDATION` trường `source`); trả `rows` và `source_name` ("dữ liệu của hệ thống" hoặc "năm học <tên>"), không lưu. Thẻ không có nguồn tương ứng, biểu đang khóa, chưa có năm học trước hoặc năm trước chưa ghi thẻ trả `ERR_RULE_VIOLATION` (422) mã `YCTD-129`. Năm trước là năm học có ngày bắt đầu liền trước năm đang dùng.
 5. `POST /reports/emis/forms/{form}/export` trả tệp Excel mỗi thẻ một trang (tên tệp `emis-dau-nam`, `emis-co-so-vat-chat`, `emis-suc-khoe-dau-nam`, `emis-cuoi-nam`, `emis-doi-ngu`, `emis-de-an-ngoai-ngu`, `emis-gdmn-cuoi-nam` kèm `-YYYYMMDD-HHMM.xlsx`), ghi `export_logs` mã báo cáo là mã biểu, không có dữ liệu cá nhân; không cần `P17.data.export`.
 6. Bảy biểu đăng ký với `UpperLevelForms` (mục 17.1): Xuất tệp gửi lưu tệp Excel như mục 5 và bản chụp số liệu; quyền của biểu là `P17.report.emis`, quyền mở khóa là `P01.school-profile.manage`; 2.3 cho đánh dấu `no_data`. `POST /upper-level-submissions/{form}/error-file` trả tệp `file-loi-<form>-YYYYMMDD-HHMM.xlsx`. `GET /reports/emis/start-of-year`, `POST /reports/emis/start-of-year/export`, `GET /reports/emis/start-of-year-health` giữ nguyên; bản chụp gửi của 1.1 nay lập bằng biểu chung (sáu trang). Không có mã quyền mới.
+
+Giao kèo phân hệ Quản lý kí hồ sơ, bản chạy nội bộ (DT-16 phần 16k, YCTD-130, BR-128):
+
+1. Mọi điểm cuối của nhóm `/signing` cần một trong bốn quyền `P01.signing.view`, `P01.signing.manage`, `P01.signing.sign`, `P01.signing.certificate` (không có trả `ERR_FORBIDDEN`); dịch vụ kiểm tra quyền của từng thao tác ở phạm vi toàn trường. Vi phạm quy tắc trả `ERR_RULE_VIOLATION` (422) mã YCTD-130.
+2. `GET /signing/certificate` trả thông tin chứng thư, `status`, `sync_status`, `synced_on`, `has_seal`, `expired`, `can_manage`, `digital_signer` (luôn sai ở bản nội bộ), `signer_description`, `events`. `PUT /signing/certificate` nhận `signature_type` (`remote`, `usb_token`, `hsm`), `provider`, `login_name`, `holder_name`, `holder_title`, `serial_number` (chữ, tối đa 200 ký tự), `valid_from`, `valid_to` (`YYYY-MM-DD`); thân có `password`, `pin`, `private_key` trả `ERR_VALIDATION`. `POST /signing/certificate/register`, `/revoke`, `/unsync`; `POST /signing/certificate/sync` nhận `synced_on`, `note`. `POST /signing/certificate/seal` nhận tệp nhiều phần `file` (PNG, JPEG, tối đa 1 MB), `GET` trả ảnh, `DELETE` xóa.
+3. `GET /signing/objects?object_type=&period=` trả `items` (đối tượng `object_id`, `object_label`, `detail` kèm `dossier` chưa hủy hoặc null); `object_type` là `school`, `class`, `staff`, `child`, `class_log`; `class_log` cần `period` dạng `YYYY-MM`.
+4. `POST /signing/dossiers` nhận `object_type`, `object_ids` (1 đến 500 mã), `period`; trả 201 `created`, `codes`. Đối tượng đã có hồ sơ chưa hủy trả 422; đối tượng không có trả 404 và không tạo hồ sơ nào. `POST /signing/dossiers/sign`, `/check-changes`, `/complete` nhận `ids` (1 đến 500); `/mark-sent` nhận thêm `sent_on`, `note`. `POST /signing/dossiers/{id}/cancel` nhận `reason` (bắt buộc), `/uncomplete` nhận `reason` (không bắt buộc). `GET /signing/dossiers/{id}` trả hồ sơ kèm `events`. `GET /signing/dossiers/{id}/file?version=original|signed` trả tệp PDF, ghi `export_logs` mã `signing-dossier` (`contains_personal_data` đúng trừ hồ sơ trường).
+5. `GET /signing/submissions?object_type=&status=` trả hồ sơ của năm học đang dùng; không có `status` thì trả hồ sơ Đã kí, Đã xác nhận, Đã gửi. `POST /signing/class-log/export` nhận `class_id`, `month` (`YYYY-MM`), trả tệp Excel sổ đầu bài, ghi `export_logs` mã `signing-class-log`.
+6. Chỗ nối chữ ký số: lớp trừu tượng `DossierSigner` (`apps/api/src/signing/dossier-signer.ts`) nhận số liệu, tệp gốc, mã băm, người kí, thông tin chứng thư, ảnh con dấu và trả tệp đã kí kèm `method`; bản nội bộ `InternalDossierSigner` (`digital` sai) đăng ký trong `ApplicationModule`. Khi có nhà cung cấp kí số thì thay bằng lớp gọi giao diện lập trình của nhà cung cấp.
 
 Giao kèo của hồ sơ trường, khai báo cơ sở vật chất, thiết bị dạy học, báo cáo EMIS đầu năm (DT-14 phần 14d, YCTD-106):
 
@@ -1484,6 +1493,17 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | POST | /api/v1/upper-level-submissions/{form}/resend | Người có quyền mở khóa đặt trạng thái gửi lại: `note` |
 | GET | /api/v1/upper-level-submissions/{form}/events | Lịch sử thao tác của biểu mẫu, mới nhất trước |
 | POST | /api/v1/upper-level-submissions/{form}/error-file | Xuất file lỗi: tệp Excel liệt kê các điều kiện hoàn thành dữ liệu chưa đạt của biểu mẫu, ghi nhật ký xuất; dùng chung cho mọi biểu mẫu gửi lên cấp trên (YCTD-129) |
+| GET, PUT | /api/v1/signing/certificate | Xem, ghi chứng thư số nhà trường (P01-28, BR-128, YCTD-130) |
+| POST | /api/v1/signing/certificate/register, /revoke | Đăng ký kí nội bộ, hủy đăng ký (YCTD-130) |
+| POST, GET, DELETE | /api/v1/signing/certificate/seal | Tải lên, xem, xóa ảnh con dấu (YCTD-130) |
+| POST | /api/v1/signing/certificate/sync, /unsync | Đánh dấu đã đồng bộ, đặt lại chưa đồng bộ (P01-29, YCTD-130) |
+| GET | /api/v1/signing/objects | Đối tượng của một loại hồ sơ kèm hồ sơ chưa hủy (P01-30, YCTD-130) |
+| POST | /api/v1/signing/dossiers | Tạo hồ sơ PDF (YCTD-130) |
+| POST | /api/v1/signing/dossiers/sign, /check-changes, /complete, /mark-sent | Kí xác nhận nội bộ, tải thông tin thay đổi, xác nhận hoàn thành, đánh dấu đã gửi (P01-30, P01-31, YCTD-130) |
+| GET | /api/v1/signing/dossiers/{id}, /{id}/file | Chi tiết, lịch sử; tệp gốc hoặc tệp đã kí, ghi nhật ký xuất (BR-74, YCTD-130) |
+| POST | /api/v1/signing/dossiers/{id}/cancel, /{id}/uncomplete | Hủy hồ sơ, hủy xác nhận (YCTD-130) |
+| GET | /api/v1/signing/submissions | Hồ sơ đã kí của 2.3 (P01-31, YCTD-130) |
+| POST | /api/v1/signing/class-log/export | Xuất dữ liệu sổ đầu bài ra Excel (YCTD-130) |
 | GET | /api/v1/notifications | Danh sách thông báo của người đăng nhập |
 | POST | /api/v1/notifications/{id}/read | Đánh dấu đã đọc |
 | POST | /api/v1/notifications/read-all | Đánh dấu đọc tất cả (YCTD-64) |
@@ -1504,6 +1524,7 @@ Hướng dẫn dùng cho các phần sau (16b, 16e đến 16k):
 4. Gửi lên cấp trên: trong dịch vụ của biểu mẫu gọi `upperLevelForms.register({ code, name, permission, unlockPermission, allowNoData, completeness(currentUser), snapshot(currentUser, ip) })`; `completeness` trả danh sách `{ label, done }`, `snapshot` trả `{ file: ExportedFile, data }` (dựng tệp theo mẫu nộp, ghi nhật ký xuất). Ở cổng quản trị đặt `<UpperLevelSubmissionPanel formCodes={['<mã>']} onChanged={…} />`. Không thêm nút "Gửi" truyền đi; khi có giao diện lập trình của Bộ, Sở thì thay `ManualUpperLevelGateway` bằng bản kết nối thật cung cấp cho `UpperLevelGateway`.
 5. Xuất file lỗi (từ YCTD-129): mọi biểu mẫu đã đăng ký có sẵn `POST /upper-level-submissions/{form}/error-file`, dựng từ `completeness` của biểu (các mục `done` sai), không cần khai báo thêm; `UpperLevelSubmissionPanel` hiện nút "Xuất file lỗi" ở dòng biểu khi dữ liệu chưa hoàn thành, kể cả hai biểu của phần 16i (YCTD-128). Đặt `label` của mục hoàn thành là câu đọc được (ví dụ "Đã ghi thẻ Nhà vệ sinh") vì tệp in nguyên câu đó. Màn hình nhập số liệu của biểu cần khóa khi đã gửi thì gọi `UpperLevelSubmissions.statusOf(formCode)` rồi `isLocked(status)` (đúng khi đã gửi hoặc đang chờ mở khóa) trước khi ghi.
 6. Cách phần 16j dùng: `EmisForms` (`apps/api/src/emis/emis-forms.ts`) đăng ký bảy biểu trong một vòng lặp, `completeness` và `snapshot` gọi lại hàm xem biểu và hàm dựng tệp Excel của biểu nên tệp gửi trùng với tệp Xuất Excel; ghi, lấy dữ liệu kiểm tra `isLocked` và trả mã YCTD-129. Cổng quản trị đặt `<UpperLevelSubmissionPanel formCodes={EMIS_FORM_CODES} summary … />` ở 1.1 (bảy dòng kèm dòng tổng hợp số đã gửi, số cần gửi, lần gửi cuối) và `formCodes={[mã biểu]}` ở sáu màn hình còn lại.
+7. Tệp PDF dạng hồ sơ (từ YCTD-130): `buildPdf(sheets, createdAt, { orientation, closing, subject })` ở `apps/api/src/exports/table-file.ts` dựng PDF khổ dọc (`portrait`) và thêm phần cuối tài liệu (`closing`, ví dụ khối xác nhận kí kèm ảnh `data:image/png;base64,…`); `buildTableFile` không đổi. Phần 16k dùng cho hồ sơ kí.
 
 ## 18. Quy tắc kiểm tra dữ liệu
 

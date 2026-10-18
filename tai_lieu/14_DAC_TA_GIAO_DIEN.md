@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.64
+- Phiên bản: 1.65
 - Ngày cập nhật: 2026-10-18
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -128,6 +128,12 @@ Từ YCTD-107 (DT-15 phần 15a), cổng quản trị dùng menu ngang nhiều c
 | Báo cáo số liệu | 2.2. | Báo cáo đội ngũ | `/emis/staff` |
 | Báo cáo số liệu | 2.3. | Đề án ngoại ngữ | `/emis/foreign-language` |
 | Báo cáo số liệu | 2.4. | Báo cáo giáo dục mầm non cuối năm | `/emis/preschool-end-of-year` |
+| Quản lý kí hồ sơ | 1. | Chứng thư số | (nhóm) |
+| Quản lý kí hồ sơ | 1.1. | Chứng thư số nhà trường | `/signing-certificate` |
+| Quản lý kí hồ sơ | 2. | Kí hồ sơ | (nhóm) |
+| Quản lý kí hồ sơ | 2.1. | Đồng bộ chứng thư số | `/signing-certificate-sync` |
+| Quản lý kí hồ sơ | 2.2. | Kí hồ sơ trường, lớp, nhân sự, học sinh | `/signing-dossiers` |
+| Quản lý kí hồ sơ | 2.3. | Xác nhận hoàn thành và gửi hồ sơ | `/signing-submissions` |
 | Quản trị hệ thống | 1. | Người dùng và phân quyền | (nhóm) |
 | Quản trị hệ thống | 1.1. | Nhóm người dùng | `/roles` |
 | Quản trị hệ thống | 1.2. | Phân quyền nhóm theo phần mềm | `/role-workspaces` |
@@ -333,6 +339,10 @@ Từ YCTD-107 (DT-15 phần 15a), cổng quản trị dùng menu ngang nhiều c
 | MH-134 | Báo cáo đội ngũ (YCTD-129; mục "2.2. Báo cáo đội ngũ", đường dẫn `/emis/staff`): ba thẻ chỉ xem "Tổng hợp chung", "Ngoại ngữ – tin học", "Chuẩn nghề nghiệp" (cột Số được đánh giá, Chưa đạt, Đạt, Khá, Tốt); Xuất Excel `emis-doi-ngu-…xlsx`; khối "Gửi lên cấp trên" (BR-127) | `P17.report.emis` toàn trường |
 | MH-135 | Đề án ngoại ngữ (YCTD-129; mục "2.3. Đề án ngoại ngữ", đường dẫn `/emis/foreign-language`): hai thẻ nhập tay "Trẻ làm quen tiếng Anh" (ô ví dụ "Số trẻ NN.03"), "Giáo viên dạy tiếng Anh"; nút "Lấy dữ liệu năm trước", "Ghi"; khối "Gửi lên cấp trên", hộp "Đánh dấu đã gửi" có ô "Trường không có dữ liệu"; đã gửi thì báo "Biểu đã đánh dấu đã gửi nên đang khóa…", ô nhập và nút Ghi bị vô hiệu (BR-127) | `P17.report.emis` toàn trường |
 | MH-136 | Báo cáo giáo dục mầm non cuối năm (YCTD-129; mục "2.4. Báo cáo giáo dục mầm non cuối năm", đường dẫn `/emis/preschool-end-of-year`): năm thẻ chỉ xem như Biểu 1 và thẻ "Kết quả giáo dục"; Xuất Excel; khối "Gửi lên cấp trên" (BR-127) | `P17.report.emis` toàn trường |
+| MH-137 | Chứng thư số nhà trường (YCTD-130; mục "1.1. Chứng thư số nhà trường" của phân hệ Quản lý kí hồ sơ, đường dẫn `/signing-certificate`, theo mục 6 dòng 1.1 của Sở): thông báo phần mềm chưa kết nối nhà cung cấp chữ ký số; khối "Trạng thái" (Trạng thái chữ ký, Trạng thái đồng bộ với Bộ); khối "Thông tin chứng thư" (Kiểu chữ ký, Nhà phát hành, Tên đăng nhập, Người đứng tên, Chức danh, Số sê-ri chứng thư, Hiệu lực từ ngày, Hiệu lực đến ngày; nút Ghi); khối "Ảnh con dấu" (ảnh hiện tại, chọn ảnh PNG, JPEG tối đa 1 MB); nút "Đăng ký kí nội bộ" hoặc "Hủy đăng ký", "Xóa ảnh con dấu" (hộp xác nhận); lịch sử thao tác. Khi đã đăng ký thì các ô và chọn ảnh bị khóa (BR-128) | `P01.signing.view` xem; `P01.signing.certificate` sửa |
+| MH-138 | Đồng bộ chứng thư số (YCTD-130; mục "2.1. Đồng bộ chứng thư số", đường dẫn `/signing-certificate-sync`): thông báo phần mềm chưa kết nối hệ thống của Bộ; thông tin chứng thư; trạng thái; khối "Đánh dấu đã đồng bộ" (Ngày đồng bộ, Ghi chú, nút "Đánh dấu đã đồng bộ" khi chứng thư đã đăng ký) hoặc nút "Đặt lại chưa đồng bộ"; lịch sử | `P01.signing.view` xem; `P01.signing.certificate` đánh dấu |
+| MH-139 | Kí hồ sơ trường, lớp, nhân sự, học sinh (YCTD-130; mục "2.2. Kí hồ sơ trường, lớp, nhân sự, học sinh", đường dẫn `/signing-dossiers`, theo mục 6 dòng 2.2 của Sở): thẻ Trường, Lớp, Nhân sự, Học sinh, Sổ đầu bài (ô Tháng của sổ đầu bài); lưới dữ liệu chung (khóa `signing-dossiers`, ô chọn dòng, ô tìm theo tên, thông tin, mã hồ sơ) cột Đối tượng, Thông tin, Trạng thái, Mã định danh hồ sơ, Xem hồ sơ (mở PDF ở thẻ mới), Tệp hồ sơ (tải tệp gốc, tệp đã kí), Ngày tạo, Ngày kí, Người kí (ẩn mặc định), Ngày thay đổi (kèm nội dung khác biệt); nút "Tạo hồ sơ", "Kí xác nhận nội bộ", "Tải thông tin thay đổi", "Xuất dữ liệu sổ đầu bài" (thẻ Sổ đầu bài, một dòng); "Hủy hồ sơ" trên dòng kèm lý do. Không có nút "Ký số", "Đăng nhập và kí" vì không có chữ ký số thật (quyết định của Eric ngày 2026-10-16); cảnh báo khi chứng thư chưa đăng ký kí nội bộ | `P01.signing.view`, `P01.signing.manage`, `P01.signing.sign` |
+| MH-140 | Xác nhận hoàn thành và gửi hồ sơ (YCTD-130; mục "2.3. Xác nhận hoàn thành và gửi hồ sơ", đường dẫn `/signing-submissions`): thông báo phần mềm không gửi hồ sơ lên cấp trên; lọc Loại hồ sơ, Trạng thái; lưới dữ liệu chung (khóa `signing-submissions`, ô chọn dòng) cột Mã định danh hồ sơ, Đối tượng, Loại hồ sơ, Trạng thái, Ngày kí, Người kí, Ngày xác nhận, Ngày gửi, Người đánh dấu gửi, Ghi chú gửi, Ngày thay đổi (ba cột cuối ẩn mặc định); nút "Xác nhận hoàn thành", "Đánh dấu đã gửi" (hộp có Ngày gửi, Ghi chú); trên dòng "Tải tệp gửi", "Hủy xác nhận" | `P01.signing.view` xem; `P01.signing.manage` thao tác |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 

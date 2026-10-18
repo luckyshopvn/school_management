@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.9
+- Phiên bản: 0.10
 - Ngày cập nhật: 2026-10-18
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,27 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-18 — DT-16 phần 16k: phân hệ Quản lý kí hồ sơ, bản chạy nội bộ
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu hệ thống: tệp `0015_create_signing_tables` tạo `signing_certificates` (chứng thư số nhà trường, một dòng), `signing_dossiers` (hồ sơ kí theo năm học), `signing_events` (lịch sử thao tác) và dãy số `signing_dossier_code` (mã định danh hồ sơ). Cơ sở dữ liệu định danh: tệp `0049_add_signing_permissions` thêm bốn quyền `P01.signing.view`, `P01.signing.manage`, `P01.signing.sign`, `P01.signing.certificate` và bỏ phân hệ mới khỏi nhóm Phụ huynh. Không có migration năm học.
+- Máy chủ API: nhóm điểm cuối `/signing` (`apps/api/src/signing/`): chứng thư số (ghi, đăng ký kí nội bộ, hủy đăng ký, ảnh con dấu, đánh dấu đồng bộ), danh sách đối tượng theo loại, tạo hồ sơ (tệp PDF dựng bằng công cụ PDF của phần 16a, mã băm SHA-256), kí xác nhận nội bộ qua chỗ nối `DossierSigner`, tải thông tin thay đổi, hủy, xác nhận hoàn thành, hủy xác nhận, đánh dấu đã gửi, tải tệp (ghi nhật ký xuất), xuất dữ liệu sổ đầu bài. Công cụ PDF dùng chung nhận thêm khổ dọc và phần cuối tài liệu.
+- Cổng quản trị: phân hệ mới "Quản lý kí hồ sơ" với "1.1. Chứng thư số nhà trường", "2.1. Đồng bộ chứng thư số", "2.2. Kí hồ sơ trường, lớp, nhân sự, học sinh", "2.3. Xác nhận hoàn thành và gửi hồ sơ".
+- Thêm chức năng P01-28 đến P01-31, quyền PQ-75, kịch bản CT-589 đến CT-598, tiêu chí AC-612 đến AC-615, quy tắc BR-128, màn hình MH-137 đến MH-140. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) <UNIT_PASS>/<UNIT_TOTAL> ca đạt; toàn bộ kiểm thử giao diện <E2E_PASS>/<E2E_TOTAL> ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Eric quyết định ngày 2026-10-16 làm đủ mọi tính năng đã khảo sát của hệ thống Sở (tài liệu 31); tính năng cần hệ thống ngoài làm bản chạy nội bộ, có chỗ nối để cắm kết nối thật, nút ghi đúng việc làm. Áp dụng cho kí số: không có chữ ký số thật, nút "Kí xác nhận nội bộ" thay "Ký số", không có "Đăng nhập và kí"; gửi hồ sơ là "Đánh dấu đã gửi". Thực hiện phần 16k của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7, phần cuối của DT-16. Nội dung hồ sơ PDF, tên nhóm menu, quy trình trạng thái, quyền theo vai trò (BR-128, PQ-75) do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-130.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-130, `07_QUY_TAC_NGHIEP_VU.md` BR-128, `08_VAI_TRO_NGUOI_DUNG.md` PQ-75, `10_YEU_CAU_CHUC_NANG.md` P01-28 đến P01-31, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-137 đến MH-140, `16_CO_SO_DU_LIEU.md` mục 1, 2, 20, `17_DAC_TA_API.md` mục 5, 17, 17.1, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.80.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7.
+
+#### Vấn đề tồn đọng
+
+- Chưa có nhà cung cấp chữ ký số và giao diện lập trình của Bộ, Sở: tệp đã kí là xác nhận nội bộ, không có giá trị của chữ ký số; chỗ nối `DossierSigner` để thay bằng kí từ xa sau này. Khảo sát chưa có mẫu hồ sơ của Sở nên nội dung tệp PDF do Claude chọn; sổ đầu bài của trường mầm non lấy điểm danh và lịch hoạt động của lớp theo tháng.
 
 ### 2026-10-18 — DT-16 phần 16j: báo cáo số liệu EMIS theo hệ thống của Sở
 

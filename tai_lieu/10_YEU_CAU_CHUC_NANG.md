@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.51
+- Phiên bản: 1.52
 - Ngày cập nhật: 2026-10-18
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -45,6 +45,10 @@
 | P01-25 | Tách trường (1.8 của Sở, bản chạy nội bộ, G3, YCTD-127) | VT-02 (`P01.school-profile.manage` toàn trường); xuất hồ sơ cần thêm `P17.data.export` | Trường đến, mã trường đến, lý do, danh sách học sinh đang học, nhân sự đang làm việc; ghi chú tiếp nhận | Lập, sửa, xóa yêu cầu nháp (mã `TT-000001`); xác nhận đi, hủy xác nhận, đánh dấu đã tiếp nhận; xuất hồ sơ học sinh 82 cột, nhân sự 75 cột theo mẫu tệp CSDL ngành, ghi nhật ký xuất có dữ liệu cá nhân; tiếp nhận hồ sơ bằng bộ nhập tệp CSDL ngành sẵn có; không truyền dữ liệu sang trường khác, không đổi trạng thái hồ sơ | Danh sách yêu cầu tách trường kèm số học sinh, nhân sự; tệp hồ sơ | BR-125, BR-74 |
 | P01-26 | Khai báo tuần (3.4 của Sở, G3, YCTD-127) | VT-02 sửa (`P01.academic-year.manage`); người có `P01.view` xem | Năm học; mỗi tuần: học kỳ (theo lịch hoặc chọn riêng), hiển thị, tuần đệm, tên tuần đệm | Hiện các tuần do lịch năm học đánh số (BR-91) kèm học kỳ đang áp dụng; Ghi; lưu lại lịch năm học giữ các giá trị theo ngày bắt đầu tuần; năm học đã đóng chỉ xem | Bảng tuần của năm học | BR-125, BR-91 |
 | P01-27 | Chuyển hồ sơ lên năm học mới (5.7 của Sở, G3, YCTD-127) | VT-02 (`P01.academic-year.manage`) | Năm học đang dùng, năm học mới (chờ mở, đã có lịch) | "Thực hiện" là mở năm học (P01-02, BR-93), ghi giờ chuyển xong hồ sơ; "Hủy" khi năm mới chưa phát sinh dữ liệu: năm mới về chờ mở, xóa cơ sở dữ liệu năm mới, năm trước về đang dùng, bỏ chỉ đọc; không hủy được thì hiện lý do | Trạng thái chuyển hồ sơ, nút Hủy kèm lý do | BR-125, BR-93 |
+| P01-28 | Chứng thư số nhà trường (1.1 của phân hệ Quản lý kí hồ sơ, bản chạy nội bộ, G3, YCTD-130) | VT-02 khai báo (`P01.signing.certificate`); VT-15 xem (`P01.signing.view`) | Kiểu chữ ký, nhà phát hành, tên đăng nhập, người đứng tên, chức danh, số sê-ri, hiệu lực; ảnh con dấu PNG/JPEG | Ghi thông tin (không lưu mật khẩu); tải, xóa ảnh con dấu; "Đăng ký kí nội bộ", "Hủy đăng ký" | Trạng thái chữ ký, trạng thái đồng bộ với Bộ, lịch sử thao tác | BR-128 |
+| P01-29 | Đồng bộ chứng thư số (2.1, bản chạy nội bộ, G3, YCTD-130) | VT-02 (`P01.signing.certificate`) | Ngày đồng bộ, ghi chú | "Đánh dấu đã đồng bộ" sau khi nhà trường đăng ký đồng bộ trên hệ thống của Bộ; "Đặt lại chưa đồng bộ"; phần mềm không gửi dữ liệu | Trạng thái đồng bộ kèm ngày, người đánh dấu | BR-128 |
+| P01-30 | Kí hồ sơ trường, lớp, nhân sự, học sinh (2.2, bản chạy nội bộ, G3, YCTD-130) | VT-02, VT-15 lập hồ sơ (`P01.signing.manage`); VT-02 kí (`P01.signing.sign`) | Loại hồ sơ (Trường, Lớp, Nhân sự, Học sinh, Sổ đầu bài), đối tượng đã chọn, tháng của sổ đầu bài, lý do hủy | "Tạo hồ sơ" lập tệp PDF từ dữ liệu hiện tại, cấp mã định danh hồ sơ, lưu mã băm SHA-256; "Kí xác nhận nội bộ" lập tệp đã kí ghi người kí, thời điểm, thông tin chứng thư, ảnh con dấu, mã băm tệp gốc (không phải chữ ký số); "Tải thông tin thay đổi"; "Hủy hồ sơ"; "Xuất dữ liệu sổ đầu bài" (Excel) | Lưới đối tượng: trạng thái, mã định danh hồ sơ, xem hồ sơ, tệp hồ sơ, ngày tạo, ngày kí, ngày thay đổi | BR-128, BR-74 |
+| P01-31 | Xác nhận hoàn thành và gửi hồ sơ (2.3, bản chạy nội bộ, G3, YCTD-130) | VT-02, VT-15 (`P01.signing.manage`); người có `P01.signing.view` xem | Hồ sơ đã kí đã chọn, ngày gửi, ghi chú | "Xác nhận hoàn thành" (khóa hồ sơ), "Hủy xác nhận", "Tải tệp gửi" (tệp đã kí), "Đánh dấu đã gửi"; phần mềm không truyền hồ sơ đi | Lưới hồ sơ đã kí: mã định danh hồ sơ, đối tượng, loại, trạng thái, ngày kí, người kí, ngày xác nhận, ngày gửi | BR-128 |
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 

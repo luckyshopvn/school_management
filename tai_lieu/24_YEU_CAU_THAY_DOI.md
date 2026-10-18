@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.9
+- Phiên bản: 0.10
 - Ngày cập nhật: 2026-10-18
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,34 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-130: DT-16 phần 16k: phân hệ Quản lý kí hồ sơ, bản chạy nội bộ – 2026-10-18
+
+- Lý do: Eric quyết định ngày 2026-10-16 làm đủ mọi tính năng đã khảo sát của hệ thống Sở (`31_KHAO_SAT_HE_THONG_SO.md`); tính năng cần hệ thống ngoài làm bản chạy nội bộ có đủ màn hình, cột, nút như Sở, bước cần kết nối thay bằng trạng thái nhập tay (ngày, người thực hiện), tệp xuất hoặc tệp PDF, giữ chỗ nối để cắm kết nối thật, nút ghi đúng việc làm. Lựa chọn này thay dòng "Không áp dụng … ký số (cần nhà cung cấp)" của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 1. Phần 16k của tài liệu 32 mục 7 (đợt 3, phần cuối của DT-16) làm mục 6 "Phân hệ Quản lý kí hồ sơ" của tài liệu 31: 1.1 Chứng thư số nhà trường, 2.1 Đồng bộ chứng thư số, 2.2 Ký số hồ sơ trường, lớp, nhân sự, học sinh, sổ đầu bài, 2.3 Xác nhận hoàn thành và gửi hồ sơ. Dùng công cụ PDF của phần 16a (YCTD-121). Các điểm chi tiết dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Phân hệ mới `signing` "Quản lý kí hồ sơ" trên ô chọn phân hệ, đặt sau "Báo cáo số liệu" như thứ tự phân hệ của Sở ở 1.2 Phân quyền nhóm theo phần mềm. Cây menu: "1. Chứng thư số" gồm "1.1. Chứng thư số nhà trường" (`/signing-certificate`); "2. Kí hồ sơ" gồm "2.1. Đồng bộ chứng thư số" (`/signing-certificate-sync`), "2.2. Kí hồ sơ trường, lớp, nhân sự, học sinh" (`/signing-dossiers`), "2.3. Xác nhận hoàn thành và gửi hồ sơ" (`/signing-submissions`). Khảo sát không ghi tên nhóm 1., 2. nên Claude đặt; mục 2.2 gọi "Kí hồ sơ" thay "Ký số hồ sơ" vì không có chữ ký số thật. Mục hiện khi có một quyền của phân hệ (PQ-75).
+  - 1.1 Chứng thư số nhà trường (P01-28, MH-137): ghi Kiểu chữ ký (Kí từ xa, Thiết bị kí số USB token, HSM), Nhà phát hành (ví dụ VNPT-CA), Tên đăng nhập, Người đứng tên, Chức danh, Số sê-ri, Hiệu lực từ, đến ngày; phần mềm không nhận, không lưu mật khẩu, mã PIN, khóa bí mật. Tải ảnh con dấu PNG, JPEG tối đa 1 MB. "Đăng ký kí nội bộ" (thay nút "Đăng ký" với nhà cung cấp của Sở) cho phép kí ở 2.2; đã đăng ký thì khóa sửa đến khi "Hủy đăng ký". Hiện Trạng thái chữ ký, Trạng thái đồng bộ với Bộ và lịch sử thao tác.
+  - 2.1 Đồng bộ chứng thư số (P01-29, MH-138): phần mềm không kết nối hệ thống của Bộ; nhà trường đăng ký đồng bộ trên hệ thống của Bộ rồi "Đánh dấu đã đồng bộ" kèm ngày, ghi chú (thay "Đăng ký đồng bộ"); "Đặt lại chưa đồng bộ".
+  - 2.2 Kí hồ sơ (P01-30, MH-139): năm thẻ Trường, Lớp, Nhân sự, Học sinh, Sổ đầu bài; lưới đối tượng của năm học đang dùng (trường là Trường chính; lớp của năm học; nhân sự đang làm việc; học sinh đã duyệt, chưa xóa; sổ đầu bài là lớp kèm tháng) với cột của Sở: đối tượng, trạng thái, xem hồ sơ, tệp hồ sơ, ngày tạo, ngày kí, ngày thay đổi, thêm mã định danh hồ sơ. Nút: "Tạo hồ sơ" (lập tệp PDF khổ dọc từ dữ liệu hiện tại, cấp mã định danh hồ sơ `KHS-` sáu chữ số, lưu mã băm SHA-256); "Kí xác nhận nội bộ" (thay "Ký số", "Ký sổ đầu bài"; lập tệp đã kí từ đúng số liệu lúc tạo kèm khối "XÁC NHẬN KÍ NỘI BỘ": người kí, thời điểm kí, người đứng tên chứng thư, chứng thư đã khai báo, mã định danh hồ sơ, mã băm tệp gốc, ảnh con dấu, câu "đây không phải chữ ký số"); "Tải thông tin thay đổi" (so dữ liệu hiện tại với số liệu đã lập, ghi ngày thay đổi và nội dung khác biệt, không sửa hồ sơ); "Hủy hồ sơ" (cần lý do, để tạo lại); "Xuất dữ liệu sổ đầu bài" (Excel). Không có nút "Đăng nhập và kí" vì không có tài khoản kí từ xa.
+  - Nội dung tệp hồ sơ: trường gồm cây đơn vị và sáu thẻ của 1.1 Hồ sơ trường, danh sách phân hiệu, điểm trường; lớp gồm thông tin lớp, giáo viên phụ trách, danh sách học sinh (họ tên, ngày sinh, giới tính, mã định danh Bộ); nhân sự gồm thông tin chính, lớp phụ trách (không in số định danh, tài khoản ngân hàng, mã số thuế); học sinh gồm thông tin chính, cha mẹ, người giám hộ (không in số định danh, số điện thoại); sổ đầu bài của trường mầm non là mỗi ngày trong tháng có điểm danh hoặc lịch hoạt động: sĩ số điểm danh, có mặt (kể cả đến muộn, về sớm), vắng có phép, vắng không phép, hoạt động trong ngày theo lịch hoạt động đã công bố của lớp. Đầu tệp ghi tên loại hồ sơ, tên trường, năm học, mã định danh hồ sơ, thời điểm lập.
+  - 2.3 Xác nhận hoàn thành và gửi hồ sơ (P01-31, MH-140): danh sách hồ sơ đã kí của năm học, lọc loại, trạng thái; "Xác nhận hoàn thành" khóa hồ sơ (không hủy được); "Hủy xác nhận" khi chưa gửi; "Tải tệp gửi" (tệp đã kí); "Đánh dấu đã gửi" kèm ngày gửi, ghi chú (thay "Gửi hồ sơ"); mã định danh hồ sơ hiện ở cột đầu.
+  - Quy tắc (BR-128) và quyền (PQ-75): Hiệu trưởng có đủ bốn quyền; Phó Hiệu trưởng xem và lập hồ sơ, không kí, không khai báo chứng thư; mọi thao tác cần phạm vi toàn trường. Tải tệp hồ sơ ghi `export_logs` (BR-74).
+  - Chỗ nối chữ ký số `DossierSigner` (`apps/api/src/signing/dossier-signer.ts`): bản nội bộ `InternalDossierSigner`; khi có nhà cung cấp kí số thì thay bằng lớp gọi kí từ xa, nhận tệp gốc và trả tệp kí số, phần còn lại của quy trình không đổi.
+- Quyết định của Eric ngày 2026-10-16: làm đủ mọi tính năng đã khảo sát; tính năng cần hệ thống ngoài (ở đây là kí số, đồng bộ chứng thư với Bộ, gửi hồ sơ) làm bản chạy nội bộ, nút ghi đúng việc làm, không có nút giả vờ kí số hay gửi.
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu hệ thống (`database/system/migrations/0015_create_signing_tables.ts`, `database/system/schema.ts`), cơ sở dữ liệu định danh (`database/identity/migrations/0049_add_signing_permissions.ts`); máy chủ API (`apps/api/src/signing/signing.ts`, `signing.controller.ts`, `signing-content.ts`, `dossier-signer.ts`, `apps/api/src/exports/table-file.ts`, `apps/api/src/application.module.ts`); cổng quản trị (`apps/portal/src/signing/`, `apps/portal/src/router.tsx`, `apps/portal/src/pages/workspaces.tsx`); gói dùng chung (`signing.ts`, cây menu, `PERMISSION_CODES`, `PORTAL_QUICK_LINK_PATHS`, `DATA_GRID_KEYS` thêm `signing-dossiers`, `signing-submissions`, `MENU_PERMISSION_RULES`); kiểm thử; tài liệu `01`, `02`, `03`, `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: ba bảng mới và dãy số ở cơ sở dữ liệu hệ thống; bốn quyền mới và một dòng loại trừ phân hệ ở cơ sở dữ liệu định danh. Không có migration năm học.
+- API bị ảnh hưởng: nhóm điểm cuối mới `/api/v1/signing` (xem `17_DAC_TA_API.md`); `buildPdf` nhận thêm tùy chọn, các nơi gọi cũ không đổi.
+- Giao diện bị ảnh hưởng: màn hình mới MH-137 đến MH-140; ô chọn phân hệ có thêm "Quản lý kí hồ sơ" với người có quyền. Ứng dụng giáo viên, phụ huynh không đổi.
+- Quyền bị ảnh hưởng: `P01.signing.view`, `P01.signing.manage`, `P01.signing.sign`, `P01.signing.certificate` (PQ-75). Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
+- Ảnh hưởng chức năng cũ: không có.
+- Hạn chế:
+  - Không có chữ ký số thật: tệp đã kí là xác nhận trên phần mềm, không có giá trị của văn bản kí số; không có "Đăng nhập và kí". Chỗ nối `DossierSigner` để nối nhà cung cấp kí từ xa sau.
+  - Không kết nối hệ thống của Bộ, Sở: đồng bộ chứng thư và gửi hồ sơ là trạng thái nhà trường tự đánh dấu.
+  - Khảo sát chưa có mẫu hồ sơ của Sở nên các mục trong tệp PDF do Claude chọn; sổ đầu bài của trường mầm non lấy điểm danh và lịch hoạt động, cần đối chiếu mẫu chính thức.
+  - Hồ sơ đã kí giữ tệp và số liệu lúc tạo; dữ liệu đổi sau đó thì hủy và tạo lại. Hồ sơ đã gửi là trạng thái cuối, không có mở khóa.
+  - Tạo, kí nhiều hồ sơ chạy trực tiếp trong một yêu cầu (tối đa 500 đối tượng), chưa chạy nền.
+- Kiểm thử cần thực hiện: kịch bản CT-589 đến CT-598; kiểm thử đơn vị mới `apps/api/src/signing/signing-16k.test.ts` (CT-589 đến CT-597, trong mã kiểm thử là CT-16k-1 đến CT-16k-9), sửa `apps/api/src/quick-links/menu-permissions.test.ts` thêm bốn đường dẫn; kiểm thử giao diện mới `tests/e2e/66-signing-dossiers.spec.ts` (CT-598). Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) <UNIT_PASS>/<UNIT_TOTAL> ca đạt; toàn bộ kiểm thử giao diện <E2E_PASS>/<E2E_TOTAL> ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Trạng thái: Đã triển khai
 
 ### YCTD-129: DT-16 phần 16j: báo cáo số liệu EMIS theo hệ thống của Sở – 2026-10-18
 
