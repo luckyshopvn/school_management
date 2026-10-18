@@ -1,9 +1,4 @@
-import {
-  EQUIPMENT_AGE_GROUPS,
-  ROOM_BLOCKS,
-  ROOM_TYPES,
-  type SchoolOwnershipType,
-} from '@school-management/shared';
+import { EQUIPMENT_AGE_GROUPS, ROOM_BLOCKS, ROOM_TYPES, type SchoolOwnershipType } from '@school-management/shared';
 import type { EmisValues } from '@school-management/database';
 import { isEthnicMinority, staffCategory, type EmisRow } from '../facilities/emis-calc.js';
 import type { EquipmentReport } from '../facilities/equipment-report-calc.js';
@@ -134,7 +129,9 @@ export const TOILET_ROWS: EmisRowTemplate[] = [
 export function fillToilets(rooms: FacilityRoom[]): Record<string, EmisValues> {
   const groupRooms = rooms.filter((room) => room.room_type === 'group_room');
   const withToilet = (kind: string) => groupRooms.filter((room) => room.attributes.toilet === kind);
-  const others = groupRooms.filter((room) => room.attributes.toilet !== 'ensuite' && room.attributes.toilet !== 'adjacent');
+  const others = groupRooms.filter(
+    (room) => room.attributes.toilet !== 'ensuite' && room.attributes.toilet !== 'adjacent',
+  );
   return {
     'VS.01': conditionValues(rooms.filter((room) => room.room_type === 'toilet')),
     'VS.02': conditionValues(withToilet('ensuite')),
@@ -160,7 +157,10 @@ const numberOf = (value: unknown): number | null => {
   return Number.isFinite(parsed) ? parsed : null;
 };
 
-export function fillOtherFacilities(rooms: FacilityRoom[], general: Record<string, unknown>): Record<string, EmisValues> {
+export function fillOtherFacilities(
+  rooms: FacilityRoom[],
+  general: Record<string, unknown>,
+): Record<string, EmisValues> {
   const flagged = (key: string) => rooms.filter((room) => room.attributes[key] === true).length;
   const sum = (key: string) => rooms.reduce((total, room) => total + (numberOf(room.attributes[key]) ?? 0), 0);
   const total = (value: number | null) => ({ total: value });
@@ -173,7 +173,10 @@ export function fillOtherFacilities(rooms: FacilityRoom[], general: Record<strin
     'KH.06': total(sum('sleeping_places')),
     'KH.07': total(sum('dining_seats')),
     'KH.08': total(sum('library_seats')),
-    'KH.09': total(rooms.filter((room) => room.attributes.has_reading_room === true || room.attributes.has_book_storage === true).length),
+    'KH.09': total(
+      rooms.filter((room) => room.attributes.has_reading_room === true || room.attributes.has_book_storage === true)
+        .length,
+    ),
   };
 }
 
@@ -320,7 +323,11 @@ export function buildStaffReport(
     members: group.category === null ? staff : staff.filter((member) => staffCategory(member) === group.category),
   }));
   const general = groups.map((group) => {
-    const base = populationRow(ownership, { code: `DN.${group.code}`, label: group.label, unit: 'Người' }, group.members);
+    const base = populationRow(
+      ownership,
+      { code: `DN.${group.code}`, label: group.label, unit: 'Người' },
+      group.members,
+    );
     const levels = group.members.map((member) => qualificationLevel(member.qualification));
     const count = (level: string) => levels.filter((value) => value === level).length;
     return {
@@ -403,9 +410,21 @@ export function buildEndOfYearChildren(
     populationRow(ownership, { code, label, unit: 'Học sinh' }, members);
   return [
     row('II.01', 'Học sinh cuối năm (đang học)', active),
-    row('II.02', 'Trong đó: nhà trẻ', active.filter((child) => child.nursery)),
-    row('II.03', 'Trong đó: mẫu giáo', active.filter((child) => !child.nursery)),
-    row('II.04', 'Trong đó: học sinh khuyết tật học hòa nhập', active.filter((child) => child.disabled)),
+    row(
+      'II.02',
+      'Trong đó: nhà trẻ',
+      active.filter((child) => child.nursery),
+    ),
+    row(
+      'II.03',
+      'Trong đó: mẫu giáo',
+      active.filter((child) => !child.nursery),
+    ),
+    row(
+      'II.04',
+      'Trong đó: học sinh khuyết tật học hòa nhập',
+      active.filter((child) => child.disabled),
+    ),
     row('II.05', 'Học sinh nhận chuyển đến trong năm', transfersIn),
     row('II.06', 'Học sinh chuyển đi trong năm (có hồ sơ chuyển trường)', transfersOut),
     row('II.07', 'Học sinh thôi học, nghỉ học trong năm', left),
@@ -428,7 +447,11 @@ export function buildEducationResults(ownership: SchoolOwnershipType | null, chi
       'Chưa hoàn thành chương trình giáo dục mầm non',
       fiveToSix.filter((child) => child.completion === 'not_completed'),
     ),
-    row('IV.04', 'Chưa đánh giá', fiveToSix.filter((child) => child.completion === null)),
+    row(
+      'IV.04',
+      'Chưa đánh giá',
+      fiveToSix.filter((child) => child.completion === null),
+    ),
   ];
 }
 

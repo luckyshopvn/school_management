@@ -113,26 +113,6 @@ export interface EquipmentReport {
   unclassified_classes: string[];
 }
 
-export interface EmisRow {
-  code: string;
-  label: string;
-  unit: string;
-  total: number;
-  public: number | null;
-  private: number | null;
-  people_founded: number | null;
-  female: number | null;
-  ethnic_minority: number | null;
-}
-
-export interface EmisReport {
-  school_name: string;
-  academic_year: string;
-  ownership: string | null;
-  tabs: Array<{ key: string; label: string; rows: EmisRow[] }>;
-  warnings: string[];
-}
-
 const query = (values: Record<string, string | null | undefined>) =>
   new URLSearchParams(
     Object.entries(values).filter((entry): entry is [string, string] => Boolean(entry[1])),
@@ -166,8 +146,6 @@ export const saveHoldings = (
 ) => send<{ saved: number }>('PUT', '/api/v1/equipment-holdings', { org_unit_id: orgUnitId, items });
 export const readEquipmentReport = (filters: Record<string, string | null | undefined>): Promise<EquipmentReport> =>
   requestJson(`/api/v1/equipment-report?${query(filters)}`);
-
-export const readEmisReport = (): Promise<EmisReport> => requestJson('/api/v1/reports/emis/start-of-year');
 
 // Xuất Excel: máy chủ ghi nhật ký xuất rồi trả tệp, trình duyệt tải về
 export async function downloadExcel(

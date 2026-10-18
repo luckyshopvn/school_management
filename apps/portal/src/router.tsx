@@ -53,7 +53,8 @@ import { PayItemsPage } from './payroll/PayItemsPage.js';
 import { PayrollPage } from './payroll/PayrollPage.js';
 import { SettlementsPage } from './payroll/SettlementsPage.js';
 import { ReportsPage } from './reports/ReportsPage.js';
-import { EmisPage } from './facilities/EmisPage.js';
+import { EmisFormPage } from './emis/EmisFormPage.js';
+import { EMIS_FORMS } from '@school-management/shared';
 import { EquipmentPage } from './facilities/EquipmentPage.js';
 import { FacilityRoomsPage } from './facilities/FacilityRoomsPage.js';
 import { SchoolProfilePage } from './facilities/SchoolProfilePage.js';
@@ -251,7 +252,14 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/school-profile', component: SchoolProfilePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/facility-rooms', component: FacilityRoomsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/equipment', component: EquipmentPage }),
-  createRoute({ getParentRoute: () => rootRoute, path: '/emis', component: EmisPage }),
+  // Bảy biểu báo cáo EMIS (DT-16 phần 16j)
+  ...EMIS_FORMS.map((form) =>
+    createRoute({
+      getParentRoute: () => rootRoute,
+      path: form.path,
+      component: () => <EmisFormPage code={form.code} />,
+    }),
+  ),
   createRoute({ getParentRoute: () => rootRoute, path: '/api-clients', component: ApiClientsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/integrations', component: IntegrationsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/notifications', component: NotificationsPage }),

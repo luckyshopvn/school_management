@@ -32,12 +32,21 @@ import { childIsNursery, hasDisability } from '../facilities/emis-calc.js';
 import { EmisReportService } from '../facilities/emis-report.js';
 import { buildEquipmentReport } from '../facilities/equipment-report-calc.js';
 import { FacilitiesData } from '../facilities/facilities-data.js';
-import { buildFacilitiesWorkbook, fileStamp, sendWorkbook, type ExportedFile } from '../facilities/facilities-workbook.js';
+import {
+  buildFacilitiesWorkbook,
+  fileStamp,
+  sendWorkbook,
+  type ExportedFile,
+} from '../facilities/facilities-workbook.js';
 import { buildStartOfYearHealthReport } from '../health/emis-health-calc.js';
 import { EmisHealthReportService, loadStartOfYearHealthChildren } from '../health/emis-health-report.js';
 import { SchoolTerms } from '../health/school-terms.js';
 import { profileText } from '../statistics/statistics-calc.js';
-import { UpperLevelForms, UpperLevelSubmissions, type CompletenessItem } from '../submissions/upper-level-submissions.js';
+import {
+  UpperLevelForms,
+  UpperLevelSubmissions,
+  type CompletenessItem,
+} from '../submissions/upper-level-submissions.js';
 import {
   buildEducationResults,
   buildEndOfYearChildren,
@@ -225,7 +234,12 @@ export class EmisForms {
           return {
             tabs: [
               ...report.tabs.map((tab) =>
-                computed(tab.key, tab.label, EMIS_POPULATION_COLUMNS, tab.rows.map((row) => fromEmisRow(row))),
+                computed(
+                  tab.key,
+                  tab.label,
+                  EMIS_POPULATION_COLUMNS,
+                  tab.rows.map((row) => fromEmisRow(row)),
+                ),
               ),
               editable.get('budget') as EmisTabView,
             ],
@@ -371,7 +385,12 @@ export class EmisForms {
           return {
             tabs: [
               ...report.tabs.map((tab) =>
-                computed(tab.key, tab.label, EMIS_POPULATION_COLUMNS, tab.rows.map((row) => fromEmisRow(row))),
+                computed(
+                  tab.key,
+                  tab.label,
+                  EMIS_POPULATION_COLUMNS,
+                  tab.rows.map((row) => fromEmisRow(row)),
+                ),
               ),
               computed(
                 'education',
@@ -496,7 +515,11 @@ export class EmisForms {
     const editable = await this.editableTabs(context, definition);
     const built = await definition.build(context, editable);
     const [root, administrativeUnit, year, status] = await Promise.all([
-      context.database.selectFrom('org_units').select('name').where('id', '=', context.rootId).executeTakeFirstOrThrow(),
+      context.database
+        .selectFrom('org_units')
+        .select('name')
+        .where('id', '=', context.rootId)
+        .executeTakeFirstOrThrow(),
       context.database
         .selectFrom('settings')
         .select('value')
@@ -803,13 +826,10 @@ export class EmisForms {
       loadStartOfYearHealthChildren(context.database, terms, 'second_term'),
     ]);
     const health = buildStartOfYearHealthReport({ ownership: context.ownership, children: healthChildren });
-    const tabOf = (key: string) => report.tabs.find((tab) => tab.key === key)?.rows.map((row) => fromEmisRow(row)) ?? [];
+    const tabOf = (key: string) =>
+      report.tabs.find((tab) => tab.key === key)?.rows.map((row) => fromEmisRow(row)) ?? [];
     const healthRows = health.rows.map((row) =>
-      fromEmisRow(
-        row,
-        row.code,
-        row.code === '1.3.02' ? 'Số học sinh được khám sức khỏe trong học kỳ II' : row.label,
-      ),
+      fromEmisRow(row, row.code, row.code === '1.3.02' ? 'Số học sinh được khám sức khỏe trong học kỳ II' : row.label),
     );
     const warnings = [...report.warnings];
     if (health.warnings.some((warning) => warning.startsWith('Chưa có đợt cân đo'))) {
@@ -887,7 +907,9 @@ export class EmisForms {
     const withoutQualification = members.filter((member) => !member.qualification).length;
     const warnings: string[] = [];
     if (withoutQualification > 0) {
-      warnings.push(`${withoutQualification} nhân sự chưa ghi trình độ chuyên môn (mục 3.1.1): xếp vào cột "Khác, chưa ghi"`);
+      warnings.push(
+        `${withoutQualification} nhân sự chưa ghi trình độ chuyên môn (mục 3.1.1): xếp vào cột "Khác, chưa ghi"`,
+      );
     }
     if (evaluations.length === 0) {
       warnings.push('Chưa có phiếu đánh giá chuẩn nghề nghiệp nào đã chốt (mục 3.2)');
