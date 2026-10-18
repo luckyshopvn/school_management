@@ -48,8 +48,11 @@ export const MAXIMUM_BATCH = 500;
 const VIETNAM_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
 const VIETNAM_TIME = new Intl.DateTimeFormat('vi-VN', {
   timeZone: 'Asia/Ho_Chi_Minh',
-  dateStyle: 'short',
-  timeStyle: 'short',
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
 });
 const IMAGE_SIGNATURES: Array<{ contentType: string; bytes: number[] }> = [
   { contentType: 'image/png', bytes: [0x89, 0x50, 0x4e, 0x47] },
