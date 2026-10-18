@@ -136,6 +136,9 @@ import { EquipmentSubmissionForm } from './facilities/equipment-submission.js';
 import { SchoolProfileController, SchoolProfileService } from './facilities/school-profile.js';
 import { AccreditationReviewController, AccreditationReviewService } from './facilities/accreditation-review.js';
 import { SchoolSplitsController, SchoolSplitsService } from './school-splits/school-splits.js';
+import { SigningController } from './signing/signing.controller.js';
+import { SigningService } from './signing/signing.js';
+import { DossierSigner, InternalDossierSigner } from './signing/dossier-signer.js';
 import { GradeLevelsController, GradeLevelsService } from './catalogs/grade-levels.js';
 import { ClassAssignmentsController, ClassesController } from './classes/classes.controller.js';
 import { ClassesService } from './classes/classes.service.js';
@@ -317,6 +320,7 @@ export class ApplicationModule {
         FacilityReportController,
         FacilityInvestmentsController,
         FacilityImportsController,
+        SigningController,
         EquipmentController,
         SchoolProfileController,
         AccreditationReviewController,
@@ -664,6 +668,9 @@ export class ApplicationModule {
         UpperLevelSubmissions,
         // Chưa có kết nối với hệ thống của Bộ, Sở: gửi lên cấp trên làm thủ công (DT-16 phần 16a)
         { provide: UpperLevelGateway, useClass: ManualUpperLevelGateway },
+        SigningService,
+        // Chưa có nhà cung cấp kí số: hồ sơ kí xác nhận nội bộ (DT-16 phần 16k)
+        { provide: DossierSigner, useClass: InternalDossierSigner },
         SystemAnnouncementsService,
         AppLinksService,
         PortalContextService,
