@@ -71,7 +71,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
   - 6.1 lập cho toàn trường; "cấp 4 xuống cấp" không suy ra được từ hiện trạng phòng nên nhập tay.
   - Nhập phòng không gán lớp vào phòng (gán ở 2.1); nhập danh mục không xóa thiết bị.
   - Số liệu 6.1, mức độ đạt chuẩn không chuyển sang năm học mới.
-  - Thẻ nhà vệ sinh của báo cáo EMIS 1.2 (phần 16j) chưa đọc dữ liệu này.
+  - Thẻ nhà vệ sinh của báo cáo EMIS 1.2 đọc dữ liệu này từ YCTD-129 (phần 16j).
 - Kiểm thử cần thực hiện: kịch bản CT-572 đến CT-579; kiểm thử đơn vị mới `apps/api/src/facilities/facilities-so.test.ts` (CT-572 đến CT-578, trong mã kiểm thử là CT-16i-1 đến CT-16i-7); kiểm thử giao diện mới `tests/e2e/65-facilities-full-so.spec.ts` (CT-579); sửa `tests/e2e/01-login.spec.ts` (CT-15a-8). Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 832/832 ca đạt; toàn bộ kiểm thử giao diện 130/130 ca đạt (CI, lượt chạy 39103041728; CT-15a-8 của `01-login.spec.ts` sửa theo nhóm menu mới "6. Cơ sở vật chất"); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Trạng thái: Đã triển khai
 

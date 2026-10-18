@@ -54,7 +54,7 @@
 
 #### Vấn đề tồn đọng
 
-- Gửi 1.2, 2.3 chưa nối hệ thống của Sở; mức độ đạt chuẩn và thuộc tính nhà vệ sinh cần đối chiếu biểu mẫu chính thức; thẻ nhà vệ sinh của EMIS 1.2 (phần 16j) chưa đọc dữ liệu này.
+- Gửi 1.2, 2.3 chưa nối hệ thống của Sở; mức độ đạt chuẩn và thuộc tính nhà vệ sinh cần đối chiếu biểu mẫu chính thức; thẻ nhà vệ sinh của EMIS 1.2 đọc dữ liệu này từ YCTD-129 (phần 16j).
 
 ### 2026-10-18 — DT-16 phần 16e: trường, lớp và lịch năm học theo hệ thống của Sở
 
