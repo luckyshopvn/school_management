@@ -123,8 +123,13 @@ test('Kế toán xem bảng học phí kỳ có hóa đơn đã phát hành; ph�
   await approver.getByRole('button', { name: 'Đăng nhập' }).click();
   await openMenu(approver, '/fee-approvals');
   await approver.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
+  await expect(
+    approver
+      .getByRole('region', { name: 'Miễn giảm chờ duyệt' })
+      .getByRole('row')
+      .filter({ hasText: 'Có anh ruột cùng học' }),
+  ).toContainText(CHILD_NAME);
   const request = approver.getByRole('group', { name: `Miễn giảm của ${CHILD_NAME}` });
-  await expect(request).toContainText('Có anh ruột cùng học');
   await request.getByRole('button', { name: 'Duyệt' }).click();
   await expect(approver.getByText('Không có miễn giảm chờ duyệt.')).toBeVisible();
 

@@ -14,6 +14,25 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-18 — DT-15 phần 15f1: phân hệ Tài chính – học phí theo giao diện chung của Sở
+
+#### Công việc đã thực hiện
+
+- Đưa 15 trang của phân hệ "Tài chính – học phí" sang giao diện chung của Sở: tiêu đề có số theo menu (1.1. Biểu phí và dịch vụ đến 3.2. Chốt kỳ tài chính); 20 lưới dữ liệu chung (dịch vụ, loại miễn giảm, hóa đơn, các danh sách chờ duyệt, công nợ, nhắc nợ, đề xuất xử lý, phiếu thu, phiếu chi, quỹ, nợ nhà cung cấp, khoản mục thu chi, tài khoản kế toán, quy tắc ghi sổ, kỳ tài chính); nút Thêm mới mở biểu mẫu theo khối, nút Ghi; xóa phiên bản biểu phí, phiếu chi nháp, dòng sao kê, bỏ quy tắc ghi sổ qua hộp xác nhận xóa dùng chung. Nghiệp vụ, điểm cuối, quyền không đổi; không có tệp thay đổi cấu trúc dữ liệu.
+- Thêm kịch bản CT-599 đến CT-610, tiêu chí AC-616 đến AC-627; không có quy tắc nghiệp vụ, quy tắc phân quyền, chức năng, màn hình mới (đổi MH-04, MH-05, MH-06, MH-07, MH-08, MH-09, MH-10, MH-11, MH-39, MH-61, MH-62, MH-67, MH-68, MH-69). Kết quả ngày 18/10/2026 sau khi gộp nhánh chính: build, kiểm tra kiểu, lint, kiểm tra định dạng đạt; kiểm thử đơn vị toàn bộ kho mã 848/848 ca đạt; toàn bộ kiểm thử giao diện 133/133 ca đạt.
+
+#### Quyết định
+
+- Phần 15f1 lấy mã YCTD-114 đã giữ sẵn. Màn hình không phải danh sách (bảng đăng ký dịch vụ, biểu phí theo phiên bản, sổ quỹ, đối chiếu ngân hàng, nhật ký chung, sổ cái, cân đối số phát sinh) giữ bố cục; lưới phân trang tại chỗ trên điểm cuối cũ; danh sách chờ duyệt đặt nhóm Duyệt, Từ chối dưới dòng. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-114.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-114, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-04, MH-05, MH-06, MH-07, MH-08, MH-09, MH-10, MH-11, MH-39, MH-61, MH-62, MH-67, MH-68, MH-69, BC-13, BC-15, BC-16, `17_DAC_TA_API.md` giao kèo cấu hình lưới, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.82.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 6.
+
+#### Vấn đề tồn đọng
+
+- Chưa có Xuất Excel, duyệt hàng loạt ở các lưới của phân hệ; chi tiết hóa đơn, lập phiếu thu, giao dịch chuyển khoản chờ xử lý, nhập tệp sao kê giữ giao diện cũ; danh sách rất dài vẫn tải một lần.
+
 ### 2026-10-18 — DT-15 phần 15f2: phân hệ Nhân sự – chấm công, lương theo giao diện chung của Sở
 
 #### Công việc đã thực hiện

@@ -100,19 +100,18 @@ test('Kế toán nhắc nợ và đề xuất xử lý công nợ quá hạn; Ph
   await form.getByLabel('Nội dung đề xuất').fill('Gia hạn tới cuối tháng, mời phụ huynh trao đổi');
   await form.getByRole('button', { name: 'Gửi đề xuất' }).click();
   const proposals = accountantPage.getByRole('region', { name: 'Đề xuất xử lý công nợ quá hạn' });
-  const proposal = proposals.getByRole('listitem').filter({ hasText: childName });
+  const proposal = proposals.getByRole('row').filter({ hasText: childName });
   await expect(proposal).toContainText('Chờ quyết định');
-  await expect(proposal.getByRole('button', { name: 'Ghi quyết định' })).toHaveCount(0);
+  await expect(proposals.getByRole('button', { name: 'Ghi quyết định' })).toHaveCount(0);
 
   const vicePage = await signIn(browser, vicePrincipal);
   await openMenu(vicePage, '/debt-collection');
-  const pending = vicePage
-    .getByRole('region', { name: 'Đề xuất xử lý công nợ quá hạn' })
-    .getByRole('listitem')
-    .filter({ hasText: childName });
-  await pending.getByLabel('Quyết định').fill('Đồng ý gia hạn tới ngày cuối tháng');
-  await pending.getByRole('button', { name: 'Ghi quyết định' }).click();
+  const decided = vicePage.getByRole('region', { name: 'Đề xuất xử lý công nợ quá hạn' });
+  const decision = decided.getByRole('group', { name: `Quyết định cho ${childName}` });
+  await decision.getByLabel('Quyết định').fill('Đồng ý gia hạn tới ngày cuối tháng');
+  await decision.getByRole('button', { name: 'Ghi quyết định' }).click();
+  const pending = decided.getByRole('row').filter({ hasText: childName });
   await expect(pending).toContainText('Đã quyết định');
-  await expect(pending).toContainText('Quyết định: Đồng ý gia hạn tới ngày cuối tháng');
+  await expect(pending).toContainText('Đồng ý gia hạn tới ngày cuối tháng');
   await expect(pending).toContainText('1.800.000');
 });

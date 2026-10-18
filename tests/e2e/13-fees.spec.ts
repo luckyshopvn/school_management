@@ -28,9 +28,11 @@ test('Kế toán thêm dịch vụ STEM, tạo biểu phí khối Mầm và lo�
   await openMenu(page, '/fees');
   const services = page.getByRole('region', { name: 'Danh mục dịch vụ' });
   await expect(services.getByRole('row').filter({ hasText: 'BAN_TRU' })).toContainText('Bắt buộc');
-  await services.getByLabel('Mã').fill('STEM');
-  await services.getByLabel('Tên dịch vụ').fill('STEM');
-  await services.getByRole('button', { name: 'Thêm' }).click();
+  await services.getByRole('button', { name: 'Thêm mới' }).click();
+  const serviceForm = page.getByRole('form', { name: 'Thêm mới vào danh mục dịch vụ' });
+  await serviceForm.getByLabel('Mã').fill('STEM');
+  await serviceForm.getByLabel('Tên dịch vụ').fill('STEM');
+  await serviceForm.getByRole('button', { name: 'Ghi' }).click();
   await expect(services.getByRole('row').filter({ hasText: 'STEM' })).toContainText('Theo tháng');
 
   const schedules = page.getByRole('region', { name: 'Biểu phí' });
@@ -41,7 +43,7 @@ test('Kế toán thêm dịch vụ STEM, tạo biểu phí khối Mầm và lo�
   await form.getByLabel('Học phí chính khóa (tháng) Mầm').fill('2200000');
   await form.getByLabel('Bán trú (ngày) Mầm').fill('35000');
   await form.getByLabel('STEM (tháng) Mầm').fill('440000');
-  await form.getByRole('button', { name: 'Lưu biểu phí' }).click();
+  await form.getByRole('button', { name: 'Ghi', exact: true }).click();
   const created = schedules.getByRole('article', { name: 'Biểu phí Biểu phí thử nghiệm' });
   await expect(created).toContainText('Chưa hiệu lực');
   await expect(created).toContainText('Từ 2099-01-01');
@@ -49,11 +51,13 @@ test('Kế toán thêm dịch vụ STEM, tạo biểu phí khối Mầm và lo�
   await expect(created.getByRole('row').filter({ hasText: 'STEM' })).toContainText('440.000');
 
   const discounts = page.getByRole('region', { name: 'Loại miễn giảm' });
-  await discounts.getByLabel('Mã').fill('ANH_CHI_EM');
-  await discounts.getByLabel('Tên loại miễn giảm').fill('Anh chị em ruột');
-  await discounts.getByLabel('Mức giảm (%)').fill('10');
-  await discounts.getByRole('checkbox', { name: 'Bán trú' }).check();
-  await discounts.getByRole('button', { name: 'Thêm loại miễn giảm' }).click();
+  await discounts.getByRole('button', { name: 'Thêm mới' }).click();
+  const discountForm = page.getByRole('form', { name: 'Thêm mới loại miễn giảm' });
+  await discountForm.getByLabel('Mã').fill('ANH_CHI_EM');
+  await discountForm.getByLabel('Tên loại miễn giảm').fill('Anh chị em ruột');
+  await discountForm.getByLabel('Mức giảm (%)').fill('10');
+  await discountForm.getByRole('checkbox', { name: 'Bán trú' }).check();
+  await discountForm.getByRole('button', { name: 'Ghi' }).click();
   await expect(discounts.getByRole('row').filter({ hasText: 'ANH_CHI_EM' })).toContainText('10%');
 });
 
@@ -61,10 +65,12 @@ test('Kế toán trưởng thêm khoản mục thu; quản lý đơn vị chỉ 
   const page = await signInAs(browser, 'VT-05');
   await openMenu(page, '/cashflow-categories');
   const categories = page.getByRole('region', { name: 'Khoản mục và nhóm thu chi' });
-  await categories.getByLabel('Mã').fill('THU_HOC_PHI');
-  await categories.getByLabel('Tên khoản mục').fill('Thu học phí');
-  await categories.getByLabel('Nhóm thu chi').fill('Thu từ hoạt động giáo dục');
-  await categories.getByRole('button', { name: 'Thêm' }).click();
+  await categories.getByRole('button', { name: 'Thêm mới' }).click();
+  const categoryForm = page.getByRole('form', { name: 'Thêm mới vào khoản mục và nhóm thu chi' });
+  await categoryForm.getByLabel('Mã').fill('THU_HOC_PHI');
+  await categoryForm.getByLabel('Tên khoản mục').fill('Thu học phí');
+  await categoryForm.getByLabel('Nhóm thu chi').fill('Thu từ hoạt động giáo dục');
+  await categoryForm.getByRole('button', { name: 'Ghi' }).click();
   await expect(categories.getByRole('row').filter({ hasText: 'THU_HOC_PHI' })).toContainText('Thu');
 
   const manager = await signInAs(browser, 'VT-03');

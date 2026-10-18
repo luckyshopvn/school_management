@@ -1,9 +1,20 @@
-import { Fragment, useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, StatusBadge, TextField, Toast } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  DataGrid,
+  FORM_CONTROL_CLASS,
+  StatusBadge,
+  TextField,
+  Toast,
+  type DataGridColumn,
+} from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { AppShell } from '../pages/AppShell.js';
+import { useGridSettings } from '../pages/grid-settings.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import { formatMoney } from './fees-api.js';
@@ -18,7 +29,9 @@ import {
 import { InvoiceDetailPanel } from './InvoiceDetailPanel.js';
 import { listPeriods } from './registrations-api.js';
 
-// MH-06 Bảng tính học phí và phát hành khoản phải thu (P05-05, P05-06; QT-03 bước 4 đến 9; YCTD-51)
+// MH-06 Bảng tính học phí và phát hành khoản phải thu (P05-05, P05-06; QT-03 bước 4 đến 9; YCTD-51). Bảng tính dùng lưới
+// dữ liệu chung: tìm theo học sinh, số hóa đơn; Mở rộng tìm kiếm theo loại, trạng thái; chi tiết mở dưới dòng (DT-15 phần
+// 15f1)
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.slice(0, 10).map((detail) => `${detail.field} ${detail.message}`)].join('. ')
@@ -30,10 +43,35 @@ function previousMonth(): string {
   return new Date(Date.UTC(Number(today.slice(0, 4)), Number(today.slice(5, 7)) - 2, 1)).toISOString().slice(0, 7);
 }
 
+const COLUMNS: Array<DataGridColumn<Invoice>> = [
+  {
+    id: 'child_name',
+    header: 'Học sinh',
+    alwaysVisible: true,
+    className: 'font-medium',
+    cell: (row) => row.child_name,
+  },
+  { id: 'invoice_kind', header: 'Loại', cell: (row) => (row.invoice_kind === 'main' ? 'Chính' : 'Bổ sung') },
+  { id: 'code', header: 'Số hóa đơn', cell: (row) => row.code ?? <StatusBadge tone="warning" label="Nháp" /> },
+  {
+    id: 'days',
+    header: 'Ngày học',
+    cell: (row) => `${row.basis.present_days ?? '-'}/${row.basis.school_days ?? '-'}`,
+  },
+  { id: 'total_amount', header: 'Tổng', className: 'text-right', cell: (row) => formatMoney(row.total_amount) },
+  { id: 'payable_amount', header: 'Phải nộp', className: 'text-right', cell: (row) => formatMoney(row.payable_amount) },
+  {
+    id: 'review_flags',
+    header: 'Cần xem lại',
+    cell: (row) => row.review_flags.map((flag) => REVIEW_FLAG_LABELS[flag] ?? flag).join(', '),
+  },
+];
+
 export function InvoicesPage() {
   const canManage = useHasPermission(PERMISSION_CODES.feeCalculationManage);
   const unitChoice = useUnitChoice();
   const orgUnitId = unitChoice.selectedId;
+  const grid = useGridSettings('invoices');
   const periods = useQuery({ queryKey: ['registration-periods'], queryFn: listPeriods });
   const [chosenPeriod, setChosenPeriod] = useState<string>();
   const period =
@@ -46,6 +84,9 @@ export function InvoicesPage() {
   });
   const [dueDate, setDueDate] = useState('');
   const [openId, setOpenId] = useState<string>();
+  const [search, setSearch] = useState('');
+  const [kind, setKind] = useState('');
+  const [status, setStatus] = useState('');
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
 
@@ -68,18 +109,25 @@ export function InvoicesPage() {
     },
   });
 
-  const rows = invoices.data ?? [];
-  const hasDraft = rows.some((row) => row.status === 'draft');
-  const total = rows.reduce((sum, row) => sum + row.total_amount, 0);
+  const allRows = invoices.data ?? [];
+  const hasDraft = allRows.some((row) => row.status === 'draft');
+  const total = allRows.reduce((sum, row) => sum + row.total_amount, 0);
   const issuedMainChildren = new Set(
-    rows.filter((row) => row.invoice_kind === 'main' && row.status === 'issued').map((row) => row.child_id),
+    allRows.filter((row) => row.invoice_kind === 'main' && row.status === 'issued').map((row) => row.child_id),
+  );
+  const keyword = search.trim().toLocaleLowerCase('vi');
+  const rows = allRows.filter(
+    (row) =>
+      (kind === '' || row.invoice_kind === kind) &&
+      (status === '' || row.status === status) &&
+      (keyword === '' || `${row.child_name} ${row.code ?? ''}`.toLocaleLowerCase('vi').includes(keyword)),
   );
 
   return (
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Học phí</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/invoices')}</h1>
         <div className="flex flex-wrap items-end gap-4">
           <UnitSelect units={unitChoice.units} selectedId={orgUnitId} onSelect={unitChoice.select} />
           <label className="flex flex-col gap-2 text-label font-medium text-text">
@@ -122,75 +170,71 @@ export function InvoicesPage() {
         </div>
         {action.error ? <Alert tone="danger">{messageOf(action.error)}</Alert> : null}
         {invoices.error ? <Alert tone="danger">{messageOf(invoices.error)}</Alert> : null}
-        <section
-          className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
-          aria-label="Bảng tính học phí"
-        >
-          <div className="flex flex-wrap items-center gap-3 text-content">
-            <span>{rows.length} hóa đơn</span>
-            <span>Tổng {formatMoney(total)}</span>
-            {hasDraft ? <StatusBadge tone="warning" label="Còn hóa đơn nháp" /> : null}
-          </div>
-          {invoices.data && rows.length === 0 ? (
-            <p className="text-content text-text-secondary">Chưa có hóa đơn của kỳ này.</p>
-          ) : null}
-          {rows.length > 0 ? (
-            <table className="w-full text-content">
-              <thead className="text-left text-label font-medium text-text-secondary">
-                <tr>
-                  <th className="px-3 py-2">Trẻ</th>
-                  <th className="px-3 py-2">Loại</th>
-                  <th className="px-3 py-2">Số hóa đơn</th>
-                  <th className="px-3 py-2">Ngày học</th>
-                  <th className="px-3 py-2 text-right">Tổng</th>
-                  <th className="px-3 py-2 text-right">Phải nộp</th>
-                  <th className="px-3 py-2">Cần xem lại</th>
-                  <th className="px-3 py-2" />
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row: Invoice) => (
-                  <Fragment key={row.id}>
-                    <tr className="border-t border-border" aria-label={`Hóa đơn ${row.child_name}`}>
-                      <td className="px-3 py-2 font-medium">{row.child_name}</td>
-                      <td className="px-3 py-2">{row.invoice_kind === 'main' ? 'Chính' : 'Bổ sung'}</td>
-                      <td className="px-3 py-2">{row.code ?? <StatusBadge tone="warning" label="Nháp" />}</td>
-                      <td className="px-3 py-2">
-                        {row.basis.present_days ?? '-'}/{row.basis.school_days ?? '-'}
-                      </td>
-                      <td className="px-3 py-2 text-right">{formatMoney(row.total_amount)}</td>
-                      <td className="px-3 py-2 text-right">{formatMoney(row.payable_amount)}</td>
-                      <td className="px-3 py-2">
-                        {row.review_flags.map((flag) => REVIEW_FLAG_LABELS[flag] ?? flag).join(', ')}
-                      </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-right">
-                        <Button variant="text" onClick={() => setOpenId(openId === row.id ? undefined : row.id)}>
-                          {openId === row.id ? 'Ẩn' : 'Chi tiết'}
-                        </Button>
-                        {canManage && row.invoice_kind === 'main' && issuedMainChildren.has(row.child_id) ? (
-                          <Button
-                            variant="text"
-                            disabled={action.isPending}
-                            onClick={() => action.mutate({ kind: 'supplementary', childId: row.child_id })}
-                          >
-                            Lập hóa đơn bổ sung
-                          </Button>
-                        ) : null}
-                      </td>
-                    </tr>
-                    {openId === row.id ? (
-                      <tr>
-                        <td colSpan={8} className="px-3 pb-3">
-                          <InvoiceDetailPanel invoiceId={row.id} />
-                        </td>
-                      </tr>
-                    ) : null}
-                  </Fragment>
-                ))}
-              </tbody>
-            </table>
-          ) : null}
-        </section>
+        {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+        <div className="flex flex-wrap items-center gap-3 text-content">
+          <span>{allRows.length} hóa đơn</span>
+          <span>Tổng {formatMoney(total)}</span>
+          {hasDraft ? <StatusBadge tone="warning" label="Còn hóa đơn nháp" /> : null}
+        </div>
+        <DataGrid
+          label="Bảng tính học phí"
+          columns={COLUMNS}
+          rows={rows}
+          getRowId={(row) => row.id}
+          getRowLabel={(row) => `${row.child_name} ${row.code ?? ''}`.trim()}
+          getRowAriaLabel={(row) => `Hóa đơn ${row.child_name}`}
+          loading={Boolean(orgUnitId && period) && invoices.isPending}
+          emptyText="Chưa có hóa đơn của kỳ này."
+          search={{ label: 'Tìm theo học sinh, số hóa đơn', value: search, onChange: setSearch }}
+          advancedSearch={
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+              <label className="text-label font-medium text-text">
+                Loại hóa đơn
+                <select
+                  value={kind}
+                  onChange={(event) => setKind(event.target.value)}
+                  className={`mt-1 ${FORM_CONTROL_CLASS}`}
+                >
+                  <option value="">Tất cả</option>
+                  <option value="main">Chính</option>
+                  <option value="supplementary">Bổ sung</option>
+                </select>
+              </label>
+              <label className="text-label font-medium text-text">
+                Trạng thái
+                <select
+                  value={status}
+                  onChange={(event) => setStatus(event.target.value)}
+                  className={`mt-1 ${FORM_CONTROL_CLASS}`}
+                >
+                  <option value="">Tất cả</option>
+                  <option value="draft">Nháp</option>
+                  <option value="issued">Đã phát hành</option>
+                </select>
+              </label>
+            </div>
+          }
+          rowActions={(row) => (
+            <span className="flex flex-wrap justify-end gap-1 whitespace-nowrap">
+              <Button variant="text" onClick={() => setOpenId(openId === row.id ? undefined : row.id)}>
+                {openId === row.id ? 'Ẩn' : 'Chi tiết'}
+              </Button>
+              {canManage && row.invoice_kind === 'main' && issuedMainChildren.has(row.child_id) ? (
+                <Button
+                  variant="text"
+                  disabled={action.isPending}
+                  onClick={() => action.mutate({ kind: 'supplementary', childId: row.child_id })}
+                >
+                  Lập hóa đơn bổ sung
+                </Button>
+              ) : null}
+            </span>
+          )}
+          activeRowId={openId}
+          renderRowDetail={(row) => (openId === row.id ? <InvoiceDetailPanel invoiceId={row.id} /> : null)}
+          settings={grid.settings}
+          onSettingsChange={grid.update}
+        />
       </div>
     </AppShell>
   );

@@ -56,6 +56,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
 | 0.81.0 | DT-15 phần 15f2, phân hệ Nhân sự – chấm công, lương theo giao diện chung của Sở: tiêu đề đánh số theo menu, 17 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối, hộp xác nhận xóa; nghiệp vụ không đổi (YCTD-113) | 13, 21 | Đã có |
+| 0.82.0 | DT-15 phần 15f1, phân hệ Tài chính – học phí theo giao diện chung của Sở: tiêu đề đánh số theo menu, 20 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối, hộp xác nhận xóa; nghiệp vụ không đổi (YCTD-114) | 13, 21 | Đã có |
 | 0.80.1 | 2.1 Hồ sơ lớp học: cột hiện mặc định và 50 dòng mỗi trang theo Sở (YCTD-117) | 13, 21 | Đã có |
 | 0.76.0 | DT-16 phần 16g, nhóm Học sinh đủ theo hệ thống của Sở: 4.1.1 Thay đổi, Xóa, Cấp mã định danh Bộ, Xuất file lỗi; 4.1.2, 4.1.3, 4.1.5, 4.1.8, 4.1.10, 5.4, 5.5; 4.1.11 nhập địa chỉ mới; 4.2 chuyển lớp hàng loạt, chuyển trường chạy nội bộ (YCTD-126) | 13, 21 | Đã có |
 | 0.74.0 | DT-16 phần 16f, nhóm Nhân sự đủ theo hệ thống của Sở: 3.1.1 Thay đổi, Xóa, Xuất tệp theo mẫu Bộ, Xuất file lỗi, danh mục của Bộ, tài khoản ngân hàng, mã số thuế, xã ĐBKK; 3.1.2 Nhân sự phân hiệu; 3.1.3 Nhập nhân sự từ Excel; 3.1.5 Xác thực số định danh nhân sự (bản chạy nội bộ); 3.2 nhập mức đánh giá từ Excel; 3.5 Biến động nhân sự (bản chạy nội bộ); 5.2, 5.6, 5.9 (YCTD-124) | 13, 21 | Đã có |
