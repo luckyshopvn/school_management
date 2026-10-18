@@ -111,6 +111,9 @@ import { SchoolWeeksPage } from './academic-years/SchoolWeeksPage.js';
 import { YearRolloverPage } from './academic-years/YearRolloverPage.js';
 import { AccreditationReviewPage } from './school/AccreditationReviewPage.js';
 import { SchoolSplitsPage } from './school/SchoolSplitsPage.js';
+import { SigningCertificatePage, SigningCertificateSyncPage } from './signing/SigningCertificatePage.js';
+import { SigningDossiersPage } from './signing/SigningDossiersPage.js';
+import { SigningSubmissionsPage } from './signing/SigningSubmissionsPage.js';
 
 // Trang dùng được khi chưa đăng nhập (DT-16 phần 16c thêm Quên mật khẩu)
 const PUBLIC_PATHS = ['/login', '/forgot-password'];
@@ -183,6 +186,11 @@ const routeTree = rootRoute.addChildren([
   // Trường học, lớp học, lịch năm học đủ theo Sở (DT-16 phần 16e)
   createRoute({ getParentRoute: () => rootRoute, path: '/accreditation-review', component: AccreditationReviewPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/school-splits', component: SchoolSplitsPage }),
+  // Quản lý kí hồ sơ, bản chạy nội bộ (DT-16 phần 16k)
+  createRoute({ getParentRoute: () => rootRoute, path: '/signing-certificate', component: SigningCertificatePage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/signing-certificate-sync', component: SigningCertificateSyncPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/signing-dossiers', component: SigningDossiersPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/signing-submissions', component: SigningSubmissionsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/school-weeks', component: SchoolWeeksPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/year-rollover', component: YearRolloverPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/children', component: ChildrenPage }),
