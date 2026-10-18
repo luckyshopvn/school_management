@@ -1,9 +1,10 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, TextField, Toast } from '@school-management/ui';
+import { Alert, Button, FORM_CONTROL_CLASS, FormBlock, FormRow, TextField, Toast } from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { AppShell } from '../pages/AppShell.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import {
@@ -25,14 +26,14 @@ import {
 } from './staff-attendance-api.js';
 
 // MH-44 và MH-13 Chấm công (P08-01, BR-39, YCTD-59): nhân sự tự bấm vào ca, ra ca hôm nay theo giờ máy chủ; người có quyền xem
-// bảng chấm công của đơn vị theo tháng; phòng nhân sự nhập hoặc sửa giờ của một ngày
+// bảng chấm công của đơn vị theo tháng; phòng nhân sự nhập hoặc sửa giờ của một ngày. Bảng chấm công là ma trận nên giữ
+// bố cục; DT-15 phần 15f2 chỉ đổi tiêu đề có số theo menu và biểu mẫu nhập giờ theo khối có nút Ghi
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
     : 'Không kết nối được tới máy chủ, vui lòng thử lại';
 }
 
-const selectClass = 'mt-2 block w-full rounded-lg border border-border bg-card px-3 py-2 text-content font-normal';
 const vietnamMonth = () =>
   new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date()).slice(0, 7);
 
@@ -191,11 +192,10 @@ function AttendanceLogForm({ sheet, onSaved }: { sheet: AttendanceSheet; onSaved
         save.mutate();
       }}
     >
-      <h2 className="text-section-title font-semibold text-text">Nhập giờ chấm công</h2>
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
-        <label className="text-label font-medium text-text">
-          Nhân sự
-          <select value={staffId} onChange={(event) => setStaffId(event.target.value)} className={selectClass}>
+      {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
+      <FormBlock title="Nhập giờ chấm công">
+        <FormRow label="Nhân sự">
+          <select className={FORM_CONTROL_CLASS} value={staffId} onChange={(event) => setStaffId(event.target.value)}>
             <option value="">Chọn nhân sự</option>
             {sheet.staff.map((row) => (
               <option key={row.id} value={row.id}>
@@ -203,32 +203,39 @@ function AttendanceLogForm({ sheet, onSaved }: { sheet: AttendanceSheet; onSaved
               </option>
             ))}
           </select>
-        </label>
-        <TextField
-          label="Ngày chấm công"
-          type="date"
-          max={sheet.today}
-          value={workDate}
-          onChange={(event) => setWorkDate(event.target.value)}
-        />
-        <TextField
-          label="Giờ vào"
-          type="time"
-          value={checkInTime}
-          onChange={(event) => setCheckInTime(event.target.value)}
-        />
-        <TextField
-          label="Giờ ra"
-          type="time"
-          value={checkOutTime}
-          onChange={(event) => setCheckOutTime(event.target.value)}
-        />
-        <TextField label="Ghi chú" value={note} onChange={(event) => setNote(event.target.value)} />
-      </div>
-      {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
+        </FormRow>
+        <FormRow label="Ngày chấm công">
+          <input
+            type="date"
+            className={FORM_CONTROL_CLASS}
+            max={sheet.today}
+            value={workDate}
+            onChange={(event) => setWorkDate(event.target.value)}
+          />
+        </FormRow>
+        <FormRow label="Giờ vào">
+          <input
+            type="time"
+            className={FORM_CONTROL_CLASS}
+            value={checkInTime}
+            onChange={(event) => setCheckInTime(event.target.value)}
+          />
+        </FormRow>
+        <FormRow label="Giờ ra">
+          <input
+            type="time"
+            className={FORM_CONTROL_CLASS}
+            value={checkOutTime}
+            onChange={(event) => setCheckOutTime(event.target.value)}
+          />
+        </FormRow>
+        <FormRow label="Ghi chú">
+          <input className={FORM_CONTROL_CLASS} value={note} onChange={(event) => setNote(event.target.value)} />
+        </FormRow>
+      </FormBlock>
       <div>
         <Button type="submit" variant="primary" disabled={save.isPending}>
-          Lưu chấm công
+          Ghi
         </Button>
       </div>
     </form>
@@ -486,7 +493,7 @@ export function StaffAttendancePage() {
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Chấm công</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/staff-attendance')}</h1>
         <MyAttendanceSection onChanged={setToastMessage} />
         {canView ? <AttendanceSheetSection onChanged={setToastMessage} /> : null}
       </div>

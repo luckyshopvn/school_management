@@ -14,6 +14,25 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-18 — DT-15 phần 15f2: phân hệ Nhân sự – chấm công, lương theo giao diện chung của Sở
+
+#### Công việc đã thực hiện
+
+- Đưa 12 trang của phân hệ "Nhân sự – chấm công, lương" sang giao diện chung của Sở: tiêu đề có số theo menu (1.1. Chấm công đến 3.2. Đánh giá nhân sự); 17 lưới dữ liệu chung ở 10 trang (đơn nghỉ, quy định và số ngày phép năm, ngày lễ, lịch bù, lịch công tác, phiếu lương, quyết toán, điều chỉnh lương, khoản lương, thưởng và khấu trừ, việc, kế hoạch, chỉ số và phiếu đánh giá); nút Thêm mới mở biểu mẫu theo khối, nút Ghi; xóa ngày lễ, lịch bù, lịch công tác qua hộp xác nhận xóa dùng chung. Nghiệp vụ, điểm cuối, quyền không đổi; không có tệp thay đổi cấu trúc dữ liệu.
+- Thêm kịch bản CT-431 đến CT-437, tiêu chí AC-475 đến AC-481; không có quy tắc nghiệp vụ, quy tắc phân quyền, chức năng, màn hình mới (đổi MH-13, MH-14, MH-15, MH-37, MH-44, MH-52, MH-53, MH-54, MH-56, MH-58, MH-59, MH-60). Kết quả ngày 15/10/2026 trên nhánh trước khi gộp phần 15h1: build, kiểm tra kiểu, lint, kiểm tra định dạng đạt; kiểm thử đơn vị toàn bộ kho mã 709/710 ca đạt, ca không đạt CT-15g-11 (số ngày còn lại trước khi hết hạn mật khẩu, phụ thuộc thời điểm chạy ở ranh giới ngày) không liên quan phần này, chạy lại riêng tệp `password-expiry.test.js` 5/5 ca đạt; toàn bộ kiểm thử giao diện 91/91 ca đạt.
+
+#### Quyết định
+
+- Thực hiện đợt 15f của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 5, chia theo phân hệ thành 15f1, 15f2, 15f3 làm song song, giữ mã YCTD-113 đến YCTD-115; phần 15f2 gộp trước nên lấy YCTD-113 (bản nháp ghi YCTD-114). Màn hình không phải danh sách (bảng chấm công tháng, bảng lương tháng, bảng quyết toán, biểu thuế, phiếu lương của tôi, bảng tiến độ, kết quả đánh giá của tôi) giữ bố cục; lưới phân trang tại chỗ trên điểm cuối cũ; không thêm ô chọn dòng vì không có thao tác hàng loạt. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-113.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-113, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-13, MH-14, MH-15, MH-37, MH-44, MH-52, MH-53, MH-54, MH-56, MH-58, MH-59, MH-60, BC-13, BC-15, BC-16, `16_CO_SO_DU_LIEU.md` mục `user_grid_settings`, `17_DAC_TA_API.md` giao kèo cấu hình lưới, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.81.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 6.
+
+#### Vấn đề tồn đọng
+
+- Chưa có Xuất Excel, xóa hàng loạt ở các lưới của phân hệ; duyệt, từ chối có lý do và cập nhật tiến độ việc vẫn là ô nhập trong cột thao tác; danh sách rất dài vẫn tải một lần; tiêu đề cột tiền canh trái trong khi số tiền canh phải.
+
 ### 2026-10-18 — 2.1 Hồ sơ lớp học: cột và số dòng mặc định theo Sở
 
 #### Công việc đã thực hiện

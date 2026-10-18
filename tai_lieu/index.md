@@ -23,7 +23,7 @@
 | 11 | [11_TIEU_CHI_NGHIEM_THU.md](11_TIEU_CHI_NGHIEM_THU.md) | Tiêu chí nghiệm thu | AC-01 đến AC-615 dạng Cho, Khi, Thì | 04 Đặc tả yêu cầu | Đã phê duyệt |
 | 12 | [12_KIEN_TRUC_HE_THONG.md](12_KIEN_TRUC_HE_THONG.md) | Kiến trúc hệ thống | Thành phần, xác thực, phân quyền, quyết định kiến trúc | 05 Thiết kế kiến trúc | Đã phê duyệt |
 | 13 | [13_CONG_NGHE_SU_DUNG.md](13_CONG_NGHE_SU_DUNG.md) | Công nghệ sử dụng | Bộ công nghệ đã chốt, cấu trúc mã nguồn, quy ước kỹ thuật | 05 Thiết kế kiến trúc | Đã phê duyệt |
-| 14 | [14_DAC_TA_GIAO_DIEN.md](14_DAC_TA_GIAO_DIEN.md) | Đặc tả giao diện | 127 màn hình, cây menu cổng quản trị, quy tắc bố cục, trạng thái, xử lý lỗi, ranh giới với máy chủ | 06 Thiết kế giao diện | Đã phê duyệt |
+| 14 | [14_DAC_TA_GIAO_DIEN.md](14_DAC_TA_GIAO_DIEN.md) | Đặc tả giao diện | 128 màn hình, cây menu cổng quản trị, quy tắc bố cục, trạng thái, xử lý lỗi, ranh giới với máy chủ | 06 Thiết kế giao diện | Đã phê duyệt |
 | 15 | [15_HE_THONG_THIET_KE.md](15_HE_THONG_THIET_KE.md) | Hệ thống thiết kế | Màu, chữ, khoảng cách, thành phần dùng chung | 06 Thiết kế giao diện | Đã phê duyệt |
 | 16 | [16_CO_SO_DU_LIEU.md](16_CO_SO_DU_LIEU.md) | Cơ sở dữ liệu | 224 bảng dự kiến, quan hệ, chỉ mục, chính sách xóa | 07 Thiết kế dữ liệu và API | Đã phê duyệt |
 | 17 | [17_DAC_TA_API.md](17_DAC_TA_API.md) | Đặc tả API | Điểm cuối, mô hình lỗi, phân trang, kiểm tra dữ liệu | 07 Thiết kế dữ liệu và API | Đã phê duyệt |
@@ -33,7 +33,7 @@
 | 21 | [21_KICH_BAN_KIEM_THU.md](21_KICH_BAN_KIEM_THU.md) | Kịch bản kiểm thử | CT-001 đến CT-598 | 10 Kiểm thử | Đã phê duyệt |
 | 22 | [22_BAO_MAT.md](22_BAO_MAT.md) | Bảo mật | BM-01 đến BM-72 | 10 Kiểm thử | Đã phê duyệt |
 | 23 | [23_LICH_SU_PHIEN_BAN.md](23_LICH_SU_PHIEN_BAN.md) | Lịch sử phiên bản | Các phiên bản từ 0.1.0 | 11 Nghiệm thu và phát hành | Đang cập nhật |
-| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-112, YCTD-116 đến YCTD-130, đánh giá ảnh hưởng | 12 Vận hành và cải tiến | Đang cập nhật |
+| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-113, YCTD-116 đến YCTD-130, đánh giá ảnh hưởng | 12 Vận hành và cải tiến | Đang cập nhật |
 | 25 | [25_QUY_TRINH_NGHIEP_VU/](25_QUY_TRINH_NGHIEP_VU/) | Quy trình nghiệp vụ | Mười đặc tả QT-01 đến QT-10 và phiếu yêu cầu trống | 03 Phân tích nghiệp vụ | Đã phê duyệt |
 | 26 | [26_SO_DO_CHUC_NANG/](26_SO_DO_CHUC_NANG/) | Sơ đồ chức năng gốc | Tám ảnh sơ đồ chức năng do Eric gửi, nguồn đầu vào của bộ tài liệu | 01 Xác định ý tưởng | Tài liệu nguồn |
 | 27 | [27_BO_CA_KIEM_THU_CHI_TIET/](27_BO_CA_KIEM_THU_CHI_TIET/) | Bộ ca kiểm thử chi tiết | Ca kiểm thử chi tiết theo việc N21, mã CTC-..., năm đợt, 453 ca, 6 ca không áp dụng | 10 Kiểm thử | Đã phê duyệt |
@@ -88,7 +88,7 @@ Mã quy trình dạng `QT-nn`, đánh số tăng dần, không tái sử dụng 
 | Cổng kiểm soát chất lượng | 12 | Từ CG-01 đến CG-12, xem `01_KE_HOACH_TONG_THE.md` |
 | Đợt xây dựng | 12 | Từ DT-00 đến DT-11, xem `01_KE_HOACH_TONG_THE.md` |
 | Rủi ro đã ghi nhận | 14 | Từ RR-01 đến RR-14, xem `01_KE_HOACH_TONG_THE.md` |
-| Yêu cầu thay đổi | 127 | Từ YCTD-01 đến YCTD-112, YCTD-116 đến YCTD-130 (YCTD-113 đến YCTD-115 dành cho các phần 15f), xem `24_YEU_CAU_THAY_DOI.md` |
+| Yêu cầu thay đổi | 128 | Từ YCTD-01 đến YCTD-113, YCTD-116 đến YCTD-130 (YCTD-114, YCTD-115 dành cho các phần 15f1, 15f3), xem `24_YEU_CAU_THAY_DOI.md` |
 
 ## Quyết định đã chốt
 

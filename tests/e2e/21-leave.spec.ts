@@ -93,19 +93,22 @@ test('Giáo viên gửi đơn nghỉ, Phó Hiệu trưởng duyệt; phòng nhâ
 
   const teacherPage = await signIn(browser, teacher);
   await openMenu(teacherPage, '/leave-requests');
+  const mine = teacherPage.getByRole('region', { name: 'Đơn nghỉ của tôi' });
+  await mine.getByRole('button', { name: 'Thêm mới' }).click();
   const form = teacherPage.getByRole('form', { name: 'Gửi đơn nghỉ của tôi' });
   await form.getByLabel('Loại nghỉ').selectOption({ label: leaveTypeName });
   await form.getByLabel('Từ ngày').fill(nextMonday);
   await form.getByLabel('Lý do nghỉ').fill('Đưa con đi khám');
-  await form.getByRole('button', { name: 'Gửi đơn nghỉ' }).click();
-  const mine = teacherPage.getByRole('region', { name: 'Đơn nghỉ của tôi' });
+  await form.getByRole('button', { name: 'Ghi' }).click();
   await expect(mine.getByRole('row', { name: `Đơn nghỉ của ${fullName} ${nextMonday}` })).toContainText('Chờ duyệt');
 
   const vicePage = await signIn(browser, vicePrincipal);
   await openMenu(vicePage, '/leave-requests');
+  await vicePage.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: unit.name });
   const unitSection = vicePage.getByRole('region', { name: 'Đơn nghỉ của đơn vị' });
-  await unitSection.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: unit.name });
+  await unitSection.getByRole('button', { name: 'Mở rộng tìm kiếm' }).click();
   await unitSection.getByLabel('Trạng thái đơn').selectOption('');
+  await unitSection.getByLabel('Tìm theo tên nhân sự, loại nghỉ, lý do').fill(fullName);
   const row = unitSection.getByRole('row', { name: `Đơn nghỉ của ${fullName} ${nextMonday}` });
   await row.getByRole('button', { name: 'Duyệt' }).click();
   await expect(row).toContainText('Đã duyệt');
