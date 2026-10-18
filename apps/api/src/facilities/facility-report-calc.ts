@@ -149,7 +149,16 @@ export function buildToiletFigures(rooms: ReportRoom[]) {
     if (user.key === 'unassigned' && ofUser.length === 0) {
       continue;
     }
-    const row: ToiletRow = { ...total, key: user.key, label: user.label, rooms: 0 };
+    const row: ToiletRow = {
+      key: user.key,
+      label: user.label,
+      rooms: 0,
+      met: 0,
+      not_met: 0,
+      unassessed: 0,
+      separate_gender: 0,
+      seats: 0,
+    };
     for (const room of ofUser) {
       const standard = room.facility_attributes.toilet_standard;
       const seats = room.facility_attributes.toilet_seats;
