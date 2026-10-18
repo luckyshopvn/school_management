@@ -184,6 +184,17 @@ export class UpperLevelSubmissions {
     };
   }
 
+  // Trạng thái gửi của biểu mẫu trong năm học đang dùng (chưa có bản ghi là Chưa gửi). Màn hình nhập số liệu của biểu mẫu
+  // (ví dụ các biểu EMIS của phần 16j) dùng để khóa việc sửa khi biểu mẫu đã gửi hoặc đang chờ mở khóa
+  async statusOf(formCode: string): Promise<UpperLevelSubmissionStatus> {
+    const { academicYearId } = await this.currentSchoolYear.require();
+    return (await this.row(academicYearId, formCode))?.status ?? 'draft';
+  }
+
+  isLocked(status: UpperLevelSubmissionStatus): boolean {
+    return status === 'sent' || status === 'unlock_requested';
+  }
+
   // Danh sách biểu mẫu kèm Hoàn thành dữ liệu, Trạng thái, Ngày gửi của năm học đang dùng
   async list(currentUser: CurrentUser, formCodes: string[]): Promise<SubmissionView[]> {
     const { academicYearId } = await this.currentSchoolYear.require();

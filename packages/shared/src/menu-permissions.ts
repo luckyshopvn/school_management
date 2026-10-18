@@ -110,6 +110,12 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/facility-rooms': anyOf('P17.report.facilities', 'P13.equipment.manage', 'P01.room.manage'),
   '/equipment': anyOf('P17.report.facilities', 'P13.equipment.manage'),
   '/emis': 'P17.report.emis',
+  '/emis/facilities': 'P17.report.emis',
+  '/emis/health': 'P17.report.emis',
+  '/emis/end-of-year': 'P17.report.emis',
+  '/emis/staff': 'P17.report.emis',
+  '/emis/foreign-language': 'P17.report.emis',
+  '/emis/preschool-end-of-year': 'P17.report.emis',
   // Quản trị hệ thống
   '/roles': ACCOUNTS,
   '/role-workspaces': ACCOUNTS,

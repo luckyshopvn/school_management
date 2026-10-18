@@ -7,6 +7,7 @@ export * from './staff-catalogs.js';
 export * from './classes.js';
 export * from './student-health.js';
 export * from './students.js';
+export * from './emis.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -331,6 +332,13 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/learning-accounts',
   '/default-passwords',
   '/national-id-progress',
+  // Báo cáo số liệu EMIS đủ bảy biểu (DT-16 phần 16j)
+  '/emis/facilities',
+  '/emis/health',
+  '/emis/end-of-year',
+  '/emis/staff',
+  '/emis/foreign-language',
+  '/emis/preschool-end-of-year',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];

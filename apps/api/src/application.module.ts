@@ -124,6 +124,7 @@ import { CatalogItemsController, CatalogItemsService } from './catalogs/catalog-
 import { ApprovalThresholdsController, ApprovalThresholdsService } from './catalogs/approval-thresholds.js';
 import { RoomsController, RoomsService } from './catalogs/rooms.js';
 import { EmisReportController, EmisReportService } from './facilities/emis-report.js';
+import { EmisForms, EmisFormsController } from './emis/emis-forms.js';
 import { EquipmentController, EquipmentService } from './facilities/equipment.js';
 import { FacilitiesData } from './facilities/facilities-data.js';
 import { facilitiesTransitionStep } from './facilities/facilities-transition.js';
@@ -314,6 +315,7 @@ export class ApplicationModule {
         AccreditationReviewController,
         SchoolSplitsController,
         EmisReportController,
+        EmisFormsController,
         GradeLevelsController,
         ClassesController,
         ClassAssignmentsController,
@@ -498,6 +500,7 @@ export class ApplicationModule {
         AccreditationReviewService,
         SchoolSplitsService,
         EmisReportService,
+        EmisForms,
         GradeLevelsService,
         ClassesService,
         ChildScope,

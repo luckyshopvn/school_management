@@ -1,5 +1,5 @@
 import { Controller, Get, Injectable } from '@nestjs/common';
-import type { SchoolYearDatabase } from '@school-management/database';
+import type { SchoolYearDatabase, StudentHealthTerm } from '@school-management/database';
 import { Clock } from '@school-management/server';
 import { PERMISSION_CODES, SCHOOL_OWNERSHIP_TYPES, type SchoolOwnershipType } from '@school-management/shared';
 import type { Kysely } from 'kysely';
@@ -25,10 +25,11 @@ const toNumber = (value: string | null) => (value === null ? null : Number(value
 const dateText = (value: unknown) =>
   value instanceof Date ? VIETNAM_DATE.format(value) : String(value ?? '').slice(0, 10);
 
-// Dữ kiện của từng học sinh đang học cho báo cáo sức khỏe đầu năm (học kỳ I)
+// Dữ kiện của từng học sinh đang học cho báo cáo sức khỏe đầu năm (học kỳ I); biểu cuối năm của phần 16j gọi với học kỳ II
 export async function loadStartOfYearHealthChildren(
   database: Kysely<SchoolYearDatabase>,
   terms: TermRange[],
+  term: StudentHealthTerm = 'first_term',
 ): Promise<HealthReportChild[]> {
   const children = await database
     .selectFrom('children')
@@ -59,12 +60,12 @@ export async function loadStartOfYearHealthChildren(
     database
       .selectFrom('student_health_records')
       .select(['child_id', 'eye_conditions'])
-      .where('term_type', '=', 'first_term')
+      .where('term_type', '=', term)
       .where('child_id', 'in', ids)
       .execute(),
   ]);
   const examined = new Set(
-    checks.filter((row) => termOfDate(dateText(row.from_date), terms) === 'first_term').map((row) => row.child_id),
+    checks.filter((row) => termOfDate(dateText(row.from_date), terms) === term).map((row) => row.child_id),
   );
   const growth = latestGrowthByChild(
     measurements.map((row) => ({
@@ -76,7 +77,7 @@ export async function loadStartOfYearHealthChildren(
       height_cm: toNumber(row.height_cm),
     })),
     terms,
-    'first_term',
+    term,
   );
   const eyes = new Map(records.map((row) => [row.child_id, row.eye_conditions ?? []]));
   return children.map((child) => {
