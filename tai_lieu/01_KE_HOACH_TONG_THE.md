@@ -1,7 +1,7 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.11
+- Phiên bản: 1.12
 - Ngày cập nhật: 2026-10-18
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -59,6 +59,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.74.0 | DT-16 phần 16f, nhóm Nhân sự đủ theo hệ thống của Sở: 3.1.1 Thay đổi, Xóa, Xuất tệp theo mẫu Bộ, Xuất file lỗi, danh mục của Bộ, tài khoản ngân hàng, mã số thuế, xã ĐBKK; 3.1.2 Nhân sự phân hiệu; 3.1.3 Nhập nhân sự từ Excel; 3.1.5 Xác thực số định danh nhân sự (bản chạy nội bộ); 3.2 nhập mức đánh giá từ Excel; 3.5 Biến động nhân sự (bản chạy nội bộ); 5.2, 5.6, 5.9 (YCTD-124) | 13, 21 | Đã có |
 | 0.75.0 | DT-16 phần 16h, sức khỏe, dinh dưỡng và thống kê học sinh theo hệ thống của Sở: nhập thông tin sức khỏe học sinh theo học kỳ, lấy số đo từ 4.3, tổng hợp cân đo theo học kỳ và so sánh hai lần cân đo, thực đơn theo mẫu của Sở và nhập thực đơn từ Excel, 5.3 Thống kê học sinh đủ các phần, số liệu báo cáo sức khỏe học sinh đầu năm (YCTD-125) | 13, 21 | Đã có |
 | 0.77.0 | DT-16 phần 16e, trường, lớp và lịch năm học theo hệ thống của Sở: 1.4 khối Cấu hình trường (tên trường hiển thị, tên đơn vị hành chính, tính cân nặng/chiều cao cho trẻ suy dinh dưỡng thể nhẹ cân), 1.7 Rà soát thông tin kiểm định CLGD, 1.8 Tách trường (bản chạy nội bộ), 2.1 chọn nhiều lớp, thay đổi hàng loạt, xóa lớp, 2.2 nhập lớp đủ cột của Sở, 3.3 giáo viên chưa phân công, 3.4 Khai báo tuần, 5.7 Chuyển hồ sơ lên năm học mới (Thực hiện, Hủy) (YCTD-127) | 13, 21 | Đã có |
+| 0.78.0 | DT-16 phần 16j, báo cáo số liệu EMIS theo hệ thống của Sở: đủ bảy biểu 1.1 (thêm thẻ Ngân sách nhà nước), 1.2 Báo cáo cơ sở vật chất, 1.3 Báo cáo sức khỏe học sinh đầu năm, 2.1 Báo cáo EMIS cuối năm, 2.2 Báo cáo đội ngũ, 2.3 Đề án ngoại ngữ, 2.4 Báo cáo giáo dục mầm non cuối năm; thẻ nhập tay có Lấy dữ liệu, Lấy dữ liệu năm trước, Ghi; danh sách gửi báo cáo bảy biểu, Xuất file lỗi (bản chạy nội bộ) (YCTD-129) | 13, 21 | Đã có |
 | 0.73.0 | DT-16 phần 16c, khung trang và đăng nhập theo hệ thống của Sở: tên trường và ngữ cảnh trên thanh đầu trang, ứng dụng liên kết, menu người dùng bảy mục, hộp thông báo khi vào trang, mã xác nhận, ghi nhớ tài khoản, quên mật khẩu, lịch sử mật khẩu, đường dây nóng, mã định danh tổ chức theo NĐ 69 (YCTD-123) | 13, 21 | Đã có |
 | 0.69.0 | DT-16 phần 16b, lưới dữ liệu chung, hộp xác nhận xóa, Xuất Excel cho các màn hình còn lại theo hệ thống của Sở: cơ sở vật chất, thiết bị dạy học, cân đo, hồ sơ chưa nhập đủ, hoàn thành chương trình, nhóm học sinh, chuẩn nghề nghiệp, thực đơn, y tế, thuốc, quản trị hệ thống; Xuất Excel phân hiệu, điểm trường, địa danh hành chính, người dùng, nhóm người dùng (YCTD-119) | 13, 21 | Đã có |
 | 0.72.0 | DT-15 phần 15h2, sửa hạn chế của văn thư lưu trữ: chia theo đơn vị, người giải quyết theo nhân sự, nhắc hạn, xóa lại tệp (YCTD-122) | 13, 21 | Đã có |

@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.8
+- Phiên bản: 0.9
 - Ngày cập nhật: 2026-10-18
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,27 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-18 — DT-16 phần 16j: báo cáo số liệu EMIS theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu năm học: tệp `0059_create_emis_report_values` tạo bảng `emis_report_values` (số liệu nhập tay theo biểu, thẻ, mã chỉ tiêu). Không có migration hệ thống (số 0014 dành cho phần 16j không dùng), không có migration định danh.
+- Máy chủ API: dịch vụ bảy biểu EMIS (`apps/api/src/emis/`) với `/reports/emis/forms/{form}` (xem), `/tabs/{tab}` (ghi), `/tabs/{tab}/fill` (Lấy dữ liệu, Lấy dữ liệu năm trước, không lưu), `/export` (Excel mỗi thẻ một trang, in tên đơn vị hành chính); bảy biểu đăng ký gửi lên cấp trên; `/upper-level-submissions/{form}/error-file` (Xuất file lỗi dùng chung); màn hình nhập khóa khi biểu đã đánh dấu đã gửi hoặc đang chờ mở khóa.
+- Cổng quản trị: phân hệ "Báo cáo số liệu" có nhóm "1. Báo cáo đầu năm" (1.1, 1.2, 1.3) và "2. Báo cáo cuối năm" (2.1 đến 2.4) dùng một màn hình chung; 1.1 thêm thẻ "Ngân sách nhà nước" và danh sách gửi báo cáo bảy biểu kèm dòng "Số đã gửi, Số cần gửi, Lần gửi cuối"; mỗi dòng biểu có "Xuất file lỗi".
+- Thêm chức năng P17-23 đến P17-27 (sửa P17-18, P17-20, P17-22), kịch bản CT-572 đến CT-580, tiêu chí AC-602 đến AC-606, quy tắc BR-126, màn hình MH-127 đến MH-132. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) <UNIT_PASS>/<UNIT_TOTAL> ca đạt; toàn bộ kiểm thử giao diện <E2E_PASS>/<E2E_TOTAL> ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Eric quyết định ngày 2026-10-16 làm đủ mọi tính năng đã khảo sát của hệ thống Sở (tài liệu 31); tính năng cần hệ thống ngoài làm bản chạy nội bộ, nút ghi đúng việc làm ("Xuất tệp gửi", "Đánh dấu đã gửi"), không có nút "Gửi". Thực hiện phần 16j của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7. Tên, mã số chỉ tiêu và cột của bảy biểu, sáu mục I đến VI của 2.1, ba thẻ của 2.2, dữ liệu nguồn của từng thẻ, cột của 1.3 theo khảo sát, quy tắc nhập số liệu (BR-126) do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-129. Số YCTD-128 dành cho phần 16i đang làm.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-129, `07_QUY_TAC_NGHIEP_VU.md` BR-126, `10_YEU_CAU_CHUC_NANG.md` P17-18, P17-20, P17-22 đến P17-27, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-82, MH-127 đến MH-132, `16_CO_SO_DU_LIEU.md` mục 18, 20, `17_DAC_TA_API.md` mục 5, 17, 17.1, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.78.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7.
+
+#### Vấn đề tồn đọng
+
+- Chưa có giao diện lập trình của Bộ, Sở nên không truyền đi (chỗ nối `UpperLevelGateway` của phần 16a); tên, mã số chỉ tiêu của bảy biểu do Claude đặt, cần đối chiếu biểu mẫu chính thức; 1.3 đã khớp cột với khảo sát, chưa khớp dòng; 2.1, 2.4 tính tại thời điểm xem, không giữ số đầu năm; II.06 và II.07 có thể trùng (học sinh chuyển đi cũng có trạng thái thôi học); thẻ Nhà vệ sinh lấy từ loại phòng và thuộc tính vệ sinh của phòng, VS.05, VS.06 nhập tay, nối thêm khi phần 16i có dữ liệu nhà vệ sinh hoặc mức đạt chuẩn; thẻ Thông tin khác dùng 1, 0 cho có, không; Lấy dữ liệu năm trước cần năm học trước đã chạy migration 0059.
 
 ### 2026-10-18 — DT-16 phần 16e: trường, lớp và lịch năm học theo hệ thống của Sở
 
