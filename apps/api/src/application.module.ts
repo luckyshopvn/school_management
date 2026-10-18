@@ -15,8 +15,10 @@ import {
   ProfessionalStandardsController,
   ProfessionalStandardsService,
 } from './professional-standards/professional-standards.js';
+import { ProfessionalRatingImports } from './professional-standards/rating-import.js';
 import { ProgramCompletionController, ProgramCompletionService } from './program-completion/program-completion.js';
 import { ChildGroupsController, ChildGroupsService } from './child-groups/child-groups.js';
+import { AccountExportsController, AccountExportsService } from './accounts-export/account-exports.js';
 import { Module, type DynamicModule, type Type } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { Clock } from '@school-management/server';
@@ -47,13 +49,18 @@ import { financeTransitionStep } from './finance/finance-transition.js';
 import { HealthAccess } from './health/health-access.js';
 import { HealthCareController, HealthCareService } from './health/health-care.js';
 import { GrowthController, GrowthService } from './health/growth.js';
+import { StudentHealthController, StudentHealthService } from './health/student-health.js';
+import { SchoolTerms } from './health/school-terms.js';
 import { StatisticsController, StatisticsService } from './statistics/statistics.js';
+import { StudentStatisticsController, StudentStatisticsService } from './statistics/student-statistics.js';
+import { EmisHealthReportController, EmisHealthReportService } from './health/emis-health-report.js';
 import { HealthRecordsController, HealthRecordsService } from './health/health-records.js';
 import { healthTransitionStep } from './health/health-transition.js';
 import { KitchenAccess } from './kitchen/kitchen-access.js';
 import { KitchenCatalogsController, KitchenCatalogsService } from './kitchen/kitchen-catalogs.js';
 import { KitchenMealsController, KitchenMealsService } from './kitchen/kitchen-meals.js';
 import { KitchenMenusController, KitchenMenusService } from './kitchen/kitchen-menus.js';
+import { MenuImportsController, MenuImportsService } from './kitchen/menu-imports.js';
 import { KitchenPurchasesController, KitchenPurchasesService } from './kitchen/kitchen-purchases.js';
 import { kitchenTransitionStep } from './kitchen/kitchen-transition.js';
 import { MedicationAccess } from './medicines/medication-access.js';
@@ -117,11 +124,21 @@ import { CatalogItemsController, CatalogItemsService } from './catalogs/catalog-
 import { ApprovalThresholdsController, ApprovalThresholdsService } from './catalogs/approval-thresholds.js';
 import { RoomsController, RoomsService } from './catalogs/rooms.js';
 import { EmisReportController, EmisReportService } from './facilities/emis-report.js';
+import { EmisForms, EmisFormsController } from './emis/emis-forms.js';
 import { EquipmentController, EquipmentService } from './facilities/equipment.js';
 import { FacilitiesData } from './facilities/facilities-data.js';
 import { facilitiesTransitionStep } from './facilities/facilities-transition.js';
 import { FacilityRoomsController, FacilityRoomsService } from './facilities/facility-rooms.js';
+import { FacilityReportController, FacilityReportService } from './facilities/facility-report.js';
+import { FacilityInvestmentsController, FacilityInvestmentsService } from './facilities/facility-investments.js';
+import { FacilityImportsController, FacilityImportsService } from './facilities/facility-imports.js';
+import { EquipmentSubmissionForm } from './facilities/equipment-submission.js';
 import { SchoolProfileController, SchoolProfileService } from './facilities/school-profile.js';
+import { AccreditationReviewController, AccreditationReviewService } from './facilities/accreditation-review.js';
+import { SchoolSplitsController, SchoolSplitsService } from './school-splits/school-splits.js';
+import { SigningController } from './signing/signing.controller.js';
+import { SigningService } from './signing/signing.js';
+import { DossierSigner, InternalDossierSigner } from './signing/dossier-signer.js';
 import { GradeLevelsController, GradeLevelsService } from './catalogs/grade-levels.js';
 import { ClassAssignmentsController, ClassesController } from './classes/classes.controller.js';
 import { ClassesService } from './classes/classes.service.js';
@@ -134,6 +151,12 @@ import { FilesController, FilesService } from './files/files.js';
 import { ImportsController } from './imports/imports.controller.js';
 import { ImportsService } from './imports/imports.service.js';
 import { MoetImports } from './imports/moet-imports.js';
+import { StudentImports } from './imports/student-imports.js';
+import { LearningAccountsController, LearningAccountsService } from './student-records/learning-accounts.js';
+import { NationalIdsController, NationalIdsService } from './student-records/national-ids.js';
+import { StudentImportToolsController, StudentImportToolsService } from './student-records/student-import-tools.js';
+import { StudentRecordsController, StudentRecordsService } from './student-records/student-records.js';
+import { StudentTransfersController, StudentTransfersService } from './student-records/student-transfers.js';
 import { AttendanceController } from './attendance/attendance.controller.js';
 import { AttendanceService } from './attendance/attendance.service.js';
 import { PickupsController } from './pickups/pickups.controller.js';
@@ -170,9 +193,25 @@ import {
   AdministrativeUnitsController,
   AdministrativeUnitsService,
 } from './administrative-units/administrative-units.js';
+import { AccountDirectoryController, AccountDirectoryService } from './account-directory/account-directory.js';
+import {
+  MinistrySyncGateway,
+  SyncAccountsController,
+  SyncAccountsService,
+  UnavailableMinistrySyncGateway,
+} from './sync-accounts/sync-accounts.js';
 import { WorkSchedulesController, WorkSchedulesService } from './staff-attendance/work-schedules.js';
 import { StaffController } from './staff/staff.controller.js';
 import { StaffService } from './staff/staff.service.js';
+import { StaffBranchesController, StaffBranchesService } from './staff/staff-branches.js';
+import {
+  IdentityVerificationGateway,
+  ManualIdentityVerificationGateway,
+  StaffIdentityController,
+  StaffIdentityService,
+} from './staff/staff-identity.js';
+import { StaffMovementsController, StaffMovementsService } from './staff/staff-movements.js';
+import { StaffStatisticsController, StaffStatisticsService } from './statistics/staff-statistics.js';
 import { staffTransitionStep } from './staff/staff-transition.js';
 import { SchoolDaysController, SchoolDaysService } from './staff-attendance/school-days.js';
 import { StaffAttendanceController } from './staff-attendance/staff-attendance.controller.js';
@@ -217,6 +256,25 @@ import { IntegrationsController, IntegrationsService } from './integrations/inte
 import { QuickLinksController, QuickLinksService } from './quick-links/quick-links.js';
 import { GridSettingsController, GridSettingsService } from './grid-settings/grid-settings.js';
 import { FeedbackController, FeedbackService } from './feedback/feedback.js';
+import { ArchivesController } from './archives/archives.controller.js';
+import { ArchiveJobs, ArchivesService } from './archives/archives.js';
+import { ExportJobs, ExportJobsController } from './exports/export-jobs.js';
+import {
+  ManualUpperLevelGateway,
+  UpperLevelForms,
+  UpperLevelGateway,
+  UpperLevelSubmissions,
+  UpperLevelSubmissionsController,
+} from './submissions/upper-level-submissions.js';
+import {
+  AppLinksController,
+  AppLinksService,
+  PortalContextController,
+  PortalContextService,
+  PublicLoginInfoController,
+  SystemAnnouncementsController,
+  SystemAnnouncementsService,
+} from './portal-shell/portal-shell.js';
 import { integrationsTransitionStep } from './integrations/integrations-transition.js';
 import { FacebookPostsController, FacebookPostsService } from './integrations/facebook-posts.js';
 import {
@@ -259,23 +317,42 @@ export class ApplicationModule {
         ApprovalThresholdsController,
         RoomsController,
         FacilityRoomsController,
+        FacilityReportController,
+        FacilityInvestmentsController,
+        FacilityImportsController,
+        SigningController,
         EquipmentController,
         SchoolProfileController,
+        AccreditationReviewController,
+        SchoolSplitsController,
         EmisReportController,
+        EmisFormsController,
         GradeLevelsController,
         ClassesController,
         ClassAssignmentsController,
         ChildrenController,
+        // Hồ sơ học sinh đủ theo Sở (DT-16 phần 16g)
+        StudentRecordsController,
+        NationalIdsController,
+        LearningAccountsController,
+        StudentTransfersController,
+        StudentImportToolsController,
         ChildLifecycleController,
         StudentMovementsController,
         AdministrativeUnitsController,
+        AccountDirectoryController,
+        SyncAccountsController,
         WorkSchedulesController,
         HealthRecordsController,
         HealthCareController,
         GrowthController,
+        StudentHealthController,
         StatisticsController,
+        StudentStatisticsController,
+        EmisHealthReportController,
         KitchenCatalogsController,
         KitchenMenusController,
+        MenuImportsController,
         KitchenMealsController,
         KitchenPurchasesController,
         MedicineCatalogController,
@@ -321,6 +398,10 @@ export class ApplicationModule {
         OnlinePaymentsController,
         PaymentWebhooksController,
         StaffController,
+        StaffBranchesController,
+        StaffIdentityController,
+        StaffMovementsController,
+        StaffStatisticsController,
         SchoolDaysController,
         StaffAttendanceController,
         LeaveController,
@@ -351,6 +432,13 @@ export class ApplicationModule {
         QuickLinksController,
         GridSettingsController,
         FeedbackController,
+        ArchivesController,
+        ExportJobsController,
+        UpperLevelSubmissionsController,
+        SystemAnnouncementsController,
+        AppLinksController,
+        PortalContextController,
+        PublicLoginInfoController,
         FacebookPostsController,
         RecruitmentRequestsController,
         JobPostingsController,
@@ -363,6 +451,7 @@ export class ApplicationModule {
         LedgerEntriesController,
         ProgramCompletionController,
         ChildGroupsController,
+        AccountExportsController,
         ProfessionalStandardsController,
         ...(options.additionalControllers ?? []),
       ],
@@ -417,9 +506,16 @@ export class ApplicationModule {
         RoomsService,
         FacilitiesData,
         FacilityRoomsService,
+        FacilityReportService,
+        FacilityInvestmentsService,
+        FacilityImportsService,
+        EquipmentSubmissionForm,
         EquipmentService,
         SchoolProfileService,
+        AccreditationReviewService,
+        SchoolSplitsService,
         EmisReportService,
+        EmisForms,
         GradeLevelsService,
         ClassesService,
         ChildScope,
@@ -427,16 +523,25 @@ export class ApplicationModule {
         ChildLifecycleService,
         StudentMovementsService,
         AdministrativeUnitsService,
+        AccountDirectoryService,
+        SyncAccountsService,
+        // Đồng bộ tài khoản lên CSDL ngành của Bộ, Sở: chưa có giao diện lập trình nên chưa đồng bộ được (DT-16 phần 16d)
+        { provide: MinistrySyncGateway, useClass: UnavailableMinistrySyncGateway },
         WorkSchedulesService,
         HealthAccess,
         HealthRecordsService,
         HealthCareService,
         GrowthService,
+        StudentHealthService,
+        SchoolTerms,
         StatisticsService,
+        StudentStatisticsService,
+        EmisHealthReportService,
         KitchenAccess,
         KitchenCatalogsService,
         KitchenMealsService,
         KitchenMenusService,
+        MenuImportsService,
         KitchenPurchasesService,
         MedicationAccess,
         MedicineCatalogService,
@@ -469,6 +574,12 @@ export class ApplicationModule {
         FilesService,
         ImportsService,
         MoetImports,
+        StudentImports,
+        StudentRecordsService,
+        NationalIdsService,
+        LearningAccountsService,
+        StudentTransfersService,
+        StudentImportToolsService,
         AttendanceService,
         PickupsService,
         ServicesService,
@@ -486,6 +597,11 @@ export class ApplicationModule {
         PaymentReversalsService,
         OnlinePaymentsService,
         StaffService,
+        StaffBranchesService,
+        StaffIdentityService,
+        { provide: IdentityVerificationGateway, useClass: ManualIdentityVerificationGateway },
+        StaffMovementsService,
+        StaffStatisticsService,
         SchoolDaysService,
         StaffAttendanceService,
         LeaveService,
@@ -545,6 +661,19 @@ export class ApplicationModule {
         QuickLinksService,
         GridSettingsService,
         FeedbackService,
+        ArchivesService,
+        ArchiveJobs,
+        ExportJobs,
+        UpperLevelForms,
+        UpperLevelSubmissions,
+        // Chưa có kết nối với hệ thống của Bộ, Sở: gửi lên cấp trên làm thủ công (DT-16 phần 16a)
+        { provide: UpperLevelGateway, useClass: ManualUpperLevelGateway },
+        SigningService,
+        // Chưa có nhà cung cấp kí số: hồ sơ kí xác nhận nội bộ (DT-16 phần 16k)
+        { provide: DossierSigner, useClass: InternalDossierSigner },
+        SystemAnnouncementsService,
+        AppLinksService,
+        PortalContextService,
         FacebookPostsService,
         JournalsService,
         {
@@ -560,7 +689,9 @@ export class ApplicationModule {
         WorkAccess,
         ProgramCompletionService,
         ChildGroupsService,
+        AccountExportsService,
         ProfessionalStandardsService,
+        ProfessionalRatingImports,
         TasksService,
         PlansService,
         EvaluationsService,

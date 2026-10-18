@@ -330,10 +330,12 @@ describe('Trường học, lớp học theo Sở (YCTD-111)', () => {
       ).status,
       201,
     );
-    const rows = (await api('GET', '/class-assignments', principal)).body as unknown as AssignmentRow[];
+    // Từ DT-16 phần 16e danh sách có thêm giáo viên chưa phân công; ở đây chỉ xét các dòng đã phân công
+    const rows = (await api('GET', '/class-assignments?assignment=assigned', principal))
+      .body as unknown as AssignmentRow[];
     assert.equal(rows.length, 2);
     assert.ok(rows.every((row) => row.class_name === 'Lớp L1' && row.org_unit_name === 'Đơn vị PH-A'));
-    const homerooms = (await api('GET', '/class-assignments?assignment_role=homeroom', principal))
+    const homerooms = (await api('GET', '/class-assignments?assignment=assigned&assignment_role=homeroom', principal))
       .body as unknown as AssignmentRow[];
     assert.equal(homerooms.length, 1);
     const named = (
@@ -348,7 +350,10 @@ describe('Trường học, lớp học theo Sở (YCTD-111)', () => {
     const outsider = await environment.loginAs('VT-07', unit('DT-B'));
     assert.deepEqual((await api('GET', '/class-assignments', outsider.accessToken)).body, []);
 
-    const file = await download('/class-assignments/export', principal, { assignment_role: 'subject' });
+    const file = await download('/class-assignments/export', principal, {
+      assignment: 'assigned',
+      assignment_role: 'subject',
+    });
     assert.equal(file.status, 200);
     assert.deepEqual(file.rows[0], [
       'STT',

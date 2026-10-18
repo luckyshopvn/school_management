@@ -1,8 +1,16 @@
 import { ApiError, fetchWithSession, requestJson } from '../session/api-client.js';
+import { downloadPost } from './children-api.js';
 
 // 4.1.11. Cập nhật địa danh hành chính (DT-15 phần 15h1, YCTD-116): địa chỉ của học sinh còn theo địa danh cũ, chuyển
 // sang địa danh mới, bảng đối chiếu và nhập bảng đối chiếu từ Excel
-export type AddressType = 'permanent' | 'hometown' | 'birth_registration' | 'birthplace' | 'current';
+export type AddressType =
+  | 'permanent'
+  | 'hometown'
+  | 'birth_registration'
+  | 'birthplace'
+  | 'current'
+  // Chuyển đến từ tỉnh, xã (DT-16 phần 16g)
+  | 'transfer_from';
 export type SuggestionStatus = 'suggested' | 'multiple' | 'none';
 
 export const ADDRESS_TYPE_LABELS: Record<AddressType, string> = {
@@ -11,6 +19,7 @@ export const ADDRESS_TYPE_LABELS: Record<AddressType, string> = {
   birth_registration: 'Nơi khai sinh',
   birthplace: 'Nơi sinh',
   current: 'Chỗ ở hiện nay',
+  transfer_from: 'Chuyển đến từ',
 };
 
 export const SUGGESTION_LABELS: Record<SuggestionStatus, string> = {
@@ -120,3 +129,20 @@ export function importMappings(file: File): Promise<MappingImportReport> {
   form.set('file', file);
   return requestJson('/api/v1/administrative-units/mappings/import', { method: 'POST', body: form });
 }
+
+// Xuất Excel lưới địa chỉ theo bộ lọc và các cột đang hiện (DT-16 phần 16b)
+export const exportOldAddresses = (filter: AddressFilter, columns: string[]) =>
+  downloadPost('/api/v1/administrative-units/addresses/export', { ...filter, columns }, 'dia-chi-dia-danh-cu.xlsx');
+
+// Sửa, xóa dòng bảng đối chiếu; xã mới để chọn (DT-16 phần 16g)
+export const listNewWards = async (): Promise<NewUnitChoice[]> =>
+  (await requestJson<{ items: NewUnitChoice[] }>('/api/v1/administrative-units/new-wards')).items;
+
+export const updateMapping = (mappingId: string, newUnitId: string) =>
+  requestJson(`/api/v1/administrative-units/mappings/${mappingId}`, {
+    method: 'PUT',
+    body: JSON.stringify({ new_unit_id: newUnitId }),
+  });
+
+export const deleteMapping = (mappingId: string) =>
+  requestJson(`/api/v1/administrative-units/mappings/${mappingId}`, { method: 'DELETE' });

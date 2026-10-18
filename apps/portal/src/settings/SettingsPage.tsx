@@ -1,7 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, StatusBadge, TextField, Toast, type StatusTone } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  FORM_CONTROL_CLASS,
+  FormBlock,
+  FormRow,
+  StatusBadge,
+  TextField,
+  Toast,
+  type StatusTone,
+} from '@school-management/ui';
 import { fetchCurrentUser, ApiError } from '../session/api-client.js';
 import { listOrgUnits } from '../org-units/org-units-api.js';
 import { AppShell } from '../pages/AppShell.js';
@@ -65,6 +75,7 @@ function fromText(setting: EffectiveSetting, text: string): unknown {
     case 'percent':
       return Number(trimmed);
     case 'time_of_day':
+    case 'text':
       return trimmed;
     case 'boolean':
       return trimmed === 'bat';
@@ -156,42 +167,44 @@ function UnitSettingsForm({ orgUnitId, editable, onSaved }: { orgUnitId: string;
           </tr>
         </thead>
         <tbody>
-          {settings.data.map((setting) => (
-            <tr key={setting.key} className="border-t border-border align-top">
-              <td className="px-3 py-2 font-medium">{setting.label}</td>
-              <td className="px-3 py-2">{describeValue(setting)}</td>
-              <td className="px-3 py-2">
-                <StatusBadge {...SOURCE_LABELS[setting.source]} />
-              </td>
-              {editable ? (
+          {settings.data
+            .filter((setting) => !setting.school)
+            .map((setting) => (
+              <tr key={setting.key} className="border-t border-border align-top">
+                <td className="px-3 py-2 font-medium">{setting.label}</td>
+                <td className="px-3 py-2">{describeValue(setting)}</td>
                 <td className="px-3 py-2">
-                  {setting.value_type === 'boolean' ? (
-                    <select
-                      aria-label={setting.label}
-                      value={draft[setting.key] ?? ''}
-                      onChange={(event) => setDraft({ ...draft, [setting.key]: event.target.value })}
-                      className="rounded-lg border border-border bg-card px-3 py-2"
-                    >
-                      <option value="">Kế thừa</option>
-                      <option value="bat">Bật</option>
-                      <option value="tat">Tắt</option>
-                    </select>
-                  ) : (
-                    <input
-                      aria-label={setting.label}
-                      value={draft[setting.key] ?? ''}
-                      placeholder="Để trống là kế thừa"
-                      onChange={(event) => setDraft({ ...draft, [setting.key]: event.target.value })}
-                      className="w-48 rounded-lg border border-border bg-card px-3 py-2"
-                    />
-                  )}
-                  {fieldErrors[`values.${setting.key}`] ? (
-                    <p className="mt-1 text-label text-danger">{fieldErrors[`values.${setting.key}`]}</p>
-                  ) : null}
+                  <StatusBadge {...SOURCE_LABELS[setting.source]} />
                 </td>
-              ) : null}
-            </tr>
-          ))}
+                {editable ? (
+                  <td className="px-3 py-2">
+                    {setting.value_type === 'boolean' ? (
+                      <select
+                        aria-label={setting.label}
+                        value={draft[setting.key] ?? ''}
+                        onChange={(event) => setDraft({ ...draft, [setting.key]: event.target.value })}
+                        className="rounded-lg border border-border bg-card px-3 py-2"
+                      >
+                        <option value="">Kế thừa</option>
+                        <option value="bat">Bật</option>
+                        <option value="tat">Tắt</option>
+                      </select>
+                    ) : (
+                      <input
+                        aria-label={setting.label}
+                        value={draft[setting.key] ?? ''}
+                        placeholder="Để trống là kế thừa"
+                        onChange={(event) => setDraft({ ...draft, [setting.key]: event.target.value })}
+                        className="w-48 rounded-lg border border-border bg-card px-3 py-2"
+                      />
+                    )}
+                    {fieldErrors[`values.${setting.key}`] ? (
+                      <p className="mt-1 text-label text-danger">{fieldErrors[`values.${setting.key}`]}</p>
+                    ) : null}
+                  </td>
+                ) : null}
+              </tr>
+            ))}
         </tbody>
       </table>
       {editable ? (
@@ -202,6 +215,117 @@ function UnitSettingsForm({ orgUnitId, editable, onSaved }: { orgUnitId: string;
         </div>
       ) : null}
     </div>
+  );
+}
+
+// Khối "Cấu hình trường" theo mục 1.4 của Sở (DT-16 phần 16e): tên trường hiển thị (thanh đầu trang, trang đăng nhập), tên
+// đơn vị hành chính, tính cân nặng/chiều cao cho trẻ suy dinh dưỡng thể nhẹ cân (4.3.2); đặt ở Trường chính, nút Ghi
+function SchoolSettingsBlock({
+  rootId,
+  editable,
+  onSaved,
+}: {
+  rootId: string;
+  editable: boolean;
+  onSaved(message: string): void;
+}) {
+  const settings = useQuery({ queryKey: ['settings', rootId], queryFn: () => readSettings(rootId) });
+  if (settings.isPending) {
+    return <div className="h-40 animate-pulse rounded bg-border" aria-hidden="true" />;
+  }
+  if (settings.isError || !settings.data.some((setting) => setting.key === 'school_display_name')) {
+    return null;
+  }
+  return <SchoolSettingsForm rootId={rootId} settings={settings.data} editable={editable} onSaved={onSaved} />;
+}
+
+// Giá trị ban đầu lấy một lần khi đã tải xong để lần tải lại không xóa chữ người dùng đang nhập
+function SchoolSettingsForm({
+  rootId,
+  settings,
+  editable,
+  onSaved,
+}: {
+  rootId: string;
+  settings: EffectiveSetting[];
+  editable: boolean;
+  onSaved(message: string): void;
+}) {
+  const queryClient = useQueryClient();
+  const text = (key: string) => {
+    const value = settings.find((setting) => setting.key === key)?.unit_value;
+    return typeof value === 'string' ? value : '';
+  };
+  const [displayName, setDisplayName] = useState(() => text('school_display_name'));
+  const [unitName, setUnitName] = useState(() => text('administrative_unit_name'));
+  const [underweight, setUnderweight] = useState(
+    () => settings.find((setting) => setting.key === 'underweight_growth_calculation')?.value !== false,
+  );
+  const save = useMutation({
+    mutationFn: () =>
+      saveSettings(rootId, {
+        school_display_name: displayName.trim() === '' ? null : displayName,
+        administrative_unit_name: unitName.trim() === '' ? null : unitName,
+        underweight_growth_calculation: underweight,
+      }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['settings', rootId] });
+      await queryClient.invalidateQueries({ queryKey: ['portal-context'] });
+      onSaved('Đã ghi cấu hình trường');
+    },
+  });
+  const fieldError = (key: string) =>
+    save.error instanceof ApiError
+      ? save.error.details.find((detail) => detail.field === `values.${key}`)?.message
+      : undefined;
+  return (
+    <section className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4" aria-label="Cấu hình trường">
+      {save.error && !(save.error instanceof ApiError && save.error.details.length > 0) ? (
+        <Alert tone="danger">{messageOf(save.error)}</Alert>
+      ) : null}
+      <FormBlock title="Cấu hình trường">
+        <FormRow label="Tên trường hiển thị" error={fieldError('school_display_name')}>
+          <input
+            className={FORM_CONTROL_CLASS}
+            value={displayName}
+            disabled={!editable}
+            placeholder="Để trống là tên Trường chính trong cây đơn vị"
+            onChange={(event) => setDisplayName(event.target.value)}
+          />
+        </FormRow>
+        <FormRow label="Tên đơn vị hành chính" error={fieldError('administrative_unit_name')}>
+          <input
+            className={FORM_CONTROL_CLASS}
+            value={unitName}
+            disabled={!editable}
+            onChange={(event) => setUnitName(event.target.value)}
+          />
+        </FormRow>
+        <FormRow label="Cân nặng, chiều cao">
+          <label className="flex items-center gap-2 text-content text-text">
+            <input
+              type="checkbox"
+              checked={underweight}
+              disabled={!editable}
+              onChange={(event) => setUnderweight(event.target.checked)}
+            />
+            Tính cân nặng/chiều cao cho trẻ suy dinh dưỡng thể nhẹ cân
+          </label>
+        </FormRow>
+      </FormBlock>
+      <p className="text-label text-text-secondary">
+        Tên trường hiển thị dùng ở thanh đầu trang và trang đăng nhập. Bỏ tích ô cân nặng, chiều cao thì trẻ suy dinh
+        dưỡng thể nhẹ cân không xếp kênh cân nặng theo chiều cao (gầy còm, thừa cân, béo phì) ở 4.3.2 Tổng hợp cân nặng,
+        chiều cao.
+      </p>
+      {editable ? (
+        <div>
+          <Button variant="primary" onClick={() => save.mutate()} disabled={save.isPending}>
+            Ghi
+          </Button>
+        </div>
+      ) : null}
+    </section>
   );
 }
 
@@ -307,6 +431,84 @@ function AccountLockSettings({ onSaved }: { onSaved(message: string): void }) {
   );
 }
 
+// Đăng nhập và bảo mật của cổng quản trị (DT-16 phần 16c): mã xác nhận, lịch sử mật khẩu, đường dây nóng ở trang đăng nhập
+function LoginSecuritySettings({ onSaved }: { onSaved(message: string): void }) {
+  const queryClient = useQueryClient();
+  const settings = useQuery({ queryKey: ['identity-settings'], queryFn: readIdentitySettings });
+  const [threshold, setThreshold] = useState('');
+  const [historyCount, setHistoryCount] = useState('');
+  const [captchaAlways, setCaptchaAlways] = useState(false);
+  const [hotline, setHotline] = useState('');
+  useEffect(() => {
+    if (settings.data) {
+      setThreshold(String(settings.data.captcha_failure_threshold));
+      setHistoryCount(String(settings.data.password_history_count));
+      setCaptchaAlways(settings.data.captcha_always);
+      setHotline(settings.data.login_hotline ?? '');
+    }
+  }, [settings.data]);
+  const save = useMutation({
+    mutationFn: () =>
+      saveIdentitySettings({
+        captcha_failure_threshold: Number(threshold),
+        password_history_count: Number(historyCount),
+        captcha_always: captchaAlways,
+        login_hotline: hotline,
+      }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['identity-settings'] });
+      onSaved('Đã lưu cấu hình đăng nhập');
+    },
+  });
+  const fieldError = (field: string) =>
+    save.error instanceof ApiError ? save.error.details.find((detail) => detail.field === field)?.message : undefined;
+  if (settings.isError) {
+    return null;
+  }
+  return (
+    <section
+      className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4"
+      aria-label="Đăng nhập và bảo mật"
+    >
+      <h2 className="text-section-title font-semibold text-text">Đăng nhập và bảo mật</h2>
+      {save.error && !(save.error instanceof ApiError && save.error.details.length > 0) ? (
+        <Alert tone="danger">{messageOf(save.error)}</Alert>
+      ) : null}
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <TextField
+          label="Số lần nhập sai mật khẩu thì hiện mã xác nhận"
+          inputMode="numeric"
+          value={threshold}
+          error={fieldError('captcha_failure_threshold')}
+          onChange={(event) => setThreshold(event.target.value)}
+        />
+        <TextField
+          label="Số mật khẩu gần nhất không được dùng lại (0 là không kiểm tra)"
+          inputMode="numeric"
+          value={historyCount}
+          error={fieldError('password_history_count')}
+          onChange={(event) => setHistoryCount(event.target.value)}
+        />
+        <TextField
+          label="Đường dây nóng hiện ở trang đăng nhập"
+          value={hotline}
+          error={fieldError('login_hotline')}
+          onChange={(event) => setHotline(event.target.value)}
+        />
+        <label className="flex items-center gap-2 self-end pb-2 text-label text-text">
+          <input type="checkbox" checked={captchaAlways} onChange={(event) => setCaptchaAlways(event.target.checked)} />
+          Luôn hiện mã xác nhận ở trang đăng nhập
+        </label>
+      </div>
+      <div>
+        <Button onClick={() => save.mutate()} disabled={save.isPending}>
+          Lưu đăng nhập và bảo mật
+        </Button>
+      </div>
+    </section>
+  );
+}
+
 export function SettingsPage() {
   const canManage = useHasPermission(PERMISSION_CODES.settingManage);
   const currentUser = useQuery({ queryKey: ['current-user'], queryFn: fetchCurrentUser });
@@ -314,8 +516,8 @@ export function SettingsPage() {
   const [orgUnitId, setOrgUnitId] = useState<string>();
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
-  const selectedId =
-    orgUnitId ?? units.data?.find((unit) => unit.unit_type === 'truong_chinh')?.id ?? units.data?.[0]?.id;
+  const rootId = units.data?.find((unit) => unit.unit_type === 'truong_chinh')?.id;
+  const selectedId = orgUnitId ?? rootId ?? units.data?.[0]?.id;
   const wholeSchoolSettingManager =
     currentUser.data?.assignments.some(
       (assignment) =>
@@ -327,6 +529,13 @@ export function SettingsPage() {
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/settings')}</h1>
+        {rootId ? (
+          <SchoolSettingsBlock
+            rootId={rootId}
+            editable={canManage && wholeSchoolSettingManager}
+            onSaved={setToastMessage}
+          />
+        ) : null}
         <section
           className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4"
           aria-label="Cấu hình theo đơn vị"
@@ -367,6 +576,7 @@ export function SettingsPage() {
           )}
         </section>
         {wholeSchoolSettingManager ? <AccountLockSettings onSaved={setToastMessage} /> : null}
+        {wholeSchoolSettingManager ? <LoginSecuritySettings onSaved={setToastMessage} /> : null}
       </div>
     </AppShell>
   );

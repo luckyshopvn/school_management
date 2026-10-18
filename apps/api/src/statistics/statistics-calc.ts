@@ -199,10 +199,11 @@ export interface StaffProfileFacts {
   id_number_last4: string | null;
   has_active_contract: boolean;
   moet_profile: Record<string, unknown> | null;
+  bank_account_number: string | null;
+  tax_code: string | null;
 }
 
-// Trường thông tin của hồ sơ nhân sự theo mục 5.9 của hệ thống Sở (trừ tài khoản ngân hàng, mã số thuế: hồ sơ nhân sự chưa
-// có hai trường này)
+// Trường thông tin của hồ sơ nhân sự theo mục 5.9 của hệ thống Sở; tài khoản ngân hàng, mã số thuế thêm ở DT-16 phần 16f
 export const STAFF_FIELD_RULES: MissingFieldRule<StaffProfileFacts>[] = [
   { key: 'dob', label: 'Ngày sinh', isMissing: (record) => blank(record.dob) },
   { key: 'gender', label: 'Giới tính', isMissing: (record) => blank(record.gender) },
@@ -235,6 +236,8 @@ export const STAFF_FIELD_RULES: MissingFieldRule<StaffProfileFacts>[] = [
     isMissing: (record) => moet(record, 'professional_qualification'),
   },
   { key: 'major', label: 'Chuyên ngành chính', isMissing: (record) => moet(record, 'main_major') },
+  { key: 'bank_account', label: 'Tài khoản ngân hàng', isMissing: (record) => blank(record.bank_account_number) },
+  { key: 'tax_code', label: 'Mã số thuế', isMissing: (record) => blank(record.tax_code) },
 ];
 
 export function countMissing<T>(rules: MissingFieldRule<T>[], records: T[]) {

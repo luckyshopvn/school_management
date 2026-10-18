@@ -1,8 +1,8 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.4
-- Ngày cập nhật: 2026-10-15
+- Phiên bản: 0.10
+- Ngày cập nhật: 2026-10-18
 - Trạng thái: Đang cập nhật
 
 ## Quy ước ghi nhật ký
@@ -14,7 +14,7 @@
 
 ## Nhật ký theo ngày
 
-### 2026-10-15 — 2.1 Hồ sơ lớp học: cột và số dòng mặc định theo Sở
+### 2026-10-18 — 2.1 Hồ sơ lớp học: cột và số dòng mặc định theo Sở
 
 #### Công việc đã thực hiện
 
@@ -23,16 +23,305 @@
 
 #### Quyết định
 
-- Số dòng mặc định riêng của màn hình (50) chỉ dùng khi người dùng chưa chọn số dòng của lưới và chưa chọn số dòng mặc định chung; hằng số chung giữ 20. Cột Khối, Nhóm trẻ giữ hiện vì là hai phần của cột "Nhóm lớp" của Sở. Mã YCTD-113 đến YCTD-115 dành cho các phần 15f, YCTD-116 và phiên bản 0.66.0 đã dùng cho đợt 15h1 nên thay đổi này là YCTD-117, phiên bản 0.66.1.
+- Số dòng mặc định riêng của màn hình (50) chỉ dùng khi người dùng chưa chọn số dòng của lưới và chưa chọn số dòng mặc định chung; hằng số chung giữ 20. Cột Khối, Nhóm trẻ giữ hiện vì là hai phần của cột "Nhóm lớp" của Sở. Mã YCTD-113 đến YCTD-115 dành cho các phần 15f, YCTD-116 và phiên bản 0.66.0 đã dùng cho đợt 15h1 nên thay đổi này là YCTD-117, phiên bản 0.80.1.
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-117, `14_DAC_TA_GIAO_DIEN.md` MH-03, `11_TIEU_CHI_NGHIEM_THU.md` AC-447, AC-450, `17_DAC_TA_API.md` mục 5, `21_KICH_BAN_KIEM_THU.md` CT-403, CT-406, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.66.1.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-117, `14_DAC_TA_GIAO_DIEN.md` MH-03, `11_TIEU_CHI_NGHIEM_THU.md` AC-447, AC-450, `17_DAC_TA_API.md` mục 5, `21_KICH_BAN_KIEM_THU.md` CT-403, CT-406, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.80.1.
 
 #### Vấn đề tồn đọng
 
 - Không có.
 
+### 2026-10-18 — DT-16 phần 16k: phân hệ Quản lý kí hồ sơ, bản chạy nội bộ
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu hệ thống: tệp `0015_create_signing_tables` tạo `signing_certificates` (chứng thư số nhà trường, một dòng), `signing_dossiers` (hồ sơ kí theo năm học), `signing_events` (lịch sử thao tác) và dãy số `signing_dossier_code` (mã định danh hồ sơ). Cơ sở dữ liệu định danh: tệp `0049_add_signing_permissions` thêm bốn quyền `P01.signing.view`, `P01.signing.manage`, `P01.signing.sign`, `P01.signing.certificate` và bỏ phân hệ mới khỏi nhóm Phụ huynh. Không có migration năm học.
+- Máy chủ API: nhóm điểm cuối `/signing` (`apps/api/src/signing/`): chứng thư số (ghi, đăng ký kí nội bộ, hủy đăng ký, ảnh con dấu, đánh dấu đồng bộ), danh sách đối tượng theo loại, tạo hồ sơ (tệp PDF dựng bằng công cụ PDF của phần 16a, mã băm SHA-256), kí xác nhận nội bộ qua chỗ nối `DossierSigner`, tải thông tin thay đổi, hủy, xác nhận hoàn thành, hủy xác nhận, đánh dấu đã gửi, tải tệp (ghi nhật ký xuất), xuất dữ liệu sổ đầu bài. Công cụ PDF dùng chung nhận thêm khổ dọc và phần cuối tài liệu.
+- Cổng quản trị: phân hệ mới "Quản lý kí hồ sơ" với "1.1. Chứng thư số nhà trường", "2.1. Đồng bộ chứng thư số", "2.2. Kí hồ sơ trường, lớp, nhân sự, học sinh", "2.3. Xác nhận hoàn thành và gửi hồ sơ".
+- Thêm chức năng P01-28 đến P01-31, quyền PQ-75, kịch bản CT-589 đến CT-598, tiêu chí AC-612 đến AC-615, quy tắc BR-128, màn hình MH-137 đến MH-140. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 848/848 ca đạt; toàn bộ kiểm thử giao diện 133/133 ca đạt (CI, lượt chạy 39121128162); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Eric quyết định ngày 2026-10-16 làm đủ mọi tính năng đã khảo sát của hệ thống Sở (tài liệu 31); tính năng cần hệ thống ngoài làm bản chạy nội bộ, có chỗ nối để cắm kết nối thật, nút ghi đúng việc làm. Áp dụng cho kí số: không có chữ ký số thật, nút "Kí xác nhận nội bộ" thay "Ký số", không có "Đăng nhập và kí"; gửi hồ sơ là "Đánh dấu đã gửi". Thực hiện phần 16k của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7, phần cuối của DT-16. Nội dung hồ sơ PDF, tên nhóm menu, quy trình trạng thái, quyền theo vai trò (BR-128, PQ-75) do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-130.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-130, `07_QUY_TAC_NGHIEP_VU.md` BR-128, `08_VAI_TRO_NGUOI_DUNG.md` PQ-75, `10_YEU_CAU_CHUC_NANG.md` P01-28 đến P01-31, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-137 đến MH-140, `16_CO_SO_DU_LIEU.md` mục 1, 2, 20, `17_DAC_TA_API.md` mục 5, 17, 17.1, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.80.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7.
+
+#### Vấn đề tồn đọng
+
+- Chưa có nhà cung cấp chữ ký số và giao diện lập trình của Bộ, Sở: tệp đã kí là xác nhận nội bộ, không có giá trị của chữ ký số; chỗ nối `DossierSigner` để thay bằng kí từ xa sau này. Khảo sát chưa có mẫu hồ sơ của Sở nên nội dung tệp PDF do Claude chọn; sổ đầu bài của trường mầm non lấy điểm danh và lịch hoạt động của lớp theo tháng.
+
+### 2026-10-18 — DT-16 phần 16j: báo cáo số liệu EMIS theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu năm học: tệp `0059_create_emis_report_values` tạo bảng `emis_report_values` (số liệu nhập tay theo biểu, thẻ, mã chỉ tiêu). Không có migration hệ thống (số 0014 dành cho phần 16j không dùng), không có migration định danh.
+- Máy chủ API: dịch vụ bảy biểu EMIS (`apps/api/src/emis/`) với `/reports/emis/forms/{form}` (xem), `/tabs/{tab}` (ghi), `/tabs/{tab}/fill` (Lấy dữ liệu, Lấy dữ liệu năm trước, không lưu), `/export` (Excel mỗi thẻ một trang, in tên đơn vị hành chính); bảy biểu đăng ký gửi lên cấp trên; `/upper-level-submissions/{form}/error-file` (Xuất file lỗi dùng chung); màn hình nhập khóa khi biểu đã đánh dấu đã gửi hoặc đang chờ mở khóa.
+- Cổng quản trị: phân hệ "Báo cáo số liệu" có nhóm "1. Báo cáo đầu năm" (1.1, 1.2, 1.3) và "2. Báo cáo cuối năm" (2.1 đến 2.4) dùng một màn hình chung; 1.1 thêm thẻ "Ngân sách nhà nước" và danh sách gửi báo cáo bảy biểu kèm dòng "Số đã gửi, Số cần gửi, Lần gửi cuối"; mỗi dòng biểu có "Xuất file lỗi".
+- Thêm chức năng P17-24 đến P17-28 (sửa P17-18, P17-20, P17-22), kịch bản CT-580 đến CT-588, tiêu chí AC-607 đến AC-611, quy tắc BR-127, màn hình MH-131 đến MH-136. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 832/832 ca đạt; toàn bộ kiểm thử giao diện 131/131 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Eric quyết định ngày 2026-10-16 làm đủ mọi tính năng đã khảo sát của hệ thống Sở (tài liệu 31); tính năng cần hệ thống ngoài làm bản chạy nội bộ, nút ghi đúng việc làm ("Xuất tệp gửi", "Đánh dấu đã gửi"), không có nút "Gửi". Thực hiện phần 16j của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7. Tên, mã số chỉ tiêu và cột của bảy biểu, sáu mục I đến VI của 2.1, ba thẻ của 2.2, dữ liệu nguồn của từng thẻ, cột của 1.3 theo khảo sát, quy tắc nhập số liệu (BR-127) do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-129.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-129, `07_QUY_TAC_NGHIEP_VU.md` BR-127, `10_YEU_CAU_CHUC_NANG.md` P17-18, P17-20, P17-22 đến P17-28, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-82, MH-131 đến MH-136, `16_CO_SO_DU_LIEU.md` mục 18, 20, `17_DAC_TA_API.md` mục 5, 17, 17.1, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.79.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7.
+
+#### Vấn đề tồn đọng
+
+- Chưa có giao diện lập trình của Bộ, Sở nên không truyền đi (chỗ nối `UpperLevelGateway` của phần 16a); tên, mã số chỉ tiêu của bảy biểu do Claude đặt, cần đối chiếu biểu mẫu chính thức; 1.3 đã khớp cột với khảo sát, chưa khớp dòng; 2.1, 2.4 tính tại thời điểm xem, không giữ số đầu năm; II.06 và II.07 có thể trùng (học sinh chuyển đi cũng có trạng thái thôi học); thẻ Nhà vệ sinh lấy đủ VS.01 đến VS.06 từ khai báo phòng (VS.05, VS.06 theo thuộc tính phòng vệ sinh của phần 16i: `toilet_users` = `staff`, `toilet_standard` = `met`); mức độ đạt chuẩn theo khối phòng của phần 16i chưa đưa vào biểu EMIS 1.2; thẻ Thông tin khác dùng 1, 0 cho có, không; Lấy dữ liệu năm trước cần năm học trước đã chạy migration 0059.
+
+### 2026-10-18 — DT-16 phần 16i: cơ sở vật chất, thiết bị dạy học đủ theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu năm học: tệp `0058_add_facilities_so_parity` tạo bảng `facility_investments` (6.1), `facility_standard_levels` (mức độ đạt chuẩn của 1.2), `facility_import_jobs` (lần nhập phòng, danh mục thiết bị).
+- Máy chủ API: 1.2 Báo cáo cơ sở vật chất kèm nhà vệ sinh, mức độ đạt chuẩn và biểu mẫu gửi `facilities-report`; 6.1 thực trạng và nhu cầu đầu tư; nhập phòng, danh mục thiết bị từ Excel (`/facility-imports`); biểu mẫu gửi `equipment-summary` cho 2.3; thuộc tính nhà vệ sinh chỉ cho Phòng vệ sinh.
+- Cổng quản trị: mục mới 1.2, 2.2, 2.3 của phân hệ Cơ sở vật chất, TBDH; nhóm mới 6 (6.1, 6.2) của phân hệ Mầm non; Nhập từ Excel ở 1.1, 2.1, 2.2; khối Gắn thiết bị dạy học ở Kho, thẻ Tài sản.
+- Thêm chức năng P13-13 đến P13-15, P17-23, kịch bản CT-572 đến CT-579, tiêu chí AC-602 đến AC-606, quy tắc BR-126, màn hình MH-127 đến MH-130. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 832/832 ca đạt; toàn bộ kiểm thử giao diện 130/130 ca đạt (CI, lượt chạy 39103041728; CT-15a-8 của `01-login.spec.ts` sửa theo nhóm menu mới "6. Cơ sở vật chất"); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Eric quyết định ngày 2026-10-16 làm đủ mọi tính năng đã khảo sát của hệ thống Sở; tính năng cần hệ thống ngoài làm bản chạy nội bộ với nút ghi đúng việc làm ("Xuất tệp gửi", "Đánh dấu đã gửi"). Thực hiện phần 16i của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7. Mức độ đạt chuẩn theo khối do Hiệu trưởng đánh giá, mức của trường là mức thấp nhất; thông tin nhà vệ sinh lưu ở thuộc tính phòng; nhập Excel dùng bảng lần nhập riêng (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-128, `07_QUY_TAC_NGHIEP_VU.md` BR-126, `10_YEU_CAU_CHUC_NANG.md` P13-13 đến P13-15, P17-23, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-127 đến MH-130, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.78.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7.
+
+#### Vấn đề tồn đọng
+
+- Gửi 1.2, 2.3 chưa nối hệ thống của Sở; mức độ đạt chuẩn và thuộc tính nhà vệ sinh cần đối chiếu biểu mẫu chính thức; thẻ nhà vệ sinh của EMIS 1.2 đọc dữ liệu này từ YCTD-129 (phần 16j).
+
+### 2026-10-18 — DT-16 phần 16e: trường, lớp và lịch năm học theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu năm học: tệp `0054_create_accreditation_reviews_and_school_splits` tạo bảng `accreditation_reviews` (rà soát thông tin kiểm định CLGD), `school_split_requests`, `school_split_items` (tách trường). Cơ sở dữ liệu hệ thống: tệp `0013_add_school_week_fields_and_carry_over_time` thêm `school_weeks.term_type`, `school_weeks.is_visible`, `academic_year_databases.carried_over_at`.
+- Máy chủ API: ba khóa cấu hình của Trường chính (tên trường hiển thị, tên đơn vị hành chính, tính cân nặng/chiều cao cho trẻ suy dinh dưỡng thể nhẹ cân) kèm kiểu giá trị `text`; tên trường hiển thị ở `/portal-context`, `/public/login-info`; ô cân nặng/chiều cao áp cho 4.3.2; học kỳ, hiển thị của tuần ở `/academic-years/{id}/weeks`; trạng thái chuyển hồ sơ và Hủy chuyển hồ sơ (`/academic-years/rollover/status`, `/academic-years/{id}/cancel-open`); xóa lớp, thao tác hàng loạt trên lớp (`/classes/delete`, `/classes/bulk-update`); dòng giáo viên chưa phân công ở `/class-assignments`; bảy cột lớp theo Sở khi nhập lớp; `/accreditation-review`; nhóm `/school-splits` kèm xuất hồ sơ 82 cột, 75 cột.
+- Cổng quản trị: khối "Cấu hình trường" ở 1.4; mục mới "1.7. Rà soát thông tin kiểm định CLGD", "1.8. Tách trường", "3.4. Khai báo tuần", "5.7. Chuyển hồ sơ lên năm học mới"; 2.1 có ô chọn dòng, nút Thay đổi, Giải thể lớp đã chọn, Xóa lớp; 3.3 có dòng "Chưa phân công" và lọc Tình trạng phân công.
+- Thêm chức năng P01-24 đến P01-27 (sửa P01-08, P01-13, P02-05), kịch bản CT-551 đến CT-571, tiêu chí AC-595 đến AC-601, quy tắc BR-125, màn hình MH-123 đến MH-126. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 825/825 ca đạt; toàn bộ kiểm thử giao diện 129/129 ca đạt (CI, lượt chạy 39086989582); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Eric quyết định ngày 2026-10-16 làm đủ mọi tính năng đã khảo sát của hệ thống Sở (tài liệu 31); tính năng cần hệ thống ngoài làm bản chạy nội bộ, gồm 1.8 Tách trường. Thực hiện phần 16e của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7. Ba mục của khối "Cấu hình trường" chỉ đặt ở Trường chính; phòng bộ môn ở 1.7 là năm loại phòng giáo dục chuyên biệt, diện tích sàn là tổng diện tích phòng đang dùng; tách trường không truyền dữ liệu, xác nhận đi không đổi trạng thái hồ sơ học sinh, nhân sự; tuần đệm dùng lại cột tuần nghỉ; Hủy chuyển hồ sơ chỉ khi năm học mới chưa có dòng nào thêm hoặc sửa sau giờ chuyển xong và năm học đầu tiên không hủy được; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-127.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-127, `07_QUY_TAC_NGHIEP_VU.md` BR-125, `10_YEU_CAU_CHUC_NANG.md` P01-08, P01-13, P01-24 đến P01-27, P02-05, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-03, MH-30, MH-92, MH-93, MH-123 đến MH-126, `16_CO_SO_DU_LIEU.md` mục 2, 20, `17_DAC_TA_API.md` mục 5, 6, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.77.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7.
+
+#### Vấn đề tồn đọng
+
+- Tách trường chưa nối hệ thống của Sở (chỗ nối `SchoolSplitTransport`); tên đơn vị hành chính chưa in lên đầu báo cáo (phần 16j); ô cân nặng/chiều cao cho trẻ nhẹ cân chưa áp cho so sánh hai lần cân đo và thống kê 5.3; "Hiển thị" của tuần chưa được các màn hình chọn tuần khác dùng; cách tính phòng bộ môn, diện tích sàn ở 1.7 chưa đối chiếu biểu mẫu kiểm định chính thức.
+
+### 2026-10-18 — DT-16 phần 16g: nhóm Học sinh đủ theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu năm học: tệp `0056_add_student_records_so` thêm số thứ tự trong lớp, cột xóa hồ sơ, xác thực số định danh, biến động cư trú của `children`, bảng `student_learning_accounts`, `student_transfers`, ba loại nhập mới.
+- Máy chủ API: mô đun `student-records` (xóa hồ sơ nháp, mã Bộ, tệp 82 cột theo mẫu Bộ, file lỗi, sắp xếp học sinh, điện thoại nhận tin hàng loạt, chuyển lớp hàng loạt, số định danh, tài khoản học và thi, chuyển trường, công cụ nhập 82 cột); nhập điện thoại nhận tin, số định danh, địa chỉ mới bằng bộ nhập chung; sửa, xóa dòng đối chiếu địa danh.
+- Cổng quản trị: 4.1.1 đủ nút; màn hình mới 4.1.2, 4.1.3, 4.1.5, 4.1.8, 4.1.10, 5.4, 5.5; 4.2 chuyển lớp hàng loạt và khối chuyển trường; 4.1.11 nhập địa chỉ mới, sửa, xóa dòng đối chiếu.
+- Thêm chức năng P02-18 đến P02-23, kịch bản CT-534 đến CT-550, tiêu chí AC-578 đến AC-594, quy tắc BR-124, quy tắc phân quyền PQ-74, màn hình MH-116 đến MH-122. Kết quả ngày 18/10/2026: 13 ca kiểm thử đơn vị và 4 ca kiểm thử giao diện của phần 16g đạt; kiểm thử đơn vị toàn bộ 810/810, kiểm thử giao diện toàn bộ 122/123 ca đạt (ca hỏng là CT-15a-7 của `01-login.spec.ts`: trang đăng nhập chưa hiện kịp ở đầu lượt chạy, không liên quan phần này, đạt ở các lần chạy trước và sau; ở lần chạy khác hỏng `04-accounts` do tài khoản còn lại trong cơ sở dữ liệu định danh của lần chạy trước và CT-16a-10 do tiến trình xuất nền nhận tác vụ sớm, cũng không liên quan).
+
+#### Quyết định
+
+- Eric quyết định ngày 2026-10-16 làm đủ mọi tính năng đã khảo sát của hệ thống Sở (tài liệu 31); tính năng cần hệ thống ngoài làm bản chạy nội bộ với nhãn đúng việc làm được. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: chỉ xóa hồ sơ nháp và không xóa cứng; tài khoản học và thi lưu nội bộ vì trẻ mầm non không tự đăng nhập; danh sách trùng là hồ sơ nghi trùng cùng họ tên, ngày sinh; danh mục tổ/thôn lấy từ hồ sơ đang có; trang nhập chung đánh số 4.1.13; không dùng tệp định danh `0048`.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-126, `07_QUY_TAC_NGHIEP_VU.md` BR-124, `08_VAI_TRO_NGUOI_DUNG.md` PQ-74, `10_YEU_CAU_CHUC_NANG.md` P02-18 đến P02-23, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-02, MH-40, MH-85, MH-94, MH-116 đến MH-122, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.76.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7.
+
+#### Vấn đề tồn đọng
+
+- Kết nối thật tới CSDL Bộ, CSDLQG về dân cư, liên thông giữa các trường chờ giao diện lập trình; tài khoản học và thi chờ phần mềm học, thi.
+
+### 2026-10-17 — DT-16 phần 16h: sức khỏe, dinh dưỡng và thống kê học sinh theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu năm học: tệp `0057_add_student_health_and_menu_fields` thêm tên thực đơn, tháng, tuần, từ ngày, đến ngày, khối áp dụng cho `menus`; tạo bảng `student_health_records` (thông tin sức khỏe học sinh theo học kỳ) và `menu_import_jobs` (lần nhập thực đơn từ Excel).
+- Máy chủ API: 4.6 thông tin sức khỏe theo học kỳ (`/student-health`, "Lấy dữ liệu từ 4.3", Xuất Excel); 4.3.2 tổng hợp theo học kỳ, so sánh hai lần cân đo, số được khám định kỳ; 4.5 thông tin chung của thực đơn theo Sở, "Thay đổi" thực đơn nháp, nhập thực đơn từ Excel (`/menu-imports`); 5.3 thống kê học sinh đủ các phần, Xuất Excel, PDF (`/statistics/students`); số liệu báo cáo sức khỏe học sinh đầu năm (`/reports/emis/start-of-year-health`) làm điểm nối cho phần 16j.
+- Cổng quản trị: màn hình "4.6.1. Nhập thông tin sức khỏe học sinh"; "5.3. Thống kê học sinh" sáu thẻ (dùng chung cho thẻ 5.3 của trang Thống kê theo tiêu chí ngành); 4.3.2 có ô Tổng hợp theo Tháng hoặc Học kỳ, ô So sánh với đợt, bảng so sánh, cột Được khám định kỳ; 4.5 có biểu mẫu lập thực đơn theo Sở, cột lưới mới, nút "Thay đổi", "Nhập từ Excel"; thành phần nhập Excel dùng chung nhận đường dẫn gốc riêng của phân hệ.
+- Thêm chức năng P10-15, P12-10, P17-21, P17-22 (sửa P10-14), kịch bản CT-524 đến CT-533, tiêu chí AC-568 đến AC-577, quy tắc BR-123, màn hình MH-114, MH-115. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 787/787 ca đạt; toàn bộ kiểm thử giao diện 115/115 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Eric quyết định ngày 2026-10-16 làm đủ mọi tính năng đã khảo sát của hệ thống Sở (tài liệu 31); tính năng cần hệ thống ngoài làm bản chạy nội bộ. Thực hiện phần 16h của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7. Kết quả giáo dục thể chất hai mức Đạt, Chưa đạt; học kỳ theo lịch năm học, chưa khai báo thì tháng 8 đến tháng 12 là học kỳ I; con thương binh, liệt sĩ nhận biết theo chữ trong đối tượng chính sách; thực đơn vẫn theo tuần, từ ngày đến ngày trong một tuần; lần nhập thực đơn dùng bảng riêng thay vì đổi ràng buộc loại nhập của `data_import_jobs`; tên và mã chỉ tiêu báo cáo sức khỏe đầu năm đặt theo dữ liệu có sẵn, màn hình và gửi lên cấp trên để phần 16j; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-125.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-125, `07_QUY_TAC_NGHIEP_VU.md` BR-123, `10_YEU_CAU_CHUC_NANG.md` P10-14, P10-15, P12-10, P17-21, P17-22, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-16, MH-17, MH-18, MH-76, MH-77, MH-114, MH-115, `16_CO_SO_DU_LIEU.md` mục 2, 11, 13, 20, `17_DAC_TA_API.md` mục 5, 13, 15, 17, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.75.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7.
+
+#### Vấn đề tồn đọng
+
+- Chỉ tiêu báo cáo sức khỏe đầu năm chưa đối chiếu biểu mẫu chính thức của Sở; màn hình 1.3, xuất tệp, gửi lên cấp trên chờ phần 16j; bệnh về mắt dạng chữ trong hồ sơ CSDL ngành chưa chuyển sang bảy loại; nhập thực đơn chưa cập nhật thực đơn đã có; 4.6.1 chưa có nhập từ Excel.
+
+### 2026-10-17 — DT-16 phần 16f: nhóm Nhân sự đủ theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu năm học: tệp `0055_add_staff_so_parity` thêm chín cột của `staff` (tài khoản ngân hàng, tên ngân hàng, mã số thuế, xã ĐBKK, trạng thái xác thực số định danh kèm ngày, người, ghi chú), hai bảng mới `staff_branch_assignments`, `staff_movements`, loại nhập `professional_ratings`. Không thêm tệp định danh (số `0047` giữ cho phần này không dùng), không thêm mã quyền.
+- Gói dùng chung: danh mục của Bộ cho hồ sơ cán bộ (trạng thái cán bộ, dân tộc, tôn giáo, vị trí việc làm, nhóm chức vụ, hình thức hợp đồng, trình độ chuyên môn); biểu mẫu hồ sơ chọn theo danh mục, giữ giá trị cũ; khối "Tài khoản ngân hàng, mã số thuế", ô "Ở xã đặc biệt khó khăn (ĐBKK)"; menu thêm 3.1.2, 3.1.3, 3.1.5, 3.5, 5.2, 5.6.
+- Máy chủ API: xóa hồ sơ nhập nhầm, Xuất tệp theo mẫu Bộ 75 cột kèm kiểm tra dữ liệu, Xuất file lỗi, tệp mẫu 75 cột kèm dữ liệu, tra cứu danh mục của Bộ; nhân sự phân hiệu; đánh dấu xác thực số định danh (bản chạy nội bộ, chỗ nối `IdentityVerificationGateway`), tiến độ và trùng số định danh; biến động nhân sự bốn loại; nhập mức đánh giá chuẩn nghề nghiệp từ Excel; thống kê nhân sự theo danh mục Bộ và chuẩn nghề nghiệp; 5.9 thêm tài khoản ngân hàng, mã số thuế.
+- Cổng quản trị: 3.1.1 thêm Thay đổi, Xóa, Xuất tệp theo mẫu Bộ, Xuất file lỗi, lọc Xã ĐBKK, Xác thực số định danh; màn hình mới 3.1.2 Nhân sự phân hiệu, 3.1.3 Nhập nhân sự từ Excel, 3.1.5 Xác thực số định danh nhân sự với CSDLQG về dân cư, 3.5 Biến động nhân sự (bốn thẻ), 5.2 Thống kê nhân sự, 5.6 Tiến độ xác thực số định danh nhân sự; 3.2 thêm "Nhập mức đánh giá từ Excel"; 4.1.2 Nhập dữ liệu từ Excel bỏ hai phần nhân sự.
+- Thêm chức năng P07-06 đến P07-10, kịch bản CT-510 đến CT-523, tiêu chí AC-554 đến AC-567, quy tắc BR-122, quy tắc phân quyền PQ-73, màn hình MH-108 đến MH-113. Kết quả ngày 17/10/2026: 10 ca kiểm thử đơn vị (`apps/api/src/staff/staff-parity.test.ts`) và 4 ca kiểm thử giao diện (`tests/e2e/60-staff-full-so.spec.ts`) của phần 16f đạt; kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 788/788 ca đạt; toàn bộ kiểm thử giao diện 118/118 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt. Kiểm thử giao diện `55-staff-so` sửa cách chọn Dân tộc, Vị trí việc làm vì hai ô thành danh sách chọn.
+
+#### Quyết định
+
+- Eric quyết định ngày 2026-10-16 làm đủ mọi tính năng đã khảo sát của hệ thống Sở (tài liệu 31); tính năng cần hệ thống ngoài làm bản chạy nội bộ với nhãn đúng việc làm được ("Đánh dấu đã xác thực", "Xuất tệp theo mẫu Bộ"), không giả như đã gửi đi. Thực hiện phần 16f của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7. Xóa hồ sơ chỉ với hồ sơ chưa có dữ liệu liên quan; xã ĐBKK đánh dấu theo nhân sự; gán phân hiệu không đổi phạm vi quyền; duyệt chuyển đi cho nghỉ việc, chấm dứt hợp đồng, khóa tài khoản; tiếp nhận chuyển đến tạo hồ sơ nháp; không thêm mã quyền; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-124.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-124, `07_QUY_TAC_NGHIEP_VU.md` BR-122, `08_VAI_TRO_NGUOI_DUNG.md` PQ-73, `10_YEU_CAU_CHUC_NANG.md` P07-01, P07-04, P07-05, P07-06 đến P07-10, P17-17, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-12, MH-40, MH-74, MH-78, MH-108 đến MH-113, `16_CO_SO_DU_LIEU.md` mục 2, 8, 20, `17_DAC_TA_API.md` mục 11, 17, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.74.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7.
+
+#### Vấn đề tồn đọng
+
+- Chưa có kết nối thật tới CSDL Bộ, CSDLQG về dân cư, liên thông giữa các trường; 5.1 vẫn giữ thẻ nhân sự cũ; danh mục của Bộ cần đối chiếu bản chính thức; xã ĐBKK chưa có cờ ở danh mục địa danh hành chính; tệp hồ sơ chuyển đến một dòng; nhập mức đánh giá tối đa 20 tiêu chí.
+
+### 2026-10-17 — DT-16 phần 16c: khung trang và đăng nhập theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Dịch vụ định danh: mã xác nhận dạng ảnh tự vẽ ở máy chủ cho kênh cổng quản trị (bắt buộc khi bật "luôn hiện" hoặc sau số lần nhập sai cấu hình được), quên mật khẩu tự phục vụ bằng mã gửi qua tin nhắn, lịch sử mật khẩu (bảng mới `password_history`), bốn cấu hình mới (số lần sai thì hiện mã xác nhận, số mật khẩu gần nhất không được dùng lại, luôn hiện mã xác nhận, đường dây nóng), điểm cuối công khai `/auth/login-options`, `/auth/captcha`, `/auth/password-reset/request`, `/auth/password-reset/confirm`; tệp định danh `0045` thêm quyền `P01.announcement.manage`.
+- Máy chủ API: thông báo hệ thống, ứng dụng liên kết (hai bảng mới ở cơ sở dữ liệu hệ thống, tệp `0011`), ngữ cảnh trường của cổng quản trị, thông tin công khai của trang đăng nhập, kiểm tra mã định danh điện tử của tổ chức 12 chữ số (Nghị định 69/2024/NĐ-CP), người dùng tự sửa thông tin liên hệ trên hồ sơ nhân sự của mình.
+- Cổng quản trị: thanh đầu trang có tên trường, ô "Cấp MN · năm học · học kỳ", nút lưới ứng dụng liên kết; menu người dùng đủ bảy mục theo Sở (thêm Hồ sơ nhân sự cá nhân, Hướng dẫn); hộp "Thông báo" khi vào trang; trang đăng nhập có tên, mã trường, ghi nhớ tài khoản, mã xác nhận, liên kết Quên mật khẩu, đường dây nóng; trang Quên mật khẩu; mục "3.6. Thông báo hệ thống", "3.7. Ứng dụng liên kết" của Quản trị hệ thống; khối "Đăng nhập và bảo mật" ở 1.4 Cấu hình trường.
+- Thêm chức năng P01-21 đến P01-23, kịch bản CT-489 đến CT-509, tiêu chí AC-533 đến AC-553, quy tắc BR-121, quy tắc phân quyền PQ-72, màn hình MH-102 đến MH-107. Kết quả ngày 17/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 778/778 ca đạt; toàn bộ kiểm thử giao diện 114/114 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Ngày 2026-10-17 gộp nhánh chính có phần 16b, 16d, 16a, 15h2: đổi số tài liệu của phần này (YCTD-123, phiên bản 0.73.0, P01-21 đến P01-23, CT-489 đến CT-509, AC-533 đến AC-553, BR-121, PQ-72, MH-102 đến MH-107); hai mục của Quản trị hệ thống thành "3.6. Thông báo hệ thống", "3.7. Ứng dụng liên kết" vì 3.5 là "Tệp đã tạo" của phần 16a; nút ở khối "Đăng nhập và bảo mật" đổi tên "Lưu đăng nhập và bảo mật"; kịch bản giao diện đổi tên `tests/e2e/59-portal-shell-login.spec.ts`; sửa kiểm thử giao diện `03-org-units` tìm tên trường trong danh sách đơn vị vì thanh đầu trang nay hiện tên trường.
+
+#### Quyết định
+
+- Eric quyết định ngày 2026-10-16 làm đủ mọi tính năng đã khảo sát của hệ thống Sở (tài liệu 31); tính năng cần hệ thống ngoài làm bản chạy nội bộ, gồm đăng nhập chọn trường của Sở. Thực hiện phần 16c của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7. Trang đăng nhập hiện tên, mã trường và năm học đang dùng thay bước chọn trường; mã xác nhận tự sinh ở máy chủ, không dùng dịch vụ ngoài; quên mật khẩu chỉ qua tin nhắn; quyền `P01.announcement.manage` cho VT-01, VT-02; không làm "Đăng nhập năm cũ"; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-123.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-123, `07_QUY_TAC_NGHIEP_VU.md` BR-121, `08_VAI_TRO_NGUOI_DUNG.md` PQ-72, `10_YEU_CAU_CHUC_NANG.md` P01-21 đến P01-23, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-47, MH-83, MH-84, MH-102 đến MH-107, `16_CO_SO_DU_LIEU.md` mục 1, 2, 20, `17_DAC_TA_API.md` mục 4, 5, 11, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.73.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7.
+
+#### Vấn đề tồn đọng
+
+- Quên mật khẩu chưa có kênh thư điện tử; chưa có "Đăng nhập năm cũ"; không có đăng nhập một lần của Sở; Cấu hình hiển thị lưới vẫn chỉ có số dòng mặc định; hướng dẫn là trang tĩnh ngắn.
+
+### 2026-10-17 — DT-15 phần 15h2: sửa các hạn chế của văn thư lưu trữ
+
+#### Công việc đã thực hiện
+
+- Phông, hồ sơ văn thư chia theo đơn vị và lọc theo phạm vi; người giải quyết chọn từ nhân sự; nhắc sắp đến hạn, quá hạn; hàng chờ xóa lại tệp ở kho tệp. Tệp hệ thống `0016`.
+- Thêm kịch bản CT-483 đến CT-488, tiêu chí AC-527 đến AC-532, quy tắc BR-120, quy tắc phân quyền PQ-71. Kết quả: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 743/743 ca đạt, toàn bộ kiểm thử giao diện 100/100 ca đạt ngày 17/10/2026 trước khi gộp PR 94, 96, 97; sau khi gộp, build, kiểm tra kiểu, lint, kiểm tra định dạng đạt và CI chạy lại đủ kiểm thử đơn vị, giao diện.
+
+#### Quyết định
+
+- Eric chọn ngày 2026-10-16: sổ văn bản đến, đi và biên bản giao nộp, tiêu hủy chờ khảo sát; dùng tệp `0016`. Phạm vi đơn vị, nhắc 3 ngày trước, 20 lần thử xóa lại Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-122.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-122, `07_QUY_TAC_NGHIEP_VU.md` BR-120, `08_VAI_TRO_NGUOI_DUNG.md` PQ-71, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.72.0.
+
+#### Vấn đề tồn đọng
+
+- Sổ văn bản đến, đi và biên bản giao nộp, tiêu hủy chờ khảo sát bổ sung; nhắc hạn chưa gửi tin nhắn.
+
+### 2026-10-17 — DT-16 phần 16a: công cụ xuất, nhập dùng chung và mẫu gửi lên cấp trên
+
+#### Công việc đã thực hiện
+
+- Thêm nút "Xuất PDF" cho lưới dữ liệu dùng chung (bật bằng thuộc tính tùy chọn, năm màn hình), tác vụ xuất nền cho danh sách lớn với màn hình "3.5. Tệp đã tạo", thành phần nhập Excel dùng chung (tải file mẫu kèm dữ liệu, tra cứu danh mục, chọn cột để nhập, xuất file lỗi) áp cho Nhập dữ liệu từ Excel và 2.2 Nhập lớp học từ Excel, mẫu "gửi lên cấp trên" chạy nội bộ áp cho Biểu 1 EMIS đầu năm. Ba bảng mới ở cơ sở dữ liệu hệ thống (tệp `0010`), không thêm quyền.
+- Thêm chức năng P01-20, P17-19, P17-20, kịch bản CT-472 đến CT-482, tiêu chí AC-516 đến AC-526, quy tắc BR-119, quy tắc phân quyền PQ-70, màn hình MH-101, quy tắc bố cục BC-17. Kết quả ngày 17/10/2026 trên CI của PR 97: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 758/758 ca đạt (gồm 7 ca CT-472 đến CT-478 của `export-tools.test.ts`); toàn bộ kiểm thử giao diện 107/107 ca đạt (gồm 4 ca CT-479 đến CT-482 của `58-export-import-tools.spec.ts`; ca 23 quyết toán từng hỏng vì vượt giới hạn đăng nhập mỗi phút nên các ca 20 đến 24 chờ rồi đăng nhập lại qua `submitSignIn` của `tests/e2e/fixtures.ts`). Trên máy phát triển toàn bộ kiểm thử giao diện 107/107 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 16a của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7 theo lựa chọn của Eric ngày 2026-10-16 (bản chạy nội bộ, nút ghi đúng việc làm, để sẵn chỗ nối). Tiến trình xuất nền chạy trong máy chủ API thay cho `apps/worker`; nhập lớp học cập nhật lớp đã có theo cột được chọn; quyền mở khóa của Biểu 1 EMIS là `P01.school-profile.manage`; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-121.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-121, `07_QUY_TAC_NGHIEP_VU.md` BR-119, `08_VAI_TRO_NGUOI_DUNG.md` PQ-70, `10_YEU_CAU_CHUC_NANG.md` P01-20, P17-19, P17-20, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-40, MH-82, MH-92, MH-101, BC-17, `16_CO_SO_DU_LIEU.md` mục 1, 18, `17_DAC_TA_API.md` mục 17, 17.1, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.71.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7.
+
+#### Vấn đề tồn đọng
+
+- Xuất PDF, tác vụ nền còn bật dần ở các màn hình khác (16b, lượt 2, 3); tệp mẫu kèm dữ liệu mới có ở lớp học; gửi lên cấp trên mới có Biểu 1 EMIS, chưa truyền đi được.
+### 2026-10-17 — DT-16 phần 16d: quản trị hệ thống đủ theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- 1.1 Nhóm người dùng: Hiệu lực theo dữ liệu, Sửa (tên, hiệu lực), Xóa qua hộp xác nhận xóa; không ngừng hiệu lực, không xóa nhóm hệ thống, không xóa nhóm đang có người dùng; nhóm hết hiệu lực không cấp quyền, phân hệ.
+- Màn hình mới 1.2 Phân quyền nhóm theo phần mềm: tích phân hệ nhóm được dùng; phân hệ không nhóm nào của tài khoản được dùng thì ẩn khỏi ô chọn phân hệ và menu; máy chủ vẫn kiểm tra quyền theo thao tác; 1.3 nhắc khi nhóm chưa được dùng phân hệ.
+- 1.4 Danh sách người dùng đủ theo Sở: cột Mã nhân sự, Mã Bộ, Thời gian đổi, Ngày hết hạn mật khẩu; lọc Mã định danh, ngày hết hạn mật khẩu; Phân nhóm quyền, Cấp mật khẩu hàng loạt, Lấy danh sách CBQL/GV, Xuất Excel qua máy chủ API ghép tài khoản với hồ sơ nhân sự.
+- Màn hình mới 1.6 Tài khoản đồng bộ của Bộ, của Sở (bản chạy nội bộ): lưu tên đăng nhập, mật khẩu mã hóa ở bảng thông tin kết nối, không trả mật khẩu; ghi rõ chưa đồng bộ được, để sẵn chỗ nối.
+- Thêm chức năng P01-18, P01-19, kịch bản CT-458 đến CT-471, tiêu chí AC-502 đến AC-515, quy tắc BR-118, quy tắc phân quyền PQ-69, màn hình MH-99, MH-100. Kết quả ngày 17/10/2026 trên CI của PR 96: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 748/748 ca đạt (thêm 10 ca CT-458 đến CT-467); toàn bộ kiểm thử giao diện 103/103 ca đạt (thêm 4 ca CT-468 đến CT-471); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt. Trên máy phát triển kiểm thử đơn vị 748 ca đạt; kiểm thử giao diện chạy trên CI vì các phiên khác dùng chung cổng và cơ sở dữ liệu kiểm thử giao diện.
+
+#### Quyết định
+
+- Thực hiện phần 16d của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7 theo quyết định của Eric ngày 2026-10-16 (làm đủ tính năng đã khảo sát; tính năng cần hệ thống bên ngoài làm bản chạy nội bộ). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: lưu phân hệ bị bỏ thay vì phân hệ được dùng để phân hệ mới mặc định hiện; Phụ huynh bỏ mọi phân hệ; không thêm mã quyền; 1.6 dùng quyền `P01.integration.manage` và bảng `integration_credentials`; Mã định danh khớp mã nhân sự hoặc mã Bộ.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-120, `07_QUY_TAC_NGHIEP_VU.md` BR-118, `08_VAI_TRO_NGUOI_DUNG.md` PQ-69, `10_YEU_CAU_CHUC_NANG.md` P01-18, P01-19, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-30, MH-99, MH-100, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.70.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7.
+
+#### Vấn đề tồn đọng
+
+- Chưa đồng bộ được lên CSDL ngành của Bộ, Sở (chưa có giao diện lập trình); 1.2 theo phân hệ của cổng quản trị, không theo sáu phần mềm của Sở; Lấy danh sách CBQL/GV dùng một nhóm quyền chung.
+### 2026-10-16 — DT-16 phần 16b: lưới dữ liệu chung, hộp xác nhận xóa, Xuất Excel cho các màn hình còn lại theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Chuyển danh sách của các màn hình còn lại sang lưới dữ liệu chung (38 khóa lưới mới): 1.1 Khai báo cơ sở vật chất, 2.1 Tổng hợp thiết bị dạy học của phân hệ Quản lý cơ sở vật chất, TBDH; 4.3.2, 5.8, 4.4, 4.1.6, 3.2, 4.5, 4.6.1, 4.6.2 của phân hệ Quản lý giáo dục Mầm non; 2.1 đến 2.5, 3.2 của phân hệ Quản trị hệ thống. Bỏ học sinh khỏi nhóm (một hoặc nhiều), bỏ món, bỏ nguyên liệu, xóa tiêu chuẩn sức khỏe, bỏ liên kết Zalo qua hộp xác nhận xóa; tiêu đề trang theo số menu.
+- Thêm Xuất Excel theo cột đang hiện cho 1.2 Quản lý phân hiệu, 1.3 Quản lý điểm trường, 4.1.11 Cập nhật địa danh hành chính, 1.4 Danh sách người dùng, 1.1 Nhóm người dùng (bốn điểm cuối mới, ghi nhật ký xuất).
+- Thêm kịch bản CT-451 đến CT-457, tiêu chí AC-495 đến AC-501, quy tắc BR-117. Cơ sở dữ liệu ở máy phát triển không chạy được nên kết quả lấy trên CI của PR 94 ngày 16/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 742/742 ca đạt; toàn bộ kiểm thử giao diện 99/99 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 16b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7 theo yêu cầu của Eric ngày 2026-10-16 làm đủ mọi tính năng đã khảo sát của hệ thống của Sở. Không thêm bảng, quyền; tìm kiếm trên các lưới mới tìm tại chỗ; bảng nhập theo ô và bảng số liệu cố định giữ dạng bảng; xuất 1.4, 1.1 do máy chủ API đọc lại ở dịch vụ định danh bằng mã phiên của người xuất, đường dẫn `/account-exports` để cổng vào không chuyển sang dịch vụ định danh; tệp phân hiệu, điểm trường, nhóm người dùng ghi không có dữ liệu cá nhân; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-119.
+
+- Ngày 2026-10-17 gộp nhánh chính có phần 16d (YCTD-120): Xuất Excel 1.4 dùng `POST /account-directory/export` của phần 16d (đủ cột Mã nhân sự, Mã Bộ, hạn mật khẩu), bỏ `POST /account-exports/users` của phần này và kiểm thử CT-454 (thay bằng CT-466); tệp 1.1 lấy Hiệu lực theo dữ liệu, thêm cột Số người dùng.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-119, `07_QUY_TAC_NGHIEP_VU.md` BR-117, `10_YEU_CAU_CHUC_NANG.md` P01-01, P01-06, P01-07, P02-17, `14_DAC_TA_GIAO_DIEN.md` BC-13, BC-15 và các MH ở YCTD-119, `17_DAC_TA_API.md` mục 5, 6, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.69.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7.
+
+#### Vấn đề tồn đọng
+
+- Chưa có Xuất PDF trên các lưới (chờ phần 16a gộp); 1.1, 1.4 còn thiếu cột, bộ lọc, thao tác của Sở (phần 16d); các màn hình tài chính dùng bảng danh mục chung chuyển ở phần 15f1.
+
+### 2026-10-16 — DT-15 phần 15h2: văn thư lưu trữ theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Thêm nhóm menu "5.10. Văn thư lưu trữ" với bốn màn hình: 5.10.1 Hồ sơ tài liệu (hai thẻ Chưa hoàn thành, Hoàn thành trên lưới dữ liệu chung phân trang ở máy chủ, nhãn Quá hạn, Mở rộng tìm kiếm, biểu mẫu theo khối với nút Ghi, Xóa qua hộp xác nhận, tệp đính kèm ở kho tệp, Xuất Excel), 5.10.2 Phông lưu trữ, 5.10.3 Thông tin lưu trữ, 5.10.4 Báo cáo lưu trữ có Xuất Excel. Bốn bảng mới ở cơ sở dữ liệu hệ thống (tệp `0009`), ba quyền mới (tệp định danh `0044`).
+- Thêm chức năng P09-06 đến P09-08, kịch bản CT-438 đến CT-450, tiêu chí AC-482 đến AC-494, quy tắc BR-116, quy tắc phân quyền PQ-68, màn hình MH-95 đến MH-98. Kết quả ngày 16/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 738/738 ca đạt; toàn bộ kiểm thử giao diện 99/99 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện đợt 15h2 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 5. Dữ liệu ở cơ sở dữ liệu hệ thống vì không gắn năm học, nhật ký vẫn ghi ở năm học đang dùng; thông tin lưu trữ là màn hình nhập riêng để báo cáo cộng lại; quyền `P09.archive.view`, `P09.archive.manage`, `P09.archive.export` thuộc P09, gán đủ cho VT-02, VT-04, VT-06, xem và xuất cho VT-15, xem cho VT-03; người giải quyết là chữ tự do; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-118.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-118, `07_QUY_TAC_NGHIEP_VU.md` BR-116, `08_VAI_TRO_NGUOI_DUNG.md` PQ-68, `10_YEU_CAU_CHUC_NANG.md` P09-06 đến P09-08, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-95 đến MH-98, `16_CO_SO_DU_LIEU.md` mục 2, 20, `17_DAC_TA_API.md` mục 12, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.68.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 6.
+
+#### Vấn đề tồn đọng
+
+- Người giải quyết chưa chọn từ danh sách nhân sự; chưa có nhắc hạn; chưa có sổ văn bản đến, đi, biên bản giao nộp, tiêu hủy; hồ sơ chưa phân theo đơn vị.
+
+### 2026-10-16 — Kế hoạch DT-16: bổ sung đủ tính năng theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Đối chiếu từng dòng của `31_KHAO_SAT_HE_THONG_SO.md` (mục 2 đến 7) với mã nguồn hiện tại: liệt kê màn hình, thẻ, cột, bộ lọc, nút còn thiếu hoặc mới làm một phần.
+- Thêm mục 7 vào `32_KE_HOACH_THEO_HE_THONG_SO.md` (phiên bản 1.4): đợt DT-16 gồm 11 phần (16a đến 16k), chia ba lượt.
+
+#### Quyết định
+
+- Eric yêu cầu ngày 2026-10-16 làm đủ mọi tính năng đã khảo sát của Sở.
+- Eric chọn ngày 2026-10-16: tính năng cần hệ thống bên ngoài (đồng bộ lên CSDL Bộ, Sở; xác thực với CSDLQG về dân cư; ký số; tách trường; gửi lên cấp trên; biến động liên trường; đăng nhập chọn trường) làm bản chạy nội bộ, thay cho dòng "Không áp dụng" của mục 1 tài liệu 32.
+- Eric chọn ngày 2026-10-16: phân hệ Tuyển sinh đầu cấp và Hồ sơ điện tử chờ khảo sát bổ sung.
+
+#### Thay đổi
+
+- `32_KE_HOACH_THEO_HE_THONG_SO.md`, `02_NHAT_KY_DU_AN.md`.
+
+#### Vấn đề tồn đọng
+
+- Lượt 1 (16a đến 16d) đang làm; lượt 2, 3 chờ lượt trước gộp.
 ### 2026-10-15 — DT-15 phần 15h1: cập nhật địa danh hành chính theo hệ thống của Sở
 
 #### Công việc đã thực hiện

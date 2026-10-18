@@ -69,6 +69,7 @@ function DepartmentsSection({
   return (
     <CatalogTable
       title="Phòng ban"
+      gridKey="departments"
       rows={rows}
       isPending={departments.isPending}
       error={departments.error}
@@ -122,6 +123,7 @@ function JobTitlesSection({
   return (
     <CatalogTable
       title="Chức danh"
+      gridKey="job-titles"
       rows={jobTitles.data}
       isPending={jobTitles.isPending}
       error={jobTitles.error}

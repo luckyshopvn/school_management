@@ -124,7 +124,6 @@ function legacyVisibility(has: (code: string) => boolean): Partial<Record<Portal
   const canSeeAccountsAndReceipts = canViewFinance || canCollect || canManageCashAccounts;
   const canSeeInventory =
     canManageAssets || canManagePurchaseOrders || canApproveStocktakes || canApprovePurchaseRequests;
-  const canImport = canImportChildren || canManageChildren || canImportOpeningDebts || canImportStaff;
 
   return {
     // Quản lý giáo dục Mầm non
@@ -133,22 +132,45 @@ function legacyVisibility(has: (code: string) => boolean): Partial<Record<Portal
     '/classes': canSeeChildrenAndClasses,
     '/staff': canViewStaff,
     '/children': canSeeChildrenAndClasses,
-    // Trước đây hiện ở nhóm Trẻ và lớp, hoặc ở nhóm Nhân sự cho người chỉ nhập nhân sự
-    '/imports': (canSeeChildrenAndClasses && canImport) || (canViewStaff && canImportStaff),
+    // Trước đây hiện ở nhóm Trẻ và lớp, hoặc ở nhóm Nhân sự cho người chỉ nhập nhân sự; phần nhân sự tách sang 3.1.3 Nhập
+    // nhân sự từ Excel (DT-16 phần 16f) với đúng điều kiện cũ của nhóm Nhân sự
+    // Nhập học sinh tách sang 4.1.2 Nhập học sinh từ Excel (DT-16 phần 16g): trang chung còn công nợ đầu kỳ
+    '/imports': canImportOpeningDebts,
+    '/student-imports':
+      canSeeChildrenAndClasses && (canImportChildren || canManageChildren || has(PERMISSION_CODES.childApprove)),
+    '/staff-imports': canViewStaff && canImportStaff,
     '/child-groups': canSeeChildrenAndClasses && (canManageChildGroups || canViewChildren),
     '/growth': canManageHealth || canViewGrowthReport,
     '/growth-report': canViewGrowthReport,
     '/program-completion': canSeeChildrenAndClasses && (canManageProgramCompletion || canApproveProgramCompletion),
     '/kitchen': canManageKitchen || canApproveMenus || canViewKitchenReport,
+    '/student-health': canManageHealth || canViewGrowthReport,
     '/health': canManageHealth || canRecordMedicalEvents,
     '/medicines': canManageMedicines || canAdministerMedication || canApproveMedicinePurchases,
     '/attendance': canSeeChildrenAndClasses,
     '/statistics': canSeeStatistics,
     '/missing-profiles': canSeeStatistics,
+    '/student-statistics': canSeeStatistics,
     // Cơ sở vật chất, TBDH; Báo cáo số liệu
     '/facility-rooms': canViewFacilities || canManageEquipment || canManageRooms,
     '/equipment': canViewFacilities || canManageEquipment,
     '/emis': canViewEmis,
+    '/emis/facilities': canViewEmis,
+    '/emis/health': canViewEmis,
+    '/emis/end-of-year': canViewEmis,
+    '/emis/staff': canViewEmis,
+    '/emis/foreign-language': canViewEmis,
+    '/emis/preschool-end-of-year': canViewEmis,
+    '/facility-investments': canViewFacilities || canManageSchoolProfile,
+    '/facility-input': canViewFacilities || canManageEquipment || canManageRooms,
+    '/facility-report': canViewFacilities || canManageSchoolProfile,
+    '/equipment-outside': canViewFacilities || canManageEquipment,
+    '/equipment-submission': canViewFacilities,
+    // Quản lý kí hồ sơ (DT-16 phần 16k), mục mới không có điều kiện cũ
+    '/signing-certificate': has('P01.signing.view') || has('P01.signing.certificate'),
+    '/signing-certificate-sync': has('P01.signing.view') || has('P01.signing.certificate'),
+    '/signing-dossiers': has('P01.signing.view') || has('P01.signing.manage') || has('P01.signing.sign'),
+    '/signing-submissions': has('P01.signing.view') || has('P01.signing.manage'),
     // Quản trị hệ thống
     '/roles': canSeeAccounts,
     '/accounts': canSeeAccounts,

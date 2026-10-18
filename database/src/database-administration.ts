@@ -53,6 +53,17 @@ export async function makeDatabaseReadOnly(connectionString: string, databaseNam
   }
 }
 
+// Mở lại quyền ghi khi hủy chuyển hồ sơ lên năm học mới, năm học trước trở lại là năm đang dùng (DT-16 phần 16e)
+export async function makeDatabaseWritable(connectionString: string, databaseName: string): Promise<void> {
+  assertDatabaseName(databaseName);
+  const database = createDatabase<unknown>(connectionString);
+  try {
+    await sql`alter database ${sql.id(databaseName)} reset default_transaction_read_only`.execute(database);
+  } finally {
+    await database.destroy();
+  }
+}
+
 export async function listDatabasesWithPrefix(connectionString: string, prefix: string): Promise<string[]> {
   const database = createDatabase<unknown>(connectionString);
   try {

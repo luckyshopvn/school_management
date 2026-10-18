@@ -1,8 +1,20 @@
 import { useCallback, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, ConfirmDialog, StatusBadge, TextField, Toast, type StatusTone } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  ConfirmDialog,
+  DataGrid,
+  StatusBadge,
+  TextField,
+  Toast,
+  type DataGridColumn,
+  type StatusTone,
+} from '@school-management/ui';
 import { AppShell } from '../pages/AppShell.js';
+import { matchesSearch } from '../pages/grid-search.js';
+import { useGridSettings } from '../pages/grid-settings.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import {
@@ -20,12 +32,28 @@ import { CalendarForm } from './CalendarForm.js';
 import { WeeksTable } from './WeeksTable.js';
 import { menuPageTitle } from '../pages/page-title.js';
 
-// MH-45 Lịch năm học và MH-43 Mở năm học mới (P01-02, BR-91, BR-93)
+// MH-45 Lịch năm học và MH-43 Mở năm học mới (P01-02, BR-91, BR-93). Danh sách năm học theo lưới dữ liệu chung, tìm tại
+// chỗ theo tên năm học, bấm dòng để xem lịch; danh sách tuần giữ bảng nhập trực tiếp từng ô (DT-16 phần 16b)
 const STATUS_LABELS: Record<AcademicYearStatus, { label: string; tone: StatusTone }> = {
   draft: { label: 'Chưa mở', tone: 'neutral' },
   open: { label: 'Đang dùng', tone: 'success' },
   closed: { label: 'Đã đóng', tone: 'info' },
 };
+
+function formatDate(value: string | null): string {
+  if (!value) {
+    return '';
+  }
+  const [year, month, day] = value.split('-');
+  return `${day}/${month}/${year}`;
+}
+
+const YEAR_COLUMNS: Array<DataGridColumn<AcademicYear>> = [
+  { id: 'name', header: 'Tên năm học', alwaysVisible: true, className: 'font-medium', cell: (row) => row.name },
+  { id: 'start_date', header: 'Từ ngày', cell: (row) => formatDate(row.start_date) },
+  { id: 'end_date', header: 'Đến ngày', cell: (row) => formatDate(row.end_date) },
+  { id: 'status', header: 'Trạng thái', cell: (row) => <StatusBadge {...STATUS_LABELS[row.status]} /> },
+];
 
 function messageOf(error: unknown): string {
   return error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại';
@@ -50,7 +78,12 @@ function CreateAcademicYearForm({ onCreated }: { onCreated(year: AcademicYear): 
   }
 
   return (
-    <form onSubmit={submit} noValidate className="flex flex-col gap-3 border-t border-border pt-4">
+    <form
+      onSubmit={submit}
+      noValidate
+      aria-label="Tạo năm học mới"
+      className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
+    >
       <TextField
         label="Tên năm học mới"
         value={name}
@@ -168,6 +201,8 @@ export function AcademicYearsPage() {
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
   const queryClient = useQueryClient();
+  const grid = useGridSettings('academic-years');
+  const [search, setSearch] = useState('');
 
   const years = academicYears.data ?? [];
   const selected =
@@ -179,42 +214,38 @@ export function AcademicYearsPage() {
       <div className="flex flex-col gap-6">
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/academic-years')}</h1>
         {academicYears.isError ? <Alert tone="danger">{messageOf(academicYears.error)}</Alert> : null}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
-          <aside className="flex flex-col gap-3 self-start rounded-xl border border-border bg-card p-4">
-            {academicYears.isPending ? (
-              <div className="h-24 animate-pulse rounded bg-border" aria-hidden="true" />
-            ) : years.length === 0 ? (
-              <p className="text-content text-text-secondary">Chưa có năm học nào.</p>
-            ) : (
-              <ul className="flex flex-col gap-1" aria-label="Danh sách năm học">
-                {years.map((year) => (
-                  <li key={year.id}>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedId(year.id)}
-                      className={`flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-content hover:bg-selected ${selected?.id === year.id ? 'bg-selected font-medium' : ''}`}
-                    >
-                      {year.name}
-                      <StatusBadge {...STATUS_LABELS[year.status]} />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-            {canManage ? (
-              <CreateAcademicYearForm
-                onCreated={(year) => {
-                  setSelectedId(year.id);
-                  void queryClient.invalidateQueries({ queryKey: ['academic-years'] });
-                  setToastMessage(`Đã tạo năm học ${year.name}`);
-                }}
-              />
-            ) : null}
-          </aside>
-          {selected ? (
-            <AcademicYearDetail key={selected.id} year={selected} canManage={canManage} onChanged={setToastMessage} />
-          ) : null}
-        </div>
+        {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+        <DataGrid
+          label="Danh sách năm học"
+          columns={YEAR_COLUMNS}
+          rows={years.filter((year) => matchesSearch(search, year.name))}
+          getRowId={(row) => row.id}
+          getRowLabel={(row) => row.name}
+          loading={academicYears.isPending}
+          emptyText="Chưa có năm học nào."
+          search={{ label: 'Tìm theo tên năm học', value: search, onChange: setSearch }}
+          rowActions={(row) => (
+            <Button variant="text" onClick={() => setSelectedId(row.id)}>
+              Xem năm học {row.name}
+            </Button>
+          )}
+          onRowClick={(row) => setSelectedId(row.id)}
+          activeRowId={selected?.id}
+          settings={grid.settings}
+          onSettingsChange={grid.update}
+        />
+        {canManage ? (
+          <CreateAcademicYearForm
+            onCreated={(year) => {
+              setSelectedId(year.id);
+              void queryClient.invalidateQueries({ queryKey: ['academic-years'] });
+              setToastMessage(`Đã tạo năm học ${year.name}`);
+            }}
+          />
+        ) : null}
+        {selected ? (
+          <AcademicYearDetail key={selected.id} year={selected} canManage={canManage} onChanged={setToastMessage} />
+        ) : null}
       </div>
     </AppShell>
   );

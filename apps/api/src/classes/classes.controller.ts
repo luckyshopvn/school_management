@@ -17,6 +17,7 @@ import {
 } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { sendWorkbook } from '../children/student-workbook.js';
+import { readTableFileFormat } from '../exports/table-file.js';
 import {
   CLASS_AGE_GROUP_KEYS,
   CLASS_EXPORT_COLUMNS,
@@ -31,6 +32,7 @@ const SIZE_RANGE = { min: 1, max: 200 };
 const SORT_ORDER_RANGE = { min: 0, max: 9999 };
 const MIXED_AGE_COUNTS = [2, 3];
 const ASSIGNMENT_ROLES: AssignmentRole[] = ['homeroom', 'subject'];
+const ASSIGNMENT_STATES = ['assigned', 'unassigned'] as const;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 function readOptionalDate(body: RequestBody, field: string, errors: FieldError[]): string | null {
@@ -43,6 +45,24 @@ function readOptionalDate(body: RequestBody, field: string, errors: FieldError[]
     return null;
   }
   return value;
+}
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const MAXIMUM_BULK_CLASSES = 200;
+
+// Danh sách mã lớp được chọn ở lưới, tối đa 200 lớp mỗi lần, không trùng
+function readClassIds(body: RequestBody, errors: FieldError[]): string[] {
+  const ids = body?.class_ids;
+  if (
+    !Array.isArray(ids) ||
+    ids.length === 0 ||
+    ids.length > MAXIMUM_BULK_CLASSES ||
+    ids.some((id) => typeof id !== 'string' || !UUID_PATTERN.test(id))
+  ) {
+    errors.push({ field: 'class_ids', message: `Chọn từ 1 đến ${MAXIMUM_BULK_CLASSES} lớp` });
+    return [];
+  }
+  return [...new Set(ids as string[])];
 }
 
 type SoClassFields = Pick<
@@ -120,7 +140,7 @@ export class ClassesController {
     return this.classesService.list(currentUser, { ...filter, mine: query.mine === 'true' });
   }
 
-  // Xuất Excel danh sách lớp theo bộ lọc và các cột đang hiện trên lưới; cần quyền xuất dữ liệu (BR-74, YCTD-111)
+  // Xuất Excel hoặc PDF (DT-16 phần 16a) danh sách lớp theo bộ lọc và các cột đang hiện trên lưới; cần quyền xuất dữ liệu (BR-74, YCTD-111)
   @Post('export')
   @HttpCode(200)
   @RequirePermission(PERMISSION_CODES.dataExport)
@@ -133,10 +153,64 @@ export class ClassesController {
     const errors: FieldError[] = [];
     const filter = readClassListFilter(body ?? {}, errors);
     const columns = readExportColumns(body, CLASS_EXPORT_COLUMNS, DEFAULT_CLASS_EXPORT_COLUMNS, errors);
+    const format = readTableFileFormat(body?.format);
+    if (!format) {
+      errors.push({ field: 'format', message: 'Định dạng xuất là xlsx hoặc pdf' });
+    }
+    if (errors.length > 0 || !format) {
+      throw validationError(errors);
+    }
+    sendWorkbook(
+      response,
+      await this.classesService.exportList(currentUser, filter, columns, request.ip ?? null, format),
+    );
+  }
+
+  // Xóa lớp và thao tác hàng loạt trên các lớp được chọn ở lưới (DT-16 phần 16e)
+  @Post('delete')
+  @HttpCode(200)
+  @RequirePermission(PERMISSION_CODES.classManage)
+  remove(@Body() body: RequestBody, @Req() request: Request, @AuthenticatedUser() currentUser: CurrentUser) {
+    const errors: FieldError[] = [];
+    const ids = readClassIds(body, errors);
     if (errors.length > 0) {
       throw validationError(errors);
     }
-    sendWorkbook(response, await this.classesService.exportList(currentUser, filter, columns, request.ip ?? null));
+    return this.classesService.remove(currentUser, ids, originOf(request, currentUser));
+  }
+
+  @Post('bulk-update')
+  @HttpCode(200)
+  @RequirePermission(PERMISSION_CODES.classManage)
+  bulkUpdate(@Body() body: RequestBody, @Req() request: Request, @AuthenticatedUser() currentUser: CurrentUser) {
+    const errors: FieldError[] = [];
+    const ids = readClassIds(body, errors);
+    const changes: Pick<ClassChanges, 'status' | 'two_sessions_per_day' | 'boarding'> = {};
+    if (body?.status !== undefined) {
+      if (!CLASS_STATUSES.includes(body.status as ClassStatus)) {
+        errors.push({ field: 'status', message: 'Trạng thái là active hoặc closed' });
+      } else {
+        changes.status = body.status as ClassStatus;
+      }
+    }
+    for (const field of ['two_sessions_per_day', 'boarding'] as const) {
+      const value = body?.[field];
+      if (value === undefined) {
+        continue;
+      }
+      if (typeof value !== 'boolean') {
+        errors.push({ field, message: 'Chọn true hoặc false' });
+      } else {
+        changes[field] = value;
+      }
+    }
+    if (errors.length === 0 && Object.keys(changes).length === 0) {
+      errors.push({ field: 'changes', message: 'Chọn ít nhất một thông tin cần đổi' });
+    }
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.classesService.bulkUpdate(currentUser, ids, changes, originOf(request, currentUser));
   }
 
   @Post()
@@ -280,11 +354,23 @@ function readAssignmentFilter(query: Record<string, unknown>, errors: FieldError
   if (role !== undefined && role !== null && role !== '' && !ASSIGNMENT_ROLES.includes(role as AssignmentRole)) {
     errors.push({ field: 'assignment_role', message: 'Vai trò trong lớp là homeroom hoặc subject' });
   }
+  const assignment = query.assignment;
+  if (
+    assignment !== undefined &&
+    assignment !== null &&
+    assignment !== '' &&
+    !ASSIGNMENT_STATES.includes(assignment as never)
+  ) {
+    errors.push({ field: 'assignment', message: 'Tình trạng phân công là assigned hoặc unassigned' });
+  }
   return {
     orgUnitId: filter.orgUnitId,
     gradeLevel: filter.gradeLevel,
     q: filter.q,
     role: ASSIGNMENT_ROLES.includes(role as AssignmentRole) ? (role as AssignmentRole) : undefined,
+    assignment: ASSIGNMENT_STATES.includes(assignment as never)
+      ? (assignment as AssignmentListFilter['assignment'])
+      : undefined,
   };
 }
 
@@ -293,13 +379,21 @@ export class ClassAssignmentsController {
   constructor(private readonly classesService: ClassesService) {}
 
   @Get()
-  list(@Query() query: Record<string, string | undefined>, @AuthenticatedUser() currentUser: CurrentUser) {
+  list(
+    @Query() query: Record<string, string | undefined>,
+    @Req() request: Request,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
     const errors: FieldError[] = [];
     const filter = readAssignmentFilter(query, errors);
     if (errors.length > 0) {
       throw validationError(errors);
     }
-    return this.classesService.listAssignmentRows(currentUser, filter);
+    return this.classesService.listAssignmentRows(
+      currentUser,
+      filter,
+      readBearerToken(request.header('authorization')),
+    );
   }
 
   @Post('export')
@@ -313,9 +407,22 @@ export class ClassAssignmentsController {
   ) {
     const errors: FieldError[] = [];
     const filter = readAssignmentFilter(body ?? {}, errors);
-    if (errors.length > 0) {
+    const format = readTableFileFormat(body?.format);
+    if (!format) {
+      errors.push({ field: 'format', message: 'Định dạng xuất là xlsx hoặc pdf' });
+    }
+    if (errors.length > 0 || !format) {
       throw validationError(errors);
     }
-    sendWorkbook(response, await this.classesService.exportAssignments(currentUser, filter, request.ip ?? null));
+    sendWorkbook(
+      response,
+      await this.classesService.exportAssignments(
+        currentUser,
+        filter,
+        request.ip ?? null,
+        format,
+        readBearerToken(request.header('authorization')),
+      ),
+    );
   }
 }

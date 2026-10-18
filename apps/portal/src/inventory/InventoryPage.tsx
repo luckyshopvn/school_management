@@ -5,6 +5,7 @@ import { Alert, Button, TextField, Toast } from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { AppShell } from '../pages/AppShell.js';
 import { useHasPermission } from '../session/permissions.js';
+import { AssetEquipmentLink, useEquipmentNames } from './AssetEquipmentLink.js';
 import {
   ASSET_STATUS_LABELS,
   COUNT_STATUS_LABELS,
@@ -497,6 +498,8 @@ function AssetsTab({
   const [holder, setHolder] = useState('');
   const [dueDate, setDueDate] = useState(vietnamToday);
   const [description, setDescription] = useState('');
+  const canLinkEquipment = useHasPermission(PERMISSION_CODES.equipmentManage);
+  const equipmentNames = useEquipmentNames(canLinkEquipment);
   const assets = useQuery({
     queryKey: ['assets', orgUnitId],
     queryFn: () => getJson<Asset[]>(`/api/v1/assets?org_unit_id=${orgUnitId}`),
@@ -674,6 +677,7 @@ function AssetsTab({
           </div>
         </div>
       ) : null}
+      {canLinkEquipment ? <AssetEquipmentLink assets={assets.data ?? []} onDone={onDone} /> : null}
       <table className="w-full text-content" aria-label="Danh mục tài sản">
         <thead>
           <tr className="text-left text-text-secondary">
@@ -683,6 +687,7 @@ function AssetsTab({
             <th>Nguyên giá</th>
             <th>Vị trí</th>
             <th>Trạng thái</th>
+            {canLinkEquipment ? <th>Thiết bị dạy học</th> : null}
           </tr>
         </thead>
         <tbody>
@@ -694,6 +699,9 @@ function AssetsTab({
               <td>{formatMoney(asset.original_cost)}</td>
               <td>{asset.location_name ?? 'Kho'}</td>
               <td>{ASSET_STATUS_LABELS[asset.status]}</td>
+              {canLinkEquipment ? (
+                <td>{asset.equipment_item_id ? (equipmentNames.get(asset.equipment_item_id) ?? '') : ''}</td>
+              ) : null}
             </tr>
           ))}
         </tbody>

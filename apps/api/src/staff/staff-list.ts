@@ -9,6 +9,12 @@ import { isUuid } from '../common/request-fields.js';
 // hình thức hợp đồng, trình độ chuyên môn, Đảng viên lấy từ cột CSDL ngành (`moet_profile`, YCTD-100) vì hồ sơ chưa có cột
 // riêng; vị trí việc làm trống thì lấy chức danh của trường
 export const STAFF_STATUS_LABELS = { active: 'Đang làm việc', terminated: 'Đã nghỉ việc' } as const;
+// Trạng thái xác thực số định danh với CSDLQG về dân cư, bản chạy nội bộ (mục 3.1.5, DT-16 phần 16f)
+export const ID_VERIFICATION_LABELS = {
+  unverified: 'Chưa xác thực',
+  verified: 'Đã xác thực',
+  invalid: 'Sai thông tin',
+} as const;
 export const CONTRACT_TYPE_LABELS: Record<ContractType, string> = {
   probation: 'Thử việc',
   fixed_term: 'Có thời hạn',
@@ -29,6 +35,10 @@ export interface StaffListFilter {
   ageFrom?: number;
   ageTo?: number;
   jobPosition?: string;
+  // Xã đặc biệt khó khăn (lọc của mục 3.1.4, DT-16 phần 16f)
+  specialDifficultyCommune?: boolean;
+  // Trạng thái xác thực số định danh (mục 3.1.5, DT-16 phần 16f)
+  idVerification?: 'unverified' | 'verified' | 'invalid';
 }
 
 function readText(query: Record<string, unknown>, field: string, errors: FieldError[], maximum: number) {
@@ -84,14 +94,18 @@ export function readStaffListFilter(query: Record<string, unknown>, errors: Fiel
   if (idNumber && !ID_NUMBER_PATTERN.test(idNumber)) {
     errors.push({ field: 'id_number', message: 'Số định danh cá nhân gồm mười hai chữ số' });
   }
-  const partyMember = query.party_member;
-  if (
-    partyMember !== undefined &&
-    partyMember !== '' &&
-    !['true', 'false', true, false].includes(partyMember as string)
-  ) {
-    errors.push({ field: 'party_member', message: 'Chọn true hoặc false' });
-  }
+  const flagOf = (field: string) => {
+    const value = query[field];
+    if (value === undefined || value === null || value === '') {
+      return undefined;
+    }
+    if (!['true', 'false', true, false].includes(value as string)) {
+      errors.push({ field, message: 'Chọn true hoặc false' });
+      return undefined;
+    }
+    return value === 'true' || value === true;
+  };
+  const partyMember = flagOf('party_member');
   const ageFrom = readAge(query, 'age_from', errors);
   const ageTo = readAge(query, 'age_to', errors);
   if (ageFrom !== undefined && ageTo !== undefined && ageFrom > ageTo) {
@@ -105,15 +119,16 @@ export function readStaffListFilter(query: Record<string, unknown>, errors: Fiel
     gender: choice('gender', ['male', 'female'] as const, 'Giới tính là male hoặc female'),
     moetCode: readText(query, 'moet_staff_code', errors, 50),
     idNumber: idNumber && ID_NUMBER_PATTERN.test(idNumber) ? idNumber : undefined,
-    partyMember:
-      partyMember === 'true' || partyMember === true
-        ? true
-        : partyMember === 'false' || partyMember === false
-          ? false
-          : undefined,
+    partyMember,
     ageFrom,
     ageTo,
     jobPosition: readText(query, 'job_position', errors, 100),
+    specialDifficultyCommune: flagOf('special_difficulty_commune'),
+    idVerification: choice(
+      'id_verification',
+      ['unverified', 'verified', 'invalid'] as const,
+      'Trạng thái xác thực là unverified, verified hoặc invalid',
+    ),
   };
 }
 
@@ -179,6 +194,12 @@ function filteredStaff(
   if (filter.jobPosition) {
     selection = selection.where(JOB_POSITION, 'ilike', `%${escapeLike(filter.jobPosition)}%`);
   }
+  if (filter.specialDifficultyCommune !== undefined) {
+    selection = selection.where('staff.special_difficulty_commune', '=', filter.specialDifficultyCommune);
+  }
+  if (filter.idVerification) {
+    selection = selection.where('staff.id_verification_status', '=', filter.idVerification);
+  }
   return selection;
 }
 
@@ -197,8 +218,8 @@ export function idNumberCandidates(
 }
 
 // A–Z theo tên (từ cuối của họ tên) rồi theo họ tên, thứ tự chữ cái tiếng Việt, như danh sách học sinh (YCTD-108)
-const GIVEN_NAME_ORDER = sql`regexp_replace(trim(staff.full_name), '^.*\\s', '') collate "vi-x-icu"`;
-const FULL_NAME_ORDER = sql`staff.full_name collate "vi-x-icu"`;
+export const GIVEN_NAME_ORDER = sql`regexp_replace(trim(staff.full_name), '^.*\\s', '') collate "vi-x-icu"`;
+export const FULL_NAME_ORDER = sql`staff.full_name collate "vi-x-icu"`;
 
 export interface StaffRecord {
   id: string;
@@ -223,6 +244,10 @@ export interface StaffRecord {
   contract_form: string | null;
   professional_qualification: string | null;
   party_member: boolean;
+  special_difficulty_commune: boolean;
+  id_verification_status: 'unverified' | 'verified' | 'invalid';
+  bank_account_number: string | null;
+  tax_code: string | null;
 }
 
 // Đếm và đọc một trang (hoặc tối đa `page.limit` dòng khi xuất) nhân sự theo bộ lọc
@@ -262,6 +287,10 @@ export async function findStaff(
       profileText('contract_form').as('contract_form'),
       profileText('professional_qualification').as('professional_qualification'),
       PARTY_MEMBER.as('party_member'),
+      'staff.special_difficulty_commune',
+      'staff.id_verification_status',
+      'staff.bank_account_number',
+      'staff.tax_code',
     ])
     .orderBy(GIVEN_NAME_ORDER)
     .orderBy(FULL_NAME_ORDER)
@@ -289,6 +318,10 @@ export interface StaffRow {
   department_name: string | null;
   job_title_name: string | null;
   party_member: boolean;
+  special_difficulty_commune: boolean;
+  id_verification_status: 'unverified' | 'verified' | 'invalid';
+  bank_account_number: string | null;
+  tax_code: string | null;
   email: string | null;
   start_date: string;
   id_number_masked: string | null;
@@ -333,6 +366,18 @@ export const STAFF_EXPORT_COLUMNS: Array<{
   { id: 'id_number', label: 'Số định danh', value: (row) => row.id_number_masked ?? '' },
   { id: 'account', label: 'Tài khoản', value: (row) => (row.has_account ? 'Đã liên kết' : 'Chưa có') },
   { id: 'unit', label: 'Đơn vị', value: (row) => row.unit_name },
+  {
+    id: 'special_difficulty_commune',
+    label: 'Xã ĐBKK',
+    value: (row) => (row.special_difficulty_commune ? 'Có' : ''),
+  },
+  {
+    id: 'id_verification',
+    label: 'Xác thực số định danh',
+    value: (row) => ID_VERIFICATION_LABELS[row.id_verification_status],
+  },
+  { id: 'bank_account', label: 'Tài khoản ngân hàng', value: (row) => row.bank_account_number ?? '' },
+  { id: 'tax_code', label: 'Mã số thuế', value: (row) => row.tax_code ?? '' },
   { id: 'contract_no', label: 'Số hợp đồng', contract: true, value: (row) => row.contract_no ?? '' },
   {
     id: 'contract_end_date',

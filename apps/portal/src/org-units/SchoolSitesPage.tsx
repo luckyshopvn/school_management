@@ -14,15 +14,24 @@ import {
   type DataGridColumn,
 } from '@school-management/ui';
 import { AppShell } from '../pages/AppShell.js';
+import { useGridExport, visibleColumnIds } from '../pages/grid-export.js';
 import { useGridSettings } from '../pages/grid-settings.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
-import { createOrgUnit, listOrgUnits, readOrgUnitTree, updateOrgUnit, type OrgUnit } from './org-units-api.js';
+import {
+  createOrgUnit,
+  exportSites,
+  listOrgUnits,
+  readOrgUnitTree,
+  updateOrgUnit,
+  type OrgUnit,
+} from './org-units-api.js';
 
 // 1.2. Quản lý phân hiệu và 1.3. Quản lý điểm trường theo Sở (DT-15 phần 15b, YCTD-111): danh sách đơn vị cấp 2 của cây
 // đơn vị (BR-01, QĐ-23) theo từng loại, cột mã, tên, địa chỉ, khoảng cách đến cơ sở chính, diện tích, điện thoại; Thêm mới,
-// Sửa bằng biểu mẫu theo khối với nút Ghi. Đơn vị không xóa mà ngừng sử dụng như ở Cây đơn vị
+// Sửa bằng biểu mẫu theo khối với nút Ghi. Đơn vị không xóa mà ngừng sử dụng như ở Cây đơn vị. Xuất Excel theo bộ lọc và
+// các cột đang hiện (DT-16 phần 16b)
 type SiteType = 'phan_hieu' | 'diem_truong';
 
 const SITE_SCREENS: Record<SiteType, { path: PortalQuickLinkPath; gridKey: DataGridKey; noun: string }> = {
@@ -154,6 +163,8 @@ function SiteForm({
 function SchoolSitesScreen({ siteType }: { siteType: SiteType }) {
   const screen = SITE_SCREENS[siteType];
   const canManage = useHasPermission(PERMISSION_CODES.orgUnitManage);
+  const canExport = useHasPermission(PERMISSION_CODES.dataExport);
+  const exporter = useGridExport();
   const queryClient = useQueryClient();
   const grid = useGridSettings(screen.gridKey);
   const [search, setSearch] = useState('');
@@ -209,6 +220,7 @@ function SchoolSitesScreen({ siteType }: { siteType: SiteType }) {
         {units.isError ? <Alert tone="danger">{messageOf(units.error)}</Alert> : null}
         {changeStatus.error ? <Alert tone="danger">{messageOf(changeStatus.error)}</Alert> : null}
         {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+        {exporter.error ? <Alert tone="danger">{exporter.error}</Alert> : null}
         <DataGrid
           label={`Danh sách ${screen.noun}`}
           columns={COLUMNS}
@@ -231,17 +243,31 @@ function SchoolSitesScreen({ siteType }: { siteType: SiteType }) {
             </div>
           }
           toolbar={
-            canManage && tree.data ? (
-              <Button
-                variant="primary"
-                onClick={() => {
-                  setCreating(true);
-                  setEditingId(undefined);
-                }}
-              >
-                Thêm mới
-              </Button>
-            ) : null
+            <>
+              {canManage && tree.data ? (
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    setCreating(true);
+                    setEditingId(undefined);
+                  }}
+                >
+                  Thêm mới
+                </Button>
+              ) : null}
+              {canExport ? (
+                <Button
+                  disabled={exporter.exporting}
+                  onClick={() =>
+                    void exporter.run(() =>
+                      exportSites({ unit_type: siteType, status, q: search }, visibleColumnIds(COLUMNS, grid.settings)),
+                    )
+                  }
+                >
+                  Xuất Excel
+                </Button>
+              ) : null}
+            </>
           }
           rowActions={
             canManage

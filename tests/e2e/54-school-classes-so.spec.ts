@@ -99,6 +99,22 @@ test('CT-15b-8: 1.2 và 1.3 liệt kê phân hiệu, điểm trường theo cộ
   await create.getByRole('button', { name: 'Ghi' }).click();
   await expect(page.getByRole('status').filter({ hasText: `Đã tạo điểm trường ${siteName}` })).toBeVisible();
   await expect(sites.getByRole('row').filter({ hasText: siteName })).toContainText('0280000054');
+
+  // CT-16b-5: Xuất Excel 1.3 và 1.2 theo các cột đang hiện trên lưới (DT-16 phần 16b)
+  expect(await headerOf(page, sites, /^danh-sach-diem-truong-.*\.xlsx$/)).toEqual([
+    'STT',
+    'Mã',
+    'Tên',
+    'Địa chỉ',
+    'Khoảng cách đến cơ sở chính (km)',
+    'Diện tích (m²)',
+    'Điện thoại',
+    'Trạng thái',
+  ]);
+  await openMenu(page, 'Quản lý phân hiệu', { exact: true });
+  expect(await headerOf(page, branches, /^danh-sach-phan-hieu-.*\.xlsx$/)).toContain(
+    'Khoảng cách đến cơ sở chính (km)',
+  );
 });
 
 test('CT-15b-9: 2.1 Hồ sơ lớp học: cột của Sở, thêm lớp theo khối, quy tắc lớp ghép, mở rộng tìm kiếm, xuất Excel', async ({
@@ -216,7 +232,10 @@ test('CT-15b-10: 3.3 Phân công phụ trách lớp: liệt kê, thêm mới, k�
   await assigned.getByRole('button', { name: 'Kết thúc phân công' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Kết thúc phân công' }).click();
   await expect(page.getByRole('status').filter({ hasText: 'Đã kết thúc phân công' })).toBeVisible();
-  await expect(grid.getByRole('row').filter({ hasText: teacherName })).toHaveCount(0);
+  // Từ DT-16 phần 16e giáo viên chưa phụ trách lớp nào vẫn có một dòng "Chưa phân công"
+  await expect(grid.getByRole('row').filter({ hasText: teacherName })).toHaveCount(1);
+  await expect(grid.getByRole('row').filter({ hasText: teacherName })).toContainText('Chưa phân công');
+  await expect(grid.getByRole('row').filter({ hasText: teacherName })).not.toContainText(className);
 });
 
 test('CT-15b-11: 2.2 Nhập lớp học từ Excel tách riêng; giáo viên không có mục nhập lớp, không phân công được', async ({
@@ -227,7 +246,7 @@ test('CT-15b-11: 2.2 Nhập lớp học từ Excel tách riêng; giáo viên kh�
   await expect(page.getByRole('heading', { name: '2.2. Nhập lớp học từ Excel', exact: true })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Lớp học' })).toBeVisible();
   await expect(
-    page.getByRole('region', { name: 'Lớp học' }).getByRole('button', { name: 'Tải mẫu Excel' }),
+    page.getByRole('region', { name: 'Lớp học' }).getByRole('button', { name: 'Tải file mẫu', exact: true }),
   ).toBeVisible();
 
   const unitId = await findUnitId('Phân hiệu A');

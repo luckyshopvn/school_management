@@ -11,8 +11,9 @@ import { FacilitiesData } from './facilities-data.js';
 import { buildFacilitiesWorkbook, fileStamp, sendWorkbook } from './facilities-workbook.js';
 
 // Báo cáo EMIS đầu năm, Biểu 1 (khảo sát mục 5, dòng 1.1; YCTD-102): tính trên dữ liệu của năm học đang dùng, xem trên
-// màn hình và xuất Excel. Chưa gửi lên Sở (chưa có giao diện lập trình của Sở); thẻ Ngân sách nhà nước chưa làm. Cần phạm
-// vi toàn trường theo quyền P17.report.emis
+// màn hình và xuất Excel. Từ DT-16 phần 16j màn hình 1.1 dựng bằng apps/api/src/emis/emis-forms.ts (thêm thẻ Ngân sách nhà
+// nước nhập tay, gửi lên cấp trên chạy nội bộ); điểm cuối ở đây giữ cho tương thích. Cần phạm vi toàn trường theo quyền
+// P17.report.emis
 const PERMISSION = PERMISSION_CODES.emisReport;
 
 const text = (profile: Record<string, unknown> | null, key: string): string | null => {

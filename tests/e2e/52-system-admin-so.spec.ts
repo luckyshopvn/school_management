@@ -1,7 +1,8 @@
-import { expect, test, type Page } from './fixtures.js';
+import { expect, test, type Locator, type Page } from './fixtures.js';
 import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { portalMenuText } from '@school-management/shared';
+import ExcelJS from 'exceljs';
 import { findMenuEntry, openMenu } from './menu.js';
 
 // Phân hệ Quản trị hệ thống theo Sở (DT-15 phần 15e, YCTD-109): 1.1 Nhóm người dùng, 1.3 Phân quyền nhóm theo menu,
@@ -22,6 +23,21 @@ async function loginWith(page: Page, loginIdentifier: string, password: string) 
 }
 
 const titleOf = (path: string) => portalMenuText(findMenuEntry(path).node);
+
+// Bấm Xuất Excel trên lưới, đọc mọi dòng của bảng tính đầu tiên (DT-16 phần 16b)
+async function exportedRows(page: Page, grid: Locator, fileName: RegExp): Promise<string[][]> {
+  const downloading = page.waitForEvent('download');
+  await grid.getByRole('button', { name: 'Xuất Excel' }).click();
+  const download = await downloading;
+  expect(download.suggestedFilename()).toMatch(fileName);
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.readFile(await download.path());
+  const rows: string[][] = [];
+  workbook.worksheets[0]?.eachRow((row) => {
+    rows.push(Array.from((row.values as unknown[]).slice(1), (value) => String(value ?? '')));
+  });
+  return rows;
+}
 
 test('CT-15e-10, CT-15e-11: thêm nhóm người dùng, tích mục menu để chọn quyền của mục, ghi; người dùng của nhóm thấy mục đó', async ({
   page,
@@ -45,7 +61,7 @@ test('CT-15e-10, CT-15e-11: thêm nhóm người dùng, tích mục menu để c
   ]);
   await grid.getByLabel('Tìm theo mã, tên nhóm').fill('VT-02');
   const principalRow = grid.getByRole('row').filter({ hasText: 'Hiệu trưởng' });
-  await expect(principalRow.getByRole('cell')).toHaveText(['VT-02', 'Hiệu trưởng', 'Có', 'Có', 'Có', 'Phân quyền']);
+  await expect(principalRow.getByRole('cell')).toHaveText(['VT-02', 'Hiệu trưởng', 'Có', 'Có', 'Có', 'SửaPhân quyền']);
 
   // Thêm nhóm: biểu mẫu nhãn bên trái, nút Ghi
   const code = `E2E-${Date.now() % 1_000_000}`;
@@ -57,7 +73,14 @@ test('CT-15e-10, CT-15e-11: thêm nhóm người dùng, tích mục menu để c
   await expect(page.getByRole('status').filter({ hasText: `Đã thêm nhóm người dùng ${code}` })).toBeVisible();
   await grid.getByLabel('Tìm theo mã, tên nhóm').fill(code);
   const row = grid.getByRole('row').filter({ hasText: code });
-  await expect(row.getByRole('cell')).toHaveText([code, 'Nhóm thử phân quyền theo menu', 'Có', '', '', 'Phân quyền']);
+  await expect(row.getByRole('cell')).toHaveText([
+    code,
+    'Nhóm thử phân quyền theo menu',
+    'Có',
+    '',
+    '',
+    'SửaPhân quyềnXóa',
+  ]);
 
   // 1.3 mở sẵn nhóm vừa thêm; tích mục 1.4 là chọn cả hai quyền của mục, bỏ một quyền thì mục lưng chừng
   await row.getByRole('button', { name: `Phân quyền ${code}` }).click();
@@ -147,6 +170,29 @@ test('CT-15e-12: 1.4 Danh sách người dùng lọc theo nhóm quyền, trạng
   await filters.getByLabel('Tên đăng nhập').fill(`${tag.toLowerCase()}_nv`);
   await expect(grid.getByText('Tổng 1 dòng')).toBeVisible(slow);
   await expect(grid.getByRole('row').filter({ hasText: `${tag} NV1` })).toBeVisible();
+
+  // CT-16b-6: Xuất Excel 1.4 theo bộ lọc đang chọn (điểm cuối của phần 16d) và 1.1 theo từ khóa (DT-16 phần 16b)
+  const accountRows = await exportedRows(page, grid, /^danh-sach-nguoi-dung-.*\.xlsx$/);
+  expect(accountRows[0]).toEqual([
+    'STT',
+    'Tên đăng nhập',
+    'Tên hiển thị',
+    'Nhóm quyền',
+    'Mã nhân sự',
+    'Mã Bộ',
+    'Loại tài khoản',
+    'Trạng thái',
+    'Trạng thái đổi mật khẩu',
+    'Thời gian đổi mật khẩu',
+    'Ngày hết hạn mật khẩu',
+  ]);
+  expect(accountRows.slice(1).map((row) => row[2])).toEqual([`${tag} NV1`]);
+  await openMenu(page, '/roles');
+  const roles = page.getByRole('region', { name: 'Danh sách nhóm người dùng' });
+  await roles.getByLabel('Tìm theo mã, tên nhóm').fill('VT-07');
+  const roleRows = await exportedRows(page, roles, /^nhom-nguoi-dung-.*\.xlsx$/);
+  expect(roleRows[0]).toEqual(['STT', 'Mã nhóm', 'Tên nhóm', 'Hiệu lực', 'Là nhóm quản trị', 'Là nhóm hệ thống']);
+  expect(roleRows.slice(1).map((row) => row[1])).toEqual(['VT-07']);
 });
 
 test('CT-15e-13: quản lý theo đơn vị xem được 1.3 nhưng không sửa được quyền', async ({ page }) => {

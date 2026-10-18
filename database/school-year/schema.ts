@@ -217,6 +217,13 @@ export interface ChildrenTable extends CatalogRecordColumns {
   // Học 2 buổi/ngày, học sinh lớp bán trú (YCTD-108)
   two_sessions_per_day: Generated<boolean>;
   boarding: Generated<boolean>;
+  // Xóa hồ sơ nháp, bị từ chối không xóa cứng; xác thực số định danh chạy nội bộ, biến động cư trú ghi tay (DT-16 phần 16g)
+  deleted_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  deleted_by: ColumnType<string | null, string | null | undefined, string | null>;
+  national_id_verified_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  national_id_verified_by: ColumnType<string | null, string | null | undefined, string | null>;
+  national_id_verified_by_name: ColumnType<string | null, string | null | undefined, string | null>;
+  residence_change_note: ColumnType<string | null, string | null | undefined, string | null>;
 }
 
 export interface HealthProfilesTable extends CatalogRecordColumns {
@@ -258,6 +265,8 @@ export interface ClassEnrollmentsTable extends CatalogRecordColumns {
   to_date: string | null;
   reason: string | null;
   is_current: Generated<boolean>;
+  // Số thứ tự cố định trong lớp (mục 4.1.3 của Sở, DT-16 phần 16g); null là chưa sắp xếp
+  order_number: ColumnType<number | null, number | null | undefined, number | null>;
 }
 
 export interface PhotoConsentHistoriesTable {
@@ -319,7 +328,18 @@ export interface NotificationRecipientsTable {
 }
 
 export type ImportType =
-  'classes' | 'children' | 'moet_codes' | 'opening_debts' | 'staff' | 'moet_children' | 'moet_staff';
+  | 'classes'
+  | 'children'
+  | 'moet_codes'
+  | 'opening_debts'
+  | 'staff'
+  | 'moet_children'
+  | 'moet_staff'
+  | 'professional_ratings'
+  // Điện thoại nhận tin, số định danh, địa chỉ mới của học sinh (DT-16 phần 16g)
+  | 'sms_phones'
+  | 'national_ids'
+  | 'student_addresses';
 export type ImportStatus = 'validated' | 'failed' | 'committed';
 
 export interface DataImportJobsTable {
@@ -846,6 +866,63 @@ export interface StaffTable {
   // Mã định danh Bộ GD&ĐT và các cột khác của tệp CSDL ngành (YCTD-100)
   moet_staff_code: ColumnType<string | null, string | null | undefined, string | null>;
   moet_profile: ColumnType<Record<string, unknown> | null, string | null | undefined, string | null>;
+  // Tài khoản ngân hàng, mã số thuế (mục 5.9 của Sở), xã đặc biệt khó khăn, xác thực số định danh bản chạy nội bộ (DT-16
+  // phần 16f)
+  bank_account_number: ColumnType<string | null, string | null | undefined, string | null>;
+  bank_name: ColumnType<string | null, string | null | undefined, string | null>;
+  tax_code: ColumnType<string | null, string | null | undefined, string | null>;
+  special_difficulty_commune: Generated<boolean>;
+  id_verification_status: Generated<StaffIdVerificationStatus>;
+  id_verified_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  id_verified_by: ColumnType<string | null, string | null | undefined, string | null>;
+  id_verified_by_name: ColumnType<string | null, string | null | undefined, string | null>;
+  id_verification_note: ColumnType<string | null, string | null | undefined, string | null>;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export type StaffIdVerificationStatus = 'unverified' | 'verified' | 'invalid';
+
+// Phân hiệu, điểm trường nhân sự làm việc ngoài đơn vị chính (mục 3.1.2 của Sở, DT-16 phần 16f)
+export interface StaffBranchAssignmentsTable {
+  id: Generated<string>;
+  staff_id: string;
+  org_unit_id: string;
+  source: 'manual' | 'teaching';
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export type StaffMovementType = 'transfer_in' | 'transfer_out' | 'guest_out' | 'guest_in';
+export type StaffMovementStatus = 'pending' | 'approved' | 'rejected';
+
+// Biến động nhân sự (mục 3.5 của Sở, DT-16 phần 16f), mỗi trường tự ghi vì chưa liên thông giữa các trường
+export interface StaffMovementsTable {
+  id: Generated<string>;
+  movement_type: StaffMovementType;
+  status: Generated<StaffMovementStatus>;
+  org_unit_id: string;
+  staff_id: string | null;
+  full_name: string;
+  dob: string | null;
+  gender: 'male' | 'female' | null;
+  other_province: string | null;
+  other_ward: string | null;
+  other_school: string | null;
+  movement_date: string;
+  end_date: string | null;
+  subject: string | null;
+  decision_no: string | null;
+  reason: string | null;
+  note: string | null;
+  confirmed: Generated<boolean>;
+  confirmed_on: string | null;
+  dossier: ColumnType<Record<string, unknown> | null, string | null | undefined, string | null>;
+  decided_by: string | null;
+  decided_by_name: string | null;
+  decided_at: Date | null;
+  decision_note: string | null;
   created_by: string | null;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
@@ -2076,6 +2153,66 @@ export interface MenusTable {
   created_by: string;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
+  // Tên thực đơn, tháng (YYYY-MM), tuần, từ ngày–đến ngày, khối áp dụng như màn hình 4.5 của Sở (DT-16 phần 16h)
+  name: ColumnType<string | null, string | null | undefined, string | null>;
+  month: ColumnType<string | null, string | null | undefined, string | null>;
+  week_no: ColumnType<number | null, number | null | undefined, number | null>;
+  from_date: ColumnType<string | null, string | null | undefined, string | null>;
+  to_date: ColumnType<string | null, string | null | undefined, string | null>;
+  grade_levels: ColumnType<string[], string[] | undefined, string[]>;
+}
+
+// Lần nhập thực đơn từ Excel (DT-16 phần 16h): dòng lỗi và các thực đơn đọc được chờ ghi
+export interface MenuImportJobsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  file_id: string;
+  status: 'validated' | 'failed' | 'committed';
+  total_rows: number;
+  error_rows: number;
+  errors: ColumnType<unknown[], string | undefined, string>;
+  menus: ColumnType<unknown[], string | undefined, string>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  committed_at: Date | null;
+}
+
+// Thông tin sức khỏe học sinh theo học kỳ (mục 4.6 của Sở; DT-16 phần 16h)
+export type StudentHealthTerm = 'first_term' | 'second_term';
+export type PhysicalEducationResult = 'passed' | 'not_passed';
+
+export interface StudentHealthRecordsTable {
+  id: Generated<string>;
+  child_id: string;
+  org_unit_id: string;
+  term_type: StudentHealthTerm;
+  measured_on: string | null;
+  weight_kg: Decimal | null;
+  height_cm: Decimal | null;
+  growth_round_id: string | null;
+  physical_education: PhysicalEducationResult | null;
+  can_swim: boolean | null;
+  eye_conditions: ColumnType<string[], string[] | undefined, string[]>;
+  note: string | null;
+  recorded_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+// Số liệu nhập tay của các biểu báo cáo EMIS (DT-16 phần 16j): mỗi dòng một chỉ tiêu của một thẻ, số theo mã cột
+export type EmisValues = Record<string, number | null>;
+
+export interface EmisReportValuesTable {
+  id: Generated<string>;
+  form_code: string;
+  tab_key: string;
+  row_code: string;
+  values: ColumnType<EmisValues, string, string>;
+  note: string | null;
+  updated_by: string;
+  updated_by_name: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
 }
 
 export interface MenuItemsTable {
@@ -3017,6 +3154,138 @@ export interface SchoolProfilesTable {
   updated_at: UpdatedTimestamp;
 }
 
+// 1.7 Rà soát thông tin kiểm định CLGD (DT-16 phần 16e): một bản mỗi năm học, gắn với Trường chính
+type OptionalArea = ColumnType<string | null, string | number | null | undefined, string | number | null>;
+
+export interface AccreditationReviewsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  class_count: number | null;
+  classroom_count: number | null;
+  subject_room_count: number | null;
+  land_area_m2: OptionalArea;
+  floor_area_m2: OptionalArea;
+  child_count: number | null;
+  area_per_child_m2: OptionalArea;
+  note: string | null;
+  collected_at: Date | null;
+  updated_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+// 1.8 Tách trường bản chạy nội bộ (DT-16 phần 16e): chưa xác nhận, đã xác nhận đi, trường đến đã tiếp nhận
+export type SchoolSplitStatus = 'draft' | 'confirmed' | 'received';
+
+export interface SchoolSplitRequestsTable {
+  id: Generated<string>;
+  code: string;
+  destination_school: string;
+  destination_code: string | null;
+  reason: string;
+  status: Generated<SchoolSplitStatus>;
+  confirmed_at: Date | null;
+  confirmed_by: string | null;
+  received_at: Date | null;
+  received_by: string | null;
+  received_note: string | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface SchoolSplitItemsTable {
+  id: Generated<string>;
+  request_id: string;
+  child_id: string | null;
+  staff_id: string | null;
+  created_at: CreatedTimestamp;
+}
+
+// Tài khoản học và thi của học sinh lưu nội bộ, mật khẩu chỉ lưu giá trị băm (mục 4.1.10 của Sở, DT-16 phần 16g)
+export interface StudentLearningAccountsTable extends CatalogRecordColumns {
+  child_id: string;
+  username: string;
+  password_hash: string;
+  issued_at: Date;
+  issued_by_name: string;
+  reset_count: Generated<number>;
+}
+
+// Chuyển đi, tiếp nhận chuyển đến giữa các trường chạy nội bộ (mục 4.2 của Sở, DT-16 phần 16g)
+export type StudentTransferDirection = 'out' | 'in';
+export type StudentTransferStatus = 'pending' | 'approved' | 'rejected' | 'received';
+
+export interface StudentTransfersTable extends CatalogRecordColumns {
+  direction: StudentTransferDirection;
+  status: StudentTransferStatus;
+  child_id: string | null;
+  org_unit_id: string;
+  full_name: string;
+  dob: string | null;
+  school_name: string;
+  province_name: string | null;
+  ward_name: string | null;
+  transfer_date: string;
+  reason: string | null;
+  requested_by_name: string;
+  decided_by: string | null;
+  decided_by_name: string | null;
+  decided_at: Date | null;
+  decision_note: string | null;
+  file_id: string | null;
+}
+
+// Cơ sở vật chất đủ theo hệ thống của Sở (DT-16 phần 16i): 6.1 thực trạng và nhu cầu đầu tư phòng học, nhà công vụ; mức độ
+// đạt chuẩn theo khối phòng của 1.2; lần nhập phòng, danh mục thiết bị từ Excel
+export type FacilityInvestmentCategory = 'classroom' | 'teacher_housing';
+export type FacilityStandardLevel = 'not_met' | 'level_1' | 'level_2';
+export type FacilityImportType = 'rooms' | 'equipment_items';
+type OptionalMoney = ColumnType<string | null, string | number | null | undefined, string | number | null>;
+
+export interface FacilityInvestmentsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  category: FacilityInvestmentCategory;
+  permanent: number | null;
+  semi_permanent: number | null;
+  degraded_level4: number | null;
+  borrowed: number | null;
+  need_classes: number | null;
+  need_rooms: number | null;
+  need_budget_million: OptionalMoney;
+  note: string | null;
+  updated_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface FacilityStandardLevelsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  room_block: string;
+  level: FacilityStandardLevel;
+  note: string | null;
+  updated_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface FacilityImportJobsTable {
+  id: Generated<string>;
+  import_type: FacilityImportType;
+  org_unit_id: string;
+  file_id: string;
+  status: 'validated' | 'failed' | 'committed';
+  total_rows: number;
+  error_rows: number;
+  errors: ColumnType<unknown[], string | undefined, string>;
+  payload: ColumnType<unknown[], string | undefined, string>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  committed_at: Date | null;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -3072,6 +3341,8 @@ export interface SchoolYearDatabase {
   payment_requests: PaymentRequestsTable;
   online_payment_transactions: OnlinePaymentTransactionsTable;
   staff: StaffTable;
+  staff_branch_assignments: StaffBranchAssignmentsTable;
+  staff_movements: StaffMovementsTable;
   employment_contracts: EmploymentContractsTable;
   holidays: HolidaysTable;
   school_day_changes: SchoolDayChangesTable;
@@ -3160,6 +3431,9 @@ export interface SchoolYearDatabase {
   ingredient_norms: IngredientNormsTable;
   menus: MenusTable;
   menu_items: MenuItemsTable;
+  menu_import_jobs: MenuImportJobsTable;
+  student_health_records: StudentHealthRecordsTable;
+  emis_report_values: EmisReportValuesTable;
   meal_reports: MealReportsTable;
   meal_plans: MealPlansTable;
   buffet_events: BuffetEventsTable;
@@ -3217,4 +3491,12 @@ export interface SchoolYearDatabase {
   equipment_items: EquipmentItemsTable;
   equipment_holdings: EquipmentHoldingsTable;
   school_profiles: SchoolProfilesTable;
+  accreditation_reviews: AccreditationReviewsTable;
+  school_split_requests: SchoolSplitRequestsTable;
+  school_split_items: SchoolSplitItemsTable;
+  student_learning_accounts: StudentLearningAccountsTable;
+  student_transfers: StudentTransfersTable;
+  facility_investments: FacilityInvestmentsTable;
+  facility_standard_levels: FacilityStandardLevelsTable;
+  facility_import_jobs: FacilityImportJobsTable;
 }

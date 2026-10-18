@@ -4,7 +4,9 @@ import { readBearerToken, validationError, type FieldError } from '@school-manag
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { Request, Response } from 'express';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
-import { sendWorkbook } from '../children/student-workbook.js';
+import { sendExportOutcome } from '../exports/export-jobs.js';
+import { CONTENT_TYPES, readTableFileFormat } from '../exports/table-file.js';
+import { ministryCatalogs } from './staff-ministry-file.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf } from '../common/audit-log.js';
 import {
@@ -59,6 +61,17 @@ function readStaff(body: RequestBody, errors: FieldError[]): StaffInput {
     jobTitleId: readOptionalUuid(body, 'job_title_id', errors) ?? null,
     startDate: readDate(body, 'start_date', errors, true) ?? '',
   };
+}
+
+// Tệp Excel dựng trực tiếp; tên tệp có thể có dấu nên thêm filename* theo RFC 5987
+function sendXlsx(response: Response, file: { buffer: Buffer; fileName: string }) {
+  response.setHeader('content-type', CONTENT_TYPES.xlsx);
+  response.setHeader(
+    'content-disposition',
+    `attachment; filename="${file.fileName}"; filename*=UTF-8''${encodeURIComponent(file.fileName)}`,
+  );
+  response.setHeader('cache-control', 'no-store');
+  response.send(file.buffer);
 }
 
 function readAllowances(body: RequestBody, errors: FieldError[]): Array<{ name: string; amount: number }> {
@@ -121,7 +134,8 @@ export class StaffController {
     return this.staff.search(currentUser, { ...filter, page, pageSize });
   }
 
-  // Xuất Excel theo bộ lọc và các cột đang hiện trên lưới; cần quyền xuất dữ liệu, ghi nhật ký xuất (BR-74)
+  // Xuất Excel hoặc PDF theo bộ lọc và các cột đang hiện trên lưới; cần quyền xuất dữ liệu, ghi nhật ký xuất (BR-74).
+  // Danh sách lớn trả 202 kèm tác vụ xuất nền (DT-16 phần 16a)
   @Post('staff/export')
   @HttpCode(200)
   @RequirePermission(PERMISSION_CODES.dataExport)
@@ -147,15 +161,111 @@ export class StaffController {
         columns = rawColumns as string[];
       }
     }
+    const format = readTableFileFormat(body?.format);
+    if (!format) {
+      errors.push({ field: 'format', message: 'Định dạng xuất là xlsx hoặc pdf' });
+    }
+    if (errors.length > 0 || !format) {
+      throw validationError(errors);
+    }
+    sendExportOutcome(response, await this.staff.exportList(currentUser, filter, columns, format, request.ip ?? null));
+  }
+
+  // "Xuất tệp theo mẫu Bộ" và "Xuất file lỗi": bản chạy nội bộ của "Đồng bộ hồ sơ lên CSDL Bộ" (DT-16 phần 16f); không gửi đi
+  @Post('staff/ministry-export')
+  @HttpCode(200)
+  @RequirePermission(PERMISSION_CODES.dataExport)
+  async ministryExport(
+    @Body() body: RequestBody,
+    @Req() request: Request,
+    @Res() response: Response,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    sendXlsx(response, await this.staff.ministryExport(currentUser, this.filterOf(body), request.ip ?? null));
+  }
+
+  @Post('staff/ministry-errors')
+  @HttpCode(200)
+  @RequirePermission(PERMISSION_CODES.dataExport)
+  async ministryErrors(
+    @Body() body: RequestBody,
+    @Req() request: Request,
+    @Res() response: Response,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    sendXlsx(response, await this.staff.ministryErrorFile(currentUser, this.filterOf(body), request.ip ?? null));
+  }
+
+  // Tệp mẫu 75 cột của 3.1.3 Nhập nhân sự từ Excel (kèm dữ liệu) và danh mục của Bộ để tra cứu
+  @Get('staff/ministry-template')
+  @RequirePermission(PERMISSION_CODES.importStaff)
+  async ministryTemplate(
+    @Query('with_data') withData: string | undefined,
+    @Req() request: Request,
+    @Res() response: Response,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    sendXlsx(response, await this.staff.ministryTemplate(currentUser, withData === 'true', request.ip ?? null));
+  }
+
+  @Get('staff/ministry-catalogs')
+  @RequirePermission(PERMISSION_CODES.importStaff, PERMISSION_CODES.staffView)
+  ministryCatalogs() {
+    return { items: ministryCatalogs() };
+  }
+
+  // Xóa hồ sơ nhập nhầm, chỉ hồ sơ chưa có dữ liệu liên quan (DT-16 phần 16f)
+  @Post('staff/delete')
+  @HttpCode(200)
+  remove(@Body() body: RequestBody, @Req() request: Request, @AuthenticatedUser() currentUser: CurrentUser) {
+    const ids = body?.staff_ids;
+    if (!Array.isArray(ids) || ids.length === 0 || ids.length > 200 || ids.some((id) => !isUuid(id))) {
+      throw validationError([{ field: 'staff_ids', message: 'Chọn từ 1 đến 200 hồ sơ' }]);
+    }
+    return this.staff.remove(currentUser, [...new Set(ids as string[])], originOf(request, currentUser));
+  }
+
+  private filterOf(body: RequestBody) {
+    const errors: FieldError[] = [];
+    const filter = readStaffListFilter(body ?? {}, errors);
     if (errors.length > 0) {
       throw validationError(errors);
     }
-    sendWorkbook(response, await this.staff.exportList(currentUser, filter, columns, request.ip ?? null));
+    return filter;
   }
 
   @Get('staff/me')
   me(@AuthenticatedUser() currentUser: CurrentUser) {
     return this.staff.me(currentUser);
+  }
+
+  // Hồ sơ nhân sự cá nhân ở menu người dùng (DT-16 phần 16c): người dùng tự sửa điện thoại, thư điện tử, chỗ ở của mình
+  @Patch('staff/me/contact')
+  updateOwnContact(@Body() body: RequestBody, @Req() request: Request, @AuthenticatedUser() currentUser: CurrentUser) {
+    const errors: FieldError[] = [];
+    const contact = {
+      phone: readOptionalText(body, 'phone', errors),
+      email: readOptionalText(body, 'email', errors),
+      address: readOptionalText(body, 'address', errors),
+    };
+    if (contact.phone && !/^\+?[0-9]{9,15}$/.test(contact.phone)) {
+      errors.push({ field: 'phone', message: 'Số điện thoại gồm 9 đến 15 chữ số' });
+    }
+    if (contact.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email)) {
+      errors.push({ field: 'email', message: 'Thư điện tử không đúng định dạng' });
+    }
+    for (const [field, value] of Object.entries(contact)) {
+      if (value && value.length > MAXIMUM_TEXT) {
+        errors.push({ field, message: `Tối đa ${MAXIMUM_TEXT} ký tự` });
+      }
+    }
+    if (errors.length === 0 && Object.values(contact).every((value) => value === undefined)) {
+      errors.push({ field: 'contact', message: 'Cần ít nhất một mục liên hệ' });
+    }
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.staff.updateOwnContact(currentUser, contact, originOf(request, currentUser));
   }
 
   @Get('staff/expiring-contracts')

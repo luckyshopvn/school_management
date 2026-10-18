@@ -27,6 +27,10 @@ import {
 // trực thuộc (chọn Trường chính là toàn trường), không phân biệt hoa thường, dấu, khoảng trắng thừa. Kiểm tra trước, chỉ
 // ghi khi không còn dòng lỗi; nhập lại cùng tệp thì cập nhật, không tạo trùng
 
+// Tiêu đề nhận diện dòng tiêu đề của tệp CSDL ngành (dùng cả khi xuất file lỗi, DT-16 phần 16a)
+export const MOET_CHILD_HEADERS = ['Mã lớp', 'Họ tên', 'Ngày sinh'];
+export const MOET_STAFF_HEADERS = ['Họ tên', 'CMND/CCCD'];
+
 const PHONE_PATTERN = /^0\d{9}$/;
 const NATIONAL_ID_PATTERN = /^\d{12}$/;
 // Người lớn còn có thể dùng chứng minh nhân dân chín số
@@ -182,16 +186,24 @@ export class MoetImports {
     return { unitIds, inScope };
   }
 
+  // Tiếp nhận học sinh chuyển đến (DT-16 phần 16g): tệp hồ sơ chuyển theo mẫu của Bộ tạo hồ sơ nháp, không cần lớp (xếp lớp
+  // khi duyệt hồ sơ), trạng thái trong tệp của trường cũ (chuyển đi) không chặn, học sinh đã có hồ sơ là dòng lỗi
   async validateChildren(
     database: Executor,
     currentUser: CurrentUser,
     orgUnitId: string,
     body: Buffer,
+    options: { transferIn?: boolean } = {},
   ): Promise<MoetValidation<MoetChildPlan>> {
-    const records = mapMoetRows(readWorkbookTable(body, ['Mã lớp', 'Họ tên', 'Ngày sinh']), MOET_CHILD_COLUMNS, [
+    const records = mapMoetRows(readWorkbookTable(body, MOET_CHILD_HEADERS), MOET_CHILD_COLUMNS, [
       ['national_id', 'citizen_id'],
     ]);
-    const { unitIds, inScope } = await this.unitsOf(database, currentUser, orgUnitId, PERMISSION_CODES.importChildren);
+    const { unitIds, inScope } = await this.unitsOf(
+      database,
+      currentUser,
+      orgUnitId,
+      options.transferIn ? PERMISSION_CODES.childManage : PERMISSION_CODES.importChildren,
+    );
     const classes = unitIds.length
       ? await database
           .selectFrom('classes')
@@ -238,8 +250,8 @@ export class MoetImports {
         fail('gender', 'Ghi Nam hoặc Nữ');
       }
       const status = foldText(values.student_status ?? '') || 'dang hoc';
-      const left = CHILD_LEFT_STATUSES.includes(status);
-      if (!left && !CHILD_ACTIVE_STATUSES.includes(status)) {
+      const left = !options.transferIn && CHILD_LEFT_STATUSES.includes(status);
+      if (!options.transferIn && !left && !CHILD_ACTIVE_STATUSES.includes(status)) {
         fail('student_status', 'Không có trong danh mục trạng thái học sinh của CSDL ngành');
       }
 
@@ -259,6 +271,8 @@ export class MoetImports {
           .executeTakeFirst();
         if (existing && !inScope(existing.org_unit_id)) {
           fail(idColumn, 'Trẻ đã có hồ sơ ở đơn vị ngoài phạm vi của bạn');
+        } else if (existing && options.transferIn) {
+          fail(idColumn, 'Học sinh đã có hồ sơ ở trường; không tiếp nhận chuyển đến lại');
         }
       }
       const moetCode = values.moet_student_code || null;
@@ -296,7 +310,7 @@ export class MoetImports {
         ? classes.filter((item) => foldText(item.code) === label || foldText(item.name) === label)
         : [];
       const classRecord = matches.length === 1 ? matches[0] : undefined;
-      if (!left) {
+      if (!left && !options.transferIn) {
         if (!label) {
           fail('class_label', 'Bắt buộc nhập');
         } else if (matches.length === 0) {
@@ -440,13 +454,16 @@ export class MoetImports {
   }
 
   // Tài khoản phụ huynh tạo trước khi ghi như nhập trẻ theo mẫu của trường; gọi lại cùng số điện thoại không tạo trùng
+  // Trả về mã các hồ sơ đã tạo, cập nhật; tiếp nhận chuyển đến tạo hồ sơ nháp (DT-16 phần 16g)
   async commitChildren(
     database: Kysely<SchoolYearDatabase>,
     accessToken: string,
     plans: MoetChildPlan[],
     jobId: string,
     origin: ChangeOrigin,
-  ): Promise<void> {
+    options: { asDraft?: boolean } = {},
+  ): Promise<string[]> {
+    const childIds: string[] = [];
     const accounts = new Map<string, { userId: string; created: boolean }>();
     for (const plan of plans) {
       for (const guardian of plan.guardians) {
@@ -465,7 +482,8 @@ export class MoetImports {
       for (const plan of plans) {
         const childId = plan.existing_id
           ? await this.updateChild(transaction, plan, origin, jobId)
-          : await this.insertChild(transaction, plan, origin, jobId);
+          : await this.insertChild(transaction, plan, origin, jobId, options.asDraft === true);
+        childIds.push(childId);
         await this.linkGuardians(transaction, childId, plan.guardians, relationshipIds, accounts, origin);
       }
       await queueNotification(transaction, {
@@ -481,6 +499,7 @@ export class MoetImports {
       });
       await this.markCommitted(transaction, jobId, origin);
     });
+    return childIds;
   }
 
   private async markCommitted(transaction: Transaction<SchoolYearDatabase>, jobId: string, origin: ChangeOrigin) {
@@ -532,6 +551,7 @@ export class MoetImports {
     plan: MoetChildPlan,
     origin: ChangeOrigin,
     jobId: string,
+    asDraft = false,
   ): Promise<string> {
     const now = this.clock.now();
     const child = await transaction
@@ -552,13 +572,13 @@ export class MoetImports {
         two_sessions_per_day: plan.profile.two_sessions_per_day === true,
         boarding: plan.profile.boarding_class === true,
         birth_certificate_file_id: null,
-        status: 'active',
+        status: asDraft ? 'draft' : 'active',
         photo_consent: 'pending',
         photo_consent_by: origin.actorUserId,
         photo_consent_at: now,
         enroll_date: plan.enroll_date,
-        approved_by: origin.actorUserId,
-        approved_at: now,
+        approved_by: asDraft ? null : origin.actorUserId,
+        approved_at: asDraft ? null : now,
         created_by: origin.actorUserId,
       })
       .returning('id')
@@ -571,7 +591,7 @@ export class MoetImports {
       .insertInto('photo_consent_histories')
       .values({ child_id: child.id, action: 'pending', actor_user_id: origin.actorUserId })
       .execute();
-    if (plan.class_id) {
+    if (plan.class_id && !asDraft) {
       await transaction
         .insertInto('class_enrollments')
         .values({
@@ -593,8 +613,8 @@ export class MoetImports {
       after: {
         full_name: plan.full_name,
         dob: plan.dob,
-        class_id: plan.class_id,
-        status: 'active',
+        class_id: asDraft ? null : plan.class_id,
+        status: asDraft ? 'draft' : 'active',
         import_job_id: jobId,
         national_id_masked: `********${plan.national_id.slice(-4)}`,
       },
@@ -748,7 +768,7 @@ export class MoetImports {
     orgUnitId: string,
     body: Buffer,
   ): Promise<MoetValidation<MoetStaffPlan>> {
-    const records = mapMoetRows(readWorkbookTable(body, ['Họ tên', 'CMND/CCCD']), MOET_STAFF_COLUMNS);
+    const records = mapMoetRows(readWorkbookTable(body, MOET_STAFF_HEADERS), MOET_STAFF_COLUMNS);
     const { inScope } = await this.unitsOf(database, currentUser, orgUnitId, PERMISSION_CODES.importStaff);
     const staff = await database
       .selectFrom('staff')

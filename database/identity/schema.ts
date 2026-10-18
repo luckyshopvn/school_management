@@ -33,9 +33,18 @@ export interface RolesTable {
   code: string;
   name: string;
   is_system: Generated<boolean>;
+  // Hiệu lực của nhóm người dùng (DT-16 phần 16d); nhóm hết hiệu lực không cấp quyền, phân hệ cho tài khoản
+  is_active: Generated<boolean>;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
   created_by: string | null;
+}
+
+// Phân hệ của cổng quản trị mà nhóm người dùng không được dùng (1.2 Phân quyền nhóm theo phần mềm, DT-16 phần 16d)
+export interface RoleWorkspaceExclusionsTable {
+  role_id: string;
+  workspace_key: string;
+  created_at: CreatedTimestamp;
 }
 
 export interface PermissionsTable {
@@ -117,6 +126,14 @@ export interface OneTimeCodesTable {
   created_at: CreatedTimestamp;
 }
 
+// Giá trị băm các mật khẩu người dùng đã tự đặt, để không cho dùng lại mật khẩu gần đây (DT-16 phần 16c)
+export interface PasswordHistoryTable {
+  id: Generated<string>;
+  user_id: string;
+  password_hash: string;
+  created_at: CreatedTimestamp;
+}
+
 export type ApiClientScope = 'reports' | 'finance' | 'children' | 'staff';
 
 export interface ApiClientsTable {
@@ -141,6 +158,7 @@ export interface IdentityDatabase {
   roles: RolesTable;
   permissions: PermissionsTable;
   role_permissions: RolePermissionsTable;
+  role_workspace_exclusions: RoleWorkspaceExclusionsTable;
   user_roles: UserRolesTable;
   sessions: SessionsTable;
   security_events: SecurityEventsTable;
@@ -148,4 +166,5 @@ export interface IdentityDatabase {
   identity_settings: IdentitySettingsTable;
   one_time_codes: OneTimeCodesTable;
   api_clients: ApiClientsTable;
+  password_history: PasswordHistoryTable;
 }

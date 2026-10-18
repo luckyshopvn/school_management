@@ -1,8 +1,8 @@
 # 03. DANH SÁCH KIỂM TRA CÔNG VIỆC
 
 - Mô tả: Danh sách công việc, trạng thái và thứ tự ưu tiên của dự án.
-- Phiên bản: 0.33
-- Ngày cập nhật: 2026-10-15
+- Phiên bản: 0.41
+- Ngày cập nhật: 2026-10-18
 - Trạng thái: Đang cập nhật
 
 ## Quy ước trạng thái
@@ -13,25 +13,25 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 
 | Phân hệ | Trạng thái | Việc còn lại |
 |---|---|---|
-| P01 Nền tảng, đơn vị và phân quyền | Hoàn thành | Đợt DT-01 (YCTD-34 đến YCTD-42); kết nối ngoài ở DT-11 phần 11e; DT-14 phần 14d (YCTD-106: hồ sơ trường); DT-15 phần 15e (YCTD-109: quản trị hệ thống theo Sở: 1.1 Nhóm người dùng, 1.3 Phân quyền nhóm theo menu, 1.4 Danh sách người dùng, lưới dữ liệu chung cho Khóa API và Nhật ký thao tác); DT-15 phần 15g (YCTD-110: Gửi phản hồi ở chân trang, Danh sách ý kiến đã gửi, 3.4 Ý kiến phản hồi, hết hạn mật khẩu); DT-15 phần 15b (YCTD-111: 1.2 Quản lý phân hiệu, 1.3 Quản lý điểm trường, 2.2 Nhập lớp học từ Excel) |
-| P02 Trẻ, phụ huynh và lớp học | Hoàn thành | Đợt DT-03 (YCTD-44 đến YCTD-46), DT-09 phần 9b, 9d, DT-14 phần 14c (YCTD-104: hoàn thành chương trình, nhóm học sinh), DT-15 phần 15c (YCTD-108: Quản lý hồ sơ học sinh theo Sở, điện thoại nhận tin, học 2 buổi/ngày và bán trú, biến động học sinh), DT-15 phần 15b (YCTD-111: 2.1 Hồ sơ lớp học theo Sở, 3.3 Phân công phụ trách lớp); kết nối tự động cơ sở dữ liệu ngành (G3-09) chưa có giao diện lập trình công khai, tiếp tục nhập từ tệp, DT-15 phần 15h1 (YCTD-116: 4.1.11 Cập nhật địa danh hành chính) |
+| P01 Nền tảng, đơn vị và phân quyền | Hoàn thành | Đợt DT-01 (YCTD-34 đến YCTD-42); DT-16 phần 16k (YCTD-130: phân hệ Quản lý kí hồ sơ, bản chạy nội bộ); kết nối ngoài ở DT-11 phần 11e; DT-14 phần 14d (YCTD-106: hồ sơ trường); DT-15 phần 15e (YCTD-109: quản trị hệ thống theo Sở: 1.1 Nhóm người dùng, 1.3 Phân quyền nhóm theo menu, 1.4 Danh sách người dùng, lưới dữ liệu chung cho Khóa API và Nhật ký thao tác); DT-15 phần 15g (YCTD-110: Gửi phản hồi ở chân trang, Danh sách ý kiến đã gửi, 3.4 Ý kiến phản hồi, hết hạn mật khẩu); DT-15 phần 15b (YCTD-111: 1.2 Quản lý phân hiệu, 1.3 Quản lý điểm trường, 2.2 Nhập lớp học từ Excel); DT-16 phần 16b (YCTD-119: Xuất Excel 1.1, 1.2, 1.3; 2.1 đến 2.5, 3.2 Quản trị hệ thống theo lưới dữ liệu chung); DT-16 phần 16d (YCTD-120: quản trị hệ thống đủ theo Sở: 1.2, 1.6, 1.4 đủ cột, thao tác); DT-16 phần 16c (YCTD-123: thanh đầu trang, menu người dùng, hộp thông báo khi vào trang, mã xác nhận, quên mật khẩu, lịch sử mật khẩu, 3.6 Thông báo hệ thống, 3.7 Ứng dụng liên kết); DT-16 phần 16e (YCTD-127: 1.4 khối Cấu hình trường, 1.7 Rà soát thông tin kiểm định CLGD, 1.8 Tách trường (nội bộ), 2.2 nhập lớp đủ cột của Sở, 3.4 Khai báo tuần, 5.7 Chuyển hồ sơ lên năm học mới có Hủy); tách trường chưa nối hệ thống của Sở |
+| P02 Trẻ, phụ huynh và lớp học | Hoàn thành | Đợt DT-03 (YCTD-44 đến YCTD-46), DT-09 phần 9b, 9d, DT-14 phần 14c (YCTD-104: hoàn thành chương trình, nhóm học sinh), DT-15 phần 15c (YCTD-108: Quản lý hồ sơ học sinh theo Sở, điện thoại nhận tin, học 2 buổi/ngày và bán trú, biến động học sinh), DT-15 phần 15b (YCTD-111: 2.1 Hồ sơ lớp học theo Sở, 3.3 Phân công phụ trách lớp); kết nối tự động cơ sở dữ liệu ngành (G3-09) chưa có giao diện lập trình công khai, tiếp tục nhập từ tệp, DT-15 phần 15h1 (YCTD-116: 4.1.11 Cập nhật địa danh hành chính); DT-16 phần 16g (YCTD-126: học sinh đủ theo Sở, P02-18 đến P02-23), DT-16 phần 16e (YCTD-127: 2.1 chọn nhiều lớp, thay đổi hàng loạt, giải thể lớp đã chọn, xóa lớp; 3.3 giáo viên chưa phân công, lọc tình trạng phân công) |
 | P03 Giảng dạy | Hoàn thành | Đợt DT-10 phần 10g (YCTD-80); tổ chuyên môn chưa làm |
 | P04 Điểm danh và chăm sóc hằng ngày | Hoàn thành | Đợt DT-04 (YCTD-47, YCTD-48), DT-08 phần 8b |
 | P05 Học phí, khoản thu và giảm trừ | Hoàn thành | Đợt DT-05 (YCTD-49 đến YCTD-57); cổng thanh toán thật chờ việc T1 |
 | P06 Tài chính | Hoàn thành | Đợt DT-05 phần 5d đến 5f, DT-10 phần 10i, DT-11 phần 11c, 11d (YCTD-88, YCTD-89) |
-| P07 Nhân sự | Hoàn thành | Đợt DT-06 phần 6a (YCTD-58), DT-10 phần 10h, DT-14 phần 14c (YCTD-104: đánh giá chuẩn nghề nghiệp), DT-15 phần 15d (YCTD-112: 3.1.1 Hồ sơ cán bộ, giáo viên theo Sở, mở rộng tìm kiếm 3.1.4, xuất Excel, hồ sơ hai thẻ) |
+| P07 Nhân sự | Hoàn thành | Đợt DT-06 phần 6a (YCTD-58), DT-10 phần 10h, DT-14 phần 14c (YCTD-104: đánh giá chuẩn nghề nghiệp), DT-15 phần 15d (YCTD-112: 3.1.1 Hồ sơ cán bộ, giáo viên theo Sở, mở rộng tìm kiếm 3.1.4, xuất Excel, hồ sơ hai thẻ); DT-16 phần 16f (YCTD-124: 3.1.1 Thay đổi, Xóa, Xuất tệp theo mẫu Bộ, Xuất file lỗi, danh mục của Bộ; 3.1.2 Nhân sự phân hiệu; 3.1.3 Nhập nhân sự từ Excel; 3.1.5 Xác thực số định danh (nội bộ); 3.2 nhập mức đánh giá từ Excel; 3.5 Biến động nhân sự (nội bộ); 5.2, 5.6, 5.9); chưa có kết nối thật tới CSDL Bộ, CSDLQG về dân cư |
 | P08 Chấm công và tiền lương | Hoàn thành | Đợt DT-06 phần 6b, 6c (YCTD-59 đến YCTD-61) |
-| P09 Công việc, kế hoạch và đánh giá | Hoàn thành | Đợt DT-10 phần 10h (YCTD-81) |
-| P10 Y tế học đường | Hoàn thành | Đợt DT-10 phần 10a, 10b (YCTD-74, YCTD-75), DT-14 phần 14a (YCTD-105: đợt cân đo, kênh tăng trưởng theo chuẩn WHO, tổng hợp cân nặng, chiều cao) |
+| P09 Công việc, kế hoạch và đánh giá | Hoàn thành | Đợt DT-10 phần 10h (YCTD-81), DT-15 phần 15h2 (YCTD-118: 5.10 Văn thư lưu trữ theo Sở) |
+| P10 Y tế học đường | Hoàn thành | Đợt DT-10 phần 10a, 10b (YCTD-74, YCTD-75), DT-14 phần 14a (YCTD-105: đợt cân đo, kênh tăng trưởng theo chuẩn WHO, tổng hợp cân nặng, chiều cao); DT-16 phần 16h (YCTD-125: 4.6.1 Nhập thông tin sức khỏe học sinh theo học kỳ, lấy số đo từ 4.3; 4.3.2 tổng hợp theo học kỳ, so sánh hai lần cân đo, được khám định kỳ) |
 | P11 Xe đưa đón | Đã bỏ | Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62) |
-| P12 Bếp và dinh dưỡng | Hoàn thành | Đợt DT-10 phần 10c (YCTD-76) |
-| P13 Kho, tài sản và mua hàng | Hoàn thành | Đợt DT-10 phần 10d (YCTD-77), DT-14 phần 14d (YCTD-106: khai báo cơ sở vật chất, thiết bị dạy học tối thiểu) |
+| P12 Bếp và dinh dưỡng | Hoàn thành | Đợt DT-10 phần 10c (YCTD-76); DT-16 phần 16h (YCTD-125: 4.5 thực đơn có tên, tháng, tuần, từ ngày, đến ngày, khối áp dụng, nhập thực đơn từ Excel) |
+| P13 Kho, tài sản và mua hàng | Hoàn thành | Đợt DT-10 phần 10d (YCTD-77), DT-14 phần 14d (YCTD-106: khai báo cơ sở vật chất, thiết bị dạy học tối thiểu); DT-16 phần 16i (YCTD-128: 6.1 thực trạng và nhu cầu đầu tư, nhập phòng và danh mục thiết bị từ Excel, 1.2 báo cáo cơ sở vật chất, 2.3 gửi thiết bị dạy học lên cấp trên chạy nội bộ) |
 | P14 Hoạt động, nội dung và truyền thông | Hoàn thành | Đợt DT-10 phần 10e (YCTD-78); Fanpage ở DT-11 phần 11e, tài khoản thật chờ việc T1 |
 | P15 Tương tác và ý kiến | Hoàn thành | Đợt DT-10 phần 10f (YCTD-79) |
 | P16 Tuyển sinh | Hoàn thành | Đợt DT-11 phần 11a (YCTD-86) |
-| P17 Báo cáo và bảng điều khiển | Hoàn thành | Đợt DT-07 (YCTD-62, YCTD-63), DT-10 phần 10j (YCTD-83), DT-14 phần 14a (YCTD-105: thống kê theo tiêu chí ngành, hồ sơ chưa nhập đủ), 14d (YCTD-106: biểu EMIS đầu năm) |
+| P17 Báo cáo và bảng điều khiển | Hoàn thành | Đợt DT-07 (YCTD-62, YCTD-63), DT-10 phần 10j (YCTD-83), DT-14 phần 14a (YCTD-105: thống kê theo tiêu chí ngành, hồ sơ chưa nhập đủ), 14d (YCTD-106: biểu EMIS đầu năm), DT-16 phần 16a (YCTD-121: Xuất PDF, tác vụ xuất nền, Tệp đã tạo, công cụ nhập Excel dùng chung, gửi lên cấp trên chạy nội bộ), DT-16 phần 16h (YCTD-125: 5.3 Thống kê học sinh đủ các phần; số liệu báo cáo sức khỏe học sinh đầu năm, màn hình và gửi lên cấp trên ở phần 16j), DT-16 phần 16j (YCTD-129: phân hệ Báo cáo số liệu đủ bảy biểu 1.1 đến 1.3, 2.1 đến 2.4, thẻ nhập tay, danh sách gửi báo cáo, Xuất file lỗi; chưa truyền lên Bộ, Sở, mã số chỉ tiêu chờ đối chiếu biểu mẫu chính thức) |
 | P18 Tuyển dụng | Hoàn thành | Đợt DT-11 phần 11b (YCTD-87) |
-| P19 Kênh truy cập và thông báo | Hoàn thành | Đợt DT-08 (YCTD-64, YCTD-65), Zalo ở DT-11 phần 11e; DT-15 phần 15a (YCTD-107: menu ngang đánh số, menu người dùng, lưới dữ liệu dùng chung; các phần 15b đến 15h theo `32_KE_HOACH_THEO_HE_THONG_SO.md`); bản cài riêng trên điện thoại (N2, G3-04) chờ Eric quyết định |
+| P19 Kênh truy cập và thông báo | Hoàn thành | Đợt DT-08 (YCTD-64, YCTD-65), Zalo ở DT-11 phần 11e; DT-15 phần 15a (YCTD-107: menu ngang đánh số, menu người dùng, lưới dữ liệu dùng chung; các phần 15b đến 15h theo `32_KE_HOACH_THEO_HE_THONG_SO.md`); DT-16 phần 16b (YCTD-119: lưới dữ liệu chung, hộp xác nhận xóa cho các màn hình còn lại của Mầm non, Cơ sở vật chất, Quản trị hệ thống); bản cài riêng trên điện thoại (N2, G3-04) chờ Eric quyết định |
 
 ## 2. Việc còn lại
 
