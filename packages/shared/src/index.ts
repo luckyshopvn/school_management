@@ -481,6 +481,27 @@ export const DATA_GRID_KEYS = [
   // Quản lý kí hồ sơ (DT-16 phần 16k)
   'signing-dossiers',
   'signing-submissions',
+  // Tài chính – học phí (DT-15 phần 15f1)
+  'services',
+  'discount-types',
+  'late-registrations',
+  'invoices',
+  'fee-approval-discounts',
+  'fee-approval-adjustments',
+  'debts',
+  'debt-reminders',
+  'debt-resolutions',
+  'receipts',
+  'receipt-reversals',
+  'payments',
+  'payment-approvals',
+  'payment-reversals',
+  'cash-accounts',
+  'payables',
+  'cashflow-categories',
+  'ledger-accounts',
+  'ledger-rules',
+  'fiscal-periods',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

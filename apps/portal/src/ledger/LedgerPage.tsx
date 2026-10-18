@@ -1,10 +1,24 @@
 import { useCallback, useId, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, StatusBadge, TextField, Toast } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  ConfirmDeleteDialog,
+  DataGrid,
+  FORM_CONTROL_CLASS,
+  FormBlock,
+  FormRow,
+  StatusBadge,
+  TextField,
+  Toast,
+  type DataGridColumn,
+} from '@school-management/ui';
 import { useUnitChoice } from '../catalogs/UnitSelect.js';
 import { formatMoney, listCashflowCategories } from '../fees/fees-api.js';
 import { AppShell } from '../pages/AppShell.js';
+import { useGridSettings } from '../pages/grid-settings.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { ExportButton } from '../reports/PhaseTwoReports.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
@@ -22,10 +36,12 @@ import {
   voidEntry,
   type LedgerAccount,
   type LedgerFilter,
+  type PostingRule,
 } from './ledger-api.js';
 
 // MH-67 Sổ nhật ký chung và bút toán thủ công, MH-68 Sổ cái và bảng cân đối số phát sinh, MH-69 Hệ thống tài khoản và
-// quy tắc ghi sổ (G3-06, N5; BR-95; YCTD-88). Giao diện chỉ hiển thị số liệu máy chủ trả về
+// quy tắc ghi sổ (G3-06, N5; BR-95; YCTD-88). Giao diện chỉ hiển thị số liệu máy chủ trả về. Sổ nhật ký, sổ cái, cân
+// đối giữ bố cục sổ; hệ thống tài khoản và quy tắc ghi sổ dùng lưới dữ liệu chung, biểu mẫu theo khối (DT-15 phần 15f1)
 type Tab = 'journal' | 'ledger' | 'trial' | 'accounts' | 'rules';
 const TABS: Array<[Tab, string]> = [
   ['journal', 'Nhật ký chung'],
@@ -132,20 +148,23 @@ function ManualEntryForm({
       }}
     >
       <h2 className="text-section-title font-semibold">Ghi bút toán thủ công</h2>
-      <div className="flex flex-wrap gap-3">
-        <TextField
-          label="Ngày ghi sổ"
-          type="date"
-          value={entryDate}
-          onChange={(event) => setEntryDate(event.target.value)}
-        />
-        <TextField
-          className="w-96"
-          label="Diễn giải"
-          value={description}
-          onChange={(event) => setDescription(event.target.value)}
-        />
-      </div>
+      <FormBlock title="Thông tin bút toán">
+        <FormRow label="Ngày ghi sổ">
+          <input
+            className={FORM_CONTROL_CLASS}
+            type="date"
+            value={entryDate}
+            onChange={(event) => setEntryDate(event.target.value)}
+          />
+        </FormRow>
+        <FormRow label="Diễn giải">
+          <input
+            className={FORM_CONTROL_CLASS}
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+          />
+        </FormRow>
+      </FormBlock>
       {lines.map((line, index) => (
         <div key={index} className="flex flex-wrap items-end gap-3">
           <AccountSelect
@@ -420,8 +439,27 @@ function GeneralLedgerView({ filter, accounts }: { filter: LedgerFilter; account
   );
 }
 
+// Các tài khoản đang dùng làm lựa chọn của ô chọn trong biểu mẫu khối
+function accountOptions(accounts: LedgerAccount[], emptyLabel: string) {
+  return [
+    <option key="" value="">
+      {emptyLabel}
+    </option>,
+    ...accounts
+      .filter((account) => account.status === 'active')
+      .map((account) => (
+        <option key={account.id} value={account.id}>
+          {account.code} - {account.name}
+        </option>
+      )),
+  ];
+}
+
 function AccountsView({ accounts, canManage }: { accounts: LedgerAccount[]; canManage: boolean }) {
   const queryClient = useQueryClient();
+  const grid = useGridSettings('ledger-accounts');
+  const [creating, setCreating] = useState(false);
+  const [search, setSearch] = useState('');
   const [parentId, setParentId] = useState('');
   const [code, setCode] = useState('');
   const [name, setName] = useState('');
@@ -430,70 +468,107 @@ function AccountsView({ accounts, canManage }: { accounts: LedgerAccount[]; canM
     onSuccess: async () => {
       setCode('');
       setName('');
+      setCreating(false);
       await queryClient.invalidateQueries({ queryKey: ['ledger-accounts'] });
     },
   });
   const byId = new Map(accounts.map((account) => [account.id, account]));
   const depth = (account: LedgerAccount): number =>
     account.parent_id && byId.get(account.parent_id) ? depth(byId.get(account.parent_id) as LedgerAccount) + 1 : 0;
+  const keyword = search.trim().toLocaleLowerCase('vi');
+  const rows = accounts.filter(
+    (account) => keyword === '' || `${account.code} ${account.name}`.toLocaleLowerCase('vi').includes(keyword),
+  );
+  const columns: Array<DataGridColumn<LedgerAccount>> = [
+    {
+      id: 'code',
+      header: 'Số hiệu',
+      alwaysVisible: true,
+      cell: (account) => <span style={{ paddingLeft: `${depth(account) * 16}px` }}>{account.code}</span>,
+    },
+    { id: 'name', header: 'Tên', cell: (account) => account.name },
+    { id: 'source', header: 'Nguồn', cell: (account) => (account.is_system ? 'Theo chế độ' : 'Chi tiết') },
+    {
+      id: 'status',
+      header: 'Trạng thái',
+      cell: (account) => (account.status === 'active' ? 'Đang dùng' : 'Ngừng dùng'),
+    },
+  ];
   return (
     <div className="flex flex-col gap-4">
-      {canManage ? (
+      {canManage && creating ? (
         <form
-          className="flex flex-wrap items-end gap-3 rounded-xl border border-border bg-card p-4"
+          noValidate
+          className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4"
           aria-label="Thêm tài khoản chi tiết"
           onSubmit={(event) => {
             event.preventDefault();
             create.mutate();
           }}
         >
-          <AccountSelect label="Tài khoản cha" accounts={accounts} value={parentId} onChange={setParentId} />
-          <TextField label="Số hiệu" value={code} onChange={(event) => setCode(event.target.value)} />
-          <TextField label="Tên tài khoản chi tiết" value={name} onChange={(event) => setName(event.target.value)} />
-          <Button type="submit" variant="primary" disabled={!parentId || !code || !name || create.isPending}>
-            Thêm tài khoản chi tiết
-          </Button>
+          <h2 className="text-section-title font-semibold">Thêm tài khoản chi tiết</h2>
+          <FormBlock title="Thông tin tài khoản">
+            <FormRow label="Tài khoản cha">
+              <select
+                className={FORM_CONTROL_CLASS}
+                value={parentId}
+                onChange={(event) => setParentId(event.target.value)}
+              >
+                {accountOptions(accounts, 'Chọn tài khoản')}
+              </select>
+            </FormRow>
+            <FormRow label="Số hiệu">
+              <input className={FORM_CONTROL_CLASS} value={code} onChange={(event) => setCode(event.target.value)} />
+            </FormRow>
+            <FormRow label="Tên tài khoản chi tiết">
+              <input className={FORM_CONTROL_CLASS} value={name} onChange={(event) => setName(event.target.value)} />
+            </FormRow>
+          </FormBlock>
+          <div className="flex gap-2">
+            <Button type="submit" variant="primary" disabled={!parentId || !code || !name || create.isPending}>
+              Ghi
+            </Button>
+            <Button variant="text" onClick={() => setCreating(false)}>
+              Hủy
+            </Button>
+          </div>
         </form>
       ) : null}
       {create.error ? <Alert tone="danger">{messageOf(create.error)}</Alert> : null}
-      <section className="rounded-xl border border-border bg-card p-4" aria-label="Danh sách tài khoản kế toán">
-        <table className="w-full text-content">
-          <thead className="text-left text-label font-medium text-text-secondary">
-            <tr>
-              <th className="px-3 py-2">Số hiệu</th>
-              <th className="px-3 py-2">Tên</th>
-              <th className="px-3 py-2">Nguồn</th>
-              <th className="px-3 py-2">Trạng thái</th>
-            </tr>
-          </thead>
-          <tbody>
-            {accounts.map((account) => (
-              <tr key={account.id} className="border-t border-border">
-                <td className="px-3 py-1" style={{ paddingLeft: `${12 + depth(account) * 16}px` }}>
-                  {account.code}
-                </td>
-                <td className="px-3 py-1">{account.name}</td>
-                <td className="px-3 py-1">{account.is_system ? 'Theo chế độ' : 'Chi tiết'}</td>
-                <td className="px-3 py-1">{account.status === 'active' ? 'Đang dùng' : 'Ngừng dùng'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+      {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+      <DataGrid
+        label="Danh sách tài khoản kế toán"
+        columns={columns}
+        rows={rows}
+        getRowId={(account) => account.id}
+        getRowLabel={(account) => `${account.code} ${account.name}`}
+        emptyText="Chưa có tài khoản kế toán."
+        search={{ label: 'Tìm theo số hiệu, tên', value: search, onChange: setSearch }}
+        toolbar={
+          canManage ? (
+            <Button variant="primary" onClick={() => setCreating(true)}>
+              Thêm mới
+            </Button>
+          ) : null
+        }
+        settings={grid.settings}
+        onSettingsChange={grid.update}
+      />
     </div>
   );
 }
 
 function RulesView({ accounts }: { accounts: LedgerAccount[] }) {
   const queryClient = useQueryClient();
+  const grid = useGridSettings('ledger-rules');
   const rules = useQuery({ queryKey: ['ledger-rules'], queryFn: listRules });
   const categories = useQuery({ queryKey: ['cashflow-categories'], queryFn: listCashflowCategories });
+  const [search, setSearch] = useState('');
   const [documentType, setDocumentType] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [debitId, setDebitId] = useState('');
   const [creditId, setCreditId] = useState('');
-  const typeId = useId();
-  const categorySelectId = useId();
+  const [removing, setRemoving] = useState<PostingRule>();
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['ledger-rules'] });
   const save = useMutation({
     mutationFn: () =>
@@ -505,112 +580,141 @@ function RulesView({ accounts }: { accounts: LedgerAccount[] }) {
       }),
     onSuccess: refresh,
   });
-  const remove = useMutation({ mutationFn: deleteRule, onSuccess: refresh });
+  const remove = useMutation({
+    mutationFn: deleteRule,
+    onSuccess: async () => {
+      setRemoving(undefined);
+      await refresh();
+    },
+    onError: () => setRemoving(undefined),
+  });
   const type = rules.data?.document_types.find((item) => item.code === documentType);
+  const keyword = search.trim().toLocaleLowerCase('vi');
+  const rows = (rules.data?.rules ?? []).filter(
+    (rule) => keyword === '' || `${rule.label} ${rule.category_name ?? ''}`.toLocaleLowerCase('vi').includes(keyword),
+  );
+  const columns: Array<DataGridColumn<PostingRule>> = [
+    { id: 'label', header: 'Loại chứng từ', alwaysVisible: true, cell: (rule) => rule.label },
+    { id: 'category_name', header: 'Khoản mục', cell: (rule) => rule.category_name ?? 'Mọi khoản mục' },
+    {
+      id: 'debit',
+      header: 'Nợ',
+      cell: (rule) => rule.debit_account_code ?? (rule.document_type.startsWith('money') ? '' : 'Tiền'),
+    },
+    {
+      id: 'credit',
+      header: 'Có',
+      cell: (rule) => rule.credit_account_code ?? (rule.document_type.startsWith('money') ? '' : 'Tiền'),
+    },
+  ];
   return (
     <div className="flex flex-col gap-4">
       {rules.data?.can_manage ? (
         <form
-          className="flex flex-wrap items-end gap-3 rounded-xl border border-border bg-card p-4"
+          noValidate
+          className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4"
           aria-label="Sửa quy tắc ghi sổ"
           onSubmit={(event) => {
             event.preventDefault();
             save.mutate();
           }}
         >
-          <div className="flex flex-col gap-2">
-            <label htmlFor={typeId} className="text-label font-medium text-text">
-              Loại chứng từ
-            </label>
-            <select
-              id={typeId}
-              className="rounded-lg border border-border bg-card px-3 py-2 text-content"
-              value={documentType}
-              onChange={(event) => setDocumentType(event.target.value)}
-            >
-              <option value="">Chọn loại chứng từ</option>
-              {(rules.data?.document_types ?? []).map((item) => (
-                <option key={item.code} value={item.code}>
-                  {item.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          {type?.by_category ? (
-            <div className="flex flex-col gap-2">
-              <label htmlFor={categorySelectId} className="text-label font-medium text-text">
-                Khoản mục
-              </label>
+          <FormBlock title="Quy tắc ghi sổ">
+            <FormRow label="Loại chứng từ">
               <select
-                id={categorySelectId}
-                className="rounded-lg border border-border bg-card px-3 py-2 text-content"
-                value={categoryId}
-                onChange={(event) => setCategoryId(event.target.value)}
+                className={FORM_CONTROL_CLASS}
+                value={documentType}
+                onChange={(event) => setDocumentType(event.target.value)}
               >
-                <option value="">Mọi khoản mục</option>
-                {(categories.data ?? []).map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
+                <option value="">Chọn loại chứng từ</option>
+                {(rules.data?.document_types ?? []).map((item) => (
+                  <option key={item.code} value={item.code}>
+                    {item.label}
                   </option>
                 ))}
               </select>
-            </div>
-          ) : null}
-          <AccountSelect
-            label="Tài khoản Nợ"
-            accounts={accounts}
-            value={debitId}
-            onChange={setDebitId}
-            allowEmpty="Tài khoản tiền của quỹ"
-          />
-          <AccountSelect
-            label="Tài khoản Có"
-            accounts={accounts}
-            value={creditId}
-            onChange={setCreditId}
-            allowEmpty="Tài khoản tiền của quỹ"
-          />
-          <Button type="submit" variant="primary" disabled={!documentType || save.isPending}>
-            Lưu quy tắc
-          </Button>
+            </FormRow>
+            {type?.by_category ? (
+              <FormRow label="Khoản mục">
+                <select
+                  className={FORM_CONTROL_CLASS}
+                  value={categoryId}
+                  onChange={(event) => setCategoryId(event.target.value)}
+                >
+                  <option value="">Mọi khoản mục</option>
+                  {(categories.data ?? []).map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </FormRow>
+            ) : null}
+            <FormRow label="Tài khoản Nợ">
+              <select
+                className={FORM_CONTROL_CLASS}
+                value={debitId}
+                onChange={(event) => setDebitId(event.target.value)}
+              >
+                {accountOptions(accounts, 'Tài khoản tiền của quỹ')}
+              </select>
+            </FormRow>
+            <FormRow label="Tài khoản Có">
+              <select
+                className={FORM_CONTROL_CLASS}
+                value={creditId}
+                onChange={(event) => setCreditId(event.target.value)}
+              >
+                {accountOptions(accounts, 'Tài khoản tiền của quỹ')}
+              </select>
+            </FormRow>
+          </FormBlock>
+          <div>
+            <Button type="submit" variant="primary" disabled={!documentType || save.isPending}>
+              Ghi
+            </Button>
+          </div>
         </form>
       ) : null}
       {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
       {remove.error ? <Alert tone="danger">{messageOf(remove.error)}</Alert> : null}
-      <section className="rounded-xl border border-border bg-card p-4" aria-label="Danh sách quy tắc ghi sổ">
-        <table className="w-full text-content">
-          <thead className="text-left text-label font-medium text-text-secondary">
-            <tr>
-              <th className="px-3 py-2">Loại chứng từ</th>
-              <th className="px-3 py-2">Khoản mục</th>
-              <th className="px-3 py-2">Nợ</th>
-              <th className="px-3 py-2">Có</th>
-              <th className="px-3 py-2" />
-            </tr>
-          </thead>
-          <tbody>
-            {(rules.data?.rules ?? []).map((rule) => (
-              <tr key={rule.id} className="border-t border-border">
-                <td className="px-3 py-1">{rule.label}</td>
-                <td className="px-3 py-1">{rule.category_name ?? 'Mọi khoản mục'}</td>
-                <td className="px-3 py-1">
-                  {rule.debit_account_code ?? (rule.document_type.startsWith('money') ? '' : 'Tiền')}
-                </td>
-                <td className="px-3 py-1">
-                  {rule.credit_account_code ?? (rule.document_type.startsWith('money') ? '' : 'Tiền')}
-                </td>
-                <td className="px-3 py-1">
-                  {rules.data?.can_manage && rule.category_id ? (
-                    <Button variant="text" onClick={() => remove.mutate(rule.id)}>
-                      Bỏ quy tắc
-                    </Button>
-                  ) : null}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+      {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+      <DataGrid
+        label="Danh sách quy tắc ghi sổ"
+        columns={columns}
+        rows={rows}
+        getRowId={(rule) => rule.id}
+        getRowLabel={(rule) => rule.label}
+        loading={rules.isPending}
+        emptyText="Chưa có quy tắc ghi sổ."
+        search={{ label: 'Tìm theo loại chứng từ, khoản mục', value: search, onChange: setSearch }}
+        rowActions={
+          rules.data?.can_manage
+            ? (rule) =>
+                rule.category_id ? (
+                  <Button variant="text" onClick={() => setRemoving(rule)}>
+                    Bỏ quy tắc
+                  </Button>
+                ) : null
+            : undefined
+        }
+        settings={grid.settings}
+        onSettingsChange={grid.update}
+      />
+      <ConfirmDeleteDialog
+        open={removing !== undefined}
+        subject={`quy tắc ghi sổ ${removing?.label ?? ''}, khoản mục ${removing?.category_name ?? ''}`}
+        confirmLabel="Bỏ quy tắc"
+        busy={remove.isPending}
+        onCancel={() => setRemoving(undefined)}
+        onConfirm={() => {
+          if (removing) {
+            remove.mutate(removing.id);
+          }
+        }}
+      >
+        Chỉ bỏ quy tắc riêng của khoản mục; quy tắc chung của loại chứng từ giữ nguyên.
+      </ConfirmDeleteDialog>
     </div>
   );
 }
@@ -630,7 +734,7 @@ export function LedgerPage() {
   return (
     <AppShell>
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Sổ kế toán</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/ledger')}</h1>
         <div className="flex flex-wrap gap-2" role="tablist">
           {TABS.map(([key, label]) => (
             <Button

@@ -51,9 +51,11 @@ test('Kế toán khai báo quỹ, thu đủ hóa đơn từ màn hình công n�
   await openMenu(portal, '/cash-accounts');
   await portal.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
   const accounts = portal.getByRole('region', { name: 'Quỹ và tài khoản của đơn vị' });
-  await accounts.getByLabel('Tên quỹ hoặc tài khoản').fill('Quỹ tiền mặt cơ sở');
-  await accounts.getByLabel('Số dư đầu').fill('1000000');
-  await accounts.getByRole('button', { name: 'Thêm' }).click();
+  await accounts.getByRole('button', { name: 'Thêm mới' }).click();
+  const accountForm = portal.getByRole('form', { name: 'Thêm mới vào quỹ và tài khoản của đơn vị' });
+  await accountForm.getByLabel('Tên quỹ hoặc tài khoản').fill('Quỹ tiền mặt cơ sở');
+  await accountForm.getByLabel('Số dư đầu').fill('1000000');
+  await accountForm.getByRole('button', { name: 'Ghi' }).click();
   await expect(accounts.getByRole('row').filter({ hasText: 'Quỹ tiền mặt cơ sở' })).toContainText('1.000.000');
 
   await openMenu(portal, '/debts');
@@ -122,9 +124,10 @@ test('Kế toán lập phiếu đảo phiếu thu; Hiệu trưởng duyệt thì
   const principal = await signIn('VT-02', null);
   await openMenu(principal, '/receipts');
   await principal.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
-  const request = principal.getByRole('region', { name: 'Phiếu đảo chờ duyệt' }).getByRole('group');
-  await expect(request).toContainText('Ghi nhầm người nộp');
-  await expect(request).toContainText('Cần Hiệu trưởng duyệt');
+  const reversals = principal.getByRole('region', { name: 'Phiếu đảo chờ duyệt' });
+  await expect(reversals.getByRole('row').filter({ hasText: CHILD_NAME })).toContainText('Ghi nhầm người nộp');
+  await expect(reversals.getByRole('row').filter({ hasText: CHILD_NAME })).toContainText('Cần Hiệu trưởng duyệt');
+  const request = reversals.getByRole('group', { name: /^Phiếu đảo / });
   await request.getByRole('button', { name: 'Duyệt' }).click();
   await expect(principal.getByText('Không có phiếu đảo chờ duyệt.')).toBeVisible();
   await expect(

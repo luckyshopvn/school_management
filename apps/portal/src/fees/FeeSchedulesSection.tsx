@@ -1,6 +1,14 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Alert, Button, StatusBadge, TextField } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  ConfirmDeleteDialog,
+  FORM_CONTROL_CLASS,
+  FormBlock,
+  FormRow,
+  StatusBadge,
+} from '@school-management/ui';
 import { listGradeLevels } from '../catalogs/catalogs-api.js';
 import { ApiError } from '../session/api-client.js';
 import {
@@ -15,7 +23,8 @@ import {
 } from './fees-api.js';
 
 // Biểu phí theo phiên bản trong MH-04 (P05-01, BR-17, BR-18): lưới bậc học nhân khoản phí; phiên bản chưa tới ngày hiệu lực
-// sửa và xóa được, phiên bản đã có hiệu lực chỉ xem
+// sửa và xóa được, phiên bản đã có hiệu lực chỉ xem. Tên và tháng hiệu lực nhập theo khối, nút Ghi; xóa phải xác nhận
+// (DT-15 phần 15f1)
 const TUITION = 'tuition';
 
 function messageOf(error: unknown): string {
@@ -88,12 +97,15 @@ export function FeeSchedulesSection({
       onChanged('Đã lưu biểu phí');
     },
   });
+  const [deleting, setDeleting] = useState<FeeSchedule>();
   const remove = useMutation({
     mutationFn: (schedule: FeeSchedule) => deleteFeeSchedule(schedule.id),
     onSuccess: async () => {
+      setDeleting(undefined);
       await refresh();
       onChanged('Đã xóa phiên bản biểu phí');
     },
+    onError: () => setDeleting(undefined),
   });
 
   const latest = schedules.data?.[0];
@@ -121,21 +133,25 @@ export function FeeSchedulesSection({
           aria-label="Biểu mẫu biểu phí"
         >
           {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-            <TextField
-              label="Tên biểu phí"
-              value={form.name}
-              onChange={(event) => setForm({ ...form, name: event.target.value })}
-            />
-            {form.editingId ? null : (
-              <TextField
-                label="Hiệu lực từ tháng"
-                type="month"
-                value={form.month}
-                onChange={(event) => setForm({ ...form, month: event.target.value })}
+          <FormBlock title="Thông tin chung">
+            <FormRow label="Tên biểu phí">
+              <input
+                className={FORM_CONTROL_CLASS}
+                value={form.name}
+                onChange={(event) => setForm({ ...form, name: event.target.value })}
               />
+            </FormRow>
+            {form.editingId ? null : (
+              <FormRow label="Hiệu lực từ tháng">
+                <input
+                  className={FORM_CONTROL_CLASS}
+                  type="month"
+                  value={form.month}
+                  onChange={(event) => setForm({ ...form, month: event.target.value })}
+                />
+              </FormRow>
             )}
-          </div>
+          </FormBlock>
           <div className="overflow-x-auto">
             <table className="w-full text-content">
               <thead className="text-left text-label font-medium text-text-secondary">
@@ -178,7 +194,7 @@ export function FeeSchedulesSection({
           </div>
           <div className="flex gap-2">
             <Button variant="primary" disabled={save.isPending} onClick={() => save.mutate()}>
-              Lưu biểu phí
+              Ghi
             </Button>
             <Button variant="text" onClick={() => setForm(undefined)}>
               Hủy
@@ -223,7 +239,7 @@ export function FeeSchedulesSection({
                   Sửa
                 </Button>
                 {schedule.effective_to === null ? (
-                  <Button variant="text" disabled={remove.isPending} onClick={() => remove.mutate(schedule)}>
+                  <Button variant="text" disabled={remove.isPending} onClick={() => setDeleting(schedule)}>
                     Xóa
                   </Button>
                 ) : null}
@@ -254,6 +270,19 @@ export function FeeSchedulesSection({
           </table>
         </article>
       ))}
+      <ConfirmDeleteDialog
+        open={deleting !== undefined}
+        subject={`phiên bản biểu phí ${deleting?.name ?? ''}`}
+        busy={remove.isPending}
+        onCancel={() => setDeleting(undefined)}
+        onConfirm={() => {
+          if (deleting) {
+            remove.mutate(deleting);
+          }
+        }}
+      >
+        Chỉ xóa được phiên bản biểu phí chưa có hiệu lực.
+      </ConfirmDeleteDialog>
     </section>
   );
 }

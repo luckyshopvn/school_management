@@ -1,11 +1,22 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, StatusBadge, TextField, Toast } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  ConfirmDeleteDialog,
+  FORM_CONTROL_CLASS,
+  FormBlock,
+  FormRow,
+  StatusBadge,
+  TextField,
+  Toast,
+} from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { formatMoney, listCashflowCategories } from '../fees/fees-api.js';
 import { StatementImportSection } from './StatementImportSection.js';
 import { AppShell } from '../pages/AppShell.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import { listCashAccounts } from './finance-api.js';
@@ -18,10 +29,12 @@ import {
   matchStatementLine,
   readReconciliation,
   unmatchStatementLine,
+  type StatementLine,
 } from './finance-g2-api.js';
 
 // MH-11 phần giao dịch ngân hàng và đối chiếu (P06-06; BR-34; YCTD-82): nhập dòng sao kê, so phát sinh theo sổ và theo sao kê,
-// khớp tay hoặc khớp tự động với giao dịch của phiếu thu, phiếu chi
+// khớp tay hoặc khớp tự động với giao dịch của phiếu thu, phiếu chi. Màn hình đối chiếu hai bên giữ bố cục riêng; dòng
+// sao kê nhập theo biểu mẫu khối với nút Ghi, xóa dòng phải xác nhận (DT-15 phần 15f1)
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
@@ -59,6 +72,7 @@ export function BankReconciliationPage() {
   const [to, setTo] = useState(today);
   const [line, setLine] = useState({ date: today(), amount: '', description: '', reference: '' });
   const [matching, setMatching] = useState<string>();
+  const [deleting, setDeleting] = useState<StatementLine>();
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
 
@@ -87,15 +101,17 @@ export function BankReconciliationPage() {
     mutationFn: async (run: () => Promise<unknown>) => run(),
     onSuccess: async () => {
       setMatching(undefined);
+      setDeleting(undefined);
       await refresh();
     },
+    onError: () => setDeleting(undefined),
   });
   const data = reconciliation.data;
 
   return (
     <AppShell>
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Đối chiếu ngân hàng</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/bank-reconciliation')}</h1>
         <Toast message={toastMessage} onClose={closeToast} />
         <div className="flex flex-wrap items-end gap-4">
           <UnitSelect units={unitChoice.units} selectedId={orgUnitId} onSelect={unitChoice.select} />
@@ -182,45 +198,57 @@ export function BankReconciliationPage() {
             aria-label="Ghi dòng sao kê"
           >
             <h2 className="text-section-title font-semibold text-text">Ghi dòng sao kê</h2>
-            <div className="flex flex-wrap items-end gap-4">
-              <div className="w-44">
-                <TextField
-                  label="Ngày giao dịch"
-                  type="date"
-                  value={line.date}
-                  onChange={(event) => setLine({ ...line, date: event.target.value })}
-                />
+            <form
+              noValidate
+              aria-label="Biểu mẫu dòng sao kê"
+              className="flex flex-col gap-3"
+              onSubmit={(event) => {
+                event.preventDefault();
+                create.mutate();
+              }}
+            >
+              <FormBlock title="Dòng sao kê">
+                <FormRow label="Ngày giao dịch">
+                  <input
+                    className={FORM_CONTROL_CLASS}
+                    type="date"
+                    value={line.date}
+                    onChange={(event) => setLine({ ...line, date: event.target.value })}
+                  />
+                </FormRow>
+                <FormRow label="Số tiền (âm là tiền ra)">
+                  <input
+                    className={FORM_CONTROL_CLASS}
+                    type="number"
+                    value={line.amount}
+                    onChange={(event) => setLine({ ...line, amount: event.target.value })}
+                  />
+                </FormRow>
+                <FormRow label="Diễn giải">
+                  <input
+                    className={FORM_CONTROL_CLASS}
+                    value={line.description}
+                    onChange={(event) => setLine({ ...line, description: event.target.value })}
+                  />
+                </FormRow>
+                <FormRow label="Số tham chiếu">
+                  <input
+                    className={FORM_CONTROL_CLASS}
+                    value={line.reference}
+                    onChange={(event) => setLine({ ...line, reference: event.target.value })}
+                  />
+                </FormRow>
+              </FormBlock>
+              <div>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  disabled={!line.amount || !line.description.trim() || create.isPending}
+                >
+                  Ghi
+                </Button>
               </div>
-              <div className="w-48">
-                <TextField
-                  label="Số tiền (âm là tiền ra)"
-                  type="number"
-                  value={line.amount}
-                  onChange={(event) => setLine({ ...line, amount: event.target.value })}
-                />
-              </div>
-              <div className="w-72">
-                <TextField
-                  label="Diễn giải"
-                  value={line.description}
-                  onChange={(event) => setLine({ ...line, description: event.target.value })}
-                />
-              </div>
-              <div className="w-44">
-                <TextField
-                  label="Số tham chiếu"
-                  value={line.reference}
-                  onChange={(event) => setLine({ ...line, reference: event.target.value })}
-                />
-              </div>
-              <Button
-                variant="primary"
-                disabled={!line.amount || !line.description.trim() || create.isPending}
-                onClick={() => create.mutate()}
-              >
-                Ghi dòng sao kê
-              </Button>
-            </div>
+            </form>
             {create.error ? <Alert tone="danger">{messageOf(create.error)}</Alert> : null}
           </section>
         ) : null}
@@ -280,7 +308,7 @@ export function BankReconciliationPage() {
                               <Button variant="text" onClick={() => setMatching(row.id)}>
                                 Khớp
                               </Button>
-                              <Button variant="text" onClick={() => action.mutate(() => deleteStatementLine(row.id))}>
+                              <Button variant="text" onClick={() => setDeleting(row)}>
                                 Xóa
                               </Button>
                             </>
@@ -334,6 +362,20 @@ export function BankReconciliationPage() {
           </div>
         ) : null}
       </div>
+      <ConfirmDeleteDialog
+        open={deleting !== undefined}
+        subject={`dòng sao kê ${deleting?.description ?? ''}`}
+        busy={action.isPending}
+        onCancel={() => setDeleting(undefined)}
+        onConfirm={() => {
+          if (deleting) {
+            const id = deleting.id;
+            action.mutate(() => deleteStatementLine(id));
+          }
+        }}
+      >
+        Chỉ xóa được dòng sao kê chưa khớp.
+      </ConfirmDeleteDialog>
     </AppShell>
   );
 }
