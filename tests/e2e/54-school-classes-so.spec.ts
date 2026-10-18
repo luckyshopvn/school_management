@@ -124,23 +124,28 @@ test('CT-15b-9: 2.1 Hồ sơ lớp học: cột của Sở, thêm lớp theo kh�
   const siteId = await findUnitId('Điểm trường A1');
   await openMenu(page, '/classes');
   const grid = page.getByRole('region', { name: 'Danh sách lớp' });
+  // Cột hiện, ẩn mặc định và 50 dòng mỗi trang như màn hình 2.1 của Sở (YCTD-117)
   const headers = grid.getByRole('columnheader');
   for (const header of [
-    'Phân hiệu',
     'Mã lớp',
     'Tên lớp',
     'Nhóm lớp',
     'Nhóm trẻ',
     'Nhóm tuổi',
     'Thứ tự',
-    'Giáo viên chủ nhiệm',
     'Số học sinh',
     'Học 2 buổi/ngày',
+    'Lớp ghép',
+    'Ghép vào lớp',
     'Lớp bán trú',
-    'Điểm trường',
+    'Lớp giải thể',
   ]) {
     await expect(headers.filter({ hasText: header }).first()).toBeVisible();
   }
+  for (const header of ['Phân hiệu', 'Giáo viên chủ nhiệm', 'Điểm trường', 'Phòng học']) {
+    await expect(headers.filter({ hasText: header })).toHaveCount(0);
+  }
+  await expect(grid.getByLabel('Số dòng mỗi trang')).toHaveValue('50');
 
   await grid.getByRole('button', { name: 'Thêm mới' }).click();
   const form = page.getByRole('form', { name: 'Thêm mới lớp học' });
@@ -165,7 +170,6 @@ test('CT-15b-9: 2.1 Hồ sơ lớp học: cột của Sở, thêm lớp theo kh�
   const row = grid.getByRole('row', { name: `Lớp ${className}`, exact: true });
   await expect(row).toContainText('Lớp mẫu giáo');
   await expect(row).toContainText('3–4 tuổi');
-  await expect(row).toContainText('Điểm trường A1');
   await expect(row).toContainText('0/30');
 
   // Sửa: lớp ghép vào lớp khác của cùng đơn vị không có lựa chọn nên chỉ đánh dấu lớp ghép
@@ -184,14 +188,15 @@ test('CT-15b-9: 2.1 Hồ sơ lớp học: cột của Sở, thêm lớp theo kh�
   await expect(row).toBeVisible();
   await expect(grid.getByRole('row', { name: 'Lớp Mầm 1', exact: true })).toHaveCount(0);
 
-  // Bật cột Lớp ghép rồi xuất Excel đúng các cột đang hiện
+  // Bật cột Điểm trường (ẩn mặc định) rồi xuất Excel đúng các cột đang hiện
   await grid.getByRole('button', { name: 'Cấu hình cột hiển thị' }).click();
   const dialog = page.getByRole('dialog', { name: 'Cấu hình cột hiển thị' });
-  await dialog.getByRole('checkbox', { name: 'Lớp ghép', exact: true }).check();
+  await dialog.getByRole('checkbox', { name: 'Điểm trường', exact: true }).check();
   await dialog.getByRole('button', { name: 'Ghi' }).click();
-  await expect(row).toContainText('Có');
+  await expect(row).toContainText('Điểm trường A1');
   const header = await headerOf(page, grid, /^danh-sach-lop-.*\.xlsx$/);
-  expect(header.slice(0, 4)).toEqual(['STT', 'Phân hiệu', 'Mã lớp', 'Tên lớp']);
+  expect(header.slice(0, 4)).toEqual(['STT', 'Mã lớp', 'Tên lớp', 'Khối']);
+  expect(header).not.toContain('Phân hiệu');
   expect(header).toContain('Lớp ghép');
   expect(header).toContain('Điểm trường');
 });
