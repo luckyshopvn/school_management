@@ -4,6 +4,7 @@ import { Alert, TextField } from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { formatMoney } from '../fees/fees-api.js';
 import { AppShell } from '../pages/AppShell.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { listCashAccounts, readCashBook } from './finance-api.js';
 
@@ -40,7 +41,7 @@ export function CashBookPage() {
   return (
     <AppShell>
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Sổ quỹ</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/cash-book')}</h1>
         <div className="flex flex-wrap items-end gap-4">
           <UnitSelect units={unitChoice.units} selectedId={orgUnitId} onSelect={unitChoice.select} />
           <label className="flex flex-col gap-2 text-label font-medium text-text">

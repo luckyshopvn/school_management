@@ -1,10 +1,23 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, StatusBadge, TextField, Toast } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  DataGrid,
+  FORM_CONTROL_CLASS,
+  FormBlock,
+  FormRow,
+  StatusBadge,
+  TextField,
+  Toast,
+  type DataGridColumn,
+} from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { formatMoney } from '../fees/fees-api.js';
 import { AppShell } from '../pages/AppShell.js';
+import { useGridSettings } from '../pages/grid-settings.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import {
@@ -19,7 +32,8 @@ import {
 } from './finance-g2-api.js';
 
 // MH-61 Công nợ phải trả nhà cung cấp (P06-07; BR-28, BR-36; YCTD-82): ghi từ phiếu mua hàng, phiếu mua thuốc hoặc lập
-// tay; tổng còn phải trả theo nhà cung cấp, quá hạn; ghi đã trả bằng phiếu chi đã phát hành đúng số tiền
+// tay; tổng còn phải trả theo nhà cung cấp, quá hạn; ghi đã trả bằng phiếu chi đã phát hành đúng số tiền. Bảng phải trả
+// dùng lưới dữ liệu chung, lập tay theo biểu mẫu khối với nút Ghi (DT-15 phần 15f1)
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
@@ -80,14 +94,42 @@ function PayForm({
   );
 }
 
+const COLUMNS: Array<DataGridColumn<Payable>> = [
+  { id: 'code', header: 'Mã', alwaysVisible: true, className: 'font-medium', cell: (row) => row.code },
+  { id: 'payee_name', header: 'Người nhận', cell: (row) => row.payee_name },
+  { id: 'document', header: 'Chứng từ', cell: (row) => `${row.document_ref ?? ''} ${row.description}`.trim() },
+  { id: 'amount', header: 'Số tiền', className: 'text-right', cell: (row) => formatMoney(row.amount) },
+  {
+    id: 'due_date',
+    header: 'Hạn',
+    cell: (row) => `${row.due_date}${row.overdue_days > 0 ? ` (quá ${row.overdue_days} ngày)` : ''}`,
+  },
+  {
+    id: 'status',
+    header: 'Trạng thái',
+    cell: (row) => (
+      <>
+        <StatusBadge
+          tone={row.status === 'paid' ? 'success' : row.overdue_days > 0 ? 'danger' : 'warning'}
+          label={PAYABLE_STATUS_LABELS[row.status]}
+        />
+        {row.payment_code ? ` ${row.payment_code}` : ''}
+      </>
+    ),
+  },
+];
+
 export function PayablesPage() {
   const unitChoice = useUnitChoice();
   const orgUnitId = unitChoice.selectedId;
   const canManage = useHasPermission(PERMISSION_CODES.payableManage);
   const queryClient = useQueryClient();
+  const grid = useGridSettings('payables');
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
   const [payingId, setPayingId] = useState<string>();
+  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState('');
   const [dueDate, setDueDate] = useState(() => addDays(today(), 30));
   const [manual, setManual] = useState({
     supplierId: '',
@@ -124,11 +166,20 @@ export function PayablesPage() {
     onSuccess: refresh,
   });
   const data = payables.data;
+  const keyword = search.trim().toLocaleLowerCase('vi');
+  const rows = (data?.rows ?? []).filter(
+    (row) =>
+      (status === '' || row.status === status) &&
+      (keyword === '' ||
+        `${row.code} ${row.payee_name} ${row.document_ref ?? ''} ${row.description}`
+          .toLocaleLowerCase('vi')
+          .includes(keyword)),
+  );
 
   return (
     <AppShell>
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Nợ nhà cung cấp</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/payables')}</h1>
         <Toast message={toastMessage} onClose={closeToast} />
         <div className="flex flex-wrap items-end gap-4">
           <UnitSelect units={unitChoice.units} selectedId={orgUnitId} onSelect={unitChoice.select} />
@@ -136,6 +187,7 @@ export function PayablesPage() {
         {payables.error ? <Alert tone="danger">{messageOf(payables.error)}</Alert> : null}
         {create.error ? <Alert tone="danger">{messageOf(create.error)}</Alert> : null}
         {cancel.error ? <Alert tone="danger">{messageOf(cancel.error)}</Alert> : null}
+        {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
         {data ? (
           <section
             className="flex flex-wrap gap-6 rounded-xl border border-border bg-card p-4 text-content"
@@ -205,152 +257,149 @@ export function PayablesPage() {
                 ))}
               </ul>
             )}
-            <h3 className="text-label font-semibold text-text">Lập tay theo chứng từ của nhà cung cấp</h3>
-            <div className="flex flex-wrap items-end gap-4">
-              <label className="flex flex-col gap-2 text-label font-medium text-text">
-                Nhà cung cấp
-                <select
-                  value={manual.supplierId}
-                  onChange={(event) => setManual({ ...manual, supplierId: event.target.value })}
-                  className="rounded-lg border border-border bg-card px-3 py-2 text-content font-normal"
+            <form
+              noValidate
+              aria-label="Lập tay theo chứng từ của nhà cung cấp"
+              className="flex flex-col gap-3"
+              onSubmit={(event) => {
+                event.preventDefault();
+                create.mutate({
+                  org_unit_id: orgUnitId,
+                  ...(manual.supplierId ? { supplier_id: manual.supplierId } : { payee_name: manual.payeeName }),
+                  document_ref: manual.documentRef || undefined,
+                  description: manual.description,
+                  amount: Number(manual.amount),
+                  document_date: manual.documentDate,
+                  due_date: dueDate,
+                });
+              }}
+            >
+              <FormBlock title="Lập tay theo chứng từ của nhà cung cấp">
+                <FormRow label="Nhà cung cấp">
+                  <select
+                    className={FORM_CONTROL_CLASS}
+                    value={manual.supplierId}
+                    onChange={(event) => setManual({ ...manual, supplierId: event.target.value })}
+                  >
+                    <option value="">Nhập tên người nhận</option>
+                    {sources.data.suppliers.map((supplier) => (
+                      <option key={supplier.id} value={supplier.id}>
+                        {supplier.name}
+                      </option>
+                    ))}
+                  </select>
+                </FormRow>
+                {manual.supplierId ? null : (
+                  <FormRow label="Tên người nhận">
+                    <input
+                      className={FORM_CONTROL_CLASS}
+                      value={manual.payeeName}
+                      onChange={(event) => setManual({ ...manual, payeeName: event.target.value })}
+                    />
+                  </FormRow>
+                )}
+                <FormRow label="Số chứng từ">
+                  <input
+                    className={FORM_CONTROL_CLASS}
+                    value={manual.documentRef}
+                    onChange={(event) => setManual({ ...manual, documentRef: event.target.value })}
+                  />
+                </FormRow>
+                <FormRow label="Nội dung">
+                  <input
+                    className={FORM_CONTROL_CLASS}
+                    value={manual.description}
+                    onChange={(event) => setManual({ ...manual, description: event.target.value })}
+                  />
+                </FormRow>
+                <FormRow label="Số tiền">
+                  <input
+                    className={FORM_CONTROL_CLASS}
+                    type="number"
+                    value={manual.amount}
+                    onChange={(event) => setManual({ ...manual, amount: event.target.value })}
+                  />
+                </FormRow>
+                <FormRow label="Ngày chứng từ">
+                  <input
+                    className={FORM_CONTROL_CLASS}
+                    type="date"
+                    value={manual.documentDate}
+                    onChange={(event) => setManual({ ...manual, documentDate: event.target.value })}
+                  />
+                </FormRow>
+              </FormBlock>
+              <div>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  disabled={!manual.description.trim() || !manual.amount || create.isPending}
                 >
-                  <option value="">Nhập tên người nhận</option>
-                  {sources.data.suppliers.map((supplier) => (
-                    <option key={supplier.id} value={supplier.id}>
-                      {supplier.name}
+                  Ghi
+                </Button>
+              </div>
+            </form>
+          </section>
+        ) : null}
+        <DataGrid
+          label="Bảng phải trả"
+          columns={COLUMNS}
+          rows={rows}
+          getRowId={(row) => row.id}
+          getRowLabel={(row) => row.code}
+          loading={Boolean(orgUnitId) && payables.isPending}
+          emptyText="Chưa có công nợ phải trả."
+          search={{ label: 'Tìm theo mã, người nhận, chứng từ', value: search, onChange: setSearch }}
+          advancedSearch={
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+              <label className="text-label font-medium text-text">
+                Trạng thái
+                <select
+                  value={status}
+                  onChange={(event) => setStatus(event.target.value)}
+                  className={`mt-1 ${FORM_CONTROL_CLASS}`}
+                >
+                  <option value="">Tất cả</option>
+                  {Object.entries(PAYABLE_STATUS_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
                     </option>
                   ))}
                 </select>
               </label>
-              {manual.supplierId ? null : (
-                <div className="w-56">
-                  <TextField
-                    label="Tên người nhận"
-                    value={manual.payeeName}
-                    onChange={(event) => setManual({ ...manual, payeeName: event.target.value })}
-                  />
-                </div>
-              )}
-              <div className="w-40">
-                <TextField
-                  label="Số chứng từ"
-                  value={manual.documentRef}
-                  onChange={(event) => setManual({ ...manual, documentRef: event.target.value })}
-                />
-              </div>
-              <div className="w-64">
-                <TextField
-                  label="Nội dung"
-                  value={manual.description}
-                  onChange={(event) => setManual({ ...manual, description: event.target.value })}
-                />
-              </div>
-              <div className="w-40">
-                <TextField
-                  label="Số tiền"
-                  type="number"
-                  value={manual.amount}
-                  onChange={(event) => setManual({ ...manual, amount: event.target.value })}
-                />
-              </div>
-              <div className="w-44">
-                <TextField
-                  label="Ngày chứng từ"
-                  type="date"
-                  value={manual.documentDate}
-                  onChange={(event) => setManual({ ...manual, documentDate: event.target.value })}
-                />
-              </div>
-              <Button
-                variant="primary"
-                disabled={!manual.description.trim() || !manual.amount || create.isPending}
-                onClick={() =>
-                  create.mutate({
-                    org_unit_id: orgUnitId,
-                    ...(manual.supplierId ? { supplier_id: manual.supplierId } : { payee_name: manual.payeeName }),
-                    document_ref: manual.documentRef || undefined,
-                    description: manual.description,
-                    amount: Number(manual.amount),
-                    document_date: manual.documentDate,
-                    due_date: dueDate,
-                  })
-                }
-              >
-                Ghi công nợ phải trả
-              </Button>
             </div>
-          </section>
-        ) : null}
-        {data ? (
-          <section
-            className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
-            aria-label="Bảng phải trả"
-          >
-            {data.rows.length === 0 ? (
-              <p className="text-content text-text-secondary">Chưa có công nợ phải trả.</p>
-            ) : (
-              <table className="w-full text-content">
-                <thead className="text-left text-label font-medium text-text-secondary">
-                  <tr>
-                    <th className="px-3 py-2">Mã</th>
-                    <th className="px-3 py-2">Người nhận</th>
-                    <th className="px-3 py-2">Chứng từ</th>
-                    <th className="px-3 py-2 text-right">Số tiền</th>
-                    <th className="px-3 py-2">Hạn</th>
-                    <th className="px-3 py-2">Trạng thái</th>
-                    <th className="px-3 py-2" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.rows.map((payable) => (
-                    <tr key={payable.id} className="border-t border-border align-top">
-                      <td className="px-3 py-2 font-medium">{payable.code}</td>
-                      <td className="px-3 py-2">{payable.payee_name}</td>
-                      <td className="px-3 py-2">
-                        {payable.document_ref ?? ''} {payable.description}
-                      </td>
-                      <td className="px-3 py-2 text-right">{formatMoney(payable.amount)}</td>
-                      <td className="px-3 py-2">
-                        {payable.due_date}
-                        {payable.overdue_days > 0 ? ` (quá ${payable.overdue_days} ngày)` : ''}
-                      </td>
-                      <td className="px-3 py-2">
-                        <StatusBadge
-                          tone={payable.status === 'paid' ? 'success' : payable.overdue_days > 0 ? 'danger' : 'warning'}
-                          label={PAYABLE_STATUS_LABELS[payable.status]}
-                        />
-                        {payable.payment_code ? ` ${payable.payment_code}` : ''}
-                      </td>
-                      <td className="px-3 py-2">
-                        {canManage && payable.status === 'open' ? (
-                          payingId === payable.id && orgUnitId ? (
-                            <PayForm
-                              payable={payable}
-                              orgUnitId={orgUnitId}
-                              onDone={(message) => {
-                                setPayingId(undefined);
-                                setToastMessage(message);
-                              }}
-                            />
-                          ) : (
-                            <>
-                              <Button variant="text" onClick={() => setPayingId(payable.id)}>
-                                Trả {payable.code}
-                              </Button>
-                              <Button variant="text" onClick={() => cancel.mutate(payable)}>
-                                Hủy
-                              </Button>
-                            </>
-                          )
-                        ) : null}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </section>
-        ) : null}
+          }
+          rowActions={
+            canManage
+              ? (payable) =>
+                  payable.status === 'open' && payingId !== payable.id ? (
+                    <span className="flex flex-wrap justify-end gap-1">
+                      <Button variant="text" onClick={() => setPayingId(payable.id)}>
+                        Trả {payable.code}
+                      </Button>
+                      <Button variant="text" onClick={() => cancel.mutate(payable)}>
+                        Hủy
+                      </Button>
+                    </span>
+                  ) : null
+              : undefined
+          }
+          activeRowId={payingId}
+          renderRowDetail={(payable) =>
+            canManage && payable.status === 'open' && payingId === payable.id && orgUnitId ? (
+              <PayForm
+                payable={payable}
+                orgUnitId={orgUnitId}
+                onDone={(message) => {
+                  setPayingId(undefined);
+                  setToastMessage(message);
+                }}
+              />
+            ) : null
+          }
+          settings={grid.settings}
+          onSettingsChange={grid.update}
+        />
       </div>
     </AppShell>
   );

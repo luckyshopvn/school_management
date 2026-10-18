@@ -62,6 +62,10 @@ test('Kế toán lập phiếu chi kèm chứng từ và trình duyệt; Hiệu 
     .execute();
   await openMenu(accountant, '/payments');
   await accountant.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
+  await accountant
+    .getByRole('region', { name: 'Danh sách phiếu chi' })
+    .getByRole('button', { name: 'Thêm mới' })
+    .click();
   const form = accountant.getByRole('form', { name: 'Lập phiếu chi' });
   await expect(form.getByRole('combobox', { name: /^Nguồn chi/ })).toContainText('Quỹ tiền mặt cơ sở');
   await form.getByLabel('Người nhận').fill(PAYEE);
@@ -72,14 +76,20 @@ test('Kế toán lập phiếu chi kèm chứng từ và trình duyệt; Hiệu 
     mimeType: 'application/pdf',
     buffer: PDF,
   });
-  await form.getByRole('button', { name: 'Lưu và trình duyệt' }).click();
+  await form.getByRole('button', { name: 'Ghi và trình duyệt' }).click();
   await expect(accountant.getByRole('row', { name: `Phiếu chi ${PAYEE}` })).toContainText('Chờ duyệt');
 
   const { page: principal } = await signIn('VT-02', null);
   await openMenu(principal, '/payments');
   await principal.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
+  await expect(
+    principal
+      .getByRole('region', { name: 'Phiếu chi chờ duyệt', exact: true })
+      .getByRole('row')
+      .filter({ hasText: PAYEE })
+      .first(),
+  ).toContainText('Mua rau cho bữa trưa');
   const request = principal.getByRole('group', { name: `Phiếu chi cho ${PAYEE}` });
-  await expect(request).toContainText('Mua rau cho bữa trưa');
   await request.getByRole('button', { name: 'Duyệt' }).click();
   await expect(principal.getByText('Không có phiếu chi chờ duyệt.')).toBeVisible();
   await expect(principal.getByRole('row', { name: `Phiếu chi ${PAYEE}` })).toContainText('Đã phát hành');
@@ -115,15 +125,17 @@ test('Kế toán lập phiếu đảo phiếu chi; Hiệu trưởng duyệt thì
   await accountant.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
   const row = accountant.getByRole('row', { name: `Phiếu chi ${PAYEE}` });
   await row.getByRole('button', { name: 'Lập phiếu đảo' }).click();
-  await row.getByLabel(/^Lý do đảo/).fill('Cửa hàng trả lại tiền');
-  await row.getByRole('button', { name: 'Gửi duyệt phiếu đảo' }).click();
+  const list = accountant.getByRole('region', { name: 'Danh sách phiếu chi' });
+  await list.getByLabel(/^Lý do đảo/).fill('Cửa hàng trả lại tiền');
+  await list.getByRole('button', { name: 'Gửi duyệt phiếu đảo' }).click();
   await expect(row).toContainText('Chờ duyệt đảo');
 
   const principal = await signIn('VT-02', null);
   await openMenu(principal, '/payments');
   await principal.getByRole('combobox', { name: /^Đơn vị/ }).selectOption({ label: child.unit_name });
-  const request = principal.getByRole('region', { name: 'Phiếu đảo phiếu chi chờ duyệt' }).getByRole('group');
-  await expect(request).toContainText('Cửa hàng trả lại tiền');
+  const reversals = principal.getByRole('region', { name: 'Phiếu đảo phiếu chi chờ duyệt' });
+  await expect(reversals.getByRole('row').filter({ hasText: 'Cửa hàng trả lại tiền' })).toContainText(PAYEE);
+  const request = reversals.getByRole('group', { name: /^Phiếu đảo / });
   await request.getByRole('button', { name: 'Duyệt' }).click();
   await expect(principal.getByText('Không có phiếu đảo phiếu chi chờ duyệt.')).toBeVisible();
   await expect(principal.getByRole('row', { name: `Phiếu chi ${PAYEE}` })).toContainText('Đã đảo');
