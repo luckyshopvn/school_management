@@ -308,6 +308,11 @@ export const PORTAL_QUICK_LINK_PATHS = [
   // Thông báo hệ thống, ứng dụng liên kết (DT-16 phần 16c)
   '/system-announcements',
   '/app-links',
+  // Trường học, lớp học, lịch năm học đủ theo Sở (DT-16 phần 16e)
+  '/accreditation-review',
+  '/school-splits',
+  '/school-weeks',
+  '/year-rollover',
   // Nhân sự đủ theo Sở (DT-16 phần 16f): 3.1.2, 3.1.3, 3.1.5, 3.5, 5.2, 5.6
   '/staff-branches',
   '/staff-imports',
@@ -418,6 +423,8 @@ export const DATA_GRID_KEYS = [
   'generated-files',
   // Thông báo hệ thống (DT-16 phần 16c)
   'system-announcements',
+  // Tách trường (DT-16 phần 16e)
+  'school-splits',
   // Sức khỏe, thực đơn, thống kê học sinh (DT-16 phần 16h)
   'student-statistics-ethnic',
   // Học sinh đủ theo Sở (DT-16 phần 16g)

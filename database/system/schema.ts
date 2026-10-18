@@ -40,6 +40,9 @@ export interface SchoolWeeksTable {
   end_date: DateText;
   is_off: Generated<boolean>;
   note: string | null;
+  // Khai báo tuần theo Sở (DT-16 phần 16e): học kỳ chọn khác lịch, hiển thị
+  term_type: ColumnType<AcademicTermType | null, AcademicTermType | null | undefined, AcademicTermType | null>;
+  is_visible: Generated<boolean>;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
   created_by: string | null;
@@ -53,6 +56,8 @@ export interface AcademicYearDatabasesTable {
   opened_at: Date;
   closed_at: Date | null;
   carried_over_by: string | null;
+  // Giờ chuyển xong hồ sơ lên năm học (DT-16 phần 16e), dùng cho "Hủy" chuyển hồ sơ
+  carried_over_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
   created_by: string | null;

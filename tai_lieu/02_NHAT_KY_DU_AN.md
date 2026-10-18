@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.7
+- Phiên bản: 0.8
 - Ngày cập nhật: 2026-10-18
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,27 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-18 — DT-16 phần 16e: trường, lớp và lịch năm học theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu năm học: tệp `0054_create_accreditation_reviews_and_school_splits` tạo bảng `accreditation_reviews` (rà soát thông tin kiểm định CLGD), `school_split_requests`, `school_split_items` (tách trường). Cơ sở dữ liệu hệ thống: tệp `0013_add_school_week_fields_and_carry_over_time` thêm `school_weeks.term_type`, `school_weeks.is_visible`, `academic_year_databases.carried_over_at`.
+- Máy chủ API: ba khóa cấu hình của Trường chính (tên trường hiển thị, tên đơn vị hành chính, tính cân nặng/chiều cao cho trẻ suy dinh dưỡng thể nhẹ cân) kèm kiểu giá trị `text`; tên trường hiển thị ở `/portal-context`, `/public/login-info`; ô cân nặng/chiều cao áp cho 4.3.2; học kỳ, hiển thị của tuần ở `/academic-years/{id}/weeks`; trạng thái chuyển hồ sơ và Hủy chuyển hồ sơ (`/academic-years/rollover/status`, `/academic-years/{id}/cancel-open`); xóa lớp, thao tác hàng loạt trên lớp (`/classes/delete`, `/classes/bulk-update`); dòng giáo viên chưa phân công ở `/class-assignments`; bảy cột lớp theo Sở khi nhập lớp; `/accreditation-review`; nhóm `/school-splits` kèm xuất hồ sơ 82 cột, 75 cột.
+- Cổng quản trị: khối "Cấu hình trường" ở 1.4; mục mới "1.7. Rà soát thông tin kiểm định CLGD", "1.8. Tách trường", "3.4. Khai báo tuần", "5.7. Chuyển hồ sơ lên năm học mới"; 2.1 có ô chọn dòng, nút Thay đổi, Giải thể lớp đã chọn, Xóa lớp; 3.3 có dòng "Chưa phân công" và lọc Tình trạng phân công.
+- Thêm chức năng P01-24 đến P01-27 (sửa P01-08, P01-13, P02-05), kịch bản CT-551 đến CT-571, tiêu chí AC-595 đến AC-601, quy tắc BR-125, màn hình MH-123 đến MH-126. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 825/825 ca đạt; toàn bộ kiểm thử giao diện 129/129 ca đạt (CI, lượt chạy 39086989582); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Eric quyết định ngày 2026-10-16 làm đủ mọi tính năng đã khảo sát của hệ thống Sở (tài liệu 31); tính năng cần hệ thống ngoài làm bản chạy nội bộ, gồm 1.8 Tách trường. Thực hiện phần 16e của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7. Ba mục của khối "Cấu hình trường" chỉ đặt ở Trường chính; phòng bộ môn ở 1.7 là năm loại phòng giáo dục chuyên biệt, diện tích sàn là tổng diện tích phòng đang dùng; tách trường không truyền dữ liệu, xác nhận đi không đổi trạng thái hồ sơ học sinh, nhân sự; tuần đệm dùng lại cột tuần nghỉ; Hủy chuyển hồ sơ chỉ khi năm học mới chưa có dòng nào thêm hoặc sửa sau giờ chuyển xong và năm học đầu tiên không hủy được; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-127.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-127, `07_QUY_TAC_NGHIEP_VU.md` BR-125, `10_YEU_CAU_CHUC_NANG.md` P01-08, P01-13, P01-24 đến P01-27, P02-05, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-03, MH-30, MH-92, MH-93, MH-123 đến MH-126, `16_CO_SO_DU_LIEU.md` mục 2, 20, `17_DAC_TA_API.md` mục 5, 6, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.77.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7.
+
+#### Vấn đề tồn đọng
+
+- Tách trường chưa nối hệ thống của Sở (chỗ nối `SchoolSplitTransport`); tên đơn vị hành chính chưa in lên đầu báo cáo (phần 16j); ô cân nặng/chiều cao cho trẻ nhẹ cân chưa áp cho so sánh hai lần cân đo và thống kê 5.3; "Hiển thị" của tuần chưa được các màn hình chọn tuần khác dùng; cách tính phòng bộ môn, diện tích sàn ở 1.7 chưa đối chiếu biểu mẫu kiểm định chính thức.
 
 ### 2026-10-18 — DT-16 phần 16g: nhóm Học sinh đủ theo hệ thống của Sở
 

@@ -4,6 +4,7 @@ export {
   dropDatabaseIfExists,
   listDatabasesWithPrefix,
   makeDatabaseReadOnly,
+  makeDatabaseWritable,
 } from './database-administration.js';
 export { readConnectionString, replaceDatabaseName, type ServiceDatabaseKind } from './environment.js';
 export { migrateToLatest, schoolYearDatabasesToMigrate, type DatabaseKind } from './migrate.js';
@@ -88,6 +89,7 @@ export type {
   SettlementLine,
   JournalMood,
   SchoolYearDatabase,
+  SchoolSplitStatus,
   ServiceCalculationMethod,
   WorkScheduleType,
   HealthIndicator,

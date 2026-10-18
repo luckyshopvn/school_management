@@ -89,7 +89,22 @@ test('CT-16a-9: 2.2 Nhập lớp học: file mẫu kèm dữ liệu, tra cứu d
   );
   expect(withData.suggestedFilename()).toBe('mau-nhap-classes-kem-du-lieu.xlsx');
   const rows = await sheetRows(await withData.path());
-  expect(rows[0]).toEqual(['Mã đơn vị', 'Mã lớp', 'Tên lớp', 'Mã bậc học', 'Sĩ số tối đa', 'Mã phòng']);
+  // Từ DT-16 phần 16e mẫu có thêm bảy cột thông tin lớp theo Sở
+  expect(rows[0]).toEqual([
+    'Mã đơn vị',
+    'Mã lớp',
+    'Tên lớp',
+    'Mã bậc học',
+    'Sĩ số tối đa',
+    'Mã phòng',
+    'Nhóm tuổi',
+    'Thứ tự',
+    'Học 2 buổi/ngày',
+    'Lớp mẫu giáo ghép 2 hoặc 3 độ tuổi',
+    'Lớp ghép',
+    'Ghép vào lớp',
+    'Lớp bán trú',
+  ]);
   expect(rows.some((row) => row[2] === 'Mầm 1')).toBe(true);
   expect(
     (await sheetRows(await withData.path(), 'Danh mục')).some((row) => row[0] === 'Bậc học' && row[2] === 'MAM'),

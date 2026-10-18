@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import type { ImportType, SchoolYearDatabase } from '@school-management/database';
+import type { ClassAgeGroup, ImportType, SchoolYearDatabase } from '@school-management/database';
 import { ApplicationError, Clock, ruleViolationError, validationError } from '@school-management/server';
-import { PERMISSION_CODES } from '@school-management/shared';
+import { CLASS_AGE_GROUPS, PERMISSION_CODES } from '@school-management/shared';
 import type { Kysely, Transaction } from 'kysely';
 import { randomUUID } from 'node:crypto';
 import { IdentityClient } from '../authentication/identity-client.js';
@@ -21,12 +21,20 @@ import {
   buildTemplate,
   findHeaderRowNumber,
   parseDate,
+  readHeaders,
   readSheet,
   type ImportCatalog,
   type ImportColumn,
   type RowError,
   type SheetRow,
 } from './excel.js';
+import { classAgeGroup } from '../statistics/statistics-calc.js';
+import {
+  CLASS_SO_IMPORT_COLUMNS,
+  checkClassSoRules,
+  classSoTemplateValues,
+  readClassSoValues,
+} from './class-import-fields.js';
 import { MOET_CHILD_HEADERS, MOET_STAFF_HEADERS, MoetImports, type MoetPreview } from './moet-imports.js';
 import { STUDENT_RECORDS_RULE_CODE } from '../student-records/student-records-common.js';
 import {
@@ -59,6 +67,8 @@ export const IMPORT_COLUMNS: Record<TemplateImportType, ImportColumn[]> = {
     { key: 'grade_level', header: 'Mã bậc học', note: 'Mã trong danh mục bậc học đang dùng, bắt buộc' },
     { key: 'max_size', header: 'Sĩ số tối đa', note: 'Số nguyên từ 1 đến 200, bắt buộc' },
     { key: 'room_code', header: 'Mã phòng', note: 'Mã phòng học đang dùng của cùng đơn vị, để trống nếu chưa có' },
+    // Thông tin lớp theo Sở (DT-16 phần 16e)
+    ...CLASS_SO_IMPORT_COLUMNS,
   ],
   children: [
     { key: 'unit_code', header: 'Mã đơn vị', note: 'Mã đơn vị của lớp, bắt buộc' },
@@ -161,6 +171,24 @@ const CLASS_CREATE_COLUMNS: Array<[string, string]> = [
   ['max_size', 'Sĩ số tối đa'],
 ];
 
+// Cột ghi nhật ký khi nhập lớp (gồm thông tin lớp theo Sở, DT-16 phần 16e)
+const CLASS_AUDIT_COLUMNS = [
+  'id',
+  'org_unit_id',
+  'code',
+  'name',
+  'grade_level',
+  'room_id',
+  'max_size',
+  'age_group',
+  'sort_order',
+  'two_sessions_per_day',
+  'mixed_age_count',
+  'is_combined',
+  'combined_into_class_id',
+  'boarding',
+] as const;
+
 export interface ImportColumnInfo {
   key: string;
   header: string;
@@ -188,7 +216,18 @@ const PHONE_PATTERN = /^0\d{9}$/;
 const NATIONAL_ID_PATTERN = /^\d{12}$/;
 const VIETNAM_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
 
-interface ClassRow {
+// Thông tin lớp theo Sở nhập được từ tệp (DT-16 phần 16e)
+interface ClassSoRow {
+  age_group: ClassAgeGroup | null;
+  sort_order: number | null;
+  two_sessions_per_day: boolean;
+  mixed_age_count: number | null;
+  is_combined: boolean;
+  combined_into_class_id: string | null;
+  boarding: boolean;
+}
+
+interface ClassRow extends ClassSoRow {
   org_unit_id: string;
   code: string;
   name: string;
@@ -201,7 +240,7 @@ interface ClassRow {
 interface ClassUpdate {
   id: string;
   org_unit_id: string;
-  changes: Partial<Pick<ClassRow, 'name' | 'max_size' | 'room_id'>>;
+  changes: Partial<Pick<ClassRow, 'name' | 'max_size' | 'room_id'> & ClassSoRow>;
 }
 
 interface ChildRow {
@@ -338,6 +377,28 @@ export class ImportsService {
   }
 
   // Cột được chọn để nhập; bỏ trống là mọi cột. Cột khóa, bắt buộc luôn được thêm vào
+  // Tệp lớp học theo mẫu trước DT-16 phần 16e không có bảy cột thông tin lớp theo Sở: cột của Sở không có trong tệp coi như
+  // không chọn (lớp đã có giữ nguyên giá trị, lớp mới lấy mặc định); loại nhập khác giữ nguyên
+  private async keysInFile(
+    type: TemplateImportType,
+    body: Buffer,
+    keys: string[] | undefined,
+  ): Promise<string[] | undefined> {
+    if (type !== 'classes') {
+      return keys;
+    }
+    const headers = await readHeaders(body);
+    const soKeys = new Set<string>(CLASS_SO_IMPORT_COLUMNS.map((column) => column.key));
+    const missing: string[] = CLASS_SO_IMPORT_COLUMNS.filter((column) => !headers.has(column.header)).map(
+      (column) => column.key,
+    );
+    if (missing.length === 0) {
+      return keys;
+    }
+    const base = keys ?? IMPORT_COLUMNS.classes.map((column) => column.key);
+    return base.filter((key) => !soKeys.has(key) || !missing.includes(key));
+  }
+
   selection(type: TemplateImportType, keys: string[] | undefined): Set<string> {
     const all = IMPORT_COLUMNS[type].map((column) => column.key);
     if (!keys) {
@@ -394,6 +455,16 @@ export class ImportsService {
       return [
         unitCatalog,
         { key: 'grade_levels', title: 'Bậc học', column: 'Mã bậc học', items: gradeLevels },
+        {
+          key: 'age_groups',
+          title: 'Nhóm tuổi',
+          column: 'Nhóm tuổi',
+          items: CLASS_AGE_GROUPS.map((group) => ({
+            code: group.key,
+            name: group.label,
+            note: group.stage === 'nhom_tre' ? 'Nhóm trẻ' : 'Lớp mẫu giáo',
+          })),
+        },
         {
           key: 'rooms',
           title: 'Phòng học',
@@ -488,6 +559,7 @@ export class ImportsService {
       .selectFrom('classes')
       .innerJoin('org_units', 'org_units.id', 'classes.org_unit_id')
       .leftJoin('rooms', 'rooms.id', 'classes.room_id')
+      .leftJoin('classes as target', 'target.id', 'classes.combined_into_class_id')
       .select([
         'org_units.code as unit_code',
         'classes.code as class_code',
@@ -495,6 +567,13 @@ export class ImportsService {
         'classes.grade_level',
         'classes.max_size',
         'rooms.code as room_code',
+        'classes.age_group',
+        'classes.sort_order',
+        'classes.two_sessions_per_day',
+        'classes.mixed_age_count',
+        'classes.is_combined',
+        'target.code as combined_into_code',
+        'classes.boarding',
       ])
       .where('classes.status', '=', 'active')
       .orderBy('org_units.code')
@@ -502,7 +581,15 @@ export class ImportsService {
     if (!scope.wholeSchool) {
       query = query.where('classes.org_unit_id', 'in', scope.orgUnitIds);
     }
-    return query.execute();
+    return (await query.execute()).map((row) => ({
+      unit_code: row.unit_code,
+      class_code: row.class_code,
+      class_name: row.class_name,
+      grade_level: row.grade_level,
+      max_size: row.max_size,
+      room_code: row.room_code,
+      ...classSoTemplateValues(row),
+    }));
   }
 
   // "Xuất file lỗi": tệp gốc của lần nhập kèm cột Nội dung lỗi theo từng dòng
@@ -550,13 +637,14 @@ export class ImportsService {
       ({ errors, totalRows, preview } = await this.validateMoet(database, currentUser, type, orgUnitId ?? '', body));
     } else {
       // Cột được chọn lưu kèm lần nhập để bước ghi đọc tệp đúng như lúc kiểm tra (DT-16 phần 16a)
-      const selected = this.selection(type, selectedKeys);
-      const rows = await readSheet(body, IMPORT_COLUMNS[type], selectedKeys ? selected : undefined);
+      const keys = await this.keysInFile(type, body, selectedKeys);
+      const selected = this.selection(type, keys);
+      const rows = await readSheet(body, IMPORT_COLUMNS[type], keys ? selected : undefined);
       errors = isStudentImportType(type)
         ? (await this.studentImports.validate(database, currentUser, type, rows, selected)).errors
         : (await this.validate(database, currentUser, type, rows, selected)).errors;
       totalRows = rows.length;
-      preview = selectedKeys ? { selected_columns: [...selected] } : null;
+      preview = keys ? { selected_columns: [...selected] } : null;
     }
     const storageKey = `import/${randomUUID()}`;
     const contentType = contentTypeOf(body);
@@ -643,13 +731,10 @@ export class ImportsService {
       }
       return this.commitMoet(database, currentUser, accessToken, type, job, origin);
     }
-    const selectedKeys = selectedColumnsOf(job.preview);
-    const selected = this.selection(type, selectedKeys ?? undefined);
-    const rows = await readSheet(
-      await this.fileStorage.get(job.storage_key),
-      IMPORT_COLUMNS[type],
-      selectedKeys ? selected : undefined,
-    );
+    const body = await this.fileStorage.get(job.storage_key);
+    const selectedKeys = await this.keysInFile(type, body, selectedColumnsOf(job.preview) ?? undefined);
+    const selected = this.selection(type, selectedKeys);
+    const rows = await readSheet(body, IMPORT_COLUMNS[type], selectedKeys ? selected : undefined);
     if (isStudentImportType(type)) {
       return this.commitStudentImport(database, currentUser, type, rows, selected, jobId, origin);
     }
@@ -706,7 +791,7 @@ export class ImportsService {
           const created = await transaction
             .insertInto('classes')
             .values({ ...row, academic_year_id: academicYearId, created_by: origin.actorUserId })
-            .returning(['id', 'org_unit_id', 'code', 'name', 'grade_level', 'room_id', 'max_size'])
+            .returning(CLASS_AUDIT_COLUMNS)
             .executeTakeFirstOrThrow();
           await writeAuditLog(transaction, {
             origin,
@@ -722,14 +807,14 @@ export class ImportsService {
         for (const update of validated.classUpdates) {
           const before = await transaction
             .selectFrom('classes')
-            .select(['id', 'org_unit_id', 'code', 'name', 'grade_level', 'room_id', 'max_size'])
+            .select(CLASS_AUDIT_COLUMNS)
             .where('id', '=', update.id)
             .executeTakeFirstOrThrow();
           const updated = await transaction
             .updateTable('classes')
             .set({ ...update.changes, updated_at: this.clock.now() })
             .where('id', '=', update.id)
-            .returning(['id', 'org_unit_id', 'code', 'name', 'grade_level', 'room_id', 'max_size'])
+            .returning(CLASS_AUDIT_COLUMNS)
             .executeTakeFirstOrThrow();
           await writeAuditLog(transaction, {
             origin,
@@ -1309,7 +1394,9 @@ export class ImportsService {
   }
 
   // Lớp mới cần đủ cột bắt buộc; lớp đã có (cùng mã đơn vị, mã lớp) cập nhật các cột được chọn, không đổi bậc học ở đây vì
-  // bậc học ràng buộc nhóm tuổi, lớp ghép của 2.1 Hồ sơ lớp học (DT-16 phần 16a)
+  // bậc học ràng buộc nhóm tuổi, lớp ghép của 2.1 Hồ sơ lớp học (DT-16 phần 16a). Cột thông tin lớp theo Sở (DT-16 phần
+  // 16e) kiểm tra như 2.1: lớp mẫu giáo mới ghép độ tuổi; lớp ghép vào là lớp đang dùng đã có của cùng đơn vị, không phải
+  // chính nó, không ghép vào lớp khác, không có lớp khác ghép vào lớp đang ghép
   private async validateClasses(
     database: Executor,
     rows: SheetRow[],
@@ -1319,7 +1406,7 @@ export class ImportsService {
   ): Promise<{ creates: ClassRow[]; updates: ClassUpdate[] }> {
     const gradeLevels = await database
       .selectFrom('grade_levels')
-      .select('code')
+      .select(['code', 'age_from_months'])
       .where('status', '=', 'active')
       .execute();
     const rooms = await database
@@ -1329,7 +1416,17 @@ export class ImportsService {
       .execute();
     const existing = await database
       .selectFrom('classes')
-      .select(['id', 'org_unit_id', 'code', 'grade_level'])
+      .select([
+        'id',
+        'org_unit_id',
+        'code',
+        'grade_level',
+        'status',
+        'age_group',
+        'mixed_age_count',
+        'is_combined',
+        'combined_into_class_id',
+      ])
       .execute();
     const seen = new Set<string>();
     const creates: ClassRow[] = [];
@@ -1382,11 +1479,61 @@ export class ImportsService {
         }
         seen.add(key);
       }
+
+      // Thông tin lớp theo Sở: giá trị trong tệp, cột không chọn thì lấy của lớp đã có (lớp mới lấy mặc định)
+      const so = readClassSoValues(row, values, selected, errors);
+      const currentTarget = current?.combined_into_class_id
+        ? existing.find((item) => item.id === current.combined_into_class_id)
+        : undefined;
+      const grade = gradeLevels.find((level) => level.code === (current?.grade_level ?? values.grade_level));
+      const merged = {
+        age_group: so.age_group !== undefined ? so.age_group : (current?.age_group ?? null),
+        mixed_age_count: so.mixed_age_count !== undefined ? so.mixed_age_count : (current?.mixed_age_count ?? null),
+        is_combined: so.is_combined ?? current?.is_combined ?? false,
+        combined_into_code: so.combined_into_code !== undefined ? so.combined_into_code : (currentTarget?.code ?? null),
+      };
+      checkClassSoRules(
+        row,
+        {
+          ...merged,
+          age_group: merged.age_group ?? (classAgeGroup(grade?.age_from_months ?? 36) as ClassAgeGroup),
+        },
+        errors,
+      );
+      let combinedIntoId: string | null = null;
+      if (merged.combined_into_code && merged.is_combined && orgUnitId) {
+        const target = existing.find(
+          (item) => item.org_unit_id === orgUnitId && item.code === merged.combined_into_code,
+        );
+        if (!target || target.status !== 'active' || target.combined_into_class_id !== null) {
+          errors.push({
+            row,
+            column: 'Ghép vào lớp',
+            message: 'Lớp ghép vào phải là lớp đang dùng đã có của cùng đơn vị và chưa ghép vào lớp khác',
+          });
+        } else if (current && target.id === current.id) {
+          errors.push({ row, column: 'Ghép vào lớp', message: 'Lớp không ghép vào chính nó' });
+        } else if (current && existing.some((item) => item.combined_into_class_id === current.id)) {
+          errors.push({ row, column: 'Ghép vào lớp', message: 'Lớp đã có lớp khác ghép vào; không ghép vào lớp khác' });
+        } else {
+          combinedIntoId = target.id;
+        }
+      }
       if (errors.length !== before || !orgUnitId) {
         continue;
       }
+      const soChanges: Partial<ClassSoRow> = {};
+      if (so.age_group !== undefined) soChanges.age_group = so.age_group;
+      if (so.sort_order !== undefined) soChanges.sort_order = so.sort_order;
+      if (so.two_sessions_per_day !== undefined) soChanges.two_sessions_per_day = so.two_sessions_per_day;
+      if (so.mixed_age_count !== undefined) soChanges.mixed_age_count = so.mixed_age_count;
+      if (so.boarding !== undefined) soChanges.boarding = so.boarding;
+      if (so.is_combined !== undefined || so.combined_into_code !== undefined) {
+        soChanges.is_combined = merged.is_combined;
+        soChanges.combined_into_class_id = merged.is_combined ? combinedIntoId : null;
+      }
       if (current) {
-        const changes: ClassUpdate['changes'] = {};
+        const changes: ClassUpdate['changes'] = { ...soChanges };
         if (selected.has('class_name')) {
           changes.name = values.class_name ?? '';
         }
@@ -1405,6 +1552,14 @@ export class ImportsService {
           grade_level: values.grade_level ?? '',
           max_size: maxSize,
           room_id: room?.id ?? null,
+          age_group: null,
+          sort_order: null,
+          two_sessions_per_day: false,
+          mixed_age_count: null,
+          is_combined: false,
+          combined_into_class_id: null,
+          boarding: false,
+          ...soChanges,
         });
       }
     }

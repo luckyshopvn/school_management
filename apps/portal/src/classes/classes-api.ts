@@ -87,9 +87,10 @@ export interface StaffDirectoryEntry {
   role_code: string;
 }
 
+// Dòng của giáo viên chưa phân công (DT-16 phần 16e) để trống lớp, vai trò, ngày
 export interface ClassAssignmentRow {
   id: string;
-  class_id: string;
+  class_id: string | null;
   class_code: string;
   class_name: string;
   grade_name: string;
@@ -97,15 +98,23 @@ export interface ClassAssignmentRow {
   org_unit_name: string;
   staff_user_id: string;
   staff_name: string;
-  assignment_role: AssignmentRole;
+  assignment_role: AssignmentRole | null;
   subject_name: string | null;
-  from_date: string;
+  from_date: string | null;
 }
 
 export interface ClassAssignmentFilter {
   q?: string;
   org_unit_id?: string;
   assignment_role?: string;
+  // Tình trạng phân công: assigned, unassigned; trống là cả hai
+  assignment?: string;
+}
+
+// Kết quả xóa lớp, thao tác hàng loạt (DT-16 phần 16e)
+export interface BulkClassResult {
+  succeeded: Array<{ id: string; name: string }>;
+  failed: Array<{ id: string; name: string; message: string }>;
 }
 
 export const ASSIGNMENT_ROLE_LABELS: Record<AssignmentRole, string> = {
@@ -139,6 +148,19 @@ export const createClass = (input: ClassInput): Promise<ClassRecord> =>
 
 export const updateClass = (classId: string, changes: ClassChanges): Promise<ClassRecord> =>
   requestJson(`/api/v1/classes/${classId}`, { method: 'PATCH', body: JSON.stringify(changes) });
+
+// Xóa lớp chưa phát sinh dữ liệu và thao tác hàng loạt trên các lớp đã chọn (DT-16 phần 16e)
+export const deleteClasses = (classIds: string[]): Promise<BulkClassResult> =>
+  requestJson('/api/v1/classes/delete', { method: 'POST', body: JSON.stringify({ class_ids: classIds }) });
+
+export const bulkUpdateClasses = (
+  classIds: string[],
+  changes: { status?: ClassStatus; two_sessions_per_day?: boolean; boarding?: boolean },
+): Promise<BulkClassResult> =>
+  requestJson('/api/v1/classes/bulk-update', {
+    method: 'POST',
+    body: JSON.stringify({ class_ids: classIds, ...changes }),
+  });
 
 export const listAssignments = (classId: string): Promise<StaffAssignment[]> =>
   requestJson(`/api/v1/classes/${classId}/staff-assignments`);
