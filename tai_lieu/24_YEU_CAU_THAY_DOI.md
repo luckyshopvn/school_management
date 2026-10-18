@@ -29,7 +29,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - API bị ảnh hưởng: nhóm điểm cuối mới `/api/v1/signing` (xem `17_DAC_TA_API.md`); `buildPdf` nhận thêm tùy chọn, các nơi gọi cũ không đổi.
 - Giao diện bị ảnh hưởng: màn hình mới MH-137 đến MH-140; ô chọn phân hệ có thêm "Quản lý kí hồ sơ" với người có quyền. Ứng dụng giáo viên, phụ huynh không đổi.
 - Quyền bị ảnh hưởng: `P01.signing.view`, `P01.signing.manage`, `P01.signing.sign`, `P01.signing.certificate` (PQ-75). Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
-- Ảnh hưởng chức năng cũ: không có.
+- Ảnh hưởng chức năng cũ: "1.2. Phân quyền nhóm theo phần mềm" có 12 phân hệ thay 11; nhóm đã có giữ đủ phân hệ (phân hệ thêm sau mặc định được dùng, YCTD-120), trừ nhóm Phụ huynh.
 - Hạn chế:
   - Không có chữ ký số thật: tệp đã kí là xác nhận trên phần mềm, không có giá trị của văn bản kí số; không có "Đăng nhập và kí". Chỗ nối `DossierSigner` để nối nhà cung cấp kí từ xa sau.
   - Không kết nối hệ thống của Bộ, Sở: đồng bộ chứng thư và gửi hồ sơ là trạng thái nhà trường tự đánh dấu.
