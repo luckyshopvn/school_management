@@ -91,7 +91,7 @@ export class FacilityReportService {
   ) {
     forms.register({
       code: FACILITIES_REPORT_FORM,
-      name: '1.2 Báo cáo cơ sở vật chất',
+      name: 'Báo cáo cơ sở vật chất',
       permission: PERMISSION_CODES.facilitiesReport,
       unlockPermission: PERMISSION_CODES.schoolProfileManage,
       completeness: async (currentUser) => {

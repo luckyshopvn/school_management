@@ -28,7 +28,7 @@ export class EquipmentSubmissionForm {
   ) {
     forms.register({
       code: EQUIPMENT_SUMMARY_FORM,
-      name: '2.3 Tổng hợp thiết bị dạy học',
+      name: 'Tổng hợp thiết bị dạy học',
       permission: PERMISSION_CODES.facilitiesReport,
       unlockPermission: PERMISSION_CODES.schoolProfileManage,
       allowNoData: true,
