@@ -19,7 +19,7 @@
 #### Công việc đã thực hiện
 
 - Đưa 8 trang của năm phân hệ Bếp – kho, mua hàng; Tương tác – truyền thông; Giảng dạy; Tuyển sinh, tuyển dụng; Báo cáo sang giao diện chung của Sở: tiêu đề có số theo menu (1. Kho và tài sản, 2. Đề nghị mua hàng, 1. Tương tác với phụ huynh, 2. Hoạt động và tin tức, 1. Bài học và giáo án, 1. Tuyển sinh, 2. Tuyển dụng, 1. Báo cáo và bảng điều khiển); 32 lưới dữ liệu chung (tồn kho, sổ kho, tài sản, hỏng và mất, kiểm kê, phiếu mua hàng, nhà cung cấp, đề nghị mua hàng, bình chọn, khảo sát, góp ý, đồ bị mất, bình luận, danh mục nội dung, tin tức, thư viện, ngoại khóa, giáo án chờ duyệt, bài học, danh mục bài học, kế hoạch giảng dạy, tuyển sinh, tuyển dụng, nhật ký xuất); nút Thêm mới mở biểu mẫu theo khối, nút Ghi. Lưới Danh mục tài sản có cột "Thiết bị dạy học" khi người dùng có quyền quản lý thiết bị dạy học, giữ phần gắn tài sản với thiết bị dạy học của DT-16 phần 16i (YCTD-128). Thêm thành phần `FormPanel.tsx` của cổng quản trị. Nghiệp vụ, điểm cuối, quyền không đổi; không có tệp thay đổi cấu trúc dữ liệu.
-- Thêm kịch bản CT-599 đến CT-606, tiêu chí AC-616 đến AC-623; không có quy tắc nghiệp vụ, quy tắc phân quyền, chức năng, màn hình mới (đổi MH-20 đến MH-29, MH-36, MH-57, MH-63); thêm kiểm thử giao diện `tests/e2e/67-communication-grids.spec.ts`. Kết quả: build, kiểm tra kiểu, lint, kiểm tra định dạng đạt; kiểm thử đơn vị toàn bộ kho mã: 848/848 ca đạt; toàn bộ kiểm thử giao diện: 134/134 ca đạt.
+- Thêm kịch bản CT-611 đến CT-618, tiêu chí AC-628 đến AC-635; không có quy tắc nghiệp vụ, quy tắc phân quyền, chức năng, màn hình mới (đổi MH-20 đến MH-29, MH-36, MH-57, MH-63); thêm kiểm thử giao diện `tests/e2e/67-communication-grids.spec.ts`. Kết quả: build, kiểm tra kiểu, lint, kiểm tra định dạng đạt; kiểm thử đơn vị toàn bộ kho mã: 848/848 ca đạt; toàn bộ kiểm thử giao diện: 134/134 ca đạt.
 
 #### Quyết định
 
@@ -27,7 +27,7 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-115, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-20 đến MH-29, MH-36, MH-57, MH-63, BC-13, BC-16, `11_TIEU_CHI_NGHIEM_THU.md` AC-616 đến AC-623, `16_CO_SO_DU_LIEU.md` mục `user_grid_settings`, `17_DAC_TA_API.md` giao kèo cấu hình lưới, `21_KICH_BAN_KIEM_THU.md` CT-599 đến CT-606, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.82.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 6.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-115, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-20 đến MH-29, MH-36, MH-57, MH-63, BC-13, BC-16, `11_TIEU_CHI_NGHIEM_THU.md` AC-628 đến AC-635, `16_CO_SO_DU_LIEU.md` mục `user_grid_settings`, `17_DAC_TA_API.md` giao kèo cấu hình lưới, `21_KICH_BAN_KIEM_THU.md` CT-611 đến CT-618, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.83.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 6.
 
 #### Vấn đề tồn đọng
 

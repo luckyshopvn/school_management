@@ -16,14 +16,14 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.82.0 – 2026-10-18
+### Phiên bản 0.83.0 – 2026-10-18
 
 - Phạm vi thay đổi: DT-15 phần 15f3, các phân hệ Bếp – kho, mua hàng; Tương tác – truyền thông; Giảng dạy; Tuyển sinh, tuyển dụng; Báo cáo theo giao diện chung của Sở (YCTD-115).
 - Chức năng mới: tiêu đề 8 trang của năm phân hệ có số theo menu (1. Kho và tài sản, 2. Đề nghị mua hàng, 1. Tương tác với phụ huynh, 2. Hoạt động và tin tức, 1. Bài học và giáo án, 1. Tuyển sinh, 2. Tuyển dụng, 1. Báo cáo và bảng điều khiển); 32 lưới dữ liệu dùng chung ở 8 trang (tìm kiếm, Mở rộng tìm kiếm, cấu hình cột và số dòng theo người dùng); nút Thêm mới mở biểu mẫu theo khối có nút Ghi, Hủy; lưới Danh mục tài sản có cột "Thiết bị dạy học" khi có quyền quản lý thiết bị dạy học (P03, P13 đến P18). Nghiệp vụ không đổi.
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: không có bảng, cột mới; cấu hình lưới mới lưu ở `user_grid_settings` sẵn có.
 - Thay đổi API: không có điểm cuối mới; `GET`, `PUT /me/grid-settings/{gridKey}` nhận thêm 32 khóa lưới.
-- Kiểm thử: kịch bản CT-599 đến CT-606. Kết quả: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r --workspace-concurrency=1 --no-bail test`): 848/848 ca đạt; toàn bộ kiểm thử giao diện: 134/134 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử: kịch bản CT-611 đến CT-618. Kết quả: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r --workspace-concurrency=1 --no-bail test`): 848/848 ca đạt; toàn bộ kiểm thử giao diện: 134/134 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Rủi ro: lưới lọc, phân trang tại chỗ nên danh sách rất dài vẫn tải một lần như trước; người dùng quen biểu mẫu luôn hiện phải bấm "Thêm mới" để mở biểu mẫu.
 - Khả năng tương thích: đường dẫn, điểm cuối, quyền không đổi; không có quyền mới; ứng dụng giáo viên, phụ huynh không đổi.
 - Phương án quay lui: hoàn lại commit gộp của nhánh `dt-15-phan-15f3`; không có tệp thay đổi cấu trúc dữ liệu; dòng cấu hình của 32 khóa lưới ở `user_grid_settings` để lại không ảnh hưởng (khóa lạ không còn được đọc).
