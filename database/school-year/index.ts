@@ -54,6 +54,7 @@ import { migration as createAccreditationReviewsAndSchoolSplits } from './migrat
 import { migration as addStaffSoParity } from './migrations/0055_add_staff_so_parity.js';
 import { migration as addStudentRecordsSo } from './migrations/0056_add_student_records_so.js';
 import { migration as addStudentHealthAndMenuFields } from './migrations/0057_add_student_health_and_menu_fields.js';
+import { migration as addFacilitiesSoParity } from './migrations/0058_add_facilities_so_parity.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
@@ -112,4 +113,5 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0055_add_staff_so_parity': addStaffSoParity,
   '0056_add_student_records_so': addStudentRecordsSo,
   '0057_add_student_health_and_menu_fields': addStudentHealthAndMenuFields,
+  '0058_add_facilities_so_parity': addFacilitiesSoParity,
 };

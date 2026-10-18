@@ -185,6 +185,17 @@ export function readRoomFacility(
       'facility_attributes',
       errors,
     );
+    // Thuộc tính riêng của một số loại phòng (thông tin nhà vệ sinh) chỉ ghi cho đúng loại phòng đó (DT-16 phần 16i)
+    for (const field of ROOM_ATTRIBUTES) {
+      if (
+        field.roomTypes &&
+        changes.facility_attributes[field.key] !== undefined &&
+        (effectiveType === null || !field.roomTypes.includes(effectiveType))
+      ) {
+        const types = field.roomTypes.map((type) => ROOM_TYPES.find((item) => item.value === type)?.label ?? type);
+        errors.push({ field: `facility_attributes.${field.key}`, message: `Chỉ khai báo cho ${types.join(', ')}` });
+      }
+    }
   }
   return changes;
 }

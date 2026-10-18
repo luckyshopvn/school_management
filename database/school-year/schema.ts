@@ -3220,6 +3220,56 @@ export interface StudentTransfersTable extends CatalogRecordColumns {
   file_id: string | null;
 }
 
+// Cơ sở vật chất đủ theo hệ thống của Sở (DT-16 phần 16i): 6.1 thực trạng và nhu cầu đầu tư phòng học, nhà công vụ; mức độ
+// đạt chuẩn theo khối phòng của 1.2; lần nhập phòng, danh mục thiết bị từ Excel
+export type FacilityInvestmentCategory = 'classroom' | 'teacher_housing';
+export type FacilityStandardLevel = 'not_met' | 'level_1' | 'level_2';
+export type FacilityImportType = 'rooms' | 'equipment_items';
+type OptionalMoney = ColumnType<string | null, string | number | null | undefined, string | number | null>;
+
+export interface FacilityInvestmentsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  category: FacilityInvestmentCategory;
+  permanent: number | null;
+  semi_permanent: number | null;
+  degraded_level4: number | null;
+  borrowed: number | null;
+  need_classes: number | null;
+  need_rooms: number | null;
+  need_budget_million: OptionalMoney;
+  note: string | null;
+  updated_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface FacilityStandardLevelsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  room_block: string;
+  level: FacilityStandardLevel;
+  note: string | null;
+  updated_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface FacilityImportJobsTable {
+  id: Generated<string>;
+  import_type: FacilityImportType;
+  org_unit_id: string;
+  file_id: string;
+  status: 'validated' | 'failed' | 'committed';
+  total_rows: number;
+  error_rows: number;
+  errors: ColumnType<unknown[], string | undefined, string>;
+  payload: ColumnType<unknown[], string | undefined, string>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  committed_at: Date | null;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -3429,4 +3479,7 @@ export interface SchoolYearDatabase {
   school_split_items: SchoolSplitItemsTable;
   student_learning_accounts: StudentLearningAccountsTable;
   student_transfers: StudentTransfersTable;
+  facility_investments: FacilityInvestmentsTable;
+  facility_standard_levels: FacilityStandardLevelsTable;
+  facility_import_jobs: FacilityImportJobsTable;
 }

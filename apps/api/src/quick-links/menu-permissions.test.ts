@@ -155,6 +155,11 @@ function legacyVisibility(has: (code: string) => boolean): Partial<Record<Portal
     '/facility-rooms': canViewFacilities || canManageEquipment || canManageRooms,
     '/equipment': canViewFacilities || canManageEquipment,
     '/emis': canViewEmis,
+    '/facility-investments': canViewFacilities || canManageSchoolProfile,
+    '/facility-input': canViewFacilities || canManageEquipment || canManageRooms,
+    '/facility-report': canViewFacilities || canManageSchoolProfile,
+    '/equipment-outside': canViewFacilities || canManageEquipment,
+    '/equipment-submission': canViewFacilities,
     // Quản trị hệ thống
     '/roles': canSeeAccounts,
     '/accounts': canSeeAccounts,
