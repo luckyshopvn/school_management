@@ -33,14 +33,14 @@
 | 21 | [21_KICH_BAN_KIEM_THU.md](21_KICH_BAN_KIEM_THU.md) | Kịch bản kiểm thử | CT-001 đến CT-598 | 10 Kiểm thử | Đã phê duyệt |
 | 22 | [22_BAO_MAT.md](22_BAO_MAT.md) | Bảo mật | BM-01 đến BM-72 | 10 Kiểm thử | Đã phê duyệt |
 | 23 | [23_LICH_SU_PHIEN_BAN.md](23_LICH_SU_PHIEN_BAN.md) | Lịch sử phiên bản | Các phiên bản từ 0.1.0 | 11 Nghiệm thu và phát hành | Đang cập nhật |
-| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-113, YCTD-116, YCTD-118 đến YCTD-130, đánh giá ảnh hưởng | 12 Vận hành và cải tiến | Đang cập nhật |
+| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-113, YCTD-116 đến YCTD-130, đánh giá ảnh hưởng | 12 Vận hành và cải tiến | Đang cập nhật |
 | 25 | [25_QUY_TRINH_NGHIEP_VU/](25_QUY_TRINH_NGHIEP_VU/) | Quy trình nghiệp vụ | Mười đặc tả QT-01 đến QT-10 và phiếu yêu cầu trống | 03 Phân tích nghiệp vụ | Đã phê duyệt |
 | 26 | [26_SO_DO_CHUC_NANG/](26_SO_DO_CHUC_NANG/) | Sơ đồ chức năng gốc | Tám ảnh sơ đồ chức năng do Eric gửi, nguồn đầu vào của bộ tài liệu | 01 Xác định ý tưởng | Tài liệu nguồn |
 | 27 | [27_BO_CA_KIEM_THU_CHI_TIET/](27_BO_CA_KIEM_THU_CHI_TIET/) | Bộ ca kiểm thử chi tiết | Ca kiểm thử chi tiết theo việc N21, mã CTC-..., năm đợt, 453 ca, 6 ca không áp dụng | 10 Kiểm thử | Đã phê duyệt |
 | 28 | [28_BAO_CAO_KIEM_THU_CG_10.md](28_BAO_CAO_KIEM_THU_CG_10.md) | Báo cáo kiểm thử và cổng CG-10 | Kết quả chạy thật, ca chưa chạy và quyết định xử lý, lỗi của DT-09, kết luận CG-10 (YCTD-72) | 10 Kiểm thử | Đã đánh giá |
 | 29 | [29_BAO_CAO_KIEM_THU_G2.md](29_BAO_CAO_KIEM_THU_G2.md) | Báo cáo kiểm thử giai đoạn 2 | Kết quả chạy thật sau đợt DT-10, ca chưa chạy và quyết định xử lý, lỗi khi gộp các phần, giới hạn bản 1.1.0 (YCTD-84) | 10 Kiểm thử | Đã đánh giá |
 | 30 | [30_BAO_CAO_KIEM_THU_G3.md](30_BAO_CAO_KIEM_THU_G3.md) | Báo cáo kiểm thử giai đoạn 3 | Kết quả chạy thật sau đợt DT-11, ca chưa chạy và quyết định xử lý, lỗi khi gộp các phần, giới hạn bản 1.2.0 (YCTD-91) | 10 Kiểm thử | Đã đánh giá |
-| 31 | [31_KHAO_SAT_HE_THONG_SO.md](31_KHAO_SAT_HE_THONG_SO.md) | Khảo sát hệ thống của Sở | Chức năng và giao diện của Hệ thống thông tin quản lý giáo dục cấp Trường (Mầm non) của Sở GD&ĐT TP.HCM, đối chiếu và đề xuất bổ sung | 02 Phân tích | Đã khảo sát |
+| 31 | [31_KHAO_SAT_HE_THONG_SO.md](31_KHAO_SAT_HE_THONG_SO.md) | Khảo sát hệ thống của Sở | Chức năng và giao diện của Hệ thống thông tin quản lý giáo dục cấp Trường (Mầm non) của Sở GD&ĐT TP.HCM, đối chiếu và đề xuất bổ sung; nền tảng kỹ thuật trang công khai (REA) | 02 Phân tích | Đã khảo sát |
 
 ## Quy trình nghiệp vụ
 
@@ -88,7 +88,7 @@ Mã quy trình dạng `QT-nn`, đánh số tăng dần, không tái sử dụng 
 | Cổng kiểm soát chất lượng | 12 | Từ CG-01 đến CG-12, xem `01_KE_HOACH_TONG_THE.md` |
 | Đợt xây dựng | 12 | Từ DT-00 đến DT-11, xem `01_KE_HOACH_TONG_THE.md` |
 | Rủi ro đã ghi nhận | 14 | Từ RR-01 đến RR-14, xem `01_KE_HOACH_TONG_THE.md` |
-| Yêu cầu thay đổi | 127 | Từ YCTD-01 đến YCTD-113, YCTD-116, YCTD-118 đến YCTD-130 (YCTD-114, YCTD-115 dành cho các phần 15f1, 15f3, YCTD-117 cho PR 90 đang làm), xem `24_YEU_CAU_THAY_DOI.md` |
+| Yêu cầu thay đổi | 128 | Từ YCTD-01 đến YCTD-113, YCTD-116 đến YCTD-130 (YCTD-114, YCTD-115 dành cho các phần 15f1, 15f3), xem `24_YEU_CAU_THAY_DOI.md` |
 
 ## Quyết định đã chốt
 

@@ -27,6 +27,16 @@
 - Khả năng tương thích: đường dẫn, điểm cuối, quyền không đổi; không có quyền mới; ứng dụng giáo viên, phụ huynh không đổi.
 - Phương án quay lui: hoàn lại commit gộp của nhánh `dt-15-phan-15f2`; không có tệp thay đổi cấu trúc dữ liệu; dòng cấu hình của 17 khóa lưới ở `user_grid_settings` để lại không ảnh hưởng (khóa lạ không còn được đọc).
 
+### Phiên bản 0.80.1 – 2026-10-18
+
+- Phạm vi thay đổi: 2.1 Hồ sơ lớp học, cột hiện mặc định và số dòng mỗi trang theo hệ thống của Sở (YCTD-117).
+- Chức năng mới: không có.
+- Lỗi đã sửa: lưới 2.1 hiện mặc định Lớp ghép, Ghép vào lớp, Lớp giải thể và ẩn Phân hiệu, Giáo viên chủ nhiệm, Điểm trường như Sở; 50 dòng mỗi trang khi người dùng chưa chọn số dòng; xuất Excel không chọn cột theo cột mặc định mới.
+- Thay đổi dữ liệu: không có.
+- Thay đổi API: `POST /classes/export` không gửi `columns` thì xuất 13 cột mặc định mới.
+- Rủi ro: người dùng quen thấy tên giáo viên chủ nhiệm trên lưới phải bật lại cột.
+- Khả năng tương thích: cấu hình cột, số dòng đã lưu của người dùng giữ nguyên; số dòng mặc định chung người dùng đã chọn vẫn được ưu tiên hơn 50; lưới khác không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh; không có thay đổi cơ sở dữ liệu.
 ### Phiên bản 0.80.0 – 2026-10-18
 
 - Phạm vi thay đổi: DT-16 phần 16k, phân hệ Quản lý kí hồ sơ theo hệ thống của Sở, bản chạy nội bộ (YCTD-130). Phần cuối của DT-16.

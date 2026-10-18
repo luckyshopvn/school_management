@@ -33,6 +33,25 @@
 
 - Chưa có Xuất Excel, xóa hàng loạt ở các lưới của phân hệ; duyệt, từ chối có lý do và cập nhật tiến độ việc vẫn là ô nhập trong cột thao tác; danh sách rất dài vẫn tải một lần; tiêu đề cột tiền canh trái trong khi số tiền canh phải.
 
+### 2026-10-18 — 2.1 Hồ sơ lớp học: cột và số dòng mặc định theo Sở
+
+#### Công việc đã thực hiện
+
+- Claude đổi cột hiện, ẩn mặc định của lưới "2.1. Hồ sơ lớp học" theo quan sát màn hình của Sở (`31_KHAO_SAT_HE_THONG_SO.md` mục 9.8, 9.9): hiện Lớp ghép, Ghép vào lớp, Lớp giải thể; ẩn Phân hiệu, Giáo viên chủ nhiệm, Điểm trường. Số dòng mặc định của lưới 2.1 là 50; cột mặc định khi xuất Excel không chọn cột đổi theo.
+- Sửa CT-403, CT-406, kiểm thử `classes-so.test.ts`, `08-classes.spec.ts`, `54-school-classes-so.spec.ts`. Kết quả trên máy ngày 15/10/2026: build, kiểm tra kiểu, lint, kiểm tra định dạng đạt; `classes-so.test.ts` đạt; `08-classes.spec.ts`, `54-school-classes-so.spec.ts` đạt.
+
+#### Quyết định
+
+- Số dòng mặc định riêng của màn hình (50) chỉ dùng khi người dùng chưa chọn số dòng của lưới và chưa chọn số dòng mặc định chung; hằng số chung giữ 20. Cột Khối, Nhóm trẻ giữ hiện vì là hai phần của cột "Nhóm lớp" của Sở. Mã YCTD-113 đến YCTD-115 dành cho các phần 15f, YCTD-116 và phiên bản 0.66.0 đã dùng cho đợt 15h1 nên thay đổi này là YCTD-117, phiên bản 0.80.1.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-117, `14_DAC_TA_GIAO_DIEN.md` MH-03, `11_TIEU_CHI_NGHIEM_THU.md` AC-447, AC-450, `17_DAC_TA_API.md` mục 5, `21_KICH_BAN_KIEM_THU.md` CT-403, CT-406, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.80.1.
+
+#### Vấn đề tồn đọng
+
+- Không có.
+
 ### 2026-10-18 — DT-16 phần 16k: phân hệ Quản lý kí hồ sơ, bản chạy nội bộ
 
 #### Công việc đã thực hiện
@@ -360,6 +379,25 @@
 #### Vấn đề tồn đọng
 
 - Chưa có Đồng bộ hồ sơ lên CSDL Bộ, Xuất file lỗi, Xóa hồ sơ, Xuất PDF; chưa có bộ lọc xã ĐBKK; chưa tách 3.1.2, 3.1.3, 3.1.5, 3.5; ô theo Sở là chữ tự do, chưa có danh mục của Bộ; nhập lại tệp CSDL ngành ghi đè các ô đã sửa ở biểu mẫu.
+### 2026-10-15 — Phân tích kỹ thuật hệ thống của Sở bằng REA
+
+#### Công việc đã thực hiện
+
+- Theo yêu cầu của Eric, Claude dùng REA tải các trang công khai của `truong.hcm.edu.vn` (đăng nhập, quên mật khẩu, đăng nhập năm cũ), không đăng nhập, không thao tác ghi; ghi kết quả vào mục 9 của `31_KHAO_SAT_HE_THONG_SO.md`: nền tảng ASP.NET Web Forms trên IIS 10, Telerik UI for ASP.NET AJAX 2025.1, tường lửa Imperva Incapsula, cách chọn đơn vị nối tầng, mã phường/xã 5 chữ số, bài học áp dụng.
+- Eric tự đăng nhập trên Chrome mở cổng gỡ lỗi cục bộ; REA quan sát thụ động trang chủ phân hệ Mầm non: bảng 72 màn hình theo số mục, mã menu, đường dẫn; các phương thức trang gọi bằng JSON (ký số, xem tệp, kiểm tra dữ liệu chưa hợp lệ, xác thực tài khoản); cách đổi nhãn sau sáp nhập bằng thay chữ trên trình duyệt.
+- REA quan sát thụ động màn hình 2.1 Hồ sơ lớp học do Eric tự mở: RadGrid 24 cột (10 cột ẩn mặc định), tên trường dữ liệu, phân trang 50 dòng, ô lọc Phân hiệu, Khối, Nhóm tuổi, xuất tệp bằng postback; không ghi dữ liệu trên lưới.
+
+#### Quyết định
+
+- Không ghi tên, mã từng trường vào tài liệu vì kho mã công khai; chỉ ghi số lượng và định dạng mã.
+
+#### Thay đổi
+
+- `31_KHAO_SAT_HE_THONG_SO.md` phiên bản 1.1, thêm mục 9 (9.1 đến 9.10); `index.md` cập nhật mô tả tài liệu 31.
+
+#### Vấn đề tồn đọng
+
+- Chưa quan sát màn hình nhập Excel, tác vụ nền và "Tệp đã tạo"; cột ẩn mặc định và 50 dòng mỗi trang của 2.1 chưa áp dụng vào School Management.
 
 ### 2026-10-15 — DT-15 phần 15b: trường học, lớp học theo hệ thống của Sở
 
