@@ -93,6 +93,13 @@ export type ChildChanges = Partial<
   // Học 2 buổi/ngày, bán trú (mục 4.1.12 của Sở, YCTD-108)
   two_sessions_per_day?: boolean;
   boarding?: boolean;
+  // Dân tộc, diện chính sách, khuyết tật, biết bơi ghi vào cột CSDL ngành (DT-16 phần 16g); null là xóa giá trị
+  moet_fields?: Partial<{
+    ethnicity: string | null;
+    policy_target: string | null;
+    disability_type: string | null;
+    can_swim: boolean;
+  }>;
 };
 
 // Thông tin định danh của trẻ đang học chỉ quản lý đơn vị sửa được, kèm lý do (QT-01 E7)
@@ -109,6 +116,17 @@ const VIETNAM_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_M
 const PAGE_SIZE_LIMIT = 200;
 
 type Executor = Kysely<SchoolYearDatabase> | Transaction<SchoolYearDatabase>;
+
+// Dân tộc, diện chính sách, khuyết tật, biết bơi đang ghi ở cột CSDL ngành (DT-16 phần 16g)
+function editableMoetFields(profile: Record<string, unknown> | null) {
+  const text = (key: string) => (typeof profile?.[key] === 'string' ? (profile[key] as string) : null);
+  return {
+    ethnicity: text('ethnicity'),
+    policy_target: text('policy_target'),
+    disability_type: text('disability_type'),
+    can_swim: profile?.can_swim === true,
+  };
+}
 
 function normalizeName(name: string): string {
   return name.trim().replace(/\s+/g, ' ').toLocaleLowerCase('vi');
@@ -405,6 +423,14 @@ export class ChildrenService {
         ]);
       }
     }
+    // Thông tin CSDL ngành sửa được cùng nhóm vai trò xem được (BR-53, DT-16 phần 16g)
+    const moetFields = changes.moet_fields && Object.keys(changes.moet_fields).length > 0 ? changes.moet_fields : null;
+    if (moetFields && !this.childScope.canSeeHealth(currentUser)) {
+      throw new ApplicationError(
+        'ERR_FORBIDDEN',
+        'Sửa dân tộc, diện chính sách, khuyết tật, biết bơi cần vai trò được xem thông tin sức khỏe của trẻ',
+      );
+    }
     const nationalIdHash = changes.national_id ? this.protection.hash(changes.national_id) : undefined;
     await this.assertUniqueIdentifiers(database, nationalIdHash ?? null, changes.moet_student_code ?? null, childId);
     if (changes.birth_certificate_file_id && changes.birth_certificate_file_id !== child.birth_certificate_file_id) {
@@ -417,6 +443,23 @@ export class ChildrenService {
       );
     }
     const before = await this.detail(database, currentUser, childId);
+    let moetProfile: string | undefined;
+    if (moetFields) {
+      const stored = await database
+        .selectFrom('children')
+        .select('moet_profile')
+        .where('id', '=', childId)
+        .executeTakeFirstOrThrow();
+      const profile: Record<string, unknown> = { ...(stored.moet_profile ?? {}) };
+      for (const [key, value] of Object.entries(moetFields)) {
+        if (value === null || value === false || value === '') {
+          delete profile[key];
+        } else {
+          profile[key] = value;
+        }
+      }
+      moetProfile = JSON.stringify(profile);
+    }
     return database.transaction().execute(async (transaction) => {
       await transaction
         .updateTable('children')
@@ -437,8 +480,13 @@ export class ChildrenService {
                 national_id_encrypted: this.protection.encrypt(changes.national_id),
                 national_id_hash: nationalIdHash,
                 national_id_last4: changes.national_id.slice(-4),
+                // Số định danh mới cần xác thực lại (mục 4.1.8–4.1.9 của Sở, DT-16 phần 16g)
+                national_id_verified_at: null,
+                national_id_verified_by: null,
+                national_id_verified_by_name: null,
               }
             : {}),
+          ...(moetProfile ? { moet_profile: moetProfile } : {}),
           updated_at: this.clock.now(),
         })
         .where('id', '=', childId)
@@ -463,6 +511,7 @@ export class ChildrenService {
           guardians: undefined,
           enrollments: undefined,
           ...(changes.national_id ? { national_id_changed: true } : {}),
+          ...(moetFields ? { moet_fields: moetFields } : {}),
           reason: changes.reason ?? null,
         },
       });
@@ -931,14 +980,18 @@ export class ChildrenService {
     if (!allowed) {
       throw new ApplicationError('ERR_FORBIDDEN', 'Lớp này nằm ngoài phạm vi của bạn');
     }
-    return database
-      .selectFrom('class_enrollments')
-      .innerJoin('children', 'children.id', 'class_enrollments.child_id')
-      .select(['children.id', 'children.full_name', 'children.dob', 'children.gender', 'children.status'])
-      .where('class_enrollments.class_id', '=', classId)
-      .where('class_enrollments.is_current', '=', true)
-      .orderBy('children.full_name')
-      .execute();
+    return (
+      database
+        .selectFrom('class_enrollments')
+        .innerJoin('children', 'children.id', 'class_enrollments.child_id')
+        .select(['children.id', 'children.full_name', 'children.dob', 'children.gender', 'children.status'])
+        .where('class_enrollments.class_id', '=', classId)
+        .where('class_enrollments.is_current', '=', true)
+        // Theo số thứ tự cố định trong lớp (mục 4.1.3 của Sở, DT-16 phần 16g), học sinh chưa có số xếp sau theo họ tên
+        .orderBy(sql`class_enrollments.order_number nulls last`)
+        .orderBy('children.full_name')
+        .execute()
+    );
   }
 
   private async detail(database: Executor, currentUser: CurrentUser, childId: string) {
@@ -971,6 +1024,9 @@ export class ChildrenService {
         'moet_profile',
         'two_sessions_per_day',
         'boarding',
+        'national_id_verified_at',
+        'national_id_verified_by_name',
+        'residence_change_note',
       ])
       .where('id', '=', childId)
       .executeTakeFirstOrThrow();
@@ -1027,6 +1083,8 @@ export class ChildrenService {
       special_needs_note: canSeeHealth ? specialNeeds : null,
       // Cột CSDL ngành (khuyết tật, bệnh về mắt, diện chính sách...) xem cùng nhóm vai trò xem sức khỏe (BR-53, YCTD-100)
       moet_profile: canSeeHealth ? describeMoetProfile(moetProfile, MOET_CHILD_COLUMNS) : null,
+      // Giá trị đang có để sửa trên hồ sơ (DT-16 phần 16g)
+      moet_fields: canSeeHealth ? editableMoetFields(moetProfile) : null,
       health,
       guardians: guardians.map(({ user_id: userId, ...guardian }) => ({ ...guardian, has_account: userId !== null })),
       enrollments,
@@ -1041,6 +1099,7 @@ export class ChildrenService {
       .selectFrom('children')
       .select(['id', 'org_unit_id', 'status', 'full_name', 'birth_certificate_file_id', 'submitted_by'])
       .where('id', '=', childId)
+      .where('deleted_at', 'is', null)
       .executeTakeFirst();
     if (!child) {
       throw notFoundError('Hồ sơ không tồn tại hoặc đã bị xóa khỏi phạm vi của bạn', 'child');

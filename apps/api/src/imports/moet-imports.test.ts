@@ -175,7 +175,9 @@ describe('Nhập tệp CSDL ngành cho trẻ và nhân sự (YCTD-100)', () => {
   };
   const api = (method: string, path: string, token: string, body?: unknown) =>
     sendJson(method, `${environment.baseUrl}${path}`, token, body);
-  const commit = (token: string, jobId: string) => api('POST', `/imports/${jobId}/commit`, token);
+  // Tệp cập nhật học sinh đã có cần đánh dấu "Đồng ý cập nhật dữ liệu học sinh" (DT-16 phần 16g)
+  const commit = (token: string, jobId: string) =>
+    api('POST', `/imports/${jobId}/commit`, token, { confirm_update: true });
   const childByCode = (code: string) =>
     schoolYear.selectFrom('children').selectAll().where('moet_student_code', '=', code).executeTakeFirst();
 

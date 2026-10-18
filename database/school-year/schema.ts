@@ -217,6 +217,13 @@ export interface ChildrenTable extends CatalogRecordColumns {
   // Học 2 buổi/ngày, học sinh lớp bán trú (YCTD-108)
   two_sessions_per_day: Generated<boolean>;
   boarding: Generated<boolean>;
+  // Xóa hồ sơ nháp, bị từ chối không xóa cứng; xác thực số định danh chạy nội bộ, biến động cư trú ghi tay (DT-16 phần 16g)
+  deleted_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  deleted_by: ColumnType<string | null, string | null | undefined, string | null>;
+  national_id_verified_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  national_id_verified_by: ColumnType<string | null, string | null | undefined, string | null>;
+  national_id_verified_by_name: ColumnType<string | null, string | null | undefined, string | null>;
+  residence_change_note: ColumnType<string | null, string | null | undefined, string | null>;
 }
 
 export interface HealthProfilesTable extends CatalogRecordColumns {
@@ -258,6 +265,8 @@ export interface ClassEnrollmentsTable extends CatalogRecordColumns {
   to_date: string | null;
   reason: string | null;
   is_current: Generated<boolean>;
+  // Số thứ tự cố định trong lớp (mục 4.1.3 của Sở, DT-16 phần 16g); null là chưa sắp xếp
+  order_number: ColumnType<number | null, number | null | undefined, number | null>;
 }
 
 export interface PhotoConsentHistoriesTable {
@@ -326,7 +335,11 @@ export type ImportType =
   | 'staff'
   | 'moet_children'
   | 'moet_staff'
-  | 'professional_ratings';
+  | 'professional_ratings'
+  // Điện thoại nhận tin, số định danh, địa chỉ mới của học sinh (DT-16 phần 16g)
+  | 'sms_phones'
+  | 'national_ids'
+  | 'student_addresses';
 export type ImportStatus = 'validated' | 'failed' | 'committed';
 
 export interface DataImportJobsTable {
@@ -3125,6 +3138,40 @@ export interface SchoolProfilesTable {
   updated_at: UpdatedTimestamp;
 }
 
+// Tài khoản học và thi của học sinh lưu nội bộ, mật khẩu chỉ lưu giá trị băm (mục 4.1.10 của Sở, DT-16 phần 16g)
+export interface StudentLearningAccountsTable extends CatalogRecordColumns {
+  child_id: string;
+  username: string;
+  password_hash: string;
+  issued_at: Date;
+  issued_by_name: string;
+  reset_count: Generated<number>;
+}
+
+// Chuyển đi, tiếp nhận chuyển đến giữa các trường chạy nội bộ (mục 4.2 của Sở, DT-16 phần 16g)
+export type StudentTransferDirection = 'out' | 'in';
+export type StudentTransferStatus = 'pending' | 'approved' | 'rejected' | 'received';
+
+export interface StudentTransfersTable extends CatalogRecordColumns {
+  direction: StudentTransferDirection;
+  status: StudentTransferStatus;
+  child_id: string | null;
+  org_unit_id: string;
+  full_name: string;
+  dob: string | null;
+  school_name: string;
+  province_name: string | null;
+  ward_name: string | null;
+  transfer_date: string;
+  reason: string | null;
+  requested_by_name: string;
+  decided_by: string | null;
+  decided_by_name: string | null;
+  decided_at: Date | null;
+  decision_note: string | null;
+  file_id: string | null;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -3329,4 +3376,6 @@ export interface SchoolYearDatabase {
   equipment_items: EquipmentItemsTable;
   equipment_holdings: EquipmentHoldingsTable;
   school_profiles: SchoolProfilesTable;
+  student_learning_accounts: StudentLearningAccountsTable;
+  student_transfers: StudentTransfersTable;
 }

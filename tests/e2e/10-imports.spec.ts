@@ -82,7 +82,7 @@ test('Hiệu trưởng nhập lớp rồi nhập trẻ kèm phụ huynh; trẻ n
   await expect(classes).toContainText('Không có dòng lỗi, sẵn sàng ghi');
   await classes.getByRole('button', { name: 'Ghi dữ liệu' }).click();
   await expect(classes).toContainText('Đã ghi dữ liệu');
-  await openMenu(page, '/imports');
+  await openMenu(page, '/student-imports');
   await expect(page.getByRole('region', { name: 'Lớp học' })).toHaveCount(0);
 
   const childHeaders = [

@@ -20,7 +20,6 @@ const gated = (gate: MenuPermissionRule, rule: MenuPermissionRule): MenuPermissi
 const ACCOUNTS = anyOf('P01.account.manage', 'P01.account.manage-in-unit');
 // Điều kiện của nhóm "Trẻ và lớp" cũ
 const CHILDREN_AND_CLASSES = anyOf('P02.class.manage', 'P02.view', 'P02.edit');
-const IMPORT = anyOf('P01.import.children', 'P02.child.manage', 'P05.opening-debt.import', 'P01.import.staff');
 const STATISTICS = anyOf('P17.child-statistics.view', 'P17.staff-statistics.view');
 const VIEW_FEES = anyOf('P05.view', 'P05.fee-catalog.manage', 'P05.discount-type.manage');
 const VIEW_CASHFLOW = anyOf('P06.view', 'P06.cashflow-category.manage');
@@ -58,8 +57,9 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   // Biến động học sinh: người lập hoặc duyệt hồ sơ học sinh (YCTD-108)
   '/student-movements': gated(CHILDREN_AND_CLASSES, anyOf('P02.child.manage', 'P02.approve')),
   // Trước đây hiện ở nhóm Trẻ và lớp, hoặc ở nhóm Nhân sự cho người chỉ nhập nhân sự
-  // Nhập nhân sự tách sang "3.1.3. Nhập nhân sự từ Excel" (DT-16 phần 16f)
-  '/imports': gated(CHILDREN_AND_CLASSES, IMPORT),
+  // Nhập nhân sự tách sang "3.1.3. Nhập nhân sự từ Excel" (DT-16 phần 16f); nhập học sinh sang "4.1.2. Nhập học sinh từ Excel"
+  // (DT-16 phần 16g): trang còn công nợ đầu kỳ cho kế toán
+  '/imports': 'P05.opening-debt.import',
   '/staff-imports': gated('P07.staff.view', 'P01.import.staff'),
   // Nhân sự đủ theo Sở (DT-16 phần 16f): xem như hồ sơ nhân sự, thao tác cần quyền quản lý hồ sơ (máy chủ kiểm tra)
   '/staff-branches': 'P07.staff.view',
@@ -70,6 +70,15 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/child-groups': gated(CHILDREN_AND_CLASSES, anyOf('P02.child-group.manage', 'P02.view')),
   // Cập nhật địa danh hành chính: như Biến động học sinh, người lập hoặc duyệt hồ sơ học sinh (YCTD-116)
   '/administrative-units': gated(CHILDREN_AND_CLASSES, anyOf('P02.child.manage', 'P02.approve')),
+  // Học sinh đủ theo Sở (DT-16 phần 16g): nhập học sinh như nhập trẻ; sắp xếp, điện thoại nhận tin, số định danh, tiến độ
+  // xác thực cho người lập hoặc duyệt hồ sơ; tài khoản học và thi, mật khẩu mặc định cho người quản lý tài khoản
+  '/student-imports': gated(CHILDREN_AND_CLASSES, anyOf('P01.import.children', 'P02.child.manage', 'P02.approve')),
+  '/student-order': gated(CHILDREN_AND_CLASSES, anyOf('P02.child.manage', 'P02.approve')),
+  '/sms-phones': gated(CHILDREN_AND_CLASSES, anyOf('P02.child.manage', 'P02.approve')),
+  '/national-ids': gated(CHILDREN_AND_CLASSES, anyOf('P02.child.manage', 'P02.approve')),
+  '/learning-accounts': gated(CHILDREN_AND_CLASSES, 'P01.account.manage'),
+  '/default-passwords': 'P01.account.manage',
+  '/national-id-progress': anyOf('P02.child.manage', 'P02.approve'),
   '/growth': anyOf('P10.health.manage', 'P17.report.growth'),
   '/growth-report': 'P17.report.growth',
   '/program-completion': gated(

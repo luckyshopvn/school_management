@@ -46,6 +46,10 @@ export interface ChildListItem {
   can_swim: boolean | null;
   contact_phone: string | null;
   sms_phone: string | null;
+  // Xác thực số định danh, biến động cư trú (DT-16 phần 16g)
+  national_id_verified_at?: string | null;
+  national_id_verified_by_name?: string | null;
+  residence_change_note?: string | null;
 }
 
 export interface ChildGuardian {
@@ -108,6 +112,16 @@ export interface ChildDetail extends Pick<
   current_class: ChildEnrollment | null;
   // Thông tin theo CSDL ngành, chỉ đọc (YCTD-100)
   moet_profile?: MoetProfileEntry[] | null;
+  // Dân tộc, diện chính sách, khuyết tật, biết bơi sửa được (DT-16 phần 16g); null khi không được xem
+  moet_fields?: {
+    ethnicity: string | null;
+    policy_target: string | null;
+    disability_type: string | null;
+    can_swim: boolean;
+  } | null;
+  national_id_verified_at?: string | null;
+  national_id_verified_by_name?: string | null;
+  residence_change_note?: string | null;
 }
 
 export interface ChildPage {
@@ -166,9 +180,12 @@ export interface StudentFilter {
   can_swim?: string;
   moet_student_code?: string;
   national_id?: string;
+  // Chưa có mã định danh Bộ GD&ĐT; số định danh đã xác thực (DT-16 phần 16g)
+  missing_moet_code?: boolean;
+  national_id_verified?: string;
 }
 
-function filterParameters(filter: StudentFilter): URLSearchParams {
+export function filterParameters(filter: StudentFilter): URLSearchParams {
   const parameters = new URLSearchParams();
   for (const [key, value] of Object.entries(filter)) {
     if (value === true) {

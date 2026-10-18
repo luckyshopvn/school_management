@@ -16,6 +16,18 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.76.0 – 2026-10-18
+
+- Phạm vi thay đổi: DT-16 phần 16g, nhóm Học sinh của phân hệ Quản lý giáo dục Mầm non đủ theo hệ thống của Sở (YCTD-126).
+- Chức năng mới: 4.1.1 có Thay đổi, Xóa hồ sơ nháp, Cấp mã định danh Bộ (ghi tay, xuất tệp 82 cột theo mẫu Bộ), Xuất file lỗi, sửa dân tộc, diện chính sách, khuyết tật, biết bơi; màn hình mới 4.1.2 Nhập học sinh từ Excel (mẫu 82 cột, kèm dữ liệu, tra cứu danh mục, đồng ý cập nhật), 4.1.3 Sắp xếp học sinh, 4.1.5 Điện thoại nhận tin của phụ huynh, 4.1.8 Thu thập, xác thực số định danh (nội bộ), 4.1.10 Tài khoản học và thi (nội bộ), 5.4 Mã định danh, mật khẩu mặc định, 5.5 Tiến độ xác thực số định danh học sinh; 4.1.11 nhập địa chỉ mới, sửa, xóa dòng đối chiếu, loại "Chuyển đến từ"; 4.2 chuyển lớp hàng loạt, chuyển đi, tiếp nhận chuyển đến (nội bộ).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0056_add_student_records_so` thêm `class_enrollments.order_number`, sáu cột của `children`, bảng `student_learning_accounts`, `student_transfers`, ba loại nhập mới của `data_import_jobs`.
+- Thay đổi API: điểm cuối mới của xóa hồ sơ, mã Bộ, tệp theo mẫu Bộ, file lỗi, điện thoại nhận tin, chuyển lớp hàng loạt, thứ tự học sinh, số định danh, tài khoản học và thi, chuyển trường, công cụ nhập 82 cột, sửa, xóa dòng đối chiếu; `POST /imports/{id}/commit` nhận `confirm_update` (xem `17_DAC_TA_API.md`).
+- Kiểm thử: kịch bản CT-534 đến CT-550. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã 810/810 ca đạt; toàn bộ kiểm thử giao diện 122/123 ca đạt (ca hỏng là CT-15a-7 của `01-login.spec.ts`: trang đăng nhập chưa hiện kịp ở đầu lượt chạy, không liên quan phần này, đạt ở các lần chạy trước và sau; ở lần chạy khác hỏng `04-accounts` do tài khoản còn lại trong cơ sở dữ liệu định danh của lần chạy trước và CT-16a-10 do tiến trình xuất nền nhận tác vụ sớm, cũng không liên quan).
+- Rủi ro: chưa có kết nối thật tới CSDL Bộ, CSDLQG về dân cư, trường khác; tài khoản học và thi chưa dùng đăng nhập được; tệp CSDL ngành cập nhật học sinh đã có cần đánh dấu đồng ý nên cách nhập cũ qua giao diện lập trình phải gửi `confirm_update`.
+- Khả năng tương thích: cột mới mặc định null nên hồ sơ đã có không đổi nghĩa; hồ sơ chưa sắp xếp theo A–Z như trước; trang nhập dữ liệu chung chỉ còn công nợ đầu kỳ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16g; chạy phần quay lui của tệp `0056` (xóa lần nhập ba loại mới, trả ràng buộc loại nhập, xóa hai bảng và các cột mới).
+
 ### Phiên bản 0.75.0 – 2026-10-17
 
 - Phạm vi thay đổi: DT-16 phần 16h, sức khỏe, dinh dưỡng và thống kê học sinh theo hệ thống của Sở (YCTD-125).

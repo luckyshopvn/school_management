@@ -53,11 +53,12 @@ export class ChildScope {
     return { wholeSchool, unitIds, classIds, guardianUserId };
   }
 
-  // Điều kiện phạm vi đặt ở tầng truy vấn (BM-11)
+  // Điều kiện phạm vi đặt ở tầng truy vấn (BM-11). Hồ sơ đã xóa (DT-16 phần 16g) không thuộc phạm vi của ai
   filter(scope: ChildReadScope) {
     return (expression: ExpressionBuilder<SchoolYearDatabase, 'children'>) => {
+      const notDeleted = expression('children.deleted_at', 'is', null);
       if (scope.wholeSchool) {
-        return expression.lit(true);
+        return notDeleted;
       }
       const conditions = [expression('children.org_unit_id', 'in', scope.unitIds.length ? scope.unitIds : [NO_ID])];
       if (scope.classIds.length > 0) {
@@ -86,7 +87,7 @@ export class ChildScope {
           ),
         );
       }
-      return expression.or(conditions);
+      return expression.and([notDeleted, expression.or(conditions)]);
     };
   }
 

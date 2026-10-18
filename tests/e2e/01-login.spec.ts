@@ -128,7 +128,7 @@ test('CT-15a-8: menu ngang bằng bàn phím: mũi tên, Enter, Space, Esc theo 
   await page.keyboard.press('ArrowRight');
   await expect(item('4.1.1. Quản lý hồ sơ học sinh')).toBeFocused();
   await page.keyboard.press('ArrowDown');
-  await expect(item('4.1.2. Nhập dữ liệu từ Excel')).toBeFocused();
+  await expect(item('4.1.2. Nhập học sinh từ Excel')).toBeFocused();
   // Esc đóng từng cấp, con trỏ về mục cha
   await page.keyboard.press('Escape');
   await expect(bar.getByRole('menu', { name: 'Hồ sơ học sinh', exact: true })).toBeHidden();

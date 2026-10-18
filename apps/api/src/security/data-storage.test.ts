@@ -50,7 +50,15 @@ describe('Lưu trữ dữ liệu nhạy cảm và ranh giới giao diện', () =
           select table_name, column_name from information_schema.columns
           where table_schema = 'public' and (column_name ilike '%password%' or column_name ilike '%otp%')
         `.execute(database);
-        assert.deepEqual(columns.rows, [], url);
+        // Ngoại lệ duy nhất: tài khoản học và thi của học sinh (DT-16 phần 16g) lưu giá trị băm scrypt của mật khẩu chỉ dùng
+        // ngoài hệ thống, không đăng nhập được cổng hay ứng dụng nào
+        assert.deepEqual(
+          columns.rows.filter(
+            (row) => !(row.table_name === 'student_learning_accounts' && row.column_name === 'password_hash'),
+          ),
+          [],
+          url,
+        );
       } finally {
         await database.destroy();
       }

@@ -28,6 +28,17 @@ import {
   type SheetRow,
 } from './excel.js';
 import { MOET_CHILD_HEADERS, MOET_STAFF_HEADERS, MoetImports, type MoetPreview } from './moet-imports.js';
+import { STUDENT_RECORDS_RULE_CODE } from '../student-records/student-records-common.js';
+import {
+  isStudentImportType,
+  STUDENT_IMPORT_COLUMNS,
+  STUDENT_IMPORT_LOCKED,
+  STUDENT_IMPORT_PERMISSIONS,
+  STUDENT_IMPORT_TITLES,
+  STUDENT_IMPORT_TYPES,
+  StudentImports,
+  type StudentImportType,
+} from './student-imports.js';
 import {
   PROFESSIONAL_RATING_COLUMNS,
   ProfessionalRatingImports,
@@ -102,6 +113,8 @@ export const IMPORT_COLUMNS: Record<TemplateImportType, ImportColumn[]> = {
     { key: 'due_date', header: 'Ngày đến hạn', note: 'Dạng ngày của Excel, YYYY-MM-DD hoặc DD/MM/YYYY, bắt buộc' },
     { key: 'note', header: 'Ghi chú', note: 'Không bắt buộc, tối đa 500 ký tự' },
   ],
+  // Điện thoại nhận tin, số định danh, địa chỉ mới của học sinh (DT-16 phần 16g)
+  ...STUDENT_IMPORT_COLUMNS,
   // Mức đánh giá chuẩn nghề nghiệp (DT-16 phần 16f, mục 3.2 của Sở)
   professional_ratings: PROFESSIONAL_RATING_COLUMNS,
 };
@@ -112,6 +125,7 @@ const TEMPLATE_TITLES: Record<TemplateImportType, string> = {
   moet_codes: 'Mã định danh ngành',
   opening_debts: 'Công nợ đầu kỳ',
   staff: 'Nhân sự',
+  ...STUDENT_IMPORT_TITLES,
   professional_ratings: 'Mức đánh giá chuẩn nghề nghiệp',
 };
 
@@ -136,9 +150,10 @@ export const LOCKED_IMPORT_COLUMNS: Record<TemplateImportType, string[]> = {
   staff: ['unit_code', 'code', 'full_name', 'start_date'],
   opening_debts: ['national_id', 'amount', 'due_date'],
   professional_ratings: ['staff_code', 'standard_type'],
+  ...STUDENT_IMPORT_LOCKED,
 };
 // Loại nhập cập nhật được bản ghi đã có và có "Tải file mẫu kèm dữ liệu"
-export const UPDATING_IMPORT_TYPES: TemplateImportType[] = ['classes', 'professional_ratings'];
+export const UPDATING_IMPORT_TYPES: TemplateImportType[] = ['classes', 'professional_ratings', ...STUDENT_IMPORT_TYPES];
 // Cột phải chọn khi thêm lớp mới
 const CLASS_CREATE_COLUMNS: Array<[string, string]> = [
   ['class_name', 'Tên lớp'],
@@ -155,6 +170,9 @@ export interface ImportColumnInfo {
 
 // Quyền nhập theo loại, như máy chủ kiểm tra ở bộ điều khiển
 function permissionOfImport(type: TemplateImportType): string {
+  if (isStudentImportType(type)) {
+    return STUDENT_IMPORT_PERMISSIONS[type];
+  }
   return type === 'moet_codes'
     ? PERMISSION_CODES.childManage
     : type === 'opening_debts'
@@ -225,8 +243,9 @@ interface OpeningDebtRow {
   note: string | null;
 }
 
-type UploadType = 'classes' | 'children' | 'opening_debts' | 'staff' | 'professional_ratings' | MoetImportType;
-type TemplateUploadType = Exclude<UploadType, MoetImportType>;
+type UploadType =
+  'classes' | 'children' | 'opening_debts' | 'staff' | 'professional_ratings' | MoetImportType | StudentImportType;
+type TemplateUploadType = Exclude<UploadType, MoetImportType | StudentImportType>;
 
 const isMoetType = (type: string): type is MoetImportType => type === 'moet_children' || type === 'moet_staff';
 
@@ -268,6 +287,7 @@ export class ImportsService {
     private readonly periods: RegistrationPeriods,
     private readonly clock: Clock,
     private readonly moet: MoetImports,
+    private readonly studentImports: StudentImports,
     private readonly ratings: ProfessionalRatingImports,
   ) {}
 
@@ -333,6 +353,9 @@ export class ImportsService {
   // "Tra cứu danh mục": mã, tên của các danh mục dùng trong tệp, trong phạm vi của người nhập
   async catalogs(currentUser: CurrentUser, type: TemplateImportType): Promise<ImportCatalog[]> {
     const { database } = await this.currentSchoolYear.require();
+    if (isStudentImportType(type)) {
+      return this.studentImports.catalogs(database, currentUser, type);
+    }
     const scope = await this.organizationScopes.resolve(currentUser, permissionOfImport(type));
     const units = (
       await database
@@ -448,6 +471,9 @@ export class ImportsService {
     currentUser: CurrentUser,
     type: TemplateImportType,
   ): Promise<Array<Record<string, unknown>>> {
+    if (isStudentImportType(type)) {
+      return this.studentImports.templateRows(database, currentUser, type);
+    }
     if (type === 'professional_ratings') {
       return this.ratings.templateRows(database, currentUser);
     }
@@ -526,7 +552,9 @@ export class ImportsService {
       // Cột được chọn lưu kèm lần nhập để bước ghi đọc tệp đúng như lúc kiểm tra (DT-16 phần 16a)
       const selected = this.selection(type, selectedKeys);
       const rows = await readSheet(body, IMPORT_COLUMNS[type], selectedKeys ? selected : undefined);
-      errors = (await this.validate(database, currentUser, type, rows, selected)).errors;
+      errors = isStudentImportType(type)
+        ? (await this.studentImports.validate(database, currentUser, type, rows, selected)).errors
+        : (await this.validate(database, currentUser, type, rows, selected)).errors;
       totalRows = rows.length;
       preview = selectedKeys ? { selected_columns: [...selected] } : null;
     }
@@ -572,11 +600,14 @@ export class ImportsService {
   }
 
   // Kiểm tra lại toàn bộ rồi mới ghi; còn dòng lỗi thì không ghi dòng nào (AC-183)
+  // Tệp CSDL ngành của học sinh cập nhật hồ sơ đã có chỉ ghi khi người nhập đánh dấu "Đồng ý cập nhật dữ liệu học sinh"
+  // như của Sở (mục 4.1.2, DT-16 phần 16g); bộ điều khiển truyền đúng lựa chọn của người dùng
   async commit(
     currentUser: CurrentUser,
     accessToken: string,
     jobId: string,
     origin: ChangeOrigin,
+    confirmUpdate = true,
   ): Promise<ImportJobView> {
     const { database, academicYearId } = await this.currentSchoolYear.require();
     const job = await database
@@ -603,6 +634,13 @@ export class ImportsService {
     }
     const type = job.import_type;
     if (isMoetType(type)) {
+      const updated = (job.preview as MoetPreview | null)?.updated ?? 0;
+      if (type === 'moet_children' && updated > 0 && !confirmUpdate) {
+        throw ruleViolationError(
+          STUDENT_RECORDS_RULE_CODE,
+          `Tệp cập nhật ${updated} học sinh đã có; đánh dấu "Đồng ý cập nhật dữ liệu học sinh" để ghi`,
+        );
+      }
       return this.commitMoet(database, currentUser, accessToken, type, job, origin);
     }
     const selectedKeys = selectedColumnsOf(job.preview);
@@ -612,6 +650,9 @@ export class ImportsService {
       IMPORT_COLUMNS[type],
       selectedKeys ? selected : undefined,
     );
+    if (isStudentImportType(type)) {
+      return this.commitStudentImport(database, currentUser, type, rows, selected, jobId, origin);
+    }
     const validated = await this.validate(database, currentUser, type, rows, selected);
     if (validated.errors.length > 0) {
       await database
@@ -716,6 +757,40 @@ export class ImportsService {
             .map((account) => ({ userId: account.userId, channel: 'sms' as const })),
         });
       }
+      await transaction
+        .updateTable('data_import_jobs')
+        .set({ status: 'committed', committed_by: origin.actorUserId, committed_at: this.clock.now() })
+        .where('id', '=', jobId)
+        .execute();
+      return this.readJob(transaction, jobId);
+    });
+  }
+
+  // Điện thoại nhận tin, số định danh, địa chỉ mới của học sinh (DT-16 phần 16g): kiểm tra lại rồi mới ghi
+  private async commitStudentImport(
+    database: Kysely<SchoolYearDatabase>,
+    currentUser: CurrentUser,
+    type: StudentImportType,
+    rows: SheetRow[],
+    selected: Set<string>,
+    jobId: string,
+    origin: ChangeOrigin,
+  ): Promise<ImportJobView> {
+    const validated = await this.studentImports.validate(database, currentUser, type, rows, selected);
+    if (validated.errors.length > 0) {
+      await database
+        .updateTable('data_import_jobs')
+        .set({
+          status: 'failed',
+          errors: JSON.stringify(validated.errors),
+          error_rows: new Set(validated.errors.map((error) => error.row)).size,
+        })
+        .where('id', '=', jobId)
+        .execute();
+      throw ruleViolationError('P01-13', 'Dữ liệu đã thay đổi từ lúc kiểm tra; tệp còn dòng lỗi, không ghi dòng nào');
+    }
+    return database.transaction().execute(async (transaction) => {
+      await this.studentImports.apply(transaction, validated.changes, jobId, origin);
       await transaction
         .updateTable('data_import_jobs')
         .set({ status: 'committed', committed_by: origin.actorUserId, committed_at: this.clock.now() })
@@ -1601,9 +1676,10 @@ export class ImportsService {
       value === 'moet_codes' ||
       value === 'opening_debts' ||
       value === 'staff' ||
-      value === 'professional_ratings'
+      value === 'professional_ratings' ||
+      isStudentImportType(String(value))
     ) {
-      return value;
+      return value as TemplateImportType;
     }
     throw new ApplicationError(
       'ERR_VALIDATION',
