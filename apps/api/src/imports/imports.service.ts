@@ -21,6 +21,7 @@ import {
   buildTemplate,
   findHeaderRowNumber,
   parseDate,
+  readHeaders,
   readSheet,
   type ImportCatalog,
   type ImportColumn,
@@ -356,6 +357,28 @@ export class ImportsService {
   }
 
   // Cột được chọn để nhập; bỏ trống là mọi cột. Cột khóa, bắt buộc luôn được thêm vào
+  // Tệp lớp học theo mẫu trước DT-16 phần 16e không có bảy cột thông tin lớp theo Sở: cột của Sở không có trong tệp coi như
+  // không chọn (lớp đã có giữ nguyên giá trị, lớp mới lấy mặc định); loại nhập khác giữ nguyên
+  private async keysInFile(
+    type: TemplateImportType,
+    body: Buffer,
+    keys: string[] | undefined,
+  ): Promise<string[] | undefined> {
+    if (type !== 'classes') {
+      return keys;
+    }
+    const headers = await readHeaders(body);
+    const soKeys = new Set<string>(CLASS_SO_IMPORT_COLUMNS.map((column) => column.key));
+    const missing: string[] = CLASS_SO_IMPORT_COLUMNS.filter((column) => !headers.has(column.header)).map(
+      (column) => column.key,
+    );
+    if (missing.length === 0) {
+      return keys;
+    }
+    const base = keys ?? IMPORT_COLUMNS.classes.map((column) => column.key);
+    return base.filter((key) => !soKeys.has(key) || !missing.includes(key));
+  }
+
   selection(type: TemplateImportType, keys: string[] | undefined): Set<string> {
     const all = IMPORT_COLUMNS[type].map((column) => column.key);
     if (!keys) {
@@ -588,11 +611,12 @@ export class ImportsService {
       ({ errors, totalRows, preview } = await this.validateMoet(database, currentUser, type, orgUnitId ?? '', body));
     } else {
       // Cột được chọn lưu kèm lần nhập để bước ghi đọc tệp đúng như lúc kiểm tra (DT-16 phần 16a)
-      const selected = this.selection(type, selectedKeys);
-      const rows = await readSheet(body, IMPORT_COLUMNS[type], selectedKeys ? selected : undefined);
+      const keys = await this.keysInFile(type, body, selectedKeys);
+      const selected = this.selection(type, keys);
+      const rows = await readSheet(body, IMPORT_COLUMNS[type], keys ? selected : undefined);
       errors = (await this.validate(database, currentUser, type, rows, selected)).errors;
       totalRows = rows.length;
-      preview = selectedKeys ? { selected_columns: [...selected] } : null;
+      preview = keys ? { selected_columns: [...selected] } : null;
     }
     const storageKey = `import/${randomUUID()}`;
     const contentType = contentTypeOf(body);
@@ -669,13 +693,10 @@ export class ImportsService {
     if (isMoetType(type)) {
       return this.commitMoet(database, currentUser, accessToken, type, job, origin);
     }
-    const selectedKeys = selectedColumnsOf(job.preview);
-    const selected = this.selection(type, selectedKeys ?? undefined);
-    const rows = await readSheet(
-      await this.fileStorage.get(job.storage_key),
-      IMPORT_COLUMNS[type],
-      selectedKeys ? selected : undefined,
-    );
+    const body = await this.fileStorage.get(job.storage_key);
+    const selectedKeys = await this.keysInFile(type, body, selectedColumnsOf(job.preview) ?? undefined);
+    const selected = this.selection(type, selectedKeys);
+    const rows = await readSheet(body, IMPORT_COLUMNS[type], selectedKeys ? selected : undefined);
     const validated = await this.validate(database, currentUser, type, rows, selected);
     if (validated.errors.length > 0) {
       await database

@@ -49,6 +49,25 @@ function cellText(cell: ExcelJS.Cell): string {
   return cell.text.trim();
 }
 
+// Tiêu đề dòng 1 của trang tính đầu tiên (DT-16 phần 16e: tệp lớp học theo mẫu cũ không có cột của Sở vẫn nhập được); tệp
+// không đọc được thì trả rỗng để readSheet báo lỗi
+export async function readHeaders(body: Buffer): Promise<Set<string>> {
+  const headers = new Set<string>();
+  if (!isZip(body)) {
+    return headers;
+  }
+  const workbook = new ExcelJS.Workbook();
+  try {
+    await workbook.xlsx.load(body as unknown as ArrayBuffer);
+  } catch {
+    return headers;
+  }
+  workbook.worksheets[0]?.getRow(1).eachCell((cell) => {
+    headers.add(normalizeHeader(cellText(cell)));
+  });
+  return headers;
+}
+
 // Đọc trang tính đầu tiên; dòng 1 là tiêu đề phải khớp mẫu; bỏ qua dòng trống. Có danh sách cột được chọn để nhập
 // (DT-16 phần 16a) thì tìm cột theo tiêu đề, tệp chỉ cần có các cột được chọn; cột không chọn đọc là rỗng
 export async function readSheet(body: Buffer, columns: ImportColumn[], selected?: Set<string>): Promise<SheetRow[]> {

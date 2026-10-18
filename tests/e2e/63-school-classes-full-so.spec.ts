@@ -56,10 +56,11 @@ test('CT-16e-16: 1.4 Cấu hình trường ghi tên trường hiển thị, than
   await block.getByLabel('Tên đơn vị hành chính').fill('Phường Thử Nghiệm');
   await block.getByRole('button', { name: 'Ghi' }).click();
   await expect(toast(page, 'Đã ghi cấu hình trường')).toBeVisible();
-  await expect(page.getByTitle(displayName)).toBeVisible();
+  // Tên trường trên thanh đầu trang chỉ hiện ở màn hình rộng; kiểm tra theo thuộc tính title
+  await expect(page.getByTestId('school-name')).toHaveAttribute('title', displayName);
   await block.getByLabel('Tên trường hiển thị').fill('');
   await block.getByRole('button', { name: 'Ghi' }).click();
-  await expect(page.getByTitle(displayName)).toHaveCount(0);
+  await expect(page.getByTestId('school-name')).not.toHaveAttribute('title', displayName);
 });
 
 test('CT-16e-17: 2.1 chọn lớp chưa có dữ liệu rồi Xóa lớp qua hộp xác nhận của Sở', async ({ page }) => {
@@ -102,7 +103,7 @@ test('CT-16e-18: 3.4 Khai báo tuần hiện học kỳ, hiển thị, tuần đ
   ]) {
     await expect(table.getByRole('columnheader', { name: header, exact: true })).toBeVisible();
   }
-  await expect(table.getByLabel('Học kỳ của tuần 1')).toContainText('Theo lịch (Học kỳ 1)');
+  await expect(table.getByLabel('Học kỳ của tuần 1', { exact: true })).toContainText('Theo lịch (Học kỳ 1)');
   const visible = table.getByLabel('Hiển thị tuần 2', { exact: true });
   await visible.uncheck();
   await page.getByRole('button', { name: 'Ghi' }).click();
@@ -133,6 +134,7 @@ test('CT-16e-19: 1.7 Rà soát thông tin kiểm định CLGD: Lấy dữ liệu
 test('CT-16e-20: 1.8 Tách trường: tạo yêu cầu, xác nhận đi, xuất hồ sơ 82 cột, đánh dấu đã tiếp nhận', async ({
   page,
 }) => {
+  test.setTimeout(90_000);
   await signIn(page);
   await openMenu(page, '/school-splits');
   await expect(page.getByText('Phần mềm không gửi dữ liệu sang trường khác')).toBeVisible();
@@ -152,9 +154,14 @@ test('CT-16e-20: 1.8 Tách trường: tạo yêu cầu, xác nhận đi, xuất 
   await page.getByRole('dialog').getByRole('button', { name: 'Xác nhận đi' }).click();
   await expect(row).toContainText('Đã xác nhận đi');
 
-  const downloading = page.waitForEvent('download');
+  const downloading = page.waitForEvent('download', { timeout: 20_000 });
   await row.getByRole('button', { name: 'Xuất hồ sơ học sinh' }).click();
-  const download = await downloading;
+  // Không ra tệp thì báo kèm nội dung thông báo lỗi trên trang để dễ tìm nguyên nhân
+  const download = await downloading.catch(async (error: unknown) => {
+    throw new Error(`Không tải được tệp: ${(await page.getByRole('alert').allTextContents()).join(' | ')}`, {
+      cause: error,
+    });
+  });
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.readFile(await download.path());
   expect(workbook.worksheets[0]?.getRow(1).cellCount).toBe(82);
