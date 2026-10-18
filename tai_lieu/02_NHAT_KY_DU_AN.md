@@ -14,6 +14,27 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-18 — DT-16 phần 16i: cơ sở vật chất, thiết bị dạy học đủ theo hệ thống của Sở
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu năm học: tệp `0058_add_facilities_so_parity` tạo bảng `facility_investments` (6.1), `facility_standard_levels` (mức độ đạt chuẩn của 1.2), `facility_import_jobs` (lần nhập phòng, danh mục thiết bị).
+- Máy chủ API: 1.2 Báo cáo cơ sở vật chất kèm nhà vệ sinh, mức độ đạt chuẩn và biểu mẫu gửi `facilities-report`; 6.1 thực trạng và nhu cầu đầu tư; nhập phòng, danh mục thiết bị từ Excel (`/facility-imports`); biểu mẫu gửi `equipment-summary` cho 2.3; thuộc tính nhà vệ sinh chỉ cho Phòng vệ sinh.
+- Cổng quản trị: mục mới 1.2, 2.2, 2.3 của phân hệ Cơ sở vật chất, TBDH; nhóm mới 6 (6.1, 6.2) của phân hệ Mầm non; Nhập từ Excel ở 1.1, 2.1, 2.2; khối Gắn thiết bị dạy học ở Kho, thẻ Tài sản.
+- Thêm chức năng P13-13 đến P13-15, P17-23, kịch bản CT-572 đến CT-579, tiêu chí AC-602 đến AC-606, quy tắc BR-126, màn hình MH-127 đến MH-130. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 832/832 ca đạt; toàn bộ kiểm thử giao diện 130/130 ca đạt (CI, lượt chạy 39103041728; CT-15a-8 của `01-login.spec.ts` sửa theo nhóm menu mới "6. Cơ sở vật chất"); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Eric quyết định ngày 2026-10-16 làm đủ mọi tính năng đã khảo sát của hệ thống Sở; tính năng cần hệ thống ngoài làm bản chạy nội bộ với nút ghi đúng việc làm ("Xuất tệp gửi", "Đánh dấu đã gửi"). Thực hiện phần 16i của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7. Mức độ đạt chuẩn theo khối do Hiệu trưởng đánh giá, mức của trường là mức thấp nhất; thông tin nhà vệ sinh lưu ở thuộc tính phòng; nhập Excel dùng bảng lần nhập riêng (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-128, `07_QUY_TAC_NGHIEP_VU.md` BR-126, `10_YEU_CAU_CHUC_NANG.md` P13-13 đến P13-15, P17-23, `14_DAC_TA_GIAO_DIEN.md` mục 1.1, MH-127 đến MH-130, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.78.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 7.
+
+#### Vấn đề tồn đọng
+
+- Gửi 1.2, 2.3 chưa nối hệ thống của Sở; mức độ đạt chuẩn và thuộc tính nhà vệ sinh cần đối chiếu biểu mẫu chính thức; thẻ nhà vệ sinh của EMIS 1.2 (phần 16j) chưa đọc dữ liệu này.
+
 ### 2026-10-18 — DT-16 phần 16e: trường, lớp và lịch năm học theo hệ thống của Sở
 
 #### Công việc đã thực hiện

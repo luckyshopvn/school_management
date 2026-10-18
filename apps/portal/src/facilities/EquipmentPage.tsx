@@ -13,12 +13,15 @@ import {
 import { Alert, Button, DataGrid, StatusBadge, TextField, Toast, type DataGridColumn } from '@school-management/ui';
 import { useUnitChoice } from '../catalogs/UnitSelect.js';
 import { listClasses } from '../classes/classes-api.js';
+import { ExcelImportPanel } from '../imports/ExcelImportPanel.js';
 import { AppShell } from '../pages/AppShell.js';
 import { matchesSearch } from '../pages/grid-search.js';
 import { useGridSettings } from '../pages/grid-settings.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
+import { UpperLevelSubmissionPanel } from '../submissions/UpperLevelSubmissionPanel.js';
 import {
+  FACILITY_IMPORTS_API_BASE,
   createEquipmentItem,
   downloadExcel,
   fieldErrorsOf,
@@ -37,8 +40,39 @@ import { SelectBox, TabBar } from './facilities-ui.js';
 // 2.1 Tổng hợp thiết bị dạy học, 2.2 Thiết bị ngoài danh mục tối thiểu (YCTD-102): tổng hợp định mức, hiện có, thừa,
 // thiếu, nhu cầu, tỷ lệ đáp ứng; nhập số hiện có theo đơn vị hoặc lớp; danh mục tối thiểu do Hiệu trưởng chỉnh. Tổng
 // hợp, thiết bị ngoài danh mục và danh mục tối thiểu là lưới dữ liệu chung (DT-16 phần 16b): tìm tại chỗ, nhóm tuổi và
-// nhóm thiết bị của tổng hợp ở "Mở rộng tìm kiếm"; bảng nhập số hiện có là bảng nhập liệu theo ô nên giữ nguyên
-type Tab = 'summary' | 'holdings' | 'outside' | 'catalog';
+// nhóm thiết bị của tổng hợp ở "Mở rộng tìm kiếm"; bảng nhập số hiện có là bảng nhập liệu theo ô nên giữ nguyên. DT-16 phần
+// 16i: 2.2 Thiết bị ngoài danh mục tối thiểu thành mục menu riêng, 2.3 Gửi thiết bị dạy học lên cấp trên (mẫu gửi chạy nội
+// bộ của 16a), nhập danh mục thiết bị từ Excel ở thẻ Danh mục tối thiểu và ở 2.2
+type Tab = 'summary' | 'holdings' | 'catalog';
+
+// Nhập danh mục thiết bị từ Excel bằng công cụ nhập chung (mã đã có thì cập nhật, mã trống là thiết bị mới)
+function EquipmentImport({ onSaved }: { onSaved(message: string): void }) {
+  const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="flex flex-col gap-3">
+      <div>
+        <Button variant="secondary" onClick={() => setOpen(!open)}>
+          Nhập từ Excel
+        </Button>
+      </div>
+      {open ? (
+        <ExcelImportPanel
+          type="equipment_items"
+          title="Nhập danh mục thiết bị từ Excel"
+          apiBase={FACILITY_IMPORTS_API_BASE}
+          uploadPath={FACILITY_IMPORTS_API_BASE}
+          uploadFields={{ type: 'equipment_items' }}
+          onCommitted={async (job) => {
+            onSaved(`Đã ghi ${job.assigned_rows ?? 0} thiết bị từ Excel`);
+            await queryClient.invalidateQueries({ queryKey: ['equipment-items'] });
+            await queryClient.invalidateQueries({ queryKey: ['equipment-report'] });
+          }}
+        />
+      ) : null}
+    </div>
+  );
+}
 const labelOf = (values: ReadonlyArray<CodeLabel>, value: string | null) =>
   values.find((item) => item.value === value)?.label ?? '';
 
@@ -353,6 +387,7 @@ function OutsideTab({ canManage, onSaved }: { canManage: boolean; onSaved(messag
   const errors = fieldErrorsOf(create.error);
   return (
     <div className="flex flex-col gap-4">
+      {canManage ? <EquipmentImport onSaved={onSaved} /> : null}
       {canManage ? (
         <section
           className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
@@ -570,6 +605,7 @@ function CatalogTab({ canManage, onSaved }: { canManage: boolean; onSaved(messag
         Danh mục gieo sẵn chỉ là tên ngắn và số lượng gợi ý, cần đối chiếu văn bản quy định danh mục thiết bị tối thiểu
         hiện hành rồi chỉnh định mức.
       </Alert>
+      {canManage ? <EquipmentImport onSaved={onSaved} /> : null}
       <div className="grid gap-3 md:grid-cols-4">
         <SelectBox label="Nhóm tuổi" value={ageGroup} options={EQUIPMENT_AGE_GROUPS} onChange={setAgeGroup} />
       </div>
@@ -594,7 +630,6 @@ export function EquipmentPage() {
   const tabs: Array<{ key: Tab; label: string }> = [
     { key: 'summary', label: 'Tổng hợp' },
     ...(canManage ? [{ key: 'holdings' as const, label: 'Nhập số hiện có' }] : []),
-    { key: 'outside', label: '2.2 Thiết bị ngoài danh mục tối thiểu' },
     { key: 'catalog', label: 'Danh mục tối thiểu' },
   ];
   return (
@@ -605,8 +640,57 @@ export function EquipmentPage() {
         <TabBar<Tab> tabs={tabs} current={tab} onSelect={setTab} label="Thiết bị dạy học" />
         {tab === 'summary' ? <SummaryTab /> : null}
         {tab === 'holdings' ? <HoldingsTab onSaved={setToastMessage} /> : null}
-        {tab === 'outside' ? <OutsideTab canManage={canManage} onSaved={setToastMessage} /> : null}
         {tab === 'catalog' ? <CatalogTab canManage={canManage} onSaved={setToastMessage} /> : null}
+      </div>
+    </AppShell>
+  );
+}
+
+// 2.2 Thiết bị ngoài danh mục tối thiểu: mục menu riêng như của Sở (DT-16 phần 16i)
+export function EquipmentOutsidePage() {
+  const canManage = useHasPermission(PERMISSION_CODES.equipmentManage);
+  const [toastMessage, setToastMessage] = useState<string>();
+  const closeToast = useCallback(() => setToastMessage(undefined), []);
+  return (
+    <AppShell>
+      <Toast message={toastMessage} onClose={closeToast} />
+      <div className="flex flex-col gap-6">
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/equipment-outside')}</h1>
+        <OutsideTab canManage={canManage} onSaved={setToastMessage} />
+      </div>
+    </AppShell>
+  );
+}
+
+// 2.3 Gửi thiết bị dạy học lên cấp trên (DT-16 phần 16i): biểu mẫu tổng hợp thiết bị toàn trường, hoàn thiện dữ liệu,
+// "Trường không có dữ liệu", Xuất tệp gửi, Đánh dấu đã gửi, Gửi yêu cầu mở khóa theo mẫu chạy nội bộ của 16a
+export function EquipmentSubmissionPage() {
+  const [toastMessage, setToastMessage] = useState<string>();
+  const closeToast = useCallback(() => setToastMessage(undefined), []);
+  const report = useQuery({ queryKey: ['equipment-report', 'whole-school'], queryFn: () => readEquipmentReport({}) });
+  return (
+    <AppShell>
+      <Toast message={toastMessage} onClose={closeToast} />
+      <div className="flex flex-col gap-6">
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/equipment-submission')}</h1>
+        {report.error ? <Alert tone="danger">{messageOf(report.error)}</Alert> : null}
+        {report.data ? (
+          <section
+            className="flex flex-col gap-1 rounded-xl border border-border bg-card p-4"
+            aria-label="Biểu mẫu gửi"
+          >
+            <h2 className="text-section-title font-semibold text-text">Biểu mẫu: Tổng hợp thiết bị dạy học</h2>
+            <p className="text-content text-text">
+              {report.data.totals.item_count} thiết bị trong danh mục đang dùng, {report.data.totals.met_count} thiết bị
+              đủ định mức; tỷ lệ đáp ứng chung {formatNumber(report.data.totals.rate_percent ?? 0)}%.
+            </p>
+            <p className="text-label text-text-secondary">
+              Tệp gửi gồm tổng hợp theo thiết bị (danh mục tối thiểu và ngoài danh mục) và theo lớp của toàn trường, như
+              Xuất Excel ở 2.1. Trường chưa có số liệu thiết bị thì chọn "Trường không có dữ liệu" khi đánh dấu đã gửi.
+            </p>
+          </section>
+        ) : null}
+        <UpperLevelSubmissionPanel formCodes={['equipment-summary']} onChanged={setToastMessage} />
       </div>
     </AppShell>
   );

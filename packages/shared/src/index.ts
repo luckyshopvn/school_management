@@ -331,6 +331,12 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/learning-accounts',
   '/default-passwords',
   '/national-id-progress',
+  // Cơ sở vật chất đủ theo Sở (DT-16 phần 16i)
+  '/facility-investments',
+  '/facility-input',
+  '/facility-report',
+  '/equipment-outside',
+  '/equipment-submission',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];

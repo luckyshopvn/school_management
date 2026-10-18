@@ -116,14 +116,28 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           leaf('5.10.4.', 'Báo cáo lưu trữ', '/archive-report'),
         ]),
       ]),
+      // Cơ sở vật chất trong phân hệ Mầm non (DT-16 phần 16i): 6.2 mở màn hình khai báo cơ sở vật chất như mục 1.1 của
+      // phân hệ Cơ sở vật chất, TBDH
+      group('6.', 'Cơ sở vật chất', [
+        leaf('6.1.', 'Thực trạng và nhu cầu đầu tư phòng học, nhà công vụ', '/facility-investments'),
+        leaf('6.2.', 'Nhập liệu cơ sở vật chất', '/facility-input'),
+      ]),
     ],
   },
   {
     key: 'facilities',
     label: 'Quản lý cơ sở vật chất, TBDH',
     menu: [
-      group('1.', 'Cơ sở vật chất', [leaf('1.1.', 'Khai báo cơ sở vật chất', '/facility-rooms')]),
-      group('2.', 'Thiết bị dạy học', [leaf('2.1.', 'Tổng hợp thiết bị dạy học', '/equipment')]),
+      // 1.2, 2.2, 2.3 thành mục riêng như của Sở (DT-16 phần 16i)
+      group('1.', 'Cơ sở vật chất', [
+        leaf('1.1.', 'Khai báo cơ sở vật chất', '/facility-rooms'),
+        leaf('1.2.', 'Báo cáo cơ sở vật chất', '/facility-report'),
+      ]),
+      group('2.', 'Thiết bị dạy học', [
+        leaf('2.1.', 'Tổng hợp thiết bị dạy học', '/equipment'),
+        leaf('2.2.', 'Thiết bị ngoài danh mục tối thiểu', '/equipment-outside'),
+        leaf('2.3.', 'Gửi thiết bị dạy học lên cấp trên', '/equipment-submission'),
+      ]),
     ],
   },
   {

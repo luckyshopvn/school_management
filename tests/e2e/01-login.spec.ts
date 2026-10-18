@@ -118,6 +118,9 @@ test('CT-15a-8: menu ngang bằng bàn phím: mũi tên, Enter, Space, Esc theo 
   await expect(item('1. Trường học')).toBeFocused();
   await page.keyboard.press('ArrowLeft');
   await page.keyboard.press('ArrowLeft');
+  // Mục cuối là nhóm 6. Cơ sở vật chất (DT-16 phần 16i)
+  await expect(item('6. Cơ sở vật chất')).toBeFocused();
+  await page.keyboard.press('ArrowLeft');
   await expect(item('5. Công cụ hỗ trợ')).toBeFocused();
   await page.keyboard.press('ArrowLeft');
   await expect(item('4. Học sinh')).toBeFocused();

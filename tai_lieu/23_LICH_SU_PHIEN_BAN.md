@@ -16,6 +16,18 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.78.0 – 2026-10-18
+
+- Phạm vi thay đổi: DT-16 phần 16i, cơ sở vật chất và thiết bị dạy học đủ theo hệ thống của Sở (YCTD-128).
+- Chức năng mới: mục "1.2. Báo cáo cơ sở vật chất" (số liệu phòng theo khối, loại phòng và hiện trạng; nhà vệ sinh; mức độ đạt chuẩn theo khối; Xuất Excel, Xuất PDF; gửi lên cấp trên chạy nội bộ); "6.1. Thực trạng và nhu cầu đầu tư phòng học, nhà công vụ" (lấy số liệu từ khai báo phòng, Ghi, Xuất Excel); "6.2. Nhập liệu cơ sở vật chất"; "2.2. Thiết bị ngoài danh mục tối thiểu" thành mục riêng; "2.3. Gửi thiết bị dạy học lên cấp trên" (Xuất tệp gửi, Đánh dấu đã gửi, Trường không có dữ liệu); nhập phòng và danh mục thiết bị từ Excel; thông tin nhà vệ sinh của phòng; gắn tài sản với thiết bị ở Kho.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0058_add_facilities_so_parity` tạo ba bảng `facility_investments`, `facility_standard_levels`, `facility_import_jobs`; bốn khóa nhà vệ sinh mới trong `rooms.facility_attributes` (jsonb, không đổi cấu trúc).
+- Thay đổi API: điểm cuối mới `/facilities/report`, `/facilities/report/standard-levels`, `/facilities/report/export`, `/facilities/investments`, `/facilities/investments/export`, nhóm `/facility-imports`; hai biểu mẫu gửi lên cấp trên `facilities-report`, `equipment-summary`; `/rooms` nhận bốn thuộc tính nhà vệ sinh.
+- Kiểm thử: kịch bản CT-572 đến CT-579. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 832/832 ca đạt; toàn bộ kiểm thử giao diện 130/130 ca đạt (CI, lượt chạy 39103041728; CT-15a-8 của `01-login.spec.ts` sửa theo nhóm menu mới "6. Cơ sở vật chất"); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: gửi lên cấp trên không truyền dữ liệu, người dùng phải nộp tệp và đánh dấu; mức độ đạt chuẩn, thuộc tính nhà vệ sinh do Claude chọn, chưa đối chiếu biểu mẫu chính thức.
+- Khả năng tương thích: phòng cũ không có thuộc tính nhà vệ sinh vẫn hợp lệ; `/rooms` không gửi thuộc tính mới thì như cũ; 2.1 bỏ thẻ 2.2 nhưng dữ liệu, điểm cuối không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16i; chạy phần quay lui của tệp năm học `0058` (xóa ba bảng). Khóa nhà vệ sinh đã lưu trong `facility_attributes` khiến bản cũ từ chối khi sửa phòng đó, xóa tay các khóa này nếu quay lui.
+
 ### Phiên bản 0.77.0 – 2026-10-18
 
 - Phạm vi thay đổi: DT-16 phần 16e, trường, lớp và lịch năm học theo hệ thống của Sở (YCTD-127).
