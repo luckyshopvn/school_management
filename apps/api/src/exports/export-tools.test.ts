@@ -351,7 +351,16 @@ describe('Công cụ xuất, nhập và gửi lên cấp trên (YCTD-121)', () =
     const template = await get('/imports/templates/classes?with_data=true', principal.accessToken);
     assert.equal(template.response.status, 200);
     const rows = await sheetRows(template.buffer);
-    assert.deepEqual(rows[0], ['Mã đơn vị', 'Mã lớp', 'Tên lớp', 'Mã bậc học', 'Sĩ số tối đa', 'Mã phòng']);
+    // Từ DT-16 phần 16e mẫu có thêm bảy cột thông tin lớp theo Sở sau Mã phòng
+    assert.deepEqual(rows[0]?.slice(0, 6), [
+      'Mã đơn vị',
+      'Mã lớp',
+      'Tên lớp',
+      'Mã bậc học',
+      'Sĩ số tối đa',
+      'Mã phòng',
+    ]);
+    assert.equal(rows[0]?.length, 13);
     assert.deepEqual(
       rows.slice(1).map((row) => row.slice(0, 5)),
       [
