@@ -39,7 +39,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
   - "Hiển thị" của tuần mới lưu, các màn hình chọn tuần khác chưa dùng tới.
   - Phòng bộ môn, diện tích sàn ở 1.7 tính theo cách Claude chọn, chưa đối chiếu biểu mẫu kiểm định chính thức.
   - PR 90 (YCTD-117) cùng sửa 2.1; phần 16e không đổi cột, chỉ thêm ô chọn và nút.
-- Kiểm thử cần thực hiện: kịch bản CT-551 đến CT-571; kiểm thử đơn vị mới `apps/api/src/school-classes-16e.test.ts`, `apps/api/src/imports/class-import-fields.test.ts` (CT-551 đến CT-565, trong mã kiểm thử là CT-16e-1 đến CT-16e-15); kiểm thử giao diện mới `tests/e2e/63-school-classes-full-so.spec.ts` (CT-566 đến CT-571, CT-16e-16 đến CT-16e-21). Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 812/812 ca đạt; toàn bộ kiểm thử giao diện <E2E_PASS>/<E2E_TOTAL> ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử cần thực hiện: kịch bản CT-551 đến CT-571; kiểm thử đơn vị mới `apps/api/src/school-classes-16e.test.ts`, `apps/api/src/imports/class-import-fields.test.ts` (CT-551 đến CT-565, trong mã kiểm thử là CT-16e-1 đến CT-16e-15); kiểm thử giao diện mới `tests/e2e/63-school-classes-full-so.spec.ts` (CT-566 đến CT-571, CT-16e-16 đến CT-16e-21). Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 825/825 ca đạt; toàn bộ kiểm thử giao diện 129/129 ca đạt (CI, lượt chạy 39086989582); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Trạng thái: Đã triển khai
 
 ### YCTD-126: DT-16 phần 16g: nhóm Học sinh đủ theo hệ thống của Sở – 2026-10-18
