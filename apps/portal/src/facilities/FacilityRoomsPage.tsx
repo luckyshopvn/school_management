@@ -6,16 +6,20 @@ import {
   ROOM_BLOCKS,
   ROOM_CONDITIONS,
   ROOM_TYPES,
+  roomAttributesFor,
   type CodeLabel,
+  type PortalQuickLinkPath,
 } from '@school-management/shared';
 import { Alert, Button, DataGrid, StatusBadge, TextField, Toast, type DataGridColumn } from '@school-management/ui';
 import { useUnitChoice } from '../catalogs/UnitSelect.js';
+import { ExcelImportPanel } from '../imports/ExcelImportPanel.js';
 import { AppShell } from '../pages/AppShell.js';
 import { matchesSearch } from '../pages/grid-search.js';
 import { useGridSettings } from '../pages/grid-settings.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
 import {
+  FACILITY_IMPORTS_API_BASE,
   createRoom,
   downloadExcel,
   fieldErrorsOf,
@@ -32,7 +36,9 @@ import { ProfileFieldInput, SelectBox, TabBar } from './facilities-ui.js';
 // 1.1 Khai báo cơ sở vật chất (YCTD-102): phòng theo năm khối, lọc loại phòng, hiện trạng; tổng hợp theo khối và hiện
 // trạng (1.2); thêm, sửa phòng kèm thuộc tính theo quy chuẩn; xuất Excel. Danh sách phòng là lưới dữ liệu chung (DT-16
 // phần 16b): tìm tại chỗ, loại phòng và hiện trạng ở "Mở rộng tìm kiếm", Thêm mới và Xuất Excel trên lưới, Sửa mở biểu
-// mẫu ngay dưới dòng; Đơn vị và khối phòng chọn dữ liệu tải về nên vẫn ở trên lưới
+// mẫu ngay dưới dòng; Đơn vị và khối phòng chọn dữ liệu tải về nên vẫn ở trên lưới. DT-16 phần 16i thêm Nhập từ Excel
+// (công cụ nhập chung của 16a), thông tin nhà vệ sinh chỉ hiện với Phòng vệ sinh; màn hình mở cả từ mục 6.2 Nhập liệu cơ sở
+// vật chất của phân hệ Mầm non
 const labelOf = (values: ReadonlyArray<CodeLabel>, value: string | null) =>
   values.find((item) => item.value === value)?.label ?? '';
 
@@ -111,8 +117,14 @@ const toInput = (draft: RoomDraft): RoomInput => ({
   room_type: draft.room_type || null,
   condition: draft.condition || null,
   area_m2: draft.area_m2 === '' ? null : Number(draft.area_m2),
+  // Chỉ gửi thuộc tính khai báo được cho loại phòng đang chọn (thông tin nhà vệ sinh chỉ cho Phòng vệ sinh)
   facility_attributes: Object.fromEntries(
-    Object.entries(draft.facility_attributes).filter(([, value]) => value !== null && value !== undefined),
+    Object.entries(draft.facility_attributes).filter(
+      ([key, value]) =>
+        value !== null &&
+        value !== undefined &&
+        roomAttributesFor(draft.room_type || null).some((field) => field.key === key),
+    ),
   ),
 });
 
@@ -207,7 +219,7 @@ function RoomForm({
           error={errors.area_m2}
           onChange={(event) => onChange({ ...draft, area_m2: event.target.value })}
         />
-        {ROOM_ATTRIBUTES.map((field) => (
+        {roomAttributesFor(draft.room_type || null).map((field) => (
           <ProfileFieldInput
             key={field.key}
             field={field}
@@ -231,8 +243,9 @@ function RoomForm({
   );
 }
 
-export function FacilityRoomsPage() {
+export function FacilityRoomsPage({ path = '/facility-rooms' }: { path?: PortalQuickLinkPath } = {}) {
   const canManage = useHasPermission(PERMISSION_CODES.roomManage);
+  const [importing, setImporting] = useState(false);
   const queryClient = useQueryClient();
   const unitChoice = useUnitChoice();
   const grid = useGridSettings('facility-rooms');
@@ -303,7 +316,7 @@ export function FacilityRoomsPage() {
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/facility-rooms')}</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle(path)}</h1>
         {exportFile.error ? <Alert tone="danger">{messageOf(exportFile.error)}</Alert> : null}
         <TabBar
           tabs={[
@@ -327,6 +340,19 @@ export function FacilityRoomsPage() {
           />
         </div>
         {draft && draft.roomId === null ? roomForm(draft) : null}
+        {importing && canManage ? (
+          <ExcelImportPanel
+            type="rooms"
+            title="Nhập phòng từ Excel"
+            apiBase={FACILITY_IMPORTS_API_BASE}
+            uploadPath={FACILITY_IMPORTS_API_BASE}
+            uploadFields={{ type: 'rooms' }}
+            onCommitted={async (job) => {
+              setToastMessage(`Đã ghi ${job.assigned_rows ?? 0} phòng từ Excel`);
+              await queryClient.invalidateQueries({ queryKey: ['facility-rooms'] });
+            }}
+          />
+        ) : null}
         {rooms.error ? <Alert tone="danger">{messageOf(rooms.error)}</Alert> : null}
         {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
         <DataGrid
@@ -370,6 +396,11 @@ export function FacilityRoomsPage() {
                   }}
                 >
                   Thêm mới
+                </Button>
+              ) : null}
+              {canManage ? (
+                <Button variant="secondary" onClick={() => setImporting(!importing)}>
+                  Nhập từ Excel
                 </Button>
               ) : null}
               <Button variant="secondary" disabled={exportFile.isPending} onClick={() => exportFile.mutate()}>
@@ -433,4 +464,9 @@ export function FacilityRoomsPage() {
       </div>
     </AppShell>
   );
+}
+
+// 6.2 Nhập liệu cơ sở vật chất của phân hệ Mầm non: cùng màn hình khai báo cơ sở vật chất (DT-16 phần 16i)
+export function FacilityInputPage() {
+  return <FacilityRoomsPage path="/facility-input" />;
 }

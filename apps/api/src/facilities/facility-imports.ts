@@ -122,7 +122,11 @@ export const EQUIPMENT_IMPORT_COLUMNS: ImportColumn[] = [
   { key: 'norm_basis', header: 'Tính theo', note: 'Theo nhóm, lớp hoặc Theo học sinh; để trống là theo nhóm, lớp' },
   { key: 'target_users', header: 'Đối tượng sử dụng', note: 'Học sinh, Giáo viên hoặc Học sinh và giáo viên' },
   { key: 'equipment_type', header: 'Loại thiết bị', note: 'Không bắt buộc, tối đa 100 ký tự' },
-  { key: 'kind', header: 'Danh mục', note: 'Tối thiểu hoặc Ngoài danh mục; để trống là Ngoài danh mục với thiết bị mới' },
+  {
+    key: 'kind',
+    header: 'Danh mục',
+    note: 'Tối thiểu hoặc Ngoài danh mục; để trống là Ngoài danh mục với thiết bị mới',
+  },
   { key: 'status', header: 'Trạng thái', note: 'Đang dùng hoặc Ngừng sử dụng; không bắt buộc' },
   { key: 'note', header: 'Ghi chú', note: 'Không bắt buộc, tối đa 500 ký tự' },
 ];
@@ -221,7 +225,9 @@ export function parseRoomRows(rows: SheetRow[], context: ImportRoomContext) {
     } else if (code.length > 50) {
       add('code', 'Mã phòng tối đa 50 ký tự');
     }
-    const existing = unit ? context.rooms.find((room) => room.org_unit_id === unit.id && room.code === code) : undefined;
+    const existing = unit
+      ? context.rooms.find((room) => room.org_unit_id === unit.id && room.code === code)
+      : undefined;
     const key = `${unit?.id ?? ''}|${code}`;
     if (unit && code && seen.has(key)) {
       add('code', `Mã phòng trùng dòng ${seen.get(key)} của tệp`);
@@ -436,7 +442,12 @@ export function parseEquipmentRows(rows: SheetRow[], context: ImportEquipmentCon
     if (!group && !values.equipment_group) {
       add('equipment_group', 'Bắt buộc nhập nhóm thiết bị với thiết bị mới');
     }
-    const area = code_('development_area', DEVELOPMENT_AREAS, 'lĩnh vực phát triển', existing?.development_area ?? null);
+    const area = code_(
+      'development_area',
+      DEVELOPMENT_AREAS,
+      'lĩnh vực phát triển',
+      existing?.development_area ?? null,
+    );
     const ageGroup = code_('age_group', EQUIPMENT_AGE_GROUPS, 'nhóm tuổi', existing?.age_group ?? null);
     if (!ageGroup && !values.age_group) {
       add('age_group', 'Bắt buộc nhập nhóm tuổi với thiết bị mới');
@@ -458,7 +469,12 @@ export function parseEquipmentRows(rows: SheetRow[], context: ImportEquipmentCon
     if (type && type.length > 100) {
       add('equipment_type', 'Loại thiết bị tối đa 100 ký tự');
     }
-    const kind = code_('kind', EQUIPMENT_KINDS, 'danh mục', existing ? (existing.is_minimum ? 'minimum' : 'outside') : 'outside');
+    const kind = code_(
+      'kind',
+      EQUIPMENT_KINDS,
+      'danh mục',
+      existing ? (existing.is_minimum ? 'minimum' : 'outside') : 'outside',
+    );
     const status = code_('status', EQUIPMENT_STATUSES, 'trạng thái', existing?.status ?? 'active');
     const note = values.note?.trim() || existing?.note || null;
     if (note && note.length > 500) {
@@ -566,7 +582,11 @@ export class FacilityImportsService {
           key: 'room_types',
           title: 'Loại phòng',
           column: 'Loại phòng',
-          items: ROOM_TYPES.map((item) => ({ code: item.value, name: item.label, note: labelOf(ROOM_BLOCKS, item.block) })),
+          items: ROOM_TYPES.map((item) => ({
+            code: item.value,
+            name: item.label,
+            note: labelOf(ROOM_BLOCKS, item.block),
+          })),
         },
         list('conditions', 'Hiện trạng', 'Hiện trạng', ROOM_CONDITIONS),
         list('statuses', 'Trạng thái', 'Trạng thái', ROOM_STATUSES),
@@ -672,7 +692,10 @@ export class FacilityImportsService {
         .orderBy('code')
         .execute(),
     ]);
-    return { units, rooms: rooms.map((room) => ({ ...room, area_m2: room.area_m2 === null ? null : Number(room.area_m2) })) };
+    return {
+      units,
+      rooms: rooms.map((room) => ({ ...room, area_m2: room.area_m2 === null ? null : Number(room.area_m2) })),
+    };
   }
 
   private async equipmentContext(database: Kysely<SchoolYearDatabase>): Promise<ImportEquipmentContext> {
@@ -781,7 +804,11 @@ export class FacilityImportsService {
   }
 
   private async findJob(database: Kysely<SchoolYearDatabase>, jobId: string, currentUser: CurrentUser) {
-    const job = await database.selectFrom('facility_import_jobs').selectAll().where('id', '=', jobId).executeTakeFirst();
+    const job = await database
+      .selectFrom('facility_import_jobs')
+      .selectAll()
+      .where('id', '=', jobId)
+      .executeTakeFirst();
     if (!job) {
       throw notFoundError('Không tìm thấy lần nhập', 'facility_import_job');
     }

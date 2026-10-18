@@ -166,7 +166,9 @@ export const ROOM_ATTRIBUTES: ReadonlyArray<RoomAttributeField> = [
 
 // Thuộc tính khai báo được cho một loại phòng
 export function roomAttributesFor(roomType: string | null): ReadonlyArray<RoomAttributeField> {
-  return ROOM_ATTRIBUTES.filter((field) => !field.roomTypes || (roomType !== null && field.roomTypes.includes(roomType)));
+  return ROOM_ATTRIBUTES.filter(
+    (field) => !field.roomTypes || (roomType !== null && field.roomTypes.includes(roomType)),
+  );
 }
 
 // Mức độ đạt chuẩn cơ sở vật chất của từng khối phòng (1.2 Báo cáo cơ sở vật chất của Sở; mức theo Thông tư 13/2020/TT-

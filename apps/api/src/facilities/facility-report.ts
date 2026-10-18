@@ -195,7 +195,8 @@ export class FacilityReportService {
         label: 'Phòng vệ sinh đã khai báo đối tượng sử dụng và tình trạng đạt chuẩn',
         done: toiletRooms.every(
           (room) =>
-            room.facility_attributes.toilet_users !== undefined && room.facility_attributes.toilet_standard !== undefined,
+            room.facility_attributes.toilet_users !== undefined &&
+            room.facility_attributes.toilet_standard !== undefined,
         ),
       },
       { label: 'Đã đánh giá mức độ đạt chuẩn của đủ năm khối phòng', done: overall !== null },

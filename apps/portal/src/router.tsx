@@ -54,8 +54,10 @@ import { PayrollPage } from './payroll/PayrollPage.js';
 import { SettlementsPage } from './payroll/SettlementsPage.js';
 import { ReportsPage } from './reports/ReportsPage.js';
 import { EmisPage } from './facilities/EmisPage.js';
-import { EquipmentPage } from './facilities/EquipmentPage.js';
-import { FacilityRoomsPage } from './facilities/FacilityRoomsPage.js';
+import { EquipmentOutsidePage, EquipmentPage, EquipmentSubmissionPage } from './facilities/EquipmentPage.js';
+import { FacilityInputPage, FacilityRoomsPage } from './facilities/FacilityRoomsPage.js';
+import { FacilityReportPage } from './facilities/FacilityReportPage.js';
+import { FacilityInvestmentsPage } from './facilities/FacilityInvestmentsPage.js';
 import { SchoolProfilePage } from './facilities/SchoolProfilePage.js';
 import { LeaveRequestsPage } from './staff-attendance/LeaveRequestsPage.js';
 import { SchoolDaysPage } from './staff-attendance/SchoolDaysPage.js';
@@ -251,6 +253,12 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/school-profile', component: SchoolProfilePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/facility-rooms', component: FacilityRoomsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/equipment', component: EquipmentPage }),
+  // Cơ sở vật chất đủ theo Sở (DT-16 phần 16i)
+  createRoute({ getParentRoute: () => rootRoute, path: '/facility-report', component: FacilityReportPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/facility-investments', component: FacilityInvestmentsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/facility-input', component: FacilityInputPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/equipment-outside', component: EquipmentOutsidePage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/equipment-submission', component: EquipmentSubmissionPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/emis', component: EmisPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/api-clients', component: ApiClientsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/integrations', component: IntegrationsPage }),

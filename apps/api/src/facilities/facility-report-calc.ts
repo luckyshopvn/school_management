@@ -39,7 +39,18 @@ export interface FacilityFigureRow {
 const round2 = (value: number) => Math.round(value * 100) / 100;
 
 function emptyRow(key: string, label: string, level: FacilityFigureRow['level']): FacilityFigureRow {
-  return { key, label, level, total: 0, permanent: 0, semi_permanent: 0, temporary: 0, borrowed: 0, unspecified: 0, area_m2: 0 };
+  return {
+    key,
+    label,
+    level,
+    total: 0,
+    permanent: 0,
+    semi_permanent: 0,
+    temporary: 0,
+    borrowed: 0,
+    unspecified: 0,
+    area_m2: 0,
+  };
 }
 
 function addRoom(row: FacilityFigureRow, room: ReportRoom) {
@@ -61,7 +72,10 @@ export function buildFacilityFigures(rooms: ReportRoom[]): FacilityFigureRow[] {
   const active = rooms.filter((room) => room.status === 'active');
   const result: FacilityFigureRow[] = [];
   const total = emptyRow('total', 'Tổng số phòng', 'total');
-  const blocks: Array<{ value: string; label: string }> = ROOM_BLOCKS.map((block) => ({ value: block.value, label: block.label }));
+  const blocks: Array<{ value: string; label: string }> = ROOM_BLOCKS.map((block) => ({
+    value: block.value,
+    label: block.label,
+  }));
   blocks.push({ value: 'unassigned', label: 'Chưa phân khối' });
   for (const block of blocks) {
     const inBlock = active.filter((room) => (room.room_block ?? 'unassigned') === block.value);
@@ -169,7 +183,8 @@ export function overallStandardLevel(
 ): FacilityStandardLevelCode | null {
   let lowest: FacilityStandardLevelCode | null = null;
   for (const block of ROOM_BLOCKS) {
-    const level = levels.find((item) => item.room_block === block.value)?.level as FacilityStandardLevelCode | undefined;
+    const level = levels.find((item) => item.room_block === block.value)?.level as
+      FacilityStandardLevelCode | undefined;
     if (!level || !LEVEL_ORDER.includes(level)) {
       return null;
     }

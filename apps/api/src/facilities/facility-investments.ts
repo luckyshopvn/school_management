@@ -27,7 +27,14 @@ const MANAGE = PERMISSION_CODES.schoolProfileManage;
 const MAXIMUM_COUNT = 100_000;
 const MAXIMUM_BUDGET = 1_000_000_000;
 const MAXIMUM_NOTE = 500;
-const COUNT_FIELDS = ['permanent', 'semi_permanent', 'degraded_level4', 'borrowed', 'need_classes', 'need_rooms'] as const;
+const COUNT_FIELDS = [
+  'permanent',
+  'semi_permanent',
+  'degraded_level4',
+  'borrowed',
+  'need_classes',
+  'need_rooms',
+] as const;
 
 export interface InvestmentInput {
   category: FacilityInvestmentCategoryCode;
