@@ -103,6 +103,7 @@ export type {
   MenuStatus,
   PhysicalEducationResult,
   StudentHealthTerm,
+  EmisValues,
   MarketPurchaseStatus,
   MarketPurchasePaymentStatus,
   MedicationRequestStatus,

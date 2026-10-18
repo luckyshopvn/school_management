@@ -53,7 +53,8 @@ import { PayItemsPage } from './payroll/PayItemsPage.js';
 import { PayrollPage } from './payroll/PayrollPage.js';
 import { SettlementsPage } from './payroll/SettlementsPage.js';
 import { ReportsPage } from './reports/ReportsPage.js';
-import { EmisPage } from './facilities/EmisPage.js';
+import { EmisFormPage } from './emis/EmisFormPage.js';
+import { EMIS_FORMS } from '@school-management/shared';
 import { EquipmentOutsidePage, EquipmentPage, EquipmentSubmissionPage } from './facilities/EquipmentPage.js';
 import { FacilityInputPage, FacilityRoomsPage } from './facilities/FacilityRoomsPage.js';
 import { FacilityReportPage } from './facilities/FacilityReportPage.js';
@@ -253,13 +254,20 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/school-profile', component: SchoolProfilePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/facility-rooms', component: FacilityRoomsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/equipment', component: EquipmentPage }),
+  // Bảy biểu báo cáo EMIS (DT-16 phần 16j)
+  ...EMIS_FORMS.map((form) =>
+    createRoute({
+      getParentRoute: () => rootRoute,
+      path: form.path,
+      component: () => <EmisFormPage code={form.code} />,
+    }),
+  ),
   // Cơ sở vật chất đủ theo Sở (DT-16 phần 16i)
   createRoute({ getParentRoute: () => rootRoute, path: '/facility-report', component: FacilityReportPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/facility-investments', component: FacilityInvestmentsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/facility-input', component: FacilityInputPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/equipment-outside', component: EquipmentOutsidePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/equipment-submission', component: EquipmentSubmissionPage }),
-  createRoute({ getParentRoute: () => rootRoute, path: '/emis', component: EmisPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/api-clients', component: ApiClientsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/integrations', component: IntegrationsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/notifications', component: NotificationsPage }),

@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.8
+- Phiên bản: 0.9
 - Ngày cập nhật: 2026-10-18
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.79.0 – 2026-10-18
+
+- Phạm vi thay đổi: DT-16 phần 16j, báo cáo số liệu EMIS theo hệ thống của Sở (YCTD-129).
+- Chức năng mới: phân hệ "Báo cáo số liệu" đủ bảy biểu: 1.1 thêm thẻ nhập tay "Ngân sách nhà nước"; mục mới "1.2. Báo cáo cơ sở vật chất" (năm thẻ nhập tay, Lấy dữ liệu, Lấy dữ liệu năm trước), "1.3. Báo cáo sức khỏe học sinh đầu năm" (cột theo Sở), "2.1. Báo cáo EMIS cuối năm" (sáu mục I đến VI), "2.2. Báo cáo đội ngũ" (ba thẻ), "2.3. Đề án ngoại ngữ" (hai thẻ nhập tay, đánh dấu trường không có dữ liệu), "2.4. Báo cáo giáo dục mầm non cuối năm"; màn hình chung có Ghi, khóa khi đã đánh dấu đã gửi, Xuất Excel in tên đơn vị hành chính; danh sách gửi báo cáo bảy biểu kèm số đã gửi, số cần gửi, lần gửi cuối; nút "Xuất file lỗi" ở mỗi dòng biểu (P17-24 đến P17-28, sửa P17-18, P17-20, P17-22).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0059_create_emis_report_values` tạo bảng `emis_report_values`. Không có migration hệ thống, định danh.
+- Thay đổi API: điểm cuối mới `GET /reports/emis/forms/{form}`, `PUT /reports/emis/forms/{form}/tabs/{tab}`, `POST /reports/emis/forms/{form}/tabs/{tab}/fill`, `POST /reports/emis/forms/{form}/export`, `POST /upper-level-submissions/{form}/error-file`; nhóm `/upper-level-submissions` nhận thêm mã sáu biểu mới; tệp gửi của 1.1 sáu trang.
+- Kiểm thử: kịch bản CT-580 đến CT-588. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 832/832 ca đạt; toàn bộ kiểm thử giao diện 131/131 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: tên, mã số chỉ tiêu của bảy biểu do Claude đặt, chưa đối chiếu biểu mẫu chính thức của Sở; không truyền dữ liệu lên Bộ, Sở, người dùng phải gửi tệp và đánh dấu trạng thái; 2.1, 2.4 tính tại thời điểm xem.
+- Khả năng tương thích: giữ `GET /reports/emis/start-of-year`, `POST /reports/emis/start-of-year/export`, `GET /reports/emis/start-of-year-health`; trạng thái gửi đã có của 1.1 giữ nguyên (cùng mã `emis-start-of-year`); tệp Excel 1.1 thêm trang thứ sáu ở cuối, năm trang đầu như cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16j; chạy phần quay lui của tệp năm học `0059` (xóa bảng `emis_report_values`). Dòng `upper_level_submissions` của sáu biểu mới không còn được đọc, xóa tay nếu cần.
 
 ### Phiên bản 0.78.0 – 2026-10-18
 

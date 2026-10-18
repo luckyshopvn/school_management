@@ -2199,6 +2199,22 @@ export interface StudentHealthRecordsTable {
   updated_at: UpdatedTimestamp;
 }
 
+// Số liệu nhập tay của các biểu báo cáo EMIS (DT-16 phần 16j): mỗi dòng một chỉ tiêu của một thẻ, số theo mã cột
+export type EmisValues = Record<string, number | null>;
+
+export interface EmisReportValuesTable {
+  id: Generated<string>;
+  form_code: string;
+  tab_key: string;
+  row_code: string;
+  values: ColumnType<EmisValues, string, string>;
+  note: string | null;
+  updated_by: string;
+  updated_by_name: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
 export interface MenuItemsTable {
   id: Generated<string>;
   menu_id: string;
@@ -3417,6 +3433,7 @@ export interface SchoolYearDatabase {
   menu_items: MenuItemsTable;
   menu_import_jobs: MenuImportJobsTable;
   student_health_records: StudentHealthRecordsTable;
+  emis_report_values: EmisReportValuesTable;
   meal_reports: MealReportsTable;
   meal_plans: MealPlansTable;
   buffet_events: BuffetEventsTable;

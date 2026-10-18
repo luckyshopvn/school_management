@@ -63,6 +63,17 @@ const post = (formCode: string, action: string, body?: unknown) =>
     ...(body !== undefined ? { headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) } : {}),
   });
 
+// Xuất file lỗi: các điều kiện Hoàn thành dữ liệu chưa đạt (DT-16 phần 16j)
+async function downloadErrorFile(submission: Submission): Promise<void> {
+  const response = await fetchWithSession(`/api/v1/upper-level-submissions/${submission.form_code}/error-file`, {
+    method: 'POST',
+  });
+  if (!response.ok) {
+    throw await readError(response);
+  }
+  saveResponseFile(await response.blob(), response.headers.get('content-disposition') ?? '', 'file-loi.xlsx');
+}
+
 async function downloadSubmissionFile(submission: Submission): Promise<void> {
   const response = await fetchWithSession(`/api/v1/upper-level-submissions/${submission.form_code}/file`);
   if (!response.ok) {
@@ -131,6 +142,15 @@ function SubmissionRow({ submission, onChanged }: { submission: Submission; onCh
             </li>
           ))}
         </ul>
+        {!submission.data_complete ? (
+          <Button
+            variant="text"
+            className="px-0 py-0"
+            onClick={() => downloadErrorFile(submission).catch((reason: unknown) => setError(messageOf(reason)))}
+          >
+            Xuất file lỗi
+          </Button>
+        ) : null}
       </td>
       <td className="px-3 py-2">
         <StatusBadge tone={STATUS[submission.status].tone} label={STATUS[submission.status].label} />
@@ -318,12 +338,15 @@ function SubmissionRow({ submission, onChanged }: { submission: Submission; onCh
 }
 
 // Màn hình của biểu mẫu truyền mã các biểu mẫu cần hiện; máy chủ kiểm tra quyền theo từng biểu mẫu
+// summary: dòng tổng hợp số biểu đã gửi, số cần gửi, lần gửi cuối (danh sách hồ sơ gửi báo cáo của 1.1 EMIS, phần 16j)
 export function UpperLevelSubmissionPanel({
   formCodes,
   onChanged,
+  summary = false,
 }: {
   formCodes: string[];
   onChanged(message: string): void;
+  summary?: boolean;
 }) {
   const submissions = useQuery({
     queryKey: ['upper-level-submissions', formCodes],
@@ -342,6 +365,7 @@ export function UpperLevelSubmissionPanel({
         cho cấp trên, rồi "Đánh dấu đã gửi".
       </p>
       {submissions.error ? <Alert tone="danger">{messageOf(submissions.error)}</Alert> : null}
+      {summary && submissions.data ? <SubmissionSummary items={submissions.data} /> : null}
       <div className="overflow-x-auto">
         <table className="w-full text-content">
           <caption className="sr-only">Biểu mẫu gửi lên cấp trên</caption>
@@ -372,5 +396,20 @@ export function UpperLevelSubmissionPanel({
         </table>
       </div>
     </section>
+  );
+}
+
+function SubmissionSummary({ items }: { items: Submission[] }) {
+  const sent = items.filter((item) => item.status === 'sent' || item.status === 'unlock_requested');
+  const lastSent = sent
+    .map((item) => item.sent_on)
+    .filter((value): value is string => value !== null)
+    .sort()
+    .pop();
+  return (
+    <p className="text-content" aria-label="Tổng hợp gửi báo cáo">
+      Số đã gửi: <strong>{sent.length}</strong> · Số cần gửi: <strong>{items.length - sent.length}</strong> · Lần gửi
+      cuối: <strong>{lastSent ? formatDate(lastSent) : 'chưa gửi'}</strong>
+    </p>
   );
 }

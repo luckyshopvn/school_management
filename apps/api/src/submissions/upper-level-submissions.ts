@@ -16,7 +16,12 @@ import type { CurrentUser } from '../authentication/current-user.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
 import { notFoundError, readOptionalText, type RequestBody } from '../common/request-fields.js';
-import { sendWorkbook, type ExportedFile } from '../facilities/facilities-workbook.js';
+import {
+  buildFacilitiesWorkbook,
+  fileStamp,
+  sendWorkbook,
+  type ExportedFile,
+} from '../facilities/facilities-workbook.js';
 import { FileStorage } from '../files/file-storage.js';
 
 // Mẫu "gửi lên cấp trên" chạy nội bộ (DT-16 phần 16a, khảo sát mục 2.3 của Sở; quyết định của Eric ngày 2026-10-16: tính
@@ -184,6 +189,17 @@ export class UpperLevelSubmissions {
     };
   }
 
+  // Trạng thái gửi của biểu mẫu trong năm học đang dùng (chưa có bản ghi là Chưa gửi). Màn hình nhập số liệu của biểu mẫu
+  // (ví dụ các biểu EMIS của phần 16j) dùng để khóa việc sửa khi biểu mẫu đã gửi hoặc đang chờ mở khóa
+  async statusOf(formCode: string): Promise<UpperLevelSubmissionStatus> {
+    const { academicYearId } = await this.currentSchoolYear.require();
+    return (await this.row(academicYearId, formCode))?.status ?? 'draft';
+  }
+
+  isLocked(status: UpperLevelSubmissionStatus): boolean {
+    return status === 'sent' || status === 'unlock_requested';
+  }
+
   // Danh sách biểu mẫu kèm Hoàn thành dữ liệu, Trạng thái, Ngày gửi của năm học đang dùng
   async list(currentUser: CurrentUser, formCodes: string[]): Promise<SubmissionView[]> {
     const { academicYearId } = await this.currentSchoolYear.require();
@@ -231,6 +247,40 @@ export class UpperLevelSubmissions {
       await this.fileStorage.delete(row.storage_key);
     }
     return this.view(currentUser, form, await this.row(academicYearId, formCode));
+  }
+
+  // Xuất file lỗi (khảo sát mục 5, dòng 1.1 "xuất file lỗi"; DT-16 phần 16j): các điều kiện Hoàn thành dữ liệu chưa đạt của
+  // biểu mẫu tại thời điểm xuất, để bổ sung dữ liệu trước khi xuất tệp gửi
+  async errorFile(currentUser: CurrentUser, formCode: string, ipAddress: string | null): Promise<ExportedFile> {
+    const form = this.form(currentUser, formCode);
+    const { database } = await this.currentSchoolYear.require();
+    const completeness = await form.completeness(currentUser);
+    const missing = completeness.filter((item) => !item.done);
+    const createdAt = this.clock.now();
+    return buildFacilitiesWorkbook({
+      database,
+      currentUser,
+      reportCode: `${form.code}-errors`,
+      fileName: `file-loi-${form.code}-${fileStamp(createdAt)}.xlsx`,
+      filters: { form: form.code },
+      orgUnitIds: [],
+      ipAddress,
+      createdAt,
+      sheets: [
+        {
+          title: 'File lỗi',
+          heading: [
+            `File lỗi: ${form.name}`,
+            missing.length === 0 ? 'Dữ liệu đã hoàn thành, không có lỗi' : `${missing.length} điều kiện chưa đạt`,
+          ],
+          columns: [
+            { key: 'order', label: 'STT', width: 6 },
+            { key: 'label', label: 'Điều kiện hoàn thành dữ liệu chưa đạt', width: 80 },
+          ],
+          rows: missing.map((item, index) => ({ order: index + 1, label: item.label })),
+        },
+      ],
+    });
   }
 
   async file(currentUser: CurrentUser, formCode: string): Promise<ExportedFile> {
@@ -484,6 +534,17 @@ export class UpperLevelSubmissionsController {
   @Get(':form/file')
   async file(@Param('form') form: string, @Res() response: Response, @AuthenticatedUser() currentUser: CurrentUser) {
     sendWorkbook(response, await this.submissions.file(currentUser, form));
+  }
+
+  @Post(':form/error-file')
+  @HttpCode(200)
+  async errorFile(
+    @Param('form') form: string,
+    @Req() request: Request,
+    @Res() response: Response,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    sendWorkbook(response, await this.submissions.errorFile(currentUser, form, request.ip ?? null));
   }
 
   @Post(':form/mark-sent')

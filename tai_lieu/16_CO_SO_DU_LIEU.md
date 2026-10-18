@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.73
+- Phiên bản: 1.74
 - Ngày cập nhật: 2026-10-18
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -409,6 +409,9 @@ Ràng buộc duy nhất: `poll_responses` trên bộ đôi bình chọn và tài
 | export_jobs | Tác vụ xuất nền và "Tệp đã tạo" (P17-19, BR-119, YCTD-121, tệp `database/system/migrations/0010_create_export_jobs_and_submissions.ts`), ở cơ sở dữ liệu hệ thống | id, user_id, user_name, user_snapshot (jsonb vai trò, quyền lúc tạo), report_code, title, format (`xlsx`, `pdf`), parameters (jsonb bộ lọc, cột), ip_address, status (`pending`, `running`, `done`, `failed`, `expired`), attempts, row_count, file_name, content_type, size_bytes, storage_key (kho tệp, khóa `export/{id}`, xóa khi hết hạn), error_message, created_at, started_at, finished_at, expires_at; chỉ mục (user_id, created_at), (status, created_at) |
 | upper_level_submissions | Trạng thái gửi biểu mẫu lên cấp trên chạy nội bộ (P17-20, BR-119, YCTD-121), ở cơ sở dữ liệu hệ thống, mỗi biểu mẫu một dòng mỗi năm học | id, academic_year_id (khóa ngoại `academic_years`), form_code (duy nhất cùng năm học), status (`draft`, `sent`, `unlock_requested`, `resend`), no_data, data_complete (tại lần xuất tệp gửi gần nhất), snapshot (jsonb số liệu lúc xuất), file_name, content_type, size_bytes, storage_key (khóa `submission/{id}/…`), exported_at, exported_by, exported_by_name, sent_on, sent_note, sent_by, sent_by_name, marked_sent_at, unlock_reason, unlock_requested_by, unlock_requested_by_name, unlock_requested_at, created_at, updated_at, updated_by |
 | upper_level_submission_events | Lịch sử thao tác gửi lên cấp trên (YCTD-121) | id, submission_id (khóa ngoại `upper_level_submissions`, xóa theo), action (`export`, `mark_sent`, `unlock_request`, `unlock`, `unlock_reject`, `resend`), note, actor_id, actor_name, created_at; chỉ mục (submission_id, created_at) |
+| emis_report_values | Số liệu nhập tay của các thẻ biểu báo cáo số liệu EMIS (P17-18, P17-24, P17-27, BR-127, YCTD-129), ở cơ sở dữ liệu năm học, mỗi chỉ tiêu một dòng | id (uuid), form_code (mã biểu, ví dụ `emis-facilities`), tab_key (mã thẻ), row_code (mã chỉ tiêu), values (jsonb, đối tượng số theo mã cột; ràng buộc kiểm tra là đối tượng), note, updated_by, updated_by_name, created_at, updated_at; duy nhất (form_code, tab_key, row_code) |
+
+Tệp `database/school-year/migrations/0059_create_emis_report_values.ts` của cơ sở dữ liệu năm học (DT-16 phần 16j, YCTD-129) tạo `emis_report_values` (ràng buộc duy nhất `emis_report_values_row_unique` trên form_code, tab_key, row_code; ràng buộc kiểm tra `emis_report_values_values_check` `values` là đối tượng); phần quay lui xóa bảng. Số tệp migration hệ thống 0014 dành cho phần 16j không dùng; không có migration định danh.
 
 ## 19. Quan hệ chính giữa các bảng
 
@@ -488,6 +491,7 @@ erDiagram
 | facility_standard_levels | org_unit_id kèm room_block, duy nhất (`facility_standard_levels_unique`) | Một mức độ đạt chuẩn mỗi khối phòng (YCTD-128) |
 | school_split_requests | code, duy nhất | Tra yêu cầu tách theo mã (YCTD-127) |
 | school_split_items | request_id kèm child_id, duy nhất (`school_split_items_child_unique`); request_id kèm staff_id, duy nhất (`school_split_items_staff_unique`) | Mỗi đối tượng một lần trong yêu cầu; đọc danh sách của yêu cầu (YCTD-127) |
+| emis_report_values | form_code kèm tab_key kèm row_code, duy nhất (`emis_report_values_row_unique`) | Một dòng số liệu mỗi chỉ tiêu của thẻ; ghi đè theo mã chỉ tiêu, đọc số của thẻ (YCTD-129) |
 
 ## 21. Chính sách xóa dữ liệu
 

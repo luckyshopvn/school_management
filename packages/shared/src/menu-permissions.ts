@@ -110,6 +110,12 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/facility-rooms': anyOf('P17.report.facilities', 'P13.equipment.manage', 'P01.room.manage'),
   '/equipment': anyOf('P17.report.facilities', 'P13.equipment.manage'),
   '/emis': 'P17.report.emis',
+  '/emis/facilities': 'P17.report.emis',
+  '/emis/health': 'P17.report.emis',
+  '/emis/end-of-year': 'P17.report.emis',
+  '/emis/staff': 'P17.report.emis',
+  '/emis/foreign-language': 'P17.report.emis',
+  '/emis/preschool-end-of-year': 'P17.report.emis',
   // Cơ sở vật chất đủ theo Sở (DT-16 phần 16i): 6.1 xem như báo cáo cơ sở vật chất, ghi cần quyền cập nhật hồ sơ trường; 6.2
   // như 1.1; 1.2 như báo cáo cơ sở vật chất; 2.2 như 2.1; 2.3 gửi theo quyền báo cáo cơ sở vật chất
   '/facility-investments': anyOf('P17.report.facilities', 'P01.school-profile.manage'),
