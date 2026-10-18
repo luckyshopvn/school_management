@@ -65,11 +65,16 @@ test('Đề nghị tuyển dụng được duyệt, tin công bố, ứng viên 
   // Quản lý đơn vị lập đề nghị
   const managerPage = await signIn(browser, manager);
   await openMenu(managerPage, '/recruitment');
-  await managerPage.getByLabel('Vị trí cần tuyển').fill(position);
-  await managerPage.getByLabel('Số lượng').fill('1');
-  await managerPage.getByLabel('Yêu cầu', { exact: true }).fill('Cao đẳng sư phạm mầm non');
-  await managerPage.getByLabel('Lý do tuyển').fill('Mở thêm lớp');
-  await managerPage.getByRole('button', { name: 'Gửi đề nghị tuyển dụng' }).click();
+  await managerPage
+    .getByRole('region', { name: 'Đề nghị tuyển dụng' })
+    .getByRole('button', { name: 'Thêm mới' })
+    .click();
+  const requestForm = managerPage.getByRole('form', { name: 'Lập đề nghị tuyển dụng' });
+  await requestForm.getByLabel('Vị trí cần tuyển').fill(position);
+  await requestForm.getByLabel('Số lượng').fill('1');
+  await requestForm.getByLabel('Yêu cầu', { exact: true }).fill('Cao đẳng sư phạm mầm non');
+  await requestForm.getByLabel('Lý do tuyển').fill('Mở thêm lớp');
+  await requestForm.getByRole('button', { name: 'Ghi' }).click();
   await expect(managerPage.getByText(/Đã gửi đề nghị DNTD-\d{6}/)).toBeVisible();
   await expect(managerPage.getByRole('row').filter({ hasText: position })).toContainText('Chờ duyệt');
 
@@ -84,15 +89,17 @@ test('Đề nghị tuyển dụng được duyệt, tin công bố, ứng viên 
   const hrPage = await signIn(browser, hr);
   await openMenu(hrPage, '/recruitment');
   await hrPage.getByRole('tab', { name: 'Tin tuyển dụng' }).click();
-  const requestSelect = hrPage.getByLabel('Đề nghị đã duyệt');
+  await hrPage.getByRole('region', { name: 'Tin tuyển dụng' }).getByRole('button', { name: 'Thêm mới' }).click();
+  const postingForm = hrPage.getByRole('form', { name: 'Soạn tin tuyển dụng' });
+  const requestSelect = postingForm.getByLabel('Đề nghị đã duyệt');
   const requestValue = await requestSelect.locator('option', { hasText: position }).getAttribute('value');
   await requestSelect.selectOption(requestValue ?? '');
-  await hrPage.getByLabel('Tiêu đề tin').fill(title);
-  await hrPage.getByLabel('Mô tả công việc').fill('Dạy và chăm sóc trẻ lớp mầm');
-  await hrPage.getByLabel('Yêu cầu ứng viên').fill('Yêu trẻ, có bằng sư phạm');
+  await postingForm.getByLabel('Tiêu đề tin').fill(title);
+  await postingForm.getByLabel('Mô tả công việc').fill('Dạy và chăm sóc trẻ lớp mầm');
+  await postingForm.getByLabel('Yêu cầu ứng viên').fill('Yêu trẻ, có bằng sư phạm');
   const deadline = new Date(Date.now() + 14 * 86_400_000).toISOString().slice(0, 10);
-  await hrPage.getByLabel('Hạn nộp hồ sơ').fill(deadline);
-  await hrPage.getByRole('button', { name: 'Lưu tin' }).click();
+  await postingForm.getByLabel('Hạn nộp hồ sơ').fill(deadline);
+  await postingForm.getByRole('button', { name: 'Ghi' }).click();
   await expect(hrPage.getByText('Đã lưu tin tuyển dụng ở trạng thái đang soạn')).toBeVisible();
   const postingRow = hrPage.getByRole('row').filter({ hasText: title });
   await postingRow.getByRole('button', { name: 'Công bố' }).click();

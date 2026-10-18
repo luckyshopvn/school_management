@@ -1,12 +1,26 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, TextField, Toast } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  DataGrid,
+  FORM_CONTROL_CLASS,
+  FormBlock,
+  FormRow,
+  TextField,
+  Toast,
+  type DataGridColumn,
+} from '@school-management/ui';
 import { listCatalogItems } from '../catalogs/catalogs-api.js';
-import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
+import { useUnitChoice } from '../catalogs/UnitSelect.js';
 import { uploadFile } from '../children/children-api.js';
 import { listClasses } from '../classes/classes-api.js';
 import { AppShell } from '../pages/AppShell.js';
+import { FormButtons, FormPanel } from '../pages/FormPanel.js';
+import { useGridSettings } from '../pages/grid-settings.js';
+import { matchesSearch } from '../pages/grid-search.js';
+import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
 import {
   APPLICATION_STATUS_LABELS,
@@ -18,14 +32,19 @@ import {
   messageOf,
   POST_STATUS_LABELS,
   postJson,
+  type ApplicationRow,
   type Campaign,
   type ConvertResult,
+  type Post,
 } from './admissions-api.js';
 
 // MH-26 Hồ sơ tuyển sinh và xét duyệt, MH-63 Đợt và tin tuyển sinh (P16-01 đến P16-05; YCTD-86): lập, mở, đóng đợt;
-// tiếp nhận hồ sơ trực tuyến, xét đạt hoặc không đạt kèm lý do, chuyển hồ sơ đạt thành hồ sơ trẻ; soạn và công bố tin
+// tiếp nhận hồ sơ trực tuyến, xét đạt hoặc không đạt kèm lý do, chuyển hồ sơ đạt thành hồ sơ học sinh; soạn và công bố
+// tin. Giao diện chung theo Sở (DT-15 phần 15f3, YCTD-115): hồ sơ, đợt và tin tuyển sinh là lưới dữ liệu chung (khóa
+// `admission-applications`, `admission-campaigns`, `admission-posts`); lập đợt, soạn tin, chuyển hồ sơ bằng biểu mẫu theo
+// khối; chi tiết hồ sơ mở ngay dưới dòng của hồ sơ
 type Tab = 'applications' | 'campaigns' | 'posts';
-const selectClass = 'mt-2 block w-full rounded-lg border border-border bg-card px-3 py-2 text-content font-normal';
+const filterClass = `mt-1 ${FORM_CONTROL_CLASS}`;
 const vietnamToday = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 
 export function AdmissionsPage() {
@@ -49,12 +68,12 @@ export function AdmissionsPage() {
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-4">
-        <h1 className="text-page-title font-bold text-text">Tuyển sinh</h1>
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/admissions')}</h1>
         {campaigns.error ? <Alert tone="danger">{messageOf(campaigns.error)}</Alert> : null}
         <div className="flex flex-wrap items-end gap-4">
           <label className="text-label font-medium text-text">
             Đợt đang xem
-            <select value={campaignId} onChange={(event) => setCampaignId(event.target.value)} className={selectClass}>
+            <select value={campaignId} onChange={(event) => setCampaignId(event.target.value)} className={filterClass}>
               <option value="">Chọn đợt tuyển sinh</option>
               {(campaigns.data ?? []).map((campaign) => (
                 <option key={campaign.id} value={campaign.id}>
@@ -83,9 +102,16 @@ export function AdmissionsPage() {
             </Button>
           ))}
         </div>
-        {tab === 'applications' && selected ? <ApplicationsTab campaign={selected} onDone={setToastMessage} /> : null}
+        {tab === 'applications' && selected ? (
+          <ApplicationsTab key={selected.id} campaign={selected} onDone={setToastMessage} />
+        ) : null}
         {tab === 'campaigns' ? (
-          <CampaignsTab campaigns={campaigns.data ?? []} onSelect={setCampaignId} onDone={setToastMessage} />
+          <CampaignsTab
+            campaigns={campaigns.data ?? []}
+            loading={campaigns.isPending}
+            onSelect={setCampaignId}
+            onDone={setToastMessage}
+          />
         ) : null}
         {tab === 'posts' && selected ? <PostsTab campaign={selected} onDone={setToastMessage} /> : null}
       </div>
@@ -93,26 +119,22 @@ export function AdmissionsPage() {
   );
 }
 
-function CampaignsTab({
-  campaigns,
-  onSelect,
-  onDone,
-}: {
-  campaigns: Campaign[];
-  onSelect(id: string): void;
-  onDone(message: string): void;
-}) {
-  const queryClient = useQueryClient();
-  const canManage = useHasPermission(PERMISSION_CODES.admissionCampaignManage);
+const CAMPAIGN_COLUMNS: Array<DataGridColumn<Campaign>> = [
+  { id: 'name', header: 'Đợt', alwaysVisible: true, className: 'font-medium', cell: (row) => row.name },
+  { id: 'org_unit_name', header: 'Đơn vị', cell: (row) => row.org_unit_name },
+  { id: 'open', header: 'Thời gian nhận hồ sơ', cell: (row) => `${row.open_from} đến ${row.open_to}` },
+  { id: 'application_count', header: 'Hồ sơ', cell: (row) => row.application_count },
+  { id: 'passed', header: 'Đạt / chỉ tiêu', cell: (row) => `${row.passed_count} / ${row.quota}` },
+  { id: 'converted_count', header: 'Đã nhập học', hiddenByDefault: true, cell: (row) => row.converted_count },
+  { id: 'status', header: 'Trạng thái', cell: (row) => CAMPAIGN_STATUS_LABELS[row.status] },
+];
+
+function CampaignForm({ onSaved, onCancel }: { onSaved(campaign: Campaign): void; onCancel(): void }) {
   const unitChoice = useUnitChoice();
   const [name, setName] = useState('');
   const [quota, setQuota] = useState('20');
   const [openFrom, setOpenFrom] = useState(vietnamToday);
   const [openTo, setOpenTo] = useState(vietnamToday);
-  const refresh = async (message: string) => {
-    await queryClient.invalidateQueries({ queryKey: ['admission-campaigns'] });
-    onDone(message);
-  };
   const create = useMutation({
     mutationFn: () =>
       postJson<Campaign>('/api/v1/admission-campaigns', {
@@ -122,169 +144,250 @@ function CampaignsTab({
         open_from: openFrom,
         open_to: openTo,
       }),
-    onSuccess: async (campaign) => {
-      setName('');
-      onSelect(campaign.id);
-      await refresh('Đã lập đợt tuyển sinh');
-    },
+    onSuccess: onSaved,
   });
+  return (
+    <form
+      aria-label="Lập đợt tuyển sinh"
+      className="flex flex-col gap-3"
+      onSubmit={(event) => {
+        event.preventDefault();
+        create.mutate();
+      }}
+    >
+      {create.error ? <Alert tone="danger">{messageOf(create.error)}</Alert> : null}
+      <FormBlock title="Lập đợt tuyển sinh">
+        <FormRow label="Đơn vị">
+          <select
+            className={FORM_CONTROL_CLASS}
+            value={unitChoice.selectedId ?? ''}
+            onChange={(event) => unitChoice.select(event.target.value)}
+          >
+            {unitChoice.units.map((unit) => (
+              <option key={unit.id} value={unit.id}>
+                {unit.name}
+              </option>
+            ))}
+          </select>
+        </FormRow>
+        <FormRow label="Tên đợt">
+          <input className={FORM_CONTROL_CLASS} value={name} onChange={(event) => setName(event.target.value)} />
+        </FormRow>
+        <FormRow label="Chỉ tiêu">
+          <input
+            type="number"
+            min={1}
+            className={FORM_CONTROL_CLASS}
+            value={quota}
+            onChange={(event) => setQuota(event.target.value)}
+          />
+        </FormRow>
+        <FormRow label="Nhận hồ sơ từ ngày">
+          <input
+            type="date"
+            className={FORM_CONTROL_CLASS}
+            value={openFrom}
+            onChange={(event) => setOpenFrom(event.target.value)}
+          />
+        </FormRow>
+        <FormRow label="Hạn nhận hồ sơ">
+          <input
+            type="date"
+            className={FORM_CONTROL_CLASS}
+            value={openTo}
+            onChange={(event) => setOpenTo(event.target.value)}
+          />
+        </FormRow>
+      </FormBlock>
+      <FormButtons busy={create.isPending} disabled={name === ''} onCancel={onCancel} />
+    </form>
+  );
+}
+
+function CampaignsTab({
+  campaigns,
+  loading,
+  onSelect,
+  onDone,
+}: {
+  campaigns: Campaign[];
+  loading: boolean;
+  onSelect(id: string): void;
+  onDone(message: string): void;
+}) {
+  const queryClient = useQueryClient();
+  const canManage = useHasPermission(PERMISSION_CODES.admissionCampaignManage);
+  const grid = useGridSettings('admission-campaigns');
+  const [creating, setCreating] = useState(false);
+  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState<Campaign['status'] | ''>('');
+  const refresh = async (message: string) => {
+    await queryClient.invalidateQueries({ queryKey: ['admission-campaigns'] });
+    onDone(message);
+  };
   const change = useMutation({
     mutationFn: ({ id, action }: { id: string; action: 'open' | 'close' }) =>
       postJson(`/api/v1/admission-campaigns/${id}/${action}`, {}),
     onSuccess: (_result, variables) =>
       refresh(variables.action === 'open' ? 'Đã mở đợt tuyển sinh' : 'Đã đóng đợt tuyển sinh'),
   });
-  const error = create.error ?? change.error;
+  const error = change.error ?? grid.error;
+  const rows = campaigns.filter(
+    (campaign) =>
+      (status === '' || campaign.status === status) && matchesSearch(search, campaign.name, campaign.org_unit_name),
+  );
   return (
     <div className="flex flex-col gap-4">
       {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
-      {canManage ? (
-        <form
-          aria-label="Lập đợt tuyển sinh"
-          className="grid grid-cols-1 gap-3 rounded-lg bg-card p-4 md:grid-cols-3"
-          onSubmit={(event) => {
-            event.preventDefault();
-            create.mutate();
-          }}
-        >
-          <UnitSelect units={unitChoice.units} selectedId={unitChoice.selectedId} onSelect={unitChoice.select} />
-          <TextField label="Tên đợt" value={name} onChange={(event) => setName(event.target.value)} />
-          <TextField
-            label="Chỉ tiêu"
-            type="number"
-            min={1}
-            value={quota}
-            onChange={(event) => setQuota(event.target.value)}
+      {canManage && creating ? (
+        <FormPanel>
+          <CampaignForm
+            onCancel={() => setCreating(false)}
+            onSaved={async (campaign) => {
+              setCreating(false);
+              onSelect(campaign.id);
+              await refresh('Đã lập đợt tuyển sinh');
+            }}
           />
-          <TextField
-            label="Nhận hồ sơ từ ngày"
-            type="date"
-            value={openFrom}
-            onChange={(event) => setOpenFrom(event.target.value)}
-          />
-          <TextField
-            label="Hạn nhận hồ sơ"
-            type="date"
-            value={openTo}
-            onChange={(event) => setOpenTo(event.target.value)}
-          />
-          <div className="flex items-end">
-            <Button type="submit" variant="primary" disabled={create.isPending || name === ''}>
-              Lập đợt tuyển sinh
-            </Button>
-          </div>
-        </form>
+        </FormPanel>
       ) : null}
-      <table className="w-full text-left text-content">
-        <thead>
-          <tr className="text-label text-text-secondary">
-            <th className="py-2">Đợt</th>
-            <th>Đơn vị</th>
-            <th>Thời gian nhận hồ sơ</th>
-            <th>Hồ sơ</th>
-            <th>Đạt / chỉ tiêu</th>
-            <th>Trạng thái</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {campaigns.map((campaign) => (
-            <tr key={campaign.id} className="border-t border-border">
-              <td className="py-2">{campaign.name}</td>
-              <td>{campaign.org_unit_name}</td>
-              <td>
-                {campaign.open_from} đến {campaign.open_to}
-              </td>
-              <td>{campaign.application_count}</td>
-              <td>
-                {campaign.passed_count} / {campaign.quota}
-              </td>
-              <td>{CAMPAIGN_STATUS_LABELS[campaign.status]}</td>
-              <td>
-                {canManage && campaign.status === 'draft' ? (
-                  <Button onClick={() => change.mutate({ id: campaign.id, action: 'open' })}>Mở đợt</Button>
-                ) : null}
-                {canManage && campaign.status === 'open' ? (
-                  <Button variant="text" onClick={() => change.mutate({ id: campaign.id, action: 'close' })}>
-                    Đóng đợt
-                  </Button>
-                ) : null}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DataGrid
+        label="Đợt tuyển sinh"
+        columns={CAMPAIGN_COLUMNS}
+        rows={rows}
+        getRowId={(row) => row.id}
+        getRowLabel={(row) => `đợt ${row.name}`}
+        loading={loading}
+        emptyText="Chưa có đợt tuyển sinh."
+        search={{ label: 'Tìm theo tên đợt, đơn vị', value: search, onChange: setSearch }}
+        advancedSearch={
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <label className="text-label font-medium text-text">
+              Trạng thái đợt
+              <select
+                value={status}
+                onChange={(event) => setStatus(event.target.value as typeof status)}
+                className={filterClass}
+              >
+                <option value="">Tất cả</option>
+                {Object.entries(CAMPAIGN_STATUS_LABELS).map(([code, label]) => (
+                  <option key={code} value={code}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        }
+        toolbar={
+          canManage ? (
+            <Button variant="primary" onClick={() => setCreating(true)}>
+              Thêm mới
+            </Button>
+          ) : null
+        }
+        rowActions={(campaign) => (
+          <>
+            {canManage && campaign.status === 'draft' ? (
+              <Button onClick={() => change.mutate({ id: campaign.id, action: 'open' })}>Mở đợt</Button>
+            ) : null}
+            {canManage && campaign.status === 'open' ? (
+              <Button variant="text" onClick={() => change.mutate({ id: campaign.id, action: 'close' })}>
+                Đóng đợt
+              </Button>
+            ) : null}
+          </>
+        )}
+        settings={grid.settings}
+        onSettingsChange={grid.update}
+      />
     </div>
   );
 }
 
+const APPLICATION_COLUMNS: Array<DataGridColumn<ApplicationRow>> = [
+  { id: 'code', header: 'Mã hồ sơ', alwaysVisible: true, className: 'font-medium', cell: (row) => row.code },
+  { id: 'child_full_name', header: 'Học sinh', cell: (row) => row.child_full_name },
+  { id: 'child_dob', header: 'Ngày sinh', cell: (row) => row.child_dob },
+  { id: 'guardian', header: 'Phụ huynh', cell: (row) => `${row.guardian_full_name} (${row.guardian_phone})` },
+  { id: 'source', header: 'Nguồn', cell: (row) => (row.source === 'online' ? 'Trực tuyến' : 'Tại trường') },
+  { id: 'status', header: 'Trạng thái', cell: (row) => APPLICATION_STATUS_LABELS[row.status] },
+  { id: 'reject_reason', header: 'Lý do không đạt', hiddenByDefault: true, cell: (row) => row.reject_reason ?? '' },
+];
+
 function ApplicationsTab({ campaign, onDone }: { campaign: Campaign; onDone(message: string): void }) {
   const queryClient = useQueryClient();
+  const grid = useGridSettings('admission-applications');
   const [status, setStatus] = useState('');
+  const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState('');
   const applications = useQuery({
     queryKey: ['admission-applications', campaign.id, status],
     queryFn: () => listApplications(campaign.id, status),
   });
+  const error = applications.error ?? grid.error;
+  const rows = (applications.data ?? []).filter((row) =>
+    matchesSearch(search, row.code, row.child_full_name, row.guardian_full_name, row.guardian_phone),
+  );
   return (
     <div className="flex flex-col gap-4">
-      {applications.error ? <Alert tone="danger">{messageOf(applications.error)}</Alert> : null}
-      <label className="text-label font-medium text-text">
-        Lọc trạng thái
-        <select value={status} onChange={(event) => setStatus(event.target.value)} className={selectClass}>
-          <option value="">Tất cả</option>
-          {Object.entries(APPLICATION_STATUS_LABELS).map(([code, label]) => (
-            <option key={code} value={code}>
-              {label}
-            </option>
-          ))}
-        </select>
-      </label>
-      <table className="w-full text-left text-content">
-        <thead>
-          <tr className="text-label text-text-secondary">
-            <th className="py-2">Mã hồ sơ</th>
-            <th>Trẻ</th>
-            <th>Ngày sinh</th>
-            <th>Phụ huynh</th>
-            <th>Nguồn</th>
-            <th>Trạng thái</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {(applications.data ?? []).map((row) => (
-            <tr key={row.id} className="border-t border-border">
-              <td className="py-2">{row.code}</td>
-              <td>{row.child_full_name}</td>
-              <td>{row.child_dob}</td>
-              <td>
-                {row.guardian_full_name} ({row.guardian_phone})
-              </td>
-              <td>{row.source === 'online' ? 'Trực tuyến' : 'Tại trường'}</td>
-              <td>{APPLICATION_STATUS_LABELS[row.status]}</td>
-              <td>
-                <Button variant="text" aria-label={`Xem hồ sơ ${row.code}`} onClick={() => setSelectedId(row.id)}>
-                  Xem
-                </Button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {selectedId ? (
-        <ApplicationPanel
-          key={selectedId}
-          applicationId={selectedId}
-          campaign={campaign}
-          onDone={async (message) => {
-            await queryClient.invalidateQueries({ queryKey: ['admission-applications'] });
-            await queryClient.invalidateQueries({ queryKey: ['admission-campaigns'] });
-            await queryClient.invalidateQueries({ queryKey: ['admission-application', selectedId] });
-            onDone(message);
-          }}
-        />
-      ) : null}
+      {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
+      <DataGrid
+        label="Hồ sơ tuyển sinh"
+        columns={APPLICATION_COLUMNS}
+        rows={rows}
+        getRowId={(row) => row.id}
+        getRowLabel={(row) => `hồ sơ ${row.code}`}
+        loading={applications.isPending}
+        emptyText="Đợt chưa có hồ sơ."
+        search={{
+          label: 'Tìm theo mã hồ sơ, tên học sinh, phụ huynh, điện thoại',
+          value: search,
+          onChange: setSearch,
+        }}
+        advancedSearch={
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <label className="text-label font-medium text-text">
+              Lọc trạng thái
+              <select value={status} onChange={(event) => setStatus(event.target.value)} className={filterClass}>
+                <option value="">Tất cả</option>
+                {Object.entries(APPLICATION_STATUS_LABELS).map(([code, label]) => (
+                  <option key={code} value={code}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        }
+        rowActions={(row) => (
+          <Button
+            variant="text"
+            aria-label={`Xem hồ sơ ${row.code}`}
+            onClick={() => setSelectedId(selectedId === row.id ? '' : row.id)}
+          >
+            Xem
+          </Button>
+        )}
+        activeRowId={selectedId}
+        renderRowDetail={(row) =>
+          selectedId === row.id ? (
+            <ApplicationPanel
+              key={row.id}
+              applicationId={row.id}
+              campaign={campaign}
+              onDone={async (message) => {
+                await queryClient.invalidateQueries({ queryKey: ['admission-applications'] });
+                await queryClient.invalidateQueries({ queryKey: ['admission-campaigns'] });
+                await queryClient.invalidateQueries({ queryKey: ['admission-application', row.id] });
+                onDone(message);
+              }}
+            />
+          ) : null
+        }
+        settings={grid.settings}
+        onSettingsChange={grid.update}
+      />
     </div>
   );
 }
@@ -350,8 +453,8 @@ function ApplicationPanel({
     onSuccess: (result) =>
       onDone(
         result.child.status === 'active'
-          ? `Đã chuyển thành hồ sơ trẻ, ${result.child.full_name} đang học lớp ${result.child.current_class?.class_name ?? ''}`
-          : `Đã chuyển thành hồ sơ trẻ chờ quản lý đơn vị duyệt${result.approval_error ? `: ${result.approval_error}` : ''}`,
+          ? `Đã chuyển thành hồ sơ học sinh, ${result.child.full_name} đang học lớp ${result.child.current_class?.class_name ?? ''}`
+          : `Đã chuyển thành hồ sơ học sinh chờ quản lý đơn vị duyệt${result.approval_error ? `: ${result.approval_error}` : ''}`,
       ),
   });
   const data = application.data;
@@ -432,103 +535,105 @@ function ApplicationPanel({
       ) : null}
       {canManage && data.status === 'passed' ? (
         <form
-          aria-label="Chuyển thành hồ sơ trẻ"
-          className="grid grid-cols-1 gap-3 md:grid-cols-3"
+          aria-label="Chuyển thành hồ sơ học sinh"
+          className="flex flex-col gap-3"
           onSubmit={(event) => {
             event.preventDefault();
             convert.mutate();
           }}
         >
-          <label className="text-label font-medium text-text">
-            Lớp
-            <select value={classId} onChange={(event) => setClassId(event.target.value)} className={selectClass}>
-              <option value="">Chọn lớp</option>
-              {(classes.data ?? [])
-                .filter((item) => item.status === 'active')
-                .map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name} ({item.enrolled_count}/{item.max_size})
-                  </option>
-                ))}
-            </select>
-          </label>
-          {data.child_national_id_masked ? null : (
-            <TextField
-              label="Số định danh cá nhân của trẻ"
-              inputMode="numeric"
-              maxLength={12}
-              value={nationalId}
-              onChange={(event) => setNationalId(event.target.value)}
-            />
-          )}
-          {data.guardian_relationship_item_id ? null : (
-            <label className="text-label font-medium text-text">
-              Quan hệ của phụ huynh
+          <FormBlock title="Chuyển thành hồ sơ học sinh">
+            <FormRow label="Lớp">
               <select
-                value={relationshipId}
-                onChange={(event) => setRelationshipId(event.target.value)}
-                className={selectClass}
+                className={FORM_CONTROL_CLASS}
+                value={classId}
+                onChange={(event) => setClassId(event.target.value)}
               >
-                <option value="">Chọn quan hệ</option>
-                {(relationships.data ?? []).map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
+                <option value="">Chọn lớp</option>
+                {(classes.data ?? [])
+                  .filter((item) => item.status === 'active')
+                  .map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name} ({item.enrolled_count}/{item.max_size})
+                    </option>
+                  ))}
               </select>
-            </label>
-          )}
-          <label className="text-label font-medium text-text">
-            Bản chụp giấy khai sinh
-            <input
-              type="file"
-              accept="image/*,application/pdf"
-              className="mt-2 block"
-              onChange={(event) => setBirthCertificate(event.target.files?.[0])}
-            />
-          </label>
-          <label className="flex items-center gap-2 text-label text-text">
-            <input
-              type="checkbox"
-              checked={confirmOverCapacity}
-              onChange={(event) => setConfirmOverCapacity(event.target.checked)}
-            />
-            Xác nhận khi lớp đã đủ sĩ số
-          </label>
-          <label className="flex items-center gap-2 text-label text-text">
-            <input
-              type="checkbox"
-              checked={confirmDuplicate}
-              onChange={(event) => setConfirmDuplicate(event.target.checked)}
-            />
-            Xác nhận khi nghi trùng trẻ đã có
-          </label>
-          <div className="flex items-end">
+            </FormRow>
+            {data.child_national_id_masked ? null : (
+              <FormRow label="Số định danh cá nhân của học sinh">
+                <input
+                  inputMode="numeric"
+                  maxLength={12}
+                  className={FORM_CONTROL_CLASS}
+                  value={nationalId}
+                  onChange={(event) => setNationalId(event.target.value)}
+                />
+              </FormRow>
+            )}
+            {data.guardian_relationship_item_id ? null : (
+              <FormRow label="Quan hệ của phụ huynh">
+                <select
+                  className={FORM_CONTROL_CLASS}
+                  value={relationshipId}
+                  onChange={(event) => setRelationshipId(event.target.value)}
+                >
+                  <option value="">Chọn quan hệ</option>
+                  {(relationships.data ?? []).map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+              </FormRow>
+            )}
+            <FormRow label="Bản chụp giấy khai sinh">
+              <input
+                type="file"
+                accept="image/*,application/pdf"
+                className="block text-content"
+                onChange={(event) => setBirthCertificate(event.target.files?.[0])}
+              />
+            </FormRow>
+            <FormRow label="Xác nhận">
+              <div className="flex flex-col gap-2">
+                <label className="flex items-center gap-2 text-content text-text">
+                  <input
+                    type="checkbox"
+                    checked={confirmOverCapacity}
+                    onChange={(event) => setConfirmOverCapacity(event.target.checked)}
+                  />
+                  Xác nhận khi lớp đã đủ sĩ số
+                </label>
+                <label className="flex items-center gap-2 text-content text-text">
+                  <input
+                    type="checkbox"
+                    checked={confirmDuplicate}
+                    onChange={(event) => setConfirmDuplicate(event.target.checked)}
+                  />
+                  Xác nhận khi nghi trùng học sinh đã có
+                </label>
+              </div>
+            </FormRow>
+          </FormBlock>
+          <div>
             <Button type="submit" variant="primary" disabled={convert.isPending || !classId || !birthCertificate}>
-              Chuyển thành hồ sơ trẻ
+              Chuyển thành hồ sơ học sinh
             </Button>
           </div>
         </form>
       ) : null}
       {data.status === 'converted' ? (
-        <p className="text-content text-text">Đã chuyển thành hồ sơ trẻ; xem ở trang Hồ sơ trẻ.</p>
+        <p className="text-content text-text">Đã chuyển thành hồ sơ học sinh; xem ở trang Quản lý hồ sơ học sinh.</p>
       ) : null}
     </section>
   );
 }
 
-function PostsTab({ campaign, onDone }: { campaign: Campaign; onDone(message: string): void }) {
-  const queryClient = useQueryClient();
-  const canManage = useHasPermission(PERMISSION_CODES.admissionPostManage);
+function PostForm({ campaign, onSaved, onCancel }: { campaign: Campaign; onSaved(): void; onCancel(): void }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [publishFrom, setPublishFrom] = useState(vietnamToday);
   const [publishTo, setPublishTo] = useState('');
-  const posts = useQuery({ queryKey: ['admission-posts', campaign.id], queryFn: () => listPosts(campaign.id) });
-  const refresh = async (message: string) => {
-    await queryClient.invalidateQueries({ queryKey: ['admission-posts'] });
-    onDone(message);
-  };
   const create = useMutation({
     mutationFn: () =>
       postJson('/api/v1/admission-posts', {
@@ -538,82 +643,123 @@ function PostsTab({ campaign, onDone }: { campaign: Campaign; onDone(message: st
         publish_from: publishFrom,
         publish_to: publishTo || undefined,
       }),
-    onSuccess: () => {
-      setTitle('');
-      setContent('');
-      return refresh('Đã lưu tin tuyển sinh');
-    },
+    onSuccess: onSaved,
   });
+  return (
+    <form
+      aria-label="Soạn tin tuyển sinh"
+      className="flex flex-col gap-3"
+      onSubmit={(event) => {
+        event.preventDefault();
+        create.mutate();
+      }}
+    >
+      {create.error ? <Alert tone="danger">{messageOf(create.error)}</Alert> : null}
+      <FormBlock title={`Soạn tin tuyển sinh cho ${campaign.name}`}>
+        <FormRow label="Tiêu đề">
+          <input className={FORM_CONTROL_CLASS} value={title} onChange={(event) => setTitle(event.target.value)} />
+        </FormRow>
+        <FormRow label="Nội dung">
+          <textarea
+            rows={4}
+            className={FORM_CONTROL_CLASS}
+            value={content}
+            onChange={(event) => setContent(event.target.value)}
+          />
+        </FormRow>
+        <FormRow label="Đăng từ ngày">
+          <input
+            type="date"
+            className={FORM_CONTROL_CLASS}
+            value={publishFrom}
+            onChange={(event) => setPublishFrom(event.target.value)}
+          />
+        </FormRow>
+        <FormRow label="Thời hạn đăng (trống là hạn nhận hồ sơ)">
+          <input
+            type="date"
+            className={FORM_CONTROL_CLASS}
+            value={publishTo}
+            onChange={(event) => setPublishTo(event.target.value)}
+          />
+        </FormRow>
+      </FormBlock>
+      <FormButtons busy={create.isPending} disabled={!title || !content} onCancel={onCancel} />
+    </form>
+  );
+}
+
+function PostsTab({ campaign, onDone }: { campaign: Campaign; onDone(message: string): void }) {
+  const queryClient = useQueryClient();
+  const canManage = useHasPermission(PERMISSION_CODES.admissionPostManage);
+  const grid = useGridSettings('admission-posts');
+  const [creating, setCreating] = useState(false);
+  const [search, setSearch] = useState('');
+  const posts = useQuery({ queryKey: ['admission-posts', campaign.id], queryFn: () => listPosts(campaign.id) });
+  const refresh = async (message: string) => {
+    await queryClient.invalidateQueries({ queryKey: ['admission-posts'] });
+    onDone(message);
+  };
   const change = useMutation({
     mutationFn: ({ id, action }: { id: string; action: 'publish' | 'hide' }) =>
       postJson(`/api/v1/admission-posts/${id}/${action}`, action === 'hide' ? { reason: 'Gỡ tin' } : {}),
     onSuccess: (_result, variables) => refresh(variables.action === 'publish' ? 'Đã công bố tin' : 'Đã ẩn tin'),
   });
-  const error = posts.error ?? create.error ?? change.error;
+  const error = posts.error ?? change.error ?? grid.error;
+  const columns: Array<DataGridColumn<Post>> = [
+    { id: 'title', header: 'Tiêu đề', alwaysVisible: true, className: 'font-medium', cell: (post) => post.title },
+    { id: 'content', header: 'Nội dung', hiddenByDefault: true, cell: (post) => post.content },
+    { id: 'publish_from', header: 'Đăng từ', cell: (post) => post.publish_from },
+    { id: 'publish_to', header: 'Thời hạn', cell: (post) => post.publish_to ?? campaign.open_to },
+    { id: 'status', header: 'Trạng thái', cell: (post) => POST_STATUS_LABELS[post.status] },
+  ];
+  const rows = (posts.data ?? []).filter((post) => matchesSearch(search, post.title, post.content));
   return (
     <div className="flex flex-col gap-4">
       {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
-      {canManage ? (
-        <form
-          aria-label="Soạn tin tuyển sinh"
-          className="grid grid-cols-1 gap-3 rounded-lg bg-card p-4 md:grid-cols-2"
-          onSubmit={(event) => {
-            event.preventDefault();
-            create.mutate();
-          }}
-        >
-          <TextField label="Tiêu đề" value={title} onChange={(event) => setTitle(event.target.value)} />
-          <TextField label="Nội dung" value={content} onChange={(event) => setContent(event.target.value)} />
-          <TextField
-            label="Đăng từ ngày"
-            type="date"
-            value={publishFrom}
-            onChange={(event) => setPublishFrom(event.target.value)}
+      {canManage && creating ? (
+        <FormPanel>
+          <PostForm
+            campaign={campaign}
+            onCancel={() => setCreating(false)}
+            onSaved={() => {
+              setCreating(false);
+              void refresh('Đã lưu tin tuyển sinh');
+            }}
           />
-          <TextField
-            label="Thời hạn đăng (trống là hạn nhận hồ sơ)"
-            type="date"
-            value={publishTo}
-            onChange={(event) => setPublishTo(event.target.value)}
-          />
-          <div className="flex items-end">
-            <Button type="submit" variant="primary" disabled={create.isPending || !title || !content}>
-              Lưu tin
-            </Button>
-          </div>
-        </form>
+        </FormPanel>
       ) : null}
-      <table className="w-full text-left text-content">
-        <thead>
-          <tr className="text-label text-text-secondary">
-            <th className="py-2">Tiêu đề</th>
-            <th>Đăng từ</th>
-            <th>Thời hạn</th>
-            <th>Trạng thái</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {(posts.data ?? []).map((post) => (
-            <tr key={post.id} className="border-t border-border">
-              <td className="py-2">{post.title}</td>
-              <td>{post.publish_from}</td>
-              <td>{post.publish_to ?? campaign.open_to}</td>
-              <td>{POST_STATUS_LABELS[post.status]}</td>
-              <td>
-                {canManage && post.status !== 'published' && campaign.status !== 'closed' ? (
-                  <Button onClick={() => change.mutate({ id: post.id, action: 'publish' })}>Công bố</Button>
-                ) : null}
-                {canManage && post.status === 'published' ? (
-                  <Button variant="text" onClick={() => change.mutate({ id: post.id, action: 'hide' })}>
-                    Ẩn tin
-                  </Button>
-                ) : null}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DataGrid
+        label="Tin tuyển sinh"
+        columns={columns}
+        rows={rows}
+        getRowId={(post) => post.id}
+        getRowLabel={(post) => `tin ${post.title}`}
+        loading={posts.isPending}
+        emptyText="Đợt chưa có tin tuyển sinh."
+        search={{ label: 'Tìm theo tiêu đề, nội dung', value: search, onChange: setSearch }}
+        toolbar={
+          canManage ? (
+            <Button variant="primary" onClick={() => setCreating(true)}>
+              Thêm mới
+            </Button>
+          ) : null
+        }
+        rowActions={(post) => (
+          <>
+            {canManage && post.status !== 'published' && campaign.status !== 'closed' ? (
+              <Button onClick={() => change.mutate({ id: post.id, action: 'publish' })}>Công bố</Button>
+            ) : null}
+            {canManage && post.status === 'published' ? (
+              <Button variant="text" onClick={() => change.mutate({ id: post.id, action: 'hide' })}>
+                Ẩn tin
+              </Button>
+            ) : null}
+          </>
+        )}
+        settings={grid.settings}
+        onSettingsChange={grid.update}
+      />
     </div>
   );
 }

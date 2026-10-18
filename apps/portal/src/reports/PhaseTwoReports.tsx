@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Alert, Button, TextField } from '@school-management/ui';
+import { Alert, Button, DataGrid, TextField, type DataGridColumn } from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { listClasses } from '../classes/classes-api.js';
+import { useGridSettings } from '../pages/grid-settings.js';
+import { matchesSearch } from '../pages/grid-search.js';
 import { ApiError } from '../session/api-client.js';
 import {
   exportReport,
   readConsolidatedReport,
   readExportLogs,
   readOperationsReport,
+  type ExportLog,
   type ReportRow,
 } from './reports-api.js';
 import { ReportTable, type Column } from './ReportTable.js';
@@ -186,22 +189,34 @@ const REPORT_NAMES: Record<string, string> = {
   consolidated: 'Hợp nhất đơn vị',
 };
 
+const EXPORT_LOG_COLUMNS: Array<DataGridColumn<ExportLog>> = [
+  {
+    id: 'exported_at',
+    header: 'Thời điểm',
+    alwaysVisible: true,
+    cell: (log) => new Date(log.exported_at).toLocaleString('vi-VN'),
+  },
+  { id: 'actor_name', header: 'Người xuất', cell: (log) => log.actor_name },
+  { id: 'report', header: 'Báo cáo', cell: (log) => REPORT_NAMES[log.report_code] ?? log.report_code },
+  { id: 'row_count', header: 'Số dòng', cell: (log) => log.row_count },
+  { id: 'personal', header: 'Dữ liệu cá nhân', cell: (log) => (log.contains_personal_data ? 'Có' : 'Không') },
+  { id: 'file_name', header: 'Tên tệp', cell: (log) => log.file_name },
+];
+
+// Nhật ký xuất là danh sách nên dùng lưới dữ liệu chung (DT-15 phần 15f3, khóa `export-logs`); khoảng ngày lọc ở máy chủ
 export function ExportLogsView() {
+  const grid = useGridSettings('export-logs');
   const [from, setFrom] = useState(firstOfMonth());
   const [to, setTo] = useState(today());
+  const [search, setSearch] = useState('');
   const logs = useQuery({
     queryKey: ['export-logs', from, to],
     queryFn: () => readExportLogs(from, to),
     retry: false,
   });
-  const rows: ReportRow[] = (logs.data ?? []).map((log) => ({
-    exported_at: new Date(log.exported_at).toLocaleString('vi-VN'),
-    actor_name: log.actor_name,
-    report: REPORT_NAMES[log.report_code] ?? log.report_code,
-    row_count: log.row_count,
-    personal: log.contains_personal_data ? 'Có' : 'Không',
-    file_name: log.file_name,
-  }));
+  const rows = (logs.data ?? []).filter((log) =>
+    matchesSearch(search, log.actor_name, REPORT_NAMES[log.report_code] ?? log.report_code, log.file_name),
+  );
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end gap-3">
@@ -209,17 +224,18 @@ export function ExportLogsView() {
         <TextField label="Đến ngày" type="date" value={to} onChange={(event) => setTo(event.target.value)} />
       </div>
       {logs.error ? <Alert tone="danger">{messageOf(logs.error)}</Alert> : null}
-      <ReportTable
-        title="Các lần xuất dữ liệu"
-        columns={[
-          { key: 'exported_at', label: 'Thời điểm' },
-          { key: 'actor_name', label: 'Người xuất' },
-          { key: 'report', label: 'Báo cáo' },
-          { key: 'row_count', label: 'Số dòng' },
-          { key: 'personal', label: 'Dữ liệu cá nhân' },
-          { key: 'file_name', label: 'Tên tệp' },
-        ]}
+      {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
+      <DataGrid
+        label="Các lần xuất dữ liệu"
+        columns={EXPORT_LOG_COLUMNS}
         rows={rows}
+        getRowId={(log) => log.id}
+        getRowLabel={(log) => `lần xuất ${log.file_name}`}
+        loading={logs.isPending}
+        emptyText="Không có lần xuất dữ liệu nào trong khoảng ngày."
+        search={{ label: 'Tìm theo người xuất, báo cáo, tên tệp', value: search, onChange: setSearch }}
+        settings={grid.settings}
+        onSettingsChange={grid.update}
       />
     </div>
   );
