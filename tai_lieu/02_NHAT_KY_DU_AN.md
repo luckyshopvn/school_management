@@ -21,7 +21,7 @@
 - Cơ sở dữ liệu năm học: tệp `0058_add_facilities_so_parity` tạo bảng `facility_investments` (6.1), `facility_standard_levels` (mức độ đạt chuẩn của 1.2), `facility_import_jobs` (lần nhập phòng, danh mục thiết bị).
 - Máy chủ API: 1.2 Báo cáo cơ sở vật chất kèm nhà vệ sinh, mức độ đạt chuẩn và biểu mẫu gửi `facilities-report`; 6.1 thực trạng và nhu cầu đầu tư; nhập phòng, danh mục thiết bị từ Excel (`/facility-imports`); biểu mẫu gửi `equipment-summary` cho 2.3; thuộc tính nhà vệ sinh chỉ cho Phòng vệ sinh.
 - Cổng quản trị: mục mới 1.2, 2.2, 2.3 của phân hệ Cơ sở vật chất, TBDH; nhóm mới 6 (6.1, 6.2) của phân hệ Mầm non; Nhập từ Excel ở 1.1, 2.1, 2.2; khối Gắn thiết bị dạy học ở Kho, thẻ Tài sản.
-- Thêm chức năng P13-13 đến P13-15, P17-23, kịch bản CT-572 đến CT-579, tiêu chí AC-602 đến AC-606, quy tắc BR-126, màn hình MH-127 đến MH-130. Kết quả ngày 18/10/2026: [KẾT QUẢ ĐƠN VỊ]; [KẾT QUẢ GIAO DIỆN]; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm chức năng P13-13 đến P13-15, P17-23, kịch bản CT-572 đến CT-579, tiêu chí AC-602 đến AC-606, quy tắc BR-126, màn hình MH-127 đến MH-130. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 832/832 ca đạt; toàn bộ kiểm thử giao diện 128/130 ca đạt trên máy cục bộ (hỏng CT-15a-8 của `01-login.spec.ts` và `14-registrations.spec.ts` do trang ứng dụng phụ huynh đóng khi máy bận, không liên quan phần này; `65-facilities-full-so.spec.ts` đạt), CI là nguồn kiểm chứng; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
