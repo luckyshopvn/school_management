@@ -181,3 +181,97 @@ export function fieldErrorsOf(error: unknown): Record<string, string> {
 
 export const formatNumber = (value: number | null | undefined) =>
   value === null || value === undefined ? '' : new Intl.NumberFormat('vi-VN').format(value);
+
+// Cơ sở vật chất đủ theo Sở (DT-16 phần 16i): 1.2 Báo cáo cơ sở vật chất, mức độ đạt chuẩn, 6.1 thực trạng và nhu cầu đầu
+// tư, nhập phòng và danh mục thiết bị từ Excel
+export const FACILITY_IMPORTS_API_BASE = '/api/v1/facility-imports';
+
+export interface FacilityFigureRow {
+  key: string;
+  label: string;
+  level: 'block' | 'type' | 'total';
+  total: number;
+  permanent: number;
+  semi_permanent: number;
+  temporary: number;
+  borrowed: number;
+  unspecified: number;
+  area_m2: number;
+}
+
+export interface ToiletRow {
+  key: string;
+  label: string;
+  rooms: number;
+  met: number;
+  not_met: number;
+  unassessed: number;
+  separate_gender: number;
+  seats: number;
+}
+
+export interface StandardLevelRow {
+  room_block: string;
+  label: string;
+  level: string | null;
+  level_label: string;
+  note: string | null;
+  updated_at: string | null;
+  hints: string[];
+}
+
+export interface FacilityReport {
+  school_name: string;
+  academic_year: string;
+  whole_school: boolean;
+  figures: FacilityFigureRow[];
+  toilets: { rows: ToiletRow[]; group_rooms: number; group_rooms_ensuite: number; group_rooms_adjacent: number };
+  standard: StandardLevelRow[];
+  overall_level: string | null;
+  overall_level_label: string;
+  completeness: Array<{ label: string; done: boolean }>;
+}
+
+export const readFacilityReport = (orgUnitId: string): Promise<FacilityReport> =>
+  requestJson(`/api/v1/facilities/report?${query({ org_unit_id: orgUnitId })}`);
+export const saveStandardLevels = (items: Array<{ room_block: string; level: string; note: string | null }>) =>
+  send<FacilityReport>('PUT', '/api/v1/facilities/report/standard-levels', { items });
+
+export interface InvestmentValues {
+  permanent: number | null;
+  semi_permanent: number | null;
+  degraded_level4: number | null;
+  borrowed: number | null;
+  need_classes: number | null;
+  need_rooms: number | null;
+  need_budget_million: number | null;
+  note: string | null;
+}
+
+export interface InvestmentRow extends InvestmentValues {
+  category: string;
+  label: string;
+  updated_at: string | null;
+  suggestion: {
+    rooms: number;
+    permanent: number;
+    semi_permanent: number;
+    temporary: number;
+    borrowed: number;
+    unspecified: number;
+  } | null;
+}
+
+export interface FacilityInvestments {
+  school_name: string;
+  academic_year: string;
+  class_count: number;
+  classes_without_room: number;
+  can_manage: boolean;
+  items: InvestmentRow[];
+}
+
+export const readFacilityInvestments = (): Promise<FacilityInvestments> =>
+  requestJson('/api/v1/facilities/investments');
+export const saveFacilityInvestments = (items: Array<InvestmentValues & { category: string }>) =>
+  send<FacilityInvestments>('PUT', '/api/v1/facilities/investments', { items });

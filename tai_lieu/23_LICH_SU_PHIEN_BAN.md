@@ -16,17 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.78.0 – 2026-10-18
+### Phiên bản 0.79.0 – 2026-10-18
 
 - Phạm vi thay đổi: DT-16 phần 16j, báo cáo số liệu EMIS theo hệ thống của Sở (YCTD-129).
-- Chức năng mới: phân hệ "Báo cáo số liệu" đủ bảy biểu: 1.1 thêm thẻ nhập tay "Ngân sách nhà nước"; mục mới "1.2. Báo cáo cơ sở vật chất" (năm thẻ nhập tay, Lấy dữ liệu, Lấy dữ liệu năm trước), "1.3. Báo cáo sức khỏe học sinh đầu năm" (cột theo Sở), "2.1. Báo cáo EMIS cuối năm" (sáu mục I đến VI), "2.2. Báo cáo đội ngũ" (ba thẻ), "2.3. Đề án ngoại ngữ" (hai thẻ nhập tay, đánh dấu trường không có dữ liệu), "2.4. Báo cáo giáo dục mầm non cuối năm"; màn hình chung có Ghi, khóa khi đã đánh dấu đã gửi, Xuất Excel in tên đơn vị hành chính; danh sách gửi báo cáo bảy biểu kèm số đã gửi, số cần gửi, lần gửi cuối; nút "Xuất file lỗi" ở mỗi dòng biểu (P17-23 đến P17-27, sửa P17-18, P17-20, P17-22).
+- Chức năng mới: phân hệ "Báo cáo số liệu" đủ bảy biểu: 1.1 thêm thẻ nhập tay "Ngân sách nhà nước"; mục mới "1.2. Báo cáo cơ sở vật chất" (năm thẻ nhập tay, Lấy dữ liệu, Lấy dữ liệu năm trước), "1.3. Báo cáo sức khỏe học sinh đầu năm" (cột theo Sở), "2.1. Báo cáo EMIS cuối năm" (sáu mục I đến VI), "2.2. Báo cáo đội ngũ" (ba thẻ), "2.3. Đề án ngoại ngữ" (hai thẻ nhập tay, đánh dấu trường không có dữ liệu), "2.4. Báo cáo giáo dục mầm non cuối năm"; màn hình chung có Ghi, khóa khi đã đánh dấu đã gửi, Xuất Excel in tên đơn vị hành chính; danh sách gửi báo cáo bảy biểu kèm số đã gửi, số cần gửi, lần gửi cuối; nút "Xuất file lỗi" ở mỗi dòng biểu (P17-24 đến P17-28, sửa P17-18, P17-20, P17-22).
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp năm học `0059_create_emis_report_values` tạo bảng `emis_report_values`. Không có migration hệ thống, định danh.
 - Thay đổi API: điểm cuối mới `GET /reports/emis/forms/{form}`, `PUT /reports/emis/forms/{form}/tabs/{tab}`, `POST /reports/emis/forms/{form}/tabs/{tab}/fill`, `POST /reports/emis/forms/{form}/export`, `POST /upper-level-submissions/{form}/error-file`; nhóm `/upper-level-submissions` nhận thêm mã sáu biểu mới; tệp gửi của 1.1 sáu trang.
-- Kiểm thử: kịch bản CT-572 đến CT-580. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 832/832 ca đạt; toàn bộ kiểm thử giao diện 131/131 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử: kịch bản CT-580 đến CT-588. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 832/832 ca đạt; toàn bộ kiểm thử giao diện 131/131 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Rủi ro: tên, mã số chỉ tiêu của bảy biểu do Claude đặt, chưa đối chiếu biểu mẫu chính thức của Sở; không truyền dữ liệu lên Bộ, Sở, người dùng phải gửi tệp và đánh dấu trạng thái; 2.1, 2.4 tính tại thời điểm xem.
 - Khả năng tương thích: giữ `GET /reports/emis/start-of-year`, `POST /reports/emis/start-of-year/export`, `GET /reports/emis/start-of-year-health`; trạng thái gửi đã có của 1.1 giữ nguyên (cùng mã `emis-start-of-year`); tệp Excel 1.1 thêm trang thứ sáu ở cuối, năm trang đầu như cũ.
 - Phương án quay lui: hoàn lại commit gộp của nhánh phần 16j; chạy phần quay lui của tệp năm học `0059` (xóa bảng `emis_report_values`). Dòng `upper_level_submissions` của sáu biểu mới không còn được đọc, xóa tay nếu cần.
+
+### Phiên bản 0.78.0 – 2026-10-18
+
+- Phạm vi thay đổi: DT-16 phần 16i, cơ sở vật chất và thiết bị dạy học đủ theo hệ thống của Sở (YCTD-128).
+- Chức năng mới: mục "1.2. Báo cáo cơ sở vật chất" (số liệu phòng theo khối, loại phòng và hiện trạng; nhà vệ sinh; mức độ đạt chuẩn theo khối; Xuất Excel, Xuất PDF; gửi lên cấp trên chạy nội bộ); "6.1. Thực trạng và nhu cầu đầu tư phòng học, nhà công vụ" (lấy số liệu từ khai báo phòng, Ghi, Xuất Excel); "6.2. Nhập liệu cơ sở vật chất"; "2.2. Thiết bị ngoài danh mục tối thiểu" thành mục riêng; "2.3. Gửi thiết bị dạy học lên cấp trên" (Xuất tệp gửi, Đánh dấu đã gửi, Trường không có dữ liệu); nhập phòng và danh mục thiết bị từ Excel; thông tin nhà vệ sinh của phòng; gắn tài sản với thiết bị ở Kho.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0058_add_facilities_so_parity` tạo ba bảng `facility_investments`, `facility_standard_levels`, `facility_import_jobs`; bốn khóa nhà vệ sinh mới trong `rooms.facility_attributes` (jsonb, không đổi cấu trúc).
+- Thay đổi API: điểm cuối mới `/facilities/report`, `/facilities/report/standard-levels`, `/facilities/report/export`, `/facilities/investments`, `/facilities/investments/export`, nhóm `/facility-imports`; hai biểu mẫu gửi lên cấp trên `facilities-report`, `equipment-summary`; `/rooms` nhận bốn thuộc tính nhà vệ sinh.
+- Kiểm thử: kịch bản CT-572 đến CT-579. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 832/832 ca đạt; toàn bộ kiểm thử giao diện 130/130 ca đạt (CI, lượt chạy 39103041728; CT-15a-8 của `01-login.spec.ts` sửa theo nhóm menu mới "6. Cơ sở vật chất"); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: gửi lên cấp trên không truyền dữ liệu, người dùng phải nộp tệp và đánh dấu; mức độ đạt chuẩn, thuộc tính nhà vệ sinh do Claude chọn, chưa đối chiếu biểu mẫu chính thức.
+- Khả năng tương thích: phòng cũ không có thuộc tính nhà vệ sinh vẫn hợp lệ; `/rooms` không gửi thuộc tính mới thì như cũ; 2.1 bỏ thẻ 2.2 nhưng dữ liệu, điểm cuối không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16i; chạy phần quay lui của tệp năm học `0058` (xóa ba bảng). Khóa nhà vệ sinh đã lưu trong `facility_attributes` khiến bản cũ từ chối khi sửa phòng đó, xóa tay các khóa này nếu quay lui.
 
 ### Phiên bản 0.77.0 – 2026-10-18
 

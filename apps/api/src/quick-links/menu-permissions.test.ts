@@ -161,6 +161,11 @@ function legacyVisibility(has: (code: string) => boolean): Partial<Record<Portal
     '/emis/staff': canViewEmis,
     '/emis/foreign-language': canViewEmis,
     '/emis/preschool-end-of-year': canViewEmis,
+    '/facility-investments': canViewFacilities || canManageSchoolProfile,
+    '/facility-input': canViewFacilities || canManageEquipment || canManageRooms,
+    '/facility-report': canViewFacilities || canManageSchoolProfile,
+    '/equipment-outside': canViewFacilities || canManageEquipment,
+    '/equipment-submission': canViewFacilities,
     // Quản trị hệ thống
     '/roles': canSeeAccounts,
     '/accounts': canSeeAccounts,

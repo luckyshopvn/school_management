@@ -365,7 +365,7 @@ Giao kèo trường, lớp và lịch năm học theo Sở (DT-16 phần 16e, YC
 8. Nhóm `/school-splits` cần `P01.school-profile.manage` ở phạm vi toàn trường (khác trả `ERR_FORBIDDEN`). `POST`, `PATCH /{id}` nhận `destination_school`, `reason` (bắt buộc), `destination_code` (tối đa 500 ký tự), `child_ids`, `staff_ids` (mảng mã, tối đa 2000, ít nhất một đối tượng, mã phải có trong năm học); sai trả `ERR_VALIDATION`. `POST /{id}/status` nhận `action` (`confirm`, `unconfirm`, `receive`) và `note` (ghi chú tiếp nhận). Sửa, xóa yêu cầu đã xác nhận và chuyển trạng thái sai thứ tự trả `ERR_RULE_VIOLATION` (422) mã `YCTD-127`; `DELETE` thành công trả 204. `POST /{id}/export` nhận `subject` (`children`, `staff`, khác trả `ERR_VALIDATION`), cần thêm `P17.data.export`; trả tệp `tach-truong-<mã>-hoc-sinh-….xlsx` (82 cột) hoặc `…-nhan-su-….xlsx` (75 cột) theo mẫu tệp CSDL ngành, ghi `export_logs` mã báo cáo `school-split-children` hoặc `school-split-staff` có dữ liệu cá nhân. Mọi thay đổi ghi `audit_logs`. Không có điểm cuối truyền dữ liệu; chỗ nối `SchoolSplitTransport`.
 9. `PORTAL_QUICK_LINK_PATHS` thêm `/accreditation-review`, `/school-splits`, `/school-weeks`, `/year-rollover`; `DATA_GRID_KEYS` thêm `school-splits`. Không có mã quyền mới.
 
-Giao kèo báo cáo số liệu EMIS theo Sở (DT-16 phần 16j, YCTD-129, BR-126):
+Giao kèo báo cáo số liệu EMIS theo Sở (DT-16 phần 16j, YCTD-129, BR-127):
 
 1. Mã biểu `{form}`: `emis-start-of-year` (1.1), `emis-facilities` (1.2), `emis-start-of-year-health` (1.3), `emis-end-of-year` (2.1), `emis-staff` (2.2), `emis-foreign-language` (2.3), `emis-preschool-end-of-year` (2.4) (`packages/shared/src/emis.ts`). Mọi điểm cuối của nhóm `/reports/emis/forms` cần `P17.report.emis` ở phạm vi toàn trường, thiếu trả `ERR_FORBIDDEN` (403); mã biểu không có trả `ERR_NOT_FOUND` (404).
 2. `GET /reports/emis/forms/{form}` trả `code`, `menu`, `name`, `school_name`, `administrative_unit_name` (tên đơn vị hành chính ở "1.4. Cấu hình trường", chưa đặt thì null), `academic_year`, `generated_on`, `locked` (đúng khi biểu đã đánh dấu đã gửi hoặc đang chờ mở khóa), `tabs` (mỗi thẻ `key`, `label`, `columns` [`key`, `label`], `rows` [`code`, `label`, `unit`, `values` theo mã cột], `editable`, `can_fill`, `can_copy_previous_year`, `saved_at`, `saved_by_name`), `warnings`, `completeness` (`label`, `done`), `extra`.
@@ -385,6 +385,15 @@ Giao kèo của hồ sơ trường, khai báo cơ sở vật chất, thiết b�
 7. `GET /reports/emis/start-of-year` cần `P17.report.emis` ở phạm vi toàn trường; trả năm thẻ của Biểu 1, năm học, loại hình và cảnh báo (BR-104). `POST /reports/emis/start-of-year/export` trả tệp Excel năm trang.
 8. Ba điểm cuối xuất ghi một dòng `export_logs` (mã báo cáo `facility-rooms`, `equipment-summary`, `emis-start-of-year`, không có dữ liệu cá nhân), trả mã nhật ký ở tiêu đề `x-export-log-id`; không cần `P17.data.export`.
 9. Vi phạm quy tắc nghiệp vụ của phần này (ghi số lượng hoặc gắn tài sản cho thiết bị ngừng dùng, gắn tài sản đã thanh lý) trả `ERR_RULE_VIOLATION` với mã chung của đợt DT-14 là `YCTD-102`.
+
+Giao kèo cơ sở vật chất theo Sở (DT-16 phần 16i, YCTD-128, BR-126):
+
+1. `GET /facilities/report` cần `P17.report.facilities` hoặc `P01.school-profile.manage`; `org_unit_id` trong phạm vi (trống là mọi đơn vị trong phạm vi); trả `figures` (dòng khối, loại phòng, tổng), `toilets` (`rows`, `group_rooms`, `group_rooms_ensuite`, `group_rooms_adjacent`), `standard` (năm khối kèm `level`, `note`, `hints`), `overall_level` (mức thấp nhất hoặc null), `completeness`, `whole_school`.
+2. `PUT /facilities/report/standard-levels` cần `P01.school-profile.manage` toàn trường; nhận `items` (`room_block` trong năm khối không lặp, `level` not_met, level_1, level_2, `note` tối đa 500 ký tự); ghi nhật ký thao tác; trả báo cáo toàn trường.
+3. `GET /facilities/investments` cần `P17.report.facilities` hoặc `P01.school-profile.manage` toàn trường; trả `items` (classroom, teacher_housing kèm `suggestion`), `class_count`, `classes_without_room`, `can_manage`. `PUT` cần `P01.school-profile.manage` toàn trường; số nguyên không âm (tối đa 100 000), `need_budget_million` không âm làm tròn hai chữ số.
+4. `/facility-imports` cùng dạng điểm cuối với `/imports` (mục 17.1) cho loại `rooms` (cần `P01.room.manage`, đơn vị của dòng trong phạm vi) và `equipment_items` (cần `P13.equipment.manage` toàn trường); loại khác trả `ERR_VALIDATION`; ghi lần nhập còn dòng lỗi hoặc đã ghi trả `ERR_RULE_VIOLATION` mã YCTD-128.
+5. Biểu mẫu gửi lên cấp trên mới (mục 17.1, P17-20): `facilities-report` ("Báo cáo cơ sở vật chất", quyền `P17.report.facilities`, không cho trường không có dữ liệu) và `equipment-summary` ("Tổng hợp thiết bị dạy học", cho trường không có dữ liệu); quyền mở khóa `P01.school-profile.manage`; cả hai cần phạm vi toàn trường. Tệp gửi là tệp Excel của 1.2 (mã báo cáo `facilities-report`) và của 2.1 (`equipment-summary`).
+6. `POST /rooms`, `PATCH /rooms/{id}` nhận thêm `facility_attributes.toilet_users`, `toilet_standard`, `toilet_separate_gender`, `toilet_seats`; gửi cho phòng không phải loại `toilet` trả `ERR_VALIDATION`.
 
 Giao kèo của cân nặng, chiều cao, thống kê theo tiêu chí ngành, hồ sơ chưa nhập đủ (DT-14 phần 14a, YCTD-105):
 
@@ -1284,6 +1293,17 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | POST | /api/v1/equipment-assets | Gắn hoặc bỏ gắn tài sản với thiết bị (YCTD-106) |
 | GET | /api/v1/equipment-report | Tổng hợp thiết bị dạy học theo định mức (BR-102, YCTD-106) |
 | POST | /api/v1/equipment-report/export | Xuất Excel tổng hợp thiết bị, ghi nhật ký xuất (BR-74, YCTD-106) |
+| GET | /api/v1/facilities/report | "1.2. Báo cáo cơ sở vật chất": số liệu phòng, nhà vệ sinh, mức độ đạt chuẩn, hoàn thành dữ liệu; lọc `org_unit_id` (P17-23, BR-126, YCTD-128) |
+| PUT | /api/v1/facilities/report/standard-levels | Ghi mức độ đạt chuẩn các khối phòng cho toàn trường (YCTD-128) |
+| POST | /api/v1/facilities/report/export | Xuất Excel hoặc PDF (`format`) ba trang của 1.2, ghi nhật ký xuất (BR-74, YCTD-128) |
+| GET, PUT | /api/v1/facilities/investments | "6.1. Thực trạng và nhu cầu đầu tư phòng học, nhà công vụ": đọc kèm gợi ý từ khai báo phòng; ghi (P13-13, YCTD-128) |
+| POST | /api/v1/facilities/investments/export | Xuất Excel hoặc PDF 6.1, ghi nhật ký xuất (YCTD-128) |
+| GET | /api/v1/facility-imports/templates/{type}/columns | Cột của mẫu nhập phòng (`rooms`) hoặc danh mục thiết bị (`equipment_items`), cờ `locked` (P13-14, YCTD-128) |
+| GET | /api/v1/facility-imports/catalogs/{type} | Tra cứu danh mục của tệp nhập (YCTD-128) |
+| GET | /api/v1/facility-imports/templates/{type} | Tệp mẫu; `with_data=true` kèm phòng trong phạm vi hoặc cả danh mục thiết bị (YCTD-128) |
+| POST | /api/v1/facility-imports | Tải tệp lên (`type`, `file`, `columns`), kiểm tra cả tệp (YCTD-128) |
+| POST | /api/v1/facility-imports/{id}/commit | Ghi dữ liệu khi không còn dòng lỗi (YCTD-128) |
+| GET | /api/v1/facility-imports/{id}/error-file | Tệp lỗi: tệp gốc kèm cột Nội dung lỗi (YCTD-128) |
 
 ## 16. Nội dung, tương tác và tuyển sinh
 
@@ -1449,7 +1469,7 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | GET | /api/v1/reports/emis/start-of-year | Báo cáo EMIS đầu năm Biểu 1: năm thẻ, cảnh báo (P17-18, BR-104, YCTD-106) |
 | POST | /api/v1/reports/emis/start-of-year/export | Xuất Excel năm trang, ghi nhật ký xuất (BR-74, YCTD-106) |
 | GET | /api/v1/reports/emis/start-of-year-health | Số liệu báo cáo sức khỏe học sinh đầu năm (dòng 1.3 của Sở): 17 dòng chỉ tiêu, cảnh báo; màn hình, xuất tệp, gửi lên cấp trên ở phần 16j (P17-22, YCTD-125); từ YCTD-129 giữ để tương thích, màn hình dùng biểu chung `emis-start-of-year-health` |
-| GET | /api/v1/reports/emis/forms/{form} | Xem một trong bảy biểu báo cáo số liệu EMIS: thẻ, cột, dòng, số đã ghi, cảnh báo, hoàn thành dữ liệu, trạng thái khóa (P17-18, P17-22 đến P17-27, BR-126, YCTD-129) |
+| GET | /api/v1/reports/emis/forms/{form} | Xem một trong bảy biểu báo cáo số liệu EMIS: thẻ, cột, dòng, số đã ghi, cảnh báo, hoàn thành dữ liệu, trạng thái khóa (P17-18, P17-22 đến P17-28, BR-127, YCTD-129) |
 | PUT | /api/v1/reports/emis/forms/{form}/tabs/{tab} | Ghi số liệu của thẻ nhập tay (YCTD-129) |
 | POST | /api/v1/reports/emis/forms/{form}/tabs/{tab}/fill | Lấy dữ liệu (`source` `data`) hoặc Lấy dữ liệu năm trước (`previous_year`), không lưu (YCTD-129) |
 | POST | /api/v1/reports/emis/forms/{form}/export | Xuất Excel mỗi thẻ một trang, ghi nhật ký xuất (BR-74, YCTD-129) |
@@ -1482,7 +1502,7 @@ Hướng dẫn dùng cho các phần sau (16b, 16e đến 16k):
 2. Tác vụ xuất nền: trong hàm khởi tạo của dịch vụ gọi `exportJobs.register('<mã báo cáo>', { title, run(currentUser, parameters, { format, ipAddress, rowLimit }) })`; hàm `run` truy vấn tối đa `rowLimit` dòng, vượt thì ném `ExportTooLargeError(total)`, rồi trả `ExportedFile` (có `rowCount`). Điểm cuối gọi `exportJobs.exportOrQueue(currentUser, mã, parameters, format, ip)` và trả bằng `sendExportOutcome`. `parameters` phải là dữ liệu JSON, không chứa số định danh hay dữ liệu bí mật vì lưu ở cơ sở dữ liệu hệ thống.
 3. Nhập Excel: dùng `ExcelImportPanel` (`apps/portal/src/imports/ExcelImportPanel.tsx`) với `type`, `title`, `uploadPath`; máy chủ khai báo cột ở `IMPORT_COLUMNS`, cột luôn nhập ở `LOCKED_IMPORT_COLUMNS`, danh mục ở `ImportsService.catalogs`, dữ liệu mẫu ở `templateRows`, loại cập nhật được bản ghi đã có ở `UPDATING_IMPORT_TYPES`; đọc tệp bằng `readSheet(body, columns, selected)`; tệp lỗi dùng `buildErrorWorkbook`. Màn hình nhập riêng (ví dụ 3.1.3, 4.1.2) có thể đặt `ErrorFileButton`, `RowMessageTable` vào phần của mình.
 4. Gửi lên cấp trên: trong dịch vụ của biểu mẫu gọi `upperLevelForms.register({ code, name, permission, unlockPermission, allowNoData, completeness(currentUser), snapshot(currentUser, ip) })`; `completeness` trả danh sách `{ label, done }`, `snapshot` trả `{ file: ExportedFile, data }` (dựng tệp theo mẫu nộp, ghi nhật ký xuất). Ở cổng quản trị đặt `<UpperLevelSubmissionPanel formCodes={['<mã>']} onChanged={…} />`. Không thêm nút "Gửi" truyền đi; khi có giao diện lập trình của Bộ, Sở thì thay `ManualUpperLevelGateway` bằng bản kết nối thật cung cấp cho `UpperLevelGateway`.
-5. Xuất file lỗi (từ YCTD-129): mọi biểu mẫu đã đăng ký có sẵn `POST /upper-level-submissions/{form}/error-file`, dựng từ `completeness` của biểu (các mục `done` sai), không cần khai báo thêm; `UpperLevelSubmissionPanel` hiện nút "Xuất file lỗi" ở dòng biểu khi dữ liệu chưa hoàn thành, kể cả biểu của phần 16i sau này. Đặt `label` của mục hoàn thành là câu đọc được (ví dụ "Đã ghi thẻ Nhà vệ sinh") vì tệp in nguyên câu đó. Màn hình nhập số liệu của biểu cần khóa khi đã gửi thì gọi `UpperLevelSubmissions.statusOf(formCode)` rồi `isLocked(status)` (đúng khi đã gửi hoặc đang chờ mở khóa) trước khi ghi.
+5. Xuất file lỗi (từ YCTD-129): mọi biểu mẫu đã đăng ký có sẵn `POST /upper-level-submissions/{form}/error-file`, dựng từ `completeness` của biểu (các mục `done` sai), không cần khai báo thêm; `UpperLevelSubmissionPanel` hiện nút "Xuất file lỗi" ở dòng biểu khi dữ liệu chưa hoàn thành, kể cả hai biểu của phần 16i (YCTD-128). Đặt `label` của mục hoàn thành là câu đọc được (ví dụ "Đã ghi thẻ Nhà vệ sinh") vì tệp in nguyên câu đó. Màn hình nhập số liệu của biểu cần khóa khi đã gửi thì gọi `UpperLevelSubmissions.statusOf(formCode)` rồi `isLocked(status)` (đúng khi đã gửi hoặc đang chờ mở khóa) trước khi ghi.
 6. Cách phần 16j dùng: `EmisForms` (`apps/api/src/emis/emis-forms.ts`) đăng ký bảy biểu trong một vòng lặp, `completeness` và `snapshot` gọi lại hàm xem biểu và hàm dựng tệp Excel của biểu nên tệp gửi trùng với tệp Xuất Excel; ghi, lấy dữ liệu kiểm tra `isLocked` và trả mã YCTD-129. Cổng quản trị đặt `<UpperLevelSubmissionPanel formCodes={EMIS_FORM_CODES} summary … />` ở 1.1 (bảy dòng kèm dòng tổng hợp số đã gửi, số cần gửi, lần gửi cuối) và `formCodes={[mã biểu]}` ở sáu màn hình còn lại.
 
 ## 18. Quy tắc kiểm tra dữ liệu

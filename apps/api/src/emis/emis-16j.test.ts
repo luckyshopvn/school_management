@@ -53,7 +53,12 @@ describe('Hàm thuần của phần 16j', () => {
       },
       { room_type: 'group_room', condition: 'semi_permanent', area_m2: 50, attributes: { toilet: 'adjacent' } },
       { room_type: 'group_room', condition: null, area_m2: null, attributes: { has_private_playground: true } },
-      { room_type: 'toilet', condition: 'permanent', area_m2: 12.5, attributes: {} },
+      {
+        room_type: 'toilet',
+        condition: 'permanent',
+        area_m2: 12.5,
+        attributes: { toilet_users: 'staff', toilet_standard: 'met' },
+      },
       { room_type: 'kitchen', condition: 'temporary', area_m2: 30, attributes: { dining_seats: '40' } },
     ];
     const facilities = fillFacilities(rooms);
@@ -75,7 +80,10 @@ describe('Hàm thuần của phần 16j', () => {
       ['VS.02', 'VS.03', 'VS.04'].map((code) => toilets[code]?.total),
       [1, 1, 1],
     );
-    assert.equal(toilets['VS.05'], undefined, 'nhà vệ sinh giáo viên nhập tay');
+    assert.deepEqual(
+      ['VS.05', 'VS.06'].map((code) => toilets[code]?.total),
+      [1, 1],
+    );
     const other = fillOtherFacilities(rooms, { land_area_m2: 1200, building_area_m2: '450' });
     assert.deepEqual(
       ['KH.01', 'KH.02', 'KH.03', 'KH.06', 'KH.07'].map((code) => other[code]?.total),
@@ -395,7 +403,7 @@ describe('API báo cáo EMIS của phần 16j', () => {
     const rows = filled.body.rows as Array<{ code: string; values: Record<string, number | null> }>;
     assert.equal(rows.find((row) => row.code === 'VS.01')?.values.total, 1);
     assert.equal(rows.find((row) => row.code === 'VS.02')?.values.total, 1);
-    assert.equal(rows.find((row) => row.code === 'VS.05')?.values.total, null);
+    assert.equal(rows.find((row) => row.code === 'VS.05')?.values.total, 0);
     const before = await api('GET', base, vice);
     assert.equal(tabOf(before.body, 'toilets')?.saved_at, null, 'Lấy dữ liệu chưa lưu');
     const noPrevious = await api('POST', `${base}/tabs/toilets/fill`, vice, { source: 'previous_year' });

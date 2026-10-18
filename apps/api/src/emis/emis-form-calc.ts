@@ -125,18 +125,22 @@ export const TOILET_ROWS: EmisRowTemplate[] = [
   { code: 'VS.06', label: 'Nhà vệ sinh đạt chuẩn', unit: 'Phòng' },
 ];
 
-// VS.05, VS.06 nhập tay (1.1 chưa có thông tin này)
+// VS.05, VS.06 theo thuộc tính phòng vệ sinh khai báo ở 1.1 (phần 16i): người dùng là giáo viên, nhân viên (toilet_users
+// staff); đạt chuẩn (toilet_standard met)
 export function fillToilets(rooms: FacilityRoom[]): Record<string, EmisValues> {
   const groupRooms = rooms.filter((room) => room.room_type === 'group_room');
   const withToilet = (kind: string) => groupRooms.filter((room) => room.attributes.toilet === kind);
   const others = groupRooms.filter(
     (room) => room.attributes.toilet !== 'ensuite' && room.attributes.toilet !== 'adjacent',
   );
+  const toilets = rooms.filter((room) => room.room_type === 'toilet');
   return {
-    'VS.01': conditionValues(rooms.filter((room) => room.room_type === 'toilet')),
+    'VS.01': conditionValues(toilets),
     'VS.02': conditionValues(withToilet('ensuite')),
     'VS.03': conditionValues(withToilet('adjacent')),
     'VS.04': conditionValues(others),
+    'VS.05': conditionValues(toilets.filter((room) => room.attributes.toilet_users === 'staff')),
+    'VS.06': conditionValues(toilets.filter((room) => room.attributes.toilet_standard === 'met')),
   };
 }
 

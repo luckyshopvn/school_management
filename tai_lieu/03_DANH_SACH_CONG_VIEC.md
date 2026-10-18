@@ -25,7 +25,7 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | P10 Y tế học đường | Hoàn thành | Đợt DT-10 phần 10a, 10b (YCTD-74, YCTD-75), DT-14 phần 14a (YCTD-105: đợt cân đo, kênh tăng trưởng theo chuẩn WHO, tổng hợp cân nặng, chiều cao); DT-16 phần 16h (YCTD-125: 4.6.1 Nhập thông tin sức khỏe học sinh theo học kỳ, lấy số đo từ 4.3; 4.3.2 tổng hợp theo học kỳ, so sánh hai lần cân đo, được khám định kỳ) |
 | P11 Xe đưa đón | Đã bỏ | Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62) |
 | P12 Bếp và dinh dưỡng | Hoàn thành | Đợt DT-10 phần 10c (YCTD-76); DT-16 phần 16h (YCTD-125: 4.5 thực đơn có tên, tháng, tuần, từ ngày, đến ngày, khối áp dụng, nhập thực đơn từ Excel) |
-| P13 Kho, tài sản và mua hàng | Hoàn thành | Đợt DT-10 phần 10d (YCTD-77), DT-14 phần 14d (YCTD-106: khai báo cơ sở vật chất, thiết bị dạy học tối thiểu) |
+| P13 Kho, tài sản và mua hàng | Hoàn thành | Đợt DT-10 phần 10d (YCTD-77), DT-14 phần 14d (YCTD-106: khai báo cơ sở vật chất, thiết bị dạy học tối thiểu); DT-16 phần 16i (YCTD-128: 6.1 thực trạng và nhu cầu đầu tư, nhập phòng và danh mục thiết bị từ Excel, 1.2 báo cáo cơ sở vật chất, 2.3 gửi thiết bị dạy học lên cấp trên chạy nội bộ) |
 | P14 Hoạt động, nội dung và truyền thông | Hoàn thành | Đợt DT-10 phần 10e (YCTD-78); Fanpage ở DT-11 phần 11e, tài khoản thật chờ việc T1 |
 | P15 Tương tác và ý kiến | Hoàn thành | Đợt DT-10 phần 10f (YCTD-79) |
 | P16 Tuyển sinh | Hoàn thành | Đợt DT-11 phần 11a (YCTD-86) |
