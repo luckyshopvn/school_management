@@ -206,7 +206,12 @@ describe('Quản lý kí hồ sơ, bản chạy nội bộ (DT-16 phần 16k)', 
     const missing = await api('POST', '/signing/certificate/register', principal.accessToken);
     assert.equal(missing.status, 422);
     assert.equal(errorOf(missing.body).rule_code, 'YCTD-130');
-    assert.deepEqual(errorOf(missing.body).details?.map((detail) => detail.field).sort(), ['holder_name', 'provider']);
+    assert.deepEqual(
+      errorOf(missing.body)
+        .details?.map((detail) => detail.field)
+        .sort(),
+      ['holder_name', 'provider'],
+    );
 
     const pdfSeal = await uploadSeal(Buffer.from('%PDF-1.4 tệp'), 'con-dau.pdf');
     assert.equal(pdfSeal.status, 400);
@@ -425,10 +430,14 @@ describe('Quản lý kí hồ sơ, bản chạy nội bộ (DT-16 phần 16k)', 
     const sheet = workbook.worksheets[0];
     assert.equal(sheet?.name, 'Sổ đầu bài');
     assert.match(String(sheet?.getRow(1).getCell(1).value), /Sổ đầu bài: Lớp Lá 1 mới – tháng 10\/2026/);
-    assert.deepEqual(
-      (sheet?.getRow(3).values as unknown[]).slice(1),
-      ['Ngày', 'Sĩ số điểm danh', 'Có mặt', 'Vắng có phép', 'Vắng không phép', 'Hoạt động trong ngày'],
-    );
+    assert.deepEqual((sheet?.getRow(3).values as unknown[]).slice(1), [
+      'Ngày',
+      'Sĩ số điểm danh',
+      'Có mặt',
+      'Vắng có phép',
+      'Vắng không phép',
+      'Hoạt động trong ngày',
+    ]);
     const invalid = await api('POST', '/signing/class-log/export', principal.accessToken, { class_id: classId });
     assert.equal(invalid.status, 400);
   });

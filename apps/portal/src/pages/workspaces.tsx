@@ -67,7 +67,9 @@ export function useWorkspaceState(workspaces: PortalWorkspace[]): WorkspaceState
 
 const ICON_PATHS: Record<IconName, ReactNode> = {
   // Bút kí trên dòng kẻ: phân hệ Quản lý kí hồ sơ (DT-16 phần 16k)
-  sign: <path d="M3 17.3V21h3.7l10.9-10.9-3.7-3.7L3 17.3ZM20.7 7c.4-.4.4-1 0-1.4l-2.3-2.3c-.4-.4-1-.4-1.4 0l-1.8 1.8 3.7 3.7L20.7 7Z" />,
+  sign: (
+    <path d="M3 17.3V21h3.7l10.9-10.9-3.7-3.7L3 17.3ZM20.7 7c.4-.4.4-1 0-1.4l-2.3-2.3c-.4-.4-1-.4-1.4 0l-1.8 1.8 3.7 3.7L20.7 7Z" />
+  ),
   cap: <path d="M12 4 2 9l10 5 8-4v5h2V9L12 4Zm-6 8.2V16c0 1.7 2.7 3 6 3s6-1.3 6-3v-3.8l-6 3-6-3Z" />,
   enroll: (
     <path d="M15 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6Zm9 4c-2.7 0-8 1.3-8 4v2h16v-2c0-2.7-5.3-4-8-4Z" />

@@ -145,7 +145,9 @@ function SealImage({ version }: { version: string | null }) {
   if (error) {
     return <Alert tone="danger">{error}</Alert>;
   }
-  return url ? <img src={url} alt="Ảnh con dấu" className="h-28 w-28 rounded border border-border object-contain" /> : null;
+  return url ? (
+    <img src={url} alt="Ảnh con dấu" className="h-28 w-28 rounded border border-border object-contain" />
+  ) : null;
 }
 
 const EMPTY_INPUT: CertificateInput = {
@@ -198,9 +200,7 @@ function CertificateForm({
             className={FORM_CONTROL_CLASS}
             value={values.signature_type}
             disabled={locked}
-            onChange={(event) =>
-              setValues({ ...values, signature_type: event.target.value as SigningSignatureType })
-            }
+            onChange={(event) => setValues({ ...values, signature_type: event.target.value as SigningSignatureType })}
           >
             {Object.entries(SIGNING_SIGNATURE_TYPE_LABELS).map(([value, label]) => (
               <option key={value} value={value}>
@@ -276,8 +276,8 @@ export function SigningCertificatePage() {
         <Alert tone="info">
           Phần mềm chưa kết nối nhà cung cấp chữ ký số. Thông tin chứng thư chỉ để ghi nhận và in lên hồ sơ; phần mềm
           không lưu mật khẩu hay mã PIN của chứng thư. "Đăng ký kí nội bộ" cho phép dùng nút "Kí xác nhận nội bộ" ở mục
-          2.2: hồ sơ được xác nhận trên phần mềm (người kí, thời điểm kí, ảnh con dấu, mã băm của tệp), không phải chữ ký
-          số.
+          2.2: hồ sơ được xác nhận trên phần mềm (người kí, thời điểm kí, ảnh con dấu, mã băm của tệp), không phải chữ
+          ký số.
         </Alert>
         {certificate.isError ? <Alert tone="danger">{messageOf(certificate.error)}</Alert> : null}
         {act.error ? <Alert tone="danger">{messageOf(act.error)}</Alert> : null}
@@ -426,7 +426,11 @@ export function SigningCertificateSyncPage() {
                     />
                   </FormRow>
                   <FormRow label="Ghi chú">
-                    <input className={FORM_CONTROL_CLASS} value={note} onChange={(event) => setNote(event.target.value)} />
+                    <input
+                      className={FORM_CONTROL_CLASS}
+                      value={note}
+                      onChange={(event) => setNote(event.target.value)}
+                    />
                   </FormRow>
                   <div>
                     <Button

@@ -84,7 +84,13 @@ export function SigningSubmissionsPage() {
     onError: () => setPending(undefined),
   });
   const columns: Array<DataGridColumn<SigningDossier>> = [
-    { id: 'code', header: 'Mã định danh hồ sơ', alwaysVisible: true, className: 'font-medium', cell: (row) => row.code },
+    {
+      id: 'code',
+      header: 'Mã định danh hồ sơ',
+      alwaysVisible: true,
+      className: 'font-medium',
+      cell: (row) => row.code,
+    },
     { id: 'object', header: 'Đối tượng', cell: (row) => row.object_label },
     { id: 'type', header: 'Loại hồ sơ', cell: (row) => SIGNING_OBJECT_LABELS[row.object_type] },
     {
@@ -112,8 +118,8 @@ export function SigningSubmissionsPage() {
       <div className="flex flex-col gap-6">
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/signing-submissions')}</h1>
         <Alert tone="info">
-          Phần mềm không gửi hồ sơ lên cấp trên. Sau khi xác nhận hoàn thành, bấm "Tải tệp gửi" để lấy tệp đã kí, nộp cho
-          cấp trên rồi bấm "Đánh dấu đã gửi" kèm ngày gửi.
+          Phần mềm không gửi hồ sơ lên cấp trên. Sau khi xác nhận hoàn thành, bấm "Tải tệp gửi" để lấy tệp đã kí, nộp
+          cho cấp trên rồi bấm "Đánh dấu đã gửi" kèm ngày gửi.
         </Alert>
         {dossiers.isError ? <Alert tone="danger">{messageOf(dossiers.error)}</Alert> : null}
         {act.error ? <Alert tone="danger">{messageOf(act.error)}</Alert> : null}

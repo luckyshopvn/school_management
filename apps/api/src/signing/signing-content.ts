@@ -298,8 +298,7 @@ async function classContent(
         ],
         rows: teachers.map((teacher) => ({
           name: teacher.staff_name,
-          role:
-            teacher.assignment_role === 'homeroom' ? 'Chủ nhiệm' : `Bộ môn ${teacher.subject_name ?? ''}`.trimEnd(),
+          role: teacher.assignment_role === 'homeroom' ? 'Chủ nhiệm' : `Bộ môn ${teacher.subject_name ?? ''}`.trimEnd(),
           from: dateText(teacher.from_date),
         })),
       },

@@ -53,11 +53,15 @@ export const STATUS_TONES: Record<SigningDossierStatus | 'none', StatusTone> = {
 
 const thisMonth = () => todayText().slice(0, 7);
 
-function columns(
-  onError: (message: string) => void,
-): Array<DataGridColumn<SigningObject>> {
+function columns(onError: (message: string) => void): Array<DataGridColumn<SigningObject>> {
   return [
-    { id: 'object', header: 'Đối tượng', alwaysVisible: true, className: 'font-medium', cell: (row) => row.object_label },
+    {
+      id: 'object',
+      header: 'Đối tượng',
+      alwaysVisible: true,
+      className: 'font-medium',
+      cell: (row) => row.object_label,
+    },
     { id: 'detail', header: 'Thông tin', cell: (row) => row.detail ?? '' },
     {
       id: 'status',
@@ -204,7 +208,8 @@ export function SigningDossiersPage() {
   const keyword = search.trim().toLocaleLowerCase('vi');
   const rows = (objects.data ?? []).filter(
     (row) =>
-      !keyword || `${row.object_label} ${row.detail ?? ''} ${row.dossier?.code ?? ''}`.toLocaleLowerCase('vi').includes(keyword),
+      !keyword ||
+      `${row.object_label} ${row.detail ?? ''} ${row.dossier?.code ?? ''}`.toLocaleLowerCase('vi').includes(keyword),
   );
   const signerReady = certificate.data?.status === 'registered' && !certificate.data.expired;
   const tabs = SIGNING_OBJECT_TYPES.map((item) => ({ key: item.value, label: item.tab }));

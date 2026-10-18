@@ -188,7 +188,11 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/school-splits', component: SchoolSplitsPage }),
   // Quản lý kí hồ sơ, bản chạy nội bộ (DT-16 phần 16k)
   createRoute({ getParentRoute: () => rootRoute, path: '/signing-certificate', component: SigningCertificatePage }),
-  createRoute({ getParentRoute: () => rootRoute, path: '/signing-certificate-sync', component: SigningCertificateSyncPage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/signing-certificate-sync',
+    component: SigningCertificateSyncPage,
+  }),
   createRoute({ getParentRoute: () => rootRoute, path: '/signing-dossiers', component: SigningDossiersPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/signing-submissions', component: SigningSubmissionsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/school-weeks', component: SchoolWeeksPage }),

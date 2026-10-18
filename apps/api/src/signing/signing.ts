@@ -7,11 +7,7 @@ import type {
   SystemDatabase,
 } from '@school-management/database';
 import { ApplicationError, Clock, ruleViolationError, validationError } from '@school-management/server';
-import {
-  PERMISSION_CODES,
-  SIGNING_OBJECT_LABELS,
-  SIGNING_SIGNATURE_TYPE_LABELS,
-} from '@school-management/shared';
+import { PERMISSION_CODES, SIGNING_OBJECT_LABELS, SIGNING_SIGNATURE_TYPE_LABELS } from '@school-management/shared';
 import { sql, type Kysely, type Transaction } from 'kysely';
 import { createHash, randomUUID } from 'node:crypto';
 import type { CurrentUser } from '../authentication/current-user.js';
@@ -496,10 +492,14 @@ export class SigningService {
       );
       const code = `KHS-${String(sequence.rows[0]?.value ?? '0').padStart(6, '0')}`;
       const title = dossierTitle(input.objectType, content.label);
-      const pdf = await buildPdf(withHeading(content.sheets, await this.heading(academicYearId, title, code, now)), now, {
-        orientation: 'portrait',
-        subject: title,
-      });
+      const pdf = await buildPdf(
+        withHeading(content.sheets, await this.heading(academicYearId, title, code, now)),
+        now,
+        {
+          orientation: 'portrait',
+          subject: title,
+        },
+      );
       const storageKey = `signing-dossier/${randomUUID()}`;
       await this.fileStorage.put(storageKey, pdf, CONTENT_TYPES.pdf);
       try {
@@ -621,7 +621,13 @@ export class SigningService {
           .where('status', '=', 'created')
           .executeTakeFirst();
         if (Number(changed.numUpdatedRows) === 1) {
-          await this.event(transaction, row.id, 'sign', this.signer.digital ? 'Kí số' : 'Kí xác nhận nội bộ', currentUser);
+          await this.event(
+            transaction,
+            row.id,
+            'sign',
+            this.signer.digital ? 'Kí số' : 'Kí xác nhận nội bộ',
+            currentUser,
+          );
         }
         return Number(changed.numUpdatedRows) === 1;
       });
@@ -703,7 +709,10 @@ export class SigningService {
 
   // ---- 2.3 Xác nhận hoàn thành và gửi hồ sơ ----
 
-  async submissions(currentUser: CurrentUser, filter: { objectType?: SigningObjectType; status?: SigningDossierStatus }) {
+  async submissions(
+    currentUser: CurrentUser,
+    filter: { objectType?: SigningObjectType; status?: SigningDossierStatus },
+  ) {
     this.assertAny(currentUser, [VIEW, MANAGE], 'Bạn không có quyền xem hồ sơ kí');
     const { academicYearId } = await this.currentSchoolYear.require();
     let query = this.system
