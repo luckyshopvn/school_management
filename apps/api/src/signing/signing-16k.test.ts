@@ -163,6 +163,8 @@ describe('Quản lý kí hồ sơ, bản chạy nội bộ (DT-16 phần 16k)', 
     assert.equal(created.status, 201, JSON.stringify(created.body));
     classId = created.body.id as string;
     childId = await createChild('Học Sinh Kí Hồ Sơ');
+    // Hồ sơ học sinh chỉ lập cho học sinh đã duyệt; duyệt thẳng trong cơ sở dữ liệu cho gọn
+    await schoolYear.updateTable('children').set({ status: 'active' }).where('id', '=', childId).execute();
   });
 
   after(async () => {
