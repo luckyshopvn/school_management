@@ -23,7 +23,7 @@
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp hệ thống `0015_create_signing_tables` (bảng `signing_certificates`, `signing_dossiers`, `signing_events`, dãy số `signing_dossier_code`); tệp định danh `0049_add_signing_permissions` (bốn quyền P01, bỏ phân hệ mới khỏi nhóm Phụ huynh). Không có migration năm học.
 - Thay đổi API: nhóm điểm cuối mới `/signing` (tài liệu 17 mục 5, mục 17); `buildPdf` của công cụ xuất dùng chung nhận thêm khổ dọc và phần cuối tài liệu.
-- Kiểm thử: kịch bản CT-589 đến CT-598. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) <UNIT_PASS>/<UNIT_TOTAL> ca đạt; toàn bộ kiểm thử giao diện <E2E_PASS>/<E2E_TOTAL> ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử: kịch bản CT-589 đến CT-598. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 848/848 ca đạt; toàn bộ kiểm thử giao diện 133/133 ca đạt (CI, lượt chạy 39121128162); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Rủi ro: tệp đã kí là xác nhận trên phần mềm, không có giá trị pháp lý của chữ ký số; nội dung hồ sơ PDF chưa đối chiếu mẫu của Sở; hồ sơ không truyền lên cấp trên, người dùng nộp tệp và đánh dấu.
 - Khả năng tương thích: thêm phân hệ, không đổi chức năng cũ; nhóm người dùng tự tạo thấy phân hệ mới khi có quyền (phân hệ thêm sau mặc định hiện, YCTD-120).
 - Phương án quay lui: hoàn lại commit gộp của nhánh phần 16k; chạy phần quay lui của tệp hệ thống `0015` (xóa ba bảng, dãy số) và tệp định danh `0049` (xóa quyền, dòng loại trừ phân hệ). Tệp PDF, ảnh con dấu ở kho tệp (tiền tố `signing-dossier/`, `signing-seal/`) xóa tay nếu cần.
