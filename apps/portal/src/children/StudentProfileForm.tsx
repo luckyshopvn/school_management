@@ -1,11 +1,13 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import { ETHNIC_GROUPS } from '@school-management/shared';
 import { Alert, Button, FORM_CONTROL_CLASS, FormBlock, FormRow, StatusBadge } from '@school-management/ui';
 import { ApiError } from '../session/api-client.js';
 import { CHILD_STATUS_LABELS, setSmsGuardian, updateChild, type ChildDetail } from './children-api.js';
 
 // Hồ sơ học sinh theo thứ tự ô nhập của Sở (DT-15 phần 15c, YCTD-108): khối Thông tin chung, Địa chỉ, Thông tin khác,
-// Thông tin gia đình; nhãn bên trái, nút Ghi. Dân tộc, diện chính sách, khuyết tật lấy từ tệp CSDL ngành, chỉ đọc. Sửa
+// Thông tin gia đình; nhãn bên trái, nút Ghi. Dân tộc, diện chính sách, khuyết tật, biết bơi ghi ở cột CSDL ngành, người xem
+// được thì sửa được (DT-16 phần 16g); người không xem được thấy "Chưa có". Sửa
 // thông tin định danh của học sinh đã duyệt cần nhập lý do (QT-01 E7); máy chủ kiểm tra quyền và trạng thái
 function messageOf(error: unknown): string {
   return error instanceof ApiError
@@ -23,6 +25,10 @@ interface ProfileValues {
   two_sessions_per_day: boolean;
   boarding: boolean;
   sms_guardian_id: string;
+  ethnicity: string;
+  policy_target: string;
+  disability_type: string;
+  can_swim: boolean;
 }
 
 export const valuesOf = (child: ChildDetail): ProfileValues => ({
@@ -35,7 +41,13 @@ export const valuesOf = (child: ChildDetail): ProfileValues => ({
   two_sessions_per_day: child.two_sessions_per_day,
   boarding: child.boarding,
   sms_guardian_id: child.guardians.find((guardian) => guardian.receives_sms)?.id ?? '',
+  ethnicity: child.moet_fields?.ethnicity ?? '',
+  policy_target: child.moet_fields?.policy_target ?? '',
+  disability_type: child.moet_fields?.disability_type ?? '',
+  can_swim: child.moet_fields?.can_swim ?? false,
 });
+
+const MOET_FIELD_KEYS = ['ethnicity', 'policy_target', 'disability_type', 'can_swim'] as const;
 
 const IDENTITY_KEYS = ['full_name', 'dob', 'gender', 'place_of_birth', 'address'] as const;
 
@@ -65,6 +77,13 @@ export function StudentProfileForm({
       for (const key of [...IDENTITY_KEYS, 'moet_student_code', 'two_sessions_per_day', 'boarding'] as const) {
         if (values[key] !== initial[key]) {
           changes[key] = typeof values[key] === 'string' ? (values[key] as string).trim() || null : values[key];
+        }
+      }
+      if (child.moet_fields) {
+        for (const key of MOET_FIELD_KEYS) {
+          if (values[key] !== initial[key]) {
+            changes[key] = typeof values[key] === 'string' ? (values[key] as string).trim() || null : values[key];
+          }
         }
       }
       const identityChanged = IDENTITY_KEYS.some((key) => key in changes);
@@ -156,8 +175,27 @@ export function StudentProfileForm({
             />
           </span>
         </FormRow>
-        <FormRow label="Dân tộc">
-          <span className="text-content">{profile('ethnicity') || 'Chưa có'}</span>
+        <FormRow label="Dân tộc" error={errors.ethnicity}>
+          {child.moet_fields ? (
+            <select
+              value={values.ethnicity}
+              disabled={!editable}
+              onChange={(event) => update({ ethnicity: event.target.value })}
+              className={FORM_CONTROL_CLASS}
+            >
+              <option value="">Chưa có</option>
+              {values.ethnicity && !(ETHNIC_GROUPS as readonly string[]).includes(values.ethnicity) ? (
+                <option value={values.ethnicity}>{values.ethnicity}</option>
+              ) : null}
+              {ETHNIC_GROUPS.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span className="text-content">{profile('ethnicity') || 'Chưa có'}</span>
+          )}
         </FormRow>
         <FormRow label="Số định danh cá nhân">{nationalId}</FormRow>
         <FormRow label="Lớp">
@@ -203,12 +241,48 @@ export function StudentProfileForm({
             onChange={(event) => update({ boarding: event.target.checked })}
           />
         </FormRow>
-        <FormRow label="Diện chính sách">
-          <span className="text-content">{profile('policy_target') || 'Không'}</span>
-        </FormRow>
-        <FormRow label="Khuyết tật">
-          <span className="text-content">{profile('disability_type') || 'Không'}</span>
-        </FormRow>
+        {child.moet_fields ? (
+          <>
+            <FormRow label="Diện chính sách" error={errors.policy_target}>
+              <input
+                value={values.policy_target}
+                disabled={!editable}
+                placeholder="Không"
+                maxLength={100}
+                onChange={(event) => update({ policy_target: event.target.value })}
+                className={FORM_CONTROL_CLASS}
+              />
+            </FormRow>
+            <FormRow label="Khuyết tật" error={errors.disability_type}>
+              <input
+                value={values.disability_type}
+                disabled={!editable}
+                placeholder="Không"
+                maxLength={100}
+                onChange={(event) => update({ disability_type: event.target.value })}
+                className={FORM_CONTROL_CLASS}
+              />
+            </FormRow>
+            <FormRow label="Biết bơi">
+              <input
+                type="checkbox"
+                className="h-4 w-4"
+                checked={values.can_swim}
+                disabled={!editable}
+                onChange={(event) => update({ can_swim: event.target.checked })}
+              />
+            </FormRow>
+          </>
+        ) : (
+          <>
+            <FormRow label="Diện chính sách">
+              <span className="text-content">{profile('policy_target') || 'Không'}</span>
+            </FormRow>
+            <FormRow label="Khuyết tật">
+              <span className="text-content">{profile('disability_type') || 'Không'}</span>
+            </FormRow>
+          </>
+        )}
       </FormBlock>
 
       <FormBlock title="Thông tin gia đình">

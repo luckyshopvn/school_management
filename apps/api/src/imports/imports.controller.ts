@@ -22,6 +22,7 @@ import { isUuid, type RequestBody } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { MAXIMUM_IMPORT_BYTES } from './excel.js';
 import { ImportsService } from './imports.service.js';
+import { isStudentImportType, STUDENT_IMPORT_PERMISSIONS, STUDENT_IMPORT_TYPES } from './student-imports.js';
 
 interface UploadedPart {
   originalname: string;
@@ -41,6 +42,9 @@ const fileName = (file: UploadedPart) => Buffer.from(file.originalname, 'latin1'
 // Quyền theo loại dữ liệu nhập: lớp và trẻ chỉ Hiệu trưởng, công nợ đầu kỳ cho kế toán (YCTD-54); tệp CSDL ngành của trẻ
 // như nhập trẻ, của nhân sự như nhập nhân sự (YCTD-100)
 function permissionOf(type: string): string {
+  if (isStudentImportType(type)) {
+    return STUDENT_IMPORT_PERMISSIONS[type];
+  }
   return type === 'moet_codes'
     ? PERMISSION_CODES.childManage
     : type === 'opening_debts'
@@ -59,6 +63,7 @@ const UPLOAD_TYPES = [
   'staff',
   'moet_children',
   'moet_staff',
+  ...STUDENT_IMPORT_TYPES,
   'professional_ratings',
 ] as const;
 type UploadType = (typeof UPLOAD_TYPES)[number];
@@ -76,12 +81,16 @@ const TEMPLATE_PERMISSIONS = [
   PERMISSION_CODES.openingDebtImport,
   PERMISSION_CODES.importStaff,
   PERMISSION_CODES.professionalStandardAssess,
+  // Nhập của nhóm Học sinh (DT-16 phần 16g)
+  PERMISSION_CODES.childApprove,
 ];
 // Tải lên, xem, ghi lần nhập: người có một trong các quyền nhập; quyền theo loại kiểm ở assertCanImport
 const UPLOAD_PERMISSIONS = [
   PERMISSION_CODES.importChildren,
   PERMISSION_CODES.openingDebtImport,
   PERMISSION_CODES.importStaff,
+  PERMISSION_CODES.childManage,
+  PERMISSION_CODES.childApprove,
   PERMISSION_CODES.professionalStandardAssess,
 ];
 
@@ -235,6 +244,7 @@ export class ImportsController {
   @RequirePermission(...UPLOAD_PERMISSIONS)
   async commit(
     @Param('id', uuidParameter('Mã lần nhập không hợp lệ')) jobId: string,
+    @Body() body: RequestBody,
     @Req() request: Request,
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
@@ -244,6 +254,7 @@ export class ImportsController {
       readBearerToken(request.header('authorization')),
       jobId,
       originOf(request, currentUser),
+      body?.confirm_update === true,
     );
   }
 }

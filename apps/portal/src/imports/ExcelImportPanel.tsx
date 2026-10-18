@@ -9,6 +9,7 @@ import {
   messageOf,
   readImportCatalogs,
   readImportColumns,
+  type ImportCatalog,
   type RowMessage,
 } from './import-api.js';
 
@@ -91,14 +92,17 @@ export function ErrorFileButton({ jobId, apiBase = IMPORTS_API_BASE }: { jobId: 
   );
 }
 
-function CatalogLookup({
+// Vùng "Tra cứu danh mục"; màn hình có danh mục riêng (nhập học sinh 82 cột, DT-16 phần 16g) truyền hàm đọc danh mục
+export function CatalogLookup({
   type,
-  apiBase,
-  search: catalogSearch,
+  apiBase = '/api/v1/imports',
+  search: catalogSearch = {},
+  load,
 }: {
   type: string;
-  apiBase: string;
-  search: Record<string, string>;
+  apiBase?: string;
+  search?: Record<string, string>;
+  load?: () => Promise<ImportCatalog[]>;
 }) {
   const [catalogKey, setCatalogKey] = useState<string>();
   const [search, setSearch] = useState('');
@@ -106,7 +110,7 @@ function CatalogLookup({
   const searchId = useId();
   const catalogs = useQuery({
     queryKey: ['import-catalogs', apiBase, type, catalogSearch],
-    queryFn: () => readImportCatalogs(type, apiBase, catalogSearch),
+    queryFn: load ?? (() => readImportCatalogs(type, apiBase, catalogSearch)),
   });
   const current = catalogs.data?.find((catalog) => catalog.key === catalogKey) ?? catalogs.data?.[0];
   const keyword = search.trim().toLowerCase();

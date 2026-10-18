@@ -14,6 +14,13 @@ import { DepartmentsPage } from './catalogs/DepartmentsPage.js';
 import { RoomsAndGradeLevelsPage } from './catalogs/RoomsAndGradeLevelsPage.js';
 import { ChildrenPage } from './children/ChildrenPage.js';
 import { StudentMovementsPage } from './children/StudentMovementsPage.js';
+import { DefaultPasswordsPage } from './students/DefaultPasswordsPage.js';
+import { LearningAccountsPage } from './students/LearningAccountsPage.js';
+import { NationalIdProgressPage } from './students/NationalIdProgressPage.js';
+import { NationalIdsPage } from './students/NationalIdsPage.js';
+import { SmsPhonesPage } from './students/SmsPhonesPage.js';
+import { StudentImportsPage } from './students/StudentImportsPage.js';
+import { StudentOrderPage } from './students/StudentOrderPage.js';
 import { AdministrativeUnitsPage } from './children/AdministrativeUnitsPage.js';
 import { AttendancePage } from './attendance/AttendancePage.js';
 import { ClassAssignmentsPage } from './classes/ClassAssignmentsPage.js';
@@ -178,6 +185,14 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/children', component: ChildrenPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/student-movements', component: StudentMovementsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/administrative-units', component: AdministrativeUnitsPage }),
+  // Học sinh đủ theo Sở (DT-16 phần 16g)
+  createRoute({ getParentRoute: () => rootRoute, path: '/student-imports', component: StudentImportsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/student-order', component: StudentOrderPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/sms-phones', component: SmsPhonesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/national-ids', component: NationalIdsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/learning-accounts', component: LearningAccountsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/default-passwords', component: DefaultPasswordsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/national-id-progress', component: NationalIdProgressPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/imports', component: ImportsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/attendance', component: AttendancePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/fees', component: FeesPage }),

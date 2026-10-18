@@ -124,7 +124,6 @@ function legacyVisibility(has: (code: string) => boolean): Partial<Record<Portal
   const canSeeAccountsAndReceipts = canViewFinance || canCollect || canManageCashAccounts;
   const canSeeInventory =
     canManageAssets || canManagePurchaseOrders || canApproveStocktakes || canApprovePurchaseRequests;
-  const canImport = canImportChildren || canManageChildren || canImportOpeningDebts || canImportStaff;
 
   return {
     // Quản lý giáo dục Mầm non
@@ -135,7 +134,10 @@ function legacyVisibility(has: (code: string) => boolean): Partial<Record<Portal
     '/children': canSeeChildrenAndClasses,
     // Trước đây hiện ở nhóm Trẻ và lớp, hoặc ở nhóm Nhân sự cho người chỉ nhập nhân sự; phần nhân sự tách sang 3.1.3 Nhập
     // nhân sự từ Excel (DT-16 phần 16f) với đúng điều kiện cũ của nhóm Nhân sự
-    '/imports': canSeeChildrenAndClasses && canImport,
+    // Nhập học sinh tách sang 4.1.2 Nhập học sinh từ Excel (DT-16 phần 16g): trang chung còn công nợ đầu kỳ
+    '/imports': canImportOpeningDebts,
+    '/student-imports':
+      canSeeChildrenAndClasses && (canImportChildren || canManageChildren || has(PERMISSION_CODES.childApprove)),
     '/staff-imports': canViewStaff && canImportStaff,
     '/child-groups': canSeeChildrenAndClasses && (canManageChildGroups || canViewChildren),
     '/growth': canManageHealth || canViewGrowthReport,

@@ -71,21 +71,27 @@ function MessageTable({ label, rows }: { label: string; rows: RowMessage[] }) {
   );
 }
 
-// Công cụ đi kèm (tải file mẫu, tra cứu danh mục) do màn hình truyền vào, hiện dưới lời hướng dẫn (DT-16 phần 16f)
+// Công cụ đi kèm (tải file mẫu, tra cứu danh mục) do màn hình truyền vào, hiện dưới lời hướng dẫn (DT-16 phần 16f).
+// "4.1.2. Nhập học sinh từ Excel" (DT-16 phần 16g) bật confirmUpdates: tệp cập nhật học sinh đã có chỉ ghi khi đánh dấu
+// "Đồng ý cập nhật dữ liệu học sinh" như của Sở
 export function MoetImportSection({
   type,
   onChanged,
   tools,
+  confirmUpdates = false,
 }: {
   type: MoetImportType;
   onChanged(message: string): void;
   tools?: ReactNode;
+  confirmUpdates?: boolean;
 }) {
   const queryClient = useQueryClient();
   const unitChoice = useUnitChoice();
   const [file, setFile] = useState<File>();
   const [job, setJob] = useState<MoetImportJob>();
+  const [consent, setConsent] = useState(false);
   const labels = LABELS[type];
+  const needsConsent = confirmUpdates && (job?.preview?.updated ?? 0) > 0;
   const upload = useMutation({
     mutationFn: () => {
       const form = new FormData();
@@ -94,10 +100,17 @@ export function MoetImportSection({
       form.set('file', file ?? new Blob());
       return requestJson<MoetImportJob>('/api/v1/imports', { method: 'POST', body: form });
     },
-    onSuccess: setJob,
+    onSuccess: (result) => {
+      setJob(result);
+      setConsent(false);
+    },
   });
   const commit = useMutation({
-    mutationFn: () => requestJson<MoetImportJob>(`/api/v1/imports/${job?.id}/commit`, { method: 'POST' }),
+    mutationFn: () =>
+      requestJson<MoetImportJob>(`/api/v1/imports/${job?.id}/commit`, {
+        method: 'POST',
+        body: JSON.stringify({ confirm_update: consent }),
+      }),
     onSuccess: async (result) => {
       setJob(result);
       await queryClient.invalidateQueries();
@@ -152,9 +165,24 @@ export function MoetImportSection({
           {job.preview && job.preview.notices.length > 0 ? (
             <MessageTable label="Ghi chú từng dòng" rows={job.preview.notices} />
           ) : null}
+          {job.status === 'validated' && needsConsent ? (
+            <label className="flex items-center gap-2 text-content">
+              <input
+                type="checkbox"
+                className="h-4 w-4"
+                checked={consent}
+                onChange={(event) => setConsent(event.target.checked)}
+              />
+              Đồng ý cập nhật dữ liệu học sinh ({job.preview?.updated} học sinh đã có sẽ được ghi theo tệp)
+            </label>
+          ) : null}
           {job.status === 'validated' ? (
             <div>
-              <Button variant="primary" disabled={commit.isPending} onClick={() => commit.mutate()}>
+              <Button
+                variant="primary"
+                disabled={commit.isPending || (needsConsent && !consent)}
+                onClick={() => commit.mutate()}
+              >
                 Ghi dữ liệu
               </Button>
             </div>

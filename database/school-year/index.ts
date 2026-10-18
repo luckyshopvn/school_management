@@ -52,6 +52,7 @@ import { migration as addStudentFlagsAndSmsGuardian } from './migrations/0050_ad
 import { migration as addSoSchoolAndClassFields } from './migrations/0051_add_so_school_and_class_fields.js';
 import { migration as createAccreditationReviewsAndSchoolSplits } from './migrations/0054_create_accreditation_reviews_and_school_splits.js';
 import { migration as addStaffSoParity } from './migrations/0055_add_staff_so_parity.js';
+import { migration as addStudentRecordsSo } from './migrations/0056_add_student_records_so.js';
 import { migration as addStudentHealthAndMenuFields } from './migrations/0057_add_student_health_and_menu_fields.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
@@ -109,5 +110,6 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0051_add_so_school_and_class_fields': addSoSchoolAndClassFields,
   '0054_create_accreditation_reviews_and_school_splits': createAccreditationReviewsAndSchoolSplits,
   '0055_add_staff_so_parity': addStaffSoParity,
+  '0056_add_student_records_so': addStudentRecordsSo,
   '0057_add_student_health_and_menu_fields': addStudentHealthAndMenuFields,
 };

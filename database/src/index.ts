@@ -40,6 +40,8 @@ export type {
   CatalogStatus,
   ChildGender,
   ChildStatus,
+  StudentTransferDirection,
+  StudentTransferStatus,
   ClassAgeGroup,
   ClassStatus,
   ContractType,
