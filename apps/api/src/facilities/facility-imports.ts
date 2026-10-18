@@ -900,7 +900,21 @@ export class FacilityImportsService {
     origin: ChangeOrigin,
     jobId: string,
   ) {
-    const { row: _row, item_id: _itemId, code, ...values } = item;
+    const code = item.code;
+    const values = {
+      name: item.name,
+      unit: item.unit,
+      equipment_group: item.equipment_group,
+      development_area: item.development_area,
+      age_group: item.age_group,
+      quantity: item.quantity,
+      norm_basis: item.norm_basis,
+      target_users: item.target_users,
+      equipment_type: item.equipment_type,
+      is_minimum: item.is_minimum,
+      status: item.status,
+      note: item.note,
+    };
     const before = code
       ? await transaction.selectFrom('equipment_items').selectAll().where('code', '=', code).executeTakeFirst()
       : undefined;
