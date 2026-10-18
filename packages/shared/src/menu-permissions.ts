@@ -110,6 +110,11 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/facility-rooms': anyOf('P17.report.facilities', 'P13.equipment.manage', 'P01.room.manage'),
   '/equipment': anyOf('P17.report.facilities', 'P13.equipment.manage'),
   '/emis': 'P17.report.emis',
+  // Quản lý kí hồ sơ (DT-16 phần 16k): ai có một quyền của phân hệ đều xem được các mục; thao tác kiểm tra ở máy chủ
+  '/signing-certificate': anyOf('P01.signing.view', 'P01.signing.certificate'),
+  '/signing-certificate-sync': anyOf('P01.signing.view', 'P01.signing.certificate'),
+  '/signing-dossiers': anyOf('P01.signing.view', 'P01.signing.manage', 'P01.signing.sign'),
+  '/signing-submissions': anyOf('P01.signing.view', 'P01.signing.manage'),
   '/emis/facilities': 'P17.report.emis',
   '/emis/health': 'P17.report.emis',
   '/emis/end-of-year': 'P17.report.emis',

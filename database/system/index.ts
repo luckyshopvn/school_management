@@ -11,6 +11,7 @@ import { migration as createExportJobsAndSubmissions } from './migrations/0010_c
 import { migration as createAnnouncementsAndAppLinks } from './migrations/0011_create_announcements_and_app_links.js';
 import { migration as addSyncAccountCredentials } from './migrations/0012_add_sync_account_credentials.js';
 import { migration as addSchoolWeekFieldsAndCarryOverTime } from './migrations/0013_add_school_week_fields_and_carry_over_time.js';
+import { migration as createSigningTables } from './migrations/0015_create_signing_tables.js';
 import { migration as addArchiveUnitsHandlersReminders } from './migrations/0016_add_archive_units_handlers_reminders.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu hệ thống, theo số thứ tự (QU-01, QĐ-17)
@@ -27,5 +28,6 @@ export const systemMigrations: Record<string, Migration> = {
   '0011_create_announcements_and_app_links': createAnnouncementsAndAppLinks,
   '0012_add_sync_account_credentials': addSyncAccountCredentials,
   '0013_add_school_week_fields_and_carry_over_time': addSchoolWeekFieldsAndCarryOverTime,
+  '0015_create_signing_tables': createSigningTables,
   '0016_add_archive_units_handlers_reminders': addArchiveUnitsHandlersReminders,
 };

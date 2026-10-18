@@ -347,6 +347,112 @@ export interface PortalAppLinksTable {
   updated_at: UpdatedTimestamp;
 }
 
+// Phân hệ Quản lý kí hồ sơ, bản chạy nội bộ (DT-16 phần 16k): chứng thư số nhà trường, hồ sơ kí theo năm học, lịch sử thao tác
+export type SigningSignatureType = 'remote' | 'usb_token' | 'hsm';
+export type SigningCertificateStatus = 'draft' | 'registered' | 'revoked';
+export type SigningSyncStatus = 'not_synced' | 'synced';
+export type SigningObjectType = 'school' | 'class' | 'staff' | 'child' | 'class_log';
+export type SigningDossierStatus = 'created' | 'signed' | 'completed' | 'sent' | 'cancelled';
+export type SigningEventAction =
+  | 'certificate_save'
+  | 'certificate_register'
+  | 'certificate_revoke'
+  | 'seal_upload'
+  | 'seal_delete'
+  | 'certificate_sync'
+  | 'certificate_unsync'
+  | 'create'
+  | 'sign'
+  | 'check_changes'
+  | 'cancel'
+  | 'complete'
+  | 'uncomplete'
+  | 'mark_sent';
+
+export interface SigningCertificatesTable {
+  id: Generated<string>;
+  singleton: Generated<boolean>;
+  signature_type: Generated<SigningSignatureType>;
+  provider: string | null;
+  login_name: string | null;
+  holder_name: string | null;
+  holder_title: string | null;
+  serial_number: string | null;
+  valid_from: DateText | null;
+  valid_to: DateText | null;
+  status: Generated<SigningCertificateStatus>;
+  registered_at: Date | null;
+  registered_by: string | null;
+  registered_by_name: string | null;
+  sync_status: Generated<SigningSyncStatus>;
+  synced_on: DateText | null;
+  sync_note: string | null;
+  synced_by: string | null;
+  synced_by_name: string | null;
+  seal_file_name: string | null;
+  seal_content_type: string | null;
+  seal_storage_key: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+  updated_by: string | null;
+}
+
+export interface SigningDossiersTable {
+  id: Generated<string>;
+  academic_year_id: string;
+  code: string;
+  object_type: SigningObjectType;
+  object_id: string;
+  // Tháng của sổ đầu bài (YYYY-MM); đối tượng khác để trống
+  period: Generated<string>;
+  object_label: string;
+  status: Generated<SigningDossierStatus>;
+  snapshot: ColumnType<unknown, string, string>;
+  content_hash: string;
+  file_name: string;
+  storage_key: string;
+  file_sha256: string;
+  size_bytes: number;
+  created_by: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+  signature_method: string | null;
+  signed_file_name: string | null;
+  signed_storage_key: string | null;
+  signed_sha256: string | null;
+  signed_size_bytes: number | null;
+  signed_at: Date | null;
+  signed_by: string | null;
+  signed_by_name: string | null;
+  changed_at: Date | null;
+  change_summary: string | null;
+  checked_at: Date | null;
+  completed_at: Date | null;
+  completed_by: string | null;
+  completed_by_name: string | null;
+  sent_on: DateText | null;
+  sent_note: string | null;
+  sent_by: string | null;
+  sent_by_name: string | null;
+  marked_sent_at: Date | null;
+  cancelled_at: Date | null;
+  cancelled_by: string | null;
+  cancelled_by_name: string | null;
+  cancel_reason: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface SigningEventsTable {
+  id: Generated<string>;
+  // Trống là thao tác trên chứng thư số
+  dossier_id: string | null;
+  action: SigningEventAction;
+  note: string | null;
+  actor_id: string;
+  actor_name: string;
+  created_at: CreatedTimestamp;
+}
+
 export interface SystemDatabase {
   academic_years: AcademicYearsTable;
   academic_terms: AcademicTermsTable;
@@ -368,4 +474,7 @@ export interface SystemDatabase {
   upper_level_submission_events: UpperLevelSubmissionEventsTable;
   system_announcements: SystemAnnouncementsTable;
   portal_app_links: PortalAppLinksTable;
+  signing_certificates: SigningCertificatesTable;
+  signing_dossiers: SigningDossiersTable;
+  signing_events: SigningEventsTable;
 }

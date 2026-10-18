@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.9
+- Phiên bản: 0.10
 - Ngày cập nhật: 2026-10-18
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.80.0 – 2026-10-18
+
+- Phạm vi thay đổi: DT-16 phần 16k, phân hệ Quản lý kí hồ sơ theo hệ thống của Sở, bản chạy nội bộ (YCTD-130). Phần cuối của DT-16.
+- Chức năng mới: phân hệ "Quản lý kí hồ sơ" trên ô chọn phân hệ: "1.1. Chứng thư số nhà trường" (thông tin chứng thư, ảnh con dấu, Đăng ký kí nội bộ), "2.1. Đồng bộ chứng thư số" (Đánh dấu đã đồng bộ), "2.2. Kí hồ sơ trường, lớp, nhân sự, học sinh" (thẻ Trường, Lớp, Nhân sự, Học sinh, Sổ đầu bài; Tạo hồ sơ PDF, Kí xác nhận nội bộ, Tải thông tin thay đổi, Hủy hồ sơ, Xuất dữ liệu sổ đầu bài), "2.3. Xác nhận hoàn thành và gửi hồ sơ" (Xác nhận hoàn thành, Hủy xác nhận, Tải tệp gửi, Đánh dấu đã gửi) (P01-28 đến P01-31). Không có chữ ký số thật.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp hệ thống `0015_create_signing_tables` (bảng `signing_certificates`, `signing_dossiers`, `signing_events`, dãy số `signing_dossier_code`); tệp định danh `0049_add_signing_permissions` (bốn quyền P01, bỏ phân hệ mới khỏi nhóm Phụ huynh). Không có migration năm học.
+- Thay đổi API: nhóm điểm cuối mới `/signing` (tài liệu 17 mục 5, mục 17); `buildPdf` của công cụ xuất dùng chung nhận thêm khổ dọc và phần cuối tài liệu.
+- Kiểm thử: kịch bản CT-589 đến CT-598. Kết quả ngày 18/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r test`) 848/848 ca đạt; toàn bộ kiểm thử giao diện 133/133 ca đạt (CI, lượt chạy 39121128162); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: tệp đã kí là xác nhận trên phần mềm, không có giá trị pháp lý của chữ ký số; nội dung hồ sơ PDF chưa đối chiếu mẫu của Sở; hồ sơ không truyền lên cấp trên, người dùng nộp tệp và đánh dấu.
+- Khả năng tương thích: thêm phân hệ, không đổi chức năng cũ; nhóm người dùng tự tạo thấy phân hệ mới khi có quyền (phân hệ thêm sau mặc định hiện, YCTD-120).
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 16k; chạy phần quay lui của tệp hệ thống `0015` (xóa ba bảng, dãy số) và tệp định danh `0049` (xóa quyền, dòng loại trừ phân hệ). Tệp PDF, ảnh con dấu ở kho tệp (tiền tố `signing-dossier/`, `signing-seal/`) xóa tay nếu cần.
 
 ### Phiên bản 0.79.0 – 2026-10-18
 

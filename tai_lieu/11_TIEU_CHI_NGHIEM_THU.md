@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.31
+- Phiên bản: 1.32
 - Ngày cập nhật: 2026-10-18
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -677,6 +677,10 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-609 | Cho học sinh đang học, thôi học, nhân sự có hồ sơ mẫu Bộ và một quản lý điểm trường / Khi xem bảy biểu; quản lý điểm trường xem 2.2; xem mã biểu không có; xem 1.3, 2.1 thẻ IV, 2.2 thẻ Chuẩn nghề nghiệp rồi Xuất Excel, 2.4 / Thì bảy biểu trả số liệu cho toàn trường; người không có phạm vi toàn trường bị từ chối quyền; biểu không có trả không tìm thấy; 1.3 có cột Tổng số học sinh, Công lập, Tư thục, Dân lập, Nữ, Dân tộc; 2.1 có sáu thẻ I đến VI, II.07 đếm học sinh thôi học; 2.2 tính trình độ, khung năng lực bậc 3 trở lên, cảnh báo thiếu phiếu chuẩn nghề nghiệp, tải `emis-doi-ngu-…xlsx`; 2.4 có thẻ "Kết quả giáo dục" (CT-581, CT-582, CT-588; YCTD-129) |
 | AC-610 | Cho biểu 2.3 Đề án ngoại ngữ đã ghi số trẻ / Khi Đánh dấu đã gửi chọn "Trường không có dữ liệu"; ghi hoặc Lấy dữ liệu năm trước; người có `P01.school-profile.manage` Đặt trạng thái gửi lại rồi ghi; Xuất tệp gửi / Thì dòng biểu hiện "Đã gửi" kèm "trường không có dữ liệu"; màn hình báo "Biểu đã đánh dấu đã gửi nên đang khóa", ô nhập, nút Ghi bị vô hiệu, máy chủ từ chối ghi, lấy dữ liệu mã YCTD-129; sau khi đặt gửi lại ghi được; tệp gửi `emis-de-an-ngoai-ngu-…` lưu kèm hoàn thành dữ liệu (CT-585, CT-588; YCTD-129) |
 | AC-611 | Cho năm học 2026–2027 đã ghi thẻ Trẻ làm quen tiếng Anh và năm học 2027–2028 vừa mở / Khi ở năm 2027–2028 bấm Lấy dữ liệu năm trước của thẻ đó / Thì bảng điền số đã ghi của năm học 2026–2027, nguồn ghi "năm học 2026–2027"; thẻ của năm mới vẫn chưa ghi tới khi bấm Ghi (CT-584, CT-586; YCTD-129) |
+| AC-612 | Cho Hiệu trưởng có `P01.signing.certificate`, Phó Hiệu trưởng, giáo viên / Khi ghi chứng thư kèm trường mật khẩu; đăng ký khi chưa có người đứng tên, nhà phát hành; tải ảnh con dấu PDF rồi PNG; ghi đủ thông tin, Đăng ký kí nội bộ rồi sửa; Phó Hiệu trưởng ghi chứng thư; giáo viên xem / Thì mật khẩu bị từ chối; đăng ký trả `ERR_RULE_VIOLATION` mã YCTD-130 nêu hai ô thiếu; ảnh PDF bị từ chối, ảnh PNG hiện; sau đăng ký không sửa được; Phó Hiệu trưởng, giáo viên bị từ chối (CT-589, CT-590, CT-598; YCTD-130) | P01-28 |
+| AC-613 | Cho chứng thư đã đăng ký kí nội bộ / Khi đánh dấu đã đồng bộ ngày tương lai; đánh dấu một ngày đã qua; đặt lại chưa đồng bộ hai lần / Thì ngày tương lai bị từ chối; trạng thái "Đã đánh dấu đồng bộ" kèm ngày; lần đặt lại thứ hai báo chưa đánh dấu (CT-591, CT-598; YCTD-130) | P01-29 |
+| AC-614 | Cho trường, lớp, học sinh đã duyệt và chứng thư đã đăng ký / Khi tạo hồ sơ trường, lớp, học sinh, sổ đầu bài tháng 10; tạo lại hồ sơ lớp; kí khi chứng thư đã hủy đăng ký rồi khi đã đăng ký; đổi tên lớp rồi Tải thông tin thay đổi; hủy hồ sơ học sinh không lý do rồi có lý do, tạo lại; Xuất dữ liệu sổ đầu bài / Thì mỗi hồ sơ có mã `KHS-` sáu chữ số, tệp PDF đúng mã băm, mỗi lần tải ghi nhật ký xuất; tạo trùng bị từ chối; kí khi chưa đăng ký bị từ chối, kí xong có tệp đã kí khác tệp gốc; thay đổi ghi ngày và "Tên lớp: cũ → mới"; hủy cần lý do, tạo lại được mã mới; tệp Excel có cột Ngày, Sĩ số điểm danh, Có mặt, Vắng có phép, Vắng không phép, Hoạt động trong ngày; không có nút "Ký số", "Đăng nhập và kí" (CT-592 đến CT-595, CT-597, CT-598; YCTD-130) | P01-30 |
+| AC-615 | Cho hồ sơ lớp đã kí và hồ sơ học sinh chưa kí / Khi xác nhận hoàn thành hồ sơ chưa kí; đánh dấu đã gửi hồ sơ chưa xác nhận; xác nhận, hủy hồ sơ đã xác nhận, hủy xác nhận, xác nhận lại; đánh dấu đã gửi ngày tương lai rồi hôm nay; hủy xác nhận hồ sơ đã gửi / Thì hai thao tác sai trạng thái bị từ chối; hồ sơ đã xác nhận không hủy được; hủy xác nhận trả về Đã kí; ngày tương lai bị từ chối; hồ sơ chuyển "Đã đánh dấu gửi", không còn "Hủy xác nhận" (CT-596, CT-598; YCTD-130) | P01-31 |
 
 ## 20. Chưa xác minh được
 
