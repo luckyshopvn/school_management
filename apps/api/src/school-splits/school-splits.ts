@@ -354,7 +354,8 @@ export class SchoolSplitsService {
         subject === 'children' ? 'Yêu cầu không có học sinh nào' : 'Yêu cầu không có nhân sự nào',
       );
     }
-    const decrypt = (text: string) => this.protection.decrypt(text);
+    // Ô mã hóa rỗng (hồ sơ nhập từ CSDL ngành để trống số) ghi trống, không giải mã
+    const decrypt = (text: string) => (text === '' ? '' : this.protection.decrypt(text));
     const sheet =
       subject === 'children'
         ? await childMoetSheet(database, ids, decrypt)

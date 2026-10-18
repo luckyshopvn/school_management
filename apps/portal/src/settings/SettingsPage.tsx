@@ -229,25 +229,38 @@ function SchoolSettingsBlock({
   editable: boolean;
   onSaved(message: string): void;
 }) {
-  const queryClient = useQueryClient();
   const settings = useQuery({ queryKey: ['settings', rootId], queryFn: () => readSettings(rootId) });
-  const [displayName, setDisplayName] = useState('');
-  const [unitName, setUnitName] = useState('');
-  const [underweight, setUnderweight] = useState(true);
-  const valueOf = (key: string) => settings.data?.find((setting) => setting.key === key);
-  useEffect(() => {
-    if (settings.data) {
-      const text = (key: string) => {
-        const value = settings.data.find((setting) => setting.key === key)?.unit_value;
-        return typeof value === 'string' ? value : '';
-      };
-      setDisplayName(text('school_display_name'));
-      setUnitName(text('administrative_unit_name'));
-      setUnderweight(
-        settings.data.find((setting) => setting.key === 'underweight_growth_calculation')?.value !== false,
-      );
-    }
-  }, [settings.data]);
+  if (settings.isPending) {
+    return <div className="h-40 animate-pulse rounded bg-border" aria-hidden="true" />;
+  }
+  if (settings.isError || !settings.data.some((setting) => setting.key === 'school_display_name')) {
+    return null;
+  }
+  return <SchoolSettingsForm rootId={rootId} settings={settings.data} editable={editable} onSaved={onSaved} />;
+}
+
+// Giá trị ban đầu lấy một lần khi đã tải xong để lần tải lại không xóa chữ người dùng đang nhập
+function SchoolSettingsForm({
+  rootId,
+  settings,
+  editable,
+  onSaved,
+}: {
+  rootId: string;
+  settings: EffectiveSetting[];
+  editable: boolean;
+  onSaved(message: string): void;
+}) {
+  const queryClient = useQueryClient();
+  const text = (key: string) => {
+    const value = settings.find((setting) => setting.key === key)?.unit_value;
+    return typeof value === 'string' ? value : '';
+  };
+  const [displayName, setDisplayName] = useState(() => text('school_display_name'));
+  const [unitName, setUnitName] = useState(() => text('administrative_unit_name'));
+  const [underweight, setUnderweight] = useState(
+    () => settings.find((setting) => setting.key === 'underweight_growth_calculation')?.value !== false,
+  );
   const save = useMutation({
     mutationFn: () =>
       saveSettings(rootId, {
@@ -265,9 +278,6 @@ function SchoolSettingsBlock({
     save.error instanceof ApiError
       ? save.error.details.find((detail) => detail.field === `values.${key}`)?.message
       : undefined;
-  if (settings.isError || (settings.data && !valueOf('school_display_name'))) {
-    return null;
-  }
   return (
     <section className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4" aria-label="Cấu hình trường">
       {save.error && !(save.error instanceof ApiError && save.error.details.length > 0) ? (
