@@ -354,8 +354,14 @@ export class SchoolSplitsService {
         subject === 'children' ? 'Yêu cầu không có học sinh nào' : 'Yêu cầu không có nhân sự nào',
       );
     }
-    // Ô mã hóa rỗng (hồ sơ nhập từ CSDL ngành để trống số) ghi trống, không giải mã
-    const decrypt = (text: string) => (text === '' ? '' : this.protection.decrypt(text));
+    // Ô mã hóa rỗng hoặc không giải mã được (dữ liệu cũ sai dạng) ghi trống để một hồ sơ lỗi không chặn cả tệp
+    const decrypt = (text: string) => {
+      try {
+        return text === '' ? '' : this.protection.decrypt(text);
+      } catch {
+        return '';
+      }
+    };
     const sheet =
       subject === 'children'
         ? await childMoetSheet(database, ids, decrypt)

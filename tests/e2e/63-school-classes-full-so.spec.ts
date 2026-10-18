@@ -78,6 +78,8 @@ test('CT-16e-17: 2.1 chọn lớp chưa có dữ liệu rồi Xóa lớp qua h�
   await form.getByLabel('Sĩ số tối đa').fill('20');
   await form.getByRole('button', { name: 'Ghi' }).click();
   await expect(toast(page, `Đã tạo lớp ${className}`)).toBeVisible();
+  // Lưới có nhiều lớp của các kiểm thử trước; tìm theo tên để lớp mới nằm ở trang đầu
+  await grid.getByLabel('Tìm theo tên, mã lớp').fill(className);
   await grid.getByLabel(`Chọn ${className}`, { exact: true }).check();
   await grid.getByRole('button', { name: 'Xóa lớp', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'Xóa lớp' });
