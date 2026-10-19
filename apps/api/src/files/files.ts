@@ -147,6 +147,10 @@ export class FilesService {
       // Hồ sơ xin việc chỉ tải qua hồ sơ ứng viên để kiểm tra quyền P18 và ghi nhật ký truy cập (YCTD-87)
       throw new ApplicationError('ERR_FORBIDDEN', 'Hồ sơ xin việc chỉ xem trong hồ sơ ứng viên');
     }
+    if (file.purpose === 'final_year_document') {
+      // Giấy tờ hồ sơ cuối cấp tải qua phân hệ Tuyển sinh đầu cấp để kiểm tra phạm vi hoặc quan hệ phụ huynh (DT-17 phần 17c)
+      throw new ApplicationError('ERR_FORBIDDEN', 'Giấy tờ hồ sơ cuối cấp chỉ xem trong hồ sơ cuối cấp');
+    }
     if (MEDICATION_PURPOSES.includes(file.purpose)) {
       // Ảnh thuốc, đơn thuốc xem theo quyền xem sức khỏe của trẻ (BR-53); chưa gắn yêu cầu thì chỉ người tải lên xem
       const request = await medicationRequestOfFile(database, fileId);

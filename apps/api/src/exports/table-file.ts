@@ -34,7 +34,7 @@ const FONT_FILES = ['Roboto-Regular.ttf', 'Roboto-Medium.ttf', 'Roboto-Italic.tt
 let fontsReady = false;
 
 // Phông chữ đọc từ gói pdfmake một lần; Roboto-Medium dùng cho chữ đậm
-function ensureFonts(): void {
+export function ensureFonts(): void {
   if (fontsReady) {
     return;
   }

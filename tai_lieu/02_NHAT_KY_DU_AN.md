@@ -14,6 +14,29 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-19 — DT-17 phần 17c: Tuyển sinh đầu cấp phần 1
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu năm học: tệp `0061_create_entry_admissions` tạo `final_year_records`, `final_year_record_files`, `final_year_record_events`, `final_year_class_confirmations`, `admission_support_requests`, `school_services`; `org_units` thêm tọa độ, tỉnh/thành phố, phường/xã, khu phố, lần xác nhận vị trí; mục đích tệp `final_year_document`. Cơ sở dữ liệu định danh: tệp `0050_add_entry_admission_permissions` thêm bốn quyền P02 và bỏ phân hệ mới khỏi nhóm VT-14.
+- Gói dùng chung: phân hệ `entry-admissions` ở `PORTAL_WORKSPACES` (13 phân hệ), điều kiện hiện mục ở `MENU_PERMISSION_RULES`, nhãn và danh sách giá trị ở `packages/shared/src/entry-admissions.ts`.
+- Máy chủ API (`apps/api/src/entry-admissions/`): quy tắc luồng sáu trạng thái, kiểm dò, điều kiện duyệt, hạn điều chỉnh (`final-year-rules.ts`); hồ sơ cuối cấp tự lập cho trẻ lớp năm cuối cấp, thao tác hàng loạt, giấy tờ, Excel, PDF A5 và A4 gập đôi, tệp nén, 1.2, 4.1 và điểm cuối của ứng dụng phụ huynh; 1.8, 2.1, 3.3, 3.4, 5.1 kèm chỗ nối `AdmissionSupportMailer`; `/files/{id}` từ chối giấy tờ hồ sơ cuối cấp.
+- Cổng quản trị: phân hệ "Tuyển sinh đầu cấp" với 1.1, 1.2, 1.8, 2.1, 3.1 đến 3.4, 4.1, 5.1. Ứng dụng phụ huynh: nút "Hồ sơ cuối cấp" trên thẻ của con.
+- Thêm quy tắc BR-132, chức năng P02-24 đến P02-28, quyền PQ-76, màn hình MH-142 đến MH-151, MP-22, kịch bản CT-642 đến CT-654, tiêu chí AC-650 đến AC-655. Kết quả ngày 19/10/2026: kiểm thử đơn vị CT-17c-1 đến CT-17c-12 đạt 12/12, cùng `menu-permissions.test.ts`, `system-admin-so.test.ts` 26/26 ca đạt (chạy cục bộ); kiểm thử đơn vị toàn bộ kho mã 874/874 đạt; kiểm thử giao diện CT-17c-13 đạt; toàn bộ kiểm thử giao diện 133/136 đạt (cục bộ; ba ca lỗi không thuộc 17c: 01-login CT-15a-7 lỗi cục bộ đã biết, 04-accounts và 59 CT-16c-17 do dữ liệu kiểm thử còn lại ở cơ sở dữ liệu định danh riêng của phần; lần chạy trước hai ca này đạt); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 17c của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 8.3 (khảo sát tài liệu 31 mục 10.2, chênh lệch mục 10.7.4). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-134: luồng sáu trạng thái và cách chuyển; "Xác nhận hồ sơ" là trường xác nhận thay phụ huynh khi phụ huynh xác nhận trên giấy; kiểm dò năm mục; điều kiện duyệt; hạn điều chỉnh lưu ở `settings` khóa `final_year_edit_deadline`; danh sách Diện cư trú; tên nhóm menu 1. đến 5.; quyền cho VT-02, VT-15, VT-12, VT-03; số định danh trên lưới luôn che, tệp Excel, PDF in đủ khi có quyền xem số định danh; cột "Mật khẩu" hiện tình trạng tài khoản phụ huynh; Khởi tạo mật khẩu dùng cấp mật khẩu hàng loạt của dịch vụ định danh; Cập nhật từ Excel dùng cột ID của tệp Xuất Excel, kiểm tra cả tệp, có lỗi không ghi; PDF A5 và A4 gập đôi, Tách file là tệp nén zip; mẫu phiếu kê khai, phiếu thông tin; "Xem vị trí" mở OpenStreetMap ở thẻ mới; 3.1 đến 3.4 chỉ hiển thị, 3.1, 3.2 cần thêm quyền quản lý tài khoản; 5.1 "Gửi email" gửi qua thông báo của ứng dụng phụ huynh, thư điện tử qua chỗ nối `AdmissionSupportMailer` chưa có nhà cung cấp.
+- Bản chạy nội bộ: không kết nối phân tuyến của Sở; 1.2 là đánh dấu tay kèm xuất Excel; không có trang, đăng nhập riêng như `truong-tsdc`. Mục 1.3 đến 1.7 để phần 17d.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-134, `07_QUY_TAC_NGHIEP_VU.md` BR-132, `08_VAI_TRO_NGUOI_DUNG.md` PQ-76, `10_YEU_CAU_CHUC_NANG.md` P02-24 đến P02-28, `11_TIEU_CHI_NGHIEM_THU.md` AC-650 đến AC-655, `14_DAC_TA_GIAO_DIEN.md` MH-142 đến MH-151, MP-22, `16_CO_SO_DU_LIEU.md` mục 3, `17_DAC_TA_API.md` mục 6, `21_KICH_BAN_KIEM_THU.md` CT-642 đến CT-654, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.87.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 8.5.
+
+#### Vấn đề tồn đọng
+
+- Chưa có kết nối phân tuyến, cơ sở dữ liệu của Sở và nhà cung cấp gửi thư; Diện cư trú, mẫu phiếu PDF chờ đối chiếu danh sách, mẫu của Sở. Kiểm thử đơn vị toàn kho mã 874/874 đạt; kiểm thử giao diện CT-17c-13 đạt, toàn bộ kiểm thử giao diện 133/136 đạt (cục bộ; ba ca lỗi không thuộc 17c: 01-login CT-15a-7 lỗi cục bộ đã biết, 04-accounts và 59 CT-16c-17 do dữ liệu kiểm thử còn lại ở cơ sở dữ liệu định danh riêng của phần; lần chạy trước hai ca này đạt).
+
 ### 2026-10-19 — DT-17 phần 17a: báo cáo số liệu EMIS theo chỉ tiêu và mã số của Sở
 
 #### Công việc đã thực hiện

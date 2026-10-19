@@ -100,8 +100,9 @@ test('CT-15a-7: menu ngang bằng chuột: mở menu sổ xuống, menu cấp ha
   await expect(students).toHaveClass(/border-brand/);
 
   // Trợ giúp mở theo tên mục (khớp một phần) và theo đường dẫn
-  await openMenu(page, 'Danh sách người dùng');
-  await expect(page.getByRole('heading', { name: '1.4. Danh sách người dùng', exact: true })).toBeVisible();
+  // "Danh sách người dùng" có ở cả Quản trị hệ thống và Tuyển sinh đầu cấp (DT-17 phần 17c) nên dùng tên mục khác
+  await openMenu(page, 'Phân quyền nhóm theo phần mềm');
+  await expect(page.getByRole('heading', { name: '1.2. Phân quyền nhóm theo phần mềm', exact: true })).toBeVisible();
   await openMenu(page, '/classes');
   await expect(page.getByRole('button', { name: `Phân hệ: ${EDUCATION}` })).toBeVisible();
 });

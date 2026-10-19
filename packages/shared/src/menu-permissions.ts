@@ -18,6 +18,7 @@ const anyOf = (...rules: MenuPermissionRule[]): MenuPermissionRule => ({ anyOf: 
 const gated = (gate: MenuPermissionRule, rule: MenuPermissionRule): MenuPermissionRule => ({ gate, rule });
 
 const ACCOUNTS = anyOf('P01.account.manage', 'P01.account.manage-in-unit');
+const FINAL_YEAR = anyOf('P02.final-year.view', 'P02.final-year.manage', 'P02.final-year.approve');
 // Điều kiện của nhóm "Trẻ và lớp" cũ
 const CHILDREN_AND_CLASSES = anyOf('P02.class.manage', 'P02.view', 'P02.edit');
 const STATISTICS = anyOf('P17.child-statistics.view', 'P17.staff-statistics.view');
@@ -115,6 +116,18 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/signing-certificate-sync': anyOf('P01.signing.view', 'P01.signing.certificate'),
   '/signing-dossiers': anyOf('P01.signing.view', 'P01.signing.manage', 'P01.signing.sign'),
   '/signing-submissions': anyOf('P01.signing.view', 'P01.signing.manage'),
+  // Tuyển sinh đầu cấp (DT-17 phần 17c): 3.1, 3.2 đọc nhóm người dùng, tài khoản ở dịch vụ định danh nên cần thêm quyền quản
+  // lý tài khoản; 5.1 hiện với người trả lời hỗ trợ tuyển sinh
+  '/entry-admissions/final-year': FINAL_YEAR,
+  '/entry-admissions/completion': FINAL_YEAR,
+  '/entry-admissions/school-map': FINAL_YEAR,
+  '/entry-admissions/services': FINAL_YEAR,
+  '/entry-admissions/roles': gated(ACCOUNTS, FINAL_YEAR),
+  '/entry-admissions/users': gated(ACCOUNTS, FINAL_YEAR),
+  '/entry-admissions/staff': FINAL_YEAR,
+  '/entry-admissions/classes': FINAL_YEAR,
+  '/entry-admissions/statistics': FINAL_YEAR,
+  '/entry-admissions/support': anyOf('P02.final-year.view', 'P02.admission-support.reply'),
   '/emis/facilities': 'P17.report.emis',
   '/emis/health': 'P17.report.emis',
   '/emis/end-of-year': 'P17.report.emis',
