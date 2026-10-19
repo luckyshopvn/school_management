@@ -18,6 +18,7 @@ function legacyVisibility(has: (code: string) => boolean): Partial<Record<Portal
   const canManageAllAccounts = has(PERMISSION_CODES.accountManage);
   const canManageAccountsInUnit = has(PERMISSION_CODES.accountManageInUnit);
   const canSeeAccounts = canManageAllAccounts || canManageAccountsInUnit;
+  const canSeeFinalYear = has('P02.final-year.view') || has('P02.final-year.manage') || has('P02.final-year.approve');
   const canViewPlatform = has('P01.view');
   const canManageSettings = has(PERMISSION_CODES.settingManage);
   const canManageDepartments = has(PERMISSION_CODES.departmentManage);
@@ -171,6 +172,17 @@ function legacyVisibility(has: (code: string) => boolean): Partial<Record<Portal
     '/signing-certificate-sync': has('P01.signing.view') || has('P01.signing.certificate'),
     '/signing-dossiers': has('P01.signing.view') || has('P01.signing.manage') || has('P01.signing.sign'),
     '/signing-submissions': has('P01.signing.view') || has('P01.signing.manage'),
+    // Tuyển sinh đầu cấp (DT-17 phần 17c), mục mới không có điều kiện cũ
+    '/entry-admissions/final-year': canSeeFinalYear,
+    '/entry-admissions/completion': canSeeFinalYear,
+    '/entry-admissions/school-map': canSeeFinalYear,
+    '/entry-admissions/services': canSeeFinalYear,
+    '/entry-admissions/roles': canSeeFinalYear && canSeeAccounts,
+    '/entry-admissions/users': canSeeFinalYear && canSeeAccounts,
+    '/entry-admissions/staff': canSeeFinalYear,
+    '/entry-admissions/classes': canSeeFinalYear,
+    '/entry-admissions/statistics': canSeeFinalYear,
+    '/entry-admissions/support': has('P02.final-year.view') || has('P02.admission-support.reply'),
     // Quản trị hệ thống
     '/roles': canSeeAccounts,
     '/accounts': canSeeAccounts,
