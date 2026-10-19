@@ -127,11 +127,7 @@ export class EntryIntakeTransferService {
     const units = await this.intake.scopeUnits(currentUser, [TRANSFER]);
     const database = await this.intake.database();
     const rows = await this.intake.loadRows(database, { unitIds: units, ids: items.map((item) => item.id) });
-    const activeUnits = await database
-      .selectFrom('org_units')
-      .select(['id'])
-      .where('status', '=', 'active')
-      .execute();
+    const activeUnits = await database.selectFrom('org_units').select(['id']).where('status', '=', 'active').execute();
     const result: ActionResult = { done: 0, skipped: [] };
     await database.transaction().execute(async (transaction) => {
       for (const item of items) {
@@ -150,7 +146,11 @@ export class EntryIntakeTransferService {
           (!activeUnits.some((unit) => unit.id === unitId) ||
             (row.org_unit_type !== 'truong_chinh' && unitId !== row.org_unit_id))
         ) {
-          result.skipped.push({ id: row.id, full_name: row.full_name, reason: 'điểm trường không thuộc đơn vị của đợt' });
+          result.skipped.push({
+            id: row.id,
+            full_name: row.full_name,
+            reason: 'điểm trường không thuộc đơn vị của đợt',
+          });
           continue;
         }
         if (unitId === row.target_org_unit_id && item.record_type === row.record_type) {
@@ -162,7 +162,8 @@ export class EntryIntakeTransferService {
             target_org_unit_id: unitId,
             record_type: item.record_type,
             // Lớp đã xếp ở điểm trường khác thì bỏ xếp lớp
-            planned_class_id: unitId && row.planned_class_unit_id && row.planned_class_unit_id !== unitId ? null : row.planned_class_id,
+            planned_class_id:
+              unitId && row.planned_class_unit_id && row.planned_class_unit_id !== unitId ? null : row.planned_class_id,
             updated_at: this.clock.now(),
           })
           .where('id', '=', row.id)
@@ -201,7 +202,11 @@ export class EntryIntakeTransferService {
           continue;
         }
         if (!isTransferable(row)) {
-          result.skipped.push({ id, full_name: row.full_name, reason: 'chưa trúng tuyển, đã chuyển hoặc phụ huynh từ chối' });
+          result.skipped.push({
+            id,
+            full_name: row.full_name,
+            reason: 'chưa trúng tuyển, đã chuyển hoặc phụ huynh từ chối',
+          });
           continue;
         }
         const target = classId ? await this.targetClass(database, classId, row) : null;
@@ -252,7 +257,8 @@ export class EntryIntakeTransferService {
     const results: TransferResult[] = [];
     for (const row of rows) {
       const outcome = await this.transferOne(database, currentUser, accessToken, row, packageCode, options, origin, {
-        canApprove: (unitId) => !!approveScope && (approveScope.wholeSchool || approveScope.orgUnitIds.includes(unitId)),
+        canApprove: (unitId) =>
+          !!approveScope && (approveScope.wholeSchool || approveScope.orgUnitIds.includes(unitId)),
       });
       results.push({
         application_id: row.id,

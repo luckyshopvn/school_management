@@ -316,7 +316,12 @@ describe('Tuyển sinh đầu cấp phần 2 (DT-17 phần 17d)', () => {
     assert.equal(isIntakeRow({ source: 'routing', status: 'received' }), true);
     assert.equal(isIntakeRow({ source: 'online', status: 'received' }), false);
     assert.equal(isIntakeRow({ source: 'online', status: 'passed' }), true);
-    const base = { status: 'passed', admission_decision: 'pending', program_type: 'general', school_review: 'pending' } as const;
+    const base = {
+      status: 'passed',
+      admission_decision: 'pending',
+      program_type: 'general',
+      school_review: 'pending',
+    } as const;
     assert.equal(isTransferable(base), true);
     assert.equal(isTransferable({ ...base, admission_decision: 'declined' }), false);
     assert.equal(isTransferable({ ...base, program_type: 'advanced' }), false);
@@ -337,9 +342,18 @@ describe('Tuyển sinh đầu cấp phần 2 (DT-17 phần 17d)', () => {
       applyIntakeFilter(rows, filter({ doc_admission_notice: 'yes' }), hash).map((row) => row.id),
       ['1'],
     );
-    assert.deepEqual(applyIntakeFilter(rows, filter({ decision: 'not_accepted' }), hash).map((row) => row.id), ['2']);
-    assert.deepEqual(applyIntakeFilter(rows, filter({ quarter: 'khu phố 2' }), hash).map((row) => row.id), ['2']);
-    assert.deepEqual(applyIntakeFilter(rows, filter({ national_id: '5678' }), hash).map((row) => row.id), ['2']);
+    assert.deepEqual(
+      applyIntakeFilter(rows, filter({ decision: 'not_accepted' }), hash).map((row) => row.id),
+      ['2'],
+    );
+    assert.deepEqual(
+      applyIntakeFilter(rows, filter({ quarter: 'khu phố 2' }), hash).map((row) => row.id),
+      ['2'],
+    );
+    assert.deepEqual(
+      applyIntakeFilter(rows, filter({ national_id: '5678' }), hash).map((row) => row.id),
+      ['2'],
+    );
     assert.deepEqual(
       applyIntakeFilter(rows, filter({ national_id: '079000001234' }), hash).map((row) => row.id),
       ['1'],
@@ -426,7 +440,12 @@ describe('Tuyển sinh đầu cấp phần 2 (DT-17 phần 17d)', () => {
       ROUTING_HEADERS,
       routingRow({ name: 'Nguyễn Văn An', nationalId: nationalIds.An ?? '', phone: phones.An ?? '' }),
       routingRow({ name: 'Trần Thị Bình', nationalId: nationalIds.Binh ?? '', phone: phones.Binh ?? '', gender: 'Nữ' }),
-      routingRow({ name: 'Lê Văn Cường', nationalId: nationalIds.Cuong ?? '', phone: phones.Cuong ?? '', quarter: 'Khu phố 2' }),
+      routingRow({
+        name: 'Lê Văn Cường',
+        nationalId: nationalIds.Cuong ?? '',
+        phone: phones.Cuong ?? '',
+        quarter: 'Khu phố 2',
+      }),
     ]);
     const created = await upload(
       admissions.accessToken,
@@ -493,8 +512,15 @@ describe('Tuyển sinh đầu cấp phần 2 (DT-17 phần 17d)', () => {
       .execute();
     assert.equal((await list('intake')).length, 4);
     assert.equal(
-      (await upload(teacher.accessToken, '/entry-intake/import', { campaign_id: campaigns.general ?? '' }, good, 'x.xlsx'))
-        .status,
+      (
+        await upload(
+          teacher.accessToken,
+          '/entry-intake/import',
+          { campaign_id: campaigns.general ?? '' },
+          good,
+          'x.xlsx',
+        )
+      ).status,
       403,
     );
   });
@@ -509,9 +535,11 @@ describe('Tuyển sinh đầu cấp phần 2 (DT-17 phần 17d)', () => {
     assert.equal(saved.status, 200, JSON.stringify(saved.body));
     assert.equal(saved.body.done, 2);
     assert.equal(
-      (await api('POST', '/entry-intake/save', admissions.accessToken, {
-        items: [{ id: ids.An, submitted_documents: ['passport'], admission_decision: 'accepted' }],
-      })).status,
+      (
+        await api('POST', '/entry-intake/save', admissions.accessToken, {
+          items: [{ id: ids.An, submitted_documents: ['passport'], admission_decision: 'accepted' }],
+        })
+      ).status,
       400,
     );
     assert.deepEqual(
@@ -562,7 +590,10 @@ describe('Tuyển sinh đầu cấp phần 2 (DT-17 phần 17d)', () => {
     });
     assert.equal(rejected.body.done, 1);
     assert.equal((await list('advanced', '&school_review=not_admitted')).length, 1);
-    assert.equal((await list('transfer')).some((row) => row.id === ids.Dung), false);
+    assert.equal(
+      (await list('transfer')).some((row) => row.id === ids.Dung),
+      false,
+    );
     const admitted = await api('POST', '/entry-intake/review', admissions.accessToken, {
       ids: [ids.Dung],
       review: 'admitted',
@@ -575,7 +606,10 @@ describe('Tuyển sinh đầu cấp phần 2 (DT-17 phần 17d)', () => {
     const row = (await list('advanced'))[0];
     assert.equal(row?.status, 'passed');
     assert.equal(row?.school_reviewed_by_name !== null, true);
-    assert.equal((await list('transfer')).some((item) => item.id === ids.Dung), true);
+    assert.equal(
+      (await list('transfer')).some((item) => item.id === ids.Dung),
+      true,
+    );
     const noEvidence = await fetchFile(principal.accessToken, '/entry-intake/evidence', { ids: [ids.Dung] });
     assert.equal(noEvidence.status, 422);
     const attached = await upload(
@@ -598,7 +632,10 @@ describe('Tuyển sinh đầu cấp phần 2 (DT-17 phần 17d)', () => {
     assert.equal(zip.status, 200);
     assert.equal(zip.type, 'application/zip');
     assert.equal(zip.buffer.subarray(0, 2).toString(), 'PK');
-    const pdf = await fetchFile(principal.accessToken, '/entry-intake/forms', { ids: [ids.Dung], kind: 'registration' });
+    const pdf = await fetchFile(principal.accessToken, '/entry-intake/forms', {
+      ids: [ids.Dung],
+      kind: 'registration',
+    });
     assert.equal(pdf.status, 200);
     assert.equal(pdf.buffer.subarray(0, 4).toString(), '%PDF');
     // Xóa: chỉ hồ sơ phân tuyến chưa chuyển; hồ sơ trực tuyến bỏ qua
@@ -665,13 +702,8 @@ describe('Tuyển sinh đầu cấp phần 2 (DT-17 phần 17d)', () => {
     );
     assert.equal(external.body.created, 1, JSON.stringify(external.body));
     const all = items(
-      (
-        await api(
-          'GET',
-          `/entry-intake/notices/recipients?campaign_id=${campaigns.general}`,
-          admissions.accessToken,
-        )
-      ).body,
+      (await api('GET', `/entry-intake/notices/recipients?campaign_id=${campaigns.general}`, admissions.accessToken))
+        .body,
     ) as unknown as Array<Record<string, unknown>>;
     assert.equal(all.length, 4);
     const contact = all.find((item) => item.external === true);
@@ -745,7 +777,9 @@ describe('Tuyển sinh đầu cấp phần 2 (DT-17 phần 17d)', () => {
       (await api('POST', '/entry-intake/transfers/run', admissions.accessToken, { ids: [ids.An] })).status,
       403,
     );
-    const missing = await api('POST', '/entry-intake/transfers/run', principal.accessToken, { ids: [ids.An, ids.Binh] });
+    const missing = await api('POST', '/entry-intake/transfers/run', principal.accessToken, {
+      ids: [ids.An, ids.Binh],
+    });
     assert.equal(missing.status, 200, JSON.stringify(missing.body));
     const results = missing.body.results as Array<{ application_id: string; succeeded: boolean; note: string }>;
     assert.match(missing.body.package_code as string, /^GT-/);
@@ -835,7 +869,11 @@ describe('Tuyển sinh đầu cấp phần 2 (DT-17 phần 17d)', () => {
       ids: [ids.Cuong],
       clear_classes: true,
     });
-    assert.equal((cleared.body.results as Array<{ succeeded: boolean }>)[0]?.succeeded, true, JSON.stringify(cleared.body));
+    assert.equal(
+      (cleared.body.results as Array<{ succeeded: boolean }>)[0]?.succeeded,
+      true,
+      JSON.stringify(cleared.body),
+    );
     const cuong = (await list('transferred')).find((item) => item.id === ids.Cuong);
     assert.equal(cuong?.planned_class_id, null);
     assert.equal(cuong?.child_status, 'pending');
@@ -843,10 +881,7 @@ describe('Tuyển sinh đầu cấp phần 2 (DT-17 phần 17d)', () => {
 
   it('CT-17d-9: 1.7 Hủy nhập học chỉ với hồ sơ học sinh chưa phát sinh dữ liệu; kết quả hủy theo mã GUID', async () => {
     const rows = await list('transferred');
-    assert.deepEqual(
-      rows.map((row) => row.id).sort(),
-      [ids.An, ids.Cuong, ids.Dung].sort(),
-    );
+    assert.deepEqual(rows.map((row) => row.id).sort(), [ids.An, ids.Cuong, ids.Dung].sort());
     const dung = rows.find((row) => row.id === ids.Dung);
     assert.deepEqual(
       (await list('transferred', `&guid=${dung?.transfer_guid}`)).map((row) => row.id),

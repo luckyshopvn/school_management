@@ -102,11 +102,7 @@ export type AdmissionDecision = 'pending' | 'accepted' | 'declined';
 export type AdvancedReviewStatus = 'pending' | 'admitted' | 'not_admitted';
 export type AdmissionRecordType = 'account' | 'free';
 export type AdmissionDocument =
-  | 'admission_notice'
-  | 'declaration'
-  | 'birth_certificate_copy'
-  | 'primary_transcript'
-  | 'primary_completion';
+  'admission_notice' | 'declaration' | 'birth_certificate_copy' | 'primary_transcript' | 'primary_completion';
 
 export const ADMISSION_PROGRAM_TYPES: ReadonlyArray<{ value: AdmissionProgramType; label: string }> = [
   { value: 'general', label: 'Đại trà' },

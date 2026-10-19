@@ -41,7 +41,13 @@ import { MAXIMUM_FILE_BYTES } from '../files/files.js';
 import { MAXIMUM_IMPORT_BYTES } from '../imports/excel.js';
 import { EntryIntakeNoticesService, readNoticeContent } from './entry-intake-notices.js';
 import { EntryIntakeTransferService } from './entry-intake-transfer.js';
-import { EntryIntakeService, INTAKE_VIEW, readIntakeFilter, readIntakeInput, type IntakeScreen } from './entry-intake.js';
+import {
+  EntryIntakeService,
+  INTAKE_VIEW,
+  readIntakeFilter,
+  readIntakeInput,
+  type IntakeScreen,
+} from './entry-intake.js';
 
 // Điểm cuối của 1.3 đến 1.7 phân hệ Tuyển sinh đầu cấp và 5.11 phân hệ Mầm non (DT-17 phần 17d)
 const MANAGE = PERMISSION_CODES.entryIntakeManage;

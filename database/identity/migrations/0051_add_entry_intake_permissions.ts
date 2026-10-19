@@ -13,7 +13,8 @@ import type { Migration } from 'kysely/migration';
 const PERMISSIONS = [
   {
     code: 'P02.entry-intake.view',
-    description: 'Xem hồ sơ tiếp nhận, đăng ký trường tiên tiến, thông báo, kết quả chuyển hồ sơ của Tuyển sinh đầu cấp',
+    description:
+      'Xem hồ sơ tiếp nhận, đăng ký trường tiên tiến, thông báo, kết quả chuyển hồ sơ của Tuyển sinh đầu cấp',
     roles: ['VT-02', 'VT-15', 'VT-12', 'VT-03'],
   },
   {

@@ -1,6 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import type { SchoolYearDatabase } from '@school-management/database';
-import { ApplicationError, Clock, ruleViolationError, validationError, type FieldError } from '@school-management/server';
+import {
+  ApplicationError,
+  Clock,
+  ruleViolationError,
+  validationError,
+  type FieldError,
+} from '@school-management/server';
 import {
   ADMISSION_DECISION_LABELS,
   ADMISSION_DOCUMENT_LABELS,
@@ -274,13 +280,9 @@ export function readIntakeFilter(query: Record<string, unknown>, errors: FieldEr
   return filter as IntakeFilter;
 }
 
-const normalize = (text: string) =>
-  text
-    .normalize('NFC')
-    .toLocaleLowerCase('vi')
-    .replace(/\s+/g, ' ')
-    .trim();
-const contains = (value: string | null, part: string | null) => !part || normalize(value ?? '').includes(normalize(part));
+const normalize = (text: string) => text.normalize('NFC').toLocaleLowerCase('vi').replace(/\s+/g, ' ').trim();
+const contains = (value: string | null, part: string | null) =>
+  !part || normalize(value ?? '').includes(normalize(part));
 const yesNo = (expected: YesNo | null, actual: boolean) => expected === null || (expected === 'yes') === actual;
 
 // Hồ sơ của 1.4: hồ sơ phân tuyến và hồ sơ đã đạt (kể cả đã chuyển, đã hủy nhập học) của tuyển sinh trực tuyến
@@ -312,7 +314,9 @@ export function applyIntakeFilter(rows: IntakeRow[], filter: IntakeFilter, hashO
       contains(row.quarter, filter.quarter) &&
       contains(row.province, filter.province) &&
       (!nationalId ||
-        (nationalHash ? row.national_id_hash === nationalHash : row.national_id.replace(/\D/g, '').endsWith(nationalId))) &&
+        (nationalHash
+          ? row.national_id_hash === nationalHash
+          : row.national_id.replace(/\D/g, '').endsWith(nationalId))) &&
       (contains(row.full_name, filter.q) || (filter.q !== null && row.code === filter.q)) &&
       (!filter.dob || row.dob === filter.dob) &&
       contains(row.father_name, filter.father_name) &&
@@ -331,7 +335,8 @@ export function applyIntakeFilter(rows: IntakeRow[], filter: IntakeFilter, hashO
       (!filter.record_type || row.record_type === filter.record_type) &&
       contains(row.transfer_package_code, filter.package_code) &&
       contains(row.transfer_guid, filter.guid) &&
-      (contains(row.student_code, filter.student_code) || (filter.student_code !== null && row.code === filter.student_code)),
+      (contains(row.student_code, filter.student_code) ||
+        (filter.student_code !== null && row.code === filter.student_code)),
   );
 }
 
@@ -501,7 +506,11 @@ export const EXPORT_COLUMNS: Record<IntakeScreen, ExportColumn[]> = {
     { key: 'final_year_school', label: 'Trường cuối cấp', value: (row) => row.final_year_school },
     ...ADDRESS_COLUMNS,
     { key: 'documents', label: 'Giấy tờ đã nộp', value: documentText },
-    { key: 'decision', label: 'Phụ huynh đồng ý nhập học', value: (row) => ADMISSION_DECISION_LABELS[row.admission_decision] },
+    {
+      key: 'decision',
+      label: 'Phụ huynh đồng ý nhập học',
+      value: (row) => ADMISSION_DECISION_LABELS[row.admission_decision],
+    },
   ],
   advanced: [
     ...COMMON_COLUMNS,
@@ -532,7 +541,11 @@ export const EXPORT_COLUMNS: Record<IntakeScreen, ExportColumn[]> = {
   transfer: [
     { key: 'code', label: 'Mã học sinh', value: (row) => row.student_code ?? row.code },
     ...COMMON_COLUMNS.slice(1),
-    { key: 'transferred', label: 'Chuyển hồ sơ sang CSDL', value: (row) => (row.status === 'converted' ? 'Đã chuyển' : 'Chưa chuyển') },
+    {
+      key: 'transferred',
+      label: 'Chuyển hồ sơ sang CSDL',
+      value: (row) => (row.status === 'converted' ? 'Đã chuyển' : 'Chưa chuyển'),
+    },
     { key: 'record_type', label: 'Loại hồ sơ', value: (row) => ADMISSION_RECORD_TYPE_LABELS[row.record_type] },
     { key: 'unit', label: 'Điểm trường', value: (row) => row.target_org_unit_name ?? row.org_unit_name },
     { key: 'class', label: 'Xếp lớp', value: (row) => row.planned_class_name },
@@ -549,7 +562,11 @@ export const EXPORT_COLUMNS: Record<IntakeScreen, ExportColumn[]> = {
     { key: 'class', label: 'Xếp lớp', value: (row) => row.planned_class_name },
     { key: 'guid', label: 'Mã GUID', value: (row) => row.transfer_guid },
     { key: 'package', label: 'Mã gói tin', value: (row) => row.transfer_package_code },
-    { key: 'status', label: 'Trạng thái', value: (row) => (row.status === 'cancelled' ? 'Đã hủy nhập học' : 'Đã chuyển') },
+    {
+      key: 'status',
+      label: 'Trạng thái',
+      value: (row) => (row.status === 'cancelled' ? 'Đã hủy nhập học' : 'Đã chuyển'),
+    },
   ],
 };
 
@@ -568,8 +585,18 @@ const ROUTING_COLUMNS: Array<ImportColumn & { field: string }> = [
   { key: 'province', field: 'province', header: 'Thành phố (Tỉnh)', note: '' },
   { key: 'father_name', field: 'father_name', header: 'Họ tên cha', note: '' },
   { key: 'mother_name', field: 'mother_name', header: 'Họ tên mẹ', note: '' },
-  { key: 'guardian_full_name', field: 'guardian_full_name', header: 'Người liên hệ (*)', note: 'Cha, mẹ hoặc người giám hộ' },
-  { key: 'guardian_phone', field: 'guardian_phone', header: 'Số điện thoại (*)', note: '10 hoặc 11 chữ số, bắt đầu bằng 0' },
+  {
+    key: 'guardian_full_name',
+    field: 'guardian_full_name',
+    header: 'Người liên hệ (*)',
+    note: 'Cha, mẹ hoặc người giám hộ',
+  },
+  {
+    key: 'guardian_phone',
+    field: 'guardian_phone',
+    header: 'Số điện thoại (*)',
+    note: '10 hoặc 11 chữ số, bắt đầu bằng 0',
+  },
   { key: 'guardian_email', field: 'guardian_email', header: 'Thư điện tử', note: '' },
   { key: 'relationship', field: 'relationship', header: 'Quan hệ với học sinh', note: 'Tên trong danh mục quan hệ' },
   { key: 'final_year_ward', field: 'final_year_ward', header: 'Phường/Xã cuối cấp', note: '' },
@@ -884,7 +911,11 @@ export class EntryIntakeService {
   }
 
   strip(rows: IntakeRow[]): IntakeRow[] {
-    return rows.map(({ national_id_hash: _hash, ...row }) => row);
+    return rows.map((row) => {
+      const copy = { ...row };
+      delete copy.national_id_hash;
+      return copy;
+    });
   }
 
   // Hồ sơ của từng màn hình trong phạm vi, đã lọc
@@ -1125,7 +1156,9 @@ export class EntryIntakeService {
           result.skipped.push({
             id,
             full_name: row.full_name,
-            reason: row.created_child_id ? 'đã chuyển sang hồ sơ học sinh' : 'hồ sơ trực tuyến xóa ở phân hệ Tuyển sinh',
+            reason: row.created_child_id
+              ? 'đã chuyển sang hồ sơ học sinh'
+              : 'hồ sơ trực tuyến xóa ở phân hệ Tuyển sinh',
           });
           continue;
         }
@@ -1180,7 +1213,11 @@ export class EntryIntakeService {
           continue;
         }
         if (row.status === 'converted') {
-          result.skipped.push({ id, full_name: row.full_name, reason: 'đã chuyển, hủy ở 1.7 Danh sách kết quả chuyển hồ sơ' });
+          result.skipped.push({
+            id,
+            full_name: row.full_name,
+            reason: 'đã chuyển, hủy ở 1.7 Danh sách kết quả chuyển hồ sơ',
+          });
           continue;
         }
         if (row.status === 'cancelled' || row.status === 'rejected') {
@@ -1275,7 +1312,8 @@ export class EntryIntakeService {
       }
       const residence = text('residence_type');
       raw.residence_type = residence
-        ? (FINAL_YEAR_RESIDENCE_TYPES.find((item) => normalize(item.label) === normalize(residence))?.value ?? residence)
+        ? (FINAL_YEAR_RESIDENCE_TYPES.find((item) => normalize(item.label) === normalize(residence))?.value ??
+          residence)
         : null;
       const registered = text('registered_at');
       raw.registered_at = registered ? (parseDate(registered) ?? registered) : null;
@@ -1305,7 +1343,8 @@ export class EntryIntakeService {
       if (!dob) {
         fail('dob', 'Ngày sinh dạng DD/MM/YYYY');
       }
-      const gender = normalize(text('gender')) === 'nam' ? 'male' : normalize(text('gender')) === 'nữ' ? 'female' : null;
+      const gender =
+        normalize(text('gender')) === 'nam' ? 'male' : normalize(text('gender')) === 'nữ' ? 'female' : null;
       if (!gender) {
         fail('gender', 'Giới tính là Nam hoặc Nữ');
       }
@@ -1647,10 +1686,7 @@ export class EntryIntakeService {
       file_stem: row.code,
       school_name: schoolName,
       level_label: FINAL_YEAR_LEVELS.preschool.label,
-      title:
-        kind === 'registration'
-          ? `PHIẾU ĐĂNG KÝ NHẬP HỌC ${level}`
-          : `PHIẾU THÔNG TIN HỒ SƠ TUYỂN SINH ${level}`,
+      title: kind === 'registration' ? `PHIẾU ĐĂNG KÝ NHẬP HỌC ${level}` : `PHIẾU THÔNG TIN HỒ SƠ TUYỂN SINH ${level}`,
       sections: [
         {
           title: 'I. Thông tin học sinh',

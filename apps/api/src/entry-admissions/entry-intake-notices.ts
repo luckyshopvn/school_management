@@ -6,7 +6,14 @@ import { writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { ChildDataProtection, maskNationalId } from '../common/child-data-protection.js';
 import { queueNotification } from '../common/notification-queue.js';
 import { notFoundError } from '../common/request-fields.js';
-import { buildErrorWorkbook, buildTemplate, parseDate, readSheet, type ImportColumn, type RowError } from '../imports/excel.js';
+import {
+  buildErrorWorkbook,
+  buildTemplate,
+  parseDate,
+  readSheet,
+  type ImportColumn,
+  type RowError,
+} from '../imports/excel.js';
 import { ENTRY_INTAKE_RULE, EntryIntakeService, INTAKE_VIEW, type IntakeFilter, type YesNo } from './entry-intake.js';
 
 // 1.5 Gửi thông báo tuyển sinh đầu cấp (DT-17 phần 17d, khảo sát mục 10.2.4): người nhận là hồ sơ của 1.4 và học sinh ngoài
@@ -300,7 +307,9 @@ export class EntryIntakeNoticesService {
         .executeTakeFirstOrThrow();
       for (const row of all) {
         const body = row.notice_content ?? content ?? '';
-        const users = [...new Set(accounts.filter((account) => account.phone === row.phone).map((item) => item.user_id!))];
+        const users = [
+          ...new Set(accounts.filter((account) => account.phone === row.phone).map((item) => item.user_id!)),
+        ];
         if (users.length > 0) {
           await queueNotification(transaction, {
             orgUnitId: campaign.org_unit_id,
@@ -386,7 +395,11 @@ export class EntryIntakeNoticesService {
         hash ? item.child_national_id_hash === hash : code !== '' && item.code === code,
       );
       if (!found) {
-        errors.push({ row: row.row, column: nationalId ? 'Số ĐDCN' : 'Mã hồ sơ', message: 'Không tìm thấy hồ sơ trong đợt' });
+        errors.push({
+          row: row.row,
+          column: nationalId ? 'Số ĐDCN' : 'Mã hồ sơ',
+          message: 'Không tìm thấy hồ sơ trong đợt',
+        });
         continue;
       }
       if (fieldErrors.length === 0) {
