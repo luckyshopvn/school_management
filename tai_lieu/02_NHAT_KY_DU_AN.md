@@ -21,7 +21,7 @@
 - Cơ sở dữ liệu hệ thống: tệp `0017_adjust_signing_to_so_templates` (chứng thư HSM chuyển REMOTE SIGNING, `signing_dossiers` thêm tệp XML và ghi chú, bảng `signing_create_errors`). Không có migration năm học, định danh.
 - Máy chủ API: nội dung bốn loại hồ sơ theo phần và mục của Sở, tệp XML qua chỗ nối `DossierXmlWriter`, điểm cuối xem hồ sơ kí, tải file lỗi, kiểm tra quyền xem số định danh với hồ sơ nhân sự, học sinh, nhà phát hành trong năm giá trị, không tạo hồ sơ sổ đầu bài mới.
 - Cổng quản trị: 1.1, 2.1 có thông tin trường; 1.1 chọn nhà phát hành, lịch sử yêu cầu đăng ký; 2.2 cột theo loại, lọc khối, lớp, cửa sổ "Xem hồ sơ kí", "Tải file lỗi"; 2.3 cột theo Sở.
-- Thêm quy tắc BR-129, kịch bản CT-619 đến CT-627, tiêu chí AC-636 đến AC-639; sửa P01-28 đến P01-31, PQ-75, MH-137 đến MH-140. <KET_QUA>
+- Thêm quy tắc BR-129, kịch bản CT-619 đến CT-627, tiêu chí AC-636 đến AC-639; sửa P01-28 đến P01-31, PQ-75, MH-137 đến MH-140. Kết quả ngày 19/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r --workspace-concurrency=1 --no-bail test`) 856/856 ca đạt; toàn bộ kiểm thử giao diện 134/134 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 

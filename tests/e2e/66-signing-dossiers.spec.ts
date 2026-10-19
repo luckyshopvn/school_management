@@ -175,7 +175,7 @@ test('Hiệu trưởng khai báo chứng thư, tạo và kí xác nhận nội b
   await page.getByLabel(`Chọn ${code} ${className}`).check();
   await page.getByRole('button', { name: 'Đánh dấu đã gửi', exact: true }).click();
   await confirm(page, 'Đánh dấu');
-  await expect(row.getByText('Đã đánh dấu gửi')).toBeVisible();
+  await expect(row.getByText('Đã đánh dấu gửi').first()).toBeVisible();
   await expect(row.getByText('Đã xác nhận', { exact: true })).toBeVisible();
   await page.getByLabel(`Chọn ${code} ${className}`).check();
   await expect(page.getByRole('button', { name: 'Hủy xác nhận hoàn thành' })).toBeDisabled();

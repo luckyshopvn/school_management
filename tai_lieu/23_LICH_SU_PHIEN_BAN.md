@@ -23,7 +23,7 @@
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp hệ thống `0017_adjust_signing_to_so_templates` (chứng thư HSM chuyển REMOTE SIGNING, năm cột mới của `signing_dossiers`, bảng `signing_create_errors`).
 - Thay đổi API: `GET /signing/dossiers/{id}/view`, `GET /signing/create-errors/file`, `version=xml`; các trường thêm như YCTD-133.
-- Kiểm thử: kịch bản CT-619 đến CT-627. <KET_QUA>
+- Kiểm thử: kịch bản CT-619 đến CT-627. Kết quả ngày 19/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r --workspace-concurrency=1 --no-bail test`) 856/856 ca đạt; toàn bộ kiểm thử giao diện 134/134 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Rủi ro: hồ sơ in đủ số định danh nên chỉ người có `P02.national-id.view` tạo, xem được hồ sơ nhân sự, học sinh; tệp tải về cần giữ như tài liệu mật.
 - Khả năng tương thích: hồ sơ đã lập ở 16k giữ tệp, xem được ở cửa sổ mới, không có tệp XML; chứng thư có nhà phát hành ngoài danh sách phải chọn lại mới kí được.
 - Phương án quay lui: hoàn lại commit gộp của nhánh `dt-17-phan-17b` và chạy `down` của tệp `0017` (bỏ bảng `signing_create_errors` và năm cột, trả ràng buộc ba kiểu chữ ký; chứng thư đã đổi từ HSM giữ REMOTE SIGNING).
