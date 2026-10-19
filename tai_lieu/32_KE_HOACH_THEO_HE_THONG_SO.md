@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
-- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`.
-- Phiên bản: 1.18
+- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường.
+- Phiên bản: 1.19
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -228,3 +228,154 @@ Lượt làm (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, 
 | 17e | Đã triển khai (YCTD-136, PR 111): 1.7 đủ ô như Sở trong năm khối (tên trường, mã trường, loại hình bắt buộc, cấp học Mầm non; năm, ngày công nhận và mức độ chuẩn quốc gia; năm, ngày công nhận và cấp độ kiểm định CLGD; diện tích sàn xây dựng/học sinh; thời điểm đăng ký chuẩn quốc gia; ghi chú tối đa 500 ký tự có bộ đếm); Lấy dữ liệu điền từ cây đơn vị và hồ sơ trường; hồ sơ trường thêm tám ô khóa cố định cho 17a; migration năm học 0063; thời điểm đăng ký là chữ tự do do chưa biết định dạng của Sở |
 
 DT-17 hoàn tất.
+
+## 9. DT-18: điều hành nhà trường
+
+### 9.1 Căn cứ
+
+1. Quyết định của Eric ngày 2026-10-19:
+   - Lộ trình sau DT-17: DT-18 → DT-19 (nền đa cấp học) → DT-20 (Tiểu học) → DT-21 (THCS, THPT) → DT-22 → DT-SaaS.
+   - Sổ văn bản đến, đi, giao việc, lịch, hồ sơ công việc làm theo hệ thống quản lý văn bản và điều hành VNPT iOffice mà các trường công lập TP.HCM đang dùng.
+   - KPI chuyển hẳn hệ thống KPI của Eric vào School Management (viết lại thành phân hệ NestJS, Kysely, PostgreSQL, dùng chung tài khoản, đơn vị, nhân sự, phân quyền, thông báo, tệp, nhật ký); hệ thống cũ không phát triển tiếp.
+   - Mỗi trường một tên miền riêng cho website; có chế độ trình diễn.
+   - Ký số giữ bản chạy nội bộ, có chỗ nối để cắm nhà cung cấp thật.
+   - Bốn phần của DT-22 chạy ở đợt 5 của DT-18: 22b bán trú, kiểm thực và an toàn thực phẩm; 22i kế hoạch giáo dục; 22d thi đua, khen thưởng cán bộ, giáo viên; 22f bảo đảm chất lượng, tự đánh giá. AI gợi ý làm thành phần riêng, tắt mặc định.
+2. Khảo sát VNPT iOffice ngày 2026-10-19: Eric đăng nhập, Claude chỉ đọc menu, màn hình danh sách và biểu mẫu thêm mới còn trống; không mở văn bản, không bấm Ghi. Ghi chép lưu ngoài kho, không có nội dung văn bản, tên người hay số liệu. Phiên làm 18a, 18b, 18c đọc ghi chép đó trước khi viết phạm vi chi tiết vào YCTD của phần.
+3. Hồ sơ chuyên môn, Việc của tôi, thiết bị có tem QR, website trường, đăng nhập thay, xuất toàn bộ dữ liệu, trang chọn vai lấy mẫu theo mô tả công khai của GIKIDI Nhà Trường. Không sao chép nguyên văn, hình ảnh, tên gọi riêng của sản phẩm đó.
+4. Các lựa chọn ở mục 9.2 đến 9.5 do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+### 9.2 Nguyên tắc chung của DT-18
+
+- **Bản chạy nội bộ:** tính năng cần hệ thống ngoài (liên thông văn bản qua trục, gửi SMS, ký số của nhà cung cấp, trỏ tên miền) làm đủ màn hình và nút; bước cần kết nối thay bằng trạng thái đánh dấu tay (ngày, người thực hiện) và tệp xuất; để sẵn chỗ nối để cắm kết nối thật sau.
+- **Viết sẵn cho đa thuê bao:** không thêm biến `.env` riêng của trường; không ghi cứng tên miền, tên trường hay mã trường trong mã; cấu hình của trường lưu trong cơ sở dữ liệu; khóa Redis và đường dẫn S3 tạo qua hàm dùng chung.
+- **Viết sẵn cho đa cấp học:** danh mục, mẫu và tiêu chí có cột cấp học; dữ liệu mặc định có bản Mầm non, các cấp khác thêm bằng danh mục sau DT-19, không đổi mã. Không ghi cứng "Mầm non" trong luồng nghiệp vụ.
+- **AI là thành phần riêng, tắt mặc định:** chỉ gợi ý, người dùng duyệt trước khi ghi; chỉ dùng dữ liệu đã khử định danh; không gửi dữ liệu trẻ em ra dịch vụ ngoài. Các phần chạy đủ khi AI tắt.
+- **Ký số chạy nội bộ:** dùng quy trình kí nội bộ của phân hệ Quản lý kí hồ sơ (16k, 17b) và chỗ nối `DossierSigner`; văn bản đã kí có mã QR tra cứu. Không nhận, không lưu mật khẩu chứng thư.
+- **Dữ liệu thật:** không ghi dữ liệu thật của trường, người hay văn bản vào mã, dữ liệu mẫu, kiểm thử hay tài liệu.
+
+### 9.3 Các phần
+
+Số migration ghi theo thứ tự dự kiến; mỗi phần giữ sẵn số riêng để làm song song (kho mã đã bật `allowUnorderedMigrations`, không đánh lại số sang dải của phần khác). Phần nào không cần số đã giữ ở một cơ sở dữ liệu thì để trống số đó, không cho phần khác dùng. Hiện nhánh chính có tệp năm học đến 0063, tệp hệ thống đến 0017, tệp định danh đến 0051; sổ yêu cầu thay đổi đến YCTD-137.
+
+| Phần | Phạm vi | Đợt | Phụ thuộc | YCTD giữ sẵn | Migration giữ sẵn |
+|---|---|---|---|---|---|
+| 18a | Văn bản đến theo VNPT iOffice: sổ văn bản đến, vào sổ, luồng xử lý, phiếu, đơn vị bên ngoài | 1 | Không | YCTD-138 | Hệ thống 0018; định danh 0052 |
+| 18b | Văn bản đi theo VNPT iOffice: dự thảo, lấy ý kiến, trình ký, ký nội bộ, cấp số, phát hành, sổ văn bản đi, liên thông nội bộ | 2 | Sau khi 18a gộp (dùng sổ, đơn vị bên ngoài, luồng chuyển của 18a); kí nội bộ 16k, 17b | YCTD-140 | Hệ thống 0019; định danh 0054 |
+| 18c | Giao việc, lịch đơn vị, phòng họp, hồ sơ công việc, báo cáo xử lý văn bản | 2 | Sau khi 18a gộp (tạo việc từ văn bản đến); mở rộng Quản lý công việc đã có; nối văn thư lưu trữ 15h2 | YCTD-141 | Năm học 0065; hệ thống 0020; định danh 0055 |
+| 18d | KPI: chuyển hệ thống KPI của Eric vào, hai bộ quy tắc chấm cấu hình được | 1 | Không (ô minh chứng số ký hiệu văn bản nối với 18b khi 18b gộp) | YCTD-139 | Năm học 0064; định danh 0053 |
+| 18e | Hồ sơ chuyên môn (kho, đợt nộp, luồng duyệt) và Việc của tôi | 3 | Sau đợt 2 (Việc của tôi gom việc chờ của 18a, 18b, 18c, 18d); kí nội bộ | YCTD-142 | Năm học 0066; định danh 0056 |
+| 18f | Website trường trên tên miền riêng | 4 | Sau 18b (văn bản công khai); tuyển sinh YCTD-86, 17c, 17d; trang thời khoá biểu chờ 22c (DT-20) | YCTD-144 | Hệ thống 0021; định danh 0058 |
+| 18g | Thiết bị: nơi để, tem QR, kiểm kê bằng điện thoại, đối sánh danh mục tối thiểu theo cấp học | 3 | Thiết bị đã có (YCTD-106) | YCTD-143 | Năm học 0067; định danh 0057 |
+| 18h | Quản trị và trình diễn: đăng nhập thay, gói ZIP toàn bộ dữ liệu, môi trường trình diễn | 4 | Dữ liệu giả của trình diễn phủ các phần đã gộp đến lúc làm | YCTD-145 | Hệ thống 0022; định danh 0059 |
+| 22b | Bán trú: kiểm thực, lưu và hủy mẫu, lô hàng, hồ sơ an toàn thực phẩm của nhà cung cấp, truy xuất | 5 | Bếp, kho đã có; rà mã tiền ăn (`fees`) trước khi viết phạm vi chi tiết | YCTD-146 | Năm học 0068; định danh 0060 |
+| 22d | Thi đua, khen thưởng cán bộ, giáo viên | 5 (sau 22b, 22i) | 18d (KPI làm đầu vào), 18e (kho minh chứng) | YCTD-148 | Năm học 0070; định danh 0062 |
+| 22f | Bảo đảm chất lượng, tự đánh giá | 5 (sau 22b, 22i) | 17e (1.7), 18e (kho hồ sơ), kế hoạch của Quản lý công việc | YCTD-149 | Năm học 0071; định danh 0063 |
+| 22i | Kế hoạch giáo dục: thư viện mẫu, phiên bản theo năm, duyệt nhiều cấp, kí nội bộ | 5 | 18e (luồng duyệt, kho tệp), 17b (kí) | YCTD-147 | Năm học 0069; định danh 0061 |
+
+Đợt làm, mỗi lúc tối đa hai phiên:
+- Đợt 1: 18a và 18d.
+- Đợt 2: 18b và 18c, bắt đầu khi 18a đã gộp.
+- Đợt 3: 18e và 18g, bắt đầu khi đợt 2 đã gộp (18g không phụ thuộc, có thể bắt đầu sớm hơn khi còn phiên trống).
+- Đợt 4: 18f và 18h.
+- Đợt 5: 22b và 22i, rồi 22d và 22f. 22d và 22f cần 18d, 18e đã gộp; 22b độc lập nên có thể chạy sớm hơn khi còn phiên trống, nhưng không chiếm phiên của 18d.
+
+Thứ tự gộp để đánh số tài liệu (phiên bản, CT, AC, BR, MH) không trùng theo đợt: 18a, 18d, 18b, 18c, 18e, 18g, 18f, 18h, 22b, 22i, 22d, 22f; phần gộp sau đánh lại số tài liệu theo nhánh chính lúc gộp. Mã YCTD và số migration giữ sẵn ở bảng trên không đổi theo thứ tự gộp.
+
+### 9.4 Phạm vi chi tiết
+
+#### 18a. Văn bản đến
+
+- Sổ văn bản đến theo năm và đơn vị: số bắt đầu, ngày áp dụng, người theo dõi, người quản trị.
+- Vào sổ đủ các trường của biểu mẫu thêm mới: trích yếu, số ký hiệu, đơn vị ban hành, ngày văn bản, hình thức văn bản, độ khẩn, độ mật, thẩm quyền, loại (mới, thu hồi, thay thế), hình thức chuyển, hình thức sao, có bản giấy, tệp quét hoặc tải lên, văn bản liên quan, nội dung xử lý theo mẫu. Hình thức, độ khẩn, độ mật là danh mục cấu hình được.
+- Luồng xử lý: trình lãnh đạo; chuyển xử lý (xử lý chính, phối hợp, xem để biết); chuyển trực tiếp; luân chuyển; trả lại; lấy lại; xin gia hạn; từ chối; kết thúc; kết thúc hàng loạt; lưu hồ sơ hàng loạt. Văn bản trả lời. Tạo việc từ văn bản (nối 18c khi 18c gộp). Hạn chế xem. Đánh dấu, theo dõi, xem để biết.
+- In phiếu trình, phiếu xử lý, phiếu giao nhận; sơ đồ luồng văn bản; lịch sử tham mưu.
+- Danh sách có tìm theo trích yếu, tìm nâng cao, lọc theo vai trò (xử lý chính, phối hợp, xem, tất cả); màu theo hỏa tốc, khẩn, chỉ đạo, quá hạn, đến hạn.
+- Đơn vị bên ngoài và nhóm đơn vị ban hành.
+- Liên thông qua trục văn bản: bản chạy nội bộ (nhập tay hoặc nhập tệp, đánh dấu đã nhận), chỗ nối cho trục liên thông.
+
+#### 18b. Văn bản đi
+
+- Dự thảo; lấy ý kiến và cho ý kiến; trình ký; ký hoặc không ký bằng quy trình kí nội bộ (16k, 17b), chèn mã QR tra cứu.
+- Cấp số và phát hành theo sổ văn bản đi (ngày ban hành, người ký, đơn vị soạn thảo, số bản); văn bản gửi kèm, văn bản gốc, đơn vị dự kiến nhận; đóng băng văn bản đã phát hành.
+- Công bố lên website trường (18f) hoặc ẩn; ô công bố lưu sẵn để 18f đọc.
+- Gửi liên thông: bản chạy nội bộ (trạng thái đánh dấu tay và tệp xuất), chỗ nối cho trục liên thông. Văn bản gửi đơn vị nhận trong cùng hệ thống thì tự vào danh sách chờ vào sổ văn bản đến của đơn vị đó.
+
+#### 18c. Giao việc và lịch
+
+- Giao việc: lãnh đạo giao; nội dung; mức độ; số ngày thực hiện; tệp và văn bản liên quan; nhắc việc định kỳ; phân công theo cây đơn vị (xử lý chính, phối hợp, theo dõi; phòng ban hoặc cá nhân; ngày bắt đầu, hết hạn). Danh sách công việc cần xử lý, đã giao, theo trạng thái còn hạn, quá hạn, chờ phê duyệt. Mở rộng bảng việc của Quản lý công việc đã có, không tạo phân hệ việc thứ hai.
+- Lịch đơn vị: đăng ký lịch tuần theo buổi sáng, chiều; phòng họp có duyệt và kiểm tra trùng; lịch họp theo tuần, tháng, của tôi; xuất PDF, Excel, in.
+- Hồ sơ công việc: cá nhân, chia sẻ, chuyển giao; nối văn thư lưu trữ 15h2 (lưu hồ sơ, thời hạn bảo quản, hồ sơ hết hạn bảo quản).
+- Báo cáo thực hiện và đánh giá xử lý văn bản đến, báo cáo tổng hợp, báo cáo thống kê trong đơn vị.
+
+#### 18d. KPI
+
+- Chuyển hệ thống KPI của Eric thành phân hệ của School Management, giữ đủ nghiệp vụ: danh mục công việc chuẩn nhập từ Excel; giao việc hoặc tự đăng ký kèm duyệt; minh chứng và số ký hiệu văn bản (chọn văn bản đi của 18b khi 18b gộp, trước đó nhập chữ); tiến độ tự tính theo hạn; ủy quyền chấm vượt cấp; biểu quyết; tư vấn; khóa và mở kỳ; các mẫu báo cáo xuất Excel, Word, PDF.
+- **Hai bộ quy tắc chấm cấu hình được**, chọn theo đối tượng: bộ HD 06-HD/BTCTU (đã sửa đổi) và bộ NĐ 233/2026. Bộ NĐ 233/2026 là mặc định cho viên chức trường công lập và làm trước, vì hạn ban hành quy chế đánh giá của đơn vị là 30/11/2026.
+- Máy chấm không ghi cứng tham số: loại công việc, điểm chuẩn, hệ số, thang mức, trọng số, công thức tổng hợp, điểm thưởng, ngưỡng và điều kiện xếp loại, hạn xác nhận, hạn chấm và cách xử lý khi quá hạn, giới hạn chuyển trả việc, lịch kỳ đều là cấu hình của bộ quy tắc, có phiên bản; kỳ đã khóa giữ phiên bản quy tắc đã dùng. Phiên làm 18d nhập các tham số chấm điểm cụ thể thành cấu hình.
+- Bộ NĐ 233/2026 có tiêu chí và chỉ báo theo vị trí việc làm, theo cấp học; mẫu quy chế của đơn vị, phiếu theo dõi tháng, phiếu xếp loại năm sinh từ cấu hình.
+- **Tài liệu nguồn hạn chế phát tán:** văn bản điều chỉnh bộ HD 06-HD/BTCTU là tài liệu của cơ quan Đảng có dòng chữ chìm cấm phát tán. Không đưa nguyên văn, phụ lục hay danh mục nhiệm vụ định hướng của văn bản đó vào kho mã, dữ liệu mẫu, kiểm thử hay `tai_lieu/`; chỉ đưa tham số chấm điểm dưới dạng cấu hình. Danh mục nhiệm vụ của đơn vị do trường tự nhập hoặc nhập từ Excel lúc dùng.
+- Công cụ chuyển dữ liệu từ hệ thống cũ (danh mục, kỳ, việc, điểm) đọc tệp xuất do người dùng cung cấp lúc chạy. Không chép tệp dữ liệu nào của kho hệ thống cũ vào kho này.
+
+#### 18e. Hồ sơ chuyên môn và Việc của tôi
+
+- Kho hồ sơ dạng cây theo năm học, ba nhánh: cá nhân, tổ hoặc khối, trường. Danh mục thư mục mặc định theo từng cấp học (có bản Mầm non).
+- Đợt nộp có hạn, bảng "ai chưa nộp", nhắc hạn. Luồng duyệt theo thư mục. Phiên bản khi nộp lại. Kí nội bộ. Khóa năm học. Nhóm công tác.
+- Việc của tôi: gom mọi việc đang chờ người dùng ở văn bản đến, đi, giao việc, hồ sơ chuyên môn, KPI và các luồng duyệt, kí đã có, kèm nhắc quá hạn; mỗi phân hệ cung cấp nguồn việc qua một giao diện chung để phần sau tự thêm.
+
+#### 18f. Website trường và tên miền riêng
+
+- Trang công khai của từng trường, chọn trường theo tên miền của yêu cầu; tên miền lưu trong cơ sở dữ liệu, không ghi cứng, không thêm biến `.env` theo trường. Trỏ tên miền và cấp chứng chỉ là bước nhập tay của quản trị, có hướng dẫn.
+- Đường dẫn con mặc định: giới thiệu, cơ cấu tổ chức, tin tức, thông báo, văn bản công khai (từ 18b), tuyển sinh, công khai theo quy định, thời khoá biểu (cấp phổ thông, chờ 22c), thư viện ảnh, đăng ký sự kiện qua QR.
+- Nội dung soạn trong trang quản trị, có duyệt trước khi đăng; không hiện dữ liệu cá nhân của trẻ.
+
+#### 18g. Thiết bị: tem QR và kiểm kê
+
+- Nơi để; tem QR in A4; đợt kiểm kê bằng điện thoại (quét QR), duyệt, chốt chênh lệch; tỷ lệ sử dụng được.
+- Đối sánh danh mục thiết bị tối thiểu theo cấp học (mầm non TT 02/2010 và văn bản sửa đổi; tiểu học TT 37/2021; THCS TT 38/2021; THPT TT 39/2021; cùng các thông tư sửa đổi). Danh mục là dữ liệu cấu hình theo cấp, đọc văn bản gốc trước khi nhập.
+
+#### 18h. Quản trị và trình diễn
+
+- Đăng nhập thay: chỉ quản trị, ghi nhật ký, thanh báo trên mọi trang khi đang đăng nhập thay; khi đăng nhập thay không thao tác được trên chứng thư số và mật khẩu.
+- Gói ZIP toàn bộ dữ liệu của trường (tác vụ xuất nền của 16a), ghi `export_logs`.
+- Môi trường trình diễn: dữ liệu giả, trang chọn vai, tự đặt lại dữ liệu định kỳ; bật bằng cấu hình của môi trường, không bao giờ trỏ vào dữ liệu thật.
+
+#### 22b. Bán trú: kiểm thực và an toàn thực phẩm
+
+- Kiểm thực ba bước hằng ngày; lưu, hủy mẫu thức ăn; lô hàng và hạn dùng; hồ sơ, giấy chứng nhận an toàn thực phẩm của nhà cung cấp; chứng từ giao hàng; nhật ký vệ sinh bếp; truy xuất khi có phản ánh; xử lý thực phẩm không đạt.
+- Rà mã tiền ăn (`fees`: tính theo ngày ăn thực tế, hoàn trả, chuyển số dư) trước khi viết phạm vi chi tiết; ghi chênh lệch vào YCTD của phần.
+
+#### 22i. Kế hoạch giáo dục
+
+- Thư viện mẫu kế hoạch (năm học, tổ chuyên môn gồm dự giờ, thao giảng, giáo viên, chủ nhiệm, bài dạy) theo cấp học; phiên bản theo năm, kế thừa năm trước; duyệt nhiều cấp, bốn trạng thái; kí nội bộ; bảng tiến độ duyệt; xuất Word, PDF, Excel.
+
+#### 22d. Thi đua, khen thưởng cán bộ, giáo viên
+
+- Đợt xét; tiêu chí, trọng số có phiên bản; hồ sơ cá nhân và tập thể; kho minh chứng dùng chung với 18e; kết quả KPI của 18d làm đầu vào; hội đồng bình xét; phúc khảo; khiếu nại có hạn; danh hiệu và giấy khen có mã tra cứu; báo cáo nhiều năm. Đọc văn bản gốc về thi đua, khen thưởng trước khi viết phạm vi chi tiết.
+
+#### 22f. Bảo đảm chất lượng, tự đánh giá
+
+- Bộ tiêu chuẩn cấu hình được theo cấp học, trường tự nhập (tiêu chuẩn, tiêu chí, mức, yêu cầu minh chứng); có thể thêm bộ mẫu theo thông tư hiện hành sau khi đọc văn bản gốc.
+- Tự đánh giá từng tiêu chí; minh chứng có mã, bốn trạng thái, kế thừa theo năm học (lấy từ kho hồ sơ 18e); kế hoạch cải tiến nối kế hoạch của Quản lý công việc; báo cáo tự động; theo dõi hiệu lực công nhận. Mở rộng 1.7 đã có (17e).
+
+### 9.5 Quy ước chung của DT-18
+
+- Mỗi phần ghi YCTD giữ sẵn ở mục 9.3, cập nhật tài liệu theo quy ước của kho (02, 07, 08, 10, 11, 14, 16, 17, 21, 23, 24, 32, `index.md` khi có thay đổi tương ứng), chạy đủ kiểm thử đơn vị và e2e, mở PR, gộp khi mọi kiểm tra CI đạt.
+- Căn cứ pháp lý của từng phần phải đọc văn bản gốc trước khi viết phạm vi chi tiết; riêng tài liệu hạn chế phát tán của 18d làm theo mục 9.4.
+- Các điểm chi tiết không nêu ở đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 và ghi vào YCTD của từng phần.
+
+### 9.6 Tiến độ
+
+| Phần | Đợt | Tiến độ |
+|---|---|---|
+| 18a | 1 | Chưa làm |
+| 18d | 1 | Chưa làm |
+| 18b | 2 | Chưa làm, chờ 18a |
+| 18c | 2 | Chưa làm, chờ 18a |
+| 18e | 3 | Chưa làm, chờ đợt 2 |
+| 18g | 3 | Chưa làm |
+| 18f | 4 | Chưa làm, chờ 18b |
+| 18h | 4 | Chưa làm |
+| 22b | 5 | Chưa làm |
+| 22i | 5 | Chưa làm, chờ 18e |
+| 22d | 5 | Chưa làm, chờ 18d, 18e |
+| 22f | 5 | Chưa làm, chờ 18e |
