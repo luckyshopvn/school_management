@@ -20,7 +20,7 @@ import {
   type IntakeRow,
 } from './entry-intake.js';
 
-// DT-17 phần 17d (YCTD-135): Tuyển sinh đầu cấp phần 2 (khảo sát mục 10.2.4). Kịch bản CT-17d-1 đến CT-17d-10
+// DT-17 phần 17d (YCTD-135): Tuyển sinh đầu cấp phần 2 (khảo sát mục 10.2.4). Kịch bản CT-17d-1 đến CT-17d-10, CT-17d-12
 const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1, 2, 3, 4]);
 const randomPhone = () => `09${randomInt(0, 100_000_000).toString().padStart(8, '0')}`;
 let nationalIdCounter = randomInt(0, 1_000_000);
@@ -954,5 +954,68 @@ describe('Tuyển sinh đầu cấp phần 2 (DT-17 phần 17d)', () => {
     assert.equal(template.status, 200);
     const templateRows = await sheetRows(Buffer.from(await template.arrayBuffer()));
     assert.deepEqual(templateRows[0], ROUTING_HEADERS);
+  });
+  it('CT-17d-12: Mở năm học mới chuyển đợt, hồ sơ tiếp nhận chưa xong kèm giấy tờ sang năm mới để chuyển hồ sơ tiếp', async () => {
+    const created = await upload(
+      admissions.accessToken,
+      '/entry-intake/import',
+      { campaign_id: campaigns.unitB ?? '' },
+      await workbook([
+        ROUTING_HEADERS,
+        routingRow({ name: 'Võ Thị Em', nationalId: nextNationalId(), phone: randomPhone(), gender: 'Nữ' }),
+      ]),
+      'phan-tuyen.xlsx',
+    );
+    assert.equal(created.body.created, 1, JSON.stringify(created.body));
+    const em = (await list('intake', `&campaign_id=${campaigns.unitB}`))[0];
+    const attached = await upload(
+      admissions.accessToken,
+      `/entry-intake/applications/${em?.id}/files`,
+      { kind: 'birth_certificate' },
+      PNG,
+      'khai-sinh.png',
+    );
+    assert.equal(attached.status, 201, JSON.stringify(attached.body));
+    await api('PUT', `/entry-intake/campaigns/${campaigns.unitB}`, principal.accessToken, {
+      program_type: 'general',
+      target_academic_year_id: draftYearId,
+    });
+    const saved = await api('PUT', `/academic-years/${draftYearId}/calendar`, principal.accessToken, {
+      first_term: { start_date: '2027-09-05', end_date: '2028-01-15' },
+      second_term: { start_date: '2028-01-18', end_date: '2028-05-25' },
+    });
+    assert.equal(saved.status, 200, JSON.stringify(saved.body));
+    const opened = await api('POST', `/academic-years/${draftYearId}/open`, principal.accessToken);
+    assert.equal(opened.status, 200, JSON.stringify(opened.body));
+    const row = await environment.system
+      .selectFrom('academic_year_databases')
+      .select('database_name')
+      .where('academic_year_id', '=', draftYearId)
+      .executeTakeFirstOrThrow();
+    const next = createDatabase<SchoolYearDatabase>(
+      replaceDatabaseName(environment.systemDatabaseUrl, row.database_name),
+    );
+    try {
+      const carried = await next
+        .selectFrom('admission_applications')
+        .select(['id', 'status', 'source', 'routed'])
+        .where('id', '=', em?.id ?? '')
+        .executeTakeFirstOrThrow();
+      assert.equal(carried.status, 'passed');
+      assert.equal(carried.source, 'routing');
+      const files = await next
+        .selectFrom('admission_application_files')
+        .innerJoin('files', 'files.id', 'admission_application_files.file_id')
+        .select(['admission_application_files.kind', 'files.purpose'])
+        .where('admission_application_files.application_id', '=', em?.id ?? '')
+        .execute();
+      assert.deepEqual(files, [{ kind: 'birth_certificate', purpose: 'admission_document' }]);
+      // Năm học nhận trẻ nay là năm học đang mở: 1.6 đọc được hồ sơ ở năm mới
+      const transfer = await list('transfer', `&campaign_id=${campaigns.unitB}`);
+      assert.equal(transfer[0]?.id, em?.id);
+      assert.equal(transfer[0]?.files.length, 1);
+    } finally {
+      await next.destroy();
+    }
   });
 });

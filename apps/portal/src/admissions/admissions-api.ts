@@ -2,7 +2,8 @@ import { ApiError, requestJson } from '../session/api-client.js';
 
 // Gọi các điểm cuối tuyển sinh (P16; YCTD-86)
 export type CampaignStatus = 'draft' | 'open' | 'closed';
-export type ApplicationStatus = 'submitted' | 'received' | 'passed' | 'rejected' | 'converted';
+// Đã hủy nhập học ở Tuyển sinh đầu cấp (DT-17 phần 17d)
+export type ApplicationStatus = 'submitted' | 'received' | 'passed' | 'rejected' | 'converted' | 'cancelled';
 export type PostStatus = 'draft' | 'published' | 'hidden';
 
 export interface Campaign {
@@ -25,7 +26,7 @@ export interface ApplicationRow {
   code: string;
   campaign_id: string;
   campaign_name: string;
-  source: 'online' | 'staff';
+  source: 'online' | 'staff' | 'routing';
   child_full_name: string;
   child_dob: string;
   guardian_full_name: string;
@@ -80,6 +81,7 @@ export const APPLICATION_STATUS_LABELS: Record<ApplicationStatus, string> = {
   passed: 'Đạt',
   rejected: 'Không đạt',
   converted: 'Đã chuyển hồ sơ học sinh',
+  cancelled: 'Đã hủy nhập học',
 };
 export const POST_STATUS_LABELS: Record<PostStatus, string> = {
   draft: 'Nháp',

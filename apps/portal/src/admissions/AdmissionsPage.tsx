@@ -310,7 +310,16 @@ const APPLICATION_COLUMNS: Array<DataGridColumn<ApplicationRow>> = [
   { id: 'child_full_name', header: 'Học sinh', cell: (row) => row.child_full_name },
   { id: 'child_dob', header: 'Ngày sinh', cell: (row) => row.child_dob },
   { id: 'guardian', header: 'Phụ huynh', cell: (row) => `${row.guardian_full_name} (${row.guardian_phone})` },
-  { id: 'source', header: 'Nguồn', cell: (row) => (row.source === 'online' ? 'Trực tuyến' : 'Tại trường') },
+  {
+    id: 'source',
+    header: 'Nguồn',
+    cell: (row) =>
+      row.source === 'online'
+        ? 'Trực tuyến'
+        : row.source === 'routing'
+          ? 'Phân tuyến (Tuyển sinh đầu cấp)'
+          : 'Tại trường',
+  },
   { id: 'status', header: 'Trạng thái', cell: (row) => APPLICATION_STATUS_LABELS[row.status] },
   { id: 'reject_reason', header: 'Lý do không đạt', hiddenByDefault: true, cell: (row) => row.reject_reason ?? '' },
 ];

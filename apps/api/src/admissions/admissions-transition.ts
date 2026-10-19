@@ -5,8 +5,9 @@ import { APPLICATION_CODE_PREFIX, APPLICATION_DOCUMENT_TYPE } from './admission-
 
 // Mở năm học mới (YCTD-86): chuyển đợt tuyển sinh còn nháp hoặc đang mở cùng tin tuyển sinh của đợt và hồ sơ chưa xong
 // (đã nộp, đã tiếp nhận, đạt) để phụ huynh tra cứu tiếp bằng mã cũ và nhà trường xét, chuyển thành hồ sơ trẻ ở năm mới;
-// lớp dự kiến bỏ trống vì lớp thuộc năm cũ. Đợt đã đóng, hồ sơ không đạt hoặc đã chuyển tra ở năm cũ. Số hồ sơ năm mới
-// đánh tiếp sau mã lớn nhất đã chuyển để không trùng. Chạy sau bước chuyển danh mục và cây đơn vị
+// lớp dự kiến bỏ trống vì lớp thuộc năm cũ; giấy tờ đính kèm của hồ sơ (DT-17 phần 17d) chuyển theo hồ sơ. Đợt đã đóng, hồ
+// sơ không đạt hoặc đã chuyển tra ở năm cũ. Số hồ sơ năm mới đánh tiếp sau mã lớn nhất đã chuyển để không trùng. Chạy sau
+// bước chuyển danh mục và cây đơn vị
 export const admissionsTransitionStep: AcademicYearTransitionStep = {
   name: 'admissions',
   async carryOver(context) {
@@ -40,6 +41,7 @@ export const admissionsTransitionStep: AcademicYearTransitionStep = {
       ).map((row) => row.id),
     );
     let highest = 0;
+    const carried: string[] = [];
     for (const application of await previous
       .selectFrom('admission_applications')
       .selectAll()
@@ -55,9 +57,44 @@ export const admissionsTransitionStep: AcademicYearTransitionStep = {
             application.guardian_relationship_item_id && relationships.has(application.guardian_relationship_item_id)
               ? application.guardian_relationship_item_id
               : null,
+          target_org_unit_id:
+            application.target_org_unit_id && units.has(application.target_org_unit_id)
+              ? application.target_org_unit_id
+              : null,
         })
         .execute();
+      carried.push(application.id);
       highest = Math.max(highest, Number(application.code.slice(APPLICATION_CODE_PREFIX.length + 1)) || 0);
+    }
+    // Giấy tờ của hồ sơ tiếp nhận ở Tuyển sinh đầu cấp (DT-17 phần 17d) đi theo hồ sơ để chuyển sang hồ sơ học sinh ở năm mới;
+    // chỉ chép dòng thông tin tệp, nội dung tệp nằm ở kho tệp dùng chung
+    if (carried.length > 0) {
+      const links = await previous
+        .selectFrom('admission_application_files')
+        .selectAll()
+        .where('application_id', 'in', carried)
+        .execute();
+      if (links.length > 0) {
+        for (const file of await previous
+          .selectFrom('files')
+          .selectAll()
+          .where(
+            'id',
+            'in',
+            links.map((link) => link.file_id),
+          )
+          .execute()) {
+          await next
+            .insertInto('files')
+            .values({
+              ...file,
+              org_unit_id:
+                file.org_unit_id && units.has(file.org_unit_id) ? file.org_unit_id : campaigns[0]!.org_unit_id,
+            })
+            .execute();
+        }
+        await next.insertInto('admission_application_files').values(links).execute();
+      }
     }
     if (highest > 0) {
       await next
