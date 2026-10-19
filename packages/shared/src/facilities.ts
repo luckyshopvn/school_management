@@ -200,6 +200,23 @@ export const SCHOOL_OWNERSHIP_TYPES = [
 
 export type SchoolOwnershipType = (typeof SCHOOL_OWNERSHIP_TYPES)[number]['value'];
 
+// Mức độ chuẩn quốc gia (Thông tư 19/2018/TT-BGDĐT: mức độ 1, 2) và cấp độ kiểm định CLGD (cấp độ 1 đến 4) của hồ sơ trường
+// và 1.7 (DT-17 phần 17e)
+export const NATIONAL_STANDARD_LEVELS = [
+  { value: '1', label: 'Mức độ 1' },
+  { value: '2', label: 'Mức độ 2' },
+] as const satisfies ReadonlyArray<CodeLabel>;
+
+export const ACCREDITATION_LEVELS = [
+  { value: '1', label: 'Cấp độ 1' },
+  { value: '2', label: 'Cấp độ 2' },
+  { value: '3', label: 'Cấp độ 3' },
+  { value: '4', label: 'Cấp độ 4' },
+] as const satisfies ReadonlyArray<CodeLabel>;
+
+// Năm công nhận hợp lệ của hồ sơ trường và 1.7
+export const RECOGNITION_YEAR_RANGE = { min: 1900, max: 2100 } as const;
+
 const flag = (key: string, label: string): ProfileField => ({ key, label, kind: 'boolean' });
 
 // Sáu thẻ của hồ sơ trường (khảo sát mục 3.1, dòng 1.1). Thẻ tài khoản văn phòng điện tử là bảng nhiều dòng, không lưu mật
@@ -245,6 +262,16 @@ export const SCHOOL_PROFILE_SECTIONS: ReadonlyArray<{
       { key: 'website', label: 'Trang thông tin điện tử', kind: 'text' },
       { key: 'land_area_m2', label: 'Diện tích đất (m²)', kind: 'number' },
       { key: 'building_area_m2', label: 'Diện tích xây dựng (m²)', kind: 'number' },
+      // Chuẩn quốc gia, kiểm định CLGD, diện tích sàn xây dựng cho 1.7 và EMIS (DT-17 phần 17e, khảo sát mục 10.5); khóa
+      // cố định để báo cáo EMIS (17a) đọc
+      { key: 'floor_area_m2', label: 'Diện tích sàn xây dựng (m²)', kind: 'number' },
+      { key: 'national_standard_level', label: 'Chuẩn quốc gia mức độ', kind: 'choice', options: NATIONAL_STANDARD_LEVELS },
+      { key: 'national_standard_year', label: 'Năm công nhận chuẩn quốc gia', kind: 'integer' },
+      { key: 'national_standard_date', label: 'Ngày công nhận chuẩn quốc gia', kind: 'date' },
+      { key: 'national_standard_registration', label: 'Thời điểm đăng ký chuẩn quốc gia', kind: 'text' },
+      { key: 'accreditation_level', label: 'Kiểm định CLGD cấp độ', kind: 'choice', options: ACCREDITATION_LEVELS },
+      { key: 'accreditation_year', label: 'Năm công nhận kiểm định CLGD', kind: 'integer' },
+      { key: 'accreditation_date', label: 'Ngày công nhận kiểm định CLGD', kind: 'date' },
       { key: 'decision_number', label: 'Số quyết định thành lập', kind: 'text' },
       { key: 'decision_date', label: 'Ngày quyết định thành lập', kind: 'date' },
       { key: 'decision_authority', label: 'Cơ quan cấp quyết định', kind: 'text' },
