@@ -7,10 +7,20 @@ import type {
   SystemDatabase,
 } from '@school-management/database';
 import { ApplicationError, Clock, ruleViolationError, validationError } from '@school-management/server';
-import { PERMISSION_CODES, SIGNING_OBJECT_LABELS, SIGNING_SIGNATURE_TYPE_LABELS } from '@school-management/shared';
+import {
+  isSigningProvider,
+  PERMISSION_CODES,
+  SIGNING_DOSSIER_ROOTS,
+  SIGNING_HIDDEN_OBJECT_TYPES,
+  SIGNING_IDENTITY_OBJECT_TYPES,
+  SIGNING_OBJECT_LABELS,
+  SIGNING_SIGNATURE_TYPE_LABELS,
+  type SigningDocument,
+} from '@school-management/shared';
 import { sql, type Kysely, type Transaction } from 'kysely';
 import { createHash, randomUUID } from 'node:crypto';
 import type { CurrentUser } from '../authentication/current-user.js';
+import { ChildDataProtection } from '../common/child-data-protection.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
 import { notFoundError } from '../common/request-fields.js';
@@ -18,13 +28,17 @@ import { buildPdf, CONTENT_TYPES, type TableFileSheet } from '../exports/table-f
 import { buildFacilitiesWorkbook, fileStamp, type ExportedFile } from '../facilities/facilities-workbook.js';
 import { FileStorage } from '../files/file-storage.js';
 import { DossierSigner, withHeading } from './dossier-signer.js';
+import { DossierXmlWriter } from './dossier-xml.js';
 import {
   buildDossierContent,
+  classLogRows,
   CLASS_LOG_COLUMNS,
   contentHash,
   describeChanges,
+  documentSheets,
   dossierTitle,
   listSigningObjects,
+  sheetsDocument,
 } from './signing-content.js';
 
 // Phân hệ Quản lý kí hồ sơ (mục 6 của Sở), bản chạy nội bộ (DT-16 phần 16k; quyết định của Eric ngày 2026-10-16: tính năng
@@ -37,12 +51,20 @@ import {
 // - Tải thông tin thay đổi: so dữ liệu hiện tại với số liệu đã lập hồ sơ, ghi ngày thay đổi và nội dung khác biệt;
 // - Hủy hồ sơ (chưa xác nhận hoàn thành) để tạo lại; Xác nhận hoàn thành hồ sơ đã kí, khóa hồ sơ; Hủy xác nhận khi chưa gửi;
 // - Đánh dấu đã gửi: phần mềm không truyền hồ sơ lên cấp trên; người dùng tải tệp đã kí, nộp bằng tay rồi đánh dấu kèm ngày.
-// Mọi thao tác cần phạm vi toàn trường; lịch sử ghi ở signing_events
+// Mọi thao tác cần phạm vi toàn trường; lịch sử ghi ở signing_events.
+// DT-17 phần 17b (YCTD-133) chỉnh theo bốn mẫu thật của Sở: nội dung theo phần và mục của Sở, thêm tệp dữ liệu XML, kiểu chữ
+// ký và nhà phát hành theo biểu mẫu đăng ký của Sở, đối tượng tạo hồ sơ không được ghi lý do ("Tải file lỗi"), không tạo hồ
+// sơ sổ đầu bài mới ở cấp Mầm non. Hồ sơ nhân sự, học sinh in đủ số định danh, CCCD, sổ BHXH theo mẫu (quyết định của Eric
+// ngày 2026-10-19, ngoại lệ có kiểm soát của quy định che số ở YCTD-13): chỉ người có quyền xem số định danh ở phạm vi toàn
+// trường tạo, xem, tải, tải thông tin thay đổi của hai loại hồ sơ này
 export const SIGNING_RULE_CODE = 'YCTD-130';
+export const SIGNING_SO_RULE_CODE = 'YCTD-133';
 const VIEW = PERMISSION_CODES.signingView;
 const MANAGE = PERMISSION_CODES.signingManage;
 const SIGN = PERMISSION_CODES.signingSign;
 const CERTIFICATE = PERMISSION_CODES.signingCertificate;
+const NATIONAL_ID = PERMISSION_CODES.nationalIdView;
+export const CONTENT_TYPE_XML = 'application/xml; charset=utf-8';
 export const MAXIMUM_SEAL_BYTES = 1024 * 1024;
 export const MAXIMUM_BATCH = 500;
 const VIETNAM_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
@@ -100,9 +122,22 @@ const DOSSIER_COLUMNS = [
   'cancelled_by_name',
   'cancel_reason',
   'updated_at',
+  'xml_file_name',
+  'xml_sha256',
+  'note',
 ] as const;
 
 const sha256 = (body: Buffer) => createHash('sha256').update(body).digest('hex');
+
+// Số liệu đã lập hồ sơ: từ phần 17b lưu nội dung theo phần và mục; hồ sơ của 16k chỉ lưu bảng của tệp PDF
+interface DossierSnapshot {
+  title: string;
+  document?: SigningDocument;
+  sheets?: TableFileSheet[];
+}
+
+const snapshotSheets = (snapshot: DossierSnapshot) =>
+  snapshot.sheets ?? (snapshot.document ? documentSheets(snapshot.document) : []);
 
 function detectImage(body: Buffer): string | undefined {
   return IMAGE_SIGNATURES.find((signature) => signature.bytes.every((byte, index) => body[index] === byte))
@@ -116,8 +151,26 @@ export class SigningService {
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly fileStorage: FileStorage,
     private readonly signer: DossierSigner,
+    private readonly xmlWriter: DossierXmlWriter,
+    private readonly protection: ChildDataProtection,
     private readonly clock: Clock,
   ) {}
+
+  private readonly decrypt = (encoded: string) => this.protection.decrypt(encoded);
+
+  // Hồ sơ nhân sự, học sinh in đủ số định danh: cần thêm quyền xem số định danh ở phạm vi toàn trường
+  private canSeeIdentity(currentUser: CurrentUser): boolean {
+    return currentUser.organizationScope(NATIONAL_ID).wholeSchool;
+  }
+
+  private assertIdentity(currentUser: CurrentUser, type: SigningObjectType): void {
+    if (SIGNING_IDENTITY_OBJECT_TYPES.includes(type) && !this.canSeeIdentity(currentUser)) {
+      throw new ApplicationError(
+        'ERR_FORBIDDEN',
+        `${SIGNING_OBJECT_LABELS[type]} in đủ số định danh, số CCCD: cần quyền xem số định danh cá nhân ở phạm vi toàn trường`,
+      );
+    }
+  }
 
   private get system(): Kysely<SystemDatabase> {
     return this.databases.system;
@@ -185,6 +238,9 @@ export class SigningService {
           .execute()
       : [];
     return {
+      school: await this.schoolInfo(),
+      // Nhà phát hành nhập tự do ở 16k ngoài năm giá trị của Sở: giữ lại, hiện cảnh báo, chọn lại mới đăng ký được
+      provider_in_list: !row?.provider || isSigningProvider(row.provider),
       signature_type: row?.signature_type ?? 'remote',
       provider: row?.provider ?? null,
       login_name: row?.login_name ?? null,
@@ -209,6 +265,38 @@ export class SigningService {
       signer_description: this.signer.description,
       events,
     };
+  }
+
+  // Mã trường, tên trường, email, website hiện ở 1.1 và 2.1 như Sở; tên hiệu trưởng dùng cho lưới 2.2, 2.3
+  // Chưa có năm học hoặc chưa có Trường chính thì để trống
+  private async schoolInfo() {
+    const empty = { code: null, name: null, principal_name: null, email: null, website: null };
+    try {
+      const { academicYearId, database } = await this.currentSchoolYear.require();
+      const [school] = await listSigningObjects(database, academicYearId, 'school');
+      if (!school) {
+        return empty;
+      }
+      const profile = await database
+        .selectFrom('school_profiles')
+        .select('general')
+        .where('org_unit_id', '=', school.object_id)
+        .executeTakeFirst();
+      const general = (profile?.general ?? {}) as Record<string, unknown>;
+      const text = (value: unknown) => (typeof value === 'string' && value.trim() ? value.trim() : null);
+      return {
+        code: school.code,
+        name: school.object_label,
+        principal_name: school.principal_name,
+        email: text(general.email),
+        website: text(general.website),
+      };
+    } catch (error) {
+      if (error instanceof ApplicationError) {
+        return empty;
+      }
+      throw error;
+    }
   }
 
   private assertEditableCertificate(status: string): void {
@@ -239,7 +327,8 @@ export class SigningService {
   }
 
   // Đăng ký kí nội bộ: chứng thư dùng được cho nút "Kí xác nhận nội bộ" khi đủ người đứng tên, nhà phát hành, còn hiệu lực
-  async registerCertificate(currentUser: CurrentUser) {
+  // Lý do ghi vào lịch sử yêu cầu đăng ký chứng thư số cùng kiểu chữ ký, nhà phát hành, tên đăng nhập (như biểu mẫu của Sở)
+  async registerCertificate(currentUser: CurrentUser, reason: string | null = null) {
     this.assertAny(currentUser, [CERTIFICATE], 'Bạn không có quyền đăng ký chứng thư số nhà trường');
     const row = await this.ensureCertificate();
     if (row.status === 'registered') {
@@ -247,10 +336,18 @@ export class SigningService {
     }
     const missing = [
       !row.holder_name ? { field: 'holder_name', message: 'Nhập người đứng tên chứng thư rồi bấm Ghi' } : null,
-      !row.provider ? { field: 'provider', message: 'Nhập nhà phát hành chứng thư rồi bấm Ghi' } : null,
+      !row.provider ? { field: 'provider', message: 'Chọn nhà phát hành chứng thư rồi bấm Ghi' } : null,
+      !row.login_name ? { field: 'login_name', message: 'Nhập tên đăng nhập rồi bấm Ghi' } : null,
     ].filter((item): item is { field: string; message: string } => item !== null);
     if (missing.length > 0) {
       throw ruleViolationError(SIGNING_RULE_CODE, 'Chưa đủ thông tin chứng thư để đăng ký', missing);
+    }
+    if (!isSigningProvider(row.provider)) {
+      throw ruleViolationError(
+        SIGNING_SO_RULE_CODE,
+        `Nhà phát hành "${row.provider}" không có trong danh sách của Sở; chọn lại nhà phát hành rồi bấm Ghi`,
+        [{ field: 'provider', message: 'Chọn VNPT-CA, BkavCA, VIETTEL, Ban Cơ yếu Chính phủ hoặc MISA' }],
+      );
     }
     if (row.valid_to && row.valid_to < this.today()) {
       throw ruleViolationError(SIGNING_RULE_CODE, 'Chứng thư đã hết hiệu lực; cập nhật ngày hết hiệu lực trước');
@@ -268,7 +365,15 @@ export class SigningService {
         })
         .where('id', '=', row.id)
         .execute();
-      await this.event(transaction, null, 'certificate_register', null, currentUser);
+      await this.event(
+        transaction,
+        null,
+        'certificate_register',
+        [SIGNING_SIGNATURE_TYPE_LABELS[row.signature_type], row.provider, row.login_name, reason]
+          .filter(Boolean)
+          .join(' – '),
+        currentUser,
+      );
     });
     return this.certificate(currentUser);
   }
@@ -419,31 +524,55 @@ export class SigningService {
 
   // ---- 2.2 Kí hồ sơ trường, lớp, nhân sự, học sinh ----
 
-  // Đối tượng của một loại kèm hồ sơ chưa hủy (nếu có) trong năm học đang dùng; sổ đầu bài theo tháng
+  // Đối tượng của một loại kèm hồ sơ chưa hủy (nếu có) trong năm học đang dùng và lý do của lần tạo hồ sơ không được gần nhất;
+  // sổ đầu bài theo tháng
   async objects(currentUser: CurrentUser, type: SigningObjectType, period: string) {
     this.assertAny(currentUser, [VIEW, MANAGE, SIGN], 'Bạn không có quyền xem hồ sơ kí');
     const { academicYearId, database } = await this.currentSchoolYear.require();
-    const [objects, dossiers] = await Promise.all([
+    const month = type === 'class_log' ? period : '';
+    const [objects, dossiers, errors] = await Promise.all([
       listSigningObjects(database, academicYearId, type),
       this.system
         .selectFrom('signing_dossiers')
         .select(DOSSIER_COLUMNS)
         .where('academic_year_id', '=', academicYearId)
         .where('object_type', '=', type)
-        .where('period', '=', type === 'class_log' ? period : '')
+        .where('period', '=', month)
         .where('status', 'in', ACTIVE_STATUSES)
         .execute(),
+      this.createErrors(academicYearId, type, month),
     ]);
     const byObject = new Map(dossiers.map((dossier) => [dossier.object_id, dossier]));
-    return objects.map((object) => ({ ...object, dossier: byObject.get(object.object_id) ?? null }));
+    const errorOf = new Map(errors.map((error) => [error.object_id, error]));
+    return objects.map((object) => ({
+      ...object,
+      dossier: byObject.get(object.object_id) ?? null,
+      create_error: byObject.has(object.object_id) ? null : (errorOf.get(object.object_id)?.reason ?? null),
+    }));
   }
 
-  private async heading(academicYearId: string, title: string, code: string, at: Date): Promise<string[]> {
+  private createErrors(academicYearId: string, type: SigningObjectType, period: string) {
+    return this.system
+      .selectFrom('signing_create_errors')
+      .select(['object_id', 'object_label', 'reason', 'created_by_name', 'created_at'])
+      .where('academic_year_id', '=', academicYearId)
+      .where('object_type', '=', type)
+      .where('period', '=', period)
+      .orderBy('object_label')
+      .execute();
+  }
+
+  private async yearName(academicYearId: string): Promise<string | null> {
     const year = await this.system
       .selectFrom('academic_years')
       .select('name')
       .where('id', '=', academicYearId)
       .executeTakeFirst();
+    return year?.name ?? null;
+  }
+
+  private async heading(academicYearId: string, title: string, code: string, at: Date): Promise<string[]> {
+    const year = await this.yearName(academicYearId);
     const { database } = await this.currentSchoolYear.require();
     const root = await database
       .selectFrom('org_units')
@@ -452,16 +581,26 @@ export class SigningService {
       .executeTakeFirst();
     return [
       title,
-      [root?.name, year ? `Năm học ${year.name}` : null].filter(Boolean).join(' – '),
+      [root?.name, year ? `Năm học ${year}` : null].filter(Boolean).join(' – '),
       `Mã định danh hồ sơ: ${code} – lập lúc ${VIETNAM_TIME.format(at)}`,
     ];
   }
 
+  // Tạo hồ sơ cho các đối tượng chọn: đối tượng thiếu mục bắt buộc thì không tạo, ghi lý do để hiện ở cột Ghi chú và "Tải
+  // file lỗi"; các đối tượng còn lại vẫn tạo. Không đối tượng nào tạo được thì báo lỗi kèm lý do từng đối tượng. Mỗi hồ sơ
+  // có tệp PDF và tệp dữ liệu XML lập từ cùng số liệu
   async create(
     currentUser: CurrentUser,
-    input: { objectType: SigningObjectType; objectIds: string[]; period: string },
+    input: { objectType: SigningObjectType; objectIds: string[]; period: string; note?: string | null },
   ) {
     this.assertAny(currentUser, [MANAGE], 'Bạn không có quyền tạo hồ sơ kí');
+    if (SIGNING_HIDDEN_OBJECT_TYPES.includes(input.objectType)) {
+      throw ruleViolationError(
+        SIGNING_SO_RULE_CODE,
+        'Cấp Mầm non không kí sổ đầu bài: không tạo hồ sơ sổ đầu bài mới; hồ sơ đã có vẫn xem, tải, xác nhận được',
+      );
+    }
+    this.assertIdentity(currentUser, input.objectType);
     const { academicYearId, database } = await this.currentSchoolYear.require();
     const period = input.objectType === 'class_log' ? input.period : '';
     const existing = await this.system
@@ -479,32 +618,78 @@ export class SigningService {
         `Đã có hồ sơ chưa hủy: ${existing.map((item) => `${item.object_label} (${item.code})`).join(', ')}; hủy hồ sơ cũ trước khi tạo lại`,
       );
     }
-    // Lập số liệu của mọi đối tượng trước khi ghi để một đối tượng lỗi thì không tạo hồ sơ nào
+    // Lập số liệu của mọi đối tượng trước khi ghi; đối tượng không có trong dữ liệu thì báo không tìm thấy
     const contents = [];
     for (const objectId of input.objectIds) {
       contents.push({
         objectId,
-        content: await buildDossierContent(database, academicYearId, input.objectType, objectId, period),
+        content: await buildDossierContent(
+          database,
+          academicYearId,
+          input.objectType,
+          objectId,
+          period,
+          this.decrypt,
+        ),
       });
     }
+    const errors = contents
+      .filter(({ content }) => content.missing.length > 0)
+      .map(({ objectId, content }) => ({
+        object_id: objectId,
+        object_label: content.label,
+        reason: `Thiếu mục bắt buộc: ${content.missing.join(', ')}`,
+      }));
+    for (const error of errors) {
+      await this.system
+        .insertInto('signing_create_errors')
+        .values({
+          academic_year_id: academicYearId,
+          object_type: input.objectType,
+          object_id: error.object_id,
+          period,
+          object_label: error.object_label,
+          reason: error.reason,
+          created_by: currentUser.id,
+          created_by_name: currentUser.description.full_name,
+        })
+        .onConflict((conflict) =>
+          conflict.constraint('signing_create_errors_object_unique').doUpdateSet({
+            object_label: error.object_label,
+            reason: error.reason,
+            created_by: currentUser.id,
+            created_by_name: currentUser.description.full_name,
+            created_at: this.clock.now(),
+          }),
+        )
+        .execute();
+    }
+    if (errors.length === contents.length) {
+      throw ruleViolationError(
+        SIGNING_SO_RULE_CODE,
+        'Không tạo được hồ sơ nào; xem lý do ở cột Ghi chú hoặc bấm "Tải file lỗi"',
+        errors.map((error) => ({ field: 'object_ids', message: `${error.object_label}: ${error.reason}` })),
+      );
+    }
+    const yearName = await this.yearName(academicYearId);
     const created: string[] = [];
-    for (const { objectId, content } of contents) {
+    for (const { objectId, content } of contents.filter((item) => item.content.missing.length === 0)) {
       const now = this.clock.now();
       const sequence = await sql<{ value: string }>`select nextval('signing_dossier_code') as value`.execute(
         this.system,
       );
       const code = `KHS-${String(sequence.rows[0]?.value ?? '0').padStart(6, '0')}`;
       const title = dossierTitle(input.objectType, content.label);
-      const pdf = await buildPdf(
-        withHeading(content.sheets, await this.heading(academicYearId, title, code, now)),
-        now,
-        {
-          orientation: 'portrait',
-          subject: title,
-        },
-      );
+      const sheets = documentSheets(content.document);
+      const pdf = await buildPdf(withHeading(sheets, await this.heading(academicYearId, title, code, now)), now, {
+        orientation: 'portrait',
+        subject: title,
+      });
+      const xml = this.xmlWriter.write({ code, academicYearName: yearName, createdAt: now, document: content.document });
       const storageKey = `signing-dossier/${randomUUID()}`;
+      const xmlStorageKey = `signing-dossier/${randomUUID()}`;
       await this.fileStorage.put(storageKey, pdf, CONTENT_TYPES.pdf);
+      await this.fileStorage.put(xmlStorageKey, xml, CONTENT_TYPE_XML);
       try {
         await this.system.transaction().execute(async (transaction) => {
           const row = await transaction
@@ -516,26 +701,81 @@ export class SigningService {
               object_id: objectId,
               period,
               object_label: content.label,
-              snapshot: JSON.stringify({ title, sheets: content.sheets }),
-              content_hash: contentHash(content.sheets),
+              snapshot: JSON.stringify({ title, document: content.document } satisfies DossierSnapshot),
+              content_hash: contentHash(sheets),
               file_name: `${code}.pdf`,
               storage_key: storageKey,
               file_sha256: sha256(pdf),
               size_bytes: pdf.length,
+              xml_file_name: `${code}.xml`,
+              xml_storage_key: xmlStorageKey,
+              xml_sha256: sha256(xml),
+              xml_size_bytes: xml.length,
+              note: input.note ?? null,
               created_by: currentUser.id,
               created_by_name: currentUser.description.full_name,
             })
             .returning('id')
             .executeTakeFirstOrThrow();
+          await transaction
+            .deleteFrom('signing_create_errors')
+            .where('academic_year_id', '=', academicYearId)
+            .where('object_type', '=', input.objectType)
+            .where('object_id', '=', objectId)
+            .where('period', '=', period)
+            .execute();
           await this.event(transaction, row.id, 'create', title, currentUser);
         });
       } catch (error) {
         await this.fileStorage.delete(storageKey);
+        await this.fileStorage.delete(xmlStorageKey);
         throw error;
       }
       created.push(code);
     }
-    return { created: created.length, codes: created };
+    return { created: created.length, codes: created, errors };
+  }
+
+  // "Tải file lỗi": đối tượng tạo hồ sơ không được của loại đang xem kèm lý do
+  async createErrorFile(
+    currentUser: CurrentUser,
+    type: SigningObjectType,
+    period: string,
+    ipAddress: string | null,
+  ): Promise<ExportedFile> {
+    this.assertAny(currentUser, [VIEW, MANAGE, SIGN], 'Bạn không có quyền tải file lỗi của hồ sơ kí');
+    const { academicYearId, database } = await this.currentSchoolYear.require();
+    const month = type === 'class_log' ? period : '';
+    const errors = await this.createErrors(academicYearId, type, month);
+    const createdAt = this.clock.now();
+    return buildFacilitiesWorkbook({
+      database,
+      currentUser,
+      reportCode: 'signing-create-errors',
+      fileName: `loi-tao-ho-so-${type}-${fileStamp(createdAt)}.xlsx`,
+      filters: { object_type: type, ...(month ? { period: month } : {}) },
+      orgUnitIds: [],
+      ipAddress,
+      createdAt,
+      sheets: [
+        {
+          title: 'Lỗi tạo hồ sơ',
+          heading: [`${SIGNING_OBJECT_LABELS[type]}: đối tượng tạo hồ sơ không được`],
+          columns: [
+            { key: 'label', label: 'Đối tượng', width: 36 },
+            { key: 'reason', label: 'Lý do', width: 70 },
+            { key: 'actor', label: 'Người tạo', width: 24 },
+            { key: 'at', label: 'Thời điểm', width: 20 },
+          ],
+          rows: errors.map((error) => ({
+            label: error.object_label,
+            reason: error.reason,
+            actor: error.created_by_name,
+            at: VIETNAM_TIME.format(error.created_at),
+          })),
+        },
+      ],
+    });
   }
 
   private async dossiers(ids: string[]) {
@@ -576,6 +816,12 @@ export class SigningService {
     if (certificate.valid_to && certificate.valid_to < this.today()) {
       throw ruleViolationError(SIGNING_RULE_CODE, 'Chứng thư số nhà trường đã hết hiệu lực');
     }
+    if (!isSigningProvider(certificate.provider)) {
+      throw ruleViolationError(
+        SIGNING_SO_RULE_CODE,
+        'Nhà phát hành chứng thư không có trong danh sách của Sở; hủy đăng ký, chọn lại nhà phát hành rồi đăng ký lại (mục 1.1)',
+      );
+    }
     const rows = await this.dossiers(ids);
     this.assertStatus(rows, ['created'], 'Chỉ kí hồ sơ đã tạo, chưa kí');
     const sealImage =
@@ -583,13 +829,13 @@ export class SigningService {
         ? `data:${certificate.seal_content_type};base64,${(await this.fileStorage.get(certificate.seal_storage_key)).toString('base64')}`
         : null;
     for (const row of rows) {
-      const snapshot = row.snapshot as { title: string; sheets: TableFileSheet[] };
+      const snapshot = row.snapshot as DossierSnapshot;
       const signedAt = this.clock.now();
       const result = await this.signer.sign({
         code: row.code,
         title: snapshot.title,
         heading: await this.heading(row.academic_year_id, snapshot.title, row.code, row.created_at),
-        sheets: snapshot.sheets,
+        sheets: snapshotSheets(snapshot),
         originalPdf: await this.fileStorage.get(row.storage_key),
         originalSha256: row.file_sha256,
         signedAt,
@@ -646,6 +892,9 @@ export class SigningService {
     this.assertAny(currentUser, [MANAGE], 'Bạn không có quyền tải thông tin thay đổi của hồ sơ');
     const { database } = await this.currentSchoolYear.require();
     const rows = await this.dossiers(ids);
+    for (const type of new Set(rows.map((row) => row.object_type))) {
+      this.assertIdentity(currentUser, type);
+    }
     this.assertStatus(rows, ACTIVE_STATUSES, 'Hồ sơ đã hủy');
     const results = [];
     for (const row of rows) {
@@ -658,12 +907,17 @@ export class SigningService {
           row.object_type,
           row.object_id,
           row.period,
+          this.decrypt,
         );
-        const before = (row.snapshot as { sheets: TableFileSheet[] }).sheets;
+        const snapshot = row.snapshot as DossierSnapshot;
+        const sheets = documentSheets(current.document);
+        // Hồ sơ lập trước phần 17b theo mẫu cũ nên luôn khác mẫu của Sở; ghi rõ để người dùng tạo lại
         summary =
-          contentHash(current.sheets) === row.content_hash
+          contentHash(sheets) === row.content_hash
             ? null
-            : (describeChanges(before, current.sheets) ?? 'Dữ liệu có thay đổi');
+            : snapshot.document
+              ? (describeChanges(snapshotSheets(snapshot), sheets) ?? 'Dữ liệu có thay đổi')
+              : 'Hồ sơ lập theo mẫu cũ (trước khi theo mẫu của Sở); hủy và tạo lại hồ sơ để theo mẫu mới';
       } catch (error) {
         if (!(error instanceof ApplicationError) || error.code !== 'ERR_NOT_FOUND') {
           throw error;
@@ -726,7 +980,12 @@ export class SigningService {
     if (filter.objectType) {
       query = query.where('object_type', '=', filter.objectType);
     }
-    return query.orderBy('signed_at', 'desc').orderBy('code', 'desc').execute();
+    // Tên trường, tên hiệu trưởng là cột của lưới 2.3 như Sở
+    const [items, school] = await Promise.all([
+      query.orderBy('signed_at', 'desc').orderBy('code', 'desc').execute(),
+      this.schoolInfo(),
+    ]);
+    return { items, school };
   }
 
   async complete(currentUser: CurrentUser, ids: string[]) {
@@ -838,31 +1097,21 @@ export class SigningService {
     return { ...row, events };
   }
 
-  // Tệp hồ sơ: bản đã kí (nếu có) hoặc bản gốc; mỗi lần tải ghi nhật ký xuất ở năm học đang dùng (BR-74)
-  async file(
+  private async exportLog(
     currentUser: CurrentUser,
-    id: string,
-    version: 'original' | 'signed',
+    row: { code: string; object_type: SigningObjectType },
+    version: string,
+    fileName: string,
     ipAddress: string | null,
-  ): Promise<ExportedFile> {
-    this.assertAny(currentUser, [VIEW, MANAGE, SIGN], 'Bạn không có quyền tải tệp hồ sơ');
-    const row = await this.system.selectFrom('signing_dossiers').selectAll().where('id', '=', id).executeTakeFirst();
-    if (!row) {
-      throw notFoundError('Không có hồ sơ này', 'signing_dossier');
-    }
-    const signed = version === 'signed';
-    if (signed && !row.signed_storage_key) {
-      throw ruleViolationError(SIGNING_RULE_CODE, 'Hồ sơ chưa kí nên chưa có tệp đã kí');
-    }
-    const storageKey = signed ? row.signed_storage_key! : row.storage_key;
-    const fileName = signed ? row.signed_file_name! : row.file_name;
+    reportCode = 'signing-dossier',
+  ): Promise<string> {
     const { database } = await this.currentSchoolYear.require();
     const log = await database
       .insertInto('export_logs')
       .values({
         user_id: currentUser.id,
         actor_name: currentUser.description.full_name,
-        report_code: 'signing-dossier',
+        report_code: reportCode,
         filters_data: JSON.stringify({ dossier: row.code, version }),
         org_unit_ids: [],
         row_count: 1,
@@ -872,16 +1121,84 @@ export class SigningService {
       })
       .returning('id')
       .executeTakeFirstOrThrow();
+    return log.id;
+  }
+
+  // Tệp hồ sơ: bản đã kí (nếu có), bản gốc hoặc tệp dữ liệu XML; mỗi lần tải ghi nhật ký xuất ở năm học đang dùng (BR-74)
+  async file(
+    currentUser: CurrentUser,
+    id: string,
+    version: 'original' | 'signed' | 'xml',
+    ipAddress: string | null,
+  ): Promise<ExportedFile> {
+    this.assertAny(currentUser, [VIEW, MANAGE, SIGN], 'Bạn không có quyền tải tệp hồ sơ');
+    const row = await this.system.selectFrom('signing_dossiers').selectAll().where('id', '=', id).executeTakeFirst();
+    if (!row) {
+      throw notFoundError('Không có hồ sơ này', 'signing_dossier');
+    }
+    this.assertIdentity(currentUser, row.object_type);
+    if (version === 'signed' && !row.signed_storage_key) {
+      throw ruleViolationError(SIGNING_RULE_CODE, 'Hồ sơ chưa kí nên chưa có tệp đã kí');
+    }
+    if (version === 'xml' && !row.xml_storage_key) {
+      throw ruleViolationError(
+        SIGNING_SO_RULE_CODE,
+        'Hồ sơ lập trước khi theo mẫu của Sở nên không có tệp dữ liệu XML; hủy và tạo lại hồ sơ',
+      );
+    }
+    const storageKey =
+      version === 'signed' ? row.signed_storage_key! : version === 'xml' ? row.xml_storage_key! : row.storage_key;
+    const fileName =
+      version === 'signed' ? row.signed_file_name! : version === 'xml' ? row.xml_file_name! : row.file_name;
+    const logId = await this.exportLog(currentUser, row, version, fileName, ipAddress);
     return {
       buffer: await this.fileStorage.get(storageKey),
       fileName,
-      logId: log.id,
-      contentType: CONTENT_TYPES.pdf,
+      logId,
+      contentType: version === 'xml' ? CONTENT_TYPE_XML : CONTENT_TYPES.pdf,
       rowCount: 1,
     };
   }
 
-  // Xuất dữ liệu sổ đầu bài của lớp trong tháng ra Excel
+  // Cửa sổ "Xem hồ sơ kí": khung "Thông tin chữ ký số" (người kí, thời điểm, chứng thư, mã băm) và nội dung hồ sơ theo phần và
+  // mục đã lập; hồ sơ nhân sự, học sinh có số định danh nên mỗi lần xem ghi nhật ký xuất như tải tệp
+  async view(currentUser: CurrentUser, id: string, ipAddress: string | null) {
+    this.assertAny(currentUser, [VIEW, MANAGE, SIGN], 'Bạn không có quyền xem hồ sơ kí');
+    const row = await this.system.selectFrom('signing_dossiers').selectAll().where('id', '=', id).executeTakeFirst();
+    if (!row) {
+      throw notFoundError('Không có hồ sơ này', 'signing_dossier');
+    }
+    this.assertIdentity(currentUser, row.object_type);
+    const snapshot = row.snapshot as DossierSnapshot;
+    const document = snapshot.document ?? sheetsDocument(row.object_type, snapshot.title, snapshot.sheets ?? []);
+    if (row.object_type !== 'school' && row.object_type !== 'class') {
+      await this.exportLog(currentUser, row, 'view', row.code, ipAddress, 'signing-dossier-view');
+    }
+    const certificate = row.signed_at ? await this.certificateRow() : undefined;
+    return {
+      dossier: Object.fromEntries(DOSSIER_COLUMNS.map((column) => [column, row[column]])),
+      root: SIGNING_DOSSIER_ROOTS[row.object_type],
+      document,
+      signature: row.signed_at
+        ? {
+            signed_by_name: row.signed_by_name,
+            signed_at: row.signed_at,
+            method: row.signature_method,
+            digital: this.signer.digital,
+            description: this.signer.description,
+            signature_type: certificate?.signature_type ?? null,
+            provider: certificate?.provider ?? null,
+            holder_name: certificate?.holder_name ?? null,
+            serial_number: certificate?.serial_number ?? null,
+            original_sha256: row.file_sha256,
+            signed_sha256: row.signed_sha256,
+          }
+        : null,
+      xml_schema: row.xml_storage_key ? this.xmlWriter.schema : null,
+    };
+  }
+
+  // Xuất dữ liệu sổ đầu bài của lớp trong tháng ra Excel (cấp Mầm non ẩn nút này từ phần 17b; giữ cho cấp học khác)
   async exportClassLog(
     currentUser: CurrentUser,
     classId: string,
@@ -890,7 +1207,7 @@ export class SigningService {
   ): Promise<ExportedFile> {
     this.assertAny(currentUser, [VIEW, MANAGE, SIGN], 'Bạn không có quyền xuất dữ liệu sổ đầu bài');
     const { academicYearId, database } = await this.currentSchoolYear.require();
-    const content = await buildDossierContent(database, academicYearId, 'class_log', classId, month);
+    const content = await buildDossierContent(database, academicYearId, 'class_log', classId, month, this.decrypt);
     const createdAt = this.clock.now();
     return buildFacilitiesWorkbook({
       database,
@@ -906,7 +1223,7 @@ export class SigningService {
           title: 'Sổ đầu bài',
           heading: [`${SIGNING_OBJECT_LABELS.class_log}: ${content.label}`],
           columns: CLASS_LOG_COLUMNS,
-          rows: content.sheets[0]?.rows ?? [],
+          rows: await classLogRows(database, classId, month),
         },
       ],
     });
