@@ -139,6 +139,19 @@ import { SchoolSplitsController, SchoolSplitsService } from './school-splits/sch
 import { SigningController } from './signing/signing.controller.js';
 import { SigningService } from './signing/signing.js';
 import { DossierSigner, InternalDossierSigner } from './signing/dossier-signer.js';
+import { FinalYearRecordsService } from './entry-admissions/final-year-records.js';
+import {
+  FinalYearCompletionController,
+  FinalYearRecordsController,
+  FinalYearStatisticsController,
+  ParentFinalYearController,
+} from './entry-admissions/final-year.controller.js';
+import {
+  AdmissionSupportMailer,
+  EntryAdmissionCatalogsController,
+  EntryAdmissionCatalogsService,
+  UnconfiguredAdmissionSupportMailer,
+} from './entry-admissions/entry-admission-catalogs.js';
 import { GradeLevelsController, GradeLevelsService } from './catalogs/grade-levels.js';
 import { ClassAssignmentsController, ClassesController } from './classes/classes.controller.js';
 import { ClassesService } from './classes/classes.service.js';
@@ -321,6 +334,11 @@ export class ApplicationModule {
         FacilityInvestmentsController,
         FacilityImportsController,
         SigningController,
+        FinalYearRecordsController,
+        FinalYearCompletionController,
+        FinalYearStatisticsController,
+        ParentFinalYearController,
+        EntryAdmissionCatalogsController,
         EquipmentController,
         SchoolProfileController,
         AccreditationReviewController,
@@ -671,6 +689,10 @@ export class ApplicationModule {
         SigningService,
         // Chưa có nhà cung cấp kí số: hồ sơ kí xác nhận nội bộ (DT-16 phần 16k)
         { provide: DossierSigner, useClass: InternalDossierSigner },
+        FinalYearRecordsService,
+        EntryAdmissionCatalogsService,
+        // Chưa có nhà cung cấp gửi thư điện tử: trả lời hỗ trợ tuyển sinh chỉ gửi qua ứng dụng phụ huynh (DT-17 phần 17c)
+        { provide: AdmissionSupportMailer, useClass: UnconfiguredAdmissionSupportMailer },
         SystemAnnouncementsService,
         AppLinksService,
         PortalContextService,
