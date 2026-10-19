@@ -19,6 +19,8 @@ function legacyVisibility(has: (code: string) => boolean): Partial<Record<Portal
   const canManageAccountsInUnit = has(PERMISSION_CODES.accountManageInUnit);
   const canSeeAccounts = canManageAllAccounts || canManageAccountsInUnit;
   const canSeeFinalYear = has('P02.final-year.view') || has('P02.final-year.manage') || has('P02.final-year.approve');
+  const canSeeEntryIntake =
+    has('P02.entry-intake.view') || has('P02.entry-intake.manage') || has('P02.entry-intake.transfer');
   const canViewPlatform = has('P01.view');
   const canManageSettings = has(PERMISSION_CODES.settingManage);
   const canManageDepartments = has(PERMISSION_CODES.departmentManage);
@@ -183,6 +185,13 @@ function legacyVisibility(has: (code: string) => boolean): Partial<Record<Portal
     '/entry-admissions/classes': canSeeFinalYear,
     '/entry-admissions/statistics': canSeeFinalYear,
     '/entry-admissions/support': has('P02.final-year.view') || has('P02.admission-support.reply'),
+    // Tuyển sinh đầu cấp phần 2 (DT-17 phần 17d), mục mới không có điều kiện cũ
+    '/entry-admissions/advanced': canSeeEntryIntake,
+    '/entry-admissions/intake': canSeeEntryIntake,
+    '/entry-admissions/notices': canSeeEntryIntake,
+    '/entry-admissions/transfer': canSeeEntryIntake,
+    '/entry-admissions/transfer-results': canSeeEntryIntake,
+    '/admitted-students': canSeeEntryIntake,
     // Quản trị hệ thống
     '/roles': canSeeAccounts,
     '/accounts': canSeeAccounts,

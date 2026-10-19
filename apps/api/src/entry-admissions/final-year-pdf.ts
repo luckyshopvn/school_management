@@ -16,6 +16,8 @@ export interface FinalYearSheet {
   sections: Array<{ title: string; rows: Array<[string, string | null]> }>;
   // Phần cuối nửa phải: trạng thái hồ sơ (phiếu thông tin), không có ở phiếu kê khai
   status_rows: Array<[string, string | null]>;
+  // Tiêu đề riêng của phiếu (phiếu đăng ký, phiếu thông tin hồ sơ tuyển sinh của DT-17 phần 17d); trống là phiếu cuối cấp
+  title?: string;
 }
 
 const DOTS = '..................................................';
@@ -60,9 +62,10 @@ function signatures(): PdfContent {
 
 function header(sheet: FinalYearSheet, kind: FinalYearPdfKind): PdfContent[] {
   const title =
-    kind === 'declaration'
+    sheet.title ??
+    (kind === 'declaration'
       ? `PHIẾU KÊ KHAI THÔNG TIN HỌC SINH CUỐI CẤP ${sheet.level_label.toUpperCase()}`
-      : `PHIẾU THÔNG TIN HỌC SINH CUỐI CẤP ${sheet.level_label.toUpperCase()}`;
+      : `PHIẾU THÔNG TIN HỌC SINH CUỐI CẤP ${sheet.level_label.toUpperCase()}`);
   return [
     { text: sheet.school_name.toUpperCase(), style: 'school' },
     { text: title, style: 'title' },

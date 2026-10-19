@@ -19,6 +19,8 @@ const STATUS_LABELS = {
   passed: 'Đạt, nhà trường sẽ liên hệ nhập học',
   rejected: 'Không đạt',
   converted: 'Đã nhập học',
+  // Hủy nhập học ở Tuyển sinh đầu cấp (DT-17 phần 17d)
+  cancelled: 'Đã hủy nhập học',
 } as const;
 const CODE_PATTERN = /^TS-\d{6}$/;
 const PHONE_PATTERN = /^0\d{9}$/;
