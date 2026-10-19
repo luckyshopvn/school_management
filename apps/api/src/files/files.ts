@@ -151,6 +151,10 @@ export class FilesService {
       // Giấy tờ hồ sơ cuối cấp tải qua phân hệ Tuyển sinh đầu cấp để kiểm tra phạm vi hoặc quan hệ phụ huynh (DT-17 phần 17c)
       throw new ApplicationError('ERR_FORBIDDEN', 'Giấy tờ hồ sơ cuối cấp chỉ xem trong hồ sơ cuối cấp');
     }
+    if (file.purpose === 'admission_document') {
+      // Giấy tờ hồ sơ tuyển sinh đầu cấp tải qua 1.3, 1.4 để kiểm tra phạm vi đơn vị (DT-17 phần 17d)
+      throw new ApplicationError('ERR_FORBIDDEN', 'Giấy tờ hồ sơ tuyển sinh chỉ xem trong hồ sơ tuyển sinh');
+    }
     if (MEDICATION_PURPOSES.includes(file.purpose)) {
       // Ảnh thuốc, đơn thuốc xem theo quyền xem sức khỏe của trẻ (BR-53); chưa gắn yêu cầu thì chỉ người tải lên xem
       const request = await medicationRequestOfFile(database, fileId);

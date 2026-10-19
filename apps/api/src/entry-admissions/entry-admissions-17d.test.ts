@@ -620,6 +620,8 @@ describe('Tuyển sinh đầu cấp phần 2 (DT-17 phần 17d)', () => {
       'minh-chung.png',
     );
     assert.equal(attached.status, 201, JSON.stringify(attached.body));
+    // Giấy tờ chỉ tải qua phân hệ, không qua điểm cuối tệp chung
+    assert.equal((await api('GET', `/files/${attached.body.id}`, principal.accessToken)).status, 403);
     const bad = await upload(
       admissions.accessToken,
       `/entry-intake/applications/${ids.Dung}/files`,

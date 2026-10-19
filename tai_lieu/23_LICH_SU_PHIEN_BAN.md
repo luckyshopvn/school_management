@@ -1,8 +1,8 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.13
-- Ngày cập nhật: 2026-10-19
+- Phiên bản: 0.14
+- Ngày cập nhật: 2026-10-20
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
 
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.88.0 – 2026-10-20
+
+- Phạm vi thay đổi: DT-17 phần 17d, phân hệ Tuyển sinh đầu cấp phần 2 theo hệ thống của Sở, bản chạy nội bộ (YCTD-135). Phần cuối của DT-17.
+- Chức năng mới: 1.3 Danh sách học sinh đăng ký trường tiên tiến (Xác nhận hồ sơ, Không đồng ý, Chưa xác nhận, trạng thái xã/phường nhập tay, Tải minh chứng, In phiếu, Xóa); 1.4 Tiếp nhận hồ sơ tuyển sinh (nhập danh sách phân tuyến từ Excel, ô tích giấy tờ đã nộp, phụ huynh đồng ý hoặc từ chối nhập học, Lưu dữ liệu, Cập nhật, Tải phiếu thông tin, In phiếu đăng ký, Hủy nhập học; loại hình và năm học nhận trẻ của đợt); 1.5 Gửi thông báo tuyển sinh đầu cấp (qua ứng dụng phụ huynh và Zalo OA, nội dung riêng từng người, học sinh ngoài hệ thống); 1.6 Chuyển hồ sơ trúng tuyển sang CSDL (mã gói tin, mã GUID, bảng kết quả); 1.7 Danh sách kết quả chuyển hồ sơ (Hủy nhập học hồ sơ chưa phát sinh dữ liệu, kết quả hủy); 5.11 Danh sách trúng tuyển Tuyển sinh đầu cấp ở phân hệ Mầm non (xếp lớp, chuyển sang hồ sơ học sinh) (P02-29 đến P02-33).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0062_add_entry_admission_intake` (hai cột của `admission_campaigns`; các cột mới, nguồn `routing`, trạng thái `cancelled` của `admission_applications`; năm bảng mới; mục đích tệp `admission_document`); tệp định danh `0051_add_entry_intake_permissions` (ba quyền P02).
+- Thay đổi API: nhóm điểm cuối mới `/entry-intake` (đợt, danh mục, hồ sơ theo màn hình, Lưu dữ liệu, xác nhận trường tiên tiến, Xóa, Hủy nhập học, nhập danh sách phân tuyến, giấy tờ, minh chứng, Excel, phiếu PDF, thông báo, chuyển hồ sơ, xếp lớp, kết quả, hủy nhập học hồ sơ đã chuyển); tra cứu hồ sơ tuyển sinh công khai trả nhãn "Đã hủy nhập học"; `GET /files/{id}` từ chối tệp `admission_document`.
+- Kiểm thử: kịch bản CT-655 đến CT-666. Kết quả ngày 20/10/2026: kiểm thử đơn vị CT-17d-1 đến CT-17d-10 và CT-17d-12 (11 ca): «KQ-17D»; các kiểm thử khác: «KQ-17D».
+- Rủi ro: tệp Excel, phiếu PDF in đủ số định danh với người có `P02.national-id.view` nên cần giữ như tài liệu mật; giấy tờ của trẻ là dữ liệu cá nhân; Hủy nhập học xóa mềm hồ sơ học sinh, chỉ làm khi chưa phát sinh dữ liệu.
+- Khả năng tương thích: không đổi điểm cuối cũ; đợt đã có nhận loại hình Đại trà, chưa có năm học nhận trẻ; hồ sơ đã có nhận loại hồ sơ Tự do, đồng ý nhập học "Chưa trả lời"; dữ liệu của phân hệ Tuyển sinh (YCTD-86) có thêm nguồn `routing` và trạng thái `cancelled`, trang Tuyển sinh hiện hai nhãn mới; mở năm học mới chép thêm giấy tờ của hồ sơ tuyển sinh được chuyển.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-17-phan-17d`; chạy phần quay lui của tệp định danh `0051` (xóa ba quyền) và tệp năm học `0062` (xóa năm bảng và các cột mới, đưa hồ sơ đã hủy nhập học về `passed` hoặc `converted`, hồ sơ phân tuyến về nguồn `staff`, xóa các tệp `admission_document` ở bảng tệp, trả ràng buộc; tệp ở kho tệp dưới tiền tố `admission_document/` xóa tay nếu cần; hồ sơ học sinh đã xóa mềm khi hủy nhập học giữ nguyên).
 
 ### Phiên bản 0.87.0 – 2026-10-19
 
