@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.12
+- Phiên bản: 0.13
 - Ngày cập nhật: 2026-10-19
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,27 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-19 — DT-17 phần 17a: báo cáo số liệu EMIS theo chỉ tiêu và mã số của Sở
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu năm học: tệp `0060_add_emis_so_indicators` thêm `children.policy_benefits`, `staff.concurrent_disability_support`, `staff.concurrent_shared_position`, `rooms.built_this_year`, bảng `emis_record_submissions`; xóa số liệu nhập tay theo mã cũ của thẻ Ngân sách nhà nước, thẻ 1 của 1.2 và 2.3. Không có migration hệ thống, định danh; không thêm mã quyền.
+- Máy chủ API: Biểu 01.ĐN-MN mã 01 đến 217, Biểu 08.ĐN-NSNN mã 1 đến 71, 1.2.1 thẻ 1 mã 01 đến 84 kèm cột Xây dựng mới, 2.1, 2.2, 2.3 theo cấu trúc của Sở, 2.4 trống ở học kỳ I; xóa số liệu của thẻ; năm điểm cuối của 1.1.2 Gửi báo cáo đầu năm; năm biểu mẫu gửi riêng thay biểu mẫu chung của 1.1.
+- Cổng quản trị: trang lập theo cột, dòng của Sở, nút "Lấy dữ liệu từ hệ thống", "Xóa dữ liệu"; trang mới 1.1.2; 1.2 chỉ còn "Gửi dữ liệu"; ô mới ở hồ sơ học sinh, hồ sơ nhân sự, khai báo phòng.
+- Thêm quy tắc BR-131, kịch bản CT-635 đến CT-641, tiêu chí AC-644 đến AC-649, màn hình MH-141; sửa P17-18, P17-20, P17-24 đến P17-28, PQ-63, MH-82, MH-131 đến MH-136. Kết quả ngày 19/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r --workspace-concurrency=1 --no-bail test`) 867/867 ca đạt (lượt toàn kho 853 đạt; 14 ca chạy lại riêng đạt: CT-16a-7 sửa theo biểu mẫu gửi mới và 13 ca điểm danh bị hủy do dữ liệu cũ của cơ sở dữ liệu thử cục bộ); toàn bộ kiểm thử giao diện 137/137 ca đạt (lượt toàn bộ 136 đạt; CT-641 sửa hộp xác nhận Xóa dữ liệu rồi chạy lại spec 68 đạt 2/2); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Theo quyết định của Eric ngày 2026-10-16 (làm đủ mọi tính năng đã khảo sát; tính năng cần hệ thống ngoài làm bản chạy nội bộ), 1.1.2 là bản chạy nội bộ: "Gửi hồ sơ" xuất tệp và đánh dấu đã gửi, không truyền dữ liệu lên Bộ, Sở. Các điểm chi tiết (cách tính từng chỉ tiêu, bảng ánh xạ loại phòng, nhãn tạm cho Biểu 08 mã 24 đến 55, xóa số liệu nhập tay theo mã cũ) Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-132.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-132, `07_QUY_TAC_NGHIEP_VU.md` BR-131, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.86.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 8.5.
+
+#### Vấn đề tồn đọng
+
+- Tên mục 2 đến 5 của Biểu 08 (mã 24 đến 55), mã chi tiết khối B của 1.2.1 chờ đối chiếu; thẻ 2 đến 5 của 1.2.1, biểu 1.3, 2.4 chưa khảo sát được nội dung; 1.2.2 một dòng biểu mẫu cho cả năm thẻ (YCTD-132, Hạn chế).
 
 ### 2026-10-19 — DT-17 phần 17b: kí hồ sơ theo bốn mẫu của Sở
 

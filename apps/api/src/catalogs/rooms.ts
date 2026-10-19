@@ -36,6 +36,7 @@ export interface Room {
   condition: string | null;
   area_m2: number | null;
   facility_attributes: Record<string, unknown>;
+  built_this_year: boolean;
 }
 
 interface RoomChanges extends RoomFacilityChanges {
@@ -57,6 +58,7 @@ const COLUMNS = [
   'condition',
   'area_m2',
   'facility_attributes',
+  'built_this_year',
 ] as const;
 
 function formatRoom<T extends { area_m2: string | null }>(row: T): Omit<T, 'area_m2'> & { area_m2: number | null } {

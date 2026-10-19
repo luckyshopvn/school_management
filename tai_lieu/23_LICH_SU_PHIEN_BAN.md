@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.12
+- Phiên bản: 0.13
 - Ngày cập nhật: 2026-10-19
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.86.0 – 2026-10-19
+
+- Phạm vi thay đổi: DT-17 phần 17a, báo cáo số liệu EMIS theo chỉ tiêu và mã số của Sở (YCTD-132).
+- Chức năng mới: 1.1.1 Lập báo cáo đầu năm theo Biểu 01.ĐN-MN năm thẻ, mã 01 đến 217, cột riêng từng thẻ, và Biểu 08.ĐN-NSNN mã 1 đến 71; 1.2.1 thẻ Cơ sở vật chất sáu khối A đến F, mã 01 đến 84, cột Xây dựng mới; 2.1, 2.2, 2.3 theo cấu trúc của Sở; 2.4 trống ở học kỳ I; nút "Xóa dữ liệu" của thẻ nhập tay; trang mới 1.1.2 Gửi báo cáo đầu năm (lưới hồ sơ, lưới biểu mẫu, Gửi hồ sơ, Xuất file lỗi, Đặt trạng thái gửi lại, Hủy), bản chạy nội bộ; ô đối tượng chính sách theo nghị định của trẻ, hai ô kiêm nhiệm của nhân sự, ô xây dựng mới trong năm của phòng (P17-18, P17-20, P17-24 đến P17-28).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0060_add_emis_so_indicators` (cột `children.policy_benefits`, `staff.concurrent_disability_support`, `staff.concurrent_shared_position`, `rooms.built_this_year`; bảng `emis_record_submissions`; xóa số liệu nhập tay theo mã cũ của thẻ Ngân sách nhà nước, thẻ 1 của 1.2 và 2.3).
+- Thay đổi API: `GET /reports/emis/start-of-year/sending`, `POST /reports/emis/start-of-year/send`, `/error-file`, `/resend`, `DELETE /reports/emis/forms/{form}/tabs/{tab}`; các trường thêm như YCTD-132.
+- Kiểm thử: kịch bản CT-635 đến CT-641. Kết quả ngày 19/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r --workspace-concurrency=1 --no-bail test`) 867/867 ca đạt (lượt toàn kho 853 đạt; 14 ca chạy lại riêng đạt: CT-16a-7 sửa theo biểu mẫu gửi mới và 13 ca điểm danh bị hủy do dữ liệu cũ của cơ sở dữ liệu thử cục bộ); toàn bộ kiểm thử giao diện 137/137 ca đạt (lượt toàn bộ 136 đạt; CT-641 sửa hộp xác nhận Xóa dữ liệu rồi chạy lại spec 68 đạt 2/2); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: tên mục 2 đến 5 của Biểu 08 (mã 24 đến 55) và mã chi tiết khối B của 1.2.1 chưa đối chiếu với Sở; số tính đúng khi hồ sơ trường, nhóm tuổi của lớp, vị trí việc làm và hình thức hợp đồng của nhân sự đã nhập đủ.
+- Khả năng tương thích: số liệu nhập tay theo mã cũ của Ngân sách nhà nước, thẻ 1 của 1.2 và 2.3 bị xóa, phải nhập lại theo mã mới; trạng thái gửi của biểu mẫu chung `emis-start-of-year` thay bằng năm biểu mẫu riêng của 1.1.2.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-17-phan-17a` và chạy `down` của tệp `0060` (bỏ bảng `emis_record_submissions` và bốn cột mới); số liệu nhập tay đã xóa không khôi phục bằng `down`, cần lấy từ bản sao lưu.
 
 ### Phiên bản 0.85.0 – 2026-10-19
 

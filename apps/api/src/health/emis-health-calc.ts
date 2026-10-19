@@ -15,6 +15,8 @@ import type { GrowthAssessment } from './growth-calc.js';
 // Tên chỉ tiêu, mã số do Claude đặt theo dữ liệu có trong hệ thống (Claude tự chọn theo ủy quyền của Eric ngày
 // 2026-10-11), cần đối chiếu biểu mẫu chính thức của Sở trước khi dùng thay biểu của Sở
 export interface HealthReportChild {
+  // Mã trẻ để báo cáo khác (Biểu 01.ĐN-MN của DT-17 phần 17a) ghép với lớp, nhóm tuổi
+  id?: string;
   gender: 'male' | 'female';
   ethnicity: string | null;
   disability: string | null;

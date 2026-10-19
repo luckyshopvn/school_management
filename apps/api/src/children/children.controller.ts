@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Param, Patch, Post, Put, Query, Req, Res } from '@nestjs/common';
-import type { ChildGender, PhotoConsent } from '@school-management/database';
+import type { ChildGender, ChildPolicyBenefit, PhotoConsent } from '@school-management/database';
 import { readBearerToken, validationError, type FieldError } from '@school-management/server';
-import { PERMISSION_CODES } from '@school-management/shared';
+import { CHILD_POLICY_BENEFITS, PERMISSION_CODES } from '@school-management/shared';
 import type { Request, Response } from 'express';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
@@ -361,6 +361,16 @@ export class ChildrenController {
         errors.push({ field, message: 'Chọn có hoặc không' });
       } else {
         changes[field] = value;
+      }
+    }
+    // Đối tượng chính sách theo từng nghị định (DT-17 phần 17a)
+    if (body?.policy_benefits !== undefined) {
+      const value = body.policy_benefits;
+      const allowed = CHILD_POLICY_BENEFITS.map((item) => item.value) as string[];
+      if (!Array.isArray(value) || value.some((item) => typeof item !== 'string' || !allowed.includes(item))) {
+        errors.push({ field: 'policy_benefits', message: 'Đối tượng chính sách không có trong danh mục' });
+      } else {
+        changes.policy_benefits = [...new Set(value as ChildPolicyBenefit[])];
       }
     }
     // Dân tộc, diện chính sách, khuyết tật, biết bơi (DT-16 phần 16g)

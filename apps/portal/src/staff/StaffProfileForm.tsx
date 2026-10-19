@@ -37,7 +37,7 @@ export function staffProfileValues(staff: StaffDetail): Values {
     if (field.kind === 'secret') {
       values[field.key] = '';
     } else if (field.core && field.kind === 'flag') {
-      values[field.key] = field.key === 'special_difficulty_commune' && staff.special_difficulty_commune === true;
+      values[field.key] = (staff as unknown as Record<string, unknown>)[field.key] === true;
     } else if (field.core) {
       values[field.key] = coreValues[field.key] ?? '';
     } else {

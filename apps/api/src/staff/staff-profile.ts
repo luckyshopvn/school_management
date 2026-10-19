@@ -39,6 +39,9 @@ export interface StaffProfileChanges {
   bankName?: string | null;
   taxCode?: string | null;
   specialDifficultyCommune?: boolean;
+  // Kiêm nhiệm cho Biểu 01.ĐN-MN (DT-17 phần 17a)
+  concurrentDisabilitySupport?: boolean;
+  concurrentSharedPosition?: boolean;
   // Giá trị null là xóa ô; ô bí mật (số sổ bảo hiểm xã hội) chỉ nhận số mới
   profile: Record<string, string | boolean | null>;
 }
@@ -142,6 +145,19 @@ export function readStaffProfileChanges(body: RequestBody, errors: FieldError[])
       errors.push({ field: 'special_difficulty_commune', message: 'Chọn có hoặc không' });
     } else {
       changes.specialDifficultyCommune = value === true;
+    }
+  }
+  for (const [field, key] of [
+    ['concurrent_disability_support', 'concurrentDisabilitySupport'],
+    ['concurrent_shared_position', 'concurrentSharedPosition'],
+  ] as const) {
+    if (has(field)) {
+      const value = body?.[field];
+      if (value !== true && value !== false && value !== null) {
+        errors.push({ field, message: 'Chọn có hoặc không' });
+      } else {
+        changes[key] = value === true;
+      }
     }
   }
   if (has('id_number')) {

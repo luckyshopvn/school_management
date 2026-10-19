@@ -75,13 +75,13 @@ test('Hiệu trưởng ghi hồ sơ trường, khai báo phòng, nhập thiết 
   await page.getByRole('tab', { name: 'Danh mục tối thiểu', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Danh mục thiết bị' })).toContainText('Cần đối chiếu văn bản');
 
-  // Báo cáo EMIS đầu năm: xem thẻ Học sinh, xuất Excel sáu trang (thẻ Ngân sách nhà nước từ DT-16 phần 16j)
+  // Báo cáo EMIS đầu năm: Biểu 01.ĐN-MN và Biểu 08.ĐN-NSNN năm thẻ như Sở (DT-17 phần 17a), xuất Excel năm trang
   await openMenu(page, '/emis');
-  await expect(page.getByRole('heading', { name: '1.1 Báo cáo EMIS đầu năm' })).toBeVisible();
-  await page.getByRole('tab', { name: 'Phòng học' }).click();
-  await expect(page.getByRole('region', { name: 'Phòng học' })).toContainText('Kiên cố');
-  await page.getByRole('tab', { name: 'Học sinh', exact: true }).click();
-  await expect(page.getByRole('region', { name: 'Học sinh', exact: true })).toContainText('Tổng số học sinh');
+  await expect(page.getByRole('heading', { name: '1.1.1 Lập báo cáo đầu năm' })).toBeVisible();
+  await page.getByRole('tab', { name: '4. Cơ sở vật chất' }).click();
+  await expect(page.getByRole('region', { name: '4. Cơ sở vật chất' })).toContainText('Kiên cố');
+  await page.getByRole('tab', { name: '2. Trẻ em', exact: true }).click();
+  await expect(page.getByRole('region', { name: '2. Trẻ em', exact: true })).toContainText('Quy mô trẻ');
   const downloading = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Xuất Excel' }).click();
   const download = await downloading;
@@ -89,11 +89,10 @@ test('Hiệu trưởng ghi hồ sơ trường, khai báo phòng, nhập thiết 
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.readFile(await download.path());
   expect(workbook.worksheets.map((sheet) => sheet.name)).toEqual([
-    'Trường – lớp học',
-    'Học sinh',
-    'Học sinh theo độ tuổi',
-    'Đội ngũ',
-    'Phòng học',
-    'Ngân sách nhà nước',
+    '1. Trường – Lớp',
+    '2. Trẻ em',
+    '3. Đội ngũ',
+    '4. Cơ sở vật chất',
+    '5. Ngân sách nhà nước',
   ]);
 });

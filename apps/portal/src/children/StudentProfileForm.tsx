@@ -1,6 +1,6 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { ETHNIC_GROUPS } from '@school-management/shared';
+import { CHILD_POLICY_BENEFITS, ETHNIC_GROUPS } from '@school-management/shared';
 import { Alert, Button, FORM_CONTROL_CLASS, FormBlock, FormRow, StatusBadge } from '@school-management/ui';
 import { ApiError } from '../session/api-client.js';
 import { CHILD_STATUS_LABELS, setSmsGuardian, updateChild, type ChildDetail } from './children-api.js';
@@ -24,6 +24,7 @@ interface ProfileValues {
   address: string;
   two_sessions_per_day: boolean;
   boarding: boolean;
+  policy_benefits: string[];
   sms_guardian_id: string;
   ethnicity: string;
   policy_target: string;
@@ -40,6 +41,7 @@ export const valuesOf = (child: ChildDetail): ProfileValues => ({
   address: child.address ?? '',
   two_sessions_per_day: child.two_sessions_per_day,
   boarding: child.boarding,
+  policy_benefits: child.policy_benefits ?? [],
   sms_guardian_id: child.guardians.find((guardian) => guardian.receives_sms)?.id ?? '',
   ethnicity: child.moet_fields?.ethnicity ?? '',
   policy_target: child.moet_fields?.policy_target ?? '',
@@ -78,6 +80,9 @@ export function StudentProfileForm({
         if (values[key] !== initial[key]) {
           changes[key] = typeof values[key] === 'string' ? (values[key] as string).trim() || null : values[key];
         }
+      }
+      if ([...values.policy_benefits].sort().join(',') !== [...initial.policy_benefits].sort().join(',')) {
+        changes.policy_benefits = values.policy_benefits;
       }
       if (child.moet_fields) {
         for (const key of MOET_FIELD_KEYS) {
@@ -240,6 +245,29 @@ export function StudentProfileForm({
             disabled={!editable}
             onChange={(event) => update({ boarding: event.target.checked })}
           />
+        </FormRow>
+        {/* Chỉ tiêu 112–116 của Biểu 01.ĐN-MN (DT-17 phần 17a) */}
+        <FormRow label="Đối tượng chính sách theo nghị định">
+          <div className="flex flex-col gap-1">
+            {CHILD_POLICY_BENEFITS.map((benefit) => (
+              <label key={benefit.value} className="flex items-center gap-2 text-content">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4"
+                  checked={values.policy_benefits.includes(benefit.value)}
+                  disabled={!editable}
+                  onChange={(event) =>
+                    update({
+                      policy_benefits: event.target.checked
+                        ? [...values.policy_benefits, benefit.value]
+                        : values.policy_benefits.filter((value) => value !== benefit.value),
+                    })
+                  }
+                />
+                {benefit.label}
+              </label>
+            ))}
+          </div>
         </FormRow>
         {child.moet_fields ? (
           <>
