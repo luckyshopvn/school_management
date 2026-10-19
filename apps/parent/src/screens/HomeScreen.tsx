@@ -15,6 +15,7 @@ import { MedicationPanel } from './MedicationPanel.js';
 import { PhotoConsentPanel } from './PhotoConsentPanel.js';
 import { NotificationsPanel } from './NotificationsPanel.js';
 import { ServicesPanel } from './ServicesPanel.js';
+import { FinalYearPanel } from './FinalYearPanel.js';
 
 // Trang chủ ứng dụng phụ huynh: danh sách con, báo vắng (MP-06), điểm danh của con theo tháng (MP-02),
 // người đón trẻ và xác nhận người đón (MP-18), đăng ký dịch vụ và học hè (MP-12), học phí (MP-11)
@@ -107,6 +108,7 @@ function ChildCard({ child, onMessage }: { child: Child; onMessage(message: stri
     | 'activities'
     | 'menu'
     | 'medication'
+    | 'final-year'
   >('none');
   const [attendance, setAttendance] = useState<MonthAttendance>();
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -147,6 +149,7 @@ function ChildCard({ child, onMessage }: { child: Child; onMessage(message: stri
         <Button onClick={() => setView(view === 'activities' ? 'none' : 'activities')}>Hoạt động</Button>
         <Button onClick={() => setView(view === 'menu' ? 'none' : 'menu')}>Thực đơn</Button>
         <Button onClick={() => setView(view === 'medication' ? 'none' : 'medication')}>Dặn thuốc</Button>
+        <Button onClick={() => setView(view === 'final-year' ? 'none' : 'final-year')}>Hồ sơ cuối cấp</Button>
       </div>
       {view === 'journal' ? <JournalPanel child={child} /> : null}
       {view === 'medication' ? <MedicationPanel child={child} /> : null}
@@ -159,6 +162,7 @@ function ChildCard({ child, onMessage }: { child: Child; onMessage(message: stri
       {view === 'pickups' ? <AuthorizedPickupsPanel child={child} /> : null}
       {view === 'services' ? <ServicesPanel child={child} /> : null}
       {view === 'invoices' ? <InvoicesPanel child={child} /> : null}
+      {view === 'final-year' ? <FinalYearPanel child={child} /> : null}
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       {view === 'absence' ? (
         <AbsenceForm
