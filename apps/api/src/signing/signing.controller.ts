@@ -16,7 +16,13 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { SigningDossierStatus, SigningObjectType, SigningSignatureType } from '@school-management/database';
 import { validationError, type FieldError } from '@school-management/server';
-import { PERMISSION_CODES, SIGNING_OBJECT_TYPES, SIGNING_SIGNATURE_TYPE_LABELS } from '@school-management/shared';
+import {
+  isSigningProvider,
+  PERMISSION_CODES,
+  SIGNING_OBJECT_TYPES,
+  SIGNING_PROVIDERS,
+  SIGNING_SIGNATURE_TYPE_LABELS,
+} from '@school-management/shared';
 import type { Request, Response } from 'express';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
@@ -119,7 +125,7 @@ export class SigningController {
     const errors: FieldError[] = [];
     const signatureType = body?.signature_type;
     if (!SIGNATURE_TYPES.includes(signatureType as SigningSignatureType)) {
-      errors.push({ field: 'signature_type', message: 'Chọn kiểu chữ ký' });
+      errors.push({ field: 'signature_type', message: 'Chọn kiểu chữ ký: REMOTE SIGNING hoặc USB TOKEN' });
     }
     const input: CertificateInput = {
       signature_type: signatureType as SigningSignatureType,
@@ -131,6 +137,10 @@ export class SigningController {
       valid_from: readDate(body, 'valid_from', errors, false),
       valid_to: readDate(body, 'valid_to', errors, false),
     };
+    // Nhà phát hành chọn trong năm giá trị của biểu mẫu đăng ký của Sở (DT-17 phần 17b)
+    if (input.provider && !isSigningProvider(input.provider)) {
+      errors.push({ field: 'provider', message: `Chọn nhà phát hành: ${SIGNING_PROVIDERS.join(', ')}` });
+    }
     // Bản nội bộ không giữ mật khẩu, mã PIN hay khóa bí mật của chứng thư
     for (const field of ['password', 'pin', 'private_key']) {
       if (body?.[field] !== undefined) {
@@ -143,8 +153,11 @@ export class SigningController {
 
   @Post('certificate/register')
   @HttpCode(200)
-  register(@AuthenticatedUser() currentUser: CurrentUser) {
-    return this.signing.registerCertificate(currentUser);
+  register(@Body() body: RequestBody, @AuthenticatedUser() currentUser: CurrentUser) {
+    const errors: FieldError[] = [];
+    const reason = readText(body, 'reason', errors, MAXIMUM_NOTE);
+    throwIfAny(errors);
+    return this.signing.registerCertificate(currentUser, reason);
   }
 
   @Post('certificate/revoke')
@@ -222,11 +235,13 @@ export class SigningController {
     ) {
       errors.push({ field: 'object_ids', message: `Chọn từ 1 đến ${MAXIMUM_BATCH} đối tượng` });
     }
+    const note = readText(body, 'note', errors, MAXIMUM_NOTE);
     throwIfAny(errors);
     return this.signing.create(currentUser, {
       objectType: type,
       objectIds: [...new Set(objectIds as string[])],
       period,
+      note,
     });
   }
 
@@ -268,6 +283,22 @@ export class SigningController {
     return this.signing.markSent(currentUser, ids, { sentOn: sentOn!, note });
   }
 
+  // Tải file lỗi: đối tượng tạo hồ sơ không được của loại đang xem
+  @Get('create-errors/file')
+  async createErrorFile(
+    @Query('object_type') objectType: string | undefined,
+    @Query('period') period: string | undefined,
+    @Req() request: Request,
+    @Res() response: Response,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const errors: FieldError[] = [];
+    const type = readObjectType(objectType, errors);
+    const month = errors.length === 0 ? readPeriod(type, period, errors) : '';
+    throwIfAny(errors);
+    sendWorkbook(response, await this.signing.createErrorFile(currentUser, type, month, request.ip ?? null));
+  }
+
   @Get('submissions')
   async submissions(
     @Query('object_type') objectType: string | undefined,
@@ -280,12 +311,10 @@ export class SigningController {
       errors.push({ field: 'status', message: 'Trạng thái không hợp lệ' });
     }
     throwIfAny(errors);
-    return {
-      items: await this.signing.submissions(currentUser, {
-        objectType: type,
-        status: (status || undefined) as SigningDossierStatus | undefined,
-      }),
-    };
+    return this.signing.submissions(currentUser, {
+      objectType: type,
+      status: (status || undefined) as SigningDossierStatus | undefined,
+    });
   }
 
   @Post('class-log/export')
@@ -320,6 +349,15 @@ export class SigningController {
     return this.signing.read(currentUser, id);
   }
 
+  @Get('dossiers/:id/view')
+  view(
+    @Param('id', uuidParameter(DOSSIER_MESSAGE)) id: string,
+    @Req() request: Request,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    return this.signing.view(currentUser, id, request.ip ?? null);
+  }
+
   @Get('dossiers/:id/file')
   async file(
     @Param('id', uuidParameter(DOSSIER_MESSAGE)) id: string,
@@ -328,13 +366,10 @@ export class SigningController {
     @Res() response: Response,
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
-    if (version !== undefined && version !== 'original' && version !== 'signed') {
-      throw validationError([{ field: 'version', message: 'Chọn tệp gốc hoặc tệp đã kí' }]);
+    if (version !== undefined && version !== 'original' && version !== 'signed' && version !== 'xml') {
+      throw validationError([{ field: 'version', message: 'Chọn tệp gốc, tệp đã kí hoặc tệp dữ liệu XML' }]);
     }
-    sendWorkbook(
-      response,
-      await this.signing.file(currentUser, id, version === 'signed' ? 'signed' : 'original', request.ip ?? null),
-    );
+    sendWorkbook(response, await this.signing.file(currentUser, id, version ?? 'original', request.ip ?? null));
   }
 
   @Post('dossiers/:id/cancel')

@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.11
+- Phiên bản: 0.12
 - Ngày cập nhật: 2026-10-19
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.85.0 – 2026-10-19
+
+- Phạm vi thay đổi: DT-17 phần 17b, phân hệ Quản lý kí hồ sơ theo bốn mẫu hồ sơ của Sở (YCTD-133).
+- Chức năng mới: nội dung hồ sơ trường, lớp, nhân sự (mười hai phần), học sinh theo phần và mục của Sở, in đủ số định danh, CCCD, sổ BHXH với người có quyền xem số định danh; tệp dữ liệu XML theo mã loại hồ sơ; cửa sổ "Xem hồ sơ kí"; kiểu chữ ký REMOTE SIGNING, USB TOKEN và năm nhà phát hành của Sở; thông tin trường, lịch sử yêu cầu đăng ký ở 1.1; lưới 2.2 cột theo loại, lọc khối, lớp, cột Ghi chú, "Tải file lỗi", trạng thái "Chờ ký"; lưới 2.3 theo cột của Sở, "Tìm kiếm", "Hủy xác nhận hoàn thành"; bỏ sổ đầu bài ở cấp Mầm non (P01-28 đến P01-31).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp hệ thống `0017_adjust_signing_to_so_templates` (chứng thư HSM chuyển REMOTE SIGNING, năm cột mới của `signing_dossiers`, bảng `signing_create_errors`).
+- Thay đổi API: `GET /signing/dossiers/{id}/view`, `GET /signing/create-errors/file`, `version=xml`; các trường thêm như YCTD-133.
+- Kiểm thử: kịch bản CT-626 đến CT-634. Kết quả ngày 19/10/2026 (trước khi gộp phần 17e): kiểm thử đơn vị toàn bộ kho mã (`pnpm -r --workspace-concurrency=1 --no-bail test`) 856/856 ca đạt; toàn bộ kiểm thử giao diện 134/134 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt; CI đạt trên nhánh đã gộp.
+- Rủi ro: hồ sơ in đủ số định danh nên chỉ người có `P02.national-id.view` tạo, xem được hồ sơ nhân sự, học sinh; tệp tải về cần giữ như tài liệu mật.
+- Khả năng tương thích: hồ sơ đã lập ở 16k giữ tệp, xem được ở cửa sổ mới, không có tệp XML; chứng thư có nhà phát hành ngoài danh sách phải chọn lại mới kí được.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-17-phan-17b` và chạy `down` của tệp `0017` (bỏ bảng `signing_create_errors` và năm cột, trả ràng buộc ba kiểu chữ ký; chứng thư đã đổi từ HSM giữ REMOTE SIGNING).
 
 ### Phiên bản 0.84.0 – 2026-10-19
 

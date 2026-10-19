@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.11
+- Phiên bản: 0.12
 - Ngày cập nhật: 2026-10-19
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,27 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-19 — DT-17 phần 17b: kí hồ sơ theo bốn mẫu của Sở
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu hệ thống: tệp `0017_adjust_signing_to_so_templates` (chứng thư HSM chuyển REMOTE SIGNING, `signing_dossiers` thêm tệp XML và ghi chú, bảng `signing_create_errors`). Không có migration năm học, định danh.
+- Máy chủ API: nội dung bốn loại hồ sơ theo phần và mục của Sở, tệp XML qua chỗ nối `DossierXmlWriter`, điểm cuối xem hồ sơ kí, tải file lỗi, kiểm tra quyền xem số định danh với hồ sơ nhân sự, học sinh, nhà phát hành trong năm giá trị, không tạo hồ sơ sổ đầu bài mới.
+- Cổng quản trị: 1.1, 2.1 có thông tin trường; 1.1 chọn nhà phát hành, lịch sử yêu cầu đăng ký; 2.2 cột theo loại, lọc khối, lớp, cửa sổ "Xem hồ sơ kí", "Tải file lỗi"; 2.3 cột theo Sở.
+- Thêm quy tắc BR-130, kịch bản CT-626 đến CT-634, tiêu chí AC-640 đến AC-643; sửa P01-28 đến P01-31, PQ-75, MH-137 đến MH-140. Kết quả ngày 19/10/2026 (trước khi gộp phần 17e): kiểm thử đơn vị toàn bộ kho mã (`pnpm -r --workspace-concurrency=1 --no-bail test`) 856/856 ca đạt; toàn bộ kiểm thử giao diện 134/134 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt; CI đạt trên nhánh đã gộp.
+
+#### Quyết định
+
+- Eric quyết định ngày 2026-10-19: "hồ sơ kí in đầy đủ số CCCD và số định danh như Sở, nhưng chỉ người có quyền xem số định danh (P02.national-id.view hoặc quyền tương đương hiện có) mới tạo và xem được hồ sơ kí"; vẫn giữ bản chạy nội bộ, không ký số thật. Đây là ngoại lệ có kiểm soát đối với quy định che số định danh của YCTD-13 (chỉ VT-02, VT-15, VT-03, VT-12 xem đầy đủ số định danh). Các điểm chi tiết khác Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-133.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-133, `07_QUY_TAC_NGHIEP_VU.md` BR-130, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.85.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 8.5.
+
+#### Vấn đề tồn đọng
+
+- Chưa có lược đồ XML của Bộ và nhà cung cấp kí số; một số mục của mẫu Sở chưa có dữ liệu nên để trống (YCTD-133, Hạn chế).
 
 ### 2026-10-19 — DT-17 phần 17e: 1.7 Rà soát thông tin kiểm định CLGD đủ ô như Sở
 

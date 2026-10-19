@@ -348,7 +348,8 @@ export interface PortalAppLinksTable {
 }
 
 // Phân hệ Quản lý kí hồ sơ, bản chạy nội bộ (DT-16 phần 16k): chứng thư số nhà trường, hồ sơ kí theo năm học, lịch sử thao tác
-export type SigningSignatureType = 'remote' | 'usb_token' | 'hsm';
+// Kiểu HSM bỏ ở DT-17 phần 17b (migration 0017) theo biểu mẫu của Sở
+export type SigningSignatureType = 'remote' | 'usb_token';
 export type SigningCertificateStatus = 'draft' | 'registered' | 'revoked';
 export type SigningSyncStatus = 'not_synced' | 'synced';
 export type SigningObjectType = 'school' | 'class' | 'staff' | 'child' | 'class_log';
@@ -440,6 +441,27 @@ export interface SigningDossiersTable {
   cancelled_by_name: string | null;
   cancel_reason: string | null;
   updated_at: UpdatedTimestamp;
+  // Tệp dữ liệu XML của hồ sơ và ghi chú trên lưới (DT-17 phần 17b); hồ sơ lập trước 17b không có tệp XML
+  xml_file_name: ColumnType<string | null, string | null | undefined, string | null>;
+  xml_storage_key: ColumnType<string | null, string | null | undefined, string | null>;
+  xml_sha256: ColumnType<string | null, string | null | undefined, string | null>;
+  xml_size_bytes: ColumnType<number | null, number | null | undefined, number | null>;
+  note: ColumnType<string | null, string | null | undefined, string | null>;
+}
+
+// Đối tượng tạo hồ sơ kí không được, lần lỗi gần nhất (DT-17 phần 17b): cột Ghi chú và "Tải file lỗi" của 2.2
+export interface SigningCreateErrorsTable {
+  id: Generated<string>;
+  academic_year_id: string;
+  object_type: SigningObjectType;
+  object_id: string;
+  period: Generated<string>;
+  object_label: string;
+  reason: string;
+  created_by: string;
+  created_by_name: string;
+  // Lần lỗi gần nhất ghi đè thời điểm
+  created_at: ColumnType<Date, Date | undefined, Date>;
 }
 
 export interface SigningEventsTable {
@@ -477,4 +499,5 @@ export interface SystemDatabase {
   signing_certificates: SigningCertificatesTable;
   signing_dossiers: SigningDossiersTable;
   signing_events: SigningEventsTable;
+  signing_create_errors: SigningCreateErrorsTable;
 }
