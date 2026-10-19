@@ -110,6 +110,8 @@ const STAFF_COLUMNS = [
   'staff.bank_name',
   'staff.tax_code',
   'staff.special_difficulty_commune',
+  'staff.concurrent_disability_support',
+  'staff.concurrent_shared_position',
   'staff.id_verification_status',
   'staff.id_verified_at',
   'staff.id_verified_by_name',
@@ -517,6 +519,12 @@ export class StaffService {
       ...(changes.taxCode !== undefined ? { tax_code: changes.taxCode } : {}),
       ...(changes.specialDifficultyCommune !== undefined
         ? { special_difficulty_commune: changes.specialDifficultyCommune }
+        : {}),
+      ...(changes.concurrentDisabilitySupport !== undefined
+        ? { concurrent_disability_support: changes.concurrentDisabilitySupport }
+        : {}),
+      ...(changes.concurrentSharedPosition !== undefined
+        ? { concurrent_shared_position: changes.concurrentSharedPosition }
         : {}),
       ...(changes.idNumber !== undefined
         ? {

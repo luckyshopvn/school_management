@@ -91,6 +91,8 @@ export interface ChildDetail extends Pick<
   place_of_birth: string | null;
   address: string | null;
   birth_certificate_file_id: string | null;
+  // Đối tượng chính sách theo từng nghị định (DT-17 phần 17a)
+  policy_benefits?: string[];
   is_staff_child: boolean;
   related_staff_user_id: string | null;
   related_staff_name: string | null;

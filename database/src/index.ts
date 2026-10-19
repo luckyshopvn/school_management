@@ -110,6 +110,8 @@ export type {
   PhysicalEducationResult,
   StudentHealthTerm,
   EmisValues,
+  ChildPolicyBenefit,
+  EmisRecordType,
   MarketPurchaseStatus,
   MarketPurchasePaymentStatus,
   MedicationRequestStatus,

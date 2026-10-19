@@ -27,6 +27,8 @@ export interface FacilityRoom {
   condition: string | null;
   area_m2: number | null;
   facility_attributes: ProfileValues;
+  // DT-17 phần 17a
+  built_this_year?: boolean;
   class_names: string[];
 }
 
@@ -52,6 +54,7 @@ export interface RoomInput {
   condition?: string | null;
   area_m2?: number | null;
   facility_attributes?: ProfileValues;
+  built_this_year?: boolean;
 }
 
 export interface EquipmentItem {

@@ -167,10 +167,13 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
   {
     key: 'emis',
     label: 'Báo cáo số liệu',
-    // Đủ bảy biểu của khảo sát mục 5 (DT-16 phần 16j)
+    // Đủ bảy biểu của khảo sát mục 5 (DT-16 phần 16j); 1.1 tách Lập, Gửi như Sở (DT-17 phần 17a, khảo sát mục 10.4.1)
     menu: [
       group('1.', 'Báo cáo đầu năm', [
-        leaf('1.1.', 'Báo cáo EMIS đầu năm', '/emis'),
+        group('1.1.', 'Báo cáo EMIS đầu năm', [
+          leaf('1.1.1.', 'Lập báo cáo đầu năm', '/emis'),
+          leaf('1.1.2.', 'Gửi báo cáo đầu năm', '/emis/send'),
+        ]),
         leaf('1.2.', 'Báo cáo cơ sở vật chất', '/emis/facilities'),
         leaf('1.3.', 'Báo cáo sức khỏe học sinh đầu năm', '/emis/health'),
       ]),

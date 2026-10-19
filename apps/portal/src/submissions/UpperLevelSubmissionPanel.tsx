@@ -88,7 +88,16 @@ async function downloadSubmissionFile(submission: Submission): Promise<void> {
 
 type DialogKind = 'mark-sent' | 'unlock-request' | 'unlock' | 'resend';
 
-function SubmissionRow({ submission, onChanged }: { submission: Submission; onChanged(message: string): void }) {
+// quickSend: một nút "Gửi dữ liệu" (xuất tệp gửi rồi đánh dấu đã gửi hôm nay) như 1.2.2 của Sở (DT-17 phần 17a)
+function SubmissionRow({
+  submission,
+  onChanged,
+  quickSend,
+}: {
+  submission: Submission;
+  onChanged(message: string): void;
+  quickSend: boolean;
+}) {
   const queryClient = useQueryClient();
   const [dialog, setDialog] = useState<DialogKind>();
   const [sentOn, setSentOn] = useState(() => VIETNAM_DATE.format(new Date()));
@@ -97,7 +106,15 @@ function SubmissionRow({ submission, onChanged }: { submission: Submission; onCh
   const [error, setError] = useState<string>();
   const locked = submission.status === 'sent' || submission.status === 'unlock_requested';
   const action = useMutation({
-    mutationFn: (input: { kind: 'export' | DialogKind | 'reject'; message: string }) => {
+    mutationFn: async (input: { kind: 'export' | 'quick-send' | DialogKind | 'reject'; message: string }) => {
+      if (input.kind === 'quick-send') {
+        await post(submission.form_code, 'export');
+        return post(submission.form_code, 'mark-sent', {
+          sent_on: VIETNAM_DATE.format(new Date()),
+          note: null,
+          no_data: false,
+        });
+      }
       if (input.kind === 'export') {
         return post(submission.form_code, 'export');
       }
@@ -194,7 +211,15 @@ function SubmissionRow({ submission, onChanged }: { submission: Submission; onCh
       </td>
       <td className="px-3 py-2">
         <div className="flex flex-col items-start gap-1">
-          {submission.can_manage && !locked ? (
+          {submission.can_manage && !locked && quickSend ? (
+            <Button
+              disabled={action.isPending}
+              onClick={() => action.mutate({ kind: 'quick-send', message: `Đã gửi dữ liệu ${submission.form_name}` })}
+            >
+              Gửi dữ liệu
+            </Button>
+          ) : null}
+          {submission.can_manage && !locked && !quickSend ? (
             <>
               <Button
                 disabled={action.isPending}
@@ -343,10 +368,12 @@ export function UpperLevelSubmissionPanel({
   formCodes,
   onChanged,
   summary = false,
+  quickSend = false,
 }: {
   formCodes: string[];
   onChanged(message: string): void;
   summary?: boolean;
+  quickSend?: boolean;
 }) {
   const submissions = useQuery({
     queryKey: ['upper-level-submissions', formCodes],
@@ -361,8 +388,9 @@ export function UpperLevelSubmissionPanel({
     <section className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4" aria-label="Gửi lên cấp trên">
       <h2 className="text-section-title font-semibold text-text">Gửi lên cấp trên</h2>
       <p className="text-label text-text-secondary">
-        Chưa kết nối với hệ thống của Bộ, Sở: bấm "Xuất tệp gửi" để lập tệp và lưu số liệu tại thời điểm xuất, nộp tệp
-        cho cấp trên, rồi "Đánh dấu đã gửi".
+        {quickSend
+          ? 'Chưa kết nối với hệ thống của Bộ, Sở: "Gửi dữ liệu" lập tệp gửi, lưu số liệu tại thời điểm gửi và đánh dấu đã gửi hôm nay; nộp tệp gửi cho cấp trên theo cách của đơn vị.'
+          : 'Chưa kết nối với hệ thống của Bộ, Sở: bấm "Xuất tệp gửi" để lập tệp và lưu số liệu tại thời điểm xuất, nộp tệp cho cấp trên, rồi "Đánh dấu đã gửi".'}
       </p>
       {submissions.error ? <Alert tone="danger">{messageOf(submissions.error)}</Alert> : null}
       {summary && submissions.data ? <SubmissionSummary items={submissions.data} /> : null}
@@ -383,7 +411,12 @@ export function UpperLevelSubmissionPanel({
           </thead>
           <tbody>
             {(submissions.data ?? []).map((submission) => (
-              <SubmissionRow key={submission.form_code} submission={submission} onChanged={onChanged} />
+              <SubmissionRow
+                key={submission.form_code}
+                submission={submission}
+                onChanged={onChanged}
+                quickSend={quickSend}
+              />
             ))}
             {submissions.isPending ? (
               <tr className="border-t border-border">

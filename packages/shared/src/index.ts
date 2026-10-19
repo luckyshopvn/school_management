@@ -351,6 +351,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/emis/staff',
   '/emis/foreign-language',
   '/emis/preschool-end-of-year',
+  // 1.1.2 Gửi báo cáo đầu năm (DT-17 phần 17a)
+  '/emis/send',
   // Cơ sở vật chất đủ theo Sở (DT-16 phần 16i)
   '/facility-investments',
   '/facility-input',

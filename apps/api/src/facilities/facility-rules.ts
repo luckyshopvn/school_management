@@ -120,6 +120,8 @@ export interface RoomFacilityChanges {
   condition?: string | null;
   area_m2?: number | null;
   facility_attributes?: Record<string, unknown>;
+  // Xây dựng mới trong năm, cột "Xây dựng mới" của 1.2.1 Báo cáo cơ sở vật chất của TP.HCM (DT-17 phần 17a)
+  built_this_year?: boolean;
 }
 
 function readCode(
@@ -176,6 +178,13 @@ export function readRoomFacility(
       errors.push({ field: 'area_m2', message: 'Diện tích là số không âm' });
     } else {
       changes.area_m2 = Math.round(area * 100) / 100;
+    }
+  }
+  if (body?.built_this_year !== undefined) {
+    if (typeof body.built_this_year !== 'boolean') {
+      errors.push({ field: 'built_this_year', message: 'Chọn có hoặc không' });
+    } else {
+      changes.built_this_year = body.built_this_year;
     }
   }
   if (body?.facility_attributes !== undefined) {

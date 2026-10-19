@@ -94,6 +94,7 @@ interface RoomDraft {
   room_type: string;
   condition: string;
   area_m2: string;
+  built_this_year: boolean;
   facility_attributes: ProfileValues;
 }
 
@@ -106,6 +107,7 @@ const emptyDraft = (orgUnitId: string, block: string): RoomDraft => ({
   room_type: '',
   condition: '',
   area_m2: '',
+  built_this_year: false,
   facility_attributes: {},
 });
 
@@ -117,6 +119,7 @@ const toInput = (draft: RoomDraft): RoomInput => ({
   room_type: draft.room_type || null,
   condition: draft.condition || null,
   area_m2: draft.area_m2 === '' ? null : Number(draft.area_m2),
+  built_this_year: draft.built_this_year,
   // Chỉ gửi thuộc tính khai báo được cho loại phòng đang chọn (thông tin nhà vệ sinh chỉ cho Phòng vệ sinh)
   facility_attributes: Object.fromEntries(
     Object.entries(draft.facility_attributes).filter(
@@ -219,6 +222,16 @@ function RoomForm({
           error={errors.area_m2}
           onChange={(event) => onChange({ ...draft, area_m2: event.target.value })}
         />
+        {/* Cột "Xây dựng mới" của 1.2.1 Báo cáo cơ sở vật chất của TP.HCM (DT-17 phần 17a) */}
+        <label className="flex items-center gap-2 text-content">
+          <input
+            type="checkbox"
+            className="h-4 w-4"
+            checked={draft.built_this_year}
+            onChange={(event) => onChange({ ...draft, built_this_year: event.target.checked })}
+          />
+          Xây dựng mới trong năm
+        </label>
         {roomAttributesFor(draft.room_type || null).map((field) => (
           <ProfileFieldInput
             key={field.key}
@@ -292,6 +305,7 @@ export function FacilityRoomsPage({ path = '/facility-rooms' }: { path?: PortalQ
         room_type: room.room_type ?? '',
         condition: room.condition ?? '',
         area_m2: room.area_m2 === null ? '' : String(room.area_m2),
+        built_this_year: room.built_this_year === true,
         facility_attributes: room.facility_attributes,
       },
     });

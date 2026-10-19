@@ -116,6 +116,8 @@ export interface RoomsTable extends CatalogRecordColumns {
   condition: ColumnType<string | null, string | null | undefined, string | null>;
   area_m2: ColumnType<string | null, string | number | null | undefined, string | number | null>;
   facility_attributes: ColumnType<Record<string, unknown>, string | undefined, string>;
+  // Xây dựng mới trong năm, cột "Xây dựng mới" của 1.2.1 Báo cáo cơ sở vật chất của TP.HCM (DT-17 phần 17a)
+  built_this_year: Generated<boolean>;
 }
 
 export interface GradeLevelsTable extends CatalogRecordColumns {
@@ -234,6 +236,8 @@ export interface ChildrenTable extends CatalogRecordColumns {
   national_id_verified_by: ColumnType<string | null, string | null | undefined, string | null>;
   national_id_verified_by_name: ColumnType<string | null, string | null | undefined, string | null>;
   residence_change_note: ColumnType<string | null, string | null | undefined, string | null>;
+  // Đối tượng chính sách theo từng nghị định, chỉ tiêu 112–116 của Biểu 01.ĐN-MN (DT-17 phần 17a)
+  policy_benefits: ColumnType<ChildPolicyBenefit[], ChildPolicyBenefit[] | undefined, ChildPolicyBenefit[]>;
 }
 
 export interface HealthProfilesTable extends CatalogRecordColumns {
@@ -882,6 +886,9 @@ export interface StaffTable {
   bank_name: ColumnType<string | null, string | null | undefined, string | null>;
   tax_code: ColumnType<string | null, string | null | undefined, string | null>;
   special_difficulty_commune: Generated<boolean>;
+  // Kiêm nhiệm hỗ trợ giáo dục người khuyết tật, kiêm nhiệm vị trí việc làm chuyên môn dùng chung (DT-17 phần 17a)
+  concurrent_disability_support: Generated<boolean>;
+  concurrent_shared_position: Generated<boolean>;
   id_verification_status: Generated<StaffIdVerificationStatus>;
   id_verified_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
   id_verified_by: ColumnType<string | null, string | null | undefined, string | null>;
@@ -2223,6 +2230,22 @@ export interface EmisReportValuesTable {
   updated_by_name: string;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
+}
+
+export type ChildPolicyBenefit =
+  'nd238_learning_cost' | 'nd66_nursery_boarding' | 'nd57_small_ethnic' | 'nd105_lunch' | 'nd105_allowance';
+
+// Hồ sơ đã đánh dấu gửi ở 1.1.2 Gửi báo cáo đầu năm (DT-17 phần 17a): mỗi đối tượng một dòng, lần gửi theo batch_id
+export type EmisRecordType = 'school' | 'staff' | 'class' | 'child' | 'health_first_term';
+
+export interface EmisRecordSubmissionsTable {
+  id: Generated<string>;
+  record_type: EmisRecordType;
+  entity_id: string;
+  batch_id: string;
+  sent_at: Generated<Date>;
+  sent_by: string;
+  sent_by_name: string;
 }
 
 export interface MenuItemsTable {
@@ -3579,6 +3602,7 @@ export interface SchoolYearDatabase {
   menu_import_jobs: MenuImportJobsTable;
   student_health_records: StudentHealthRecordsTable;
   emis_report_values: EmisReportValuesTable;
+  emis_record_submissions: EmisRecordSubmissionsTable;
   meal_reports: MealReportsTable;
   meal_plans: MealPlansTable;
   buffet_events: BuffetEventsTable;

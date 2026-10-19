@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import type { ChildGender, ChildStatus, PhotoConsent, SchoolYearDatabase } from '@school-management/database';
+import type {
+  ChildGender,
+  ChildPolicyBenefit,
+  ChildStatus,
+  PhotoConsent,
+  SchoolYearDatabase,
+} from '@school-management/database';
 import {
   ApplicationError,
   Clock,
@@ -93,6 +99,8 @@ export type ChildChanges = Partial<
   // Học 2 buổi/ngày, bán trú (mục 4.1.12 của Sở, YCTD-108)
   two_sessions_per_day?: boolean;
   boarding?: boolean;
+  // Đối tượng chính sách theo từng nghị định, chỉ tiêu 112–116 của Biểu 01.ĐN-MN (DT-17 phần 17a)
+  policy_benefits?: ChildPolicyBenefit[];
   // Dân tộc, diện chính sách, khuyết tật, biết bơi ghi vào cột CSDL ngành (DT-16 phần 16g); null là xóa giá trị
   moet_fields?: Partial<{
     ethnicity: string | null;
@@ -475,6 +483,7 @@ export class ChildrenService {
           note: changes.note,
           two_sessions_per_day: changes.two_sessions_per_day,
           boarding: changes.boarding,
+          policy_benefits: changes.policy_benefits,
           ...(changes.national_id
             ? {
                 national_id_encrypted: this.protection.encrypt(changes.national_id),
@@ -1024,6 +1033,7 @@ export class ChildrenService {
         'moet_profile',
         'two_sessions_per_day',
         'boarding',
+        'policy_benefits',
         'national_id_verified_at',
         'national_id_verified_by_name',
         'residence_change_note',
