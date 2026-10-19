@@ -225,4 +225,4 @@ Lượt làm (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, 
 | 17b | Chưa làm |
 | 17c | Chưa làm |
 | 17d | Chưa làm, chờ 17c |
-| 17e | Đã triển khai (YCTD-136, PR <PR>): 1.7 đủ ô như Sở trong năm khối (tên trường, mã trường, loại hình bắt buộc, cấp học Mầm non; năm, ngày công nhận và mức độ chuẩn quốc gia; năm, ngày công nhận và cấp độ kiểm định CLGD; diện tích sàn xây dựng/học sinh; thời điểm đăng ký chuẩn quốc gia; ghi chú tối đa 500 ký tự có bộ đếm); Lấy dữ liệu điền từ cây đơn vị và hồ sơ trường; hồ sơ trường thêm tám ô khóa cố định cho 17a; migration năm học 0063; thời điểm đăng ký là chữ tự do do chưa biết định dạng của Sở |
+| 17e | Đã triển khai (YCTD-136, PR 111): 1.7 đủ ô như Sở trong năm khối (tên trường, mã trường, loại hình bắt buộc, cấp học Mầm non; năm, ngày công nhận và mức độ chuẩn quốc gia; năm, ngày công nhận và cấp độ kiểm định CLGD; diện tích sàn xây dựng/học sinh; thời điểm đăng ký chuẩn quốc gia; ghi chú tối đa 500 ký tự có bộ đếm); Lấy dữ liệu điền từ cây đơn vị và hồ sơ trường; hồ sơ trường thêm tám ô khóa cố định cho 17a; migration năm học 0063; thời điểm đăng ký là chữ tự do do chưa biết định dạng của Sở |
