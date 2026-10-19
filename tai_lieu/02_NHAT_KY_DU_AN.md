@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.10
+- Phiên bản: 0.11
 - Ngày cập nhật: 2026-10-19
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,27 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-19 — DT-17 phần 17e: 1.7 Rà soát thông tin kiểm định CLGD đủ ô như Sở
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu năm học: tệp `0063_add_accreditation_review_so_fields` thêm 12 cột được để trống vào `accreditation_reviews` (tên trường, mã trường, loại hình, cấp học; năm, ngày công nhận, mức độ chuẩn quốc gia; năm, ngày công nhận, cấp độ kiểm định CLGD; thời điểm đăng ký chuẩn quốc gia; diện tích sàn xây dựng trên học sinh) kèm ràng buộc kiểm tra. Hồ sơ trường thêm tám khóa ở jsonb `general`, không cần migration.
+- Máy chủ API: `/accreditation-review`, `/accreditation-review/collect` trả, nhận thêm các ô mới; Ghi bắt buộc tên trường, mã trường, loại hình, ghi chú tối đa 500 ký tự; Lấy dữ liệu lấy tên Trường chính, mã định danh của hồ sơ trường (chưa có thì mã Trường chính), loại hình, chuẩn quốc gia, kiểm định CLGD, diện tích sàn xây dựng ở hồ sơ trường (chưa nhập thì tổng diện tích phòng đang dùng); `PUT /school-profile` từ chối năm công nhận ngoài 1900 đến 2100.
+- Cổng quản trị: 1.7 có năm khối theo thứ tự của Sở (Thông tin trường, Chuẩn quốc gia, Kiểm định chất lượng giáo dục, Cơ sở vật chất và học sinh, Ghi chú) và bộ đếm ký tự của ghi chú; 1.1 Hồ sơ trường thẻ Thông tin chung có thêm tám ô.
+- Thêm kịch bản CT-619 đến CT-625, tiêu chí AC-636 đến AC-639, quy tắc BR-129; không có chức năng, màn hình, quyền mới (sửa P01-15, P01-24, MH-79, MH-123). Kết quả ngày 19/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r --workspace-concurrency=1 --no-bail test`) 854/854 ca đạt; toàn bộ kiểm thử giao diện 135/135 ca đạt (chạy cục bộ); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 17e của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 8 (chênh lệch R1–R5 ở tài liệu 31 mục 10.7.3). Mã mức độ, cấp độ theo Thông tư 19/2018/TT-BGDĐT; cấp học cố định "Mầm non"; tên trường lấy ở cây đơn vị, mã trường lấy mã định danh của hồ sơ trường; thời điểm đăng ký chuẩn quốc gia là chữ tự do tối đa 100 ký tự; "Diện tích xây dựng" cũ của hồ sơ trường giữ riêng với "Diện tích sàn xây dựng" mới; ghi chú đã ghi dài hơn 500 ký tự vẫn hiện nhưng phải rút gọn trước lần ghi sau. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-136.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-136, `07_QUY_TAC_NGHIEP_VU.md` BR-129, `10_YEU_CAU_CHUC_NANG.md` P01-15, P01-24, `11_TIEU_CHI_NGHIEM_THU.md` AC-636 đến AC-639, `14_DAC_TA_GIAO_DIEN.md` MH-79, MH-123, `16_CO_SO_DU_LIEU.md` mục 2, `17_DAC_TA_API.md` mục 5, 6, `21_KICH_BAN_KIEM_THU.md` CT-619 đến CT-625, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.84.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 8.5.
+
+#### Vấn đề tồn đọng
+
+- Thời điểm đăng ký chuẩn quốc gia chưa có định dạng của Sở để kiểm tra; cách tính phòng bộ môn chưa đối chiếu biểu mẫu kiểm định chính thức. Báo cáo EMIS (phần 17a) sẽ đọc các ô hồ sơ trường mới.
 
 ### 2026-10-19 — Khảo sát bổ sung hệ thống của Sở và kế hoạch DT-17
 

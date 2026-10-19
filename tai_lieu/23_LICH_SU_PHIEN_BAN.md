@@ -1,8 +1,8 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.10
-- Ngày cập nhật: 2026-10-18
+- Phiên bản: 0.11
+- Ngày cập nhật: 2026-10-19
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
 
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.84.0 – 2026-10-19
+
+- Phạm vi thay đổi: DT-17 phần 17e, 1.7 Rà soát thông tin kiểm định CLGD đủ ô như Sở (YCTD-136).
+- Chức năng mới: 1.7 có năm khối theo thứ tự của Sở: Thông tin trường (Tên trường, Mã trường, Loại hình bắt buộc; Cấp học "Mầm non"; Số lớp), Chuẩn quốc gia (năm, ngày công nhận, mức độ), Kiểm định chất lượng giáo dục (năm, ngày công nhận, cấp độ), Cơ sở vật chất và học sinh (thêm Diện tích sàn xây dựng/Học sinh, Thời điểm đăng ký chuẩn quốc gia), Ghi chú tối đa 500 ký tự có bộ đếm; "Lấy dữ liệu" điền thêm từ cây đơn vị và hồ sơ trường; hồ sơ trường thêm tám ô ở thẻ Thông tin chung (diện tích sàn xây dựng, chuẩn quốc gia, kiểm định CLGD) (P01-24, P01-15).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0063_add_accreditation_review_so_fields` thêm 12 cột được để trống vào `accreditation_reviews` kèm ràng buộc kiểm tra; hồ sơ trường thêm tám khóa ở jsonb `general`, không đổi cấu trúc.
+- Thay đổi API: không có điểm cuối mới; `/accreditation-review`, `/accreditation-review/collect` trả, nhận thêm các ô mới; `PUT /accreditation-review` trả `ERR_VALIDATION` khi thiếu tên trường, mã trường, loại hình hoặc ghi chú quá 500 ký tự; `PUT /school-profile` nhận tám khóa mới, từ chối năm ngoài 1900 đến 2100.
+- Kiểm thử: kịch bản CT-619 đến CT-625. Kết quả ngày 19/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r --workspace-concurrency=1 --no-bail test`) 854/854 ca đạt; toàn bộ kiểm thử giao diện 135/135 ca đạt (chạy cục bộ); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: bản rà soát đã ghi có ghi chú dài hơn 500 ký tự phải rút gọn trước lần ghi sau; thời điểm đăng ký chuẩn quốc gia là chữ tự do do chưa biết định dạng của Sở.
+- Khả năng tương thích: bản rà soát đã ghi giữ số cũ, các cột mới trống đến lần ghi sau; người gọi `PUT /accreditation-review` cũ phải gửi thêm `school_name`, `school_code`, `ownership_type`; hồ sơ trường chưa nhập diện tích sàn xây dựng thì Lấy dữ liệu tính như cũ; quyền không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 17e; chạy phần quay lui của tệp năm học `0063` (xóa 12 cột). Tám khóa đã lưu ở `school_profiles.general` không còn được đọc, giữ lại không ảnh hưởng.
 
 ### Phiên bản 0.83.0 – 2026-10-18
 
