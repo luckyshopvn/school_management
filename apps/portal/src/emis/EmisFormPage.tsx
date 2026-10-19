@@ -152,9 +152,9 @@ function EditableTable({
   const clear = useMutation({
     mutationFn: () => clearEmisTab(formCode, tab.key),
     onSuccess: async (view) => {
+      setConfirmClear(false);
       queryClient.setQueryData(['emis-form', formCode], view);
       await queryClient.invalidateQueries({ queryKey: ['upper-level-submissions'] });
-      setConfirmClear(false);
       setNotice(undefined);
       setDirty(false);
       onSaved(`Đã xóa dữ liệu thẻ ${tab.label}`);
@@ -193,19 +193,21 @@ function EditableTable({
       </div>
       {notice ? <Alert tone="info">{notice}</Alert> : null}
       {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
-      <ConfirmDialog
-        open={confirmClear}
-        title={`Xóa dữ liệu: ${tab.label}`}
-        confirmLabel="Xóa dữ liệu"
-        busy={clear.isPending}
-        onCancel={() => setConfirmClear(false)}
-        onConfirm={() => clear.mutate()}
-      >
-        <p className="text-content">
-          Xóa mọi số liệu đã ghi của thẻ này (thẻ chưa gửi). Số liệu tính từ dữ liệu của hệ thống vẫn lấy lại được bằng
-          "Lấy dữ liệu".
-        </p>
-      </ConfirmDialog>
+      {confirmClear ? (
+        <ConfirmDialog
+          open
+          title={`Xóa dữ liệu: ${tab.label}`}
+          confirmLabel="Xóa dữ liệu"
+          busy={clear.isPending}
+          onCancel={() => setConfirmClear(false)}
+          onConfirm={() => clear.mutate()}
+        >
+          <p className="text-content">
+            Xóa mọi số liệu đã ghi của thẻ này (thẻ chưa gửi). Số liệu tính từ dữ liệu của hệ thống vẫn lấy lại được
+            bằng "Lấy dữ liệu".
+          </p>
+        </ConfirmDialog>
+      ) : null}
       <table className="w-full text-content">
         <IndicatorHead columns={tab.columns} />
         <tbody>

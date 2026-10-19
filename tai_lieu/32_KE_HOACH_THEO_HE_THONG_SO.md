@@ -221,7 +221,7 @@ Lượt làm (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, 
 
 | Phần | Tiến độ |
 |---|---|
-| 17a | Đã triển khai (YCTD-132, PR {{PR}}, phiên bản 0.86.0): Biểu 01.ĐN-MN năm thẻ mã 01 đến 217 và Biểu 08.ĐN-NSNN mã 1 đến 71 theo cột của Sở; 1.2.1 thẻ 1 mã 01 đến 84 có cột Xây dựng mới; 2.1, 2.2, 2.3 theo cấu trúc của Sở, 2.4 trống ở học kỳ I; "Xóa dữ liệu" của thẻ nhập tay; trang 1.1.2 Gửi báo cáo đầu năm (lưới hồ sơ, lưới biểu mẫu, Gửi hồ sơ, Xuất file lỗi, Đặt trạng thái gửi lại, Hủy) chạy nội bộ; ô chính sách của trẻ, kiêm nhiệm của nhân sự, xây dựng mới của phòng; migration năm học 0060; Biểu 08 mã 24 đến 55 và khối B của 1.2.1 chờ đối chiếu |
+| 17a | Đã triển khai (YCTD-132, PR 112, phiên bản 0.86.0): Biểu 01.ĐN-MN năm thẻ mã 01 đến 217 và Biểu 08.ĐN-NSNN mã 1 đến 71 theo cột của Sở; 1.2.1 thẻ 1 mã 01 đến 84 có cột Xây dựng mới; 2.1, 2.2, 2.3 theo cấu trúc của Sở, 2.4 trống ở học kỳ I; "Xóa dữ liệu" của thẻ nhập tay; trang 1.1.2 Gửi báo cáo đầu năm (lưới hồ sơ, lưới biểu mẫu, Gửi hồ sơ, Xuất file lỗi, Đặt trạng thái gửi lại, Hủy) chạy nội bộ; ô chính sách của trẻ, kiêm nhiệm của nhân sự, xây dựng mới của phòng; migration năm học 0060; Biểu 08 mã 24 đến 55 và khối B của 1.2.1 chờ đối chiếu |
 | 17b | Đã triển khai (YCTD-133, PR 110, phiên bản 0.85.0): bốn mẫu hồ sơ, tệp XML, nhà phát hành, kiểu chữ ký, bỏ sổ đầu bài ở cấp Mầm non, lưới 2.2, 2.3 theo Sở; hồ sơ nhân sự, học sinh in đủ số định danh với người có quyền xem số định danh (quyết định của Eric ngày 2026-10-19) |
 | 17c | Chưa làm |
 | 17d | Chưa làm, chờ 17c |
