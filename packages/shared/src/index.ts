@@ -9,6 +9,7 @@ export * from './student-health.js';
 export * from './students.js';
 export * from './emis.js';
 export * from './signing.js';
+export * from './entry-admissions.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -176,6 +177,11 @@ export const PERMISSION_CODES = {
   signingManage: 'P01.signing.manage',
   signingSign: 'P01.signing.sign',
   signingCertificate: 'P01.signing.certificate',
+  // Tuyển sinh đầu cấp: hồ sơ cuối cấp, xác nhận hoàn thành, thông tin trường, dịch vụ, hỗ trợ tuyển sinh (DT-17 phần 17c)
+  finalYearView: 'P02.final-year.view',
+  finalYearManage: 'P02.final-year.manage',
+  finalYearApprove: 'P02.final-year.approve',
+  admissionSupportReply: 'P02.admission-support.reply',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -356,6 +362,17 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/signing-certificate-sync',
   '/signing-dossiers',
   '/signing-submissions',
+  // Tuyển sinh đầu cấp (DT-17 phần 17c)
+  '/entry-admissions/final-year',
+  '/entry-admissions/completion',
+  '/entry-admissions/school-map',
+  '/entry-admissions/services',
+  '/entry-admissions/roles',
+  '/entry-admissions/users',
+  '/entry-admissions/staff',
+  '/entry-admissions/classes',
+  '/entry-admissions/statistics',
+  '/entry-admissions/support',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -535,6 +552,17 @@ export const DATA_GRID_KEYS = [
   'job-postings',
   'candidates',
   'export-logs',
+  // Tuyển sinh đầu cấp (DT-17 phần 17c)
+  'final-year-records',
+  'final-year-completion',
+  'final-year-statistics',
+  'entry-school-sites',
+  'entry-school-services',
+  'entry-roles',
+  'entry-users',
+  'entry-staff',
+  'entry-classes',
+  'admission-support-requests',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

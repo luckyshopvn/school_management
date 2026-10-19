@@ -7,6 +7,7 @@ import type { PortalQuickLinkPath } from './index.js';
 export type PortalWorkspaceKey =
   | 'education'
   | 'facilities'
+  | 'entry-admissions'
   | 'emis'
   | 'signing'
   | 'system'
@@ -139,6 +140,28 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('2.2.', 'Thiết bị ngoài danh mục tối thiểu', '/equipment-outside'),
         leaf('2.3.', 'Gửi thiết bị dạy học lên cấp trên', '/equipment-submission'),
       ]),
+    ],
+  },
+  {
+    // Tuyển sinh đầu cấp (DT-17 phần 17c, khảo sát mục 10.2.2): số mục như trang riêng của Sở; 1.3 đến 1.7 làm ở 17d. Tên
+    // nhóm 1. đến 5. khảo sát chưa ghi, Claude tự đặt
+    key: 'entry-admissions',
+    label: 'Tuyển sinh đầu cấp',
+    menu: [
+      group('1.', 'Hồ sơ tuyển sinh', [
+        leaf('1.1.', 'Hồ sơ học sinh cuối cấp mầm non', '/entry-admissions/final-year'),
+        leaf('1.2.', 'Gửi xác nhận hoàn thành hồ sơ cuối cấp lên cấp trên', '/entry-admissions/completion'),
+        leaf('1.8.', 'Thông tin trường tuyển sinh theo bản đồ GIS', '/entry-admissions/school-map'),
+      ]),
+      group('2.', 'Danh mục', [leaf('2.1.', 'Các dịch vụ được đăng ký tại trường', '/entry-admissions/services')]),
+      group('3.', 'Người dùng', [
+        leaf('3.1.', 'Nhóm người dùng', '/entry-admissions/roles'),
+        leaf('3.2.', 'Danh sách người dùng', '/entry-admissions/users'),
+        leaf('3.3.', 'Danh sách nhân sự', '/entry-admissions/staff'),
+        leaf('3.4.', 'Danh sách lớp', '/entry-admissions/classes'),
+      ]),
+      group('4.', 'Thống kê', [leaf('4.1.', 'Thống kê hồ sơ cuối cấp', '/entry-admissions/statistics')]),
+      group('5.', 'Hỗ trợ', [leaf('5.1.', 'Danh sách hỗ trợ tuyển sinh', '/entry-admissions/support')]),
     ],
   },
   {

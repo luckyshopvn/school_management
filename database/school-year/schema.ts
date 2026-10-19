@@ -21,6 +21,15 @@ export interface OrgUnitsTable {
   // Khoảng cách đến cơ sở chính (km) và diện tích (m²) của phân hiệu, điểm trường (DT-15 phần 15b); numeric đọc ra chuỗi
   distance_km: ColumnType<string | null, string | number | null | undefined, string | number | null>;
   area_m2: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+  // Tọa độ, tỉnh/thành phố, phường/xã, khu phố của trường và điểm trường, lần xác nhận ở 1.8 Tuyển sinh đầu cấp (DT-17 phần
+  // 17c); numeric đọc ra chuỗi
+  latitude: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+  longitude: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+  province: ColumnType<string | null, string | null | undefined, string | null>;
+  ward: ColumnType<string | null, string | null | undefined, string | null>;
+  quarter: ColumnType<string | null, string | null | undefined, string | null>;
+  map_confirmed_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  map_confirmed_by_name: ColumnType<string | null, string | null | undefined, string | null>;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
   created_by: string | null;
@@ -165,7 +174,8 @@ export type FilePurpose =
   | 'content_file'
   | 'medicine_photo'
   | 'prescription'
-  | 'candidate_cv';
+  | 'candidate_cv'
+  | 'final_year_document';
 
 export interface FilesTable extends CatalogRecordColumns {
   org_unit_id: string | null;
@@ -3301,6 +3311,126 @@ export interface FacilityImportJobsTable {
   committed_at: Date | null;
 }
 
+// Tuyển sinh đầu cấp phần 1 (DT-17 phần 17c): hồ sơ cuối cấp, tệp, lịch sử, xác nhận hoàn thành theo lớp, hỗ trợ tuyển sinh,
+// dịch vụ tại trường
+export type FinalYearRecordStatus =
+  | 'parent_pending'
+  | 'awaiting_school_edit'
+  | 'awaiting_parent_reconfirm'
+  | 'parent_confirmed'
+  | 'school_edited'
+  | 'parent_confirmed_after_edit';
+
+export interface FinalYearRecordsTable {
+  id: Generated<string>;
+  child_id: string;
+  org_unit_id: string;
+  status: Generated<FinalYearRecordStatus>;
+  review_status: Generated<'pending' | 'approved'>;
+  identity_type: Generated<'has_id' | 'no_id' | 'temporary_id'>;
+  residence_type: ColumnType<
+    'permanent' | 'temporary' | 'other' | null,
+    'permanent' | 'temporary' | 'other' | null | undefined,
+    'permanent' | 'temporary' | 'other' | null
+  >;
+  current_residence: ColumnType<string | null, string | null | undefined, string | null>;
+  house_number: ColumnType<string | null, string | null | undefined, string | null>;
+  street: ColumnType<string | null, string | null | undefined, string | null>;
+  residential_group: ColumnType<string | null, string | null | undefined, string | null>;
+  quarter: ColumnType<string | null, string | null | undefined, string | null>;
+  ward: ColumnType<string | null, string | null | undefined, string | null>;
+  province: ColumnType<string | null, string | null | undefined, string | null>;
+  contact_name: ColumnType<string | null, string | null | undefined, string | null>;
+  contact_phone: ColumnType<string | null, string | null | undefined, string | null>;
+  contact_email: ColumnType<string | null, string | null | undefined, string | null>;
+  latitude: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+  longitude: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+  routed_school: ColumnType<string | null, string | null | undefined, string | null>;
+  beneficiary: ColumnType<string | null, string | null | undefined, string | null>;
+  priority_form: ColumnType<string | null, string | null | undefined, string | null>;
+  registration_source: Generated<'parent' | 'universal' | 'none'>;
+  parent_proposal: ColumnType<string | null, string | null | undefined, string | null>;
+  parent_proposed_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  confirmed_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  confirmed_by: ColumnType<string | null, string | null | undefined, string | null>;
+  confirmed_by_name: ColumnType<string | null, string | null | undefined, string | null>;
+  confirmed_by_school: Generated<boolean>;
+  school_edited_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  approved_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  approved_by: ColumnType<string | null, string | null | undefined, string | null>;
+  approved_by_name: ColumnType<string | null, string | null | undefined, string | null>;
+  admission_consent: Generated<boolean>;
+  admission_consent_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  created_by: ColumnType<string | null, string | null | undefined, string | null>;
+  updated_by: ColumnType<string | null, string | null | undefined, string | null>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface FinalYearRecordFilesTable {
+  id: Generated<string>;
+  record_id: string;
+  file_id: string;
+  kind: 'birth_certificate' | 'residence' | 'evidence';
+  uploaded_by: string;
+  uploaded_by_name: string;
+  uploaded_by_parent: Generated<boolean>;
+  created_at: CreatedTimestamp;
+}
+
+export interface FinalYearRecordEventsTable {
+  id: Generated<string>;
+  record_id: string;
+  action: string;
+  from_status: string | null;
+  to_status: string | null;
+  note: string | null;
+  actor_user_id: string;
+  actor_name: string;
+  by_parent: Generated<boolean>;
+  created_at: CreatedTimestamp;
+}
+
+export interface FinalYearClassConfirmationsTable {
+  id: Generated<string>;
+  class_id: string;
+  confirmed: Generated<boolean>;
+  confirmed_by: string | null;
+  confirmed_by_name: string | null;
+  confirmed_at: Date | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface AdmissionSupportRequestsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  child_id: string | null;
+  requester_user_id: string;
+  requester_name: string;
+  email: string | null;
+  phone: string | null;
+  content: string;
+  status: Generated<'pending' | 'answered'>;
+  reply: ColumnType<string | null, string | null | undefined, string | null>;
+  replied_by: ColumnType<string | null, string | null | undefined, string | null>;
+  replied_by_name: ColumnType<string | null, string | null | undefined, string | null>;
+  replied_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  notified_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  notified_channels: ColumnType<string | null, string | null | undefined, string | null>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface SchoolServicesTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  sort_order: Generated<number>;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -3514,4 +3644,10 @@ export interface SchoolYearDatabase {
   facility_investments: FacilityInvestmentsTable;
   facility_standard_levels: FacilityStandardLevelsTable;
   facility_import_jobs: FacilityImportJobsTable;
+  final_year_records: FinalYearRecordsTable;
+  final_year_record_files: FinalYearRecordFilesTable;
+  final_year_record_events: FinalYearRecordEventsTable;
+  final_year_class_confirmations: FinalYearClassConfirmationsTable;
+  admission_support_requests: AdmissionSupportRequestsTable;
+  school_services: SchoolServicesTable;
 }
