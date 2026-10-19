@@ -469,7 +469,8 @@ describe('Công cụ xuất, nhập và gửi lên cấp trên (YCTD-121)', () =
   });
 
   it('CT-16a-7: gửi lên cấp trên: xuất tệp gửi, chưa hoàn thành dữ liệu thì không đánh dấu đã gửi, khóa sau khi gửi, yêu cầu và xử lý mở khóa', async () => {
-    const form = 'emis-start-of-year';
+    // Thẻ 1 của Biểu 01.ĐN-MN gửi riêng ở 1.1.2 từ DT-17 phần 17a
+    const form = 'emis-01-school-classes';
     const listed = await api('GET', `/upper-level-submissions?forms=${form}`, statistician.accessToken);
     assert.equal(listed.status, 200, JSON.stringify(listed.body));
     const first = (listed.body.items as Array<Record<string, unknown>>)[0];
@@ -489,14 +490,14 @@ describe('Công cụ xuất, nhập và gửi lên cấp trên (YCTD-121)', () =
 
     // Khai báo loại hình trường rồi xuất lại; tệp gửi là Excel của Biểu 1, bản chụp lưu số liệu
     const profile = await api('PUT', '/school-profile', principal.accessToken, {
-      general: { ownership_type: 'private' },
+      general: { ownership_type: 'private', institution_type: 'truong_mam_non' },
     });
     assert.equal(profile.status, 200, JSON.stringify(profile.body));
     const again = await api('POST', `/upper-level-submissions/${form}/export`, statistician.accessToken);
     assert.equal(again.body.exported_data_complete, true);
     const file = await get(`/upper-level-submissions/${form}/file`, statistician.accessToken);
     assert.equal(file.response.status, 200);
-    assert.match(file.response.headers.get('content-disposition') ?? '', /emis-dau-nam/);
+    assert.match(file.response.headers.get('content-disposition') ?? '', /emis-01-school-classes/);
     const stored = await environment.system
       .selectFrom('upper_level_submissions')
       .select(['snapshot', 'exported_by'])
