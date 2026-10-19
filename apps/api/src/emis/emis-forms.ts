@@ -106,7 +106,7 @@ import {
 // của lưới biểu mẫu 1.1.2 (bốn thẻ đầu của Biểu 01.ĐN-MN, Biểu 08.ĐN-NSNN), mỗi dòng một biểu mẫu riêng. Cần phạm vi toàn
 // trường theo quyền P17.report.emis; người có quyền P01.school-profile.manage mở khóa
 const PERMISSION = PERMISSION_CODES.emisReport;
-export const EMIS_RULE_CODE = 'YCTD-132';
+export const EMIS_RULE_CODE = 'YCTD-129';
 const MAXIMUM_VALUE = 1_000_000_000_000;
 const NO_ID = '00000000-0000-0000-0000-000000000000';
 const VIETNAM_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });

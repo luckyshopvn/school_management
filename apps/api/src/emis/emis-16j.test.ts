@@ -335,14 +335,20 @@ describe('API báo cáo EMIS của phần 16j', () => {
       assert.equal(view.status, 200, `${form.code}: ${JSON.stringify(view.body)}`);
       assert.equal(view.body.menu, form.menu);
       assert.equal(view.body.locked, false);
-      assert.ok((view.body.tabs as Tab[]).length > 0);
+      // 2.4 trống ở học kỳ I như Sở (DT-17 phần 17a); năm học thử đang ở học kỳ I
+      if (form.code === 'emis-preschool-end-of-year') {
+        assert.ok((view.body.warnings as string[]).some((warning) => warning.includes('học kỳ I')));
+      } else {
+        assert.ok((view.body.tabs as Tab[]).length > 0);
+      }
     }
     const start = await api('GET', '/reports/emis/forms/emis-start-of-year', vice);
     assert.deepEqual(
       (start.body.tabs as Array<{ label: string }>).map((tab) => tab.label),
-      ['Trường – lớp học', 'Học sinh', 'Học sinh theo độ tuổi', 'Đội ngũ', 'Phòng học', 'Ngân sách nhà nước'],
+      ['1. Trường – Lớp', '2. Trẻ em', '3. Đội ngũ', '4. Cơ sở vật chất', '5. Ngân sách nhà nước'],
     );
-    assert.equal(valueOf(start.body, 'children', '2.01'), 2);
+    assert.equal(valueOf(start.body, 'children', '62'), 2);
+    assert.equal(valueOf(start.body, 'children', '62', 'ethnic_total'), 1);
     const health = await api('GET', '/reports/emis/forms/emis-start-of-year-health', vice);
     const healthColumns = (health.body.tabs as Array<{ columns: Array<{ label: string }> }>)[0]?.columns;
     assert.deepEqual(
@@ -352,13 +358,14 @@ describe('API báo cáo EMIS của phần 16j', () => {
     assert.equal(valueOf(health.body, 'health', '1.3.01'), 2);
     const endOfYear = await api('GET', '/reports/emis/forms/emis-end-of-year', vice);
     assert.deepEqual(
-      (endOfYear.body.tabs as Array<{ label: string }>).map((tab) => tab.label.split('.')[0]),
-      ['I', 'II', 'III', 'IV', 'V', 'VI'],
+      (endOfYear.body.tabs as Array<{ label: string }>).map((tab) => tab.label),
+      ['Báo cáo cuối năm'],
     );
-    assert.equal(valueOf(endOfYear.body, 'children', 'II.07'), 1, 'học sinh thôi học trong năm');
+    assert.equal(valueOf(endOfYear.body, 'end_of_year', '3.1'), 2, 'trẻ đang học');
     const staff = await api('GET', '/reports/emis/forms/emis-staff', vice);
-    assert.equal(valueOf(staff.body, 'general', 'DN.01', 'postgraduate'), 1);
-    assert.equal(valueOf(staff.body, 'skills', 'NN.03', 'framework_level_3'), 1);
+    assert.equal(valueOf(staff.body, 'general_managers', '3'), 1);
+    assert.equal(valueOf(staff.body, 'general_managers', '3.TD.4'), 1, 'cán bộ quản lý thạc sĩ');
+    assert.equal(valueOf(staff.body, 'skills_teachers', '1.NN.3'), 1, 'giáo viên B1 là bậc 3');
     assert.ok((staff.body.warnings as string[]).some((warning) => warning.includes('chuẩn nghề nghiệp')));
     assert.equal((await api('GET', '/reports/emis/forms/emis-staff', manager)).status, 403);
     assert.equal((await api('GET', '/reports/emis/forms/emis-unknown', vice)).status, 404);
@@ -368,19 +375,21 @@ describe('API báo cáo EMIS của phần 16j', () => {
     const path = '/reports/emis/forms/emis-start-of-year/tabs/budget';
     const saved = await api('PUT', path, vice, {
       rows: [
-        { code: '6.01', values: { last_year_settlement: 1500.5, this_year_estimate: 1600, this_year_expected: null } },
+        { code: '1', values: { estimate: 1500.5, expected: null } },
+        { code: '16', values: { estimate: 1600, expected: 1580 } },
       ],
     });
     assert.equal(saved.status, 200, JSON.stringify(saved.body));
-    assert.equal(valueOf(saved.body, 'budget', '6.01', 'last_year_settlement'), 1500.5);
-    assert.equal(valueOf(saved.body, 'budget', '6.01', 'this_year_expected'), null);
+    assert.equal(valueOf(saved.body, 'budget', '1', 'estimate'), 1500.5);
+    assert.equal(valueOf(saved.body, 'budget', '1', 'expected'), null);
     assert.ok(tabOf(saved.body, 'budget')?.saved_at);
     assert.equal(
-      (await api('PUT', path, vice, { rows: [{ code: '6.01', values: { this_year_estimate: -1 } }] })).status,
+      (await api('PUT', path, vice, { rows: [{ code: '1', values: { estimate: -1 } }] })).status,
       400,
     );
     assert.equal((await api('PUT', path, vice, { rows: [{ code: '9.99', values: {} }] })).status, 400);
-    assert.equal((await api('PUT', path, vice, { rows: [{ code: '6.01', values: { total: 1 } }] })).status, 400);
+    assert.equal((await api('PUT', path, vice, { rows: [{ code: '6', values: {} }] })).status, 400, 'Sở không có mã 6');
+    assert.equal((await api('PUT', path, vice, { rows: [{ code: '1', values: { total: 1 } }] })).status, 400);
     assert.equal((await api('PUT', path, vice, { rows: 'x' })).status, 400);
     const computed = await api('PUT', '/reports/emis/forms/emis-start-of-year/tabs/children', vice, { rows: [] });
     assert.equal(computed.status, 422);
@@ -392,8 +401,8 @@ describe('API báo cáo EMIS của phần 16j', () => {
     assert.equal(exported.status, 200);
     assert.match(exported.disposition, /emis-dau-nam-/);
     const workbook = await sheetsOf(exported.buffer);
-    assert.equal(workbook.worksheets.length, 6);
-    assert.equal(workbook.worksheets[5]?.name, 'Ngân sách nhà nước');
+    assert.equal(workbook.worksheets.length, 5);
+    assert.equal(workbook.worksheets[4]?.name, '5. Ngân sách nhà nước');
   });
 
   it('CT-16j-5: 1.2 Lấy dữ liệu chỉ điền, Ghi mới lưu; hoàn thành dữ liệu theo năm thẻ; xuất file lỗi', async () => {
@@ -415,7 +424,7 @@ describe('API báo cáo EMIS của phần 16j', () => {
     const errorBook = await sheetsOf(errors.buffer);
     const texts: string[] = [];
     errorBook.worksheets[0]?.eachRow((row) => texts.push(String(row.getCell(2).value ?? '')));
-    assert.ok(texts.includes('Đã ghi thẻ Nhà vệ sinh'));
+    assert.ok(texts.includes('Đã ghi thẻ 2. Nhà vệ sinh'));
 
     for (const tab of ['facilities', 'toilets', 'other', 'equipment', 'info']) {
       const data = await api('POST', `${base}/tabs/${tab}/fill`, vice, { source: 'data' });
@@ -427,8 +436,9 @@ describe('API báo cáo EMIS của phần 16j', () => {
     const item = (listed.body.items as Array<{ data_complete: boolean }>)[0];
     assert.equal(item?.data_complete, true);
     const view = await api('GET', base, vice);
-    assert.equal(valueOf(view.body, 'facilities', 'CS.00'), 3);
-    assert.equal(valueOf(view.body, 'facilities', 'CS.00', 'area_m2'), 127);
+    // Khối A: hai phòng sinh hoạt chung và một phòng vệ sinh của trẻ
+    assert.equal(valueOf(view.body, 'facilities', '01'), 3);
+    assert.equal(valueOf(view.body, 'facilities', '01', 'permanent'), 2);
   });
 
   it('CT-16j-6: biểu đã đánh dấu đã gửi khóa việc ghi, lấy dữ liệu; đề án ngoại ngữ đánh dấu trường không có dữ liệu; mở khóa thì ghi lại được', async () => {
@@ -440,24 +450,30 @@ describe('API báo cáo EMIS của phần 16j', () => {
     assert.equal(sent.status, 200, JSON.stringify(sent.body));
     const view = await api('GET', `/reports/emis/forms/${form}`, vice);
     assert.equal(view.body.locked, true);
-    const locked = await api('PUT', `/reports/emis/forms/${form}/tabs/children`, vice, {
-      rows: [{ code: 'NN.03', values: { children: 20 } }],
+    const locked = await api('PUT', `/reports/emis/forms/${form}/tabs/indicators`, vice, {
+      rows: [{ code: '5', values: { total: 3 } }],
     });
     assert.equal(locked.status, 422);
     assert.equal(errorOf(locked.body).rule_code, 'YCTD-129');
     assert.equal(
-      (await api('POST', `/reports/emis/forms/${form}/tabs/children/fill`, vice, { source: 'previous_year' })).status,
+      (await api('POST', `/reports/emis/forms/${form}/tabs/indicators/fill`, vice, { source: 'data' })).status,
       422,
     );
     const resend = await api('POST', `/upper-level-submissions/${form}/resend`, principal, {
       note: 'Có lớp tiếng Anh',
     });
     assert.equal(resend.status, 200, JSON.stringify(resend.body));
-    const saved = await api('PUT', `/reports/emis/forms/${form}/tabs/children`, vice, {
-      rows: [{ code: 'NN.03', values: { classes: 2, children: 20, female: 11, periods_per_week: 2 } }],
+    // Chỉ tiêu 3 do máy chủ tính lại khi ghi, không theo số gửi lên; chỉ tiêu 5 nhập tay
+    const saved = await api('PUT', `/reports/emis/forms/${form}/tabs/indicators`, vice, {
+      rows: [
+        { code: '3', values: { total: 99 } },
+        { code: '5', values: { total: 3 } },
+      ],
     });
     assert.equal(saved.status, 200, JSON.stringify(saved.body));
-    assert.equal(valueOf(saved.body, 'children', 'NN.03', 'children'), 20);
+    assert.equal(valueOf(saved.body, 'indicators', '5'), 3);
+    assert.equal(valueOf(saved.body, 'indicators', '3'), 2);
+    assert.equal(valueOf(saved.body, 'indicators', '1'), 1);
     // Xuất tệp gửi lưu bản chụp số liệu của biểu
     const exported = await api('POST', `/upper-level-submissions/${form}/export`, vice);
     assert.equal(exported.status, 200, JSON.stringify(exported.body));
@@ -475,14 +491,14 @@ describe('API báo cáo EMIS của phần 16j', () => {
     });
     const opened = await api('POST', `/academic-years/${nextYear}/open`, principal);
     assert.equal(opened.status, 200, JSON.stringify(opened.body));
-    const copied = await api('POST', '/reports/emis/forms/emis-foreign-language/tabs/children/fill', vice, {
+    const copied = await api('POST', '/reports/emis/forms/emis-start-of-year/tabs/budget/fill', vice, {
       source: 'previous_year',
     });
     assert.equal(copied.status, 200, JSON.stringify(copied.body));
     assert.equal(copied.body.source_name, 'năm học 2026–2027');
     const rows = copied.body.rows as Array<{ code: string; values: Record<string, number | null> }>;
-    assert.equal(rows.find((row) => row.code === 'NN.03')?.values.children, 20);
-    const view = await api('GET', '/reports/emis/forms/emis-foreign-language', vice);
-    assert.equal(tabOf(view.body, 'children')?.saved_at, null, 'năm học mới chưa ghi');
+    assert.equal(rows.find((row) => row.code === '16')?.values.expected, 1580);
+    const view = await api('GET', '/reports/emis/forms/emis-start-of-year', vice);
+    assert.equal(tabOf(view.body, 'budget')?.saved_at, null, 'năm học mới chưa ghi');
   });
 });

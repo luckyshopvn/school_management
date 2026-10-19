@@ -21,7 +21,7 @@ import { buildFacilitiesWorkbook, fileStamp, sendWorkbook, type ExportedFile } f
 import { loadStartOfYearHealthChildren } from '../health/emis-health-report.js';
 import { SchoolTerms } from '../health/school-terms.js';
 import { UpperLevelSubmissions, type SubmissionView } from '../submissions/upper-level-submissions.js';
-import { EMIS_RULE_CODE, EmisForms } from './emis-forms.js';
+import { EmisForms } from './emis-forms.js';
 import { isHeading } from './emis-01-calc.js';
 
 // 1.1.2 Gửi báo cáo đầu năm (DT-17 phần 17a, YCTD-132; khảo sát mục 10.4.3), bản chạy nội bộ theo quyết định của Eric ngày
@@ -37,6 +37,7 @@ import { isHeading } from './emis-01-calc.js';
 // - "Đặt trạng thái gửi lại" (người có quyền mở khóa): bỏ đánh dấu đã gửi ở trang này của loại hồ sơ chọn, chuyển biểu mẫu
 //   đã gửi sang "Cần gửi lại". Hồ sơ đánh dấu gửi ở phân hệ kí đặt lại ở phân hệ kí.
 // "Hủy" chỉ bỏ các dòng đã chọn trên màn hình (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11)
+export const SENDING_RULE_CODE = 'YCTD-132';
 const PERMISSION = PERMISSION_CODES.emisReport;
 const UNLOCK_PERMISSION = PERMISSION_CODES.schoolProfileManage;
 const VIETNAM_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
@@ -269,14 +270,14 @@ export class EmisSending {
     const blocked = formRows.filter((row) => row.status === 'sent' || row.status === 'unlock_requested');
     if (blocked.length > 0) {
       throw ruleViolationError(
-        EMIS_RULE_CODE,
+        SENDING_RULE_CODE,
         `${blocked.map((row) => row.form_name).join(', ')} đã gửi; đặt trạng thái gửi lại trước khi gửi lần nữa`,
       );
     }
     const incomplete = formRows.filter((row) => row.completion === 'incomplete');
     if (incomplete.length > 0) {
       throw ruleViolationError(
-        EMIS_RULE_CODE,
+        SENDING_RULE_CODE,
         `${incomplete.map((row) => row.form_name).join(', ')} chưa đầy đủ dữ liệu; bấm "Xuất file lỗi" để xem điều kiện còn thiếu`,
       );
     }
