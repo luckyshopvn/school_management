@@ -94,8 +94,7 @@ const toNumber = (value: unknown): number | null => {
 const toText = (value: unknown): string | null =>
   typeof value === 'string' && value.trim() !== '' ? value.trim() : null;
 
-const toYear = (value: unknown): number | null =>
-  Number.isInteger(value) ? (value as number) : null;
+const toYear = (value: unknown): number | null => (Number.isInteger(value) ? (value as number) : null);
 
 // Diện tích trên học sinh (đất hoặc sàn xây dựng) là diện tích chia số học sinh, làm tròn hai chữ số; thiếu một trong hai
 // thì trống

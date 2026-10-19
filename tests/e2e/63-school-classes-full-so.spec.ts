@@ -141,7 +141,12 @@ test('CT-17e-7: 1.7 đủ ô như Sở: ô bắt buộc, chuẩn quốc gia, ki�
   await signIn(page);
   await openMenu(page, '/accreditation-review');
   const form = page.getByRole('region', { name: 'Thông tin kiểm định chất lượng giáo dục' });
-  for (const block of ['Thông tin trường', 'Chuẩn quốc gia', 'Kiểm định chất lượng giáo dục', 'Cơ sở vật chất và học sinh']) {
+  for (const block of [
+    'Thông tin trường',
+    'Chuẩn quốc gia',
+    'Kiểm định chất lượng giáo dục',
+    'Cơ sở vật chất và học sinh',
+  ]) {
     await expect(form.getByRole('group', { name: block })).toBeVisible();
   }
   await expect(form.getByLabel('Cấp học')).toHaveValue('Mầm non');

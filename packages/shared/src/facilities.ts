@@ -265,7 +265,12 @@ export const SCHOOL_PROFILE_SECTIONS: ReadonlyArray<{
       // Chuẩn quốc gia, kiểm định CLGD, diện tích sàn xây dựng cho 1.7 và EMIS (DT-17 phần 17e, khảo sát mục 10.5); khóa
       // cố định để báo cáo EMIS (17a) đọc
       { key: 'floor_area_m2', label: 'Diện tích sàn xây dựng (m²)', kind: 'number' },
-      { key: 'national_standard_level', label: 'Chuẩn quốc gia mức độ', kind: 'choice', options: NATIONAL_STANDARD_LEVELS },
+      {
+        key: 'national_standard_level',
+        label: 'Chuẩn quốc gia mức độ',
+        kind: 'choice',
+        options: NATIONAL_STANDARD_LEVELS,
+      },
       { key: 'national_standard_year', label: 'Năm công nhận chuẩn quốc gia', kind: 'integer' },
       { key: 'national_standard_date', label: 'Ngày công nhận chuẩn quốc gia', kind: 'date' },
       { key: 'national_standard_registration', label: 'Thời điểm đăng ký chuẩn quốc gia', kind: 'text' },

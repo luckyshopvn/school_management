@@ -19,10 +19,16 @@ export const migration: Migration = {
         column.check(sql`national_standard_year between 1900 and 2100`),
       )
       .addColumn('national_standard_date', 'date')
-      .addColumn('national_standard_level', 'text', (column) => column.check(sql`national_standard_level in ('1', '2')`))
-      .addColumn('accreditation_year', 'integer', (column) => column.check(sql`accreditation_year between 1900 and 2100`))
+      .addColumn('national_standard_level', 'text', (column) =>
+        column.check(sql`national_standard_level in ('1', '2')`),
+      )
+      .addColumn('accreditation_year', 'integer', (column) =>
+        column.check(sql`accreditation_year between 1900 and 2100`),
+      )
       .addColumn('accreditation_date', 'date')
-      .addColumn('accreditation_level', 'text', (column) => column.check(sql`accreditation_level in ('1', '2', '3', '4')`))
+      .addColumn('accreditation_level', 'text', (column) =>
+        column.check(sql`accreditation_level in ('1', '2', '3', '4')`),
+      )
       .addColumn('national_standard_registration', 'text')
       .addColumn('floor_area_per_child_m2', 'numeric(12, 2)', (column) =>
         column.check(sql`floor_area_per_child_m2 >= 0`),

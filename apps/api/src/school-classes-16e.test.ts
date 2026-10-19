@@ -563,7 +563,8 @@ describe('Trường học, lớp học theo Sở đủ tính năng (DT-16 phần
     }
     const branchManager = await environment.loginWithRoles([{ roleCode: 'VT-03', orgUnitId: unit('PH-A') }]);
     assert.equal(
-      (await api('PUT', '/accreditation-review', branchManager.accessToken, { ...collected.body, class_count: 1 })).status,
+      (await api('PUT', '/accreditation-review', branchManager.accessToken, { ...collected.body, class_count: 1 }))
+        .status,
       403,
     );
   });

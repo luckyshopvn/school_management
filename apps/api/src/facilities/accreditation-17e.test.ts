@@ -220,8 +220,7 @@ describe('1.7 Rà soát kiểm định CLGD đủ ô như Sở (DT-17 phần 17e
       string,
       unknown
     >;
-    const { collected: _collected, ...expected } = review;
-    for (const [key, value] of Object.entries(expected)) {
+    for (const [key, value] of Object.entries(review).filter(([key]) => key !== 'collected')) {
       assert.equal(read[key], value, key);
     }
     assert.equal(read.education_level, 'Mầm non');
