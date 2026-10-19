@@ -95,22 +95,19 @@ describe('Tuyển sinh đầu cấp phần 1 (DT-17 phần 17c)', () => {
 
   async function enrol(key: string, fullName: string, classCode: string, withBirthCertificate = true) {
     nationalIds[key] = nextNationalId();
-    let fileId: string | null = null;
-    {
-      const form = new FormData();
-      form.set('org_unit_id', units.A ?? '');
-      form.set('purpose', 'birth_certificate');
-      form.set('file', new Blob([PNG]), 'giay-khai-sinh.png');
-      fileId = (
-        (await (
-          await fetch(`${environment.baseUrl}/files`, {
-            method: 'POST',
-            headers: { authorization: `Bearer ${principal.accessToken}` },
-            body: form,
-          })
-        ).json()) as { id: string }
-      ).id;
-    }
+    const form = new FormData();
+    form.set('org_unit_id', units.A ?? '');
+    form.set('purpose', 'birth_certificate');
+    form.set('file', new Blob([PNG]), 'giay-khai-sinh.png');
+    const fileId = (
+      (await (
+        await fetch(`${environment.baseUrl}/files`, {
+          method: 'POST',
+          headers: { authorization: `Bearer ${principal.accessToken}` },
+          body: form,
+        })
+      ).json()) as { id: string }
+    ).id;
     const created = await api('POST', '/children', principal.accessToken, {
       org_unit_id: units.A,
       full_name: fullName,
