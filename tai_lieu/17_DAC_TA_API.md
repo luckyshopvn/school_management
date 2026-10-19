@@ -1,8 +1,8 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.80
-- Ngày cập nhật: 2026-10-18
+- Phiên bản: 1.81
+- Ngày cập nhật: 2026-10-19
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -382,6 +382,7 @@ Giao kèo phân hệ Quản lý kí hồ sơ, bản chạy nội bộ (DT-16 ph�
 4. `POST /signing/dossiers` nhận `object_type`, `object_ids` (1 đến 500 mã), `period`; trả 201 `created`, `codes`. Đối tượng đã có hồ sơ chưa hủy trả 422; đối tượng không có trả 404 và không tạo hồ sơ nào. `POST /signing/dossiers/sign`, `/check-changes`, `/complete` nhận `ids` (1 đến 500); `/mark-sent` nhận thêm `sent_on`, `note`. `POST /signing/dossiers/{id}/cancel` nhận `reason` (bắt buộc), `/uncomplete` nhận `reason` (không bắt buộc). `GET /signing/dossiers/{id}` trả hồ sơ kèm `events`. `GET /signing/dossiers/{id}/file?version=original|signed` trả tệp PDF, ghi `export_logs` mã `signing-dossier` (`contains_personal_data` đúng trừ hồ sơ trường).
 5. `GET /signing/submissions?object_type=&status=` trả hồ sơ của năm học đang dùng; không có `status` thì trả hồ sơ Đã kí, Đã xác nhận, Đã gửi. `POST /signing/class-log/export` nhận `class_id`, `month` (`YYYY-MM`), trả tệp Excel sổ đầu bài, ghi `export_logs` mã `signing-class-log`.
 6. Chỗ nối chữ ký số: lớp trừu tượng `DossierSigner` (`apps/api/src/signing/dossier-signer.ts`) nhận số liệu, tệp gốc, mã băm, người kí, thông tin chứng thư, ảnh con dấu và trả tệp đã kí kèm `method`; bản nội bộ `InternalDossierSigner` (`digital` sai) đăng ký trong `ApplicationModule`. Khi có nhà cung cấp kí số thì thay bằng lớp gọi giao diện lập trình của nhà cung cấp.
+7. Từ YCTD-133 (BR-129): `PUT /signing/certificate` chỉ nhận `signature_type` `remote`, `usb_token` và `provider` trống hoặc một trong VNPT-CA, BkavCA, VIETTEL, Ban Cơ yếu Chính phủ, MISA; `GET` trả thêm `school` (`code`, `name`, `principal_name`, `email`, `website`), `provider_in_list`. `POST /signing/certificate/register` nhận `reason` (không bắt buộc), cần `login_name`; nhà phát hành ngoài danh sách trả 422 mã YCTD-133. `GET /signing/objects` trả thêm `code`, `principal_name`, `stage` (`nhom_tre`, `mau_giao`), `dob`, `person_status`, `job_position`, `class_id`, `class_name`, `create_error`. `POST /signing/dossiers` nhận `note` (tối đa 500 ký tự), trả thêm `errors` (`object_id`, `object_label`, `reason`); `object_type=class_log` trả 422 mã YCTD-133; không đối tượng nào tạo được trả 422 mã YCTD-133 kèm lý do; `staff`, `child` cần `P02.national-id.view` ở phạm vi toàn trường (403). `GET /signing/dossiers/{id}/view` trả `dossier`, `root`, `document` (`sections` có `items` hoặc `table`), `signature` (null khi chưa kí), `xml_schema`; hồ sơ nhân sự, học sinh ghi `export_logs` mã `signing-dossier-view`. `GET /signing/dossiers/{id}/file?version=xml` trả tệp `application/xml`, hồ sơ không có tệp XML trả 422. `GET /signing/create-errors/file?object_type=&period=` trả tệp Excel, ghi `export_logs` mã `signing-create-errors`. `GET /signing/submissions` trả `items` và `school`. Chỗ nối tệp XML: lớp trừu tượng `DossierXmlWriter` (`apps/api/src/signing/dossier-xml.ts`), bản nội bộ `InternalDossierXmlWriter`.
 
 Giao kèo của hồ sơ trường, khai báo cơ sở vật chất, thiết bị dạy học, báo cáo EMIS đầu năm (DT-14 phần 14d, YCTD-106):
 
@@ -1504,6 +1505,8 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | POST | /api/v1/signing/dossiers/{id}/cancel, /{id}/uncomplete | Hủy hồ sơ, hủy xác nhận (YCTD-130) |
 | GET | /api/v1/signing/submissions | Hồ sơ đã kí của 2.3 (P01-31, YCTD-130) |
 | POST | /api/v1/signing/class-log/export | Xuất dữ liệu sổ đầu bài ra Excel (YCTD-130) |
+| GET | /api/v1/signing/dossiers/{id}/view | Nội dung hồ sơ và thông tin chữ ký cho cửa sổ Xem hồ sơ kí (P01-30, YCTD-133) |
+| GET | /api/v1/signing/create-errors/file | Tải file lỗi tạo hồ sơ (P01-30, YCTD-133) |
 | GET | /api/v1/notifications | Danh sách thông báo của người đăng nhập |
 | POST | /api/v1/notifications/{id}/read | Đánh dấu đã đọc |
 | POST | /api/v1/notifications/read-all | Đánh dấu đọc tất cả (YCTD-64) |

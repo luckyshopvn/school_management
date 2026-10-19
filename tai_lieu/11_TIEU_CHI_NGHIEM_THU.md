@@ -1,8 +1,8 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.32
-- Ngày cập nhật: 2026-10-18
+- Phiên bản: 1.33
+- Ngày cập nhật: 2026-10-19
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -708,6 +708,10 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-633 | Cho dữ liệu theo kịch bản của P16-02, P16-03, P16-04 / Khi nhân viên tuyển sinh mở "1. Tuyển sinh", chọn đợt, bấm Xem hồ sơ trên dòng của lưới Hồ sơ tuyển sinh, tiếp nhận, xét đạt, chuyển hồ sơ / Thì biểu mẫu chuyển hồ sơ mang tên "Chuyển thành hồ sơ học sinh", có ô "Số định danh cá nhân của học sinh"; báo "Đã chuyển thành hồ sơ học sinh, <họ tên> đang học lớp <lớp>"; phụ huynh tra cứu thấy "Đã nhập học" (YCTD-115) |
 | AC-634 | Cho dữ liệu theo kịch bản của P18-01 đến P18-04 / Khi quản lý đơn vị mở "2. Tuyển dụng", bấm Thêm mới ở lưới Đề nghị tuyển dụng, lập đề nghị bằng nút Ghi; Hiệu trưởng duyệt ở lưới Đề nghị chờ duyệt; nhân sự bấm Thêm mới ở lưới Tin tuyển dụng, soạn tin bằng nút Ghi, công bố; ứng viên nộp hồ sơ, được sàng lọc, phỏng vấn, tuyển, tạo hồ sơ nhân sự / Thì đề nghị Chờ duyệt rồi được duyệt; tin "đang nhận hồ sơ"; hồ sơ ứng viên dưới lưới Ứng viên qua Đang sàng lọc, Chờ phỏng vấn, Đạt, Đã tuyển và có mã nhân sự mới (YCTD-115) |
 | AC-635 | Cho dữ liệu theo kịch bản của P17-10, P17-11, P17-12 / Khi quản lý đơn vị, cán bộ quản lý cấp trên, Hiệu trưởng mở "1. Báo cáo và bảng điều khiển"; Hiệu trưởng xuất Excel báo cáo hợp nhất rồi mở thẻ Nhật ký xuất / Thì các bảng báo cáo giữ bố cục và thẻ hiện theo quyền như trước; tệp Excel được tải; lưới "Các lần xuất dữ liệu" có dòng của lần xuất (YCTD-115) |
+| AC-636 | Cho Hiệu trưởng khai báo chứng thư / Khi ghi kiểu HSM; ghi nhà phát hành ngoài danh sách; chứng thư mang nhà phát hành cũ ngoài danh sách rồi đăng ký, kí; chọn VNPT-CA, đăng ký kèm lý do / Thì hai lần ghi bị từ chối; màn hình cảnh báo, đăng ký và kí trả `ERR_RULE_VIOLATION` mã YCTD-133; đăng ký được, lịch sử ghi "REMOTE SIGNING – VNPT-CA – <tên đăng nhập> – <lý do>"; 1.1 hiện mã trường, tên trường, email, website (CT-619, CT-625, CT-627; YCTD-133) | P01-28 |
+| AC-637 | Cho trường có một điểm trường, lớp mẫu giáo, nhân sự, học sinh / Khi tạo hồ sơ trường, lớp, nhân sự, học sinh rồi xem và tải tệp XML / Thì hồ sơ trường có phần Thông tin chung 32 mục và phần của điểm trường; hồ sơ lớp chỉ có Thông tin lớp, khối "Lớp mẫu giáo"; hồ sơ nhân sự đủ mười hai phần, in đủ CCCD, sổ BHXH; hồ sơ học sinh có hai phần, in đủ số định danh, CCCD, cha, mẹ; tệp XML có gốc `HO_SO_TRUONG`, `HO_SO_LOP`, `HO_SO_NHAN_SU`, `HO_SO_HOC_SINH` đúng mã băm (CT-620 đến CT-623, CT-627; YCTD-133) | P01-30 |
+| AC-638 | Cho người có quyền xem, lập hồ sơ kí nhưng không có quyền xem số định danh / Khi tạo, xem, tải, tải thông tin thay đổi hồ sơ nhân sự, học sinh; xem hồ sơ trường; đổi số CCCD của nhân sự rồi Hiệu trưởng tải thông tin thay đổi / Thì bốn thao tác đầu bị từ chối quyền, hồ sơ trường xem được; nội dung thay đổi ghi "Số CMND/CCCD: đã thay đổi", không có số (CT-624; YCTD-133) | P01-30 |
+| AC-639 | Cho hai nhân sự, một người thiếu ngày sinh; hồ sơ lập trước YCTD-133 / Khi tạo hồ sơ cho cả hai; tạo lại chỉ người thiếu; Tải file lỗi; xem, tải XML, tải thông tin thay đổi hồ sơ cũ; mở 2.2, 2.3 / Thì một hồ sơ tạo được, người thiếu có Ghi chú "Thiếu mục bắt buộc: Ngày sinh"; lần sau trả mã YCTD-133; tệp lỗi có dòng đó; hồ sơ cũ xem được, tải XML bị từ chối, thay đổi ghi "Hồ sơ lập theo mẫu cũ"; 2.2 không có thẻ Sổ đầu bài, trạng thái "Chờ ký"; 2.3 có cột Tên hiệu trưởng, Trạng thái gửi (CT-622, CT-626, CT-627; YCTD-133) | P01-30, P01-31 |
 
 ## 20. Chưa xác minh được
 

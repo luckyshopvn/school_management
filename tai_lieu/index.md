@@ -16,11 +16,11 @@
 | 04 | [04_TONG_QUAN_DU_AN.md](04_TONG_QUAN_DU_AN.md) | Tổng quan dự án | Vấn đề, mục tiêu, đối tượng, yêu cầu cấp cao | 01 Xác định ý tưởng | Đã phê duyệt |
 | 05 | [05_PHAM_VI.md](05_PHAM_VI.md) | Phạm vi | Mười chín phân hệ, phạm vi trong và ngoài, ba giai đoạn sản phẩm | 02 Xác định phạm vi | Đã phê duyệt |
 | 06 | [06_YEU_CAU_NGHIEP_VU.md](06_YEU_CAU_NGHIEP_VU.md) | Yêu cầu nghiệp vụ | Nhóm người dùng, nghiệp vụ, quy trình chính, phụ, ngoại lệ | 03 Phân tích nghiệp vụ | Đã phê duyệt |
-| 07 | [07_QUY_TAC_NGHIEP_VU.md](07_QUY_TAC_NGHIEP_VU.md) | Quy tắc nghiệp vụ | BR-01 đến BR-128, chuyển trạng thái, phân cấp phê duyệt | 03 Phân tích nghiệp vụ | Đã phê duyệt |
+| 07 | [07_QUY_TAC_NGHIEP_VU.md](07_QUY_TAC_NGHIEP_VU.md) | Quy tắc nghiệp vụ | BR-01 đến BR-129, chuyển trạng thái, phân cấp phê duyệt | 03 Phân tích nghiệp vụ | Đã phê duyệt |
 | 08 | [08_VAI_TRO_NGUOI_DUNG.md](08_VAI_TRO_NGUOI_DUNG.md) | Vai trò người dùng | VT-01 đến VT-20 (VT-13 đã bỏ), ma trận quyền, phân cấp phê duyệt | 03 Phân tích nghiệp vụ | Đã phê duyệt |
 | 09 | [09_LUONG_NGHIEP_VU.md](09_LUONG_NGHIEP_VU.md) | Luồng nghiệp vụ | Bản đồ luồng, điểm nối, luồng phụ và ngoại lệ | 03 Phân tích nghiệp vụ | Đã phê duyệt |
 | 10 | [10_YEU_CAU_CHUC_NANG.md](10_YEU_CAU_CHUC_NANG.md) | Yêu cầu chức năng | 187 mã chức năng, 177 còn hiệu lực, và yêu cầu phi chức năng | 04 Đặc tả yêu cầu | Đã phê duyệt |
-| 11 | [11_TIEU_CHI_NGHIEM_THU.md](11_TIEU_CHI_NGHIEM_THU.md) | Tiêu chí nghiệm thu | AC-01 đến AC-635 dạng Cho, Khi, Thì | 04 Đặc tả yêu cầu | Đã phê duyệt |
+| 11 | [11_TIEU_CHI_NGHIEM_THU.md](11_TIEU_CHI_NGHIEM_THU.md) | Tiêu chí nghiệm thu | AC-01 đến AC-639 dạng Cho, Khi, Thì | 04 Đặc tả yêu cầu | Đã phê duyệt |
 | 12 | [12_KIEN_TRUC_HE_THONG.md](12_KIEN_TRUC_HE_THONG.md) | Kiến trúc hệ thống | Thành phần, xác thực, phân quyền, quyết định kiến trúc | 05 Thiết kế kiến trúc | Đã phê duyệt |
 | 13 | [13_CONG_NGHE_SU_DUNG.md](13_CONG_NGHE_SU_DUNG.md) | Công nghệ sử dụng | Bộ công nghệ đã chốt, cấu trúc mã nguồn, quy ước kỹ thuật | 05 Thiết kế kiến trúc | Đã phê duyệt |
 | 14 | [14_DAC_TA_GIAO_DIEN.md](14_DAC_TA_GIAO_DIEN.md) | Đặc tả giao diện | 128 màn hình, cây menu cổng quản trị, quy tắc bố cục, trạng thái, xử lý lỗi, ranh giới với máy chủ | 06 Thiết kế giao diện | Đã phê duyệt |
@@ -30,10 +30,10 @@
 | 18 | [18_QUY_TAC_PHAT_TRIEN_AI.md](18_QUY_TAC_PHAT_TRIEN_AI.md) | Quy tắc phát triển AI | AI-01 đến AI-42 | 08 Chuẩn bị môi trường AI | Đã phê duyệt |
 | 19 | [19_CHI_DAN_HE_THONG_AI.md](19_CHI_DAN_HE_THONG_AI.md) | Chỉ dẫn hệ thống AI | Ngữ cảnh, câu lệnh hệ thống, quy ước mã | 08 Chuẩn bị môi trường AI | Đã phê duyệt |
 | 20 | [20_KE_HOACH_KIEM_THU.md](20_KE_HOACH_KIEM_THU.md) | Kế hoạch kiểm thử | Phạm vi, lớp kiểm thử, dữ liệu, tiêu chí đạt | 10 Kiểm thử | Đã phê duyệt |
-| 21 | [21_KICH_BAN_KIEM_THU.md](21_KICH_BAN_KIEM_THU.md) | Kịch bản kiểm thử | CT-001 đến CT-618 | 10 Kiểm thử | Đã phê duyệt |
+| 21 | [21_KICH_BAN_KIEM_THU.md](21_KICH_BAN_KIEM_THU.md) | Kịch bản kiểm thử | CT-001 đến CT-627 | 10 Kiểm thử | Đã phê duyệt |
 | 22 | [22_BAO_MAT.md](22_BAO_MAT.md) | Bảo mật | BM-01 đến BM-72 | 10 Kiểm thử | Đã phê duyệt |
 | 23 | [23_LICH_SU_PHIEN_BAN.md](23_LICH_SU_PHIEN_BAN.md) | Lịch sử phiên bản | Các phiên bản từ 0.1.0 | 11 Nghiệm thu và phát hành | Đang cập nhật |
-| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-131, đánh giá ảnh hưởng | 12 Vận hành và cải tiến | Đang cập nhật |
+| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-133, đánh giá ảnh hưởng | 12 Vận hành và cải tiến | Đang cập nhật |
 | 25 | [25_QUY_TRINH_NGHIEP_VU/](25_QUY_TRINH_NGHIEP_VU/) | Quy trình nghiệp vụ | Mười đặc tả QT-01 đến QT-10 và phiếu yêu cầu trống | 03 Phân tích nghiệp vụ | Đã phê duyệt |
 | 26 | [26_SO_DO_CHUC_NANG/](26_SO_DO_CHUC_NANG/) | Sơ đồ chức năng gốc | Tám ảnh sơ đồ chức năng do Eric gửi, nguồn đầu vào của bộ tài liệu | 01 Xác định ý tưởng | Tài liệu nguồn |
 | 27 | [27_BO_CA_KIEM_THU_CHI_TIET/](27_BO_CA_KIEM_THU_CHI_TIET/) | Bộ ca kiểm thử chi tiết | Ca kiểm thử chi tiết theo việc N21, mã CTC-..., năm đợt, 453 ca, 6 ca không áp dụng | 10 Kiểm thử | Đã phê duyệt |
