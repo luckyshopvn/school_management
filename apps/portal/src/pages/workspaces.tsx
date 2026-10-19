@@ -6,11 +6,24 @@ import type { PortalWorkspace, PortalWorkspaceKey } from '@school-management/sha
 export type WorkspaceKey = PortalWorkspaceKey;
 
 export type IconName =
-  'cap' | 'enroll' | 'coins' | 'people' | 'box' | 'chart' | 'gear' | 'cart' | 'chat' | 'book' | 'report' | 'sign';
+  | 'cap'
+  | 'enroll'
+  | 'coins'
+  | 'people'
+  | 'box'
+  | 'chart'
+  | 'gear'
+  | 'cart'
+  | 'chat'
+  | 'book'
+  | 'report'
+  | 'sign'
+  | 'school';
 
 export const WORKSPACE_ICONS: Record<WorkspaceKey, IconName> = {
   education: 'cap',
   facilities: 'box',
+  'entry-admissions': 'school',
   emis: 'chart',
   signing: 'sign',
   system: 'gear',
@@ -66,6 +79,8 @@ export function useWorkspaceState(workspaces: PortalWorkspace[]): WorkspaceState
 }
 
 const ICON_PATHS: Record<IconName, ReactNode> = {
+  // Ngôi trường: phân hệ Tuyển sinh đầu cấp (DT-17 phần 17c)
+  school: <path d="M12 3 1 9l11 6 9-4.9V17h2V9L12 3ZM5 13.2v4L12 21l7-3.8v-4L12 17l-7-3.8Z" />,
   // Bút kí trên dòng kẻ: phân hệ Quản lý kí hồ sơ (DT-16 phần 16k)
   sign: (
     <path d="M3 17.3V21h3.7l10.9-10.9-3.7-3.7L3 17.3ZM20.7 7c.4-.4.4-1 0-1.4l-2.3-2.3c-.4-.4-1-.4-1.4 0l-1.8 1.8 3.7 3.7L20.7 7Z" />

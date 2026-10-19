@@ -114,6 +114,18 @@ import { SchoolSplitsPage } from './school/SchoolSplitsPage.js';
 import { SigningCertificatePage, SigningCertificateSyncPage } from './signing/SigningCertificatePage.js';
 import { SigningDossiersPage } from './signing/SigningDossiersPage.js';
 import { SigningSubmissionsPage } from './signing/SigningSubmissionsPage.js';
+import { FinalYearRecordsPage } from './entry-admissions/FinalYearRecordsPage.js';
+import {
+  EntryClassesPage,
+  EntryRolesPage,
+  EntryStaffPage,
+  EntryUsersPage,
+  FinalYearCompletionPage,
+  FinalYearStatisticsPage,
+  SchoolMapPage,
+  SchoolServicesPage,
+  SupportRequestsPage,
+} from './entry-admissions/EntryAdmissionPages.js';
 
 // Trang dùng được khi chưa đăng nhập (DT-16 phần 16c thêm Quên mật khẩu)
 const PUBLIC_PATHS = ['/login', '/forgot-password'];
@@ -195,6 +207,29 @@ const routeTree = rootRoute.addChildren([
   }),
   createRoute({ getParentRoute: () => rootRoute, path: '/signing-dossiers', component: SigningDossiersPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/signing-submissions', component: SigningSubmissionsPage }),
+  // Tuyển sinh đầu cấp phần 1 (DT-17 phần 17c)
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/entry-admissions/final-year',
+    component: FinalYearRecordsPage,
+  }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/entry-admissions/completion',
+    component: FinalYearCompletionPage,
+  }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/entry-admissions/school-map', component: SchoolMapPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/entry-admissions/services', component: SchoolServicesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/entry-admissions/roles', component: EntryRolesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/entry-admissions/users', component: EntryUsersPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/entry-admissions/staff', component: EntryStaffPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/entry-admissions/classes', component: EntryClassesPage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/entry-admissions/statistics',
+    component: FinalYearStatisticsPage,
+  }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/entry-admissions/support', component: SupportRequestsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/school-weeks', component: SchoolWeeksPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/year-rollover', component: YearRolloverPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/children', component: ChildrenPage }),
