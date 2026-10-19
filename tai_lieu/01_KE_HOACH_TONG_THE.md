@@ -1,7 +1,7 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.15
+- Phiên bản: 1.16
 - Ngày cập nhật: 2026-10-19
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -57,6 +57,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
 | 0.84.0 | DT-17 phần 17e, 1.7 Rà soát thông tin kiểm định CLGD đủ ô như Sở: tên trường, mã trường, loại hình, cấp học; năm, ngày công nhận và mức độ chuẩn quốc gia; năm, ngày công nhận và cấp độ kiểm định CLGD; diện tích sàn xây dựng/học sinh; thời điểm đăng ký chuẩn quốc gia; ghi chú tối đa 500 ký tự; hồ sơ trường thêm tám ô khóa cố định (YCTD-136) | 13, 21 | Đã có |
 | 0.85.0 | DT-17 phần 17b, phân hệ Quản lý kí hồ sơ theo bốn mẫu hồ sơ của Sở: nội dung hồ sơ trường, lớp, nhân sự, học sinh theo phần và mục của Sở, tệp dữ liệu XML, cửa sổ Xem hồ sơ kí, kiểu chữ ký và năm nhà phát hành của Sở, lưới 2.2, 2.3 theo cột của Sở, bỏ sổ đầu bài ở cấp Mầm non (YCTD-133) | 01, 02, 03, 07, 08, 10, 11, 14, 16, 17, 21, 23, 24, 32, index | Đã có |
+| 0.86.0 | DT-17 phần 17a, báo cáo số liệu EMIS theo chỉ tiêu và mã số của Sở: Biểu 01.ĐN-MN năm thẻ mã 01 đến 217, Biểu 08.ĐN-NSNN mã 1 đến 71, 1.2.1 mã 01 đến 84 có cột Xây dựng mới, 2.1, 2.2, 2.3 theo cấu trúc của Sở, 2.4 trống ở học kỳ I, Xóa dữ liệu, trang 1.1.2 Gửi báo cáo đầu năm chạy nội bộ (YCTD-132) | 01, 02, 03, 07, 08, 10, 11, 14, 16, 17, 21, 23, 24, 32, index | Đã có |
 | 0.83.0 | DT-15 phần 15f3, các phân hệ Bếp – kho, mua hàng; Tương tác – truyền thông; Giảng dạy; Tuyển sinh, tuyển dụng; Báo cáo theo giao diện chung của Sở: tiêu đề đánh số theo menu, 32 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối; nghiệp vụ không đổi (YCTD-115) | 13, 21 | Đã có |
 | 0.81.0 | DT-15 phần 15f2, phân hệ Nhân sự – chấm công, lương theo giao diện chung của Sở: tiêu đề đánh số theo menu, 17 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối, hộp xác nhận xóa; nghiệp vụ không đổi (YCTD-113) | 13, 21 | Đã có |
 | 0.82.0 | DT-15 phần 15f1, phân hệ Tài chính – học phí theo giao diện chung của Sở: tiêu đề đánh số theo menu, 20 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối, hộp xác nhận xóa; nghiệp vụ không đổi (YCTD-114) | 13, 21 | Đã có |

@@ -43,7 +43,7 @@ test('CT-17a-6: 1.1.1 năm thẻ, mã 01 đến 217 và 1 đến 71, cột theo 
 
   await page.getByRole('tab', { name: '2. Trẻ em', exact: true }).click();
   const children = page.getByRole('region', { name: '2. Trẻ em' });
-  await expect(children.getByRole('columnheader', { name: 'Dân tộc thiểu số' })).toBeVisible();
+  await expect(children.getByRole('columnheader', { name: 'Dân tộc thiểu số', exact: true })).toBeVisible();
   await expect(children).toContainText('Trẻ em học MG được hỗ trợ ăn trưa (NĐ 105/2020/NĐ-CP)');
 
   await page.getByRole('tab', { name: '3. Đội ngũ', exact: true }).click();
@@ -86,7 +86,8 @@ test('CT-17a-7: 1.1.2 lưới hồ sơ, lưới biểu mẫu; Gửi hồ sơ, Xu
   await expect(forms.getByRole('row', { name: /^Biểu mẫu / })).toHaveCount(5);
   await expect(records.getByRole('columnheader', { name: 'Số đã gửi thành công' })).toBeVisible();
   const budget = forms.getByRole('row', { name: 'Biểu mẫu Biểu 08.ĐN-NSNN: Ngân sách nhà nước' });
-  await expect(budget).toContainText('Không có dữ liệu');
+  // Không có dữ liệu khi thẻ chưa ghi, đã đầy đủ khi spec trước đã ghi
+  await expect(budget).toContainText(/Không có dữ liệu|Đã đầy đủ dữ liệu/);
 
   // Hủy bỏ các dòng đã chọn
   await page.getByLabel('Chọn Hồ sơ lớp').check();

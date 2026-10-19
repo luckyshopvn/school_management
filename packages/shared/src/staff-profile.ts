@@ -97,7 +97,7 @@ export const STAFF_PROFILE_BLOCKS: Array<{ title: string; fields: StaffField[] }
       flag('teaches_inclusive', 'Dạy học sinh khuyết tật học hòa nhập'),
       // Kiêm nhiệm cho chỉ tiêu 152, 153, 169, 170, 182, 189 của Biểu 01.ĐN-MN (DT-17 phần 17a); tệp ngành không có hai ô này
       core('concurrent_disability_support', 'Kiêm nhiệm hỗ trợ giáo dục người khuyết tật', 'flag'),
-      core('concurrent_shared_position', 'Kiêm nhiệm vị trí việc làm chuyên môn dùng chung', 'flag'),
+      core('concurrent_shared_position', 'Kiêm nhiệm VTVL chuyên môn dùng chung', 'flag'),
       flag('one_session_per_day', 'Dạy 1 buổi/ngày'),
       flag('two_sessions_per_day', 'Dạy 2 buổi/ngày'),
     ],
