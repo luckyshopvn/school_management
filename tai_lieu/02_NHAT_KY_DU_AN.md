@@ -22,7 +22,7 @@
 - Gói dùng chung: mục 1.3 đến 1.7 của phân hệ "Tuyển sinh đầu cấp" và 5.11 của phân hệ Mầm non ở `PORTAL_WORKSPACES`; điều kiện hiện mục ở `MENU_PERMISSION_RULES`; nhãn loại hình, đồng ý nhập học, trạng thái trường duyệt và xã/phường, loại hồ sơ, giấy tờ đã nộp ở `packages/shared/src/entry-admissions.ts`; `PERMISSION_CODES`, `DATA_GRID_KEYS`, `PORTAL_QUICK_LINK_PATHS` thêm mục mới.
 - Máy chủ API (`apps/api/src/entry-admissions/`): `entry-intake.ts` (hồ sơ theo màn hình, bộ lọc như Sở, Cập nhật, Lưu dữ liệu, xác nhận hồ sơ trường tiên tiến, Xóa, Hủy nhập học hồ sơ chưa chuyển, nhập danh sách phân tuyến, giấy tờ, minh chứng, Excel, phiếu PDF), `entry-intake-notices.ts` (1.5), `entry-intake-transfer.ts` (1.6, 1.7, 5.11), `entry-intake.controller.ts` (nhóm `/entry-intake`); `final-year-pdf.ts` nhận tiêu đề riêng của phiếu; tra cứu hồ sơ tuyển sinh công khai có nhãn "Đã hủy nhập học".
 - Cổng quản trị: 1.3 đến 1.7 của phân hệ "Tuyển sinh đầu cấp" và 5.11 của phân hệ Mầm non (`apps/portal/src/entry-admissions/EntryIntakePages.tsx`, `entry-intake-api.ts`, `router.tsx`).
-- Thêm quy tắc BR-133, chức năng P02-29 đến P02-33, quyền PQ-77, màn hình MH-152 đến MH-157, kịch bản CT-655 đến CT-666, tiêu chí AC-656 đến AC-662. Kết quả ngày 20/10/2026: kiểm thử đơn vị CT-17d-1 đến CT-17d-10 và CT-17d-12 (11 ca): «KQ-17D»; các kiểm thử khác: «KQ-17D».
+- Thêm quy tắc BR-133, chức năng P02-29 đến P02-33, quyền PQ-77, màn hình MH-152 đến MH-157, kịch bản CT-655 đến CT-666, tiêu chí AC-656 đến AC-662. Kết quả ngày 20/10/2026: kiểm thử đơn vị CT-17d-1 đến CT-17d-10 và CT-17d-12 (11 ca) đạt 11/11 (cùng `admissions.test.ts`, `year-transition.test.ts` 27/27 ca); kiểm thử đơn vị toàn bộ kho mã 890/890 đạt; kiểm thử giao diện CT-17d-11 đạt; toàn bộ kiểm thử giao diện 139/139 đạt (lượt chạy trước khi thêm việc chép giấy tờ khi mở năm học và chặn `GET /files/{id}` với tệp `admission_document`, hai thay đổi không đụng giao diện, đã chạy lại tệp kiểm thử đơn vị 17d đạt); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
@@ -35,7 +35,7 @@
 
 #### Vấn đề tồn đọng
 
-- Chưa có kết nối phân tuyến của Sở, của xã/phường và nhà cung cấp SMS, thư điện tử; mẫu phiếu đăng ký, phiếu thông tin chờ mẫu của Sở. Kết quả kiểm thử: «KQ-17D».
+- Chưa có kết nối phân tuyến của Sở, của xã/phường và nhà cung cấp SMS, thư điện tử; mẫu phiếu đăng ký, phiếu thông tin chờ mẫu của Sở. Kiểm thử đều đạt.
 
 ### 2026-10-19 — DT-17 phần 17c: Tuyển sinh đầu cấp phần 1
 
