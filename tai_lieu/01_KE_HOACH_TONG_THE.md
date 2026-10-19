@@ -1,8 +1,8 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.13
-- Ngày cập nhật: 2026-10-18
+- Phiên bản: 1.14
+- Ngày cập nhật: 2026-10-19
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -55,6 +55,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.2.0 | Bốn thay đổi: Ban Giám hiệu, nhiều cấp đơn vị, tách giao diện và máy chủ, dịch vụ định danh | 01 đến 07 | Đã có |
 | 0.3.0 | Kế hoạch tổng thể dự án | 08 | Đã có |
 | 0.3.1 | Đổi tên dự án thành School Management | 01 đến 08 | Đã có |
+| 0.84.0 | DT-17 phần 17e, 1.7 Rà soát thông tin kiểm định CLGD đủ ô như Sở: tên trường, mã trường, loại hình, cấp học; năm, ngày công nhận và mức độ chuẩn quốc gia; năm, ngày công nhận và cấp độ kiểm định CLGD; diện tích sàn xây dựng/học sinh; thời điểm đăng ký chuẩn quốc gia; ghi chú tối đa 500 ký tự; hồ sơ trường thêm tám ô khóa cố định (YCTD-136) | 13, 21 | Đã có |
 | 0.83.0 | DT-15 phần 15f3, các phân hệ Bếp – kho, mua hàng; Tương tác – truyền thông; Giảng dạy; Tuyển sinh, tuyển dụng; Báo cáo theo giao diện chung của Sở: tiêu đề đánh số theo menu, 32 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối; nghiệp vụ không đổi (YCTD-115) | 13, 21 | Đã có |
 | 0.81.0 | DT-15 phần 15f2, phân hệ Nhân sự – chấm công, lương theo giao diện chung của Sở: tiêu đề đánh số theo menu, 17 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối, hộp xác nhận xóa; nghiệp vụ không đổi (YCTD-113) | 13, 21 | Đã có |
 | 0.82.0 | DT-15 phần 15f1, phân hệ Tài chính – học phí theo giao diện chung của Sở: tiêu đề đánh số theo menu, 20 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối, hộp xác nhận xóa; nghiệp vụ không đổi (YCTD-114) | 13, 21 | Đã có |

@@ -4,6 +4,7 @@ import {
   isValidOrganizationIdentifier,
   OFFICE_ACCOUNT_FIELDS,
   PERMISSION_CODES,
+  RECOGNITION_YEAR_RANGE,
   SCHOOL_PROFILE_SECTIONS,
 } from '@school-management/shared';
 import type { Request } from 'express';
@@ -48,6 +49,16 @@ export function readSchoolProfile(body: RequestBody, errors: FieldError[]): Scho
       field: 'general.electronic_id_code',
       message: 'Mã định danh điện tử của tổ chức gồm đúng 12 chữ số',
     });
+  }
+  // Năm công nhận chuẩn quốc gia, kiểm định CLGD trong khoảng hợp lệ (DT-17 phần 17e)
+  for (const key of ['national_standard_year', 'accreditation_year']) {
+    const year = input.sections.general?.[key];
+    if (typeof year === 'number' && (year < RECOGNITION_YEAR_RANGE.min || year > RECOGNITION_YEAR_RANGE.max)) {
+      errors.push({
+        field: `general.${key}`,
+        message: `Năm từ ${RECOGNITION_YEAR_RANGE.min} đến ${RECOGNITION_YEAR_RANGE.max}`,
+      });
+    }
   }
   const accounts = body?.office_accounts;
   if (accounts !== undefined) {

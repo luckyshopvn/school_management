@@ -126,11 +126,61 @@ test('CT-16e-19: 1.7 Rà soát thông tin kiểm định CLGD: Lấy dữ liệu
   await form.getByRole('button', { name: 'Lấy dữ liệu' }).click();
   await expect(toast(page, 'Đã lấy dữ liệu')).toBeVisible();
   await expect(form.getByLabel('Số lớp', { exact: true })).not.toHaveValue('');
-  await form.getByLabel('Ghi chú').fill('Rà soát thử');
+  // Loại hình bắt buộc từ DT-17 phần 17e; hồ sơ trường của e2e có thể chưa chọn
+  await form.getByLabel('Loại hình', { exact: true }).selectOption('public');
+  await form.getByLabel('Trường chưa đạt tiêu chí nào').fill('Rà soát thử');
   await form.getByRole('button', { name: 'Ghi', exact: true }).click();
   await expect(toast(page, 'Đã ghi bản rà soát')).toBeVisible();
   await page.reload();
-  await expect(page.getByLabel('Ghi chú')).toHaveValue('Rà soát thử');
+  await expect(page.getByLabel('Trường chưa đạt tiêu chí nào')).toHaveValue('Rà soát thử');
+});
+
+test('CT-17e-7: 1.7 đủ ô như Sở: ô bắt buộc, chuẩn quốc gia, kiểm định, hai chỉ số trên học sinh, ghi chú 500 ký tự', async ({
+  page,
+}) => {
+  await signIn(page);
+  await openMenu(page, '/accreditation-review');
+  const form = page.getByRole('region', { name: 'Thông tin kiểm định chất lượng giáo dục' });
+  for (const block of [
+    'Thông tin trường',
+    'Chuẩn quốc gia',
+    'Kiểm định chất lượng giáo dục',
+    'Cơ sở vật chất và học sinh',
+  ]) {
+    await expect(form.getByRole('group', { name: block })).toBeVisible();
+  }
+  await expect(form.getByLabel('Cấp học')).toHaveValue('Mầm non');
+  await form.getByRole('button', { name: 'Lấy dữ liệu' }).click();
+  await expect(toast(page, 'Đã lấy dữ liệu')).toBeVisible();
+  // Thiếu tên trường thì báo lỗi ở đúng ô
+  await form.getByLabel('Tên trường', { exact: true }).fill('');
+  await form.getByLabel('Loại hình', { exact: true }).selectOption('public');
+  await form.getByRole('button', { name: 'Ghi', exact: true }).click();
+  await expect(form.getByText('Bắt buộc nhập tên trường')).toBeVisible();
+  await form.getByLabel('Tên trường', { exact: true }).fill(`Trường Mầm non E2E ${suffix}`);
+  await form.getByLabel('Mã trường', { exact: true }).fill(`E2E${suffix}`);
+  await form.getByLabel('Năm công nhận chuẩn quốc gia').fill('2023');
+  await form.getByLabel('Ngày công nhận chuẩn quốc gia').fill('2023-05-20');
+  await form.getByLabel('Mức độ', { exact: true }).selectOption('2');
+  await form.getByLabel('Năm công nhận kiểm định CLGD').fill('2024');
+  await form.getByLabel('Cấp độ', { exact: true }).selectOption('3');
+  await form.getByLabel('Diện tích sàn xây dựng (m²)').fill('400');
+  await form.getByLabel('Số học sinh', { exact: true }).fill('80');
+  await form.getByLabel('Diện tích sàn xây dựng/Học sinh (m²)').fill('5');
+  await form.getByLabel('Thời điểm đăng ký chuẩn quốc gia').fill('Năm 2027');
+  // Ô ghi chú chỉ nhận 500 ký tự như Sở
+  const note = form.getByLabel('Trường chưa đạt tiêu chí nào');
+  await note.fill('a'.repeat(510));
+  await expect(note).toHaveValue('a'.repeat(500));
+  await expect(form.getByText('500/500 ký tự')).toBeVisible();
+  await form.getByRole('button', { name: 'Ghi', exact: true }).click();
+  await expect(toast(page, 'Đã ghi bản rà soát')).toBeVisible();
+  await page.reload();
+  await expect(page.getByLabel('Mã trường', { exact: true })).toHaveValue(`E2E${suffix}`);
+  await expect(page.getByLabel('Mức độ', { exact: true })).toHaveValue('2');
+  await expect(page.getByLabel('Cấp độ', { exact: true })).toHaveValue('3');
+  await expect(page.getByLabel('Diện tích sàn xây dựng/Học sinh (m²)')).toHaveValue('5');
+  await expect(page.getByLabel('Thời điểm đăng ký chuẩn quốc gia')).toHaveValue('Năm 2027');
 });
 
 test('CT-16e-20: 1.8 Tách trường: tạo yêu cầu, xác nhận đi, xuất hồ sơ 82 cột, đánh dấu đã tiếp nhận', async ({

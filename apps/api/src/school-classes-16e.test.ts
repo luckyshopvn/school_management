@@ -509,7 +509,7 @@ describe('Trường học, lớp học theo Sở đủ tính năng (DT-16 phần
 
   it('CT-16e-7: 1.7 Rà soát kiểm định: Lấy dữ liệu từ lớp, phòng, hồ sơ trường, học sinh; Ghi lưu bản rà soát', async () => {
     const profile = await api('PUT', '/school-profile', principal.accessToken, {
-      general: { land_area_m2: 1200 },
+      general: { land_area_m2: 1200, ownership_type: 'public' },
     });
     assert.equal(profile.status, 200, JSON.stringify(profile.body));
     for (const [code, block, type, area] of [
@@ -563,7 +563,8 @@ describe('Trường học, lớp học theo Sở đủ tính năng (DT-16 phần
     }
     const branchManager = await environment.loginWithRoles([{ roleCode: 'VT-03', orgUnitId: unit('PH-A') }]);
     assert.equal(
-      (await api('PUT', '/accreditation-review', branchManager.accessToken, { class_count: 1 })).status,
+      (await api('PUT', '/accreditation-review', branchManager.accessToken, { ...collected.body, class_count: 1 }))
+        .status,
       403,
     );
   });
