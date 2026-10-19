@@ -199,19 +199,22 @@ test('CT-16a-10: 3.5 Tệp đã tạo chỉ liệt kê tác vụ xuất nền c�
   await system.deleteFrom('export_jobs').where('user_id', '=', user.id).execute();
 });
 
-test('CT-16a-11: 1.1 Báo cáo EMIS đầu năm gửi lên cấp trên: xuất tệp gửi, đánh dấu đã gửi, yêu cầu và mở khóa', async ({
+// 1.1 gửi ở trang 1.1.2 từ DT-17 phần 17a nên mẫu gửi chung kiểm thử trên 1.3
+test('CT-16a-11: 1.3 Báo cáo sức khỏe học sinh đầu năm gửi lên cấp trên: xuất tệp gửi, đánh dấu đã gửi, yêu cầu và mở khóa', async ({
   page,
 }) => {
   await signIn(page, 'VT-02', null);
-  await openMenu(page, '/emis');
+  await openMenu(page, '/emis/health');
   const panel = page.getByRole('region', { name: 'Gửi lên cấp trên' });
-  const row = panel.getByRole('row', { name: 'Biểu mẫu 1.1 Báo cáo EMIS đầu năm' });
+  const row = panel.getByRole('row', { name: 'Biểu mẫu 1.3 Báo cáo sức khỏe học sinh đầu năm' });
   await expect(row).toContainText('Chưa gửi');
   await expect(panel.getByRole('button', { name: 'Gửi', exact: true })).toHaveCount(0);
   await row.getByRole('button', { name: 'Xuất tệp gửi' }).click();
-  await expect(row.getByRole('button', { name: /^emis-dau-nam-.*\.xlsx$/ })).toBeVisible();
-  const sentFile = await downloadOf(page, () => row.getByRole('button', { name: /^emis-dau-nam-.*\.xlsx$/ }).click());
-  expect(sentFile.suggestedFilename()).toMatch(/^emis-dau-nam-\d{8}-\d{4}\.xlsx$/);
+  await expect(row.getByRole('button', { name: /^emis-suc-khoe-dau-nam-.*\.xlsx$/ })).toBeVisible();
+  const sentFile = await downloadOf(page, () =>
+    row.getByRole('button', { name: /^emis-suc-khoe-dau-nam-.*\.xlsx$/ }).click(),
+  );
+  expect(sentFile.suggestedFilename()).toMatch(/^emis-suc-khoe-dau-nam-\d{8}-\d{4}\.xlsx$/);
 
   // Dữ liệu mẫu của e2e thiếu khai báo nên tệp gửi lập khi chưa hoàn thành; giả lập tệp lập khi dữ liệu đã hoàn thành
   await system.updateTable('upper_level_submissions').set({ data_complete: true }).execute();
