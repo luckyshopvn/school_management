@@ -70,7 +70,7 @@ test('CT-17a-6: 1.1.1 năm thẻ, mã 01 đến 217 và 1 đến 71, cột theo 
   await openMenu(page, '/emis/facilities');
   const facilities = page.getByRole('region', { name: '1. Cơ sở vật chất' });
   await expect(facilities.getByRole('columnheader', { name: 'Kiên cố', exact: true })).toBeVisible();
-  await expect(facilities.getByRole('columnheader', { name: 'Kiên cố Xây dựng mới' })).toBeVisible();
+  await expect(facilities.getByRole('columnheader', { name: 'Kiên cố Xây dựng mới', exact: true })).toBeVisible();
   await expect(facilities).toContainText('Khối công trình công cộng');
 });
 
