@@ -2,7 +2,7 @@
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
 - Phiên bản: 0.10
-- Ngày cập nhật: 2026-10-18
+- Ngày cập nhật: 2026-10-19
 - Trạng thái: Đang cập nhật
 
 ## Quy ước
@@ -10,6 +10,22 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-131: Khảo sát bổ sung hệ thống của Sở và kế hoạch DT-17 – 2026-10-19
+
+- Lý do: ngày 2026-10-19 Claude khảo sát thêm hệ thống của Sở GD&ĐT TP.HCM (Eric đăng nhập, Claude chỉ đọc giao diện, không bấm nút ghi): phân hệ Tuyển sinh đầu cấp (trước đây chỉ mở ở học kỳ II nên chưa xem được), nội dung bốn loại hồ sơ của phân hệ Quản lý kí hồ sơ, tên và mã số chỉ tiêu của Biểu 01.ĐN-MN và các biểu EMIS khác, màn hình 1.7 Rà soát thông tin phục vụ kiểm định CLGD; kiểm tra lại phân hệ Hồ sơ điện tử. Theo quyết định của Eric ngày 2026-10-16 (làm đủ mọi tính năng đã khảo sát, tính năng cần hệ thống ngoài làm bản chạy nội bộ), cần ghi kết quả, đối chiếu với mã nguồn của DT-16 và lập đợt mới. Các điểm dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - `31_KHAO_SAT_HE_THONG_SO.md` phiên bản 1.2: thêm mục 10 "Khảo sát bổ sung ngày 2026-10-19" (10.1 phạm vi; 10.2 Tuyển sinh đầu cấp, 15 màn hình; 10.3 chứng thư số, lưới kí và nội dung bốn loại hồ sơ; 10.4 chỉ tiêu và mã số Biểu 01.ĐN-MN, Biểu 08.ĐN-NSNN, cơ sở vật chất TP.HCM, các biểu khác, trang gửi; 10.5 màn hình 1.7; 10.6 Hồ sơ điện tử không được cấp cho tài khoản trường; 10.7 đối chiếu với mã nguồn, mã chênh lệch E1–E11, K1–K10, R1–R5). Mục 1 bỏ ý "không xem được phân hệ Tuyển sinh đầu cấp", ghi rõ nay đã xem. Không ghi tên trường, mã trường, tên người hay số liệu.
+  - `32_KE_HOACH_THEO_HE_THONG_SO.md` phiên bản 1.14: thêm mục 8 kế hoạch DT-17 năm phần: 17a EMIS theo chỉ tiêu và mã của Sở (YCTD-132), 17b kí hồ sơ theo bốn mẫu thật, danh sách nhà phát hành, ẩn sổ đầu bài ở cấp Mầm non (YCTD-133), 17c Tuyển sinh đầu cấp phần 1 (YCTD-134), 17d Tuyển sinh đầu cấp phần 2 (YCTD-135), 17e chỉnh 1.7 (YCTD-136); số migration giữ sẵn (năm học 0060 đến 0063, hệ thống 0017, định danh 0050, 0051), phụ thuộc, lượt làm và thứ tự gộp.
+  - Phân hệ Hồ sơ điện tử không đưa vào DT-17 vì không có màn hình để làm theo.
+- Thành phần bị ảnh hưởng: tài liệu `02`, `24`, `31`, `32`, `index.md`. Không đổi mã nguồn.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không; phiên bản phần mềm giữ nguyên (thay đổi chỉ ở tài liệu, không ghi mục mới ở `23_LICH_SU_PHIEN_BAN.md`).
+- Kiểm thử cần thực hiện: kiểm tra định dạng các tệp tài liệu đã sửa.
+- Trạng thái: Đã triển khai
 
 ### YCTD-115: DT-15 phần 15f3: các phân hệ Bếp – kho, mua hàng; Tương tác – truyền thông; Giảng dạy; Tuyển sinh, tuyển dụng; Báo cáo theo giao diện chung của Sở – 2026-10-18
 

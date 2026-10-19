@@ -1,8 +1,8 @@
 # 31. KHẢO SÁT HỆ THỐNG THÔNG TIN QUẢN LÝ GIÁO DỤC CỦA SỞ GD&ĐT TP.HCM
 
-- Mô tả: Kết quả khảo sát chi tiết chức năng và giao diện của Hệ thống thông tin quản lý giáo dục (cấp Trường, Mầm non) tại `truong.hcm.edu.vn`, đối chiếu với hệ thống School Management và đề xuất bổ sung; mục 9 phân tích kỹ thuật bằng REA (trang công khai, trang chủ và màn hình 2.1 sau đăng nhập).
-- Phiên bản: 1.1
-- Ngày cập nhật: 2026-10-15
+- Mô tả: Kết quả khảo sát chi tiết chức năng và giao diện của Hệ thống thông tin quản lý giáo dục (cấp Trường, Mầm non) tại `truong.hcm.edu.vn`, đối chiếu với hệ thống School Management và đề xuất bổ sung; mục 9 phân tích kỹ thuật bằng REA (trang công khai, trang chủ và màn hình 2.1 sau đăng nhập); mục 10 là khảo sát bổ sung ngày 2026-10-19 (Tuyển sinh đầu cấp, mẫu nội dung hồ sơ kí, chỉ tiêu và mã số các biểu EMIS, 1.7 kiểm định) và đối chiếu với mã nguồn.
+- Phiên bản: 1.2
+- Ngày cập nhật: 2026-10-19
 - Trạng thái: Đã khảo sát
 - Người khảo sát: Claude, theo yêu cầu của Eric ngày 2026-10-13
 
@@ -10,7 +10,7 @@
 
 1. Eric đăng nhập bằng tài khoản quản trị đơn vị của một trường mầm non; Claude chỉ đọc giao diện trong phiên đó: mở menu, tải từng trang bằng yêu cầu xem, đọc tiêu đề, ô lọc, ô nhập, tên cột, tên nút, thẻ. Không bấm Lưu, Xóa, Gửi, Lấy dữ liệu, Tạo hồ sơ; không đổi năm học.
 2. Không ghi dữ liệu cá nhân hay số liệu của trường vào tài liệu này; chỉ ghi tên chức năng và cấu trúc màn hình.
-3. Đã khảo sát: 6 phân hệ, 98 màn hình có đường dẫn. Không xem được: phân hệ Tuyển sinh đầu cấp (chỉ mở ở học kỳ II năm 2025-2026); nội dung chỉ tiêu của các biểu báo cáo EMIS (biểu trống tới khi bấm Lấy dữ liệu, thao tác ghi nên không thực hiện); phân hệ Hồ sơ điện tử (có trong phân quyền, không có trong ô chọn phân hệ của tài khoản này).
+3. Đã khảo sát ngày 2026-10-13: 6 phân hệ, 98 màn hình có đường dẫn. Khi đó chưa xem được phân hệ Tuyển sinh đầu cấp và nội dung chỉ tiêu của các biểu báo cáo EMIS; ngày 2026-10-19 đã xem cả hai, kết quả ở mục 10. Phân hệ Hồ sơ điện tử vẫn không xem được (có trong phân quyền, không có trong ô chọn phân hệ của tài khoản này; mục 10.6).
 
 ## 2. Giao diện chung
 
@@ -379,3 +379,227 @@ Hoàn thành chương trình mầm non; đánh giá chuẩn nghề nghiệp giá
 ### 9.10 Việc còn lại
 
 - Chưa quan sát màn hình nhập Excel, tác vụ nền và "Tệp đã tạo"; cách làm như mục 9.8 (Eric tự mở màn hình, Claude chỉ đọc).
+
+## 10. Khảo sát bổ sung ngày 2026-10-19
+
+### 10.1 Phạm vi và cách khảo sát
+
+1. Cách làm như mục 1: Eric đăng nhập; Claude chỉ đọc giao diện (menu, tiêu đề, ô lọc, ô nhập, tên cột, tên nút, thẻ, nhãn trong hồ sơ). Không bấm Lấy dữ liệu, Ghi, Gửi, Tạo hồ sơ, Ký, Chuyển hồ sơ hay nút ghi nào khác.
+2. Chỉ ghi tên chức năng, cấu trúc màn hình, tên mục trong hồ sơ, tên và mã số chỉ tiêu của biểu mẫu. Không ghi tên trường, mã trường, tên người hay số liệu.
+3. Phạm vi: phân hệ Tuyển sinh đầu cấp (mục 10.2); nội dung bốn loại hồ sơ của phân hệ Quản lý kí hồ sơ (mục 10.3); tên, mã số chỉ tiêu của Biểu 01.ĐN-MN và các biểu EMIS khác, trang gửi báo cáo (mục 10.4); màn hình 1.7 Rà soát thông tin phục vụ kiểm định CLGD (mục 10.5); kiểm tra lại phân hệ Hồ sơ điện tử (mục 10.6). Mục 10.7 đối chiếu với mã nguồn của School Management.
+
+### 10.2 Phân hệ Tuyển sinh đầu cấp
+
+#### 10.2.1 Giao diện chung
+
+- Trang riêng `truong-tsdc.hcm.edu.vn`, đăng nhập riêng: tên đăng nhập, mật khẩu, chọn đơn vị (cấp học, phường/xã, trường), mã xác nhận, ghi nhớ tài khoản, quên mật khẩu, nút "Đăng nhập SSO".
+- Hệ thống chính chỉ mở phân hệ này ở học kỳ II của năm học cũ.
+- Thanh đầu trang: cấp học, năm học và học kỳ, Đổi mật khẩu, Thoát. Mọi trang có biểu mẫu "Gửi phản hồi" như mục 2.2.
+- Phân hệ Mầm non của hệ thống chính có thêm 5.11 "Danh sách trúng tuyển Tuyển sinh đầu cấp" (mục 3.5).
+
+#### 10.2.2 Menu
+
+| Mục | Màn hình | Đường dẫn |
+|---|---|---|
+| 1.1 | Hồ sơ học sinh cuối cấp mầm non | `TuyenSinhDauCap/mn/HoSoTuyenSinh.aspx` |
+| 1.2 | Gửi xác nhận hoàn thành hồ sơ cuối cấp lên cấp trên | `TuyenSinhDauCap/mn/XacNhanHoanThanhHoSoCuoiCap.aspx` |
+| 1.3 | Danh sách học sinh đăng ký trường tiên tiến | `TuyenSinhDauCap/MN/DanhSachHSDangKyTruongTienTien.aspx` |
+| 1.4 | Tiếp nhận hồ sơ tuyển sinh | `TuyenSinhDauCap/mn/HoSoTuyenSinhSauPhanTuyen.aspx` |
+| 1.5 | Gửi thông báo tuyển sinh đầu cấp | `TuyenSinhDauCap/mn/GuiThongBaoTuyenSinhDauCap.aspx` |
+| 1.6 | Chuyển hồ sơ trúng tuyển sang CSDL | `TuyenSinhDauCap/mn/TiepNhanHoSoTuyenSinhLenNamMoi.aspx` |
+| 1.7 | Danh sách kết quả chuyển hồ sơ | `TuyenSinhDauCap/MN/DanhSachKetQuaChuyenHoSo.aspx` |
+| 1.8 | Thông tin trường tuyển sinh theo bản đồ GIS | `TuyenSinhDauCap/ThongTinTruongTuyenSinh.aspx` |
+| 2.1 | Các dịch vụ được đăng ký tại trường | `TuyenSinhDauCap/SoGD/HCM/DichVuTruong.aspx` |
+| 3.1 | Nhóm người dùng | `TuyenSinhDauCap/NguoiDung/DSNhomQuyen.aspx` |
+| 3.2 | Danh sách người dùng | `TuyenSinhDauCap/NguoiDung/DSNguoiDung.aspx` |
+| 3.3 | Danh sách nhân sự | `TuyenSinhDauCap/NguoiDung/DSNhanSu.aspx` |
+| 3.4 | Danh sách lớp | `TuyenSinhDauCap/Lop/DSLop.aspx` |
+| 4.1 | Thống kê hồ sơ cuối cấp | `TuyenSinhDauCap/ThongKeSoLuongHoSoTuyenSinh.aspx` |
+| 5.1 | Danh sách hỗ trợ tuyển sinh | `TuyenSinhDauCap/SoGD/HCM/PhuHuynhGuiPhanAnh.aspx` |
+
+Nhóm 1.1, 1.2, 4.1 lo hồ sơ của trẻ lớp Lá (5 tuổi) chuẩn bị vào lớp 1; phụ huynh xác nhận hồ sơ trên cổng phụ huynh. Nhóm 1.3 đến 1.7 lo hồ sơ trẻ được phân tuyến vào trường.
+
+#### 10.2.3 Hồ sơ cuối cấp (1.1, 1.2, 4.1)
+
+| Mục | Nội dung chính |
+|---|---|
+| 1.1 | Nhãn: hạn điều chỉnh thông tin, kiểm dò, diện cư trú, xem theo (A–Z toàn trường hoặc A–Z theo lớp). Lọc: lớp, số định danh, họ tên, trạng thái kiểm dò (đủ, thiếu thông tin), loại định danh (đã có số ĐDCN, chưa có, đã cấp số tạm), trạng thái hồ sơ (sáu giá trị: PHHS chưa xác nhận, chờ đơn vị chỉnh sửa, chờ PHHS xác nhận lại, PHHS đã xác nhận, đã chỉnh sửa, PHHS đã xác nhận sau chỉnh sửa), nguồn đăng ký (PHHS đăng ký, phổ cập đăng ký, chưa đăng ký), trạng thái rà soát (đã, chưa duyệt), vị trí (có, không), đồng ý nhập học (đã, chưa). Cột: mã định danh, họ tên, ngày sinh, giới tính, mật khẩu, nơi sinh, lớp, số định danh cá nhân (do công an phường/xã cấp), nơi ở hiện tại (theo VNeID), xem vị trí, thông tin liên hệ, nội dung kiểm dò, PHHS đề xuất, trạng thái hồ sơ, trạng thái duyệt, PHHS đăng ký, giấy khai sinh, ảnh thông tin cư trú trên VNeID (hoặc giấy xác nhận cư trú), trường phân tuyến, PH đồng ý nhập học, minh chứng, đối tượng, hình thức ưu tiên, số nhà, đường, tổ, khu phố, phường/xã, tỉnh/thành phố. Nút: Tìm kiếm, Cập nhật từ Excel, Xác nhận hồ sơ, Đã chỉnh sửa thông tin, Duyệt hồ sơ, Hủy duyệt hồ sơ, Xuất Excel, Thông tin tài khoản, Khởi tạo mật khẩu, sáu nút Xuất PDF (khổ A5 hoặc A4 gập đôi; toàn bộ hoặc hồ sơ chọn; một tệp hoặc tách tệp), Tải danh sách lỗi, In phiếu kê khai, In phiếu thông tin |
+| 1.2 | Lưới theo lớp: tổng số hồ sơ cuối cấp, số hồ sơ đủ thông tin trên tổng số, hồ sơ thiếu thông tin. Ô "Xác nhận hoàn thành hồ sơ cuối cấp", người xác nhận, ngày xác nhận; nút Ghi |
+| 4.1 | Theo đơn vị: tổng số hồ sơ cuối cấp đã lấy sang tuyển sinh đầu cấp, số hồ sơ thiếu thông tin, tỷ lệ hồ sơ đủ thông tin (%); Xuất Excel |
+
+#### 10.2.4 Tuyển sinh vào trường (1.3 đến 1.7, 5.11)
+
+| Mục | Nội dung chính |
+|---|---|
+| 1.3 | Lọc: số định danh, họ tên, trường duyệt và xã/phường đồng ý (trúng tuyển, không trúng tuyển, chưa xác nhận). Cột: thông tin học sinh, nơi sinh, thông tin cuối cấp, số ĐDCN, nơi ở hiện tại (VNeID), họ tên cha, mẹ, số điện thoại, loại trường, tên trường, tiêu chí, kết quả học tập và thành tích, ngày đăng ký, ảnh minh chứng, trạng thái trường, trạng thái xã/phường, đồng ý nhập học, trường, lớp, tổ, khu phố, phường/xã, tỉnh/thành phố. Nút: Tìm kiếm, Xóa, Xuất Excel, In phiếu, Tải minh chứng, Xác nhận hồ sơ, Không đồng ý, Chưa xác nhận |
+| 1.4 | Nhận hồ sơ được phân tuyến về trường. Lọc: đợt tuyển sinh, trường cuối cấp, diện cư trú, phường, khu phố, số ĐDCN, họ tên, ngày sinh, họ tên cha, mẹ; bốn lọc đã/chưa: PH đồng ý nhập học, nộp giấy báo nhập học, nộp phiếu kê khai, nộp giấy khai sinh. Cột: thông tin học sinh, số ĐDCN, nơi ở hiện tại, liên hệ, hồ sơ nhập học, phường/xã và trường cuối cấp, giấy khai sinh, ảnh cư trú VNeID, minh chứng, địa chỉ (tổ, khu phố, phường/xã, tỉnh); ô tích giấy tờ đã nộp (giấy báo nhập học, phiếu kê khai, bản sao giấy khai sinh, học bạ tiểu học, giấy xác nhận hoàn thành chương trình tiểu học – mẫu dùng chung các cấp); phụ huynh đồng ý, từ chối nhập học. Nút: Tìm kiếm, Lưu dữ liệu, Xuất Excel, Tải phiếu thông tin, Hủy nhập học, In phiếu đăng ký, Mở rộng tìm kiếm |
+| 1.5 | Hai khối "Soạn nội dung tin nhắn" và "Danh sách người nhận". Lọc: loại hình (đại trà, tiên tiến, khảo sát), phân tuyến (đã, chưa), có số điện thoại, đã gửi thông báo, PH đồng ý nhập học, phường/xã, khu phố, số ĐDCN, họ tên. Cột: số ĐDCN, họ tên, ngày sinh, giới tính, số điện thoại, nội dung gửi, cuối cấp, mã của Bộ. Nút: Tìm kiếm, Gửi thông báo, Nhập từ Excel, Nhập từ Excel học sinh ngoài hệ thống, Sao chép nội dung |
+| 1.6 | Hai thẻ "Đồng bộ hồ sơ sang CSDL", "Xem kết quả đồng bộ". Lọc: đã/chưa chuyển, loại hồ sơ (có tài khoản, tự do), nơi ở hiện nay (tỉnh, phường/xã, khu phố), mã gói tin, họ tên hoặc số ĐDCN. Cột: mã học sinh, họ tên, số ĐDCN, giới tính, ngày sinh, chuyển hồ sơ sang CSDL, tự do, điểm trường, tỉnh thường trú, nơi ở hiện nay, phường/xã, khu phố, tổ. Lưới kết quả: mã học sinh, họ tên, số ĐDCN, kết quả, ghi chú. Nút: Tìm kiếm, Cập nhật, Chuyển hồ sơ sang CSDL (hộp xác nhận), Xuất Excel, Bảng kết quả, Mở rộng tìm kiếm; có hộp hỏi xóa lớp đã xếp. Số dòng mỗi trang 100 đến 1000 |
+| 1.7 | Hai thẻ "Danh sách kết quả chuyển hồ sơ", "Xem kết quả hủy nhập học". Lọc: họ tên, mã học sinh, số ĐDCN, loại hồ sơ, mã gói tin, mã GUID. Cột: mã học sinh, họ tên, số ĐDCN, giới tính, ngày sinh, lớp cuối cấp, tự do, điện thoại liên hệ, xếp lớp, mã GUID. Lưới kết quả: mã GUID, kết quả, ghi chú. Nút: Tìm kiếm, Hủy nhập học (hộp xác nhận), Xuất Excel |
+| 5.11 (hệ thống chính) | Bước 1 xếp lớp học sinh trúng tuyển; bước 2 chuyển sang hồ sơ học sinh (mục 3.5) |
+
+#### 10.2.5 Các màn hình còn lại
+
+| Mục | Nội dung chính |
+|---|---|
+| 1.8 | Thông tin trường: tên, vĩ độ, kinh độ, tỉnh/thành phố, phường/xã, khu phố (bắt buộc), điện thoại, địa chỉ; Cập nhật, Tìm kiếm, Xác nhận. Lưới điểm trường: mã, tên, địa chỉ, kinh tuyến, vĩ tuyến, xem vị trí, trạng thái kiểm dò |
+| 2.1 | Dịch vụ đăng ký tại trường: mã, tên, thứ tự; Tìm kiếm, Thêm mới, Xóa, Xuất Excel |
+| 3.1 | Nhóm người dùng: sửa, phân quyền, mã, tên, hiệu lực, là nhóm quản trị; Thêm mới, Xóa |
+| 3.2 | Danh sách người dùng: lọc mã nhân sự, họ tên, nhóm quyền; cột mã nhân sự, họ tên, tên đăng nhập, nhóm quyền, tài khoản gốc; Phân nhóm quyền, Ghi, Tìm kiếm, Đồng bộ dữ liệu, Xóa, Xuất Excel |
+| 3.3 | Danh sách nhân sự: lọc mã định danh, họ tên, điện thoại; cột mã định danh, họ tên, ngày sinh, giới tính, điện thoại, chức vụ; Đồng bộ dữ liệu, Xóa, Xuất Excel |
+| 3.4 | Danh sách lớp: lọc khối; cột tên lớp, khối, thứ tự, giáo viên chủ nhiệm; Đồng bộ dữ liệu, Xóa |
+| 5.1 | Hỗ trợ tuyển sinh (phụ huynh gửi phản ánh): lọc họ tên, số ĐDCN, trạng thái; cột họ tên, ngày sinh, số ĐDCN, email, điện thoại, nội dung đề xuất, ngày gửi, nội dung trả lời, trạng thái, người trả lời, thời gian trả lời; Tìm kiếm, Cập nhật, Gửi email, Xuất Excel |
+
+### 10.3 Phân hệ Quản lý kí hồ sơ: chi tiết
+
+#### 10.3.1 Menu và chứng thư số
+
+- Menu: 1.1 Quản lý chứng thư số nhà trường (`ChuKyDienTu/MN/DanhMucConDau.aspx`); 2.1 Đồng bộ chứng thư số (`KyHoSo/GuiDuLieuChungThuSo.aspx`); 2.2 Ký số hồ sơ gồm Ký hồ sơ trường, lớp, nhân sự, học sinh (`KyHoSo/HoSoTruong.aspx`, `HoSoLop.aspx`, `HoSoNhanSu.aspx`, `HoSoHocSinh.aspx`; mục học sinh Sở đánh nhầm số 2.3.4); 2.3 Xác nhận hoàn thành và gửi hồ sơ (`KyHoSo/XacNhanHoanThanh.aspx`).
+- 1.1 và 2.1: hướng dẫn, mã trường, tên trường, email, website, trạng thái chữ ký, kiểu chữ ký, nhà phát hành, tên đăng nhập, trạng thái đồng bộ với Bộ (2.1 thêm trạng thái đồng bộ), thông tin đăng ký, lịch sử yêu cầu đăng ký chứng thư số.
+- Biểu mẫu đăng ký: kiểu chữ ký (bắt buộc; hai giá trị REMOTE SIGNING, USB TOKEN), tên đăng nhập (bắt buộc), nhà phát hành (bắt buộc; năm giá trị VNPT-CA, BkavCA, VIETTEL, Ban Cơ yếu Chính phủ, MISA), mật khẩu, lý do.
+- Nút 1.1: Đăng ký tài khoản, Chỉnh sửa ảnh, Chọn ảnh, Tải ảnh con dấu, Ghi, Đăng ký. Nút 2.1: Đăng ký.
+
+#### 10.3.2 Ký hồ sơ (2.2) và gửi (2.3)
+
+| Màn hình | Nội dung chính |
+|---|---|
+| 2.2 chung | Nút: Tải file lỗi, Tải thông tin thay đổi, Hủy hồ sơ, Ký hồ sơ, Tạo hồ sơ. Hộp kí: nhà phát hành, tên đăng nhập, mật khẩu, Ký số, Đăng nhập và ký. Trạng thái thấy được: "Chưa tạo hồ sơ", "Chờ ký". Số dòng mỗi trang 10, 20, 50, 100 |
+| Lưới trường | Mã trường, tên trường, tên hiệu trưởng, trạng thái, xem hồ sơ, tệp hồ sơ, ngày tạo, ngày ký, ghi chú, ngày thay đổi |
+| Lưới lớp | Lọc khối (nhóm trẻ, lớp mẫu giáo). Lớp, khối, trạng thái, xem hồ sơ, tệp hồ sơ, ngày tạo, ngày ký, ghi chú, ngày thay đổi |
+| Lưới nhân sự | Mã nhân sự, họ tên, ngày sinh, trạng thái nhân sự, vị trí việc làm, trạng thái, xem hồ sơ, tệp hồ sơ, ngày tạo, ngày ký, ghi chú, ngày thay đổi |
+| Lưới học sinh | Lọc khối, lớp. Mã học sinh, tên học sinh, ngày sinh, lớp, trạng thái học sinh, trạng thái, xem hồ sơ, tệp hồ sơ, ngày tạo, ngày ký, ghi chú, ngày thay đổi |
+| Xem hồ sơ | Cửa sổ "Xem hồ sơ ký": bên trái "Thông tin chữ ký số"; bên phải nội dung hồ sơ dựng từ tệp XML theo mã định danh hồ sơ và loại hồ sơ (`HO_SO_TRUONG`, `HO_SO_LOP`, `HO_SO_NHAN_SU`, `HO_SO_HOC_SINH`); phóng to, Tải xuống, In |
+| Sổ đầu bài | Nút "Ký sổ đầu bài", "Xuất dữ liệu sổ đầu bài" có trong trang nhưng bị ẩn ở cấp Mầm non: cấp Mầm non không kí sổ đầu bài |
+| 2.3 | Nút: Tìm kiếm, Xác nhận hoàn thành, Hủy xác nhận hoàn thành, Gửi hồ sơ ("Xuất dữ liệu sổ đầu bài" bị ẩn). Cột: tên trường, tên hiệu trưởng, trạng thái, xem hồ sơ, tệp hồ sơ, xác nhận hoàn thành, trạng thái gửi, mã định danh hồ sơ, ghi chú, ngày xác nhận hoàn thành, xác nhận gửi, ngày gửi |
+
+#### 10.3.3 Nội dung bốn loại hồ sơ (tên mục, không có giá trị)
+
+| Hồ sơ | Phần và mục |
+|---|---|
+| Hồ sơ trường | Phần "Thông tin chung": tên trường, mã trường, mã định danh tổ chức (theo NĐ 69), điện thoại, fax, website, email, mã số thuế, loại hình trường, loại trường, tên và điện thoại hiệu trưởng; tỉnh, phường/xã, địa chỉ, khu vực, chi bộ đảng, chuẩn quốc gia mức độ, vùng, vùng đặc biệt khó khăn, diện tích (m²); các ô có/không: trường quốc tế, có học sinh khuyết tật, có học sinh bán trú, có dạy 2 buổi/ngày, dùng máy vi tính phục vụ quản lý và giáo dục trẻ, có điện lưới, kết nối Internet, có công trình vệ sinh, có chỗ rửa tay thuận tiện (nước và xà phòng), có nguồn nước sạch, có chương trình giáo dục về giới tính, phòng chống bạo lực, xâm hại. Mỗi điểm trường một phần "Thông tin điểm trường": tên, mã, địa chỉ, điện thoại, diện tích, phương tiện đi lại, khoảng cách đến trường chính (km) |
+| Hồ sơ lớp | Tên trường, mã trường, khối, tên lớp, mã và tên phân hiệu, điểm trường; lớp dạy tăng cường tiếng Việt, lớp ghép, tên lớp ghép, nhóm trẻ ghép, bán trú, học 2 buổi, dạy chương trình làm quen tiếng Anh, có trẻ khuyết tật, chương trình giáo dục mầm non mới, chương trình chăm sóc giáo dục. Không có danh sách học sinh, giáo viên |
+| Hồ sơ nhân sự | Mười hai phần: thông tin chung; vị trí việc làm, tiêu chuẩn chức danh; phụ cấp; quy trình đào tạo; đánh giá, phân loại; đánh giá chuẩn nghề nghiệp (giáo viên); quá trình lương; quá trình bồi dưỡng; quá trình ngoại ngữ; quá trình khen thưởng; quan hệ gia đình; quá trình công tác. Thông tin chung: tên trường, họ tên, ngày sinh, đoàn viên, đảng viên, giới tính, số sổ BHXH, trạng thái cán bộ, nơi thường trú (tỉnh, xã, chi tiết), số CMND/CCCD, điện thoại, email, số định danh cá nhân, dân tộc, tôn giáo, quê quán. Vị trí việc làm: vị trí, cấp dạy, biên chế cấp dạy chính, dạy nhóm lớp, dạy nhóm lớp kiêm nhiệm, đã tập huấn kĩ năng sống, dạy học sinh khuyết tật hòa nhập, số buổi dạy/ngày, nhóm chức vụ, hình thức hợp đồng, ngày và cơ quan tuyển dụng, nghề nghiệp khi tuyển, mã số, ngạch/hạng. Phụ cấp: thu hút, thâm niên, ưu đãi nghề, hệ số phụ cấp chức vụ, phần trăm vượt khung, mã và tên bậc lương, hệ số lương, ngày hưởng lương. Đào tạo: kết quả bồi dưỡng thường xuyên, chuyên ngành chính, khác, trình độ chính, khác, lý luận chính trị, quản lý giáo dục, ngoại ngữ chính, trình độ ngoại ngữ, chứng chỉ ngoại ngữ (nhóm, loại), điểm, khung năng lực. Đánh giá: đánh giá viên chức/công chức, danh hiệu phong tặng, giáo viên dạy giỏi. Bảng: chuẩn nghề nghiệp (tiêu chí, mức tự đánh giá, mức cấp trên), lương, đào tạo/bồi dưỡng, ngoại ngữ, khen thưởng, quan hệ gia đình, quá trình công tác |
+| Hồ sơ học sinh | Phần "Thông tin chung": tên trường, khối, tên lớp, mã và tên phân hiệu; họ tên, ngày sinh, giới tính, trạng thái, dân tộc, dân tộc khai sinh, quốc tịch, điện thoại liên hệ; số CMND/CCCD, số định danh cá nhân, ngày cấp, nơi cấp; quê quán (tỉnh, xã, tổ thôn), nơi thường trú (tỉnh, xã, chi tiết), chỗ ở hiện nay, nơi sinh, khu vực; loại khuyết tật, đối tượng chính sách, có cha dân tộc, có mẹ dân tộc, bán trú. Phần "Thông tin gia đình": tên, nghề nghiệp, năm sinh của cha, mẹ, người đỡ đầu |
+
+### 10.4 Báo cáo số liệu Mầm non: chỉ tiêu và mã số
+
+#### 10.4.1 Menu và nút
+
+| Mục | Lập | Gửi |
+|---|---|---|
+| 1.1 Báo cáo EMIS đầu năm | 1.1.1 `MN/BaoCaoMNBieu1.aspx` | 1.1.2 `baocao/mn/baocaoemisdaunam.aspx` |
+| 1.2 Báo cáo cơ sở vật chất | 1.2.1 `MN/BaoCaoHCM_CSVC_PhongHoc.aspx` | 1.2.2 `MN/BaoCaoHCM_CSVC_GuiDuLieu.aspx` |
+| 1.3 Báo cáo sức khỏe học sinh | 1.3.1 `GiaoDucTheChat/mn/LapBaoCaoSoLieu.aspx` | 1.3.2 `baocao/mn/BaoCaoGiaoDucTheChatDauNam.aspx` |
+| 2.1 Báo cáo EMIS cuối năm | 2.1.1 `MN/BaoCaoMNBieu1_CN.aspx` | 2.1.2 `baocao/mn/baocaoemiscuoinam.aspx` |
+| 2.2 Báo cáo đội ngũ | 2.2.1 Tổng hợp chung CBQL – giáo viên; 2.2.2 Tổng hợp ngoại ngữ – tin học; 2.2.3 Chuẩn nghề nghiệp nhân sự | 2.2.4 |
+| 2.3 Báo cáo đề án ngoại ngữ | 2.3.1 Thống kê số trường, số trẻ (`MN/DANN_BieuBaoCao.aspx`) | 2.3.2 |
+| 2.4 Báo cáo GDMN | 2.4.1 Lập báo cáo cuối năm (`VuGiaoDucMamNon/BaoCaoCuoiNamBieu1.aspx`); trống ở học kỳ I | 2.4.2 |
+
+- Trang lập: "Lấy dữ liệu" (1.1.1 ghi "Lấy dữ liệu từ hệ thống"), "Xóa dữ liệu", "Xuất Excel". 2.3.1 có thêm "Ghi" và ghi chú "Chỉ tiêu số 5: thầy/cô nhập trực tiếp vào cột Tổng số". 1.2.1 có "Lấy dữ liệu năm trước", "Xóa dữ liệu", "Ghi", "Xuất Excel".
+- Trang gửi: "Gửi hồ sơ", "Xuất file lỗi", "Xuất file lỗi 4", "Đặt trạng thái gửi lại", "Hủy", "Thực hiện". 1.2.2 chỉ có "Gửi dữ liệu".
+
+#### 10.4.2 Biểu 01.ĐN-MN (1.1.1): năm thẻ
+
+Các dòng ghi dạng TT, chỉ tiêu, mã số, đơn vị. Mã số đánh liên tục 01 đến 217 qua bốn thẻ đầu (thẻ 4 mở đầu bằng dòng Tổng số mã 201); thẻ 5 đánh lại từ 1.
+
+| Thẻ | Cột giá trị | Nhóm chỉ tiêu (mã số) |
+|---|---|---|
+| 1. Trường – Lớp | Tổng số, Công lập, Tư thục, Dân lập | I. Cơ sở giáo dục mầm non: 1.1 Trường (01); 1.1.1 Nhà trẻ (02), trong đó trường có điện, kết nối internet, dùng máy vi tính phục vụ quản lý và giáo dục trẻ, có nước uống, hệ thống vệ sinh tiện lợi, chỗ rửa tay thuận tiện (03–08); 1.1.2 Trường mẫu giáo (09), trong đó đạt chuẩn quốc gia mức độ 1, mức độ 2, có lớp giáo dục chuyên biệt, có điện, internet, máy vi tính, nước uống, vệ sinh tiện lợi và riêng theo giới, chỗ rửa tay (nước và xà phòng), chương trình giáo dục về giới tính và phòng chống bạo lực, xâm hại, kế hoạch phòng chống thiên tai và ứng phó biến đổi khí hậu (10–20); 1.1.3 Trường mầm non (21), cùng các dòng con như 1.1.2 (22–32); 1.2 Cơ sở GDMN độc lập (33): nhóm trẻ độc lập tối đa 7 trẻ, trên 7 trẻ, lớp mẫu giáo độc lập, lớp mầm non độc lập (34–37); 1.3 Số phân hiệu (38); 1.4 Số điểm trường (39). II. Nhóm, lớp: tổng số (40); 2.1 Nhóm trẻ (41) chia 3–12, 13–24, 25–36 tháng, ghép 2, ghép 3 độ tuổi, độc lập tối đa 7, trên 7 trẻ, có 01, có 02 trẻ khuyết tật học hòa nhập (42–50); 2.2 Lớp mẫu giáo (51) chia 3–4, 4–5, 5–6 tuổi, lớp giáo dục chuyên biệt, ghép 2, ghép 3 độ tuổi, lớp MG độc lập, lớp MN độc lập, có 01, có 02 trẻ khuyết tật hòa nhập (52–61) |
+| 2. Trẻ em | Tổng số (Tổng, Nữ), Dân tộc thiểu số (Tổng, Nữ) | 3.1 Quy mô trẻ (62): 3.1.1 nhà trẻ (63) gồm học 2 buổi/ngày, bán trú (có tổ chức ăn trưa), khuyết tật học hòa nhập, học trong nhóm trẻ, lớp mầm non độc lập (64–67); 3.1.2 mẫu giáo (68) gồm học 2 buổi, bán trú, khuyết tật hòa nhập, khuyết tật học lớp chuyên biệt, học trong lớp MG, MN độc lập, học lớp MG 5 tuổi (69–74). 3.2 Theo độ tuổi: 3.2.1 nhà trẻ (75) chia 3–12, 13–24, 25–36 tháng, 3, 4, 5, trên 5 tuổi (76–82); 3.2.2 mẫu giáo (83) chia dưới 2, 2, 3, 4, 5, 6, 7, trên 7 tuổi (84–91); 3.2.3 tổng quy mô theo độ tuổi (92) chia dưới 1, dưới 2, 2 đến 7, trên 7 tuổi (93–101). 3.3 Dinh dưỡng: nhà trẻ được khám và đánh giá (102) chia suy dinh dưỡng thể nhẹ cân, thấp còi, còi cọc, thừa cân béo phì (103–106); mẫu giáo (107) chia như trên (108–111). 3.4 Đối tượng chính sách: hỗ trợ chi phí học tập (Điều 17 NĐ 238/2025) (112), nhà trẻ bán trú (NĐ 66/2025/NĐ-CP) (113), mẫu giáo dân tộc rất ít người (NĐ 57/2017/NĐ-CP) (114), mẫu giáo được hỗ trợ ăn trưa (NĐ 105/2020/NĐ-CP) (115), mầm non được hưởng trợ cấp (NĐ 105/2020/NĐ-CP) (116) |
+| 3. Đội ngũ | Tổng số, Nữ, Dân tộc, Phân loại (Viên chức, Hợp đồng lao động, HĐLV không xác định thời hạn, HĐLV xác định thời hạn) | 4.1 Cán bộ quản lý (117): 4.1.1 nhà trẻ (118) gồm hiệu trưởng, phó hiệu trưởng, trình độ trung cấp SP, cao đẳng, đại học, thạc sĩ, tiến sĩ, khác (119–126); 4.1.2 mẫu giáo, mầm non (127), cùng các dòng con (128–135). 4.2 Vị trí chức danh nghề nghiệp chuyên ngành (136): 4.2.1 giáo viên nhà trẻ (137) gồm trình độ trung cấp đến tiến sĩ, chưa qua đào tạo, hạng I, II, III, độ tuổi 20–29, 30–39, 40–49, 50–59, từ 60, kiêm nhiệm hỗ trợ giáo dục người khuyết tật, kiêm nhiệm vị trí chuyên môn dùng chung (138–153); 4.2.2 giáo viên mẫu giáo (154), cùng các dòng con (155–170); 4.2.3 hỗ trợ giáo dục người khuyết tật (171) tại nhà trẻ, trường MG, trường MN (172–174). 4.3 Vị trí chuyên môn dùng chung (175): nhà trẻ (176) gồm văn thư, kế toán, thủ quỹ, thư viện, y tế trường học, kiêm nhiệm 2 hoặc 3 vị trí (177–182); mẫu giáo, mầm non (183), cùng các dòng con (184–189). 4.4 Vị trí hỗ trợ, phục vụ (190): nhà trẻ (191) gồm nấu ăn, phục vụ, bảo vệ, khác (192–195); mẫu giáo, mầm non (196), cùng các dòng con (197–200) |
+| 4. Cơ sở vật chất | Tổng số, Kiên cố, Bán kiên cố, Tạm | Tổng số phòng (201). 5.1 Nhà trẻ: phòng học (nuôi, dạy, chăm sóc trẻ) (202), trong đó nhờ, mượn (203); phòng giáo dục thể chất, giáo dục nghệ thuật (204) gồm GDTC, GDNT, phòng đa năng (205–207); sân chơi riêng (208, đơn vị sân); phòng tin học (209). 5.2 Mẫu giáo: cùng các dòng (210–217) |
+| 5. Ngân sách nhà nước | Dự toán, Ước thực hiện (triệu đồng) | Tổng chi các nguồn thuộc NSNN (1). I. Chi đầu tư (2): vốn đầu tư từ ngân sách địa phương (3), trong cân đối ngân sách địa phương (4) gồm cấp tỉnh quản lý (5), cấp xã quản lý (7), vốn trái phiếu chính quyền địa phương (8); nguồn vốn ngân sách trung ương (9) gồm chương trình mục tiêu quốc gia, chương trình mục tiêu, ODA, trái phiếu Chính phủ, ngân sách khác (10–14). II. Chi thường xuyên (15): 1. Giáo dục mầm non (16) chia theo nguồn (NSNN, phí và lệ phí để lại, khác: 17–19) và theo nhóm chi (thanh toán cá nhân, hàng hóa dịch vụ, hỗ trợ và bổ sung, khác: 20–23); các mục 2 đến 7 lặp cùng cách chia, trong đó 6. Đào tạo khác trong nước (56–63), 7. Đào tạo lại, bồi dưỡng nghiệp vụ cho cán bộ, công chức, viên chức (64–71) |
+
+Ghi chú: ghi chép thẻ 5 không có mã 6; tên các mục 2 đến 5 của chi thường xuyên (mã 24–55) chưa ghi, chỉ biết cách chia giống mục 1.
+
+#### 10.4.3 Gửi báo cáo đầu năm (1.1.2)
+
+- Lưới 1, hồ sơ cần gửi: chọn, tên hồ sơ, tổng số, số đã gửi thành công, số cần gửi, lần gửi cuối, trạng thái, hành động. Năm dòng: hồ sơ trường, hồ sơ giáo viên, hồ sơ lớp, hồ sơ học sinh, sức khỏe nuôi dưỡng kỳ I.
+- Lưới 2, biểu mẫu: biểu mẫu báo cáo, ngày gửi, trạng thái, hoàn thành dữ liệu ("Đã đầy đủ dữ liệu", "Không có dữ liệu"), trạng thái dữ liệu. Năm dòng: Biểu 01.ĐN-MN Trường – nhóm, lớp; Biểu 01.ĐN-MN Trẻ em; Biểu 01.ĐN-MN Đội ngũ; Biểu 01.ĐN-MN Phòng học; Biểu 08.ĐN-NSNN Ngân sách nhà nước.
+
+#### 10.4.4 Báo cáo cơ sở vật chất của TP.HCM (1.2.1, 1.2.2)
+
+- Năm thẻ: 1. Cơ sở vật chất, 2. Nhà vệ sinh, 3. Cơ sở vật chất khác, 4. Thiết bị dạy học, 5. Thông tin khác. Thẻ 2 đến 5 chỉ tải khi bấm vào thẻ, chưa đọc.
+- Thẻ 1, cột: Tổng số; Kiên cố (Tổng số, Xây dựng mới); Bán kiên cố (Tổng số, Xây dựng mới); Tạm. Mã số 01 đến 84:
+
+| Khối (mã) | Dòng |
+|---|---|
+| A. Khối phòng nuôi dưỡng, chăm sóc trẻ (01) | Chia nhà trẻ (02), mẫu giáo (08); mỗi phần: số phòng theo chức năng, phòng học (nuôi, dạy, chăm sóc trẻ), phòng vệ sinh, phòng ngủ, phòng khác |
+| B. Khối phòng phục vụ học tập (14) | Số phòng theo chức năng, thư viện, phòng giáo dục thể chất, phòng đa chức năng (nghệ thuật), phòng khác; chia nhà trẻ (thêm phòng giáo dục nghệ thuật) và mẫu giáo (thêm phòng hỗ trợ giáo dục hòa nhập) |
+| C. Khối phòng tổ chức ăn (35) | Số phòng, nhà bếp, nhà kho, phòng khác; chia nhà trẻ, mẫu giáo |
+| D. Khối phòng khác (50) | Phòng y tế, khu vệ sinh giáo viên, khu vệ sinh học sinh (trong đó bố trí trong lớp học); chia nhà trẻ, mẫu giáo |
+| E. Khối phòng hành chính quản trị (68) | Phòng hiệu trưởng, phó hiệu trưởng, văn phòng, phòng họp, phòng hành chính quản trị, phòng bảo vệ, phòng truyền thống, nhà công vụ giáo viên, phòng nhân viên, nhà kho, phòng khác |
+| F. Khối công trình công cộng (81) | Nhà xe giáo viên, phòng khác |
+
+- 1.2.2 Gửi: biểu mẫu, ngày gửi, trạng thái, hoàn thành dữ liệu; mỗi thẻ một dòng.
+
+#### 10.4.5 Các biểu khác
+
+| Biểu | Cấu trúc |
+|---|---|
+| 1.3.1 Sức khỏe đầu năm | Cột Học sinh (Tổng số, Nữ, Dân tộc); nhóm I. Trường, II. Học sinh, III. Nhân viên y tế. Dòng chi tiết chỉ hiện sau khi Lấy dữ liệu, chưa ghi |
+| 2.1.1 EMIS cuối năm | Cột STT, mã, nội dung, đơn vị. I Trường: nhà trẻ, trường mẫu giáo, trường mầm non, nhóm trẻ độc lập, lớp mẫu giáo độc lập, nhóm trẻ và lớp MG độc lập, số điểm trường. II Nhóm, lớp: nhóm trẻ, lớp mẫu giáo. III Trẻ em: quy mô (nhà trẻ, mẫu giáo, trong đó 5–6 tuổi); dinh dưỡng của nhà trẻ, mẫu giáo được khám (nhẹ cân, thấp còi, còi cọc, thừa cân béo phì). VI (Sở ghi VI, mục con đánh 4.x) Cán bộ quản lý, giáo viên, nhân viên: hiệu trưởng, phó hiệu trưởng (nhà trẻ; MG, MN); giáo viên nhà trẻ, mẫu giáo theo đánh giá chuẩn nghề nghiệp (tốt, khá, đạt, chưa đạt); giáo viên nghỉ hưu, tuyển mới trong năm (trong đó nữ); nhân viên (trong đó nữ) |
+| 2.2.1 Tổng hợp chung CBQL – giáo viên | Cột Tổng số, Nữ. Thẻ "1. Cán bộ quản lý": tổng số trường, lớp; cán bộ quản lý, hiệu trưởng, phó hiệu trưởng, mỗi khối chia trình độ (trung cấp, cao đẳng, đại học, thạc sĩ, tiến sĩ, khác), độ tuổi (dưới 31, 31–35, 36–40, 41–45, 46–50, 51–55, 56–60, khác), hạng chức danh (hạng II, III, IV, hạng I, II, III theo TT01, khác), kết quả đánh giá viên chức theo NĐ 90 (hoàn thành xuất sắc, tốt, hoàn thành, không hoàn thành). Thẻ "2. Giáo viên – Nhân viên": số trường, lớp, giáo viên theo nhóm dạy (nhà trẻ, mẫu giáo), trình độ, hạng, kết quả đánh giá, giáo viên dạy giỏi (cấp trường, huyện, tỉnh, toàn quốc); nhân viên (văn thư, kế toán, y tế, thủ quỹ, khác) |
+| 2.2.2 Ngoại ngữ – tin học | Cột Tổng số, Nữ. Thẻ CBQL (CBQL, hiệu trưởng, phó hiệu trưởng): ngoại ngữ theo khung 6 bậc (bậc 1–6, khác), tin học (cơ bản, nâng cao, khác). Thẻ giáo viên: ngoại ngữ (trên đại học, đại học, cao đẳng, khác, khung 6 bậc), tin học (trên đại học, đại học, cao đẳng, trung cấp, chứng chỉ cơ bản, nâng cao, khác) |
+| 2.2.3 Chuẩn nghề nghiệp | Thẻ CBQL: tổng số lớp; hiệu trưởng tự đánh giá, phó hiệu trưởng tự đánh giá, cấp trên đánh giá phó hiệu trưởng, mỗi khối có xếp loại chung và tiêu chí 1–18. Thẻ giáo viên: lớp, giáo viên; giáo viên tự đánh giá, cấp trên đánh giá, mỗi khối có xếp loại chung và tiêu chí 1–15 |
+| 2.3.1 Đề án ngoại ngữ | Năm chỉ tiêu: 1. tổng số trường mầm non; 2. số trường cho trẻ mẫu giáo làm quen tiếng Anh; 3. tổng số trẻ; 4. số trẻ được làm quen tiếng Anh; 5. số giáo viên tham gia (nhập tay vào cột Tổng số) |
+| 2.4.1 GDMN cuối năm | Trống ở học kỳ I, chưa có cấu trúc |
+
+### 10.5 Màn hình 1.7 Rà soát thông tin phục vụ kiểm định CLGD
+
+- Đường dẫn `baocao/MN/kiemdinhchatluong.aspx`; nút Lấy dữ liệu, Ghi.
+- Trường: tên trường (bắt buộc, tối đa 200 ký tự), mã trường (bắt buộc, tối đa 20 ký tự), loại hình (bắt buộc), cấp học, số lớp; năm, ngày công nhận chuẩn quốc gia, mức độ; năm, ngày công nhận kiểm định chất lượng giáo dục, cấp độ; số phòng học, số phòng bộ môn; diện tích đất (m²), diện tích sàn xây dựng (m²); số học sinh, diện tích đất trên học sinh (m²), diện tích sàn xây dựng trên học sinh (m²); thời điểm đăng ký chuẩn quốc gia; ghi chú "Trường chưa đạt tiêu chí nào, lý do và nội dung đề nghị hỗ trợ để đạt chuẩn" (tối đa 500 ký tự).
+
+### 10.6 Hồ sơ điện tử
+
+- Ô chọn phân hệ của tài khoản có 6 phân hệ: Quản lý giáo dục Mầm Non, CSVC-TBDH, Tuyển sinh đầu cấp, Báo cáo số liệu Mầm non, Quản lý kí hồ sơ, Quản trị hệ thống.
+- "Hồ sơ điện tử" chỉ có trong 1.2 Phân quyền nhóm theo phần mềm: tài khoản trường chưa được cấp phần mềm này, không xem được màn hình, không khảo sát thêm được.
+
+### 10.7 Đối chiếu với mã nguồn School Management (ngày 2026-10-19)
+
+#### 10.7.1 Báo cáo số liệu EMIS (DT-16 phần 16j, YCTD-129; `apps/api/src/emis`, `apps/api/src/facilities/emis-calc.ts`, `packages/shared/src/emis.ts`)
+
+| Số | Hệ thống của Sở | School Management |
+|---|---|---|
+| E1 | Biểu 01.ĐN-MN năm thẻ: Trường – Lớp, Trẻ em, Đội ngũ, Cơ sở vật chất, Ngân sách nhà nước | Sáu thẻ: Trường – lớp học, Học sinh, Học sinh theo độ tuổi, Đội ngũ, Phòng học, Ngân sách nhà nước; độ tuổi tách thẻ riêng |
+| E2 | Mã số 01 đến 217 liên tục, khoảng 217 dòng | Mã tự đặt theo thẻ (1.01 đến 5.11), khoảng 38 dòng; tên chỉ tiêu tự đặt, có cảnh báo "cần đối chiếu" |
+| E3 | Cột khác nhau theo thẻ (thẻ 1 chỉ theo loại hình; thẻ 2 có Tổng, Nữ cho tổng số và cho dân tộc thiểu số; thẻ 3 có bốn cột phân loại hợp đồng; thẻ 4 Kiên cố, Bán kiên cố, Tạm) | Một bộ sáu cột cho mọi thẻ (tổng số, công lập, tư thục, dân lập, nữ, dân tộc thiểu số) |
+| E4 | Biểu 08.ĐN-NSNN: hai cột Dự toán, Ước thực hiện; mã 1 đến 71 theo nguồn vốn và nhóm chi | Ba cột (quyết toán năm trước, dự toán, ước thực hiện); sáu dòng 6.01 đến 6.06 |
+| E5 | Chỉ tiêu cần: tiêu chí trường (điện, nước uống, vệ sinh, rửa tay, chuẩn quốc gia mức độ), nhóm lớp ghép, độc lập, có trẻ khuyết tật; trẻ học 2 buổi, bán trú; dinh dưỡng theo thể; đối tượng chính sách theo NĐ 238/2025, 66/2025, 57/2017, 105/2020; đội ngũ theo trình độ, hạng chức danh, độ tuổi, kiêm nhiệm, vị trí việc làm, loại hợp đồng; sân chơi, phòng tin học | Phần lớn dữ liệu đã có ở hồ sơ trường (16e), lớp (15b), học sinh (16g), cân đo (16h), nhân sự theo danh mục Bộ (16f), phòng (16i) nhưng Biểu 1 chưa dùng; chưa có danh mục đối tượng chính sách theo từng nghị định |
+| E6 | 1.2.1 cơ sở vật chất của TP.HCM: sáu khối A đến F, mã 01 đến 84; cột Kiên cố, Bán kiên cố có thêm "Xây dựng mới" | Khối, loại phòng theo danh mục của mình (mã CS.x.yy); cột có nhờ mượn, diện tích, không có xây dựng mới. Thẻ 2 đến 5 tự đặt (của Sở chưa đọc) |
+| E7 | 2.1 cuối năm: I Trường, II Nhóm lớp, III Trẻ em, VI Cán bộ – giáo viên – nhân viên (chuẩn nghề nghiệp, nghỉ hưu, tuyển mới) | Sáu mục I đến VI tự đặt (có kết quả giáo dục, cơ sở vật chất; chưa có nghỉ hưu, tuyển mới, giáo viên theo mức chuẩn nghề nghiệp) |
+| E8 | 2.2 đội ngũ: ba biểu (tổng hợp chung có bốn cách chia; ngoại ngữ – tin học theo khung 6 bậc; chuẩn nghề nghiệp theo từng tiêu chí 1–18, 1–15) | Ba thẻ với cột tự đặt (trình độ gộp, có ngoại ngữ, tiếng Anh, bậc 3 trở lên; số được đánh giá theo mức); chưa có độ tuổi, hạng, đánh giá viên chức, dạy giỏi, theo tiêu chí |
+| E9 | 2.3 đề án ngoại ngữ: năm chỉ tiêu, chỉ tiêu 5 nhập tay | Hai thẻ theo nhóm tuổi (số nhóm lớp, số trẻ, trẻ nữ, số tiết/tuần) và giáo viên (của trường, thuê ngoài, người nước ngoài) |
+| E10 | 2.4 GDMN cuối năm trống ở học kỳ I | Luôn tính số liệu |
+| E11 | Trang gửi 1.1.2: lưới hồ sơ (hồ sơ trường, giáo viên, lớp, học sinh, sức khỏe kỳ I) và lưới biểu (năm dòng theo Biểu 01, 08); nút Gửi hồ sơ, Xuất file lỗi, Đặt trạng thái gửi lại, Hủy, Thực hiện; trang lập có "Xóa dữ liệu" | Danh sách gửi bảy biểu theo màn hình, mỗi biểu một dòng; chưa có lưới hồ sơ, chưa có "Xóa dữ liệu"; trạng thái gửi đánh dấu tay (đúng hướng bản chạy nội bộ) |
+
+#### 10.7.2 Quản lý kí hồ sơ (DT-16 phần 16k, YCTD-130; `apps/api/src/signing`, `apps/portal/src/signing`)
+
+| Số | Hệ thống của Sở | School Management |
+|---|---|---|
+| K1 | Cấp Mầm non ẩn "Ký sổ đầu bài", "Xuất dữ liệu sổ đầu bài" ở 2.2 và 2.3 | Có thẻ "Sổ đầu bài" theo tháng (điểm danh, hoạt động) và nút Xuất dữ liệu sổ đầu bài: làm thừa so với Sở |
+| K2 | Hồ sơ trường: phần thông tin chung theo danh sách mục cố định và một phần cho mỗi điểm trường | In cây đơn vị, sáu thẻ của 1.1 Hồ sơ trường và bảng phân hiệu, điểm trường |
+| K3 | Hồ sơ lớp: thông tin lớp và các ô chương trình, lớp ghép; không có danh sách | Thông tin lớp, giáo viên phụ trách, danh sách học sinh |
+| K4 | Hồ sơ nhân sự mười hai phần (lương, phụ cấp, đào tạo, ngoại ngữ, khen thưởng, gia đình, công tác, chuẩn nghề nghiệp), có CCCD, số định danh, sổ BHXH | Khoảng 15 mục thông tin chính và lớp phụ trách; cố ý không in số định danh, tài khoản ngân hàng, mã số thuế |
+| K5 | Hồ sơ học sinh: thông tin chung (có CCCD, số định danh, ngày cấp, nơi cấp, quê quán, thường trú, dân tộc, quốc tịch, khuyết tật, đối tượng chính sách) và gia đình (tên, nghề nghiệp, năm sinh cha, mẹ, người đỡ đầu) | 13 mục chính và bảng cha mẹ (họ tên, quan hệ, liên hệ chính); không in số định danh, số điện thoại |
+| K6 | Kiểu chữ ký hai giá trị (REMOTE SIGNING, USB TOKEN); nhà phát hành chọn trong năm giá trị (VNPT-CA, BkavCA, VIETTEL, Ban Cơ yếu Chính phủ, MISA) | Ba kiểu (thêm HSM); nhà phát hành là ô chữ tự do |
+| K7 | 1.1 hiện mã trường, tên trường, email, website; lịch sử yêu cầu đăng ký chứng thư số | Không hiện thông tin trường; có lịch sử thao tác |
+| K8 | Xem hồ sơ dựng từ XML theo loại `HO_SO_TRUONG`, `HO_SO_LOP`, `HO_SO_NHAN_SU`, `HO_SO_HOC_SINH`; khung "Thông tin chữ ký số" | Tệp PDF có khối "Xác nhận kí nội bộ"; không có tệp dữ liệu XML |
+| K9 | Trạng thái "Chưa tạo hồ sơ", "Chờ ký"; lưới có cột ghi chú và cột riêng theo loại (tên hiệu trưởng; khối; ngày sinh, trạng thái nhân sự, vị trí việc làm; mã học sinh, ngày sinh, lớp, trạng thái học sinh); lọc khối ở lớp, khối và lớp ở học sinh; nút Tải file lỗi | Trạng thái "Đã tạo, chưa kí"; lưới chung một cột thông tin phụ; chưa có cột ghi chú, cột riêng, lọc khối, Tải file lỗi |
+| K10 | 2.3 có cột tên trường, tên hiệu trưởng, xác nhận hoàn thành, trạng thái gửi, ngày xác nhận hoàn thành, xác nhận gửi, ngày gửi | Lưới hồ sơ đã kí với mã định danh, trạng thái, ngày gửi; tên cột khác |
+
+#### 10.7.3 Rà soát kiểm định 1.7 (DT-16 phần 16e, YCTD-127; `apps/api/src/facilities/accreditation-review.ts`)
+
+| Số | Hệ thống của Sở | School Management |
+|---|---|---|
+| R1 | Tên trường, mã trường, loại hình (bắt buộc), cấp học | Không có trên màn hình |
+| R2 | Năm, ngày công nhận chuẩn quốc gia, mức độ; năm, ngày công nhận kiểm định CLGD, cấp độ; thời điểm đăng ký chuẩn quốc gia | Không có; hồ sơ trường cũng chưa có các ô này |
+| R3 | Hai chỉ số trên học sinh: diện tích đất/học sinh và diện tích sàn xây dựng/học sinh | Một chỉ số (diện tích đất/học sinh) |
+| R4 | Diện tích sàn xây dựng | Tính bằng tổng diện tích các phòng đang dùng; ô "Diện tích xây dựng" của hồ sơ trường chưa dùng |
+| R5 | Ghi chú tối đa 500 ký tự, nội dung là tiêu chí chưa đạt, lý do, đề nghị hỗ trợ | Ghi chú tối đa 1.000 ký tự, nhãn chung |
+
+#### 10.7.4 Tuyển sinh đầu cấp
+
+- Chưa có phân hệ tương ứng. Đã có phân hệ riêng "Tuyển sinh" (YCTD-86): đợt tuyển sinh, hồ sơ trực tuyến của phụ huynh (nhận, đạt, không đạt, chuyển thành hồ sơ trẻ), tin tuyển sinh; dùng lại được cho 1.4 và 1.6 (chuyển hồ sơ trúng tuyển thành hồ sơ học sinh).
+- Chưa có: hồ sơ cuối cấp của trẻ 5 tuổi và luồng phụ huynh xác nhận, đề xuất sửa; kiểm dò thông tin; giấy tờ đính kèm (khai sinh, cư trú VNeID, minh chứng); diện cư trú, trường phân tuyến, đối tượng, ưu tiên; đăng ký trường tiên tiến; gửi thông báo theo danh sách lọc; mã gói tin, mã GUID, kết quả chuyển; tọa độ trường, điểm trường; danh mục dịch vụ tại trường; hỗ trợ tuyển sinh (phụ huynh gửi phản ánh, trường trả lời); thống kê hồ sơ cuối cấp; PDF khổ A5, A4 gập đôi.
+- 3.1 đến 3.4 là bản sao người dùng, nhân sự, lớp của hệ thống chính kèm nút "Đồng bộ dữ liệu"; School Management dùng chung một cơ sở dữ liệu nên chỉ cần hiển thị.

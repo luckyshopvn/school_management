@@ -2,7 +2,7 @@
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
 - Phiên bản: 0.10
-- Ngày cập nhật: 2026-10-18
+- Ngày cập nhật: 2026-10-19
 - Trạng thái: Đang cập nhật
 
 ## Quy ước ghi nhật ký
@@ -13,6 +13,31 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-19 — Khảo sát bổ sung hệ thống của Sở và kế hoạch DT-17
+
+#### Công việc đã thực hiện
+
+- Khảo sát thêm hệ thống của Sở GD&ĐT TP.HCM: Eric đăng nhập, Claude chỉ đọc giao diện, không bấm nút ghi. Đã xem phân hệ Tuyển sinh đầu cấp (15 màn hình), nội dung bốn loại hồ sơ kí, tên và mã số chỉ tiêu Biểu 01.ĐN-MN (mã 01 đến 217), Biểu 08.ĐN-NSNN (mã 1 đến 71), báo cáo cơ sở vật chất TP.HCM (mã 01 đến 84), các biểu EMIS khác, trang gửi báo cáo, màn hình 1.7. Phân hệ Hồ sơ điện tử không được cấp cho tài khoản trường nên không xem được.
+- Thêm mục 10 vào `31_KHAO_SAT_HE_THONG_SO.md` (phiên bản 1.2), gồm bảng đối chiếu với mã nguồn của DT-16 (E1–E11 EMIS, K1–K10 kí hồ sơ, R1–R5 rà soát kiểm định, Tuyển sinh đầu cấp chưa có).
+- Thêm mục 8 vào `32_KE_HOACH_THEO_HE_THONG_SO.md` (phiên bản 1.14): DT-17 gồm năm phần 17a đến 17e.
+
+#### Quyết định
+
+- DT-17 chia năm phần, giữ sẵn YCTD-132 đến YCTD-136 và số migration riêng; chạy tối đa hai phần cùng lúc: lượt 1 gồm 17e, 17b; lượt 2 gồm 17a, 17c; lượt 3 là 17d. Thứ tự gộp 17e, 17b, 17a, 17c, 17d.
+- Kí hồ sơ: ẩn sổ đầu bài ở cấp Mầm non như Sở, giữ hồ sơ sổ đầu bài đã có; nội dung hồ sơ theo bốn mẫu của Sở, in đủ số định danh theo mẫu và cần thêm quyền xem số định danh; nhà phát hành chọn trong năm giá trị của Sở.
+- Tuyển sinh đầu cấp là phân hệ mới dùng chung đăng nhập; phân tuyến, gửi lên cấp trên, chuyển hồ sơ sang CSDL làm bản chạy nội bộ; dùng lại đợt và hồ sơ của tuyển sinh trực tuyến (YCTD-86).
+- Hồ sơ điện tử không làm ở DT-17.
+- Các lựa chọn trên Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-131 và tài liệu 32 mục 8.
+
+#### Thay đổi
+
+- `31_KHAO_SAT_HE_THONG_SO.md` mục 1, mục 10; `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 8; `24_YEU_CAU_THAY_DOI.md` YCTD-131; `index.md`. Chỉ đổi tài liệu, phiên bản phần mềm giữ nguyên.
+
+#### Vấn đề tồn đọng
+
+- Chưa đọc được thẻ 2 đến 5 của báo cáo cơ sở vật chất TP.HCM, dòng chi tiết của báo cáo sức khỏe đầu năm, cấu trúc biểu GDMN cuối năm (trống ở học kỳ I), tên các mục 2 đến 5 của chi thường xuyên trong Biểu 08.ĐN-NSNN.
+- Phân hệ Hồ sơ điện tử chờ Sở cấp cho tài khoản trường.
 
 ### 2026-10-18 — DT-15 phần 15f3: các phân hệ Bếp – kho, Tương tác, Giảng dạy, Tuyển sinh – tuyển dụng, Báo cáo theo giao diện chung của Sở
 
