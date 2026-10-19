@@ -61,7 +61,10 @@ export const ETHNIC_GROUPS = [
 export const CHILD_POLICY_BENEFITS = [
   { value: 'nd238_learning_cost', label: 'Được hỗ trợ chi phí học tập (Điều 17 NĐ 238/2025)' },
   { value: 'nd66_nursery_boarding', label: 'Trẻ nhà trẻ bán trú (NĐ 66/2025/NĐ-CP)' },
-  { value: 'nd57_small_ethnic', label: 'Trẻ mẫu giáo dân tộc thiểu số rất ít người được hỗ trợ học tập (NĐ 57/2017/NĐ-CP)' },
+  {
+    value: 'nd57_small_ethnic',
+    label: 'Trẻ mẫu giáo dân tộc thiểu số rất ít người được hỗ trợ học tập (NĐ 57/2017/NĐ-CP)',
+  },
   { value: 'nd105_lunch', label: 'Trẻ mẫu giáo được hỗ trợ ăn trưa (NĐ 105/2020/NĐ-CP)' },
   { value: 'nd105_allowance', label: 'Trẻ mầm non được hưởng trợ cấp (NĐ 105/2020/NĐ-CP)' },
 ] as const;

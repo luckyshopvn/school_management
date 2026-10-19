@@ -134,7 +134,8 @@ const code2 = (value: number) => String(value).padStart(2, '0');
 // ---------------------------------------------------------------------------------------------------------------------
 // Phân loại dùng chung của Biểu 01, 2.1, 2.2
 
-export type QualificationLevel = 'intermediate' | 'college' | 'university' | 'master' | 'doctor' | 'untrained' | 'other';
+export type QualificationLevel =
+  'intermediate' | 'college' | 'university' | 'master' | 'doctor' | 'untrained' | 'other';
 
 export function qualificationOf(text: string | null): QualificationLevel {
   const value = fold(text);
@@ -326,10 +327,7 @@ export function buildBieu01(input: Bieu01Input): Bieu01Result {
       ['Trường có hệ thống vệ sinh tiện lợi và riêng rẽ cho từng giới tính', flag('gender_separated_toilets')],
       ['Trường có chỗ rửa tay thuận tiện (bao gồm nước và xà phòng)', flag('handwashing')],
       ['Trường có chương trình giáo dục cơ bản về giới tính, phòng chống bạo lực, xâm hại', flag('sex_education')],
-      [
-        'Trường có kế hoạch giáo dục phòng, chống thiên tai và ứng phó biến đổi khí hậu',
-        flag('disaster_prevention'),
-      ],
+      ['Trường có kế hoạch giáo dục phòng, chống thiên tai và ứng phó biến đổi khí hậu', flag('disaster_prevention')],
     ];
     items.forEach(([text, count], index) => {
       first.add('', `– ${text}`, code2(start + 1 + index), 'trường', own(value * count));
@@ -486,9 +484,27 @@ export function buildBieu01(input: Bieu01Input): Bieu01Result {
     const by = (test: (nutrition: Nutrition) => boolean) =>
       childValues(measured.filter((child) => child.nutrition !== null && test(child.nutrition)));
     second.add(order, label, code2(start), 'người', childValues(measured));
-    second.add('', '– Suy dinh dưỡng thể nhẹ cân', code2(start + 1), 'người', by((n) => n.weight_status === 'underweight'));
-    second.add('', '– Suy dinh dưỡng thể thấp còi', code2(start + 2), 'người', by((n) => n.height_status === 'stunted'));
-    second.add('', '– Suy dinh dưỡng thể còi cọc', code2(start + 3), 'người', by((n) => n.weight_height_status === 'wasted'));
+    second.add(
+      '',
+      '– Suy dinh dưỡng thể nhẹ cân',
+      code2(start + 1),
+      'người',
+      by((n) => n.weight_status === 'underweight'),
+    );
+    second.add(
+      '',
+      '– Suy dinh dưỡng thể thấp còi',
+      code2(start + 2),
+      'người',
+      by((n) => n.height_status === 'stunted'),
+    );
+    second.add(
+      '',
+      '– Suy dinh dưỡng thể còi cọc',
+      code2(start + 3),
+      'người',
+      by((n) => n.weight_height_status === 'wasted'),
+    );
     second.add(
       '',
       '– Thừa cân, béo phì',

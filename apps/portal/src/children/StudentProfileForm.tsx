@@ -81,9 +81,7 @@ export function StudentProfileForm({
           changes[key] = typeof values[key] === 'string' ? (values[key] as string).trim() || null : values[key];
         }
       }
-      if (
-        [...values.policy_benefits].sort().join(',') !== [...initial.policy_benefits].sort().join(',')
-      ) {
+      if ([...values.policy_benefits].sort().join(',') !== [...initial.policy_benefits].sort().join(',')) {
         changes.policy_benefits = values.policy_benefits;
       }
       if (child.moet_fields) {

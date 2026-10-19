@@ -1,6 +1,12 @@
 import { Body, Controller, Get, HttpCode, Injectable, Post, Req, Res } from '@nestjs/common';
 import type { EmisRecordType, SchoolYearDatabase } from '@school-management/database';
-import { ApplicationError, Clock, ruleViolationError, validationError, type FieldError } from '@school-management/server';
+import {
+  ApplicationError,
+  Clock,
+  ruleViolationError,
+  validationError,
+  type FieldError,
+} from '@school-management/server';
 import {
   EMIS_DATA_COMPLETION_LABELS,
   EMIS_RECORD_TYPES,
@@ -17,7 +23,12 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
 import type { RequestBody } from '../common/request-fields.js';
 import { FacilitiesData } from '../facilities/facilities-data.js';
-import { buildFacilitiesWorkbook, fileStamp, sendWorkbook, type ExportedFile } from '../facilities/facilities-workbook.js';
+import {
+  buildFacilitiesWorkbook,
+  fileStamp,
+  sendWorkbook,
+  type ExportedFile,
+} from '../facilities/facilities-workbook.js';
 import { loadStartOfYearHealthChildren } from '../health/emis-health-report.js';
 import { SchoolTerms } from '../health/school-terms.js';
 import { UpperLevelSubmissions, type SubmissionView } from '../submissions/upper-level-submissions.js';
@@ -204,7 +215,10 @@ export class EmisSending {
       const own = marks.get(type.value)!;
       const sentDates = entities.map((entity) => own.get(entity.id)).filter((date): date is Date => !!date);
       const sent = sentDates.length;
-      const lastSent = sentDates.reduce<Date | null>((found, date) => (found === null || date > found ? date : found), null);
+      const lastSent = sentDates.reduce<Date | null>(
+        (found, date) => (found === null || date > found ? date : found),
+        null,
+      );
       rows.push({
         record_type: type.value,
         name: type.label,
@@ -234,8 +248,7 @@ export class EmisSending {
       const part = EMIS_START_OF_YEAR_PARTS.find((entry) => entry.code === item.form_code)!;
       const tab = view.tabs.find((entry) => entry.key === part.tab);
       const empty =
-        !tab ||
-        tab.rows.every((row) => isHeading(row) || Object.values(row.values).every((value) => !value));
+        !tab || tab.rows.every((row) => isHeading(row) || Object.values(row.values).every((value) => !value));
       const completion: FormRow['completion'] = item.data_complete
         ? empty && item.allow_no_data
           ? 'no_data'
@@ -374,7 +387,13 @@ export class EmisSending {
     for (const type of EMIS_RECORD_TYPES.filter((entry) => selection.records.includes(entry.value))) {
       for (const entity of await this.entities(database, type.value)) {
         if (entity.problem) {
-          rows.push({ order: rows.length + 1, group: type.label, code: entity.code, name: entity.name, problem: entity.problem });
+          rows.push({
+            order: rows.length + 1,
+            group: type.label,
+            code: entity.code,
+            name: entity.name,
+            problem: entity.problem,
+          });
         }
       }
     }

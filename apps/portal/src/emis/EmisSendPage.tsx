@@ -143,9 +143,9 @@ export function EmisSendPage() {
       <div className="flex flex-col gap-6">
         <h1 className="text-page-title font-bold text-text">1.1.2 Gửi báo cáo đầu năm</h1>
         <p className="text-content text-text-secondary">
-          Chưa kết nối với hệ thống của Bộ, Sở: "Gửi hồ sơ" lập tệp gửi của các dòng đã chọn (danh sách hồ sơ cần gửi, tệp
-          của biểu mẫu) và đánh dấu đã gửi hôm nay; nộp tệp cho cấp trên theo cách của đơn vị. Hồ sơ đánh dấu gửi ở phân
-          hệ Quản lý kí hồ sơ cũng tính là đã gửi.
+          Chưa kết nối với hệ thống của Bộ, Sở: "Gửi hồ sơ" lập tệp gửi của các dòng đã chọn (danh sách hồ sơ cần gửi,
+          tệp của biểu mẫu) và đánh dấu đã gửi hôm nay; nộp tệp cho cấp trên theo cách của đơn vị. Hồ sơ đánh dấu gửi ở
+          phân hệ Quản lý kí hồ sơ cũng tính là đã gửi.
         </p>
         <div className="flex flex-wrap gap-2">
           {data?.can_manage ? (
@@ -251,7 +251,11 @@ export function EmisSendPage() {
             </thead>
             <tbody>
               {(data?.forms ?? []).map((row, index) => (
-                <tr key={row.form_code} className="border-t border-border align-top" aria-label={`Biểu mẫu ${row.form_name}`}>
+                <tr
+                  key={row.form_code}
+                  className="border-t border-border align-top"
+                  aria-label={`Biểu mẫu ${row.form_name}`}
+                >
                   <td className="px-3 py-2">{index + 1}</td>
                   <td className="px-3 py-2">
                     <input

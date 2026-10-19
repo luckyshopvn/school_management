@@ -7,14 +7,7 @@ import { AppShell } from '../pages/AppShell.js';
 import { downloadExcel, formatNumber, messageOf } from '../facilities/facilities-api.js';
 import { TabBar } from '../facilities/facilities-ui.js';
 import { UpperLevelSubmissionPanel } from '../submissions/UpperLevelSubmissionPanel.js';
-import {
-  clearEmisTab,
-  fillEmisTab,
-  readEmisForm,
-  saveEmisTab,
-  type EmisFormRow,
-  type EmisTab,
-} from './emis-api.js';
+import { clearEmisTab, fillEmisTab, readEmisForm, saveEmisTab, type EmisFormRow, type EmisTab } from './emis-api.js';
 
 // Màn hình chung của bảy biểu báo cáo EMIS (khảo sát mục 5 của Sở; DT-16 phần 16j; chỉ tiêu, mã số, cột theo Sở từ DT-17
 // phần 17a): cột TT, Chỉ tiêu, Mã số, Đơn vị như Sở, dòng tiêu đề nhóm không có mã số, cột có tiêu đề nhóm hai hàng. Thẻ tính
@@ -226,9 +219,7 @@ function EditableTable({
                   <td key={column.key} className="px-3 py-2">
                     {row.computed ? (
                       <span aria-label={`${columnName(column)} ${row.code}`}>
-                        {formatNumber(
-                          draft[row.code]?.[column.key] ? Number(draft[row.code]?.[column.key]) : null,
-                        )}
+                        {formatNumber(draft[row.code]?.[column.key] ? Number(draft[row.code]?.[column.key]) : null)}
                       </span>
                     ) : (
                       <input
@@ -393,4 +384,3 @@ export function EmisFormPage({ code }: { code: EmisFormCode }) {
     </AppShell>
   );
 }
-

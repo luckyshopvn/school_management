@@ -1108,7 +1108,9 @@ export class EmisForms {
     const kindergarten = children.filter((child) => {
       const value = child.class_id ? stage.get(child.class_id) : null;
       const birthYear = birthYearOf(child.dob) ?? context.startYear;
-      return value ? value === 'kindergarten' : !childIsNursery({ age_group: null, birth_year: birthYear }, context.startYear);
+      return value
+        ? value === 'kindergarten'
+        : !childIsNursery({ age_group: null, birth_year: birthYear }, context.startYear);
     });
     return fillForeignLanguage({
       english_familiarization: context.otherInfo.english_familiarization === true,
@@ -1153,16 +1155,14 @@ export class EmisForms {
           nutrition: nutrition.get(child.id) ?? null,
         };
       }),
-      staff: staff.map(
-        (member): EndOfYearStaff => ({
-          ...member.person,
-          active: member.person.active,
-          start_date: member.person.start,
-          end_date: member.person.end,
-          staff_status: member.staffStatus,
-          standard_level: latestLevel.get(member.person.id) ?? null,
-        }),
-      ),
+      staff: staff.map((member): EndOfYearStaff => ({
+        ...member.person,
+        active: member.person.active,
+        start_date: member.person.start,
+        end_date: member.person.end,
+        staff_status: member.staffStatus,
+        standard_level: latestLevel.get(member.person.id) ?? null,
+      })),
       year: context.yearRange,
     });
     const warnings: string[] = [];
@@ -1211,14 +1211,12 @@ export class EmisForms {
       institution_type: context.institution,
       startYear: context.startYear,
       staff: staff.map((member) => member.person),
-      evaluations: chosen.map(
-        (row): StaffEvaluation => ({
-          standard_type: row.standard_type,
-          vice: isPrincipal(byId.get(row.staff_id) ?? { job_title: null, job_position: null }) === 'vice',
-          overall_level: row.overall_level,
-          items: items.filter((item) => item.evaluation_id === row.id),
-        }),
-      ),
+      evaluations: chosen.map((row): StaffEvaluation => ({
+        standard_type: row.standard_type,
+        vice: isPrincipal(byId.get(row.staff_id) ?? { job_title: null, job_position: null }) === 'vice',
+        overall_level: row.overall_level,
+        items: items.filter((item) => item.evaluation_id === row.id),
+      })),
     });
     const warnings: string[] = [];
     const withoutQualification = staff.filter((member) => !member.person.qualification).length;

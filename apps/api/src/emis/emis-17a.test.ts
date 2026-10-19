@@ -193,9 +193,10 @@ describe('Hàm thuần của phần 17a', () => {
     assert.equal(valueOf(result.school_classes, '23'), 1, 'chuẩn quốc gia mức độ 2');
     assert.equal(valueOf(result.school_classes, '25'), 1, 'có điện');
     assert.equal(valueOf(result.school_classes, '30'), 0, 'chưa có chỗ rửa tay');
-    assert.deepEqual(['38', '39', '40', '41', '44', '51', '54', '56'].map((code) => valueOf(result.school_classes, code)), [
-      1, 2, 3, 1, 1, 2, 1, 1,
-    ]);
+    assert.deepEqual(
+      ['38', '39', '40', '41', '44', '51', '54', '56'].map((code) => valueOf(result.school_classes, code)),
+      [1, 2, 3, 1, 1, 2, 1, 1],
+    );
     assert.equal(valueOf(result.school_classes, '49'), 1, 'nhóm trẻ có 01 trẻ khuyết tật');
     assert.equal(valueOf(result.school_classes, '60'), 1, 'lớp có 01 trẻ khuyết tật');
     // Thẻ 2: Tổng, Nữ của tổng số và của dân tộc thiểu số
@@ -205,13 +206,17 @@ describe('Hàm thuần của phần 17a', () => {
       ethnic_total: 1,
       ethnic_female: 1,
     });
-    assert.deepEqual(['63', '64', '65', '66', '68', '71', '74'].map((code) => valueOf(result.children, code)), [
-      1, 1, 1, 1, 3, 1, 2,
-    ]);
+    assert.deepEqual(
+      ['63', '64', '65', '66', '68', '71', '74'].map((code) => valueOf(result.children, code)),
+      [1, 1, 1, 1, 3, 1, 2],
+    );
     assert.equal(valueOf(result.children, '78'), 1, 'nhà trẻ 2 tuổi (25–36 tháng)');
     assert.equal(valueOf(result.children, '88'), 2, 'mẫu giáo 5 tuổi');
     assert.equal(valueOf(result.children, '98'), 2, 'tổng quy mô 5 tuổi');
-    assert.deepEqual(['107', '108', '109', '110', '111'].map((code) => valueOf(result.children, code)), [2, 1, 1, 0, 1]);
+    assert.deepEqual(
+      ['107', '108', '109', '110', '111'].map((code) => valueOf(result.children, code)),
+      [2, 1, 1, 0, 1],
+    );
     assert.equal(valueOf(result.children, '115'), 1, 'hỗ trợ ăn trưa theo NĐ 105/2020');
     // Thẻ 3: bốn cột phân loại hợp đồng; trình độ, hạng, độ tuổi, kiêm nhiệm
     assert.deepEqual(result.staff.find((row) => row.code === '117')?.values, {
@@ -223,17 +228,25 @@ describe('Hàm thuần của phần 17a', () => {
       indefinite_contract: 1,
       fixed_term_contract: 1,
     });
-    assert.deepEqual(['118', '127', '128', '129', '133', '132'].map((code) => valueOf(result.staff, code)), [
-      0, 2, 1, 1, 1, 1,
-    ]);
-    assert.deepEqual(['137', '139', '146', '147', '152'].map((code) => valueOf(result.staff, code)), [1, 1, 1, 1, 1]);
+    assert.deepEqual(
+      ['118', '127', '128', '129', '133', '132'].map((code) => valueOf(result.staff, code)),
+      [0, 2, 1, 1, 1, 1],
+    );
+    assert.deepEqual(
+      ['137', '139', '146', '147', '152'].map((code) => valueOf(result.staff, code)),
+      [1, 1, 1, 1, 1],
+    );
     assert.equal(valueOf(result.staff, '137', 'ethnic'), 1);
-    assert.deepEqual(['154', '160', '168', '154'].map((code, index) => valueOf(result.staff, code, index === 3 ? 'labor_contract' : 'total')), [
-      1, 1, 1, 1,
-    ]);
-    assert.deepEqual(['175', '183', '185', '189', '190', '196', '197'].map((code) => valueOf(result.staff, code)), [
-      1, 1, 1, 1, 1, 1, 1,
-    ]);
+    assert.deepEqual(
+      ['154', '160', '168', '154'].map((code, index) =>
+        valueOf(result.staff, code, index === 3 ? 'labor_contract' : 'total'),
+      ),
+      [1, 1, 1, 1],
+    );
+    assert.deepEqual(
+      ['175', '183', '185', '189', '190', '196', '197'].map((code) => valueOf(result.staff, code)),
+      [1, 1, 1, 1, 1, 1, 1],
+    );
     // Thẻ 4: phòng gắn lớp nhóm trẻ là nhà trẻ; phòng nhờ, mượn không vào cột hiện trạng
     assert.deepEqual(result.rooms.find((row) => row.code === '201')?.values, {
       total: 4,
@@ -241,9 +254,10 @@ describe('Hàm thuần của phần 17a', () => {
       semi_permanent: 1,
       temporary: 1,
     });
-    assert.deepEqual(['202', '208', '210', '211', '212', '215'].map((code) => valueOf(result.rooms, code)), [
-      1, 1, 1, 1, 1, 1,
-    ]);
+    assert.deepEqual(
+      ['202', '208', '210', '211', '212', '215'].map((code) => valueOf(result.rooms, code)),
+      [1, 1, 1, 1, 1, 1],
+    );
     assert.ok(result.warnings.some((warning) => warning.includes('hình thức hợp đồng')));
   });
 
@@ -285,10 +299,19 @@ describe('Hàm thuần của phần 17a', () => {
       semi_permanent_new: 1,
       temporary: 0,
     });
-    assert.deepEqual(['02', '04', '08', '10', '11'].map((code) => valueOf(rows, code)), [1, 1, 2, 1, 1]);
+    assert.deepEqual(
+      ['02', '04', '08', '10', '11'].map((code) => valueOf(rows, code)),
+      [1, 1, 2, 1, 1],
+    );
     // Khối D: khu vệ sinh giáo viên, học sinh; "trong đó bố trí trong lớp học" không cộng vào số phòng
-    assert.deepEqual(['50', '53', '54', '55'].map((code) => valueOf(rows, code)), [2, 1, 1, 1]);
-    assert.deepEqual(['81', '83'].map((code) => valueOf(rows, code, 'temporary')), [1, 1]);
+    assert.deepEqual(
+      ['50', '53', '54', '55'].map((code) => valueOf(rows, code)),
+      [2, 1, 1, 1],
+    );
+    assert.deepEqual(
+      ['81', '83'].map((code) => valueOf(rows, code, 'temporary')),
+      [1, 1],
+    );
   });
 
   it('CT-17a-3: 2.1 cuối năm theo mục của Sở; 2.2 ba biểu (hạng TT01, khung 6 bậc, tiêu chí 1–18, 1–15); 2.3 năm chỉ tiêu', () => {
@@ -444,7 +467,11 @@ describe('API báo cáo EMIS của phần 17a', () => {
     schoolYear = createDatabase<SchoolYearDatabase>(
       replaceDatabaseName(environment.systemDatabaseUrl, registry.database_name),
     );
-    await api('POST', '/org-units', principal, { code: 'TC', name: 'Trường mầm non Thử nghiệm', unit_type: 'truong_chinh' });
+    await api('POST', '/org-units', principal, {
+      code: 'TC',
+      name: 'Trường mầm non Thử nghiệm',
+      unit_type: 'truong_chinh',
+    });
     unitA = (await api('POST', '/org-units', principal, { code: 'ĐT-A1', name: 'ĐT-A1', unit_type: 'diem_truong' }))
       .body.id as string;
     vice = (await environment.loginAs('VT-15', null)).accessToken;
@@ -507,10 +534,7 @@ describe('API báo cáo EMIS của phần 17a', () => {
       policy_benefits: ['nd238_learning_cost', 'nd105_lunch'],
     });
     assert.equal(childUpdate.status, 200, JSON.stringify(childUpdate.body));
-    assert.equal(
-      (await api('PATCH', `/children/${childId}`, principal, { policy_benefits: ['khac'] })).status,
-      400,
-    );
+    assert.equal((await api('PATCH', `/children/${childId}`, principal, { policy_benefits: ['khac'] })).status, 400);
     // Nhân sự sửa hồ sơ nhân sự của đơn vị mình (VT-06)
     const personnel = (await environment.loginAs('VT-06', unitA)).accessToken;
     const staffUpdate = await api('PATCH', `/staff/${staffId}/profile`, personnel, {
@@ -552,7 +576,12 @@ describe('API báo cáo EMIS của phần 17a', () => {
   it('CT-17a-5: 1.1.2 lưới hồ sơ và lưới biểu mẫu; Gửi hồ sơ lập tệp, đánh dấu đã gửi; Xuất file lỗi; Đặt trạng thái gửi lại', async () => {
     const overview = await api('GET', '/reports/emis/start-of-year/sending', vice);
     assert.equal(overview.status, 200, JSON.stringify(overview.body));
-    const records = overview.body.records as Array<{ record_type: string; total: number; sent: number; to_send: number }>;
+    const records = overview.body.records as Array<{
+      record_type: string;
+      total: number;
+      sent: number;
+      to_send: number;
+    }>;
     assert.deepEqual(
       records.map((row) => row.record_type),
       ['school', 'staff', 'class', 'child', 'health_first_term'],
@@ -581,7 +610,9 @@ describe('API báo cáo EMIS của phần 17a', () => {
     assert.ok(problems.includes('Chưa có mã định danh Bộ GD&ĐT'));
     assert.ok(problems.includes('Đã khai báo loại hình trường trong hồ sơ trường'));
 
-    const incomplete = await api('POST', '/reports/emis/start-of-year/send', vice, { forms: ['emis-01-school-classes'] });
+    const incomplete = await api('POST', '/reports/emis/start-of-year/send', vice, {
+      forms: ['emis-01-school-classes'],
+    });
     assert.equal(incomplete.status, 422);
     assert.equal(errorOf(incomplete.body).rule_code, 'YCTD-132');
     assert.equal((await api('POST', '/reports/emis/start-of-year/send', vice, {})).status, 400);

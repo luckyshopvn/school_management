@@ -8,7 +8,13 @@ import type { Migration } from 'kysely/migration';
 // - đánh dấu đã gửi từng hồ sơ ở 1.1.2 Gửi báo cáo đầu năm (bản chạy nội bộ: xuất tệp và đánh dấu, không truyền đi).
 // Số liệu nhập tay theo mã cũ của thẻ Ngân sách nhà nước (6.01–6.06), thẻ 1 của 1.2.1 (CS.x.yy) và 2.3 Đề án ngoại ngữ không
 // đổi được sang mã của Sở nên xóa (chưa có đơn vị nào nộp thật, tài liệu 32 mục 8.3)
-const POLICY_BENEFITS = ['nd238_learning_cost', 'nd66_nursery_boarding', 'nd57_small_ethnic', 'nd105_lunch', 'nd105_allowance'];
+const POLICY_BENEFITS = [
+  'nd238_learning_cost',
+  'nd66_nursery_boarding',
+  'nd57_small_ethnic',
+  'nd105_lunch',
+  'nd105_allowance',
+];
 const RECORD_TYPES = ['school', 'staff', 'class', 'child', 'health_first_term'];
 
 export const migration: Migration = {

@@ -2223,11 +2223,7 @@ export interface EmisReportValuesTable {
 }
 
 export type ChildPolicyBenefit =
-  | 'nd238_learning_cost'
-  | 'nd66_nursery_boarding'
-  | 'nd57_small_ethnic'
-  | 'nd105_lunch'
-  | 'nd105_allowance';
+  'nd238_learning_cost' | 'nd66_nursery_boarding' | 'nd57_small_ethnic' | 'nd105_lunch' | 'nd105_allowance';
 
 // Hồ sơ đã đánh dấu gửi ở 1.1.2 Gửi báo cáo đầu năm (DT-17 phần 17a): mỗi đối tượng một dòng, lần gửi theo batch_id
 export type EmisRecordType = 'school' | 'staff' | 'class' | 'child' | 'health_first_term';

@@ -223,16 +223,40 @@ export function buildEndOfYear(input: EndOfYearInput): EmisFormRow[] {
   list.add('3.1', 'Quy mô trẻ', '3.1', 'trẻ', total(input.children.length));
   list.add('3.1.1', 'Nhà trẻ', '3.1.1', 'trẻ', total(nursery.length));
   list.add('3.1.2', 'Mẫu giáo', '3.1.2', 'trẻ', total(kindergarten.length));
-  list.add('3.1.3', 'Trong đó: trẻ 5–6 tuổi', '3.1.3', 'trẻ', total(kindergarten.filter((child) => child.five_to_six).length));
+  list.add(
+    '3.1.3',
+    'Trong đó: trẻ 5–6 tuổi',
+    '3.1.3',
+    'trẻ',
+    total(kindergarten.filter((child) => child.five_to_six).length),
+  );
   list.heading('3.2', 'Tình trạng dinh dưỡng');
   const nutrition = (order: string, label: string, children: typeof input.children) => {
     const measured = children.filter((child) => child.nutrition !== null);
     const by = (test: (value: Nutrition) => boolean) =>
       total(measured.filter((child) => child.nutrition !== null && test(child.nutrition)).length);
     list.add(order, label, order, 'trẻ', total(measured.length));
-    list.add('', '– Suy dinh dưỡng thể nhẹ cân', `${order}.1`, 'trẻ', by((n) => n.weight_status === 'underweight'));
-    list.add('', '– Suy dinh dưỡng thể thấp còi', `${order}.2`, 'trẻ', by((n) => n.height_status === 'stunted'));
-    list.add('', '– Suy dinh dưỡng thể còi cọc', `${order}.3`, 'trẻ', by((n) => n.weight_height_status === 'wasted'));
+    list.add(
+      '',
+      '– Suy dinh dưỡng thể nhẹ cân',
+      `${order}.1`,
+      'trẻ',
+      by((n) => n.weight_status === 'underweight'),
+    );
+    list.add(
+      '',
+      '– Suy dinh dưỡng thể thấp còi',
+      `${order}.2`,
+      'trẻ',
+      by((n) => n.height_status === 'stunted'),
+    );
+    list.add(
+      '',
+      '– Suy dinh dưỡng thể còi cọc',
+      `${order}.3`,
+      'trẻ',
+      by((n) => n.weight_height_status === 'wasted'),
+    );
     list.add(
       '',
       '– Thừa cân, béo phì',
@@ -265,7 +289,9 @@ export function buildEndOfYear(input: EndOfYearInput): EmisFormRow[] {
     managers.filter((member) => isPrincipal(member) === 'vice'),
   );
   const teachers = (members: EndOfYearStaff[], nurseryTeachers: boolean) =>
-    members.filter((member) => member.category === 'teacher' && teachesNursery(member, institution) === nurseryTeachers);
+    members.filter(
+      (member) => member.category === 'teacher' && teachesNursery(member, institution) === nurseryTeachers,
+    );
   list.heading('4.2', 'Giáo viên');
   const teacherRows = (order: string, label: string, members: EndOfYearStaff[]) => {
     list.add(order, label, order, 'người', total(members.length));
@@ -407,12 +433,19 @@ export function frameworkStepOf(text: string | null): number | null {
   return cefr ? ['a1', 'a2', 'b1', 'b2', 'c1', 'c2'].indexOf(cefr) + 1 : null;
 }
 
-function trainingLevelOf(text: string | null): 'postgraduate' | 'university' | 'college' | 'intermediate' | 'other' | null {
+function trainingLevelOf(
+  text: string | null,
+): 'postgraduate' | 'university' | 'college' | 'intermediate' | 'other' | null {
   const value = fold(text);
   if (value === '') {
     return null;
   }
-  if (value.includes('thac si') || value.includes('tien si') || value.includes('tren dai hoc') || value.includes('sau dai hoc')) {
+  if (
+    value.includes('thac si') ||
+    value.includes('tien si') ||
+    value.includes('tren dai hoc') ||
+    value.includes('sau dai hoc')
+  ) {
     return 'postgraduate';
   }
   if (value.includes('dai hoc')) {
@@ -463,7 +496,8 @@ export function buildStaffForms(input: StaffReportInput): StaffReportTabs {
   const vices = managers.filter((member) => isPrincipal(member) === 'vice');
   const teachers = active.filter((member) => member.category === 'teacher');
   const employees = active.filter((member) => member.category === 'employee');
-  const ageOf = (member: StaffReportPerson) => (member.birth_year === null ? null : input.startYear - member.birth_year);
+  const ageOf = (member: StaffReportPerson) =>
+    member.birth_year === null ? null : input.startYear - member.birth_year;
   const ageSplit: Split = [
     ['Dưới 31', (member) => (ageOf(member) ?? 99) < 31],
     ...[31, 36, 41, 46, 51, 56].map((from): [string, (member: StaffReportPerson) => boolean] => [
@@ -481,7 +515,12 @@ export function buildStaffForms(input: StaffReportInput): StaffReportTabs {
       },
     ],
   ];
-  const splits = (list: RowList, prefix: string, members: StaffReportPerson[], groups: Array<[string, string, Split]>) => {
+  const splits = (
+    list: RowList,
+    prefix: string,
+    members: StaffReportPerson[],
+    groups: Array<[string, string, Split]>,
+  ) => {
     groups.forEach(([key, title, split]) => {
       list.heading('', title);
       split.forEach(([label, test], index) =>
@@ -538,7 +577,10 @@ export function buildStaffForms(input: StaffReportInput): StaffReportTabs {
     ],
   ]);
   generalTeachers.add('4', 'Nhân viên', '4', 'người', totalFemale(employees));
-  const role = (...values: string[]) => (member: StaffReportPerson) => values.includes(employeeRoleOf(member));
+  const role =
+    (...values: string[]) =>
+    (member: StaffReportPerson) =>
+      values.includes(employeeRoleOf(member));
   splits(generalTeachers, '4', employees, [
     [
       'VT',

@@ -383,10 +383,7 @@ describe('API báo cáo EMIS của phần 16j', () => {
     assert.equal(valueOf(saved.body, 'budget', '1', 'estimate'), 1500.5);
     assert.equal(valueOf(saved.body, 'budget', '1', 'expected'), null);
     assert.ok(tabOf(saved.body, 'budget')?.saved_at);
-    assert.equal(
-      (await api('PUT', path, vice, { rows: [{ code: '1', values: { estimate: -1 } }] })).status,
-      400,
-    );
+    assert.equal((await api('PUT', path, vice, { rows: [{ code: '1', values: { estimate: -1 } }] })).status, 400);
     assert.equal((await api('PUT', path, vice, { rows: [{ code: '9.99', values: {} }] })).status, 400);
     assert.equal((await api('PUT', path, vice, { rows: [{ code: '6', values: {} }] })).status, 400, 'Sở không có mã 6');
     assert.equal((await api('PUT', path, vice, { rows: [{ code: '1', values: { total: 1 } }] })).status, 400);
