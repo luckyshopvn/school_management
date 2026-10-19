@@ -127,6 +127,14 @@ import {
   SchoolServicesPage,
   SupportRequestsPage,
 } from './entry-admissions/EntryAdmissionPages.js';
+import {
+  AdmittedStudentsPage,
+  AdvancedRegistrationsPage,
+  IntakePage,
+  NoticesPage,
+  TransferPage,
+  TransferResultsPage,
+} from './entry-admissions/EntryIntakePages.js';
 
 // Trang dùng được khi chưa đăng nhập (DT-16 phần 16c thêm Quên mật khẩu)
 const PUBLIC_PATHS = ['/login', '/forgot-password'];
@@ -231,6 +239,21 @@ const routeTree = rootRoute.addChildren([
     component: FinalYearStatisticsPage,
   }),
   createRoute({ getParentRoute: () => rootRoute, path: '/entry-admissions/support', component: SupportRequestsPage }),
+  // Tuyển sinh đầu cấp phần 2 (DT-17 phần 17d)
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/entry-admissions/advanced',
+    component: AdvancedRegistrationsPage,
+  }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/entry-admissions/intake', component: IntakePage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/entry-admissions/notices', component: NoticesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/entry-admissions/transfer', component: TransferPage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/entry-admissions/transfer-results',
+    component: TransferResultsPage,
+  }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/admitted-students', component: AdmittedStudentsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/school-weeks', component: SchoolWeeksPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/year-rollover', component: YearRolloverPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/children', component: ChildrenPage }),

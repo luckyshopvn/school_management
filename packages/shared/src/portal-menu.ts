@@ -117,6 +117,8 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           leaf('5.10.3.', 'Thông tin lưu trữ', '/archive-holdings'),
           leaf('5.10.4.', 'Báo cáo lưu trữ', '/archive-report'),
         ]),
+        // Danh sách trúng tuyển của Tuyển sinh đầu cấp: xếp lớp rồi chuyển sang hồ sơ học sinh (DT-17 phần 17d)
+        leaf('5.11.', 'Danh sách trúng tuyển Tuyển sinh đầu cấp', '/admitted-students'),
       ]),
       // Cơ sở vật chất trong phân hệ Mầm non (DT-16 phần 16i): 6.2 mở màn hình khai báo cơ sở vật chất như mục 1.1 của
       // phân hệ Cơ sở vật chất, TBDH
@@ -143,7 +145,7 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
     ],
   },
   {
-    // Tuyển sinh đầu cấp (DT-17 phần 17c, khảo sát mục 10.2.2): số mục như trang riêng của Sở; 1.3 đến 1.7 làm ở 17d. Tên
+    // Tuyển sinh đầu cấp (DT-17 phần 17c, khảo sát mục 10.2.2): số mục như trang riêng của Sở; 1.3 đến 1.7 thêm ở 17d. Tên
     // nhóm 1. đến 5. khảo sát chưa ghi, Claude tự đặt
     key: 'entry-admissions',
     label: 'Tuyển sinh đầu cấp',
@@ -151,6 +153,12 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
       group('1.', 'Hồ sơ tuyển sinh', [
         leaf('1.1.', 'Hồ sơ học sinh cuối cấp mầm non', '/entry-admissions/final-year'),
         leaf('1.2.', 'Gửi xác nhận hoàn thành hồ sơ cuối cấp lên cấp trên', '/entry-admissions/completion'),
+        // 1.3 đến 1.7 (DT-17 phần 17d)
+        leaf('1.3.', 'Danh sách học sinh đăng ký trường tiên tiến', '/entry-admissions/advanced'),
+        leaf('1.4.', 'Tiếp nhận hồ sơ tuyển sinh', '/entry-admissions/intake'),
+        leaf('1.5.', 'Gửi thông báo tuyển sinh đầu cấp', '/entry-admissions/notices'),
+        leaf('1.6.', 'Chuyển hồ sơ trúng tuyển sang CSDL', '/entry-admissions/transfer'),
+        leaf('1.7.', 'Danh sách kết quả chuyển hồ sơ', '/entry-admissions/transfer-results'),
         leaf('1.8.', 'Thông tin trường tuyển sinh theo bản đồ GIS', '/entry-admissions/school-map'),
       ]),
       group('2.', 'Danh mục', [leaf('2.1.', 'Các dịch vụ được đăng ký tại trường', '/entry-admissions/services')]),

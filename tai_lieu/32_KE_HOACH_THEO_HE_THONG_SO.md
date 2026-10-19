@@ -1,8 +1,8 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`.
-- Phiên bản: 1.17
-- Ngày cập nhật: 2026-10-19
+- Phiên bản: 1.18
+- Ngày cập nhật: 2026-10-20
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
 
@@ -224,5 +224,7 @@ Lượt làm (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, 
 | 17a | Đã triển khai (YCTD-132, PR 112, phiên bản 0.86.0): Biểu 01.ĐN-MN năm thẻ mã 01 đến 217 và Biểu 08.ĐN-NSNN mã 1 đến 71 theo cột của Sở; 1.2.1 thẻ 1 mã 01 đến 84 có cột Xây dựng mới; 2.1, 2.2, 2.3 theo cấu trúc của Sở, 2.4 trống ở học kỳ I; "Xóa dữ liệu" của thẻ nhập tay; trang 1.1.2 Gửi báo cáo đầu năm (lưới hồ sơ, lưới biểu mẫu, Gửi hồ sơ, Xuất file lỗi, Đặt trạng thái gửi lại, Hủy) chạy nội bộ; ô chính sách của trẻ, kiêm nhiệm của nhân sự, xây dựng mới của phòng; migration năm học 0060; Biểu 08 mã 24 đến 55 và khối B của 1.2.1 chờ đối chiếu |
 | 17b | Đã triển khai (YCTD-133, PR 110, phiên bản 0.85.0): bốn mẫu hồ sơ, tệp XML, nhà phát hành, kiểu chữ ký, bỏ sổ đầu bài ở cấp Mầm non, lưới 2.2, 2.3 theo Sở; hồ sơ nhân sự, học sinh in đủ số định danh với người có quyền xem số định danh (quyết định của Eric ngày 2026-10-19) |
 | 17c | Đã triển khai (YCTD-134, PR 113, phiên bản 0.87.0): phân hệ "Tuyển sinh đầu cấp" (13 phân hệ), cây menu 1.1, 1.2, 1.8, 2.1, 3.1–3.4, 4.1, 5.1 (1.3–1.7 chờ 17d); 1.1 hồ sơ cuối cấp tự lập cho trẻ lớp năm cuối cấp, luồng sáu trạng thái, kiểm dò năm mục, hạn điều chỉnh, Xác nhận hồ sơ thay phụ huynh, Duyệt, Hủy duyệt, Cập nhật từ Excel, Xuất Excel, PDF A5, A4 gập đôi, tệp nén, phiếu kê khai, phiếu thông tin, Khởi tạo mật khẩu phụ huynh; màn hình Hồ sơ cuối cấp của ứng dụng phụ huynh; 1.2 đánh dấu tay kèm xuất Excel; 1.8 tọa độ, Xem vị trí trên OpenStreetMap; 2.1 dịch vụ tại trường; 3.1–3.4 chỉ hiển thị; 4.1 theo đơn vị của trẻ; 5.1 trả lời qua ứng dụng phụ huynh, thư điện tử chờ nhà cung cấp; migration năm học 0061, định danh 0050; không kết nối phân tuyến của Sở; kiểm thử giao diện CT-17c-13 đạt |
-| 17d | Chưa làm, chờ 17c |
+| 17d | Đã triển khai (YCTD-135, PR 114, phiên bản 0.88.0): 1.3 trường tiên tiến (Xác nhận hồ sơ, Không đồng ý, Chưa xác nhận, trạng thái xã/phường nhập tay, Tải minh chứng, In phiếu); 1.4 tiếp nhận hồ sơ phân tuyến nhập từ Excel và hồ sơ đạt của tuyển sinh trực tuyến, giấy tờ đã nộp, đồng ý nhập học, Lưu dữ liệu, phiếu thông tin, phiếu đăng ký, Hủy nhập học; đợt thêm loại hình, năm học nhận trẻ; 1.5 thông báo qua ứng dụng phụ huynh và Zalo OA, học sinh ngoài hệ thống, SMS chờ nhà cung cấp; 1.6 chuyển hồ sơ thành hồ sơ học sinh ở năm học đang mở, mã gói tin, mã GUID, hỏi xóa lớp đã xếp; 1.7 kết quả chuyển, Hủy nhập học hồ sơ chưa phát sinh dữ liệu; 5.11 xếp lớp rồi chuyển; mở năm học mới chép giấy tờ theo hồ sơ tuyển sinh; migration năm học 0062, định danh 0051; không kết nối phân tuyến của Sở; kiểm thử giao diện CT-17d-11 đạt |
 | 17e | Đã triển khai (YCTD-136, PR 111): 1.7 đủ ô như Sở trong năm khối (tên trường, mã trường, loại hình bắt buộc, cấp học Mầm non; năm, ngày công nhận và mức độ chuẩn quốc gia; năm, ngày công nhận và cấp độ kiểm định CLGD; diện tích sàn xây dựng/học sinh; thời điểm đăng ký chuẩn quốc gia; ghi chú tối đa 500 ký tự có bộ đếm); Lấy dữ liệu điền từ cây đơn vị và hồ sơ trường; hồ sơ trường thêm tám ô khóa cố định cho 17a; migration năm học 0063; thời điểm đăng ký là chữ tự do do chưa biết định dạng của Sở |
+
+DT-17 hoàn tất.

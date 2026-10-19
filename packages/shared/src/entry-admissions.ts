@@ -93,3 +93,52 @@ export const FINAL_YEAR_CHECK_LABELS: Record<FinalYearCheckItem, string> = {
   birth_certificate: 'Thiếu giấy khai sinh',
   residence_proof: 'Thiếu hình ảnh thông tin cư trú trên VNeID',
 };
+
+// Tuyển sinh đầu cấp phần 2 (DT-17 phần 17d, YCTD-135; khảo sát 31 mục 10.2.4): tiếp nhận hồ sơ được phân tuyến về trường,
+// đăng ký trường tiên tiến, thông báo tuyển sinh, chuyển hồ sơ trúng tuyển sang hồ sơ học sinh. Hồ sơ là hồ sơ tuyển sinh
+// của phân hệ Tuyển sinh (YCTD-86); đợt tuyển sinh thêm loại hình và năm học nhận trẻ
+export type AdmissionProgramType = 'general' | 'advanced' | 'survey';
+export type AdmissionDecision = 'pending' | 'accepted' | 'declined';
+export type AdvancedReviewStatus = 'pending' | 'admitted' | 'not_admitted';
+export type AdmissionRecordType = 'account' | 'free';
+export type AdmissionDocument =
+  'admission_notice' | 'declaration' | 'birth_certificate_copy' | 'primary_transcript' | 'primary_completion';
+
+export const ADMISSION_PROGRAM_TYPES: ReadonlyArray<{ value: AdmissionProgramType; label: string }> = [
+  { value: 'general', label: 'Đại trà' },
+  { value: 'advanced', label: 'Tiên tiến' },
+  { value: 'survey', label: 'Khảo sát' },
+];
+
+export const ADMISSION_DECISIONS: ReadonlyArray<{ value: AdmissionDecision; label: string }> = [
+  { value: 'pending', label: 'Chưa trả lời' },
+  { value: 'accepted', label: 'Phụ huynh đồng ý nhập học' },
+  { value: 'declined', label: 'Phụ huynh từ chối nhập học' },
+];
+
+// Trường duyệt, xã/phường đồng ý của hồ sơ trường tiên tiến: ba giá trị như ô lọc của Sở
+export const ADVANCED_REVIEW_STATUSES: ReadonlyArray<{ value: AdvancedReviewStatus; label: string }> = [
+  { value: 'admitted', label: 'Trúng tuyển' },
+  { value: 'not_admitted', label: 'Không trúng tuyển' },
+  { value: 'pending', label: 'Chưa xác nhận' },
+];
+
+export const ADMISSION_RECORD_TYPES: ReadonlyArray<{ value: AdmissionRecordType; label: string }> = [
+  { value: 'account', label: 'Có tài khoản' },
+  { value: 'free', label: 'Tự do' },
+];
+
+// Giấy tờ đã nộp (ô tích ở 1.4): mẫu dùng chung các cấp nên có cả học bạ và giấy xác nhận hoàn thành chương trình tiểu học
+export const ADMISSION_DOCUMENTS: ReadonlyArray<{ value: AdmissionDocument; label: string }> = [
+  { value: 'admission_notice', label: 'Giấy báo nhập học' },
+  { value: 'declaration', label: 'Phiếu kê khai' },
+  { value: 'birth_certificate_copy', label: 'Bản sao giấy khai sinh' },
+  { value: 'primary_transcript', label: 'Học bạ tiểu học' },
+  { value: 'primary_completion', label: 'Giấy xác nhận hoàn thành chương trình tiểu học' },
+];
+
+export const ADMISSION_PROGRAM_LABELS = labelsOf(ADMISSION_PROGRAM_TYPES);
+export const ADMISSION_DECISION_LABELS = labelsOf(ADMISSION_DECISIONS);
+export const ADVANCED_REVIEW_LABELS = labelsOf(ADVANCED_REVIEW_STATUSES);
+export const ADMISSION_RECORD_TYPE_LABELS = labelsOf(ADMISSION_RECORD_TYPES);
+export const ADMISSION_DOCUMENT_LABELS = labelsOf(ADMISSION_DOCUMENTS);

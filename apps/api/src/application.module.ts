@@ -142,6 +142,10 @@ import { SigningService } from './signing/signing.js';
 import { DossierSigner, InternalDossierSigner } from './signing/dossier-signer.js';
 import { DossierXmlWriter, InternalDossierXmlWriter } from './signing/dossier-xml.js';
 import { FinalYearRecordsService } from './entry-admissions/final-year-records.js';
+import { EntryIntakeController } from './entry-admissions/entry-intake.controller.js';
+import { EntryIntakeNoticesService } from './entry-admissions/entry-intake-notices.js';
+import { EntryIntakeTransferService } from './entry-admissions/entry-intake-transfer.js';
+import { EntryIntakeService } from './entry-admissions/entry-intake.js';
 import {
   FinalYearCompletionController,
   FinalYearRecordsController,
@@ -341,6 +345,7 @@ export class ApplicationModule {
         FinalYearStatisticsController,
         ParentFinalYearController,
         EntryAdmissionCatalogsController,
+        EntryIntakeController,
         EquipmentController,
         SchoolProfileController,
         AccreditationReviewController,
@@ -696,6 +701,9 @@ export class ApplicationModule {
         { provide: DossierXmlWriter, useClass: InternalDossierXmlWriter },
         FinalYearRecordsService,
         EntryAdmissionCatalogsService,
+        EntryIntakeService,
+        EntryIntakeNoticesService,
+        EntryIntakeTransferService,
         // Chưa có nhà cung cấp gửi thư điện tử: trả lời hỗ trợ tuyển sinh chỉ gửi qua ứng dụng phụ huynh (DT-17 phần 17c)
         { provide: AdmissionSupportMailer, useClass: UnconfiguredAdmissionSupportMailer },
         SystemAnnouncementsService,

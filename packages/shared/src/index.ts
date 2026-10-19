@@ -182,6 +182,10 @@ export const PERMISSION_CODES = {
   finalYearManage: 'P02.final-year.manage',
   finalYearApprove: 'P02.final-year.approve',
   admissionSupportReply: 'P02.admission-support.reply',
+  // Tuyển sinh đầu cấp phần 2: tiếp nhận hồ sơ, trường tiên tiến, thông báo, chuyển hồ sơ trúng tuyển (DT-17 phần 17d)
+  entryIntakeView: 'P02.entry-intake.view',
+  entryIntakeManage: 'P02.entry-intake.manage',
+  entryIntakeTransfer: 'P02.entry-intake.transfer',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -375,6 +379,13 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/entry-admissions/classes',
   '/entry-admissions/statistics',
   '/entry-admissions/support',
+  // Tuyển sinh đầu cấp phần 2 (DT-17 phần 17d)
+  '/entry-admissions/advanced',
+  '/entry-admissions/intake',
+  '/entry-admissions/notices',
+  '/entry-admissions/transfer',
+  '/entry-admissions/transfer-results',
+  '/admitted-students',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -565,6 +576,14 @@ export const DATA_GRID_KEYS = [
   'entry-staff',
   'entry-classes',
   'admission-support-requests',
+  // Tuyển sinh đầu cấp phần 2 (DT-17 phần 17d)
+  'entry-advanced',
+  'entry-intake',
+  'entry-notices',
+  'entry-transfer',
+  'entry-transfer-results',
+  'entry-cancel-results',
+  'admitted-students',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

@@ -1,8 +1,8 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.13
-- Ngày cập nhật: 2026-10-19
+- Phiên bản: 0.14
+- Ngày cập nhật: 2026-10-20
 - Trạng thái: Đang cập nhật
 
 ## Quy ước ghi nhật ký
@@ -13,6 +13,29 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-20 — DT-17 phần 17d: Tuyển sinh đầu cấp phần 2
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu năm học: tệp `0062_add_entry_admission_intake` thêm loại hình, năm học nhận trẻ cho `admission_campaigns`; `admission_applications` nhận nguồn `routing`, trạng thái `cancelled` và thêm các cột cư trú, cuối cấp, họ tên cha mẹ, giấy tờ đã nộp, đồng ý nhập học, trường tiên tiến, nội dung thông báo, loại hồ sơ, điểm trường nhận, mã gói tin, mã GUID, hủy nhập học; tạo `admission_application_files`, `admission_transfer_results`, `entry_admission_contacts`, `entry_admission_notices`, `entry_admission_notice_recipients`; mục đích tệp `admission_document`. Cơ sở dữ liệu định danh: tệp `0051_add_entry_intake_permissions` thêm ba quyền P02.
+- Gói dùng chung: mục 1.3 đến 1.7 của phân hệ "Tuyển sinh đầu cấp" và 5.11 của phân hệ Mầm non ở `PORTAL_WORKSPACES`; điều kiện hiện mục ở `MENU_PERMISSION_RULES`; nhãn loại hình, đồng ý nhập học, trạng thái trường duyệt và xã/phường, loại hồ sơ, giấy tờ đã nộp ở `packages/shared/src/entry-admissions.ts`; `PERMISSION_CODES`, `DATA_GRID_KEYS`, `PORTAL_QUICK_LINK_PATHS` thêm mục mới.
+- Máy chủ API (`apps/api/src/entry-admissions/`): `entry-intake.ts` (hồ sơ theo màn hình, bộ lọc như Sở, Cập nhật, Lưu dữ liệu, xác nhận hồ sơ trường tiên tiến, Xóa, Hủy nhập học hồ sơ chưa chuyển, nhập danh sách phân tuyến, giấy tờ, minh chứng, Excel, phiếu PDF), `entry-intake-notices.ts` (1.5), `entry-intake-transfer.ts` (1.6, 1.7, 5.11), `entry-intake.controller.ts` (nhóm `/entry-intake`); `final-year-pdf.ts` nhận tiêu đề riêng của phiếu; tra cứu hồ sơ tuyển sinh công khai có nhãn "Đã hủy nhập học".
+- Cổng quản trị: 1.3 đến 1.7 của phân hệ "Tuyển sinh đầu cấp" và 5.11 của phân hệ Mầm non (`apps/portal/src/entry-admissions/EntryIntakePages.tsx`, `entry-intake-api.ts`, `router.tsx`).
+- Thêm quy tắc BR-133, chức năng P02-29 đến P02-33, quyền PQ-77, màn hình MH-152 đến MH-157, kịch bản CT-655 đến CT-666, tiêu chí AC-656 đến AC-662. Kết quả ngày 20/10/2026: kiểm thử đơn vị CT-17d-1 đến CT-17d-10 và CT-17d-12 (11 ca) đạt 11/11 (cùng `admissions.test.ts`, `year-transition.test.ts` 27/27 ca); kiểm thử đơn vị toàn bộ kho mã 890/890 đạt; kiểm thử giao diện CT-17d-11 đạt; toàn bộ kiểm thử giao diện 139/139 đạt (lượt chạy trước khi thêm việc chép giấy tờ khi mở năm học và chặn `GET /files/{id}` với tệp `admission_document`, hai thay đổi không đụng giao diện, đã chạy lại tệp kiểm thử đơn vị 17d đạt); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 17d của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 8.3 (khảo sát tài liệu 31 mục 10.2.4, chênh lệch mục 10.7.4). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-135: dùng lại đợt và hồ sơ tuyển sinh của phân hệ Tuyển sinh (YCTD-86); danh sách phân tuyến nhập từ Excel; hồ sơ phân tuyến của đợt đại trà, khảo sát đạt ngay, của đợt tiên tiến chờ trường xác nhận ở 1.3; trạng thái xã/phường nhập tay; năm học nhận trẻ phải đang mở vì chỉ năm học đang dùng ghi được dữ liệu (BR-93); điều kiện chuyển hồ sơ: số định danh, giấy khai sinh, quan hệ của người liên hệ, khai báo dị ứng; mã gói tin `GT-…`, `HN-…`, mỗi hồ sơ một mã GUID; Hủy nhập học hồ sơ đã chuyển xóa mềm hồ sơ học sinh chưa phát sinh dữ liệu; thông báo qua ứng dụng phụ huynh và Zalo OA tới tài khoản cùng số điện thoại, SMS chờ nhà cung cấp; loại hồ sơ Có tài khoản, Tự do chỉ để lọc và hiển thị; ba quyền mới cho VT-02, VT-15, VT-12, VT-03.
+- Bản chạy nội bộ: không kết nối phân tuyến của Sở, của xã/phường; không gửi SMS, thư điện tử. Phần 17d là phần cuối của DT-17; DT-17 hoàn tất.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-135, `07_QUY_TAC_NGHIEP_VU.md` BR-133, `08_VAI_TRO_NGUOI_DUNG.md` PQ-77, `10_YEU_CAU_CHUC_NANG.md` P02-29 đến P02-33, `11_TIEU_CHI_NGHIEM_THU.md` AC-656 đến AC-662, `14_DAC_TA_GIAO_DIEN.md` MH-152 đến MH-157, `16_CO_SO_DU_LIEU.md` mục 3 và mục 17, `17_DAC_TA_API.md` mục 6, `21_KICH_BAN_KIEM_THU.md` CT-655 đến CT-666, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.88.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 8.5.
+
+#### Vấn đề tồn đọng
+
+- Chưa có kết nối phân tuyến của Sở, của xã/phường và nhà cung cấp SMS, thư điện tử; mẫu phiếu đăng ký, phiếu thông tin chờ mẫu của Sở. Kiểm thử đều đạt.
 
 ### 2026-10-19 — DT-17 phần 17c: Tuyển sinh đầu cấp phần 1
 
