@@ -6,8 +6,8 @@ import type { Migration } from 'kysely/migration';
 // - nhân sự: kiêm nhiệm hỗ trợ giáo dục người khuyết tật, kiêm nhiệm vị trí việc làm chuyên môn dùng chung (152, 153, 182);
 // - phòng: xây dựng mới trong năm (cột "Xây dựng mới" của 1.2.1 Báo cáo cơ sở vật chất của TP.HCM);
 // - đánh dấu đã gửi từng hồ sơ ở 1.1.2 Gửi báo cáo đầu năm (bản chạy nội bộ: xuất tệp và đánh dấu, không truyền đi).
-// Số liệu nhập tay theo mã cũ của thẻ Ngân sách nhà nước (6.01–6.06) và 2.3 Đề án ngoại ngữ không đổi được sang mã của Sở
-// nên xóa (chưa có đơn vị nào nộp thật, tài liệu 32 mục 8.3)
+// Số liệu nhập tay theo mã cũ của thẻ Ngân sách nhà nước (6.01–6.06), thẻ 1 của 1.2.1 (CS.x.yy) và 2.3 Đề án ngoại ngữ không
+// đổi được sang mã của Sở nên xóa (chưa có đơn vị nào nộp thật, tài liệu 32 mục 8.3)
 const POLICY_BENEFITS = ['nd238_learning_cost', 'nd66_nursery_boarding', 'nd57_small_ethnic', 'nd105_lunch', 'nd105_allowance'];
 const RECORD_TYPES = ['school', 'staff', 'class', 'child', 'health_first_term'];
 
@@ -51,7 +51,9 @@ export const migration: Migration = {
       .execute();
     await sql`
       delete from emis_report_values
-      where (form_code = 'emis-start-of-year' and tab_key = 'budget') or form_code = 'emis-foreign-language'
+      where (form_code = 'emis-start-of-year' and tab_key = 'budget')
+        or (form_code = 'emis-facilities' and tab_key = 'facilities')
+        or form_code = 'emis-foreign-language'
     `.execute(database);
   },
   async down(database) {

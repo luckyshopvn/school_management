@@ -41,6 +41,7 @@ export interface FacilityRoom {
   condition: string | null;
   area_m2: number | null;
   facility_attributes: Record<string, unknown>;
+  built_this_year: boolean;
   class_names: string[];
 }
 
@@ -178,6 +179,7 @@ export class FacilityRoomsService {
         'rooms.condition',
         'rooms.area_m2',
         'rooms.facility_attributes',
+        'rooms.built_this_year',
       ])
       .where('rooms.org_unit_id', 'in', unitIds)
       .orderBy('org_units.name')

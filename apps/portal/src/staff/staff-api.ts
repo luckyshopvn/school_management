@@ -37,6 +37,9 @@ export interface Staff {
   bank_name?: string | null;
   tax_code?: string | null;
   special_difficulty_commune?: boolean;
+  // DT-17 phần 17a
+  concurrent_disability_support?: boolean;
+  concurrent_shared_position?: boolean;
   id_verification_status?: 'unverified' | 'verified' | 'invalid';
 }
 

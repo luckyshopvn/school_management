@@ -125,6 +125,7 @@ import { ApprovalThresholdsController, ApprovalThresholdsService } from './catal
 import { RoomsController, RoomsService } from './catalogs/rooms.js';
 import { EmisReportController, EmisReportService } from './facilities/emis-report.js';
 import { EmisForms, EmisFormsController } from './emis/emis-forms.js';
+import { EmisSending, EmisSendingController } from './emis/emis-sending.js';
 import { EquipmentController, EquipmentService } from './facilities/equipment.js';
 import { FacilitiesData } from './facilities/facilities-data.js';
 import { facilitiesTransitionStep } from './facilities/facilities-transition.js';
@@ -327,6 +328,7 @@ export class ApplicationModule {
         SchoolSplitsController,
         EmisReportController,
         EmisFormsController,
+        EmisSendingController,
         GradeLevelsController,
         ClassesController,
         ClassAssignmentsController,
@@ -516,6 +518,7 @@ export class ApplicationModule {
         SchoolSplitsService,
         EmisReportService,
         EmisForms,
+        EmisSending,
         GradeLevelsService,
         ClassesService,
         ChildScope,
