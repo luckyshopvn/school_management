@@ -1,5 +1,7 @@
 import type {
+  ClassStage,
   SigningCertificateStatus,
+  SigningDocument,
   SigningDossierStatus,
   SigningObjectType,
   SigningSignatureType,
@@ -8,7 +10,7 @@ import type {
 import { downloadExport, saveResponseFile } from '../exports/export-api.js';
 import { fetchWithSession, readError, requestJson } from '../session/api-client.js';
 
-// Gọi điểm cuối của phân hệ Quản lý kí hồ sơ (DT-16 phần 16k)
+// Gọi điểm cuối của phân hệ Quản lý kí hồ sơ (DT-16 phần 16k; DT-17 phần 17b thêm xem hồ sơ kí, tệp XML, file lỗi)
 export interface SigningEvent {
   id: string;
   action: string;
@@ -17,7 +19,17 @@ export interface SigningEvent {
   created_at: string;
 }
 
+export interface SigningSchoolInfo {
+  code: string | null;
+  name: string | null;
+  principal_name: string | null;
+  email: string | null;
+  website: string | null;
+}
+
 export interface SigningCertificate {
+  school: SigningSchoolInfo;
+  provider_in_list: boolean;
   signature_type: SigningSignatureType;
   provider: string | null;
   login_name: string | null;
@@ -83,13 +95,45 @@ export interface SigningDossier {
   cancelled_at: string | null;
   cancel_reason: string | null;
   updated_at: string;
+  xml_file_name: string | null;
+  xml_sha256: string | null;
+  note: string | null;
 }
 
 export interface SigningObject {
   object_id: string;
   object_label: string;
   detail: string | null;
+  code: string | null;
+  principal_name: string | null;
+  stage: ClassStage | null;
+  dob: string | null;
+  person_status: string | null;
+  job_position: string | null;
+  class_id: string | null;
+  class_name: string | null;
+  create_error: string | null;
   dossier: SigningDossier | null;
+}
+
+export interface SigningDossierView {
+  dossier: SigningDossier;
+  root: string;
+  document: SigningDocument;
+  signature: null | {
+    signed_by_name: string | null;
+    signed_at: string;
+    method: string | null;
+    digital: boolean;
+    description: string;
+    signature_type: SigningSignatureType | null;
+    provider: string | null;
+    holder_name: string | null;
+    serial_number: string | null;
+    original_sha256: string;
+    signed_sha256: string | null;
+  };
+  xml_schema: string | null;
 }
 
 export const readCertificate = (): Promise<SigningCertificate> => requestJson('/api/v1/signing/certificate');
@@ -97,8 +141,14 @@ export const readCertificate = (): Promise<SigningCertificate> => requestJson('/
 export const saveCertificate = (input: CertificateInput): Promise<SigningCertificate> =>
   requestJson('/api/v1/signing/certificate', { method: 'PUT', body: JSON.stringify(input) });
 
-export const certificateAction = (action: 'register' | 'revoke' | 'unsync'): Promise<SigningCertificate> =>
-  requestJson(`/api/v1/signing/certificate/${action}`, { method: 'POST' });
+export const certificateAction = (
+  action: 'register' | 'revoke' | 'unsync',
+  reason?: string,
+): Promise<SigningCertificate> =>
+  requestJson(`/api/v1/signing/certificate/${action}`, {
+    method: 'POST',
+    ...(reason ? { body: JSON.stringify({ reason }) } : {}),
+  });
 
 export const markCertificateSynced = (syncedOn: string, note: string | null): Promise<SigningCertificate> =>
   requestJson('/api/v1/signing/certificate/sync', {
@@ -133,10 +183,20 @@ export const createDossiers = (
   type: SigningObjectType,
   objectIds: string[],
   period: string,
-): Promise<{ created: number; codes: string[] }> =>
+  note: string | null,
+): Promise<{
+  created: number;
+  codes: string[];
+  errors: Array<{ object_id: string; object_label: string; reason: string }>;
+}> =>
   requestJson('/api/v1/signing/dossiers', {
     method: 'POST',
-    body: JSON.stringify({ object_type: type, object_ids: objectIds, ...(type === 'class_log' ? { period } : {}) }),
+    body: JSON.stringify({
+      object_type: type,
+      object_ids: objectIds,
+      ...(type === 'class_log' ? { period } : {}),
+      ...(note ? { note } : {}),
+    }),
   });
 
 export const signDossiers = (ids: string[]): Promise<{ signed: number }> =>
@@ -162,10 +222,10 @@ export const markDossiersSent = (ids: string[], sentOn: string, note: string | n
     body: JSON.stringify({ ids, sent_on: sentOn, note }),
   });
 
-export async function listSigningSubmissions(filter: {
+export function listSigningSubmissions(filter: {
   objectType: SigningObjectType | '';
   status: SigningDossierStatus | '';
-}): Promise<SigningDossier[]> {
+}): Promise<{ items: SigningDossier[]; school: SigningSchoolInfo }> {
   const query = new URLSearchParams();
   if (filter.objectType) {
     query.set('object_type', filter.objectType);
@@ -173,14 +233,16 @@ export async function listSigningSubmissions(filter: {
   if (filter.status) {
     query.set('status', filter.status);
   }
-  return (
-    await requestJson<{ items: SigningDossier[] }>(
-      `/api/v1/signing/submissions${query.size ? `?${query.toString()}` : ''}`,
-    )
-  ).items;
+  return requestJson(`/api/v1/signing/submissions${query.size ? `?${query.toString()}` : ''}`);
 }
 
-export async function downloadDossierFile(dossier: SigningDossier, version: 'original' | 'signed'): Promise<void> {
+export const readDossierView = (id: string): Promise<SigningDossierView> =>
+  requestJson(`/api/v1/signing/dossiers/${id}/view`);
+
+export async function downloadDossierFile(
+  dossier: SigningDossier,
+  version: 'original' | 'signed' | 'xml',
+): Promise<void> {
   const response = await fetchWithSession(`/api/v1/signing/dossiers/${dossier.id}/file?version=${version}`);
   if (!response.ok) {
     throw await readError(response);
@@ -188,11 +250,15 @@ export async function downloadDossierFile(dossier: SigningDossier, version: 'ori
   saveResponseFile(
     await response.blob(),
     response.headers.get('content-disposition') ?? '',
-    version === 'signed' ? (dossier.signed_file_name ?? dossier.file_name) : dossier.file_name,
+    version === 'signed'
+      ? (dossier.signed_file_name ?? dossier.file_name)
+      : version === 'xml'
+        ? (dossier.xml_file_name ?? `${dossier.code}.xml`)
+        : dossier.file_name,
   );
 }
 
-// Xem hồ sơ: mở tệp PDF ở thẻ mới của trình duyệt
+// In hồ sơ: mở tệp PDF (bản đã kí nếu có) ở thẻ mới của trình duyệt để in
 export async function openDossierFile(dossier: SigningDossier): Promise<void> {
   const version = dossier.signed_file_name ? 'signed' : 'original';
   const response = await fetchWithSession(`/api/v1/signing/dossiers/${dossier.id}/file?version=${version}`);
@@ -206,3 +272,16 @@ export async function openDossierFile(dossier: SigningDossier): Promise<void> {
 
 export const exportClassLog = (classId: string, month: string) =>
   downloadExport('/api/v1/signing/class-log/export', { class_id: classId, month }, `so-dau-bai-${month}.xlsx`);
+
+// Tải file lỗi: đối tượng tạo hồ sơ không được của loại đang xem
+export async function downloadCreateErrors(type: SigningObjectType): Promise<void> {
+  const response = await fetchWithSession(`/api/v1/signing/create-errors/file?object_type=${type}`);
+  if (!response.ok) {
+    throw await readError(response);
+  }
+  saveResponseFile(
+    await response.blob(),
+    response.headers.get('content-disposition') ?? '',
+    `loi-tao-ho-so-${type}.xlsx`,
+  );
+}
