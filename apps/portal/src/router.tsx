@@ -54,6 +54,7 @@ import { PayrollPage } from './payroll/PayrollPage.js';
 import { SettlementsPage } from './payroll/SettlementsPage.js';
 import { ReportsPage } from './reports/ReportsPage.js';
 import { EmisFormPage } from './emis/EmisFormPage.js';
+import { EmisSendPage } from './emis/EmisSendPage.js';
 import { EMIS_FORMS } from '@school-management/shared';
 import { EquipmentOutsidePage, EquipmentPage, EquipmentSubmissionPage } from './facilities/EquipmentPage.js';
 import { FacilityInputPage, FacilityRoomsPage } from './facilities/FacilityRoomsPage.js';
@@ -274,6 +275,8 @@ const routeTree = rootRoute.addChildren([
       component: () => <EmisFormPage code={form.code} />,
     }),
   ),
+  // 1.1.2 Gửi báo cáo đầu năm (DT-17 phần 17a)
+  createRoute({ getParentRoute: () => rootRoute, path: '/emis/send', component: EmisSendPage }),
   // Cơ sở vật chất đủ theo Sở (DT-16 phần 16i)
   createRoute({ getParentRoute: () => rootRoute, path: '/facility-report', component: FacilityReportPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/facility-investments', component: FacilityInvestmentsPage }),

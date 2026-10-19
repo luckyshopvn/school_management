@@ -7,6 +7,10 @@ export interface EmisFormRow {
   label: string;
   unit: string;
   values: Record<string, number | null>;
+  // Cột TT, dòng tiêu đề nhóm, dòng máy chủ tự tính khi ghi (DT-17 phần 17a)
+  order?: string;
+  heading?: boolean;
+  computed?: boolean;
 }
 
 export interface EmisTab {
@@ -19,6 +23,7 @@ export interface EmisTab {
   can_copy_previous_year: boolean;
   saved_at: string | null;
   saved_by_name: string | null;
+  locked: boolean;
 }
 
 export interface EmisFormView {
@@ -48,6 +53,9 @@ export const saveEmisTab = (
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ rows }),
   });
+
+export const clearEmisTab = (code: EmisFormCode, tab: string): Promise<EmisFormView> =>
+  requestJson(`${base(code)}/tabs/${tab}`, { method: 'DELETE' });
 
 export const fillEmisTab = (
   code: EmisFormCode,
