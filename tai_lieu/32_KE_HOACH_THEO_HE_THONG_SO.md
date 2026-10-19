@@ -1,8 +1,8 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`.
-- Phiên bản: 1.13
-- Ngày cập nhật: 2026-10-18
+- Phiên bản: 1.14
+- Ngày cập nhật: 2026-10-19
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
 
@@ -132,3 +132,97 @@ Các phần chia theo kết quả đối chiếu từng dòng tài liệu 31 v�
 | 16k | Phân hệ Quản lý kí hồ sơ (nội bộ): chứng thư số nhà trường, ảnh con dấu, tạo hồ sơ PDF, xác nhận hoàn thành, khóa hồ sơ | 3 | Đã triển khai (YCTD-130): phân hệ "Quản lý kí hồ sơ"; 1.1 Chứng thư số nhà trường (thông tin chứng thư, không lưu mật khẩu; ảnh con dấu; Đăng ký kí nội bộ); 2.1 Đồng bộ chứng thư số (Đánh dấu đã đồng bộ); 2.2 Kí hồ sơ trường, lớp, nhân sự, học sinh, sổ đầu bài theo tháng (Tạo hồ sơ PDF kèm mã định danh hồ sơ và mã băm, Kí xác nhận nội bộ, Tải thông tin thay đổi, Hủy hồ sơ, Xuất dữ liệu sổ đầu bài); 2.3 Xác nhận hoàn thành, Hủy xác nhận, Tải tệp gửi, Đánh dấu đã gửi; không có chữ ký số thật, chỗ nối `DossierSigner` để nối nhà cung cấp kí số sau; nội dung hồ sơ chưa đối chiếu mẫu của Sở |
 
 Lượt 2 bắt đầu khi phần 16a đã gộp và dùng lại công cụ của phần này; lượt 3 bắt đầu khi lượt 2 đã gộp. Mỗi phần ghi YCTD, chạy đủ kiểm thử đơn vị và e2e, mở PR, gộp khi mọi kiểm tra CI đạt; các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 và ghi vào YCTD của từng phần.
+
+## 8. Theo khảo sát bổ sung ngày 2026-10-19 (DT-17)
+
+### 8.1 Căn cứ
+
+1. Khảo sát bổ sung ở `31_KHAO_SAT_HE_THONG_SO.md` mục 10: phân hệ Tuyển sinh đầu cấp, mẫu nội dung bốn loại hồ sơ kí, tên và mã số chỉ tiêu của các biểu EMIS, màn hình 1.7. Bảng chênh lệch với mã nguồn ở mục 10.7 của tài liệu đó (mã E1–E11, K1–K10, R1–R5).
+2. Quyết định của Eric ngày 2026-10-16 (mục 7) vẫn áp dụng: làm đủ mọi tính năng đã khảo sát; tính năng cần hệ thống ngoài làm bản chạy nội bộ (trạng thái đánh dấu tay, tệp xuất, PDF) và giữ chỗ nối để cắm kết nối thật. Phân hệ Tuyển sinh đầu cấp nay đã khảo sát nên làm ở DT-17, thay dòng "chờ khảo sát" ở mục 7.
+3. Phân hệ Hồ sơ điện tử không làm ở DT-17: tài khoản trường không được cấp phân hệ này nên không có màn hình để làm theo (tài liệu 31 mục 10.6). Khi Sở cấp phân hệ cho tài khoản thì khảo sát tiếp.
+4. Các lựa chọn ở mục 8.2 đến 8.4 do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+### 8.2 Các phần
+
+Số migration ghi theo thứ tự dự kiến; mỗi phần giữ sẵn số riêng để làm song song (kho mã đã bật `allowUnorderedMigrations`, không đánh lại số sang dải của phần khác). Hiện nhánh chính có tệp năm học đến 0059, tệp hệ thống đến 0016, tệp định danh đến 0049.
+
+| Phần | Phạm vi | Migration dự kiến | Phụ thuộc | YCTD giữ sẵn |
+|---|---|---|---|---|
+| 17a | EMIS theo đúng chỉ tiêu và mã số của Sở (E1–E11) | Năm học 0060 | Đọc các ô hồ sơ trường do 17e thêm (mục 8.3, 17e); gộp sau 17e | YCTD-132 |
+| 17b | Kí hồ sơ theo bốn mẫu thật, danh sách nhà phát hành, ẩn sổ đầu bài ở cấp Mầm non (K1–K10) | Hệ thống 0017 | Không | YCTD-133 |
+| 17c | Tuyển sinh đầu cấp phần 1: phân hệ, hồ sơ cuối cấp, cổng phụ huynh xác nhận hồ sơ, các màn hình phụ | Năm học 0061; định danh 0050 | Không | YCTD-134 |
+| 17d | Tuyển sinh đầu cấp phần 2: tiếp nhận hồ sơ, thông báo, chuyển hồ sơ trúng tuyển sang CSDL trường nội bộ | Năm học 0062; định danh 0051 | Sau khi 17c gộp (dùng phân hệ, cây menu, quyền của 17c) | YCTD-135 |
+| 17e | Chỉnh 1.7 Rà soát thông tin kiểm định CLGD (R1–R5) và các ô hồ sơ trường liên quan | Năm học 0063 | Không | YCTD-136 |
+
+Lượt làm (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, theo bài học của DT-16 là chạy tối đa hai phiên cùng lúc): lượt 1 gồm 17e và 17b (nhỏ, không phụ thuộc); lượt 2 gồm 17a và 17c; lượt 3 là 17d. Thứ tự gộp để đánh số tài liệu (phiên bản, CT, AC, BR, MH) không trùng: 17e, 17b, 17a, 17c, 17d; phần gộp sau đánh lại số tài liệu theo nhánh chính lúc gộp. Mã YCTD giữ sẵn ở bảng trên không đổi theo thứ tự gộp.
+
+### 8.3 Phạm vi chi tiết
+
+#### 17a. EMIS theo chỉ tiêu và mã của Sở
+
+- Biểu 01.ĐN-MN năm thẻ như Sở (gộp thẻ "Học sinh theo độ tuổi" vào thẻ Trẻ em): Trường – Lớp, Trẻ em, Đội ngũ, Cơ sở vật chất, Ngân sách nhà nước; đủ dòng, tên chỉ tiêu, mã số 01 đến 217 và đơn vị như tài liệu 31 mục 10.4.2; cột riêng từng thẻ (thẻ 1 theo loại hình; thẻ 2 Tổng, Nữ của tổng số và của dân tộc thiểu số; thẻ 3 Tổng số, Nữ, Dân tộc và bốn cột phân loại hợp đồng; thẻ 4 Kiên cố, Bán kiên cố, Tạm). Bỏ cảnh báo "mã số do hệ thống đặt".
+- Thẻ 5 theo Biểu 08.ĐN-NSNN: hai cột Dự toán, Ước thực hiện; mã 1 đến 71. Các dòng mã 24 đến 55 chưa có tên trong khảo sát: hiện theo cách chia giống mục 1 với nhãn "Mục 2" đến "Mục 5" và ghi chú chờ đối chiếu.
+- Tính từ dữ liệu sẵn có: tiêu chí trường từ hồ sơ trường (điện, internet, máy tính, nước uống, vệ sinh, rửa tay, chương trình giới tính, kế hoạch phòng chống thiên tai, mức chuẩn quốc gia); nhóm, lớp theo nhóm tuổi, ghép 2, 3 độ tuổi, số trẻ khuyết tật trong lớp; trẻ học 2 buổi, bán trú, khuyết tật, độ tuổi theo tháng; dinh dưỡng theo thể từ lần cân đo gần nhất trong học kỳ I; đội ngũ theo nhóm chức vụ, vị trí việc làm, trình độ, hạng chức danh, độ tuổi, hình thức hợp đồng theo danh mục Bộ (16f); phòng theo loại và hiện trạng. Dòng không có dữ liệu để 0 và ghi lý do ở danh sách cảnh báo.
+- Dữ liệu thêm (năm học 0060): đối tượng chính sách theo từng nghị định của trẻ (NĐ 238/2025 Điều 17, NĐ 66/2025, NĐ 57/2017, NĐ 105/2020 ăn trưa, trợ cấp); kiêm nhiệm hỗ trợ giáo dục người khuyết tật, kiêm nhiệm vị trí dùng chung của nhân sự; cờ "xây dựng mới trong năm" của phòng; xóa số liệu nhập tay đã ghi theo mã cũ của thẻ Ngân sách và Đề án ngoại ngữ (chưa có đơn vị nào nộp thật).
+- 1.2.1 Cơ sở vật chất TP.HCM thẻ 1: sáu khối A đến F, mã 01 đến 84, cột Tổng số, Kiên cố (Tổng số, Xây dựng mới), Bán kiên cố (Tổng số, Xây dựng mới), Tạm; đối chiếu loại phòng của mình sang dòng của Sở bằng bảng ánh xạ trong mã. Thẻ 2 đến 5 giữ như 16j, ghi chú chưa đối chiếu.
+- 2.1 EMIS cuối năm theo cấu trúc Sở: I Trường, II Nhóm lớp, III Trẻ em (quy mô, dinh dưỡng), VI Cán bộ quản lý, giáo viên, nhân viên (chuẩn nghề nghiệp theo mức, nghỉ hưu, tuyển mới trong năm theo ngày nghỉ việc, ngày vào làm). Bỏ các mục tự đặt không có ở Sở.
+- 2.2 Báo cáo đội ngũ ba biểu như Sở: 2.2.1 hai thẻ với bốn cách chia (trình độ, độ tuổi, hạng chức danh, đánh giá viên chức theo NĐ 90), giáo viên dạy giỏi theo cấp, nhân viên theo vị trí; 2.2.2 ngoại ngữ khung 6 bậc, tin học; 2.2.3 xếp loại chung và từng tiêu chí 1–18 (CBQL), 1–15 (giáo viên) từ phiếu đánh giá chuẩn nghề nghiệp đã chốt.
+- 2.3 Đề án ngoại ngữ năm chỉ tiêu; chỉ tiêu 1 đến 4 tính, chỉ tiêu 5 nhập tay vào cột Tổng số, có nút Ghi.
+- 2.4 GDMN cuối năm: ở học kỳ I hiện trống như Sở.
+- Trang gửi như 1.1.2: lưới hồ sơ (hồ sơ trường, giáo viên, lớp, học sinh, sức khỏe nuôi dưỡng kỳ I; tổng số, số đã gửi, số cần gửi, lần gửi cuối) và lưới biểu (năm dòng Biểu 01, Biểu 08 với "Đã đầy đủ dữ liệu", "Không có dữ liệu"); nút Gửi hồ sơ (xuất tệp và đánh dấu đã gửi, bản chạy nội bộ), Xuất file lỗi, Đặt trạng thái gửi lại, Hủy; trang lập có "Xóa dữ liệu" (xóa số liệu nhập tay chưa gửi). 1.2.2 chỉ có "Gửi dữ liệu". Số đã gửi của hồ sơ lấy từ 2.3 của phân hệ kí (17b) nếu đã gộp, chưa có thì từ trạng thái gửi của phần 16a.
+
+#### 17b. Kí hồ sơ theo bốn mẫu thật
+
+- Ẩn thẻ "Sổ đầu bài" ở 2.2 và nút "Xuất dữ liệu sổ đầu bài" ở 2.2, 2.3 vì cấp Mầm non của Sở ẩn hai nút này; máy chủ từ chối tạo hồ sơ sổ đầu bài mới; hồ sơ sổ đầu bài đã có vẫn xem, tải, xác nhận được để không mất dữ liệu. Giữ loại `class_log` trong mã cho cấp học khác sau này.
+- Nội dung tệp theo đúng phần và mục của tài liệu 31 mục 10.3.3: hồ sơ trường (thông tin chung và mỗi điểm trường một phần), hồ sơ lớp (không còn danh sách học sinh, giáo viên), hồ sơ nhân sự mười hai phần (lấy từ hồ sơ nhân sự, danh mục Bộ, quá trình công tác, khen thưởng, chuẩn nghề nghiệp, lương đã có; mục chưa có dữ liệu để trống), hồ sơ học sinh hai phần. Thứ tự mục theo Sở.
+- Số định danh, CCCD, sổ BHXH in đủ theo mẫu vì hồ sơ là bản nộp cơ quan quản lý; tạo và tải hồ sơ nhân sự, học sinh cần thêm quyền xem số định danh (`P02.national-id.view`), mọi lần tải ghi `export_logs`.
+- Thêm tệp dữ liệu XML cho mỗi hồ sơ, gốc mang mã loại `HO_SO_TRUONG`, `HO_SO_LOP`, `HO_SO_NHAN_SU`, `HO_SO_HOC_SINH`; lược đồ tự đặt theo tên mục, có chỗ nối để thay bằng lược đồ của Bộ. Cửa sổ "Xem hồ sơ kí" hai khung: "Thông tin chữ ký số" (người kí, thời điểm, chứng thư, mã băm) và nội dung hồ sơ; Tải xuống, In.
+- Chứng thư số: kiểu chữ ký hai giá trị (Kí từ xa, USB token; chứng thư kiểu HSM đã có chuyển thành Kí từ xa và ghi lịch sử); nhà phát hành chọn trong VNPT-CA, BkavCA, VIETTEL, Ban Cơ yếu Chính phủ, MISA (giá trị cũ ngoài danh sách giữ lại, hiện cảnh báo, phải chọn lại mới đăng ký kí nội bộ); 1.1 hiện mã trường, tên trường, email, website từ hồ sơ trường; lịch sử yêu cầu đăng ký. Vẫn không nhận, không lưu mật khẩu.
+- Lưới 2.2: trạng thái "Chờ ký" thay "Đã tạo, chưa kí"; cột ghi chú; cột riêng theo loại (tên hiệu trưởng; khối; ngày sinh, trạng thái nhân sự, vị trí việc làm; mã học sinh, ngày sinh, lớp, trạng thái học sinh); lọc khối ở lớp, khối và lớp ở học sinh; "Tải file lỗi" (đối tượng tạo hồ sơ không được kèm lý do). Lưới 2.3 theo cột của Sở.
+- Chỗ nối `DossierSigner` giữ nguyên; hộp kí có ô nhà phát hành, tên đăng nhập; "Đăng nhập và kí" chỉ hiện khi có nhà cung cấp thật.
+
+#### 17c. Tuyển sinh đầu cấp phần 1
+
+- Phân hệ mới "Tuyển sinh đầu cấp" trên ô chọn phân hệ, đặt sau "Cơ sở vật chất, TBDH" như thứ tự ở 1.2 Phân quyền nhóm theo phần mềm; cây menu đánh số như tài liệu 31 mục 10.2.2 (17c dựng đủ 15 mục, các mục của 17d hiện khi 17d gộp). Không làm trang và đăng nhập riêng như `truong-tsdc`: dùng chung đăng nhập, ô "Cấp · Năm học · Học kỳ". Phân hệ "Tuyển sinh, tuyển dụng" riêng của mình giữ nguyên.
+- 1.1 Hồ sơ học sinh cuối cấp: lấy trẻ đang học lớp mẫu giáo 5–6 tuổi; đủ lọc, cột, nhãn, nút như Sở. Trạng thái hồ sơ sáu giá trị và luồng: trường gửi hồ sơ, phụ huynh xác nhận hoặc đề xuất sửa, trường chỉnh và bấm "Đã chỉnh sửa thông tin", phụ huynh xác nhận lại; Duyệt, Hủy duyệt. Kiểm dò là kiểm tra các mục bắt buộc (định danh, nơi ở hiện tại, liên hệ, giấy khai sinh, ảnh cư trú) kèm nội dung thiếu. Hạn điều chỉnh thông tin do trường đặt. Cập nhật từ Excel và Tải danh sách lỗi dùng công cụ nhập chung (16a). Sáu nút Xuất PDF (A5, A4 gập đôi, toàn bộ hoặc hồ sơ chọn, một tệp hoặc tách tệp nén), In phiếu kê khai, In phiếu thông tin. "Thông tin tài khoản", "Khởi tạo mật khẩu" dùng tài khoản phụ huynh sẵn có. Trường phân tuyến, đối tượng, hình thức ưu tiên, nguồn đăng ký, vị trí nhập tay (bản chạy nội bộ, không có kết nối phân tuyến của Sở).
+- Cổng phụ huynh (ứng dụng phụ huynh): màn hình "Hồ sơ cuối cấp" xem hồ sơ của con, Xác nhận, Đề xuất sửa (ghi nội dung), tải ảnh giấy khai sinh, ảnh thông tin cư trú trên VNeID, minh chứng; đồng ý nhập học; gửi yêu cầu hỗ trợ tuyển sinh.
+- 1.2 Gửi xác nhận hoàn thành hồ sơ cuối cấp: lưới theo lớp và ô xác nhận, người, ngày; bấm Ghi là trạng thái đánh dấu tay, xuất tệp danh sách để nộp.
+- 4.1 Thống kê hồ sơ cuối cấp: theo đơn vị (trường chính, phân hiệu), Xuất Excel.
+- 1.8 Thông tin trường theo bản đồ: vĩ độ, kinh độ, khu phố của trường và từng điểm trường, trạng thái kiểm dò; "Xem vị trí" mở bản đồ ngoài theo tọa độ ở thẻ mới, không nhúng thư viện bản đồ.
+- 2.1 Dịch vụ đăng ký tại trường: danh mục mã, tên, thứ tự; nối với danh mục dịch vụ của phân hệ Tài chính – học phí khi trùng mã.
+- 3.1 đến 3.4: hiển thị nhóm người dùng, người dùng, nhân sự, lớp sẵn có theo cột của Sở; không có "Đồng bộ dữ liệu" vì dùng chung cơ sở dữ liệu.
+- 5.1 Danh sách hỗ trợ tuyển sinh: yêu cầu của phụ huynh, trả lời, trạng thái, người trả lời, thời gian; "Gửi email" là gửi câu trả lời qua kênh thông báo của ứng dụng phụ huynh, thư điện tử khi có cấu hình gửi thư.
+- Dữ liệu (năm học 0061): hồ sơ cuối cấp và lịch sử trạng thái, tệp đính kèm, xác nhận hoàn thành theo lớp, yêu cầu hỗ trợ, danh mục dịch vụ, tọa độ của đơn vị; quyền mới của phân hệ (định danh 0050).
+
+#### 17d. Tuyển sinh đầu cấp phần 2
+
+- 1.4 Tiếp nhận hồ sơ tuyển sinh: nguồn là danh sách phân tuyến nhập từ Excel (bản chạy nội bộ thay kết nối phân tuyến của Sở) và hồ sơ đã đạt của tuyển sinh trực tuyến (YCTD-86); đủ lọc, cột, ô tích giấy tờ đã nộp, phụ huynh đồng ý hoặc từ chối nhập học; Lưu dữ liệu, Tải phiếu thông tin, In phiếu đăng ký, Hủy nhập học. Đợt tuyển sinh dùng bảng đợt tuyển sinh sẵn có, thêm loại hình (đại trà, tiên tiến, khảo sát).
+- 1.3 Danh sách đăng ký trường tiên tiến: tiêu chí, kết quả học tập và thành tích, minh chứng, trạng thái trường duyệt và xã/phường đồng ý (nhập tay); Xác nhận hồ sơ, Không đồng ý, Chưa xác nhận, Tải minh chứng, In phiếu.
+- 1.5 Gửi thông báo tuyển sinh đầu cấp: soạn nội dung, lọc người nhận như Sở, gửi qua kênh thông báo của ứng dụng phụ huynh và Zalo OA đã có, trạng thái đã gửi theo người; Nhập từ Excel, Nhập từ Excel học sinh ngoài hệ thống, Sao chép nội dung. Tin nhắn SMS để chỗ nối nhà cung cấp.
+- 1.6 Chuyển hồ sơ trúng tuyển sang CSDL: tạo hồ sơ học sinh trong cơ sở dữ liệu của năm học của đợt tuyển sinh (năm học đó phải đã tạo, chưa có thì báo lỗi), mỗi lần chuyển một mã gói tin, mỗi hồ sơ một mã GUID; loại hồ sơ có tài khoản (đã có tài khoản phụ huynh) hoặc tự do; thẻ xem kết quả; hỏi trước khi xóa lớp đã xếp.
+- 1.7 Danh sách kết quả chuyển hồ sơ: hai thẻ kết quả chuyển, kết quả hủy nhập học; Hủy nhập học chỉ với hồ sơ học sinh chưa phát sinh dữ liệu.
+- 5.11 Danh sách trúng tuyển ở phân hệ Mầm non: bước 1 xếp lớp, bước 2 chuyển sang hồ sơ học sinh, dùng chung xử lý của 1.6.
+- Dữ liệu (năm học 0062): thêm cột cho đợt và hồ sơ tuyển sinh (diện cư trú, số định danh, nơi ở hiện tại, trường và phường/xã cuối cấp, giấy tờ đã nộp, đồng ý nhập học, loại hồ sơ, mã gói tin, mã GUID, kết quả chuyển), bảng thông báo đã gửi; quyền thêm (định danh 0051).
+
+#### 17e. Chỉnh 1.7 Rà soát thông tin kiểm định CLGD
+
+- Thêm ô như Sở: tên trường (bắt buộc, tối đa 200 ký tự), mã trường (bắt buộc, tối đa 20 ký tự), loại hình (bắt buộc), cấp học (Mầm non), năm và ngày công nhận chuẩn quốc gia, mức độ, năm và ngày công nhận kiểm định CLGD, cấp độ, thời điểm đăng ký chuẩn quốc gia. "Lấy dữ liệu" điền từ hồ sơ trường; sửa được trước khi Ghi.
+- Hồ sơ trường thêm các ô tương ứng ở thẻ Thông tin chung với khóa đặt trước để 17a dùng: `national_standard_level`, `national_standard_year`, `national_standard_date`, `national_standard_registration`, `accreditation_level`, `accreditation_year`, `accreditation_date`, `floor_area_m2` (diện tích sàn xây dựng); không cần migration vì hồ sơ trường lưu theo thẻ.
+- Cách tính: diện tích sàn xây dựng lấy ô `floor_area_m2` của hồ sơ trường, chưa nhập thì tổng diện tích các phòng đang dùng như hiện tại; thêm "Diện tích sàn xây dựng/Học sinh" bên cạnh "Diện tích đất/Học sinh", cùng cách làm tròn hai chữ số. Ghi chú tối đa 500 ký tự, nhãn như Sở.
+- Dữ liệu (năm học 0063): thêm cột vào `accreditation_reviews`.
+
+### 8.4 Quy ước chung của DT-17
+
+- Mỗi phần ghi YCTD giữ sẵn ở mục 8.2, cập nhật tài liệu theo quy ước của kho (02, 07, 08, 10, 11, 14, 16, 17, 21, 23, 24, 32, `index.md` khi có thay đổi tương ứng), chạy đủ kiểm thử đơn vị và e2e, mở PR, gộp khi mọi kiểm tra CI đạt.
+- Không ghi dữ liệu thật của trường vào mã, dữ liệu mẫu hay kiểm thử.
+- Các điểm chi tiết không nêu ở đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 và ghi vào YCTD của từng phần.
+
+### 8.5 Tiến độ
+
+| Phần | Tiến độ |
+|---|---|
+| 17a | Chưa làm |
+| 17b | Chưa làm |
+| 17c | Chưa làm |
+| 17d | Chưa làm, chờ 17c |
+| 17e | Chưa làm |
