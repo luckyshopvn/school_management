@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.11
+- Phiên bản: 0.12
 - Ngày cập nhật: 2026-10-19
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,17 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.84.0 – 2026-10-19
+### Phiên bản 0.85.0 – 2026-10-19
 
 - Phạm vi thay đổi: DT-17 phần 17b, phân hệ Quản lý kí hồ sơ theo bốn mẫu hồ sơ của Sở (YCTD-133).
 - Chức năng mới: nội dung hồ sơ trường, lớp, nhân sự (mười hai phần), học sinh theo phần và mục của Sở, in đủ số định danh, CCCD, sổ BHXH với người có quyền xem số định danh; tệp dữ liệu XML theo mã loại hồ sơ; cửa sổ "Xem hồ sơ kí"; kiểu chữ ký REMOTE SIGNING, USB TOKEN và năm nhà phát hành của Sở; thông tin trường, lịch sử yêu cầu đăng ký ở 1.1; lưới 2.2 cột theo loại, lọc khối, lớp, cột Ghi chú, "Tải file lỗi", trạng thái "Chờ ký"; lưới 2.3 theo cột của Sở, "Tìm kiếm", "Hủy xác nhận hoàn thành"; bỏ sổ đầu bài ở cấp Mầm non (P01-28 đến P01-31).
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp hệ thống `0017_adjust_signing_to_so_templates` (chứng thư HSM chuyển REMOTE SIGNING, năm cột mới của `signing_dossiers`, bảng `signing_create_errors`).
 - Thay đổi API: `GET /signing/dossiers/{id}/view`, `GET /signing/create-errors/file`, `version=xml`; các trường thêm như YCTD-133.
-- Kiểm thử: kịch bản CT-619 đến CT-627. Kết quả ngày 19/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r --workspace-concurrency=1 --no-bail test`) 856/856 ca đạt; toàn bộ kiểm thử giao diện 134/134 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử: kịch bản CT-626 đến CT-634. Kết quả ngày 19/10/2026 (trước khi gộp phần 17e): kiểm thử đơn vị toàn bộ kho mã (`pnpm -r --workspace-concurrency=1 --no-bail test`) 856/856 ca đạt; toàn bộ kiểm thử giao diện 134/134 ca đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt; CI đạt trên nhánh đã gộp.
 - Rủi ro: hồ sơ in đủ số định danh nên chỉ người có `P02.national-id.view` tạo, xem được hồ sơ nhân sự, học sinh; tệp tải về cần giữ như tài liệu mật.
 - Khả năng tương thích: hồ sơ đã lập ở 16k giữ tệp, xem được ở cửa sổ mới, không có tệp XML; chứng thư có nhà phát hành ngoài danh sách phải chọn lại mới kí được.
 - Phương án quay lui: hoàn lại commit gộp của nhánh `dt-17-phan-17b` và chạy `down` của tệp `0017` (bỏ bảng `signing_create_errors` và năm cột, trả ràng buộc ba kiểu chữ ký; chứng thư đã đổi từ HSM giữ REMOTE SIGNING).
+
+### Phiên bản 0.84.0 – 2026-10-19
+
+- Phạm vi thay đổi: DT-17 phần 17e, 1.7 Rà soát thông tin kiểm định CLGD đủ ô như Sở (YCTD-136).
+- Chức năng mới: 1.7 có năm khối theo thứ tự của Sở: Thông tin trường (Tên trường, Mã trường, Loại hình bắt buộc; Cấp học "Mầm non"; Số lớp), Chuẩn quốc gia (năm, ngày công nhận, mức độ), Kiểm định chất lượng giáo dục (năm, ngày công nhận, cấp độ), Cơ sở vật chất và học sinh (thêm Diện tích sàn xây dựng/Học sinh, Thời điểm đăng ký chuẩn quốc gia), Ghi chú tối đa 500 ký tự có bộ đếm; "Lấy dữ liệu" điền thêm từ cây đơn vị và hồ sơ trường; hồ sơ trường thêm tám ô ở thẻ Thông tin chung (diện tích sàn xây dựng, chuẩn quốc gia, kiểm định CLGD) (P01-24, P01-15).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0063_add_accreditation_review_so_fields` thêm 12 cột được để trống vào `accreditation_reviews` kèm ràng buộc kiểm tra; hồ sơ trường thêm tám khóa ở jsonb `general`, không đổi cấu trúc.
+- Thay đổi API: không có điểm cuối mới; `/accreditation-review`, `/accreditation-review/collect` trả, nhận thêm các ô mới; `PUT /accreditation-review` trả `ERR_VALIDATION` khi thiếu tên trường, mã trường, loại hình hoặc ghi chú quá 500 ký tự; `PUT /school-profile` nhận tám khóa mới, từ chối năm ngoài 1900 đến 2100.
+- Kiểm thử: kịch bản CT-619 đến CT-625. Kết quả ngày 19/10/2026: kiểm thử đơn vị toàn bộ kho mã (`pnpm -r --workspace-concurrency=1 --no-bail test`) 854/854 ca đạt; toàn bộ kiểm thử giao diện 135/135 ca đạt (chạy cục bộ); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: bản rà soát đã ghi có ghi chú dài hơn 500 ký tự phải rút gọn trước lần ghi sau; thời điểm đăng ký chuẩn quốc gia là chữ tự do do chưa biết định dạng của Sở.
+- Khả năng tương thích: bản rà soát đã ghi giữ số cũ, các cột mới trống đến lần ghi sau; người gọi `PUT /accreditation-review` cũ phải gửi thêm `school_name`, `school_code`, `ownership_type`; hồ sơ trường chưa nhập diện tích sàn xây dựng thì Lấy dữ liệu tính như cũ; quyền không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh phần 17e; chạy phần quay lui của tệp năm học `0063` (xóa 12 cột). Tám khóa đã lưu ở `school_profiles.general` không còn được đọc, giữ lại không ảnh hưởng.
 
 ### Phiên bản 0.83.0 – 2026-10-18
 

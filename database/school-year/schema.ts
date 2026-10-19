@@ -3156,6 +3156,8 @@ export interface SchoolProfilesTable {
 
 // 1.7 Rà soát thông tin kiểm định CLGD (DT-16 phần 16e): một bản mỗi năm học, gắn với Trường chính
 type OptionalArea = ColumnType<string | null, string | number | null | undefined, string | number | null>;
+type OptionalText = ColumnType<string | null, string | null | undefined, string | null>;
+type OptionalInteger = ColumnType<number | null, number | null | undefined, number | null>;
 
 export interface AccreditationReviewsTable {
   id: Generated<string>;
@@ -3167,6 +3169,19 @@ export interface AccreditationReviewsTable {
   floor_area_m2: OptionalArea;
   child_count: number | null;
   area_per_child_m2: OptionalArea;
+  // Ô như Sở thêm ở DT-17 phần 17e (khảo sát mục 10.5): mức độ chuẩn quốc gia '1', '2'; cấp độ kiểm định '1' đến '4'
+  school_name: OptionalText;
+  school_code: OptionalText;
+  ownership_type: OptionalText;
+  education_level: OptionalText;
+  national_standard_year: OptionalInteger;
+  national_standard_date: OptionalText;
+  national_standard_level: OptionalText;
+  accreditation_year: OptionalInteger;
+  accreditation_date: OptionalText;
+  accreditation_level: OptionalText;
+  national_standard_registration: OptionalText;
+  floor_area_per_child_m2: OptionalArea;
   note: string | null;
   collected_at: Date | null;
   updated_by: string;

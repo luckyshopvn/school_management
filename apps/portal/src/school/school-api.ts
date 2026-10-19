@@ -3,6 +3,19 @@ import { requestJson } from '../session/api-client.js';
 
 // Gọi điểm cuối 1.7 Rà soát thông tin kiểm định CLGD và 1.8 Tách trường (DT-16 phần 16e)
 export interface AccreditationFigures {
+  // Ô như Sở thêm ở DT-17 phần 17e (khảo sát mục 10.5)
+  school_name: string | null;
+  school_code: string | null;
+  ownership_type: string | null;
+  education_level: string;
+  national_standard_year: number | null;
+  national_standard_date: string | null;
+  national_standard_level: string | null;
+  accreditation_year: number | null;
+  accreditation_date: string | null;
+  accreditation_level: string | null;
+  national_standard_registration: string | null;
+  floor_area_per_child_m2: number | null;
   class_count: number | null;
   classroom_count: number | null;
   subject_room_count: number | null;
@@ -23,7 +36,7 @@ export const collectAccreditationFigures = (): Promise<AccreditationFigures & { 
   requestJson('/api/v1/accreditation-review/collect', { method: 'POST' });
 
 export const saveAccreditationReview = (
-  input: AccreditationFigures & { note: string | null; collected: boolean },
+  input: Omit<AccreditationFigures, 'education_level'> & { note: string | null; collected: boolean },
 ): Promise<AccreditationReview> =>
   requestJson('/api/v1/accreditation-review', { method: 'PUT', body: JSON.stringify(input) });
 
