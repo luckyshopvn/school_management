@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.33
+- Phiên bản: 1.34
 - Ngày cập nhật: 2026-10-19
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -712,6 +712,10 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-637 | Cho bản rà soát đang nhập ở 1.7 / Khi Ghi lúc thiếu tên trường, mã trường hoặc loại hình; tên trường quá 200 ký tự, mã trường quá 20 ký tự, mức độ, cấp độ ngoài danh sách, năm ngoài 1900 đến 2100, ngày sai dạng; nhập ghi chú dài hơn 500 ký tự; quản lý phân hiệu ghi / Thì máy chủ trả `ERR_VALIDATION` nêu đúng ô, màn hình báo "Bắt buộc nhập tên trường"; ô ghi chú chỉ nhận 500 ký tự, bộ đếm hiện "500/500 ký tự", ghi chú 501 ký tự gửi thẳng bị từ chối; quản lý phân hiệu bị từ chối (CT-620, CT-624, CT-625; YCTD-136) |
 | AC-638 | Cho hồ sơ trường có mã định danh, loại hình, chuẩn quốc gia, kiểm định CLGD, diện tích sàn xây dựng và hai phòng đang dùng / Khi bấm Lấy dữ liệu; ghi lại hồ sơ trường không có diện tích sàn xây dựng, mã định danh rồi Lấy dữ liệu lại / Thì tên trường là tên Trường chính, mã trường là mã định danh, cấp học "Mầm non", các ô chuẩn quốc gia, kiểm định lấy đúng từ hồ sơ trường, diện tích sàn xây dựng là ô của hồ sơ trường; lần sau diện tích sàn là tổng diện tích hai phòng, mã trường là mã Trường chính; hai chỉ số trên học sinh làm tròn hai chữ số, trống khi chưa có học sinh (CT-619, CT-622, CT-623; YCTD-136) |
 | AC-639 | Cho Hiệu trưởng mở 1.1 Hồ sơ trường / Khi ghi thẻ Thông tin chung có diện tích sàn xây dựng, chuẩn quốc gia mức độ, năm, ngày công nhận, thời điểm đăng ký, kiểm định CLGD cấp độ, năm, ngày công nhận; ghi mức độ 3, cấp độ 5, năm 1800 hoặc 2101, ngày dạng dd/mm/yyyy, diện tích âm / Thì hồ sơ đọc lại đúng các ô; mỗi giá trị sai bị từ chối `ERR_VALIDATION` ở đúng ô `general.…` (CT-621; YCTD-136) |
+| AC-640 | Cho Hiệu trưởng khai báo chứng thư / Khi ghi kiểu HSM; ghi nhà phát hành ngoài danh sách; chứng thư mang nhà phát hành cũ ngoài danh sách rồi đăng ký, kí; chọn VNPT-CA, đăng ký kèm lý do / Thì hai lần ghi bị từ chối; màn hình cảnh báo, đăng ký và kí trả `ERR_RULE_VIOLATION` mã YCTD-133; đăng ký được, lịch sử ghi "REMOTE SIGNING – VNPT-CA – <tên đăng nhập> – <lý do>"; 1.1 hiện mã trường, tên trường, email, website (CT-626, CT-632, CT-634; YCTD-133) | P01-28 |
+| AC-641 | Cho trường có một điểm trường, lớp mẫu giáo, nhân sự, học sinh / Khi tạo hồ sơ trường, lớp, nhân sự, học sinh rồi xem và tải tệp XML / Thì hồ sơ trường có phần Thông tin chung 32 mục và phần của điểm trường; hồ sơ lớp chỉ có Thông tin lớp, khối "Lớp mẫu giáo"; hồ sơ nhân sự đủ mười hai phần, in đủ CCCD, sổ BHXH; hồ sơ học sinh có hai phần, in đủ số định danh, CCCD, cha, mẹ; tệp XML có gốc `HO_SO_TRUONG`, `HO_SO_LOP`, `HO_SO_NHAN_SU`, `HO_SO_HOC_SINH` đúng mã băm (CT-627 đến CT-630, CT-634; YCTD-133) | P01-30 |
+| AC-642 | Cho người có quyền xem, lập hồ sơ kí nhưng không có quyền xem số định danh / Khi tạo, xem, tải, tải thông tin thay đổi hồ sơ nhân sự, học sinh; xem hồ sơ trường; đổi số CCCD của nhân sự rồi Hiệu trưởng tải thông tin thay đổi / Thì bốn thao tác đầu bị từ chối quyền, hồ sơ trường xem được; nội dung thay đổi ghi "Số CMND/CCCD: đã thay đổi", không có số (CT-631; YCTD-133) | P01-30 |
+| AC-643 | Cho hai nhân sự, một người thiếu ngày sinh; hồ sơ lập trước YCTD-133 / Khi tạo hồ sơ cho cả hai; tạo lại chỉ người thiếu; Tải file lỗi; xem, tải XML, tải thông tin thay đổi hồ sơ cũ; mở 2.2, 2.3 / Thì một hồ sơ tạo được, người thiếu có Ghi chú "Thiếu mục bắt buộc: Ngày sinh"; lần sau trả mã YCTD-133; tệp lỗi có dòng đó; hồ sơ cũ xem được, tải XML bị từ chối, thay đổi ghi "Hồ sơ lập theo mẫu cũ"; 2.2 không có thẻ Sổ đầu bài, trạng thái "Chờ ký"; 2.3 có cột Tên hiệu trưởng, Trạng thái gửi (CT-629, CT-633, CT-634; YCTD-133) | P01-30, P01-31 |
 
 ## 20. Chưa xác minh được
 

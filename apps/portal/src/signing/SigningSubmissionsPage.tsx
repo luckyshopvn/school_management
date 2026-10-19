@@ -2,9 +2,10 @@ import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   PERMISSION_CODES,
+  SIGNING_IDENTITY_OBJECT_TYPES,
   SIGNING_OBJECT_LABELS,
-  SIGNING_OBJECT_TYPES,
   SIGNING_STATUS_LABELS,
+  SIGNING_VISIBLE_OBJECT_TYPES,
   type SigningDossierStatus,
   type SigningObjectType,
 } from '@school-management/shared';
@@ -24,6 +25,7 @@ import { useGridSettings } from '../pages/grid-settings.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
 import { formatDate, formatDateTime, messageOf, todayText } from './SigningCertificatePage.js';
+import { SigningDossierViewer } from './SigningDossierViewer.js';
 import { STATUS_TONES } from './SigningDossiersPage.js';
 import {
   completeDossiers,
@@ -34,30 +36,36 @@ import {
   type SigningDossier,
 } from './signing-api.js';
 
-// 2.3 Xác nhận hoàn thành và gửi hồ sơ (mục 6 của Sở, bản chạy nội bộ; DT-16 phần 16k). Danh sách hồ sơ đã kí của năm học
-// đang dùng kèm mã định danh hồ sơ. "Xác nhận hoàn thành" khóa hồ sơ (không hủy được); "Hủy xác nhận" khi chưa gửi. Phần
-// mềm không truyền hồ sơ lên cấp trên nên có "Tải tệp gửi" (tệp đã kí) và "Đánh dấu đã gửi" kèm ngày gửi
+// 2.3 Xác nhận hoàn thành và gửi hồ sơ (mục 6 của Sở, bản chạy nội bộ; DT-16 phần 16k, DT-17 phần 17b). Danh sách hồ sơ đã
+// kí của năm học đang dùng, cột theo lưới của Sở: tên trường, tên hiệu trưởng, trạng thái, xem hồ sơ, tệp hồ sơ, xác nhận
+// hoàn thành, trạng thái gửi, mã định danh hồ sơ, ghi chú, ngày xác nhận hoàn thành, xác nhận gửi, ngày gửi. Chọn bộ lọc rồi
+// bấm "Tìm kiếm". "Xác nhận hoàn thành" khóa hồ sơ (không hủy được); "Hủy xác nhận hoàn thành" khi chưa gửi. Phần mềm không
+// truyền hồ sơ lên cấp trên nên có "Tải tệp gửi" (tệp đã kí) và "Đánh dấu đã gửi" kèm ngày gửi thay cho nút "Gửi hồ sơ"
 const STATUS_FILTERS: SigningDossierStatus[] = ['signed', 'completed', 'sent'];
+
+type Filter = { objectType: SigningObjectType | ''; status: SigningDossierStatus | '' };
 
 export function SigningSubmissionsPage() {
   const canManage = useHasPermission(PERMISSION_CODES.signingManage);
+  const canSeeIdentity = useHasPermission(PERMISSION_CODES.nationalIdView);
   const queryClient = useQueryClient();
   const grid = useGridSettings('signing-submissions');
-  const [objectType, setObjectType] = useState<SigningObjectType | ''>('');
-  const [status, setStatus] = useState<SigningDossierStatus | ''>('');
+  const [draft, setDraft] = useState<Filter>({ objectType: '', status: '' });
+  const [filter, setFilter] = useState<Filter>(draft);
   const [pending, setPending] = useState<
     | { kind: 'complete'; rows: SigningDossier[] }
     | { kind: 'send'; rows: SigningDossier[] }
-    | { kind: 'uncomplete'; row: SigningDossier }
+    | { kind: 'uncomplete'; rows: SigningDossier[] }
   >();
+  const [viewing, setViewing] = useState<string>();
   const [sentOn, setSentOn] = useState(todayText);
   const [note, setNote] = useState('');
   const [error, setError] = useState<string>();
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
   const dossiers = useQuery({
-    queryKey: ['signing', 'submissions', objectType, status],
-    queryFn: () => listSigningSubmissions({ objectType, status }),
+    queryKey: ['signing', 'submissions', filter.objectType, filter.status],
+    queryFn: () => listSigningSubmissions(filter),
   });
   const act = useMutation({
     mutationFn: async (action: NonNullable<typeof pending>): Promise<string> => {
@@ -73,8 +81,10 @@ export function SigningSubmissionsPage() {
         );
         return `Đã đánh dấu đã gửi ${result.sent} hồ sơ`;
       }
-      await uncompleteDossier(action.row.id);
-      return `Đã hủy xác nhận hồ sơ ${action.row.code}`;
+      for (const row of action.rows) {
+        await uncompleteDossier(row.id);
+      }
+      return `Đã hủy xác nhận hoàn thành ${action.rows.length} hồ sơ`;
     },
     onSuccess: async (message) => {
       setPending(undefined);
@@ -83,27 +93,68 @@ export function SigningSubmissionsPage() {
     },
     onError: () => setPending(undefined),
   });
+  const school = dossiers.data?.school;
+  const locked = (row: SigningDossier) => SIGNING_IDENTITY_OBJECT_TYPES.includes(row.object_type) && !canSeeIdentity;
+  const download = (row: SigningDossier, version: 'original' | 'signed') => {
+    setError(undefined);
+    downloadDossierFile(row, version).catch((reason: unknown) => setError(messageOf(reason)));
+  };
   const columns: Array<DataGridColumn<SigningDossier>> = [
+    { id: 'school', header: 'Tên trường', cell: () => school?.name ?? '' },
+    { id: 'principal', header: 'Tên hiệu trưởng', cell: () => school?.principal_name ?? '' },
+    { id: 'type', header: 'Loại hồ sơ', cell: (row) => SIGNING_OBJECT_LABELS[row.object_type] },
     {
-      id: 'code',
-      header: 'Mã định danh hồ sơ',
+      id: 'object',
+      header: 'Đối tượng',
       alwaysVisible: true,
       className: 'font-medium',
-      cell: (row) => row.code,
+      cell: (row) => row.object_label,
     },
-    { id: 'object', header: 'Đối tượng', cell: (row) => row.object_label },
-    { id: 'type', header: 'Loại hồ sơ', cell: (row) => SIGNING_OBJECT_LABELS[row.object_type] },
     {
       id: 'status',
       header: 'Trạng thái',
       cell: (row) => <StatusBadge tone={STATUS_TONES[row.status]} label={SIGNING_STATUS_LABELS[row.status]} />,
     },
-    { id: 'signed_at', header: 'Ngày kí', cell: (row) => formatDateTime(row.signed_at) },
-    { id: 'signed_by', header: 'Người kí', cell: (row) => row.signed_by_name ?? '' },
-    { id: 'completed_at', header: 'Ngày xác nhận', cell: (row) => formatDateTime(row.completed_at) },
+    {
+      id: 'view',
+      header: 'Xem hồ sơ',
+      cell: (row) => (
+        <Button
+          variant="text"
+          aria-label={`Xem hồ sơ ${row.code}`}
+          disabled={locked(row)}
+          onClick={() => setViewing(row.id)}
+        >
+          Xem
+        </Button>
+      ),
+    },
+    {
+      id: 'file',
+      header: 'Tệp hồ sơ',
+      cell: (row) => (
+        <Button variant="text" disabled={locked(row)} onClick={() => download(row, 'signed')}>
+          {row.signed_file_name ?? row.file_name}
+        </Button>
+      ),
+    },
+    {
+      id: 'completed',
+      header: 'Xác nhận hoàn thành',
+      cell: (row) => (row.status === 'completed' || row.status === 'sent' ? 'Đã xác nhận' : 'Chưa xác nhận'),
+    },
+    {
+      id: 'send_status',
+      header: 'Trạng thái gửi',
+      cell: (row) => (row.status === 'sent' ? 'Đã đánh dấu gửi' : 'Chưa gửi'),
+    },
+    { id: 'code', header: 'Mã định danh hồ sơ', cell: (row) => row.code },
+    { id: 'note', header: 'Ghi chú', cell: (row) => [row.note, row.sent_note].filter(Boolean).join('; ') },
+    { id: 'completed_at', header: 'Ngày xác nhận hoàn thành', cell: (row) => formatDateTime(row.completed_at) },
+    { id: 'sent_by', header: 'Xác nhận gửi', cell: (row) => row.sent_by_name ?? '' },
     { id: 'sent_on', header: 'Ngày gửi', cell: (row) => formatDate(row.sent_on) },
-    { id: 'sent_by', header: 'Người đánh dấu gửi', hiddenByDefault: true, cell: (row) => row.sent_by_name ?? '' },
-    { id: 'sent_note', header: 'Ghi chú gửi', hiddenByDefault: true, cell: (row) => row.sent_note ?? '' },
+    { id: 'signed_at', header: 'Ngày ký', hiddenByDefault: true, cell: (row) => formatDateTime(row.signed_at) },
+    { id: 'signed_by', header: 'Người kí', hiddenByDefault: true, cell: (row) => row.signed_by_name ?? '' },
     {
       id: 'changed_at',
       header: 'Ngày thay đổi',
@@ -125,26 +176,31 @@ export function SigningSubmissionsPage() {
         {act.error ? <Alert tone="danger">{messageOf(act.error)}</Alert> : null}
         {error ? <Alert tone="danger">{error}</Alert> : null}
         {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
           <SelectBox
             label="Loại hồ sơ"
-            value={objectType}
+            value={draft.objectType}
             emptyLabel="Tất cả"
-            options={SIGNING_OBJECT_TYPES.map((item) => ({ value: item.value, label: item.label }))}
-            onChange={(value) => setObjectType(value as SigningObjectType | '')}
+            options={SIGNING_VISIBLE_OBJECT_TYPES.map((item) => ({ value: item.value, label: item.label }))}
+            onChange={(value) => setDraft({ ...draft, objectType: value as SigningObjectType | '' })}
           />
           <SelectBox
             label="Trạng thái"
-            value={status}
+            value={draft.status}
             emptyLabel="Đã kí, đã xác nhận, đã gửi"
             options={STATUS_FILTERS.map((value) => ({ value, label: SIGNING_STATUS_LABELS[value] }))}
-            onChange={(value) => setStatus(value as SigningDossierStatus | '')}
+            onChange={(value) => setDraft({ ...draft, status: value as SigningDossierStatus | '' })}
           />
+          <div>
+            <Button variant="secondary" onClick={() => setFilter(draft)}>
+              Tìm kiếm
+            </Button>
+          </div>
         </div>
         <DataGrid
           label="Danh sách hồ sơ đã kí"
           columns={columns}
-          rows={dossiers.data ?? []}
+          rows={dossiers.data?.items ?? []}
           getRowId={(row) => row.id}
           getRowLabel={(row) => `${row.code} ${row.object_label}`}
           loading={dossiers.isPending}
@@ -163,6 +219,13 @@ export function SigningSubmissionsPage() {
                 <Button
                   variant="secondary"
                   disabled={selected.length === 0 || selected.some((row) => row.status !== 'completed')}
+                  onClick={() => setPending({ kind: 'uncomplete', rows: selected })}
+                >
+                  Hủy xác nhận hoàn thành
+                </Button>
+                <Button
+                  variant="secondary"
+                  disabled={selected.length === 0 || selected.some((row) => row.status !== 'completed')}
                   onClick={() => {
                     setSentOn(todayText());
                     setNote('');
@@ -175,27 +238,15 @@ export function SigningSubmissionsPage() {
             ) : null
           }
           rowActions={(row) => (
-            <span className="flex flex-wrap justify-end gap-1">
-              <Button
-                variant="text"
-                onClick={() => {
-                  setError(undefined);
-                  downloadDossierFile(row, 'signed').catch((reason: unknown) => setError(messageOf(reason)));
-                }}
-              >
-                Tải tệp gửi
-              </Button>
-              {canManage && row.status === 'completed' ? (
-                <Button variant="text" onClick={() => setPending({ kind: 'uncomplete', row })}>
-                  Hủy xác nhận
-                </Button>
-              ) : null}
-            </span>
+            <Button variant="text" disabled={locked(row)} onClick={() => download(row, 'signed')}>
+              Tải tệp gửi
+            </Button>
           )}
           settings={grid.settings}
           onSettingsChange={grid.update}
         />
       </div>
+      {viewing ? <SigningDossierViewer dossierId={viewing} onClose={() => setViewing(undefined)} /> : null}
       {pending ? (
         <ConfirmDialog
           open
@@ -204,7 +255,7 @@ export function SigningSubmissionsPage() {
               ? `Xác nhận hoàn thành ${pending.rows.length} hồ sơ?`
               : pending.kind === 'send'
                 ? `Đánh dấu đã gửi ${pending.rows.length} hồ sơ?`
-                : `Hủy xác nhận hồ sơ ${pending.row.code}?`
+                : `Hủy xác nhận hoàn thành ${pending.rows.length} hồ sơ?`
           }
           confirmLabel={
             pending.kind === 'complete' ? 'Xác nhận hoàn thành' : pending.kind === 'send' ? 'Đánh dấu' : 'Hủy xác nhận'

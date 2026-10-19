@@ -139,6 +139,7 @@ import { SchoolSplitsController, SchoolSplitsService } from './school-splits/sch
 import { SigningController } from './signing/signing.controller.js';
 import { SigningService } from './signing/signing.js';
 import { DossierSigner, InternalDossierSigner } from './signing/dossier-signer.js';
+import { DossierXmlWriter, InternalDossierXmlWriter } from './signing/dossier-xml.js';
 import { FinalYearRecordsService } from './entry-admissions/final-year-records.js';
 import {
   FinalYearCompletionController,
@@ -689,6 +690,7 @@ export class ApplicationModule {
         SigningService,
         // Chưa có nhà cung cấp kí số: hồ sơ kí xác nhận nội bộ (DT-16 phần 16k)
         { provide: DossierSigner, useClass: InternalDossierSigner },
+        { provide: DossierXmlWriter, useClass: InternalDossierXmlWriter },
         FinalYearRecordsService,
         EntryAdmissionCatalogsService,
         // Chưa có nhà cung cấp gửi thư điện tử: trả lời hỗ trợ tuyển sinh chỉ gửi qua ứng dụng phụ huynh (DT-17 phần 17c)

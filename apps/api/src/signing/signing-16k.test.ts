@@ -105,7 +105,7 @@ describe('Quản lý kí hồ sơ, bản chạy nội bộ (DT-16 phần 16k)', 
   async function registerCertificate() {
     const saved = await api('PUT', '/signing/certificate', principal.accessToken, {
       signature_type: 'remote',
-      provider: 'Nhà cung cấp thử nghiệm',
+      provider: 'VNPT-CA',
       login_name: 'truong-thu-nghiem',
       holder_name: 'Hiệu trưởng Thử Nghiệm',
       holder_title: 'Hiệu trưởng',
@@ -210,7 +210,7 @@ describe('Quản lý kí hồ sơ, bản chạy nội bộ (DT-16 phần 16k)', 
       errorOf(missing.body)
         .details?.map((detail) => detail.field)
         .sort(),
-      ['holder_name', 'provider'],
+      ['holder_name', 'login_name', 'provider'],
     );
 
     const pdfSeal = await uploadSeal(Buffer.from('%PDF-1.4 tệp'), 'con-dau.pdf');
@@ -251,7 +251,7 @@ describe('Quản lý kí hồ sơ, bản chạy nội bộ (DT-16 phần 16k)', 
     assert.equal((await api('POST', '/signing/certificate/unsync', principal.accessToken)).status, 422);
   });
 
-  it('CT-16k-4: 2.2 Tạo hồ sơ trường, lớp, học sinh, sổ đầu bài: cấp mã định danh, lưu tệp PDF kèm mã băm; không tạo trùng hồ sơ chưa hủy', async () => {
+  it('CT-16k-4: 2.2 Tạo hồ sơ trường, lớp, học sinh (sổ đầu bài không tạo được từ 17b): cấp mã định danh, lưu tệp PDF kèm mã băm; không tạo trùng hồ sơ chưa hủy', async () => {
     const school = await objects('school');
     assert.equal(school.length, 1);
     assert.equal(school[0]?.object_label, 'Trường Mầm non Thử Nghiệm');
@@ -260,7 +260,6 @@ describe('Quản lý kí hồ sơ, bản chạy nội bộ (DT-16 phần 16k)', 
       ['school', units.TC, undefined],
       ['class', classId, undefined],
       ['child', childId, undefined],
-      ['class_log', classId, '2026-10'],
     ] as const) {
       const created = await api('POST', '/signing/dossiers', vicePrincipal.accessToken, {
         object_type: type,
@@ -293,15 +292,22 @@ describe('Quản lý kí hồ sơ, bản chạy nội bộ (DT-16 phần 16k)', 
       object_ids: ['00000000-0000-4000-8000-000000000000'],
     });
     assert.equal(unknown.status, 404);
-    // Sổ đầu bài tháng khác là hồ sơ khác
-    assert.equal(await dossierOf('class_log', classId, '2026-11'), null);
+    // Cấp Mầm non không kí sổ đầu bài từ DT-17 phần 17b (YCTD-133)
+    const classLog = await api('POST', '/signing/dossiers', principal.accessToken, {
+      object_type: 'class_log',
+      object_ids: [classId],
+      period: '2026-10',
+    });
+    assert.equal(classLog.status, 422);
+    assert.equal(errorOf(classLog.body).rule_code, 'YCTD-133');
+    assert.equal(await dossierOf('class_log', classId, '2026-10'), null);
     const logs = await schoolYear
       .selectFrom('export_logs')
       .select(['report_code', 'contains_personal_data'])
       .where('report_code', '=', 'signing-dossier')
       .execute();
-    assert.equal(logs.length, 4);
-    assert.equal(logs.filter((log) => log.contains_personal_data).length, 3);
+    assert.equal(logs.length, 3);
+    assert.equal(logs.filter((log) => log.contains_personal_data).length, 2);
   });
 
   it('CT-16k-5: Kí xác nhận nội bộ: chỉ khi chứng thư đã đăng ký; lập tệp đã kí khác tệp gốc, ghi người kí, cách kí "internal"', async () => {
