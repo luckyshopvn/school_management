@@ -1,9 +1,12 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  CLASS_STAGE_LABELS,
   PERMISSION_CODES,
-  SIGNING_OBJECT_TYPES,
+  SIGNING_IDENTITY_OBJECT_TYPES,
   SIGNING_STATUS_LABELS,
+  SIGNING_VISIBLE_OBJECT_TYPES,
+  type ClassStage,
   type SigningDossierStatus,
   type SigningObjectType,
 } from '@school-management/shared';
@@ -18,30 +21,32 @@ import {
   type DataGridColumn,
   type StatusTone,
 } from '@school-management/ui';
-import { TabBar } from '../facilities/facilities-ui.js';
+import { SelectBox, TabBar } from '../facilities/facilities-ui.js';
 import { AppShell } from '../pages/AppShell.js';
 import { useGridSettings } from '../pages/grid-settings.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
-import { formatDateTime, messageOf, todayText } from './SigningCertificatePage.js';
+import { formatDate, formatDateTime, messageOf } from './SigningCertificatePage.js';
+import { SigningDossierViewer } from './SigningDossierViewer.js';
 import {
   cancelDossier,
   checkDossierChanges,
   createDossiers,
+  downloadCreateErrors,
   downloadDossierFile,
-  exportClassLog,
   listSigningObjects,
-  openDossierFile,
   readCertificate,
   signDossiers,
   type SigningObject,
 } from './signing-api.js';
 
-// 2.2 Kí hồ sơ trường, lớp, nhân sự, học sinh (mục 6 của Sở, bản chạy nội bộ; DT-16 phần 16k). Mỗi thẻ là danh sách đối
-// tượng của năm học đang dùng kèm hồ sơ chưa hủy: cột đối tượng, trạng thái, xem hồ sơ, tệp hồ sơ, ngày tạo, ngày kí, ngày
-// thay đổi như của Sở. Chọn dòng rồi bấm "Tạo hồ sơ", "Kí xác nhận nội bộ" (không phải chữ ký số; phần mềm chưa kết nối nhà
-// cung cấp nên không có nút "Đăng nhập và kí"), "Tải thông tin thay đổi"; "Hủy hồ sơ" trên từng dòng. Thẻ Sổ đầu bài theo
-// lớp và tháng, có "Xuất dữ liệu sổ đầu bài"
+// 2.2 Kí hồ sơ trường, lớp, nhân sự, học sinh (mục 6 của Sở, bản chạy nội bộ; DT-16 phần 16k, DT-17 phần 17b). Mỗi thẻ là
+// danh sách đối tượng của năm học đang dùng kèm hồ sơ chưa hủy, cột theo lưới của Sở: cột riêng từng loại (mã và tên trường,
+// tên hiệu trưởng; lớp, khối; mã nhân sự, họ tên, ngày sinh, trạng thái nhân sự, vị trí việc làm; mã học sinh, tên, ngày
+// sinh, lớp, trạng thái học sinh) rồi trạng thái, xem hồ sơ, tệp hồ sơ, ngày tạo, ngày ký, ghi chú, ngày thay đổi; lọc khối
+// ở lớp, khối và lớp ở học sinh. Chọn dòng rồi bấm "Tạo hồ sơ", "Kí xác nhận nội bộ" (không phải chữ ký số; "Đăng nhập và
+// kí" chỉ hiện khi có nhà cung cấp kí số thật), "Tải thông tin thay đổi"; "Tải file lỗi" lấy đối tượng tạo hồ sơ không
+// được; "Hủy hồ sơ" trên từng dòng. Cấp Mầm non không có thẻ Sổ đầu bài và nút "Xuất dữ liệu sổ đầu bài" như Sở
 export const STATUS_TONES: Record<SigningDossierStatus | 'none', StatusTone> = {
   none: 'neutral',
   created: 'info',
@@ -51,18 +56,63 @@ export const STATUS_TONES: Record<SigningDossierStatus | 'none', StatusTone> = {
   cancelled: 'neutral',
 };
 
-const thisMonth = () => todayText().slice(0, 7);
+interface ColumnActions {
+  onView(row: SigningObject): void;
+  onError(message: string): void;
+  canOpen: boolean;
+}
 
-function columns(onError: (message: string) => void): Array<DataGridColumn<SigningObject>> {
+function headColumns(type: SigningObjectType): Array<DataGridColumn<SigningObject>> {
+  const object = (header: string): DataGridColumn<SigningObject> => ({
+    id: 'object',
+    header,
+    alwaysVisible: true,
+    className: 'font-medium',
+    cell: (row) => row.object_label,
+  });
+  const code = (header: string): DataGridColumn<SigningObject> => ({
+    id: 'code',
+    header,
+    cell: (row) => row.code ?? '',
+  });
+  const dob: DataGridColumn<SigningObject> = { id: 'dob', header: 'Ngày sinh', cell: (row) => formatDate(row.dob) };
+  if (type === 'school') {
+    return [
+      code('Mã trường'),
+      object('Tên trường'),
+      { id: 'principal', header: 'Tên hiệu trưởng', cell: (row) => row.principal_name ?? '' },
+    ];
+  }
+  if (type === 'class') {
+    return [
+      object('Lớp'),
+      { id: 'stage', header: 'Khối', cell: (row) => (row.stage ? CLASS_STAGE_LABELS[row.stage] : '') },
+    ];
+  }
+  if (type === 'staff') {
+    return [
+      code('Mã nhân sự'),
+      object('Họ tên'),
+      dob,
+      { id: 'person_status', header: 'Trạng thái nhân sự', cell: (row) => row.person_status ?? '' },
+      { id: 'job_position', header: 'Vị trí việc làm', cell: (row) => row.job_position ?? '' },
+    ];
+  }
   return [
-    {
-      id: 'object',
-      header: 'Đối tượng',
-      alwaysVisible: true,
-      className: 'font-medium',
-      cell: (row) => row.object_label,
-    },
-    { id: 'detail', header: 'Thông tin', cell: (row) => row.detail ?? '' },
+    code('Mã học sinh'),
+    object('Tên học sinh'),
+    dob,
+    { id: 'class_name', header: 'Lớp', cell: (row) => row.class_name ?? '' },
+    { id: 'person_status', header: 'Trạng thái học sinh', cell: (row) => row.person_status ?? '' },
+  ];
+}
+
+function columns(type: SigningObjectType, actions: ColumnActions): Array<DataGridColumn<SigningObject>> {
+  const download = (row: SigningObject, version: 'original' | 'signed') =>
+    row.dossier &&
+    downloadDossierFile(row.dossier, version).catch((error: unknown) => actions.onError(messageOf(error)));
+  return [
+    ...headColumns(type),
     {
       id: 'status',
       header: 'Trạng thái',
@@ -71,7 +121,6 @@ function columns(onError: (message: string) => void): Array<DataGridColumn<Signi
         return <StatusBadge tone={STATUS_TONES[status]} label={SIGNING_STATUS_LABELS[status]} />;
       },
     },
-    { id: 'code', header: 'Mã định danh hồ sơ', cell: (row) => row.dossier?.code ?? '' },
     {
       id: 'view',
       header: 'Xem hồ sơ',
@@ -80,11 +129,8 @@ function columns(onError: (message: string) => void): Array<DataGridColumn<Signi
           <Button
             variant="text"
             aria-label={`Xem hồ sơ ${row.object_label}`}
-            onClick={() => {
-              if (row.dossier) {
-                openDossierFile(row.dossier).catch((error: unknown) => onError(messageOf(error)));
-              }
-            }}
+            disabled={!actions.canOpen}
+            onClick={() => actions.onView(row)}
           >
             Xem
           </Button>
@@ -98,23 +144,11 @@ function columns(onError: (message: string) => void): Array<DataGridColumn<Signi
       cell: (row) =>
         row.dossier ? (
           <span className="flex flex-col items-start">
-            <Button
-              variant="text"
-              onClick={() =>
-                row.dossier &&
-                downloadDossierFile(row.dossier, 'original').catch((error: unknown) => onError(messageOf(error)))
-              }
-            >
+            <Button variant="text" disabled={!actions.canOpen} onClick={() => download(row, 'original')}>
               {row.dossier.file_name}
             </Button>
             {row.dossier.signed_file_name ? (
-              <Button
-                variant="text"
-                onClick={() =>
-                  row.dossier &&
-                  downloadDossierFile(row.dossier, 'signed').catch((error: unknown) => onError(messageOf(error)))
-                }
-              >
+              <Button variant="text" disabled={!actions.canOpen} onClick={() => download(row, 'signed')}>
                 {row.dossier.signed_file_name}
               </Button>
             ) : null}
@@ -124,8 +158,17 @@ function columns(onError: (message: string) => void): Array<DataGridColumn<Signi
         ),
     },
     { id: 'created_at', header: 'Ngày tạo', cell: (row) => formatDateTime(row.dossier?.created_at ?? null) },
-    { id: 'signed_at', header: 'Ngày kí', cell: (row) => formatDateTime(row.dossier?.signed_at ?? null) },
-    { id: 'signed_by', header: 'Người kí', hiddenByDefault: true, cell: (row) => row.dossier?.signed_by_name ?? '' },
+    { id: 'signed_at', header: 'Ngày ký', cell: (row) => formatDateTime(row.dossier?.signed_at ?? null) },
+    {
+      id: 'note',
+      header: 'Ghi chú',
+      cell: (row) =>
+        row.create_error ? (
+          <span className="text-label text-danger">{row.create_error}</span>
+        ) : (
+          (row.dossier?.note ?? '')
+        ),
+    },
     {
       id: 'changed_at',
       header: 'Ngày thay đổi',
@@ -141,6 +184,13 @@ function columns(onError: (message: string) => void): Array<DataGridColumn<Signi
           ''
         ),
     },
+    {
+      id: 'dossier_code',
+      header: 'Mã định danh hồ sơ',
+      hiddenByDefault: true,
+      cell: (row) => row.dossier?.code ?? '',
+    },
+    { id: 'signed_by', header: 'Người kí', hiddenByDefault: true, cell: (row) => row.dossier?.signed_by_name ?? '' },
   ];
 }
 
@@ -149,35 +199,50 @@ type Pending =
   | { kind: 'sign'; rows: SigningObject[] }
   | { kind: 'cancel'; row: SigningObject };
 
+const STAGES = Object.entries(CLASS_STAGE_LABELS).map(([value, label]) => ({ value, label }));
+
 export function SigningDossiersPage() {
   const canManage = useHasPermission(PERMISSION_CODES.signingManage);
   const canSign = useHasPermission(PERMISSION_CODES.signingSign);
+  const canSeeIdentity = useHasPermission(PERMISSION_CODES.nationalIdView);
   const queryClient = useQueryClient();
   const grid = useGridSettings('signing-dossiers');
   const [type, setType] = useState<SigningObjectType>('school');
-  const [month, setMonth] = useState(thisMonth);
+  const [stage, setStage] = useState<ClassStage | ''>('');
+  const [className, setClassName] = useState('');
   const [search, setSearch] = useState('');
   const [pending, setPending] = useState<Pending>();
+  const [viewing, setViewing] = useState<string>();
   const [reason, setReason] = useState('');
+  const [note, setNote] = useState('');
   const [error, setError] = useState<string>();
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
   const objects = useQuery({
-    queryKey: ['signing', 'objects', type, month],
-    queryFn: () => listSigningObjects(type, month),
-    enabled: type !== 'class_log' || /^\d{4}-\d{2}$/.test(month),
+    queryKey: ['signing', 'objects', type],
+    queryFn: () => listSigningObjects(type, ''),
   });
   const certificate = useQuery({ queryKey: ['signing', 'certificate'], queryFn: readCertificate });
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['signing'] });
+  // Hồ sơ nhân sự, học sinh in đủ số định danh, số CCCD: cần quyền xem số định danh (quyết định của Eric ngày 2026-10-19)
+  const identityLocked = SIGNING_IDENTITY_OBJECT_TYPES.includes(type) && !canSeeIdentity;
   const act = useMutation({
     mutationFn: async (action: Pending): Promise<string> => {
       if (action.kind === 'create') {
         const result = await createDossiers(
           type,
           action.rows.map((row) => row.object_id),
-          month,
+          '',
+          note.trim() || null,
         );
-        return `Đã tạo ${result.created} hồ sơ: ${result.codes.join(', ')}`;
+        return [
+          `Đã tạo ${result.created} hồ sơ: ${result.codes.join(', ')}`,
+          result.errors.length > 0
+            ? `${result.errors.length} đối tượng không tạo được, xem cột Ghi chú hoặc bấm "Tải file lỗi"`
+            : null,
+        ]
+          .filter(Boolean)
+          .join('. ');
       }
       if (action.kind === 'sign') {
         const result = await signDossiers(action.rows.map((row) => row.dossier?.id ?? ''));
@@ -191,7 +256,10 @@ export function SigningDossiersPage() {
       await refresh();
       setToastMessage(message);
     },
-    onError: () => setPending(undefined),
+    onError: async () => {
+      setPending(undefined);
+      await refresh();
+    },
   });
   const check = useMutation({
     mutationFn: (rows: SigningObject[]) => checkDossierChanges(rows.map((row) => row.dossier?.id ?? '')),
@@ -206,13 +274,25 @@ export function SigningDossiersPage() {
     },
   });
   const keyword = search.trim().toLocaleLowerCase('vi');
-  const rows = (objects.data ?? []).filter(
+  const all = objects.data ?? [];
+  const classNames = [...new Set(all.map((row) => row.class_name).filter((name): name is string => Boolean(name)))];
+  const rows = all.filter(
     (row) =>
-      !keyword ||
-      `${row.object_label} ${row.detail ?? ''} ${row.dossier?.code ?? ''}`.toLocaleLowerCase('vi').includes(keyword),
+      (!stage || row.stage === stage) &&
+      (!className || row.class_name === className) &&
+      (!keyword ||
+        `${row.object_label} ${row.code ?? ''} ${row.detail ?? ''} ${row.dossier?.code ?? ''}`
+          .toLocaleLowerCase('vi')
+          .includes(keyword)),
   );
-  const signerReady = certificate.data?.status === 'registered' && !certificate.data.expired;
-  const tabs = SIGNING_OBJECT_TYPES.map((item) => ({ key: item.value, label: item.tab }));
+  const cert = certificate.data;
+  const signerReady = cert?.status === 'registered' && !cert.expired && cert.provider_in_list;
+  const tabs = SIGNING_VISIBLE_OBJECT_TYPES.map((item) => ({ key: item.value, label: item.tab }));
+  const selectType = (next: SigningObjectType) => {
+    setType(next);
+    setStage('');
+    setClassName('');
+  };
 
   return (
     <AppShell>
@@ -220,26 +300,43 @@ export function SigningDossiersPage() {
       <div className="flex flex-col gap-6">
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/signing-dossiers')}</h1>
         <Alert tone="info">
-          "Tạo hồ sơ" lập tệp PDF từ dữ liệu hiện tại của đối tượng. "Kí xác nhận nội bộ" lập tệp đã kí ghi người kí,
-          thời điểm kí, ảnh con dấu và mã băm của tệp gốc; đây không phải chữ ký số vì phần mềm chưa kết nối nhà cung
-          cấp chữ ký số. "Tải thông tin thay đổi" so dữ liệu hiện tại với hồ sơ đã tạo.
+          "Tạo hồ sơ" lập tệp PDF và tệp dữ liệu XML theo mẫu hồ sơ của Sở từ dữ liệu hiện tại của đối tượng. "Kí xác
+          nhận nội bộ" lập tệp đã kí ghi người kí, thời điểm kí, ảnh con dấu và mã băm của tệp gốc; đây không phải chữ
+          ký số vì phần mềm chưa kết nối nhà cung cấp chữ ký số. "Tải thông tin thay đổi" so dữ liệu hiện tại với hồ sơ
+          đã tạo.
         </Alert>
-        {canSign && certificate.data && !signerReady ? (
+        {canSign && cert && !signerReady ? (
           <Alert tone="warning">
-            Chứng thư số nhà trường chưa đăng ký kí nội bộ hoặc đã hết hiệu lực; đăng ký ở mục 1.1 trước khi kí hồ sơ.
+            Chứng thư số nhà trường chưa đăng ký kí nội bộ, đã hết hiệu lực hoặc có nhà phát hành ngoài danh sách; đăng
+            ký ở mục 1.1 trước khi kí hồ sơ.
           </Alert>
         ) : null}
-        <TabBar<SigningObjectType> label="Loại hồ sơ" tabs={tabs} current={type} onSelect={setType} />
-        {type === 'class_log' ? (
-          <label className="flex max-w-xs flex-col gap-2 text-label font-medium text-text">
-            Tháng của sổ đầu bài
-            <input
-              className={FORM_CONTROL_CLASS}
-              type="month"
-              value={month}
-              onChange={(event) => setMonth(event.target.value)}
+        <TabBar<SigningObjectType> label="Loại hồ sơ" tabs={tabs} current={type} onSelect={selectType} />
+        {identityLocked ? (
+          <Alert tone="warning">
+            Hồ sơ nhân sự, học sinh in đủ số định danh cá nhân và số CCCD theo mẫu của Sở. Bạn chưa có quyền xem số định
+            danh nên không tạo, xem, tải được hồ sơ loại này.
+          </Alert>
+        ) : null}
+        {type === 'class' || type === 'child' ? (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <SelectBox
+              label="Khối"
+              value={stage}
+              emptyLabel="Tất cả"
+              options={STAGES}
+              onChange={(value) => setStage(value as ClassStage | '')}
             />
-          </label>
+            {type === 'child' ? (
+              <SelectBox
+                label="Lớp"
+                value={className}
+                emptyLabel="Tất cả"
+                options={classNames.map((name) => ({ value: name, label: name }))}
+                onChange={setClassName}
+              />
+            ) : null}
+          </div>
         ) : null}
         {objects.isError ? <Alert tone="danger">{messageOf(objects.error)}</Alert> : null}
         {act.error ? <Alert tone="danger">{messageOf(act.error)}</Alert> : null}
@@ -248,7 +345,11 @@ export function SigningDossiersPage() {
         {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
         <DataGrid
           label="Danh sách hồ sơ kí"
-          columns={columns(setError)}
+          columns={columns(type, {
+            canOpen: !identityLocked,
+            onError: setError,
+            onView: (row) => row.dossier && setViewing(row.dossier.id),
+          })}
           rows={rows}
           getRowId={(row) => row.object_id}
           getRowLabel={(row) => row.object_label}
@@ -262,13 +363,23 @@ export function SigningDossiersPage() {
             const withDossier = selected.filter((row) => row.dossier);
             return (
               <>
+                <Button
+                  variant="secondary"
+                  disabled={!all.some((row) => row.create_error)}
+                  onClick={() => {
+                    setError(undefined);
+                    downloadCreateErrors(type).catch((reason: unknown) => setError(messageOf(reason)));
+                  }}
+                >
+                  Tải file lỗi
+                </Button>
                 {canManage ? (
                   <Button
-                    variant="primary"
-                    disabled={withoutDossier.length === 0}
-                    onClick={() => setPending({ kind: 'create', rows: withoutDossier })}
+                    variant="secondary"
+                    disabled={withDossier.length === 0 || check.isPending || identityLocked}
+                    onClick={() => check.mutate(withDossier)}
                   >
-                    Tạo hồ sơ
+                    Tải thông tin thay đổi
                   </Button>
                 ) : null}
                 {canSign ? (
@@ -280,27 +391,25 @@ export function SigningDossiersPage() {
                     Kí xác nhận nội bộ
                   </Button>
                 ) : null}
-                {canManage ? (
+                {canSign && cert?.digital_signer ? (
                   <Button
                     variant="secondary"
-                    disabled={withDossier.length === 0 || check.isPending}
-                    onClick={() => check.mutate(withDossier)}
+                    disabled={unsigned.length === 0 || !signerReady}
+                    onClick={() => setPending({ kind: 'sign', rows: unsigned })}
                   >
-                    Tải thông tin thay đổi
+                    Đăng nhập và kí
                   </Button>
                 ) : null}
-                {type === 'class_log' ? (
+                {canManage ? (
                   <Button
-                    variant="secondary"
-                    disabled={selected.length !== 1}
+                    variant="primary"
+                    disabled={withoutDossier.length === 0 || identityLocked}
                     onClick={() => {
-                      setError(undefined);
-                      exportClassLog(selected[0]?.object_id ?? '', month).catch((reason: unknown) =>
-                        setError(messageOf(reason)),
-                      );
+                      setNote('');
+                      setPending({ kind: 'create', rows: withoutDossier });
                     }}
                   >
-                    Xuất dữ liệu sổ đầu bài
+                    Tạo hồ sơ
                   </Button>
                 ) : null}
               </>
@@ -323,6 +432,7 @@ export function SigningDossiersPage() {
           onSettingsChange={grid.update}
         />
       </div>
+      {viewing ? <SigningDossierViewer dossierId={viewing} onClose={() => setViewing(undefined)} /> : null}
       {pending ? (
         <ConfirmDialog
           open
@@ -345,9 +455,29 @@ export function SigningDossiersPage() {
           }}
         >
           {pending.kind === 'create' ? (
-            `Lập tệp PDF từ dữ liệu hiện tại: ${pending.rows.map((row) => row.object_label).join(', ')}.`
+            <span className="flex flex-col gap-3">
+              <span>
+                Lập tệp PDF và tệp XML từ dữ liệu hiện tại: {pending.rows.map((row) => row.object_label).join(', ')}.
+                Đối tượng thiếu mục bắt buộc sẽ không tạo được, lý do ghi ở cột Ghi chú.
+              </span>
+              <label className="flex flex-col gap-2 text-label font-medium text-text">
+                Ghi chú
+                <input className={FORM_CONTROL_CLASS} value={note} onChange={(event) => setNote(event.target.value)} />
+              </label>
+            </span>
           ) : pending.kind === 'sign' ? (
-            'Tệp đã kí ghi tên bạn, thời điểm kí, thông tin chứng thư đã khai báo, ảnh con dấu và mã băm của tệp gốc. Đây là xác nhận trên phần mềm, không phải chữ ký số.'
+            <span className="flex flex-col gap-3">
+              <span className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+                <span>Nhà phát hành</span>
+                <span className="text-text">{cert?.provider ?? ''}</span>
+                <span>Tên đăng nhập</span>
+                <span className="text-text">{cert?.login_name ?? ''}</span>
+              </span>
+              <span>
+                Tệp đã kí ghi tên bạn, thời điểm kí, thông tin chứng thư đã khai báo, ảnh con dấu và mã băm của tệp gốc.
+                Đây là xác nhận trên phần mềm, không phải chữ ký số; phần mềm không hỏi mật khẩu chứng thư.
+              </span>
+            </span>
           ) : (
             <label className="flex flex-col gap-2 text-label font-medium text-text">
               Lý do hủy (bắt buộc)

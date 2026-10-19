@@ -623,14 +623,7 @@ export class SigningService {
     for (const objectId of input.objectIds) {
       contents.push({
         objectId,
-        content: await buildDossierContent(
-          database,
-          academicYearId,
-          input.objectType,
-          objectId,
-          period,
-          this.decrypt,
-        ),
+        content: await buildDossierContent(database, academicYearId, input.objectType, objectId, period, this.decrypt),
       });
     }
     const errors = contents
@@ -685,7 +678,12 @@ export class SigningService {
         orientation: 'portrait',
         subject: title,
       });
-      const xml = this.xmlWriter.write({ code, academicYearName: yearName, createdAt: now, document: content.document });
+      const xml = this.xmlWriter.write({
+        code,
+        academicYearName: yearName,
+        createdAt: now,
+        document: content.document,
+      });
       const storageKey = `signing-dossier/${randomUUID()}`;
       const xmlStorageKey = `signing-dossier/${randomUUID()}`;
       await this.fileStorage.put(storageKey, pdf, CONTENT_TYPES.pdf);

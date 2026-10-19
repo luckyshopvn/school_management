@@ -422,7 +422,9 @@ describe('Kí hồ sơ theo bốn mẫu của Sở (DT-17 phần 17b)', () => {
     await workbook.xlsx.load(errorFile.body as unknown as ArrayBuffer);
     const sheet = workbook.worksheets[0];
     const cells = (sheet?.getRows(1, sheet.rowCount) ?? []).map((row) => (row.values as unknown[]).slice(1));
-    assert.ok(cells.some((row) => row[0] === 'Giáo Viên Thiếu Ngày Sinh' && row[1] === 'Thiếu mục bắt buộc: Ngày sinh'));
+    assert.ok(
+      cells.some((row) => row[0] === 'Giáo Viên Thiếu Ngày Sinh' && row[1] === 'Thiếu mục bắt buộc: Ngày sinh'),
+    );
 
     const shown = await view((await rowOf('staff', staffId))?.dossier?.id ?? '');
     assert.equal(shown.body.root, 'HO_SO_NHAN_SU');
@@ -450,10 +452,17 @@ describe('Kí hồ sơ theo bốn mẫu của Sở (DT-17 phần 17b)', () => {
     assert.equal(general['Số sổ BHXH'], INSURANCE);
     assert.equal(general['Đảng viên'], 'Có');
     assert.equal(itemsOf(sections[2])['Hệ số lương'], '2,34');
-    assert.deepEqual(sections[7]?.table?.rows.map((row) => row.NOI_DUNG_BOI_DUONG), ['Bồi dưỡng thường xuyên']);
-    assert.deepEqual(sections[8]?.table?.rows.map((row) => row.KHUNG_NANG_LUC), ['Bậc 3']);
-    const xml = (await download(`/signing/dossiers/${(await rowOf('staff', staffId))?.dossier?.id}/file?version=xml`))
-      .body.toString('utf8');
+    assert.deepEqual(
+      sections[7]?.table?.rows.map((row) => row.NOI_DUNG_BOI_DUONG),
+      ['Bồi dưỡng thường xuyên'],
+    );
+    assert.deepEqual(
+      sections[8]?.table?.rows.map((row) => row.KHUNG_NANG_LUC),
+      ['Bậc 3'],
+    );
+    const xml = (
+      await download(`/signing/dossiers/${(await rowOf('staff', staffId))?.dossier?.id}/file?version=xml`)
+    ).body.toString('utf8');
     assert.match(xml, /<HO_SO_NHAN_SU /);
     assert.match(xml, new RegExp(`<SO_CMND_CCCD nhan="Số CMND/CCCD">${STAFF_ID}</SO_CMND_CCCD>`));
     assert.match(xml, /<QUA_TRINH_BOI_DUONG ten="Quá trình bồi dưỡng">\n {4}<DONG stt="1">/);

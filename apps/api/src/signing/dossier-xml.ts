@@ -22,7 +22,13 @@ const ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;'
 
 // Bỏ ký tự điều khiển XML 1.0 không cho phép rồi thoát ký tự đặc biệt
 export function escapeXml(value: string): string {
-  return value.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '').replace(/[&<>"']/g, (char) => ESCAPES[char] ?? char);
+  return [...value]
+    .filter((char) => {
+      const code = char.charCodeAt(0);
+      return code >= 0x20 || code === 0x09 || code === 0x0a || code === 0x0d;
+    })
+    .join('')
+    .replace(/[&<>"']/g, (char) => ESCAPES[char] ?? char);
 }
 
 export class InternalDossierXmlWriter extends DossierXmlWriter {

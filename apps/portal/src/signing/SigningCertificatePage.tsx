@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  isSigningProvider,
   SIGNING_CERTIFICATE_STATUS_LABELS,
+  SIGNING_PROVIDERS,
   SIGNING_SIGNATURE_TYPE_LABELS,
   SIGNING_SYNC_STATUS_LABELS,
   type SigningSignatureType,
@@ -36,7 +38,9 @@ import {
 // 1.1 Chứng thư số nhà trường và 2.1 Đồng bộ chứng thư số của phân hệ Quản lý kí hồ sơ, bản chạy nội bộ (DT-16 phần 16k;
 // quyết định của Eric ngày 2026-10-16). Phần mềm chưa kết nối nhà cung cấp kí số, chưa kết nối hệ thống của Bộ: màn hình
 // ghi thông tin chứng thư (không lưu mật khẩu), ảnh con dấu, "Đăng ký kí nội bộ" để dùng nút kí xác nhận nội bộ ở 2.2, và
-// "Đánh dấu đã đồng bộ" sau khi nhà trường đăng ký đồng bộ trên hệ thống của Bộ
+// "Đánh dấu đã đồng bộ" sau khi nhà trường đăng ký đồng bộ trên hệ thống của Bộ. DT-17 phần 17b theo biểu mẫu của Sở: kiểu
+// chữ ký REMOTE SIGNING, USB TOKEN; nhà phát hành chọn trong năm giá trị (giá trị cũ ngoài danh sách hiện cảnh báo, phải chọn
+// lại); hiện mã trường, tên trường, email, website và lịch sử yêu cầu đăng ký chứng thư số
 export function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
@@ -86,6 +90,54 @@ export function EventList({ events, label }: { events: SigningEvent[]; label: st
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+export function SchoolInfo({ certificate }: { certificate: SigningCertificate }) {
+  const school = certificate.school;
+  return (
+    <FormBlock title="Thông tin trường">
+      <FormRow label="Mã trường">{school.code ?? ''}</FormRow>
+      <FormRow label="Tên trường">{school.name ?? ''}</FormRow>
+      <FormRow label="Email">{school.email ?? ''}</FormRow>
+      <FormRow label="Website">{school.website ?? ''}</FormRow>
+    </FormBlock>
+  );
+}
+
+// Lịch sử yêu cầu đăng ký chứng thư số: các lần đăng ký (kiểu chữ ký, nhà phát hành, tên đăng nhập, lý do) và hủy đăng ký
+function RegistrationHistory({ events }: { events: SigningEvent[] }) {
+  const requests = events.filter(
+    (event) => event.action === 'certificate_register' || event.action === 'certificate_revoke',
+  );
+  return (
+    <section className="flex flex-col gap-2" aria-label="Lịch sử yêu cầu đăng ký chứng thư số">
+      <h2 className="text-section-title font-semibold text-text">Lịch sử yêu cầu đăng ký chứng thư số</h2>
+      {requests.length === 0 ? (
+        <p className="text-label text-text-secondary">Chưa có yêu cầu đăng ký.</p>
+      ) : (
+        <table className="w-full border-collapse text-label">
+          <thead>
+            <tr className="border-b border-border text-left">
+              <th className="py-1 pr-3">Thời điểm</th>
+              <th className="py-1 pr-3">Yêu cầu</th>
+              <th className="py-1 pr-3">Thông tin đăng ký</th>
+              <th className="py-1 pr-3">Người thực hiện</th>
+            </tr>
+          </thead>
+          <tbody>
+            {requests.map((event) => (
+              <tr key={event.id} className="border-b border-border">
+                <td className="py-1 pr-3">{formatDateTime(event.created_at)}</td>
+                <td className="py-1 pr-3">{EVENT_LABELS[event.action]}</td>
+                <td className="py-1 pr-3">{event.note ?? ''}</td>
+                <td className="py-1 pr-3">{event.actor_name}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </section>
   );
 }
@@ -161,8 +213,11 @@ const EMPTY_INPUT: CertificateInput = {
   valid_to: null,
 };
 
-const TEXT_FIELDS: Array<{ key: Exclude<keyof CertificateInput, 'signature_type'>; label: string; type?: string }> = [
-  { key: 'provider', label: 'Nhà phát hành' },
+const TEXT_FIELDS: Array<{
+  key: Exclude<keyof CertificateInput, 'signature_type' | 'provider'>;
+  label: string;
+  type?: string;
+}> = [
   { key: 'login_name', label: 'Tên đăng nhập' },
   { key: 'holder_name', label: 'Người đứng tên' },
   { key: 'holder_title', label: 'Chức danh' },
@@ -209,6 +264,24 @@ function CertificateForm({
             ))}
           </select>
         </FormRow>
+        <FormRow label="Nhà phát hành" error={fieldError('provider')}>
+          <select
+            className={FORM_CONTROL_CLASS}
+            value={values.provider ?? ''}
+            disabled={locked}
+            onChange={(event) => setValues({ ...values, provider: event.target.value || null })}
+          >
+            <option value="">Chọn nhà phát hành</option>
+            {values.provider && !isSigningProvider(values.provider) ? (
+              <option value={values.provider}>{values.provider} (giá trị cũ, chọn lại)</option>
+            ) : null}
+            {SIGNING_PROVIDERS.map((provider) => (
+              <option key={provider} value={provider}>
+                {provider}
+              </option>
+            ))}
+          </select>
+        </FormRow>
         {TEXT_FIELDS.map((field) => (
           <FormRow key={field.key} label={field.label} error={fieldError(field.key)}>
             <input
@@ -237,6 +310,7 @@ export function SigningCertificatePage() {
   const certificate = useQuery({ queryKey: ['signing', 'certificate'], queryFn: readCertificate });
   const [toastMessage, setToastMessage] = useState<string>();
   const [pending, setPending] = useState<'register' | 'revoke' | 'delete-seal'>();
+  const [reason, setReason] = useState('');
   const [sealVersion, setSealVersion] = useState<string | null>(null);
   const closeToast = useCallback(() => setToastMessage(undefined), []);
   const update = (message: string, next: SigningCertificate) => {
@@ -245,7 +319,9 @@ export function SigningCertificatePage() {
   };
   const act = useMutation({
     mutationFn: async (action: 'register' | 'revoke' | 'delete-seal') =>
-      action === 'delete-seal' ? deleteSeal() : certificateAction(action),
+      action === 'delete-seal'
+        ? deleteSeal()
+        : certificateAction(action, action === 'register' ? reason.trim() || undefined : undefined),
     onSuccess: (next, action) => {
       setPending(undefined);
       setSealVersion(String(Date.now()));
@@ -286,6 +362,13 @@ export function SigningCertificatePage() {
           <div className="h-40 animate-pulse rounded bg-border" aria-hidden="true" />
         ) : (
           <>
+            {!data.provider_in_list ? (
+              <Alert tone="warning">
+                Nhà phát hành "{data.provider}" không có trong danh sách của Sở (VNPT-CA, BkavCA, VIETTEL, Ban Cơ yếu
+                Chính phủ, MISA). Chọn lại nhà phát hành rồi bấm Ghi; chứng thư đang đăng ký thì hủy đăng ký trước.
+              </Alert>
+            ) : null}
+            <SchoolInfo certificate={data} />
             <CertificateStatus certificate={data} />
             <CertificateForm key={data.updated_at ?? 'new'} certificate={data} onSaved={update} />
             <FormBlock title="Ảnh con dấu">
@@ -325,7 +408,13 @@ export function SigningCertificatePage() {
                     Hủy đăng ký
                   </Button>
                 ) : (
-                  <Button variant="primary" onClick={() => setPending('register')}>
+                  <Button
+                    variant="primary"
+                    onClick={() => {
+                      setReason('');
+                      setPending('register');
+                    }}
+                  >
                     Đăng ký kí nội bộ
                   </Button>
                 )}
@@ -336,6 +425,7 @@ export function SigningCertificatePage() {
                 ) : null}
               </div>
             ) : null}
+            <RegistrationHistory events={data.events} />
             <EventList events={data.events} label="Lịch sử thao tác" />
           </>
         )}
@@ -354,11 +444,26 @@ export function SigningCertificatePage() {
         onCancel={() => setPending(undefined)}
         onConfirm={() => pending && act.mutate(pending)}
       >
-        {pending === 'register'
-          ? 'Sau khi đăng ký, người có quyền kí dùng được nút "Kí xác nhận nội bộ"; thông tin chứng thư và ảnh con dấu khóa sửa đến khi hủy đăng ký. Phần mềm không đăng ký với nhà cung cấp chữ ký số.'
-          : pending === 'revoke'
-            ? 'Không kí được hồ sơ mới đến khi đăng ký lại; hồ sơ đã kí giữ nguyên.'
-            : 'Hồ sơ kí sau này sẽ không có ảnh con dấu.'}
+        {pending === 'register' ? (
+          <span className="flex flex-col gap-3">
+            <span>
+              Sau khi đăng ký, người có quyền kí dùng được nút "Kí xác nhận nội bộ"; thông tin chứng thư và ảnh con dấu
+              khóa sửa đến khi hủy đăng ký. Phần mềm không đăng ký với nhà cung cấp chữ ký số, không hỏi mật khẩu.
+            </span>
+            <label className="flex flex-col gap-2 text-label font-medium text-text">
+              Lý do
+              <input
+                className={FORM_CONTROL_CLASS}
+                value={reason}
+                onChange={(event) => setReason(event.target.value)}
+              />
+            </label>
+          </span>
+        ) : pending === 'revoke' ? (
+          'Không kí được hồ sơ mới đến khi đăng ký lại; hồ sơ đã kí giữ nguyên.'
+        ) : (
+          'Hồ sơ kí sau này sẽ không có ảnh con dấu.'
+        )}
       </ConfirmDialog>
     </AppShell>
   );
@@ -398,6 +503,7 @@ export function SigningCertificateSyncPage() {
           <div className="h-40 animate-pulse rounded bg-border" aria-hidden="true" />
         ) : (
           <>
+            <SchoolInfo certificate={data} />
             <FormBlock title="Chứng thư số nhà trường">
               <FormRow label="Kiểu chữ ký">{SIGNING_SIGNATURE_TYPE_LABELS[data.signature_type]}</FormRow>
               <FormRow label="Nhà phát hành">{data.provider ?? ''}</FormRow>
