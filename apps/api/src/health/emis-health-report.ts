@@ -83,6 +83,7 @@ export async function loadStartOfYearHealthChildren(
   return children.map((child) => {
     const point = growth.get(child.id);
     return {
+      id: child.id,
       gender: child.gender,
       ethnicity: profileText(child.moet_profile, 'ethnicity'),
       disability:

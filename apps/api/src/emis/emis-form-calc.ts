@@ -11,6 +11,12 @@ export interface EmisRowTemplate {
   code: string;
   label: string;
   unit: string;
+  // Số thứ tự (cột TT) như biểu của Sở (DT-17 phần 17a)
+  order?: string;
+  // Dòng tiêu đề nhóm: không có mã số, không có số liệu; mã "#n" chỉ để làm khóa
+  heading?: boolean;
+  // Dòng của thẻ nhập tay mà máy chủ tự tính khi ghi (chỉ tiêu 1 đến 4 của 2.3 Đề án ngoại ngữ)
+  computed?: boolean;
 }
 
 export interface EmisFormRow extends EmisRowTemplate {
