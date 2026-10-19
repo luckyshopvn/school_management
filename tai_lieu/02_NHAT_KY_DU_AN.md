@@ -22,7 +22,7 @@
 - Gói dùng chung: phân hệ `entry-admissions` ở `PORTAL_WORKSPACES` (13 phân hệ), điều kiện hiện mục ở `MENU_PERMISSION_RULES`, nhãn và danh sách giá trị ở `packages/shared/src/entry-admissions.ts`.
 - Máy chủ API (`apps/api/src/entry-admissions/`): quy tắc luồng sáu trạng thái, kiểm dò, điều kiện duyệt, hạn điều chỉnh (`final-year-rules.ts`); hồ sơ cuối cấp tự lập cho trẻ lớp năm cuối cấp, thao tác hàng loạt, giấy tờ, Excel, PDF A5 và A4 gập đôi, tệp nén, 1.2, 4.1 và điểm cuối của ứng dụng phụ huynh; 1.8, 2.1, 3.3, 3.4, 5.1 kèm chỗ nối `AdmissionSupportMailer`; `/files/{id}` từ chối giấy tờ hồ sơ cuối cấp.
 - Cổng quản trị: phân hệ "Tuyển sinh đầu cấp" với 1.1, 1.2, 1.8, 2.1, 3.1 đến 3.4, 4.1, 5.1. Ứng dụng phụ huynh: nút "Hồ sơ cuối cấp" trên thẻ của con.
-- Thêm quy tắc BR-131, chức năng P02-24 đến P02-28, quyền PQ-76, màn hình MH-141 đến MH-150, MP-22, kịch bản CT-635 đến CT-647, tiêu chí AC-644 đến AC-649. Kết quả ngày 19/10/2026: kiểm thử đơn vị CT-17c-1 đến CT-17c-12 đạt 12/12, cùng `menu-permissions.test.ts`, `system-admin-so.test.ts` 26/26 ca đạt (chạy cục bộ); kiểm thử đơn vị toàn bộ kho mã 874/874 đạt; kiểm thử giao diện CT-17c-13 đạt; toàn bộ kiểm thử giao diện 133/136 đạt (cục bộ; ba ca lỗi không thuộc 17c: 01-login CT-15a-7 lỗi cục bộ đã biết, 04-accounts và 59 CT-16c-17 do dữ liệu kiểm thử còn lại ở cơ sở dữ liệu định danh riêng của phần; lần chạy trước hai ca này đạt); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm quy tắc BR-132, chức năng P02-24 đến P02-28, quyền PQ-76, màn hình MH-142 đến MH-151, MP-22, kịch bản CT-642 đến CT-654, tiêu chí AC-650 đến AC-655. Kết quả ngày 19/10/2026: kiểm thử đơn vị CT-17c-1 đến CT-17c-12 đạt 12/12, cùng `menu-permissions.test.ts`, `system-admin-so.test.ts` 26/26 ca đạt (chạy cục bộ); kiểm thử đơn vị toàn bộ kho mã 874/874 đạt; kiểm thử giao diện CT-17c-13 đạt; toàn bộ kiểm thử giao diện 133/136 đạt (cục bộ; ba ca lỗi không thuộc 17c: 01-login CT-15a-7 lỗi cục bộ đã biết, 04-accounts và 59 CT-16c-17 do dữ liệu kiểm thử còn lại ở cơ sở dữ liệu định danh riêng của phần; lần chạy trước hai ca này đạt); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
@@ -31,7 +31,7 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-134, `07_QUY_TAC_NGHIEP_VU.md` BR-131, `08_VAI_TRO_NGUOI_DUNG.md` PQ-76, `10_YEU_CAU_CHUC_NANG.md` P02-24 đến P02-28, `11_TIEU_CHI_NGHIEM_THU.md` AC-644 đến AC-649, `14_DAC_TA_GIAO_DIEN.md` MH-141 đến MH-150, MP-22, `16_CO_SO_DU_LIEU.md` mục 3, `17_DAC_TA_API.md` mục 6, `21_KICH_BAN_KIEM_THU.md` CT-635 đến CT-647, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.86.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 8.5.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-134, `07_QUY_TAC_NGHIEP_VU.md` BR-132, `08_VAI_TRO_NGUOI_DUNG.md` PQ-76, `10_YEU_CAU_CHUC_NANG.md` P02-24 đến P02-28, `11_TIEU_CHI_NGHIEM_THU.md` AC-650 đến AC-655, `14_DAC_TA_GIAO_DIEN.md` MH-142 đến MH-151, MP-22, `16_CO_SO_DU_LIEU.md` mục 3, `17_DAC_TA_API.md` mục 6, `21_KICH_BAN_KIEM_THU.md` CT-642 đến CT-654, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.87.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 8.5.
 
 #### Vấn đề tồn đọng
 
