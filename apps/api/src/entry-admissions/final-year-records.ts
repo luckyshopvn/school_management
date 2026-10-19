@@ -711,7 +711,7 @@ export class FinalYearRecordsService {
         gender: row.gender,
         place_of_birth: row.place_of_birth,
         national_id: options.fullNationalId
-          ? this.protection.decrypt(row.national_id_encrypted)
+          ? this.revealNationalId(row.national_id_encrypted, row.national_id_last4)
           : maskNationalId(row.national_id_last4),
         national_id_hash: row.national_id_hash,
         identity_type: row.identity_type,
@@ -751,6 +751,15 @@ export class FinalYearRecordsService {
         updated_at: row.updated_at,
       };
     });
+  }
+
+  // Số định danh đầy đủ cho tệp in; bản mã hỏng (ví dụ dữ liệu nhập lỗi) thì in số đã che thay vì làm hỏng cả tệp
+  private revealNationalId(encrypted: string, lastFour: string): string {
+    try {
+      return this.protection.decrypt(encrypted);
+    } catch {
+      return maskNationalId(lastFour);
+    }
   }
 
   applyFilter<Row extends FinalYearRecordView & { national_id_hash: string }>(

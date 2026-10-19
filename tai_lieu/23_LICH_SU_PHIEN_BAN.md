@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.12
+- Phiên bản: 0.13
 - Ngày cập nhật: 2026-10-19
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.86.0 – 2026-10-19
+
+- Phạm vi thay đổi: DT-17 phần 17c, phân hệ Tuyển sinh đầu cấp phần 1 theo hệ thống của Sở, bản chạy nội bộ (YCTD-134).
+- Chức năng mới: phân hệ "Tuyển sinh đầu cấp" (13 phân hệ trên cổng quản trị); 1.1 Hồ sơ học sinh cuối cấp mầm non (hồ sơ tự lập cho trẻ lớp năm cuối cấp, luồng sáu trạng thái, kiểm dò năm mục, hạn điều chỉnh thông tin, Xác nhận hồ sơ thay phụ huynh, Đã chỉnh sửa thông tin, Duyệt, Hủy duyệt, Cập nhật từ Excel, Tải danh sách lỗi, Xuất Excel, Thông tin tài khoản, Khởi tạo mật khẩu, sáu nút Xuất PDF khổ A5, A4 gập đôi, tách tệp nén, In phiếu kê khai, In phiếu thông tin); màn hình "Hồ sơ cuối cấp" của ứng dụng phụ huynh (xác nhận, đề xuất sửa, tải giấy tờ, đồng ý nhập học, gửi hỗ trợ tuyển sinh); 1.2 Gửi xác nhận hoàn thành hồ sơ cuối cấp (đánh dấu tay theo lớp); 1.8 Thông tin trường tuyển sinh theo bản đồ GIS; 2.1 Các dịch vụ được đăng ký tại trường; 3.1 đến 3.4 hiển thị nhóm người dùng, người dùng, nhân sự, lớp; 4.1 Thống kê hồ sơ cuối cấp; 5.1 Danh sách hỗ trợ tuyển sinh (P02-24 đến P02-28).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0061_create_entry_admissions` (sáu bảng mới, bảy cột của `org_units`, mục đích tệp `final_year_document`); tệp định danh `0050_add_entry_admission_permissions` (bốn quyền P02, bỏ phân hệ khỏi VT-14).
+- Thay đổi API: các nhóm điểm cuối mới `/final-year-records`, `/final-year-completion`, `/final-year-statistics`, `/parent/final-year-records`, `/entry-school-map`, `/school-services`, `/entry-admissions/staff`, `/entry-admissions/classes`, `/admission-support`, `/parent/admission-support`; `GET /files/{id}` từ chối tệp `final_year_document`.
+- Kiểm thử: kịch bản CT-635 đến CT-647. Kết quả ngày 19/10/2026: kiểm thử đơn vị CT-17c-1 đến CT-17c-12 đạt 12/12, cùng `menu-permissions.test.ts`, `system-admin-so.test.ts` 26/26 ca đạt (chạy cục bộ); kiểm thử đơn vị toàn bộ kho mã <chờ>; kiểm thử giao diện CT-17c-13 (`tests/e2e/68-entry-admissions.spec.ts`) <chờ>; toàn bộ kiểm thử giao diện <chờ>; build, kiểm tra kiểu, lint, kiểm tra định dạng <chờ>.
+- Rủi ro: tệp Excel, PDF hồ sơ cuối cấp in đủ số định danh với người có `P02.national-id.view` nên cần giữ như tài liệu mật; giấy tờ của trẻ (khai sinh, cư trú) là dữ liệu cá nhân, chỉ tải qua phân hệ.
+- Khả năng tương thích: không đổi dữ liệu, điểm cuối cũ; nhóm người dùng đã có nhận thêm phân hệ mới (trừ VT-14); hồ sơ cuối cấp tự lập khi mở danh sách lần đầu.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-17-phan-17c`; chạy phần quay lui của tệp định danh `0050` (xóa bốn quyền và dòng bỏ phân hệ) và tệp năm học `0061` (xóa sáu bảng, bảy cột của `org_units`, các tệp `final_year_document` ở bảng tệp, trả ràng buộc mục đích tệp; tệp ở kho tệp dưới tiền tố `final_year_document/` xóa tay nếu cần).
 
 ### Phiên bản 0.85.0 – 2026-10-19
 
