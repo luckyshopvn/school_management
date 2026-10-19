@@ -177,7 +177,8 @@ export type FilePurpose =
   | 'medicine_photo'
   | 'prescription'
   | 'candidate_cv'
-  | 'final_year_document';
+  | 'final_year_document'
+  | 'admission_document';
 
 export interface FilesTable extends CatalogRecordColumns {
   org_unit_id: string | null;
@@ -2900,8 +2901,13 @@ export interface InterviewsTable {
 
 // Tuyển sinh trực tuyến (P16; YCTD-86)
 export type AdmissionCampaignStatus = 'draft' | 'open' | 'closed';
-export type AdmissionApplicationStatus = 'submitted' | 'received' | 'passed' | 'rejected' | 'converted';
-export type AdmissionApplicationSource = 'online' | 'staff';
+// Đã hủy nhập học, nguồn phân tuyến nhập từ Excel (DT-17 phần 17d)
+export type AdmissionApplicationStatus = 'submitted' | 'received' | 'passed' | 'rejected' | 'converted' | 'cancelled';
+export type AdmissionApplicationSource = 'online' | 'staff' | 'routing';
+export type AdmissionProgramType = 'general' | 'advanced' | 'survey';
+export type AdmissionDecision = 'pending' | 'accepted' | 'declined';
+export type AdvancedReviewStatus = 'pending' | 'admitted' | 'not_admitted';
+export type AdmissionRecordType = 'account' | 'free';
 export type AdmissionPostStatus = 'draft' | 'published' | 'hidden';
 
 export interface AdmissionCampaignsTable {
@@ -2915,10 +2921,15 @@ export interface AdmissionCampaignsTable {
   status: Generated<AdmissionCampaignStatus>;
   opened_at: Date | null;
   closed_at: Date | null;
+  // Loại hình, năm học nhận trẻ (DT-17 phần 17d)
+  program_type: Generated<AdmissionProgramType>;
+  target_academic_year_id: ColumnType<string | null, string | null | undefined, string | null>;
   created_by: string;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
 }
+
+type Optional<Value> = ColumnType<Value | null, Value | null | undefined, Value | null>;
 
 export interface AdmissionApplicationsTable {
   id: Generated<string>;
@@ -2952,9 +2963,101 @@ export interface AdmissionApplicationsTable {
   converted_by: string | null;
   converted_at: Date | null;
   submitted_ip: string | null;
+  // Tiếp nhận hồ sơ tuyển sinh đầu cấp (DT-17 phần 17d)
+  residence_type: Optional<'permanent' | 'temporary' | 'other'>;
+  current_residence: Optional<string>;
+  residential_group: Optional<string>;
+  quarter: Optional<string>;
+  ward: Optional<string>;
+  province: Optional<string>;
+  place_of_birth: Optional<string>;
+  final_year_ward: Optional<string>;
+  final_year_school: Optional<string>;
+  father_name: Optional<string>;
+  mother_name: Optional<string>;
+  routed: Generated<boolean>;
+  submitted_documents: ColumnType<string[], string[] | undefined, string[]>;
+  admission_decision: Generated<AdmissionDecision>;
+  admission_decision_at: Optional<Date>;
+  advanced_criteria: Optional<string>;
+  advanced_achievements: Optional<string>;
+  registered_at: Optional<string>;
+  school_review: Generated<AdvancedReviewStatus>;
+  school_reviewed_by_name: Optional<string>;
+  school_reviewed_at: Optional<Date>;
+  ward_review: Generated<AdvancedReviewStatus>;
+  notice_content: Optional<string>;
+  record_type: Generated<AdmissionRecordType>;
+  target_org_unit_id: Optional<string>;
+  transfer_package_code: Optional<string>;
+  transfer_guid: Optional<string>;
+  transferred_by_name: Optional<string>;
+  cancelled_at: Optional<Date>;
+  cancelled_by_name: Optional<string>;
   created_by: string | null;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
+}
+
+export interface AdmissionApplicationFilesTable {
+  id: Generated<string>;
+  application_id: string;
+  file_id: string;
+  kind: 'birth_certificate' | 'residence' | 'evidence';
+  uploaded_by: string;
+  uploaded_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface AdmissionTransferResultsTable {
+  id: Generated<string>;
+  kind: 'transfer' | 'cancel';
+  package_code: string;
+  application_id: string;
+  guid: string | null;
+  child_id: string | null;
+  succeeded: boolean;
+  note: string | null;
+  actor_user_id: string;
+  actor_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface EntryAdmissionContactsTable {
+  id: Generated<string>;
+  campaign_id: string;
+  full_name: string;
+  dob: string | null;
+  gender: 'male' | 'female' | null;
+  national_id_encrypted: string | null;
+  national_id_last4: string | null;
+  phone: string | null;
+  final_year_school: string | null;
+  notice_content: Optional<string>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface EntryAdmissionNoticesTable {
+  id: Generated<string>;
+  campaign_id: string;
+  content: string;
+  sent_by: string;
+  sent_by_name: string;
+  sent_at: CreatedTimestamp;
+}
+
+export interface EntryAdmissionNoticeRecipientsTable {
+  id: Generated<string>;
+  notice_id: string;
+  application_id: string | null;
+  contact_id: string | null;
+  phone: string | null;
+  content: string;
+  channels: string | null;
+  delivered: boolean;
+  note: string | null;
+  created_at: CreatedTimestamp;
 }
 
 export interface AdmissionPostsTable {
@@ -3673,5 +3776,10 @@ export interface SchoolYearDatabase {
   final_year_record_events: FinalYearRecordEventsTable;
   final_year_class_confirmations: FinalYearClassConfirmationsTable;
   admission_support_requests: AdmissionSupportRequestsTable;
+  admission_application_files: AdmissionApplicationFilesTable;
+  admission_transfer_results: AdmissionTransferResultsTable;
+  entry_admission_contacts: EntryAdmissionContactsTable;
+  entry_admission_notices: EntryAdmissionNoticesTable;
+  entry_admission_notice_recipients: EntryAdmissionNoticeRecipientsTable;
   school_services: SchoolServicesTable;
 }
