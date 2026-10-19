@@ -22,7 +22,7 @@
 - Gói dùng chung: phân hệ `entry-admissions` ở `PORTAL_WORKSPACES` (13 phân hệ), điều kiện hiện mục ở `MENU_PERMISSION_RULES`, nhãn và danh sách giá trị ở `packages/shared/src/entry-admissions.ts`.
 - Máy chủ API (`apps/api/src/entry-admissions/`): quy tắc luồng sáu trạng thái, kiểm dò, điều kiện duyệt, hạn điều chỉnh (`final-year-rules.ts`); hồ sơ cuối cấp tự lập cho trẻ lớp năm cuối cấp, thao tác hàng loạt, giấy tờ, Excel, PDF A5 và A4 gập đôi, tệp nén, 1.2, 4.1 và điểm cuối của ứng dụng phụ huynh; 1.8, 2.1, 3.3, 3.4, 5.1 kèm chỗ nối `AdmissionSupportMailer`; `/files/{id}` từ chối giấy tờ hồ sơ cuối cấp.
 - Cổng quản trị: phân hệ "Tuyển sinh đầu cấp" với 1.1, 1.2, 1.8, 2.1, 3.1 đến 3.4, 4.1, 5.1. Ứng dụng phụ huynh: nút "Hồ sơ cuối cấp" trên thẻ của con.
-- Thêm quy tắc BR-131, chức năng P02-24 đến P02-28, quyền PQ-76, màn hình MH-141 đến MH-150, MP-22, kịch bản CT-635 đến CT-647, tiêu chí AC-644 đến AC-649. Kết quả ngày 19/10/2026: kiểm thử đơn vị CT-17c-1 đến CT-17c-12 đạt 12/12, cùng `menu-permissions.test.ts`, `system-admin-so.test.ts` 26/26 ca đạt (chạy cục bộ); kiểm thử đơn vị toàn bộ kho mã <chờ>; kiểm thử giao diện CT-17c-13 <chờ>; toàn bộ kiểm thử giao diện <chờ>; build, kiểm tra kiểu, lint, kiểm tra định dạng <chờ>.
+- Thêm quy tắc BR-131, chức năng P02-24 đến P02-28, quyền PQ-76, màn hình MH-141 đến MH-150, MP-22, kịch bản CT-635 đến CT-647, tiêu chí AC-644 đến AC-649. Kết quả ngày 19/10/2026: kiểm thử đơn vị CT-17c-1 đến CT-17c-12 đạt 12/12, cùng `menu-permissions.test.ts`, `system-admin-so.test.ts` 26/26 ca đạt (chạy cục bộ); kiểm thử đơn vị toàn bộ kho mã 874/874 đạt; kiểm thử giao diện CT-17c-13 đạt; toàn bộ kiểm thử giao diện 133/136 đạt (cục bộ; ba ca lỗi không thuộc 17c: 01-login CT-15a-7 lỗi cục bộ đã biết, 04-accounts và 59 CT-16c-17 do dữ liệu kiểm thử còn lại ở cơ sở dữ liệu định danh riêng của phần; lần chạy trước hai ca này đạt); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
@@ -35,7 +35,7 @@
 
 #### Vấn đề tồn đọng
 
-- Chưa có kết nối phân tuyến, cơ sở dữ liệu của Sở và nhà cung cấp gửi thư; Diện cư trú, mẫu phiếu PDF chờ đối chiếu danh sách, mẫu của Sở. Kết quả kiểm thử toàn kho mã và kiểm thử giao diện CT-17c-13 chưa có (<chờ>).
+- Chưa có kết nối phân tuyến, cơ sở dữ liệu của Sở và nhà cung cấp gửi thư; Diện cư trú, mẫu phiếu PDF chờ đối chiếu danh sách, mẫu của Sở. Kiểm thử đơn vị toàn kho mã 874/874 đạt; kiểm thử giao diện CT-17c-13 đạt, toàn bộ kiểm thử giao diện 133/136 đạt (cục bộ; ba ca lỗi không thuộc 17c: 01-login CT-15a-7 lỗi cục bộ đã biết, 04-accounts và 59 CT-16c-17 do dữ liệu kiểm thử còn lại ở cơ sở dữ liệu định danh riêng của phần; lần chạy trước hai ca này đạt).
 
 ### 2026-10-19 — DT-17 phần 17b: kí hồ sơ theo bốn mẫu của Sở
 
