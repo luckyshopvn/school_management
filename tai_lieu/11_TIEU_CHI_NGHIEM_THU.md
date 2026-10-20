@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.39
+- Phiên bản: 1.40
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -757,6 +757,12 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-682 | Cho văn bản đã ký gửi một đơn vị bên ngoài và một phân hiệu, trả lời một văn bản đến / Khi văn thư cấp số với sổ văn bản đi số bắt đầu 10, phần ký hiệu "TB-THU"; cấp số tay trùng; ngày ngoài sổ / Thì số ký hiệu "10/TB-THU"; phân hiệu có văn bản đến chờ vào sổ kèm bản đã ký, vào sổ được; văn bản đến được trả lời ghi "10/TB-THU"; số trùng, ngày ngoài sổ bị chặn | P09-22, BR-136 |
 | AC-683 | Cho văn bản đã ban hành / Khi văn thư đánh dấu đã gửi đơn vị bên ngoài rồi hủy; public lên cổng; đóng băng rồi public, lưu hồ sơ; hủy đóng băng, lưu hồ sơ; public văn bản mật; văn thư trả lại văn bản đã ký khác / Thì trạng thái gửi đổi Đã đánh dấu gửi rồi Chờ gửi, ghi rõ chưa kết nối trục; khi đóng băng các thao tác bị chặn; lưu hồ sơ được sau hủy đóng băng; văn bản mật không public; văn bản trả lại về Dự thảo, mất bản đã ký và mã tra cứu | P09-22, BR-136 |
 | AC-684 | Cho các văn bản đã ban hành / Khi văn thư xem sổ đăng ký văn bản đi, xuất Excel, in phiếu trình ký; Phó Hiệu trưởng tra cứu theo số ký hiệu; người ngoài mở trang tra cứu bằng mã QR / Thì sổ có đủ cột, che trích yếu văn bản mật; tệp Excel ghi nhật ký xuất; phiếu là PDF; tra cứu đúng văn bản; trang tra cứu hiện "Văn bản đã ban hành", số ký hiệu, trích yếu (văn bản không mật), người ký | P09-23, BR-136 |
+| AC-685 | Cho lãnh đạo có quyền giao việc / Khi giao việc từ văn bản đến cho một cá nhân xử lý chính, một phòng ban phối hợp, một cá nhân theo dõi, số ngày 5; giao người chưa có tài khoản; giao không có hạn; người không có quyền giao việc / Thì việc có hạn bằng hôm nay cộng 5 ngày, lịch sử văn bản ghi Tạo công việc, người nhận và quản lý đơn vị nhận thông báo; giao người chưa có tài khoản bị chặn; thiếu hạn báo lỗi ở dòng; người không có quyền bị chặn (CT-707, CT-708; YCTD-141) |
+| AC-686 | Cho việc đã giao / Khi người theo dõi cập nhật tiến độ; người ngoài mở việc; quản lý đơn vị phân công tiếp cho người ngoài phòng ban rồi cho người trong phòng ban; người phối hợp báo 100% / Thì theo dõi bị chặn; người ngoài không thấy việc; phân công ra ngoài bị chặn; phối hợp xong ngay (CT-709; YCTD-141) |
+| AC-687 | Cho dòng xử lý chính / Khi báo 100%, người xử lý tự duyệt, lãnh đạo duyệt chưa xử lý xong, báo lại 100%, duyệt xử lý xong; thu hồi xử lý chính cuối cùng; hủy việc / Thì chờ phê duyệt; tự duyệt bị chặn; về đang xử lý với kết quả duyệt; việc hoàn thành 100%, lọc đúng hạn và duyệt xử lý xong ra việc; thu hồi bị chặn; hủy việc được (CT-710, CT-711; YCTD-141) |
+| AC-688 | Cho việc nhắc định kì hằng ngày, nhắc người giao việc, hạn hôm nay / Khi tiến trình nhắc việc chạy hai lần / Thì lần đầu gửi nhắc định kì và nhắc người giao, dời lần nhắc sang ngày mai; lần hai không nhắc người giao lại (CT-712; YCTD-141) |
+| AC-689 | Cho phòng họp và lịch tuần / Khi đăng ký phòng trùng giờ; từ chối không lý do; đăng ký lịch có phòng trùng lượt đã duyệt; đăng ký lịch có phòng giờ khác kèm người tham dự rồi công bố; áp mẫu lịch; xuất Excel, PDF / Thì trùng giờ bị chặn; thiếu lý do báo lỗi; lịch đã công bố có ở Lịch của tôi của người tham dự; bản nháp người khác không thấy; tệp tải được, ghi nhật ký xuất (CT-714 đến CT-717; YCTD-141) |
+| AC-690 | Cho hồ sơ công việc và báo cáo / Khi chia sẻ quyền xem rồi người được chia sẻ thêm thành phần; chuyển giao; nộp lưu khi chưa kết thúc; trả về; tiếp nhận; hồ sơ lưu quá số năm bảo quản; xem báo cáo thực hiện văn bản đến, tổng hợp, thống kê / Thì thêm bị chặn; người nhận thấy ở hồ sơ được chuyển giao; nộp lưu bị chặn; hồ sơ tài liệu ở 5.10 có thời hạn như hồ sơ; hồ sơ có ở hết hạn bảo quản; báo cáo đếm đúng, người không có quyền bị chặn (CT-713, CT-718, CT-719; YCTD-141) |
 
 ## 20. Chưa xác minh được
 

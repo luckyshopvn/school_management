@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.82
+- Phiên bản: 1.83
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -289,6 +289,11 @@ Ràng buộc duy nhất: `attendance_logs` trên bộ đôi nhân sự và ngày
 |---|---|---|
 | tasks | Công việc được giao và việc cá nhân (YCTD-81) | org_unit_id, task_type (được giao, cá nhân), title, description, assigner_user_id, assigner_name, assignee_staff_id, due_date, priority (thấp, bình thường, cao), status (chưa làm, đang làm, hoàn thành, đã hủy), progress_percent, plan_item_id, completed_at, cancel_reason |
 | task_updates | Cập nhật tiến độ công việc (YCTD-81) | task_id, content, progress_percent, status, created_by, created_by_name, created_at |
+| task_assignments | Phân công thực hiện việc giao theo cây đơn vị (P09-24, BR-137, YCTD-141) | id, task_id (khóa ngoại, xóa theo), parent_id (dòng của đơn vị đã phân công tiếp), role (`main`, `coordinate`, `follow`), target_type (`unit`, `staff`; `staff` thì có staff_id), org_unit_id, department_id, staff_id, start_date, due_date (không trước start_date), status (`todo`, `in_progress`, `pending_approval`, `done`, `cancelled`), progress_percent, approval_result (`done`, `not_done`), approval_note, approved_by_name, approved_at, result_note, completed_at, assigned_by, assigned_by_name |
+| task_files | Tệp đính kèm của việc (YCTD-141) | id, task_id (khóa ngoại, xóa theo), file_name, content_type, size_bytes, sha256, storage_key (kho tệp, tiền tố `tasks/`), created_by, created_by_name, created_at |
+
+Tệp `database/school-year/migrations/0065_extend_tasks_for_directives.ts` (DT-18 phần 18c, YCTD-141) cho `tasks.task_type` nhận thêm `directive` (giao theo cây đơn vị, `assignee_staff_id` để trống), thêm cột `leader_user_id`, `leader_name`, `start_date`, `duration_days` (1 đến 3650), `remind_assigner`, `assigner_reminded_at`, `recurrence` (`none`, `daily`, `weekly`, `monthly`), `next_reminder_on`, `source_document_id` (văn bản đến ở cơ sở dữ liệu hệ thống, không khóa ngoại), `source_document_label`, `related_documents`; `task_updates` thêm `assignment_id`; tạo hai bảng trên. Mở năm học mới thì việc chưa xong chuyển kèm phân công, tệp.
+
 | plans | Kế hoạch của đơn vị theo kỳ (YCTD-81) | org_unit_id, period_type (tháng, học kỳ, năm học), period_value, title, objectives, status (nháp, đang thực hiện, đã đóng), created_by, activated_at, closed_at |
 | plan_items | Đầu việc trong kế hoạch (YCTD-81) | plan_id, content, owner_staff_id, due_date, task_id (việc được giao khi kích hoạt), order_no |
 | evaluations | Phiếu đánh giá nhân sự theo kỳ (BR-47, YCTD-81) | staff_id, org_unit_id, period_type, period_value, total_score (thang 100), comment, status (nháp, đã công bố, đã thay thế), replaces_id, reevaluation_reason, evaluated_by, evaluated_by_name, published_by, published_at; mỗi nhân sự mỗi kỳ tối đa một phiếu nháp và một phiếu đã công bố |
@@ -316,6 +321,20 @@ Ràng buộc duy nhất: `attendance_logs` trên bộ đôi nhân sự và ngày
 | outgoing_document_events | Lịch sử thao tác trên văn bản đi (YCTD-140) | id, document_id (khóa ngoại, xóa theo), action, note, actor_id, actor_name, created_at |
 
 Tệp `database/system/migrations/0018_create_incoming_document_tables.ts` của cơ sở dữ liệu hệ thống (DT-18 phần 18a, YCTD-138) tạo 13 bảng văn bản đến ở trên, đặt ở cơ sở dữ liệu hệ thống để giữ qua các năm học; mã người dùng là mã ở dịch vụ định danh, tên người ghi lại tại thời điểm thao tác. Ràng buộc `incoming_documents_registration_check` buộc văn bản chờ vào sổ không có sổ, số đến, ngày đến và văn bản khác có đủ ba ô; chỉ mục duy nhất từng phần `incoming_documents_book_number_unique` (sổ kèm số đến). Dữ liệu mặc định: 36 hình thức, ba độ khẩn, ba độ mật theo biểu mẫu của VNPT iOffice và tám lĩnh vực Claude tự đặt. Tệp `database/identity/migrations/0052_add_incoming_document_permissions.ts` thêm bốn quyền P09 (PQ-78) và dòng `role_workspace_exclusions` của VT-14 cho phân hệ `documents`. Tệp văn bản ở kho tệp dưới tiền tố `incoming-documents/`, khóa tạo qua hàm chung `storageKey` (`apps/api/src/common/resource-names.ts`).
+
+Lịch đơn vị, phòng họp, hồ sơ công việc theo VNPT iOffice (DT-18 phần 18c, YCTD-141), tệp `database/system/migrations/0020_create_unit_schedules_and_work_files.ts` của cơ sở dữ liệu hệ thống; mã người dùng là mã ở dịch vụ định danh, mã đơn vị là mã ở năm học, không khóa ngoại:
+
+| Bảng | Mục đích | Trường chính |
+|---|---|---|
+| meeting_rooms | Danh mục phòng họp (P09-25) | id, name (duy nhất), location, capacity (1 đến 10000), equipment, sort_order, active |
+| room_bookings | Đăng ký sử dụng phòng họp (P09-25, BR-137) | id, room_id (khóa ngoại), title, chair_name, participants, starts_at, ends_at (sau starts_at), note, status (`pending`, `approved`, `rejected`, `cancelled`), requested_by, requested_by_name, decided_by, decided_by_name, decided_at, decision_note |
+| unit_schedule_entries | Dòng lịch tuần của đơn vị (P09-25) | id, org_unit_id (trống là toàn trường), entry_date, session (`morning`, `afternoon`), start_time, end_time (HH:MM), content, chair_name, participants, location, note, room_booking_id (khóa ngoại, xóa thì để trống), status (`draft`, `published`), published_at, created_by, created_by_name |
+| unit_schedule_attendees | Người tham dự của dòng lịch (Lịch của tôi) | entry_id (khóa ngoại, xóa theo), user_id, user_name; khóa chính đôi |
+| unit_schedule_templates | Mẫu lịch tuần | id, name (duy nhất), org_unit_id, items (jsonb: thứ, buổi, giờ, nội dung, chủ trì, thành phần, địa điểm, ghi chú), created_by, created_by_name |
+| work_files | Hồ sơ công việc (P09-26, BR-137) | id, code (duy nhất theo owner_user_id, year), title, year, description, org_unit_id, owner_user_id, owner_name, status (`open`, `closed`, `submitted`, `returned`, `archived`), retention (`permanent`, `limited`), retention_years, opened_on, closed_on, transferred_from_user_id, transferred_from_name, transferred_at, transfer_note, submitted_at, return_note, archive_record_id (khóa ngoại `archive_records`, xóa thì để trống), archived_on, archived_by_name |
+| work_file_shares | Người được chia sẻ hồ sơ | file_id (khóa ngoại, xóa theo), user_id, user_name, permission (`view`, `edit`); khóa chính đôi |
+| work_file_items | Thành phần hồ sơ | id, file_id (khóa ngoại, xóa theo), item_type (`incoming_document` có incoming_document_id khóa ngoại xóa theo; `task` có task_id ở năm học; `note`), title, note, added_by, added_by_name |
+| work_file_events | Lịch sử hồ sơ | id, file_id (khóa ngoại, xóa theo), action, note, actor_id, actor_name, created_at |
 
 Tệp `database/system/migrations/0019_create_outgoing_document_tables.ts` của cơ sở dữ liệu hệ thống (DT-18 phần 18b, YCTD-140) tạo sáu bảng văn bản đi ở trên; thêm vào `incoming_documents` ba cột `outgoing_document_id` (khóa ngoại `outgoing_documents`, xóa thì để trống), `recipient_org_unit_id`, `recipient_org_unit_name` và cho `source` nhận thêm `internal` (văn bản đến tạo qua liên thông nội bộ khi phát hành văn bản đi). Phần quay lui xóa văn bản đến nguồn `internal`, trả ràng buộc, xóa sáu bảng.
 

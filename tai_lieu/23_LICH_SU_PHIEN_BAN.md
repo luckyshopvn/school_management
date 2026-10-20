@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.17
+- Phiên bản: 0.18
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.92.0 – 2026-10-20
+
+- Phạm vi thay đổi: DT-18 phần 18c, giao việc, lịch đơn vị, phòng họp, hồ sơ công việc, báo cáo theo VNPT iOffice (YCTD-141).
+- Chức năng mới: giao việc theo cây đơn vị (xử lý chính, phối hợp, theo dõi; phòng ban hoặc cá nhân), phân công tiếp, cập nhật tiến độ, phê duyệt, thu hồi, nhắc việc định kì, tạo việc từ văn bản đến; lịch tuần sáng, chiều, công bố, mẫu lịch, lịch họp tuần, tháng, của tôi, xuất Excel, PDF; phòng họp có duyệt và kiểm tra trùng giờ; hồ sơ công việc cá nhân, chia sẻ, chuyển giao, nộp lưu sang văn thư lưu trữ, hồ sơ hết hạn bảo quản; báo cáo thực hiện văn bản đến, tổng hợp, thống kê (P09-24 đến P09-27).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0065_extend_tasks_for_directives`; tệp hệ thống `0020_create_unit_schedules_and_work_files` (9 bảng); tệp định danh `0055_add_directive_schedule_permissions` (sáu quyền P09).
+- Thay đổi API: nhóm điểm cuối mới `/task-directives`, `/meeting-rooms`, `/room-bookings`, `/unit-schedules`, `/unit-schedule-templates`, `/work-files`, `/document-reports`, `GET /incoming-documents/{id}/tasks`.
+- Kiểm thử: kịch bản CT-707 đến CT-719. Kết quả ngày 20/10/2026: kiểm thử đơn vị `apps/api/src/work/directives.test.ts` và `apps/api/src/unit-schedules/unit-schedules.test.ts` CT-18c-1 đến CT-18c-12 đạt 12/12; kiểm thử đơn vị toàn bộ kho mã 939/939 đạt; kiểm thử giao diện `tests/e2e/72-directives.spec.ts` (CT-18c-13) đạt; toàn bộ kiểm thử giao diện E2E18C_KETQUA; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: dòng giao cho đơn vị phụ thuộc người quản lý đơn vị được ghi ở cây đơn vị hoặc có quyền giao việc; lịch, hồ sơ công việc mang dữ liệu công tác của cán bộ.
+- Khả năng tương thích: không đổi điểm cuối cũ; `/tasks` bỏ qua việc loại mới.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-18-phan-18c`; chạy phần quay lui của tệp định danh `0055`, tệp hệ thống `0020` (xóa 9 bảng) và tệp năm học `0065` (xóa việc loại mới, hai bảng, các cột thêm; trả ràng buộc); tệp đính kèm của việc dưới tiền tố `tasks/` ở kho tệp xóa tay nếu cần.
 
 ### Phiên bản 0.91.0 – 2026-10-20
 

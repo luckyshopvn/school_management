@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.17
+- Phiên bản: 0.18
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,28 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-20 — DT-18 phần 18c: giao việc, lịch, hồ sơ công việc, báo cáo
+
+#### Công việc đã thực hiện
+
+- Đọc ghi chép khảo sát VNPT iOffice ngày 2026-10-19 (Giao việc, Lịch, Hồ sơ lưu trữ, Báo cáo), mã văn bản đến của 18a, phân hệ Quản lý công việc (YCTD-81) và văn thư lưu trữ 15h2.
+- Cơ sở dữ liệu: tệp năm học `0065_extend_tasks_for_directives` (mở rộng `tasks`, thêm `task_assignments`, `task_files`), tệp hệ thống `0020_create_unit_schedules_and_work_files` (9 bảng), tệp định danh `0055_add_directive_schedule_permissions` (sáu quyền P09).
+- Máy chủ API: giao việc, phân công, tiến độ, phê duyệt, nhắc việc chạy nền (`apps/api/src/work/directives.ts`); lịch đơn vị, phòng họp, mẫu lịch, xuất lịch (`apps/api/src/unit-schedules/`); hồ sơ công việc nối văn thư lưu trữ (`apps/api/src/work-files/`); báo cáo (`apps/api/src/document-reports/`).
+- Cổng quản trị: 16 màn hình ở nhóm 4 đến 7 của phân hệ Quản lý văn bản và điều hành (`apps/portal/src/directives/`); chi tiết văn bản đến thêm Tạo công việc, Lưu vào hồ sơ công việc.
+- Thêm quy tắc BR-137, chức năng P09-24 đến P09-27, quyền PQ-81, màn hình MH-187 đến MH-202, kịch bản CT-707 đến CT-719, tiêu chí AC-685 đến AC-690. Kết quả ngày 20/10/2026: kiểm thử đơn vị `apps/api/src/work/directives.test.ts` và `apps/api/src/unit-schedules/unit-schedules.test.ts` CT-18c-1 đến CT-18c-12 đạt 12/12; kiểm thử đơn vị toàn bộ kho mã 939/939 đạt; kiểm thử giao diện `tests/e2e/72-directives.spec.ts` (CT-18c-13) đạt; toàn bộ kiểm thử giao diện E2E18C_KETQUA; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 18c của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9.4 theo quyết định của Eric ngày 2026-10-19 (làm theo VNPT iOffice). Mở rộng bảng việc đã có thay vì tạo phân hệ việc thứ hai. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-141.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-141, `07_QUY_TAC_NGHIEP_VU.md` BR-137, `08_VAI_TRO_NGUOI_DUNG.md` PQ-81, `10_YEU_CAU_CHUC_NANG.md` P09-24 đến P09-27, `11_TIEU_CHI_NGHIEM_THU.md` AC-685 đến AC-690, `14_DAC_TA_GIAO_DIEN.md` MH-187 đến MH-202, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-707 đến CT-719, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.92.0.
+
+#### Vấn đề tồn đọng
+
+- Thêm văn bản đi (18b) vào thành phần hồ sơ công việc và báo cáo. Việc của tôi (18e) gom việc chờ của giao việc.
 
 ### 2026-10-20 — DT-18 phần 18b: Văn bản đi theo VNPT iOffice
 
