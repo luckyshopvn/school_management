@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.16
+- Phiên bản: 0.17
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.91.0 – 2026-10-20
+
+- Phạm vi thay đổi: DT-18 phần 18b, văn bản đi theo VNPT iOffice (YCTD-140, PR18B_SO).
+- Chức năng mới: nhóm 3. Văn bản đi của phân hệ "Quản lý văn bản và điều hành": dự thảo theo biểu mẫu văn bản đi, lấy ý kiến theo đợt, cho ý kiến, kết thúc cho ý kiến, kết thúc lấy ý kiến, trình ký, lấy lại, ký nội bộ (bản đã ký có khối xác nhận, ảnh con dấu, mã QR tra cứu), không ký, trả lại, cấp số và phát hành theo sổ văn bản đi, liên thông nội bộ thành văn bản đến chờ vào sổ của đơn vị nhận trong trường, liên thông ra ngoài bản chạy nội bộ (đánh dấu đã gửi), public lên cổng TTĐT, đóng băng, lưu hồ sơ, văn bản trả lời ghi vào văn bản đến; sổ văn bản đi, sổ đăng ký văn bản đi xuất Excel, phiếu trình ký PDF, trang tra cứu mã QR công khai (P09-20 đến P09-23).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp hệ thống `0019_create_outgoing_document_tables` (sáu bảng `outgoing_*`, ba cột mới và nguồn `internal` của `incoming_documents`); tệp định danh `0054_add_outgoing_document_permissions` (bốn quyền P09).
+- Thay đổi API: nhóm điểm cuối mới `/outgoing-documents`, `/document-books/{id}/outgoing-register`, `/public/outgoing-documents/verify`; `/document-books?direction=outgoing` đếm văn bản đi.
+- Kiểm thử: kịch bản CT-697 đến CT-706. Kết quả ngày 20/10/2026: kiểm thử đơn vị `apps/api/src/outgoing-documents/outgoing-documents.test.ts` CT-18b-1 đến CT-18b-9 đạt 9/9; kiểm thử đơn vị toàn bộ kho mã 927/927 đạt; kiểm thử giao diện `tests/e2e/72-outgoing-documents.spec.ts` (CT-18b-10) và `70-incoming-documents.spec.ts` đạt; KQ18B_E2E; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: bản đã ký là ký xác nhận nội bộ, không có giá trị của chữ ký số; mã QR in địa chỉ theo nguồn của cổng lúc ký nên đổi tên miền sau khi ký thì mã vẫn tra được bằng ô nhập mã.
+- Khả năng tương thích: không đổi điểm cuối cũ; `DocumentExchange` thêm `send`, `DossierSigner` nhận thêm `verification` (không bắt buộc), văn bản đến nhận thêm nguồn `internal`.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-18-phan-18b`; chạy phần quay lui của tệp định danh `0054` và tệp hệ thống `0019` (xóa văn bản đến nguồn `internal`, sáu bảng, ba cột; tệp ở kho tệp dưới tiền tố `outgoing-documents/` xóa tay nếu cần).
 
 ### Phiên bản 0.90.0 – 2026-10-20
 

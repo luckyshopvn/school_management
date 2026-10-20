@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.16
+- Phiên bản: 0.17
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,36 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-140: DT-18 phần 18b: Văn bản đi theo VNPT iOffice – 2026-10-20
+
+- Lý do: kế hoạch DT-18 (`32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9, YCTD-137). Ngày 2026-10-19 Eric quyết định sổ văn bản đến, đi, giao việc, lịch, hồ sơ công việc làm theo VNPT iOffice; ký số giữ bản chạy nội bộ. Phần 18b làm văn bản đi theo khảo sát iOffice ngày 2026-10-19 (biểu mẫu văn bản đi, các nút thao tác, sổ văn bản đi), xây trên văn bản đến của phần 18a (YCTD-138) và quy trình kí nội bộ của 16k, 17b (YCTD-130, YCTD-133).
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, trừ các điểm ghi là quyết định của Eric):
+  - Nhóm 3. Văn bản đi ở phân hệ "Quản lý văn bản và điều hành": 3.1 Văn bản đi (Dự thảo, Chờ xử lý, Đã xử lý như menu Quản lý văn bản đi của iOffice), 3.2 Quản lý văn bản đi của văn thư (Chờ cấp số, Đã ban hành), 3.3 Liên thông văn bản đi, 3.4 Tra cứu văn bản đi. Đặt nhóm 3 sau Quản trị văn bản để không đổi số mục của 18a.
+  - Dữ liệu ở cơ sở dữ liệu hệ thống như văn bản đến. Dùng lại của 18a: bảng sổ văn bản (chiều đi), danh mục văn bản, đơn vị bên ngoài, lãnh đạo nhận văn bản (làm danh sách người ký), hồ sơ tài liệu khi lưu hồ sơ; không thêm bảng trùng.
+  - Biểu mẫu theo iOffice: Số eOffice (phần mềm cấp tăng dần khi tạo), Số trình ký, Trích yếu, Hình thức, Độ khẩn, Loại văn bản, File phiếu trình, Chèn QR code, Người soạn thảo, Người ký, Phân loại VB ưu tiên, Thời gian họp, Địa điểm, File đính kèm, Văn bản gửi kèm, Văn bản liên quan, Văn bản gốc, Đơn vị dự kiến nhận VB; thêm Độ mật, Lĩnh vực (cột của sổ, điều kiện công bố), Đơn vị soạn thảo (cột của sổ văn bản đi), Nội dung trình, Trả lời văn bản đến. "Danh mục hồ sơ" làm bằng Lưu hồ sơ sau khi ban hành.
+  - Năm trạng thái: Dự thảo, Đang lấy ý kiến, Chờ ký, Đã ký (chờ cấp số), Đã ban hành. Lấy ý kiến theo đợt; người được hỏi cho ý kiến (sửa được tới khi kết thúc cho ý kiến) rồi kết thúc cho ý kiến; người soạn kết thúc lấy ý kiến thì người chưa trả lời đóng lại. Trình ký cần người ký và ít nhất một tệp dự thảo; người soạn lấy lại khi người ký chưa xử lý.
+  - Ký nội bộ (quyết định của Eric ngày 2026-10-19: ký giữ bản chạy nội bộ): người ký được trình ký qua chỗ nối `DossierSigner` của Quản lý kí hồ sơ, cần chứng thư nhà trường đã đăng ký kí nội bộ, còn hiệu lực như kí hồ sơ ở 16k; bản đã ký PDF có thông tin văn bản, mã băm SHA-256 của tệp dự thảo, khối "Xác nhận kí nội bộ", ảnh con dấu và mã QR (khi chọn Chèn QR code). `DossierSigner` nhận thêm `verification` để in mã QR, không đổi hồ sơ cũ. Không ký, trả lại cần lý do, văn bản về Dự thảo; văn thư trả lại văn bản đã ký thì bỏ bản đã ký và mã tra cứu.
+  - Mã QR tra cứu: mã 12 ký tự (bỏ ký tự dễ nhầm), nội dung QR là địa chỉ trang công khai `/tra-cuu-van-ban?ma=<mã>` theo nguồn của cổng quản trị lúc ký (không ghi cứng tên miền, viết sẵn cho đa thuê bao). Trang tra cứu không cần đăng nhập, hiện số ký hiệu, ngày ban hành, người ký, thời điểm ký, mã băm bản đã ký; trích yếu chỉ hiện với văn bản đã ban hành không mật.
+  - Cấp số và phát hành: văn thư chọn sổ văn bản đi, số đi kế tiếp (sửa được nếu chưa trùng), phần ký hiệu sau số (số ký hiệu "số/phần ký hiệu"), ngày ban hành, số bản; sổ đăng ký văn bản đi theo cột iOffice thêm Ngày ban hành, Người ký, Đơn vị soạn thảo, Số bản.
+  - Liên thông nội bộ: đơn vị nhận trong hệ thống là đơn vị trong cây đơn vị của trường (phân hiệu, điểm trường). Khi phát hành, mỗi đơn vị nhận trong trường có một văn bản đến chờ vào sổ ở 1.7 Liên thông văn bản (nguồn `internal`, đơn vị ban hành là tên trường, kèm bản sao bản đã ký và văn bản gửi kèm), văn thư vào sổ văn bản đến của đơn vị đó như văn bản liên thông. Văn bản đến được trả lời ghi số ký hiệu, ngày ban hành (nối "Văn bản trả lời" của 18a).
+  - Liên thông trục Edoc là bản chạy nội bộ (tài liệu 32 mục 9.2): đơn vị bên ngoài ở trạng thái Chờ gửi; văn thư tải bản đã ký, gửi bằng cách khác rồi "Đánh dấu đã gửi" kèm ghi chú, hoặc hủy đánh dấu; chỗ nối `DocumentExchange.send` để cắm trục thật.
+  - Public lên cổng TTĐT, Ẩn VB trên cổng TTĐT: cột `published` để phần 18f đọc; văn bản mật, tối mật không công bố. Đóng băng, Hủy đóng băng: khóa văn bản đã ban hành (không gửi, công bố, lưu hồ sơ). Lưu hồ sơ gắn văn bản vào hồ sơ tài liệu 5.10.1.
+  - Phiếu trình ký PDF (nút "In phiếu trình KG"): thông tin văn bản, ý kiến góp ý, ý kiến của người ký; mẫu tự đặt vì khảo sát chỉ ghi tên nút.
+  - Quyền mới (PQ-80), thuộc P09: `P09.outgoing-document.draft`, `P09.outgoing-document.sign`, `P09.outgoing-document.issue`, `P09.outgoing-document.search`.
+  - Viết sẵn cho đa thuê bao: không thêm biến `.env`, không ghi cứng tên miền; khóa kho tệp tạo qua `storageKey` (`outgoing-documents/<mã văn bản>/<mã tệp>`).
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu hệ thống (`database/system/migrations/0019_create_outgoing_document_tables.ts`, `schema.ts`, `index.ts`, `database/src/index.ts`); cơ sở dữ liệu định danh (`database/identity/migrations/0054_add_outgoing_document_permissions.ts`, `index.ts`); máy chủ API (`apps/api/src/outgoing-documents/`; `incoming-documents/document-admin.ts` đếm sổ đi, chặn xóa sổ đã có văn bản đi; `incoming-documents/document-exchange.ts` thêm `send`; `incoming-documents/incoming-fields.ts` dùng chung hàm đọc lựa chọn; `signing/dossier-signer.ts` thêm mã QR; `application.module.ts`); cổng quản trị (`apps/portal/src/outgoing-documents/`, `incoming-documents/DocumentAdminPages.tsx`, `incoming-documents/IncomingDocumentDetail.tsx`, `incoming-documents/incoming-api.ts`, `router.tsx`); gói dùng chung (`packages/shared/src/outgoing-documents.ts`, `portal-menu.ts`, `menu-permissions.ts`, `index.ts`); kiểm thử; tài liệu `01`, `02`, `03`, `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: tệp hệ thống `0019` tạo sáu bảng `outgoing_documents`, `outgoing_document_files`, `outgoing_document_links`, `outgoing_document_opinions`, `outgoing_document_recipients`, `outgoing_document_events`; `incoming_documents` thêm `outgoing_document_id`, `recipient_org_unit_id`, `recipient_org_unit_name`, nguồn `internal`. Tệp định danh `0054` thêm bốn quyền P09.
+- API bị ảnh hưởng: nhóm mới `/outgoing-documents`, `/document-books/{id}/outgoing-register`, `/public/outgoing-documents/verify` (xem `17_DAC_TA_API.md` mục 12).
+- Giao diện bị ảnh hưởng: MH-180 đến MH-186 (cổng quản trị, trang công khai tra cứu). Ứng dụng giáo viên, phụ huynh không đổi.
+- Quyền bị ảnh hưởng: bốn quyền mới (PQ-80); mục menu hiện theo `MENU_PERMISSION_RULES`; 2.1 Sổ văn bản hiện thêm cho văn thư văn bản đi.
+- Ảnh hưởng chức năng cũ: văn bản đến không đổi luồng; 2.1 Sổ văn bản thêm hai thẻ văn bản đi; chi tiết văn bản đến ghi nguồn liên thông nội bộ.
+- Hạn chế:
+  - Chưa kết nối trục liên thông văn bản (Edoc) và ký số SmartCA; "Trả lại HCC", "Tạo việc", "Tạo chỉ đạo điều hành", "Hủy CĐĐH", "Tạo lịch họp", "Chuyển xử lý", "Hạn chế xem", "Đánh dấu", "Lưu vào lưu trữ", "Chuyển lưu trữ" của văn bản đi chưa làm (giao việc, lịch ở phần 18c; lưu trữ ở 15h2).
+  - Bản đã ký là tệp xác nhận kí nội bộ riêng, không chèn vào tệp dự thảo gốc; mã QR in ở khối xác nhận.
+  - Trang văn bản công khai của website chờ phần 18f; ô số ký hiệu văn bản ở minh chứng KPI (18d) chưa chọn được văn bản đi.
+- Kiểm thử cần thực hiện: kịch bản CT-697 đến CT-706 (trong mã kiểm thử là CT-18b-1 đến CT-18b-10); kiểm thử đơn vị mới `apps/api/src/outgoing-documents/outgoing-documents.test.ts`; kiểm thử giao diện mới `tests/e2e/72-outgoing-documents.spec.ts`. Kết quả ngày 20/10/2026: kiểm thử đơn vị `apps/api/src/outgoing-documents/outgoing-documents.test.ts` CT-18b-1 đến CT-18b-9 đạt 9/9; kiểm thử đơn vị toàn bộ kho mã 927/927 đạt; kiểm thử giao diện `tests/e2e/72-outgoing-documents.spec.ts` (CT-18b-10) và `70-incoming-documents.spec.ts` đạt; KQ18B_E2E; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Trạng thái: Đã triển khai
 
 ### YCTD-139: DT-18 phần 18d: phân hệ KPI, hai bộ quy tắc chấm cấu hình được – 2026-10-20
 

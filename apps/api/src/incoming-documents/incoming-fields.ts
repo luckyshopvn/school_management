@@ -134,7 +134,7 @@ export function readInteger(
   return value;
 }
 
-function readChoice<Value extends string>(
+export function readChoice<Value extends string>(
   body: RequestBody,
   field: string,
   labels: Record<Value, string>,

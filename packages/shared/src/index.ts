@@ -12,6 +12,7 @@ export * from './signing.js';
 export * from './entry-admissions.js';
 export * from './incoming-documents.js';
 export * from './kpi.js';
+export * from './outgoing-documents.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -199,6 +200,11 @@ export const PERMISSION_CODES = {
   kpiAdvise: 'P09.kpi.advise',
   kpiVote: 'P09.kpi.vote',
   kpiConfigure: 'P09.kpi.configure',
+  // Văn bản đi theo VNPT iOffice (DT-18 phần 18b)
+  outgoingDocumentDraft: 'P09.outgoing-document.draft',
+  outgoingDocumentSign: 'P09.outgoing-document.sign',
+  outgoingDocumentIssue: 'P09.outgoing-document.issue',
+  outgoingDocumentSearch: 'P09.outgoing-document.search',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -426,6 +432,11 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/kpi/advisory',
   '/kpi/voting',
   '/kpi/reports',
+  // Văn bản đi theo VNPT iOffice (DT-18 phần 18b)
+  '/outgoing-documents',
+  '/outgoing-documents/manage',
+  '/outgoing-documents/interconnect',
+  '/outgoing-documents/search',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -645,6 +656,11 @@ export const DATA_GRID_KEYS = [
   'kpi-advisory',
   'kpi-voting',
   'kpi-manager-actions',
+  // Văn bản đi theo VNPT iOffice (DT-18 phần 18b)
+  'outgoing-documents',
+  'outgoing-manage',
+  'outgoing-recipients',
+  'outgoing-register',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

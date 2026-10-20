@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.86
+- Phiên bản: 1.87
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -1304,6 +1304,19 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | POST | /api/v1/incoming-documents/{id}/extension, /extension/decide | Xin gia hạn; đồng ý hoặc không (YCTD-138) |
 | POST | /api/v1/incoming-documents/{id}/complete, /restrict, /reply, /unread | Kết thúc; hạn chế xem; văn bản trả lời; đánh dấu chưa đọc (YCTD-138) |
 | GET | /api/v1/incoming-documents/{id}/slips/{type} | Phiếu trình (`submission`), phiếu xử lý (`processing`), phiếu giao nhận (`handover`) PDF (YCTD-138) |
+| GET | /api/v1/outgoing-documents | Danh sách văn bản đi theo `view` (`drafts`, `pending`, `processed`, `to_issue`, `issued`, `search`), lọc, phân trang (YCTD-140) |
+| GET | /api/v1/outgoing-documents/recipients | Đơn vị nhận của văn bản đã ban hành theo `status` (`pending`, `sent`, `delivered`, `all`) |
+| GET | /api/v1/outgoing-documents/next-number | Số đi kế tiếp của sổ văn bản đi (`book_id`) |
+| POST | /api/v1/outgoing-documents | Tạo dự thảo |
+| GET, PUT, DELETE | /api/v1/outgoing-documents/{id} | Chi tiết (kèm `actions`), sửa, xóa dự thảo chưa trình |
+| POST, GET, DELETE | /api/v1/outgoing-documents/{id}/files, /files/{fileId} | Tệp dự thảo, phiếu trình, văn bản gửi kèm; tải tệp; xóa tệp |
+| POST | /api/v1/outgoing-documents/{id}/consult, /consult/end, /opinion | Lấy ý kiến; kết thúc lấy ý kiến; cho ý kiến hoặc kết thúc cho ý kiến (`finish`) |
+| POST | /api/v1/outgoing-documents/{id}/submit, /revoke, /sign, /decline, /return | Trình ký, lấy lại, ký nội bộ, không ký, trả lại |
+| POST | /api/v1/outgoing-documents/{id}/issue, /send, /publish, /freeze | Cấp số và phát hành, đánh dấu gửi liên thông, public lên cổng TTĐT, đóng băng |
+| POST | /api/v1/outgoing-documents/archive | Lưu hồ sơ hàng loạt |
+| GET | /api/v1/outgoing-documents/{id}/slip | Phiếu trình ký PDF |
+| GET | /api/v1/document-books/{id}/outgoing-register, /outgoing-register/export | Sổ đăng ký văn bản đi, xuất Excel |
+| GET | /api/v1/public/outgoing-documents/verify | Tra cứu mã QR, không cần đăng nhập (`code` 12 ký tự) |
 
 Giao kèo văn bản đến theo VNPT iOffice (DT-18 phần 18a, YCTD-138, BR-134; máy chủ API, dữ liệu ở cơ sở dữ liệu hệ thống):
 
@@ -1314,6 +1327,16 @@ Giao kèo văn bản đến theo VNPT iOffice (DT-18 phần 18a, YCTD-138, BR-13
 5. Thao tác hàng loạt `complete`, `archive` (thêm `archive_record_id` của hồ sơ tài liệu 5.10.1) nhận `ids` (1 đến 200), trả mỗi văn bản `id`, `ok`, `message`; văn bản không làm được không chặn văn bản khác. `flags` nhận `ids` và `starred` hoặc `followed`.
 6. Tệp: PDF, JPEG, PNG, Word, Excel theo chữ ký tệp, tối đa 50 MB, tối đa 30 tệp mỗi văn bản; `kind` `main` hoặc `related`, `scanned` là `true` khi quét. Người tải lên hoặc văn thư xóa tệp khi văn bản chưa kết thúc. Phiếu PDF khổ dọc, tên tệp `phieu-trinh-…`, `phieu-xu-ly-…`, `phieu-giao-nhan-…`. Sổ đăng ký trả `book`, `items` (cột của iOffice; văn bản hạn chế xem che trích yếu); tệp Excel `so-van-ban-den-<năm>-….xlsx` ghi `export_logs` mã `incoming_document_register`.
 7. Người nhận được chuyển nhận thông báo trong ứng dụng (mẫu `incoming_document`); trả lại, từ chối, xử lý xong, xin gia hạn báo người chuyển; kết quả gia hạn báo người xin. `PORTAL_QUICK_LINK_PATHS` thêm 12 đường dẫn của phân hệ `documents`; `DATA_GRID_KEYS` thêm `incoming-documents`, `incoming-manage`, `incoming-interconnect`, `incoming-register`, `document-books`, `external-units`, `external-unit-groups`, `document-catalogs`.
+
+Giao kèo văn bản đi theo VNPT iOffice (DT-18 phần 18b, YCTD-140, BR-136; máy chủ API, dữ liệu ở cơ sở dữ liệu hệ thống):
+
+1. Quyền: mọi điểm cuối cần một trong bốn quyền `P09.outgoing-document.*`; tạo dự thảo cần `draft`; `next-number`, `recipients`, `issue`, `send`, `publish`, `freeze` cần `issue` ở phạm vi toàn trường; tra cứu (`view=search`) cần `search` hoặc `issue`. Văn bản xem được: người tạo, người soạn, người ký, người được lấy ý kiến; văn thư xem văn bản đã ký, đã ban hành; người tra cứu xem từ khi trình ký. Văn bản không xem được trả `ERR_NOT_FOUND`; thao tác không được làm trả `ERR_RULE_VIOLATION` mã `YCTD-140`.
+2. Văn bản nhận `summary` (bắt buộc, tối đa 2000), `submission_number` (50), `form_id`, `urgency_id`, `secrecy_id`, `field_id` (đúng loại danh mục), `document_kind`, `priority`, `meeting_at` (ngày giờ ISO), `meeting_place`, `insert_qr` (mặc định `true`), `drafter_id` (nhân sự có tài khoản; trống là người tạo), `drafting_unit_id` (đơn vị năm học), `signer_id` (trong danh sách lãnh đạo nhận văn bản), `content_note`, `reply_to_id` (văn bản đến); `recipients` (tối đa 200, mỗi dòng đúng một trong `external_unit_id`, `org_unit_id`, không trùng) và `links` (tối đa 50, `link_type` `related` hoặc `original`, đúng một trong `outgoing_id`, `incoming_id`) thay toàn bộ khi gửi, giữ nguyên khi bỏ trống.
+3. `consult` nhận `user_ids` (1 đến 100), `deadline` (không trước hôm nay), `note`; `opinion` nhận `opinion` (bắt buộc khi không kết thúc), `finish`; `submit` nhận `signer_id`, `note`; `decline`, `return` cần `note`. `sign` lập bản đã ký qua `DossierSigner`; nội dung mã QR là `<nguồn của cổng>/tra-cuu-van-ban?ma=<mã>` lấy theo tiêu đề `Origin` của yêu cầu (không ghi cứng tên miền), không có nguồn hợp lệ thì chỉ in mã.
+4. `issue` nhận `book_id` (sổ chiều đi), `issue_number` (trống là số kế tiếp), `symbol_suffix` (tối đa 80, không có "/"), `issue_date`, `copies` (1 đến 9999, mặc định 1), `recipients` (thay đơn vị nhận nếu gửi); trùng số trả `ERR_CONFLICT`. `send` nhận `recipient_ids` (đơn vị bên ngoài của văn bản), `sent` (mặc định `true`), `reference`; gọi `DocumentExchange.send` (bản nội bộ không truyền). `publish` nhận `published`; `freeze` nhận `frozen`. `archive` nhận `ids`, `archive_record_id`, trả mỗi văn bản `id`, `ok`, `message`.
+5. Tệp: PDF, JPEG, PNG, Word, Excel theo chữ ký tệp, tối đa 50 MB, 30 tệp; `kind` `draft` (mặc định), `submission`, `attachment`; bản đã ký (`signed`) chỉ do máy chủ lập. Khóa kho tệp tạo qua `storageKey`.
+6. `GET /public/outgoing-documents/verify?code=` (giới hạn số lần theo địa chỉ như các trang công khai) trả `code`, `school_name`, `issued`, `symbol`, `issue_date`, `summary` (chỉ văn bản đã ban hành không mật), `signer_name`, `signer_title`, `signed_at`, `internal_signature`, `signed_sha256`, `signed_size_bytes`; mã sai dạng trả `ERR_VALIDATION`, không có trả `ERR_NOT_FOUND`.
+7. Thông báo trong ứng dụng (mẫu `outgoing_document`): người được lấy ý kiến, người ký khi trình, người soạn khi có ý kiến, ký, không ký, trả lại, ban hành. `GET /document-books?direction=outgoing` đếm văn bản đi và số đi kế tiếp; xóa sổ đã có văn bản đi bị chặn.
 
 ## 13. Y tế học đường
 

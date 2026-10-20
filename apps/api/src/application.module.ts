@@ -151,6 +151,12 @@ import { DocumentExchange, LocalDocumentExchange } from './incoming-documents/do
 import { IncomingDocumentsController } from './incoming-documents/incoming-documents.controller.js';
 import { IncomingDocumentsService } from './incoming-documents/incoming-documents.js';
 import { IncomingPrintService } from './incoming-documents/incoming-print.js';
+import {
+  OutgoingDocumentsController,
+  OutgoingVerificationController,
+} from './outgoing-documents/outgoing-documents.controller.js';
+import { OutgoingDocumentsService } from './outgoing-documents/outgoing-documents.js';
+import { OutgoingPrintService } from './outgoing-documents/outgoing-print.js';
 import { KpiCatalogController, KpiCatalogService } from './kpi/kpi-catalog.js';
 import { KpiEvaluationsController, KpiEvaluationsService } from './kpi/kpi-evaluations.js';
 import { KpiLegacyImportController, KpiLegacyImportService } from './kpi/kpi-legacy.js';
@@ -360,6 +366,8 @@ export class ApplicationModule {
         EntryIntakeController,
         DocumentAdminController,
         IncomingDocumentsController,
+        OutgoingDocumentsController,
+        OutgoingVerificationController,
         // Phân hệ KPI (DT-18 phần 18d)
         KpiSetupController,
         KpiCatalogController,
@@ -730,6 +738,9 @@ export class ApplicationModule {
         IncomingDocumentsService,
         IncomingPrintService,
         { provide: DocumentExchange, useClass: LocalDocumentExchange },
+        // Văn bản đi theo VNPT iOffice (DT-18 phần 18b); ký nội bộ qua DossierSigner của Quản lý kí hồ sơ
+        OutgoingDocumentsService,
+        OutgoingPrintService,
         KpiSupport,
         KpiSetupService,
         KpiCatalogService,
