@@ -787,7 +787,7 @@ const INBOX_COLUMNS: Array<DataGridColumn<InboxItem>> = [
 export function DirectiveInboxPage() {
   const grid = useGridSettings('directive-inbox');
   const [filter, setFilter] = useState({
-    status: 'open' as DirectiveStatusFilter | '',
+    status: '' as DirectiveStatusFilter | '',
     role: '' as DirectiveRole | '',
     target: '' as DirectiveTarget | '',
     q: '',
