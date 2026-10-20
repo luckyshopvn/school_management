@@ -50,7 +50,8 @@ export function MyWorkHeaderLink() {
         total ? `Việc của tôi, ${total} việc đang chờ${overdue ? `, ${overdue} quá hạn` : ''}` : 'Việc của tôi'
       }
     >
-      Việc của tôi
+      <span className="hidden md:inline">Việc của tôi</span>
+      <span className="md:hidden">Việc</span>
       <CountBubble total={total} overdue={overdue} className="ml-1 inline-block" />
     </Link>
   );

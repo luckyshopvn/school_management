@@ -112,7 +112,7 @@ test('CT-18e-10: nạp thư mục mặc định, mở đợt nộp; giáo viên 
   await staff.getByRole('link', { name: /^Việc của tôi/ }).click();
   await expect(staff.getByRole('heading', { name: '1. Việc của tôi' })).toBeVisible();
   await expect(staff.getByRole('cell', { name: roundTitle })).toBeVisible();
-  await staff.getByLabel('Phân hệ', { exact: true }).selectOption('professional');
+  await staff.getByRole('combobox', { name: /^Phân hệ/ }).selectOption('professional');
   await expect(staff.getByRole('cell', { name: 'Nộp hồ sơ theo đợt' }).first()).toBeVisible();
   await openMenu(staff, '/professional-rounds');
   await staff.getByRole('cell', { name: roundTitle }).click();
@@ -128,7 +128,7 @@ test('CT-18e-10: nạp thư mục mặc định, mở đợt nộp; giáo viên 
   const reviewer = await signIn(browser, leader);
   await expect(reviewer.getByRole('link', { name: /^Việc của tôi, \d+ việc đang chờ/ })).toBeVisible();
   await openMenu(reviewer, '/professional-records/review');
-  await reviewer.getByRole('cell', { name: roundTitle }).click();
+  await reviewer.getByRole('cell', { name: roundTitle }).first().click();
   await reviewer.getByRole('button', { name: 'Tổ trưởng duyệt' }).click();
   await reviewer.getByLabel('Ý kiến').fill('Đạt yêu cầu');
   await reviewer.getByRole('button', { name: 'Ghi' }).click();
@@ -137,7 +137,7 @@ test('CT-18e-10: nạp thư mục mặc định, mở đợt nộp; giáo viên 
   // Phó Hiệu trưởng: duyệt cấp trường
   const approver = await signIn(browser, vice);
   await openMenu(approver, '/professional-records/review');
-  await approver.getByRole('cell', { name: roundTitle }).click();
+  await approver.getByRole('cell', { name: roundTitle }).first().click();
   await approver.getByRole('button', { name: 'Duyệt', exact: true }).click();
   await approver.getByRole('button', { name: 'Ghi' }).click();
   await expect(approver.getByText('Đã duyệt hồ sơ')).toBeVisible();
