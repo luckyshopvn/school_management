@@ -821,6 +821,147 @@ export interface OutgoingDocumentEventsTable {
   created_at: CreatedTimestamp;
 }
 
+// Website trường trên tên miền riêng (DT-18 phần 18f, YCTD-144)
+export type WebsiteContentStatus = 'draft' | 'pending' | 'published' | 'unpublished';
+export type WebsitePostKind = 'news' | 'announcement' | 'page' | 'disclosure';
+export type WebsiteDomainKind = 'primary' | 'alias' | 'demo';
+export type WebsiteFileOwner = 'post' | 'album' | 'settings';
+export type WebsiteFilePurpose = 'cover' | 'attachment' | 'photo' | 'logo' | 'banner';
+export type WebsiteEventTarget = 'post' | 'album' | 'settings' | 'domain' | 'contact';
+
+export interface WebsiteFilesTable {
+  id: Generated<string>;
+  owner_type: WebsiteFileOwner;
+  owner_id: string | null;
+  purpose: WebsiteFilePurpose;
+  file_name: string;
+  content_type: string;
+  size_bytes: number;
+  sha256: string;
+  storage_key: string;
+  caption: string | null;
+  order_no: Generated<number>;
+  created_by: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface WebsiteSettingsTable {
+  id: Generated<number>;
+  site_name: Generated<string>;
+  slogan: string | null;
+  introduction: string | null;
+  address: string | null;
+  phone: string | null;
+  email: string | null;
+  map_url: string | null;
+  office_hours: string | null;
+  facebook_url: string | null;
+  admission_form_url: string | null;
+  footer_note: string | null;
+  primary_color: Generated<string>;
+  school_levels: ColumnType<string[], string[] | undefined, string[]>;
+  show_timetable: Generated<boolean>;
+  demo_mode: Generated<boolean>;
+  logo_file_id: string | null;
+  banner_file_id: string | null;
+  updated_by_name: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface WebsiteDomainsTable {
+  id: Generated<string>;
+  hostname: string;
+  kind: WebsiteDomainKind;
+  active: Generated<boolean>;
+  dns_confirmed_at: Date | null;
+  dns_confirmed_by_name: string | null;
+  note: string | null;
+  created_by: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface WebsiteDisclosureCategoriesTable {
+  code: string;
+  name: string;
+  legal_basis: string | null;
+  // MN: mầm non; PT: phổ thông; trống: mọi cấp học
+  school_level: string | null;
+  order_no: Generated<number>;
+  active: Generated<boolean>;
+}
+
+interface WebsiteWorkflowColumns {
+  status: Generated<WebsiteContentStatus>;
+  return_note: string | null;
+  submitted_at: Date | null;
+  submitted_by_name: string | null;
+  published_at: Date | null;
+  first_published_at: Date | null;
+  published_by_name: string | null;
+  unpublished_at: Date | null;
+  unpublished_by_name: string | null;
+  unpublish_reason: string | null;
+  is_sample: Generated<boolean>;
+  created_by: string;
+  created_by_name: string;
+  updated_by_name: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface WebsitePostsTable extends WebsiteWorkflowColumns {
+  id: Generated<string>;
+  kind: WebsitePostKind;
+  page_key: string | null;
+  disclosure_category: string | null;
+  disclosure_year: string | null;
+  slug: string;
+  title: string;
+  summary: string | null;
+  body_html: Generated<string>;
+  cover_file_id: string | null;
+  pinned: Generated<boolean>;
+}
+
+export interface WebsiteAlbumsTable extends WebsiteWorkflowColumns {
+  id: Generated<string>;
+  slug: string;
+  title: string;
+  description: string | null;
+  event_date: ColumnType<string | null, string | null | undefined, string | null>;
+  cover_file_id: string | null;
+  consent_confirmed: Generated<boolean>;
+  consent_confirmed_by_name: string | null;
+}
+
+export interface WebsiteContactMessagesTable {
+  id: Generated<string>;
+  full_name: string;
+  phone: string | null;
+  email: string | null;
+  subject: string;
+  message: string;
+  status: Generated<'new' | 'handled'>;
+  handled_note: string | null;
+  handled_at: Date | null;
+  handled_by_name: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface WebsiteEventsTable {
+  id: Generated<string>;
+  target_type: WebsiteEventTarget;
+  target_id: string | null;
+  action: string;
+  note: string | null;
+  actor_id: string;
+  actor_name: string;
+  created_at: CreatedTimestamp;
+}
+
 export interface SystemDatabase {
   academic_years: AcademicYearsTable;
   academic_terms: AcademicTermsTable;
@@ -865,4 +1006,12 @@ export interface SystemDatabase {
   outgoing_document_opinions: OutgoingDocumentOpinionsTable;
   outgoing_document_recipients: OutgoingDocumentRecipientsTable;
   outgoing_document_events: OutgoingDocumentEventsTable;
+  website_files: WebsiteFilesTable;
+  website_settings: WebsiteSettingsTable;
+  website_domains: WebsiteDomainsTable;
+  website_disclosure_categories: WebsiteDisclosureCategoriesTable;
+  website_posts: WebsitePostsTable;
+  website_albums: WebsiteAlbumsTable;
+  website_contact_messages: WebsiteContactMessagesTable;
+  website_events: WebsiteEventsTable;
 }

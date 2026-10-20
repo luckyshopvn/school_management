@@ -13,6 +13,7 @@ export * from './entry-admissions.js';
 export * from './incoming-documents.js';
 export * from './kpi.js';
 export * from './outgoing-documents.js';
+export * from './website.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -205,6 +206,10 @@ export const PERMISSION_CODES = {
   outgoingDocumentSign: 'P09.outgoing-document.sign',
   outgoingDocumentIssue: 'P09.outgoing-document.issue',
   outgoingDocumentSearch: 'P09.outgoing-document.search',
+  // Website trường (DT-18 phần 18f)
+  websiteEdit: 'P14.website.edit',
+  websiteApprove: 'P14.website.approve',
+  websiteConfigure: 'P14.website.configure',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -437,6 +442,16 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/outgoing-documents/manage',
   '/outgoing-documents/interconnect',
   '/outgoing-documents/search',
+  // Website trường (DT-18 phần 18f)
+  '/website/settings',
+  '/website/domains',
+  '/website/news',
+  '/website/announcements',
+  '/website/pages',
+  '/website/disclosures',
+  '/website/albums',
+  '/website/review',
+  '/website/contacts',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -661,6 +676,12 @@ export const DATA_GRID_KEYS = [
   'outgoing-manage',
   'outgoing-recipients',
   'outgoing-register',
+  // Website trường (DT-18 phần 18f)
+  'website-domains',
+  'website-posts',
+  'website-albums',
+  'website-review',
+  'website-contacts',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

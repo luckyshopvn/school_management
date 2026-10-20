@@ -19,7 +19,8 @@ export type PortalWorkspaceKey =
   | 'teaching'
   | 'admissions'
   | 'reports'
-  | 'kpi';
+  | 'kpi'
+  | 'website';
 
 export interface PortalMenuNode {
   // Số thứ bậc có dấu chấm cuối như của Sở, ví dụ "4.1.1."
@@ -372,6 +373,29 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('4.4.', 'Biểu quyết xếp loại', '/kpi/voting'),
       ]),
       group('5.', 'Báo cáo', [leaf('5.1.', 'Báo cáo KPI', '/kpi/reports')]),
+    ],
+  },
+  {
+    // Website trường trên tên miền riêng (DT-18 phần 18f): phân hệ riêng nên đánh số liên tục, tên mục do Claude tự đặt theo
+    // ủy quyền của Eric ngày 2026-10-11
+    key: 'website',
+    label: 'Website trường',
+    menu: [
+      group('1.', 'Thiết lập', [
+        leaf('1.1.', 'Thông tin website', '/website/settings'),
+        leaf('1.2.', 'Tên miền', '/website/domains'),
+      ]),
+      group('2.', 'Nội dung', [
+        leaf('2.1.', 'Tin tức', '/website/news'),
+        leaf('2.2.', 'Thông báo', '/website/announcements'),
+        leaf('2.3.', 'Giới thiệu, cơ cấu tổ chức', '/website/pages'),
+        leaf('2.4.', 'Công khai theo quy định', '/website/disclosures'),
+        leaf('2.5.', 'Thư viện ảnh', '/website/albums'),
+      ]),
+      group('3.', 'Duyệt và liên hệ', [
+        leaf('3.1.', 'Nội dung chờ duyệt', '/website/review'),
+        leaf('3.2.', 'Thư liên hệ', '/website/contacts'),
+      ]),
     ],
   },
 ];

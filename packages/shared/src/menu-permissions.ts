@@ -28,6 +28,8 @@ const OUTGOING = anyOf(
   'P09.outgoing-document.issue',
   'P09.outgoing-document.search',
 );
+// Website trường (DT-18 phần 18f)
+const WEBSITE_CONTENT = anyOf('P14.website.edit', 'P14.website.approve');
 // Phân hệ KPI (DT-18 phần 18d)
 const KPI_ANY = anyOf('P09.kpi.participate', 'P09.kpi.manage', 'P09.kpi.advise', 'P09.kpi.configure');
 // Điều kiện của nhóm "Trẻ và lớp" cũ
@@ -183,6 +185,15 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/outgoing-documents/manage': 'P09.outgoing-document.issue',
   '/outgoing-documents/interconnect': 'P09.outgoing-document.issue',
   '/outgoing-documents/search': anyOf('P09.outgoing-document.search', 'P09.outgoing-document.issue'),
+  '/website/settings': 'P14.website.configure',
+  '/website/domains': 'P14.website.configure',
+  '/website/news': WEBSITE_CONTENT,
+  '/website/announcements': WEBSITE_CONTENT,
+  '/website/pages': WEBSITE_CONTENT,
+  '/website/disclosures': WEBSITE_CONTENT,
+  '/website/albums': WEBSITE_CONTENT,
+  '/website/review': 'P14.website.approve',
+  '/website/contacts': WEBSITE_CONTENT,
   '/emis/facilities': 'P17.report.emis',
   '/emis/health': 'P17.report.emis',
   '/emis/end-of-year': 'P17.report.emis',
