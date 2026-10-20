@@ -57,6 +57,9 @@ import { EmisFormPage } from './emis/EmisFormPage.js';
 import { EmisSendPage } from './emis/EmisSendPage.js';
 import { EMIS_FORMS } from '@school-management/shared';
 import { EquipmentOutsidePage, EquipmentPage, EquipmentSubmissionPage } from './facilities/EquipmentPage.js';
+import { EquipmentLocationsPage } from './facilities/EquipmentLocationsPage.js';
+import { EquipmentMinimumPage } from './facilities/EquipmentMinimumPage.js';
+import { EquipmentStocktakesPage } from './facilities/EquipmentStocktakesPage.js';
 import { FacilityInputPage, FacilityRoomsPage } from './facilities/FacilityRoomsPage.js';
 import { FacilityReportPage } from './facilities/FacilityReportPage.js';
 import { FacilityInvestmentsPage } from './facilities/FacilityInvestmentsPage.js';
@@ -428,6 +431,10 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/facility-input', component: FacilityInputPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/equipment-outside', component: EquipmentOutsidePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/equipment-submission', component: EquipmentSubmissionPage }),
+  // Thiết bị: nơi để, tem QR, kiểm kê, đối sánh danh mục tối thiểu (DT-18 phần 18g)
+  createRoute({ getParentRoute: () => rootRoute, path: '/equipment-locations', component: EquipmentLocationsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/equipment-stocktakes', component: EquipmentStocktakesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/equipment-minimum', component: EquipmentMinimumPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/api-clients', component: ApiClientsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/integrations', component: IntegrationsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/notifications', component: NotificationsPage }),
