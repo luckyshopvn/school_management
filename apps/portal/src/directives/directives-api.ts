@@ -348,8 +348,7 @@ export const listEntries = (filter: ScheduleQuery): Promise<ScheduleEntry[]> =>
   requestJson(`/api/v1/unit-schedules${query({ ...filter })}`);
 export const saveEntry = (id: string | null, entry: Record<string, unknown>): Promise<ScheduleEntry> =>
   requestJson(id ? `/api/v1/unit-schedules/${id}` : '/api/v1/unit-schedules', json(id ? 'PUT' : 'POST', entry));
-export const deleteEntry = (id: string): Promise<void> =>
-  requestJson(`/api/v1/unit-schedules/${id}`, json('DELETE'));
+export const deleteEntry = (id: string): Promise<void> => requestJson(`/api/v1/unit-schedules/${id}`, json('DELETE'));
 export const publishEntries = (input: {
   from: string;
   to: string;
@@ -370,10 +369,7 @@ export const applyTemplate = (
   weekOf: string,
   orgUnitId: string | null,
 ): Promise<{ created: number; week_start: string }> =>
-  requestJson(
-    `/api/v1/unit-schedule-templates/${id}/apply`,
-    json('POST', { week_of: weekOf, org_unit_id: orgUnitId }),
-  );
+  requestJson(`/api/v1/unit-schedule-templates/${id}/apply`, json('POST', { week_of: weekOf, org_unit_id: orgUnitId }));
 
 // ---- Hồ sơ công việc ----
 

@@ -300,7 +300,11 @@ function EntryForm({
           />
         </FormRow>
         <FormRow label="Buổi" error={errors.session}>
-          <select className={FORM_CONTROL_CLASS} value={values.session} onChange={(event) => set('session', event.target.value)}>
+          <select
+            className={FORM_CONTROL_CLASS}
+            value={values.session}
+            onChange={(event) => set('session', event.target.value)}
+          >
             {SESSIONS.map(([value, label]) => (
               <option key={value} value={value}>
                 {label}
@@ -328,7 +332,11 @@ function EntryForm({
         {text('chair_name', 'Chủ trì')}
         {text('participants', 'Thành phần')}
         <FormRow label="Phòng họp" error={errors.room_id}>
-          <select className={FORM_CONTROL_CLASS} value={values.room_id} onChange={(event) => set('room_id', event.target.value)}>
+          <select
+            className={FORM_CONTROL_CLASS}
+            value={values.room_id}
+            onChange={(event) => set('room_id', event.target.value)}
+          >
             <option value="">Không đăng ký phòng họp</option>
             {(rooms.data ?? []).map((room) => (
               <option key={room.id} value={room.id}>
@@ -441,13 +449,11 @@ export function UnitSchedulePage() {
           Xuất PDF
         </Button>
       </div>
-      {[entries.error, publish.error, apply.error, remove.error]
-        .filter(Boolean)
-        .map((error, index) => (
-          <Alert key={index} tone="danger">
-            {messageOf(error)}
-          </Alert>
-        ))}
+      {[entries.error, publish.error, apply.error, remove.error].filter(Boolean).map((error, index) => (
+        <Alert key={index} tone="danger">
+          {messageOf(error)}
+        </Alert>
+      ))}
       {editing ? (
         <section className="rounded-xl border border-border bg-card p-4">
           <EntryForm
@@ -552,7 +558,12 @@ export function MeetingSchedulePage() {
         {view === 'month' ? (
           <label className="text-label font-medium text-text">
             Tháng
-            <input type="month" className={selectClass} value={month} onChange={(event) => setMonth(event.target.value)} />
+            <input
+              type="month"
+              className={selectClass}
+              value={month}
+              onChange={(event) => setMonth(event.target.value)}
+            />
           </label>
         ) : null}
         {view === 'all' ? (
@@ -579,7 +590,12 @@ export function MeetingSchedulePage() {
         ) : null}
       </div>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3 print:hidden">
-        <UnitSelect value={orgUnitId} onChange={setOrgUnitId} permission={PERMISSION_CODES.scheduleView} allLabel="Tất cả" />
+        <UnitSelect
+          value={orgUnitId}
+          onChange={setOrgUnitId}
+          permission={PERMISSION_CODES.scheduleView}
+          allLabel="Tất cả"
+        />
         <label className="text-label font-medium text-text">
           Địa điểm
           <input className={selectClass} value={location} onChange={(event) => setLocation(event.target.value)} />
@@ -654,7 +670,11 @@ function BookingForm({ onSaved, onCancel }: { onSaved(booking: RoomBooking): voi
       {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
       <FormBlock title="Đăng ký sử dụng">
         <FormRow label="Phòng họp" error={errors.room_id}>
-          <select className={FORM_CONTROL_CLASS} value={values.room_id} onChange={(event) => set('room_id', event.target.value)}>
+          <select
+            className={FORM_CONTROL_CLASS}
+            value={values.room_id}
+            onChange={(event) => set('room_id', event.target.value)}
+          >
             <option value="">— Chọn phòng họp —</option>
             {(rooms.data ?? []).map((room) => (
               <option key={room.id} value={room.id}>
@@ -693,7 +713,8 @@ const BOOKING_COLUMNS: Array<DataGridColumn<RoomBooking>> = [
   {
     id: 'time',
     header: 'Thời gian',
-    cell: (row) => `${formatDate(row.starts_at.slice(0, 10))} ${formatTime(row.starts_at)} – ${formatTime(row.ends_at)}`,
+    cell: (row) =>
+      `${formatDate(row.starts_at.slice(0, 10))} ${formatTime(row.starts_at)} – ${formatTime(row.ends_at)}`,
   },
   { id: 'title', header: 'Tiêu đề', alwaysVisible: true, className: 'font-medium', cell: (row) => row.title },
   { id: 'chair_name', header: 'Chủ trì', cell: (row) => row.chair_name ?? '' },
@@ -764,14 +785,18 @@ export function RoomBookingsPage() {
           <select
             className={selectClass}
             value={filter.status}
-            onChange={(event) => setFilter((current) => ({ ...current, status: event.target.value as RoomBookingStatusKey | '' }))}
+            onChange={(event) =>
+              setFilter((current) => ({ ...current, status: event.target.value as RoomBookingStatusKey | '' }))
+            }
           >
             <option value="">Tất cả</option>
-            {(Object.entries(ROOM_BOOKING_STATUS_LABELS) as Array<[RoomBookingStatusKey, string]>).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
+            {(Object.entries(ROOM_BOOKING_STATUS_LABELS) as Array<[RoomBookingStatusKey, string]>).map(
+              ([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ),
+            )}
           </select>
         </label>
         <label className="flex items-center gap-2 pt-6 text-label font-medium text-text">
@@ -783,13 +808,11 @@ export function RoomBookingsPage() {
           Chỉ đăng ký của tôi
         </label>
       </div>
-      {[bookings.error, decide.error, cancel.error]
-        .filter(Boolean)
-        .map((error, index) => (
-          <Alert key={index} tone="danger">
-            {messageOf(error)}
-          </Alert>
-        ))}
+      {[bookings.error, decide.error, cancel.error].filter(Boolean).map((error, index) => (
+        <Alert key={index} tone="danger">
+          {messageOf(error)}
+        </Alert>
+      ))}
       {creating ? (
         <section className="rounded-xl border border-border bg-card p-4">
           <BookingForm
@@ -808,7 +831,10 @@ export function RoomBookingsPage() {
             Lý do từ chối “{rejecting.title}”
             <input className={selectClass} value={reason} onChange={(event) => setReason(event.target.value)} />
           </label>
-          <Button variant="primary" onClick={() => decide.mutate({ booking: rejecting, approve: false, note: reason || null })}>
+          <Button
+            variant="primary"
+            onClick={() => decide.mutate({ booking: rejecting, approve: false, note: reason || null })}
+          >
             Từ chối
           </Button>
           <Button variant="text" onClick={() => setRejecting(undefined)}>
@@ -857,7 +883,15 @@ export function RoomBookingsPage() {
 
 // ---- 5.4 Phòng họp ----
 
-function RoomForm({ room, onSaved, onCancel }: { room?: MeetingRoom; onSaved(room: MeetingRoom): void; onCancel(): void }) {
+function RoomForm({
+  room,
+  onSaved,
+  onCancel,
+}: {
+  room?: MeetingRoom;
+  onSaved(room: MeetingRoom): void;
+  onCancel(): void;
+}) {
   const [values, setValues] = useState({
     name: room?.name ?? '',
     location: room?.location ?? '',
@@ -1140,7 +1174,10 @@ function TemplateForm({
                   </td>
                 ))}
                 <td className="p-1">
-                  <Button variant="text" onClick={() => setItems((current) => current.filter((_, position) => position !== index))}>
+                  <Button
+                    variant="text"
+                    onClick={() => setItems((current) => current.filter((_, position) => position !== index))}
+                  >
                     Bỏ dòng
                   </Button>
                 </td>
@@ -1179,7 +1216,10 @@ const TEMPLATE_COLUMNS: Array<DataGridColumn<ScheduleTemplate>> = [
     header: 'Nội dung',
     cell: (row) =>
       row.items
-        .map((item) => `${WEEKDAY_LABELS[item.weekday - 1]} ${SCHEDULE_SESSION_LABELS[item.session].toLowerCase()}: ${item.content}`)
+        .map(
+          (item) =>
+            `${WEEKDAY_LABELS[item.weekday - 1]} ${SCHEDULE_SESSION_LABELS[item.session].toLowerCase()}: ${item.content}`,
+        )
         .join('; '),
   },
 ];

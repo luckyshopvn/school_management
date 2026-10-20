@@ -66,7 +66,12 @@ const STATUS_TONES: Record<DirectiveAssignmentStatus, StatusTone> = {
   done: 'success',
   cancelled: 'neutral',
 };
-const TASK_STATUS_LABELS = { todo: 'Chưa xử lý', in_progress: 'Đang xử lý', done: 'Đã hoàn thành', cancelled: 'Đã hủy' };
+const TASK_STATUS_LABELS = {
+  todo: 'Chưa xử lý',
+  in_progress: 'Đang xử lý',
+  done: 'Đã hoàn thành',
+  cancelled: 'Đã hủy',
+};
 const PRIORITIES = Object.entries(DIRECTIVE_PRIORITY_LABELS) as Array<[DirectivePriority, string]>;
 const RECURRENCES = Object.entries(DIRECTIVE_RECURRENCE_LABELS) as Array<[DirectiveRecurrence, string]>;
 const STATUS_FILTERS = Object.entries(DIRECTIVE_STATUS_FILTER_LABELS) as Array<[DirectiveStatusFilter, string]>;
@@ -87,7 +92,12 @@ interface TreeRow {
 function treeRows(options: DirectiveOptions): TreeRow[] {
   const rows: TreeRow[] = [];
   for (const unit of options.units) {
-    rows.push({ key: `unit:${unit.id}`, label: unit.name, depth: 0, draft: { role: 'main', target_type: 'unit', org_unit_id: unit.id } });
+    rows.push({
+      key: `unit:${unit.id}`,
+      label: unit.name,
+      depth: 0,
+      draft: { role: 'main', target_type: 'unit', org_unit_id: unit.id },
+    });
     const staffIn = (departmentId: string | null) =>
       unit.staff
         .filter((person) => person.department_id === departmentId)
@@ -147,7 +157,11 @@ function AssignmentTree({
             return (
               <tr key={row.key} className="border-b border-border">
                 <td className="p-2" style={{ paddingLeft: `${0.5 + row.depth * 1.25}rem` }}>
-                  <span className={row.depth === 0 ? 'font-semibold' : row.draft.target_type === 'unit' ? 'font-medium' : ''}>
+                  <span
+                    className={
+                      row.depth === 0 ? 'font-semibold' : row.draft.target_type === 'unit' ? 'font-medium' : ''
+                    }
+                  >
                     {row.label}
                   </span>
                 </td>
@@ -540,13 +554,11 @@ export function DirectiveDetailPanel({ id, onChanged }: { id: string; onChanged?
   return (
     <div className="flex flex-col gap-3" aria-label={`Chi tiết công việc ${task.title}`}>
       {message ? <Alert tone="success">{message}</Alert> : null}
-      {[cancel.error, recurrence.error, upload.error, removeFile.error]
-        .filter(Boolean)
-        .map((error, index) => (
-          <Alert key={index} tone="danger">
-            {messageOf(error)}
-          </Alert>
-        ))}
+      {[cancel.error, recurrence.error, upload.error, removeFile.error].filter(Boolean).map((error, index) => (
+        <Alert key={index} tone="danger">
+          {messageOf(error)}
+        </Alert>
+      ))}
       <dl className="grid grid-cols-1 gap-x-4 gap-y-1 text-content md:grid-cols-[12rem_minmax(0,1fr)]">
         <dt className="font-medium">Nội dung nhiệm vụ</dt>
         <dd className="whitespace-pre-wrap">{task.description}</dd>
@@ -628,7 +640,8 @@ export function DirectiveDetailPanel({ id, onChanged }: { id: string; onChanged?
                 </td>
                 <td className="p-2">{formatDate(assignment.start_date)}</td>
                 <td className="p-2">
-                  {formatDate(assignment.due_date)} {assignment.overdue ? <StatusBadge tone="danger" label="Quá hạn" /> : null}
+                  {formatDate(assignment.due_date)}{' '}
+                  {assignment.overdue ? <StatusBadge tone="danger" label="Quá hạn" /> : null}
                 </td>
                 <td className="p-2">
                   <StatusBadge
@@ -642,7 +655,9 @@ export function DirectiveDetailPanel({ id, onChanged }: { id: string; onChanged?
                 <td className="p-2">
                   {assignment.result_note ?? ''}
                   {assignment.approval_note ? (
-                    <span className="block text-label text-text-secondary">Ý kiến duyệt: {assignment.approval_note}</span>
+                    <span className="block text-label text-text-secondary">
+                      Ý kiến duyệt: {assignment.approval_note}
+                    </span>
                   ) : null}
                 </td>
                 <td className="p-2">
@@ -698,7 +713,11 @@ export function DirectiveDetailPanel({ id, onChanged }: { id: string; onChanged?
             <>
               <label className="text-label font-medium text-text">
                 Lý do hủy việc
-                <input className={selectClass} value={cancelReason} onChange={(event) => setCancelReason(event.target.value)} />
+                <input
+                  className={selectClass}
+                  value={cancelReason}
+                  onChange={(event) => setCancelReason(event.target.value)}
+                />
               </label>
               <Button variant="primary" disabled={cancel.isPending} onClick={() => cancel.mutate()}>
                 Xác nhận hủy việc
@@ -733,7 +752,11 @@ const INBOX_COLUMNS: Array<DataGridColumn<InboxItem>> = [
     ),
   },
   { id: 'role', header: 'Vai', cell: (row) => DIRECTIVE_ROLE_LABELS[row.role] },
-  { id: 'target', header: 'Loại', cell: (row) => (row.target_type === 'staff' ? 'Việc cho cá nhân' : 'Việc cho đơn vị') },
+  {
+    id: 'target',
+    header: 'Loại',
+    cell: (row) => (row.target_type === 'staff' ? 'Việc cho cá nhân' : 'Việc cho đơn vị'),
+  },
   { id: 'handler', header: 'Người, đơn vị xử lý', hiddenByDefault: true, cell: (row) => handlerName(row) },
   { id: 'assigner_name', header: 'Người giao việc', cell: (row) => row.leader_name ?? row.assigner_name },
   { id: 'priority', header: 'Mức độ', cell: (row) => DIRECTIVE_PRIORITY_LABELS[row.priority] },
@@ -857,7 +880,9 @@ const OUTBOX_COLUMNS: Array<DataGridColumn<OutboxItem>> = [
       <span className="flex flex-wrap items-center gap-1">
         {row.overdue ? <span className="text-label font-semibold text-danger">[QH]</span> : null}
         <span className="font-medium">{row.title}</span>
-        {row.pending_approval > 0 ? <StatusBadge tone="warning" label={`${row.pending_approval} chờ phê duyệt`} /> : null}
+        {row.pending_approval > 0 ? (
+          <StatusBadge tone="warning" label={`${row.pending_approval} chờ phê duyệt`} />
+        ) : null}
       </span>
     ),
   },
@@ -978,7 +1003,8 @@ export function DocumentTaskLinks({
           {tasks.data.map((task) => (
             <li key={task.id}>
               Công việc: <span className="font-medium">{task.title}</span> – {task.assigner_name}, hạn{' '}
-              {formatDate(task.due_date)} ({TASK_STATUS_LABELS[task.status as keyof typeof TASK_STATUS_LABELS] ?? task.status})
+              {formatDate(task.due_date)} (
+              {TASK_STATUS_LABELS[task.status as keyof typeof TASK_STATUS_LABELS] ?? task.status})
             </li>
           ))}
         </ul>

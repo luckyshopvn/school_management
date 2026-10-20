@@ -48,7 +48,15 @@ const EVENT_LABELS: Record<string, string> = {
   archive: 'Tiếp nhận lưu trữ',
 };
 
-function WorkFileForm({ file, onSaved, onCancel }: { file?: WorkFile; onSaved(file: WorkFileDetail): void; onCancel(): void }) {
+function WorkFileForm({
+  file,
+  onSaved,
+  onCancel,
+}: {
+  file?: WorkFile;
+  onSaved(file: WorkFileDetail): void;
+  onCancel(): void;
+}) {
   const units = useArchiveUnits(PERMISSION_CODES.workFileUse);
   const [values, setValues] = useState({
     code: file?.code ?? '',
@@ -94,7 +102,11 @@ function WorkFileForm({ file, onSaved, onCancel }: { file?: WorkFile; onSaved(fi
         {input('year', 'Năm hình thành')}
         {input('description', 'Mô tả')}
         <FormRow label="Đơn vị" error={errors.org_unit_id}>
-          <select className={FORM_CONTROL_CLASS} value={values.org_unit_id} onChange={(event) => set('org_unit_id', event.target.value)}>
+          <select
+            className={FORM_CONTROL_CLASS}
+            value={values.org_unit_id}
+            onChange={(event) => set('org_unit_id', event.target.value)}
+          >
             <option value="">Toàn trường</option>
             {units.units.map((unit) => (
               <option key={unit.id} value={unit.id}>
@@ -104,7 +116,11 @@ function WorkFileForm({ file, onSaved, onCancel }: { file?: WorkFile; onSaved(fi
           </select>
         </FormRow>
         <FormRow label="Thời hạn bảo quản" error={errors.retention}>
-          <select className={FORM_CONTROL_CLASS} value={values.retention} onChange={(event) => set('retention', event.target.value)}>
+          <select
+            className={FORM_CONTROL_CLASS}
+            value={values.retention}
+            onChange={(event) => set('retention', event.target.value)}
+          >
             <option value="limited">Có thời hạn</option>
             <option value="permanent">Vĩnh viễn</option>
           </select>
@@ -194,7 +210,9 @@ function WorkFileDetailPanel({ id, onChanged }: { id: string; onChanged(message:
     <div className="flex flex-col gap-3" aria-label={`Chi tiết hồ sơ ${file.code}`}>
       {action.error ? <Alert tone="danger">{messageOf(action.error)}</Alert> : null}
       {removeItem.error ? <Alert tone="danger">{messageOf(removeItem.error)}</Alert> : null}
-      {file.return_note && file.status === 'returned' ? <Alert tone="warning">Lý do trả về: {file.return_note}</Alert> : null}
+      {file.return_note && file.status === 'returned' ? (
+        <Alert tone="warning">Lý do trả về: {file.return_note}</Alert>
+      ) : null}
       <dl className="grid grid-cols-1 gap-x-4 gap-y-1 text-content md:grid-cols-[12rem_minmax(0,1fr)]">
         <dt className="font-medium">Người lập hồ sơ</dt>
         <dd>{file.owner_name}</dd>
@@ -393,7 +411,13 @@ function columnsOf(box: WorkFileBox): Array<DataGridColumn<WorkFile>> {
       ? [{ id: 'from', header: 'Chuyển giao từ', cell: (row: WorkFile) => row.transferred_from_name ?? '' }]
       : []),
     ...(box === 'shared'
-      ? [{ id: 'permission', header: 'Quyền', cell: (row: WorkFile) => (row.share_permission === 'edit' ? 'Cập nhật' : 'Xem') }]
+      ? [
+          {
+            id: 'permission',
+            header: 'Quyền',
+            cell: (row: WorkFile) => (row.share_permission === 'edit' ? 'Cập nhật' : 'Xem'),
+          },
+        ]
       : []),
     { id: 'item_count', header: 'Số thành phần', cell: (row) => row.item_count ?? 0 },
     {
@@ -403,14 +427,23 @@ function columnsOf(box: WorkFileBox): Array<DataGridColumn<WorkFile>> {
     },
     ...(box === 'archive' || box === 'expired'
       ? [
-          { id: 'archive_record_code', header: 'Hồ sơ lưu trữ', cell: (row: WorkFile) => row.archive_record_code ?? '' },
+          {
+            id: 'archive_record_code',
+            header: 'Hồ sơ lưu trữ',
+            cell: (row: WorkFile) => row.archive_record_code ?? '',
+          },
           { id: 'expiry_year', header: 'Năm hết hạn', cell: (row: WorkFile) => row.expiry_year ?? '' },
         ]
       : []),
     {
       id: 'status',
       header: 'Trạng thái',
-      cell: (row) => <StatusBadge tone={row.status === 'returned' ? 'warning' : 'info'} label={WORK_FILE_STATUS_LABELS[row.status]} />,
+      cell: (row) => (
+        <StatusBadge
+          tone={row.status === 'returned' ? 'warning' : 'info'}
+          label={WORK_FILE_STATUS_LABELS[row.status]}
+        />
+      ),
     },
   ];
 }
@@ -424,7 +457,10 @@ function WorkFileList({ box, path, label }: { box: WorkFileBox; path: PortalQuic
   const [creating, setCreating] = useState(false);
   const [activeId, setActiveId] = useState<string>();
   const [deleting, setDeleting] = useState<WorkFile>();
-  const files = useQuery({ queryKey: ['work-files', box, year, search], queryFn: () => listWorkFiles(box, { year, q: search }) });
+  const files = useQuery({
+    queryKey: ['work-files', box, year, search],
+    queryFn: () => listWorkFiles(box, { year, q: search }),
+  });
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['work-files'] });
   const remove = useMutation({
     mutationFn: (file: WorkFile) => deleteWorkFile(file.id),
@@ -439,7 +475,12 @@ function WorkFileList({ box, path, label }: { box: WorkFileBox; path: PortalQuic
     <Page path={path} toast={toast} onToastClose={close}>
       <label className="max-w-xs text-label font-medium text-text">
         Năm
-        <input className={selectClass} inputMode="numeric" value={year} onChange={(event) => setYear(event.target.value)} />
+        <input
+          className={selectClass}
+          inputMode="numeric"
+          value={year}
+          onChange={(event) => setYear(event.target.value)}
+        />
       </label>
       {files.error ? <Alert tone="danger">{messageOf(files.error)}</Alert> : null}
       {remove.error ? <Alert tone="danger">{messageOf(remove.error)}</Alert> : null}
@@ -506,23 +547,21 @@ function WorkFileList({ box, path, label }: { box: WorkFileBox; path: PortalQuic
 }
 
 export const PersonalWorkFilesPage = () => <WorkFileList box="personal" path="/work-files" label="Hồ sơ cá nhân" />;
-export const SharedWorkFilesPage = () => <WorkFileList box="shared" path="/work-files/shared" label="Hồ sơ được chia sẻ" />;
+export const SharedWorkFilesPage = () => (
+  <WorkFileList box="shared" path="/work-files/shared" label="Hồ sơ được chia sẻ" />
+);
 export const TransferredWorkFilesPage = () => (
   <WorkFileList box="transferred" path="/work-files/transferred" label="Hồ sơ được chuyển giao" />
 );
-export const ArchiveWorkFilesPage = () => <WorkFileList box="archive" path="/work-files/archive" label="Hồ sơ nộp lưu" />;
+export const ArchiveWorkFilesPage = () => (
+  <WorkFileList box="archive" path="/work-files/archive" label="Hồ sơ nộp lưu" />
+);
 export const ExpiredWorkFilesPage = () => (
   <WorkFileList box="expired" path="/work-files/expired" label="Hồ sơ hết hạn bảo quản" />
 );
 
 // Lưu văn bản đến hoặc công việc vào một hồ sơ công việc đang cập nhật của mình (hoặc được chia sẻ quyền cập nhật)
-export function SaveToWorkFile({
-  itemType,
-  itemId,
-}: {
-  itemType: 'incoming_document' | 'task';
-  itemId: string;
-}) {
+export function SaveToWorkFile({ itemType, itemId }: { itemType: 'incoming_document' | 'task'; itemId: string }) {
   const [open, setOpen] = useState(false);
   const [fileId, setFileId] = useState('');
   const files = useQuery({

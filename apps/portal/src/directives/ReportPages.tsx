@@ -75,7 +75,10 @@ function ReportPage<Result>({
   });
   const [filter, setFilter] = useState<ReportFilter>(draft);
   const [exportError, setExportError] = useState<string>();
-  const report = useQuery({ queryKey: ['document-report', kind, filter], queryFn: () => readReport<Result>(kind, filter) });
+  const report = useQuery({
+    queryKey: ['document-report', kind, filter],
+    queryFn: () => readReport<Result>(kind, filter),
+  });
   const download = (format: 'xlsx' | 'pdf') => {
     setExportError(undefined);
     exportReport(kind, filter, format).catch((error: unknown) => setExportError(messageOf(error)));
@@ -90,7 +93,9 @@ function ReportPage<Result>({
             value={draft.org_unit_id}
             onChange={(event) => setDraft((current) => ({ ...current, org_unit_id: event.target.value }))}
           >
-            <option value="">{units.wholeSchool ? 'Thống kê theo đơn vị độc lập (tất cả)' : 'Các đơn vị được gán'}</option>
+            <option value="">
+              {units.wholeSchool ? 'Thống kê theo đơn vị độc lập (tất cả)' : 'Các đơn vị được gán'}
+            </option>
             {units.units.map((unit) => (
               <option key={unit.id} value={unit.id}>
                 {unit.name}
@@ -127,7 +132,10 @@ function ReportPage<Result>({
         <Button variant="secondary" onClick={() => download('pdf')}>
           Xuất PDF
         </Button>
-        <Button variant="text" onClick={() => setDraft({ ...draft, from: shiftDate(todayText(), -30), to: todayText() })}>
+        <Button
+          variant="text"
+          onClick={() => setDraft({ ...draft, from: shiftDate(todayText(), -30), to: todayText() })}
+        >
           30 ngày gần đây
         </Button>
       </div>
@@ -155,7 +163,10 @@ export function IncomingReportPage() {
             ['open_late', 'Đang xử lý quá hạn'],
             ['on_time_rate', 'Tỷ lệ đúng hạn (%)'],
           ]}
-          rows={[...report.rows, ...(report.rows.length ? [{ org_unit_name: 'Tổng cộng', handler_name: '', ...report.totals }] : [])]}
+          rows={[
+            ...report.rows,
+            ...(report.rows.length ? [{ org_unit_name: 'Tổng cộng', handler_name: '', ...report.totals }] : []),
+          ]}
         />
       )}
     />
