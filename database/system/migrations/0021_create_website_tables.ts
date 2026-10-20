@@ -50,10 +50,7 @@ export const migration: Migration = {
         'website_files_purpose_check',
         sql`purpose in ('cover', 'attachment', 'photo', 'logo', 'banner')`,
       )
-      .addCheckConstraint(
-        'website_files_owner_id_check',
-        sql`(owner_type = 'settings') = (owner_id is null)`,
-      )
+      .addCheckConstraint('website_files_owner_id_check', sql`(owner_type = 'settings') = (owner_id is null)`)
       .execute();
     await database.schema
       .createIndex('website_files_owner_index')
@@ -139,9 +136,7 @@ export const migration: Migration = {
       .addColumn('id', 'uuid', (column) => column.primaryKey().defaultTo(sql`gen_random_uuid()`))
       .addColumn('kind', 'text', (column) => column.notNull())
       .addColumn('page_key', 'text', (column) => column.unique())
-      .addColumn('disclosure_category', 'text', (column) =>
-        column.references('website_disclosure_categories.code'),
-      )
+      .addColumn('disclosure_category', 'text', (column) => column.references('website_disclosure_categories.code'))
       .addColumn('disclosure_year', 'text')
       .addColumn('slug', 'text', (column) => column.notNull().unique())
       .addColumn('title', 'text', (column) => column.notNull())
@@ -165,10 +160,7 @@ export const migration: Migration = {
       .addColumn('updated_by_name', 'text')
       .addColumn('created_at', 'timestamptz', (column) => column.notNull().defaultTo(sql`now()`))
       .addColumn('updated_at', 'timestamptz', (column) => column.notNull().defaultTo(sql`now()`))
-      .addCheckConstraint(
-        'website_posts_kind_check',
-        sql`kind in ('news', 'announcement', 'page', 'disclosure')`,
-      )
+      .addCheckConstraint('website_posts_kind_check', sql`kind in ('news', 'announcement', 'page', 'disclosure')`)
       .addCheckConstraint('website_posts_status_check', CONTENT_STATUS)
       .addCheckConstraint('website_posts_page_check', sql`(kind = 'page') = (page_key is not null)`)
       .addCheckConstraint(
