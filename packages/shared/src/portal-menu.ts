@@ -232,6 +232,13 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('2.4.', 'Danh mục văn bản', '/document-catalogs'),
         leaf('2.5.', 'Lãnh đạo nhận văn bản', '/document-leaders'),
       ]),
+      // Văn bản đi (phần 18b): Dự thảo, Chờ xử lý, Đã xử lý, Đã ban hành như menu Quản lý văn bản đi của iOffice
+      group('3.', 'Văn bản đi', [
+        leaf('3.1.', 'Văn bản đi', '/outgoing-documents'),
+        leaf('3.2.', 'Quản lý văn bản đi', '/outgoing-documents/manage'),
+        leaf('3.3.', 'Liên thông văn bản đi', '/outgoing-documents/interconnect'),
+        leaf('3.4.', 'Tra cứu văn bản đi', '/outgoing-documents/search'),
+      ]),
     ],
   },
   {

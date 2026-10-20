@@ -21,6 +21,13 @@ const ACCOUNTS = anyOf('P01.account.manage', 'P01.account.manage-in-unit');
 const FINAL_YEAR = anyOf('P02.final-year.view', 'P02.final-year.manage', 'P02.final-year.approve');
 const ENTRY_INTAKE = anyOf('P02.entry-intake.view', 'P02.entry-intake.manage', 'P02.entry-intake.transfer');
 const INCOMING = anyOf('P09.incoming-document.view', 'P09.incoming-document.register', 'P09.incoming-document.search');
+// Văn bản đi (DT-18 phần 18b)
+const OUTGOING = anyOf(
+  'P09.outgoing-document.draft',
+  'P09.outgoing-document.sign',
+  'P09.outgoing-document.issue',
+  'P09.outgoing-document.search',
+);
 // Phân hệ KPI (DT-18 phần 18d)
 const KPI_ANY = anyOf('P09.kpi.participate', 'P09.kpi.manage', 'P09.kpi.advise', 'P09.kpi.configure');
 // Điều kiện của nhóm "Trẻ và lớp" cũ
@@ -148,7 +155,11 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/incoming-documents/followed': INCOMING,
   '/incoming-documents/search': anyOf('P09.incoming-document.search', 'P09.incoming-document.register'),
   '/incoming-documents/interconnect': 'P09.incoming-document.register',
-  '/document-books': anyOf('P09.incoming-document.admin', 'P09.incoming-document.register'),
+  '/document-books': anyOf(
+    'P09.incoming-document.admin',
+    'P09.incoming-document.register',
+    'P09.outgoing-document.issue',
+  ),
   '/external-units': 'P09.incoming-document.admin',
   '/external-unit-groups': 'P09.incoming-document.admin',
   '/document-catalogs': 'P09.incoming-document.admin',
@@ -166,6 +177,12 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/kpi/advisory': 'P09.kpi.advise',
   '/kpi/voting': 'P09.kpi.vote',
   '/kpi/reports': KPI_ANY,
+  // Văn bản đi theo VNPT iOffice (DT-18 phần 18b): danh sách của mình cho mọi người có một quyền văn bản đi; quản lý văn bản
+  // đi, liên thông cho văn thư; tra cứu cho người có quyền tra cứu hoặc văn thư
+  '/outgoing-documents': OUTGOING,
+  '/outgoing-documents/manage': 'P09.outgoing-document.issue',
+  '/outgoing-documents/interconnect': 'P09.outgoing-document.issue',
+  '/outgoing-documents/search': anyOf('P09.outgoing-document.search', 'P09.outgoing-document.issue'),
   '/emis/facilities': 'P17.report.emis',
   '/emis/health': 'P17.report.emis',
   '/emis/end-of-year': 'P17.report.emis',
