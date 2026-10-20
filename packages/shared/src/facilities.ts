@@ -443,5 +443,5 @@ export function equipmentQrCodeOf(scanned: string): string | null {
     return text;
   }
   const match = /(?:[?&]MA=|\/)(TB-[0-9A-HJKMNP-TV-Z]{10})(?:$|[?&#/])/.exec(text);
-  return match ? match[1] : null;
+  return match?.[1] ?? null;
 }

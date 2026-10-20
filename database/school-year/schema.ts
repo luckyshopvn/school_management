@@ -3261,7 +3261,7 @@ export interface EquipmentItemsTable {
   status: Generated<'active' | 'inactive'>;
   note: string | null;
   // Cấp học của danh mục, mã danh mục mẫu đã nạp dòng này (DT-18 phần 18g)
-  school_level: Generated<EquipmentSchoolLevelCode>;
+  school_level: Generated<'MN' | 'TH' | 'THCS' | 'THPT'>;
   template_code: ColumnType<string | null, string | null | undefined, string | null>;
   created_by: string | null;
   created_at: CreatedTimestamp;
@@ -3285,7 +3285,6 @@ export interface EquipmentHoldingsTable {
 }
 
 // Nơi để, kiểm kê thiết bị (DT-18 phần 18g, YCTD-143)
-export type EquipmentSchoolLevelCode = 'MN' | 'TH' | 'THCS' | 'THPT';
 type EquipmentNullable = ColumnType<string | null, string | null | undefined, string | null>;
 
 export interface EquipmentLocationsTable {
@@ -3303,8 +3302,6 @@ export interface EquipmentLocationsTable {
   updated_at: UpdatedTimestamp;
 }
 
-export type EquipmentStocktakeStatusCode = 'counting' | 'submitted' | 'approved' | 'closed' | 'cancelled';
-
 export interface EquipmentStocktakesTable {
   id: Generated<string>;
   code: string;
@@ -3314,7 +3311,7 @@ export interface EquipmentStocktakesTable {
   started_on: string;
   members: EquipmentNullable;
   note: EquipmentNullable;
-  status: Generated<EquipmentStocktakeStatusCode>;
+  status: Generated<'counting' | 'submitted' | 'approved' | 'closed' | 'cancelled'>;
   return_note: EquipmentNullable;
   created_by: string;
   submitted_by: EquipmentNullable;

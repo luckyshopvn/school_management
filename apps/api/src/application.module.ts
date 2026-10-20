@@ -127,6 +127,9 @@ import { EmisReportController, EmisReportService } from './facilities/emis-repor
 import { EmisForms, EmisFormsController } from './emis/emis-forms.js';
 import { EmisSending, EmisSendingController } from './emis/emis-sending.js';
 import { EquipmentController, EquipmentService } from './facilities/equipment.js';
+import { EquipmentLocationsController, EquipmentLocationsService } from './facilities/equipment-locations.js';
+import { EquipmentMinimumController, EquipmentMinimumService } from './facilities/equipment-minimum.js';
+import { EquipmentStocktakesController, EquipmentStocktakesService } from './facilities/equipment-stocktakes.js';
 import { FacilitiesData } from './facilities/facilities-data.js';
 import { facilitiesTransitionStep } from './facilities/facilities-transition.js';
 import { FacilityRoomsController, FacilityRoomsService } from './facilities/facility-rooms.js';
@@ -376,6 +379,9 @@ export class ApplicationModule {
         KpiReportsController,
         KpiLegacyImportController,
         EquipmentController,
+        EquipmentLocationsController,
+        EquipmentStocktakesController,
+        EquipmentMinimumController,
         SchoolProfileController,
         AccreditationReviewController,
         SchoolSplitsController,
@@ -566,6 +572,9 @@ export class ApplicationModule {
         FacilityImportsService,
         EquipmentSubmissionForm,
         EquipmentService,
+        EquipmentLocationsService,
+        EquipmentStocktakesService,
+        EquipmentMinimumService,
         SchoolProfileService,
         AccreditationReviewService,
         SchoolSplitsService,
