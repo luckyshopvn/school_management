@@ -16,6 +16,7 @@ import { migration as addArchiveUnitsHandlersReminders } from './migrations/0016
 import { migration as adjustSigningToSoTemplates } from './migrations/0017_adjust_signing_to_so_templates.js';
 import { migration as createIncomingDocumentTables } from './migrations/0018_create_incoming_document_tables.js';
 import { migration as createOutgoingDocumentTables } from './migrations/0019_create_outgoing_document_tables.js';
+import { migration as createUnitSchedulesAndWorkFiles } from './migrations/0020_create_unit_schedules_and_work_files.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu hệ thống, theo số thứ tự (QU-01, QĐ-17)
 export const systemMigrations: Record<string, Migration> = {
@@ -36,4 +37,5 @@ export const systemMigrations: Record<string, Migration> = {
   '0017_adjust_signing_to_so_templates': adjustSigningToSoTemplates,
   '0018_create_incoming_document_tables': createIncomingDocumentTables,
   '0019_create_outgoing_document_tables': createOutgoingDocumentTables,
+  '0020_create_unit_schedules_and_work_files': createUnitSchedulesAndWorkFiles,
 };

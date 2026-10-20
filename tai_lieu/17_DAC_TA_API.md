@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.87
+- Phiên bản: 1.88
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -1304,6 +1304,14 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | POST | /api/v1/incoming-documents/{id}/extension, /extension/decide | Xin gia hạn; đồng ý hoặc không (YCTD-138) |
 | POST | /api/v1/incoming-documents/{id}/complete, /restrict, /reply, /unread | Kết thúc; hạn chế xem; văn bản trả lời; đánh dấu chưa đọc (YCTD-138) |
 | GET | /api/v1/incoming-documents/{id}/slips/{type} | Phiếu trình (`submission`), phiếu xử lý (`processing`), phiếu giao nhận (`handover`) PDF (YCTD-138) |
+| GET | /api/v1/incoming-documents/{id}/tasks | Việc tạo từ văn bản (P09-24, YCTD-141) |
+| GET, POST, PATCH | /api/v1/task-directives, /task-directives/options, /task-directives/{id} | Giao việc theo cây đơn vị; công việc cần xử lý (`box=inbox`), đã giao (`box=outbox`); chi tiết; sửa (P09-24, YCTD-141) |
+| POST | /api/v1/task-directives/{id}/cancel, /assignments, /assignments/{aid}/progress, /approve, /revoke | Hủy việc; phân công thêm hoặc tiếp; cập nhật tiến độ; phê duyệt; thu hồi (P09-24, YCTD-141) |
+| POST, GET, DELETE | /api/v1/task-directives/{id}/files, /files/{fileId} | Tệp đính kèm của việc (YCTD-141) |
+| GET, POST, PUT, DELETE | /api/v1/meeting-rooms, /room-bookings, /room-bookings/{id}/approve, /reject, /cancel | Phòng họp, đăng ký sử dụng (P09-25, YCTD-141) |
+| GET, POST, PUT, DELETE | /api/v1/unit-schedules, /unit-schedules/publish, /unit-schedules/export, /unit-schedule-templates, /unit-schedule-templates/{id}/apply | Lịch đơn vị, công bố, xuất, mẫu lịch (P09-25, YCTD-141) |
+| GET, POST, PUT, DELETE | /api/v1/work-files, /work-files/{id}, /items, /shares, /transfer, /close, /reopen, /submit, /accept, /return | Hồ sơ công việc, nộp lưu (P09-26, YCTD-141) |
+| GET | /api/v1/document-reports/incoming, /summary, /statistics, /export | Báo cáo (P09-27, YCTD-141) |
 | GET | /api/v1/outgoing-documents | Danh sách văn bản đi theo `view` (`drafts`, `pending`, `processed`, `to_issue`, `issued`, `search`), lọc, phân trang (YCTD-140) |
 | GET | /api/v1/outgoing-documents/recipients | Đơn vị nhận của văn bản đã ban hành theo `status` (`pending`, `sent`, `delivered`, `all`) |
 | GET | /api/v1/outgoing-documents/next-number | Số đi kế tiếp của sổ văn bản đi (`book_id`) |
@@ -1327,6 +1335,15 @@ Giao kèo văn bản đến theo VNPT iOffice (DT-18 phần 18a, YCTD-138, BR-13
 5. Thao tác hàng loạt `complete`, `archive` (thêm `archive_record_id` của hồ sơ tài liệu 5.10.1) nhận `ids` (1 đến 200), trả mỗi văn bản `id`, `ok`, `message`; văn bản không làm được không chặn văn bản khác. `flags` nhận `ids` và `starred` hoặc `followed`.
 6. Tệp: PDF, JPEG, PNG, Word, Excel theo chữ ký tệp, tối đa 50 MB, tối đa 30 tệp mỗi văn bản; `kind` `main` hoặc `related`, `scanned` là `true` khi quét. Người tải lên hoặc văn thư xóa tệp khi văn bản chưa kết thúc. Phiếu PDF khổ dọc, tên tệp `phieu-trinh-…`, `phieu-xu-ly-…`, `phieu-giao-nhan-…`. Sổ đăng ký trả `book`, `items` (cột của iOffice; văn bản hạn chế xem che trích yếu); tệp Excel `so-van-ban-den-<năm>-….xlsx` ghi `export_logs` mã `incoming_document_register`.
 7. Người nhận được chuyển nhận thông báo trong ứng dụng (mẫu `incoming_document`); trả lại, từ chối, xử lý xong, xin gia hạn báo người chuyển; kết quả gia hạn báo người xin. `PORTAL_QUICK_LINK_PATHS` thêm 12 đường dẫn của phân hệ `documents`; `DATA_GRID_KEYS` thêm `incoming-documents`, `incoming-manage`, `incoming-interconnect`, `incoming-register`, `document-books`, `external-units`, `external-unit-groups`, `document-catalogs`.
+
+Giao kèo giao việc, lịch, hồ sơ công việc, báo cáo theo VNPT iOffice (DT-18 phần 18c, YCTD-141, BR-137; việc ở cơ sở dữ liệu năm học, lịch, phòng họp, hồ sơ ở cơ sở dữ liệu hệ thống):
+
+1. `POST /task-directives` nhận `content` (bắt buộc), `leader_user_id`, `priority` (`low`, `normal`, `high`), `start_date`, `duration_days`, `remind_assigner`, `recurrence` (`none`, `daily`, `weekly`, `monthly`), `source_document_id`, `related_documents`, `assignments` (1 đến 100 dòng `role` `main`, `coordinate`, `follow`; `target_type` `unit` kèm `org_unit_id`, `department_id` hoặc `staff` kèm `staff_id`; `start_date`, `due_date`). Lỗi theo dòng trả `assignments[i].<trường>`. Cần `P09.task.direct` ở đơn vị của mọi dòng.
+2. `GET /task-directives` nhận `box` (`inbox` mặc định, `outbox`), `status` (`open`, `open_on_time`, `open_overdue`, `done`, `done_on_time`, `done_late`, `pending_approval`, `approved`, `approved_not_done`, `approved_done`), `role`, `target`, `q`, `source_document_id`, `page`, `page_size`. Chi tiết trả `assignments` kèm `can_update`, `can_delegate`, `can_approve`, `can_revoke`; người không liên quan nhận 404.
+3. `/assignments/{aid}/progress` nhận `progress_percent` (0 đến 100), `content`; `/approve` nhận `result` (`done`, `not_done`), `note`; `/assignments` nhận `assignments` và `parent_id` (phân công tiếp); `/cancel` nhận `reason` bắt buộc.
+4. `POST /room-bookings` nhận `room_id`, `title`, `chair_name`, `participants`, `date`, `start_time`, `end_time` (HH:MM), `note`; trùng giờ trả 422. `POST /unit-schedules`, `PUT /unit-schedules/{id}` nhận `org_unit_id`, `entry_date`, `session`, `start_time`, `end_time`, `content`, `chair_name`, `participants`, `location`, `note`, `room_id` (cần giờ bắt đầu, kết thúc), `attendee_ids`. `GET /unit-schedules` nhận `from`, `to` (tối đa 62 ngày), `org_unit_id`, `view=mine`, `location`, `participant`; `/export` thêm `format` (`xlsx`, `pdf`). `/publish` nhận `from`, `to`, `org_unit_id`. `/unit-schedule-templates/{id}/apply` nhận `week_of`, `org_unit_id`.
+5. `GET /work-files` nhận `box` (`personal`, `shared`, `transferred`, `archive`, `expired`), `year`, `q`. `POST /work-files` nhận `code`, `title`, `year`, `description`, `org_unit_id`, `retention`, `retention_years`; ký hiệu trùng trả 409. `/items` nhận `item_type` và `incoming_document_id`, `task_id` hoặc `title`, `note`. `PUT /shares` nhận `shares` [`user_id`, `permission`]. `/transfer` nhận `user_id`, `note`. `/submit` nhận `retention`, `retention_years` (tùy chọn). `/accept` nhận `code` (mặc định năm và ký hiệu), `fond_id`; `/return` nhận `note` bắt buộc.
+6. `GET /document-reports/{incoming|summary|statistics}` nhận `from`, `to` (bắt buộc, tối đa 400 ngày), `org_unit_id`; `/export` thêm `kind`, `format`, ghi `export_logs` mã `document_report_<kind>`.
 
 Giao kèo văn bản đi theo VNPT iOffice (DT-18 phần 18b, YCTD-140, BR-136; máy chủ API, dữ liệu ở cơ sở dữ liệu hệ thống):
 

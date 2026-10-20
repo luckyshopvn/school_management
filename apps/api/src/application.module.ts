@@ -284,6 +284,12 @@ import { OrgUnitsController } from './organization/org-units.controller.js';
 import { OrgUnitsService } from './organization/org-units.service.js';
 import { WorkAccess } from './work/work-access.js';
 import { TasksController, TasksService } from './work/tasks.js';
+import { DirectiveJobs, DirectivesController, DirectivesService } from './work/directives.js';
+import { UnitSchedulesController } from './unit-schedules/unit-schedules.controller.js';
+import { UnitSchedulesService } from './unit-schedules/unit-schedules.js';
+import { WorkFilesController } from './work-files/work-files.controller.js';
+import { WorkFilesService } from './work-files/work-files.js';
+import { DocumentReportsController, DocumentReportsService } from './document-reports/document-reports.js';
 import { PlansController, PlansService } from './work/plans.js';
 import { EvaluationsController, EvaluationsService } from './work/evaluations.js';
 import { workTransitionStep } from './work/work-transition.js';
@@ -474,6 +480,10 @@ export class ApplicationModule {
         JournalsController,
         CashBooksController,
         TasksController,
+        DirectivesController,
+        UnitSchedulesController,
+        WorkFilesController,
+        DocumentReportsController,
         PlansController,
         EvaluationsController,
         WorkHistoryController,
@@ -772,6 +782,11 @@ export class ApplicationModule {
         ProfessionalStandardsService,
         ProfessionalRatingImports,
         TasksService,
+        DirectivesService,
+        DirectiveJobs,
+        UnitSchedulesService,
+        WorkFilesService,
+        DocumentReportsService,
         PlansService,
         EvaluationsService,
         WorkHistoryService,

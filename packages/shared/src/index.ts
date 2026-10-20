@@ -13,6 +13,7 @@ export * from './entry-admissions.js';
 export * from './incoming-documents.js';
 export * from './kpi.js';
 export * from './outgoing-documents.js';
+export * from './directives.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -205,6 +206,13 @@ export const PERMISSION_CODES = {
   outgoingDocumentSign: 'P09.outgoing-document.sign',
   outgoingDocumentIssue: 'P09.outgoing-document.issue',
   outgoingDocumentSearch: 'P09.outgoing-document.search',
+  // Giao việc, lịch đơn vị, phòng họp, hồ sơ công việc, báo cáo theo VNPT iOffice (DT-18 phần 18c)
+  taskDirect: 'P09.task.direct',
+  scheduleView: 'P09.schedule.view',
+  scheduleManage: 'P09.schedule.manage',
+  meetingRoomManage: 'P09.meeting-room.manage',
+  workFileUse: 'P09.work-file.use',
+  documentReportView: 'P09.document-report.view',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -437,6 +445,23 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/outgoing-documents/manage',
   '/outgoing-documents/interconnect',
   '/outgoing-documents/search',
+  // Giao việc, lịch, hồ sơ công việc, báo cáo theo VNPT iOffice (DT-18 phần 18c)
+  '/directives/new',
+  '/directives/inbox',
+  '/directives/outbox',
+  '/work-files',
+  '/work-files/shared',
+  '/work-files/transferred',
+  '/work-files/archive',
+  '/work-files/expired',
+  '/unit-schedules',
+  '/meeting-schedules',
+  '/room-bookings',
+  '/meeting-rooms',
+  '/schedule-templates',
+  '/document-reports/incoming',
+  '/document-reports/summary',
+  '/document-reports/statistics',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -661,6 +686,16 @@ export const DATA_GRID_KEYS = [
   'outgoing-manage',
   'outgoing-recipients',
   'outgoing-register',
+  // Giao việc, lịch, hồ sơ công việc, báo cáo theo VNPT iOffice (DT-18 phần 18c)
+  'directive-inbox',
+  'directive-outbox',
+  'work-files',
+  'room-bookings',
+  'meeting-rooms',
+  'schedule-templates',
+  'meeting-schedules',
+  'document-report-incoming',
+  'document-report-summary',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

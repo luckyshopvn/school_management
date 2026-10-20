@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.59
+- Phiên bản: 1.60
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -206,6 +206,10 @@
 | P09-21 | Trình ký và ký nội bộ văn bản đi (YCTD-140) | Người soạn; người ký (`P09.outgoing-document.sign`) | Người ký, ý kiến trình; lý do không ký, trả lại | Chờ ký; lấy lại; bản đã ký PDF có khối xác nhận kí nội bộ, ảnh con dấu, mã QR tra cứu (quy trình kí của Quản lý kí hồ sơ); không ký, trả lại về dự thảo; phiếu trình ký PDF |
 | P09-22 | Cấp số, phát hành, liên thông văn bản đi (3.2, 3.3, YCTD-140) | Văn thư (`P09.outgoing-document.issue`) | Sổ văn bản đi, số đi, phần ký hiệu, ngày ban hành, số bản; đơn vị nhận được đánh dấu gửi, ghi chú gửi | Văn bản Đã ban hành có số, số ký hiệu; liên thông nội bộ thành văn bản đến chờ vào sổ của đơn vị nhận; đơn vị bên ngoài Chờ gửi, Đã đánh dấu gửi; public lên cổng TTĐT, ẩn; đóng băng, hủy đóng băng; lưu hồ sơ (hồ sơ tài liệu 5.10.1); văn bản đến được trả lời ghi số ký hiệu |
 | P09-23 | Danh sách, tra cứu, sổ văn bản đi, tra cứu mã QR (3.1 đến 3.4, 2.1, trang công khai, YCTD-140) | Mọi người có quyền văn bản đi; tra cứu cần `search` hoặc `issue`; sổ cần `issue` hoặc quyền quản trị văn bản; trang tra cứu mã không cần đăng nhập | Tìm theo trích yếu, tìm nâng cao (số ký hiệu, số đi, người ký, ngày ban hành, sổ, hình thức, độ khẩn, đã public); sổ, khoảng ngày ban hành; mã tra cứu | Thẻ Dự thảo, Chờ xử lý, Đã xử lý (3.1), Chờ cấp số, Đã ban hành (3.2); đơn vị nhận theo trạng thái gửi (3.3); sổ đăng ký văn bản đi theo cột Ngày ban hành, Số, Số ký hiệu, Trích yếu, Người ký, Đơn vị soạn thảo, Số bản, Nơi nhận, Hình thức, Độ khẩn, Lĩnh vực, xuất Excel; trang tra cứu hiện số ký hiệu, ngày ban hành, người ký, thời điểm ký, mã băm bản đã ký |
+| P09-24 | Giao việc theo cây đơn vị, công việc cần xử lý, công việc đã giao (YCTD-141) | Giao việc `P09.task.direct`; người được giao, quản lý đơn vị được giao xử lý | Lãnh đạo giao việc, nội dung, mức độ, ngày bắt đầu, số ngày, nhắc việc, văn bản đến, văn bản liên quan, tệp; phân công (vai, đơn vị, phòng ban, cá nhân, ngày); tiến độ, kết quả; phê duyệt | Kiểm tra phạm vi, người nhận, hạn; trạng thái dòng và việc; thông báo; nhắc định kì, nhắc người giao; lịch sử văn bản đến | Danh sách lọc trạng thái, vai, loại; chi tiết việc | BR-137 |
+| P09-25 | Lịch đơn vị, phòng họp, mẫu lịch, lịch họp (YCTD-141) | Đăng ký lịch `P09.schedule.manage`; duyệt phòng `P09.meeting-room.manage`; mọi cán bộ xem, đăng ký phòng | Ngày, buổi, giờ, nội dung, chủ trì, thành phần, địa điểm, phòng họp, người tham dự; phòng, giờ đăng ký; mẫu | Kiểm tra trùng giờ phòng họp, tự duyệt cho người duyệt; công bố, thông báo; áp mẫu | Lịch tuần, tháng, của tôi; Excel, PDF, in | BR-137 |
+| P09-26 | Hồ sơ công việc, nộp lưu (YCTD-141) | Cán bộ `P09.work-file.use`; văn thư lưu trữ `P09.archive.manage` | Số ký hiệu, tiêu đề, năm, đơn vị, thời hạn bảo quản; văn bản đến, công việc, ghi chú; người chia sẻ, quyền; người nhận chuyển giao | Kiểm tra quyền xem thành phần; trạng thái; tạo hồ sơ tài liệu 5.10 khi tiếp nhận | Hồ sơ cá nhân, được chia sẻ, được chuyển giao, nộp lưu, hết hạn bảo quản | BR-137 |
+| P09-27 | Báo cáo thực hiện văn bản đến, tổng hợp, thống kê (YCTD-141) | VT-02, VT-15, VT-06; VT-03 trong đơn vị (`P09.document-report.view`) | Đơn vị, từ ngày, đến ngày, định dạng | Nhóm theo hạn của dòng xử lý chính, theo đơn vị của hồ sơ nhân sự; ghi nhật ký xuất | Bảng, Excel, PDF | BR-137 |
 
 ## 11. Phân hệ P10 — Y tế học đường
 
