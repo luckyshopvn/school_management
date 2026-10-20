@@ -85,7 +85,7 @@ interface DocumentRow {
   summary: string;
   symbol: string;
   arrival_number: number | null;
-  source: 'manual' | 'interconnect';
+  source: 'manual' | 'interconnect' | 'internal';
   interconnect_status: 'received' | 'acknowledged' | null;
 }
 

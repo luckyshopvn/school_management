@@ -444,14 +444,26 @@ export class DocumentAdminService {
     let query = this.system
       .selectFrom('document_books')
       .selectAll('document_books')
-      .select((expression) => [
-        sql<number>`(select count(*)::int from incoming_documents where book_id = ${expression.ref('document_books.id')})`.as(
-          'document_count',
-        ),
-        sql<number>`greatest(${expression.ref('document_books.start_number')},
-          coalesce((select max(arrival_number) + 1 from incoming_documents
-            where book_id = ${expression.ref('document_books.id')}), 0))`.as('next_number'),
-      ])
+      .select((expression) =>
+        // Sổ đến đếm văn bản đến theo số đến; sổ đi (phần 18b) đếm văn bản đi theo số đi
+        direction === 'incoming'
+          ? [
+              sql<number>`(select count(*)::int from incoming_documents where book_id = ${expression.ref('document_books.id')})`.as(
+                'document_count',
+              ),
+              sql<number>`greatest(${expression.ref('document_books.start_number')},
+                coalesce((select max(arrival_number) + 1 from incoming_documents
+                  where book_id = ${expression.ref('document_books.id')}), 0))`.as('next_number'),
+            ]
+          : [
+              sql<number>`(select count(*)::int from outgoing_documents where book_id = ${expression.ref('document_books.id')})`.as(
+                'document_count',
+              ),
+              sql<number>`greatest(${expression.ref('document_books.start_number')},
+                coalesce((select max(issue_number) + 1 from outgoing_documents
+                  where book_id = ${expression.ref('document_books.id')}), 0))`.as('next_number'),
+            ],
+      )
       .where('direction', '=', direction);
     if (year) {
       query = query.where('year', '=', year);
@@ -599,7 +611,13 @@ export class DocumentAdminService {
       .where('book_id', '=', id)
       .limit(1)
       .executeTakeFirst();
-    if (used) {
+    const issued = await this.system
+      .selectFrom('outgoing_documents')
+      .select('id')
+      .where('book_id', '=', id)
+      .limit(1)
+      .executeTakeFirst();
+    if (used || issued) {
       throw ruleViolationError(INCOMING_RULE_CODE, 'Sổ đã có văn bản vào sổ, không xóa được');
     }
     const result = await this.system.deleteFrom('document_books').where('id', '=', id).executeTakeFirst();
