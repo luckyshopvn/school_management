@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường.
-- Phiên bản: 1.19
+- Phiên bản: 1.20
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -367,7 +367,7 @@ Thứ tự gộp để đánh số tài liệu (phiên bản, CT, AC, BR, MH) kh
 
 | Phần | Đợt | Tiến độ |
 |---|---|---|
-| 18a | 1 | Chưa làm |
+| 18a | 1 | Đã triển khai (YCTD-138, PR 116, phiên bản 0.89.0): phân hệ Quản lý văn bản và điều hành; sổ văn bản đến, vào sổ theo biểu mẫu iOffice, luồng xử lý đủ nút, hạn chế xem, đánh dấu, theo dõi, phiếu trình, phiếu xử lý, phiếu giao nhận, sổ đăng ký; đơn vị bên ngoài, nhóm đơn vị ban hành, danh mục văn bản, lãnh đạo nhận văn bản; liên thông bản chạy nội bộ (chỗ nối `DocumentExchange`); hàm tạo tên khóa chung `storageKey`, `cacheKey`. Tạo việc từ văn bản chờ 18c; văn bản trả lời nối sổ văn bản đi khi 18b gộp |
 | 18d | 1 | Chưa làm |
 | 18b | 2 | Chưa làm, chờ 18a |
 | 18c | 2 | Chưa làm, chờ 18a |

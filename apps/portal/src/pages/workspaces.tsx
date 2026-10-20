@@ -26,6 +26,7 @@ export const WORKSPACE_ICONS: Record<WorkspaceKey, IconName> = {
   'entry-admissions': 'school',
   emis: 'chart',
   signing: 'sign',
+  documents: 'report',
   system: 'gear',
   finance: 'coins',
   personnel: 'people',

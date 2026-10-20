@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.14
+- Phiên bản: 0.15
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,37 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-138: DT-18 phần 18a: Văn bản đến theo VNPT iOffice – 2026-10-20
+
+- Lý do: kế hoạch DT-18 (`32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9, YCTD-137). Ngày 2026-10-19 Eric quyết định sổ văn bản đến, đi, giao việc, lịch, hồ sơ công việc làm theo hệ thống quản lý văn bản và điều hành VNPT iOffice mà các trường công lập TP.HCM đang dùng. Phần 18a làm văn bản đến theo khảo sát iOffice ngày 2026-10-19 (menu, danh sách, biểu mẫu THÔNG TIN VĂN BẢN ĐẾN, sổ văn bản; ghi chép ngoài kho, không có nội dung văn bản hay tên người).
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, trừ các điểm ghi là quyết định của Eric):
+  - Phân hệ mới "Quản lý văn bản và điều hành" (khóa `documents`): 1. Văn bản đến (1.1 Văn bản đến, 1.2 Quản lý văn bản đến, 1.3 Văn bản xem để biết, 1.4 Văn bản đánh dấu, 1.5 Văn bản theo dõi, 1.6 Tra cứu văn bản, 1.7 Liên thông văn bản), 2. Quản trị văn bản (2.1 Sổ văn bản, 2.2 Đơn vị bên ngoài, 2.3 Khai báo nhóm đơn vị ban hành, 2.4 Danh mục văn bản, 2.5 Lãnh đạo nhận văn bản). Phần 18b, 18c thêm nhóm văn bản đi, giao việc, lịch, hồ sơ công việc, báo cáo.
+  - Dữ liệu ở cơ sở dữ liệu hệ thống để giữ qua các năm học (văn bản không thuộc năm học); cấu hình (sổ, danh mục, đơn vị bên ngoài, lãnh đạo) lưu ở cơ sở dữ liệu của trường, không thêm biến `.env`, không ghi cứng tên miền hay tên trường. Danh mục có cột cấp học (trống là mọi cấp). Khóa kho tệp tạo qua hàm chung `storageKey` (`apps/api/src/common/resource-names.ts`, cùng `cacheKey` cho bộ nhớ đệm) theo quy ước viết sẵn cho đa thuê bao của mục 9.2.
+  - Sổ văn bản đến theo năm và đơn vị áp dụng: tên, số bắt đầu, ngày áp dụng, ngày kết thúc, STT hiển thị, người theo dõi, người quản trị (cột của iOffice). Bảng sổ có chiều đến, đi để phần 18b dùng chung. Người theo dõi, người quản trị sổ xem được văn bản không hạn chế của sổ.
+  - Vào sổ đủ các ô của biểu mẫu iOffice; giá trị hình thức (36 mục), độ khẩn, độ mật lấy theo khảo sát và là danh mục cấu hình được; lĩnh vực (cột của sổ đăng ký) là danh mục với tám mục Claude tự đặt. Số đến cấp kế tiếp trong sổ, văn thư sửa được nếu chưa trùng. Tệp quét hoặc tải lên tối đa 50 MB mỗi tệp như iOffice; bản này không điều khiển máy quét, "Quét tài liệu" là đánh dấu tệp tải lên là tệp quét. Văn bản liên quan chọn trong văn bản đến; tệp văn bản liên quan tải lên được.
+  - Luồng xử lý: mỗi lần chuyển là một dòng cho một người, vai trò lãnh đạo, xử lý chính, phối hợp, xem để biết; dòng ghi người chuyển để vẽ sơ đồ luồng, lấy lại, trả lại. Lãnh đạo nhận văn bản là danh sách cấu hình ở 2.5; người nhận khi chuyển xử lý là nhân sự đang làm việc có tài khoản ở năm học đang dùng. Chuyển trực tiếp là văn thư chuyển xử lý không qua lãnh đạo. Từ chối dành cho người phối hợp. Xin gia hạn dành cho người xử lý chính, người chuyển, lãnh đạo trong luồng hoặc văn thư duyệt. Kết thúc văn bản: văn thư, lãnh đạo trong luồng hoặc người xử lý chính. Mở văn bản là đã đọc; văn bản xem để biết mở là xong; "Đánh dấu chưa đọc" đưa văn bản đang chờ về chưa đọc. Người nhận nhận thông báo trong ứng dụng.
+  - Màu và ký hiệu như iOffice: đỏ hỏa tốc, cam khẩn, xanh chỉ đạo (văn bản lãnh đạo đã cho ý kiến chuyển xử lý), [XLC], [PH], [QH] quá hạn (hạn trước hôm nay), [ĐH] đến hạn (hạn trong 2 ngày tới); hạn của dòng đang chờ của người xem được ưu tiên hơn hạn văn bản.
+  - Hạn chế xem: văn thư hoặc lãnh đạo trong luồng đặt, bỏ; văn bản hạn chế chỉ người trong luồng xem; sổ đăng ký che trích yếu.
+  - In phiếu trình (ý kiến lãnh đạo), phiếu xử lý (tổng hợp ý kiến xử lý), phiếu giao nhận (cột ký nhận) dạng PDF; mẫu Claude tự đặt vì khảo sát chỉ ghi tên nút. Sổ đăng ký văn bản đến theo cột của iOffice, xuất Excel ghi nhật ký xuất.
+  - Lưu hồ sơ gắn văn bản vào hồ sơ tài liệu của Văn thư lưu trữ (5.10.1, YCTD-118); hồ sơ công việc làm ở phần 18c. Văn bản trả lời ghi số ký hiệu, ngày cho tới khi phần 18b có sổ văn bản đi.
+  - Liên thông qua trục văn bản (bản chạy nội bộ theo mục 9.2): văn thư nhập văn bản nhận được kèm tệp, "Đánh dấu tiếp nhận văn bản" ghi ngày, người đánh dấu, rồi "Vào sổ"; giao diện ghi rõ chưa kết nối trục. Chỗ nối `DocumentExchange` (bản `LocalDocumentExchange`) để cắm kết nối thật. Không có ký số SmartCA.
+  - Quyền mới (PQ-78): `P09.incoming-document.view`, `.register`, `.search`, `.admin`.
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu hệ thống (`database/system/migrations/0018_create_incoming_document_tables.ts`, `database/system/schema.ts`, `database/system/index.ts`, `database/src/index.ts`); cơ sở dữ liệu định danh (`database/identity/migrations/0052_add_incoming_document_permissions.ts`, `database/identity/index.ts`); máy chủ API (`apps/api/src/incoming-documents/`: `document-admin.ts`, `incoming-documents.ts`, `incoming-fields.ts`, `incoming-print.ts`, `document-exchange.ts`, `incoming-documents.controller.ts`, `incoming-documents.test.ts`; `apps/api/src/common/resource-names.ts`; `apps/api/src/application.module.ts`); gói dùng chung (`packages/shared/src/incoming-documents.ts`, `index.ts`, `portal-menu.ts`, `menu-permissions.ts`); cổng quản trị (`apps/portal/src/incoming-documents/`, `router.tsx`, `pages/workspaces.tsx`); kiểm thử giao diện `tests/e2e/70-incoming-documents.spec.ts`.
+- Dữ liệu bị ảnh hưởng: 13 bảng mới ở cơ sở dữ liệu hệ thống (xem `16_CO_SO_DU_LIEU.md` mục 10); bốn quyền mới, một dòng loại trừ phân hệ của VT-14.
+- API bị ảnh hưởng: các nhóm điểm cuối mới (xem `17_DAC_TA_API.md` mục 12). Không đổi điểm cuối cũ.
+- Giao diện bị ảnh hưởng: MH-158 đến MH-166 (xem `14_DAC_TA_GIAO_DIEN.md`); ô chọn phân hệ thêm "Quản lý văn bản và điều hành". Ứng dụng giáo viên, phụ huynh không đổi.
+- Quyền bị ảnh hưởng: bốn quyền mới (PQ-78); mục menu hiện theo `MENU_PERMISSION_RULES`. Máy chủ kiểm tra quyền và vai trò trong luồng ở mọi yêu cầu (AI-12).
+- Ảnh hưởng chức năng cũ: Văn thư lưu trữ (YCTD-118) được văn bản đến tham chiếu khi lưu hồ sơ; xóa hồ sơ tài liệu thì văn bản bỏ liên kết. Không đổi chức năng khác.
+- Hạn chế:
+  - Chưa kết nối trục liên thông văn bản; không gửi báo nhận; không ký số SmartCA.
+  - Không điều khiển máy quét; "Quét tài liệu" chỉ đánh dấu tệp quét.
+  - "Tạo việc", "Tạo chỉ đạo điều hành", "Tạo lịch họp", "Cấp số và phát hành", "Ban hành", "Copy văn bản", "Chuyển lưu trữ", "Xin phê duyệt", báo cáo văn bản đến chưa có, chờ phần 18b, 18c và văn thư lưu trữ; văn bản trả lời chỉ ghi số ký hiệu, ngày.
+  - Chưa nhắc hạn định kỳ (chỉ thông báo khi được chuyển); "Việc của tôi" ở phần 18e gom văn bản chờ xử lý.
+  - Độ mật là nhãn, không tự hạn chế xem; danh sách văn bản không chặn người có quyền tra cứu xem văn bản mật chưa đặt hạn chế.
+  - Mẫu phiếu trình, phiếu xử lý, phiếu giao nhận, mẫu nhập nội dung xử lý tự đặt.
+- Kiểm thử cần thực hiện: kịch bản CT-667 đến CT-677; kiểm thử đơn vị mới `apps/api/src/incoming-documents/incoming-documents.test.ts` (CT-667 đến CT-676, trong mã kiểm thử là CT-18a-1 đến CT-18a-10); kiểm thử giao diện mới `tests/e2e/70-incoming-documents.spec.ts` (CT-677, trong mã kiểm thử là CT-18a-11). Kết quả ngày 20/10/2026: kiểm thử đơn vị CT-18a-1 đến CT-18a-10 đạt 10/10 (cùng `menu-permissions.test.ts`, `quick-links.test.ts` 17/17 ca; sửa `system-admin-so.test.ts` CT-16d-3 đếm 14 phân hệ, 10/10 ca); kiểm thử đơn vị toàn bộ kho mã 900/900 đạt (sau khi sửa ca CT-16d-3); kiểm thử giao diện CT-18a-11 (`70-incoming-documents.spec.ts`) đạt; toàn bộ kiểm thử giao diện 140/140 đạt (spec 58 đếm 14 phân hệ); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Trạng thái: Đã triển khai
 
 ### YCTD-137: Kế hoạch DT-18 điều hành nhà trường – 2026-10-20
 

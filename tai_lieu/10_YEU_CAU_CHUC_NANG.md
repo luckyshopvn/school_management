@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.56
+- Phiên bản: 1.57
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -191,6 +191,10 @@
 | P09-06 | Hồ sơ tài liệu (5.10.1 của Sở, YCTD-118; đơn vị, người giải quyết theo nhân sự, nhắc hạn: YCTD-122) | VT-02, VT-04, VT-06; xem VT-15, VT-03 | Số, ký hiệu, tiêu đề, phông, người giải quyết, ngày mở, thời hạn, trạng thái, ngày hoàn thành, thời hạn bảo quản, số tờ, ghi chú, tệp đính kèm | Ghi hồ sơ, tính quá hạn, lưu tệp ở kho tệp, ghi nhật ký thao tác | Hai danh sách hoàn thành, chưa hoàn thành; tệp Excel | BR-116, BR-120, BR-74 |
 | P09-07 | Phông và thông tin lưu trữ (5.10.2, 5.10.3, YCTD-118) | VT-02, VT-04, VT-06; xem VT-15, VT-03 | Mã, tên phông; phông, giai đoạn, chỉnh lý, hết giá trị, thời hạn bảo quản, số bó, số hộp, số mét giá, nơi bảo quản | Ghi phông, thông tin lưu trữ; chặn xóa phông còn dữ liệu | Danh sách phông, thông tin lưu trữ | BR-116 |
 | P09-08 | Báo cáo lưu trữ (5.10.4, YCTD-118) | VT-02, VT-15, VT-03, VT-04, VT-06 | Phông, nơi bảo quản | Cộng số mét giá theo đã chỉnh lý, chưa chỉnh lý, hết giá trị, vĩnh viễn, có thời hạn, cộng số bó, số hộp theo phông và giai đoạn | Bảng báo cáo có dòng tổng cộng; tệp Excel | BR-116, BR-74 |
+| P09-09 | Vào sổ văn bản đến và liên thông văn bản (1.2, 1.7 của phân hệ Quản lý văn bản và điều hành, theo VNPT iOffice, YCTD-138) | VT-02, VT-15, VT-06 (`P09.incoming-document.register`) | Biểu mẫu THÔNG TIN VĂN BẢN ĐẾN: trích yếu, số ký hiệu, đơn vị ban hành, ngày văn bản (bắt buộc); hình thức, độ khẩn, hạn xử lý, lĩnh vực; sổ văn bản, số đến, ngày đến; độ mật, thẩm quyền, loại văn bản, hình thức chuyển, hình thức sao, có văn bản giấy; tệp quét hoặc tải lên; văn bản liên quan; nội dung xử lý có mẫu nhập | Văn bản "Đã vào sổ" có số đến của sổ; văn bản liên thông "Chờ vào sổ", đánh dấu tiếp nhận, vào sổ; cập nhật thông tin, xóa văn bản chưa chuyển |
+| P09-10 | Luồng xử lý văn bản đến (YCTD-138) | Người được chuyển (`P09.incoming-document.view`); văn thư; lãnh đạo nhận văn bản | Người nhận, vai trò (lãnh đạo, xử lý chính, phối hợp, xem để biết), hạn xử lý, ý kiến; lý do trả lại, từ chối; hạn đề nghị gia hạn | Trình lãnh đạo, chuyển lãnh đạo, chuyển xử lý, chuyển trực tiếp, luân chuyển, trả lại, từ chối, lấy lại, xử lý xong, xin gia hạn, đồng ý hoặc không, kết thúc, kết thúc hàng loạt, lưu hồ sơ (hồ sơ tài liệu 5.10.1) hàng loạt, văn bản trả lời, hạn chế xem, đánh dấu, theo dõi, đánh dấu chưa đọc; thông báo trong ứng dụng cho người nhận |
+| P09-11 | Danh sách, tra cứu, in phiếu, sổ văn bản đến (1.1 đến 1.6, 2.1, YCTD-138) | Mọi người có quyền của phân hệ; tra cứu cần `search` hoặc `register`; sổ cần `register` hoặc `admin` | Tìm theo trích yếu, tìm kiếm nâng cao (số ký hiệu, số đến, đơn vị ban hành, ngày đến, sổ, hình thức, độ khẩn, quá hạn, đến hạn), lọc vai trò Xử lý chính, Phối hợp, Xem, Tất cả; sổ, khoảng ngày đến | Danh sách có màu hỏa tốc, khẩn, chỉ đạo, ký hiệu [XLC], [PH], [QH], [ĐH]; chi tiết bốn thẻ (Thông tin văn bản, Thông tin nhận, Sơ đồ luồng văn bản, Lịch sử tham mưu); phiếu trình, phiếu xử lý, phiếu giao nhận PDF; sổ đăng ký theo cột của iOffice, xuất Excel |
+| P09-12 | Quản trị văn bản (2.1 đến 2.5, YCTD-138) | VT-02, VT-06 (`P09.incoming-document.admin`) | Sổ văn bản (tên, đơn vị áp dụng, năm, số bắt đầu, ngày áp dụng, ngày kết thúc, STT, người theo dõi, người quản trị); đơn vị bên ngoài (mã, tên, địa chỉ, điện thoại, thư điện tử, mã định danh điện tử); nhóm đơn vị ban hành; danh mục hình thức, độ khẩn, độ mật, lĩnh vực (mã, tên, mức, cấp học, STT, đang sử dụng); lãnh đạo nhận văn bản | Cấu hình lưu ở cơ sở dữ liệu của trường |
 
 ## 11. Phân hệ P10 — Y tế học đường
 

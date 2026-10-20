@@ -115,6 +115,22 @@ import { SchoolSplitsPage } from './school/SchoolSplitsPage.js';
 import { SigningCertificatePage, SigningCertificateSyncPage } from './signing/SigningCertificatePage.js';
 import { SigningDossiersPage } from './signing/SigningDossiersPage.js';
 import { SigningSubmissionsPage } from './signing/SigningSubmissionsPage.js';
+import {
+  DocumentBooksPage,
+  DocumentCatalogsPage,
+  DocumentLeadersPage,
+  ExternalUnitGroupsPage,
+  ExternalUnitsPage,
+} from './incoming-documents/DocumentAdminPages.js';
+import {
+  IncomingFollowedPage,
+  IncomingForInformationPage,
+  IncomingInboxPage,
+  IncomingInterconnectPage,
+  IncomingManagePage,
+  IncomingSearchPage,
+  IncomingStarredPage,
+} from './incoming-documents/IncomingListPages.js';
 import { FinalYearRecordsPage } from './entry-admissions/FinalYearRecordsPage.js';
 import {
   EntryClassesPage,
@@ -216,6 +232,31 @@ const routeTree = rootRoute.addChildren([
   }),
   createRoute({ getParentRoute: () => rootRoute, path: '/signing-dossiers', component: SigningDossiersPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/signing-submissions', component: SigningSubmissionsPage }),
+  // Văn bản đến theo VNPT iOffice (DT-18 phần 18a)
+  createRoute({ getParentRoute: () => rootRoute, path: '/incoming-documents', component: IncomingInboxPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/incoming-documents/manage', component: IncomingManagePage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/incoming-documents/for-information',
+    component: IncomingForInformationPage,
+  }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/incoming-documents/starred', component: IncomingStarredPage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/incoming-documents/followed',
+    component: IncomingFollowedPage,
+  }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/incoming-documents/search', component: IncomingSearchPage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/incoming-documents/interconnect',
+    component: IncomingInterconnectPage,
+  }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/document-books', component: DocumentBooksPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/external-units', component: ExternalUnitsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/external-unit-groups', component: ExternalUnitGroupsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/document-catalogs', component: DocumentCatalogsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/document-leaders', component: DocumentLeadersPage }),
   // Tuyển sinh đầu cấp phần 1 (DT-17 phần 17c)
   createRoute({
     getParentRoute: () => rootRoute,
