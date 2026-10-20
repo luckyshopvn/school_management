@@ -8,6 +8,12 @@
 
 {
 	email {$ACME_EMAIL}
+	# Website của trường trên tên miền riêng (DT-18 phần 18f, YCTD-144): cấp chứng chỉ theo yêu cầu, trước khi xin chứng chỉ
+	# Caddy hỏi máy chủ API; chỉ tên miền đã đăng ký và đang dùng ở màn hình "Tên miền" mới được cấp. Không có tên miền nào
+	# của trường ghi trong tệp này hay trong .env
+	on_demand_tls {
+		ask http://api:3000/api/v1/public/website/domain-check
+	}
 	# Trang quản trị của Caddy giữ mặc định localhost:2019, chỉ nghe bên trong vùng chứa (dùng cho kiểm tra sức khỏe)
 	servers {
 		# Thời gian chờ đủ cho tải tệp nhập Excel và tệp đính kèm tối đa 10 MB trên mạng chậm
@@ -69,6 +75,17 @@
 	}
 }
 
+# Website công khai của trường: mọi đường dẫn chuyển sang trang do máy chủ API dựng; X-Website-Root báo máy chủ API tính
+# liên kết từ gốc tên miền. Các điểm cuối khác của /api/v1 không mở trên tên miền website
+(website) {
+	handle {
+		rewrite * /api/v1/public/site{path}?{query}
+		reverse_proxy api:3000 {
+			header_up X-Website-Root 1
+		}
+	}
+}
+
 # Trang quản lý cho cán bộ (portal)
 {$PORTAL_SITE} {
 	import common
@@ -97,4 +114,14 @@
 	handle {
 		respond "Không tìm thấy" 404
 	}
+}
+
+# Website trường trên tên miền riêng: mọi tên miền khác các địa chỉ ở trên; chứng chỉ xin khi có truy cập đầu tiên và chỉ
+# cho tên miền máy chủ API trả lời "đang dùng" (on_demand_tls ở đầu tệp)
+https:// {
+	tls {
+		on_demand
+	}
+	import common
+	import website
 }
