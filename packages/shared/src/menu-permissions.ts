@@ -23,6 +23,9 @@ const ENTRY_INTAKE = anyOf('P02.entry-intake.view', 'P02.entry-intake.manage', '
 const INCOMING = anyOf('P09.incoming-document.view', 'P09.incoming-document.register', 'P09.incoming-document.search');
 // Phân hệ KPI (DT-18 phần 18d)
 const KPI_ANY = anyOf('P09.kpi.participate', 'P09.kpi.manage', 'P09.kpi.advise', 'P09.kpi.configure');
+// Giao việc, lịch, hồ sơ công việc theo VNPT iOffice (DT-18 phần 18c): việc cần xử lý cho mọi cán bộ có quyền của phân hệ
+const STAFF_WORK = anyOf('P09.task.direct', 'P09.work-file.use', 'P09.schedule.view');
+const SCHEDULE_ANY = anyOf('P09.schedule.view', 'P09.schedule.manage', 'P09.meeting-room.manage');
 // Điều kiện của nhóm "Trẻ và lớp" cũ
 const CHILDREN_AND_CLASSES = anyOf('P02.class.manage', 'P02.view', 'P02.edit');
 const STATISTICS = anyOf('P17.child-statistics.view', 'P17.staff-statistics.view');
@@ -166,6 +169,24 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/kpi/advisory': 'P09.kpi.advise',
   '/kpi/voting': 'P09.kpi.vote',
   '/kpi/reports': KPI_ANY,
+  // Giao việc, lịch, hồ sơ công việc, báo cáo theo VNPT iOffice (DT-18 phần 18c): giao việc cho người có quyền giao việc;
+  // việc đã giao gồm cả việc giao theo quyền cũ của 3.1 Công việc và kế hoạch; hồ sơ nộp lưu cho văn thư lưu trữ
+  '/directives/new': 'P09.task.direct',
+  '/directives/inbox': STAFF_WORK,
+  '/directives/outbox': anyOf('P09.task.direct', 'P09.task.assign'),
+  '/work-files': 'P09.work-file.use',
+  '/work-files/shared': 'P09.work-file.use',
+  '/work-files/transferred': 'P09.work-file.use',
+  '/work-files/archive': 'P09.archive.manage',
+  '/work-files/expired': anyOf('P09.archive.view', 'P09.archive.manage'),
+  '/unit-schedules': 'P09.schedule.manage',
+  '/meeting-schedules': SCHEDULE_ANY,
+  '/room-bookings': SCHEDULE_ANY,
+  '/meeting-rooms': 'P09.meeting-room.manage',
+  '/schedule-templates': 'P09.schedule.manage',
+  '/document-reports/incoming': 'P09.document-report.view',
+  '/document-reports/summary': 'P09.document-report.view',
+  '/document-reports/statistics': 'P09.document-report.view',
   '/emis/facilities': 'P17.report.emis',
   '/emis/health': 'P17.report.emis',
   '/emis/end-of-year': 'P17.report.emis',

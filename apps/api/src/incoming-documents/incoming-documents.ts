@@ -205,6 +205,11 @@ export class IncomingDocumentsService {
       .execute();
   }
 
+  // Phân hệ khác dùng văn bản thì ghi vào lịch sử của văn bản, ví dụ tạo việc từ văn bản, lưu vào hồ sơ công việc (18c)
+  async recordEvent(currentUser: CurrentUser, documentId: string, action: string, note: string | null): Promise<void> {
+    await this.event(this.system, documentId, action, note, currentUser);
+  }
+
   // Thông báo trong ứng dụng cho người nhận; chưa có năm học thì bỏ qua (hàng đợi thông báo ở cơ sở dữ liệu năm học)
   private async notify(userIds: string[], document: DocumentRow, title: string, body: string): Promise<void> {
     const recipients = [...new Set(userIds)];
