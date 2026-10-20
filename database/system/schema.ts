@@ -661,8 +661,6 @@ export interface IncomingDocumentAssignmentsTable {
   extension_status: IncomingExtensionStatus | null;
   extension_decided_at: Date | null;
   extension_decided_by_name: string | null;
-  due_reminded_at: Date | null;
-  overdue_reminded_at: Date | null;
 }
 
 export interface IncomingDocumentFlagsTable {

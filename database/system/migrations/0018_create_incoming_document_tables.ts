@@ -258,8 +258,6 @@ export const migration: Migration = {
       .addColumn('extension_status', 'text')
       .addColumn('extension_decided_at', 'timestamptz')
       .addColumn('extension_decided_by_name', 'text')
-      .addColumn('due_reminded_at', 'timestamptz')
-      .addColumn('overdue_reminded_at', 'timestamptz')
       .addCheckConstraint('incoming_document_assignments_role_check', sql.raw(`role in (${ROLES})`))
       .addCheckConstraint(
         'incoming_document_assignments_status_check',

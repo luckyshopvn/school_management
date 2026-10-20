@@ -20,6 +20,11 @@ const gated = (gate: MenuPermissionRule, rule: MenuPermissionRule): MenuPermissi
 const ACCOUNTS = anyOf('P01.account.manage', 'P01.account.manage-in-unit');
 const FINAL_YEAR = anyOf('P02.final-year.view', 'P02.final-year.manage', 'P02.final-year.approve');
 const ENTRY_INTAKE = anyOf('P02.entry-intake.view', 'P02.entry-intake.manage', 'P02.entry-intake.transfer');
+const INCOMING = anyOf(
+  'P09.incoming-document.view',
+  'P09.incoming-document.register',
+  'P09.incoming-document.search',
+);
 // Điều kiện của nhóm "Trẻ và lớp" cũ
 const CHILDREN_AND_CLASSES = anyOf('P02.class.manage', 'P02.view', 'P02.edit');
 const STATISTICS = anyOf('P17.child-statistics.view', 'P17.staff-statistics.view');
@@ -135,6 +140,21 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/entry-admissions/transfer': ENTRY_INTAKE,
   '/entry-admissions/transfer-results': ENTRY_INTAKE,
   '/admitted-students': ENTRY_INTAKE,
+  // Văn bản đến theo VNPT iOffice (DT-18 phần 18a): danh sách của mình cho mọi người có một quyền của phân hệ; quản lý văn
+  // bản đến, liên thông cho văn thư; tra cứu cho người có quyền tra cứu hoặc văn thư; quản trị văn bản cho người quản trị,
+  // văn thư xem sổ văn bản để in sổ
+  '/incoming-documents': INCOMING,
+  '/incoming-documents/manage': 'P09.incoming-document.register',
+  '/incoming-documents/for-information': INCOMING,
+  '/incoming-documents/starred': INCOMING,
+  '/incoming-documents/followed': INCOMING,
+  '/incoming-documents/search': anyOf('P09.incoming-document.search', 'P09.incoming-document.register'),
+  '/incoming-documents/interconnect': 'P09.incoming-document.register',
+  '/document-books': anyOf('P09.incoming-document.admin', 'P09.incoming-document.register'),
+  '/external-units': 'P09.incoming-document.admin',
+  '/external-unit-groups': 'P09.incoming-document.admin',
+  '/document-catalogs': 'P09.incoming-document.admin',
+  '/document-leaders': 'P09.incoming-document.admin',
   '/emis/facilities': 'P17.report.emis',
   '/emis/health': 'P17.report.emis',
   '/emis/end-of-year': 'P17.report.emis',

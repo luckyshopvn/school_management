@@ -10,6 +10,7 @@ export * from './students.js';
 export * from './emis.js';
 export * from './signing.js';
 export * from './entry-admissions.js';
+export * from './incoming-documents.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -186,6 +187,11 @@ export const PERMISSION_CODES = {
   entryIntakeView: 'P02.entry-intake.view',
   entryIntakeManage: 'P02.entry-intake.manage',
   entryIntakeTransfer: 'P02.entry-intake.transfer',
+  // Văn bản đến theo VNPT iOffice, phân hệ Quản lý văn bản và điều hành (DT-18 phần 18a)
+  incomingDocumentView: 'P09.incoming-document.view',
+  incomingDocumentRegister: 'P09.incoming-document.register',
+  incomingDocumentSearch: 'P09.incoming-document.search',
+  incomingDocumentAdmin: 'P09.incoming-document.admin',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -386,6 +392,19 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/entry-admissions/transfer',
   '/entry-admissions/transfer-results',
   '/admitted-students',
+  // Văn bản đến theo VNPT iOffice (DT-18 phần 18a)
+  '/incoming-documents',
+  '/incoming-documents/manage',
+  '/incoming-documents/for-information',
+  '/incoming-documents/starred',
+  '/incoming-documents/followed',
+  '/incoming-documents/search',
+  '/incoming-documents/interconnect',
+  '/document-books',
+  '/external-units',
+  '/external-unit-groups',
+  '/document-catalogs',
+  '/document-leaders',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -584,6 +603,15 @@ export const DATA_GRID_KEYS = [
   'entry-transfer-results',
   'entry-cancel-results',
   'admitted-students',
+  // Văn bản đến theo VNPT iOffice (DT-18 phần 18a)
+  'incoming-documents',
+  'incoming-manage',
+  'incoming-interconnect',
+  'incoming-register',
+  'document-books',
+  'external-units',
+  'external-unit-groups',
+  'document-catalogs',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;
