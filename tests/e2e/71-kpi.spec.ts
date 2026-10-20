@@ -61,7 +61,8 @@ test('CT-18d-19: giao việc, tự đánh giá, chấm, kết luận, khóa kỳ
     })
     .execute();
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
-  const shift = (days: number) => new Date(Date.parse(`${today}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
+  const shift = (days: number) =>
+    new Date(Date.parse(`${today}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
 
   const page = await signIn(browser, principal);
 
@@ -69,7 +70,11 @@ test('CT-18d-19: giao việc, tự đánh giá, chấm, kết luận, khóa kỳ
   await openMenu(page, '/kpi/profiles');
   await expect(page.getByRole('heading', { name: '1.3. Đối tượng đánh giá' })).toBeVisible();
   await page.getByLabel('Đơn vị', { exact: true }).selectOption(unit.id);
-  await page.getByRole('row').filter({ hasText: teacherName }).getByRole('button', { name: 'Gán', exact: true }).click();
+  await page
+    .getByRole('row')
+    .filter({ hasText: teacherName })
+    .getByRole('button', { name: 'Gán', exact: true })
+    .click();
   const profileForm = page.getByRole('form', { name: 'Gán đối tượng đánh giá' });
   await profileForm.getByLabel('Bộ quy tắc').selectOption({ label: 'Bộ quy tắc 1' });
   await profileForm.getByLabel('Nhóm đối tượng').selectOption('staff');
@@ -132,7 +137,11 @@ test('CT-18d-19: giao việc, tự đánh giá, chấm, kết luận, khóa kỳ
   // 3.3 Hiệu trưởng chấm
   await openMenu(page, '/kpi/grading');
   await page.getByLabel('Kỳ đánh giá').selectOption({ label: `Kỳ KPI ${suffix} (Quý)` });
-  await page.getByRole('row').filter({ hasText: teacherName }).getByRole('button', { name: 'Chấm', exact: true }).click();
+  await page
+    .getByRole('row')
+    .filter({ hasText: teacherName })
+    .getByRole('button', { name: 'Chấm', exact: true })
+    .click();
   const gradeForm = page.getByRole('form', { name: `Chấm việc Báo cáo tháng ${suffix}` });
   await expect(gradeForm).toContainText('15/BC-TRƯỜNG ngày 05/10/2026');
   await gradeForm.getByLabel('Mức kết quả').selectOption({ index: 1 });
@@ -150,7 +159,10 @@ test('CT-18d-19: giao việc, tự đánh giá, chấm, kết luận, khóa kỳ
   // 4.2 Hiệu trưởng kết luận
   await openMenu(page, '/kpi/evaluations');
   await page.getByLabel('Kỳ đánh giá').selectOption({ label: `Kỳ KPI ${suffix} (Quý)` });
-  await page.getByRole('row', { name: `Phiếu của ${teacherName}` }).getByRole('button', { name: 'Đánh giá' }).click();
+  await page
+    .getByRole('row', { name: `Phiếu của ${teacherName}` })
+    .getByRole('button', { name: 'Đánh giá' })
+    .click();
   const conclude = page.getByLabel(`Đánh giá ${teacherName}`);
   await conclude.getByLabel('Mức xếp loại').selectOption({ label: 'Hoàn thành tốt nhiệm vụ' });
   await conclude.getByRole('button', { name: 'Kết luận' }).click();
@@ -158,7 +170,10 @@ test('CT-18d-19: giao việc, tự đánh giá, chấm, kết luận, khóa kỳ
 
   // 1.1 Khóa kỳ
   await openMenu(page, '/kpi/periods');
-  await page.getByRole('row', { name: `Kỳ KPI-${suffix}` }).getByRole('button', { name: 'Khóa kỳ' }).click();
+  await page
+    .getByRole('row', { name: `Kỳ KPI-${suffix}` })
+    .getByRole('button', { name: 'Khóa kỳ' })
+    .click();
   await page.getByRole('dialog').getByRole('button', { name: 'Khóa kỳ' }).click();
   await expect(page.getByRole('status').filter({ hasText: 'Đã khóa kỳ' })).toBeVisible();
 
