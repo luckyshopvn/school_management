@@ -1,8 +1,8 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.19
-- Ngày cập nhật: 2026-10-20
+- Phiên bản: 0.20
+- Ngày cập nhật: 2026-10-21
 - Trạng thái: Đang cập nhật
 
 ## Quy ước ghi nhật ký
@@ -13,6 +13,29 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-21 — DT-18 phần 18f: website trường trên tên miền riêng
+
+#### Công việc đã thực hiện
+
+- Đọc mục 9 của `32_KE_HOACH_THEO_HE_THONG_SO.md`, kế hoạch DT-18, mã tuyển sinh trực tuyến (YCTD-86), văn bản đi (18b, cột `published`), cấu hình Caddy của môi trường chạy thật (YCTD-92); đọc mục lục Chương II của Thông tư 09/2024/TT-BGDĐT để lập nhóm công khai.
+- Cơ sở dữ liệu: tệp hệ thống `0021_create_website_tables` (8 bảng), tệp định danh `0058_add_website_permissions` (ba quyền P14).
+- Máy chủ API: thiết lập, tên miền, nội dung mẫu (`website-setup.ts`), bài, album, tệp, luồng duyệt, thư liên hệ (`website-content.ts`), trang công khai theo tên miền và điểm cuối kiểm tra tên miền cho Caddy (`website-public.ts`, `website-render.ts`), lọc HTML (`website-html.ts`).
+- Cổng quản trị: phân hệ Website trường, 9 màn hình (`apps/portal/src/website/`).
+- Triển khai: Caddy `on_demand_tls` hỏi máy chủ API trước khi xin chứng chỉ, khối `https://` cho mọi tên miền website.
+- Thêm quy tắc BR-139, chức năng P14-13 đến P14-16, quyền PQ-83, màn hình MH-206 đến MH-215, kịch bản CT-727 đến CT-737, tiêu chí AC-696 đến AC-701. Kết quả ngày 21/10/2026: kiểm thử đơn vị `apps/api/src/website/website.test.ts` CT-18f-1 đến CT-18f-10 đạt 10/10; kiểm thử đơn vị toàn bộ kho mã đạt 955/955 (CSDL riêng của 18f); kiểm thử giao diện `tests/e2e/75-school-website.spec.ts` (CT-18f-11) đạt; toàn bộ kiểm thử giao diện KQ18F_E2E; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt; cấu hình Caddy kiểm tra bằng `caddy validate` (Caddy 2.10) hợp lệ.
+
+#### Quyết định
+
+- Thực hiện phần 18f của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9.4 theo quyết định của Eric ngày 2026-10-19 (mỗi trường một tên miền riêng, có chế độ trình diễn). Dựng trang công khai ở máy chủ API thay vì thêm ứng dụng giao diện mới; tên miền và cấu hình website ở cơ sở dữ liệu hệ thống. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-144.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-144, `07_QUY_TAC_NGHIEP_VU.md` BR-139, `08_VAI_TRO_NGUOI_DUNG.md` PQ-83, `10_YEU_CAU_CHUC_NANG.md` P14-13 đến P14-16, `11_TIEU_CHI_NGHIEM_THU.md` AC-696 đến AC-701, `14_DAC_TA_GIAO_DIEN.md` MH-206 đến MH-215, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-727 đến CT-737, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.94.0.
+
+#### Vấn đề tồn đọng
+
+- Đăng ký sự kiện qua QR (mục 9.4) chưa làm. Trang thời khóa biểu nối 22c (DT-20). Tên miền thật và chứng chỉ cần máy chủ chạy thật.
 
 ### 2026-10-20 — DT-18 phần 18g: thiết bị có nơi để, tem QR, kiểm kê, đối sánh danh mục tối thiểu
 

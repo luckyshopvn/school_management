@@ -1,8 +1,8 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.41
-- Ngày cập nhật: 2026-10-20
+- Phiên bản: 1.42
+- Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -768,6 +768,12 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-693 | Cho đợt kiểm kê đang mở của phân hiệu / Khi lập đợt thứ hai, nộp khi còn dòng chưa kiểm, giáo viên quét tài sản hỏng, quét lô 8 đếm được 6 dùng được, quét tài sản mua sau khi lập đợt, giáo viên đơn vị khác quét / Thì đợt thứ hai và nộp sớm bị từ chối (YCTD-143); dòng tài sản Khớp, tình trạng hỏng; lô Thiếu 2; thêm dòng ngoài sổ Thừa; đơn vị khác bị từ chối quyền; tỷ lệ sử dụng được 70% | P13-17, BR-138 |
 | AC-694 | Cho đợt đã kiểm đủ / Khi nộp, quét sau khi nộp, trả lại, nộp lại, chốt trước khi duyệt, duyệt, chốt, xuất biên bản PDF, Excel / Thì quét sau khi nộp và chốt sớm bị từ chối; chốt xong lô có số hiện có bằng số dùng được, tài sản hỏng có ghi nhận hỏng chờ duyệt; biên bản PDF, Excel tải được; lập được đợt mới | P13-17, BR-138, BR-61 |
 | AC-695 | Cho danh mục mẫu Mầm non / Khi quản lý một đơn vị nạp, Hiệu trưởng nạp có ngừng dòng gieo sẵn, nạp lại, xem đối sánh cấp học không có / Thì quản lý đơn vị bị từ chối; nạp thêm 515 thiết bị, ngừng dòng gieo sẵn chưa có số hiện có; nạp lại không thêm; cấp học sai báo lỗi; đối sánh báo Đủ, Thiếu, Chưa có | P13-18, BR-138 |
+| AC-696 | Cho người cấu hình website / Khi thêm tên miền sai dạng, trùng, tên miền chính thứ hai; đánh dấu đã trỏ; ngừng dùng một tên miền; máy chủ web hỏi tên miền / Thì sai dạng, trùng, chính thứ hai bị chặn; đánh dấu ghi ngày, người; chỉ tên miền đang dùng nhận 200 (CT-728; YCTD-144) |
+| AC-697 | Cho người soạn và người duyệt / Khi soạn bài có script, gửi duyệt, sửa bài chờ duyệt, người soạn tự đăng, trả lại, đăng, gỡ không lý do, xóa bài đã đăng, gửi duyệt bài trống / Thì script bị bỏ; sửa, tự đăng, gỡ không lý do, xóa, gửi bài trống bị chặn; bài qua đủ trạng thái, lịch sử ghi (CT-729, CT-736; YCTD-144) |
+| AC-698 | Cho trang công khai / Khi mở bằng tên miền lạ, tên miền chính, tên miền phụ, tên miền trình diễn / Thì tên miền lạ báo không tìm thấy; tên miền chính hiện bài đã đăng, không có script; tên miền phụ chuyển 301 về tên miền chính giữ đường dẫn; tên miền trình diễn có dải trình diễn và noindex (CT-730; YCTD-144) |
+| AC-699 | Cho album / Khi gửi duyệt chưa có ảnh, chưa xác nhận cha mẹ đồng ý; mở ảnh trước và sau khi đăng / Thì gửi duyệt bị chặn; ảnh chỉ tải được sau khi album đăng (CT-731; YCTD-144) |
+| AC-700 | Cho văn bản đi, công khai theo quy định / Khi văn bản đã ban hành có và không đánh dấu công khai; trường mầm non đăng bài công khai thu chi chỉ có tệp / Thì chỉ văn bản đã công khai hiện, tải được bản đã ký; trang công khai có nhóm Điều 4 đến Điều 7, không có Điều 8, 9 (CT-732, CT-733; YCTD-144) |
+| AC-701 | Cho thư liên hệ và chế độ trình diễn / Khi gửi thư thiếu liên lạc, gửi đúng, máy điền ô bẫy; tạo nội dung mẫu khi tắt, khi bật; tắt chế độ trình diễn / Thì thiếu liên lạc báo lỗi; thư đúng vào danh sách, thư bẫy bỏ qua; người duyệt đánh dấu đã xử lý; nội dung mẫu chỉ tạo và hiện khi bật (CT-734, CT-735, CT-737; YCTD-144) |
 
 ## 20. Chưa xác minh được
 

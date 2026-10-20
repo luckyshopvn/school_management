@@ -1,8 +1,8 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.61
-- Ngày cập nhật: 2026-10-20
+- Phiên bản: 1.62
+- Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -297,6 +297,10 @@
 | P14-10 | Hoạt động ngoại khóa (G2) | VT-03, VT-07 | Tên, mô tả, thời gian, đối tượng, chỉ tiêu, mức phí, cách thu phí theo từng hoạt động hoặc theo tháng | Tạo và công bố hoạt động ngoại khóa | Danh sách hoạt động ngoại khóa | BR-69 |
 | P14-11 | Đăng ký hoạt động ngoại khóa (G2) | VT-14, VT-07, VT-04 | Trẻ, hoạt động ngoại khóa | Đăng ký, kiểm tra chỉ tiêu; phí theo từng hoạt động đưa vào khoản phải thu một lần, lập hóa đơn bổ sung nếu hóa đơn chính của kỳ đã phát hành (BR-85), phí theo tháng đưa vào khoản phải thu mỗi kỳ khi đăng ký còn hiệu lực, không giảm trừ khi trẻ nghỉ buổi hoặc thôi tham gia giữa tháng | Danh sách đăng ký tham gia | BR-19, BR-72 |
 | P14-12 | Album thư viện và bình luận nội dung (G2) | VT-03, VT-07, VT-14 | Album, chủ đề, nội dung bình luận trên thư viện và tin tức | Quản lý album trong thư viện; ghi nhận bình luận, không cho xóa bình luận của phụ huynh | Album và luồng bình luận | BR-66, BR-69 |
+| P14-13 | Thông tin website, tên miền, chế độ trình diễn (YCTD-144) | `P14.website.configure` (VT-02) | Tên, liên hệ, đường dẫn, màu, cấp học, biểu trưng, ảnh đầu trang; tên miền, loại, đánh dấu đã trỏ | Kiểm tra tên miền, một tên miền chính; trả lời máy chủ web khi xin chứng chỉ; nội dung mẫu khi bật trình diễn | Thông tin website, danh sách tên miền | BR-139 |
+| P14-14 | Soạn, duyệt, đăng, gỡ tin tức, thông báo, trang, công khai theo quy định (YCTD-144) | `P14.website.edit`; duyệt `P14.website.approve` | Tiêu đề, tóm tắt, nội dung định dạng, ghim, nhóm và năm học công khai, ảnh bìa, tệp đính kèm | Lọc HTML; trạng thái nháp, chờ duyệt, đã đăng, đã gỡ; lịch sử | Danh sách theo loại, trạng thái; nội dung chờ duyệt | BR-139 |
+| P14-15 | Thư viện ảnh của website (YCTD-144) | `P14.website.edit`; duyệt `P14.website.approve` | Tên album, ngày, mô tả, ảnh, chú thích, ảnh bìa, xác nhận cha mẹ đồng ý | Kiểm tra loại, cỡ ảnh; bắt buộc xác nhận khi gửi duyệt | Danh sách album, ảnh | BR-139 |
+| P14-16 | Trang công khai theo tên miền, thư liên hệ (YCTD-144) | Người ngoài; thư liên hệ: xem `P14.website.edit`, xử lý `P14.website.approve` | Tên miền của yêu cầu; biểu mẫu liên hệ | Chọn trường theo tên miền; chỉ nội dung đã đăng, văn bản đi đã công khai, đợt tuyển sinh đang mở; giới hạn theo địa chỉ mạng | Trang HTML, tệp, robots.txt, sitemap.xml; danh sách thư liên hệ | BR-139 |
 
 ## 16. Phân hệ P15 — Tương tác và ý kiến
 

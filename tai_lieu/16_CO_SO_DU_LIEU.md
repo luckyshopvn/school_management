@@ -1,8 +1,8 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.84
-- Ngày cập nhật: 2026-10-20
+- Phiên bản: 1.85
+- Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -335,6 +335,19 @@ Lịch đơn vị, phòng họp, hồ sơ công việc theo VNPT iOffice (DT-18 
 | work_file_shares | Người được chia sẻ hồ sơ | file_id (khóa ngoại, xóa theo), user_id, user_name, permission (`view`, `edit`); khóa chính đôi |
 | work_file_items | Thành phần hồ sơ | id, file_id (khóa ngoại, xóa theo), item_type (`incoming_document` có incoming_document_id khóa ngoại xóa theo; `task` có task_id ở năm học; `note`), title, note, added_by, added_by_name |
 | work_file_events | Lịch sử hồ sơ | id, file_id (khóa ngoại, xóa theo), action, note, actor_id, actor_name, created_at |
+
+Website trường trên tên miền riêng (DT-18 phần 18f, YCTD-144), tệp `database/system/migrations/0021_create_website_tables.ts` của cơ sở dữ liệu hệ thống; tên miền và cấu hình website ở đây, không ở biến môi trường:
+
+| Bảng | Mục đích | Trường chính |
+|---|---|---|
+| website_settings | Thông tin website, một dòng (P14-13) | id (luôn 1), site_name, slogan, introduction, address, phone, email, map_url, office_hours, facebook_url, admission_form_url, footer_note, primary_color (#rrggbb), school_levels (mảng MN, TH, THCS, THPT), show_timetable, demo_mode, logo_file_id, banner_file_id (khóa ngoại `website_files`, xóa thì để trống), updated_by_name |
+| website_domains | Tên miền của website (P14-13, BR-139) | id, hostname (duy nhất, chữ thường), kind (`primary`, `alias`, `demo`; một `primary` đang dùng), active, dns_confirmed_at, dns_confirmed_by_name, note, created_by, created_by_name |
+| website_files | Ảnh bìa, tệp đính kèm, ảnh album, biểu trưng, ảnh đầu trang | id, owner_type (`post`, `album`, `settings`; `settings` thì owner_id trống), owner_id, purpose (`cover`, `attachment`, `photo`, `logo`, `banner`), file_name, content_type, size_bytes, sha256, storage_key (tiền tố `website/`), caption, order_no, created_by, created_by_name |
+| website_disclosure_categories | Nhóm công khai theo Thông tư 09/2024/TT-BGDĐT | code (khóa chính: `general`, `finance`, `mn-quality`, `mn-plan`, `pt-quality`, `pt-plan`, `annual-report`), name, legal_basis, school_level (`MN`, `PT`, trống là mọi cấp), order_no, active |
+| website_posts | Tin tức, thông báo, trang, công khai (P14-14, BR-139) | id, kind (`news`, `announcement`, `page`, `disclosure`), page_key (duy nhất; `intro`, `organization`), disclosure_category (khóa ngoại), disclosure_year, slug (duy nhất), title, summary, body_html (đã lọc), cover_file_id, pinned, status (`draft`, `pending`, `published`, `unpublished`), return_note, submitted_at, submitted_by_name, published_at, first_published_at, published_by_name, unpublished_at, unpublished_by_name, unpublish_reason, is_sample, created_by, created_by_name, updated_by_name |
+| website_albums | Thư viện ảnh (P14-15) | id, slug (duy nhất), title, description, event_date, cover_file_id, consent_confirmed, consent_confirmed_by_name, các cột trạng thái như `website_posts` |
+| website_contact_messages | Thư liên hệ (P14-16) | id, full_name, phone, email, subject, message, status (`new`, `handled`), handled_note, handled_at, handled_by_name, created_at |
+| website_events | Lịch sử soạn, duyệt, cấu hình | id, target_type (`post`, `album`, `settings`, `domain`, `contact`), target_id, action, note, actor_id, actor_name, created_at |
 
 Tệp `database/system/migrations/0019_create_outgoing_document_tables.ts` của cơ sở dữ liệu hệ thống (DT-18 phần 18b, YCTD-140) tạo sáu bảng văn bản đi ở trên; thêm vào `incoming_documents` ba cột `outgoing_document_id` (khóa ngoại `outgoing_documents`, xóa thì để trống), `recipient_org_unit_id`, `recipient_org_unit_name` và cho `source` nhận thêm `internal` (văn bản đến tạo qua liên thông nội bộ khi phát hành văn bản đi). Phần quay lui xóa văn bản đến nguồn `internal`, trả ràng buộc, xóa sáu bảng.
 

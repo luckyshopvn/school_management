@@ -1,8 +1,8 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.19
-- Ngày cập nhật: 2026-10-20
+- Phiên bản: 0.20
+- Ngày cập nhật: 2026-10-21
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
 
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.94.0 – 2026-10-21
+
+- Phạm vi thay đổi: DT-18 phần 18f, website trường trên tên miền riêng, có chế độ trình diễn (YCTD-144).
+- Chức năng mới: phân hệ Website trường; tên miền lưu ở cơ sở dữ liệu, cấp chứng chỉ theo yêu cầu cho tên miền đã đăng ký; trang công khai theo tên miền (trang chủ, giới thiệu, cơ cấu tổ chức, tin tức, thông báo, văn bản công khai, tuyển sinh, công khai theo Thông tư 09/2024/TT-BGDĐT, thời khóa biểu chờ, thư viện ảnh, liên hệ); soạn, duyệt, đăng, gỡ; lọc HTML chống XSS; chế độ trình diễn và nội dung mẫu (P14-13 đến P14-16).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp hệ thống `0021_create_website_tables` (8 bảng); tệp định danh `0058_add_website_permissions` (ba quyền P14).
+- Thay đổi API: nhóm điểm cuối mới `/website/*`, `/public/site/*`, `/public/website/domain-check`.
+- Kiểm thử: kịch bản CT-727 đến CT-737. Kết quả ngày 21/10/2026: kiểm thử đơn vị `apps/api/src/website/website.test.ts` CT-18f-1 đến CT-18f-10 đạt 10/10; kiểm thử đơn vị toàn bộ kho mã đạt 955/955 (CSDL riêng của 18f); kiểm thử giao diện `tests/e2e/75-school-website.spec.ts` (CT-18f-11) đạt; toàn bộ kiểm thử giao diện KQ18F_E2E; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt; cấu hình Caddy kiểm tra bằng `caddy validate` (Caddy 2.10) hợp lệ.
+- Rủi ro: tên miền lạ không có trang; trang công khai đọc dữ liệu đã duyệt, cần người duyệt rà ảnh có trẻ trước khi đăng.
+- Khả năng tương thích: không đổi điểm cuối cũ; Caddyfile thêm khối `https://` cuối cùng nên các tên miền đã có giữ nguyên.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 18f; chạy phần quay lui của tệp định danh `0058` và tệp hệ thống `0021` (xóa 8 bảng); tệp dưới tiền tố `website/` ở kho tệp xóa tay nếu cần; bỏ khối `on_demand_tls` và `https://` khỏi Caddyfile.
 
 ### Phiên bản 0.93.0 – 2026-10-20
 

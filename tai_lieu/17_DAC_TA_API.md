@@ -1,8 +1,8 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.89
-- Ngày cập nhật: 2026-10-20
+- Phiên bản: 1.90
+- Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -1322,6 +1322,12 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, POST, PUT, DELETE | /api/v1/unit-schedules, /unit-schedules/publish, /unit-schedules/export, /unit-schedule-templates, /unit-schedule-templates/{id}/apply | Lịch đơn vị, công bố, xuất, mẫu lịch (P09-25, YCTD-141) |
 | GET, POST, PUT, DELETE | /api/v1/work-files, /work-files/{id}, /items, /shares, /transfer, /close, /reopen, /submit, /accept, /return | Hồ sơ công việc, nộp lưu (P09-26, YCTD-141) |
 | GET | /api/v1/document-reports/incoming, /summary, /statistics, /export | Báo cáo (P09-27, YCTD-141) |
+| GET, PUT, POST, DELETE | /api/v1/website/settings, /website/settings/images/{purpose}, /website/sample-content, /website/disclosure-categories | Thông tin website, biểu trưng, ảnh đầu trang, nội dung mẫu, nhóm công khai (P14-13, YCTD-144) |
+| GET, POST, PATCH, DELETE | /api/v1/website/domains, /website/domains/{id}, /website/domains/{id}/dns-confirmation | Tên miền (P14-13, YCTD-144) |
+| GET, POST, PUT, DELETE | /api/v1/website/posts, /website/posts/{id}, /submit, /approve, /return, /unpublish, /files, /files/{fileId} | Bài viết, luồng duyệt, tệp (P14-14, YCTD-144) |
+| GET, POST, PUT, DELETE | /api/v1/website/albums, /website/albums/{id}, /submit, /approve, /return, /unpublish, /files, /files/{fileId}, /cover/{fileId} | Thư viện ảnh (P14-15, YCTD-144) |
+| GET, POST | /api/v1/website/review, /website/files/{fileId}, /website/contacts, /website/contacts/{id}/handle | Nội dung chờ duyệt, xem tệp, thư liên hệ (YCTD-144) |
+| GET, POST | /api/v1/public/site, /public/site/{trang}, /public/website/domain-check | Trang công khai theo tên miền (không cần đăng nhập; trang gioi-thieu, co-cau-to-chuc, tin-tuc, thong-bao, van-ban, tuyen-sinh, cong-khai, thoi-khoa-bieu, thu-vien-anh, lien-he, tep, robots.txt, sitemap.xml), kiểm tra tên miền cho máy chủ web (P14-16, YCTD-144) |
 | GET | /api/v1/outgoing-documents | Danh sách văn bản đi theo `view` (`drafts`, `pending`, `processed`, `to_issue`, `issued`, `search`), lọc, phân trang (YCTD-140) |
 | GET | /api/v1/outgoing-documents/recipients | Đơn vị nhận của văn bản đã ban hành theo `status` (`pending`, `sent`, `delivered`, `all`) |
 | GET | /api/v1/outgoing-documents/next-number | Số đi kế tiếp của sổ văn bản đi (`book_id`) |
@@ -1345,6 +1351,14 @@ Giao kèo văn bản đến theo VNPT iOffice (DT-18 phần 18a, YCTD-138, BR-13
 5. Thao tác hàng loạt `complete`, `archive` (thêm `archive_record_id` của hồ sơ tài liệu 5.10.1) nhận `ids` (1 đến 200), trả mỗi văn bản `id`, `ok`, `message`; văn bản không làm được không chặn văn bản khác. `flags` nhận `ids` và `starred` hoặc `followed`.
 6. Tệp: PDF, JPEG, PNG, Word, Excel theo chữ ký tệp, tối đa 50 MB, tối đa 30 tệp mỗi văn bản; `kind` `main` hoặc `related`, `scanned` là `true` khi quét. Người tải lên hoặc văn thư xóa tệp khi văn bản chưa kết thúc. Phiếu PDF khổ dọc, tên tệp `phieu-trinh-…`, `phieu-xu-ly-…`, `phieu-giao-nhan-…`. Sổ đăng ký trả `book`, `items` (cột của iOffice; văn bản hạn chế xem che trích yếu); tệp Excel `so-van-ban-den-<năm>-….xlsx` ghi `export_logs` mã `incoming_document_register`.
 7. Người nhận được chuyển nhận thông báo trong ứng dụng (mẫu `incoming_document`); trả lại, từ chối, xử lý xong, xin gia hạn báo người chuyển; kết quả gia hạn báo người xin. `PORTAL_QUICK_LINK_PATHS` thêm 12 đường dẫn của phân hệ `documents`; `DATA_GRID_KEYS` thêm `incoming-documents`, `incoming-manage`, `incoming-interconnect`, `incoming-register`, `document-books`, `external-units`, `external-unit-groups`, `document-catalogs`.
+
+Giao kèo website trường (DT-18 phần 18f, YCTD-144, BR-139; dữ liệu ở cơ sở dữ liệu hệ thống):
+
+1. Quyền: ghi `/website/settings`, `/website/domains`, `/website/sample-content` cần `P14.website.configure`; bài, album, thư liên hệ cần `P14.website.edit` hoặc `P14.website.approve`; `/approve`, `/return`, `/unpublish`, `/website/review`, `/contacts/{id}/handle` cần `P14.website.approve`.
+2. `POST /website/domains` nhận `hostname` (chữ không dấu, số, gạch ngang, có dấu chấm, không giao thức, cổng), `kind` (`primary`, `alias`, `demo`), `note`; tên miền chính thứ hai trả 422 `YCTD-144`, trùng trả 409. `/dns-confirmation` nhận `confirmed`.
+3. `POST /website/posts` nhận `kind`, `title` (bắt buộc), `summary`, `body_html` (lọc trước khi lưu), `pinned`, `page_key` (`intro`, `organization` với `page`; trùng trả 409), `disclosure_category`, `disclosure_year` (dạng 2026-2027) với `disclosure`. `/files` nhận tệp `file` và `purpose` (`cover`, `attachment`); album nhận `file`, `caption`. `/albums/{id}/submit` nhận `consent_confirmed` bắt buộc đúng. `/return` nhận `note`, `/unpublish` nhận `reason` bắt buộc.
+4. `GET /public/website/domain-check?domain=` trả 200 khi tên miền đã đăng ký và đang dùng, 404 khi không (Caddy `on_demand_tls`). Trang `/public/site/*` chọn trường theo tên máy của yêu cầu; tên miền lạ trả trang 404; tên miền phụ trả 301 về tên miền chính; có `X-Website-Root: 1` thì liên kết tính từ gốc tên miền. Trang trả `Content-Security-Policy: default-src 'none'; ...`. `POST /public/site/lien-he` nhận biểu mẫu `full_name`, `phone`, `email`, `subject`, `message`; thành công trả 303 về `/lien-he?da-gui=1`, lỗi trả 422 kèm biểu mẫu, quá giới hạn trả 429.
+
 
 Giao kèo giao việc, lịch, hồ sơ công việc, báo cáo theo VNPT iOffice (DT-18 phần 18c, YCTD-141, BR-137; việc ở cơ sở dữ liệu năm học, lịch, phòng họp, hồ sơ ở cơ sở dữ liệu hệ thống):
 
