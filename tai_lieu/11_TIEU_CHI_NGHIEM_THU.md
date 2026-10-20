@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.40
+- Phiên bản: 1.41
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -763,6 +763,11 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-688 | Cho việc nhắc định kì hằng ngày, nhắc người giao việc, hạn hôm nay / Khi tiến trình nhắc việc chạy hai lần / Thì lần đầu gửi nhắc định kì và nhắc người giao, dời lần nhắc sang ngày mai; lần hai không nhắc người giao lại (CT-712; YCTD-141) |
 | AC-689 | Cho phòng họp và lịch tuần / Khi đăng ký phòng trùng giờ; từ chối không lý do; đăng ký lịch có phòng trùng lượt đã duyệt; đăng ký lịch có phòng giờ khác kèm người tham dự rồi công bố; áp mẫu lịch; xuất Excel, PDF / Thì trùng giờ bị chặn; thiếu lý do báo lỗi; lịch đã công bố có ở Lịch của tôi của người tham dự; bản nháp người khác không thấy; tệp tải được, ghi nhật ký xuất (CT-714 đến CT-717; YCTD-141) |
 | AC-690 | Cho hồ sơ công việc và báo cáo / Khi chia sẻ quyền xem rồi người được chia sẻ thêm thành phần; chuyển giao; nộp lưu khi chưa kết thúc; trả về; tiếp nhận; hồ sơ lưu quá số năm bảo quản; xem báo cáo thực hiện văn bản đến, tổng hợp, thống kê / Thì thêm bị chặn; người nhận thấy ở hồ sơ được chuyển giao; nộp lưu bị chặn; hồ sơ tài liệu ở 5.10 có thời hạn như hồ sơ; hồ sơ có ở hết hạn bảo quản; báo cáo đếm đúng, người không có quyền bị chặn (CT-713, CT-718, CT-719; YCTD-141) |
+| AC-691 | Cho quản lý một phân hiệu / Khi thêm kho, vị trí trong kho, thêm trùng mã, đặt vị trí trong vị trí, thêm nơi để cho phân hiệu khác / Thì kho, vị trí được ghi; trùng mã lỗi xung đột; ba cấp bị từ chối; đơn vị khác bị từ chối quyền | P13-16, BR-138 |
+| AC-692 | Cho một tài sản và một lô của phân hiệu / Khi gán vào vị trí trong kho, lọc theo kho, in tem hai lần, giáo viên đơn vị đó và đơn vị khác tra mã tem / Thì lọc theo kho ra cả hai; tệp là PDF; mã tem dạng TB- và 10 ký tự, không đổi khi in lại, không chứa tên miền; giáo viên đơn vị đó thấy thiết bị và nơi để, đơn vị khác không tìm thấy | P13-16, BR-138 |
+| AC-693 | Cho đợt kiểm kê đang mở của phân hiệu / Khi lập đợt thứ hai, nộp khi còn dòng chưa kiểm, giáo viên quét tài sản hỏng, quét lô 8 đếm được 6 dùng được, quét tài sản mua sau khi lập đợt, giáo viên đơn vị khác quét / Thì đợt thứ hai và nộp sớm bị từ chối (YCTD-143); dòng tài sản Khớp, tình trạng hỏng; lô Thiếu 2; thêm dòng ngoài sổ Thừa; đơn vị khác bị từ chối quyền; tỷ lệ sử dụng được 70% | P13-17, BR-138 |
+| AC-694 | Cho đợt đã kiểm đủ / Khi nộp, quét sau khi nộp, trả lại, nộp lại, chốt trước khi duyệt, duyệt, chốt, xuất biên bản PDF, Excel / Thì quét sau khi nộp và chốt sớm bị từ chối; chốt xong lô có số hiện có bằng số dùng được, tài sản hỏng có ghi nhận hỏng chờ duyệt; biên bản PDF, Excel tải được; lập được đợt mới | P13-17, BR-138, BR-61 |
+| AC-695 | Cho danh mục mẫu Mầm non / Khi quản lý một đơn vị nạp, Hiệu trưởng nạp có ngừng dòng gieo sẵn, nạp lại, xem đối sánh cấp học không có / Thì quản lý đơn vị bị từ chối; nạp thêm 515 thiết bị, ngừng dòng gieo sẵn chưa có số hiện có; nạp lại không thêm; cấp học sai báo lỗi; đối sánh báo Đủ, Thiếu, Chưa có | P13-18, BR-138 |
 
 ## 20. Chưa xác minh được
 

@@ -21,5 +21,8 @@
     "@school-management/config": "workspace:*",
     "@types/react": "^19.0.0",
     "react": "^19.0.0"
+  },
+  "dependencies": {
+    "jsqr": "1.4.0"
   }
 }

@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.60
+- Phiên bản: 1.61
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -277,6 +277,9 @@
 | P13-13 | Thực trạng và nhu cầu đầu tư phòng học, nhà công vụ (6.1 của Sở, G3, YCTD-128) | VT-02 ghi (`P01.school-profile.manage` toàn trường); VT-15 xem (`P17.report.facilities` toàn trường) | Hai chỉ tiêu Phòng học, Nhà công vụ cho giáo viên: kiên cố, bán kiên cố, cấp 4 xuống cấp, nhờ mượn; nhu cầu số lớp, số phòng, kinh phí (triệu đồng); ghi chú | Lấy số liệu hiện trạng từ khai báo phòng đang dùng, người nhập sửa rồi Ghi; xuất Excel kèm nhật ký xuất | Bảng thực trạng và nhu cầu đầu tư, tệp Excel | BR-126, BR-74 |
 | P13-14 | Nhập phòng và danh mục thiết bị từ Excel (1.1, 2.1, 2.2 của Sở, G3, YCTD-128) | VT-02, VT-03 nhập phòng (`P01.room.manage`, trong phạm vi); VT-02 nhập danh mục (`P13.equipment.manage` toàn trường) | Tệp theo mẫu (kèm dữ liệu), chọn cột | Kiểm tra cả tệp, báo lỗi theo dòng, xuất file lỗi; mã đã có thì cập nhật, mới thì thêm; ghi khi không còn dòng lỗi, ghi nhật ký thao tác | Phòng, thiết bị đã ghi; báo cáo dòng lỗi | BR-126, BR-102, BR-103 |
 | P13-15 | Gửi thiết bị dạy học lên cấp trên (2.3 của Sở, bản chạy nội bộ, G3, YCTD-128) | VT-02, VT-15 (`P17.report.facilities` toàn trường); VT-02 mở khóa | Biểu mẫu Tổng hợp thiết bị dạy học, ngày gửi, ghi chú, trường không có dữ liệu | Hoàn thiện dữ liệu, Xuất tệp gửi (tổng hợp thiết bị và theo lớp), Đánh dấu đã gửi, Gửi yêu cầu mở khóa theo P17-20; không truyền đi | Trạng thái gửi, tệp gửi | BR-126, BR-119 |
+| P13-16 | Nơi để và tem QR thiết bị (2.4, G3, YCTD-143) | VT-02, VT-03, VT-11 ghi (`P13.equipment.manage` trong phạm vi); VT-15 xem | Nơi để: mã, tên, loại (phòng, kho, vị trí), phòng đã khai báo, nơi để cha, ghi chú; chọn tài sản, lô | Thêm, sửa, ngừng nơi để; gán nơi để hàng loạt; in tem QR PDF A4 3 × 8, cấp mã tem lần đầu, ghi nhật ký xuất | Danh sách nơi để, thiết bị kèm nơi để và mã tem, tệp tem | BR-138, BR-74 |
+| P13-17 | Kiểm kê thiết bị bằng điện thoại (2.5, MG-18, G3, YCTD-143) | VT-02, VT-03, VT-11 lập, nộp, duyệt, chốt; VT-02, VT-15, VT-03, VT-11, VT-07, VT-08 quét (`P13.equipment.stocktake`) | Đợt: đơn vị, nơi kiểm kê, tên, ngày, tổ kiểm kê; quét: mã tem, tình trạng hoặc số đếm được, số dùng được, nơi thấy, ghi chú | Chụp sổ khi lập đợt; quét QR trên ứng dụng giáo viên hoặc web di động; đối chiếu, tổng hợp, tỷ lệ sử dụng được; nộp, duyệt, trả lại, hủy, chốt chênh lệch (số hiện có của lô, nơi để, ghi nhận hỏng, mất); biên bản PDF, Excel | Đợt kiểm kê, bảng đối chiếu, biên bản | BR-138, BR-61, BR-74 |
+| P13-18 | Đối sánh danh mục thiết bị tối thiểu theo cấp học (2.6, G3, YCTD-143) | VT-02 nạp mẫu (`P13.equipment.manage` toàn trường); VT-02, VT-15, VT-03, VT-11 xem | Đơn vị, cấp học, kết quả | Nạp danh mục mẫu (Mầm non theo TT 02/2010, TT 34/2013) chỉ thêm mã chưa có, tùy chọn ngừng dòng gieo sẵn tạm thời; đối sánh định mức với hiện có: Đủ, Thiếu, Chưa có; xuất Excel, PDF | Bảng đối sánh, tỷ lệ đủ, tệp | BR-138, BR-102, BR-74 |
 
 ## 15. Phân hệ P14 — Hoạt động, nội dung và truyền thông
 
