@@ -18,7 +18,7 @@
 
 ### Phiên bản 0.92.0 – 2026-10-20
 
-- Phạm vi thay đổi: DT-18 phần 18g, thiết bị có nơi để, tem QR, kiểm kê bằng điện thoại, đối sánh danh mục tối thiểu theo cấp học (YCTD-143, PR PR18G_SO).
+- Phạm vi thay đổi: DT-18 phần 18g, thiết bị có nơi để, tem QR, kiểm kê bằng điện thoại, đối sánh danh mục tối thiểu theo cấp học (YCTD-143, PR 119).
 - Chức năng mới: 2.4 Nơi để và tem QR thiết bị (nơi để phòng, kho, vị trí; gán nơi để hàng loạt; in tem QR khổ A4 3 × 8, mã tem không có tên miền); 2.5 Kiểm kê thiết bị (lập đợt chụp sổ, quét QR trên ứng dụng giáo viên hoặc web di động, đối chiếu, tỷ lệ sử dụng được, nộp, duyệt, trả lại, chốt chênh lệch, biên bản PDF, Excel); 2.6 Đối sánh danh mục tối thiểu (danh mục cấu hình theo cấp học, nạp mẫu Mầm non 515 thiết bị theo TT 02/2010 sửa đổi bởi TT 34/2013, báo Đủ, Thiếu, Chưa có); màn hình Kiểm kê thiết bị của ứng dụng giáo viên (P13-15 đến P13-17).
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp năm học `0067_add_equipment_locations_stocktakes` (ba bảng mới, sáu cột mới của `equipment_items`, `equipment_holdings`, `assets`); tệp định danh `0057_add_equipment_stocktake_permission` (quyền `P13.equipment.stocktake`).
