@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.56
+- Phiên bản: 1.57
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -191,6 +191,13 @@
 | P09-06 | Hồ sơ tài liệu (5.10.1 của Sở, YCTD-118; đơn vị, người giải quyết theo nhân sự, nhắc hạn: YCTD-122) | VT-02, VT-04, VT-06; xem VT-15, VT-03 | Số, ký hiệu, tiêu đề, phông, người giải quyết, ngày mở, thời hạn, trạng thái, ngày hoàn thành, thời hạn bảo quản, số tờ, ghi chú, tệp đính kèm | Ghi hồ sơ, tính quá hạn, lưu tệp ở kho tệp, ghi nhật ký thao tác | Hai danh sách hoàn thành, chưa hoàn thành; tệp Excel | BR-116, BR-120, BR-74 |
 | P09-07 | Phông và thông tin lưu trữ (5.10.2, 5.10.3, YCTD-118) | VT-02, VT-04, VT-06; xem VT-15, VT-03 | Mã, tên phông; phông, giai đoạn, chỉnh lý, hết giá trị, thời hạn bảo quản, số bó, số hộp, số mét giá, nơi bảo quản | Ghi phông, thông tin lưu trữ; chặn xóa phông còn dữ liệu | Danh sách phông, thông tin lưu trữ | BR-116 |
 | P09-08 | Báo cáo lưu trữ (5.10.4, YCTD-118) | VT-02, VT-15, VT-03, VT-04, VT-06 | Phông, nơi bảo quản | Cộng số mét giá theo đã chỉnh lý, chưa chỉnh lý, hết giá trị, vĩnh viễn, có thời hạn, cộng số bó, số hộp theo phông và giai đoạn | Bảng báo cáo có dòng tổng cộng; tệp Excel | BR-116, BR-74 |
+| P09-09 | Thiết lập KPI: kỳ, lịch kỳ, bộ quy tắc có phiên bản, đối tượng đánh giá (YCTD-139) | VT-02, VT-06 (`P09.kpi.configure`) | Mã, tên, loại, ngày kỳ, lịch bốn bước; cấu hình JSON của phiên bản; bộ quy tắc, nhóm, cấp học, vị trí, cấp trên, người đứng đầu | Kiểm tra cấu hình, ban hành, áp phiên bản cho kỳ, khóa kỳ chốt mức, mở lại có lý do | Danh sách kỳ, bộ quy tắc, tóm tắt cấu hình, mẫu quy chế Word | BR-134 |
+| P09-10 | Danh mục công việc chuẩn (YCTD-139) | VT-02, VT-06 danh mục chung; VT-03, VT-17 danh mục đơn vị; mọi nhân sự xem, đề xuất | Mã, tên, kết quả đầu ra, trục, loại, hệ số, minh chứng dự kiến, thời hạn, cấp học, vị trí, bắt buộc, mật; tệp Excel | Kiểm tra mã theo cấu hình, duyệt đề xuất, nhập Excel cả tệp | Danh mục, số chỉ báo đã nhập, tệp lỗi, Excel | BR-134 |
+| P09-11 | Giao việc, tự đăng ký, duyệt, chuyển trả, gia hạn (YCTD-139) | Quản lý giao, duyệt (`P09.kpi.manage`); nhân sự đăng ký, xác nhận (`P09.kpi.participate`) | Người thực hiện, việc từ danh mục hoặc mới, hạn, hệ số, mật; lý do | Điểm chuẩn, hệ số theo bộ quy tắc của người thực hiện; việc đầu kỳ hay phát sinh; hạn duyệt tự động; thông báo | Danh sách việc theo trạng thái | BR-134 |
+| P09-12 | Minh chứng, tự đánh giá, chấm, ủy quyền chấm (YCTD-139) | Người thực hiện; người chấm | Ngày hoàn thành, minh chứng, số ký hiệu văn bản, tệp; mức tự đánh giá, đề xuất thưởng; mức chấm, điều chỉnh tiến độ, vượt yêu cầu, thưởng; người được ủy quyền | Tiến độ theo ngày làm việc chậm, điểm thực hiện, quy đổi, thưởng; hạn chấm tự động; sổ trách nhiệm | Kết quả từng việc | BR-134 |
+| P09-13 | Tự đánh giá, xếp loại và kết luận của cấp trên (YCTD-139) | Nhân sự; cấp trên | Tiêu chí chung đảm bảo hay không, mức tự đề xuất; điều chỉnh tiêu chí, loại trừ, mức, nhận xét | A, B, phần kết quả, thưởng, tổng, mức đề xuất; chặn khi còn việc chờ | Phiếu theo Mẫu 01-A, 01-B | BR-134 |
+| P09-14 | Tham mưu và biểu quyết xếp loại (YCTD-139) | VT-02, VT-15, VT-06 tham mưu; VT-02, VT-15 biểu quyết | Mức, ghi chú tham mưu; mức biểu quyết | Tỷ lệ xuất sắc theo phiên bản, nhóm; đếm biểu quyết | Danh sách kèm số xuất sắc được phép | BR-134 |
+| P09-15 | Báo cáo KPI và chuyển dữ liệu từ hệ thống cũ (YCTD-139) | Mọi nhân sự (mẫu của mình); quản lý, tham mưu, cấu hình (tổng hợp); cấu hình toàn trường (chuyển dữ liệu) | Kỳ, phiếu, định dạng; tệp sao lưu SQLite | Dựng Excel, Word, PDF, ghi nhật ký xuất; ghép người theo họ tên, xem trước không ghi | Bảng tính điểm, bản tự đánh giá, tổng hợp, phiếu tháng, phiếu năm, quy chế, sổ trách nhiệm; kết quả chuyển | BR-134 |
 
 ## 11. Phân hệ P10 — Y tế học đường
 

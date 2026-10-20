@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.14
+- Phiên bản: 0.15
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,30 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-20 — DT-18 phần 18d: phân hệ KPI
+
+#### Công việc đã thực hiện
+
+- Khảo sát kho hệ thống KPI cũ (chỉ đọc, bản `7b2f948`): lược đồ, luồng giao việc, đăng ký, minh chứng, chấm, ủy quyền chấm, tự đánh giá, tham mưu, biểu quyết, chốt kỳ, mẫu báo cáo. Đối chiếu tiêu chí chung với Mẫu 01-A, 01-B của Hướng dẫn 06-HD/BTCTU do Eric gửi. Không mở, không chép tệp dữ liệu nào của hệ thống cũ.
+- Cơ sở dữ liệu năm học: tệp `0064_create_kpi` tạo 12 bảng `kpi_*` và hai bộ quy tắc mặc định; cơ sở dữ liệu định danh: tệp `0053_add_kpi_permissions` thêm năm quyền P09.
+- Gói dùng chung: kiểu cấu hình bộ quy tắc, nhãn (`packages/shared/src/kpi.ts`); phân hệ "Đánh giá KPI" 13 mục ở `PORTAL_WORKSPACES`, điều kiện hiện mục, `PERMISSION_CODES`, `DATA_GRID_KEYS`, `PORTAL_QUICK_LINK_PATHS`.
+- Máy chủ API (`apps/api/src/kpi/`): máy chấm đọc mọi tham số từ cấu hình; thiết lập; danh mục; việc; phiếu đánh giá, tham mưu, biểu quyết, khóa kỳ; mẫu báo cáo Excel, Word, PDF; chuyển dữ liệu cũ. Hàm đặt tên khóa kho tệp dùng chung `resource-names.ts` (cùng tệp với phần 18a).
+- Cổng quản trị: 13 trang của phân hệ "Đánh giá KPI" (`apps/portal/src/kpi/`).
+- Thêm quy tắc BR-134, chức năng P09-09 đến P09-15, quyền PQ-78, màn hình MH-158 đến MH-170, kịch bản CT-667 đến CT-685, tiêu chí AC-663 đến AC-672. Kết quả ngày 20/10/2026: kiểm thử đơn vị `apps/api/src/kpi/kpi.test.ts` CT-18d-1 đến CT-18d-18 đạt 18/18; kiểm thử đơn vị toàn bộ kho mã 908/908 đạt (lượt đầu 907/908, ca CT-16d-3 đếm số phân hệ đổi từ 13 thành 14 vì có phân hệ mới, đã sửa và chạy lại đạt); kiểm thử giao diện `tests/e2e/71-kpi.spec.ts` (CT-18d-19) đạt; toàn bộ kiểm thử giao diện E2E_PLACEHOLDER; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 18d của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9.4 theo quyết định của Eric ngày 2026-10-19 (chuyển hẳn KPI vào, hai bộ quy tắc). Ngày 2026-10-20 Eric chọn tiêu chí chung theo Mẫu 01-A, 01-B làm tiêu chuẩn chung cho tất cả. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-139.
+- Văn bản điều chỉnh Hướng dẫn 06 hạn chế phát tán: chỉ đưa tham số chấm điểm dạng cấu hình, đặt tên "Bộ quy tắc 1".
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-139, `07_QUY_TAC_NGHIEP_VU.md` BR-134, `08_VAI_TRO_NGUOI_DUNG.md` PQ-78, `10_YEU_CAU_CHUC_NANG.md` P09-09 đến P09-15, `11_TIEU_CHI_NGHIEM_THU.md` AC-663 đến AC-672, `14_DAC_TA_GIAO_DIEN.md` MH-158 đến MH-170, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-667 đến CT-685, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.89.0.
+
+#### Vấn đề tồn đọng
+
+- Chưa có danh sách 14 tiêu chí chung và chỉ báo theo cấp học của bản mẫu theo Nghị định 233/2026; bốn mức giữa của thang 6 mức là cấu hình tạm. Số ký hiệu văn bản nối sổ văn bản đi khi phần 18b gộp.
 
 ### 2026-10-20 — Kế hoạch DT-18 điều hành nhà trường
 
