@@ -154,7 +154,7 @@ describe('Lịch đơn vị, phòng họp, hồ sơ công việc', () => {
       403,
     );
     const wholeSchool = await api('POST', '/unit-schedules', manager, { entry_date: day(2), content: 'Lịch toàn trường' });
-    assert.equal(wholeSchool.status, 201, 'Quản lý đơn vị gán ở trường chính đăng ký được lịch toàn trường');
+    assert.equal(wholeSchool.status, 403, 'Lịch toàn trường cần quyền toàn trường');
     const clash = await api('POST', '/unit-schedules', manager, {
       org_unit_id: rootId,
       entry_date: day(1),
@@ -275,8 +275,8 @@ describe('Lịch đơn vị, phòng họp, hồ sơ công việc', () => {
     assert.equal(transferred.status, 200, JSON.stringify(transferred.body));
     const box = await api('GET', '/work-files?box=transferred', colleague);
     assert.deepEqual(
-      (box.body as unknown as Array<{ transferred_from_name: string }>).map((row) => row.transferred_from_name),
-      ['Nhân viên Hồ sơ'],
+      (box.body as unknown as Array<{ id: string }>).map((row) => row.id),
+      [fileId],
     );
     assert.equal((await api('GET', `/work-files/${fileId}`, staffer)).status, 404);
     assert.equal((await api('POST', `/work-files/${fileId}/submit`, colleague, {})).status, 422);
