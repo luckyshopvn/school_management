@@ -30,7 +30,7 @@ function throwIfAny(errors: FieldError[]) {
 
 function readUnit(query: Record<string, unknown>, errors: FieldError[]): string | null {
   const value = query.org_unit_id;
-  if (value === undefined || value === '') {
+  if (value === undefined || value === null || value === '') {
     return null;
   }
   if (!isUuid(value)) {
