@@ -23,7 +23,7 @@
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp hệ thống `0018_create_incoming_document_tables` (13 bảng, danh mục mặc định); tệp định danh `0052_add_incoming_document_permissions` (bốn quyền P09, bỏ phân hệ khỏi VT-14).
 - Thay đổi API: các nhóm điểm cuối mới `/document-catalogs`, `/external-units`, `/external-unit-groups`, `/document-leaders`, `/document-staff`, `/document-books`, `/incoming-documents` (xem `17_DAC_TA_API.md` mục 12).
-- Kiểm thử: kịch bản CT-667 đến CT-677. KQ18A_KETQUA
+- Kiểm thử: kịch bản CT-667 đến CT-677. Kết quả ngày 20/10/2026: kiểm thử đơn vị CT-18a-1 đến CT-18a-10 đạt 10/10 (cùng `menu-permissions.test.ts`, `quick-links.test.ts` 17/17 ca; sửa `system-admin-so.test.ts` CT-16d-3 đếm 14 phân hệ, 10/10 ca); kiểm thử đơn vị toàn bộ kho mã 900/900 đạt (sau khi sửa ca CT-16d-3); kiểm thử giao diện CT-18a-11 (`70-incoming-documents.spec.ts`) đạt; toàn bộ kiểm thử giao diện 140/140 đạt (spec 58 đếm 14 phân hệ); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Rủi ro: văn bản đến có thể có nội dung mật; hạn chế xem chỉ che với người ngoài luồng, tệp đính kèm không mã hóa riêng ngoài kho tệp; độ mật hiện là nhãn, không tự hạn chế xem.
 - Khả năng tương thích: không đổi dữ liệu, điểm cuối cũ; nhóm người dùng đã có nhận thêm phân hệ mới (trừ VT-14).
 - Phương án quay lui: hoàn lại commit gộp của nhánh `dt-18-phan-18a`; chạy phần quay lui của tệp định danh `0052` (xóa bốn quyền, dòng loại trừ phân hệ) và tệp hệ thống `0018` (xóa 13 bảng); tệp ở kho tệp dưới tiền tố `incoming-documents/` xóa tay nếu cần.

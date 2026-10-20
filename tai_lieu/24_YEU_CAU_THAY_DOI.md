@@ -39,7 +39,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
   - Chưa nhắc hạn định kỳ (chỉ thông báo khi được chuyển); "Việc của tôi" ở phần 18e gom văn bản chờ xử lý.
   - Độ mật là nhãn, không tự hạn chế xem; danh sách văn bản không chặn người có quyền tra cứu xem văn bản mật chưa đặt hạn chế.
   - Mẫu phiếu trình, phiếu xử lý, phiếu giao nhận, mẫu nhập nội dung xử lý tự đặt.
-- Kiểm thử cần thực hiện: kịch bản CT-667 đến CT-677; kiểm thử đơn vị mới `apps/api/src/incoming-documents/incoming-documents.test.ts` (CT-667 đến CT-676, trong mã kiểm thử là CT-18a-1 đến CT-18a-10); kiểm thử giao diện mới `tests/e2e/70-incoming-documents.spec.ts` (CT-677, trong mã kiểm thử là CT-18a-11). KQ18A_KETQUA
+- Kiểm thử cần thực hiện: kịch bản CT-667 đến CT-677; kiểm thử đơn vị mới `apps/api/src/incoming-documents/incoming-documents.test.ts` (CT-667 đến CT-676, trong mã kiểm thử là CT-18a-1 đến CT-18a-10); kiểm thử giao diện mới `tests/e2e/70-incoming-documents.spec.ts` (CT-677, trong mã kiểm thử là CT-18a-11). Kết quả ngày 20/10/2026: kiểm thử đơn vị CT-18a-1 đến CT-18a-10 đạt 10/10 (cùng `menu-permissions.test.ts`, `quick-links.test.ts` 17/17 ca; sửa `system-admin-so.test.ts` CT-16d-3 đếm 14 phân hệ, 10/10 ca); kiểm thử đơn vị toàn bộ kho mã 900/900 đạt (sau khi sửa ca CT-16d-3); kiểm thử giao diện CT-18a-11 (`70-incoming-documents.spec.ts`) đạt; toàn bộ kiểm thử giao diện 140/140 đạt (spec 58 đếm 14 phân hệ); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Trạng thái: Đã triển khai
 
 ### YCTD-137: Kế hoạch DT-18 điều hành nhà trường – 2026-10-20
