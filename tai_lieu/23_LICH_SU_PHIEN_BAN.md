@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.14
+- Phiên bản: 0.15
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.89.0 – 2026-10-20
+
+- Phạm vi thay đổi: DT-18 phần 18a, văn bản đến theo hệ thống quản lý văn bản và điều hành VNPT iOffice (YCTD-138).
+- Chức năng mới: phân hệ "Quản lý văn bản và điều hành" (14 phân hệ trên cổng quản trị); 1.1 Văn bản đến (chờ xử lý, đã xử lý, lọc vai trò); 1.2 Quản lý văn bản đến (vào sổ theo biểu mẫu THÔNG TIN VĂN BẢN ĐẾN); luồng xử lý (trình lãnh đạo, chuyển lãnh đạo, chuyển xử lý chính, phối hợp, xem để biết, chuyển trực tiếp, luân chuyển, trả lại, từ chối, lấy lại, xử lý xong, xin gia hạn, kết thúc, kết thúc hàng loạt, lưu hồ sơ hàng loạt, văn bản trả lời, hạn chế xem, đánh dấu, theo dõi, đánh dấu chưa đọc); phiếu trình, phiếu xử lý, phiếu giao nhận PDF; sơ đồ luồng văn bản, lịch sử tham mưu; 1.3 đến 1.6 xem để biết, đánh dấu, theo dõi, tra cứu; 1.7 liên thông văn bản bản chạy nội bộ; 2.1 Sổ văn bản (sổ đăng ký, xuất Excel), 2.2 Đơn vị bên ngoài, 2.3 Khai báo nhóm đơn vị ban hành, 2.4 Danh mục văn bản, 2.5 Lãnh đạo nhận văn bản (P09-09 đến P09-12).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp hệ thống `0018_create_incoming_document_tables` (13 bảng, danh mục mặc định); tệp định danh `0052_add_incoming_document_permissions` (bốn quyền P09, bỏ phân hệ khỏi VT-14).
+- Thay đổi API: các nhóm điểm cuối mới `/document-catalogs`, `/external-units`, `/external-unit-groups`, `/document-leaders`, `/document-staff`, `/document-books`, `/incoming-documents` (xem `17_DAC_TA_API.md` mục 12).
+- Kiểm thử: kịch bản CT-667 đến CT-677. KQ18A_KETQUA
+- Rủi ro: văn bản đến có thể có nội dung mật; hạn chế xem chỉ che với người ngoài luồng, tệp đính kèm không mã hóa riêng ngoài kho tệp; độ mật hiện là nhãn, không tự hạn chế xem.
+- Khả năng tương thích: không đổi dữ liệu, điểm cuối cũ; nhóm người dùng đã có nhận thêm phân hệ mới (trừ VT-14).
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-18-phan-18a`; chạy phần quay lui của tệp định danh `0052` (xóa bốn quyền, dòng loại trừ phân hệ) và tệp hệ thống `0018` (xóa 13 bảng); tệp ở kho tệp dưới tiền tố `incoming-documents/` xóa tay nếu cần.
 
 ### Phiên bản 0.88.0 – 2026-10-20
 
