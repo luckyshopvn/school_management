@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.39
+- Phiên bản: 1.40
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -757,6 +757,11 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-682 | Cho văn bản đã ký gửi một đơn vị bên ngoài và một phân hiệu, trả lời một văn bản đến / Khi văn thư cấp số với sổ văn bản đi số bắt đầu 10, phần ký hiệu "TB-THU"; cấp số tay trùng; ngày ngoài sổ / Thì số ký hiệu "10/TB-THU"; phân hiệu có văn bản đến chờ vào sổ kèm bản đã ký, vào sổ được; văn bản đến được trả lời ghi "10/TB-THU"; số trùng, ngày ngoài sổ bị chặn | P09-22, BR-136 |
 | AC-683 | Cho văn bản đã ban hành / Khi văn thư đánh dấu đã gửi đơn vị bên ngoài rồi hủy; public lên cổng; đóng băng rồi public, lưu hồ sơ; hủy đóng băng, lưu hồ sơ; public văn bản mật; văn thư trả lại văn bản đã ký khác / Thì trạng thái gửi đổi Đã đánh dấu gửi rồi Chờ gửi, ghi rõ chưa kết nối trục; khi đóng băng các thao tác bị chặn; lưu hồ sơ được sau hủy đóng băng; văn bản mật không public; văn bản trả lại về Dự thảo, mất bản đã ký và mã tra cứu | P09-22, BR-136 |
 | AC-684 | Cho các văn bản đã ban hành / Khi văn thư xem sổ đăng ký văn bản đi, xuất Excel, in phiếu trình ký; Phó Hiệu trưởng tra cứu theo số ký hiệu; người ngoài mở trang tra cứu bằng mã QR / Thì sổ có đủ cột, che trích yếu văn bản mật; tệp Excel ghi nhật ký xuất; phiếu là PDF; tra cứu đúng văn bản; trang tra cứu hiện "Văn bản đã ban hành", số ký hiệu, trích yếu (văn bản không mật), người ký | P09-23, BR-136 |
+| AC-685 | Cho quản lý một phân hiệu / Khi thêm kho, vị trí trong kho, thêm trùng mã, đặt vị trí trong vị trí, thêm nơi để cho phân hiệu khác / Thì kho, vị trí được ghi; trùng mã lỗi xung đột; ba cấp bị từ chối; đơn vị khác bị từ chối quyền | P13-15, BR-137 |
+| AC-686 | Cho một tài sản và một lô của phân hiệu / Khi gán vào vị trí trong kho, lọc theo kho, in tem hai lần, giáo viên đơn vị đó và đơn vị khác tra mã tem / Thì lọc theo kho ra cả hai; tệp là PDF; mã tem dạng TB- và 10 ký tự, không đổi khi in lại, không chứa tên miền; giáo viên đơn vị đó thấy thiết bị và nơi để, đơn vị khác không tìm thấy | P13-15, BR-137 |
+| AC-687 | Cho đợt kiểm kê đang mở của phân hiệu / Khi lập đợt thứ hai, nộp khi còn dòng chưa kiểm, giáo viên quét tài sản hỏng, quét lô 8 đếm được 6 dùng được, quét tài sản mua sau khi lập đợt, giáo viên đơn vị khác quét / Thì đợt thứ hai và nộp sớm bị từ chối (YCTD-143); dòng tài sản Khớp, tình trạng hỏng; lô Thiếu 2; thêm dòng ngoài sổ Thừa; đơn vị khác bị từ chối quyền; tỷ lệ sử dụng được 70% | P13-16, BR-137 |
+| AC-688 | Cho đợt đã kiểm đủ / Khi nộp, quét sau khi nộp, trả lại, nộp lại, chốt trước khi duyệt, duyệt, chốt, xuất biên bản PDF, Excel / Thì quét sau khi nộp và chốt sớm bị từ chối; chốt xong lô có số hiện có bằng số dùng được, tài sản hỏng có ghi nhận hỏng chờ duyệt; biên bản PDF, Excel tải được; lập được đợt mới | P13-16, BR-137, BR-61 |
+| AC-689 | Cho danh mục mẫu Mầm non / Khi quản lý một đơn vị nạp, Hiệu trưởng nạp có ngừng dòng gieo sẵn, nạp lại, xem đối sánh cấp học không có / Thì quản lý đơn vị bị từ chối; nạp thêm 515 thiết bị, ngừng dòng gieo sẵn chưa có số hiện có; nạp lại không thêm; cấp học sai báo lỗi; đối sánh báo Đủ, Thiếu, Chưa có | P13-17, BR-137 |
 
 ## 20. Chưa xác minh được
 

@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.17
+- Phiên bản: 0.18
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,28 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-20 — DT-18 phần 18g: thiết bị có nơi để, tem QR, kiểm kê, đối sánh danh mục tối thiểu
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu năm học: tệp `0067_add_equipment_locations_stocktakes` tạo `equipment_locations`, `equipment_stocktakes`, `equipment_stocktake_lines`, thêm cột cấp học và mã mẫu cho `equipment_items`, nơi để và mã tem cho `equipment_holdings`, `assets`. Cơ sở dữ liệu định danh: tệp `0057_add_equipment_stocktake_permission` thêm quyền `P13.equipment.stocktake`.
+- Máy chủ API (`apps/api/src/facilities/`): `equipment-locations.ts` (nơi để, gán nơi để, in tem QR PDF, tra mã tem), `equipment-stocktakes.ts` (đợt kiểm kê, quét, nộp, duyệt, trả lại, hủy, chốt chênh lệch, biên bản), `equipment-minimum.ts` (danh mục mẫu, nạp mẫu, đối sánh, xuất), `equipment-templates.ts` (mẫu Mầm non 515 thiết bị), `equipment-stocktake-calc.ts` (hàm tính); bước chuyển năm học `facilities` chuyển nơi để, nơi để và mã tem của lô.
+- Cổng quản trị: 2.4 Nơi để và tem QR thiết bị, 2.5 Kiểm kê thiết bị (khối quét QR dùng trên điện thoại), 2.6 Đối sánh danh mục tối thiểu. Ứng dụng giáo viên: màn hình Kiểm kê thiết bị. Gói giao diện: thành phần `QrScanner` (máy ảnh, giải mã bằng jsQR trên trình duyệt, ô nhập mã).
+- Đọc văn bản gốc trước khi nhập danh mục: Thông tư 02/2010/TT-BGDĐT (danh mục sáu nhóm tuổi) và Thông tư 34/2013/TT-BGDĐT (bãi bỏ 47 thiết bị, đổi tên hai thiết bị), bản đăng trên trang văn bản pháp luật.
+- Thêm quy tắc BR-137, chức năng P13-15 đến P13-17, quyền PQ-81, màn hình MH-187 đến MH-189 và MG-18, kịch bản CT-707 đến CT-713, tiêu chí AC-685 đến AC-689. Kết quả ngày 20/10/2026: kiểm thử đơn vị `apps/api/src/facilities/equipment-18g.test.ts` CT-18g-1 đến CT-18g-6 đạt 6/6; kiểm thử đơn vị toàn bộ kho mã 933/933 đạt; kiểm thử giao diện `tests/e2e/73-equipment-stocktake.spec.ts` (CT-18g-7) đạt; toàn bộ kiểm thử giao diện 141/143 đạt (hai ca hỏng `59-portal-shell-login` quên mật khẩu, `68-emis-so-indicators` nút chưa ổn định là ca chập chờn đã biết ở máy cục bộ, không liên quan phần này); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 18g của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9.4. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-143: đối tượng của tem và kiểm kê là tài sản (từng thiết bị) và lô (số hiện có của một thiết bị tại đơn vị hoặc lớp); nơi để hai cấp; mã tem `TB-` 10 ký tự không có tên miền; mỗi đơn vị một đợt chưa chốt; chốt chênh lệch lấy số dùng được làm số hiện có của lô và chuyển tài sản hỏng, mất sang luồng ghi nhận hỏng, mất của Kho và tài sản; danh mục mẫu nạp chỉ thêm mã chưa có.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-143, `07_QUY_TAC_NGHIEP_VU.md` BR-137, `08_VAI_TRO_NGUOI_DUNG.md` PQ-81, `10_YEU_CAU_CHUC_NANG.md` P13-15 đến P13-17, `11_TIEU_CHI_NGHIEM_THU.md` AC-685 đến AC-689, `14_DAC_TA_GIAO_DIEN.md` MH-187 đến MH-189, MG-18, `16_CO_SO_DU_LIEU.md` mục 14 và mục 20, `17_DAC_TA_API.md` mục 15, `21_KICH_BAN_KIEM_THU.md` CT-707 đến CT-713, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.92.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9.6.
+
+#### Vấn đề tồn đọng
+
+- Danh mục mẫu Mầm non cần đối chiếu bản gốc trên Công báo; chưa có mẫu Tiểu học, THCS, THPT (cột khối lớp làm ở DT-19); chưa khóa dòng khi hai người cùng quét một thiết bị.
 
 ### 2026-10-20 — DT-18 phần 18b: Văn bản đi theo VNPT iOffice
 

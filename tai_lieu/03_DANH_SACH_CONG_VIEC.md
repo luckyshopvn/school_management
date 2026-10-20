@@ -1,7 +1,7 @@
 # 03. DANH SÁCH KIỂM TRA CÔNG VIỆC
 
 - Mô tả: Danh sách công việc, trạng thái và thứ tự ưu tiên của dự án.
-- Phiên bản: 0.48
+- Phiên bản: 0.49
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đang cập nhật
 
@@ -25,7 +25,7 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | P10 Y tế học đường | Hoàn thành | Đợt DT-10 phần 10a, 10b (YCTD-74, YCTD-75), DT-14 phần 14a (YCTD-105: đợt cân đo, kênh tăng trưởng theo chuẩn WHO, tổng hợp cân nặng, chiều cao); DT-16 phần 16h (YCTD-125: 4.6.1 Nhập thông tin sức khỏe học sinh theo học kỳ, lấy số đo từ 4.3; 4.3.2 tổng hợp theo học kỳ, so sánh hai lần cân đo, được khám định kỳ) |
 | P11 Xe đưa đón | Đã bỏ | Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62) |
 | P12 Bếp và dinh dưỡng | Hoàn thành | Đợt DT-10 phần 10c (YCTD-76); DT-16 phần 16h (YCTD-125: 4.5 thực đơn có tên, tháng, tuần, từ ngày, đến ngày, khối áp dụng, nhập thực đơn từ Excel) |
-| P13 Kho, tài sản và mua hàng | Hoàn thành | Đợt DT-10 phần 10d (YCTD-77), DT-14 phần 14d (YCTD-106: khai báo cơ sở vật chất, thiết bị dạy học tối thiểu); DT-16 phần 16i (YCTD-128: 6.1 thực trạng và nhu cầu đầu tư, nhập phòng và danh mục thiết bị từ Excel, 1.2 báo cáo cơ sở vật chất, 2.3 gửi thiết bị dạy học lên cấp trên chạy nội bộ); DT-15 phần 15f3 (YCTD-115: lưới và biểu mẫu chung cho tồn kho, sổ kho, tài sản, hỏng và mất, kiểm kê, phiếu mua hàng, nhà cung cấp, đề nghị mua hàng; cột Thiết bị dạy học ở lưới tài sản) |
+| P13 Kho, tài sản và mua hàng | Hoàn thành | Đợt DT-10 phần 10d (YCTD-77), DT-14 phần 14d (YCTD-106: khai báo cơ sở vật chất, thiết bị dạy học tối thiểu); DT-16 phần 16i (YCTD-128: 6.1 thực trạng và nhu cầu đầu tư, nhập phòng và danh mục thiết bị từ Excel, 1.2 báo cáo cơ sở vật chất, 2.3 gửi thiết bị dạy học lên cấp trên chạy nội bộ); DT-15 phần 15f3 (YCTD-115: lưới và biểu mẫu chung cho tồn kho, sổ kho, tài sản, hỏng và mất, kiểm kê, phiếu mua hàng, nhà cung cấp, đề nghị mua hàng; cột Thiết bị dạy học ở lưới tài sản) |; DT-18 phần 18g (YCTD-143: nơi để, tem QR, kiểm kê bằng điện thoại, đối sánh danh mục tối thiểu theo cấp học)
 | P14 Hoạt động, nội dung và truyền thông | Hoàn thành | Đợt DT-10 phần 10e (YCTD-78), DT-15 phần 15f3 (YCTD-115: lưới và biểu mẫu chung cho danh mục, tin tức, thư viện, ngoại khóa); Fanpage ở DT-11 phần 11e, tài khoản thật chờ việc T1 |
 | P15 Tương tác và ý kiến | Hoàn thành | Đợt DT-10 phần 10f (YCTD-79), DT-15 phần 15f3 (YCTD-115: lưới và biểu mẫu chung cho bình chọn, khảo sát, góp ý, đồ bị mất, bình luận) |
 | P16 Tuyển sinh | Hoàn thành | Đợt DT-11 phần 11a (YCTD-86), DT-15 phần 15f3 (YCTD-115: lưới và biểu mẫu chung cho hồ sơ, đợt, tin tuyển sinh; "học sinh" thay "trẻ" ở biểu mẫu chuyển hồ sơ); DT-17 phần 17d (YCTD-135: đợt thêm loại hình, năm học nhận trẻ; hồ sơ thêm nguồn phân tuyến, trạng thái Đã hủy nhập học, dùng ở phân hệ Tuyển sinh đầu cấp) |

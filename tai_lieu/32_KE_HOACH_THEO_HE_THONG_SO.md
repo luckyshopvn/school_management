@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường.
-- Phiên bản: 1.22
+- Phiên bản: 1.23
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -372,7 +372,7 @@ Thứ tự gộp để đánh số tài liệu (phiên bản, CT, AC, BR, MH) kh
 | 18b | 2 | Đã triển khai (YCTD-140, PR18B_SO, phiên bản 0.91.0): nhóm 3. Văn bản đi; dự thảo theo biểu mẫu iOffice, lấy ý kiến, cho ý kiến, trình ký, ký nội bộ qua `DossierSigner` có mã QR tra cứu, không ký, trả lại; cấp số và phát hành theo sổ văn bản đi, sổ đăng ký văn bản đi; liên thông nội bộ thành văn bản đến chờ vào sổ của phân hiệu, điểm trường; liên thông ra ngoài đánh dấu tay (chỗ nối `DocumentExchange.send`); public lên cổng (cột `published` cho 18f), đóng băng, lưu hồ sơ; trang tra cứu mã QR công khai |
 | 18c | 2 | Chưa làm, chờ 18a |
 | 18e | 3 | Chưa làm, chờ đợt 2 |
-| 18g | 3 | Chưa làm |
+| 18g | 3 | Đã triển khai (YCTD-143, PR PR18G_SO, phiên bản 0.92.0): 2.4 Nơi để và tem QR thiết bị (phòng, kho, vị trí; tem PDF A4 3 × 8, mã tem không có tên miền); 2.5 Kiểm kê thiết bị (chụp sổ, quét QR trên ứng dụng giáo viên hoặc web di động, đối chiếu, tỷ lệ sử dụng được, nộp, duyệt, trả lại, chốt chênh lệch, biên bản); 2.6 Đối sánh danh mục tối thiểu (cột cấp học, nạp mẫu Mầm non 515 thiết bị theo TT 02/2010 sửa đổi bởi TT 34/2013, Đủ, Thiếu, Chưa có). Mẫu Tiểu học, THCS, THPT thêm sau DT-19 |
 | 18f | 4 | Chưa làm, chờ 18b |
 | 18h | 4 | Chưa làm |
 | 22b | 5 | Chưa làm |

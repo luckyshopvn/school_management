@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.87
+- Phiên bản: 1.88
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -452,6 +452,16 @@ Giao kèo cơ sở vật chất theo Sở (DT-16 phần 16i, YCTD-128, BR-126):
 4. `/facility-imports` cùng dạng điểm cuối với `/imports` (mục 17.1) cho loại `rooms` (cần `P01.room.manage`, đơn vị của dòng trong phạm vi) và `equipment_items` (cần `P13.equipment.manage` toàn trường); loại khác trả `ERR_VALIDATION`; ghi lần nhập còn dòng lỗi hoặc đã ghi trả `ERR_RULE_VIOLATION` mã YCTD-128.
 5. Biểu mẫu gửi lên cấp trên mới (mục 17.1, P17-20): `facilities-report` ("Báo cáo cơ sở vật chất", quyền `P17.report.facilities`, không cho trường không có dữ liệu) và `equipment-summary` ("Tổng hợp thiết bị dạy học", cho trường không có dữ liệu); quyền mở khóa `P01.school-profile.manage`; cả hai cần phạm vi toàn trường. Tệp gửi là tệp Excel của 1.2 (mã báo cáo `facilities-report`) và của 2.1 (`equipment-summary`).
 6. `POST /rooms`, `PATCH /rooms/{id}` nhận thêm `facility_attributes.toilet_users`, `toilet_standard`, `toilet_separate_gender`, `toilet_seats`; gửi cho phòng không phải loại `toilet` trả `ERR_VALIDATION`.
+
+Giao kèo thiết bị: nơi để, tem QR, kiểm kê, đối sánh danh mục tối thiểu (DT-18 phần 18g, YCTD-143, BR-137):
+
+1. `GET /equipment-locations` cần `P13.equipment.manage`, `P17.report.facilities` hoặc `P13.equipment.stocktake`, lọc `org_unit_id`; trả kèm `room_name`, `parent_name`, `target_count`. `POST` (`org_unit_id`, `code` tối đa 30 ký tự, `name`, `location_type` room/store/position, `room_id`, `parent_id`, `note`), `PATCH /equipment-locations/{id}` (thêm `status`) cần `P13.equipment.manage` trong phạm vi; trùng mã 409; nơi để cha phải không nằm trong nơi khác.
+2. `GET /equipment-placements` (`org_unit_id`, `location_id` gồm vị trí con, `target_type` asset/holding, `search`) trả tài sản chưa thanh lý và lô (còn số hoặc đã có tem): `target_type`, `id`, `code`, `name`, `unit`, `quantity`, `location_id`, `location_name`, `qr_code`, `org_unit_name`. `PUT /equipment-placements` (`org_unit_id`, `location_id` hoặc trống để bỏ, `targets` 1 đến 500 dòng `{target_type, id}`) cần `P13.equipment.manage`.
+3. `POST /equipment-labels` (`org_unit_id`, `targets`) cần `P13.equipment.manage`: cấp mã tem còn thiếu, trả tệp PDF (`application/pdf`, `tem-qr-thiet-bi-….pdf`), ghi `export_logs` mã `equipment-labels`. `GET /equipment-qr/{code}` nhận mã tem hoặc đường dẫn có mã, trả thiết bị, lô trong phạm vi (400 khi không phải tem, 404 khi không có trong phạm vi).
+4. `GET /equipment-stocktakes` (`org_unit_id`, `status`) và `GET /equipment-stocktakes/{id}` (kèm `lines` có `status`, `difference`, `qr_code` và `summary`) cần `P13.equipment.manage` hoặc `P13.equipment.stocktake`. `POST /equipment-stocktakes` (`org_unit_id`, `name`, `started_on`, `location_id`, `members`, `note`) cần `P13.equipment.manage`, trả kèm `line_count`; đơn vị đang có đợt chưa chốt trả `ERR_RULE_VIOLATION` `YCTD-143`.
+5. `POST /equipment-stocktakes/{id}/scan` (`qr_code` hoặc `line_id`, `condition`, `counted_quantity`, `usable_quantity`, `found_location_id`, `note`) cần `P13.equipment.manage` hoặc `P13.equipment.stocktake` trong đơn vị của đợt, trả dòng đã ghi. `POST …/submit`, `…/approve`, `…/return` (`note` bắt buộc), `…/cancel`, `…/close` cần `P13.equipment.manage`; sai trạng thái hoặc còn dòng chưa kiểm khi nộp trả `ERR_RULE_VIOLATION` `YCTD-143`; `close` trả `applied` (`holdings`, `moved`, `damages`, `skipped`). `POST …/minutes` (`format` pdf hoặc xlsx) trả biên bản, ghi `export_logs` mã `equipment-stocktake-minutes`.
+6. `GET /equipment-templates` cần `P13.equipment.manage` hoặc `P17.report.facilities`: `code`, `school_level`, `title`, `source`, `item_count`, `loaded_count`. `POST /equipment-templates/{code}/load` (`retire_placeholders`) cần `P13.equipment.manage` toàn trường, trả `added`, `existing`, `retired`. `GET /equipment-minimum` (`org_unit_id`, `school_level` mặc định MN, `status` enough/short/none) trả `rows`, `totals`, `catalog_count`, `not_applicable_count`, `unclassified_classes`; `POST /equipment-minimum/export` (thêm `format`) ghi `export_logs` mã `equipment-minimum`.
+7. `GET`, `PUT /me/grid-settings/{gridKey}` nhận thêm năm khóa lưới: `equipment-locations`, `equipment-labels`, `equipment-stocktakes`, `equipment-stocktake-lines`, `equipment-minimum`.
 
 Giao kèo của cân nặng, chiều cao, thống kê theo tiêu chí ngành, hồ sơ chưa nhập đủ (DT-14 phần 14a, YCTD-105):
 
@@ -1476,6 +1486,20 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | POST | /api/v1/facility-imports | Tải tệp lên (`type`, `file`, `columns`), kiểm tra cả tệp (YCTD-128) |
 | POST | /api/v1/facility-imports/{id}/commit | Ghi dữ liệu khi không còn dòng lỗi (YCTD-128) |
 | GET | /api/v1/facility-imports/{id}/error-file | Tệp lỗi: tệp gốc kèm cột Nội dung lỗi (YCTD-128) |
+| GET, POST | /api/v1/equipment-locations | Nơi để thiết bị của đơn vị; thêm nơi để (P13-15, YCTD-143) |
+| PATCH | /api/v1/equipment-locations/{id} | Sửa, ngừng hoặc dùng lại nơi để (YCTD-143) |
+| GET, PUT | /api/v1/equipment-placements | Thiết bị, lô kèm nơi để và mã tem; gán nơi để hàng loạt (YCTD-143) |
+| POST | /api/v1/equipment-labels | In tem QR khổ A4 (PDF), cấp mã tem, ghi nhật ký xuất (YCTD-143) |
+| GET | /api/v1/equipment-qr/{code} | Tra mã tem đã quét (YCTD-143) |
+| GET, POST | /api/v1/equipment-stocktakes | Đợt kiểm kê; lập đợt, chụp sổ (P13-16, YCTD-143) |
+| GET | /api/v1/equipment-stocktakes/{id} | Chi tiết đợt kèm dòng đối chiếu, tổng hợp (YCTD-143) |
+| POST | /api/v1/equipment-stocktakes/{id}/scan | Ghi kết quả quét theo mã tem hoặc dòng (YCTD-143) |
+| POST | /api/v1/equipment-stocktakes/{id}/submit, approve, return, cancel, close | Nộp, duyệt, trả lại, hủy, chốt chênh lệch (YCTD-143) |
+| POST | /api/v1/equipment-stocktakes/{id}/minutes | Biên bản kiểm kê PDF hoặc Excel, ghi nhật ký xuất (YCTD-143) |
+| GET | /api/v1/equipment-templates | Danh mục mẫu thiết bị tối thiểu theo cấp học (P13-17, YCTD-143) |
+| POST | /api/v1/equipment-templates/{code}/load | Nạp danh mục mẫu: thêm mã chưa có (YCTD-143) |
+| GET | /api/v1/equipment-minimum | Đối sánh danh mục tối thiểu: Đủ, Thiếu, Chưa có (YCTD-143) |
+| POST | /api/v1/equipment-minimum/export | Xuất Excel hoặc PDF đối sánh, ghi nhật ký xuất (YCTD-143) |
 
 ## 16. Nội dung, tương tác và tuyển sinh
 

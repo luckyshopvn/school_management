@@ -43,7 +43,7 @@ async function login(page: Page, user: { username: string; password: string }) {
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
 }
 
-test('Nơi để, tem QR, kiểm kê thiết bị bằng điện thoại, chốt chênh lệch và đối sánh danh mục tối thiểu', async ({
+test('CT-18g-7: nơi để, tem QR, kiểm kê thiết bị bằng điện thoại, chốt chênh lệch và đối sánh danh mục tối thiểu', async ({
   browser,
 }) => {
   test.setTimeout(240_000);
