@@ -821,6 +821,155 @@ export interface OutgoingDocumentEventsTable {
   created_at: CreatedTimestamp;
 }
 
+// Lịch đơn vị, phòng họp, hồ sơ công việc theo VNPT iOffice (DT-18 phần 18c, YCTD-141)
+export type RoomBookingStatus = 'pending' | 'approved' | 'rejected' | 'cancelled';
+export type ScheduleSession = 'morning' | 'afternoon';
+export type ScheduleEntryStatus = 'draft' | 'published';
+export type WorkFileStatus = 'open' | 'closed' | 'submitted' | 'returned' | 'archived';
+export type WorkFileSharePermission = 'view' | 'edit';
+export type WorkFileItemType = 'incoming_document' | 'task' | 'note';
+
+// Một dòng của mẫu lịch tuần: thứ (1 là thứ Hai đến 7 là Chủ nhật), buổi và nội dung như dòng lịch
+export interface ScheduleTemplateItem {
+  weekday: number;
+  session: ScheduleSession;
+  start_time: string | null;
+  end_time: string | null;
+  content: string;
+  chair_name: string | null;
+  participants: string | null;
+  location: string | null;
+  note: string | null;
+}
+
+export interface MeetingRoomsTable {
+  id: Generated<string>;
+  name: string;
+  location: string | null;
+  capacity: number | null;
+  equipment: string | null;
+  sort_order: Generated<number>;
+  active: Generated<boolean>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface RoomBookingsTable {
+  id: Generated<string>;
+  room_id: string;
+  title: string;
+  chair_name: string | null;
+  participants: string | null;
+  starts_at: Date;
+  ends_at: Date;
+  note: string | null;
+  status: Generated<RoomBookingStatus>;
+  requested_by: string;
+  requested_by_name: string;
+  decided_by: string | null;
+  decided_by_name: string | null;
+  decided_at: Date | null;
+  decision_note: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface UnitScheduleEntriesTable {
+  id: Generated<string>;
+  org_unit_id: string | null;
+  entry_date: DateText;
+  session: ScheduleSession;
+  start_time: string | null;
+  end_time: string | null;
+  content: string;
+  chair_name: string | null;
+  participants: string | null;
+  location: string | null;
+  note: string | null;
+  room_booking_id: string | null;
+  status: Generated<ScheduleEntryStatus>;
+  published_at: Date | null;
+  created_by: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface UnitScheduleAttendeesTable {
+  entry_id: string;
+  user_id: string;
+  user_name: string;
+}
+
+export interface UnitScheduleTemplatesTable {
+  id: Generated<string>;
+  name: string;
+  org_unit_id: string | null;
+  items: ColumnType<ScheduleTemplateItem[], string, string>;
+  created_by: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface WorkFilesTable {
+  id: Generated<string>;
+  code: string;
+  title: string;
+  year: number;
+  description: string | null;
+  org_unit_id: string | null;
+  owner_user_id: string;
+  owner_name: string;
+  status: Generated<WorkFileStatus>;
+  retention: Generated<ArchiveRetention>;
+  retention_years: number | null;
+  opened_on: DateText;
+  closed_on: ColumnType<string | null, string | null | undefined, string | null>;
+  transferred_from_user_id: string | null;
+  transferred_from_name: string | null;
+  transferred_at: Date | null;
+  transfer_note: string | null;
+  submitted_at: Date | null;
+  return_note: string | null;
+  archive_record_id: string | null;
+  archived_on: ColumnType<string | null, string | null | undefined, string | null>;
+  archived_by_name: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface WorkFileSharesTable {
+  file_id: string;
+  user_id: string;
+  user_name: string;
+  permission: Generated<WorkFileSharePermission>;
+  created_at: CreatedTimestamp;
+}
+
+export interface WorkFileItemsTable {
+  id: Generated<string>;
+  file_id: string;
+  item_type: WorkFileItemType;
+  incoming_document_id: string | null;
+  task_id: string | null;
+  title: string;
+  note: string | null;
+  added_by: string;
+  added_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface WorkFileEventsTable {
+  id: Generated<string>;
+  file_id: string;
+  action: string;
+  note: string | null;
+  actor_id: string;
+  actor_name: string;
+  created_at: CreatedTimestamp;
+}
+
 // Website trường trên tên miền riêng (DT-18 phần 18f, YCTD-144)
 export type WebsiteContentStatus = 'draft' | 'pending' | 'published' | 'unpublished';
 export type WebsitePostKind = 'news' | 'announcement' | 'page' | 'disclosure';
@@ -1006,6 +1155,15 @@ export interface SystemDatabase {
   outgoing_document_opinions: OutgoingDocumentOpinionsTable;
   outgoing_document_recipients: OutgoingDocumentRecipientsTable;
   outgoing_document_events: OutgoingDocumentEventsTable;
+  meeting_rooms: MeetingRoomsTable;
+  room_bookings: RoomBookingsTable;
+  unit_schedule_entries: UnitScheduleEntriesTable;
+  unit_schedule_attendees: UnitScheduleAttendeesTable;
+  unit_schedule_templates: UnitScheduleTemplatesTable;
+  work_files: WorkFilesTable;
+  work_file_shares: WorkFileSharesTable;
+  work_file_items: WorkFileItemsTable;
+  work_file_events: WorkFileEventsTable;
   website_files: WebsiteFilesTable;
   website_settings: WebsiteSettingsTable;
   website_domains: WebsiteDomainsTable;

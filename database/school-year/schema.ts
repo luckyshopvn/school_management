@@ -2482,7 +2482,13 @@ export interface ExportLogsTable {
 
 // Công việc, kế hoạch, đánh giá, quá trình công tác, thưởng và khấu trừ (YCTD-81)
 export type WorkPeriodType = 'month' | 'term' | 'year';
-export type TaskType = 'assigned' | 'personal';
+export type TaskType = 'assigned' | 'personal' | 'directive';
+// Giao việc theo VNPT iOffice (DT-18 phần 18c, YCTD-141)
+export type TaskRecurrence = 'none' | 'daily' | 'weekly' | 'monthly';
+export type TaskAssignmentRole = 'main' | 'coordinate' | 'follow';
+export type TaskAssignmentTarget = 'unit' | 'staff';
+export type TaskAssignmentStatus = 'todo' | 'in_progress' | 'pending_approval' | 'done' | 'cancelled';
+export type TaskApprovalResult = 'done' | 'not_done';
 export type TaskPriority = 'low' | 'normal' | 'high';
 export type TaskStatus = 'todo' | 'in_progress' | 'done' | 'cancelled';
 export type PlanStatus = 'draft' | 'active' | 'closed';
@@ -2511,7 +2517,8 @@ export interface TasksTable {
   description: string | null;
   assigner_user_id: string;
   assigner_name: string;
-  assignee_staff_id: string;
+  // Việc giao theo cây đơn vị (directive) không có một người nhận; người nhận ở task_assignments
+  assignee_staff_id: string | null;
   due_date: string | null;
   priority: Generated<TaskPriority>;
   status: Generated<TaskStatus>;
@@ -2519,13 +2526,65 @@ export interface TasksTable {
   plan_item_id: string | null;
   completed_at: Date | null;
   cancel_reason: string | null;
+  // Giao việc theo VNPT iOffice (DT-18 phần 18c, YCTD-141)
+  leader_user_id: string | null;
+  leader_name: string | null;
+  start_date: string | null;
+  duration_days: number | null;
+  remind_assigner: Generated<boolean>;
+  assigner_reminded_at: Date | null;
+  recurrence: Generated<TaskRecurrence>;
+  next_reminder_on: string | null;
+  source_document_id: string | null;
+  source_document_label: string | null;
+  related_documents: string | null;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
+}
+
+// Phân công thực hiện của việc giao theo cây đơn vị (DT-18 phần 18c, YCTD-141)
+export interface TaskAssignmentsTable {
+  id: Generated<string>;
+  task_id: string;
+  parent_id: string | null;
+  role: TaskAssignmentRole;
+  target_type: TaskAssignmentTarget;
+  org_unit_id: string;
+  department_id: string | null;
+  staff_id: string | null;
+  start_date: string;
+  due_date: string;
+  status: Generated<TaskAssignmentStatus>;
+  progress_percent: Generated<number>;
+  approval_result: TaskApprovalResult | null;
+  approval_note: string | null;
+  approved_by_name: string | null;
+  approved_at: Date | null;
+  result_note: string | null;
+  completed_at: Date | null;
+  assigned_by: string;
+  assigned_by_name: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface TaskFilesTable {
+  id: Generated<string>;
+  task_id: string;
+  file_name: string;
+  content_type: string;
+  size_bytes: number;
+  sha256: string;
+  storage_key: string;
+  created_by: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
 }
 
 export interface TaskUpdatesTable {
   id: Generated<string>;
   task_id: string;
+  assignment_id: Generated<string | null>;
   content: string | null;
   progress_percent: number;
   status: TaskStatus;
@@ -3999,6 +4058,8 @@ export interface SchoolYearDatabase {
   plans: PlansTable;
   tasks: TasksTable;
   task_updates: TaskUpdatesTable;
+  task_assignments: TaskAssignmentsTable;
+  task_files: TaskFilesTable;
   plan_items: PlanItemsTable;
   evaluation_criteria: EvaluationCriteriaTable;
   evaluations: EvaluationsTable;

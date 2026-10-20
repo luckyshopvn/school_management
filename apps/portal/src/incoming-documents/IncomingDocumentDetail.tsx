@@ -1,3 +1,4 @@
+import { DocumentTaskLinks } from '../directives/DirectivePages.js';
 import { useId, useRef, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -85,6 +86,9 @@ const EVENT_LABELS: Record<string, string> = {
   unrestrict: 'Bỏ hạn chế xem',
   reply: 'Văn bản trả lời',
   archive: 'Lưu hồ sơ',
+  // Giao việc, hồ sơ công việc (DT-18 phần 18c)
+  create_task: 'Tạo công việc',
+  work_file: 'Lưu vào hồ sơ công việc',
 };
 const SLIPS: Array<{ type: SlipType; label: string }> = [
   { type: 'submission', label: 'In phiếu trình' },
@@ -591,6 +595,11 @@ export function IncomingDocumentDetail({
         {SLIPS.map((slip) => button(slip.label, () => act(() => downloadSlip(documentId, slip.type)), 'text'))}
         {can('delete') ? button('Xóa', () => setDialog({ kind: 'delete' }), 'text') : null}
       </div>
+      <DocumentTaskLinks
+        documentId={documentId}
+        label={`${document.symbol} – ${document.summary}`.slice(0, 300)}
+        registered={document.status !== 'pending_registration'}
+      />
       <div role="tablist" aria-label="Thông tin văn bản đến" className="flex flex-wrap gap-1 border-b border-border">
         {TABS.map((name) => (
           <button
