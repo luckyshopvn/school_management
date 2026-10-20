@@ -184,7 +184,10 @@ export class IncomingDocumentsController {
 
   @Delete('incoming-documents/:id')
   @HttpCode(204)
-  async remove(@Param('id', uuidParameter(DOCUMENT_MESSAGE)) id: string, @AuthenticatedUser() currentUser: CurrentUser) {
+  async remove(
+    @Param('id', uuidParameter(DOCUMENT_MESSAGE)) id: string,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
     await this.documents.remove(currentUser, id);
   }
 

@@ -40,11 +40,10 @@ describe('Đọc dữ liệu văn bản đến, hàm tạo tên khóa', () => {
             { user_id: id(2), role: 'main' },
           ],
         }),
-      (error: { details?: Array<{ field: string }> }) => error.details?.some((detail) => detail.field === 'recipients') === true,
+      (error: { details?: Array<{ field: string }> }) =>
+        error.details?.some((detail) => detail.field === 'recipients') === true,
     );
-    assert.throws(() =>
-      parseTransfer({ mode: 'rotate', recipients: [{ user_id: id(1) }, { user_id: id(2) }] }),
-    );
+    assert.throws(() => parseTransfer({ mode: 'rotate', recipients: [{ user_id: id(1) }, { user_id: id(2) }] }));
     const leader = parseTransfer({ mode: 'leader', recipients: [{ user_id: id(3), role: 'view' }] });
     assert.equal(leader.recipients[0]?.role, 'leader');
     assert.equal(storageKey('incoming-documents', 'a', 'b'), 'incoming-documents/a/b');
@@ -70,7 +69,10 @@ describe('Văn bản đến theo VNPT iOffice', () => {
   let bookId = '';
   let unitId = '';
   const api = (method: string, path: string, user: LoggedInUser, body?: unknown) =>
-    sendJson(method, `${environment.baseUrl}${path}`, user.accessToken, body) as Promise<{ status: number; body: Body }>;
+    sendJson(method, `${environment.baseUrl}${path}`, user.accessToken, body) as Promise<{
+      status: number;
+      body: Body;
+    }>;
   const upload = async (documentId: string, user: LoggedInUser) => {
     const form = new FormData();
     form.append('file', new Blob([PDF], { type: 'application/pdf' }), 'van-ban-quet.pdf');
@@ -139,7 +141,13 @@ describe('Văn bản đến theo VNPT iOffice', () => {
     for (const [index, [user, name]] of people.entries()) {
       await schoolYear
         .insertInto('staff')
-        .values({ org_unit_id: root, code: `VBD-${index}`, full_name: name, start_date: '2025-08-01', user_id: user.userId })
+        .values({
+          org_unit_id: root,
+          code: `VBD-${index}`,
+          full_name: name,
+          start_date: '2025-08-01',
+          user_id: user.userId,
+        })
         .execute();
     }
   });
@@ -150,7 +158,10 @@ describe('Văn bản đến theo VNPT iOffice', () => {
   });
 
   it('CT-18a-2: danh mục mặc định theo iOffice; quản trị thêm đơn vị bên ngoài, nhóm, lãnh đạo, sổ; người không có quyền quản trị bị chặn; mục đang dùng không xóa được', async () => {
-    const catalog = (await api('GET', '/document-catalogs', main)).body as unknown as Array<{ kind: string; name: string }>;
+    const catalog = (await api('GET', '/document-catalogs', main)).body as unknown as Array<{
+      kind: string;
+      name: string;
+    }>;
     assert.equal(catalog.filter((item) => item.kind === 'form').length, 36);
     assert.deepEqual(
       catalog.filter((item) => item.kind === 'urgency').map((item) => item.name),
@@ -162,7 +173,11 @@ describe('Văn bản đến theo VNPT iOffice', () => {
     );
     const forbidden = await api('POST', '/external-units', main, { code: 'X', name: 'X' });
     assert.equal(forbidden.status, 403);
-    const unit = await api('POST', '/external-units', clerk, { code: 'PGD', name: 'Phòng Giáo dục thử', email: 'pgd@example.test' });
+    const unit = await api('POST', '/external-units', clerk, {
+      code: 'PGD',
+      name: 'Phòng Giáo dục thử',
+      email: 'pgd@example.test',
+    });
     assert.equal(unit.status, 201, JSON.stringify(unit.body));
     unitId = unit.body.id as string;
     const duplicate = await api('POST', '/external-units', clerk, { code: 'PGD', name: 'Trùng' });
@@ -281,7 +296,10 @@ describe('Văn bản đến theo VNPT iOffice', () => {
     const refused = await api('POST', `/incoming-documents/${id}/refuse`, partner, { note: 'Không thuộc phần việc' });
     assert.equal(refused.status, 200, JSON.stringify(refused.body));
     // Xử lý chính xin gia hạn, lãnh đạo đồng ý
-    const early = await api('POST', `/incoming-documents/${id}/extension`, main, { until: addDays(today(), 3), reason: 'x' });
+    const early = await api('POST', `/incoming-documents/${id}/extension`, main, {
+      until: addDays(today(), 3),
+      reason: 'x',
+    });
     assert.deepEqual(fieldsOf(early.body), ['until']);
     const extension = await api('POST', `/incoming-documents/${id}/extension`, main, {
       until: addDays(today(), 20),
@@ -300,7 +318,10 @@ describe('Văn bản đến theo VNPT iOffice', () => {
     });
     assert.equal(approved.status, 200, JSON.stringify(approved.body));
     assert.equal(approved.body.deadline, addDays(today(), 20));
-    assert.equal((approved.body.assignments as Array<Body>).find((row) => row.role === 'main')?.deadline, addDays(today(), 20));
+    assert.equal(
+      (approved.body.assignments as Array<Body>).find((row) => row.role === 'main')?.deadline,
+      addDays(today(), 20),
+    );
     const finished = await api('POST', `/incoming-documents/${id}/finish`, main, { note: 'Đã triển khai' });
     assert.equal(finished.status, 200, JSON.stringify(finished.body));
     assert.ok((await list(main, 'view=processed')).items.some((item) => item.id === id));
@@ -310,7 +331,17 @@ describe('Văn bản đến theo VNPT iOffice', () => {
     const again = await api('POST', `/incoming-documents/${id}/complete`, principal, {});
     assert.equal(again.status, 422);
     const actions = (completed.body.events as Array<{ action: string }>).map((event) => event.action);
-    for (const action of ['register', 'file_add', 'submit_leader', 'forward', 'refuse', 'request_extension', 'approve_extension', 'finish', 'complete']) {
+    for (const action of [
+      'register',
+      'file_add',
+      'submit_leader',
+      'forward',
+      'refuse',
+      'request_extension',
+      'approve_extension',
+      'finish',
+      'complete',
+    ]) {
       assert.ok(actions.includes(action), action);
     }
   });
@@ -327,7 +358,10 @@ describe('Văn bản đến theo VNPT iOffice', () => {
     const revoked = await api('POST', `/incoming-documents/${id}/revoke`, clerk);
     assert.equal(revoked.status, 200, JSON.stringify(revoked.body));
     assert.equal(revoked.body.status, 'registered');
-    assert.equal((await list(main, 'view=inbox')).items.some((item) => item.id === id), false);
+    assert.equal(
+      (await list(main, 'view=inbox')).items.some((item) => item.id === id),
+      false,
+    );
     await api('POST', `/incoming-documents/${id}/transfer`, clerk, {
       mode: 'process',
       recipients: [{ user_id: main.userId, role: 'main' }],
@@ -379,7 +413,10 @@ describe('Văn bản đến theo VNPT iOffice', () => {
     assert.equal(restricted.status, 200, JSON.stringify(restricted.body));
     assert.equal(restricted.body.restricted, true);
     assert.equal((await api('GET', `/incoming-documents/${id}`, deputy)).status, 404);
-    assert.equal((await list(deputy, 'view=search')).items.some((item) => item.id === id), false);
+    assert.equal(
+      (await list(deputy, 'view=search')).items.some((item) => item.id === id),
+      false,
+    );
     assert.equal((await api('GET', `/incoming-documents/${id}`, viewer)).status, 200);
     // Sổ văn bản che trích yếu của văn bản hạn chế xem
     const book = await api('GET', `/document-books/${bookId}/register`, clerk);
@@ -415,7 +452,10 @@ describe('Văn bản đến theo VNPT iOffice', () => {
     assert.equal(registered.status, 200, JSON.stringify(registered.body));
     assert.equal(registered.body.status, 'registered');
     assert.ok(Number(registered.body.arrival_number) > 51);
-    const twice = await api('POST', `/incoming-documents/${id}/register`, clerk, { book_id: bookId, arrival_date: today() });
+    const twice = await api('POST', `/incoming-documents/${id}/register`, clerk, {
+      book_id: bookId,
+      arrival_date: today(),
+    });
     assert.equal(twice.status, 422);
   });
 
@@ -427,7 +467,11 @@ describe('Văn bản đến theo VNPT iOffice', () => {
       mode: 'process',
       recipients: [{ user_id: main.userId, role: 'main' }],
     });
-    const starred = await api('POST', '/incoming-documents/flags', main, { ids: [first], starred: true, followed: true });
+    const starred = await api('POST', '/incoming-documents/flags', main, {
+      ids: [first],
+      starred: true,
+      followed: true,
+    });
     assert.equal(starred.status, 200, JSON.stringify(starred.body));
     assert.ok((await list(main, 'view=starred')).items.some((item) => item.id === first));
     assert.ok((await list(main, 'view=followed')).items.some((item) => item.id === first));
@@ -464,7 +508,9 @@ describe('Văn bản đến theo VNPT iOffice', () => {
     assert.equal(detail.body.archive_record_code, 'HS-VBD-1');
     // Người xử lý chính kết thúc được văn bản của mình, văn bản không trong luồng thì báo lý do
     const results = await api('POST', '/incoming-documents/complete', main, { ids: [first, second] });
-    const byId = new Map((results.body as unknown as Array<{ id: string; ok: boolean }>).map((item) => [item.id, item.ok]));
+    const byId = new Map(
+      (results.body as unknown as Array<{ id: string; ok: boolean }>).map((item) => [item.id, item.ok]),
+    );
     assert.equal(byId.get(first), true);
     assert.equal(byId.get(second), false);
   });
@@ -474,7 +520,10 @@ describe('Văn bản đến theo VNPT iOffice', () => {
     const soon = (await register({ deadline: today() })).id as string;
     const overdue = await list(clerk, 'view=registered&overdue=true');
     assert.ok(overdue.items.some((item) => item.id === late && item.overdue === true));
-    assert.equal(overdue.items.some((item) => item.id === soon), false);
+    assert.equal(
+      overdue.items.some((item) => item.id === soon),
+      false,
+    );
     const dueSoon = await list(clerk, 'view=registered&due_soon=true');
     assert.ok(dueSoon.items.some((item) => item.id === soon && item.due_soon === true));
     await upload(late, clerk);
@@ -488,7 +537,12 @@ describe('Văn bản đến theo VNPT iOffice', () => {
       });
       assert.equal(response.status, 200, type);
       assert.equal(response.headers.get('content-type'), 'application/pdf');
-      assert.equal(Buffer.from(await response.arrayBuffer()).subarray(0, 4).toString(), '%PDF');
+      assert.equal(
+        Buffer.from(await response.arrayBuffer())
+          .subarray(0, 4)
+          .toString(),
+        '%PDF',
+      );
     }
     const blocked = await fetch(`${environment.baseUrl}/incoming-documents/${late}/slips/submission`, {
       headers: { authorization: `Bearer ${outsider.accessToken}` },

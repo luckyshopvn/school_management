@@ -321,7 +321,10 @@ export class IncomingDocumentsService {
     let children: AssignmentRow[];
     if (source) {
       children = assignments.filter((row) => row.parent_id === source.id);
-    } else if (this.canRegister(currentUser) && (!document.restricted || this.inFlow(document, assignments, currentUser.id))) {
+    } else if (
+      this.canRegister(currentUser) &&
+      (!document.restricted || this.inFlow(document, assignments, currentUser.id))
+    ) {
       children = assignments.filter((row) => row.parent_id === null && !INACTIVE_STATUSES.includes(row.status));
     } else {
       return undefined;
@@ -379,10 +382,7 @@ export class IncomingDocumentsService {
       actions.push('revoke');
     }
     const requested = assignments.filter((row) => row.extension_status === 'requested');
-    if (
-      open &&
-      requested.some((row) => this.canDecideExtension(row, assignments, currentUser, clerk))
-    ) {
+    if (open && requested.some((row) => this.canDecideExtension(row, assignments, currentUser, clerk))) {
       actions.push('decide_extension');
     }
     if (open && (clerk || leader || working?.role === 'main')) {
@@ -683,7 +683,17 @@ export class IncomingDocumentsService {
       .execute();
     const files = await this.system
       .selectFrom('incoming_document_files')
-      .select(['id', 'kind', 'file_name', 'content_type', 'size_bytes', 'sha256', 'scanned', 'created_by_name', 'created_at'])
+      .select([
+        'id',
+        'kind',
+        'file_name',
+        'content_type',
+        'size_bytes',
+        'sha256',
+        'scanned',
+        'created_by_name',
+        'created_at',
+      ])
       .where('document_id', '=', id)
       .orderBy('created_at')
       .execute();
@@ -822,11 +832,7 @@ export class IncomingDocumentsService {
   }
 
   // Vào sổ văn bản đến (biểu mẫu Thêm mới) hoặc nhập văn bản nhận qua liên thông, chờ vào sổ
-  async create(
-    currentUser: CurrentUser,
-    rawInput: IncomingDocumentInput,
-    registration: RegistrationInput | null,
-  ) {
+  async create(currentUser: CurrentUser, rawInput: IncomingDocumentInput, registration: RegistrationInput | null) {
     this.assertRegister(currentUser);
     const id = await this.system.transaction().execute(async (transaction) => {
       const input = await this.resolveInput(transaction, rawInput);
@@ -856,7 +862,11 @@ export class IncomingDocumentsService {
           received_at: now,
         };
       }
-      const row = await transaction.insertInto('incoming_documents').values(values).returning('id').executeTakeFirstOrThrow();
+      const row = await transaction
+        .insertInto('incoming_documents')
+        .values(values)
+        .returning('id')
+        .executeTakeFirstOrThrow();
       await this.event(
         transaction,
         row.id,
@@ -918,7 +928,11 @@ export class IncomingDocumentsService {
         'Chỉ đánh dấu tiếp nhận văn bản liên thông còn chờ vào sổ',
       );
       if (acknowledged) {
-        await this.exchange.acknowledge({ documentId: id, reference, acknowledgedBy: currentUser.description.full_name });
+        await this.exchange.acknowledge({
+          documentId: id,
+          reference,
+          acknowledgedBy: currentUser.description.full_name,
+        });
       }
       await transaction
         .updateTable('incoming_documents')
@@ -1017,7 +1031,11 @@ export class IncomingDocumentsService {
     if (!file) {
       throw notFoundError('Không tìm thấy tệp đính kèm', 'incoming_document_file');
     }
-    return { fileName: file.file_name, contentType: file.content_type, body: await this.fileStorage.get(file.storage_key) };
+    return {
+      fileName: file.file_name,
+      contentType: file.content_type,
+      body: await this.fileStorage.get(file.storage_key),
+    };
   }
 
   // Người tải lên hoặc văn thư xóa tệp khi văn bản chưa kết thúc
@@ -1092,7 +1110,10 @@ export class IncomingDocumentsService {
         .limit(1)
         .executeTakeFirst();
       if (!files) {
-        throw ruleViolationError(INCOMING_RULE_CODE, 'Văn bản chưa có tệp đính kèm (quét hoặc tải lên), hãy đính kèm trước khi chuyển');
+        throw ruleViolationError(
+          INCOMING_RULE_CODE,
+          'Văn bản chưa có tệp đính kèm (quét hoặc tải lên), hãy đính kèm trước khi chuyển',
+        );
       }
       const userIds = input.recipients.map((recipient) => recipient.user_id);
       if (userIds.includes(currentUser.id)) {
@@ -1106,7 +1127,9 @@ export class IncomingDocumentsService {
           .where('user_id', 'in', userIds)
           .execute();
         if (leaders.length !== userIds.length) {
-          throw validationError([{ field: 'recipients', message: 'Chỉ trình cho người ở danh sách lãnh đạo nhận văn bản' }]);
+          throw validationError([
+            { field: 'recipients', message: 'Chỉ trình cho người ở danh sách lãnh đạo nhận văn bản' },
+          ]);
         }
         accounts = new Map(leaders.map((leader) => [leader.user_id, { name: leader.user_name, title: leader.title }]));
       } else {
@@ -1116,7 +1139,9 @@ export class IncomingDocumentsService {
             account.user_id,
             {
               name: account.full_name,
-              title: [account.job_title_name, account.department_name ?? account.org_unit_name].filter(Boolean).join(', ') || null,
+              title:
+                [account.job_title_name, account.department_name ?? account.org_unit_name].filter(Boolean).join(', ') ||
+                null,
             },
           ]),
         );
@@ -1156,7 +1181,8 @@ export class IncomingDocumentsService {
               user_name: account.name,
               user_title: account.title,
               role: rotatedRole ?? recipient.role,
-              deadline: recipient.deadline ?? input.deadline ?? (rotatedRole ? (working?.deadline ?? null) : document.deadline),
+              deadline:
+                recipient.deadline ?? input.deadline ?? (rotatedRole ? (working?.deadline ?? null) : document.deadline),
               note: input.note,
               assigned_by: currentUser.id,
               assigned_by_name: currentUser.description.full_name,
@@ -1202,7 +1228,9 @@ export class IncomingDocumentsService {
         id,
         currentUser,
         refuse ? 'refuse' : 'return',
-        refuse ? 'Chỉ người phối hợp đang chờ xử lý từ chối được' : 'Bạn không có văn bản này đang chờ xử lý để trả lại',
+        refuse
+          ? 'Chỉ người phối hợp đang chờ xử lý từ chối được'
+          : 'Bạn không có văn bản này đang chờ xử lý để trả lại',
       );
       const mine = this.pendingOf(assignments, currentUser.id) as AssignmentRow;
       const now = this.clock.now();
@@ -1282,13 +1310,7 @@ export class IncomingDocumentsService {
             .execute();
         }
       }
-      await this.event(
-        transaction,
-        id,
-        'revoke',
-        group.children.map((row) => row.user_name).join(', '),
-        currentUser,
-      );
+      await this.event(transaction, id, 'revoke', group.children.map((row) => row.user_name).join(', '), currentUser);
       return { document, userIds: group.children.map((row) => row.user_id) };
     });
     await this.notify(notice.userIds, notice.document, 'Văn bản đến đã bị lấy lại', 'Người chuyển đã lấy lại văn bản');
@@ -1361,12 +1383,19 @@ export class IncomingDocumentsService {
   }
 
   // Người chuyển, lãnh đạo trong luồng hoặc văn thư đồng ý (đổi hạn xử lý) hoặc không đồng ý đề nghị gia hạn
-  async decideExtension(currentUser: CurrentUser, id: string, assignmentId: string, approve: boolean, note: string | null) {
+  async decideExtension(
+    currentUser: CurrentUser,
+    id: string,
+    assignmentId: string,
+    approve: boolean,
+    note: string | null,
+  ) {
     const notice = await this.system.transaction().execute(async (transaction) => {
       const document = await this.findDocument(transaction, id, true);
       const assignments = await this.assignments(transaction, id);
       const row = assignments.find((item) => item.id === assignmentId);
-      const clerk = this.canRegister(currentUser) && (!document.restricted || this.inFlow(document, assignments, currentUser.id));
+      const clerk =
+        this.canRegister(currentUser) && (!document.restricted || this.inFlow(document, assignments, currentUser.id));
       if (!row || row.extension_status !== 'requested') {
         throw ruleViolationError(INCOMING_RULE_CODE, 'Không có đề nghị gia hạn đang chờ');
       }
@@ -1410,7 +1439,12 @@ export class IncomingDocumentsService {
   }
 
   // Kết thúc văn bản: đóng mọi dòng còn chờ
-  private async completeOne(transaction: Transaction<SystemDatabase>, currentUser: CurrentUser, id: string, note: string | null) {
+  private async completeOne(
+    transaction: Transaction<SystemDatabase>,
+    currentUser: CurrentUser,
+    id: string,
+    note: string | null,
+  ) {
     await this.assertAction(transaction, id, currentUser, 'complete', 'Bạn không kết thúc được văn bản này');
     const now = this.clock.now();
     await transaction
@@ -1474,7 +1508,13 @@ export class IncomingDocumentsService {
     }
     return this.batch(ids, (id) =>
       this.system.transaction().execute(async (transaction) => {
-        await this.assertAction(transaction, id, currentUser, 'archive', 'Chỉ văn thư hoặc người xử lý chính lưu hồ sơ');
+        await this.assertAction(
+          transaction,
+          id,
+          currentUser,
+          'archive',
+          'Chỉ văn thư hoặc người xử lý chính lưu hồ sơ',
+        );
         await transaction
           .updateTable('incoming_documents')
           .set({
@@ -1512,7 +1552,13 @@ export class IncomingDocumentsService {
   // Văn bản trả lời: ghi số ký hiệu, ngày của văn bản đi trả lời (nối sổ văn bản đi khi phần 18b gộp)
   async reply(currentUser: CurrentUser, id: string, input: { symbol: string; date: string; note: string | null }) {
     await this.system.transaction().execute(async (transaction) => {
-      await this.assertAction(transaction, id, currentUser, 'reply', 'Chỉ văn thư hoặc người xử lý chính ghi văn bản trả lời');
+      await this.assertAction(
+        transaction,
+        id,
+        currentUser,
+        'reply',
+        'Chỉ văn thư hoặc người xử lý chính ghi văn bản trả lời',
+      );
       await transaction
         .updateTable('incoming_documents')
         .set({

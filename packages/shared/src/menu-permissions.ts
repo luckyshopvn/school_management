@@ -20,11 +20,7 @@ const gated = (gate: MenuPermissionRule, rule: MenuPermissionRule): MenuPermissi
 const ACCOUNTS = anyOf('P01.account.manage', 'P01.account.manage-in-unit');
 const FINAL_YEAR = anyOf('P02.final-year.view', 'P02.final-year.manage', 'P02.final-year.approve');
 const ENTRY_INTAKE = anyOf('P02.entry-intake.view', 'P02.entry-intake.manage', 'P02.entry-intake.transfer');
-const INCOMING = anyOf(
-  'P09.incoming-document.view',
-  'P09.incoming-document.register',
-  'P09.incoming-document.search',
-);
+const INCOMING = anyOf('P09.incoming-document.view', 'P09.incoming-document.register', 'P09.incoming-document.search');
 // Điều kiện của nhóm "Trẻ và lớp" cũ
 const CHILDREN_AND_CLASSES = anyOf('P02.class.manage', 'P02.view', 'P02.edit');
 const STATISTICS = anyOf('P17.child-statistics.view', 'P17.staff-statistics.view');

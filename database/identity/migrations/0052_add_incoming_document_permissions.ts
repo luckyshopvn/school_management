@@ -15,7 +15,22 @@ const PERMISSIONS = [
   {
     code: 'P09.incoming-document.view',
     description: 'Xem, xử lý văn bản đến được chuyển cho mình; đánh dấu, theo dõi văn bản',
-    roles: ['VT-02', 'VT-15', 'VT-03', 'VT-04', 'VT-05', 'VT-06', 'VT-07', 'VT-08', 'VT-09', 'VT-10', 'VT-11', 'VT-12', 'VT-16', 'VT-17'],
+    roles: [
+      'VT-02',
+      'VT-15',
+      'VT-03',
+      'VT-04',
+      'VT-05',
+      'VT-06',
+      'VT-07',
+      'VT-08',
+      'VT-09',
+      'VT-10',
+      'VT-11',
+      'VT-12',
+      'VT-16',
+      'VT-17',
+    ],
   },
   {
     code: 'P09.incoming-document.register',
@@ -30,7 +45,8 @@ const PERMISSIONS = [
   },
   {
     code: 'P09.incoming-document.admin',
-    description: 'Quản trị văn bản: sổ văn bản, đơn vị bên ngoài, nhóm đơn vị ban hành, danh mục văn bản, lãnh đạo nhận văn bản',
+    description:
+      'Quản trị văn bản: sổ văn bản, đơn vị bên ngoài, nhóm đơn vị ban hành, danh mục văn bản, lãnh đạo nhận văn bản',
     roles: ['VT-02', 'VT-06'],
   },
 ];

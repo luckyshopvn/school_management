@@ -187,7 +187,10 @@ export class IncomingPrintService {
     }
     const now = this.clock.now();
     const pdf = await buildPdf([info, detail], now, { orientation: 'portrait', subject: SLIP_TITLES[type] });
-    return { fileName: `${SLIP_FILE_NAMES[type]}-${view.arrival_number ?? 'cho-vao-so'}-${fileStamp(now)}.pdf`, body: pdf };
+    return {
+      fileName: `${SLIP_FILE_NAMES[type]}-${view.arrival_number ?? 'cho-vao-so'}-${fileStamp(now)}.pdf`,
+      body: pdf,
+    };
   }
 
   // ---- Sổ văn bản đến ----

@@ -79,7 +79,12 @@ export function readUuid(body: RequestBody, field: string, errors: FieldError[],
   return value;
 }
 
-export function readUuidList(body: RequestBody, field: string, errors: FieldError[], maximum = MAXIMUM_BATCH): string[] {
+export function readUuidList(
+  body: RequestBody,
+  field: string,
+  errors: FieldError[],
+  maximum = MAXIMUM_BATCH,
+): string[] {
   const value = body?.[field];
   if (value === undefined || value === null) {
     return [];

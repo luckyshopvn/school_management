@@ -561,7 +561,11 @@ export class DocumentAdminService {
             .executeTakeFirstOrThrow();
           await transaction.deleteFrom('document_book_members').where('book_id', '=', id).execute();
         } else {
-          saved = await transaction.insertInto('document_books').values(input).returning('id').executeTakeFirstOrThrow();
+          saved = await transaction
+            .insertInto('document_books')
+            .values(input)
+            .returning('id')
+            .executeTakeFirstOrThrow();
         }
         const rows = [
           ...followerIds.map((userId) => ({ user_id: userId, role: 'follower' as const })),
@@ -657,7 +661,10 @@ export class DocumentAdminController {
   @Delete('document-catalogs/:id')
   @HttpCode(204)
   @RequirePermission(ADMIN)
-  async deleteCatalog(@Param('id', uuidParameter(ID_MESSAGE)) id: string, @AuthenticatedUser() currentUser: CurrentUser) {
+  async deleteCatalog(
+    @Param('id', uuidParameter(ID_MESSAGE)) id: string,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
     await this.admin.deleteCatalog(currentUser, id);
   }
 
