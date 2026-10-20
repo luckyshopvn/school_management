@@ -79,6 +79,7 @@ interface DocumentRow {
   restricted: boolean;
   created_by: string;
   registered_by: string | null;
+  restricted_by: string | null;
   book_id: string | null;
   deadline: string | null;
   summary: string;
@@ -168,6 +169,7 @@ export class IncomingDocumentsService {
       expression.or([
         expression('incoming_documents.created_by', '=', me),
         expression('incoming_documents.registered_by', '=', me),
+        expression('incoming_documents.restricted_by', '=', me),
         expression.exists(
           expression
             .selectFrom('incoming_document_assignments as mine')
@@ -233,6 +235,7 @@ export class IncomingDocumentsService {
         'restricted',
         'created_by',
         'registered_by',
+        'restricted_by',
         'book_id',
         'deadline',
         'summary',
@@ -305,6 +308,7 @@ export class IncomingDocumentsService {
     return (
       document.created_by === userId ||
       document.registered_by === userId ||
+      document.restricted_by === userId ||
       assignments.some((row) => row.user_id === userId)
     );
   }
@@ -1494,6 +1498,7 @@ export class IncomingDocumentsService {
         .set({
           restricted,
           restricted_at: restricted ? this.clock.now() : null,
+          restricted_by: restricted ? currentUser.id : null,
           restricted_by_name: restricted ? currentUser.description.full_name : null,
           updated_at: this.clock.now(),
         })

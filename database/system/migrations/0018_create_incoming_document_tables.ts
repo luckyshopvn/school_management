@@ -135,6 +135,7 @@ export const migration: Migration = {
       .addColumn('status', 'text', (column) => column.notNull().defaultTo('registered'))
       .addColumn('restricted', 'boolean', (column) => column.notNull().defaultTo(false))
       .addColumn('restricted_at', 'timestamptz')
+      .addColumn('restricted_by', 'uuid')
       .addColumn('restricted_by_name', 'text')
       .addColumn('source', 'text', (column) => column.notNull().defaultTo('manual'))
       .addColumn('interconnect_status', 'text')

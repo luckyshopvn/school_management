@@ -590,6 +590,7 @@ export interface IncomingDocumentsTable {
   status: Generated<IncomingDocumentStatus>;
   restricted: Generated<boolean>;
   restricted_at: Date | null;
+  restricted_by: string | null;
   restricted_by_name: string | null;
   source: Generated<IncomingDocumentSource>;
   interconnect_status: IncomingInterconnectStatus | null;
