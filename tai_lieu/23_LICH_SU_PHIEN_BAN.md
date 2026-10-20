@@ -18,7 +18,7 @@
 
 ### Phiên bản 0.94.0 – 2026-10-21
 
-- Phạm vi thay đổi: DT-18 phần 18e, hồ sơ chuyên môn và Việc của tôi (YCTD-142, PR18E_SO).
+- Phạm vi thay đổi: DT-18 phần 18e, hồ sơ chuyên môn và Việc của tôi (YCTD-142, PR 121).
 - Chức năng mới: phân hệ mới "Hồ sơ chuyên môn": Việc của tôi gom việc đang chờ ở văn bản đến, văn bản đi, giao việc, phòng họp, KPI, hồ sơ chuyên môn, kế hoạch bài dạy, kí hồ sơ, nghỉ phép, có lọc và số đếm trên menu; kho hồ sơ ba nhánh (cá nhân, tổ hoặc nhóm, trường) theo năm học, danh mục thư mục mặc định theo cấp học; đợt nộp có hạn, bảng ai chưa nộp, nhắc hạn; luồng duyệt theo thư mục (tổ trưởng rồi Ban Giám hiệu), trả lại, phiên bản khi nộp lại, kí nội bộ; thống kê nộp đúng hạn, trễ, chưa nộp; nhóm công tác; khóa năm học (YCTD-142).
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp năm học `0066_create_professional_records` (tám bảng mới, mục đích tệp `professional_record`); tệp định danh `0056_add_professional_record_permissions` (bốn quyền `P09.professional-record.*`, phân hệ không có ở phụ huynh).
