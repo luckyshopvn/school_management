@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.18
+- Phiên bản: 0.19
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đang cập nhật
 
@@ -22,7 +22,7 @@
 - Máy chủ API (`apps/api/src/facilities/`): `equipment-locations.ts` (nơi để, gán nơi để, in tem QR PDF, tra mã tem), `equipment-stocktakes.ts` (đợt kiểm kê, quét, nộp, duyệt, trả lại, hủy, chốt chênh lệch, biên bản), `equipment-minimum.ts` (danh mục mẫu, nạp mẫu, đối sánh, xuất), `equipment-templates.ts` (mẫu Mầm non 515 thiết bị), `equipment-stocktake-calc.ts` (hàm tính); bước chuyển năm học `facilities` chuyển nơi để, nơi để và mã tem của lô.
 - Cổng quản trị: 2.4 Nơi để và tem QR thiết bị, 2.5 Kiểm kê thiết bị (khối quét QR dùng trên điện thoại), 2.6 Đối sánh danh mục tối thiểu. Ứng dụng giáo viên: màn hình Kiểm kê thiết bị. Gói giao diện: thành phần `QrScanner` (máy ảnh, giải mã bằng jsQR trên trình duyệt, ô nhập mã).
 - Đọc văn bản gốc trước khi nhập danh mục: Thông tư 02/2010/TT-BGDĐT (danh mục sáu nhóm tuổi) và Thông tư 34/2013/TT-BGDĐT (bãi bỏ 47 thiết bị, đổi tên hai thiết bị), bản đăng trên trang văn bản pháp luật.
-- Thêm quy tắc BR-137, chức năng P13-15 đến P13-17, quyền PQ-81, màn hình MH-187 đến MH-189 và MG-18, kịch bản CT-707 đến CT-713, tiêu chí AC-685 đến AC-689. Kết quả ngày 20/10/2026: kiểm thử đơn vị `apps/api/src/facilities/equipment-18g.test.ts` CT-18g-1 đến CT-18g-6 đạt 6/6; kiểm thử đơn vị toàn bộ kho mã 933/933 đạt; kiểm thử giao diện `tests/e2e/73-equipment-stocktake.spec.ts` (CT-18g-7) đạt; toàn bộ kiểm thử giao diện 141/143 đạt (hai ca hỏng `59-portal-shell-login` quên mật khẩu, `68-emis-so-indicators` nút chưa ổn định là ca chập chờn đã biết ở máy cục bộ, không liên quan phần này); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm quy tắc BR-138, chức năng P13-16 đến P13-18, quyền PQ-82, màn hình MH-203 đến MH-205 và MG-18, kịch bản CT-720 đến CT-726, tiêu chí AC-691 đến AC-695. Kết quả ngày 20/10/2026: kiểm thử đơn vị `apps/api/src/facilities/equipment-18g.test.ts` CT-18g-1 đến CT-18g-6 đạt 6/6; kiểm thử đơn vị toàn bộ kho mã 933/933 đạt; kiểm thử giao diện `tests/e2e/73-equipment-stocktake.spec.ts` (CT-18g-7) đạt; toàn bộ kiểm thử giao diện 141/143 đạt (hai ca hỏng `59-portal-shell-login` quên mật khẩu, `68-emis-so-indicators` nút chưa ổn định là ca chập chờn ở máy cục bộ, không liên quan phần này); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
@@ -30,11 +30,33 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-143, `07_QUY_TAC_NGHIEP_VU.md` BR-137, `08_VAI_TRO_NGUOI_DUNG.md` PQ-81, `10_YEU_CAU_CHUC_NANG.md` P13-15 đến P13-17, `11_TIEU_CHI_NGHIEM_THU.md` AC-685 đến AC-689, `14_DAC_TA_GIAO_DIEN.md` MH-187 đến MH-189, MG-18, `16_CO_SO_DU_LIEU.md` mục 14 và mục 20, `17_DAC_TA_API.md` mục 15, `21_KICH_BAN_KIEM_THU.md` CT-707 đến CT-713, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.92.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9.6.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-143, `07_QUY_TAC_NGHIEP_VU.md` BR-138, `08_VAI_TRO_NGUOI_DUNG.md` PQ-82, `10_YEU_CAU_CHUC_NANG.md` P13-16 đến P13-18, `11_TIEU_CHI_NGHIEM_THU.md` AC-691 đến AC-695, `14_DAC_TA_GIAO_DIEN.md` MH-203 đến MH-205, MG-18, `16_CO_SO_DU_LIEU.md` mục 14 và mục 20, `17_DAC_TA_API.md` mục 15, `21_KICH_BAN_KIEM_THU.md` CT-720 đến CT-726, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.93.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9.6.
 
 #### Vấn đề tồn đọng
 
 - Danh mục mẫu Mầm non cần đối chiếu bản gốc trên Công báo; chưa có mẫu Tiểu học, THCS, THPT (cột khối lớp làm ở DT-19); chưa khóa dòng khi hai người cùng quét một thiết bị.
+
+### 2026-10-20 — DT-18 phần 18c: giao việc, lịch, hồ sơ công việc, báo cáo
+
+#### Công việc đã thực hiện
+
+- Đọc ghi chép khảo sát VNPT iOffice ngày 2026-10-19 (Giao việc, Lịch, Hồ sơ lưu trữ, Báo cáo), mã văn bản đến của 18a, phân hệ Quản lý công việc (YCTD-81) và văn thư lưu trữ 15h2.
+- Cơ sở dữ liệu: tệp năm học `0065_extend_tasks_for_directives` (mở rộng `tasks`, thêm `task_assignments`, `task_files`), tệp hệ thống `0020_create_unit_schedules_and_work_files` (9 bảng), tệp định danh `0055_add_directive_schedule_permissions` (sáu quyền P09).
+- Máy chủ API: giao việc, phân công, tiến độ, phê duyệt, nhắc việc chạy nền (`apps/api/src/work/directives.ts`); lịch đơn vị, phòng họp, mẫu lịch, xuất lịch (`apps/api/src/unit-schedules/`); hồ sơ công việc nối văn thư lưu trữ (`apps/api/src/work-files/`); báo cáo (`apps/api/src/document-reports/`).
+- Cổng quản trị: 16 màn hình ở nhóm 4 đến 7 của phân hệ Quản lý văn bản và điều hành (`apps/portal/src/directives/`); chi tiết văn bản đến thêm Tạo công việc, Lưu vào hồ sơ công việc.
+- Thêm quy tắc BR-137, chức năng P09-24 đến P09-27, quyền PQ-81, màn hình MH-187 đến MH-202, kịch bản CT-707 đến CT-719, tiêu chí AC-685 đến AC-690. Kết quả ngày 20/10/2026: kiểm thử đơn vị `apps/api/src/work/directives.test.ts` và `apps/api/src/unit-schedules/unit-schedules.test.ts` CT-18c-1 đến CT-18c-12 đạt 12/12; kiểm thử đơn vị toàn bộ kho mã 939/939 đạt; kiểm thử giao diện `tests/e2e/72-directives.spec.ts` (CT-18c-13) đạt; toàn bộ kiểm thử giao diện 140/143 đạt trên máy (58 CT-16a-10, 68 CT-17a-6 lỗi không liên quan 18c; CI chạy lại); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 18c của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9.4 theo quyết định của Eric ngày 2026-10-19 (làm theo VNPT iOffice). Mở rộng bảng việc đã có thay vì tạo phân hệ việc thứ hai. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-141.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-141, `07_QUY_TAC_NGHIEP_VU.md` BR-137, `08_VAI_TRO_NGUOI_DUNG.md` PQ-81, `10_YEU_CAU_CHUC_NANG.md` P09-24 đến P09-27, `11_TIEU_CHI_NGHIEM_THU.md` AC-685 đến AC-690, `14_DAC_TA_GIAO_DIEN.md` MH-187 đến MH-202, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-707 đến CT-719, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.92.0.
+
+#### Vấn đề tồn đọng
+
+- Thêm văn bản đi (18b) vào thành phần hồ sơ công việc và báo cáo. Việc của tôi (18e) gom việc chờ của giao việc.
 
 ### 2026-10-20 — DT-18 phần 18b: Văn bản đi theo VNPT iOffice
 

@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.18
+- Phiên bản: 0.19
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,17 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.92.0 – 2026-10-20
+### Phiên bản 0.93.0 – 2026-10-20
 
 - Phạm vi thay đổi: DT-18 phần 18g, thiết bị có nơi để, tem QR, kiểm kê bằng điện thoại, đối sánh danh mục tối thiểu theo cấp học (YCTD-143, PR 119).
-- Chức năng mới: 2.4 Nơi để và tem QR thiết bị (nơi để phòng, kho, vị trí; gán nơi để hàng loạt; in tem QR khổ A4 3 × 8, mã tem không có tên miền); 2.5 Kiểm kê thiết bị (lập đợt chụp sổ, quét QR trên ứng dụng giáo viên hoặc web di động, đối chiếu, tỷ lệ sử dụng được, nộp, duyệt, trả lại, chốt chênh lệch, biên bản PDF, Excel); 2.6 Đối sánh danh mục tối thiểu (danh mục cấu hình theo cấp học, nạp mẫu Mầm non 515 thiết bị theo TT 02/2010 sửa đổi bởi TT 34/2013, báo Đủ, Thiếu, Chưa có); màn hình Kiểm kê thiết bị của ứng dụng giáo viên (P13-15 đến P13-17).
+- Chức năng mới: 2.4 Nơi để và tem QR thiết bị (nơi để phòng, kho, vị trí; gán nơi để hàng loạt; in tem QR khổ A4 3 × 8, mã tem không có tên miền); 2.5 Kiểm kê thiết bị (lập đợt chụp sổ, quét QR trên ứng dụng giáo viên hoặc web di động, đối chiếu, tỷ lệ sử dụng được, nộp, duyệt, trả lại, chốt chênh lệch, biên bản PDF, Excel); 2.6 Đối sánh danh mục tối thiểu (danh mục cấu hình theo cấp học, nạp mẫu Mầm non 515 thiết bị theo TT 02/2010 sửa đổi bởi TT 34/2013, báo Đủ, Thiếu, Chưa có); màn hình Kiểm kê thiết bị của ứng dụng giáo viên (P13-16 đến P13-18).
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp năm học `0067_add_equipment_locations_stocktakes` (ba bảng mới, sáu cột mới của `equipment_items`, `equipment_holdings`, `assets`); tệp định danh `0057_add_equipment_stocktake_permission` (quyền `P13.equipment.stocktake`).
 - Thay đổi API: nhóm điểm cuối mới `/equipment-locations`, `/equipment-placements`, `/equipment-labels`, `/equipment-qr/{code}`, `/equipment-stocktakes`, `/equipment-templates`, `/equipment-minimum`; năm khóa lưới mới.
-- Kiểm thử: kịch bản CT-707 đến CT-713. Kết quả ngày 20/10/2026: kiểm thử đơn vị `apps/api/src/facilities/equipment-18g.test.ts` CT-18g-1 đến CT-18g-6 đạt 6/6; kiểm thử đơn vị toàn bộ kho mã 933/933 đạt; kiểm thử giao diện `tests/e2e/73-equipment-stocktake.spec.ts` (CT-18g-7) đạt; toàn bộ kiểm thử giao diện 141/143 đạt (hai ca hỏng `59-portal-shell-login` quên mật khẩu, `68-emis-so-indicators` nút chưa ổn định là ca chập chờn đã biết ở máy cục bộ, không liên quan phần này); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử: kịch bản CT-720 đến CT-726. Kết quả ngày 20/10/2026: kiểm thử đơn vị `apps/api/src/facilities/equipment-18g.test.ts` CT-18g-1 đến CT-18g-6 đạt 6/6; kiểm thử đơn vị toàn bộ kho mã 933/933 đạt; kiểm thử giao diện `tests/e2e/73-equipment-stocktake.spec.ts` (CT-18g-7) đạt; toàn bộ kiểm thử giao diện 141/143 đạt (hai ca hỏng `59-portal-shell-login` quên mật khẩu, `68-emis-so-indicators` nút chưa ổn định là ca chập chờn ở máy cục bộ, không liên quan phần này); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Rủi ro: danh mục mẫu chép từ bản đăng trên trang văn bản pháp luật, cần đối chiếu bản gốc; chốt chênh lệch thay số hiện có của lô bằng số dùng được; quét bằng máy ảnh cần HTTPS và quyền máy ảnh của trình duyệt.
 - Khả năng tương thích: điểm cuối cũ không đổi; thư viện mới `jsqr` 1.4.0 ở gói giao diện.
 - Phương án quay lui: hoàn lại commit gộp của nhánh `dt-18-phan-18g`; chạy phần quay lui của tệp định danh `0057` và tệp năm học `0067` (xóa ba bảng, sáu cột); thiết bị đã nạp từ mẫu (`template_code` có giá trị) và ghi nhận hỏng, mất lập khi chốt giữ lại hoặc xóa tay.
+
+### Phiên bản 0.92.0 – 2026-10-20
+
+- Phạm vi thay đổi: DT-18 phần 18c, giao việc, lịch đơn vị, phòng họp, hồ sơ công việc, báo cáo theo VNPT iOffice (YCTD-141).
+- Chức năng mới: giao việc theo cây đơn vị (xử lý chính, phối hợp, theo dõi; phòng ban hoặc cá nhân), phân công tiếp, cập nhật tiến độ, phê duyệt, thu hồi, nhắc việc định kì, tạo việc từ văn bản đến; lịch tuần sáng, chiều, công bố, mẫu lịch, lịch họp tuần, tháng, của tôi, xuất Excel, PDF; phòng họp có duyệt và kiểm tra trùng giờ; hồ sơ công việc cá nhân, chia sẻ, chuyển giao, nộp lưu sang văn thư lưu trữ, hồ sơ hết hạn bảo quản; báo cáo thực hiện văn bản đến, tổng hợp, thống kê (P09-24 đến P09-27).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0065_extend_tasks_for_directives`; tệp hệ thống `0020_create_unit_schedules_and_work_files` (9 bảng); tệp định danh `0055_add_directive_schedule_permissions` (sáu quyền P09).
+- Thay đổi API: nhóm điểm cuối mới `/task-directives`, `/meeting-rooms`, `/room-bookings`, `/unit-schedules`, `/unit-schedule-templates`, `/work-files`, `/document-reports`, `GET /incoming-documents/{id}/tasks`.
+- Kiểm thử: kịch bản CT-707 đến CT-719. Kết quả ngày 20/10/2026: kiểm thử đơn vị `apps/api/src/work/directives.test.ts` và `apps/api/src/unit-schedules/unit-schedules.test.ts` CT-18c-1 đến CT-18c-12 đạt 12/12; kiểm thử đơn vị toàn bộ kho mã 939/939 đạt; kiểm thử giao diện `tests/e2e/72-directives.spec.ts` (CT-18c-13) đạt; toàn bộ kiểm thử giao diện 140/143 đạt trên máy (58 CT-16a-10, 68 CT-17a-6 lỗi không liên quan 18c; CI chạy lại); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: dòng giao cho đơn vị phụ thuộc người quản lý đơn vị được ghi ở cây đơn vị hoặc có quyền giao việc; lịch, hồ sơ công việc mang dữ liệu công tác của cán bộ.
+- Khả năng tương thích: không đổi điểm cuối cũ; `/tasks` bỏ qua việc loại mới.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-18-phan-18c`; chạy phần quay lui của tệp định danh `0055`, tệp hệ thống `0020` (xóa 9 bảng) và tệp năm học `0065` (xóa việc loại mới, hai bảng, các cột thêm; trả ràng buộc); tệp đính kèm của việc dưới tiền tố `tasks/` ở kho tệp xóa tay nếu cần.
 
 ### Phiên bản 0.91.0 – 2026-10-20
 

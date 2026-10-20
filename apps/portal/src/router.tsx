@@ -155,6 +155,22 @@ import {
   TransferResultsPage,
 } from './entry-admissions/EntryIntakePages.js';
 import { KpiCatalogPage } from './kpi/KpiCatalogPage.js';
+import { DirectiveFormPage, DirectiveInboxPage, DirectiveOutboxPage } from './directives/DirectivePages.js';
+import { IncomingReportPage, StatisticsReportPage, SummaryReportPage } from './directives/ReportPages.js';
+import {
+  MeetingRoomsPage,
+  MeetingSchedulePage,
+  RoomBookingsPage,
+  ScheduleTemplatesPage,
+  UnitSchedulePage,
+} from './directives/SchedulePages.js';
+import {
+  ArchiveWorkFilesPage,
+  ExpiredWorkFilesPage,
+  PersonalWorkFilesPage,
+  SharedWorkFilesPage,
+  TransferredWorkFilesPage,
+} from './directives/WorkFilePages.js';
 import {
   KpiAdvisoryPage,
   KpiEvaluationsPage,
@@ -455,6 +471,40 @@ const routeTree = rootRoute.addChildren([
     getParentRoute: () => rootRoute,
     path: '/professional-standards',
     component: ProfessionalStandardsPage,
+  }),
+  // Giao việc, lịch đơn vị, hồ sơ công việc, báo cáo theo VNPT iOffice (DT-18 phần 18c); Giao việc mở sẵn văn bản đến qua
+  // tham số document_id khi tạo việc từ văn bản
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/directives/new',
+    component: DirectiveFormPage,
+    validateSearch: (search: Record<string, unknown>): { document_id?: string; document_label?: string } => ({
+      ...(typeof search.document_id === 'string' ? { document_id: search.document_id } : {}),
+      ...(typeof search.document_label === 'string' ? { document_label: search.document_label } : {}),
+    }),
+  }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/directives/inbox', component: DirectiveInboxPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/directives/outbox', component: DirectiveOutboxPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/work-files', component: PersonalWorkFilesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/work-files/shared', component: SharedWorkFilesPage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/work-files/transferred',
+    component: TransferredWorkFilesPage,
+  }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/work-files/archive', component: ArchiveWorkFilesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/work-files/expired', component: ExpiredWorkFilesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/unit-schedules', component: UnitSchedulePage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/meeting-schedules', component: MeetingSchedulePage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/room-bookings', component: RoomBookingsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/meeting-rooms', component: MeetingRoomsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/schedule-templates', component: ScheduleTemplatesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/document-reports/incoming', component: IncomingReportPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/document-reports/summary', component: SummaryReportPage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/document-reports/statistics',
+    component: StatisticsReportPage,
   }),
 ]);
 

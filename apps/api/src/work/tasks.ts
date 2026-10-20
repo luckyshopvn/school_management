@@ -523,12 +523,13 @@ export class TasksService {
     };
   }
 
+  // Việc giao theo cây đơn vị (18c) xử lý ở màn hình Quản lý công việc của phân hệ Quản lý văn bản và điều hành
   private async load(database: Executor, taskId: string) {
     const task = await database.selectFrom('tasks').selectAll().where('id', '=', taskId).executeTakeFirst();
-    if (!task) {
+    if (!task || task.task_type === 'directive') {
       throw notFoundError('Không tìm thấy công việc', 'task');
     }
-    return task;
+    return { ...task, assignee_staff_id: task.assignee_staff_id as string };
   }
 
   private taskQuery(database: Executor) {
@@ -536,7 +537,8 @@ export class TasksService {
       .selectFrom('tasks')
       .innerJoin('staff', 'staff.id', 'tasks.assignee_staff_id')
       .selectAll('tasks')
-      .select(['staff.full_name as assignee_name']);
+      .select(['staff.full_name as assignee_name'])
+      .$narrowType<{ assignee_staff_id: string }>();
   }
 
   private view<Row extends { status: TaskStatus; due_date: string | null }>(row: Row) {
