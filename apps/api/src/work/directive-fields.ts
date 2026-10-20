@@ -197,9 +197,10 @@ export function titleOf(content: string): string {
 }
 
 // Trạng thái của việc theo các dòng xử lý chính còn hiệu lực: xong hết là hoàn thành, có dòng đã làm là đang làm
-export function taskStatusOf(
-  mains: Array<{ status: TaskAssignmentStatus; progress_percent: number }>,
-): { status: 'todo' | 'in_progress' | 'done'; progress: number } {
+export function taskStatusOf(mains: Array<{ status: TaskAssignmentStatus; progress_percent: number }>): {
+  status: 'todo' | 'in_progress' | 'done';
+  progress: number;
+} {
   const active = mains.filter((row) => row.status !== 'cancelled');
   if (active.length === 0) {
     return { status: 'todo', progress: 0 };

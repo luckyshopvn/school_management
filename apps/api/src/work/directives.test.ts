@@ -329,7 +329,10 @@ describe('Giao việc theo cây đơn vị', () => {
       content: 'Đã xong',
     });
     assert.equal(reported.status, 200);
-    assert.equal((assignmentsOf(reported.body).find((row) => row.id === mainRow.id) as Assignment).status, 'pending_approval');
+    assert.equal(
+      (assignmentsOf(reported.body).find((row) => row.id === mainRow.id) as Assignment).status,
+      'pending_approval',
+    );
     const pending = await api('GET', '/task-directives?box=inbox&status=pending_approval', main);
     assert.equal(pending.body.total, 1);
     const outboxPending = await api('GET', '/task-directives?box=outbox&status=pending_approval', principal);
@@ -381,7 +384,10 @@ describe('Giao việc theo cây đơn vị', () => {
       reason: 'Không cần phối hợp',
     });
     assert.equal(revoked.status, 200);
-    assert.equal((assignmentsOf(revoked.body).find((row) => row.id === coordinateRow.id) as Assignment).status, 'cancelled');
+    assert.equal(
+      (assignmentsOf(revoked.body).find((row) => row.id === coordinateRow.id) as Assignment).status,
+      'cancelled',
+    );
     assert.equal((await api('GET', '/task-directives?box=inbox&role=coordinate', follower)).body.total, 0);
     const cancelled = await api('POST', `/task-directives/${id}/cancel`, principal, { reason: 'Đổi kế hoạch' });
     assert.equal(cancelled.status, 200);
@@ -398,7 +404,9 @@ describe('Giao việc theo cây đơn vị', () => {
       start_date: shift(today(), -3),
       remind_assigner: true,
       recurrence: 'daily',
-      assignments: [{ role: 'main', target_type: 'staff', staff_id: staffIds.get('Chuyên viên Chính'), due_date: today() }],
+      assignments: [
+        { role: 'main', target_type: 'staff', staff_id: staffIds.get('Chuyên viên Chính'), due_date: today() },
+      ],
     });
     assert.equal(created.status, 201, JSON.stringify(created.body));
     const id = created.body.id as string;

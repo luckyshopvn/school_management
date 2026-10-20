@@ -1,7 +1,11 @@
 import { Controller, Get, Injectable, Query, Req, Res } from '@nestjs/common';
 import type { IncomingAssignmentStatus, SchoolYearDatabase, SystemDatabase } from '@school-management/database';
 import { ApplicationError, Clock, validationError, type FieldError } from '@school-management/server';
-import { INCOMING_DOCUMENT_STATUS_LABELS, PERMISSION_CODES, DIRECTIVE_ASSIGNMENT_STATUS_LABELS } from '@school-management/shared';
+import {
+  INCOMING_DOCUMENT_STATUS_LABELS,
+  PERMISSION_CODES,
+  DIRECTIVE_ASSIGNMENT_STATUS_LABELS,
+} from '@school-management/shared';
 import type { Request, Response } from 'express';
 import type { Kysely } from 'kysely';
 import { VIETNAM_DATE } from '../attendance/school-calendar.js';
@@ -11,7 +15,12 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
 import { isUuid } from '../common/request-fields.js';
 import { readTableFileFormat, type TableFileFormat } from '../exports/table-file.js';
-import { buildFacilitiesWorkbook, fileStamp, sendWorkbook, type WorkbookSheet } from '../facilities/facilities-workbook.js';
+import {
+  buildFacilitiesWorkbook,
+  fileStamp,
+  sendWorkbook,
+  type WorkbookSheet,
+} from '../facilities/facilities-workbook.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { inScope } from '../work/work-access.js';
 
@@ -55,7 +64,9 @@ export function classifyProcessing(
   today: string,
 ): 'done_on_time' | 'done_late' | 'open_on_time' | 'open_late' {
   if (FINISHED.includes(row.status)) {
-    return !row.deadline || (row.finished_on !== null && row.finished_on <= row.deadline) ? 'done_on_time' : 'done_late';
+    return !row.deadline || (row.finished_on !== null && row.finished_on <= row.deadline)
+      ? 'done_on_time'
+      : 'done_late';
   }
   return !row.deadline || row.deadline >= today ? 'open_on_time' : 'open_late';
 }
@@ -91,7 +102,11 @@ export class DocumentReportsService {
     if (filter.orgUnitId) {
       units = units.where('id', '=', filter.orgUnitId);
     } else if (!scope.wholeSchool) {
-      units = units.where('id', 'in', scope.orgUnitIds.length ? scope.orgUnitIds : ['00000000-0000-0000-0000-000000000000']);
+      units = units.where(
+        'id',
+        'in',
+        scope.orgUnitIds.length ? scope.orgUnitIds : ['00000000-0000-0000-0000-000000000000'],
+      );
     }
     const unitRows = await units.orderBy('code').execute();
     const staff = unitRows.length
@@ -111,7 +126,13 @@ export class DocumentReportsService {
         unitOfUser.set(person.user_id, person.org_unit_id);
       }
     }
-    return { database: database as Kysely<SchoolYearDatabase>, units: unitRows, unitOfUser, staff, wholeSchool: scope.wholeSchool };
+    return {
+      database: database as Kysely<SchoolYearDatabase>,
+      units: unitRows,
+      unitOfUser,
+      staff,
+      wholeSchool: scope.wholeSchool,
+    };
   }
 
   // Dòng xử lý chính còn hiệu lực của văn bản đến có ngày đến trong khoảng
@@ -149,14 +170,13 @@ export class DocumentReportsService {
     const { units, unitOfUser } = await this.units(currentUser, filter);
     const unitNames = new Map(units.map((unit) => [unit.id, unit.name]));
     const today = this.today();
-    const byHandler = new Map<string, ProcessingRow & { org_unit_code: string }>();
+    const byHandler = new Map<string, ProcessingRow>();
     for (const row of await this.mainAssignments(filter)) {
       const unitId = unitOfUser.get(row.user_id);
       if (!unitId) {
         continue;
       }
       const item = byHandler.get(row.user_id) ?? {
-        org_unit_code: units.find((unit) => unit.id === unitId)?.code ?? '',
         org_unit_name: unitNames.get(unitId) ?? '',
         handler_name: row.user_name,
         total: 0,
@@ -171,7 +191,7 @@ export class DocumentReportsService {
       byHandler.set(row.user_id, item);
     }
     const rows = [...byHandler.values()]
-      .map(({ org_unit_code: _code, ...row }) => ({ ...row, on_time_rate: percent(row.done_on_time, row.total) }))
+      .map((row) => ({ ...row, on_time_rate: percent(row.done_on_time, row.total) }))
       .sort(
         (left, right) =>
           left.org_unit_name.localeCompare(right.org_unit_name, 'vi') ||
@@ -289,7 +309,9 @@ export class DocumentReportsService {
         const key = value ?? 'Chưa phân loại';
         map.set(key, (map.get(key) ?? 0) + 1);
       }
-      return [...map].map(([label, value]) => ({ label, count: value })).sort((left, right) => right.count - left.count);
+      return [...map]
+        .map(([label, value]) => ({ label, count: value }))
+        .sort((left, right) => right.count - left.count);
     };
     const unitIds = units.map((unit) => unit.id);
     const tasks = unitIds.length

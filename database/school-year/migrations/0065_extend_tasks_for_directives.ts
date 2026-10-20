@@ -85,11 +85,7 @@ export const migration: Migration = {
       .addCheckConstraint('task_assignments_progress_check', sql`progress_percent between 0 and 100`)
       .addCheckConstraint('task_assignments_dates_check', sql`due_date >= start_date`)
       .execute();
-    await database.schema
-      .createIndex('task_assignments_task_index')
-      .on('task_assignments')
-      .column('task_id')
-      .execute();
+    await database.schema.createIndex('task_assignments_task_index').on('task_assignments').column('task_id').execute();
     await database.schema
       .createIndex('task_assignments_staff_index')
       .on('task_assignments')

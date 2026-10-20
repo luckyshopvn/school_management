@@ -49,10 +49,7 @@ export const migration: Migration = {
       .addColumn('decision_note', 'text')
       .addColumn('created_at', 'timestamptz', (column) => column.notNull().defaultTo(sql`now()`))
       .addColumn('updated_at', 'timestamptz', (column) => column.notNull().defaultTo(sql`now()`))
-      .addCheckConstraint(
-        'room_bookings_status_check',
-        sql`status in ('pending', 'approved', 'rejected', 'cancelled')`,
-      )
+      .addCheckConstraint('room_bookings_status_check', sql`status in ('pending', 'approved', 'rejected', 'cancelled')`)
       .addCheckConstraint('room_bookings_time_check', sql`ends_at > starts_at`)
       .execute();
     await database.schema
@@ -175,11 +172,7 @@ export const migration: Migration = {
       .addPrimaryKeyConstraint('work_file_shares_pk', ['file_id', 'user_id'])
       .addCheckConstraint('work_file_shares_permission_check', sql`permission in ('view', 'edit')`)
       .execute();
-    await database.schema
-      .createIndex('work_file_shares_user_index')
-      .on('work_file_shares')
-      .column('user_id')
-      .execute();
+    await database.schema.createIndex('work_file_shares_user_index').on('work_file_shares').column('user_id').execute();
     await database.schema
       .createTable('work_file_items')
       .addColumn('id', 'uuid', (column) => column.primaryKey().defaultTo(sql`gen_random_uuid()`))

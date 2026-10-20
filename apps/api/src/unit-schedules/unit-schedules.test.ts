@@ -23,13 +23,21 @@ const shift = (date: string, days: number) =>
 describe('Đọc dữ liệu lịch, thời hạn bảo quản', () => {
   it('CT-18c-8: dòng lịch thiếu nội dung, giờ sai, phòng họp thiếu giờ đều báo lỗi; buổi theo giờ; thứ Hai đầu tuần; năm hết hạn bảo quản', () => {
     assert.throws(
-      () => parseEntry({ entry_date: '2026-10-20', content: '', start_time: '25:00', room_id: '00000000-0000-4000-8000-000000000001' }),
+      () =>
+        parseEntry({
+          entry_date: '2026-10-20',
+          content: '',
+          start_time: '25:00',
+          room_id: '00000000-0000-4000-8000-000000000001',
+        }),
       (error: { details?: Array<{ field: string }> }) => {
         const fields = (error.details ?? []).map((detail) => detail.field).sort();
         return fields.includes('content') && fields.includes('start_time');
       },
     );
-    assert.throws(() => parseEntry({ entry_date: '2026-10-20', content: 'Họp', start_time: '09:00', end_time: '08:00' }));
+    assert.throws(() =>
+      parseEntry({ entry_date: '2026-10-20', content: 'Họp', start_time: '09:00', end_time: '08:00' }),
+    );
     assert.equal(parseEntry({ entry_date: '2026-10-20', content: 'Họp', start_time: '14:00' }).session, 'afternoon');
     assert.equal(sessionOf('07:30'), 'morning');
     assert.equal(weekStart('2026-10-25'), '2026-10-19');
@@ -94,7 +102,13 @@ describe('Lịch đơn vị, phòng họp, hồ sơ công việc', () => {
     ).entries()) {
       await schoolYear
         .insertInto('staff')
-        .values({ org_unit_id: rootId, code: `LDV-${index}`, full_name: name, start_date: '2025-08-01', user_id: user.userId })
+        .values({
+          org_unit_id: rootId,
+          code: `LDV-${index}`,
+          full_name: name,
+          start_date: '2025-08-01',
+          user_id: user.userId,
+        })
         .execute();
     }
   });
@@ -106,7 +120,11 @@ describe('Lịch đơn vị, phòng họp, hồ sơ công việc', () => {
 
   it('CT-18c-9: phòng họp do người duyệt phòng khai; đăng ký phòng chờ duyệt, trùng giờ bị chặn, duyệt, từ chối cần lý do, hủy', async () => {
     assert.equal((await api('POST', '/meeting-rooms', staffer, { name: 'Phòng X' })).status, 403);
-    const room = await api('POST', '/meeting-rooms', clerk, { name: 'Phòng họp số 1', location: 'Tầng 2', capacity: 20 });
+    const room = await api('POST', '/meeting-rooms', clerk, {
+      name: 'Phòng họp số 1',
+      location: 'Tầng 2',
+      capacity: 20,
+    });
     assert.equal(room.status, 201, JSON.stringify(room.body));
     roomId = room.body.id as string;
     assert.equal((await api('POST', '/meeting-rooms', clerk, { name: 'Phòng họp số 1' })).status, 409);
@@ -153,7 +171,10 @@ describe('Lịch đơn vị, phòng họp, hồ sơ công việc', () => {
       (await api('POST', '/unit-schedules', staffer, { entry_date: day(2), content: 'Không có quyền' })).status,
       403,
     );
-    const wholeSchool = await api('POST', '/unit-schedules', manager, { entry_date: day(2), content: 'Lịch toàn trường' });
+    const wholeSchool = await api('POST', '/unit-schedules', manager, {
+      entry_date: day(2),
+      content: 'Lịch toàn trường',
+    });
     assert.equal(wholeSchool.status, 403, 'Lịch toàn trường cần quyền toàn trường');
     const clash = await api('POST', '/unit-schedules', manager, {
       org_unit_id: rootId,
@@ -235,7 +256,10 @@ describe('Lịch đơn vị, phòng họp, hồ sơ công việc', () => {
     assert.deepEqual(applied.body, { created: 2, week_start: day(7) });
     const drafts = await api('GET', `/unit-schedules?from=${day(7)}&to=${day(13)}`, manager);
     assert.deepEqual(
-      (drafts.body as unknown as Array<{ entry_date: string; status: string }>).map((row) => [row.entry_date, row.status]),
+      (drafts.body as unknown as Array<{ entry_date: string; status: string }>).map((row) => [
+        row.entry_date,
+        row.status,
+      ]),
       [
         [day(7), 'draft'],
         [day(11), 'draft'],
@@ -257,7 +281,10 @@ describe('Lịch đơn vị, phòng họp, hồ sơ công việc', () => {
     assert.equal(created.status, 201, JSON.stringify(created.body));
     fileId = created.body.id as string;
     assert.equal((await api('POST', '/work-files', staffer, { code: 'HS-01', title: 'Trùng', year })).status, 409);
-    const note = await api('POST', `/work-files/${fileId}/items`, staffer, { item_type: 'note', title: 'Biên bản kiểm tra' });
+    const note = await api('POST', `/work-files/${fileId}/items`, staffer, {
+      item_type: 'note',
+      title: 'Biên bản kiểm tra',
+    });
     assert.equal(note.status, 201, JSON.stringify(note.body));
     const shared = await api('PUT', `/work-files/${fileId}/shares`, staffer, {
       shares: [{ user_id: colleague.userId, permission: 'view' }],
@@ -312,7 +339,10 @@ describe('Lịch đơn vị, phòng họp, hồ sơ công việc', () => {
       .execute();
     const expired = await api('GET', '/work-files?box=expired', clerk);
     assert.deepEqual(
-      (expired.body as unknown as Array<{ code: string; expiry_year: number }>).map((row) => [row.code, row.expiry_year]),
+      (expired.body as unknown as Array<{ code: string; expiry_year: number }>).map((row) => [
+        row.code,
+        row.expiry_year,
+      ]),
       [['HS-01', year - 1]],
     );
   });

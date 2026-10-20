@@ -6,7 +6,13 @@ import type {
   SchoolYearDatabase,
   SystemDatabase,
 } from '@school-management/database';
-import { ApplicationError, Clock, ruleViolationError, validationError, type FieldError } from '@school-management/server';
+import {
+  ApplicationError,
+  Clock,
+  ruleViolationError,
+  validationError,
+  type FieldError,
+} from '@school-management/server';
 import {
   PERMISSION_CODES,
   ROOM_BOOKING_STATUS_LABELS,
@@ -347,7 +353,13 @@ export class UnitSchedulesService {
 
   async listBookings(
     currentUser: CurrentUser,
-    filter: { from: string | null; to: string | null; roomId: string | null; status: RoomBookingStatus | null; mine: boolean },
+    filter: {
+      from: string | null;
+      to: string | null;
+      roomId: string | null;
+      status: RoomBookingStatus | null;
+      mine: boolean;
+    },
   ) {
     let query = this.system
       .selectFrom('room_bookings')
@@ -536,11 +548,7 @@ export class UnitSchedulesService {
       .leftJoin('room_bookings', 'room_bookings.id', 'unit_schedule_entries.room_booking_id')
       .leftJoin('meeting_rooms', 'meeting_rooms.id', 'room_bookings.room_id')
       .selectAll('unit_schedule_entries')
-      .select([
-        'room_bookings.room_id',
-        'room_bookings.status as room_status',
-        'meeting_rooms.name as room_name',
-      ])
+      .select(['room_bookings.room_id', 'room_bookings.status as room_status', 'meeting_rooms.name as room_name'])
       .where('unit_schedule_entries.entry_date', '>=', filter.from)
       .where('unit_schedule_entries.entry_date', '<=', filter.to);
     // Bản nháp chỉ người đăng ký lịch của đơn vị đó thấy
@@ -795,9 +803,7 @@ export class UnitSchedulesService {
       .where('status', '=', 'draft')
       .where('entry_date', '>=', input.from)
       .where('entry_date', '<=', input.to);
-    query = input.orgUnitId
-      ? query.where('org_unit_id', '=', input.orgUnitId)
-      : query.where('org_unit_id', 'is', null);
+    query = input.orgUnitId ? query.where('org_unit_id', '=', input.orgUnitId) : query.where('org_unit_id', 'is', null);
     const published = await query.returning(['id', 'content', 'entry_date']).execute();
     if (published.length > 0) {
       const attendees = await this.system

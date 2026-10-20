@@ -6,7 +6,13 @@ import type {
   WorkFileSharePermission,
   WorkFileStatus,
 } from '@school-management/database';
-import { ApplicationError, Clock, ruleViolationError, validationError, type FieldError } from '@school-management/server';
+import {
+  ApplicationError,
+  Clock,
+  ruleViolationError,
+  validationError,
+  type FieldError,
+} from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
 import { sql, type Kysely, type Transaction } from 'kysely';
 import { ArchivesService } from '../archives/archives.js';
@@ -54,7 +60,10 @@ interface FileRow {
 function readRetention(body: RequestBody, errors: FieldError[]) {
   const retention = (body?.retention ?? 'limited') as ArchiveRetention;
   if (retention !== 'permanent' && retention !== 'limited') {
-    errors.push({ field: 'retention', message: 'Thời hạn bảo quản là permanent (vĩnh viễn) hoặc limited (có thời hạn)' });
+    errors.push({
+      field: 'retention',
+      message: 'Thời hạn bảo quản là permanent (vĩnh viễn) hoặc limited (có thời hạn)',
+    });
   }
   const years = body?.retention_years;
   let retentionYears: number | null = null;
@@ -93,7 +102,11 @@ export function parseWorkFile(body: RequestBody) {
 }
 
 // Năm hết hạn bảo quản: năm lưu cộng số năm; vĩnh viễn hoặc chưa ghi số năm thì không hết hạn
-export function expiryYear(file: { retention: ArchiveRetention; retention_years: number | null; archived_on: string | null }) {
+export function expiryYear(file: {
+  retention: ArchiveRetention;
+  retention_years: number | null;
+  archived_on: string | null;
+}) {
   if (file.retention !== 'limited' || !file.retention_years || !file.archived_on) {
     return null;
   }
@@ -223,7 +236,10 @@ export class WorkFilesService {
     if (filter.search) {
       const pattern = `%${filter.search.replace(/[\\%_]/g, (character) => `\\${character}`)}%`;
       query = query.where((expression) =>
-        expression.or([expression('work_files.title', 'ilike', pattern), expression('work_files.code', 'ilike', pattern)]),
+        expression.or([
+          expression('work_files.title', 'ilike', pattern),
+          expression('work_files.code', 'ilike', pattern),
+        ]),
       );
     }
     const rows = await query.orderBy('work_files.year', 'desc').orderBy('work_files.code').limit(1000).execute();
@@ -253,7 +269,11 @@ export class WorkFilesService {
     if (wanted.length === 0) {
       return new Map<string, string>();
     }
-    const rows = await this.system.selectFrom('archive_records').select(['id', 'code']).where('id', 'in', wanted).execute();
+    const rows = await this.system
+      .selectFrom('archive_records')
+      .select(['id', 'code'])
+      .where('id', 'in', wanted)
+      .execute();
     return new Map(rows.map((row) => [row.id, row.code]));
   }
 
@@ -438,7 +458,11 @@ export class WorkFilesService {
   // Công việc thêm vào hồ sơ: việc mình giao, mình là lãnh đạo giao việc, mình nhận (cá nhân) hoặc việc cá nhân của mình
   private async taskTitle(currentUser: CurrentUser, taskId: string): Promise<string> {
     const { database } = await this.currentSchoolYear.require();
-    const staff = await database.selectFrom('staff').select('id').where('user_id', '=', currentUser.id).executeTakeFirst();
+    const staff = await database
+      .selectFrom('staff')
+      .select('id')
+      .where('user_id', '=', currentUser.id)
+      .executeTakeFirst();
     const task = await database
       .selectFrom('tasks')
       .select(['title'])
@@ -511,7 +535,11 @@ export class WorkFilesService {
         .map((share) => [share.user_id, share.permission ?? 'view']),
     );
     const accounts = await this.admin.resolveAccounts([...wanted.keys()], 'shares');
-    const before = await this.system.selectFrom('work_file_shares').select('user_id').where('file_id', '=', id).execute();
+    const before = await this.system
+      .selectFrom('work_file_shares')
+      .select('user_id')
+      .where('file_id', '=', id)
+      .execute();
     await this.system.transaction().execute(async (transaction) => {
       await transaction.deleteFrom('work_file_shares').where('file_id', '=', id).execute();
       if (wanted.size > 0) {
@@ -530,8 +558,17 @@ export class WorkFilesService {
       await this.event(transaction, id, 'share', `${wanted.size} người`, currentUser);
     });
     const added = [...wanted.keys()].filter((userId) => !before.some((row) => row.user_id === userId));
-    const file = await this.system.selectFrom('work_files').select(['title']).where('id', '=', id).executeTakeFirstOrThrow();
-    await this.notify(added, 'Hồ sơ công việc được chia sẻ', `${currentUser.description.full_name} chia sẻ hồ sơ: ${file.title}`, id);
+    const file = await this.system
+      .selectFrom('work_files')
+      .select(['title'])
+      .where('id', '=', id)
+      .executeTakeFirstOrThrow();
+    await this.notify(
+      added,
+      'Hồ sơ công việc được chia sẻ',
+      `${currentUser.description.full_name} chia sẻ hồ sơ: ${file.title}`,
+      id,
+    );
     return this.detail(currentUser, id);
   }
 
@@ -576,7 +613,13 @@ export class WorkFilesService {
           .where('file_id', '=', id)
           .where('user_id', '=', receiverId)
           .execute();
-        await this.event(transaction, id, 'transfer', `Chuyển giao cho ${receiver?.full_name ?? ''}${note ? `: ${note}` : ''}`, currentUser);
+        await this.event(
+          transaction,
+          id,
+          'transfer',
+          `Chuyển giao cho ${receiver?.full_name ?? ''}${note ? `: ${note}` : ''}`,
+          currentUser,
+        );
       });
     } catch (error) {
       throw conflictOf(error);

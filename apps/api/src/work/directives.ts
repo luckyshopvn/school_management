@@ -27,7 +27,13 @@ import type {
   TaskPriority,
   TaskRecurrence,
 } from '@school-management/database';
-import { ApplicationError, Clock, ruleViolationError, validationError, type FieldError } from '@school-management/server';
+import {
+  ApplicationError,
+  Clock,
+  ruleViolationError,
+  validationError,
+  type FieldError,
+} from '@school-management/server';
 import {
   DIRECTIVE_MAXIMUM_FILE_BYTES,
   DIRECTIVE_ROLE_LABELS,
@@ -279,7 +285,10 @@ export class DirectivesService {
       parent: null,
     });
     const mains = rows.filter((row) => row.role === 'main');
-    const dueDate = mains.map((row) => row.due_date).sort().at(-1) as string;
+    const dueDate = mains
+      .map((row) => row.due_date)
+      .sort()
+      .at(-1) as string;
     const created = await database.transaction().execute(async (transaction) => {
       const task = await transaction
         .insertInto('tasks')
@@ -339,7 +348,9 @@ export class DirectivesService {
     if (leaderUserId === currentUser.id) {
       return { user_id: currentUser.id, user_name: currentUser.description.full_name };
     }
-    throw validationError([{ field: 'leader_user_id', message: 'Chọn lãnh đạo trong danh sách lãnh đạo nhận văn bản' }]);
+    throw validationError([
+      { field: 'leader_user_id', message: 'Chọn lãnh đạo trong danh sách lãnh đạo nhận văn bản' },
+    ]);
   }
 
   // Kiểm tra từng dòng phân công: cá nhân đang làm có tài khoản, đơn vị và phòng ban có thật, trong phạm vi; ngày hết hạn
@@ -777,18 +788,18 @@ export class DirectivesService {
     const task = await this.loadTask(database, id);
     const assignments = await this.loadAssignments(database, id);
     const { editable, handled } = await this.visibility(database, currentUser, task, assignments);
-    const full = await database
-      .selectFrom('tasks')
-      .selectAll()
-      .where('id', '=', id)
-      .executeTakeFirstOrThrow();
+    const full = await database.selectFrom('tasks').selectAll().where('id', '=', id).executeTakeFirstOrThrow();
     const named = await database
       .selectFrom('task_assignments')
       .innerJoin('org_units', 'org_units.id', 'task_assignments.org_unit_id')
       .leftJoin('departments', 'departments.id', 'task_assignments.department_id')
       .leftJoin('staff', 'staff.id', 'task_assignments.staff_id')
       .selectAll('task_assignments')
-      .select(['org_units.name as org_unit_name', 'departments.name as department_name', 'staff.full_name as staff_name'])
+      .select([
+        'org_units.name as org_unit_name',
+        'departments.name as department_name',
+        'staff.full_name as staff_name',
+      ])
       .where('task_assignments.task_id', '=', id)
       .orderBy('task_assignments.created_at')
       .execute();
@@ -800,7 +811,16 @@ export class DirectivesService {
       .execute();
     const files = await database
       .selectFrom('task_files')
-      .select(['id', 'file_name', 'content_type', 'size_bytes', 'sha256', 'created_by', 'created_by_name', 'created_at'])
+      .select([
+        'id',
+        'file_name',
+        'content_type',
+        'size_bytes',
+        'sha256',
+        'created_by',
+        'created_by_name',
+        'created_at',
+      ])
       .where('task_id', '=', id)
       .orderBy('created_at')
       .execute();
@@ -1034,7 +1054,13 @@ export class DirectivesService {
     return this.detail(currentUser, id);
   }
 
-  async revoke(currentUser: CurrentUser, id: string, assignmentId: string, reason: string | null, origin: ChangeOrigin) {
+  async revoke(
+    currentUser: CurrentUser,
+    id: string,
+    assignmentId: string,
+    reason: string | null,
+    origin: ChangeOrigin,
+  ) {
     const { database } = await this.currentSchoolYear.require();
     const task = await this.loadTask(database, id);
     await this.assertEditable(currentUser, task);
@@ -1047,7 +1073,10 @@ export class DirectivesService {
       (row) => row.role === 'main' && row.status !== 'cancelled' && row.id !== assignment.id,
     );
     if (assignment.role === 'main' && assignment.parent_id === null && remainingMains.length === 0) {
-      throw ruleViolationError(DIRECTIVE_RULE_CODE, 'Việc phải còn ít nhất một xử lý chính; hủy việc nếu không làm nữa');
+      throw ruleViolationError(
+        DIRECTIVE_RULE_CODE,
+        'Việc phải còn ít nhất một xử lý chính; hủy việc nếu không làm nữa',
+      );
     }
     await database.transaction().execute(async (transaction) => {
       await transaction
@@ -1255,7 +1284,11 @@ export class DirectivesService {
         status,
         progress_percent: progress,
         completed_at: completedAt,
-        due_date: active.map((row) => row.due_date).sort().at(-1) ?? undefined,
+        due_date:
+          active
+            .map((row) => row.due_date)
+            .sort()
+            .at(-1) ?? undefined,
         updated_at: this.clock.now(),
       })
       .where('id', '=', taskId)
@@ -1329,7 +1362,11 @@ export class DirectivesService {
     if (!file) {
       throw notFoundError('Không tìm thấy tệp đính kèm', 'task_file');
     }
-    return { fileName: file.file_name, contentType: file.content_type, body: await this.fileStorage.get(file.storage_key) };
+    return {
+      fileName: file.file_name,
+      contentType: file.content_type,
+      body: await this.fileStorage.get(file.storage_key),
+    };
   }
 
   async deleteFile(currentUser: CurrentUser, id: string, fileId: string) {
@@ -1473,9 +1510,7 @@ function applyStatusFilter<Query extends { where: (...args: any[]) => Query }>(
     case 'done_on_time':
       return query.where('task_assignments.status', '=', 'done').where(onTime('task_assignments'));
     case 'done_late':
-      return query
-        .where('task_assignments.status', '=', 'done')
-        .where(sql<boolean>`not ${onTime('task_assignments')}`);
+      return query.where('task_assignments.status', '=', 'done').where(sql<boolean>`not ${onTime('task_assignments')}`);
     case 'pending_approval':
       return query.where('task_assignments.status', '=', 'pending_approval');
     case 'approved':
@@ -1760,4 +1795,3 @@ export class DirectiveJobs implements OnApplicationBootstrap, OnModuleDestroy {
     }
   }
 }
-
