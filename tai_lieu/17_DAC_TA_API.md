@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.85
+- Phiên bản: 1.86
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -422,7 +422,7 @@ Giao kèo phân hệ Tuyển sinh đầu cấp phần 2, bản chạy nội bộ
 9. Chuyển hồ sơ (1.6, 5.11): `PUT /transfers` nhận `items` (`id`, `target_org_unit_id` hoặc null, `record_type` `account`, `free`). `POST /transfers/arrange` nhận `ids`, `class_id` (null là bỏ xếp lớp). `POST /transfers/run` nhận `ids`, `clear_classes`, `confirm_duplicates` (boolean); năm học nhận trẻ chưa chọn, chưa tạo, đã đóng hoặc chưa mở trả 422; trả `package_code` (`GT-` kèm thời điểm và bốn ký tự) và `results` (`application_id`, `code`, `full_name`, số định danh đã che, `guid`, `succeeded`, `note`). Mỗi hồ sơ chuyển được gọi tạo hồ sơ trẻ của `ChildrenService` (cần `P02.child.manage` ở đơn vị nhận), gửi trình duyệt, duyệt và xếp lớp khi có lớp và người gọi có `P02.approve` ở đơn vị đó; giấy khai sinh chuyển mục đích `birth_certificate`; lỗi của hồ sơ nào ghi vào kết quả của hồ sơ đó. `GET /transfers/results` nhận `kind` (`transfer` mặc định, `cancel`), `package_code`; trả `packages`, `items` (tối đa 2000 dòng mới nhất). `POST /transfers/cancel` nhận `ids`, trả `package_code` (`HN-…`) và `results`.
 10. `GET /public/admission-applications/lookup` (YCTD-86) trả nhãn "Đã hủy nhập học" cho hồ sơ `cancelled`. Bước chuyển tuyển sinh khi mở năm học mới chép thêm `admission_application_files` và dòng `files` của hồ sơ được chuyển, bỏ trống `target_org_unit_id` khi đơn vị không còn. `PORTAL_QUICK_LINK_PATHS` thêm sáu đường dẫn (`/entry-admissions/advanced`, `/intake`, `/notices`, `/transfer`, `/transfer-results`, `/admitted-students`); `DATA_GRID_KEYS` thêm `entry-advanced`, `entry-intake`, `entry-notices`, `entry-transfer`, `entry-transfer-results`, `entry-cancel-results`, `admitted-students`; `PERMISSION_CODES` thêm `entryIntakeView`, `entryIntakeManage`, `entryIntakeTransfer`.
 
-Giao kèo phân hệ KPI (DT-18 phần 18d, YCTD-139, BR-134; do máy chủ API phục vụ, nhóm `/kpi`, dữ liệu ở cơ sở dữ liệu năm học đang dùng):
+Giao kèo phân hệ KPI (DT-18 phần 18d, YCTD-139, BR-135; do máy chủ API phục vụ, nhóm `/kpi`, dữ liệu ở cơ sở dữ liệu năm học đang dùng):
 
 1. Quyền: đọc bộ quy tắc, phiên bản, kỳ cần một trong năm quyền `P09.kpi.*`; ghi bộ quy tắc, phiên bản, kỳ, khóa và mở lại kỳ, đối tượng, chuyển dữ liệu cần `P09.kpi.configure`; danh mục chung cần `P09.kpi.configure` toàn trường, danh mục đơn vị cần `P09.kpi.manage` hoặc `P09.kpi.configure` ở đơn vị; giao việc, ủy quyền cần `P09.kpi.manage`; thao tác của người thực hiện cần `P09.kpi.participate` và là chính người đó; duyệt, chấm, trả lại, kết luận cần là người được ủy quyền, cấp trên trực tiếp hoặc có `P09.kpi.manage` ở đơn vị của người thực hiện, và không phải chính người đó. Vi phạm quy tắc trả 422 `ERR_RULE_VIOLATION` mã `YCTD-139`.
 2. Thiết lập: `GET /kpi/rule-sets` (kèm `versions`), `GET /kpi/rule-versions/{id}` (kèm `config`), `POST /kpi/rule-sets` (`code`, `name`, `description`, `copy_from_version_id`), `PATCH /kpi/rule-sets/{id}`, `POST /kpi/rule-sets/{id}/versions`, `PATCH /kpi/rule-versions/{id}` (`config`, `note`; chỉ bản nháp; lỗi cấu hình trả 400 theo `config.<đường dẫn>`), `POST /kpi/rule-versions/{id}/publish`, `DELETE /kpi/rule-versions/{id}` (bản nháp); `GET /kpi/profiles` (`org_unit_id`, `q`), `PUT /kpi/profiles` (`staff_ids`, `rule_set_id`, `subject_group`, `school_level`, `job_position`, `superior_staff_id`, `is_head`, `excluded`); `GET /kpi/periods` (kèm `rule_versions`), `POST /kpi/periods`, `PATCH /kpi/periods/{id}`, `PUT /kpi/periods/{id}/rule-versions`, `POST /kpi/periods/{id}/lock` (`note`; vượt tỷ lệ xuất sắc trả 422), `POST /kpi/periods/{id}/reopen` (`note` bắt buộc).
@@ -956,14 +956,14 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | POST | /api/v1/entry-intake/transfers/arrange, /transfers/run | Xếp lớp (5.11); Chuyển hồ sơ sang CSDL (YCTD-135) |
 | GET | /api/v1/entry-intake/transfers/results | Kết quả chuyển, kết quả hủy nhập học theo mã gói tin (P02-32, P02-33, YCTD-135) |
 | POST | /api/v1/entry-intake/transfers/cancel | Hủy nhập học hồ sơ đã chuyển (P02-33, YCTD-135) |
-| GET, POST, PATCH, DELETE | /api/v1/kpi/rule-sets, /kpi/rule-sets/{id}, /kpi/rule-sets/{id}/versions, /kpi/rule-versions/{id}, /kpi/rule-versions/{id}/publish | Bộ quy tắc và phiên bản (P09-09, YCTD-139) |
-| GET, PUT | /api/v1/kpi/profiles | Đối tượng đánh giá (P09-09, YCTD-139) |
-| GET, POST, PATCH, PUT | /api/v1/kpi/periods, /kpi/periods/{id}, /kpi/periods/{id}/rule-versions, /kpi/periods/{id}/lock, /kpi/periods/{id}/reopen | Kỳ, phiên bản quy tắc của kỳ, khóa, mở lại (P09-09, YCTD-139) |
-| GET, POST, PATCH | /api/v1/kpi/catalog, /kpi/catalog/{id}, /kpi/catalog/proposals, /kpi/catalog/{id}/decision, /kpi/catalog/import, /kpi/catalog/template, /kpi/catalog/export, /kpi/catalog/indicator-progress | Danh mục công việc chuẩn (P09-10, YCTD-139) |
-| GET, POST, PATCH, PUT, DELETE | /api/v1/kpi/tasks và các điểm cuối con | Việc, minh chứng, tự đánh giá, chấm, ủy quyền (P09-11, P09-12, YCTD-139) |
-| GET, PUT, POST | /api/v1/kpi/evaluations, /kpi/evaluations/mine, /kpi/evaluations/{id}/return, /kpi/evaluations/{id}/conclude, /kpi/advisory, /kpi/voting | Phiếu, kết luận, tham mưu, biểu quyết (P09-13, P09-14, YCTD-139) |
-| GET | /api/v1/kpi/reports/… | Mẫu báo cáo Excel, Word, PDF (P09-15, BR-74, YCTD-139) |
-| POST | /api/v1/kpi/legacy-import | Chuyển dữ liệu từ hệ thống KPI cũ (P09-15, YCTD-139) |
+| GET, POST, PATCH, DELETE | /api/v1/kpi/rule-sets, /kpi/rule-sets/{id}, /kpi/rule-sets/{id}/versions, /kpi/rule-versions/{id}, /kpi/rule-versions/{id}/publish | Bộ quy tắc và phiên bản (P09-13, YCTD-139) |
+| GET, PUT | /api/v1/kpi/profiles | Đối tượng đánh giá (P09-13, YCTD-139) |
+| GET, POST, PATCH, PUT | /api/v1/kpi/periods, /kpi/periods/{id}, /kpi/periods/{id}/rule-versions, /kpi/periods/{id}/lock, /kpi/periods/{id}/reopen | Kỳ, phiên bản quy tắc của kỳ, khóa, mở lại (P09-13, YCTD-139) |
+| GET, POST, PATCH | /api/v1/kpi/catalog, /kpi/catalog/{id}, /kpi/catalog/proposals, /kpi/catalog/{id}/decision, /kpi/catalog/import, /kpi/catalog/template, /kpi/catalog/export, /kpi/catalog/indicator-progress | Danh mục công việc chuẩn (P09-14, YCTD-139) |
+| GET, POST, PATCH, PUT, DELETE | /api/v1/kpi/tasks và các điểm cuối con | Việc, minh chứng, tự đánh giá, chấm, ủy quyền (P09-15, P09-16, YCTD-139) |
+| GET, PUT, POST | /api/v1/kpi/evaluations, /kpi/evaluations/mine, /kpi/evaluations/{id}/return, /kpi/evaluations/{id}/conclude, /kpi/advisory, /kpi/voting | Phiếu, kết luận, tham mưu, biểu quyết (P09-17, P09-18, YCTD-139) |
+| GET | /api/v1/kpi/reports/… | Mẫu báo cáo Excel, Word, PDF (P09-19, BR-74, YCTD-139) |
+| POST | /api/v1/kpi/legacy-import | Chuyển dữ liệu từ hệ thống KPI cũ (P09-19, YCTD-139) |
 
 ## 7. Giảng dạy
 
@@ -1275,6 +1275,45 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 5. Xóa phông còn thông tin lưu trữ hoặc hồ sơ trả `ERR_RULE_VIOLATION` mã YCTD-118 (422). Xóa hồ sơ xóa luôn tệp ở kho tệp. Mọi thao tác ghi ghi nhật ký thao tác (`archive_fonds`, `archive_holdings`, `archive_records`, `archive_record_files`).
 6. Xuất Excel hồ sơ: `columns` là mã cột của lưới (`code`, `title`, `fond`, `handler_name`, `opened_on`, `due_date`, `status`, `completed_on`, `retention`, `sheet_count`, `file_count`, `note`), không trùng, không gửi thì theo mặc định; tối đa 5 000 dòng, nhiều hơn trả `ERR_RULE_VIOLATION` mã YCTD-118. Báo cáo lưu trữ xuất một bảng tính có dòng tiêu đề, các dòng theo phông, giai đoạn và dòng Tổng cộng. Mỗi lần xuất ghi nhật ký xuất trước khi trả tệp, trả mã nhật ký ở `x-export-log-id`.
 7. Từ YCTD-122: `GET /archive-handlers` (cần `P09.archive.manage`) trả nhân sự đang làm việc trong phạm vi quản lý: `id`, `code`, `full_name`, `org_unit_id`. Phông nhận `org_unit_id` (trống là toàn trường) và trả `org_unit_id`, `org_unit_name`; hồ sơ nhận `org_unit_id`, `handler_staff_id` (có mã thì `handler_name` không bắt buộc, máy chủ ghi tên theo hồ sơ nhân sự; nhân sự không có hoặc đã nghỉ lỗi trường `handler_staff_id`) và trả thêm `org_unit_name`, `due_soon`. `GET /archive-records`, `POST /archive-records/export` lọc thêm `org_unit_id`, `due_soon=true`; `GET /archive-report`, `POST /archive-report/export` lọc thêm `org_unit_id`; cột xuất Excel thêm `org_unit`. Mọi điểm cuối lọc theo phạm vi đơn vị (PQ-71): bản ghi ngoài phạm vi trả `ERR_NOT_FOUND`, ghi vào đơn vị ngoài phạm vi trả `ERR_FORBIDDEN`; đơn vị không có lỗi trường `org_unit_id`; phông khác đơn vị với hồ sơ lỗi trường `fond_id`.
+
+Điểm cuối văn bản đến (DT-18 phần 18a, YCTD-138):
+
+| Phương thức | Đường dẫn | Mô tả |
+|---|---|---|
+| GET, POST | /api/v1/document-catalogs | Danh mục văn bản lọc `kind`; thêm mục (P09-12, YCTD-138) |
+| PUT, DELETE | /api/v1/document-catalogs/{id} | Sửa, xóa mục chưa dùng (YCTD-138) |
+| GET, POST | /api/v1/external-units | Đơn vị bên ngoài lọc `q`, `active=true`, kèm `group_names`; thêm (YCTD-138) |
+| PUT, DELETE | /api/v1/external-units/{id} | Sửa, xóa đơn vị chưa dùng (YCTD-138) |
+| GET, POST | /api/v1/external-unit-groups | Nhóm đơn vị ban hành kèm `unit_ids`, `unit_names`; thêm (YCTD-138) |
+| PUT, DELETE | /api/v1/external-unit-groups/{id} | Sửa (thay toàn bộ đơn vị), xóa nhóm (YCTD-138) |
+| GET, PUT | /api/v1/document-leaders | Lãnh đạo nhận văn bản; ghi cả danh sách (YCTD-138) |
+| GET | /api/v1/document-staff | Nhân sự đang làm việc có tài khoản để chọn người nhận (YCTD-138) |
+| GET, POST | /api/v1/document-books | Sổ văn bản lọc `direction`, `year` kèm số văn bản, số đến kế tiếp, người theo dõi, người quản trị; thêm sổ (YCTD-138) |
+| PUT, DELETE | /api/v1/document-books/{id} | Sửa, xóa sổ chưa có văn bản (YCTD-138) |
+| GET | /api/v1/document-books/{id}/register, /register/export | Sổ đăng ký văn bản đến theo `from`, `to`; xuất Excel, ghi nhật ký xuất (P09-11, BR-74, YCTD-138) |
+| GET, POST | /api/v1/incoming-documents | Danh sách theo `view` kèm bộ lọc; vào sổ văn bản (P09-09, P09-11, YCTD-138) |
+| GET | /api/v1/incoming-documents/next-number | Số đến kế tiếp của sổ `book_id` (YCTD-138) |
+| POST | /api/v1/incoming-documents/interconnect | Nhập văn bản nhận qua liên thông, chờ vào sổ (bản chạy nội bộ, YCTD-138) |
+| POST | /api/v1/incoming-documents/complete, /archive, /flags | Kết thúc hàng loạt; lưu hồ sơ hàng loạt; đánh dấu, theo dõi hàng loạt (YCTD-138) |
+| GET, PUT, DELETE | /api/v1/incoming-documents/{id} | Chi tiết (đánh dấu đã đọc); cập nhật thông tin; xóa văn bản chưa chuyển (YCTD-138) |
+| POST | /api/v1/incoming-documents/{id}/register, /acknowledge | Vào sổ văn bản liên thông; đánh dấu, hủy đánh dấu tiếp nhận (YCTD-138) |
+| POST | /api/v1/incoming-documents/{id}/files | Tải tệp (`file`, `kind`, `scanned`) (YCTD-138) |
+| GET, DELETE | /api/v1/incoming-documents/{id}/files/{fileId} | Tải về, xóa tệp (YCTD-138) |
+| PUT | /api/v1/incoming-documents/{id}/relations | Văn bản liên quan (YCTD-138) |
+| POST | /api/v1/incoming-documents/{id}/transfer, /return, /refuse, /revoke, /finish | Chuyển (trình lãnh đạo, chuyển xử lý, luân chuyển); trả lại; từ chối; lấy lại; xử lý xong (P09-10, BR-134, YCTD-138) |
+| POST | /api/v1/incoming-documents/{id}/extension, /extension/decide | Xin gia hạn; đồng ý hoặc không (YCTD-138) |
+| POST | /api/v1/incoming-documents/{id}/complete, /restrict, /reply, /unread | Kết thúc; hạn chế xem; văn bản trả lời; đánh dấu chưa đọc (YCTD-138) |
+| GET | /api/v1/incoming-documents/{id}/slips/{type} | Phiếu trình (`submission`), phiếu xử lý (`processing`), phiếu giao nhận (`handover`) PDF (YCTD-138) |
+
+Giao kèo văn bản đến theo VNPT iOffice (DT-18 phần 18a, YCTD-138, BR-134; máy chủ API, dữ liệu ở cơ sở dữ liệu hệ thống):
+
+1. Quyền: mọi điểm cuối cần một trong bốn quyền `P09.incoming-document.*`; ghi danh mục, đơn vị, nhóm, lãnh đạo, sổ cần `admin` ở phạm vi toàn trường; `POST /incoming-documents`, `/interconnect`, `GET /next-number` cần `register` ở phạm vi toàn trường; sổ đăng ký cần `register` hoặc `admin`. Các thao tác trên văn bản kiểm tra vai trò trong luồng ở máy chủ; văn bản người dùng không xem được trả `ERR_NOT_FOUND`; thao tác không được làm trả `ERR_RULE_VIOLATION` mã `YCTD-138`.
+2. `GET /incoming-documents` nhận `view` (`inbox` mặc định, `processed`, `registered`, `processing`, `completed`, `for_information`, `starred`, `followed`, `search`, `interconnect`; bốn danh sách của văn thư và `interconnect` cần `register`), `role` (`all`, `main`, `coordinate`, `view`), `q` (trích yếu), `symbol`, `arrival_number`, `issuer`, `arrival_from`, `arrival_to`, `book_id`, `form_id`, `urgency_id`, `overdue=true`, `due_soon=true`, `page`, `page_size` (10, 20, 50, 100, 200); trả `items` (thông tin văn bản, tên danh mục, `urgency_level`, `starred`, `followed`, `my_role`, `my_status`, `unread`, `effective_deadline` là hạn của dòng đang chờ của mình hoặc hạn văn bản, `overdue`, `due_soon`, `main_handler_name`, `directed`, `file_count`), `total`, `page`, `page_size`.
+3. Văn bản nhận các ô của biểu mẫu: `summary` (tối đa 2000 ký tự), `symbol` (100), `issuer_unit_id` hoặc `issuer_name` (một trong hai), `document_date` bắt buộc; `form_id`, `urgency_id`, `secrecy_id`, `field_id` (đúng loại danh mục), `deadline`, `authority`, `document_kind`, `transfer_method`, `copy_type`, `has_paper`, `processing_note` (4000); vào sổ thêm `book_id`, `arrival_date` bắt buộc, `arrival_number` (trống là số kế tiếp; trùng trả `ERR_CONFLICT` ở ô `arrival_number`). Chi tiết trả thêm `files`, `related`, `assignments` (kèm `overdue`, `due_soon`), `events`, `my_pending_assignment_id`, `actions` (thao tác người xem làm được), `exchange` (`connected` false, mô tả bản chạy nội bộ). Mở chi tiết ghi `read_at` các dòng đang chờ của người xem, dòng xem để biết thành `done`.
+4. `POST /{id}/transfer` nhận `mode` (`leader`, `process`, `rotate`), `recipients` (1 đến 100, mỗi dòng `user_id`, `role` với `process`, `deadline`), `note`, `deadline` chung. `return`, `refuse` cần `note`. `extension` nhận `until`, `reason`; `extension/decide` nhận `assignment_id`, `approve` (boolean), `note`. `restrict` nhận `restricted`; `reply` nhận `reply_symbol`, `reply_date`, `note`; `acknowledge` nhận `acknowledged` (mặc định true), `reference`; `register` nhận `book_id`, `arrival_number`, `arrival_date`.
+5. Thao tác hàng loạt `complete`, `archive` (thêm `archive_record_id` của hồ sơ tài liệu 5.10.1) nhận `ids` (1 đến 200), trả mỗi văn bản `id`, `ok`, `message`; văn bản không làm được không chặn văn bản khác. `flags` nhận `ids` và `starred` hoặc `followed`.
+6. Tệp: PDF, JPEG, PNG, Word, Excel theo chữ ký tệp, tối đa 50 MB, tối đa 30 tệp mỗi văn bản; `kind` `main` hoặc `related`, `scanned` là `true` khi quét. Người tải lên hoặc văn thư xóa tệp khi văn bản chưa kết thúc. Phiếu PDF khổ dọc, tên tệp `phieu-trinh-…`, `phieu-xu-ly-…`, `phieu-giao-nhan-…`. Sổ đăng ký trả `book`, `items` (cột của iOffice; văn bản hạn chế xem che trích yếu); tệp Excel `so-van-ban-den-<năm>-….xlsx` ghi `export_logs` mã `incoming_document_register`.
+7. Người nhận được chuyển nhận thông báo trong ứng dụng (mẫu `incoming_document`); trả lại, từ chối, xử lý xong, xin gia hạn báo người chuyển; kết quả gia hạn báo người xin. `PORTAL_QUICK_LINK_PATHS` thêm 12 đường dẫn của phân hệ `documents`; `DATA_GRID_KEYS` thêm `incoming-documents`, `incoming-manage`, `incoming-interconnect`, `incoming-register`, `document-books`, `external-units`, `external-unit-groups`, `document-catalogs`.
 
 ## 13. Y tế học đường
 

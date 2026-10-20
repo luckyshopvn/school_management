@@ -146,6 +146,11 @@ import { EntryIntakeController } from './entry-admissions/entry-intake.controlle
 import { EntryIntakeNoticesService } from './entry-admissions/entry-intake-notices.js';
 import { EntryIntakeTransferService } from './entry-admissions/entry-intake-transfer.js';
 import { EntryIntakeService } from './entry-admissions/entry-intake.js';
+import { DocumentAdminController, DocumentAdminService } from './incoming-documents/document-admin.js';
+import { DocumentExchange, LocalDocumentExchange } from './incoming-documents/document-exchange.js';
+import { IncomingDocumentsController } from './incoming-documents/incoming-documents.controller.js';
+import { IncomingDocumentsService } from './incoming-documents/incoming-documents.js';
+import { IncomingPrintService } from './incoming-documents/incoming-print.js';
 import { KpiCatalogController, KpiCatalogService } from './kpi/kpi-catalog.js';
 import { KpiEvaluationsController, KpiEvaluationsService } from './kpi/kpi-evaluations.js';
 import { KpiLegacyImportController, KpiLegacyImportService } from './kpi/kpi-legacy.js';
@@ -353,6 +358,8 @@ export class ApplicationModule {
         ParentFinalYearController,
         EntryAdmissionCatalogsController,
         EntryIntakeController,
+        DocumentAdminController,
+        IncomingDocumentsController,
         // Phân hệ KPI (DT-18 phần 18d)
         KpiSetupController,
         KpiCatalogController,
@@ -718,6 +725,11 @@ export class ApplicationModule {
         EntryIntakeService,
         EntryIntakeNoticesService,
         EntryIntakeTransferService,
+        // Văn bản đến theo VNPT iOffice (DT-18 phần 18a); chưa kết nối trục liên thông văn bản: bản chạy nội bộ
+        DocumentAdminService,
+        IncomingDocumentsService,
+        IncomingPrintService,
+        { provide: DocumentExchange, useClass: LocalDocumentExchange },
         KpiSupport,
         KpiSetupService,
         KpiCatalogService,

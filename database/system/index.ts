@@ -14,6 +14,7 @@ import { migration as addSchoolWeekFieldsAndCarryOverTime } from './migrations/0
 import { migration as createSigningTables } from './migrations/0015_create_signing_tables.js';
 import { migration as addArchiveUnitsHandlersReminders } from './migrations/0016_add_archive_units_handlers_reminders.js';
 import { migration as adjustSigningToSoTemplates } from './migrations/0017_adjust_signing_to_so_templates.js';
+import { migration as createIncomingDocumentTables } from './migrations/0018_create_incoming_document_tables.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu hệ thống, theo số thứ tự (QU-01, QĐ-17)
 export const systemMigrations: Record<string, Migration> = {
@@ -32,4 +33,5 @@ export const systemMigrations: Record<string, Migration> = {
   '0015_create_signing_tables': createSigningTables,
   '0016_add_archive_units_handlers_reminders': addArchiveUnitsHandlersReminders,
   '0017_adjust_signing_to_so_templates': adjustSigningToSoTemplates,
+  '0018_create_incoming_document_tables': createIncomingDocumentTables,
 };

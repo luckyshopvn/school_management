@@ -10,6 +10,7 @@ export type PortalWorkspaceKey =
   | 'entry-admissions'
   | 'emis'
   | 'signing'
+  | 'documents'
   | 'system'
   | 'finance'
   | 'personnel'
@@ -205,6 +206,31 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('2.1.', 'Đồng bộ chứng thư số', '/signing-certificate-sync'),
         leaf('2.2.', 'Kí hồ sơ trường, lớp, nhân sự, học sinh', '/signing-dossiers'),
         leaf('2.3.', 'Xác nhận hoàn thành và gửi hồ sơ', '/signing-submissions'),
+      ]),
+    ],
+  },
+  {
+    // Quản lý văn bản và điều hành theo VNPT iOffice (DT-18, tài liệu 32 mục 9; quyết định của Eric ngày 2026-10-19). Phần
+    // 18a làm Văn bản đến và Quản trị văn bản; văn bản đi (18b), giao việc, lịch, hồ sơ công việc, báo cáo (18c) thêm nhóm
+    // sau. Số nhóm, tên mục Claude tự đặt theo menu của iOffice
+    key: 'documents',
+    label: 'Quản lý văn bản và điều hành',
+    menu: [
+      group('1.', 'Văn bản đến', [
+        leaf('1.1.', 'Văn bản đến', '/incoming-documents'),
+        leaf('1.2.', 'Quản lý văn bản đến', '/incoming-documents/manage'),
+        leaf('1.3.', 'Văn bản xem để biết', '/incoming-documents/for-information'),
+        leaf('1.4.', 'Văn bản đánh dấu', '/incoming-documents/starred'),
+        leaf('1.5.', 'Văn bản theo dõi', '/incoming-documents/followed'),
+        leaf('1.6.', 'Tra cứu văn bản', '/incoming-documents/search'),
+        leaf('1.7.', 'Liên thông văn bản', '/incoming-documents/interconnect'),
+      ]),
+      group('2.', 'Quản trị văn bản', [
+        leaf('2.1.', 'Sổ văn bản', '/document-books'),
+        leaf('2.2.', 'Đơn vị bên ngoài', '/external-units'),
+        leaf('2.3.', 'Khai báo nhóm đơn vị ban hành', '/external-unit-groups'),
+        leaf('2.4.', 'Danh mục văn bản', '/document-catalogs'),
+        leaf('2.5.', 'Lãnh đạo nhận văn bản', '/document-leaders'),
       ]),
     ],
   },

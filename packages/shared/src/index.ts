@@ -10,6 +10,7 @@ export * from './students.js';
 export * from './emis.js';
 export * from './signing.js';
 export * from './entry-admissions.js';
+export * from './incoming-documents.js';
 export * from './kpi.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
@@ -187,6 +188,11 @@ export const PERMISSION_CODES = {
   entryIntakeView: 'P02.entry-intake.view',
   entryIntakeManage: 'P02.entry-intake.manage',
   entryIntakeTransfer: 'P02.entry-intake.transfer',
+  // Văn bản đến theo VNPT iOffice, phân hệ Quản lý văn bản và điều hành (DT-18 phần 18a)
+  incomingDocumentView: 'P09.incoming-document.view',
+  incomingDocumentRegister: 'P09.incoming-document.register',
+  incomingDocumentSearch: 'P09.incoming-document.search',
+  incomingDocumentAdmin: 'P09.incoming-document.admin',
   // Phân hệ KPI (DT-18 phần 18d)
   kpiParticipate: 'P09.kpi.participate',
   kpiManage: 'P09.kpi.manage',
@@ -393,6 +399,19 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/entry-admissions/transfer',
   '/entry-admissions/transfer-results',
   '/admitted-students',
+  // Văn bản đến theo VNPT iOffice (DT-18 phần 18a)
+  '/incoming-documents',
+  '/incoming-documents/manage',
+  '/incoming-documents/for-information',
+  '/incoming-documents/starred',
+  '/incoming-documents/followed',
+  '/incoming-documents/search',
+  '/incoming-documents/interconnect',
+  '/document-books',
+  '/external-units',
+  '/external-unit-groups',
+  '/document-catalogs',
+  '/document-leaders',
   // Phân hệ KPI (DT-18 phần 18d)
   '/kpi/periods',
   '/kpi/rule-sets',
@@ -605,6 +624,15 @@ export const DATA_GRID_KEYS = [
   'entry-transfer-results',
   'entry-cancel-results',
   'admitted-students',
+  // Văn bản đến theo VNPT iOffice (DT-18 phần 18a)
+  'incoming-documents',
+  'incoming-manage',
+  'incoming-interconnect',
+  'incoming-register',
+  'document-books',
+  'external-units',
+  'external-unit-groups',
+  'document-catalogs',
   // Phân hệ KPI (DT-18 phần 18d)
   'kpi-periods',
   'kpi-rule-sets',

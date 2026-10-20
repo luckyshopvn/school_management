@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.15
+- Phiên bản: 0.16
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đang cập nhật
 
@@ -23,7 +23,7 @@
 - Gói dùng chung: kiểu cấu hình bộ quy tắc, nhãn (`packages/shared/src/kpi.ts`); phân hệ "Đánh giá KPI" 13 mục ở `PORTAL_WORKSPACES`, điều kiện hiện mục, `PERMISSION_CODES`, `DATA_GRID_KEYS`, `PORTAL_QUICK_LINK_PATHS`.
 - Máy chủ API (`apps/api/src/kpi/`): máy chấm đọc mọi tham số từ cấu hình; thiết lập; danh mục; việc; phiếu đánh giá, tham mưu, biểu quyết, khóa kỳ; mẫu báo cáo Excel, Word, PDF; chuyển dữ liệu cũ. Hàm đặt tên khóa kho tệp dùng chung `resource-names.ts` (cùng tệp với phần 18a).
 - Cổng quản trị: 13 trang của phân hệ "Đánh giá KPI" (`apps/portal/src/kpi/`).
-- Thêm quy tắc BR-134, chức năng P09-09 đến P09-15, quyền PQ-78, màn hình MH-158 đến MH-170, kịch bản CT-667 đến CT-685, tiêu chí AC-663 đến AC-672. Kết quả ngày 20/10/2026: kiểm thử đơn vị `apps/api/src/kpi/kpi.test.ts` CT-18d-1 đến CT-18d-18 đạt 18/18; kiểm thử đơn vị toàn bộ kho mã 908/908 đạt (lượt đầu 907/908, ca CT-16d-3 đếm số phân hệ đổi từ 13 thành 14 vì có phân hệ mới, đã sửa và chạy lại đạt); kiểm thử giao diện `tests/e2e/71-kpi.spec.ts` (CT-18d-19) đạt; toàn bộ kiểm thử giao diện E2E_PLACEHOLDER; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm quy tắc BR-135, chức năng P09-13 đến P09-19, quyền PQ-79, màn hình MH-167 đến MH-179, kịch bản CT-678 đến CT-696, tiêu chí AC-669 đến AC-678. Kết quả ngày 20/10/2026: kiểm thử đơn vị `apps/api/src/kpi/kpi.test.ts` CT-18d-1 đến CT-18d-18 đạt 18/18; kiểm thử đơn vị toàn bộ kho mã UNIT_PLACEHOLDER; kiểm thử giao diện `tests/e2e/71-kpi.spec.ts` (CT-18d-19) đạt; toàn bộ kiểm thử giao diện E2E_PLACEHOLDER; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
@@ -32,11 +32,34 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-139, `07_QUY_TAC_NGHIEP_VU.md` BR-134, `08_VAI_TRO_NGUOI_DUNG.md` PQ-78, `10_YEU_CAU_CHUC_NANG.md` P09-09 đến P09-15, `11_TIEU_CHI_NGHIEM_THU.md` AC-663 đến AC-672, `14_DAC_TA_GIAO_DIEN.md` MH-158 đến MH-170, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-667 đến CT-685, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.89.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-139, `07_QUY_TAC_NGHIEP_VU.md` BR-135, `08_VAI_TRO_NGUOI_DUNG.md` PQ-79, `10_YEU_CAU_CHUC_NANG.md` P09-13 đến P09-19, `11_TIEU_CHI_NGHIEM_THU.md` AC-669 đến AC-678, `14_DAC_TA_GIAO_DIEN.md` MH-167 đến MH-179, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-678 đến CT-696, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.90.0.
 
 #### Vấn đề tồn đọng
 
 - Chưa có danh sách 14 tiêu chí chung và chỉ báo theo cấp học của bản mẫu theo Nghị định 233/2026; bốn mức giữa của thang 6 mức là cấu hình tạm. Số ký hiệu văn bản nối sổ văn bản đi khi phần 18b gộp.
+
+### 2026-10-20 — DT-18 phần 18a: Văn bản đến theo VNPT iOffice
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu hệ thống: tệp `0018_create_incoming_document_tables` tạo 13 bảng (danh mục văn bản, đơn vị bên ngoài, nhóm đơn vị ban hành, sổ văn bản, người theo dõi và quản trị sổ, lãnh đạo nhận văn bản, văn bản đến, tệp, văn bản liên quan, luồng xử lý, đánh dấu và theo dõi, lịch sử tham mưu) kèm danh mục mặc định theo biểu mẫu của iOffice. Cơ sở dữ liệu định danh: tệp `0052_add_incoming_document_permissions` thêm bốn quyền P09, bỏ phân hệ mới khỏi nhóm VT-14.
+- Gói dùng chung: phân hệ "Quản lý văn bản và điều hành" (khóa `documents`) ở `PORTAL_WORKSPACES` với nhóm 1. Văn bản đến (1.1 đến 1.7), 2. Quản trị văn bản (2.1 đến 2.5); điều kiện hiện mục ở `MENU_PERMISSION_RULES`; nhãn ở `packages/shared/src/incoming-documents.ts`; `PERMISSION_CODES`, `DATA_GRID_KEYS`, `PORTAL_QUICK_LINK_PATHS` thêm mục mới.
+- Máy chủ API (`apps/api/src/incoming-documents/`): `document-admin.ts` (quản trị văn bản), `incoming-documents.ts` (vào sổ, luồng xử lý, danh sách, tệp, hạn chế xem, đánh dấu), `incoming-print.ts` (phiếu PDF, sổ văn bản đến), `document-exchange.ts` (chỗ nối trục liên thông, bản chạy nội bộ), `incoming-documents.controller.ts`; `apps/api/src/common/resource-names.ts` là hàm tạo tên chung cho khóa kho tệp và bộ nhớ đệm (viết sẵn cho đa thuê bao).
+- Cổng quản trị: `apps/portal/src/incoming-documents/` (danh sách 1.1 đến 1.7, biểu mẫu THÔNG TIN VĂN BẢN ĐẾN, chi tiết văn bản có bốn thẻ và các hộp thoại chuyển, trả lại, gia hạn, lưu hồ sơ, vào sổ; năm trang Quản trị văn bản), `router.tsx`, biểu tượng phân hệ.
+- Thêm quy tắc BR-134, chức năng P09-09 đến P09-12, quyền PQ-78, màn hình MH-158 đến MH-166, kịch bản CT-667 đến CT-677, tiêu chí AC-663 đến AC-668. Kết quả ngày 20/10/2026: kiểm thử đơn vị CT-18a-1 đến CT-18a-10 đạt 10/10 (cùng `menu-permissions.test.ts`, `quick-links.test.ts` 17/17 ca; sửa `system-admin-so.test.ts` CT-16d-3 đếm 14 phân hệ, 10/10 ca); kiểm thử đơn vị toàn bộ kho mã 900/900 đạt (sau khi sửa ca CT-16d-3); kiểm thử giao diện CT-18a-11 (`70-incoming-documents.spec.ts`) đạt; toàn bộ kiểm thử giao diện 140/140 đạt (spec 58 đếm 14 phân hệ); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 18a của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9.4 theo khảo sát VNPT iOffice ngày 2026-10-19 (quyết định của Eric ngày 2026-10-19: sổ văn bản, luồng văn bản làm theo iOffice). Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-138: dữ liệu ở cơ sở dữ liệu hệ thống để giữ qua năm học; lãnh đạo nhận văn bản là danh sách cấu hình; người nhận là nhân sự đang làm việc có tài khoản; mở văn bản là đã đọc, văn bản xem để biết mở là xong; "Đến hạn" là hạn trong 2 ngày tới.
+- Bản chạy nội bộ: không kết nối trục liên thông văn bản (văn thư nhập văn bản nhận được, đánh dấu tiếp nhận bằng tay rồi vào sổ; chỗ nối `DocumentExchange`); không có ký số SmartCA. "Tạo việc" từ văn bản làm ở phần 18c; văn bản trả lời ghi số ký hiệu, ngày cho tới khi phần 18b có sổ văn bản đi.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-138, `07_QUY_TAC_NGHIEP_VU.md` BR-134, `08_VAI_TRO_NGUOI_DUNG.md` PQ-78, `10_YEU_CAU_CHUC_NANG.md` P09-09 đến P09-12, `11_TIEU_CHI_NGHIEM_THU.md` AC-663 đến AC-668, `14_DAC_TA_GIAO_DIEN.md` MH-158 đến MH-166, `16_CO_SO_DU_LIEU.md` mục 1 và mục 10, `17_DAC_TA_API.md` mục 12, `21_KICH_BAN_KIEM_THU.md` CT-667 đến CT-677, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.89.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9.6.
+
+#### Vấn đề tồn đọng
+
+- Chưa kết nối trục liên thông văn bản và ký số; "Tạo việc", "Tạo lịch họp", "Cấp số và phát hành", báo cáo văn bản đến chờ phần 18b, 18c. Mẫu phiếu trình, phiếu xử lý, phiếu giao nhận tự đặt vì khảo sát chỉ ghi tên nút.
 
 ### 2026-10-20 — Kế hoạch DT-18 điều hành nhà trường
 

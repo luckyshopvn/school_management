@@ -475,6 +475,213 @@ export interface SigningEventsTable {
   created_at: CreatedTimestamp;
 }
 
+// Văn bản đến theo VNPT iOffice (DT-18 phần 18a, YCTD-138)
+export type DocumentCatalogKind = 'form' | 'urgency' | 'secrecy' | 'field';
+export type DocumentBookDirection = 'incoming' | 'outgoing';
+export type DocumentBookMemberRole = 'follower' | 'admin';
+export type IncomingDocumentStatus = 'pending_registration' | 'registered' | 'processing' | 'completed';
+export type IncomingDocumentAuthority = 'normal' | 'outside';
+export type IncomingDocumentKind = 'new' | 'revoke' | 'replace';
+export type IncomingTransferMethod = 'hand' | 'post' | 'email' | 'interconnect';
+export type IncomingCopyType = 'original' | 'certified_copy' | 'transcribed_copy' | 'extract_copy';
+export type IncomingDocumentSource = 'manual' | 'interconnect';
+export type IncomingInterconnectStatus = 'received' | 'acknowledged';
+export type IncomingFileKind = 'main' | 'related';
+export type IncomingAssignmentRole = 'leader' | 'main' | 'coordinate' | 'view';
+export type IncomingAssignmentStatus = 'pending' | 'forwarded' | 'done' | 'returned' | 'revoked' | 'refused' | 'closed';
+export type IncomingExtensionStatus = 'requested' | 'approved' | 'rejected';
+
+export interface DocumentCatalogItemsTable {
+  id: Generated<string>;
+  kind: DocumentCatalogKind;
+  code: string;
+  name: string;
+  // 0 thường, 1 khẩn hoặc mật, 2 hỏa tốc hoặc tối mật
+  level: Generated<number>;
+  // Trống là dùng cho mọi cấp học
+  education_level: string | null;
+  sort_order: Generated<number>;
+  active: Generated<boolean>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ExternalUnitsTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  address: string | null;
+  phone: string | null;
+  email: string | null;
+  // Mã định danh điện tử của cơ quan trên trục liên thông văn bản
+  electronic_code: string | null;
+  sort_order: Generated<number>;
+  active: Generated<boolean>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ExternalUnitGroupsTable {
+  id: Generated<string>;
+  name: string;
+  note: string | null;
+  sort_order: Generated<number>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ExternalUnitGroupMembersTable {
+  group_id: string;
+  unit_id: string;
+}
+
+export interface DocumentBooksTable {
+  id: Generated<string>;
+  direction: DocumentBookDirection;
+  name: string;
+  // Đơn vị áp dụng ở cây đơn vị của năm học; trống là toàn trường
+  org_unit_id: string | null;
+  year: number;
+  start_number: Generated<number>;
+  start_date: DateText;
+  end_date: DateText | null;
+  sort_order: Generated<number>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface DocumentBookMembersTable {
+  book_id: string;
+  user_id: string;
+  user_name: string;
+  role: DocumentBookMemberRole;
+}
+
+export interface DocumentLeadersTable {
+  user_id: string;
+  user_name: string;
+  title: string | null;
+  sort_order: Generated<number>;
+  created_at: CreatedTimestamp;
+}
+
+export interface IncomingDocumentsTable {
+  id: Generated<string>;
+  // Trống khi văn bản nhận qua liên thông còn chờ vào sổ
+  book_id: string | null;
+  arrival_number: number | null;
+  arrival_date: DateText | null;
+  summary: string;
+  symbol: string;
+  issuer_unit_id: string | null;
+  issuer_name: string;
+  document_date: DateText;
+  form_id: string | null;
+  urgency_id: string | null;
+  secrecy_id: string | null;
+  field_id: string | null;
+  deadline: DateText | null;
+  authority: Generated<IncomingDocumentAuthority>;
+  document_kind: Generated<IncomingDocumentKind>;
+  transfer_method: Generated<IncomingTransferMethod>;
+  copy_type: Generated<IncomingCopyType>;
+  has_paper: Generated<boolean>;
+  processing_note: string | null;
+  status: Generated<IncomingDocumentStatus>;
+  restricted: Generated<boolean>;
+  restricted_at: Date | null;
+  restricted_by: string | null;
+  restricted_by_name: string | null;
+  source: Generated<IncomingDocumentSource>;
+  interconnect_status: IncomingInterconnectStatus | null;
+  interconnect_reference: string | null;
+  received_at: Date | null;
+  acknowledged_at: Date | null;
+  acknowledged_by_name: string | null;
+  reply_symbol: string | null;
+  reply_date: DateText | null;
+  reply_note: string | null;
+  replied_at: Date | null;
+  replied_by_name: string | null;
+  archive_record_id: string | null;
+  archived_at: Date | null;
+  archived_by_name: string | null;
+  completed_at: Date | null;
+  completed_by: string | null;
+  completed_by_name: string | null;
+  completion_note: string | null;
+  registered_at: Date | null;
+  registered_by: string | null;
+  registered_by_name: string | null;
+  created_by: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface IncomingDocumentFilesTable {
+  id: Generated<string>;
+  document_id: string;
+  kind: Generated<IncomingFileKind>;
+  file_name: string;
+  content_type: string;
+  size_bytes: number;
+  sha256: string;
+  storage_key: string;
+  scanned: Generated<boolean>;
+  created_by: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface IncomingDocumentRelationsTable {
+  document_id: string;
+  related_id: string;
+}
+
+export interface IncomingDocumentAssignmentsTable {
+  id: Generated<string>;
+  document_id: string;
+  // Dòng của người chuyển; trống là văn thư chuyển từ sổ
+  parent_id: string | null;
+  user_id: string;
+  user_name: string;
+  user_title: string | null;
+  role: IncomingAssignmentRole;
+  status: Generated<IncomingAssignmentStatus>;
+  deadline: DateText | null;
+  note: string | null;
+  result_note: string | null;
+  assigned_by: string;
+  assigned_by_name: string;
+  created_at: CreatedTimestamp;
+  read_at: Date | null;
+  finished_at: Date | null;
+  extension_until: DateText | null;
+  extension_reason: string | null;
+  extension_status: IncomingExtensionStatus | null;
+  extension_decided_at: Date | null;
+  extension_decided_by_name: string | null;
+}
+
+export interface IncomingDocumentFlagsTable {
+  document_id: string;
+  user_id: string;
+  starred: Generated<boolean>;
+  followed: Generated<boolean>;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface IncomingDocumentEventsTable {
+  id: Generated<string>;
+  document_id: string;
+  action: string;
+  note: string | null;
+  actor_id: string;
+  actor_name: string;
+  created_at: CreatedTimestamp;
+}
+
 export interface SystemDatabase {
   academic_years: AcademicYearsTable;
   academic_terms: AcademicTermsTable;
@@ -500,4 +707,17 @@ export interface SystemDatabase {
   signing_dossiers: SigningDossiersTable;
   signing_events: SigningEventsTable;
   signing_create_errors: SigningCreateErrorsTable;
+  document_catalog_items: DocumentCatalogItemsTable;
+  external_units: ExternalUnitsTable;
+  external_unit_groups: ExternalUnitGroupsTable;
+  external_unit_group_members: ExternalUnitGroupMembersTable;
+  document_books: DocumentBooksTable;
+  document_book_members: DocumentBookMembersTable;
+  document_leaders: DocumentLeadersTable;
+  incoming_documents: IncomingDocumentsTable;
+  incoming_document_files: IncomingDocumentFilesTable;
+  incoming_document_relations: IncomingDocumentRelationsTable;
+  incoming_document_assignments: IncomingDocumentAssignmentsTable;
+  incoming_document_flags: IncomingDocumentFlagsTable;
+  incoming_document_events: IncomingDocumentEventsTable;
 }

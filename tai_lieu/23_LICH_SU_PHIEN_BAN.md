@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.15
+- Phiên bản: 0.16
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,17 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.89.0 – 2026-10-20
+### Phiên bản 0.90.0 – 2026-10-20
 
 - Phạm vi thay đổi: DT-18 phần 18d, phân hệ KPI chuyển từ hệ thống KPI riêng của trường, hai bộ quy tắc chấm cấu hình được (YCTD-139).
-- Chức năng mới: phân hệ "Đánh giá KPI" 13 mục: kỳ đánh giá và lịch kỳ, khóa và mở lại kỳ; bộ quy tắc có phiên bản (cấu hình JSON, kiểm tra trước khi ghi, ban hành), mẫu quy chế theo cấp học; đối tượng đánh giá; danh mục công việc chuẩn chung và của đơn vị (đề xuất, duyệt, nhập Excel); giao việc, tự đăng ký, duyệt, chuyển trả, gia hạn, minh chứng có số ký hiệu văn bản và tệp, tự đánh giá, chấm, ủy quyền chấm, hạn tự động; phiếu tự đánh giá theo Mẫu 01-A, 01-B; kết luận của cấp trên; tham mưu kèm tỷ lệ xuất sắc; biểu quyết; báo cáo Excel, Word, PDF; sổ trách nhiệm chấm, duyệt; chuyển dữ liệu từ tệp sao lưu của hệ thống cũ (P09-09 đến P09-15).
+- Chức năng mới: phân hệ "Đánh giá KPI" 13 mục: kỳ đánh giá và lịch kỳ, khóa và mở lại kỳ; bộ quy tắc có phiên bản (cấu hình JSON, kiểm tra trước khi ghi, ban hành), mẫu quy chế theo cấp học; đối tượng đánh giá; danh mục công việc chuẩn chung và của đơn vị (đề xuất, duyệt, nhập Excel); giao việc, tự đăng ký, duyệt, chuyển trả, gia hạn, minh chứng có số ký hiệu văn bản và tệp, tự đánh giá, chấm, ủy quyền chấm, hạn tự động; phiếu tự đánh giá theo Mẫu 01-A, 01-B; kết luận của cấp trên; tham mưu kèm tỷ lệ xuất sắc; biểu quyết; báo cáo Excel, Word, PDF; sổ trách nhiệm chấm, duyệt; chuyển dữ liệu từ tệp sao lưu của hệ thống cũ (P09-13 đến P09-19).
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp năm học `0064_create_kpi` (12 bảng `kpi_*`, hai bộ quy tắc mặc định, mục đích tệp `kpi_evidence`); tệp định danh `0053_add_kpi_permissions` (năm quyền P09).
 - Thay đổi API: nhóm điểm cuối mới `/kpi`.
-- Kiểm thử: kịch bản CT-667 đến CT-685. Kết quả ngày 20/10/2026: kiểm thử đơn vị `apps/api/src/kpi/kpi.test.ts` CT-18d-1 đến CT-18d-18 đạt 18/18; kiểm thử đơn vị toàn bộ kho mã 908/908 đạt (lượt đầu 907/908, ca CT-16d-3 đếm số phân hệ đổi từ 13 thành 14 vì có phân hệ mới, đã sửa và chạy lại đạt); kiểm thử giao diện `tests/e2e/71-kpi.spec.ts` (CT-18d-19) đạt; toàn bộ kiểm thử giao diện E2E_PLACEHOLDER; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử: kịch bản CT-678 đến CT-696. Kết quả ngày 20/10/2026: kiểm thử đơn vị `apps/api/src/kpi/kpi.test.ts` CT-18d-1 đến CT-18d-18 đạt 18/18; kiểm thử đơn vị toàn bộ kho mã UNIT_PLACEHOLDER; kiểm thử giao diện `tests/e2e/71-kpi.spec.ts` (CT-18d-19) đạt; toàn bộ kiểm thử giao diện E2E_PLACEHOLDER; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Rủi ro: cấu hình bộ quy tắc sửa dạng JSON nên người cấu hình cần đọc kỹ tóm tắt trước khi ban hành; tham số của bộ quy tắc 1 lấy từ văn bản hạn chế phát tán nên chỉ giữ dạng tham số; minh chứng là dữ liệu công việc của cán bộ.
 - Khả năng tương thích: không đổi điểm cuối, bảng cũ; phân hệ mới hiện cho mọi vai trò chưa bị loại phân hệ ở 1.2 Phân quyền nhóm theo phần mềm.
 - Phương án quay lui: hoàn lại commit gộp của nhánh `dt-18-phan-18d`; chạy phần quay lui của tệp định danh `0053` (xóa năm quyền) và tệp năm học `0064` (xóa 12 bảng, xóa dòng `files` mục đích `kpi_evidence`, trả ràng buộc; tệp ở kho tệp dưới tiền tố `kpi-evidence/` xóa tay nếu cần).
+
+### Phiên bản 0.89.0 – 2026-10-20
+
+- Phạm vi thay đổi: DT-18 phần 18a, văn bản đến theo hệ thống quản lý văn bản và điều hành VNPT iOffice (YCTD-138).
+- Chức năng mới: phân hệ "Quản lý văn bản và điều hành" (14 phân hệ trên cổng quản trị); 1.1 Văn bản đến (chờ xử lý, đã xử lý, lọc vai trò); 1.2 Quản lý văn bản đến (vào sổ theo biểu mẫu THÔNG TIN VĂN BẢN ĐẾN); luồng xử lý (trình lãnh đạo, chuyển lãnh đạo, chuyển xử lý chính, phối hợp, xem để biết, chuyển trực tiếp, luân chuyển, trả lại, từ chối, lấy lại, xử lý xong, xin gia hạn, kết thúc, kết thúc hàng loạt, lưu hồ sơ hàng loạt, văn bản trả lời, hạn chế xem, đánh dấu, theo dõi, đánh dấu chưa đọc); phiếu trình, phiếu xử lý, phiếu giao nhận PDF; sơ đồ luồng văn bản, lịch sử tham mưu; 1.3 đến 1.6 xem để biết, đánh dấu, theo dõi, tra cứu; 1.7 liên thông văn bản bản chạy nội bộ; 2.1 Sổ văn bản (sổ đăng ký, xuất Excel), 2.2 Đơn vị bên ngoài, 2.3 Khai báo nhóm đơn vị ban hành, 2.4 Danh mục văn bản, 2.5 Lãnh đạo nhận văn bản (P09-09 đến P09-12).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp hệ thống `0018_create_incoming_document_tables` (13 bảng, danh mục mặc định); tệp định danh `0052_add_incoming_document_permissions` (bốn quyền P09, bỏ phân hệ khỏi VT-14).
+- Thay đổi API: các nhóm điểm cuối mới `/document-catalogs`, `/external-units`, `/external-unit-groups`, `/document-leaders`, `/document-staff`, `/document-books`, `/incoming-documents` (xem `17_DAC_TA_API.md` mục 12).
+- Kiểm thử: kịch bản CT-667 đến CT-677. Kết quả ngày 20/10/2026: kiểm thử đơn vị CT-18a-1 đến CT-18a-10 đạt 10/10 (cùng `menu-permissions.test.ts`, `quick-links.test.ts` 17/17 ca; sửa `system-admin-so.test.ts` CT-16d-3 đếm 14 phân hệ, 10/10 ca); kiểm thử đơn vị toàn bộ kho mã 900/900 đạt (sau khi sửa ca CT-16d-3); kiểm thử giao diện CT-18a-11 (`70-incoming-documents.spec.ts`) đạt; toàn bộ kiểm thử giao diện 140/140 đạt (spec 58 đếm 14 phân hệ); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: văn bản đến có thể có nội dung mật; hạn chế xem chỉ che với người ngoài luồng, tệp đính kèm không mã hóa riêng ngoài kho tệp; độ mật hiện là nhãn, không tự hạn chế xem.
+- Khả năng tương thích: không đổi dữ liệu, điểm cuối cũ; nhóm người dùng đã có nhận thêm phân hệ mới (trừ VT-14).
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-18-phan-18a`; chạy phần quay lui của tệp định danh `0052` (xóa bốn quyền, dòng loại trừ phân hệ) và tệp hệ thống `0018` (xóa 13 bảng); tệp ở kho tệp dưới tiền tố `incoming-documents/` xóa tay nếu cần.
 
 ### Phiên bản 0.88.0 – 2026-10-20
 
