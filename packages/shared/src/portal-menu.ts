@@ -18,7 +18,8 @@ export type PortalWorkspaceKey =
   | 'interaction'
   | 'teaching'
   | 'admissions'
-  | 'reports';
+  | 'reports'
+  | 'kpi';
 
 export interface PortalMenuNode {
   // Số thứ bậc có dấu chấm cuối như của Sở, ví dụ "4.1.1."
@@ -338,6 +339,33 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
     key: 'reports',
     label: 'Báo cáo',
     menu: [leaf('1.', 'Báo cáo và bảng điều khiển', '/reports')],
+  },
+  {
+    // Đánh giá KPI (DT-18 phần 18d): hệ thống KPI riêng của trường chuyển vào; phân hệ riêng nên đánh số liên tục, tên mục
+    // do Claude tự đặt theo ủy quyền của Eric ngày 2026-10-11
+    key: 'kpi',
+    label: 'Đánh giá KPI',
+    menu: [
+      group('1.', 'Thiết lập', [
+        leaf('1.1.', 'Kỳ đánh giá', '/kpi/periods'),
+        leaf('1.2.', 'Bộ quy tắc chấm', '/kpi/rule-sets'),
+        leaf('1.3.', 'Đối tượng đánh giá', '/kpi/profiles'),
+        leaf('1.4.', 'Nhập dữ liệu từ hệ thống KPI cũ', '/kpi/legacy-import'),
+      ]),
+      group('2.', 'Danh mục', [leaf('2.1.', 'Danh mục công việc chuẩn', '/kpi/catalog')]),
+      group('3.', 'Công việc', [
+        leaf('3.1.', 'Việc của tôi', '/kpi/my-tasks'),
+        leaf('3.2.', 'Giao việc và duyệt đăng ký', '/kpi/assignments'),
+        leaf('3.3.', 'Chấm điểm công việc', '/kpi/grading'),
+      ]),
+      group('4.', 'Đánh giá, xếp loại', [
+        leaf('4.1.', 'Tự đánh giá, xếp loại', '/kpi/my-evaluation'),
+        leaf('4.2.', 'Đánh giá, xếp loại cán bộ', '/kpi/evaluations'),
+        leaf('4.3.', 'Tổng hợp tham mưu', '/kpi/advisory'),
+        leaf('4.4.', 'Biểu quyết xếp loại', '/kpi/voting'),
+      ]),
+      group('5.', 'Báo cáo', [leaf('5.1.', 'Báo cáo KPI', '/kpi/reports')]),
+    ],
   },
 ];
 

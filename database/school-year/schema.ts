@@ -178,7 +178,8 @@ export type FilePurpose =
   | 'prescription'
   | 'candidate_cv'
   | 'final_year_document'
-  | 'admission_document';
+  | 'admission_document'
+  | 'kpi_evidence';
 
 export interface FilesTable extends CatalogRecordColumns {
   org_unit_id: string | null;
@@ -3557,6 +3558,280 @@ export interface SchoolServicesTable {
   updated_at: UpdatedTimestamp;
 }
 
+// Phân hệ KPI (DT-18 phần 18d, YCTD-139)
+export type KpiSchoolLevel = 'MN' | 'TH' | 'THCS' | 'THPT';
+export type KpiSubjectGroup = 'leader' | 'staff';
+export type KpiPeriodType = 'month' | 'quarter' | 'term' | 'year' | 'custom';
+export type KpiTaskOrigin = 'assigned' | 'registered' | 'arising' | 'legacy';
+export type KpiTaskStatus =
+  | 'pending_approval'
+  | 'assigned'
+  | 'returned_to_assigner'
+  | 'in_progress'
+  | 'self_assessed'
+  | 'rework'
+  | 'graded'
+  | 'rejected'
+  | 'cancelled';
+export type KpiEvaluationStatus = 'draft' | 'submitted' | 'returned' | 'concluded';
+export type KpiCatalogStatus = 'active' | 'inactive' | 'proposed' | 'rejected';
+type NullableDate = ColumnType<string | null, string | null | undefined, string | null>;
+type NullableTimestamp = ColumnType<Date | null, Date | null | undefined, Date | null>;
+type NullableText = ColumnType<string | null, string | null | undefined, string | null>;
+type NullableDecimal = ColumnType<string | null, string | number | null | undefined, string | number | null>;
+type NullableLevel = ColumnType<KpiSchoolLevel | null, KpiSchoolLevel | null | undefined, KpiSchoolLevel | null>;
+type DefaultDecimal = ColumnType<string, string | number | undefined, string | number>;
+type ExtensionStatus = 'pending' | 'approved' | 'rejected';
+
+export interface KpiRuleSetsTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  description: NullableText;
+  is_default: Generated<boolean>;
+  status: Generated<'active' | 'inactive'>;
+  created_by: NullableText;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface KpiRuleSetVersionsTable {
+  id: Generated<string>;
+  rule_set_id: string;
+  version_no: number;
+  config: JsonValue;
+  status: Generated<'draft' | 'published'>;
+  note: NullableText;
+  published_at: NullableTimestamp;
+  published_by: NullableText;
+  published_by_name: NullableText;
+  created_by: NullableText;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface KpiProfilesTable {
+  id: Generated<string>;
+  staff_id: string;
+  rule_set_id: string;
+  subject_group: Generated<KpiSubjectGroup>;
+  school_level: NullableLevel;
+  job_position: NullableText;
+  is_head: Generated<boolean>;
+  superior_staff_id: NullableText;
+  excluded: Generated<boolean>;
+  created_by: NullableText;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface KpiPeriodsTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  period_type: KpiPeriodType;
+  start_date: string;
+  end_date: string;
+  register_from: NullableDate;
+  register_to: NullableDate;
+  self_from: NullableDate;
+  self_to: NullableDate;
+  review_from: NullableDate;
+  review_to: NullableDate;
+  advisory_from: NullableDate;
+  advisory_to: NullableDate;
+  status: Generated<'open' | 'locked'>;
+  locked_at: NullableTimestamp;
+  locked_by: NullableText;
+  locked_by_name: NullableText;
+  lock_note: NullableText;
+  legacy_id: NullableText;
+  created_by: NullableText;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface KpiPeriodRuleVersionsTable {
+  period_id: string;
+  rule_set_id: string;
+  rule_set_version_id: string;
+}
+
+export interface KpiCatalogItemsTable {
+  id: Generated<string>;
+  org_unit_id: NullableText;
+  rule_set_id: NullableText;
+  code: string;
+  name: string;
+  output_result: NullableText;
+  axis_code: string;
+  task_type: string;
+  difficulty_code: string;
+  expected_evidence: NullableText;
+  deadline_hint: NullableText;
+  school_level: NullableLevel;
+  job_position: NullableText;
+  is_required: Generated<boolean>;
+  is_confidential: Generated<boolean>;
+  status: Generated<KpiCatalogStatus>;
+  proposed_by: NullableText;
+  proposed_by_name: NullableText;
+  decided_by: NullableText;
+  decided_by_name: NullableText;
+  decided_at: NullableTimestamp;
+  decision_note: NullableText;
+  legacy_id: NullableText;
+  created_by: NullableText;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface KpiTasksTable {
+  id: Generated<string>;
+  period_id: string;
+  staff_id: string;
+  org_unit_id: string;
+  catalog_item_id: NullableText;
+  name: string;
+  output_result: NullableText;
+  axis_code: string;
+  task_type: string;
+  standard_score: Decimal;
+  difficulty_code: string;
+  difficulty_weight: Decimal;
+  is_confidential: Generated<boolean>;
+  origin: KpiTaskOrigin;
+  in_plan: Generated<boolean>;
+  status: KpiTaskStatus;
+  deadline: string;
+  original_deadline: string;
+  assigned_by_staff_id: NullableText;
+  assigned_by_name: NullableText;
+  evaluator_staff_id: NullableText;
+  delegated_by: NullableText;
+  delegated_by_name: NullableText;
+  delegated_at: NullableTimestamp;
+  delegation_note: NullableText;
+  approval_due_at: NullableTimestamp;
+  approved_at: NullableTimestamp;
+  approved_by_name: NullableText;
+  auto_approved: Generated<boolean>;
+  decision_note: NullableText;
+  return_count: Generated<number>;
+  return_reason: NullableText;
+  requested_deadline: NullableDate;
+  extension_reason: NullableText;
+  extension_status: ColumnType<ExtensionStatus | null, ExtensionStatus | null | undefined, ExtensionStatus | null>;
+  actual_finish_date: NullableDate;
+  evidence_text: NullableText;
+  document_number: NullableText;
+  self_quality_code: NullableText;
+  self_result_code: NullableText;
+  self_assessed_at: NullableTimestamp;
+  bonus_proposed: Generated<boolean>;
+  bonus_reason: NullableText;
+  grading_due_at: NullableTimestamp;
+  late_days: ColumnType<number | null, number | null | undefined, number | null>;
+  progress_percent: NullableDecimal;
+  progress_adjust_reason: NullableText;
+  quality_code: NullableText;
+  result_code: NullableText;
+  task_percent: NullableDecimal;
+  exceeded: Generated<boolean>;
+  bonus_approved: Generated<boolean>;
+  execution_score: NullableDecimal;
+  converted_score: NullableDecimal;
+  bonus_score: NullableDecimal;
+  grader_comment: NullableText;
+  graded_at: NullableTimestamp;
+  graded_by: NullableText;
+  graded_by_name: NullableText;
+  auto_graded: Generated<boolean>;
+  rework_reason: NullableText;
+  legacy_id: NullableText;
+  created_by: NullableText;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface KpiTaskFilesTable {
+  task_id: string;
+  file_id: string;
+  uploaded_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface KpiEvaluationsTable {
+  id: Generated<string>;
+  period_id: string;
+  staff_id: string;
+  org_unit_id: string;
+  rule_set_version_id: string;
+  subject_group: KpiSubjectGroup;
+  is_head: Generated<boolean>;
+  status: Generated<KpiEvaluationStatus>;
+  general_self: DefaultDecimal;
+  general_score: DefaultDecimal;
+  plan_max: DefaultDecimal;
+  actual_total: DefaultDecimal;
+  task_score: DefaultDecimal;
+  bonus_score: DefaultDecimal;
+  total_score: DefaultDecimal;
+  suggested_rank: NullableText;
+  self_rank: NullableText;
+  self_comment: NullableText;
+  submitted_at: NullableTimestamp;
+  return_reason: NullableText;
+  exclusions: ColumnType<string[], string | undefined, string>;
+  exclusion_note: NullableText;
+  superior_rank: NullableText;
+  superior_comment: NullableText;
+  superior_by: NullableText;
+  superior_by_name: NullableText;
+  superior_at: NullableTimestamp;
+  advisory_rank: NullableText;
+  advisory_comment: NullableText;
+  advisory_by_name: NullableText;
+  advisory_at: NullableTimestamp;
+  final_rank: NullableText;
+  legacy_id: NullableText;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface KpiEvaluationCriteriaTable {
+  evaluation_id: string;
+  criterion_code: string;
+  max_score: Decimal;
+  self_satisfied: Generated<boolean>;
+  superior_satisfied: ColumnType<boolean | null, boolean | null | undefined, boolean | null>;
+  note: NullableText;
+}
+
+export interface KpiVotesTable {
+  evaluation_id: string;
+  voter_user_id: string;
+  voter_name: string;
+  vote_rank: string;
+  comment: NullableText;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface KpiManagerActionsTable {
+  id: Generated<string>;
+  period_id: string;
+  task_id: NullableText;
+  action: 'approve' | 'grade';
+  manager_staff_id: NullableText;
+  manager_name: NullableText;
+  due_at: Date;
+  done_at: Date;
+  on_time: boolean;
+  automatic: Generated<boolean>;
+  created_at: CreatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -3782,4 +4057,16 @@ export interface SchoolYearDatabase {
   entry_admission_notices: EntryAdmissionNoticesTable;
   entry_admission_notice_recipients: EntryAdmissionNoticeRecipientsTable;
   school_services: SchoolServicesTable;
+  kpi_rule_sets: KpiRuleSetsTable;
+  kpi_rule_set_versions: KpiRuleSetVersionsTable;
+  kpi_profiles: KpiProfilesTable;
+  kpi_periods: KpiPeriodsTable;
+  kpi_period_rule_versions: KpiPeriodRuleVersionsTable;
+  kpi_catalog_items: KpiCatalogItemsTable;
+  kpi_tasks: KpiTasksTable;
+  kpi_task_files: KpiTaskFilesTable;
+  kpi_evaluations: KpiEvaluationsTable;
+  kpi_evaluation_criteria: KpiEvaluationCriteriaTable;
+  kpi_votes: KpiVotesTable;
+  kpi_manager_actions: KpiManagerActionsTable;
 }

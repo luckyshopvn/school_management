@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.70
+- Phiên bản: 1.71
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -232,12 +232,32 @@ Từ YCTD-107 (DT-15 phần 15a), cổng quản trị dùng menu ngang nhiều c
 | Tuyển sinh, tuyển dụng | 1. | Tuyển sinh | `/admissions` |
 | Tuyển sinh, tuyển dụng | 2. | Tuyển dụng | `/recruitment` |
 | Báo cáo | 1. | Báo cáo và bảng điều khiển | `/reports` |
+| Đánh giá KPI | 1. | Thiết lập | (nhóm) |
+| Đánh giá KPI | 1.1. | Kỳ đánh giá | `/kpi/periods` |
+| Đánh giá KPI | 1.2. | Bộ quy tắc chấm | `/kpi/rule-sets` |
+| Đánh giá KPI | 1.3. | Đối tượng đánh giá | `/kpi/profiles` |
+| Đánh giá KPI | 1.4. | Nhập dữ liệu từ hệ thống KPI cũ | `/kpi/legacy-import` |
+| Đánh giá KPI | 2. | Danh mục | (nhóm) |
+| Đánh giá KPI | 2.1. | Danh mục công việc chuẩn | `/kpi/catalog` |
+| Đánh giá KPI | 3. | Công việc | (nhóm) |
+| Đánh giá KPI | 3.1. | Việc của tôi | `/kpi/my-tasks` |
+| Đánh giá KPI | 3.2. | Giao việc và duyệt đăng ký | `/kpi/assignments` |
+| Đánh giá KPI | 3.3. | Chấm điểm công việc | `/kpi/grading` |
+| Đánh giá KPI | 4. | Đánh giá, xếp loại | (nhóm) |
+| Đánh giá KPI | 4.1. | Tự đánh giá, xếp loại | `/kpi/my-evaluation` |
+| Đánh giá KPI | 4.2. | Đánh giá, xếp loại cán bộ | `/kpi/evaluations` |
+| Đánh giá KPI | 4.3. | Tổng hợp tham mưu | `/kpi/advisory` |
+| Đánh giá KPI | 4.4. | Biểu quyết xếp loại | `/kpi/voting` |
+| Đánh giá KPI | 5. | Báo cáo | (nhóm) |
+| Đánh giá KPI | 5.1. | Báo cáo KPI | `/kpi/reports` |
 
 Từ YCTD-134 (DT-17 phần 17c), phân hệ "Tuyển sinh đầu cấp" (khóa `entry-admissions`) đứng sau "Quản lý cơ sở vật chất, TBDH" trên ô chọn phân hệ; số mục giữ như trang riêng `truong-tsdc` của Sở (khảo sát tài liệu 31 mục 10.2.2), tên năm nhóm 1. đến 5. do Claude tự đặt vì khảo sát không ghi; mục 1.3 đến 1.7 thêm ở phần 17d. Tiêu đề trang lấy từ cây menu kèm số (`menuPageTitle`). Cổng quản trị có 13 phân hệ.
 
 Từ YCTD-135 (DT-17 phần 17d), nhóm "1. Hồ sơ tuyển sinh" có đủ 1.1 đến 1.8 như Sở; phân hệ "Quản lý giáo dục Mầm non" thêm 5.11 "Danh sách trúng tuyển Tuyển sinh đầu cấp" (khảo sát tài liệu 31 mục 10.2.1, 10.2.4). Sáu mục mới hiện khi có một trong ba quyền `P02.entry-intake.*` (`MENU_PERMISSION_RULES`). MH-26 (trang Tuyển sinh) hiện nguồn "Phân tuyến (Tuyển sinh đầu cấp)" và trạng thái "Đã hủy nhập học".
 
 Từ YCTD-138 (DT-18 phần 18a), phân hệ "Quản lý văn bản và điều hành" (khóa `documents`) đứng sau "Quản lý kí hồ sơ" trên ô chọn phân hệ, làm theo hệ thống quản lý văn bản và điều hành VNPT iOffice (quyết định của Eric ngày 2026-10-19). Nhóm 1. Văn bản đến, 2. Quản trị văn bản; văn bản đi (18b), giao việc, lịch, hồ sơ công việc, báo cáo (18c) thêm nhóm sau. Số nhóm, tên mục Claude tự đặt theo menu của iOffice. Mục 1.1, 1.3 đến 1.5 hiện với người có một quyền `P09.incoming-document.*`; 1.2, 1.7 cần quyền văn thư; 1.6 cần quyền tra cứu hoặc văn thư; 2.1 cần quyền quản trị văn bản hoặc văn thư; 2.2 đến 2.5 cần quyền quản trị văn bản (`MENU_PERMISSION_RULES`).
+
+Từ YCTD-139 (DT-18 phần 18d), phân hệ "Đánh giá KPI" (khóa `kpi`) đứng cuối ô chọn phân hệ; phân hệ riêng nên đánh số liên tục, tên mục do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11. Mục hiện theo quyền `P09.kpi.*` (PQ-79).
 
 ## 2. Danh sách màn hình theo kênh
 
@@ -412,6 +432,19 @@ Từ YCTD-138 (DT-18 phần 18a), phân hệ "Quản lý văn bản và điều 
 | MH-164 | Khai báo nhóm đơn vị ban hành (YCTD-138; mục 2.3): lưới khóa `external-unit-groups`: Tên nhóm, Đơn vị trong nhóm, Ghi chú; biểu mẫu tên, ghi chú, danh sách đơn vị chọn bằng ô tích | VT-02, VT-06 |
 | MH-165 | Danh mục văn bản (YCTD-138; mục 2.4): thẻ Hình thức văn bản, Độ khẩn, Độ mật, Lĩnh vực; lưới khóa `document-catalogs`: Mã, Tên, Mức (độ khẩn, độ mật), Cấp học, STT hiển thị, Trạng thái; Thêm mới, Sửa, Xóa (mục đã dùng thì bỏ "Đang sử dụng") | VT-02, VT-06 |
 | MH-166 | Lãnh đạo nhận văn bản (YCTD-138; mục 2.5): bảng nhân sự đang làm việc có tài khoản với ô "Chọn", Họ và tên, Bộ phận, "Chức vụ in trên phiếu"; nút "Ghi" | VT-02, VT-06 |
+| MH-167 | Kỳ đánh giá (YCTD-139; mục "1.1. Kỳ đánh giá", `/kpi/periods`): lưới "Kỳ đánh giá" (khóa `kpi-periods`) cột Mã kỳ, Tên kỳ, Loại kỳ, Thời gian, Đăng ký và thực hiện, Tự đánh giá, Cấp trên đánh giá, Tham mưu (ẩn mặc định), Bộ quy tắc áp dụng, Trạng thái; Thêm mới, Sửa (biểu mẫu "Thông tin kỳ", "Lịch kỳ", nút Ghi); dòng chi tiết chọn phiên bản từng bộ quy tắc; Khóa kỳ (hộp xác nhận kèm ghi chú), Mở lại kỳ (lý do) (BR-135) | `P09.kpi.configure` |
+| MH-168 | Bộ quy tắc chấm (YCTD-139; mục "1.2.", `/kpi/rule-sets`): lưới (khóa `kpi-rule-sets`) cột Mã, Tên, Mô tả, Mặc định, Phiên bản mới nhất, Trạng thái; "Cấu hình" mở ô chọn phiên bản, Lập phiên bản mới, Sửa cấu hình (ô JSON, nút Ghi), Ban hành, ô Cấp học của quy chế, Tải mẫu quy chế (Word); "Tóm tắt cấu hình" sáu khối: cách chấm, hạn và giới hạn, mức xếp loại, mức tiến độ và kết quả hoặc thang mức, trục, hệ số độ khó (BR-135) | Xem: mọi quyền KPI; sửa: `P09.kpi.configure` |
+| MH-169 | Đối tượng đánh giá (YCTD-139; mục "1.3.", `/kpi/profiles`): ô Đơn vị; lưới (khóa `kpi-profiles`, ô chọn dòng) cột Mã nhân sự, Họ và tên, Chức danh, Bộ quy tắc, Nhóm đối tượng, Cấp học, Vị trí việc làm, Cấp trên trực tiếp, Người đứng đầu, Không đánh giá; "Gán", "Gán cho người đã chọn" mở biểu mẫu "Gán đối tượng đánh giá" (Bộ quy tắc, Nhóm đối tượng, Cấp học, Vị trí việc làm theo cấp, Cấp trên trực tiếp, Người đứng đầu, Không đánh giá KPI, nút Ghi) (BR-135) | `P09.kpi.configure` |
+| MH-170 | Nhập dữ liệu từ hệ thống KPI cũ (YCTD-139; mục "1.4.", `/kpi/legacy-import`): ô Tệp sao lưu (.db), Xem trước, Chuyển dữ liệu (sau khi xem trước); khối kết quả số kỳ, công việc trong danh mục, việc, phiếu, đối tượng mới, việc bỏ qua, người không ghép được (BR-135) | `P09.kpi.configure` toàn trường |
+| MH-171 | Danh mục công việc chuẩn (YCTD-139; mục "2.1.", `/kpi/catalog`): dòng số chỉ báo đã nhập theo bộ quy tắc và cấp học; ô Danh mục (chung, của đơn vị), Đơn vị, Bộ quy tắc; Tải tệp mẫu, ô Tệp Excel, Nhập từ Excel (có lỗi thì tải danh sách lỗi); lưới (khóa `kpi-catalog`) cột Mã công việc, Tên công việc (kèm "(*)", "(Mật)"), Kết quả đầu ra, Trục, Hệ số độ khó, Thời hạn, Cấp học, Vị trí việc làm, Bộ quy tắc, Thuộc danh mục, Người đề xuất, Trạng thái; mở rộng tìm kiếm Trạng thái, Cấp học; Thêm mới, Đề xuất công việc, Xuất Excel; trên dòng Duyệt, Không duyệt, Ngừng dùng, Dùng lại (BR-135) | Xem, đề xuất: mọi quyền KPI; sửa: `P09.kpi.manage`, `P09.kpi.configure` |
+| MH-172 | Việc của tôi (YCTD-139; mục "3.1.", `/kpi/my-tasks`): ô Kỳ đánh giá; lưới (khóa `kpi-my-tasks`) cột Tên công việc, Trục, Nguồn, Hạn, Điểm tối đa, Trạng thái, Điểm quy đổi, Số ký hiệu văn bản, Người chấm được ủy quyền; Đăng ký việc (biểu mẫu chọn từ danh mục hoặc nhập mới, trục, hệ số, hạn, mật, nút Gửi đăng ký); trên dòng Xác nhận, Chuyển trả, Chi tiết (ngày hoàn thành, số ký hiệu văn bản, mô tả minh chứng, tệp, Đính kèm, Ghi minh chứng, Tự đánh giá kết quả, Đề xuất thưởng, Nộp kết quả tự đánh giá, Xin gia hạn) (BR-135) | `P09.kpi.participate` |
+| MH-173 | Giao việc và duyệt đăng ký (YCTD-139; mục "3.2.", `/kpi/assignments`): ô Kỳ đánh giá; Giao việc (ô Người thực hiện chọn nhiều người); lưới (khóa `kpi-assignments`, ô chọn dòng) việc đang chờ xử lý; ô Ủy quyền chấm cho, nút Ủy quyền chấm; trên dòng Duyệt, Không duyệt, Giao lại, Duyệt gia hạn, Không gia hạn, Hủy việc (BR-135) | `P09.kpi.manage` |
+| MH-174 | Chấm điểm công việc (YCTD-139; mục "3.3.", `/kpi/grading`): ô Kỳ đánh giá; lưới (khóa `kpi-grading`) mặc định việc chờ chấm; "Chấm", "Chấm lại" mở biểu mẫu kèm ngày hoàn thành, số ký hiệu văn bản, minh chứng, tệp, mức tự đánh giá; ô Mức kết quả, Điều chỉnh tiến độ, Lý do, Xác nhận vượt yêu cầu, Xác nhận thưởng, Nhận xét; Chấm, Trả lại làm lại (BR-135) | `P09.kpi.manage` hoặc người được ủy quyền |
+| MH-175 | Tự đánh giá, xếp loại (YCTD-139; mục "4.1.", `/kpi/my-evaluation`): ô Kỳ đánh giá; dòng tổng hợp điểm (tiêu chí chung, A, B, kết quả nhiệm vụ, thưởng, tổng, mức đề xuất); bảng tiêu chí chung theo nhóm có ô Đảm bảo; bảng kết quả từng việc; Tự đề xuất xếp loại, Tự nhận xét, Ghi, Nộp bản tự đánh giá; nút tải Bảng tính điểm (Excel), Bản tự đánh giá (Word, PDF), Phiếu theo dõi tháng (Word, bộ quy tắc 2) (BR-135) | `P09.kpi.participate` |
+| MH-176 | Đánh giá, xếp loại cán bộ (YCTD-139; mục "4.2.", `/kpi/evaluations`): ô Kỳ đánh giá; lưới (khóa `kpi-evaluations`) đối tượng trong phạm vi kèm trạng thái, điểm, tự xếp loại, cấp trên xếp loại; "Đánh giá", "Xem" mở phiếu: tiêu chí chung (Cấp trên: đảm bảo), kết quả từng việc, Trường hợp loại trừ, Mức xếp loại, Nhận xét, Kết luận, Trả lại, nút tải mẫu (BR-135) | `P09.kpi.manage` hoặc cấp trên trực tiếp |
+| MH-177 | Tổng hợp tham mưu (YCTD-139; mục "4.3.", `/kpi/advisory`): dòng tỷ lệ xuất sắc theo bộ quy tắc, nhóm (cảnh báo khi vượt); lưới (khóa `kpi-advisory`) kèm cấp trên xếp loại, kết quả biểu quyết, ô mức và ghi chú tham mưu; Ghi đề xuất (BR-135) | `P09.kpi.advise` |
+| MH-178 | Biểu quyết xếp loại (YCTD-139; mục "4.4.", `/kpi/voting`): lưới (khóa `kpi-voting`) phiếu đã kết luận kèm tham mưu đề xuất, kết quả biểu quyết, ô Biểu quyết của tôi; Ghi biểu quyết (BR-135) | `P09.kpi.vote` |
+| MH-179 | Báo cáo KPI (YCTD-139; mục "5.1.", `/kpi/reports`): ô Kỳ đánh giá; Bảng tổng hợp kết quả đánh giá, xếp loại (Excel, PDF, Word), Sổ trách nhiệm chấm, duyệt (Excel); kỳ năm có Phiếu xếp loại năm của từng người (Word); lưới tổng hợp và lưới "Trách nhiệm chấm, duyệt" (khóa `kpi-manager-actions`) cột Người quản lý, Đơn vị, Việc phải làm, Tổng số, Đúng hạn, Quá hạn, Hệ thống tự xử lý (BR-135) | `P09.kpi.advise`, `P09.kpi.manage`, `P09.kpi.configure` |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 

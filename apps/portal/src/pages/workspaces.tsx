@@ -35,6 +35,7 @@ export const WORKSPACE_ICONS: Record<WorkspaceKey, IconName> = {
   teaching: 'book',
   admissions: 'enroll',
   reports: 'report',
+  kpi: 'chart',
 };
 
 const WORKSPACE_KEY = 'portal.workspace';

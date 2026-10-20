@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.15
+- Phiên bản: 0.16
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.90.0 – 2026-10-20
+
+- Phạm vi thay đổi: DT-18 phần 18d, phân hệ KPI chuyển từ hệ thống KPI riêng của trường, hai bộ quy tắc chấm cấu hình được (YCTD-139).
+- Chức năng mới: phân hệ "Đánh giá KPI" 13 mục: kỳ đánh giá và lịch kỳ, khóa và mở lại kỳ; bộ quy tắc có phiên bản (cấu hình JSON, kiểm tra trước khi ghi, ban hành), mẫu quy chế theo cấp học; đối tượng đánh giá; danh mục công việc chuẩn chung và của đơn vị (đề xuất, duyệt, nhập Excel); giao việc, tự đăng ký, duyệt, chuyển trả, gia hạn, minh chứng có số ký hiệu văn bản và tệp, tự đánh giá, chấm, ủy quyền chấm, hạn tự động; phiếu tự đánh giá theo Mẫu 01-A, 01-B; kết luận của cấp trên; tham mưu kèm tỷ lệ xuất sắc; biểu quyết; báo cáo Excel, Word, PDF; sổ trách nhiệm chấm, duyệt; chuyển dữ liệu từ tệp sao lưu của hệ thống cũ (P09-13 đến P09-19).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0064_create_kpi` (12 bảng `kpi_*`, hai bộ quy tắc mặc định, mục đích tệp `kpi_evidence`); tệp định danh `0053_add_kpi_permissions` (năm quyền P09).
+- Thay đổi API: nhóm điểm cuối mới `/kpi`.
+- Kiểm thử: kịch bản CT-678 đến CT-696. Kết quả ngày 20/10/2026: kiểm thử đơn vị `apps/api/src/kpi/kpi.test.ts` CT-18d-1 đến CT-18d-18 đạt 18/18; kiểm thử đơn vị toàn bộ kho mã 918/918 đạt (sau khi gộp 18a; trước khi gộp 908/908, ca CT-16d-3 đổi số phân hệ thành 15); kiểm thử giao diện `tests/e2e/71-kpi.spec.ts` (CT-18d-19) đạt; toàn bộ kiểm thử giao diện 140/141 đạt ngày 20/10/2026 trên máy (ca 04-accounts hỏng do dữ liệu cũ trùng tên trong cơ sở dữ liệu định danh dùng riêng của phần 18d, CI là nguồn chuẩn); `58-system-admin-full-so.spec.ts` sửa số phân hệ thành 15; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: cấu hình bộ quy tắc sửa dạng JSON nên người cấu hình cần đọc kỹ tóm tắt trước khi ban hành; tham số của bộ quy tắc 1 lấy từ văn bản hạn chế phát tán nên chỉ giữ dạng tham số; minh chứng là dữ liệu công việc của cán bộ.
+- Khả năng tương thích: không đổi điểm cuối, bảng cũ; phân hệ mới hiện cho mọi vai trò chưa bị loại phân hệ ở 1.2 Phân quyền nhóm theo phần mềm.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-18-phan-18d`; chạy phần quay lui của tệp định danh `0053` (xóa năm quyền) và tệp năm học `0064` (xóa 12 bảng, xóa dòng `files` mục đích `kpi_evidence`, trả ràng buộc; tệp ở kho tệp dưới tiền tố `kpi-evidence/` xóa tay nếu cần).
 
 ### Phiên bản 0.89.0 – 2026-10-20
 

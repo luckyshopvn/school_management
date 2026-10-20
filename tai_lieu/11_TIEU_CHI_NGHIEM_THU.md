@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.37
+- Phiên bản: 1.38
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -741,6 +741,16 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-666 | Cho văn bản văn thư chuyển trực tiếp / Khi văn thư lấy lại; chuyển lại, người nhận trả lại; chuyển lại, người nhận luân chuyển cho người khác; văn thư lấy lại / Thì lấy lại, trả lại đưa văn bản về "Đã vào sổ"; luân chuyển giữ vai trò xử lý chính; lấy lại sau khi người nhận đã chuyển tiếp bị chặn | P09-10, BR-134 |
 | AC-667 | Cho văn bản đã chuyển một người xem để biết / Khi lãnh đạo đặt hạn chế xem rồi bỏ hạn chế / Thì khi hạn chế, Phó Hiệu trưởng (có quyền tra cứu) không xem, không tìm thấy; người xem trong luồng vẫn xem; sổ đăng ký che trích yếu; bỏ hạn chế thì xem lại được | P09-10, P09-11, BR-134 |
 | AC-668 | Cho văn bản nhận qua liên thông và văn bản quá hạn, đến hạn / Khi văn thư nhập văn bản liên thông, đánh dấu tiếp nhận, vào sổ; lọc quá hạn, đến hạn; in ba loại phiếu; xuất sổ đăng ký Excel / Thì văn bản liên thông ghi rõ chưa kết nối trục, có số đến khi vào sổ; danh sách đánh dấu [QH], [ĐH] và lọc đúng; phiếu là tệp PDF; tệp Excel ghi nhật ký xuất | P09-09, P09-11, BR-134 |
+| AC-669 | Cho hai bộ quy tắc mặc định / Khi người cấu hình sửa phiên bản đã ban hành; lập phiên bản mới, ghi cấu hình có trọng số 300, ghi cấu hình đúng rồi ban hành / Thì sửa bị chặn (YCTD-139); cấu hình sai báo lỗi theo trường; phiên bản mới được ban hành và kỳ lập sau đó dùng phiên bản mới (CT-678 đến CT-681, CT-682; YCTD-139) |
+| AC-670 | Cho nhân sự đơn vị A / Khi gán đối tượng theo bộ quy tắc 1 nhóm cán bộ có cấp trên trực tiếp, gán bộ quy tắc 2 cấp học Mầm non vị trí giáo viên mẫu giáo; lập kỳ có lịch kỳ / Thì đối tượng ghi đúng; kỳ áp phiên bản đã ban hành mới nhất của mỗi bộ; mã kỳ trùng bị chặn (CT-683; YCTD-139) |
+| AC-671 | Cho danh mục chung và danh mục đơn vị / Khi quản lý đơn vị thêm vào danh mục chung; cán bộ đề xuất; quản lý không duyệt không lý do rồi duyệt; nhập Excel có dòng sai trục / Thì danh mục chung bị chặn; đề xuất vào danh mục đơn vị sau khi duyệt; tệp có lỗi không ghi dòng nào; quản lý đơn vị khác chỉ thấy danh mục chung (CT-684; YCTD-139) |
+| AC-672 | Cho việc được giao / Khi người được giao chuyển trả có lý do, người giao giao lại, người được giao chuyển trả lần hai; việc khác quá hạn xác nhận / Thì lần hai bị chặn; việc quá hạn tự vào danh mục (CT-685; YCTD-139) |
+| AC-673 | Cho việc tự đăng ký / Khi cán bộ tự duyệt việc của mình; quản lý duyệt kèm hệ số 120%; không duyệt có lý do; việc khác quá 3 ngày chưa duyệt / Thì tự duyệt bị chặn; hệ số đổi; việc quá hạn tự vào danh mục và sổ trách nhiệm ghi quá hạn của cấp trên trực tiếp (CT-686; YCTD-139) |
+| AC-674 | Cho việc đang thực hiện / Khi ghi số ký hiệu văn bản dạng chữ, đính kèm PDF và tệp không đúng loại; xin gia hạn; tự đánh giá 75%; quản lý chấm 100% kèm vượt yêu cầu và thưởng / Thì số ký hiệu lưu nguyên văn; tệp sai loại bị chặn; hạn đổi; điểm thực hiện 10, quy đổi 11 với hệ số 110%, thưởng 0,55; không tự chấm, không chấm ngoài phạm vi (CT-687; YCTD-139) |
+| AC-675 | Cho việc chờ chấm được ủy quyền cho Phó Hiệu trưởng / Khi quá 7 ngày không chấm / Thì việc lấy kết quả tự đánh giá, sổ trách nhiệm ghi quá hạn của người được ủy quyền; việc đã chấm không ủy quyền được (CT-688; YCTD-139) |
+| AC-676 | Cho cán bộ có ba việc đã chấm / Khi mở Tự đánh giá, bỏ đảm bảo một tiêu chí nhóm 3, nộp; cấp trên trả lại; cá nhân nộp lại; cấp trên kết luận kèm trường hợp loại trừ mà chọn mức khác thấp nhất; kết luận đúng / Thì phiếu có 16 tiêu chí theo Mẫu 01-B, A 33, B 31,25, phần kết quả 66,29, tổng 94,84; kết luận sai bị chặn; kết luận đúng ghi mức (CT-689, CT-690; YCTD-139) |
+| AC-677 | Cho viên chức theo bộ quy tắc 2 / Khi chấm chỉ báo mức "Đạt đầy đủ, đúng hạn"; tham mưu đề xuất; hai thành viên biểu quyết; khóa kỳ; đăng ký việc sau khi khóa; mở lại không lý do / Thì điểm quy đổi 8, phần kết quả 56, tổng 86; mức cuối cùng theo biểu quyết; thao tác sau khóa bị chặn; mở lại phải có lý do (CT-691, CT-692; YCTD-139) |
+| AC-678 | Cho kỳ đã có phiếu và tệp sao lưu của hệ thống cũ / Khi tải bảng tính điểm, bản tự đánh giá, tổng hợp, phiếu tháng, phiếu năm, quy chế cấp Mầm non, sổ trách nhiệm; chuyển dữ liệu xem trước rồi ghi, ghi lại lần hai / Thì tệp tải được, mỗi lần tải ghi nhật ký xuất, quy chế có "48 chỉ báo"; xem trước không ghi; người không ghép được được báo tên; lần hai không nhân đôi; khóa kho tệp theo hàm đặt tên chung (CT-693 đến CT-696; YCTD-139) |
 
 ## 20. Chưa xác minh được
 

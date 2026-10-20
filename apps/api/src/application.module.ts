@@ -151,6 +151,13 @@ import { DocumentExchange, LocalDocumentExchange } from './incoming-documents/do
 import { IncomingDocumentsController } from './incoming-documents/incoming-documents.controller.js';
 import { IncomingDocumentsService } from './incoming-documents/incoming-documents.js';
 import { IncomingPrintService } from './incoming-documents/incoming-print.js';
+import { KpiCatalogController, KpiCatalogService } from './kpi/kpi-catalog.js';
+import { KpiEvaluationsController, KpiEvaluationsService } from './kpi/kpi-evaluations.js';
+import { KpiLegacyImportController, KpiLegacyImportService } from './kpi/kpi-legacy.js';
+import { KpiReportsController, KpiReportsService } from './kpi/kpi-reports.js';
+import { KpiSetupController, KpiSetupService } from './kpi/kpi-setup.js';
+import { KpiSupport } from './kpi/kpi-support.js';
+import { KpiTasksController, KpiTasksService } from './kpi/kpi-tasks.js';
 import {
   FinalYearCompletionController,
   FinalYearRecordsController,
@@ -353,6 +360,13 @@ export class ApplicationModule {
         EntryIntakeController,
         DocumentAdminController,
         IncomingDocumentsController,
+        // Phân hệ KPI (DT-18 phần 18d)
+        KpiSetupController,
+        KpiCatalogController,
+        KpiTasksController,
+        KpiEvaluationsController,
+        KpiReportsController,
+        KpiLegacyImportController,
         EquipmentController,
         SchoolProfileController,
         AccreditationReviewController,
@@ -716,6 +730,13 @@ export class ApplicationModule {
         IncomingDocumentsService,
         IncomingPrintService,
         { provide: DocumentExchange, useClass: LocalDocumentExchange },
+        KpiSupport,
+        KpiSetupService,
+        KpiCatalogService,
+        KpiTasksService,
+        KpiEvaluationsService,
+        KpiReportsService,
+        KpiLegacyImportService,
         // Chưa có nhà cung cấp gửi thư điện tử: trả lời hỗ trợ tuyển sinh chỉ gửi qua ứng dụng phụ huynh (DT-17 phần 17c)
         { provide: AdmissionSupportMailer, useClass: UnconfiguredAdmissionSupportMailer },
         SystemAnnouncementsService,

@@ -11,6 +11,7 @@ export * from './emis.js';
 export * from './signing.js';
 export * from './entry-admissions.js';
 export * from './incoming-documents.js';
+export * from './kpi.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -192,6 +193,12 @@ export const PERMISSION_CODES = {
   incomingDocumentRegister: 'P09.incoming-document.register',
   incomingDocumentSearch: 'P09.incoming-document.search',
   incomingDocumentAdmin: 'P09.incoming-document.admin',
+  // Phân hệ KPI (DT-18 phần 18d)
+  kpiParticipate: 'P09.kpi.participate',
+  kpiManage: 'P09.kpi.manage',
+  kpiAdvise: 'P09.kpi.advise',
+  kpiVote: 'P09.kpi.vote',
+  kpiConfigure: 'P09.kpi.configure',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -405,6 +412,20 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/external-unit-groups',
   '/document-catalogs',
   '/document-leaders',
+  // Phân hệ KPI (DT-18 phần 18d)
+  '/kpi/periods',
+  '/kpi/rule-sets',
+  '/kpi/profiles',
+  '/kpi/legacy-import',
+  '/kpi/catalog',
+  '/kpi/my-tasks',
+  '/kpi/assignments',
+  '/kpi/grading',
+  '/kpi/my-evaluation',
+  '/kpi/evaluations',
+  '/kpi/advisory',
+  '/kpi/voting',
+  '/kpi/reports',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -612,6 +633,18 @@ export const DATA_GRID_KEYS = [
   'external-units',
   'external-unit-groups',
   'document-catalogs',
+  // Phân hệ KPI (DT-18 phần 18d)
+  'kpi-periods',
+  'kpi-rule-sets',
+  'kpi-profiles',
+  'kpi-catalog',
+  'kpi-my-tasks',
+  'kpi-assignments',
+  'kpi-grading',
+  'kpi-evaluations',
+  'kpi-advisory',
+  'kpi-voting',
+  'kpi-manager-actions',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

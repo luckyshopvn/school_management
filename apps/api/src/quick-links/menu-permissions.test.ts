@@ -21,6 +21,8 @@ function legacyVisibility(has: (code: string) => boolean): Partial<Record<Portal
   const canSeeFinalYear = has('P02.final-year.view') || has('P02.final-year.manage') || has('P02.final-year.approve');
   const canSeeEntryIntake =
     has('P02.entry-intake.view') || has('P02.entry-intake.manage') || has('P02.entry-intake.transfer');
+  const canSeeKpi =
+    has('P09.kpi.participate') || has('P09.kpi.manage') || has('P09.kpi.advise') || has('P09.kpi.configure');
   const canViewPlatform = has('P01.view');
   const canManageSettings = has(PERMISSION_CODES.settingManage);
   const canManageDepartments = has(PERMISSION_CODES.departmentManage);
@@ -192,6 +194,20 @@ function legacyVisibility(has: (code: string) => boolean): Partial<Record<Portal
     '/entry-admissions/transfer': canSeeEntryIntake,
     '/entry-admissions/transfer-results': canSeeEntryIntake,
     '/admitted-students': canSeeEntryIntake,
+    // Phân hệ KPI (DT-18 phần 18d), mục mới không có điều kiện cũ
+    '/kpi/periods': has('P09.kpi.configure'),
+    '/kpi/rule-sets': has('P09.kpi.configure'),
+    '/kpi/profiles': has('P09.kpi.configure'),
+    '/kpi/legacy-import': has('P09.kpi.configure'),
+    '/kpi/catalog': canSeeKpi,
+    '/kpi/my-tasks': has('P09.kpi.participate'),
+    '/kpi/assignments': has('P09.kpi.manage'),
+    '/kpi/grading': has('P09.kpi.manage'),
+    '/kpi/my-evaluation': has('P09.kpi.participate'),
+    '/kpi/evaluations': has('P09.kpi.manage'),
+    '/kpi/advisory': has('P09.kpi.advise'),
+    '/kpi/voting': has('P09.kpi.vote'),
+    '/kpi/reports': canSeeKpi,
     // Quản trị hệ thống
     '/roles': canSeeAccounts,
     '/accounts': canSeeAccounts,
