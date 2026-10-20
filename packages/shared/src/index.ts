@@ -14,6 +14,7 @@ export * from './incoming-documents.js';
 export * from './kpi.js';
 export * from './outgoing-documents.js';
 export * from './directives.js';
+export * from './professional-records.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -213,6 +214,11 @@ export const PERMISSION_CODES = {
   meetingRoomManage: 'P09.meeting-room.manage',
   workFileUse: 'P09.work-file.use',
   documentReportView: 'P09.document-report.view',
+  // Hồ sơ chuyên môn (DT-18 phần 18e)
+  professionalRecordUse: 'P09.professional-record.use',
+  professionalRecordReview: 'P09.professional-record.review',
+  professionalRecordApprove: 'P09.professional-record.approve',
+  professionalRecordManage: 'P09.professional-record.manage',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -462,6 +468,16 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/document-reports/incoming',
   '/document-reports/summary',
   '/document-reports/statistics',
+  // Hồ sơ chuyên môn và Việc của tôi (DT-18 phần 18e)
+  '/my-work',
+  '/professional-records',
+  '/professional-records/groups',
+  '/professional-records/school',
+  '/professional-records/review',
+  '/professional-rounds',
+  '/professional-records/statistics',
+  '/professional-folders',
+  '/professional-work-groups',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -696,6 +712,15 @@ export const DATA_GRID_KEYS = [
   'meeting-schedules',
   'document-report-incoming',
   'document-report-summary',
+  // Hồ sơ chuyên môn và Việc của tôi (DT-18 phần 18e)
+  'my-work',
+  'professional-documents',
+  'professional-review',
+  'professional-rounds',
+  'professional-round-status',
+  'professional-statistics',
+  'professional-folders',
+  'professional-work-groups',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

@@ -62,6 +62,7 @@ import { migration as addEntryAdmissionIntake } from './migrations/0062_add_entr
 import { migration as addAccreditationReviewSoFields } from './migrations/0063_add_accreditation_review_so_fields.js';
 import { migration as createKpi } from './migrations/0064_create_kpi.js';
 import { migration as extendTasksForDirectives } from './migrations/0065_extend_tasks_for_directives.js';
+import { migration as createProfessionalRecords } from './migrations/0066_create_professional_records.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
@@ -128,4 +129,5 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0063_add_accreditation_review_so_fields': addAccreditationReviewSoFields,
   '0064_create_kpi': createKpi,
   '0065_extend_tasks_for_directives': extendTasksForDirectives,
+  '0066_create_professional_records': createProfessionalRecords,
 };

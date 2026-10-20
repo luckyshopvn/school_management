@@ -164,6 +164,11 @@ import { KpiReportsController, KpiReportsService } from './kpi/kpi-reports.js';
 import { KpiSetupController, KpiSetupService } from './kpi/kpi-setup.js';
 import { KpiSupport } from './kpi/kpi-support.js';
 import { KpiTasksController, KpiTasksService } from './kpi/kpi-tasks.js';
+import { ProfessionalRecordsController } from './professional-records/professional-records.controller.js';
+import { ProfessionalRecordsService } from './professional-records/professional-records.js';
+import { professionalRecordsTransitionStep } from './professional-records/professional-records-transition.js';
+import { MY_WORK_SOURCE_TYPES, type MyWorkSource } from './my-work/my-work-sources.js';
+import { MY_WORK_SOURCES, MyWorkController, MyWorkService } from './my-work/my-work.js';
 import {
   FinalYearCompletionController,
   FinalYearRecordsController,
@@ -381,6 +386,9 @@ export class ApplicationModule {
         KpiEvaluationsController,
         KpiReportsController,
         KpiLegacyImportController,
+        // Hồ sơ chuyên môn và Việc của tôi (DT-18 phần 18e)
+        ProfessionalRecordsController,
+        MyWorkController,
         EquipmentController,
         SchoolProfileController,
         AccreditationReviewController,
@@ -553,6 +561,7 @@ export class ApplicationModule {
             recruitmentTransitionStep,
             admissionsTransitionStep,
             professionalStandardsTransitionStep,
+            professionalRecordsTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -758,6 +767,15 @@ export class ApplicationModule {
         KpiEvaluationsService,
         KpiReportsService,
         KpiLegacyImportService,
+        // Hồ sơ chuyên môn và Việc của tôi (DT-18 phần 18e): mỗi phân hệ một nguồn việc qua giao diện MyWorkSource
+        ProfessionalRecordsService,
+        ...MY_WORK_SOURCE_TYPES,
+        {
+          provide: MY_WORK_SOURCES,
+          useFactory: (...sources: MyWorkSource[]) => sources,
+          inject: MY_WORK_SOURCE_TYPES,
+        },
+        MyWorkService,
         // Chưa có nhà cung cấp gửi thư điện tử: trả lời hỗ trợ tuyển sinh chỉ gửi qua ứng dụng phụ huynh (DT-17 phần 17c)
         { provide: AdmissionSupportMailer, useClass: UnconfiguredAdmissionSupportMailer },
         SystemAnnouncementsService,
