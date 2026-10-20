@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.38
+- Phiên bản: 1.39
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -751,6 +751,12 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-676 | Cho cán bộ có ba việc đã chấm / Khi mở Tự đánh giá, bỏ đảm bảo một tiêu chí nhóm 3, nộp; cấp trên trả lại; cá nhân nộp lại; cấp trên kết luận kèm trường hợp loại trừ mà chọn mức khác thấp nhất; kết luận đúng / Thì phiếu có 16 tiêu chí theo Mẫu 01-B, A 33, B 31,25, phần kết quả 66,29, tổng 94,84; kết luận sai bị chặn; kết luận đúng ghi mức (CT-689, CT-690; YCTD-139) |
 | AC-677 | Cho viên chức theo bộ quy tắc 2 / Khi chấm chỉ báo mức "Đạt đầy đủ, đúng hạn"; tham mưu đề xuất; hai thành viên biểu quyết; khóa kỳ; đăng ký việc sau khi khóa; mở lại không lý do / Thì điểm quy đổi 8, phần kết quả 56, tổng 86; mức cuối cùng theo biểu quyết; thao tác sau khóa bị chặn; mở lại phải có lý do (CT-691, CT-692; YCTD-139) |
 | AC-678 | Cho kỳ đã có phiếu và tệp sao lưu của hệ thống cũ / Khi tải bảng tính điểm, bản tự đánh giá, tổng hợp, phiếu tháng, phiếu năm, quy chế cấp Mầm non, sổ trách nhiệm; chuyển dữ liệu xem trước rồi ghi, ghi lại lần hai / Thì tệp tải được, mỗi lần tải ghi nhật ký xuất, quy chế có "48 chỉ báo"; xem trước không ghi; người không ghép được được báo tên; lần hai không nhân đôi; khóa kho tệp theo hàm đặt tên chung (CT-693 đến CT-696; YCTD-139) |
+| AC-679 | Cho danh sách lãnh đạo nhận văn bản, đơn vị bên ngoài, phân hiệu / Khi chuyên viên tạo hai dự thảo, chọn người ký ngoài danh sách lãnh đạo, chọn đơn vị nhận không có, sửa dự thảo, xóa dự thảo chưa trình / Thì số eOffice tăng dần; hai lỗi ở ô Người ký, Đơn vị nhận; sửa được; xóa được, văn bản không còn | P09-20, BR-136 |
+| AC-680 | Cho dự thảo / Khi người soạn lấy ý kiến hai người; một người cho ý kiến rồi kết thúc cho ý kiến; người ngoài cho ý kiến; người soạn trình ký khi đang lấy ý kiến, rồi kết thúc lấy ý kiến / Thì văn bản Đang lấy ý kiến, nằm ở Chờ xử lý của người được hỏi; người ngoài bị chặn; trình ký bị chặn; kết thúc lấy ý kiến: người đã trả lời "Kết thúc cho ý kiến", người chưa trả lời "Đã kết thúc lấy ý kiến", văn bản về Dự thảo | P09-20, BR-136 |
+| AC-681 | Cho dự thảo / Khi trình ký không có tệp dự thảo, có tệp; người soạn lấy lại; người ký không ký không ghi lý do, có lý do; chứng thư nhà trường chưa đăng ký, đã đăng ký thì người ký ký / Thì trình ký thiếu tệp bị chặn; lấy lại về Dự thảo; không ký cần lý do, về Dự thảo kèm lý do; ký bị chặn khi chưa đăng ký chứng thư; ký xong văn bản Đã ký, có bản đã ký PDF và mã tra cứu 12 ký tự | P09-21, BR-136 |
+| AC-682 | Cho văn bản đã ký gửi một đơn vị bên ngoài và một phân hiệu, trả lời một văn bản đến / Khi văn thư cấp số với sổ văn bản đi số bắt đầu 10, phần ký hiệu "TB-THU"; cấp số tay trùng; ngày ngoài sổ / Thì số ký hiệu "10/TB-THU"; phân hiệu có văn bản đến chờ vào sổ kèm bản đã ký, vào sổ được; văn bản đến được trả lời ghi "10/TB-THU"; số trùng, ngày ngoài sổ bị chặn | P09-22, BR-136 |
+| AC-683 | Cho văn bản đã ban hành / Khi văn thư đánh dấu đã gửi đơn vị bên ngoài rồi hủy; public lên cổng; đóng băng rồi public, lưu hồ sơ; hủy đóng băng, lưu hồ sơ; public văn bản mật; văn thư trả lại văn bản đã ký khác / Thì trạng thái gửi đổi Đã đánh dấu gửi rồi Chờ gửi, ghi rõ chưa kết nối trục; khi đóng băng các thao tác bị chặn; lưu hồ sơ được sau hủy đóng băng; văn bản mật không public; văn bản trả lại về Dự thảo, mất bản đã ký và mã tra cứu | P09-22, BR-136 |
+| AC-684 | Cho các văn bản đã ban hành / Khi văn thư xem sổ đăng ký văn bản đi, xuất Excel, in phiếu trình ký; Phó Hiệu trưởng tra cứu theo số ký hiệu; người ngoài mở trang tra cứu bằng mã QR / Thì sổ có đủ cột, che trích yếu văn bản mật; tệp Excel ghi nhật ký xuất; phiếu là PDF; tra cứu đúng văn bản; trang tra cứu hiện "Văn bản đã ban hành", số ký hiệu, trích yếu (văn bản không mật), người ký | P09-23, BR-136 |
 
 ## 20. Chưa xác minh được
 

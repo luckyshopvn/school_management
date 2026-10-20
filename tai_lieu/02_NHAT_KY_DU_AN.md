@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.16
+- Phiên bản: 0.17
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,29 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-20 — DT-18 phần 18b: Văn bản đi theo VNPT iOffice
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu hệ thống: tệp `0019_create_outgoing_document_tables` tạo sáu bảng văn bản đi (văn bản, tệp, văn bản liên quan và văn bản gốc, lấy ý kiến, đơn vị nhận, lịch sử), thêm vào `incoming_documents` cột văn bản đi nguồn và đơn vị nhận, nguồn `internal` (liên thông nội bộ). Cơ sở dữ liệu định danh: tệp `0054_add_outgoing_document_permissions` thêm bốn quyền P09.
+- Gói dùng chung: nhóm 3. Văn bản đi (3.1 đến 3.4) ở phân hệ "Quản lý văn bản và điều hành"; điều kiện hiện mục; nhãn ở `packages/shared/src/outgoing-documents.ts`; `PERMISSION_CODES`, `DATA_GRID_KEYS`, `PORTAL_QUICK_LINK_PATHS` thêm mục mới.
+- Máy chủ API (`apps/api/src/outgoing-documents/`): `outgoing-documents.ts` (dự thảo, lấy ý kiến, trình ký, ký nội bộ, cấp số, phát hành, liên thông, public, đóng băng, lưu hồ sơ, tra cứu mã QR), `outgoing-print.ts` (phiếu trình ký PDF, sổ văn bản đi), `outgoing-fields.ts`, `outgoing-documents.controller.ts` (kèm điểm cuối công khai tra cứu mã). Dùng lại của 18a: sổ văn bản (chiều đi), danh mục văn bản, đơn vị bên ngoài, lãnh đạo nhận văn bản (danh sách người ký), chỗ nối `DocumentExchange` (thêm `send`), hàm `storageKey`; dùng lại của 16k, 17b: chứng thư nhà trường và chỗ nối `DossierSigner` (thêm mã QR ở khối xác nhận).
+- Cổng quản trị: `apps/portal/src/outgoing-documents/` (danh sách 3.1 đến 3.4, biểu mẫu văn bản đi, chi tiết bốn thẻ và các hộp thoại lấy ý kiến, trình ký, ký, cấp số, lưu hồ sơ; trang công khai `/tra-cuu-van-ban`); 2.1 Sổ văn bản thêm thẻ Khai báo sổ văn bản đi, Sổ đăng ký văn bản đi; chi tiết văn bản đến ghi nguồn liên thông nội bộ.
+- Thêm quy tắc BR-136, chức năng P09-20 đến P09-23, quyền PQ-80, màn hình MH-180 đến MH-186, kịch bản CT-697 đến CT-706, tiêu chí AC-679 đến AC-684. Kết quả ngày 20/10/2026: kiểm thử đơn vị `apps/api/src/outgoing-documents/outgoing-documents.test.ts` CT-18b-1 đến CT-18b-9 đạt 9/9; kiểm thử đơn vị toàn bộ kho mã 927/927 đạt; kiểm thử giao diện `tests/e2e/72-outgoing-documents.spec.ts` (CT-18b-10) và `70-incoming-documents.spec.ts` đạt; KQ18B_E2E; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 18b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9.4 theo khảo sát VNPT iOffice ngày 2026-10-19 (quyết định của Eric ngày 2026-10-19). Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-140: năm trạng thái văn bản đi; người ký chọn trong danh sách lãnh đạo nhận văn bản; ký cần chứng thư nhà trường đã đăng ký kí nội bộ như kí hồ sơ ở 16k; số ký hiệu là số đi ghép phần ký hiệu văn thư nhập; đơn vị nhận trong hệ thống là đơn vị trong cây đơn vị của trường (phân hiệu, điểm trường).
+- Bản chạy nội bộ: không kết nối trục liên thông văn bản (văn thư gửi bằng cách khác rồi đánh dấu đã gửi; chỗ nối `DocumentExchange.send`), ký là ký xác nhận nội bộ, không phải chữ ký số.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-140, `07_QUY_TAC_NGHIEP_VU.md` BR-136, `08_VAI_TRO_NGUOI_DUNG.md` PQ-80, `10_YEU_CAU_CHUC_NANG.md` P09-20 đến P09-23, `11_TIEU_CHI_NGHIEM_THU.md` AC-679 đến AC-684, `14_DAC_TA_GIAO_DIEN.md` MH-180 đến MH-186, `16_CO_SO_DU_LIEU.md` mục 1 và mục 10, `17_DAC_TA_API.md` mục 12, `21_KICH_BAN_KIEM_THU.md` CT-697 đến CT-706, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.91.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9.6.
+
+#### Vấn đề tồn đọng
+
+- Chưa kết nối trục liên thông văn bản và ký số của nhà cung cấp. "Tạo việc", "Tạo chỉ đạo điều hành", "Tạo lịch họp" từ văn bản đi chờ phần 18c; trang văn bản công khai của website chờ phần 18f (đọc cột `published`); ô số ký hiệu văn bản ở minh chứng KPI (18d) vẫn nhập chữ, chọn văn bản đi trong sổ làm sau.
 
 ### 2026-10-20 — DT-18 phần 18d: phân hệ KPI
 

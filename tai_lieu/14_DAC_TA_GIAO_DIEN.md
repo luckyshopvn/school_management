@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.71
+- Phiên bản: 1.72
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -171,6 +171,11 @@ Từ YCTD-107 (DT-15 phần 15a), cổng quản trị dùng menu ngang nhiều c
 | Quản lý văn bản và điều hành | 2.3. | Khai báo nhóm đơn vị ban hành | `/external-unit-groups` |
 | Quản lý văn bản và điều hành | 2.4. | Danh mục văn bản | `/document-catalogs` |
 | Quản lý văn bản và điều hành | 2.5. | Lãnh đạo nhận văn bản | `/document-leaders` |
+| Quản lý văn bản và điều hành | 3. | Văn bản đi | (nhóm) |
+| Quản lý văn bản và điều hành | 3.1. | Văn bản đi | `/outgoing-documents` |
+| Quản lý văn bản và điều hành | 3.2. | Quản lý văn bản đi | `/outgoing-documents/manage` |
+| Quản lý văn bản và điều hành | 3.3. | Liên thông văn bản đi | `/outgoing-documents/interconnect` |
+| Quản lý văn bản và điều hành | 3.4. | Tra cứu văn bản đi | `/outgoing-documents/search` |
 | Quản trị hệ thống | 1. | Người dùng và phân quyền | (nhóm) |
 | Quản trị hệ thống | 1.1. | Nhóm người dùng | `/roles` |
 | Quản trị hệ thống | 1.2. | Phân quyền nhóm theo phần mềm | `/role-workspaces` |
@@ -445,6 +450,13 @@ Từ YCTD-139 (DT-18 phần 18d), phân hệ "Đánh giá KPI" (khóa `kpi`) đ�
 | MH-177 | Tổng hợp tham mưu (YCTD-139; mục "4.3.", `/kpi/advisory`): dòng tỷ lệ xuất sắc theo bộ quy tắc, nhóm (cảnh báo khi vượt); lưới (khóa `kpi-advisory`) kèm cấp trên xếp loại, kết quả biểu quyết, ô mức và ghi chú tham mưu; Ghi đề xuất (BR-135) | `P09.kpi.advise` |
 | MH-178 | Biểu quyết xếp loại (YCTD-139; mục "4.4.", `/kpi/voting`): lưới (khóa `kpi-voting`) phiếu đã kết luận kèm tham mưu đề xuất, kết quả biểu quyết, ô Biểu quyết của tôi; Ghi biểu quyết (BR-135) | `P09.kpi.vote` |
 | MH-179 | Báo cáo KPI (YCTD-139; mục "5.1.", `/kpi/reports`): ô Kỳ đánh giá; Bảng tổng hợp kết quả đánh giá, xếp loại (Excel, PDF, Word), Sổ trách nhiệm chấm, duyệt (Excel); kỳ năm có Phiếu xếp loại năm của từng người (Word); lưới tổng hợp và lưới "Trách nhiệm chấm, duyệt" (khóa `kpi-manager-actions`) cột Người quản lý, Đơn vị, Việc phải làm, Tổng số, Đúng hạn, Quá hạn, Hệ thống tự xử lý (BR-135) | `P09.kpi.advise`, `P09.kpi.manage`, `P09.kpi.configure` |
+| MH-180 | Văn bản đi (YCTD-140; mục 3.1, cùng màn hình dùng cho 3.2 Quản lý văn bản đi và 3.4 Tra cứu văn bản đi, theo Quản lý văn bản đi của VNPT iOffice): thẻ "Dự thảo", "Chờ xử lý", "Đã xử lý" (3.1), "Chờ cấp số", "Đã ban hành" (3.2); chú thích màu đỏ hỏa tốc, cam khẩn; lưới dùng chung khóa `outgoing-documents` (3.2 khóa `outgoing-manage`): Số eOffice, Số ký hiệu, Ngày ban hành, Trích yếu (nhãn Ưu tiên, Đã public, Đóng băng), Hình thức, Độ khẩn, Người soạn thảo, Đơn vị soạn thảo (ẩn), Người ký, Trạng thái, Số bản (ẩn), Sổ văn bản (ẩn), Chờ gửi (ẩn); tìm theo trích yếu; "Tìm kiếm nâng cao" theo số ký hiệu, số đi, người ký, ngày ban hành, sổ, hình thức, độ khẩn, chỉ văn bản đã public; nút "Thêm mới" (3.1) mở MH-181; nút "Xem" mở MH-182 dưới dòng | Mọi người có quyền văn bản đi; 3.2 cần `P09.outgoing-document.issue`; 3.4 cần `search` hoặc `issue` |
+| MH-181 | Biểu mẫu văn bản đi (YCTD-140): khối "Thông tin văn bản" (Số eOffice do phần mềm cấp, Số trình ký, Trích yếu, Hình thức, Độ khẩn, Độ mật, Lĩnh vực, Loại văn bản, Phân loại VB ưu tiên, Chèn QR code, Nội dung trình), "Người xử lý" (Người soạn thảo, Đơn vị soạn thảo, Người ký trong danh sách lãnh đạo), "Thư mời, giấy mời" (Thời gian họp, Địa điểm), "Đơn vị dự kiến nhận VB" (đơn vị trong trường, đơn vị bên ngoài; nút "Bỏ"), "Văn bản liên quan" (Trả lời văn bản đến, tìm văn bản đi, đến theo trích yếu, "Thêm liên quan", "Là văn bản gốc"); nút "Ghi", "Đóng" | `P09.outgoing-document.draft` |
+| MH-182 | Chi tiết văn bản đi (YCTD-140): thanh "Thao tác văn bản đi" hiện theo quyền và trạng thái: "Ký", "Không ký", "Cấp số và phát hành", "Trình ký", "Cho ý kiến", "Kết thúc cho ý kiến", "Lấy ý kiến", "Kết thúc lấy ý kiến", "Cập nhật thông tin", "Lấy lại", "Trả lại", "Public lên cổng TTĐT" hoặc "Ẩn VB trên cổng TTĐT", "Đóng băng" hoặc "Hủy đóng băng", "Lưu hồ sơ", "In phiếu trình KG", "Xóa"; thông báo lý do khi bị trả lại; bốn thẻ "Thông tin văn bản" (thông tin, sổ và số, ký, mã tra cứu, tệp theo loại Dự thảo, File phiếu trình, Văn bản gửi kèm, Bản đã ký; thêm, xóa tệp), "Ý kiến góp ý" (đợt, người, hạn, ý kiến, trạng thái), "Thông tin gửi" (đơn vị nhận, loại, trạng thái liên thông, thời gian, ghi chú; văn thư chọn đơn vị bên ngoài, ghi chú gửi, "Đánh dấu đã gửi", "Hủy đánh dấu gửi", "Tải bản đã ký để gửi"; dòng ghi chưa kết nối trục), "Lịch sử"; hộp thoại Lấy ý kiến, Cho ý kiến, Trình ký, Ký, Không ký, Trả lại, Cấp số và phát hành (sổ, số đi, ký hiệu sau số, ngày ban hành, số bản), Lưu hồ sơ | Theo vai trò trong văn bản |
+| MH-183 | 2.1 Sổ văn bản thêm hai thẻ (YCTD-140): "Khai báo sổ văn bản đi" (lưới, biểu mẫu sổ như sổ đến, chiều đi) và "Sổ đăng ký văn bản đi" (lưới khóa `outgoing-register`: Ngày ban hành, Số, Số ký hiệu, Trích yếu, Người ký, Đơn vị soạn thảo, Số bản, Nơi nhận, Hình thức, Độ khẩn, Lĩnh vực; "Xuất Excel") | Quản trị văn bản; văn thư văn bản đến hoặc đi |
+| MH-184 | Liên thông văn bản đi (YCTD-140; mục 3.3): thông báo chưa kết nối trục liên thông; thẻ "Chờ gửi", "Đã đánh dấu gửi", "Liên thông nội bộ", "Tất cả"; lưới khóa `outgoing-recipients`: Số ký hiệu, Ngày ban hành, Trích yếu, Đơn vị nhận, Loại, Mã định danh điện tử (ẩn), Trạng thái liên thông, Gửi lúc, Ghi chú; "Xem" mở MH-182 | `P09.outgoing-document.issue` |
+| MH-185 | Tra cứu văn bản (trang công khai `/tra-cuu-van-ban`, YCTD-140): ô "Mã tra cứu" (điền sẵn từ mã QR), nút "Tra cứu"; kết quả: trạng thái "Văn bản đã ban hành" hoặc "Văn bản đã ký, chưa ban hành", Đơn vị ban hành, Số ký hiệu, Ngày ban hành, Trích yếu (văn bản không mật), Người ký, Thời điểm ký, Hình thức ký, Mã băm SHA-256 của bản đã ký | Không cần đăng nhập |
+| MH-186 | Chi tiết văn bản đến (MH-160) ghi thêm nguồn "Liên thông nội bộ từ văn bản đi của trường" và đơn vị nhận (YCTD-140) | Như MH-160 |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 
