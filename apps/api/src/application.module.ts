@@ -146,6 +146,13 @@ import { EntryIntakeController } from './entry-admissions/entry-intake.controlle
 import { EntryIntakeNoticesService } from './entry-admissions/entry-intake-notices.js';
 import { EntryIntakeTransferService } from './entry-admissions/entry-intake-transfer.js';
 import { EntryIntakeService } from './entry-admissions/entry-intake.js';
+import { KpiCatalogController, KpiCatalogService } from './kpi/kpi-catalog.js';
+import { KpiEvaluationsController, KpiEvaluationsService } from './kpi/kpi-evaluations.js';
+import { KpiLegacyImportController, KpiLegacyImportService } from './kpi/kpi-legacy.js';
+import { KpiReportsController, KpiReportsService } from './kpi/kpi-reports.js';
+import { KpiSetupController, KpiSetupService } from './kpi/kpi-setup.js';
+import { KpiSupport } from './kpi/kpi-support.js';
+import { KpiTasksController, KpiTasksService } from './kpi/kpi-tasks.js';
 import {
   FinalYearCompletionController,
   FinalYearRecordsController,
@@ -346,6 +353,13 @@ export class ApplicationModule {
         ParentFinalYearController,
         EntryAdmissionCatalogsController,
         EntryIntakeController,
+        // Phân hệ KPI (DT-18 phần 18d)
+        KpiSetupController,
+        KpiCatalogController,
+        KpiTasksController,
+        KpiEvaluationsController,
+        KpiReportsController,
+        KpiLegacyImportController,
         EquipmentController,
         SchoolProfileController,
         AccreditationReviewController,
@@ -704,6 +718,13 @@ export class ApplicationModule {
         EntryIntakeService,
         EntryIntakeNoticesService,
         EntryIntakeTransferService,
+        KpiSupport,
+        KpiSetupService,
+        KpiCatalogService,
+        KpiTasksService,
+        KpiEvaluationsService,
+        KpiReportsService,
+        KpiLegacyImportService,
         // Chưa có nhà cung cấp gửi thư điện tử: trả lời hỗ trợ tuyển sinh chỉ gửi qua ứng dụng phụ huynh (DT-17 phần 17c)
         { provide: AdmissionSupportMailer, useClass: UnconfiguredAdmissionSupportMailer },
         SystemAnnouncementsService,
