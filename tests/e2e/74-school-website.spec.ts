@@ -55,7 +55,7 @@ test('Thiết lập website, tên miền trình diễn, soạn và duyệt tin, 
   await openMenu(page, '/website/domains');
   await expect(page.getByRole('region', { name: 'Hướng dẫn trỏ tên miền' })).toBeVisible();
   await page.getByLabel('Tên miền *').fill(host.toUpperCase());
-  await page.getByLabel('Loại').selectOption({ label: 'Tên miền trình diễn' });
+  await page.getByLabel('Loại', { exact: true }).selectOption({ label: 'Tên miền trình diễn' });
   await page.getByRole('button', { name: 'Thêm tên miền' }).click();
   await expect(page.getByText('Đã thêm tên miền')).toBeVisible();
   const domainRow = page.getByRole('row', { name: `Tên miền ${host}` });
