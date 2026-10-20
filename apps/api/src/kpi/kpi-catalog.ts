@@ -50,7 +50,11 @@ const READ_PERMISSIONS = [
 ];
 
 const COLUMNS: ImportColumn[] = [
-  { key: 'code', header: 'Mã công việc', note: 'Bắt buộc, chữ không dấu, số, dấu chấm, gạch ngang; không trùng trong danh mục' },
+  {
+    key: 'code',
+    header: 'Mã công việc',
+    note: 'Bắt buộc, chữ không dấu, số, dấu chấm, gạch ngang; không trùng trong danh mục',
+  },
   { key: 'name', header: 'Tên công việc', note: 'Bắt buộc; việc mật chỉ ghi mã công việc hoặc số văn bản' },
   { key: 'output_result', header: 'Kết quả đầu ra', note: 'Báo cáo, kế hoạch, công văn...' },
   { key: 'axis', header: 'Trục', note: 'Mã trục của bộ quy tắc, xem trang Danh mục' },
@@ -97,7 +101,10 @@ export class KpiCatalogService {
 
   // Người cấu hình xem mọi danh mục; người quản lý xem danh mục chung và của đơn vị trong phạm vi; cán bộ xem danh mục chung
   // và của đơn vị mình
-  private async readableUnits(database: Executor, currentUser: CurrentUser): Promise<{ all: boolean; units: string[] }> {
+  private async readableUnits(
+    database: Executor,
+    currentUser: CurrentUser,
+  ): Promise<{ all: boolean; units: string[] }> {
     if (currentUser.hasPermission(KPI_PERMISSIONS.configure) || currentUser.hasPermission(KPI_PERMISSIONS.advise)) {
       const scope = await this.support.scope(
         currentUser,
@@ -144,7 +151,10 @@ export class KpiCatalogService {
     }
     if (filter.ruleSetId) {
       query = query.where((eb) =>
-        eb.or([eb('kpi_catalog_items.rule_set_id', '=', filter.ruleSetId), eb('kpi_catalog_items.rule_set_id', 'is', null)]),
+        eb.or([
+          eb('kpi_catalog_items.rule_set_id', '=', filter.ruleSetId),
+          eb('kpi_catalog_items.rule_set_id', 'is', null),
+        ]),
       );
     }
     if (filter.status) {
@@ -233,7 +243,9 @@ export class KpiCatalogService {
       .select('kpi_rule_set_versions.id')
       .where('kpi_rule_set_versions.status', '=', 'published')
       .orderBy('kpi_rule_set_versions.version_no', 'desc');
-    query = ruleSetId ? query.where('kpi_rule_sets.id', '=', ruleSetId) : query.orderBy('kpi_rule_sets.is_default', 'desc');
+    query = ruleSetId
+      ? query.where('kpi_rule_sets.id', '=', ruleSetId)
+      : query.orderBy('kpi_rule_sets.is_default', 'desc');
     const version = await query.executeTakeFirst();
     if (!version) {
       throw validationError([{ field: 'rule_set_id', message: 'Bộ quy tắc chưa có phiên bản đã ban hành' }]);
@@ -337,7 +349,12 @@ export class KpiCatalogService {
     return item;
   }
 
-  async update(currentUser: CurrentUser, itemId: string, input: Partial<CatalogInput> & { status?: KpiCatalogStatus }, origin: ChangeOrigin) {
+  async update(
+    currentUser: CurrentUser,
+    itemId: string,
+    input: Partial<CatalogInput> & { status?: KpiCatalogStatus },
+    origin: ChangeOrigin,
+  ) {
     const database = await this.support.database();
     const before = await this.find(database, itemId);
     await this.assertEditor(currentUser, before.org_unit_id);
@@ -457,24 +474,41 @@ export class KpiCatalogService {
     const config = await this.ruleConfig(database, ruleSetId);
     return buildTemplate('Danh mục công việc', COLUMNS, {
       catalogs: [
-        { key: 'axis', title: 'Trục', column: 'Trục', items: config.axes.map((axis) => ({ code: axis.code, name: axis.name })) },
+        {
+          key: 'axis',
+          title: 'Trục',
+          column: 'Trục',
+          items: config.axes.map((axis) => ({ code: axis.code, name: axis.name })),
+        },
         {
           key: 'task_type',
           title: 'Loại công việc',
           column: 'Loại công việc',
-          items: config.task_types.map((item) => ({ code: item.code, name: item.name, note: `Điểm chuẩn ${item.standard_score}` })),
+          items: config.task_types.map((item) => ({
+            code: item.code,
+            name: item.name,
+            note: `Điểm chuẩn ${item.standard_score}`,
+          })),
         },
         {
           key: 'difficulty',
           title: 'Hệ số độ khó',
           column: 'Hệ số độ khó',
-          items: config.difficulty_levels.map((item) => ({ code: item.code, name: item.label, note: `${item.weight}` })),
+          items: config.difficulty_levels.map((item) => ({
+            code: item.code,
+            name: item.label,
+            note: `${item.weight}`,
+          })),
         },
         {
           key: 'job_position',
           title: 'Vị trí việc làm',
           column: 'Vị trí việc làm',
-          items: config.job_positions.map((item) => ({ code: item.code, name: item.label, note: item.levels.join(', ') })),
+          items: config.job_positions.map((item) => ({
+            code: item.code,
+            name: item.label,
+            note: item.levels.join(', '),
+          })),
         },
       ],
     });
@@ -497,9 +531,7 @@ export class KpiCatalogService {
         await database
           .selectFrom('kpi_catalog_items')
           .select('code')
-          .where((eb) =>
-            target.orgUnitId ? eb('org_unit_id', '=', target.orgUnitId) : eb('org_unit_id', 'is', null),
-          )
+          .where((eb) => (target.orgUnitId ? eb('org_unit_id', '=', target.orgUnitId) : eb('org_unit_id', 'is', null)))
           .where('status', '!=', 'rejected')
           .execute()
       ).map((row) => row.code.toUpperCase()),

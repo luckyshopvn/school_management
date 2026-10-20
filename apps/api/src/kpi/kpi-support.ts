@@ -1,7 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import type { KpiTaskStatus, KpiTasksTable, SchoolYearDatabase } from '@school-management/database';
-import { ApplicationError, Clock, ruleViolationError, validationError, type FieldError } from '@school-management/server';
-import { KPI_RULE_CODE, PERMISSION_CODES, type KpiRuleConfig, type KpiSubjectGroupCode } from '@school-management/shared';
+import {
+  ApplicationError,
+  Clock,
+  ruleViolationError,
+  validationError,
+  type FieldError,
+} from '@school-management/server';
+import {
+  KPI_RULE_CODE,
+  PERMISSION_CODES,
+  type KpiRuleConfig,
+  type KpiSubjectGroupCode,
+} from '@school-management/shared';
 import type { Kysely, Selectable, Transaction } from 'kysely';
 import { SchoolCalendar, VIETNAM_DATE } from '../attendance/school-calendar.js';
 import type { CurrentUser, OrganizationScope } from '../authentication/current-user.js';
@@ -328,7 +339,14 @@ export class KpiSupport {
             .where('status', '=', 'self_assessed')
             .executeTakeFirst();
           if (Number(updated.numUpdatedRows) > 0) {
-            await this.logManagerAction(transaction, task, 'grade', task.grading_due_at ?? now, true, rule.superiorStaffId);
+            await this.logManagerAction(
+              transaction,
+              task,
+              'grade',
+              task.grading_due_at ?? now,
+              true,
+              rule.superiorStaffId,
+            );
           }
         } else {
           const updated = await transaction
@@ -423,7 +441,11 @@ export class KpiSupport {
       .where('period_id', '=', periodId)
       .where('staff_id', '=', staffId)
       .execute();
-    const totals = evaluationTotals(config, general, tasks.map((task) => totalInput(config, task)));
+    const totals = evaluationTotals(
+      config,
+      general,
+      tasks.map((task) => totalInput(config, task)),
+    );
     await database
       .updateTable('kpi_evaluations')
       .set({

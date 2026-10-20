@@ -123,7 +123,10 @@ const GENERAL_CRITERIA = {
       code: '3',
       title: 'Về tự phê bình và phê bình, tự soi, tự sửa, khắc phục hạn chế, khuyết điểm',
       items: [
-        ['3.1', 'Chủ động, nghiêm túc thực hiện tự phê bình và phê bình, có tinh thần cầu thị và tiếp thu phản biện, góp ý.'],
+        [
+          '3.1',
+          'Chủ động, nghiêm túc thực hiện tự phê bình và phê bình, có tinh thần cầu thị và tiếp thu phản biện, góp ý.',
+        ],
         ['3.2', 'Có kế hoạch rõ ràng và quyết liệt trong khắc phục hạn chế, khuyết điểm đã được chỉ ra.'],
         [
           '3.3',
@@ -175,7 +178,11 @@ const RULE_SET_1 = {
     { max_late_days: null, percent: 0, label: 'Chậm trên 5 ngày làm việc hoặc không hoàn thành' },
   ],
   quality_levels: [
-    { code: 'q100', label: 'Bảo đảm yêu cầu, được chấp nhận ngay hoặc chỉ hoàn thiện kỹ thuật, thể thức', percent: 100 },
+    {
+      code: 'q100',
+      label: 'Bảo đảm yêu cầu, được chấp nhận ngay hoặc chỉ hoàn thiện kỹ thuật, thể thức',
+      percent: 100,
+    },
     { code: 'q75', label: 'Cơ bản đáp ứng, chỉnh sửa một số nội dung không ảnh hưởng nội dung cốt lõi', percent: 75 },
     { code: 'q50', label: 'Chưa đáp ứng đầy đủ, chỉnh sửa nội dung cơ bản, ảnh hưởng chất lượng', percent: 50 },
     { code: 'q25', label: 'Có sai sót nghiêm trọng, phải chỉnh sửa cơ bản hoặc làm lại', percent: 25 },
@@ -223,8 +230,18 @@ const POSITIONS = [
   { code: 'bi-thu-doan', label: 'Bí thư Đoàn trường', levels: ['THPT'], is_manager: false },
   { code: 'nv-ban-tru', label: 'Nhân viên bán trú', levels: ['TH'], is_manager: false },
   { code: 'van-phong', label: 'Nhân viên văn phòng', levels: ['MN', 'TH', 'THCS', 'THPT'], is_manager: false },
-  { code: 'to-truong', label: 'Tổ trưởng tổ chuyên môn, tổ văn phòng', levels: ['MN', 'TH', 'THCS', 'THPT'], is_manager: true },
-  { code: 'to-pho', label: 'Tổ phó tổ chuyên môn, tổ văn phòng', levels: ['MN', 'TH', 'THCS', 'THPT'], is_manager: true },
+  {
+    code: 'to-truong',
+    label: 'Tổ trưởng tổ chuyên môn, tổ văn phòng',
+    levels: ['MN', 'TH', 'THCS', 'THPT'],
+    is_manager: true,
+  },
+  {
+    code: 'to-pho',
+    label: 'Tổ phó tổ chuyên môn, tổ văn phòng',
+    levels: ['MN', 'TH', 'THCS', 'THPT'],
+    is_manager: true,
+  },
   { code: 'quan-ly', label: 'Hiệu trưởng, Phó Hiệu trưởng', levels: ['MN', 'TH', 'THCS', 'THPT'], is_manager: true },
 ];
 
@@ -281,7 +298,12 @@ export const migration: Migration = {
     await database.schema
       .createTable('kpi_rule_sets')
       .addColumn('id', 'uuid', (column) => column.primaryKey().defaultTo(sql`gen_random_uuid()`))
-      .addColumn('code', 'text', (column) => column.notNull().unique().check(sql`char_length(code) between 1 and 30`))
+      .addColumn('code', 'text', (column) =>
+        column
+          .notNull()
+          .unique()
+          .check(sql`char_length(code) between 1 and 30`),
+      )
       .addColumn('name', 'text', (column) => column.notNull().check(sql`char_length(name) between 1 and 200`))
       .addColumn('description', 'text', (column) => column.check(sql`char_length(description) <= 1000`))
       .addColumn('is_default', 'boolean', (column) => column.notNull().defaultTo(false))
@@ -342,7 +364,12 @@ export const migration: Migration = {
     await database.schema
       .createTable('kpi_periods')
       .addColumn('id', 'uuid', (column) => column.primaryKey().defaultTo(sql`gen_random_uuid()`))
-      .addColumn('code', 'text', (column) => column.notNull().unique().check(sql`char_length(code) between 1 and 30`))
+      .addColumn('code', 'text', (column) =>
+        column
+          .notNull()
+          .unique()
+          .check(sql`char_length(code) between 1 and 30`),
+      )
       .addColumn('name', 'text', (column) => column.notNull().check(sql`char_length(name) between 1 and 200`))
       .addColumn('period_type', 'text', (column) =>
         column.notNull().check(sql`period_type in ('month', 'quarter', 'term', 'year', 'custom')`),
@@ -486,7 +513,9 @@ export const migration: Migration = {
       // Kết quả chấm
       .addColumn('late_days', 'integer')
       .addColumn('progress_percent', 'numeric(5, 2)')
-      .addColumn('progress_adjust_reason', 'text', (column) => column.check(sql`char_length(progress_adjust_reason) <= 500`))
+      .addColumn('progress_adjust_reason', 'text', (column) =>
+        column.check(sql`char_length(progress_adjust_reason) <= 500`),
+      )
       .addColumn('quality_code', 'text')
       .addColumn('result_code', 'text')
       .addColumn('task_percent', 'numeric(5, 2)')
@@ -506,7 +535,11 @@ export const migration: Migration = {
       .addColumn('created_at', 'timestamptz', (column) => column.notNull().defaultTo(sql`now()`))
       .addColumn('updated_at', 'timestamptz', (column) => column.notNull().defaultTo(sql`now()`))
       .execute();
-    await database.schema.createIndex('kpi_tasks_period_staff').on('kpi_tasks').columns(['period_id', 'staff_id']).execute();
+    await database.schema
+      .createIndex('kpi_tasks_period_staff')
+      .on('kpi_tasks')
+      .columns(['period_id', 'staff_id'])
+      .execute();
 
     await database.schema
       .createTable('kpi_task_files')

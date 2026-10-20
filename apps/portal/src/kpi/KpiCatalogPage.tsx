@@ -77,9 +77,21 @@ function CatalogForm({
   onCancel(): void;
 }) {
   const ruleSets = useQuery({ queryKey: ['kpi', 'rule-sets'], queryFn: listRuleSets });
-  const versionId = ruleSets.data?.find((set) => set.id === ruleSetId)?.versions.find((item) => item.status === 'published')?.id;
+  const versionId = ruleSets.data
+    ?.find((set) => set.id === ruleSetId)
+    ?.versions.find((item) => item.status === 'published')?.id;
   const config = useRuleConfig(versionId);
-  const [values, setValues] = useState<Record<string, string>>({ code: '', name: '', output_result: '', axis_code: '', difficulty_code: '', school_level: '', job_position: '', expected_evidence: '', deadline_hint: '' });
+  const [values, setValues] = useState<Record<string, string>>({
+    code: '',
+    name: '',
+    output_result: '',
+    axis_code: '',
+    difficulty_code: '',
+    school_level: '',
+    job_position: '',
+    expected_evidence: '',
+    deadline_hint: '',
+  });
   const [isRequired, setIsRequired] = useState(false);
   const [isConfidential, setIsConfidential] = useState(false);
   const set = (field: string, value: string) => setValues((current) => ({ ...current, [field]: value }));
@@ -114,16 +126,33 @@ function CatalogForm({
       {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
       <FormBlock title={proposing ? 'Đề xuất công việc vào danh mục của đơn vị' : 'Thêm công việc'}>
         <FormRow label="Mã công việc">
-          <input className={FORM_CONTROL_CLASS} value={values.code} onChange={(event) => set('code', event.target.value)} />
+          <input
+            className={FORM_CONTROL_CLASS}
+            value={values.code}
+            onChange={(event) => set('code', event.target.value)}
+          />
         </FormRow>
         <FormRow label="Tên công việc">
-          <textarea className={FORM_CONTROL_CLASS} rows={2} value={values.name} onChange={(event) => set('name', event.target.value)} />
+          <textarea
+            className={FORM_CONTROL_CLASS}
+            rows={2}
+            value={values.name}
+            onChange={(event) => set('name', event.target.value)}
+          />
         </FormRow>
         <FormRow label="Kết quả đầu ra">
-          <input className={FORM_CONTROL_CLASS} value={values.output_result} onChange={(event) => set('output_result', event.target.value)} />
+          <input
+            className={FORM_CONTROL_CLASS}
+            value={values.output_result}
+            onChange={(event) => set('output_result', event.target.value)}
+          />
         </FormRow>
         <FormRow label="Trục">
-          <select className={FORM_CONTROL_CLASS} value={values.axis_code} onChange={(event) => set('axis_code', event.target.value)}>
+          <select
+            className={FORM_CONTROL_CLASS}
+            value={values.axis_code}
+            onChange={(event) => set('axis_code', event.target.value)}
+          >
             {(config?.axes ?? []).map((axis) => (
               <option key={axis.code} value={axis.code}>
                 {axis.code}. {axis.name}
@@ -132,7 +161,11 @@ function CatalogForm({
           </select>
         </FormRow>
         <FormRow label="Hệ số độ khó">
-          <select className={FORM_CONTROL_CLASS} value={values.difficulty_code} onChange={(event) => set('difficulty_code', event.target.value)}>
+          <select
+            className={FORM_CONTROL_CLASS}
+            value={values.difficulty_code}
+            onChange={(event) => set('difficulty_code', event.target.value)}
+          >
             {(config?.difficulty_levels ?? []).map((level) => (
               <option key={level.code} value={level.code}>
                 {level.label}
@@ -141,7 +174,11 @@ function CatalogForm({
           </select>
         </FormRow>
         <FormRow label="Cấp học">
-          <select className={FORM_CONTROL_CLASS} value={values.school_level} onChange={(event) => set('school_level', event.target.value)}>
+          <select
+            className={FORM_CONTROL_CLASS}
+            value={values.school_level}
+            onChange={(event) => set('school_level', event.target.value)}
+          >
             <option value="">Mọi cấp</option>
             {KPI_SCHOOL_LEVELS.map((level) => (
               <option key={level.value} value={level.value}>
@@ -152,7 +189,11 @@ function CatalogForm({
         </FormRow>
         {config?.job_positions.length ? (
           <FormRow label="Vị trí việc làm">
-            <select className={FORM_CONTROL_CLASS} value={values.job_position} onChange={(event) => set('job_position', event.target.value)}>
+            <select
+              className={FORM_CONTROL_CLASS}
+              value={values.job_position}
+              onChange={(event) => set('job_position', event.target.value)}
+            >
               <option value="">Mọi vị trí</option>
               {config.job_positions.map((position) => (
                 <option key={position.code} value={position.code}>
@@ -163,16 +204,28 @@ function CatalogForm({
           </FormRow>
         ) : null}
         <FormRow label="Minh chứng dự kiến">
-          <input className={FORM_CONTROL_CLASS} value={values.expected_evidence} onChange={(event) => set('expected_evidence', event.target.value)} />
+          <input
+            className={FORM_CONTROL_CLASS}
+            value={values.expected_evidence}
+            onChange={(event) => set('expected_evidence', event.target.value)}
+          />
         </FormRow>
         <FormRow label="Thời hạn hoàn thành">
-          <input className={FORM_CONTROL_CLASS} value={values.deadline_hint} onChange={(event) => set('deadline_hint', event.target.value)} />
+          <input
+            className={FORM_CONTROL_CLASS}
+            value={values.deadline_hint}
+            onChange={(event) => set('deadline_hint', event.target.value)}
+          />
         </FormRow>
         <FormRow label="Bắt buộc đăng ký (*)">
           <input type="checkbox" checked={isRequired} onChange={(event) => setIsRequired(event.target.checked)} />
         </FormRow>
         <FormRow label="Nội dung mật">
-          <input type="checkbox" checked={isConfidential} onChange={(event) => setIsConfidential(event.target.checked)} />
+          <input
+            type="checkbox"
+            checked={isConfidential}
+            onChange={(event) => setIsConfidential(event.target.checked)}
+          />
         </FormRow>
       </FormBlock>
       <div className="flex gap-2">
@@ -258,13 +311,22 @@ export function KpiCatalogPage() {
         : changed(`Đã nhập ${result.created ?? 0} công việc`),
   });
   const template = useMutation({
-    mutationFn: () => downloadFile(`/api/v1/kpi/catalog/template?rule_set_id=${chosenRuleSet}`, 'mau-danh-muc-cong-viec.xlsx'),
+    mutationFn: () =>
+      downloadFile(`/api/v1/kpi/catalog/template?rule_set_id=${chosenRuleSet}`, 'mau-danh-muc-cong-viec.xlsx'),
   });
   const exportFile = useMutation({
     mutationFn: () => downloadFile(`/api/v1/kpi/catalog/export?${query}`, 'danh-muc-cong-viec.xlsx'),
   });
   const canEdit = scope === 'common' ? canConfigure : canConfigure || canManage;
-  const error = [items.error, toggle.error, decide.error, importRows.error, template.error, exportFile.error, grid.error].find(Boolean);
+  const error = [
+    items.error,
+    toggle.error,
+    decide.error,
+    importRows.error,
+    template.error,
+    exportFile.error,
+    grid.error,
+  ].find(Boolean);
   return (
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
@@ -272,7 +334,10 @@ export function KpiCatalogPage() {
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/kpi/catalog')}</h1>
         {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
         {progress.data?.length ? (
-          <section aria-label="Số chỉ báo đã nhập" className="flex flex-wrap gap-4 rounded-xl border border-border bg-card p-4 text-content">
+          <section
+            aria-label="Số chỉ báo đã nhập"
+            className="flex flex-wrap gap-4 rounded-xl border border-border bg-card p-4 text-content"
+          >
             {progress.data.map((row) => (
               <span key={`${row.rule_set_name}-${row.school_level}`}>
                 {row.rule_set_name}, {KPI_SCHOOL_LEVELS.find((item) => item.value === row.school_level)?.label}: đã nhập{' '}
@@ -284,7 +349,11 @@ export function KpiCatalogPage() {
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <label className="text-label font-medium text-text">
             Danh mục
-            <select className={filterClass} value={scope} onChange={(event) => setScope(event.target.value as 'common' | 'unit')}>
+            <select
+              className={filterClass}
+              value={scope}
+              onChange={(event) => setScope(event.target.value as 'common' | 'unit')}
+            >
               <option value="common">Danh mục chung của trường</option>
               <option value="unit">Danh mục của đơn vị</option>
             </select>
@@ -316,11 +385,19 @@ export function KpiCatalogPage() {
           </section>
         ) : null}
         {canEdit ? (
-          <section className="flex flex-wrap items-end gap-3 rounded-xl border border-border bg-card p-4" aria-label="Nhập từ Excel">
+          <section
+            className="flex flex-wrap items-end gap-3 rounded-xl border border-border bg-card p-4"
+            aria-label="Nhập từ Excel"
+          >
             <Button onClick={() => template.mutate()}>Tải tệp mẫu</Button>
             <label className="text-label font-medium text-text">
               Tệp Excel
-              <input type="file" accept=".xlsx" className={filterClass} onChange={(event) => setImportFile(event.target.files?.[0])} />
+              <input
+                type="file"
+                accept=".xlsx"
+                className={filterClass}
+                onChange={(event) => setImportFile(event.target.files?.[0])}
+              />
             </label>
             <Button disabled={!importFile || importRows.isPending} onClick={() => importRows.mutate()}>
               Nhập từ Excel

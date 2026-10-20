@@ -51,7 +51,11 @@ const PERIOD_COLUMNS: Array<DataGridColumn<Period>> = [
     header: 'Đăng ký, thực hiện',
     cell: (row) => (row.register_from ? `${row.register_from} – ${row.register_to ?? ''}` : ''),
   },
-  { id: 'self', header: 'Tự đánh giá', cell: (row) => (row.self_from ? `${row.self_from} – ${row.self_to ?? ''}` : '') },
+  {
+    id: 'self',
+    header: 'Tự đánh giá',
+    cell: (row) => (row.self_from ? `${row.self_from} – ${row.self_to ?? ''}` : ''),
+  },
   {
     id: 'review',
     header: 'Cấp trên đánh giá',
@@ -79,7 +83,15 @@ const PHASES = [
   ['advisory_from', 'advisory_to', 'Tham mưu tổng hợp'],
 ] as const;
 
-function PeriodForm({ period, onSaved, onCancel }: { period?: Period; onSaved(message: string): void; onCancel(): void }) {
+function PeriodForm({
+  period,
+  onSaved,
+  onCancel,
+}: {
+  period?: Period;
+  onSaved(message: string): void;
+  onCancel(): void;
+}) {
   const today = vietnamToday();
   const [values, setValues] = useState<Record<string, string>>({
     code: period?.code ?? '',
@@ -87,7 +99,12 @@ function PeriodForm({ period, onSaved, onCancel }: { period?: Period; onSaved(me
     period_type: period?.period_type ?? 'quarter',
     start_date: period?.start_date ?? today,
     end_date: period?.end_date ?? today,
-    ...Object.fromEntries(PHASES.flatMap(([from, to]) => [[from, period?.[from] ?? ''], [to, period?.[to] ?? '']])),
+    ...Object.fromEntries(
+      PHASES.flatMap(([from, to]) => [
+        [from, period?.[from] ?? ''],
+        [to, period?.[to] ?? ''],
+      ]),
+    ),
   });
   const set = (field: string, value: string) => setValues((current) => ({ ...current, [field]: value }));
   const save = useMutation({
@@ -117,13 +134,26 @@ function PeriodForm({ period, onSaved, onCancel }: { period?: Period; onSaved(me
       {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
       <FormBlock title="Thông tin kỳ">
         <FormRow label="Mã kỳ">
-          <input className={FORM_CONTROL_CLASS} value={values.code} disabled={Boolean(period)} onChange={(event) => set('code', event.target.value)} />
+          <input
+            className={FORM_CONTROL_CLASS}
+            value={values.code}
+            disabled={Boolean(period)}
+            onChange={(event) => set('code', event.target.value)}
+          />
         </FormRow>
         <FormRow label="Tên kỳ">
-          <input className={FORM_CONTROL_CLASS} value={values.name} onChange={(event) => set('name', event.target.value)} />
+          <input
+            className={FORM_CONTROL_CLASS}
+            value={values.name}
+            onChange={(event) => set('name', event.target.value)}
+          />
         </FormRow>
         <FormRow label="Loại kỳ">
-          <select className={FORM_CONTROL_CLASS} value={values.period_type} onChange={(event) => set('period_type', event.target.value)}>
+          <select
+            className={FORM_CONTROL_CLASS}
+            value={values.period_type}
+            onChange={(event) => set('period_type', event.target.value)}
+          >
             {Object.entries(KPI_PERIOD_TYPE_LABELS).map(([value, label]) => (
               <option key={value} value={value}>
                 {label}
@@ -132,20 +162,40 @@ function PeriodForm({ period, onSaved, onCancel }: { period?: Period; onSaved(me
           </select>
         </FormRow>
         <FormRow label="Từ ngày">
-          <input type="date" className={FORM_CONTROL_CLASS} value={values.start_date} onChange={(event) => set('start_date', event.target.value)} />
+          <input
+            type="date"
+            className={FORM_CONTROL_CLASS}
+            value={values.start_date}
+            onChange={(event) => set('start_date', event.target.value)}
+          />
         </FormRow>
         <FormRow label="Đến ngày">
-          <input type="date" className={FORM_CONTROL_CLASS} value={values.end_date} onChange={(event) => set('end_date', event.target.value)} />
+          <input
+            type="date"
+            className={FORM_CONTROL_CLASS}
+            value={values.end_date}
+            onChange={(event) => set('end_date', event.target.value)}
+          />
         </FormRow>
       </FormBlock>
       <FormBlock title="Lịch kỳ">
         {PHASES.map(([from, to, label]) => (
           <div key={from} className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <FormRow label={`${label} từ ngày`}>
-              <input type="date" className={FORM_CONTROL_CLASS} value={values[from]} onChange={(event) => set(from, event.target.value)} />
+              <input
+                type="date"
+                className={FORM_CONTROL_CLASS}
+                value={values[from]}
+                onChange={(event) => set(from, event.target.value)}
+              />
             </FormRow>
             <FormRow label={`${label} đến ngày`}>
-              <input type="date" className={FORM_CONTROL_CLASS} value={values[to]} onChange={(event) => set(to, event.target.value)} />
+              <input
+                type="date"
+                className={FORM_CONTROL_CLASS}
+                value={values[to]}
+                onChange={(event) => set(to, event.target.value)}
+              />
             </FormRow>
           </div>
         ))}
@@ -295,8 +345,8 @@ export function KpiPeriodsPage() {
         onCancel={() => setLocking(undefined)}
       >
         <p className="text-content">
-          Khóa kỳ chốt mức xếp loại cuối cùng của từng người (theo biểu quyết, tham mưu, cấp trên) và giữ phiên bản quy tắc đã
-          dùng; sau khi khóa không ai sửa được việc, điểm của kỳ.
+          Khóa kỳ chốt mức xếp loại cuối cùng của từng người (theo biểu quyết, tham mưu, cấp trên) và giữ phiên bản quy
+          tắc đã dùng; sau khi khóa không ai sửa được việc, điểm của kỳ.
         </p>
         <label className="mt-2 block text-label font-medium text-text">
           Ghi chú
@@ -356,7 +406,9 @@ function ConfigSummary({ config }: { config: KpiRuleConfig }) {
         {list(config.ranks.map((rank) => `${rank.label}: từ ${rank.min_score} điểm`))}
       </div>
       <div>
-        <h3 className="font-semibold">{config.scoring_mode === 'progress_quality' ? 'Mức tiến độ và kết quả' : 'Thang mức'}</h3>
+        <h3 className="font-semibold">
+          {config.scoring_mode === 'progress_quality' ? 'Mức tiến độ và kết quả' : 'Thang mức'}
+        </h3>
         {config.scoring_mode === 'progress_quality'
           ? list([
               ...config.progress_levels.map((level) => `Tiến độ ${level.percent}%: ${level.label}`),
@@ -414,7 +466,9 @@ function RuleSetDetail({ ruleSet, onChanged }: { ruleSet: RuleSet; onChanged(mes
   const isDraft = version.data?.status === 'draft';
   return (
     <div className="flex flex-col gap-3">
-      {error ? <Alert tone="danger">{error instanceof SyntaxError ? 'Cấu hình không đúng dạng JSON' : messageOf(error)}</Alert> : null}
+      {error ? (
+        <Alert tone="danger">{error instanceof SyntaxError ? 'Cấu hình không đúng dạng JSON' : messageOf(error)}</Alert>
+      ) : null}
       <div className="flex flex-wrap items-end gap-3">
         <label className="text-label font-medium text-text">
           Phiên bản
@@ -526,7 +580,9 @@ export function KpiRuleSetsPage() {
         <DataGrid
           label="Bộ quy tắc chấm"
           columns={RULE_SET_COLUMNS}
-          rows={(ruleSets.data ?? []).filter((row) => !keyword || `${row.code} ${row.name}`.toLocaleLowerCase('vi').includes(keyword))}
+          rows={(ruleSets.data ?? []).filter(
+            (row) => !keyword || `${row.code} ${row.name}`.toLocaleLowerCase('vi').includes(keyword),
+          )}
           getRowId={(row) => row.id}
           getRowLabel={(row) => `bộ quy tắc ${row.name}`}
           getRowAriaLabel={(row) => `Bộ quy tắc ${row.code}`}
@@ -552,7 +608,11 @@ const PROFILE_COLUMNS: Array<DataGridColumn<Profile>> = [
   { id: 'full_name', header: 'Họ và tên', alwaysVisible: true, className: 'font-medium', cell: (row) => row.full_name },
   { id: 'job_title_name', header: 'Chức danh', cell: (row) => row.job_title_name ?? '' },
   { id: 'rule_set_name', header: 'Bộ quy tắc', cell: (row) => row.rule_set_name ?? 'Chưa gán' },
-  { id: 'subject_group', header: 'Nhóm đối tượng', cell: (row) => (row.subject_group ? SUBJECT_GROUP_LABELS[row.subject_group] : '') },
+  {
+    id: 'subject_group',
+    header: 'Nhóm đối tượng',
+    cell: (row) => (row.subject_group ? SUBJECT_GROUP_LABELS[row.subject_group] : ''),
+  },
   {
     id: 'school_level',
     header: 'Cấp học',
@@ -620,7 +680,11 @@ function ProfileForm({
       {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
       <FormBlock title={`Gán đối tượng đánh giá (${selected.map((row) => row.full_name).join(', ')})`}>
         <FormRow label="Bộ quy tắc">
-          <select className={FORM_CONTROL_CLASS} value={ruleSetId} onChange={(event) => setRuleSetId(event.target.value)}>
+          <select
+            className={FORM_CONTROL_CLASS}
+            value={ruleSetId}
+            onChange={(event) => setRuleSetId(event.target.value)}
+          >
             {ruleSets
               .filter((set) => set.status === 'active')
               .map((set) => (
@@ -631,7 +695,11 @@ function ProfileForm({
           </select>
         </FormRow>
         <FormRow label="Nhóm đối tượng">
-          <select className={FORM_CONTROL_CLASS} value={subjectGroup} onChange={(event) => setSubjectGroup(event.target.value as 'leader' | 'staff')}>
+          <select
+            className={FORM_CONTROL_CLASS}
+            value={subjectGroup}
+            onChange={(event) => setSubjectGroup(event.target.value as 'leader' | 'staff')}
+          >
             {(version.data?.config.subject_groups ?? []).map((group) => (
               <option key={group.code} value={group.code}>
                 {group.label}
@@ -640,7 +708,11 @@ function ProfileForm({
           </select>
         </FormRow>
         <FormRow label="Cấp học">
-          <select className={FORM_CONTROL_CLASS} value={schoolLevel} onChange={(event) => setSchoolLevel(event.target.value)}>
+          <select
+            className={FORM_CONTROL_CLASS}
+            value={schoolLevel}
+            onChange={(event) => setSchoolLevel(event.target.value)}
+          >
             <option value="">Không chọn</option>
             {KPI_SCHOOL_LEVELS.map((level) => (
               <option key={level.value} value={level.value}>
@@ -650,7 +722,11 @@ function ProfileForm({
           </select>
         </FormRow>
         <FormRow label="Vị trí việc làm">
-          <select className={FORM_CONTROL_CLASS} value={jobPosition} onChange={(event) => setJobPosition(event.target.value)}>
+          <select
+            className={FORM_CONTROL_CLASS}
+            value={jobPosition}
+            onChange={(event) => setJobPosition(event.target.value)}
+          >
             <option value="">Không chọn</option>
             {positions.map((position) => (
               <option key={position.code} value={position.code}>
@@ -790,9 +866,9 @@ export function KpiLegacyImportPage() {
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/kpi/legacy-import')}</h1>
         <section className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4">
           <p className="text-content">
-            Chọn tệp sao lưu (tệp .db) tải từ hệ thống KPI cũ. Hệ thống chuyển kỳ, danh mục công việc chuẩn, việc của từng người
-            và kết quả đánh giá sang Bộ quy tắc 1; người được ghép theo họ tên với hồ sơ nhân sự. Bấm Xem trước để kiểm tra số
-            lượng, rồi bấm Chuyển dữ liệu để ghi. Chạy lại không nhân đôi dữ liệu.
+            Chọn tệp sao lưu (tệp .db) tải từ hệ thống KPI cũ. Hệ thống chuyển kỳ, danh mục công việc chuẩn, việc của
+            từng người và kết quả đánh giá sang Bộ quy tắc 1; người được ghép theo họ tên với hồ sơ nhân sự. Bấm Xem
+            trước để kiểm tra số lượng, rồi bấm Chuyển dữ liệu để ghi. Chạy lại không nhân đôi dữ liệu.
           </p>
           {run.error ? <Alert tone="danger">{messageOf(run.error)}</Alert> : null}
           <label className="text-label font-medium text-text">
@@ -811,7 +887,11 @@ export function KpiLegacyImportPage() {
             <Button disabled={!file || run.isPending} onClick={() => run.mutate(true)}>
               Xem trước
             </Button>
-            <Button variant="primary" disabled={!file || !result?.preview || run.isPending} onClick={() => run.mutate(false)}>
+            <Button
+              variant="primary"
+              disabled={!file || !result?.preview || run.isPending}
+              onClick={() => run.mutate(false)}
+            >
               Chuyển dữ liệu
             </Button>
           </div>

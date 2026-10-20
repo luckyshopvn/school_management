@@ -155,10 +155,22 @@ export class KpiEvaluationsService {
 
   private numbers<Row extends Record<string, unknown>>(row: Row) {
     const result: Record<string, unknown> = { ...row };
-    for (const field of ['general_self', 'general_score', 'plan_max', 'actual_total', 'task_score', 'bonus_score', 'total_score']) {
+    for (const field of [
+      'general_self',
+      'general_score',
+      'plan_max',
+      'actual_total',
+      'task_score',
+      'bonus_score',
+      'total_score',
+    ]) {
       result[field] = num(row[field] as string);
     }
-    return result as Row & Record<'general_self' | 'general_score' | 'plan_max' | 'actual_total' | 'task_score' | 'bonus_score' | 'total_score', number>;
+    return result as Row &
+      Record<
+        'general_self' | 'general_score' | 'plan_max' | 'actual_total' | 'task_score' | 'bonus_score' | 'total_score',
+        number
+      >;
   }
 
   async mine(currentUser: CurrentUser, periodId: string) {
@@ -196,7 +208,9 @@ export class KpiEvaluationsService {
     const codes = new Set(criteriaFor(config, group).map((item) => item.code));
     const unknown = marks.filter((mark) => !codes.has(mark.code));
     if (unknown.length > 0) {
-      throw validationError(unknown.map((mark) => ({ field: 'criteria', message: `Tiêu chí ${mark.code} không áp dụng` })));
+      throw validationError(
+        unknown.map((mark) => ({ field: 'criteria', message: `Tiêu chí ${mark.code} không áp dụng` })),
+      );
     }
   }
 
@@ -256,7 +270,12 @@ export class KpiEvaluationsService {
     await database.transaction().execute(async (transaction) => {
       await transaction
         .updateTable('kpi_evaluations')
-        .set({ status: 'submitted', submitted_at: this.support.clock.now(), return_reason: null, updated_at: this.support.clock.now() })
+        .set({
+          status: 'submitted',
+          submitted_at: this.support.clock.now(),
+          return_reason: null,
+          updated_at: this.support.clock.now(),
+        })
         .where('id', '=', evaluation.id)
         .execute();
       await writeAuditLog(transaction, {
@@ -287,10 +306,17 @@ export class KpiEvaluationsService {
     if (manage.wholeSchool || advise.wholeSchool || vote.wholeSchool) {
       return { wholeSchool: true, orgUnitIds: [] };
     }
-    return { wholeSchool: false, orgUnitIds: [...new Set([...manage.orgUnitIds, ...advise.orgUnitIds, ...vote.orgUnitIds])] };
+    return {
+      wholeSchool: false,
+      orgUnitIds: [...new Set([...manage.orgUnitIds, ...advise.orgUnitIds, ...vote.orgUnitIds])],
+    };
   }
 
-  private async canConclude(database: Executor, currentUser: CurrentUser, evaluation: { staff_id: string; org_unit_id: string }) {
+  private async canConclude(
+    database: Executor,
+    currentUser: CurrentUser,
+    evaluation: { staff_id: string; org_unit_id: string },
+  ) {
     const own = await this.support.findOwnStaff(database, currentUser);
     if (own?.id === evaluation.staff_id) {
       throw kpiRule('Không tự kết luận mức xếp loại của chính mình');
@@ -393,7 +419,10 @@ export class KpiEvaluationsService {
         .select('superior_staff_id')
         .where('staff_id', '=', row.staff_id)
         .executeTakeFirst();
-      if (!(own && profile?.superior_staff_id === own.id) && !inScope(await this.readScope(currentUser), row.org_unit_id)) {
+      if (
+        !(own && profile?.superior_staff_id === own.id) &&
+        !inScope(await this.readScope(currentUser), row.org_unit_id)
+      ) {
         throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không xem được phiếu này');
       }
     }
@@ -524,7 +553,11 @@ export class KpiEvaluationsService {
   }
 
   // Tỷ lệ xuất sắc theo từng phiên bản quy tắc trong kỳ, tính trên mức đang đề xuất (biểu quyết, tham mưu, cấp trên)
-  private async quotas(database: Executor, rows: Awaited<ReturnType<KpiEvaluationsService['list']>>, pick: (row: (typeof rows)[number]) => string | null) {
+  private async quotas(
+    database: Executor,
+    rows: Awaited<ReturnType<KpiEvaluationsService['list']>>,
+    pick: (row: (typeof rows)[number]) => string | null,
+  ) {
     const byVersion = new Map<string, typeof rows>();
     for (const row of rows) {
       if (!row.rule_set_version_id) {
@@ -635,11 +668,7 @@ export class KpiEvaluationsService {
       .selectFrom('kpi_votes')
       .select(['evaluation_id', 'vote_rank', 'comment'])
       .where('voter_user_id', '=', currentUser.id)
-      .where(
-        'evaluation_id',
-        'in',
-        rows.length ? rows.map((row) => row.id!) : ['00000000-0000-0000-0000-000000000000'],
-      )
+      .where('evaluation_id', 'in', rows.length ? rows.map((row) => row.id!) : ['00000000-0000-0000-0000-000000000000'])
       .execute();
     const tallies = await this.voteTallies(database, periodId);
     return rows.map((row) => ({
@@ -706,7 +735,10 @@ export class KpiEvaluationsService {
   }
 
   // Mức cuối cùng: biểu quyết đa số (hòa thì không lấy), rồi tham mưu, cấp trên, mức đề xuất
-  private finalRank(row: { advisory_rank: string | null; superior_rank: string | null; suggested_rank: string | null }, votes: Record<string, number>) {
+  private finalRank(
+    row: { advisory_rank: string | null; superior_rank: string | null; suggested_rank: string | null },
+    votes: Record<string, number>,
+  ) {
     const entries = Object.entries(votes).sort((left, right) => right[1] - left[1]);
     if (entries.length > 0 && (entries.length === 1 || entries[0]![1] > entries[1]![1])) {
       return entries[0]![0];

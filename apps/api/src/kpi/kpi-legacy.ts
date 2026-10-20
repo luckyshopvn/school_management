@@ -3,16 +3,7 @@ import { rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import {
-  Body,
-  Controller,
-  HttpCode,
-  Injectable,
-  Post,
-  Req,
-  UploadedFile,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Body, Controller, HttpCode, Injectable, Post, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { KpiTaskStatus } from '@school-management/database';
 import { validationError } from '@school-management/server';
@@ -55,7 +46,8 @@ const normalize = (text: string | number | null | undefined) =>
     .replace(/\s+/g, ' ')
     .trim()
     .toLocaleLowerCase('vi');
-const text = (value: string | number | null | undefined) => (value === null || value === undefined ? null : String(value));
+const text = (value: string | number | null | undefined) =>
+  value === null || value === undefined ? null : String(value);
 const numberOf = (value: string | number | null | undefined, fallback = 0) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
@@ -76,7 +68,12 @@ function tableRows(source: DatabaseSync, table: string): LegacyRow[] {
 export class KpiLegacyImportService {
   constructor(private readonly support: KpiSupport) {}
 
-  async run(currentUser: CurrentUser, body: Buffer, preview: boolean, origin: ChangeOrigin): Promise<LegacyImportResult> {
+  async run(
+    currentUser: CurrentUser,
+    body: Buffer,
+    preview: boolean,
+    origin: ChangeOrigin,
+  ): Promise<LegacyImportResult> {
     if (body.length > MAXIMUM_BACKUP_BYTES) {
       throw validationError([{ field: 'file', message: 'Tệp sao lưu tối đa 100 MB' }]);
     }
@@ -95,7 +92,10 @@ export class KpiLegacyImportService {
       const source = new DatabaseSync(path, { readOnly: true });
       try {
         data = Object.fromEntries(
-          ['periods', 'standard_tasks', 'users', 'assigned_tasks', 'evaluations'].map((table) => [table, tableRows(source, table)]),
+          ['periods', 'standard_tasks', 'users', 'assigned_tasks', 'evaluations'].map((table) => [
+            table,
+            tableRows(source, table),
+          ]),
         );
       } finally {
         source.close();
@@ -106,31 +106,38 @@ export class KpiLegacyImportService {
       rmSync(path, { force: true });
     }
     const database = await this.support.database();
-    return database.transaction().execute(async (transaction) => {
-      const result = await this.apply(transaction, data, origin);
-      if (preview) {
-        // Xem trước: chạy đủ các bước rồi bỏ toàn bộ thay đổi
-        throw new PreviewRollback(result);
-      }
-      await writeAuditLog(transaction, {
-        origin,
-        orgUnitId: null,
-        entityName: 'kpi_legacy_import',
-        entityId: origin.actorUserId,
-        action: 'create',
-        before: null,
-        after: result,
+    return database
+      .transaction()
+      .execute(async (transaction) => {
+        const result = await this.apply(transaction, data, origin);
+        if (preview) {
+          // Xem trước: chạy đủ các bước rồi bỏ toàn bộ thay đổi
+          throw new PreviewRollback(result);
+        }
+        await writeAuditLog(transaction, {
+          origin,
+          orgUnitId: null,
+          entityName: 'kpi_legacy_import',
+          entityId: origin.actorUserId,
+          action: 'create',
+          before: null,
+          after: result,
+        });
+        return result;
+      })
+      .catch((error: unknown) => {
+        if (error instanceof PreviewRollback) {
+          return { ...error.result, preview: true };
+        }
+        throw error;
       });
-      return result;
-    }).catch((error: unknown) => {
-      if (error instanceof PreviewRollback) {
-        return { ...error.result, preview: true };
-      }
-      throw error;
-    });
   }
 
-  private async apply(database: Executor, data: Record<string, LegacyRow[]>, origin: ChangeOrigin): Promise<LegacyImportResult> {
+  private async apply(
+    database: Executor,
+    data: Record<string, LegacyRow[]>,
+    origin: ChangeOrigin,
+  ): Promise<LegacyImportResult> {
     const ruleSet = await database
       .selectFrom('kpi_rule_sets')
       .innerJoin('kpi_rule_set_versions', 'kpi_rule_set_versions.rule_set_id', 'kpi_rule_sets.id')
@@ -155,7 +162,11 @@ export class KpiLegacyImportService {
     };
 
     // Người: ghép theo họ tên với hồ sơ nhân sự đang làm việc, chỉ khi tên là duy nhất
-    const staff = await database.selectFrom('staff').select(['id', 'full_name', 'org_unit_id']).where('status', '=', 'active').execute();
+    const staff = await database
+      .selectFrom('staff')
+      .select(['id', 'full_name', 'org_unit_id'])
+      .where('status', '=', 'active')
+      .execute();
     const byName = new Map<string, Array<(typeof staff)[number]>>();
     for (const row of staff) {
       byName.set(normalize(row.full_name), [...(byName.get(normalize(row.full_name)) ?? []), row]);
@@ -191,7 +202,11 @@ export class KpiLegacyImportService {
     const periods = new Map<string, { id: string; locked: boolean }>();
     for (const period of data.periods ?? []) {
       const legacyId = String(period.id);
-      const existing = await database.selectFrom('kpi_periods').select(['id', 'status']).where('legacy_id', '=', legacyId).executeTakeFirst();
+      const existing = await database
+        .selectFrom('kpi_periods')
+        .select(['id', 'status'])
+        .where('legacy_id', '=', legacyId)
+        .executeTakeFirst();
       if (existing) {
         periods.set(legacyId, { id: existing.id, locked: existing.status === 'locked' });
         continue;
@@ -201,7 +216,9 @@ export class KpiLegacyImportService {
       const created = await database
         .insertInto('kpi_periods')
         .values({
-          code: `CU-${String(period.code ?? legacyId).replace(/[^A-Za-z0-9._-]/g, '-').toUpperCase()}`.slice(0, 30),
+          code: `CU-${String(period.code ?? legacyId)
+            .replace(/[^A-Za-z0-9._-]/g, '-')
+            .toUpperCase()}`.slice(0, 30),
           name: String(period.name ?? period.code ?? legacyId).slice(0, 200),
           period_type: 'quarter',
           start_date: start <= end ? start : end,
@@ -227,7 +244,11 @@ export class KpiLegacyImportService {
     const catalog = new Map<string, string>();
     for (const item of data.standard_tasks ?? []) {
       const legacyId = String(item.id);
-      const existing = await database.selectFrom('kpi_catalog_items').select('id').where('legacy_id', '=', legacyId).executeTakeFirst();
+      const existing = await database
+        .selectFrom('kpi_catalog_items')
+        .select('id')
+        .where('legacy_id', '=', legacyId)
+        .executeTakeFirst();
       if (existing) {
         catalog.set(legacyId, existing.id);
         continue;
@@ -236,7 +257,10 @@ export class KpiLegacyImportService {
         .insertInto('kpi_catalog_items')
         .values({
           rule_set_id: ruleSet.id,
-          code: `CU-${result.catalog_items + 1}-${legacyId.slice(0, 8)}`.toUpperCase().replace(/[^A-Z0-9._-]/g, '-').slice(0, 30),
+          code: `CU-${result.catalog_items + 1}-${legacyId.slice(0, 8)}`
+            .toUpperCase()
+            .replace(/[^A-Z0-9._-]/g, '-')
+            .slice(0, 30),
           name: String(item.task_name ?? '').slice(0, 1000) || '(Không có tên)',
           output_result: text(item.output_result)?.slice(0, 500) ?? null,
           axis_code: axisOf(item.axis_code),
@@ -263,7 +287,11 @@ export class KpiLegacyImportService {
         continue;
       }
       const legacyId = String(task.id);
-      const existing = await database.selectFrom('kpi_tasks').select('id').where('legacy_id', '=', legacyId).executeTakeFirst();
+      const existing = await database
+        .selectFrom('kpi_tasks')
+        .select('id')
+        .where('legacy_id', '=', legacyId)
+        .executeTakeFirst();
       if (existing) {
         continue;
       }
@@ -341,7 +369,10 @@ export class KpiLegacyImportService {
       if (existing) {
         continue;
       }
-      const group = (data.users ?? []).find((user) => String(user.id) === String(evaluation.user_id))?.role === 'cbql' ? 'leader' : 'staff';
+      const group =
+        (data.users ?? []).find((user) => String(user.id) === String(evaluation.user_id))?.role === 'cbql'
+          ? 'leader'
+          : 'staff';
       const created = await database
         .insertInto('kpi_evaluations')
         .values({
@@ -393,7 +424,12 @@ export class KpiLegacyImportService {
       if (period.locked) {
         await database
           .updateTable('kpi_periods')
-          .set({ status: 'locked', locked_at: this.support.clock.now(), locked_by_name: 'Hệ thống KPI cũ', lock_note: 'Kỳ đã chốt ở hệ thống KPI cũ' })
+          .set({
+            status: 'locked',
+            locked_at: this.support.clock.now(),
+            locked_by_name: 'Hệ thống KPI cũ',
+            lock_note: 'Kỳ đã chốt ở hệ thống KPI cũ',
+          })
           .where('id', '=', period.id)
           .where('status', '=', 'open')
           .execute();
@@ -403,7 +439,9 @@ export class KpiLegacyImportService {
   }
 
   private difficulty(config: KpiRuleConfig, weight: number) {
-    return [...config.difficulty_levels].sort((left, right) => Math.abs(left.weight - weight) - Math.abs(right.weight - weight))[0]!;
+    return [...config.difficulty_levels].sort(
+      (left, right) => Math.abs(left.weight - weight) - Math.abs(right.weight - weight),
+    )[0]!;
   }
 }
 

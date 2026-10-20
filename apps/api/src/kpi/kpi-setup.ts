@@ -1,4 +1,17 @@
-import { Body, Controller, Delete, Get, HttpCode, Injectable, Param, Patch, Post, Put, Query, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Injectable,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+  Req,
+} from '@nestjs/common';
 import type { KpiPeriodType, KpiSchoolLevel, KpiSubjectGroup } from '@school-management/database';
 import { ApplicationError, validationError, type FieldError } from '@school-management/server';
 import { KPI_SCHOOL_LEVELS, type KpiRuleConfig } from '@school-management/shared';
@@ -99,7 +112,12 @@ export class KpiSetupService {
       database.transaction().execute(async (transaction) => {
         const set = await transaction
           .insertInto('kpi_rule_sets')
-          .values({ code: input.code, name: input.name, description: input.description, created_by: origin.actorUserId })
+          .values({
+            code: input.code,
+            name: input.name,
+            description: input.description,
+            created_by: origin.actorUserId,
+          })
           .returningAll()
           .executeTakeFirstOrThrow();
         await transaction
@@ -134,7 +152,11 @@ export class KpiSetupService {
     origin: ChangeOrigin,
   ) {
     const database = await this.support.database();
-    const before = await database.selectFrom('kpi_rule_sets').selectAll().where('id', '=', ruleSetId).executeTakeFirst();
+    const before = await database
+      .selectFrom('kpi_rule_sets')
+      .selectAll()
+      .where('id', '=', ruleSetId)
+      .executeTakeFirst();
     if (!before) {
       throw notFoundError('Không tìm thấy bộ quy tắc', 'kpi_rule_set');
     }
@@ -168,7 +190,11 @@ export class KpiSetupService {
   }
 
   // Phiên bản mới là bản nháp chép từ phiên bản mới nhất (hoặc phiên bản chọn); mỗi bộ chỉ có một bản nháp
-  async createVersion(ruleSetId: string, input: { copyFromVersionId: string | null; note: string | null }, origin: ChangeOrigin) {
+  async createVersion(
+    ruleSetId: string,
+    input: { copyFromVersionId: string | null; note: string | null },
+    origin: ChangeOrigin,
+  ) {
     const database = await this.support.database();
     const versions = await database
       .selectFrom('kpi_rule_set_versions')
@@ -209,7 +235,11 @@ export class KpiSetupService {
     });
   }
 
-  async updateVersion(versionId: string, patch: { config?: KpiRuleConfig; note?: string | null }, origin: ChangeOrigin) {
+  async updateVersion(
+    versionId: string,
+    patch: { config?: KpiRuleConfig; note?: string | null },
+    origin: ChangeOrigin,
+  ) {
     const database = await this.support.database();
     const before = await this.version(versionId);
     if (before.status !== 'draft') {
@@ -449,7 +479,10 @@ export class KpiSetupService {
         const latest = await transaction
           .selectFrom('kpi_rule_set_versions')
           .innerJoin('kpi_rule_sets', 'kpi_rule_sets.id', 'kpi_rule_set_versions.rule_set_id')
-          .select(['kpi_rule_set_versions.rule_set_id', sql<string>`(array_agg(kpi_rule_set_versions.id order by version_no desc))[1]`.as('version_id')])
+          .select([
+            'kpi_rule_set_versions.rule_set_id',
+            sql<string>`(array_agg(kpi_rule_set_versions.id order by version_no desc))[1]`.as('version_id'),
+          ])
           .where('kpi_rule_set_versions.status', '=', 'published')
           .where('kpi_rule_sets.status', '=', 'active')
           .groupBy('kpi_rule_set_versions.rule_set_id')
@@ -486,7 +519,11 @@ export class KpiSetupService {
     const database = await this.support.database();
     const period = await this.support.period(database, periodId);
     this.support.assertOpen(period);
-    const before = await database.selectFrom('kpi_periods').selectAll().where('id', '=', periodId).executeTakeFirstOrThrow();
+    const before = await database
+      .selectFrom('kpi_periods')
+      .selectAll()
+      .where('id', '=', periodId)
+      .executeTakeFirstOrThrow();
     const startDate = input.startDate ?? before.start_date;
     const endDate = input.endDate ?? before.end_date;
     if (startDate > endDate) {
@@ -533,7 +570,9 @@ export class KpiSetupService {
       await transaction
         .insertInto('kpi_period_rule_versions')
         .values({ period_id: periodId, rule_set_id: ruleSetId, rule_set_version_id: versionId })
-        .onConflict((conflict) => conflict.columns(['period_id', 'rule_set_id']).doUpdateSet({ rule_set_version_id: versionId }))
+        .onConflict((conflict) =>
+          conflict.columns(['period_id', 'rule_set_id']).doUpdateSet({ rule_set_version_id: versionId }),
+        )
         .execute();
       const drafts = await transaction
         .selectFrom('kpi_evaluations')
@@ -698,8 +737,11 @@ export class KpiSetupController {
     }
     const patch = {
       name:
-        body?.name === undefined ? undefined : (readWorkText(body, 'name', errors, { required: true, maximum: 200 }) ?? ''),
-      description: body?.description === undefined ? undefined : readWorkText(body, 'description', errors, { maximum: 1000 }),
+        body?.name === undefined
+          ? undefined
+          : (readWorkText(body, 'name', errors, { required: true, maximum: 200 }) ?? ''),
+      description:
+        body?.description === undefined ? undefined : readWorkText(body, 'description', errors, { maximum: 1000 }),
       status,
       isDefault: body?.is_default === undefined ? undefined : body.is_default === true,
     };

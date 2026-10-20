@@ -223,7 +223,15 @@ export interface EvaluationDetail {
   votes: Array<{ voter_name: string; vote_rank: string; comment: string | null }>;
   config: Pick<
     KpiRuleConfig,
-    'scoring_mode' | 'total_max' | 'axes' | 'ranks' | 'exclusions' | 'quality_levels' | 'result_levels' | 'bonus' | 'forms'
+    | 'scoring_mode'
+    | 'total_max'
+    | 'axes'
+    | 'ranks'
+    | 'exclusions'
+    | 'quality_levels'
+    | 'result_levels'
+    | 'bonus'
+    | 'forms'
   > & { general_max: number; task_part_max: number };
 }
 
@@ -304,8 +312,11 @@ export const listRuleSets = () => requestJson<RuleSet[]>('/api/v1/kpi/rule-sets'
 export const readRuleVersion = (id: string) => requestJson<RuleVersion>(`/api/v1/kpi/rule-versions/${id}`);
 export const listPeriods = () => requestJson<Period[]>('/api/v1/kpi/periods');
 export const listProfiles = (orgUnitId: string, keyword: string) =>
-  requestJson<Profile[]>(`/api/v1/kpi/profiles?org_unit_id=${orgUnitId}${keyword ? `&q=${encodeURIComponent(keyword)}` : ''}`);
-export const listCatalog = (query: string) => requestJson<CatalogItem[]>(`/api/v1/kpi/catalog${query ? `?${query}` : ''}`);
+  requestJson<Profile[]>(
+    `/api/v1/kpi/profiles?org_unit_id=${orgUnitId}${keyword ? `&q=${encodeURIComponent(keyword)}` : ''}`,
+  );
+export const listCatalog = (query: string) =>
+  requestJson<CatalogItem[]>(`/api/v1/kpi/catalog${query ? `?${query}` : ''}`);
 export const listIndicatorProgress = () =>
   requestJson<Array<{ rule_set_name: string; school_level: string; target: number; entered: number }>>(
     '/api/v1/kpi/catalog/indicator-progress',
@@ -323,8 +334,10 @@ export const listEvaluations = (periodId: string) =>
   requestJson<EvaluationRow[]>(`/api/v1/kpi/evaluations?period_id=${periodId}`);
 export const readAdvisory = (periodId: string) =>
   requestJson<{ rows: EvaluationRow[]; quotas: QuotaRow[] }>(`/api/v1/kpi/advisory?period_id=${periodId}`);
-export const listVoting = (periodId: string) => requestJson<EvaluationRow[]>(`/api/v1/kpi/voting?period_id=${periodId}`);
-export const listSummary = (periodId: string) => requestJson<SummaryRow[]>(`/api/v1/kpi/reports/periods/${periodId}/summary`);
+export const listVoting = (periodId: string) =>
+  requestJson<EvaluationRow[]>(`/api/v1/kpi/voting?period_id=${periodId}`);
+export const listSummary = (periodId: string) =>
+  requestJson<SummaryRow[]>(`/api/v1/kpi/reports/periods/${periodId}/summary`);
 export const listManagerActions = (periodId: string) =>
   requestJson<ManagerActionRow[]>(`/api/v1/kpi/reports/periods/${periodId}/manager-actions`);
 

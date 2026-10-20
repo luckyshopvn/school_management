@@ -6,12 +6,7 @@ export type KpiScoringMode = 'progress_quality' | 'level_scale';
 export type KpiSchoolLevelCode = 'MN' | 'TH' | 'THCS' | 'THPT';
 export type KpiSubjectGroupCode = 'leader' | 'staff';
 export type KpiFormCode =
-  | 'task_sheet'
-  | 'self_evaluation'
-  | 'unit_summary'
-  | 'monthly_sheet'
-  | 'annual_sheet'
-  | 'regulation';
+  'task_sheet' | 'self_evaluation' | 'unit_summary' | 'monthly_sheet' | 'annual_sheet' | 'regulation';
 
 export interface KpiCriterionItem {
   code: string;

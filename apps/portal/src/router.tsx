@@ -135,6 +135,16 @@ import {
   TransferPage,
   TransferResultsPage,
 } from './entry-admissions/EntryIntakePages.js';
+import { KpiCatalogPage } from './kpi/KpiCatalogPage.js';
+import {
+  KpiAdvisoryPage,
+  KpiEvaluationsPage,
+  KpiMyEvaluationPage,
+  KpiReportsPage,
+  KpiVotingPage,
+} from './kpi/KpiEvaluationPages.js';
+import { KpiLegacyImportPage, KpiPeriodsPage, KpiProfilesPage, KpiRuleSetsPage } from './kpi/KpiSetupPages.js';
+import { KpiAssignmentsPage, KpiGradingPage, KpiMyTasksPage } from './kpi/KpiTaskPages.js';
 
 // Trang dùng được khi chưa đăng nhập (DT-16 phần 16c thêm Quên mật khẩu)
 const PUBLIC_PATHS = ['/login', '/forgot-password'];
@@ -254,6 +264,20 @@ const routeTree = rootRoute.addChildren([
     component: TransferResultsPage,
   }),
   createRoute({ getParentRoute: () => rootRoute, path: '/admitted-students', component: AdmittedStudentsPage }),
+  // Phân hệ KPI (DT-18 phần 18d)
+  createRoute({ getParentRoute: () => rootRoute, path: '/kpi/periods', component: KpiPeriodsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/kpi/rule-sets', component: KpiRuleSetsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/kpi/profiles', component: KpiProfilesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/kpi/legacy-import', component: KpiLegacyImportPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/kpi/catalog', component: KpiCatalogPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/kpi/my-tasks', component: KpiMyTasksPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/kpi/assignments', component: KpiAssignmentsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/kpi/grading', component: KpiGradingPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/kpi/my-evaluation', component: KpiMyEvaluationPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/kpi/evaluations', component: KpiEvaluationsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/kpi/advisory', component: KpiAdvisoryPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/kpi/voting', component: KpiVotingPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/kpi/reports', component: KpiReportsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/school-weeks', component: SchoolWeeksPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/year-rollover', component: YearRolloverPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/children', component: ChildrenPage }),

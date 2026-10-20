@@ -196,7 +196,9 @@ export class KpiTasksService {
     }
     if (filter.keyword) {
       const pattern = `%${filter.keyword}%`;
-      query = query.where((eb) => eb.or([eb('kpi_tasks.name', 'ilike', pattern), eb('staff.full_name', 'ilike', pattern)]));
+      query = query.where((eb) =>
+        eb.or([eb('kpi_tasks.name', 'ilike', pattern), eb('staff.full_name', 'ilike', pattern)]),
+      );
     }
     return (await query.limit(5000).execute()).map((row) => this.view(row));
   }
@@ -212,7 +214,14 @@ export class KpiTasksService {
     const files = await database
       .selectFrom('kpi_task_files')
       .innerJoin('files', 'files.id', 'kpi_task_files.file_id')
-      .select(['files.id', 'files.file_name', 'files.content_type', 'files.size_bytes', 'kpi_task_files.uploaded_by_name', 'kpi_task_files.created_at'])
+      .select([
+        'files.id',
+        'files.file_name',
+        'files.content_type',
+        'files.size_bytes',
+        'kpi_task_files.uploaded_by_name',
+        'kpi_task_files.created_at',
+      ])
       .where('kpi_task_files.task_id', '=', taskId)
       .orderBy('kpi_task_files.created_at')
       .execute();
@@ -638,12 +647,7 @@ export class KpiTasksService {
   }
 
   // Người quản lý sửa nội dung, hạn, hệ số; việc đã bị chuyển trả thì giao lại (chờ xác nhận lần nữa)
-  async update(
-    currentUser: CurrentUser,
-    taskId: string,
-    patch: Partial<TaskContentInput>,
-    origin: ChangeOrigin,
-  ) {
+  async update(currentUser: CurrentUser, taskId: string, patch: Partial<TaskContentInput>, origin: ChangeOrigin) {
     const database = await this.support.database();
     const task = await this.find(database, taskId);
     await this.openPeriodOf(database, task);
@@ -662,7 +666,9 @@ export class KpiTasksService {
       deadline: patch.deadline ?? task.deadline,
       isConfidential: patch.isConfidential ?? task.is_confidential,
     });
-    const { catalog_item_id: _catalog, original_deadline: _original, ...rest } = values;
+    const rest: Partial<typeof values> = { ...values };
+    delete rest.catalog_item_id;
+    delete rest.original_deadline;
     const reassign = task.status === 'returned_to_assigner';
     return database.transaction().execute(async (transaction) => {
       const updated = await this.change(
@@ -699,7 +705,13 @@ export class KpiTasksService {
       throw kpiRule('Việc đã nộp kết quả hoặc đã chấm, không hủy được');
     }
     return database.transaction().execute(async (transaction) => {
-      const updated = await this.change(transaction, task, { status: 'cancelled', decision_note: reason }, origin, EDITABLE_BY_MANAGER);
+      const updated = await this.change(
+        transaction,
+        task,
+        { status: 'cancelled', decision_note: reason },
+        origin,
+        EDITABLE_BY_MANAGER,
+      );
       await this.support.notifyStaff(transaction, task.staff_id, {
         title: 'Việc KPI đã hủy',
         body: `${task.name}: ${reason}`,
@@ -743,17 +755,27 @@ export class KpiTasksService {
         ['in_progress', 'rework'],
       );
       const rule = await this.support.ruleFor(transaction, task.period_id, task.staff_id);
-      await this.support.notifyStaff(transaction, task.evaluator_staff_id ?? task.assigned_by_staff_id ?? rule.superiorStaffId, {
-        title: 'Có đề nghị gia hạn việc KPI',
-        body: `${task.name}: đến ${input.requestedDeadline}. ${input.reason}`,
-        targetId: task.id,
-        orgUnitId: task.org_unit_id,
-      });
+      await this.support.notifyStaff(
+        transaction,
+        task.evaluator_staff_id ?? task.assigned_by_staff_id ?? rule.superiorStaffId,
+        {
+          title: 'Có đề nghị gia hạn việc KPI',
+          body: `${task.name}: đến ${input.requestedDeadline}. ${input.reason}`,
+          targetId: task.id,
+          orgUnitId: task.org_unit_id,
+        },
+      );
       return updated;
     });
   }
 
-  async decideExtension(currentUser: CurrentUser, taskId: string, approve: boolean, note: string | null, origin: ChangeOrigin) {
+  async decideExtension(
+    currentUser: CurrentUser,
+    taskId: string,
+    approve: boolean,
+    note: string | null,
+    origin: ChangeOrigin,
+  ) {
     const database = await this.support.database();
     const task = await this.find(database, taskId);
     await this.openPeriodOf(database, task);
@@ -812,7 +834,12 @@ export class KpiTasksService {
     );
   }
 
-  async attach(currentUser: CurrentUser, taskId: string, file: { fileName: string; body: Buffer }, origin: ChangeOrigin) {
+  async attach(
+    currentUser: CurrentUser,
+    taskId: string,
+    file: { fileName: string; body: Buffer },
+    origin: ChangeOrigin,
+  ) {
     const database = await this.support.database();
     const task = await this.find(database, taskId);
     await this.openPeriodOf(database, task);
@@ -902,7 +929,11 @@ export class KpiTasksService {
       throw notFoundError('Không tìm thấy tệp minh chứng', 'file');
     }
     await database.transaction().execute(async (transaction) => {
-      await transaction.deleteFrom('kpi_task_files').where('task_id', '=', taskId).where('file_id', '=', fileId).execute();
+      await transaction
+        .deleteFrom('kpi_task_files')
+        .where('task_id', '=', taskId)
+        .where('file_id', '=', fileId)
+        .execute();
       await transaction.deleteFrom('files').where('id', '=', fileId).execute();
       await writeAuditLog(transaction, {
         origin,
@@ -921,7 +952,12 @@ export class KpiTasksService {
   async selfAssess(
     currentUser: CurrentUser,
     taskId: string,
-    input: { qualityCode: string | null; resultCode: string | null; bonusProposed: boolean; bonusReason: string | null },
+    input: {
+      qualityCode: string | null;
+      resultCode: string | null;
+      bonusProposed: boolean;
+      bonusReason: string | null;
+    },
     origin: ChangeOrigin,
   ) {
     const database = await this.support.database();
@@ -1079,7 +1115,9 @@ export class KpiTasksService {
     const database = await this.support.database();
     const evaluator = evaluatorStaffId ? await this.support.staff(database, evaluatorStaffId) : null;
     if (evaluator && (!evaluator.user_id || evaluator.status !== 'active')) {
-      throw validationError([{ field: 'evaluator_staff_id', message: 'Người được ủy quyền phải có tài khoản đang làm việc' }]);
+      throw validationError([
+        { field: 'evaluator_staff_id', message: 'Người được ủy quyền phải có tài khoản đang làm việc' },
+      ]);
     }
     const tasks = await database.selectFrom('kpi_tasks').selectAll().where('id', 'in', taskIds).execute();
     if (tasks.length !== taskIds.length) {
@@ -1205,7 +1243,10 @@ export class KpiTasksController {
 
   @Get(':id')
   @RequirePermission(...READ_PERMISSIONS)
-  read(@Param('id', uuidParameter('Mã việc không hợp lệ')) taskId: string, @AuthenticatedUser() currentUser: CurrentUser) {
+  read(
+    @Param('id', uuidParameter('Mã việc không hợp lệ')) taskId: string,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
     return this.tasks.read(currentUser, taskId);
   }
 
@@ -1221,7 +1262,13 @@ export class KpiTasksController {
     }
     const content = readContent(body, errors);
     check(errors);
-    return this.tasks.assign(currentUser, periodId, [...new Set(ids as string[])], content, originOf(request, currentUser));
+    return this.tasks.assign(
+      currentUser,
+      periodId,
+      [...new Set(ids as string[])],
+      content,
+      originOf(request, currentUser),
+    );
   }
 
   @Post('register')
@@ -1390,7 +1437,13 @@ export class KpiTasksController {
     }
     const note = readWorkText(body, 'note', errors, { maximum: 500 });
     check(errors);
-    return this.tasks.decideExtension(currentUser, taskId, body?.approve === true, note, originOf(request, currentUser));
+    return this.tasks.decideExtension(
+      currentUser,
+      taskId,
+      body?.approve === true,
+      note,
+      originOf(request, currentUser),
+    );
   }
 
   @Put(':id/evidence')

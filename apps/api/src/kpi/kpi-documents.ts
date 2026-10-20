@@ -7,9 +7,19 @@ export type DocumentBlock =
   | { kind: 'header'; left: string[]; right: string[] }
   | { kind: 'title'; text: string; subtitle?: string }
   | { kind: 'heading'; text: string }
-  | { kind: 'paragraph'; text: string; bold?: boolean; italic?: boolean; align?: 'left' | 'center' | 'right' | 'justify' }
+  | {
+      kind: 'paragraph';
+      text: string;
+      bold?: boolean;
+      italic?: boolean;
+      align?: 'left' | 'center' | 'right' | 'justify';
+    }
   | { kind: 'table'; header: string[]; rows: string[][]; widths?: number[]; boldRows?: number[] }
-  | { kind: 'signatures'; left?: { title: string; note?: string; name?: string }; right: { title: string; note?: string; name?: string } };
+  | {
+      kind: 'signatures';
+      left?: { title: string; note?: string; name?: string };
+      right: { title: string; note?: string; name?: string };
+    };
 
 export interface DocumentOptions {
   title: string;
@@ -65,9 +75,11 @@ function table(header: string[], rows: string[][], widths: number[], boldRows: n
 function twoColumns(left: string[], right: string[], width: number, bold: boolean[] = []): string {
   const half = Math.floor(width / 2);
   const column = (lines: string[]) =>
-    `<w:tc><w:tcPr><w:tcW w:w="${half}" w:type="dxa"/></w:tcPr>${lines
-      .map((text, index) => paragraph(text, { bold: bold[index] ?? false, align: 'center', spacingAfter: 0 }))
-      .join('') || paragraph('')}</w:tc>`;
+    `<w:tc><w:tcPr><w:tcW w:w="${half}" w:type="dxa"/></w:tcPr>${
+      lines
+        .map((text, index) => paragraph(text, { bold: bold[index] ?? false, align: 'center', spacingAfter: 0 }))
+        .join('') || paragraph('')
+    }</w:tc>`;
   return `<w:tbl><w:tblPr><w:tblW w:w="${width}" w:type="dxa"/></w:tblPr><w:tblGrid><w:gridCol w:w="${half}"/><w:gridCol w:w="${half}"/></w:tblGrid><w:tr>${column(left)}${column(right)}</w:tr></w:tbl>${paragraph('')}`;
 }
 
@@ -91,7 +103,9 @@ export function buildDocx(blocks: DocumentBlock[], options: DocumentOptions): Bu
           return paragraph(block.text, block);
         case 'table': {
           const total = (block.widths ?? block.header.map(() => 1)).reduce((sum, width) => sum + width, 0);
-          const widths = (block.widths ?? block.header.map(() => 1)).map((width) => Math.floor((width / total) * contentWidth));
+          const widths = (block.widths ?? block.header.map(() => 1)).map((width) =>
+            Math.floor((width / total) * contentWidth),
+          );
           return table(block.header, block.rows, widths, block.boldRows);
         }
         case 'signatures': {

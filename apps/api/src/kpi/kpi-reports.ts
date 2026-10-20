@@ -41,7 +41,8 @@ interface ExportedDocument {
 
 const pct = (value: number | null | undefined) => (value === null || value === undefined ? '' : `${value}%`);
 const score = (value: number | null | undefined) => (value === null || value === undefined ? '' : String(value));
-const taskName = (task: { name: string; is_confidential: boolean }) => (task.is_confidential ? '(Nội dung mật)' : task.name);
+const taskName = (task: { name: string; is_confidential: boolean }) =>
+  task.is_confidential ? '(Nội dung mật)' : task.name;
 
 function readFormat<Format extends string>(value: string | undefined, allowed: Format[], fallback: Format): Format {
   if (value === undefined) {
@@ -73,7 +74,14 @@ export class KpiReportsService {
   private async log(
     database: Executor,
     currentUser: CurrentUser,
-    input: { reportCode: string; filters: Record<string, unknown>; units: string[]; rowCount: number; fileName: string; ipAddress: string | null },
+    input: {
+      reportCode: string;
+      filters: Record<string, unknown>;
+      units: string[];
+      rowCount: number;
+      fileName: string;
+      ipAddress: string | null;
+    },
   ): Promise<string> {
     const log = await database
       .insertInto('export_logs')
@@ -105,7 +113,12 @@ export class KpiReportsService {
   }
 
   private header(schoolName: string, date: Date): DocumentBlock {
-    const day = new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', day: 'numeric', month: 'numeric', year: 'numeric' })
+    const day = new Intl.DateTimeFormat('vi-VN', {
+      timeZone: 'Asia/Ho_Chi_Minh',
+      day: 'numeric',
+      month: 'numeric',
+      year: 'numeric',
+    })
       .formatToParts(date)
       .reduce<Record<string, string>>((parts, part) => ({ ...parts, [part.type]: part.value }), {});
     return {
@@ -124,7 +137,12 @@ export class KpiReportsService {
   }
 
   // Bảng tính điểm KPI của một người
-  async taskSheet(currentUser: CurrentUser, evaluationId: string, format: SheetFormat, ipAddress: string | null): Promise<ExportedDocument> {
+  async taskSheet(
+    currentUser: CurrentUser,
+    evaluationId: string,
+    format: SheetFormat,
+    ipAddress: string | null,
+  ): Promise<ExportedDocument> {
     const database = await this.support.database();
     const detail = await this.evaluationFor(currentUser, evaluationId);
     const now = this.support.clock.now();
@@ -161,7 +179,9 @@ export class KpiReportsService {
     }
     rows.push({ name: `Tổng điểm quy đổi tối đa A: ${detail.plan_max}` });
     rows.push({ name: `Tổng điểm quy đổi thực tế B: ${detail.actual_total}` });
-    rows.push({ name: `Điểm KPI công việc = min(${config.task_part_max}; ${config.task_part_max} × B / A) = ${detail.task_score}` });
+    rows.push({
+      name: `Điểm KPI công việc = min(${config.task_part_max}; ${config.task_part_max} × B / A) = ${detail.task_score}`,
+    });
     rows.push({ name: `Điểm thưởng: ${detail.bonus_score}` });
     const sheet: TableFileSheet = {
       title: 'Bảng tính điểm KPI',
@@ -180,7 +200,11 @@ export class KpiReportsService {
         { key: 'difficulty', label: 'Hệ số độ khó', width: 10 },
         { key: 'max_converted', label: 'Điểm quy đổi tối đa', width: 12 },
         { key: 'progress', label: 'Tiến độ', width: 9 },
-        { key: 'quality', label: config.scoring_mode === 'progress_quality' ? 'Kết quả (%)' : 'Mức đánh giá', width: 14 },
+        {
+          key: 'quality',
+          label: config.scoring_mode === 'progress_quality' ? 'Kết quả (%)' : 'Mức đánh giá',
+          width: 14,
+        },
         { key: 'execution', label: 'Điểm thực hiện', width: 10 },
         { key: 'converted', label: 'Điểm quy đổi thực tế', width: 12 },
         { key: 'exceeded', label: 'Vượt yêu cầu', width: 8 },
@@ -260,7 +284,11 @@ export class KpiReportsService {
         kind: 'table',
         header: ['Nội dung', 'Điểm tối đa', 'Điểm đạt được'],
         rows: [
-          [`Tổng (B) = Điểm KPI đã tính tại bảng tính điểm (A = ${detail.plan_max}; B = ${detail.actual_total})`, String(config.task_part_max), String(detail.task_score)],
+          [
+            `Tổng (B) = Điểm KPI đã tính tại bảng tính điểm (A = ${detail.plan_max}; B = ${detail.actual_total})`,
+            String(config.task_part_max),
+            String(detail.task_score),
+          ],
           ['Điểm thưởng', String(config.bonus.max_total), String(detail.bonus_score)],
           ['TỔNG (A + B + thưởng)', String(config.total_max), String(detail.total_score)],
         ],
@@ -268,13 +296,22 @@ export class KpiReportsService {
         boldRows: [2],
       },
       { kind: 'heading', text: `II. Tự đề xuất xếp loại mức chất lượng: ${rankText(detail.self_rank)}` },
-      { kind: 'paragraph', text: `(Theo ${config.ranks.length} mức: ${config.ranks.map((rank) => rank.label).join(', ')})`, italic: true },
+      {
+        kind: 'paragraph',
+        text: `(Theo ${config.ranks.length} mức: ${config.ranks.map((rank) => rank.label).join(', ')})`,
+        italic: true,
+      },
       ...(detail.self_comment ? [{ kind: 'paragraph' as const, text: detail.self_comment }] : []),
-      { kind: 'signatures', right: { title: 'CÁ NHÂN TỰ ĐÁNH GIÁ', note: '(Ký, ghi rõ họ tên)', name: detail.full_name } },
+      {
+        kind: 'signatures',
+        right: { title: 'CÁ NHÂN TỰ ĐÁNH GIÁ', note: '(Ký, ghi rõ họ tên)', name: detail.full_name },
+      },
       { kind: 'heading', text: 'III. Nhận xét, đánh giá của cấp có thẩm quyền' },
       { kind: 'paragraph', text: `- Chấm điểm: ${detail.status === 'concluded' ? detail.total_score : '...'}` },
       { kind: 'paragraph', text: `- Đề xuất xếp loại: ${rankText(detail.superior_rank) || '...'}` },
-      ...(detail.superior_comment ? [{ kind: 'paragraph' as const, text: `- Nhận xét: ${detail.superior_comment}` }] : []),
+      ...(detail.superior_comment
+        ? [{ kind: 'paragraph' as const, text: `- Nhận xét: ${detail.superior_comment}` }]
+        : []),
       {
         kind: 'signatures',
         right: {
@@ -340,7 +377,10 @@ export class KpiReportsService {
         header: ['Nội dung', 'Điểm'],
         rows: [
           ['Tiêu chí chung', String(detail.general_score)],
-          [`Kết quả thực hiện nhiệm vụ = min(${config.task_part_max}; ${config.task_part_max} × ${detail.actual_total} / ${detail.plan_max})`, String(detail.task_score)],
+          [
+            `Kết quả thực hiện nhiệm vụ = min(${config.task_part_max}; ${config.task_part_max} × ${detail.actual_total} / ${detail.plan_max})`,
+            String(detail.task_score),
+          ],
           ['Điểm thưởng', String(detail.bonus_score)],
           ['Tổng điểm', String(detail.total_score)],
         ],
@@ -355,7 +395,10 @@ export class KpiReportsService {
           : `Mỗi chỉ báo: điểm chuẩn × tỷ lệ của mức đánh giá (${config.result_levels.map((level) => `${level.label} ${level.percent}%`).join('; ')}) = điểm thực hiện; điểm thực hiện × hệ số độ khó = điểm quy đổi.`,
         align: 'justify',
       },
-      { kind: 'paragraph', text: `Mức đề xuất theo điểm: ${config.ranks.find((rank) => rank.code === detail.suggested_rank)?.label ?? ''}` },
+      {
+        kind: 'paragraph',
+        text: `Mức đề xuất theo điểm: ${config.ranks.find((rank) => rank.code === detail.suggested_rank)?.label ?? ''}`,
+      },
       {
         kind: 'signatures',
         left: { title: 'NGƯỜI ĐƯỢC ĐÁNH GIÁ', note: '(Ký, ghi rõ họ tên)', name: detail.full_name },
@@ -428,7 +471,9 @@ export class KpiReportsService {
       : 0;
     const rankText = (code: string | null | undefined) => config?.ranks.find((rank) => rank.code === code)?.label ?? '';
     const byScore = config
-      ? [...config.ranks].sort((left, right) => right.min_score - left.min_score).find((rank) => average >= rank.min_score)
+      ? [...config.ranks]
+          .sort((left, right) => right.min_score - left.min_score)
+          .find((rank) => average >= rank.min_score)
       : undefined;
     const now = this.support.clock.now();
     const blocks: DocumentBlock[] = [
@@ -439,7 +484,11 @@ export class KpiReportsService {
       {
         kind: 'table',
         header: ['Tháng', 'Tổng điểm', 'Mức xếp loại tháng'],
-        rows: months.map((row) => [row.name, String(num(row.total_score)), rankText(row.final_rank ?? row.superior_rank ?? row.suggested_rank)]),
+        rows: months.map((row) => [
+          row.name,
+          String(num(row.total_score)),
+          rankText(row.final_rank ?? row.superior_rank ?? row.suggested_rank),
+        ]),
         widths: [40, 20, 40],
       },
       { kind: 'paragraph', text: `Điểm trung bình các tháng: ${average} (${months.length} tháng)` },
@@ -498,7 +547,12 @@ export class KpiReportsService {
       .innerJoin('org_units', 'org_units.id', 'kpi_evaluations.org_unit_id')
       .leftJoin('job_titles', 'job_titles.id', 'staff.job_title_id')
       .selectAll('kpi_evaluations')
-      .select(['staff.full_name', 'staff.code as staff_code', 'org_units.name as org_unit_name', 'job_titles.name as job_title_name'])
+      .select([
+        'staff.full_name',
+        'staff.code as staff_code',
+        'org_units.name as org_unit_name',
+        'job_titles.name as job_title_name',
+      ])
       .where('kpi_evaluations.period_id', '=', periodId)
       .orderBy('org_units.name')
       .orderBy('kpi_evaluations.total_score', 'desc');
@@ -584,7 +638,11 @@ export class KpiReportsService {
             ]),
             widths: [4, ...columns.map((column) => column.width)],
           },
-          { kind: 'signatures', left: { title: 'NGƯỜI LẬP BẢNG' }, right: { title: 'THỦ TRƯỞNG ĐƠN VỊ', note: '(Ký, ghi rõ họ tên và đóng dấu)' } },
+          {
+            kind: 'signatures',
+            left: { title: 'NGƯỜI LẬP BẢNG' },
+            right: { title: 'THỦ TRƯỞNG ĐƠN VỊ', note: '(Ký, ghi rõ họ tên và đóng dấu)' },
+          },
         ],
         'docx',
         title,
@@ -626,8 +684,16 @@ export class KpiReportsService {
         'org_units.name as org_unit_name',
         'kpi_manager_actions.action',
         (eb) => eb.fn.countAll<string>().as('total'),
-        (eb) => eb.fn.count<string>('kpi_manager_actions.id').filterWhere('kpi_manager_actions.on_time', '=', true).as('on_time'),
-        (eb) => eb.fn.count<string>('kpi_manager_actions.id').filterWhere('kpi_manager_actions.automatic', '=', true).as('automatic'),
+        (eb) =>
+          eb.fn
+            .count<string>('kpi_manager_actions.id')
+            .filterWhere('kpi_manager_actions.on_time', '=', true)
+            .as('on_time'),
+        (eb) =>
+          eb.fn
+            .count<string>('kpi_manager_actions.id')
+            .filterWhere('kpi_manager_actions.automatic', '=', true)
+            .as('automatic'),
       ])
       .where('kpi_manager_actions.period_id', '=', periodId)
       .groupBy([
@@ -658,7 +724,11 @@ export class KpiReportsService {
     }));
   }
 
-  async managerActionsFile(currentUser: CurrentUser, periodId: string, ipAddress: string | null): Promise<ExportedDocument> {
+  async managerActionsFile(
+    currentUser: CurrentUser,
+    periodId: string,
+    ipAddress: string | null,
+  ): Promise<ExportedDocument> {
     const database = await this.support.database();
     const period = await this.support.period(database, periodId);
     const rows = await this.managerActions(currentUser, periodId);
@@ -697,7 +767,12 @@ export class KpiReportsService {
   }
 
   // Quy chế đánh giá, xếp loại của đơn vị sinh từ cấu hình của phiên bản quy tắc, theo cấp học; trường sửa tiếp trên tệp Word
-  async regulation(currentUser: CurrentUser, versionId: string, schoolLevel: string | null, ipAddress: string | null): Promise<ExportedDocument> {
+  async regulation(
+    currentUser: CurrentUser,
+    versionId: string,
+    schoolLevel: string | null,
+    ipAddress: string | null,
+  ): Promise<ExportedDocument> {
     const database = await this.support.database();
     const config = await this.support.config(database, versionId);
     const version = await database
@@ -707,7 +782,9 @@ export class KpiReportsService {
       .where('kpi_rule_set_versions.id', '=', versionId)
       .executeTakeFirstOrThrow();
     const levelLabel = KPI_SCHOOL_LEVELS.find((level) => level.value === schoolLevel)?.label;
-    const positions = config.job_positions.filter((position) => !schoolLevel || position.levels.includes(schoolLevel as never));
+    const positions = config.job_positions.filter(
+      (position) => !schoolLevel || position.levels.includes(schoolLevel as never),
+    );
     const now = this.support.clock.now();
     const schoolName = await this.schoolName(database);
     let article = 0;
@@ -730,13 +807,22 @@ export class KpiReportsService {
             'Điểm thực hiện = điểm chuẩn × tỷ lệ của mức, không vượt điểm chuẩn.',
           ];
     const blocks: DocumentBlock[] = [
-      { kind: 'header', left: [schoolName.toUpperCase(), ''], right: ['CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM', 'Độc lập - Tự do - Hạnh phúc', ''] },
+      {
+        kind: 'header',
+        left: [schoolName.toUpperCase(), ''],
+        right: ['CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM', 'Độc lập - Tự do - Hạnh phúc', ''],
+      },
       {
         kind: 'title',
         text: 'QUY CHẾ',
         subtitle: `Đánh giá, xếp loại chất lượng${levelLabel ? ` (cấp ${levelLabel})` : ''}`,
       },
-      { kind: 'paragraph', text: `(Bản mẫu sinh từ ${version.name}, phiên bản ${version.version_no}; đơn vị rà soát, bổ sung trước khi ban hành)`, italic: true, align: 'center' },
+      {
+        kind: 'paragraph',
+        text: `(Bản mẫu sinh từ ${version.name}, phiên bản ${version.version_no}; đơn vị rà soát, bổ sung trước khi ban hành)`,
+        italic: true,
+        align: 'center',
+      },
       { kind: 'heading', text: 'Chương I. QUY ĐỊNH CHUNG' },
       ...articleBlock('Phạm vi điều chỉnh và đối tượng áp dụng', [
         `Quy chế này quy định việc đánh giá, xếp loại chất lượng theo ${KPI_SCORING_MODE_LABELS[config.scoring_mode].toLowerCase()} tại ${schoolName}.`,
@@ -761,10 +847,14 @@ export class KpiReportsService {
       ...articleBlock(`Kết quả thực hiện nhiệm vụ (${config.task_part.max} điểm)`, [
         `Các trục, mảng công việc: ${config.axes.map((axis) => `${axis.code} — ${axis.name}`).join('; ')}.`,
         ...(positions.length
-          ? [`Vị trí việc làm: ${positions.map((position) => `${position.label}${position.is_manager ? ' (viên chức quản lý)' : ''}`).join('; ')}.`]
+          ? [
+              `Vị trí việc làm: ${positions.map((position) => `${position.label}${position.is_manager ? ' (viên chức quản lý)' : ''}`).join('; ')}.`,
+            ]
           : []),
         ...(schoolLevel && config.indicator_targets[schoolLevel as never]
-          ? [`Số chỉ báo công việc của cấp học: ${config.indicator_targets[schoolLevel as never]} chỉ báo (Phụ lục kèm theo).`]
+          ? [
+              `Số chỉ báo công việc của cấp học: ${config.indicator_targets[schoolLevel as never]} chỉ báo (Phụ lục kèm theo).`,
+            ]
           : []),
       ]),
       { kind: 'heading', text: 'Chương III. CÁCH TÍNH ĐIỂM' },
@@ -805,7 +895,9 @@ export class KpiReportsService {
         'Bộ phận tham mưu tổng hợp, đề xuất mức xếp loại; tập thể lãnh đạo biểu quyết; thủ trưởng đơn vị khóa kỳ và công bố kết quả.',
       ]),
       { kind: 'heading', text: 'Chương VI. TỔ CHỨC THỰC HIỆN' },
-      ...articleBlock('Hiệu lực', ['Quy chế có hiệu lực kể từ ngày ký. Trong quá trình thực hiện, nếu có vướng mắc, các bộ phận phản ánh để sửa đổi, bổ sung.']),
+      ...articleBlock('Hiệu lực', [
+        'Quy chế có hiệu lực kể từ ngày ký. Trong quá trình thực hiện, nếu có vướng mắc, các bộ phận phản ánh để sửa đổi, bổ sung.',
+      ]),
       { kind: 'signatures', right: { title: 'THỦ TRƯỞNG ĐƠN VỊ', note: '(Ký, ghi rõ họ tên và đóng dấu)' } },
     ];
     const fileName = `quy-che-danh-gia-${fileStamp(now)}.docx`;
@@ -931,7 +1023,10 @@ export class KpiReportsController {
       throw validationError([{ field: 'org_unit_id', message: 'Mã không hợp lệ' }]);
     }
     const chosen = readFormat<'xlsx' | 'pdf' | 'docx'>(format, ['xlsx', 'pdf', 'docx'], 'xlsx');
-    send(response, await this.reports.unitSummary(currentUser, periodId, orgUnitId ?? null, chosen, request.ip ?? null));
+    send(
+      response,
+      await this.reports.unitSummary(currentUser, periodId, orgUnitId ?? null, chosen, request.ip ?? null),
+    );
   }
 
   @Get('periods/:id/manager-actions')

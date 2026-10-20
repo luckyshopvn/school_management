@@ -1,8 +1,4 @@
-import type {
-  KpiCriterionItem,
-  KpiRuleConfig,
-  KpiSubjectGroupCode,
-} from '@school-management/shared';
+import type { KpiCriterionItem, KpiRuleConfig, KpiSubjectGroupCode } from '@school-management/shared';
 
 // Máy chấm KPI (DT-18 phần 18d, YCTD-139): mọi phép tính đọc tham số từ cấu hình của phiên bản bộ quy tắc, không ghi cứng
 // điểm chuẩn, tỷ lệ, ngưỡng hay hạn
@@ -100,7 +96,9 @@ export function taskScores(
 
 // Tiêu chí chung áp dụng cho nhóm đối tượng
 export function criteriaFor(config: KpiRuleConfig, group: KpiSubjectGroupCode): KpiCriterionItem[] {
-  return config.general.groups.flatMap((item) => item.items.filter((criterion) => criterion.subject_groups.includes(group)));
+  return config.general.groups.flatMap((item) =>
+    item.items.filter((criterion) => criterion.subject_groups.includes(group)),
+  );
 }
 
 export interface KpiTaskForTotal {
@@ -262,7 +260,10 @@ export function validateRuleConfig(value: unknown): Array<{ field: string; messa
       }
       for (const [index, item] of group.items.entries()) {
         number(`general.groups.${groupIndex}.items.${index}.max_score`, item?.max_score, 0, 100);
-        if (!Array.isArray(item?.subject_groups) || item.subject_groups.some((code) => code !== 'leader' && code !== 'staff')) {
+        if (
+          !Array.isArray(item?.subject_groups) ||
+          item.subject_groups.some((code) => code !== 'leader' && code !== 'staff')
+        ) {
           errors.push({
             field: `general.groups.${groupIndex}.items.${index}.subject_groups`,
             message: 'Nhóm đối tượng là leader, staff',
@@ -276,7 +277,10 @@ export function validateRuleConfig(value: unknown): Array<{ field: string; messa
     });
     for (const code of ['leader', 'staff'] as const) {
       if (config.general?.max !== undefined && round2(total[code]) !== config.general.max) {
-        errors.push({ field: 'general.groups', message: `Tổng điểm tiêu chí chung của nhóm ${code} khác ${config.general.max}` });
+        errors.push({
+          field: 'general.groups',
+          message: `Tổng điểm tiêu chí chung của nhóm ${code} khác ${config.general.max}`,
+        });
       }
     }
   }
@@ -285,17 +289,23 @@ export function validateRuleConfig(value: unknown): Array<{ field: string; messa
   }
   if (list('task_types', config.task_types)) {
     codes('task_types', config.task_types);
-    config.task_types.forEach((item, index) => number(`task_types.${index}.standard_score`, item?.standard_score, 0.01, 1000));
+    config.task_types.forEach((item, index) =>
+      number(`task_types.${index}.standard_score`, item?.standard_score, 0.01, 1000),
+    );
   }
   if (list('difficulty_levels', config.difficulty_levels)) {
     codes('difficulty_levels', config.difficulty_levels);
-    config.difficulty_levels.forEach((item, index) => number(`difficulty_levels.${index}.weight`, item?.weight, 0.01, 10));
+    config.difficulty_levels.forEach((item, index) =>
+      number(`difficulty_levels.${index}.weight`, item?.weight, 0.01, 10),
+    );
   }
   if (config.scoring_mode === 'progress_quality') {
     number('weights.progress', config.weights?.progress, 0, 100);
     number('weights.quality', config.weights?.quality, 0, 100);
     if (list('progress_levels', config.progress_levels)) {
-      config.progress_levels.forEach((item, index) => number(`progress_levels.${index}.percent`, item?.percent, 0, 100));
+      config.progress_levels.forEach((item, index) =>
+        number(`progress_levels.${index}.percent`, item?.percent, 0, 100),
+      );
     }
     if (list('quality_levels', config.quality_levels)) {
       codes('quality_levels', config.quality_levels);

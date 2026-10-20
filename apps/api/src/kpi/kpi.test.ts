@@ -118,16 +118,22 @@ describe('Máy chấm KPI', () => {
     const measure = taskMeasure(progressConfig, { progressPercent: 80, qualityCode: 'q75', resultCode: null });
     assert.equal(measure.percent, 76.5);
     assert.equal(measure.canExceed, false);
-    assert.deepEqual(taskScores(progressConfig, { standardScore: 10, difficultyWeight: 1.2, percent: 76.5, bonusApproved: true }), {
-      maxConverted: 12,
-      execution: 7.65,
-      converted: 9.18,
-      bonus: 0.46,
-    });
+    assert.deepEqual(
+      taskScores(progressConfig, { standardScore: 10, difficultyWeight: 1.2, percent: 76.5, bonusApproved: true }),
+      {
+        maxConverted: 12,
+        execution: 7.65,
+        converted: 9.18,
+        bonus: 0.46,
+      },
+    );
     // Bộ quy tắc theo thang mức: "đạt đầy đủ, đúng hạn" 0,8 điểm chuẩn; chỉ mức "vượt" mới được coi là vượt yêu cầu
     const level = taskMeasure(levelConfig, { progressPercent: null, qualityCode: null, resultCode: 'full' });
     assert.deepEqual(level, { percent: 80, onTime: true, zeroProgress: false, canExceed: false });
-    assert.equal(taskScores(levelConfig, { standardScore: 10, difficultyWeight: 1, percent: 80, bonusApproved: false }).converted, 8);
+    assert.equal(
+      taskScores(levelConfig, { standardScore: 10, difficultyWeight: 1, percent: 80, bonusApproved: false }).converted,
+      8,
+    );
   });
 
   it('CT-668: điểm phần công việc = min(70, 70 × B / A), thưởng tối đa 7, tổng tối đa 100; xếp loại theo ngưỡng và điều kiện', () => {
@@ -153,7 +159,10 @@ describe('Máy chấm KPI', () => {
     const late = evaluationTotals(progressConfig, 30, [doneTask(), doneTask({ onTime: false, converted: 7 })]);
     assert.equal(late.taskScore, 59.5);
     assert.equal(suggestRank(progressConfig, late, []), 'pass');
-    const zero = evaluationTotals(progressConfig, 20, [doneTask({ converted: 3 }), doneTask({ zeroProgress: true, onTime: false, converted: 0 })]);
+    const zero = evaluationTotals(progressConfig, 20, [
+      doneTask({ converted: 3 }),
+      doneTask({ zeroProgress: true, onTime: false, converted: 0 }),
+    ]);
     assert.equal(suggestRank(progressConfig, zero, []), 'fail');
   });
 
@@ -164,8 +173,13 @@ describe('Máy chấm KPI', () => {
       { rank: 'excellent', isHead: false, group: 'staff' as const },
       { rank: 'excellent', isHead: true, group: 'leader' as const },
     ];
-    assert.deepEqual(excellentQuota(progressConfig, rows), [{ group: 'all', base: 10, limit: 2, excellent: 2, exceeded: false }]);
-    assert.equal(excellentQuota(progressConfig, [...rows, { rank: 'excellent', isHead: false, group: 'staff' }])[0]?.exceeded, true);
+    assert.deepEqual(excellentQuota(progressConfig, rows), [
+      { group: 'all', base: 10, limit: 2, excellent: 2, exceeded: false },
+    ]);
+    assert.equal(
+      excellentQuota(progressConfig, [...rows, { rank: 'excellent', isHead: false, group: 'staff' }])[0]?.exceeded,
+      true,
+    );
   });
 
   it('CT-670: kiểm tra cấu hình bộ quy tắc trước khi ghi; tệp Word là gói nén Office', () => {
@@ -205,13 +219,23 @@ describe('Phân hệ KPI', () => {
       body: form,
     });
     const text = await response.text();
-    return { status: response.status, body: (response.headers.get('content-type')?.includes('json') ? JSON.parse(text) : {}) as Record<string, unknown> };
+    return {
+      status: response.status,
+      body: (response.headers.get('content-type')?.includes('json') ? JSON.parse(text) : {}) as Record<string, unknown>,
+    };
   }
   async function download(name: string, path: string) {
-    const response = await fetch(`${environment.baseUrl}${path}`, { headers: { authorization: `Bearer ${token(name)}` } });
-    return { status: response.status, type: response.headers.get('content-type') ?? '', body: Buffer.from(await response.arrayBuffer()) };
+    const response = await fetch(`${environment.baseUrl}${path}`, {
+      headers: { authorization: `Bearer ${token(name)}` },
+    });
+    return {
+      status: response.status,
+      type: response.headers.get('content-type') ?? '',
+      body: Buffer.from(await response.arrayBuffer()),
+    };
   }
-  const taskOf = (id: string) => schoolYear.selectFrom('kpi_tasks').selectAll().where('id', '=', id).executeTakeFirstOrThrow();
+  const taskOf = (id: string) =>
+    schoolYear.selectFrom('kpi_tasks').selectAll().where('id', '=', id).executeTakeFirstOrThrow();
 
   before(async () => {
     environment = await startApiTestEnvironment();
@@ -223,14 +247,20 @@ describe('Phân hệ KPI', () => {
       first_term: { start_date: firstStart, end_date: firstEnd },
       second_term: { start_date: addDays(firstEnd, 3), end_date: addDays(firstEnd, 120) },
     });
-    const registry = await environment.system.selectFrom('academic_year_databases').select('database_name').executeTakeFirstOrThrow();
-    schoolYear = createDatabase<SchoolYearDatabase>(replaceDatabaseName(environment.systemDatabaseUrl, registry.database_name));
+    const registry = await environment.system
+      .selectFrom('academic_year_databases')
+      .select('database_name')
+      .executeTakeFirstOrThrow();
+    schoolYear = createDatabase<SchoolYearDatabase>(
+      replaceDatabaseName(environment.systemDatabaseUrl, registry.database_name),
+    );
     for (const [code, type] of [
       ['TC', 'truong_chinh'],
       ['ĐT-A', 'diem_truong'],
       ['ĐT-B', 'diem_truong'],
     ] as const) {
-      units[code] = (await api('POST', '/org-units', 'principal', { code, name: code, unit_type: type })).body.id as string;
+      units[code] = (await api('POST', '/org-units', 'principal', { code, name: code, unit_type: type })).body
+        .id as string;
     }
     users.manager = await environment.loginAs('VT-03', units['ĐT-A'] ?? null);
     users.otherManager = await environment.loginAs('VT-03', units['ĐT-B'] ?? null);
@@ -268,8 +298,16 @@ describe('Phân hệ KPI', () => {
   it('CT-671: hai bộ quy tắc mặc định có phiên bản đã ban hành, cấu hình hợp lệ; bản đã ban hành không sửa, bản nháp sửa rồi ban hành', async () => {
     const sets = await api('GET', '/kpi/rule-sets', 'principal');
     assert.equal(sets.status, 200);
-    const list = sets.body as unknown as Array<{ id: string; code: string; is_default: boolean; versions: Array<{ id: string; status: string }> }>;
-    assert.deepEqual(list.map((set) => set.code), ['BQT-1', 'BQT-2']);
+    const list = sets.body as unknown as Array<{
+      id: string;
+      code: string;
+      is_default: boolean;
+      versions: Array<{ id: string; status: string }>;
+    }>;
+    assert.deepEqual(
+      list.map((set) => set.code),
+      ['BQT-1', 'BQT-2'],
+    );
     assert.equal(list.find((set) => set.is_default)?.code, 'BQT-2');
     for (const set of list) {
       ruleSets[set.code] = { id: set.id, version_id: set.versions[0]!.id };
@@ -277,17 +315,28 @@ describe('Phân hệ KPI', () => {
       assert.equal(version.status, 200);
       assert.deepEqual(validateRuleConfig(version.body.config), []);
     }
-    const config1 = (await api('GET', `/kpi/rule-versions/${ruleSets['BQT-1']!.version_id}`, 'principal')).body.config as KpiRuleConfig;
+    const config1 = (await api('GET', `/kpi/rule-versions/${ruleSets['BQT-1']!.version_id}`, 'principal')).body
+      .config as KpiRuleConfig;
     assert.deepEqual(config1.weights, { progress: 30, quality: 70 });
     assert.equal(config1.quality_levels.length, 5);
-    assert.deepEqual(config1.ranks.map((rank) => rank.min_score), [90, 70, 50, 0]);
+    assert.deepEqual(
+      config1.ranks.map((rank) => rank.min_score),
+      [90, 70, 50, 0],
+    );
     assert.deepEqual(config1.deadlines, { approval_days: 3, grading_days: 7, max_returns: 1 });
-    assert.equal(config1.general.groups.flatMap((group) => group.items).filter((item) => item.subject_groups.includes('staff')).length, 16);
-    const config2 = (await api('GET', `/kpi/rule-versions/${ruleSets['BQT-2']!.version_id}`, 'principal')).body.config as KpiRuleConfig;
+    assert.equal(
+      config1.general.groups.flatMap((group) => group.items).filter((item) => item.subject_groups.includes('staff'))
+        .length,
+      16,
+    );
+    const config2 = (await api('GET', `/kpi/rule-versions/${ruleSets['BQT-2']!.version_id}`, 'principal')).body
+      .config as KpiRuleConfig;
     assert.equal(config2.result_levels.length, 6);
     assert.deepEqual(config2.indicator_targets, { MN: 48, TH: 65, THCS: 66, THPT: 66 });
 
-    const locked = await api('PATCH', `/kpi/rule-versions/${ruleSets['BQT-1']!.version_id}`, 'principal', { note: 'Sửa' });
+    const locked = await api('PATCH', `/kpi/rule-versions/${ruleSets['BQT-1']!.version_id}`, 'principal', {
+      note: 'Sửa',
+    });
     assert.equal(errorOf(locked.body).rule_code, 'YCTD-139');
     const draft = await api('POST', `/kpi/rule-sets/${ruleSets['BQT-1']!.id}/versions`, 'principal', { note: 'Thử' });
     assert.equal(draft.status, 201);
@@ -309,10 +358,20 @@ describe('Phân hệ KPI', () => {
     const save = (staffIds: string[], body: Record<string, unknown>) =>
       api('PUT', '/kpi/profiles', 'principal', { staff_ids: staffIds, ...body });
     assert.equal(
-      (await save([staff.teacher!], { rule_set_id: ruleSets['BQT-1']!.id, subject_group: 'staff', superior_staff_id: staff.manager })).status,
+      (
+        await save([staff.teacher!], {
+          rule_set_id: ruleSets['BQT-1']!.id,
+          subject_group: 'staff',
+          superior_staff_id: staff.manager,
+        })
+      ).status,
       200,
     );
-    assert.equal((await save([staff.manager!, staff.vice!], { rule_set_id: ruleSets['BQT-1']!.id, subject_group: 'leader' })).status, 200);
+    assert.equal(
+      (await save([staff.manager!, staff.vice!], { rule_set_id: ruleSets['BQT-1']!.id, subject_group: 'leader' }))
+        .status,
+      200,
+    );
     assert.equal(
       (
         await save([staff.teacher2!], {
@@ -325,7 +384,10 @@ describe('Phân hệ KPI', () => {
       ).status,
       200,
     );
-    assert.equal((await save([staff.teacher!], { rule_set_id: ruleSets['BQT-1']!.id, superior_staff_id: staff.teacher })).status, 400);
+    assert.equal(
+      (await save([staff.teacher!], { rule_set_id: ruleSets['BQT-1']!.id, superior_staff_id: staff.teacher })).status,
+      400,
+    );
     const profiles = await api('GET', `/kpi/profiles?org_unit_id=${units['ĐT-A']}`, 'principal');
     assert.equal((profiles.body as unknown as unknown[]).length, 4);
 
@@ -342,11 +404,27 @@ describe('Phân hệ KPI', () => {
     });
     assert.equal(created.status, 201);
     periodId = created.body.id as string;
-    const periods = (await api('GET', '/kpi/periods', 'teacher')).body as unknown as Array<{ id: string; rule_versions: Array<{ rule_set_version_id: string }> }>;
-    const versions = periods.find((period) => period.id === periodId)?.rule_versions.map((row) => row.rule_set_version_id);
+    const periods = (await api('GET', '/kpi/periods', 'teacher')).body as unknown as Array<{
+      id: string;
+      rule_versions: Array<{ rule_set_version_id: string }>;
+    }>;
+    const versions = periods
+      .find((period) => period.id === periodId)
+      ?.rule_versions.map((row) => row.rule_set_version_id);
     assert.ok(versions?.includes(ruleSets['BQT-1']!.version_id));
     assert.ok(versions?.includes(ruleSets['BQT-2']!.version_id));
-    assert.equal((await api('POST', '/kpi/periods', 'principal', { code: 'Q4-2026', name: 'Trùng', period_type: 'quarter', start_date: vietnamToday, end_date: vietnamToday })).status, 409);
+    assert.equal(
+      (
+        await api('POST', '/kpi/periods', 'principal', {
+          code: 'Q4-2026',
+          name: 'Trùng',
+          period_type: 'quarter',
+          start_date: vietnamToday,
+          end_date: vietnamToday,
+        })
+      ).status,
+      409,
+    );
     const month = await api('POST', '/kpi/periods', 'principal', {
       code: 'T-THANG',
       name: 'Tháng này',
@@ -369,7 +447,11 @@ describe('Phân hệ KPI', () => {
       is_required: true,
     });
     assert.equal(common.status, 201);
-    assert.equal((await api('POST', '/kpi/catalog', 'manager', { org_unit_id: null, code: 'CV-02', name: 'X', axis_code: '1' })).status, 403);
+    assert.equal(
+      (await api('POST', '/kpi/catalog', 'manager', { org_unit_id: null, code: 'CV-02', name: 'X', axis_code: '1' }))
+        .status,
+      403,
+    );
     const unitItem = await api('POST', '/kpi/catalog', 'manager', {
       org_unit_id: units['ĐT-A'],
       rule_set_id: ruleSets['BQT-1']!.id,
@@ -378,7 +460,18 @@ describe('Phân hệ KPI', () => {
       axis_code: '3',
     });
     assert.equal(unitItem.status, 201);
-    assert.equal((await api('POST', '/kpi/catalog', 'manager', { org_unit_id: units['ĐT-A'], rule_set_id: ruleSets['BQT-1']!.id, code: 'CV-03', name: 'Sai trục', axis_code: '9' })).status, 400);
+    assert.equal(
+      (
+        await api('POST', '/kpi/catalog', 'manager', {
+          org_unit_id: units['ĐT-A'],
+          rule_set_id: ruleSets['BQT-1']!.id,
+          code: 'CV-03',
+          name: 'Sai trục',
+          axis_code: '9',
+        })
+      ).status,
+      400,
+    );
     const proposal = await api('POST', '/kpi/catalog/proposals', 'teacher', {
       rule_set_id: ruleSets['BQT-1']!.id,
       code: 'DX-01',
@@ -388,28 +481,68 @@ describe('Phân hệ KPI', () => {
     assert.equal(proposal.status, 201);
     assert.equal(proposal.body.status, 'proposed');
     assert.equal(proposal.body.org_unit_id, units['ĐT-A']);
-    assert.equal((await api('POST', `/kpi/catalog/${proposal.body.id}/decision`, 'manager', { approve: false })).status, 400);
+    assert.equal(
+      (await api('POST', `/kpi/catalog/${proposal.body.id}/decision`, 'manager', { approve: false })).status,
+      400,
+    );
     const approved = await api('POST', `/kpi/catalog/${proposal.body.id}/decision`, 'manager', { approve: true });
     assert.equal(approved.body.status, 'active');
 
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet('Danh mục công việc');
-    sheet.addRow(['Mã công việc', 'Tên công việc', 'Kết quả đầu ra', 'Trục', 'Loại công việc', 'Hệ số độ khó', 'Minh chứng dự kiến', 'Thời hạn hoàn thành', 'Cấp học', 'Vị trí việc làm', 'Bắt buộc đăng ký', 'Mật']);
+    sheet.addRow([
+      'Mã công việc',
+      'Tên công việc',
+      'Kết quả đầu ra',
+      'Trục',
+      'Loại công việc',
+      'Hệ số độ khó',
+      'Minh chứng dự kiến',
+      'Thời hạn hoàn thành',
+      'Cấp học',
+      'Vị trí việc làm',
+      'Bắt buộc đăng ký',
+      'Mật',
+    ]);
     sheet.addRow(['NK-01', 'Báo cáo tháng', 'Báo cáo', '1', '', '120', '', 'Hằng tháng', '', '', 'x', '']);
     sheet.addRow(['NK-02', 'Sai trục', '', '8', '', '', '', '', 'XX', '', '', '']);
-    const withErrors = await upload('manager', '/kpi/catalog/import', { org_unit_id: units['ĐT-A']!, rule_set_id: ruleSets['BQT-1']!.id }, Buffer.from(await workbook.xlsx.writeBuffer()), 'dm.xlsx');
+    const withErrors = await upload(
+      'manager',
+      '/kpi/catalog/import',
+      { org_unit_id: units['ĐT-A']!, rule_set_id: ruleSets['BQT-1']!.id },
+      Buffer.from(await workbook.xlsx.writeBuffer()),
+      'dm.xlsx',
+    );
     assert.equal(withErrors.status, 200);
     assert.equal(withErrors.body.created, 0);
     assert.equal((withErrors.body.errors as unknown[]).length, 2);
     sheet.spliceRows(3, 1);
-    const imported = await upload('manager', '/kpi/catalog/import', { org_unit_id: units['ĐT-A']!, rule_set_id: ruleSets['BQT-1']!.id }, Buffer.from(await workbook.xlsx.writeBuffer()), 'dm.xlsx');
+    const imported = await upload(
+      'manager',
+      '/kpi/catalog/import',
+      { org_unit_id: units['ĐT-A']!, rule_set_id: ruleSets['BQT-1']!.id },
+      Buffer.from(await workbook.xlsx.writeBuffer()),
+      'dm.xlsx',
+    );
     assert.equal(imported.body.created, 1);
-    const listed = (await api('GET', '/kpi/catalog?status=active', 'teacher')).body as unknown as Array<{ code: string }>;
+    const listed = (await api('GET', '/kpi/catalog?status=active', 'teacher')).body as unknown as Array<{
+      code: string;
+    }>;
     assert.deepEqual(listed.map((item) => item.code).sort(), ['CV-01', 'CV-02', 'DX-01', 'NK-01']);
     const otherList = (await api('GET', '/kpi/catalog', 'otherManager')).body as unknown as Array<{ code: string }>;
-    assert.deepEqual(otherList.map((item) => item.code), ['CV-01']);
-    const progress = (await api('GET', '/kpi/catalog/indicator-progress', 'principal')).body as unknown as Array<{ school_level: string; target: number; entered: number }>;
-    assert.deepEqual(progress.find((row) => row.school_level === 'MN'), { ...progress.find((row) => row.school_level === 'MN'), target: 48, entered: 0 });
+    assert.deepEqual(
+      otherList.map((item) => item.code),
+      ['CV-01'],
+    );
+    const progress = (await api('GET', '/kpi/catalog/indicator-progress', 'principal')).body as unknown as Array<{
+      school_level: string;
+      target: number;
+      entered: number;
+    }>;
+    assert.deepEqual(
+      progress.find((row) => row.school_level === 'MN'),
+      { ...progress.find((row) => row.school_level === 'MN'), target: 48, entered: 0 },
+    );
   });
 
   let assignedId = '';
@@ -425,23 +558,53 @@ describe('Phân hệ KPI', () => {
     });
     assert.equal(assigned.status, 201);
     assignedId = (assigned.body.ids as string[])[0]!;
-    let task = await taskOf(assignedId);
+    const task = await taskOf(assignedId);
     assert.equal(task.status, 'assigned');
     assert.equal(Number(task.difficulty_weight), 1.1);
     assert.equal(task.in_plan, true);
-    assert.equal((await api('POST', '/kpi/tasks/assign', 'otherManager', { period_id: periodId, staff_ids: [staff.teacher], name: 'Ngoài phạm vi', axis_code: '1', deadline: vietnamToday })).status, 403);
+    assert.equal(
+      (
+        await api('POST', '/kpi/tasks/assign', 'otherManager', {
+          period_id: periodId,
+          staff_ids: [staff.teacher],
+          name: 'Ngoài phạm vi',
+          axis_code: '1',
+          deadline: vietnamToday,
+        })
+      ).status,
+      403,
+    );
     assert.equal((await api('POST', `/kpi/tasks/${assignedId}/return`, 'teacher', {})).status, 400);
-    assert.equal((await api('POST', `/kpi/tasks/${assignedId}/return`, 'teacher', { reason: 'Không thuộc nhiệm vụ' })).body.status, 'returned_to_assigner');
-    const reassigned = await api('PATCH', `/kpi/tasks/${assignedId}`, 'manager', { name: 'Lập kế hoạch hoạt động tháng (giao lại)' });
+    assert.equal(
+      (await api('POST', `/kpi/tasks/${assignedId}/return`, 'teacher', { reason: 'Không thuộc nhiệm vụ' })).body.status,
+      'returned_to_assigner',
+    );
+    const reassigned = await api('PATCH', `/kpi/tasks/${assignedId}`, 'manager', {
+      name: 'Lập kế hoạch hoạt động tháng (giao lại)',
+    });
     assert.equal(reassigned.body.status, 'assigned');
     const again = await api('POST', `/kpi/tasks/${assignedId}/return`, 'teacher', { reason: 'Lần hai' });
     assert.equal(errorOf(again.body).rule_code, 'YCTD-139');
     assert.equal((await api('POST', `/kpi/tasks/${assignedId}/accept`, 'teacher')).body.status, 'in_progress');
 
-    const second = await api('POST', '/kpi/tasks/assign', 'manager', { period_id: periodId, staff_ids: [staff.teacher], name: 'Việc tự vào danh mục', axis_code: '2', deadline: vietnamToday });
+    const second = await api('POST', '/kpi/tasks/assign', 'manager', {
+      period_id: periodId,
+      staff_ids: [staff.teacher],
+      name: 'Việc tự vào danh mục',
+      axis_code: '2',
+      deadline: vietnamToday,
+    });
     const secondId = (second.body.ids as string[])[0]!;
-    await schoolYear.updateTable('kpi_tasks').set({ approval_due_at: new Date(Date.now() - 60_000) }).where('id', '=', secondId).execute();
-    const mine = (await api('GET', `/kpi/tasks/mine?period_id=${periodId}`, 'teacher')).body as unknown as Array<{ id: string; status: string; auto_approved: boolean }>;
+    await schoolYear
+      .updateTable('kpi_tasks')
+      .set({ approval_due_at: new Date(Date.now() - 60_000) })
+      .where('id', '=', secondId)
+      .execute();
+    const mine = (await api('GET', `/kpi/tasks/mine?period_id=${periodId}`, 'teacher')).body as unknown as Array<{
+      id: string;
+      status: string;
+      auto_approved: boolean;
+    }>;
     assert.deepEqual(
       mine.filter((row) => row.id === secondId).map((row) => [row.status, row.auto_approved]),
       [['in_progress', true]],
@@ -449,25 +612,64 @@ describe('Phân hệ KPI', () => {
   });
 
   it('CT-675: cán bộ tự đăng ký việc, cấp trên duyệt (chỉnh hệ số độ khó) hoặc không duyệt có lý do; quá 3 ngày không duyệt thì tự duyệt và ghi sổ trách nhiệm', async () => {
-    const registered = await api('POST', '/kpi/tasks/register', 'teacher', { period_id: periodId, name: 'Viết sáng kiến', axis_code: '3', deadline: vietnamToday });
+    const registered = await api('POST', '/kpi/tasks/register', 'teacher', {
+      period_id: periodId,
+      name: 'Viết sáng kiến',
+      axis_code: '3',
+      deadline: vietnamToday,
+    });
     assert.equal(registered.status, 201);
     registeredId = registered.body.id as string;
     assert.equal(registered.body.status, 'pending_approval');
     assert.equal((await api('POST', `/kpi/tasks/${registeredId}/decision`, 'teacher', { approve: true })).status, 422);
-    const approved = await api('POST', `/kpi/tasks/${registeredId}/decision`, 'manager', { approve: true, difficulty_code: '120' });
+    const approved = await api('POST', `/kpi/tasks/${registeredId}/decision`, 'manager', {
+      approve: true,
+      difficulty_code: '120',
+    });
     assert.equal(approved.body.status, 'in_progress');
     assert.equal(Number(approved.body.difficulty_weight), 1.2);
-    const rejected = await api('POST', '/kpi/tasks/register', 'teacher', { period_id: periodId, name: 'Việc không duyệt', axis_code: '1', deadline: vietnamToday });
-    assert.equal((await api('POST', `/kpi/tasks/${rejected.body.id}/decision`, 'manager', { approve: false })).status, 400);
-    assert.equal((await api('POST', `/kpi/tasks/${rejected.body.id}/decision`, 'manager', { approve: false, note: 'Trùng việc' })).body.status, 'rejected');
-    const overdue = await api('POST', '/kpi/tasks/register', 'teacher', { period_id: periodId, name: 'Việc quá hạn duyệt', axis_code: '1', deadline: vietnamToday });
-    await schoolYear.updateTable('kpi_tasks').set({ approval_due_at: new Date(Date.now() - 60_000) }).where('id', '=', overdue.body.id as string).execute();
+    const rejected = await api('POST', '/kpi/tasks/register', 'teacher', {
+      period_id: periodId,
+      name: 'Việc không duyệt',
+      axis_code: '1',
+      deadline: vietnamToday,
+    });
+    assert.equal(
+      (await api('POST', `/kpi/tasks/${rejected.body.id}/decision`, 'manager', { approve: false })).status,
+      400,
+    );
+    assert.equal(
+      (await api('POST', `/kpi/tasks/${rejected.body.id}/decision`, 'manager', { approve: false, note: 'Trùng việc' }))
+        .body.status,
+      'rejected',
+    );
+    const overdue = await api('POST', '/kpi/tasks/register', 'teacher', {
+      period_id: periodId,
+      name: 'Việc quá hạn duyệt',
+      axis_code: '1',
+      deadline: vietnamToday,
+    });
+    await schoolYear
+      .updateTable('kpi_tasks')
+      .set({ approval_due_at: new Date(Date.now() - 60_000) })
+      .where('id', '=', overdue.body.id as string)
+      .execute();
     await api('GET', `/kpi/tasks?period_id=${periodId}`, 'manager');
     assert.equal((await taskOf(overdue.body.id as string)).status, 'in_progress');
-    const actions = await schoolYear.selectFrom('kpi_manager_actions').selectAll().where('task_id', '=', overdue.body.id as string).execute();
-    assert.deepEqual(actions.map((row) => [row.action, row.on_time, row.automatic, row.manager_staff_id]), [['approve', false, true, staff.manager]]);
+    const actions = await schoolYear
+      .selectFrom('kpi_manager_actions')
+      .selectAll()
+      .where('task_id', '=', overdue.body.id as string)
+      .execute();
+    assert.deepEqual(
+      actions.map((row) => [row.action, row.on_time, row.automatic, row.manager_staff_id]),
+      [['approve', false, true, staff.manager]],
+    );
     // Quá hạn duyệt rồi thì việc tự vào danh mục; hủy để không tính điểm
-    assert.equal((await api('POST', `/kpi/tasks/${overdue.body.id}/cancel`, 'manager', { reason: 'Không cần làm' })).body.status, 'cancelled');
+    assert.equal(
+      (await api('POST', `/kpi/tasks/${overdue.body.id}/cancel`, 'manager', { reason: 'Không cần làm' })).body.status,
+      'cancelled',
+    );
   });
 
   it('CT-676: minh chứng có số ký hiệu văn bản ghi chữ tự do và tệp; xin gia hạn; tự đánh giá; quản lý chấm, không tự chấm việc của mình', async () => {
@@ -477,30 +679,75 @@ describe('Phân hệ KPI', () => {
       document_number: '12/KH-TRƯỜNG ngày 01/10/2026',
     });
     assert.equal(evidence.body.document_number, '12/KH-TRƯỜNG ngày 01/10/2026');
-    const file = await upload('teacher', `/kpi/tasks/${assignedId}/files`, {}, Buffer.from('%PDF-1.4 thử'), 'minh-chung.pdf');
+    const file = await upload(
+      'teacher',
+      `/kpi/tasks/${assignedId}/files`,
+      {},
+      Buffer.from('%PDF-1.4 thử'),
+      'minh-chung.pdf',
+    );
     assert.equal(file.status, 201);
-    assert.equal((await upload('teacher', `/kpi/tasks/${assignedId}/files`, {}, Buffer.from('không phải tệp'), 'x.exe')).status, 400);
+    assert.equal(
+      (await upload('teacher', `/kpi/tasks/${assignedId}/files`, {}, Buffer.from('không phải tệp'), 'x.exe')).status,
+      400,
+    );
     const read = await api('GET', `/kpi/tasks/${assignedId}`, 'manager');
     assert.equal((read.body.files as unknown[]).length, 1);
     assert.equal((await download('manager', `/kpi/tasks/${assignedId}/files/${file.body.id}`)).status, 200);
     assert.equal((await api('GET', `/kpi/tasks/${assignedId}`, 'teacher2')).status, 403);
 
-    const extension = await api('POST', `/kpi/tasks/${registeredId}/extension`, 'teacher', { requested_deadline: addDays(vietnamToday, 5), reason: 'Chờ số liệu' });
+    const extension = await api('POST', `/kpi/tasks/${registeredId}/extension`, 'teacher', {
+      requested_deadline: addDays(vietnamToday, 5),
+      reason: 'Chờ số liệu',
+    });
     assert.equal(extension.body.extension_status, 'pending');
-    assert.equal((await api('POST', `/kpi/tasks/${registeredId}/extension/decision`, 'manager', { approve: true })).body.deadline, addDays(vietnamToday, 5));
+    assert.equal(
+      (await api('POST', `/kpi/tasks/${registeredId}/extension/decision`, 'manager', { approve: true })).body.deadline,
+      addDays(vietnamToday, 5),
+    );
 
-    assert.equal((await api('POST', `/kpi/tasks/${assignedId}/self-assess`, 'teacher', { quality_code: 'x' })).status, 400);
-    const self = await api('POST', `/kpi/tasks/${assignedId}/self-assess`, 'teacher', { quality_code: 'q75', bonus_proposed: true, bonus_reason: 'Sáng kiến' });
+    assert.equal(
+      (await api('POST', `/kpi/tasks/${assignedId}/self-assess`, 'teacher', { quality_code: 'x' })).status,
+      400,
+    );
+    const self = await api('POST', `/kpi/tasks/${assignedId}/self-assess`, 'teacher', {
+      quality_code: 'q75',
+      bonus_proposed: true,
+      bonus_reason: 'Sáng kiến',
+    });
     assert.equal(self.body.status, 'self_assessed');
-    assert.equal((await api('POST', `/kpi/tasks/${assignedId}/grade`, 'teacher', { quality_code: 'q100' })).status, 422);
-    assert.equal((await api('POST', `/kpi/tasks/${assignedId}/grade`, 'otherManager', { quality_code: 'q100' })).status, 403);
-    const graded = await api('POST', `/kpi/tasks/${assignedId}/grade`, 'manager', { quality_code: 'q100', exceeded: true, bonus_approved: true, comment: 'Tốt' });
+    assert.equal(
+      (await api('POST', `/kpi/tasks/${assignedId}/grade`, 'teacher', { quality_code: 'q100' })).status,
+      422,
+    );
+    assert.equal(
+      (await api('POST', `/kpi/tasks/${assignedId}/grade`, 'otherManager', { quality_code: 'q100' })).status,
+      403,
+    );
+    const graded = await api('POST', `/kpi/tasks/${assignedId}/grade`, 'manager', {
+      quality_code: 'q100',
+      exceeded: true,
+      bonus_approved: true,
+      comment: 'Tốt',
+    });
     assert.equal(graded.status, 200);
     assert.deepEqual(
-      [graded.body.progress_percent, graded.body.task_percent, graded.body.execution_score, graded.body.converted_score, graded.body.bonus_score, graded.body.exceeded].map(String),
+      [
+        graded.body.progress_percent,
+        graded.body.task_percent,
+        graded.body.execution_score,
+        graded.body.converted_score,
+        graded.body.bonus_score,
+        graded.body.exceeded,
+      ].map(String),
       ['100.00', '100.00', '10.00', '11.00', '0.55', 'true'],
     );
-    const action = await schoolYear.selectFrom('kpi_manager_actions').selectAll().where('task_id', '=', assignedId).where('action', '=', 'grade').executeTakeFirstOrThrow();
+    const action = await schoolYear
+      .selectFrom('kpi_manager_actions')
+      .selectAll()
+      .where('task_id', '=', assignedId)
+      .where('action', '=', 'grade')
+      .executeTakeFirstOrThrow();
     assert.equal(action.on_time, true);
   });
 
@@ -509,20 +756,47 @@ describe('Phân hệ KPI', () => {
     await api('POST', `/kpi/tasks/${registeredId}/self-assess`, 'teacher', { quality_code: 'q50' });
     assert.equal((await api('POST', `/kpi/tasks/${registeredId}/grade`, 'vice', { quality_code: 'q100' })).status, 200);
     // Phó Hiệu trưởng có phạm vi đơn vị nên chấm được; ủy quyền cho người ngoài phạm vi rồi để quá hạn
-    const delegated = await api('POST', '/kpi/tasks/delegate', 'principal', { task_ids: [registeredId], evaluator_staff_id: staff.vice, note: 'Chấm thay' });
+    const delegated = await api('POST', '/kpi/tasks/delegate', 'principal', {
+      task_ids: [registeredId],
+      evaluator_staff_id: staff.vice,
+      note: 'Chấm thay',
+    });
     assert.equal(errorOf(delegated.body).rule_code, 'YCTD-139');
-    const auto = (await api('GET', `/kpi/tasks/mine?period_id=${periodId}`, 'teacher')).body as unknown as Array<{ id: string; name: string; status: string }>;
+    const auto = (await api('GET', `/kpi/tasks/mine?period_id=${periodId}`, 'teacher')).body as unknown as Array<{
+      id: string;
+      name: string;
+      status: string;
+    }>;
     const pending = auto.find((row) => row.name === 'Việc tự vào danh mục')!;
     await api('PUT', `/kpi/tasks/${pending.id}/evidence`, 'teacher', { actual_finish_date: vietnamToday });
     await api('POST', `/kpi/tasks/${pending.id}/self-assess`, 'teacher', { quality_code: 'q75' });
-    assert.equal((await api('POST', '/kpi/tasks/delegate', 'principal', { task_ids: [pending.id], evaluator_staff_id: staff.vice })).status, 200);
+    assert.equal(
+      (
+        await api('POST', '/kpi/tasks/delegate', 'principal', {
+          task_ids: [pending.id],
+          evaluator_staff_id: staff.vice,
+        })
+      ).status,
+      200,
+    );
     assert.equal((await taskOf(pending.id)).evaluator_staff_id, staff.vice);
-    await schoolYear.updateTable('kpi_tasks').set({ grading_due_at: new Date(Date.now() - 60_000) }).where('id', '=', pending.id).execute();
+    await schoolYear
+      .updateTable('kpi_tasks')
+      .set({ grading_due_at: new Date(Date.now() - 60_000) })
+      .where('id', '=', pending.id)
+      .execute();
     await api('GET', `/kpi/tasks/mine?period_id=${periodId}`, 'teacher');
     const autoGraded = await taskOf(pending.id);
     assert.deepEqual([autoGraded.status, autoGraded.auto_graded, autoGraded.quality_code], ['graded', true, 'q75']);
-    const actions = await schoolYear.selectFrom('kpi_manager_actions').selectAll().where('task_id', '=', pending.id).execute();
-    assert.deepEqual(actions.map((row) => [row.action, row.automatic, row.manager_staff_id]), [['grade', true, staff.vice]]);
+    const actions = await schoolYear
+      .selectFrom('kpi_manager_actions')
+      .selectAll()
+      .where('task_id', '=', pending.id)
+      .execute();
+    assert.deepEqual(
+      actions.map((row) => [row.action, row.automatic, row.manager_staff_id]),
+      [['grade', true, staff.vice]],
+    );
   });
 
   let evaluationId = '';
@@ -532,8 +806,14 @@ describe('Phân hệ KPI', () => {
     assert.equal(mine.status, 200);
     evaluationId = mine.body.id as string;
     const groups = mine.body.criteria as Array<{ code: string; items: Array<{ code: string; max_score: number }> }>;
-    assert.deepEqual(groups.map((group) => group.items.length), [9, 3, 4]);
-    assert.deepEqual(groups[1]!.items.map((item) => item.max_score), [2, 1, 1]);
+    assert.deepEqual(
+      groups.map((group) => group.items.length),
+      [9, 3, 4],
+    );
+    assert.deepEqual(
+      groups[1]!.items.map((item) => item.max_score),
+      [2, 1, 1],
+    );
     assert.equal(mine.body.general_score, 30);
     // A = 11 (việc giao đầu kỳ) + 12 (việc đăng ký, hệ số 1,2) + 10 (việc tự vào danh mục) = 33; B = 11 + 12 + 8,25
     assert.equal(mine.body.plan_max, 33);
@@ -549,19 +829,44 @@ describe('Phân hệ KPI', () => {
     assert.equal(saved.body.general_score, 28);
     assert.equal(saved.body.total_score, 94.84);
     assert.equal(saved.body.suggested_rank, 'excellent');
-    assert.equal((await api('PUT', '/kpi/evaluations/mine', 'teacher', { period_id: periodId, criteria: [{ code: '9.9', satisfied: true }] })).status, 400);
-    assert.equal((await api('POST', '/kpi/evaluations/mine/submit', 'teacher', { period_id: periodId })).body.status, 'submitted');
-    assert.equal((await api('PUT', '/kpi/evaluations/mine', 'teacher', { period_id: periodId, criteria: [] })).status, 422);
+    assert.equal(
+      (
+        await api('PUT', '/kpi/evaluations/mine', 'teacher', {
+          period_id: periodId,
+          criteria: [{ code: '9.9', satisfied: true }],
+        })
+      ).status,
+      400,
+    );
+    assert.equal(
+      (await api('POST', '/kpi/evaluations/mine/submit', 'teacher', { period_id: periodId })).body.status,
+      'submitted',
+    );
+    assert.equal(
+      (await api('PUT', '/kpi/evaluations/mine', 'teacher', { period_id: periodId, criteria: [] })).status,
+      422,
+    );
   });
 
   it('CT-679: cấp trên trả lại hoặc kết luận (điều chỉnh tiêu chí chung, trường hợp loại trừ); không tự kết luận cho mình', async () => {
     const managerSelf = await api('GET', `/kpi/evaluations/mine?period_id=${periodId}`, 'manager');
-    assert.equal((await api('POST', `/kpi/evaluations/${managerSelf.body.id}/conclude`, 'manager', { rank: 'good' })).status, 422);
-    assert.equal((await api('POST', `/kpi/evaluations/${evaluationId}/conclude`, 'teacher2', { rank: 'good' })).status, 403);
-    const returned = await api('POST', `/kpi/evaluations/${evaluationId}/return`, 'manager', { reason: 'Bổ sung minh chứng' });
+    assert.equal(
+      (await api('POST', `/kpi/evaluations/${managerSelf.body.id}/conclude`, 'manager', { rank: 'good' })).status,
+      422,
+    );
+    assert.equal(
+      (await api('POST', `/kpi/evaluations/${evaluationId}/conclude`, 'teacher2', { rank: 'good' })).status,
+      403,
+    );
+    const returned = await api('POST', `/kpi/evaluations/${evaluationId}/return`, 'manager', {
+      reason: 'Bổ sung minh chứng',
+    });
     assert.equal(returned.body.status, 'returned');
     await api('POST', '/kpi/evaluations/mine/submit', 'teacher', { period_id: periodId });
-    const excluded = await api('POST', `/kpi/evaluations/${evaluationId}/conclude`, 'manager', { rank: 'good', exclusions: ['discipline'] });
+    const excluded = await api('POST', `/kpi/evaluations/${evaluationId}/conclude`, 'manager', {
+      rank: 'good',
+      exclusions: ['discipline'],
+    });
     assert.equal(errorOf(excluded.body).rule_code, 'YCTD-139');
     const concluded = await api('POST', `/kpi/evaluations/${evaluationId}/conclude`, 'manager', {
       rank: 'good',
@@ -569,14 +874,26 @@ describe('Phân hệ KPI', () => {
       comment: 'Đồng ý',
     });
     assert.equal(concluded.status, 200);
-    assert.deepEqual([concluded.body.status, concluded.body.superior_rank, concluded.body.general_score], ['concluded', 'good', 30]);
-    const list = (await api('GET', `/kpi/evaluations?period_id=${periodId}`, 'manager')).body as unknown as Array<{ staff_id: string; status: string }>;
+    assert.deepEqual(
+      [concluded.body.status, concluded.body.superior_rank, concluded.body.general_score],
+      ['concluded', 'good', 30],
+    );
+    const list = (await api('GET', `/kpi/evaluations?period_id=${periodId}`, 'manager')).body as unknown as Array<{
+      staff_id: string;
+      status: string;
+    }>;
     assert.equal(list.find((row) => row.staff_id === staff.teacher)?.status, 'concluded');
     assert.equal(list.find((row) => row.staff_id === staff.teacher2)?.status, 'draft');
   });
 
   it('CT-680: bộ quy tắc 2 chấm chỉ báo theo thang 6 mức; phiếu theo dõi tháng có ví dụ tính điểm', async () => {
-    const assigned = await api('POST', '/kpi/tasks/assign', 'manager', { period_id: monthPeriodId, staff_ids: [staff.teacher2], name: 'Tổ chức hoạt động góc', axis_code: 'chuyen-mon', deadline: vietnamToday });
+    const assigned = await api('POST', '/kpi/tasks/assign', 'manager', {
+      period_id: monthPeriodId,
+      staff_ids: [staff.teacher2],
+      name: 'Tổ chức hoạt động góc',
+      axis_code: 'chuyen-mon',
+      deadline: vietnamToday,
+    });
     const id = (assigned.body.ids as string[])[0]!;
     await api('POST', `/kpi/tasks/${id}/accept`, 'teacher2');
     await api('PUT', `/kpi/tasks/${id}/evidence`, 'teacher2', { actual_finish_date: vietnamToday });
@@ -590,28 +907,74 @@ describe('Phân hệ KPI', () => {
     const sheet = await download('teacher2', `/kpi/reports/evaluations/${mine.body.id}/monthly-sheet?format=docx`);
     assert.equal(sheet.status, 200);
     assert.equal(sheet.type, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-    assert.equal((await download('teacher2', `/kpi/reports/evaluations/${mine.body.id}/monthly-sheet?format=pdf`)).body.subarray(0, 4).toString(), '%PDF');
+    assert.equal(
+      (await download('teacher2', `/kpi/reports/evaluations/${mine.body.id}/monthly-sheet?format=pdf`)).body
+        .subarray(0, 4)
+        .toString(),
+      '%PDF',
+    );
   });
 
   it('CT-681: tham mưu đề xuất mức, biểu quyết; khóa kỳ chốt mức theo biểu quyết, giữ phiên bản; kỳ khóa không sửa; mở lại phải ghi lý do', async () => {
     const advisory = await api('GET', `/kpi/advisory?period_id=${periodId}`, 'principal');
     assert.equal(advisory.status, 200);
     assert.equal((await api('GET', `/kpi/advisory?period_id=${periodId}`, 'teacher')).status, 403);
-    const savedAdvisory = await api('PUT', '/kpi/advisory', 'principal', { period_id: periodId, items: [{ evaluation_id: evaluationId, rank: 'good', comment: 'Đề xuất' }] });
+    const savedAdvisory = await api('PUT', '/kpi/advisory', 'principal', {
+      period_id: periodId,
+      items: [{ evaluation_id: evaluationId, rank: 'good', comment: 'Đề xuất' }],
+    });
     assert.equal(savedAdvisory.status, 200);
-    const voting = (await api('GET', `/kpi/voting?period_id=${periodId}`, 'vice')).body as unknown as Array<{ id: string }>;
+    const voting = (await api('GET', `/kpi/voting?period_id=${periodId}`, 'vice')).body as unknown as Array<{
+      id: string;
+    }>;
     assert.ok(voting.some((row) => row.id === evaluationId));
-    assert.equal((await api('PUT', '/kpi/voting', 'vice', { period_id: periodId, votes: [{ evaluation_id: evaluationId, rank: 'pass' }] })).status, 200);
-    assert.equal((await api('PUT', '/kpi/voting', 'principal', { period_id: periodId, votes: [{ evaluation_id: evaluationId, rank: 'pass' }] })).status, 200);
-    assert.equal((await api('PUT', '/kpi/voting', 'teacher', { period_id: periodId, votes: [{ evaluation_id: evaluationId, rank: 'pass' }] })).status, 403);
+    assert.equal(
+      (
+        await api('PUT', '/kpi/voting', 'vice', {
+          period_id: periodId,
+          votes: [{ evaluation_id: evaluationId, rank: 'pass' }],
+        })
+      ).status,
+      200,
+    );
+    assert.equal(
+      (
+        await api('PUT', '/kpi/voting', 'principal', {
+          period_id: periodId,
+          votes: [{ evaluation_id: evaluationId, rank: 'pass' }],
+        })
+      ).status,
+      200,
+    );
+    assert.equal(
+      (
+        await api('PUT', '/kpi/voting', 'teacher', {
+          period_id: periodId,
+          votes: [{ evaluation_id: evaluationId, rank: 'pass' }],
+        })
+      ).status,
+      403,
+    );
     assert.equal((await api('POST', `/kpi/periods/${periodId}/lock`, 'principal', { note: 'Chốt kỳ' })).status, 200);
-    const evaluation = await schoolYear.selectFrom('kpi_evaluations').selectAll().where('id', '=', evaluationId).executeTakeFirstOrThrow();
+    const evaluation = await schoolYear
+      .selectFrom('kpi_evaluations')
+      .selectAll()
+      .where('id', '=', evaluationId)
+      .executeTakeFirstOrThrow();
     assert.equal(evaluation.final_rank, 'pass');
     assert.equal(evaluation.rule_set_version_id, ruleSets['BQT-1']!.version_id);
-    const blocked = await api('POST', '/kpi/tasks/register', 'teacher', { period_id: periodId, name: 'Sau khóa', axis_code: '1', deadline: vietnamToday });
+    const blocked = await api('POST', '/kpi/tasks/register', 'teacher', {
+      period_id: periodId,
+      name: 'Sau khóa',
+      axis_code: '1',
+      deadline: vietnamToday,
+    });
     assert.equal(errorOf(blocked.body).rule_code, 'YCTD-139');
     assert.equal((await api('POST', `/kpi/periods/${periodId}/reopen`, 'principal', {})).status, 400);
-    assert.equal((await api('POST', `/kpi/periods/${periodId}/reopen`, 'principal', { note: 'Điều chỉnh' })).status, 200);
+    assert.equal(
+      (await api('POST', `/kpi/periods/${periodId}/reopen`, 'principal', { note: 'Điều chỉnh' })).status,
+      200,
+    );
   });
 
   it('CT-682: mẫu báo cáo xuất Excel, Word, PDF có ghi nhật ký xuất; quy chế của đơn vị sinh từ cấu hình theo cấp học', async () => {
@@ -621,23 +984,53 @@ describe('Phân hệ KPI', () => {
     await workbook.xlsx.load(sheet.body as unknown as ArrayBuffer);
     assert.equal(workbook.worksheets[0]?.getRow(1).getCell(1).text, 'BẢNG TÍNH ĐIỂM KPI');
     for (const format of ['docx', 'pdf']) {
-      const self = await download('manager', `/kpi/reports/evaluations/${evaluationId}/self-evaluation?format=${format}`);
+      const self = await download(
+        'manager',
+        `/kpi/reports/evaluations/${evaluationId}/self-evaluation?format=${format}`,
+      );
       assert.equal(self.status, 200);
     }
     assert.equal((await download('teacher2', `/kpi/reports/evaluations/${evaluationId}/self-evaluation`)).status, 403);
     for (const format of ['xlsx', 'pdf', 'docx']) {
-      assert.equal((await download('principal', `/kpi/reports/periods/${periodId}/unit-summary?format=${format}`)).status, 200);
+      assert.equal(
+        (await download('principal', `/kpi/reports/periods/${periodId}/unit-summary?format=${format}`)).status,
+        200,
+      );
     }
     const actions = await api('GET', `/kpi/reports/periods/${periodId}/manager-actions`, 'principal');
-    const rows = actions.body as unknown as Array<{ manager_name: string; action: string; total: number; automatic: number }>;
-    assert.ok(rows.some((row) => row.manager_name === 'Quản Lý Giả' && row.action === 'approve' && row.automatic === 1));
+    const rows = actions.body as unknown as Array<{
+      manager_name: string;
+      action: string;
+      total: number;
+      automatic: number;
+    }>;
+    assert.ok(
+      rows.some((row) => row.manager_name === 'Quản Lý Giả' && row.action === 'approve' && row.automatic === 1),
+    );
     assert.equal((await download('principal', `/kpi/reports/periods/${periodId}/manager-actions/export`)).status, 200);
-    const regulation = await download('principal', `/kpi/reports/regulation?rule_set_version_id=${ruleSets['BQT-2']!.version_id}&school_level=MN`);
+    const regulation = await download(
+      'principal',
+      `/kpi/reports/regulation?rule_set_version_id=${ruleSets['BQT-2']!.version_id}&school_level=MN`,
+    );
     assert.equal(regulation.status, 200);
     assert.ok(regulation.body.includes(Buffer.from('48 chỉ báo')));
-    const annual = await api('POST', '/kpi/periods', 'principal', { code: 'NAM', name: 'Năm học', period_type: 'year', start_date: addDays(vietnamToday, -60), end_date: addDays(vietnamToday, 200) });
-    assert.equal((await download('manager', `/kpi/reports/periods/${annual.body.id}/annual-sheet?staff_id=${staff.teacher2}`)).status, 200);
-    const logs = await schoolYear.selectFrom('export_logs').select('report_code').where('report_code', 'like', 'kpi-%').execute();
+    const annual = await api('POST', '/kpi/periods', 'principal', {
+      code: 'NAM',
+      name: 'Năm học',
+      period_type: 'year',
+      start_date: addDays(vietnamToday, -60),
+      end_date: addDays(vietnamToday, 200),
+    });
+    assert.equal(
+      (await download('manager', `/kpi/reports/periods/${annual.body.id}/annual-sheet?staff_id=${staff.teacher2}`))
+        .status,
+      200,
+    );
+    const logs = await schoolYear
+      .selectFrom('export_logs')
+      .select('report_code')
+      .where('report_code', 'like', 'kpi-%')
+      .execute();
     assert.ok(logs.length >= 9);
   });
 
@@ -664,27 +1057,55 @@ describe('Phân hệ KPI', () => {
     const body = readFileSync(path);
     rmSync(path, { force: true });
     assert.equal((await upload('teacher', '/kpi/legacy-import', {}, body, 'kpi.db')).status, 403);
-    assert.equal((await upload('principal', '/kpi/legacy-import', {}, Buffer.from('không phải sqlite'), 'kpi.db')).status, 400);
+    assert.equal(
+      (await upload('principal', '/kpi/legacy-import', {}, Buffer.from('không phải sqlite'), 'kpi.db')).status,
+      400,
+    );
     const preview = await upload('principal', '/kpi/legacy-import', {}, body, 'kpi.db');
     assert.equal(preview.status, 200);
     assert.deepEqual(
-      [preview.body.preview, preview.body.periods, preview.body.catalog_items, preview.body.tasks, preview.body.evaluations, preview.body.skipped_tasks],
+      [
+        preview.body.preview,
+        preview.body.periods,
+        preview.body.catalog_items,
+        preview.body.tasks,
+        preview.body.evaluations,
+        preview.body.skipped_tasks,
+      ],
       [true, 1, 1, 1, 1, 1],
     );
     assert.deepEqual(preview.body.unmatched_people, ['Người Không Có']);
-    assert.equal((await schoolYear.selectFrom('kpi_periods').select('id').where('legacy_id', '=', 'p1').execute()).length, 0);
+    assert.equal(
+      (await schoolYear.selectFrom('kpi_periods').select('id').where('legacy_id', '=', 'p1').execute()).length,
+      0,
+    );
     const run = await upload('principal', '/kpi/legacy-import', { preview: 'false' }, body, 'kpi.db');
     assert.equal(run.body.tasks, 1);
-    const period = await schoolYear.selectFrom('kpi_periods').selectAll().where('legacy_id', '=', 'p1').executeTakeFirstOrThrow();
+    const period = await schoolYear
+      .selectFrom('kpi_periods')
+      .selectAll()
+      .where('legacy_id', '=', 'p1')
+      .executeTakeFirstOrThrow();
     assert.equal(period.status, 'locked');
-    const evaluation = await schoolYear.selectFrom('kpi_evaluations').selectAll().where('legacy_id', '=', 'e1').executeTakeFirstOrThrow();
-    assert.deepEqual([Number(evaluation.general_score), evaluation.final_rank, Number(evaluation.actual_total)], [28, 'good', 9.08]);
+    const evaluation = await schoolYear
+      .selectFrom('kpi_evaluations')
+      .selectAll()
+      .where('legacy_id', '=', 'e1')
+      .executeTakeFirstOrThrow();
+    assert.deepEqual(
+      [Number(evaluation.general_score), evaluation.final_rank, Number(evaluation.actual_total)],
+      [28, 'good', 9.08],
+    );
     const rerun = await upload('principal', '/kpi/legacy-import', { preview: 'false' }, body, 'kpi.db');
     assert.deepEqual([rerun.body.periods, rerun.body.tasks, rerun.body.evaluations], [0, 0, 0]);
   });
 
   it('CT-684: tệp minh chứng và khóa kho tệp tạo qua hàm đặt tên chung', async () => {
-    const files = await schoolYear.selectFrom('files').select('storage_key').where('purpose', '=', 'kpi_evidence').execute();
+    const files = await schoolYear
+      .selectFrom('files')
+      .select('storage_key')
+      .where('purpose', '=', 'kpi_evidence')
+      .execute();
     assert.ok(files.length > 0);
     assert.ok(files.every((file) => /^kpi-evidence\/[0-9a-f-]{36}\/[0-9a-f-]{36}$/.test(file.storage_key)));
   });
