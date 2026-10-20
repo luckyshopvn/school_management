@@ -38,7 +38,7 @@ async function signIn(browser: Browser, user: { username: string; password: stri
   return page;
 }
 
-test('CT-18d-01: giao việc, tự đánh giá, chấm, kết luận, khóa kỳ và tải bảng tổng hợp KPI', async ({ browser }) => {
+test('CT-18d-19: giao việc, tự đánh giá, chấm, kết luận, khóa kỳ và tải bảng tổng hợp KPI', async ({ browser }) => {
   test.setTimeout(300_000);
   const unit = await schoolYear
     .selectFrom('org_units')

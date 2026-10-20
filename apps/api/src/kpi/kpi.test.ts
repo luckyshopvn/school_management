@@ -29,7 +29,7 @@ import {
   type KpiTaskForTotal,
 } from './kpi-engine.js';
 
-// Phân hệ KPI (DT-18 phần 18d, YCTD-139); kịch bản đề xuất CT-667 đến CT-684. Dữ liệu mẫu là dữ liệu giả
+// Phân hệ KPI (DT-18 phần 18d, YCTD-139); kịch bản CT-18d-1 đến CT-18d-18 (kiểm thử giao diện là CT-18d-19). Dữ liệu mẫu là dữ liệu giả
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
   new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
@@ -105,7 +105,7 @@ const doneTask = (overrides: Partial<KpiTaskForTotal> = {}): KpiTaskForTotal => 
 });
 
 describe('Máy chấm KPI', () => {
-  it('CT-667: tiến độ theo ngày làm việc chậm, điểm thực hiện 30% tiến độ + 70% kết quả, điểm quy đổi theo hệ số độ khó', () => {
+  it('CT-18d-1: tiến độ theo ngày làm việc chậm, điểm thực hiện 30% tiến độ + 70% kết quả, điểm quy đổi theo hệ số độ khó', () => {
     // Thứ bảy, chủ nhật không phải ngày làm việc: hạn thứ sáu 2026-10-16, xong thứ hai 2026-10-19 là chậm 1 ngày
     const weekday = (date: string) => ![0, 6].includes(new Date(`${date}T00:00:00Z`).getUTCDay());
     assert.equal(lateWorkingDays('2026-10-16', '2026-10-19', weekday), 1);
@@ -136,7 +136,7 @@ describe('Máy chấm KPI', () => {
     );
   });
 
-  it('CT-668: điểm phần công việc = min(70, 70 × B / A), thưởng tối đa 7, tổng tối đa 100; xếp loại theo ngưỡng và điều kiện', () => {
+  it('CT-18d-2: điểm phần công việc = min(70, 70 × B / A), thưởng tối đa 7, tổng tối đa 100; xếp loại theo ngưỡng và điều kiện', () => {
     const tasks = [
       doneTask({ exceeded: true, bonus: 5 }),
       doneTask({ exceeded: true, bonus: 5 }),
@@ -166,7 +166,7 @@ describe('Máy chấm KPI', () => {
     assert.equal(suggestRank(progressConfig, zero, []), 'fail');
   });
 
-  it('CT-669: tỷ lệ xuất sắc tối đa 20% số người từ hoàn thành tốt trở lên, không tính người đứng đầu', () => {
+  it('CT-18d-3: tỷ lệ xuất sắc tối đa 20% số người từ hoàn thành tốt trở lên, không tính người đứng đầu', () => {
     const rows = [
       ...Array.from({ length: 8 }, () => ({ rank: 'good', isHead: false, group: 'staff' as const })),
       { rank: 'excellent', isHead: false, group: 'staff' as const },
@@ -182,7 +182,7 @@ describe('Máy chấm KPI', () => {
     );
   });
 
-  it('CT-670: kiểm tra cấu hình bộ quy tắc trước khi ghi; tệp Word là gói nén Office', () => {
+  it('CT-18d-4: kiểm tra cấu hình bộ quy tắc trước khi ghi; tệp Word là gói nén Office', () => {
     assert.deepEqual(validateRuleConfig(progressConfig), []);
     const broken = validateRuleConfig({ ...progressConfig, scoring_mode: 'other', quality_levels: [] });
     assert.ok(broken.some((error) => error.field === 'scoring_mode'));
@@ -295,7 +295,7 @@ describe('Phân hệ KPI', () => {
     await environment.close();
   });
 
-  it('CT-671: hai bộ quy tắc mặc định có phiên bản đã ban hành, cấu hình hợp lệ; bản đã ban hành không sửa, bản nháp sửa rồi ban hành', async () => {
+  it('CT-18d-5: hai bộ quy tắc mặc định có phiên bản đã ban hành, cấu hình hợp lệ; bản đã ban hành không sửa, bản nháp sửa rồi ban hành', async () => {
     const sets = await api('GET', '/kpi/rule-sets', 'principal');
     assert.equal(sets.status, 200);
     const list = sets.body as unknown as Array<{
@@ -354,7 +354,7 @@ describe('Phân hệ KPI', () => {
     ruleSets['BQT-1']!.version_id = draft.body.id as string;
   });
 
-  it('CT-672: đối tượng đánh giá theo bộ quy tắc, nhóm lãnh đạo hoặc cán bộ, cấp học, vị trí, cấp trên trực tiếp; kỳ áp phiên bản mới nhất', async () => {
+  it('CT-18d-6: đối tượng đánh giá theo bộ quy tắc, nhóm lãnh đạo hoặc cán bộ, cấp học, vị trí, cấp trên trực tiếp; kỳ áp phiên bản mới nhất', async () => {
     const save = (staffIds: string[], body: Record<string, unknown>) =>
       api('PUT', '/kpi/profiles', 'principal', { staff_ids: staffIds, ...body });
     assert.equal(
@@ -435,7 +435,7 @@ describe('Phân hệ KPI', () => {
     monthPeriodId = month.body.id as string;
   });
 
-  it('CT-673: danh mục công việc chuẩn chung và của đơn vị; cán bộ đề xuất, quản lý duyệt; nhập Excel có lỗi thì không ghi dòng nào', async () => {
+  it('CT-18d-7: danh mục công việc chuẩn chung và của đơn vị; cán bộ đề xuất, quản lý duyệt; nhập Excel có lỗi thì không ghi dòng nào', async () => {
     const common = await api('POST', '/kpi/catalog', 'principal', {
       org_unit_id: null,
       rule_set_id: ruleSets['BQT-1']!.id,
@@ -548,7 +548,7 @@ describe('Phân hệ KPI', () => {
   let assignedId = '';
   let registeredId = '';
 
-  it('CT-674: giao việc từ danh mục; người được giao chuyển trả tối đa 1 lần có lý do, xác nhận; quá hạn xác nhận thì tự vào danh mục', async () => {
+  it('CT-18d-8: giao việc từ danh mục; người được giao chuyển trả tối đa 1 lần có lý do, xác nhận; quá hạn xác nhận thì tự vào danh mục', async () => {
     const item = ((await api('GET', '/kpi/catalog?q=CV-01', 'manager')).body as unknown as Array<{ id: string }>)[0]!;
     const assigned = await api('POST', '/kpi/tasks/assign', 'manager', {
       period_id: periodId,
@@ -611,7 +611,7 @@ describe('Phân hệ KPI', () => {
     );
   });
 
-  it('CT-675: cán bộ tự đăng ký việc, cấp trên duyệt (chỉnh hệ số độ khó) hoặc không duyệt có lý do; quá 3 ngày không duyệt thì tự duyệt và ghi sổ trách nhiệm', async () => {
+  it('CT-18d-9: cán bộ tự đăng ký việc, cấp trên duyệt (chỉnh hệ số độ khó) hoặc không duyệt có lý do; quá 3 ngày không duyệt thì tự duyệt và ghi sổ trách nhiệm', async () => {
     const registered = await api('POST', '/kpi/tasks/register', 'teacher', {
       period_id: periodId,
       name: 'Viết sáng kiến',
@@ -672,7 +672,7 @@ describe('Phân hệ KPI', () => {
     );
   });
 
-  it('CT-676: minh chứng có số ký hiệu văn bản ghi chữ tự do và tệp; xin gia hạn; tự đánh giá; quản lý chấm, không tự chấm việc của mình', async () => {
+  it('CT-18d-10: minh chứng có số ký hiệu văn bản ghi chữ tự do và tệp; xin gia hạn; tự đánh giá; quản lý chấm, không tự chấm việc của mình', async () => {
     const evidence = await api('PUT', `/kpi/tasks/${assignedId}/evidence`, 'teacher', {
       actual_finish_date: vietnamToday,
       evidence_text: 'Đã ban hành kế hoạch',
@@ -751,7 +751,7 @@ describe('Phân hệ KPI', () => {
     assert.equal(action.on_time, true);
   });
 
-  it('CT-677: ủy quyền chấm vượt cấp; quá 7 ngày không chấm thì lấy kết quả tự đánh giá', async () => {
+  it('CT-18d-11: ủy quyền chấm vượt cấp; quá 7 ngày không chấm thì lấy kết quả tự đánh giá', async () => {
     await api('PUT', `/kpi/tasks/${registeredId}/evidence`, 'teacher', { actual_finish_date: vietnamToday });
     await api('POST', `/kpi/tasks/${registeredId}/self-assess`, 'teacher', { quality_code: 'q50' });
     assert.equal((await api('POST', `/kpi/tasks/${registeredId}/grade`, 'vice', { quality_code: 'q100' })).status, 200);
@@ -801,7 +801,7 @@ describe('Phân hệ KPI', () => {
 
   let evaluationId = '';
 
-  it('CT-678: tự đánh giá tiêu chí chung theo Mẫu 01-B (cán bộ), phần công việc tự tính A, B; nộp kèm mức tự đề xuất', async () => {
+  it('CT-18d-12: tự đánh giá tiêu chí chung theo Mẫu 01-B (cán bộ), phần công việc tự tính A, B; nộp kèm mức tự đề xuất', async () => {
     const mine = await api('GET', `/kpi/evaluations/mine?period_id=${periodId}`, 'teacher');
     assert.equal(mine.status, 200);
     evaluationId = mine.body.id as string;
@@ -848,7 +848,7 @@ describe('Phân hệ KPI', () => {
     );
   });
 
-  it('CT-679: cấp trên trả lại hoặc kết luận (điều chỉnh tiêu chí chung, trường hợp loại trừ); không tự kết luận cho mình', async () => {
+  it('CT-18d-13: cấp trên trả lại hoặc kết luận (điều chỉnh tiêu chí chung, trường hợp loại trừ); không tự kết luận cho mình', async () => {
     const managerSelf = await api('GET', `/kpi/evaluations/mine?period_id=${periodId}`, 'manager');
     assert.equal(
       (await api('POST', `/kpi/evaluations/${managerSelf.body.id}/conclude`, 'manager', { rank: 'good' })).status,
@@ -886,7 +886,7 @@ describe('Phân hệ KPI', () => {
     assert.equal(list.find((row) => row.staff_id === staff.teacher2)?.status, 'draft');
   });
 
-  it('CT-680: bộ quy tắc 2 chấm chỉ báo theo thang 6 mức; phiếu theo dõi tháng có ví dụ tính điểm', async () => {
+  it('CT-18d-14: bộ quy tắc 2 chấm chỉ báo theo thang 6 mức; phiếu theo dõi tháng có ví dụ tính điểm', async () => {
     const assigned = await api('POST', '/kpi/tasks/assign', 'manager', {
       period_id: monthPeriodId,
       staff_ids: [staff.teacher2],
@@ -915,7 +915,7 @@ describe('Phân hệ KPI', () => {
     );
   });
 
-  it('CT-681: tham mưu đề xuất mức, biểu quyết; khóa kỳ chốt mức theo biểu quyết, giữ phiên bản; kỳ khóa không sửa; mở lại phải ghi lý do', async () => {
+  it('CT-18d-15: tham mưu đề xuất mức, biểu quyết; khóa kỳ chốt mức theo biểu quyết, giữ phiên bản; kỳ khóa không sửa; mở lại phải ghi lý do', async () => {
     const advisory = await api('GET', `/kpi/advisory?period_id=${periodId}`, 'principal');
     assert.equal(advisory.status, 200);
     assert.equal((await api('GET', `/kpi/advisory?period_id=${periodId}`, 'teacher')).status, 403);
@@ -977,7 +977,7 @@ describe('Phân hệ KPI', () => {
     );
   });
 
-  it('CT-682: mẫu báo cáo xuất Excel, Word, PDF có ghi nhật ký xuất; quy chế của đơn vị sinh từ cấu hình theo cấp học', async () => {
+  it('CT-18d-16: mẫu báo cáo xuất Excel, Word, PDF có ghi nhật ký xuất; quy chế của đơn vị sinh từ cấu hình theo cấp học', async () => {
     const sheet = await download('teacher', `/kpi/reports/evaluations/${evaluationId}/task-sheet?format=xlsx`);
     assert.equal(sheet.status, 200);
     const workbook = new ExcelJS.Workbook();
@@ -1034,7 +1034,7 @@ describe('Phân hệ KPI', () => {
     assert.ok(logs.length >= 9);
   });
 
-  it('CT-683: chuyển dữ liệu từ tệp sao lưu của hệ thống KPI cũ; xem trước không ghi, chạy lại không nhân đôi, người không ghép được thì báo', async () => {
+  it('CT-18d-17: chuyển dữ liệu từ tệp sao lưu của hệ thống KPI cũ; xem trước không ghi, chạy lại không nhân đôi, người không ghép được thì báo', async () => {
     const path = join(tmpdir(), `kpi-test-${randomUUID()}.db`);
     const source = new DatabaseSync(path);
     source.exec(`
@@ -1100,7 +1100,7 @@ describe('Phân hệ KPI', () => {
     assert.deepEqual([rerun.body.periods, rerun.body.tasks, rerun.body.evaluations], [0, 0, 0]);
   });
 
-  it('CT-684: tệp minh chứng và khóa kho tệp tạo qua hàm đặt tên chung', async () => {
+  it('CT-18d-18: tệp minh chứng và khóa kho tệp tạo qua hàm đặt tên chung', async () => {
     const files = await schoolYear
       .selectFrom('files')
       .select('storage_key')
