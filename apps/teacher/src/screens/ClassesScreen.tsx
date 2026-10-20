@@ -28,6 +28,7 @@ export function ClassesScreen({
   onOpenLeave,
   onOpenPayslips,
   onOpenWork,
+  onOpenStocktake,
 }: {
   onOpen(myClass: MyClass): void;
   onOpenPickup(myClass: MyClass): void;
@@ -42,22 +43,28 @@ export function ClassesScreen({
   onOpenLeave(): void;
   onOpenPayslips(): void;
   onOpenWork(): void;
+  onOpenStocktake(): void;
 }) {
   const session = useSession();
   const [classes, setClasses] = useState<MyClass[]>();
   const [errorMessage, setErrorMessage] = useState<string>();
   const [gateUnitIds, setGateUnitIds] = useState<string[]>([]);
+  // Quét QR kiểm kê thiết bị (DT-18 phần 18g)
+  const [canStocktake, setCanStocktake] = useState(false);
 
   useEffect(() => {
     fetchCurrentUser()
-      .then((user) =>
+      .then((user) => {
         setGateUnitIds(
           user.assignments
             .filter((assignment) => assignment.permissions.includes('P04.pickup.gate-confirm'))
             .map((assignment) => assignment.org_unit_id)
             .filter((id): id is string => id !== null),
-        ),
-      )
+        );
+        setCanStocktake(
+          user.assignments.some((assignment) => assignment.permissions.includes('P13.equipment.stocktake')),
+        );
+      })
       .catch(() => setGateUnitIds([]));
     requestJson<MyClass[]>('/api/v1/classes?mine=true&status=active')
       .then(setClasses)
@@ -79,6 +86,7 @@ export function ClassesScreen({
             Xác nhận người đón tại cổng
           </Button>
         ) : null}
+        {canStocktake ? <Button onClick={onOpenStocktake}>Kiểm kê thiết bị</Button> : null}
         {classes && classes.length === 0 && gateUnitIds.length === 0 ? (
           <p className="text-content text-text-secondary">Bạn chưa được phân công lớp nào.</p>
         ) : null}
