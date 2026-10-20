@@ -94,7 +94,13 @@ function readFolder(body: RequestBody): FolderInput {
     approval_flow: readChoice(body, 'approval_flow', PROFESSIONAL_APPROVAL_FLOW_LABELS, 'two_level', errors),
     requires_signing: readBoolean(body, 'requires_signing', errors),
     sort_order: readInteger(body, 'sort_order', errors, { min: 0, max: 100000 }, 0) ?? 0,
-    status: readChoice<'active' | 'inactive'>(body, 'status', { active: 'Đang dùng', inactive: 'Ngừng dùng' }, 'active', errors),
+    status: readChoice<'active' | 'inactive'>(
+      body,
+      'status',
+      { active: 'Đang dùng', inactive: 'Ngừng dùng' },
+      'active',
+      errors,
+    ),
   };
   throwIfAny(errors);
   return input;
@@ -121,7 +127,13 @@ function readRound(body: RequestBody): RoundInput {
     folder_id: readUuid(body, 'folder_id', errors, true) ?? '',
     title: readText(body, 'title', errors, { required: true, maximum: 300 }) ?? '',
     description: readText(body, 'description', errors, { maximum: 2000 }),
-    submitter_kind: readChoice<'staff' | 'group'>(body, 'submitter_kind', { staff: 'Cá nhân', group: 'Tổ, nhóm' }, 'staff', errors),
+    submitter_kind: readChoice<'staff' | 'group'>(
+      body,
+      'submitter_kind',
+      { staff: 'Cá nhân', group: 'Tổ, nhóm' },
+      'staff',
+      errors,
+    ),
     org_unit_id: readUuid(body, 'org_unit_id', errors),
     department_ids: departments.length > 0 ? departments : null,
     opens_on: readDate(body, 'opens_on', errors, true) ?? '',
@@ -175,6 +187,11 @@ export class ProfessionalRecordsController {
   @Get('professional-records/overview')
   overview(@AuthenticatedUser() currentUser: CurrentUser) {
     return this.records.overview(currentUser);
+  }
+
+  @Get('professional-records/options')
+  options(@AuthenticatedUser() currentUser: CurrentUser) {
+    return this.records.options(currentUser);
   }
 
   @Put('professional-records/lock')
@@ -498,7 +515,13 @@ function readWorkGroup(body: RequestBody) {
     org_unit_id: readUuid(body, 'org_unit_id', errors, true) ?? '',
     name: readText(body, 'name', errors, { required: true, maximum: 200 }) ?? '',
     description: readText(body, 'description', errors, { maximum: 1000 }),
-    status: readChoice<'active' | 'inactive'>(body, 'status', { active: 'Đang dùng', inactive: 'Ngừng dùng' }, 'active', errors),
+    status: readChoice<'active' | 'inactive'>(
+      body,
+      'status',
+      { active: 'Đang dùng', inactive: 'Ngừng dùng' },
+      'active',
+      errors,
+    ),
     members,
   };
   throwIfAny(errors);

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { Link, useLocation } from '@tanstack/react-router';
 import { portalMenuText, type PortalMenuNode, type PortalWorkspace } from '@school-management/shared';
+import { MenuBadge } from '../my-work/MyWorkBadge.js';
 import type { WorkspaceKey } from './workspaces.js';
 
 // Menu ngang nhiều cấp đánh số theo hệ thống của Sở (DT-15 phần 15a): mỗi phân hệ một thanh menu; mục cấp một mở menu sổ
@@ -240,6 +241,7 @@ function Menubar({ workspace, hidden }: { workspace: PortalWorkspace; hidden: bo
                   onKeyDown={(event) => onItemKeyDown(event, node, children, trail)}
                 >
                   {portalMenuText(node)}
+                  <MenuBadge path={node.path} />
                 </Link>
               )}
             </li>
@@ -326,6 +328,7 @@ function Menubar({ workspace, hidden }: { workspace: PortalWorkspace; hidden: bo
                 onKeyDown={(event) => onTopKeyDown(event, node, node.number)}
               >
                 {portalMenuText(node)}
+                <MenuBadge path={node.path} />
               </Link>
             )}
           </li>
@@ -412,6 +415,7 @@ export function MobileMenu({ workspace, onClose }: { workspace: PortalWorkspace 
                 className={`block rounded px-2 py-2 text-label text-text hover:bg-selected ${isActivePath(pathname, node.path) ? 'bg-selected font-semibold text-brand-strong' : ''}`}
               >
                 {portalMenuText(node)}
+                <MenuBadge path={node.path} />
               </Link>
             )}
           </li>

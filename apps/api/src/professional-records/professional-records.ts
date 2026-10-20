@@ -255,6 +255,38 @@ export class ProfessionalRecordsService {
     };
   }
 
+  // Danh sách chọn của màn hình thiết lập: đơn vị, tổ chuyên môn (phòng ban), nhân sự đang làm việc
+  async options(currentUser: CurrentUser) {
+    const context = await this.context(currentUser);
+    if (!currentUser.hasPermission(MANAGE) && !currentUser.hasPermission(APPROVE)) {
+      throw forbidden('Chỉ Ban Giám hiệu, người quản lý kho dùng danh sách này');
+    }
+    const database = context.database;
+    const [units, departments, staff] = await Promise.all([
+      database.selectFrom('org_units').select(['id', 'name', 'unit_type']).orderBy('name').execute(),
+      database
+        .selectFrom('departments')
+        .select(['id', 'name', 'org_unit_id'])
+        .where('status', '=', 'active')
+        .orderBy('name')
+        .execute(),
+      database
+        .selectFrom('staff')
+        .leftJoin('departments', 'departments.id', 'staff.department_id')
+        .select([
+          'staff.id',
+          'staff.code',
+          'staff.full_name',
+          'staff.org_unit_id',
+          'departments.name as department_name',
+        ])
+        .where('staff.status', '=', 'active')
+        .orderBy('staff.full_name')
+        .execute(),
+    ]);
+    return { units, departments, staff };
+  }
+
   async setLock(currentUser: CurrentUser, locked: boolean, origin: ChangeOrigin) {
     const context = await this.context(currentUser);
     this.assertManage(context);
@@ -274,7 +306,7 @@ export class ProfessionalRecordsService {
         origin,
         orgUnitId: null,
         entityName: 'professional_record_settings',
-        entityId: '1',
+        entityId: '00000000-0000-0000-0000-000000000000',
         action: 'update',
         before: { locked: context.locked },
         after: { locked },
@@ -476,7 +508,11 @@ export class ProfessionalRecordsService {
   }
 
   private async folder(database: Executor, id: string): Promise<FolderRow> {
-    const folder = await database.selectFrom('professional_folders').selectAll().where('id', '=', id).executeTakeFirst();
+    const folder = await database
+      .selectFrom('professional_folders')
+      .selectAll()
+      .where('id', '=', id)
+      .executeTakeFirst();
     if (!folder) {
       throw notFoundError('Không tìm thấy thư mục hồ sơ', 'professional_folder');
     }
@@ -519,7 +555,12 @@ export class ProfessionalRecordsService {
       ...group,
       members: members
         .filter((member) => member.group_id === group.id)
-        .map(({ group_id: _group, ...member }) => member),
+        .map((member) => ({
+          staff_id: member.staff_id,
+          is_leader: member.is_leader,
+          full_name: member.full_name,
+          code: member.code,
+        })),
     }));
   }
 
@@ -928,13 +969,11 @@ export class ProfessionalRecordsService {
       hour: '2-digit',
       minute: '2-digit',
     }).format(round.due_at);
-    let recipients: NotificationRecipient[] = [];
+    let recipients: NotificationRecipient[];
     if (round.submitter_kind === 'staff') {
       const keys = targets.map((item) => item.key);
       const users =
-        keys.length > 0
-          ? await database.selectFrom('staff').select('user_id').where('id', 'in', keys).execute()
-          : [];
+        keys.length > 0 ? await database.selectFrom('staff').select('user_id').where('id', 'in', keys).execute() : [];
       recipients = users
         .filter((user): user is { user_id: string } => user.user_id !== null)
         .map((user) => ({ userId: user.user_id, channel: 'in_app' }));
@@ -991,20 +1030,13 @@ export class ProfessionalRecordsService {
       if (context.leaderGroupIds.length > 0) {
         conditions.push(eb('professional_documents.work_group_id', 'in', context.leaderGroupIds));
       }
-      // Hồ sơ trường đã duyệt: ai trong đơn vị cũng xem
-      if (context.viewScope.wholeSchool) {
-        conditions.push(
-          eb.and([eb('professional_documents.branch', '=', 'school'), eb('professional_documents.status', '=', 'approved')]),
-        );
-      } else if (context.viewScope.orgUnitIds.length > 0) {
-        conditions.push(
-          eb.and([
-            eb('professional_documents.branch', '=', 'school'),
-            eb('professional_documents.status', '=', 'approved'),
-            eb('professional_documents.org_unit_id', 'in', context.viewScope.orgUnitIds),
-          ]),
-        );
-      }
+      // Hồ sơ trường đã duyệt (kế hoạch, văn bản chỉ đạo chuyên môn) dùng chung cho mọi cán bộ có quyền của phân hệ
+      conditions.push(
+        eb.and([
+          eb('professional_documents.branch', '=', 'school'),
+          eb('professional_documents.status', '=', 'approved'),
+        ]),
+      );
       for (const scope of [context.approveScope, context.manageScope]) {
         if (scope.wholeSchool) {
           conditions.push(eb.val(true));
@@ -1151,7 +1183,9 @@ export class ProfessionalRecordsService {
       .selectFrom('professional_documents')
       .select('id')
       .where('id', '=', id)
-      .where((eb) => eb.or([this.visibleCondition(context, currentUser)(eb), this.pendingReviewCondition(context, currentUser)(eb)]))
+      .where((eb) =>
+        eb.or([this.visibleCondition(context, currentUser)(eb), this.pendingReviewCondition(context, currentUser)(eb)]),
+      )
       .executeTakeFirst();
     if (!visible) {
       throw forbidden('Hồ sơ này nằm ngoài phạm vi của bạn');
@@ -1690,7 +1724,9 @@ export class ProfessionalRecordsService {
           leader_user_id: currentUser.id,
           leader_name: currentUser.description.full_name,
           leader_reviewed_at: now,
-          ...(final ? { approved_by: currentUser.id, approved_by_name: currentUser.description.full_name, approved_at: now } : {}),
+          ...(final
+            ? { approved_by: currentUser.id, approved_by_name: currentUser.description.full_name, approved_at: now }
+            : {}),
           updated_at: now,
         })
         .where('id', '=', id)
@@ -1768,9 +1804,7 @@ export class ProfessionalRecordsService {
             approved_by: currentUser.id,
             approved_by_name: currentUser.description.full_name,
             approved_at: now,
-            ...(signed
-              ? { signed_at: now, signature_method: signed.method, signed_file_id: signedFileId }
-              : {}),
+            ...(signed ? { signed_at: now, signature_method: signed.method, signed_file_id: signedFileId } : {}),
             updated_at: now,
           })
           .where('id', '=', document.id)
@@ -1779,7 +1813,13 @@ export class ProfessionalRecordsService {
         if (Number(changed.numUpdatedRows) !== 1) {
           throw professionalRule('Hồ sơ không còn chờ bạn duyệt');
         }
-        await this.event(transaction, document.id, stage === 'leader' ? 'leader_approve' : 'approve', note, currentUser);
+        await this.event(
+          transaction,
+          document.id,
+          stage === 'leader' ? 'leader_approve' : 'approve',
+          note,
+          currentUser,
+        );
         if (signed) {
           await this.event(
             transaction,
@@ -1993,7 +2033,8 @@ export class ProfessionalRecordsService {
     const result = [];
     for (const round of rounds) {
       const submitters = await this.submitters(context.database, round);
-      const count = (state: RoundSubmitter['state'][]) => submitters.filter((item) => state.includes(item.state)).length;
+      const count = (state: RoundSubmitter['state'][]) =>
+        submitters.filter((item) => state.includes(item.state)).length;
       result.push({
         id: round.id,
         title: round.title,
@@ -2022,7 +2063,9 @@ export class ProfessionalRecordsService {
     }
     return {
       rounds: result,
-      departments: [...byDepartment.values()].sort((left, right) => left.department.localeCompare(right.department, 'vi')),
+      departments: [...byDepartment.values()].sort((left, right) =>
+        left.department.localeCompare(right.department, 'vi'),
+      ),
       totals: {
         expected: result.reduce((sum, round) => sum + round.expected, 0),
         on_time: result.reduce((sum, round) => sum + round.on_time, 0),
