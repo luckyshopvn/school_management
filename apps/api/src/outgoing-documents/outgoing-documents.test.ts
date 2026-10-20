@@ -53,7 +53,10 @@ describe('Đọc dữ liệu văn bản đi, mã tra cứu', () => {
     assert.equal(symbolOf(12, null), '12');
     const code = verificationCode();
     assert.match(code, /^[A-HJ-NP-Z2-9]{12}$/);
-    assert.equal(verificationText(code, 'https://truong.example.test'), `https://truong.example.test/tra-cuu-van-ban?ma=${code}`);
+    assert.equal(
+      verificationText(code, 'https://truong.example.test'),
+      `https://truong.example.test/tra-cuu-van-ban?ma=${code}`,
+    );
     assert.equal(verificationText(code, 'javascript:alert(1)'), code);
     assert.equal(verificationText(code, null), code);
   });
@@ -159,11 +162,20 @@ describe('Văn bản đi theo VNPT iOffice', () => {
     for (const [index, [user, name]] of people.entries()) {
       await schoolYear
         .insertInto('staff')
-        .values({ org_unit_id: rootUnit, code: `VBDI-${index}`, full_name: name, start_date: '2025-08-01', user_id: user.userId })
+        .values({
+          org_unit_id: rootUnit,
+          code: `VBDI-${index}`,
+          full_name: name,
+          start_date: '2025-08-01',
+          user_id: user.userId,
+        })
         .execute();
     }
     const leaders = await api('PUT', '/document-leaders', clerk, {
-      leaders: [{ user_id: principal.userId, title: 'Hiệu trưởng' }, { user_id: deputy.userId, title: 'Phó hiệu trưởng' }],
+      leaders: [
+        { user_id: principal.userId, title: 'Hiệu trưởng' },
+        { user_id: deputy.userId, title: 'Phó hiệu trưởng' },
+      ],
     });
     assert.equal(leaders.status, 200, JSON.stringify(leaders.body));
     const unit = await api('POST', '/external-units', clerk, {
@@ -342,7 +354,9 @@ describe('Văn bản đi theo VNPT iOffice', () => {
     assert.equal(signedView.body.signature_method, 'internal');
     const code = signedView.body.verification_code as string;
     assert.match(code, /^[A-Z0-9]{12}$/);
-    const signedFile = (signedView.body.files as Array<{ id: string; kind: string }>).find((file) => file.kind === 'signed');
+    const signedFile = (signedView.body.files as Array<{ id: string; kind: string }>).find(
+      (file) => file.kind === 'signed',
+    );
     assert.ok(signedFile);
     const download = await fetch(`${environment.baseUrl}/outgoing-documents/${id}/files/${signedFile.id}`, {
       headers: { authorization: `Bearer ${drafter.accessToken}` },
@@ -356,7 +370,10 @@ describe('Văn bản đi theo VNPT iOffice', () => {
     assert.equal(verified.summary, null);
     assert.equal(verified.signer_name, 'Hiệu trưởng Thử');
     assert.equal(verified.internal_signature, true);
-    assert.equal((await fetch(`${environment.baseUrl}/public/outgoing-documents/verify?code=AAAAAAAAAAAA`)).status, 404);
+    assert.equal(
+      (await fetch(`${environment.baseUrl}/public/outgoing-documents/verify?code=AAAAAAAAAAAA`)).status,
+      404,
+    );
     assert.equal((await fetch(`${environment.baseUrl}/public/outgoing-documents/verify?code=x`)).status, 400);
   });
 
@@ -394,7 +411,11 @@ describe('Văn bản đi theo VNPT iOffice', () => {
     assert.equal(issued.body.issue_number, 10);
     assert.equal(issued.body.symbol, '10/TB-THU');
     assert.equal(issued.body.copies, 3);
-    const recipients = issued.body.recipients as Array<{ recipient_type: string; send_status: string; incoming_document_id: string | null }>;
+    const recipients = issued.body.recipients as Array<{
+      recipient_type: string;
+      send_status: string;
+      incoming_document_id: string | null;
+    }>;
     assert.deepEqual(
       recipients.map((item) => [item.recipient_type, item.send_status]),
       [
@@ -410,7 +431,10 @@ describe('Văn bản đi theo VNPT iOffice', () => {
     assert.equal(incoming.body.symbol, '10/TB-THU');
     assert.equal(incoming.body.issuer_name, 'Trường thử văn bản đi');
     assert.equal(incoming.body.recipient_org_unit_name, 'Phân hiệu thử');
-    assert.deepEqual((incoming.body.files as Array<{ kind: string }>).map((file) => file.kind), ['main']);
+    assert.deepEqual(
+      (incoming.body.files as Array<{ kind: string }>).map((file) => file.kind),
+      ['main'],
+    );
     const registered = await api('POST', `/incoming-documents/${incomingId}/register`, clerk, {
       book_id: incomingBook,
       arrival_date: today(),
@@ -431,9 +455,14 @@ describe('Văn bản đi theo VNPT iOffice', () => {
       issue_date: today(),
     });
     assert.equal(manual.body.symbol, '40');
-    assert.equal((await api('GET', `/outgoing-documents/next-number?book_id=${outgoingBook}`, clerk)).body.next_number, 41);
+    assert.equal(
+      (await api('GET', `/outgoing-documents/next-number?book_id=${outgoingBook}`, clerk)).body.next_number,
+      41,
+    );
     const verify = (await (
-      await fetch(`${environment.baseUrl}/public/outgoing-documents/verify?code=${issued.body.verification_code as string}`)
+      await fetch(
+        `${environment.baseUrl}/public/outgoing-documents/verify?code=${issued.body.verification_code as string}`,
+      )
     ).json()) as Body;
     assert.equal(verify.issued, true);
     assert.equal(verify.symbol, '10/TB-THU');
@@ -442,7 +471,10 @@ describe('Văn bản đi theo VNPT iOffice', () => {
 
   it('CT-18b-7: liên thông ra ngoài đánh dấu tay, hủy đánh dấu; văn bản mật không công bố; công bố, đóng băng chặn gửi, công bố, lưu hồ sơ; hủy đóng băng rồi lưu hồ sơ', async () => {
     const id = await signed({ recipients: [{ external_unit_id: externalUnit }] });
-    const issued = await api('POST', `/outgoing-documents/${id}/issue`, clerk, { book_id: outgoingBook, issue_date: today() });
+    const issued = await api('POST', `/outgoing-documents/${id}/issue`, clerk, {
+      book_id: outgoingBook,
+      issue_date: today(),
+    });
     const recipientId = (issued.body.recipients as Array<{ id: string }>)[0]?.id as string;
     assert.ok((await api('GET', '/outgoing-documents/recipients?status=pending', clerk)).body);
     const sent = await api('POST', `/outgoing-documents/${id}/send`, clerk, {
@@ -454,9 +486,15 @@ describe('Văn bản đi theo VNPT iOffice', () => {
     assert.equal(row?.send_status, 'sent');
     assert.equal(row?.reference, 'Gửi thư điện tử ngày hôm nay');
     assert.equal((sent.body.exchange as { connected: boolean }).connected, false);
-    const unsent = await api('POST', `/outgoing-documents/${id}/send`, clerk, { recipient_ids: [recipientId], sent: false });
+    const unsent = await api('POST', `/outgoing-documents/${id}/send`, clerk, {
+      recipient_ids: [recipientId],
+      sent: false,
+    });
     assert.equal((unsent.body.recipients as Array<{ send_status: string }>)[0]?.send_status, 'pending');
-    assert.equal((await api('POST', `/outgoing-documents/${id}/send`, drafter, { recipient_ids: [recipientId] })).status, 403);
+    assert.equal(
+      (await api('POST', `/outgoing-documents/${id}/send`, drafter, { recipient_ids: [recipientId] })).status,
+      403,
+    );
     const published = await api('POST', `/outgoing-documents/${id}/publish`, clerk, { published: true });
     assert.equal(published.body.published, true);
     assert.ok((await list(clerk, 'view=issued&published=true')).items.some((item) => item.id === id));
@@ -479,7 +517,10 @@ describe('Văn bản đi theo VNPT iOffice', () => {
     });
     assert.equal((blockedArchive.body as unknown as Array<{ ok: boolean }>)[0]?.ok, false);
     await api('POST', `/outgoing-documents/${id}/freeze`, clerk, { frozen: false });
-    const archived = await api('POST', '/outgoing-documents/archive', clerk, { ids: [id], archive_record_id: record.body.id });
+    const archived = await api('POST', '/outgoing-documents/archive', clerk, {
+      ids: [id],
+      archive_record_id: record.body.id,
+    });
     assert.equal((archived.body as unknown as Array<{ ok: boolean }>)[0]?.ok, true);
     const secret = await signed({ secrecy_id: secretId });
     await api('POST', `/outgoing-documents/${secret}/issue`, clerk, { book_id: outgoingBook, issue_date: today() });
@@ -502,7 +543,11 @@ describe('Văn bản đi theo VNPT iOffice', () => {
   });
 
   it('CT-18b-9: sổ văn bản đi theo cột iOffice, xuất Excel ghi nhật ký; phiếu trình ký PDF; tra cứu cho Ban Giám hiệu, chặn người không có quyền; sổ đã có văn bản không xóa được', async () => {
-    const register = await api('GET', `/document-books/${outgoingBook}/outgoing-register?from=${today()}&to=${today()}`, clerk);
+    const register = await api(
+      'GET',
+      `/document-books/${outgoingBook}/outgoing-register?from=${today()}&to=${today()}`,
+      clerk,
+    );
     assert.equal(register.status, 200, JSON.stringify(register.body));
     const rows = register.body.items as Array<Body>;
     const first = rows.find((row) => row.issue_number === 10);

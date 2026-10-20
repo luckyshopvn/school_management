@@ -157,7 +157,10 @@ export class OutgoingDocumentsService {
 
   private assertIssue(currentUser: CurrentUser): void {
     if (!this.canIssue(currentUser)) {
-      throw new ApplicationError('ERR_FORBIDDEN', 'Cần quyền văn thư (cấp số, phát hành văn bản đi) ở phạm vi toàn trường');
+      throw new ApplicationError(
+        'ERR_FORBIDDEN',
+        'Cần quyền văn thư (cấp số, phát hành văn bản đi) ở phạm vi toàn trường',
+      );
     }
   }
 
@@ -676,7 +679,10 @@ export class OutgoingDocumentsService {
         .where('user_id', '=', input.signer_id)
         .executeTakeFirst();
       if (!leader) {
-        errors.push({ field: 'signer_id', message: 'Người ký chọn trong danh sách lãnh đạo (Quản trị văn bản, mục 2.5)' });
+        errors.push({
+          field: 'signer_id',
+          message: 'Người ký chọn trong danh sách lãnh đạo (Quản trị văn bản, mục 2.5)',
+        });
       } else {
         signer = { signer_id: leader.user_id, signer_name: leader.user_name, signer_title: leader.title };
       }
@@ -694,9 +700,9 @@ export class OutgoingDocumentsService {
     if (errors.length > 0) {
       throw validationError(errors);
     }
-    const { drafter_id: _drafter, signer_id: _signer, ...rest } = input;
+    // Người soạn thảo, người ký ghi theo mã đã kiểm tra (ghi đè giá trị gửi lên)
     return {
-      ...rest,
+      ...input,
       ...signer,
       drafter_id: drafter.id,
       drafter_name: drafter.name,
@@ -780,10 +786,7 @@ export class OutgoingDocumentsService {
     const foundIncoming = incomingIds.length
       ? await transaction.selectFrom('incoming_documents').select('id').where('id', 'in', incomingIds).execute()
       : [];
-    if (
-      foundOutgoing.length !== new Set(outgoingIds).size ||
-      foundIncoming.length !== new Set(incomingIds).size
-    ) {
+    if (foundOutgoing.length !== new Set(outgoingIds).size || foundIncoming.length !== new Set(incomingIds).size) {
       throw validationError([{ field: 'links', message: 'Có văn bản liên quan không tìm thấy' }]);
     }
     await transaction.deleteFrom('outgoing_document_links').where('document_id', '=', id).execute();
@@ -943,7 +946,11 @@ export class OutgoingDocumentsService {
     if (!file) {
       throw notFoundError('Không tìm thấy tệp đính kèm', 'outgoing_document_file');
     }
-    return { fileName: file.file_name, contentType: file.content_type, body: await this.fileStorage.get(file.storage_key) };
+    return {
+      fileName: file.file_name,
+      contentType: file.content_type,
+      body: await this.fileStorage.get(file.storage_key),
+    };
   }
 
   async deleteFile(currentUser: CurrentUser, id: string, fileId: string) {
@@ -1231,7 +1238,10 @@ export class OutgoingDocumentsService {
     const result = await this.signer.sign({
       code: `VBDI-${detail.eoffice_number}`,
       title,
-      heading: [title, `Số eOffice ${detail.eoffice_number}${detail.submission_number ? `; số trình ký ${detail.submission_number}` : ''}`],
+      heading: [
+        title,
+        `Số eOffice ${detail.eoffice_number}${detail.submission_number ? `; số trình ký ${detail.submission_number}` : ''}`,
+      ],
       sheets: [
         {
           title,
@@ -1298,13 +1308,7 @@ export class OutgoingDocumentsService {
             created_by_name: currentUser.description.full_name,
           })
           .execute();
-        await this.event(
-          transaction,
-          id,
-          'sign',
-          this.signer.digital ? 'Ký số' : 'Ký xác nhận nội bộ',
-          currentUser,
-        );
+        await this.event(transaction, id, 'sign', this.signer.digital ? 'Ký số' : 'Ký xác nhận nội bộ', currentUser);
       });
     } catch (error) {
       await this.fileStorage.delete(key).catch(() => undefined);
@@ -1461,13 +1465,7 @@ export class OutgoingDocumentsService {
     const copies: string[] = [];
     try {
       const result = await this.system.transaction().execute(async (transaction) => {
-        const { document } = await this.assertAction(
-          transaction,
-          id,
-          currentUser,
-          'issue',
-          'Chỉ cấp số văn bản đã ký',
-        );
+        const { document } = await this.assertAction(transaction, id, currentUser, 'issue', 'Chỉ cấp số văn bản đã ký');
         const number = await this.numberInBook(transaction, input);
         const symbol = symbolOf(number, input.symbol_suffix);
         const now = this.clock.now();

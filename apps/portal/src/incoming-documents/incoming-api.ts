@@ -124,7 +124,7 @@ export interface IncomingListItem {
   effective_deadline: string | null;
   status: IncomingDocumentStatus;
   restricted: boolean;
-  source: 'manual' | 'interconnect';
+  source: 'manual' | 'interconnect' | 'internal';
   interconnect_status: 'received' | 'acknowledged' | null;
   received_at: string | null;
   acknowledged_at: string | null;
@@ -211,7 +211,7 @@ export interface IncomingDocument {
   status: IncomingDocumentStatus;
   restricted: boolean;
   restricted_by_name: string | null;
-  source: 'manual' | 'interconnect';
+  source: 'manual' | 'interconnect' | 'internal';
   interconnect_status: 'received' | 'acknowledged' | null;
   interconnect_reference: string | null;
   received_at: string | null;
@@ -229,6 +229,9 @@ export interface IncomingDocument {
   completed_by_name: string | null;
   completion_note: string | null;
   registered_by_name: string | null;
+  // Liên thông nội bộ từ văn bản đi của trường (DT-18 phần 18b)
+  outgoing_document_id: string | null;
+  recipient_org_unit_name: string | null;
   created_by_name: string;
   updated_at: string;
   overdue: boolean;
@@ -461,8 +464,8 @@ export const saveLeaders = (leaders: Array<{ user_id: string; title: string | nu
   requestJson('/api/v1/document-leaders', json('PUT', { leaders }));
 export const listDocumentStaff = (): Promise<StaffAccount[]> => requestJson('/api/v1/document-staff');
 
-export const listBooks = (year?: number): Promise<DocumentBook[]> =>
-  requestJson(`/api/v1/document-books${query({ direction: 'incoming', year })}`);
+export const listBooks = (year?: number, direction: 'incoming' | 'outgoing' = 'incoming'): Promise<DocumentBook[]> =>
+  requestJson(`/api/v1/document-books${query({ direction, year })}`);
 export const saveBook = (
   id: string | null,
   input: {
@@ -476,10 +479,11 @@ export const saveBook = (
     follower_ids: string[];
     admin_ids: string[];
   },
+  direction: 'incoming' | 'outgoing' = 'incoming',
 ): Promise<DocumentBook> =>
   requestJson(
     id ? `/api/v1/document-books/${id}` : '/api/v1/document-books',
-    json(id ? 'PUT' : 'POST', { direction: 'incoming', ...input }),
+    json(id ? 'PUT' : 'POST', { direction, ...input }),
   );
 export const deleteBook = (id: string): Promise<void> => requestJson(`/api/v1/document-books/${id}`, json('DELETE'));
 

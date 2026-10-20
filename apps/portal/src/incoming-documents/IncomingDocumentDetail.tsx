@@ -638,8 +638,13 @@ export function IncomingDocumentDetail({
             {INCOMING_DOCUMENT_STATUS_LABELS[document.status]}
             {document.restricted ? ` – hạn chế xem (${document.restricted_by_name ?? ''})` : ''}
           </InfoRow>
-          {document.source === 'interconnect' ? (
+          {document.source !== 'manual' ? (
             <InfoRow label="Liên thông">
+              {document.source === 'internal' ? (
+                <span className="block">
+                  Liên thông nội bộ từ văn bản đi của trường, đơn vị nhận: {document.recipient_org_unit_name ?? ''}
+                </span>
+              ) : null}
               {document.interconnect_status === 'acknowledged'
                 ? `Đã đánh dấu tiếp nhận ${time(document.acknowledged_at)} (${document.acknowledged_by_name ?? ''})`
                 : 'Chưa đánh dấu tiếp nhận'}

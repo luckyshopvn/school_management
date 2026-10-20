@@ -322,8 +322,10 @@ export const consultOutgoing = (
 ): Promise<OutgoingDocument> => requestJson(`${BASE}/${id}/consult`, json('POST', input));
 export const endConsultation = (id: string): Promise<OutgoingDocument> =>
   requestJson(`${BASE}/${id}/consult/end`, json('POST'));
-export const giveOpinion = (id: string, input: { opinion: string | null; finish: boolean }): Promise<OutgoingDocument> =>
-  requestJson(`${BASE}/${id}/opinion`, json('POST', input));
+export const giveOpinion = (
+  id: string,
+  input: { opinion: string | null; finish: boolean },
+): Promise<OutgoingDocument> => requestJson(`${BASE}/${id}/opinion`, json('POST', input));
 export const submitOutgoing = (id: string, input: { signer_id: string | null; note: string | null }) =>
   requestJson<OutgoingDocument>(`${BASE}/${id}/submit`, json('POST', input));
 export const revokeOutgoing = (id: string): Promise<OutgoingDocument> =>
@@ -357,7 +359,11 @@ export const archiveOutgoing = (ids: string[], archiveRecordId: string): Promise
 
 // ---- Sổ văn bản đi ----
 
-export const readOutgoingRegister = (bookId: string, from: string, to: string): Promise<{ items: OutgoingRegisterRow[] }> =>
+export const readOutgoingRegister = (
+  bookId: string,
+  from: string,
+  to: string,
+): Promise<{ items: OutgoingRegisterRow[] }> =>
   requestJson(`/api/v1/document-books/${bookId}/outgoing-register${query({ from, to })}`);
 
 export async function exportOutgoingRegister(bookId: string, from: string, to: string): Promise<void> {
