@@ -115,6 +115,7 @@ export type {
   KpiTaskStatus,
   KpiEvaluationStatus,
   KpiCatalogStatus,
+  KpiTasksTable,
   MedicalEventSeverity,
   MealType,
   MenuStatus,
