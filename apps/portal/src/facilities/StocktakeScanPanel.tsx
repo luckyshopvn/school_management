@@ -133,7 +133,11 @@ export function RecordForm({
       </div>
       {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
       <div className="flex gap-2">
-        <Button type="submit" variant="primary" disabled={save.isPending || (isAsset && !condition) || (!isAsset && counted === '')}>
+        <Button
+          type="submit"
+          variant="primary"
+          disabled={save.isPending || (isAsset && !condition) || (!isAsset && counted === '')}
+        >
           Ghi kết quả
         </Button>
         <Button variant="text" onClick={onCancel}>
@@ -144,7 +148,13 @@ export function RecordForm({
   );
 }
 
-export function StocktakeScanPanel({ stocktake, onRecorded }: { stocktake: StocktakeDetail; onRecorded(message: string): void }) {
+export function StocktakeScanPanel({
+  stocktake,
+  onRecorded,
+}: {
+  stocktake: StocktakeDetail;
+  onRecorded(message: string): void;
+}) {
   const [scanned, setScanned] = useState<ScanTarget>();
   const [error, setError] = useState<string>();
   async function handle(text: string) {

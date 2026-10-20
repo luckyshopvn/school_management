@@ -300,7 +300,11 @@ export async function ensureQrCodes(transaction: Transaction<SchoolYearDatabase>
       if (target.target_type === 'asset') {
         await transaction.updateTable('assets').set({ qr_code: code }).where('id', '=', target.id).execute();
       } else {
-        await transaction.updateTable('equipment_holdings').set({ qr_code: code }).where('id', '=', target.id).execute();
+        await transaction
+          .updateTable('equipment_holdings')
+          .set({ qr_code: code })
+          .where('id', '=', target.id)
+          .execute();
       }
       target.qr_code = code;
       break;
@@ -504,7 +508,9 @@ export class EquipmentLocationsService {
         .where('parent_id', '=', locationId)
         .executeTakeFirst();
       if (children) {
-        throw validationError([{ field: 'parent_id', message: 'Nơi để đang có vị trí con, không đặt vào nơi khác được' }]);
+        throw validationError([
+          { field: 'parent_id', message: 'Nơi để đang có vị trí con, không đặt vào nơi khác được' },
+        ]);
       }
     }
     return database.transaction().execute(async (transaction) => {
@@ -533,7 +539,12 @@ export class EquipmentLocationsService {
 
   async targets(
     currentUser: CurrentUser,
-    filter: { orgUnitId: string | null; locationId: string | null; targetType: TargetType | null; search: string | null },
+    filter: {
+      orgUnitId: string | null;
+      locationId: string | null;
+      targetType: TargetType | null;
+      search: string | null;
+    },
   ) {
     const unitIds = await this.data.units(currentUser, [MANAGE, REPORT], filter.orgUnitId);
     const database = await this.data.database();

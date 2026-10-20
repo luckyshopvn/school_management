@@ -1,20 +1,22 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { EQUIPMENT_AGE_GROUPS, EQUIPMENT_SCHOOL_LEVELS, PERMISSION_CODES } from '@school-management/shared';
-import { Alert, Button, DataGrid, StatusBadge, Toast, type DataGridColumn, type StatusTone } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  DataGrid,
+  StatusBadge,
+  Toast,
+  type DataGridColumn,
+  type StatusTone,
+} from '@school-management/ui';
 import { useUnitChoice } from '../catalogs/UnitSelect.js';
 import { AppShell } from '../pages/AppShell.js';
 import { matchesSearch } from '../pages/grid-search.js';
 import { useGridSettings } from '../pages/grid-settings.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
-import {
-  downloadFile,
-  listTemplates,
-  loadTemplate,
-  readComparison,
-  type ComparisonRow,
-} from './equipment-18g-api.js';
+import { downloadFile, listTemplates, loadTemplate, readComparison, type ComparisonRow } from './equipment-18g-api.js';
 import { formatNumber, messageOf } from './facilities-api.js';
 import { SelectBox } from './facilities-ui.js';
 
@@ -32,7 +34,12 @@ const STATUS: Record<ComparisonRow['status'], { label: string; tone: StatusTone 
 
 const COLUMNS: Array<DataGridColumn<ComparisonRow>> = [
   { id: 'code', header: 'Mã', alwaysVisible: true, cell: (row) => row.code },
-  { id: 'name', header: 'Tên thiết bị', alwaysVisible: true, cell: (row) => <span className="font-medium">{row.name}</span> },
+  {
+    id: 'name',
+    header: 'Tên thiết bị',
+    alwaysVisible: true,
+    cell: (row) => <span className="font-medium">{row.name}</span>,
+  },
   { id: 'unit', header: 'Đơn vị tính', cell: (row) => row.unit },
   { id: 'age_group', header: 'Nhóm tuổi', cell: (row) => labelOf(EQUIPMENT_AGE_GROUPS, row.age_group) },
   { id: 'norm', header: 'Định mức', cell: (row) => formatNumber(row.norm) },
@@ -83,8 +90,8 @@ function TemplatePanel({ onLoaded }: { onLoaded(message: string): void }) {
         Ngừng dùng thiết bị gieo sẵn tạm thời (mã NT…, MG…) chưa có số hiện có, tài sản gắn
       </label>
       <p className="text-label text-text-secondary">
-        Nạp chỉ thêm thiết bị có mã chưa có, không sửa thiết bị đã có. Danh mục chép từ văn bản đăng trên trang văn bản pháp
-        luật, cần đối chiếu bản gốc trên Công báo; các cấp học khác thêm mẫu sau.
+        Nạp chỉ thêm thiết bị có mã chưa có, không sửa thiết bị đã có. Danh mục chép từ văn bản đăng trên trang văn bản
+        pháp luật, cần đối chiếu bản gốc trên Công báo; các cấp học khác thêm mẫu sau.
       </p>
       {load.error ? <Alert tone="danger">{messageOf(load.error)}</Alert> : null}
     </section>

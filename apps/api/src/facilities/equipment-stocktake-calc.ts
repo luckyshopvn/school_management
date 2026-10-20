@@ -41,7 +41,11 @@ export function normalizeScan(targetType: TargetType, input: ScanInput, errors: 
       return null;
     }
     const counted = input.condition === 'missing' ? 0 : 1;
-    return { condition: input.condition, counted_quantity: counted, usable_quantity: input.condition === 'good' ? 1 : 0 };
+    return {
+      condition: input.condition,
+      counted_quantity: counted,
+      usable_quantity: input.condition === 'good' ? 1 : 0,
+    };
   }
   const counted = input.counted_quantity;
   if (counted === null || !Number.isFinite(counted) || counted < 0 || counted > MAX_QUANTITY) {

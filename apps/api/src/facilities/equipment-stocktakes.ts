@@ -7,7 +7,12 @@ import {
   validationError,
   type FieldError,
 } from '@school-management/server';
-import { EQUIPMENT_CONDITIONS, EQUIPMENT_STOCKTAKE_STATUSES, PERMISSION_CODES, equipmentQrCodeOf } from '@school-management/shared';
+import {
+  EQUIPMENT_CONDITIONS,
+  EQUIPMENT_STOCKTAKE_STATUSES,
+  PERMISSION_CODES,
+  equipmentQrCodeOf,
+} from '@school-management/shared';
 import type { Request, Response } from 'express';
 import type { Kysely, Transaction } from 'kysely';
 import type { PdfContent } from 'pdfmake';
@@ -315,9 +320,9 @@ export class EquipmentStocktakesService {
       throw ruleViolationError(EQUIPMENT_RULE, `Đơn vị đang có đợt kiểm kê ${open.code} chưa chốt`);
     }
     return database.transaction().execute(async (transaction) => {
-      const targets = (
-        await loadTargets(transaction, { orgUnitIds: [input.org_unit_id], locationIds })
-      ).filter((target) => target.target_type === 'holding' || target.status !== 'lost');
+      const targets = (await loadTargets(transaction, { orgUnitIds: [input.org_unit_id], locationIds })).filter(
+        (target) => target.target_type === 'holding' || target.status !== 'lost',
+      );
       const created = await transaction
         .insertInto('equipment_stocktakes')
         .values({
@@ -359,7 +364,8 @@ export class EquipmentStocktakesService {
       holding_id: target.target_type === 'holding' ? target.id : null,
       equipment_item_id: target.equipment_item_id,
       code: target.code,
-      name: target.class_name && target.target_type === 'holding' ? `${target.name} (${target.class_name})` : target.name,
+      name:
+        target.class_name && target.target_type === 'holding' ? `${target.name} (${target.class_name})` : target.name,
       unit: target.unit,
       location_id: target.location_id,
       in_scope: inScope,
@@ -402,7 +408,11 @@ export class EquipmentStocktakesService {
         });
         if (!target) {
           const elsewhere =
-            (await transaction.selectFrom('assets').select('id').where('qr_code', '=', request.qr_code).executeTakeFirst()) ??
+            (await transaction
+              .selectFrom('assets')
+              .select('id')
+              .where('qr_code', '=', request.qr_code)
+              .executeTakeFirst()) ??
             (await transaction
               .selectFrom('equipment_holdings')
               .select('id')
@@ -542,7 +552,12 @@ export class EquipmentStocktakesService {
     return database.transaction().execute(async (transaction) => {
       const closed = await transaction
         .updateTable('equipment_stocktakes')
-        .set({ status: 'closed', closed_by: origin.actorUserId, closed_at: this.clock.now(), updated_at: this.clock.now() })
+        .set({
+          status: 'closed',
+          closed_by: origin.actorUserId,
+          closed_at: this.clock.now(),
+          updated_at: this.clock.now(),
+        })
         .where('id', '=', stocktakeId)
         .where('status', '=', 'approved')
         .returningAll()
@@ -632,7 +647,10 @@ export class EquipmentStocktakesService {
             org_unit_id: stocktake.org_unit_id,
             incident_type: line.condition === 'missing' ? 'lost' : 'damaged',
             severity: line.condition === 'damaged' ? 'minor' : 'total',
-            description: `Kiểm kê ${stocktake.code}: ${conditionLabel}${line.note ? `. ${line.note}` : ''}`.slice(0, 500),
+            description: `Kiểm kê ${stocktake.code}: ${conditionLabel}${line.note ? `. ${line.note}` : ''}`.slice(
+              0,
+              500,
+            ),
             occurred_on: today,
             proposed_handling: line.condition === 'damaged' ? 'Sửa chữa' : 'Xử lý theo kết quả kiểm kê',
             reported_by: origin.actorUserId,
@@ -907,7 +925,8 @@ export class EquipmentStocktakesController {
     @Res() response: Response,
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
-    const format = body?.format === 'xlsx' ? 'xlsx' : body?.format === undefined || body?.format === 'pdf' ? 'pdf' : null;
+    const format =
+      body?.format === 'xlsx' ? 'xlsx' : body?.format === undefined || body?.format === 'pdf' ? 'pdf' : null;
     if (!format) {
       throw validationError([{ field: 'format', message: 'Định dạng là pdf hoặc xlsx' }]);
     }

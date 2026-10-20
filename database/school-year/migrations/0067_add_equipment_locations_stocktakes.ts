@@ -129,7 +129,11 @@ export const migration: Migration = {
     await database.schema.alterTable('assets').dropColumn('qr_code').dropColumn('equipment_location_id').execute();
     await database.schema.alterTable('equipment_holdings').dropColumn('qr_code').dropColumn('location_id').execute();
     await sql`alter table equipment_items drop constraint equipment_items_school_level_check`.execute(database);
-    await database.schema.alterTable('equipment_items').dropColumn('template_code').dropColumn('school_level').execute();
+    await database.schema
+      .alterTable('equipment_items')
+      .dropColumn('template_code')
+      .dropColumn('school_level')
+      .execute();
     await database.schema.dropTable('equipment_locations').execute();
   },
 };

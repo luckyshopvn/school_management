@@ -2,7 +2,13 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { equipmentQrCodeOf } from '@school-management/shared';
 import type { FieldError } from '@school-management/server';
-import { sendJson, openTestAcademicYear, startApiTestEnvironment, type ApiTestEnvironment, type LoggedInUser } from '../test-support.js';
+import {
+  sendJson,
+  openTestAcademicYear,
+  startApiTestEnvironment,
+  type ApiTestEnvironment,
+  type LoggedInUser,
+} from '../test-support.js';
 import type { EquipmentReportRow } from './equipment-report-calc.js';
 import {
   compareMinimum,
@@ -45,7 +51,11 @@ describe('Hàm tính của kiểm kê thiết bị và đối sánh danh mục t
     const errors: FieldError[] = [];
     const scan = (type: 'asset' | 'holding', input: Partial<Parameters<typeof normalizeScan>[1]>) =>
       normalizeScan(type, { condition: null, counted_quantity: null, usable_quantity: null, ...input }, errors);
-    assert.deepEqual(scan('asset', { condition: 'good' }), { condition: 'good', counted_quantity: 1, usable_quantity: 1 });
+    assert.deepEqual(scan('asset', { condition: 'good' }), {
+      condition: 'good',
+      counted_quantity: 1,
+      usable_quantity: 1,
+    });
     assert.deepEqual(scan('asset', { condition: 'damaged' }), {
       condition: 'damaged',
       counted_quantity: 1,
@@ -86,7 +96,14 @@ describe('Hàm tính của kiểm kê thiết bị và đối sánh danh mục t
       expected_quantity: expected,
       counted_quantity: counted,
       usable_quantity: usable,
-      condition: counted === null ? null : counted === 0 ? ('missing' as const) : usable === counted ? ('good' as const) : ('damaged' as const),
+      condition:
+        counted === null
+          ? null
+          : counted === 0
+            ? ('missing' as const)
+            : usable === counted
+              ? ('good' as const)
+              : ('damaged' as const),
     });
     assert.deepEqual(lineStatus(line(5, null, null)), { status: 'unchecked', difference: null });
     assert.deepEqual(lineStatus(line(5, 3, 3)), { status: 'shortage', difference: -2 });
@@ -111,7 +128,13 @@ describe('Hàm tính của kiểm kê thiết bị và đối sánh danh mục t
       [5, 4, 1, 1, 2, 1, 1],
     );
     assert.deepEqual(
-      [summary.expected_total, summary.counted_total, summary.usable_total, summary.shortage_quantity, summary.surplus_quantity],
+      [
+        summary.expected_total,
+        summary.counted_total,
+        summary.usable_total,
+        summary.shortage_quantity,
+        summary.surplus_quantity,
+      ],
       [18, 14, 12, 3, 1],
     );
     assert.equal(summary.usable_rate_percent, 85.7);
@@ -121,7 +144,10 @@ describe('Hàm tính của kiểm kê thiết bị và đối sánh danh mục t
   it('CT-18g-2: mã tem không có tên miền, đọc được từ đường dẫn; đối sánh đủ, thiếu, chưa có', () => {
     const code = generateQrCode();
     assert.match(code, /^TB-[0-9A-HJKMNP-TV-Z]{10}$/);
-    assert.equal(generateQrCode(() => 0), 'TB-0000000000');
+    assert.equal(
+      generateQrCode(() => 0),
+      'TB-0000000000',
+    );
     assert.equal(equipmentQrCodeOf(` ${code.toLowerCase()} `), code);
     assert.equal(equipmentQrCodeOf(`https://truong.example/tb/${code}`), code);
     assert.equal(equipmentQrCodeOf(`/thiet-bi?ma=${code}&x=1`), code);
@@ -165,12 +191,10 @@ describe('Hàm tính của kiểm kê thiết bị và đối sánh danh mục t
     }
     assert.equal(template.items.find((item) => item.code === 'MN122047')?.name, 'Bút sáp, phấn vẽ');
     const ball = template.items.find((item) => item.code === 'MN562030');
-    assert.deepEqual([ball?.equipment_group, ball?.age_group, ball?.quantity, ball?.target_users], [
-      'thiet_bi_do_choi',
-      'mg_5_6',
-      16,
-      'tre',
-    ]);
+    assert.deepEqual(
+      [ball?.equipment_group, ball?.age_group, ball?.quantity, ball?.target_users],
+      ['thiet_bi_do_choi', 'mg_5_6', 16, 'tre'],
+    );
     assert.equal(template.items.find((item) => item.code === 'MN563124')?.equipment_group, 'sach_tai_lieu');
     assert.throws(() => parseTemplateLines('MN991001|Sai nhóm tuổi|cái|1|t'));
   });
@@ -304,19 +328,20 @@ describe('Thiết bị: nơi để, tem QR, kiểm kê, đối sánh qua máy ch
       { target_type: 'asset', id: asset.body.id },
       { target_type: 'holding', id: holding.id },
     ];
-    const first = await fetchFile('/equipment-labels', manager.accessToken, { org_unit_id: units['PH-A'], targets: refs });
+    const first = await fetchFile('/equipment-labels', manager.accessToken, {
+      org_unit_id: units['PH-A'],
+      targets: refs,
+    });
     assert.equal(first.response.status, 200);
     assert.equal(first.response.headers.get('content-type'), 'application/pdf');
     assert.equal(first.buffer.subarray(0, 4).toString(), '%PDF');
-    const afterFirst = (
-      await call('GET', `/equipment-placements?org_unit_id=${units['PH-A']}`, manager.accessToken)
-    ).body as unknown as Row[];
+    const afterFirst = (await call('GET', `/equipment-placements?org_unit_id=${units['PH-A']}`, manager.accessToken))
+      .body as unknown as Row[];
     const assetCode = afterFirst.find((target) => target.id === asset.body.id)?.qr_code as string;
     assert.match(assetCode, /^TB-[0-9A-Z]{10}$/);
     await fetchFile('/equipment-labels', manager.accessToken, { org_unit_id: units['PH-A'], targets: refs });
-    const afterSecond = (
-      await call('GET', `/equipment-placements?org_unit_id=${units['PH-A']}`, manager.accessToken)
-    ).body as unknown as Row[];
+    const afterSecond = (await call('GET', `/equipment-placements?org_unit_id=${units['PH-A']}`, manager.accessToken))
+      .body as unknown as Row[];
     assert.equal(afterSecond.find((target) => target.id === asset.body.id)?.qr_code, assetCode, 'in lại giữ mã');
 
     const found = await call('GET', `/equipment-qr/${assetCode}`, teacher.accessToken);
@@ -402,7 +427,13 @@ describe('Thiết bị: nơi để, tem QR, kiểm kê, đối sánh qua máy ch
     const detail = await call('GET', `/equipment-stocktakes/${id}`, teacher.accessToken);
     const summary = detail.body.summary as Row;
     assert.deepEqual(
-      [summary.line_count, summary.counted_count, summary.shortage_count, summary.surplus_count, summary.usable_rate_percent],
+      [
+        summary.line_count,
+        summary.counted_count,
+        summary.shortage_count,
+        summary.surplus_count,
+        summary.usable_rate_percent,
+      ],
       [3, 3, 1, 1, 70],
     );
 
@@ -419,14 +450,16 @@ describe('Thiết bị: nơi để, tem QR, kiểm kê, đối sánh qua máy ch
     assert.equal((await call('POST', `/equipment-stocktakes/${id}/submit`, manager.accessToken)).status, 200);
     const early2 = await call('POST', `/equipment-stocktakes/${id}/close`, principal.accessToken);
     assert.equal(errorOf(early2.body).rule_code, 'YCTD-143', 'chưa duyệt thì chưa chốt');
-    assert.equal((await call('POST', `/equipment-stocktakes/${id}/approve`, principal.accessToken)).body.status, 'approved');
+    assert.equal(
+      (await call('POST', `/equipment-stocktakes/${id}/approve`, principal.accessToken)).body.status,
+      'approved',
+    );
     const closed = await call('POST', `/equipment-stocktakes/${id}/close`, principal.accessToken);
     assert.equal(closed.status, 200, JSON.stringify(closed.body));
     assert.deepEqual(closed.body.applied, { holdings: 1, moved: 0, damages: 1, skipped: 0 });
 
-    const holdingsAfter = (
-      await call('GET', `/equipment-holdings?org_unit_id=${units['PH-A']}`, principal.accessToken)
-    ).body as unknown as Row[];
+    const holdingsAfter = (await call('GET', `/equipment-holdings?org_unit_id=${units['PH-A']}`, principal.accessToken))
+      .body as unknown as Row[];
     assert.equal(holdingsAfter.find((row) => row.id === holding.id)?.quantity, 6, 'lô lấy số dùng được');
     const damages = (await call('GET', '/asset-damages', principal.accessToken)).body as unknown as Row[];
     assert.ok(
@@ -450,12 +483,18 @@ describe('Thiết bị: nơi để, tem QR, kiểm kê, đối sánh qua máy ch
       started_on: '2027-01-05',
     });
     assert.equal(next.status, 201, 'chốt xong lập được đợt mới');
-    assert.equal((await call('POST', `/equipment-stocktakes/${next.body.id}/cancel`, manager.accessToken)).body.status, 'cancelled');
+    assert.equal(
+      (await call('POST', `/equipment-stocktakes/${next.body.id}/cancel`, manager.accessToken)).body.status,
+      'cancelled',
+    );
   });
 
   it('CT-18g-6: nạp danh mục mẫu Mầm non (chỉ thêm mã chưa có, ngừng dòng gieo sẵn tạm thời), đối sánh theo cấp học', async () => {
     const templates = (await call('GET', '/equipment-templates', principal.accessToken)).body as unknown as Row[];
-    assert.deepEqual([templates[0]?.code, templates[0]?.item_count, templates[0]?.loaded_count], ['MN-TT02-2010', 515, 0]);
+    assert.deepEqual(
+      [templates[0]?.code, templates[0]?.item_count, templates[0]?.loaded_count],
+      ['MN-TT02-2010', 515, 0],
+    );
     const denied = await call('POST', '/equipment-templates/MN-TT02-2010/load', manager.accessToken, {});
     assert.equal(denied.status, 403, 'quản lý một đơn vị không nạp danh mục toàn trường');
     const loaded = await call('POST', '/equipment-templates/MN-TT02-2010/load', principal.accessToken, {
@@ -470,7 +509,11 @@ describe('Thiết bị: nơi để, tem QR, kiểm kê, đối sánh qua máy ch
     const unknown = await call('POST', '/equipment-templates/KHONG-CO/load', principal.accessToken, {});
     assert.equal(unknown.status, 404);
 
-    const comparison = await call('GET', `/equipment-minimum?org_unit_id=${units['PH-A']}&school_level=MN`, manager.accessToken);
+    const comparison = await call(
+      'GET',
+      `/equipment-minimum?org_unit_id=${units['PH-A']}&school_level=MN`,
+      manager.accessToken,
+    );
     assert.equal(comparison.status, 200);
     assert.equal(comparison.body.catalog_count, 516);
     const badLevel = await call('GET', '/equipment-minimum?school_level=DH', manager.accessToken);

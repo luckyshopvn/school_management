@@ -167,7 +167,10 @@ export function StocktakeScreen({ onBack }: { onBack(): void }) {
         {message ? <Alert tone={message.tone}>{message.text}</Alert> : null}
         {selected ? <QrScanner onScan={(text) => void scanned(text)} disabled={busy} /> : null}
         {target ? (
-          <form className="flex flex-col gap-3 rounded-xl border border-border bg-card p-3" onSubmit={(event) => void record(event)}>
+          <form
+            className="flex flex-col gap-3 rounded-xl border border-border bg-card p-3"
+            onSubmit={(event) => void record(event)}
+          >
             <div className="flex flex-col">
               <span className="text-content font-semibold">
                 {target.code} – {target.name}

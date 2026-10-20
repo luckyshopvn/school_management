@@ -30,7 +30,12 @@ const labelOf = (values: ReadonlyArray<{ value: string; label: string }>, value:
 
 const LOCATION_COLUMNS: Array<DataGridColumn<EquipmentLocation>> = [
   { id: 'code', header: 'Mã', alwaysVisible: true, cell: (row) => row.code },
-  { id: 'name', header: 'Tên nơi để', alwaysVisible: true, cell: (row) => <span className="font-medium">{row.name}</span> },
+  {
+    id: 'name',
+    header: 'Tên nơi để',
+    alwaysVisible: true,
+    cell: (row) => <span className="font-medium">{row.name}</span>,
+  },
   { id: 'type', header: 'Loại', cell: (row) => labelOf(EQUIPMENT_LOCATION_TYPES, row.location_type) },
   { id: 'parent', header: 'Thuộc', cell: (row) => row.parent_name ?? row.room_name ?? '' },
   { id: 'unit', header: 'Đơn vị', cell: (row) => row.org_unit_name },
@@ -39,7 +44,11 @@ const LOCATION_COLUMNS: Array<DataGridColumn<EquipmentLocation>> = [
     id: 'status',
     header: 'Trạng thái',
     cell: (row) =>
-      row.status === 'active' ? <StatusBadge tone="success" label="Đang dùng" /> : <StatusBadge tone="neutral" label="Ngừng dùng" />,
+      row.status === 'active' ? (
+        <StatusBadge tone="success" label="Đang dùng" />
+      ) : (
+        <StatusBadge tone="neutral" label="Ngừng dùng" />
+      ),
   },
 ];
 
@@ -113,14 +122,27 @@ function LocationForm({
       }}
     >
       <div className="grid gap-3 md:grid-cols-3">
-        <TextField label="Mã nơi để" value={code} error={errors.code} onChange={(event) => setCode(event.target.value)} />
-        <TextField label="Tên nơi để" value={name} error={errors.name} onChange={(event) => setName(event.target.value)} />
+        <TextField
+          label="Mã nơi để"
+          value={code}
+          error={errors.code}
+          onChange={(event) => setCode(event.target.value)}
+        />
+        <TextField
+          label="Tên nơi để"
+          value={name}
+          error={errors.name}
+          onChange={(event) => setName(event.target.value)}
+        />
         <SelectBox label="Loại nơi để" value={type} options={EQUIPMENT_LOCATION_TYPES} onChange={setType} />
         {type === 'room' ? (
           <SelectBox
             label="Phòng đã khai báo"
             value={roomId}
-            options={(rooms.data?.rooms ?? []).map((room) => ({ value: room.id, label: `${room.code} – ${room.name}` }))}
+            options={(rooms.data?.rooms ?? []).map((room) => ({
+              value: room.id,
+              label: `${room.code} – ${room.name}`,
+            }))}
             emptyLabel="Không gắn phòng"
             error={errors.room_id}
             onChange={setRoomId}
@@ -150,7 +172,15 @@ function LocationForm({
   );
 }
 
-function LocationsTab({ orgUnitId, canManage, onSaved }: { orgUnitId: string; canManage: boolean; onSaved(message: string): void }) {
+function LocationsTab({
+  orgUnitId,
+  canManage,
+  onSaved,
+}: {
+  orgUnitId: string;
+  canManage: boolean;
+  onSaved(message: string): void;
+}) {
   const grid = useGridSettings('equipment-locations');
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
@@ -221,7 +251,15 @@ function LocationsTab({ orgUnitId, canManage, onSaved }: { orgUnitId: string; ca
   );
 }
 
-function TargetsTab({ orgUnitId, canManage, onSaved }: { orgUnitId: string; canManage: boolean; onSaved(message: string): void }) {
+function TargetsTab({
+  orgUnitId,
+  canManage,
+  onSaved,
+}: {
+  orgUnitId: string;
+  canManage: boolean;
+  onSaved(message: string): void;
+}) {
   const grid = useGridSettings('equipment-labels');
   const queryClient = useQueryClient();
   const [locationId, setLocationId] = useState('');
@@ -245,7 +283,11 @@ function TargetsTab({ orgUnitId, canManage, onSaved }: { orgUnitId: string; canM
   });
   const print = useMutation({
     mutationFn: (rows: EquipmentTarget[]) =>
-      downloadFile('/api/v1/equipment-labels', { org_unit_id: orgUnitId, targets: refsOf(rows) }, 'tem-qr-thiet-bi.pdf'),
+      downloadFile(
+        '/api/v1/equipment-labels',
+        { org_unit_id: orgUnitId, targets: refsOf(rows) },
+        'tem-qr-thiet-bi.pdf',
+      ),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['equipment-placements'] });
       onSaved('Đã tạo tệp tem QR');
@@ -284,8 +326,8 @@ function TargetsTab({ orgUnitId, canManage, onSaved }: { orgUnitId: string; canM
         ) : null}
       </div>
       <p className="text-label text-text-secondary">
-        Chọn thiết bị, lô trong bảng rồi bấm "In tem QR" để tải tệp PDF khổ A4 (3 × 8 tem mỗi trang). Mã tem cấp khi in lần đầu
-        và giữ nguyên khi in lại; mã QR chỉ chứa mã tem.
+        Chọn thiết bị, lô trong bảng rồi bấm "In tem QR" để tải tệp PDF khổ A4 (3 × 8 tem mỗi trang). Mã tem cấp khi in
+        lần đầu và giữ nguyên khi in lại; mã QR chỉ chứa mã tem.
       </p>
       {targets.error ? <Alert tone="danger">{messageOf(targets.error)}</Alert> : null}
       {place.error ? <Alert tone="danger">{messageOf(place.error)}</Alert> : null}
@@ -358,8 +400,12 @@ export function EquipmentLocationsPage() {
           onSelect={setTab}
           label="Nơi để và tem QR"
         />
-        {tab === 'locations' ? <LocationsTab orgUnitId={orgUnitId} canManage={canManage} onSaved={setToastMessage} /> : null}
-        {tab === 'targets' ? <TargetsTab orgUnitId={orgUnitId} canManage={canManage} onSaved={setToastMessage} /> : null}
+        {tab === 'locations' ? (
+          <LocationsTab orgUnitId={orgUnitId} canManage={canManage} onSaved={setToastMessage} />
+        ) : null}
+        {tab === 'targets' ? (
+          <TargetsTab orgUnitId={orgUnitId} canManage={canManage} onSaved={setToastMessage} />
+        ) : null}
       </div>
     </AppShell>
   );

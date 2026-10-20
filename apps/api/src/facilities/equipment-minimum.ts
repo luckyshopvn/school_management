@@ -214,9 +214,7 @@ export class EquipmentMinimumService {
     ]);
     const levelOf = new Map(levels.map((row) => [row.id, row.school_level]));
     const items = allItems.filter((item) => item.is_minimum && levelOf.get(item.id) === filter.schoolLevel);
-    const comparison = compareMinimum(
-      buildEquipmentReport({ items, classes, holdings, assets, classId: null }).rows,
-    );
+    const comparison = compareMinimum(buildEquipmentReport({ items, classes, holdings, assets, classId: null }).rows);
     return {
       org_unit_ids: unitIds,
       school_level: filter.schoolLevel,

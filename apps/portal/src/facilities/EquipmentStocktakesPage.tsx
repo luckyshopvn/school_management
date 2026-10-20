@@ -57,7 +57,12 @@ const RESULT_LABELS: Record<StocktakeLine['status'], { label: string; tone: Stat
 
 const LIST_COLUMNS: Array<DataGridColumn<StocktakeListItem>> = [
   { id: 'code', header: 'Mã đợt', alwaysVisible: true, cell: (row) => row.code },
-  { id: 'name', header: 'Tên đợt', alwaysVisible: true, cell: (row) => <span className="font-medium">{row.name}</span> },
+  {
+    id: 'name',
+    header: 'Tên đợt',
+    alwaysVisible: true,
+    cell: (row) => <span className="font-medium">{row.name}</span>,
+  },
   { id: 'unit', header: 'Đơn vị', cell: (row) => row.org_unit_name },
   { id: 'location', header: 'Nơi kiểm kê', cell: (row) => row.location_name ?? 'Cả đơn vị' },
   { id: 'started_on', header: 'Ngày kiểm kê', cell: (row) => row.started_on },
@@ -136,7 +141,12 @@ function CreateForm({ orgUnitId, onCreated }: { orgUnitId: string; onCreated(id:
       }}
     >
       <div className="grid gap-3 md:grid-cols-3">
-        <TextField label="Tên đợt kiểm kê" value={name} error={errors.name} onChange={(event) => setName(event.target.value)} />
+        <TextField
+          label="Tên đợt kiểm kê"
+          value={name}
+          error={errors.name}
+          onChange={(event) => setName(event.target.value)}
+        />
         <TextField
           label="Ngày kiểm kê"
           type="date"
@@ -289,8 +299,8 @@ function StocktakeDetailView({
       ) : null}
       {data.status === 'approved' ? (
         <p className="text-label text-text-secondary">
-          Chốt chênh lệch: lô lấy số dùng được làm số hiện có; thiết bị thấy ở nơi khác đổi nơi để; tài sản hỏng hoặc không tìm
-          thấy được lập ghi nhận hỏng, mất chờ duyệt ở Kho và tài sản.
+          Chốt chênh lệch: lô lấy số dùng được làm số hiện có; thiết bị thấy ở nơi khác đổi nơi để; tài sản hỏng hoặc
+          không tìm thấy được lập ghi nhận hỏng, mất chờ duyệt ở Kho và tài sản.
         </p>
       ) : null}
       {act.error ? <Alert tone="danger">{messageOf(act.error)}</Alert> : null}
