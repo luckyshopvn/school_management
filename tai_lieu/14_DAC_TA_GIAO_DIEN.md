@@ -1,8 +1,8 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.74
-- Ngày cập nhật: 2026-10-20
+- Phiên bản: 1.75
+- Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -275,6 +275,18 @@ Từ YCTD-107 (DT-15 phần 15a), cổng quản trị dùng menu ngang nhiều c
 | Đánh giá KPI | 4.4. | Biểu quyết xếp loại | `/kpi/voting` |
 | Đánh giá KPI | 5. | Báo cáo | (nhóm) |
 | Đánh giá KPI | 5.1. | Báo cáo KPI | `/kpi/reports` |
+| Hồ sơ chuyên môn | 1. | Việc của tôi | `/my-work` |
+| Hồ sơ chuyên môn | 2. | Kho hồ sơ | (nhóm) |
+| Hồ sơ chuyên môn | 2.1. | Hồ sơ cá nhân | `/professional-records` |
+| Hồ sơ chuyên môn | 2.2. | Hồ sơ tổ, nhóm | `/professional-records/groups` |
+| Hồ sơ chuyên môn | 2.3. | Hồ sơ trường | `/professional-records/school` |
+| Hồ sơ chuyên môn | 3. | Nộp và duyệt | (nhóm) |
+| Hồ sơ chuyên môn | 3.1. | Đợt nộp hồ sơ | `/professional-rounds` |
+| Hồ sơ chuyên môn | 3.2. | Duyệt hồ sơ | `/professional-records/review` |
+| Hồ sơ chuyên môn | 3.3. | Thống kê nộp hồ sơ | `/professional-records/statistics` |
+| Hồ sơ chuyên môn | 4. | Thiết lập | (nhóm) |
+| Hồ sơ chuyên môn | 4.1. | Thư mục và luồng duyệt | `/professional-folders` |
+| Hồ sơ chuyên môn | 4.2. | Nhóm công tác | `/professional-work-groups` |
 
 Từ YCTD-134 (DT-17 phần 17c), phân hệ "Tuyển sinh đầu cấp" (khóa `entry-admissions`) đứng sau "Quản lý cơ sở vật chất, TBDH" trên ô chọn phân hệ; số mục giữ như trang riêng `truong-tsdc` của Sở (khảo sát tài liệu 31 mục 10.2.2), tên năm nhóm 1. đến 5. do Claude tự đặt vì khảo sát không ghi; mục 1.3 đến 1.7 thêm ở phần 17d. Tiêu đề trang lấy từ cây menu kèm số (`menuPageTitle`). Cổng quản trị có 13 phân hệ.
 
@@ -283,6 +295,8 @@ Từ YCTD-135 (DT-17 phần 17d), nhóm "1. Hồ sơ tuyển sinh" có đủ 1.1
 Từ YCTD-138 (DT-18 phần 18a), phân hệ "Quản lý văn bản và điều hành" (khóa `documents`) đứng sau "Quản lý kí hồ sơ" trên ô chọn phân hệ, làm theo hệ thống quản lý văn bản và điều hành VNPT iOffice (quyết định của Eric ngày 2026-10-19). Nhóm 1. Văn bản đến, 2. Quản trị văn bản; văn bản đi (18b), giao việc, lịch, hồ sơ công việc, báo cáo (18c) thêm nhóm sau. Số nhóm, tên mục Claude tự đặt theo menu của iOffice. Mục 1.1, 1.3 đến 1.5 hiện với người có một quyền `P09.incoming-document.*`; 1.2, 1.7 cần quyền văn thư; 1.6 cần quyền tra cứu hoặc văn thư; 2.1 cần quyền quản trị văn bản hoặc văn thư; 2.2 đến 2.5 cần quyền quản trị văn bản (`MENU_PERMISSION_RULES`).
 
 Từ YCTD-139 (DT-18 phần 18d), phân hệ "Đánh giá KPI" (khóa `kpi`) đứng cuối ô chọn phân hệ; phân hệ riêng nên đánh số liên tục, tên mục do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11. Mục hiện theo quyền `P09.kpi.*` (PQ-79).
+
+Từ YCTD-142 (DT-18 phần 18e), phân hệ "Hồ sơ chuyên môn" (khóa `professional-records`) đứng cuối ô chọn phân hệ, theo mô tả công khai của GIKIDI Nhà Trường; phân hệ riêng nên đánh số liên tục, tên mục do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11. Mục 1. Việc của tôi không có điều kiện quyền (ai đăng nhập cũng thấy) và hiện số việc đang chờ cạnh tên mục (nền đỏ khi có việc quá hạn); đầu trang có thêm nút "Việc của tôi" kèm số, cạnh chuông thông báo; số làm mới mỗi phút. Các mục khác hiện theo quyền `P09.professional-record.*` (PQ-83).
 
 ## 2. Danh sách màn hình theo kênh
 
@@ -496,6 +510,15 @@ Từ YCTD-139 (DT-18 phần 18d), phân hệ "Đánh giá KPI" (khóa `kpi`) đ�
 | MH-203 | Nơi để và tem QR thiết bị (YCTD-143; mục "2.4.", đường dẫn `/equipment-locations`): chọn đơn vị; thẻ "Nơi để" (lưới khóa `equipment-locations`: Mã, Tên nơi để, Loại, Thuộc, Đơn vị, Số thiết bị, lô, Trạng thái; nút "Thêm nơi để", "Sửa", "Ngừng dùng"/"Dùng lại"; biểu mẫu Mã nơi để, Tên nơi để, Loại nơi để, Phòng đã khai báo hoặc Nằm trong, Ghi chú, nút "Ghi"); thẻ "Thiết bị và tem QR" (lọc Nơi để, Loại; lưới chọn nhiều dòng khóa `equipment-labels`: Mã, Tên thiết bị, Loại, Số lượng, Nơi để, Mã tem, Đơn vị; ô "Gán vào nơi để", nút "Gán nơi để", "In tem QR") | `P13.equipment.manage` ghi; `P17.report.facilities` xem |
 | MH-204 | Kiểm kê thiết bị (YCTD-143; mục "2.5.", đường dẫn `/equipment-stocktakes`, dùng được trên trình duyệt điện thoại): lọc Đơn vị, Trạng thái; lưới khóa `equipment-stocktakes` (Mã đợt, Tên đợt, Đơn vị, Nơi kiểm kê, Ngày kiểm kê, Đã kiểm, Trạng thái), nút "Lập đợt kiểm kê" (biểu mẫu Tên đợt kiểm kê, Ngày kiểm kê, Nơi kiểm kê, Tổ kiểm kê, Ghi chú), "Mở". Chi tiết: thông tin đợt, sáu ô tổng hợp (Đã kiểm, Khớp sổ, Thiếu, Thừa, Ngoài sổ, Tỷ lệ sử dụng được), nút theo trạng thái "Nộp kết quả", "Hủy đợt", "Duyệt", "Trả lại" (kèm lý do), "Chốt chênh lệch", "Biên bản PDF", "Biên bản Excel"; khối "Quét kiểm kê" (nút "Quét mã QR" bật máy ảnh, ô "Mã tem" và nút "Tra mã"; biểu mẫu "Ghi kết quả kiểm kê": tình trạng hoặc Số đếm được, Số dùng được, Tình trạng phần hỏng; Nơi thấy, Ghi chú, nút "Ghi kết quả", "Bỏ qua"); lưới "Đối chiếu kiểm kê" khóa `equipment-stocktake-lines` (Mã, Tên thiết bị, Nơi để theo sổ, Theo sổ, Đếm được, Dùng được, Chênh lệch, Kết quả, Tình trạng, Nơi thấy, Ghi chú; lọc Kết quả; nút "Ghi kết quả" mỗi dòng) | `P13.equipment.manage` hoặc `P13.equipment.stocktake` |
 | MH-205 | Đối sánh danh mục tối thiểu (YCTD-143; mục "2.6.", đường dẫn `/equipment-minimum`): khối "Danh mục mẫu" (mẫu theo cấp học, văn bản gốc, số thiết bị, đã có; ô "Ngừng dùng thiết bị gieo sẵn tạm thời"; nút "Nạp danh mục mẫu") khi có quyền quản lý; lọc Đơn vị, Cấp học, Kết quả; dòng tóm tắt Đủ, Thiếu, Chưa có, tỷ lệ đủ, số không áp dụng; lưới khóa `equipment-minimum` (Mã, Tên thiết bị, Đơn vị tính, Nhóm tuổi, Định mức, Hiện có, Thiếu, Kết quả); nút "Xuất Excel", "Xuất PDF" | `P17.report.facilities` hoặc `P13.equipment.manage` |
+| MH-206 | Việc của tôi (YCTD-142; mục "1.", `/my-work`, lưới khóa `my-work`; nút "Việc của tôi" ở đầu trang): dòng tổng "Đang chờ n việc, trong đó m việc quá hạn"; thẻ Tất cả, Quá hạn (số), Sắp đến hạn; ô Phân hệ (kèm số việc của từng phân hệ); tìm theo nội dung; cột Phân hệ, Việc cần làm, Nội dung, Chi tiết, Hạn (nhãn Quá hạn, Sắp đến hạn), Nhận lúc (ẩn mặc định); nút Mở đến màn hình xử lý; báo phân hệ chưa đọc được | Mọi tài khoản |
+| MH-207 | Hồ sơ cá nhân (YCTD-142; mục "2.1.", `/professional-records`, lưới khóa `professional-documents`): ô Thư mục (cây thụt lề), Trạng thái; ô "Hồ sơ cá nhân của mọi người trong phạm vi" cho Ban Giám hiệu; tìm theo tên, người nộp; cột Tên hồ sơ, Thư mục, Người nộp, Đợt nộp, Phiên bản, Nộp lúc (nhãn Nộp trễ), Trạng thái (nhãn Đã kí), Đơn vị, Người duyệt; Thêm hồ sơ (Thư mục, Đợt nộp, Tên hồ sơ, Mô tả); Xóa hồ sơ chưa nộp; chi tiết: thông tin, luồng duyệt, bản đã kí, phiên bản (tải), tải phiên bản mới kèm ghi chú, nút Nộp hồ sơ hoặc Nộp lại, Rút lại, Tổ trưởng duyệt, Duyệt hoặc Duyệt và kí, Trả lại (ý kiến, lý do), lịch sử; báo khi năm học đã khóa | `P09.professional-record.*` |
+| MH-208 | Hồ sơ tổ, nhóm (YCTD-142; mục "2.2.", `/professional-records/groups`): như MH-207; biểu mẫu thêm có ô Tổ, nhóm (tổ chuyên môn của tôi hoặc nhóm công tác) | `P09.professional-record.*` |
+| MH-209 | Hồ sơ trường (YCTD-142; mục "2.3.", `/professional-records/school`): như MH-207; chỉ người quản lý kho thêm hồ sơ | `P09.professional-record.*` |
+| MH-210 | Duyệt hồ sơ (YCTD-142; mục "3.2.", `/professional-records/review`, lưới khóa `professional-review`): thẻ Chờ tôi duyệt, Tôi đã duyệt; cột, chi tiết như MH-207 | `P09.professional-record.review`, `.approve` |
+| MH-211 | Đợt nộp hồ sơ (YCTD-142; mục "3.1.", `/professional-rounds`, lưới khóa `professional-rounds`): thẻ Đang mở, Đã đóng, Tất cả; cột Đợt nộp, Thư mục, Nộp theo, Đơn vị, Mở từ, Hạn nộp (nhãn Đã quá hạn), Đúng hạn / trễ / chưa nộp, Của tôi, Trạng thái; Thêm đợt nộp, Sửa (Tên đợt, Nộp theo, Thư mục, Đơn vị, Tổ áp dụng, Ngày mở đợt, Hạn nộp, Yêu cầu), Nhắc chưa nộp, Đóng đợt, Mở lại; chi tiết: nút "Nộp hồ sơ cho đợt này" và khối hồ sơ của tôi, lưới tình trạng nộp (khóa `professional-round-status`: Người nộp hoặc Tổ, Tổ, Đơn vị, Nộp lúc, Tình trạng, Trạng thái hồ sơ) | `P09.professional-record.*` |
+| MH-212 | Thống kê nộp hồ sơ (YCTD-142; mục "3.3.", `/professional-records/statistics`, lưới khóa `professional-statistics`): dòng tổng lượt phải nộp, đúng hạn, trễ, chưa nộp; lưới Thống kê theo đợt nộp (Phải nộp, Đúng hạn, Nộp trễ, Chưa nộp, Tỷ lệ đúng hạn); lưới Thống kê theo tổ | `P09.professional-record.manage`, `.approve` |
+| MH-213 | Thư mục và luồng duyệt (YCTD-142; mục "4.1.", `/professional-folders`, lưới khóa `professional-folders`): khối Khóa năm học (Khóa, Mở khóa); ô Cấp học và nút Nạp danh mục mặc định; cột Nhánh, Thư mục, Thư mục cha, Luồng duyệt, Kí nội bộ, Cấp học, Số hồ sơ, Trạng thái; Thêm thư mục, Sửa (Nhánh, Thư mục cha, Tên, Luồng duyệt, Kí nội bộ khi duyệt, Cấp học, Thứ tự, Trạng thái), Xóa thư mục chưa có hồ sơ | `P09.professional-record.manage` |
+| MH-214 | Nhóm công tác (YCTD-142; mục "4.2.", `/professional-work-groups`, lưới khóa `professional-work-groups`): cột Nhóm công tác, Đơn vị, Trưởng nhóm, Số thành viên, Trạng thái; Thêm nhóm, Sửa (Đơn vị, Tên nhóm, Mô tả, Trạng thái, vai trò của từng nhân sự: Không tham gia, Thành viên, Trưởng nhóm) | `P09.professional-record.manage` |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 

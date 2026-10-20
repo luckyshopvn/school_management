@@ -1,8 +1,8 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.61
-- Ngày cập nhật: 2026-10-20
+- Phiên bản: 1.62
+- Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -210,6 +210,9 @@
 | P09-25 | Lịch đơn vị, phòng họp, mẫu lịch, lịch họp (YCTD-141) | Đăng ký lịch `P09.schedule.manage`; duyệt phòng `P09.meeting-room.manage`; mọi cán bộ xem, đăng ký phòng | Ngày, buổi, giờ, nội dung, chủ trì, thành phần, địa điểm, phòng họp, người tham dự; phòng, giờ đăng ký; mẫu | Kiểm tra trùng giờ phòng họp, tự duyệt cho người duyệt; công bố, thông báo; áp mẫu | Lịch tuần, tháng, của tôi; Excel, PDF, in | BR-137 |
 | P09-26 | Hồ sơ công việc, nộp lưu (YCTD-141) | Cán bộ `P09.work-file.use`; văn thư lưu trữ `P09.archive.manage` | Số ký hiệu, tiêu đề, năm, đơn vị, thời hạn bảo quản; văn bản đến, công việc, ghi chú; người chia sẻ, quyền; người nhận chuyển giao | Kiểm tra quyền xem thành phần; trạng thái; tạo hồ sơ tài liệu 5.10 khi tiếp nhận | Hồ sơ cá nhân, được chia sẻ, được chuyển giao, nộp lưu, hết hạn bảo quản | BR-137 |
 | P09-27 | Báo cáo thực hiện văn bản đến, tổng hợp, thống kê (YCTD-141) | VT-02, VT-15, VT-06; VT-03 trong đơn vị (`P09.document-report.view`) | Đơn vị, từ ngày, đến ngày, định dạng | Nhóm theo hạn của dòng xử lý chính, theo đơn vị của hồ sơ nhân sự; ghi nhật ký xuất | Bảng, Excel, PDF | BR-137 |
+| P09-28 | Kho hồ sơ chuyên môn, luồng duyệt, kí nội bộ (2.1 đến 2.3, 3.2, 4.1, 4.2 của phân hệ Hồ sơ chuyên môn, YCTD-142) | Cán bộ `P09.professional-record.use`; tổ trưởng `P09.professional-record.review`; Ban Giám hiệu `.approve`, `.manage` | Thư mục (nhánh, cha, luồng duyệt, cần kí, cấp học, thứ tự), tên hồ sơ, mô tả, tổ hoặc nhóm, tệp và ghi chú phiên bản, ý kiến, lý do trả lại | Kho ba nhánh theo năm học; nạp danh mục thư mục mặc định theo cấp học; nộp, rút lại, tổ trưởng duyệt, Ban Giám hiệu duyệt (kèm kí khi thư mục cần kí), trả lại, nộp lại có phiên bản; tải phiên bản, bản đã kí; nhóm công tác; khóa năm học |
+| P09-29 | Đợt nộp có hạn, ai chưa nộp, thống kê (3.1, 3.3, YCTD-142) | Lập, sửa, đóng, nhắc: `P09.professional-record.manage`; xem tình trạng: tổ trưởng (tổ mình), Ban Giám hiệu; thống kê: `.manage`, `.approve` | Thư mục, tên đợt, nộp theo cá nhân hoặc tổ, đơn vị, tổ áp dụng, ngày mở, hạn nộp (giờ Việt Nam), yêu cầu | Tình trạng từng đối tượng: nộp đúng hạn, nộp trễ, chưa nộp; nhắc người, tổ chưa nộp bằng thông báo; thống kê theo đợt (tỷ lệ đúng hạn) và theo tổ |
+| P09-30 | Việc của tôi (1. của phân hệ Hồ sơ chuyên môn, nút ở đầu trang, YCTD-142) | Mọi tài khoản đăng nhập (mỗi nguồn kiểm tra quyền của phân hệ) | Phân hệ, hạn (tất cả, quá hạn, sắp đến hạn), tìm theo nội dung | Danh sách việc đang chờ: phân hệ, việc cần làm, nội dung, chi tiết, hạn, nhận lúc, nút Mở đến màn hình xử lý; số việc và số quá hạn trên menu, ở đầu trang |
 
 ## 11. Phân hệ P10 — Y tế học đường
 

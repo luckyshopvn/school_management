@@ -1,8 +1,8 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.41
-- Ngày cập nhật: 2026-10-20
+- Phiên bản: 1.42
+- Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -768,6 +768,11 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-693 | Cho đợt kiểm kê đang mở của phân hiệu / Khi lập đợt thứ hai, nộp khi còn dòng chưa kiểm, giáo viên quét tài sản hỏng, quét lô 8 đếm được 6 dùng được, quét tài sản mua sau khi lập đợt, giáo viên đơn vị khác quét / Thì đợt thứ hai và nộp sớm bị từ chối (YCTD-143); dòng tài sản Khớp, tình trạng hỏng; lô Thiếu 2; thêm dòng ngoài sổ Thừa; đơn vị khác bị từ chối quyền; tỷ lệ sử dụng được 70% | P13-17, BR-138 |
 | AC-694 | Cho đợt đã kiểm đủ / Khi nộp, quét sau khi nộp, trả lại, nộp lại, chốt trước khi duyệt, duyệt, chốt, xuất biên bản PDF, Excel / Thì quét sau khi nộp và chốt sớm bị từ chối; chốt xong lô có số hiện có bằng số dùng được, tài sản hỏng có ghi nhận hỏng chờ duyệt; biên bản PDF, Excel tải được; lập được đợt mới | P13-17, BR-138, BR-61 |
 | AC-695 | Cho danh mục mẫu Mầm non / Khi quản lý một đơn vị nạp, Hiệu trưởng nạp có ngừng dòng gieo sẵn, nạp lại, xem đối sánh cấp học không có / Thì quản lý đơn vị bị từ chối; nạp thêm 515 thiết bị, ngừng dòng gieo sẵn chưa có số hiện có; nạp lại không thêm; cấp học sai báo lỗi; đối sánh báo Đủ, Thiếu, Chưa có | P13-18, BR-138 |
+| AC-696 | Cho thư mục hai cấp duyệt và giáo viên trong tổ có tổ trưởng / Khi giáo viên nộp chưa có tệp, tải tệp rồi nộp, tổ trưởng tổ khác mở hồ sơ, tổ trưởng trả lại, giáo viên tải bản mới nộp lại, tổ trưởng duyệt, Phó Hiệu trưởng duyệt / Thì nộp chưa tệp bị từ chối; tổ khác không xem được; hồ sơ qua Chờ tổ trưởng duyệt, Bị trả lại, Chờ Ban Giám hiệu duyệt, Đã duyệt; giữ hai phiên bản; lịch sử đủ tám bước |
+| AC-697 | Cho thư mục cần kí / Khi Ban Giám hiệu duyệt lúc chưa đăng ký chứng thư rồi sau khi đăng ký / Thì lần đầu bị từ chối, hồ sơ vẫn chờ duyệt; lần sau hồ sơ đã duyệt, có bản PDF đã kí nội bộ tải được |
+| AC-698 | Cho đợt nộp theo cá nhân còn hạn và đợt đã quá hạn / Khi giáo viên nộp ở hai đợt, tạo hồ sơ thứ hai cho cùng đợt, Hiệu trưởng xem tình trạng, nhắc, đóng đợt, giáo viên khác tạo hồ sơ cho đợt đã đóng / Thì đợt quá hạn ghi nộp trễ; trùng bị từ chối; tình trạng ghi đúng hạn, chưa nộp; tổ trưởng chỉ thấy người trong tổ; thông báo gửi người chưa nộp; đợt đóng không nhận hồ sơ mới |
+| AC-699 | Cho tổ trưởng và nhóm công tác / Khi tổ trưởng nộp hồ sơ của tổ, giáo viên tạo hồ sơ cho tổ khác, thành viên nộp hồ sơ của nhóm, tổ trưởng tổ duyệt hồ sơ nhóm, trưởng nhóm duyệt; khi khóa năm học rồi mở khóa / Thì hồ sơ của tổ trưởng vào thẳng Chờ Ban Giám hiệu duyệt; tổ khác bị từ chối; chỉ trưởng nhóm duyệt được; khi khóa không thêm, duyệt được, mở khóa thì duyệt được |
+| AC-700 | Cho người dùng có việc chờ ở nhiều phân hệ / Khi mở Việc của tôi, lọc theo phân hệ, lọc quá hạn, tìm chữ, phụ huynh gọi số đếm / Thì danh sách gom đủ nguồn, quá hạn lên đầu, số đếm trên menu bằng số việc, lọc đúng; phụ huynh nhận 0 việc |
 
 ## 20. Chưa xác minh được
 
