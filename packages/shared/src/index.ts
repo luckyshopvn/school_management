@@ -12,6 +12,7 @@ export * from './signing.js';
 export * from './entry-admissions.js';
 export * from './incoming-documents.js';
 export * from './kpi.js';
+export * from './outgoing-documents.js';
 export * from './directives.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
@@ -200,6 +201,11 @@ export const PERMISSION_CODES = {
   kpiAdvise: 'P09.kpi.advise',
   kpiVote: 'P09.kpi.vote',
   kpiConfigure: 'P09.kpi.configure',
+  // Văn bản đi theo VNPT iOffice (DT-18 phần 18b)
+  outgoingDocumentDraft: 'P09.outgoing-document.draft',
+  outgoingDocumentSign: 'P09.outgoing-document.sign',
+  outgoingDocumentIssue: 'P09.outgoing-document.issue',
+  outgoingDocumentSearch: 'P09.outgoing-document.search',
   // Giao việc, lịch đơn vị, phòng họp, hồ sơ công việc, báo cáo theo VNPT iOffice (DT-18 phần 18c)
   taskDirect: 'P09.task.direct',
   scheduleView: 'P09.schedule.view',
@@ -434,6 +440,11 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/kpi/advisory',
   '/kpi/voting',
   '/kpi/reports',
+  // Văn bản đi theo VNPT iOffice (DT-18 phần 18b)
+  '/outgoing-documents',
+  '/outgoing-documents/manage',
+  '/outgoing-documents/interconnect',
+  '/outgoing-documents/search',
   // Giao việc, lịch, hồ sơ công việc, báo cáo theo VNPT iOffice (DT-18 phần 18c)
   '/directives/new',
   '/directives/inbox',
@@ -670,6 +681,11 @@ export const DATA_GRID_KEYS = [
   'kpi-advisory',
   'kpi-voting',
   'kpi-manager-actions',
+  // Văn bản đi theo VNPT iOffice (DT-18 phần 18b)
+  'outgoing-documents',
+  'outgoing-manage',
+  'outgoing-recipients',
+  'outgoing-register',
   // Giao việc, lịch, hồ sơ công việc, báo cáo theo VNPT iOffice (DT-18 phần 18c)
   'directive-inbox',
   'directive-outbox',

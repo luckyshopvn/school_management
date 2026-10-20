@@ -41,6 +41,11 @@ import {
   type ExternalUnitGroup,
   type RegisterRow,
 } from './incoming-api.js';
+import {
+  exportOutgoingRegister,
+  readOutgoingRegister,
+  type OutgoingRegisterRow,
+} from '../outgoing-documents/outgoing-api.js';
 
 // Quản trị văn bản theo VNPT iOffice (DT-18 phần 18a, YCTD-138): 2.1 Sổ văn bản (khai báo sổ, sổ đăng ký văn bản đến, xuất
 // Excel), 2.2 Đơn vị bên ngoài, 2.3 Khai báo nhóm đơn vị ban hành, 2.4 Danh mục văn bản (hình thức, độ khẩn, độ mật, lĩnh
@@ -113,16 +118,18 @@ function Tabs<Value extends string>({
 
 function BookForm({
   book,
+  direction,
   onSaved,
   onCancel,
 }: {
   book?: DocumentBook;
+  direction: 'incoming' | 'outgoing';
   onSaved(book: DocumentBook): void;
   onCancel(): void;
 }) {
   const year = new Date().getFullYear();
   const [values, setValues] = useState({
-    name: book?.name ?? 'Sổ văn bản đến',
+    name: book?.name ?? (direction === 'incoming' ? 'Sổ văn bản đến' : 'Sổ văn bản đi'),
     org_unit_id: book?.org_unit_id ?? '',
     year: String(book?.year ?? year),
     start_number: String(book?.start_number ?? 1),
@@ -136,14 +143,18 @@ function BookForm({
   const units = useArchiveUnits(ADMIN);
   const save = useMutation({
     mutationFn: () =>
-      saveBook(book?.id ?? null, {
-        ...values,
-        org_unit_id: values.org_unit_id || null,
-        year: Number(values.year) || values.year,
-        start_number: Number(values.start_number) || values.start_number,
-        end_date: values.end_date || null,
-        sort_order: Number(values.sort_order) || 0,
-      }),
+      saveBook(
+        book?.id ?? null,
+        {
+          ...values,
+          org_unit_id: values.org_unit_id || null,
+          year: Number(values.year) || values.year,
+          start_number: Number(values.start_number) || values.start_number,
+          end_date: values.end_date || null,
+          sort_order: Number(values.sort_order) || 0,
+        },
+        direction,
+      ),
     onSuccess: onSaved,
   });
   const errors = fieldErrorsOf(save.error);
@@ -264,13 +275,33 @@ const REGISTER_COLUMNS: Array<DataGridColumn<RegisterRow>> = [
   { id: 'main_handler', header: 'Xử lý chính', cell: (row) => row.main_handler },
 ];
 
+// Sổ đăng ký văn bản đi theo cột của iOffice (DT-18 phần 18b): Ngày ban hành, Người ký, Đơn vị soạn thảo, Số bản
+const OUTGOING_REGISTER_COLUMNS: Array<DataGridColumn<OutgoingRegisterRow>> = [
+  { id: 'issue_date', header: 'Ngày ban hành', cell: (row) => formatDate(row.issue_date) },
+  { id: 'issue_number', header: 'Số', cell: (row) => row.issue_number },
+  { id: 'symbol', header: 'Số ký hiệu', cell: (row) => row.symbol },
+  { id: 'summary', header: 'Trích yếu', alwaysVisible: true, cell: (row) => row.summary },
+  { id: 'signer_name', header: 'Người ký', cell: (row) => row.signer_name ?? '' },
+  { id: 'drafting_unit_name', header: 'Đơn vị soạn thảo', cell: (row) => row.drafting_unit_name ?? '' },
+  { id: 'copies', header: 'Số bản', cell: (row) => row.copies ?? '' },
+  { id: 'recipients', header: 'Nơi nhận', cell: (row) => row.recipients },
+  { id: 'form_name', header: 'Hình thức', cell: (row) => row.form_name ?? '' },
+  { id: 'urgency_name', header: 'Độ khẩn', cell: (row) => row.urgency_name ?? '' },
+  { id: 'field_name', header: 'Lĩnh vực', cell: (row) => row.field_name ?? '' },
+];
+
+type BookTab = 'books' | 'register' | 'outgoing-books' | 'outgoing-register';
+
 export function DocumentBooksPage() {
   const canAdmin = useHasPermission(ADMIN);
   const queryClient = useQueryClient();
   const { toast, setToast, close } = useToast();
   const bookGrid = useGridSettings('document-books');
   const registerGrid = useGridSettings('incoming-register');
-  const [tab, setTab] = useState<'books' | 'register'>('books');
+  const outgoingGrid = useGridSettings('outgoing-register');
+  const [tab, setTab] = useState<BookTab>('books');
+  const direction = tab.startsWith('outgoing') ? 'outgoing' : 'incoming';
+  const registerTab = tab === 'register' || tab === 'outgoing-register';
   const [year, setYear] = useState(String(new Date().getFullYear()));
   const [creating, setCreating] = useState(false);
   const [editingId, setEditingId] = useState<string>();
@@ -279,12 +310,20 @@ export function DocumentBooksPage() {
   const today = VIETNAM_DATE.format(new Date());
   const [range, setRange] = useState({ from: `${today.slice(0, 4)}-01-01`, to: today });
   const [exportError, setExportError] = useState<string>();
-  const books = useQuery({ queryKey: ['document-books', year], queryFn: () => listBooks(Number(year) || undefined) });
+  const books = useQuery({
+    queryKey: ['document-books', direction, year],
+    queryFn: () => listBooks(Number(year) || undefined, direction),
+  });
   const selected = bookId || books.data?.[0]?.id || '';
   const register = useQuery({
     queryKey: ['document-register', selected, range],
     queryFn: () => readRegister(selected, range.from, range.to),
     enabled: tab === 'register' && Boolean(selected),
+  });
+  const outgoingRegister = useQuery({
+    queryKey: ['outgoing-register', selected, range],
+    queryFn: () => readOutgoingRegister(selected, range.from, range.to),
+    enabled: tab === 'outgoing-register' && Boolean(selected),
   });
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['document-books'] });
   const remove = useMutation({
@@ -298,14 +337,21 @@ export function DocumentBooksPage() {
   });
   return (
     <Page path="/document-books" toast={toast} onToastClose={close}>
-      <Tabs<'books' | 'register'>
+      <Tabs<BookTab>
         label="Sổ văn bản"
         value={tab}
         options={[
           { value: 'books', label: 'Khai báo sổ văn bản đến' },
           { value: 'register', label: 'Sổ đăng ký văn bản đến' },
+          { value: 'outgoing-books', label: 'Khai báo sổ văn bản đi' },
+          { value: 'outgoing-register', label: 'Sổ đăng ký văn bản đi' },
         ]}
-        onChange={setTab}
+        onChange={(value) => {
+          setTab(value);
+          setBookId('');
+          setCreating(false);
+          setEditingId(undefined);
+        }}
       />
       <label className="max-w-xs text-label font-medium text-text">
         Năm
@@ -318,11 +364,12 @@ export function DocumentBooksPage() {
       </label>
       {books.error ? <Alert tone="danger">{messageOf(books.error)}</Alert> : null}
       {remove.error ? <Alert tone="danger">{messageOf(remove.error)}</Alert> : null}
-      {tab === 'books' ? (
+      {!registerTab ? (
         <>
           {creating ? (
             <section className="rounded-xl border border-border bg-card p-4">
               <BookForm
+                direction={direction}
                 onCancel={() => setCreating(false)}
                 onSaved={(saved) => {
                   setCreating(false);
@@ -333,13 +380,13 @@ export function DocumentBooksPage() {
             </section>
           ) : null}
           <DataGrid
-            label="Danh sách sổ văn bản đến"
+            label={direction === 'incoming' ? 'Danh sách sổ văn bản đến' : 'Danh sách sổ văn bản đi'}
             columns={BOOK_COLUMNS}
             rows={books.data ?? []}
             getRowId={(row) => row.id}
             getRowLabel={(row) => row.name}
             loading={!books.data && !books.error}
-            emptyText="Chưa có sổ văn bản đến của năm."
+            emptyText={direction === 'incoming' ? 'Chưa có sổ văn bản đến của năm.' : 'Chưa có sổ văn bản đi của năm.'}
             toolbar={
               canAdmin ? (
                 <Button variant="primary" onClick={() => setCreating(true)}>
@@ -365,6 +412,7 @@ export function DocumentBooksPage() {
                 <BookForm
                   key={row.id}
                   book={row}
+                  direction={direction}
                   onCancel={() => setEditingId(undefined)}
                   onSaved={(saved) => {
                     setEditingId(undefined);
@@ -411,31 +459,59 @@ export function DocumentBooksPage() {
             </label>
           </div>
           {register.error ? <Alert tone="danger">{messageOf(register.error)}</Alert> : null}
+          {outgoingRegister.error ? <Alert tone="danger">{messageOf(outgoingRegister.error)}</Alert> : null}
           {exportError ? <Alert tone="danger">{exportError}</Alert> : null}
-          <DataGrid
-            label="Sổ đăng ký văn bản đến"
-            columns={REGISTER_COLUMNS}
-            rows={register.data?.items ?? []}
-            getRowId={(row) => row.id}
-            getRowLabel={(row) => String(row.arrival_number)}
-            loading={Boolean(selected) && !register.data && !register.error}
-            emptyText="Sổ chưa có văn bản trong khoảng ngày."
-            toolbar={
-              <Button
-                disabled={!selected}
-                onClick={() => {
-                  setExportError(undefined);
-                  exportRegister(selected, range.from, range.to).catch((error: unknown) =>
-                    setExportError(messageOf(error)),
-                  );
-                }}
-              >
-                Xuất Excel
-              </Button>
-            }
-            settings={registerGrid.settings}
-            onSettingsChange={registerGrid.update}
-          />
+          {tab === 'outgoing-register' ? (
+            <DataGrid
+              label="Sổ đăng ký văn bản đi"
+              columns={OUTGOING_REGISTER_COLUMNS}
+              rows={outgoingRegister.data?.items ?? []}
+              getRowId={(row) => row.id}
+              getRowLabel={(row) => row.symbol}
+              loading={Boolean(selected) && !outgoingRegister.data && !outgoingRegister.error}
+              emptyText="Sổ chưa có văn bản trong khoảng ngày."
+              toolbar={
+                <Button
+                  disabled={!selected}
+                  onClick={() => {
+                    setExportError(undefined);
+                    exportOutgoingRegister(selected, range.from, range.to).catch((error: unknown) =>
+                      setExportError(messageOf(error)),
+                    );
+                  }}
+                >
+                  Xuất Excel
+                </Button>
+              }
+              settings={outgoingGrid.settings}
+              onSettingsChange={outgoingGrid.update}
+            />
+          ) : (
+            <DataGrid
+              label="Sổ đăng ký văn bản đến"
+              columns={REGISTER_COLUMNS}
+              rows={register.data?.items ?? []}
+              getRowId={(row) => row.id}
+              getRowLabel={(row) => String(row.arrival_number)}
+              loading={Boolean(selected) && !register.data && !register.error}
+              emptyText="Sổ chưa có văn bản trong khoảng ngày."
+              toolbar={
+                <Button
+                  disabled={!selected}
+                  onClick={() => {
+                    setExportError(undefined);
+                    exportRegister(selected, range.from, range.to).catch((error: unknown) =>
+                      setExportError(messageOf(error)),
+                    );
+                  }}
+                >
+                  Xuất Excel
+                </Button>
+              }
+              settings={registerGrid.settings}
+              onSettingsChange={registerGrid.update}
+            />
+          )}
         </>
       )}
       {deleting ? (

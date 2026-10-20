@@ -56,8 +56,8 @@ import {
 import { formatDateTime, Page, Section, todayText, useToast } from './directive-ui.js';
 import { SaveToWorkFile } from './WorkFilePages.js';
 
-// Quản lý công việc theo VNPT iOffice (DT-18 phần 18c, YCTD-141): 3.1 Giao việc (THÔNG TIN CÔNG VIỆC và PHÂN CÔNG THỰC
-// HIỆN theo cây đơn vị), 3.2 Công việc cần xử lý (lọc trạng thái, vai, loại), 3.3 Công việc đã giao. Bấm một dòng mở chi
+// Quản lý công việc theo VNPT iOffice (DT-18 phần 18c, YCTD-141): 4.1 Giao việc (THÔNG TIN CÔNG VIỆC và PHÂN CÔNG THỰC
+// HIỆN theo cây đơn vị), 4.2 Công việc cần xử lý (lọc trạng thái, vai, loại), 4.3 Công việc đã giao. Bấm một dòng mở chi
 // tiết việc ngay dưới dòng: cập nhật tiến độ, phân công tiếp, phê duyệt, thu hồi, tệp đính kèm, hủy việc
 const STATUS_TONES: Record<DirectiveAssignmentStatus, StatusTone> = {
   todo: 'neutral',
@@ -223,7 +223,7 @@ function draftsOf(options: DirectiveOptions, picks: Record<string, Pick>): Assig
     });
 }
 
-// ---- 3.1 Giao việc ----
+// ---- 4.1 Giao việc ----
 
 export function DirectiveFormPage() {
   const search: { document_id?: string; document_label?: string } = useSearch({ strict: false });
@@ -271,7 +271,7 @@ export function DirectiveFormPage() {
       {options.error ? <Alert tone="danger">{messageOf(options.error)}</Alert> : null}
       {created ? (
         <Alert tone="success">
-          Đã tạo công việc “{created.title}”, hạn {formatDate(created.due_date)}. Xem ở 3.3 Công việc đã giao.
+          Đã tạo công việc “{created.title}”, hạn {formatDate(created.due_date)}. Xem ở 4.3 Công việc đã giao.
         </Alert>
       ) : null}
       <form
@@ -737,7 +737,7 @@ export function DirectiveDetailPanel({ id, onChanged }: { id: string; onChanged?
   );
 }
 
-// ---- 3.2 Công việc cần xử lý ----
+// ---- 4.2 Công việc cần xử lý ----
 
 const INBOX_COLUMNS: Array<DataGridColumn<InboxItem>> = [
   {
@@ -869,7 +869,7 @@ export function DirectiveInboxPage() {
   );
 }
 
-// ---- 3.3 Công việc đã giao ----
+// ---- 4.3 Công việc đã giao ----
 
 const OUTBOX_COLUMNS: Array<DataGridColumn<OutboxItem>> = [
   {

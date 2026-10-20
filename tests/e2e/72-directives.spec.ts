@@ -81,7 +81,7 @@ test('Giao việc, xử lý, phê duyệt; lịch tuần có phòng họp, lịc
   // Lãnh đạo: 3.1 Giao việc cho chuyên viên xử lý chính, 3 ngày
   const leader = await signIn(browser, principal);
   await openMenu(leader, '/directives/new');
-  await expect(leader.getByRole('heading', { name: '3.1. Giao việc' })).toBeVisible();
+  await expect(leader.getByRole('heading', { name: '4.1. Giao việc' })).toBeVisible();
   const form = leader.getByRole('form', { name: 'Giao việc' });
   await form.getByLabel('Nội dung nhiệm vụ (*)').fill(content);
   await form.getByLabel('Số ngày thực hiện').fill('3');

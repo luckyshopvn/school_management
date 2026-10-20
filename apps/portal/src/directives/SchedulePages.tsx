@@ -50,10 +50,10 @@ import {
 } from './directives-api.js';
 import { formatTime, mondayOf, Page, shiftDate, Tabs, todayText, useToast } from './directive-ui.js';
 
-// Quản lý lịch đơn vị theo VNPT iOffice (DT-18 phần 18c, YCTD-141): 5.1 Đăng ký lịch đơn vị (lịch tuần thứ Hai đến Chủ
-// nhật theo buổi sáng, chiều; công bố; áp mẫu lịch), 5.2 Lịch họp (tuần, tháng, tất cả, lịch của tôi; lọc đơn vị, địa điểm,
-// thành phần; Xuất Excel, Xuất PDF, In lịch), 5.3 Đăng ký phòng họp (chờ phê duyệt, phê duyệt, bị từ chối), 5.4 Phòng họp,
-// 5.5 Mẫu lịch
+// Quản lý lịch đơn vị theo VNPT iOffice (DT-18 phần 18c, YCTD-141): 6.1 Đăng ký lịch đơn vị (lịch tuần thứ Hai đến Chủ
+// nhật theo buổi sáng, chiều; công bố; áp mẫu lịch), 6.2 Lịch họp (tuần, tháng, tất cả, lịch của tôi; lọc đơn vị, địa điểm,
+// thành phần; Xuất Excel, Xuất PDF, In lịch), 6.3 Đăng ký phòng họp (chờ phê duyệt, phê duyệt, bị từ chối), 6.4 Phòng họp,
+// 6.5 Mẫu lịch
 const MANAGE = PERMISSION_CODES.scheduleManage;
 const ROOMS = PERMISSION_CODES.meetingRoomManage;
 const SESSIONS = Object.entries(SCHEDULE_SESSION_LABELS) as Array<[ScheduleSessionKey, string]>;
@@ -379,7 +379,7 @@ function EntryForm({
   );
 }
 
-// ---- 5.1 Đăng ký lịch đơn vị ----
+// ---- 6.1 Đăng ký lịch đơn vị ----
 
 export function UnitSchedulePage() {
   const queryClient = useQueryClient();
@@ -503,7 +503,7 @@ export function UnitSchedulePage() {
   );
 }
 
-// ---- 5.2 Lịch họp ----
+// ---- 6.2 Lịch họp ----
 
 type MeetingView = 'week' | 'month' | 'all' | 'mine';
 
@@ -627,7 +627,7 @@ export function MeetingSchedulePage() {
   );
 }
 
-// ---- 5.3 Đăng ký phòng họp ----
+// ---- 6.3 Đăng ký phòng họp ----
 
 function BookingForm({ onSaved, onCancel }: { onSaved(booking: RoomBooking): void; onCancel(): void }) {
   const rooms = useQuery({ queryKey: ['meeting-rooms', 'active'], queryFn: () => listRooms(true) });
@@ -881,7 +881,7 @@ export function RoomBookingsPage() {
   );
 }
 
-// ---- 5.4 Phòng họp ----
+// ---- 6.4 Phòng họp ----
 
 function RoomForm({
   room,
@@ -1055,7 +1055,7 @@ export function MeetingRoomsPage() {
   );
 }
 
-// ---- 5.5 Mẫu lịch ----
+// ---- 6.5 Mẫu lịch ----
 
 const blankItem = (): ScheduleTemplateItem => ({
   weekday: 1,

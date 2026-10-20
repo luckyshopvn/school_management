@@ -211,8 +211,8 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
   },
   {
     // Quản lý văn bản và điều hành theo VNPT iOffice (DT-18, tài liệu 32 mục 9; quyết định của Eric ngày 2026-10-19). Phần
-    // 18a làm Văn bản đến và Quản trị văn bản; văn bản đi (18b) thêm nhóm sau; 18c thêm Quản lý công việc, Hồ sơ công việc,
-    // Quản lý lịch đơn vị, Báo cáo. Số nhóm, tên mục Claude tự đặt theo menu của iOffice
+    // 18a làm Văn bản đến và Quản trị văn bản; 18b thêm Văn bản đi (nhóm 3); 18c thêm Quản lý công việc, Hồ sơ công việc,
+    // Quản lý lịch đơn vị, Báo cáo (nhóm 4 đến 7). Số nhóm, tên mục Claude tự đặt theo menu của iOffice
     key: 'documents',
     label: 'Quản lý văn bản và điều hành',
     menu: [
@@ -232,29 +232,36 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('2.4.', 'Danh mục văn bản', '/document-catalogs'),
         leaf('2.5.', 'Lãnh đạo nhận văn bản', '/document-leaders'),
       ]),
-      group('3.', 'Quản lý công việc', [
-        leaf('3.1.', 'Giao việc', '/directives/new'),
-        leaf('3.2.', 'Công việc cần xử lý', '/directives/inbox'),
-        leaf('3.3.', 'Công việc đã giao', '/directives/outbox'),
+      // Văn bản đi (phần 18b): Dự thảo, Chờ xử lý, Đã xử lý, Đã ban hành như menu Quản lý văn bản đi của iOffice
+      group('3.', 'Văn bản đi', [
+        leaf('3.1.', 'Văn bản đi', '/outgoing-documents'),
+        leaf('3.2.', 'Quản lý văn bản đi', '/outgoing-documents/manage'),
+        leaf('3.3.', 'Liên thông văn bản đi', '/outgoing-documents/interconnect'),
+        leaf('3.4.', 'Tra cứu văn bản đi', '/outgoing-documents/search'),
       ]),
-      group('4.', 'Hồ sơ công việc', [
-        leaf('4.1.', 'Hồ sơ cá nhân', '/work-files'),
-        leaf('4.2.', 'Hồ sơ được chia sẻ', '/work-files/shared'),
-        leaf('4.3.', 'Hồ sơ được chuyển giao', '/work-files/transferred'),
-        leaf('4.4.', 'Hồ sơ nộp lưu', '/work-files/archive'),
-        leaf('4.5.', 'Hồ sơ hết hạn bảo quản', '/work-files/expired'),
+      group('4.', 'Quản lý công việc', [
+        leaf('4.1.', 'Giao việc', '/directives/new'),
+        leaf('4.2.', 'Công việc cần xử lý', '/directives/inbox'),
+        leaf('4.3.', 'Công việc đã giao', '/directives/outbox'),
       ]),
-      group('5.', 'Quản lý lịch đơn vị', [
-        leaf('5.1.', 'Đăng ký lịch đơn vị', '/unit-schedules'),
-        leaf('5.2.', 'Lịch họp', '/meeting-schedules'),
-        leaf('5.3.', 'Đăng ký phòng họp', '/room-bookings'),
-        leaf('5.4.', 'Phòng họp', '/meeting-rooms'),
-        leaf('5.5.', 'Mẫu lịch', '/schedule-templates'),
+      group('5.', 'Hồ sơ công việc', [
+        leaf('5.1.', 'Hồ sơ cá nhân', '/work-files'),
+        leaf('5.2.', 'Hồ sơ được chia sẻ', '/work-files/shared'),
+        leaf('5.3.', 'Hồ sơ được chuyển giao', '/work-files/transferred'),
+        leaf('5.4.', 'Hồ sơ nộp lưu', '/work-files/archive'),
+        leaf('5.5.', 'Hồ sơ hết hạn bảo quản', '/work-files/expired'),
       ]),
-      group('6.', 'Báo cáo', [
-        leaf('6.1.', 'Báo cáo thực hiện văn bản đến', '/document-reports/incoming'),
-        leaf('6.2.', 'Báo cáo tổng hợp', '/document-reports/summary'),
-        leaf('6.3.', 'Thống kê số liệu trong đơn vị', '/document-reports/statistics'),
+      group('6.', 'Quản lý lịch đơn vị', [
+        leaf('6.1.', 'Đăng ký lịch đơn vị', '/unit-schedules'),
+        leaf('6.2.', 'Lịch họp', '/meeting-schedules'),
+        leaf('6.3.', 'Đăng ký phòng họp', '/room-bookings'),
+        leaf('6.4.', 'Phòng họp', '/meeting-rooms'),
+        leaf('6.5.', 'Mẫu lịch', '/schedule-templates'),
+      ]),
+      group('7.', 'Báo cáo', [
+        leaf('7.1.', 'Báo cáo thực hiện văn bản đến', '/document-reports/incoming'),
+        leaf('7.2.', 'Báo cáo tổng hợp', '/document-reports/summary'),
+        leaf('7.3.', 'Thống kê số liệu trong đơn vị', '/document-reports/statistics'),
       ]),
     ],
   },

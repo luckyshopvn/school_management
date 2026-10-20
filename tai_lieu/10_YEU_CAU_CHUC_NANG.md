@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.58
+- Phiên bản: 1.59
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -202,6 +202,10 @@
 | P09-17 | Tự đánh giá, xếp loại và kết luận của cấp trên (YCTD-139) | Nhân sự; cấp trên | Tiêu chí chung đảm bảo hay không, mức tự đề xuất; điều chỉnh tiêu chí, loại trừ, mức, nhận xét | A, B, phần kết quả, thưởng, tổng, mức đề xuất; chặn khi còn việc chờ | Phiếu theo Mẫu 01-A, 01-B | BR-135 |
 | P09-18 | Tham mưu và biểu quyết xếp loại (YCTD-139) | VT-02, VT-15, VT-06 tham mưu; VT-02, VT-15 biểu quyết | Mức, ghi chú tham mưu; mức biểu quyết | Tỷ lệ xuất sắc theo phiên bản, nhóm; đếm biểu quyết | Danh sách kèm số xuất sắc được phép | BR-135 |
 | P09-19 | Báo cáo KPI và chuyển dữ liệu từ hệ thống cũ (YCTD-139) | Mọi nhân sự (mẫu của mình); quản lý, tham mưu, cấu hình (tổng hợp); cấu hình toàn trường (chuyển dữ liệu) | Kỳ, phiếu, định dạng; tệp sao lưu SQLite | Dựng Excel, Word, PDF, ghi nhật ký xuất; ghép người theo họ tên, xem trước không ghi | Bảng tính điểm, bản tự đánh giá, tổng hợp, phiếu tháng, phiếu năm, quy chế, sổ trách nhiệm; kết quả chuyển | BR-135 |
+| P09-20 | Dự thảo và lấy ý kiến văn bản đi (3.1 của phân hệ Quản lý văn bản và điều hành, theo VNPT iOffice, YCTD-140) | Mọi cán bộ có `P09.outgoing-document.draft` | Biểu mẫu văn bản đi: số trình ký, trích yếu (bắt buộc), hình thức, độ khẩn, độ mật, lĩnh vực, loại văn bản, phân loại văn bản ưu tiên, chèn QR code, nội dung trình, người soạn thảo, đơn vị soạn thảo, người ký, thời gian họp, địa điểm, đơn vị dự kiến nhận (bên ngoài, trong trường), văn bản liên quan, văn bản gốc, văn bản đến được trả lời; tệp dự thảo, file phiếu trình, văn bản gửi kèm; người cho ý kiến, hạn, nội dung đề nghị; ý kiến | Dự thảo có số eOffice; lấy ý kiến theo đợt, cho ý kiến, kết thúc cho ý kiến, kết thúc lấy ý kiến; xóa dự thảo chưa trình; thông báo trong ứng dụng |
+| P09-21 | Trình ký và ký nội bộ văn bản đi (YCTD-140) | Người soạn; người ký (`P09.outgoing-document.sign`) | Người ký, ý kiến trình; lý do không ký, trả lại | Chờ ký; lấy lại; bản đã ký PDF có khối xác nhận kí nội bộ, ảnh con dấu, mã QR tra cứu (quy trình kí của Quản lý kí hồ sơ); không ký, trả lại về dự thảo; phiếu trình ký PDF |
+| P09-22 | Cấp số, phát hành, liên thông văn bản đi (3.2, 3.3, YCTD-140) | Văn thư (`P09.outgoing-document.issue`) | Sổ văn bản đi, số đi, phần ký hiệu, ngày ban hành, số bản; đơn vị nhận được đánh dấu gửi, ghi chú gửi | Văn bản Đã ban hành có số, số ký hiệu; liên thông nội bộ thành văn bản đến chờ vào sổ của đơn vị nhận; đơn vị bên ngoài Chờ gửi, Đã đánh dấu gửi; public lên cổng TTĐT, ẩn; đóng băng, hủy đóng băng; lưu hồ sơ (hồ sơ tài liệu 5.10.1); văn bản đến được trả lời ghi số ký hiệu |
+| P09-23 | Danh sách, tra cứu, sổ văn bản đi, tra cứu mã QR (3.1 đến 3.4, 2.1, trang công khai, YCTD-140) | Mọi người có quyền văn bản đi; tra cứu cần `search` hoặc `issue`; sổ cần `issue` hoặc quyền quản trị văn bản; trang tra cứu mã không cần đăng nhập | Tìm theo trích yếu, tìm nâng cao (số ký hiệu, số đi, người ký, ngày ban hành, sổ, hình thức, độ khẩn, đã public); sổ, khoảng ngày ban hành; mã tra cứu | Thẻ Dự thảo, Chờ xử lý, Đã xử lý (3.1), Chờ cấp số, Đã ban hành (3.2); đơn vị nhận theo trạng thái gửi (3.3); sổ đăng ký văn bản đi theo cột Ngày ban hành, Số, Số ký hiệu, Trích yếu, Người ký, Đơn vị soạn thảo, Số bản, Nơi nhận, Hình thức, Độ khẩn, Lĩnh vực, xuất Excel; trang tra cứu hiện số ký hiệu, ngày ban hành, người ký, thời điểm ký, mã băm bản đã ký |
 
 ## 11. Phân hệ P10 — Y tế học đường
 

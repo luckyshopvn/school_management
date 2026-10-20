@@ -31,8 +31,8 @@ import {
 } from './directives-api.js';
 import { formatDateTime, Page, todayText, useToast } from './directive-ui.js';
 
-// Hồ sơ công việc theo VNPT iOffice (DT-18 phần 18c, YCTD-141): 4.1 Hồ sơ cá nhân, 4.2 Hồ sơ được chia sẻ, 4.3 Hồ sơ được
-// chuyển giao; nộp lưu sang văn thư lưu trữ (5.10): 4.4 Hồ sơ nộp lưu (tiếp nhận, trả về), 4.5 Hồ sơ hết hạn bảo quản
+// Hồ sơ công việc theo VNPT iOffice (DT-18 phần 18c, YCTD-141): 5.1 Hồ sơ cá nhân, 5.2 Hồ sơ được chia sẻ, 5.3 Hồ sơ được
+// chuyển giao; nộp lưu sang văn thư lưu trữ (5.10): 5.4 Hồ sơ nộp lưu (tiếp nhận, trả về), 5.5 Hồ sơ hết hạn bảo quản
 const ITEM_LABELS = { incoming_document: 'Văn bản đến', task: 'Công việc', note: 'Ghi chú' };
 const EVENT_LABELS: Record<string, string> = {
   create: 'Lập hồ sơ',

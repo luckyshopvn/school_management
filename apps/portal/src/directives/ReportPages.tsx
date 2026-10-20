@@ -6,8 +6,8 @@ import { messageOf, selectClass, useArchiveUnits } from '../archives/archive-ui.
 import { exportReport, readReport, type ReportFilter, type ReportKind } from './directives-api.js';
 import { Page, shiftDate, todayText } from './directive-ui.js';
 
-// Báo cáo theo VNPT iOffice (DT-18 phần 18c, YCTD-141): 6.1 Báo cáo thực hiện văn bản đến (kèm đánh giá: tỷ lệ đúng hạn),
-// 6.2 Báo cáo tổng hợp (thống kê theo đơn vị độc lập), 6.3 Thống kê số liệu trong đơn vị; lọc Đơn vị, Từ ngày, Đến ngày;
+// Báo cáo theo VNPT iOffice (DT-18 phần 18c, YCTD-141): 7.1 Báo cáo thực hiện văn bản đến (kèm đánh giá: tỷ lệ đúng hạn),
+// 7.2 Báo cáo tổng hợp (thống kê theo đơn vị độc lập), 7.3 Thống kê số liệu trong đơn vị; lọc Đơn vị, Từ ngày, Đến ngày;
 // Xuất Excel, Xuất PDF
 interface ProcessingReport {
   rows: Array<Record<string, string | number>>;

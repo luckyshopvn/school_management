@@ -24,6 +24,9 @@ export interface DossierSignatureInput {
   };
   // Ảnh con dấu dạng data:image/png;base64,… hoặc data:image/jpeg;base64,…
   sealImage: string | null;
+  // Mã tra cứu in thành mã QR ở khối xác nhận (văn bản đi, DT-18 phần 18b); text là nội dung của mã QR (địa chỉ trang tra
+  // cứu hoặc chính mã khi chưa biết địa chỉ)
+  verification?: { code: string; text: string } | null;
 }
 
 export interface DossierSignatureResult {
@@ -68,6 +71,7 @@ export class InternalDossierSigner extends DossierSigner {
         .join(' – ')}`,
       `Mã định danh hồ sơ: ${input.code}`,
       `Mã băm SHA-256 của tệp hồ sơ gốc: ${input.originalSha256}`,
+      ...(input.verification ? [`Mã tra cứu: ${input.verification.code}`] : []),
     ];
     const closing: PdfContent[] = [
       {
@@ -84,6 +88,7 @@ export class InternalDossierSigner extends DossierSigner {
             columns: [
               { width: '*', stack: lines.map((text) => ({ text, fontSize: 9, margin: [0, 0, 0, 2] })) },
               ...(input.sealImage ? [{ width: 110, image: input.sealImage, fit: [110, 110] }] : []),
+              ...(input.verification ? [{ width: 90, qr: input.verification.text, fit: 90 }] : []),
             ],
             columnGap: 12,
           },

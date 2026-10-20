@@ -484,7 +484,8 @@ export type IncomingDocumentAuthority = 'normal' | 'outside';
 export type IncomingDocumentKind = 'new' | 'revoke' | 'replace';
 export type IncomingTransferMethod = 'hand' | 'post' | 'email' | 'interconnect';
 export type IncomingCopyType = 'original' | 'certified_copy' | 'transcribed_copy' | 'extract_copy';
-export type IncomingDocumentSource = 'manual' | 'interconnect';
+// internal: nhận qua liên thông nội bộ từ văn bản đi của trường (phần 18b)
+export type IncomingDocumentSource = 'manual' | 'interconnect' | 'internal';
 export type IncomingInterconnectStatus = 'received' | 'acknowledged';
 export type IncomingFileKind = 'main' | 'related';
 export type IncomingAssignmentRole = 'leader' | 'main' | 'coordinate' | 'view';
@@ -613,6 +614,10 @@ export interface IncomingDocumentsTable {
   registered_at: Date | null;
   registered_by: string | null;
   registered_by_name: string | null;
+  // Liên thông nội bộ (phần 18b): văn bản đi nguồn, đơn vị nhận trong trường
+  outgoing_document_id: string | null;
+  recipient_org_unit_id: string | null;
+  recipient_org_unit_name: string | null;
   created_by: string;
   created_by_name: string;
   created_at: CreatedTimestamp;
@@ -673,6 +678,140 @@ export interface IncomingDocumentFlagsTable {
 }
 
 export interface IncomingDocumentEventsTable {
+  id: Generated<string>;
+  document_id: string;
+  action: string;
+  note: string | null;
+  actor_id: string;
+  actor_name: string;
+  created_at: CreatedTimestamp;
+}
+
+// Văn bản đi theo VNPT iOffice (DT-18 phần 18b, YCTD-140)
+export type OutgoingDocumentStatus = 'draft' | 'consulting' | 'pending_signature' | 'signed' | 'issued';
+export type OutgoingFileKind = 'draft' | 'submission' | 'attachment' | 'signed';
+export type OutgoingLinkType = 'related' | 'original';
+export type OutgoingOpinionStatus = 'pending' | 'answered' | 'finished' | 'closed';
+export type OutgoingRecipientType = 'external' | 'internal';
+export type OutgoingSendStatus = 'pending' | 'sent' | 'delivered';
+
+export interface OutgoingDocumentsTable {
+  id: Generated<string>;
+  // Số eOffice: số thứ tự của phần mềm, cấp khi tạo dự thảo
+  eoffice_number: number;
+  // Số trình ký do người soạn ghi
+  submission_number: string | null;
+  summary: string;
+  form_id: string | null;
+  urgency_id: string | null;
+  secrecy_id: string | null;
+  field_id: string | null;
+  document_kind: Generated<IncomingDocumentKind>;
+  priority: Generated<boolean>;
+  meeting_at: Date | null;
+  meeting_place: string | null;
+  insert_qr: Generated<boolean>;
+  drafter_id: string;
+  drafter_name: string;
+  // Đơn vị soạn thảo ở cây đơn vị của năm học, tên ghi lại lúc chọn
+  drafting_unit_id: string | null;
+  drafting_unit_name: string | null;
+  signer_id: string | null;
+  signer_name: string | null;
+  signer_title: string | null;
+  content_note: string | null;
+  status: Generated<OutgoingDocumentStatus>;
+  return_note: string | null;
+  returned_at: Date | null;
+  returned_by_name: string | null;
+  submitted_at: Date | null;
+  signed_at: Date | null;
+  signature_method: string | null;
+  // Mã tra cứu in trong mã QR của bản đã ký
+  verification_code: string | null;
+  book_id: string | null;
+  issue_number: number | null;
+  symbol: string | null;
+  issue_date: DateText | null;
+  copies: number | null;
+  issued_at: Date | null;
+  issued_by: string | null;
+  issued_by_name: string | null;
+  // Công bố lên website trường; phần 18f đọc
+  published: Generated<boolean>;
+  published_at: Date | null;
+  published_by_name: string | null;
+  frozen: Generated<boolean>;
+  frozen_at: Date | null;
+  frozen_by_name: string | null;
+  archive_record_id: string | null;
+  archived_at: Date | null;
+  archived_by_name: string | null;
+  // Văn bản đến được trả lời
+  reply_to_id: string | null;
+  created_by: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface OutgoingDocumentFilesTable {
+  id: Generated<string>;
+  document_id: string;
+  kind: Generated<OutgoingFileKind>;
+  file_name: string;
+  content_type: string;
+  size_bytes: number;
+  sha256: string;
+  storage_key: string;
+  created_by: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface OutgoingDocumentLinksTable {
+  id: Generated<string>;
+  document_id: string;
+  link_type: OutgoingLinkType;
+  outgoing_id: string | null;
+  incoming_id: string | null;
+}
+
+export interface OutgoingDocumentOpinionsTable {
+  id: Generated<string>;
+  document_id: string;
+  round: number;
+  user_id: string;
+  user_name: string;
+  user_title: string | null;
+  status: Generated<OutgoingOpinionStatus>;
+  deadline: DateText | null;
+  request_note: string | null;
+  opinion: string | null;
+  answered_at: Date | null;
+  requested_by: string;
+  requested_by_name: string;
+  created_at: CreatedTimestamp;
+  finished_at: Date | null;
+}
+
+export interface OutgoingDocumentRecipientsTable {
+  id: Generated<string>;
+  document_id: string;
+  recipient_type: OutgoingRecipientType;
+  external_unit_id: string | null;
+  org_unit_id: string | null;
+  name: string;
+  electronic_code: string | null;
+  send_status: Generated<OutgoingSendStatus>;
+  sent_at: Date | null;
+  sent_by_name: string | null;
+  reference: string | null;
+  incoming_document_id: string | null;
+  sort_order: Generated<number>;
+}
+
+export interface OutgoingDocumentEventsTable {
   id: Generated<string>;
   document_id: string;
   action: string;
@@ -869,6 +1008,12 @@ export interface SystemDatabase {
   incoming_document_assignments: IncomingDocumentAssignmentsTable;
   incoming_document_flags: IncomingDocumentFlagsTable;
   incoming_document_events: IncomingDocumentEventsTable;
+  outgoing_documents: OutgoingDocumentsTable;
+  outgoing_document_files: OutgoingDocumentFilesTable;
+  outgoing_document_links: OutgoingDocumentLinksTable;
+  outgoing_document_opinions: OutgoingDocumentOpinionsTable;
+  outgoing_document_recipients: OutgoingDocumentRecipientsTable;
+  outgoing_document_events: OutgoingDocumentEventsTable;
   meeting_rooms: MeetingRoomsTable;
   room_bookings: RoomBookingsTable;
   unit_schedule_entries: UnitScheduleEntriesTable;

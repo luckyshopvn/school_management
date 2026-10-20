@@ -177,15 +177,27 @@ import {
 } from './kpi/KpiEvaluationPages.js';
 import { KpiLegacyImportPage, KpiPeriodsPage, KpiProfilesPage, KpiRuleSetsPage } from './kpi/KpiSetupPages.js';
 import { KpiAssignmentsPage, KpiGradingPage, KpiMyTasksPage } from './kpi/KpiTaskPages.js';
+import {
+  OutgoingInterconnectPage,
+  OutgoingManagePage,
+  OutgoingPage,
+  OutgoingSearchPage,
+} from './outgoing-documents/OutgoingListPages.js';
+import { VerifyDocumentPage } from './outgoing-documents/VerifyDocumentPage.js';
 
 // Trang dùng được khi chưa đăng nhập (DT-16 phần 16c thêm Quên mật khẩu)
 const PUBLIC_PATHS = ['/login', '/forgot-password'];
+// Trang công khai mở được cả khi đã hay chưa đăng nhập: tra cứu mã QR của văn bản đi (DT-18 phần 18b)
+const OPEN_PATHS = ['/tra-cuu-van-ban'];
 
 // Chuyển hướng theo trạng thái phiên: chưa đăng nhập về MH-47; bắt buộc đổi mật khẩu về MH-48 (BM-07)
 function SessionGate() {
   const session = useSession();
   const { pathname } = useLocation();
 
+  if (OPEN_PATHS.includes(pathname)) {
+    return <Outlet />;
+  }
   if (session.status === 'checking') {
     return <div className="min-h-screen animate-pulse bg-page" aria-busy="true" />;
   }
@@ -335,6 +347,16 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/kpi/advisory', component: KpiAdvisoryPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/kpi/voting', component: KpiVotingPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/kpi/reports', component: KpiReportsPage }),
+  // Văn bản đi theo VNPT iOffice (DT-18 phần 18b)
+  createRoute({ getParentRoute: () => rootRoute, path: '/outgoing-documents', component: OutgoingPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/outgoing-documents/manage', component: OutgoingManagePage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/outgoing-documents/interconnect',
+    component: OutgoingInterconnectPage,
+  }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/outgoing-documents/search', component: OutgoingSearchPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/tra-cuu-van-ban', component: VerifyDocumentPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/school-weeks', component: SchoolWeeksPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/year-rollover', component: YearRolloverPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/children', component: ChildrenPage }),
