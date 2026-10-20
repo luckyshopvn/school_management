@@ -10,7 +10,8 @@ import type { Migration } from 'kysely/migration';
 // - cấu hình: bộ quy tắc, kỳ (mở, khóa, mở lại), đối tượng đánh giá, danh mục chung, nhập dữ liệu hệ thống cũ.
 // Vai trò nhận quyền do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: mọi vai trò nhân sự tham gia; Ban Giám hiệu,
 // Quản lý đơn vị, Tổ trưởng chuyên môn quản lý; Ban Giám hiệu và Nhân sự tham mưu; Ban Giám hiệu biểu quyết; Hiệu trưởng và
-// Nhân sự cấu hình
+// Nhân sự cấu hình. Phụ huynh (VT-14) không có phân hệ "Đánh giá KPI" ở 1.2 Phân quyền nhóm theo phần mềm
+const WORKSPACE_KEY = 'kpi';
 const PERMISSIONS = [
   {
     code: 'P09.kpi.participate',
@@ -66,8 +67,12 @@ export const migration: Migration = {
         database,
       );
     }
+    await sql`insert into role_workspace_exclusions (role_id, workspace_key)
+      select roles.id, ${WORKSPACE_KEY} from roles where roles.code = 'VT-14'
+      on conflict do nothing`.execute(database);
   },
   async down(database) {
+    await sql`delete from role_workspace_exclusions where workspace_key = ${WORKSPACE_KEY}`.execute(database);
     const codes = PERMISSIONS.map((permission) => permission.code);
     await sql`delete from role_permissions where permission_id in
       (select id from permissions where code in (${sql.join(codes)}))`.execute(database);
