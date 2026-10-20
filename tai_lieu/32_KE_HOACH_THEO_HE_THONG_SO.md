@@ -368,7 +368,7 @@ Thứ tự gộp để đánh số tài liệu (phiên bản, CT, AC, BR, MH) kh
 | Phần | Đợt | Tiến độ |
 |---|---|---|
 | 18a | 1 | Đã triển khai (YCTD-138, PR 116, phiên bản 0.89.0): phân hệ Quản lý văn bản và điều hành; sổ văn bản đến, vào sổ theo biểu mẫu iOffice, luồng xử lý đủ nút, hạn chế xem, đánh dấu, theo dõi, phiếu trình, phiếu xử lý, phiếu giao nhận, sổ đăng ký; đơn vị bên ngoài, nhóm đơn vị ban hành, danh mục văn bản, lãnh đạo nhận văn bản; liên thông bản chạy nội bộ (chỗ nối `DocumentExchange`); hàm tạo tên khóa chung `storageKey`, `cacheKey`. Tạo việc từ văn bản chờ 18c; văn bản trả lời nối sổ văn bản đi khi 18b gộp |
-| 18d | 1 | Đã làm, YCTD-139, phiên bản 0.90.0, PR PR_PLACEHOLDER |
+| 18d | 1 | Đã làm, YCTD-139, phiên bản 0.90.0, PR 117 |
 | 18b | 2 | Chưa làm, chờ 18a |
 | 18c | 2 | Chưa làm, chờ 18a |
 | 18e | 3 | Chưa làm, chờ đợt 2 |

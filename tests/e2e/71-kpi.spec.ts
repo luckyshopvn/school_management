@@ -100,7 +100,7 @@ test('CT-18d-19: giao việc, tự đánh giá, chấm, kết luận, khóa kỳ
 
   // 2.1 Thêm việc vào danh mục chung
   await openMenu(page, '/kpi/catalog');
-  await page.getByLabel('Bộ quy tắc', { exact: true }).selectOption({ label: 'Bộ quy tắc 1' });
+  await page.getByLabel('Bộ quy tắc').selectOption({ label: 'Bộ quy tắc 1' });
   await page.getByRole('button', { name: 'Thêm mới' }).click();
   const catalogForm = page.getByRole('form', { name: 'Thêm công việc' });
   await catalogForm.getByLabel('Mã công việc').fill(`DM-${suffix}`);
