@@ -268,6 +268,11 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
     'P18.recruitment.manage',
     'P18.interview.manage',
   ),
+  // Thiết bị: nơi để, tem QR, kiểm kê, đối sánh danh mục tối thiểu (DT-18 phần 18g); người chỉ có quyền quét vẫn mở được
+  // trang kiểm kê để quét trên web di động
+  '/equipment-locations': anyOf('P13.equipment.manage', 'P17.report.facilities'),
+  '/equipment-stocktakes': anyOf('P13.equipment.manage', 'P13.equipment.stocktake'),
+  '/equipment-minimum': anyOf('P17.report.facilities', 'P13.equipment.manage'),
 };
 
 export function isMenuRuleSatisfied(rule: MenuPermissionRule, has: (code: string) => boolean): boolean {

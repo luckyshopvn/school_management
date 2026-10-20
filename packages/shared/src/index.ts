@@ -205,6 +205,8 @@ export const PERMISSION_CODES = {
   outgoingDocumentSign: 'P09.outgoing-document.sign',
   outgoingDocumentIssue: 'P09.outgoing-document.issue',
   outgoingDocumentSearch: 'P09.outgoing-document.search',
+  // Thiết bị: quét mã QR kiểm kê, ghi tình trạng (DT-18 phần 18g)
+  equipmentStocktake: 'P13.equipment.stocktake',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -437,6 +439,10 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/outgoing-documents/manage',
   '/outgoing-documents/interconnect',
   '/outgoing-documents/search',
+  // Thiết bị: nơi để, tem QR, kiểm kê, đối sánh danh mục tối thiểu (DT-18 phần 18g)
+  '/equipment-locations',
+  '/equipment-stocktakes',
+  '/equipment-minimum',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -661,6 +667,12 @@ export const DATA_GRID_KEYS = [
   'outgoing-manage',
   'outgoing-recipients',
   'outgoing-register',
+  // Thiết bị: nơi để, tem QR, kiểm kê, đối sánh danh mục tối thiểu (DT-18 phần 18g)
+  'equipment-locations',
+  'equipment-labels',
+  'equipment-stocktakes',
+  'equipment-stocktake-lines',
+  'equipment-minimum',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;
