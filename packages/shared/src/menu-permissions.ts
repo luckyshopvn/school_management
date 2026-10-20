@@ -20,6 +20,8 @@ const gated = (gate: MenuPermissionRule, rule: MenuPermissionRule): MenuPermissi
 const ACCOUNTS = anyOf('P01.account.manage', 'P01.account.manage-in-unit');
 const FINAL_YEAR = anyOf('P02.final-year.view', 'P02.final-year.manage', 'P02.final-year.approve');
 const ENTRY_INTAKE = anyOf('P02.entry-intake.view', 'P02.entry-intake.manage', 'P02.entry-intake.transfer');
+// Phân hệ KPI (DT-18 phần 18d)
+const KPI_ANY = anyOf('P09.kpi.participate', 'P09.kpi.manage', 'P09.kpi.advise', 'P09.kpi.configure');
 // Điều kiện của nhóm "Trẻ và lớp" cũ
 const CHILDREN_AND_CLASSES = anyOf('P02.class.manage', 'P02.view', 'P02.edit');
 const STATISTICS = anyOf('P17.child-statistics.view', 'P17.staff-statistics.view');
@@ -135,6 +137,19 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/entry-admissions/transfer': ENTRY_INTAKE,
   '/entry-admissions/transfer-results': ENTRY_INTAKE,
   '/admitted-students': ENTRY_INTAKE,
+  '/kpi/periods': 'P09.kpi.configure',
+  '/kpi/rule-sets': 'P09.kpi.configure',
+  '/kpi/profiles': 'P09.kpi.configure',
+  '/kpi/legacy-import': 'P09.kpi.configure',
+  '/kpi/catalog': KPI_ANY,
+  '/kpi/my-tasks': 'P09.kpi.participate',
+  '/kpi/assignments': 'P09.kpi.manage',
+  '/kpi/grading': 'P09.kpi.manage',
+  '/kpi/my-evaluation': 'P09.kpi.participate',
+  '/kpi/evaluations': 'P09.kpi.manage',
+  '/kpi/advisory': 'P09.kpi.advise',
+  '/kpi/voting': 'P09.kpi.vote',
+  '/kpi/reports': KPI_ANY,
   '/emis/facilities': 'P17.report.emis',
   '/emis/health': 'P17.report.emis',
   '/emis/end-of-year': 'P17.report.emis',
