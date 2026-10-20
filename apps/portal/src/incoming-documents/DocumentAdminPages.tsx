@@ -48,7 +48,17 @@ import {
 const VIETNAM_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
 const ADMIN = PERMISSION_CODES.incomingDocumentAdmin;
 
-function Page({ path, children, toast, onToastClose }: { path: '/document-books' | '/external-units' | '/external-unit-groups' | '/document-catalogs' | '/document-leaders'; children: ReactNode; toast?: string; onToastClose(): void }) {
+function Page({
+  path,
+  children,
+  toast,
+  onToastClose,
+}: {
+  path: '/document-books' | '/external-units' | '/external-unit-groups' | '/document-catalogs' | '/document-leaders';
+  children: ReactNode;
+  toast?: string;
+  onToastClose(): void;
+}) {
   return (
     <AppShell>
       <Toast message={toast} onClose={onToastClose} />
@@ -87,7 +97,9 @@ function Tabs<Value extends string>({
           aria-selected={value === option.value}
           onClick={() => onChange(option.value)}
           className={`-mb-px rounded-t-lg border border-b-0 px-3 py-2 text-content ${
-            value === option.value ? 'border-border bg-card font-semibold text-text' : 'border-transparent text-text-secondary'
+            value === option.value
+              ? 'border-border bg-card font-semibold text-text'
+              : 'border-transparent text-text-secondary'
           }`}
         >
           {option.label}
@@ -99,7 +111,15 @@ function Tabs<Value extends string>({
 
 // ---- 2.1 Sổ văn bản ----
 
-function BookForm({ book, onSaved, onCancel }: { book?: DocumentBook; onSaved(book: DocumentBook): void; onCancel(): void }) {
+function BookForm({
+  book,
+  onSaved,
+  onCancel,
+}: {
+  book?: DocumentBook;
+  onSaved(book: DocumentBook): void;
+  onCancel(): void;
+}) {
   const year = new Date().getFullYear();
   const [values, setValues] = useState({
     name: book?.name ?? 'Sổ văn bản đến',
@@ -136,7 +156,10 @@ function BookForm({ book, onSaved, onCancel }: { book?: DocumentBook; onSaved(bo
         className={`${FORM_CONTROL_CLASS} h-32`}
         value={values[key]}
         onChange={(event) =>
-          setValues((current) => ({ ...current, [key]: [...event.target.selectedOptions].map((option) => option.value) }))
+          setValues((current) => ({
+            ...current,
+            [key]: [...event.target.selectedOptions].map((option) => option.value),
+          }))
         }
       >
         {(staff.data ?? []).map((person) => (
@@ -166,7 +189,11 @@ function BookForm({ book, onSaved, onCancel }: { book?: DocumentBook; onSaved(bo
       <FormBlock title="Thông tin sổ">
         {field('name', 'Tên sổ văn bản')}
         <FormRow label="Đơn vị áp dụng" error={errors.org_unit_id}>
-          <select className={FORM_CONTROL_CLASS} value={values.org_unit_id} onChange={(event) => set('org_unit_id', event.target.value)}>
+          <select
+            className={FORM_CONTROL_CLASS}
+            value={values.org_unit_id}
+            onChange={(event) => set('org_unit_id', event.target.value)}
+          >
             <option value="">Toàn trường</option>
             {units.units.map((unit) => (
               <option key={unit.id} value={unit.id}>
@@ -178,10 +205,20 @@ function BookForm({ book, onSaved, onCancel }: { book?: DocumentBook; onSaved(bo
         {field('year', 'Năm')}
         {field('start_number', 'Số bắt đầu')}
         <FormRow label="Ngày áp dụng" error={errors.start_date}>
-          <input type="date" className={FORM_CONTROL_CLASS} value={values.start_date} onChange={(event) => set('start_date', event.target.value)} />
+          <input
+            type="date"
+            className={FORM_CONTROL_CLASS}
+            value={values.start_date}
+            onChange={(event) => set('start_date', event.target.value)}
+          />
         </FormRow>
         <FormRow label="Ngày kết thúc" error={errors.end_date}>
-          <input type="date" className={FORM_CONTROL_CLASS} value={values.end_date} onChange={(event) => set('end_date', event.target.value)} />
+          <input
+            type="date"
+            className={FORM_CONTROL_CLASS}
+            value={values.end_date}
+            onChange={(event) => set('end_date', event.target.value)}
+          />
         </FormRow>
         {field('sort_order', 'STT hiển thị')}
         {people('follower_ids', 'Người theo dõi')}
@@ -272,7 +309,12 @@ export function DocumentBooksPage() {
       />
       <label className="max-w-xs text-label font-medium text-text">
         Năm
-        <input className={selectClass} inputMode="numeric" value={year} onChange={(event) => setYear(event.target.value)} />
+        <input
+          className={selectClass}
+          inputMode="numeric"
+          value={year}
+          onChange={(event) => setYear(event.target.value)}
+        />
       </label>
       {books.error ? <Alert tone="danger">{messageOf(books.error)}</Alert> : null}
       {remove.error ? <Alert tone="danger">{messageOf(remove.error)}</Alert> : null}
@@ -351,11 +393,21 @@ export function DocumentBooksPage() {
             </label>
             <label className="text-label font-medium text-text">
               Từ ngày
-              <input type="date" className={selectClass} value={range.from} onChange={(event) => setRange((current) => ({ ...current, from: event.target.value }))} />
+              <input
+                type="date"
+                className={selectClass}
+                value={range.from}
+                onChange={(event) => setRange((current) => ({ ...current, from: event.target.value }))}
+              />
             </label>
             <label className="text-label font-medium text-text">
               Đến ngày
-              <input type="date" className={selectClass} value={range.to} onChange={(event) => setRange((current) => ({ ...current, to: event.target.value }))} />
+              <input
+                type="date"
+                className={selectClass}
+                value={range.to}
+                onChange={(event) => setRange((current) => ({ ...current, to: event.target.value }))}
+              />
             </label>
           </div>
           {register.error ? <Alert tone="danger">{messageOf(register.error)}</Alert> : null}
@@ -373,7 +425,9 @@ export function DocumentBooksPage() {
                 disabled={!selected}
                 onClick={() => {
                   setExportError(undefined);
-                  exportRegister(selected, range.from, range.to).catch((error: unknown) => setExportError(messageOf(error)));
+                  exportRegister(selected, range.from, range.to).catch((error: unknown) =>
+                    setExportError(messageOf(error)),
+                  );
                 }}
               >
                 Xuất Excel
@@ -399,7 +453,15 @@ export function DocumentBooksPage() {
 
 // ---- 2.2 Đơn vị bên ngoài ----
 
-function UnitForm({ unit, onSaved, onCancel }: { unit?: ExternalUnit; onSaved(unit: ExternalUnit): void; onCancel(): void }) {
+function UnitForm({
+  unit,
+  onSaved,
+  onCancel,
+}: {
+  unit?: ExternalUnit;
+  onSaved(unit: ExternalUnit): void;
+  onCancel(): void;
+}) {
   const [values, setValues] = useState({
     code: unit?.code ?? '',
     name: unit?.name ?? '',
@@ -425,7 +487,10 @@ function UnitForm({ unit, onSaved, onCancel }: { unit?: ExternalUnit; onSaved(un
     onSuccess: onSaved,
   });
   const errors = fieldErrorsOf(save.error);
-  const field = (key: 'code' | 'name' | 'address' | 'phone' | 'email' | 'electronic_code' | 'sort_order', label: string) => (
+  const field = (
+    key: 'code' | 'name' | 'address' | 'phone' | 'email' | 'electronic_code' | 'sort_order',
+    label: string,
+  ) => (
     <FormRow label={label} error={errors[key]}>
       <input
         className={FORM_CONTROL_CLASS}
@@ -494,7 +559,10 @@ export function ExternalUnitsPage() {
   const [creating, setCreating] = useState(false);
   const [editingId, setEditingId] = useState<string>();
   const [deleting, setDeleting] = useState<ExternalUnit>();
-  const units = useQuery({ queryKey: ['external-units', search], queryFn: () => listExternalUnits(search.trim() || undefined) });
+  const units = useQuery({
+    queryKey: ['external-units', search],
+    queryFn: () => listExternalUnits(search.trim() || undefined),
+  });
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['external-units'] });
   const remove = useMutation({
     mutationFn: (unit: ExternalUnit) => deleteExternalUnit(unit.id),
@@ -592,7 +660,13 @@ function GroupForm({
   const [note, setNote] = useState(group?.note ?? '');
   const [unitIds, setUnitIds] = useState<string[]>(group?.unit_ids ?? []);
   const save = useMutation({
-    mutationFn: () => saveUnitGroup(group?.id ?? null, { name, note: note || null, sort_order: group?.sort_order ?? 0, unit_ids: unitIds }),
+    mutationFn: () =>
+      saveUnitGroup(group?.id ?? null, {
+        name,
+        note: note || null,
+        sort_order: group?.sort_order ?? 0,
+        unit_ids: unitIds,
+      }),
     onSuccess: onSaved,
   });
   const errors = fieldErrorsOf(save.error);
@@ -798,10 +872,18 @@ function CatalogForm({
       {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
       <FormBlock title={DOCUMENT_CATALOG_KIND_LABELS[kind]}>
         <FormRow label="Mã" error={errors.code}>
-          <input className={FORM_CONTROL_CLASS} value={values.code} onChange={(event) => setValues((current) => ({ ...current, code: event.target.value }))} />
+          <input
+            className={FORM_CONTROL_CLASS}
+            value={values.code}
+            onChange={(event) => setValues((current) => ({ ...current, code: event.target.value }))}
+          />
         </FormRow>
         <FormRow label="Tên" error={errors.name}>
-          <input className={FORM_CONTROL_CLASS} value={values.name} onChange={(event) => setValues((current) => ({ ...current, name: event.target.value }))} />
+          <input
+            className={FORM_CONTROL_CLASS}
+            value={values.name}
+            onChange={(event) => setValues((current) => ({ ...current, name: event.target.value }))}
+          />
         </FormRow>
         {levels ? (
           <FormRow label="Mức" error={errors.level}>
@@ -826,7 +908,11 @@ function CatalogForm({
           />
         </FormRow>
         <FormRow label="STT hiển thị" error={errors.sort_order}>
-          <input className={FORM_CONTROL_CLASS} value={values.sort_order} onChange={(event) => setValues((current) => ({ ...current, sort_order: event.target.value }))} />
+          <input
+            className={FORM_CONTROL_CLASS}
+            value={values.sort_order}
+            onChange={(event) => setValues((current) => ({ ...current, sort_order: event.target.value }))}
+          />
         </FormRow>
         <FormRow label="Đang sử dụng">
           <input
@@ -993,8 +1079,8 @@ export function DocumentLeadersPage() {
   return (
     <Page path="/document-leaders" toast={toast} onToastClose={close}>
       <p className="text-content text-text-secondary">
-        Người được chọn hiện trong danh sách khi văn thư "Trình lãnh đạo" và khi chuyển lãnh đạo. Chỉ chọn được nhân sự đang
-        làm việc có tài khoản.
+        Người được chọn hiện trong danh sách khi văn thư "Trình lãnh đạo" và khi chuyển lãnh đạo. Chỉ chọn được nhân sự
+        đang làm việc có tài khoản.
       </p>
       {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
       {staff.error ? <Alert tone="danger">{messageOf(staff.error)}</Alert> : null}
@@ -1034,7 +1120,9 @@ export function DocumentLeadersPage() {
                       aria-label={`Chức vụ của ${person.full_name}`}
                       className={FORM_CONTROL_CLASS}
                       value={chosen[person.user_id] ?? ''}
-                      onChange={(event) => setChosen((current) => ({ ...current, [person.user_id]: event.target.value }))}
+                      onChange={(event) =>
+                        setChosen((current) => ({ ...current, [person.user_id]: event.target.value }))
+                      }
                     />
                   ) : null}
                 </td>

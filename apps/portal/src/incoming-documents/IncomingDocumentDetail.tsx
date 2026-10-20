@@ -10,7 +10,14 @@ import {
   INCOMING_TRANSFER_LABELS,
   type IncomingAssignmentRole,
 } from '@school-management/shared';
-import { Alert, Button, ConfirmDeleteDialog, ConfirmDialog, FORM_CONTROL_CLASS, StatusBadge } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  ConfirmDeleteDialog,
+  ConfirmDialog,
+  FORM_CONTROL_CLASS,
+  StatusBadge,
+} from '@school-management/ui';
 import { formatDate, messageOf } from '../archives/archive-ui.js';
 import { searchArchiveRecords } from '../archives/archives-api.js';
 import { IncomingDocumentForm } from './IncomingDocumentForm.js';
@@ -140,7 +147,12 @@ function NoteDialog({
     >
       <label className="flex flex-col gap-1 text-label font-medium text-text">
         {label}
-        <textarea className={FORM_CONTROL_CLASS} rows={3} value={note} onChange={(event) => setNote(event.target.value)} />
+        <textarea
+          className={FORM_CONTROL_CLASS}
+          rows={3}
+          value={note}
+          onChange={(event) => setNote(event.target.value)}
+        />
       </label>
       {error ? <p className="text-label text-danger">{error}</p> : null}
     </ConfirmDialog>
@@ -177,7 +189,11 @@ function TransferDialog({
   const [error, setError] = useState<string>();
   const people =
     mode === 'leader'
-      ? (leaders.data ?? []).map((leader) => ({ id: leader.user_id, name: leader.user_name, detail: leader.title ?? '' }))
+      ? (leaders.data ?? []).map((leader) => ({
+          id: leader.user_id,
+          name: leader.user_name,
+          detail: leader.title ?? '',
+        }))
       : (staff.data ?? []).map((person) => ({
           id: person.user_id,
           name: person.full_name,
@@ -300,9 +316,7 @@ function TransferDialog({
                       aria-label={`Hạn xử lý của ${person.name}`}
                       className={FORM_CONTROL_CLASS}
                       value={deadlines[person.id] ?? ''}
-                      onChange={(event) =>
-                        setDeadlines((current) => ({ ...current, [person.id]: event.target.value }))
-                      }
+                      onChange={(event) => setDeadlines((current) => ({ ...current, [person.id]: event.target.value }))}
                     />
                   </td>
                 ) : null}
@@ -323,7 +337,12 @@ function TransferDialog({
         ) : null}
         <label className="flex flex-col gap-1 text-label font-medium text-text">
           {mode === 'leader' ? 'Ý kiến đề xuất' : 'Ý kiến chỉ đạo, ghi chú'}
-          <textarea className={FORM_CONTROL_CLASS} rows={2} value={note} onChange={(event) => setNote(event.target.value)} />
+          <textarea
+            className={FORM_CONTROL_CLASS}
+            rows={2}
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+          />
         </label>
         {error ? <p className="text-label text-danger">{error}</p> : null}
       </div>
@@ -332,7 +351,15 @@ function TransferDialog({
 }
 
 // Sơ đồ luồng văn bản: cây các lần chuyển, mỗi nút một người nhận kèm vai trò, trạng thái
-function FlowTree({ assignments, parentId, depth }: { assignments: IncomingAssignment[]; parentId: string | null; depth: number }) {
+function FlowTree({
+  assignments,
+  parentId,
+  depth,
+}: {
+  assignments: IncomingAssignment[];
+  parentId: string | null;
+  depth: number;
+}) {
   const children = assignments.filter((row) => row.parent_id === parentId);
   if (children.length === 0) {
     return null;
@@ -345,7 +372,13 @@ function FlowTree({ assignments, parentId, depth }: { assignments: IncomingAssig
             <span className="font-medium">{row.user_name}</span>
             <StatusBadge tone="info" label={INCOMING_ROLE_LABELS[row.role]} />
             <StatusBadge
-              tone={row.status === 'pending' ? 'warning' : ['returned', 'revoked', 'refused'].includes(row.status) ? 'neutral' : 'success'}
+              tone={
+                row.status === 'pending'
+                  ? 'warning'
+                  : ['returned', 'revoked', 'refused'].includes(row.status)
+                    ? 'neutral'
+                    : 'success'
+              }
               label={INCOMING_ASSIGNMENT_STATUS_LABELS[row.status]}
             />
             <span className="text-label text-text-muted">
@@ -459,7 +492,14 @@ export function IncomingDocumentDetail({
                 {item.symbol} – {item.summary}
                 <Button
                   variant="text"
-                  onClick={() => act(() => setRelations(documentId, document.related.filter((other) => other.id !== item.id).map((other) => other.id)))}
+                  onClick={() =>
+                    act(() =>
+                      setRelations(
+                        documentId,
+                        document.related.filter((other) => other.id !== item.id).map((other) => other.id),
+                      ),
+                    )
+                  }
                 >
                   Bỏ
                 </Button>
@@ -480,7 +520,9 @@ export function IncomingDocumentDetail({
                 {item.symbol} – {item.summary}
                 <Button
                   variant="text"
-                  onClick={() => act(() => setRelations(documentId, [...document.related.map((other) => other.id), item.id]))}
+                  onClick={() =>
+                    act(() => setRelations(documentId, [...document.related.map((other) => other.id), item.id]))
+                  }
                 >
                   Thêm
                 </Button>
@@ -509,7 +551,11 @@ export function IncomingDocumentDetail({
             : button('Đánh dấu tiếp nhận văn bản', () => act(() => acknowledgeIncoming(documentId, true, null)))
           : null}
         {can('submit_leader')
-          ? button(mine ? 'Chuyển lãnh đạo' : 'Trình lãnh đạo', () => setDialog({ kind: 'transfer', mode: 'leader' }), 'primary')
+          ? button(
+              mine ? 'Chuyển lãnh đạo' : 'Trình lãnh đạo',
+              () => setDialog({ kind: 'transfer', mode: 'leader' }),
+              'primary',
+            )
           : null}
         {can('transfer')
           ? button(mine ? 'Chuyển xử lý' : 'Chuyển trực tiếp', () => setDialog({ kind: 'transfer', mode: 'process' }))
@@ -602,7 +648,8 @@ export function IncomingDocumentDetail({
           ) : null}
           {document.reply_symbol ? (
             <InfoRow label="Văn bản trả lời">
-              {document.reply_symbol} ngày {formatDate(document.reply_date)} {document.reply_note ? `– ${document.reply_note}` : ''}
+              {document.reply_symbol} ngày {formatDate(document.reply_date)}{' '}
+              {document.reply_note ? `– ${document.reply_note}` : ''}
             </InfoRow>
           ) : null}
           {document.archive_record_code ? (
@@ -612,7 +659,8 @@ export function IncomingDocumentDetail({
           ) : null}
           {document.completed_at ? (
             <InfoRow label="Kết thúc">
-              {time(document.completed_at)} – {document.completed_by_name} {document.completion_note ? `: ${document.completion_note}` : ''}
+              {time(document.completed_at)} – {document.completed_by_name}{' '}
+              {document.completion_note ? `: ${document.completion_note}` : ''}
             </InfoRow>
           ) : null}
           <InfoRow label="Văn bản liên quan">
@@ -726,10 +774,16 @@ export function IncomingDocumentDetail({
                     ) : null}
                     {can('decide_extension') && pendingExtensions.includes(row) ? (
                       <span className="flex gap-1">
-                        <Button variant="text" onClick={() => setDialog({ kind: 'decide', assignment: row, approve: true })}>
+                        <Button
+                          variant="text"
+                          onClick={() => setDialog({ kind: 'decide', assignment: row, approve: true })}
+                        >
                           Đồng ý gia hạn
                         </Button>
-                        <Button variant="text" onClick={() => setDialog({ kind: 'decide', assignment: row, approve: false })}>
+                        <Button
+                          variant="text"
+                          onClick={() => setDialog({ kind: 'decide', assignment: row, approve: false })}
+                        >
                           Không đồng ý
                         </Button>
                       </span>
@@ -774,12 +828,17 @@ export function IncomingDocumentDetail({
       {dialog?.kind === 'note' ? (
         <NoteDialog
           title={
-            { return: 'Trả lại văn bản', refuse: 'Từ chối phối hợp', finish: 'Xử lý xong', complete: 'Kết thúc văn bản' }[
-              dialog.action
-            ]
+            {
+              return: 'Trả lại văn bản',
+              refuse: 'Từ chối phối hợp',
+              finish: 'Xử lý xong',
+              complete: 'Kết thúc văn bản',
+            }[dialog.action]
           }
           label={dialog.action === 'return' || dialog.action === 'refuse' ? 'Lý do' : 'Ý kiến xử lý'}
-          confirmLabel={{ return: 'Trả lại', refuse: 'Từ chối', finish: 'Xử lý xong', complete: 'Kết thúc' }[dialog.action]}
+          confirmLabel={
+            { return: 'Trả lại', refuse: 'Từ chối', finish: 'Xử lý xong', complete: 'Kết thúc' }[dialog.action]
+          }
           required={dialog.action === 'return' || dialog.action === 'refuse'}
           busy={run.isPending}
           onCancel={() => setDialog(undefined)}
@@ -803,7 +862,9 @@ export function IncomingDocumentDetail({
           confirmLabel={dialog.approve ? 'Đồng ý' : 'Không đồng ý'}
           busy={run.isPending}
           onCancel={() => setDialog(undefined)}
-          onConfirm={(note) => act(() => decideExtension(documentId, dialog.assignment.id, dialog.approve, note || null))}
+          onConfirm={(note) =>
+            act(() => decideExtension(documentId, dialog.assignment.id, dialog.approve, note || null))
+          }
         />
       ) : null}
       {dialog?.kind === 'extension' ? (
@@ -887,11 +948,21 @@ function ExtensionDialog({
     >
       <label className="flex flex-col gap-1 text-label font-medium text-text">
         Gia hạn đến ngày
-        <input type="date" className={FORM_CONTROL_CLASS} value={until} onChange={(event) => setUntil(event.target.value)} />
+        <input
+          type="date"
+          className={FORM_CONTROL_CLASS}
+          value={until}
+          onChange={(event) => setUntil(event.target.value)}
+        />
       </label>
       <label className="flex flex-col gap-1 text-label font-medium text-text">
         Lý do
-        <textarea className={FORM_CONTROL_CLASS} rows={2} value={reason} onChange={(event) => setReason(event.target.value)} />
+        <textarea
+          className={FORM_CONTROL_CLASS}
+          rows={2}
+          value={reason}
+          onChange={(event) => setReason(event.target.value)}
+        />
       </label>
       {error ? <p className="text-label text-danger">{error}</p> : null}
     </ConfirmDialog>
@@ -927,11 +998,21 @@ function ReplyDialog({
       </label>
       <label className="flex flex-col gap-1 text-label font-medium text-text">
         Ngày văn bản trả lời
-        <input type="date" className={FORM_CONTROL_CLASS} value={date} onChange={(event) => setDate(event.target.value)} />
+        <input
+          type="date"
+          className={FORM_CONTROL_CLASS}
+          value={date}
+          onChange={(event) => setDate(event.target.value)}
+        />
       </label>
       <label className="flex flex-col gap-1 text-label font-medium text-text">
         Ghi chú
-        <textarea className={FORM_CONTROL_CLASS} rows={2} value={note} onChange={(event) => setNote(event.target.value)} />
+        <textarea
+          className={FORM_CONTROL_CLASS}
+          rows={2}
+          value={note}
+          onChange={(event) => setNote(event.target.value)}
+        />
       </label>
     </ConfirmDialog>
   );
@@ -951,7 +1032,8 @@ export function ArchiveDialog({
   const [recordId, setRecordId] = useState('');
   const records = useQuery({
     queryKey: ['archive-records', 'incoming-pick', search],
-    queryFn: () => searchArchiveRecords({ status: 'pending', search: search.trim() || undefined, page: 1, pageSize: 50 }),
+    queryFn: () =>
+      searchArchiveRecords({ status: 'pending', search: search.trim() || undefined, page: 1, pageSize: 50 }),
   });
   return (
     <ConfirmDialog
@@ -1010,12 +1092,18 @@ function RegisterDialog({
       busy={busy}
       onCancel={onCancel}
       onConfirm={() =>
-        selected && onConfirm({ book_id: selected, arrival_number: number.trim() ? Number(number) : null, arrival_date: date })
+        selected &&
+        onConfirm({ book_id: selected, arrival_number: number.trim() ? Number(number) : null, arrival_date: date })
       }
     >
       <label className="flex flex-col gap-1 text-label font-medium text-text">
         Ngày đến
-        <input type="date" className={FORM_CONTROL_CLASS} value={date} onChange={(event) => setDate(event.target.value)} />
+        <input
+          type="date"
+          className={FORM_CONTROL_CLASS}
+          value={date}
+          onChange={(event) => setDate(event.target.value)}
+        />
       </label>
       <label className="flex flex-col gap-1 text-label font-medium text-text">
         Sổ văn bản
@@ -1029,7 +1117,12 @@ function RegisterDialog({
       </label>
       <label className="flex flex-col gap-1 text-label font-medium text-text">
         Số đến (để trống là số kế tiếp)
-        <input className={FORM_CONTROL_CLASS} inputMode="numeric" value={number} onChange={(event) => setNumber(event.target.value)} />
+        <input
+          className={FORM_CONTROL_CLASS}
+          inputMode="numeric"
+          value={number}
+          onChange={(event) => setNumber(event.target.value)}
+        />
       </label>
     </ConfirmDialog>
   );

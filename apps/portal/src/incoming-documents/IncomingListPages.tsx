@@ -7,7 +7,16 @@ import {
   type DataGridKey,
   type PortalQuickLinkPath,
 } from '@school-management/shared';
-import { Alert, Button, ConfirmDialog, DataGrid, FORM_CONTROL_CLASS, StatusBadge, Toast, type DataGridColumn } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  ConfirmDialog,
+  DataGrid,
+  FORM_CONTROL_CLASS,
+  StatusBadge,
+  Toast,
+  type DataGridColumn,
+} from '@school-management/ui';
 import { AppShell } from '../pages/AppShell.js';
 import { useGridSettings } from '../pages/grid-settings.js';
 import { menuPageTitle } from '../pages/page-title.js';
@@ -73,7 +82,9 @@ function columnsOf(view: IncomingListView): Array<DataGridColumn<IncomingListIte
             id: 'received_at',
             header: 'Nhận lúc',
             cell: (row: IncomingListItem) =>
-              row.received_at ? new Date(row.received_at).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : '',
+              row.received_at
+                ? new Date(row.received_at).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })
+                : '',
           },
         ]
       : [
@@ -168,7 +179,12 @@ function IncomingListPage({ path, gridKey, tabs, roleFilter, create, notice }: L
   const catalog = useQuery({ queryKey: ['document-catalogs'], queryFn: () => listCatalog() });
   const books = useQuery({ queryKey: ['document-books'], queryFn: () => listBooks(), retry: false });
   const pageSize = grid.settings.pageSize;
-  const activeFilter: IncomingFilter = { ...filter, view, role: roleFilter ? role : 'all', q: search.trim() || undefined };
+  const activeFilter: IncomingFilter = {
+    ...filter,
+    view,
+    role: roleFilter ? role : 'all',
+    q: search.trim() || undefined,
+  };
   const documents = useQuery({
     queryKey: ['incoming-documents', activeFilter, page, pageSize],
     queryFn: () => listIncoming({ ...activeFilter, page, pageSize }),
@@ -198,7 +214,11 @@ function IncomingListPage({ path, gridKey, tabs, roleFilter, create, notice }: L
     setPage(1);
   };
   const columns = columnsOf(view);
-  const select = (key: 'book_id' | 'form_id' | 'urgency_id', label: string, options: Array<{ id: string; name: string }>) => (
+  const select = (
+    key: 'book_id' | 'form_id' | 'urgency_id',
+    label: string,
+    options: Array<{ id: string; name: string }>,
+  ) => (
     <label className="text-label font-medium text-text">
       {label}
       <select value={filter[key] ?? ''} onChange={(event) => change(key, event.target.value)} className={selectClass}>
@@ -211,10 +231,19 @@ function IncomingListPage({ path, gridKey, tabs, roleFilter, create, notice }: L
       </select>
     </label>
   );
-  const input = (key: 'symbol' | 'arrival_number' | 'issuer' | 'arrival_from' | 'arrival_to', label: string, type = 'text') => (
+  const input = (
+    key: 'symbol' | 'arrival_number' | 'issuer' | 'arrival_from' | 'arrival_to',
+    label: string,
+    type = 'text',
+  ) => (
     <label className="text-label font-medium text-text">
       {label}
-      <input type={type} value={filter[key] ?? ''} onChange={(event) => change(key, event.target.value)} className={selectClass} />
+      <input
+        type={type}
+        value={filter[key] ?? ''}
+        onChange={(event) => change(key, event.target.value)}
+        className={selectClass}
+      />
     </label>
   );
   const failure = documents.error ?? flags.error ?? batch.error ?? grid.error;
@@ -226,7 +255,11 @@ function IncomingListPage({ path, gridKey, tabs, roleFilter, create, notice }: L
         <h1 className="text-page-title font-bold text-text">{menuPageTitle(path)}</h1>
         {notice ? <Alert tone="info">{notice}</Alert> : null}
         {tabs.length > 1 ? (
-          <div role="tablist" aria-label="Danh sách văn bản đến" className="flex flex-wrap gap-1 border-b border-border">
+          <div
+            role="tablist"
+            aria-label="Danh sách văn bản đến"
+            className="flex flex-wrap gap-1 border-b border-border"
+          >
             {tabs.map((tab) => (
               <button
                 key={tab.view}
@@ -239,7 +272,9 @@ function IncomingListPage({ path, gridKey, tabs, roleFilter, create, notice }: L
                   setOpenId(undefined);
                 }}
                 className={`-mb-px rounded-t-lg border border-b-0 px-3 py-2 text-content ${
-                  view === tab.view ? 'border-border bg-card font-semibold text-text' : 'border-transparent text-text-secondary'
+                  view === tab.view
+                    ? 'border-border bg-card font-semibold text-text'
+                    : 'border-transparent text-text-secondary'
                 }`}
               >
                 {tab.label}
@@ -278,7 +313,9 @@ function IncomingListPage({ path, gridKey, tabs, roleFilter, create, notice }: L
                 setCreating(false);
                 void refresh();
                 setToastMessage(
-                  saved.arrival_number ? `Đã vào sổ văn bản số đến ${saved.arrival_number}` : 'Đã nhập văn bản liên thông',
+                  saved.arrival_number
+                    ? `Đã vào sổ văn bản số đến ${saved.arrival_number}`
+                    : 'Đã nhập văn bản liên thông',
                 );
                 setOpenId(saved.id);
               }}
@@ -311,9 +348,21 @@ function IncomingListPage({ path, gridKey, tabs, roleFilter, create, notice }: L
               {input('issuer', 'Đơn vị ban hành')}
               {input('arrival_from', 'Ngày đến từ', 'date')}
               {input('arrival_to', 'Ngày đến đến', 'date')}
-              {select('book_id', 'Sổ văn bản', (books.data ?? []).map((book) => ({ id: book.id, name: `${book.name} (${book.year})` })))}
-              {select('form_id', 'Hình thức', (catalog.data ?? []).filter((item) => item.kind === 'form'))}
-              {select('urgency_id', 'Độ khẩn', (catalog.data ?? []).filter((item) => item.kind === 'urgency'))}
+              {select(
+                'book_id',
+                'Sổ văn bản',
+                (books.data ?? []).map((book) => ({ id: book.id, name: `${book.name} (${book.year})` })),
+              )}
+              {select(
+                'form_id',
+                'Hình thức',
+                (catalog.data ?? []).filter((item) => item.kind === 'form'),
+              )}
+              {select(
+                'urgency_id',
+                'Độ khẩn',
+                (catalog.data ?? []).filter((item) => item.kind === 'urgency'),
+              )}
               <label className="flex items-center gap-2 text-label font-medium text-text">
                 <input
                   type="checkbox"
@@ -433,7 +482,12 @@ function BulkCompleteDialog({
       <p>Kết thúc {count} văn bản đã chọn; văn bản bạn không có quyền kết thúc sẽ được báo lại.</p>
       <label className="flex flex-col gap-1 text-label font-medium text-text">
         Ý kiến
-        <textarea className={FORM_CONTROL_CLASS} rows={2} value={note} onChange={(event) => setNote(event.target.value)} />
+        <textarea
+          className={FORM_CONTROL_CLASS}
+          rows={2}
+          value={note}
+          onChange={(event) => setNote(event.target.value)}
+        />
       </label>
     </ConfirmDialog>
   );

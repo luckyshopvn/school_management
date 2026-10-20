@@ -236,7 +236,13 @@ export interface IncomingDocument {
   starred: boolean;
   followed: boolean;
   files: IncomingFile[];
-  related: Array<{ id: string; symbol: string; summary: string; arrival_number: number | null; arrival_date: string | null }>;
+  related: Array<{
+    id: string;
+    symbol: string;
+    summary: string;
+    arrival_number: number | null;
+    arrival_date: string | null;
+  }>;
   assignments: IncomingAssignment[];
   events: Array<{ id: string; action: string; note: string | null; actor_name: string; created_at: string }>;
   my_pending_assignment_id: string | null;
@@ -376,13 +382,19 @@ export const setRelations = (id: string, relatedIds: string[]): Promise<Incoming
   requestJson(`${BASE}/${id}/relations`, json('PUT', { related_ids: relatedIds }));
 export const transferIncoming = (
   id: string,
-  input: { mode: 'leader' | 'process' | 'rotate'; recipients: TransferRecipientInput[]; note: string | null; deadline: string | null },
+  input: {
+    mode: 'leader' | 'process' | 'rotate';
+    recipients: TransferRecipientInput[];
+    note: string | null;
+    deadline: string | null;
+  },
 ): Promise<IncomingDocument> => requestJson(`${BASE}/${id}/transfer`, json('POST', input));
 export const returnIncoming = (id: string, note: string): Promise<IncomingDocument> =>
   requestJson(`${BASE}/${id}/return`, json('POST', { note }));
 export const refuseIncoming = (id: string, note: string): Promise<IncomingDocument> =>
   requestJson(`${BASE}/${id}/refuse`, json('POST', { note }));
-export const revokeIncoming = (id: string): Promise<IncomingDocument> => requestJson(`${BASE}/${id}/revoke`, json('POST'));
+export const revokeIncoming = (id: string): Promise<IncomingDocument> =>
+  requestJson(`${BASE}/${id}/revoke`, json('POST'));
 export const finishIncoming = (id: string, note: string | null): Promise<IncomingDocument> =>
   requestJson(`${BASE}/${id}/finish`, json('POST', { note }));
 export const requestExtension = (id: string, until: string, reason: string): Promise<IncomingDocument> =>
@@ -406,9 +418,12 @@ export const replyIncoming = (
   id: string,
   input: { reply_symbol: string; reply_date: string; note: string | null },
 ): Promise<IncomingDocument> => requestJson(`${BASE}/${id}/reply`, json('POST', input));
-export const setFlags = (ids: string[], flags: { starred?: boolean; followed?: boolean }): Promise<{ updated: number }> =>
-  requestJson(`${BASE}/flags`, json('POST', { ids, ...flags }));
-export const markUnread = (id: string): Promise<{ unread: boolean }> => requestJson(`${BASE}/${id}/unread`, json('POST'));
+export const setFlags = (
+  ids: string[],
+  flags: { starred?: boolean; followed?: boolean },
+): Promise<{ updated: number }> => requestJson(`${BASE}/flags`, json('POST', { ids, ...flags }));
+export const markUnread = (id: string): Promise<{ unread: boolean }> =>
+  requestJson(`${BASE}/${id}/unread`, json('POST'));
 
 // ---- Quản trị văn bản ----
 
@@ -416,7 +431,8 @@ export const listCatalog = (kind?: DocumentCatalogKind): Promise<CatalogItem[]> 
   requestJson(`/api/v1/document-catalogs${query({ kind })}`);
 export const saveCatalog = (id: string | null, input: Omit<CatalogItem, 'id'>): Promise<CatalogItem> =>
   requestJson(id ? `/api/v1/document-catalogs/${id}` : '/api/v1/document-catalogs', json(id ? 'PUT' : 'POST', input));
-export const deleteCatalog = (id: string): Promise<void> => requestJson(`/api/v1/document-catalogs/${id}`, json('DELETE'));
+export const deleteCatalog = (id: string): Promise<void> =>
+  requestJson(`/api/v1/document-catalogs/${id}`, json('DELETE'));
 
 export const listExternalUnits = (search?: string): Promise<ExternalUnit[]> =>
   requestJson(`/api/v1/external-units${query({ q: search })}`);
@@ -433,7 +449,10 @@ export const saveUnitGroup = (
   id: string | null,
   input: { name: string; note: string | null; sort_order: number; unit_ids: string[] },
 ): Promise<ExternalUnitGroup> =>
-  requestJson(id ? `/api/v1/external-unit-groups/${id}` : '/api/v1/external-unit-groups', json(id ? 'PUT' : 'POST', input));
+  requestJson(
+    id ? `/api/v1/external-unit-groups/${id}` : '/api/v1/external-unit-groups',
+    json(id ? 'PUT' : 'POST', input),
+  );
 export const deleteUnitGroup = (id: string): Promise<void> =>
   requestJson(`/api/v1/external-unit-groups/${id}`, json('DELETE'));
 

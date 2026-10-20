@@ -141,8 +141,7 @@ export function IncomingDocumentForm({
     onSuccess: onSaved,
   });
   const errors = fieldErrorsOf(save.error);
-  const title =
-    mode === 'edit' ? `Cập nhật thông tin văn bản ${document?.symbol ?? ''}` : 'THÔNG TIN VĂN BẢN ĐẾN';
+  const title = mode === 'edit' ? `Cập nhật thông tin văn bản ${document?.symbol ?? ''}` : 'THÔNG TIN VĂN BẢN ĐẾN';
   const text = (key: 'summary' | 'symbol' | 'issuer_name', label: string, required = false) => (
     <FormRow label={`${label}${required ? ' (*)' : ''}`} error={errors[key]}>
       <input className={FORM_CONTROL_CLASS} value={values[key]} onChange={(event) => set(key, event.target.value)} />
