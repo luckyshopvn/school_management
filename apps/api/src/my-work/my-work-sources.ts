@@ -339,7 +339,10 @@ export class DirectiveWorkSource extends MyWorkSource {
           }
           if (managedIds.length > 0) {
             conditions.push(
-              eb.and([eb('task_assignments.target_type', '=', 'unit'), eb('task_assignments.org_unit_id', 'in', managedIds)]),
+              eb.and([
+                eb('task_assignments.target_type', '=', 'unit'),
+                eb('task_assignments.org_unit_id', 'in', managedIds),
+              ]),
             );
           }
           return eb.or(conditions);
@@ -366,7 +369,9 @@ export class DirectiveWorkSource extends MyWorkSource {
       .select(['tasks.title', 'tasks.due_date', 'tasks.updated_at'])
       .where('tasks.task_type', '=', 'directive')
       .where('tasks.status', '!=', 'cancelled')
-      .where((eb) => eb.or([eb('tasks.assigner_user_id', '=', currentUser.id), eb('tasks.leader_user_id', '=', currentUser.id)]))
+      .where((eb) =>
+        eb.or([eb('tasks.assigner_user_id', '=', currentUser.id), eb('tasks.leader_user_id', '=', currentUser.id)]),
+      )
       .where((eb) =>
         eb.exists(
           eb
@@ -584,7 +589,12 @@ export class KpiWorkSource extends MyWorkSource {
       .limit(MAXIMUM_PER_SOURCE)
       .execute();
     for (const row of managedRows) {
-      const due = row.status === 'pending_approval' ? row.approval_due_at : row.status === 'self_assessed' ? row.grading_due_at : null;
+      const due =
+        row.status === 'pending_approval'
+          ? row.approval_due_at
+          : row.status === 'self_assessed'
+            ? row.grading_due_at
+            : null;
       if (due && due < now) {
         continue;
       }
@@ -721,8 +731,7 @@ export class TeachingWorkSource extends MyWorkSource {
     const condition = (
       scope: { wholeSchool: boolean; orgUnitIds: string[] },
       statuses: Array<'submitted' | 'leader_approved'>,
-    ) =>
-      scope.wholeSchool || scope.orgUnitIds.length > 0 ? { scope, statuses } : null;
+    ) => (scope.wholeSchool || scope.orgUnitIds.length > 0 ? { scope, statuses } : null);
     const parts = [condition(manager, ['submitted', 'leader_approved']), condition(leader, ['submitted'])].filter(
       (part): part is NonNullable<typeof part> => part !== null,
     );

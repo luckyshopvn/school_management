@@ -28,9 +28,7 @@ export const migration: Migration = {
       .createTable('professional_folders')
       .addColumn('id', 'uuid', (column) => column.primaryKey().defaultTo(sql`gen_random_uuid()`))
       .addColumn('parent_id', 'uuid', (column) => column.references('professional_folders.id'))
-      .addColumn('branch', 'text', (column) =>
-        column.notNull().check(sql`branch in ('personal', 'group', 'school')`),
-      )
+      .addColumn('branch', 'text', (column) => column.notNull().check(sql`branch in ('personal', 'group', 'school')`))
       .addColumn('name', 'text', (column) => column.notNull().check(sql`char_length(name) between 1 and 200`))
       .addColumn('description', 'text', (column) => column.check(sql`char_length(description) <= 1000`))
       .addColumn('school_level', 'text', (column) => column.check(sql.raw(`school_level in (${SCHOOL_LEVELS})`)))
@@ -117,9 +115,7 @@ export const migration: Migration = {
       .addColumn('id', 'uuid', (column) => column.primaryKey().defaultTo(sql`gen_random_uuid()`))
       .addColumn('folder_id', 'uuid', (column) => column.notNull().references('professional_folders.id'))
       .addColumn('round_id', 'uuid', (column) => column.references('professional_rounds.id'))
-      .addColumn('branch', 'text', (column) =>
-        column.notNull().check(sql`branch in ('personal', 'group', 'school')`),
-      )
+      .addColumn('branch', 'text', (column) => column.notNull().check(sql`branch in ('personal', 'group', 'school')`))
       .addColumn('org_unit_id', 'uuid', (column) => column.notNull().references('org_units.id'))
       .addColumn('owner_user_id', 'uuid', (column) => column.notNull())
       .addColumn('owner_staff_id', 'uuid', (column) => column.references('staff.id'))

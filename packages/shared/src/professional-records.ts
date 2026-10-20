@@ -8,12 +8,7 @@ export const PROFESSIONAL_MAXIMUM_FILE_BYTES = 20 * 1024 * 1024;
 
 export type ProfessionalBranchCode = 'personal' | 'group' | 'school';
 export type ProfessionalApprovalFlowCode = 'none' | 'leader' | 'two_level';
-export type ProfessionalDocumentStatusCode =
-  | 'draft'
-  | 'pending_leader'
-  | 'pending_approval'
-  | 'approved'
-  | 'returned';
+export type ProfessionalDocumentStatusCode = 'draft' | 'pending_leader' | 'pending_approval' | 'approved' | 'returned';
 
 export const PROFESSIONAL_BRANCH_LABELS: Record<ProfessionalBranchCode, string> = {
   personal: 'Hồ sơ cá nhân',
@@ -76,13 +71,23 @@ const GENERAL_LEVEL: ProfessionalFolderTemplate[] = [
 
 export const PROFESSIONAL_DEFAULT_FOLDERS: Record<KpiSchoolLevelCode, ProfessionalFolderTemplate[]> = {
   MN: [
-    { branch: 'personal', name: 'Kế hoạch giáo dục năm, tháng, tuần', approval_flow: 'two_level', requires_signing: true },
+    {
+      branch: 'personal',
+      name: 'Kế hoạch giáo dục năm, tháng, tuần',
+      approval_flow: 'two_level',
+      requires_signing: true,
+    },
     { branch: 'personal', name: 'Kế hoạch hoạt động ngày', approval_flow: 'leader' },
     { branch: 'personal', name: 'Sổ dự giờ', approval_flow: 'leader' },
     { branch: 'personal', name: 'Sổ theo dõi trẻ', approval_flow: 'none' },
     { branch: 'personal', name: 'Hồ sơ bồi dưỡng thường xuyên', approval_flow: 'two_level' },
     { branch: 'personal', name: 'Sáng kiến, đề tài', approval_flow: 'two_level', requires_signing: true },
-    { branch: 'group', name: 'Kế hoạch hoạt động của tổ chuyên môn', approval_flow: 'two_level', requires_signing: true },
+    {
+      branch: 'group',
+      name: 'Kế hoạch hoạt động của tổ chuyên môn',
+      approval_flow: 'two_level',
+      requires_signing: true,
+    },
     { branch: 'group', name: 'Sổ sinh hoạt tổ chuyên môn', approval_flow: 'two_level' },
     { branch: 'group', name: 'Biên bản dự giờ, thao giảng của tổ', approval_flow: 'two_level' },
     ...GENERAL_SCHOOL,
@@ -94,15 +99,7 @@ export const PROFESSIONAL_DEFAULT_FOLDERS: Record<KpiSchoolLevelCode, Profession
 
 // Việc của tôi: mỗi phân hệ cung cấp một nguồn việc qua giao diện chung ở máy chủ; phần sau thêm nguồn thì thêm mã ở đây
 export type MyWorkSourceCode =
-  | 'incoming'
-  | 'outgoing'
-  | 'directives'
-  | 'schedules'
-  | 'kpi'
-  | 'professional'
-  | 'teaching'
-  | 'signing'
-  | 'leave';
+  'incoming' | 'outgoing' | 'directives' | 'schedules' | 'kpi' | 'professional' | 'teaching' | 'signing' | 'leave';
 
 export const MY_WORK_SOURCE_LABELS: Record<MyWorkSourceCode, string> = {
   incoming: 'Văn bản đến',

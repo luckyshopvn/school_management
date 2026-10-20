@@ -3973,14 +3973,7 @@ export type ProfessionalBranch = 'personal' | 'group' | 'school';
 export type ProfessionalApprovalFlow = 'none' | 'leader' | 'two_level';
 export type ProfessionalDocumentStatus = 'draft' | 'pending_leader' | 'pending_approval' | 'approved' | 'returned';
 export type ProfessionalDocumentAction =
-  | 'create'
-  | 'upload'
-  | 'submit'
-  | 'leader_approve'
-  | 'approve'
-  | 'return'
-  | 'sign'
-  | 'withdraw';
+  'create' | 'upload' | 'submit' | 'leader_approve' | 'approve' | 'return' | 'sign' | 'withdraw';
 
 export interface ProfessionalFoldersTable {
   id: Generated<string>;
