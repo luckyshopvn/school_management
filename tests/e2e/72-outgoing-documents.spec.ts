@@ -9,7 +9,7 @@ import {
   type SystemDatabase,
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
-import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_SYSTEM_DATABASE_NAME } from '../e2e-environment.mjs';
 import { openMenu } from './menu.js';
 
 // Văn bản đi theo VNPT iOffice (DT-18 phần 18b, YCTD-140): chuyên viên soạn dự thảo kèm tệp, lấy ý kiến; người được hỏi cho
@@ -18,7 +18,9 @@ import { openMenu } from './menu.js';
 // đi xuất Excel; trang tra cứu mã QR công khai. Chạy sau 02-academic-years và 03-org-units. Dữ liệu giả
 const PDF = Buffer.from('%PDF-1.4\n%%EOF\n');
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
-const system = createDatabase<SystemDatabase>(readConnectionString('system'));
+const system = createDatabase<SystemDatabase>(
+  replaceDatabaseName(readConnectionString('system'), E2E_SYSTEM_DATABASE_NAME),
+);
 let schoolYear: ReturnType<typeof createDatabase<SchoolYearDatabase>>;
 
 test.beforeAll(async () => {
@@ -141,7 +143,7 @@ test('Soạn dự thảo, lấy ý kiến, trình ký, ký nội bộ, cấp s�
   await expect(page.getByRole('heading', { name: '3.1. Văn bản đi' })).toBeVisible();
   await page.getByRole('button', { name: 'Thêm mới' }).click();
   const form = page.getByRole('form', { name: 'Thêm mới văn bản đi' });
-  await form.getByLabel('Trích yếu').fill(summary);
+  await form.getByLabel('Trích yếu', { exact: true }).fill(summary);
   await form.getByLabel('Số trình ký').fill(`TT-${suffix}`);
   await form.getByLabel('Hình thức').selectOption({ label: 'Thông báo' });
   await selectByText(form.getByLabel('Người ký'), names.principal);
@@ -205,7 +207,9 @@ test('Soạn dự thảo, lấy ý kiến, trình ký, ký nội bộ, cấp s�
     .click();
   await leaderPage.getByRole('dialog').getByRole('button', { name: 'Ký', exact: true }).click();
   await expect(leaderPage.getByRole('dialog')).toHaveCount(0);
-  await expect(leaderPage.getByText('Đã ký, chờ cấp số')).toBeVisible();
+  // Văn bản đã ký rời thẻ Chờ xử lý, sang Đã xử lý
+  await openTab(leaderPage, 'Đã xử lý');
+  await expect(leaderPage.getByRole('row', { name: `Văn bản đi ${draftLabel}` })).toContainText('Đã ký, chờ cấp số');
 
   // Văn thư: 2.1 khai báo sổ văn bản đi
   const clerkPage = await signIn(browser, clerk);
@@ -236,7 +240,9 @@ test('Soạn dự thảo, lấy ý kiến, trình ký, ký nội bộ, cấp s�
     .where('summary', '=', summary)
     .executeTakeFirstOrThrow();
   expect(issued.symbol).toMatch(new RegExp(`^\\d+/TB-E2E${suffix}$`));
-  await expect(clerkPage.getByText('Đã ban hành', { exact: false }).first()).toBeVisible();
+  // Văn bản đã ban hành rời thẻ Chờ cấp số, sang Đã ban hành
+  await openTab(clerkPage, 'Đã ban hành');
+  await openDocument(clerkPage, issued.symbol ?? '');
 
   // Thông tin gửi: phân hiệu đã nhận qua liên thông nội bộ; đơn vị bên ngoài đánh dấu đã gửi
   await openTab(clerkPage, 'Thông tin gửi');
