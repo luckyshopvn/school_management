@@ -63,7 +63,6 @@ describe('Website trường trên tên miền riêng', () => {
   let principal: LoggedInUser;
   let deputy: LoggedInUser;
   let editor: LoggedInUser;
-  let platform: LoggedInUser;
   let teacher: LoggedInUser;
   const PRIMARY = 'truong-thu.example.test';
   const ALIAS = 'www.truong-thu.example.test';
@@ -155,7 +154,6 @@ describe('Website trường trên tên miền riêng', () => {
     principal = await environment.loginAs('VT-02', null);
     deputy = await environment.loginAs('VT-15', null);
     editor = await environment.loginAs('VT-12', null);
-    platform = await environment.loginAs('VT-01', null);
     teacher = await environment.loginAs('VT-07', null);
     await openTestAcademicYear(environment, principal.accessToken, 'Năm học website', {
       first_term: { start_date: '2026-09-05', end_date: '2027-01-15' },
@@ -200,7 +198,7 @@ describe('Website trường trên tên miền riêng', () => {
   it('CT-18f-2: tên miền lưu trong cơ sở dữ liệu, chỉ người cấu hình sửa; mỗi trường một tên miền chính; máy chủ web chỉ được cấp chứng chỉ cho tên miền đang dùng', async () => {
     assert.equal((await api('GET', '/website/domains', editor)).status, 403);
     assert.equal((await api('POST', '/website/domains', teacher, { hostname: PRIMARY })).status, 403);
-    const invalid = await api('POST', '/website/domains', platform, {
+    const invalid = await api('POST', '/website/domains', principal, {
       hostname: 'https://truong.test/',
       kind: 'primary',
     });
@@ -209,7 +207,7 @@ describe('Website trường trên tên miền riêng', () => {
       errorOf(invalid.body).details?.map((detail) => detail.field),
       ['hostname'],
     );
-    const primary = await api('POST', '/website/domains', platform, {
+    const primary = await api('POST', '/website/domains', principal, {
       hostname: PRIMARY.toUpperCase(),
       kind: 'primary',
     });

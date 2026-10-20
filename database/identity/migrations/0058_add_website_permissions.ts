@@ -6,8 +6,8 @@ import type { Migration } from 'kysely/migration';
 // - duyệt: duyệt và đăng, trả lại, gỡ bài và album đã đăng; xử lý thư liên hệ;
 // - cấu hình: thông tin website, tên miền (thêm, đánh dấu đã trỏ, ngừng dùng), chế độ trình diễn, nội dung mẫu.
 // Vai trò nhận quyền do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: Ban Giám hiệu, Quản lý đơn vị, Nhân viên
-// tuyển sinh soạn; Ban Giám hiệu duyệt; Hiệu trưởng và Quản trị nền tảng cấu hình (tên miền là cấu hình kỹ thuật). Phụ
-// huynh (VT-14) không có phân hệ "Website trường" ở 1.2 Phân quyền nhóm theo phần mềm
+// tuyển sinh soạn; Ban Giám hiệu duyệt; Hiệu trưởng cấu hình (Quản trị nền tảng không có quyền nghiệp vụ, PQ-10). Phụ huynh
+// (VT-14) không có phân hệ "Website trường" ở 1.2 Phân quyền nhóm theo phần mềm
 const WORKSPACE_KEY = 'website';
 const PERMISSIONS = [
   {
@@ -23,7 +23,7 @@ const PERMISSIONS = [
   {
     code: 'P14.website.configure',
     description: 'Cấu hình thông tin website, tên miền, chế độ trình diễn của website trường',
-    roles: ['VT-01', 'VT-02'],
+    roles: ['VT-02'],
   },
 ];
 
