@@ -14,6 +14,28 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-20 — Kế hoạch DT-18 điều hành nhà trường
+
+#### Công việc đã thực hiện
+
+- Thêm mục 9 vào `32_KE_HOACH_THEO_HE_THONG_SO.md` (phiên bản 1.19): kế hoạch DT-18 gồm tám phần 18a đến 18h và bốn phần 22b, 22d, 22f, 22i chạy ở đợt 5; mỗi phần có phạm vi, đợt, phụ thuộc, YCTD và số migration giữ sẵn; nguyên tắc chung; bảng tiến độ.
+- Ghi YCTD-137 (chỉ đổi tài liệu).
+
+#### Quyết định
+
+- Quyết định của Eric ngày 2026-10-19: lộ trình DT-18 → DT-19 → DT-20 → DT-21 → DT-22 → DT-SaaS; văn bản đến, đi, giao việc, lịch theo VNPT iOffice; KPI chuyển hẳn hệ thống của Eric vào School Management; website mỗi trường một tên miền riêng, có chế độ trình diễn; ký số chạy nội bộ; 22b, 22d, 22f, 22i ở đợt 5 của DT-18; AI là thành phần riêng, tắt mặc định.
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: năm đợt, mỗi lúc tối đa hai phiên (đợt 1: 18a, 18d; đợt 2: 18b, 18c; đợt 3: 18e, 18g; đợt 4: 18f, 18h; đợt 5: 22b, 22i rồi 22d, 22f); YCTD-138 đến YCTD-149 đánh theo thứ tự đợt; migration giữ sẵn năm học 0064 đến 0071, hệ thống 0018 đến 0022, định danh 0052 đến 0063.
+- Phần 18d chỉ ghi hai bộ quy tắc chấm cấu hình được (bộ HD 06-HD/BTCTU đã sửa đổi, bộ NĐ 233/2026); không đưa nội dung văn bản hạn chế phát tán vào kho, tham số chấm điểm để phiên làm 18d nhập thành cấu hình.
+
+#### Thay đổi
+
+- `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9; `24_YEU_CAU_THAY_DOI.md` YCTD-137; `index.md`. Chỉ đổi tài liệu, phiên bản phần mềm giữ nguyên.
+
+#### Vấn đề tồn đọng
+
+- Ghi chép khảo sát VNPT iOffice lưu ngoài kho; phiên làm 18a, 18b, 18c đọc trước khi viết phạm vi chi tiết.
+- Văn bản gốc của thông tư danh mục thiết bị tối thiểu, thi đua khen thưởng, bộ tiêu chuẩn kiểm định cần đọc trước khi làm 18g, 22d, 22f.
+
 ### 2026-10-20 — DT-17 phần 17d: Tuyển sinh đầu cấp phần 2
 
 #### Công việc đã thực hiện

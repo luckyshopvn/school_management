@@ -11,6 +11,21 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-137: Kế hoạch DT-18 điều hành nhà trường – 2026-10-20
+
+- Lý do: DT-17 đã xong (PR 110 đến 114). Ngày 2026-10-19 Eric chốt lộ trình DT-18 → DT-19 → DT-20 → DT-21 → DT-22 → DT-SaaS và các quyết định cho DT-18: sổ văn bản đến, đi, giao việc, lịch làm theo VNPT iOffice; chuyển hẳn hệ thống KPI của Eric vào School Management; mỗi trường một tên miền riêng cho website, có chế độ trình diễn; ký số giữ bản chạy nội bộ; bốn phần 22b, 22d, 22f, 22i chạy ở đợt 5 của DT-18; AI là thành phần riêng, tắt mặc định. Cần ghi kế hoạch vào `tai_lieu/` trước khi giao phiên làm. Các điểm chi tiết dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi:
+  - `32_KE_HOACH_THEO_HE_THONG_SO.md` phiên bản 1.19: thêm mục 9 "DT-18: điều hành nhà trường" gồm căn cứ (9.1); nguyên tắc chung (9.2: bản chạy nội bộ, viết sẵn cho đa thuê bao và đa cấp học, AI tắt mặc định, ký số nội bộ, không dữ liệu thật); bảng mười hai phần 18a đến 18h, 22b, 22d, 22f, 22i với phạm vi, đợt, phụ thuộc, YCTD giữ sẵn (YCTD-138 đến YCTD-149, đánh theo thứ tự đợt) và migration giữ sẵn (năm học 0064 đến 0071, hệ thống 0018 đến 0022, định danh 0052 đến 0063) (9.3); năm đợt, mỗi lúc tối đa hai phiên, thứ tự gộp; phạm vi chi tiết từng phần (9.4); quy ước chung (9.5); bảng tiến độ (9.6).
+  - Phần 18d chỉ ghi ở mức "hai bộ quy tắc chấm cấu hình được: bộ HD 06-HD/BTCTU (đã sửa đổi) và bộ NĐ 233/2026"; các tham số chấm điểm cụ thể để phiên làm 18d nhập thành cấu hình. Văn bản điều chỉnh bộ HD 06-HD/BTCTU là tài liệu của cơ quan Đảng có dòng chữ chìm cấm phát tán nên không đưa nguyên văn, phụ lục hay danh mục nhiệm vụ định hướng của văn bản vào kho.
+- Thành phần bị ảnh hưởng: tài liệu `02`, `24`, `32`, `index.md`. Không đổi mã nguồn.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không; phiên bản phần mềm giữ nguyên (thay đổi chỉ ở tài liệu, không ghi mục mới ở `23_LICH_SU_PHIEN_BAN.md`).
+- Kiểm thử cần thực hiện: kiểm tra định dạng (`pnpm format:check`).
+- Trạng thái: Đã triển khai
+
 ### YCTD-135: DT-17 phần 17d: Tuyển sinh đầu cấp phần 2 – 2026-10-20
 
 - Lý do: khảo sát bổ sung ngày 2026-10-19 (`31_KHAO_SAT_HE_THONG_SO.md` mục 10.2.4, chênh lệch ở mục 10.7.4) cho thấy phân hệ Tuyển sinh đầu cấp của Sở có nhóm 1.3 đến 1.7 lo hồ sơ trẻ được phân tuyến vào trường: đăng ký trường tiên tiến, tiếp nhận hồ sơ, gửi thông báo tuyển sinh, chuyển hồ sơ trúng tuyển sang CSDL kèm mã gói tin, mã GUID, kết quả chuyển, hủy nhập học; phân hệ Mầm non có 5.11 Danh sách trúng tuyển. School Management chỉ có phân hệ Tuyển sinh riêng (YCTD-86) với đợt, hồ sơ trực tuyến và chuyển hồ sơ đạt thành hồ sơ trẻ. Theo quyết định của Eric ngày 2026-10-16 (làm đủ mọi tính năng đã khảo sát; tính năng cần hệ thống ngoài làm bản chạy nội bộ và giữ chỗ nối), phần 17d của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 8.3 làm 1.3 đến 1.7 của phân hệ Tuyển sinh đầu cấp và 5.11 của phân hệ Mầm non, dùng lại đợt và hồ sơ tuyển sinh của YCTD-86. Các điểm chi tiết dưới đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
