@@ -115,6 +115,14 @@ function EditableTable({
   const [notice, setNotice] = useState<string>();
   const [dirty, setDirty] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
+  // Số đã ghi đổi (Ghi, Xóa dữ liệu, đọc lại biểu) thì nạp lại bản nháp tại chỗ thay vì dựng lại bảng, để hộp xác nhận đang mở
+  // không bị đóng khi dữ liệu của biểu về sau (DT-18 phần 18g)
+  const [loadedSavedAt, setLoadedSavedAt] = useState(tab.saved_at);
+  if (tab.saved_at !== loadedSavedAt) {
+    setLoadedSavedAt(tab.saved_at);
+    setDraft(draftOf(tab.rows));
+    setDirty(false);
+  }
   const locked = tab.locked;
   const fill = useMutation({
     mutationFn: (source: 'data' | 'previous_year') => fillEmisTab(formCode, tab.key, source),
@@ -355,7 +363,7 @@ export function EmisFormPage({ code }: { code: EmisFormCode }) {
               >
                 {current.editable ? (
                   <EditableTable
-                    key={`${current.key}-${current.saved_at ?? ''}-${String(current.locked)}`}
+                    key={`${current.key}-${String(current.locked)}`}
                     formCode={code}
                     tab={current}
                     onSaved={setToastMessage}
