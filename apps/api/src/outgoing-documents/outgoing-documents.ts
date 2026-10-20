@@ -585,6 +585,7 @@ export class OutgoingDocumentsService {
       .where('document_id', '=', id)
       .orderBy('round')
       .orderBy('created_at')
+      .orderBy('user_name')
       .execute();
     const recipients = await this.system
       .selectFrom('outgoing_document_recipients')
@@ -641,15 +642,12 @@ export class OutgoingDocumentsService {
         errors.push({ field, message: 'Không có trong danh mục văn bản' });
       }
     }
-    let drafter = { id: currentUser.id, name: currentUser.description.full_name };
-    if (input.drafter_id && input.drafter_id !== currentUser.id) {
-      const accounts = await this.admin.staffAccounts([input.drafter_id]);
-      const account = accounts[0];
-      if (!account) {
-        errors.push({ field: 'drafter_id', message: 'Người soạn thảo không phải nhân sự đang làm việc có tài khoản' });
-      } else {
-        drafter = { id: account.user_id, name: account.full_name };
-      }
+    // Người soạn thảo: mặc định là người tạo; tên lấy theo hồ sơ nhân sự (không có hồ sơ thì theo tài khoản)
+    const drafterId = input.drafter_id ?? currentUser.id;
+    const account = (await this.admin.staffAccounts([drafterId]))[0];
+    const drafter = { id: drafterId, name: account?.full_name ?? currentUser.description.full_name };
+    if (!account && drafterId !== currentUser.id) {
+      errors.push({ field: 'drafter_id', message: 'Người soạn thảo không phải nhân sự đang làm việc có tài khoản' });
     }
     let unitName: string | null = null;
     if (input.drafting_unit_id) {
