@@ -381,3 +381,67 @@ export const OFFICE_ACCOUNT_FIELDS: ReadonlyArray<ProfileField> = [
 ];
 
 export const OFFICE_ACCOUNTS_SECTION = { key: 'office_accounts', label: 'Tài khoản văn phòng điện tử' } as const;
+
+// Nơi để thiết bị (DT-18 phần 18g): phòng (gắn với phòng của khai báo cơ sở vật chất), kho, hoặc vị trí nằm trong một
+// phòng, kho (tủ, giá, góc)
+export const EQUIPMENT_LOCATION_TYPES = [
+  { value: 'room', label: 'Phòng' },
+  { value: 'store', label: 'Kho' },
+  { value: 'position', label: 'Vị trí' },
+] as const satisfies ReadonlyArray<CodeLabel>;
+
+export type EquipmentLocationType = (typeof EQUIPMENT_LOCATION_TYPES)[number]['value'];
+
+// Cấp học của danh mục thiết bị tối thiểu (mã như cấp học của KPI); danh mục mẫu có bản Mầm non, các cấp khác thêm sau
+export const EQUIPMENT_SCHOOL_LEVELS = [
+  { value: 'MN', label: 'Mầm non' },
+  { value: 'TH', label: 'Tiểu học' },
+  { value: 'THCS', label: 'Trung học cơ sở' },
+  { value: 'THPT', label: 'Trung học phổ thông' },
+] as const satisfies ReadonlyArray<CodeLabel>;
+
+export type EquipmentSchoolLevel = (typeof EQUIPMENT_SCHOOL_LEVELS)[number]['value'];
+
+// Đợt kiểm kê thiết bị: đang kiểm kê → chờ duyệt → đã duyệt → đã chốt chênh lệch; trả lại thì về đang kiểm kê; hủy khi
+// đang kiểm kê
+export const EQUIPMENT_STOCKTAKE_STATUSES = [
+  { value: 'counting', label: 'Đang kiểm kê' },
+  { value: 'submitted', label: 'Chờ duyệt' },
+  { value: 'approved', label: 'Đã duyệt' },
+  { value: 'closed', label: 'Đã chốt chênh lệch' },
+  { value: 'cancelled', label: 'Đã hủy' },
+] as const satisfies ReadonlyArray<CodeLabel>;
+
+export type EquipmentStocktakeStatus = (typeof EQUIPMENT_STOCKTAKE_STATUSES)[number]['value'];
+
+// Tình trạng ghi khi quét: dùng được; hỏng cần sửa; hỏng không sửa được; không tìm thấy
+export const EQUIPMENT_CONDITIONS = [
+  { value: 'good', label: 'Dùng được' },
+  { value: 'damaged', label: 'Hỏng, cần sửa' },
+  { value: 'unusable', label: 'Hỏng, không dùng được' },
+  { value: 'missing', label: 'Không tìm thấy' },
+] as const satisfies ReadonlyArray<CodeLabel>;
+
+export type EquipmentCondition = (typeof EQUIPMENT_CONDITIONS)[number]['value'];
+
+// Đối tượng của tem QR và dòng kiểm kê: một tài sản (từng thiết bị) hoặc một lô (số lượng hiện có của một thiết bị tại
+// đơn vị hoặc lớp)
+export const EQUIPMENT_LABEL_TARGETS = [
+  { value: 'asset', label: 'Từng thiết bị' },
+  { value: 'holding', label: 'Lô' },
+] as const satisfies ReadonlyArray<CodeLabel>;
+
+export type EquipmentLabelTarget = (typeof EQUIPMENT_LABEL_TARGETS)[number]['value'];
+
+// Mã tem in trong mã QR: chỉ có mã, không có tên miền (viết sẵn cho đa thuê bao); trình quét cũng nhận đường dẫn có mã ở
+// đoạn cuối hoặc ở tham số ?ma= để sau này tem có thể in đường dẫn của trường
+export const EQUIPMENT_QR_PATTERN = /^TB-[0-9A-HJKMNP-TV-Z]{10}$/;
+
+export function equipmentQrCodeOf(scanned: string): string | null {
+  const text = scanned.trim().toUpperCase();
+  if (EQUIPMENT_QR_PATTERN.test(text)) {
+    return text;
+  }
+  const match = /(?:[?&]MA=|\/)(TB-[0-9A-HJKMNP-TV-Z]{10})(?:$|[?&#/])/.exec(text);
+  return match?.[1] ?? null;
+}

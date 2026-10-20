@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.83
+- Phiên bản: 1.84
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -411,10 +411,15 @@ Bỏ ngày 09/10/2026 (YCTD-20): bảng `meal_registrations` đã gỡ vì khôn
 | facility_investments | 6.1 Thực trạng và nhu cầu đầu tư phòng học, nhà công vụ của toàn trường (P13-13, BR-126, YCTD-128) | org_unit_id (Trường chính), category (classroom, teacher_housing), permanent, semi_permanent, degraded_level4, borrowed, need_classes, need_rooms (số nguyên không âm hoặc trống), need_budget_million (numeric 14,2, không âm), note, updated_by, created_at, updated_at |
 | facility_standard_levels | Mức độ đạt chuẩn cơ sở vật chất theo khối phòng của 1.2 (P17-23, BR-126, YCTD-128) | org_unit_id (Trường chính), room_block (năm khối), level (not_met, level_1, level_2), note, updated_by, created_at, updated_at |
 | facility_import_jobs | Lần nhập phòng, danh mục thiết bị từ Excel (P13-14, YCTD-128) | import_type (rooms, equipment_items), org_unit_id, file_id (khóa ngoại `files`), status (validated, failed, committed), total_rows, error_rows, errors (jsonb), payload (jsonb dòng đọc được chờ ghi), created_by, created_at, committed_at |
+| equipment_locations | Nơi để thiết bị của đơn vị (P13-16, BR-138, YCTD-143) | org_unit_id, code (duy nhất trong đơn vị), name, location_type (room, store, position), room_id (khóa ngoại `rooms`), parent_id (khóa ngoại chính bảng, khác chính nó), status (active, inactive), note, created_by, created_at, updated_at |
+| equipment_stocktakes | Đợt kiểm kê thiết bị (P13-17, BR-138, YCTD-143) | code (`KKTB-000001`, duy nhất), name, org_unit_id, location_id (khóa ngoại `equipment_locations`), started_on, members, note, status (counting, submitted, approved, closed, cancelled), return_note, created_by, submitted_by, submitted_at, approved_by, approved_at, closed_by, closed_at, created_at, updated_at |
+| equipment_stocktake_lines | Dòng kiểm kê chụp từ sổ và kết quả quét (YCTD-143) | stocktake_id (khóa ngoại), target_type (asset, holding), asset_id hoặc holding_id (đúng một), equipment_item_id, code, name, unit, location_id (nơi để theo sổ), in_scope, expected_quantity, counted_quantity, usable_quantity (không quá counted), condition (good, damaged, unusable, missing), found_location_id, note, counted_by, counted_at, damage_id (khóa ngoại `asset_damages`, ghi nhận lập khi chốt) |
 
 Bảng `equipment_items`, `equipment_holdings`, `school_profiles` và các cột mới `rooms.room_block`, `room_type`, `condition`, `area_m2`, `facility_attributes`, `assets.equipment_item_id` (DT-14 phần 14d) tạo bằng tệp `database/school-year/migrations/0049_create_equipment_and_facilities.ts` của cơ sở dữ liệu năm học. Mở năm học mới: phòng kèm các cột mới chuyển ở bước danh mục; bước chuyển `facilities` thay danh mục thiết bị gieo sẵn của năm mới bằng danh mục của năm cũ (giữ mã định danh), chuyển số hiện có theo đơn vị (số theo lớp cộng vào dòng của đơn vị, nhu cầu năm sau để trống) và hồ sơ trường. Bốn quyền `P13.equipment.manage`, `P17.report.facilities`, `P01.school-profile.manage`, `P17.report.emis` (PQ-60 đến PQ-63) thêm vào `permissions`, `role_permissions` của cơ sở dữ liệu định danh bằng tệp `database/identity/migrations/0039_add_facilities_emis_permissions.ts` (YCTD-106).
 
 Tệp `database/school-year/migrations/0058_add_facilities_so_parity.ts` của cơ sở dữ liệu năm học (DT-16 phần 16i, YCTD-128) tạo `facility_investments` (duy nhất `org_unit_id` kèm `category`, ràng buộc chỉ tiêu và số không âm), `facility_standard_levels` (duy nhất `org_unit_id` kèm `room_block`, ràng buộc khối và mức), `facility_import_jobs` (ràng buộc loại nhập, trạng thái). Thông tin nhà vệ sinh lưu ở `rooms.facility_attributes` với khóa `toilet_users` (children, staff, shared), `toilet_standard` (met, not_met), `toilet_separate_gender` (đúng, sai), `toilet_seats` (số nguyên không âm), chỉ cho phòng loại `toilet`; loại phòng mới `teacher_housing` (khối other). Số liệu 6.1, mức độ đạt chuẩn không chuyển sang năm học mới.
+
+Tệp `database/school-year/migrations/0067_add_equipment_locations_stocktakes.ts` của cơ sở dữ liệu năm học (DT-18 phần 18g, YCTD-143) tạo `equipment_locations`, `equipment_stocktakes` (chỉ mục duy nhất `equipment_stocktakes_open_unique` theo đơn vị khi trạng thái counting, submitted, approved), `equipment_stocktake_lines` (duy nhất theo đợt kèm tài sản, theo đợt kèm lô); thêm `equipment_items.school_level` (MN, TH, THCS, THPT, mặc định MN), `template_code`; `equipment_holdings.location_id`, `qr_code` (duy nhất); `assets.equipment_location_id`, `qr_code` (duy nhất). Danh mục mẫu thiết bị tối thiểu không lưu thành bảng: ở mã nguồn máy chủ (`apps/api/src/facilities/equipment-templates.ts`), nạp vào `equipment_items` khi bấm "Nạp danh mục mẫu".
 
 ## 15. Phân hệ P14 — Hoạt động, nội dung và truyền thông
 
@@ -577,6 +582,9 @@ erDiagram
 | health_measurements | growth_round_id kèm child_id, duy nhất khi có đợt | Mỗi học sinh một số đo trong một đợt, đọc số đo của đợt (YCTD-105) |
 | student_health_records | child_id kèm term_type, duy nhất (`student_health_records_child_term_unique`); org_unit_id kèm term_type (`student_health_records_unit_term`) | Một dòng mỗi học sinh trong một học kỳ; đọc thông tin của đơn vị theo học kỳ (YCTD-125) |
 | equipment_holdings | equipment_item_id kèm org_unit_id kèm class_id (class_id trống coi như một giá trị), duy nhất | Mỗi thiết bị một dòng số hiện có của đơn vị và của từng lớp (YCTD-106) |
+| equipment_locations | org_unit_id kèm code, duy nhất | Mã nơi để không trùng trong đơn vị (YCTD-143) |
+| equipment_stocktakes | org_unit_id khi trạng thái counting, submitted, approved, duy nhất (`equipment_stocktakes_open_unique`) | Mỗi đơn vị một đợt kiểm kê chưa chốt (YCTD-143) |
+| equipment_stocktake_lines | stocktake_id kèm asset_id, stocktake_id kèm holding_id, duy nhất | Một thiết bị, lô một dòng trong đợt (YCTD-143) |
 | school_profiles | org_unit_id, duy nhất | Một hồ sơ trường mỗi năm học (YCTD-106) |
 | accreditation_reviews | org_unit_id, duy nhất | Một bản rà soát kiểm định mỗi năm học (YCTD-127) |
 | facility_investments | org_unit_id kèm category, duy nhất (`facility_investments_unique`) | Một dòng mỗi chỉ tiêu 6.1 (YCTD-128) |

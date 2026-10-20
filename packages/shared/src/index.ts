@@ -214,6 +214,8 @@ export const PERMISSION_CODES = {
   meetingRoomManage: 'P09.meeting-room.manage',
   workFileUse: 'P09.work-file.use',
   documentReportView: 'P09.document-report.view',
+  // Thiết bị: quét mã QR kiểm kê, ghi tình trạng (DT-18 phần 18g)
+  equipmentStocktake: 'P13.equipment.stocktake',
   // Website trường (DT-18 phần 18f)
   websiteEdit: 'P14.website.edit',
   websiteApprove: 'P14.website.approve',
@@ -467,6 +469,10 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/document-reports/incoming',
   '/document-reports/summary',
   '/document-reports/statistics',
+  // Thiết bị: nơi để, tem QR, kiểm kê, đối sánh danh mục tối thiểu (DT-18 phần 18g)
+  '/equipment-locations',
+  '/equipment-stocktakes',
+  '/equipment-minimum',
   // Website trường (DT-18 phần 18f)
   '/website/settings',
   '/website/domains',
@@ -711,6 +717,12 @@ export const DATA_GRID_KEYS = [
   'meeting-schedules',
   'document-report-incoming',
   'document-report-summary',
+  // Thiết bị: nơi để, tem QR, kiểm kê, đối sánh danh mục tối thiểu (DT-18 phần 18g)
+  'equipment-locations',
+  'equipment-labels',
+  'equipment-stocktakes',
+  'equipment-stocktake-lines',
+  'equipment-minimum',
   // Website trường (DT-18 phần 18f)
   'website-domains',
   'website-posts',

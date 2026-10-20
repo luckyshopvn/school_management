@@ -144,6 +144,10 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('2.1.', 'Tổng hợp thiết bị dạy học', '/equipment'),
         leaf('2.2.', 'Thiết bị ngoài danh mục tối thiểu', '/equipment-outside'),
         leaf('2.3.', 'Gửi thiết bị dạy học lên cấp trên', '/equipment-submission'),
+        // Nơi để, tem QR, kiểm kê bằng điện thoại, đối sánh danh mục tối thiểu (DT-18 phần 18g)
+        leaf('2.4.', 'Nơi để và tem QR thiết bị', '/equipment-locations'),
+        leaf('2.5.', 'Kiểm kê thiết bị', '/equipment-stocktakes'),
+        leaf('2.6.', 'Đối sánh danh mục tối thiểu', '/equipment-minimum'),
       ]),
     ],
   },

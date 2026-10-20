@@ -1473,6 +1473,9 @@ export interface AssetsTable {
   status: Generated<AssetStatus>;
   // Thiết bị trong danh mục thiết bị dạy học mà tài sản được tính vào số hiện có (YCTD-102)
   equipment_item_id: ColumnType<string | null, string | null | undefined, string | null>;
+  // Nơi để và mã tem QR (DT-18 phần 18g)
+  equipment_location_id: ColumnType<string | null, string | null | undefined, string | null>;
+  qr_code: ColumnType<string | null, string | null | undefined, string | null>;
   created_by: string;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
@@ -3316,6 +3319,9 @@ export interface EquipmentItemsTable {
   order_no: Generated<number>;
   status: Generated<'active' | 'inactive'>;
   note: string | null;
+  // Cấp học của danh mục, mã danh mục mẫu đã nạp dòng này (DT-18 phần 18g)
+  school_level: Generated<'MN' | 'TH' | 'THCS' | 'THPT'>;
+  template_code: ColumnType<string | null, string | null | undefined, string | null>;
   created_by: string | null;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
@@ -3329,9 +3335,79 @@ export interface EquipmentHoldingsTable {
   quantity: ColumnType<string, string | number, string | number>;
   next_year_need: ColumnType<string | null, string | number | null | undefined, string | number | null>;
   note: string | null;
+  // Nơi để và mã tem QR của lô (DT-18 phần 18g)
+  location_id: ColumnType<string | null, string | null | undefined, string | null>;
+  qr_code: ColumnType<string | null, string | null | undefined, string | null>;
   updated_by: string;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
+}
+
+// Nơi để, kiểm kê thiết bị (DT-18 phần 18g, YCTD-143)
+type EquipmentNullable = ColumnType<string | null, string | null | undefined, string | null>;
+
+export interface EquipmentLocationsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  code: string;
+  name: string;
+  location_type: 'room' | 'store' | 'position';
+  room_id: EquipmentNullable;
+  parent_id: EquipmentNullable;
+  status: Generated<'active' | 'inactive'>;
+  note: EquipmentNullable;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface EquipmentStocktakesTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  org_unit_id: string;
+  location_id: EquipmentNullable;
+  started_on: string;
+  members: EquipmentNullable;
+  note: EquipmentNullable;
+  status: Generated<'counting' | 'submitted' | 'approved' | 'closed' | 'cancelled'>;
+  return_note: EquipmentNullable;
+  created_by: string;
+  submitted_by: EquipmentNullable;
+  submitted_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  approved_by: EquipmentNullable;
+  approved_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  closed_by: EquipmentNullable;
+  closed_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface EquipmentStocktakeLinesTable {
+  id: Generated<string>;
+  stocktake_id: string;
+  target_type: 'asset' | 'holding';
+  asset_id: EquipmentNullable;
+  holding_id: EquipmentNullable;
+  equipment_item_id: EquipmentNullable;
+  code: string;
+  name: string;
+  unit: string;
+  location_id: EquipmentNullable;
+  in_scope: Generated<boolean>;
+  expected_quantity: ColumnType<string, string | number, string | number>;
+  counted_quantity: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+  usable_quantity: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+  condition: ColumnType<
+    'good' | 'damaged' | 'unusable' | 'missing' | null,
+    'good' | 'damaged' | 'unusable' | 'missing' | null | undefined,
+    'good' | 'damaged' | 'unusable' | 'missing' | null
+  >;
+  found_location_id: EquipmentNullable;
+  note: EquipmentNullable;
+  counted_by: EquipmentNullable;
+  counted_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  damage_id: EquipmentNullable;
 }
 
 type JsonSection = ColumnType<Record<string, unknown>, string | undefined, string>;
@@ -4130,4 +4206,7 @@ export interface SchoolYearDatabase {
   kpi_evaluation_criteria: KpiEvaluationCriteriaTable;
   kpi_votes: KpiVotesTable;
   kpi_manager_actions: KpiManagerActionsTable;
+  equipment_locations: EquipmentLocationsTable;
+  equipment_stocktakes: EquipmentStocktakesTable;
+  equipment_stocktake_lines: EquipmentStocktakeLinesTable;
 }

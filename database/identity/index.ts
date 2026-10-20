@@ -49,6 +49,7 @@ import { migration as addIncomingDocumentPermissions } from './migrations/0052_a
 import { migration as addKpiPermissions } from './migrations/0053_add_kpi_permissions.js';
 import { migration as addOutgoingDocumentPermissions } from './migrations/0054_add_outgoing_document_permissions.js';
 import { migration as addDirectiveSchedulePermissions } from './migrations/0055_add_directive_schedule_permissions.js';
+import { migration as addEquipmentStocktakePermission } from './migrations/0057_add_equipment_stocktake_permission.js';
 import { migration as addWebsitePermissions } from './migrations/0058_add_website_permissions.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu định danh, theo số thứ tự (QU-01)
@@ -103,5 +104,6 @@ export const identityMigrations: Record<string, Migration> = {
   '0053_add_kpi_permissions': addKpiPermissions,
   '0054_add_outgoing_document_permissions': addOutgoingDocumentPermissions,
   '0055_add_directive_schedule_permissions': addDirectiveSchedulePermissions,
+  '0057_add_equipment_stocktake_permission': addEquipmentStocktakePermission,
   '0058_add_website_permissions': addWebsitePermissions,
 };

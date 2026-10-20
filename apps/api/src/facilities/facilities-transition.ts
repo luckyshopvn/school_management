@@ -7,7 +7,9 @@ import type { AcademicYearTransitionStep } from '../academic-years/academic-year
 // tham chiếu thiết bị:
 // - danh mục thiết bị năm mới thay bằng danh mục của năm cũ (giữ mã định danh, kể cả chỉnh sửa của Hiệu trưởng);
 // - số hiện có chuyển theo đơn vị: số nhập theo lớp cộng vào dòng của đơn vị vì lớp không chuyển sang năm mới; nhu cầu bổ
-//   sung năm sau bỏ trống để nhập lại
+//   sung năm sau bỏ trống để nhập lại;
+// - nơi để thiết bị chuyển nguyên (DT-18 phần 18g); lô của đơn vị giữ nơi để và mã tem, lô theo lớp gộp vào lô của đơn vị
+//   nên tem của lô theo lớp phải in lại; tài sản giữ nơi để, mã tem ở bước chuyển kho. Đợt kiểm kê tra ở năm cũ
 export const facilitiesTransitionStep: AcademicYearTransitionStep = {
   name: 'facilities',
   async carryOver(context) {
@@ -16,6 +18,14 @@ export const facilitiesTransitionStep: AcademicYearTransitionStep = {
     }
     const previous = context.previousDatabase as Kysely<SchoolYearDatabase>;
     const next = context.newDatabase as Kysely<SchoolYearDatabase>;
+    const locations = await previous
+      .selectFrom('equipment_locations')
+      .selectAll()
+      .orderBy((eb) => eb.case().when('parent_id', 'is', null).then(0).else(1).end())
+      .execute();
+    for (const row of locations) {
+      await next.insertInto('equipment_locations').values(row).execute();
+    }
     const items = await previous.selectFrom('equipment_items').selectAll().execute();
     await next.deleteFrom('equipment_items').execute();
     for (const row of items) {
@@ -24,7 +34,15 @@ export const facilitiesTransitionStep: AcademicYearTransitionStep = {
     const holdings = await previous.selectFrom('equipment_holdings').selectAll().execute();
     const totals = new Map<
       string,
-      { equipment_item_id: string; org_unit_id: string; quantity: number; note: string | null; updated_by: string }
+      {
+        equipment_item_id: string;
+        org_unit_id: string;
+        quantity: number;
+        note: string | null;
+        updated_by: string;
+        location_id: string | null;
+        qr_code: string | null;
+      }
     >();
     for (const row of holdings) {
       const key = `${row.equipment_item_id}:${row.org_unit_id}`;
@@ -34,10 +52,14 @@ export const facilitiesTransitionStep: AcademicYearTransitionStep = {
         quantity: 0,
         note: null,
         updated_by: row.updated_by,
+        location_id: null,
+        qr_code: null,
       };
       entry.quantity = Math.round((entry.quantity + Number(row.quantity)) * 100) / 100;
       if (row.class_id === null) {
         entry.note = row.note;
+        entry.location_id = row.location_id;
+        entry.qr_code = row.qr_code;
       }
       totals.set(key, entry);
     }

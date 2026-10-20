@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.73
+- Phiên bản: 1.74
 - Ngày cập nhật: 2026-10-20
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -493,6 +493,9 @@ Từ YCTD-139 (DT-18 phần 18d), phân hệ "Đánh giá KPI" (khóa `kpi`) đ�
 | MH-200 | Báo cáo thực hiện văn bản đến (YCTD-141; mục "7.1.", `/document-reports/incoming`): ô Đơn vị, Từ ngày (*), Đến ngày (*); nút Xem báo cáo, Xuất Excel, Xuất PDF; bảng Đơn vị, Người xử lý chính, Tổng số, Đã xử lý đúng hạn, Đã xử lý quá hạn, Đang xử lý trong hạn, Đang xử lý quá hạn, Tỷ lệ đúng hạn (%), dòng Tổng cộng | `P09.document-report.view` |
 | MH-201 | Báo cáo tổng hợp (YCTD-141; mục "7.2.", `/document-reports/summary`): bộ lọc như MH-200 ("Thống kê theo đơn vị độc lập"); bảng Đơn vị, Văn bản đến xử lý chính, Đã xử lý, Quá hạn, Công việc được giao, Hoàn thành đúng hạn, Hoàn thành quá hạn, Đang thực hiện, Quá hạn chưa xong, Lịch công tác đã công bố | `P09.document-report.view` |
 | MH-202 | Thống kê số liệu trong đơn vị (YCTD-141; mục "7.3.", `/document-reports/statistics`): bộ lọc như MH-200; tổng số văn bản đến, phân công; bảng theo hình thức, độ khẩn, lĩnh vực, trạng thái văn bản đến và trạng thái phân công | `P09.document-report.view` |
+| MH-203 | Nơi để và tem QR thiết bị (YCTD-143; mục "2.4.", đường dẫn `/equipment-locations`): chọn đơn vị; thẻ "Nơi để" (lưới khóa `equipment-locations`: Mã, Tên nơi để, Loại, Thuộc, Đơn vị, Số thiết bị, lô, Trạng thái; nút "Thêm nơi để", "Sửa", "Ngừng dùng"/"Dùng lại"; biểu mẫu Mã nơi để, Tên nơi để, Loại nơi để, Phòng đã khai báo hoặc Nằm trong, Ghi chú, nút "Ghi"); thẻ "Thiết bị và tem QR" (lọc Nơi để, Loại; lưới chọn nhiều dòng khóa `equipment-labels`: Mã, Tên thiết bị, Loại, Số lượng, Nơi để, Mã tem, Đơn vị; ô "Gán vào nơi để", nút "Gán nơi để", "In tem QR") | `P13.equipment.manage` ghi; `P17.report.facilities` xem |
+| MH-204 | Kiểm kê thiết bị (YCTD-143; mục "2.5.", đường dẫn `/equipment-stocktakes`, dùng được trên trình duyệt điện thoại): lọc Đơn vị, Trạng thái; lưới khóa `equipment-stocktakes` (Mã đợt, Tên đợt, Đơn vị, Nơi kiểm kê, Ngày kiểm kê, Đã kiểm, Trạng thái), nút "Lập đợt kiểm kê" (biểu mẫu Tên đợt kiểm kê, Ngày kiểm kê, Nơi kiểm kê, Tổ kiểm kê, Ghi chú), "Mở". Chi tiết: thông tin đợt, sáu ô tổng hợp (Đã kiểm, Khớp sổ, Thiếu, Thừa, Ngoài sổ, Tỷ lệ sử dụng được), nút theo trạng thái "Nộp kết quả", "Hủy đợt", "Duyệt", "Trả lại" (kèm lý do), "Chốt chênh lệch", "Biên bản PDF", "Biên bản Excel"; khối "Quét kiểm kê" (nút "Quét mã QR" bật máy ảnh, ô "Mã tem" và nút "Tra mã"; biểu mẫu "Ghi kết quả kiểm kê": tình trạng hoặc Số đếm được, Số dùng được, Tình trạng phần hỏng; Nơi thấy, Ghi chú, nút "Ghi kết quả", "Bỏ qua"); lưới "Đối chiếu kiểm kê" khóa `equipment-stocktake-lines` (Mã, Tên thiết bị, Nơi để theo sổ, Theo sổ, Đếm được, Dùng được, Chênh lệch, Kết quả, Tình trạng, Nơi thấy, Ghi chú; lọc Kết quả; nút "Ghi kết quả" mỗi dòng) | `P13.equipment.manage` hoặc `P13.equipment.stocktake` |
+| MH-205 | Đối sánh danh mục tối thiểu (YCTD-143; mục "2.6.", đường dẫn `/equipment-minimum`): khối "Danh mục mẫu" (mẫu theo cấp học, văn bản gốc, số thiết bị, đã có; ô "Ngừng dùng thiết bị gieo sẵn tạm thời"; nút "Nạp danh mục mẫu") khi có quyền quản lý; lọc Đơn vị, Cấp học, Kết quả; dòng tóm tắt Đủ, Thiếu, Chưa có, tỷ lệ đủ, số không áp dụng; lưới khóa `equipment-minimum` (Mã, Tên thiết bị, Đơn vị tính, Nhóm tuổi, Định mức, Hiện có, Thiếu, Kết quả); nút "Xuất Excel", "Xuất PDF" | `P17.report.facilities` hoặc `P13.equipment.manage` |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 
@@ -523,6 +526,7 @@ Từ YCTD-122: MH-95 có cột Đơn vị, nhãn "Sắp đến hạn" cạnh th�
 | MG-15 | Đồ bị mất của lớp: phiếu của lớp, đánh dấu đã tìm thấy, đã trả, không tìm thấy; ghi nhận đồ nhặt được (YCTD-79); chung màn hình với MG-08 | VT-07 |
 | MG-16 | Xác nhận người đón tại cổng: tìm trẻ trong đơn vị, xác nhận người được đón (YCTD-48) | VT-18 |
 | MG-17 | Duyệt giáo án của tổ: làm trên cổng quản trị, trang Bài học và giáo án, thẻ Giáo án chờ duyệt (duyệt hoặc trả lại kèm góp ý); chưa có trên ứng dụng giáo viên (YCTD-80) | VT-17, VT-03 |
+| MG-18 | Kiểm kê thiết bị (YCTD-143): nút "Kiểm kê thiết bị" ở màn hình Lớp của tôi khi có quyền quét; chọn đợt đang kiểm kê (một đợt thì tự chọn), tiến độ "đã kiểm x/y", nút "Quét mã QR" (máy ảnh sau), ô "Mã tem", nút "Tra mã"; thiết bị: tên, nơi để, số theo sổ; chọn tình trạng (từng thiết bị) hoặc Số đếm được, Số dùng được (lô), Ghi chú, nút "Ghi kết quả" | VT-07, VT-08 và các vai trò có `P13.equipment.stocktake` |
 
 ### 2.3 Ứng dụng phụ huynh
 
