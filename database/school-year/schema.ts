@@ -4089,6 +4089,112 @@ export interface ProfessionalRecordSettingsTable {
   updated_at: UpdatedTimestamp;
 }
 
+// Kế hoạch giáo dục (DT-18 phần 22i, YCTD-147). Cột JSON đọc ra giá trị đã phân tích, ghi vào chuỗi JSON
+export type EducationPlanScope = 'school' | 'group' | 'class' | 'personal';
+export type EducationPlanPeriod = 'year' | 'semester' | 'month' | 'week' | 'none';
+export type EducationPlanStep = 'leader' | 'vice_principal' | 'principal';
+export type EducationPlanStatus = 'draft' | 'pending' | 'approved' | 'returned';
+export type EducationPlanAction =
+  | 'create'
+  | 'copy'
+  | 'submit'
+  | 'withdraw'
+  | 'approve'
+  | 'return'
+  | 'sign'
+  | 'archive'
+  | 'work_plan';
+type JsonDocument = ColumnType<unknown, string, string>;
+
+export interface EducationPlanTemplatesTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  description: string | null;
+  school_level: KpiSchoolLevel | null;
+  scope: EducationPlanScope;
+  period: EducationPlanPeriod;
+  sections: JsonDocument;
+  approval_steps: EducationPlanStep[];
+  requires_signing: Generated<boolean>;
+  archive_folder_id: string | null;
+  revision: Generated<number>;
+  sort_order: Generated<number>;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface EducationPlansTable {
+  id: Generated<string>;
+  template_id: string | null;
+  template_name: string;
+  template_revision: number;
+  scope: EducationPlanScope;
+  period: EducationPlanPeriod;
+  school_level: KpiSchoolLevel | null;
+  title: string;
+  period_label: string | null;
+  period_start: string | null;
+  period_end: string | null;
+  org_unit_id: string;
+  department_id: string | null;
+  work_group_id: string | null;
+  class_id: string | null;
+  owner_user_id: string;
+  owner_staff_id: string | null;
+  owner_name: string;
+  sections: JsonDocument;
+  content: ColumnType<unknown, string | undefined, string>;
+  approval_steps: EducationPlanStep[];
+  requires_signing: Generated<boolean>;
+  status: Generated<EducationPlanStatus>;
+  remaining_steps: Generated<EducationPlanStep[]>;
+  current_step: EducationPlanStep | null;
+  version_no: Generated<number>;
+  submitted_at: Date | null;
+  approved_at: Date | null;
+  approved_by: string | null;
+  approved_by_name: string | null;
+  return_note: string | null;
+  signed_at: Date | null;
+  signature_method: string | null;
+  signed_file_id: string | null;
+  source_plan_id: string | null;
+  source_year_name: string | null;
+  source_sections: ColumnType<unknown, string | null | undefined, string | null>;
+  source_content: ColumnType<unknown, string | null | undefined, string | null>;
+  archived_document_id: string | null;
+  work_plan_id: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface EducationPlanVersionsTable {
+  id: Generated<string>;
+  plan_id: string;
+  version_no: number;
+  title: string;
+  sections: JsonDocument;
+  content: JsonDocument;
+  note: string | null;
+  created_by: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface EducationPlanEventsTable {
+  id: Generated<string>;
+  plan_id: string;
+  action: EducationPlanAction;
+  step: EducationPlanStep | null;
+  note: string | null;
+  actor_id: string;
+  actor_name: string;
+  created_at: CreatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -4339,4 +4445,8 @@ export interface SchoolYearDatabase {
   equipment_locations: EquipmentLocationsTable;
   equipment_stocktakes: EquipmentStocktakesTable;
   equipment_stocktake_lines: EquipmentStocktakeLinesTable;
+  education_plan_templates: EducationPlanTemplatesTable;
+  education_plans: EducationPlansTable;
+  education_plan_versions: EducationPlanVersionsTable;
+  education_plan_events: EducationPlanEventsTable;
 }
