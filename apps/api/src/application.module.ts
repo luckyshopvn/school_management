@@ -181,6 +181,9 @@ import { WebsiteSetupController, WebsiteSetupService } from './website/website-s
 import { ProfessionalRecordsController } from './professional-records/professional-records.controller.js';
 import { ProfessionalRecordsService } from './professional-records/professional-records.js';
 import { professionalRecordsTransitionStep } from './professional-records/professional-records-transition.js';
+import { EducationPlansController } from './education-plans/education-plans.controller.js';
+import { EducationPlansService } from './education-plans/education-plans.js';
+import { educationPlansTransitionStep } from './education-plans/education-plans-transition.js';
 import { MY_WORK_SOURCE_TYPES, type MyWorkSource } from './my-work/my-work-sources.js';
 import { MY_WORK_SOURCES, MyWorkController, MyWorkService } from './my-work/my-work.js';
 import {
@@ -421,6 +424,7 @@ export class ApplicationModule {
         WebsiteDomainCheckController,
         // Hồ sơ chuyên môn và Việc của tôi (DT-18 phần 18e)
         ProfessionalRecordsController,
+        EducationPlansController,
         MyWorkController,
         EquipmentController,
         EquipmentLocationsController,
@@ -607,6 +611,7 @@ export class ApplicationModule {
             admissionsTransitionStep,
             professionalStandardsTransitionStep,
             professionalRecordsTransitionStep,
+            educationPlansTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -837,6 +842,8 @@ export class ApplicationModule {
         WebsitePublicService,
         // Hồ sơ chuyên môn và Việc của tôi (DT-18 phần 18e): mỗi phân hệ một nguồn việc qua giao diện MyWorkSource
         ProfessionalRecordsService,
+        // Kế hoạch giáo dục (DT-18 phần 22i)
+        EducationPlansService,
         ...MY_WORK_SOURCE_TYPES,
         {
           provide: MY_WORK_SOURCES,

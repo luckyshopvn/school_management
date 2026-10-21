@@ -18,6 +18,7 @@ import type { CurrentUser } from '../authentication/current-user.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
+import { EducationPlansService } from '../education-plans/education-plans.js';
 import { ProfessionalRecordsService } from '../professional-records/professional-records.js';
 import { LEADER_ROLE, MANAGER_ROLE, TeachingAccess } from '../teaching/teaching-access.js';
 
@@ -708,6 +709,57 @@ export class ProfessionalWorkSource extends MyWorkSource {
   }
 }
 
+// Kế hoạch giáo dục (22i): kế hoạch chờ tôi duyệt ở bước hiện tại, kế hoạch của tôi bị trả lại
+@Injectable()
+export class EducationPlanWorkSource extends MyWorkSource {
+  readonly code = 'education_plans' as const;
+  constructor(
+    private readonly plans: EducationPlansService,
+    private readonly clock: Clock,
+  ) {
+    super();
+  }
+
+  async collect(currentUser: CurrentUser): Promise<MyWorkItem[]> {
+    const codes = [
+      PERMISSION_CODES.educationPlanUse,
+      PERMISSION_CODES.educationPlanReview,
+      PERMISSION_CODES.educationPlanApprove,
+      PERMISSION_CODES.educationPlanFinalize,
+      PERMISSION_CODES.educationPlanManage,
+    ];
+    if (!codes.some((code) => currentUser.hasPermission(code))) {
+      return [];
+    }
+    const now = this.clock.now();
+    const pending = await this.plans.pendingWork(currentUser);
+    return [
+      ...pending.review.map((row) =>
+        item(now, {
+          source: this.code,
+          kind: row.status_label,
+          title: row.title,
+          detail: row.owner_name,
+          link: '/education-plans/review',
+          deadline: null,
+          received_at: row.updated_at,
+        }),
+      ),
+      ...pending.returned.map((row) =>
+        item(now, {
+          source: this.code,
+          kind: 'Kế hoạch bị trả lại',
+          title: row.title,
+          detail: row.return_note,
+          link: '/education-plans',
+          deadline: null,
+          received_at: row.updated_at,
+        }),
+      ),
+    ];
+  }
+}
+
 // Kế hoạch bài dạy (P03): tổ trưởng chuyên môn duyệt kế hoạch đã gửi, quản lý đơn vị duyệt sau tổ trưởng, trong phạm vi đơn vị
 @Injectable()
 export class TeachingWorkSource extends MyWorkSource {
@@ -1037,6 +1089,7 @@ export const MY_WORK_SOURCE_TYPES = [
   ScheduleWorkSource,
   KpiWorkSource,
   ProfessionalWorkSource,
+  EducationPlanWorkSource,
   TeachingWorkSource,
   SigningWorkSource,
   LeaveWorkSource,

@@ -105,6 +105,7 @@ export type MyWorkSourceCode =
   | 'schedules'
   | 'kpi'
   | 'professional'
+  | 'education_plans'
   | 'teaching'
   | 'signing'
   | 'leave'
@@ -117,6 +118,7 @@ export const MY_WORK_SOURCE_LABELS: Record<MyWorkSourceCode, string> = {
   schedules: 'Lịch, phòng họp',
   kpi: 'Đánh giá KPI',
   professional: 'Hồ sơ chuyên môn',
+  education_plans: 'Kế hoạch giáo dục',
   teaching: 'Kế hoạch bài dạy',
   signing: 'Kí hồ sơ',
   leave: 'Nghỉ phép',

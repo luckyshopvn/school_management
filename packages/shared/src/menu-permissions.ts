@@ -41,6 +41,14 @@ const PROFESSIONAL_ANY = anyOf(
   'P09.professional-record.approve',
   'P09.professional-record.manage',
 );
+// Kế hoạch giáo dục (DT-18 phần 22i)
+const EDUCATION_PLAN_ANY = anyOf(
+  'P09.education-plan.use',
+  'P09.education-plan.review',
+  'P09.education-plan.approve',
+  'P09.education-plan.finalize',
+  'P09.education-plan.manage',
+);
 const SCHEDULE_ANY = anyOf('P09.schedule.view', 'P09.schedule.manage', 'P09.meeting-room.manage');
 // Điều kiện của nhóm "Trẻ và lớp" cũ
 const CHILDREN_AND_CLASSES = anyOf('P02.class.manage', 'P02.view', 'P02.edit');
@@ -232,6 +240,20 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/professional-records/statistics': anyOf('P09.professional-record.manage', 'P09.professional-record.approve'),
   '/professional-folders': 'P09.professional-record.manage',
   '/professional-work-groups': 'P09.professional-record.manage',
+  '/education-plans': EDUCATION_PLAN_ANY,
+  '/education-plans/groups': EDUCATION_PLAN_ANY,
+  '/education-plans/school': EDUCATION_PLAN_ANY,
+  '/education-plans/review': anyOf(
+    'P09.education-plan.review',
+    'P09.education-plan.approve',
+    'P09.education-plan.finalize',
+  ),
+  '/education-plans/progress': anyOf(
+    'P09.education-plan.manage',
+    'P09.education-plan.approve',
+    'P09.education-plan.finalize',
+  ),
+  '/education-plan-templates': EDUCATION_PLAN_ANY,
   '/emis/facilities': 'P17.report.emis',
   '/emis/health': 'P17.report.emis',
   '/emis/end-of-year': 'P17.report.emis',

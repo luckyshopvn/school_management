@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.22
+- Phiên bản: 0.23
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.97.0 – 2026-10-21
+
+- Phạm vi thay đổi: DT-18 phần 22i, kế hoạch giáo dục (YCTD-147).
+- Chức năng mới: thư viện mẫu kế hoạch theo cấp học (nạp bảy mẫu Mầm non); lập kế hoạch của trường, tổ, nhóm lớp, cá nhân theo mục; duyệt nhiều cấp tổ trưởng, Phó Hiệu trưởng, Hiệu trưởng, bốn trạng thái; kí nội bộ; lưu bản đã duyệt vào kho hồ sơ chuyên môn; phiên bản, so sánh khác biệt, sao chép từ năm trước; xuất Word, PDF; bảng tiến độ duyệt, xuất Excel; tạo kế hoạch công việc; nguồn Việc của tôi.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0069_create_education_plans`; tệp định danh `0061_add_education_plan_permissions`.
+- Thay đổi API: `/education-plan-templates`, `/education-plans` và các điểm cuối con.
+- Kiểm thử: kịch bản CT-759 đến CT-768. Kết quả ngày 21/10/2026: kiểm thử đơn vị `apps/api/src/education-plans/education-plans.test.ts` CT-22i-1 đến CT-22i-9 đạt 9/9; kiểm thử đơn vị toàn bộ kho mã 982/982; kiểm thử giao diện `tests/e2e/78-education-plans.spec.ts` (CT-22i-10) đạt; toàn bộ kiểm thử giao diện 149/149 (148 ở lượt toàn bộ, spec 78 chạy lại sau khi sửa đạt); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: kế hoạch đã kí là văn bản nội bộ, không thay chữ kí số của nhà cung cấp; mẫu mặc định cần trường rà theo hướng dẫn năm học.
+- Khả năng tương thích: không đổi điểm cuối cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 22i; chạy phần quay lui của tệp năm học `0069` và tệp định danh `0061` (hồ sơ đã lưu vào kho hồ sơ chuyên môn vẫn giữ).
 
 ### Phiên bản 0.96.0 – 2026-10-21
 

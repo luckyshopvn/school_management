@@ -172,6 +172,14 @@ import {
   StatisticsPage as ProfessionalStatisticsPage,
   WorkGroupsPage,
 } from './professional-records/ProfessionalPages.js';
+import {
+  GroupPlansPage,
+  MyPlansPage,
+  PlanProgressPage,
+  PlanTemplatesPage,
+  ReviewPlansPage,
+  SchoolPlansPage,
+} from './education-plans/EducationPlanPages.js';
 import { DirectiveFormPage, DirectiveInboxPage, DirectiveOutboxPage } from './directives/DirectivePages.js';
 import { IncomingReportPage, StatisticsReportPage, SummaryReportPage } from './directives/ReportPages.js';
 import {
@@ -570,6 +578,13 @@ const routeTree = rootRoute.addChildren([
   }),
   createRoute({ getParentRoute: () => rootRoute, path: '/professional-folders', component: FoldersPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/professional-work-groups', component: WorkGroupsPage }),
+  // Kế hoạch giáo dục (DT-18 phần 22i)
+  createRoute({ getParentRoute: () => rootRoute, path: '/education-plans', component: MyPlansPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/education-plans/groups', component: GroupPlansPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/education-plans/school', component: SchoolPlansPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/education-plans/review', component: ReviewPlansPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/education-plans/progress', component: PlanProgressPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/education-plan-templates', component: PlanTemplatesPage }),
 ]);
 
 export const router = createRouter({ routeTree });

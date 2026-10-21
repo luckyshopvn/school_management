@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.44
+- Phiên bản: 1.45
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -783,6 +783,10 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-708 | Cho người đăng nhập thay / Khi chọn tài khoản có vai trò ngang hoặc cao hơn, quản trị khác, VT-01, chính mình, thiếu lý do, đăng nhập thay lồng nhau; đổi mật khẩu, kí số, xuất toàn bộ dữ liệu trong phiên / Thì đều bị chặn với mã YCTD-145; đăng xuất kết thúc cả phiên gốc (CT-749, CT-750, CT-751; YCTD-145) |
 | AC-709 | Cho Hiệu trưởng / Khi tạo gói ZIP toàn bộ dữ liệu / Thì tác vụ nền tạo gói có CSV các cơ sở dữ liệu, dữ liệu tài khoản không có mật khẩu, manifest; chỉ người tạo tải được trong 48 giờ; mỗi lần tải được ghi (CT-752, CT-753, CT-757; YCTD-145) |
 | AC-710 | Cho máy chủ trình diễn / Khi chạy lệnh tạo dữ liệu trên cơ sở dữ liệu trống, chạy lại, chạy trên dữ liệu thật; mở trang đăng nhập; gửi tin nhắn / Thì tạo đủ dữ liệu giả và đánh dấu; chạy lại thay toàn bộ dữ liệu; dữ liệu thật bị từ chối, không xóa; có trang chọn vai, dải trình diễn; tin nhắn không gửi thật (CT-754, CT-755, CT-756, CT-758; YCTD-145) |
+| AC-711 | Cho Hiệu trưởng / Khi nạp mẫu Mầm non hai lần, thêm mẫu sai cấu trúc, sửa mục của mẫu / Thì lần đầu tạo bảy mẫu nối thư mục kho hồ sơ, lần hai bỏ qua; mẫu sai báo lỗi từng trường; sửa mục tăng số hiệu; giáo viên, Phó Hiệu trưởng một điểm trường không sửa được (CT-760; YCTD-147) |
+| AC-712 | Cho giáo viên được phân công lớp / Khi lập kế hoạch năm của lớp, nhập nội dung, trình; tổ trưởng, Phó Hiệu trưởng duyệt / Thì kế hoạch chờ tổ trưởng rồi Phó Hiệu trưởng, tổ khác không xem được; bước cuối kí nội bộ khi có chứng thư, chưa có thì báo lỗi và vẫn chờ; bản PDF lưu vào kho hồ sơ (CT-761, CT-768; YCTD-147) |
+| AC-713 | Cho người lập, người duyệt / Khi trả lại, sửa, trình lại; so sánh phiên bản; sao chép kế hoạch năm trước / Thì phiên bản tăng mỗi lần trình, khác biệt đúng theo mục và dòng; bản sao chép theo mẫu năm nay, so được với bản năm trước; Việc của tôi báo bị trả lại (CT-762, CT-767; YCTD-147) |
+| AC-714 | Cho Ban Giám hiệu / Khi Phó Hiệu trưởng lập kế hoạch của trường, Hiệu trưởng duyệt thay bước Phó Hiệu trưởng, xem tiến độ, tạo kế hoạch công việc / Thì bỏ bước người lập và người duyệt đã giữ quyền; kế hoạch của trường đã duyệt mọi cán bộ xem được, xuất Word, PDF; tiến độ đúng số theo mẫu, tổ, bước, xuất Excel; kế hoạch công việc nháp có đầu việc từ dòng có ngày (CT-763 đến CT-766; YCTD-147) |
 
 ## 20. Chưa xác minh được
 
