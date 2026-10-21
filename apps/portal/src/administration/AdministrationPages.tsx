@@ -35,7 +35,11 @@ const DATE_TIME = new Intl.DateTimeFormat('vi-VN', {
 });
 const formatDateTime = (value: string | null) => (value ? DATE_TIME.format(new Date(value)) : '');
 const formatSize = (bytes: number | null) =>
-  bytes === null ? '' : bytes < 1048576 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1048576).toFixed(1)} MB`;
+  bytes === null
+    ? ''
+    : bytes < 1048576
+      ? `${Math.max(1, Math.round(bytes / 1024))} KB`
+      : `${(bytes / 1048576).toFixed(1)} MB`;
 
 function messageOf(error: unknown): string {
   return error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại';
@@ -50,15 +54,26 @@ const IMPERSONATION_TONES: Record<ImpersonationStatus, StatusTone> = {
 
 const IMPERSONATION_COLUMNS: Array<DataGridColumn<Impersonation>> = [
   { id: 'started_at', header: 'Bắt đầu', alwaysVisible: true, cell: (row) => formatDateTime(row.started_at) },
-  { id: 'impersonator_name', header: 'Người đăng nhập thay', className: 'font-medium', cell: (row) => row.impersonator_name },
+  {
+    id: 'impersonator_name',
+    header: 'Người đăng nhập thay',
+    className: 'font-medium',
+    cell: (row) => row.impersonator_name,
+  },
   { id: 'target_name', header: 'Tài khoản được đăng nhập thay', cell: (row) => row.target_name },
   { id: 'reason', header: 'Lý do', cell: (row) => row.reason },
   {
     id: 'status',
     header: 'Trạng thái',
-    cell: (row) => <StatusBadge tone={IMPERSONATION_TONES[row.status]} label={IMPERSONATION_STATUS_LABELS[row.status]} />,
+    cell: (row) => (
+      <StatusBadge tone={IMPERSONATION_TONES[row.status]} label={IMPERSONATION_STATUS_LABELS[row.status]} />
+    ),
   },
-  { id: 'ended_at', header: 'Kết thúc', cell: (row) => formatDateTime(row.ended_at ?? (row.status === 'expired' ? row.expires_at : null)) },
+  {
+    id: 'ended_at',
+    header: 'Kết thúc',
+    cell: (row) => formatDateTime(row.ended_at ?? (row.status === 'expired' ? row.expires_at : null)),
+  },
   { id: 'ip_address', header: 'Địa chỉ IP', hiddenByDefault: true, cell: (row) => row.ip_address ?? '' },
 ];
 
@@ -66,7 +81,11 @@ const ACTION_COLUMNS: Array<DataGridColumn<ImpersonationAction>> = [
   { id: 'created_at', header: 'Thời điểm', alwaysVisible: true, cell: (row) => formatDateTime(row.created_at) },
   { id: 'method', header: 'Thao tác', cell: (row) => row.method },
   { id: 'path', header: 'Đường dẫn', className: 'break-all', cell: (row) => row.path },
-  { id: 'status_code', header: 'Kết quả', cell: (row) => (row.status_code < 400 ? `Thành công (${row.status_code})` : `Lỗi ${row.status_code}`) },
+  {
+    id: 'status_code',
+    header: 'Kết quả',
+    cell: (row) => (row.status_code < 400 ? `Thành công (${row.status_code})` : `Lỗi ${row.status_code}`),
+  },
 ];
 
 function ImpersonationActions({ impersonation }: { impersonation: Impersonation }) {
@@ -112,9 +131,9 @@ export function ImpersonationsPage() {
       <div className="flex flex-col gap-6">
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/impersonations')}</h1>
         <p className="text-label text-text-secondary">
-          Bắt đầu đăng nhập thay ở “1.4. Danh sách người dùng”: chọn tài khoản, bấm “Đăng nhập thay”, ghi lý do. Không đăng
-          nhập thay được tài khoản có quyền cao hơn. Mỗi lần dài tối đa 60 phút; mọi thao tác ghi dữ liệu và tải tệp được ghi
-          lại dưới đây.
+          Bắt đầu đăng nhập thay ở “1.4. Danh sách người dùng”: chọn tài khoản, bấm “Đăng nhập thay”, ghi lý do. Không
+          đăng nhập thay được tài khoản có quyền cao hơn. Mỗi lần dài tối đa 60 phút; mọi thao tác ghi dữ liệu và tải
+          tệp được ghi lại dưới đây.
         </p>
         {list.error ? <Alert tone="danger">{messageOf(list.error)}</Alert> : null}
         <DataGrid
@@ -166,11 +185,20 @@ const EXPORT_COLUMNS: Array<DataGridColumn<SchoolDataExport>> = [
     header: 'Trạng thái',
     cell: (row) => <StatusBadge tone={EXPORT_STATUS[row.status].tone} label={EXPORT_STATUS[row.status].label} />,
   },
-  { id: 'row_count', header: 'Số dòng dữ liệu', cell: (row) => (row.row_count === null ? '' : row.row_count.toLocaleString('vi-VN')) },
+  {
+    id: 'row_count',
+    header: 'Số dòng dữ liệu',
+    cell: (row) => (row.row_count === null ? '' : row.row_count.toLocaleString('vi-VN')),
+  },
   { id: 'size_bytes', header: 'Dung lượng', cell: (row) => formatSize(row.size_bytes) },
   { id: 'expires_at', header: 'Hạn tải về', cell: (row) => formatDateTime(row.expires_at) },
   { id: 'download_count', header: 'Số lần tải', cell: (row) => String(row.download_count) },
-  { id: 'last_downloaded_at', header: 'Lần tải gần nhất', hiddenByDefault: true, cell: (row) => formatDateTime(row.last_downloaded_at) },
+  {
+    id: 'last_downloaded_at',
+    header: 'Lần tải gần nhất',
+    hiddenByDefault: true,
+    cell: (row) => formatDateTime(row.last_downloaded_at),
+  },
   { id: 'error_message', header: 'Ghi chú', cell: (row) => row.error_message ?? '' },
 ];
 
@@ -202,9 +230,9 @@ export function SchoolDataExportPage() {
       <div className="flex flex-col gap-6">
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/school-data-export')}</h1>
         <p className="text-label text-text-secondary">
-          Gói ZIP gồm mọi bảng dữ liệu của trường (tệp CSV, kèm manifest.json mô tả bảng và cột) và tệp đính kèm. Gói không có
-          mật khẩu, mã bí mật và số định danh đã mã hóa nhưng có dữ liệu cá nhân của trẻ, phụ huynh, nhân sự: lưu ở nơi an toàn.
-          Gói giữ {SCHOOL_DATA_RETENTION_HOURS} giờ kể từ lúc tạo xong; chỉ người tạo tải được.
+          Gói ZIP gồm mọi bảng dữ liệu của trường (tệp CSV, kèm manifest.json mô tả bảng và cột) và tệp đính kèm. Gói
+          không có mật khẩu, mã bí mật và số định danh đã mã hóa nhưng có dữ liệu cá nhân của trẻ, phụ huynh, nhân sự:
+          lưu ở nơi an toàn. Gói giữ {SCHOOL_DATA_RETENTION_HOURS} giờ kể từ lúc tạo xong; chỉ người tạo tải được.
         </p>
         {exports.error ? <Alert tone="danger">{messageOf(exports.error)}</Alert> : null}
         {create.error ? <Alert tone="danger">{messageOf(create.error)}</Alert> : null}
@@ -212,9 +240,7 @@ export function SchoolDataExportPage() {
         {notice ? <Alert tone="success">{notice}</Alert> : null}
         {busy ? <Alert tone="info">Đang tạo gói dữ liệu ở chế độ nền; màn hình sẽ báo khi xong.</Alert> : null}
         {!busy && latest?.status === 'done' && latest.download_count === 0 ? (
-          <Alert tone="success">
-            Gói dữ liệu đã tạo xong, tải về trước {formatDateTime(latest.expires_at)}.
-          </Alert>
+          <Alert tone="success">Gói dữ liệu đã tạo xong, tải về trước {formatDateTime(latest.expires_at)}.</Alert>
         ) : null}
         <DataGrid
           label="Gói dữ liệu đã tạo"
@@ -259,7 +285,13 @@ export function SchoolDataExportPage() {
 }
 
 const ACCOUNT_COLUMNS: Array<DataGridColumn<DemoAccount>> = [
-  { id: 'role', header: 'Vai trò', alwaysVisible: true, className: 'font-medium', cell: (row) => `${row.role_code} ${row.role_name}` },
+  {
+    id: 'role',
+    header: 'Vai trò',
+    alwaysVisible: true,
+    className: 'font-medium',
+    cell: (row) => `${row.role_code} ${row.role_name}`,
+  },
   { id: 'full_name', header: 'Họ tên (giả)', cell: (row) => row.full_name },
   { id: 'login', header: 'Tên đăng nhập', cell: (row) => row.login },
   { id: 'app', header: 'Ứng dụng', cell: (row) => DEMO_ACCOUNT_APP_LABELS[row.app] },
@@ -277,8 +309,8 @@ export function DemoEnvironmentPage() {
         {demo.error ? <Alert tone="danger">{messageOf(demo.error)}</Alert> : null}
         {demo.data && !demo.data.enabled ? (
           <Alert tone="info">
-            Máy chủ này không phải bản trình diễn. Bản trình diễn được tạo bằng lệnh tạo dữ liệu trình diễn trên máy chủ riêng
-            (xem deploy/README.md); lệnh từ chối chạy trên cơ sở dữ liệu đã có dữ liệu thật.
+            Máy chủ này không phải bản trình diễn. Bản trình diễn được tạo bằng lệnh tạo dữ liệu trình diễn trên máy chủ
+            riêng (xem deploy/README.md); lệnh từ chối chạy trên cơ sở dữ liệu đã có dữ liệu thật.
           </Alert>
         ) : null}
         {demo.data?.enabled ? (

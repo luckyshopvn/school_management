@@ -185,9 +185,12 @@ export async function startImpersonation(userId: string, reason: string): Promis
 
 // Thoát đăng nhập thay: quay về phiên của quản trị; phiên đó đã hết hạn thì máy chủ trả signed_out
 export async function exitImpersonation(): Promise<{ signedOut: boolean }> {
-  const result = await requestJson<Partial<TokenResponse> & { signed_out: boolean }>('/api/v1/auth/impersonation/exit', {
-    method: 'POST',
-  });
+  const result = await requestJson<Partial<TokenResponse> & { signed_out: boolean }>(
+    '/api/v1/auth/impersonation/exit',
+    {
+      method: 'POST',
+    },
+  );
   setAccessToken(result.signed_out ? undefined : result.access_token);
   return { signedOut: result.signed_out };
 }

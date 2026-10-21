@@ -41,7 +41,11 @@ function messageOf(error: unknown): string {
 
 const COLUMNS: Array<DataGridColumn<ExportJob>> = [
   { id: 'title', header: 'Tệp', alwaysVisible: true, className: 'font-medium', cell: (row) => row.title },
-  { id: 'format', header: 'Định dạng', cell: (row) => (row.format === 'pdf' ? 'PDF' : row.format === 'zip' ? 'ZIP' : 'Excel') },
+  {
+    id: 'format',
+    header: 'Định dạng',
+    cell: (row) => (row.format === 'pdf' ? 'PDF' : row.format === 'zip' ? 'ZIP' : 'Excel'),
+  },
   {
     id: 'status',
     header: 'Trạng thái',

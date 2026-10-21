@@ -84,7 +84,10 @@ export class ImpersonationInterceptor implements NestInterceptor {
           })
           .execute()
           .catch((error: unknown) => {
-            this.logger.error('Không ghi được nhật ký đăng nhập thay', error instanceof Error ? error.stack : String(error));
+            this.logger.error(
+              'Không ghi được nhật ký đăng nhập thay',
+              error instanceof Error ? error.stack : String(error),
+            );
           }),
       );
     const response = context.switchToHttp().getResponse<Response>();
@@ -105,7 +108,10 @@ export class ImpersonationActionsController {
   constructor(private readonly databases: Databases) {}
 
   @Get()
-  async list(@Query('impersonation_id') impersonationId: string | undefined, @AuthenticatedUser() currentUser: CurrentUser) {
+  async list(
+    @Query('impersonation_id') impersonationId: string | undefined,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
     if (currentUser.description.impersonation) {
       throw new ApplicationError('ERR_FORBIDDEN', 'Đang đăng nhập thay, không xem nhật ký đăng nhập thay được');
     }

@@ -149,7 +149,9 @@ export function LoginScreen({ onAdmissions }: { onAdmissions?: () => void }) {
         onPick={(login, demoPassword) => {
           setErrorMessage(undefined);
           session.loginWithPassword(login, demoPassword).catch((error: unknown) => {
-            setErrorMessage(error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại');
+            setErrorMessage(
+              error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại',
+            );
           });
         }}
       />

@@ -15,7 +15,9 @@ import { openMenu } from './menu.js';
 // xong rồi tải về; khi cơ sở dữ liệu có dấu bản trình diễn thì trang đăng nhập có trang chọn vai và mọi trang có dải "Bản
 // trình diễn". Dữ liệu giả
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
-const system = createDatabase<SystemDatabase>(replaceDatabaseName(readConnectionString('system'), E2E_SYSTEM_DATABASE_NAME));
+const system = createDatabase<SystemDatabase>(
+  replaceDatabaseName(readConnectionString('system'), E2E_SYSTEM_DATABASE_NAME),
+);
 
 test.afterAll(async () => {
   await system.deleteFrom('demo_environment').execute();
@@ -98,7 +100,13 @@ test('Bản trình diễn: trang chọn vai ở trang đăng nhập và dải "B
       reset_interval_hours: 24,
       next_reset_at: new Date(Date.now() + 24 * 60 * 60_000),
       accounts: JSON.stringify([
-        { login: demoUser.username, full_name: 'Hiệu trưởng trình diễn', role_code: 'VT-02', role_name: 'Hiệu trưởng', app: 'portal' },
+        {
+          login: demoUser.username,
+          full_name: 'Hiệu trưởng trình diễn',
+          role_code: 'VT-02',
+          role_name: 'Hiệu trưởng',
+          app: 'portal',
+        },
       ]),
     })
     .execute();

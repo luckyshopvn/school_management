@@ -208,7 +208,15 @@ services:
     image: ${IMAGE_PREFIX:-school-management}/api:${IMAGE_TAG:-latest}
     profiles: ['demo']
     restart: unless-stopped
-    command: ['node', 'dist/demo/demo-command.js', 'schedule', '--confirm', '--interval-hours', '${DEMO_RESET_INTERVAL_HOURS:-24}']
+    command:
+      [
+        'node',
+        'dist/demo/demo-command.js',
+        'schedule',
+        '--confirm',
+        '--interval-hours',
+        '${DEMO_RESET_INTERVAL_HOURS:-24}',
+      ]
     environment:
       <<: *api-environment
       IDENTITY_DATABASE_URL: postgres://identity_service:${IDENTITY_DATABASE_PASSWORD}@postgres:5432/school_identity

@@ -106,11 +106,7 @@ import { ArchiveHoldingsPage } from './archives/ArchiveHoldingsPage.js';
 import { ArchiveRecordsPage } from './archives/ArchiveRecordsPage.js';
 import { ArchiveReportPage } from './archives/ArchiveReportPage.js';
 import { GeneratedFilesPage } from './exports/GeneratedFilesPage.js';
-import {
-  DemoEnvironmentPage,
-  ImpersonationsPage,
-  SchoolDataExportPage,
-} from './administration/AdministrationPages.js';
+import { DemoEnvironmentPage, ImpersonationsPage, SchoolDataExportPage } from './administration/AdministrationPages.js';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage.js';
 import { HelpPage } from './portal-shell/HelpPage.js';
 import { MyProfilePage } from './portal-shell/MyProfilePage.js';

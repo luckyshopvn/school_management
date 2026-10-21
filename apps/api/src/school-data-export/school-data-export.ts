@@ -159,7 +159,11 @@ export class SchoolDataExportController {
   @HttpCode(202)
   async request(@Req() request: Request, @AuthenticatedUser() currentUser: CurrentUser) {
     return {
-      job: await this.service.request(currentUser, readBearerToken(request.header('authorization')), request.ip ?? null),
+      job: await this.service.request(
+        currentUser,
+        readBearerToken(request.header('authorization')),
+        request.ip ?? null,
+      ),
     };
   }
 }

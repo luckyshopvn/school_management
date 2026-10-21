@@ -48,7 +48,10 @@ function vietnamDate(moment: Date): string {
 }
 
 // Kiểm tra trước khi xóa: đây là bản trình diễn hoặc cơ sở dữ liệu mới
-export async function assertDemoTarget(system: Kysely<SystemDatabase>, identity: Kysely<IdentityDatabase>): Promise<void> {
+export async function assertDemoTarget(
+  system: Kysely<SystemDatabase>,
+  identity: Kysely<IdentityDatabase>,
+): Promise<void> {
   const marked = await system.selectFrom('demo_environment').select('id').executeTakeFirst();
   if (!marked) {
     const years = await system.selectFrom('academic_years').select('id').executeTakeFirst();
@@ -164,7 +167,9 @@ export async function resetDemoEnvironment(options: DemoResetOptions): Promise<D
       const port = (application.getHttpServer().address() as AddressInfo).port;
       const sessions = Object.fromEntries(
         await Promise.all(
-          Object.entries(userIds).map(async ([key, userId]) => [key, { userId, token: await issuer.sign(userId, now) }] as const),
+          Object.entries(userIds).map(
+            async ([key, userId]) => [key, { userId, token: await issuer.sign(userId, now) }] as const,
+          ),
         ),
       );
       const report = await seedDemoData({
@@ -218,7 +223,12 @@ async function createDemoAccounts(identity: Kysely<IdentityDatabase>): Promise<R
   for (const demoUser of DEMO_USERS) {
     const user = await identity
       .insertInto('users')
-      .values({ full_name: demoUser.full_name, username: demoUser.login, phone: null, password_hash: DEMO_PASSWORD_HASH })
+      .values({
+        full_name: demoUser.full_name,
+        username: demoUser.login,
+        phone: null,
+        password_hash: DEMO_PASSWORD_HASH,
+      })
       .returning('id')
       .executeTakeFirstOrThrow();
     ids[demoUser.key] = user.id;
@@ -235,7 +245,11 @@ export async function assignDemoRoles(
   wholeSchool: boolean,
 ): Promise<void> {
   for (const demoUser of DEMO_USERS.filter((item) => (item.unit === null) === wholeSchool)) {
-    const role = await identity.selectFrom('roles').select('id').where('code', '=', demoUser.role_code).executeTakeFirstOrThrow();
+    const role = await identity
+      .selectFrom('roles')
+      .select('id')
+      .where('code', '=', demoUser.role_code)
+      .executeTakeFirstOrThrow();
     await identity
       .insertInto('user_roles')
       .values({

@@ -110,7 +110,10 @@ export class ImpersonationService {
     }
     const session = await this.activeSession(claims.sessionId, now);
     if (session.impersonation_id !== null) {
-      throw ruleViolationError(IMPERSONATION_RULE_CODE, 'Đang đăng nhập thay, hãy thoát trước khi đăng nhập thay tài khoản khác');
+      throw ruleViolationError(
+        IMPERSONATION_RULE_CODE,
+        'Đang đăng nhập thay, hãy thoát trước khi đăng nhập thay tài khoản khác',
+      );
     }
     const actor = await this.activeUser(claims.userId, now);
     const actorAssignments = await this.assignments(actor.id);
@@ -130,7 +133,10 @@ export class ImpersonationService {
       throw new ApplicationError('ERR_NOT_FOUND', 'Không tìm thấy tài khoản');
     }
     if (target.status !== 'active' || (target.valid_until !== null && target.valid_until < toDateText(now))) {
-      throw ruleViolationError(IMPERSONATION_RULE_CODE, 'Tài khoản đang khóa hoặc hết hiệu lực, không đăng nhập thay được');
+      throw ruleViolationError(
+        IMPERSONATION_RULE_CODE,
+        'Tài khoản đang khóa hoặc hết hiệu lực, không đăng nhập thay được',
+      );
     }
     assertNotHigher(actorAssignments, scope, await this.assignments(target.id));
 
@@ -265,7 +271,13 @@ export class ImpersonationService {
       .where('id', '=', sessionId)
       .executeTakeFirst();
     if (session?.impersonation_id) {
-      throw new ApplicationError('ERR_FORBIDDEN', `Đang đăng nhập thay, không ${action} được`, [], undefined, IMPERSONATION_RULE_CODE);
+      throw new ApplicationError(
+        'ERR_FORBIDDEN',
+        `Đang đăng nhập thay, không ${action} được`,
+        [],
+        undefined,
+        IMPERSONATION_RULE_CODE,
+      );
     }
   }
 
@@ -315,7 +327,13 @@ export class ImpersonationService {
       ...row,
       status: end_reason ?? (row.expires_at <= now ? 'expired' : 'active'),
     }));
-    return { items, page, page_size: LIST_PAGE_SIZE, total, total_pages: Math.max(1, Math.ceil(total / LIST_PAGE_SIZE)) };
+    return {
+      items,
+      page,
+      page_size: LIST_PAGE_SIZE,
+      total,
+      total_pages: Math.max(1, Math.ceil(total / LIST_PAGE_SIZE)),
+    };
   }
 
   private async end(
@@ -417,7 +435,13 @@ export class ImpersonationService {
   private async securityEvent(eventType: string, userId: string, ipAddress: string | null): Promise<void> {
     await this.database
       .insertInto('security_events')
-      .values({ event_type: eventType, user_id: userId, login_identifier: null, ip_address: ipAddress, created_at: this.clock.now() })
+      .values({
+        event_type: eventType,
+        user_id: userId,
+        login_identifier: null,
+        ip_address: ipAddress,
+        created_at: this.clock.now(),
+      })
       .execute();
   }
 }

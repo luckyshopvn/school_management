@@ -61,7 +61,11 @@ export class ApplicationModule {
           provide: SmsSender,
           inject: [Infrastructure, Clock],
           useFactory: (infrastructure: Infrastructure, providerClock: Clock) =>
-            new DemoAwareSmsSender(smsSender ?? createSmsSender(configuration.smsProvider), infrastructure, providerClock),
+            new DemoAwareSmsSender(
+              smsSender ?? createSmsSender(configuration.smsProvider),
+              infrastructure,
+              providerClock,
+            ),
         },
         AccessTokenGuard,
         ApiClientsService,

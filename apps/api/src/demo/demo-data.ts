@@ -28,18 +28,126 @@ export const DEMO_UNITS = [
 
 // Tài khoản trình diễn; mật khẩu chung DEMO_PASSWORD
 export const DEMO_USERS: DemoUser[] = [
-  { key: 'principal', login: 'demo.hieutruong', full_name: 'Trần Thị Mai Anh', role_code: 'VT-02', role_name: 'Hiệu trưởng', unit: null, app: 'portal', staff: true },
-  { key: 'deputy', login: 'demo.phohieutruong', full_name: 'Lê Văn Bình', role_code: 'VT-15', role_name: 'Phó Hiệu trưởng', unit: 'DT1', app: 'portal', staff: true },
-  { key: 'manager', login: 'demo.quanly', full_name: 'Phạm Thị Cúc', role_code: 'VT-03', role_name: 'Quản lý đơn vị', unit: 'DT1', app: 'portal', staff: true },
-  { key: 'personnel', login: 'demo.nhansu', full_name: 'Hoàng Văn Dũng', role_code: 'VT-06', role_name: 'Nhân sự, văn thư', unit: null, app: 'portal', staff: true },
-  { key: 'accountant', login: 'demo.ketoan', full_name: 'Ngô Thị Hà', role_code: 'VT-04', role_name: 'Kế toán', unit: 'DT1', app: 'portal', staff: true },
-  { key: 'nurse', login: 'demo.yte', full_name: 'Đỗ Thị Hạnh', role_code: 'VT-09', role_name: 'Nhân viên y tế', unit: 'DT1', app: 'portal', staff: true },
-  { key: 'kitchen', login: 'demo.bep', full_name: 'Vũ Văn Khang', role_code: 'VT-10', role_name: 'Nhân viên bếp', unit: 'DT1', app: 'portal', staff: true },
-  { key: 'storekeeper', login: 'demo.kho', full_name: 'Bùi Thị Lan', role_code: 'VT-11', role_name: 'Nhân viên kho và mua hàng', unit: 'DT1', app: 'portal', staff: true },
-  { key: 'admissions', login: 'demo.tuyensinh', full_name: 'Đặng Văn Minh', role_code: 'VT-12', role_name: 'Nhân viên tuyển sinh', unit: 'DT1', app: 'portal', staff: true },
-  { key: 'platform', login: 'demo.quantri', full_name: 'Quản trị nền tảng trình diễn', role_code: 'VT-01', role_name: 'Quản trị nền tảng', unit: null, app: 'portal', staff: false },
-  { key: 'teacherA', login: 'demo.giaovien1', full_name: 'Nguyễn Thị Ngọc', role_code: 'VT-07', role_name: 'Giáo viên chủ nhiệm', unit: 'DT1', app: 'teacher', staff: true },
-  { key: 'teacherB', login: 'demo.giaovien2', full_name: 'Trịnh Thị Oanh', role_code: 'VT-07', role_name: 'Giáo viên chủ nhiệm', unit: 'DT1', app: 'teacher', staff: true },
+  {
+    key: 'principal',
+    login: 'demo.hieutruong',
+    full_name: 'Trần Thị Mai Anh',
+    role_code: 'VT-02',
+    role_name: 'Hiệu trưởng',
+    unit: null,
+    app: 'portal',
+    staff: true,
+  },
+  {
+    key: 'deputy',
+    login: 'demo.phohieutruong',
+    full_name: 'Lê Văn Bình',
+    role_code: 'VT-15',
+    role_name: 'Phó Hiệu trưởng',
+    unit: 'DT1',
+    app: 'portal',
+    staff: true,
+  },
+  {
+    key: 'manager',
+    login: 'demo.quanly',
+    full_name: 'Phạm Thị Cúc',
+    role_code: 'VT-03',
+    role_name: 'Quản lý đơn vị',
+    unit: 'DT1',
+    app: 'portal',
+    staff: true,
+  },
+  {
+    key: 'personnel',
+    login: 'demo.nhansu',
+    full_name: 'Hoàng Văn Dũng',
+    role_code: 'VT-06',
+    role_name: 'Nhân sự, văn thư',
+    unit: null,
+    app: 'portal',
+    staff: true,
+  },
+  {
+    key: 'accountant',
+    login: 'demo.ketoan',
+    full_name: 'Ngô Thị Hà',
+    role_code: 'VT-04',
+    role_name: 'Kế toán',
+    unit: 'DT1',
+    app: 'portal',
+    staff: true,
+  },
+  {
+    key: 'nurse',
+    login: 'demo.yte',
+    full_name: 'Đỗ Thị Hạnh',
+    role_code: 'VT-09',
+    role_name: 'Nhân viên y tế',
+    unit: 'DT1',
+    app: 'portal',
+    staff: true,
+  },
+  {
+    key: 'kitchen',
+    login: 'demo.bep',
+    full_name: 'Vũ Văn Khang',
+    role_code: 'VT-10',
+    role_name: 'Nhân viên bếp',
+    unit: 'DT1',
+    app: 'portal',
+    staff: true,
+  },
+  {
+    key: 'storekeeper',
+    login: 'demo.kho',
+    full_name: 'Bùi Thị Lan',
+    role_code: 'VT-11',
+    role_name: 'Nhân viên kho và mua hàng',
+    unit: 'DT1',
+    app: 'portal',
+    staff: true,
+  },
+  {
+    key: 'admissions',
+    login: 'demo.tuyensinh',
+    full_name: 'Đặng Văn Minh',
+    role_code: 'VT-12',
+    role_name: 'Nhân viên tuyển sinh',
+    unit: 'DT1',
+    app: 'portal',
+    staff: true,
+  },
+  {
+    key: 'platform',
+    login: 'demo.quantri',
+    full_name: 'Quản trị nền tảng trình diễn',
+    role_code: 'VT-01',
+    role_name: 'Quản trị nền tảng',
+    unit: null,
+    app: 'portal',
+    staff: false,
+  },
+  {
+    key: 'teacherA',
+    login: 'demo.giaovien1',
+    full_name: 'Nguyễn Thị Ngọc',
+    role_code: 'VT-07',
+    role_name: 'Giáo viên chủ nhiệm',
+    unit: 'DT1',
+    app: 'teacher',
+    staff: true,
+  },
+  {
+    key: 'teacherB',
+    login: 'demo.giaovien2',
+    full_name: 'Trịnh Thị Oanh',
+    role_code: 'VT-07',
+    role_name: 'Giáo viên chủ nhiệm',
+    unit: 'DT1',
+    app: 'teacher',
+    staff: true,
+  },
 ];
 
 const CHILD_NAMES = [
@@ -200,8 +308,18 @@ export async function seedDemoData(context: DemoSeedContext): Promise<DemoSeedRe
   });
 
   await step('Khối, lớp, danh mục quan hệ', async () => {
-    await api.call('principal', 'POST', '/grade-levels', { code: 'LA', name: 'Lá', age_from_months: 60, age_to_months: 71 });
-    await api.call('principal', 'POST', '/grade-levels', { code: 'CHOI', name: 'Chồi', age_from_months: 48, age_to_months: 59 });
+    await api.call('principal', 'POST', '/grade-levels', {
+      code: 'LA',
+      name: 'Lá',
+      age_from_months: 60,
+      age_to_months: 71,
+    });
+    await api.call('principal', 'POST', '/grade-levels', {
+      code: 'CHOI',
+      name: 'Chồi',
+      age_from_months: 48,
+      age_to_months: 59,
+    });
     for (const [key, code, name, grade] of [
       ['classA', 'LA1', 'Lá 1', 'LA'],
       ['classB', 'CHOI1', 'Chồi 1', 'CHOI'],
@@ -216,10 +334,18 @@ export async function seedDemoData(context: DemoSeedContext): Promise<DemoSeedRe
       ids[key] = row.id as string;
     }
     ids.mother = (
-      await api.call('principal', 'POST', '/catalog-items', { catalog_type: 'parent_relationship', code: 'ME', name: 'Mẹ' })
+      await api.call('principal', 'POST', '/catalog-items', {
+        catalog_type: 'parent_relationship',
+        code: 'ME',
+        name: 'Mẹ',
+      })
     ).id as string;
     ids.father = (
-      await api.call('principal', 'POST', '/catalog-items', { catalog_type: 'parent_relationship', code: 'BO', name: 'Bố' })
+      await api.call('principal', 'POST', '/catalog-items', {
+        catalog_type: 'parent_relationship',
+        code: 'BO',
+        name: 'Bố',
+      })
     ).id as string;
   });
 
@@ -339,9 +465,24 @@ export async function seedDemoData(context: DemoSeedContext): Promise<DemoSeedRe
   });
 
   await step('Bếp: nguyên liệu, món ăn, thực đơn tuần', async () => {
-    const rice = await api.call('kitchen', 'POST', '/ingredients', { org_unit_id: ids.DT1, code: 'GAO', name: 'Gạo tẻ', unit: 'kg' });
-    const pork = await api.call('kitchen', 'POST', '/ingredients', { org_unit_id: ids.DT1, code: 'THIT', name: 'Thịt heo', unit: 'kg' });
-    const greens = await api.call('kitchen', 'POST', '/ingredients', { org_unit_id: ids.DT1, code: 'RAU', name: 'Rau cải', unit: 'kg' });
+    const rice = await api.call('kitchen', 'POST', '/ingredients', {
+      org_unit_id: ids.DT1,
+      code: 'GAO',
+      name: 'Gạo tẻ',
+      unit: 'kg',
+    });
+    const pork = await api.call('kitchen', 'POST', '/ingredients', {
+      org_unit_id: ids.DT1,
+      code: 'THIT',
+      name: 'Thịt heo',
+      unit: 'kg',
+    });
+    const greens = await api.call('kitchen', 'POST', '/ingredients', {
+      org_unit_id: ids.DT1,
+      code: 'RAU',
+      name: 'Rau cải',
+      unit: 'kg',
+    });
     const dish = await api.call('kitchen', 'POST', '/dishes', {
       org_unit_id: ids.DT1,
       name: 'Cơm thịt kho',
@@ -357,7 +498,10 @@ export async function seedDemoData(context: DemoSeedContext): Promise<DemoSeedRe
       group_name: 'Món canh',
       norms: [{ ingredient_id: greens.id, quantity_per_serving: 0.05 }],
     });
-    await api.call('kitchen', 'POST', '/food-suppliers', { org_unit_id: ids.DT1, name: 'Hợp tác xã rau sạch Trình Diễn' });
+    await api.call('kitchen', 'POST', '/food-suppliers', {
+      org_unit_id: ids.DT1,
+      name: 'Hợp tác xã rau sạch Trình Diễn',
+    });
     const monday = addDays(today, 1 - weekday(today));
     const menu = await api.call('kitchen', 'POST', '/menus', {
       org_unit_id: ids.DT1,
@@ -375,7 +519,12 @@ export async function seedDemoData(context: DemoSeedContext): Promise<DemoSeedRe
   await step('Học phí: dịch vụ, biểu phí, quỹ, danh mục thu chi', async () => {
     const services = await api.call<Array<{ id: string; code: string }>>('accountant', 'GET', '/services');
     const meal = services.find((service) => service.code === 'BAN_TRU');
-    const stem = await api.call('accountant', 'POST', '/services', { code: 'STEM', name: 'STEM', unit: 'tháng', calculation_method: 'monthly' });
+    const stem = await api.call('accountant', 'POST', '/services', {
+      code: 'STEM',
+      name: 'STEM',
+      unit: 'tháng',
+      calculation_method: 'monthly',
+    });
     await api.call('accountant', 'POST', '/fee-schedules', {
       name: `Biểu phí năm học ${year.name}`,
       effective_from: `${year.startYear}-08-01`,
@@ -406,14 +555,21 @@ export async function seedDemoData(context: DemoSeedContext): Promise<DemoSeedRe
     const nextMonth = addDays(`${today.slice(0, 8)}01`, 40).slice(0, 7);
     for (const child of children.slice(0, 4)) {
       await api
-        .call('accountant', 'POST', '/service-registrations', { child_id: child.id, period: nextMonth, service_id: stem.id })
+        .call('accountant', 'POST', '/service-registrations', {
+          child_id: child.id,
+          period: nextMonth,
+          service_id: stem.id,
+        })
         .catch(() => undefined);
     }
   });
 
   // ---- Hoạt động, giảng dạy, tương tác ----
   await step('Hoạt động, tin tức', async () => {
-    const category = await api.call('manager', 'POST', '/activity-categories', { org_unit_id: ids.DT1, name: 'Hoạt động ngoài trời' });
+    const category = await api.call('manager', 'POST', '/activity-categories', {
+      org_unit_id: ids.DT1,
+      name: 'Hoạt động ngoài trời',
+    });
     const activity = await api.call('teacherA', 'POST', '/activities', {
       class_id: ids.classA,
       category_id: category.id,
@@ -431,7 +587,10 @@ export async function seedDemoData(context: DemoSeedContext): Promise<DemoSeedRe
   });
 
   await step('Giảng dạy: bài học, kế hoạch bài dạy', async () => {
-    const domain = await api.call('manager', 'POST', '/lesson-domains', { org_unit_id: ids.DT1, name: 'Phát triển nhận thức' });
+    const domain = await api.call('manager', 'POST', '/lesson-domains', {
+      org_unit_id: ids.DT1,
+      name: 'Phát triển nhận thức',
+    });
     const lesson = await api.call('teacherA', 'POST', '/lessons', {
       name: 'Nhận biết các loại rau',
       objectives: 'Trẻ gọi tên được 5 loại rau quen thuộc.',
@@ -476,7 +635,10 @@ export async function seedDemoData(context: DemoSeedContext): Promise<DemoSeedRe
       balance_date: year.calendar.first_term.start_date,
       lines: [{ stock_item_id: item.id, quantity: 20, unit_price: 70_000 }],
     });
-    await api.call('storekeeper', 'POST', '/suppliers', { org_unit_id: ids.DT1, name: 'Công ty Văn phòng phẩm Trình Diễn' });
+    await api.call('storekeeper', 'POST', '/suppliers', {
+      org_unit_id: ids.DT1,
+      name: 'Công ty Văn phòng phẩm Trình Diễn',
+    });
     const asset = await api.call('storekeeper', 'POST', '/assets', {
       org_unit_id: ids.DT1,
       code: 'TS-0001',
@@ -490,7 +652,12 @@ export async function seedDemoData(context: DemoSeedContext): Promise<DemoSeedRe
   });
 
   await step('Cơ sở vật chất, nơi để và kiểm kê thiết bị', async () => {
-    const room = await api.call('manager', 'POST', '/rooms', { org_unit_id: ids.DT1, code: 'P101', name: 'Phòng Lá 1', capacity: 25 });
+    const room = await api.call('manager', 'POST', '/rooms', {
+      org_unit_id: ids.DT1,
+      code: 'P101',
+      name: 'Phòng Lá 1',
+      capacity: 25,
+    });
     const store = await api.call('manager', 'POST', '/equipment-locations', {
       org_unit_id: ids.DT1,
       code: 'KHO1',
@@ -557,11 +724,16 @@ export async function seedDemoData(context: DemoSeedContext): Promise<DemoSeedRe
         arrival_date: today,
         deadline: addDays(today, 10),
       });
-      await api.upload('personnel', `/incoming-documents/${document.id as string}/files`, { scanned: 'true', kind: 'main' }, {
-        name: 'van-ban.pdf',
-        content: PDF,
-        type: 'application/pdf',
-      });
+      await api.upload(
+        'personnel',
+        `/incoming-documents/${document.id as string}/files`,
+        { scanned: 'true', kind: 'main' },
+        {
+          name: 'van-ban.pdf',
+          content: PDF,
+          type: 'application/pdf',
+        },
+      );
       await api.call('personnel', 'POST', `/incoming-documents/${document.id as string}/transfer`, {
         mode: 'leader',
         recipients: [{ user_id: user('principal') }],
@@ -594,11 +766,16 @@ export async function seedDemoData(context: DemoSeedContext): Promise<DemoSeedRe
       signer_id: user('principal'),
       drafting_unit_id: ids.TC,
     });
-    await api.upload('accountant', `/outgoing-documents/${draft.id as string}/files`, { kind: 'draft' }, {
-      name: 'du-thao.pdf',
-      content: PDF,
-      type: 'application/pdf',
-    });
+    await api.upload(
+      'accountant',
+      `/outgoing-documents/${draft.id as string}/files`,
+      { kind: 'draft' },
+      {
+        name: 'du-thao.pdf',
+        content: PDF,
+        type: 'application/pdf',
+      },
+    );
     await api.call('accountant', 'POST', `/outgoing-documents/${draft.id as string}/submit`, {});
     await api.call('principal', 'POST', `/outgoing-documents/${draft.id as string}/sign`);
     await api.call('personnel', 'POST', `/outgoing-documents/${draft.id as string}/issue`, {
@@ -633,7 +810,11 @@ export async function seedDemoData(context: DemoSeedContext): Promise<DemoSeedRe
   });
 
   await step('Lịch đơn vị, phòng họp', async () => {
-    const room = await api.call('personnel', 'POST', '/meeting-rooms', { name: 'Phòng họp số 1', location: 'Tầng 2', capacity: 20 });
+    const room = await api.call('personnel', 'POST', '/meeting-rooms', {
+      name: 'Phòng họp số 1',
+      location: 'Tầng 2',
+      capacity: 20,
+    });
     const booking = await api.call('nurse', 'POST', '/room-bookings', {
       room_id: room.id,
       title: 'Họp tổ y tế, bếp',
@@ -652,7 +833,11 @@ export async function seedDemoData(context: DemoSeedContext): Promise<DemoSeedRe
       location: 'Phòng họp số 1',
     });
     const monday = addDays(entryDate, 1 - weekday(entryDate));
-    await api.call('manager', 'POST', '/unit-schedules/publish', { from: monday, to: addDays(monday, 6), org_unit_id: ids.DT1 });
+    await api.call('manager', 'POST', '/unit-schedules/publish', {
+      from: monday,
+      to: addDays(monday, 6),
+      org_unit_id: ids.DT1,
+    });
   });
 
   // ---- KPI (18d) ----
@@ -715,7 +900,10 @@ export async function seedDemoData(context: DemoSeedContext): Promise<DemoSeedRe
 
   // ---- Văn thư lưu trữ, tuyển dụng, tuyển sinh, thuốc ----
   await step('Văn thư lưu trữ', async () => {
-    const fond = await api.call('principal', 'POST', '/archive-fonds', { code: 'PL01', name: 'Phông Trường Mầm non Trình Diễn' });
+    const fond = await api.call('principal', 'POST', '/archive-fonds', {
+      code: 'PL01',
+      name: 'Phông Trường Mầm non Trình Diễn',
+    });
     await api.call('principal', 'POST', '/archive-records', {
       code: '01/HS-VT',
       title: 'Hồ sơ kế hoạch năm học',
@@ -751,7 +939,10 @@ export async function seedDemoData(context: DemoSeedContext): Promise<DemoSeedRe
   });
 
   await step('Thuốc ở phòng y tế', async () => {
-    const pharmacy = await api.call('nurse', 'POST', '/pharmacies', { org_unit_id: ids.DT1, name: 'Nhà thuốc Trình Diễn' });
+    const pharmacy = await api.call('nurse', 'POST', '/pharmacies', {
+      org_unit_id: ids.DT1,
+      name: 'Nhà thuốc Trình Diễn',
+    });
     await api.call('nurse', 'POST', '/medicines', {
       org_unit_id: ids.DT1,
       code: 'PARA',

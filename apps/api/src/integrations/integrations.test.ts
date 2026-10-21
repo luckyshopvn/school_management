@@ -87,7 +87,8 @@ describe('Kết nối Fanpage và Zalo Official Account', () => {
   before(async () => {
     environment = await startApiTestEnvironment();
     dispatcher = environment.api.get(NotificationDispatcher);
-    publisher = (environment.api.get(FacebookPublisher) as DemoAwareFacebookPublisher).inner as DevelopmentFacebookPublisher;
+    publisher = (environment.api.get(FacebookPublisher) as DemoAwareFacebookPublisher)
+      .inner as DevelopmentFacebookPublisher;
     zalo = (environment.api.get(ZaloSender) as DemoAwareZaloSender).inner as DevelopmentZaloSender;
     principal = await environment.loginAs('VT-02', null);
     academicYearId = await openTestAcademicYear(environment, principal.accessToken, 'Năm học kết nối', {

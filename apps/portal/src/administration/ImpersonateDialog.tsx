@@ -36,7 +36,7 @@ export function ImpersonateDialog({
         setBusy(false);
         setError(
           caught instanceof ApiError
-            ? (caught.details.map((detail) => detail.message).join('; ') || caught.message)
+            ? caught.details.map((detail) => detail.message).join('; ') || caught.message
             : 'Không kết nối được tới máy chủ, vui lòng thử lại',
         );
       });
@@ -57,8 +57,8 @@ export function ImpersonateDialog({
       </h2>
       <div className="mt-3 flex flex-col gap-3 text-content text-text-secondary">
         <p>
-          Bạn sẽ thao tác bằng tài khoản này trong tối đa {IMPERSONATION_LIFETIME_MINUTES} phút để hỗ trợ người dùng. Mọi
-          thao tác được ghi nhật ký kèm tên bạn; không đổi được mật khẩu, không thao tác chứng thư số và kí số.
+          Bạn sẽ thao tác bằng tài khoản này trong tối đa {IMPERSONATION_LIFETIME_MINUTES} phút để hỗ trợ người dùng.
+          Mọi thao tác được ghi nhật ký kèm tên bạn; không đổi được mật khẩu, không thao tác chứng thư số và kí số.
         </p>
         {error ? <Alert tone="danger">{error}</Alert> : null}
         <label htmlFor={reasonId} className="text-label font-medium text-text">

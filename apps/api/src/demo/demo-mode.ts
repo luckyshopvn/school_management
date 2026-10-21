@@ -26,7 +26,13 @@ export interface DemoStatus {
   accounts: DemoAccount[];
 }
 
-const DISABLED: DemoStatus = { enabled: false, seeded_at: null, next_reset_at: null, reset_interval_hours: null, accounts: [] };
+const DISABLED: DemoStatus = {
+  enabled: false,
+  seeded_at: null,
+  next_reset_at: null,
+  reset_interval_hours: null,
+  accounts: [],
+};
 
 @Injectable()
 export class DemoMode {

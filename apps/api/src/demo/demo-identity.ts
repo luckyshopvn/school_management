@@ -39,15 +39,17 @@ export class DemoTokenIssuer {
 
   async sign(userId: string, now: Date): Promise<string> {
     const issuedAt = Math.floor(now.getTime() / 1000);
-    return new SignJWT({ sid: randomUUID(), channel: 'portal', password_change_required: false })
-      .setProtectedHeader({ alg: TOKEN_SIGNING_ALGORITHM })
-      .setSubject(userId)
-      .setIssuer(TOKEN_ISSUER)
-      .setAudience(TOKEN_AUDIENCE)
-      .setIssuedAt(issuedAt)
-      // Lệnh chạy lâu hơn 15 phút thì vẫn dùng được mã
-      .setExpirationTime(issuedAt + ACCESS_TOKEN_LIFETIME_SECONDS * 8)
-      .sign(await importPKCS8(this.privateKeyPem, TOKEN_SIGNING_ALGORITHM));
+    return (
+      new SignJWT({ sid: randomUUID(), channel: 'portal', password_change_required: false })
+        .setProtectedHeader({ alg: TOKEN_SIGNING_ALGORITHM })
+        .setSubject(userId)
+        .setIssuer(TOKEN_ISSUER)
+        .setAudience(TOKEN_AUDIENCE)
+        .setIssuedAt(issuedAt)
+        // Lệnh chạy lâu hơn 15 phút thì vẫn dùng được mã
+        .setExpirationTime(issuedAt + ACCESS_TOKEN_LIFETIME_SECONDS * 8)
+        .sign(await importPKCS8(this.privateKeyPem, TOKEN_SIGNING_ALGORITHM))
+    );
   }
 }
 
@@ -107,7 +109,10 @@ export class DemoIdentityClient extends IdentityClient {
       .select(['users.id as user_id', 'users.full_name', 'roles.code as role_code', 'user_roles.org_unit_id'])
       .where('roles.code', '=', roleCode)
       .where((expression) =>
-        expression.or([expression('user_roles.org_unit_id', '=', orgUnitId), expression('user_roles.org_unit_id', 'is', null)]),
+        expression.or([
+          expression('user_roles.org_unit_id', '=', orgUnitId),
+          expression('user_roles.org_unit_id', 'is', null),
+        ]),
       )
       .execute();
     return rows;
@@ -121,12 +126,20 @@ export class DemoIdentityClient extends IdentityClient {
     const user = await this.identity
       .selectFrom('users')
       .select(['id', 'full_name', 'username', 'phone', 'status'])
-      .where((expression) => expression.or([expression('username', '=', input.login), expression('phone', '=', input.login)]))
+      .where((expression) =>
+        expression.or([expression('username', '=', input.login), expression('phone', '=', input.login)]),
+      )
       .executeTakeFirst();
     if (!user) {
       throw new Error(`Không có tài khoản trình diễn ${input.login}`);
     }
-    return { user_id: user.id, full_name: user.full_name, username: user.username, phone: user.phone, status: user.status };
+    return {
+      user_id: user.id,
+      full_name: user.full_name,
+      username: user.username,
+      phone: user.phone,
+      status: user.status,
+    };
   }
 
   // Duyệt hồ sơ trẻ tạo tài khoản phụ huynh (QT-01 bước 9): tạo thẳng ở cơ sở dữ liệu định danh với mật khẩu trình diễn
@@ -141,7 +154,11 @@ export class DemoIdentityClient extends IdentityClient {
       .values({ full_name: input.full_name, phone: input.phone, username: null, password_hash: DEMO_PASSWORD_HASH })
       .returning('id')
       .executeTakeFirstOrThrow();
-    const role = await this.identity.selectFrom('roles').select('id').where('code', '=', 'VT-14').executeTakeFirstOrThrow();
+    const role = await this.identity
+      .selectFrom('roles')
+      .select('id')
+      .where('code', '=', 'VT-14')
+      .executeTakeFirstOrThrow();
     const existing = await this.identity
       .selectFrom('user_roles')
       .select('id')

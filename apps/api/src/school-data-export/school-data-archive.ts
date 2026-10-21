@@ -26,7 +26,13 @@ const SECRET_COLUMN_NAMES = new Set([
   'child_national_id_hash',
 ]);
 // Cột chứa khóa tệp ở kho tệp; bảng nhật ký xóa tệp và tệp đã tạo không kèm tệp
-const STORAGE_KEY_COLUMNS = ['storage_key', 'signed_storage_key', 'xml_storage_key', 'seal_storage_key', 'attachment_key'];
+const STORAGE_KEY_COLUMNS = [
+  'storage_key',
+  'signed_storage_key',
+  'xml_storage_key',
+  'seal_storage_key',
+  'attachment_key',
+];
 const FILE_SKIPPED_TABLES = new Set(['export_jobs', 'archive_file_deletions']);
 const FILE_NAME_COLUMNS = ['file_name', 'original_name', 'name'];
 
@@ -109,7 +115,13 @@ export async function buildSchoolDataArchive(options: BuildArchiveOptions): Prom
       const columns = await listColumns(source.database, table);
       const result = await sql<Record<string, unknown>>`select * from ${sql.table(table)}`.execute(source.database);
       const exported = columns.filter((column) => !isSecretColumn(column.name));
-      zip.add(`du-lieu/${label}/${table}.csv`, toCsv(exported.map((column) => column.name), result.rows));
+      zip.add(
+        `du-lieu/${label}/${table}.csv`,
+        toCsv(
+          exported.map((column) => column.name),
+          result.rows,
+        ),
+      );
       rowCount += result.rows.length;
       manifest.tables.push({
         source: label,
@@ -168,7 +180,9 @@ async function addAttachments(
         continue;
       }
       const id = typeof row.id === 'string' || typeof row.id === 'number' ? String(row.id) : slug(key);
-      const fileName = safeFileName(nameColumn && typeof row[nameColumn] === 'string' ? (row[nameColumn] as string) : key);
+      const fileName = safeFileName(
+        nameColumn && typeof row[nameColumn] === 'string' ? (row[nameColumn] as string) : key,
+      );
       const suffix = keyColumn === 'storage_key' ? '' : `-${keyColumn}`;
       const path = `tep/${label}/${table}/${id}${suffix}-${fileName}`;
       if (manifest.files.included_bytes >= limit) {
@@ -216,7 +230,7 @@ export function toCsv(columns: string[], rows: Array<Record<string, unknown>>): 
   for (const row of rows) {
     lines.push(columns.map((column) => csvCell(cellText(row[column]))).join(','));
   }
-  return `﻿${lines.join('\r\n')}\r\n`;
+  return `\uFEFF${lines.join('\r\n')}\r\n`;
 }
 
 function cellText(value: unknown): string {
@@ -243,7 +257,7 @@ function slug(text: string): string {
   return (
     text
       .normalize('NFD')
-      .replace(/[̀-ͯ]/g, '')
+      .replace(/[\u0300-\u036f]/g, '')
       .replace(/đ/g, 'd')
       .replace(/Đ/g, 'D')
       .replace(/[^A-Za-z0-9]+/g, '-')
@@ -254,7 +268,9 @@ function slug(text: string): string {
 
 function safeFileName(name: string): string {
   const base = name.split(/[\\/]/).at(-1) ?? name;
-  return base.replace(/[\u0000-\u001f<>:"|?*]/g, '_').slice(0, 120) || 'tep';
+  // Bỏ ký tự điều khiển và ký tự không dùng được trong tên tệp
+  const cleaned = [...base].map((character) => (character < ' ' || '<>:"|?*'.includes(character) ? '_' : character));
+  return cleaned.join('').slice(0, 120) || 'tep';
 }
 
 function uniqueLabel(label: string, used: Set<string>): string {

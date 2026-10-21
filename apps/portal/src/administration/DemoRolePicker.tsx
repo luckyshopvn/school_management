@@ -37,7 +37,9 @@ export function DemoRolePicker() {
               setError(undefined);
               session.login(account.login, password).catch((caught: unknown) => {
                 setBusyLogin(undefined);
-                setError(caught instanceof ApiError ? caught.message : 'Không kết nối được tới máy chủ, vui lòng thử lại');
+                setError(
+                  caught instanceof ApiError ? caught.message : 'Không kết nối được tới máy chủ, vui lòng thử lại',
+                );
               });
             }}
           >

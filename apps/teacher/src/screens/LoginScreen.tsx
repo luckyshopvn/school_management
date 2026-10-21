@@ -58,7 +58,9 @@ export function LoginScreen() {
         onPick={(login, demoPassword) => {
           setErrorMessage(undefined);
           session.login(login, demoPassword).catch((error: unknown) => {
-            setErrorMessage(error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại');
+            setErrorMessage(
+              error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại',
+            );
           });
         }}
       />

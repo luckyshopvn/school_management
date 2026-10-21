@@ -45,7 +45,11 @@ describe('Đăng nhập thay và gói toàn bộ dữ liệu', () => {
       first_term: { start_date: '2026-09-05', end_date: '2027-01-15' },
       second_term: { start_date: '2027-01-18', end_date: '2027-05-25' },
     });
-    await api('POST', '/org-units', principal.accessToken, { code: 'TC', name: 'Trường chính', unit_type: 'truong_chinh' });
+    await api('POST', '/org-units', principal.accessToken, {
+      code: 'TC',
+      name: 'Trường chính',
+      unit_type: 'truong_chinh',
+    });
     unitId = (
       await api('POST', '/org-units', principal.accessToken, { code: 'DT-A', name: 'Điểm A', unit_type: 'diem_truong' })
     ).body.id as string;
@@ -70,7 +74,12 @@ describe('Đăng nhập thay và gói toàn bộ dữ liệu', () => {
     assert.equal(info.impersonator_id, principal.userId);
     assert.ok(new Date(info.expires_at).getTime() - Date.now() <= 60 * 60_000);
 
-    const created = await api('POST', '/rooms', token, { org_unit_id: unitId, code: 'P-HT', name: 'Phòng hỗ trợ', capacity: 20 });
+    const created = await api('POST', '/rooms', token, {
+      org_unit_id: unitId,
+      code: 'P-HT',
+      name: 'Phòng hỗ trợ',
+      capacity: 20,
+    });
     assert.equal(created.status, 201, JSON.stringify(created.body));
     const actions = await environment.system
       .selectFrom('impersonation_actions')
@@ -128,7 +137,10 @@ describe('Đăng nhập thay và gói toàn bộ dữ liệu', () => {
       .executeTakeFirstOrThrow();
     await database.insertInto('role_permissions').values({ role_id: role.id, permission_id: permission.id }).execute();
     const helperUser = await createTestUser(database);
-    await database.insertInto('user_roles').values({ user_id: helperUser.id, role_id: role.id, org_unit_id: null }).execute();
+    await database
+      .insertInto('user_roles')
+      .values({ user_id: helperUser.id, role_id: role.id, org_unit_id: null })
+      .execute();
     const helper = await postJson(`${environment.identity.baseUrl}/auth/login`, {
       login: helperUser.username,
       password: helperUser.password,
@@ -159,11 +171,21 @@ describe('Đăng nhập thay và gói toàn bộ dữ liệu', () => {
       .returning('id')
       .executeTakeFirstOrThrow();
     for (const code of ['P01.signing.certificate', 'P01.signing.view']) {
-      const permission = await database.selectFrom('permissions').select('id').where('code', '=', code).executeTakeFirstOrThrow();
-      await database.insertInto('role_permissions').values({ role_id: role.id, permission_id: permission.id }).execute();
+      const permission = await database
+        .selectFrom('permissions')
+        .select('id')
+        .where('code', '=', code)
+        .executeTakeFirstOrThrow();
+      await database
+        .insertInto('role_permissions')
+        .values({ role_id: role.id, permission_id: permission.id })
+        .execute();
     }
     const manager = await environment.loginAs('VT-03', unitId);
-    await database.insertInto('user_roles').values({ user_id: manager.userId, role_id: role.id, org_unit_id: null }).execute();
+    await database
+      .insertInto('user_roles')
+      .values({ user_id: manager.userId, role_id: role.id, org_unit_id: null })
+      .execute();
     const started = await impersonate(principal.accessToken, manager.userId);
     assert.equal(started.status, 200, JSON.stringify(started.body));
     const token = started.body.access_token as string;
@@ -213,14 +235,27 @@ describe('Đăng nhập thay và gói toàn bộ dữ liệu', () => {
     assert.equal(again.status, 422);
     await environment.api.get(ExportJobs).tick();
     const listed = await api('GET', '/school-data-exports', principal.accessToken);
-    const done = (listed.body.items as Array<{ id: string; status: string; expires_at: string; finished_at: string; download_count: number }>).find(
-      (item) => item.id === job.id,
-    );
+    const done = (
+      listed.body.items as Array<{
+        id: string;
+        status: string;
+        expires_at: string;
+        finished_at: string;
+        download_count: number;
+      }>
+    ).find((item) => item.id === job.id);
     assert.equal(done?.status, 'done', JSON.stringify(listed.body));
     assert.equal(new Date(done.expires_at).getTime() - new Date(done.finished_at).getTime(), 48 * 60 * 60_000);
 
     const other = await environment.loginAs('VT-02', null);
-    assert.equal((await fetch(`${environment.baseUrl}/export-jobs/${job.id}/file`, { headers: { authorization: `Bearer ${other.accessToken}` } })).status, 404);
+    assert.equal(
+      (
+        await fetch(`${environment.baseUrl}/export-jobs/${job.id}/file`, {
+          headers: { authorization: `Bearer ${other.accessToken}` },
+        })
+      ).status,
+      404,
+    );
     const response = await fetch(`${environment.baseUrl}/export-jobs/${job.id}/file`, {
       headers: { authorization: `Bearer ${principal.accessToken}` },
     });
@@ -230,14 +265,20 @@ describe('Đăng nhập thay và gói toàn bộ dữ liệu', () => {
     assert.ok(entries.has('manifest.json'));
     assert.ok(entries.has('DOC_TRUOC.txt'));
     assert.ok(entries.has('du-lieu/he-thong/academic_years.csv'));
-    assert.ok([...entries.keys()].some((name) => name.startsWith('du-lieu/nam-hoc-2026-2027/') && name.endsWith('org_units.csv')));
+    assert.ok(
+      [...entries.keys()].some(
+        (name) => name.startsWith('du-lieu/nam-hoc-2026-2027/') && name.endsWith('org_units.csv'),
+      ),
+    );
     const users = entries.get('du-lieu/dinh-danh/users.csv')?.toString('utf8') ?? '';
     assert.match(users, /full_name/);
     assert.doesNotMatch(users, /password_hash|\$argon2/);
     const manifest = JSON.parse(entries.get('manifest.json')?.toString('utf8') ?? '{}') as {
       tables: Array<{ source: string; table: string; omitted_columns: string[] }>;
     };
-    assert.ok(manifest.tables.find((table) => table.table === 'children')?.omitted_columns.includes('national_id_encrypted'));
+    assert.ok(
+      manifest.tables.find((table) => table.table === 'children')?.omitted_columns.includes('national_id_encrypted'),
+    );
 
     const downloads = await environment.system
       .selectFrom('export_job_downloads')
@@ -246,7 +287,11 @@ describe('Đăng nhập thay và gói toàn bộ dữ liệu', () => {
       .execute();
     assert.deepEqual(downloads, [{ user_id: principal.userId }]);
     const relisted = await api('GET', '/school-data-exports', principal.accessToken);
-    assert.equal((relisted.body.items as Array<{ id: string; download_count: number }>).find((item) => item.id === job.id)?.download_count, 1);
+    assert.equal(
+      (relisted.body.items as Array<{ id: string; download_count: number }>).find((item) => item.id === job.id)
+        ?.download_count,
+      1,
+    );
   });
 });
 
@@ -258,9 +303,18 @@ describe('Ghi gói ZIP, CSV, chặn gửi khi là bản trình diễn', () => {
     const entries = await readZipEntries(zip.finish());
     assert.equal(entries.get('du-lieu/Bảng thử.csv')?.toString('utf8'), 'a,b\r\n1,2\r\n');
     assert.deepEqual([...(entries.get('tep/anh.png') ?? [])], [0x89, 0x50, 0x4e, 0x47]);
-    const csv = toCsv(['ten', 'ghi_chu', 'du_lieu'], [{ ten: 'Nguyễn, An', ghi_chu: 'nói "xin chào"\nxuống dòng', du_lieu: { a: 1 } }]);
+    const csv = toCsv(
+      ['ten', 'ghi_chu', 'du_lieu'],
+      [{ ten: 'Nguyễn, An', ghi_chu: 'nói "xin chào"\nxuống dòng', du_lieu: { a: 1 } }],
+    );
     assert.equal(csv, '﻿ten,ghi_chu,du_lieu\r\n"Nguyễn, An","nói ""xin chào""\nxuống dòng","{""a"":1}"\r\n');
-    for (const column of ['password_hash', 'national_id_encrypted', 'access_token_encrypted', 'key_hash', 'national_id_hash']) {
+    for (const column of [
+      'password_hash',
+      'national_id_encrypted',
+      'access_token_encrypted',
+      'key_hash',
+      'national_id_hash',
+    ]) {
       assert.equal(isSecretColumn(column), true, column);
     }
     assert.equal(isSecretColumn('full_name'), false);
@@ -341,7 +395,11 @@ describe('Bản trình diễn', () => {
       const marker = await system.selectFrom('demo_environment').selectAll().executeTakeFirstOrThrow();
       assert.equal(marker.reset_interval_hours, 24);
       assert.ok(marker.accounts.some((account) => account.login === 'demo.hieutruong'));
-      const login = await identity.selectFrom('users').select('id').where('username', '=', 'demo.giaovien1').executeTakeFirst();
+      const login = await identity
+        .selectFrom('users')
+        .select('id')
+        .where('username', '=', 'demo.giaovien1')
+        .executeTakeFirst();
       assert.ok(login);
     } finally {
       await system.destroy();
@@ -394,4 +452,3 @@ describe('Bản trình diễn', () => {
     }
   });
 });
-
