@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.62
+- Phiên bản: 1.63
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -49,6 +49,9 @@
 | P01-29 | Đồng bộ chứng thư số (2.1, bản chạy nội bộ, G3, YCTD-130) | VT-02 (`P01.signing.certificate`) | Ngày đồng bộ, ghi chú | "Đánh dấu đã đồng bộ" sau khi nhà trường đăng ký đồng bộ trên hệ thống của Bộ; "Đặt lại chưa đồng bộ"; phần mềm không gửi dữ liệu | Trạng thái đồng bộ kèm ngày, người đánh dấu | BR-128 |
 | P01-30 | Kí hồ sơ trường, lớp, nhân sự, học sinh (2.2, bản chạy nội bộ, G3, YCTD-130) | VT-02, VT-15 lập hồ sơ (`P01.signing.manage`); VT-02 kí (`P01.signing.sign`) | Loại hồ sơ (Trường, Lớp, Nhân sự, Học sinh, Sổ đầu bài), đối tượng đã chọn, tháng của sổ đầu bài, lý do hủy | "Tạo hồ sơ" lập tệp PDF từ dữ liệu hiện tại, cấp mã định danh hồ sơ, lưu mã băm SHA-256; "Kí xác nhận nội bộ" lập tệp đã kí ghi người kí, thời điểm, thông tin chứng thư, ảnh con dấu, mã băm tệp gốc (không phải chữ ký số); "Tải thông tin thay đổi"; "Hủy hồ sơ"; "Xuất dữ liệu sổ đầu bài" (Excel) | Lưới đối tượng: trạng thái, mã định danh hồ sơ, xem hồ sơ, tệp hồ sơ, ngày tạo, ngày kí, ngày thay đổi Từ YCTD-133: nội dung theo bốn mẫu của Sở kèm tệp XML; cửa sổ Xem hồ sơ kí; cột theo loại, lọc khối, lớp, Ghi chú, Tải file lỗi; bỏ thẻ Sổ đầu bài; hồ sơ nhân sự, học sinh cần quyền xem số định danh. | BR-128, BR-74 , BR-130 |
 | P01-31 | Xác nhận hoàn thành và gửi hồ sơ (2.3, bản chạy nội bộ, G3, YCTD-130) | VT-02, VT-15 (`P01.signing.manage`); người có `P01.signing.view` xem | Hồ sơ đã kí đã chọn, ngày gửi, ghi chú | "Xác nhận hoàn thành" (khóa hồ sơ), "Hủy xác nhận", "Tải tệp gửi" (tệp đã kí), "Đánh dấu đã gửi"; phần mềm không truyền hồ sơ đi | Lưới hồ sơ đã kí: mã định danh hồ sơ, đối tượng, loại, trạng thái, ngày kí, người kí, ngày xác nhận, ngày gửi Từ YCTD-133: cột theo lưới 2.3 của Sở, Tìm kiếm, Hủy xác nhận hoàn thành. | BR-128 , BR-130 |
+| P01-32 | Đăng nhập thay để hỗ trợ (YCTD-145) | `P01.account.impersonate` (VT-02) | Tài khoản đích, lý do | Kiểm tra quyền không cao hơn; mở phiên 60 phút, giữ phiên gốc; chặn thao tác mật khẩu, kí số; ghi nhật ký bắt đầu, kết thúc, mọi thao tác ghi và tải tệp | Thanh báo đang đăng nhập thay, nút thoát; nhật ký 4.1 | BR-140 |
+| P01-33 | Xuất toàn bộ dữ liệu của trường thành gói ZIP (YCTD-145) | `P01.data.export-all` (VT-02) | Bấm tạo gói | Tác vụ xuất nền dựng CSV mọi bảng, tệp đính kèm, manifest; bỏ cột bí mật; hạn 48 giờ; nhật ký xuất, nhật ký tải | Gói ZIP; danh sách gói, số lần tải | BR-140 |
+| P01-34 | Bản trình diễn (YCTD-145) | Lệnh trên máy chủ; xem 4.3: `P01.account.manage` hoặc `P01.account.impersonate`; người thử: mọi người | Lệnh reset hoặc schedule, chu kỳ đặt lại | Từ chối dữ liệu thật; xóa và tạo lại dữ liệu giả qua điểm cuối; dấu bản trình diễn; chặn gửi tin, thanh toán thật | Trang chọn vai, dải bản trình diễn, màn hình 4.3 | BR-140 |
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 

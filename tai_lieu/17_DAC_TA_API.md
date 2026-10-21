@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.90
+- Phiên bản: 1.91
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -1328,6 +1328,10 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, POST, PUT, DELETE | /api/v1/website/albums, /website/albums/{id}, /submit, /approve, /return, /unpublish, /files, /files/{fileId}, /cover/{fileId} | Thư viện ảnh (P14-15, YCTD-144) |
 | GET, POST | /api/v1/website/review, /website/files/{fileId}, /website/contacts, /website/contacts/{id}/handle | Nội dung chờ duyệt, xem tệp, thư liên hệ (YCTD-144) |
 | GET, POST | /api/v1/public/site, /public/site/{trang}, /public/website/domain-check | Trang công khai theo tên miền (không cần đăng nhập; trang gioi-thieu, co-cau-to-chuc, tin-tuc, thong-bao, van-ban, tuyen-sinh, cong-khai, thoi-khoa-bieu, thu-vien-anh, lien-he, tep, robots.txt, sitemap.xml), kiểm tra tên miền cho máy chủ web (P14-16, YCTD-144) |
+| POST | /api/v1/auth/impersonation, /auth/impersonation/exit | Bắt đầu, thoát đăng nhập thay (dịch vụ định danh, P01-32, YCTD-145) |
+| GET | /api/v1/auth/impersonations, /api/v1/impersonation-actions | Nhật ký đăng nhập thay (định danh), thao tác trong từng lần (máy chủ API) (P01-32, YCTD-145) |
+| GET, POST | /api/v1/school-data-exports; GET /api/v1/users/data-export | Gói ZIP toàn bộ dữ liệu; phần dữ liệu tài khoản của dịch vụ định danh (P01-33, YCTD-145) |
+| GET | /api/v1/public/demo | Trạng thái bản trình diễn, tài khoản trình diễn, mật khẩu chung (công khai; P01-34, YCTD-145) |
 | GET | /api/v1/outgoing-documents | Danh sách văn bản đi theo `view` (`drafts`, `pending`, `processed`, `to_issue`, `issued`, `search`), lọc, phân trang (YCTD-140) |
 | GET | /api/v1/outgoing-documents/recipients | Đơn vị nhận của văn bản đã ban hành theo `status` (`pending`, `sent`, `delivered`, `all`) |
 | GET | /api/v1/outgoing-documents/next-number | Số đi kế tiếp của sổ văn bản đi (`book_id`) |
@@ -1351,6 +1355,15 @@ Giao kèo văn bản đến theo VNPT iOffice (DT-18 phần 18a, YCTD-138, BR-13
 5. Thao tác hàng loạt `complete`, `archive` (thêm `archive_record_id` của hồ sơ tài liệu 5.10.1) nhận `ids` (1 đến 200), trả mỗi văn bản `id`, `ok`, `message`; văn bản không làm được không chặn văn bản khác. `flags` nhận `ids` và `starred` hoặc `followed`.
 6. Tệp: PDF, JPEG, PNG, Word, Excel theo chữ ký tệp, tối đa 50 MB, tối đa 30 tệp mỗi văn bản; `kind` `main` hoặc `related`, `scanned` là `true` khi quét. Người tải lên hoặc văn thư xóa tệp khi văn bản chưa kết thúc. Phiếu PDF khổ dọc, tên tệp `phieu-trinh-…`, `phieu-xu-ly-…`, `phieu-giao-nhan-…`. Sổ đăng ký trả `book`, `items` (cột của iOffice; văn bản hạn chế xem che trích yếu); tệp Excel `so-van-ban-den-<năm>-….xlsx` ghi `export_logs` mã `incoming_document_register`.
 7. Người nhận được chuyển nhận thông báo trong ứng dụng (mẫu `incoming_document`); trả lại, từ chối, xử lý xong, xin gia hạn báo người chuyển; kết quả gia hạn báo người xin. `PORTAL_QUICK_LINK_PATHS` thêm 12 đường dẫn của phân hệ `documents`; `DATA_GRID_KEYS` thêm `incoming-documents`, `incoming-manage`, `incoming-interconnect`, `incoming-register`, `document-books`, `external-units`, `external-unit-groups`, `document-catalogs`.
+
+Giao kèo quản trị và trình diễn (DT-18 phần 18h, YCTD-145, BR-140):
+
+1. `POST /auth/impersonation` nhận `user_id`, `reason` (5 đến 500 ký tự), mã phiên cổng quản trị của người có `P01.account.impersonate`; trả mã phiên của tài khoản đích kèm `impersonation_id`, đặt cookie mã làm mới cổng quản trị sang phiên đích. Tài khoản quyền cao hơn, quản trị khác, VT-01, chính mình, đang khóa, chỉ phụ huynh, đang đăng nhập thay trả 422 `YCTD-145`; thiếu quyền 403; thiếu lý do 400.
+2. `POST /auth/impersonation/exit` bằng mã phiên đăng nhập thay: đóng phiên đích, trả mã phiên mới của phiên gốc (`signed_out: false`) hoặc `signed_out: true` khi phiên gốc đã hết hạn. `GET /auth/me` trả `impersonation` (`id`, `impersonator_id`, `impersonator_name`, `started_at`, `expires_at`) hoặc `null`.
+3. Trong phiên đăng nhập thay: `/auth/change-password`, `/users/{id}/reset-password`, `/users/bulk-reset-password`, `PUT /auth/settings`, `PUT /auth/settings/password-policy` trả 403 `YCTD-145`; ở máy chủ API, thao tác ghi `/signing/certificate*`, `/signing/dossiers/sign`, `/outgoing-documents/{id}/sign`, `/school-data-exports` trả 403 `YCTD-145`; mọi thao tác ghi và tải tệp khác ghi `impersonation_actions`.
+4. `POST /school-data-exports` (`P01.data.export-all`) trả 202 kèm `job`; đang có gói chưa xong trả 422. Tải gói bằng `GET /export-jobs/{id}/file` (chỉ người tạo, `application/zip`); mỗi lần tải ghi `export_job_downloads`. `GET /school-data-exports` trả 50 gói gần nhất kèm `user_name`, `download_count`, `last_downloaded_at`.
+5. `GET /public/demo` (không cần đăng nhập) trả `enabled`, `seeded_at`, `next_reset_at`, `reset_interval_hours`, `accounts`, `password` (chỉ khi là bản trình diễn).
+
 
 Giao kèo website trường (DT-18 phần 18f, YCTD-144, BR-139; dữ liệu ở cơ sở dữ liệu hệ thống):
 

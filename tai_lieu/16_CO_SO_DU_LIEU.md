@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.85
+- Phiên bản: 1.86
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -348,6 +348,15 @@ Website trường trên tên miền riêng (DT-18 phần 18f, YCTD-144), tệp `
 | website_albums | Thư viện ảnh (P14-15) | id, slug (duy nhất), title, description, event_date, cover_file_id, consent_confirmed, consent_confirmed_by_name, các cột trạng thái như `website_posts` |
 | website_contact_messages | Thư liên hệ (P14-16) | id, full_name, phone, email, subject, message, status (`new`, `handled`), handled_note, handled_at, handled_by_name, created_at |
 | website_events | Lịch sử soạn, duyệt, cấu hình | id, target_type (`post`, `album`, `settings`, `domain`, `contact`), target_id, action, note, actor_id, actor_name, created_at |
+
+Quản trị và trình diễn (DT-18 phần 18h, YCTD-145). Cơ sở dữ liệu định danh, tệp `database/identity/migrations/0059_add_impersonation_and_data_export.ts`: bảng `impersonations`, cột `sessions.impersonation_id` (khóa ngoại `impersonations`), `sessions.login_method` nhận thêm `impersonation`, quyền `P01.account.impersonate`, `P01.data.export-all`. Cơ sở dữ liệu hệ thống, tệp `database/system/migrations/0022_create_impersonation_export_demo_tables.ts`: ba bảng mới, `export_jobs.format` nhận thêm `zip`:
+
+| Bảng | Mục đích | Trường chính |
+|---|---|---|
+| impersonations (định danh) | Mỗi lần đăng nhập thay (P01-32, BR-140) | id, impersonator_user_id, impersonator_name, target_user_id, target_name, original_session_id (phiên gốc của quản trị), reason, started_at, expires_at (60 phút), ended_at, end_reason (`exit`, `expired`, `logout`), ip_address, user_agent |
+| impersonation_actions | Thao tác ghi và tải tệp trên máy chủ API trong lúc đăng nhập thay (P01-32) | id, impersonation_id, impersonator_user_id, impersonator_name, target_user_id, target_name, method, path (không có chuỗi truy vấn), status_code, ip_address, created_at |
+| export_job_downloads | Nhật ký tải tệp đã tạo, gồm gói ZIP (P01-33) | id, export_job_id (khóa ngoại `export_jobs`, xóa theo), user_id, user_name, ip_address, downloaded_at |
+| demo_environment | Dấu bản trình diễn, một dòng; chỉ lệnh tạo dữ liệu trình diễn ghi (P01-34) | id (luôn 1), seed_version, seeded_at, reset_interval_hours (1 đến 720), next_reset_at, accounts (JSON: login, full_name, role_code, role_name, app) |
 
 Tệp `database/system/migrations/0019_create_outgoing_document_tables.ts` của cơ sở dữ liệu hệ thống (DT-18 phần 18b, YCTD-140) tạo sáu bảng văn bản đi ở trên; thêm vào `incoming_documents` ba cột `outgoing_document_id` (khóa ngoại `outgoing_documents`, xóa thì để trống), `recipient_org_unit_id`, `recipient_org_unit_name` và cho `source` nhận thêm `internal` (văn bản đến tạo qua liên thông nội bộ khi phát hành văn bản đi). Phần quay lui xóa văn bản đến nguồn `internal`, trả ràng buộc, xóa sáu bảng.
 

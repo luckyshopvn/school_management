@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.75
+- Phiên bản: 1.76
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -216,6 +216,10 @@ Từ YCTD-107 (DT-15 phần 15a), cổng quản trị dùng menu ngang nhiều c
 | Quản trị hệ thống | 3.5. | Tệp đã tạo | `/generated-files` |
 | Quản trị hệ thống | 3.6. | Thông báo hệ thống | `/system-announcements` |
 | Quản trị hệ thống | 3.7. | Ứng dụng liên kết | `/app-links` |
+| Quản trị hệ thống | 4. | Quản trị và trình diễn | (nhóm) |
+| Quản trị hệ thống | 4.1. | Đăng nhập thay | `/impersonations` |
+| Quản trị hệ thống | 4.2. | Xuất toàn bộ dữ liệu | `/school-data-export` |
+| Quản trị hệ thống | 4.3. | Bản trình diễn | `/demo-environment` |
 | Tài chính – học phí | 1. | Học phí và dịch vụ | (nhóm) |
 | Tài chính – học phí | 1.1. | Biểu phí và dịch vụ | `/fees` |
 | Tài chính – học phí | 1.2. | Đăng ký dịch vụ | `/registrations` |
@@ -518,6 +522,11 @@ Từ YCTD-139 (DT-18 phần 18d), phân hệ "Đánh giá KPI" (khóa `kpi`) đ�
 | MH-213 | Nội dung chờ duyệt (YCTD-144; mục "3.1.", `/website/review`, lưới khóa `website-review`): cột Loại, Tiêu đề, Người gửi duyệt, Ngày gửi; bấm dòng mở bài hoặc album với Duyệt và đăng, Trả lại | `P14.website.approve` |
 | MH-214 | Thư liên hệ (YCTD-144; mục "3.2.", `/website/contacts`, lưới khóa `website-contacts`): ô Trạng thái (Chưa xử lý, Đã xử lý); cột Ngày gửi, Người gửi, Liên lạc, Tiêu đề, Trạng thái; bấm dòng xem nội dung; nút Đã xử lý (Cách xử lý (*)) | `P14.website.edit` xem, `P14.website.approve` xử lý |
 | MH-215 | Website công khai của trường (YCTD-144; trang HTML do máy chủ API dựng trên tên miền của trường): đầu trang (biểu trưng, tên, khẩu hiệu), dải "Trang trình diễn" khi trình diễn, menu Trang chủ, Giới thiệu, Cơ cấu tổ chức, Tin tức, Thông báo, Văn bản, Tuyển sinh, Công khai, Thời khóa biểu (khi bật), Thư viện ảnh, Liên hệ; chân trang liên hệ; trang Văn bản có ô tìm theo số ký hiệu, trích yếu và bảng Số ký hiệu, Ngày ban hành, Trích yếu, Người ký, Tệp; trang Liên hệ có biểu mẫu Họ và tên (*), Số điện thoại, Thư điện tử, Tiêu đề (*), Nội dung (*), nút Gửi liên hệ | Người ngoài, không cần tài khoản |
+| MH-216 | Đăng nhập thay (YCTD-145; mục "4.1." của Quản trị hệ thống, `/impersonations`, lưới khóa `impersonations`): hướng dẫn; tìm theo người, tài khoản, lý do; cột Bắt đầu, Người đăng nhập thay, Tài khoản được đăng nhập thay, Lý do, Trạng thái (Đang đăng nhập thay, Đã thoát, Hết hạn, Đăng xuất), Kết thúc, Địa chỉ IP (ẩn mặc định); nút dòng Xem thao tác mở lưới thao tác (khóa `impersonation-actions`: Thời điểm, Thao tác, Đường dẫn, Kết quả) | `P01.account.impersonate` |
+| MH-217 | Hộp thoại "Đăng nhập thay …" (YCTD-145; nút "Đăng nhập thay" ở khung chi tiết tài khoản của 1.4 Danh sách người dùng, tài khoản đang hoạt động): lời báo 60 phút, ghi nhật ký, không thao tác mật khẩu, kí số; Lý do đăng nhập thay (5 đến 500 ký tự); Hủy, Đăng nhập thay. Thanh đỏ ở đầu mọi trang khi đang đăng nhập thay: "Đang đăng nhập thay tài khoản … (bởi …, đến …). Mọi thao tác đều được ghi nhật ký.", nút Thoát đăng nhập thay (về 4.1) | `P01.account.impersonate` |
+| MH-218 | Xuất toàn bộ dữ liệu (YCTD-145; mục "4.2.", `/school-data-export`, lưới khóa `school-data-exports`): lời báo nội dung gói, dữ liệu cá nhân, hạn 48 giờ; nút Tạo gói dữ liệu, Làm mới; báo "Đang tạo gói dữ liệu…", "Gói dữ liệu đã tạo xong, tải về trước …"; cột Thời gian tạo, Người tạo, Trạng thái, Số dòng dữ liệu, Dung lượng, Hạn tải về, Số lần tải, Lần tải gần nhất (ẩn mặc định), Ghi chú; nút dòng Tải về | `P01.data.export-all` |
+| MH-219 | Bản trình diễn (YCTD-145; mục "4.3.", `/demo-environment`): máy chủ không phải bản trình diễn thì báo cách tạo; là bản trình diễn thì hiện Tạo dữ liệu lúc, Tự đặt lại (chu kỳ, lần tới), Mật khẩu chung, Gửi tin, thanh toán (chặn) và lưới Tài khoản trình diễn (Vai trò, Họ tên giả, Tên đăng nhập, Ứng dụng) | `P01.account.manage` hoặc `P01.account.impersonate` |
+| MH-220 | Trang chọn vai và dải "Bản trình diễn" (YCTD-145): ở màn hình đăng nhập của cổng quản trị, ứng dụng giáo viên, phụ huynh, khi máy chủ là bản trình diễn, khung "Bản trình diễn: chọn vai để vào thử" (mật khẩu chung, mỗi vai một nút đăng nhập); dải vàng "Bản trình diễn: dữ liệu giả, không gửi tin nhắn, Zalo hay thu tiền thật; dữ liệu tự đặt lại lúc …" ở đầu mọi trang | Mọi người |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 

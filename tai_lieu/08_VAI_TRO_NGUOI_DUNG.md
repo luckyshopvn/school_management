@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.71
+- Phiên bản: 1.72
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -181,6 +181,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-81 | Giao việc, lịch, hồ sơ công việc, báo cáo theo VNPT iOffice (YCTD-141): sáu quyền mới thuộc P09. `P09.task.direct` (VT-02, VT-15, VT-03, VT-06): giao việc theo cây đơn vị trong phạm vi đơn vị được gán, phê duyệt, thu hồi, hủy, đổi nhắc việc; người nhận việc không cần quyền riêng. `P09.schedule.view` (VT-02 đến VT-12, VT-15 đến VT-17): xem lịch đã công bố, lịch họp, đăng ký sử dụng phòng họp. `P09.schedule.manage` (VT-02, VT-15, VT-03, VT-06): đăng ký, công bố lịch đơn vị trong phạm vi (lịch toàn trường cần phạm vi toàn trường), mẫu lịch. `P09.meeting-room.manage` (VT-02, VT-15, VT-06): danh mục phòng họp, phê duyệt, từ chối đăng ký. `P09.work-file.use` (như `P09.schedule.view`): hồ sơ công việc. `P09.document-report.view` (VT-02, VT-15, VT-03, VT-06): báo cáo trong phạm vi đơn vị. Văn thư lưu trữ tiếp nhận, trả về hồ sơ nộp lưu theo `P09.archive.manage`, xem hồ sơ hết hạn bảo quản theo `P09.archive.view` (YCTD-118). Vai trò do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12) |
 | PQ-82 | Thiết bị: nơi để, tem QR, kiểm kê (YCTD-143): quyền mới `P13.equipment.stocktake` thuộc P13 (VT-02, VT-15, VT-03, VT-11, VT-07, VT-08): quét mã QR, ghi kết quả trong đợt Đang kiểm kê của đơn vị trong phạm vi, xem đợt, tải biên bản; giáo viên dùng trên ứng dụng giáo viên. Lập, nộp, duyệt, trả lại, hủy, chốt chênh lệch, nơi để, in tem dùng `P13.equipment.manage` trong phạm vi đơn vị (VT-02, VT-03, VT-11); nạp danh mục mẫu cần `P13.equipment.manage` toàn trường; 2.4, 2.6 xem bằng `P17.report.facilities` hoặc `P13.equipment.manage`. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 |
 | PQ-83 | Website trường (YCTD-144): ba quyền mới thuộc P14. `P14.website.edit` (VT-02, VT-15, VT-03, VT-12): soạn tin tức, thông báo, trang, công khai theo quy định, album, gửi duyệt, xem thư liên hệ. `P14.website.approve` (VT-02, VT-15): duyệt và đăng, trả lại, gỡ, xử lý thư liên hệ; cũng soạn được. `P14.website.configure` (VT-02; Quản trị nền tảng VT-01 không có quyền nghiệp vụ theo PQ-10): thông tin website, tên miền, chế độ trình diễn, nội dung mẫu. Phân hệ "Website trường" không có ở VT-14. Người ngoài xem trang công khai, gửi thư liên hệ không cần tài khoản. Vai trò do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12) |
+| PQ-84 | Quản trị và trình diễn (YCTD-145): hai quyền mới thuộc P01, chỉ VT-02. `P01.account.impersonate`: đăng nhập thay tài khoản có quyền không cao hơn (BR-140), xem nhật ký đăng nhập thay và thao tác. `P01.data.export-all`: tạo gói ZIP toàn bộ dữ liệu, xem danh sách gói và số lần tải; chỉ người tạo tải. VT-01 không có (PQ-10: không xem dữ liệu nghiệp vụ). Màn hình 4.3 Bản trình diễn xem được bằng `P01.account.manage` hoặc `P01.account.impersonate`; tài khoản trình diễn và mật khẩu chung là dữ liệu giả công khai. Vai trò do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12) |
 
 ## 5. Phân cấp phê duyệt
 

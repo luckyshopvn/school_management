@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường.
-- Phiên bản: 1.25
+- Phiên bản: 1.26
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -374,7 +374,7 @@ Thứ tự gộp để đánh số tài liệu (phiên bản, CT, AC, BR, MH) kh
 | 18e | 3 | Chưa làm, chờ đợt 2 |
 | 18g | 3 | Đã triển khai (YCTD-143, PR 119, phiên bản 0.93.0): 2.4 Nơi để và tem QR thiết bị (phòng, kho, vị trí; tem PDF A4 3 × 8, mã tem không có tên miền); 2.5 Kiểm kê thiết bị (chụp sổ, quét QR trên ứng dụng giáo viên hoặc web di động, đối chiếu, tỷ lệ sử dụng được, nộp, duyệt, trả lại, chốt chênh lệch, biên bản); 2.6 Đối sánh danh mục tối thiểu (cột cấp học, nạp mẫu Mầm non 515 thiết bị theo TT 02/2010 sửa đổi bởi TT 34/2013, Đủ, Thiếu, Chưa có). Mẫu Tiểu học, THCS, THPT thêm sau DT-19 |
 | 18f | 4 | Đã làm, YCTD-144, phiên bản 0.94.0, PR 122: phân hệ Website trường; tên miền lưu ở cơ sở dữ liệu, nhận diện trường theo Host, Caddy cấp chứng chỉ theo yêu cầu chỉ cho tên miền đã đăng ký; trang công khai (giới thiệu, cơ cấu tổ chức, tin tức, thông báo, văn bản công khai từ 18b, tuyển sinh, công khai theo Thông tư 09/2024/TT-BGDĐT, thư viện ảnh, liên hệ; thời khóa biểu chờ 22c); soạn, duyệt, đăng, gỡ, lọc HTML; chế độ trình diễn, nội dung mẫu. Đăng ký sự kiện qua QR để phần sau |
-| 18h | 4 | Chưa làm |
+| 18h | 4 | Đã làm, YCTD-145, phiên bản 0.95.0, PR PR18H_SO: nhóm 4. Quản trị và trình diễn của Quản trị hệ thống; đăng nhập thay (quyền riêng VT-02, lý do, thanh báo và nút thoát ở mọi trang, phiên 60 phút, không vào tài khoản quyền cao hơn, không thao tác mật khẩu, kí số, nhật ký bắt đầu, kết thúc và mọi thao tác); gói ZIP toàn bộ dữ liệu (tác vụ xuất nền của 16a, CSV mọi bảng, tệp đính kèm, manifest, hạn tải 48 giờ, nhật ký xuất và tải; hàm dựng gói dùng lại cho DT-SaaS S2); bản trình diễn (dấu ở cơ sở dữ liệu, dữ liệu giả phủ các phân hệ cũ và 18a đến 18g, trang chọn vai, dải trình diễn, chặn SMS, Zalo, Fanpage, thanh toán thật, lệnh tạo và dịch vụ tự đặt lại; dùng cho dùng thử của DT-SaaS S5) |
 | 22b | 5 | Chưa làm |
 | 22i | 5 | Chưa làm, chờ 18e |
 | 22d | 5 | Chưa làm, chờ 18d, 18e |
