@@ -70,7 +70,7 @@ describe('Đăng nhập thay và gói toàn bộ dữ liệu', () => {
     assert.equal(info.impersonator_id, principal.userId);
     assert.ok(new Date(info.expires_at).getTime() - Date.now() <= 60 * 60_000);
 
-    const created = await api('POST', '/departments', token, { org_unit_id: unitId, name: 'Tổ hỗ trợ' });
+    const created = await api('POST', '/rooms', token, { org_unit_id: unitId, code: 'P-HT', name: 'Phòng hỗ trợ', capacity: 20 });
     assert.equal(created.status, 201, JSON.stringify(created.body));
     const actions = await environment.system
       .selectFrom('impersonation_actions')
@@ -79,7 +79,7 @@ describe('Đăng nhập thay và gói toàn bộ dữ liệu', () => {
       .execute();
     assert.equal(actions.length, 1);
     assert.equal(actions[0]?.method, 'POST');
-    assert.equal(actions[0]?.path, '/api/v1/departments');
+    assert.equal(actions[0]?.path, '/api/v1/rooms');
     assert.equal(actions[0]?.status_code, 201);
     assert.equal(actions[0]?.impersonator_user_id, principal.userId);
 
@@ -114,11 +114,34 @@ describe('Đăng nhập thay và gói toàn bộ dữ liệu', () => {
     const manager = await environment.loginAs('VT-03', unitId);
     assert.equal((await impersonate(manager.accessToken, teacher.userId)).status, 403);
     assert.equal((await impersonate(principal.accessToken, teacher.userId, 'ab')).status, 400);
-    // Nhân sự (VT-06) có quyền quản lý hồ sơ nhân sự mà Hiệu trưởng không có: tài khoản có quyền cao hơn bị từ chối
-    const personnel = await environment.loginAs('VT-06', unitId);
-    const higher = await impersonate(principal.accessToken, personnel.userId);
-    assert.equal(higher.status, 422);
-    assert.match(errorOf(higher.body).message ?? '', /quyền cao hơn/);
+    // Nhóm tự tạo chỉ có quyền đăng nhập thay xếp ngang vai trò thường: không vào được tài khoản giáo viên (ngang hàng)
+    const database = environment.identity.database;
+    const role = await database
+      .insertInto('roles')
+      .values({ code: `NHOM-HO-TRO-${randomUUID().slice(0, 8)}`, name: 'Nhóm hỗ trợ' })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    const permission = await database
+      .selectFrom('permissions')
+      .select('id')
+      .where('code', '=', 'P01.account.impersonate')
+      .executeTakeFirstOrThrow();
+    await database.insertInto('role_permissions').values({ role_id: role.id, permission_id: permission.id }).execute();
+    const helperUser = await createTestUser(database);
+    await database.insertInto('user_roles').values({ user_id: helperUser.id, role_id: role.id, org_unit_id: null }).execute();
+    const helper = await postJson(`${environment.identity.baseUrl}/auth/login`, {
+      login: helperUser.username,
+      password: helperUser.password,
+      channel: 'portal',
+    });
+    const higher = await impersonate(helper.body.access_token as string, teacher.userId);
+    assert.equal(higher.status, 422, JSON.stringify(higher.body));
+    assert.match(errorOf(higher.body).message ?? '', /ngang hoặc cao hơn/);
+    // Hiệu trưởng vào được tài khoản Quản lý đơn vị dù vai trò đó có quyền nghiệp vụ Hiệu trưởng không có
+    const unitManager = await environment.loginAs('VT-03', unitId);
+    const allowed = await impersonate(principal.accessToken, unitManager.userId);
+    assert.equal(allowed.status, 200, JSON.stringify(allowed.body));
+    await identity('POST', '/auth/impersonation/exit', allowed.body.access_token as string);
     const deputy = await environment.loginAs('VT-15', unitId);
     const started = await impersonate(principal.accessToken, deputy.userId);
     assert.equal(started.status, 200);
@@ -128,19 +151,32 @@ describe('Đăng nhập thay và gói toàn bộ dữ liệu', () => {
   });
 
   it('CT-18h-3: trong phiên đăng nhập thay không đổi được mật khẩu, không đặt lại mật khẩu, không thao tác chứng thư số, không xuất toàn bộ dữ liệu', async () => {
+    // Tài khoản thuộc nhóm tự tạo có quyền chứng thư số (Hiệu trưởng cũng có nên không phải quyền cao hơn)
+    const database = environment.identity.database;
+    const role = await database
+      .insertInto('roles')
+      .values({ code: `NHOM-KY-SO-${randomUUID().slice(0, 8)}`, name: 'Nhóm kí số' })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    for (const code of ['P01.signing.certificate', 'P01.signing.view']) {
+      const permission = await database.selectFrom('permissions').select('id').where('code', '=', code).executeTakeFirstOrThrow();
+      await database.insertInto('role_permissions').values({ role_id: role.id, permission_id: permission.id }).execute();
+    }
     const manager = await environment.loginAs('VT-03', unitId);
+    await database.insertInto('user_roles').values({ user_id: manager.userId, role_id: role.id, org_unit_id: null }).execute();
     const started = await impersonate(principal.accessToken, manager.userId);
+    assert.equal(started.status, 200, JSON.stringify(started.body));
     const token = started.body.access_token as string;
     const changed = await identity('POST', '/auth/change-password', token, {
       current_password: 'MatKhau2026',
       new_password: 'MatKhauMoi2026',
     });
     assert.equal(changed.status, 403);
-    assert.equal(errorOf(changed.body).rule_code, 'YCTD-145');
+    assert.match(errorOf(changed.body).message ?? '', /Đang đăng nhập thay/);
     assert.equal((await identity('POST', `/users/${manager.userId}/reset-password`, token)).status, 403);
     const certificate = await api('PUT', '/signing/certificate', token, { provider: 'VNPT-CA' });
     assert.equal(certificate.status, 403);
-    assert.equal(errorOf(certificate.body).rule_code, 'YCTD-145');
+    assert.match(errorOf(certificate.body).message ?? '', /Đang đăng nhập thay/);
     assert.equal((await api('POST', '/school-data-exports', token)).status, 403);
     const blocked = await environment.system
       .selectFrom('impersonation_actions')

@@ -19,8 +19,9 @@ import { createRefreshToken, TokenService } from './token.service.js';
 // Đăng nhập thay (DT-18 phần 18h, YCTD-145): quản trị trường có quyền P01.account.impersonate vào tài khoản của người khác
 // để hỗ trợ. Quy tắc do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
 // - chỉ ở cổng quản trị, phải ghi lý do; không đăng nhập thay lồng nhau;
-// - không vào tài khoản có quyền cao hơn: mọi quyền của tài khoản đích phải là quyền người đăng nhập thay cũng có, tài khoản
-//   đích không có quyền đăng nhập thay, không phải Quản trị nền tảng (VT-01), không phải chính mình, đang hoạt động, có vai
+// - không vào tài khoản có quyền cao hơn: vai trò cao nhất của tài khoản đích phải thấp hơn vai trò cao nhất của người đăng
+//   nhập thay (ROLE_RANKS), tài khoản đích không có quyền quản trị (ADMIN_PERMISSIONS) mà người đăng nhập thay không có,
+//   không có quyền đăng nhập thay, không phải Quản trị nền tảng (VT-01), không phải chính mình, đang hoạt động, có vai
 //   trò nhân sự (không chỉ là phụ huynh); quyền đăng nhập thay chỉ theo đơn vị thì mọi vai trò của tài khoản đích phải ở các
 //   đơn vị đó;
 // - phiên đăng nhập thay dài tối đa 60 phút, không gia hạn; phiên gốc của quản trị giữ nguyên để quay lại khi thoát;
@@ -32,6 +33,20 @@ import { IMPERSONATION_LIFETIME_MINUTES } from '@school-management/shared';
 const PLATFORM_ADMIN_ROLE_CODE = 'VT-01';
 const PARENT_ROLE_CODE = 'VT-14';
 const LIST_PAGE_SIZE = 50;
+// Thứ bậc vai trò để so "quyền cao hơn": Quản trị nền tảng, Hiệu trưởng, Phó Hiệu trưởng, Cán bộ quản lý cấp trên và Kiểm
+// toán viên (xem toàn trường), còn lại; nhóm tự tạo xếp như vai trò thường
+const ROLE_RANKS: Record<string, number> = { 'VT-01': 100, 'VT-02': 90, 'VT-15': 70, 'VT-19': 60, 'VT-20': 60 };
+const DEFAULT_ROLE_RANK = 50;
+// Quyền quản trị: tài khoản đích có quyền nào trong nhóm này mà người đăng nhập thay không có thì là quyền cao hơn
+const ADMIN_PERMISSIONS = new Set([
+  'P01.account.manage',
+  'P01.account.impersonate',
+  'P01.data.export-all',
+  'P01.api-client.manage',
+  'P01.integration.manage',
+  'P01.announcement.manage',
+  'P01.signing.certificate',
+]);
 
 export interface ImpersonationDescription {
   id: string;
@@ -420,12 +435,20 @@ export function assertNotHigher(actor: Assignment[], scope: Assignment[], target
   if (target.some((row) => row.permission_code === IMPERSONATE_PERMISSION)) {
     throw denied('Không đăng nhập thay tài khoản quản trị có quyền đăng nhập thay');
   }
-  const actorPermissions = new Set(actor.map((row) => row.permission_code).filter((code) => code !== null));
+  const rank = (rows: Assignment[]) => Math.max(...rows.map((row) => ROLE_RANKS[row.role_code] ?? DEFAULT_ROLE_RANK));
+  if (rank(target) >= rank(actor)) {
+    throw denied('Không đăng nhập thay tài khoản có vai trò ngang hoặc cao hơn bạn');
+  }
+  const actorPermissions = new Set(actor.map((row) => row.permission_code));
   const higher = [
-    ...new Set(target.map((row) => row.permission_code).filter((code): code is string => code !== null && !actorPermissions.has(code))),
+    ...new Set(
+      target
+        .map((row) => row.permission_code)
+        .filter((code): code is string => code !== null && ADMIN_PERMISSIONS.has(code) && !actorPermissions.has(code)),
+    ),
   ];
   if (higher.length > 0) {
-    throw denied(`Không đăng nhập thay tài khoản có quyền cao hơn bạn (${higher.slice(0, 5).join(', ')})`);
+    throw denied(`Không đăng nhập thay tài khoản có quyền quản trị cao hơn bạn (${higher.join(', ')})`);
   }
   if (!scope.some((row) => row.org_unit_id === null)) {
     const units = new Set(scope.map((row) => row.org_unit_id));
