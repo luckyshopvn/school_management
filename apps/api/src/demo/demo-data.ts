@@ -274,8 +274,8 @@ export async function seedDemoData(context: DemoSeedContext): Promise<DemoSeedRe
         gender,
         national_id: `000000${String(index).padStart(6, '0')}`,
         birth_certificate_file_id: file.id,
-        photo_consent: index % 3 === 0 ? 'pending' : 'granted',
-        health: { has_allergies: index === 4 },
+        photo_consent: index % 3 === 0 ? 'refused' : 'pending',
+        health: index === 4 ? { has_allergies: true, allergies: 'Dị ứng tôm' } : { has_allergies: false },
         guardians: [
           {
             full_name: `Phụ huynh của ${fullName.split(' ').at(-1)}`,
