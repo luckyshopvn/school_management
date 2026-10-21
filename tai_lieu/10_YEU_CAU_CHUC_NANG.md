@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.64
+- Phiên bản: 1.65
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -216,6 +216,9 @@
 | P09-28 | Kho hồ sơ chuyên môn, luồng duyệt, kí nội bộ (2.1 đến 2.3, 3.2, 4.1, 4.2 của phân hệ Hồ sơ chuyên môn, YCTD-142) | Cán bộ `P09.professional-record.use`; tổ trưởng `P09.professional-record.review`; Ban Giám hiệu `.approve`, `.manage` | Thư mục (nhánh, cha, luồng duyệt, cần kí, cấp học, thứ tự), tên hồ sơ, mô tả, tổ hoặc nhóm, tệp và ghi chú phiên bản, ý kiến, lý do trả lại | Kho ba nhánh theo năm học; nạp danh mục thư mục mặc định theo cấp học; nộp, rút lại, tổ trưởng duyệt, Ban Giám hiệu duyệt (kèm kí khi thư mục cần kí), trả lại, nộp lại có phiên bản; tải phiên bản, bản đã kí; nhóm công tác; khóa năm học |
 | P09-29 | Đợt nộp có hạn, ai chưa nộp, thống kê (3.1, 3.3, YCTD-142) | Lập, sửa, đóng, nhắc: `P09.professional-record.manage`; xem tình trạng: tổ trưởng (tổ mình), Ban Giám hiệu; thống kê: `.manage`, `.approve` | Thư mục, tên đợt, nộp theo cá nhân hoặc tổ, đơn vị, tổ áp dụng, ngày mở, hạn nộp (giờ Việt Nam), yêu cầu | Tình trạng từng đối tượng: nộp đúng hạn, nộp trễ, chưa nộp; nhắc người, tổ chưa nộp bằng thông báo; thống kê theo đợt (tỷ lệ đúng hạn) và theo tổ |
 | P09-30 | Việc của tôi (1. của phân hệ Hồ sơ chuyên môn, nút ở đầu trang, YCTD-142) | Mọi tài khoản đăng nhập (mỗi nguồn kiểm tra quyền của phân hệ) | Phân hệ, hạn (tất cả, quá hạn, sắp đến hạn), tìm theo nội dung | Danh sách việc đang chờ: phân hệ, việc cần làm, nội dung, chi tiết, hạn, nhận lúc, nút Mở đến màn hình xử lý; số việc và số quá hạn trên menu, ở đầu trang |
+| P09-31 | Thư viện mẫu kế hoạch giáo dục (5.6., YCTD-147) | Xem: mọi quyền kế hoạch giáo dục; sửa: `P09.education-plan.manage` toàn trường | Mã, tên, cấp học, loại, kì, mục, bước duyệt, kí, thư mục lưu kho; cấp học để nạp mẫu | Kiểm tra mục, cột, bước; tăng số hiệu khi sửa mục; nạp mẫu mặc định không trùng mã; chép sang năm mới | Danh sách mẫu, số kế hoạch theo mẫu | BR-142 |
+| P09-32 | Lập, duyệt kế hoạch giáo dục (5.1. đến 5.4., YCTD-147) | `P09.education-plan.use`, `.review`, `.approve`, `.finalize`, `.manage` | Mẫu, nhóm lớp, tên, kì; nội dung theo mục; ý kiến, lý do trả lại; kế hoạch năm trước để sao chép | Duyệt theo bước, bỏ bước theo BR-142; phiên bản mỗi lần trình; kí nội bộ; lưu kho hồ sơ; so sánh; sao chép; tạo kế hoạch công việc | Kế hoạch, lịch sử, khác biệt, tệp Word, PDF, bản đã kí; việc ở Việc của tôi | BR-142 |
+| P09-33 | Tiến độ duyệt kế hoạch (5.5., YCTD-147) | `P09.education-plan.manage`, `.approve`, `.finalize` | Mẫu (tùy chọn) | Đếm theo trạng thái, bước, mẫu, tổ trong phạm vi đơn vị; số ngày chờ | Bảng tiến độ, danh sách chờ, tệp Excel | BR-142 |
 
 ## 11. Phân hệ P10 — Y tế học đường
 

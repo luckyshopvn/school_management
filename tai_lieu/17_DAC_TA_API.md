@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.92
+- Phiên bản: 1.93
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -1328,6 +1328,9 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, POST, PUT | /api/v1/professional-work-groups, /professional-work-groups/{id} | Nhóm công tác (YCTD-142) |
 | GET, POST, PUT | /api/v1/professional-rounds, /{id}, /{id}/close, /reopen, /remind, /status | Đợt nộp, tình trạng nộp (P09-29, YCTD-142) |
 | GET, POST, PUT, DELETE | /api/v1/professional-documents, /{id}, /versions, /signed-file, /submit, /withdraw, /leader-approve, /approve, /return | Hồ sơ, phiên bản, luồng duyệt (P09-28, YCTD-142) |
+| GET, POST, PUT, DELETE | /api/v1/education-plan-templates, /{id}, /defaults | Thư viện mẫu kế hoạch giáo dục (P09-31, YCTD-147) |
+| GET, POST, PUT, DELETE | /api/v1/education-plans, /overview, /{id}, /{id}/submit, /withdraw, /approve, /return, /diff, /export, /signed-file, /work-plan | Kế hoạch giáo dục (P09-32, YCTD-147) |
+| GET, POST | /api/v1/education-plans/previous-year, /copy; GET /progress, /progress/export | Sao chép từ năm trước; tiến độ duyệt (P09-32, P09-33, YCTD-147) |
 | GET, PUT, POST, DELETE | /api/v1/website/settings, /website/settings/images/{purpose}, /website/sample-content, /website/disclosure-categories | Thông tin website, biểu trưng, ảnh đầu trang, nội dung mẫu, nhóm công khai (P14-13, YCTD-144) |
 | GET, POST, PATCH, DELETE | /api/v1/website/domains, /website/domains/{id}, /website/domains/{id}/dns-confirmation | Tên miền (P14-13, YCTD-144) |
 | GET, POST, PUT, DELETE | /api/v1/website/posts, /website/posts/{id}, /submit, /approve, /return, /unpublish, /files, /files/{fileId} | Bài viết, luồng duyệt, tệp (P14-14, YCTD-144) |
@@ -1387,6 +1390,16 @@ Giao kèo giao việc, lịch, hồ sơ công việc, báo cáo theo VNPT iOffic
 4. `POST /room-bookings` nhận `room_id`, `title`, `chair_name`, `participants`, `date`, `start_time`, `end_time` (HH:MM), `note`; trùng giờ trả 422. `POST /unit-schedules`, `PUT /unit-schedules/{id}` nhận `org_unit_id`, `entry_date`, `session`, `start_time`, `end_time`, `content`, `chair_name`, `participants`, `location`, `note`, `room_id` (cần giờ bắt đầu, kết thúc), `attendee_ids`. `GET /unit-schedules` nhận `from`, `to` (tối đa 62 ngày), `org_unit_id`, `view=mine`, `location`, `participant`; `/export` thêm `format` (`xlsx`, `pdf`). `/publish` nhận `from`, `to`, `org_unit_id`. `/unit-schedule-templates/{id}/apply` nhận `week_of`, `org_unit_id`.
 5. `GET /work-files` nhận `box` (`personal`, `shared`, `transferred`, `archive`, `expired`), `year`, `q`. `POST /work-files` nhận `code`, `title`, `year`, `description`, `org_unit_id`, `retention`, `retention_years`; ký hiệu trùng trả 409. `/items` nhận `item_type` và `incoming_document_id`, `task_id` hoặc `title`, `note`. `PUT /shares` nhận `shares` [`user_id`, `permission`]. `/transfer` nhận `user_id`, `note`. `/submit` nhận `retention`, `retention_years` (tùy chọn). `/accept` nhận `code` (mặc định năm và ký hiệu), `fond_id`; `/return` nhận `note` bắt buộc.
 6. `GET /document-reports/{incoming|summary|statistics}` nhận `from`, `to` (bắt buộc, tối đa 400 ngày), `org_unit_id`; `/export` thêm `kind`, `format`, ghi `export_logs` mã `document_report_<kind>`.
+
+Giao kèo kế hoạch giáo dục (DT-18 phần 22i, YCTD-147, BR-142):
+
+1. `POST /education-plan-templates`, `PUT /{id}` nhận `code`, `name`, `description`, `school_level`, `scope`, `period`, `sections` (1 đến 30 mục, mã chữ thường, số, gạch dưới; mục bảng 1 đến 10 cột), `approval_steps` (sắp lại theo thứ tự cố định), `requires_signing`, `archive_folder_id`, `sort_order`, `status`; `POST /defaults` nhận `school_level`, trả `created`, `skipped`; `DELETE` mẫu đã có kế hoạch trả 422.
+2. `POST /education-plans` nhận `template_id`, `title`, `period_label`, `period_start`, `period_end`, `class_id` (kế hoạch nhóm lớp), `department_id` hoặc `work_group_id` (kế hoạch tổ, nhóm), `org_unit_id` (kế hoạch của trường); `PUT /{id}` nhận `title`, kì, `content` (theo mã mục: chuỗi hoặc mảng dòng; ô ngày YYYY-MM-DD, lỗi trả `content.{mục}.{dòng}.{cột}`).
+3. `POST /{id}/submit`, `/approve` (`note` tùy chọn), `/return` (`note` bắt buộc), `/withdraw` trả chi tiết kế hoạch có `status`, `current_step`, `actions`; sai bước, sai người trả 422 `YCTD-147`.
+4. `GET /{id}/diff?from=source|{số phiên bản}&to={số phiên bản}` trả `from_label`, `to_label`, `changed`, `sections` (`state` same, changed, added, removed; `lines` op same, added, removed). `GET /{id}/export?format=docx|pdf`; `GET /{id}/signed-file`.
+5. `GET /previous-year` trả `year_name`, `plans`; `POST /copy` nhận `source_id`, `title`, `class_id`, kì. `GET /progress` trả `totals`, `by_step`, `by_template`, `by_department`, `waiting`; `/progress/export?format=xlsx`. `POST /{id}/work-plan` trả `work_plan_id`, `items`.
+6. `GET`, `PUT /me/grid-settings/{gridKey}` nhận thêm năm khóa lưới: `education-plans`, `education-plan-review`, `education-plan-templates`, `education-plan-progress`, `education-plan-previous`. `GET /my-work` có nguồn `education_plans`.
+
 
 Giao kèo hồ sơ chuyên môn và Việc của tôi (DT-18 phần 18e, YCTD-142, BR-140; máy chủ API, dữ liệu hồ sơ ở cơ sở dữ liệu năm học hiện hành):
 

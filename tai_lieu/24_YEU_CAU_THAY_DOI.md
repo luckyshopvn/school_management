@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.22
+- Phiên bản: 0.23
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,35 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-147: DT-18 phần 22i: kế hoạch giáo dục (thư viện mẫu, phiên bản theo năm, duyệt nhiều cấp, kí nội bộ, xuất Word, PDF) – 2026-10-21
+
+- Lý do: phần 22i của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9.3, 9.4 (quyết định của Eric ngày 2026-10-19: 22i chạy ở đợt 5 của DT-18, gộp với hồ sơ chuyên môn 18e). Nghiệp vụ suy ra từ mô tả công khai của trang kế hoạch đã khảo sát (kế hoạch DT-22, trang 9), không chép nguyên văn, hình ảnh, tên gọi. Viết sẵn cho đa thuê bao và đa cấp học (mục 9.2): mẫu là cấu hình lưu ở cơ sở dữ liệu, có cột cấp học, nạp sẵn bản Mầm non; không thêm biến `.env`; tệp qua hàm dùng chung `storageKey`. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Vị trí.** Nhóm "5. Kế hoạch giáo dục" của phân hệ Hồ sơ chuyên môn (không thêm phân hệ, số phân hệ giữ nguyên): 5.1 Kế hoạch của tôi, 5.2 Kế hoạch tổ, nhóm, 5.3 Kế hoạch của trường, 5.4 Duyệt kế hoạch, 5.5 Tiến độ duyệt kế hoạch, 5.6 Thư viện mẫu kế hoạch.
+  - **Thư viện mẫu.** Mỗi mẫu có mã, tên, cấp học, loại (của trường, của tổ chuyên môn, của nhóm, lớp, cá nhân), kì (năm học, học kì, tháng, tuần, không theo kì), các mục (văn bản hoặc bảng; bảng có cột, cột ngày), các bước duyệt, có kí nội bộ hay không, thư mục của kho hồ sơ chuyên môn nhận bản đã duyệt. Nạp mẫu mặc định theo cấp học, mã đã có thì bỏ qua; bản Mầm non có bảy mẫu: kế hoạch giáo dục nhà trường; kế hoạch năm học, tháng (chủ đề), tuần của nhóm, lớp; kế hoạch hoạt động của tổ chuyên môn; kế hoạch dự giờ, thao giảng của tổ; kế hoạch bồi dưỡng thường xuyên của giáo viên. Mẫu Tiểu học, THCS, THPT thêm sau DT-19. Sửa mục thì tăng số hiệu mẫu; kế hoạch đã lập giữ mục chụp lúc tạo. Mẫu đã có kế hoạch không xóa được, chỉ ngừng dùng. Chỉ Ban Giám hiệu phạm vi toàn trường sửa thư viện.
+  - **Lập kế hoạch.** Giáo viên lập kế hoạch cá nhân và kế hoạch của nhóm, lớp mình đang được phân công; tổ trưởng (hoặc trưởng nhóm công tác của 18e) lập kế hoạch của tổ, nhóm; Ban Giám hiệu lập kế hoạch của trường. Nội dung nhập theo từng mục: ô văn bản hoặc bảng thêm, xóa dòng; ô ngày dạng ngày; mỗi mục văn bản tối đa 20 000 kí tự, bảng tối đa 300 dòng, ô tối đa 2 000 kí tự.
+  - **Duyệt nhiều cấp, bốn trạng thái** (đang soạn, chờ duyệt ở một bước, đã duyệt, bị trả lại): các bước duyệt mẫu chọn trong tổ trưởng, Phó Hiệu trưởng, Hiệu trưởng, thứ tự cố định; bỏ bước tổ trưởng khi kế hoạch không thuộc tổ, nhóm (kế hoạch của trường); bỏ bước mà chính người lập giữ quyền; người duyệt một bước mà giữ cả quyền bước kế tiếp (Hiệu trưởng duyệt thay Phó Hiệu trưởng) thì bỏ luôn bước đó; người lập giữ quyền mọi bước thì trình là duyệt xong; không duyệt kế hoạch của chính mình. Trả lại ở bước nào cũng về người lập kèm lý do; rút lại được khi chưa có bước nào duyệt. Bước tổ trưởng: tổ trưởng cùng tổ có quyền duyệt bước tổ, hoặc trưởng nhóm công tác. Bước Phó Hiệu trưởng theo phạm vi đơn vị. Báo người duyệt từng bước và người lập trong ứng dụng.
+  - **Kí nội bộ.** Bước cuối của mẫu cần kí lập bản đã kí qua chỗ nối `DossierSigner` của 16k, 17b (khối xác nhận ghi người kí, thời điểm, mã băm bản kế hoạch) khi chứng thư số nhà trường đã đăng ký kí nội bộ và còn hiệu lực; đang đăng nhập thay thì không kí (YCTD-145).
+  - **Dùng lại kho hồ sơ 18e.** Duyệt xong thì bản PDF (bản đã kí nếu có) thành hồ sơ đã duyệt ở thư mục mẫu chỉ định của kho hồ sơ chuyên môn, cùng người lập, tổ; nhóm công tác, trưởng nhóm dùng chung với 18e; tệp dùng mục đích `professional_record`.
+  - **Phiên bản theo năm học.** Mỗi lần trình chụp nội dung thành một phiên bản; so sánh hai phiên bản hoặc phiên bản cũ với bản hiện tại theo từng mục (dòng giữ, thêm, bỏ; mục thêm, bỏ). Mở năm học mới chép thư viện mẫu (giữ mã định danh); "Sao chép từ năm trước" liệt kê kế hoạch năm trước của mình, của tổ mình (tổ trưởng), của trường (người quản lý), tạo kế hoạch năm nay theo mẫu năm nay (giữ nội dung các mục trùng mã), lưu kèm bản năm trước để so sánh khác biệt.
+  - **Xuất Word, PDF** theo thể thức văn bản hành chính (tên trường, quốc hiệu, tên kế hoạch, các mục, bảng, chữ kí người lập và người duyệt). Tải bản đã kí.
+  - **Bảng tiến độ duyệt** (Ban Giám hiệu): tổng số và tỉ lệ đã duyệt, số chờ ở từng bước, theo mẫu, theo tổ, danh sách đang chờ kèm số ngày chờ; lọc theo mẫu; xuất Excel.
+  - **Nối Quản lý công việc.** Kế hoạch đã duyệt tạo được kế hoạch công việc nháp của đơn vị (P09-03, quyền `P09.plan.manage`): dòng bảng có ô ngày thành đầu việc, người phụ trách là người lập, kì theo kì của kế hoạch; tạo một lần.
+  - **Việc của tôi:** nguồn mới "Kế hoạch giáo dục": kế hoạch chờ tôi duyệt ở bước hiện tại, kế hoạch của tôi bị trả lại.
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/school-year/migrations/0069_create_education_plans.ts`, `database/identity/migrations/0061_add_education_plan_permissions.ts`, `schema.ts`, `index.ts`); máy chủ API (`apps/api/src/education-plans/`, `my-work/my-work-sources.ts`, `application.module.ts`); cổng quản trị (`apps/portal/src/education-plans/`, `router.tsx`); gói dùng chung (`education-plans.ts`, `professional-records.ts`, `portal-menu.ts`, `menu-permissions.ts`, `index.ts`); kiểm thử; tài liệu `01`, `02`, `03`, `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: tệp năm học `0069` tạo `education_plan_templates`, `education_plans`, `education_plan_versions`, `education_plan_events`; tệp định danh `0061` thêm năm quyền P09; bước chuyển năm học `education-plans` chép mẫu.
+- API bị ảnh hưởng: `/education-plan-templates` (và `/defaults`), `/education-plans` (`/overview`, `/progress`, `/progress/export`, `/previous-year`, `/copy`, `/{id}`, `/submit`, `/withdraw`, `/approve`, `/return`, `/diff`, `/export`, `/signed-file`, `/work-plan`) (xem `17_DAC_TA_API.md`).
+- Giao diện bị ảnh hưởng: MH-230 đến MH-235; Việc của tôi có thêm nguồn.
+- Quyền bị ảnh hưởng: năm quyền mới (PQ-86). Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
+- Ảnh hưởng chức năng cũ: không đổi luồng của hồ sơ chuyên môn 18e; kho nhận thêm hồ sơ đã duyệt từ kế hoạch.
+- Hạn chế:
+  - Mẫu chỉ có bản Mầm non; nội dung mục là gợi ý của Claude, trường sửa theo hướng dẫn năm học của Sở, Phòng.
+  - Xuất Excel chỉ có ở bảng tiến độ; kế hoạch xuất Word, PDF.
+  - So sánh theo dòng, chưa đánh dấu khác biệt trong một dòng.
+  - Sao chép từ năm trước chỉ đọc năm học liền trước.
+- Kiểm thử cần thực hiện: kịch bản CT-759 đến CT-768 (trong mã kiểm thử là CT-22i-1 đến CT-22i-10); kiểm thử đơn vị mới `apps/api/src/education-plans/education-plans.test.ts`; kiểm thử giao diện mới `tests/e2e/78-education-plans.spec.ts`. Kết quả ngày 21/10/2026: kiểm thử đơn vị `apps/api/src/education-plans/education-plans.test.ts` CT-22i-1 đến CT-22i-9 đạt 9/9; kiểm thử đơn vị toàn bộ kho mã 982/982; kiểm thử giao diện `tests/e2e/78-education-plans.spec.ts` (CT-22i-10) đạt; toàn bộ kiểm thử giao diện 149/149 (148 ở lượt toàn bộ, spec 78 chạy lại sau khi sửa đạt); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Trạng thái: Đã triển khai
 
 ### YCTD-145: DT-18 phần 18h: quản trị và trình diễn (đăng nhập thay, gói ZIP toàn bộ dữ liệu, bản trình diễn) – 2026-10-21
 
