@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.76
+- Phiên bản: 1.77
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -216,6 +216,10 @@ Từ YCTD-107 (DT-15 phần 15a), cổng quản trị dùng menu ngang nhiều c
 | Quản trị hệ thống | 3.5. | Tệp đã tạo | `/generated-files` |
 | Quản trị hệ thống | 3.6. | Thông báo hệ thống | `/system-announcements` |
 | Quản trị hệ thống | 3.7. | Ứng dụng liên kết | `/app-links` |
+| Quản trị hệ thống | 4. | Quản trị và trình diễn | (nhóm) |
+| Quản trị hệ thống | 4.1. | Đăng nhập thay | `/impersonations` |
+| Quản trị hệ thống | 4.2. | Xuất toàn bộ dữ liệu | `/school-data-export` |
+| Quản trị hệ thống | 4.3. | Bản trình diễn | `/demo-environment` |
 | Tài chính – học phí | 1. | Học phí và dịch vụ | (nhóm) |
 | Tài chính – học phí | 1.1. | Biểu phí và dịch vụ | `/fees` |
 | Tài chính – học phí | 1.2. | Đăng ký dịch vụ | `/registrations` |
@@ -541,6 +545,11 @@ Từ YCTD-142 (DT-18 phần 18e), phân hệ "Hồ sơ chuyên môn" (khóa `pro
 | MH-222 | Thống kê nộp hồ sơ (YCTD-142; mục "3.3.", `/professional-records/statistics`, lưới khóa `professional-statistics`): dòng tổng lượt phải nộp, đúng hạn, trễ, chưa nộp; lưới Thống kê theo đợt nộp (Phải nộp, Đúng hạn, Nộp trễ, Chưa nộp, Tỷ lệ đúng hạn); lưới Thống kê theo tổ | `P09.professional-record.manage`, `.approve` |
 | MH-223 | Thư mục và luồng duyệt (YCTD-142; mục "4.1.", `/professional-folders`, lưới khóa `professional-folders`): khối Khóa năm học (Khóa, Mở khóa); ô Cấp học và nút Nạp danh mục mặc định; cột Nhánh, Thư mục, Thư mục cha, Luồng duyệt, Kí nội bộ, Cấp học, Số hồ sơ, Trạng thái; Thêm thư mục, Sửa (Nhánh, Thư mục cha, Tên, Luồng duyệt, Kí nội bộ khi duyệt, Cấp học, Thứ tự, Trạng thái), Xóa thư mục chưa có hồ sơ | `P09.professional-record.manage` |
 | MH-224 | Nhóm công tác (YCTD-142; mục "4.2.", `/professional-work-groups`, lưới khóa `professional-work-groups`): cột Nhóm công tác, Đơn vị, Trưởng nhóm, Số thành viên, Trạng thái; Thêm nhóm, Sửa (Đơn vị, Tên nhóm, Mô tả, Trạng thái, vai trò của từng nhân sự: Không tham gia, Thành viên, Trưởng nhóm) | `P09.professional-record.manage` |
+| MH-225 | Đăng nhập thay (YCTD-145; mục "4.1." của Quản trị hệ thống, `/impersonations`, lưới khóa `impersonations`): hướng dẫn; tìm theo người, tài khoản, lý do; cột Bắt đầu, Người đăng nhập thay, Tài khoản được đăng nhập thay, Lý do, Trạng thái (Đang đăng nhập thay, Đã thoát, Hết hạn, Đăng xuất), Kết thúc, Địa chỉ IP (ẩn mặc định); nút dòng Xem thao tác mở lưới thao tác (khóa `impersonation-actions`: Thời điểm, Thao tác, Đường dẫn, Kết quả) | `P01.account.impersonate` |
+| MH-226 | Hộp thoại "Đăng nhập thay …" (YCTD-145; nút "Đăng nhập thay" ở khung chi tiết tài khoản của 1.4 Danh sách người dùng, tài khoản đang hoạt động): lời báo 60 phút, ghi nhật ký, không thao tác mật khẩu, kí số; Lý do đăng nhập thay (5 đến 500 ký tự); Hủy, Đăng nhập thay. Thanh đỏ ở đầu mọi trang khi đang đăng nhập thay: "Đang đăng nhập thay tài khoản … (bởi …, đến …). Mọi thao tác đều được ghi nhật ký.", nút Thoát đăng nhập thay (về 4.1) | `P01.account.impersonate` |
+| MH-227 | Xuất toàn bộ dữ liệu (YCTD-145; mục "4.2.", `/school-data-export`, lưới khóa `school-data-exports`): lời báo nội dung gói, dữ liệu cá nhân, hạn 48 giờ; nút Tạo gói dữ liệu, Làm mới; báo "Đang tạo gói dữ liệu…", "Gói dữ liệu đã tạo xong, tải về trước …"; cột Thời gian tạo, Người tạo, Trạng thái, Số dòng dữ liệu, Dung lượng, Hạn tải về, Số lần tải, Lần tải gần nhất (ẩn mặc định), Ghi chú; nút dòng Tải về | `P01.data.export-all` |
+| MH-228 | Bản trình diễn (YCTD-145; mục "4.3.", `/demo-environment`): máy chủ không phải bản trình diễn thì báo cách tạo; là bản trình diễn thì hiện Tạo dữ liệu lúc, Tự đặt lại (chu kỳ, lần tới), Mật khẩu chung, Gửi tin, thanh toán (chặn) và lưới Tài khoản trình diễn (Vai trò, Họ tên giả, Tên đăng nhập, Ứng dụng) | `P01.account.manage` hoặc `P01.account.impersonate` |
+| MH-229 | Trang chọn vai và dải "Bản trình diễn" (YCTD-145): ở màn hình đăng nhập của cổng quản trị, ứng dụng giáo viên, phụ huynh, khi máy chủ là bản trình diễn, khung "Bản trình diễn: chọn vai để vào thử" (mật khẩu chung, mỗi vai một nút đăng nhập); dải vàng "Bản trình diễn: dữ liệu giả, không gửi tin nhắn, Zalo hay thu tiền thật; dữ liệu tự đặt lại lúc …" ở đầu mọi trang | Mọi người |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 

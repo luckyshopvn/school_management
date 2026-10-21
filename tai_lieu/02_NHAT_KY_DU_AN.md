@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.21
+- Phiên bản: 0.22
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,30 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-21 — DT-18 phần 18h: quản trị và trình diễn
+
+#### Công việc đã thực hiện
+
+- Đọc mục 9 của `32_KE_HOACH_THEO_HE_THONG_SO.md`, kế hoạch DT-18 và DT-SaaS (S2, S5), mã xác thực của dịch vụ định danh, tác vụ xuất nền 16a, các bộ gửi SMS, Zalo, Fanpage, cổng thanh toán.
+- Cơ sở dữ liệu: tệp định danh `0059_add_impersonation_and_data_export`, tệp hệ thống `0022_create_impersonation_export_demo_tables`.
+- Dịch vụ định danh: đăng nhập thay, thoát, nhật ký; chặn thao tác mật khẩu khi đăng nhập thay; dữ liệu tài khoản cho gói ZIP; không gửi tin nhắn ở bản trình diễn.
+- Máy chủ API: ghi thao tác và chặn kí số khi đăng nhập thay; dựng gói ZIP; bản trình diễn (dấu, chặn gửi tin, thanh toán), lệnh tạo và đặt lại dữ liệu trình diễn chạy máy chủ API trong tiến trình.
+- Cổng quản trị: nút và hộp thoại đăng nhập thay, thanh báo, 4.1, 4.2, 4.3, trang chọn vai, dải trình diễn; ứng dụng giáo viên, phụ huynh: dải trình diễn, chọn vai.
+- Triển khai: dịch vụ `demo-reset` (hồ sơ `demo`), `deploy/README.md` mục 11.
+- Thêm quy tắc BR-141, chức năng P01-32 đến P01-34, quyền PQ-85, màn hình MH-225 đến MH-229, kịch bản CT-748 đến CT-758, tiêu chí AC-707 đến AC-710. Kết quả ngày 21/10/2026: kiểm thử đơn vị `apps/api/src/demo/administration-18h.test.ts` CT-18h-1 đến CT-18h-9 đạt 9/9; kiểm thử đơn vị toàn bộ kho mã 973/973 đạt; kiểm thử giao diện `tests/e2e/76-administration-demo.spec.ts` (CT-18h-10, CT-18h-11) đạt; toàn bộ kiểm thử giao diện đạt 148/148; lệnh tạo dữ liệu trình diễn chạy trên cơ sở dữ liệu riêng đạt 25/25 bước; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 18h của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9.4. Gói ZIP chạy ở tiến trình xuất nền của 16a theo mục 9.4; dấu bản trình diễn ở cơ sở dữ liệu thay vì biến môi trường để dùng lại cho dùng thử của DT-SaaS S5. "Quyền cao hơn" so theo thứ bậc vai trò và nhóm quyền quản trị, vì so từng quyền thì Hiệu trưởng không vào được tài khoản Quản lý đơn vị (vai trò này có quyền nghiệp vụ riêng). Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-145, `07_QUY_TAC_NGHIEP_VU.md` BR-141, `08_VAI_TRO_NGUOI_DUNG.md` PQ-85, `10_YEU_CAU_CHUC_NANG.md` P01-32 đến P01-34, `11_TIEU_CHI_NGHIEM_THU.md` AC-707 đến AC-710, `14_DAC_TA_GIAO_DIEN.md` MH-225 đến MH-229, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-748 đến CT-758, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.96.0.
+
+#### Vấn đề tồn đọng
+
+- Gói ZIP lớn (ZIP64, ghi luồng) và tùy chọn kèm số định danh đầy đủ để DT-SaaS S2. Đăng nhập thay ở ứng dụng giáo viên, phụ huynh chưa làm.
 
 ### 2026-10-21 — DT-18 phần 18e: hồ sơ chuyên môn và Việc của tôi
 

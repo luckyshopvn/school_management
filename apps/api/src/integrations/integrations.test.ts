@@ -1,3 +1,4 @@
+import { DemoAwareFacebookPublisher, DemoAwareZaloSender } from '../demo/demo-mode.js';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { after, before, describe, it } from 'node:test';
@@ -86,8 +87,9 @@ describe('Kết nối Fanpage và Zalo Official Account', () => {
   before(async () => {
     environment = await startApiTestEnvironment();
     dispatcher = environment.api.get(NotificationDispatcher);
-    publisher = environment.api.get(FacebookPublisher) as DevelopmentFacebookPublisher;
-    zalo = environment.api.get(ZaloSender) as DevelopmentZaloSender;
+    publisher = (environment.api.get(FacebookPublisher) as DemoAwareFacebookPublisher)
+      .inner as DevelopmentFacebookPublisher;
+    zalo = (environment.api.get(ZaloSender) as DemoAwareZaloSender).inner as DevelopmentZaloSender;
     principal = await environment.loginAs('VT-02', null);
     academicYearId = await openTestAcademicYear(environment, principal.accessToken, 'Năm học kết nối', {
       first_term: { start_date: addDays(vietnamToday, -60), end_date: addDays(vietnamToday, 90) },

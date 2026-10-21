@@ -20,7 +20,7 @@ import { ProgramCompletionController, ProgramCompletionService } from './program
 import { ChildGroupsController, ChildGroupsService } from './child-groups/child-groups.js';
 import { AccountExportsController, AccountExportsService } from './accounts-export/account-exports.js';
 import { Module, type DynamicModule, type Type } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { Clock } from '@school-management/server';
 import {
   ACADEMIC_YEAR_TRANSITION_STEPS,
@@ -317,6 +317,16 @@ import { FeedbackController, FeedbackService } from './feedback/feedback.js';
 import { ArchivesController } from './archives/archives.controller.js';
 import { ArchiveJobs, ArchivesService } from './archives/archives.js';
 import { ExportJobs, ExportJobsController } from './exports/export-jobs.js';
+// Quản trị và trình diễn (DT-18 phần 18h)
+import { ImpersonationActionsController, ImpersonationInterceptor } from './impersonation/impersonation.js';
+import { SchoolDataExportController, SchoolDataExportService } from './school-data-export/school-data-export.js';
+import {
+  DemoAwareFacebookPublisher,
+  DemoAwareSmsGateway,
+  DemoAwareZaloSender,
+  DemoController,
+  DemoMode,
+} from './demo/demo-mode.js';
 import {
   ManualUpperLevelGateway,
   UpperLevelForms,
@@ -359,6 +369,8 @@ export class ApplicationModule {
       transitionSteps?: AcademicYearTransitionStep[];
       fileStorage?: FileStorage;
       smsGateway?: SmsGateway;
+      // Lệnh tạo dữ liệu trình diễn chạy máy chủ API trong tiến trình, đọc tài khoản thẳng từ cơ sở dữ liệu định danh
+      identityClient?: IdentityClient;
     } = {},
   ): DynamicModule {
     return {
@@ -397,6 +409,9 @@ export class ApplicationModule {
         KpiReportsController,
         KpiLegacyImportController,
         WebsiteSetupController,
+        ImpersonationActionsController,
+        SchoolDataExportController,
+        DemoController,
         WebsiteContentController,
         WebsitePublicController,
         WebsiteDomainCheckController,
@@ -549,8 +564,12 @@ export class ApplicationModule {
         { provide: API_CONFIGURATION, useValue: configuration },
         { provide: Clock, useValue: clock },
         Databases,
-        IdentityClient,
+        options.identityClient ? { provide: IdentityClient, useValue: options.identityClient } : IdentityClient,
         { provide: APP_GUARD, useClass: AuthenticationGuard },
+        // Ghi thao tác, chặn kí số trong lúc đăng nhập thay (DT-18 phần 18h)
+        { provide: APP_INTERCEPTOR, useClass: ImpersonationInterceptor },
+        DemoMode,
+        SchoolDataExportService,
         // Các phân hệ thêm bước chuyển năm học vào danh sách này khi được xây dựng (BR-93)
         {
           provide: ACADEMIC_YEAR_TRANSITION_STEPS,
@@ -716,19 +735,29 @@ export class ApplicationModule {
         NotificationsService,
         NotificationDispatcher,
         // Gửi tin nhắn thông báo: eSMS.vn khi SMS_PROVIDER=esms, còn lại ghi nhật ký (YCTD-92)
-        { provide: SmsGateway, useFactory: () => options.smsGateway ?? createSmsGateway(configuration.smsProvider) },
+        // Bản trình diễn không gửi tin thật (DT-18 phần 18h)
+        {
+          provide: SmsGateway,
+          inject: [DemoMode],
+          useFactory: (demoMode: DemoMode) =>
+            new DemoAwareSmsGateway(options.smsGateway ?? createSmsGateway(configuration.smsProvider), demoMode),
+        },
         // Kết nối Fanpage và Zalo: bộ giả lập khi phát triển, kết nối thật khi có khóa ở biến môi trường (YCTD-90)
         {
           provide: FacebookPublisher,
-          useFactory: () =>
-            configuration.facebookPublisher === 'development'
-              ? new DevelopmentFacebookPublisher()
-              : configuration.facebookPageAccessToken
-                ? new GraphApiFacebookPublisher(
-                    configuration.facebookPageAccessToken,
-                    configuration.facebookGraphVersion,
-                  )
-                : new UnavailableFacebookPublisher(),
+          inject: [DemoMode],
+          useFactory: (demoMode: DemoMode) =>
+            new DemoAwareFacebookPublisher(
+              configuration.facebookPublisher === 'development'
+                ? new DevelopmentFacebookPublisher()
+                : configuration.facebookPageAccessToken
+                  ? new GraphApiFacebookPublisher(
+                      configuration.facebookPageAccessToken,
+                      configuration.facebookGraphVersion,
+                    )
+                  : new UnavailableFacebookPublisher(),
+              demoMode,
+            ),
         },
         // Kho khóa Zalo ở cơ sở dữ liệu hệ thống, mã hóa bằng khóa mã hóa dữ liệu của máy chủ (YCTD-92)
         {
@@ -744,13 +773,16 @@ export class ApplicationModule {
         },
         {
           provide: ZaloSender,
-          inject: [ZaloTokenStore],
-          useFactory: (tokens: ZaloTokenStore) =>
-            configuration.zaloSender === 'development'
-              ? new DevelopmentZaloSender()
-              : configuration.zaloSender === 'zalo_oa'
-                ? new OfficialAccountZaloSender(tokens)
-                : new UnavailableZaloSender(),
+          inject: [ZaloTokenStore, DemoMode],
+          useFactory: (tokens: ZaloTokenStore, demoMode: DemoMode) =>
+            new DemoAwareZaloSender(
+              configuration.zaloSender === 'development'
+                ? new DevelopmentZaloSender()
+                : configuration.zaloSender === 'zalo_oa'
+                  ? new OfficialAccountZaloSender(tokens)
+                  : new UnavailableZaloSender(),
+              demoMode,
+            ),
         },
         IntegrationsService,
         QuickLinksService,

@@ -205,3 +205,24 @@ docker compose -f deploy/docker-compose.production.yml --env-file /tmp/sm.env -p
 ```
 
 Trình duyệt không lưu cookie `Secure` trên `http://`, nên đăng nhập bằng giao diện chỉ thử được khi có HTTPS (tên miền thật hoặc `tls internal`).
+
+## 11. Bản trình diễn (DT-18 phần 18h, YCTD-145)
+
+Bản trình diễn chạy trên **máy chủ riêng**, cơ sở dữ liệu riêng, không bao giờ trên máy chủ của trường. Dữ liệu hoàn toàn
+giả; mọi tài khoản trình diễn dùng chung mật khẩu hiện ở trang đăng nhập. Khi là bản trình diễn, máy chủ không gửi SMS,
+Zalo, không đăng Fanpage, không tạo mã thanh toán thật và không nhận thông báo tiền vào của cổng thanh toán; cả ba ứng
+dụng hiện dải "Bản trình diễn" và trang chọn vai.
+
+1. Triển khai như mục 4 trên máy chủ mới (cơ sở dữ liệu trống), đặt `COMPOSE_PROFILES=seaweedfs,demo` và nếu muốn
+   `DEMO_RESET_INTERVAL_HOURS` (mặc định 24) trong `deploy/.env`.
+2. Dịch vụ `demo-reset` tạo dữ liệu giả ngay lần đầu, rồi tự đặt lại theo chu kỳ (xóa dữ liệu cũ, tạo lại từ đầu).
+3. Đặt lại ngay bằng tay:
+   ```sh
+   docker compose -f deploy/docker-compose.production.yml --env-file deploy/.env run --rm demo-reset \
+     node dist/demo/demo-command.js reset --confirm
+   ```
+4. Lệnh từ chối chạy khi cơ sở dữ liệu hệ thống đã có năm học hoặc cơ sở dữ liệu định danh đã có tài khoản (ngoài VT-01)
+   mà chưa được đánh dấu là bản trình diễn. Trạng thái và tài khoản trình diễn xem ở "Quản trị hệ thống › 4.3. Bản trình diễn".
+
+Khi làm dùng thử 30 ngày (DT-SaaS S5), mỗi trường dùng thử là một bộ cơ sở dữ liệu riêng có dấu bản trình diễn; lệnh
+trên chạy cho bộ cơ sở dữ liệu của trường đó.

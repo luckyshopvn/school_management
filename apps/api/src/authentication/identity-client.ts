@@ -157,6 +157,16 @@ export class IdentityClient {
     );
   }
 
+  // Dữ liệu của dịch vụ định danh cho gói toàn bộ dữ liệu của trường (DT-18 phần 18h); dịch vụ định danh kiểm tra quyền
+  exportIdentityData(accessToken: string) {
+    return this.requestJson<{ generated_at: string; tables: Record<string, Array<Record<string, unknown>>> }>(
+      accessToken,
+      '/users/data-export',
+      undefined,
+      'đọc dữ liệu tài khoản',
+    );
+  }
+
   // Danh sách nhóm người dùng để xuất Excel 1.1 (DT-16 phần 16b); dịch vụ định danh tự kiểm tra quyền xem
   listRoles(accessToken: string) {
     return this.requestJson<IdentityRole[]>(accessToken, '/roles', undefined, 'đọc danh sách nhóm người dùng');

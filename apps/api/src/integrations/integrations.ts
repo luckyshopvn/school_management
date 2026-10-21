@@ -1,3 +1,4 @@
+import { DemoMode } from '../demo/demo-mode.js';
 import { Body, Controller, Delete, Get, HttpCode, Injectable, Param, Post, Put, Req } from '@nestjs/common';
 import type { IntegrationConnector, SchoolYearDatabase } from '@school-management/database';
 import { ApplicationError, ruleViolationError, validationError, type FieldError } from '@school-management/server';
@@ -56,6 +57,7 @@ export class IntegrationsService {
     private readonly facebook: FacebookPublisher,
     private readonly zalo: ZaloSender,
     private readonly zaloTokens: ZaloTokenStore,
+    private readonly demoMode: DemoMode,
   ) {}
 
   // Kiểm tra kết nối Fanpage: đọc mã và tên trang bằng khóa trang ở máy chủ
@@ -86,6 +88,8 @@ export class IntegrationsService {
   // Thay khóa làm mới Zalo khi khóa cũ hết hạn hoặc bị thu hồi; nhật ký không ghi giá trị khóa
   async replaceZaloRefreshToken(refreshToken: string, origin: ChangeOrigin) {
     const { database } = await this.currentSchoolYear.require();
+    // Bản trình diễn không gọi Zalo thật (DT-18 phần 18h)
+    await this.demoMode.assertLive('kết nối Zalo Official Account thật');
     const saved = await this.zaloTokens.replaceRefreshToken(refreshToken, origin.actorUserId);
     await writeAuditLog(database, {
       origin,

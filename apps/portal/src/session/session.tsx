@@ -2,6 +2,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { useQueryClient } from '@tanstack/react-query';
 import {
   changePassword as requestPasswordChange,
+  exitImpersonation as requestExitImpersonation,
+  startImpersonation as requestStartImpersonation,
   login as requestLogin,
   logout as requestLogout,
   refreshSession,
@@ -22,6 +24,9 @@ interface SessionValue {
   login(loginIdentifier: string, password: string, captcha?: CaptchaAnswer): Promise<void>;
   changePassword(currentPassword: string, newPassword: string): Promise<void>;
   logout(): Promise<void>;
+  // Đăng nhập thay và thoát (DT-18 phần 18h); dữ liệu đã tải của phiên trước bị xóa khỏi bộ nhớ đệm
+  startImpersonation(userId: string, reason: string): Promise<void>;
+  exitImpersonation(): Promise<void>;
 }
 
 const SessionContext = createContext<SessionValue | undefined>(undefined);
@@ -59,6 +64,21 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       async changePassword(currentPassword, newPassword) {
         applyTokens(await requestPasswordChange(currentPassword, newPassword));
         await queryClient.invalidateQueries();
+      },
+      async startImpersonation(userId, reason) {
+        const tokens = await requestStartImpersonation(userId, reason);
+        queryClient.clear();
+        clearStartupNoticesShown();
+        applyTokens(tokens);
+      },
+      async exitImpersonation() {
+        const result = await requestExitImpersonation();
+        queryClient.clear();
+        if (result.signedOut) {
+          setStatus('signed-out');
+          return;
+        }
+        applyTokens(await refreshSession());
       },
       async logout() {
         try {

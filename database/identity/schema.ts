@@ -6,7 +6,8 @@ type UpdatedTimestamp = ColumnType<Date, Date | undefined, Date>;
 
 export type UserStatus = 'active' | 'locked';
 export type SessionChannel = 'portal' | 'teacher' | 'parent';
-export type LoginMethod = 'password' | 'one_time_code';
+// Đăng nhập thay (DT-18 phần 18h) mở phiên của tài khoản được đăng nhập thay với cách đăng nhập 'impersonation'
+export type LoginMethod = 'password' | 'one_time_code' | 'impersonation';
 
 export interface UsersTable {
   id: Generated<string>;
@@ -83,6 +84,26 @@ export interface SessionsTable {
   ip_address: string | null;
   user_agent: string | null;
   login_method: Generated<LoginMethod>;
+  impersonation_id: Generated<string | null>;
+}
+
+export type ImpersonationEndReason = 'exit' | 'expired' | 'logout';
+
+// Nhật ký đăng nhập thay (DT-18 phần 18h): quản trị nào vào tài khoản nào, lý do, lúc bắt đầu, lúc kết thúc
+export interface ImpersonationsTable {
+  id: Generated<string>;
+  impersonator_user_id: string;
+  impersonator_name: string;
+  target_user_id: string;
+  target_name: string;
+  original_session_id: string;
+  reason: string;
+  started_at: CreatedTimestamp;
+  expires_at: Date;
+  ended_at: Date | null;
+  end_reason: ImpersonationEndReason | null;
+  ip_address: string | null;
+  user_agent: string | null;
 }
 
 export interface SecurityEventsTable {
@@ -161,6 +182,7 @@ export interface IdentityDatabase {
   role_workspace_exclusions: RoleWorkspaceExclusionsTable;
   user_roles: UserRolesTable;
   sessions: SessionsTable;
+  impersonations: ImpersonationsTable;
   security_events: SecurityEventsTable;
   identity_audit_logs: IdentityAuditLogsTable;
   identity_settings: IdentitySettingsTable;

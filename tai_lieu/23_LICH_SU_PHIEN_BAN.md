@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.21
+- Phiên bản: 0.22
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.96.0 – 2026-10-21
+
+- Phạm vi thay đổi: DT-18 phần 18h, quản trị và trình diễn (YCTD-145).
+- Chức năng mới: đăng nhập thay có lý do, thanh báo, nút thoát, nhật ký; không vào tài khoản có quyền cao hơn; gói ZIP toàn bộ dữ liệu của trường tạo ở tiến trình nền, hạn tải 48 giờ, nhật ký tải; bản trình diễn có dữ liệu giả, trang chọn vai, dải trình diễn, chặn gửi tin và thanh toán thật, lệnh tạo và tự đặt lại.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp định danh `0059_add_impersonation_and_data_export`; tệp hệ thống `0022_create_impersonation_export_demo_tables`.
+- Thay đổi API: `/auth/impersonation`, `/auth/impersonation/exit`, `/auth/impersonations`, `/users/data-export`, `/impersonation-actions`, `/school-data-exports`, `/public/demo`; `/auth/me` thêm `impersonation`.
+- Kiểm thử: kịch bản CT-748 đến CT-758. Kết quả ngày 21/10/2026: kiểm thử đơn vị `apps/api/src/demo/administration-18h.test.ts` CT-18h-1 đến CT-18h-9 đạt 9/9; kiểm thử đơn vị toàn bộ kho mã 973/973 đạt; kiểm thử giao diện `tests/e2e/76-administration-demo.spec.ts` (CT-18h-10, CT-18h-11) đạt; toàn bộ kiểm thử giao diện đạt 148/148; lệnh tạo dữ liệu trình diễn chạy trên cơ sở dữ liệu riêng đạt 25/25 bước; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: gói ZIP có dữ liệu cá nhân, chỉ Hiệu trưởng tạo, chỉ người tạo tải, hạn 48 giờ; lệnh trình diễn xóa dữ liệu nên có kiểm tra từ chối dữ liệu thật và chỉ chạy với `--confirm`.
+- Khả năng tương thích: không đổi điểm cuối cũ; `/auth/me` thêm trường; máy chủ không có dấu trình diễn chạy như cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 18h; chạy phần quay lui của tệp định danh `0059` (xóa phiên đăng nhập thay) và tệp hệ thống `0022` (xóa gói ZIP đã tạo); bỏ dịch vụ `demo-reset`.
 
 ### Phiên bản 0.95.0 – 2026-10-21
 

@@ -35,6 +35,14 @@ export interface CurrentUser {
   assignments: Array<{ role_code: string; role_name: string; org_unit_id: string | null; permissions: string[] }>;
   // Phân hệ của cổng quản trị được dùng theo 1.2 Phân quyền nhóm theo phần mềm (DT-16 phần 16d); máy cũ không trả thì hiện đủ
   workspaces?: string[];
+  // Phiên đăng nhập thay (DT-18 phần 18h): người đang đăng nhập thay tài khoản này; phiên thường là null
+  impersonation?: {
+    id: string;
+    impersonator_id: string;
+    impersonator_name: string;
+    started_at: string;
+    expires_at: string;
+  } | null;
 }
 
 // Mã phiên chỉ giữ trong bộ nhớ của trang; mã làm mới nằm trong cookie httpOnly (RG-04, BM-71)
@@ -163,6 +171,28 @@ export async function logout(): Promise<void> {
   } finally {
     setAccessToken(undefined);
   }
+}
+
+// Đăng nhập thay (DT-18 phần 18h): cookie cổng quản trị chuyển sang phiên của tài khoản đích
+export async function startImpersonation(userId: string, reason: string): Promise<TokenResponse> {
+  const tokens = await requestJson<TokenResponse>('/api/v1/auth/impersonation', {
+    method: 'POST',
+    body: JSON.stringify({ user_id: userId, reason }),
+  });
+  setAccessToken(tokens.access_token);
+  return tokens;
+}
+
+// Thoát đăng nhập thay: quay về phiên của quản trị; phiên đó đã hết hạn thì máy chủ trả signed_out
+export async function exitImpersonation(): Promise<{ signedOut: boolean }> {
+  const result = await requestJson<Partial<TokenResponse> & { signed_out: boolean }>(
+    '/api/v1/auth/impersonation/exit',
+    {
+      method: 'POST',
+    },
+  );
+  setAccessToken(result.signed_out ? undefined : result.access_token);
+  return { signedOut: result.signed_out };
 }
 
 export function fetchCurrentUser(): Promise<CurrentUser> {

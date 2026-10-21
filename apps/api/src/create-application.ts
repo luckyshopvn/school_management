@@ -8,6 +8,7 @@ import { ApplicationModule } from './application.module.js';
 import type { ApiConfiguration } from './common/configuration.js';
 import type { FileStorage } from './files/file-storage.js';
 import type { SmsGateway } from './notifications/sms-gateway.js';
+import type { IdentityClient } from './authentication/identity-client.js';
 
 export async function createApplication(
   configuration: ApiConfiguration,
@@ -17,6 +18,7 @@ export async function createApplication(
     transitionSteps?: AcademicYearTransitionStep[];
     fileStorage?: FileStorage;
     smsGateway?: SmsGateway;
+    identityClient?: IdentityClient;
   } = {},
 ): Promise<INestApplication> {
   const application = await NestFactory.create(

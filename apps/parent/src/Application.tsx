@@ -4,6 +4,7 @@ import { AdmissionsScreen } from './screens/AdmissionsScreen.js';
 import { HomeScreen } from './screens/HomeScreen.js';
 import { LoginScreen } from './screens/LoginScreen.js';
 import { RecruitmentScreen, useRecruitmentRoute } from './screens/RecruitmentScreen.js';
+import { DemoBanner } from '@school-management/ui';
 import { SessionProvider, useSession } from './session/session.js';
 
 // Chọn màn hình theo trạng thái phiên: chưa đăng nhập về MH-47 hoặc trang tuyển sinh trực tuyến công khai (MP-21, mở
@@ -42,6 +43,8 @@ function Screens() {
 export function Application() {
   return (
     <SessionProvider>
+      {/* Dải bản trình diễn (DT-18 phần 18h) */}
+      <DemoBanner />
       <Screens />
     </SessionProvider>
   );

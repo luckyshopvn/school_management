@@ -19,9 +19,12 @@ import { IDENTITY_CONFIGURATION, type IdentityConfiguration } from './common/con
 import { Infrastructure } from './common/infrastructure.js';
 import { HealthController } from './health.controller.js';
 import { createSmsSender, SmsSender } from './messaging/sms-sender.js';
+import { DemoAwareSmsSender } from './messaging/demo-sms-sender.js';
 import { OneTimeCodeService } from './authentication/one-time-code.service.js';
 import { CaptchaService } from './authentication/captcha.service.js';
 import { PasswordResetService } from './authentication/password-reset.service.js';
+import { ImpersonationService } from './authentication/impersonation.service.js';
+import { IdentityDataExportService } from './accounts/identity-data-export.js';
 
 @Module({})
 export class ApplicationModule {
@@ -48,10 +51,22 @@ export class ApplicationModule {
         TokenService,
         LoginRateLimiter,
         AuthenticationService,
+        ImpersonationService,
+        IdentityDataExportService,
         OneTimeCodeService,
         CaptchaService,
         PasswordResetService,
-        { provide: SmsSender, useValue: smsSender ?? createSmsSender(configuration.smsProvider) },
+        // Bản trình diễn không gửi tin nhắn thật (DT-18 phần 18h)
+        {
+          provide: SmsSender,
+          inject: [Infrastructure, Clock],
+          useFactory: (infrastructure: Infrastructure, providerClock: Clock) =>
+            new DemoAwareSmsSender(
+              smsSender ?? createSmsSender(configuration.smsProvider),
+              infrastructure,
+              providerClock,
+            ),
+        },
         AccessTokenGuard,
         ApiClientsService,
         organizationDirectory

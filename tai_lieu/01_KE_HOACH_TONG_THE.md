@@ -1,7 +1,7 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.24
+- Phiên bản: 1.25
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -67,6 +67,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.93.0 | DT-18 phần 18g, thiết bị: nơi để (phòng, kho, vị trí), tem QR in khổ A4, kiểm kê bằng điện thoại (ứng dụng giáo viên, web di động), đối chiếu, tỷ lệ sử dụng được, duyệt, chốt chênh lệch, biên bản; đối sánh danh mục tối thiểu theo cấp học, nạp mẫu Mầm non theo TT 02/2010 sửa đổi bởi TT 34/2013 (YCTD-143) | 01, 02, 03, 07, 08, 10, 11, 14, 16, 17, 21, 23, 24, 32, index | Đã có |
 | 0.94.0 | DT-18 phần 18f: website trường trên tên miền riêng (tên miền lưu ở cơ sở dữ liệu, Caddy cấp chứng chỉ theo yêu cầu cho tên miền đã đăng ký), trang công khai (tin tức, thông báo, văn bản công khai từ 18b, tuyển sinh, công khai theo Thông tư 09/2024/TT-BGDĐT, thư viện ảnh, liên hệ), soạn, duyệt, đăng, gỡ, lọc HTML, chế độ trình diễn (YCTD-144) | 01, 02, 03, 07, 08, 10, 11, 14, 16, 17, 21, 23, 24, 32, index | Đã có |
 | 0.95.0 | DT-18 phần 18e, hồ sơ chuyên môn và Việc của tôi theo mô tả công khai của GIKIDI Nhà Trường: phân hệ mới "Hồ sơ chuyên môn": Việc của tôi gom việc đang chờ ở văn bản đến, văn bản đi, giao việc, phòng họp, KPI, hồ sơ chuyên môn, kế hoạch bài dạy, kí hồ sơ, nghỉ phép, có lọc và số đếm trên menu; kho hồ sơ ba nhánh (cá nhân, tổ hoặc nhóm, trường) theo năm học, danh mục thư mục mặc định theo cấp học; đợt nộp có hạn, bảng ai chưa nộp, nhắc hạn; luồng duyệt theo thư mục (tổ trưởng rồi Ban Giám hiệu), trả lại, phiên bản khi nộp lại, kí nội bộ; thống kê nộp đúng hạn, trễ, chưa nộp; nhóm công tác; khóa năm học (YCTD-142) | 01, 02, 03, 07, 08, 10, 11, 14, 16, 17, 21, 23, 24, 32, index | Đã có |
+| 0.96.0 | DT-18 phần 18h: đăng nhập thay (lý do, thanh báo, thoát, nhật ký, không vào tài khoản quyền cao hơn), gói ZIP toàn bộ dữ liệu của trường (tiến trình nền, hạn tải, nhật ký), bản trình diễn (dữ liệu giả, trang chọn vai, chặn gửi tin và thanh toán, tự đặt lại) | YCTD-145 |
 | 0.83.0 | DT-15 phần 15f3, các phân hệ Bếp – kho, mua hàng; Tương tác – truyền thông; Giảng dạy; Tuyển sinh, tuyển dụng; Báo cáo theo giao diện chung của Sở: tiêu đề đánh số theo menu, 32 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối; nghiệp vụ không đổi (YCTD-115) | 13, 21 | Đã có |
 | 0.81.0 | DT-15 phần 15f2, phân hệ Nhân sự – chấm công, lương theo giao diện chung của Sở: tiêu đề đánh số theo menu, 17 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối, hộp xác nhận xóa; nghiệp vụ không đổi (YCTD-113) | 13, 21 | Đã có |
 | 0.82.0 | DT-15 phần 15f1, phân hệ Tài chính – học phí theo giao diện chung của Sở: tiêu đề đánh số theo menu, 20 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối, hộp xác nhận xóa; nghiệp vụ không đổi (YCTD-114) | 13, 21 | Đã có |

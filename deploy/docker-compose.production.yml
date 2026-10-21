@@ -153,7 +153,7 @@ services:
       dockerfile: deploy/docker/server.Dockerfile
       target: api
     restart: unless-stopped
-    environment:
+    environment: &api-environment
       <<: *node-environment
       API_PORT: 3000
       IDENTITY_BASE_URL: http://identity:3001
@@ -199,6 +199,32 @@ services:
       seaweedfs:
         condition: service_healthy
         required: false
+    logging: *logging
+
+  # Bản trình diễn (DT-18 phần 18h, YCTD-145): chỉ chạy khi bật hồ sơ `demo` (COMPOSE_PROFILES=seaweedfs,demo) trên máy chủ
+  # trình diễn riêng. Lần đầu tạo dữ liệu giả, sau đó tự đặt lại mỗi DEMO_RESET_INTERVAL_HOURS giờ. Lệnh từ chối chạy trên
+  # cơ sở dữ liệu đã có dữ liệu thật; không bật hồ sơ này ở máy chủ của trường
+  demo-reset:
+    image: ${IMAGE_PREFIX:-school-management}/api:${IMAGE_TAG:-latest}
+    profiles: ['demo']
+    restart: unless-stopped
+    command:
+      [
+        'node',
+        'dist/demo/demo-command.js',
+        'schedule',
+        '--confirm',
+        '--interval-hours',
+        '${DEMO_RESET_INTERVAL_HOURS:-24}',
+      ]
+    environment:
+      <<: *api-environment
+      IDENTITY_DATABASE_URL: postgres://identity_service:${IDENTITY_DATABASE_PASSWORD}@postgres:5432/school_identity
+    healthcheck:
+      disable: true
+    depends_on:
+      api:
+        condition: service_healthy
     logging: *logging
 
   # Caddy: phục vụ ba giao diện, chuyển /api/v1 sang hai dịch vụ, tự cấp và gia hạn chứng chỉ HTTPS

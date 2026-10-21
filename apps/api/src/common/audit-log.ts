@@ -11,7 +11,15 @@ export interface ChangeOrigin {
 }
 
 export function originOf(request: Request, currentUser: CurrentUser): ChangeOrigin {
-  return { actorUserId: currentUser.id, actorName: currentUser.description.full_name, ipAddress: request.ip ?? null };
+  return { actorUserId: currentUser.id, actorName: actorNameOf(currentUser), ipAddress: request.ip ?? null };
+}
+
+// Đang đăng nhập thay thì tên người thực hiện ghi kèm người đăng nhập thay (DT-18 phần 18h)
+export function actorNameOf(currentUser: CurrentUser): string {
+  const impersonation = currentUser.description.impersonation;
+  return impersonation
+    ? `${currentUser.description.full_name} (đăng nhập thay bởi ${impersonation.impersonator_name})`
+    : currentUser.description.full_name;
 }
 
 // Mọi thao tác thay đổi dữ liệu ghi nhật ký thao tác kèm giá trị trước và sau (QU-04, PQ-05)

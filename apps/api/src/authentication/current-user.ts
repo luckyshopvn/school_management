@@ -6,10 +6,20 @@ export interface RoleAssignment {
   permissions: string[];
 }
 
+// Phiên đăng nhập thay (DT-18 phần 18h): người đăng nhập thay và thời hạn phiên
+export interface ImpersonationInfo {
+  id: string;
+  impersonator_id: string;
+  impersonator_name: string;
+  started_at: string;
+  expires_at: string;
+}
+
 export interface CurrentUserDescription {
   id: string;
   full_name: string;
   assignments: RoleAssignment[];
+  impersonation?: ImpersonationInfo | null;
 }
 
 // Phạm vi đơn vị của một quyền: toàn trường hoặc danh sách đơn vị được gán (lớp 2 của BM-10)

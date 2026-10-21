@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.72
+- Phiên bản: 1.73
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -182,6 +182,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-82 | Thiết bị: nơi để, tem QR, kiểm kê (YCTD-143): quyền mới `P13.equipment.stocktake` thuộc P13 (VT-02, VT-15, VT-03, VT-11, VT-07, VT-08): quét mã QR, ghi kết quả trong đợt Đang kiểm kê của đơn vị trong phạm vi, xem đợt, tải biên bản; giáo viên dùng trên ứng dụng giáo viên. Lập, nộp, duyệt, trả lại, hủy, chốt chênh lệch, nơi để, in tem dùng `P13.equipment.manage` trong phạm vi đơn vị (VT-02, VT-03, VT-11); nạp danh mục mẫu cần `P13.equipment.manage` toàn trường; 2.4, 2.6 xem bằng `P17.report.facilities` hoặc `P13.equipment.manage`. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 |
 | PQ-83 | Website trường (YCTD-144): ba quyền mới thuộc P14. `P14.website.edit` (VT-02, VT-15, VT-03, VT-12): soạn tin tức, thông báo, trang, công khai theo quy định, album, gửi duyệt, xem thư liên hệ. `P14.website.approve` (VT-02, VT-15): duyệt và đăng, trả lại, gỡ, xử lý thư liên hệ; cũng soạn được. `P14.website.configure` (VT-02; Quản trị nền tảng VT-01 không có quyền nghiệp vụ theo PQ-10): thông tin website, tên miền, chế độ trình diễn, nội dung mẫu. Phân hệ "Website trường" không có ở VT-14. Người ngoài xem trang công khai, gửi thư liên hệ không cần tài khoản. Vai trò do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12) |
 | PQ-84 | Hồ sơ chuyên môn (YCTD-142): bốn quyền mới thuộc P09. `P09.professional-record.use` (VT-02, VT-15, VT-03, VT-04, VT-05, VT-06, VT-07, VT-08, VT-09, VT-10, VT-11, VT-12, VT-16, VT-17): tải và nộp hồ sơ cá nhân, hồ sơ của tổ, nhóm mình, xem hồ sơ trường đã duyệt. `P09.professional-record.review` (VT-17): duyệt cấp tổ, chỉ hồ sơ của tổ mình. `P09.professional-record.approve` (VT-02, VT-15): duyệt cấp trường, kí nội bộ, thống kê, trong phạm vi đơn vị. `P09.professional-record.manage` (VT-02, VT-15): thư mục, luồng duyệt, đợt nộp, nhắc hạn, nhóm công tác, khóa năm học. Trưởng nhóm công tác duyệt hồ sơ của nhóm không cần quyền riêng. Phân hệ "Hồ sơ chuyên môn" không có ở VT-14. Việc của tôi không cần quyền riêng: mỗi nguồn tự kiểm tra quyền và phạm vi của phân hệ |
+| PQ-85 | Quản trị và trình diễn (YCTD-145): hai quyền mới thuộc P01, chỉ VT-02. `P01.account.impersonate`: đăng nhập thay tài khoản có quyền không cao hơn (BR-141), xem nhật ký đăng nhập thay và thao tác. `P01.data.export-all`: tạo gói ZIP toàn bộ dữ liệu, xem danh sách gói và số lần tải; chỉ người tạo tải. VT-01 không có (PQ-10: không xem dữ liệu nghiệp vụ). Màn hình 4.3 Bản trình diễn xem được bằng `P01.account.manage` hoặc `P01.account.impersonate`; tài khoản trình diễn và mật khẩu chung là dữ liệu giả công khai. Vai trò do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12) |
 
 ## 5. Phân cấp phê duyệt
 
