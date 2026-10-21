@@ -9,14 +9,16 @@ import {
   type SystemDatabase,
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
-import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_SYSTEM_DATABASE_NAME } from '../e2e-environment.mjs';
 import { openMenu } from './menu.js';
 
 // Kế hoạch giáo dục (DT-18 phần 22i, YCTD-147), kịch bản CT-22i-10: Hiệu trưởng nạp thư viện mẫu Mầm non; giáo viên lập kế
 // hoạch tháng của nhóm lớp, nhập nội dung theo mục, trình duyệt; tổ trưởng thấy việc ở Việc của tôi, duyệt; Hiệu trưởng xem
 // bảng tiến độ duyệt. Chạy sau 02-academic-years và 03-org-units. Dữ liệu giả
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
-const system = createDatabase<SystemDatabase>(readConnectionString('system'));
+const system = createDatabase<SystemDatabase>(
+  replaceDatabaseName(readConnectionString('system'), E2E_SYSTEM_DATABASE_NAME),
+);
 let schoolYear: ReturnType<typeof createDatabase<SchoolYearDatabase>>;
 
 test.beforeAll(async () => {
