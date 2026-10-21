@@ -1,4 +1,5 @@
 import { useCallback, useId, useState } from 'react';
+import { useSearch } from '@tanstack/react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   FOOD_CHECK_RESULTS,
@@ -543,7 +544,9 @@ export function FoodLotsPage() {
   const [expiry, setExpiry] = useState('');
   const [search, setSearch] = useState('');
   const [creating, setCreating] = useState(false);
-  const [selectedId, setSelectedId] = useState<string>();
+  // Mở thẳng một lô từ liên kết (phiếu đi chợ): /food-safety/lots?lot_id=...
+  const linked: { lot_id?: string } = useSearch({ strict: false });
+  const [selectedId, setSelectedId] = useState<string | undefined>(linked.lot_id);
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
   const filters = { org_unit_id: orgUnitId, from, to, status, expiry };

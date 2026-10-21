@@ -1451,7 +1451,7 @@ function PurchasesTab({ orgUnitId, onDone }: TabProps) {
                 <td>{formatMoney(item.amount)}</td>
                 <td>
                   {item.lot ? (
-                    <Link to="/food-safety/lots" className="text-link underline">
+                    <Link to="/food-safety/lots" search={{ lot_id: item.lot.id }} className="text-link underline">
                       {item.lot.code}
                     </Link>
                   ) : null}

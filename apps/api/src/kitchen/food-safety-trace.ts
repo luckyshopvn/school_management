@@ -245,7 +245,7 @@ export class FoodSafetyTraceService {
     const period = input.from === input.to ? `Ngày ${input.from}` : `Từ ngày ${input.from} đến ngày ${input.to}`;
     const createdAt = this.clock.now();
     let sheets: TableFileSheet[];
-    let closing: PdfContent[] = [];
+    let closing: PdfContent[];
     let title: string;
     if (input.book === 'inspections') {
       title = 'Sổ kiểm thực ba bước';

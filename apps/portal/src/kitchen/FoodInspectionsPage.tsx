@@ -267,6 +267,15 @@ function SheetEditor({
     queryFn: () => listLots({ org_unit_id: sheet.org_unit_id, status: 'accepted' }),
     enabled: sheet.step === 2 && !readOnly,
   });
+  // Lô chờ kiểm tra nhập sau khi lập phiếu bước 1 thì thêm dòng tay
+  const pendingLots = useQuery({
+    queryKey: ['food-lots', { org_unit_id: sheet.org_unit_id, status: 'pending' }],
+    queryFn: () => listLots({ org_unit_id: sheet.org_unit_id, status: 'pending' }),
+    enabled: sheet.step === 1 && !readOnly,
+  });
+  const addableLots = (pendingLots.data ?? []).filter(
+    (lot) => lot.received_date <= sheet.inspection_date && !lines.some((line) => line.lot_id === lot.id),
+  );
   const body = () => ({
     inspector_name: header.inspector_name,
     inspector_title: header.inspector_title || null,
@@ -733,7 +742,30 @@ function SheetEditor({
       {confirm.error ? <Alert tone="danger">{messageOf(confirm.error)}</Alert> : null}
       {readOnly ? null : (
         <div className="flex flex-wrap gap-2">
-          {sheet.step === 1 ? null : <Button onClick={() => setLines([...lines, emptyLine()])}>Thêm dòng</Button>}
+          {sheet.step === 1 ? (
+            addableLots.length > 0 ? (
+              <select
+                aria-label="Thêm lô chờ kiểm tra"
+                className={cellClass}
+                value=""
+                onChange={(event) => {
+                  const lot = addableLots.find((item) => item.id === event.target.value);
+                  if (lot) {
+                    setLines([...lines, { ...emptyLine(), meal_type: null, dish_name: null, lot_id: lot.id, lot }]);
+                  }
+                }}
+              >
+                <option value="">Thêm lô chờ kiểm tra</option>
+                {addableLots.map((lot) => (
+                  <option key={lot.id} value={lot.id}>
+                    {lot.code} – {lot.ingredient_name}
+                  </option>
+                ))}
+              </select>
+            ) : null
+          ) : (
+            <Button onClick={() => setLines([...lines, emptyLine()])}>Thêm dòng</Button>
+          )}
           <Button type="submit" variant="primary" disabled={save.isPending || confirm.isPending}>
             Ghi phiếu
           </Button>

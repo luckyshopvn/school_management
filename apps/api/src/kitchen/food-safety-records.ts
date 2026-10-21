@@ -453,6 +453,7 @@ export class FoodSafetyRecordsService {
       to: string | null;
       status: FoodLotStatus | null;
       ingredientId: string | null;
+      supplierId?: string | null;
       expiry: 'expiring' | 'expired' | null;
     },
   ) {
@@ -463,6 +464,7 @@ export class FoodSafetyRecordsService {
       .$if(filter.from !== null, (query) => query.where('food_lots.received_date', '>=', filter.from ?? ''))
       .$if(filter.to !== null, (query) => query.where('food_lots.received_date', '<=', filter.to ?? ''))
       .$if(filter.status !== null, (query) => query.where('food_lots.status', '=', filter.status ?? 'pending'))
+      .$if(Boolean(filter.supplierId), (query) => query.where('food_lots.supplier_id', '=', filter.supplierId ?? ''))
       .$if(filter.ingredientId !== null, (query) =>
         query.where('food_lots.ingredient_id', '=', filter.ingredientId ?? ''),
       )
@@ -860,6 +862,7 @@ export class FoodSafetyRecordsController {
       to: queryDate(query.to, 'to'),
       status: status ?? null,
       ingredientId: queryUuid(query.ingredient_id, 'ingredient_id'),
+      supplierId: queryUuid(query.supplier_id, 'supplier_id'),
       expiry: expiry ?? null,
     });
   }
