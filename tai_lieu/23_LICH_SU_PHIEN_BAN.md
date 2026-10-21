@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.20
+- Phiên bản: 0.21
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.95.0 – 2026-10-21
+
+- Phạm vi thay đổi: DT-18 phần 18e, hồ sơ chuyên môn và Việc của tôi (YCTD-142, PR 121).
+- Chức năng mới: phân hệ mới "Hồ sơ chuyên môn": Việc của tôi gom việc đang chờ ở văn bản đến, văn bản đi, giao việc, phòng họp, KPI, hồ sơ chuyên môn, kế hoạch bài dạy, kí hồ sơ, nghỉ phép, có lọc và số đếm trên menu; kho hồ sơ ba nhánh (cá nhân, tổ hoặc nhóm, trường) theo năm học, danh mục thư mục mặc định theo cấp học; đợt nộp có hạn, bảng ai chưa nộp, nhắc hạn; luồng duyệt theo thư mục (tổ trưởng rồi Ban Giám hiệu), trả lại, phiên bản khi nộp lại, kí nội bộ; thống kê nộp đúng hạn, trễ, chưa nộp; nhóm công tác; khóa năm học (YCTD-142).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0066_create_professional_records` (tám bảng mới, mục đích tệp `professional_record`); tệp định danh `0056_add_professional_record_permissions` (bốn quyền `P09.professional-record.*`, phân hệ không có ở phụ huynh).
+- Thay đổi API: nhóm điểm cuối mới `/my-work`, `/professional-records`, `/professional-folders`, `/professional-work-groups`, `/professional-rounds`, `/professional-documents`; tám khóa lưới mới.
+- Kiểm thử: kịch bản CT-738 đến CT-747. Kết quả ngày 21/10/2026: kiểm thử đơn vị `apps/api/src/professional-records/professional-records.test.ts` CT-18e-1 đến CT-18e-9 đạt 9/9; kiểm thử đơn vị toàn bộ kho mã 963/964 đạt, ca chưa đạt CTC-P06-007 (phiếu thu phát hành đồng thời, ngoài phạm vi 18e) chạy lại tệp đạt 29/29; kiểm thử giao diện `tests/e2e/74-professional-records.spec.ts` (CT-18e-10) đạt 1/1; toàn bộ e2e chưa chạy lại toàn bộ sau khi gộp 18f; spec 02, 03, 58 quản trị hệ thống, 74 đạt 9/9 (lần đầu spec 02 quá thời gian chờ mở năm học, chạy lại đạt).
+- Rủi ro: thông báo cho tổ trưởng gửi theo vai trò Tổ trưởng chuyên môn của đơn vị; Việc của tôi đọc nhiều bảng mỗi lần đếm (làm mới mỗi phút).
+- Khả năng tương thích: điểm cuối cũ không đổi; số phân hệ của 1.2 Phân quyền nhóm theo phần mềm thành 17.
+- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-18-phan-18e`; chạy phần quay lui của tệp định danh `0056` và tệp năm học `0066` (xóa tám bảng, tệp mục đích `professional_record`).
 ### Phiên bản 0.94.0 – 2026-10-21
 
 - Phạm vi thay đổi: DT-18 phần 18f, website trường trên tên miền riêng, có chế độ trình diễn (YCTD-144).

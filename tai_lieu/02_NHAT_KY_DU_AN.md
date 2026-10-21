@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.20
+- Phiên bản: 0.21
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đang cập nhật
 
@@ -14,6 +14,26 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-21 — DT-18 phần 18e: hồ sơ chuyên môn và Việc của tôi
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu năm học: tệp `0066_create_professional_records` tạo `professional_folders`, `professional_work_groups`, `professional_work_group_members`, `professional_rounds`, `professional_documents`, `professional_document_versions`, `professional_document_events`, `professional_record_settings`; mục đích tệp mới `professional_record`. Cơ sở dữ liệu định danh: tệp `0056_add_professional_record_permissions` (bốn quyền `P09.professional-record.*`, phân hệ `professional-records` không có ở phụ huynh).
+- Máy chủ API: `apps/api/src/professional-records/` (thư mục, nhóm công tác, đợt nộp, hồ sơ, phiên bản, luồng duyệt, kí nội bộ qua `DossierSigner`, thống kê, khóa năm học, bước chuyển năm học); `apps/api/src/my-work/` (giao diện nguồn việc `MyWorkSource` và chín nguồn: văn bản đến, văn bản đi, giao việc, phòng họp, KPI, hồ sơ chuyên môn, kế hoạch bài dạy, kí hồ sơ, nghỉ phép; điểm cuối `/my-work`, `/my-work/count`).
+- Cổng quản trị: phân hệ "Hồ sơ chuyên môn" (1. Việc của tôi, 2.1 đến 2.3 kho, 3.1 đến 3.3 đợt nộp, duyệt, thống kê, 4.1, 4.2 thiết lập); số việc đang chờ trên mục Việc của tôi và nút "Việc của tôi" ở đầu trang cạnh chuông thông báo.
+- Thêm quy tắc BR-140, chức năng P09-28 đến P09-30, quyền PQ-84, màn hình MH-216 đến MH-224, kịch bản CT-738 đến CT-747, tiêu chí AC-702 đến AC-706. Kết quả ngày 21/10/2026: kiểm thử đơn vị `apps/api/src/professional-records/professional-records.test.ts` CT-18e-1 đến CT-18e-9 đạt 9/9; kiểm thử đơn vị toàn bộ kho mã 963/964 đạt, ca chưa đạt CTC-P06-007 (phiếu thu phát hành đồng thời, ngoài phạm vi 18e) chạy lại tệp đạt 29/29; kiểm thử giao diện `tests/e2e/74-professional-records.spec.ts` (CT-18e-10) đạt 1/1; toàn bộ e2e chưa chạy lại toàn bộ sau khi gộp 18f; spec 02, 03, 58 quản trị hệ thống, 74 đạt 9/9 (lần đầu spec 02 quá thời gian chờ mở năm học, chạy lại đạt).
+
+#### Quyết định
+
+- Thực hiện phần 18e của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9.4. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-142: phân hệ riêng "Hồ sơ chuyên môn" chứa Việc của tôi; tổ là phòng ban đã khai báo, tổ trưởng là người có vai trò Tổ trưởng chuyên môn cùng phòng ban; kí ở bước duyệt cuối bằng chứng thư nhà trường đã đăng ký kí nội bộ; nguồn việc đọc thẳng điều kiện "chờ tôi" của từng phân hệ, không ghi dữ liệu.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-142, `07_QUY_TAC_NGHIEP_VU.md` BR-140, `08_VAI_TRO_NGUOI_DUNG.md` PQ-84, `10_YEU_CAU_CHUC_NANG.md` P09-28 đến P09-30, `11_TIEU_CHI_NGHIEM_THU.md` AC-702 đến AC-706, `14_DAC_TA_GIAO_DIEN.md` MH-216 đến MH-224, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-738 đến CT-747, `23_LICH_SU_PHIEN_BAN.md` 0.95.0.
+
+#### Vấn đề tồn đọng
+
+- Thông báo cho tổ trưởng gửi theo vai trò Tổ trưởng chuyên môn của đơn vị (quyền ở dịch vụ định danh nên chưa lọc theo phòng ban); danh mục thư mục mặc định Tiểu học, THCS, THPT dùng chung một bản, sẽ tách khi làm DT-19; Việc của tôi chưa gom các hàng chờ duyệt theo quyền ở tài chính, kho, tuyển sinh (thêm nguồn sau qua `MyWorkSource`).
 ### 2026-10-21 — DT-18 phần 18f: website trường trên tên miền riêng
 
 #### Công việc đã thực hiện

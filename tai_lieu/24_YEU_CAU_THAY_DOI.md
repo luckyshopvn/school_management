@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.20
+- Phiên bản: 0.21
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đang cập nhật
 
@@ -11,6 +11,29 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-142: DT-18 phần 18e: hồ sơ chuyên môn và Việc của tôi – 2026-10-21
+
+- Lý do: kế hoạch DT-18 (`32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9.3, 9.4, phần 18e): hồ sơ chuyên môn (kho, đợt nộp, luồng duyệt) theo mô tả công khai của GIKIDI Nhà Trường và Việc của tôi gom việc đang chờ ở văn bản đến (18a), văn bản đi (18b), giao việc, lịch (18c), KPI (18d), hồ sơ và các luồng duyệt, kí đã có.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Phân hệ riêng "Hồ sơ chuyên môn" (khóa `professional-records`), mục 1. Việc của tôi không cần quyền; kho theo năm học vì dữ liệu ở cơ sở dữ liệu năm học;
+  - Kho ba nhánh: cá nhân, tổ hoặc nhóm (tổ chuyên môn là phòng ban đã khai báo ở Quản trị hệ thống, thêm nhóm công tác có trưởng nhóm), trường; cây thư mục nhiều cấp;
+  - Danh mục thư mục mặc định theo cấp học: bản Mầm non (kế hoạch giáo dục năm, tháng, tuần; kế hoạch hoạt động ngày; sổ dự giờ; sổ theo dõi trẻ; hồ sơ bồi dưỡng thường xuyên; sáng kiến; kế hoạch hoạt động, sổ sinh hoạt, biên bản dự giờ của tổ; hồ sơ trường) và một bản chung cho Tiểu học, THCS, THPT (kế hoạch giáo dục của giáo viên, kế hoạch bài dạy, sổ dự giờ, sổ chủ nhiệm, sổ theo dõi và đánh giá học sinh, bồi dưỡng thường xuyên; kế hoạch dạy học, sổ sinh hoạt, biên bản nghiên cứu bài học của tổ); nạp lại không trùng tên;
+  - Luồng duyệt theo thư mục: không duyệt, tổ trưởng duyệt, tổ trưởng rồi Ban Giám hiệu duyệt (Hiệu trưởng, Phó Hiệu trưởng phụ trách chuyên môn); bỏ bước tổ trưởng khi người nộp là tổ trưởng, trưởng nhóm, hồ sơ của trường hoặc không thuộc tổ; trả lại cần lý do; rút lại khi chờ tổ trưởng;
+  - Phiên bản: mỗi lần tải là một phiên bản, nộp lại giữ phiên bản cũ; lịch sử từng bước;
+  - Kí nội bộ: thư mục cần kí thì bước duyệt cuối lập bản PDF đã kí qua chỗ nối `DossierSigner` của Quản lý kí hồ sơ (16k, 17b), cần chứng thư nhà trường đã đăng ký kí nội bộ;
+  - Đợt nộp có hạn (giờ Việt Nam): theo cá nhân hoặc theo tổ, đơn vị, danh sách tổ; bảng ai đã nộp đúng hạn, nộp trễ, chưa nộp; nhắc người, tổ chưa nộp bằng thông báo trong ứng dụng; đóng, mở lại đợt; thống kê theo đợt và theo tổ;
+  - Khóa năm học: người quản lý khóa thì không thêm, sửa, nộp, duyệt; mở năm học mới chuyển thư mục, nhóm công tác;
+  - Việc của tôi: giao diện chung `MyWorkSource` ở máy chủ, mỗi phân hệ một nguồn (văn bản đến: phân công chờ của tôi, chờ vào sổ, đề nghị gia hạn; văn bản đi: cho ý kiến, chờ ký, bị trả lại, chờ cấp số; giao việc: phân công chưa xong, kết quả chờ phê duyệt, việc cũ được giao; phòng họp chờ duyệt; KPI: xác nhận việc, minh chứng và tự đánh giá, phiếu tự đánh giá, duyệt đăng ký, chấm, gia hạn, đánh giá cán bộ; hồ sơ chuyên môn; kế hoạch bài dạy chờ duyệt; hồ sơ chờ kí; đơn nghỉ phép chờ duyệt); phần sau thêm nguồn bằng một lớp mới; nguồn lỗi không làm hỏng cả màn hình; quá hạn lên đầu; số trên menu và nút ở đầu trang làm mới mỗi phút;
+  - Viết sẵn cho đa thuê bao, đa cấp học (mục 9.2): không thêm biến `.env`, không ghi cứng tên miền; khóa kho tệp qua `storageKey`; danh mục có cột cấp học.
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu năm học (`0066_create_professional_records.ts`, `schema.ts`, `index.ts`), định danh (`0056_add_professional_record_permissions.ts`); máy chủ API (`apps/api/src/professional-records/`, `apps/api/src/my-work/`, `application.module.ts`); gói dùng chung (`professional-records.ts`, cây menu, quyền menu, khóa lưới, lối tắt); cổng quản trị (`apps/portal/src/professional-records/`, `apps/portal/src/my-work/`, `MainMenu.tsx`, `AppShell.tsx`, `router.tsx`, `workspaces.tsx`).
+- Dữ liệu bị ảnh hưởng: tám bảng mới ở cơ sở dữ liệu năm học; bốn quyền mới, loại phân hệ ở VT-14.
+- API bị ảnh hưởng: nhóm điểm cuối mới (xem `17_DAC_TA_API.md`); điểm cuối cũ không đổi.
+- Giao diện bị ảnh hưởng: phân hệ mới "Hồ sơ chuyên môn" (MH-216 đến MH-224); nút "Việc của tôi" ở đầu trang; 1.2 Phân quyền nhóm theo phần mềm có 17 phân hệ.
+- Quyền bị ảnh hưởng: PQ-84. Chức năng mới P09-28 đến P09-30; quy tắc mới BR-140.
+- Ảnh hưởng chức năng cũ: không đổi nghiệp vụ các phân hệ nguồn; Việc của tôi chỉ đọc.
+- Kiểm thử cần thực hiện: kịch bản CT-738 đến CT-747. Kết quả ngày 21/10/2026: kiểm thử đơn vị `apps/api/src/professional-records/professional-records.test.ts` CT-18e-1 đến CT-18e-9 đạt 9/9; kiểm thử đơn vị toàn bộ kho mã 963/964 đạt, ca chưa đạt CTC-P06-007 (phiếu thu phát hành đồng thời, ngoài phạm vi 18e) chạy lại tệp đạt 29/29; kiểm thử giao diện `tests/e2e/74-professional-records.spec.ts` (CT-18e-10) đạt 1/1; toàn bộ e2e chưa chạy lại toàn bộ sau khi gộp 18f; spec 02, 03, 58 quản trị hệ thống, 74 đạt 9/9 (lần đầu spec 02 quá thời gian chờ mở năm học, chạy lại đạt).
+- Hạn chế: thông báo chờ tổ trưởng duyệt gửi theo vai trò Tổ trưởng chuyên môn của đơn vị (quyền ở dịch vụ định danh); bản danh mục Tiểu học, THCS, THPT dùng chung đến DT-19; Việc của tôi chưa gom hàng chờ duyệt của tài chính, kho, tuyển sinh, tuyển dụng (thêm nguồn sau).
+- Trạng thái: Đã triển khai
 ### YCTD-144: DT-18 phần 18f: website trường trên tên miền riêng, có chế độ trình diễn – 2026-10-21
 
 - Lý do: Eric quyết định ngày 2026-10-19 mỗi trường một tên miền riêng cho website, có chế độ trình diễn (`32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9.1, phần 18f ở mục 9.4). Để sẵn sàng cho nhiều trường (DT-SaaS), cấu hình trường không nằm trong `.env` và không ghi cứng tên miền (mục 9.2). Nhóm công khai theo quy định lấy theo văn bản gốc Thông tư 09/2024/TT-BGDĐT (Điều 4 thông tin chung, Điều 5 thu chi tài chính, Điều 6 và 7 mầm non, Điều 8 và 9 phổ thông; công bố trên trang thông tin điện tử, duy trì tối thiểu 5 năm). Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
