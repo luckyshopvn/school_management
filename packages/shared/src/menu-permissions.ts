@@ -250,6 +250,10 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   // Thông báo hệ thống, ứng dụng liên kết (DT-16 phần 16c)
   '/system-announcements': 'P01.announcement.manage',
   '/app-links': 'P01.announcement.manage',
+  // Quản trị và trình diễn (DT-18 phần 18h)
+  '/impersonations': 'P01.account.impersonate',
+  '/school-data-export': 'P01.data.export-all',
+  '/demo-environment': anyOf('P01.account.manage', 'P01.account.impersonate'),
   // Tài chính – học phí
   '/fees': VIEW_FEES,
   '/registrations': REGISTRATIONS,

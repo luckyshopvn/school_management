@@ -1,3 +1,4 @@
+import { DemoMode } from '../demo/demo-mode.js';
 import { randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import type { OnlineMatchStatus, SchoolYearDatabase } from '@school-management/database';
@@ -68,6 +69,7 @@ export class OnlinePaymentsService {
     private readonly receipts: ReceiptsService,
     private readonly gateways: PaymentGatewayRegistry,
     private readonly clock: Clock,
+    private readonly demoMode: DemoMode,
   ) {}
 
   // Cổng có được bật trên máy chủ không (điểm cuối giả lập chỉ có khi bật cổng giả lập)
@@ -276,6 +278,7 @@ export class OnlinePaymentsService {
   // đối chiếu theo nội dung và số tiền như thường; không khớp thì vào danh sách chờ kế toán, tiền không bị bỏ sót (dữ
   // liệu thử PayOS gửi khi đăng ký địa chỉ nhận thông báo cũng vào danh sách chờ một lần)
   async receiveWebhook(provider: string, request: WebhookRequest) {
+    await this.demoMode.assertLive('nhận thông báo tiền vào của cổng thanh toán thật');
     const gateway = this.gateways.find(provider);
     if (!gateway || !isWebhookGateway(gateway)) {
       throw new ApplicationError('ERR_NOT_FOUND', 'Cổng thanh toán chưa được bật');
@@ -299,6 +302,9 @@ export class OnlinePaymentsService {
   // Thông báo kết quả thanh toán VNPay (IPN): trả mã RspCode theo tài liệu VNPay; giao dịch không thành công vẫn xác
   // nhận đã nhận để VNPay không gửi lại (YCTD-92)
   async receiveVnpayIpn(query: Record<string, unknown>): Promise<{ RspCode: string; Message: string }> {
+    if (await this.demoMode.isEnabled()) {
+      return { RspCode: '99', Message: 'Demo environment' };
+    }
     const gateway = this.gateways.find('vnpay');
     if (!(gateway instanceof VnpayPaymentGateway)) {
       throw new ApplicationError('ERR_NOT_FOUND', 'Cổng thanh toán chưa được bật');
@@ -588,6 +594,10 @@ export class OnlinePaymentsService {
     origin: ChangeOrigin,
   ) {
     const transferContent = transferContentOf(invoice.code ?? '');
+    // Bản trình diễn chỉ dùng cổng giả lập, không tạo mã thanh toán thật (DT-18 phần 18h)
+    if (gateway.provider !== 'development') {
+      await this.demoMode.assertLive('tạo mã thanh toán thật');
+    }
     const created = await gateway.createPaymentRequest({
       invoiceCode: invoice.code ?? '',
       transferContent,

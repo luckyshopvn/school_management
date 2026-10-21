@@ -249,7 +249,8 @@ export interface ArchiveFileDeletionsTable {
   last_attempt_at: Date | null;
 }
 
-export type ExportJobFormat = 'xlsx' | 'pdf';
+// Gói toàn bộ dữ liệu của trường là tệp ZIP (DT-18 phần 18h)
+export type ExportJobFormat = 'xlsx' | 'pdf' | 'zip';
 export type ExportJobStatus = 'pending' | 'running' | 'done' | 'failed' | 'expired';
 
 // Tác vụ xuất nền và danh sách "Tệp đã tạo" (DT-16 phần 16a): user_snapshot là vai trò, quyền của người tạo lúc tạo
@@ -275,6 +276,50 @@ export interface ExportJobsTable {
   started_at: Date | null;
   finished_at: Date | null;
   expires_at: Date | null;
+}
+
+// Nhật ký tải tệp đã tạo (DT-18 phần 18h)
+export interface ExportJobDownloadsTable {
+  id: Generated<string>;
+  export_job_id: string;
+  user_id: string;
+  user_name: string;
+  ip_address: string | null;
+  downloaded_at: CreatedTimestamp;
+}
+
+// Thao tác trên máy chủ API trong lúc đăng nhập thay (DT-18 phần 18h)
+export interface ImpersonationActionsTable {
+  id: Generated<string>;
+  impersonation_id: string;
+  impersonator_user_id: string;
+  impersonator_name: string;
+  target_user_id: string;
+  target_name: string;
+  method: string;
+  path: string;
+  status_code: number;
+  ip_address: string | null;
+  created_at: CreatedTimestamp;
+}
+
+// Tài khoản trình diễn hiện ở trang chọn vai; mật khẩu chung của bản trình diễn ở DEMO_PASSWORD (gói dùng chung)
+export interface DemoAccount {
+  login: string;
+  full_name: string;
+  role_code: string;
+  role_name: string;
+  app: 'portal' | 'teacher' | 'parent';
+}
+
+// Dấu bản trình diễn (DT-18 phần 18h): chỉ lệnh tạo dữ liệu trình diễn ghi
+export interface DemoEnvironmentTable {
+  id: Generated<number>;
+  seed_version: string;
+  seeded_at: Date;
+  reset_interval_hours: Generated<number>;
+  next_reset_at: Date | null;
+  accounts: ColumnType<DemoAccount[], string, string>;
 }
 
 export type UpperLevelSubmissionStatus = 'draft' | 'sent' | 'unlock_requested' | 'resend';
@@ -1128,6 +1173,9 @@ export interface SystemDatabase {
   archive_record_files: ArchiveRecordFilesTable;
   archive_file_deletions: ArchiveFileDeletionsTable;
   export_jobs: ExportJobsTable;
+  export_job_downloads: ExportJobDownloadsTable;
+  impersonation_actions: ImpersonationActionsTable;
+  demo_environment: DemoEnvironmentTable;
   upper_level_submissions: UpperLevelSubmissionsTable;
   upper_level_submission_events: UpperLevelSubmissionEventsTable;
   system_announcements: SystemAnnouncementsTable;

@@ -14,6 +14,7 @@ import { Infrastructure } from '../common/infrastructure.js';
 import { IdentitySettingsService } from '../settings/identity-settings.service.js';
 import { checkPasswordPolicy, hashPassword, placeholderPasswordHash, verifyPassword } from './password.js';
 import { assertPasswordNotReused, recordPasswordHistory } from './password-history.js';
+import { ImpersonationService, type ImpersonationDescription } from './impersonation.service.js';
 import { createRefreshToken, hashRefreshToken, readSessionIdFromRefreshToken, TokenService } from './token.service.js';
 
 // Sai mật khẩu 5 lần liên tiếp thì tạm khóa 15 phút rồi tự mở (BM-04, XT-05)
@@ -72,6 +73,8 @@ export interface CurrentUserResponse {
   assignments: Array<{ role_code: string; role_name: string; org_unit_id: string | null; permissions: string[] }>;
   // Phân hệ của cổng quản trị tài khoản được dùng (1.2 Phân quyền nhóm theo phần mềm, DT-16 phần 16d)
   workspaces: string[];
+  // Phiên đăng nhập thay (DT-18 phần 18h): ai đang đăng nhập thay tài khoản này; phiên thường là null
+  impersonation: ImpersonationDescription | null;
 }
 
 const INVALID_CREDENTIALS_MESSAGE = 'Số điện thoại, tên đăng nhập hoặc mật khẩu không đúng';
@@ -84,6 +87,7 @@ export class AuthenticationService {
     private readonly tokenService: TokenService,
     private readonly clock: Clock,
     private readonly identitySettings: IdentitySettingsService,
+    private readonly impersonation: ImpersonationService,
   ) {}
 
   private get database() {
@@ -278,7 +282,8 @@ export class AuthenticationService {
     );
   }
 
-  async logout(claims: AccessTokenClaims): Promise<void> {
+  async logout(claims: AccessTokenClaims, ipAddress: string | null = null): Promise<void> {
+    await this.impersonation.endOnLogout(claims.sessionId, ipAddress);
     await this.revokeSession(claims.sessionId, this.clock.now());
   }
 
@@ -290,6 +295,7 @@ export class AuthenticationService {
   ): Promise<TokenResponse> {
     const now = this.clock.now();
     await this.findActiveSession(claims.sessionId, now);
+    await this.impersonation.assertNotImpersonating(claims.sessionId, 'đổi mật khẩu');
     const user = await this.findActiveUser(claims.userId, now);
 
     if (!(await this.verifyAccountPassword(user.password_hash, currentPassword))) {
@@ -428,6 +434,7 @@ export class AuthenticationService {
       must_change_password: user.must_change_password,
       assignments: [...assignments.values()],
       workspaces,
+      impersonation: await this.impersonation.describe(claims.sessionId),
     };
   }
 

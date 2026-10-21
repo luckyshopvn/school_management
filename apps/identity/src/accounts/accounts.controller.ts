@@ -27,6 +27,8 @@ import { RolesService } from './roles.service.js';
 import { StaffDirectoryService } from './staff-directory.service.js';
 import { GuardianAccountsService } from './guardian-accounts.service.js';
 import { StaffAccountsService } from './staff-accounts.service.js';
+import { IdentityDataExportService } from './identity-data-export.js';
+import { ImpersonationService } from '../authentication/impersonation.service.js';
 
 type RequestBody = Record<string, unknown> | undefined;
 
@@ -117,7 +119,15 @@ export class AccountsController {
     private readonly staffDirectory: StaffDirectoryService,
     private readonly guardianAccounts: GuardianAccountsService,
     private readonly staffAccounts: StaffAccountsService,
+    private readonly impersonation: ImpersonationService,
+    private readonly dataExport: IdentityDataExportService,
   ) {}
+
+  // Dữ liệu của dịch vụ định danh cho gói ZIP toàn bộ dữ liệu của trường, không có mật khẩu và mã bí mật (DT-18 phần 18h)
+  @Get('data-export')
+  exportData(@Req() request: AuthenticatedRequest) {
+    return this.dataExport.snapshot(request.accessTokenClaims);
+  }
 
   @Get()
   list(@Req() request: AuthenticatedRequest, @Query() query: Record<string, string | undefined>) {
@@ -275,7 +285,8 @@ export class AccountsController {
   // 1.4 Danh sách người dùng của Sở: Cấp mật khẩu hàng loạt (DT-16 phần 16d)
   @Post('bulk-reset-password')
   @HttpCode(200)
-  bulkResetPassword(@Req() request: AuthenticatedRequest, @Body() body: RequestBody) {
+  async bulkResetPassword(@Req() request: AuthenticatedRequest, @Body() body: RequestBody) {
+    await this.impersonation.assertNotImpersonating(request.accessTokenClaims.sessionId, 'cấp mật khẩu');
     return this.accountsService.bulkResetPassword(callerOf(request), readUserIds(body));
   }
 
@@ -376,7 +387,8 @@ export class AccountsController {
 
   @Post(':id/reset-password')
   @HttpCode(200)
-  resetPassword(@Req() request: AuthenticatedRequest, @Param('id', uuidParameter('id')) userId: string) {
+  async resetPassword(@Req() request: AuthenticatedRequest, @Param('id', uuidParameter('id')) userId: string) {
+    await this.impersonation.assertNotImpersonating(request.accessTokenClaims.sessionId, 'đặt lại mật khẩu');
     return this.accountsService.resetPassword(callerOf(request), userId);
   }
 

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { Clock, unauthenticatedError, validationError, type FieldError } from '@school-management/server';
 import {
@@ -8,6 +8,7 @@ import {
 } from './access-token.guard.js';
 import { assertChannel, AuthenticationService, type RequestOrigin } from './authentication.service.js';
 import { CaptchaService, type CaptchaAnswer } from './captcha.service.js';
+import { ImpersonationService } from './impersonation.service.js';
 import { LoginRateLimiter } from './login-rate-limiter.js';
 import { PasswordResetService } from './password-reset.service.js';
 import { IdentitySettingsService } from '../settings/identity-settings.service.js';
@@ -48,6 +49,7 @@ export class AuthenticationController {
     private readonly captchaService: CaptchaService,
     private readonly passwordResetService: PasswordResetService,
     private readonly identitySettings: IdentitySettingsService,
+    private readonly impersonation: ImpersonationService,
     private readonly clock: Clock,
   ) {}
 
@@ -188,7 +190,7 @@ export class AuthenticationController {
   @UseGuards(AccessTokenGuard)
   @AllowedWhilePasswordChangeRequired()
   async logout(@Req() request: AuthenticatedRequest, @Res({ passthrough: true }) response: Response): Promise<void> {
-    await this.authenticationService.logout(request.accessTokenClaims);
+    await this.authenticationService.logout(request.accessTokenClaims, readOrigin(request).ipAddress);
     clearRefreshTokenCookie(response, request.accessTokenClaims.channel);
   }
 
@@ -204,6 +206,41 @@ export class AuthenticationController {
       throw validationError(errors);
     }
     return this.authenticationService.changePassword(request.accessTokenClaims, currentPassword, newPassword);
+  }
+
+  // Đăng nhập thay (DT-18 phần 18h): cookie cổng quản trị chuyển sang phiên của tài khoản đích; phiên gốc giữ nguyên
+  @Post('impersonation')
+  @HttpCode(200)
+  @UseGuards(AccessTokenGuard)
+  async startImpersonation(
+    @Body() body: RequestBody,
+    @Req() request: AuthenticatedRequest,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const started = await this.impersonation.start(request.accessTokenClaims, body, readOrigin(request));
+    setRefreshTokenCookie(response, 'portal', started.issued.refreshToken, started.issued.refreshExpiresAt, this.clock);
+    return { ...started.issued.response, impersonation_id: started.impersonationId };
+  }
+
+  // Thoát đăng nhập thay: quay lại phiên gốc của quản trị; phiên gốc đã hết hạn thì đăng xuất
+  @Post('impersonation/exit')
+  @HttpCode(200)
+  @UseGuards(AccessTokenGuard)
+  async exitImpersonation(@Req() request: AuthenticatedRequest, @Res({ passthrough: true }) response: Response) {
+    const issued = await this.impersonation.exit(request.accessTokenClaims, readOrigin(request));
+    if (!issued) {
+      clearRefreshTokenCookie(response, 'portal');
+      return { signed_out: true };
+    }
+    setRefreshTokenCookie(response, 'portal', issued.refreshToken, issued.refreshExpiresAt, this.clock);
+    return { ...issued.response, signed_out: false };
+  }
+
+  // Nhật ký đăng nhập thay (DT-18 phần 18h)
+  @Get('impersonations')
+  @UseGuards(AccessTokenGuard)
+  async impersonations(@Query() query: Record<string, unknown>, @Req() request: AuthenticatedRequest) {
+    return this.impersonation.list(request.accessTokenClaims, query);
   }
 
   @Get('me')

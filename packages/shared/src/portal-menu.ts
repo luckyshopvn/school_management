@@ -298,6 +298,12 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('3.6.', 'Thông báo hệ thống', '/system-announcements'),
         leaf('3.7.', 'Ứng dụng liên kết', '/app-links'),
       ]),
+      // Quản trị và trình diễn (DT-18 phần 18h)
+      group('4.', 'Quản trị và trình diễn', [
+        leaf('4.1.', 'Đăng nhập thay', '/impersonations'),
+        leaf('4.2.', 'Xuất toàn bộ dữ liệu', '/school-data-export'),
+        leaf('4.3.', 'Bản trình diễn', '/demo-environment'),
+      ]),
     ],
   },
   {

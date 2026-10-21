@@ -5,19 +5,21 @@ import {
   Injectable,
   Logger,
   Param,
+  Req,
   Res,
   type OnApplicationBootstrap,
   type OnModuleDestroy,
 } from '@nestjs/common';
 import type { ExportJobFormat, ExportJobStatus } from '@school-management/database';
 import { ApplicationError, Clock, ruleViolationError } from '@school-management/server';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import { sql } from 'kysely';
 import { AuthenticatedUser } from '../authentication/authentication.guard.js';
 import { CurrentUser, type CurrentUserDescription } from '../authentication/current-user.js';
 import { API_CONFIGURATION, type ApiConfiguration } from '../common/configuration.js';
 import { Databases } from '../common/databases.js';
 import { notFoundError } from '../common/request-fields.js';
+import { storageKey } from '../common/resource-names.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { sendWorkbook, type ExportedFile } from '../facilities/facilities-workbook.js';
 import { FileStorage } from '../files/file-storage.js';
@@ -49,6 +51,8 @@ export interface ExportRequestContext {
 // Màn hình đăng ký hàm xuất theo mã báo cáo để tiến trình nền gọi lại với cùng tham số
 export interface ExportJobHandler {
   title: string;
+  // Số giờ giữ tệp trước khi xóa; mặc định EXPORT_FILE_RETENTION_DAYS ngày (gói toàn bộ dữ liệu giữ ngắn hơn, DT-18 phần 18h)
+  retentionHours?: number;
   run(
     currentUser: CurrentUser,
     parameters: Record<string, unknown>,
@@ -170,12 +174,24 @@ export class ExportJobs implements OnApplicationBootstrap, OnModuleDestroy {
     }
   }
 
+  // Luôn tạo tác vụ nền, không xuất trực tiếp (gói toàn bộ dữ liệu của trường, DT-18 phần 18h)
+  queue(
+    currentUser: CurrentUser,
+    reportCode: string,
+    parameters: Record<string, unknown>,
+    format: ExportJobFormat,
+    ipAddress: string | null,
+  ): Promise<ExportJobView> {
+    const handler = this.requireHandler(reportCode);
+    return this.create(currentUser, reportCode, handler.title, parameters, format, ipAddress);
+  }
+
   private async create(
     currentUser: CurrentUser,
     reportCode: string,
     title: string,
     parameters: Record<string, unknown>,
-    format: TableFileFormat,
+    format: ExportJobFormat,
     ipAddress: string | null,
   ): Promise<ExportJobView> {
     return this.databases.system
@@ -205,7 +221,7 @@ export class ExportJobs implements OnApplicationBootstrap, OnModuleDestroy {
       .execute();
   }
 
-  async download(currentUser: CurrentUser, jobId: string): Promise<ExportedFile> {
+  async download(currentUser: CurrentUser, jobId: string, ipAddress: string | null = null): Promise<ExportedFile> {
     const job = await this.databases.system
       .selectFrom('export_jobs')
       .selectAll()
@@ -222,8 +238,20 @@ export class ExportJobs implements OnApplicationBootstrap, OnModuleDestroy {
         expired ? 'Tệp đã hết hạn tải về; hãy xuất lại' : 'Tệp chưa tạo xong hoặc tạo lỗi, chưa tải về được',
       );
     }
+    const buffer = await this.fileStorage.get(job.storage_key);
+    // Nhật ký tải tệp đã tạo (DT-18 phần 18h)
+    await this.databases.system
+      .insertInto('export_job_downloads')
+      .values({
+        export_job_id: job.id,
+        user_id: currentUser.id,
+        user_name: currentUser.description.full_name,
+        ip_address: ipAddress,
+        downloaded_at: this.clock.now(),
+      })
+      .execute();
     return {
-      buffer: await this.fileStorage.get(job.storage_key),
+      buffer,
       fileName: job.file_name,
       logId: job.id,
       contentType: job.content_type ?? undefined,
@@ -278,25 +306,30 @@ export class ExportJobs implements OnApplicationBootstrap, OnModuleDestroy {
         throw new Error('Không có hàm xuất cho loại tệp này');
       }
       const file = await handler.run(new CurrentUser(job.user_snapshot), job.parameters, {
-        format: job.format,
+        format: job.format as TableFileFormat,
         ipAddress: job.ip_address,
         rowLimit: BACKGROUND_EXPORT_ROW_LIMIT,
       });
-      const storageKey = `export/${job.id}`;
+      const fileKey = storageKey('export', job.id);
       const contentType = file.contentType ?? 'application/octet-stream';
-      await this.fileStorage.put(storageKey, file.buffer, contentType);
+      await this.fileStorage.put(fileKey, file.buffer, contentType);
       const finishedAt = this.clock.now();
       await this.databases.system
         .updateTable('export_jobs')
         .set({
           status: 'done',
-          storage_key: storageKey,
+          storage_key: fileKey,
           file_name: file.fileName,
           content_type: contentType,
           size_bytes: file.buffer.length,
           row_count: file.rowCount ?? null,
           finished_at: finishedAt,
-          expires_at: new Date(finishedAt.getTime() + EXPORT_FILE_RETENTION_DAYS * DAY_MILLISECONDS),
+          expires_at: new Date(
+            finishedAt.getTime() +
+              (handler.retentionHours !== undefined
+                ? handler.retentionHours * 60 * 60_000
+                : EXPORT_FILE_RETENTION_DAYS * DAY_MILLISECONDS),
+          ),
           error_message: null,
         })
         .where('id', '=', job.id)
@@ -378,9 +411,10 @@ export class ExportJobsController {
   @Get(':id/file')
   async download(
     @Param('id', uuidParameter('Mã tác vụ không hợp lệ')) jobId: string,
+    @Req() request: Request,
     @Res() response: Response,
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
-    sendWorkbook(response, await this.exportJobs.download(currentUser, jobId));
+    sendWorkbook(response, await this.exportJobs.download(currentUser, jobId, request.ip ?? null));
   }
 }
