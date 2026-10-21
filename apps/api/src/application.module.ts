@@ -364,6 +364,8 @@ export class ApplicationModule {
       transitionSteps?: AcademicYearTransitionStep[];
       fileStorage?: FileStorage;
       smsGateway?: SmsGateway;
+      // Lệnh tạo dữ liệu trình diễn chạy máy chủ API trong tiến trình, đọc tài khoản thẳng từ cơ sở dữ liệu định danh
+      identityClient?: IdentityClient;
     } = {},
   ): DynamicModule {
     return {
@@ -554,7 +556,7 @@ export class ApplicationModule {
         { provide: API_CONFIGURATION, useValue: configuration },
         { provide: Clock, useValue: clock },
         Databases,
-        IdentityClient,
+        options.identityClient ? { provide: IdentityClient, useValue: options.identityClient } : IdentityClient,
         { provide: APP_GUARD, useClass: AuthenticationGuard },
         // Ghi thao tác, chặn kí số trong lúc đăng nhập thay (DT-18 phần 18h)
         { provide: APP_INTERCEPTOR, useClass: ImpersonationInterceptor },
