@@ -49,7 +49,7 @@ test('Đăng nhập thay có thanh báo và nút thoát, nhật ký đăng nhậ
   await openMenu(page, '/accounts');
   const grid = page.getByRole('region', { name: 'Danh sách người dùng' });
   await grid.getByLabel('Tìm theo tên, số điện thoại, tên đăng nhập').fill(targetName);
-  await grid.getByRole('cell', { name: targetName }).click({ timeout: 30_000 });
+  await grid.getByRole('cell', { name: targetName, exact: true }).click({ timeout: 30_000 });
   await page.getByRole('button', { name: 'Đăng nhập thay' }).click();
   const dialog = page.getByRole('dialog', { name: `Đăng nhập thay ${targetName}` });
   await expect(dialog.getByRole('button', { name: 'Đăng nhập thay' })).toBeDisabled();
