@@ -16,6 +16,7 @@ import { PickupScreen } from './screens/PickupScreen.js';
 import { StocktakeScreen } from './screens/StocktakeScreen.js';
 import { TeachingScreen } from './screens/TeachingScreen.js';
 import { WorkScreen } from './screens/WorkScreen.js';
+import { DemoBanner } from '@school-management/ui';
 import { SessionProvider, useSession } from './session/session.js';
 
 // Chọn màn hình theo trạng thái phiên: chưa đăng nhập về MH-47; bắt buộc đổi mật khẩu về MH-48 (BM-07)
@@ -109,6 +110,8 @@ function Screens() {
 export function Application() {
   return (
     <SessionProvider>
+      {/* Dải bản trình diễn (DT-18 phần 18h) */}
+      <DemoBanner />
       <Screens />
     </SessionProvider>
   );

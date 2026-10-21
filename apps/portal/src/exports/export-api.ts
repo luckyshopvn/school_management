@@ -12,7 +12,8 @@ export interface ExportJob {
   id: string;
   report_code: string;
   title: string;
-  format: ExportFormat;
+  // Gói toàn bộ dữ liệu của trường là ZIP (DT-18 phần 18h)
+  format: ExportFormat | 'zip';
   status: ExportJobStatus;
   row_count: number | null;
   file_name: string | null;

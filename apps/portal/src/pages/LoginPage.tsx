@@ -6,6 +6,7 @@ import { ApiError } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
 import { CaptchaField, useCaptcha } from '../portal-shell/CaptchaField.js';
 import { readLoginInfo, readLoginOptions } from '../portal-shell/portal-shell-api.js';
+import { DemoRolePicker } from '../administration/DemoRolePicker.js';
 
 // MH-47 Đăng nhập; thông báo lỗi lấy nguyên từ máy chủ. Theo trang đăng nhập của Sở (DT-16 phần 16c): tên và mã trường,
 // năm học đang dùng (bản chạy nội bộ thay cho bước chọn Năm học → Cấp học → Phường/Xã → Trường, vì phần mềm phục vụ một
@@ -133,6 +134,7 @@ export function LoginPage() {
           {submitting ? 'Đang đăng nhập…' : 'Đăng nhập'}
         </Button>
       </form>
+      <DemoRolePicker />
       {options.data?.hotline ? (
         <p className="text-label text-text-secondary" data-testid="login-hotline">
           Đường dây nóng hỗ trợ: <span className="font-semibold text-text">{options.data.hotline}</span>

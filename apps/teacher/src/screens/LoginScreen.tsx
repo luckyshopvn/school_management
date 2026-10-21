@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Alert, Button, TextField } from '@school-management/ui';
+import { Alert, Button, DemoAccountPicker, TextField } from '@school-management/ui';
 import { ApiError } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
 
@@ -25,7 +25,7 @@ export function LoginScreen() {
   }
 
   return (
-    <main className="flex min-h-screen items-start justify-center px-4 pt-12">
+    <main className="flex min-h-screen flex-col items-center justify-start gap-4 px-4 pt-12">
       <form
         onSubmit={submit}
         noValidate
@@ -53,6 +53,15 @@ export function LoginScreen() {
           {submitting ? 'Đang đăng nhập…' : 'Đăng nhập'}
         </Button>
       </form>
+      <DemoAccountPicker
+        app="teacher"
+        onPick={(login, demoPassword) => {
+          setErrorMessage(undefined);
+          session.login(login, demoPassword).catch((error: unknown) => {
+            setErrorMessage(error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại');
+          });
+        }}
+      />
     </main>
   );
 }

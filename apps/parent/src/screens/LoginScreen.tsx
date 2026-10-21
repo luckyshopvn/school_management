@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Alert, Button, TextField } from '@school-management/ui';
+import { Alert, Button, DemoAccountPicker, TextField } from '@school-management/ui';
 import { ApiError, requestOneTimeCode } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
 import { RECRUITMENT_HASH } from './RecruitmentScreen.js';
@@ -61,7 +61,7 @@ export function LoginScreen({ onAdmissions }: { onAdmissions?: () => void }) {
   }
 
   return (
-    <main className="flex min-h-screen items-start justify-center px-4 pt-12">
+    <main className="flex min-h-screen flex-col items-center justify-start gap-4 px-4 pt-12">
       <form
         onSubmit={submit}
         noValidate
@@ -143,6 +143,16 @@ export function LoginScreen({ onAdmissions }: { onAdmissions?: () => void }) {
           </Button>
         ) : null}
       </form>
+      {/* Bản trình diễn: chọn tài khoản phụ huynh giả để vào thử (DT-18 phần 18h) */}
+      <DemoAccountPicker
+        app="parent"
+        onPick={(login, demoPassword) => {
+          setErrorMessage(undefined);
+          session.loginWithPassword(login, demoPassword).catch((error: unknown) => {
+            setErrorMessage(error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại');
+          });
+        }}
+      />
       <nav aria-label="Trang công khai" className="fixed bottom-6 left-0 right-0 flex justify-center">
         <a href={RECRUITMENT_HASH} className="text-label font-medium text-text underline">
           Tuyển dụng giáo viên và nhân viên

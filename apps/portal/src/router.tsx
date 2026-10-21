@@ -106,6 +106,11 @@ import { ArchiveHoldingsPage } from './archives/ArchiveHoldingsPage.js';
 import { ArchiveRecordsPage } from './archives/ArchiveRecordsPage.js';
 import { ArchiveReportPage } from './archives/ArchiveReportPage.js';
 import { GeneratedFilesPage } from './exports/GeneratedFilesPage.js';
+import {
+  DemoEnvironmentPage,
+  ImpersonationsPage,
+  SchoolDataExportPage,
+} from './administration/AdministrationPages.js';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage.js';
 import { HelpPage } from './portal-shell/HelpPage.js';
 import { MyProfilePage } from './portal-shell/MyProfilePage.js';
@@ -481,6 +486,10 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/archive-holdings', component: ArchiveHoldingsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/archive-report', component: ArchiveReportPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/generated-files', component: GeneratedFilesPage }),
+  // Quản trị và trình diễn (DT-18 phần 18h)
+  createRoute({ getParentRoute: () => rootRoute, path: '/impersonations', component: ImpersonationsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/school-data-export', component: SchoolDataExportPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/demo-environment', component: DemoEnvironmentPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/work', component: WorkPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/evaluations', component: EvaluationsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/bonus-deductions', component: BonusDeductionsPage }),

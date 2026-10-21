@@ -38,6 +38,7 @@ import {
 import { BulkPasswordDialog, BulkRoleDialog, StaffAccountsDialog } from './AccountBulkDialogs.js';
 import { RoleGrantFields } from './RoleGrantFields.js';
 import { PasswordPolicySection } from './PasswordPolicySection.js';
+import { ImpersonateDialog } from '../administration/ImpersonateDialog.js';
 
 // MH-30 phần tài khoản: danh sách, tạo, khóa, mở khóa, đặt lại mật khẩu, gán vai trò (P01-06, P01-07, PQ-13); danh sách
 // dùng lưới dữ liệu chung, gỡ vai trò qua hộp xác nhận xóa (DT-15 phần 15a). DT-16 phần 16d: đủ cột, bộ lọc, nút của Sở
@@ -151,6 +152,7 @@ function AccountDetail({
   roles,
   units,
   canAssignRoles,
+  canImpersonate,
   onChanged,
   onTemporaryPassword,
 }: {
@@ -158,12 +160,14 @@ function AccountDetail({
   roles: Role[];
   units: OrgUnit[];
   canAssignRoles: boolean;
+  canImpersonate: boolean;
   onChanged(message: string): void;
   onTemporaryPassword(password: string): void;
 }) {
   const queryClient = useQueryClient();
   const [grant, setGrant] = useState<RoleGrant>({ role_code: '', org_unit_id: null });
   const [confirmingReset, setConfirmingReset] = useState(false);
+  const [impersonating, setImpersonating] = useState(false);
   // Vai trò đang chờ xác nhận gỡ (hộp xác nhận xóa theo mẫu của Sở, DT-15 phần 15a)
   const [removing, setRemoving] = useState<Account['assignments'][number]>();
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['accounts'] });
@@ -223,7 +227,11 @@ function AccountDetail({
           {account.status === 'active' ? 'Khóa tài khoản' : 'Mở khóa'}
         </Button>
         <Button onClick={() => setConfirmingReset(true)}>Đặt lại mật khẩu</Button>
+        {canImpersonate && account.status === 'active' ? (
+          <Button onClick={() => setImpersonating(true)}>Đăng nhập thay</Button>
+        ) : null}
       </div>
+      {impersonating ? <ImpersonateDialog account={account} onClose={() => setImpersonating(false)} /> : null}
       <div className="flex flex-col gap-2">
         <h3 className="text-label font-semibold text-text-secondary">VAI TRÒ</h3>
         <ul className="flex flex-col gap-1">
@@ -335,6 +343,8 @@ type BulkAction = 'roles' | 'password' | 'staff';
 export function AccountsPage() {
   const canAssignRoles = useHasPermission(PERMISSION_CODES.accountManage);
   const canExport = useHasPermission(PERMISSION_CODES.dataExport);
+  // Đăng nhập thay (DT-18 phần 18h)
+  const canImpersonate = useHasPermission(PERMISSION_CODES.accountImpersonate);
   const [filter, setFilter] = useState<AccountFilter>(EMPTY_ACCOUNT_FILTER);
   const [page, setPage] = useState(1);
   const [selectedId, setSelectedId] = useState<string>();
@@ -627,6 +637,7 @@ export function AccountsPage() {
                   roles={roles.data ?? []}
                   units={units.data ?? []}
                   canAssignRoles={canAssignRoles}
+                  canImpersonate={canImpersonate}
                   onChanged={setToastMessage}
                   onTemporaryPassword={setTemporaryPassword}
                 />

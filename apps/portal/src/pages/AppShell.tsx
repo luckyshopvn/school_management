@@ -16,6 +16,7 @@ import { FeedbackDialog } from '../feedback/FeedbackDialog.js';
 import { AppLauncher } from '../portal-shell/AppLauncher.js';
 import { StartupNotices } from '../portal-shell/StartupNotices.js';
 import { readPortalContext } from '../portal-shell/portal-shell-api.js';
+import { DemoBanner, ImpersonationBanner } from '../administration/AdministrationBanners.js';
 
 function MenuIcon() {
   return (
@@ -69,6 +70,9 @@ export function AppShell({ children }: { children: ReactNode }) {
     <WorkspaceContext.Provider value={workspaces}>
       <NavigationRegistryContext.Provider value={navigationRegistry}>
         <div className="flex min-h-screen flex-col">
+          {/* Thanh đăng nhập thay, dải bản trình diễn ở mọi trang (DT-18 phần 18h) */}
+          <ImpersonationBanner />
+          <DemoBanner />
           <header className="sticky top-0 z-40 flex h-14 items-center gap-3 bg-header px-4 text-white shadow-sm">
             <button
               type="button"
