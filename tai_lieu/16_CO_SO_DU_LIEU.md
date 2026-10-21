@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.85
+- Phiên bản: 1.86
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -293,6 +293,21 @@ Ràng buộc duy nhất: `attendance_logs` trên bộ đôi nhân sự và ngày
 | task_files | Tệp đính kèm của việc (YCTD-141) | id, task_id (khóa ngoại, xóa theo), file_name, content_type, size_bytes, sha256, storage_key (kho tệp, tiền tố `tasks/`), created_by, created_by_name, created_at |
 
 Tệp `database/school-year/migrations/0065_extend_tasks_for_directives.ts` (DT-18 phần 18c, YCTD-141) cho `tasks.task_type` nhận thêm `directive` (giao theo cây đơn vị, `assignee_staff_id` để trống), thêm cột `leader_user_id`, `leader_name`, `start_date`, `duration_days` (1 đến 3650), `remind_assigner`, `assigner_reminded_at`, `recurrence` (`none`, `daily`, `weekly`, `monthly`), `next_reminder_on`, `source_document_id` (văn bản đến ở cơ sở dữ liệu hệ thống, không khóa ngoại), `source_document_label`, `related_documents`; `task_updates` thêm `assignment_id`; tạo hai bảng trên. Mở năm học mới thì việc chưa xong chuyển kèm phân công, tệp.
+
+Hồ sơ chuyên môn (DT-18 phần 18e, YCTD-142), tệp `database/school-year/migrations/0066_create_professional_records.ts` của cơ sở dữ liệu năm học (kho tự tách theo năm học); mục đích tệp mới `professional_record` (kho tệp, tiền tố `professional-records/`):
+
+| Bảng | Mục đích | Trường chính |
+|---|---|---|
+| professional_folders | Cây thư mục ba nhánh (P09-28, BR-140) | id, parent_id (khóa ngoại chính bảng), branch (`personal`, `group`, `school`), name, description, school_level (`MN`, `TH`, `THCS`, `THPT`), approval_flow (`none`, `leader`, `two_level`), requires_signing, sort_order, status (`active`, `inactive`), created_by, created_at, updated_at |
+| professional_work_groups | Nhóm công tác ngoài tổ chuyên môn | id, org_unit_id (khóa ngoại), name, description, status, created_by, created_at, updated_at |
+| professional_work_group_members | Thành viên nhóm | group_id (khóa ngoại, xóa theo), staff_id (khóa ngoại), is_leader; khóa chính đôi |
+| professional_rounds | Đợt nộp có hạn (P09-29) | id, folder_id (khóa ngoại), title, description, submitter_kind (`staff`, `group`), org_unit_id (trống là toàn trường), department_ids (mảng), opens_on, due_at, status (`open`, `closed`), reminded_at, created_by, created_by_name, created_at, updated_at |
+| professional_documents | Hồ sơ (P09-28, BR-140) | id, folder_id, round_id, branch, org_unit_id, owner_user_id, owner_staff_id, owner_name, department_id, work_group_id (nhánh tổ phải có một trong hai), title, description, status (`draft`, `pending_leader`, `pending_approval`, `approved`, `returned`), approval_flow, requires_signing (chụp từ thư mục), current_version, submitted_at (lần nộp đầu), submitted_late, leader_user_id, leader_name, leader_reviewed_at, approved_by, approved_by_name, approved_at, return_note, signed_at, signature_method, signed_file_id (khóa ngoại `files`), created_at, updated_at |
+| professional_document_versions | Phiên bản tệp | id, document_id (khóa ngoại, xóa theo), version_no (duy nhất trong hồ sơ), file_id (khóa ngoại `files`), sha256, note, created_by, created_by_name, created_at |
+| professional_document_events | Lịch sử hồ sơ | id, document_id (khóa ngoại, xóa theo), action (`create`, `upload`, `submit`, `leader_approve`, `approve`, `return`, `sign`, `withdraw`), note, actor_id, actor_name, created_at |
+| professional_record_settings | Khóa năm học (một dòng, id = 1) | id, locked, locked_at, locked_by_name, updated_at |
+
+Mở năm học mới chuyển cây thư mục và nhóm công tác (thành viên còn trong danh sách nhân sự), giữ mã định danh; hồ sơ, đợt nộp ở lại năm cũ.
 
 | plans | Kế hoạch của đơn vị theo kỳ (YCTD-81) | org_unit_id, period_type (tháng, học kỳ, năm học), period_value, title, objectives, status (nháp, đang thực hiện, đã đóng), created_by, activated_at, closed_at |
 | plan_items | Đầu việc trong kế hoạch (YCTD-81) | plan_id, content, owner_staff_id, due_date, task_id (việc được giao khi kích hoạt), order_no |

@@ -38,6 +38,7 @@ export const WORKSPACE_ICONS: Record<WorkspaceKey, IconName> = {
   reports: 'report',
   kpi: 'chart',
   website: 'globe',
+  'professional-records': 'book',
 };
 
 const WORKSPACE_KEY = 'portal.workspace';

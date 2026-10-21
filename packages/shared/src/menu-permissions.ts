@@ -34,6 +34,13 @@ const WEBSITE_CONTENT = anyOf('P14.website.edit', 'P14.website.approve');
 const KPI_ANY = anyOf('P09.kpi.participate', 'P09.kpi.manage', 'P09.kpi.advise', 'P09.kpi.configure');
 // Giao việc, lịch, hồ sơ công việc theo VNPT iOffice (DT-18 phần 18c): việc cần xử lý cho mọi cán bộ có quyền của phân hệ
 const STAFF_WORK = anyOf('P09.task.direct', 'P09.work-file.use', 'P09.schedule.view');
+// Hồ sơ chuyên môn (DT-18 phần 18e)
+const PROFESSIONAL_ANY = anyOf(
+  'P09.professional-record.use',
+  'P09.professional-record.review',
+  'P09.professional-record.approve',
+  'P09.professional-record.manage',
+);
 const SCHEDULE_ANY = anyOf('P09.schedule.view', 'P09.schedule.manage', 'P09.meeting-room.manage');
 // Điều kiện của nhóm "Trẻ và lớp" cũ
 const CHILDREN_AND_CLASSES = anyOf('P02.class.manage', 'P02.view', 'P02.edit');
@@ -215,6 +222,16 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/website/albums': WEBSITE_CONTENT,
   '/website/review': 'P14.website.approve',
   '/website/contacts': WEBSITE_CONTENT,
+  // Hồ sơ chuyên môn (DT-18 phần 18e): Việc của tôi không có điều kiện, ai đăng nhập cũng thấy; kho cho người có một quyền
+  // của hồ sơ chuyên môn; duyệt cho tổ trưởng và Ban Giám hiệu; đợt nộp, thống kê, thiết lập cho người quản lý kho
+  '/professional-records': PROFESSIONAL_ANY,
+  '/professional-records/groups': PROFESSIONAL_ANY,
+  '/professional-records/school': PROFESSIONAL_ANY,
+  '/professional-records/review': anyOf('P09.professional-record.review', 'P09.professional-record.approve'),
+  '/professional-rounds': PROFESSIONAL_ANY,
+  '/professional-records/statistics': anyOf('P09.professional-record.manage', 'P09.professional-record.approve'),
+  '/professional-folders': 'P09.professional-record.manage',
+  '/professional-work-groups': 'P09.professional-record.manage',
   '/emis/facilities': 'P17.report.emis',
   '/emis/health': 'P17.report.emis',
   '/emis/end-of-year': 'P17.report.emis',

@@ -179,7 +179,8 @@ export type FilePurpose =
   | 'candidate_cv'
   | 'final_year_document'
   | 'admission_document'
-  | 'kpi_evidence';
+  | 'kpi_evidence'
+  | 'professional_record';
 
 export interface FilesTable extends CatalogRecordColumns {
   org_unit_id: string | null;
@@ -3967,6 +3968,127 @@ export interface KpiManagerActionsTable {
   created_at: CreatedTimestamp;
 }
 
+// Hồ sơ chuyên môn (DT-18 phần 18e, YCTD-142)
+export type ProfessionalBranch = 'personal' | 'group' | 'school';
+export type ProfessionalApprovalFlow = 'none' | 'leader' | 'two_level';
+export type ProfessionalDocumentStatus = 'draft' | 'pending_leader' | 'pending_approval' | 'approved' | 'returned';
+export type ProfessionalDocumentAction =
+  'create' | 'upload' | 'submit' | 'leader_approve' | 'approve' | 'return' | 'sign' | 'withdraw';
+
+export interface ProfessionalFoldersTable {
+  id: Generated<string>;
+  parent_id: string | null;
+  branch: ProfessionalBranch;
+  name: string;
+  description: string | null;
+  school_level: KpiSchoolLevel | null;
+  approval_flow: Generated<ProfessionalApprovalFlow>;
+  requires_signing: Generated<boolean>;
+  sort_order: Generated<number>;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ProfessionalWorkGroupsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  name: string;
+  description: string | null;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ProfessionalWorkGroupMembersTable {
+  group_id: string;
+  staff_id: string;
+  is_leader: Generated<boolean>;
+}
+
+export interface ProfessionalRoundsTable {
+  id: Generated<string>;
+  folder_id: string;
+  title: string;
+  description: string | null;
+  submitter_kind: 'staff' | 'group';
+  org_unit_id: string | null;
+  department_ids: string[] | null;
+  opens_on: string;
+  due_at: Date;
+  status: Generated<'open' | 'closed'>;
+  reminded_at: Date | null;
+  created_by: string | null;
+  created_by_name: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ProfessionalDocumentsTable {
+  id: Generated<string>;
+  folder_id: string;
+  round_id: string | null;
+  branch: ProfessionalBranch;
+  org_unit_id: string;
+  owner_user_id: string;
+  owner_staff_id: string | null;
+  owner_name: string;
+  department_id: string | null;
+  work_group_id: string | null;
+  title: string;
+  description: string | null;
+  status: Generated<ProfessionalDocumentStatus>;
+  approval_flow: ProfessionalApprovalFlow;
+  requires_signing: Generated<boolean>;
+  current_version: Generated<number>;
+  submitted_at: Date | null;
+  submitted_late: Generated<boolean>;
+  leader_user_id: string | null;
+  leader_name: string | null;
+  leader_reviewed_at: Date | null;
+  approved_by: string | null;
+  approved_by_name: string | null;
+  approved_at: Date | null;
+  return_note: string | null;
+  signed_at: Date | null;
+  signature_method: string | null;
+  signed_file_id: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ProfessionalDocumentVersionsTable {
+  id: Generated<string>;
+  document_id: string;
+  version_no: number;
+  file_id: string;
+  sha256: string;
+  note: string | null;
+  created_by: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface ProfessionalDocumentEventsTable {
+  id: Generated<string>;
+  document_id: string;
+  action: ProfessionalDocumentAction;
+  note: string | null;
+  actor_id: string;
+  actor_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface ProfessionalRecordSettingsTable {
+  id: number;
+  locked: Generated<boolean>;
+  locked_at: Date | null;
+  locked_by_name: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -4206,6 +4328,14 @@ export interface SchoolYearDatabase {
   kpi_evaluation_criteria: KpiEvaluationCriteriaTable;
   kpi_votes: KpiVotesTable;
   kpi_manager_actions: KpiManagerActionsTable;
+  professional_folders: ProfessionalFoldersTable;
+  professional_work_groups: ProfessionalWorkGroupsTable;
+  professional_work_group_members: ProfessionalWorkGroupMembersTable;
+  professional_rounds: ProfessionalRoundsTable;
+  professional_documents: ProfessionalDocumentsTable;
+  professional_document_versions: ProfessionalDocumentVersionsTable;
+  professional_document_events: ProfessionalDocumentEventsTable;
+  professional_record_settings: ProfessionalRecordSettingsTable;
   equipment_locations: EquipmentLocationsTable;
   equipment_stocktakes: EquipmentStocktakesTable;
   equipment_stocktake_lines: EquipmentStocktakeLinesTable;

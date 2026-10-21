@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.90
+- Phiên bản: 1.91
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -1322,6 +1322,12 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, POST, PUT, DELETE | /api/v1/unit-schedules, /unit-schedules/publish, /unit-schedules/export, /unit-schedule-templates, /unit-schedule-templates/{id}/apply | Lịch đơn vị, công bố, xuất, mẫu lịch (P09-25, YCTD-141) |
 | GET, POST, PUT, DELETE | /api/v1/work-files, /work-files/{id}, /items, /shares, /transfer, /close, /reopen, /submit, /accept, /return | Hồ sơ công việc, nộp lưu (P09-26, YCTD-141) |
 | GET | /api/v1/document-reports/incoming, /summary, /statistics, /export | Báo cáo (P09-27, YCTD-141) |
+| GET | /api/v1/my-work, /my-work/count | Việc của tôi và số đếm (P09-30, YCTD-142) |
+| GET, PUT | /api/v1/professional-records/overview, /lock, /options, /statistics | Tổng quan, khóa năm học, danh sách chọn, thống kê (YCTD-142) |
+| GET, POST, PUT, DELETE | /api/v1/professional-folders, /professional-folders/{id}, /professional-folders/defaults | Thư mục, luồng duyệt, danh mục mặc định (P09-28, YCTD-142) |
+| GET, POST, PUT | /api/v1/professional-work-groups, /professional-work-groups/{id} | Nhóm công tác (YCTD-142) |
+| GET, POST, PUT | /api/v1/professional-rounds, /{id}, /{id}/close, /reopen, /remind, /status | Đợt nộp, tình trạng nộp (P09-29, YCTD-142) |
+| GET, POST, PUT, DELETE | /api/v1/professional-documents, /{id}, /versions, /signed-file, /submit, /withdraw, /leader-approve, /approve, /return | Hồ sơ, phiên bản, luồng duyệt (P09-28, YCTD-142) |
 | GET, PUT, POST, DELETE | /api/v1/website/settings, /website/settings/images/{purpose}, /website/sample-content, /website/disclosure-categories | Thông tin website, biểu trưng, ảnh đầu trang, nội dung mẫu, nhóm công khai (P14-13, YCTD-144) |
 | GET, POST, PATCH, DELETE | /api/v1/website/domains, /website/domains/{id}, /website/domains/{id}/dns-confirmation | Tên miền (P14-13, YCTD-144) |
 | GET, POST, PUT, DELETE | /api/v1/website/posts, /website/posts/{id}, /submit, /approve, /return, /unpublish, /files, /files/{fileId} | Bài viết, luồng duyệt, tệp (P14-14, YCTD-144) |
@@ -1368,6 +1374,16 @@ Giao kèo giao việc, lịch, hồ sơ công việc, báo cáo theo VNPT iOffic
 4. `POST /room-bookings` nhận `room_id`, `title`, `chair_name`, `participants`, `date`, `start_time`, `end_time` (HH:MM), `note`; trùng giờ trả 422. `POST /unit-schedules`, `PUT /unit-schedules/{id}` nhận `org_unit_id`, `entry_date`, `session`, `start_time`, `end_time`, `content`, `chair_name`, `participants`, `location`, `note`, `room_id` (cần giờ bắt đầu, kết thúc), `attendee_ids`. `GET /unit-schedules` nhận `from`, `to` (tối đa 62 ngày), `org_unit_id`, `view=mine`, `location`, `participant`; `/export` thêm `format` (`xlsx`, `pdf`). `/publish` nhận `from`, `to`, `org_unit_id`. `/unit-schedule-templates/{id}/apply` nhận `week_of`, `org_unit_id`.
 5. `GET /work-files` nhận `box` (`personal`, `shared`, `transferred`, `archive`, `expired`), `year`, `q`. `POST /work-files` nhận `code`, `title`, `year`, `description`, `org_unit_id`, `retention`, `retention_years`; ký hiệu trùng trả 409. `/items` nhận `item_type` và `incoming_document_id`, `task_id` hoặc `title`, `note`. `PUT /shares` nhận `shares` [`user_id`, `permission`]. `/transfer` nhận `user_id`, `note`. `/submit` nhận `retention`, `retention_years` (tùy chọn). `/accept` nhận `code` (mặc định năm và ký hiệu), `fond_id`; `/return` nhận `note` bắt buộc.
 6. `GET /document-reports/{incoming|summary|statistics}` nhận `from`, `to` (bắt buộc, tối đa 400 ngày), `org_unit_id`; `/export` thêm `kind`, `format`, ghi `export_logs` mã `document_report_<kind>`.
+
+Giao kèo hồ sơ chuyên môn và Việc của tôi (DT-18 phần 18e, YCTD-142, BR-140; máy chủ API, dữ liệu hồ sơ ở cơ sở dữ liệu năm học hiện hành):
+
+1. `GET /professional-records/overview` trả `locked`, `has_staff`, `can_use`, `can_review`, `can_approve`, `can_manage`, `signer_description`, `my_groups` (tổ chuyên môn của mình, nhóm công tác kèm `leader`). `PUT /professional-records/lock` (`locked`) cần `P09.professional-record.manage` toàn trường. `GET /professional-records/options` (đơn vị, tổ, nhân sự) và `GET /professional-records/statistics` (`round_id`; `rounds`, `departments`, `totals`) cần `.manage` hoặc `.approve`.
+2. `GET /professional-folders` (`branch`, `include_inactive`); `POST`, `PUT /professional-folders/{id}` (`parent_id`, `branch` không đổi sau khi tạo, `name`, `description`, `school_level`, `approval_flow`, `requires_signing`, `sort_order`, `status`), `DELETE` (thư mục trống) và `POST /professional-folders/defaults` (`school_level`; trả `created`, `skipped`) cần `.manage`.
+3. `GET /professional-work-groups`; `POST`, `PUT /professional-work-groups/{id}` (`org_unit_id`, `name`, `description`, `status`, `members` gồm `staff_id`, `is_leader`) cần `.manage` trong đơn vị.
+4. `GET /professional-rounds` (`status` `open`, `closed`, `all`) trả kèm `expected`, `on_time`, `late`, `missing`, `my_state`, `my_document_id`, `overdue`. `POST`, `PUT /professional-rounds/{id}` (`folder_id`, `title`, `description`, `submitter_kind`, `org_unit_id`, `department_ids`, `opens_on`, `due_at` dạng `YYYY-MM-DDTHH:mm` giờ Việt Nam hoặc ISO), `/close`, `/reopen`, `/remind` (trả `reminded`) cần `.manage`. `GET /professional-rounds/{id}/status` trả `submitters` (`state` `on_time`, `late`, `draft`, `missing`) cho tổ trưởng (tổ mình), Ban Giám hiệu, người quản lý.
+5. `GET /professional-documents` (`view` `mine`, `groups`, `school`, `review`; `all`, `processed`, `folder_id`, `round_id`, `status`, `q`); `POST` (`folder_id`, `round_id`, `title`, `description`, `department_id`, `work_group_id`); `GET`, `PUT`, `DELETE /professional-documents/{id}` (chi tiết kèm `versions`, `events`, `actions`). `POST /{id}/versions` (multipart `file`, `note`); `GET /{id}/versions/{versionId}/file`, `/signed-file`. `POST /{id}/submit`, `/withdraw`, `/leader-approve`, `/approve` (`note`), `/return` (`note` bắt buộc). Sai luồng, khóa năm học, thiếu chứng thư trả `ERR_RULE_VIOLATION` mã YCTD-142; ngoài phạm vi trả `ERR_FORBIDDEN`.
+6. `GET /my-work` (`source`, `state` `overdue` hoặc `due_soon`, `q`) cho mọi tài khoản: `items` (`source`, `kind`, `title`, `detail`, `link`, `deadline`, `overdue`, `due_soon`, `received_at`), `count` (`total`, `overdue`, `by_source`), `failed_sources`. `GET /my-work/count` trả `count`.
+7. `GET`, `PUT /me/grid-settings/{gridKey}` nhận thêm tám khóa lưới: `my-work`, `professional-documents`, `professional-review`, `professional-rounds`, `professional-round-status`, `professional-statistics`, `professional-folders`, `professional-work-groups`.
 
 Giao kèo văn bản đi theo VNPT iOffice (DT-18 phần 18b, YCTD-140, BR-136; máy chủ API, dữ liệu ở cơ sở dữ liệu hệ thống):
 
