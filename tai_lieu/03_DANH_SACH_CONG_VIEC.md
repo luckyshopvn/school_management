@@ -1,7 +1,7 @@
 # 03. DANH SÁCH KIỂM TRA CÔNG VIỆC
 
 - Mô tả: Danh sách công việc, trạng thái và thứ tự ưu tiên của dự án.
-- Phiên bản: 0.54
+- Phiên bản: 0.55
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đang cập nhật
 
@@ -24,7 +24,7 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | P09 Công việc, kế hoạch và đánh giá | Hoàn thành | Đợt DT-10 phần 10h (YCTD-81), DT-15 phần 15f2 (YCTD-113: lưới và biểu mẫu chung cho công việc, kế hoạch, đánh giá nhân sự), DT-15 phần 15h2 (YCTD-118: 5.10 Văn thư lưu trữ theo Sở), DT-18 phần 18a (YCTD-138: văn bản đến theo VNPT iOffice, phân hệ Quản lý văn bản và điều hành), DT-18 phần 18b (YCTD-140: văn bản đi theo VNPT iOffice), DT-18 phần 18e (YCTD-142: hồ sơ chuyên môn, đợt nộp, luồng duyệt, Việc của tôi); DT-18 phần 22i (YCTD-147: kế hoạch giáo dục) |
 | P10 Y tế học đường | Hoàn thành | Đợt DT-10 phần 10a, 10b (YCTD-74, YCTD-75), DT-14 phần 14a (YCTD-105: đợt cân đo, kênh tăng trưởng theo chuẩn WHO, tổng hợp cân nặng, chiều cao); DT-16 phần 16h (YCTD-125: 4.6.1 Nhập thông tin sức khỏe học sinh theo học kỳ, lấy số đo từ 4.3; 4.3.2 tổng hợp theo học kỳ, so sánh hai lần cân đo, được khám định kỳ) |
 | P11 Xe đưa đón | Đã bỏ | Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62) |
-| P12 Bếp và dinh dưỡng | Hoàn thành | Đợt DT-10 phần 10c (YCTD-76); DT-16 phần 16h (YCTD-125: 4.5 thực đơn có tên, tháng, tuần, từ ngày, đến ngày, khối áp dụng, nhập thực đơn từ Excel) |
+| P12 Bếp và dinh dưỡng | Hoàn thành | Đợt DT-10 phần 10c (YCTD-76); DT-16 phần 16h (YCTD-125: 4.5 thực đơn có tên, tháng, tuần, từ ngày, đến ngày, khối áp dụng, nhập thực đơn từ Excel); DT-18 phần 22b (YCTD-146: lô hàng, hồ sơ an toàn thực phẩm của nhà cung cấp, kiểm thực ba bước, lưu và hủy mẫu, truy xuất, sổ in) |
 | P13 Kho, tài sản và mua hàng | Hoàn thành | Đợt DT-10 phần 10d (YCTD-77), DT-14 phần 14d (YCTD-106: khai báo cơ sở vật chất, thiết bị dạy học tối thiểu); DT-16 phần 16i (YCTD-128: 6.1 thực trạng và nhu cầu đầu tư, nhập phòng và danh mục thiết bị từ Excel, 1.2 báo cáo cơ sở vật chất, 2.3 gửi thiết bị dạy học lên cấp trên chạy nội bộ); DT-15 phần 15f3 (YCTD-115: lưới và biểu mẫu chung cho tồn kho, sổ kho, tài sản, hỏng và mất, kiểm kê, phiếu mua hàng, nhà cung cấp, đề nghị mua hàng; cột Thiết bị dạy học ở lưới tài sản) |; DT-18 phần 18g (YCTD-143: nơi để, tem QR, kiểm kê bằng điện thoại, đối sánh danh mục tối thiểu theo cấp học)
 | P14 Hoạt động, nội dung và truyền thông | Hoàn thành | Đợt DT-10 phần 10e (YCTD-78), DT-15 phần 15f3 (YCTD-115: lưới và biểu mẫu chung cho danh mục, tin tức, thư viện, ngoại khóa); Fanpage ở DT-11 phần 11e, tài khoản thật chờ việc T1; DT-18 phần 18f (YCTD-144: website trường trên tên miền riêng, chế độ trình diễn) |
 | P15 Tương tác và ý kiến | Hoàn thành | Đợt DT-10 phần 10f (YCTD-79), DT-15 phần 15f3 (YCTD-115: lưới và biểu mẫu chung cho bình chọn, khảo sát, góp ý, đồ bị mất, bình luận) |

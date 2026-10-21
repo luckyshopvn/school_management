@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.23
+- Phiên bản: 0.24
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,29 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-21 — DT-18 phần 22b: bán trú, kiểm thực ba bước và an toàn thực phẩm
+
+#### Công việc đã thực hiện
+
+- Đọc mục 9 của `32_KE_HOACH_THEO_HE_THONG_SO.md`, kế hoạch DT-22 (phần 22b), Quyết định 1246/QĐ-BYT ngày 31/3/2017 của Bộ Y tế; rà mã bếp (thực đơn, định lượng, suất ăn, phiếu đi chợ), kho, tiền ăn.
+- Cơ sở dữ liệu: tệp năm học `0068_create_food_safety`, tệp định danh `0060_add_food_safety_permission`.
+- Máy chủ API: lô hàng (tạo khi nhập phiếu đi chợ), hồ sơ nhà cung cấp, tệp quét, kiểm thực ba bước có gợi ý dòng, lưu và hủy mẫu, truy xuất, sổ in PDF và Excel, nguồn Việc của tôi, chuyển giấy tờ sang năm học mới.
+- Cổng quản trị: nhóm "3. Bán trú và an toàn thực phẩm" với 3.1 đến 3.5; cảnh báo giấy tờ và cột lô ở phiếu đi chợ.
+- Thêm quy tắc BR-143 đến BR-146, chức năng P12-11 đến P12-15, quyền PQ-87, màn hình MH-236 đến MH-240, kịch bản CT-769 đến CT-775, tiêu chí AC-715 đến AC-719. Kết quả ngày 21/10/2026: kiểm thử đơn vị `apps/api/src/kitchen/food-safety.test.ts` CT-22b-1 đến CT-22b-6 đạt 6/6; kiểm thử đơn vị toàn bộ kho mã 988/988; kiểm thử giao diện `tests/e2e/77-food-safety.spec.ts` (CT-22b-7) đạt; toàn bộ kiểm thử giao diện 150/150; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 22b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9.4 theo Quyết định 1246/QĐ-BYT ngày 31/3/2017 của Bộ Y tế. Lô gắn với dòng phiếu đi chợ để truy xuất tới nhà cung cấp, chứng từ; lô dùng cho món ghi ở bước 2 (có gợi ý) để truy xuất chính xác. Tệp quét lưu bảng riêng để không đụng ràng buộc mục đích tệp của phần chạy song song. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-146, `07_QUY_TAC_NGHIEP_VU.md` BR-143 đến BR-146, `08_VAI_TRO_NGUOI_DUNG.md` PQ-87, `10_YEU_CAU_CHUC_NANG.md` P12-11 đến P12-15, `11_TIEU_CHI_NGHIEM_THU.md` AC-715 đến AC-719, `14_DAC_TA_GIAO_DIEN.md` MH-236 đến MH-240, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-769 đến CT-775, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.98.0.
+
+#### Vấn đề tồn đọng
+
+- Tiền ăn: chưa có luồng chi trả lại số dư có cho phụ huynh khi trẻ thôi học, chưa tách số dư tiền ăn với học phí (xem YCTD-146).
+- Lô chưa trừ tồn theo lô; chưa có sổ phản ánh, sự cố ngộ độc riêng; phiếu kiểm thực đã xác nhận chưa có thao tác mở lại; người xác nhận phiếu chỉ lưu mã tài khoản.
 
 ### 2026-10-21 — DT-18 phần 22i: kế hoạch giáo dục
 

@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.23
+- Phiên bản: 0.24
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.98.0 – 2026-10-21
+
+- Phạm vi thay đổi: DT-18 phần 22b, bán trú, kiểm thực ba bước và an toàn thực phẩm (YCTD-146).
+- Chức năng mới: lô hàng nhập từ phiếu đi chợ hoặc nhập tay, hạn dùng, chứng từ; hồ sơ an toàn thực phẩm của nhà cung cấp, cảnh báo sắp hết hạn; kiểm thực ba bước theo Quyết định 1246/QĐ-BYT ngày 31/3/2017 của Bộ Y tế; lưu và hủy mẫu thức ăn, giữ mẫu khi có phản ánh; truy xuất từ món ra lô và nhà cung cấp; sổ kiểm thực ba bước, sổ lưu mẫu, nhãn mẫu; nguồn Việc của tôi "Bán trú, an toàn thực phẩm".
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0068_create_food_safety`; tệp định danh `0060_add_food_safety_permission`.
+- Thay đổi API: `/food-safety/files`, `/food-supplier-certificates`, `/food-suppliers/safety-summary`, `/food-lots`, `/food-inspections`, `/food-samples`, `/food-safety/trace`, `/food-safety/books`; chi tiết phiếu đi chợ thêm trường.
+- Kiểm thử: kịch bản CT-769 đến CT-775. Kết quả ngày 21/10/2026: kiểm thử đơn vị `apps/api/src/kitchen/food-safety.test.ts` CT-22b-1 đến CT-22b-6 đạt 6/6; kiểm thử đơn vị toàn bộ kho mã 988/988; kiểm thử giao diện `tests/e2e/77-food-safety.spec.ts` (CT-22b-7) đạt; toàn bộ kiểm thử giao diện 150/150; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: phiếu bước 1 xác nhận thì đổi trạng thái lô nên không mở lại được; tệp quét giấy tờ chỉ người xem dữ liệu bếp của đơn vị tải được.
+- Khả năng tương thích: không đổi điểm cuối cũ; chi tiết phiếu đi chợ thêm trường.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 22b; chạy phần quay lui của tệp năm học `0068` (xóa lô, phiếu kiểm thực, mẫu lưu, giấy tờ) và tệp định danh `0060`.
 
 ### Phiên bản 0.97.0 – 2026-10-21
 
