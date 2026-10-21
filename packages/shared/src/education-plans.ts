@@ -132,7 +132,11 @@ const MN_TEMPLATES: EducationPlanTemplateSeed[] = [
     sections: [
       text('dac_diem', 'I. Đặc điểm tình hình', 'Thuận lợi, khó khăn; số nhóm, lớp, trẻ; đội ngũ; cơ sở vật chất'),
       text('muc_tieu', 'II. Mục tiêu năm học'),
-      text('nhiem_vu', 'III. Nhiệm vụ và giải pháp', 'Chăm sóc, nuôi dưỡng; giáo dục; phát triển đội ngũ; cơ sở vật chất'),
+      text(
+        'nhiem_vu',
+        'III. Nhiệm vụ và giải pháp',
+        'Chăm sóc, nuôi dưỡng; giáo dục; phát triển đội ngũ; cơ sở vật chất',
+      ),
       table('ke_hoach_thang', 'IV. Kế hoạch thực hiện theo tháng', [
         column('thang', 'Tháng'),
         column('noi_dung', 'Nội dung trọng tâm'),

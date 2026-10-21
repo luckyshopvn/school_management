@@ -4095,15 +4095,7 @@ export type EducationPlanPeriod = 'year' | 'semester' | 'month' | 'week' | 'none
 export type EducationPlanStep = 'leader' | 'vice_principal' | 'principal';
 export type EducationPlanStatus = 'draft' | 'pending' | 'approved' | 'returned';
 export type EducationPlanAction =
-  | 'create'
-  | 'copy'
-  | 'submit'
-  | 'withdraw'
-  | 'approve'
-  | 'return'
-  | 'sign'
-  | 'archive'
-  | 'work_plan';
+  'create' | 'copy' | 'submit' | 'withdraw' | 'approve' | 'return' | 'sign' | 'archive' | 'work_plan';
 type JsonDocument = ColumnType<unknown, string, string>;
 
 export interface EducationPlanTemplatesTable {

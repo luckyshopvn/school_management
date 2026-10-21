@@ -55,11 +55,7 @@ describe('Kế hoạch giáo dục: so sánh khác biệt', () => {
         ],
       },
     ];
-    const after: EducationPlanSection[] = [
-      before[0]!,
-      before[2]!,
-      { key: 'moi', title: 'Mục mới', kind: 'text' },
-    ];
+    const after: EducationPlanSection[] = [before[0]!, before[2]!, { key: 'moi', title: 'Mục mới', kind: 'text' }];
     const result = diffEducationPlans(
       { sections: before, content: { muc_tieu: 'Giữ nguyên', bo: 'Dòng bỏ', bang: [['1', 'x']] } },
       { sections: after, content: { muc_tieu: 'Giữ nguyên', bang: [['1', 'y']], moi: 'Dòng mới' } },
@@ -107,7 +103,11 @@ describe('Kế hoạch giáo dục', () => {
     const response = await fetch(`${environment.baseUrl}${path}`, {
       headers: { authorization: `Bearer ${token(name)}` },
     });
-    return { status: response.status, type: response.headers.get('content-type'), body: Buffer.from(await response.arrayBuffer()) };
+    return {
+      status: response.status,
+      type: response.headers.get('content-type'),
+      body: Buffer.from(await response.arrayBuffer()),
+    };
   };
 
   before(async () => {
@@ -211,7 +211,10 @@ describe('Kế hoạch giáo dục', () => {
   });
 
   it('CT-22i-2: nạp mẫu Mầm non không tạo trùng, nối thư mục kho hồ sơ; chỉ Ban Giám hiệu toàn trường sửa thư viện; mẫu sai cấu trúc bị từ chối; phụ huynh không vào được', async () => {
-    assert.equal((await api('POST', '/professional-folders/defaults', 'principal', { school_level: 'MN' })).status, 200);
+    assert.equal(
+      (await api('POST', '/professional-folders/defaults', 'principal', { school_level: 'MN' })).status,
+      200,
+    );
     const forbidden = await api('POST', '/education-plan-templates/defaults', 'teacher', { school_level: 'MN' });
     assert.equal(forbidden.status, 403);
     assert.equal((await api('GET', '/education-plan-templates', 'parent')).status, 403);
@@ -249,7 +252,9 @@ describe('Kế hoạch giáo dục', () => {
     });
     assert.equal(invalid.status, 400);
     const fields = (errorOf(invalid.body).details ?? []).map((detail) => detail.field);
-    assert.ok(fields.includes('approval_steps') && fields.includes('sections.0.key') && fields.includes('sections.1.columns'));
+    assert.ok(
+      fields.includes('approval_steps') && fields.includes('sections.0.key') && fields.includes('sections.1.columns'),
+    );
     const custom = await api('POST', '/education-plan-templates', 'principal', {
       code: 'MN-CHU-NHIEM',
       name: 'Kế hoạch công tác chủ nhiệm thử',
@@ -268,7 +273,10 @@ describe('Kế hoạch giáo dục', () => {
       ],
     });
     assert.equal(changed.body.revision, 2);
-    assert.equal((await api('DELETE', `/education-plan-templates/${custom.body.id as string}`, 'principal')).status, 204);
+    assert.equal(
+      (await api('DELETE', `/education-plan-templates/${custom.body.id as string}`, 'principal')).status,
+      204,
+    );
   });
 
   it('CT-22i-3: giáo viên lập kế hoạch năm của nhóm lớp được phân công; kiểm tra nội dung; tổ trưởng rồi Phó Hiệu trưởng duyệt, kí nội bộ, lưu vào kho hồ sơ; tổ khác không thấy', async () => {
@@ -297,7 +305,10 @@ describe('Kế hoạch giáo dục', () => {
       period_label: `Năm học ${schoolYearName}`,
       content: {
         dac_diem: 'Lớp có 25 trẻ 5-6 tuổi.\nĐa số trẻ đã học lớp Chồi.',
-        muc_tieu: [['Phát triển thể chất', 'Trẻ khỏe mạnh', 'Vận động cơ bản'], ['', '', '']],
+        muc_tieu: [
+          ['Phát triển thể chất', 'Trẻ khỏe mạnh', 'Vận động cơ bản'],
+          ['', '', ''],
+        ],
         chu_de: [['Trường mầm non', '4 tuần', addDays(vietnamToday, 10)]],
         khong_co: 'bị bỏ qua',
       },
@@ -315,8 +326,12 @@ describe('Kế hoạch giáo dục', () => {
     const early = await api('POST', `/education-plans/${id}/approve`, 'vice', {});
     assert.equal(errorOf(early.body).rule_code, 'YCTD-147');
     const work = await myWork('leader');
-    assert.ok(work.some((item) => item.title === 'Kế hoạch giáo dục năm học lớp Lá 1' && item.kind === 'Chờ Tổ trưởng duyệt'));
-    const review = (await api('GET', '/education-plans?view=review', 'leader')).body as unknown as Array<{ id: string }>;
+    assert.ok(
+      work.some((item) => item.title === 'Kế hoạch giáo dục năm học lớp Lá 1' && item.kind === 'Chờ Tổ trưởng duyệt'),
+    );
+    const review = (await api('GET', '/education-plans?view=review', 'leader')).body as unknown as Array<{
+      id: string;
+    }>;
     assert.ok(review.some((plan) => plan.id === id));
     const led = await api('POST', `/education-plans/${id}/approve`, 'leader', { note: 'Đạt' });
     assert.equal(led.body.current_step, 'vice_principal', JSON.stringify(led.body));
@@ -355,7 +370,14 @@ describe('Kế hoạch giáo dục', () => {
     const events = (approved.body.events as Array<{ action: string; step: string | null }>).map(
       (event) => `${event.action}:${event.step ?? ''}`,
     );
-    assert.deepEqual(events, ['create:', 'submit:', 'approve:leader', 'approve:vice_principal', 'sign:vice_principal', 'archive:']);
+    assert.deepEqual(events, [
+      'create:',
+      'submit:',
+      'approve:leader',
+      'approve:vice_principal',
+      'sign:vice_principal',
+      'archive:',
+    ]);
   });
 
   it('CT-22i-4: trả lại, sửa, trình lại thành phiên bản 2; so sánh phiên bản; Việc của tôi báo bị trả lại; rút lại khi chưa ai duyệt', async () => {
@@ -424,7 +446,9 @@ describe('Kế hoạch giáo dục', () => {
     assert.equal(approved.body.status, 'approved');
     assert.ok(approved.body.signed_file_id);
     assert.equal((await api('GET', `/education-plans/${id}`, 'teacher')).status, 200);
-    const school = (await api('GET', '/education-plans?view=school', 'teacher')).body as unknown as Array<{ id: string }>;
+    const school = (await api('GET', '/education-plans?view=school', 'teacher')).body as unknown as Array<{
+      id: string;
+    }>;
     assert.ok(school.some((plan) => plan.id === id));
     const word = await download(`/education-plans/${id}/export?format=docx`, 'teacher');
     assert.equal(word.status, 200);
@@ -449,11 +473,14 @@ describe('Kế hoạch giáo dục', () => {
     assert.equal(submitted.body.current_step, 'vice_principal');
     assert.equal((await api('GET', `/education-plans/${id}`, 'teacher')).status, 200);
     assert.equal((await api('GET', `/education-plans/${id}`, 'teacher2')).status, 403);
-    const groups = (await api('GET', '/education-plans?view=groups', 'teacher')).body as unknown as Array<{ id: string }>;
+    const groups = (await api('GET', '/education-plans?view=groups', 'teacher')).body as unknown as Array<{
+      id: string;
+    }>;
     assert.ok(groups.some((plan) => plan.id === id));
     const approved = await api('POST', `/education-plans/${id}/approve`, 'principal', {});
     assert.equal(approved.body.status, 'approved', JSON.stringify(approved.body));
-    const processed = (await api('GET', '/education-plans?view=review&processed=true', 'principal')).body as unknown as Array<{
+    const processed = (await api('GET', '/education-plans?view=review&processed=true', 'principal'))
+      .body as unknown as Array<{
       id: string;
     }>;
     assert.ok(processed.some((plan) => plan.id === id));
@@ -533,7 +560,10 @@ describe('Kế hoạch giáo dục', () => {
         academicYear: { id: 'previous', startDate: vietnamToday },
         actorUserId: principal.userId,
       });
-      const carried = await previous.selectFrom('education_plan_templates').select(['id', 'archive_folder_id']).execute();
+      const carried = await previous
+        .selectFrom('education_plan_templates')
+        .select(['id', 'archive_folder_id'])
+        .execute();
       assert.equal(carried.length, EDUCATION_PLAN_DEFAULT_TEMPLATES.MN.length);
       assert.ok(carried.every((template) => template.archive_folder_id === null));
     } catch (error) {
@@ -604,7 +634,10 @@ describe('Kế hoạch giáo dục', () => {
         (listed.body.plans as Array<{ id: string }>).map((plan) => plan.id),
         [source.id],
       );
-      assert.deepEqual(((await api('GET', '/education-plans/previous-year', 'teacher2')).body.plans as unknown[]).length, 0);
+      assert.deepEqual(
+        ((await api('GET', '/education-plans/previous-year', 'teacher2')).body.plans as unknown[]).length,
+        0,
+      );
       const noClass = await api('POST', '/education-plans/copy', 'teacher', { source_id: source.id });
       assert.equal(noClass.status, 400);
       const copied = await api('POST', '/education-plans/copy', 'teacher', {

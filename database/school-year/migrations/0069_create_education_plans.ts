@@ -107,10 +107,7 @@ export const migration: Migration = {
         sql`(scope <> 'group' or department_id is not null or work_group_id is not null)
           and (scope <> 'class' or class_id is not null)`,
       )
-      .addCheckConstraint(
-        'education_plans_step_check',
-        sql`(status = 'pending') = (current_step is not null)`,
-      )
+      .addCheckConstraint('education_plans_step_check', sql`(status = 'pending') = (current_step is not null)`)
       .execute();
     await database.schema
       .createIndex('education_plans_status_index')

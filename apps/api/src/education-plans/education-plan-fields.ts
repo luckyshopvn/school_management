@@ -14,7 +14,15 @@ import {
   type KpiSchoolLevelCode,
 } from '@school-management/shared';
 import type { RequestBody } from '../common/request-fields.js';
-import { isDate, readBoolean, readChoice, readDate, readInteger, readText, readUuid } from '../incoming-documents/incoming-fields.js';
+import {
+  isDate,
+  readBoolean,
+  readChoice,
+  readDate,
+  readInteger,
+  readText,
+  readUuid,
+} from '../incoming-documents/incoming-fields.js';
 
 // Đọc và kiểm tra dữ liệu vào của kế hoạch giáo dục (DT-18 phần 22i, YCTD-147): mẫu (mục, cột, bước duyệt) và nội dung kế
 // hoạch theo mục của mẫu đã chụp lại. Mã mục, mã cột là chữ thường, số, gạch dưới để làm khóa nội dung

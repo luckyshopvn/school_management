@@ -115,7 +115,13 @@ export interface EducationPlanDetail extends EducationPlan {
   signer_description: string;
   work_plan_id: string | null;
   archived_document: { id: string; folder_name: string; branch: string } | null;
-  versions: Array<{ version_no: number; title: string; note: string | null; created_by_name: string; created_at: string }>;
+  versions: Array<{
+    version_no: number;
+    title: string;
+    note: string | null;
+    created_by_name: string;
+    created_at: string;
+  }>;
   events: Array<{
     id: string;
     action: string;
@@ -248,7 +254,10 @@ export const downloadSignedPlan = (id: string) =>
 export const readPlanProgress = (templateId?: string): Promise<PlanProgress> =>
   requestJson(`${API}/education-plans/progress${query({ template_id: templateId })}`);
 export const exportPlanProgress = (templateId?: string) =>
-  download(`${API}/education-plans/progress/export${query({ template_id: templateId, format: 'xlsx' })}`, 'tien-do.xlsx');
+  download(
+    `${API}/education-plans/progress/export${query({ template_id: templateId, format: 'xlsx' })}`,
+    'tien-do.xlsx',
+  );
 
 export const listPreviousPlans = (): Promise<PreviousPlans> => requestJson(`${API}/education-plans/previous-year`);
 export const copyPreviousPlan = (input: {

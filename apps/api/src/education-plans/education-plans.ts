@@ -35,17 +35,17 @@ import { notFoundError } from '../common/request-fields.js';
 import { storageKey } from '../common/resource-names.js';
 import { buildTableFile, CONTENT_TYPES, type TableFileFormat } from '../exports/table-file.js';
 import { FileStorage } from '../files/file-storage.js';
-import {
-  buildDocumentPdf,
-  buildDocx,
-  DOCX_TYPE,
-  PDF_TYPE,
-  type DocumentBlock,
-} from '../kpi/kpi-documents.js';
+import { buildDocumentPdf, buildDocx, DOCX_TYPE, PDF_TYPE, type DocumentBlock } from '../kpi/kpi-documents.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { DossierSigner } from '../signing/dossier-signer.js';
 import { PlansService, type PlanItemInput } from '../work/plans.js';
-import { mapContent, type CopyInput, type PlanInput, type PlanUpdate, type TemplateInput } from './education-plan-fields.js';
+import {
+  mapContent,
+  type CopyInput,
+  type PlanInput,
+  type PlanUpdate,
+  type TemplateInput,
+} from './education-plan-fields.js';
 
 // Kế hoạch giáo dục (DT-18 phần 22i, YCTD-147). Thư viện mẫu theo cấp học là cấu hình ở cơ sở dữ liệu năm học (nạp sẵn bản
 // Mầm non). Kế hoạch lập từ mẫu (chụp lại các mục, bước duyệt lúc tạo), nội dung theo từng mục văn bản hoặc bảng. Duyệt nhiều
@@ -465,7 +465,11 @@ export class EducationPlansService {
 
   // ---- Quyền trên một kế hoạch ----
 
-  private canLead(context: PlanContext, currentUser: CurrentUser, plan: Pick<PlanRow, 'department_id' | 'work_group_id'>) {
+  private canLead(
+    context: PlanContext,
+    currentUser: CurrentUser,
+    plan: Pick<PlanRow, 'department_id' | 'work_group_id'>,
+  ) {
     if (plan.work_group_id) {
       return context.leaderGroupIds.includes(plan.work_group_id);
     }
@@ -570,7 +574,9 @@ export class EducationPlansService {
         );
       }
       if (context.leaderGroupIds.length > 0) {
-        conditions.push(eb.and([pendingAt('leader'), eb('education_plans.work_group_id', 'in', context.leaderGroupIds)]));
+        conditions.push(
+          eb.and([pendingAt('leader'), eb('education_plans.work_group_id', 'in', context.leaderGroupIds)]),
+        );
       }
       for (const [step, permission, scope] of [
         ['vice_principal', APPROVE, context.approveScope],
@@ -798,12 +804,14 @@ export class EducationPlansService {
     if (scope === 'school') {
       const unit =
         input.org_unit_id ??
-        (await database
-          .selectFrom('org_units')
-          .select('id')
-          .where('parent_id', 'is', null)
-          .orderBy('created_at')
-          .executeTakeFirstOrThrow()).id;
+        (
+          await database
+            .selectFrom('org_units')
+            .select('id')
+            .where('parent_id', 'is', null)
+            .orderBy('created_at')
+            .executeTakeFirstOrThrow()
+        ).id;
       this.assertManage(context, unit);
       return { org_unit_id: unit, department_id: null, work_group_id: null, class_id: null };
     }
@@ -816,7 +824,12 @@ export class EducationPlansService {
         if (!context.leaderGroupIds.includes(input.work_group_id)) {
           throw educationPlanRule('Chỉ trưởng nhóm công tác lập kế hoạch của nhóm');
         }
-        return { org_unit_id: staff.org_unit_id, department_id: null, work_group_id: input.work_group_id, class_id: null };
+        return {
+          org_unit_id: staff.org_unit_id,
+          department_id: null,
+          work_group_id: input.work_group_id,
+          class_id: null,
+        };
       }
       const department = input.department_id ?? staff.department_id;
       if (!department || department !== staff.department_id || !currentUser.hasPermission(REVIEW)) {
@@ -902,7 +915,12 @@ export class EducationPlansService {
     return this.view(currentUser, created.id);
   }
 
-  async update(currentUser: CurrentUser, id: string, readInput: (sections: EducationPlanSection[]) => PlanUpdate, origin: ChangeOrigin) {
+  async update(
+    currentUser: CurrentUser,
+    id: string,
+    readInput: (sections: EducationPlanSection[]) => PlanUpdate,
+    origin: ChangeOrigin,
+  ) {
     const context = await this.context(currentUser);
     const plan = await this.visiblePlan(context, currentUser, id);
     if (!this.isOwner(context, currentUser, plan) || !['draft', 'returned'].includes(plan.status)) {
@@ -1119,7 +1137,11 @@ export class EducationPlansService {
     const now = this.clock.now();
     const stored: string[] = [];
     let signed: { key: string; pdf: Buffer; method: string } | null = null;
-    let archive: { folder: { id: string; branch: 'personal' | 'group' | 'school'; approval_flow: 'none' | 'leader' | 'two_level' }; pdf: Buffer; key: string } | null = null;
+    let archive: {
+      folder: { id: string; branch: 'personal' | 'group' | 'school'; approval_flow: 'none' | 'leader' | 'two_level' };
+      pdf: Buffer;
+      key: string;
+    } | null = null;
     try {
       const rendered = await this.render(database, plan, 'pdf', { name: currentUser.description.full_name, step });
       if (plan.requires_signing) {
@@ -1227,7 +1249,11 @@ export class EducationPlansService {
     transaction: Transaction<SchoolYearDatabase>,
     plan: PlanRow,
     currentUser: CurrentUser,
-    archive: { folder: { id: string; branch: 'personal' | 'group' | 'school'; approval_flow: 'none' | 'leader' | 'two_level' }; pdf: Buffer; key: string },
+    archive: {
+      folder: { id: string; branch: 'personal' | 'group' | 'school'; approval_flow: 'none' | 'leader' | 'two_level' };
+      pdf: Buffer;
+      key: string;
+    },
     now: Date,
   ): Promise<string> {
     const file = await transaction
@@ -1449,7 +1475,7 @@ export class EducationPlansService {
     if (plan.status !== 'pending' || !step) {
       return;
     }
-    let recipients: NotificationRecipient[] = [];
+    let recipients: NotificationRecipient[];
     if (step === 'leader' && plan.work_group_id) {
       const leaders = await database
         .selectFrom('professional_work_group_members as members')
@@ -1552,7 +1578,11 @@ export class EducationPlansService {
     })
       .formatToParts(date)
       .reduce<Record<string, string>>((parts, part) => ({ ...parts, [part.type]: part.value }), {});
-    const unit = await database.selectFrom('org_units').select('name').where('id', '=', plan.org_unit_id).executeTakeFirst();
+    const unit = await database
+      .selectFrom('org_units')
+      .select('name')
+      .where('id', '=', plan.org_unit_id)
+      .executeTakeFirst();
     const school = await this.schoolName(database);
     const blocks: DocumentBlock[] = [
       {
@@ -1588,7 +1618,8 @@ export class EducationPlansService {
         }
       }
     }
-    const lastStep = approver?.step ?? (plan.approval_steps.length > 0 ? plan.approval_steps[plan.approval_steps.length - 1] : null);
+    const lastStep =
+      approver?.step ?? (plan.approval_steps.length > 0 ? plan.approval_steps[plan.approval_steps.length - 1] : null);
     const approvedName = approver?.name ?? plan.approved_by_name ?? undefined;
     blocks.push({
       kind: 'signatures',
@@ -1902,7 +1933,11 @@ export class EducationPlansService {
     }
     const plans = await query.execute();
     const empty = () => ({ draft: 0, pending: 0, approved: 0, returned: 0, total: 0 });
-    const count = (map: Map<string, ReturnType<typeof empty> & { name: string }>, key: string, status: EducationPlanStatus) => {
+    const count = (
+      map: Map<string, ReturnType<typeof empty> & { name: string }>,
+      key: string,
+      status: EducationPlanStatus,
+    ) => {
       const row = map.get(key) ?? { name: key, ...empty() };
       row[status] += 1;
       row.total += 1;
@@ -1924,10 +1959,16 @@ export class EducationPlansService {
     const now = this.clock.now().getTime();
     const sort = (map: Map<string, ReturnType<typeof empty> & { name: string }>) =>
       [...map.values()]
-        .map((row) => ({ ...row, approved_percent: row.total === 0 ? 0 : Math.round((row.approved / row.total) * 1000) / 10 }))
+        .map((row) => ({
+          ...row,
+          approved_percent: row.total === 0 ? 0 : Math.round((row.approved / row.total) * 1000) / 10,
+        }))
         .sort((left, right) => left.name.localeCompare(right.name, 'vi'));
     return {
-      totals: { ...totals, approved_percent: totals.total === 0 ? 0 : Math.round((totals.approved / totals.total) * 1000) / 10 },
+      totals: {
+        ...totals,
+        approved_percent: totals.total === 0 ? 0 : Math.round((totals.approved / totals.total) * 1000) / 10,
+      },
       by_step: byStep,
       by_template: sort(byTemplate),
       by_department: sort(byDepartment),

@@ -48,8 +48,7 @@ function optionalUuid(value: unknown, field: string): string | null {
 
 function readFilter(query: Record<string, unknown>): PlanFilter {
   const view = typeof query.view === 'string' && VIEWS.has(query.view) ? query.view : 'mine';
-  const status =
-    typeof query.status === 'string' && query.status in EDUCATION_PLAN_STATUS_LABELS ? query.status : null;
+  const status = typeof query.status === 'string' && query.status in EDUCATION_PLAN_STATUS_LABELS ? query.status : null;
   return {
     view: view as PlanFilter['view'],
     status: status as EducationPlanStatus | null,

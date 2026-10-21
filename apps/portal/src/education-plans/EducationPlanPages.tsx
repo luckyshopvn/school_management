@@ -146,7 +146,9 @@ function TableEditor({
 }) {
   const columns = section.columns ?? [];
   const setCell = (rowIndex: number, cellIndex: number, value: string) =>
-    onChange(rows.map((row, index) => (index === rowIndex ? row.map((cell, at) => (at === cellIndex ? value : cell)) : row)));
+    onChange(
+      rows.map((row, index) => (index === rowIndex ? row.map((cell, at) => (at === cellIndex ? value : cell)) : row)),
+    );
   return (
     <div className="flex flex-col gap-2">
       <div className="overflow-x-auto">
@@ -236,7 +238,11 @@ function PlanEditor({ plan, onSaved }: { plan: EducationPlanDetail; onSaved(next
       {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
       <FormBlock title="Thông tin chung">
         <FormRow label="Tên kế hoạch" error={errors.title}>
-          <input className={FORM_CONTROL_CLASS} value={values.title} onChange={(event) => set('title', event.target.value)} />
+          <input
+            className={FORM_CONTROL_CLASS}
+            value={values.title}
+            onChange={(event) => set('title', event.target.value)}
+          />
         </FormRow>
         <FormRow label="Kì kế hoạch" error={errors.period_label}>
           <input
@@ -376,7 +382,10 @@ export function PlanPanel({ id, onChanged }: { id: string; onChanged(message: st
       onChanged(`Đã tạo kế hoạch công việc nháp với ${result.items} đầu việc`);
     },
   });
-  const download = useMutation({ mutationFn: (format: 'docx' | 'pdf' | 'signed') => (format === 'signed' ? downloadSignedPlan(id) : exportPlan(id, format)) });
+  const download = useMutation({
+    mutationFn: (format: 'docx' | 'pdf' | 'signed') =>
+      format === 'signed' ? downloadSignedPlan(id) : exportPlan(id, format),
+  });
   const plan = detail.data;
   if (detail.error) {
     return <Alert tone="danger">{messageOf(detail.error)}</Alert>;
@@ -512,7 +521,11 @@ export function PlanPanel({ id, onChanged }: { id: string; onChanged(message: st
         <div className="flex flex-wrap items-end gap-2">
           <label className="text-label font-medium text-text">
             So sánh bản hiện tại với
-            <select className={selectClass} value={compareFrom} onChange={(event) => setCompareFrom(event.target.value)}>
+            <select
+              className={selectClass}
+              value={compareFrom}
+              onChange={(event) => setCompareFrom(event.target.value)}
+            >
               <option value="">— Chọn bản —</option>
               {plan.has_source ? <option value="source">Bản năm học {plan.source_year_name}</option> : null}
               {plan.versions.map((version) => (
@@ -643,7 +656,11 @@ function PlanForm({
         ) : null}
         {template?.scope === 'group' && (overview.data?.my_groups.length ?? 0) > 1 ? (
           <FormRow label="Tổ, nhóm" error={errors.department_id ?? errors.work_group_id}>
-            <select className={FORM_CONTROL_CLASS} value={values.owner} onChange={(event) => set('owner', event.target.value)}>
+            <select
+              className={FORM_CONTROL_CLASS}
+              value={values.owner}
+              onChange={(event) => set('owner', event.target.value)}
+            >
               <option value="">Tổ chuyên môn của tôi</option>
               {(overview.data?.my_groups ?? []).map((group) => (
                 <option key={`${group.kind}:${group.id}`} value={`${group.kind}:${group.id}`}>
@@ -670,7 +687,11 @@ function PlanForm({
           </FormRow>
         ) : null}
         <FormRow label="Tên kế hoạch" error={errors.title}>
-          <input className={FORM_CONTROL_CLASS} value={values.title} onChange={(event) => set('title', event.target.value)} />
+          <input
+            className={FORM_CONTROL_CLASS}
+            value={values.title}
+            onChange={(event) => set('title', event.target.value)}
+          />
         </FormRow>
         <FormRow label="Kì kế hoạch" error={errors.period_label}>
           <input
@@ -740,7 +761,13 @@ function CopyPanel({
   });
   const rows = (previous.data?.plans ?? []).filter((plan) => scopes.includes(plan.scope));
   const columns: Array<DataGridColumn<PreviousRow>> = [
-    { id: 'title', header: 'Kế hoạch năm trước', alwaysVisible: true, className: 'font-medium', cell: (row) => row.title },
+    {
+      id: 'title',
+      header: 'Kế hoạch năm trước',
+      alwaysVisible: true,
+      className: 'font-medium',
+      cell: (row) => row.title,
+    },
     { id: 'template_name', header: 'Mẫu', cell: (row) => row.template_name },
     { id: 'owner_name', header: 'Người lập', cell: (row) => row.owner_name },
     { id: 'status', header: 'Trạng thái', cell: (row) => row.status_label },
@@ -1116,13 +1143,19 @@ export function PlanProgressPage() {
 
 // Cột của mục bảng nhập mỗi dòng một cột: "mã | tên" hoặc "mã | tên | ngày"
 const columnsText = (section: EducationPlanSection) =>
-  (section.columns ?? []).map((column) => [column.key, column.label, column.type === 'date' ? 'ngày' : ''].filter(Boolean).join(' | ')).join('\n');
+  (section.columns ?? [])
+    .map((column) => [column.key, column.label, column.type === 'date' ? 'ngày' : ''].filter(Boolean).join(' | '))
+    .join('\n');
 const parseColumns = (text: string) =>
   text
     .split('\n')
     .map((line) => line.split('|').map((part) => part.trim()))
     .filter((parts) => parts[0])
-    .map(([key, label, type]) => ({ key: key ?? '', label: label ?? '', ...(type === 'ngày' || type === 'date' ? { type: 'date' as const } : {}) }));
+    .map(([key, label, type]) => ({
+      key: key ?? '',
+      label: label ?? '',
+      ...(type === 'ngày' || type === 'date' ? { type: 'date' as const } : {}),
+    }));
 
 function TemplateForm({
   template,
@@ -1182,10 +1215,18 @@ function TemplateForm({
       {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
       <FormBlock title="Thông tin mẫu">
         <FormRow label="Mã mẫu" error={errors.code}>
-          <input className={FORM_CONTROL_CLASS} value={values.code} onChange={(event) => set('code', event.target.value)} />
+          <input
+            className={FORM_CONTROL_CLASS}
+            value={values.code}
+            onChange={(event) => set('code', event.target.value)}
+          />
         </FormRow>
         <FormRow label="Tên mẫu" error={errors.name}>
-          <input className={FORM_CONTROL_CLASS} value={values.name} onChange={(event) => set('name', event.target.value)} />
+          <input
+            className={FORM_CONTROL_CLASS}
+            value={values.name}
+            onChange={(event) => set('name', event.target.value)}
+          />
         </FormRow>
         <FormRow label="Mô tả" error={errors.description}>
           <textarea

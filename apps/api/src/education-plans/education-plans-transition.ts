@@ -13,7 +13,9 @@ export const educationPlansTransitionStep: AcademicYearTransitionStep = {
     }
     const previous = context.previousDatabase as Kysely<SchoolYearDatabase>;
     const next = context.newDatabase as Kysely<SchoolYearDatabase>;
-    const folders = new Set((await next.selectFrom('professional_folders').select('id').execute()).map((row) => row.id));
+    const folders = new Set(
+      (await next.selectFrom('professional_folders').select('id').execute()).map((row) => row.id),
+    );
     for (const template of await previous.selectFrom('education_plan_templates').selectAll().execute()) {
       await next
         .insertInto('education_plan_templates')
