@@ -18,15 +18,16 @@
 
 ### Phiên bản 0.94.0 – 2026-10-21
 
-- Phạm vi thay đổi: DT-18 phần 18e, hồ sơ chuyên môn và Việc của tôi (YCTD-142, PR 121).
-- Chức năng mới: phân hệ mới "Hồ sơ chuyên môn": Việc của tôi gom việc đang chờ ở văn bản đến, văn bản đi, giao việc, phòng họp, KPI, hồ sơ chuyên môn, kế hoạch bài dạy, kí hồ sơ, nghỉ phép, có lọc và số đếm trên menu; kho hồ sơ ba nhánh (cá nhân, tổ hoặc nhóm, trường) theo năm học, danh mục thư mục mặc định theo cấp học; đợt nộp có hạn, bảng ai chưa nộp, nhắc hạn; luồng duyệt theo thư mục (tổ trưởng rồi Ban Giám hiệu), trả lại, phiên bản khi nộp lại, kí nội bộ; thống kê nộp đúng hạn, trễ, chưa nộp; nhóm công tác; khóa năm học (YCTD-142).
+- Phạm vi thay đổi: DT-18 phần 18f, website trường trên tên miền riêng, có chế độ trình diễn (YCTD-144).
+- Chức năng mới: phân hệ Website trường; tên miền lưu ở cơ sở dữ liệu, cấp chứng chỉ theo yêu cầu cho tên miền đã đăng ký; trang công khai theo tên miền (trang chủ, giới thiệu, cơ cấu tổ chức, tin tức, thông báo, văn bản công khai, tuyển sinh, công khai theo Thông tư 09/2024/TT-BGDĐT, thời khóa biểu chờ, thư viện ảnh, liên hệ); soạn, duyệt, đăng, gỡ; lọc HTML chống XSS; chế độ trình diễn và nội dung mẫu (P14-13 đến P14-16).
 - Lỗi đã sửa: không có.
-- Thay đổi dữ liệu: tệp năm học `0066_create_professional_records` (tám bảng mới, mục đích tệp `professional_record`); tệp định danh `0056_add_professional_record_permissions` (bốn quyền `P09.professional-record.*`, phân hệ không có ở phụ huynh).
-- Thay đổi API: nhóm điểm cuối mới `/my-work`, `/professional-records`, `/professional-folders`, `/professional-work-groups`, `/professional-rounds`, `/professional-documents`; tám khóa lưới mới.
-- Kiểm thử: kịch bản CT-727 đến CT-736. Kết quả ngày 21/10/2026: kiểm thử đơn vị `apps/api/src/professional-records/professional-records.test.ts` CT-18e-1 đến CT-18e-9 đạt 9/9; kiểm thử đơn vị toàn bộ kho mã 954/954 đạt; kiểm thử giao diện `tests/e2e/74-professional-records.spec.ts` (CT-18e-10) đạt 1/1; toàn bộ e2e 144/145 đạt ở lượt toàn bộ (ca chưa đạt là spec 74 do bộ chọn của kiểm thử; sửa xong chạy lại spec 02, 03, 74 đạt 5/5).
-- Rủi ro: thông báo cho tổ trưởng gửi theo vai trò Tổ trưởng chuyên môn của đơn vị; Việc của tôi đọc nhiều bảng mỗi lần đếm (làm mới mỗi phút).
-- Khả năng tương thích: điểm cuối cũ không đổi; số phân hệ của 1.2 Phân quyền nhóm theo phần mềm thành 16.
-- Phương án quay lui: hoàn lại commit gộp của nhánh `dt-18-phan-18e`; chạy phần quay lui của tệp định danh `0056` và tệp năm học `0066` (xóa tám bảng, tệp mục đích `professional_record`).
+- Thay đổi dữ liệu: tệp hệ thống `0021_create_website_tables` (8 bảng); tệp định danh `0058_add_website_permissions` (ba quyền P14).
+- Thay đổi API: nhóm điểm cuối mới `/website/*`, `/public/site/*`, `/public/website/domain-check`.
+- Kiểm thử: kịch bản CT-727 đến CT-737. Kết quả ngày 21/10/2026: kiểm thử đơn vị `apps/api/src/website/website.test.ts` CT-18f-1 đến CT-18f-10 đạt 10/10; kiểm thử đơn vị toàn bộ kho mã đạt 955/955 (CSDL riêng của 18f); kiểm thử giao diện `tests/e2e/75-school-website.spec.ts` (CT-18f-11) đạt; toàn bộ kiểm thử giao diện 144/145 trên máy (ca 04-accounts hỏng cục bộ vì cơ sở dữ liệu định danh riêng còn tài khoản trùng tên của lượt chạy trước; CI chạy trên cơ sở dữ liệu mới là kết quả chính); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt; cấu hình Caddy kiểm tra bằng `caddy validate` (Caddy 2.10) hợp lệ.
+- Rủi ro: tên miền lạ không có trang; trang công khai đọc dữ liệu đã duyệt, cần người duyệt rà ảnh có trẻ trước khi đăng.
+- Khả năng tương thích: không đổi điểm cuối cũ; Caddyfile thêm khối `https://` cuối cùng nên các tên miền đã có giữ nguyên.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 18f; chạy phần quay lui của tệp định danh `0058` và tệp hệ thống `0021` (xóa 8 bảng); tệp dưới tiền tố `website/` ở kho tệp xóa tay nếu cần; bỏ khối `on_demand_tls` và `https://` khỏi Caddyfile.
+
 ### Phiên bản 0.93.0 – 2026-10-20
 
 - Phạm vi thay đổi: DT-18 phần 18g, thiết bị có nơi để, tem QR, kiểm kê bằng điện thoại, đối sánh danh mục tối thiểu theo cấp học (YCTD-143, PR 119).

@@ -167,6 +167,13 @@ import { KpiReportsController, KpiReportsService } from './kpi/kpi-reports.js';
 import { KpiSetupController, KpiSetupService } from './kpi/kpi-setup.js';
 import { KpiSupport } from './kpi/kpi-support.js';
 import { KpiTasksController, KpiTasksService } from './kpi/kpi-tasks.js';
+import { WebsiteContentController, WebsiteContentService } from './website/website-content.js';
+import {
+  WebsiteDomainCheckController,
+  WebsitePublicController,
+  WebsitePublicService,
+} from './website/website-public.js';
+import { WebsiteSetupController, WebsiteSetupService } from './website/website-setup.js';
 import { ProfessionalRecordsController } from './professional-records/professional-records.controller.js';
 import { ProfessionalRecordsService } from './professional-records/professional-records.js';
 import { professionalRecordsTransitionStep } from './professional-records/professional-records-transition.js';
@@ -389,6 +396,10 @@ export class ApplicationModule {
         KpiEvaluationsController,
         KpiReportsController,
         KpiLegacyImportController,
+        WebsiteSetupController,
+        WebsiteContentController,
+        WebsitePublicController,
+        WebsiteDomainCheckController,
         // Hồ sơ chuyên môn và Việc của tôi (DT-18 phần 18e)
         ProfessionalRecordsController,
         MyWorkController,
@@ -776,6 +787,9 @@ export class ApplicationModule {
         KpiEvaluationsService,
         KpiReportsService,
         KpiLegacyImportService,
+        WebsiteSetupService,
+        WebsiteContentService,
+        WebsitePublicService,
         // Hồ sơ chuyên môn và Việc của tôi (DT-18 phần 18e): mỗi phân hệ một nguồn việc qua giao diện MyWorkSource
         ProfessionalRecordsService,
         ...MY_WORK_SOURCE_TYPES,

@@ -191,6 +191,15 @@ import {
 } from './kpi/KpiEvaluationPages.js';
 import { KpiLegacyImportPage, KpiPeriodsPage, KpiProfilesPage, KpiRuleSetsPage } from './kpi/KpiSetupPages.js';
 import { KpiAssignmentsPage, KpiGradingPage, KpiMyTasksPage } from './kpi/KpiTaskPages.js';
+import { WebsiteAlbumsPage } from './website/WebsiteAlbumPages.js';
+import {
+  WebsiteAnnouncementsPage,
+  WebsiteDisclosuresPage,
+  WebsiteNewsPage,
+  WebsitePagesPage,
+} from './website/WebsitePostPages.js';
+import { WebsiteContactsPage, WebsiteReviewPage } from './website/WebsiteReviewPages.js';
+import { WebsiteDomainsPage, WebsiteSettingsPage } from './website/WebsiteSetupPages.js';
 import {
   OutgoingInterconnectPage,
   OutgoingManagePage,
@@ -361,6 +370,16 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/kpi/advisory', component: KpiAdvisoryPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/kpi/voting', component: KpiVotingPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/kpi/reports', component: KpiReportsPage }),
+  // Website trường (DT-18 phần 18f)
+  createRoute({ getParentRoute: () => rootRoute, path: '/website/settings', component: WebsiteSettingsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/website/domains', component: WebsiteDomainsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/website/news', component: WebsiteNewsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/website/announcements', component: WebsiteAnnouncementsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/website/pages', component: WebsitePagesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/website/disclosures', component: WebsiteDisclosuresPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/website/albums', component: WebsiteAlbumsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/website/review', component: WebsiteReviewPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/website/contacts', component: WebsiteContactsPage }),
   // Văn bản đi theo VNPT iOffice (DT-18 phần 18b)
   createRoute({ getParentRoute: () => rootRoute, path: '/outgoing-documents', component: OutgoingPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/outgoing-documents/manage', component: OutgoingManagePage }),

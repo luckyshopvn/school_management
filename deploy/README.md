@@ -17,12 +17,15 @@
 
 Định tuyến của Caddy:
 
-| Tên miền (biến trong `.env`)                | Nội dung                                                                                          |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `PORTAL_SITE`, ví dụ `portal.<tên miền>`    | Trang quản lý cho cán bộ                                                                          |
-| `PARENT_SITE`, ví dụ `phuhuynh.<tên miền>`  | Ứng dụng phụ huynh                                                                                |
-| `TEACHER_SITE`, ví dụ `giaovien.<tên miền>` | Ứng dụng giáo viên                                                                                |
-| `API_SITE`, ví dụ `api.<tên miền>`          | API chỉ đọc cho đối tác (YCTD-63), địa chỉ cổng thanh toán gọi về, kiểm tra sức khỏe từ bên ngoài |
+| Tên miền (biến trong `.env`)                | Nội dung                                                                                                                    |
+| ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `PORTAL_SITE`, ví dụ `portal.<tên miền>`    | Trang quản lý cho cán bộ                                                                                                    |
+| `PARENT_SITE`, ví dụ `phuhuynh.<tên miền>`  | Ứng dụng phụ huynh                                                                                                          |
+| `TEACHER_SITE`, ví dụ `giaovien.<tên miền>` | Ứng dụng giáo viên                                                                                                          |
+| `API_SITE`, ví dụ `api.<tên miền>`          | API chỉ đọc cho đối tác (YCTD-63), địa chỉ cổng thanh toán gọi về, kiểm tra sức khỏe từ bên ngoài                           |
+| Mọi tên miền khác (khối `https://`)         | Website công khai của trường (YCTD-144): chỉ tên miền đã thêm ở màn hình "Website trường → 1.2. Tên miền" của cổng quản trị |
+
+Website của trường (DT-18 phần 18f, YCTD-144) không có biến trong `.env`: tên miền lưu trong cơ sở dữ liệu hệ thống. Khi có truy cập đầu tiên tới một tên miền lạ, Caddy hỏi `http://api:3000/api/v1/public/website/domain-check?domain=...` (cấp chứng chỉ theo yêu cầu, `on_demand_tls`) và chỉ xin chứng chỉ khi máy chủ API trả 200, tức tên miền đã được thêm và đang dùng. Mọi đường dẫn của tên miền website chuyển sang `/api/v1/public/site` của máy chủ API; các điểm cuối khác của `/api/v1` không mở trên tên miền website. Quy trình: quản trị thêm tên miền ở cổng quản trị, trỏ bản ghi A hoặc CNAME của tên miền về địa chỉ máy chủ, rồi bấm "Đánh dấu đã trỏ". Khi thử trên máy không có tên miền thật, dùng tên miền trình diễn dạng `<tên>.localhost` và mở thẳng `http://<tên>.localhost:3000/api/v1/public/site` của máy chủ API.
 
 Trên mỗi tên miền, `/api/v1/auth`, `/api/v1/users`, `/api/v1/roles`, `/api/v1/permissions`, `/api/v1/api-clients` chuyển sang dịch vụ định danh, phần còn lại của `/api/v1` sang máy chủ API, giống cấu hình chuyển tiếp khi phát triển (17_DAC_TA_API.md quy ước 8). Giao diện gọi `/api/v1` cùng tên miền nên không cần CORS, và cookie mã làm mới (`SameSite=Strict`, `Secure`, đường dẫn `/api/v1/auth`, mỗi kênh một tên cookie, BM-71) luôn là cookie cùng tên miền. Không cần tên miền riêng cho dịch vụ định danh.
 

@@ -28,6 +28,8 @@ const OUTGOING = anyOf(
   'P09.outgoing-document.issue',
   'P09.outgoing-document.search',
 );
+// Website trường (DT-18 phần 18f)
+const WEBSITE_CONTENT = anyOf('P14.website.edit', 'P14.website.approve');
 // Phân hệ KPI (DT-18 phần 18d)
 const KPI_ANY = anyOf('P09.kpi.participate', 'P09.kpi.manage', 'P09.kpi.advise', 'P09.kpi.configure');
 // Giao việc, lịch, hồ sơ công việc theo VNPT iOffice (DT-18 phần 18c): việc cần xử lý cho mọi cán bộ có quyền của phân hệ
@@ -211,6 +213,15 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/document-reports/incoming': 'P09.document-report.view',
   '/document-reports/summary': 'P09.document-report.view',
   '/document-reports/statistics': 'P09.document-report.view',
+  '/website/settings': 'P14.website.configure',
+  '/website/domains': 'P14.website.configure',
+  '/website/news': WEBSITE_CONTENT,
+  '/website/announcements': WEBSITE_CONTENT,
+  '/website/pages': WEBSITE_CONTENT,
+  '/website/disclosures': WEBSITE_CONTENT,
+  '/website/albums': WEBSITE_CONTENT,
+  '/website/review': 'P14.website.approve',
+  '/website/contacts': WEBSITE_CONTENT,
   // Hồ sơ chuyên môn (DT-18 phần 18e): Việc của tôi không có điều kiện, ai đăng nhập cũng thấy; kho cho người có một quyền
   // của hồ sơ chuyên môn; duyệt cho tổ trưởng và Ban Giám hiệu; đợt nộp, thống kê, thiết lập cho người quản lý kho
   '/professional-records': PROFESSIONAL_ANY,

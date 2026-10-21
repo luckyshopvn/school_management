@@ -294,21 +294,6 @@ Ràng buộc duy nhất: `attendance_logs` trên bộ đôi nhân sự và ngày
 
 Tệp `database/school-year/migrations/0065_extend_tasks_for_directives.ts` (DT-18 phần 18c, YCTD-141) cho `tasks.task_type` nhận thêm `directive` (giao theo cây đơn vị, `assignee_staff_id` để trống), thêm cột `leader_user_id`, `leader_name`, `start_date`, `duration_days` (1 đến 3650), `remind_assigner`, `assigner_reminded_at`, `recurrence` (`none`, `daily`, `weekly`, `monthly`), `next_reminder_on`, `source_document_id` (văn bản đến ở cơ sở dữ liệu hệ thống, không khóa ngoại), `source_document_label`, `related_documents`; `task_updates` thêm `assignment_id`; tạo hai bảng trên. Mở năm học mới thì việc chưa xong chuyển kèm phân công, tệp.
 
-Hồ sơ chuyên môn (DT-18 phần 18e, YCTD-142), tệp `database/school-year/migrations/0066_create_professional_records.ts` của cơ sở dữ liệu năm học (kho tự tách theo năm học); mục đích tệp mới `professional_record` (kho tệp, tiền tố `professional-records/`):
-
-| Bảng | Mục đích | Trường chính |
-|---|---|---|
-| professional_folders | Cây thư mục ba nhánh (P09-28, BR-139) | id, parent_id (khóa ngoại chính bảng), branch (`personal`, `group`, `school`), name, description, school_level (`MN`, `TH`, `THCS`, `THPT`), approval_flow (`none`, `leader`, `two_level`), requires_signing, sort_order, status (`active`, `inactive`), created_by, created_at, updated_at |
-| professional_work_groups | Nhóm công tác ngoài tổ chuyên môn | id, org_unit_id (khóa ngoại), name, description, status, created_by, created_at, updated_at |
-| professional_work_group_members | Thành viên nhóm | group_id (khóa ngoại, xóa theo), staff_id (khóa ngoại), is_leader; khóa chính đôi |
-| professional_rounds | Đợt nộp có hạn (P09-29) | id, folder_id (khóa ngoại), title, description, submitter_kind (`staff`, `group`), org_unit_id (trống là toàn trường), department_ids (mảng), opens_on, due_at, status (`open`, `closed`), reminded_at, created_by, created_by_name, created_at, updated_at |
-| professional_documents | Hồ sơ (P09-28, BR-139) | id, folder_id, round_id, branch, org_unit_id, owner_user_id, owner_staff_id, owner_name, department_id, work_group_id (nhánh tổ phải có một trong hai), title, description, status (`draft`, `pending_leader`, `pending_approval`, `approved`, `returned`), approval_flow, requires_signing (chụp từ thư mục), current_version, submitted_at (lần nộp đầu), submitted_late, leader_user_id, leader_name, leader_reviewed_at, approved_by, approved_by_name, approved_at, return_note, signed_at, signature_method, signed_file_id (khóa ngoại `files`), created_at, updated_at |
-| professional_document_versions | Phiên bản tệp | id, document_id (khóa ngoại, xóa theo), version_no (duy nhất trong hồ sơ), file_id (khóa ngoại `files`), sha256, note, created_by, created_by_name, created_at |
-| professional_document_events | Lịch sử hồ sơ | id, document_id (khóa ngoại, xóa theo), action (`create`, `upload`, `submit`, `leader_approve`, `approve`, `return`, `sign`, `withdraw`), note, actor_id, actor_name, created_at |
-| professional_record_settings | Khóa năm học (một dòng, id = 1) | id, locked, locked_at, locked_by_name, updated_at |
-
-Mở năm học mới chuyển cây thư mục và nhóm công tác (thành viên còn trong danh sách nhân sự), giữ mã định danh; hồ sơ, đợt nộp ở lại năm cũ.
-
 | plans | Kế hoạch của đơn vị theo kỳ (YCTD-81) | org_unit_id, period_type (tháng, học kỳ, năm học), period_value, title, objectives, status (nháp, đang thực hiện, đã đóng), created_by, activated_at, closed_at |
 | plan_items | Đầu việc trong kế hoạch (YCTD-81) | plan_id, content, owner_staff_id, due_date, task_id (việc được giao khi kích hoạt), order_no |
 | evaluations | Phiếu đánh giá nhân sự theo kỳ (BR-47, YCTD-81) | staff_id, org_unit_id, period_type, period_value, total_score (thang 100), comment, status (nháp, đã công bố, đã thay thế), replaces_id, reevaluation_reason, evaluated_by, evaluated_by_name, published_by, published_at; mỗi nhân sự mỗi kỳ tối đa một phiếu nháp và một phiếu đã công bố |
@@ -350,6 +335,19 @@ Lịch đơn vị, phòng họp, hồ sơ công việc theo VNPT iOffice (DT-18 
 | work_file_shares | Người được chia sẻ hồ sơ | file_id (khóa ngoại, xóa theo), user_id, user_name, permission (`view`, `edit`); khóa chính đôi |
 | work_file_items | Thành phần hồ sơ | id, file_id (khóa ngoại, xóa theo), item_type (`incoming_document` có incoming_document_id khóa ngoại xóa theo; `task` có task_id ở năm học; `note`), title, note, added_by, added_by_name |
 | work_file_events | Lịch sử hồ sơ | id, file_id (khóa ngoại, xóa theo), action, note, actor_id, actor_name, created_at |
+
+Website trường trên tên miền riêng (DT-18 phần 18f, YCTD-144), tệp `database/system/migrations/0021_create_website_tables.ts` của cơ sở dữ liệu hệ thống; tên miền và cấu hình website ở đây, không ở biến môi trường:
+
+| Bảng | Mục đích | Trường chính |
+|---|---|---|
+| website_settings | Thông tin website, một dòng (P14-13) | id (luôn 1), site_name, slogan, introduction, address, phone, email, map_url, office_hours, facebook_url, admission_form_url, footer_note, primary_color (#rrggbb), school_levels (mảng MN, TH, THCS, THPT), show_timetable, demo_mode, logo_file_id, banner_file_id (khóa ngoại `website_files`, xóa thì để trống), updated_by_name |
+| website_domains | Tên miền của website (P14-13, BR-139) | id, hostname (duy nhất, chữ thường), kind (`primary`, `alias`, `demo`; một `primary` đang dùng), active, dns_confirmed_at, dns_confirmed_by_name, note, created_by, created_by_name |
+| website_files | Ảnh bìa, tệp đính kèm, ảnh album, biểu trưng, ảnh đầu trang | id, owner_type (`post`, `album`, `settings`; `settings` thì owner_id trống), owner_id, purpose (`cover`, `attachment`, `photo`, `logo`, `banner`), file_name, content_type, size_bytes, sha256, storage_key (tiền tố `website/`), caption, order_no, created_by, created_by_name |
+| website_disclosure_categories | Nhóm công khai theo Thông tư 09/2024/TT-BGDĐT | code (khóa chính: `general`, `finance`, `mn-quality`, `mn-plan`, `pt-quality`, `pt-plan`, `annual-report`), name, legal_basis, school_level (`MN`, `PT`, trống là mọi cấp), order_no, active |
+| website_posts | Tin tức, thông báo, trang, công khai (P14-14, BR-139) | id, kind (`news`, `announcement`, `page`, `disclosure`), page_key (duy nhất; `intro`, `organization`), disclosure_category (khóa ngoại), disclosure_year, slug (duy nhất), title, summary, body_html (đã lọc), cover_file_id, pinned, status (`draft`, `pending`, `published`, `unpublished`), return_note, submitted_at, submitted_by_name, published_at, first_published_at, published_by_name, unpublished_at, unpublished_by_name, unpublish_reason, is_sample, created_by, created_by_name, updated_by_name |
+| website_albums | Thư viện ảnh (P14-15) | id, slug (duy nhất), title, description, event_date, cover_file_id, consent_confirmed, consent_confirmed_by_name, các cột trạng thái như `website_posts` |
+| website_contact_messages | Thư liên hệ (P14-16) | id, full_name, phone, email, subject, message, status (`new`, `handled`), handled_note, handled_at, handled_by_name, created_at |
+| website_events | Lịch sử soạn, duyệt, cấu hình | id, target_type (`post`, `album`, `settings`, `domain`, `contact`), target_id, action, note, actor_id, actor_name, created_at |
 
 Tệp `database/system/migrations/0019_create_outgoing_document_tables.ts` của cơ sở dữ liệu hệ thống (DT-18 phần 18b, YCTD-140) tạo sáu bảng văn bản đi ở trên; thêm vào `incoming_documents` ba cột `outgoing_document_id` (khóa ngoại `outgoing_documents`, xóa thì để trống), `recipient_org_unit_id`, `recipient_org_unit_name` và cho `source` nhận thêm `internal` (văn bản đến tạo qua liên thông nội bộ khi phát hành văn bản đi). Phần quay lui xóa văn bản đến nguồn `internal`, trả ràng buộc, xóa sáu bảng.
 

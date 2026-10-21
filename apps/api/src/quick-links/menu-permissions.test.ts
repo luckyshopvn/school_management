@@ -208,6 +208,16 @@ function legacyVisibility(has: (code: string) => boolean): Partial<Record<Portal
     '/kpi/advisory': has('P09.kpi.advise'),
     '/kpi/voting': has('P09.kpi.vote'),
     '/kpi/reports': canSeeKpi,
+    // Website trường (DT-18 phần 18f), mục mới không có điều kiện cũ
+    '/website/settings': has('P14.website.configure'),
+    '/website/domains': has('P14.website.configure'),
+    '/website/news': has('P14.website.edit') || has('P14.website.approve'),
+    '/website/announcements': has('P14.website.edit') || has('P14.website.approve'),
+    '/website/pages': has('P14.website.edit') || has('P14.website.approve'),
+    '/website/disclosures': has('P14.website.edit') || has('P14.website.approve'),
+    '/website/albums': has('P14.website.edit') || has('P14.website.approve'),
+    '/website/review': has('P14.website.approve'),
+    '/website/contacts': has('P14.website.edit') || has('P14.website.approve'),
     // Quản trị hệ thống
     '/roles': canSeeAccounts,
     '/accounts': canSeeAccounts,

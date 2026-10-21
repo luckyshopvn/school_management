@@ -18,7 +18,8 @@ export type IconName =
   | 'book'
   | 'report'
   | 'sign'
-  | 'school';
+  | 'school'
+  | 'globe';
 
 export const WORKSPACE_ICONS: Record<WorkspaceKey, IconName> = {
   education: 'cap',
@@ -36,6 +37,7 @@ export const WORKSPACE_ICONS: Record<WorkspaceKey, IconName> = {
   admissions: 'enroll',
   reports: 'report',
   kpi: 'chart',
+  website: 'globe',
   'professional-records': 'book',
 };
 
@@ -111,6 +113,9 @@ const ICON_PATHS: Record<IconName, ReactNode> = {
   chat: <path d="M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2Zm3 6v2h10V9H7Zm0 4v2h7v-2H7Z" />,
   book: <path d="M5 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5V3Zm2 2v14h10V5H7Zm2 2h6v2H9V7Zm0 4h6v2H9v-2Z" />,
   report: <path d="M6 2h9l5 5v15H6V2Zm8 1.5V8h4.5L14 3.5ZM8 12v2h8v-2H8Zm0 4v2h8v-2H8Z" />,
+  globe: (
+    <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm6.9 6h-2.9a15.7 15.7 0 0 0-1.4-3.6A8 8 0 0 1 18.9 8ZM12 4a14 14 0 0 1 1.9 4h-3.8A14 14 0 0 1 12 4ZM4.3 14a8.2 8.2 0 0 1 0-4h3.4a16.5 16.5 0 0 0 0 4Zm.8 2h2.9a15.7 15.7 0 0 0 1.4 3.6A8 8 0 0 1 5.1 16ZM8 8H5.1a8 8 0 0 1 4.3-3.6A15.7 15.7 0 0 0 8 8Zm4 12a14 14 0 0 1-1.9-4h3.8A14 14 0 0 1 12 20Zm2.3-6H9.7a14.7 14.7 0 0 1 0-4h4.6a14.7 14.7 0 0 1 0 4Zm.3 5.6a15.7 15.7 0 0 0 1.4-3.6h2.9a8 8 0 0 1-4.3 3.6Zm1.7-5.6a16.5 16.5 0 0 0 0-4h3.4a8.2 8.2 0 0 1 0 4Z" />
+  ),
 };
 
 export function WorkspaceIcon({ name }: { name: IconName }) {

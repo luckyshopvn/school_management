@@ -14,6 +14,7 @@ export * from './incoming-documents.js';
 export * from './kpi.js';
 export * from './outgoing-documents.js';
 export * from './directives.js';
+export * from './website.js';
 export * from './professional-records.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
@@ -221,6 +222,10 @@ export const PERMISSION_CODES = {
   professionalRecordManage: 'P09.professional-record.manage',
   // Thiết bị: quét mã QR kiểm kê, ghi tình trạng (DT-18 phần 18g)
   equipmentStocktake: 'P13.equipment.stocktake',
+  // Website trường (DT-18 phần 18f)
+  websiteEdit: 'P14.website.edit',
+  websiteApprove: 'P14.website.approve',
+  websiteConfigure: 'P14.website.configure',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -484,6 +489,16 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/equipment-locations',
   '/equipment-stocktakes',
   '/equipment-minimum',
+  // Website trường (DT-18 phần 18f)
+  '/website/settings',
+  '/website/domains',
+  '/website/news',
+  '/website/announcements',
+  '/website/pages',
+  '/website/disclosures',
+  '/website/albums',
+  '/website/review',
+  '/website/contacts',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -733,6 +748,12 @@ export const DATA_GRID_KEYS = [
   'equipment-stocktakes',
   'equipment-stocktake-lines',
   'equipment-minimum',
+  // Website trường (DT-18 phần 18f)
+  'website-domains',
+  'website-posts',
+  'website-albums',
+  'website-review',
+  'website-contacts',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;
