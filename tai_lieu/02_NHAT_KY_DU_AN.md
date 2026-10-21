@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.22
+- Phiên bản: 0.23
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,28 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-21 — DT-18 phần 22i: kế hoạch giáo dục
+
+#### Công việc đã thực hiện
+
+- Đọc mục 9 của `32_KE_HOACH_THEO_HE_THONG_SO.md`, kế hoạch DT-22 (phần 22i), mã hồ sơ chuyên môn 18e (luồng duyệt, kho tệp, nhóm công tác, Việc của tôi), quy trình kí nội bộ 16k, 17b, kế hoạch theo kỳ của Quản lý công việc.
+- Cơ sở dữ liệu: tệp năm học `0069_create_education_plans`, tệp định danh `0061_add_education_plan_permissions`.
+- Máy chủ API: thư viện mẫu, nạp mẫu Mầm non; lập, sửa, trình, duyệt nhiều bước, trả lại, rút lại; kí nội bộ, lưu vào kho hồ sơ; phiên bản, so sánh; sao chép từ năm trước; xuất Word, PDF; tiến độ duyệt, xuất Excel; tạo kế hoạch công việc; nguồn Việc của tôi; bước chuyển năm học.
+- Cổng quản trị: nhóm 5 của phân hệ Hồ sơ chuyên môn (sáu màn hình).
+- Thêm quy tắc BR-142, chức năng P09-31 đến P09-33, quyền PQ-86, màn hình MH-230 đến MH-235, kịch bản CT-759 đến CT-768, tiêu chí AC-711 đến AC-714. Kết quả ngày 21/10/2026: kiểm thử đơn vị `apps/api/src/education-plans/education-plans.test.ts` CT-22i-1 đến CT-22i-9 đạt 9/9; kiểm thử đơn vị toàn bộ kho mã 982/982; kiểm thử giao diện `tests/e2e/78-education-plans.spec.ts` (CT-22i-10) đạt; toàn bộ kiểm thử giao diện 149/149 (148 ở lượt toàn bộ, spec 78 chạy lại sau khi sửa đạt); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 22i của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9.4, gộp vào phân hệ Hồ sơ chuyên môn thay vì thêm phân hệ; mẫu là cấu hình ở cơ sở dữ liệu năm học, chép sang năm mới; bản đã duyệt lưu vào kho hồ sơ 18e (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-147, `07_QUY_TAC_NGHIEP_VU.md` BR-142, `08_VAI_TRO_NGUOI_DUNG.md` PQ-86, `10_YEU_CAU_CHUC_NANG.md` P09-31 đến P09-33, `11_TIEU_CHI_NGHIEM_THU.md` AC-711 đến AC-714, `14_DAC_TA_GIAO_DIEN.md` MH-230 đến MH-235, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-759 đến CT-768.
+
+#### Vấn đề tồn đọng
+
+- Mẫu Tiểu học, THCS, THPT thêm sau DT-19; nội dung mẫu Mầm non chờ trường rà theo hướng dẫn năm học.
 
 ### 2026-10-21 — DT-18 phần 18h: quản trị và trình diễn
 

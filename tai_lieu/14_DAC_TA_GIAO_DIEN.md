@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.77
+- Phiên bản: 1.78
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -303,6 +303,13 @@ Từ YCTD-107 (DT-15 phần 15a), cổng quản trị dùng menu ngang nhiều c
 | Hồ sơ chuyên môn | 4. | Thiết lập | (nhóm) |
 | Hồ sơ chuyên môn | 4.1. | Thư mục và luồng duyệt | `/professional-folders` |
 | Hồ sơ chuyên môn | 4.2. | Nhóm công tác | `/professional-work-groups` |
+| Hồ sơ chuyên môn | 5. | Kế hoạch giáo dục | (nhóm) |
+| Hồ sơ chuyên môn | 5.1. | Kế hoạch của tôi | `/education-plans` |
+| Hồ sơ chuyên môn | 5.2. | Kế hoạch tổ, nhóm | `/education-plans/groups` |
+| Hồ sơ chuyên môn | 5.3. | Kế hoạch của trường | `/education-plans/school` |
+| Hồ sơ chuyên môn | 5.4. | Duyệt kế hoạch | `/education-plans/review` |
+| Hồ sơ chuyên môn | 5.5. | Tiến độ duyệt kế hoạch | `/education-plans/progress` |
+| Hồ sơ chuyên môn | 5.6. | Thư viện mẫu kế hoạch | `/education-plan-templates` |
 
 Từ YCTD-134 (DT-17 phần 17c), phân hệ "Tuyển sinh đầu cấp" (khóa `entry-admissions`) đứng sau "Quản lý cơ sở vật chất, TBDH" trên ô chọn phân hệ; số mục giữ như trang riêng `truong-tsdc` của Sở (khảo sát tài liệu 31 mục 10.2.2), tên năm nhóm 1. đến 5. do Claude tự đặt vì khảo sát không ghi; mục 1.3 đến 1.7 thêm ở phần 17d. Tiêu đề trang lấy từ cây menu kèm số (`menuPageTitle`). Cổng quản trị có 13 phân hệ.
 
@@ -550,6 +557,12 @@ Từ YCTD-142 (DT-18 phần 18e), phân hệ "Hồ sơ chuyên môn" (khóa `pro
 | MH-227 | Xuất toàn bộ dữ liệu (YCTD-145; mục "4.2.", `/school-data-export`, lưới khóa `school-data-exports`): lời báo nội dung gói, dữ liệu cá nhân, hạn 48 giờ; nút Tạo gói dữ liệu, Làm mới; báo "Đang tạo gói dữ liệu…", "Gói dữ liệu đã tạo xong, tải về trước …"; cột Thời gian tạo, Người tạo, Trạng thái, Số dòng dữ liệu, Dung lượng, Hạn tải về, Số lần tải, Lần tải gần nhất (ẩn mặc định), Ghi chú; nút dòng Tải về | `P01.data.export-all` |
 | MH-228 | Bản trình diễn (YCTD-145; mục "4.3.", `/demo-environment`): máy chủ không phải bản trình diễn thì báo cách tạo; là bản trình diễn thì hiện Tạo dữ liệu lúc, Tự đặt lại (chu kỳ, lần tới), Mật khẩu chung, Gửi tin, thanh toán (chặn) và lưới Tài khoản trình diễn (Vai trò, Họ tên giả, Tên đăng nhập, Ứng dụng) | `P01.account.manage` hoặc `P01.account.impersonate` |
 | MH-229 | Trang chọn vai và dải "Bản trình diễn" (YCTD-145): ở màn hình đăng nhập của cổng quản trị, ứng dụng giáo viên, phụ huynh, khi máy chủ là bản trình diễn, khung "Bản trình diễn: chọn vai để vào thử" (mật khẩu chung, mỗi vai một nút đăng nhập); dải vàng "Bản trình diễn: dữ liệu giả, không gửi tin nhắn, Zalo hay thu tiền thật; dữ liệu tự đặt lại lúc …" ở đầu mọi trang | Mọi người |
+| MH-230 | Kế hoạch của tôi (YCTD-147; mục "5.1." của Hồ sơ chuyên môn, `/education-plans`, lưới khóa `education-plans`): lọc mẫu, trạng thái, tìm; nút Lập kế hoạch (mẫu cá nhân, nhóm lớp; chọn nhóm, lớp), Sao chép từ năm trước (lưới `education-plan-previous`, chọn, tên, nhóm lớp năm nay); bấm dòng mở chi tiết: thông tin, các bước duyệt, ô nhập theo mục (văn bản, bảng thêm, xóa dòng), Ghi nội dung, Trình duyệt, Rút lại, Xuất Word, Xuất PDF, Tải bản đã kí, so sánh với phiên bản hoặc bản năm trước, lịch sử | Mọi quyền kế hoạch giáo dục |
+| MH-231 | Kế hoạch tổ, nhóm (YCTD-147; mục "5.2.", `/education-plans/groups`): như 5.1 với kế hoạch của tổ, nhóm; tổ trưởng, trưởng nhóm lập | Mọi quyền kế hoạch giáo dục |
+| MH-232 | Kế hoạch của trường (YCTD-147; mục "5.3.", `/education-plans/school`): như 5.1 với kế hoạch của trường; Ban Giám hiệu lập; kế hoạch đã duyệt mọi cán bộ xem; nút Tạo kế hoạch công việc khi có quyền kế hoạch công việc | Mọi quyền kế hoạch giáo dục |
+| MH-233 | Duyệt kế hoạch (YCTD-147; mục "5.4.", `/education-plans/review`, lưới khóa `education-plan-review`): thẻ Chờ tôi duyệt, Tôi đã xử lý; chi tiết có Duyệt, Trả lại (ô Ý kiến, Lý do trả lại) | `.review`, `.approve`, `.finalize` |
+| MH-234 | Tiến độ duyệt kế hoạch (YCTD-147; mục "5.5.", `/education-plans/progress`, lưới khóa `education-plan-progress`): lọc mẫu, Xuất Excel; dòng tổng, số chờ từng bước; lưới theo mẫu, theo tổ, kế hoạch đang chờ (số ngày chờ) | `.manage`, `.approve`, `.finalize` |
+| MH-235 | Thư viện mẫu kế hoạch (YCTD-147; mục "5.6.", `/education-plan-templates`, lưới khóa `education-plan-templates`): chọn cấp học, Nạp mẫu mặc định; Thêm mẫu, Sửa, Xóa (mẫu chưa có kế hoạch); biểu mẫu: thông tin mẫu, các bước duyệt, kí nội bộ, thư mục lưu kho, các mục (mã, tên, loại, gợi ý, cột) | Xem: mọi quyền kế hoạch giáo dục; sửa: `.manage` |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 

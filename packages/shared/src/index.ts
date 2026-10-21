@@ -17,6 +17,7 @@ export * from './directives.js';
 export * from './website.js';
 export * from './administration.js';
 export * from './professional-records.js';
+export * from './education-plans.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -230,6 +231,12 @@ export const PERMISSION_CODES = {
   // Quản trị và trình diễn (DT-18 phần 18h)
   accountImpersonate: 'P01.account.impersonate',
   dataExportAll: 'P01.data.export-all',
+  // Kế hoạch giáo dục (DT-18 phần 22i)
+  educationPlanUse: 'P09.education-plan.use',
+  educationPlanReview: 'P09.education-plan.review',
+  educationPlanApprove: 'P09.education-plan.approve',
+  educationPlanFinalize: 'P09.education-plan.finalize',
+  educationPlanManage: 'P09.education-plan.manage',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -507,6 +514,13 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/impersonations',
   '/school-data-export',
   '/demo-environment',
+  // Kế hoạch giáo dục (DT-18 phần 22i)
+  '/education-plans',
+  '/education-plans/groups',
+  '/education-plans/school',
+  '/education-plans/review',
+  '/education-plans/progress',
+  '/education-plan-templates',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -766,6 +780,12 @@ export const DATA_GRID_KEYS = [
   'impersonations',
   'impersonation-actions',
   'school-data-exports',
+  // Kế hoạch giáo dục (DT-18 phần 22i)
+  'education-plans',
+  'education-plan-review',
+  'education-plan-templates',
+  'education-plan-progress',
+  'education-plan-previous',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.87
+- Phiên bản: 1.88
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -308,6 +308,17 @@ Hồ sơ chuyên môn (DT-18 phần 18e, YCTD-142), tệp `database/school-year/
 | professional_record_settings | Khóa năm học (một dòng, id = 1) | id, locked, locked_at, locked_by_name, updated_at |
 
 Mở năm học mới chuyển cây thư mục và nhóm công tác (thành viên còn trong danh sách nhân sự), giữ mã định danh; hồ sơ, đợt nộp ở lại năm cũ.
+
+Kế hoạch giáo dục (DT-18 phần 22i, YCTD-147). Cơ sở dữ liệu năm học, tệp `database/school-year/migrations/0069_create_education_plans.ts`; tệp định danh `0061_add_education_plan_permissions.ts` thêm năm quyền P09. Bản đã kí và bản lưu kho dùng mục đích tệp `professional_record`.
+
+| Bảng | Mục đích | Trường chính |
+|---|---|---|
+| education_plan_templates | Thư viện mẫu (P09-31) | id, code (duy nhất), name, description, school_level, scope (school, group, class, personal), period (year, semester, month, week, none), sections (JSON: key, title, kind text hoặc table, hint, columns key, label, type date), approval_steps (mảng leader, vice_principal, principal), requires_signing, archive_folder_id (khóa ngoại `professional_folders`), revision, sort_order, status |
+| education_plans | Kế hoạch (P09-32, BR-142) | id, template_id, template_name, template_revision, scope, period, school_level, title, period_label, period_start, period_end, org_unit_id, department_id, work_group_id (nhóm công tác 18e), class_id, owner_user_id, owner_staff_id, owner_name, sections, content (JSON theo mã mục), approval_steps, requires_signing, status (draft, pending, approved, returned), remaining_steps, current_step (có khi và chỉ khi chờ duyệt), version_no, submitted_at, approved_at, approved_by, approved_by_name, return_note, signed_at, signature_method, signed_file_id, source_plan_id, source_year_name, source_sections, source_content (bản năm trước), archived_document_id (`professional_documents`), work_plan_id (`plans`); kế hoạch của tổ cần tổ hoặc nhóm, kế hoạch của nhóm lớp cần lớp |
+| education_plan_versions | Phiên bản mỗi lần trình | id, plan_id (khóa ngoại, xóa theo), version_no (duy nhất theo kế hoạch), title, sections, content, note, created_by, created_by_name, created_at |
+| education_plan_events | Lịch sử kế hoạch | id, plan_id (khóa ngoại, xóa theo), action (create, copy, submit, withdraw, approve, return, sign, archive, work_plan), step, note, actor_id, actor_name, created_at (giờ thực lúc ghi) |
+
+Mở năm học mới chép thư viện mẫu, giữ mã định danh (bỏ liên kết thư mục không có ở năm mới); kế hoạch ở lại năm cũ để sao chép, so sánh.
 
 | plans | Kế hoạch của đơn vị theo kỳ (YCTD-81) | org_unit_id, period_type (tháng, học kỳ, năm học), period_value, title, objectives, status (nháp, đang thực hiện, đã đóng), created_by, activated_at, closed_at |
 | plan_items | Đầu việc trong kế hoạch (YCTD-81) | plan_id, content, owner_staff_id, due_date, task_id (việc được giao khi kích hoạt), order_no |

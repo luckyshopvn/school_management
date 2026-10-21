@@ -455,6 +455,15 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('4.1.', 'Thư mục và luồng duyệt', '/professional-folders'),
         leaf('4.2.', 'Nhóm công tác', '/professional-work-groups'),
       ]),
+      // Kế hoạch giáo dục (DT-18 phần 22i) gộp vào phân hệ này như kế hoạch DT-22 (dùng chung kho hồ sơ, nhóm công tác)
+      group('5.', 'Kế hoạch giáo dục', [
+        leaf('5.1.', 'Kế hoạch của tôi', '/education-plans'),
+        leaf('5.2.', 'Kế hoạch tổ, nhóm', '/education-plans/groups'),
+        leaf('5.3.', 'Kế hoạch của trường', '/education-plans/school'),
+        leaf('5.4.', 'Duyệt kế hoạch', '/education-plans/review'),
+        leaf('5.5.', 'Tiến độ duyệt kế hoạch', '/education-plans/progress'),
+        leaf('5.6.', 'Thư viện mẫu kế hoạch', '/education-plan-templates'),
+      ]),
     ],
   },
 ];

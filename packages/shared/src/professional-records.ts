@@ -99,7 +99,16 @@ export const PROFESSIONAL_DEFAULT_FOLDERS: Record<KpiSchoolLevelCode, Profession
 
 // Việc của tôi: mỗi phân hệ cung cấp một nguồn việc qua giao diện chung ở máy chủ; phần sau thêm nguồn thì thêm mã ở đây
 export type MyWorkSourceCode =
-  'incoming' | 'outgoing' | 'directives' | 'schedules' | 'kpi' | 'professional' | 'teaching' | 'signing' | 'leave';
+  | 'incoming'
+  | 'outgoing'
+  | 'directives'
+  | 'schedules'
+  | 'kpi'
+  | 'professional'
+  | 'education_plans'
+  | 'teaching'
+  | 'signing'
+  | 'leave';
 
 export const MY_WORK_SOURCE_LABELS: Record<MyWorkSourceCode, string> = {
   incoming: 'Văn bản đến',
@@ -108,6 +117,7 @@ export const MY_WORK_SOURCE_LABELS: Record<MyWorkSourceCode, string> = {
   schedules: 'Lịch, phòng họp',
   kpi: 'Đánh giá KPI',
   professional: 'Hồ sơ chuyên môn',
+  education_plans: 'Kế hoạch giáo dục',
   teaching: 'Kế hoạch bài dạy',
   signing: 'Kí hồ sơ',
   leave: 'Nghỉ phép',
