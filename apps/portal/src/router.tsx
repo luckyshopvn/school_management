@@ -77,6 +77,11 @@ import { MissingProfilesPage } from './statistics/MissingProfilesPage.js';
 import { AdmissionsPage } from './admissions/AdmissionsPage.js';
 import { InteractionsPage } from './interactions/InteractionsPage.js';
 import { ActivitiesPage } from './activities/ActivitiesPage.js';
+import { FoodInspectionsPage } from './kitchen/FoodInspectionsPage.js';
+import { FoodLotsPage } from './kitchen/FoodLotsPage.js';
+import { FoodSamplesPage } from './kitchen/FoodSamplesPage.js';
+import { FoodSupplierRecordsPage } from './kitchen/FoodSupplierRecordsPage.js';
+import { FoodTracePage } from './kitchen/FoodTracePage.js';
 import { KitchenPage } from './kitchen/KitchenPage.js';
 import { MedicinesPage } from './medicines/MedicinesPage.js';
 import { InventoryPage } from './inventory/InventoryPage.js';
@@ -482,6 +487,16 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/equipment-locations', component: EquipmentLocationsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/equipment-stocktakes', component: EquipmentStocktakesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/equipment-minimum', component: EquipmentMinimumPage }),
+  // Bán trú: kiểm thực ba bước và an toàn thực phẩm (DT-18 phần 22b)
+  createRoute({ getParentRoute: () => rootRoute, path: '/food-safety/inspections', component: FoodInspectionsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/food-safety/samples', component: FoodSamplesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/food-safety/lots', component: FoodLotsPage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/food-safety/supplier-records',
+    component: FoodSupplierRecordsPage,
+  }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/food-safety/trace', component: FoodTracePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/api-clients', component: ApiClientsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/integrations', component: IntegrationsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/notifications', component: NotificationsPage }),

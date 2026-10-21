@@ -104,7 +104,8 @@ export function guessFoodCategory(name: string): FoodLotCategory {
   return DRY_HINTS.some((hint) => lower.includes(hint)) ? 'dry' : 'fresh';
 }
 
-// Tạo lô cho từng dòng của phiếu đi chợ khi xác nhận nhập (gọi trong giao dịch của phiếu)
+// Tạo lô cho từng dòng của phiếu đi chợ khi xác nhận nhập (gọi trong giao dịch của phiếu): ngày nhập là ngày của phiếu, giờ
+// nhập là lúc xác nhận nếu cùng ngày
 export async function createLotsForPurchase(
   transaction: Transaction<SchoolYearDatabase>,
   purchase: { id: string; org_unit_id: string; supplier_id: string; purchase_date: string },
@@ -132,8 +133,8 @@ export async function createLotsForPurchase(
         supplier_id: purchase.supplier_id,
         purchase_item_id: item.id,
         food_category: guessFoodCategory(item.name),
-        received_date: local.slice(0, 10) < purchase.purchase_date ? purchase.purchase_date : local.slice(0, 10),
-        received_time: local.slice(11, 16),
+        received_date: purchase.purchase_date,
+        received_time: local.slice(0, 10) === purchase.purchase_date ? local.slice(11, 16) : null,
         quantity: item.quantity,
         created_by: actorUserId,
       })
