@@ -27,7 +27,7 @@ import {
 import { KitchenAccess } from './kitchen-access.js';
 import { MEAL_TYPES, check, queryDate, queryUuid, readDate, readText } from './kitchen-fields.js';
 
-// Lưu và hủy mẫu thức ăn (DT-18 phần 22b, YCTD-146; BR-142) theo mẫu số 5 của Quyết định 1246/QĐ-BYT: mỗi món một mẫu, ghi
+// Lưu và hủy mẫu thức ăn (DT-18 phần 22b, YCTD-146; BR-143) theo mẫu số 5 của Quyết định 1246/QĐ-BYT: mỗi món một mẫu, ghi
 // bữa, số suất, khối lượng hoặc thể tích, dụng cụ chứa, nhiệt độ bảo quản, thời điểm lấy, người lưu; hủy sau ít nhất 24 giờ,
 // ghi người hủy, thời điểm hủy và chất lượng mẫu. Khi có phản ánh, nghi ngộ độc hoặc cơ quan quản lý yêu cầu thì giữ mẫu, mẫu
 // giữ không hủy được đến khi bỏ giữ. Người lưu, hủy cần quyền P12.food-safety.inspect của đơn vị
@@ -200,7 +200,7 @@ export class FoodSamplesService {
       }
     }
     if (problems.length > 0) {
-      throw ruleViolationError('BR-142', problems.join('; '));
+      throw ruleViolationError('BR-143', problems.join('; '));
     }
     await database.transaction().execute(async (transaction) => {
       await transaction
@@ -238,7 +238,7 @@ export class FoodSamplesService {
     await this.assertInspect(currentUser, sample.org_unit_id);
     const holding = reason !== null;
     if (holding ? sample.status !== 'stored' : sample.status !== 'held') {
-      throw ruleViolationError('BR-142', holding ? 'Chỉ giữ được mẫu đang lưu' : 'Mẫu không ở trạng thái giữ');
+      throw ruleViolationError('BR-143', holding ? 'Chỉ giữ được mẫu đang lưu' : 'Mẫu không ở trạng thái giữ');
     }
     await database.transaction().execute(async (transaction) => {
       await transaction

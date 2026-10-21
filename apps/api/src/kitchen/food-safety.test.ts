@@ -28,7 +28,7 @@ import {
 import { guessFoodCategory } from './food-safety-records.js';
 
 // Bán trú: kiểm thực ba bước, lưu và hủy mẫu, lô hàng, hồ sơ an toàn thực phẩm của nhà cung cấp, truy xuất, sổ in (DT-18
-// phần 22b, YCTD-146; BR-142 đến BR-145; Quyết định 1246/QĐ-BYT)
+// phần 22b, YCTD-146; BR-143 đến BR-146; Quyết định 1246/QĐ-BYT)
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
   new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
@@ -373,7 +373,7 @@ describe('Bán trú, kiểm thực ba bước và an toàn thực phẩm qua má
     const items = work.body.items as Array<{ kind: string; title: string }>;
     assert.ok(items.some((item) => item.kind === 'Giấy tờ nhà cung cấp sắp hết hạn'));
 
-    // Phiếu đi chợ của nhà cung cấp chưa có giấy chứng nhận còn hiệu lực có cảnh báo, không chặn (BR-144)
+    // Phiếu đi chợ của nhà cung cấp chưa có giấy chứng nhận còn hiệu lực có cảnh báo, không chặn (BR-145)
     const withoutCertificate = await api('POST', '/market-purchases', token('kitchen'), {
       org_unit_id: unitA,
       purchase_date: schoolDay,
@@ -461,7 +461,7 @@ describe('Bán trú, kiểm thực ba bước và an toàn thực phẩm qua má
     assert.equal(saved.status, 200, JSON.stringify(saved.body));
     const missingAction = await api('POST', `/food-inspections/${ids.step1}/confirm`, token('nurse'));
     assert.equal(missingAction.status, 422);
-    assert.equal(errorOf(missingAction.body).rule_code, 'BR-143');
+    assert.equal(errorOf(missingAction.body).rule_code, 'BR-144');
     await api('PUT', `/food-inspections/${ids.step1}`, token('nurse'), {
       lines: [
         { lot_id: ids.riceLot, sensory_result: 'pass' },
@@ -694,7 +694,7 @@ describe('Bán trú, kiểm thực ba bước và an toàn thực phẩm qua má
 
     const early = await api('POST', '/food-samples/destroy', token('nurse'), { ids: [soup.body.id] });
     assert.equal(early.status, 422);
-    assert.equal(errorOf(early.body).rule_code, 'BR-142');
+    assert.equal(errorOf(early.body).rule_code, 'BR-143');
     const work = await api('GET', '/my-work?source=food_safety', token('nurse'));
     assert.ok((work.body.items as Array<{ kind: string }>).some((item) => item.kind === 'Mẫu thức ăn lưu chờ hủy'));
 

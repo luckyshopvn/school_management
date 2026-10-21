@@ -29,7 +29,7 @@ import { KitchenAccess } from './kitchen-access.js';
 import { MEAL_TYPES, check, queryDate, queryUuid, readDate, readText } from './kitchen-fields.js';
 import { KitchenMealsService } from './kitchen-meals.js';
 
-// Kiểm thực ba bước (DT-18 phần 22b, YCTD-146; BR-143) theo Quyết định 1246/QĐ-BYT: mỗi đơn vị mỗi ngày mỗi bước một phiếu.
+// Kiểm thực ba bước (DT-18 phần 22b, YCTD-146; BR-144) theo Quyết định 1246/QĐ-BYT: mỗi đơn vị mỗi ngày mỗi bước một phiếu.
 // Bước 1 (mẫu số 1) kiểm tra từng lô nhập trong ngày; bước 2 (mẫu số 2) kiểm tra từng món khi chế biến, kèm lô đã dùng; bước 3
 // (mẫu số 3) kiểm tra từng món trước khi ăn. Lập phiếu thì gợi ý sẵn dòng: lô chờ kiểm tra, món của thực đơn đã công bố và số
 // suất của ngày. Xác nhận phiếu thì khóa; xác nhận bước 1 thì lô đạt chuyển "Đạt, đã nhận", lô không đạt chuyển "Không đạt"
@@ -187,7 +187,7 @@ export class FoodInspectionsService {
       .where('step', '=', input.step)
       .executeTakeFirst();
     if (existing) {
-      throw ruleViolationError('BR-143', 'Đơn vị đã có phiếu của bước này trong ngày');
+      throw ruleViolationError('BR-144', 'Đơn vị đã có phiếu của bước này trong ngày');
     }
     const lines = await this.suggestedLines(database, input.org_unit_id, input.inspection_date, input.step);
     const created = await database.transaction().execute(async (transaction) => {
@@ -340,7 +340,7 @@ export class FoodInspectionsService {
     const before = await this.find(database, id);
     await this.assertInspect(currentUser, before.org_unit_id);
     if (before.status !== 'draft') {
-      throw ruleViolationError('BR-143', 'Phiếu đã xác nhận, không sửa được');
+      throw ruleViolationError('BR-144', 'Phiếu đã xác nhận, không sửa được');
     }
     if (input.lines) {
       await this.assertLines(database, before, input.lines);
@@ -354,7 +354,7 @@ export class FoodInspectionsService {
         .returningAll()
         .executeTakeFirst();
       if (!after) {
-        throw ruleViolationError('BR-143', 'Phiếu đã xác nhận, không sửa được');
+        throw ruleViolationError('BR-144', 'Phiếu đã xác nhận, không sửa được');
       }
       if (input.lines) {
         await transaction.deleteFrom('food_inspection_lines').where('inspection_id', '=', id).execute();
@@ -461,7 +461,7 @@ export class FoodInspectionsService {
     const inspection = await this.find(database, id);
     await this.assertInspect(currentUser, inspection.org_unit_id);
     if (inspection.status !== 'draft') {
-      throw ruleViolationError('BR-143', 'Phiếu đã xác nhận');
+      throw ruleViolationError('BR-144', 'Phiếu đã xác nhận');
     }
     const lines = await database
       .selectFrom('food_inspection_lines')
@@ -480,7 +480,7 @@ export class FoodInspectionsService {
       }
     }
     if (problems.length > 0) {
-      throw ruleViolationError('BR-143', problems.join('; '));
+      throw ruleViolationError('BR-144', problems.join('; '));
     }
     await database.transaction().execute(async (transaction) => {
       const confirmed = await transaction
@@ -496,7 +496,7 @@ export class FoodInspectionsService {
         .returning('id')
         .executeTakeFirst();
       if (!confirmed) {
-        throw ruleViolationError('BR-143', 'Phiếu đã xác nhận');
+        throw ruleViolationError('BR-144', 'Phiếu đã xác nhận');
       }
       const lotChanges: Array<{ lot_id: string; status: string }> = [];
       if (inspection.step === 1) {
@@ -515,7 +515,7 @@ export class FoodInspectionsService {
             .returning('id')
             .executeTakeFirst();
           if (!updated) {
-            throw ruleViolationError('BR-143', `Dòng ${line.line_no}: lô đã được kiểm tra ở phiếu khác`);
+            throw ruleViolationError('BR-144', `Dòng ${line.line_no}: lô đã được kiểm tra ở phiếu khác`);
           }
           lotChanges.push({ lot_id: line.lot_id ?? '', status: failed ? 'rejected' : 'accepted' });
         }

@@ -39,7 +39,7 @@ import {
 } from './food-safety-api.js';
 import { messageOf } from './kitchen-api.js';
 
-// 3.4 Hồ sơ an toàn thực phẩm của nhà cung cấp (DT-18 phần 22b, YCTD-146; BR-144): bếp ghi giấy tờ của nhà cung cấp (giấy
+// 3.4 Hồ sơ an toàn thực phẩm của nhà cung cấp (DT-18 phần 22b, YCTD-146; BR-145): bếp ghi giấy tờ của nhà cung cấp (giấy
 // chứng nhận cơ sở đủ điều kiện an toàn thực phẩm, đăng ký kinh doanh, thú y, kiểm dịch, tự công bố, hợp đồng) kèm hạn hiệu
 // lực và tệp quét; giấy sắp hết hạn trong 30 ngày hoặc đã hết hạn được cảnh báo; thu hồi giấy khi không còn giá trị
 const VALIDITY_TONES: Record<CertificateValidity, StatusTone> = {

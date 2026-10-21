@@ -23,7 +23,7 @@ import { KitchenMealsService } from './kitchen-meals.js';
 // Xác nhận nhập thì tồn nguyên liệu tăng và phiếu chuyển sang chờ thanh toán: đó là đề nghị thanh toán gửi kế toán; kế
 // toán lập phiếu chi theo QT-05 (BR-28), không lập phiếu chi tự động, rồi gắn phiếu chi đã phát hành vào phiếu đi chợ.
 // Bán trú (DT-18 phần 22b): xác nhận nhập thì mỗi dòng thành một lô hàng chờ kiểm tra trước khi chế biến; nhà cung cấp chưa có
-// giấy chứng nhận an toàn thực phẩm còn hiệu lực thì phiếu kèm cảnh báo (BR-144), không chặn
+// giấy chứng nhận an toàn thực phẩm còn hiệu lực thì phiếu kèm cảnh báo (BR-145), không chặn
 const STATUSES: MarketPurchaseStatus[] = ['draft', 'received', 'cancelled'];
 const MAXIMUM_LINES = 100;
 

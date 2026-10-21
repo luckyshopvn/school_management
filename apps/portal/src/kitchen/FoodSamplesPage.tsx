@@ -42,7 +42,7 @@ import {
 } from './food-safety-api.js';
 import { MEAL_LABELS, MEAL_TYPES, messageOf, vietnamToday, type MealType } from './kitchen-api.js';
 
-// 3.2 Lưu và hủy mẫu thức ăn (DT-18 phần 22b, YCTD-146; BR-142) theo mẫu số 5 của Quyết định 1246/QĐ-BYT: mỗi món một mẫu
+// 3.2 Lưu và hủy mẫu thức ăn (DT-18 phần 22b, YCTD-146; BR-143) theo mẫu số 5 của Quyết định 1246/QĐ-BYT: mỗi món một mẫu
 // (tối thiểu 100 g thức ăn đặc, 150 ml thức ăn lỏng; bảo quản 2–8 °C), lưu ít nhất 24 giờ rồi hủy, ghi người hủy và chất lượng
 // mẫu; khi có phản ánh, nghi ngộ độc thì giữ mẫu, mẫu giữ không hủy được. In sổ lưu mẫu và nhãn mẫu theo khoảng ngày
 function sampleState(row: FoodSample): { label: string; tone: StatusTone } {

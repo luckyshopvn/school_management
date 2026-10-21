@@ -49,7 +49,7 @@ import { lotExpiryState, readClockTime } from './food-safety-calc.js';
 import { KitchenAccess } from './kitchen-access.js';
 import { check, queryDate, queryUuid, readDate, readQuantity, readText } from './kitchen-fields.js';
 
-// Hồ sơ an toàn thực phẩm của nhà cung cấp và lô hàng nhập (DT-18 phần 22b, YCTD-146; BR-144, BR-145). Bếp (P12.kitchen.manage)
+// Hồ sơ an toàn thực phẩm của nhà cung cấp và lô hàng nhập (DT-18 phần 22b, YCTD-146; BR-145, BR-146). Bếp (P12.kitchen.manage)
 // ghi giấy tờ của nhà cung cấp kèm hạn hiệu lực và tệp quét; giấy sắp hết hạn trong 30 ngày được cảnh báo ở danh sách, ở Việc
 // của tôi và khi lập phiếu đi chợ. Lô hàng tạo khi xác nhận nhập phiếu đi chợ (mỗi dòng một lô) hoặc nhập tay (hàng giao theo
 // hợp đồng, tài trợ); lô chờ kiểm tra trước khi chế biến (bước 1), đạt thì dùng được cho món, không đạt thì ghi cách xử lý
@@ -144,7 +144,7 @@ export async function createLotsForPurchase(
   return codes;
 }
 
-// Giấy chứng nhận cơ sở đủ điều kiện an toàn thực phẩm còn hiệu lực của nhà cung cấp vào ngày (BR-144)
+// Giấy chứng nhận cơ sở đủ điều kiện an toàn thực phẩm còn hiệu lực của nhà cung cấp vào ngày (BR-145)
 export async function supplierCertificateWarning(
   database: Kysely<SchoolYearDatabase>,
   supplierId: string,
@@ -582,10 +582,10 @@ export class FoodSafetyRecordsService {
     await this.access.assertManage(currentUser, before.org_unit_id);
     const documentOnly = ['document_number', 'document_file_id', 'note'];
     if (before.status !== 'pending' && Object.keys(changes).some((key) => !documentOnly.includes(key))) {
-      throw ruleViolationError('BR-145', 'Lô đã kiểm tra chỉ sửa được số chứng từ, tệp chứng từ và ghi chú');
+      throw ruleViolationError('BR-146', 'Lô đã kiểm tra chỉ sửa được số chứng từ, tệp chứng từ và ghi chú');
     }
     if (before.purchase_item_id !== null && changes.quantity !== undefined) {
-      throw ruleViolationError('BR-145', 'Khối lượng của lô tạo từ phiếu đi chợ theo phiếu, không sửa ở lô');
+      throw ruleViolationError('BR-146', 'Khối lượng của lô tạo từ phiếu đi chợ theo phiếu, không sửa ở lô');
     }
     await this.assertFile(database, changes.document_file_id, before.org_unit_id);
     assertLotDates(
@@ -627,7 +627,7 @@ export class FoodSafetyRecordsService {
     }
     await this.access.assertManage(currentUser, before.org_unit_id);
     if (before.status !== 'accepted') {
-      throw ruleViolationError('BR-145', 'Chỉ đóng được lô đã đạt kiểm tra');
+      throw ruleViolationError('BR-146', 'Chỉ đóng được lô đã đạt kiểm tra');
     }
     if (input.status === 'disposed' && !input.handling_note) {
       throw validationError([{ field: 'handling_note', message: 'Hủy lô thì ghi lý do và cách hủy' }]);
@@ -664,7 +664,7 @@ function assertCertificateDates(issuedOn: string | null, expiresOn: string | nul
   }
 }
 
-// BR-145: hạn dùng không trước ngày sản xuất; nhập lô đã hết hạn dùng vào ngày nhập thì từ chối
+// BR-146: hạn dùng không trước ngày sản xuất; nhập lô đã hết hạn dùng vào ngày nhập thì từ chối
 function assertLotDates(receivedDate: string, productionDate: string | null, expiryDate: string | null) {
   const errors: FieldError[] = [];
   if (productionDate && productionDate > receivedDate) {

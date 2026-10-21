@@ -9,7 +9,7 @@ import {
 import type { FoodCheckResult, FoodSampleForm } from '@school-management/database';
 
 // Hàm tính của bán trú, kiểm thực ba bước và lưu mẫu (DT-18 phần 22b, YCTD-146), tách khỏi truy vấn để kiểm thử đơn vị.
-// Ngưỡng theo Quyết định 1246/QĐ-BYT; quy tắc BR-142 đến BR-145
+// Ngưỡng theo Quyết định 1246/QĐ-BYT; quy tắc BR-143 đến BR-146
 const HOUR = 3_600_000;
 const DAY = 86_400_000;
 const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/;
@@ -61,7 +61,7 @@ export function vietnamMoment(value: Date | null): string {
   return `${local.slice(11, 16)} ngày ${local.slice(8, 10)}/${local.slice(5, 7)}/${local.slice(0, 4)}`;
 }
 
-// BR-142: lượng mẫu, nhiệt độ bảo quản; trả danh sách lỗi theo trường
+// BR-143: lượng mẫu, nhiệt độ bảo quản; trả danh sách lỗi theo trường
 export function sampleViolations(input: {
   food_form: FoodSampleForm;
   quantity: number;
@@ -112,7 +112,7 @@ export function sampleRequired(servings: number): boolean {
   return servings >= FOOD_SAMPLE_SERVINGS_THRESHOLD;
 }
 
-// BR-145: hạn dùng của lô tại một ngày: hết hạn khi hạn dùng trước ngày xem; sắp hết hạn khi còn trong 3 ngày
+// BR-146: hạn dùng của lô tại một ngày: hết hạn khi hạn dùng trước ngày xem; sắp hết hạn khi còn trong 3 ngày
 export function lotExpiryState(expiryDate: string | null, today: string): 'none' | 'ok' | 'expiring' | 'expired' {
   if (!expiryDate) {
     return 'none';
@@ -123,7 +123,7 @@ export function lotExpiryState(expiryDate: string | null, today: string): 'none'
   return expiryDate <= addDays(today, FOOD_LOT_EXPIRY_WARNING_DAYS) ? 'expiring' : 'ok';
 }
 
-// BR-143: dòng kiểm thực có kết quả cảm quan; không đạt (cảm quan, xét nghiệm nhanh, vệ sinh) thì phải ghi biện pháp xử lý
+// BR-144: dòng kiểm thực có kết quả cảm quan; không đạt (cảm quan, xét nghiệm nhanh, vệ sinh) thì phải ghi biện pháp xử lý
 export interface InspectionLineCheck {
   line_no: number;
   sensory_result: FoodCheckResult | null;
@@ -194,7 +194,7 @@ export function suggestLots(ingredientIds: string[], lots: LotCandidate[], date:
   return chosen;
 }
 
-// Lô chọn được cho món vào một ngày (BR-143, BR-145): đã đạt bước 1 (hoặc đã dùng hết sau đó), nhập không sau ngày, chưa hết
+// Lô chọn được cho món vào một ngày (BR-144, BR-146): đã đạt bước 1 (hoặc đã dùng hết sau đó), nhập không sau ngày, chưa hết
 // hạn vào ngày đó; trả lý do khi không chọn được
 export function lotUnusableReason(
   lot: { code: string; status: string; received_date: string; expiry_date: string | null },

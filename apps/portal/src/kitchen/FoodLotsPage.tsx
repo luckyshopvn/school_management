@@ -47,7 +47,7 @@ import {
 } from './food-safety-api.js';
 import { MEAL_LABELS, messageOf, vietnamToday, type Ingredient, type Supplier } from './kitchen-api.js';
 
-// 3.3 Lô hàng nhập (DT-18 phần 22b, YCTD-146; BR-145): lô tạo khi xác nhận nhập phiếu đi chợ (mỗi dòng một lô) hoặc nhập tay
+// 3.3 Lô hàng nhập (DT-18 phần 22b, YCTD-146; BR-146): lô tạo khi xác nhận nhập phiếu đi chợ (mỗi dòng một lô) hoặc nhập tay
 // (hàng giao theo hợp đồng, tài trợ). Lô chờ kiểm tra sửa được mọi thông tin; lô đã kiểm tra bước 1 chỉ sửa số chứng từ, tệp
 // chứng từ, ghi chú. Lô đạt đóng được khi dùng hết hoặc hủy (kèm lý do). Xem kết quả kiểm tra bước 1 và các món đã dùng lô
 const STATUS_TONES: Record<LotStatus, StatusTone> = {
@@ -167,7 +167,7 @@ function LotForm({
   const fileInputId = useId();
   const [values, setValues] = useState(() => valuesOf(lot));
   const creating = lot === undefined;
-  // Lô đã kiểm tra bước 1 chỉ sửa chứng từ, tệp chứng từ, ghi chú (BR-145)
+  // Lô đã kiểm tra bước 1 chỉ sửa chứng từ, tệp chứng từ, ghi chú (BR-146)
   const documentOnly = lot !== undefined && lot.status !== 'pending';
   const locked = !canManage || documentOnly;
   const ingredients = useQuery({

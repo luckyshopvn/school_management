@@ -34,7 +34,7 @@ import {
 } from './food-safety-api.js';
 import { MEAL_LABELS, MEAL_TYPES, messageOf, vietnamToday, type MealType } from './kitchen-api.js';
 
-// 3.1 Kiểm thực ba bước (DT-18 phần 22b, YCTD-146; BR-143) theo Quyết định 1246/QĐ-BYT: mỗi ngày mỗi bước một phiếu. Lập
+// 3.1 Kiểm thực ba bước (DT-18 phần 22b, YCTD-146; BR-144) theo Quyết định 1246/QĐ-BYT: mỗi ngày mỗi bước một phiếu. Lập
 // phiếu thì máy chủ gợi ý sẵn dòng (bước 1 các lô chờ kiểm tra, bước 2, 3 các món của thực đơn đã công bố và số suất);
 // người kiểm thực ghi kết quả, ghi phiếu, xác nhận phiếu (khóa). Xác nhận bước 1 thì lô đạt được nhận, lô không đạt ghi cách
 // xử lý. In sổ kiểm thực ba bước theo khoảng ngày

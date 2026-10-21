@@ -883,7 +883,7 @@ export class LeaveWorkSource extends MyWorkSource {
   }
 }
 
-// Bán trú, an toàn thực phẩm (DT-18 phần 22b, BR-144, BR-145): người kiểm thực thấy lô chờ kiểm tra trước khi chế biến và mẫu
+// Bán trú, an toàn thực phẩm (DT-18 phần 22b, BR-145, BR-146): người kiểm thực thấy lô chờ kiểm tra trước khi chế biến và mẫu
 // lưu đã đủ 24 giờ chờ hủy; bếp thấy lô chờ kiểm tra, lô còn trong bếp sắp hết hạn dùng, giấy tờ của nhà cung cấp sắp hết hạn
 // hoặc đã hết hạn (cảnh báo trước 30 ngày)
 @Injectable()
