@@ -1,8 +1,8 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.74
-- Ngày cập nhật: 2026-10-20
+- Phiên bản: 1.75
+- Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -275,6 +275,18 @@ Từ YCTD-107 (DT-15 phần 15a), cổng quản trị dùng menu ngang nhiều c
 | Đánh giá KPI | 4.4. | Biểu quyết xếp loại | `/kpi/voting` |
 | Đánh giá KPI | 5. | Báo cáo | (nhóm) |
 | Đánh giá KPI | 5.1. | Báo cáo KPI | `/kpi/reports` |
+| Website trường | 1. | Thiết lập | (nhóm) |
+| Website trường | 1.1. | Thông tin website | `/website/settings` |
+| Website trường | 1.2. | Tên miền | `/website/domains` |
+| Website trường | 2. | Nội dung | (nhóm) |
+| Website trường | 2.1. | Tin tức | `/website/news` |
+| Website trường | 2.2. | Thông báo | `/website/announcements` |
+| Website trường | 2.3. | Giới thiệu, cơ cấu tổ chức | `/website/pages` |
+| Website trường | 2.4. | Công khai theo quy định | `/website/disclosures` |
+| Website trường | 2.5. | Thư viện ảnh | `/website/albums` |
+| Website trường | 3. | Duyệt và liên hệ | (nhóm) |
+| Website trường | 3.1. | Nội dung chờ duyệt | `/website/review` |
+| Website trường | 3.2. | Thư liên hệ | `/website/contacts` |
 
 Từ YCTD-134 (DT-17 phần 17c), phân hệ "Tuyển sinh đầu cấp" (khóa `entry-admissions`) đứng sau "Quản lý cơ sở vật chất, TBDH" trên ô chọn phân hệ; số mục giữ như trang riêng `truong-tsdc` của Sở (khảo sát tài liệu 31 mục 10.2.2), tên năm nhóm 1. đến 5. do Claude tự đặt vì khảo sát không ghi; mục 1.3 đến 1.7 thêm ở phần 17d. Tiêu đề trang lấy từ cây menu kèm số (`menuPageTitle`). Cổng quản trị có 13 phân hệ.
 
@@ -496,6 +508,16 @@ Từ YCTD-139 (DT-18 phần 18d), phân hệ "Đánh giá KPI" (khóa `kpi`) đ�
 | MH-203 | Nơi để và tem QR thiết bị (YCTD-143; mục "2.4.", đường dẫn `/equipment-locations`): chọn đơn vị; thẻ "Nơi để" (lưới khóa `equipment-locations`: Mã, Tên nơi để, Loại, Thuộc, Đơn vị, Số thiết bị, lô, Trạng thái; nút "Thêm nơi để", "Sửa", "Ngừng dùng"/"Dùng lại"; biểu mẫu Mã nơi để, Tên nơi để, Loại nơi để, Phòng đã khai báo hoặc Nằm trong, Ghi chú, nút "Ghi"); thẻ "Thiết bị và tem QR" (lọc Nơi để, Loại; lưới chọn nhiều dòng khóa `equipment-labels`: Mã, Tên thiết bị, Loại, Số lượng, Nơi để, Mã tem, Đơn vị; ô "Gán vào nơi để", nút "Gán nơi để", "In tem QR") | `P13.equipment.manage` ghi; `P17.report.facilities` xem |
 | MH-204 | Kiểm kê thiết bị (YCTD-143; mục "2.5.", đường dẫn `/equipment-stocktakes`, dùng được trên trình duyệt điện thoại): lọc Đơn vị, Trạng thái; lưới khóa `equipment-stocktakes` (Mã đợt, Tên đợt, Đơn vị, Nơi kiểm kê, Ngày kiểm kê, Đã kiểm, Trạng thái), nút "Lập đợt kiểm kê" (biểu mẫu Tên đợt kiểm kê, Ngày kiểm kê, Nơi kiểm kê, Tổ kiểm kê, Ghi chú), "Mở". Chi tiết: thông tin đợt, sáu ô tổng hợp (Đã kiểm, Khớp sổ, Thiếu, Thừa, Ngoài sổ, Tỷ lệ sử dụng được), nút theo trạng thái "Nộp kết quả", "Hủy đợt", "Duyệt", "Trả lại" (kèm lý do), "Chốt chênh lệch", "Biên bản PDF", "Biên bản Excel"; khối "Quét kiểm kê" (nút "Quét mã QR" bật máy ảnh, ô "Mã tem" và nút "Tra mã"; biểu mẫu "Ghi kết quả kiểm kê": tình trạng hoặc Số đếm được, Số dùng được, Tình trạng phần hỏng; Nơi thấy, Ghi chú, nút "Ghi kết quả", "Bỏ qua"); lưới "Đối chiếu kiểm kê" khóa `equipment-stocktake-lines` (Mã, Tên thiết bị, Nơi để theo sổ, Theo sổ, Đếm được, Dùng được, Chênh lệch, Kết quả, Tình trạng, Nơi thấy, Ghi chú; lọc Kết quả; nút "Ghi kết quả" mỗi dòng) | `P13.equipment.manage` hoặc `P13.equipment.stocktake` |
 | MH-205 | Đối sánh danh mục tối thiểu (YCTD-143; mục "2.6.", đường dẫn `/equipment-minimum`): khối "Danh mục mẫu" (mẫu theo cấp học, văn bản gốc, số thiết bị, đã có; ô "Ngừng dùng thiết bị gieo sẵn tạm thời"; nút "Nạp danh mục mẫu") khi có quyền quản lý; lọc Đơn vị, Cấp học, Kết quả; dòng tóm tắt Đủ, Thiếu, Chưa có, tỷ lệ đủ, số không áp dụng; lưới khóa `equipment-minimum` (Mã, Tên thiết bị, Đơn vị tính, Nhóm tuổi, Định mức, Hiện có, Thiếu, Kết quả); nút "Xuất Excel", "Xuất PDF" | `P17.report.facilities` hoặc `P13.equipment.manage` |
+| MH-206 | Thông tin website (YCTD-144; mục "1.1.", `/website/settings`): khối Thông tin hiện trên website (Tên website (*), Khẩu hiệu, Giới thiệu ngắn ở trang chủ, Địa chỉ, Điện thoại, Thư điện tử, Giờ làm việc, Đường dẫn bản đồ, Trang mạng xã hội, Đường dẫn nộp hồ sơ tuyển sinh, Chân trang, Màu chủ đạo, Cấp học của trường, Trang thời khóa biểu, Chế độ trình diễn), nút Ghi; khối Biểu trưng và ảnh đầu trang (tải, xóa ảnh); khối Nội dung mẫu của chế độ trình diễn (Tạo nội dung mẫu, Xóa nội dung mẫu) | `P14.website.configure` |
+| MH-207 | Tên miền (YCTD-144; mục "1.2.", `/website/domains`, lưới khóa `website-domains`): khối Hướng dẫn trỏ tên miền; khối Thêm tên miền (Tên miền (*), Loại: chính, phụ, trình diễn; Ghi chú); cột Tên miền, Loại, Trạng thái, Trỏ tên miền, Ghi chú; nút dòng Đánh dấu đã trỏ hoặc Bỏ đánh dấu đã trỏ, Ngừng dùng hoặc Dùng lại, Xóa | `P14.website.configure` |
+| MH-208 | Tin tức (YCTD-144; mục "2.1.", `/website/news`, lưới khóa `website-posts`): tìm theo tiêu đề, ô Trạng thái; cột Tiêu đề (ghim), Trạng thái, Ngày đăng, Người soạn, Cập nhật; Thêm mới; bấm dòng mở bài: khối thông tin (Tiêu đề (*), Tóm tắt, Ghim lên đầu, Nội dung có thanh định dạng), khối Ảnh và tệp đính kèm (Ảnh bìa, Tệp đính kèm); nút Ghi, Gửi duyệt, Duyệt và đăng, Trả lại, Gỡ xuống, Xóa theo trạng thái và quyền; lịch sử | `P14.website.edit`, `P14.website.approve` |
+| MH-209 | Thông báo (YCTD-144; mục "2.2.", `/website/announcements`): như màn hình Tin tức | `P14.website.edit`, `P14.website.approve` |
+| MH-210 | Giới thiệu, cơ cấu tổ chức (YCTD-144; mục "2.3.", `/website/pages`): hai khối Giới thiệu, Cơ cấu tổ chức, mỗi khối một bài như màn hình Tin tức (không có ghim); chưa có thì Ghi để tạo | `P14.website.edit`, `P14.website.approve` |
+| MH-211 | Công khai theo quy định (YCTD-144; mục "2.4.", `/website/disclosures`): như màn hình Tin tức, thêm Nhóm công khai (*) theo Thông tư 09/2024/TT-BGDĐT kèm điều, cấp học và Năm học (2026-2027); cột Năm học ẩn mặc định | `P14.website.edit`, `P14.website.approve` |
+| MH-212 | Thư viện ảnh (YCTD-144; mục "2.5.", `/website/albums`, lưới khóa `website-albums`): cột Tên album, Ngày sự kiện, Số ảnh, Trạng thái, Ngày đăng, Người tạo; bấm dòng mở album: Tên album (*), Ngày sự kiện, Mô tả; khối Ảnh (lưới ảnh, Làm ảnh bìa, Xóa; Chú thích ảnh, Tải ảnh lên album); ô xác nhận cha mẹ đồng ý; nút như màn hình Tin tức | `P14.website.edit`, `P14.website.approve` |
+| MH-213 | Nội dung chờ duyệt (YCTD-144; mục "3.1.", `/website/review`, lưới khóa `website-review`): cột Loại, Tiêu đề, Người gửi duyệt, Ngày gửi; bấm dòng mở bài hoặc album với Duyệt và đăng, Trả lại | `P14.website.approve` |
+| MH-214 | Thư liên hệ (YCTD-144; mục "3.2.", `/website/contacts`, lưới khóa `website-contacts`): ô Trạng thái (Chưa xử lý, Đã xử lý); cột Ngày gửi, Người gửi, Liên lạc, Tiêu đề, Trạng thái; bấm dòng xem nội dung; nút Đã xử lý (Cách xử lý (*)) | `P14.website.edit` xem, `P14.website.approve` xử lý |
+| MH-215 | Website công khai của trường (YCTD-144; trang HTML do máy chủ API dựng trên tên miền của trường): đầu trang (biểu trưng, tên, khẩu hiệu), dải "Trang trình diễn" khi trình diễn, menu Trang chủ, Giới thiệu, Cơ cấu tổ chức, Tin tức, Thông báo, Văn bản, Tuyển sinh, Công khai, Thời khóa biểu (khi bật), Thư viện ảnh, Liên hệ; chân trang liên hệ; trang Văn bản có ô tìm theo số ký hiệu, trích yếu và bảng Số ký hiệu, Ngày ban hành, Trích yếu, Người ký, Tệp; trang Liên hệ có biểu mẫu Họ và tên (*), Số điện thoại, Thư điện tử, Tiêu đề (*), Nội dung (*), nút Gửi liên hệ | Người ngoài, không cần tài khoản |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 

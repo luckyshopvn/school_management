@@ -167,6 +167,13 @@ import { KpiReportsController, KpiReportsService } from './kpi/kpi-reports.js';
 import { KpiSetupController, KpiSetupService } from './kpi/kpi-setup.js';
 import { KpiSupport } from './kpi/kpi-support.js';
 import { KpiTasksController, KpiTasksService } from './kpi/kpi-tasks.js';
+import { WebsiteContentController, WebsiteContentService } from './website/website-content.js';
+import {
+  WebsiteDomainCheckController,
+  WebsitePublicController,
+  WebsitePublicService,
+} from './website/website-public.js';
+import { WebsiteSetupController, WebsiteSetupService } from './website/website-setup.js';
 import {
   FinalYearCompletionController,
   FinalYearRecordsController,
@@ -384,6 +391,10 @@ export class ApplicationModule {
         KpiEvaluationsController,
         KpiReportsController,
         KpiLegacyImportController,
+        WebsiteSetupController,
+        WebsiteContentController,
+        WebsitePublicController,
+        WebsiteDomainCheckController,
         EquipmentController,
         EquipmentLocationsController,
         EquipmentStocktakesController,
@@ -767,6 +778,9 @@ export class ApplicationModule {
         KpiEvaluationsService,
         KpiReportsService,
         KpiLegacyImportService,
+        WebsiteSetupService,
+        WebsiteContentService,
+        WebsitePublicService,
         // Chưa có nhà cung cấp gửi thư điện tử: trả lời hỗ trợ tuyển sinh chỉ gửi qua ứng dụng phụ huynh (DT-17 phần 17c)
         { provide: AdmissionSupportMailer, useClass: UnconfiguredAdmissionSupportMailer },
         SystemAnnouncementsService,

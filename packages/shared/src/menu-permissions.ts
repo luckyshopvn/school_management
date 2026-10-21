@@ -28,6 +28,8 @@ const OUTGOING = anyOf(
   'P09.outgoing-document.issue',
   'P09.outgoing-document.search',
 );
+// Website trường (DT-18 phần 18f)
+const WEBSITE_CONTENT = anyOf('P14.website.edit', 'P14.website.approve');
 // Phân hệ KPI (DT-18 phần 18d)
 const KPI_ANY = anyOf('P09.kpi.participate', 'P09.kpi.manage', 'P09.kpi.advise', 'P09.kpi.configure');
 // Giao việc, lịch, hồ sơ công việc theo VNPT iOffice (DT-18 phần 18c): việc cần xử lý cho mọi cán bộ có quyền của phân hệ
@@ -204,6 +206,15 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/document-reports/incoming': 'P09.document-report.view',
   '/document-reports/summary': 'P09.document-report.view',
   '/document-reports/statistics': 'P09.document-report.view',
+  '/website/settings': 'P14.website.configure',
+  '/website/domains': 'P14.website.configure',
+  '/website/news': WEBSITE_CONTENT,
+  '/website/announcements': WEBSITE_CONTENT,
+  '/website/pages': WEBSITE_CONTENT,
+  '/website/disclosures': WEBSITE_CONTENT,
+  '/website/albums': WEBSITE_CONTENT,
+  '/website/review': 'P14.website.approve',
+  '/website/contacts': WEBSITE_CONTENT,
   '/emis/facilities': 'P17.report.emis',
   '/emis/health': 'P17.report.emis',
   '/emis/end-of-year': 'P17.report.emis',
