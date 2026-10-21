@@ -174,6 +174,11 @@ import {
   WebsitePublicService,
 } from './website/website-public.js';
 import { WebsiteSetupController, WebsiteSetupService } from './website/website-setup.js';
+import { ProfessionalRecordsController } from './professional-records/professional-records.controller.js';
+import { ProfessionalRecordsService } from './professional-records/professional-records.js';
+import { professionalRecordsTransitionStep } from './professional-records/professional-records-transition.js';
+import { MY_WORK_SOURCE_TYPES, type MyWorkSource } from './my-work/my-work-sources.js';
+import { MY_WORK_SOURCES, MyWorkController, MyWorkService } from './my-work/my-work.js';
 import {
   FinalYearCompletionController,
   FinalYearRecordsController,
@@ -410,6 +415,9 @@ export class ApplicationModule {
         WebsiteContentController,
         WebsitePublicController,
         WebsiteDomainCheckController,
+        // Hồ sơ chuyên môn và Việc của tôi (DT-18 phần 18e)
+        ProfessionalRecordsController,
+        MyWorkController,
         EquipmentController,
         EquipmentLocationsController,
         EquipmentStocktakesController,
@@ -589,6 +597,7 @@ export class ApplicationModule {
             recruitmentTransitionStep,
             admissionsTransitionStep,
             professionalStandardsTransitionStep,
+            professionalRecordsTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -813,6 +822,15 @@ export class ApplicationModule {
         WebsiteSetupService,
         WebsiteContentService,
         WebsitePublicService,
+        // Hồ sơ chuyên môn và Việc của tôi (DT-18 phần 18e): mỗi phân hệ một nguồn việc qua giao diện MyWorkSource
+        ProfessionalRecordsService,
+        ...MY_WORK_SOURCE_TYPES,
+        {
+          provide: MY_WORK_SOURCES,
+          useFactory: (...sources: MyWorkSource[]) => sources,
+          inject: MY_WORK_SOURCE_TYPES,
+        },
+        MyWorkService,
         // Chưa có nhà cung cấp gửi thư điện tử: trả lời hỗ trợ tuyển sinh chỉ gửi qua ứng dụng phụ huynh (DT-17 phần 17c)
         { provide: AdmissionSupportMailer, useClass: UnconfiguredAdmissionSupportMailer },
         SystemAnnouncementsService,

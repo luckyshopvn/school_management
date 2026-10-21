@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.43
+- Phiên bản: 1.44
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -774,10 +774,15 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-699 | Cho album / Khi gửi duyệt chưa có ảnh, chưa xác nhận cha mẹ đồng ý; mở ảnh trước và sau khi đăng / Thì gửi duyệt bị chặn; ảnh chỉ tải được sau khi album đăng (CT-731; YCTD-144) |
 | AC-700 | Cho văn bản đi, công khai theo quy định / Khi văn bản đã ban hành có và không đánh dấu công khai; trường mầm non đăng bài công khai thu chi chỉ có tệp / Thì chỉ văn bản đã công khai hiện, tải được bản đã ký; trang công khai có nhóm Điều 4 đến Điều 7, không có Điều 8, 9 (CT-732, CT-733; YCTD-144) |
 | AC-701 | Cho thư liên hệ và chế độ trình diễn / Khi gửi thư thiếu liên lạc, gửi đúng, máy điền ô bẫy; tạo nội dung mẫu khi tắt, khi bật; tắt chế độ trình diễn / Thì thiếu liên lạc báo lỗi; thư đúng vào danh sách, thư bẫy bỏ qua; người duyệt đánh dấu đã xử lý; nội dung mẫu chỉ tạo và hiện khi bật (CT-734, CT-735, CT-737; YCTD-144) |
-| AC-702 | Cho Hiệu trưởng / Khi đăng nhập thay một tài khoản kèm lý do, thao tác, rồi thoát / Thì mọi trang có thanh báo và nút thoát; thao tác ghi nhật ký kèm người đăng nhập thay; thoát quay về phiên của Hiệu trưởng; nhật ký 4.1 có lần đăng nhập thay (CT-738, CT-747; YCTD-145) |
-| AC-703 | Cho người đăng nhập thay / Khi chọn tài khoản có vai trò ngang hoặc cao hơn, quản trị khác, VT-01, chính mình, thiếu lý do, đăng nhập thay lồng nhau; đổi mật khẩu, kí số, xuất toàn bộ dữ liệu trong phiên / Thì đều bị chặn với mã YCTD-145; đăng xuất kết thúc cả phiên gốc (CT-739, CT-740, CT-741; YCTD-145) |
-| AC-704 | Cho Hiệu trưởng / Khi tạo gói ZIP toàn bộ dữ liệu / Thì tác vụ nền tạo gói có CSV các cơ sở dữ liệu, dữ liệu tài khoản không có mật khẩu, manifest; chỉ người tạo tải được trong 48 giờ; mỗi lần tải được ghi (CT-742, CT-743, CT-747; YCTD-145) |
-| AC-705 | Cho máy chủ trình diễn / Khi chạy lệnh tạo dữ liệu trên cơ sở dữ liệu trống, chạy lại, chạy trên dữ liệu thật; mở trang đăng nhập; gửi tin nhắn / Thì tạo đủ dữ liệu giả và đánh dấu; chạy lại thay toàn bộ dữ liệu; dữ liệu thật bị từ chối, không xóa; có trang chọn vai, dải trình diễn; tin nhắn không gửi thật (CT-744, CT-745, CT-746, CT-748; YCTD-145) |
+| AC-702 | Cho thư mục hai cấp duyệt và giáo viên trong tổ có tổ trưởng / Khi giáo viên nộp chưa có tệp, tải tệp rồi nộp, tổ trưởng tổ khác mở hồ sơ, tổ trưởng trả lại, giáo viên tải bản mới nộp lại, tổ trưởng duyệt, Phó Hiệu trưởng duyệt / Thì nộp chưa tệp bị từ chối; tổ khác không xem được; hồ sơ qua Chờ tổ trưởng duyệt, Bị trả lại, Chờ Ban Giám hiệu duyệt, Đã duyệt; giữ hai phiên bản; lịch sử đủ tám bước |
+| AC-703 | Cho thư mục cần kí / Khi Ban Giám hiệu duyệt lúc chưa đăng ký chứng thư rồi sau khi đăng ký / Thì lần đầu bị từ chối, hồ sơ vẫn chờ duyệt; lần sau hồ sơ đã duyệt, có bản PDF đã kí nội bộ tải được |
+| AC-704 | Cho đợt nộp theo cá nhân còn hạn và đợt đã quá hạn / Khi giáo viên nộp ở hai đợt, tạo hồ sơ thứ hai cho cùng đợt, Hiệu trưởng xem tình trạng, nhắc, đóng đợt, giáo viên khác tạo hồ sơ cho đợt đã đóng / Thì đợt quá hạn ghi nộp trễ; trùng bị từ chối; tình trạng ghi đúng hạn, chưa nộp; tổ trưởng chỉ thấy người trong tổ; thông báo gửi người chưa nộp; đợt đóng không nhận hồ sơ mới |
+| AC-705 | Cho tổ trưởng và nhóm công tác / Khi tổ trưởng nộp hồ sơ của tổ, giáo viên tạo hồ sơ cho tổ khác, thành viên nộp hồ sơ của nhóm, tổ trưởng tổ duyệt hồ sơ nhóm, trưởng nhóm duyệt; khi khóa năm học rồi mở khóa / Thì hồ sơ của tổ trưởng vào thẳng Chờ Ban Giám hiệu duyệt; tổ khác bị từ chối; chỉ trưởng nhóm duyệt được; khi khóa không thêm, duyệt được, mở khóa thì duyệt được |
+| AC-706 | Cho người dùng có việc chờ ở nhiều phân hệ / Khi mở Việc của tôi, lọc theo phân hệ, lọc quá hạn, tìm chữ, phụ huynh gọi số đếm / Thì danh sách gom đủ nguồn, quá hạn lên đầu, số đếm trên menu bằng số việc, lọc đúng; phụ huynh nhận 0 việc |
+| AC-707 | Cho Hiệu trưởng / Khi đăng nhập thay một tài khoản kèm lý do, thao tác, rồi thoát / Thì mọi trang có thanh báo và nút thoát; thao tác ghi nhật ký kèm người đăng nhập thay; thoát quay về phiên của Hiệu trưởng; nhật ký 4.1 có lần đăng nhập thay (CT-748, CT-757; YCTD-145) |
+| AC-708 | Cho người đăng nhập thay / Khi chọn tài khoản có vai trò ngang hoặc cao hơn, quản trị khác, VT-01, chính mình, thiếu lý do, đăng nhập thay lồng nhau; đổi mật khẩu, kí số, xuất toàn bộ dữ liệu trong phiên / Thì đều bị chặn với mã YCTD-145; đăng xuất kết thúc cả phiên gốc (CT-749, CT-750, CT-751; YCTD-145) |
+| AC-709 | Cho Hiệu trưởng / Khi tạo gói ZIP toàn bộ dữ liệu / Thì tác vụ nền tạo gói có CSV các cơ sở dữ liệu, dữ liệu tài khoản không có mật khẩu, manifest; chỉ người tạo tải được trong 48 giờ; mỗi lần tải được ghi (CT-752, CT-753, CT-757; YCTD-145) |
+| AC-710 | Cho máy chủ trình diễn / Khi chạy lệnh tạo dữ liệu trên cơ sở dữ liệu trống, chạy lại, chạy trên dữ liệu thật; mở trang đăng nhập; gửi tin nhắn / Thì tạo đủ dữ liệu giả và đánh dấu; chạy lại thay toàn bộ dữ liệu; dữ liệu thật bị từ chối, không xóa; có trang chọn vai, dải trình diễn; tin nhắn không gửi thật (CT-754, CT-755, CT-756, CT-758; YCTD-145) |
 
 ## 20. Chưa xác minh được
 

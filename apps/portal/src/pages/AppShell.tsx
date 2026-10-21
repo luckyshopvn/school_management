@@ -3,6 +3,7 @@ import { listPortalMenuEntries } from '@school-management/shared';
 import { Link, useLocation } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { WorkspaceContext, WorkspaceSwitcher, useWorkspaceState } from './workspaces.js';
+import { MyWorkHeaderLink } from '../my-work/MyWorkBadge.js';
 import { NotificationBell } from '../notifications/NotificationBell.js';
 import { AcademicYearSwitcher } from './AcademicYearSwitcher.js';
 import { NavigationRegistryContext, useNavigationRegistryState } from './navigation-registry.js';
@@ -95,6 +96,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <WorkspaceSwitcher state={workspaces} />
             <div className="ml-auto flex shrink-0 items-center gap-3 whitespace-nowrap">
               <AcademicYearSwitcher />
+              <MyWorkHeaderLink />
               <NotificationBell />
               <AppLauncher />
               {currentUser.isPending ? (

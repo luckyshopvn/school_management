@@ -20,7 +20,8 @@ export type PortalWorkspaceKey =
   | 'admissions'
   | 'reports'
   | 'kpi'
-  | 'website';
+  | 'website'
+  | 'professional-records';
 
 export interface PortalMenuNode {
   // Số thứ bậc có dấu chấm cuối như của Sở, ví dụ "4.1.1."
@@ -429,6 +430,30 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
       group('3.', 'Duyệt và liên hệ', [
         leaf('3.1.', 'Nội dung chờ duyệt', '/website/review'),
         leaf('3.2.', 'Thư liên hệ', '/website/contacts'),
+      ]),
+    ],
+  },
+  {
+    // Hồ sơ chuyên môn và Việc của tôi (DT-18 phần 18e) theo mô tả công khai của GIKIDI Nhà Trường; phân hệ riêng nên đánh
+    // số liên tục, tên mục do Claude tự đặt theo ủy quyền của Eric ngày 2026-10-11. Mục Việc của tôi gom việc đang chờ ở mọi
+    // phân hệ, có số đếm trên menu
+    key: 'professional-records',
+    label: 'Hồ sơ chuyên môn',
+    menu: [
+      leaf('1.', 'Việc của tôi', '/my-work'),
+      group('2.', 'Kho hồ sơ', [
+        leaf('2.1.', 'Hồ sơ cá nhân', '/professional-records'),
+        leaf('2.2.', 'Hồ sơ tổ, nhóm', '/professional-records/groups'),
+        leaf('2.3.', 'Hồ sơ trường', '/professional-records/school'),
+      ]),
+      group('3.', 'Nộp và duyệt', [
+        leaf('3.1.', 'Đợt nộp hồ sơ', '/professional-rounds'),
+        leaf('3.2.', 'Duyệt hồ sơ', '/professional-records/review'),
+        leaf('3.3.', 'Thống kê nộp hồ sơ', '/professional-records/statistics'),
+      ]),
+      group('4.', 'Thiết lập', [
+        leaf('4.1.', 'Thư mục và luồng duyệt', '/professional-folders'),
+        leaf('4.2.', 'Nhóm công tác', '/professional-work-groups'),
       ]),
     ],
   },

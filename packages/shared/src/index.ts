@@ -16,6 +16,7 @@ export * from './outgoing-documents.js';
 export * from './directives.js';
 export * from './website.js';
 export * from './administration.js';
+export * from './professional-records.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -215,6 +216,11 @@ export const PERMISSION_CODES = {
   meetingRoomManage: 'P09.meeting-room.manage',
   workFileUse: 'P09.work-file.use',
   documentReportView: 'P09.document-report.view',
+  // Hồ sơ chuyên môn (DT-18 phần 18e)
+  professionalRecordUse: 'P09.professional-record.use',
+  professionalRecordReview: 'P09.professional-record.review',
+  professionalRecordApprove: 'P09.professional-record.approve',
+  professionalRecordManage: 'P09.professional-record.manage',
   // Thiết bị: quét mã QR kiểm kê, ghi tình trạng (DT-18 phần 18g)
   equipmentStocktake: 'P13.equipment.stocktake',
   // Website trường (DT-18 phần 18f)
@@ -473,6 +479,16 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/document-reports/incoming',
   '/document-reports/summary',
   '/document-reports/statistics',
+  // Hồ sơ chuyên môn và Việc của tôi (DT-18 phần 18e)
+  '/my-work',
+  '/professional-records',
+  '/professional-records/groups',
+  '/professional-records/school',
+  '/professional-records/review',
+  '/professional-rounds',
+  '/professional-records/statistics',
+  '/professional-folders',
+  '/professional-work-groups',
   // Thiết bị: nơi để, tem QR, kiểm kê, đối sánh danh mục tối thiểu (DT-18 phần 18g)
   '/equipment-locations',
   '/equipment-stocktakes',
@@ -725,6 +741,15 @@ export const DATA_GRID_KEYS = [
   'meeting-schedules',
   'document-report-incoming',
   'document-report-summary',
+  // Hồ sơ chuyên môn và Việc của tôi (DT-18 phần 18e)
+  'my-work',
+  'professional-documents',
+  'professional-review',
+  'professional-rounds',
+  'professional-round-status',
+  'professional-statistics',
+  'professional-folders',
+  'professional-work-groups',
   // Thiết bị: nơi để, tem QR, kiểm kê, đối sánh danh mục tối thiểu (DT-18 phần 18g)
   'equipment-locations',
   'equipment-labels',

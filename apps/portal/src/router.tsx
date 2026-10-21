@@ -156,6 +156,17 @@ import {
   TransferResultsPage,
 } from './entry-admissions/EntryIntakePages.js';
 import { KpiCatalogPage } from './kpi/KpiCatalogPage.js';
+import { MyWorkPage } from './my-work/MyWorkPage.js';
+import {
+  FoldersPage,
+  GroupRecordsPage,
+  PersonalRecordsPage,
+  ReviewRecordsPage,
+  RoundsPage,
+  SchoolRecordsPage,
+  StatisticsPage as ProfessionalStatisticsPage,
+  WorkGroupsPage,
+} from './professional-records/ProfessionalPages.js';
 import { DirectiveFormPage, DirectiveInboxPage, DirectiveOutboxPage } from './directives/DirectivePages.js';
 import { IncomingReportPage, StatisticsReportPage, SummaryReportPage } from './directives/ReportPages.js';
 import {
@@ -530,6 +541,20 @@ const routeTree = rootRoute.addChildren([
     path: '/document-reports/statistics',
     component: StatisticsReportPage,
   }),
+  // Hồ sơ chuyên môn và Việc của tôi (DT-18 phần 18e)
+  createRoute({ getParentRoute: () => rootRoute, path: '/my-work', component: MyWorkPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/professional-records', component: PersonalRecordsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/professional-records/groups', component: GroupRecordsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/professional-records/school', component: SchoolRecordsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/professional-records/review', component: ReviewRecordsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/professional-rounds', component: RoundsPage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/professional-records/statistics',
+    component: ProfessionalStatisticsPage,
+  }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/professional-folders', component: FoldersPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/professional-work-groups', component: WorkGroupsPage }),
 ]);
 
 export const router = createRouter({ routeTree });

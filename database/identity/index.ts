@@ -49,6 +49,7 @@ import { migration as addIncomingDocumentPermissions } from './migrations/0052_a
 import { migration as addKpiPermissions } from './migrations/0053_add_kpi_permissions.js';
 import { migration as addOutgoingDocumentPermissions } from './migrations/0054_add_outgoing_document_permissions.js';
 import { migration as addDirectiveSchedulePermissions } from './migrations/0055_add_directive_schedule_permissions.js';
+import { migration as addProfessionalRecordPermissions } from './migrations/0056_add_professional_record_permissions.js';
 import { migration as addEquipmentStocktakePermission } from './migrations/0057_add_equipment_stocktake_permission.js';
 import { migration as addWebsitePermissions } from './migrations/0058_add_website_permissions.js';
 import { migration as addImpersonationAndDataExport } from './migrations/0059_add_impersonation_and_data_export.js';
@@ -105,6 +106,7 @@ export const identityMigrations: Record<string, Migration> = {
   '0053_add_kpi_permissions': addKpiPermissions,
   '0054_add_outgoing_document_permissions': addOutgoingDocumentPermissions,
   '0055_add_directive_schedule_permissions': addDirectiveSchedulePermissions,
+  '0056_add_professional_record_permissions': addProfessionalRecordPermissions,
   '0057_add_equipment_stocktake_permission': addEquipmentStocktakePermission,
   '0058_add_website_permissions': addWebsitePermissions,
   '0059_add_impersonation_and_data_export': addImpersonationAndDataExport,
