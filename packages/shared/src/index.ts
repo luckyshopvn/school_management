@@ -17,6 +17,7 @@ export * from './directives.js';
 export * from './website.js';
 export * from './administration.js';
 export * from './professional-records.js';
+export * from './food-safety.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -230,6 +231,8 @@ export const PERMISSION_CODES = {
   // Quản trị và trình diễn (DT-18 phần 18h)
   accountImpersonate: 'P01.account.impersonate',
   dataExportAll: 'P01.data.export-all',
+  // Bán trú: kiểm thực ba bước, lưu và hủy mẫu thức ăn (DT-18 phần 22b)
+  foodSafetyInspect: 'P12.food-safety.inspect',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -507,6 +510,12 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/impersonations',
   '/school-data-export',
   '/demo-environment',
+  // Bán trú: kiểm thực ba bước và an toàn thực phẩm (DT-18 phần 22b)
+  '/food-safety/inspections',
+  '/food-safety/samples',
+  '/food-safety/lots',
+  '/food-safety/supplier-records',
+  '/food-safety/trace',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -766,6 +775,11 @@ export const DATA_GRID_KEYS = [
   'impersonations',
   'impersonation-actions',
   'school-data-exports',
+  // Bán trú: kiểm thực ba bước và an toàn thực phẩm (DT-18 phần 22b)
+  'food-inspections',
+  'food-samples',
+  'food-lots',
+  'food-supplier-certificates',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

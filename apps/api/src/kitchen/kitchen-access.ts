@@ -12,6 +12,8 @@ const KITCHEN_READ_PERMISSIONS = [
   PERMISSION_CODES.kitchenManage,
   PERMISSION_CODES.menuApprove,
   PERMISSION_CODES.kitchenReport,
+  // Người kiểm thực (DT-18 phần 22b) xem thực đơn, lô hàng, nhà cung cấp để kiểm tra
+  PERMISSION_CODES.foodSafetyInspect,
 ];
 
 @Injectable()

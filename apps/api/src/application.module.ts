@@ -62,6 +62,10 @@ import { KitchenMealsController, KitchenMealsService } from './kitchen/kitchen-m
 import { KitchenMenusController, KitchenMenusService } from './kitchen/kitchen-menus.js';
 import { MenuImportsController, MenuImportsService } from './kitchen/menu-imports.js';
 import { KitchenPurchasesController, KitchenPurchasesService } from './kitchen/kitchen-purchases.js';
+import { FoodInspectionsController, FoodInspectionsService } from './kitchen/food-inspections.js';
+import { FoodSafetyRecordsController, FoodSafetyRecordsService } from './kitchen/food-safety-records.js';
+import { FoodSafetyTraceController, FoodSafetyTraceService } from './kitchen/food-safety-trace.js';
+import { FoodSamplesController, FoodSamplesService } from './kitchen/food-samples.js';
 import { kitchenTransitionStep } from './kitchen/kitchen-transition.js';
 import { MedicationAccess } from './medicines/medication-access.js';
 import { MedicationRequestsController, MedicationRequestsService } from './medicines/medication-requests.js';
@@ -456,6 +460,11 @@ export class ApplicationModule {
         MenuImportsController,
         KitchenMealsController,
         KitchenPurchasesController,
+        // Bán trú: kiểm thực ba bước và an toàn thực phẩm (DT-18 phần 22b)
+        FoodSafetyRecordsController,
+        FoodInspectionsController,
+        FoodSamplesController,
+        FoodSafetyTraceController,
         MedicineCatalogController,
         MedicationRequestsController,
         MedicinePurchasesController,
@@ -657,6 +666,10 @@ export class ApplicationModule {
         KitchenMenusService,
         MenuImportsService,
         KitchenPurchasesService,
+        FoodSafetyRecordsService,
+        FoodInspectionsService,
+        FoodSamplesService,
+        FoodSafetyTraceService,
         MedicationAccess,
         MedicineCatalogService,
         MedicationRequestsService,

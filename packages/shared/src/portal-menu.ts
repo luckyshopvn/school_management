@@ -361,7 +361,19 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
   {
     key: 'logistics',
     label: 'Bếp – kho, mua hàng',
-    menu: [leaf('1.', 'Kho và tài sản', '/inventory'), leaf('2.', 'Đề nghị mua hàng', '/purchase-requests')],
+    menu: [
+      leaf('1.', 'Kho và tài sản', '/inventory'),
+      leaf('2.', 'Đề nghị mua hàng', '/purchase-requests'),
+      // Bán trú: kiểm thực ba bước và an toàn thực phẩm (DT-18 phần 22b); tên mục do Claude tự đặt theo ủy quyền của Eric ngày
+      // 2026-10-11
+      group('3.', 'Bán trú và an toàn thực phẩm', [
+        leaf('3.1.', 'Kiểm thực ba bước', '/food-safety/inspections'),
+        leaf('3.2.', 'Lưu và hủy mẫu thức ăn', '/food-safety/samples'),
+        leaf('3.3.', 'Lô hàng nhập', '/food-safety/lots'),
+        leaf('3.4.', 'Hồ sơ an toàn thực phẩm của nhà cung cấp', '/food-safety/supplier-records'),
+        leaf('3.5.', 'Truy xuất nguồn gốc', '/food-safety/trace'),
+      ]),
+    ],
   },
   {
     key: 'interaction',

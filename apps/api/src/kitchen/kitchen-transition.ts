@@ -4,7 +4,8 @@ import type { AcademicYearTransitionStep } from '../academic-years/academic-year
 
 // Mở năm học mới thì chuyển nguyên liệu kèm tồn hiện tại, món ăn, định lượng trên một suất, nhà cung cấp thực phẩm, giữ
 // nguyên mã định danh; thực đơn, suất ăn, báo cơm, buffet, phiếu đi chợ tra ở năm cũ (YCTD-76). Chạy sau bước chuyển cây
-// đơn vị
+// đơn vị. Bán trú (DT-18 phần 22b): chuyển giấy tờ an toàn thực phẩm của nhà cung cấp kèm tệp quét (cùng khóa lưu trữ); lô hàng,
+// phiếu kiểm thực, mẫu lưu tra ở năm cũ
 export const kitchenTransitionStep: AcademicYearTransitionStep = {
   name: 'kitchen',
   async carryOver(context) {
@@ -24,6 +25,20 @@ export const kitchenTransitionStep: AcademicYearTransitionStep = {
     }
     for (const row of await previous.selectFrom('ingredient_norms').selectAll().execute()) {
       await next.insertInto('ingredient_norms').values(row).execute();
+    }
+    const certificates = await previous.selectFrom('food_supplier_certificates').selectAll().execute();
+    const fileIds = [...new Set(certificates.map((row) => row.file_id).filter((id): id is string => id !== null))];
+    if (fileIds.length > 0) {
+      for (const row of await previous
+        .selectFrom('food_safety_files')
+        .selectAll()
+        .where('id', 'in', fileIds)
+        .execute()) {
+        await next.insertInto('food_safety_files').values(row).execute();
+      }
+    }
+    for (const row of certificates) {
+      await next.insertInto('food_supplier_certificates').values(row).execute();
     }
   },
 };

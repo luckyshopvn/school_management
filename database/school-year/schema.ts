@@ -3411,6 +3411,175 @@ export interface EquipmentStocktakeLinesTable {
   damage_id: EquipmentNullable;
 }
 
+// Bán trú: kiểm thực ba bước và an toàn thực phẩm (DT-18 phần 22b, YCTD-146)
+type FoodNullable = ColumnType<string | null, string | null | undefined, string | null>;
+type FoodNullableNumber = ColumnType<number | null, number | null | undefined, number | null>;
+type FoodNullableTimestamp = ColumnType<Date | null, Date | null | undefined, Date | null>;
+export type FoodCertificateType =
+  'food_safety' | 'business_registration' | 'veterinary' | 'quarantine' | 'product_declaration' | 'contract' | 'other';
+export type FoodLotStatus = 'pending' | 'accepted' | 'rejected' | 'used_up' | 'disposed';
+export type FoodLotCategory = 'fresh' | 'dry';
+export type FoodStorageCondition = 'ambient' | 'chilled' | 'frozen';
+export type FoodRejectionAction = 'returned' | 'destroyed' | 'other';
+export type FoodCheckResult = 'pass' | 'fail';
+export type FoodInspectionStep = 1 | 2 | 3;
+export type FoodSampleStatus = 'stored' | 'held' | 'destroyed';
+export type FoodSampleForm = 'solid' | 'liquid';
+
+export interface FoodSafetyFilesTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  file_name: string;
+  content_type: string;
+  size_bytes: number;
+  storage_key: string;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface FoodSupplierCertificatesTable {
+  id: Generated<string>;
+  supplier_id: string;
+  certificate_type: FoodCertificateType;
+  number: string;
+  issued_by: FoodNullable;
+  issued_on: FoodNullable;
+  expires_on: FoodNullable;
+  scope_note: FoodNullable;
+  file_id: FoodNullable;
+  status: Generated<'active' | 'revoked'>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface FoodLotsTable {
+  id: Generated<string>;
+  code: string;
+  org_unit_id: string;
+  ingredient_id: string;
+  supplier_id: string;
+  purchase_item_id: FoodNullable;
+  food_category: Generated<FoodLotCategory>;
+  received_date: string;
+  received_time: FoodNullable;
+  quantity: ColumnType<string, string | number, string | number>;
+  deliverer_name: FoodNullable;
+  manufacturer: FoodNullable;
+  manufacturer_address: FoodNullable;
+  lot_number: FoodNullable;
+  production_date: FoodNullable;
+  expiry_date: FoodNullable;
+  storage_condition: ColumnType<
+    FoodStorageCondition | null,
+    FoodStorageCondition | null | undefined,
+    FoodStorageCondition | null
+  >;
+  document_number: FoodNullable;
+  document_file_id: FoodNullable;
+  veterinary_certificate: FoodNullable;
+  quarantine_certificate: FoodNullable;
+  status: Generated<FoodLotStatus>;
+  rejection_action: ColumnType<
+    FoodRejectionAction | null,
+    FoodRejectionAction | null | undefined,
+    FoodRejectionAction | null
+  >;
+  handling_note: FoodNullable;
+  closed_by: FoodNullable;
+  closed_at: FoodNullableTimestamp;
+  note: FoodNullable;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface FoodInspectionsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  inspection_date: string;
+  step: FoodInspectionStep;
+  inspector_name: string;
+  inspector_title: FoodNullable;
+  inspected_time: FoodNullable;
+  location: FoodNullable;
+  note: FoodNullable;
+  status: Generated<'draft' | 'confirmed'>;
+  confirmed_by: FoodNullable;
+  confirmed_at: FoodNullableTimestamp;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+type FoodNullableResult = ColumnType<
+  FoodCheckResult | null,
+  FoodCheckResult | null | undefined,
+  FoodCheckResult | null
+>;
+
+// Cột thời gian theo bước: bước 2 first_time là sơ chế xong, second_time là chế biến xong; bước 3 first_time là chia món xong,
+// second_time là bắt đầu ăn
+export interface FoodInspectionLinesTable {
+  id: Generated<string>;
+  inspection_id: string;
+  line_no: number;
+  lot_id: FoodNullable;
+  meal_type: ColumnType<MealType | null, MealType | null | undefined, MealType | null>;
+  dish_id: FoodNullable;
+  dish_name: FoodNullable;
+  main_ingredients: FoodNullable;
+  servings: FoodNullableNumber;
+  first_time: FoodNullable;
+  second_time: FoodNullable;
+  hygiene_people: FoodNullableResult;
+  hygiene_equipment: FoodNullableResult;
+  hygiene_area: FoodNullableResult;
+  utensils: FoodNullable;
+  sensory_result: FoodNullableResult;
+  rapid_test_result: FoodNullableResult;
+  rejection_action: ColumnType<
+    FoodRejectionAction | null,
+    FoodRejectionAction | null | undefined,
+    FoodRejectionAction | null
+  >;
+  action: FoodNullable;
+  note: FoodNullable;
+}
+
+export interface FoodInspectionLineLotsTable {
+  line_id: string;
+  lot_id: string;
+}
+
+export interface FoodSamplesTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  sample_date: string;
+  meal_type: MealType;
+  dish_id: FoodNullable;
+  dish_name: string;
+  servings: number;
+  food_form: FoodSampleForm;
+  quantity: ColumnType<string, string | number, string | number>;
+  container: string;
+  storage_temperature: ColumnType<string, string | number, string | number>;
+  sampled_at: Date;
+  sampled_by: string;
+  sampled_by_name: string;
+  status: Generated<FoodSampleStatus>;
+  hold_reason: FoodNullable;
+  held_by: FoodNullable;
+  held_at: FoodNullableTimestamp;
+  destroyed_at: FoodNullableTimestamp;
+  destroyed_by: FoodNullable;
+  destroyed_by_name: FoodNullable;
+  quality_note: FoodNullable;
+  note: FoodNullable;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
 type JsonSection = ColumnType<Record<string, unknown>, string | undefined, string>;
 
 export interface SchoolProfilesTable {
@@ -4339,4 +4508,11 @@ export interface SchoolYearDatabase {
   equipment_locations: EquipmentLocationsTable;
   equipment_stocktakes: EquipmentStocktakesTable;
   equipment_stocktake_lines: EquipmentStocktakeLinesTable;
+  food_safety_files: FoodSafetyFilesTable;
+  food_supplier_certificates: FoodSupplierCertificatesTable;
+  food_lots: FoodLotsTable;
+  food_inspections: FoodInspectionsTable;
+  food_inspection_lines: FoodInspectionLinesTable;
+  food_inspection_line_lots: FoodInspectionLineLotsTable;
+  food_samples: FoodSamplesTable;
 }
