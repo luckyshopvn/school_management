@@ -23,7 +23,7 @@
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp định danh `0059_add_impersonation_and_data_export`; tệp hệ thống `0022_create_impersonation_export_demo_tables`.
 - Thay đổi API: `/auth/impersonation`, `/auth/impersonation/exit`, `/auth/impersonations`, `/users/data-export`, `/impersonation-actions`, `/school-data-exports`, `/public/demo`; `/auth/me` thêm `impersonation`.
-- Kiểm thử: kịch bản CT-748 đến CT-758. Kết quả ngày 21/10/2026: kiểm thử đơn vị `apps/api/src/demo/administration-18h.test.ts` CT-18h-1 đến CT-18h-9 đạt 9/9; kiểm thử đơn vị toàn bộ kho mã UNIT18H; kiểm thử giao diện `tests/e2e/76-administration-demo.spec.ts` (CT-18h-10, CT-18h-11) đạt; toàn bộ kiểm thử giao diện E2E18H; lệnh tạo dữ liệu trình diễn chạy trên cơ sở dữ liệu riêng đạt 24/24 bước; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử: kịch bản CT-748 đến CT-758. Kết quả ngày 21/10/2026: kiểm thử đơn vị `apps/api/src/demo/administration-18h.test.ts` CT-18h-1 đến CT-18h-9 đạt 9/9; kiểm thử đơn vị toàn bộ kho mã UNIT18H; kiểm thử giao diện `tests/e2e/76-administration-demo.spec.ts` (CT-18h-10, CT-18h-11) đạt; toàn bộ kiểm thử giao diện E2E18H; lệnh tạo dữ liệu trình diễn chạy trên cơ sở dữ liệu riêng đạt 25/25 bước; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Rủi ro: gói ZIP có dữ liệu cá nhân, chỉ Hiệu trưởng tạo, chỉ người tạo tải, hạn 48 giờ; lệnh trình diễn xóa dữ liệu nên có kiểm tra từ chối dữ liệu thật và chỉ chạy với `--confirm`.
 - Khả năng tương thích: không đổi điểm cuối cũ; `/auth/me` thêm trường; máy chủ không có dấu trình diễn chạy như cũ.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 18h; chạy phần quay lui của tệp định danh `0059` (xóa phiên đăng nhập thay) và tệp hệ thống `0022` (xóa gói ZIP đã tạo); bỏ dịch vụ `demo-reset`.

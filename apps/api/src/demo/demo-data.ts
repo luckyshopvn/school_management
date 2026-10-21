@@ -881,6 +881,40 @@ export async function seedDemoData(context: DemoSeedContext): Promise<DemoSeedRe
     });
   });
 
+  // ---- Hồ sơ chuyên môn (18e) ----
+  await step('Hồ sơ chuyên môn: thư mục, đợt nộp, hồ sơ đã nộp', async () => {
+    await api.call('principal', 'POST', '/professional-folders/defaults', { school_level: 'MN' });
+    const folders = await api.call<Array<{ id: string; branch: string }>>('principal', 'GET', '/professional-folders');
+    const folder = folders.find((item) => item.branch === 'personal');
+    if (!folder) {
+      throw new Error('Chưa có thư mục hồ sơ cá nhân');
+    }
+    const round = await api.call('principal', 'POST', '/professional-rounds', {
+      folder_id: folder.id,
+      title: 'Nộp hồ sơ bồi dưỡng học kì I',
+      submitter_kind: 'staff',
+      org_unit_id: ids.DT1,
+      opens_on: today,
+      due_at: `${addDays(today, 14)}T17:00`,
+    });
+    const document = await api.call('teacherA', 'POST', '/professional-documents', {
+      folder_id: folder.id,
+      round_id: round.id,
+      title: 'Hồ sơ bồi dưỡng thường xuyên',
+    });
+    await api.upload(
+      'teacherA',
+      `/professional-documents/${document.id as string}/versions`,
+      { note: 'Bản nộp' },
+      {
+        name: 'ho-so.pdf',
+        content: PDF,
+        type: 'application/pdf',
+      },
+    );
+    await api.call('teacherA', 'POST', `/professional-documents/${document.id as string}/submit`, {});
+  });
+
   // ---- Website (18f) ----
   await step('Website trường', async () => {
     const settings = await api.call('principal', 'GET', '/website/settings');

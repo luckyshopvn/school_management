@@ -12,7 +12,14 @@ import { sql, type Kysely } from 'kysely';
 import type { ApiConfiguration } from '../common/configuration.js';
 import { createApplication } from '../create-application.js';
 import type { FileStorage } from '../files/file-storage.js';
-import { DEMO_SEED_VERSION, DEMO_USERS, demoAccountList, seedDemoData, type DemoSeedReport } from './demo-data.js';
+import {
+  DEMO_SEED_VERSION,
+  DEMO_USERS,
+  demoAcademicYear,
+  demoAccountList,
+  seedDemoData,
+  type DemoSeedReport,
+} from './demo-data.js';
 import { DEMO_PASSWORD_HASH, DemoIdentityClient, DemoTokenIssuer } from './demo-identity.js';
 
 // Tạo và đặt lại bản trình diễn (DT-18 phần 18h, YCTD-145). Chỉ chạy trên cơ sở dữ liệu trống hoặc đã là bản trình diễn,
@@ -111,7 +118,10 @@ export async function resetDemoEnvironment(options: DemoResetOptions): Promise<D
 
     log('Xóa dữ liệu trình diễn cũ');
     const maintenanceUrl = replaceDatabaseName(systemUrl, 'postgres');
-    for (const name of yearDatabases) {
+    // Cả cơ sở dữ liệu năm học mà lần tạo này sẽ mở (còn sót khi cơ sở dữ liệu hệ thống bị tạo lại bên ngoài lệnh)
+    const { startYear } = demoAcademicYear(vietnamDate(now));
+    const nextYearDatabase = `${options.configuration.schoolYearDatabasePrefix}${startYear}_${startYear + 1}`;
+    for (const name of new Set([...yearDatabases, nextYearDatabase])) {
       await dropDatabaseIfExists(maintenanceUrl, name);
     }
     await dropDatabaseIfExists(maintenanceUrl, systemName);

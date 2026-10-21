@@ -24,7 +24,7 @@
 - Máy chủ API: ghi thao tác và chặn kí số khi đăng nhập thay; dựng gói ZIP; bản trình diễn (dấu, chặn gửi tin, thanh toán), lệnh tạo và đặt lại dữ liệu trình diễn chạy máy chủ API trong tiến trình.
 - Cổng quản trị: nút và hộp thoại đăng nhập thay, thanh báo, 4.1, 4.2, 4.3, trang chọn vai, dải trình diễn; ứng dụng giáo viên, phụ huynh: dải trình diễn, chọn vai.
 - Triển khai: dịch vụ `demo-reset` (hồ sơ `demo`), `deploy/README.md` mục 11.
-- Thêm quy tắc BR-141, chức năng P01-32 đến P01-34, quyền PQ-85, màn hình MH-225 đến MH-229, kịch bản CT-748 đến CT-758, tiêu chí AC-707 đến AC-710. Kết quả ngày 21/10/2026: kiểm thử đơn vị `apps/api/src/demo/administration-18h.test.ts` CT-18h-1 đến CT-18h-9 đạt 9/9; kiểm thử đơn vị toàn bộ kho mã UNIT18H; kiểm thử giao diện `tests/e2e/76-administration-demo.spec.ts` (CT-18h-10, CT-18h-11) đạt; toàn bộ kiểm thử giao diện E2E18H; lệnh tạo dữ liệu trình diễn chạy trên cơ sở dữ liệu riêng đạt 24/24 bước; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm quy tắc BR-141, chức năng P01-32 đến P01-34, quyền PQ-85, màn hình MH-225 đến MH-229, kịch bản CT-748 đến CT-758, tiêu chí AC-707 đến AC-710. Kết quả ngày 21/10/2026: kiểm thử đơn vị `apps/api/src/demo/administration-18h.test.ts` CT-18h-1 đến CT-18h-9 đạt 9/9; kiểm thử đơn vị toàn bộ kho mã UNIT18H; kiểm thử giao diện `tests/e2e/76-administration-demo.spec.ts` (CT-18h-10, CT-18h-11) đạt; toàn bộ kiểm thử giao diện E2E18H; lệnh tạo dữ liệu trình diễn chạy trên cơ sở dữ liệu riêng đạt 25/25 bước; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
