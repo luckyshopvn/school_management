@@ -1,6 +1,7 @@
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { listAcademicYears, readCalendar, type Calendar } from '../academic-years/academic-years-api.js';
+import { readPortalContext } from '../portal-shell/portal-shell-api.js';
 
 type TermKey = 'first_term' | 'second_term' | 'summer_term';
 
@@ -10,8 +11,8 @@ const TERM_LABELS: Record<TermKey, string> = {
   summer_term: 'Kỳ hè',
 };
 
-// Phần mềm phục vụ trường mầm non nên cấp học luôn là Mầm non
-const EDUCATION_LEVEL = 'Cấp MN';
+// Nhãn cấp học lấy từ cấp đang bật của trường (DT-19 phần 19a); chưa tải xong thì giữ "Cấp MN" như trước
+const DEFAULT_EDUCATION_LEVEL = 'Cấp MN';
 
 const TERM_KEYS: TermKey[] = ['first_term', 'second_term', 'summer_term'];
 
@@ -56,6 +57,8 @@ export function AcademicYearSwitcher() {
   const [open, setOpen] = useState(false);
   const container = useRef<HTMLDivElement>(null);
   const years = useQuery({ queryKey: ['academic-years'], queryFn: listAcademicYears });
+  const context = useQuery({ queryKey: ['portal-context'], queryFn: readPortalContext });
+  const educationLevel = context.data?.education_level ?? DEFAULT_EDUCATION_LEVEL;
   const listed = (years.data ?? []).filter((year) => year.status !== 'draft');
   const currentYear = listed.find((year) => year.status === 'open');
   const currentCalendar = useQuery({
@@ -111,7 +114,7 @@ export function AcademicYearSwitcher() {
   }
   // Ô ngữ cảnh "Cấp MN · năm học · học kỳ" như của Sở (DT-16 phần 16c)
   const buttonText = currentYear
-    ? `${EDUCATION_LEVEL} · ${currentYear.name} · ${termLabel}`
+    ? `${educationLevel} · ${currentYear.name} · ${termLabel}`
     : 'Chưa có năm học đang dùng';
 
   return (
@@ -121,7 +124,7 @@ export function AcademicYearSwitcher() {
         className="flex h-9 items-center gap-2 rounded-md border border-white/60 px-2.5 text-label font-semibold text-white hover:bg-header-strong"
         aria-label={
           currentYear
-            ? `${EDUCATION_LEVEL}, năm học đang dùng: ${currentYear.name}, ${termLabel}`
+            ? `${educationLevel}, năm học đang dùng: ${currentYear.name}, ${termLabel}`
             : 'Chưa có năm học đang dùng'
         }
         aria-haspopup="dialog"
