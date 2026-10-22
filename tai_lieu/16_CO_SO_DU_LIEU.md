@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.90
+- Phiên bản: 1.91
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -317,6 +317,22 @@ Kế hoạch giáo dục (DT-18 phần 22i, YCTD-147). Cơ sở dữ liệu năm
 | education_plans | Kế hoạch (P09-32, BR-142) | id, template_id, template_name, template_revision, scope, period, school_level, title, period_label, period_start, period_end, org_unit_id, department_id, work_group_id (nhóm công tác 18e), class_id, owner_user_id, owner_staff_id, owner_name, sections, content (JSON theo mã mục), approval_steps, requires_signing, status (draft, pending, approved, returned), remaining_steps, current_step (có khi và chỉ khi chờ duyệt), version_no, submitted_at, approved_at, approved_by, approved_by_name, return_note, signed_at, signature_method, signed_file_id, source_plan_id, source_year_name, source_sections, source_content (bản năm trước), archived_document_id (`professional_documents`), work_plan_id (`plans`); kế hoạch của tổ cần tổ hoặc nhóm, kế hoạch của nhóm lớp cần lớp |
 | education_plan_versions | Phiên bản mỗi lần trình | id, plan_id (khóa ngoại, xóa theo), version_no (duy nhất theo kế hoạch), title, sections, content, note, created_by, created_by_name, created_at |
 | education_plan_events | Lịch sử kế hoạch | id, plan_id (khóa ngoại, xóa theo), action (create, copy, submit, withdraw, approve, return, sign, archive, work_plan), step, note, actor_id, actor_name, created_at (giờ thực lúc ghi) |
+
+Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f, YCTD-149). Cơ sở dữ liệu năm học, tệp `database/school-year/migrations/0071_create_quality_assurance.ts`; quyền ở tệp định danh `0063_add_quality_assurance_permissions.ts`. Bước chuyển năm học chép bốn bảng bộ tiêu chuẩn giữ mã định danh.
+
+| Bảng | Mục đích | Trường chính |
+|---|---|---|
+| quality_frameworks | Bộ tiêu chuẩn (P09-40, BR-151) | id, code (duy nhất), name, school_level (`MN`, `TH`, `THCS`, `THPT`), legal_basis, max_level (1 đến 4), sort_order, status (`active`, `inactive`), created_by |
+| quality_standards | Tiêu chuẩn (P09-40) | id, framework_id (xóa theo), code (duy nhất trong bộ), title, sort_order |
+| quality_criteria | Tiêu chí (P09-40) | id, framework_id, standard_id (xóa theo), code (duy nhất trong bộ), title, evidence_hint, sort_order |
+| quality_indicators | Chỉ báo theo mức (P09-40) | id, criterion_id (xóa theo), level (1 đến 4), code (duy nhất theo tiêu chí, mức), content, sort_order |
+| quality_assessments | Đợt tự đánh giá (P09-41, P09-44, BR-152) | id, framework_id, org_unit_id (Trường chính), title, decision_number, decision_date, start_date, end_date, status (`draft`, `in_progress`, `completed`), introduction, conclusion, self_level (0 đến 4), completed_at, completed_by_name, external_level, recognition_decision, recognition_date, recognition_valid_until, work_plan_ids (uuid[]), created_by |
+| quality_council_members | Hội đồng tự đánh giá (P09-41) | id, assessment_id (xóa theo), staff_id, staff_name, position (`chair`, `vice_chair`, `secretary`, `member`), duty, sort_order; duy nhất theo đợt, nhân sự |
+| quality_work_groups | Nhóm công tác (P09-41) | id, assessment_id (xóa theo), name, leader_staff_id, sort_order |
+| quality_work_group_members | Thành viên nhóm (P09-41) | group_id (xóa theo), staff_id, staff_name |
+| quality_criterion_reports | Phiếu đánh giá tiêu chí (P09-42, BR-152) | id, assessment_id (xóa theo), criterion_id (duy nhất theo đợt), work_group_id, current_state, strengths, weaknesses, improvement_actions (jsonb: content, owner_staff_id, due_date, resources), indicator_results (jsonb: mã chỉ báo → đạt), self_level, status (`draft`, `submitted`, `approved`, `returned`), submitted_at, submitted_by_name, reviewed_at, reviewed_by_name, return_note, updated_by_name |
+| quality_evidences | Minh chứng (P09-43, BR-153) | id, assessment_id (xóa theo), criterion_id, box, sequence, code (`Hn-a.b-c`, duy nhất theo đợt), title, document_number, issued_date, issuer, description, status (`missing`, `collecting`, `sufficient`, `needs_update`), source_type (`upload`, `professional_document`, `incoming_document`, `outgoing_document`, `none`), file_id (mục đích tệp `professional_record`, khóa `storageKey('quality-evidences', đợt, …)`), professional_document_id, system_document_id (văn bản ở cơ sở dữ liệu hệ thống), source_label, inherited_code, inherited_year_name, created_by, created_by_name |
+| quality_evidence_criteria | Minh chứng dùng chung cho tiêu chí khác (P09-43) | evidence_id (xóa theo), criterion_id |
 
 Thi đua, khen thưởng (DT-18 phần 22d, YCTD-148). Cơ sở dữ liệu năm học, tệp `database/school-year/migrations/0070_create_emulation.ts`; quyền ở tệp định danh `0062_add_emulation_permissions.ts`. Sổ nhiều năm đọc `emulation_awards` của mọi cơ sở dữ liệu năm học.
 

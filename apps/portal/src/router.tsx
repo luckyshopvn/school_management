@@ -194,6 +194,13 @@ import {
   VerifyAwardPage,
   VotingPage as EmulationVotingPage,
 } from './emulation/EmulationPages.js';
+import {
+  QualityAssessmentsPage,
+  QualityEvidencesPage,
+  QualityFrameworksPage,
+  QualityRecognitionPage,
+  QualityReportsPage,
+} from './quality-assurance/QualityPages.js';
 import { DirectiveFormPage, DirectiveInboxPage, DirectiveOutboxPage } from './directives/DirectivePages.js';
 import { IncomingReportPage, StatisticsReportPage, SummaryReportPage } from './directives/ReportPages.js';
 import {
@@ -620,6 +627,12 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/emulation/reports', component: EmulationReportsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/emulation/titles', component: EmulationTitlesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/tra-cuu-khen-thuong', component: VerifyAwardPage }),
+  // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
+  createRoute({ getParentRoute: () => rootRoute, path: '/quality/assessments', component: QualityAssessmentsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/quality/reports', component: QualityReportsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/quality/evidences', component: QualityEvidencesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/quality/recognition', component: QualityRecognitionPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/quality/frameworks', component: QualityFrameworksPage }),
 ]);
 
 export const router = createRouter({ routeTree });

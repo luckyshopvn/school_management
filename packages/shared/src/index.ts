@@ -20,6 +20,7 @@ export * from './professional-records.js';
 export * from './food-safety.js';
 export * from './education-plans.js';
 export * from './emulation.js';
+export * from './quality-assurance.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -245,6 +246,9 @@ export const PERMISSION_CODES = {
   emulationUse: 'P09.emulation.use',
   emulationManage: 'P09.emulation.manage',
   emulationDecide: 'P09.emulation.decide',
+  // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
+  qualityUse: 'P09.quality.use',
+  qualityManage: 'P09.quality.manage',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -547,6 +551,12 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/emulation/history',
   '/emulation/reports',
   '/emulation/titles',
+  // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
+  '/quality/assessments',
+  '/quality/reports',
+  '/quality/evidences',
+  '/quality/recognition',
+  '/quality/frameworks',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -828,6 +838,13 @@ export const DATA_GRID_KEYS = [
   'emulation-decisions',
   'emulation-history',
   'emulation-report',
+  // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
+  'quality-assessments',
+  'quality-assessment-criteria',
+  'quality-reports',
+  'quality-evidences',
+  'quality-recognitions',
+  'quality-frameworks',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;
