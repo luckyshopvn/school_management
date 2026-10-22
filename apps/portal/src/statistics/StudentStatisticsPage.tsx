@@ -121,18 +121,20 @@ function EthnicList({ students }: { students: EthnicStudent[] }) {
   );
 }
 
-export function StudentStatisticsView({ orgUnitId }: { orgUnitId: string }) {
+export function StudentStatisticsView({ orgUnitId, schoolLevel = '' }: { orgUnitId: string; schoolLevel?: string }) {
   const [tab, setTab] = useState<Tab>('age');
   const [term, setTerm] = useState<StudentHealthTermValue>(defaultTerm);
   const [exportError, setExportError] = useState<string>();
   const stats = useQuery({
-    queryKey: ['student-statistics', orgUnitId, term],
-    queryFn: () => readStudentStatistics(orgUnitId, term),
+    queryKey: ['student-statistics', orgUnitId, term, schoolLevel],
+    queryFn: () => readStudentStatistics(orgUnitId, term, schoolLevel),
     retry: false,
   });
   const download = (format: 'xlsx' | 'pdf') => {
     setExportError(undefined);
-    exportStudentStatistics(orgUnitId, term, format).catch((error: unknown) => setExportError(messageOf(error)));
+    exportStudentStatistics(orgUnitId, term, format, schoolLevel).catch((error: unknown) =>
+      setExportError(messageOf(error)),
+    );
   };
   const data = stats.data;
   return (

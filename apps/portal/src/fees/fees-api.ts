@@ -1,3 +1,4 @@
+import type { SchoolLevelCode } from '@school-management/shared';
 import { requestJson } from '../session/api-client.js';
 import type { CatalogStatus } from '../catalogs/catalogs-api.js';
 
@@ -35,6 +36,8 @@ export interface FeeSchedule {
   effective_to: string | null;
   is_editable: boolean;
   items: FeeScheduleItem[];
+  // Cấp của biểu phí (DT-19 phần 19d, YCTD-154)
+  school_level?: SchoolLevelCode;
 }
 
 export interface DiscountType {
@@ -67,8 +70,12 @@ export const updateService = (id: string, changes: Partial<Omit<Service, 'id' | 
   send<Service>(`/api/v1/services/${id}`, 'PATCH', changes);
 
 export const listFeeSchedules = (): Promise<FeeSchedule[]> => requestJson('/api/v1/fee-schedules');
-export const createFeeSchedule = (input: { name: string; effective_from: string; items: FeeScheduleItem[] }) =>
-  send<FeeSchedule>('/api/v1/fee-schedules', 'POST', input);
+export const createFeeSchedule = (input: {
+  name: string;
+  effective_from: string;
+  items: FeeScheduleItem[];
+  school_level?: SchoolLevelCode;
+}) => send<FeeSchedule>('/api/v1/fee-schedules', 'POST', input);
 export const replaceFeeSchedule = (id: string, input: { name: string; items: FeeScheduleItem[] }) =>
   send<FeeSchedule>(`/api/v1/fee-schedules/${id}`, 'PUT', input);
 export const deleteFeeSchedule = (id: string) => requestJson(`/api/v1/fee-schedules/${id}`, { method: 'DELETE' });

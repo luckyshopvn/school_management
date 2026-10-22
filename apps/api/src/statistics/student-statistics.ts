@@ -302,7 +302,12 @@ export class StudentStatisticsController {
     const orgUnitId = optionalUuid(query, 'org_unit_id', errors);
     const term = readStatisticsTerm(query, errors);
     check(errors);
-    return this.statistics.students(currentUser, orgUnitId, term, await this.statistics.levelFilter(currentUser, query));
+    return this.statistics.students(
+      currentUser,
+      orgUnitId,
+      term,
+      await this.statistics.levelFilter(currentUser, query),
+    );
   }
 
   @Get('students/export')

@@ -20,6 +20,17 @@ export interface ClassStatistics {
     female_count: number;
     children_percent: number;
   }>;
+  // Lớp ngoài cấp Mầm non thống kê theo khối (DT-19 phần 19d, YCTD-154)
+  grade_groups?: Array<{
+    grade_level: string;
+    label: string;
+    school_level: string;
+    class_count: number;
+    class_percent: number;
+    children_count: number;
+    female_count: number;
+    children_percent: number;
+  }>;
   totals: { class_count: number; children_count: number; female_count: number };
 }
 
@@ -72,8 +83,8 @@ const withUnit = (path: string, orgUnitId: string, extra: Record<string, string>
   return query ? `${path}?${query}` : path;
 };
 
-export const readClassStatistics = (orgUnitId: string): Promise<ClassStatistics> =>
-  requestJson(withUnit('/api/v1/statistics/classes', orgUnitId));
+export const readClassStatistics = (orgUnitId: string, schoolLevel = ''): Promise<ClassStatistics> =>
+  requestJson(withUnit('/api/v1/statistics/classes', orgUnitId, { school_level: schoolLevel }));
 
 export const readChildStatistics = (orgUnitId: string): Promise<ChildStatistics> =>
   requestJson(withUnit('/api/v1/statistics/children', orgUnitId));

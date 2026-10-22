@@ -79,7 +79,10 @@ export const ATTENDANCE_STAGES = [
 
 export type AttendanceStage = (typeof ATTENDANCE_STAGES)[number]['key'];
 
-export function attendanceStageOf(schoolLevel: SchoolLevelCode, ageFromMonths: number | null | undefined): AttendanceStage {
+export function attendanceStageOf(
+  schoolLevel: SchoolLevelCode,
+  ageFromMonths: number | null | undefined,
+): AttendanceStage {
   if (schoolLevel !== 'MN') {
     return schoolLevel;
   }

@@ -1,3 +1,4 @@
+import type { AttendanceStage } from '@school-management/shared';
 import { requestJson } from '../session/api-client.js';
 
 // Báo cáo điểm danh và suất ăn theo ngày, tuần, tháng và suất ăn theo lớp của bếp (YCTD-100)
@@ -45,7 +46,8 @@ export interface ClassRow extends Totals {
   org_unit_name: string;
   grade_level: string;
   grade_level_name: string;
-  stage: 'nha_tre' | 'mau_giao';
+  // Nhóm khối: Nhà trẻ, Mẫu giáo của Mầm non; cấp khác theo cấp (DT-19 phần 19d, YCTD-154)
+  stage: AttendanceStage;
   days: DayCounts[];
 }
 
