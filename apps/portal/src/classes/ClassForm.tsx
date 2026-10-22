@@ -9,6 +9,7 @@ import {
 } from '@school-management/shared';
 import { Alert, Button, FORM_CONTROL_CLASS, FormBlock, FormRow } from '@school-management/ui';
 import { listCurricula, listGradeLevels, listRooms } from '../catalogs/catalogs-api.js';
+import { useEnabledSchoolLevels } from '../school-levels/enabled-levels.js';
 import type { OrgUnit } from '../org-units/org-units-api.js';
 import { ApiError } from '../session/api-client.js';
 import { readSettings } from '../settings/settings-api.js';
@@ -147,7 +148,7 @@ export function ClassForm({
   const gradeName = selectedGrade?.name;
   const schoolLevel = selectedGrade?.school_level ?? classRecord?.school_level ?? 'MN';
   const levelUsesAges = usesAgeGroups(schoolLevel);
-  const multiLevel = (gradeLevels.data ?? []).some((level) => level.school_level !== 'MN');
+  const { multiLevel } = useEnabledSchoolLevels();
   const levelCurricula = (curricula.data ?? []).filter(
     (item) => item.school_level === schoolLevel && (item.status === 'active' || item.id === values.curriculum_id),
   );

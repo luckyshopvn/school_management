@@ -1,7 +1,7 @@
 import { useCallback, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES, SCHOOL_LEVELS, type SchoolLevelCode } from '@school-management/shared';
-import { listGradeLevels } from '../catalogs/catalogs-api.js';
+import { useEnabledSchoolLevels } from '../school-levels/enabled-levels.js';
 import {
   Alert,
   Button,
@@ -112,8 +112,7 @@ function AcademicYearDetail({
 }) {
   const queryClient = useQueryClient();
   const editable = canManage && year.status !== 'closed';
-  const gradeLevels = useQuery({ queryKey: ['grade-levels'], queryFn: listGradeLevels });
-  const multiLevel = (gradeLevels.data ?? []).some((grade) => grade.school_level !== 'MN');
+  const { levels: enabledLevels, multiLevel } = useEnabledSchoolLevels();
   const [level, setLevel] = useState<SchoolLevelCode | null>(null);
   const calendar = useQuery({
     queryKey: ['academic-year-calendar', year.id, level],
@@ -171,7 +170,7 @@ function AcademicYearDetail({
               onChange={(event) => setLevel((event.target.value || null) as SchoolLevelCode | null)}
             >
               <option value="">Lịch chung cả trường</option>
-              {SCHOOL_LEVELS.map((item) => (
+              {enabledLevels.map((item) => (
                 <option key={item.value} value={item.value}>
                   {item.label}
                 </option>

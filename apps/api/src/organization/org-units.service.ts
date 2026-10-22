@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import type { OrgUnitStatus, OrgUnitType } from '@school-management/database';
 import { ApplicationError, Clock, ruleViolationError } from '@school-management/server';
 import { SCHOOL_LEVEL_CODES, type SchoolLevelCode } from '@school-management/shared';
-import { STRUCTURE_RULE_CODE } from '../catalogs/school-level-fields.js';
+import { assertLevelEnabled, STRUCTURE_RULE_CODE } from '../catalogs/school-level-fields.js';
+import { SchoolLevelResolver } from '../common/school-levels.js';
 import { writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import type { CurrentUser } from '../authentication/current-user.js';
@@ -100,6 +101,7 @@ export class OrgUnitsService {
   constructor(
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly clock: Clock,
+    private readonly schoolLevels: SchoolLevelResolver,
   ) {}
 
   async list(filter: { unitType?: OrgUnitType; status?: OrgUnitStatus }): Promise<OrgUnit[]> {
@@ -316,6 +318,10 @@ export class OrgUnitsService {
     const before = (
       await database.selectFrom('org_unit_levels').select('school_level').where('org_unit_id', '=', orgUnitId).execute()
     ).map((row) => row.school_level);
+    // Cấp mới thêm phải đang bật; cấp đã có giữ được dù đã tắt (19a chỉ ẩn cấp còn lớp)
+    for (const level of levels.filter((item) => !before.includes(item))) {
+      await assertLevelEnabled(this.schoolLevels, level, 'school_levels');
+    }
     const removed = before.filter((level) => !levels.includes(level));
     if (removed.length > 0) {
       const inUse = await database

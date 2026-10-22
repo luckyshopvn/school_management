@@ -17,7 +17,8 @@ import {
   type RequestBody,
 } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
-import { readSchoolLevel, STRUCTURE_RULE_CODE } from './school-level-fields.js';
+import { SchoolLevelResolver } from '../common/school-levels.js';
+import { assertLevelEnabled, readSchoolLevel, STRUCTURE_RULE_CODE } from './school-level-fields.js';
 
 // Khung chương trình theo cấp (DT-19 phần 19b, YCTD-152): mã, tên, cấp, khối áp dụng (trống là mọi khối của cấp), mặc định
 // của cấp. Lớp chọn chương trình cùng cấp; lớp không chọn theo chương trình mặc định của cấp. Chương trình môn học, số tiết là
@@ -97,6 +98,7 @@ export class CurriculaService {
   constructor(
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly clock: Clock,
+    private readonly schoolLevels: SchoolLevelResolver,
   ) {}
 
   async list(level?: SchoolLevelCode): Promise<Curriculum[]> {
@@ -112,6 +114,7 @@ export class CurriculaService {
   }
 
   async create(input: CurriculumInput, origin: ChangeOrigin): Promise<Curriculum> {
+    await assertLevelEnabled(this.schoolLevels, input.school_level);
     const { database } = await this.currentSchoolYear.require();
     await assertGradeCodes(database, input.school_level, input.grade_level_codes);
     return conflictOnDuplicate(

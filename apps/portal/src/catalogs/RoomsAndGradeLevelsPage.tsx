@@ -8,6 +8,7 @@ import {
 } from '@school-management/shared';
 import { Alert, Button, FORM_CONTROL_CLASS, Toast } from '@school-management/ui';
 import { ApiError } from '../session/api-client.js';
+import { useEnabledSchoolLevels } from '../school-levels/enabled-levels.js';
 import { AppShell } from '../pages/AppShell.js';
 import { useHasPermission } from '../session/permissions.js';
 import { CatalogTable } from './CatalogTable.js';
@@ -99,7 +100,6 @@ function RoomsSection({ canManage, onChanged }: { canManage: boolean; onChanged(
 }
 
 const levelLabel = (level: SchoolLevelCode) => SCHOOL_LEVELS.find((item) => item.value === level)?.label ?? level;
-const LEVEL_OPTIONS = SCHOOL_LEVELS.map((level) => ({ value: level.value, label: level.label }));
 
 // Tháng tuổi bỏ trống được ở khối của cấp ngoài Mầm non (YCTD-152): ô trống gửi null để máy chủ kiểm tra theo cấp
 const toAge = (value: string | undefined) => (value === undefined || value.trim() === '' ? null : Number(value));
@@ -111,9 +111,15 @@ function ageText(row: GradeLevel): string {
 }
 
 // Nạp khối mẫu của cấp Tiểu học, THCS, THPT (DT-19 phần 19b, YCTD-152); khối đã có mã thì bỏ qua
-function GradeTemplateLoader({ onChanged }: { onChanged(message: string): void }) {
+function GradeTemplateLoader({
+  templateLevels,
+  onChanged,
+}: {
+  templateLevels: Array<{ value: SchoolLevelCode; label: string }>;
+  onChanged(message: string): void;
+}) {
   const queryClient = useQueryClient();
-  const [level, setLevel] = useState<SchoolLevelCode>('TH');
+  const [level, setLevel] = useState<SchoolLevelCode>(templateLevels[0]?.value ?? 'TH');
   const load = useMutation({
     mutationFn: () => loadGradeLevelTemplate(level),
     onSuccess: async (result) => {
@@ -133,7 +139,7 @@ function GradeTemplateLoader({ onChanged }: { onChanged(message: string): void }
           value={level}
           onChange={(event) => setLevel(event.target.value as SchoolLevelCode)}
         >
-          {LEVEL_OPTIONS.filter((option) => GRADE_LEVEL_TEMPLATES[option.value].length > 0).map((option) => (
+          {templateLevels.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
@@ -151,13 +157,18 @@ function GradeTemplateLoader({ onChanged }: { onChanged(message: string): void }
 }
 
 function GradeLevelsSection({ canManage, onChanged }: { canManage: boolean; onChanged(message: string): void }) {
+  // Cấp chọn được là cấp đang bật của trường (19a); khối mẫu chỉ có ở cấp đang bật ngoài Mầm non
+  const { levels: LEVEL_OPTIONS } = useEnabledSchoolLevels();
+  const templateLevels = LEVEL_OPTIONS.filter((option) => GRADE_LEVEL_TEMPLATES[option.value].length > 0);
   const queryClient = useQueryClient();
   const gradeLevels = useQuery({ queryKey: ['grade-levels'], queryFn: listGradeLevels });
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['grade-levels'] });
 
   return (
     <div className="flex flex-col gap-4">
-      {canManage ? <GradeTemplateLoader onChanged={onChanged} /> : null}
+      {canManage && templateLevels.length > 0 ? (
+        <GradeTemplateLoader templateLevels={templateLevels} onChanged={onChanged} />
+      ) : null}
       <CatalogTable<GradeLevel>
         title="Bậc học"
         gridKey="grade-levels"
@@ -228,6 +239,7 @@ const toCodes = (value: string | undefined) =>
     .filter((code) => code !== '');
 
 function CurriculaSection({ canManage, onChanged }: { canManage: boolean; onChanged(message: string): void }) {
+  const { levels: LEVEL_OPTIONS } = useEnabledSchoolLevels();
   const queryClient = useQueryClient();
   const curricula = useQuery({ queryKey: ['curricula'], queryFn: listCurricula });
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['curricula'] });

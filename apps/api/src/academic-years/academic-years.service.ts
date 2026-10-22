@@ -18,6 +18,8 @@ import {
   type TransitionViolation,
 } from './academic-year-transition.js';
 import { calendarEndDate, generateWeeks, type CalendarInput, type DateRange } from './calendar.js';
+import { assertLevelEnabled } from '../catalogs/school-level-fields.js';
+import { SchoolLevelResolver } from '../common/school-levels.js';
 
 const OPEN_ACADEMIC_YEAR_LOCK = 91_093;
 
@@ -96,6 +98,7 @@ export class AcademicYearsService {
     private readonly clock: Clock,
     @Inject(API_CONFIGURATION) private readonly configuration: ApiConfiguration,
     @Inject(ACADEMIC_YEAR_TRANSITION_STEPS) private readonly transitionSteps: AcademicYearTransitionStep[],
+    private readonly schoolLevels: SchoolLevelResolver,
   ) {}
 
   private get system() {
@@ -189,6 +192,9 @@ export class AcademicYearsService {
     const year = await this.findAcademicYear(academicYearId);
     if (year.status === 'closed') {
       throw ruleViolationError('BR-91', 'Năm học đã đóng, không sửa được lịch');
+    }
+    if (level !== null) {
+      await assertLevelEnabled(this.schoolLevels, level);
     }
     const now = this.clock.now();
     const levelOperator = level === null ? 'is' : '=';

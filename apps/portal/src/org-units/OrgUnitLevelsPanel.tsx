@@ -2,20 +2,22 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { SCHOOL_LEVELS, type SchoolLevelCode } from '@school-management/shared';
 import { Alert, Button } from '@school-management/ui';
-import { listGradeLevels } from '../catalogs/catalogs-api.js';
+import { useEnabledSchoolLevels } from '../school-levels/enabled-levels.js';
 import { ApiError } from '../session/api-client.js';
 import { listOrgUnitLevels, setOrgUnitLevels, type OrgUnit } from './org-units-api.js';
 
-// Cấp học của trường chính, phân hiệu, điểm trường (DT-19 phần 19b, YCTD-152). Chỉ hiện khi trường có khối ngoài Mầm non;
+// Cấp học của trường chính, phân hiệu, điểm trường (DT-19 phần 19b, YCTD-152). Chỉ hiện khi trường bật từ hai cấp;
 // trường chỉ có Mầm non thì mọi đơn vị là Mầm non, màn hình giữ như cũ. Không bỏ được cấp đơn vị đang có lớp (máy chủ kiểm tra)
 function UnitLevelsRow({
   unit,
   levels,
+  enabledLevels,
   canManage,
   onChanged,
 }: {
   unit: OrgUnit;
   levels: SchoolLevelCode[];
+  enabledLevels: Array<{ value: SchoolLevelCode; label: string }>;
   canManage: boolean;
   onChanged(message: string): void;
 }) {
@@ -32,7 +34,7 @@ function UnitLevelsRow({
   return (
     <tr className="border-t border-border" aria-label={`Cấp học của ${unit.name}`}>
       <td className="py-2 pr-4 font-medium text-text">{unit.name}</td>
-      {SCHOOL_LEVELS.map((level) => (
+      {enabledLevels.map((level) => (
         <td key={level.value} className="py-2 pr-4 text-center">
           <input
             type="checkbox"
@@ -77,8 +79,7 @@ export function OrgUnitLevelsPanel({
   canManage: boolean;
   onChanged(message: string): void;
 }) {
-  const gradeLevels = useQuery({ queryKey: ['grade-levels'], queryFn: listGradeLevels });
-  const multiLevel = (gradeLevels.data ?? []).some((grade) => grade.school_level !== 'MN');
+  const { levels: enabledLevels, multiLevel } = useEnabledSchoolLevels();
   const levels = useQuery({ queryKey: ['org-unit-levels'], queryFn: listOrgUnitLevels, enabled: multiLevel });
   if (!multiLevel || units.length === 0) {
     return null;
@@ -92,7 +93,7 @@ export function OrgUnitLevelsPanel({
           <thead>
             <tr className="text-left text-label text-text-secondary">
               <th className="py-2 pr-4">Đơn vị</th>
-              {SCHOOL_LEVELS.map((level) => (
+              {enabledLevels.map((level) => (
                 <th key={level.value} className="py-2 pr-4 text-center">
                   {level.label}
                 </th>
@@ -108,6 +109,7 @@ export function OrgUnitLevelsPanel({
                   key={`${unit.id}:${current.join(',')}`}
                   unit={unit}
                   levels={current}
+                  enabledLevels={enabledLevels}
                   canManage={canManage}
                   onChanged={onChanged}
                 />

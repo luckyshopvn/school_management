@@ -4,7 +4,6 @@ import { Clock, ruleViolationError, validationError, type FieldError } from '@sc
 import {
   GRADE_LEVEL_TEMPLATES,
   PERMISSION_CODES,
-  SCHOOL_LEVEL_CODES,
   nextGradeLevel,
   usesAgeGroups,
   type GradeProgression,
@@ -24,7 +23,8 @@ import {
   type RequestBody,
 } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
-import { readSchoolLevel, STRUCTURE_RULE_CODE } from './school-level-fields.js';
+import { SchoolLevelResolver } from '../common/school-levels.js';
+import { assertLevelEnabled, readSchoolLevel, STRUCTURE_RULE_CODE } from './school-level-fields.js';
 
 // Bậc học (khối) dùng chung toàn trường, độ tuổi theo tháng (P01-12, YCTD-42). Lớp và biểu phí tham chiếu theo mã nên mã không
 // đổi được. Khối thuộc một cấp học (DT-19 phần 19b, YCTD-152): khối Mầm non bắt buộc tháng tuổi, khối của cấp khác bỏ trống
@@ -117,6 +117,7 @@ export class GradeLevelsService {
   constructor(
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly clock: Clock,
+    private readonly schoolLevels: SchoolLevelResolver,
   ) {}
 
   async list(status?: CatalogStatus, level?: SchoolLevelCode): Promise<GradeLevel[]> {
@@ -136,6 +137,7 @@ export class GradeLevelsService {
 
   async create(input: GradeLevelInput, origin: ChangeOrigin): Promise<GradeLevel> {
     assertGradeAges(input.school_level, input.age_from_months, input.age_to_months);
+    await assertLevelEnabled(this.schoolLevels, input.school_level);
     const { database } = await this.currentSchoolYear.require();
     return conflictOnDuplicate(
       database.transaction().execute(async (transaction) => {
@@ -170,6 +172,7 @@ export class GradeLevelsService {
         [{ field: 'school_level', message: 'Chọn Tiểu học, THCS hoặc THPT' }],
       );
     }
+    await assertLevelEnabled(this.schoolLevels, level);
     const { database } = await this.currentSchoolYear.require();
     return database.transaction().execute(async (transaction) => {
       const existing = new Set(
@@ -252,13 +255,9 @@ export class GradeLevelsService {
     });
   }
 
-  // Khối kế tiếp khi lên lớp (YCTD-152). Trước khi có bảng cấp học của trường (19a), cấp đang bật là các cấp có khối đang dùng
+  // Khối kế tiếp khi lên lớp (YCTD-152), theo các cấp đang bật của trường
   async next(code: string): Promise<GradeProgression> {
-    const grades = await this.list();
-    const enabled = SCHOOL_LEVEL_CODES.filter((level) =>
-      grades.some((grade) => grade.school_level === level && grade.status === 'active'),
-    );
-    const progression = nextGradeLevel(grades, enabled, code);
+    const progression = nextGradeLevel(await this.list(), await this.schoolLevels.enabled(), code);
     if (!progression) {
       throw notFoundError('Không tìm thấy bậc học', 'grade_level');
     }

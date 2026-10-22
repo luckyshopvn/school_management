@@ -107,17 +107,19 @@ export class SchoolLevelsService {
     private readonly resolver: SchoolLevelResolver,
   ) {}
 
-  // Số lớp của năm học đang dùng theo cấp để cảnh báo trước khi tắt. Chưa có cột cấp ở lớp (thêm ở phần 19b) nên mọi lớp
-  // tính là Mầm non, đúng với dữ liệu hiện có
+  // Số lớp của năm học đang dùng theo cấp để cảnh báo trước khi tắt; cấp của lớp theo khối (phần 19b, YCTD-152)
   private async classCounts(): Promise<Map<SchoolLevelCode, number>> {
     const counts = new Map<SchoolLevelCode, number>();
     const current = await this.currentSchoolYear.find();
     if (current) {
-      const row = await current.database
+      const rows = await current.database
         .selectFrom('classes')
-        .select((builder) => builder.fn.countAll<string>().as('total'))
-        .executeTakeFirst();
-      counts.set('MN', Number(row?.total ?? 0));
+        .select(['school_level', (builder) => builder.fn.countAll<string>().as('total')])
+        .groupBy('school_level')
+        .execute();
+      for (const row of rows) {
+        counts.set(row.school_level, Number(row.total));
+      }
     }
     return counts;
   }

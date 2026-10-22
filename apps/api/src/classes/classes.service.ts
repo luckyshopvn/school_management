@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import type { AssignmentRole, ClassAgeGroup, ClassStatus, SchoolYearDatabase } from '@school-management/database';
 import { ApplicationError, Clock, ruleViolationError, validationError } from '@school-management/server';
 import { PERMISSION_CODES, classStageOf, usesAgeGroups, type SchoolLevelCode } from '@school-management/shared';
-import { STRUCTURE_RULE_CODE } from '../catalogs/school-level-fields.js';
+import { assertLevelEnabled, STRUCTURE_RULE_CODE } from '../catalogs/school-level-fields.js';
+import { SchoolLevelResolver } from '../common/school-levels.js';
 import { sql, type Kysely, type Transaction } from 'kysely';
 import { IdentityClient } from '../authentication/identity-client.js';
 import type { CurrentUser } from '../authentication/current-user.js';
@@ -177,6 +178,7 @@ export class ClassesService {
     private readonly catalogAccess: CatalogAccess,
     private readonly identityClient: IdentityClient,
     private readonly clock: Clock,
+    private readonly schoolLevels: SchoolLevelResolver,
   ) {}
 
   // Ai có vai trò ở đơn vị đều xem được lớp; mine là các lớp mình đang được phân công
@@ -476,6 +478,7 @@ export class ClassesService {
     const { academicYearId } = await this.currentSchoolYear.require();
     const schoolLevel = await this.assertGradeLevel(input.grade_level);
     assertLevelFields(schoolLevel, input);
+    await assertLevelEnabled(this.schoolLevels, schoolLevel, 'grade_level');
     await this.assertUnitLevel(database, input.org_unit_id, schoolLevel);
     await this.assertCurriculum(database, schoolLevel, input.curriculum_id ?? null);
     if (input.room_id) {
@@ -536,6 +539,7 @@ export class ClassesService {
     if (changes.grade_level !== undefined && changes.grade_level !== existing.grade_level) {
       schoolLevel = await this.assertGradeLevel(changes.grade_level);
       if (schoolLevel !== existing.school_level) {
+        await assertLevelEnabled(this.schoolLevels, schoolLevel, 'grade_level');
         await this.assertUnitLevel(database, existing.org_unit_id, schoolLevel);
       }
     }

@@ -12,9 +12,9 @@ import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_SYSTEM_DATABASE_NAME } from '../e2e-environment.mjs';
 import { openMenu } from './menu.js';
 
-// DT-19 phần 19b (YCTD-152): cấu trúc theo cấp học. Hiệu trưởng nạp khối mẫu Tiểu học, thêm cấp Tiểu học cho Trường chính,
-// mở lớp khối 1 (không có nhóm tuổi, ghép độ tuổi), xem lịch của cấp Tiểu học đang theo lịch chung. Dữ liệu Tiểu học xóa ở
-// cuối để các spec khác vẫn chạy trên trường chỉ có Mầm non
+// DT-19 phần 19b (YCTD-152): cấu trúc theo cấp học. Hiệu trưởng bật cấp Tiểu học ở 1.4 Cấu hình trường, nạp khối mẫu Tiểu
+// học, thêm cấp Tiểu học cho Trường chính, mở lớp khối 1 (không có nhóm tuổi, ghép độ tuổi), xem lịch của cấp Tiểu học đang
+// theo lịch chung. Dữ liệu Tiểu học xóa ở cuối để trường trở lại chỉ có Mầm non
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 // Lịch theo cấp nằm ở cơ sở dữ liệu hệ thống của e2e
 const system = createDatabase<SystemDatabase>(
@@ -55,6 +55,8 @@ test.afterAll(async () => {
   for (const table of ['school_weeks', 'academic_terms', 'academic_year_level_settings'] as const) {
     await system.deleteFrom(table).where('school_level', 'is not', null).execute();
   }
+  // Trả lại trường chỉ có Mầm non như sau kịch bản 81
+  await system.updateTable('school_levels').set({ is_enabled: false }).where('code', '!=', 'MN').execute();
   await schoolYear.destroy();
   await system.destroy();
   await identity.destroy();
@@ -64,6 +66,13 @@ test('Hiệu trưởng nạp khối Tiểu học, thêm cấp cho Trường chí
   page,
 }) => {
   await loginAsPrincipal(page);
+
+  // Bật cấp Tiểu học ở 1.4 Cấu hình trường (19a); cấp chưa bật thì không có khối mẫu, không mở lớp
+  await openMenu(page, '/settings');
+  const levelsCard = page.getByRole('region', { name: 'Cấp học của trường' });
+  await levelsCard.getByLabel('Bật cấp TH', { exact: true }).check();
+  await levelsCard.getByRole('button', { name: 'Ghi cấp học' }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'Đã ghi cấp học của trường' })).toBeVisible();
 
   // Danh mục bậc học: nạp khối mẫu Tiểu học; chương trình mặc định Mầm non đã có sẵn
   await openMenu(page, '/rooms');

@@ -44,6 +44,23 @@ describe('Cấu trúc theo cấp học (YCTD-152)', () => {
   });
 
   it('CT-19b-1: khối Mầm non bắt buộc tháng tuổi; khối Tiểu học bỏ trống được; cấp của khối không đổi', async () => {
+    // Cấp chưa bật ở bảng cấp học của trường (19a) thì không tạo khối, không nạp khối mẫu
+    const disabled = await api('POST', '/grade-levels', { code: 'K0', name: 'Khối 0', school_level: 'TH' });
+    assert.equal(disabled.status, 422);
+    assert.equal(errorOf(disabled.body)?.rule_code, 'YCTD-152');
+    assert.equal((await api('POST', '/grade-levels/templates', { school_level: 'TH' })).status, 422);
+    const levels = (await api('GET', '/school-levels')).body.levels as Row[];
+    const enabled = await api('PUT', '/school-levels', {
+      levels: levels.map((level) => ({
+        code: level.code,
+        is_enabled: level.code === 'MN' || level.code === 'TH',
+        order_no: level.order_no,
+        display_name: level.display_name,
+        learner_term: level.learner_term,
+        context_label: level.context_label,
+      })),
+    });
+    assert.equal(enabled.status, 200, JSON.stringify(enabled.body));
     const missingAge = await api('POST', '/grade-levels', { code: 'CHOI', name: 'Chồi' });
     assert.equal(missingAge.status, 400);
     assert.deepEqual(
