@@ -19,6 +19,7 @@ export * from './administration.js';
 export * from './professional-records.js';
 export * from './food-safety.js';
 export * from './education-plans.js';
+export * from './emulation.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -240,6 +241,10 @@ export const PERMISSION_CODES = {
   educationPlanApprove: 'P09.education-plan.approve',
   educationPlanFinalize: 'P09.education-plan.finalize',
   educationPlanManage: 'P09.education-plan.manage',
+  // Thi đua, khen thưởng (DT-18 phần 22d)
+  emulationUse: 'P09.emulation.use',
+  emulationManage: 'P09.emulation.manage',
+  emulationDecide: 'P09.emulation.decide',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -530,6 +535,18 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/education-plans/review',
   '/education-plans/progress',
   '/education-plan-templates',
+  // Thi đua, khen thưởng (DT-18 phần 22d)
+  '/emulation/campaigns',
+  '/emulation/registrations',
+  '/emulation/nominations',
+  '/emulation/nominations/review',
+  '/emulation/council',
+  '/emulation/voting',
+  '/emulation/appeals',
+  '/emulation/decisions',
+  '/emulation/history',
+  '/emulation/reports',
+  '/emulation/titles',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -800,6 +817,17 @@ export const DATA_GRID_KEYS = [
   'education-plan-templates',
   'education-plan-progress',
   'education-plan-previous',
+  // Thi đua, khen thưởng (DT-18 phần 22d)
+  'emulation-titles',
+  'emulation-campaigns',
+  'emulation-registrations',
+  'emulation-nominations',
+  'emulation-nomination-review',
+  'emulation-voting',
+  'emulation-appeals',
+  'emulation-decisions',
+  'emulation-history',
+  'emulation-report',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;
