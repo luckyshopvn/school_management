@@ -1,3 +1,4 @@
+import type { SchoolLevelCode } from '@school-management/shared';
 import { requestJson } from '../session/api-client.js';
 
 // Gọi nhóm điểm cuối năm học của máy chủ API (17_DAC_TA_API.md mục P01)
@@ -21,7 +22,13 @@ export interface Calendar {
   second_term: DateRange;
   summer_term: DateRange | null;
   school_days_of_week: number[];
+  // Lịch theo cấp (DT-19 phần 19b, YCTD-152): cấp đang xem và cấp đó còn theo lịch chung hay không; máy chủ trả, không gửi
+  school_level?: SchoolLevelCode | null;
+  inherited?: boolean;
 }
+
+// Cấp của lịch riêng ở chuỗi truy vấn; trống là lịch chung cả trường
+const levelQuery = (level?: SchoolLevelCode | null) => (level ? `?school_level=${level}` : '');
 
 export type TermType = 'first_term' | 'second_term' | 'summer_term';
 
@@ -62,23 +69,36 @@ export function createAcademicYear(name: string): Promise<AcademicYear> {
   return requestJson('/api/v1/academic-years', { method: 'POST', body: JSON.stringify({ name }) });
 }
 
-export function readCalendar(academicYearId: string): Promise<Calendar> {
-  return requestJson(`/api/v1/academic-years/${academicYearId}/calendar`);
+export function readCalendar(academicYearId: string, level?: SchoolLevelCode | null): Promise<Calendar> {
+  return requestJson(`/api/v1/academic-years/${academicYearId}/calendar${levelQuery(level)}`);
 }
 
-export function saveCalendar(academicYearId: string, calendar: Calendar): Promise<Calendar> {
-  return requestJson(`/api/v1/academic-years/${academicYearId}/calendar`, {
+export function saveCalendar(
+  academicYearId: string,
+  calendar: Calendar,
+  level?: SchoolLevelCode | null,
+): Promise<Calendar> {
+  const { first_term, second_term, summer_term, school_days_of_week } = calendar;
+  return requestJson(`/api/v1/academic-years/${academicYearId}/calendar${levelQuery(level)}`, {
     method: 'PUT',
-    body: JSON.stringify(calendar),
+    body: JSON.stringify({ first_term, second_term, summer_term, school_days_of_week }),
   });
 }
 
-export function listWeeks(academicYearId: string): Promise<SchoolWeek[]> {
-  return requestJson(`/api/v1/academic-years/${academicYearId}/weeks`);
+export function resetLevelCalendar(academicYearId: string, level: SchoolLevelCode): Promise<Calendar> {
+  return requestJson(`/api/v1/academic-years/${academicYearId}/calendar${levelQuery(level)}`, { method: 'DELETE' });
 }
 
-export function updateWeeks(academicYearId: string, weeks: WeekChange[]): Promise<SchoolWeek[]> {
-  return requestJson(`/api/v1/academic-years/${academicYearId}/weeks`, {
+export function listWeeks(academicYearId: string, level?: SchoolLevelCode | null): Promise<SchoolWeek[]> {
+  return requestJson(`/api/v1/academic-years/${academicYearId}/weeks${levelQuery(level)}`);
+}
+
+export function updateWeeks(
+  academicYearId: string,
+  weeks: WeekChange[],
+  level?: SchoolLevelCode | null,
+): Promise<SchoolWeek[]> {
+  return requestJson(`/api/v1/academic-years/${academicYearId}/weeks${levelQuery(level)}`, {
     method: 'PATCH',
     body: JSON.stringify({ weeks }),
   });

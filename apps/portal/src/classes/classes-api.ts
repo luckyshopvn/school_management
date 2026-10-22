@@ -1,4 +1,4 @@
-import type { ClassAgeGroupKey, ClassStage } from '@school-management/shared';
+import type { ClassAgeGroupKey, ClassStage, SchoolLevelCode } from '@school-management/shared';
 import { downloadPost } from '../children/children-api.js';
 import type { ExportFormat } from '../exports/export-api.js';
 import { requestJson } from '../session/api-client.js';
@@ -30,10 +30,14 @@ export interface ClassRecord {
   name: string;
   grade_level: string;
   grade_name: string;
-  // Nhóm tuổi đang áp dụng; age_group_from_grade là lớp chưa chọn riêng, lấy theo bậc học
-  age_group: ClassAgeGroupKey;
+  // Nhóm tuổi đang áp dụng; age_group_from_grade là lớp chưa chọn riêng, lấy theo bậc học. Lớp ngoài cấp Mầm non không có
+  // nhóm tuổi, nhóm lớp; cấp lấy theo khối, chương trình trống là mặc định của cấp (DT-19 phần 19b, YCTD-152)
+  age_group: ClassAgeGroupKey | null;
   age_group_from_grade: boolean;
-  stage: ClassStage;
+  stage: ClassStage | null;
+  school_level: SchoolLevelCode;
+  curriculum_id: string | null;
+  curriculum_name: string | null;
   sort_order: number | null;
   room_id: string | null;
   room_name: string | null;
@@ -64,6 +68,7 @@ export interface ClassInput {
   is_combined: boolean;
   combined_into_class_id: string | null;
   boarding: boolean;
+  curriculum_id?: string | null;
 }
 
 export type ClassChanges = Partial<Omit<ClassInput, 'org_unit_id'>> & { status?: ClassStatus };

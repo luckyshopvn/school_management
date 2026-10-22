@@ -1,8 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { CLASS_AGE_GROUPS, classAgeGroupLabel, type ClassAgeGroupKey } from '@school-management/shared';
+import {
+  CLASS_AGE_GROUPS,
+  SCHOOL_LEVELS,
+  classAgeGroupLabel,
+  usesAgeGroups,
+  type ClassAgeGroupKey,
+} from '@school-management/shared';
 import { Alert, Button, FORM_CONTROL_CLASS, FormBlock, FormRow } from '@school-management/ui';
-import { listGradeLevels, listRooms } from '../catalogs/catalogs-api.js';
+import { listCurricula, listGradeLevels, listRooms } from '../catalogs/catalogs-api.js';
 import type { OrgUnit } from '../org-units/org-units-api.js';
 import { ApiError } from '../session/api-client.js';
 import { readSettings } from '../settings/settings-api.js';
@@ -10,7 +16,9 @@ import { createClass, listClasses, updateClass, type ClassRecord } from './class
 
 // Biểu mẫu lớp học theo mục 2.1 của Sở (DT-15 phần 15b, YCTD-111): khối Thông tin chung, Thông tin khác theo thứ tự ô của
 // Sở; phòng học, sĩ số tối đa là thông tin riêng của trường nên ở khối cuối. Nhóm tuổi để trống là theo khối (bậc học).
-// Giáo viên chủ nhiệm phân công ở nút "Giáo viên" của dòng hoặc màn hình 3.3
+// Giáo viên chủ nhiệm phân công ở nút "Giáo viên" của dòng hoặc màn hình 3.3. Lớp lấy cấp theo khối (DT-19 phần 19b,
+// YCTD-152): lớp ngoài Mầm non ẩn nhóm tuổi, học 2 buổi/ngày, ghép độ tuổi, lớp ghép; trường có khối ngoài Mầm non thì hiện
+// cấp và chương trình của lớp, trường chỉ có Mầm non giữ biểu mẫu như cũ
 interface ClassFormValues {
   org_unit_id: string;
   code: string;
@@ -25,6 +33,7 @@ interface ClassFormValues {
   boarding: boolean;
   room_id: string;
   max_size: string;
+  curriculum_id: string;
 }
 
 const CHECKBOX_CLASS = 'h-4 w-4';
@@ -35,7 +44,7 @@ function valuesOf(classRecord: ClassRecord | undefined, orgUnitId: string): Clas
     code: classRecord?.code ?? '',
     name: classRecord?.name ?? '',
     grade_level: classRecord?.grade_level ?? '',
-    age_group: classRecord && !classRecord.age_group_from_grade ? classRecord.age_group : '',
+    age_group: classRecord && !classRecord.age_group_from_grade ? (classRecord.age_group ?? '') : '',
     sort_order: classRecord?.sort_order === null || !classRecord ? '' : String(classRecord.sort_order),
     two_sessions_per_day: classRecord?.two_sessions_per_day ?? false,
     mixed_age_count: classRecord?.mixed_age_count ? String(classRecord.mixed_age_count) : '',
@@ -44,6 +53,7 @@ function valuesOf(classRecord: ClassRecord | undefined, orgUnitId: string): Clas
     boarding: classRecord?.boarding ?? false,
     room_id: classRecord?.room_id ?? '',
     max_size: classRecord ? String(classRecord.max_size) : '',
+    curriculum_id: classRecord?.curriculum_id ?? '',
   };
 }
 
@@ -68,6 +78,7 @@ export function ClassForm({
     setValues((current) => ({ ...current, [key]: value }));
   const orgUnitId = values.org_unit_id;
   const gradeLevels = useQuery({ queryKey: ['grade-levels'], queryFn: listGradeLevels });
+  const curricula = useQuery({ queryKey: ['curricula'], queryFn: listCurricula });
   const rooms = useQuery({
     queryKey: ['rooms', orgUnitId],
     queryFn: () => listRooms(orgUnitId),
@@ -93,19 +104,32 @@ export function ClassForm({
 
   const save = useMutation({
     mutationFn: () => {
+      // Lớp ngoài Mầm non không gửi các ô riêng Mầm non (máy chủ từ chối nếu có)
+      const ageFields = levelUsesAges
+        ? {
+            age_group: (values.age_group || null) as ClassAgeGroupKey | null,
+            two_sessions_per_day: values.two_sessions_per_day,
+            mixed_age_count: values.mixed_age_count ? Number(values.mixed_age_count) : null,
+            is_combined: values.is_combined,
+            combined_into_class_id: values.is_combined ? values.combined_into_class_id || null : null,
+          }
+        : {
+            age_group: null,
+            two_sessions_per_day: false,
+            mixed_age_count: null,
+            is_combined: false,
+            combined_into_class_id: null,
+          };
       const common = {
         code: values.code,
         name: values.name,
         grade_level: values.grade_level,
         room_id: values.room_id || null,
         max_size: toNumber(values.max_size),
-        age_group: (values.age_group || null) as ClassAgeGroupKey | null,
         sort_order: values.sort_order.trim() === '' ? null : toNumber(values.sort_order),
-        two_sessions_per_day: values.two_sessions_per_day,
-        mixed_age_count: values.mixed_age_count ? Number(values.mixed_age_count) : null,
-        is_combined: values.is_combined,
-        combined_into_class_id: values.is_combined ? values.combined_into_class_id || null : null,
+        ...ageFields,
         boarding: values.boarding,
+        ...(multiLevel ? { curriculum_id: values.curriculum_id || null } : {}),
       };
       return classRecord
         ? updateClass(classRecord.id, common)
@@ -119,7 +143,15 @@ export function ClassForm({
   const activeGrades = (gradeLevels.data ?? []).filter(
     (level) => level.status === 'active' || level.code === values.grade_level,
   );
-  const gradeName = activeGrades.find((level) => level.code === values.grade_level)?.name;
+  const selectedGrade = activeGrades.find((level) => level.code === values.grade_level);
+  const gradeName = selectedGrade?.name;
+  const schoolLevel = selectedGrade?.school_level ?? classRecord?.school_level ?? 'MN';
+  const levelUsesAges = usesAgeGroups(schoolLevel);
+  const multiLevel = (gradeLevels.data ?? []).some((level) => level.school_level !== 'MN');
+  const levelCurricula = (curricula.data ?? []).filter(
+    (item) => item.school_level === schoolLevel && (item.status === 'active' || item.id === values.curriculum_id),
+  );
+  const defaultCurriculum = levelCurricula.find((item) => item.is_default);
   const combineTargets = (sameUnitClasses.data ?? []).filter(
     (item) => item.id !== classRecord?.id && item.status === 'active' && !item.is_combined,
   );
@@ -184,20 +216,49 @@ export function ClassForm({
             ))}
           </select>
         </FormRow>
-        <FormRow label="Nhóm tuổi" error={fieldErrors.age_group}>
-          <select
-            className={FORM_CONTROL_CLASS}
-            value={values.age_group}
-            onChange={(event) => set('age_group', event.target.value)}
-          >
-            <option value="">{gradeName ? `Theo khối ${gradeName}` : 'Theo khối'}</option>
-            {CLASS_AGE_GROUPS.map((group) => (
-              <option key={group.key} value={group.key}>
-                {group.stage === 'nhom_tre' ? 'Nhóm trẻ' : 'Mẫu giáo'} {classAgeGroupLabel(group.key)}
-              </option>
-            ))}
-          </select>
-        </FormRow>
+        {multiLevel ? (
+          <>
+            <FormRow label="Cấp học">
+              <span className="text-content text-text">
+                {SCHOOL_LEVELS.find((level) => level.value === schoolLevel)?.label ?? schoolLevel}
+              </span>
+            </FormRow>
+            <FormRow label="Chương trình" error={fieldErrors.curriculum_id}>
+              <select
+                className={FORM_CONTROL_CLASS}
+                value={values.curriculum_id}
+                onChange={(event) => set('curriculum_id', event.target.value)}
+              >
+                <option value="">
+                  {defaultCurriculum ? `Mặc định của cấp: ${defaultCurriculum.name}` : 'Mặc định của cấp'}
+                </option>
+                {levelCurricula
+                  .filter((item) => !item.is_default)
+                  .map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+              </select>
+            </FormRow>
+          </>
+        ) : null}
+        {levelUsesAges ? (
+          <FormRow label="Nhóm tuổi" error={fieldErrors.age_group}>
+            <select
+              className={FORM_CONTROL_CLASS}
+              value={values.age_group}
+              onChange={(event) => set('age_group', event.target.value)}
+            >
+              <option value="">{gradeName ? `Theo khối ${gradeName}` : 'Theo khối'}</option>
+              {CLASS_AGE_GROUPS.map((group) => (
+                <option key={group.key} value={group.key}>
+                  {group.stage === 'nhom_tre' ? 'Nhóm trẻ' : 'Mẫu giáo'} {classAgeGroupLabel(group.key)}
+                </option>
+              ))}
+            </select>
+          </FormRow>
+        ) : null}
         <FormRow label="Thứ tự" error={fieldErrors.sort_order}>
           <input
             className={FORM_CONTROL_CLASS}
@@ -213,48 +274,52 @@ export function ClassForm({
         ) : null}
       </FormBlock>
       <FormBlock title="Thông tin khác">
-        <FormRow label="Học 2 buổi/ngày">
-          <input
-            type="checkbox"
-            className={CHECKBOX_CLASS}
-            checked={values.two_sessions_per_day}
-            onChange={(event) => set('two_sessions_per_day', event.target.checked)}
-          />
-        </FormRow>
-        <FormRow label="Lớp mẫu giáo ghép 2 hoặc 3 độ tuổi" error={fieldErrors.mixed_age_count}>
-          <select
-            className={FORM_CONTROL_CLASS}
-            value={values.mixed_age_count}
-            onChange={(event) => set('mixed_age_count', event.target.value)}
-          >
-            <option value="">Không ghép</option>
-            <option value="2">Ghép 2 độ tuổi</option>
-            <option value="3">Ghép 3 độ tuổi</option>
-          </select>
-        </FormRow>
-        <FormRow label="Lớp ghép">
-          <input
-            type="checkbox"
-            className={CHECKBOX_CLASS}
-            checked={values.is_combined}
-            onChange={(event) => set('is_combined', event.target.checked)}
-          />
-        </FormRow>
-        <FormRow label="Ghép vào lớp" error={fieldErrors.combined_into_class_id}>
-          <select
-            className={FORM_CONTROL_CLASS}
-            value={values.is_combined ? values.combined_into_class_id : ''}
-            disabled={!values.is_combined}
-            onChange={(event) => set('combined_into_class_id', event.target.value)}
-          >
-            <option value="">Không chọn</option>
-            {combineTargets.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name}
-              </option>
-            ))}
-          </select>
-        </FormRow>
+        {levelUsesAges ? (
+          <>
+            <FormRow label="Học 2 buổi/ngày">
+              <input
+                type="checkbox"
+                className={CHECKBOX_CLASS}
+                checked={values.two_sessions_per_day}
+                onChange={(event) => set('two_sessions_per_day', event.target.checked)}
+              />
+            </FormRow>
+            <FormRow label="Lớp mẫu giáo ghép 2 hoặc 3 độ tuổi" error={fieldErrors.mixed_age_count}>
+              <select
+                className={FORM_CONTROL_CLASS}
+                value={values.mixed_age_count}
+                onChange={(event) => set('mixed_age_count', event.target.value)}
+              >
+                <option value="">Không ghép</option>
+                <option value="2">Ghép 2 độ tuổi</option>
+                <option value="3">Ghép 3 độ tuổi</option>
+              </select>
+            </FormRow>
+            <FormRow label="Lớp ghép">
+              <input
+                type="checkbox"
+                className={CHECKBOX_CLASS}
+                checked={values.is_combined}
+                onChange={(event) => set('is_combined', event.target.checked)}
+              />
+            </FormRow>
+            <FormRow label="Ghép vào lớp" error={fieldErrors.combined_into_class_id}>
+              <select
+                className={FORM_CONTROL_CLASS}
+                value={values.is_combined ? values.combined_into_class_id : ''}
+                disabled={!values.is_combined}
+                onChange={(event) => set('combined_into_class_id', event.target.value)}
+              >
+                <option value="">Không chọn</option>
+                {combineTargets.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+            </FormRow>
+          </>
+        ) : null}
         <FormRow label="Lớp bán trú">
           <input
             type="checkbox"

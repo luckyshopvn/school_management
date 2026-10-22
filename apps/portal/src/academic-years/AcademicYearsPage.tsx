@@ -1,6 +1,7 @@
 import { useCallback, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { PERMISSION_CODES } from '@school-management/shared';
+import { PERMISSION_CODES, SCHOOL_LEVELS, type SchoolLevelCode } from '@school-management/shared';
+import { listGradeLevels } from '../catalogs/catalogs-api.js';
 import {
   Alert,
   Button,
@@ -23,6 +24,7 @@ import {
   listWeeks,
   openAcademicYear,
   readCalendar,
+  resetLevelCalendar,
   saveCalendar,
   updateWeeks,
   type AcademicYear,
@@ -33,7 +35,9 @@ import { WeeksTable } from './WeeksTable.js';
 import { menuPageTitle } from '../pages/page-title.js';
 
 // MH-45 Lịch năm học và MH-43 Mở năm học mới (P01-02, BR-91, BR-93). Danh sách năm học theo lưới dữ liệu chung, tìm tại
-// chỗ theo tên năm học, bấm dòng để xem lịch; danh sách tuần giữ bảng nhập trực tiếp từng ô (DT-16 phần 16b)
+// chỗ theo tên năm học, bấm dòng để xem lịch; danh sách tuần giữ bảng nhập trực tiếp từng ô (DT-16 phần 16b). Trường có khối
+// ngoài Mầm non chọn được cấp để xem, khai báo lịch riêng của cấp (DT-19 phần 19b, YCTD-152); trường chỉ có Mầm non chỉ có
+// lịch chung như cũ
 const STATUS_LABELS: Record<AcademicYearStatus, { label: string; tone: StatusTone }> = {
   draft: { label: 'Chưa mở', tone: 'neutral' },
   open: { label: 'Đang dùng', tone: 'success' },
@@ -108,8 +112,27 @@ function AcademicYearDetail({
 }) {
   const queryClient = useQueryClient();
   const editable = canManage && year.status !== 'closed';
-  const calendar = useQuery({ queryKey: ['academic-year-calendar', year.id], queryFn: () => readCalendar(year.id) });
-  const weeks = useQuery({ queryKey: ['academic-year-weeks', year.id], queryFn: () => listWeeks(year.id) });
+  const gradeLevels = useQuery({ queryKey: ['grade-levels'], queryFn: listGradeLevels });
+  const multiLevel = (gradeLevels.data ?? []).some((grade) => grade.school_level !== 'MN');
+  const [level, setLevel] = useState<SchoolLevelCode | null>(null);
+  const calendar = useQuery({
+    queryKey: ['academic-year-calendar', year.id, level],
+    queryFn: () => readCalendar(year.id, level),
+  });
+  const weeks = useQuery({
+    queryKey: ['academic-year-weeks', year.id, level],
+    queryFn: () => listWeeks(year.id, level),
+  });
+  const inherited = calendar.data?.inherited ?? false;
+  const levelName = SCHOOL_LEVELS.find((item) => item.value === level)?.label;
+  const reset = useMutation({
+    mutationFn: () => resetLevelCalendar(year.id, level ?? 'MN'),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['academic-year-calendar', year.id] });
+      await queryClient.invalidateQueries({ queryKey: ['academic-year-weeks', year.id] });
+      onChanged(`Cấp ${levelName ?? ''} quay về theo lịch chung`);
+    },
+  });
   const [confirmingOpen, setConfirmingOpen] = useState(false);
   const [openError, setOpenError] = useState<string>();
 
@@ -138,6 +161,36 @@ function AcademicYearDetail({
         ) : null}
       </div>
       {openError ? <Alert tone="danger">{openError}</Alert> : null}
+      {multiLevel ? (
+        <div className="flex flex-wrap items-end gap-3">
+          <label className="text-label font-medium text-text">
+            Lịch của cấp
+            <select
+              className="mt-2 block rounded-lg border border-border bg-card px-3 py-2 text-content font-normal"
+              value={level ?? ''}
+              onChange={(event) => setLevel((event.target.value || null) as SchoolLevelCode | null)}
+            >
+              <option value="">Lịch chung cả trường</option>
+              {SCHOOL_LEVELS.map((item) => (
+                <option key={item.value} value={item.value}>
+                  {item.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          {level && !inherited && editable ? (
+            <Button variant="text" disabled={reset.isPending} onClick={() => reset.mutate()}>
+              Bỏ lịch riêng của cấp
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
+      {level && inherited ? (
+        <Alert tone="info">
+          Cấp {levelName} đang theo lịch chung. Ghi lịch dưới đây để khai báo học kỳ, tuần, ngày học riêng của cấp.
+        </Alert>
+      ) : null}
+      {reset.error ? <Alert tone="danger">{messageOf(reset.error)}</Alert> : null}
 
       <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="mb-4 text-label font-semibold text-text-secondary">LỊCH NĂM HỌC</h3>
@@ -150,7 +203,7 @@ function AcademicYearDetail({
             calendar={calendar.data}
             editable={editable}
             onSave={async (value) => {
-              await saveCalendar(year.id, value);
+              await saveCalendar(year.id, value, level);
               await queryClient.invalidateQueries({ queryKey: ['academic-year-calendar', year.id] });
               await queryClient.invalidateQueries({ queryKey: ['academic-year-weeks', year.id] });
               await queryClient.invalidateQueries({ queryKey: ['academic-years'] });
@@ -169,9 +222,9 @@ function AcademicYearDetail({
         ) : (
           <WeeksTable
             weeks={weeks.data}
-            editable={editable}
+            editable={editable && !(level && inherited)}
             onSave={async (changes) => {
-              await updateWeeks(year.id, changes);
+              await updateWeeks(year.id, changes, level);
               await queryClient.invalidateQueries({ queryKey: ['academic-year-weeks', year.id] });
               onChanged('Đã lưu tuần nghỉ');
             }}

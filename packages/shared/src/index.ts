@@ -847,6 +847,8 @@ export const DATA_GRID_KEYS = [
   'quality-evidences',
   'quality-recognitions',
   'quality-frameworks',
+  // Chương trình theo cấp học (DT-19 phần 19b)
+  'curricula',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

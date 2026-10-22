@@ -1,3 +1,4 @@
+import type { SchoolLevelCode } from '@school-management/shared';
 import { requestJson } from '../session/api-client.js';
 
 // Gọi nhóm điểm cuối các danh mục của máy chủ API (P01-03, 04, 05, 10, 11, 12)
@@ -62,9 +63,23 @@ export interface GradeLevel {
   id: string;
   code: string;
   name: string;
-  age_from_months: number;
-  age_to_months: number;
+  // Tháng tuổi trống ở khối của cấp ngoài Mầm non (DT-19 phần 19b, YCTD-152)
+  age_from_months: number | null;
+  age_to_months: number | null;
   order_no: number;
+  status: CatalogStatus;
+  school_level: SchoolLevelCode;
+}
+
+// Khung chương trình theo cấp (YCTD-152); khối áp dụng trống là mọi khối của cấp
+export interface Curriculum {
+  id: string;
+  code: string;
+  name: string;
+  school_level: SchoolLevelCode;
+  grade_level_codes: string[];
+  is_default: boolean;
+  note: string | null;
   status: CatalogStatus;
 }
 
@@ -121,3 +136,15 @@ export const updateGradeLevel = (
   id: string,
   changes: Partial<Pick<GradeLevel, 'name' | 'age_from_months' | 'age_to_months' | 'order_no' | 'status'>>,
 ) => send<GradeLevel>('PATCH', `/api/v1/grade-levels/${id}`, changes);
+export const loadGradeLevelTemplate = (schoolLevel: SchoolLevelCode) =>
+  send<{ created: GradeLevel[]; skipped: string[] }>('POST', '/api/v1/grade-levels/templates', {
+    school_level: schoolLevel,
+  });
+
+export const listCurricula = (): Promise<Curriculum[]> => requestJson('/api/v1/curricula');
+export const createCurriculum = (input: Omit<Curriculum, 'id' | 'status'>) =>
+  send<Curriculum>('POST', '/api/v1/curricula', input);
+export const updateCurriculum = (
+  id: string,
+  changes: Partial<Pick<Curriculum, 'name' | 'grade_level_codes' | 'is_default' | 'note' | 'status'>>,
+) => send<Curriculum>('PATCH', `/api/v1/curricula/${id}`, changes);
