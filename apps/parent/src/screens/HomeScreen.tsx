@@ -16,6 +16,8 @@ import { PhotoConsentPanel } from './PhotoConsentPanel.js';
 import { NotificationsPanel } from './NotificationsPanel.js';
 import { ServicesPanel } from './ServicesPanel.js';
 import { FinalYearPanel } from './FinalYearPanel.js';
+import { hasLevelFeature, levelOf } from '@school-management/shared';
+import { useSchoolLevelNames } from './school-levels.js';
 
 // Trang chủ ứng dụng phụ huynh: danh sách con, báo vắng (MP-06), điểm danh của con theo tháng (MP-02),
 // người đón trẻ và xác nhận người đón (MP-18), đăng ký dịch vụ và học hè (MP-12), học phí (MP-11)
@@ -24,6 +26,8 @@ interface Child {
   full_name: string;
   org_unit_id: string;
   class_name: string | null;
+  // Cấp của lớp đang học (DT-19 phần 19e); chưa xếp lớp hoặc máy chủ cũ là Mầm non
+  school_level?: string | null;
 }
 
 interface MonthAttendance {
@@ -92,7 +96,19 @@ function AbsenceForm({ child, onDone }: { child: Child; onDone(message: string):
   );
 }
 
-function ChildCard({ child, onMessage }: { child: Child; onMessage(message: string): void }) {
+// Mỗi con hiện theo cấp của lớp (DT-19 phần 19e): chức năng chỉ của Mầm non (báo vắng, điểm danh theo ngày, nhật ký, hồ sơ
+// cuối cấp) chỉ hiện ở con học lớp Mầm non; con ở cấp khác có các chức năng dùng chung. levelName có khi các con học ở nhiều
+// cấp, hiện cạnh tên lớp
+function ChildCard({
+  child,
+  levelName,
+  onMessage,
+}: {
+  child: Child;
+  levelName?: string;
+  onMessage(message: string): void;
+}) {
+  const has = (feature: Parameters<typeof hasLevelFeature>[1]) => hasLevelFeature(child.school_level, feature);
   const [view, setView] = useState<
     | 'none'
     | 'absence'
@@ -126,19 +142,27 @@ function ChildCard({ child, onMessage }: { child: Child; onMessage(message: stri
     <li className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4" aria-label={child.full_name}>
       <div className="flex items-center justify-between">
         <span className="text-content font-semibold">{child.full_name}</span>
-        <span className="text-label text-text-secondary">{child.class_name ?? ''}</span>
+        <span className="text-label text-text-secondary">
+          {[levelName, child.class_name].filter(Boolean).join(' · ')}
+        </span>
       </div>
       <div className="flex flex-wrap gap-2">
-        <Button onClick={() => setView(view === 'absence' ? 'none' : 'absence')}>Báo vắng</Button>
-        <Button
-          onClick={() => {
-            setView(view === 'attendance' ? 'none' : 'attendance');
-            void loadAttendance();
-          }}
-        >
-          Điểm danh tháng này
-        </Button>
-        <Button onClick={() => setView(view === 'journal' ? 'none' : 'journal')}>Nhật ký</Button>
+        {has('daily_attendance') ? (
+          <>
+            <Button onClick={() => setView(view === 'absence' ? 'none' : 'absence')}>Báo vắng</Button>
+            <Button
+              onClick={() => {
+                setView(view === 'attendance' ? 'none' : 'attendance');
+                void loadAttendance();
+              }}
+            >
+              Điểm danh tháng này
+            </Button>
+          </>
+        ) : null}
+        {has('daily_journal') ? (
+          <Button onClick={() => setView(view === 'journal' ? 'none' : 'journal')}>Nhật ký</Button>
+        ) : null}
         <Button onClick={() => setView(view === 'pickups' ? 'none' : 'pickups')}>Người đón</Button>
         <Button onClick={() => setView(view === 'services' ? 'none' : 'services')}>Dịch vụ</Button>
         <Button onClick={() => setView(view === 'invoices' ? 'none' : 'invoices')}>Học phí</Button>
@@ -149,12 +173,14 @@ function ChildCard({ child, onMessage }: { child: Child; onMessage(message: stri
         <Button onClick={() => setView(view === 'activities' ? 'none' : 'activities')}>Hoạt động</Button>
         <Button onClick={() => setView(view === 'menu' ? 'none' : 'menu')}>Thực đơn</Button>
         <Button onClick={() => setView(view === 'medication' ? 'none' : 'medication')}>Dặn thuốc</Button>
-        <Button onClick={() => setView(view === 'final-year' ? 'none' : 'final-year')}>Hồ sơ cuối cấp</Button>
+        {has('final_year_record') ? (
+          <Button onClick={() => setView(view === 'final-year' ? 'none' : 'final-year')}>Hồ sơ cuối cấp</Button>
+        ) : null}
       </div>
       {view === 'journal' ? <JournalPanel child={child} /> : null}
       {view === 'medication' ? <MedicationPanel child={child} /> : null}
       {view === 'consent' ? <PhotoConsentPanel child={child} /> : null}
-      {view === 'health' ? <HealthPanel child={child} /> : null}
+      {view === 'health' ? <HealthPanel child={child} schoolLevel={child.school_level} /> : null}
       {view === 'learning' ? <LearningPanel child={child} /> : null}
       {view === 'interactions' ? <InteractionsPanel child={child} /> : null}
       {view === 'activities' ? <ActivitiesPanel child={child} /> : null}
@@ -199,6 +225,8 @@ export function HomeScreen() {
   const [children, setChildren] = useState<Child[]>();
   const [notice, setNotice] = useState<string>();
   const [failed, setFailed] = useState(false);
+  const levelName = useSchoolLevelNames();
+  const multiLevel = new Set((children ?? []).map((child) => levelOf(child.school_level))).size > 1;
 
   useEffect(() => {
     fetchCurrentUser()
@@ -228,7 +256,12 @@ export function HomeScreen() {
         ) : null}
         <ul className="flex flex-col gap-3">
           {(children ?? []).map((child) => (
-            <ChildCard key={child.id} child={child} onMessage={setNotice} />
+            <ChildCard
+              key={child.id}
+              child={child}
+              levelName={multiLevel ? levelName(child.school_level) : undefined}
+              onMessage={setNotice}
+            />
           ))}
         </ul>
         <div>
