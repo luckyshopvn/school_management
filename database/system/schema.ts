@@ -1175,6 +1175,18 @@ export interface WebsiteEventsTable {
   created_at: CreatedTimestamp;
 }
 
+// Cấp học của trường (DT-19 phần 19a): bốn mã cố định, bật hay tắt, tên hiển thị, thuật ngữ gọi người học
+export interface SchoolLevelsTable {
+  code: string;
+  is_enabled: Generated<boolean>;
+  order_no: number;
+  display_name: string;
+  learner_term: string;
+  context_label: string;
+  updated_by_name: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
 export interface SystemDatabase {
   academic_years: AcademicYearsTable;
   academic_terms: AcademicTermsTable;
@@ -1240,4 +1252,5 @@ export interface SystemDatabase {
   website_albums: WebsiteAlbumsTable;
   website_contact_messages: WebsiteContactMessagesTable;
   website_events: WebsiteEventsTable;
+  school_levels: SchoolLevelsTable;
 }

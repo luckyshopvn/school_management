@@ -24,6 +24,7 @@ import {
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { Databases } from '../common/databases.js';
+import { SchoolLevelResolver } from '../common/school-levels.js';
 import { conflictOnDuplicate, notFoundError, type RequestBody } from '../common/request-fields.js';
 import { storageKey } from '../common/resource-names.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
@@ -167,6 +168,7 @@ export class WebsiteSetupService {
     databases: Databases,
     private readonly fileStorage: FileStorage,
     private readonly clock: Clock,
+    private readonly schoolLevels: SchoolLevelResolver,
   ) {
     this.system = databases.system;
   }
@@ -189,6 +191,8 @@ export class WebsiteSetupService {
       .executeTakeFirstOrThrow();
     return {
       ...settings,
+      // Cấp học của trường đọc từ school_levels (DT-19 phần 19a); ghi thông tin website chép lại vào cột cũ làm dự phòng
+      school_levels: await this.schoolLevels.enabled(),
       logo: files.find((file) => file.id === settings.logo_file_id) ?? null,
       banner: files.find((file) => file.id === settings.banner_file_id) ?? null,
       sample_count: Number(sample.count),

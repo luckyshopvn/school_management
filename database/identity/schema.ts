@@ -174,6 +174,14 @@ export interface ApiClientsTable {
   revoked_at: Date | null;
   last_used_at: Date | null;
 }
+// Phạm vi cấp học của người dùng (DT-19 phần 19a): không có dòng nào là mọi cấp
+export interface UserSchoolLevelsTable {
+  user_id: string;
+  school_level: string;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+}
+
 export interface IdentityDatabase {
   users: UsersTable;
   roles: RolesTable;
@@ -189,4 +197,5 @@ export interface IdentityDatabase {
   one_time_codes: OneTimeCodesTable;
   api_clients: ApiClientsTable;
   password_history: PasswordHistoryTable;
+  user_school_levels: UserSchoolLevelsTable;
 }

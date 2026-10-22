@@ -1,9 +1,11 @@
+import { SCHOOL_LEVELS, type SchoolLevelCode } from './school-levels.js';
+
 // Phân hệ KPI (DT-18 phần 18d, YCTD-139): kiểu cấu hình của bộ quy tắc chấm và nhãn dùng chung. Máy chấm ở máy chủ API đọc
 // mọi tham số (loại công việc, điểm chuẩn, hệ số độ khó, mức tiến độ, mức kết quả, trọng số, điểm thưởng, ngưỡng và điều kiện
 // xếp loại, hạn duyệt, hạn chấm, số lần chuyển trả) từ cấu hình của phiên bản quy tắc
 
 export type KpiScoringMode = 'progress_quality' | 'level_scale';
-export type KpiSchoolLevelCode = 'MN' | 'TH' | 'THCS' | 'THPT';
+export type KpiSchoolLevelCode = SchoolLevelCode;
 export type KpiSubjectGroupCode = 'leader' | 'staff';
 export type KpiFormCode =
   'task_sheet' | 'self_evaluation' | 'unit_summary' | 'monthly_sheet' | 'annual_sheet' | 'regulation';
@@ -68,12 +70,10 @@ export interface KpiRuleConfig {
 
 export const KPI_RULE_CODE = 'YCTD-139';
 
-export const KPI_SCHOOL_LEVELS: Array<{ value: KpiSchoolLevelCode; label: string }> = [
-  { value: 'MN', label: 'Mầm non' },
-  { value: 'TH', label: 'Tiểu học' },
-  { value: 'THCS', label: 'Trung học cơ sở' },
-  { value: 'THPT', label: 'Trung học phổ thông' },
-];
+// Bốn mã cấp dùng chung (DT-19 phần 19a)
+export const KPI_SCHOOL_LEVELS: Array<{ value: KpiSchoolLevelCode; label: string }> = SCHOOL_LEVELS.map((level) => ({
+  ...level,
+}));
 
 export const KPI_SCORING_MODE_LABELS: Record<KpiScoringMode, string> = {
   progress_quality: 'Theo tiến độ và kết quả từng việc',

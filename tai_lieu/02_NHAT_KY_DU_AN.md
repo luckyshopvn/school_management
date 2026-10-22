@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.27
+- Phiên bản: 0.28
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,29 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-22 — DT-19 phần 19a: nền cấp học của trường
+
+#### Công việc đã thực hiện
+
+- Đọc mục 10 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà các cột cấp rời (18d, 18f, 18g, 22i), ô ngữ cảnh `portal-shell`, phân quyền ở dịch vụ định danh.
+- Cơ sở dữ liệu: tệp hệ thống `0023_create_school_levels`, tệp định danh `0064_add_user_school_levels`.
+- Máy chủ API: `SchoolLevelResolver`, `GET, PUT /school-levels`; ô ngữ cảnh, website đọc cấp từ bảng mới. Dịch vụ định danh: `/auth/me` trả phạm vi cấp, `GET, PUT /users/{id}/school-levels`.
+- Cổng quản trị: thẻ "Cấp học của trường" ở 1.4 Cấu hình trường; khối "Phạm vi cấp học" ở chi tiết tài khoản (trường từ hai cấp); ô cấp học ở cấu hình website chỉ hiển thị.
+- Thêm quy tắc BR-154, chức năng P01-35 đến P01-36, quyền PQ-90, màn hình MH-258, kịch bản CT-795 đến CT-800, tiêu chí AC-731 đến AC-733. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/school-levels/school-levels.test.ts` CT-19a-1 đến CT-19a-5 đạt 5/5; kiểm thử đơn vị toàn bộ kho mã 1010/1010 đạt (không sửa kỳ vọng của kiểm thử đang có); kiểm thử giao diện `tests/e2e/81-school-levels.spec.ts` (CT-19a-6) đạt; toàn bộ kiểm thử giao diện 153/153 đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 19a của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 10.4. Tắt cấp chỉ ẩn, không chặn khi cấp có lớp (cảnh báo số lớp); phải bật ít nhất một cấp; quyền cấu hình cấp học chỉ cho Hiệu trưởng; phạm vi cấp do người quản lý tài khoản đặt; bộ nhớ đệm trong tiến trình 30 giây. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-151, `07_QUY_TAC_NGHIEP_VU.md` BR-154, `08_VAI_TRO_NGUOI_DUNG.md` PQ-90, `10_YEU_CAU_CHUC_NANG.md` P01-35 đến P01-36, `11_TIEU_CHI_NGHIEM_THU.md` AC-731 đến AC-733, `14_DAC_TA_GIAO_DIEN.md` MH-258, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-795 đến CT-800, `23_LICH_SU_PHIEN_BAN.md` 0.101.0.
+
+#### Vấn đề tồn đọng
+
+- 19b thêm cột cấp ở khối, lớp thì đổi bộ đếm lớp theo cấp sang cột mới; 19c thêm bộ chọn cấp đang làm việc và menu theo cấp.
+
 
 ### 2026-10-22 — DT-18 phần 22f: bảo đảm chất lượng, tự đánh giá
 
