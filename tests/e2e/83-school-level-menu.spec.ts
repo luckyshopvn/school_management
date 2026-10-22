@@ -47,6 +47,11 @@ test('CT-19c-9: trường mầm non giữ menu; bật Tiểu học có bộ ch�
   const switcher = page.getByTestId('school-level-switcher');
   const context = page.getByTestId('academic-year-context');
 
+  // Kịch bản 82 trả cấu hình Mầm non thẳng trong cơ sở dữ liệu, máy chủ API còn giữ cấp cũ trong bộ nhớ đệm tới 30 giây: ghi
+  // lại cấu hình Mầm non qua 1.4 để xóa bộ nhớ đệm trước khi kiểm tra
+  await setPrimaryEnabled(page, false);
+  await page.goto('/');
+
   // Trường chỉ có Mầm non: không có bộ chọn cấp, phân hệ và mục 4.3 như của Sở
   await expect(context).toContainText('Cấp MN · ');
   await expect(switcher).toHaveCount(0);
