@@ -22,7 +22,7 @@
 - Cơ sở dữ liệu: tệp hệ thống `0023_create_school_levels`, tệp định danh `0064_add_user_school_levels`.
 - Máy chủ API: `SchoolLevelResolver`, `GET, PUT /school-levels`; ô ngữ cảnh, website đọc cấp từ bảng mới. Dịch vụ định danh: `/auth/me` trả phạm vi cấp, `GET, PUT /users/{id}/school-levels`.
 - Cổng quản trị: thẻ "Cấp học của trường" ở 1.4 Cấu hình trường; khối "Phạm vi cấp học" ở chi tiết tài khoản (trường từ hai cấp); ô cấp học ở cấu hình website chỉ hiển thị.
-- Thêm quy tắc BR-154, chức năng P01-35 đến P01-36, quyền PQ-90, màn hình MH-258, kịch bản CT-795 đến CT-800, tiêu chí AC-731 đến AC-733. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/school-levels/school-levels.test.ts` CT-19a-1 đến CT-19a-5 đạt 5/5; kiểm thử đơn vị toàn bộ kho mã … (không sửa kỳ vọng của kiểm thử đang có); kiểm thử giao diện `tests/e2e/81-school-levels.spec.ts` (CT-19a-6) đạt; toàn bộ kiểm thử giao diện …; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm quy tắc BR-154, chức năng P01-35 đến P01-36, quyền PQ-90, màn hình MH-258, kịch bản CT-795 đến CT-800, tiêu chí AC-731 đến AC-733. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/school-levels/school-levels.test.ts` CT-19a-1 đến CT-19a-5 đạt 5/5; kiểm thử đơn vị toàn bộ kho mã 1010/1010 đạt (không sửa kỳ vọng của kiểm thử đang có); kiểm thử giao diện `tests/e2e/81-school-levels.spec.ts` (CT-19a-6) đạt; toàn bộ kiểm thử giao diện 153/153 đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 

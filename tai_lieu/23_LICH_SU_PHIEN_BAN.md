@@ -23,7 +23,7 @@
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp hệ thống `0023_create_school_levels`; tệp định danh `0064_add_user_school_levels`.
 - Thay đổi API: `/school-levels`, `/users/{id}/school-levels`; `/auth/me` thêm `school_levels`.
-- Kiểm thử: kịch bản CT-795 đến CT-800. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/school-levels/school-levels.test.ts` CT-19a-1 đến CT-19a-5 đạt 5/5; kiểm thử đơn vị toàn bộ kho mã … (không sửa kỳ vọng của kiểm thử đang có); kiểm thử giao diện `tests/e2e/81-school-levels.spec.ts` (CT-19a-6) đạt; toàn bộ kiểm thử giao diện …; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử: kịch bản CT-795 đến CT-800. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/school-levels/school-levels.test.ts` CT-19a-1 đến CT-19a-5 đạt 5/5; kiểm thử đơn vị toàn bộ kho mã 1010/1010 đạt (không sửa kỳ vọng của kiểm thử đang có); kiểm thử giao diện `tests/e2e/81-school-levels.spec.ts` (CT-19a-6) đạt; toàn bộ kiểm thử giao diện 153/153 đạt; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Rủi ro: máy chủ API khác thấy thay đổi cấp chậm nhất 30 giây.
 - Khả năng tương thích: trường chỉ có Mầm non không đổi hành vi; không đổi điểm cuối cũ (chỉ thêm trường).
 - Phương án quay lui: hoàn lại commit gộp của nhánh 19a; chạy phần quay lui của tệp hệ thống `0023` và tệp định danh `0064`.
