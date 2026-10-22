@@ -32,6 +32,8 @@ import { AuthenticationGuard } from './authentication/authentication.guard.js';
 import { IdentityClient } from './authentication/identity-client.js';
 import { API_CONFIGURATION, type ApiConfiguration } from './common/configuration.js';
 import { CurrentSchoolYearResolver } from './common/current-school-year.js';
+import { SchoolLevelResolver } from './common/school-levels.js';
+import { SchoolLevelsController, SchoolLevelsService } from './school-levels/school-levels.js';
 import { Databases } from './common/databases.js';
 import { AuditLogsController } from './audit-logs/audit-logs.controller.js';
 import { HealthController } from './health.controller.js';
@@ -426,6 +428,8 @@ export class ApplicationModule {
         ProfessionalRecordsController,
         EducationPlansController,
         MyWorkController,
+        // Cấp học của trường (DT-19 phần 19a)
+        SchoolLevelsController,
         EquipmentController,
         EquipmentLocationsController,
         EquipmentStocktakesController,
@@ -617,6 +621,8 @@ export class ApplicationModule {
         },
         AcademicYearsService,
         CurrentSchoolYearResolver,
+        SchoolLevelResolver,
+        SchoolLevelsService,
         OrganizationScopes,
         OrgUnitsService,
         SettingsService,

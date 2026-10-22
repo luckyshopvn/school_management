@@ -78,7 +78,7 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   // Phân hiệu, điểm trường: như mục Phòng ban, sửa cần quyền quản lý cây đơn vị (YCTD-111)
   '/branches': anyOf('P01.view', 'P01.org-unit.manage'),
   '/school-sites': anyOf('P01.view', 'P01.org-unit.manage'),
-  '/settings': anyOf('P01.view', 'P01.setting.manage'),
+  '/settings': anyOf('P01.view', 'P01.setting.manage', 'P01.school-level.manage'),
   // Rà soát kiểm định xem như hồ sơ trường; tách trường cần quyền cập nhật hồ sơ trường (DT-16 phần 16e)
   '/accreditation-review': anyOf('P01.school-profile.manage', 'P17.report.emis'),
   '/school-splits': 'P01.school-profile.manage',

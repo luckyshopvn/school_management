@@ -20,6 +20,8 @@ export interface CurrentUserDescription {
   full_name: string;
   assignments: RoleAssignment[];
   impersonation?: ImpersonationInfo | null;
+  // Phạm vi cấp học của tài khoản (DT-19 phần 19a): trống hoặc không có là mọi cấp
+  school_levels?: string[];
 }
 
 // Phạm vi đơn vị của một quyền: toàn trường hoặc danh sách đơn vị được gán (lớp 2 của BM-10)
@@ -37,6 +39,11 @@ export class CurrentUser {
 
   hasPermission(permissionCode: string): boolean {
     return this.description.assignments.some((assignment) => assignment.permissions.includes(permissionCode));
+  }
+
+  // Cấp học tài khoản được giới hạn; mảng trống là mọi cấp (đọc cấp đang bật qua SchoolLevelResolver.forUser)
+  schoolLevelScope(): string[] {
+    return this.description.school_levels ?? [];
   }
 
   // Không tính vai trò phụ huynh khi cần phạm vi của nhân sự: VT-14 gán theo đơn vị của con nhưng chỉ xem dữ liệu con mình

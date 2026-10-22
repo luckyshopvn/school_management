@@ -19,6 +19,7 @@ export * from './administration.js';
 export * from './professional-records.js';
 export * from './food-safety.js';
 export * from './education-plans.js';
+export * from './school-levels.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -240,6 +241,8 @@ export const PERMISSION_CODES = {
   educationPlanApprove: 'P09.education-plan.approve',
   educationPlanFinalize: 'P09.education-plan.finalize',
   educationPlanManage: 'P09.education-plan.manage',
+  // Cấu hình cấp học của trường ở 1.4 Cấu hình trường (DT-19 phần 19a)
+  schoolLevelManage: 'P01.school-level.manage',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
