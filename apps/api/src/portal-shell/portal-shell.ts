@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, Injectable, Param, Post, Put, Req } from '@nestjs/common';
 import { Clock, validationError, type FieldError } from '@school-management/server';
-import { isValidOrganizationIdentifier, PERMISSION_CODES } from '@school-management/shared';
+import { isValidOrganizationIdentifier, PERMISSION_CODES, schoolLevelContextLabel } from '@school-management/shared';
 import type { Request } from 'express';
 import { sql } from 'kysely';
 import { AuthenticatedUser, PublicEndpoint, RequirePermission } from '../authentication/authentication.guard.js';
@@ -8,6 +8,7 @@ import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf, writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
+import { SchoolLevelResolver } from '../common/school-levels.js';
 import { notFoundError, type RequestBody } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 
@@ -24,8 +25,6 @@ const MAXIMUM_LINK_NAME = 100;
 const MAXIMUM_LINK_DESCRIPTION = 200;
 const MAXIMUM_URL = 500;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
-// Cấp học của trường: phần mềm phục vụ trường mầm non nên ô ngữ cảnh luôn là "Cấp MN" như của Sở
-export const EDUCATION_LEVEL_LABEL = 'Cấp MN';
 
 export interface AnnouncementInput {
   title: string;
@@ -299,6 +298,7 @@ export class PortalContextService {
   constructor(
     private readonly databases: Databases,
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
+    private readonly schoolLevels: SchoolLevelResolver,
   ) {}
 
   // Tên Trường chính trong cây đơn vị; mã trường lấy mã định danh ở hồ sơ trường, chưa có thì lấy mã đơn vị
@@ -353,7 +353,8 @@ export class PortalContextService {
       school_name: identity.school_name,
       school_code: identity.school_code,
       academic_year: identity.academic_year,
-      education_level: EDUCATION_LEVEL_LABEL,
+      // Ô ngữ cảnh lấy nhãn của các cấp đang bật (DT-19 phần 19a); trường mầm non giữ "Cấp MN" như của Sở
+      education_level: schoolLevelContextLabel(await this.schoolLevels.enabledLevels()),
       organization_id_reminder:
         canUpdateProfile &&
         identity.school_name !== null &&

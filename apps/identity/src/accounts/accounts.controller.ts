@@ -14,6 +14,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { readBearerToken, validationError, type FieldError } from '@school-management/server';
+import { isSchoolLevelCode } from '@school-management/shared';
 import { AccessTokenGuard, type AuthenticatedRequest } from '../authentication/access-token.guard.js';
 import {
   AccountsService,
@@ -383,6 +384,25 @@ export class AccountsController {
       throw validationError(errors);
     }
     return this.accountsService.update(callerOf(request), userId, changes);
+  }
+
+  // Phạm vi cấp học của tài khoản (DT-19 phần 19a): danh sách mã cấp, trống là mọi cấp
+  @Get(':id/school-levels')
+  schoolLevels(@Req() request: AuthenticatedRequest, @Param('id', uuidParameter('id')) userId: string) {
+    return this.accountsService.schoolLevels(callerOf(request), userId);
+  }
+
+  @Put(':id/school-levels')
+  setSchoolLevels(
+    @Req() request: AuthenticatedRequest,
+    @Param('id', uuidParameter('id')) userId: string,
+    @Body() body: RequestBody,
+  ) {
+    const levels = body?.school_levels;
+    if (!Array.isArray(levels) || !levels.every((level) => isSchoolLevelCode(level))) {
+      throw validationError([{ field: 'school_levels', message: 'Mã cấp là MN, TH, THCS hoặc THPT' }]);
+    }
+    return this.accountsService.setSchoolLevels(callerOf(request), userId, [...new Set(levels as string[])]);
   }
 
   @Post(':id/reset-password')

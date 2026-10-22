@@ -7,6 +7,7 @@ import { AdmissionsRateLimiter } from '../admissions/public-rate-limit.js';
 import { PublicEndpoint } from '../authentication/authentication.guard.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
+import { SchoolLevelResolver } from '../common/school-levels.js';
 import { isUuid, type RequestBody } from '../common/request-fields.js';
 import { FileStorage } from '../files/file-storage.js';
 import { escapeLike, readText } from '../incoming-documents/incoming-fields.js';
@@ -75,6 +76,7 @@ export class WebsitePublicService {
     private readonly fileStorage: FileStorage,
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly admissions: AdmissionsPublicService,
+    private readonly schoolLevels: SchoolLevelResolver,
   ) {
     this.system = databases.system;
   }
@@ -147,7 +149,8 @@ export class WebsitePublicService {
         showTimetable: settings.show_timetable,
       },
       showSamples: settings.demo_mode,
-      schoolLevels: settings.school_levels,
+      // Cấp học lấy từ nguồn chung school_levels (DT-19 phần 19a), cột cũ của website giữ làm dự phòng
+      schoolLevels: await this.schoolLevels.enabled(),
       admissionFormUrl: settings.admission_form_url,
       introduction: settings.introduction,
       bannerFileId: settings.banner_file_id,
