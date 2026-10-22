@@ -1,8 +1,8 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.89
-- Ngày cập nhật: 2026-10-21
+- Phiên bản: 1.90
+- Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -317,6 +317,22 @@ Kế hoạch giáo dục (DT-18 phần 22i, YCTD-147). Cơ sở dữ liệu năm
 | education_plans | Kế hoạch (P09-32, BR-142) | id, template_id, template_name, template_revision, scope, period, school_level, title, period_label, period_start, period_end, org_unit_id, department_id, work_group_id (nhóm công tác 18e), class_id, owner_user_id, owner_staff_id, owner_name, sections, content (JSON theo mã mục), approval_steps, requires_signing, status (draft, pending, approved, returned), remaining_steps, current_step (có khi và chỉ khi chờ duyệt), version_no, submitted_at, approved_at, approved_by, approved_by_name, return_note, signed_at, signature_method, signed_file_id, source_plan_id, source_year_name, source_sections, source_content (bản năm trước), archived_document_id (`professional_documents`), work_plan_id (`plans`); kế hoạch của tổ cần tổ hoặc nhóm, kế hoạch của nhóm lớp cần lớp |
 | education_plan_versions | Phiên bản mỗi lần trình | id, plan_id (khóa ngoại, xóa theo), version_no (duy nhất theo kế hoạch), title, sections, content, note, created_by, created_by_name, created_at |
 | education_plan_events | Lịch sử kế hoạch | id, plan_id (khóa ngoại, xóa theo), action (create, copy, submit, withdraw, approve, return, sign, archive, work_plan), step, note, actor_id, actor_name, created_at (giờ thực lúc ghi) |
+
+Thi đua, khen thưởng (DT-18 phần 22d, YCTD-148). Cơ sở dữ liệu năm học, tệp `database/school-year/migrations/0070_create_emulation.ts`; quyền ở tệp định danh `0062_add_emulation_permissions.ts`. Sổ nhiều năm đọc `emulation_awards` của mọi cơ sở dữ liệu năm học.
+
+| Bảng | Mục đích | Trường chính |
+|---|---|---|
+| emulation_titles | Danh hiệu, hình thức khen thưởng (P09-34, BR-147) | id (giữ khi chuyển năm), code (duy nhất), name, description, kind (`title`, `award`), target (`individual`, `collective`), decision_level (`school`, `upper`), school_level, min_kpi_rank, requires_initiative, prerequisite_code, consecutive_years, quota_percent, quota_base_code, vote_threshold_percent, criteria (JSON: code, title, weight, max_score), min_score, revision, sort_order, status |
+| emulation_campaigns | Đợt thi đua (P09-35) | id, code, name, kind (`regular`, `thematic`), description, title_ids, kpi_period_id, registration_deadline, nomination_deadline, appeal_days, status (`draft`, `launched`, `published`, `closed`), launched_at, published_at, appeal_deadline, closed_at |
+| emulation_registrations | Đăng ký thi đua (P09-35) | id, campaign_id, title_id, target, staff_id hoặc department_id (duy nhất theo đợt, danh hiệu, đối tượng), subject_name, commitment, status (`pending`, `accepted`, `returned`), review_note, registered_by |
+| emulation_nominations | Hồ sơ đề nghị (P09-36, BR-147, BR-148) | id, campaign_id, title_id, title_code, title_name, title_revision, criteria, vote_threshold_percent (chụp lại), target, staff_id hoặc department_id (duy nhất theo đợt, danh hiệu), subject_name, registration_id, owner_user_id, achievements, initiative, scores, total_score, kpi_evaluation_id, kpi_period_name, kpi_rank, kpi_rank_label, kpi_score, eligibility (JSON), status (`draft`, `submitted`, `returned`, `accepted`, `passed`, `failed`, `proposed`, `awarded`, `not_awarded`), return_note, meeting_id, agree_count, disagree_count, abstain_count, agree_percent, decision_id |
+| emulation_nomination_evidence | Minh chứng từ kho hồ sơ chuyên môn (P09-36) | id, nomination_id, document_id (`professional_documents`), note |
+| emulation_council_members | Hội đồng của đợt (P09-37, BR-149) | id, campaign_id, user_id (duy nhất trong đợt), name, position (`chair`, `vice_chair`, `secretary`, `member`) |
+| emulation_meetings | Phiên họp (P09-37) | id, campaign_id, held_at, location, content, conclusion, member_count, attendee_count, status (`voting`, `closed`; mỗi đợt một phiên `voting`), minutes_file_id |
+| emulation_votes | Phiếu kín (P09-37) | meeting_id, nomination_id, member_user_id (khóa chính), choice (`agree`, `disagree`, `abstain`) |
+| emulation_appeals | Phúc khảo, khiếu nại (P09-38, BR-150) | id, campaign_id, nomination_id, kind (`review`, `complaint`), content, submitted_by, deadline, status (`pending`, `accepted`, `rejected`), response |
+| emulation_decisions | Quyết định, tờ trình (P09-38) | id, campaign_id, kind (`decision`, `proposal`), title, basis, signer_name, status (`draft`, `issued`), number, issue_date, outgoing_document_id (văn bản đi ở cơ sở dữ liệu hệ thống), upper_number, upper_date, upper_issuer |
+| emulation_awards | Sổ khen thưởng (P09-38, P09-39) | id, source (`decision`, `manual`), decision_id, nomination_id, year_name, year_start, title_code, title_name, title_kind, target, staff_id hoặc department_id, subject_name, decision_number, decision_date, issuer, lookup_code (12 kí tự, duy nhất), note |
 
 Mở năm học mới chép thư viện mẫu, giữ mã định danh (bỏ liên kết thư mục không có ở năm mới); kế hoạch ở lại năm cũ để sao chép, so sánh.
 

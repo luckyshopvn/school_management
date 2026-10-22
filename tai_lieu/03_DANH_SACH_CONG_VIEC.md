@@ -1,8 +1,8 @@
 # 03. DANH SÁCH KIỂM TRA CÔNG VIỆC
 
 - Mô tả: Danh sách công việc, trạng thái và thứ tự ưu tiên của dự án.
-- Phiên bản: 0.55
-- Ngày cập nhật: 2026-10-21
+- Phiên bản: 0.56
+- Ngày cập nhật: 2026-10-22
 - Trạng thái: Đang cập nhật
 
 ## Quy ước trạng thái
@@ -21,7 +21,7 @@ Chỉ dùng năm trạng thái: Chưa bắt đầu, Đang thực hiện, Cần s
 | P06 Tài chính | Hoàn thành | Đợt DT-05 phần 5d đến 5f, DT-10 phần 10i, DT-11 phần 11c, 11d (YCTD-88, YCTD-89), DT-15 phần 15f1 (YCTD-114: lưới và biểu mẫu chung cho phiếu thu, phiếu chi, quỹ, nợ nhà cung cấp, khoản mục, sổ kế toán, chốt kỳ) |
 | P07 Nhân sự | Hoàn thành | Đợt DT-06 phần 6a (YCTD-58), DT-10 phần 10h, DT-14 phần 14c (YCTD-104: đánh giá chuẩn nghề nghiệp), DT-15 phần 15d (YCTD-112: 3.1.1 Hồ sơ cán bộ, giáo viên theo Sở, mở rộng tìm kiếm 3.1.4, xuất Excel, hồ sơ hai thẻ); DT-16 phần 16f (YCTD-124: 3.1.1 Thay đổi, Xóa, Xuất tệp theo mẫu Bộ, Xuất file lỗi, danh mục của Bộ; 3.1.2 Nhân sự phân hiệu; 3.1.3 Nhập nhân sự từ Excel; 3.1.5 Xác thực số định danh (nội bộ); 3.2 nhập mức đánh giá từ Excel; 3.5 Biến động nhân sự (nội bộ); 5.2, 5.6, 5.9); chưa có kết nối thật tới CSDL Bộ, CSDLQG về dân cư |
 | P08 Chấm công và tiền lương | Hoàn thành | Đợt DT-06 phần 6b, 6c (YCTD-59 đến YCTD-61), DT-15 phần 15f2 (YCTD-113: giao diện chung của Sở cho chấm công, nghỉ phép, lịch công tác, lương, quyết toán) |
-| P09 Công việc, kế hoạch và đánh giá | Hoàn thành | Đợt DT-10 phần 10h (YCTD-81), DT-15 phần 15f2 (YCTD-113: lưới và biểu mẫu chung cho công việc, kế hoạch, đánh giá nhân sự), DT-15 phần 15h2 (YCTD-118: 5.10 Văn thư lưu trữ theo Sở), DT-18 phần 18a (YCTD-138: văn bản đến theo VNPT iOffice, phân hệ Quản lý văn bản và điều hành), DT-18 phần 18b (YCTD-140: văn bản đi theo VNPT iOffice), DT-18 phần 18e (YCTD-142: hồ sơ chuyên môn, đợt nộp, luồng duyệt, Việc của tôi); DT-18 phần 22i (YCTD-147: kế hoạch giáo dục) |
+| P09 Công việc, kế hoạch và đánh giá | Hoàn thành | Đợt DT-10 phần 10h (YCTD-81), DT-15 phần 15f2 (YCTD-113: lưới và biểu mẫu chung cho công việc, kế hoạch, đánh giá nhân sự), DT-15 phần 15h2 (YCTD-118: 5.10 Văn thư lưu trữ theo Sở), DT-18 phần 18a (YCTD-138: văn bản đến theo VNPT iOffice, phân hệ Quản lý văn bản và điều hành), DT-18 phần 18b (YCTD-140: văn bản đi theo VNPT iOffice), DT-18 phần 18e (YCTD-142: hồ sơ chuyên môn, đợt nộp, luồng duyệt, Việc của tôi); DT-18 phần 22i (YCTD-147: kế hoạch giáo dục); DT-18 phần 22d (YCTD-148: thi đua, khen thưởng) |
 | P10 Y tế học đường | Hoàn thành | Đợt DT-10 phần 10a, 10b (YCTD-74, YCTD-75), DT-14 phần 14a (YCTD-105: đợt cân đo, kênh tăng trưởng theo chuẩn WHO, tổng hợp cân nặng, chiều cao); DT-16 phần 16h (YCTD-125: 4.6.1 Nhập thông tin sức khỏe học sinh theo học kỳ, lấy số đo từ 4.3; 4.3.2 tổng hợp theo học kỳ, so sánh hai lần cân đo, được khám định kỳ) |
 | P11 Xe đưa đón | Đã bỏ | Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62) |
 | P12 Bếp và dinh dưỡng | Hoàn thành | Đợt DT-10 phần 10c (YCTD-76); DT-16 phần 16h (YCTD-125: 4.5 thực đơn có tên, tháng, tuần, từ ngày, đến ngày, khối áp dụng, nhập thực đơn từ Excel); DT-18 phần 22b (YCTD-146: lô hàng, hồ sơ an toàn thực phẩm của nhà cung cấp, kiểm thực ba bước, lưu và hủy mẫu, truy xuất, sổ in) |

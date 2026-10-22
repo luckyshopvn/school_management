@@ -1,8 +1,8 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.24
-- Ngày cập nhật: 2026-10-21
+- Phiên bản: 0.25
+- Ngày cập nhật: 2026-10-22
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
 
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.99.0 – 2026-10-22
+
+- Phạm vi thay đổi: DT-18 phần 22d, thi đua, khen thưởng cán bộ, giáo viên (YCTD-148).
+- Chức năng mới: phân hệ "Thi đua, khen thưởng": danh mục danh hiệu cấu hình được; đợt thi đua, phát động; đăng ký thi đua cá nhân, tập thể; hồ sơ đề nghị lấy KPI làm đầu vào, minh chứng từ kho hồ sơ chuyên môn, điều kiện của danh hiệu; hội đồng, bỏ phiếu kín, biên bản; phúc khảo, khiếu nại có hạn; quyết định khen thưởng, tờ trình cấp trên, dự thảo văn bản đi; giấy khen có mã tra cứu công khai; sổ theo dõi nhiều năm; báo cáo đợt; nguồn Việc của tôi.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0070_create_emulation`; tệp định danh `0062_add_emulation_permissions`.
+- Thay đổi API: `/emulation/*`, `/public/emulation-awards/verify`.
+- Kiểm thử: kịch bản CT-776 đến CT-785. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/emulation/emulation.test.ts` CT-22d-1 đến CT-22d-9 đạt 9/9 (sửa `system-admin-so.test.ts` CT-16d-3 đếm 18 phân hệ); kiểm thử đơn vị toàn bộ kho mã 997/997 đạt; kiểm thử giao diện `tests/e2e/79-emulation.spec.ts` (CT-22d-10) đạt; toàn bộ kiểm thử giao diện E2E_KET_QUA (spec 58 đếm 18 phân hệ); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: tiêu chuẩn mặc định cần đối chiếu văn bản hiện hành; sổ nhiều năm đọc mọi cơ sở dữ liệu năm học nên chậm dần theo số năm.
+- Khả năng tương thích: không đổi điểm cuối cũ; thêm phân hệ thứ 18.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 22d; chạy phần quay lui của tệp năm học `0070` và tệp định danh `0062`.
 
 ### Phiên bản 0.98.0 – 2026-10-21
 
