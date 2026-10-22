@@ -4361,11 +4361,7 @@ export type QualityAssessmentStatus = 'draft' | 'in_progress' | 'completed';
 export type QualityReportStatus = 'draft' | 'submitted' | 'approved' | 'returned';
 export type QualityEvidenceStatus = 'missing' | 'collecting' | 'sufficient' | 'needs_update';
 export type QualityEvidenceSource =
-  | 'upload'
-  | 'professional_document'
-  | 'incoming_document'
-  | 'outgoing_document'
-  | 'none';
+  'upload' | 'professional_document' | 'incoming_document' | 'outgoing_document' | 'none';
 export type QualityCouncilPosition = 'chair' | 'vice_chair' | 'secretary' | 'member';
 
 export interface QualityFrameworksTable {
@@ -4428,7 +4424,7 @@ export interface QualityAssessmentsTable {
   recognition_decision: string | null;
   recognition_date: string | null;
   recognition_valid_until: string | null;
-  work_plan_id: string | null;
+  work_plan_ids: Generated<string[]>;
   created_by: string | null;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;

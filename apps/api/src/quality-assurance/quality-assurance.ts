@@ -1111,7 +1111,9 @@ export class QualityAssuranceService {
             .execute()
         ).map((row) => row.criterion_id),
       );
-      const outside = groups.flatMap((group) => group.criterion_ids).filter((criterionId) => !criteria.has(criterionId));
+      const outside = groups
+        .flatMap((group) => group.criterion_ids)
+        .filter((criterionId) => !criteria.has(criterionId));
       if (outside.length > 0) {
         throw validationError([{ field: 'criterion_ids', message: 'Có tiêu chí không thuộc bộ tiêu chuẩn của đợt' }]);
       }
@@ -1134,7 +1136,11 @@ export class QualityAssuranceService {
           await transaction
             .insertInto('quality_work_group_members')
             .values(
-              memberIds.map((staffId) => ({ group_id: created.id, staff_id: staffId, staff_name: names.get(staffId) ?? '' })),
+              memberIds.map((staffId) => ({
+                group_id: created.id,
+                staff_id: staffId,
+                staff_name: names.get(staffId) ?? '',
+              })),
             )
             .execute();
         }
@@ -1410,9 +1416,7 @@ export class QualityAssuranceService {
         : [];
     return {
       today,
-      review: review
-        ? { ...review, valid_until: reviewUntil, state: warnBefore(reviewUntil) }
-        : null,
+      review: review ? { ...review, valid_until: reviewUntil, state: warnBefore(reviewUntil) } : null,
       records: records.map((row) => {
         const until = recognitionValidUntil(row.recognition_date, row.recognition_valid_until);
         return {
@@ -1577,7 +1581,17 @@ export class QualityAssuranceService {
   private async criterionEvidences(database: Executor, assessmentId: string, criterionId: string) {
     const rows = await database
       .selectFrom('quality_evidences')
-      .select(['id', 'code', 'title', 'document_number', 'issued_date', 'issuer', 'status', 'source_type', 'criterion_id'])
+      .select([
+        'id',
+        'code',
+        'title',
+        'document_number',
+        'issued_date',
+        'issuer',
+        'status',
+        'source_type',
+        'criterion_id',
+      ])
       .where('assessment_id', '=', assessmentId)
       .where((eb) =>
         eb.or([
@@ -1924,7 +1938,11 @@ export class QualityAssuranceService {
       if (!document) {
         throw validationError([{ field: 'source_id', message: 'Không tìm thấy hồ sơ ở kho hồ sơ chuyên môn' }]);
       }
-      return { ...none, professional_document_id: document.id, source_label: `${document.title} (${document.owner_name})` };
+      return {
+        ...none,
+        professional_document_id: document.id,
+        source_label: `${document.title} (${document.owner_name})`,
+      };
     }
     const label = await this.systemDocumentLabel(this.databases.system, sourceType, sourceId);
     if (!label) {
@@ -1944,7 +1962,9 @@ export class QualityAssuranceService {
         .select(['symbol', 'document_date', 'summary', 'issuer_name'])
         .where('id', '=', id)
         .executeTakeFirst();
-      return row ? `${row.symbol} ngày ${row.document_date} của ${row.issuer_name}: ${row.summary}`.slice(0, 500) : null;
+      return row
+        ? `${row.symbol} ngày ${row.document_date} của ${row.issuer_name}: ${row.summary}`.slice(0, 500)
+        : null;
     }
     const row = await system
       .selectFrom('outgoing_documents')
@@ -2284,7 +2304,12 @@ export class QualityAssuranceService {
 
   // Danh mục mã minh chứng của đợt, xuất Excel hoặc CSV
   async evidenceListFile(currentUser: CurrentUser, assessmentId: string, format: TableFileFormat) {
-    const rows = await this.evidences(currentUser, { assessment_id: assessmentId, criterion_id: null, status: null, q: null });
+    const rows = await this.evidences(currentUser, {
+      assessment_id: assessmentId,
+      criterion_id: null,
+      status: null,
+      q: null,
+    });
     const columns = [
       { key: 'code', label: 'Mã minh chứng', width: 16 },
       { key: 'title', label: 'Tên minh chứng', width: 40 },
@@ -2387,7 +2412,10 @@ export class QualityAssuranceService {
           .where(
             'id',
             'in',
-            evidences.map((row) => row.file_id).filter((value): value is string => value !== null).concat([NO_ID]),
+            evidences
+              .map((row) => row.file_id)
+              .filter((value): value is string => value !== null)
+              .concat([NO_ID]),
           )
           .execute()
       ).map((row) => [row.id, row]),
@@ -2470,7 +2498,10 @@ export class QualityAssuranceService {
             source_type: sourceType,
             file_id: fileId,
             professional_document_id: null,
-            system_document_id: sourceType === 'incoming_document' || sourceType === 'outgoing_document' ? evidence.system_document_id : null,
+            system_document_id:
+              sourceType === 'incoming_document' || sourceType === 'outgoing_document'
+                ? evidence.system_document_id
+                : null,
             source_label:
               evidence.source_type === 'professional_document' && evidence.source_label
                 ? `Kho hồ sơ năm học ${previous.name}: ${evidence.source_label}`.slice(0, 500)
@@ -2505,8 +2536,9 @@ export class QualityAssuranceService {
 
   // ---- Kế hoạch cải tiến nối Quản lý công việc ----
 
-  // Các việc cải tiến có người phụ trách và hạn của các phiếu đã duyệt thành một kế hoạch công việc nháp của Trường chính;
-  // người có quyền quản lý kế hoạch công việc kích hoạt để giao việc (P09-03)
+  // Các việc cải tiến có người phụ trách và hạn của các phiếu đã duyệt thành kế hoạch công việc nháp, mỗi đơn vị của người
+  // phụ trách một kế hoạch (Quản lý công việc chỉ nhận người phụ trách cùng đơn vị); người có quyền quản lý kế hoạch công
+  // việc của đơn vị kích hoạt để giao việc (P09-03). Tạo một lần cho mỗi đợt
   async createWorkPlan(currentUser: CurrentUser, assessmentId: string, origin: ChangeOrigin) {
     const context = await this.context(currentUser);
     this.assertManager(context);
@@ -2514,7 +2546,7 @@ export class QualityAssuranceService {
     if (assessment.status === 'draft') {
       throw qualityRule('Đợt chưa bắt đầu đánh giá');
     }
-    if (assessment.work_plan_id) {
+    if (assessment.work_plan_ids.length > 0) {
       throw qualityRule('Đợt đã có kế hoạch công việc của kế hoạch cải tiến');
     }
     const reports = await context.database
@@ -2543,30 +2575,50 @@ export class QualityAssuranceService {
     if (items.length > MAXIMUM_WORK_ITEMS) {
       throw qualityRule(`Kế hoạch công việc tối đa ${MAXIMUM_WORK_ITEMS} đầu việc`);
     }
+    const owners = await context.database
+      .selectFrom('staff')
+      .select(['id', 'org_unit_id', 'status'])
+      .where(
+        'id',
+        'in',
+        items.map((item) => item.ownerStaffId),
+      )
+      .execute();
+    const byUnit = new Map<string, PlanItemInput[]>();
+    for (const item of items) {
+      const owner = owners.find((row) => row.id === item.ownerStaffId);
+      if (!owner || owner.status !== 'active') {
+        throw qualityRule('Có người phụ trách việc cải tiến không còn làm việc; sửa phiếu trước khi tạo kế hoạch');
+      }
+      byUnit.set(owner.org_unit_id, [...(byUnit.get(owner.org_unit_id) ?? []), item]);
+    }
     const current = await this.currentSchoolYear.require();
     const year = await this.databases.system
       .selectFrom('academic_years')
       .select(['start_date', 'end_date'])
       .where('id', '=', current.academicYearId)
       .executeTakeFirstOrThrow();
-    const created = await this.workPlans.create(
-      currentUser,
-      {
-        orgUnitId: assessment.org_unit_id,
-        periodType: 'year',
-        periodValue: `${String(year.start_date).slice(0, 4)}-${String(year.end_date).slice(0, 4)}`,
-        title: `Kế hoạch cải tiến chất lượng: ${assessment.title}`.slice(0, 200),
-        objectives: 'Thực hiện kế hoạch cải tiến chất lượng theo kết quả tự đánh giá',
-        items,
-      },
-      origin,
-    );
+    const planIds: string[] = [];
+    for (const [orgUnitId, unitItems] of byUnit) {
+      const created = await this.workPlans.createDraftFromModule(
+        {
+          orgUnitId,
+          periodType: 'year',
+          periodValue: `${String(year.start_date).slice(0, 4)}-${String(year.end_date).slice(0, 4)}`,
+          title: `Kế hoạch cải tiến chất lượng: ${assessment.title}`.slice(0, 200),
+          objectives: 'Thực hiện kế hoạch cải tiến chất lượng theo kết quả tự đánh giá',
+          items: unitItems,
+        },
+        origin,
+      );
+      planIds.push(created.id);
+    }
     await context.database
       .updateTable('quality_assessments')
-      .set({ work_plan_id: created.id, updated_at: this.clock.now() })
+      .set({ work_plan_ids: planIds, updated_at: this.clock.now() })
       .where('id', '=', assessmentId)
       .execute();
-    return { work_plan_id: created.id, items: items.length };
+    return { work_plan_ids: planIds, plans: planIds.length, items: items.length };
   }
 
   // ---- Báo cáo tự đánh giá ----
@@ -2632,9 +2684,7 @@ export class QualityAssuranceService {
       .formatToParts(date)
       .reduce<Record<string, string>>((parts, part) => ({ ...parts, [part.type]: part.value }), {});
     const paragraphs = (text: string | null | undefined): DocumentBlock[] =>
-      (text ?? '')
-        .split('\n')
-        .map((line) => ({ kind: 'paragraph' as const, text: line, align: 'justify' as const }));
+      (text ?? '').split('\n').map((line) => ({ kind: 'paragraph' as const, text: line, align: 'justify' as const }));
     const value = (input: unknown) => (input === null || input === undefined ? '' : String(input));
     const blocks: DocumentBlock[] = [
       {
@@ -2680,7 +2730,10 @@ export class QualityAssuranceService {
           ['Diện tích sàn xây dựng/học sinh (m²)', value(review.floor_area_per_child_m2)],
           [
             'Công nhận chuẩn quốc gia',
-            [review.national_standard_level ? `Mức độ ${review.national_standard_level}` : '', value(review.national_standard_date)]
+            [
+              review.national_standard_level ? `Mức độ ${review.national_standard_level}` : '',
+              value(review.national_standard_date),
+            ]
               .filter(Boolean)
               .join(', '),
           ],
@@ -2758,7 +2811,9 @@ export class QualityAssuranceService {
           `${criterion.code}`,
           criterion.title,
           ...Array.from({ length: tree.max_level }, (_unused, index) =>
-            report?.self_level !== null && report?.self_level !== undefined && report.self_level >= index + 1 ? 'x' : '',
+            report?.self_level !== null && report?.self_level !== undefined && report.self_level >= index + 1
+              ? 'x'
+              : '',
           ),
         ]);
       }
@@ -2778,7 +2833,11 @@ export class QualityAssuranceService {
     blocks.push({ kind: 'paragraph', text: 'Bảng tổng hợp kết quả tự đánh giá', bold: true });
     blocks.push({
       kind: 'table',
-      header: ['Tiêu chí', 'Nội dung', ...Array.from({ length: tree.max_level }, (_unused, index) => `Mức ${index + 1}`)],
+      header: [
+        'Tiêu chí',
+        'Nội dung',
+        ...Array.from({ length: tree.max_level }, (_unused, index) => `Mức ${index + 1}`),
+      ],
       rows: summaryRows,
       widths: [2, 8, ...Array.from({ length: tree.max_level }, () => 2)],
     });

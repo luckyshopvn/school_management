@@ -378,7 +378,11 @@ export class QualityAssuranceController {
   @Post('assessments/:id/start')
   @HttpCode(200)
   @RequirePermission(MANAGE)
-  start(@Param('id', uuidParameter(ASSESSMENT)) id: string, @Req() request: Request, @AuthenticatedUser() user: CurrentUser) {
+  start(
+    @Param('id', uuidParameter(ASSESSMENT)) id: string,
+    @Req() request: Request,
+    @AuthenticatedUser() user: CurrentUser,
+  ) {
     return this.quality.start(user, id, originOf(request, user));
   }
 
@@ -404,7 +408,11 @@ export class QualityAssuranceController {
   @Post('assessments/:id/reopen')
   @HttpCode(200)
   @RequirePermission(MANAGE)
-  reopen(@Param('id', uuidParameter(ASSESSMENT)) id: string, @Req() request: Request, @AuthenticatedUser() user: CurrentUser) {
+  reopen(
+    @Param('id', uuidParameter(ASSESSMENT)) id: string,
+    @Req() request: Request,
+    @AuthenticatedUser() user: CurrentUser,
+  ) {
     return this.quality.reopen(user, id, originOf(request, user));
   }
 
@@ -427,20 +435,32 @@ export class QualityAssuranceController {
   @Post('assessments/:id/recognition/apply')
   @HttpCode(200)
   @RequirePermission(MANAGE)
-  apply(@Param('id', uuidParameter(ASSESSMENT)) id: string, @Req() request: Request, @AuthenticatedUser() user: CurrentUser) {
+  apply(
+    @Param('id', uuidParameter(ASSESSMENT)) id: string,
+    @Req() request: Request,
+    @AuthenticatedUser() user: CurrentUser,
+  ) {
     return this.quality.applyToReview(user, id, originOf(request, user));
   }
 
   @Post('assessments/:id/inherit-evidences')
   @HttpCode(200)
   @RequirePermission(MANAGE)
-  inherit(@Param('id', uuidParameter(ASSESSMENT)) id: string, @Req() request: Request, @AuthenticatedUser() user: CurrentUser) {
+  inherit(
+    @Param('id', uuidParameter(ASSESSMENT)) id: string,
+    @Req() request: Request,
+    @AuthenticatedUser() user: CurrentUser,
+  ) {
     return this.quality.inheritEvidences(user, id, originOf(request, user));
   }
 
   @Post('assessments/:id/work-plan')
   @RequirePermission(MANAGE)
-  workPlan(@Param('id', uuidParameter(ASSESSMENT)) id: string, @Req() request: Request, @AuthenticatedUser() user: CurrentUser) {
+  workPlan(
+    @Param('id', uuidParameter(ASSESSMENT)) id: string,
+    @Req() request: Request,
+    @AuthenticatedUser() user: CurrentUser,
+  ) {
     return this.quality.createWorkPlan(user, id, originOf(request, user));
   }
 
@@ -500,14 +520,22 @@ export class QualityAssuranceController {
 
   @Post('reports/:id/submit')
   @HttpCode(200)
-  submit(@Param('id', uuidParameter(REPORT)) id: string, @Req() request: Request, @AuthenticatedUser() user: CurrentUser) {
+  submit(
+    @Param('id', uuidParameter(REPORT)) id: string,
+    @Req() request: Request,
+    @AuthenticatedUser() user: CurrentUser,
+  ) {
     return this.quality.submitReport(user, id, originOf(request, user));
   }
 
   @Post('reports/:id/approve')
   @HttpCode(200)
   @RequirePermission(MANAGE)
-  approve(@Param('id', uuidParameter(REPORT)) id: string, @Req() request: Request, @AuthenticatedUser() user: CurrentUser) {
+  approve(
+    @Param('id', uuidParameter(REPORT)) id: string,
+    @Req() request: Request,
+    @AuthenticatedUser() user: CurrentUser,
+  ) {
     return this.quality.reviewReport(user, id, 'approve', null, originOf(request, user));
   }
 

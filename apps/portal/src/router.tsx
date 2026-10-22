@@ -180,6 +180,13 @@ import {
   ReviewPlansPage,
   SchoolPlansPage,
 } from './education-plans/EducationPlanPages.js';
+import {
+  QualityAssessmentsPage,
+  QualityEvidencesPage,
+  QualityFrameworksPage,
+  QualityRecognitionPage,
+  QualityReportsPage,
+} from './quality-assurance/QualityPages.js';
 import { DirectiveFormPage, DirectiveInboxPage, DirectiveOutboxPage } from './directives/DirectivePages.js';
 import { IncomingReportPage, StatisticsReportPage, SummaryReportPage } from './directives/ReportPages.js';
 import {
@@ -585,6 +592,12 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/education-plans/review', component: ReviewPlansPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/education-plans/progress', component: PlanProgressPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/education-plan-templates', component: PlanTemplatesPage }),
+  // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
+  createRoute({ getParentRoute: () => rootRoute, path: '/quality/assessments', component: QualityAssessmentsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/quality/reports', component: QualityReportsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/quality/evidences', component: QualityEvidencesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/quality/recognition', component: QualityRecognitionPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/quality/frameworks', component: QualityFrameworksPage }),
 ]);
 
 export const router = createRouter({ routeTree });

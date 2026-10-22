@@ -16,11 +16,7 @@ export type QualityReportStatusCode = 'draft' | 'submitted' | 'approved' | 'retu
 export type QualityEvidenceStatusCode = 'missing' | 'collecting' | 'sufficient' | 'needs_update';
 // Nguồn của minh chứng: tệp tải lên, hồ sơ của kho hồ sơ chuyên môn (18e), văn bản đến (18a), văn bản đi (18b), chưa có tệp
 export type QualityEvidenceSourceCode =
-  | 'upload'
-  | 'professional_document'
-  | 'incoming_document'
-  | 'outgoing_document'
-  | 'none';
+  'upload' | 'professional_document' | 'incoming_document' | 'outgoing_document' | 'none';
 export type QualityCouncilPositionCode = 'chair' | 'vice_chair' | 'secretary' | 'member';
 
 export const QUALITY_ASSESSMENT_STATUS_LABELS: Record<QualityAssessmentStatusCode, string> = {
@@ -192,7 +188,11 @@ const MN_FRAMEWORK: QualityFrameworkSeed = {
       code: '1',
       title: 'Tổ chức và quản lý nhà trường',
       criteria: [
-        criterion('1.1', 'Phương hướng, chiến lược xây dựng và phát triển nhà trường', 'Kế hoạch chiến lược, nghị quyết'),
+        criterion(
+          '1.1',
+          'Phương hướng, chiến lược xây dựng và phát triển nhà trường',
+          'Kế hoạch chiến lược, nghị quyết',
+        ),
         criterion('1.2', 'Hội đồng trường và các hội đồng khác', 'Quyết định thành lập, biên bản họp'),
         criterion('1.3', 'Tổ chức Đảng, các đoàn thể và tổ chức khác trong nhà trường'),
         criterion('1.4', 'Hiệu trưởng, phó hiệu trưởng, tổ chuyên môn và tổ văn phòng'),

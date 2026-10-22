@@ -7,8 +7,8 @@ import type { Migration } from 'kysely/migration';
 // - `quality_frameworks`, `quality_standards`, `quality_criteria`, `quality_indicators`: bộ tiêu chuẩn cấu hình được theo
 //   cấp học (tiêu chuẩn, tiêu chí, chỉ báo theo mức đạt, gợi ý minh chứng);
 // - `quality_assessments`: đợt tự đánh giá của một bộ tiêu chuẩn: quyết định thành lập hội đồng, thời gian, ba trạng thái,
-//   phần đặt vấn đề và kết luận của báo cáo, mức tự đánh giá của trường, kết quả công nhận (nối mục 1.7), kế hoạch công
-//   việc của kế hoạch cải tiến;
+//   phần đặt vấn đề và kết luận của báo cáo, mức tự đánh giá của trường, kết quả công nhận (nối mục 1.7), các kế hoạch
+//   công việc của kế hoạch cải tiến;
 // - `quality_council_members`, `quality_work_groups`, `quality_work_group_members`: hội đồng tự đánh giá và nhóm công tác;
 // - `quality_criterion_reports`: phiếu đánh giá tiêu chí (hiện trạng, điểm mạnh, điểm yếu, kế hoạch cải tiến, kết quả chỉ báo,
 //   mức tự đánh giá), một phiếu mỗi tiêu chí của đợt, nhóm công tác được phân công;
@@ -110,10 +110,13 @@ export const migration: Migration = {
       .addColumn('completed_by_name', 'text')
       // Kết quả đánh giá ngoài và công nhận (bản chạy nội bộ: nhập tay theo quyết định)
       .addColumn('external_level', 'integer', (column) => column.check(sql`external_level between 0 and 4`))
-      .addColumn('recognition_decision', 'text', (column) => column.check(sql`char_length(recognition_decision) <= 200`))
+      .addColumn('recognition_decision', 'text', (column) =>
+        column.check(sql`char_length(recognition_decision) <= 200`),
+      )
       .addColumn('recognition_date', 'date')
       .addColumn('recognition_valid_until', 'date')
-      .addColumn('work_plan_id', 'uuid', (column) => column.references('plans.id'))
+      // Kế hoạch công việc nháp của kế hoạch cải tiến, một kế hoạch mỗi đơn vị của người phụ trách
+      .addColumn('work_plan_ids', sql`uuid[]`, (column) => column.notNull().defaultTo(sql`'{}'::uuid[]`))
       .addColumn('created_by', 'uuid')
       .addColumn('created_at', 'timestamptz', (column) => column.notNull().defaultTo(sql`now()`))
       .addColumn('updated_at', 'timestamptz', (column) => column.notNull().defaultTo(sql`now()`))
