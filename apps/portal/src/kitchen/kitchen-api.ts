@@ -112,7 +112,11 @@ export interface Purchase {
 }
 
 export interface PurchaseDetail extends Purchase {
+  // Cảnh báo nhà cung cấp chưa có giấy chứng nhận an toàn thực phẩm còn hiệu lực vào ngày của phiếu (DT-18 phần 22b, BR-145)
+  supplier_certificate_warning: string | null;
   items: Array<{
+    // Lô hàng tạo khi xác nhận nhập phiếu (mỗi dòng một lô)
+    lot: { id: string; code: string; status: string } | null;
     id: string;
     ingredient_name: string;
     unit: string;

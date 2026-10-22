@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.23
+- Phiên bản: 0.24
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,34 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-146: DT-18 phần 22b: bán trú, kiểm thực ba bước và an toàn thực phẩm – 2026-10-21
+
+- Lý do: phần 22b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9.3, 9.4 (Eric duyệt DT-22 ngày 2026-10-19, đưa 22b vào đợt 5 của DT-18). Căn cứ: Quyết định 1246/QĐ-BYT ngày 31/3/2017 của Bộ Y tế hướng dẫn thực hiện chế độ kiểm thực ba bước và lưu mẫu thức ăn (mẫu số 1 đến 5; lưu mẫu tối thiểu 100 gam thức ăn đặc, 150 ml thức ăn lỏng, bảo quản 2 °C đến 8 °C, ít nhất 24 giờ, áp dụng bữa từ 30 suất; nghi ngộ độc hoặc cơ quan yêu cầu thì không hủy mẫu). Mở rộng phân hệ Bếp (P12) và kho thực phẩm (tồn nguyên liệu của bếp), không thêm phân hệ. Viết sẵn cho đa thuê bao (mục 9.2): không thêm biến `.env`, khóa tệp qua `storageKey`. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Lô hàng nhập.** Xác nhận nhập phiếu đi chợ thì mỗi dòng thành một lô (mã `LH-000001`), ngày nhập là ngày của phiếu, trạng thái "Chờ kiểm tra"; bếp nhập tay lô giao theo hợp đồng, tài trợ. Lô ghi nhà cung cấp, nhóm thực phẩm (tươi sống, đông lạnh; khô, bao gói sẵn, phụ gia theo hai bảng của mẫu số 1), giờ nhập, khối lượng, người giao hàng, cơ sở sản xuất và địa chỉ, số lô, ngày sản xuất, hạn dùng, điều kiện bảo quản, số chứng từ hoặc hóa đơn kèm tệp quét, giấy chứng nhận thú y, kiểm dịch. Lô đã kiểm tra chỉ sửa chứng từ, tệp, ghi chú. Lô đạt đóng được khi dùng hết hoặc hủy (hết hạn, hư hỏng, ghi lý do). Lô còn trong bếp sắp hết hạn trong 3 ngày được cảnh báo. Trang "3.3. Lô hàng nhập" lọc theo ngày, trạng thái, hạn dùng; mở thẳng một lô từ phiếu đi chợ.
+  - **Hồ sơ an toàn thực phẩm của nhà cung cấp.** Giấy chứng nhận cơ sở đủ điều kiện an toàn thực phẩm, đăng ký kinh doanh, vệ sinh thú y, kiểm dịch, bản tự công bố, hợp đồng, giấy khác: số, nơi cấp, ngày cấp, ngày hết hạn, phạm vi, tệp quét; thu hồi. Hiệu lực tính theo ngày xem: còn hiệu lực, sắp hết hạn (trong 30 ngày), hết hạn, đã thu hồi. Cảnh báo ở trang "3.4", ở Việc của tôi (nguồn mới "Bán trú, an toàn thực phẩm") và khi lập phiếu đi chợ của nhà cung cấp chưa có giấy chứng nhận an toàn thực phẩm còn hiệu lực (chỉ cảnh báo, không chặn vì trường có thể mua ở chợ).
+  - **Kiểm thực ba bước.** Mỗi đơn vị mỗi ngày mỗi bước một phiếu, ghi người kiểm tra, chức vụ, giờ, địa điểm. Bước 1 (mẫu số 1) mỗi dòng một lô: cảm quan, xét nghiệm nhanh (nếu có), biện pháp xử lý; lô không đạt chọn cách xử lý (trả lại, hủy, khác). Bước 2 (mẫu số 2) mỗi dòng một món: bữa, nguyên liệu chính và số lượng, số suất, giờ sơ chế xong, chế biến xong, điều kiện vệ sinh (người, dụng cụ, khu vực), cảm quan, lô đã dùng (chỉ lô đã đạt bước 1, nhập không sau ngày chế biến, chưa hết hạn). Bước 3 (mẫu số 3): bữa, món, số suất, giờ chia món xong, giờ bắt đầu ăn, dụng cụ chia, chứa đựng, che đậy, cảm quan. Lập phiếu thì gợi ý sẵn dòng: lô chờ kiểm tra, món của thực đơn đã công bố trong ngày với số suất tính như suất ăn của ngày, nguyên liệu chính theo định lượng và lô gợi ý (lô đạt nhập gần nhất của từng nguyên liệu). Xác nhận phiếu thì khóa; xác nhận bước 1 thì lô đạt chuyển "Đạt, đã nhận", lô không đạt chuyển "Không đạt" kèm cách xử lý. Nhật ký vệ sinh bếp ghi theo các cột điều kiện vệ sinh của bước 2.
+  - **Lưu và hủy mẫu thức ăn** (mẫu số 5): mỗi món một mẫu, bữa, số suất, dạng thức ăn, khối lượng hoặc thể tích, dụng cụ chứa, nhiệt độ bảo quản, thời điểm lấy, người lưu (người đăng nhập). Gợi ý món của ngày, nhắc món bắt buộc lưu (bữa từ 30 suất). Hủy một hoặc nhiều mẫu đã đủ 24 giờ, ghi người hủy, thời điểm, chất lượng mẫu. Khi có phản ánh, nghi ngộ độc hoặc cơ quan quản lý yêu cầu thì "Giữ mẫu" kèm lý do; mẫu giữ không hủy được đến khi "Bỏ giữ". Mẫu đủ 24 giờ chờ hủy hiện ở Việc của tôi.
+  - **Truy xuất nguồn gốc.** Chọn ngày (và món): mỗi món hiện kết quả bước 2, bước 3, lô đã dùng ("Đã ghi ở bước 2"; ngày chưa có bước 2 thì "Suy ra theo nguyên liệu – cần đối chiếu"), mỗi lô có nhà cung cấp, địa chỉ, điện thoại, số lô, hạn dùng, chứng từ hoặc phiếu đi chợ, kết quả bước 1, giấy tờ của nhà cung cấp kèm hiệu lực vào ngày đó, và mẫu lưu (giữ mẫu ngay từ trang). Chi tiết lô liệt kê các món đã dùng lô để truy ngược khi thu hồi.
+  - **Mẫu sổ in** theo Quyết định 1246/QĐ-BYT ngày 31/3/2017 của Bộ Y tế: sổ kiểm thực ba bước (mẫu số 1 hai bảng, mẫu số 2, mẫu số 3; thêm cột ngày kiểm tra và người kiểm tra vì sổ gom nhiều ngày) PDF khổ ngang hoặc Excel; sổ theo dõi lưu và hủy mẫu (mẫu số 5) PDF hoặc Excel; nhãn mẫu thức ăn lưu (mẫu số 4) PDF. Tối đa 63 ngày một lần in; ghi `export_logs`.
+  - **Quyền:** quyền mới `P12.food-safety.inspect` (kiểm thực, lưu và hủy mẫu) cho VT-02, VT-15, VT-03, VT-09, VT-10. Lô hàng, hồ sơ nhà cung cấp dùng `P12.kitchen.manage`. Người có quyền kiểm thực xem được dữ liệu bếp của đơn vị.
+  - **Tệp quét** lưu ở bảng riêng `food_safety_files` (PDF, ảnh JPEG, PNG, tối đa 10 MB), không thêm mục đích vào bảng `files` để không đụng ràng buộc của phần chạy song song.
+  - **Tiền ăn:** Rà mã tiền ăn (`apps/api/src/fees`, `finance`) theo mục 9.4: tiền ăn đã tính theo số ngày có mặt, đi muộn, về sớm của điểm danh đã chốt (BR-14, BR-58), không thu trước nên không phát sinh hoàn trả theo ngày nghỉ; số tiền nộp thừa thành số dư có của trẻ, tự trừ vào hóa đơn sau và chuyển sang năm học mới (`finance-transition`, BR-32). Chênh lệch còn lại: chưa có luồng chi trả lại tiền mặt số dư có cho phụ huynh (khi trẻ thôi học) và chưa tách riêng số dư tiền ăn với học phí. 22b không sửa phần tiền ăn; ghi ở Vấn đề tồn đọng.
+  - Phân hệ không thêm mới; nhóm "3. Bán trú và an toàn thực phẩm" thêm vào không gian "Bếp – kho, mua hàng".
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/school-year/migrations/0068_create_food_safety.ts`, `database/identity/migrations/0060_add_food_safety_permission.ts`, `schema.ts`, `index.ts`); máy chủ API (`kitchen/food-safety-calc.ts`, `food-safety-records.ts`, `food-inspections.ts`, `food-samples.ts`, `food-safety-trace.ts`, `kitchen-purchases.ts`, `kitchen-access.ts`, `kitchen-transition.ts`, `my-work/my-work-sources.ts`, `application.module.ts`); cổng quản trị (`kitchen/Food*Page.tsx`, `food-safety-api.ts`, `KitchenPage.tsx`, `router.tsx`); gói dùng chung (`food-safety.ts`, `portal-menu.ts`, `menu-permissions.ts`, `professional-records.ts`, `index.ts`); kiểm thử; tài liệu `01`, `02`, `03`, `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: tệp năm học `0068` tạo bảng `food_safety_files`, `food_supplier_certificates`, `food_lots`, `food_inspections`, `food_inspection_lines`, `food_inspection_line_lots`, `food_samples`; tệp định danh `0060` thêm quyền `P12.food-safety.inspect`. Mở năm học mới chuyển giấy tờ của nhà cung cấp kèm tệp quét; lô, phiếu kiểm thực, mẫu lưu tra ở năm cũ.
+- API bị ảnh hưởng: `/food-safety/files`, `/food-supplier-certificates`, `/food-suppliers/safety-summary`, `/food-lots`, `/food-inspections`, `/food-samples`, `/food-safety/trace`, `/food-safety/books`; chi tiết phiếu đi chợ thêm `supplier_certificate_warning` và `lot` của từng dòng (xem `17_DAC_TA_API.md`).
+- Giao diện bị ảnh hưởng: MH-236 đến MH-240; chi tiết phiếu đi chợ ở "Thực đơn bữa ăn" thêm cảnh báo giấy tờ nhà cung cấp và cột lô hàng.
+- Quyền bị ảnh hưởng: PQ-87. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
+- Ảnh hưởng chức năng cũ: xác nhận nhập phiếu đi chợ tạo thêm lô; tồn nguyên liệu tăng như cũ.
+- Hạn chế:
+  - Lô chưa trừ tồn theo lô (tồn vẫn theo nguyên liệu); "Đã dùng hết" đánh dấu tay.
+  - Truy xuất suy ra theo nguyên liệu khi chưa ghi bước 2 chỉ là gợi ý, cần đối chiếu sổ.
+  - Chưa có sổ phản ánh, sự cố ngộ độc riêng; giữ mẫu ghi lý do ở mẫu lưu.
+  - Sổ in gom nhiều ngày nên thêm cột ngày, người kiểm tra; chữ ký là ô kí tay trên bản in.
+- Kiểm thử cần thực hiện: kịch bản CT-769 đến CT-775 (trong mã kiểm thử là CT-22b-1 đến CT-22b-7); kiểm thử đơn vị mới `apps/api/src/kitchen/food-safety.test.ts`; kiểm thử giao diện mới `tests/e2e/77-food-safety.spec.ts`.
+- Trạng thái: Đã triển khai
 
 ### YCTD-147: DT-18 phần 22i: kế hoạch giáo dục (thư viện mẫu, phiên bản theo năm, duyệt nhiều cấp, kí nội bộ, xuất Word, PDF) – 2026-10-21
 

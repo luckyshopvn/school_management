@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.88
+- Phiên bản: 1.89
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -431,6 +431,18 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Các bảng `
 | market_purchase_items | Dòng phiếu đi chợ (YCTD-76) | purchase_id, ingredient_id (duy nhất cùng purchase_id), quantity, planned_quantity (định lượng của ngày lúc lập phiếu, BR-60), unit_price, amount |
 | meal_reports | Báo cơm của lớp (YCTD-76) | class_id, org_unit_id, report_date (duy nhất cùng class_id), headcount (không quá sĩ số), note, reported_by, reported_at |
 | food_suppliers | Nhà cung cấp thực phẩm (YCTD-76; gộp vào `suppliers` khi có danh mục dùng chung) | org_unit_id, name (duy nhất trong đơn vị), food_groups, tax_code, contact_name, phone, address, status |
+
+Bán trú, kiểm thực ba bước và an toàn thực phẩm (DT-18 phần 22b, YCTD-146). Cơ sở dữ liệu năm học, tệp `database/school-year/migrations/0068_create_food_safety.ts`; quyền `P12.food-safety.inspect` ở tệp định danh `0060_add_food_safety_permission.ts`.
+
+| Bảng | Mục đích | Trường chính |
+|---|---|---|
+| food_safety_files | Tệp quét giấy tờ nhà cung cấp, chứng từ lô (P12-11, P12-12) | id, org_unit_id, file_name, content_type, size_bytes, storage_key (`storageKey('food-safety', đơn vị, …)`), created_by |
+| food_supplier_certificates | Giấy tờ an toàn thực phẩm của nhà cung cấp (P12-12, BR-145) | id, supplier_id, certificate_type (`food_safety`, `business_registration`, `veterinary`, `quarantine`, `product_declaration`, `contract`, `other`), number, issued_by, issued_on, expires_on, scope_note, file_id, status (`active`, `revoked`) |
+| food_lots | Lô hàng nhập (P12-11, BR-146) | id, code (`LH-000001`), org_unit_id, ingredient_id, supplier_id, purchase_item_id (dòng phiếu đi chợ, duy nhất), food_category (`fresh`, `dry`), received_date, received_time, quantity, deliverer_name, manufacturer, manufacturer_address, lot_number, production_date, expiry_date, storage_condition, document_number, document_file_id, veterinary_certificate, quarantine_certificate, status (`pending`, `accepted`, `rejected`, `used_up`, `disposed`), rejection_action, handling_note, closed_by, closed_at |
+| food_inspections | Phiếu kiểm thực theo ngày và bước (P12-13, BR-144) | id, org_unit_id, inspection_date, step (1, 2, 3; duy nhất theo đơn vị, ngày, bước), inspector_name, inspector_title, inspected_time, location, note, status (`draft`, `confirmed`), confirmed_by, confirmed_at |
+| food_inspection_lines | Dòng phiếu kiểm thực (P12-13) | id, inspection_id, line_no, lot_id (bước 1), meal_type, dish_id, dish_name, main_ingredients, servings, first_time, second_time (bước 2: sơ chế xong, chế biến xong; bước 3: chia món xong, bắt đầu ăn), hygiene_people, hygiene_equipment, hygiene_area, utensils, sensory_result, rapid_test_result, rejection_action, action, note |
+| food_inspection_line_lots | Lô đã dùng cho món ở bước 2 (P12-13, P12-15) | line_id, lot_id |
+| food_samples | Mẫu thức ăn lưu (P12-14, BR-143) | id, org_unit_id, sample_date, meal_type, dish_id, dish_name, servings, food_form (`solid`, `liquid`), quantity (ràng buộc 100 g, 150 ml), container, storage_temperature (2 đến 8), sampled_at, sampled_by, sampled_by_name, status (`stored`, `held`, `destroyed`), hold_reason, held_by, held_at, destroyed_at (ràng buộc không trước 24 giờ), destroyed_by, destroyed_by_name, quality_note |
 
 Ràng buộc duy nhất: `menus` trên bộ ba đơn vị, tuần, độ tuổi; `meal_plans` trên bộ ba đơn vị, ngày, bữa. Từ YCTD-125 máy chủ kiểm tra thêm hai thực đơn cùng đơn vị, cùng tuần không trùng khối áp dụng (BR-123).
 

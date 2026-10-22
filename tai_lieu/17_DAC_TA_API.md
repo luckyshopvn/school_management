@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.93
+- Phiên bản: 1.94
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -1374,6 +1374,16 @@ Giao kèo quản trị và trình diễn (DT-18 phần 18h, YCTD-145, BR-141):
 5. `GET /public/demo` (không cần đăng nhập) trả `enabled`, `seeded_at`, `next_reset_at`, `reset_interval_hours`, `accounts`, `password` (chỉ khi là bản trình diễn).
 
 
+Giao kèo bán trú, an toàn thực phẩm (DT-18 phần 22b, YCTD-146, BR-143 đến BR-146):
+
+1. `POST /food-safety/files` (nhiều phần: `file`, `org_unit_id`; `P12.kitchen.manage`) nhận PDF, ảnh JPEG, PNG tối đa 10 MB; trả `id`. `GET /food-safety/files/{id}` cho người xem dữ liệu bếp của đơn vị.
+2. `GET /food-supplier-certificates` nhận `org_unit_id`, `supplier_id`, `validity` (`valid`, `expiring`, `expired`, `revoked`); mỗi dòng có `validity`, `days_left`. `POST` nhận `supplier_id`, `certificate_type`, `number`, `issued_by`, `issued_on`, `expires_on`, `scope_note`, `file_id`; `PATCH` nhận các trường đó và `status`. `GET /food-suppliers/safety-summary` trả mỗi nhà cung cấp `has_valid_food_safety`, `expiring_count`, `expired_count`, `nearest_expiry`.
+3. `GET /food-lots` nhận `org_unit_id`, `from`, `to`, `status`, `ingredient_id`, `supplier_id`, `expiry` (`expiring`, `expired`); mỗi lô có `expiry_state`, `purchase_code`. `GET /food-lots/{id}` thêm `inspection` (kết quả bước 1) và `usage` (món đã dùng). `POST /food-lots` nhận `org_unit_id`, `ingredient_id`, `supplier_id`, `received_date`, `quantity` và các trường của lô; `PATCH` lô đã kiểm tra chỉ nhận `document_number`, `document_file_id`, `note` (422 BR-146). `POST /food-lots/{id}/close` nhận `status` (`used_up`, `disposed`) và `handling_note` (bắt buộc khi hủy). Chi tiết phiếu đi chợ trả `supplier_certificate_warning` và mỗi dòng có `lot`.
+4. `POST /food-inspections` (`P12.food-safety.inspect`) nhận `org_unit_id`, `inspection_date`, `step`, `inspector_name`, `inspector_title`, `inspected_time` (HH:MM), `location`, `note`; trùng ngày, bước trả 422; trả phiếu với dòng gợi ý. `PUT /food-inspections/{id}` nhận các trường đầu phiếu và `lines` (thay toàn bộ dòng: `lot_id`, `meal_type`, `dish_id`, `dish_name`, `main_ingredients`, `servings`, `first_time`, `second_time`, `hygiene_people`, `hygiene_equipment`, `hygiene_area`, `utensils`, `sensory_result`, `rapid_test_result` là `pass` hoặc `fail`, `rejection_action`, `action`, `note`, `lot_ids`). `POST /food-inspections/{id}/confirm` trả 422 BR-144 kèm từng lỗi. `GET /food-inspections/day` nhận `org_unit_id`, `date`, trả `steps` (ba phiếu hoặc `null`).
+5. `POST /food-samples` nhận `org_unit_id`, `sample_date`, `meal_type`, `dish_id`, `dish_name`, `servings`, `food_form`, `quantity`, `container`, `storage_temperature`, `sampled_at` (không múi giờ là giờ Việt Nam), `note`; sai lượng, nhiệt độ trả 400. `POST /food-samples/destroy` nhận `ids` (1 đến 100), `quality_note`, `destroyed_at`; chưa đủ 24 giờ hoặc đang giữ trả 422 BR-143. `hold` nhận `hold_reason`; `release` bỏ giữ. Mỗi mẫu có `earliest_destroy_at`, `destroy_state` (`retaining`, `due`, `held`, `destroyed`). `GET /food-samples/suggestions` trả món của ngày, `servings`, `required`, `sampled`.
+6. `GET /food-safety/trace` nhận `org_unit_id`, `date`, `dish_id`; mỗi món có `step2`, `step3`, `lots_source` (`recorded`, `inferred`, `none`), `lots` (kèm `first_step`, `certificates` với `validity_on_date`), `samples`. `POST /food-safety/books` nhận `org_unit_id`, `from`, `to` (tối đa 63 ngày), `book` (`inspections`, `samples`, `labels`), `format` (`pdf`, `xlsx`; nhãn chỉ PDF); trả tệp, ghi `export_logs`.
+
+
 Giao kèo website trường (DT-18 phần 18f, YCTD-144, BR-139; dữ liệu ở cơ sở dữ liệu hệ thống):
 
 1. Quyền: ghi `/website/settings`, `/website/domains`, `/website/sample-content` cần `P14.website.configure`; bài, album, thư liên hệ cần `P14.website.edit` hoặc `P14.website.approve`; `/approve`, `/return`, `/unpublish`, `/website/review`, `/contacts/{id}/handle` cần `P14.website.approve`.
@@ -1514,6 +1524,12 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | POST | /api/v1/market-purchases/{id}/receive | Xác nhận nhập nguyên liệu, chuyển đề nghị thanh toán |
 | POST | /api/v1/market-purchases/{id}/cancel | Hủy phiếu nháp |
 | POST | /api/v1/market-purchases/{id}/link-payment | Kế toán gắn phiếu chi đã phát hành |
+| POST, GET | /api/v1/food-safety/files, /food-safety/files/{id} | Tải lên, tải về tệp quét giấy tờ, chứng từ (P12-11, P12-12, YCTD-146) |
+| GET, POST, PATCH | /api/v1/food-supplier-certificates, /food-supplier-certificates/{id}; GET /food-suppliers/safety-summary | Giấy tờ an toàn thực phẩm của nhà cung cấp, tổng hợp theo nhà cung cấp (P12-12) |
+| GET, POST, PATCH | /api/v1/food-lots, /food-lots/{id}; POST /food-lots/{id}/close | Lô hàng nhập, đóng lô (P12-11) |
+| GET, POST, PUT | /api/v1/food-inspections, /food-inspections/day, /food-inspections/{id}; POST /food-inspections/{id}/confirm | Phiếu kiểm thực ba bước (P12-13) |
+| GET, POST | /api/v1/food-samples, /food-samples/suggestions, /food-samples/destroy, /food-samples/{id}/hold, /food-samples/{id}/release | Lưu, hủy, giữ mẫu thức ăn (P12-14) |
+| GET, POST | /api/v1/food-safety/trace; POST /food-safety/books | Truy xuất nguồn gốc; sổ kiểm thực, sổ lưu mẫu, nhãn mẫu (P12-15, P12-13, P12-14) |
 | GET | /api/v1/reports/meals | Báo cáo ăn và bếp: đối chiếu suất ăn với điểm danh đã chốt, chi phí đi chợ |
 | GET, POST | /api/v1/assets | Danh sách (lọc đơn vị, trạng thái, mã hoặc tên) và thêm tài sản |
 | GET, PUT | /api/v1/assets/{id} | Chi tiết tài sản kèm lịch sử cấp phát, mượn, hỏng mất; sửa thông tin hoặc thanh lý |

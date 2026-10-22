@@ -17,6 +17,7 @@ export * from './directives.js';
 export * from './website.js';
 export * from './administration.js';
 export * from './professional-records.js';
+export * from './food-safety.js';
 export * from './education-plans.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
@@ -231,6 +232,8 @@ export const PERMISSION_CODES = {
   // Quản trị và trình diễn (DT-18 phần 18h)
   accountImpersonate: 'P01.account.impersonate',
   dataExportAll: 'P01.data.export-all',
+  // Bán trú: kiểm thực ba bước, lưu và hủy mẫu thức ăn (DT-18 phần 22b)
+  foodSafetyInspect: 'P12.food-safety.inspect',
   // Kế hoạch giáo dục (DT-18 phần 22i)
   educationPlanUse: 'P09.education-plan.use',
   educationPlanReview: 'P09.education-plan.review',
@@ -514,6 +517,12 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/impersonations',
   '/school-data-export',
   '/demo-environment',
+  // Bán trú: kiểm thực ba bước và an toàn thực phẩm (DT-18 phần 22b)
+  '/food-safety/inspections',
+  '/food-safety/samples',
+  '/food-safety/lots',
+  '/food-safety/supplier-records',
+  '/food-safety/trace',
   // Kế hoạch giáo dục (DT-18 phần 22i)
   '/education-plans',
   '/education-plans/groups',
@@ -780,6 +789,11 @@ export const DATA_GRID_KEYS = [
   'impersonations',
   'impersonation-actions',
   'school-data-exports',
+  // Bán trú: kiểm thực ba bước và an toàn thực phẩm (DT-18 phần 22b)
+  'food-inspections',
+  'food-samples',
+  'food-lots',
+  'food-supplier-certificates',
   // Kế hoạch giáo dục (DT-18 phần 22i)
   'education-plans',
   'education-plan-review',

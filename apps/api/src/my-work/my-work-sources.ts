@@ -2,6 +2,10 @@ import { Injectable } from '@nestjs/common';
 import type { SchoolYearDatabase } from '@school-management/database';
 import { Clock } from '@school-management/server';
 import {
+  FOOD_CERTIFICATE_TYPES,
+  FOOD_CERTIFICATE_WARNING_DAYS,
+  FOOD_LOT_EXPIRY_WARNING_DAYS,
+  FOOD_SAMPLE_RETENTION_HOURS,
   MY_WORK_DUE_SOON_DAYS,
   PERMISSION_CODES,
   PROFESSIONAL_STATUS_LABELS,
@@ -931,6 +935,153 @@ export class LeaveWorkSource extends MyWorkSource {
   }
 }
 
+// Bán trú, an toàn thực phẩm (DT-18 phần 22b, BR-145, BR-146): người kiểm thực thấy lô chờ kiểm tra trước khi chế biến và mẫu
+// lưu đã đủ 24 giờ chờ hủy; bếp thấy lô chờ kiểm tra, lô còn trong bếp sắp hết hạn dùng, giấy tờ của nhà cung cấp sắp hết hạn
+// hoặc đã hết hạn (cảnh báo trước 30 ngày)
+@Injectable()
+export class FoodSafetyWorkSource extends MyWorkSource {
+  readonly code = 'food_safety' as const;
+  constructor(
+    private readonly currentSchoolYear: CurrentSchoolYearResolver,
+    private readonly organizationScopes: OrganizationScopes,
+    private readonly clock: Clock,
+  ) {
+    super();
+  }
+
+  async collect(currentUser: CurrentUser): Promise<MyWorkItem[]> {
+    const inspect = currentUser.hasPermission(PERMISSION_CODES.foodSafetyInspect);
+    const manage = currentUser.hasPermission(PERMISSION_CODES.kitchenManage);
+    if (!inspect && !manage) {
+      return [];
+    }
+    const current = await this.currentSchoolYear.find();
+    if (!current) {
+      return [];
+    }
+    const database = current.database;
+    const now = this.clock.now();
+    const today = VIETNAM_DATE.format(now);
+    const dayAfter = (days: number) =>
+      new Date(Date.parse(`${today}T00:00:00Z`) + days * DAY).toISOString().slice(0, 10);
+    // null là toàn trường
+    const units = async (permission: string) => {
+      const scope = await this.organizationScopes.resolveStaff(currentUser, permission);
+      return scope.wholeSchool ? null : scope.orgUnitIds;
+    };
+    const items: MyWorkItem[] = [];
+    const lotUnits = await units(inspect ? PERMISSION_CODES.foodSafetyInspect : PERMISSION_CODES.kitchenManage);
+    if (lotUnits === null || lotUnits.length > 0) {
+      const pending = await database
+        .selectFrom('food_lots')
+        .innerJoin('ingredients', 'ingredients.id', 'food_lots.ingredient_id')
+        .select(['food_lots.code', 'ingredients.name', 'food_lots.received_date', 'food_lots.created_at'])
+        .where('food_lots.status', '=', 'pending')
+        .$if(lotUnits !== null, (query) => query.where('food_lots.org_unit_id', 'in', lotUnits ?? []))
+        .orderBy('food_lots.received_date')
+        .limit(MAXIMUM_PER_SOURCE)
+        .execute();
+      for (const row of pending) {
+        items.push(
+          item(now, {
+            source: this.code,
+            kind: 'Lô chờ kiểm tra trước khi chế biến',
+            title: `${row.name} (${row.code})`,
+            detail: `Nhập ngày ${row.received_date}`,
+            link: '/food-safety/inspections',
+            deadline: row.received_date,
+            received_at: row.created_at,
+          }),
+        );
+      }
+    }
+    const sampleUnits = inspect ? await units(PERMISSION_CODES.foodSafetyInspect) : [];
+    if (sampleUnits === null || sampleUnits.length > 0) {
+      const due = await database
+        .selectFrom('food_samples')
+        .select(['dish_name', 'sample_date', 'sampled_at'])
+        .where('status', '=', 'stored')
+        .where('sampled_at', '<=', new Date(now.getTime() - FOOD_SAMPLE_RETENTION_HOURS * 3_600_000))
+        .$if(sampleUnits !== null, (query) => query.where('org_unit_id', 'in', sampleUnits ?? []))
+        .orderBy('sampled_at')
+        .limit(MAXIMUM_PER_SOURCE)
+        .execute();
+      for (const row of due) {
+        items.push(
+          item(now, {
+            source: this.code,
+            kind: 'Mẫu thức ăn lưu chờ hủy',
+            title: row.dish_name,
+            detail: `Lưu ngày ${row.sample_date}, đã đủ ${FOOD_SAMPLE_RETENTION_HOURS} giờ`,
+            link: '/food-safety/samples',
+            deadline: null,
+            received_at: row.sampled_at,
+          }),
+        );
+      }
+    }
+    const manageUnits = manage ? await units(PERMISSION_CODES.kitchenManage) : [];
+    if (manageUnits === null || manageUnits.length > 0) {
+      const certificates = await database
+        .selectFrom('food_supplier_certificates')
+        .innerJoin('food_suppliers', 'food_suppliers.id', 'food_supplier_certificates.supplier_id')
+        .select([
+          'food_suppliers.name',
+          'food_supplier_certificates.certificate_type',
+          'food_supplier_certificates.number',
+          'food_supplier_certificates.expires_on',
+          'food_supplier_certificates.updated_at',
+        ])
+        .where('food_supplier_certificates.status', '=', 'active')
+        .where('food_suppliers.status', '=', 'active')
+        .where('food_supplier_certificates.expires_on', '<=', dayAfter(FOOD_CERTIFICATE_WARNING_DAYS))
+        .$if(manageUnits !== null, (query) => query.where('food_suppliers.org_unit_id', 'in', manageUnits ?? []))
+        .orderBy('food_supplier_certificates.expires_on')
+        .limit(MAXIMUM_PER_SOURCE)
+        .execute();
+      for (const row of certificates) {
+        const type = FOOD_CERTIFICATE_TYPES.find((entry) => entry.value === row.certificate_type)?.label ?? '';
+        items.push(
+          item(now, {
+            source: this.code,
+            kind:
+              (row.expires_on ?? '') < today ? 'Giấy tờ nhà cung cấp đã hết hạn' : 'Giấy tờ nhà cung cấp sắp hết hạn',
+            title: row.name,
+            detail: `${type} số ${row.number}`,
+            link: '/food-safety/supplier-records',
+            deadline: row.expires_on,
+            received_at: row.updated_at,
+          }),
+        );
+      }
+      const lots = await database
+        .selectFrom('food_lots')
+        .innerJoin('ingredients', 'ingredients.id', 'food_lots.ingredient_id')
+        .select(['food_lots.code', 'ingredients.name', 'food_lots.expiry_date', 'food_lots.created_at'])
+        .where('food_lots.status', '=', 'accepted')
+        .where('food_lots.expiry_date', '<=', dayAfter(FOOD_LOT_EXPIRY_WARNING_DAYS))
+        .$if(manageUnits !== null, (query) => query.where('food_lots.org_unit_id', 'in', manageUnits ?? []))
+        .orderBy('food_lots.expiry_date')
+        .limit(MAXIMUM_PER_SOURCE)
+        .execute();
+      for (const row of lots) {
+        items.push(
+          item(now, {
+            source: this.code,
+            kind: 'Lô sắp hết hạn dùng',
+            title: `${row.name} (${row.code})`,
+            detail: 'Dùng trước hạn hoặc đóng lô (đã dùng hết, hủy)',
+            link: '/food-safety/lots',
+            deadline: row.expiry_date,
+            received_at: row.created_at,
+          }),
+        );
+      }
+    }
+    return items;
+  }
+}
+
 export const MY_WORK_SOURCE_TYPES = [
   IncomingWorkSource,
   OutgoingWorkSource,
@@ -942,4 +1093,5 @@ export const MY_WORK_SOURCE_TYPES = [
   TeachingWorkSource,
   SigningWorkSource,
   LeaveWorkSource,
+  FoodSafetyWorkSource,
 ];

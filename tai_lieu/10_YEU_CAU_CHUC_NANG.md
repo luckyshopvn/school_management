@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.65
+- Phiên bản: 1.66
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -266,6 +266,11 @@
 | P12-08 | Nhà cung cấp thực phẩm (G2) | VT-10, VT-04 | Nhà cung cấp, nhóm thực phẩm cung cấp | Dùng chung danh mục nhà cung cấp, đánh dấu nhà cung cấp thực phẩm | Danh sách nhà cung cấp thực phẩm | BR-63 |
 | P12-09 | Phiếu đi chợ (G2) | VT-10 | Ngày, nhà cung cấp, nguyên liệu, số lượng, đơn giá | Lập phiếu đi chợ từ định lượng của ngày, xác nhận nhập nguyên liệu, chuyển đề nghị thanh toán theo QT-05 | Phiếu đi chợ | BR-60, BR-63, BR-28 |
 | P12-10 | Thực đơn theo mẫu của Sở và nhập thực đơn từ Excel (4.5 của Sở, G3, YCTD-125) | VT-10 | Tên thực đơn, tháng, tuần, từ ngày, đến ngày, khối áp dụng; tệp Excel mỗi dòng một món của một bữa trong một thứ | Lập thực đơn với thông tin chung theo Sở, thiếu thì tính từ từ ngày và khai báo tuần; không cho trùng khối trong cùng tuần; "Thay đổi" thông tin chung của thực đơn nháp; nhập từ Excel bằng công cụ nhập chung (file mẫu có danh mục, tra cứu danh mục, chọn cột, kiểm tra cả tệp, xuất file lỗi), ghi thành thực đơn nháp | Thực đơn nháp, danh sách thực đơn theo tháng, tệp lỗi | BR-123, BR-59 |
+| P12-11 | Lô hàng nhập (YCTD-146) | VT-10; xem: VT-02, VT-15, VT-03, VT-09, VT-04 | Phiếu đi chợ đã nhập hoặc lô nhập tay; số lô, hạn dùng, chứng từ, tệp quét | Tạo lô cho mỗi dòng phiếu đi chợ; kiểm tra ngày; khóa thông tin sau kiểm tra; đóng lô; cảnh báo sắp hết hạn | Danh sách lô, chi tiết lô kèm món đã dùng | BR-146 |
+| P12-12 | Hồ sơ an toàn thực phẩm của nhà cung cấp (YCTD-146) | VT-10; xem như P12-11 | Loại giấy, số, nơi cấp, ngày cấp, hết hạn, tệp quét | Tính hiệu lực theo ngày; cảnh báo sắp hết hạn ở trang, Việc của tôi, phiếu đi chợ | Tổng hợp theo nhà cung cấp, danh sách giấy tờ | BR-145 |
+| P12-13 | Kiểm thực ba bước (YCTD-146) | `P12.food-safety.inspect` (VT-02, VT-15, VT-03, VT-09, VT-10) | Ngày, bước, người kiểm tra; kết quả từng dòng | Gợi ý dòng từ lô chờ kiểm tra, thực đơn đã công bố, số suất, định lượng; kiểm tra lô dùng cho món; xác nhận khóa phiếu, cập nhật lô | Phiếu bước 1, 2, 3; sổ kiểm thực ba bước (mẫu số 1, 2, 3) | BR-144 |
+| P12-14 | Lưu và hủy mẫu thức ăn (YCTD-146) | `P12.food-safety.inspect` | Món, bữa, số suất, khối lượng, dụng cụ, nhiệt độ, thời điểm lấy; lý do giữ; chất lượng khi hủy | Kiểm tra lượng mẫu, nhiệt độ; hủy sau 24 giờ; giữ, bỏ giữ; nhắc mẫu chờ hủy | Danh sách mẫu; sổ lưu và hủy mẫu (mẫu số 5); nhãn mẫu (mẫu số 4) | BR-143 |
+| P12-15 | Truy xuất nguồn gốc món ăn (YCTD-146) | Người xem dữ liệu bếp của đơn vị | Ngày, món | Ghép món với lô đã ghi ở bước 2 hoặc suy ra theo nguyên liệu, nhà cung cấp, giấy tờ còn hiệu lực vào ngày, kết quả ba bước, mẫu lưu | Trang truy xuất theo món | BR-144, BR-145 |
 
 ## 14. Phân hệ P13 — Kho, tài sản và mua hàng
 

@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
 import { PERMISSION_CODES } from '@school-management/shared';
 import {
   Alert,
@@ -1420,6 +1421,9 @@ function PurchasesTab({ orgUnitId, onDone }: TabProps) {
         settings={purchaseGrid.settings}
         onSettingsChange={purchaseGrid.update}
       />
+      {detail.data?.supplier_certificate_warning ? (
+        <Alert tone="warning">{detail.data.supplier_certificate_warning}</Alert>
+      ) : null}
       {detail.data ? (
         <table className="w-full text-content" aria-label={`Chi tiết phiếu ${detail.data.code}`}>
           <caption className="text-left font-semibold text-text">Phiếu {detail.data.code}</caption>
@@ -1431,6 +1435,7 @@ function PurchasesTab({ orgUnitId, onDone }: TabProps) {
               <th>Chênh lệch</th>
               <th>Đơn giá</th>
               <th>Thành tiền</th>
+              <th>Lô hàng</th>
             </tr>
           </thead>
           <tbody>
@@ -1444,6 +1449,13 @@ function PurchasesTab({ orgUnitId, onDone }: TabProps) {
                 <td>{item.difference ?? ''}</td>
                 <td>{formatMoney(item.unit_price)}</td>
                 <td>{formatMoney(item.amount)}</td>
+                <td>
+                  {item.lot ? (
+                    <Link to="/food-safety/lots" search={{ lot_id: item.lot.id }} className="text-link underline">
+                      {item.lot.code}
+                    </Link>
+                  ) : null}
+                </td>
               </tr>
             ))}
           </tbody>

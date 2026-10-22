@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.45
+- Phiên bản: 1.46
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -787,6 +787,11 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-712 | Cho giáo viên được phân công lớp / Khi lập kế hoạch năm của lớp, nhập nội dung, trình; tổ trưởng, Phó Hiệu trưởng duyệt / Thì kế hoạch chờ tổ trưởng rồi Phó Hiệu trưởng, tổ khác không xem được; bước cuối kí nội bộ khi có chứng thư, chưa có thì báo lỗi và vẫn chờ; bản PDF lưu vào kho hồ sơ (CT-761, CT-768; YCTD-147) |
 | AC-713 | Cho người lập, người duyệt / Khi trả lại, sửa, trình lại; so sánh phiên bản; sao chép kế hoạch năm trước / Thì phiên bản tăng mỗi lần trình, khác biệt đúng theo mục và dòng; bản sao chép theo mẫu năm nay, so được với bản năm trước; Việc của tôi báo bị trả lại (CT-762, CT-767; YCTD-147) |
 | AC-714 | Cho Ban Giám hiệu / Khi Phó Hiệu trưởng lập kế hoạch của trường, Hiệu trưởng duyệt thay bước Phó Hiệu trưởng, xem tiến độ, tạo kế hoạch công việc / Thì bỏ bước người lập và người duyệt đã giữ quyền; kế hoạch của trường đã duyệt mọi cán bộ xem được, xuất Word, PDF; tiến độ đúng số theo mẫu, tổ, bước, xuất Excel; kế hoạch công việc nháp có đầu việc từ dòng có ngày (CT-763 đến CT-766; YCTD-147) |
+| AC-715 | Cho bếp / Khi xác nhận nhập phiếu đi chợ / Thì mỗi dòng thành một lô chờ kiểm tra có nhà cung cấp, ngày nhập, khối lượng theo phiếu; lô ghi được số lô, hạn dùng, chứng từ; lô hết hạn vào ngày nhập bị từ chối (CT-772, CT-775; YCTD-146) |
+| AC-716 | Cho bếp / Khi ghi giấy chứng nhận an toàn thực phẩm còn 10 ngày / Thì giấy hiện "Sắp hết hạn", có ở Việc của tôi và cảnh báo trên trang; phiếu đi chợ của nhà cung cấp chưa có giấy còn hiệu lực có cảnh báo (CT-771, CT-775; YCTD-146) |
+| AC-717 | Cho người kiểm thực / Khi lập phiếu bước 1, ghi lô đạt và lô không đạt rồi xác nhận / Thì thiếu biện pháp hoặc cách xử lý bị chặn; xác nhận xong lô đạt thành "Đạt, đã nhận", lô không đạt thành "Không đạt"; phiếu không sửa được nữa (CT-772, CT-775; YCTD-146) |
+| AC-718 | Cho người kiểm thực / Khi lập phiếu bước 2, 3 / Thì phiếu gợi ý món, số suất, nguyên liệu chính, lô đạt; ghi lô không đạt bị chặn; thiếu kết quả vệ sinh không xác nhận được; truy xuất món ra đúng lô, nhà cung cấp, giấy tờ; in được sổ kiểm thực (CT-773, CT-775; YCTD-146) |
+| AC-719 | Cho người kiểm thực / Khi lưu mẫu thiếu lượng hoặc sai nhiệt độ, hủy mẫu chưa đủ 24 giờ, hủy mẫu đang giữ / Thì đều bị chặn; mẫu đủ 24 giờ hủy được, ghi người hủy; in được sổ lưu mẫu, nhãn mẫu (CT-774, CT-775; YCTD-146) |
 
 ## 20. Chưa xác minh được
 

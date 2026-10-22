@@ -108,7 +108,8 @@ export type MyWorkSourceCode =
   | 'education_plans'
   | 'teaching'
   | 'signing'
-  | 'leave';
+  | 'leave'
+  | 'food_safety';
 
 export const MY_WORK_SOURCE_LABELS: Record<MyWorkSourceCode, string> = {
   incoming: 'Văn bản đến',
@@ -121,6 +122,7 @@ export const MY_WORK_SOURCE_LABELS: Record<MyWorkSourceCode, string> = {
   teaching: 'Kế hoạch bài dạy',
   signing: 'Kí hồ sơ',
   leave: 'Nghỉ phép',
+  food_safety: 'Bán trú, an toàn thực phẩm',
 };
 
 // Hạn còn từ hôm nay đến số ngày này thì là sắp đến hạn

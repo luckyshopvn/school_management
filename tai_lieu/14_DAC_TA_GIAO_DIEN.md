@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.78
+- Phiên bản: 1.79
 - Ngày cập nhật: 2026-10-21
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -255,6 +255,12 @@ Từ YCTD-107 (DT-15 phần 15a), cổng quản trị dùng menu ngang nhiều c
 | Nhân sự – chấm công, lương | 3.2. | Đánh giá nhân sự | `/evaluations` |
 | Bếp – kho, mua hàng | 1. | Kho và tài sản | `/inventory` |
 | Bếp – kho, mua hàng | 2. | Đề nghị mua hàng | `/purchase-requests` |
+| Bếp – kho, mua hàng | 3. | Bán trú và an toàn thực phẩm | (nhóm) |
+| Bếp – kho, mua hàng | 3.1. | Kiểm thực ba bước | `/food-safety/inspections` |
+| Bếp – kho, mua hàng | 3.2. | Lưu và hủy mẫu thức ăn | `/food-safety/samples` |
+| Bếp – kho, mua hàng | 3.3. | Lô hàng nhập | `/food-safety/lots` |
+| Bếp – kho, mua hàng | 3.4. | Hồ sơ an toàn thực phẩm của nhà cung cấp | `/food-safety/supplier-records` |
+| Bếp – kho, mua hàng | 3.5. | Truy xuất nguồn gốc | `/food-safety/trace` |
 | Tương tác – truyền thông | 1. | Tương tác với phụ huynh | `/interactions` |
 | Tương tác – truyền thông | 2. | Hoạt động và tin tức | `/activities` |
 | Giảng dạy | 1. | Bài học và giáo án | `/teaching` |
@@ -563,6 +569,11 @@ Từ YCTD-142 (DT-18 phần 18e), phân hệ "Hồ sơ chuyên môn" (khóa `pro
 | MH-233 | Duyệt kế hoạch (YCTD-147; mục "5.4.", `/education-plans/review`, lưới khóa `education-plan-review`): thẻ Chờ tôi duyệt, Tôi đã xử lý; chi tiết có Duyệt, Trả lại (ô Ý kiến, Lý do trả lại) | `.review`, `.approve`, `.finalize` |
 | MH-234 | Tiến độ duyệt kế hoạch (YCTD-147; mục "5.5.", `/education-plans/progress`, lưới khóa `education-plan-progress`): lọc mẫu, Xuất Excel; dòng tổng, số chờ từng bước; lưới theo mẫu, theo tổ, kế hoạch đang chờ (số ngày chờ) | `.manage`, `.approve`, `.finalize` |
 | MH-235 | Thư viện mẫu kế hoạch (YCTD-147; mục "5.6.", `/education-plan-templates`, lưới khóa `education-plan-templates`): chọn cấp học, Nạp mẫu mặc định; Thêm mẫu, Sửa, Xóa (mẫu chưa có kế hoạch); biểu mẫu: thông tin mẫu, các bước duyệt, kí nội bộ, thư mục lưu kho, các mục (mã, tên, loại, gợi ý, cột) | Xem: mọi quyền kế hoạch giáo dục; sửa: `.manage` |
+| MH-236 | Kiểm thực ba bước (YCTD-146; mục "3.1." của Bếp – kho, mua hàng, `/food-safety/inspections`, lưới khóa `food-inspections`): chọn đơn vị, ngày kiểm thực; ba thẻ Bước 1, 2, 3 (kèm nháp, đã xác nhận); chưa có phiếu thì khung "Lập phiếu bước N" (người kiểm tra, chức vụ, giờ, địa điểm); phiếu: bảng dòng theo cột của mẫu số 1, 2, 3 của Quyết định 1246/QĐ-BYT, chọn Đạt, Không đạt, cách xử lý, lô đã dùng (bước 2), thêm lô chờ kiểm tra (bước 1), thêm, bỏ dòng (bước 2, 3), nút Ghi phiếu, Xác nhận phiếu; in sổ kiểm thực theo khoảng ngày (PDF, Excel); lưới phiếu 30 ngày gần đây | Bếp (`P12.kitchen.manage`), người kiểm thực (`P12.food-safety.inspect`), quản lý đơn vị, người xem báo cáo bếp |
+| MH-237 | Lưu và hủy mẫu thức ăn (YCTD-146; mục "3.2.", `/food-safety/samples`, lưới khóa `food-samples`): lọc ngày, trạng thái; cột tên mẫu, bữa, số suất, khối lượng, dụng cụ, nhiệt độ, lấy lúc, người lưu, hủy được từ, trạng thái (Đang lưu, Đến hạn hủy, Giữ mẫu, Đã hủy), người hủy, thời điểm hủy; khung "Lưu mẫu thức ăn" có gợi ý món của ngày (bắt buộc lưu mẫu khi từ 30 suất), tối thiểu 100 g, 150 ml; chọn dòng rồi "Hủy mẫu đã chọn" kèm chất lượng mẫu; Giữ mẫu (lý do), Bỏ giữ; In sổ lưu mẫu (PDF, Excel), In nhãn mẫu | Bếp (`P12.kitchen.manage`), người kiểm thực (`P12.food-safety.inspect`), quản lý đơn vị, người xem báo cáo bếp |
+| MH-238 | Lô hàng nhập (YCTD-146; mục "3.3.", `/food-safety/lots`, lưới khóa `food-lots`; mở thẳng một lô bằng `?lot_id=`): lọc ngày nhập, trạng thái, hạn dùng (sắp hết hạn, đã hết hạn); cột mã lô, nguyên liệu, nhà cung cấp, ngày nhập, khối lượng, số lô, hạn dùng (nhãn cảnh báo), chứng từ, phiếu đi chợ, trạng thái; khung thông tin lô (sửa, tải tệp chứng từ), kết quả bước 1, món đã dùng lô; Đã dùng hết, Hủy lô (lý do); Thêm lô | Bếp (`P12.kitchen.manage`), người kiểm thực (`P12.food-safety.inspect`), quản lý đơn vị, người xem báo cáo bếp |
+| MH-239 | Hồ sơ an toàn thực phẩm của nhà cung cấp (YCTD-146; mục "3.4.", `/food-safety/supplier-records`, lưới khóa `food-supplier-certificates`): cảnh báo giấy sắp hết hạn, hết hạn; bảng tổng hợp theo nhà cung cấp (có, chưa có giấy ATTP còn hiệu lực, số giấy sắp hết hạn, hết hạn, hạn gần nhất); lưới giấy tờ (nhà cung cấp, loại, số, nơi cấp, ngày cấp, hết hạn, còn ngày, hiệu lực, tệp) lọc theo nhà cung cấp, hiệu lực; Thêm giấy tờ, Sửa, Thu hồi | Bếp (`P12.kitchen.manage`), người kiểm thực (`P12.food-safety.inspect`), quản lý đơn vị, người xem báo cáo bếp |
+| MH-240 | Truy xuất nguồn gốc (YCTD-146; mục "3.5.", `/food-safety/trace`): chọn ngày ăn, món (mọi món của ngày); mỗi món một thẻ: bữa, số suất, kết quả bước 2, 3, nguồn lô (Đã ghi ở bước 2, Suy ra theo nguyên liệu – cần đối chiếu), từng lô (nguyên liệu, nhà cung cấp, địa chỉ, điện thoại, ngày nhập, số lô, hạn dùng, chứng từ hoặc phiếu đi chợ, kết quả bước 1, giấy tờ kèm hiệu lực vào ngày), mẫu lưu và nút Giữ mẫu; In trang | Bếp (`P12.kitchen.manage`), người kiểm thực (`P12.food-safety.inspect`), quản lý đơn vị, người xem báo cáo bếp |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 

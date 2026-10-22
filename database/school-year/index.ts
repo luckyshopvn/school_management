@@ -64,6 +64,7 @@ import { migration as createKpi } from './migrations/0064_create_kpi.js';
 import { migration as extendTasksForDirectives } from './migrations/0065_extend_tasks_for_directives.js';
 import { migration as createProfessionalRecords } from './migrations/0066_create_professional_records.js';
 import { migration as addEquipmentLocationsStocktakes } from './migrations/0067_add_equipment_locations_stocktakes.js';
+import { migration as createFoodSafety } from './migrations/0068_create_food_safety.js';
 import { migration as createEducationPlans } from './migrations/0069_create_education_plans.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
@@ -133,5 +134,6 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0065_extend_tasks_for_directives': extendTasksForDirectives,
   '0066_create_professional_records': createProfessionalRecords,
   '0067_add_equipment_locations_stocktakes': addEquipmentLocationsStocktakes,
+  '0068_create_food_safety': createFoodSafety,
   '0069_create_education_plans': createEducationPlans,
 };

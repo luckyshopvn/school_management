@@ -13,6 +13,7 @@ import { queueNotification } from '../common/notification-queue.js';
 import { notFoundError, readRequiredUuid, type RequestBody } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { nextDocumentCode } from '../fees/document-codes.js';
+import { createLotsForPurchase, supplierCertificateWarning } from './food-safety-records.js';
 import { KitchenAccess } from './kitchen-access.js';
 import { check, queryUuid, readDate, readMoney, readQuantity, readText } from './kitchen-fields.js';
 import { KitchenMealsService } from './kitchen-meals.js';
@@ -20,7 +21,9 @@ import { KitchenMealsService } from './kitchen-meals.js';
 // Phiếu đi chợ (P12-09; BR-60, BR-63, BR-28; QT-05; YCTD-76). Bếp lập phiếu theo nhà cung cấp, mỗi dòng ghi kèm định
 // lượng của ngày (số cần theo thực đơn đã công bố và số suất) để thấy chênh lệch giữa định lượng và thực mua (BR-60).
 // Xác nhận nhập thì tồn nguyên liệu tăng và phiếu chuyển sang chờ thanh toán: đó là đề nghị thanh toán gửi kế toán; kế
-// toán lập phiếu chi theo QT-05 (BR-28), không lập phiếu chi tự động, rồi gắn phiếu chi đã phát hành vào phiếu đi chợ
+// toán lập phiếu chi theo QT-05 (BR-28), không lập phiếu chi tự động, rồi gắn phiếu chi đã phát hành vào phiếu đi chợ.
+// Bán trú (DT-18 phần 22b): xác nhận nhập thì mỗi dòng thành một lô hàng chờ kiểm tra trước khi chế biến; nhà cung cấp chưa có
+// giấy chứng nhận an toàn thực phẩm còn hiệu lực thì phiếu kèm cảnh báo (BR-145), không chặn
 const STATUSES: MarketPurchaseStatus[] = ['draft', 'received', 'cancelled'];
 const MAXIMUM_LINES = 100;
 
@@ -190,6 +193,7 @@ export class KitchenPurchasesService {
         .select(['ingredient_id', 'quantity'])
         .where('purchase_id', '=', id)
         .execute();
+      const lots = await createLotsForPurchase(transaction, purchase, origin.actorUserId, new Date());
       for (const item of items) {
         await transaction
           .updateTable('ingredients')
@@ -213,7 +217,7 @@ export class KitchenPurchasesService {
         entityId: id,
         action: 'update',
         before: { status: 'draft', payment_status: null },
-        after: { status: 'received', payment_status: 'awaiting_payment', stock_in: items },
+        after: { status: 'received', payment_status: 'awaiting_payment', stock_in: items, food_lots: lots },
       });
     });
     return this.detailOf(database, id);
@@ -336,9 +340,20 @@ export class KitchenPurchasesService {
       .where('market_purchase_items.purchase_id', '=', id)
       .orderBy('ingredients.name')
       .execute();
+    const lots = await database
+      .selectFrom('food_lots')
+      .innerJoin('market_purchase_items', 'market_purchase_items.id', 'food_lots.purchase_item_id')
+      .select(['food_lots.id', 'food_lots.code', 'food_lots.purchase_item_id', 'food_lots.status'])
+      .where('market_purchase_items.purchase_id', '=', id)
+      .execute();
     return {
       ...purchase,
       total_amount: Number(purchase.total_amount),
+      supplier_certificate_warning: await supplierCertificateWarning(
+        database,
+        purchase.supplier_id,
+        purchase.purchase_date,
+      ),
       items: items.map((item) => {
         const quantity = Number(item.quantity);
         const planned = item.planned_quantity === null ? null : Number(item.planned_quantity);
@@ -348,6 +363,7 @@ export class KitchenPurchasesService {
           planned_quantity: planned,
           // Chênh lệch giữa thực mua và định lượng của ngày (BR-60)
           difference: planned === null ? null : Math.round((quantity - planned) * 1000) / 1000,
+          lot: lots.find((lot) => lot.purchase_item_id === item.id) ?? null,
           current_stock: Number(item.current_stock),
           unit_price: Number(item.unit_price),
           amount: Number(item.amount),
