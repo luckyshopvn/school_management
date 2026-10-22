@@ -31,7 +31,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Đối chiếu trước, sau chuyển: trên CSDL kiểm thử, số phiên bản biểu phí, dòng giá không đổi; kiểm thử đơn vị thống kê, EMIS, chấm công và suất ăn, tăng trưởng, biểu phí đang có đạt không sửa kỳ vọng.
 - Rủi ro: lọc cấp theo lớp đang học nên trẻ chưa xếp lớp chỉ hiện khi không lọc; biểu mẫu EMIS Mầm non bỏ trẻ của lớp cấp khác.
 - Kiểm thử cần thực hiện: CT-811 đến CT-818. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/statistics/level-reports.test.ts` CT-19d-1 đến CT-19d-7 đạt 7/7; kiểm thử đơn vị đang có không sửa kỳ vọng; kiểm thử đơn vị toàn bộ kho mã 1026/1026; kiểm thử giao diện `tests/e2e/84-level-reports.spec.ts` (CT-19d-8) đạt; toàn bộ kiểm thử giao diện 155/155; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
-- Trạng thái: Đã triển khai (PR …).
+- Trạng thái: Đã triển khai (PR 132).
 
 ### YCTD-152: DT-19 phần 19b: cấu trúc theo cấp học – 2026-10-22
 
