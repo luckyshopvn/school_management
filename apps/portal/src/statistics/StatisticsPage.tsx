@@ -1,9 +1,9 @@
 import { useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { PERMISSION_CODES, type SchoolLevelCode } from '@school-management/shared';
+import { PERMISSION_CODES } from '@school-management/shared';
 import { Alert, Button } from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
-import { LevelSelect } from '../school-levels/LevelSelect.js';
+import { LevelSelect, useReportLevel } from '../school-levels/LevelSelect.js';
 import { messageOf } from '../health/health-api.js';
 import { AppShell } from '../pages/AppShell.js';
 import { formatNumber } from '../reports/reports-api.js';
@@ -152,7 +152,7 @@ export function StatisticsPage() {
   const tab = chosen ?? tabs[0];
   const unitChoice = useUnitChoice();
   const [orgUnitId, setOrgUnitId] = useState('');
-  const [schoolLevel, setSchoolLevel] = useState<SchoolLevelCode | ''>('');
+  const level = useReportLevel();
   return (
     <AppShell>
       <div className="flex flex-col gap-4">
@@ -175,11 +175,11 @@ export function StatisticsPage() {
           selectedId={orgUnitId}
           onSelect={setOrgUnitId}
         />
-        {tab === 'staff' ? null : <LevelSelect value={schoolLevel} onChange={setSchoolLevel} />}
+        {tab === 'staff' ? null : <LevelSelect value={level.value} onChange={level.setValue} />}
         {tab === undefined ? <Alert tone="info">Bạn chưa được cấp quyền xem thống kê.</Alert> : null}
-        {tab === 'classes' ? <ClassesView orgUnitId={orgUnitId} schoolLevel={schoolLevel} /> : null}
+        {tab === 'classes' ? <ClassesView orgUnitId={orgUnitId} schoolLevel={level.effective} /> : null}
         {tab === 'staff' ? <StaffView orgUnitId={orgUnitId} /> : null}
-        {tab === 'children' ? <StudentStatisticsView orgUnitId={orgUnitId} schoolLevel={schoolLevel} /> : null}
+        {tab === 'children' ? <StudentStatisticsView orgUnitId={orgUnitId} schoolLevel={level.effective} /> : null}
       </div>
     </AppShell>
   );

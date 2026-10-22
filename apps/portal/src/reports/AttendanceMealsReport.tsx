@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Alert, Button, TextField } from '@school-management/ui';
-import { ATTENDANCE_STAGES, type SchoolLevelCode } from '@school-management/shared';
+import { ATTENDANCE_STAGES } from '@school-management/shared';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
-import { LevelSelect } from '../school-levels/LevelSelect.js';
+import { LevelSelect, useReportLevel } from '../school-levels/LevelSelect.js';
 import { listClasses } from '../classes/classes-api.js';
 import { ApiError } from '../session/api-client.js';
 import { ExportButton } from './PhaseTwoReports.js';
@@ -80,14 +80,14 @@ export function AttendanceMealsView({ canExport }: { canExport: boolean }) {
   const [date, setDate] = useState(today());
   const [orgUnitId, setOrgUnitId] = useState('');
   const [classId, setClassId] = useState('');
-  const [schoolLevel, setSchoolLevel] = useState<SchoolLevelCode | ''>('');
+  const level = useReportLevel();
   const [applied, setApplied] = useState<Record<string, string | null>>();
   const values = {
     period,
     date,
     org_unit_id: orgUnitId || null,
     class_id: classId || null,
-    school_level: schoolLevel || null,
+    school_level: level.effective || null,
   };
   const classes = useQuery({
     queryKey: ['classes', orgUnitId],
@@ -143,7 +143,7 @@ export function AttendanceMealsView({ canExport }: { canExport: boolean }) {
             setClassId('');
           }}
         />
-        <LevelSelect value={schoolLevel} onChange={setSchoolLevel} />
+        <LevelSelect value={level.value} onChange={level.setValue} />
         <label className="flex flex-col gap-2 text-label font-medium text-text">
           Lớp
           <select className={selectClass} value={classId} onChange={(event) => setClassId(event.target.value)}>

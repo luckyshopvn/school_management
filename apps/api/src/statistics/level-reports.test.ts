@@ -81,13 +81,16 @@ describe('Số liệu theo cấp học (YCTD-154)', () => {
     await environment.close();
   });
 
-  it('CT-19d-1: trường chỉ có Mầm non: thống kê lớp như trước, không có nhóm theo khối; cấp chưa bật bị từ chối', async () => {
+  it('CT-19d-1: trường chỉ có Mầm non: thống kê lớp như trước, không có nhóm theo khối; all là mọi cấp; cấp chưa bật bị từ chối', async () => {
     const stats = await api('GET', '/statistics/classes');
     assert.equal(stats.status, 200, JSON.stringify(stats.body));
     assert.deepEqual(stats.body.grade_groups, []);
     assert.equal((stats.body.totals as Row).class_count, 1);
     const years = (stats.body.groups as Row[]).find((group) => group.key === 'years_5_6');
     assert.equal(years?.class_count, 1);
+    // Giá trị "all" của tham số cấp dùng chung (19c) là mọi cấp người dùng được xem
+    const all = await api('GET', '/statistics/classes?school_level=all');
+    assert.deepEqual(all.body, stats.body);
     assert.equal((await api('GET', '/statistics/classes?school_level=DH')).status, 400);
     assert.equal((await api('GET', '/statistics/classes?school_level=TH')).status, 403);
   });
