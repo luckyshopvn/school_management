@@ -184,6 +184,9 @@ import { professionalRecordsTransitionStep } from './professional-records/profes
 import { EducationPlansController } from './education-plans/education-plans.controller.js';
 import { EducationPlansService } from './education-plans/education-plans.js';
 import { educationPlansTransitionStep } from './education-plans/education-plans-transition.js';
+import { QualityAssuranceController } from './quality-assurance/quality-assurance.controller.js';
+import { QualityAssuranceService } from './quality-assurance/quality-assurance.js';
+import { qualityAssuranceTransitionStep } from './quality-assurance/quality-assurance-transition.js';
 import { MY_WORK_SOURCE_TYPES, type MyWorkSource } from './my-work/my-work-sources.js';
 import { MY_WORK_SOURCES, MyWorkController, MyWorkService } from './my-work/my-work.js';
 import {
@@ -425,6 +428,8 @@ export class ApplicationModule {
         // Hồ sơ chuyên môn và Việc của tôi (DT-18 phần 18e)
         ProfessionalRecordsController,
         EducationPlansController,
+        // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
+        QualityAssuranceController,
         MyWorkController,
         EquipmentController,
         EquipmentLocationsController,
@@ -612,6 +617,7 @@ export class ApplicationModule {
             professionalStandardsTransitionStep,
             professionalRecordsTransitionStep,
             educationPlansTransitionStep,
+            qualityAssuranceTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -844,6 +850,8 @@ export class ApplicationModule {
         ProfessionalRecordsService,
         // Kế hoạch giáo dục (DT-18 phần 22i)
         EducationPlansService,
+        // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
+        QualityAssuranceService,
         ...MY_WORK_SOURCE_TYPES,
         {
           provide: MY_WORK_SOURCES,

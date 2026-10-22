@@ -4356,6 +4356,161 @@ export interface EducationPlanEventsTable {
   created_at: CreatedTimestamp;
 }
 
+// Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f, YCTD-149)
+export type QualityAssessmentStatus = 'draft' | 'in_progress' | 'completed';
+export type QualityReportStatus = 'draft' | 'submitted' | 'approved' | 'returned';
+export type QualityEvidenceStatus = 'missing' | 'collecting' | 'sufficient' | 'needs_update';
+export type QualityEvidenceSource =
+  | 'upload'
+  | 'professional_document'
+  | 'incoming_document'
+  | 'outgoing_document'
+  | 'none';
+export type QualityCouncilPosition = 'chair' | 'vice_chair' | 'secretary' | 'member';
+
+export interface QualityFrameworksTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  school_level: KpiSchoolLevel | null;
+  legal_basis: string | null;
+  max_level: Generated<number>;
+  sort_order: Generated<number>;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface QualityStandardsTable {
+  id: Generated<string>;
+  framework_id: string;
+  code: string;
+  title: string;
+  sort_order: Generated<number>;
+}
+
+export interface QualityCriteriaTable {
+  id: Generated<string>;
+  framework_id: string;
+  standard_id: string;
+  code: string;
+  title: string;
+  evidence_hint: string | null;
+  sort_order: Generated<number>;
+}
+
+export interface QualityIndicatorsTable {
+  id: Generated<string>;
+  criterion_id: string;
+  level: number;
+  code: string;
+  content: string;
+  sort_order: Generated<number>;
+}
+
+export interface QualityAssessmentsTable {
+  id: Generated<string>;
+  framework_id: string;
+  org_unit_id: string;
+  title: string;
+  decision_number: string | null;
+  decision_date: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  status: Generated<QualityAssessmentStatus>;
+  introduction: string | null;
+  conclusion: string | null;
+  self_level: number | null;
+  completed_at: Date | null;
+  completed_by_name: string | null;
+  external_level: number | null;
+  recognition_decision: string | null;
+  recognition_date: string | null;
+  recognition_valid_until: string | null;
+  work_plan_id: string | null;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface QualityCouncilMembersTable {
+  id: Generated<string>;
+  assessment_id: string;
+  staff_id: string;
+  staff_name: string;
+  position: QualityCouncilPosition;
+  duty: string | null;
+  sort_order: Generated<number>;
+}
+
+export interface QualityWorkGroupsTable {
+  id: Generated<string>;
+  assessment_id: string;
+  name: string;
+  leader_staff_id: string | null;
+  sort_order: Generated<number>;
+}
+
+export interface QualityWorkGroupMembersTable {
+  group_id: string;
+  staff_id: string;
+  staff_name: string;
+}
+
+export interface QualityCriterionReportsTable {
+  id: Generated<string>;
+  assessment_id: string;
+  criterion_id: string;
+  work_group_id: string | null;
+  current_state: string | null;
+  strengths: string | null;
+  weaknesses: string | null;
+  improvement_actions: ColumnType<unknown, string | undefined, string>;
+  indicator_results: ColumnType<unknown, string | undefined, string>;
+  self_level: number | null;
+  status: Generated<QualityReportStatus>;
+  submitted_at: Date | null;
+  submitted_by_name: string | null;
+  reviewed_at: Date | null;
+  reviewed_by_name: string | null;
+  return_note: string | null;
+  updated_by_name: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface QualityEvidencesTable {
+  id: Generated<string>;
+  assessment_id: string;
+  criterion_id: string;
+  box: number;
+  sequence: number;
+  code: string;
+  title: string;
+  document_number: string | null;
+  issued_date: string | null;
+  issuer: string | null;
+  description: string | null;
+  status: Generated<QualityEvidenceStatus>;
+  source_type: Generated<QualityEvidenceSource>;
+  file_id: string | null;
+  professional_document_id: string | null;
+  system_document_id: string | null;
+  source_label: string | null;
+  inherited_code: string | null;
+  inherited_year_name: string | null;
+  created_by: string | null;
+  created_by_name: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface QualityEvidenceCriteriaTable {
+  evidence_id: string;
+  criterion_id: string;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -4617,4 +4772,15 @@ export interface SchoolYearDatabase {
   education_plans: EducationPlansTable;
   education_plan_versions: EducationPlanVersionsTable;
   education_plan_events: EducationPlanEventsTable;
+  quality_frameworks: QualityFrameworksTable;
+  quality_standards: QualityStandardsTable;
+  quality_criteria: QualityCriteriaTable;
+  quality_indicators: QualityIndicatorsTable;
+  quality_assessments: QualityAssessmentsTable;
+  quality_council_members: QualityCouncilMembersTable;
+  quality_work_groups: QualityWorkGroupsTable;
+  quality_work_group_members: QualityWorkGroupMembersTable;
+  quality_criterion_reports: QualityCriterionReportsTable;
+  quality_evidences: QualityEvidencesTable;
+  quality_evidence_criteria: QualityEvidenceCriteriaTable;
 }

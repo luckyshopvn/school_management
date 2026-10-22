@@ -21,7 +21,8 @@ export type PortalWorkspaceKey =
   | 'reports'
   | 'kpi'
   | 'website'
-  | 'professional-records';
+  | 'professional-records'
+  | 'quality-assurance';
 
 export interface PortalMenuNode {
   // Số thứ bậc có dấu chấm cuối như của Sở, ví dụ "4.1.1."
@@ -475,6 +476,24 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('5.4.', 'Duyệt kế hoạch', '/education-plans/review'),
         leaf('5.5.', 'Tiến độ duyệt kế hoạch', '/education-plans/progress'),
         leaf('5.6.', 'Thư viện mẫu kế hoạch', '/education-plan-templates'),
+      ]),
+    ],
+  },
+  {
+    // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f) theo mô tả công khai của trang bảo đảm chất lượng đã khảo sát; phân hệ
+    // riêng nên đánh số liên tục, tên mục do Claude tự đặt theo ủy quyền của Eric ngày 2026-10-11. Mục 1.7 Rà soát thông tin
+    // kiểm định CLGD vẫn ở phân hệ Quản lý giáo dục Mầm non như Sở; mục 2.1 ở đây đọc và ghi vào đó
+    key: 'quality-assurance',
+    label: 'Bảo đảm chất lượng',
+    menu: [
+      group('1.', 'Tự đánh giá', [
+        leaf('1.1.', 'Đợt tự đánh giá', '/quality/assessments'),
+        leaf('1.2.', 'Phiếu đánh giá tiêu chí', '/quality/reports'),
+        leaf('1.3.', 'Minh chứng', '/quality/evidences'),
+      ]),
+      group('2.', 'Kiểm định và thiết lập', [
+        leaf('2.1.', 'Theo dõi công nhận', '/quality/recognition'),
+        leaf('2.2.', 'Bộ tiêu chuẩn đánh giá', '/quality/frameworks'),
       ]),
     ],
   },

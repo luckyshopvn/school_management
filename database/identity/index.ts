@@ -55,6 +55,7 @@ import { migration as addWebsitePermissions } from './migrations/0058_add_websit
 import { migration as addImpersonationAndDataExport } from './migrations/0059_add_impersonation_and_data_export.js';
 import { migration as addFoodSafetyPermission } from './migrations/0060_add_food_safety_permission.js';
 import { migration as addEducationPlanPermissions } from './migrations/0061_add_education_plan_permissions.js';
+import { migration as addQualityAssurancePermissions } from './migrations/0063_add_quality_assurance_permissions.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu định danh, theo số thứ tự (QU-01)
 export const identityMigrations: Record<string, Migration> = {
@@ -114,4 +115,5 @@ export const identityMigrations: Record<string, Migration> = {
   '0059_add_impersonation_and_data_export': addImpersonationAndDataExport,
   '0060_add_food_safety_permission': addFoodSafetyPermission,
   '0061_add_education_plan_permissions': addEducationPlanPermissions,
+  '0063_add_quality_assurance_permissions': addQualityAssurancePermissions,
 };
