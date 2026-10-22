@@ -1,8 +1,8 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.24
-- Ngày cập nhật: 2026-10-21
+- Phiên bản: 0.25
+- Ngày cập nhật: 2026-10-22
 - Trạng thái: Đang cập nhật
 
 ## Quy ước ghi nhật ký
@@ -13,6 +13,27 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-22 — Kế hoạch DT-19 nền đa cấp học
+
+#### Công việc đã thực hiện
+
+- Đọc mã hiện tại trước khi chia phần: lược đồ cơ sở dữ liệu hệ thống, định danh, năm học (`org_units`, `grade_levels`, `classes`, `academic_terms`, `school_weeks`, các cột `school_level`, `education_level`, `school_levels` đã có ở DT-18), nơi ngầm giả định Mầm non (nhóm tuổi, tháng tuổi, EMIS, thống kê, biểu phí, menu "Quản lý giáo dục Mầm non", `EDUCATION_LEVEL_LABEL`), hàm `cacheKey`, `storageKey`; đọc kế hoạch SaaS và dòng DT-19 của kế hoạch DT-18.
+- Thêm mục 10 vào `32_KE_HOACH_THEO_HE_THONG_SO.md` (phiên bản 1.30): kế hoạch DT-19 gồm sáu phần 19a đến 19f chạy ba đợt; rủi ro và cách kiểm chuyển dữ liệu Mầm non; bảng phần mở đường cho DT-20, DT-21.
+- Ghi YCTD-150 (chỉ đổi tài liệu).
+
+#### Quyết định
+
+- Giữ một cơ sở dữ liệu năm học cho cả trường (không tách theo cấp), một nguồn cấp học `school_levels` ở cơ sở dữ liệu hệ thống, bốn mã cấp cố định, không đổi tên bảng `children`; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Giữ sẵn YCTD-151 đến YCTD-156, migration năm học 0072 đến 0075, hệ thống 0023 đến 0025, định danh 0064 đến 0066, e2e `81-` đến `86-`.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-150, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 10. Không đổi mã nguồn, không đổi phiên bản phần mềm.
+
+#### Vấn đề tồn đọng
+
+- Chưa làm phần nào của DT-19. Chờ gộp 22d, 22f (PR khác) để rà lại giả định Mầm non ở hai phần đó khi làm 19d.
 
 ### 2026-10-21 — DT-18 phần 22b: bán trú, kiểm thực ba bước và an toàn thực phẩm
 
