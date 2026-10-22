@@ -47,7 +47,7 @@ test('Trường bật Tiểu học: thống kê lớp lọc theo cấp, biểu p
   await openMenu(principal, '/statistics');
   await expect(principal.getByRole('heading', { name: '5.1 Thống kê lớp học' })).toBeVisible();
   await expect(principal.getByText(/Tổng số lớp: [1-9]/)).toBeVisible();
-  await principal.getByRole('combobox', { name: /^Cấp học/ }).selectOption({ label: 'Tiểu học' });
+  await principal.getByRole('combobox', { name: /^Cấp học(?! đang làm việc)/ }).selectOption({ label: 'Tiểu học' });
   await expect(principal.getByText('Tổng số lớp: 0;')).toBeVisible();
 
   // Biểu phí: chọn cấp Tiểu học thì bảng giá không còn khối Mầm non
