@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.95
+- Phiên bản: 1.96
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -282,6 +282,8 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | GET | /api/v1/system-announcements/active | Thông báo đang bật và còn hiệu lực hôm nay; mọi người đã đăng nhập |
 | GET, PUT | /api/v1/app-links | Ứng dụng liên kết theo thứ tự (mọi người đã đăng nhập); thay cả danh sách (cần `P01.announcement.manage`) |
 | GET | /api/v1/portal-context | Tên, mã trường, năm học đang dùng, cấp học, lời nhắc mã định danh tổ chức cho thanh đầu trang; mọi người đã đăng nhập; từ YCTD-127 tên trường lấy theo tên trường hiển thị ở "1.4. Cấu hình trường" khi có |
+| GET, PUT | /api/v1/school-levels | Cấp học của trường kèm số lớp, cấp người dùng được xem (mọi người đã đăng nhập); ghi cả bốn cấp (cần `P01.school-level.manage`) (P01-35, YCTD-151) |
+| GET, PUT | /api/v1/users/{id}/school-levels | Phạm vi cấp học của tài khoản, dịch vụ định danh (cần quyền quản lý tài khoản đó) (P01-36, YCTD-151) |
 | GET | /api/v1/public/login-info | Công khai: tên, mã trường, năm học đang dùng cho trang đăng nhập (YCTD-123); từ YCTD-127 tên trường lấy theo tên trường hiển thị khi có |
 | GET, PUT | /api/v1/school-profile | Đọc hồ sơ trường kèm Trường chính; ghi các thẻ gửi lên (P01-15, YCTD-106) |
 | GET, PUT | /api/v1/accreditation-review | Đọc, ghi bản "1.7. Rà soát thông tin kiểm định CLGD" của năm học (P01-24, BR-125, YCTD-127; đủ ô như Sở từ YCTD-136, BR-129) |
@@ -1415,6 +1417,14 @@ Giao kèo thi đua, khen thưởng (DT-18 phần 22d, YCTD-148, BR-147 đến BR
 5. `POST /emulation/appeals` nhận `campaign_id`, `nomination_id` (bắt buộc với phúc khảo), `kind`, `content`; quá hạn trả 422 BR-150. `POST /{id}/resolve` nhận `accept`, `response`.
 6. `POST /emulation/decisions` nhận `campaign_id`, `kind`, `title`, `basis`, `signer_name`, `signer_title`, `nomination_ids`; lỗi theo ô `nomination_ids.{n}`. `POST /{id}/outgoing` tạo văn bản đi dự thảo kèm tệp Word. `POST /{id}/issue` (`P09.emulation.decide`) nhận `number`, `issue_date`. `POST /{id}/upper-result` nhận `number`, `date`, `issuer`, `awarded_ids`. `GET /emulation/awards/{id}/certificate` trả PDF; mã QR là địa chỉ `/tra-cuu-khen-thuong?ma=` theo nguồn của yêu cầu.
 7. `GET /emulation/history` nhận `q`, `target`, `title_code`, `staff_id`; `POST` nhận `year_name`, `title_code`, `title_name`, `title_kind`, `target`, `staff_id` hoặc `department_id`, `decision_number`, `decision_date`, `issuer`, `note`. `GET /public/emulation-awards/verify?code=` (không đăng nhập, giới hạn số lần) trả `school_name`, `subject_name`, `title_name`, `year_name`, `decision_number`, `decision_date`, `issuer`.
+
+
+Giao kèo cấp học của trường (DT-19 phần 19a, YCTD-151, BR-151):
+
+1. `GET /school-levels` trả `levels` (theo thứ tự: `code`, `is_enabled`, `order_no`, `display_name`, `learner_term`, `context_label`, `updated_by_name`, `updated_at`, `class_count`) và `user_levels` (cấp đang bật thu hẹp theo phạm vi cấp của người gọi).
+2. `PUT /school-levels` nhận `levels` đủ bốn cấp, mỗi cấp một lần; lỗi theo ô `levels[n].order_no`, `levels[n].display_name`, `levels[n].learner_term`, `levels[n].context_label` (400), thiếu, trùng cấp hoặc trùng thứ tự ở `levels` (400); không cấp nào bật trả 422 BR-151. Trả như `GET`.
+3. `GET /users/{id}/school-levels` trả `school_levels` (theo thứ tự mã); `PUT` nhận `school_levels` (mảng mã, trống là mọi cấp; mã sai trả 400 ở `school_levels`); tài khoản ngoài phạm vi quản lý trả 403. `GET /auth/me` thêm `school_levels`.
+4. `GET /portal-context` trả `education_level` là nhãn các cấp đang bật nối bằng dấu phẩy; `GET /website/settings` trả `school_levels` là các cấp đang bật.
 
 
 Giao kèo kế hoạch giáo dục (DT-18 phần 22i, YCTD-147, BR-142):

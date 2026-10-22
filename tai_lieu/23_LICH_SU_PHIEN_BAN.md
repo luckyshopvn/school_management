@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.25
+- Phiên bản: 0.26
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.100.0 – 2026-10-22
+
+- Phạm vi thay đổi: DT-19 phần 19a, nền cấp học của trường (YCTD-151).
+- Chức năng mới: bảng cấp học của trường (bốn mã cố định, Mầm non bật sẵn), hàm dùng chung `SchoolLevelResolver`, phạm vi cấp học của người dùng, thẻ "Cấp học của trường" ở 1.4 Cấu hình trường; ô ngữ cảnh và website đọc cấp từ một nguồn.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp hệ thống `0023_create_school_levels`; tệp định danh `0064_add_user_school_levels`.
+- Thay đổi API: `/school-levels`, `/users/{id}/school-levels`; `/auth/me` thêm `school_levels`.
+- Kiểm thử: kịch bản CT-786 đến CT-791. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/school-levels/school-levels.test.ts` CT-19a-1 đến CT-19a-5 đạt 5/5; kiểm thử đơn vị toàn bộ kho mã … (không sửa kỳ vọng của kiểm thử đang có); kiểm thử giao diện `tests/e2e/81-school-levels.spec.ts` (CT-19a-6) đạt; toàn bộ kiểm thử giao diện …; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: máy chủ API khác thấy thay đổi cấp chậm nhất 30 giây.
+- Khả năng tương thích: trường chỉ có Mầm non không đổi hành vi; không đổi điểm cuối cũ (chỉ thêm trường).
+- Phương án quay lui: hoàn lại commit gộp của nhánh 19a; chạy phần quay lui của tệp hệ thống `0023` và tệp định danh `0064`.
 
 ### Phiên bản 0.99.0 – 2026-10-22
 

@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.80
+- Phiên bản: 1.81
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -603,12 +603,15 @@ Từ YCTD-142 (DT-18 phần 18e), phân hệ "Hồ sơ chuyên môn" (khóa `pro
 | MH-250 | Báo cáo đợt thi đua (YCTD-148; "5.2.", `/emulation/reports`, lưới khóa `emulation-report`): chọn đợt; số cán bộ, phúc khảo, khiếu nại; theo danh hiệu: đăng ký, đăng ký được duyệt, hồ sơ, thông qua, không thông qua, đã khen; Xuất Excel | Người quản lý (`P09.emulation.manage`), người ban hành (`P09.emulation.decide`) |
 | MH-251 | Danh hiệu và hình thức khen thưởng (YCTD-148; "6.1.", `/emulation/titles`, lưới khóa `emulation-titles`): cột mã, tên, loại, đối tượng, cấp quyết định, KPI tối thiểu, năm liên tục, tỉ lệ tối đa, phiếu tối thiểu, số tiêu chí, phiên bản, trạng thái; Thêm danh hiệu, Sửa (thông tin, điều kiện, tiêu chí mỗi dòng "mã | tên | trọng số | điểm tối đa"), Xóa, Nạp danh mục mặc định | Người có quyền của phân hệ (`P09.emulation.use`, `.manage`, `.decide`) |
 | MH-252 | Tra cứu khen thưởng (YCTD-148; `/tra-cuu-khen-thuong?ma=`, không cần đăng nhập): ô mã tra cứu, Tra cứu; kết quả: trường, cá nhân hoặc tập thể, danh hiệu, năm học, số, ngày quyết định, cấp khen | Công khai |
+| MH-253 | Cấp học của trường (YCTD-151; thẻ ở "1.4. Cấu hình trường", `/settings`): bảng bốn cấp có ô Bật, Mã, Thứ tự, Tên hiển thị, Gọi người học, Nhãn ô ngữ cảnh, Số lớp năm học này; nút "Ghi cấp học", báo "Đã ghi cấp học của trường"; cảnh báo "Cấp … đang có … lớp" khi bỏ tích cấp có lớp; người không có quyền thấy ô bị khóa, không có nút. Chi tiết tài khoản (1.1) có khối "Phạm vi cấp học" (ô chọn các cấp đang bật, nút "Ghi phạm vi cấp học") khi trường bật từ hai cấp | Mọi người đã đăng nhập xem; sửa: Hiệu trưởng (`P01.school-level.manage`); phạm vi cấp: người quản lý tài khoản |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 
 Từ YCTD-126: MH-02 thêm nút Thay đổi, Xóa (hồ sơ nháp, hộp xác nhận xóa), Cấp mã định danh Bộ, Xuất file lỗi, bộ lọc "Chưa có mã định danh Bộ GD&ĐT"; hồ sơ sửa được dân tộc (danh sách 54 dân tộc), diện chính sách, khuyết tật, biết bơi. MH-40 đổi tên "4.1.13. Nhập dữ liệu khác từ Excel", còn công nợ đầu kỳ. MH-85 thêm "Chuyển lớp hàng loạt" và khối "Chuyển đi, tiếp nhận chuyển đến" (lưới khóa `student-transfers`: Loại, Ngày chuyển, Mã định danh Bộ GD&ĐT, Họ tên, Ngày sinh, Trường đến/đi, Tỉnh, xã, Lý do, Trạng thái; nút Đề nghị chuyển đi, Tiếp nhận chuyển đến; trên dòng Duyệt, Từ chối, Hồ sơ PDF, Tệp mẫu Bộ). MH-94 có loại địa chỉ "Chuyển đến từ", khối nhập "Địa chỉ mới của học sinh", nút Sửa, Xóa trên dòng đối chiếu.
 
 Từ YCTD-127 (DT-16 phần 16e), màn hình "1.4. Cấu hình trường" (`/settings`, phần cấu hình đơn vị của MH-30) có khối "Cấu hình trường" ở đầu trang theo mục 1.4 của Sở: ô Tên trường hiển thị (chú thích để trống là tên Trường chính trong cây đơn vị), Tên đơn vị hành chính, ô chọn Bật, Tắt "Tính cân nặng/chiều cao cho trẻ suy dinh dưỡng thể nhẹ cân", nút Ghi, báo "Đã ghi cấu hình trường"; ghi xong thanh đầu trang đổi theo tên trường hiển thị; bảng cấu hình theo đơn vị không còn ba mục này. Khối sửa được với người có `P01.setting.manage` ở phạm vi toàn trường, người khác xem chỉ đọc (BR-125).
+
+Từ YCTD-151 (DT-19 phần 19a), "1.4. Cấu hình trường" có thẻ "Cấp học của trường" (MH-253) ngay sau khối "Cấu hình trường". Ô ngữ cảnh ở thanh đầu trang lấy nhãn các cấp đang bật (trường chỉ có Mầm non giữ "Cấp MN · năm học · học kỳ"). Ô "Cấp học của trường" ở cấu hình website chỉ hiển thị các cấp đang bật, kèm chú thích đổi ở Cấu hình trường.
 
 Từ YCTD-122: MH-95 có cột Đơn vị, nhãn "Sắp đến hạn" cạnh thời hạn, Mở rộng tìm kiếm thêm Đơn vị và "Chỉ hồ sơ sắp đến hạn"; biểu mẫu thêm ô Đơn vị và ô chọn Người giải quyết từ nhân sự đang làm việc (chọn "Người khác (nhập tên)" thì hiện ô Tên người giải quyết). MH-96, MH-97 có cột Đơn vị, biểu mẫu phông có ô Đơn vị. MH-98 lọc thêm theo Đơn vị. Ô Đơn vị có "Toàn trường" chỉ với người quản lý văn thư toàn trường.
 
