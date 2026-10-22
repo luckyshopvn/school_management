@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.29
+- Phiên bản: 0.30
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,33 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-153: DT-19 phần 19c: menu và phân hệ theo cấp học – 2026-10-22
+
+- Lý do: phần 19c của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 10.3, 10.4 (quyết định của Eric ngày 2026-10-19 mở rộng ra mọi cấp học; nền cấp học ở YCTD-151). Trước phần này cây menu cổng quản trị chỉ có phân hệ "Quản lý giáo dục Mầm non", chữ "Trẻ" ghi cứng ở trang, ô ngữ cảnh chỉ ghép nhãn các cấp đang bật và chưa có cách chọn cấp đang làm việc. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Thuộc tính cấp ở cây menu** (`packages/shared/src/portal-menu.ts`): `PortalWorkspace` và `PortalMenuNode` thêm `levels` tùy chọn (không ghi là mọi cấp). Mục gắn cấp Mầm non: Quản lý giáo dục Mầm non 4.3 Cân nặng, chiều cao (4.3.1, 4.3.2), 4.4 Hoàn thành chương trình; Tuyển sinh đầu cấp 1.1 Hồ sơ học sinh cuối cấp mầm non; Báo cáo số liệu 1.1 Báo cáo EMIS đầu năm (1.1.1, 1.1.2), 2.1 Báo cáo EMIS cuối năm, 2.4 Báo cáo giáo dục mầm non cuối năm. Các mục còn lại của mọi cấp. Hàm `portalWorkspacesForLevels` bỏ mục, nhóm, phân hệ không thuộc cấp đang làm việc (nhóm, phân hệ không còn mục cũng bỏ); số thứ bậc của mục còn lại giữ đúng số của Sở. `portalMenuPathsOutsideLevels` cho đường dẫn của mục không thuộc các cấp đã cho.
+  - **Tên phân hệ theo cấp:** phân hệ `education` có `levelTitle` "Quản lý giáo dục": làm việc ở một cấp thì "Quản lý giáo dục <tên cấp>" (tên cấp lấy từ `school_levels.display_name`, trường mầm non giữ "Quản lý giáo dục Mầm non" như Sở), nhiều cấp thì "Quản lý giáo dục". Trường chỉ bật Mầm non giữ y hệt cây menu (tên, số, thứ tự, mục).
+  - **Cấp đang làm việc:** trường từ hai cấp có bộ chọn "Cấp học" ở thanh đầu trang, ngay trước ô ngữ cảnh năm học: "Tất cả" (mặc định) và các cấp người dùng được xem. Lựa chọn lưu theo tài khoản ở bảng `user_preferences` (cơ sở dữ liệu định danh, tệp `0065_create_user_preferences`), giữ qua các lần đăng nhập và các máy; `/auth/me` trả `working_school_level`. Cấp đã chọn bị tắt hoặc ra ngoài phạm vi cấp thì tự coi là "Tất cả". Đổi cấp thì menu, tên phân hệ, ô ngữ cảnh ("Cấp TH · năm học · học kỳ"; "Tất cả" ghép nhãn các cấp được xem) và nhãn thuật ngữ đổi ngay. Chọn cấp chỉ là lựa chọn hiển thị, không cấp thêm quyền, không ghi nhật ký thao tác.
+  - **Tham số cấp dùng chung:** `?school_level=<mã>` (hằng `SCHOOL_LEVEL_PARAMETER`; "all" hoặc không gửi là mọi cấp được xem); máy chủ đọc qua `SchoolLevelResolver.requested` (mã sai trả 400, cấp chưa bật hoặc ngoài phạm vi trả 403). Cổng quản trị lấy giá trị qua `useWorkingSchoolLevels().parameter`. Các báo cáo, thống kê của 19d và DT-20, DT-21 dùng tham số này; 19c chưa đổi điểm cuối nghiệp vụ nào.
+  - **Nhãn thuật ngữ theo cấp** (`packages/shared/src/school-level-terms.ts`): Mầm non "Trẻ", "Hồ sơ trẻ", "Nhóm lớp"; Tiểu học, THCS, THPT "Học sinh", "Hồ sơ học sinh", "Lớp". Một cấp thì người học lấy "Gọi người học" đặt ở 1.4 (`school_levels.learner_term`); "Tất cả" ở trường liên cấp mà các cấp gọi khác nhau thì dùng "Học sinh", "Lớp". Trang đã chuyển sang bảng nhãn, chữ ở Mầm non không đổi: 4.7 Điểm danh (cột "Trẻ", dòng tổng "… trẻ"), phiếu thu (dòng "Trẻ không còn hóa đơn…"), trang chủ (thẻ "Trẻ đang học"). Tên mục menu theo Sở ("Hồ sơ học sinh") giữ nguyên ở mọi cấp. Trang thống kê, nhập Excel, báo cáo chuyển ở 19d.
+  - **Cấp người dùng được xem:** điểm cuối mới `GET /portal-context/school-levels` trả `school_levels` (cấp đang bật thu hẹp theo phạm vi cấp, theo thứ tự: mã, tên, gọi người học, nhãn ô ngữ cảnh); `GET /portal-context` giữ nguyên như 19a.
+  - **Cây quyền (1.3 Phân quyền nhóm theo menu):** mục của cấp trường chưa bật ẩn khỏi cây và ô chọn phân hệ; trường chỉ có Mầm non giữ đủ cây.
+  - **Truy cập nhanh:** `GET /me/quick-links` không trả lối tắt tới mục của cấp trường chưa bật; lối tắt giữ trong cơ sở dữ liệu và hiện lại khi bật cấp. Trường chỉ có Mầm non không ẩn gì.
+  - **Sửa lỗi 2.5 Lãnh đạo nhận văn bản:** người dùng tích chọn trước khi danh sách lãnh đạo đã lưu tải xong thì lựa chọn bị ghi đè (ghi ra 0 lãnh đạo); nay gộp lựa chọn đã tích với danh sách đã lưu. Lỗi có từ YCTD-138, lộ ra ở kiểm thử giao diện 70 khi thứ tự tải trang đổi.
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/identity/migrations/0065_create_user_preferences.ts`, `schema.ts`, `index.ts`); dịch vụ định danh (`authentication.service.ts`, `authentication.controller.ts`); máy chủ API (`common/school-levels.ts`, `authentication/current-user.ts`, `portal-shell/portal-shell.ts`, `quick-links/quick-links.ts`); trợ giúp kiểm thử giao diện `tests/e2e/menu.ts` (khớp tên phân hệ đặt theo cấp); cổng quản trị (`school-levels/working-level.tsx`, `pages/AppShell.tsx`, `pages/AcademicYearSwitcher.tsx`, `pages/menu-permissions.ts`, `accounts/RolePermissionsPage.tsx`, `attendance/AttendancePage.tsx`, `finance/ReceiptForm.tsx`, `reports/DashboardCards.tsx`, `incoming-documents/DocumentAdminPages.tsx`, `portal-shell/portal-shell-api.ts`, `session/api-client.ts`); gói dùng chung (`portal-menu.ts`, `school-level-terms.ts`, `index.ts`); kiểm thử; tài liệu `01`, `02`, `03`, `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: tệp định danh `0065` tạo bảng `user_preferences` (một dòng mỗi tài khoản, `working_school_level` trống là "Tất cả"). Không đổi dữ liệu cũ; trước và sau chuyển: không tài khoản nào có dòng ưu tiên, trường chỉ có Mầm non nên menu, ô ngữ cảnh, lối tắt như trước.
+- API bị ảnh hưởng: mới `PUT /auth/me/working-school-level`; `/auth/me` thêm `working_school_level`; mới `GET /portal-context/school-levels`; `/me/quick-links` lọc theo cấp bật; tham số cấp dùng chung `school_level` (xem `17_DAC_TA_API.md`).
+- Giao diện bị ảnh hưởng: MH-259; thanh đầu trang, menu ngang, 1.3 Phân quyền nhóm theo menu, 4.7 Điểm danh, phiếu thu, trang chủ.
+- Quyền bị ảnh hưởng: PQ-91. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
+- Ảnh hưởng chức năng cũ: trường chỉ có Mầm non thấy y như trước (không có bộ chọn cấp, cùng menu, cùng chữ); kiểm thử đang có không sửa kỳ vọng.
+- Hạn chế:
+  - Điểm cuối nghiệp vụ chưa lọc theo tham số cấp (19d làm cho thống kê, báo cáo, EMIS; DT-20, DT-21 cho nghiệp vụ mới);
+  - Chưa có phân hệ, mục menu riêng của Tiểu học, THCS, THPT (DT-20, DT-21 thêm bằng thuộc tính `levels`);
+  - Ứng dụng phụ huynh, giáo viên chưa theo cấp (19e);
+  - Bộ chọn cấp ẩn ở màn hình hẹp, như ô ngữ cảnh năm học.
+- Kiểm thử cần thực hiện: kịch bản CT-811 đến CT-819 (trong mã kiểm thử là CT-19c-1 đến CT-19c-9); kiểm thử đơn vị mới `apps/api/src/school-levels/working-level.test.ts`; kiểm thử giao diện mới `tests/e2e/83-school-level-menu.spec.ts`
+- Trạng thái: Đã triển khai
 
 ### YCTD-152: DT-19 phần 19b: cấu trúc theo cấp học – 2026-10-22
 

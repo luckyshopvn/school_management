@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.93
+- Phiên bản: 1.94
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -52,6 +52,7 @@
 | role_permissions | Gán quyền cho vai trò | role_id, permission_id |
 | user_roles | Gán vai trò cho tài khoản | user_id, role_id, org_unit_id (cho phép trống nghĩa là toàn trường; tham chiếu theo mã, không có khóa ngoại vì nằm khác cơ sở dữ liệu) |
 | user_school_levels | Phạm vi cấp học của tài khoản (P01-36, BR-154; YCTD-151, tệp định danh `0064_add_user_school_levels`) | user_id (khóa ngoại `users`, xóa theo), school_level (`MN`, `TH`, `THCS`, `THPT`), created_by, created_at; khóa chính (user_id, school_level); không có dòng nào là mọi cấp |
+| user_preferences | Ưu tiên của tài khoản (P01-42, BR-159; YCTD-153, tệp định danh `0065_create_user_preferences`) | user_id (khóa chính, khóa ngoại `users`, xóa theo), working_school_level (trống là "Tất cả", hoặc `MN`, `TH`, `THCS`, `THPT`), updated_at; một dòng mỗi tài khoản, chưa có dòng là "Tất cả" |
 | school_levels | Cấp học của trường, cơ sở dữ liệu hệ thống (P01-35, BR-154; YCTD-151, tệp hệ thống `0023_create_school_levels`) | code (khóa chính, `MN`, `TH`, `THCS`, `THPT`), is_enabled, order_no (1 đến 99), display_name, learner_term, context_label, updated_by_name, updated_at; nạp sẵn bốn dòng, Mầm non bật. Nguồn chung của cấp học; `website_settings.school_levels` giữ làm dự phòng |
 | sessions | Phiên đăng nhập và mã làm mới | user_id, channel, refresh_token_hash, issued_at, expires_at, revoked_at, ip_address, user_agent, login_method (mật khẩu hoặc mã một lần; phiên bằng mã một lần không bị giới hạn đổi mật khẩu, YCTD-43) |
 | one_time_codes | Mã một lần đăng nhập của phụ huynh; từ YCTD-123 cả mã đặt lại mật khẩu khi quên mật khẩu (BR-121) | user_id, phone, purpose (`login` đăng nhập, `password_reset` đặt lại mật khẩu từ YCTD-123; xác thực hai lớp đã bỏ theo YCTD-31), code_hash, expires_at, attempt_count, used_at, created_at; số lần gửi đếm theo số điện thoại trong bộ nhớ đệm, không lưu cột riêng (YCTD-43) |

@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.28
+- Phiên bản: 0.29
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.103.0 – 2026-10-22
+
+- Phạm vi thay đổi: DT-19 phần 19c, menu và phân hệ theo cấp học (YCTD-153).
+- Chức năng mới: thuộc tính cấp ở cây menu, tên phân hệ theo cấp, bộ chọn cấp đang làm việc ở thanh đầu trang (lưu theo tài khoản), tham số cấp dùng chung `school_level`, bảng nhãn thuật ngữ theo cấp; cây quyền và Truy cập nhanh lọc theo cấp bật.
+- Lỗi đã sửa: 2.5 Lãnh đạo nhận văn bản mất lựa chọn đã tích khi danh sách lãnh đạo tải sau danh sách nhân sự.
+- Thay đổi dữ liệu: tệp định danh `0065_create_user_preferences`.
+- Thay đổi API: `PUT /auth/me/working-school-level`; `/auth/me` thêm `working_school_level`; mới `GET /portal-context/school-levels`; `/me/quick-links` lọc theo cấp bật.
+- Kiểm thử: kịch bản CT-811 đến CT-819. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/school-levels/working-level.test.ts` CT-19c-1 đến CT-19c-8 đạt 8/8; kiểm thử đơn vị toàn bộ kho mã đạt 1027/1027 (không sửa kỳ vọng của kiểm thử đang có); kiểm thử giao diện `tests/e2e/83-school-level-menu.spec.ts` (CT-19c-9) đạt; toàn bộ kiểm thử giao diện đạt 155/155; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: máy chủ API khác thấy cấp vừa bật, tắt chậm nhất 30 giây (bộ nhớ đệm của 19a).
+- Khả năng tương thích: trường chỉ có Mầm non không đổi hành vi; không đổi điểm cuối cũ (chỉ thêm trường, lọc lối tắt theo cấp bật).
+- Phương án quay lui: hoàn lại commit gộp của nhánh 19c; chạy phần quay lui của tệp định danh `0065`.
 
 ### Phiên bản 0.102.0 – 2026-10-22
 

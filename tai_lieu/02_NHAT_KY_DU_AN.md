@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.29
+- Phiên bản: 0.30
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,29 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-22 — DT-19 phần 19c: menu và phân hệ theo cấp học
+
+#### Công việc đã thực hiện
+
+- Đọc mục 10 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà cây menu (`portal-menu.ts`), ô ngữ cảnh, cây quyền, Truy cập nhanh và các chữ "Trẻ" ghi cứng ở cổng quản trị.
+- Gói dùng chung: thuộc tính `levels`, `levelTitle` ở cây menu, `portalWorkspacesForLevels`, `portalMenuPathsOutsideLevels`; bảng nhãn `SCHOOL_LEVEL_TERMS`, `schoolLevelTerms`, `workingSchoolLevels`, tham số `school_level`.
+- Cơ sở dữ liệu: tệp định danh `0065_create_user_preferences`. Dịch vụ định danh: `PUT /auth/me/working-school-level`, `/auth/me` trả `working_school_level`. Máy chủ API: `SchoolLevelResolver.requested`, `GET /portal-context/school-levels` trả cấp người dùng được xem, `/me/quick-links` lọc theo cấp bật.
+- Cổng quản trị: bộ chọn "Cấp học" ở thanh đầu trang, menu và tên phân hệ theo cấp đang làm việc, ô ngữ cảnh theo cấp, cây quyền theo cấp bật, nhãn "Trẻ"/"Học sinh" ở 4.7 Điểm danh, phiếu thu, trang chủ.
+- Thêm quy tắc BR-159, chức năng P01-41 đến P01-42, quyền PQ-91, màn hình MH-259, kịch bản CT-811 đến CT-819, tiêu chí AC-739 đến AC-741. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/school-levels/working-level.test.ts` CT-19c-1 đến CT-19c-8 đạt 8/8; kiểm thử đơn vị toàn bộ kho mã đạt 1027/1027 (không sửa kỳ vọng của kiểm thử đang có); kiểm thử giao diện `tests/e2e/83-school-level-menu.spec.ts` (CT-19c-9) đạt; toàn bộ kiểm thử giao diện đạt 155/155; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 19c của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 10.4. Lưu cấp đang làm việc ở cơ sở dữ liệu định danh (giữ qua các máy) thay vì chỉ ở trình duyệt; mục gắn Mầm non gồm hồ sơ cuối cấp mầm non, biểu EMIS đầu năm, cuối năm, báo cáo giáo dục mầm non cuối năm, cân nặng chiều cao, hoàn thành chương trình; "Tất cả" ở trường liên cấp dùng thuật ngữ "Học sinh", "Lớp"; tên mục menu theo Sở giữ nguyên ở mọi cấp; Truy cập nhanh và cây quyền lọc theo cấp bật, menu lọc theo cấp đang làm việc. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-153, `07_QUY_TAC_NGHIEP_VU.md` BR-159, `08_VAI_TRO_NGUOI_DUNG.md` PQ-91, `10_YEU_CAU_CHUC_NANG.md` P01-41 đến P01-42, `11_TIEU_CHI_NGHIEM_THU.md` AC-739 đến AC-741, `14_DAC_TA_GIAO_DIEN.md` MH-259, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-811 đến CT-819, `23_LICH_SU_PHIEN_BAN.md` 0.103.0.
+
+#### Vấn đề tồn đọng
+
+- 19d cho thống kê, báo cáo, EMIS nhận tham số `school_level` và chuyển chữ "Trẻ" còn lại ở trang thống kê, nhập Excel, báo cáo sang bảng nhãn; 19e đưa cấp vào ứng dụng phụ huynh, giáo viên.
+
 
 ### 2026-10-22 — DT-19 phần 19b: cấu trúc theo cấp học
 
