@@ -98,7 +98,10 @@ export class FacilitiesData {
         id: row.id,
         name: row.name,
         org_unit_id: row.org_unit_id,
-        age_group: grade ? ageGroupOfMonths(grade.age_from_months, grade.age_to_months) : null,
+        age_group:
+          grade && grade.age_from_months !== null && grade.age_to_months !== null
+            ? ageGroupOfMonths(grade.age_from_months, grade.age_to_months)
+            : null,
         child_count: countByClass.get(row.id) ?? 0,
       };
     });

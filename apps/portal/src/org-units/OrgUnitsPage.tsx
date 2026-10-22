@@ -19,6 +19,7 @@ import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import { OrgUnitForm } from './OrgUnitForm.js';
+import { OrgUnitLevelsPanel } from './OrgUnitLevelsPanel.js';
 import {
   createOrgUnit,
   listOrgUnits,
@@ -379,6 +380,13 @@ export function OrgUnitsPage() {
             </aside>
           ) : null}
         </div>
+        {tree.data ? (
+          <OrgUnitLevelsPanel
+            units={[tree.data, ...tree.data.children]}
+            canManage={canManage}
+            onChanged={setToastMessage}
+          />
+        ) : null}
       </div>
     </AppShell>
   );

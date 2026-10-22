@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.27
+- Phiên bản: 0.28
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.102.0 – 2026-10-22
+
+- Phạm vi thay đổi: DT-19 phần 19b, cấu trúc theo cấp học (YCTD-152).
+- Chức năng mới: khối theo cấp, tháng tuổi tùy chọn ngoài Mầm non, nạp khối mẫu Tiểu học, THCS, THPT; chương trình theo cấp; lớp lấy cấp theo khối, chương trình của lớp; cấp học của đơn vị; học kỳ, tuần, ngày học riêng từng cấp; khối kế tiếp khi lên lớp.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0072_add_school_level_structure`; tệp hệ thống `0024_add_school_level_calendar`.
+- Thay đổi API: `/curricula`; `/grade-levels/templates`, `/grade-levels/next`; `/org-units/levels`, `/org-units/{id}/levels`; tham số `school_level` ở lịch, tuần, danh sách lớp, bậc học; `DELETE /academic-years/{id}/calendar`.
+- Kiểm thử: kịch bản CT-801 đến CT-810. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/catalogs/level-structure.test.ts` CT-19b-1 đến CT-19b-8 đạt 8/8, `apps/api/src/academic-years/year-transition.test.ts` CT-19b-9 đạt; kiểm thử đơn vị đang có không sửa kỳ vọng; kiểm thử đơn vị toàn bộ kho mã 1019/1019; kiểm thử giao diện `tests/e2e/82-level-structure.spec.ts` (CT-19b-10) đạt; toàn bộ kiểm thử giao diện 154/154; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: thống kê, báo cáo, biểu phí chưa tách theo cấp (19d).
+- Khả năng tương thích: không đổi điểm cuối cũ; trường chỉ có Mầm non thấy như cũ (thêm cột, ô "Cấp học", thẻ "Chương trình" ở danh mục bậc học).
+- Phương án quay lui: hoàn lại commit gộp của nhánh 19b; chạy phần quay lui của tệp năm học `0072` và tệp hệ thống `0024`.
 
 ### Phiên bản 0.101.0 – 2026-10-22
 

@@ -166,11 +166,15 @@ export class AttendanceMealsService {
       .selectFrom('academic_terms')
       .select(['start_date', 'end_date', 'term_type'])
       .where('academic_year_id', '=', academicYearId)
+      // Lịch chung cả trường; lịch riêng của cấp đọc ở lịch theo cấp (YCTD-152)
+      .where('school_level', 'is', null)
       .execute();
     const offWeeks = await system
       .selectFrom('school_weeks')
       .select(['start_date', 'end_date'])
       .where('academic_year_id', '=', academicYearId)
+      // Lịch chung cả trường; lịch riêng của cấp đọc ở lịch theo cấp (YCTD-152)
+      .where('school_level', 'is', null)
       .where('is_off', '=', true)
       .execute();
     // Ngày lễ của cả năm học cho danh sách "Ngày lễ trong năm" của bảng Data; phân loại ngày dùng ngày lễ trong kỳ

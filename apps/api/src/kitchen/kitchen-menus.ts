@@ -115,6 +115,8 @@ export class KitchenMenusService {
       .selectFrom('school_weeks')
       .select(['week_no', 'start_date', 'end_date'])
       .where('academic_year_id', '=', academicYearId)
+      // Lịch chung cả trường; lịch riêng của cấp đọc ở lịch theo cấp (YCTD-152)
+      .where('school_level', 'is', null)
       .execute();
     const text = (value: unknown) => String(value instanceof Date ? value.toISOString() : value).slice(0, 10);
     return (weekStart) =>

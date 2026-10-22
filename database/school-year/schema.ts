@@ -120,13 +120,37 @@ export interface RoomsTable extends CatalogRecordColumns {
   built_this_year: Generated<boolean>;
 }
 
+// Bốn mã cấp học cố định (DT-19 phần 19b, YCTD-152); thêm cấp phải sửa mã, không sửa dữ liệu
+export type SchoolLevelCode = 'MN' | 'TH' | 'THCS' | 'THPT';
+
 export interface GradeLevelsTable extends CatalogRecordColumns {
   code: string;
   name: string;
-  age_from_months: number;
-  age_to_months: number;
+  // Tháng tuổi bắt buộc ở khối Mầm non, tùy chọn ở khối của cấp khác (YCTD-152)
+  age_from_months: number | null;
+  age_to_months: number | null;
   order_no: Generated<number>;
   status: Generated<CatalogStatus>;
+  school_level: ColumnType<SchoolLevelCode, SchoolLevelCode | undefined, SchoolLevelCode>;
+}
+
+// Khung chương trình theo cấp (YCTD-152): khối áp dụng trống là mọi khối của cấp; mỗi cấp một chương trình mặc định
+export interface CurriculaTable extends CatalogRecordColumns {
+  code: string;
+  name: string;
+  school_level: SchoolLevelCode;
+  grade_level_codes: ColumnType<string[], string[] | undefined, string[]>;
+  is_default: Generated<boolean>;
+  note: string | null;
+  status: Generated<CatalogStatus>;
+}
+
+// Cấp học của trường chính, phân hiệu, điểm trường (YCTD-152)
+export interface OrgUnitLevelsTable {
+  org_unit_id: string;
+  school_level: SchoolLevelCode;
+  created_at: CreatedTimestamp;
+  created_by: string | null;
 }
 
 export type ClassStatus = 'active' | 'closed';
@@ -150,6 +174,9 @@ export interface ClassesTable extends CatalogRecordColumns {
   is_combined: Generated<boolean>;
   combined_into_class_id: ColumnType<string | null, string | null | undefined, string | null>;
   boarding: Generated<boolean>;
+  // Cấp của lớp lấy theo khối; chương trình trống là chương trình mặc định của cấp (YCTD-152)
+  school_level: ColumnType<SchoolLevelCode, SchoolLevelCode | undefined, SchoolLevelCode>;
+  curriculum_id: ColumnType<string | null, string | null | undefined, string | null>;
 }
 
 export type AssignmentRole = 'homeroom' | 'subject';
@@ -4748,6 +4775,8 @@ export interface SchoolYearDatabase {
   approval_thresholds: ApprovalThresholdsTable;
   rooms: RoomsTable;
   grade_levels: GradeLevelsTable;
+  curricula: CurriculaTable;
+  org_unit_levels: OrgUnitLevelsTable;
   classes: ClassesTable;
   class_staff_assignments: ClassStaffAssignmentsTable;
   files: FilesTable;

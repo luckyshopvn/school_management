@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import type { AssignmentRole, ClassAgeGroup, ClassStatus, SchoolYearDatabase } from '@school-management/database';
 import { ApplicationError, Clock, ruleViolationError, validationError } from '@school-management/server';
-import { PERMISSION_CODES, classStageOf } from '@school-management/shared';
+import { PERMISSION_CODES, classStageOf, usesAgeGroups, type SchoolLevelCode } from '@school-management/shared';
+import { assertLevelEnabled, STRUCTURE_RULE_CODE } from '../catalogs/school-level-fields.js';
+import { SchoolLevelResolver } from '../common/school-levels.js';
 import { sql, type Kysely, type Transaction } from 'kysely';
 import { IdentityClient } from '../authentication/identity-client.js';
 import type { CurrentUser } from '../authentication/current-user.js';
@@ -34,6 +36,9 @@ export interface ClassRecord {
   is_combined: boolean;
   combined_into_class_id: string | null;
   boarding: boolean;
+  // Cấp của lớp theo khối, chương trình của lớp (DT-19 phần 19b, YCTD-152)
+  school_level: SchoolLevelCode;
+  curriculum_id: string | null;
 }
 
 export interface StaffAssignment {
@@ -62,6 +67,8 @@ export interface ClassInput {
   is_combined: boolean;
   combined_into_class_id: string | null;
   boarding: boolean;
+  // Trống hoặc không gửi là chương trình mặc định của cấp (YCTD-152)
+  curriculum_id?: string | null;
 }
 
 // Kết quả thao tác hàng loạt trên lớp (DT-16 phần 16e): lớp làm được và lớp không làm được kèm lý do
@@ -96,6 +103,8 @@ const CLASS_COLUMNS = [
   'is_combined',
   'combined_into_class_id',
   'boarding',
+  'school_level',
+  'curriculum_id',
 ] as const;
 const ASSIGNMENT_COLUMNS = [
   'id',
@@ -169,6 +178,7 @@ export class ClassesService {
     private readonly catalogAccess: CatalogAccess,
     private readonly identityClient: IdentityClient,
     private readonly clock: Clock,
+    private readonly schoolLevels: SchoolLevelResolver,
   ) {}
 
   // Ai có vai trò ở đơn vị đều xem được lớp; mine là các lớp mình đang được phân công
@@ -209,6 +219,9 @@ export class ClassesService {
     if (filter.gradeLevel) {
       query = query.where('grade_level', '=', filter.gradeLevel);
     }
+    if (filter.schoolLevel) {
+      query = query.where('school_level', '=', filter.schoolLevel);
+    }
     const classes = await query
       .orderBy(sql`sort_order asc nulls last`)
       .orderBy('code')
@@ -216,11 +229,12 @@ export class ClassesService {
     if (classes.length === 0) {
       return [];
     }
-    const [units, gradeLevels, rooms, targets] = await Promise.all([
+    const [units, gradeLevels, rooms, targets, curricula] = await Promise.all([
       current.database.selectFrom('org_units').select(['id', 'name', 'unit_type']).execute(),
       current.database.selectFrom('grade_levels').select(['code', 'name', 'age_from_months']).execute(),
       current.database.selectFrom('rooms').select(['id', 'name']).execute(),
       current.database.selectFrom('classes').select(['id', 'name']).execute(),
+      current.database.selectFrom('curricula').select(['id', 'name', 'school_level', 'is_default']).execute(),
     ]);
     const assignments = await current.database
       .selectFrom('class_staff_assignments')
@@ -251,15 +265,22 @@ export class ClassesService {
         const unit = units.find((item) => item.id === row.org_unit_id);
         const grade = gradeLevels.find((item) => item.code === row.grade_level);
         const staff = assignments.filter((item) => item.class_id === row.id);
-        const ageGroup = row.age_group ?? classAgeGroup(grade?.age_from_months ?? 36);
+        // Nhóm tuổi, nhóm lớp chỉ có ở lớp Mầm non (YCTD-152)
+        const ageGroup = usesAgeGroups(row.school_level)
+          ? (row.age_group ?? (classAgeGroup(grade?.age_from_months ?? 36) as ClassAgeGroup))
+          : null;
+        const curriculum =
+          curricula.find((item) => item.id === row.curriculum_id) ??
+          curricula.find((item) => item.school_level === row.school_level && item.is_default);
         return {
           ...row,
+          curriculum_name: curriculum?.name ?? null,
           org_unit_name: unit?.name ?? '',
           org_unit_type: unit?.unit_type ?? 'truong_chinh',
           grade_name: grade?.name ?? row.grade_level,
-          age_group: ageGroup as ClassAgeGroup,
-          age_group_from_grade: row.age_group === null,
-          stage: classStageOf(ageGroup as ClassAgeGroup),
+          age_group: ageGroup,
+          age_group_from_grade: ageGroup !== null && row.age_group === null,
+          stage: ageGroup === null ? null : classStageOf(ageGroup),
           room_name: rooms.find((item) => item.id === row.room_id)?.name ?? null,
           enrolled_count: Number(counts.find((count) => count.class_id === row.id)?.count ?? 0),
           homeroom_names: staff
@@ -455,7 +476,11 @@ export class ClassesService {
   async create(currentUser: CurrentUser, input: ClassInput, origin: ChangeOrigin): Promise<ClassRecord> {
     const database = await this.catalogAccess.writableDatabase(currentUser, PERMISSION, input.org_unit_id);
     const { academicYearId } = await this.currentSchoolYear.require();
-    await this.assertGradeLevel(input.grade_level);
+    const schoolLevel = await this.assertGradeLevel(input.grade_level);
+    assertLevelFields(schoolLevel, input);
+    await assertLevelEnabled(this.schoolLevels, schoolLevel, 'grade_level');
+    await this.assertUnitLevel(database, input.org_unit_id, schoolLevel);
+    await this.assertCurriculum(database, schoolLevel, input.curriculum_id ?? null);
     if (input.room_id) {
       await this.assertRoom(input.org_unit_id, input.room_id);
     }
@@ -464,7 +489,13 @@ export class ClassesService {
       database.transaction().execute(async (transaction) => {
         const created = await transaction
           .insertInto('classes')
-          .values({ ...input, academic_year_id: academicYearId, created_by: origin.actorUserId })
+          .values({
+            ...input,
+            curriculum_id: input.curriculum_id ?? null,
+            school_level: schoolLevel,
+            academic_year_id: academicYearId,
+            created_by: origin.actorUserId,
+          })
           .returning(CLASS_COLUMNS)
           .executeTakeFirstOrThrow();
         await writeAuditLog(transaction, {
@@ -503,8 +534,26 @@ export class ClassesService {
         throw ruleViolationError('BR-02', 'Lớp còn trẻ đang học; chuyển trẻ sang lớp khác trước khi đóng lớp');
       }
     }
+    // Lớp lấy cấp theo khối; đổi khối sang cấp khác thì đổi cấp của lớp theo (YCTD-152)
+    let schoolLevel = existing.school_level;
     if (changes.grade_level !== undefined && changes.grade_level !== existing.grade_level) {
-      await this.assertGradeLevel(changes.grade_level);
+      schoolLevel = await this.assertGradeLevel(changes.grade_level);
+      if (schoolLevel !== existing.school_level) {
+        await assertLevelEnabled(this.schoolLevels, schoolLevel, 'grade_level');
+        await this.assertUnitLevel(database, existing.org_unit_id, schoolLevel);
+      }
+    }
+    // Lớp ngoài Mầm non không có nhóm tuổi, ghép độ tuổi, lớp ghép, học 2 buổi/ngày; đổi sang cấp khác thì phải bỏ các ô đó
+    assertLevelFields(schoolLevel, { ...existing, ...changes });
+    if (
+      schoolLevel !== existing.school_level ||
+      (changes.curriculum_id !== undefined && changes.curriculum_id !== existing.curriculum_id)
+    ) {
+      await this.assertCurriculum(
+        database,
+        schoolLevel,
+        changes.curriculum_id !== undefined ? changes.curriculum_id : existing.curriculum_id,
+      );
     }
     if (changes.room_id && changes.room_id !== existing.room_id) {
       await this.assertRoom(existing.org_unit_id, changes.room_id);
@@ -527,7 +576,7 @@ export class ClassesService {
       database.transaction().execute(async (transaction) => {
         const updated = await transaction
           .updateTable('classes')
-          .set({ ...changes, updated_at: this.clock.now() })
+          .set({ ...changes, school_level: schoolLevel, updated_at: this.clock.now() })
           .where('id', '=', classId)
           .returning(CLASS_COLUMNS)
           .executeTakeFirstOrThrow();
@@ -829,15 +878,55 @@ export class ClassesService {
     }
   }
 
-  private async assertGradeLevel(code: string): Promise<void> {
+  // Trả cấp của khối để lớp lấy cấp theo khối (YCTD-152)
+  private async assertGradeLevel(code: string): Promise<SchoolLevelCode> {
     const { database } = await this.currentSchoolYear.require();
     const level = await database
       .selectFrom('grade_levels')
-      .select('status')
+      .select(['status', 'school_level'])
       .where('code', '=', code)
       .executeTakeFirst();
     if (!level || level.status !== 'active') {
       throw validationError([{ field: 'grade_level', message: 'Bậc học không có hoặc đã ngừng sử dụng' }]);
+    }
+    return level.school_level;
+  }
+
+  // Đơn vị của lớp phải có cấp của lớp; đơn vị chưa khai báo cấp coi là Mầm non (YCTD-152)
+  private async assertUnitLevel(database: Executor, orgUnitId: string, schoolLevel: SchoolLevelCode): Promise<void> {
+    const levels = (
+      await database.selectFrom('org_unit_levels').select('school_level').where('org_unit_id', '=', orgUnitId).execute()
+    ).map((row) => row.school_level);
+    if (!(levels.length > 0 ? levels : ['MN']).includes(schoolLevel)) {
+      throw ruleViolationError(
+        STRUCTURE_RULE_CODE,
+        `Đơn vị chưa có cấp ${schoolLevel}; thêm cấp cho đơn vị trước khi mở lớp`,
+        [{ field: 'grade_level', message: 'Khối không thuộc cấp của đơn vị' }],
+      );
+    }
+  }
+
+  // Chương trình của lớp phải đang dùng và cùng cấp với lớp (YCTD-152)
+  private async assertCurriculum(
+    database: Executor,
+    schoolLevel: SchoolLevelCode,
+    curriculumId: string | null,
+  ): Promise<void> {
+    if (!curriculumId) {
+      return;
+    }
+    const curriculum = await database
+      .selectFrom('curricula')
+      .select(['school_level', 'status'])
+      .where('id', '=', curriculumId)
+      .executeTakeFirst();
+    if (!curriculum || curriculum.status !== 'active') {
+      throw validationError([{ field: 'curriculum_id', message: 'Chương trình không có hoặc đã ngừng sử dụng' }]);
+    }
+    if (curriculum.school_level !== schoolLevel) {
+      throw ruleViolationError(STRUCTURE_RULE_CODE, 'Chương trình không cùng cấp với lớp', [
+        { field: 'curriculum_id', message: 'Chọn chương trình cùng cấp với khối của lớp' },
+      ]);
     }
   }
 
@@ -855,5 +944,31 @@ export class ClassesService {
     if (room.org_unit_id !== orgUnitId) {
       throw ruleViolationError('P01-11', 'Phòng học thuộc đơn vị khác với lớp');
     }
+  }
+}
+
+// Ô riêng của lớp Mầm non theo Sở (YCTD-111) không dùng ở lớp của cấp khác (DT-19 phần 19b, YCTD-152); lớp bán trú dùng được ở
+// mọi cấp
+export function assertLevelFields(
+  schoolLevel: SchoolLevelCode,
+  values: Pick<ClassInput, 'age_group' | 'two_sessions_per_day' | 'mixed_age_count' | 'is_combined'>,
+): void {
+  if (usesAgeGroups(schoolLevel)) {
+    return;
+  }
+  const fields = [
+    values.age_group !== null ? { field: 'age_group', message: 'Nhóm tuổi chỉ có ở lớp Mầm non' } : null,
+    values.two_sessions_per_day
+      ? { field: 'two_sessions_per_day', message: 'Học 2 buổi/ngày chỉ có ở lớp Mầm non' }
+      : null,
+    values.mixed_age_count !== null ? { field: 'mixed_age_count', message: 'Ghép độ tuổi chỉ có ở lớp Mầm non' } : null,
+    values.is_combined ? { field: 'is_combined', message: 'Lớp ghép chỉ có ở lớp Mầm non' } : null,
+  ].filter((item) => item !== null);
+  if (fields.length > 0) {
+    throw ruleViolationError(
+      STRUCTURE_RULE_CODE,
+      'Lớp ngoài cấp Mầm non không có nhóm tuổi, ghép độ tuổi, lớp ghép',
+      fields,
+    );
   }
 }

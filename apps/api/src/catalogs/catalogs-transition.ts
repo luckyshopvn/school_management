@@ -2,7 +2,8 @@ import type { SchoolYearDatabase } from '@school-management/database';
 import type { Kysely } from 'kysely';
 import type { AcademicYearTransitionStep } from '../academic-years/academic-year-transition.js';
 
-// Mở năm học mới thì chuyển các danh mục sang, giữ nguyên mã định danh (QĐ-17); chạy sau bước chuyển cây đơn vị
+// Mở năm học mới thì chuyển các danh mục sang, giữ nguyên mã định danh (QĐ-17); chạy sau bước chuyển cây đơn vị và trước bước
+// chuyển hồ sơ trẻ (lớp tham chiếu chương trình)
 export const catalogsTransitionStep: AcademicYearTransitionStep = {
   name: 'catalogs',
   async carryOver(context) {
@@ -47,6 +48,12 @@ export const catalogsTransitionStep: AcademicYearTransitionStep = {
     }
     for (const row of await previous.selectFrom('grade_levels').selectAll().execute()) {
       await next.insertInto('grade_levels').values(row).execute();
+    }
+    // Chương trình theo cấp (DT-19 phần 19b, YCTD-152): bỏ chương trình nạp sẵn của năm mới rồi chép đúng của năm cũ, giữ mã
+    // định danh để lớp chép sang vẫn tham chiếu được
+    await next.deleteFrom('curricula').execute();
+    for (const row of await previous.selectFrom('curricula').selectAll().execute()) {
+      await next.insertInto('curricula').values(row).execute();
     }
   },
 };

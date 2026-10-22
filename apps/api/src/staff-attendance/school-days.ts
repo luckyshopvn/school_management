@@ -198,6 +198,8 @@ export class SchoolDaysService {
         .selectFrom('academic_terms')
         .select('id')
         .where('academic_year_id', '=', academicYearId)
+        // Lịch chung cả trường; lịch riêng của cấp đọc ở lịch theo cấp (YCTD-152)
+        .where('school_level', 'is', null)
         .where('start_date', '<=', input.date)
         .where('end_date', '>=', input.date)
         .executeTakeFirst();

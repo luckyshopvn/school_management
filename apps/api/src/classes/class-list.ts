@@ -1,6 +1,13 @@
 import type { ClassAgeGroup, ClassStatus, OrgUnitType } from '@school-management/database';
 import type { FieldError } from '@school-management/server';
-import { CLASS_AGE_GROUPS, CLASS_STAGE_LABELS, classAgeGroupLabel, type ClassStage } from '@school-management/shared';
+import {
+  CLASS_AGE_GROUPS,
+  CLASS_STAGE_LABELS,
+  classAgeGroupLabel,
+  type ClassStage,
+  type SchoolLevelCode,
+} from '@school-management/shared';
+import { readSchoolLevel } from '../catalogs/school-level-fields.js';
 import { isUuid } from '../common/request-fields.js';
 
 // Danh sách lớp theo mục 2.1 "Hồ sơ lớp học" của Sở (DT-15 phần 15b, YCTD-111): bộ lọc mở rộng, cột và tệp Excel dùng
@@ -19,6 +26,8 @@ export interface ClassListFilter {
   twoSessions?: boolean;
   boarding?: boolean;
   combined?: boolean;
+  // Cấp của lớp (DT-19 phần 19b, YCTD-152)
+  schoolLevel?: SchoolLevelCode;
 }
 
 function readYesNo(query: Record<string, unknown>, field: string, errors: FieldError[]): boolean | undefined {
@@ -83,10 +92,12 @@ export function readClassListFilter(query: Record<string, unknown>, errors: Fiel
     twoSessions: readYesNo(query, 'two_sessions_per_day', errors),
     boarding: readYesNo(query, 'boarding', errors),
     combined: readYesNo(query, 'is_combined', errors),
+    schoolLevel: readSchoolLevel(query, 'school_level', errors),
   };
 }
 
-// Dòng của lưới và tệp Excel; age_group là nhóm tuổi đang áp dụng (đã chọn ở lớp, hoặc theo bậc học)
+// Dòng của lưới và tệp Excel; age_group là nhóm tuổi đang áp dụng (đã chọn ở lớp, hoặc theo bậc học). Lớp ngoài cấp Mầm non
+// không có nhóm tuổi, nhóm lớp (YCTD-152)
 export interface ClassListRow {
   id: string;
   org_unit_id: string;
@@ -96,9 +107,12 @@ export interface ClassListRow {
   name: string;
   grade_level: string;
   grade_name: string;
-  age_group: ClassAgeGroup;
+  age_group: ClassAgeGroup | null;
   age_group_from_grade: boolean;
-  stage: ClassStage;
+  stage: ClassStage | null;
+  school_level: SchoolLevelCode;
+  curriculum_id: string | null;
+  curriculum_name: string | null;
   sort_order: number | null;
   room_id: string | null;
   room_name: string | null;
@@ -132,16 +146,16 @@ export const CLASS_EXPORT_COLUMNS: Array<{ id: string; label: string; value(row:
   { id: 'code', label: 'Mã lớp', value: (row) => row.code },
   { id: 'name', label: 'Tên lớp', value: (row) => row.name },
   { id: 'grade', label: 'Khối', value: (row) => row.grade_name },
-  { id: 'stage', label: 'Nhóm lớp', value: (row) => CLASS_STAGE_LABELS[row.stage] },
+  { id: 'stage', label: 'Nhóm lớp', value: (row) => (row.stage ? CLASS_STAGE_LABELS[row.stage] : '') },
   {
     id: 'nursery_group',
     label: 'Nhóm trẻ',
-    value: (row) => (row.stage === 'nhom_tre' ? classAgeGroupLabel(row.age_group) : ''),
+    value: (row) => (row.stage === 'nhom_tre' && row.age_group ? classAgeGroupLabel(row.age_group) : ''),
   },
   {
     id: 'age_group',
     label: 'Nhóm tuổi',
-    value: (row) => (row.stage === 'mau_giao' ? classAgeGroupLabel(row.age_group) : ''),
+    value: (row) => (row.stage === 'mau_giao' && row.age_group ? classAgeGroupLabel(row.age_group) : ''),
   },
   { id: 'sort_order', label: 'Thứ tự', value: (row) => row.sort_order ?? '' },
   { id: 'homeroom', label: 'Giáo viên chủ nhiệm', value: (row) => row.homeroom_names },
