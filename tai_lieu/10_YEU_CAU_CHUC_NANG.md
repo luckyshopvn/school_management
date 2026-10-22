@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.68
+- Phiên bản: 1.69
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -52,6 +52,8 @@
 | P01-32 | Đăng nhập thay để hỗ trợ (YCTD-145) | `P01.account.impersonate` (VT-02) | Tài khoản đích, lý do | Kiểm tra quyền không cao hơn; mở phiên 60 phút, giữ phiên gốc; chặn thao tác mật khẩu, kí số; ghi nhật ký bắt đầu, kết thúc, mọi thao tác ghi và tải tệp | Thanh báo đang đăng nhập thay, nút thoát; nhật ký 4.1 | BR-141 |
 | P01-33 | Xuất toàn bộ dữ liệu của trường thành gói ZIP (YCTD-145) | `P01.data.export-all` (VT-02) | Bấm tạo gói | Tác vụ xuất nền dựng CSV mọi bảng, tệp đính kèm, manifest; bỏ cột bí mật; hạn 48 giờ; nhật ký xuất, nhật ký tải | Gói ZIP; danh sách gói, số lần tải | BR-141 |
 | P01-34 | Bản trình diễn (YCTD-145) | Lệnh trên máy chủ; xem 4.3: `P01.account.manage` hoặc `P01.account.impersonate`; người thử: mọi người | Lệnh reset hoặc schedule, chu kỳ đặt lại | Từ chối dữ liệu thật; xóa và tạo lại dữ liệu giả qua điểm cuối; dấu bản trình diễn; chặn gửi tin, thanh toán thật | Trang chọn vai, dải bản trình diễn, màn hình 4.3 | BR-141 |
+| P01-35 | Cấp học của trường (1.4., YCTD-151) | Xem: mọi người đã đăng nhập; sửa: `P01.school-level.manage` (VT-02) | Bốn cấp: bật, thứ tự, tên hiển thị, gọi người học, nhãn ô ngữ cảnh | Kiểm tra đủ bốn cấp, thứ tự, độ dài; phải bật ít nhất một cấp; ghi nhật ký; xóa bộ nhớ đệm | Danh sách cấp kèm số lớp năm học này, cấp người dùng được xem; ô ngữ cảnh, website đọc cấp mới | BR-154 |
+| P01-36 | Phạm vi cấp học của tài khoản (1.1., YCTD-151) | `P01.account.manage`, `P01.account.manage-in-unit` trong phạm vi | Danh sách mã cấp (trống là mọi cấp) | Kiểm tra mã cấp, phạm vi quản lý tài khoản; thay cả danh sách; ghi nhật ký định danh | Phạm vi cấp ở `/auth/me`; API thu hẹp cấp theo phạm vi | BR-154 |
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 

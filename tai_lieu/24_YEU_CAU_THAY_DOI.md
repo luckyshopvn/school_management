@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.27
+- Phiên bản: 0.28
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,31 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-151: DT-19 phần 19a: nền cấp học của trường – 2026-10-22
+
+- Lý do: phần 19a của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 10.3, 10.4 (quyết định của Eric ngày 2026-10-19 mở rộng ra mọi cấp học; kế hoạch DT-19 ở YCTD-150). Trước phần này mỗi danh mục tự quy ước cột cấp, chưa có nguồn chung cho "trường này có những cấp nào". Viết sẵn cho đa thuê bao (mục 10.2): cấu hình cấp học lưu ở cơ sở dữ liệu hệ thống, không thêm biến `.env`, khóa bộ nhớ đệm qua `cacheKey`. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Bảng `school_levels`** (cơ sở dữ liệu hệ thống): bốn mã cố định `MN`, `TH`, `THCS`, `THPT` (thêm cấp phải sửa mã, không thêm dòng); bật hay tắt, thứ tự (1 đến 99, không trùng), tên hiển thị, thuật ngữ gọi người học ("Trẻ", "Học sinh"), nhãn ô ngữ cảnh ("Cấp MN" như của Sở). Nạp sẵn Mầm non bật, ba cấp còn lại tắt: trường hiện có tự nhận cấp Mầm non, không cần thao tác.
+  - **Hàm dùng chung `SchoolLevelResolver`** (`apps/api/src/common/school-levels.ts`): bốn cấp theo thứ tự, cấp đang bật, kiểm tra một cấp có bật không, cấp mặc định (cấp đầu tiên đang bật, không thấy thì `MN`), cấp người dùng được xem, hàm kiểm tra `assertCanAccess` cho API (cấp chưa bật hoặc ngoài phạm vi trả 403). Bộ nhớ đệm trong tiến trình khóa `cacheKey('school-levels', 'all')`, sống 30 giây, xóa ngay khi ghi. Bảng trống thì coi trường chỉ có Mầm non. Các phần sau của DT-19 và DT-20, DT-21 đọc cấp qua hàm này.
+  - **Mã cấp dùng chung** ở `packages/shared/src/school-levels.ts` (`SCHOOL_LEVEL_CODES`, `SCHOOL_LEVELS`, `visibleSchoolLevels`, `schoolLevelContextLabel`); danh sách cấp của KPI (18d), thiết bị tối thiểu (18g), website (18f) trỏ về đây, giá trị không đổi.
+  - **Nối các nguồn rời:** ô ngữ cảnh ở thanh đầu trang lấy nhãn các cấp đang bật thay hằng số `'Cấp MN'` (trường một cấp giữ "Cấp MN", trường nhiều cấp ghép "Cấp MN, Cấp TH"); trang công khai và cấu hình website (18f) đọc cấp từ `school_levels`; ô "Cấp học của trường" ở cấu hình website chỉ hiển thị, đổi ở 1.4; cột `website_settings.school_levels` giữ làm dự phòng (ghi thông tin website chép lại cấp đang bật), không xóa trong DT-19.
+  - **Phạm vi cấp học của người dùng** (bảng `user_school_levels` ở cơ sở dữ liệu định danh): không có dòng nào là mọi cấp, nên mọi tài khoản hiện có giữ nguyên; phạm vi chỉ thu hẹp quyền đã có. `/auth/me` trả `school_levels`; người quản lý được tài khoản đặt phạm vi ở chi tiết tài khoản (khối "Phạm vi cấp học" chỉ hiện khi trường bật từ hai cấp); có nhật ký thao tác của dịch vụ định danh.
+  - **Thẻ "Cấp học của trường"** ở 1.4 Cấu hình trường: bảng bốn cấp (bật, mã, thứ tự, tên hiển thị, gọi người học, nhãn ô ngữ cảnh, số lớp năm học này), nút "Ghi cấp học"; phải bật ít nhất một cấp; cấp không xóa được, tắt cấp đang có lớp chỉ ẩn và hiện cảnh báo số lớp (BR-154). Chưa có cột cấp ở lớp (thêm ở 19b) nên mọi lớp tính là Mầm non.
+  - **Nhật ký thao tác:** mỗi lần ghi cấp học ghi `audit_logs` (`school_levels`, trước và sau) ở năm học đang dùng; đặt phạm vi cấp ghi `identity_audit_logs` (`user_school_levels`).
+  - **Quyền:** `P01.school-level.manage` (PQ-90).
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/system/migrations/0023_create_school_levels.ts`, `database/identity/migrations/0064_add_user_school_levels.ts`, `schema.ts`, `index.ts`); máy chủ API (`common/school-levels.ts`, `school-levels/school-levels.ts`, `authentication/current-user.ts`, `portal-shell/portal-shell.ts`, `website/website-public.ts`, `website/website-setup.ts`, `application.module.ts`); dịch vụ định danh (`authentication.service.ts`, `accounts.controller.ts`, `accounts.service.ts`, `identity-audit-log.ts`); cổng quản trị (`school-levels/SchoolLevelsBlock.tsx`, `UserSchoolLevelsBlock.tsx`, `school-levels-api.ts`, `settings/SettingsPage.tsx`, `accounts/AccountsPage.tsx`, `website/WebsiteSetupPages.tsx`, `pages/AcademicYearSwitcher.tsx`); gói dùng chung (`school-levels.ts`, `kpi.ts`, `facilities.ts`, `website.ts`, `index.ts`); kiểm thử; tài liệu `01`, `02`, `03`, `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: tệp hệ thống `0023` tạo bảng `school_levels` và nạp bốn dòng; tệp định danh `0064` tạo bảng `user_school_levels`, thêm quyền `P01.school-level.manage` cho VT-02. Không đổi dữ liệu cũ; trước và sau chuyển: bốn dòng cấp, Mầm non bật, không tài khoản nào có phạm vi cấp, nên kết quả mọi truy vấn hiện có không đổi.
+- API bị ảnh hưởng: mới `GET, PUT /school-levels`, `GET, PUT /users/{id}/school-levels`; `/auth/me` thêm `school_levels`; `/portal-context` đọc `education_level` từ `school_levels`; `/website/settings` trả `school_levels` từ `school_levels` (xem `17_DAC_TA_API.md`).
+- Giao diện bị ảnh hưởng: MH-258; 1.4 Cấu hình trường, chi tiết tài khoản (1.1), cấu hình website.
+- Quyền bị ảnh hưởng: PQ-90. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
+- Ảnh hưởng chức năng cũ: trường chỉ có Mầm non thấy y như trước (ô ngữ cảnh "Cấp MN", website chỉ nhóm công khai Mầm non, chi tiết tài khoản không có khối mới); kiểm thử đang có không sửa kỳ vọng.
+- Hạn chế:
+  - Máy chủ API khác thấy thay đổi cấp chậm nhất 30 giây (bộ nhớ đệm trong tiến trình; DT-SaaS chuyển sang Redis qua `cacheKey`);
+  - Số lớp theo cấp đếm mọi lớp là Mầm non đến khi 19b thêm cột cấp ở lớp;
+  - Chưa có bộ chọn cấp đang làm việc và menu theo cấp (19c).
+- Kiểm thử cần thực hiện: kịch bản CT-795 đến CT-800 (trong mã kiểm thử là CT-19a-1 đến CT-19a-6); kiểm thử đơn vị mới `apps/api/src/school-levels/school-levels.test.ts`; kiểm thử giao diện mới `tests/e2e/81-school-levels.spec.ts`
+- Trạng thái: Đã triển khai
 
 ### YCTD-149: DT-18 phần 22f: bảo đảm chất lượng, tự đánh giá – 2026-10-22
 

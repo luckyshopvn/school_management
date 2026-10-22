@@ -75,6 +75,8 @@ export interface CurrentUserResponse {
   workspaces: string[];
   // Phiên đăng nhập thay (DT-18 phần 18h): ai đang đăng nhập thay tài khoản này; phiên thường là null
   impersonation: ImpersonationDescription | null;
+  // Phạm vi cấp học của tài khoản (DT-19 phần 19a): mảng trống là mọi cấp
+  school_levels: string[];
 }
 
 const INVALID_CREDENTIALS_MESSAGE = 'Số điện thoại, tên đăng nhập hoặc mật khẩu không đúng';
@@ -435,6 +437,14 @@ export class AuthenticationService {
       assignments: [...assignments.values()],
       workspaces,
       impersonation: await this.impersonation.describe(claims.sessionId),
+      school_levels: (
+        await this.database
+          .selectFrom('user_school_levels')
+          .select('school_level')
+          .where('user_id', '=', user.id)
+          .orderBy('school_level')
+          .execute()
+      ).map((row) => row.school_level),
     };
   }
 

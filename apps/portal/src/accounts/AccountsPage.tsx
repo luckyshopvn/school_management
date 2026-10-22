@@ -36,6 +36,7 @@ import {
   type RoleGrant,
 } from './accounts-api.js';
 import { BulkPasswordDialog, BulkRoleDialog, StaffAccountsDialog } from './AccountBulkDialogs.js';
+import { UserSchoolLevelsBlock } from '../school-levels/UserSchoolLevelsBlock.js';
 import { RoleGrantFields } from './RoleGrantFields.js';
 import { PasswordPolicySection } from './PasswordPolicySection.js';
 import { ImpersonateDialog } from '../administration/ImpersonateDialog.js';
@@ -259,6 +260,7 @@ function AccountDetail({
           </div>
         ) : null}
       </div>
+      <UserSchoolLevelsBlock userId={account.id} onChanged={onChanged} />
       {confirmingReset ? (
         <ConfirmDialog
           open

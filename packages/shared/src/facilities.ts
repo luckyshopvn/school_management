@@ -1,3 +1,5 @@
+import { SCHOOL_LEVELS } from './school-levels.js';
+
 // Danh mục cố định của cơ sở vật chất, thiết bị dạy học tối thiểu và hồ sơ trường (DT-14 phần 14d, YCTD-102). Máy chủ
 // dùng để kiểm tra dữ liệu gửi lên, cổng quản trị dùng để dựng biểu mẫu; tên chỉ tiêu theo khảo sát hệ thống của Sở
 // GD&ĐT TP.HCM (tài liệu 31), cần đối chiếu biểu mẫu chính thức của Bộ
@@ -393,12 +395,7 @@ export const EQUIPMENT_LOCATION_TYPES = [
 export type EquipmentLocationType = (typeof EQUIPMENT_LOCATION_TYPES)[number]['value'];
 
 // Cấp học của danh mục thiết bị tối thiểu (mã như cấp học của KPI); danh mục mẫu có bản Mầm non, các cấp khác thêm sau
-export const EQUIPMENT_SCHOOL_LEVELS = [
-  { value: 'MN', label: 'Mầm non' },
-  { value: 'TH', label: 'Tiểu học' },
-  { value: 'THCS', label: 'Trung học cơ sở' },
-  { value: 'THPT', label: 'Trung học phổ thông' },
-] as const satisfies ReadonlyArray<CodeLabel>;
+export const EQUIPMENT_SCHOOL_LEVELS = SCHOOL_LEVELS satisfies ReadonlyArray<CodeLabel>;
 
 export type EquipmentSchoolLevel = (typeof EQUIPMENT_SCHOOL_LEVELS)[number]['value'];
 

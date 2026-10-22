@@ -57,6 +57,7 @@ import { migration as addFoodSafetyPermission } from './migrations/0060_add_food
 import { migration as addEducationPlanPermissions } from './migrations/0061_add_education_plan_permissions.js';
 import { migration as addEmulationPermissions } from './migrations/0062_add_emulation_permissions.js';
 import { migration as addQualityAssurancePermissions } from './migrations/0063_add_quality_assurance_permissions.js';
+import { migration as addUserSchoolLevels } from './migrations/0064_add_user_school_levels.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu định danh, theo số thứ tự (QU-01)
 export const identityMigrations: Record<string, Migration> = {
@@ -118,4 +119,5 @@ export const identityMigrations: Record<string, Migration> = {
   '0061_add_education_plan_permissions': addEducationPlanPermissions,
   '0062_add_emulation_permissions': addEmulationPermissions,
   '0063_add_quality_assurance_permissions': addQualityAssurancePermissions,
+  '0064_add_user_school_levels': addUserSchoolLevels,
 };

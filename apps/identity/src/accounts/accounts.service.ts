@@ -8,8 +8,12 @@ import {
   type AccessTokenClaims,
   type FieldError,
 } from '@school-management/server';
-import { ROLE_CODES_RESERVED_FOR_PRINCIPAL, WHOLE_SCHOOL_ROLE_CODES } from '@school-management/shared';
-import { sql, type Transaction } from 'kysely';
+import {
+  ROLE_CODES_RESERVED_FOR_PRINCIPAL,
+  SCHOOL_LEVEL_CODES,
+  WHOLE_SCHOOL_ROLE_CODES,
+} from '@school-management/shared';
+import { sql, type Kysely, type Transaction } from 'kysely';
 import { hashPassword } from '../authentication/password.js';
 import { IdentitySettingsService } from '../settings/identity-settings.service.js';
 import { Infrastructure } from '../common/infrastructure.js';
@@ -505,6 +509,59 @@ export class AccountsService {
       });
     });
     return (await this.findAccount(userId)).view;
+  }
+
+  // Phạm vi cấp học của tài khoản (DT-19 phần 19a): người quản lý được tài khoản thì xem, đặt được; mảng trống là mọi cấp.
+  // Phạm vi cấp chỉ thu hẹp quyền đã có, không cấp thêm quyền
+  async schoolLevels(caller: CallerContext, userId: string): Promise<{ school_levels: string[] }> {
+    const { authority } = await this.authority(caller);
+    const { assignments } = await this.findAccount(userId);
+    if (!canManageAccount(authority, assignments)) {
+      throw forbidden('Tài khoản này nằm ngoài phạm vi của bạn');
+    }
+    return { school_levels: await this.readSchoolLevels(this.database, userId) };
+  }
+
+  async setSchoolLevels(caller: CallerContext, userId: string, levels: string[]): Promise<{ school_levels: string[] }> {
+    const { authority } = await this.authority(caller);
+    const { assignments } = await this.findAccount(userId);
+    if (!canManageAccount(authority, assignments)) {
+      throw forbidden('Tài khoản này nằm ngoài phạm vi của bạn');
+    }
+    const after = await this.database.transaction().execute(async (transaction) => {
+      const before = await this.readSchoolLevels(transaction, userId);
+      await transaction.deleteFrom('user_school_levels').where('user_id', '=', userId).execute();
+      if (levels.length > 0) {
+        await transaction
+          .insertInto('user_school_levels')
+          .values(levels.map((level) => ({ user_id: userId, school_level: level, created_by: caller.claims.userId })))
+          .execute();
+      }
+      const result = await this.readSchoolLevels(transaction, userId);
+      await writeIdentityAuditLog(transaction, {
+        actorUserId: caller.claims.userId,
+        entityName: 'user_school_levels',
+        entityId: userId,
+        action: 'update',
+        before: { school_levels: before },
+        after: { school_levels: result },
+        ipAddress: caller.ipAddress,
+      });
+      return result;
+    });
+    return { school_levels: after };
+  }
+
+  private async readSchoolLevels(
+    executor: Kysely<IdentityDatabase> | Transaction<IdentityDatabase>,
+    userId: string,
+  ): Promise<string[]> {
+    const rows = await executor
+      .selectFrom('user_school_levels')
+      .select('school_level')
+      .where('user_id', '=', userId)
+      .execute();
+    return SCHOOL_LEVEL_CODES.filter((code) => rows.some((row) => row.school_level === code));
   }
 
   // Đặt lại mật khẩu: sinh mật khẩu tạm, bắt buộc đổi, thu hồi mọi phiên (PQ-14, BM-07, BM-56)

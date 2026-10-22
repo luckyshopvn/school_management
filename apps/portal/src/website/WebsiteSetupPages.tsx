@@ -190,27 +190,16 @@ export function WebsiteSettingsPage() {
               className="h-10 w-20 rounded border border-border"
             />
           </FormRow>
+          {/* Cấp học đọc từ 1.4 Cấu hình trường (DT-19 phần 19a), ở đây chỉ hiển thị */}
           <FormRow label="Cấp học của trường" error={errors.school_levels}>
-            <div className="flex flex-wrap gap-4">
-              {WEBSITE_SCHOOL_LEVELS.map((level) => (
-                <label key={level.value} className="flex items-center gap-2 text-content">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4"
-                    checked={input.school_levels.includes(level.value)}
-                    onChange={(event) =>
-                      change(
-                        'school_levels',
-                        event.target.checked
-                          ? [...input.school_levels, level.value]
-                          : input.school_levels.filter((value) => value !== level.value),
-                      )
-                    }
-                  />
-                  {level.label}
-                </label>
-              ))}
-            </div>
+            <p className="text-content text-text" data-testid="website-school-levels">
+              {WEBSITE_SCHOOL_LEVELS.filter((level) => input.school_levels.includes(level.value))
+                .map((level) => level.label)
+                .join(', ')}
+              <span className="ml-2 text-label text-text-secondary">
+                (đổi ở Cấu hình trường, thẻ Cấp học của trường)
+              </span>
+            </p>
           </FormRow>
           <FormRow label="Trang thời khóa biểu">
             <label className="flex items-center gap-2 text-content">
