@@ -189,26 +189,26 @@ export class StatisticsService {
         children_percent: percentOf(members.length, enrolled.length),
       };
     });
-    const gradeCodes = [...new Set(classes.filter((row) => row.school_level !== 'MN').map((row) => row.grade_level))];
-    const gradeGroups = gradeCodes
-      .map((code) => {
-        const inGrade = classes.filter((row) => row.school_level !== 'MN' && row.grade_level === code);
-        const classIds = new Set(inGrade.map((row) => row.id));
-        const members = enrolled.filter((row) => classIds.has(row.class_id));
-        return {
-          grade_level: code,
-          label: inGrade[0]?.grade_name ?? code,
-          school_level: inGrade[0]?.school_level ?? 'MN',
-          order_no: inGrade[0]?.grade_order ?? 0,
-          class_count: classIds.size,
-          class_percent: percentOf(classIds.size, classes.length),
-          children_count: members.length,
-          female_count: members.filter((row) => row.gender === 'female').length,
-          children_percent: percentOf(members.length, enrolled.length),
-        };
-      })
-      .sort((left, right) => left.order_no - right.order_no || left.grade_level.localeCompare(right.grade_level))
-      .map(({ order_no: _order, ...group }) => group);
+    // Khối theo thứ tự của danh mục rồi theo mã
+    const orderOf = (code: string) => classes.find((row) => row.grade_level === code)?.grade_order ?? 0;
+    const gradeCodes = [
+      ...new Set(classes.filter((row) => row.school_level !== 'MN').map((row) => row.grade_level)),
+    ].sort((left, right) => orderOf(left) - orderOf(right) || left.localeCompare(right));
+    const gradeGroups = gradeCodes.map((code) => {
+      const inGrade = classes.filter((row) => row.school_level !== 'MN' && row.grade_level === code);
+      const classIds = new Set(inGrade.map((row) => row.id));
+      const members = enrolled.filter((row) => classIds.has(row.class_id));
+      return {
+        grade_level: code,
+        label: inGrade[0]?.grade_name ?? code,
+        school_level: inGrade[0]?.school_level ?? 'MN',
+        class_count: classIds.size,
+        class_percent: percentOf(classIds.size, classes.length),
+        children_count: members.length,
+        female_count: members.filter((row) => row.gender === 'female').length,
+        children_percent: percentOf(members.length, enrolled.length),
+      };
+    });
     return {
       groups,
       grade_groups: gradeGroups,
