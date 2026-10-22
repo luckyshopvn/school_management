@@ -134,7 +134,7 @@ test('CT-22f-9: nạp bộ tiêu chuẩn; lập đợt, hội đồng, nhóm cô
   await evidence.getByLabel('Tên minh chứng').fill('Kế hoạch chiến lược thử');
   await evidence.getByRole('button', { name: 'Ghi' }).click();
   await expect(staff.getByText('Đã ghi minh chứng H1-1.1-01')).toBeVisible();
-  await expect(staff.getByRole('cell', { name: 'H1-1.1-01' })).toBeVisible();
+  await expect(staff.getByRole('cell', { name: 'H1-1.1-01', exact: true })).toBeVisible();
 
   // Hiệu trưởng: 1.2 duyệt phiếu
   await openMenu(head, '/quality/reports');
