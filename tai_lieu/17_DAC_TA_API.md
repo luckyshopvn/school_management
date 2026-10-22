@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.95
+- Phiên bản: 1.96
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -1331,6 +1331,10 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, POST, PUT, DELETE | /api/v1/education-plan-templates, /{id}, /defaults | Thư viện mẫu kế hoạch giáo dục (P09-31, YCTD-147) |
 | GET, POST, PUT, DELETE | /api/v1/education-plans, /overview, /{id}, /{id}/submit, /withdraw, /approve, /return, /diff, /export, /signed-file, /work-plan | Kế hoạch giáo dục (P09-32, YCTD-147) |
 | GET, POST | /api/v1/education-plans/previous-year, /copy; GET /progress, /progress/export | Sao chép từ năm trước; tiến độ duyệt (P09-32, P09-33, YCTD-147) |
+| GET, POST, PUT, DELETE | /api/v1/quality/frameworks, /{id}, /defaults; /frameworks/{id}/standards, /standards/{id}, /standards/{id}/criteria, /criteria/{id}, /criteria/{id}/indicators, /indicators/{id} | Bộ tiêu chuẩn đánh giá (P09-40, YCTD-149) |
+| GET, POST, PUT, DELETE | /api/v1/quality/overview, /assessments, /assessments/{id}, /council, /groups, /start, /complete, /reopen, /recognition, /recognition/apply, /inherit-evidences, /work-plan, /report, /evidences/export; /quality/recognition | Đợt tự đánh giá, báo cáo, kế hoạch cải tiến, công nhận (P09-41, P09-44) |
+| GET, PUT, POST | /api/v1/quality/reports, /reports/{id}, /submit, /approve, /return, /reopen | Phiếu đánh giá tiêu chí (P09-42) |
+| GET, POST, PUT, DELETE | /api/v1/quality/evidences, /evidences/{id}, /evidences/{id}/file; /quality/evidence-sources | Minh chứng (P09-43) |
 | GET, POST, PUT, DELETE | /api/v1/emulation/overview, /emulation/titles, /{id}, /defaults | Tổng quan, danh mục danh hiệu (P09-34, YCTD-148) |
 | GET, POST, PUT, DELETE | /api/v1/emulation/campaigns, /{id}, /launch, /publish, /close, /launch-document, /council, /meetings, /report, /report/export; /emulation/registrations, /review, /{id} | Đợt, hội đồng, báo cáo, đăng ký (P09-35, P09-37, P09-39) |
 | GET, POST, PUT, DELETE | /api/v1/emulation/nominations, /{id}, /submit, /withdraw, /accept, /return, /evidence-options, /evidence, /evidence/{id}/file, /report | Hồ sơ đề nghị (P09-36) |
@@ -1415,6 +1419,16 @@ Giao kèo thi đua, khen thưởng (DT-18 phần 22d, YCTD-148, BR-147 đến BR
 5. `POST /emulation/appeals` nhận `campaign_id`, `nomination_id` (bắt buộc với phúc khảo), `kind`, `content`; quá hạn trả 422 BR-150. `POST /{id}/resolve` nhận `accept`, `response`.
 6. `POST /emulation/decisions` nhận `campaign_id`, `kind`, `title`, `basis`, `signer_name`, `signer_title`, `nomination_ids`; lỗi theo ô `nomination_ids.{n}`. `POST /{id}/outgoing` tạo văn bản đi dự thảo kèm tệp Word. `POST /{id}/issue` (`P09.emulation.decide`) nhận `number`, `issue_date`. `POST /{id}/upper-result` nhận `number`, `date`, `issuer`, `awarded_ids`. `GET /emulation/awards/{id}/certificate` trả PDF; mã QR là địa chỉ `/tra-cuu-khen-thuong?ma=` theo nguồn của yêu cầu.
 7. `GET /emulation/history` nhận `q`, `target`, `title_code`, `staff_id`; `POST` nhận `year_name`, `title_code`, `title_name`, `title_kind`, `target`, `staff_id` hoặc `department_id`, `decision_number`, `decision_date`, `issuer`, `note`. `GET /public/emulation-awards/verify?code=` (không đăng nhập, giới hạn số lần) trả `school_name`, `subject_name`, `title_name`, `year_name`, `decision_number`, `decision_date`, `issuer`.
+
+
+Giao kèo bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f, YCTD-149, BR-151 đến BR-153; dữ liệu ở cơ sở dữ liệu năm học hiện hành):
+
+1. `POST /quality/frameworks`, `PUT /{id}` nhận `code` (chữ không dấu, số, chấm, gạch), `name`, `school_level`, `legal_basis`, `max_level` (1 đến 4), `sort_order`, `status`; `POST /defaults` nhận `school_level`, trả `created`, `skipped` (cấp chưa có bộ mẫu trả 422). Tiêu chuẩn nhận `code`, `title`, `sort_order`; tiêu chí thêm `evidence_hint`; chỉ báo nhận `level`, `code`, `content`. Xóa bộ, tiêu chí đã dùng trả 422. `GET /frameworks/{id}` trả cây `standards[].criteria[].indicators[]`.
+2. `POST /quality/assessments`, `PUT /{id}` nhận `framework_id`, `title`, `decision_number`, `decision_date`, `start_date`, `end_date`, `introduction`, `conclusion`. `PUT /{id}/council` nhận `members` (`staff_id`, `position`, `duty`); `PUT /{id}/groups` nhận `groups` (`name`, `leader_staff_id`, `member_staff_ids`, `criterion_ids`), thay toàn bộ. `POST /{id}/start`, `/complete` (nhận `self_level`), `/reopen`. `GET /{id}` trả `council`, `groups`, `criteria` (tiến độ từng tiêu chí), `summary` (`total`, `assessed`, `by_level`, `suggested`), `evidence_status`, `can_manage`, `my_group_ids`.
+3. `GET /quality/reports` nhận `assessment_id`, `mine`; `PUT /reports/{id}` nhận `current_state`, `strengths`, `weaknesses`, `improvement_actions` (tối đa 30), `indicator_results` (mã chỉ báo → true, false), `self_level`; `GET` trả thêm `indicators`, `suggested_level`, `evidences`, `can_edit`, `can_review`. `/return` cần `note`.
+4. `GET /quality/evidences` nhận `assessment_id` (bắt buộc), `criterion_id`, `status`, `q`; `POST` nhận `assessment_id`, `criterion_id`, `box` (tùy chọn), `title`, `document_number`, `issued_date`, `issuer`, `description`, `status`, `source_type`, `source_id`, `criterion_ids` (dùng chung); trả `code`. `POST /evidences/{id}/file` (nhiều phần: `file`) nhận tối đa 20 MB. `GET /evidences/{id}/file` trả tệp tải lên hoặc tệp của hồ sơ kho. `GET /evidence-sources` nhận `source_type`, `q`, trả `id`, `label`.
+5. `POST /assessments/{id}/inherit-evidences` trả `year_name`, `created`, `skipped`. `POST /{id}/work-plan` trả `work_plan_ids`, `plans`, `items`. `GET /{id}/report?format=docx|pdf` trả báo cáo tự đánh giá; `GET /{id}/evidences/export?format=xlsx` trả danh mục minh chứng. `PUT /{id}/recognition` nhận `external_level`, `recognition_decision`, `recognition_date`, `recognition_valid_until`; `POST /{id}/recognition/apply` ghi vào bản rà soát 1.7, trả `accreditation_level`, `accreditation_date`, `accreditation_year`. `GET /quality/recognition` trả `review` (1.7 kèm `valid_until`, `state`) và `records`.
+6. `GET`, `PUT /me/grid-settings/{gridKey}` nhận thêm sáu khóa lưới: `quality-assessments`, `quality-assessment-criteria`, `quality-reports`, `quality-evidences`, `quality-recognitions`, `quality-frameworks`.
 
 
 Giao kèo kế hoạch giáo dục (DT-18 phần 22i, YCTD-147, BR-142):
