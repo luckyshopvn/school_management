@@ -1,8 +1,8 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.29
-- Ngày cập nhật: 2026-10-22
+- Phiên bản: 0.30
+- Ngày cập nhật: 2026-10-23
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
 
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.104.0 – 2026-10-23
+
+- Phạm vi thay đổi: DT-19 phần 19e, cổng phụ huynh và ứng dụng giáo viên đa cấp (YCTD-155).
+- Chức năng mới: chức năng theo cấp ở ứng dụng phụ huynh, ứng dụng giáo viên (tên cấp của con, của lớp; chức năng chỉ của Mầm non chỉ ở con, lớp Mầm non); tin tức có cấp nhận; số người nhận trước khi công bố.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0074_add_news_audience_levels`.
+- Thay đổi API: `GET /children` thêm `school_level`; `/news` nhận và trả `audience_levels`; mới `POST /news-recipients/count`.
+- Kiểm thử: kịch bản CT-820 đến CT-824. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/school-levels/multi-level-apps.test.ts` CT-19e-1 đến CT-19e-4 đạt 4/4; kiểm thử đơn vị toàn bộ kho mã đạt 1031/1031 (không sửa kỳ vọng của kiểm thử đang có); kiểm thử giao diện `tests/e2e/85-multi-level-apps.spec.ts` (CT-19e-5) đạt; toàn bộ kiểm thử giao diện đạt 156/156; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: tin có cấp nhận gửi theo danh sách tài khoản phụ huynh thay vì theo vai trò; trường đông học sinh có nhiều dòng người nhận hơn.
+- Khả năng tương thích: trường chỉ có Mầm non không đổi hành vi; tin cũ có cấp nhận trống; điểm cuối cũ chỉ thêm trường.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 19e; chạy phần quay lui của tệp năm học `0074`.
 
 ### Phiên bản 0.103.0 – 2026-10-22
 

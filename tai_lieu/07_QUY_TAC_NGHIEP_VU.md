@@ -1,8 +1,8 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.69
-- Ngày cập nhật: 2026-10-22
+- Phiên bản: 1.70
+- Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -230,6 +230,7 @@ Bổ sung ngày 2026-10-09 theo yêu cầu tách vai trò Ban Giám hiệu thàn
 | BR-157 | Lớp, đơn vị theo cấp (YCTD-152): lớp lấy cấp theo khối; lớp ngoài Mầm non không có nhóm tuổi, học 2 buổi/ngày, ghép độ tuổi, lớp ghép; đơn vị của lớp phải có cấp của lớp (đơn vị chưa khai báo là Mầm non); đơn vị có ít nhất một cấp, không bỏ cấp còn lớp chưa đóng |
 | BR-158 | Lịch theo cấp (YCTD-152): học kỳ, tuần không có cấp là lịch chung; cấp chưa khai báo theo lịch chung; lịch của cấp không đổi lịch chung, năm học đóng thì không sửa; sửa tuần của cấp cần lịch riêng của cấp; mọi nghiệp vụ hiện có đọc lịch chung |
 | BR-159 | Menu theo cấp học (YCTD-153): mục, nhóm, phân hệ không ghi cấp là của mọi cấp; mục có ghi cấp chỉ hiện khi cấp đó thuộc cấp đang làm việc; nhóm, phân hệ không còn mục thì ẩn; số thứ bậc của mục còn lại không đổi; trường chỉ bật Mầm non giữ y hệt menu. Cấp đang làm việc: trường từ hai cấp chọn một cấp hoặc "Tất cả" (mặc định), lưu theo tài khoản; cấp đã chọn bị tắt hoặc ra ngoài phạm vi cấp thì coi là "Tất cả"; trường một cấp luôn là cấp đó. Thuật ngữ: Mầm non "Trẻ", "Nhóm lớp"; cấp khác "Học sinh", "Lớp"; nhiều cấp gọi khác nhau dùng "Học sinh", "Lớp". Lối tắt, mục cây quyền thuộc cấp chưa bật ẩn, không xóa |
+| BR-160 | Ứng dụng phụ huynh, giáo viên theo cấp (YCTD-155): cấp của con là cấp của lớp đang học, chưa xếp lớp là Mầm non; chức năng điểm danh và báo vắng theo ngày, nhật ký, chăm sóc hằng ngày, báo cơm, báo cáo tăng trưởng theo tháng tuổi, hồ sơ cuối cấp chỉ hiện ở con, lớp Mầm non; chức năng khác dùng cho mọi cấp. Tin tức có cấp nhận: trống là mọi cấp; chỉ dùng cho phạm vi toàn trường, đơn vị (phạm vi lớp, trẻ lưu trống); cấp phải đang bật; phụ huynh chỉ xem, chỉ nhận tin có cấp nhận khi có con đang học lớp thuộc các cấp đó; nhân sự xem mọi tin của phạm vi như cũ |
 
 Danh mục chứng từ áp dụng hạn mức: phiếu chi, phiếu đảo phiếu thu (YCTD-23), phiếu đảo phiếu chi (YCTD-24), đề nghị mua hàng, phiếu điều chỉnh hóa đơn, miễn giảm học phí, bảng lương kỳ, chốt kỳ tài chính. Mức hạn mức cụ thể chưa có, xem Q-22 và Q-112.
 
