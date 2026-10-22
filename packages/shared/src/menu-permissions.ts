@@ -52,6 +52,8 @@ const EDUCATION_PLAN_ANY = anyOf(
 // Thi đua, khen thưởng (DT-18 phần 22d)
 const EMULATION_ANY = anyOf('P09.emulation.use', 'P09.emulation.manage', 'P09.emulation.decide');
 const EMULATION_MANAGE = anyOf('P09.emulation.manage', 'P09.emulation.decide');
+// Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
+const QUALITY_ANY = anyOf('P09.quality.use', 'P09.quality.manage');
 const SCHEDULE_ANY = anyOf('P09.schedule.view', 'P09.schedule.manage', 'P09.meeting-room.manage');
 // Điều kiện của nhóm "Trẻ và lớp" cũ
 const CHILDREN_AND_CLASSES = anyOf('P02.class.manage', 'P02.view', 'P02.edit');
@@ -268,6 +270,11 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/emulation/history': EMULATION_ANY,
   '/emulation/reports': EMULATION_MANAGE,
   '/emulation/titles': EMULATION_ANY,
+  '/quality/assessments': QUALITY_ANY,
+  '/quality/reports': QUALITY_ANY,
+  '/quality/evidences': QUALITY_ANY,
+  '/quality/recognition': QUALITY_ANY,
+  '/quality/frameworks': QUALITY_ANY,
   '/emis/facilities': 'P17.report.emis',
   '/emis/health': 'P17.report.emis',
   '/emis/end-of-year': 'P17.report.emis',

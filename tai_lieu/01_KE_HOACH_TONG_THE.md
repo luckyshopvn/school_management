@@ -1,7 +1,7 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.29
+- Phiên bản: 1.30
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -71,7 +71,8 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.97.0 | DT-18 phần 22i: kế hoạch giáo dục (thư viện mẫu theo cấp học, duyệt tổ trưởng, Phó Hiệu trưởng, Hiệu trưởng, kí nội bộ, lưu kho hồ sơ, phiên bản và so sánh, sao chép từ năm trước, xuất Word, PDF, tiến độ duyệt, tạo kế hoạch công việc) (YCTD-147) | 2026-10-21 |
 | 0.98.0 | DT-18 phần 22b: lô hàng nhập, hồ sơ an toàn thực phẩm của nhà cung cấp (cảnh báo hết hạn), kiểm thực ba bước, lưu và hủy mẫu thức ăn, truy xuất nguồn gốc, sổ in theo Quyết định 1246/QĐ-BYT | YCTD-146 |
 | 0.99.0 | DT-18 phần 22d: phân hệ Thi đua, khen thưởng (danh mục cấu hình, đợt, đăng ký, hồ sơ đề nghị lấy KPI và minh chứng, hội đồng bỏ phiếu kín, phúc khảo, quyết định, giấy khen có mã tra cứu, sổ nhiều năm) | YCTD-148 |
-| 0.100.0 | DT-19 phần 19a: nền cấp học của trường (bảng `school_levels`, `SchoolLevelResolver`, phạm vi cấp của người dùng, thẻ Cấp học của trường; ô ngữ cảnh, website đọc cấp từ một nguồn) | YCTD-151 |
+| 0.100.0 | DT-18 phần 22f: phân hệ Bảo đảm chất lượng; bộ tiêu chuẩn cấu hình được, đợt tự đánh giá, hội đồng, nhóm công tác, phiếu tiêu chí, minh chứng có mã, kế hoạch cải tiến, báo cáo tự đánh giá, theo dõi công nhận nối 1.7 | YCTD-149 |
+| 0.101.0 | DT-19 phần 19a: nền cấp học của trường (bảng `school_levels`, `SchoolLevelResolver`, phạm vi cấp của người dùng, thẻ Cấp học của trường; ô ngữ cảnh, website đọc cấp từ một nguồn) | YCTD-151 |
 | 0.83.0 | DT-15 phần 15f3, các phân hệ Bếp – kho, mua hàng; Tương tác – truyền thông; Giảng dạy; Tuyển sinh, tuyển dụng; Báo cáo theo giao diện chung của Sở: tiêu đề đánh số theo menu, 32 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối; nghiệp vụ không đổi (YCTD-115) | 13, 21 | Đã có |
 | 0.81.0 | DT-15 phần 15f2, phân hệ Nhân sự – chấm công, lương theo giao diện chung của Sở: tiêu đề đánh số theo menu, 17 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối, hộp xác nhận xóa; nghiệp vụ không đổi (YCTD-113) | 13, 21 | Đã có |
 | 0.82.0 | DT-15 phần 15f1, phân hệ Tài chính – học phí theo giao diện chung của Sở: tiêu đề đánh số theo menu, 20 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối, hộp xác nhận xóa; nghiệp vụ không đổi (YCTD-114) | 13, 21 | Đã có |

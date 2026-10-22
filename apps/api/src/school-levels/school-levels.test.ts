@@ -74,7 +74,7 @@ describe('Kiểm tra dữ liệu cấp học và hàm cấp dùng chung', () => 
     });
     assert.throws(invalid(DEFAULT_LEVELS.map((level) => ({ ...level, is_enabled: false }))), {
       code: 'ERR_RULE_VIOLATION',
-      ruleCode: 'BR-147',
+      ruleCode: 'BR-154',
     });
   });
 

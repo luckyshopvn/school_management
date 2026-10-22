@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.81
+- Phiên bản: 1.82
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -333,6 +333,13 @@ Từ YCTD-107 (DT-15 phần 15a), cổng quản trị dùng menu ngang nhiều c
 | Thi đua, khen thưởng | 5.2. | Báo cáo đợt thi đua | `/emulation/reports` |
 | Thi đua, khen thưởng | 6. | Danh mục | (nhóm) |
 | Thi đua, khen thưởng | 6.1. | Danh hiệu và hình thức khen thưởng | `/emulation/titles` |
+| Bảo đảm chất lượng | 1. | Tự đánh giá | (nhóm) |
+| Bảo đảm chất lượng | 1.1. | Đợt tự đánh giá | `/quality/assessments` |
+| Bảo đảm chất lượng | 1.2. | Phiếu đánh giá tiêu chí | `/quality/reports` |
+| Bảo đảm chất lượng | 1.3. | Minh chứng | `/quality/evidences` |
+| Bảo đảm chất lượng | 2. | Kiểm định và thiết lập | (nhóm) |
+| Bảo đảm chất lượng | 2.1. | Theo dõi công nhận | `/quality/recognition` |
+| Bảo đảm chất lượng | 2.2. | Bộ tiêu chuẩn đánh giá | `/quality/frameworks` |
 
 Từ YCTD-134 (DT-17 phần 17c), phân hệ "Tuyển sinh đầu cấp" (khóa `entry-admissions`) đứng sau "Quản lý cơ sở vật chất, TBDH" trên ô chọn phân hệ; số mục giữ như trang riêng `truong-tsdc` của Sở (khảo sát tài liệu 31 mục 10.2.2), tên năm nhóm 1. đến 5. do Claude tự đặt vì khảo sát không ghi; mục 1.3 đến 1.7 thêm ở phần 17d. Tiêu đề trang lấy từ cây menu kèm số (`menuPageTitle`). Cổng quản trị có 13 phân hệ.
 
@@ -343,6 +350,8 @@ Từ YCTD-138 (DT-18 phần 18a), phân hệ "Quản lý văn bản và điều 
 Từ YCTD-139 (DT-18 phần 18d), phân hệ "Đánh giá KPI" (khóa `kpi`) đứng cuối ô chọn phân hệ; phân hệ riêng nên đánh số liên tục, tên mục do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11. Mục hiện theo quyền `P09.kpi.*` (PQ-79).
 
 Từ YCTD-142 (DT-18 phần 18e), phân hệ "Hồ sơ chuyên môn" (khóa `professional-records`) đứng cuối ô chọn phân hệ, theo mô tả công khai của GIKIDI Nhà Trường; phân hệ riêng nên đánh số liên tục, tên mục do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11. Mục 1. Việc của tôi không có điều kiện quyền (ai đăng nhập cũng thấy) và hiện số việc đang chờ cạnh tên mục (nền đỏ khi có việc quá hạn); đầu trang có thêm nút "Việc của tôi" kèm số, cạnh chuông thông báo; số làm mới mỗi phút. Các mục khác hiện theo quyền `P09.professional-record.*` (PQ-84).
+
+Từ YCTD-149 (DT-18 phần 22f), phân hệ "Bảo đảm chất lượng" (khóa `quality-assurance`) đứng cuối ô chọn phân hệ, cổng quản trị có 19 phân hệ; phân hệ riêng nên đánh số liên tục, tên mục do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11. Mục hiện theo quyền `P09.quality.*` (PQ-89). Mục 1.7 Rà soát thông tin kiểm định CLGD vẫn ở phân hệ Quản lý giáo dục Mầm non như Sở.
 
 ## 2. Danh sách màn hình theo kênh
 
@@ -603,7 +612,12 @@ Từ YCTD-142 (DT-18 phần 18e), phân hệ "Hồ sơ chuyên môn" (khóa `pro
 | MH-250 | Báo cáo đợt thi đua (YCTD-148; "5.2.", `/emulation/reports`, lưới khóa `emulation-report`): chọn đợt; số cán bộ, phúc khảo, khiếu nại; theo danh hiệu: đăng ký, đăng ký được duyệt, hồ sơ, thông qua, không thông qua, đã khen; Xuất Excel | Người quản lý (`P09.emulation.manage`), người ban hành (`P09.emulation.decide`) |
 | MH-251 | Danh hiệu và hình thức khen thưởng (YCTD-148; "6.1.", `/emulation/titles`, lưới khóa `emulation-titles`): cột mã, tên, loại, đối tượng, cấp quyết định, KPI tối thiểu, năm liên tục, tỉ lệ tối đa, phiếu tối thiểu, số tiêu chí, phiên bản, trạng thái; Thêm danh hiệu, Sửa (thông tin, điều kiện, tiêu chí mỗi dòng "mã | tên | trọng số | điểm tối đa"), Xóa, Nạp danh mục mặc định | Người có quyền của phân hệ (`P09.emulation.use`, `.manage`, `.decide`) |
 | MH-252 | Tra cứu khen thưởng (YCTD-148; `/tra-cuu-khen-thuong?ma=`, không cần đăng nhập): ô mã tra cứu, Tra cứu; kết quả: trường, cá nhân hoặc tập thể, danh hiệu, năm học, số, ngày quyết định, cấp khen | Công khai |
-| MH-253 | Cấp học của trường (YCTD-151; thẻ ở "1.4. Cấu hình trường", `/settings`): bảng bốn cấp có ô Bật, Mã, Thứ tự, Tên hiển thị, Gọi người học, Nhãn ô ngữ cảnh, Số lớp năm học này; nút "Ghi cấp học", báo "Đã ghi cấp học của trường"; cảnh báo "Cấp … đang có … lớp" khi bỏ tích cấp có lớp; người không có quyền thấy ô bị khóa, không có nút. Chi tiết tài khoản (1.1) có khối "Phạm vi cấp học" (ô chọn các cấp đang bật, nút "Ghi phạm vi cấp học") khi trường bật từ hai cấp | Mọi người đã đăng nhập xem; sửa: Hiệu trưởng (`P01.school-level.manage`); phạm vi cấp: người quản lý tài khoản |
+| MH-253 | Đợt tự đánh giá (YCTD-149; mục "1.1." của Bảo đảm chất lượng, `/quality/assessments`, lưới khóa `quality-assessments`, `quality-assessment-criteria`): cột tên đợt, bộ tiêu chuẩn, quyết định, thời gian, phiếu đã duyệt, minh chứng, trạng thái, mức; Lập đợt tự đánh giá; chi tiết năm thẻ: Thông tin chung (Sửa, đặt vấn đề, kết luận; Bắt đầu đánh giá; Kế thừa minh chứng năm trước), Hội đồng (thành viên, chức danh, nhiệm vụ; Ghi hội đồng), Nhóm công tác (tên, trưởng nhóm, thành viên, ô chọn tiêu chí phân công; Ghi nhóm công tác), Tiến độ tiêu chí (tiêu chí, nhóm, trạng thái phiếu, mức, số minh chứng), Kết quả và báo cáo (tổng hợp mức, mức gợi ý; Hoàn thành đợt, Mở lại đợt; Xuất báo cáo Word, PDF; Tạo kế hoạch cải tiến; kết quả công nhận, Cập nhật vào 1.7) | Ban Giám hiệu (`P09.quality.manage`), thành viên hội đồng, nhóm công tác (`P09.quality.use`) |
+| MH-254 | Phiếu đánh giá tiêu chí (YCTD-149; mục "1.2.", `/quality/reports`, lưới khóa `quality-reports`): thẻ Phiếu của nhóm tôi, Tất cả phiếu (Phiếu của đợt tôi tham gia); chọn đợt; cột tiêu chí, tên, nhóm, trạng thái, mức; chi tiết phiếu: chỉ báo theo mức (đánh dấu đạt), mô tả hiện trạng, điểm mạnh, điểm yếu, kế hoạch cải tiến (nội dung, người phụ trách, thời hạn, nguồn lực), tự đánh giá, mức gợi ý, minh chứng của tiêu chí; Ghi phiếu, Nộp phiếu, Duyệt phiếu, Trả lại (lý do), Mở lại phiếu | Ban Giám hiệu (`P09.quality.manage`), thành viên hội đồng, nhóm công tác (`P09.quality.use`) |
+| MH-255 | Minh chứng (YCTD-149; mục "1.3.", `/quality/evidences`, lưới khóa `quality-evidences`): chọn đợt, tiêu chí, trạng thái, tìm theo mã, tên, số; cột mã minh chứng, tên, số và ngày ban hành, nơi ban hành, tiêu chí (kèm dùng chung), trạng thái, nguồn, kế thừa; Thêm minh chứng (tiêu chí, số hộp, tên, số kí hiệu, ngày, nơi ban hành, mô tả, trạng thái, nguồn với ô tìm hồ sơ, văn bản, tiêu chí dùng chung), Sửa, Xóa, Tải tệp lên, Xem tệp; Xuất danh mục minh chứng | Ban Giám hiệu (`P09.quality.manage`), thành viên hội đồng, nhóm công tác (`P09.quality.use`) |
+| MH-256 | Theo dõi công nhận (YCTD-149; mục "2.1.", `/quality/recognition`, lưới khóa `quality-recognitions`): khung theo mục 1.7 của năm học (cấp độ, ngày công nhận kiểm định, hiệu lực đến, nhãn Còn hiệu lực, Sắp hết hiệu lực, Hết hiệu lực; chuẩn quốc gia); lưới kết quả công nhận của các đợt đã hoàn thành (tự đánh giá, được công nhận, quyết định, ngày, hiệu lực) | Ban Giám hiệu (`P09.quality.manage`), thành viên hội đồng, nhóm công tác (`P09.quality.use`) |
+| MH-257 | Bộ tiêu chuẩn đánh giá (YCTD-149; mục "2.2.", `/quality/frameworks`, lưới khóa `quality-frameworks`): chọn cấp học, Nạp bộ tiêu chuẩn mẫu; cột mã, tên, cấp học, số mức, số tiêu chuẩn, tiêu chí, chỉ báo, trạng thái; Thêm bộ tiêu chuẩn, Sửa, Xóa; chi tiết là cây tiêu chuẩn, tiêu chí, chỉ báo với Thêm, Sửa, Xóa từng cấp | Ban Giám hiệu (`P09.quality.manage`), thành viên hội đồng, nhóm công tác (`P09.quality.use`) |
+| MH-258 | Cấp học của trường (YCTD-151; thẻ ở "1.4. Cấu hình trường", `/settings`): bảng bốn cấp có ô Bật, Mã, Thứ tự, Tên hiển thị, Gọi người học, Nhãn ô ngữ cảnh, Số lớp năm học này; nút "Ghi cấp học", báo "Đã ghi cấp học của trường"; cảnh báo "Cấp … đang có … lớp" khi bỏ tích cấp có lớp; người không có quyền thấy ô bị khóa, không có nút. Chi tiết tài khoản (1.1) có khối "Phạm vi cấp học" (ô chọn các cấp đang bật, nút "Ghi phạm vi cấp học") khi trường bật từ hai cấp | Mọi người đã đăng nhập xem; sửa: Hiệu trưởng (`P01.school-level.manage`); phạm vi cấp: người quản lý tài khoản |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 
@@ -611,7 +625,7 @@ Từ YCTD-126: MH-02 thêm nút Thay đổi, Xóa (hồ sơ nháp, hộp xác nh
 
 Từ YCTD-127 (DT-16 phần 16e), màn hình "1.4. Cấu hình trường" (`/settings`, phần cấu hình đơn vị của MH-30) có khối "Cấu hình trường" ở đầu trang theo mục 1.4 của Sở: ô Tên trường hiển thị (chú thích để trống là tên Trường chính trong cây đơn vị), Tên đơn vị hành chính, ô chọn Bật, Tắt "Tính cân nặng/chiều cao cho trẻ suy dinh dưỡng thể nhẹ cân", nút Ghi, báo "Đã ghi cấu hình trường"; ghi xong thanh đầu trang đổi theo tên trường hiển thị; bảng cấu hình theo đơn vị không còn ba mục này. Khối sửa được với người có `P01.setting.manage` ở phạm vi toàn trường, người khác xem chỉ đọc (BR-125).
 
-Từ YCTD-151 (DT-19 phần 19a), "1.4. Cấu hình trường" có thẻ "Cấp học của trường" (MH-253) ngay sau khối "Cấu hình trường". Ô ngữ cảnh ở thanh đầu trang lấy nhãn các cấp đang bật (trường chỉ có Mầm non giữ "Cấp MN · năm học · học kỳ"). Ô "Cấp học của trường" ở cấu hình website chỉ hiển thị các cấp đang bật, kèm chú thích đổi ở Cấu hình trường.
+Từ YCTD-151 (DT-19 phần 19a), "1.4. Cấu hình trường" có thẻ "Cấp học của trường" (MH-258) ngay sau khối "Cấu hình trường". Ô ngữ cảnh ở thanh đầu trang lấy nhãn các cấp đang bật (trường chỉ có Mầm non giữ "Cấp MN · năm học · học kỳ"). Ô "Cấp học của trường" ở cấu hình website chỉ hiển thị các cấp đang bật, kèm chú thích đổi ở Cấu hình trường.
 
 Từ YCTD-122: MH-95 có cột Đơn vị, nhãn "Sắp đến hạn" cạnh thời hạn, Mở rộng tìm kiếm thêm Đơn vị và "Chỉ hồ sơ sắp đến hạn"; biểu mẫu thêm ô Đơn vị và ô chọn Người giải quyết từ nhân sự đang làm việc (chọn "Người khác (nhập tên)" thì hiện ô Tên người giải quyết). MH-96, MH-97 có cột Đơn vị, biểu mẫu phông có ô Đơn vị. MH-98 lọc thêm theo Đơn vị. Ô Đơn vị có "Toàn trường" chỉ với người quản lý văn thư toàn trường.
 

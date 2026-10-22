@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.26
+- Phiên bản: 0.27
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,17 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.100.0 – 2026-10-22
+### Phiên bản 0.101.0 – 2026-10-22
 
 - Phạm vi thay đổi: DT-19 phần 19a, nền cấp học của trường (YCTD-151).
 - Chức năng mới: bảng cấp học của trường (bốn mã cố định, Mầm non bật sẵn), hàm dùng chung `SchoolLevelResolver`, phạm vi cấp học của người dùng, thẻ "Cấp học của trường" ở 1.4 Cấu hình trường; ô ngữ cảnh và website đọc cấp từ một nguồn.
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp hệ thống `0023_create_school_levels`; tệp định danh `0064_add_user_school_levels`.
 - Thay đổi API: `/school-levels`, `/users/{id}/school-levels`; `/auth/me` thêm `school_levels`.
-- Kiểm thử: kịch bản CT-786 đến CT-791. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/school-levels/school-levels.test.ts` CT-19a-1 đến CT-19a-5 đạt 5/5; kiểm thử đơn vị toàn bộ kho mã … (không sửa kỳ vọng của kiểm thử đang có); kiểm thử giao diện `tests/e2e/81-school-levels.spec.ts` (CT-19a-6) đạt; toàn bộ kiểm thử giao diện …; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử: kịch bản CT-795 đến CT-800. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/school-levels/school-levels.test.ts` CT-19a-1 đến CT-19a-5 đạt 5/5; kiểm thử đơn vị toàn bộ kho mã … (không sửa kỳ vọng của kiểm thử đang có); kiểm thử giao diện `tests/e2e/81-school-levels.spec.ts` (CT-19a-6) đạt; toàn bộ kiểm thử giao diện …; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Rủi ro: máy chủ API khác thấy thay đổi cấp chậm nhất 30 giây.
 - Khả năng tương thích: trường chỉ có Mầm non không đổi hành vi; không đổi điểm cuối cũ (chỉ thêm trường).
 - Phương án quay lui: hoàn lại commit gộp của nhánh 19a; chạy phần quay lui của tệp hệ thống `0023` và tệp định danh `0064`.
+
+### Phiên bản 0.100.0 – 2026-10-22
+
+- Phạm vi thay đổi: DT-18 phần 22f, bảo đảm chất lượng, tự đánh giá (YCTD-149).
+- Chức năng mới: phân hệ "Bảo đảm chất lượng"; bộ tiêu chuẩn cấu hình được theo cấp học, bộ mẫu Mầm non; đợt tự đánh giá, hội đồng, nhóm công tác, phân công tiêu chí; phiếu đánh giá tiêu chí có chỉ báo, nộp, duyệt, trả lại; minh chứng có mã, bốn trạng thái, nguồn từ kho hồ sơ chuyên môn, văn bản đến, đi, kế thừa năm trước; kế hoạch cải tiến thành kế hoạch công việc nháp; báo cáo tự đánh giá Word, PDF; theo dõi công nhận, ghi vào 1.7.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0071_create_quality_assurance`; tệp định danh `0063_add_quality_assurance_permissions`.
+- Thay đổi API: điểm cuối mới dưới `/quality`.
+- Kiểm thử: kịch bản CT-786 đến CT-794. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/quality-assurance/quality-assurance.test.ts` CT-22f-1 đến CT-22f-8 đạt 8/8; kiểm thử đơn vị toàn bộ kho mã 1005/1005; kiểm thử giao diện `tests/e2e/80-quality-assurance.spec.ts` (CT-22f-9) đạt; toàn bộ kiểm thử giao diện 150/152 trên máy (01-login lỗi tiêu điểm bàn phím chỉ trên máy, chạy lại đạt; 04-accounts lỗi do tài khoản trùng của các lượt chạy trước ở cơ sở dữ liệu định danh dùng lại, không liên quan 22f; CI là chuẩn); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: bộ mẫu Mầm non chỉ có tên tiêu chuẩn, tiêu chí, cần đối chiếu văn bản hiện hành; kế hoạch cải tiến tạo kế hoạch nháp không cần quyền lập kế hoạch của người thao tác (người quản lý kế hoạch của đơn vị vẫn phải kích hoạt).
+- Khả năng tương thích: không đổi điểm cuối cũ; cổng quản trị có thêm một phân hệ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 22f; chạy phần quay lui của tệp năm học `0071` và tệp định danh `0063`.
 
 ### Phiên bản 0.99.0 – 2026-10-22
 

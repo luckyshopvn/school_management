@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.27
+- Phiên bản: 0.28
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đang cập nhật
 
@@ -22,7 +22,7 @@
 - Cơ sở dữ liệu: tệp hệ thống `0023_create_school_levels`, tệp định danh `0064_add_user_school_levels`.
 - Máy chủ API: `SchoolLevelResolver`, `GET, PUT /school-levels`; ô ngữ cảnh, website đọc cấp từ bảng mới. Dịch vụ định danh: `/auth/me` trả phạm vi cấp, `GET, PUT /users/{id}/school-levels`.
 - Cổng quản trị: thẻ "Cấp học của trường" ở 1.4 Cấu hình trường; khối "Phạm vi cấp học" ở chi tiết tài khoản (trường từ hai cấp); ô cấp học ở cấu hình website chỉ hiển thị.
-- Thêm quy tắc BR-151, chức năng P01-35 đến P01-36, quyền PQ-89, màn hình MH-253, kịch bản CT-786 đến CT-791, tiêu chí AC-725 đến AC-727. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/school-levels/school-levels.test.ts` CT-19a-1 đến CT-19a-5 đạt 5/5; kiểm thử đơn vị toàn bộ kho mã … (không sửa kỳ vọng của kiểm thử đang có); kiểm thử giao diện `tests/e2e/81-school-levels.spec.ts` (CT-19a-6) đạt; toàn bộ kiểm thử giao diện …; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm quy tắc BR-154, chức năng P01-35 đến P01-36, quyền PQ-90, màn hình MH-258, kịch bản CT-795 đến CT-800, tiêu chí AC-731 đến AC-733. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/school-levels/school-levels.test.ts` CT-19a-1 đến CT-19a-5 đạt 5/5; kiểm thử đơn vị toàn bộ kho mã … (không sửa kỳ vọng của kiểm thử đang có); kiểm thử giao diện `tests/e2e/81-school-levels.spec.ts` (CT-19a-6) đạt; toàn bộ kiểm thử giao diện …; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
@@ -30,12 +30,35 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-151, `07_QUY_TAC_NGHIEP_VU.md` BR-151, `08_VAI_TRO_NGUOI_DUNG.md` PQ-89, `10_YEU_CAU_CHUC_NANG.md` P01-35 đến P01-36, `11_TIEU_CHI_NGHIEM_THU.md` AC-725 đến AC-727, `14_DAC_TA_GIAO_DIEN.md` MH-253, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-786 đến CT-791, `23_LICH_SU_PHIEN_BAN.md` 0.100.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-151, `07_QUY_TAC_NGHIEP_VU.md` BR-154, `08_VAI_TRO_NGUOI_DUNG.md` PQ-90, `10_YEU_CAU_CHUC_NANG.md` P01-35 đến P01-36, `11_TIEU_CHI_NGHIEM_THU.md` AC-731 đến AC-733, `14_DAC_TA_GIAO_DIEN.md` MH-258, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-795 đến CT-800, `23_LICH_SU_PHIEN_BAN.md` 0.101.0.
 
 #### Vấn đề tồn đọng
 
 - 19b thêm cột cấp ở khối, lớp thì đổi bộ đếm lớp theo cấp sang cột mới; 19c thêm bộ chọn cấp đang làm việc và menu theo cấp.
 
+
+### 2026-10-22 — DT-18 phần 22f: bảo đảm chất lượng, tự đánh giá
+
+#### Công việc đã thực hiện
+
+- Đọc mục 9 của `32_KE_HOACH_THEO_HE_THONG_SO.md`, kế hoạch DT-22 (phần 22f và câu 4), khảo sát mục 1.7 của Sở, mã 17e (1.7) và 18e (kho hồ sơ chuyên môn); đối chiếu cấu trúc tiêu chuẩn, tiêu chí của Thông tư 19/2018/TT-BGDĐT (kiểm định chất lượng giáo dục và công nhận đạt chuẩn quốc gia đối với trường mầm non) và các văn bản sửa đổi, bổ sung.
+- Cơ sở dữ liệu: tệp năm học `0071_create_quality_assurance`, tệp định danh `0063_add_quality_assurance_permissions`.
+- Máy chủ API: bộ tiêu chuẩn, đợt, hội đồng, nhóm công tác, phiếu, minh chứng (tải tệp, nguồn văn bản, kế thừa), kế hoạch cải tiến, báo cáo Word, PDF, công nhận, bước chuyển năm học.
+- Cổng quản trị: phân hệ "Bảo đảm chất lượng" với 1.1 đến 1.3, 2.1, 2.2.
+- Thêm quy tắc BR-151 đến BR-153, chức năng P09-40 đến P09-44, quyền PQ-89, màn hình MH-253 đến MH-257, kịch bản CT-786 đến CT-794, tiêu chí AC-725 đến AC-730. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/quality-assurance/quality-assurance.test.ts` CT-22f-1 đến CT-22f-8 đạt 8/8; kiểm thử đơn vị toàn bộ kho mã 1005/1005; kiểm thử giao diện `tests/e2e/80-quality-assurance.spec.ts` (CT-22f-9) đạt; toàn bộ kiểm thử giao diện 150/152 trên máy (01-login lỗi tiêu điểm bàn phím chỉ trên máy, chạy lại đạt; 04-accounts lỗi do tài khoản trùng của các lượt chạy trước ở cơ sở dữ liệu định danh dùng lại, không liên quan 22f; CI là chuẩn); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 22f của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9.4 theo quyết định của Eric ngày 2026-10-19 (bộ tiêu chuẩn cấu hình được, trường tự nhập). Phân hệ riêng vì tự đánh giá là việc của cả trường, nhiều nhóm tham gia. Kế hoạch cải tiến tạo kế hoạch công việc nháp theo đơn vị của người phụ trách để Quản lý công việc giao việc. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-149, `07_QUY_TAC_NGHIEP_VU.md` BR-151 đến BR-153, `08_VAI_TRO_NGUOI_DUNG.md` PQ-89, `10_YEU_CAU_CHUC_NANG.md` P09-40 đến P09-44, `11_TIEU_CHI_NGHIEM_THU.md` AC-725 đến AC-730, `14_DAC_TA_GIAO_DIEN.md` MH-253 đến MH-257, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-786 đến CT-794, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.100.0.
+
+#### Vấn đề tồn đọng
+
+- Nội dung chỉ báo của bộ mẫu Mầm non chờ đối chiếu văn bản hiện hành; bộ mẫu cấp khác sau DT-19.
+- Chưa có nguồn Việc của tôi, thông báo cho phiếu tiêu chí; chưa kí nội bộ báo cáo tự đánh giá; AI gợi ý chưa làm.
 
 ### 2026-10-22 — DT-18 phần 22d: thi đua, khen thưởng cán bộ, giáo viên
 

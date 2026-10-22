@@ -190,6 +190,9 @@ import { EmulationController, EmulationVerificationController } from './emulatio
 import { EmulationCouncilService } from './emulation/emulation-council.js';
 import { EmulationService } from './emulation/emulation.js';
 import { emulationTransitionStep } from './emulation/emulation-transition.js';
+import { QualityAssuranceController } from './quality-assurance/quality-assurance.controller.js';
+import { QualityAssuranceService } from './quality-assurance/quality-assurance.js';
+import { qualityAssuranceTransitionStep } from './quality-assurance/quality-assurance-transition.js';
 import { MY_WORK_SOURCE_TYPES, type MyWorkSource } from './my-work/my-work-sources.js';
 import { MY_WORK_SOURCES, MyWorkController, MyWorkService } from './my-work/my-work.js';
 import {
@@ -434,6 +437,8 @@ export class ApplicationModule {
         // Thi đua, khen thưởng (DT-18 phần 22d)
         EmulationController,
         EmulationVerificationController,
+        // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
+        QualityAssuranceController,
         MyWorkController,
         // Cấp học của trường (DT-19 phần 19a)
         SchoolLevelsController,
@@ -624,6 +629,7 @@ export class ApplicationModule {
             professionalRecordsTransitionStep,
             educationPlansTransitionStep,
             emulationTransitionStep,
+            qualityAssuranceTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -861,6 +867,8 @@ export class ApplicationModule {
         // Thi đua, khen thưởng (DT-18 phần 22d)
         EmulationService,
         EmulationCouncilService,
+        // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
+        QualityAssuranceService,
         ...MY_WORK_SOURCE_TYPES,
         {
           provide: MY_WORK_SOURCES,

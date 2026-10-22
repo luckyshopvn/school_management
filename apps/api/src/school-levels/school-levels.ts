@@ -18,7 +18,7 @@ import { SchoolLevelResolver } from '../common/school-levels.js';
 
 // Cấp học của trường ở 1.4 Cấu hình trường (DT-19 phần 19a, YCTD-151): bật, tắt, thứ tự, tên hiển thị, thuật ngữ gọi
 // người học, nhãn ô ngữ cảnh của bốn cấp cố định. Mọi người đã đăng nhập đọc được; Hiệu trưởng (P01.school-level.manage)
-// sửa. Cấp không bao giờ bị xóa: tắt cấp chỉ ẩn, lớp và học sinh của cấp giữ nguyên (BR-147). Nhật ký thao tác ghi vào cơ sở
+// sửa. Cấp không bao giờ bị xóa: tắt cấp chỉ ẩn, lớp và học sinh của cấp giữ nguyên (BR-154). Nhật ký thao tác ghi vào cơ sở
 // dữ liệu năm học đang dùng nếu có, như thông báo hệ thống
 const MAXIMUM_NAME = 100;
 const MAXIMUM_TERM = 50;
@@ -90,7 +90,7 @@ export function parseSchoolLevelsInput(body: RequestBody): SchoolLevelInput[] {
     throw validationError(errors);
   }
   if (!levels.some((level) => level.is_enabled)) {
-    throw ruleViolationError('BR-147', 'Trường phải bật ít nhất một cấp học');
+    throw ruleViolationError('BR-154', 'Trường phải bật ít nhất một cấp học');
   }
   return levels;
 }

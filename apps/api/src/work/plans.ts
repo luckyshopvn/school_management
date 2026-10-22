@@ -104,9 +104,40 @@ export class PlansService {
     origin: ChangeOrigin,
   ) {
     await this.assertManager(currentUser, input.orgUnitId);
+    const created = await this.insertDraft(input, origin);
+    return this.read(currentUser, created.id);
+  }
+
+  // Kế hoạch nháp do phân hệ khác tạo từ việc đã được duyệt ở phân hệ đó (kế hoạch cải tiến của bảo đảm chất lượng, DT-18
+  // phần 22f): không cần quyền lập kế hoạch của người thao tác; người quản lý kế hoạch của đơn vị kích hoạt để giao việc
+  async createDraftFromModule(
+    input: {
+      orgUnitId: string;
+      periodType: WorkPeriodType;
+      periodValue: string;
+      title: string;
+      objectives: string | null;
+      items: PlanItemInput[];
+    },
+    origin: ChangeOrigin,
+  ): Promise<{ id: string }> {
+    return this.insertDraft(input, origin);
+  }
+
+  private async insertDraft(
+    input: {
+      orgUnitId: string;
+      periodType: WorkPeriodType;
+      periodValue: string;
+      title: string;
+      objectives: string | null;
+      items: PlanItemInput[];
+    },
+    origin: ChangeOrigin,
+  ) {
     const { database } = await this.currentSchoolYear.require();
     await this.assertOwners(database, input.orgUnitId, input.items);
-    const created = await database.transaction().execute(async (transaction) => {
+    return database.transaction().execute(async (transaction) => {
       const plan = await transaction
         .insertInto('plans')
         .values({
@@ -131,7 +162,6 @@ export class PlansService {
       });
       return plan;
     });
-    return this.read(currentUser, created.id);
   }
 
   // Sửa kế hoạch nháp: tiêu đề, mục tiêu, thay toàn bộ đầu việc

@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.48
+- Phiên bản: 1.49
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -797,9 +797,15 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-722 | Cho người quản lý / Khi xét Chiến sĩ thi đua cấp tỉnh có hai năm trong sổ năm trước và một năm nhập tay / Thì điều kiện ba năm liên tục đạt; sổ theo dõi hiện ba năm; xuất Excel (CT-780; YCTD-148) |
 | AC-723 | Cho hội đồng / Khi mở phiên, bỏ phiếu kín, đóng phiên / Thì người ngoài hội đồng không bỏ phiếu; trong phiên không hiện số phiếu; tỉ lệ tính trên tổng thành viên; có biên bản PDF; phúc khảo được chấp nhận đưa hồ sơ ra bỏ phiếu lại; quá hạn không gửi được (CT-781, CT-782, CT-785; YCTD-148) |
 | AC-724 | Cho Hiệu trưởng / Khi lập, ban hành quyết định và tờ trình / Thì danh hiệu cấp trên không vào quyết định của trường; ban hành cần số, ngày; sổ có mã tra cứu, giấy khen PDF; trang tra cứu công khai hiện đúng người, danh hiệu, số quyết định; tạo được dự thảo văn bản đi (CT-783, CT-784, CT-785; YCTD-148) |
-| AC-725 | Cho trường mầm non đang dùng / Khi nâng cấp lên phiên bản có cấp học / Thì cấp Mầm non tự bật, ba cấp còn lại tắt; ô ngữ cảnh vẫn "Cấp MN"; website chỉ có nhóm công khai Mầm non; mọi chức năng cũ không đổi (CT-788; YCTD-151) |
-| AC-726 | Cho Hiệu trưởng / Khi bật cấp Tiểu học, tắt hết các cấp, tắt Mầm non đang có lớp / Thì ô ngữ cảnh thành "Cấp MN, Cấp TH", website đọc cấp mới; tắt hết bị từ chối; tắt Mầm non hiện cảnh báo số lớp, lớp giữ nguyên; có nhật ký; người không có quyền chỉ xem (CT-786, CT-789, CT-791; YCTD-151) |
-| AC-727 | Cho người quản lý tài khoản / Khi đặt phạm vi cấp Tiểu học cho một tài khoản / Thì tài khoản chỉ xem cấp Tiểu học; phạm vi trống là mọi cấp; cấp trong phạm vi bị tắt thì không còn cấp nào; mã cấp sai bị từ chối; có nhật ký (CT-787, CT-790, CT-791; YCTD-151) |
+| AC-725 | Cho Ban Giám hiệu / Khi nạp bộ mẫu Mầm non hai lần, thêm chỉ báo vượt số mức / Thì có một bộ năm tiêu chuẩn, hai mươi lăm tiêu chí, lần hai bỏ qua; chỉ báo vượt mức bị từ chối; giáo viên, Phó Hiệu trưởng một điểm trường không cấu hình được (CT-787, CT-794; YCTD-149) |
+| AC-726 | Cho Ban Giám hiệu / Khi lập đợt, hội đồng hai Chủ tịch, phân một tiêu chí cho hai nhóm, bắt đầu khi còn tiêu chí chưa phân công / Thì đợt có phiếu cho mọi tiêu chí; các thao tác sai bị chặn; đủ điều kiện thì bắt đầu được; người ngoài đợt không xem được (CT-788, CT-794; YCTD-149) |
+| AC-727 | Cho thành viên nhóm / Khi soạn, nộp phiếu thiếu nội dung, nộp đủ, bị trả lại, nộp lại / Thì nộp thiếu bị chặn; mức gợi ý theo chỉ báo; nhóm khác không sửa được; Ban Giám hiệu trả lại cần lý do, duyệt được (CT-789, CT-794; YCTD-149) |
+| AC-728 | Cho thành viên nhóm / Khi thêm minh chứng, tải tệp, chọn văn bản không có / Thì mã H1-1.1-01, H1-1.1-02 tự đánh; tệp PDF chuyển "Đã đủ"; nguồn không có bị từ chối; minh chứng dùng chung hiện ở tiêu chí khác; xuất được danh mục Excel (CT-790, CT-794; YCTD-149) |
+| AC-729 | Cho Ban Giám hiệu / Khi mọi phiếu đã duyệt / Thì hoàn thành đợt với mức của trường; tạo kế hoạch công việc nháp một lần với việc cải tiến có người phụ trách, thời hạn; xuất báo cáo Word, PDF (CT-791; YCTD-149) |
+| AC-730 | Cho Ban Giám hiệu / Khi ghi kết quả công nhận, cập nhật vào 1.7, mở năm học mới, kế thừa minh chứng / Thì 1.7 nhận cấp độ, ngày, năm; hiệu lực 5 năm; bộ tiêu chuẩn chuyển năm giữ mã; minh chứng năm trước chép giữ mã cũ, "Cần cập nhật", không trùng (CT-792, CT-793; YCTD-149) |
+| AC-731 | Cho trường mầm non đang dùng / Khi nâng cấp lên phiên bản có cấp học / Thì cấp Mầm non tự bật, ba cấp còn lại tắt; ô ngữ cảnh vẫn "Cấp MN"; website chỉ có nhóm công khai Mầm non; mọi chức năng cũ không đổi (CT-797; YCTD-151) |
+| AC-732 | Cho Hiệu trưởng / Khi bật cấp Tiểu học, tắt hết các cấp, tắt Mầm non đang có lớp / Thì ô ngữ cảnh thành "Cấp MN, Cấp TH", website đọc cấp mới; tắt hết bị từ chối; tắt Mầm non hiện cảnh báo số lớp, lớp giữ nguyên; có nhật ký; người không có quyền chỉ xem (CT-795, CT-798, CT-800; YCTD-151) |
+| AC-733 | Cho người quản lý tài khoản / Khi đặt phạm vi cấp Tiểu học cho một tài khoản / Thì tài khoản chỉ xem cấp Tiểu học; phạm vi trống là mọi cấp; cấp trong phạm vi bị tắt thì không còn cấp nào; mã cấp sai bị từ chối; có nhật ký (CT-796, CT-799, CT-800; YCTD-151) |
 
 ## 20. Chưa xác minh được
 

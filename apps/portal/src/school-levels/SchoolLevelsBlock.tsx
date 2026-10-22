@@ -10,7 +10,7 @@ import {
 } from './school-levels-api.js';
 
 // Thẻ "Cấp học của trường" ở 1.4 Cấu hình trường (DT-19 phần 19a, YCTD-151): bật, tắt, thứ tự, tên hiển thị, thuật ngữ gọi
-// người học, nhãn ô ngữ cảnh của bốn cấp cố định. Cấp không xóa được; tắt cấp đang có lớp chỉ ẩn, dữ liệu giữ nguyên (BR-147).
+// người học, nhãn ô ngữ cảnh của bốn cấp cố định. Cấp không xóa được; tắt cấp đang có lớp chỉ ẩn, dữ liệu giữ nguyên (BR-154).
 // Máy chủ kiểm tra giá trị và quyền P01.school-level.manage
 function messageOf(error: unknown): string {
   return error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại';

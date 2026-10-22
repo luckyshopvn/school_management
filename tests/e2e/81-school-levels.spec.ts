@@ -51,7 +51,7 @@ test('CT-19a-6: bật cấp Tiểu học, ô ngữ cảnh đổi theo; tắt c�
   await expect(toast(head, 'Đã ghi cấp học của trường')).toBeVisible();
   await expect(head.getByTestId('academic-year-context')).toContainText('Cấp MN, Cấp TH · ');
 
-  // Bỏ tích mọi cấp thì máy chủ từ chối (BR-147)
+  // Bỏ tích mọi cấp thì máy chủ từ chối (BR-154)
   await card.getByLabel('Bật cấp MN', { exact: true }).uncheck();
   await card.getByLabel('Bật cấp TH', { exact: true }).uncheck();
   await card.getByRole('button', { name: 'Ghi cấp học' }).click();
