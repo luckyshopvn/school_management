@@ -775,7 +775,7 @@ export class EmulationService {
 
   async register(currentUser: CurrentUser, input: RegistrationInput) {
     const context = await this.context(currentUser);
-    const { campaign } = await this.campaignTitle(context, input.campaign_id, input.title_id, input.target);
+    const { campaign, title } = await this.campaignTitle(context, input.campaign_id, input.title_id, input.target);
     if (campaign.registration_deadline && campaign.registration_deadline < this.today() && !context.canManage) {
       throw emulationRule(`Đã quá hạn đăng ký thi đua (${campaign.registration_deadline})`);
     }
@@ -790,7 +790,7 @@ export class EmulationService {
     if (duplicate) {
       throw emulationRule(`${subject.name} đã đăng ký danh hiệu này trong đợt`);
     }
-    return context.database
+    const created = await context.database
       .insertInto('emulation_registrations')
       .values({
         campaign_id: input.campaign_id,
@@ -805,6 +805,7 @@ export class EmulationService {
       })
       .returningAll()
       .executeTakeFirstOrThrow();
+    return { ...created, title_name: title.name, campaign_name: campaign.name };
   }
 
   private async ownRegistration(context: EmulationContext, currentUser: CurrentUser, id: string) {

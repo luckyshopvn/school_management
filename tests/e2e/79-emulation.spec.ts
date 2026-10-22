@@ -89,7 +89,7 @@ test('CT-22d-10: phát động, đăng ký, hồ sơ đề nghị, hội đồng
   await campaignForm.getByRole('button', { name: 'Ghi' }).click();
   await expect(head.getByText(`Đã ghi đợt thi đua ${campaignName}`)).toBeVisible();
   await head.getByRole('cell', { name: campaignName }).click();
-  await head.getByRole('button', { name: 'Phát động' }).click();
+  await head.getByRole('button', { name: 'Phát động', exact: true }).click();
   await expect(head.getByText(`${campaignName}: Đã phát động`)).toBeVisible();
   const campaign = await schoolYear
     .selectFrom('emulation_campaigns')
@@ -157,7 +157,7 @@ test('CT-22d-10: phát động, đăng ký, hồ sơ đề nghị, hội đồng
   await openMenu(head, '/emulation/voting');
   await head
     .getByRole('radiogroup', { name: `Phiếu cho ${teacherName}` })
-    .getByLabel('Đồng ý')
+    .getByLabel('Đồng ý', { exact: true })
     .check();
   await head.getByRole('button', { name: 'Ghi phiếu' }).click();
   await expect(head.getByText('Đã ghi phiếu bình xét')).toBeVisible();

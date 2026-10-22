@@ -266,6 +266,7 @@ describe('Thi đua, khen thưởng', () => {
     });
     assert.equal(own.status, 201, JSON.stringify(own.body));
     assert.equal(own.body.subject_name, 'Giáo Viên Một');
+    assert.equal(own.body.title_name, 'Lao động tiên tiến');
     const duplicate = await api('POST', '/emulation/registrations', 'teacher', {
       campaign_id: campaignId,
       title_id: titles.LDTT,
