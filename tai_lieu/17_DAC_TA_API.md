@@ -1,8 +1,8 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.94
-- Ngày cập nhật: 2026-10-21
+- Phiên bản: 1.95
+- Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -1331,6 +1331,11 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, POST, PUT, DELETE | /api/v1/education-plan-templates, /{id}, /defaults | Thư viện mẫu kế hoạch giáo dục (P09-31, YCTD-147) |
 | GET, POST, PUT, DELETE | /api/v1/education-plans, /overview, /{id}, /{id}/submit, /withdraw, /approve, /return, /diff, /export, /signed-file, /work-plan | Kế hoạch giáo dục (P09-32, YCTD-147) |
 | GET, POST | /api/v1/education-plans/previous-year, /copy; GET /progress, /progress/export | Sao chép từ năm trước; tiến độ duyệt (P09-32, P09-33, YCTD-147) |
+| GET, POST, PUT, DELETE | /api/v1/emulation/overview, /emulation/titles, /{id}, /defaults | Tổng quan, danh mục danh hiệu (P09-34, YCTD-148) |
+| GET, POST, PUT, DELETE | /api/v1/emulation/campaigns, /{id}, /launch, /publish, /close, /launch-document, /council, /meetings, /report, /report/export; /emulation/registrations, /review, /{id} | Đợt, hội đồng, báo cáo, đăng ký (P09-35, P09-37, P09-39) |
+| GET, POST, PUT, DELETE | /api/v1/emulation/nominations, /{id}, /submit, /withdraw, /accept, /return, /evidence-options, /evidence, /evidence/{id}/file, /report | Hồ sơ đề nghị (P09-36) |
+| GET, PUT, POST | /api/v1/emulation/voting, /emulation/meetings/{id}, /votes, /close, /minutes; /emulation/appeals, /{id}/resolve | Bỏ phiếu, phúc khảo, khiếu nại (P09-37, P09-38) |
+| GET, POST, PUT, DELETE | /api/v1/emulation/decisions, /{id}, /document, /outgoing, /issue, /upper-result; /emulation/awards/{id}/certificate; /emulation/history, /export, /{id}; GET /public/emulation-awards/verify | Quyết định, giấy khen, sổ theo dõi, tra cứu công khai (P09-38, P09-39) |
 | GET, PUT, POST, DELETE | /api/v1/website/settings, /website/settings/images/{purpose}, /website/sample-content, /website/disclosure-categories | Thông tin website, biểu trưng, ảnh đầu trang, nội dung mẫu, nhóm công khai (P14-13, YCTD-144) |
 | GET, POST, PATCH, DELETE | /api/v1/website/domains, /website/domains/{id}, /website/domains/{id}/dns-confirmation | Tên miền (P14-13, YCTD-144) |
 | GET, POST, PUT, DELETE | /api/v1/website/posts, /website/posts/{id}, /submit, /approve, /return, /unpublish, /files, /files/{fileId} | Bài viết, luồng duyệt, tệp (P14-14, YCTD-144) |
@@ -1400,6 +1405,17 @@ Giao kèo giao việc, lịch, hồ sơ công việc, báo cáo theo VNPT iOffic
 4. `POST /room-bookings` nhận `room_id`, `title`, `chair_name`, `participants`, `date`, `start_time`, `end_time` (HH:MM), `note`; trùng giờ trả 422. `POST /unit-schedules`, `PUT /unit-schedules/{id}` nhận `org_unit_id`, `entry_date`, `session`, `start_time`, `end_time`, `content`, `chair_name`, `participants`, `location`, `note`, `room_id` (cần giờ bắt đầu, kết thúc), `attendee_ids`. `GET /unit-schedules` nhận `from`, `to` (tối đa 62 ngày), `org_unit_id`, `view=mine`, `location`, `participant`; `/export` thêm `format` (`xlsx`, `pdf`). `/publish` nhận `from`, `to`, `org_unit_id`. `/unit-schedule-templates/{id}/apply` nhận `week_of`, `org_unit_id`.
 5. `GET /work-files` nhận `box` (`personal`, `shared`, `transferred`, `archive`, `expired`), `year`, `q`. `POST /work-files` nhận `code`, `title`, `year`, `description`, `org_unit_id`, `retention`, `retention_years`; ký hiệu trùng trả 409. `/items` nhận `item_type` và `incoming_document_id`, `task_id` hoặc `title`, `note`. `PUT /shares` nhận `shares` [`user_id`, `permission`]. `/transfer` nhận `user_id`, `note`. `/submit` nhận `retention`, `retention_years` (tùy chọn). `/accept` nhận `code` (mặc định năm và ký hiệu), `fond_id`; `/return` nhận `note` bắt buộc.
 6. `GET /document-reports/{incoming|summary|statistics}` nhận `from`, `to` (bắt buộc, tối đa 400 ngày), `org_unit_id`; `/export` thêm `kind`, `format`, ghi `export_logs` mã `document_report_<kind>`.
+
+Giao kèo thi đua, khen thưởng (DT-18 phần 22d, YCTD-148, BR-147 đến BR-150; dữ liệu ở cơ sở dữ liệu năm học hiện hành, sổ nhiều năm đọc mọi năm học):
+
+1. `POST /emulation/titles`, `PUT /{id}` nhận `code`, `name`, `description`, `kind`, `target`, `decision_level`, `school_level`, `min_kpi_rank`, `requires_initiative`, `prerequisite_code` cùng `consecutive_years` (1 đến 10), `quota_percent` cùng `quota_base_code`, `vote_threshold_percent`, `min_score`, `criteria` (tối đa 20: `code` chữ thường, `title`, `weight`, `max_score`), `sort_order`, `status`; `POST /defaults` trả `created`, `skipped`.
+2. `POST /emulation/campaigns` nhận `code`, `name`, `kind`, `description`, `title_ids`, `kpi_period_id`, `registration_deadline`, `nomination_deadline`, `appeal_days`; `/launch`, `/publish` (trả `appeal_deadline`), `/close`. `PUT /{id}/council` nhận `members` (`user_id`, `position`); `POST /{id}/meetings` nhận `held_at` (YYYY-MM-DDTHH:mm giờ Việt Nam), `location`, `content`.
+3. `POST /emulation/registrations`, `POST /emulation/nominations` nhận `campaign_id`, `title_id`, `target`, `staff_id` (bỏ trống là mình) hoặc `department_id` (đăng ký thêm `commitment`). `PUT /emulation/nominations/{id}` nhận `achievements`, `initiative`, `scores` (theo mã tiêu chí); chi tiết trả `criteria`, `eligibility` (`code`, `label`, `state` là `ok`, `failed`, `unknown`, `detail`), `kpi_live` hoặc `kpi_rank`, `evidence`, `appeals`; số phiếu chỉ hiện sau công bố (người quản lý luôn thấy). `POST /{id}/evidence` nhận `document_id`, `note`.
+4. `PUT /emulation/meetings/{id}/votes` nhận `votes` (`nomination_id`, `choice`); `GET /emulation/meetings/{id}` trả `my_choice`, `voted_members`, số phiếu chỉ khi phiên đã đóng; `POST /{id}/close` nhận `attendee_count`, `conclusion`.
+5. `POST /emulation/appeals` nhận `campaign_id`, `nomination_id` (bắt buộc với phúc khảo), `kind`, `content`; quá hạn trả 422 BR-150. `POST /{id}/resolve` nhận `accept`, `response`.
+6. `POST /emulation/decisions` nhận `campaign_id`, `kind`, `title`, `basis`, `signer_name`, `signer_title`, `nomination_ids`; lỗi theo ô `nomination_ids.{n}`. `POST /{id}/outgoing` tạo văn bản đi dự thảo kèm tệp Word. `POST /{id}/issue` (`P09.emulation.decide`) nhận `number`, `issue_date`. `POST /{id}/upper-result` nhận `number`, `date`, `issuer`, `awarded_ids`. `GET /emulation/awards/{id}/certificate` trả PDF; mã QR là địa chỉ `/tra-cuu-khen-thuong?ma=` theo nguồn của yêu cầu.
+7. `GET /emulation/history` nhận `q`, `target`, `title_code`, `staff_id`; `POST` nhận `year_name`, `title_code`, `title_name`, `title_kind`, `target`, `staff_id` hoặc `department_id`, `decision_number`, `decision_date`, `issuer`, `note`. `GET /public/emulation-awards/verify?code=` (không đăng nhập, giới hạn số lần) trả `school_name`, `subject_name`, `title_name`, `year_name`, `decision_number`, `decision_date`, `issuer`.
+
 
 Giao kèo kế hoạch giáo dục (DT-18 phần 22i, YCTD-147, BR-142):
 
