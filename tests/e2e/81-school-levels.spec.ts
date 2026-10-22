@@ -16,7 +16,7 @@ test.afterAll(async () => {
 async function signIn(browser: Browser, user: { username: string; password: string }): Promise<Page> {
   const page = await (await browser.newContext()).newPage();
   await page.goto('/');
-  await page.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(user.username);
+  await page.getByLabel('Số điện thoại hoặc tên đăng nhập', { exact: true }).fill(user.username);
   await page.getByLabel('Mật khẩu', { exact: true }).fill(user.password);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
   await expect(page.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
@@ -39,37 +39,37 @@ test('CT-19a-6: bật cấp Tiểu học, ô ngữ cảnh đổi theo; tắt c�
   await expect(head.getByTestId('academic-year-context')).toContainText('Cấp MN · ');
   await openMenu(head, '/settings');
   const card = head.getByRole('region', { name: 'Cấp học của trường' });
-  await expect(card.getByLabel('Bật cấp MN')).toBeChecked();
+  await expect(card.getByLabel('Bật cấp MN', { exact: true })).toBeChecked();
   for (const code of ['TH', 'THCS', 'THPT']) {
-    await expect(card.getByLabel(`Bật cấp ${code}`)).not.toBeChecked();
+    await expect(card.getByLabel(`Bật cấp ${code}`, { exact: true })).not.toBeChecked();
   }
-  await expect(card.getByLabel('Gọi người học cấp MN')).toHaveValue('Trẻ');
+  await expect(card.getByLabel('Gọi người học cấp MN', { exact: true })).toHaveValue('Trẻ');
 
   // Bật Tiểu học: ô ngữ cảnh ghép nhãn hai cấp
-  await card.getByLabel('Bật cấp TH').check();
+  await card.getByLabel('Bật cấp TH', { exact: true }).check();
   await card.getByRole('button', { name: 'Ghi cấp học' }).click();
   await expect(toast(head, 'Đã ghi cấp học của trường')).toBeVisible();
   await expect(head.getByTestId('academic-year-context')).toContainText('Cấp MN, Cấp TH · ');
 
   // Bỏ tích mọi cấp thì máy chủ từ chối (BR-147)
-  await card.getByLabel('Bật cấp MN').uncheck();
-  await card.getByLabel('Bật cấp TH').uncheck();
+  await card.getByLabel('Bật cấp MN', { exact: true }).uncheck();
+  await card.getByLabel('Bật cấp TH', { exact: true }).uncheck();
   await card.getByRole('button', { name: 'Ghi cấp học' }).click();
   await expect(card.getByText('Trường phải bật ít nhất một cấp học')).toBeVisible();
-  await card.getByLabel('Bật cấp TH').check();
+  await card.getByLabel('Bật cấp TH', { exact: true }).check();
   // Mầm non đang có lớp từ các kịch bản trước: tắt chỉ ẩn, hiện cảnh báo số lớp
   await expect(card.getByText(/Cấp MN đang có \d+ lớp/)).toBeVisible();
-  await card.getByLabel('Bật cấp MN').check();
+  await card.getByLabel('Bật cấp MN', { exact: true }).check();
   await expect(card.getByText(/Cấp MN đang có \d+ lớp/)).toHaveCount(0);
 
   // Phạm vi cấp học của tài khoản: trường đã bật hai cấp nên khối phạm vi hiện ở chi tiết tài khoản
   await openMenu(head, '/accounts');
   const grid = head.getByRole('region', { name: 'Danh sách người dùng' });
-  await grid.getByLabel('Tìm theo tên, số điện thoại, tên đăng nhập').fill(teacher.username);
+  await grid.getByLabel('Tìm theo tên, số điện thoại, tên đăng nhập', { exact: true }).fill(teacher.username);
   await grid.getByRole('button', { name: `Hồ sơ ${teacherName}` }).click({ timeout: 30_000 });
   const detail = head.getByRole('region', { name: `Tài khoản ${teacherName}` });
   await expect(detail.getByText('PHẠM VI CẤP HỌC')).toBeVisible();
-  await detail.getByLabel('Tiểu học').check();
+  await detail.getByLabel('Tiểu học', { exact: true }).check();
   await detail.getByRole('button', { name: 'Ghi phạm vi cấp học' }).click();
   await expect(toast(head, 'Đã ghi phạm vi cấp học')).toBeVisible();
   await expect
@@ -88,12 +88,12 @@ test('CT-19a-6: bật cấp Tiểu học, ô ngữ cảnh đổi theo; tắt c�
   const teacherPage = await signIn(browser, teacher);
   await teacherPage.goto('/settings');
   const teacherCard = teacherPage.getByRole('region', { name: 'Cấp học của trường' });
-  await expect(teacherCard.getByLabel('Bật cấp TH')).toBeDisabled();
+  await expect(teacherCard.getByLabel('Bật cấp TH', { exact: true })).toBeDisabled();
   await expect(teacherCard.getByRole('button', { name: 'Ghi cấp học' })).toHaveCount(0);
 
   // Trả lại cấu hình Mầm non
   await openMenu(head, '/settings');
-  await card.getByLabel('Bật cấp TH').uncheck();
+  await card.getByLabel('Bật cấp TH', { exact: true }).uncheck();
   await card.getByRole('button', { name: 'Ghi cấp học' }).click();
   await expect(toast(head, 'Đã ghi cấp học của trường')).toBeVisible();
   await expect(head.getByTestId('academic-year-context')).toContainText('Cấp MN · ');
