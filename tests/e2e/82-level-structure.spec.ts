@@ -9,14 +9,17 @@ import {
   type SystemDatabase,
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
-import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_SYSTEM_DATABASE_NAME } from '../e2e-environment.mjs';
 import { openMenu } from './menu.js';
 
 // DT-19 phần 19b (YCTD-152): cấu trúc theo cấp học. Hiệu trưởng nạp khối mẫu Tiểu học, thêm cấp Tiểu học cho Trường chính,
 // mở lớp khối 1 (không có nhóm tuổi, ghép độ tuổi), xem lịch của cấp Tiểu học đang theo lịch chung. Dữ liệu Tiểu học xóa ở
 // cuối để các spec khác vẫn chạy trên trường chỉ có Mầm non
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
-const system = createDatabase<SystemDatabase>(readConnectionString('system'));
+// Lịch theo cấp nằm ở cơ sở dữ liệu hệ thống của e2e
+const system = createDatabase<SystemDatabase>(
+  replaceDatabaseName(readConnectionString('system'), E2E_SYSTEM_DATABASE_NAME),
+);
 let schoolYear: ReturnType<typeof createDatabase<SchoolYearDatabase>>;
 let rootId = '';
 const suffix = Date.now() % 1_000_000;
