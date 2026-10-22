@@ -29,7 +29,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Đối chiếu trước, sau chuyển: trên CSDL kiểm thử, số khối, lớp, học kỳ, tuần không đổi; mọi lớp có cấp `MN` trùng cấp của khối; mọi đơn vị có một dòng `MN`. Lệnh kiểm đối chiếu nhiều năm học làm ở 19f.
 - Rủi ro: bộ nhớ đệm cấp học của 19a sống 30 giây nên máy chủ API khác thấy cấp vừa bật chậm nhất 30 giây. Thống kê, báo cáo, EMIS, biểu phí vẫn theo nhóm tuổi Mầm non (19d).
 - Kiểm thử cần thực hiện: CT-801 đến CT-810. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/catalogs/level-structure.test.ts` CT-19b-1 đến CT-19b-8 đạt 8/8, `apps/api/src/academic-years/year-transition.test.ts` CT-19b-9 đạt; kiểm thử đơn vị đang có không sửa kỳ vọng; kiểm thử đơn vị toàn bộ kho mã 1019/1019; kiểm thử giao diện `tests/e2e/82-level-structure.spec.ts` (CT-19b-10) đạt; toàn bộ kiểm thử giao diện 154/154; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
-- Trạng thái: Đã triển khai (PR …).
+- Trạng thái: Đã triển khai (PR 130).
 
 ### YCTD-151: DT-19 phần 19a: nền cấp học của trường – 2026-10-22
 
