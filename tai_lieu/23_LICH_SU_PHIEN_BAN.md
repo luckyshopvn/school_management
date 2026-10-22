@@ -23,7 +23,7 @@
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp năm học `0070_create_emulation`; tệp định danh `0062_add_emulation_permissions`.
 - Thay đổi API: `/emulation/*`, `/public/emulation-awards/verify`.
-- Kiểm thử: kịch bản CT-776 đến CT-785. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/emulation/emulation.test.ts` CT-22d-1 đến CT-22d-9 đạt 9/9 (sửa `system-admin-so.test.ts` CT-16d-3 đếm 18 phân hệ); kiểm thử đơn vị toàn bộ kho mã 997/997 đạt; kiểm thử giao diện `tests/e2e/79-emulation.spec.ts` (CT-22d-10) đạt; toàn bộ kiểm thử giao diện E2E_KET_QUA (spec 58 đếm 18 phân hệ); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử: kịch bản CT-776 đến CT-785. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/emulation/emulation.test.ts` CT-22d-1 đến CT-22d-9 đạt 9/9 (sửa `system-admin-so.test.ts` CT-16d-3 đếm 18 phân hệ); kiểm thử đơn vị toàn bộ kho mã 997/997 đạt; kiểm thử giao diện `tests/e2e/79-emulation.spec.ts` (CT-22d-10) đạt; toàn bộ kiểm thử giao diện 151 ca: lần chạy đầu 148 đạt; spec 79 sửa bộ chọn nút rồi đạt; `61-health-nutrition-so`, `70-incoming-documents` lỗi chập chờn ở máy cục bộ, chạy lại 70 đạt, không liên quan 22d (spec 58 đếm 18 phân hệ); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Rủi ro: tiêu chuẩn mặc định cần đối chiếu văn bản hiện hành; sổ nhiều năm đọc mọi cơ sở dữ liệu năm học nên chậm dần theo số năm.
 - Khả năng tương thích: không đổi điểm cuối cũ; thêm phân hệ thứ 18.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 22d; chạy phần quay lui của tệp năm học `0070` và tệp định danh `0062`.
