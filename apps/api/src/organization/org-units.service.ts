@@ -326,9 +326,11 @@ export class OrgUnitsService {
         .where('school_level', 'in', removed)
         .executeTakeFirst();
       if (inUse) {
-        throw ruleViolationError(STRUCTURE_RULE_CODE, `Đơn vị còn lớp cấp ${inUse.school_level}; giải thể lớp trước khi bỏ cấp`, [
-          { field: 'school_levels', message: 'Cấp đang có lớp' },
-        ]);
+        throw ruleViolationError(
+          STRUCTURE_RULE_CODE,
+          `Đơn vị còn lớp cấp ${inUse.school_level}; giải thể lớp trước khi bỏ cấp`,
+          [{ field: 'school_levels', message: 'Cấp đang có lớp' }],
+        );
       }
     }
     const ordered = SCHOOL_LEVEL_CODES.filter((level) => levels.includes(level));

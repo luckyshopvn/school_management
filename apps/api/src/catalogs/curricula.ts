@@ -84,9 +84,11 @@ async function assertGradeCodes(database: Executor, level: SchoolLevelCode, code
     .execute();
   const wrong = codes.filter((code) => grades.find((grade) => grade.code === code)?.school_level !== level);
   if (wrong.length > 0) {
-    throw ruleViolationError(STRUCTURE_RULE_CODE, `Khối ${wrong.join(', ')} không có hoặc không thuộc cấp của chương trình`, [
-      { field: 'grade_level_codes', message: 'Chọn khối cùng cấp' },
-    ]);
+    throw ruleViolationError(
+      STRUCTURE_RULE_CODE,
+      `Khối ${wrong.join(', ')} không có hoặc không thuộc cấp của chương trình`,
+      [{ field: 'grade_level_codes', message: 'Chọn khối cùng cấp' }],
+    );
   }
 }
 

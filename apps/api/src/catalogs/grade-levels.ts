@@ -63,7 +63,16 @@ export interface GradeTemplateResult {
   skipped: string[];
 }
 
-const COLUMNS = ['id', 'code', 'name', 'age_from_months', 'age_to_months', 'order_no', 'status', 'school_level'] as const;
+const COLUMNS = [
+  'id',
+  'code',
+  'name',
+  'age_from_months',
+  'age_to_months',
+  'order_no',
+  'status',
+  'school_level',
+] as const;
 const AGE_RANGE = { min: 0, max: 120 };
 const ORDER_RANGE = { min: 0, max: 9999 };
 
@@ -155,9 +164,11 @@ export class GradeLevelsService {
   async loadTemplate(level: SchoolLevelCode, origin: ChangeOrigin): Promise<GradeTemplateResult> {
     const templates = GRADE_LEVEL_TEMPLATES[level];
     if (templates.length === 0) {
-      throw ruleViolationError(STRUCTURE_RULE_CODE, 'Cấp Mầm non không có khối mẫu; nhà trường khai báo khối của mình', [
-        { field: 'school_level', message: 'Chọn Tiểu học, THCS hoặc THPT' },
-      ]);
+      throw ruleViolationError(
+        STRUCTURE_RULE_CODE,
+        'Cấp Mầm non không có khối mẫu; nhà trường khai báo khối của mình',
+        [{ field: 'school_level', message: 'Chọn Tiểu học, THCS hoặc THPT' }],
+      );
     }
     const { database } = await this.currentSchoolYear.require();
     return database.transaction().execute(async (transaction) => {

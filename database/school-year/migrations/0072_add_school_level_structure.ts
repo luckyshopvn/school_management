@@ -56,7 +56,9 @@ export const migration: Migration = {
       .addCheckConstraint('curricula_default_active_check', sql`not is_default or status = 'active'`)
       .execute();
     // Mỗi cấp chỉ một chương trình mặc định
-    await sql`create unique index curricula_single_default on curricula (school_level) where is_default`.execute(database);
+    await sql`create unique index curricula_single_default on curricula (school_level) where is_default`.execute(
+      database,
+    );
     await sql`insert into curricula (code, name, school_level, is_default)
       values ('CT-GDMN', 'Chương trình giáo dục mầm non', 'MN', true)
       on conflict (code) do nothing`.execute(database);

@@ -39,8 +39,7 @@ export interface GradeProgressionItem {
 // Khối kế tiếp khi lên lớp: khối đang dùng kế tiếp trong cùng cấp; khối cuối cấp sang khối đầu của cấp kế nếu trường bật
 // cấp đó, không thì hoàn thành cấp học (với Mầm non là ra trường như hiện có)
 export type GradeProgression =
-  | { kind: 'grade'; code: string; school_level: SchoolLevelCode }
-  | { kind: 'completed'; school_level: SchoolLevelCode };
+  { kind: 'grade'; code: string; school_level: SchoolLevelCode } | { kind: 'completed'; school_level: SchoolLevelCode };
 
 export function nextGradeLevel(
   grades: readonly GradeProgressionItem[],

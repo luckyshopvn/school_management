@@ -343,7 +343,10 @@ export class AcademicYearsService {
       ).map((week) => week.week_no),
     );
     if (level !== null && existing.size === 0) {
-      throw ruleViolationError('YCTD-152', 'Cấp này đang theo lịch chung; khai báo lịch riêng của cấp trước khi sửa tuần');
+      throw ruleViolationError(
+        'YCTD-152',
+        'Cấp này đang theo lịch chung; khai báo lịch riêng của cấp trước khi sửa tuần',
+      );
     }
     const missing = changes.filter((change) => !existing.has(change.week_no));
     if (missing.length > 0) {

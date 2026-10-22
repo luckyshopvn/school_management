@@ -1,12 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { ClassAgeGroup, ImportType, SchoolYearDatabase } from '@school-management/database';
 import { ApplicationError, Clock, ruleViolationError, validationError } from '@school-management/server';
-import {
-  CLASS_AGE_GROUPS,
-  PERMISSION_CODES,
-  usesAgeGroups,
-  type SchoolLevelCode,
-} from '@school-management/shared';
+import { CLASS_AGE_GROUPS, PERMISSION_CODES, usesAgeGroups, type SchoolLevelCode } from '@school-management/shared';
 import type { Kysely, Transaction } from 'kysely';
 import { randomUUID } from 'node:crypto';
 import { IdentityClient } from '../authentication/identity-client.js';
