@@ -175,6 +175,13 @@ export interface ApiClientsTable {
   last_used_at: Date | null;
 }
 // Phạm vi cấp học của người dùng (DT-19 phần 19a): không có dòng nào là mọi cấp
+// Ưu tiên của người dùng (DT-19 phần 19c): cấp học đang làm việc, trống là mọi cấp
+export interface UserPreferencesTable {
+  user_id: string;
+  working_school_level: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
 export interface UserSchoolLevelsTable {
   user_id: string;
   school_level: string;
@@ -198,4 +205,5 @@ export interface IdentityDatabase {
   api_clients: ApiClientsTable;
   password_history: PasswordHistoryTable;
   user_school_levels: UserSchoolLevelsTable;
+  user_preferences: UserPreferencesTable;
 }

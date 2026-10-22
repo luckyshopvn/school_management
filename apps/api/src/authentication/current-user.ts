@@ -22,6 +22,8 @@ export interface CurrentUserDescription {
   impersonation?: ImpersonationInfo | null;
   // Phạm vi cấp học của tài khoản (DT-19 phần 19a): trống hoặc không có là mọi cấp
   school_levels?: string[];
+  // Cấp đang làm việc người dùng chọn ở thanh đầu trang (DT-19 phần 19c): null hoặc không có là "Tất cả"
+  working_school_level?: string | null;
 }
 
 // Phạm vi đơn vị của một quyền: toàn trường hoặc danh sách đơn vị được gán (lớp 2 của BM-10)

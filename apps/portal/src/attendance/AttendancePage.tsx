@@ -4,6 +4,7 @@ import { Alert, Button, StatusBadge, TextField, Toast } from '@school-management
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { listClasses } from '../classes/classes-api.js';
 import { AppShell } from '../pages/AppShell.js';
+import { useSchoolLevelTerms } from '../school-levels/working-level.js';
 import { ApiError, requestJson } from '../session/api-client.js';
 
 // Điểm danh trên cổng quản trị (P04-01, P04-06, QT-02): xem bảng của lớp theo ngày; quản lý đơn vị chốt thay,
@@ -56,6 +57,8 @@ function vietnamToday(): string {
 
 export function AttendancePage() {
   const queryClient = useQueryClient();
+  // "Trẻ" ở Mầm non, "Học sinh" ở cấp khác (DT-19 phần 19c)
+  const terms = useSchoolLevelTerms();
   const unitChoice = useUnitChoice();
   const orgUnitId = unitChoice.selectedId;
   const [classId, setClassId] = useState('');
@@ -158,16 +161,16 @@ export function AttendancePage() {
                 label={data.day_status === 'locked' ? 'Đã chốt' : 'Chưa chốt'}
               />
               <span>
-                {data.summary.total} trẻ · có mặt {data.summary.present} · đi muộn {data.summary.late} · về sớm{' '}
-                {data.summary.early_leave} · nghỉ có báo {data.summary.absent_notified} · nghỉ không báo{' '}
-                {data.summary.absent_unnotified} · chưa đánh dấu {data.summary.unmarked} · {data.summary.meal_count}{' '}
-                suất ăn
+                {data.summary.total} {terms.learner.toLocaleLowerCase('vi')} · có mặt {data.summary.present} · đi muộn{' '}
+                {data.summary.late} · về sớm {data.summary.early_leave} · nghỉ có báo {data.summary.absent_notified} ·
+                nghỉ không báo {data.summary.absent_unnotified} · chưa đánh dấu {data.summary.unmarked} ·{' '}
+                {data.summary.meal_count} suất ăn
               </span>
             </div>
             <table className="w-full text-content">
               <thead className="text-left text-label font-medium text-text-secondary">
                 <tr>
-                  <th className="px-3 py-2">Trẻ</th>
+                  <th className="px-3 py-2">{terms.learner}</th>
                   <th className="px-3 py-2">Trạng thái</th>
                   <th className="px-3 py-2">Báo vắng</th>
                   <th className="px-3 py-2">Ghi chú</th>

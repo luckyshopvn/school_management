@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.50
+- Phiên bản: 1.51
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -811,6 +811,9 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-736 | Cho Hiệu trưởng / Khi mở lớp khối 1 ở đơn vị chỉ có Mầm non, có nhóm tuổi, lớp ghép, chương trình Mầm non; mở đúng / Thì bị từ chối YCTD-152; lớp đúng có cấp Tiểu học, không có nhóm tuổi, nhóm lớp (CT-804, CT-810; YCTD-152) |
 | AC-737 | Cho Hiệu trưởng / Khi khai báo lịch riêng Tiểu học, đánh dấu tuần nghỉ, bỏ lịch riêng / Thì lịch chung, tuần chung không đổi; bỏ xong cấp theo lịch chung (CT-806, CT-808; YCTD-152) |
 | AC-738 | Cho trường chỉ có Mầm non / Khi mở năm học mới / Thì chương trình, cấp của đơn vị, cấp của lớp chép sang giữ mã định danh; kiểm thử đơn vị, e2e đang có đạt không sửa kỳ vọng (CT-807, CT-809; YCTD-152) |
+| AC-739 | Cho trường chỉ có Mầm non / Khi nâng cấp lên phiên bản có menu theo cấp / Thì menu (tên phân hệ, số thứ bậc, thứ tự, mục), ô ngữ cảnh "Cấp MN", chữ "Trẻ", lối tắt, cây quyền như trước; không có bộ chọn cấp (CT-811, CT-815, CT-819; YCTD-153) |
+| AC-740 | Cho trường bật Mầm non và Tiểu học / Khi người dùng chọn Tiểu học ở bộ chọn cấp / Thì mục chỉ của Mầm non ẩn, phân hệ thành "Quản lý giáo dục Tiểu học", ô ngữ cảnh "Cấp TH", thẻ "Học sinh đang học"; tải lại vẫn là Tiểu học; chọn "Tất cả" thì phân hệ "Quản lý giáo dục", ô ngữ cảnh ghép hai cấp (CT-812, CT-813, CT-814, CT-816, CT-819; YCTD-153) |
+| AC-741 | Cho người dùng có phạm vi cấp / Khi chọn cấp ngoài phạm vi, gửi tham số cấp chưa bật, hoặc trường tắt cấp có lối tắt / Thì bị từ chối (400, 403); lối tắt của cấp chưa bật ẩn và hiện lại khi bật cấp (CT-816, CT-817, CT-818; YCTD-153) |
 
 ## 20. Chưa xác minh được
 

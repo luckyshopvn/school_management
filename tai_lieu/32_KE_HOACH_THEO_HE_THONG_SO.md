@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học.
-- Phiên bản: 1.34
+- Phiên bản: 1.35
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -547,7 +547,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 |---|---|---|
 | 19a | 1 | Đã làm, YCTD-151, phiên bản 0.101.0, PR 129: bảng `school_levels` (hệ thống 0023, Mầm non bật sẵn), `SchoolLevelResolver` (bộ nhớ đệm qua `cacheKey`), phạm vi cấp của người dùng (định danh 0064, `/auth/me` trả `school_levels`), quyền `P01.school-level.manage`, thẻ "Cấp học của trường" ở 1.4, ô ngữ cảnh và website đọc cấp từ một nguồn; e2e 81 |
 | 19b | 1 | Đã làm (PR 130, YCTD-152, phiên bản 0.102.0) |
-| 19c | 2 | Chưa làm, chờ 19a |
+| 19c | 2 | Đã làm, YCTD-153, phiên bản 0.103.0, PR 131: thuộc tính `levels` ở phân hệ và mục menu (mục chỉ Mầm non gắn `MN`), tên phân hệ theo cấp (`levelTitle`), bộ chọn cấp đang làm việc lưu theo tài khoản (định danh 0065 `user_preferences`), tham số cấp dùng chung `school_level` (`SchoolLevelResolver.requested`), bảng nhãn thuật ngữ theo cấp, cây quyền và Truy cập nhanh lọc theo cấp bật; e2e 83 |
 | 19d | 2 | Chưa làm, chờ 19a, 19b |
 | 19e | 3 | Chưa làm, chờ đợt 2 |
 | 19f | 3 | Chưa làm, chờ đợt 2 |

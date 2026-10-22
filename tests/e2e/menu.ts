@@ -1,5 +1,10 @@
 import { expect, type Locator, type Page } from '@playwright/test';
-import { listPortalMenuEntries, portalMenuText, type PortalMenuEntry } from '@school-management/shared';
+import {
+  listPortalMenuEntries,
+  portalMenuText,
+  type PortalMenuEntry,
+  type PortalWorkspace,
+} from '@school-management/shared';
 
 // Trợ giúp mở trang của cổng quản trị qua menu ngang đánh số (DT-15 phần 15a): tìm mục theo đường dẫn ("/children") hoặc
 // theo tên mục ("Quản lý hồ sơ học sinh"; mặc định khớp một phần, exact để khớp đúng), chọn phân hệ chứa mục ở ô Phân hệ,
@@ -22,15 +27,28 @@ export function findMenuEntry(target: string, options: { exact?: boolean } = {})
   return matches[0] as PortalMenuEntry;
 }
 
-// Chọn phân hệ ở ô Phân hệ trên thanh đầu trang nếu đang chọn phân hệ khác
-export async function selectWorkspace(page: Page, label: string) {
+// Tên phân hệ đặt theo cấp (DT-19 phần 19c): phân hệ có levelTitle hiện là "<levelTitle>" hoặc "<levelTitle> <tên cấp>"
+// tùy cấp đang làm việc (trường mầm non: "Quản lý giáo dục Mầm non"), nên khớp theo tên gốc
+function workspaceName(workspace: PortalWorkspace): string | RegExp {
+  if (!workspace.levelTitle) {
+    return workspace.label;
+  }
+  const title = workspace.levelTitle.replace(/[.*+?^${}()|[\]\\]/g, (character) => `\\${character}`);
+  return new RegExp(`^${title}( .+)?$`);
+}
+
+// Chọn phân hệ ở ô Phân hệ trên thanh đầu trang nếu đang chọn phân hệ khác; trả tên phân hệ đang hiện
+export async function selectWorkspace(page: Page, label: string | RegExp): Promise<string> {
   const switcher = page.getByRole('button', { name: /^Phân hệ: / });
   await expect(switcher).toBeVisible();
-  if ((await switcher.getAttribute('aria-label')) !== `Phân hệ: ${label}`) {
+  const shownName = async () => ((await switcher.getAttribute('aria-label')) ?? '').replace(/^Phân hệ: /, '');
+  const matches = (name: string) => (typeof label === 'string' ? name === label : label.test(name));
+  if (!matches(await shownName())) {
     await switcher.click();
-    await page.getByRole('menuitemradio', { name: label, exact: true }).click();
+    await page.getByRole('menuitemradio', { name: label, exact: typeof label === 'string' }).click();
   }
-  await expect(page.getByRole('button', { name: `Phân hệ: ${label}`, exact: true })).toBeVisible();
+  await expect.poll(async () => matches(await shownName())).toBe(true);
+  return shownName();
 }
 
 // Thanh menu đang hiện của một phân hệ
@@ -40,8 +58,7 @@ export function menubar(page: Page, workspaceLabel: string): Locator {
 
 export async function openMenu(page: Page, target: string, options: { exact?: boolean } = {}) {
   const entry = findMenuEntry(target, options);
-  await selectWorkspace(page, entry.workspace.label);
-  const bar = menubar(page, entry.workspace.label);
+  const bar = menubar(page, await selectWorkspace(page, workspaceName(entry.workspace)));
   let scope: Locator = bar;
   for (const node of entry.trail) {
     const item = scope.getByRole('menuitem', { name: portalMenuText(node), exact: true });

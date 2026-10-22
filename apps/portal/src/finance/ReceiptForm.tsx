@@ -3,6 +3,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Alert, Button, TextField } from '@school-management/ui';
 import { formatMoney, listCashflowCategories } from '../fees/fees-api.js';
 import { ApiError } from '../session/api-client.js';
+import { useSchoolLevelTerms } from '../school-levels/working-level.js';
 import {
   createReceipt,
   listCashAccounts,
@@ -33,6 +34,7 @@ export function ReceiptForm({
   cashOnly: boolean;
   onIssued(receipt: Receipt): void;
 }) {
+  const terms = useSchoolLevelTerms();
   const accounts = useQuery({
     queryKey: ['cash-accounts', debt.org_unit_id],
     queryFn: () => listCashAccounts(debt.org_unit_id),
@@ -121,7 +123,9 @@ export function ReceiptForm({
           ))}
         </fieldset>
       ) : (
-        <p className="text-content text-text-secondary">Trẻ không còn hóa đơn phải nộp; số thu sẽ thành số dư có.</p>
+        <p className="text-content text-text-secondary">
+          {terms.learner} không còn hóa đơn phải nộp; số thu sẽ thành số dư có.
+        </p>
       )}
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         <TextField label="Người nộp" value={payerName} onChange={(event) => setPayerName(event.target.value)} />

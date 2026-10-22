@@ -345,6 +345,20 @@ export class PortalContextService {
     };
   }
 
+  // Cấp người dùng được xem theo thứ tự (cấp đang bật thu hẹp theo phạm vi cấp, DT-19 phần 19c): cổng quản trị dựng bộ chọn
+  // cấp, lọc menu, đặt nhãn thuật ngữ theo các cấp này; trường một cấp không hiện bộ chọn
+  async visibleLevels(currentUser: CurrentUser) {
+    const visible = await this.schoolLevels.forUser(currentUser);
+    return (await this.schoolLevels.enabledLevels())
+      .filter((level) => visible.includes(level.code))
+      .map((level) => ({
+        code: level.code,
+        display_name: level.display_name,
+        learner_term: level.learner_term,
+        context_label: level.context_label,
+      }));
+  }
+
   // Người cập nhật được hồ sơ trường thấy lời nhắc khi mã định danh tổ chức chưa có hoặc sai định dạng (NĐ 69)
   async context(currentUser: CurrentUser) {
     const identity = await this.schoolIdentity();
@@ -431,6 +445,11 @@ export class PortalContextController {
   @Get()
   context(@AuthenticatedUser() currentUser: CurrentUser) {
     return this.portalContext.context(currentUser);
+  }
+
+  @Get('school-levels')
+  async schoolLevels(@AuthenticatedUser() currentUser: CurrentUser) {
+    return { school_levels: await this.portalContext.visibleLevels(currentUser) };
   }
 }
 

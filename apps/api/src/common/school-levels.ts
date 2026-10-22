@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { ApplicationError } from '@school-management/server';
+import { ApplicationError, validationError } from '@school-management/server';
 import {
+  ALL_SCHOOL_LEVELS,
   DEFAULT_SCHOOL_LEVEL,
   isSchoolLevelCode,
+  SCHOOL_LEVEL_PARAMETER,
   SCHOOL_LEVELS,
   visibleSchoolLevels,
   type SchoolLevelCode,
@@ -98,6 +100,20 @@ export class SchoolLevelResolver {
     if (!(await this.forUser(currentUser)).includes(code as SchoolLevelCode)) {
       throw new ApplicationError('ERR_FORBIDDEN', 'Cấp học này chưa bật hoặc nằm ngoài phạm vi cấp học của bạn');
     }
+  }
+
+  // Cấp lọc của một yêu cầu theo tham số cấp dùng chung (DT-19 phần 19c, ?school_level=): có mã thì kiểm tra người dùng
+  // được xem cấp đó rồi chỉ trả cấp đó; không gửi, trống hoặc "all" thì mọi cấp người dùng được xem (trường một cấp là cấp
+  // đó, nên điểm cuối cũ trả như trước). Báo cáo, thống kê của 19d và DT-20, DT-21 đọc cấp lọc qua hàm này
+  async requested(currentUser: CurrentUser, value: unknown): Promise<SchoolLevelCode[]> {
+    if (value === undefined || value === null || value === '' || value === ALL_SCHOOL_LEVELS) {
+      return this.forUser(currentUser);
+    }
+    if (!isSchoolLevelCode(value)) {
+      throw validationError([{ field: SCHOOL_LEVEL_PARAMETER, message: 'Mã cấp là MN, TH, THCS, THPT hoặc all' }]);
+    }
+    await this.assertCanAccess(currentUser, value);
+    return [value];
   }
 
   invalidate(): void {

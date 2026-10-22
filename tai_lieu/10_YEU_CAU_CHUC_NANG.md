@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.70
+- Phiên bản: 1.71
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -58,6 +58,8 @@
 | P01-38 | Chương trình theo cấp (YCTD-152) | VT-02 (`P01.catalog.manage`); xem: mọi người đã đăng nhập | Mã, tên, cấp học, khối áp dụng, mặc định của cấp, trạng thái | Tạo, sửa, ngừng dùng; đặt mặc định của cấp; lớp chọn chương trình cùng cấp | Thẻ Chương trình, chương trình của lớp | BR-156 |
 | P01-39 | Cấp học của đơn vị (YCTD-152) | VT-02 (`P01.org-unit.manage`); xem: mọi người đã đăng nhập | Đơn vị, các cấp học | Đặt cấp của trường chính, phân hiệu, điểm trường; đơn vị mới lấy cấp của Trường chính | Bảng Cấp học của đơn vị | BR-157 |
 | P01-40 | Học kỳ, tuần, ngày học theo cấp (YCTD-152) | VT-02 (`P01.academic-year.manage`); xem: mọi người đã đăng nhập | Cấp học; học kỳ 1, học kỳ 2, kỳ hè, ngày học trong tuần; tuần nghỉ | Khai báo, sửa, bỏ lịch riêng của cấp; cấp chưa khai báo theo lịch chung | Lịch, tuần của cấp | BR-158 |
+| P01-41 | Menu và phân hệ theo cấp học (YCTD-153) | Mọi người đã đăng nhập (mục hiện theo quyền như cũ) | Cấp đang bật của trường, cấp người dùng được xem, cấp đang làm việc | Lọc cây menu theo thuộc tính `levels`; đặt tên phân hệ theo cấp; lọc cây quyền, Truy cập nhanh theo cấp bật; nhãn thuật ngữ theo cấp | Menu, tên phân hệ, ô ngữ cảnh, nhãn "Trẻ"/"Học sinh" theo cấp; trường mầm non giữ nguyên | BR-159 |
+| P01-42 | Chọn cấp đang làm việc (thanh đầu trang, YCTD-153) | Mọi người đã đăng nhập ở trường từ hai cấp | "Tất cả" hoặc một cấp được xem | Kiểm tra mã cấp, phạm vi cấp của tài khoản; lưu theo tài khoản; truyền tham số `school_level` cho API | Cấp đang làm việc ở `/auth/me`; menu, ô ngữ cảnh, nhãn đổi theo | BR-159 |
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 

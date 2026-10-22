@@ -43,6 +43,8 @@ export interface CurrentUser {
     started_at: string;
     expires_at: string;
   } | null;
+  // Cấp đang làm việc đã chọn ở thanh đầu trang (DT-19 phần 19c): null hoặc không có là "Tất cả"
+  working_school_level?: string | null;
 }
 
 // Mã phiên chỉ giữ trong bộ nhớ của trang; mã làm mới nằm trong cookie httpOnly (RG-04, BM-71)
