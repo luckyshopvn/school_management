@@ -547,7 +547,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 |---|---|---|
 | 19a | 1 | Đã làm, YCTD-151, phiên bản 0.101.0, PR 129: bảng `school_levels` (hệ thống 0023, Mầm non bật sẵn), `SchoolLevelResolver` (bộ nhớ đệm qua `cacheKey`), phạm vi cấp của người dùng (định danh 0064, `/auth/me` trả `school_levels`), quyền `P01.school-level.manage`, thẻ "Cấp học của trường" ở 1.4, ô ngữ cảnh và website đọc cấp từ một nguồn; e2e 81 |
 | 19b | 1 | Đã làm (PR 130, YCTD-152, phiên bản 0.102.0) |
-| 19c | 2 | Chưa làm, chờ 19a |
-| 19d | 2 | Đã làm (PR 132, YCTD-154, phiên bản 0.103.0) |
+| 19c | 2 | Đã làm, YCTD-153, phiên bản 0.103.0, PR 131: thuộc tính `levels` ở phân hệ và mục menu (mục chỉ Mầm non gắn `MN`), tên phân hệ theo cấp (`levelTitle`), bộ chọn cấp đang làm việc lưu theo tài khoản (định danh 0065 `user_preferences`), tham số cấp dùng chung `school_level` (`SchoolLevelResolver.requested`), bảng nhãn thuật ngữ theo cấp, cây quyền và Truy cập nhanh lọc theo cấp bật; e2e 83 |
+| 19d | 2 | Chưa làm, chờ 19a, 19b |
 | 19e | 3 | Chưa làm, chờ đợt 2 |
 | 19f | 3 | Chưa làm, chờ đợt 2 |

@@ -287,6 +287,8 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | GET | /api/v1/portal-context | Tên, mã trường, năm học đang dùng, cấp học, lời nhắc mã định danh tổ chức cho thanh đầu trang; mọi người đã đăng nhập; từ YCTD-127 tên trường lấy theo tên trường hiển thị ở "1.4. Cấu hình trường" khi có |
 | GET, PUT | /api/v1/school-levels | Cấp học của trường kèm số lớp, cấp người dùng được xem (mọi người đã đăng nhập); ghi cả bốn cấp (cần `P01.school-level.manage`) (P01-35, YCTD-151) |
 | GET, PUT | /api/v1/users/{id}/school-levels | Phạm vi cấp học của tài khoản, dịch vụ định danh (cần quyền quản lý tài khoản đó) (P01-36, YCTD-151) |
+| PUT | /api/v1/auth/me/working-school-level | Lưu cấp đang làm việc của chính tài khoản, dịch vụ định danh (mọi người đã đăng nhập) (P01-42, YCTD-153) |
+| GET | /api/v1/portal-context/school-levels | Cấp người dùng được xem (cấp đang bật thu hẹp theo phạm vi cấp) cho bộ chọn cấp, menu, nhãn thuật ngữ; mọi người đã đăng nhập (P01-41, YCTD-153) |
 | GET | /api/v1/public/login-info | Công khai: tên, mã trường, năm học đang dùng cho trang đăng nhập (YCTD-123); từ YCTD-127 tên trường lấy theo tên trường hiển thị khi có |
 | GET, PUT | /api/v1/school-profile | Đọc hồ sơ trường kèm Trường chính; ghi các thẻ gửi lên (P01-15, YCTD-106) |
 | GET, PUT | /api/v1/accreditation-review | Đọc, ghi bản "1.7. Rà soát thông tin kiểm định CLGD" của năm học (P01-24, BR-125, YCTD-127; đủ ô như Sở từ YCTD-136, BR-129) |
@@ -1042,7 +1044,6 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 |---|---|---|
 | GET, POST | /api/v1/fee-schedules | Danh sách phiên bản biểu phí và tạo phiên bản mới |
 | GET, PUT, DELETE | /api/v1/fee-schedules/{id} | Xem; sửa, xóa phiên bản chưa tới ngày hiệu lực (YCTD-49) |
-| GET, POST | /api/v1/fee-schedules (từ YCTD-154) | `GET` lọc `school_level`; `POST` nhận `school_level` (mặc định MN, cấp phải đang bật); mỗi phiên bản trả `school_level` |
 | GET, POST | /api/v1/services | Danh sách và tạo dịch vụ |
 | PATCH | /api/v1/services/{id} | Sửa, ngừng sử dụng dịch vụ (YCTD-49) |
 | GET, POST | /api/v1/service-registrations | Bảng đăng ký của đơn vị theo kỳ và đăng ký dịch vụ |
@@ -1450,6 +1451,14 @@ Giao kèo cấp học của trường (DT-19 phần 19a, YCTD-151, BR-154):
 4. `GET /portal-context` trả `education_level` là nhãn các cấp đang bật nối bằng dấu phẩy; `GET /website/settings` trả `school_levels` là các cấp đang bật.
 
 
+Giao kèo menu theo cấp học (DT-19 phần 19c, YCTD-153, BR-159):
+
+1. `PUT /auth/me/working-school-level` nhận `school_level` (mã cấp, hoặc `null` là "Tất cả"); mã sai hoặc ngoài phạm vi cấp của tài khoản trả 400 ở `school_level`; trả `{ working_school_level }`. `GET /auth/me` thêm `working_school_level` (`null` là "Tất cả").
+2. `GET /portal-context/school-levels` (mọi người đã đăng nhập) trả `school_levels`: cấp người dùng được xem theo thứ tự (`code`, `display_name`, `learner_term`, `context_label`).
+3. Tham số cấp dùng chung `school_level` (truy vấn): mã cấp chỉ lấy cấp đó; không gửi, trống hoặc `all` là mọi cấp người dùng được xem; mã sai trả 400 ở `school_level`; cấp chưa bật hoặc ngoài phạm vi trả 403. Máy chủ đọc qua `SchoolLevelResolver.requested`; điểm cuối nào nhận tham số này ghi ở giao kèo của điểm cuối đó (từ 19d).
+4. `GET /me/quick-links` không trả lối tắt tới mục menu của cấp trường chưa bật; `PUT` giữ kiểm tra cũ.
+
+
 Giao kèo kế hoạch giáo dục (DT-18 phần 22i, YCTD-147, BR-142):
 
 1. `POST /education-plan-templates`, `PUT /{id}` nhận `code`, `name`, `description`, `school_level`, `scope`, `period`, `sections` (1 đến 30 mục, mã chữ thường, số, gạch dưới; mục bảng 1 đến 10 cột), `approval_steps` (sắp lại theo thứ tự cố định), `requires_signing`, `archive_folder_id`, `sort_order`, `status`; `POST /defaults` nhận `school_level`, trả `created`, `skipped`; `DELETE` mẫu đã có kế hoạch trả 422.
@@ -1793,7 +1802,6 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | GET | /api/v1/reports/growth | Tổng hợp cân nặng, chiều cao theo đợt hoặc tháng, lọc đơn vị, giới tính, kênh (P10-14, YCTD-105); từ YCTD-125 theo học kỳ (`term`), so sánh với đợt khác (`compare_round_id`), số được khám định kỳ |
 | GET | /api/v1/reports/growth/export | Xuất Excel tổng hợp cân nặng, chiều cao, ghi nhật ký xuất (BR-74, YCTD-105) |
 | GET | /api/v1/statistics/classes | Thống kê lớp học theo nhóm tuổi (P17-16, YCTD-105) |
-| GET | /api/v1/statistics/classes, /statistics/children, /statistics/students, /statistics/missing-child-fields, /reports/attendance-meals (từ YCTD-154) | Nhận `school_level` (cấp đang bật, trong phạm vi cấp của người dùng, 403 nếu không); 5.1 trả thêm `grade_groups` (lớp cấp ngoài Mầm non theo khối); chấm công và suất ăn có `stage` theo cấp (`TH`, `THCS`, `THPT`) |
 | GET | /api/v1/statistics/children | Thống kê học sinh (P17-16, YCTD-105) |
 | GET | /api/v1/statistics/students | 5.3 Thống kê học sinh theo Sở theo học kỳ (`term`), lọc `org_unit_id` (P17-21, BR-123, YCTD-125) |
 | GET | /api/v1/statistics/students/export | Xuất Excel hoặc PDF (`format`) năm bảng của 5.3, ghi nhật ký xuất (BR-74, YCTD-125) |

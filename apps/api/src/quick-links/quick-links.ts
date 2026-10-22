@@ -1,10 +1,11 @@
 import { Body, Controller, Get, Injectable, Put } from '@nestjs/common';
 import { validationError, type FieldError } from '@school-management/server';
-import { MAX_QUICK_LINKS, PORTAL_QUICK_LINK_PATHS } from '@school-management/shared';
+import { MAX_QUICK_LINKS, PORTAL_QUICK_LINK_PATHS, portalMenuPathsOutsideLevels } from '@school-management/shared';
 import { sql } from 'kysely';
 import { AuthenticatedUser } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { Databases } from '../common/databases.js';
+import { SchoolLevelResolver } from '../common/school-levels.js';
 
 export interface QuickLink {
   path: string;
@@ -51,15 +52,22 @@ export function parseQuickLinks(body: unknown): Array<{ path: string; label: str
 // Lối tắt "Truy cập nhanh" của từng tài khoản, lưu ở cơ sở dữ liệu hệ thống nên giữ qua các năm học (YCTD-102)
 @Injectable()
 export class QuickLinksService {
-  constructor(private readonly databases: Databases) {}
+  constructor(
+    private readonly databases: Databases,
+    private readonly schoolLevels: SchoolLevelResolver,
+  ) {}
 
-  list(userId: string): Promise<QuickLink[]> {
-    return this.databases.system
+  // Lối tắt tới mục menu của cấp trường chưa bật (hoặc đã tắt) không hiện, vẫn giữ trong cơ sở dữ liệu để hiện lại khi bật
+  // cấp (DT-19 phần 19c); trường chỉ có Mầm non không ẩn gì
+  async list(userId: string): Promise<QuickLink[]> {
+    const hidden = portalMenuPathsOutsideLevels(await this.schoolLevels.enabled());
+    const links = await this.databases.system
       .selectFrom('user_quick_links')
       .select(['path', 'label', 'position'])
       .where('user_id', '=', userId)
       .orderBy('position')
       .execute();
+    return links.filter((link) => !hidden.has(link.path as never));
   }
 
   // Thay toàn bộ danh sách trong một giao dịch; vị trí đánh lại từ 0 theo thứ tự gửi lên

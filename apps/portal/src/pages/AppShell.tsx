@@ -6,6 +6,7 @@ import { WorkspaceContext, WorkspaceSwitcher, useWorkspaceState } from './worksp
 import { MyWorkHeaderLink } from '../my-work/MyWorkBadge.js';
 import { NotificationBell } from '../notifications/NotificationBell.js';
 import { AcademicYearSwitcher } from './AcademicYearSwitcher.js';
+import { SchoolLevelSwitcher } from '../school-levels/working-level.js';
 import { NavigationRegistryContext, useNavigationRegistryState } from './navigation-registry.js';
 import { fetchCurrentUser } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
@@ -95,6 +96,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </Link>
             <WorkspaceSwitcher state={workspaces} />
             <div className="ml-auto flex shrink-0 items-center gap-3 whitespace-nowrap">
+              <SchoolLevelSwitcher />
               <AcademicYearSwitcher />
               <MyWorkHeaderLink />
               <NotificationBell />

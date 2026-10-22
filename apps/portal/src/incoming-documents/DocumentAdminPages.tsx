@@ -1136,7 +1136,9 @@ export function DocumentLeadersPage() {
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     if (leaders.data && !loaded) {
-      setChosen(Object.fromEntries(leaders.data.map((leader) => [leader.user_id, leader.title ?? ''])));
+      // Giữ lựa chọn người dùng đã tích trước khi danh sách lãnh đạo tải xong (danh sách nhân sự có thể về trước)
+      const saved = Object.fromEntries(leaders.data.map((leader) => [leader.user_id, leader.title ?? '']));
+      setChosen((current) => ({ ...saved, ...current }));
       setLoaded(true);
     }
   }, [leaders.data, loaded]);

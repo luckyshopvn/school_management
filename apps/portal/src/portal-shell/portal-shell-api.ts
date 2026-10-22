@@ -1,3 +1,4 @@
+import type { SchoolLevelCode } from '@school-management/shared';
 import { publicJson, requestJson } from '../session/api-client.js';
 
 // Khung trang cổng quản trị theo Sở (DT-16 phần 16c): thông báo hệ thống, ứng dụng liên kết, ngữ cảnh trường, trang đăng
@@ -39,6 +40,13 @@ export interface PortalContext {
   academic_year: string | null;
   education_level: string;
   organization_id_reminder: boolean;
+}
+
+export interface PortalSchoolLevel {
+  code: SchoolLevelCode;
+  display_name: string;
+  learner_term: string;
+  context_label: string;
 }
 
 export interface LoginInfo {
@@ -88,6 +96,11 @@ export function saveAppLinks(links: AppLinkInput[]): Promise<AppLink[]> {
 
 export function readPortalContext(): Promise<PortalContext> {
   return requestJson('/api/v1/portal-context');
+}
+
+// Cấp người dùng được xem theo thứ tự (DT-19 phần 19c)
+export function readPortalSchoolLevels(): Promise<{ school_levels: PortalSchoolLevel[] }> {
+  return requestJson('/api/v1/portal-context/school-levels');
 }
 
 export function readLoginInfo(): Promise<LoginInfo> {

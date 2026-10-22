@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Put, Query, Req, Res, UseGuards } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { Clock, unauthenticatedError, validationError, type FieldError } from '@school-management/server';
 import {
@@ -248,5 +248,12 @@ export class AuthenticationController {
   @AllowedWhilePasswordChangeRequired()
   async me(@Req() request: AuthenticatedRequest) {
     return this.authenticationService.describeCurrentUser(request.accessTokenClaims);
+  }
+
+  // Cấp đang làm việc ở thanh đầu trang (DT-19 phần 19c): { school_level: "TH" } hoặc { school_level: null } là "Tất cả"
+  @Put('me/working-school-level')
+  @UseGuards(AccessTokenGuard)
+  async setWorkingSchoolLevel(@Body() body: RequestBody, @Req() request: AuthenticatedRequest) {
+    return this.authenticationService.setWorkingSchoolLevel(request.accessTokenClaims, body?.school_level ?? null);
   }
 }

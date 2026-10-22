@@ -18,15 +18,15 @@
 
 ### Phiên bản 0.103.0 – 2026-10-22
 
-- Phạm vi thay đổi: DT-19 phần 19d, số liệu theo cấp học (YCTD-154).
-- Chức năng mới: tham số cấp dùng chung của thống kê, báo cáo; thống kê lớp theo khối ở cấp ngoài Mầm non; báo cáo chấm công và suất ăn nhóm theo cấp; biểu phí theo cấp; ô cấp học ở thống kê, báo cáo, biểu phí.
-- Lỗi đã sửa: lớp chưa có tháng tuổi (cấp ngoài Mầm non) không còn bị tính vào nhóm tuổi nhỏ nhất ở 5.1 và vào Mẫu giáo ở báo cáo chấm công và suất ăn.
-- Thay đổi dữ liệu: tệp năm học `0073_add_fee_schedule_school_level`.
-- Thay đổi API: tham số `school_level` ở `/statistics/classes`, `/statistics/children`, `/statistics/students`, `/statistics/missing-child-fields`, `/reports/attendance-meals`, `/fee-schedules`; `grade_groups` ở 5.1; `school_level` ở biểu phí.
-- Kiểm thử: kịch bản CT-811 đến CT-818. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/statistics/level-reports.test.ts` CT-19d-1 đến CT-19d-7 đạt 7/7; kiểm thử đơn vị đang có không sửa kỳ vọng; kiểm thử đơn vị toàn bộ kho mã 1026/1026; kiểm thử giao diện `tests/e2e/84-level-reports.spec.ts` (CT-19d-8) đạt; toàn bộ kiểm thử giao diện 155/155; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
-- Rủi ro: biểu EMIS các cấp khác chưa có (DT-20, DT-21).
-- Khả năng tương thích: không đổi điểm cuối cũ; trường chỉ có Mầm non thấy như cũ.
-- Phương án quay lui: hoàn lại commit gộp của nhánh 19d; chạy phần quay lui của tệp năm học `0073`.
+- Phạm vi thay đổi: DT-19 phần 19c, menu và phân hệ theo cấp học (YCTD-153).
+- Chức năng mới: thuộc tính cấp ở cây menu, tên phân hệ theo cấp, bộ chọn cấp đang làm việc ở thanh đầu trang (lưu theo tài khoản), tham số cấp dùng chung `school_level`, bảng nhãn thuật ngữ theo cấp; cây quyền và Truy cập nhanh lọc theo cấp bật.
+- Lỗi đã sửa: 2.5 Lãnh đạo nhận văn bản mất lựa chọn đã tích khi danh sách lãnh đạo tải sau danh sách nhân sự.
+- Thay đổi dữ liệu: tệp định danh `0065_create_user_preferences`.
+- Thay đổi API: `PUT /auth/me/working-school-level`; `/auth/me` thêm `working_school_level`; mới `GET /portal-context/school-levels`; `/me/quick-links` lọc theo cấp bật.
+- Kiểm thử: kịch bản CT-811 đến CT-819. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/school-levels/working-level.test.ts` CT-19c-1 đến CT-19c-8 đạt 8/8; kiểm thử đơn vị toàn bộ kho mã đạt 1027/1027 (không sửa kỳ vọng của kiểm thử đang có); kiểm thử giao diện `tests/e2e/83-school-level-menu.spec.ts` (CT-19c-9) đạt; toàn bộ kiểm thử giao diện đạt 155/155; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: máy chủ API khác thấy cấp vừa bật, tắt chậm nhất 30 giây (bộ nhớ đệm của 19a).
+- Khả năng tương thích: trường chỉ có Mầm non không đổi hành vi; không đổi điểm cuối cũ (chỉ thêm trường, lọc lối tắt theo cấp bật).
+- Phương án quay lui: hoàn lại commit gộp của nhánh 19c; chạy phần quay lui của tệp định danh `0065`.
 
 ### Phiên bản 0.102.0 – 2026-10-22
 
