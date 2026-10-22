@@ -55,11 +55,8 @@ import { migration as addWebsitePermissions } from './migrations/0058_add_websit
 import { migration as addImpersonationAndDataExport } from './migrations/0059_add_impersonation_and_data_export.js';
 import { migration as addFoodSafetyPermission } from './migrations/0060_add_food_safety_permission.js';
 import { migration as addEducationPlanPermissions } from './migrations/0061_add_education_plan_permissions.js';
-<<<<<<< HEAD
-import { migration as addUserSchoolLevels } from './migrations/0064_add_user_school_levels.js';
-=======
 import { migration as addEmulationPermissions } from './migrations/0062_add_emulation_permissions.js';
->>>>>>> origin/main
+import { migration as addUserSchoolLevels } from './migrations/0064_add_user_school_levels.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu định danh, theo số thứ tự (QU-01)
 export const identityMigrations: Record<string, Migration> = {
@@ -119,9 +116,6 @@ export const identityMigrations: Record<string, Migration> = {
   '0059_add_impersonation_and_data_export': addImpersonationAndDataExport,
   '0060_add_food_safety_permission': addFoodSafetyPermission,
   '0061_add_education_plan_permissions': addEducationPlanPermissions,
-<<<<<<< HEAD
-  '0064_add_user_school_levels': addUserSchoolLevels,
-=======
   '0062_add_emulation_permissions': addEmulationPermissions,
->>>>>>> origin/main
+  '0064_add_user_school_levels': addUserSchoolLevels,
 };
