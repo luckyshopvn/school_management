@@ -1,0 +1,243 @@
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
+import {
+  listPortalMenuEntries,
+  PORTAL_WORKSPACES,
+  portalMenuPathsOutsideLevels,
+  portalWorkspacesForLevels,
+  SCHOOL_LEVEL_TERMS,
+  schoolLevelTerms,
+  workingSchoolLevels,
+} from '@school-management/shared';
+import { CurrentUser } from '../authentication/current-user.js';
+import type { Databases } from '../common/databases.js';
+import { SchoolLevelResolver } from '../common/school-levels.js';
+import { sendJson, startApiTestEnvironment, type ApiTestEnvironment, type LoggedInUser } from '../test-support.js';
+
+// Menu và phân hệ theo cấp học (DT-19 phần 19c, YCTD-153): thuộc tính cấp ở cây menu, nhãn thuật ngữ, cấp đang làm việc,
+// tham số cấp dùng chung, lối tắt và ngữ cảnh trường theo cấp bật
+const LEVEL_NAMES = { MN: 'Mầm non', TH: 'Tiểu học', THCS: 'Trung học cơ sở', THPT: 'Trung học phổ thông' } as const;
+const levelsOf = (...codes: Array<keyof typeof LEVEL_NAMES>) =>
+  codes.map((code) => ({ code, display_name: LEVEL_NAMES[code] }));
+const PRESCHOOL_ONLY_PATHS = [
+  '/growth',
+  '/growth-report',
+  '/program-completion',
+  '/entry-admissions/final-year',
+  '/emis',
+  '/emis/send',
+  '/emis/end-of-year',
+  '/emis/preschool-end-of-year',
+];
+
+describe('Cây menu và nhãn theo cấp học', () => {
+  it('CT-19c-1: trường chỉ có Mầm non giữ y hệt cây menu (tên phân hệ, số thứ bậc, thứ tự, mục)', () => {
+    assert.deepEqual(portalWorkspacesForLevels(levelsOf('MN')), PORTAL_WORKSPACES);
+    assert.equal(portalMenuPathsOutsideLevels(['MN']).size, 0);
+    assert.equal(portalMenuPathsOutsideLevels(['MN', 'TH']).size, 0);
+  });
+
+  it('CT-19c-2: cấp khác ẩn mục chỉ của Mầm non, nhóm rỗng bỏ; tên phân hệ theo cấp, nhiều cấp là "Quản lý giáo dục"', () => {
+    const primary = portalWorkspacesForLevels(levelsOf('TH'));
+    const paths = listPortalMenuEntries(primary).map((entry) => entry.node.path);
+    for (const path of PRESCHOOL_ONLY_PATHS) {
+      assert.ok(!paths.includes(path as never), path);
+    }
+    assert.ok(paths.includes('/children'));
+    assert.ok(paths.includes('/emis/facilities'));
+    assert.deepEqual([...portalMenuPathsOutsideLevels(['TH'])].sort(), [...PRESCHOOL_ONLY_PATHS].sort());
+    const education = (workspaces: typeof primary) => workspaces.find((workspace) => workspace.key === 'education');
+    assert.equal(education(primary)?.label, 'Quản lý giáo dục Tiểu học');
+    // Nhóm 4.3 Cân nặng, chiều cao bỏ hẳn; số của mục còn lại giữ nguyên số của Sở
+    const students = education(primary)?.menu.find((node) => node.number === '4.');
+    assert.deepEqual(
+      students?.children?.map((node) => node.number),
+      ['4.1.', '4.2.', '4.5.', '4.6.', '4.7.'],
+    );
+    const emis = primary.find((workspace) => workspace.key === 'emis');
+    assert.deepEqual(
+      emis?.menu.map((node) => [node.number, node.children?.map((child) => child.number)]),
+      [
+        ['1.', ['1.2.', '1.3.']],
+        ['2.', ['2.2.', '2.3.']],
+      ],
+    );
+    assert.equal(education(portalWorkspacesForLevels(levelsOf('MN', 'TH')))?.label, 'Quản lý giáo dục');
+    assert.deepEqual(portalWorkspacesForLevels(levelsOf('MN', 'TH')).length, PORTAL_WORKSPACES.length);
+    // Tên cấp lấy từ school_levels, không ghi cứng
+    assert.equal(
+      education(portalWorkspacesForLevels([{ code: 'MN', display_name: 'Mầm non (nhà trẻ, mẫu giáo)' }]))?.label,
+      'Quản lý giáo dục Mầm non (nhà trẻ, mẫu giáo)',
+    );
+  });
+
+  it('CT-19c-3: nhãn thuật ngữ theo cấp; thuật ngữ trường đặt ở 1.4 thay chữ "Trẻ"; nhiều cấp khác nhau dùng "Học sinh"', () => {
+    assert.deepEqual(schoolLevelTerms([{ code: 'MN' }]), {
+      learner: 'Trẻ',
+      learnerProfile: 'Hồ sơ trẻ',
+      classGroup: 'Nhóm lớp',
+    });
+    assert.deepEqual(schoolLevelTerms([{ code: 'MN', learner_term: 'Trẻ' }]), SCHOOL_LEVEL_TERMS.MN);
+    assert.deepEqual(schoolLevelTerms([]), SCHOOL_LEVEL_TERMS.MN);
+    assert.deepEqual(schoolLevelTerms([{ code: 'TH', learner_term: 'Học sinh' }]), {
+      learner: 'Học sinh',
+      learnerProfile: 'Hồ sơ học sinh',
+      classGroup: 'Lớp',
+    });
+    assert.equal(schoolLevelTerms([{ code: 'MN', learner_term: 'Cháu' }]).learnerProfile, 'Hồ sơ cháu');
+    assert.deepEqual(schoolLevelTerms([{ code: 'MN' }, { code: 'TH' }]), SCHOOL_LEVEL_TERMS.TH);
+    assert.deepEqual(schoolLevelTerms([{ code: 'TH' }, { code: 'THCS' }]), SCHOOL_LEVEL_TERMS.TH);
+  });
+
+  it('CT-19c-4: cấp đang làm việc: cấp đã chọn còn được xem thì chỉ cấp đó, còn lại là mọi cấp được xem', () => {
+    assert.deepEqual(workingSchoolLevels(['MN'], null), ['MN']);
+    assert.deepEqual(workingSchoolLevels(['MN'], 'TH'), ['MN']);
+    assert.deepEqual(workingSchoolLevels(['MN', 'TH'], null), ['MN', 'TH']);
+    assert.deepEqual(workingSchoolLevels(['MN', 'TH'], 'TH'), ['TH']);
+    assert.deepEqual(workingSchoolLevels(['MN', 'TH'], 'THPT'), ['MN', 'TH']);
+    assert.deepEqual(workingSchoolLevels(['MN', 'TH'], 'all'), ['MN', 'TH']);
+  });
+});
+
+describe('Điểm cuối theo cấp đang làm việc', () => {
+  let environment: ApiTestEnvironment;
+  let principal: LoggedInUser;
+  let teacher: LoggedInUser;
+  const url = (path: string) => `${environment.baseUrl}${path}`;
+  const identityUrl = (path: string) => `${environment.identity.baseUrl}${path}`;
+  const setEnabled = async (codes: string[]) => {
+    const current = await sendJson('GET', url('/school-levels'), principal.accessToken);
+    const levels = (current.body.levels as Array<Record<string, unknown>>).map(
+      ({ code, order_no, display_name, learner_term, context_label }) => ({
+        code,
+        is_enabled: codes.includes(code as string),
+        order_no,
+        display_name,
+        learner_term,
+        context_label,
+      }),
+    );
+    const saved = await sendJson('PUT', url('/school-levels'), principal.accessToken, { levels });
+    assert.equal(saved.status, 200, JSON.stringify(saved.body));
+  };
+
+  before(async () => {
+    environment = await startApiTestEnvironment();
+    principal = await environment.loginAs('VT-02', null);
+    teacher = await environment.loginAs('VT-07', null);
+  });
+
+  after(async () => {
+    await environment.close();
+  });
+
+  it('CT-19c-5: ngữ cảnh trường trả cấp người dùng được xem; trường mầm non chỉ có Mầm non', async () => {
+    const preschool = await sendJson('GET', url('/portal-context'), teacher.accessToken);
+    assert.equal(preschool.status, 200);
+    assert.equal(preschool.body.education_level, 'Cấp MN');
+    assert.deepEqual(preschool.body.school_levels, [
+      { code: 'MN', display_name: 'Mầm non', learner_term: 'Trẻ', context_label: 'Cấp MN' },
+    ]);
+    await setEnabled(['MN', 'TH']);
+    const both = await sendJson('GET', url('/portal-context'), teacher.accessToken);
+    assert.deepEqual(
+      (both.body.school_levels as Array<{ code: string }>).map((level) => level.code),
+      ['MN', 'TH'],
+    );
+    const scoped = await sendJson('PUT', identityUrl(`/users/${teacher.userId}/school-levels`), principal.accessToken, {
+      school_levels: ['TH'],
+    });
+    assert.equal(scoped.status, 200);
+    const narrowed = await sendJson('GET', url('/portal-context'), teacher.accessToken);
+    assert.deepEqual(
+      (narrowed.body.school_levels as Array<{ code: string }>).map((level) => level.code),
+      ['TH'],
+    );
+    await sendJson('PUT', identityUrl(`/users/${teacher.userId}/school-levels`), principal.accessToken, {
+      school_levels: [],
+    });
+    await setEnabled(['MN']);
+  });
+
+  it('CT-19c-6: lưu cấp đang làm việc theo tài khoản; mã sai hoặc ngoài phạm vi cấp bị từ chối; trống là "Tất cả"', async () => {
+    const initial = await sendJson('GET', identityUrl('/auth/me'), teacher.accessToken);
+    assert.equal(initial.body.working_school_level, null);
+    assert.equal(
+      (await sendJson('PUT', identityUrl('/auth/me/working-school-level'), undefined, { school_level: 'TH' })).status,
+      401,
+    );
+    const saved = await sendJson('PUT', identityUrl('/auth/me/working-school-level'), teacher.accessToken, {
+      school_level: 'TH',
+    });
+    assert.equal(saved.status, 200, JSON.stringify(saved.body));
+    assert.deepEqual(saved.body, { working_school_level: 'TH' });
+    assert.equal((await sendJson('GET', identityUrl('/auth/me'), teacher.accessToken)).body.working_school_level, 'TH');
+    // Riêng từng tài khoản
+    assert.equal(
+      (await sendJson('GET', identityUrl('/auth/me'), principal.accessToken)).body.working_school_level,
+      null,
+    );
+    const invalid = await sendJson('PUT', identityUrl('/auth/me/working-school-level'), teacher.accessToken, {
+      school_level: 'DH',
+    });
+    assert.equal(invalid.status, 400);
+    await sendJson('PUT', identityUrl(`/users/${teacher.userId}/school-levels`), principal.accessToken, {
+      school_levels: ['MN'],
+    });
+    const outside = await sendJson('PUT', identityUrl('/auth/me/working-school-level'), teacher.accessToken, {
+      school_level: 'THCS',
+    });
+    assert.equal(outside.status, 400);
+    const all = await sendJson('PUT', identityUrl('/auth/me/working-school-level'), teacher.accessToken, {
+      school_level: null,
+    });
+    assert.deepEqual(all.body, { working_school_level: null });
+    await sendJson('PUT', identityUrl(`/users/${teacher.userId}/school-levels`), principal.accessToken, {
+      school_levels: [],
+    });
+  });
+
+  it('CT-19c-7: tham số cấp dùng chung: không gửi hoặc "all" là mọi cấp được xem; mã sai 400; cấp chưa bật 403', async () => {
+    const resolver = new SchoolLevelResolver({ system: environment.system } as unknown as Databases);
+    const user = (school_levels: string[]) =>
+      new CurrentUser({ id: teacher.userId, full_name: 'GV', assignments: [], school_levels });
+    assert.deepEqual(await resolver.requested(user([]), undefined), ['MN']);
+    assert.deepEqual(await resolver.requested(user([]), 'all'), ['MN']);
+    assert.deepEqual(await resolver.requested(user([]), 'MN'), ['MN']);
+    await assert.rejects(resolver.requested(user([]), 'DH'), { code: 'ERR_VALIDATION' });
+    await assert.rejects(resolver.requested(user([]), 'TH'), { code: 'ERR_FORBIDDEN' });
+    await setEnabled(['MN', 'TH']);
+    resolver.invalidate();
+    assert.deepEqual(await resolver.requested(user([]), ''), ['MN', 'TH']);
+    assert.deepEqual(await resolver.requested(user([]), 'TH'), ['TH']);
+    assert.deepEqual(await resolver.requested(user(['TH']), undefined), ['TH']);
+    await assert.rejects(resolver.requested(user(['TH']), 'MN'), { code: 'ERR_FORBIDDEN' });
+    await setEnabled(['MN']);
+  });
+
+  it('CT-19c-8: lối tắt tới mục của cấp chưa bật không hiện, vẫn giữ để hiện lại khi bật cấp', async () => {
+    const links = [
+      { path: '/children', label: 'Hồ sơ học sinh' },
+      { path: '/growth', label: 'Cân đo' },
+    ];
+    const saved = await sendJson('PUT', url('/me/quick-links'), teacher.accessToken, { links });
+    assert.equal(saved.status, 200, JSON.stringify(saved.body));
+    assert.deepEqual(
+      (saved.body as unknown as Array<{ path: string }>).map((link) => link.path),
+      ['/children', '/growth'],
+    );
+    await setEnabled(['TH']);
+    const primary = await sendJson('GET', url('/me/quick-links'), teacher.accessToken);
+    assert.deepEqual(
+      (primary.body as unknown as Array<{ path: string }>).map((link) => link.path),
+      ['/children'],
+    );
+    await setEnabled(['MN', 'TH']);
+    const both = await sendJson('GET', url('/me/quick-links'), teacher.accessToken);
+    assert.deepEqual(
+      (both.body as unknown as Array<{ path: string }>).map((link) => link.path),
+      ['/children', '/growth'],
+    );
+    await setEnabled(['MN']);
+  });
+});
