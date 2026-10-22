@@ -1,8 +1,8 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.79
-- Ngày cập nhật: 2026-10-21
+- Phiên bản: 1.81
+- Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -316,6 +316,30 @@ Từ YCTD-107 (DT-15 phần 15a), cổng quản trị dùng menu ngang nhiều c
 | Hồ sơ chuyên môn | 5.4. | Duyệt kế hoạch | `/education-plans/review` |
 | Hồ sơ chuyên môn | 5.5. | Tiến độ duyệt kế hoạch | `/education-plans/progress` |
 | Hồ sơ chuyên môn | 5.6. | Thư viện mẫu kế hoạch | `/education-plan-templates` |
+| Thi đua, khen thưởng | 1. | Phong trào thi đua | (nhóm) |
+| Thi đua, khen thưởng | 1.1. | Đợt thi đua | `/emulation/campaigns` |
+| Thi đua, khen thưởng | 1.2. | Đăng ký thi đua | `/emulation/registrations` |
+| Thi đua, khen thưởng | 2. | Hồ sơ đề nghị | (nhóm) |
+| Thi đua, khen thưởng | 2.1. | Hồ sơ đề nghị của tôi | `/emulation/nominations` |
+| Thi đua, khen thưởng | 2.2. | Tiếp nhận hồ sơ | `/emulation/nominations/review` |
+| Thi đua, khen thưởng | 3. | Hội đồng thi đua | (nhóm) |
+| Thi đua, khen thưởng | 3.1. | Hội đồng và phiên họp | `/emulation/council` |
+| Thi đua, khen thưởng | 3.2. | Bỏ phiếu bình xét | `/emulation/voting` |
+| Thi đua, khen thưởng | 3.3. | Phúc khảo, khiếu nại | `/emulation/appeals` |
+| Thi đua, khen thưởng | 4. | Khen thưởng | (nhóm) |
+| Thi đua, khen thưởng | 4.1. | Quyết định khen thưởng | `/emulation/decisions` |
+| Thi đua, khen thưởng | 5. | Báo cáo | (nhóm) |
+| Thi đua, khen thưởng | 5.1. | Sổ theo dõi khen thưởng | `/emulation/history` |
+| Thi đua, khen thưởng | 5.2. | Báo cáo đợt thi đua | `/emulation/reports` |
+| Thi đua, khen thưởng | 6. | Danh mục | (nhóm) |
+| Thi đua, khen thưởng | 6.1. | Danh hiệu và hình thức khen thưởng | `/emulation/titles` |
+| Bảo đảm chất lượng | 1. | Tự đánh giá | (nhóm) |
+| Bảo đảm chất lượng | 1.1. | Đợt tự đánh giá | `/quality/assessments` |
+| Bảo đảm chất lượng | 1.2. | Phiếu đánh giá tiêu chí | `/quality/reports` |
+| Bảo đảm chất lượng | 1.3. | Minh chứng | `/quality/evidences` |
+| Bảo đảm chất lượng | 2. | Kiểm định và thiết lập | (nhóm) |
+| Bảo đảm chất lượng | 2.1. | Theo dõi công nhận | `/quality/recognition` |
+| Bảo đảm chất lượng | 2.2. | Bộ tiêu chuẩn đánh giá | `/quality/frameworks` |
 
 Từ YCTD-134 (DT-17 phần 17c), phân hệ "Tuyển sinh đầu cấp" (khóa `entry-admissions`) đứng sau "Quản lý cơ sở vật chất, TBDH" trên ô chọn phân hệ; số mục giữ như trang riêng `truong-tsdc` của Sở (khảo sát tài liệu 31 mục 10.2.2), tên năm nhóm 1. đến 5. do Claude tự đặt vì khảo sát không ghi; mục 1.3 đến 1.7 thêm ở phần 17d. Tiêu đề trang lấy từ cây menu kèm số (`menuPageTitle`). Cổng quản trị có 13 phân hệ.
 
@@ -326,6 +350,8 @@ Từ YCTD-138 (DT-18 phần 18a), phân hệ "Quản lý văn bản và điều 
 Từ YCTD-139 (DT-18 phần 18d), phân hệ "Đánh giá KPI" (khóa `kpi`) đứng cuối ô chọn phân hệ; phân hệ riêng nên đánh số liên tục, tên mục do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11. Mục hiện theo quyền `P09.kpi.*` (PQ-79).
 
 Từ YCTD-142 (DT-18 phần 18e), phân hệ "Hồ sơ chuyên môn" (khóa `professional-records`) đứng cuối ô chọn phân hệ, theo mô tả công khai của GIKIDI Nhà Trường; phân hệ riêng nên đánh số liên tục, tên mục do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11. Mục 1. Việc của tôi không có điều kiện quyền (ai đăng nhập cũng thấy) và hiện số việc đang chờ cạnh tên mục (nền đỏ khi có việc quá hạn); đầu trang có thêm nút "Việc của tôi" kèm số, cạnh chuông thông báo; số làm mới mỗi phút. Các mục khác hiện theo quyền `P09.professional-record.*` (PQ-84).
+
+Từ YCTD-149 (DT-18 phần 22f), phân hệ "Bảo đảm chất lượng" (khóa `quality-assurance`) đứng cuối ô chọn phân hệ, cổng quản trị có 19 phân hệ; phân hệ riêng nên đánh số liên tục, tên mục do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11. Mục hiện theo quyền `P09.quality.*` (PQ-89). Mục 1.7 Rà soát thông tin kiểm định CLGD vẫn ở phân hệ Quản lý giáo dục Mầm non như Sở.
 
 ## 2. Danh sách màn hình theo kênh
 
@@ -574,6 +600,23 @@ Từ YCTD-142 (DT-18 phần 18e), phân hệ "Hồ sơ chuyên môn" (khóa `pro
 | MH-238 | Lô hàng nhập (YCTD-146; mục "3.3.", `/food-safety/lots`, lưới khóa `food-lots`; mở thẳng một lô bằng `?lot_id=`): lọc ngày nhập, trạng thái, hạn dùng (sắp hết hạn, đã hết hạn); cột mã lô, nguyên liệu, nhà cung cấp, ngày nhập, khối lượng, số lô, hạn dùng (nhãn cảnh báo), chứng từ, phiếu đi chợ, trạng thái; khung thông tin lô (sửa, tải tệp chứng từ), kết quả bước 1, món đã dùng lô; Đã dùng hết, Hủy lô (lý do); Thêm lô | Bếp (`P12.kitchen.manage`), người kiểm thực (`P12.food-safety.inspect`), quản lý đơn vị, người xem báo cáo bếp |
 | MH-239 | Hồ sơ an toàn thực phẩm của nhà cung cấp (YCTD-146; mục "3.4.", `/food-safety/supplier-records`, lưới khóa `food-supplier-certificates`): cảnh báo giấy sắp hết hạn, hết hạn; bảng tổng hợp theo nhà cung cấp (có, chưa có giấy ATTP còn hiệu lực, số giấy sắp hết hạn, hết hạn, hạn gần nhất); lưới giấy tờ (nhà cung cấp, loại, số, nơi cấp, ngày cấp, hết hạn, còn ngày, hiệu lực, tệp) lọc theo nhà cung cấp, hiệu lực; Thêm giấy tờ, Sửa, Thu hồi | Bếp (`P12.kitchen.manage`), người kiểm thực (`P12.food-safety.inspect`), quản lý đơn vị, người xem báo cáo bếp |
 | MH-240 | Truy xuất nguồn gốc (YCTD-146; mục "3.5.", `/food-safety/trace`): chọn ngày ăn, món (mọi món của ngày); mỗi món một thẻ: bữa, số suất, kết quả bước 2, 3, nguồn lô (Đã ghi ở bước 2, Suy ra theo nguyên liệu – cần đối chiếu), từng lô (nguyên liệu, nhà cung cấp, địa chỉ, điện thoại, ngày nhập, số lô, hạn dùng, chứng từ hoặc phiếu đi chợ, kết quả bước 1, giấy tờ kèm hiệu lực vào ngày), mẫu lưu và nút Giữ mẫu; In trang | Bếp (`P12.kitchen.manage`), người kiểm thực (`P12.food-safety.inspect`), quản lý đơn vị, người xem báo cáo bếp |
+| MH-241 | Đợt thi đua (YCTD-148; "1.1.", `/emulation/campaigns`, lưới khóa `emulation-campaigns`): cột mã, đợt, loại, hạn đăng ký, hạn nộp hồ sơ, số đăng ký, số hồ sơ, trạng thái; Thêm đợt (mã, tên, loại, nội dung phát động, kỳ KPI, hạn, số ngày phúc khảo, danh hiệu); dòng chi tiết: tải thông báo phát động PDF, Word, Sửa, Phát động, Kết thúc đợt; Xóa đợt đang soạn | Người có quyền của phân hệ (`P09.emulation.use`, `.manage`, `.decide`) |
+| MH-242 | Đăng ký thi đua (YCTD-148; "1.2.", `/emulation/registrations`, lưới khóa `emulation-registrations`): chọn đợt; thẻ Đăng ký của tôi, Mọi đăng ký (quản lý); khung đăng ký (danh hiệu, cá nhân hoặc tổ, cam kết); cột cá nhân, tập thể, đối tượng, danh hiệu, cam kết, người đăng ký, trạng thái; quản lý chọn dòng rồi Duyệt đăng ký, Trả lại (lý do) | Người có quyền của phân hệ (`P09.emulation.use`, `.manage`, `.decide`) |
+| MH-243 | Hồ sơ đề nghị của tôi (YCTD-148; "2.1.", `/emulation/nominations`, lưới khóa `emulation-nominations`): chọn đợt, trạng thái; Lập hồ sơ đề nghị; cột cá nhân, tập thể, danh hiệu, xếp loại KPI, điểm tiêu chí, điều kiện không đạt, người lập, tỉ lệ đồng ý, trạng thái; dòng chi tiết: kết quả KPI, bảng điều kiện, tóm tắt thành tích, sáng kiến, tự chấm từng tiêu chí (điểm thang 100), minh chứng chọn trong kho hồ sơ chuyên môn (tải tệp, bỏ), kết quả bỏ phiếu, phúc khảo trong hạn; Ghi hồ sơ, Nộp hồ sơ, Rút hồ sơ, tải báo cáo thành tích Word, PDF | Người có quyền của phân hệ (`P09.emulation.use`, `.manage`, `.decide`) |
+| MH-244 | Tiếp nhận hồ sơ (YCTD-148; "2.2.", `/emulation/nominations/review`, lưới khóa `emulation-nomination-review`): như 2.1 cho mọi hồ sơ đã nộp; Tiếp nhận, Trả lại hồ sơ (lý do) | Người quản lý (`P09.emulation.manage`), người ban hành (`P09.emulation.decide`) |
+| MH-245 | Hội đồng và phiên họp (YCTD-148; "3.1.", `/emulation/council`): chọn đợt; thành viên hội đồng (cán bộ, chức danh; Thêm thành viên, Bỏ, Ghi hội đồng); phiên họp: số hồ sơ chờ bình xét, Mở phiên bỏ phiếu (thời gian, địa điểm), phiên đang mở hiện số thành viên đã bỏ phiếu, số có mặt, kết luận, Đóng phiên, tính kết quả; Công bố kết quả bình xét; các phiên đã họp: Xem kết quả (bảng đồng ý, không đồng ý, không biểu quyết, tỉ lệ, kết quả), Tải biên bản | Người quản lý (`P09.emulation.manage`), người ban hành (`P09.emulation.decide`) |
+| MH-246 | Bỏ phiếu bình xét (YCTD-148; "3.2.", `/emulation/voting`): mỗi phiên đang mở mà người dùng là thành viên một phiếu: bảng hồ sơ (cá nhân, tập thể, danh hiệu, xếp loại KPI, điểm, điều kiện không đạt) và nhóm chọn Đồng ý, Không đồng ý, Không biểu quyết; Ghi phiếu | Thành viên hội đồng của đợt |
+| MH-247 | Phúc khảo, khiếu nại (YCTD-148; "3.3.", `/emulation/appeals`, lưới khóa `emulation-appeals`): thẻ Tôi đã gửi, Cần giải quyết (quản lý); khung khiếu nại của đợt đã công bố (hạn); cột loại, hồ sơ, nội dung, người gửi, hạn, trạng thái, trả lời; quản lý nhập trả lời, Chấp nhận, Không chấp nhận | Người có quyền của phân hệ (`P09.emulation.use`, `.manage`, `.decide`) |
+| MH-248 | Quyết định khen thưởng (YCTD-148; "4.1.", `/emulation/decisions`, lưới khóa `emulation-decisions`): cột loại, trích yếu, đợt, số hồ sơ, số ký hiệu, ngày, trạng thái; Lập quyết định, tờ trình (đợt, loại, trích yếu, căn cứ, người ký, chọn hồ sơ được thông qua); dòng chi tiết: danh sách (mã tra cứu, Tải giấy khen), tải dự thảo Word, PDF, Tạo dự thảo văn bản đi, Ban hành (số, ngày), Kết quả của cấp trên (số, ngày, cấp khen, hồ sơ được khen) | Người quản lý (`P09.emulation.manage`), người ban hành (`P09.emulation.decide`) |
+| MH-249 | Sổ theo dõi khen thưởng (YCTD-148; "5.1.", `/emulation/history`, lưới khóa `emulation-history`): lọc đối tượng, danh hiệu, tìm theo tên; tóm tắt đạt nhiều năm; cột năm học, cá nhân, tập thể, tổ, danh hiệu, số quyết định, ngày, cấp khen, nguồn, mã tra cứu; Xuất Excel; Nhập khen thưởng năm trước (quản lý); Giấy khen; Xóa dòng nhập tay | Người có quyền của phân hệ (`P09.emulation.use`, `.manage`, `.decide`) |
+| MH-250 | Báo cáo đợt thi đua (YCTD-148; "5.2.", `/emulation/reports`, lưới khóa `emulation-report`): chọn đợt; số cán bộ, phúc khảo, khiếu nại; theo danh hiệu: đăng ký, đăng ký được duyệt, hồ sơ, thông qua, không thông qua, đã khen; Xuất Excel | Người quản lý (`P09.emulation.manage`), người ban hành (`P09.emulation.decide`) |
+| MH-251 | Danh hiệu và hình thức khen thưởng (YCTD-148; "6.1.", `/emulation/titles`, lưới khóa `emulation-titles`): cột mã, tên, loại, đối tượng, cấp quyết định, KPI tối thiểu, năm liên tục, tỉ lệ tối đa, phiếu tối thiểu, số tiêu chí, phiên bản, trạng thái; Thêm danh hiệu, Sửa (thông tin, điều kiện, tiêu chí mỗi dòng "mã | tên | trọng số | điểm tối đa"), Xóa, Nạp danh mục mặc định | Người có quyền của phân hệ (`P09.emulation.use`, `.manage`, `.decide`) |
+| MH-252 | Tra cứu khen thưởng (YCTD-148; `/tra-cuu-khen-thuong?ma=`, không cần đăng nhập): ô mã tra cứu, Tra cứu; kết quả: trường, cá nhân hoặc tập thể, danh hiệu, năm học, số, ngày quyết định, cấp khen | Công khai |
+| MH-253 | Đợt tự đánh giá (YCTD-149; mục "1.1." của Bảo đảm chất lượng, `/quality/assessments`, lưới khóa `quality-assessments`, `quality-assessment-criteria`): cột tên đợt, bộ tiêu chuẩn, quyết định, thời gian, phiếu đã duyệt, minh chứng, trạng thái, mức; Lập đợt tự đánh giá; chi tiết năm thẻ: Thông tin chung (Sửa, đặt vấn đề, kết luận; Bắt đầu đánh giá; Kế thừa minh chứng năm trước), Hội đồng (thành viên, chức danh, nhiệm vụ; Ghi hội đồng), Nhóm công tác (tên, trưởng nhóm, thành viên, ô chọn tiêu chí phân công; Ghi nhóm công tác), Tiến độ tiêu chí (tiêu chí, nhóm, trạng thái phiếu, mức, số minh chứng), Kết quả và báo cáo (tổng hợp mức, mức gợi ý; Hoàn thành đợt, Mở lại đợt; Xuất báo cáo Word, PDF; Tạo kế hoạch cải tiến; kết quả công nhận, Cập nhật vào 1.7) | Ban Giám hiệu (`P09.quality.manage`), thành viên hội đồng, nhóm công tác (`P09.quality.use`) |
+| MH-254 | Phiếu đánh giá tiêu chí (YCTD-149; mục "1.2.", `/quality/reports`, lưới khóa `quality-reports`): thẻ Phiếu của nhóm tôi, Tất cả phiếu (Phiếu của đợt tôi tham gia); chọn đợt; cột tiêu chí, tên, nhóm, trạng thái, mức; chi tiết phiếu: chỉ báo theo mức (đánh dấu đạt), mô tả hiện trạng, điểm mạnh, điểm yếu, kế hoạch cải tiến (nội dung, người phụ trách, thời hạn, nguồn lực), tự đánh giá, mức gợi ý, minh chứng của tiêu chí; Ghi phiếu, Nộp phiếu, Duyệt phiếu, Trả lại (lý do), Mở lại phiếu | Ban Giám hiệu (`P09.quality.manage`), thành viên hội đồng, nhóm công tác (`P09.quality.use`) |
+| MH-255 | Minh chứng (YCTD-149; mục "1.3.", `/quality/evidences`, lưới khóa `quality-evidences`): chọn đợt, tiêu chí, trạng thái, tìm theo mã, tên, số; cột mã minh chứng, tên, số và ngày ban hành, nơi ban hành, tiêu chí (kèm dùng chung), trạng thái, nguồn, kế thừa; Thêm minh chứng (tiêu chí, số hộp, tên, số kí hiệu, ngày, nơi ban hành, mô tả, trạng thái, nguồn với ô tìm hồ sơ, văn bản, tiêu chí dùng chung), Sửa, Xóa, Tải tệp lên, Xem tệp; Xuất danh mục minh chứng | Ban Giám hiệu (`P09.quality.manage`), thành viên hội đồng, nhóm công tác (`P09.quality.use`) |
+| MH-256 | Theo dõi công nhận (YCTD-149; mục "2.1.", `/quality/recognition`, lưới khóa `quality-recognitions`): khung theo mục 1.7 của năm học (cấp độ, ngày công nhận kiểm định, hiệu lực đến, nhãn Còn hiệu lực, Sắp hết hiệu lực, Hết hiệu lực; chuẩn quốc gia); lưới kết quả công nhận của các đợt đã hoàn thành (tự đánh giá, được công nhận, quyết định, ngày, hiệu lực) | Ban Giám hiệu (`P09.quality.manage`), thành viên hội đồng, nhóm công tác (`P09.quality.use`) |
+| MH-257 | Bộ tiêu chuẩn đánh giá (YCTD-149; mục "2.2.", `/quality/frameworks`, lưới khóa `quality-frameworks`): chọn cấp học, Nạp bộ tiêu chuẩn mẫu; cột mã, tên, cấp học, số mức, số tiêu chuẩn, tiêu chí, chỉ báo, trạng thái; Thêm bộ tiêu chuẩn, Sửa, Xóa; chi tiết là cây tiêu chuẩn, tiêu chí, chỉ báo với Thêm, Sửa, Xóa từng cấp | Ban Giám hiệu (`P09.quality.manage`), thành viên hội đồng, nhóm công tác (`P09.quality.use`) |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 

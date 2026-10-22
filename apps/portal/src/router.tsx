@@ -180,6 +180,27 @@ import {
   ReviewPlansPage,
   SchoolPlansPage,
 } from './education-plans/EducationPlanPages.js';
+import {
+  AppealsPage as EmulationAppealsPage,
+  CampaignsPage as EmulationCampaignsPage,
+  CouncilPage as EmulationCouncilPage,
+  DecisionsPage as EmulationDecisionsPage,
+  HistoryPage as EmulationHistoryPage,
+  MyNominationsPage as EmulationNominationsPage,
+  RegistrationsPage as EmulationRegistrationsPage,
+  ReportsPage as EmulationReportsPage,
+  ReviewNominationsPage as EmulationReviewPage,
+  TitlesPage as EmulationTitlesPage,
+  VerifyAwardPage,
+  VotingPage as EmulationVotingPage,
+} from './emulation/EmulationPages.js';
+import {
+  QualityAssessmentsPage,
+  QualityEvidencesPage,
+  QualityFrameworksPage,
+  QualityRecognitionPage,
+  QualityReportsPage,
+} from './quality-assurance/QualityPages.js';
 import { DirectiveFormPage, DirectiveInboxPage, DirectiveOutboxPage } from './directives/DirectivePages.js';
 import { IncomingReportPage, StatisticsReportPage, SummaryReportPage } from './directives/ReportPages.js';
 import {
@@ -225,7 +246,7 @@ import { VerifyDocumentPage } from './outgoing-documents/VerifyDocumentPage.js';
 // Trang dùng được khi chưa đăng nhập (DT-16 phần 16c thêm Quên mật khẩu)
 const PUBLIC_PATHS = ['/login', '/forgot-password'];
 // Trang công khai mở được cả khi đã hay chưa đăng nhập: tra cứu mã QR của văn bản đi (DT-18 phần 18b)
-const OPEN_PATHS = ['/tra-cuu-van-ban'];
+const OPEN_PATHS = ['/tra-cuu-van-ban', '/tra-cuu-khen-thuong'];
 
 // Chuyển hướng theo trạng thái phiên: chưa đăng nhập về MH-47; bắt buộc đổi mật khẩu về MH-48 (BM-07)
 function SessionGate() {
@@ -585,6 +606,33 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/education-plans/review', component: ReviewPlansPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/education-plans/progress', component: PlanProgressPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/education-plan-templates', component: PlanTemplatesPage }),
+  // Thi đua, khen thưởng (DT-18 phần 22d)
+  createRoute({ getParentRoute: () => rootRoute, path: '/emulation/campaigns', component: EmulationCampaignsPage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/emulation/registrations',
+    component: EmulationRegistrationsPage,
+  }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/emulation/nominations', component: EmulationNominationsPage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/emulation/nominations/review',
+    component: EmulationReviewPage,
+  }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/emulation/council', component: EmulationCouncilPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/emulation/voting', component: EmulationVotingPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/emulation/appeals', component: EmulationAppealsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/emulation/decisions', component: EmulationDecisionsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/emulation/history', component: EmulationHistoryPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/emulation/reports', component: EmulationReportsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/emulation/titles', component: EmulationTitlesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/tra-cuu-khen-thuong', component: VerifyAwardPage }),
+  // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
+  createRoute({ getParentRoute: () => rootRoute, path: '/quality/assessments', component: QualityAssessmentsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/quality/reports', component: QualityReportsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/quality/evidences', component: QualityEvidencesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/quality/recognition', component: QualityRecognitionPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/quality/frameworks', component: QualityFrameworksPage }),
 ]);
 
 export const router = createRouter({ routeTree });

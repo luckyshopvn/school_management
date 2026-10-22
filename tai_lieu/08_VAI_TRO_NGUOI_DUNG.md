@@ -1,8 +1,8 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.75
-- Ngày cập nhật: 2026-10-21
+- Phiên bản: 1.77
+- Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -185,6 +185,8 @@ Ghi chú áp dụng cho bảng:
 | PQ-85 | Quản trị và trình diễn (YCTD-145): hai quyền mới thuộc P01, chỉ VT-02. `P01.account.impersonate`: đăng nhập thay tài khoản có quyền không cao hơn (BR-141), xem nhật ký đăng nhập thay và thao tác. `P01.data.export-all`: tạo gói ZIP toàn bộ dữ liệu, xem danh sách gói và số lần tải; chỉ người tạo tải. VT-01 không có (PQ-10: không xem dữ liệu nghiệp vụ). Màn hình 4.3 Bản trình diễn xem được bằng `P01.account.manage` hoặc `P01.account.impersonate`; tài khoản trình diễn và mật khẩu chung là dữ liệu giả công khai. Vai trò do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12) |
 | PQ-86 | Kế hoạch giáo dục (YCTD-147): năm quyền mới thuộc P09. `P09.education-plan.use` (mọi cán bộ, giáo viên, nhân viên dùng cổng quản trị: VT-02, VT-15, VT-03 đến VT-12, VT-16, VT-17): lập, trình kế hoạch. `P09.education-plan.review` (VT-17): duyệt bước tổ trưởng của tổ mình. `P09.education-plan.approve` (VT-15, VT-02): duyệt bước Phó Hiệu trưởng trong phạm vi đơn vị. `P09.education-plan.finalize` (VT-02): phê duyệt bước Hiệu trưởng, kí nội bộ. `P09.education-plan.manage` (VT-02, VT-15): thư viện mẫu (phạm vi toàn trường), kế hoạch của trường, tiến độ duyệt. Tạo kế hoạch công việc cần thêm `P09.plan.manage`. Phụ huynh không có phân hệ Hồ sơ chuyên môn | BR-142 |
 | PQ-87 | Bán trú, an toàn thực phẩm (YCTD-146): quyền mới `P12.food-safety.inspect` thuộc P12 cho VT-02, VT-15, VT-03, VT-09, VT-10: lập, ghi, xác nhận phiếu kiểm thực ba bước, lưu, hủy, giữ mẫu thức ăn của đơn vị; người có quyền này xem được dữ liệu bếp của đơn vị. Lô hàng, hồ sơ nhà cung cấp, tệp quét ghi bằng `P12.kitchen.manage`; xem lô, hồ sơ, truy xuất, sổ in bằng `P12.kitchen.manage`, `P12.menu.approve`, `P17.report.kitchen` hoặc quyền kiểm thực trong phạm vi đơn vị |
+| PQ-88 | Thi đua, khen thưởng (YCTD-148): ba quyền mới thuộc P09. `P09.emulation.use` (mọi cán bộ, giáo viên, nhân viên dùng cổng quản trị: VT-02, VT-15, VT-03 đến VT-12, VT-16, VT-17): đăng ký, lập hồ sơ của mình (tổ trưởng VT-17 cho tổ mình), bỏ phiếu khi là thành viên hội đồng, phúc khảo, khiếu nại, xem sổ của mình. `P09.emulation.manage` (VT-02, VT-15): danh mục, đợt, duyệt đăng ký, tiếp nhận hồ sơ, hội đồng, phiên họp, công bố, giải quyết phúc khảo, khiếu nại, lập quyết định, sổ theo dõi, báo cáo. `P09.emulation.decide` (VT-02): ban hành quyết định, tờ trình. Tạo dự thảo văn bản đi cần thêm `P09.outgoing-document.draft`. Phụ huynh không có phân hệ Thi đua, khen thưởng | BR-147, BR-148, BR-149, BR-150 |
+| PQ-89 | Bảo đảm chất lượng, tự đánh giá (YCTD-149): quyền mới thuộc P09: `P09.quality.use` cho VT-02, VT-15, VT-03, VT-04, VT-05, VT-06, VT-07, VT-08, VT-09, VT-10, VT-11, VT-12, VT-16, VT-17 (xem đợt mình thuộc hội đồng hoặc nhóm công tác; soạn, nộp phiếu, thêm minh chứng cho tiêu chí của nhóm mình); `P09.quality.manage` cho VT-02, VT-15 (bộ tiêu chuẩn, đợt, hội đồng, nhóm, duyệt phiếu, kế thừa minh chứng, kế hoạch cải tiến, công nhận; cần phạm vi toàn trường). VT-14 không có phân hệ "Bảo đảm chất lượng" |
 
 ## 5. Phân cấp phê duyệt
 

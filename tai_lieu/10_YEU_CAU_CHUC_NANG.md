@@ -1,8 +1,8 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.66
-- Ngày cập nhật: 2026-10-21
+- Phiên bản: 1.68
+- Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -219,6 +219,17 @@
 | P09-31 | Thư viện mẫu kế hoạch giáo dục (5.6., YCTD-147) | Xem: mọi quyền kế hoạch giáo dục; sửa: `P09.education-plan.manage` toàn trường | Mã, tên, cấp học, loại, kì, mục, bước duyệt, kí, thư mục lưu kho; cấp học để nạp mẫu | Kiểm tra mục, cột, bước; tăng số hiệu khi sửa mục; nạp mẫu mặc định không trùng mã; chép sang năm mới | Danh sách mẫu, số kế hoạch theo mẫu | BR-142 |
 | P09-32 | Lập, duyệt kế hoạch giáo dục (5.1. đến 5.4., YCTD-147) | `P09.education-plan.use`, `.review`, `.approve`, `.finalize`, `.manage` | Mẫu, nhóm lớp, tên, kì; nội dung theo mục; ý kiến, lý do trả lại; kế hoạch năm trước để sao chép | Duyệt theo bước, bỏ bước theo BR-142; phiên bản mỗi lần trình; kí nội bộ; lưu kho hồ sơ; so sánh; sao chép; tạo kế hoạch công việc | Kế hoạch, lịch sử, khác biệt, tệp Word, PDF, bản đã kí; việc ở Việc của tôi | BR-142 |
 | P09-33 | Tiến độ duyệt kế hoạch (5.5., YCTD-147) | `P09.education-plan.manage`, `.approve`, `.finalize` | Mẫu (tùy chọn) | Đếm theo trạng thái, bước, mẫu, tổ trong phạm vi đơn vị; số ngày chờ | Bảng tiến độ, danh sách chờ, tệp Excel | BR-142 |
+| P09-34 | Danh mục danh hiệu, hình thức khen thưởng (6.1., YCTD-148) | `P09.emulation.manage`; xem: mọi người có quyền của phân hệ | Mã, tên, loại, đối tượng, cấp quyết định, điều kiện, tiêu chí và trọng số | Kiểm tra mã, danh hiệu tiền đề, gốc tỉ lệ; tăng số hiệu khi đổi tiêu chí; nạp danh mục mặc định; chép sang năm mới | Danh mục | BR-147 |
+| P09-35 | Đợt thi đua, đăng ký thi đua (1.1., 1.2., YCTD-148) | Quản lý: lập, phát động; mọi cán bộ: đăng ký | Đợt, danh hiệu, kỳ KPI, hạn; đăng ký cá nhân, tập thể, cam kết | Phát động báo mọi cán bộ; kiểm tra hạn, trùng, quyền tổ trưởng; duyệt, trả lại theo lô | Danh sách đợt, đăng ký; thông báo phát động Word, PDF | BR-147 |
+| P09-36 | Hồ sơ đề nghị khen thưởng (2.1., 2.2., YCTD-148) | Người lập, người được đề nghị, tổ trưởng; quản lý tiếp nhận | Thành tích, sáng kiến, điểm tiêu chí, minh chứng (kho 18e) | Lấy KPI 18d, kiểm tra điều kiện, nộp, rút, trả lại, tiếp nhận | Hồ sơ, bảng điều kiện, báo cáo thành tích Word, PDF | BR-147, BR-148 |
+| P09-37 | Hội đồng, phiên họp, bỏ phiếu kín (3.1., 3.2., YCTD-148) | Quản lý; thành viên hội đồng bỏ phiếu | Thành viên, chức danh; thời gian, địa điểm; phiếu | Mở phiên, ghi phiếu kín, đóng phiên tính tỉ lệ, công bố | Kết quả bỏ phiếu, biên bản PDF | BR-149 |
+| P09-38 | Phúc khảo, khiếu nại; quyết định khen thưởng (3.3., 4.1., YCTD-148) | Người lập, người được đề nghị; quản lý; Hiệu trưởng ban hành | Nội dung; trả lời; hồ sơ được thông qua, trích yếu, căn cứ, số, ngày | Kiểm tra hạn, bình xét lại; dự thảo văn bản đi 18b; ban hành ghi sổ, mã tra cứu; kết quả cấp trên | Quyết định, tờ trình Word, PDF; giấy khen PDF có QR; trang tra cứu công khai | BR-150 |
+| P09-39 | Sổ theo dõi khen thưởng, báo cáo đợt (5.1., 5.2., YCTD-148) | Quản lý; cán bộ xem của mình, tổ trưởng của tổ | Bộ lọc; khen thưởng năm trước nhập tay | Đọc sổ mọi năm học; tóm tắt nhiều năm; đếm theo danh hiệu | Sổ, báo cáo, Excel | BR-148, BR-150 |
+| P09-40 | Bộ tiêu chuẩn đánh giá (YCTD-149) | VT-02, VT-15 (`P09.quality.manage`, toàn trường); xem: người có quyền của phân hệ | Bộ, tiêu chuẩn, tiêu chí, chỉ báo theo mức; cấp học để nạp bộ mẫu | Kiểm tra mã, mức; chặn xóa khi đã dùng; nạp bộ mẫu Mầm non không trùng | Danh sách bộ, cây tiêu chuẩn | BR-151 |
+| P09-41 | Đợt tự đánh giá, hội đồng, nhóm công tác (YCTD-149) | VT-02, VT-15 (`P09.quality.manage`, toàn trường); xem: thành viên hội đồng, nhóm | Bộ tiêu chuẩn, quyết định, thời gian; thành viên hội đồng; nhóm, thành viên, tiêu chí phân công | Tạo phiếu cho mọi tiêu chí; kiểm tra Chủ tịch, phân công; bắt đầu, hoàn thành, mở lại; tổng hợp mức | Đợt, tiến độ theo tiêu chí, tổng hợp mức | BR-152 |
+| P09-42 | Phiếu đánh giá tiêu chí (YCTD-149) | Thành viên nhóm được phân công (`P09.quality.use`); duyệt: VT-02, VT-15 (`P09.quality.manage`, toàn trường) | Chỉ báo đạt, hiện trạng, điểm mạnh, điểm yếu, kế hoạch cải tiến, mức | Gợi ý mức theo chỉ báo; nộp, duyệt, trả lại, mở lại | Phiếu, danh sách phiếu của tôi, của đợt | BR-152 |
+| P09-43 | Minh chứng (YCTD-149) | Thành viên nhóm của tiêu chí; VT-02, VT-15 (`P09.quality.manage`, toàn trường) | Tiêu chí, hộp, tên, số, ngày, nơi ban hành, trạng thái, nguồn (tệp, hồ sơ 18e, văn bản 18a, 18b), tiêu chí dùng chung | Đánh mã; kiểm tra nguồn; tải tệp; kế thừa năm trước | Danh sách minh chứng, danh mục Excel | BR-153 |
+| P09-44 | Báo cáo tự đánh giá, kế hoạch cải tiến, công nhận (YCTD-149) | VT-02, VT-15 (`P09.quality.manage`, toàn trường); xuất báo cáo: thành viên hội đồng, nhóm | Đợt; kết quả công nhận | Dựng báo cáo từ 1.7, phiếu, minh chứng; tạo kế hoạch công việc nháp theo đơn vị; tính hiệu lực; ghi vào 1.7 | Báo cáo Word, PDF; kế hoạch công việc nháp; trang theo dõi công nhận | BR-153 |
 
 ## 11. Phân hệ P10 — Y tế học đường
 
