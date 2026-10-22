@@ -102,7 +102,9 @@ test('CT-22d-10: phát động, đăng ký, hồ sơ đề nghị, hội đồng
   await openMenu(staff, '/emulation/registrations');
   await staff.getByLabel('Đợt thi đua').selectOption(campaign.id);
   const registration = staff.getByRole('form', { name: 'Đăng ký thi đua mới' });
-  await registration.getByLabel('Danh hiệu, hình thức khen thưởng').selectOption({ label: 'Lao động tiên tiến (Cá nhân)' });
+  await registration
+    .getByLabel('Danh hiệu, hình thức khen thưởng')
+    .selectOption({ label: 'Lao động tiên tiến (Cá nhân)' });
   await registration.getByLabel('Nội dung cam kết, chỉ tiêu phấn đấu').fill('Hoàn thành tốt nhiệm vụ');
   await registration.getByRole('button', { name: 'Đăng ký' }).click();
   await expect(staff.getByText(`Đã đăng ký Lao động tiên tiến cho ${teacherName}`)).toBeVisible();
@@ -110,7 +112,9 @@ test('CT-22d-10: phát động, đăng ký, hồ sơ đề nghị, hội đồng
   await staff.getByLabel('Đợt thi đua').selectOption(campaign.id);
   await staff.getByRole('button', { name: 'Lập hồ sơ đề nghị' }).click();
   const nominationForm = staff.getByRole('form', { name: 'Lập hồ sơ đề nghị' });
-  await nominationForm.getByLabel('Danh hiệu, hình thức khen thưởng').selectOption({ label: 'Lao động tiên tiến (Cá nhân)' });
+  await nominationForm
+    .getByLabel('Danh hiệu, hình thức khen thưởng')
+    .selectOption({ label: 'Lao động tiên tiến (Cá nhân)' });
   await nominationForm.getByRole('button', { name: 'Lập hồ sơ' }).click();
   await expect(staff.getByText(/Đã lập hồ sơ Lao động tiên tiến/)).toBeVisible();
   const editor = staff.getByRole('form', { name: 'Nội dung hồ sơ đề nghị' });
@@ -151,7 +155,10 @@ test('CT-22d-10: phát động, đăng ký, hồ sơ đề nghị, hội đồng
   await head.getByRole('button', { name: 'Mở phiên bỏ phiếu' }).click();
   await expect(head.getByText('Đã mở phiên bỏ phiếu 1 hồ sơ')).toBeVisible();
   await openMenu(head, '/emulation/voting');
-  await head.getByRole('radiogroup', { name: `Phiếu cho ${teacherName}` }).getByLabel('Đồng ý').check();
+  await head
+    .getByRole('radiogroup', { name: `Phiếu cho ${teacherName}` })
+    .getByLabel('Đồng ý')
+    .check();
   await head.getByRole('button', { name: 'Ghi phiếu' }).click();
   await expect(head.getByText('Đã ghi phiếu bình xét')).toBeVisible();
   await openMenu(head, '/emulation/council');

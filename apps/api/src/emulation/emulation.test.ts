@@ -442,9 +442,12 @@ describe('Thi đua, khen thưởng', () => {
       nominations[key] = row.body.id as string;
       await api('PUT', `/emulation/nominations/${nominations[key]}`, name, {
         achievements: 'Thành tích tiêu biểu trong năm học.',
-        scores: { nhiem_vu: 10, pham_chat: 10, phong_trao: 10, boi_duong: 10, noi_bo: 10 },
+        scores:
+          key === 'team'
+            ? { nhiem_vu: 10, phong_trao: 10, noi_bo: 10 }
+            : { nhiem_vu: 10, pham_chat: 10, phong_trao: 10, boi_duong: 10 },
       });
-      await api('POST', `/emulation/nominations/${nominations[key]}/submit`, name);
+      assert.equal((await api('POST', `/emulation/nominations/${nominations[key]}/submit`, name)).status, 200);
       assert.equal(
         (await api('POST', `/emulation/nominations/${nominations[key]}/accept`, 'principal')).body.status,
         'accepted',
@@ -850,13 +853,13 @@ describe('Thi đua, khen thưởng', () => {
       errorOf((await api('POST', `/emulation/decisions/${draft.id}/outgoing`, 'principal')).body).rule_code,
       'YCTD-148',
     );
-    // Văn bản đi phát hành ở phân hệ văn bản đi: ban hành quyết định lấy số, ngày của văn bản đi (giả lập đã phát hành)
-    await environment.system
-      .updateTable('outgoing_documents')
-      .set({ status: 'issued', symbol: '40/QĐ-MN', issue_date: vietnamToday })
-      .where('id', '=', document.id)
-      .execute();
-    const empty = await api('POST', `/emulation/decisions/${draft.id}/issue`, 'principal', {});
+    // Văn bản đi chưa phát hành: ban hành phải nhập số, ngày; quyết định chưa có hồ sơ không ban hành được
+    const noNumber = await api('POST', `/emulation/decisions/${draft.id}/issue`, 'principal', {});
+    assert.equal(noNumber.status, 400);
+    const empty = await api('POST', `/emulation/decisions/${draft.id}/issue`, 'principal', {
+      number: '40/QĐ-MN',
+      issue_date: vietnamToday,
+    });
     assert.equal(errorOf(empty.body).rule_code, 'YCTD-148');
     await schoolYear.deleteFrom('emulation_decisions').where('id', '=', draft.id).execute();
     const closed = await api('POST', `/emulation/campaigns/${campaignId}/close`, 'principal');

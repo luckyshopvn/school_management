@@ -1451,7 +1451,8 @@ export class EmulationService {
           ).count,
         );
       const base = await count(title.quota_base_code);
-      const own = await count(title.code);
+      // Tính cả chính hồ sơ đang xét khi hồ sơ chưa ở trạng thái được đếm (đang soạn, mới nộp)
+      const own = (await count(title.code)) + (counted.includes(row.status) ? 0 : 1);
       const limit = Math.floor((base * Number(title.quota_percent)) / 100);
       checks.push({
         code: 'quota',

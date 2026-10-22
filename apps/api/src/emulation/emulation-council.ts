@@ -1381,10 +1381,16 @@ export class EmulationCouncilService {
           query = query.where('awards.subject_name', 'ilike', `%${filter.q.replace(/[%_\\]/g, (c) => `\\${c}`)}%`);
         }
         if (!elevated) {
-          const staffId = context.staff?.id ?? '';
-          const departmentId = context.isLeader ? (context.staff?.department_id ?? '') : '';
+          const staffId = context.staff?.id ?? null;
+          const departmentId = context.isLeader ? (context.staff?.department_id ?? null) : null;
+          if (!staffId && !departmentId) {
+            return [];
+          }
           query = query.where((eb) =>
-            eb.or([eb('awards.staff_id', '=', staffId), eb('awards.department_id', '=', departmentId)]),
+            eb.or([
+              ...(staffId ? [eb('awards.staff_id', '=', staffId)] : []),
+              ...(departmentId ? [eb('awards.department_id', '=', departmentId)] : []),
+            ]),
           );
         }
         const found = await query.limit(5000).execute();
