@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.28
+- Phiên bản: 0.29
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.103.0 – 2026-10-22
+
+- Phạm vi thay đổi: DT-19 phần 19d, số liệu theo cấp học (YCTD-154).
+- Chức năng mới: tham số cấp dùng chung của thống kê, báo cáo; thống kê lớp theo khối ở cấp ngoài Mầm non; báo cáo chấm công và suất ăn nhóm theo cấp; biểu phí theo cấp; ô cấp học ở thống kê, báo cáo, biểu phí.
+- Lỗi đã sửa: lớp chưa có tháng tuổi (cấp ngoài Mầm non) không còn bị tính vào nhóm tuổi nhỏ nhất ở 5.1 và vào Mẫu giáo ở báo cáo chấm công và suất ăn.
+- Thay đổi dữ liệu: tệp năm học `0073_add_fee_schedule_school_level`.
+- Thay đổi API: tham số `school_level` ở `/statistics/classes`, `/statistics/children`, `/statistics/students`, `/statistics/missing-child-fields`, `/reports/attendance-meals`, `/fee-schedules`; `grade_groups` ở 5.1; `school_level` ở biểu phí.
+- Kiểm thử: kịch bản CT-811 đến CT-818. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/statistics/level-reports.test.ts` CT-19d-1 đến CT-19d-7 đạt 7/7; kiểm thử đơn vị đang có không sửa kỳ vọng; kiểm thử đơn vị toàn bộ kho mã 1026/1026; kiểm thử giao diện `tests/e2e/84-level-reports.spec.ts` (CT-19d-8) đạt; toàn bộ kiểm thử giao diện 155/155; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: biểu EMIS các cấp khác chưa có (DT-20, DT-21).
+- Khả năng tương thích: không đổi điểm cuối cũ; trường chỉ có Mầm non thấy như cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 19d; chạy phần quay lui của tệp năm học `0073`.
 
 ### Phiên bản 0.102.0 – 2026-10-22
 

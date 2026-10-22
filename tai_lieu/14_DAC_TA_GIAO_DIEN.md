@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.83
+- Phiên bản: 1.84
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -628,6 +628,8 @@ Từ YCTD-127 (DT-16 phần 16e), màn hình "1.4. Cấu hình trường" (`/set
 Từ YCTD-151 (DT-19 phần 19a), "1.4. Cấu hình trường" có thẻ "Cấp học của trường" (MH-258) ngay sau khối "Cấu hình trường". Ô ngữ cảnh ở thanh đầu trang lấy nhãn các cấp đang bật (trường chỉ có Mầm non giữ "Cấp MN · năm học · học kỳ"). Ô "Cấp học của trường" ở cấu hình website chỉ hiển thị các cấp đang bật, kèm chú thích đổi ở Cấu hình trường.
 
 Từ YCTD-152 (DT-19 phần 19b), cấu trúc theo cấp học: MH-34 (danh mục bậc học) thêm cột và ô "Cấp học" (không đổi sau khi tạo), tháng tuổi bỏ trống được ở khối ngoài Mầm non, "Nạp khối mẫu theo cấp" (Tiểu học, THCS, THPT) và thẻ "Chương trình" (lưới khóa `curricula`: mã, tên, cấp học, khối áp dụng, mặc định của cấp). Ô cấp học chỉ có cấp đang bật; khối mẫu chỉ hiện khi trường bật cấp ngoài Mầm non. Khi trường bật từ hai cấp: biểu mẫu lớp hiện "Cấp học" (theo khối) và "Chương trình" (trống là mặc định của cấp), ẩn nhóm tuổi, học 2 buổi/ngày, ghép độ tuổi, lớp ghép khi khối thuộc cấp khác Mầm non; MH-45 (lịch năm học) có ô "Lịch của cấp" (lịch chung hoặc một cấp), báo cấp đang theo lịch chung, nút "Bỏ lịch riêng của cấp"; cây đơn vị có bảng "Cấp học của đơn vị" (mỗi đơn vị một dòng, bốn ô chọn cấp, nút Ghi). Trường chỉ có Mầm non giữ biểu mẫu lớp, lịch, cây đơn vị như cũ. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+Từ YCTD-154 (DT-19 phần 19d), ô "Cấp học" (Tất cả cấp hoặc một cấp đang bật; chỉ hiện ở trường bật từ hai cấp) ở 5.1 và 5.3 Thống kê, báo cáo điểm danh và suất ăn; 5.1 có thêm bảng "Lớp theo khối (cấp ngoài Mầm non)"; báo cáo điểm danh và suất ăn có nhóm "Cấp Tiểu học", "Cấp Trung học cơ sở", "Cấp Trung học phổ thông" sau Nhà trẻ, Mẫu giáo. Biểu mẫu biểu phí có ô "Cấp học" khi tạo phiên bản (bảng giá chỉ có khối của cấp đã chọn, giá điền sẵn theo phiên bản mới nhất của cấp), mỗi phiên bản ghi cấp. Trường chỉ có Mầm non thấy như cũ. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
 
 Từ YCTD-122: MH-95 có cột Đơn vị, nhãn "Sắp đến hạn" cạnh thời hạn, Mở rộng tìm kiếm thêm Đơn vị và "Chỉ hồ sơ sắp đến hạn"; biểu mẫu thêm ô Đơn vị và ô chọn Người giải quyết từ nhân sự đang làm việc (chọn "Người khác (nhập tên)" thì hiện ô Tên người giải quyết). MH-96, MH-97 có cột Đơn vị, biểu mẫu phông có ô Đơn vị. MH-98 lọc thêm theo Đơn vị. Ô Đơn vị có "Toàn trường" chỉ với người quản lý văn thư toàn trường.
 

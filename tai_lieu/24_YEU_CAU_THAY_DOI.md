@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.29
+- Phiên bản: 0.30
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,28 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-154: DT-19 phần 19d: số liệu theo cấp học – 2026-10-22
+
+- Lý do: phần 19d của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 10.3, 10.4 (quyết định của Eric ngày 2026-10-19 mở rộng ra mọi cấp học). Đợt 2 của DT-19, dùng bảng cấp học của trường (19a, YCTD-151) và cấu trúc theo cấp (19b, YCTD-152). Không đổi hành vi Mầm non: trường chỉ có Mầm non nhận đúng số liệu như trước; kiểm thử đơn vị và e2e đang có đạt mà không sửa kỳ vọng. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Tham số cấp dùng chung** (`apps/api/src/common/report-levels.ts`): `school_level` ở chuỗi truy vấn; cấp phải đang bật và trong phạm vi cấp của người dùng (403 nếu không). Không có tham số thì lấy các cấp người dùng được xem và chỉ lọc khi phạm vi này hẹp hơn mọi cấp đang bật; trường một cấp, người xem mọi cấp không bị lọc (kể cả trẻ chưa xếp lớp) nên kết quả như trước.
+  - **Thống kê:** 5.1 Thống kê lớp học nhận `school_level`; nhóm tuổi chỉ tính lớp Mầm non (trước đây lớp chưa có tháng tuổi bị tính vào nhóm nhỏ nhất); lớp của cấp khác ở bảng mới "Lớp theo khối" (`grade_groups`). 5.3 Thống kê học sinh (cả bản theo Sở và xuất tệp), 5.8 hồ sơ học sinh chưa nhập đủ lọc theo cấp của lớp đang học. 5.2 nhân sự không theo cấp (nhân sự dùng chung các cấp).
+  - **EMIS và biểu mẫu Mầm non:** biểu mẫu EMIS (Biểu 01, các biểu của Sở, báo cáo cuối năm), báo cáo EMIS đầu năm, danh sách gửi dữ liệu đầu năm chỉ tính lớp cấp Mầm non và bỏ trẻ đang học lớp cấp khác; trẻ chưa xếp lớp vẫn tính như trước. Biểu EMIS Tiểu học, THCS, THPT là DT-20, DT-21 nên chưa có ô chọn cấp ở màn hình EMIS.
+  - **Chấm công và suất ăn:** báo cáo nhận `school_level` (cả xuất tệp); nhóm khối Nhà trẻ, Mẫu giáo của Mầm non giữ như cũ, lớp của cấp khác thành nhóm theo cấp ("Cấp Tiểu học", "Cấp Trung học cơ sở", "Cấp Trung học phổ thông") thay cho tính vào Mẫu giáo (`ATTENDANCE_STAGES`, `attendanceStageOf` ở `packages/shared`).
+  - **Tăng trưởng, hồ sơ cuối cấp:** tổng hợp cân đo theo tháng tuổi chỉ tính lớp Mầm non (chuẩn của cấp khác thêm ở DT-20); hồ sơ học sinh cuối cấp (1.1) chỉ lấy lớp cuối cấp của Mầm non (hồ sơ chuyển cấp của cấp khác là DT-20, DT-21).
+  - **Biểu phí theo cấp:** `fee_schedules.school_level` (mặc định `MN`); mỗi cấp một chuỗi phiên bản (ngày hiệu lực không trùng trong cùng cấp, phiên bản sau kết thúc phiên bản trước của cùng cấp); dòng giá chỉ nhận khối cùng cấp; tạo biểu phí cần cấp đang bật. Tính phí lấy phiên bản hiệu lực của mọi cấp, tra giá theo khối (mã khối không trùng giữa các cấp), căn cứ hóa đơn ghi biểu phí của khối của trẻ. Mầm non giá theo khối của nhóm tuổi như trước, cấp khác theo khối; công nợ, phiếu thu, thanh toán không đổi.
+  - **Kí hồ sơ:** ô "Khối" của hồ sơ lớp, học sinh ghi nhóm lớp (Nhà trẻ, Mẫu giáo) ở Mầm non như Sở, tên khối ở cấp khác; ô "Cấp dạy" của hồ sơ nhân sự ghi các cấp của đơn vị chính của nhân sự (đơn vị chưa khai báo cấp là Mầm non).
+  - **Danh mục dùng chung:** cấp học của danh mục văn bản (`document_catalogs.education_level`) chỉ nhận bốn mã `MN`, `TH`, `THCS`, `THPT` hoặc trống (kiểm ở máy chủ, không đổi dữ liệu đã có); thiết bị tối thiểu, KPI, kế hoạch giáo dục, thi đua, bảo đảm chất lượng đã kiểm bốn mã; rà soát kiểm định (17e) giữ nhãn "Mầm non" của biểu mẫu.
+  - **Nhập Excel:** nhập học sinh không có giả định tuổi Mầm non (không có cột nhóm tuổi); nhập lớp đã theo cấp từ 19b. Mẫu Excel theo cấp chưa làm vì mẫu hiện tại không có cột riêng Mầm non bắt buộc.
+  - **Giao diện:** ô "Cấp học" (chỉ hiện ở trường bật từ hai cấp) ở 5.1, 5.3 Thống kê, báo cáo điểm danh và suất ăn, biểu mẫu biểu phí; biểu phí ghi cấp ở mỗi phiên bản và bảng giá chỉ có khối của cấp đã chọn.
+  - **Quyền:** không thêm quyền.
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/school-year/migrations/0073_add_fee_schedule_school_level.ts`, `schema.ts`, `index.ts`); gói dùng chung (`level-structure.ts`); máy chủ API (`common/report-levels.ts`, `statistics/`, `emis/`, `facilities/emis-report.ts`, `reports/attendance-meals*.ts`, `health/growth.ts`, `entry-admissions/final-year-records.ts`, `fees/`, `signing/signing-content.ts`, `incoming-documents/document-admin.ts`); cổng quản trị (`school-levels/LevelSelect.tsx`, `statistics/`, `reports/AttendanceMealsReport.tsx`, `fees/FeeSchedulesSection.tsx`).
+- Dữ liệu bị ảnh hưởng: tệp năm học `0073` thêm `fee_schedules.school_level` (mặc định `MN`), đổi khóa không trùng `effective_from` thành `(school_level, effective_from)`. Biểu phí đang có thành biểu phí Mầm non, không đổi giá trị.
+- Đối chiếu trước, sau chuyển: trên CSDL kiểm thử, số phiên bản biểu phí, dòng giá không đổi; kiểm thử đơn vị thống kê, EMIS, chấm công và suất ăn, tăng trưởng, biểu phí đang có đạt không sửa kỳ vọng.
+- Rủi ro: lọc cấp theo lớp đang học nên trẻ chưa xếp lớp chỉ hiện khi không lọc; biểu mẫu EMIS Mầm non bỏ trẻ của lớp cấp khác.
+- Kiểm thử cần thực hiện: CT-811 đến CT-818. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/statistics/level-reports.test.ts` CT-19d-1 đến CT-19d-7 đạt 7/7; kiểm thử đơn vị đang có không sửa kỳ vọng; kiểm thử đơn vị toàn bộ kho mã 1026/1026; kiểm thử giao diện `tests/e2e/84-level-reports.spec.ts` (CT-19d-8) đạt; toàn bộ kiểm thử giao diện 155/155; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Trạng thái: Đã triển khai (PR …).
 
 ### YCTD-152: DT-19 phần 19b: cấu trúc theo cấp học – 2026-10-22
 

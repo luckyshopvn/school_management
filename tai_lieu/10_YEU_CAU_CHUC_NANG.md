@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.70
+- Phiên bản: 1.71
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -138,6 +138,7 @@
 | P05-11 | Danh mục loại miễn giảm (G1) | VT-04, VT-02 | Mã, tên loại miễn giảm, cách tính theo phần trăm hoặc số tiền, mức, khoản thu áp dụng, điều kiện | Tạo, sửa, ngừng sử dụng loại miễn giảm; P05-07 chỉ chọn loại trong danh mục | Danh mục loại miễn giảm | BR-20, BR-21, BR-75 |
 | P05-12 | Xử lý công nợ quá hạn (G2) | VT-03, VT-04, VT-15, VT-02 | Trẻ, kỳ quá hạn, nội dung đề xuất | Quản lý đơn vị hoặc kế toán lập đề xuất; Phó Hiệu trưởng hoặc Hiệu trưởng ghi quyết định; không thay đổi số tiền công nợ | Đề xuất và quyết định xử lý | BR-33, YCTD-23 |
 | P05-13 | Đăng ký học hè (G1) | VT-14, VT-04 | Trẻ, các tháng hè đăng ký | Đăng ký trẻ học hè theo từng tháng trong kỳ hè; trẻ đã đăng ký thì điểm danh và tính học phí như tháng thường | Danh sách trẻ học hè theo tháng | BR-92 |
+| P05-14 | Biểu phí theo cấp học (YCTD-154) | VT-04 (`P05.fee-catalog.manage`); xem: mọi người đã đăng nhập | Cấp học, tên, tháng hiệu lực, giá theo khối của cấp | Mỗi cấp một chuỗi phiên bản; dòng giá chỉ khối cùng cấp | Phiên bản biểu phí ghi cấp | BR-161 |
 
 ## 7. Phân hệ P06 — Tài chính
 
@@ -386,6 +387,8 @@
 | P17-26 | Báo cáo đội ngũ (2.2 của phân hệ Báo cáo số liệu, G3, YCTD-129) | VT-02, VT-15 (`P17.report.emis` phạm vi toàn trường) | Năm học đang dùng | Tính ba thẻ: Tổng hợp chung (CBQL, giáo viên, nhân viên theo nữ, dân tộc thiểu số, đảng viên, trình độ chuyên môn), Ngoại ngữ – tin học, Chuẩn nghề nghiệp (phiếu đã chốt) từ hồ sơ nhân sự mẫu Bộ và 3.2; xuất Excel; gửi lên cấp trên. Từ YCTD-132 sáu thẻ theo ba biểu của Sở: 2.2.1 cán bộ quản lý và giáo viên, nhân viên (trình độ, độ tuổi, hạng chức danh, đánh giá theo NĐ 90, dạy giỏi các cấp, vị trí việc làm), 2.2.2 ngoại ngữ khung 6 bậc, tin học, 2.2.3 xếp loại chung và tiêu chí 1 đến 18 (cán bộ quản lý), 1 đến 15 (giáo viên) | Biểu 2.2, tệp Excel | BR-127, BR-122, BR-131 |
 | P17-27 | Đề án ngoại ngữ (2.3 của phân hệ Báo cáo số liệu, G3, YCTD-129) | VT-02, VT-15 (`P17.report.emis` phạm vi toàn trường) | Số nhóm lớp, số trẻ, trẻ nữ, số tiết/tuần theo độ tuổi; số giáo viên dạy tiếng Anh | Hai thẻ nhập tay; Lấy dữ liệu năm trước; Ghi; xuất Excel; gửi lên cấp trên, cho đánh dấu "Trường không có dữ liệu"; cảnh báo khi hồ sơ trường ghi không cho trẻ làm quen tiếng Anh. Từ YCTD-132 một thẻ "Thống kê số trường, số trẻ" năm chỉ tiêu: 1 đến 4 do máy chủ tính, 5 nhập tay ở cột Tổng số | Biểu 2.3, tệp Excel | BR-127, BR-119, BR-131 |
 | P17-28 | Báo cáo giáo dục mầm non cuối năm (2.4 của phân hệ Báo cáo số liệu, G3, YCTD-129) | VT-02, VT-15 (`P17.report.emis` phạm vi toàn trường) | Năm học đang dùng | Lập Biểu 1 lúc cuối năm: năm thẻ như Biểu 1 tại thời điểm xem và thẻ Kết quả giáo dục (6.01 đến 6.04); xuất Excel; gửi lên cấp trên. Từ YCTD-132 ở học kỳ I biểu trống kèm cảnh báo như Sở | Biểu 2.4, tệp Excel | BR-127, BR-104, BR-131 |
+| P17-29 | Thống kê, báo cáo theo cấp học (YCTD-154) | Người có quyền của từng báo cáo | Cấp học (tùy chọn) | Lọc lớp, trẻ theo cấp; 5.1 lớp cấp khác theo khối; chấm công và suất ăn nhóm theo cấp | Ô "Cấp học" ở 5.1, 5.3, chấm công và suất ăn | BR-159, BR-160 |
+| P17-30 | Biểu mẫu riêng Mầm non theo cấp (YCTD-154) | Người có quyền của từng biểu mẫu | Không | EMIS, tăng trưởng, hồ sơ cuối cấp chỉ tính lớp, trẻ cấp Mầm non | Số liệu như trước ở trường Mầm non | BR-160 |
 
 ## 19. Phân hệ P18 — Tuyển dụng
 

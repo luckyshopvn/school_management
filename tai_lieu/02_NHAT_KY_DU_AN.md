@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.29
+- Phiên bản: 0.30
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,28 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-22 — DT-19 phần 19d: số liệu theo cấp học
+
+#### Công việc đã thực hiện
+
+- Đọc mục 10 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà các chỗ tính theo tháng tuổi, nhóm tuổi Mầm non ở thống kê, EMIS, chấm công và suất ăn, tăng trưởng, hồ sơ cuối cấp, biểu phí, nhập Excel, kí hồ sơ.
+- Cơ sở dữ liệu: tệp năm học `0073_add_fee_schedule_school_level`.
+- Máy chủ API: tham số cấp dùng chung, lọc cấp ở thống kê, chấm công và suất ăn; biểu mẫu Mầm non chỉ tính cấp Mầm non; biểu phí theo cấp; kí hồ sơ theo cấp; kiểm bốn mã ở danh mục văn bản.
+- Cổng quản trị: ô "Cấp học" ở thống kê, báo cáo chấm công và suất ăn, biểu phí.
+- Thêm quy tắc BR-159 đến BR-161, chức năng P17-29, P17-30, P05-14, kịch bản CT-811 đến CT-818, tiêu chí AC-739 đến AC-742. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/statistics/level-reports.test.ts` CT-19d-1 đến CT-19d-7 đạt 7/7; kiểm thử đơn vị đang có không sửa kỳ vọng; kiểm thử đơn vị toàn bộ kho mã 1026/1026; kiểm thử giao diện `tests/e2e/84-level-reports.spec.ts` (CT-19d-8) đạt; toàn bộ kiểm thử giao diện 155/155; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 19d của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 10.4. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: không có tham số cấp thì chỉ lọc khi người dùng bị giới hạn cấp; biểu mẫu Mầm non bỏ trẻ của lớp cấp khác, giữ trẻ chưa xếp lớp; biểu phí mỗi cấp một chuỗi phiên bản; lớp cấp khác ở báo cáo chấm công và suất ăn thành nhóm theo cấp.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-154, `07_QUY_TAC_NGHIEP_VU.md` BR-159 đến BR-161, `10_YEU_CAU_CHUC_NANG.md` P17-29, P17-30, P05-14, `11_TIEU_CHI_NGHIEM_THU.md` AC-739 đến AC-742, `14_DAC_TA_GIAO_DIEN.md`, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-811 đến CT-818, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 10.9. Phiên bản 0.103.0.
+
+#### Vấn đề tồn đọng
+
+- Biểu EMIS, chuẩn tăng trưởng, hồ sơ chuyển cấp của Tiểu học, THCS, THPT ở DT-20, DT-21; lệnh kiểm đối chiếu nhiều năm học ở 19f.
 
 ### 2026-10-22 — DT-19 phần 19b: cấu trúc theo cấp học
 
