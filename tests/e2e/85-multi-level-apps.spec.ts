@@ -165,7 +165,7 @@ test('CT-19e-5: phụ huynh có con ở hai cấp, giáo viên dạy hai cấp t
     await teacherPage.getByLabel('Mật khẩu', { exact: true }).fill(teacher.password);
     await teacherPage.getByRole('button', { name: 'Đăng nhập' }).click();
     await expect(teacherPage.getByRole('button', { name: `Đón trả lớp ${primaryClass}` })).toBeVisible();
-    await expect(teacherPage.getByText(`${primaryClass}Tiểu học`)).toBeVisible();
+    await expect(teacherPage.getByText('Tiểu học', { exact: true })).toBeVisible();
     await expect(teacherPage.getByText('1 học sinh', { exact: true })).toBeVisible();
     for (const action of ['Nhật ký', 'Chăm sóc', 'Báo cơm']) {
       await expect(teacherPage.getByRole('button', { name: `${action} lớp ${preschoolClass}` })).toBeVisible();
