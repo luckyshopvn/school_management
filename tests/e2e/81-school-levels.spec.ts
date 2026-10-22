@@ -68,7 +68,7 @@ test('CT-19a-6: bật cấp Tiểu học, ô ngữ cảnh đổi theo; tắt c�
   await grid.getByLabel('Tìm theo tên, số điện thoại, tên đăng nhập', { exact: true }).fill(teacher.username);
   await grid.getByRole('button', { name: `Hồ sơ ${teacherName}` }).click({ timeout: 30_000 });
   const detail = head.getByRole('region', { name: `Tài khoản ${teacherName}` });
-  await expect(detail.getByText('PHẠM VI CẤP HỌC')).toBeVisible();
+  await expect(detail.getByRole('heading', { name: 'PHẠM VI CẤP HỌC' })).toBeVisible();
   await detail.getByLabel('Tiểu học', { exact: true }).check();
   await detail.getByRole('button', { name: 'Ghi phạm vi cấp học' }).click();
   await expect(toast(head, 'Đã ghi phạm vi cấp học')).toBeVisible();
