@@ -173,10 +173,20 @@ test('CT-19e-5: phụ huynh có con ở hai cấp, giáo viên dạy hai cấp t
     }
 
     // Soạn tin tức: ô cấp nhận và số tài khoản phụ huynh nhận tin trước khi công bố
-    await openMenu(portal, '/activities');
-    await portal.getByRole('tab', { name: 'Tin tức' }).click();
-    await portal.getByRole('button', { name: 'Thêm mới' }).click();
-    const form = portal.getByRole('form', { name: 'Thêm tin tức' });
+    // Người soạn tin là quản lý đơn vị (P14.content.manage)
+    const manager = await createTestUser(identity, {
+      roles: [{ roleCode: 'VT-03', orgUnitId: reference.org_unit_id }],
+    });
+    const managerPage = await (await browser.newContext()).newPage();
+    await managerPage.goto('/');
+    await managerPage.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(manager.username);
+    await managerPage.getByLabel('Mật khẩu', { exact: true }).fill(manager.password);
+    await managerPage.getByRole('button', { name: 'Đăng nhập' }).click();
+    await expect(managerPage.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
+    await openMenu(managerPage, '/activities');
+    await managerPage.getByRole('tab', { name: 'Tin tức' }).click();
+    await managerPage.getByRole('button', { name: 'Thêm mới' }).click();
+    const form = managerPage.getByRole('form', { name: 'Thêm tin tức' });
     await expect(form.getByLabel('Tiểu học', { exact: true })).toBeVisible();
     const count = form.getByTestId('news-recipient-count');
     await expect(count).toContainText('Khi công bố, tin gửi tới');
