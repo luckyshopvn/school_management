@@ -1418,6 +1418,12 @@ export class ImportsService {
       .select(['code', 'age_from_months', 'school_level'])
       .where('status', '=', 'active')
       .execute();
+    const unitLevels = await database.selectFrom('org_unit_levels').select(['org_unit_id', 'school_level']).execute();
+    // Đơn vị chưa khai báo cấp coi là Mầm non (YCTD-152)
+    const unitHasLevel = (orgUnitId: string, level: SchoolLevelCode) => {
+      const levels = unitLevels.filter((row) => row.org_unit_id === orgUnitId).map((row) => row.school_level);
+      return (levels.length > 0 ? levels : ['MN']).includes(level);
+    };
     const rooms = await database
       .selectFrom('rooms')
       .select(['id', 'org_unit_id', 'code'])
@@ -1512,6 +1518,9 @@ export class ImportsService {
         is_combined: so.is_combined ?? current?.is_combined ?? false,
         combined_into_code: so.combined_into_code !== undefined ? so.combined_into_code : (currentTarget?.code ?? null),
       };
+      if (!current && orgUnitId && grade && !unitHasLevel(orgUnitId, schoolLevel)) {
+        errors.push({ row, column: 'Mã bậc học', message: `Đơn vị chưa có cấp ${schoolLevel}` });
+      }
       if (!usesAgeGroups(schoolLevel)) {
         const mnOnly = [
           merged.age_group !== null ? 'Nhóm tuổi' : null,

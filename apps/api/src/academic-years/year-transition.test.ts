@@ -476,6 +476,19 @@ describe('Mở năm học mới: chuyển trẻ, lớp, công nợ', () => {
     assert.deepEqual(registrations, [{ child_id: children.T1, period_month: 5, service_id: MEAL_SERVICE_ID }]);
   });
 
+  it('CT-19b-9: năm mới chép chương trình theo cấp, cấp của đơn vị, cấp của lớp từ năm cũ, giữ mã định danh', async () => {
+    const curriculaOf = (database: Kysely<SchoolYearDatabase>) =>
+      database.selectFrom('curricula').select(['id', 'code', 'school_level', 'is_default']).orderBy('code').execute();
+    assert.deepEqual(await curriculaOf(newYear), await curriculaOf(oldYear));
+    const levelsOf = (database: Kysely<SchoolYearDatabase>) =>
+      database.selectFrom('org_unit_levels').select(['org_unit_id', 'school_level']).orderBy('org_unit_id').execute();
+    const carriedLevels = await levelsOf(newYear);
+    assert.ok(carriedLevels.length > 0);
+    assert.deepEqual(carriedLevels, await levelsOf(oldYear));
+    const classes = await newYear.selectFrom('classes').select(['id', 'school_level']).execute();
+    assert.deepEqual(classes, [{ id: classId, school_level: 'MN' }]);
+  });
+
   it('CTC-P01-098: công nợ và số dư có của trẻ chuyển sang được bù trừ; trẻ đã thôi học không chuyển', async () => {
     const accounts = await newYear
       .selectFrom('cash_accounts')

@@ -476,6 +476,7 @@ export class ClassesService {
     const { academicYearId } = await this.currentSchoolYear.require();
     const schoolLevel = await this.assertGradeLevel(input.grade_level);
     assertLevelFields(schoolLevel, input);
+    await this.assertUnitLevel(database, input.org_unit_id, schoolLevel);
     await this.assertCurriculum(database, schoolLevel, input.curriculum_id ?? null);
     if (input.room_id) {
       await this.assertRoom(input.org_unit_id, input.room_id);
@@ -534,6 +535,9 @@ export class ClassesService {
     let schoolLevel = existing.school_level;
     if (changes.grade_level !== undefined && changes.grade_level !== existing.grade_level) {
       schoolLevel = await this.assertGradeLevel(changes.grade_level);
+      if (schoolLevel !== existing.school_level) {
+        await this.assertUnitLevel(database, existing.org_unit_id, schoolLevel);
+      }
     }
     // Lớp ngoài Mầm non không có nhóm tuổi, ghép độ tuổi, lớp ghép, học 2 buổi/ngày; đổi sang cấp khác thì phải bỏ các ô đó
     assertLevelFields(schoolLevel, { ...existing, ...changes });
@@ -884,6 +888,20 @@ export class ClassesService {
     return level.school_level;
   }
 
+  // Đơn vị của lớp phải có cấp của lớp; đơn vị chưa khai báo cấp coi là Mầm non (YCTD-152)
+  private async assertUnitLevel(database: Executor, orgUnitId: string, schoolLevel: SchoolLevelCode): Promise<void> {
+    const levels = (
+      await database.selectFrom('org_unit_levels').select('school_level').where('org_unit_id', '=', orgUnitId).execute()
+    ).map((row) => row.school_level);
+    if (!(levels.length > 0 ? levels : ['MN']).includes(schoolLevel)) {
+      throw ruleViolationError(
+        STRUCTURE_RULE_CODE,
+        `Đơn vị chưa có cấp ${schoolLevel}; thêm cấp cho đơn vị trước khi mở lớp`,
+        [{ field: 'grade_level', message: 'Khối không thuộc cấp của đơn vị' }],
+      );
+    }
+  }
+
   // Chương trình của lớp phải đang dùng và cùng cấp với lớp (YCTD-152)
   private async assertCurriculum(
     database: Executor,
@@ -943,6 +961,10 @@ export function assertLevelFields(
     values.is_combined ? { field: 'is_combined', message: 'Lớp ghép chỉ có ở lớp Mầm non' } : null,
   ].filter((item) => item !== null);
   if (fields.length > 0) {
-    throw ruleViolationError(STRUCTURE_RULE_CODE, 'Lớp ngoài cấp Mầm non không có nhóm tuổi, ghép độ tuổi, lớp ghép', fields);
+    throw ruleViolationError(
+      STRUCTURE_RULE_CODE,
+      'Lớp ngoài cấp Mầm non không có nhóm tuổi, ghép độ tuổi, lớp ghép',
+      fields,
+    );
   }
 }
