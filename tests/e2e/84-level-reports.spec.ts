@@ -47,7 +47,7 @@ test('Trường bật Tiểu học: thống kê lớp lọc theo cấp, biểu p
   await openMenu(principal, '/statistics');
   await expect(principal.getByRole('heading', { name: '5.1 Thống kê lớp học' })).toBeVisible();
   await expect(principal.getByText(/Tổng số lớp: [1-9]/)).toBeVisible();
-  await principal.getByLabel('Cấp học', { exact: true }).selectOption({ label: 'Tiểu học' });
+  await principal.getByRole('combobox', { name: /^Cấp học/ }).selectOption({ label: 'Tiểu học' });
   await expect(principal.getByText('Tổng số lớp: 0;')).toBeVisible();
 
   // Biểu phí: chọn cấp Tiểu học thì bảng giá không còn khối Mầm non
@@ -57,7 +57,7 @@ test('Trường bật Tiểu học: thống kê lớp lọc theo cấp, biểu p
   await schedules.getByRole('button', { name: 'Tạo phiên bản biểu phí' }).click();
   const form = schedules.getByRole('group', { name: 'Biểu mẫu biểu phí' });
   await expect(form.getByLabel('Học phí chính khóa (tháng) Mầm')).toBeVisible();
-  await form.getByLabel('Cấp học', { exact: true }).selectOption({ label: 'Tiểu học' });
+  await form.getByRole('combobox', { name: /^Cấp học/ }).selectOption({ label: 'Tiểu học' });
   await expect(form.getByLabel('Học phí chính khóa (tháng) Mầm')).toHaveCount(0);
   await form.getByRole('button', { name: 'Hủy' }).click();
 });
