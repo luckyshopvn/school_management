@@ -19,6 +19,7 @@ import { migration as createOutgoingDocumentTables } from './migrations/0019_cre
 import { migration as createUnitSchedulesAndWorkFiles } from './migrations/0020_create_unit_schedules_and_work_files.js';
 import { migration as createWebsiteTables } from './migrations/0021_create_website_tables.js';
 import { migration as createImpersonationExportDemoTables } from './migrations/0022_create_impersonation_export_demo_tables.js';
+import { migration as addSchoolLevelCalendar } from './migrations/0024_add_school_level_calendar.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu hệ thống, theo số thứ tự (QU-01, QĐ-17)
 export const systemMigrations: Record<string, Migration> = {
@@ -42,4 +43,5 @@ export const systemMigrations: Record<string, Migration> = {
   '0020_create_unit_schedules_and_work_files': createUnitSchedulesAndWorkFiles,
   '0021_create_website_tables': createWebsiteTables,
   '0022_create_impersonation_export_demo_tables': createImpersonationExportDemoTables,
+  '0024_add_school_level_calendar': addSchoolLevelCalendar,
 };

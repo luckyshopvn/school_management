@@ -1,7 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import type { ClassAgeGroup, ImportType, SchoolYearDatabase } from '@school-management/database';
 import { ApplicationError, Clock, ruleViolationError, validationError } from '@school-management/server';
-import { CLASS_AGE_GROUPS, PERMISSION_CODES } from '@school-management/shared';
+import {
+  CLASS_AGE_GROUPS,
+  PERMISSION_CODES,
+  isSchoolLevelCode,
+  usesAgeGroups,
+  type SchoolLevelCode,
+} from '@school-management/shared';
 import type { Kysely, Transaction } from 'kysely';
 import { randomUUID } from 'node:crypto';
 import { IdentityClient } from '../authentication/identity-client.js';
@@ -69,6 +75,8 @@ export const IMPORT_COLUMNS: Record<TemplateImportType, ImportColumn[]> = {
     { key: 'room_code', header: 'Mã phòng', note: 'Mã phòng học đang dùng của cùng đơn vị, để trống nếu chưa có' },
     // Thông tin lớp theo Sở (DT-16 phần 16e)
     ...CLASS_SO_IMPORT_COLUMNS,
+    // Cấp của lớp (DT-19 phần 19b, YCTD-152): lớp lấy cấp theo bậc học; cột này để đối chiếu
+    { key: 'school_level', header: 'Mã cấp học', note: 'MN, TH, THCS hoặc THPT; để trống là cấp của bậc học' },
   ],
   children: [
     { key: 'unit_code', header: 'Mã đơn vị', note: 'Mã đơn vị của lớp, bắt buộc' },
@@ -232,6 +240,7 @@ interface ClassRow extends ClassSoRow {
   code: string;
   name: string;
   grade_level: string;
+  school_level: SchoolLevelCode;
   max_size: number;
   room_id: string | null;
 }
@@ -1406,7 +1415,7 @@ export class ImportsService {
   ): Promise<{ creates: ClassRow[]; updates: ClassUpdate[] }> {
     const gradeLevels = await database
       .selectFrom('grade_levels')
-      .select(['code', 'age_from_months'])
+      .select(['code', 'age_from_months', 'school_level'])
       .where('status', '=', 'active')
       .execute();
     const rooms = await database
@@ -1426,6 +1435,7 @@ export class ImportsService {
         'mixed_age_count',
         'is_combined',
         'combined_into_class_id',
+        'two_sessions_per_day',
       ])
       .execute();
     const seen = new Set<string>();
@@ -1486,12 +1496,33 @@ export class ImportsService {
         ? existing.find((item) => item.id === current.combined_into_class_id)
         : undefined;
       const grade = gradeLevels.find((level) => level.code === (current?.grade_level ?? values.grade_level));
+      // Cấp của lớp theo bậc học; cột Mã cấp học có ghi thì phải khớp (YCTD-152)
+      const schoolLevel: SchoolLevelCode = grade?.school_level ?? 'MN';
+      const levelText = (values.school_level ?? '').trim().toUpperCase();
+      if (selected.has('school_level') && levelText !== '') {
+        if (!isSchoolLevelCode(levelText)) {
+          errors.push({ row, column: 'Mã cấp học', message: 'Cấp học là MN, TH, THCS hoặc THPT' });
+        } else if (grade && levelText !== schoolLevel) {
+          errors.push({ row, column: 'Mã cấp học', message: 'Cấp học không khớp với cấp của bậc học' });
+        }
+      }
       const merged = {
         age_group: so.age_group !== undefined ? so.age_group : (current?.age_group ?? null),
         mixed_age_count: so.mixed_age_count !== undefined ? so.mixed_age_count : (current?.mixed_age_count ?? null),
         is_combined: so.is_combined ?? current?.is_combined ?? false,
         combined_into_code: so.combined_into_code !== undefined ? so.combined_into_code : (currentTarget?.code ?? null),
       };
+      if (!usesAgeGroups(schoolLevel)) {
+        const mnOnly = [
+          merged.age_group !== null ? 'Nhóm tuổi' : null,
+          merged.mixed_age_count !== null ? 'Lớp mẫu giáo ghép 2 hoặc 3 độ tuổi' : null,
+          merged.is_combined ? 'Lớp ghép' : null,
+          (so.two_sessions_per_day ?? current?.two_sessions_per_day) ? 'Học 2 buổi/ngày' : null,
+        ].filter((column) => column !== null);
+        for (const column of mnOnly) {
+          errors.push({ row, column, message: 'Chỉ có ở lớp Mầm non' });
+        }
+      }
       checkClassSoRules(
         row,
         {
@@ -1550,6 +1581,7 @@ export class ImportsService {
           code: values.class_code ?? '',
           name: values.class_name ?? '',
           grade_level: values.grade_level ?? '',
+          school_level: schoolLevel,
           max_size: maxSize,
           room_id: room?.id ?? null,
           age_group: null,

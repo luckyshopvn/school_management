@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import type { OrgUnitStatus, OrgUnitType } from '@school-management/database';
 import { ApplicationError, Clock, ruleViolationError } from '@school-management/server';
+import { SCHOOL_LEVEL_CODES, type SchoolLevelCode } from '@school-management/shared';
+import { STRUCTURE_RULE_CODE } from '../catalogs/school-level-fields.js';
 import { writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import type { CurrentUser } from '../authentication/current-user.js';
@@ -26,6 +28,12 @@ export interface OrgUnit {
   // Khoảng cách đến cơ sở chính (km), diện tích (m²) của phân hiệu, điểm trường (mục 1.2, 1.3 của Sở, YCTD-111)
   distance_km: number | null;
   area_m2: number | null;
+}
+
+// Cấp học của đơn vị (DT-19 phần 19b, YCTD-152)
+export interface OrgUnitLevels {
+  org_unit_id: string;
+  school_levels: SchoolLevelCode[];
 }
 
 export interface OrgUnitTree extends OrgUnit {
@@ -180,6 +188,22 @@ export class OrgUnitsService {
         })
         .returning(COLUMNS)
         .executeTakeFirstOrThrow();
+      // Đơn vị mới có các cấp của Trường chính (trường chưa có Trường chính thì Mầm non); sửa ở cấp học của đơn vị (YCTD-152)
+      const rootLevels = root
+        ? (
+            await transaction
+              .selectFrom('org_unit_levels')
+              .select('school_level')
+              .where('org_unit_id', '=', root.id)
+              .execute()
+          ).map((row) => row.school_level)
+        : [];
+      for (const level of rootLevels.length > 0 ? rootLevels : (['MN'] as SchoolLevelCode[])) {
+        await transaction
+          .insertInto('org_unit_levels')
+          .values({ org_unit_id: created.id, school_level: level, created_by: origin.actorUserId })
+          .execute();
+      }
       await writeAuditLog(transaction, {
         origin,
         orgUnitId: created.id,
@@ -264,6 +288,69 @@ export class OrgUnitsService {
       });
       return present(updated);
     });
+  }
+
+  async listLevels(): Promise<OrgUnitLevels[]> {
+    const current = await this.currentSchoolYear.find();
+    if (!current) {
+      return [];
+    }
+    const rows = await current.database.selectFrom('org_unit_levels').select(['org_unit_id', 'school_level']).execute();
+    const byUnit = new Map<string, SchoolLevelCode[]>();
+    for (const row of rows) {
+      byUnit.set(row.org_unit_id, [...(byUnit.get(row.org_unit_id) ?? []), row.school_level]);
+    }
+    return [...byUnit].map(([orgUnitId, levels]) => ({
+      org_unit_id: orgUnitId,
+      school_levels: SCHOOL_LEVEL_CODES.filter((level) => levels.includes(level)),
+    }));
+  }
+
+  // Đặt các cấp của đơn vị: ít nhất một cấp; không bỏ được cấp đơn vị đang có lớp chưa đóng của cấp đó (YCTD-152)
+  async setLevels(orgUnitId: string, levels: SchoolLevelCode[], origin: ChangeOrigin): Promise<OrgUnitLevels> {
+    const { database } = await this.currentSchoolYear.require();
+    const unit = await database.selectFrom('org_units').select('id').where('id', '=', orgUnitId).executeTakeFirst();
+    if (!unit) {
+      throw notFound();
+    }
+    const before = (
+      await database.selectFrom('org_unit_levels').select('school_level').where('org_unit_id', '=', orgUnitId).execute()
+    ).map((row) => row.school_level);
+    const removed = before.filter((level) => !levels.includes(level));
+    if (removed.length > 0) {
+      const inUse = await database
+        .selectFrom('classes')
+        .select('school_level')
+        .where('org_unit_id', '=', orgUnitId)
+        .where('status', '=', 'active')
+        .where('school_level', 'in', removed)
+        .executeTakeFirst();
+      if (inUse) {
+        throw ruleViolationError(STRUCTURE_RULE_CODE, `Đơn vị còn lớp cấp ${inUse.school_level}; giải thể lớp trước khi bỏ cấp`, [
+          { field: 'school_levels', message: 'Cấp đang có lớp' },
+        ]);
+      }
+    }
+    const ordered = SCHOOL_LEVEL_CODES.filter((level) => levels.includes(level));
+    await database.transaction().execute(async (transaction) => {
+      await transaction.deleteFrom('org_unit_levels').where('org_unit_id', '=', orgUnitId).execute();
+      for (const level of ordered) {
+        await transaction
+          .insertInto('org_unit_levels')
+          .values({ org_unit_id: orgUnitId, school_level: level, created_by: origin.actorUserId })
+          .execute();
+      }
+      await writeAuditLog(transaction, {
+        origin,
+        orgUnitId,
+        entityName: 'org_unit_levels',
+        entityId: orgUnitId,
+        action: 'update',
+        before: { school_levels: before },
+        after: { school_levels: ordered },
+      });
+    });
+    return { org_unit_id: orgUnitId, school_levels: ordered };
   }
 
   private async assertCodeAvailable(code: string, exceptId: string | null): Promise<void> {

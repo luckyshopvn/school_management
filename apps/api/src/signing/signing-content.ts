@@ -285,7 +285,7 @@ async function stageOf(database: Kysely<SchoolYearDatabase>) {
   const ages = new Map(grades.map((grade) => [grade.code, grade.age_from_months]));
   return (ageGroup: ClassAgeGroupKey | null, gradeLevel: string): ClassStage => {
     const age = ages.get(gradeLevel);
-    const group = ageGroup ?? (age === undefined ? null : classAgeGroup(age));
+    const group = ageGroup ?? (age === undefined || age === null ? null : classAgeGroup(age));
     return group && group !== 'over_6' ? classStageOf(group as ClassAgeGroupKey) : 'mau_giao';
   };
 }

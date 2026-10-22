@@ -21,6 +21,8 @@ export * from './food-safety.js';
 export * from './education-plans.js';
 export * from './emulation.js';
 export * from './quality-assurance.js';
+export * from './school-levels.js';
+export * from './level-structure.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 

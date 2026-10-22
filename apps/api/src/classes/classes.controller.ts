@@ -74,6 +74,7 @@ type SoClassFields = Pick<
   | 'is_combined'
   | 'combined_into_class_id'
   | 'boarding'
+  | 'curriculum_id'
 >;
 
 // Thông tin lớp theo Sở (YCTD-111); trường không gửi thì không đổi (sửa) hoặc lấy mặc định (tạo)
@@ -121,6 +122,11 @@ function readSoClassFields(body: RequestBody, errors: FieldError[]): Partial<SoC
   const combinedInto = readOptionalUuid(body, 'combined_into_class_id', errors);
   if (combinedInto !== undefined) {
     fields.combined_into_class_id = combinedInto;
+  }
+  // Chương trình của lớp (DT-19 phần 19b, YCTD-152); trống là chương trình mặc định của cấp
+  const curriculum = readOptionalUuid(body, 'curriculum_id', errors);
+  if (curriculum !== undefined) {
+    fields.curriculum_id = curriculum;
   }
   return fields;
 }

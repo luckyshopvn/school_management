@@ -42,6 +42,8 @@ export class SchoolCalendar {
       .selectFrom('academic_terms')
       .select('term_type')
       .where('academic_year_id', '=', academicYearId)
+      // Lịch chung cả trường; lịch riêng của cấp đọc ở lịch theo cấp (YCTD-152)
+      .where('school_level', 'is', null)
       .where('start_date', '<=', date)
       .where('end_date', '>=', date)
       .executeTakeFirst();
@@ -74,6 +76,8 @@ export class SchoolCalendar {
       .selectFrom('school_weeks')
       .select('is_off')
       .where('academic_year_id', '=', academicYearId)
+      // Lịch chung cả trường; lịch riêng của cấp đọc ở lịch theo cấp (YCTD-152)
+      .where('school_level', 'is', null)
       .where('start_date', '<=', date)
       .where('end_date', '>=', date)
       .executeTakeFirst();
@@ -90,6 +94,8 @@ export class SchoolCalendar {
       .selectFrom('academic_terms')
       .select('term_type')
       .where('academic_year_id', '=', academicYearId)
+      // Lịch chung cả trường; lịch riêng của cấp đọc ở lịch theo cấp (YCTD-152)
+      .where('school_level', 'is', null)
       .where('start_date', '<=', date)
       .where('end_date', '>=', date)
       .executeTakeFirst();

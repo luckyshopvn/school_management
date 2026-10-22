@@ -6,6 +6,7 @@ import {
   makeDatabaseWritable,
   migrateToLatest,
   type AcademicTermType,
+  type SchoolLevelCode,
 } from '@school-management/database';
 import { ApplicationError, Clock, ruleViolationError, validationError } from '@school-management/server';
 import { sql, type Kysely } from 'kysely';
@@ -31,6 +32,9 @@ export interface AcademicYearSummary {
 export interface CalendarResponse extends Omit<CalendarInput, 'summer_term'> {
   academic_year_id: string;
   summer_term: DateRange | null;
+  // Lịch theo cấp (DT-19 phần 19b, YCTD-152): cấp đang xem (trống là lịch chung) và cấp đó còn theo lịch chung hay không
+  school_level: SchoolLevelCode | null;
+  inherited: boolean;
 }
 
 export interface WeekResponse {
@@ -43,6 +47,8 @@ export interface WeekResponse {
   term: AcademicTermType | null;
   term_type: AcademicTermType | null;
   is_visible: boolean;
+  // Cấp của tuần; trống là tuần của lịch chung (YCTD-152)
+  school_level: SchoolLevelCode | null;
 }
 
 export interface WeekChange {
@@ -133,13 +139,30 @@ export class AcademicYearsService {
     return year;
   }
 
-  async readCalendar(academicYearId: string): Promise<CalendarResponse> {
+  // Cấp có học kỳ riêng thì đọc lịch của cấp, không thì đọc lịch chung và báo là theo lịch chung (YCTD-152)
+  async readCalendar(academicYearId: string, level: SchoolLevelCode | null = null): Promise<CalendarResponse> {
     const year = await this.findAcademicYear(academicYearId);
-    const terms = await this.system
-      .selectFrom('academic_terms')
-      .select(['term_type', 'start_date', 'end_date'])
-      .where('academic_year_id', '=', academicYearId)
-      .execute();
+    const termsOf = (termLevel: SchoolLevelCode | null) =>
+      this.system
+        .selectFrom('academic_terms')
+        .select(['term_type', 'start_date', 'end_date'])
+        .where('academic_year_id', '=', academicYearId)
+        .where('school_level', termLevel === null ? 'is' : '=', termLevel)
+        .execute();
+    let terms = await termsOf(level);
+    const inherited = level !== null && terms.length === 0;
+    if (inherited) {
+      terms = await termsOf(null);
+    }
+    const levelDays =
+      level === null
+        ? undefined
+        : await this.system
+            .selectFrom('academic_year_level_settings')
+            .select('school_days_of_week')
+            .where('academic_year_id', '=', academicYearId)
+            .where('school_level', '=', level)
+            .executeTakeFirst();
     const termOf = (type: AcademicTermType): DateRange | null => {
       const term = terms.find((item) => item.term_type === type);
       return term ? { start_date: term.start_date, end_date: term.end_date } : null;
@@ -149,30 +172,60 @@ export class AcademicYearsService {
       first_term: termOf('first_term') ?? { start_date: '', end_date: '' },
       second_term: termOf('second_term') ?? { start_date: '', end_date: '' },
       summer_term: termOf('summer_term'),
-      school_days_of_week: year.school_days_of_week,
+      school_days_of_week: levelDays?.school_days_of_week ?? year.school_days_of_week,
+      school_level: level,
+      inherited,
     };
   }
 
   // Lịch sửa được cho tới khi năm học đóng; đánh số lại tuần và giữ cờ nghỉ của tuần cùng ngày bắt đầu (BR-91)
-  async saveCalendar(academicYearId: string, calendar: CalendarInput, actorUserId: string): Promise<CalendarResponse> {
+  // Lịch riêng của cấp (YCTD-152) chỉ ghi học kỳ, tuần, ngày học của cấp; ngày bắt đầu, kết thúc năm học theo lịch chung
+  async saveCalendar(
+    academicYearId: string,
+    calendar: CalendarInput,
+    actorUserId: string,
+    level: SchoolLevelCode | null = null,
+  ): Promise<CalendarResponse> {
     const year = await this.findAcademicYear(academicYearId);
     if (year.status === 'closed') {
       throw ruleViolationError('BR-91', 'Năm học đã đóng, không sửa được lịch');
     }
     const now = this.clock.now();
+    const levelOperator = level === null ? 'is' : '=';
     await this.system.transaction().execute(async (transaction) => {
-      await transaction
-        .updateTable('academic_years')
-        .set({
-          start_date: calendar.first_term.start_date,
-          end_date: calendarEndDate(calendar),
-          school_days_of_week: calendar.school_days_of_week,
-          updated_at: now,
-        })
-        .where('id', '=', academicYearId)
-        .execute();
+      if (level === null) {
+        await transaction
+          .updateTable('academic_years')
+          .set({
+            start_date: calendar.first_term.start_date,
+            end_date: calendarEndDate(calendar),
+            school_days_of_week: calendar.school_days_of_week,
+            updated_at: now,
+          })
+          .where('id', '=', academicYearId)
+          .execute();
+      } else {
+        await transaction
+          .insertInto('academic_year_level_settings')
+          .values({
+            academic_year_id: academicYearId,
+            school_level: level,
+            school_days_of_week: calendar.school_days_of_week,
+            created_by: actorUserId,
+          })
+          .onConflict((conflict) =>
+            conflict
+              .columns(['academic_year_id', 'school_level'])
+              .doUpdateSet({ school_days_of_week: calendar.school_days_of_week, updated_at: now }),
+          )
+          .execute();
+      }
 
-      await transaction.deleteFrom('academic_terms').where('academic_year_id', '=', academicYearId).execute();
+      await transaction
+        .deleteFrom('academic_terms')
+        .where('academic_year_id', '=', academicYearId)
+        .where('school_level', levelOperator, level)
+        .execute();
       const terms: Array<[AcademicTermType, DateRange | null]> = [
         ['first_term', calendar.first_term],
         ['second_term', calendar.second_term],
@@ -182,7 +235,13 @@ export class AcademicYearsService {
         if (range) {
           await transaction
             .insertInto('academic_terms')
-            .values({ academic_year_id: academicYearId, term_type: termType, ...range, created_by: actorUserId })
+            .values({
+              academic_year_id: academicYearId,
+              term_type: termType,
+              ...range,
+              school_level: level,
+              created_by: actorUserId,
+            })
             .execute();
         }
       }
@@ -191,9 +250,14 @@ export class AcademicYearsService {
         .selectFrom('school_weeks')
         .select(['start_date', 'is_off', 'note', 'term_type', 'is_visible'])
         .where('academic_year_id', '=', academicYearId)
+        .where('school_level', levelOperator, level)
         .execute();
       const previousByStartDate = new Map(previousWeeks.map((week) => [week.start_date, week]));
-      await transaction.deleteFrom('school_weeks').where('academic_year_id', '=', academicYearId).execute();
+      await transaction
+        .deleteFrom('school_weeks')
+        .where('academic_year_id', '=', academicYearId)
+        .where('school_level', levelOperator, level)
+        .execute();
       for (const week of generateWeeks(calendar)) {
         const previous = previousByStartDate.get(week.start_date);
         await transaction
@@ -205,34 +269,65 @@ export class AcademicYearsService {
             note: previous?.note ?? null,
             term_type: previous?.term_type ?? null,
             is_visible: previous?.is_visible ?? true,
+            school_level: level,
             created_by: actorUserId,
           })
           .execute();
       }
     });
-    return this.readCalendar(academicYearId);
+    return this.readCalendar(academicYearId, level);
   }
 
-  async listWeeks(academicYearId: string): Promise<WeekResponse[]> {
+  // Bỏ lịch riêng của cấp: cấp quay về theo lịch chung (YCTD-152)
+  async resetLevelCalendar(academicYearId: string, level: SchoolLevelCode): Promise<CalendarResponse> {
+    const year = await this.findAcademicYear(academicYearId);
+    if (year.status === 'closed') {
+      throw ruleViolationError('BR-91', 'Năm học đã đóng, không sửa được lịch');
+    }
+    await this.system.transaction().execute(async (transaction) => {
+      for (const table of ['school_weeks', 'academic_terms', 'academic_year_level_settings'] as const) {
+        await transaction
+          .deleteFrom(table)
+          .where('academic_year_id', '=', academicYearId)
+          .where('school_level', '=', level)
+          .execute();
+      }
+    });
+    return this.readCalendar(academicYearId, level);
+  }
+
+  // Cấp chưa có tuần riêng thì trả tuần của lịch chung (YCTD-152)
+  async listWeeks(academicYearId: string, level: SchoolLevelCode | null = null): Promise<WeekResponse[]> {
     await this.findAcademicYear(academicYearId);
-    const [weeks, terms] = await Promise.all([
-      this.system
-        .selectFrom('school_weeks')
-        .select(['week_no', 'start_date', 'end_date', 'is_off', 'note', 'term_type', 'is_visible'])
-        .where('academic_year_id', '=', academicYearId)
-        .orderBy('week_no')
-        .execute(),
-      this.system
-        .selectFrom('academic_terms')
-        .select(['term_type', 'start_date', 'end_date'])
-        .where('academic_year_id', '=', academicYearId)
-        .execute(),
-    ]);
+    const read = (weekLevel: SchoolLevelCode | null) =>
+      Promise.all([
+        this.system
+          .selectFrom('school_weeks')
+          .select(['week_no', 'start_date', 'end_date', 'is_off', 'note', 'term_type', 'is_visible', 'school_level'])
+          .where('academic_year_id', '=', academicYearId)
+          .where('school_level', weekLevel === null ? 'is' : '=', weekLevel)
+          .orderBy('week_no')
+          .execute(),
+        this.system
+          .selectFrom('academic_terms')
+          .select(['term_type', 'start_date', 'end_date'])
+          .where('academic_year_id', '=', academicYearId)
+          .where('school_level', weekLevel === null ? 'is' : '=', weekLevel)
+          .execute(),
+      ]);
+    let [weeks, terms] = await read(level);
+    if (level !== null && weeks.length === 0) {
+      [weeks, terms] = await read(null);
+    }
     return weeks.map((week) => ({ ...week, term: week.term_type ?? termOfWeek(week, terms) }));
   }
 
   // Đánh dấu hoặc bỏ đánh dấu tuần nghỉ; số tuần không đổi (BR-91)
-  async updateWeeks(academicYearId: string, changes: WeekChange[]): Promise<WeekResponse[]> {
+  async updateWeeks(
+    academicYearId: string,
+    changes: WeekChange[],
+    level: SchoolLevelCode | null = null,
+  ): Promise<WeekResponse[]> {
     const year = await this.findAcademicYear(academicYearId);
     if (year.status === 'closed') {
       throw ruleViolationError('BR-91', 'Năm học đã đóng, không sửa được tuần nghỉ');
@@ -243,9 +338,13 @@ export class AcademicYearsService {
           .selectFrom('school_weeks')
           .select('week_no')
           .where('academic_year_id', '=', academicYearId)
+          .where('school_level', level === null ? 'is' : '=', level)
           .execute()
       ).map((week) => week.week_no),
     );
+    if (level !== null && existing.size === 0) {
+      throw ruleViolationError('YCTD-152', 'Cấp này đang theo lịch chung; khai báo lịch riêng của cấp trước khi sửa tuần');
+    }
     const missing = changes.filter((change) => !existing.has(change.week_no));
     if (missing.length > 0) {
       throw validationError(
@@ -265,11 +364,12 @@ export class AcademicYearsService {
             updated_at: now,
           })
           .where('academic_year_id', '=', academicYearId)
+          .where('school_level', level === null ? 'is' : '=', level)
           .where('week_no', '=', change.week_no)
           .execute();
       }
     });
-    return this.listWeeks(academicYearId);
+    return this.listWeeks(academicYearId, level);
   }
 
   // Mở năm học mới là một thao tác: kiểm tra, tạo cơ sở dữ liệu, chuyển dữ liệu, đóng năm đang dùng (BR-93)

@@ -90,6 +90,7 @@ export type {
   StudentTransferDirection,
   StudentTransferStatus,
   ClassAgeGroup,
+  SchoolLevelCode,
   ClassStatus,
   ContractType,
   DiscountCalculationMethod,

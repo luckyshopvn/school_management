@@ -1,14 +1,25 @@
-import { Body, Controller, Get, HttpCode, Param, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { validationError, type FieldError } from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
-import type { AcademicTermType } from '@school-management/database';
+import type { AcademicTermType, SchoolLevelCode } from '@school-management/database';
+import { readSchoolLevel } from '../catalogs/school-level-fields.js';
 import { AcademicYearsService, type WeekChange } from './academic-years.service.js';
 import { parseCalendar } from './calendar.js';
 
 type RequestBody = Record<string, unknown> | undefined;
+
+// Cấp của lịch riêng ở chuỗi truy vấn (DT-19 phần 19b, YCTD-152); trống là lịch chung cả trường
+function readLevelQuery(level: string | undefined): SchoolLevelCode | null {
+  const errors: FieldError[] = [];
+  const parsed = readSchoolLevel({ school_level: level }, 'school_level', errors);
+  if (errors.length > 0) {
+    throw validationError(errors);
+  }
+  return parsed ?? null;
+}
 
 const TERM_TYPES: AcademicTermType[] = ['first_term', 'second_term', 'summer_term'];
 
@@ -80,8 +91,11 @@ export class AcademicYearsController {
   }
 
   @Get(':id/calendar')
-  readCalendar(@Param('id', uuidParameter('Mã năm học không hợp lệ')) academicYearId: string) {
-    return this.academicYearsService.readCalendar(academicYearId);
+  readCalendar(
+    @Param('id', uuidParameter('Mã năm học không hợp lệ')) academicYearId: string,
+    @Query('school_level') level?: string,
+  ) {
+    return this.academicYearsService.readCalendar(academicYearId, readLevelQuery(level));
   }
 
   @Put(':id/calendar')
@@ -90,17 +104,36 @@ export class AcademicYearsController {
     @Param('id', uuidParameter('Mã năm học không hợp lệ')) academicYearId: string,
     @Body() body: RequestBody,
     @AuthenticatedUser() currentUser: CurrentUser,
+    @Query('school_level') level?: string,
   ) {
+    const schoolLevel = readLevelQuery(level);
     const { calendar, errors } = parseCalendar(body);
     if (!calendar) {
       throw validationError(errors);
     }
-    return this.academicYearsService.saveCalendar(academicYearId, calendar, currentUser.id);
+    return this.academicYearsService.saveCalendar(academicYearId, calendar, currentUser.id, schoolLevel);
+  }
+
+  // Bỏ lịch riêng của một cấp, cấp đó quay về theo lịch chung
+  @Delete(':id/calendar')
+  @RequirePermission(PERMISSION_CODES.academicYearManage)
+  resetLevelCalendar(
+    @Param('id', uuidParameter('Mã năm học không hợp lệ')) academicYearId: string,
+    @Query('school_level') level?: string,
+  ) {
+    const schoolLevel = readLevelQuery(level);
+    if (!schoolLevel) {
+      throw validationError([{ field: 'school_level', message: 'Chọn cấp có lịch riêng cần bỏ' }]);
+    }
+    return this.academicYearsService.resetLevelCalendar(academicYearId, schoolLevel);
   }
 
   @Get(':id/weeks')
-  listWeeks(@Param('id', uuidParameter('Mã năm học không hợp lệ')) academicYearId: string) {
-    return this.academicYearsService.listWeeks(academicYearId);
+  listWeeks(
+    @Param('id', uuidParameter('Mã năm học không hợp lệ')) academicYearId: string,
+    @Query('school_level') level?: string,
+  ) {
+    return this.academicYearsService.listWeeks(academicYearId, readLevelQuery(level));
   }
 
   @Patch(':id/weeks')
@@ -108,8 +141,10 @@ export class AcademicYearsController {
   updateWeeks(
     @Param('id', uuidParameter('Mã năm học không hợp lệ')) academicYearId: string,
     @Body() body: RequestBody,
+    @Query('school_level') level?: string,
   ) {
-    return this.academicYearsService.updateWeeks(academicYearId, parseWeekChanges(body));
+    const schoolLevel = readLevelQuery(level);
+    return this.academicYearsService.updateWeeks(academicYearId, parseWeekChanges(body), schoolLevel);
   }
 
   @Post(':id/open')

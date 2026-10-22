@@ -206,6 +206,7 @@ import {
   UnconfiguredAdmissionSupportMailer,
 } from './entry-admissions/entry-admission-catalogs.js';
 import { GradeLevelsController, GradeLevelsService } from './catalogs/grade-levels.js';
+import { CurriculaController, CurriculaService } from './catalogs/curricula.js';
 import { ClassAssignmentsController, ClassesController } from './classes/classes.controller.js';
 import { ClassesService } from './classes/classes.service.js';
 import { ChildScope } from './children/child-scope.js';
@@ -449,6 +450,7 @@ export class ApplicationModule {
         EmisFormsController,
         EmisSendingController,
         GradeLevelsController,
+        CurriculaController,
         ClassesController,
         ClassAssignmentsController,
         ChildrenController,
@@ -659,6 +661,7 @@ export class ApplicationModule {
         EmisForms,
         EmisSending,
         GradeLevelsService,
+        CurriculaService,
         ClassesService,
         ChildScope,
         ChildrenService,

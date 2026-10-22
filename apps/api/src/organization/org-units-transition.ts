@@ -20,5 +20,9 @@ export const orgUnitsTransitionStep: AcademicYearTransitionStep = {
     for (const unit of ordered) {
       await next.insertInto('org_units').values(unit).execute();
     }
+    // Cấp học của đơn vị đi cùng đơn vị (DT-19 phần 19b, YCTD-152)
+    for (const row of await previous.selectFrom('org_unit_levels').selectAll().execute()) {
+      await next.insertInto('org_unit_levels').values(row).execute();
+    }
   },
 };
