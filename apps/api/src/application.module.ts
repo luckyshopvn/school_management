@@ -184,6 +184,10 @@ import { professionalRecordsTransitionStep } from './professional-records/profes
 import { EducationPlansController } from './education-plans/education-plans.controller.js';
 import { EducationPlansService } from './education-plans/education-plans.js';
 import { educationPlansTransitionStep } from './education-plans/education-plans-transition.js';
+import { EmulationController, EmulationVerificationController } from './emulation/emulation.controller.js';
+import { EmulationCouncilService } from './emulation/emulation-council.js';
+import { EmulationService } from './emulation/emulation.js';
+import { emulationTransitionStep } from './emulation/emulation-transition.js';
 import { QualityAssuranceController } from './quality-assurance/quality-assurance.controller.js';
 import { QualityAssuranceService } from './quality-assurance/quality-assurance.js';
 import { qualityAssuranceTransitionStep } from './quality-assurance/quality-assurance-transition.js';
@@ -428,6 +432,9 @@ export class ApplicationModule {
         // Hồ sơ chuyên môn và Việc của tôi (DT-18 phần 18e)
         ProfessionalRecordsController,
         EducationPlansController,
+        // Thi đua, khen thưởng (DT-18 phần 22d)
+        EmulationController,
+        EmulationVerificationController,
         // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
         QualityAssuranceController,
         MyWorkController,
@@ -617,6 +624,7 @@ export class ApplicationModule {
             professionalStandardsTransitionStep,
             professionalRecordsTransitionStep,
             educationPlansTransitionStep,
+            emulationTransitionStep,
             qualityAssuranceTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
@@ -850,6 +858,9 @@ export class ApplicationModule {
         ProfessionalRecordsService,
         // Kế hoạch giáo dục (DT-18 phần 22i)
         EducationPlansService,
+        // Thi đua, khen thưởng (DT-18 phần 22d)
+        EmulationService,
+        EmulationCouncilService,
         // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
         QualityAssuranceService,
         ...MY_WORK_SOURCE_TYPES,

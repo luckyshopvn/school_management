@@ -19,6 +19,7 @@ export * from './administration.js';
 export * from './professional-records.js';
 export * from './food-safety.js';
 export * from './education-plans.js';
+export * from './emulation.js';
 export * from './quality-assurance.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
@@ -241,6 +242,10 @@ export const PERMISSION_CODES = {
   educationPlanApprove: 'P09.education-plan.approve',
   educationPlanFinalize: 'P09.education-plan.finalize',
   educationPlanManage: 'P09.education-plan.manage',
+  // Thi đua, khen thưởng (DT-18 phần 22d)
+  emulationUse: 'P09.emulation.use',
+  emulationManage: 'P09.emulation.manage',
+  emulationDecide: 'P09.emulation.decide',
   // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
   qualityUse: 'P09.quality.use',
   qualityManage: 'P09.quality.manage',
@@ -534,6 +539,18 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/education-plans/review',
   '/education-plans/progress',
   '/education-plan-templates',
+  // Thi đua, khen thưởng (DT-18 phần 22d)
+  '/emulation/campaigns',
+  '/emulation/registrations',
+  '/emulation/nominations',
+  '/emulation/nominations/review',
+  '/emulation/council',
+  '/emulation/voting',
+  '/emulation/appeals',
+  '/emulation/decisions',
+  '/emulation/history',
+  '/emulation/reports',
+  '/emulation/titles',
   // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
   '/quality/assessments',
   '/quality/reports',
@@ -810,6 +827,17 @@ export const DATA_GRID_KEYS = [
   'education-plan-templates',
   'education-plan-progress',
   'education-plan-previous',
+  // Thi đua, khen thưởng (DT-18 phần 22d)
+  'emulation-titles',
+  'emulation-campaigns',
+  'emulation-registrations',
+  'emulation-nominations',
+  'emulation-nomination-review',
+  'emulation-voting',
+  'emulation-appeals',
+  'emulation-decisions',
+  'emulation-history',
+  'emulation-report',
   // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
   'quality-assessments',
   'quality-assessment-criteria',

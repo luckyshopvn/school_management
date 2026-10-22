@@ -4356,6 +4356,237 @@ export interface EducationPlanEventsTable {
   created_at: CreatedTimestamp;
 }
 
+// Thi đua, khen thưởng (DT-18 phần 22d, YCTD-148). Cột JSON đọc ra giá trị đã phân tích, ghi vào chuỗi JSON
+export type EmulationTarget = 'individual' | 'collective';
+export type EmulationTitleKind = 'title' | 'award';
+export type EmulationDecisionLevel = 'school' | 'upper';
+export type EmulationCampaignStatus = 'draft' | 'launched' | 'published' | 'closed';
+export type EmulationRegistrationStatus = 'pending' | 'accepted' | 'returned';
+export type EmulationNominationStatus =
+  'draft' | 'submitted' | 'returned' | 'accepted' | 'passed' | 'failed' | 'proposed' | 'awarded' | 'not_awarded';
+export type EmulationCouncilPosition = 'chair' | 'vice_chair' | 'secretary' | 'member';
+export type EmulationVoteChoice = 'agree' | 'disagree' | 'abstain';
+export type EmulationAppealKind = 'review' | 'complaint';
+export type EmulationAppealStatus = 'pending' | 'accepted' | 'rejected';
+export type EmulationDecisionKind = 'decision' | 'proposal';
+type DefaultJson = ColumnType<unknown, string | undefined, string>;
+
+export interface EmulationTitlesTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  description: string | null;
+  kind: EmulationTitleKind;
+  target: EmulationTarget;
+  decision_level: EmulationDecisionLevel;
+  school_level: KpiSchoolLevel | null;
+  min_kpi_rank: string | null;
+  requires_initiative: Generated<boolean>;
+  prerequisite_code: string | null;
+  consecutive_years: Generated<number>;
+  quota_percent: NullableDecimal;
+  quota_base_code: string | null;
+  vote_threshold_percent: DefaultDecimal;
+  criteria: DefaultJson;
+  min_score: NullableDecimal;
+  revision: Generated<number>;
+  sort_order: Generated<number>;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface EmulationCampaignsTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  kind: 'regular' | 'thematic';
+  description: string | null;
+  title_ids: Generated<string[]>;
+  kpi_period_id: string | null;
+  registration_deadline: string | null;
+  nomination_deadline: string | null;
+  appeal_days: Generated<number>;
+  status: Generated<EmulationCampaignStatus>;
+  launched_at: Date | null;
+  launched_by_name: string | null;
+  published_at: Date | null;
+  appeal_deadline: string | null;
+  closed_at: Date | null;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface EmulationRegistrationsTable {
+  id: Generated<string>;
+  campaign_id: string;
+  title_id: string;
+  target: EmulationTarget;
+  staff_id: string | null;
+  department_id: string | null;
+  subject_name: string;
+  commitment: string | null;
+  status: Generated<EmulationRegistrationStatus>;
+  review_note: string | null;
+  registered_by: string;
+  registered_by_name: string;
+  reviewed_by_name: string | null;
+  reviewed_at: Date | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface EmulationMeetingsTable {
+  id: Generated<string>;
+  campaign_id: string;
+  held_at: Date;
+  location: string | null;
+  content: string | null;
+  conclusion: string | null;
+  member_count: number;
+  attendee_count: number | null;
+  status: Generated<'voting' | 'closed'>;
+  closed_at: Date | null;
+  closed_by_name: string | null;
+  minutes_file_id: string | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface EmulationDecisionsTable {
+  id: Generated<string>;
+  campaign_id: string;
+  kind: EmulationDecisionKind;
+  title: string;
+  basis: string | null;
+  signer_name: string | null;
+  signer_title: string | null;
+  status: Generated<'draft' | 'issued'>;
+  number: string | null;
+  issue_date: string | null;
+  outgoing_document_id: string | null;
+  issued_at: Date | null;
+  issued_by_name: string | null;
+  upper_number: string | null;
+  upper_date: string | null;
+  upper_issuer: string | null;
+  created_by: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface EmulationNominationsTable {
+  id: Generated<string>;
+  campaign_id: string;
+  title_id: string;
+  title_code: string;
+  title_name: string;
+  title_revision: number;
+  criteria: JsonDocument;
+  vote_threshold_percent: Decimal;
+  target: EmulationTarget;
+  staff_id: string | null;
+  department_id: string | null;
+  subject_name: string;
+  org_unit_id: string;
+  registration_id: string | null;
+  owner_user_id: string;
+  owner_name: string;
+  achievements: string | null;
+  initiative: string | null;
+  scores: DefaultJson;
+  total_score: DefaultDecimal;
+  kpi_evaluation_id: string | null;
+  kpi_period_name: string | null;
+  kpi_rank: string | null;
+  kpi_rank_label: string | null;
+  kpi_score: NullableDecimal;
+  eligibility: DefaultJson;
+  status: Generated<EmulationNominationStatus>;
+  return_note: string | null;
+  submitted_at: Date | null;
+  accepted_at: Date | null;
+  meeting_id: string | null;
+  agree_count: number | null;
+  disagree_count: number | null;
+  abstain_count: number | null;
+  agree_percent: NullableDecimal;
+  council_note: string | null;
+  decision_id: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface EmulationNominationEvidenceTable {
+  id: Generated<string>;
+  nomination_id: string;
+  document_id: string;
+  note: string | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface EmulationCouncilMembersTable {
+  id: Generated<string>;
+  campaign_id: string;
+  user_id: string;
+  name: string;
+  position: EmulationCouncilPosition;
+  sort_order: Generated<number>;
+}
+
+export interface EmulationVotesTable {
+  meeting_id: string;
+  nomination_id: string;
+  member_user_id: string;
+  choice: EmulationVoteChoice;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface EmulationAppealsTable {
+  id: Generated<string>;
+  campaign_id: string;
+  nomination_id: string | null;
+  kind: EmulationAppealKind;
+  content: string;
+  submitted_by: string;
+  submitted_by_name: string;
+  deadline: string;
+  status: Generated<EmulationAppealStatus>;
+  response: string | null;
+  resolved_by_name: string | null;
+  resolved_at: Date | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface EmulationAwardsTable {
+  id: Generated<string>;
+  source: 'decision' | 'manual';
+  decision_id: string | null;
+  nomination_id: string | null;
+  year_name: string;
+  year_start: number;
+  title_code: string;
+  title_name: string;
+  title_kind: EmulationTitleKind;
+  target: EmulationTarget;
+  staff_id: string | null;
+  department_id: string | null;
+  subject_name: string;
+  decision_number: string | null;
+  decision_date: string | null;
+  issuer: string | null;
+  lookup_code: string;
+  note: string | null;
+  created_by: string | null;
+  created_by_name: string | null;
+  created_at: CreatedTimestamp;
+}
+
 // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f, YCTD-149)
 export type QualityAssessmentStatus = 'draft' | 'in_progress' | 'completed';
 export type QualityReportStatus = 'draft' | 'submitted' | 'approved' | 'returned';
@@ -4768,6 +4999,17 @@ export interface SchoolYearDatabase {
   education_plans: EducationPlansTable;
   education_plan_versions: EducationPlanVersionsTable;
   education_plan_events: EducationPlanEventsTable;
+  emulation_titles: EmulationTitlesTable;
+  emulation_campaigns: EmulationCampaignsTable;
+  emulation_registrations: EmulationRegistrationsTable;
+  emulation_meetings: EmulationMeetingsTable;
+  emulation_decisions: EmulationDecisionsTable;
+  emulation_nominations: EmulationNominationsTable;
+  emulation_nomination_evidence: EmulationNominationEvidenceTable;
+  emulation_council_members: EmulationCouncilMembersTable;
+  emulation_votes: EmulationVotesTable;
+  emulation_appeals: EmulationAppealsTable;
+  emulation_awards: EmulationAwardsTable;
   quality_frameworks: QualityFrameworksTable;
   quality_standards: QualityStandardsTable;
   quality_criteria: QualityCriteriaTable;

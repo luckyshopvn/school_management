@@ -1,8 +1,8 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.46
-- Ngày cập nhật: 2026-10-21
+- Phiên bản: 1.47
+- Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -792,6 +792,11 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-717 | Cho người kiểm thực / Khi lập phiếu bước 1, ghi lô đạt và lô không đạt rồi xác nhận / Thì thiếu biện pháp hoặc cách xử lý bị chặn; xác nhận xong lô đạt thành "Đạt, đã nhận", lô không đạt thành "Không đạt"; phiếu không sửa được nữa (CT-772, CT-775; YCTD-146) |
 | AC-718 | Cho người kiểm thực / Khi lập phiếu bước 2, 3 / Thì phiếu gợi ý món, số suất, nguyên liệu chính, lô đạt; ghi lô không đạt bị chặn; thiếu kết quả vệ sinh không xác nhận được; truy xuất món ra đúng lô, nhà cung cấp, giấy tờ; in được sổ kiểm thực (CT-773, CT-775; YCTD-146) |
 | AC-719 | Cho người kiểm thực / Khi lưu mẫu thiếu lượng hoặc sai nhiệt độ, hủy mẫu chưa đủ 24 giờ, hủy mẫu đang giữ / Thì đều bị chặn; mẫu đủ 24 giờ hủy được, ghi người hủy; in được sổ lưu mẫu, nhãn mẫu (CT-774, CT-775; YCTD-146) |
+| AC-720 | Cho Hiệu trưởng / Khi nạp danh mục mặc định, lập và phát động đợt có kỳ KPI / Thì danh mục có Lao động tiên tiến, Chiến sĩ thi đua cơ sở…; nạp lần hai không tạo trùng; giáo viên không sửa được danh mục; danh hiệu sai điều kiện bị từ chối theo từng ô (CT-777, CT-778, CT-785; YCTD-148) |
+| AC-721 | Cho giáo viên / Khi đăng ký, lập hồ sơ, tự chấm, chọn minh chứng, nộp / Thì hồ sơ có xếp loại KPI của kỳ, bảng điều kiện; điểm quá tối đa, minh chứng của người khác bị từ chối; trả lại có lý do hiện ở Việc của tôi (CT-779, CT-785; YCTD-148) |
+| AC-722 | Cho người quản lý / Khi xét Chiến sĩ thi đua cấp tỉnh có hai năm trong sổ năm trước và một năm nhập tay / Thì điều kiện ba năm liên tục đạt; sổ theo dõi hiện ba năm; xuất Excel (CT-780; YCTD-148) |
+| AC-723 | Cho hội đồng / Khi mở phiên, bỏ phiếu kín, đóng phiên / Thì người ngoài hội đồng không bỏ phiếu; trong phiên không hiện số phiếu; tỉ lệ tính trên tổng thành viên; có biên bản PDF; phúc khảo được chấp nhận đưa hồ sơ ra bỏ phiếu lại; quá hạn không gửi được (CT-781, CT-782, CT-785; YCTD-148) |
+| AC-724 | Cho Hiệu trưởng / Khi lập, ban hành quyết định và tờ trình / Thì danh hiệu cấp trên không vào quyết định của trường; ban hành cần số, ngày; sổ có mã tra cứu, giấy khen PDF; trang tra cứu công khai hiện đúng người, danh hiệu, số quyết định; tạo được dự thảo văn bản đi (CT-783, CT-784, CT-785; YCTD-148) |
 
 ## 20. Chưa xác minh được
 

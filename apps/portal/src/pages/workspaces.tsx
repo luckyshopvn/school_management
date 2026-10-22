@@ -39,7 +39,8 @@ export const WORKSPACE_ICONS: Record<WorkspaceKey, IconName> = {
   kpi: 'chart',
   website: 'globe',
   'professional-records': 'book',
-  'quality-assurance': 'sign',
+  emulation: 'sign',
+  'quality-assurance': 'chart',
 };
 
 const WORKSPACE_KEY = 'portal.workspace';

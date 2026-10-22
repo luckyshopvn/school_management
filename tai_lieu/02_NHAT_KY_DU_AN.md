@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.25
+- Phiên bản: 0.26
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,28 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-22 — DT-18 phần 22d: thi đua, khen thưởng cán bộ, giáo viên
+
+#### Công việc đã thực hiện
+
+- Đọc mục 9 của `32_KE_HOACH_THEO_HE_THONG_SO.md`, kế hoạch DT-22 (phần 22d), Luật Thi đua, khen thưởng năm 2022 (Điều 22, 23, 24), Nghị định 368/2026/NĐ-CP ngày 25/9/2026 (Điều 5: tỉ lệ Chiến sĩ thi đua cơ sở không quá 10% số đạt Lao động tiên tiến), Thông tư 25/2026/TT-BNV; rà mã KPI (18d), hồ sơ chuyên môn (18e), văn bản đi (18b), kế hoạch giáo dục (22i).
+- Cơ sở dữ liệu: tệp năm học `0070_create_emulation`, tệp định danh `0062_add_emulation_permissions`.
+- Máy chủ API: danh mục, đợt, đăng ký, hồ sơ đề nghị (KPI, minh chứng, điều kiện), hội đồng, phiên họp, phiếu kín, biên bản, công bố, phúc khảo, khiếu nại, quyết định, tờ trình, dự thảo văn bản đi, giấy khen, tra cứu công khai, sổ nhiều năm, báo cáo, nguồn Việc của tôi, chép danh mục sang năm học mới.
+- Cổng quản trị: phân hệ "Thi đua, khen thưởng" (1.1 đến 6.1) và trang tra cứu công khai.
+- Thêm quy tắc BR-147 đến BR-150, chức năng P09-34 đến P09-39, quyền PQ-88, màn hình MH-241 đến MH-252, kịch bản CT-776 đến CT-785, tiêu chí AC-720 đến AC-724. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/emulation/emulation.test.ts` CT-22d-1 đến CT-22d-9 đạt 9/9 (sửa `system-admin-so.test.ts` CT-16d-3 đếm 18 phân hệ); kiểm thử đơn vị toàn bộ kho mã 997/997 đạt; kiểm thử giao diện `tests/e2e/79-emulation.spec.ts` (CT-22d-10) đạt; toàn bộ kiểm thử giao diện 151 ca: lần chạy đầu 148 đạt; spec 79 sửa bộ chọn nút rồi đạt; `61-health-nutrition-so`, `70-incoming-documents` lỗi chập chờn ở máy cục bộ, chạy lại 70 đạt, không liên quan 22d (spec 58 đếm 18 phân hệ); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 22d của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 9.4. Thêm phân hệ riêng (như KPI) thay vì gộp vào Hồ sơ chuyên môn vì có hội đồng, quyết định, sổ nhiều năm riêng. Điều kiện của danh hiệu chỉ là thông tin cho hội đồng, không chặn nộp; tỉ lệ phiếu tính trên tổng số thành viên. Sổ nhiều năm đọc mọi cơ sở dữ liệu năm học thay vì chép sổ sang năm mới. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-148, `07_QUY_TAC_NGHIEP_VU.md` BR-147 đến BR-150, `08_VAI_TRO_NGUOI_DUNG.md` PQ-88, `10_YEU_CAU_CHUC_NANG.md` P09-34 đến P09-39, `11_TIEU_CHI_NGHIEM_THU.md` AC-720 đến AC-724, `14_DAC_TA_GIAO_DIEN.md` MH-241 đến MH-252, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-776 đến CT-785, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.99.0.
+
+#### Vấn đề tồn đọng
+
+- Đối chiếu tiêu chuẩn, tỉ lệ mặc định với toàn văn Nghị định 368/2026/NĐ-CP, Thông tư 25/2026/TT-BNV và mẫu biểu kèm theo; chưa nhập phiếu giấy; giấy khen chưa kí số; thi đua khối, cụm và cấp trên để DT-SaaS S6.
 
 ### 2026-10-22 — Kế hoạch DT-19 nền đa cấp học
 

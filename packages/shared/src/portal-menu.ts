@@ -22,6 +22,7 @@ export type PortalWorkspaceKey =
   | 'kpi'
   | 'website'
   | 'professional-records'
+  | 'emulation'
   | 'quality-assurance';
 
 export interface PortalMenuNode {
@@ -477,6 +478,33 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('5.5.', 'Tiến độ duyệt kế hoạch', '/education-plans/progress'),
         leaf('5.6.', 'Thư viện mẫu kế hoạch', '/education-plan-templates'),
       ]),
+    ],
+  },
+  {
+    // Thi đua, khen thưởng cán bộ, giáo viên (DT-18 phần 22d): phân hệ riêng nên đánh số liên tục, tên mục do Claude tự đặt
+    // theo ủy quyền của Eric ngày 2026-10-11
+    key: 'emulation',
+    label: 'Thi đua, khen thưởng',
+    menu: [
+      group('1.', 'Phong trào thi đua', [
+        leaf('1.1.', 'Đợt thi đua', '/emulation/campaigns'),
+        leaf('1.2.', 'Đăng ký thi đua', '/emulation/registrations'),
+      ]),
+      group('2.', 'Hồ sơ đề nghị', [
+        leaf('2.1.', 'Hồ sơ đề nghị của tôi', '/emulation/nominations'),
+        leaf('2.2.', 'Tiếp nhận hồ sơ', '/emulation/nominations/review'),
+      ]),
+      group('3.', 'Hội đồng thi đua', [
+        leaf('3.1.', 'Hội đồng và phiên họp', '/emulation/council'),
+        leaf('3.2.', 'Bỏ phiếu bình xét', '/emulation/voting'),
+        leaf('3.3.', 'Phúc khảo, khiếu nại', '/emulation/appeals'),
+      ]),
+      group('4.', 'Khen thưởng', [leaf('4.1.', 'Quyết định khen thưởng', '/emulation/decisions')]),
+      group('5.', 'Báo cáo', [
+        leaf('5.1.', 'Sổ theo dõi khen thưởng', '/emulation/history'),
+        leaf('5.2.', 'Báo cáo đợt thi đua', '/emulation/reports'),
+      ]),
+      group('6.', 'Danh mục', [leaf('6.1.', 'Danh hiệu và hình thức khen thưởng', '/emulation/titles')]),
     ],
   },
   {
