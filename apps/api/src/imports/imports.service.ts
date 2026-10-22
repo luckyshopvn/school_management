@@ -4,7 +4,6 @@ import { ApplicationError, Clock, ruleViolationError, validationError } from '@s
 import {
   CLASS_AGE_GROUPS,
   PERMISSION_CODES,
-  isSchoolLevelCode,
   usesAgeGroups,
   type SchoolLevelCode,
 } from '@school-management/shared';
@@ -75,8 +74,6 @@ export const IMPORT_COLUMNS: Record<TemplateImportType, ImportColumn[]> = {
     { key: 'room_code', header: 'Mã phòng', note: 'Mã phòng học đang dùng của cùng đơn vị, để trống nếu chưa có' },
     // Thông tin lớp theo Sở (DT-16 phần 16e)
     ...CLASS_SO_IMPORT_COLUMNS,
-    // Cấp của lớp (DT-19 phần 19b, YCTD-152): lớp lấy cấp theo bậc học; cột này để đối chiếu
-    { key: 'school_level', header: 'Mã cấp học', note: 'MN, TH, THCS hoặc THPT; để trống là cấp của bậc học' },
   ],
   children: [
     { key: 'unit_code', header: 'Mã đơn vị', note: 'Mã đơn vị của lớp, bắt buộc' },
@@ -1502,16 +1499,8 @@ export class ImportsService {
         ? existing.find((item) => item.id === current.combined_into_class_id)
         : undefined;
       const grade = gradeLevels.find((level) => level.code === (current?.grade_level ?? values.grade_level));
-      // Cấp của lớp theo bậc học; cột Mã cấp học có ghi thì phải khớp (YCTD-152)
+      // Cấp của lớp theo bậc học; mã bậc học không trùng giữa các cấp nên mẫu nhập không cần cột cấp (YCTD-152)
       const schoolLevel: SchoolLevelCode = grade?.school_level ?? 'MN';
-      const levelText = (values.school_level ?? '').trim().toUpperCase();
-      if (selected.has('school_level') && levelText !== '') {
-        if (!isSchoolLevelCode(levelText)) {
-          errors.push({ row, column: 'Mã cấp học', message: 'Cấp học là MN, TH, THCS hoặc THPT' });
-        } else if (grade && levelText !== schoolLevel) {
-          errors.push({ row, column: 'Mã cấp học', message: 'Cấp học không khớp với cấp của bậc học' });
-        }
-      }
       const merged = {
         age_group: so.age_group !== undefined ? so.age_group : (current?.age_group ?? null),
         mixed_age_count: so.mixed_age_count !== undefined ? so.mixed_age_count : (current?.mixed_age_count ?? null),
