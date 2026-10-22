@@ -1,8 +1,8 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.24
-- Ngày cập nhật: 2026-10-21
+- Phiên bản: 0.25
+- Ngày cập nhật: 2026-10-22
 - Trạng thái: Đang cập nhật
 
 ## Quy ước
@@ -10,6 +10,21 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-150: Kế hoạch DT-19 nền đa cấp học – 2026-10-22
+
+- Lý do: Eric quyết định ngày 2026-10-19 mở rộng School Management ra mọi cấp học (Mầm non, Tiểu học, THCS, THPT, trường liên cấp) theo lộ trình DT-18 → DT-19 → DT-20 → DT-21 → DT-22 → DT-SaaS. DT-18 gần xong (còn 22d, 22f); cần bản kế hoạch DT-19 trước khi làm để chia phần, giữ sẵn số YCTD, migration, e2e và để DT-20, DT-21 biết phần nào của DT-19 làm nền.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - `32_KE_HOACH_THEO_HE_THONG_SO.md` phiên bản 1.30: thêm mục 10 "DT-19: nền đa cấp học" gồm căn cứ và hiện trạng mã (10.1); nguyên tắc (10.2: không đổi hành vi Mầm non, một nguồn cấp học `school_levels`, bốn mã cấp cố định, giữ tên bảng, viết sẵn cho đa thuê bao qua `cacheKey`, `storageKey`); sáu phần 19a đến 19f với phạm vi, đợt, phụ thuộc, YCTD-151 đến YCTD-156, migration giữ sẵn (năm học 0072 đến 0075, hệ thống 0023 đến 0025, định danh 0064 đến 0066) và e2e giữ sẵn `81-` đến `86-` (10.3); ba đợt, mỗi lúc tối đa hai phiên; phạm vi chi tiết (10.4); quyết định thiết kế và phương án đã loại (10.5); rủi ro chuyển dữ liệu Mầm non, cách kiểm, cổng kiểm (10.6); bảng phần mở đường cho DT-20, DT-21 (10.7); quy ước chung (10.8); bảng tiến độ (10.9).
+  - YCTD-150 dành cho chính bản kế hoạch này; các phần bắt đầu từ YCTD-151.
+- Thành phần bị ảnh hưởng: tài liệu `02`, `24`, `32`, `index.md`. Không đổi mã nguồn.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không. Phiên bản phần mềm giữ nguyên (thay đổi chỉ tài liệu); nếu số tài liệu va với PR của 22d, 22f thì phần gộp sau đánh lại.
+- Kiểm thử cần thực hiện: rà bảng không thiếu dấu `|` kết thúc; khối mã cân bằng; số YCTD, migration, e2e giữ sẵn không trùng DT-18 và không trùng giữa các phần.
+- Trạng thái: Đã triển khai
 
 ### YCTD-146: DT-18 phần 22b: bán trú, kiểm thực ba bước và an toàn thực phẩm – 2026-10-21
 

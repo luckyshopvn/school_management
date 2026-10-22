@@ -1,8 +1,8 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
-- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường.
-- Phiên bản: 1.29
-- Ngày cập nhật: 2026-10-21
+- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học.
+- Phiên bản: 1.30
+- Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
 
@@ -379,3 +379,175 @@ Thứ tự gộp để đánh số tài liệu (phiên bản, CT, AC, BR, MH) kh
 | 22i | 5 | Đã làm, YCTD-147, phiên bản 0.97.0, PR 124: nhóm 5. Kế hoạch giáo dục của phân hệ Hồ sơ chuyên môn; thư viện mẫu theo cấp học (bảy mẫu Mầm non: kế hoạch nhà trường, năm, tháng, tuần của nhóm lớp, hoạt động tổ, dự giờ, thao giảng, bồi dưỡng thường xuyên); duyệt tổ trưởng, Phó Hiệu trưởng, Hiệu trưởng, bốn trạng thái; kí nội bộ qua `DossierSigner`; lưu bản đã duyệt vào kho hồ sơ 18e; phiên bản, so sánh khác biệt, sao chép từ năm trước; xuất Word, PDF; tiến độ duyệt, xuất Excel; tạo kế hoạch công việc; nguồn Việc của tôi |
 | 22d | 5 | Chưa làm, chờ 18d, 18e |
 | 22f | 5 | Chưa làm, chờ 18e |
+
+## 10. DT-19: nền đa cấp học
+
+### 10.1 Căn cứ và mục tiêu
+
+1. Quyết định của Eric ngày 2026-10-19: mở rộng School Management ra mọi cấp học (Mầm non, Tiểu học, THCS, THPT, trường liên cấp) theo lộ trình DT-18 → DT-19 (nền đa cấp học) → DT-20 (Tiểu học) → DT-21 (THCS, THPT) → DT-22 → DT-SaaS. DT-SaaS làm sau cùng (mô hình mỗi trường một bộ cơ sở dữ liệu, kế hoạch SaaS ghi ngoài kho).
+2. Mục tiêu DT-19: thêm chiều "cấp học" cho trường; một trường có một hay nhiều cấp; lớp, khối, chương trình, năm học, học kỳ, menu, phân hệ, cổng phụ huynh và ứng dụng giáo viên theo cấp; chuyển dữ liệu Mầm non hiện có sang cấu trúc mới mà không đổi hành vi. DT-19 không thêm nghiệp vụ riêng của Tiểu học, THCS, THPT (sổ điểm, học bạ, thời khoá biểu, thi đua lớp); các nghiệp vụ đó thuộc DT-20 và DT-21.
+3. Hiện trạng mã (đọc ngày 2026-10-22; nhánh chính có tệp năm học đến 0069, hệ thống đến 0022, định danh đến 0061, chưa tính số đã giữ cho 22d, 22f):
+   - **Đã có chiều cấp học ở vài chỗ rời:** cột `school_level` (`MN`, `TH`, `THCS`, `THPT`) ở danh mục thiết bị tối thiểu (18g), mẫu kế hoạch giáo dục (22i), tiêu chí KPI (18d); cột `education_level` ở danh mục văn bản (18a, tùy chọn) và rà soát kiểm định (17e); cột `school_levels` (mảng chữ, mặc định `{MN}`) ở `website_settings` của cơ sở dữ liệu hệ thống (18f). Mỗi nơi tự quy ước, chưa có nguồn chung cho "trường này có những cấp nào".
+   - **Chưa có thực thể cấp học của trường:** `org_units` (trường chính, phân hiệu, điểm trường) nằm ở cơ sở dữ liệu năm học và không có cột cấp; `classes` chỉ có `grade_level` (chuỗi mã khối) và `age_group` (kiểu liệt kê chỉ có sáu nhóm tuổi Mầm non, `months_3_12` đến `years_5_6`).
+   - **Giả định tuổi Mầm non:** `grade_levels` bắt buộc `age_from_months`, `age_to_months` (0 đến 120 tháng). Thống kê lớp và học sinh, EMIS (`emis-01-calc`, `emis-so-calc`, `emis-forms`), báo cáo chấm công và suất ăn (`attendance-meals`), tăng trưởng (`health/growth`), hoàn thành chương trình và hồ sơ cuối cấp (`program-completion`, `final-year-records`), biểu phí theo nhóm tuổi (`fees`), nhập lớp và học sinh từ Excel (`imports`), nội dung kí hồ sơ (`signing-content`) đều tính theo tháng tuổi hoặc nhóm tuổi Mầm non. Bảng `children` và các màn hình "trẻ" mang tên Mầm non.
+   - **Giả định Mầm non ở giao diện:** cây menu cổng quản trị (`packages/shared/src/portal-menu.ts`) có phân hệ "Quản lý giáo dục Mầm non" (cùng các mục như 1.1 "Hồ sơ học sinh cuối cấp mầm non", 2.4 "Báo cáo giáo dục mầm non cuối năm"); ô ngữ cảnh ở thanh đầu trang là hằng số `EDUCATION_LEVEL_LABEL = 'Cấp MN'` (`portal-shell`). Ứng dụng phụ huynh, ứng dụng giáo viên và cổng nhận diện (`apps/identity`) không ghi cứng chữ "Mầm non" nhưng toàn bộ nghiệp vụ là của trẻ Mầm non.
+   - **Lịch năm học:** `academic_years`, `academic_terms` (`first_term`, `second_term`, `summer_term`), `school_weeks` nằm ở cơ sở dữ liệu hệ thống, mỗi năm học một dòng chung cả trường; mỗi năm học một cơ sở dữ liệu riêng (`academic_year_databases`). Chưa có lịch theo cấp.
+   - **Đã viết sẵn cho đa cấp học (mục 9.2):** danh mục, mẫu và tiêu chí của DT-18 có cột cấp học, dữ liệu mặc định bản Mầm non; DT-19 gom về một nguồn.
+   - **Đã có sẵn hàm tạo tên chung cho đa thuê bao:** `cacheKey` (khóa Redis) và `storageKey` (đường dẫn S3) ở `apps/api/src/common/resource-names.ts`.
+
+### 10.2 Nguyên tắc
+
+- **Không đổi hành vi Mầm non:** sau DT-19, trường chỉ có cấp Mầm non chạy y như trước (cùng menu, màn hình, kết quả báo cáo). Mọi cột mới có mặc định `MN`; mọi chỗ đọc cấp học mà không thấy cấp thì coi là `MN`. Toàn bộ e2e và kiểm thử đơn vị hiện có vẫn đạt mà không sửa kỳ vọng (mục 10.6).
+- **Một nguồn cấp học của trường:** bảng `school_levels` ở cơ sở dữ liệu hệ thống (trường có những cấp nào, bật hay tắt, thứ tự, tên hiển thị, thuật ngữ gọi người học). Các chỗ rời (`website_settings.school_levels`, `EDUCATION_LEVEL_LABEL`) đọc từ nguồn này.
+- **Bốn mã cấp cố định** `MN`, `TH`, `THCS`, `THPT` (đã dùng ở 18d, 18g, 22i); thêm cấp phải sửa mã, không sửa dữ liệu. Trường liên cấp là trường bật nhiều mã.
+- **Cấp học là thuộc tính của khối và lớp, không phải của vai trò:** lớp thuộc một khối, khối thuộc một cấp. Người dùng được giới hạn theo cấp bằng phạm vi cấp (mặc định mọi cấp), không tạo vai trò mới theo cấp.
+- **Giữ tên bảng:** không đổi tên bảng `children`, `classes` và các cột đã có; chỉ đổi nhãn giao diện theo cấp (Trẻ hay Học sinh). Đổi tên bảng làm vỡ mọi truy vấn mà không mang giá trị nghiệp vụ.
+- **Viết sẵn cho đa thuê bao (DT-SaaS):** không thêm biến `.env` riêng của trường; cấu hình cấp học lưu trong cơ sở dữ liệu hệ thống; không ghi cứng tên miền, tên trường hay mã trường; khóa Redis qua `cacheKey` và đường dẫn S3 qua `storageKey`, không tự ghép chuỗi. Bảng mới thuộc cơ sở dữ liệu của trường (hệ thống, định danh hoặc năm học), không có bảng dùng chung giữa các trường.
+- **Không thêm nghiệp vụ cấp khác:** màn hình của Tiểu học, THCS, THPT chỉ đặt vào menu khi DT-20, DT-21 làm. DT-19 chỉ đưa vào nền (bảng, hàm dùng chung, bộ lọc, nhãn).
+- **Dữ liệu thật:** không ghi dữ liệu thật của trường, người hay văn bản vào mã, dữ liệu mẫu, kiểm thử hay tài liệu. Dữ liệu mẫu đa cấp chỉ ở bản trình diễn (18h).
+
+### 10.3 Các phần
+
+Số migration ghi theo thứ tự dự kiến; mỗi phần giữ sẵn số riêng để làm song song (kho mã đã bật `allowUnorderedMigrations`, không đánh lại số sang dải của phần khác). Phần nào không cần số đã giữ ở một cơ sở dữ liệu thì để trống số đó, không cho phần khác dùng. Số bắt đầu của DT-19: năm học 0072, hệ thống 0023, định danh 0064 (các số nhỏ hơn đã dùng hoặc đã giữ cho DT-18, kể cả 22d năm học 0070, định danh 0062 và 22f năm học 0071, định danh 0063). YCTD-150 dành cho chính bản kế hoạch này, YCTD của các phần bắt đầu từ YCTD-151. Số spec e2e mới giữ từ `81-` trở đi (`79-`, `80-` để dành cho 22d, 22f nếu hai phần đó có spec).
+
+| Phần | Phạm vi | Đợt | Phụ thuộc | YCTD giữ sẵn | Migration giữ sẵn | e2e giữ sẵn |
+|---|---|---|---|---|---|---|
+| 19a | Nền cấp học của trường: bảng `school_levels`, hàm dùng chung đọc cấp, phạm vi cấp của người dùng, nối các cột cấp rời về một nguồn | 1 | Không | YCTD-151 | Hệ thống 0023; định danh 0064 | 81 |
+| 19b | Cấu trúc theo cấp: khối, lớp, chương trình theo cấp; đơn vị theo cấp; học kỳ và tuần theo cấp; bỏ giả định tuổi ở khối của cấp khác | 1 | Không (dùng bốn mã cấp cố định; nối với `school_levels` khi 19a gộp) | YCTD-152 | Năm học 0072; hệ thống 0024 | 82 |
+| 19c | Menu và phân hệ theo cấp: thuộc tính cấp ở phân hệ và mục menu, nhãn thuật ngữ, ô ngữ cảnh, chọn cấp đang làm việc | 2 | Sau khi 19a gộp (đọc `school_levels`) | YCTD-153 | Định danh 0065 | 83 |
+| 19d | Số liệu theo cấp: thống kê, báo cáo, EMIS, biểu phí, nhập Excel, tăng trưởng, chấm công và suất ăn tách khỏi giả định tuổi Mầm non, lọc theo cấp | 2 | Sau khi 19a, 19b gộp | YCTD-154 | Năm học 0073 | 84 |
+| 19e | Cổng phụ huynh và ứng dụng giáo viên đa cấp: nhiều con ở nhiều cấp trong một trường, giáo viên dạy nhiều cấp, thông báo theo cấp, màn hình theo cấp | 3 | Sau khi 19a, 19b, 19c gộp | YCTD-155 | Năm học 0074 | 85 |
+| 19f | Chuyển và kiểm dữ liệu Mầm non, dữ liệu mẫu đa cấp, chuẩn bị cho DT-20, DT-21 | 3 | Sau khi 19a đến 19d gộp | YCTD-156 | Hệ thống 0025; năm học 0075; định danh 0066 | 86 |
+
+Đợt làm, mỗi lúc tối đa hai phiên:
+- Đợt 1: 19a và 19b.
+- Đợt 2: 19c và 19d, bắt đầu khi 19a đã gộp (19d còn cần 19b đã gộp).
+- Đợt 3: 19e và 19f, bắt đầu khi đợt 2 đã gộp.
+
+Thứ tự gộp để đánh số tài liệu (phiên bản, CT, AC, BR, MH, PQ) không trùng theo đợt: 19a, 19b, 19c, 19d, 19e, 19f; phần gộp sau đánh lại số tài liệu theo nhánh chính lúc gộp. Mã YCTD, số migration và số e2e giữ sẵn ở bảng trên không đổi theo thứ tự gộp.
+
+### 10.4 Phạm vi chi tiết
+
+#### 19a. Nền cấp học của trường
+
+- Bảng `school_levels` (hệ thống): mã cấp (`MN`, `TH`, `THCS`, `THPT`), bật hay tắt, thứ tự, tên hiển thị, thuật ngữ gọi người học (trẻ, học sinh), nhãn ô ngữ cảnh ("Cấp MN" như của Sở cho Mầm non). Nạp mặc định: một dòng `MN` bật, ba dòng còn lại tắt. Trường hiện có tự nhận cấp Mầm non, không cần thao tác.
+- Hàm dùng chung `SchoolLevelResolver` ở `apps/api`: danh sách cấp đang bật, kiểm tra một cấp có bật không, cấp mặc định; bộ nhớ đệm khóa qua `cacheKey`. Mọi phần sau đọc cấp qua hàm này, không đọc cột rời.
+- Nối các nguồn rời về một: `website_settings.school_levels` (18f) đọc từ `school_levels` (cột cũ giữ làm dự phòng, không xóa trong DT-19); `EDUCATION_LEVEL_LABEL` ở `portal-shell` thay bằng nhãn đọc từ bảng; trang công khai của 18f lấy cấp từ hàm chung.
+- Phạm vi cấp của người dùng (định danh 0064): bảng người dùng và cấp được xem (không có dòng nào nghĩa là mọi cấp); hàm kiểm tra dùng chung cho API. Quyền hiện có giữ nguyên, phạm vi cấp chỉ thu hẹp thêm. Quyền mới "Cấu hình cấp học của trường" ghi vào ma trận quyền (08).
+- Màn hình: Cấu hình trường (mục 1.4) thêm thẻ "Cấp học của trường" (bật, tắt, thứ tự, tên, thuật ngữ); cấp đang có lớp hoặc học sinh chỉ ẩn được, không xóa.
+- Ghi nhật ký thao tác mọi thay đổi cấp học.
+- **Mở đường cho DT-20, DT-21:** bật cấp `TH`, `THCS`, `THPT` chỉ là bật dòng, không đổi mã; DT-20, DT-21 đọc cấp qua hàm này.
+
+#### 19b. Cấu trúc theo cấp: khối, lớp, chương trình, năm học
+
+- **Khối (`grade_levels`):** thêm cột `school_level` (mặc định `MN`); `age_from_months`, `age_to_months` thành tùy chọn ở cấp ngoài Mầm non (cấp Mầm non giữ bắt buộc, kiểm tra ở lớp dịch vụ). Danh mục khối mẫu theo cấp, trường nạp khi bật cấp: Mầm non giữ mã hiện có, Tiểu học khối 1 đến 5, THCS khối 6 đến 9, THPT khối 10 đến 12. Mã khối duy nhất trong trường, không trùng giữa các cấp.
+- **Lớp (`classes`):** thêm `school_level` (mặc định `MN`, suy ra từ khối, không cho lệch khối). `age_group` chỉ dùng ở Mầm non (kiểm tra ở lớp dịch vụ, giữ kiểu cũ, không thêm giá trị). Các cờ riêng Mầm non (`two_sessions_per_day`, `mixed_age_count`, `is_combined`) chỉ hiện ở lớp Mầm non; `boarding` dùng được ở mọi cấp (nghiệp vụ bán trú của Tiểu học là DT-20). Nhập lớp từ Excel (2.2) nhận cột cấp (trống là cấp duy nhất đang bật, hoặc `MN`).
+- **Chương trình theo cấp:** bảng `curricula` (chương trình, cấp, khối áp dụng, trạng thái); lớp và khối tham chiếu chương trình. Mầm non: chương trình hiện có (hoàn thành chương trình, 4.4) gắn vào chương trình Mầm non mặc định. Chương trình môn học và số tiết là DT-20, DT-21; DT-19 chỉ có khung và danh mục.
+- **Đơn vị:** bảng nối `org_unit_levels` (điểm trường, phân hiệu có những cấp nào); trường chỉ có `MN` thì mọi đơn vị tự có `MN` khi chuyển dữ liệu (19f). Hồ sơ trường, điểm trường hiện cấp của đơn vị.
+- **Học kỳ và tuần theo cấp (hệ thống 0024):** `academic_terms` và `school_weeks` thêm `school_level` tùy chọn (trống là chung cả trường, hành vi hiện tại); trường liên cấp khai báo học kỳ, tuần nghỉ riêng từng cấp khi cần. Ngày làm việc trong tuần (`school_days_of_week`) có bản theo cấp ở bảng `academic_year_level_settings` cùng migration. Lịch ở cổng quản trị chọn cấp để xem; lịch chung giữ nguyên.
+- **Năm học:** vẫn một năm học một cơ sở dữ liệu cho cả trường, không tách theo cấp (mục 10.5). Mở năm học mới và chuyển hồ sơ lên năm học (5.7) chép khối, lớp, chương trình, cấp; lên lớp theo khối kế tiếp trong cùng cấp; khối cuối cấp chuyển sang khối đầu của cấp kế nếu trường bật cấp đó, nếu không thì ra "hoàn thành cấp học" (logic Mầm non giữ nguyên, nối với 1.1 Hồ sơ cuối cấp).
+- **Mở đường cho DT-20, DT-21:** khối 1 đến 12, chương trình theo cấp, lịch theo cấp, lớp thuộc cấp là chỗ để 22c thời khoá biểu, sổ điểm, học bạ bám vào.
+
+#### 19c. Menu và phân hệ theo cấp
+
+- **Thuộc tính cấp ở menu:** `PortalWorkspace` và `PortalMenuNode` thêm `levels` tùy chọn (trống là mọi cấp); danh sách mục menu (`listPortalMenuEntries`) lọc theo cấp bật của trường và cấp đang làm việc. Mục hiện có gắn `levels: ['MN']` khi nghiệp vụ là của Mầm non (hồ sơ cuối cấp Mầm non, báo cáo giáo dục mầm non cuối năm, mẫu EMIS Mầm non, dinh dưỡng theo tháng tuổi); phần còn lại mọi cấp.
+- **Phân hệ "Quản lý giáo dục Mầm non":** giữ phân hệ và số menu như của Sở khi trường chỉ có Mầm non (giữ y hệt). Khi trường bật cấp khác, tên phân hệ thành "Quản lý giáo dục" và các nhóm riêng Mầm non hiện theo cấp (DT-20, DT-21 thêm nhóm của cấp mình). Tên phân hệ lấy từ nhãn trong `school_levels`, không ghi cứng.
+- **Chọn cấp đang làm việc:** trường nhiều cấp có bộ chọn cấp ở thanh đầu trang (ô ngữ cảnh có sẵn ở 16c); lựa chọn lưu theo người dùng (định danh 0065, bảng ưu tiên người dùng; để trống số này nếu lưu ở giao diện là đủ) và truyền vào API qua một tham số cấp dùng chung; "Tất cả" là mặc định cho người có nhiều cấp.
+- **Nhãn thuật ngữ theo cấp:** "Trẻ", "Hồ sơ trẻ" ở Mầm non; "Học sinh", "Hồ sơ học sinh" ở cấp khác; "Nhóm lớp" hay "Lớp" theo cấp. Bảng nhãn ở `packages/shared`, không ghi cứng chữ ở từng trang; các trang đã ghi cứng (mục 10.1) chuyển sang bảng này mà không đổi chữ ở Mầm non.
+- **Ma trận quyền (08):** cây quyền theo cây menu vẫn đủ mọi mục; mục không thuộc cấp bật của trường ẩn khỏi cây quyền của trường đó.
+- **Trang chủ và liên kết nhanh:** ô liên kết nhanh (`quick-links`) lọc theo cấp bật; quyền hiện từng mục do cổng kiểm tra như cũ, máy chủ vẫn kiểm tra quyền ở mọi yêu cầu.
+- **Mở đường cho DT-20, DT-21:** các phân hệ mới của Tiểu học, THCS, THPT thêm vào cây menu bằng thuộc tính `levels` mà không sửa khung.
+
+#### 19d. Số liệu theo cấp: thống kê, báo cáo, biểu phí
+
+- **Tham số cấp dùng chung:** các điểm cuối thống kê, báo cáo, danh sách học sinh, lớp, nhân sự nhận tham số cấp (cùng bộ lọc của 19c); không có tham số thì trả như trước (trường một cấp) hoặc gộp mọi cấp (trường nhiều cấp) theo từng báo cáo.
+- **Thống kê (5.1 đến 5.3):** thống kê lớp, học sinh, nhân sự thêm cột và bộ lọc cấp; nhóm tuổi chỉ hiện ở Mầm non, cấp khác thống kê theo khối.
+- **EMIS:** biểu mẫu Mầm non (`emis-01-calc`, `emis-so-calc`, `emis-forms`) chỉ tính từ lớp, học sinh thuộc cấp `MN`; trường nhiều cấp chọn cấp ở màn hình EMIS. Biểu EMIS Tiểu học, THCS, THPT là DT-20, DT-21 (khảo sát hệ thống của Sở sau).
+- **Chấm công, suất ăn, tăng trưởng, hoàn thành chương trình, hồ sơ cuối cấp:** báo cáo chấm công và suất ăn (`attendance-meals`) lọc theo cấp; tăng trưởng (`health/growth`) chỉ tính theo tháng tuổi cho Mầm non (chuẩn của cấp khác thêm ở DT-20); hồ sơ cuối cấp (`final-year-records`, 1.1) chỉ cho cấp Mầm non (hồ sơ chuyển cấp của cấp khác là DT-20, DT-21).
+- **Biểu phí (`fees`):** biểu phí thêm `school_level` (mặc định `MN`; năm học 0073); phí theo nhóm tuổi ở Mầm non, theo khối ở cấp khác; tính phí, công nợ, phiếu thu, thanh toán không đổi. Tiền ăn dùng chung (rà theo 22b).
+- **Nhập Excel (2.2, 4.1.2, nhập học sinh):** nhập theo cấp (cột mã khối, không bắt buộc nhóm tuổi ở cấp khác); mẫu Excel tải về theo cấp.
+- **Kí hồ sơ (`signing-content`):** mẫu có tên cấp ở tiêu đề lấy từ nhãn cấp.
+- **Danh mục dùng chung (DT-18 đã có cột cấp):** gom `education_level` (văn bản, 17e) và `school_level` (18d, 18g, 22i) về cùng bộ bốn mã; không đổi nội dung cột, chỉ thêm kiểm tra giá trị và bộ lọc dùng chung.
+- **Mở đường cho DT-20, DT-21:** báo cáo, thống kê, EMIS đã nhận tham số cấp nên báo cáo của Tiểu học, THCS, THPT thêm vào mà không sửa khung.
+
+#### 19e. Cổng phụ huynh và ứng dụng giáo viên đa cấp
+
+- **Cổng phụ huynh (`apps/parent`):** phụ huynh có con ở nhiều cấp trong cùng trường (liên cấp) hoặc nhiều con khác khối thấy đủ các con và chọn từng con; mỗi con hiện theo cấp của lớp (nhãn thuật ngữ theo cấp; màn hình chỉ hiện khi cấp có chức năng, ví dụ hồ sơ cuối cấp Mầm non chỉ ở con Mầm non). Cấu trúc màn hình và quyền hiện có giữ nguyên; trường Mầm non thấy y như cũ.
+- **Ứng dụng giáo viên (`apps/teacher`):** giáo viên dạy hoặc chủ nhiệm lớp ở nhiều cấp thấy lớp theo cấp, chọn lớp rồi vào chức năng đúng cấp; điểm danh, đánh giá hằng ngày hiện là của Mầm non nên chỉ hiện ở lớp Mầm non; điểm danh theo tiết, sổ điểm, sổ đầu bài là DT-20, DT-21 thêm vào cùng khung.
+- **Thông báo và tin nhắn theo cấp:** thông báo, tin tức, sự kiện có đối tượng nhận theo cấp (năm học 0074, cột `audience_levels`, trống là mọi cấp); gửi theo lớp, khối, cấp; phụ huynh chỉ nhận tin của cấp con học. Số người nhận hiện trước khi gửi.
+- **Đăng nhập và nhận diện (`apps/identity`):** tài khoản phụ huynh, giáo viên vẫn một tài khoản cho cả trường, không tạo tài khoản theo cấp; chọn con, chọn lớp xử lý ở ứng dụng.
+- **Mở đường cho DT-20, DT-21:** màn hình học sinh (điểm, nhận xét, học bạ, thời khoá biểu) của Tiểu học, THCS, THPT đặt vào khung chọn con, chọn lớp theo cấp.
+
+#### 19f. Chuyển và kiểm dữ liệu Mầm non, dữ liệu mẫu đa cấp
+
+- **Chuyển dữ liệu:** các cột mới có mặc định `MN`; migration năm học 0075 gán cấp `MN` cho khối, lớp, chương trình, đơn vị, biểu phí và danh mục còn thiếu ở mọi cơ sở dữ liệu năm học (kể cả năm học đã đóng, chế độ chỉ đọc: chỉ ghi cột cấp, không đổi nội dung nghiệp vụ); hệ thống 0025 nạp `school_levels` từ `website_settings.school_levels` và gán cấp cho học kỳ, tuần; định danh 0066 chốt phạm vi cấp mặc định của người dùng. Migration chạy lặp được (chạy lại không đổi kết quả).
+- **Công cụ kiểm đối chiếu:** lệnh kiểm chỉ đọc, chạy trước và sau chuyển: đếm khối, lớp, học sinh, nhân sự, biểu phí, phiếu thu, điểm danh, phiếu khám, hồ sơ cuối cấp theo từng năm học và so khớp; kiểm toàn vẹn (lớp thuộc khối cùng cấp, đơn vị có cấp, cấp ở mọi dòng thuộc bốn mã). Kết quả ghi vào nhật ký, không ghi dữ liệu thật.
+- **Dữ liệu trình diễn đa cấp (18h):** bản trình diễn có thêm trường liên cấp giả (Tiểu học, THCS) để thử menu, cổng phụ huynh, ứng dụng giáo viên; không đổi dữ liệu trình diễn Mầm non hiện có.
+- **Kiểm thử đa cấp:** e2e `86-multi-level.spec.ts` (trường liên cấp: bật cấp, tạo khối, lớp Tiểu học, menu, bộ chọn cấp, cổng phụ huynh hai con ở hai cấp) cùng e2e `81-` đến `85-` của các phần; kiểm thử đơn vị cho hàm cấp, chuyển năm học, lọc cấp.
+- **Tài liệu:** cập nhật `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `14_DAC_TA_GIAO_DIEN.md`, `12_KIEN_TRUC_HE_THONG.md` (nền đa cấp học, chuyển dữ liệu); ghi quy ước "đọc cấp qua `SchoolLevelResolver`" cho DT-20, DT-21.
+- **Chuẩn bị cho DT-20, DT-21:** rà và chốt lại bảng điểm mở đường (mục 10.7); DT-20, DT-21 chỉ bắt đầu khi 19f gộp xong.
+
+### 10.5 Quyết định thiết kế và phương án đã loại
+
+Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+- **Một cơ sở dữ liệu năm học cho cả trường, không tách theo cấp:** trường liên cấp dùng chung nhân sự, phụ huynh, tài chính, cơ sở vật chất giữa các cấp. Tách cơ sở dữ liệu theo cấp buộc đồng bộ hai bên và vỡ mô hình "một năm học một cơ sở dữ liệu" mà DT-SaaS dựa vào. Phân biệt cấp bằng cột `school_level` ở khối, lớp và các bảng cần.
+- **Không thêm `school_level` vào mọi bảng:** chỉ khối, lớp, chương trình, đơn vị (bảng nối), biểu phí, học kỳ, tuần, thông báo. Học sinh, điểm danh, phiếu thu suy ra cấp từ lớp, khối; thêm cột chỉ khi truy vấn hiệu năng cần (đo ở 19d).
+- **Không đổi tên bảng `children`:** giữ cho an toàn dữ liệu và kiểm thử; đổi nhãn ở giao diện.
+- **Cấp học là bốn mã cố định, không phải danh mục tự do:** cấp học do pháp luật quy định; bảng `school_levels` chỉ lưu bật, tắt, tên hiển thị.
+- **Trường liên cấp** là trường bật nhiều mã cấp; người phụ trách một cấp (ví dụ phó hiệu trưởng) dùng phạm vi cấp của người dùng (19a), không tạo vai trò mới.
+
+### 10.6 Rủi ro chuyển dữ liệu Mầm non và cách kiểm
+
+| Rủi ro | Cách kiểm |
+|---|---|
+| Cột cấp mới làm đổi kết quả truy vấn Mầm non (lọc `school_level` sai, bỏ sót dòng thiếu cấp) | Mặc định `MN`, cột `NOT NULL`; mọi truy vấn lọc cấp coi giá trị trống là `MN`; kiểm thử đơn vị mỗi hàm lọc cấp với dữ liệu thiếu cấp |
+| Chuyển dữ liệu năm học cũ (đã đóng, chỉ đọc) làm đổi dữ liệu cũ | Migration chỉ thêm cột có mặc định, chạy lặp được; lệnh kiểm đối chiếu trước và sau chuyển (19f) ở bản sao dữ liệu thử, không chạy thẳng bản thật; số liệu hai bên khớp từng năm học |
+| Báo cáo EMIS và thống kê Mầm non lệch số sau khi thêm lọc cấp | Kiểm thử đơn vị có sẵn (`emis-01-calc`, `emis-so-calc`, thống kê) vẫn đạt không sửa kỳ vọng; thêm ca so sánh số liệu trước và sau trên cùng bộ dữ liệu thử |
+| Menu, phân hệ Mầm non đổi tên hay biến mất khi thêm lọc cấp | Trường chỉ có Mầm non giữ y hệt menu (tên, số thứ bậc, thứ tự); kiểm thử đơn vị `portal-menu`, `menu-permissions` so với bản cũ; e2e `menu.ts` chạy lại |
+| Phạm vi cấp làm mất quyền của người dùng hiện có | Không có dòng phạm vi cấp nghĩa là mọi cấp; kiểm thử quyền cũ không đổi |
+| Hai phần cùng đợt (19a và 19b, 19c và 19d, 19e và 19f) cùng sửa schema hoặc menu | Số migration giữ sẵn riêng, cột mới ở bảng khác nhau; thứ tự gộp theo mục 10.3; rà trùng khi gộp |
+| 22d, 22f (làm ở DT-18) ghi cứng giả định Mầm non | Hai phần đó viết theo "viết sẵn cho đa cấp học" (mục 9.2); 19d rà lại, thêm lọc cấp vào bảng của hai phần nếu cần |
+| Trường liên cấp dùng sai (lớp lệch khối, cấp chưa bật) | Lớp dịch vụ kiểm lớp thuộc khối cùng cấp và cấp đã bật; kiểm thử đơn vị từng ràng buộc |
+
+**Cổng kiểm của mỗi phần DT-19:**
+- Kiểm thử đơn vị toàn bộ kho đạt, không sửa kỳ vọng của kiểm thử đang có.
+- E2E toàn bộ hiện có đạt (kể cả spec của 22d, 22f nếu đã gộp), cộng e2e mới của phần.
+- Typecheck, lint, build đạt; CI 4/4 xanh trước khi gộp.
+- Chạy migrate trên bản sao có dữ liệu thử nhiều năm học; từ 19f trở đi kiểm đối chiếu khớp.
+- Phiên bản phần mềm tăng theo từng phần; riêng bản kế hoạch này (YCTD-150) chỉ đổi tài liệu, giữ nguyên phiên bản phần mềm.
+
+### 10.7 Phần của DT-19 mở đường cho DT-20 và DT-21
+
+| Cần của DT-20, DT-21 | Do phần nào của DT-19 chuẩn bị |
+|---|---|
+| Bật cấp Tiểu học, THCS, THPT cho trường; đọc cấp ở mọi nơi | 19a (`school_levels`, `SchoolLevelResolver`) |
+| Khối 1 đến 12, lớp thuộc cấp, chương trình theo cấp: nền của sổ điểm, học bạ, thời khoá biểu | 19b (khối, lớp, `curricula`) |
+| Học kỳ, tuần nghỉ riêng từng cấp: nền của thời khoá biểu 22c (DT-20) và kiểm tra đánh giá 22g (DT-21) | 19b (học kỳ, tuần theo cấp) |
+| Phân hệ, menu riêng từng cấp; nhãn "Học sinh" | 19c (thuộc tính `levels`, nhãn thuật ngữ, chọn cấp) |
+| Báo cáo, thống kê, EMIS, biểu phí theo cấp | 19d (tham số cấp dùng chung, biểu phí theo khối) |
+| Phụ huynh xem điểm, nhận xét, học bạ; giáo viên nhập điểm, sổ đầu bài theo lớp, theo tiết | 19e (chọn con, chọn lớp theo cấp, thông báo theo cấp) |
+| Dữ liệu mẫu và kiểm thử trường liên cấp | 19f (trình diễn đa cấp, e2e đa cấp) |
+
+- **DT-20 (Tiểu học, kèm 22c thời khoá biểu)** xây trên 19a, 19b, 19c, 19e: cấp `TH`, khối 1 đến 5, lịch Tiểu học, menu Tiểu học, màn hình học sinh. Báo cáo EMIS Tiểu học và biểu phí theo khối dùng 19d.
+- **DT-21 (THCS, THPT, kèm 22g kiểm tra đánh giá)** xây trên cùng nền và dùng khung chương trình `curricula` (19b) cho tổ hợp môn.
+- DT-20, DT-21 chỉ bắt đầu sau khi 19f gộp xong. Khi Eric có tài khoản trường Tiểu học trên hệ thống của Sở thì khảo sát để làm khớp, như đã làm với Mầm non.
+- DT-19 không làm (để DT-20, DT-21): sổ điểm, học bạ số, thời khoá biểu, sổ đầu bài, điểm danh theo tiết, đánh giá theo TT 27/2020 và TT 22/2021, khen thưởng cuối năm, EMIS các cấp, xét tốt nghiệp, tổ hợp môn.
+
+### 10.8 Quy ước chung của DT-19
+
+- Mỗi phần ghi YCTD giữ sẵn ở mục 10.3, cập nhật tài liệu theo quy ước của kho (02, 07, 08, 10, 11, 14, 16, 17, 21, 23, 24, 32, `index.md` khi có thay đổi tương ứng), chạy đủ kiểm thử đơn vị và e2e, mở PR, gộp khi mọi kiểm tra CI đạt.
+- Mỗi PR của phần nêu rõ cột mới, cách xử lý dữ liệu cũ và kết quả đối chiếu trước, sau chuyển.
+- Mã mới theo mục 10.2 (đa thuê bao, không `.env` riêng của trường, `cacheKey`, `storageKey`).
+- Các điểm chi tiết không nêu ở đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 và ghi vào YCTD của từng phần.
+
+### 10.9 Tiến độ
+
+| Phần | Đợt | Tiến độ |
+|---|---|---|
+| 19a | 1 | Chưa làm |
+| 19b | 1 | Chưa làm |
+| 19c | 2 | Chưa làm, chờ 19a |
+| 19d | 2 | Chưa làm, chờ 19a, 19b |
+| 19e | 3 | Chưa làm, chờ đợt 2 |
+| 19f | 3 | Chưa làm, chờ đợt 2 |
