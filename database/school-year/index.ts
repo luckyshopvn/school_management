@@ -68,6 +68,7 @@ import { migration as createFoodSafety } from './migrations/0068_create_food_saf
 import { migration as createEducationPlans } from './migrations/0069_create_education_plans.js';
 import { migration as createEmulation } from './migrations/0070_create_emulation.js';
 import { migration as createQualityAssurance } from './migrations/0071_create_quality_assurance.js';
+import { migration as addSchoolLevelStructure } from './migrations/0072_add_school_level_structure.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
@@ -140,4 +141,5 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0069_create_education_plans': createEducationPlans,
   '0070_create_emulation': createEmulation,
   '0071_create_quality_assurance': createQualityAssurance,
+  '0072_add_school_level_structure': addSchoolLevelStructure,
 };

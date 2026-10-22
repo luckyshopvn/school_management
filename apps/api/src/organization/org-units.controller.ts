@@ -1,7 +1,7 @@
-import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Patch, Post, Put, Query, Req, Res } from '@nestjs/common';
 import type { OrgUnitStatus, OrgUnitType } from '@school-management/database';
 import { validationError, type FieldError } from '@school-management/server';
-import { PERMISSION_CODES } from '@school-management/shared';
+import { PERMISSION_CODES, isSchoolLevelCode, type SchoolLevelCode } from '@school-management/shared';
 import type { Request, Response } from 'express';
 import { readExportColumns } from '../classes/class-list.js';
 import { sendWorkbook } from '../children/student-workbook.js';
@@ -114,6 +114,31 @@ export class OrgUnitsController {
   @Get('tree')
   tree() {
     return this.orgUnitsService.tree();
+  }
+
+  // Cấp học của từng đơn vị (DT-19 phần 19b, YCTD-152)
+  @Get('levels')
+  levels() {
+    return this.orgUnitsService.listLevels();
+  }
+
+  @Put(':id/levels')
+  @RequirePermission(PERMISSION_CODES.orgUnitManage)
+  setLevels(
+    @Param('id', uuidParameter('Mã đơn vị không hợp lệ')) orgUnitId: string,
+    @Body() body: RequestBody,
+    @Req() request: Request,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const levels = body?.school_levels;
+    if (!Array.isArray(levels) || levels.length === 0 || !levels.every(isSchoolLevelCode)) {
+      throw validationError([{ field: 'school_levels', message: 'Chọn ít nhất một cấp học: MN, TH, THCS, THPT' }]);
+    }
+    return this.orgUnitsService.setLevels(
+      orgUnitId,
+      [...new Set(levels as SchoolLevelCode[])],
+      originOf(request, currentUser),
+    );
   }
 
   // Xuất Excel 1.2 phân hiệu, 1.3 điểm trường theo bộ lọc và các cột đang hiện trên lưới; cần quyền xuất dữ liệu

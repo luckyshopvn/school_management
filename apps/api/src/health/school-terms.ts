@@ -22,6 +22,8 @@ export class SchoolTerms {
       .selectFrom('academic_terms')
       .select(['term_type', 'start_date', 'end_date'])
       .where('academic_year_id', '=', academicYearId)
+      // Lịch chung cả trường; lịch riêng của cấp đọc ở lịch theo cấp (YCTD-152)
+      .where('school_level', 'is', null)
       .execute();
     return rows.map((row) => ({
       term_type: row.term_type,

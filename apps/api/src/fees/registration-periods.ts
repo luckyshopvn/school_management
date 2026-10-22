@@ -60,6 +60,8 @@ export class RegistrationPeriods {
       .selectFrom('academic_terms')
       .select(['term_type', 'start_date', 'end_date'])
       .where('academic_year_id', '=', academicYearId)
+      // Lịch chung cả trường; lịch riêng của cấp đọc ở lịch theo cấp (YCTD-152)
+      .where('school_level', 'is', null)
       .orderBy('start_date')
       .execute();
     const first = terms[0];

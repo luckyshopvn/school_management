@@ -8,6 +8,13 @@ type DateText = ColumnType<string, string, string>;
 export type AcademicYearStatus = 'draft' | 'open' | 'closed';
 export type AcademicTermType = 'first_term' | 'second_term' | 'summer_term';
 export type AcademicYearDatabaseStatus = 'active' | 'read_only';
+// Cấp học của lịch riêng (DT-19 phần 19b, YCTD-152); trống là lịch chung cả trường
+type CalendarSchoolLevel = 'MN' | 'TH' | 'THCS' | 'THPT';
+type CalendarLevelColumn = ColumnType<
+  CalendarSchoolLevel | null,
+  CalendarSchoolLevel | null | undefined,
+  CalendarSchoolLevel | null
+>;
 
 export interface AcademicYearsTable {
   id: Generated<string>;
@@ -27,6 +34,7 @@ export interface AcademicTermsTable {
   term_type: AcademicTermType;
   start_date: DateText;
   end_date: DateText;
+  school_level: CalendarLevelColumn;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
   created_by: string | null;
@@ -43,6 +51,17 @@ export interface SchoolWeeksTable {
   // Khai báo tuần theo Sở (DT-16 phần 16e): học kỳ chọn khác lịch, hiển thị
   term_type: ColumnType<AcademicTermType | null, AcademicTermType | null | undefined, AcademicTermType | null>;
   is_visible: Generated<boolean>;
+  school_level: CalendarLevelColumn;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+  created_by: string | null;
+}
+
+// Ngày học trong tuần riêng của một cấp (YCTD-152); cấp không có dòng thì theo năm học
+export interface AcademicYearLevelSettingsTable {
+  academic_year_id: string;
+  school_level: CalendarSchoolLevel;
+  school_days_of_week: ColumnType<number[], number[], number[]>;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
   created_by: string | null;
@@ -1173,6 +1192,7 @@ export interface SystemDatabase {
   academic_terms: AcademicTermsTable;
   school_weeks: SchoolWeeksTable;
   academic_year_databases: AcademicYearDatabasesTable;
+  academic_year_level_settings: AcademicYearLevelSettingsTable;
   integration_credentials: IntegrationCredentialsTable;
   user_quick_links: UserQuickLinksTable;
   user_grid_settings: UserGridSettingsTable;

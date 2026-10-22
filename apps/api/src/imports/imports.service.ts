@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { ClassAgeGroup, ImportType, SchoolYearDatabase } from '@school-management/database';
 import { ApplicationError, Clock, ruleViolationError, validationError } from '@school-management/server';
-import { CLASS_AGE_GROUPS, PERMISSION_CODES } from '@school-management/shared';
+import { CLASS_AGE_GROUPS, PERMISSION_CODES, usesAgeGroups, type SchoolLevelCode } from '@school-management/shared';
 import type { Kysely, Transaction } from 'kysely';
 import { randomUUID } from 'node:crypto';
 import { IdentityClient } from '../authentication/identity-client.js';
@@ -232,6 +232,7 @@ interface ClassRow extends ClassSoRow {
   code: string;
   name: string;
   grade_level: string;
+  school_level: SchoolLevelCode;
   max_size: number;
   room_id: string | null;
 }
@@ -1406,9 +1407,15 @@ export class ImportsService {
   ): Promise<{ creates: ClassRow[]; updates: ClassUpdate[] }> {
     const gradeLevels = await database
       .selectFrom('grade_levels')
-      .select(['code', 'age_from_months'])
+      .select(['code', 'age_from_months', 'school_level'])
       .where('status', '=', 'active')
       .execute();
+    const unitLevels = await database.selectFrom('org_unit_levels').select(['org_unit_id', 'school_level']).execute();
+    // Đơn vị chưa khai báo cấp coi là Mầm non (YCTD-152)
+    const unitHasLevel = (orgUnitId: string, level: SchoolLevelCode) => {
+      const levels = unitLevels.filter((row) => row.org_unit_id === orgUnitId).map((row) => row.school_level);
+      return (levels.length > 0 ? levels : ['MN']).includes(level);
+    };
     const rooms = await database
       .selectFrom('rooms')
       .select(['id', 'org_unit_id', 'code'])
@@ -1426,6 +1433,7 @@ export class ImportsService {
         'mixed_age_count',
         'is_combined',
         'combined_into_class_id',
+        'two_sessions_per_day',
       ])
       .execute();
     const seen = new Set<string>();
@@ -1486,12 +1494,28 @@ export class ImportsService {
         ? existing.find((item) => item.id === current.combined_into_class_id)
         : undefined;
       const grade = gradeLevels.find((level) => level.code === (current?.grade_level ?? values.grade_level));
+      // Cấp của lớp theo bậc học; mã bậc học không trùng giữa các cấp nên mẫu nhập không cần cột cấp (YCTD-152)
+      const schoolLevel: SchoolLevelCode = grade?.school_level ?? 'MN';
       const merged = {
         age_group: so.age_group !== undefined ? so.age_group : (current?.age_group ?? null),
         mixed_age_count: so.mixed_age_count !== undefined ? so.mixed_age_count : (current?.mixed_age_count ?? null),
         is_combined: so.is_combined ?? current?.is_combined ?? false,
         combined_into_code: so.combined_into_code !== undefined ? so.combined_into_code : (currentTarget?.code ?? null),
       };
+      if (!current && orgUnitId && grade && !unitHasLevel(orgUnitId, schoolLevel)) {
+        errors.push({ row, column: 'Mã bậc học', message: `Đơn vị chưa có cấp ${schoolLevel}` });
+      }
+      if (!usesAgeGroups(schoolLevel)) {
+        const mnOnly = [
+          merged.age_group !== null ? 'Nhóm tuổi' : null,
+          merged.mixed_age_count !== null ? 'Lớp mẫu giáo ghép 2 hoặc 3 độ tuổi' : null,
+          merged.is_combined ? 'Lớp ghép' : null,
+          (so.two_sessions_per_day ?? current?.two_sessions_per_day) ? 'Học 2 buổi/ngày' : null,
+        ].filter((column) => column !== null);
+        for (const column of mnOnly) {
+          errors.push({ row, column, message: 'Chỉ có ở lớp Mầm non' });
+        }
+      }
       checkClassSoRules(
         row,
         {
@@ -1550,6 +1574,7 @@ export class ImportsService {
           code: values.class_code ?? '',
           name: values.class_name ?? '',
           grade_level: values.grade_level ?? '',
+          school_level: schoolLevel,
           max_size: maxSize,
           room_id: room?.id ?? null,
           age_group: null,

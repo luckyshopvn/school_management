@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.28
+- Phiên bản: 0.29
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,28 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-22 — DT-19 phần 19b: cấu trúc theo cấp học
+
+#### Công việc đã thực hiện
+
+- Đọc mục 10 của `32_KE_HOACH_THEO_HE_THONG_SO.md`, mã khối, lớp, đơn vị, lịch năm học, bước chuyển năm học, nhập lớp từ Excel; rà mọi chỗ đọc `academic_terms`, `school_weeks`.
+- Cơ sở dữ liệu: tệp năm học `0072_add_school_level_structure`, tệp hệ thống `0024_add_school_level_calendar`.
+- Máy chủ API: khối theo cấp, nạp khối mẫu, chương trình theo cấp, lớp theo cấp, cấp của đơn vị, lịch theo cấp, khối kế tiếp; chỗ đọc lịch đang có chỉ đọc lịch chung.
+- Cổng quản trị: danh mục bậc học (cấp học, khối mẫu, thẻ Chương trình), biểu mẫu lớp, lịch năm học, cây đơn vị.
+- Thêm quy tắc BR-155 đến BR-158, chức năng P01-37 đến P01-40, kịch bản CT-801 đến CT-810, tiêu chí AC-734 đến AC-738. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/catalogs/level-structure.test.ts` CT-19b-1 đến CT-19b-8 đạt 8/8, `apps/api/src/academic-years/year-transition.test.ts` CT-19b-9 đạt; kiểm thử đơn vị đang có không sửa kỳ vọng; kiểm thử đơn vị toàn bộ kho mã 1019/1019; kiểm thử giao diện `tests/e2e/82-level-structure.spec.ts` (CT-19b-10) đạt; toàn bộ kiểm thử giao diện 154/154; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 19b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 10.4. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: mã khối mẫu K1 đến K12; chương trình mặc định Mầm non `CT-GDMN`; lớp ngoài Mầm non từ chối ô riêng Mầm non thay vì bỏ qua; đơn vị mới lấy cấp của Trường chính; lịch riêng của cấp là bộ học kỳ, tuần riêng (trống là lịch chung); giao diện đa cấp chỉ hiện khi trường bật từ hai cấp.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-152, `07_QUY_TAC_NGHIEP_VU.md` BR-155 đến BR-158, `10_YEU_CAU_CHUC_NANG.md` P01-37 đến P01-40, `11_TIEU_CHI_NGHIEM_THU.md` AC-734 đến AC-738, `14_DAC_TA_GIAO_DIEN.md` (MH-34, MH-45, biểu mẫu lớp, cây đơn vị), `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-801 đến CT-810, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 10.9. Phiên bản 0.102.0.
+
+#### Vấn đề tồn đọng
+
+- Thống kê, báo cáo, EMIS, biểu phí theo cấp ở 19d; lệnh kiểm đối chiếu nhiều năm học ở 19f.
 
 ### 2026-10-22 — DT-19 phần 19a: nền cấp học của trường
 

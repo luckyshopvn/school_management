@@ -195,7 +195,7 @@ export interface ReportInput {
     grade_level: string;
     status: string;
   }>;
-  gradeLevels: Array<{ code: string; name: string; age_from_months: number; order_no: number }>;
+  gradeLevels: Array<{ code: string; name: string; age_from_months: number | null; order_no: number }>;
   children: ChildRoll[];
   attendance: AttendanceRow[];
   absences: AbsenceRow[];
@@ -457,7 +457,7 @@ export function buildReport(input: ReportInput) {
       grade_level: classRecord.grade_level,
       grade_level_name: grade?.name ?? classRecord.grade_level,
       // Nhà trẻ là khối cho trẻ dưới 36 tháng tuổi; còn lại là mẫu giáo
-      stage: grade && grade.age_from_months < 36 ? 'nha_tre' : 'mau_giao',
+      stage: grade && grade.age_from_months !== null && grade.age_from_months < 36 ? 'nha_tre' : 'mau_giao',
       days,
       ...sumDays(days, input.days, reference),
     });

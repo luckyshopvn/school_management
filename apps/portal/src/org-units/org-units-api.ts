@@ -1,3 +1,4 @@
+import type { SchoolLevelCode } from '@school-management/shared';
 import { requestJson } from '../session/api-client.js';
 import { downloadPost } from '../children/children-api.js';
 
@@ -39,6 +40,23 @@ export const UNIT_TYPE_LABELS: Record<OrgUnitType, string> = {
   phan_hieu: 'Phân hiệu',
   diem_truong: 'Điểm trường',
 };
+
+// Cấp học của đơn vị (DT-19 phần 19b, YCTD-152)
+export interface OrgUnitLevels {
+  org_unit_id: string;
+  school_levels: SchoolLevelCode[];
+}
+
+export function listOrgUnitLevels(): Promise<OrgUnitLevels[]> {
+  return requestJson('/api/v1/org-units/levels');
+}
+
+export function setOrgUnitLevels(orgUnitId: string, levels: SchoolLevelCode[]): Promise<OrgUnitLevels> {
+  return requestJson(`/api/v1/org-units/${orgUnitId}/levels`, {
+    method: 'PUT',
+    body: JSON.stringify({ school_levels: levels }),
+  });
+}
 
 export function readOrgUnitTree(): Promise<OrgUnitTree | null> {
   return requestJson('/api/v1/org-units/tree');
