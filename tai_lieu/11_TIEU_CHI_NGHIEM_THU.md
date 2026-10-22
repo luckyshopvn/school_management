@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.49
+- Phiên bản: 1.50
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -806,6 +806,11 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-731 | Cho trường mầm non đang dùng / Khi nâng cấp lên phiên bản có cấp học / Thì cấp Mầm non tự bật, ba cấp còn lại tắt; ô ngữ cảnh vẫn "Cấp MN"; website chỉ có nhóm công khai Mầm non; mọi chức năng cũ không đổi (CT-797; YCTD-151) |
 | AC-732 | Cho Hiệu trưởng / Khi bật cấp Tiểu học, tắt hết các cấp, tắt Mầm non đang có lớp / Thì ô ngữ cảnh thành "Cấp MN, Cấp TH", website đọc cấp mới; tắt hết bị từ chối; tắt Mầm non hiện cảnh báo số lớp, lớp giữ nguyên; có nhật ký; người không có quyền chỉ xem (CT-795, CT-798, CT-800; YCTD-151) |
 | AC-733 | Cho người quản lý tài khoản / Khi đặt phạm vi cấp Tiểu học cho một tài khoản / Thì tài khoản chỉ xem cấp Tiểu học; phạm vi trống là mọi cấp; cấp trong phạm vi bị tắt thì không còn cấp nào; mã cấp sai bị từ chối; có nhật ký (CT-796, CT-799, CT-800; YCTD-151) |
+| AC-734 | Cho Hiệu trưởng / Khi tạo khối Mầm non thiếu tháng tuổi, nạp khối mẫu Tiểu học hai lần / Thì khối Mầm non bị từ chối; lần đầu có K1 đến K5 cấp Tiểu học không tháng tuổi, lần hai bỏ qua (CT-801, CT-802; YCTD-152) |
+| AC-735 | Cho Hiệu trưởng / Khi thêm hai chương trình mặc định Tiểu học, bỏ mặc định, ngừng dùng chương trình mặc định / Thì chỉ chương trình sau là mặc định; bỏ mặc định, ngừng dùng bị từ chối YCTD-152 (CT-803; YCTD-152) |
+| AC-736 | Cho Hiệu trưởng / Khi mở lớp khối 1 ở đơn vị chỉ có Mầm non, có nhóm tuổi, lớp ghép, chương trình Mầm non; mở đúng / Thì bị từ chối YCTD-152; lớp đúng có cấp Tiểu học, không có nhóm tuổi, nhóm lớp (CT-804, CT-810; YCTD-152) |
+| AC-737 | Cho Hiệu trưởng / Khi khai báo lịch riêng Tiểu học, đánh dấu tuần nghỉ, bỏ lịch riêng / Thì lịch chung, tuần chung không đổi; bỏ xong cấp theo lịch chung (CT-806, CT-808; YCTD-152) |
+| AC-738 | Cho trường chỉ có Mầm non / Khi mở năm học mới / Thì chương trình, cấp của đơn vị, cấp của lớp chép sang giữ mã định danh; kiểm thử đơn vị, e2e đang có đạt không sửa kỳ vọng (CT-807, CT-809; YCTD-152) |
 
 ## 20. Chưa xác minh được
 

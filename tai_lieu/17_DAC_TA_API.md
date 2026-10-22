@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.97
+- Phiên bản: 1.98
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -267,10 +267,13 @@ Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây 
 | GET | /api/v1/org-units/tree | Cây đơn vị hai cấp (QĐ-23) |
 | PATCH | /api/v1/org-units/{id} | Cập nhật tên, mã, loại cấp 2, địa chỉ, điện thoại, người phụ trách, trạng thái; không đổi được đơn vị cha vì cây chỉ có hai cấp (YCTD-38); từ YCTD-111 sửa thêm khoảng cách đến cơ sở chính, diện tích |
 | POST | /api/v1/org-units/export | Xuất Excel 1.2 phân hiệu hoặc 1.3 điểm trường theo bộ lọc và `columns`; cần `P17.data.export`, ghi nhật ký xuất (BR-117, YCTD-119) |
+| GET | /api/v1/org-units/levels | Cấp học của từng đơn vị (YCTD-152) |
+| PUT | /api/v1/org-units/{id}/levels | Đặt cấp học của đơn vị (`school_levels`, ít nhất một); cần `P01.org-unit.manage` (YCTD-152) |
 | POST | /api/v1/account-exports/roles | Xuất Excel 1.1 Nhóm người dùng theo từ khóa và `columns`; cần `P17.data.export`, ghi nhật ký xuất (BR-117, YCTD-119) |
 | GET, POST | /api/v1/academic-years | Danh sách và tạo năm học kèm lịch năm học |
 | GET, PUT | /api/v1/academic-years/{id}/calendar | Đọc và lưu học kỳ, kỳ hè, ngày học trong tuần; hệ thống tự đánh số tuần (BR-91) |
 | GET, PATCH | /api/v1/academic-years/{id}/weeks | Danh sách tuần; đánh dấu hoặc bỏ đánh dấu tuần nghỉ; từ YCTD-127 trả thêm học kỳ đang áp dụng, học kỳ chọn riêng, hiển thị; sửa học kỳ, hiển thị, tuần đệm của "3.4. Khai báo tuần" |
+| DELETE | /api/v1/academic-years/{id}/calendar | Bỏ lịch riêng của cấp (`school_level` bắt buộc); từ YCTD-152 lịch và tuần nhận `school_level` (trống là lịch chung), lịch trả thêm `school_level`, `inherited` |
 | POST | /api/v1/academic-years/{id}/open | Mở năm học: kiểm tra BR-89, BR-94, tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung, trẻ, lớp, quỹ, công nợ (YCTD-69), chuyển năm đang dùng sang đã đóng và chỉ đọc (BR-93) |
 | GET | /api/v1/academic-years/rollover/status | "5.7. Chuyển hồ sơ lên năm học mới": năm đang dùng, năm chờ mở có lịch, Hủy được hay không kèm lý do; cần `P01.academic-year.manage` (P01-27, YCTD-127) |
 | POST | /api/v1/academic-years/{id}/cancel-open | Hủy chuyển hồ sơ lên năm học mới khi năm mới chưa phát sinh dữ liệu (BR-125, YCTD-127) |
@@ -763,6 +766,7 @@ Giao kèo của các danh mục (DT-01 phần 6b, YCTD-42):
 1. `GET /departments`, `GET /job-titles`, `GET /rooms` bắt buộc `org_unit_id`; ai có vai trò ở đơn vị đó đều đọc được. `POST` nhận `org_unit_id` và các trường của bảng; `PATCH /{id}` nhận các trường sửa được và `status` (`active`, `inactive`). Ghi cần `P01.department.manage` (phòng ban, chức danh) hoặc `P01.room.manage` (phòng học) trong phạm vi đơn vị; đơn vị phải đang hoạt động.
 2. Phòng ban cha phải cùng đơn vị, đang hoạt động và không phải phòng ban con của chính nó; không ngừng sử dụng được phòng ban còn phòng ban con đang hoạt động. Vi phạm trả `ERR_RULE_VIOLATION`.
 3. `GET /catalog-items` lọc theo `catalog_type`, `status`; `GET /grade-levels` lọc theo `status`; mọi người đã đăng nhập đều đọc được. Ghi cần `P01.catalog.manage`. Mã bậc học không đổi được; độ tuổi theo tháng, tuổi từ không lớn hơn tuổi đến.
+   Từ YCTD-152, `POST /grade-levels` nhận `school_level` (mặc định MN); tháng tuổi null được ở cấp khác MN; `GET /grade-levels` lọc thêm `school_level`; `PATCH` không nhận `school_level`. `POST /curricula` nhận `code`, `name`, `school_level`, `grade_level_codes`, `is_default`, `note`. `POST`, `PATCH /classes` nhận `curriculum_id`; lớp trả `school_level`, `curriculum_id`; `GET /classes` trả thêm `curriculum_name`, lọc `school_level`, lớp ngoài MN có `age_group`, `stage` null. Lỗi quy tắc dùng mã YCTD-152.
 4. `GET /approval-thresholds` cần `P01.view`, chỉ trả hạn mức đang hiệu lực trong phạm vi đơn vị, lọc được theo `org_unit_id`. `PUT /approval-thresholds` nhận `org_unit_id`, `document_type` (tám loại của `07_QUY_TAC_NGHIEP_VU.md` mục 12.1), `threshold_amount` lớn hơn 0, tối đa hai chữ số thập phân; gửi `null` là gỡ hạn mức. Cần `P01.approval-threshold.manage`.
 5. Mã trùng trong phạm vi duy nhất trả `ERR_CONFLICT`. Mọi thao tác ghi đều ghi nhật ký thao tác; khi mở năm học mới, các danh mục chuyển sang và giữ nguyên mã định danh.
 
@@ -834,6 +838,10 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | PATCH | /api/v1/rooms/{id} | Sửa, ngừng sử dụng hoặc dùng lại phòng học; sửa khai báo cơ sở vật chất (YCTD-106) |
 | GET, POST | /api/v1/grade-levels | Danh mục bậc học |
 | PATCH | /api/v1/grade-levels/{id} | Sửa, ngừng sử dụng hoặc dùng lại bậc học; không đổi mã |
+| POST | /api/v1/grade-levels/templates | Nạp khối mẫu của cấp (`school_level` là TH, THCS, THPT); trả `created`, `skipped` (YCTD-152) |
+| GET | /api/v1/grade-levels/next | Khối kế tiếp khi lên lớp (`code`); trả `kind` (grade hoặc completed), `code`, `school_level` (YCTD-152) |
+| GET, POST | /api/v1/curricula | Chương trình theo cấp; lọc `school_level` (YCTD-152) |
+| PATCH | /api/v1/curricula/{id} | Sửa tên, khối áp dụng, mặc định, ghi chú, trạng thái; không đổi mã, cấp (YCTD-152) |
 | GET | /api/v1/audit-logs | Tra nhật ký thao tác; `page_size` đến 200 (YCTD-109) |
 | GET, POST | /api/v1/api-clients | Danh sách và cấp khóa API cho đối tác |
 | POST | /api/v1/api-clients/{id}/revoke | Thu hồi khóa API |
