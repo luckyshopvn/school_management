@@ -21,6 +21,7 @@ import { AuthenticatedUser, RequirePermission } from '../authentication/authenti
 import type { CurrentUser } from '../authentication/current-user.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
+import { childIdsOutsideLevel } from '../common/report-levels.js';
 import type { RequestBody } from '../common/request-fields.js';
 import { FacilitiesData } from '../facilities/facilities-data.js';
 import {
@@ -141,17 +142,22 @@ export class EmisSending {
         .selectFrom('classes')
         .select(['id', 'code', 'name'])
         .where('status', '=', 'active')
+        // Gửi dữ liệu đầu năm của cấp Mầm non (DT-19 phần 19d, YCTD-154)
+        .where('school_level', '=', 'MN')
         .orderBy('name')
         .execute();
       return rows.map((row) => ({ id: row.id, code: row.code, name: row.name, problem: null }));
     }
-    const children = await database
-      .selectFrom('children')
-      .select(['id', 'full_name', 'moet_student_code'])
-      .where('status', '=', 'active')
-      .where('deleted_at', 'is', null)
-      .orderBy('full_name')
-      .execute();
+    const outside = await childIdsOutsideLevel(database, 'MN');
+    const children = (
+      await database
+        .selectFrom('children')
+        .select(['id', 'full_name', 'moet_student_code'])
+        .where('status', '=', 'active')
+        .where('deleted_at', 'is', null)
+        .orderBy('full_name')
+        .execute()
+    ).filter((row) => !outside.has(row.id));
     if (type === 'child') {
       return children.map((row) => ({
         id: row.id,

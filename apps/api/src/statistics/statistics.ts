@@ -5,6 +5,8 @@ import { AuthenticatedUser, RequirePermission } from '../authentication/authenti
 import type { CurrentUser } from '../authentication/current-user.js';
 import { VIETNAM_DATE } from '../attendance/school-calendar.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
+import { readLevelFilter, type LevelFilter } from '../common/report-levels.js';
+import { SchoolLevelResolver } from '../common/school-levels.js';
 import { ageInMonths } from '../health/health-access.js';
 import { check, optionalUuid, type QueryValues } from '../reports/report-filters.js';
 import { ReportsService } from '../reports/reports.service.js';
@@ -48,7 +50,13 @@ export class StatisticsService {
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly reports: ReportsService,
     private readonly clock: Clock,
+    private readonly schoolLevels: SchoolLevelResolver,
   ) {}
+
+  // Tham số cấp của thống kê (DT-19 phần 19d, YCTD-154)
+  levelFilter(currentUser: CurrentUser, query: QueryValues): Promise<LevelFilter> {
+    return readLevelFilter(this.schoolLevels, currentUser, query);
+  }
 
   private today() {
     return VIETNAM_DATE.format(this.clock.now());
@@ -62,8 +70,8 @@ export class StatisticsService {
     return this.reports.unitScope(currentUser, PERMISSION_CODES.staffStatisticsView, orgUnitId, false);
   }
 
-  // Trẻ đang học trong phạm vi kèm lớp hiện tại
-  private async activeChildren(orgUnitIds: string[]) {
+  // Trẻ đang học trong phạm vi kèm lớp hiện tại; lọc cấp thì chỉ trẻ đang học lớp thuộc cấp đó (YCTD-154)
+  private async activeChildren(orgUnitIds: string[], levels: LevelFilter = null) {
     const { database } = await this.currentSchoolYear.require();
     return database
       .selectFrom('children')
@@ -86,6 +94,7 @@ export class StatisticsService {
       ])
       .where('children.status', '=', 'active')
       .where('children.org_unit_id', 'in', orgUnitIds)
+      .$if(levels !== null, (query) => query.where('classes.school_level', 'in', levels ?? []))
       .orderBy('org_units.name')
       .orderBy('classes.name')
       .orderBy('children.full_name')
@@ -135,16 +144,25 @@ export class StatisticsService {
     return staff.map((row) => ({ ...row, contract_type: contractOf.get(row.id) ?? null }));
   }
 
-  // 5.1 Thống kê lớp học: số lớp đang hoạt động và số học sinh đang học theo nhóm tuổi của bậc học
-  async classes(currentUser: CurrentUser, orgUnitId: string | null) {
+  // 5.1 Thống kê lớp học: số lớp đang hoạt động và số học sinh đang học theo nhóm tuổi của bậc học. Nhóm tuổi chỉ có ở lớp Mầm
+  // non; lớp của cấp khác thống kê theo khối (DT-19 phần 19d, YCTD-154)
+  async classes(currentUser: CurrentUser, orgUnitId: string | null, levels: LevelFilter = null) {
     const scope = await this.childScope(currentUser, orgUnitId);
     const { database } = await this.currentSchoolYear.require();
     const classes = await database
       .selectFrom('classes')
       .leftJoin('grade_levels', 'grade_levels.code', 'classes.grade_level')
-      .select(['classes.id', 'grade_levels.age_from_months'])
+      .select([
+        'classes.id',
+        'classes.school_level',
+        'classes.grade_level',
+        'grade_levels.name as grade_name',
+        'grade_levels.order_no as grade_order',
+        'grade_levels.age_from_months',
+      ])
       .where('classes.org_unit_id', 'in', scope.orgUnitIds)
       .where('classes.status', '=', 'active')
+      .$if(levels !== null, (query) => query.where('classes.school_level', 'in', levels ?? []))
       .execute();
     const enrolled = await database
       .selectFrom('class_enrollments')
@@ -154,9 +172,10 @@ export class StatisticsService {
       .where('children.status', '=', 'active')
       .where('class_enrollments.class_id', 'in', nonEmpty(classes.map((row) => row.id)))
       .execute();
+    const nursery = classes.filter((row) => row.school_level === 'MN');
     const groups = AGE_GROUPS.filter((group) => group.stage !== 'other').map((group) => {
       const classIds = new Set(
-        classes.filter((row) => classAgeGroup(row.age_from_months ?? 0) === group.key).map((row) => row.id),
+        nursery.filter((row) => classAgeGroup(row.age_from_months ?? 0) === group.key).map((row) => row.id),
       );
       const members = enrolled.filter((row) => classIds.has(row.class_id));
       return {
@@ -170,8 +189,29 @@ export class StatisticsService {
         children_percent: percentOf(members.length, enrolled.length),
       };
     });
+    const gradeCodes = [...new Set(classes.filter((row) => row.school_level !== 'MN').map((row) => row.grade_level))];
+    const gradeGroups = gradeCodes
+      .map((code) => {
+        const inGrade = classes.filter((row) => row.school_level !== 'MN' && row.grade_level === code);
+        const classIds = new Set(inGrade.map((row) => row.id));
+        const members = enrolled.filter((row) => classIds.has(row.class_id));
+        return {
+          grade_level: code,
+          label: inGrade[0]?.grade_name ?? code,
+          school_level: inGrade[0]?.school_level ?? 'MN',
+          order_no: inGrade[0]?.grade_order ?? 0,
+          class_count: classIds.size,
+          class_percent: percentOf(classIds.size, classes.length),
+          children_count: members.length,
+          female_count: members.filter((row) => row.gender === 'female').length,
+          children_percent: percentOf(members.length, enrolled.length),
+        };
+      })
+      .sort((left, right) => left.order_no - right.order_no || left.grade_level.localeCompare(right.grade_level))
+      .map(({ order_no: _order, ...group }) => group);
     return {
       groups,
+      grade_groups: gradeGroups,
       totals: {
         class_count: classes.length,
         children_count: enrolled.length,
@@ -181,10 +221,10 @@ export class StatisticsService {
   }
 
   // 5.3 Thống kê học sinh
-  async children(currentUser: CurrentUser, orgUnitId: string | null) {
+  async children(currentUser: CurrentUser, orgUnitId: string | null, levels: LevelFilter = null) {
     const scope = await this.childScope(currentUser, orgUnitId);
     const today = this.today();
-    const rows = (await this.activeChildren(scope.orgUnitIds)).map((row) => ({
+    const rows = (await this.activeChildren(scope.orgUnitIds, levels)).map((row) => ({
       ...row,
       age_group: childAgeGroup(ageInMonths(row.dob, today)),
     }));
@@ -248,10 +288,15 @@ export class StatisticsService {
   }
 
   // 5.8 Hồ sơ học sinh chưa nhập đủ: số học sinh thiếu từng trường; chọn trường thì kèm danh sách
-  async missingChildFields(currentUser: CurrentUser, orgUnitId: string | null, field: string | null) {
+  async missingChildFields(
+    currentUser: CurrentUser,
+    orgUnitId: string | null,
+    field: string | null,
+    levels: LevelFilter = null,
+  ) {
     const scope = await this.childScope(currentUser, orgUnitId);
     const { database } = await this.currentSchoolYear.require();
-    const rows = await this.activeChildren(scope.orgUnitIds);
+    const rows = await this.activeChildren(scope.orgUnitIds, levels);
     const guardians = await database
       .selectFrom('child_guardians')
       .innerJoin('guardians', 'guardians.id', 'child_guardians.guardian_id')
@@ -336,14 +381,16 @@ export class StatisticsController {
 
   @Get('classes')
   @RequirePermission(PERMISSION_CODES.childStatisticsView)
-  classes(@Query() query: QueryValues, @AuthenticatedUser() currentUser: CurrentUser) {
-    return this.statistics.classes(currentUser, this.unit(query));
+  async classes(@Query() query: QueryValues, @AuthenticatedUser() currentUser: CurrentUser) {
+    const orgUnitId = this.unit(query);
+    return this.statistics.classes(currentUser, orgUnitId, await this.statistics.levelFilter(currentUser, query));
   }
 
   @Get('children')
   @RequirePermission(PERMISSION_CODES.childStatisticsView)
-  children(@Query() query: QueryValues, @AuthenticatedUser() currentUser: CurrentUser) {
-    return this.statistics.children(currentUser, this.unit(query));
+  async children(@Query() query: QueryValues, @AuthenticatedUser() currentUser: CurrentUser) {
+    const orgUnitId = this.unit(query);
+    return this.statistics.children(currentUser, orgUnitId, await this.statistics.levelFilter(currentUser, query));
   }
 
   @Get('staff')
@@ -354,7 +401,7 @@ export class StatisticsController {
 
   @Get('missing-child-fields')
   @RequirePermission(PERMISSION_CODES.childStatisticsView)
-  missingChildFields(@Query() query: QueryValues, @AuthenticatedUser() currentUser: CurrentUser) {
+  async missingChildFields(@Query() query: QueryValues, @AuthenticatedUser() currentUser: CurrentUser) {
     const errors: FieldError[] = [];
     const field = readField(
       query,
@@ -364,7 +411,13 @@ export class StatisticsController {
     if (errors.length > 0) {
       throw validationError(errors);
     }
-    return this.statistics.missingChildFields(currentUser, this.unit(query), field);
+    const orgUnitId = this.unit(query);
+    return this.statistics.missingChildFields(
+      currentUser,
+      orgUnitId,
+      field,
+      await this.statistics.levelFilter(currentUser, query),
+    );
   }
 
   @Get('missing-staff-fields')

@@ -1,4 +1,10 @@
 import type { AttendanceStatus } from '@school-management/database';
+import {
+  ATTENDANCE_STAGES,
+  attendanceStageOf,
+  type AttendanceStage,
+  type SchoolLevelCode,
+} from '@school-management/shared';
 import { dayOfWeek } from '../attendance/school-calendar.js';
 
 // Điểm danh và suất ăn theo ngày, tuần, tháng (DT-13 phần 13c, YCTD-100). Các hàm thuần tính loại ngày, mã vắng của từng
@@ -194,6 +200,8 @@ export interface ReportInput {
     org_unit_id: string;
     grade_level: string;
     status: string;
+    // Cấp của lớp; không có là Mầm non (YCTD-154)
+    school_level?: SchoolLevelCode;
   }>;
   gradeLevels: Array<{ code: string; name: string; age_from_months: number | null; order_no: number }>;
   children: ChildRoll[];
@@ -237,7 +245,7 @@ export interface ClassReport extends Totals {
   org_unit_id: string;
   grade_level: string;
   grade_level_name: string;
-  stage: 'nha_tre' | 'mau_giao';
+  stage: AttendanceStage;
   days: DayCounts[];
 }
 
@@ -456,16 +464,16 @@ export function buildReport(input: ReportInput) {
       org_unit_id: classRecord.org_unit_id,
       grade_level: classRecord.grade_level,
       grade_level_name: grade?.name ?? classRecord.grade_level,
-      // Nhà trẻ là khối cho trẻ dưới 36 tháng tuổi; còn lại là mẫu giáo
-      stage: grade && grade.age_from_months !== null && grade.age_from_months < 36 ? 'nha_tre' : 'mau_giao',
+      stage: attendanceStageOf(classRecord.school_level ?? 'MN', grade?.age_from_months),
       days,
       ...sumDays(days, input.days, reference),
     });
   }
   const gradeOrder = (code: string) => grades.get(code)?.order_no ?? Number.MAX_SAFE_INTEGER;
+  const stageOrder = (stage: AttendanceStage) => ATTENDANCE_STAGES.findIndex((item) => item.key === stage);
   classes.sort(
     (left, right) =>
-      (left.stage === right.stage ? 0 : left.stage === 'nha_tre' ? -1 : 1) ||
+      stageOrder(left.stage) - stageOrder(right.stage) ||
       gradeOrder(left.grade_level) - gradeOrder(right.grade_level) ||
       left.grade_level.localeCompare(right.grade_level) ||
       left.class_name.localeCompare(right.class_name, 'vi', { numeric: true }),
@@ -505,7 +513,7 @@ export function buildReport(input: ReportInput) {
     };
   };
   const groups: GroupReport[] = [];
-  for (const stage of ['nha_tre', 'mau_giao'] as const) {
+  for (const { key: stage, label } of ATTENDANCE_STAGES) {
     const members = classes.filter((row) => row.stage === stage);
     if (members.length === 0) {
       continue;
@@ -517,7 +525,7 @@ export function buildReport(input: ReportInput) {
         groups.push(group('grade', code, blockLabel(gradeMembers[0]?.grade_level_name ?? code), gradeMembers));
       }
     }
-    groups.push(group('stage', stage, stage === 'nha_tre' ? 'Khối Nhà trẻ' : 'Khối Mẫu giáo', members));
+    groups.push(group('stage', stage, label, members));
   }
   const school = group('school', 'school', 'Toàn trường', classes);
   return { classes, groups, totals: school, matrices, reference_date: reference };

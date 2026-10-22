@@ -352,6 +352,8 @@ export class GrowthService {
           'classes.grade_level',
         ])
         .where('classes.org_unit_id', '=', orgUnitId)
+        // Tăng trưởng theo tháng tuổi là của Mầm non; chuẩn của cấp khác thêm ở DT-20 (DT-19 phần 19d, YCTD-154)
+        .where('classes.school_level', '=', 'MN')
         .$if(classIds !== null, (query) => query.where('classes.id', 'in', nonEmpty(classIds ?? [])))
         .where('class_enrollments.from_date', '<=', referenceDate)
         .where((expression) =>

@@ -535,13 +535,15 @@ export class FinalYearRecordsService {
     return typeof row?.value === 'string' ? row.value : null;
   }
 
-  // Lớp năm cuối cấp đang dùng của năm học
+  // Lớp năm cuối cấp đang dùng của năm học; hồ sơ cuối cấp hiện chỉ của cấp Mầm non, hồ sơ chuyển cấp của cấp khác là DT-20,
+  // DT-21 (DT-19 phần 19d, YCTD-154)
   finalYearClasses(database: Executor) {
     return database
       .selectFrom('classes')
       .innerJoin('grade_levels', 'grade_levels.code', 'classes.grade_level')
       .innerJoin('org_units', 'org_units.id', 'classes.org_unit_id')
       .where('classes.status', '=', 'active')
+      .where('classes.school_level', '=', 'MN')
       .where('grade_levels.age_from_months', '>=', FINAL_YEAR_LEVELS[LEVEL].minimumAgeMonths);
   }
 

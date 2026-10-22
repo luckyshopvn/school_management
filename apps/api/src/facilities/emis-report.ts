@@ -5,6 +5,7 @@ import type { Request, Response } from 'express';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
+import { childIdsOutsideLevel, classIdsOutsideLevel } from '../common/report-levels.js';
 import { Databases } from '../common/databases.js';
 import { buildEmisStartOfYear, type EmisChild, type EmisStaff } from './emis-calc.js';
 import { FacilitiesData } from './facilities-data.js';
@@ -91,10 +92,16 @@ export class EmisReportService {
       ? (ownershipValue as SchoolOwnershipType)
       : null;
     const classAge = new Map(classes.map((row) => [row.id, row.age_group]));
+    // Biểu mẫu EMIS Mầm non chỉ tính lớp và trẻ của cấp Mầm non (DT-19 phần 19d, YCTD-154)
+    const [outsideClasses, outsideChildren] = await Promise.all([
+      classIdsOutsideLevel(database, 'MN'),
+      childIdsOutsideLevel(database, 'MN'),
+    ]);
+    const nurseryClasses = classes.filter((row) => !outsideClasses.has(row.id));
     const seen = new Set<string>();
     const emisChildren: EmisChild[] = [];
     for (const child of children) {
-      if (seen.has(child.id)) {
+      if (seen.has(child.id) || outsideChildren.has(child.id)) {
         continue;
       }
       seen.add(child.id);
@@ -119,7 +126,7 @@ export class EmisReportService {
       ownership,
       startYear,
       units,
-      classes,
+      classes: nurseryClasses,
       children: emisChildren,
       staff: emisStaff,
       rooms: rooms.map((room) => ({ ...room, area_m2: room.area_m2 === null ? null : Number(room.area_m2) })),
