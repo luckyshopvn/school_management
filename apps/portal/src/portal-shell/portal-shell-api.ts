@@ -40,8 +40,6 @@ export interface PortalContext {
   academic_year: string | null;
   education_level: string;
   organization_id_reminder: boolean;
-  // Cấp người dùng được xem theo thứ tự (DT-19 phần 19c); máy chủ cũ không trả thì coi là chỉ Mầm non
-  school_levels?: PortalSchoolLevel[];
 }
 
 export interface PortalSchoolLevel {
@@ -98,6 +96,11 @@ export function saveAppLinks(links: AppLinkInput[]): Promise<AppLink[]> {
 
 export function readPortalContext(): Promise<PortalContext> {
   return requestJson('/api/v1/portal-context');
+}
+
+// Cấp người dùng được xem theo thứ tự (DT-19 phần 19c)
+export function readPortalSchoolLevels(): Promise<{ school_levels: PortalSchoolLevel[] }> {
+  return requestJson('/api/v1/portal-context/school-levels');
 }
 
 export function readLoginInfo(): Promise<LoginInfo> {

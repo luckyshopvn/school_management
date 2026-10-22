@@ -12,7 +12,7 @@ import {
   type SchoolLevelTerms,
 } from '@school-management/shared';
 import { fetchCurrentUser, requestJson } from '../session/api-client.js';
-import { readPortalContext, type PortalSchoolLevel } from '../portal-shell/portal-shell-api.js';
+import { readPortalSchoolLevels, type PortalSchoolLevel } from '../portal-shell/portal-shell-api.js';
 import { listSchoolLevels } from './school-levels-api.js';
 
 // Cấp đang làm việc ở cổng quản trị (DT-19 phần 19c, YCTD-153): cấp người dùng được xem lấy từ ngữ cảnh trường, cấp đã chọn
@@ -35,7 +35,7 @@ export interface WorkingSchoolLevels {
 }
 
 export function useWorkingSchoolLevels(): WorkingSchoolLevels {
-  const context = useQuery({ queryKey: ['portal-context'], queryFn: readPortalContext });
+  const context = useQuery({ queryKey: ['portal-context', 'school-levels'], queryFn: readPortalSchoolLevels });
   const currentUser = useQuery({ queryKey: ['current-user'], queryFn: fetchCurrentUser });
   const levels = context.data?.school_levels;
   const preferred = currentUser.data?.working_school_level ?? null;

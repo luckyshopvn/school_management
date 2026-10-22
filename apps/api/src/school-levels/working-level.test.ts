@@ -131,15 +131,19 @@ describe('Điểm cuối theo cấp đang làm việc', () => {
     await environment.close();
   });
 
-  it('CT-19c-5: ngữ cảnh trường trả cấp người dùng được xem; trường mầm non chỉ có Mầm non', async () => {
+  it('CT-19c-5: cấp người dùng được xem ở /portal-context/school-levels; trường mầm non chỉ có Mầm non; ngữ cảnh cũ không đổi', async () => {
     const preschool = await sendJson('GET', url('/portal-context'), teacher.accessToken);
     assert.equal(preschool.status, 200);
     assert.equal(preschool.body.education_level, 'Cấp MN');
-    assert.deepEqual(preschool.body.school_levels, [
+    assert.equal(preschool.body.school_levels, undefined);
+    const levels = await sendJson('GET', url('/portal-context/school-levels'), teacher.accessToken);
+    assert.equal(levels.status, 200);
+    assert.equal((await sendJson('GET', url('/portal-context/school-levels'), undefined)).status, 401);
+    assert.deepEqual(levels.body.school_levels, [
       { code: 'MN', display_name: 'Mầm non', learner_term: 'Trẻ', context_label: 'Cấp MN' },
     ]);
     await setEnabled(['MN', 'TH']);
-    const both = await sendJson('GET', url('/portal-context'), teacher.accessToken);
+    const both = await sendJson('GET', url('/portal-context/school-levels'), teacher.accessToken);
     assert.deepEqual(
       (both.body.school_levels as Array<{ code: string }>).map((level) => level.code),
       ['MN', 'TH'],
@@ -148,7 +152,7 @@ describe('Điểm cuối theo cấp đang làm việc', () => {
       school_levels: ['TH'],
     });
     assert.equal(scoped.status, 200);
-    const narrowed = await sendJson('GET', url('/portal-context'), teacher.accessToken);
+    const narrowed = await sendJson('GET', url('/portal-context/school-levels'), teacher.accessToken);
     assert.deepEqual(
       (narrowed.body.school_levels as Array<{ code: string }>).map((level) => level.code),
       ['TH'],

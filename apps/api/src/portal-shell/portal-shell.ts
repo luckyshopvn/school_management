@@ -345,7 +345,9 @@ export class PortalContextService {
     };
   }
 
-  private async visibleLevels(currentUser: CurrentUser) {
+  // Cấp người dùng được xem theo thứ tự (cấp đang bật thu hẹp theo phạm vi cấp, DT-19 phần 19c): cổng quản trị dựng bộ chọn
+  // cấp, lọc menu, đặt nhãn thuật ngữ theo các cấp này; trường một cấp không hiện bộ chọn
+  async visibleLevels(currentUser: CurrentUser) {
     const visible = await this.schoolLevels.forUser(currentUser);
     return (await this.schoolLevels.enabledLevels())
       .filter((level) => visible.includes(level.code))
@@ -367,9 +369,6 @@ export class PortalContextService {
       academic_year: identity.academic_year,
       // Ô ngữ cảnh lấy nhãn của các cấp đang bật (DT-19 phần 19a); trường mầm non giữ "Cấp MN" như của Sở
       education_level: schoolLevelContextLabel(await this.schoolLevels.enabledLevels()),
-      // Cấp người dùng được xem (cấp đang bật thu hẹp theo phạm vi cấp, DT-19 phần 19c): cổng quản trị dựng bộ chọn cấp, lọc
-      // menu, đặt nhãn thuật ngữ theo các cấp này; trường một cấp không hiện bộ chọn
-      school_levels: await this.visibleLevels(currentUser),
       organization_id_reminder:
         canUpdateProfile &&
         identity.school_name !== null &&
@@ -446,6 +445,11 @@ export class PortalContextController {
   @Get()
   context(@AuthenticatedUser() currentUser: CurrentUser) {
     return this.portalContext.context(currentUser);
+  }
+
+  @Get('school-levels')
+  async schoolLevels(@AuthenticatedUser() currentUser: CurrentUser) {
+    return { school_levels: await this.portalContext.visibleLevels(currentUser) };
   }
 }
 
