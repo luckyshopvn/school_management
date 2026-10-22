@@ -1,3 +1,4 @@
+import type { SchoolLevelCode } from '@school-management/shared';
 import { publicJson, requestJson } from '../session/api-client.js';
 
 // Khung trang cổng quản trị theo Sở (DT-16 phần 16c): thông báo hệ thống, ứng dụng liên kết, ngữ cảnh trường, trang đăng
@@ -39,6 +40,15 @@ export interface PortalContext {
   academic_year: string | null;
   education_level: string;
   organization_id_reminder: boolean;
+  // Cấp người dùng được xem theo thứ tự (DT-19 phần 19c); máy chủ cũ không trả thì coi là chỉ Mầm non
+  school_levels?: PortalSchoolLevel[];
+}
+
+export interface PortalSchoolLevel {
+  code: SchoolLevelCode;
+  display_name: string;
+  learner_term: string;
+  context_label: string;
 }
 
 export interface LoginInfo {

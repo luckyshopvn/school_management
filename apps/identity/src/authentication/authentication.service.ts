@@ -9,7 +9,7 @@ import {
   validationError,
   type AccessTokenClaims,
 } from '@school-management/server';
-import { PORTAL_WORKSPACES } from '@school-management/shared';
+import { isSchoolLevelCode, PORTAL_WORKSPACES } from '@school-management/shared';
 import { Infrastructure } from '../common/infrastructure.js';
 import { IdentitySettingsService } from '../settings/identity-settings.service.js';
 import { checkPasswordPolicy, hashPassword, placeholderPasswordHash, verifyPassword } from './password.js';
@@ -77,6 +77,8 @@ export interface CurrentUserResponse {
   impersonation: ImpersonationDescription | null;
   // Phạm vi cấp học của tài khoản (DT-19 phần 19a): mảng trống là mọi cấp
   school_levels: string[];
+  // Cấp đang làm việc người dùng chọn ở thanh đầu trang (DT-19 phần 19c): null là "Tất cả"
+  working_school_level: string | null;
 }
 
 const INVALID_CREDENTIALS_MESSAGE = 'Số điện thoại, tên đăng nhập hoặc mật khẩu không đúng';
@@ -445,7 +447,50 @@ export class AuthenticationService {
           .orderBy('school_level')
           .execute()
       ).map((row) => row.school_level),
+      working_school_level: await this.readWorkingSchoolLevel(user.id),
     };
+  }
+
+  private async readWorkingSchoolLevel(userId: string): Promise<string | null> {
+    const row = await this.database
+      .selectFrom('user_preferences')
+      .select('working_school_level')
+      .where('user_id', '=', userId)
+      .executeTakeFirst();
+    return row?.working_school_level ?? null;
+  }
+
+  // Lưu cấp đang làm việc của chính người dùng (DT-19 phần 19c): mã một trong bốn cấp, hoặc null là "Tất cả". Cấp ngoài
+  // phạm vi cấp của tài khoản bị từ chối; cấp đã tắt ở trường thì cổng quản trị tự coi là "Tất cả" khi đọc (dịch vụ định
+  // danh không đọc cơ sở dữ liệu hệ thống). Chỉ là lựa chọn hiển thị, không cấp thêm quyền nên không ghi nhật ký thao tác
+  async setWorkingSchoolLevel(
+    claims: AccessTokenClaims,
+    value: unknown,
+  ): Promise<{ working_school_level: string | null }> {
+    const now = this.clock.now();
+    await this.findActiveSession(claims.sessionId, now);
+    const user = await this.findActiveUser(claims.userId, now);
+    if (value !== null && !isSchoolLevelCode(value)) {
+      throw validationError([{ field: 'school_level', message: 'Mã cấp là MN, TH, THCS, THPT hoặc để trống' }]);
+    }
+    if (value !== null) {
+      const scope = await this.database
+        .selectFrom('user_school_levels')
+        .select('school_level')
+        .where('user_id', '=', user.id)
+        .execute();
+      if (scope.length > 0 && !scope.some((row) => row.school_level === value)) {
+        throw validationError([{ field: 'school_level', message: 'Cấp học nằm ngoài phạm vi cấp học của tài khoản' }]);
+      }
+    }
+    await this.database
+      .insertInto('user_preferences')
+      .values({ user_id: user.id, working_school_level: value, updated_at: now })
+      .onConflict((conflict) =>
+        conflict.column('user_id').doUpdateSet({ working_school_level: value, updated_at: now }),
+      )
+      .execute();
+    return { working_school_level: value };
   }
 
   private async buildTokenResponse(

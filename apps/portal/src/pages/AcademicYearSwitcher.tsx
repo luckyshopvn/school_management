@@ -2,6 +2,7 @@ import { useQueries, useQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { listAcademicYears, readCalendar, type Calendar } from '../academic-years/academic-years-api.js';
 import { readPortalContext } from '../portal-shell/portal-shell-api.js';
+import { useWorkingSchoolLevels } from '../school-levels/working-level.js';
 
 type TermKey = 'first_term' | 'second_term' | 'summer_term';
 
@@ -58,7 +59,11 @@ export function AcademicYearSwitcher() {
   const container = useRef<HTMLDivElement>(null);
   const years = useQuery({ queryKey: ['academic-years'], queryFn: listAcademicYears });
   const context = useQuery({ queryKey: ['portal-context'], queryFn: readPortalContext });
-  const educationLevel = context.data?.education_level ?? DEFAULT_EDUCATION_LEVEL;
+  // Trường nhiều cấp: nhãn theo cấp đang làm việc ở bộ chọn cấp (DT-19 phần 19c), "Tất cả" thì ghép nhãn các cấp được xem
+  const workingLevels = useWorkingSchoolLevels();
+  const educationLevel = workingLevels.ready
+    ? workingLevels.contextLabel
+    : (context.data?.education_level ?? DEFAULT_EDUCATION_LEVEL);
   const listed = (years.data ?? []).filter((year) => year.status !== 'draft');
   const currentYear = listed.find((year) => year.status === 'open');
   const currentCalendar = useQuery({

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
 import { useHasPermission } from '../session/permissions.js';
+import { useSchoolLevelTerms } from '../school-levels/working-level.js';
 import { formatNumber, readBirthdays, readDashboard } from './reports-api.js';
 
 // MH-01 Bảng điều khiển trên trang chủ (P17-01, P17-02, P17-13; YCTD-62): Ban Giám hiệu thấy toàn phạm vi, quản lý
@@ -18,6 +19,7 @@ function Card({ label, value }: { label: string; value: string }) {
 }
 
 export function DashboardCards() {
+  const terms = useSchoolLevelTerms();
   const canLead = useHasPermission(PERMISSION_CODES.leadershipDashboard);
   const canUnit = useHasPermission(PERMISSION_CODES.unitDashboard);
   const month = vietnamMonth();
@@ -35,7 +37,7 @@ export function DashboardCards() {
     <section className="flex flex-col gap-3" aria-label="Bảng điều khiển">
       <h2 className="text-section-title font-semibold text-text">Bảng điều khiển tháng {Number(month.slice(5))}</h2>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Card label="Trẻ đang học" value={formatNumber(data.children_count)} />
+        <Card label={`${terms.learner} đang học`} value={formatNumber(data.children_count)} />
         <Card label="Lớp đang hoạt động" value={formatNumber(data.classes_count)} />
         <Card label="Nhân sự đang làm" value={formatNumber(data.staff_count)} />
         <Card

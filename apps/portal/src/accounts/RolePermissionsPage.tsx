@@ -17,6 +17,7 @@ import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import { listPermissions, listRoles, replaceRolePermissions, type Permission, type Role } from './accounts-api.js';
+import { useEnabledLevelWorkspaces } from '../school-levels/working-level.js';
 
 // 1.3 Phân quyền nhóm theo menu (DT-15 phần 15e, lựa chọn 3 của Eric ngày 2026-10-13): ma trận quyền hiển thị theo cây
 // menu đánh số; mỗi mục menu liệt kê các mã quyền quyết định mục đó hiện (MENU_PERMISSION_RULES ở gói dùng chung), tích
@@ -263,7 +264,9 @@ function RoleMatrix({
     });
   };
   const allCodes = permissions.map((permission) => permission.code);
-  const workspaces = PORTAL_WORKSPACES.filter((workspace) => !workspaceKey || workspace.key === workspaceKey);
+  // Mục của cấp trường chưa bật ẩn khỏi cây quyền (DT-19 phần 19c)
+  const levelWorkspaces = useEnabledLevelWorkspaces();
+  const workspaces = levelWorkspaces.filter((workspace) => !workspaceKey || workspace.key === workspaceKey);
 
   return (
     <section className="flex flex-col gap-4" aria-label={`Quyền của ${role.code}`}>
@@ -374,6 +377,7 @@ export function RolePermissionsPage() {
   const search: { role?: string } = useSearch({ strict: false });
   const roles = useQuery({ queryKey: ['roles'], queryFn: listRoles });
   const permissions = useQuery({ queryKey: ['permissions'], queryFn: listPermissions });
+  const levelWorkspaces = useEnabledLevelWorkspaces();
   const [selectedId, setSelectedId] = useState<string | undefined>(search.role);
   const [workspaceKey, setWorkspaceKey] = useState('');
   const [toastMessage, setToastMessage] = useState<string>();
@@ -416,7 +420,7 @@ export function RolePermissionsPage() {
               className="w-72 rounded-lg border border-border bg-card px-3 py-2 text-content"
             >
               <option value="">Tất cả phân hệ và quyền khác</option>
-              {PORTAL_WORKSPACES.map((workspace) => (
+              {levelWorkspaces.map((workspace) => (
                 <option key={workspace.key} value={workspace.key}>
                   {workspace.label}
                 </option>

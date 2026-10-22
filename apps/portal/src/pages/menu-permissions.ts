@@ -3,6 +3,7 @@ import {
   MENU_PERMISSION_RULES,
   PORTAL_WORKSPACES,
   isMenuRuleSatisfied,
+  portalWorkspacesForLevels,
   type PortalMenuNode,
   type PortalQuickLinkPath,
   type PortalWorkspace,
@@ -10,6 +11,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { fetchCurrentUser } from '../session/api-client.js';
 import { useCurrentPermissions } from '../session/permissions.js';
+import { useWorkingSchoolLevels } from '../school-levels/working-level.js';
 
 // Mục menu người dùng được thấy theo điều kiện quyền ở gói dùng chung (MENU_PERMISSION_RULES, DT-15 phần 15e), giữ đúng
 // điều kiện của thanh điều hướng cũ (trước DT-15); máy chủ vẫn kiểm tra quyền ở mọi yêu cầu (AI-12). Mục không có điều
@@ -47,13 +49,18 @@ export function filterMenu(
   });
 }
 
+// Cây menu theo cấp đang làm việc (DT-19 phần 19c) rồi theo quyền. Chưa tải xong ngữ cảnh trường thì dùng cây đầy đủ, bằng
+// đúng cây của trường mầm non
 export function usePortalMenu(): PortalWorkspace[] {
   // So sánh theo nội dung để cây menu không dựng lại mỗi lần vẽ
   const key = JSON.stringify(useMenuVisibility());
   const currentUser = useQuery({ queryKey: ['current-user'], queryFn: fetchCurrentUser });
   const allowedKey = JSON.stringify(currentUser.data?.workspaces ?? null);
-  return useMemo(
-    () => filterMenu(PORTAL_WORKSPACES, JSON.parse(key), JSON.parse(allowedKey) ?? undefined),
-    [key, allowedKey],
-  );
+  const levels = useWorkingSchoolLevels();
+  const levelsKey = JSON.stringify(levels.ready ? levels.working : null);
+  return useMemo(() => {
+    const working = JSON.parse(levelsKey) as Parameters<typeof portalWorkspacesForLevels>[0] | null;
+    const workspaces = working ? portalWorkspacesForLevels(working) : PORTAL_WORKSPACES;
+    return filterMenu(workspaces, JSON.parse(key), JSON.parse(allowedKey) ?? undefined);
+  }, [key, allowedKey, levelsKey]);
 }

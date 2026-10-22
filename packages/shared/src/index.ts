@@ -20,6 +20,7 @@ export * from './professional-records.js';
 export * from './food-safety.js';
 export * from './education-plans.js';
 export * from './school-levels.js';
+export * from './school-level-terms.js';
 export * from './emulation.js';
 export * from './quality-assurance.js';
 

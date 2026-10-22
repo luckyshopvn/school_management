@@ -1,4 +1,5 @@
 import type { PortalQuickLinkPath } from './index.js';
+import type { SchoolLevelCode } from './school-levels.js';
 
 // Cây menu ngang của cổng quản trị theo hệ thống của Sở (DT-15 phần 15a, tài liệu 32 mục 3): mỗi phân hệ một menu đánh số
 // thứ bậc 1., 1.1., 1.1.1.; số giữ đúng số của Sở ở phân hệ Quản lý giáo dục Mầm non, Cơ sở vật chất, Báo cáo số liệu,
@@ -31,12 +32,20 @@ export interface PortalMenuNode {
   label: string;
   path?: PortalQuickLinkPath;
   children?: PortalMenuNode[];
+  // Cấp học của mục (DT-19 phần 19c): không ghi là mọi cấp; có ghi thì mục chỉ hiện khi trường bật và người dùng đang làm
+  // việc ở một trong các cấp đó
+  levels?: readonly SchoolLevelCode[];
 }
 
 export interface PortalWorkspace {
   key: PortalWorkspaceKey;
   label: string;
   menu: PortalMenuNode[];
+  // Cấp học của phân hệ, cùng quy ước với mục menu (DT-19 phần 19c)
+  levels?: readonly SchoolLevelCode[];
+  // Phân hệ đặt tên theo cấp: một cấp thì "<levelTitle> <tên cấp>" (trường mầm non giữ "Quản lý giáo dục Mầm non" như Sở),
+  // nhiều cấp thì chỉ "<levelTitle>"; tên cấp lấy từ school_levels, không ghi cứng
+  levelTitle?: string;
 }
 
 const leaf = (number: string, label: string, path: PortalQuickLinkPath): PortalMenuNode => ({ number, label, path });
@@ -45,11 +54,15 @@ const group = (number: string, label: string, children: PortalMenuNode[]): Porta
   label,
   children,
 });
+// Mục chỉ của Mầm non (DT-19 phần 19c): hồ sơ cuối cấp mầm non, biểu EMIS Mầm non, cân đo theo tháng tuổi, hoàn thành
+// chương trình Mầm non. Cấp khác thêm mục của mình ở DT-20, DT-21 bằng cùng thuộc tính
+const preschool = (node: PortalMenuNode): PortalMenuNode => ({ ...node, levels: ['MN'] });
 
 export const PORTAL_WORKSPACES: PortalWorkspace[] = [
   {
     key: 'education',
     label: 'Quản lý giáo dục Mầm non',
+    levelTitle: 'Quản lý giáo dục',
     menu: [
       group('1.', 'Trường học', [
         leaf('1.1.', 'Hồ sơ trường', '/school-profile'),
@@ -93,11 +106,13 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           leaf('4.1.13.', 'Nhập dữ liệu khác từ Excel', '/imports'),
         ]),
         leaf('4.2.', 'Biến động học sinh', '/student-movements'),
-        group('4.3.', 'Cân nặng, chiều cao', [
-          leaf('4.3.1.', 'Nhập kết quả sức khỏe nuôi dưỡng', '/growth'),
-          leaf('4.3.2.', 'Tổng hợp cân nặng, chiều cao', '/growth-report'),
-        ]),
-        leaf('4.4.', 'Hoàn thành chương trình', '/program-completion'),
+        preschool(
+          group('4.3.', 'Cân nặng, chiều cao', [
+            leaf('4.3.1.', 'Nhập kết quả sức khỏe nuôi dưỡng', '/growth'),
+            leaf('4.3.2.', 'Tổng hợp cân nặng, chiều cao', '/growth-report'),
+          ]),
+        ),
+        preschool(leaf('4.4.', 'Hoàn thành chương trình', '/program-completion')),
         leaf('4.5.', 'Thực đơn bữa ăn', '/kitchen'),
         group('4.6.', 'Sức khỏe học sinh', [
           leaf('4.6.1.', 'Nhập thông tin sức khỏe học sinh', '/student-health'),
@@ -161,7 +176,7 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
     label: 'Tuyển sinh đầu cấp',
     menu: [
       group('1.', 'Hồ sơ tuyển sinh', [
-        leaf('1.1.', 'Hồ sơ học sinh cuối cấp mầm non', '/entry-admissions/final-year'),
+        preschool(leaf('1.1.', 'Hồ sơ học sinh cuối cấp mầm non', '/entry-admissions/final-year')),
         leaf('1.2.', 'Gửi xác nhận hoàn thành hồ sơ cuối cấp lên cấp trên', '/entry-admissions/completion'),
         // 1.3 đến 1.7 (DT-17 phần 17d)
         leaf('1.3.', 'Danh sách học sinh đăng ký trường tiên tiến', '/entry-admissions/advanced'),
@@ -188,18 +203,20 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
     // Đủ bảy biểu của khảo sát mục 5 (DT-16 phần 16j); 1.1 tách Lập, Gửi như Sở (DT-17 phần 17a, khảo sát mục 10.4.1)
     menu: [
       group('1.', 'Báo cáo đầu năm', [
-        group('1.1.', 'Báo cáo EMIS đầu năm', [
-          leaf('1.1.1.', 'Lập báo cáo đầu năm', '/emis'),
-          leaf('1.1.2.', 'Gửi báo cáo đầu năm', '/emis/send'),
-        ]),
+        preschool(
+          group('1.1.', 'Báo cáo EMIS đầu năm', [
+            leaf('1.1.1.', 'Lập báo cáo đầu năm', '/emis'),
+            leaf('1.1.2.', 'Gửi báo cáo đầu năm', '/emis/send'),
+          ]),
+        ),
         leaf('1.2.', 'Báo cáo cơ sở vật chất', '/emis/facilities'),
         leaf('1.3.', 'Báo cáo sức khỏe học sinh đầu năm', '/emis/health'),
       ]),
       group('2.', 'Báo cáo cuối năm', [
-        leaf('2.1.', 'Báo cáo EMIS cuối năm', '/emis/end-of-year'),
+        preschool(leaf('2.1.', 'Báo cáo EMIS cuối năm', '/emis/end-of-year')),
         leaf('2.2.', 'Báo cáo đội ngũ', '/emis/staff'),
         leaf('2.3.', 'Đề án ngoại ngữ', '/emis/foreign-language'),
-        leaf('2.4.', 'Báo cáo giáo dục mầm non cuối năm', '/emis/preschool-end-of-year'),
+        preschool(leaf('2.4.', 'Báo cáo giáo dục mầm non cuối năm', '/emis/preschool-end-of-year')),
       ]),
     ],
   },
@@ -555,4 +572,64 @@ export function listPortalMenuEntries(workspaces: PortalWorkspace[] = PORTAL_WOR
 // Mục hiển thị trên menu: số và tên, ví dụ "4.1.1. Quản lý hồ sơ học sinh"
 export function portalMenuText(node: PortalMenuNode): string {
   return `${node.number} ${node.label}`;
+}
+
+// Mục thuộc các cấp đang làm việc không (DT-19 phần 19c): mục không ghi cấp là của mọi cấp
+export function isForSchoolLevels(
+  levels: readonly SchoolLevelCode[] | undefined,
+  activeLevels: readonly SchoolLevelCode[],
+): boolean {
+  return !levels || levels.some((level) => activeLevels.includes(level));
+}
+
+// Cây menu theo cấp đang làm việc (cấp người dùng chọn, hoặc mọi cấp người dùng được xem khi chọn "Tất cả"): bỏ mục, nhóm,
+// phân hệ không thuộc cấp; nhóm, phân hệ không còn mục nào cũng bỏ; phân hệ có levelTitle đặt lại tên theo cấp. Trường chỉ
+// bật Mầm non giữ y hệt cây menu (tên, số thứ bậc, thứ tự) như trước DT-19
+export function portalWorkspacesForLevels(
+  activeLevels: ReadonlyArray<{ code: SchoolLevelCode; display_name: string }>,
+  workspaces: PortalWorkspace[] = PORTAL_WORKSPACES,
+): PortalWorkspace[] {
+  const codes = activeLevels.map((level) => level.code);
+  const filterNodes = (nodes: PortalMenuNode[]): PortalMenuNode[] =>
+    nodes.flatMap((node) => {
+      if (!isForSchoolLevels(node.levels, codes)) {
+        return [];
+      }
+      if (node.children) {
+        const children = filterNodes(node.children);
+        return children.length > 0 ? [{ ...node, children }] : [];
+      }
+      return [node];
+    });
+  return workspaces.flatMap((workspace) => {
+    if (!isForSchoolLevels(workspace.levels, codes)) {
+      return [];
+    }
+    const menu = filterNodes(workspace.menu);
+    if (menu.length === 0) {
+      return [];
+    }
+    const only = activeLevels.length === 1 ? activeLevels[0] : undefined;
+    const label = workspace.levelTitle
+      ? only
+        ? `${workspace.levelTitle} ${only.display_name}`
+        : workspace.levelTitle
+      : workspace.label;
+    return [{ ...workspace, label, menu }];
+  });
+}
+
+// Đường dẫn của các mục menu không thuộc cấp nào trong danh sách, dùng để ẩn lối tắt "Truy cập nhanh" và mục của cây quyền
+// thuộc cấp trường chưa bật. Trường chỉ bật Mầm non thì danh sách trống (không ẩn gì)
+export function portalMenuPathsOutsideLevels(levels: readonly SchoolLevelCode[]): Set<PortalQuickLinkPath> {
+  const inside = new Set(
+    listPortalMenuEntries(portalWorkspacesForLevels(levels.map((code) => ({ code, display_name: code })))).map(
+      (entry) => entry.node.path,
+    ),
+  );
+  return new Set(
+    listPortalMenuEntries()
+      .map((entry) => entry.node.path)
+      .filter((path) => !inside.has(path)),
+  );
 }

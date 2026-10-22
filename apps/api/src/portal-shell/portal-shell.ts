@@ -345,6 +345,18 @@ export class PortalContextService {
     };
   }
 
+  private async visibleLevels(currentUser: CurrentUser) {
+    const visible = await this.schoolLevels.forUser(currentUser);
+    return (await this.schoolLevels.enabledLevels())
+      .filter((level) => visible.includes(level.code))
+      .map((level) => ({
+        code: level.code,
+        display_name: level.display_name,
+        learner_term: level.learner_term,
+        context_label: level.context_label,
+      }));
+  }
+
   // Người cập nhật được hồ sơ trường thấy lời nhắc khi mã định danh tổ chức chưa có hoặc sai định dạng (NĐ 69)
   async context(currentUser: CurrentUser) {
     const identity = await this.schoolIdentity();
@@ -355,6 +367,9 @@ export class PortalContextService {
       academic_year: identity.academic_year,
       // Ô ngữ cảnh lấy nhãn của các cấp đang bật (DT-19 phần 19a); trường mầm non giữ "Cấp MN" như của Sở
       education_level: schoolLevelContextLabel(await this.schoolLevels.enabledLevels()),
+      // Cấp người dùng được xem (cấp đang bật thu hẹp theo phạm vi cấp, DT-19 phần 19c): cổng quản trị dựng bộ chọn cấp, lọc
+      // menu, đặt nhãn thuật ngữ theo các cấp này; trường một cấp không hiện bộ chọn
+      school_levels: await this.visibleLevels(currentUser),
       organization_id_reminder:
         canUpdateProfile &&
         identity.school_name !== null &&
