@@ -19,6 +19,7 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { EducationPlansService } from '../education-plans/education-plans.js';
+import { EmulationCouncilService } from '../emulation/emulation-council.js';
 import { ProfessionalRecordsService } from '../professional-records/professional-records.js';
 import { LEADER_ROLE, MANAGER_ROLE, TeachingAccess } from '../teaching/teaching-access.js';
 
@@ -1082,6 +1083,85 @@ export class FoodSafetyWorkSource extends MyWorkSource {
   }
 }
 
+// Thi đua, khen thưởng (22d): người quản lý thấy hồ sơ chờ tiếp nhận, đăng ký chờ duyệt, phúc khảo chờ giải quyết; thành
+// viên hội đồng thấy phiên đang bỏ phiếu còn hồ sơ chưa bỏ phiếu; người lập thấy hồ sơ bị trả lại
+@Injectable()
+export class EmulationWorkSource extends MyWorkSource {
+  readonly code = 'emulation' as const;
+  constructor(
+    private readonly council: EmulationCouncilService,
+    private readonly clock: Clock,
+  ) {
+    super();
+  }
+
+  async collect(currentUser: CurrentUser): Promise<MyWorkItem[]> {
+    const codes = [PERMISSION_CODES.emulationUse, PERMISSION_CODES.emulationManage, PERMISSION_CODES.emulationDecide];
+    if (!codes.some((code) => currentUser.hasPermission(code))) {
+      return [];
+    }
+    const now = this.clock.now();
+    const pending = await this.council.pendingWork(currentUser);
+    return [
+      ...pending.voting.map((row) =>
+        item(now, {
+          source: this.code,
+          kind: 'Bỏ phiếu bình xét thi đua',
+          title: row.campaign_name,
+          detail: `Còn ${row.missing} hồ sơ chưa bỏ phiếu`,
+          link: '/emulation/voting',
+          deadline: null,
+          received_at: row.held_at,
+        }),
+      ),
+      ...pending.review.map((row) =>
+        item(now, {
+          source: this.code,
+          kind: 'Hồ sơ đề nghị chờ tiếp nhận',
+          title: `${row.title_name} – ${row.subject_name}`,
+          detail: null,
+          link: '/emulation/nominations/review',
+          deadline: null,
+          received_at: row.submitted_at,
+        }),
+      ),
+      ...pending.registrations.map((row) =>
+        item(now, {
+          source: this.code,
+          kind: 'Đăng ký thi đua chờ duyệt',
+          title: `${row.title_name} – ${row.subject_name}`,
+          detail: null,
+          link: '/emulation/registrations',
+          deadline: null,
+          received_at: row.created_at,
+        }),
+      ),
+      ...pending.appeals.map((row) =>
+        item(now, {
+          source: this.code,
+          kind: row.kind === 'review' ? 'Phúc khảo chờ giải quyết' : 'Khiếu nại chờ giải quyết',
+          title: row.submitted_by_name,
+          detail: null,
+          link: '/emulation/appeals',
+          deadline: null,
+          received_at: row.created_at,
+        }),
+      ),
+      ...pending.returned.map((row) =>
+        item(now, {
+          source: this.code,
+          kind: 'Hồ sơ đề nghị khen thưởng bị trả lại',
+          title: `${row.title_name} – ${row.subject_name}`,
+          detail: row.return_note,
+          link: '/emulation/nominations',
+          deadline: null,
+          received_at: row.updated_at,
+        }),
+      ),
+    ];
+  }
+}
+
 export const MY_WORK_SOURCE_TYPES = [
   IncomingWorkSource,
   OutgoingWorkSource,
@@ -1094,4 +1174,5 @@ export const MY_WORK_SOURCE_TYPES = [
   SigningWorkSource,
   LeaveWorkSource,
   FoodSafetyWorkSource,
+  EmulationWorkSource,
 ];
