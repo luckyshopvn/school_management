@@ -135,6 +135,9 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
     anyOf('P02.program-completion.manage', 'P02.program-completion.approve'),
   ),
   '/kitchen': anyOf('P12.kitchen.manage', 'P12.menu.approve', 'P17.report.kitchen'),
+  // Bán trú, nề nếp lớp Tiểu học (DT-20 phần 20b)
+  '/boarding': 'P04.boarding.manage',
+  '/conduct': anyOf('P02.conduct.record', 'P02.conduct.manage'),
   // Thông tin sức khỏe học sinh theo học kỳ (DT-16 phần 16h): như nhập cân đo
   '/student-health': anyOf('P10.health.manage', 'P17.report.growth'),
   '/health': anyOf('P10.health.manage', 'P10.medical-event.record'),

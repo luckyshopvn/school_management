@@ -4838,6 +4838,71 @@ export interface QualityEvidenceCriteriaTable {
   criterion_id: string;
 }
 
+// Bán trú lớp ngoài Mầm non, nề nếp và thi đua lớp (DT-20 phần 20b, YCTD-159)
+export type BoardingMealDayStatus = 'closed' | 'reopened';
+export type BoardingMealCutSource = 'parent' | 'teacher' | 'school';
+export type ConductCriterionKind = 'plus' | 'minus';
+
+export interface BoardingMealDaysTable {
+  id: Generated<string>;
+  class_id: string;
+  meal_date: string;
+  status: Generated<BoardingMealDayStatus>;
+  headcount: number;
+  closed_by: string | null;
+  closed_by_name: string | null;
+  closed_at: Date | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface BoardingMealCutsTable {
+  id: Generated<string>;
+  child_id: string;
+  class_id: string;
+  meal_date: string;
+  reason: string | null;
+  source: BoardingMealCutSource;
+  created_by: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface ConductSettingsTable {
+  id: Generated<number>;
+  enabled: Generated<boolean>;
+  base_points: Generated<number>;
+  updated_by_name: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ConductCriteriaTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  kind: ConductCriterionKind;
+  points: number;
+  school_level: ColumnType<SchoolLevelCode, SchoolLevelCode | undefined, SchoolLevelCode>;
+  order_no: Generated<number>;
+  status: Generated<CatalogStatus>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ConductEntriesTable {
+  id: Generated<string>;
+  class_id: string;
+  criterion_id: string;
+  entry_date: string;
+  quantity: Generated<number>;
+  points: number;
+  note: string | null;
+  reported_by: string | null;
+  recorded_by: string;
+  recorded_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -5128,4 +5193,9 @@ export interface SchoolYearDatabase {
   quality_criterion_reports: QualityCriterionReportsTable;
   quality_evidences: QualityEvidencesTable;
   quality_evidence_criteria: QualityEvidenceCriteriaTable;
+  boarding_meal_days: BoardingMealDaysTable;
+  boarding_meal_cuts: BoardingMealCutsTable;
+  conduct_settings: ConductSettingsTable;
+  conduct_criteria: ConductCriteriaTable;
+  conduct_entries: ConductEntriesTable;
 }

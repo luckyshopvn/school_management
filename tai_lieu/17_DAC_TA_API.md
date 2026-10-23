@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.102
+- Phiên bản: 1.103
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -1359,6 +1359,9 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, POST, PUT, DELETE | /api/v1/emulation/campaigns, /{id}, /launch, /publish, /close, /launch-document, /council, /meetings, /report, /report/export; /emulation/registrations, /review, /{id} | Đợt, hội đồng, báo cáo, đăng ký (P09-35, P09-37, P09-39) |
 | GET, POST, PUT, DELETE | /api/v1/emulation/nominations, /{id}, /submit, /withdraw, /accept, /return, /evidence-options, /evidence, /evidence/{id}/file, /report | Hồ sơ đề nghị (P09-36) |
 | GET, PUT, POST | /api/v1/emulation/voting, /emulation/meetings/{id}, /votes, /close, /minutes; /emulation/appeals, /{id}/resolve | Bỏ phiếu, phúc khảo, khiếu nại (P09-37, P09-38) |
+| GET, POST | /api/v1/boarding/classes/{id}/roster, /cuts, /close, /reopen (từ YCTD-159) | Danh sách ăn bán trú lớp ngoài Mầm non theo ngày; cắt suất (`child_id`, `date`, `cut`, `reason`), chốt (`date`), mở lại (`date`, `reason` bắt buộc); giáo viên chủ nhiệm hoặc `P04.boarding.manage`; lớp Mầm non trả 422 mã YCTD-159 |
+| GET, POST, DELETE | /api/v1/boarding/children/{id}/cuts, /{date} (từ YCTD-159) | Phụ huynh xem ngày cắt suất của con trong tháng (`month`), báo (`date`, `reason`), hủy cắt suất |
+| GET, PUT, POST, PATCH, DELETE | /api/v1/conduct/settings, /conduct/criteria, /defaults, /{id}, /conduct/entries, /{id}, /conduct/ranking (từ YCTD-159) | Nề nếp: cấu hình (`enabled`, `base_points`; sửa cần `P02.conduct.manage`), tiêu chí, ghi điểm (`class_id`, `criterion_id`, `date`, `quantity`, `reported_by`, `note`; cần `P02.conduct.record`), xếp hạng (`period` = `week`, `month`, `first_term`, `second_term`, `date`, `school_level`, `org_unit_id`, `grade_level`) |
 | GET, POST, PUT, DELETE | /api/v1/emulation/decisions, /{id}, /document, /outgoing, /issue, /upper-result; /emulation/awards/{id}/certificate; /emulation/history, /export, /{id}; GET /public/emulation-awards/verify | Quyết định, giấy khen, sổ theo dõi, tra cứu công khai (P09-38, P09-39) |
 | GET, PUT, POST, DELETE | /api/v1/website/settings, /website/settings/images/{purpose}, /website/sample-content, /website/disclosure-categories | Thông tin website, biểu trưng, ảnh đầu trang, nội dung mẫu, nhóm công khai (P14-13, YCTD-144) |
 | GET, POST, PATCH, DELETE | /api/v1/website/domains, /website/domains/{id}, /website/domains/{id}/dns-confirmation | Tên miền (P14-13, YCTD-144) |

@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.35
+- Phiên bản: 0.36
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,28 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-23 — DT-20 phần 20b: bán trú Tiểu học; nề nếp và thi đua lớp
+
+#### Công việc đã thực hiện
+
+- Đọc mục 11 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà dịch vụ bán trú, số suất của bếp (`classCounts`), kiểm thực 22b, báo cơm, tính tiền ăn theo ngày có mặt.
+- Cơ sở dữ liệu: tệp năm học `0077_create_boarding_and_conduct`, tệp định danh `0068_add_boarding_conduct_permissions`.
+- Máy chủ API: bán trú lớp ngoài Mầm non (danh sách ăn, cắt suất, chốt, mở lại, phụ huynh cắt suất), bếp và tiền ăn đọc danh sách bán trú; nề nếp (cấu hình, tiêu chí, ghi điểm, xếp hạng), chuyển cấu hình sang năm học mới.
+- Cổng quản trị: 4.8 Bán trú, 4.9 Nề nếp, thi đua lớp (chỉ Tiểu học), thẻ nề nếp ở 1.4 Cấu hình trường; ứng dụng giáo viên, phụ huynh theo cấp.
+- Thêm quy tắc BR-167 đến BR-169, chức năng P04-07, P02-37, P02-38, kịch bản CT-844 đến CT-850, tiêu chí AC-755 đến AC-758. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/boarding/boarding.test.ts` CT-20b-1 đến CT-20b-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm hai mục menu vào bảng đối chiếu điều kiện cũ của CT-15e-2; CT-19c-1, CT-19c-2 so cây menu Mầm non với cây gốc bỏ hai mục chỉ của Tiểu học, cây menu Mầm non giữ nguyên); kiểm thử đơn vị toàn bộ kho mã đạt 1053/1053; kiểm thử giao diện `tests/e2e/88-boarding-conduct.spec.ts` (CT-20b-7) đạt; toàn bộ kiểm thử giao diện đạt 160/160; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 20b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.4. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: giờ chốt cắt suất trong ngày dùng giờ vào học của đơn vị; danh sách ăn là đăng ký trừ cắt suất, chốt thì lưu số suất; tiền ăn lớp ngoài Mầm non theo ngày đã chốt mà không cắt suất; điểm tuần là điểm nền cộng điểm ghi, tháng và học kỳ lấy trung bình tuần.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-159, `07_QUY_TAC_NGHIEP_VU.md` BR-167 đến BR-169, `10_YEU_CAU_CHUC_NANG.md` P04-07, P02-37, P02-38, `11_TIEU_CHI_NGHIEM_THU.md` AC-755 đến AC-758, `14_DAC_TA_GIAO_DIEN.md`, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-844 đến CT-850, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.8. Phiên bản 0.108.0.
+
+#### Vấn đề tồn đọng
+
+- Không.
 
 ### 2026-10-23 — DT-20 phần 20a: nền Tiểu học
 

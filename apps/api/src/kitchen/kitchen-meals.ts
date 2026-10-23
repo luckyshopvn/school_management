@@ -19,6 +19,7 @@ import { queueNotification } from '../common/notification-queue.js';
 import { notFoundError, readRequiredInteger, readRequiredUuid, type RequestBody } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { KitchenAccess } from './kitchen-access.js';
+import { boardingHeadcounts, BOARDING_RULE_CODE } from '../boarding/boarding-roster.js';
 import { MEAL_TYPES, addDays, check, queryDate, queryUuid, readDate, readText, weekStartOf } from './kitchen-fields.js';
 
 // Suất ăn theo ngày, báo cơm, định lượng của ngày, báo cáo ăn và bếp (P12-04, P12-05, P12-07, P17-08; BR-58, BR-60;
@@ -28,7 +29,9 @@ import { MEAL_TYPES, addDays, check, queryDate, queryUuid, readDate, readText, w
 const MEAL_STATUSES: AttendanceStatus[] = ['present', 'late', 'early_leave', 'late_and_early_leave'];
 const MAXIMUM_REPORT_DAYS = 62;
 
-export type ClassMealSource = 'attendance_locked' | 'meal_report' | 'attendance_open';
+// Lớp ngoài Mầm non lấy số suất theo danh sách bán trú (DT-20 phần 20b, YCTD-159): đã chốt hoặc đang mở
+export type ClassMealSource =
+  'attendance_locked' | 'meal_report' | 'attendance_open' | 'boarding_closed' | 'boarding_open';
 
 export interface ClassMealCount {
   class_id: string;
@@ -59,7 +62,7 @@ export class KitchenMealsService {
   async classCounts(database: Kysely<SchoolYearDatabase>, orgUnitId: string, date: string): Promise<ClassMealCount[]> {
     const classes = await database
       .selectFrom('classes')
-      .select(['id', 'name', 'grade_level'])
+      .select(['id', 'name', 'grade_level', 'school_level'])
       .where('org_unit_id', '=', orgUnitId)
       .where('status', '=', 'active')
       .orderBy('name')
@@ -67,6 +70,11 @@ export class KitchenMealsService {
     if (classes.length === 0) {
       return [];
     }
+    const boarding = await boardingHeadcounts(
+      database,
+      classes.filter((row) => row.school_level !== 'MN').map((row) => row.id),
+      date,
+    );
     const classIds = classes.map((row) => row.id);
     const enrolled = await database
       .selectFrom('class_enrollments')
@@ -99,6 +107,21 @@ export class KitchenMealsService {
       .where('report_date', '=', date)
       .execute();
     return classes.map((classRow) => {
+      const enrolledCount = Number(enrolled.find((row) => row.class_id === classRow.id)?.count ?? 0);
+      const roster = boarding.get(classRow.id);
+      if (roster) {
+        return {
+          class_id: classRow.id,
+          class_name: classRow.name,
+          grade_level: classRow.grade_level,
+          enrolled_count: enrolledCount,
+          day_locked: roster.closed,
+          attendance_meal_count: roster.headcount,
+          meal_report_headcount: null,
+          source: roster.closed ? ('boarding_closed' as const) : ('boarding_open' as const),
+          headcount: roster.headcount,
+        };
+      }
       const dayLocked = locked.some((row) => row.class_id === classRow.id);
       const attendanceMealCount = Number(present.find((row) => row.class_id === classRow.id)?.count ?? 0);
       const report = reports.find((row) => row.class_id === classRow.id);
@@ -107,7 +130,7 @@ export class KitchenMealsService {
         class_id: classRow.id,
         class_name: classRow.name,
         grade_level: classRow.grade_level,
-        enrolled_count: Number(enrolled.find((row) => row.class_id === classRow.id)?.count ?? 0),
+        enrolled_count: enrolledCount,
         day_locked: dayLocked,
         attendance_meal_count: attendanceMealCount,
         meal_report_headcount: report?.headcount ?? null,
@@ -310,6 +333,10 @@ export class KitchenMealsService {
     ) {
       throw new ApplicationError('ERR_FORBIDDEN', 'Chỉ giáo viên chủ nhiệm của lớp báo cơm được');
     }
+    // Lớp ngoài Mầm non chốt suất theo danh sách bán trú, không báo cơm (DT-20 phần 20b)
+    if (classRow.school_level !== 'MN') {
+      throw ruleViolationError(BOARDING_RULE_CODE, 'Lớp này chốt suất ở bán trú, không báo cơm');
+    }
     const date = input.date ?? this.today();
     if (date > this.today()) {
       throw validationError([{ field: 'date', message: 'Chỉ báo cơm cho hôm nay hoặc ngày đã qua' }]);
@@ -478,7 +505,7 @@ export class KitchenMealsService {
   private async findClass(database: Kysely<SchoolYearDatabase>, classId: string) {
     const classRow = await database
       .selectFrom('classes')
-      .select(['id', 'org_unit_id', 'name', 'status'])
+      .select(['id', 'org_unit_id', 'name', 'status', 'school_level'])
       .where('id', '=', classId)
       .executeTakeFirst();
     if (!classRow) {

@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.35
+- Phiên bản: 0.36
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,23 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-159: DT-20 phần 20b: bán trú Tiểu học; nề nếp và thi đua lớp – 2026-10-23
+
+- Lý do: phần 20b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.4 (đợt 1 của DT-20, chạy song song 20a). Văn bản căn cứ đã đọc: Thông tư 28/2020/TT-BGDĐT (Điều lệ trường tiểu học, tổ chức bán trú và hoạt động của Đội, Sao nhi đồng) và hướng dẫn công tác bán trú của Sở; nề nếp, thi đua lớp là việc tuỳ trường, không có biểu mẫu bắt buộc. Không đổi hành vi Mầm non: lớp Mầm non vẫn tính suất theo điểm danh, báo cơm như trước; kiểm thử đơn vị và e2e đang có đạt mà không sửa kỳ vọng. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Bán trú lớp Tiểu học** (`apps/api/src/boarding/`): dùng lại dịch vụ "Bán trú" (`MEAL_SERVICE_ID`), đăng ký theo tháng và biểu phí theo khối (19d). Danh sách ăn của lớp trong ngày là học sinh đang học lớp, đăng ký bán trú của tháng (từ ngày bắt đầu dịch vụ nếu có, đang chờ duyệt hủy vẫn tính) trừ học sinh báo cắt suất; không dùng điểm danh ngày của Mầm non. Giáo viên chủ nhiệm hoặc người có `P04.boarding.manage` trong phạm vi đơn vị báo cắt suất thay, chốt số suất của ngày học (không sau hôm nay); ngày đã chốt lưu số suất, không sửa cắt suất; mở lại phải có lý do. Lớp Mầm non gọi các điểm cuối này bị từ chối (422).
+  - **Phụ huynh báo cắt suất** ở ứng dụng phụ huynh (con học lớp Tiểu học): từ hôm nay trở đi, ngày học, con đã đăng ký, lớp chưa chốt; báo cho hôm nay phải trước giờ vào học của đơn vị (cấu hình `school_start_time`, mặc định 07:30), sau đó nhờ giáo viên chủ nhiệm. Hủy cắt suất theo cùng điều kiện.
+  - **Nối bếp, kiểm thực 22b, tiền ăn:** số suất của lớp ngoài Mầm non ở thực đơn, kế hoạch suất ăn, định lượng, phiếu đi chợ, kiểm thực ba bước lấy từ danh sách bán trú (đã chốt lấy số lưu, chưa chốt tính tại lúc xem; nguồn `boarding_closed`, `boarding_open`); lớp ngoài Mầm non không báo cơm (422). Tính tiền ăn của học sinh lớp ngoài Mầm non theo ngày ăn thực tế (ngày lớp đã chốt suất mà học sinh không cắt suất); lớp có học sinh đăng ký bán trú phải chốt suất đủ các ngày học của tháng mới tính được (liệt kê lớp, ngày còn thiếu), như yêu cầu chốt điểm danh ở Mầm non; không đánh dấu "nghỉ nhiều" theo ngày ăn ở lớp ngoài Mầm non.
+  - **Nề nếp, thi đua lớp** (`apps/api/src/conduct/`), tuỳ trường: thẻ "Nề nếp, thi đua lớp" ở 1.4 Cấu hình trường bật hoặc tắt, đặt điểm nền mỗi tuần (mặc định 100). Tiêu chí cộng hoặc trừ điểm theo cấp (mã, tên, loại, điểm mỗi lần, thứ tự, ngừng dùng), nạp bộ mặc định của Tiểu học (8 tiêu chí, mã đã có thì bỏ qua). Giáo viên trực ghi điểm theo lớp, ngày, tiêu chí, số lần, ô "Người báo" để ghi thay đội cờ đỏ (học sinh không có tài khoản), ghi chú; tiêu chí phải cùng cấp với lớp; chưa bật thì không ghi được (422). Người ghi xóa được dòng của mình trong ngày, người quản lý xóa được mọi dòng. Xếp hạng lớp của cấp theo tuần (thứ hai đến chủ nhật: điểm nền cộng tổng điểm), tháng và học kỳ (trung bình điểm các tuần có thứ hai trong kỳ; học kỳ theo lịch của cấp nếu có, không thì lịch chung), bằng điểm cùng hạng, lọc đơn vị, khối. Không dùng bảng thi đua cán bộ của 22d. Mở năm học mới chuyển cấu hình và tiêu chí sang, điểm đã ghi ở lại năm cũ.
+  - **Quyền mới** (tệp định danh `0068`): `P04.boarding.manage` (VT-02, VT-15, VT-03, VT-10), `P02.conduct.record` (VT-02, VT-15, VT-03, VT-07, VT-08), `P02.conduct.manage` (VT-02, VT-15). Giáo viên chủ nhiệm dùng danh sách ăn của lớp mình không cần quyền quản lý.
+  - **Giao diện:** cổng quản trị mục 4.8 "Bán trú" và 4.9 "Nề nếp, thi đua lớp" (chỉ hiện khi trường bật Tiểu học, `levels: ['TH']`); ứng dụng giáo viên có nút "Bán trú" ở lớp Tiểu học; ứng dụng phụ huynh có "Cắt suất bán trú" ở con Tiểu học (`LEVEL_FEATURES.boarding_meal`).
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/school-year/migrations/0077_create_boarding_and_conduct.ts`, `database/identity/migrations/0068_add_boarding_conduct_permissions.ts`, `schema.ts`); gói dùng chung (`PERMISSION_CODES`, `portal-menu.ts`, `menu-permissions.ts`, `level-features.ts`); máy chủ API (`boarding/`, `conduct/`, `kitchen/kitchen-meals.ts`, `fees/fee-calculation.service.ts`); cổng quản trị (`boarding/`, `conduct/`, `settings/SettingsPage.tsx`, `kitchen/kitchen-api.ts`); ứng dụng giáo viên (`BoardingScreen.tsx`), ứng dụng phụ huynh (`BoardingPanel.tsx`).
+- Dữ liệu bị ảnh hưởng: tệp năm học `0077` thêm `boarding_meal_days`, `boarding_meal_cuts`, `conduct_settings` (một dòng, chưa bật), `conduct_criteria`, `conduct_entries`; tệp định danh `0068` thêm ba quyền. Không đổi dữ liệu đang có.
+- Đối chiếu trước, sau chuyển: trường chỉ có Mầm non: số suất bếp, tiền ăn, báo cơm không đổi (kiểm thử bếp, tính phí đang có đạt không sửa kỳ vọng).
+- Rủi ro: lớp Tiểu học có học sinh đăng ký bán trú phải chốt suất đủ ngày trước khi tính tiền ăn; trường chưa quen thì tính phí báo thiếu ngày chốt.
+- Kiểm thử cần thực hiện: CT-844 đến CT-850. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/boarding/boarding.test.ts` CT-20b-1 đến CT-20b-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm hai mục menu vào bảng đối chiếu điều kiện cũ của CT-15e-2; CT-19c-1, CT-19c-2 so cây menu Mầm non với cây gốc bỏ hai mục chỉ của Tiểu học, cây menu Mầm non giữ nguyên); kiểm thử đơn vị toàn bộ kho mã đạt 1053/1053; kiểm thử giao diện `tests/e2e/88-boarding-conduct.spec.ts` (CT-20b-7) đạt; toàn bộ kiểm thử giao diện đạt 160/160; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Trạng thái: Đã triển khai (PR #137).
 
 ### YCTD-158: DT-20 phần 20a: nền Tiểu học – 2026-10-23
 

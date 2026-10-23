@@ -13,6 +13,7 @@ export type LevelFeature =
   | 'meal_report'
   | 'growth'
   | 'final_year_record'
+  | 'boarding_meal'
   // Thời khoá biểu theo tiết (DT-20 phần 22c1): lớp, con học cấp phổ thông
   | 'period_timetable';
 
@@ -23,6 +24,8 @@ export const LEVEL_FEATURES: Record<LevelFeature, readonly SchoolLevelCode[]> = 
   meal_report: ['MN'],
   growth: ['MN'],
   final_year_record: ['MN'],
+  // Bán trú theo danh sách ăn, cắt suất (DT-20 phần 20b): lớp Tiểu học thay cho báo cơm theo điểm danh của Mầm non
+  boarding_meal: ['TH'],
   period_timetable: ['TH', 'THCS', 'THPT'],
 };
 

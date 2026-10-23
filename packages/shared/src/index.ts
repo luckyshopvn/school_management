@@ -259,6 +259,10 @@ export const PERMISSION_CODES = {
   // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
   qualityUse: 'P09.quality.use',
   qualityManage: 'P09.quality.manage',
+  // Bán trú lớp ngoài Mầm non, nề nếp và thi đua lớp (DT-20 phần 20b)
+  boardingManage: 'P04.boarding.manage',
+  conductRecord: 'P02.conduct.record',
+  conductManage: 'P02.conduct.manage',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -343,6 +347,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/admissions',
   '/interactions',
   '/kitchen',
+  '/boarding',
+  '/conduct',
   '/medicines',
   '/inventory',
   '/activities',

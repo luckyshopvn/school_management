@@ -29,21 +29,31 @@ const PRESCHOOL_ONLY_PATHS = [
   '/emis/end-of-year',
   '/emis/preschool-end-of-year',
 ];
+// Mục chỉ của Tiểu học (DT-20 phần 20a, 20b): trường chỉ có Mầm non không thấy, các mục khác giữ y hệt
+const PRIMARY_ONLY_PATHS = [
+  '/subjects',
+  '/teaching-assignments',
+  '/boarding',
+  '/conduct',
+  // Thời khoá biểu phần khung (DT-20 phần 22c1)
+  '/period-slots',
+  '/timetables',
+];
 
 describe('Cây menu và nhãn theo cấp học', () => {
   it('CT-19c-1: trường chỉ có Mầm non giữ y hệt cây menu (tên phân hệ, số thứ bậc, thứ tự, mục)', () => {
-    // Từ DT-20 phần 20a cây menu có nhóm chỉ của Tiểu học; trường Mầm non thấy y hệt cây gốc bỏ các nhóm đó
-    const withoutPrimary = PORTAL_WORKSPACES.map((workspace) => ({
-      ...workspace,
-      menu: workspace.menu.filter((node) => !node.levels || node.levels.includes('MN')),
-    }));
-    assert.deepEqual(portalWorkspacesForLevels(levelsOf('MN')), withoutPrimary);
-    assert.deepEqual([...portalMenuPathsOutsideLevels(['MN'])].sort(), [
-      '/period-slots',
-      '/subjects',
-      '/teaching-assignments',
-      '/timetables',
-    ]);
+    const preschool = portalWorkspacesForLevels(levelsOf('MN'));
+    assert.deepEqual(
+      listPortalMenuEntries(preschool).map((entry) => [entry.workspace.key, entry.node.number, entry.node.path]),
+      listPortalMenuEntries(PORTAL_WORKSPACES)
+        .filter((entry) => !PRIMARY_ONLY_PATHS.includes(entry.node.path))
+        .map((entry) => [entry.workspace.key, entry.node.number, entry.node.path]),
+    );
+    assert.deepEqual(
+      preschool.map((workspace) => workspace.label),
+      PORTAL_WORKSPACES.map((workspace) => workspace.label),
+    );
+    assert.deepEqual([...portalMenuPathsOutsideLevels(['MN'])].sort(), [...PRIMARY_ONLY_PATHS].sort());
     assert.equal(portalMenuPathsOutsideLevels(['MN', 'TH']).size, 0);
   });
 
@@ -62,7 +72,7 @@ describe('Cây menu và nhãn theo cấp học', () => {
     const students = education(primary)?.menu.find((node) => node.number === '4.');
     assert.deepEqual(
       students?.children?.map((node) => node.number),
-      ['4.1.', '4.2.', '4.5.', '4.6.', '4.7.'],
+      ['4.1.', '4.2.', '4.5.', '4.6.', '4.7.', '4.8.', '4.9.'],
     );
     const emis = primary.find((workspace) => workspace.key === 'emis');
     assert.deepEqual(
