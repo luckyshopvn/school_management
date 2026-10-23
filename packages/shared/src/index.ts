@@ -22,6 +22,7 @@ export * from './education-plans.js';
 export * from './school-levels.js';
 export * from './school-level-terms.js';
 export * from './level-features.js';
+export * from './subjects.js';
 export * from './emulation.js';
 export * from './quality-assurance.js';
 export * from './school-levels.js';
@@ -564,6 +565,9 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/quality/evidences',
   '/quality/recognition',
   '/quality/frameworks',
+  // Nền Tiểu học: môn học và hoạt động giáo dục, phân công giảng dạy theo môn (DT-20 phần 20a)
+  '/subjects',
+  '/teaching-assignments',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -854,6 +858,9 @@ export const DATA_GRID_KEYS = [
   'quality-frameworks',
   // Chương trình theo cấp học (DT-19 phần 19b)
   'curricula',
+  // Môn học, phân công giảng dạy theo môn (DT-20 phần 20a)
+  'subjects',
+  'teaching-assignments',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

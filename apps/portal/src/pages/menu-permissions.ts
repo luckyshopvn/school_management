@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import {
   MENU_PERMISSION_RULES,
-  PORTAL_WORKSPACES,
   isMenuRuleSatisfied,
   portalWorkspacesForLevels,
   type PortalMenuNode,
@@ -49,8 +48,10 @@ export function filterMenu(
   });
 }
 
-// Cây menu theo cấp đang làm việc (DT-19 phần 19c) rồi theo quyền. Chưa tải xong ngữ cảnh trường thì dùng cây đầy đủ, bằng
-// đúng cây của trường mầm non
+// Cây menu theo cấp đang làm việc (DT-19 phần 19c) rồi theo quyền. Chưa tải xong ngữ cảnh trường thì dùng cây của trường
+// mầm non (không có mục chỉ của Tiểu học, DT-20 phần 20a)
+const PRESCHOOL_WORKSPACES = portalWorkspacesForLevels([{ code: 'MN', display_name: 'Mầm non' }]);
+
 export function usePortalMenu(): PortalWorkspace[] {
   // So sánh theo nội dung để cây menu không dựng lại mỗi lần vẽ
   const key = JSON.stringify(useMenuVisibility());
@@ -60,7 +61,7 @@ export function usePortalMenu(): PortalWorkspace[] {
   const levelsKey = JSON.stringify(levels.ready ? levels.working : null);
   return useMemo(() => {
     const working = JSON.parse(levelsKey) as Parameters<typeof portalWorkspacesForLevels>[0] | null;
-    const workspaces = working ? portalWorkspacesForLevels(working) : PORTAL_WORKSPACES;
+    const workspaces = working ? portalWorkspacesForLevels(working) : PRESCHOOL_WORKSPACES;
     return filterMenu(workspaces, JSON.parse(key), JSON.parse(allowedKey) ?? undefined);
   }, [key, allowedKey, levelsKey]);
 }

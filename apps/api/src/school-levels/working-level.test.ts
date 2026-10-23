@@ -32,8 +32,13 @@ const PRESCHOOL_ONLY_PATHS = [
 
 describe('Cây menu và nhãn theo cấp học', () => {
   it('CT-19c-1: trường chỉ có Mầm non giữ y hệt cây menu (tên phân hệ, số thứ bậc, thứ tự, mục)', () => {
-    assert.deepEqual(portalWorkspacesForLevels(levelsOf('MN')), PORTAL_WORKSPACES);
-    assert.equal(portalMenuPathsOutsideLevels(['MN']).size, 0);
+    // Từ DT-20 phần 20a cây menu có nhóm chỉ của Tiểu học; trường Mầm non thấy y hệt cây gốc bỏ các nhóm đó
+    const withoutPrimary = PORTAL_WORKSPACES.map((workspace) => ({
+      ...workspace,
+      menu: workspace.menu.filter((node) => !node.levels || node.levels.includes('MN')),
+    }));
+    assert.deepEqual(portalWorkspacesForLevels(levelsOf('MN')), withoutPrimary);
+    assert.deepEqual([...portalMenuPathsOutsideLevels(['MN'])].sort(), ['/subjects', '/teaching-assignments']);
     assert.equal(portalMenuPathsOutsideLevels(['MN', 'TH']).size, 0);
   });
 
