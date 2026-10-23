@@ -705,7 +705,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 
 | Phần | Đợt | Tiến độ |
 |---|---|---|
-| 20a | 1 | Đã làm, YCTD-158, phiên bản 0.107.0, PR …: môn học và hoạt động giáo dục (năm học 0076 `subjects`), bộ môn mẫu Tiểu học, số tiết theo khối của chương trình (`curriculum_subjects`), phân công giảng dạy theo môn (`class_staff_assignments.subject_id`), tổng tiết của giáo viên, môn tự chọn của học sinh, nhóm menu "7. Dạy học Tiểu học"; định danh 0067 để trống (không thêm quyền); e2e 87 |
+| 20a | 1 | Đã làm, YCTD-158, phiên bản 0.107.0, PR 136: môn học và hoạt động giáo dục (năm học 0076 `subjects`), bộ môn mẫu Tiểu học, số tiết theo khối của chương trình (`curriculum_subjects`), phân công giảng dạy theo môn (`class_staff_assignments.subject_id`), tổng tiết của giáo viên, môn tự chọn của học sinh, nhóm menu "7. Dạy học Tiểu học"; định danh 0067 để trống (không thêm quyền); e2e 87 |
 | 20b | 1 | Chưa làm, chờ 19f |
 | 22c1 | 2 | Chưa làm, chờ 20a |
 | 20c | 2 | Chưa làm, chờ 20a |
