@@ -361,7 +361,7 @@ export class BoardingService {
       .select(['meal_date', 'reason', 'source'])
       .where('child_id', '=', childId)
       .where('meal_date', '>=', `${month}-01`)
-      .where('meal_date', '<=', `${month}-31`)
+      .where('meal_date', '<', nextMonthStart(month))
       .orderBy('meal_date')
       .execute();
     const registered = await registeredChildren(database, [classRow.id], `${month}-28`);
@@ -372,6 +372,12 @@ export class BoardingService {
       cuts: rows,
     };
   }
+}
+
+// Ngày đầu tháng sau của tháng YYYY-MM (tránh ngày 31 không có thật khi so sánh cột ngày)
+function nextMonthStart(month: string): string {
+  const [year, monthNumber] = month.split('-').map(Number) as [number, number];
+  return monthNumber === 12 ? `${year + 1}-01-01` : `${year}-${String(monthNumber + 1).padStart(2, '0')}-01`;
 }
 
 @Controller()

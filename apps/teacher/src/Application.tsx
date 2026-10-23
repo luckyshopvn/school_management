@@ -9,6 +9,7 @@ import { JournalScreen } from './screens/JournalScreen.js';
 import { LeaveScreen } from './screens/LeaveScreen.js';
 import { MessagesScreen } from './screens/MessagesScreen.js';
 import { MealReportScreen } from './screens/MealReportScreen.js';
+import { BoardingScreen } from './screens/BoardingScreen.js';
 import { PayslipsScreen } from './screens/PayslipsScreen.js';
 import { LoginScreen } from './screens/LoginScreen.js';
 import { MedicationScreen } from './screens/MedicationScreen.js';
@@ -25,7 +26,16 @@ function Screens() {
   const [opened, setOpened] = useState<
     | {
         screen:
-          'attendance' | 'pickup' | 'journal' | 'care' | 'messages' | 'activity' | 'meal' | 'medication' | 'teaching';
+          | 'attendance'
+          | 'pickup'
+          | 'journal'
+          | 'care'
+          | 'messages'
+          | 'activity'
+          | 'meal'
+          | 'boarding'
+          | 'medication'
+          | 'teaching';
         myClass: MyClass;
       }
     | { screen: 'gate'; orgUnitIds: string[] }
@@ -62,6 +72,9 @@ function Screens() {
   if (opened?.screen === 'meal') {
     return <MealReportScreen myClass={opened.myClass} onBack={back} />;
   }
+  if (opened?.screen === 'boarding') {
+    return <BoardingScreen myClass={opened.myClass} onBack={back} />;
+  }
   if (opened?.screen === 'medication') {
     return <MedicationScreen myClass={opened.myClass} onBack={back} />;
   }
@@ -96,6 +109,7 @@ function Screens() {
       onOpenMessages={(myClass) => setOpened({ screen: 'messages', myClass })}
       onOpenActivity={(myClass) => setOpened({ screen: 'activity', myClass })}
       onOpenMealReport={(myClass) => setOpened({ screen: 'meal', myClass })}
+      onOpenBoarding={(myClass) => setOpened({ screen: 'boarding', myClass })}
       onOpenMedication={(myClass) => setOpened({ screen: 'medication', myClass })}
       onOpenGate={(orgUnitIds) => setOpened({ screen: 'gate', orgUnitIds })}
       onOpenLeave={() => setOpened({ screen: 'leave' })}

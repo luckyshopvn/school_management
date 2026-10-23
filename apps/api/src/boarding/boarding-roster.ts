@@ -27,28 +27,30 @@ export async function registeredChildren(
     return [];
   }
   const period = periodOf(date);
-  return database
-    .selectFrom('class_enrollments')
-    .innerJoin('children', 'children.id', 'class_enrollments.child_id')
-    .innerJoin('service_registrations', 'service_registrations.child_id', 'children.id')
-    .select(['children.id as child_id', 'class_enrollments.class_id', 'children.full_name'])
-    .where('class_enrollments.class_id', 'in', classIds)
-    .where('class_enrollments.is_current', '=', true)
-    .where('children.status', '=', 'active')
-    .where('children.deleted_at', 'is', null)
-    .where('service_registrations.service_id', '=', MEAL_SERVICE_ID)
-    // Đang chờ duyệt hủy vẫn ăn và vẫn thu như tính học phí
-    .where('service_registrations.status', 'in', ['active', 'pending_cancel'])
-    .where('service_registrations.period_year', '=', period.year)
-    .where('service_registrations.period_month', '=', period.month)
-    .where((expression) =>
-      expression.or([
-        expression('service_registrations.service_start_date', 'is', null),
-        expression('service_registrations.service_start_date', '<=', date),
-      ]),
-    )
-    .orderBy('children.full_name')
-    .execute();
+  return (
+    database
+      .selectFrom('class_enrollments')
+      .innerJoin('children', 'children.id', 'class_enrollments.child_id')
+      .innerJoin('service_registrations', 'service_registrations.child_id', 'children.id')
+      .select(['children.id as child_id', 'class_enrollments.class_id', 'children.full_name'])
+      .where('class_enrollments.class_id', 'in', classIds)
+      .where('class_enrollments.is_current', '=', true)
+      .where('children.status', '=', 'active')
+      .where('children.deleted_at', 'is', null)
+      .where('service_registrations.service_id', '=', MEAL_SERVICE_ID)
+      // Đang chờ duyệt hủy vẫn ăn và vẫn thu như tính học phí
+      .where('service_registrations.status', 'in', ['active', 'pending_cancel'])
+      .where('service_registrations.period_year', '=', period.year)
+      .where('service_registrations.period_month', '=', period.month)
+      .where((expression) =>
+        expression.or([
+          expression('service_registrations.service_start_date', 'is', null),
+          expression('service_registrations.service_start_date', '<=', date),
+        ]),
+      )
+      .orderBy('children.full_name')
+      .execute()
+  );
 }
 
 // Danh sách ăn của một lớp trong ngày kèm cắt suất

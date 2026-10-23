@@ -16,6 +16,7 @@ import { PhotoConsentPanel } from './PhotoConsentPanel.js';
 import { NotificationsPanel } from './NotificationsPanel.js';
 import { ServicesPanel } from './ServicesPanel.js';
 import { FinalYearPanel } from './FinalYearPanel.js';
+import { BoardingPanel } from './BoardingPanel.js';
 import { hasLevelFeature, levelOf } from '@school-management/shared';
 import { useSchoolLevelNames } from './school-levels.js';
 
@@ -125,6 +126,7 @@ function ChildCard({
     | 'menu'
     | 'medication'
     | 'final-year'
+    | 'boarding'
   >('none');
   const [attendance, setAttendance] = useState<MonthAttendance>();
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -172,6 +174,9 @@ function ChildCard({
         <Button onClick={() => setView(view === 'interactions' ? 'none' : 'interactions')}>Trao đổi</Button>
         <Button onClick={() => setView(view === 'activities' ? 'none' : 'activities')}>Hoạt động</Button>
         <Button onClick={() => setView(view === 'menu' ? 'none' : 'menu')}>Thực đơn</Button>
+        {has('boarding_meal') ? (
+          <Button onClick={() => setView(view === 'boarding' ? 'none' : 'boarding')}>Cắt suất bán trú</Button>
+        ) : null}
         <Button onClick={() => setView(view === 'medication' ? 'none' : 'medication')}>Dặn thuốc</Button>
         {has('final_year_record') ? (
           <Button onClick={() => setView(view === 'final-year' ? 'none' : 'final-year')}>Hồ sơ cuối cấp</Button>
@@ -189,6 +194,7 @@ function ChildCard({
       {view === 'services' ? <ServicesPanel child={child} /> : null}
       {view === 'invoices' ? <InvoicesPanel child={child} /> : null}
       {view === 'final-year' ? <FinalYearPanel child={child} /> : null}
+      {view === 'boarding' ? <BoardingPanel child={child} /> : null}
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       {view === 'absence' ? (
         <AbsenceForm
