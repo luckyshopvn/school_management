@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu).
-- Phiên bản: 1.41
+- Phiên bản: 1.42
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -707,7 +707,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 |---|---|---|
 | 20a | 1 | Đã làm, YCTD-158, phiên bản 0.107.0, PR 136: môn học và hoạt động giáo dục (năm học 0076 `subjects`), bộ môn mẫu Tiểu học, số tiết theo khối của chương trình (`curriculum_subjects`), phân công giảng dạy theo môn (`class_staff_assignments.subject_id`), tổng tiết của giáo viên, môn tự chọn của học sinh, nhóm menu "7. Dạy học Tiểu học"; định danh 0067 để trống (không thêm quyền); e2e 87 |
 | 20b | 1 | Đã làm (PR #137, YCTD-159, phiên bản 0.108.0) |
-| 22c1 | 2 | Chưa làm, chờ 20a |
+| 22c1 | 2 | Đã làm, YCTD-160, phiên bản 0.109.0, PR …: khung giờ tiết học (hệ thống 0026 `period_slots`), bản thời khoá biểu có ngày áp dụng và tiết theo lớp (năm học 0078 `timetable_versions`, `timetable_lessons`), giáo viên theo phân công của 20a, nhập Excel, kiểm tra xung đột (hàm `findTimetableConflicts` dùng chung với 22c2), ban hành; xem ở 7.4, ứng dụng giáo viên, phụ huynh, website; quyền `P02.timetable.manage` (định danh 0069); e2e 89 |
 | 20c | 2 | Chưa làm, chờ 20a |
 | 20d | 3 | Chưa làm, chờ 22c1 |
 | 20e | 3 | Chưa làm, chờ 20c |
