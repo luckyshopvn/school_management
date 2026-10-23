@@ -23,6 +23,7 @@ export * from './school-levels.js';
 export * from './school-level-terms.js';
 export * from './level-features.js';
 export * from './subjects.js';
+export * from './assessments.js';
 export * from './emulation.js';
 export * from './quality-assurance.js';
 export * from './school-levels.js';
@@ -261,6 +262,9 @@ export const PERMISSION_CODES = {
   boardingManage: 'P04.boarding.manage',
   conductRecord: 'P02.conduct.record',
   conductManage: 'P02.conduct.manage',
+  assessmentEnter: 'P02.assessment.enter',
+  assessmentView: 'P02.assessment.view',
+  assessmentManage: 'P02.assessment.manage',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
