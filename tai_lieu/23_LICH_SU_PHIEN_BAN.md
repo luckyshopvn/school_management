@@ -20,7 +20,7 @@
 
 - Phạm vi thay đổi: DT-20 phần 22c1, thời khoá biểu phần khung (YCTD-160).
 - Chức năng mới: khung giờ tiết học theo cấp; bản thời khoá biểu có ngày áp dụng; sửa tiết theo lớp; nhập Excel; kiểm tra xung đột; ban hành; xem theo lớp, giáo viên, phòng; lịch dạy của giáo viên; thời khoá biểu của con; trang thời khoá biểu của website.
-- Lỗi đã sửa: không có.
+- Lỗi đã sửa: 1.1 Khai báo cơ sở vật chất (phân hệ Cơ sở vật chất) báo "Bắt buộc chọn đơn vị" khi bấm Thêm mới trước khi danh sách đơn vị tải xong; nay phòng mới nhận đơn vị mặc định khi danh sách về (lỗi làm kiểm thử giao diện 50 chập chờn).
 - Thay đổi dữ liệu: tệp hệ thống `0026_create_period_slots`; tệp năm học `0078_create_timetables`; tệp định danh `0069_add_timetable_permission`.
 - Thay đổi API: `/period-slots`, `/timetable-versions`, `/timetables`, `/timetables/mine`, `/children/{id}/timetable`.
 - Kiểm thử: kịch bản CT-851 đến CT-856. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/timetables/timetables.test.ts` CT-22c1-1 đến CT-22c1-5 đạt 5/5; kiểm thử đơn vị toàn bộ kho mã đạt 1058/1058 (không sửa kỳ vọng của kiểm thử đang có, trừ danh sách đường dẫn của CT-19c-1); kiểm thử giao diện `tests/e2e/89-timetables.spec.ts` (CT-22c1-6) đạt; toàn bộ kiểm thử giao diện đạt 161/161; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
