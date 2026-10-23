@@ -3,7 +3,7 @@ import type { Migration } from 'kysely/migration';
 
 // DT-20 phần 20b (YCTD-159): quyền bán trú Tiểu học, nề nếp và thi đua lớp. Vai trò nhận quyền do Claude tự chọn theo ủy
 // quyền của Eric ngày 2026-10-11:
-// - chốt suất, cắt suất bán trú của lớp: giáo viên chủ nhiệm (VT-07) ở lớp mình, quản lý đơn vị (VT-03), Ban Giám hiệu, nhân
+// - chốt suất, cắt suất bán trú của lớp: giáo viên chủ nhiệm ở lớp mình (theo phân công, không cần quyền), quản lý đơn vị (VT-03), Ban Giám hiệu, nhân
 //   viên bếp (VT-10) xem và cắt suất hộ khi phụ huynh báo qua điện thoại; phụ huynh báo cắt suất của con qua ứng dụng (không
 //   cần quyền, máy chủ kiểm tra quan hệ phụ huynh);
 // - ghi nề nếp: giáo viên chủ nhiệm, giáo viên bộ môn (giáo viên trực tuần, ghi thay đội cờ đỏ), Ban Giám hiệu, quản lý đơn vị;
@@ -14,7 +14,7 @@ const PERMISSIONS = [
     module: 'P04',
     description:
       'Bán trú lớp ngoài Mầm non: xem danh sách ăn của ngày, cắt suất hộ học sinh, chốt và mở lại suất của lớp',
-    roles: ['VT-02', 'VT-15', 'VT-03', 'VT-07', 'VT-10'],
+    roles: ['VT-02', 'VT-15', 'VT-03', 'VT-10'],
   },
   {
     code: 'P02.conduct.record',
