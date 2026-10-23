@@ -7,7 +7,14 @@ import { DEFAULT_SCHOOL_LEVEL, isSchoolLevelCode, type SchoolLevelCode } from '.
 // Đưa đón, dặn thuốc, thực đơn, học phí, tin nhắn, hoạt động dùng cho mọi cấp. Claude tự chọn theo ủy quyền của Eric ngày
 // 2026-10-11
 export type LevelFeature =
-  'daily_attendance' | 'daily_journal' | 'daily_care' | 'meal_report' | 'growth' | 'final_year_record';
+  | 'daily_attendance'
+  | 'daily_journal'
+  | 'daily_care'
+  | 'meal_report'
+  | 'growth'
+  | 'final_year_record'
+  // Thời khoá biểu theo tiết (DT-20 phần 22c1): lớp, con học cấp phổ thông
+  | 'period_timetable';
 
 export const LEVEL_FEATURES: Record<LevelFeature, readonly SchoolLevelCode[]> = {
   daily_attendance: ['MN'],
@@ -16,6 +23,7 @@ export const LEVEL_FEATURES: Record<LevelFeature, readonly SchoolLevelCode[]> = 
   meal_report: ['MN'],
   growth: ['MN'],
   final_year_record: ['MN'],
+  period_timetable: ['TH', 'THCS', 'THPT'],
 };
 
 // Cấp của con hoặc lớp như máy chủ trả; trống (con chưa xếp lớp, máy chủ cũ) là Mầm non như mọi chỗ đọc cấp khác

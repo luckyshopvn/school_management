@@ -219,6 +219,13 @@ import {
   TeachingAssignmentsController,
   TeachingAssignmentsService,
 } from './subjects/subjects.js';
+import {
+  ChildTimetableController,
+  PeriodSlotsController,
+  TimetablesController,
+  TimetablesService,
+  TimetableVersionsController,
+} from './timetables/timetables.js';
 import { ClassAssignmentsController, ClassesController } from './classes/classes.controller.js';
 import { ClassesService } from './classes/classes.service.js';
 import { ChildScope } from './children/child-scope.js';
@@ -469,6 +476,10 @@ export class ApplicationModule {
         CurriculumSubjectsController,
         ElectiveSubjectsController,
         TeachingAssignmentsController,
+        PeriodSlotsController,
+        TimetableVersionsController,
+        TimetablesController,
+        ChildTimetableController,
         ClassesController,
         ClassAssignmentsController,
         ChildrenController,
@@ -686,6 +697,7 @@ export class ApplicationModule {
         SubjectsService,
         ElectiveSubjectsService,
         TeachingAssignmentsService,
+        TimetablesService,
         ClassesService,
         ChildScope,
         ChildrenService,

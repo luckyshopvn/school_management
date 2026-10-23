@@ -58,6 +58,21 @@ export interface SchoolWeeksTable {
 }
 
 // Ngày học trong tuần riêng của một cấp (YCTD-152); cấp không có dòng thì theo năm học
+// Khung giờ tiết học theo năm học và cấp (DT-20 phần 22c1, YCTD-160)
+export type PeriodSession = 'morning' | 'afternoon';
+
+export interface PeriodSlotsTable {
+  id: Generated<string>;
+  academic_year_id: string;
+  school_level: CalendarSchoolLevel;
+  period_no: number;
+  session: PeriodSession;
+  start_time: string;
+  end_time: string;
+  created_at: CreatedTimestamp;
+  created_by: string | null;
+}
+
 export interface AcademicYearLevelSettingsTable {
   academic_year_id: string;
   school_level: CalendarSchoolLevel;
@@ -1193,6 +1208,7 @@ export interface SystemDatabase {
   school_weeks: SchoolWeeksTable;
   academic_year_databases: AcademicYearDatabasesTable;
   academic_year_level_settings: AcademicYearLevelSettingsTable;
+  period_slots: PeriodSlotsTable;
   integration_credentials: IntegrationCredentialsTable;
   user_quick_links: UserQuickLinksTable;
   user_grid_settings: UserGridSettingsTable;

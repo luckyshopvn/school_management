@@ -144,3 +144,19 @@ export const SUBJECT_TEMPLATES: Record<SchoolLevelCode, SubjectTemplate[]> = {
 export const DEFAULT_CURRICULUM_CODES: Partial<Record<SchoolLevelCode, { code: string; name: string }>> = {
   TH: { code: 'CT-TH-2018', name: 'Chương trình giáo dục phổ thông 2018 cấp Tiểu học' },
 };
+
+// Thời khoá biểu (DT-20 phần 22c1, YCTD-160): thứ theo ISO (1 là thứ Hai) như ngày học trong tuần của năm học; buổi của tiết
+export const TIMETABLE_WEEKDAY_LABELS: Record<number, string> = {
+  1: 'Thứ Hai',
+  2: 'Thứ Ba',
+  3: 'Thứ Tư',
+  4: 'Thứ Năm',
+  5: 'Thứ Sáu',
+  6: 'Thứ Bảy',
+  7: 'Chủ nhật',
+};
+
+export const PERIOD_SESSION_LABELS: Record<'morning' | 'afternoon', string> = {
+  morning: 'Sáng',
+  afternoon: 'Chiều',
+};
