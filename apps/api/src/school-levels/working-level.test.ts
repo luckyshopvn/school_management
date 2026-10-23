@@ -30,7 +30,7 @@ const PRESCHOOL_ONLY_PATHS = [
   '/emis/preschool-end-of-year',
 ];
 // Mục chỉ của Tiểu học (DT-20 phần 20a, 20b): trường chỉ có Mầm non không thấy, các mục khác giữ y hệt
-const PRIMARY_ONLY_PATHS = ['/subjects', '/teaching-assignments', '/boarding', '/conduct'];
+const PRIMARY_ONLY_PATHS = ['/subjects', '/teaching-assignments', '/boarding', '/conduct', '/student-assessments'];
 
 describe('Cây menu và nhãn theo cấp học', () => {
   it('CT-19c-1: trường chỉ có Mầm non giữ y hệt cây menu (tên phân hệ, số thứ bậc, thứ tự, mục)', () => {

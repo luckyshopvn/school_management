@@ -10,6 +10,7 @@ import { LeaveScreen } from './screens/LeaveScreen.js';
 import { MessagesScreen } from './screens/MessagesScreen.js';
 import { MealReportScreen } from './screens/MealReportScreen.js';
 import { BoardingScreen } from './screens/BoardingScreen.js';
+import { AssessmentScreen } from './screens/AssessmentScreen.js';
 import { PayslipsScreen } from './screens/PayslipsScreen.js';
 import { LoginScreen } from './screens/LoginScreen.js';
 import { MedicationScreen } from './screens/MedicationScreen.js';
@@ -34,6 +35,7 @@ function Screens() {
           | 'activity'
           | 'meal'
           | 'boarding'
+          | 'assessment'
           | 'medication'
           | 'teaching';
         myClass: MyClass;
@@ -71,6 +73,9 @@ function Screens() {
   }
   if (opened?.screen === 'meal') {
     return <MealReportScreen myClass={opened.myClass} onBack={back} />;
+  }
+  if (opened?.screen === 'assessment') {
+    return <AssessmentScreen myClass={opened.myClass} onBack={back} />;
   }
   if (opened?.screen === 'boarding') {
     return <BoardingScreen myClass={opened.myClass} onBack={back} />;
@@ -110,6 +115,7 @@ function Screens() {
       onOpenActivity={(myClass) => setOpened({ screen: 'activity', myClass })}
       onOpenMealReport={(myClass) => setOpened({ screen: 'meal', myClass })}
       onOpenBoarding={(myClass) => setOpened({ screen: 'boarding', myClass })}
+      onOpenAssessment={(myClass) => setOpened({ screen: 'assessment', myClass })}
       onOpenMedication={(myClass) => setOpened({ screen: 'medication', myClass })}
       onOpenGate={(orgUnitIds) => setOpened({ screen: 'gate', orgUnitIds })}
       onOpenLeave={() => setOpened({ screen: 'leave' })}

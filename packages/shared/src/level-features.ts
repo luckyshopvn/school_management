@@ -13,7 +13,8 @@ export type LevelFeature =
   | 'meal_report'
   | 'growth'
   | 'final_year_record'
-  | 'boarding_meal';
+  | 'boarding_meal'
+  | 'student_assessment';
 
 export const LEVEL_FEATURES: Record<LevelFeature, readonly SchoolLevelCode[]> = {
   daily_attendance: ['MN'],
@@ -24,6 +25,8 @@ export const LEVEL_FEATURES: Record<LevelFeature, readonly SchoolLevelCode[]> = 
   final_year_record: ['MN'],
   // Bán trú theo danh sách ăn, cắt suất (DT-20 phần 20b): lớp Tiểu học thay cho báo cơm theo điểm danh của Mầm non
   boarding_meal: ['TH'],
+  // Đánh giá học sinh theo Thông tư 27/2020 (DT-20 phần 20c): nhập ở ứng dụng giáo viên, phụ huynh xem kết quả đã khoá
+  student_assessment: ['TH'],
 };
 
 // Cấp của con hoặc lớp như máy chủ trả; trống (con chưa xếp lớp, máy chủ cũ) là Mầm non như mọi chỗ đọc cấp khác

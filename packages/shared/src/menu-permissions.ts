@@ -96,6 +96,7 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   // theo môn như phân công phụ trách lớp
   '/subjects': anyOf('P01.view', 'P01.catalog.manage', 'P02.class.manage'),
   '/teaching-assignments': CHILDREN_AND_CLASSES,
+  '/student-assessments': anyOf('P02.assessment.enter', 'P02.assessment.view', 'P02.assessment.manage'),
   // Khai báo tuần: ai xem được thiết lập thì xem, sửa cần quyền quản lý năm học như 2.1 Năm học (DT-16 phần 16e)
   '/school-weeks': anyOf('P01.view', 'P01.academic-year.manage'),
   '/staff': 'P07.staff.view',

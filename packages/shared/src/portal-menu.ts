@@ -156,6 +156,8 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         group('7.', 'Dạy học Tiểu học', [
           leaf('7.1.', 'Môn học và hoạt động giáo dục', '/subjects'),
           leaf('7.2.', 'Phân công giảng dạy theo môn', '/teaching-assignments'),
+          // Đánh giá học sinh theo Thông tư 27/2020 (DT-20 phần 20c)
+          leaf('7.3.', 'Đánh giá học sinh', '/student-assessments'),
         ]),
       ),
     ],

@@ -578,6 +578,7 @@ export const PORTAL_QUICK_LINK_PATHS = [
   // Nền Tiểu học: môn học và hoạt động giáo dục, phân công giảng dạy theo môn (DT-20 phần 20a)
   '/subjects',
   '/teaching-assignments',
+  '/student-assessments',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
