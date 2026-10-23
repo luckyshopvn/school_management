@@ -23,7 +23,7 @@
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp năm học `0074_add_news_audience_levels`.
 - Thay đổi API: `GET /children` thêm `school_level`; `/news` nhận và trả `audience_levels`; mới `POST /news-recipients/count`.
-- Kiểm thử: kịch bản CT-828 đến CT-832. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/school-levels/multi-level-apps.test.ts` CT-19e-1 đến CT-19e-4 đạt 4/4; kiểm thử đơn vị toàn bộ kho mã … (không sửa kỳ vọng của kiểm thử đang có); kiểm thử giao diện `tests/e2e/85-multi-level-apps.spec.ts` (CT-19e-5) đạt; toàn bộ kiểm thử giao diện …; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử: kịch bản CT-828 đến CT-832. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/school-levels/multi-level-apps.test.ts` CT-19e-1 đến CT-19e-4 đạt 4/4; kiểm thử đơn vị toàn bộ kho mã đạt 1038/1038 (không sửa kỳ vọng của kiểm thử đang có); kiểm thử giao diện `tests/e2e/85-multi-level-apps.spec.ts` (CT-19e-5) đạt; toàn bộ kiểm thử giao diện đạt 157/157; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Rủi ro: tin có cấp nhận gửi theo danh sách tài khoản phụ huynh thay vì theo vai trò; trường đông học sinh có nhiều dòng người nhận hơn.
 - Khả năng tương thích: trường chỉ có Mầm non không đổi hành vi; tin cũ có cấp nhận trống; điểm cuối cũ chỉ thêm trường.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 19e; chạy phần quay lui của tệp năm học `0074`.

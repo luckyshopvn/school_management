@@ -22,7 +22,7 @@
 - Gói dùng chung: `LEVEL_FEATURES`, `hasLevelFeature`, `levelOf`, `matchesAudienceLevels`. Ứng dụng phụ huynh, giáo viên dùng gói dùng chung.
 - Cơ sở dữ liệu: tệp năm học `0074_add_news_audience_levels`. Máy chủ API: cấp của con ở danh sách học sinh; phạm vi xem tin theo cấp con học; người nhận tin theo cấp; `POST /news-recipients/count`.
 - Ứng dụng phụ huynh: tên cấp ở thẻ con khi các con học nhiều cấp; ẩn chức năng chỉ của Mầm non ở con cấp khác. Ứng dụng giáo viên: lớp xếp theo cấp, tên cấp, ẩn chức năng chỉ của Mầm non ở lớp cấp khác. Cổng quản trị: ô "Cấp nhận tin" và số người nhận ở "Thêm tin tức".
-- Thêm quy tắc BR-163, chức năng P01-43 đến P01-44, quyền PQ-92, màn hình MH-260, kịch bản CT-828 đến CT-832, tiêu chí AC-746 đến AC-748. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/school-levels/multi-level-apps.test.ts` CT-19e-1 đến CT-19e-4 đạt 4/4; kiểm thử đơn vị toàn bộ kho mã … (không sửa kỳ vọng của kiểm thử đang có); kiểm thử giao diện `tests/e2e/85-multi-level-apps.spec.ts` (CT-19e-5) đạt; toàn bộ kiểm thử giao diện …; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm quy tắc BR-163, chức năng P01-43 đến P01-44, quyền PQ-92, màn hình MH-260, kịch bản CT-828 đến CT-832, tiêu chí AC-746 đến AC-748. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/school-levels/multi-level-apps.test.ts` CT-19e-1 đến CT-19e-4 đạt 4/4; kiểm thử đơn vị toàn bộ kho mã đạt 1038/1038 (không sửa kỳ vọng của kiểm thử đang có); kiểm thử giao diện `tests/e2e/85-multi-level-apps.spec.ts` (CT-19e-5) đạt; toàn bộ kiểm thử giao diện đạt 157/157; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
