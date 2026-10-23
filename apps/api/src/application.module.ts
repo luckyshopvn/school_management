@@ -63,6 +63,7 @@ import { KitchenCatalogsController, KitchenCatalogsService } from './kitchen/kit
 import { KitchenMealsController, KitchenMealsService } from './kitchen/kitchen-meals.js';
 import { BoardingController, BoardingService } from './boarding/boarding.js';
 import { ConductController, ConductService } from './conduct/conduct.js';
+import { conductTransitionStep } from './conduct/conduct-transition.js';
 import { KitchenMenusController, KitchenMenusService } from './kitchen/kitchen-menus.js';
 import { MenuImportsController, MenuImportsService } from './kitchen/menu-imports.js';
 import { KitchenPurchasesController, KitchenPurchasesService } from './kitchen/kitchen-purchases.js';
@@ -613,6 +614,7 @@ export class ApplicationModule {
           useValue: [
             orgUnitsTransitionStep,
             settingsTransitionStep,
+            conductTransitionStep,
             catalogsTransitionStep,
             facilitiesTransitionStep,
             staffTransitionStep,
