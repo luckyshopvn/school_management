@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.32
+- Phiên bản: 0.33
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.107.0 – 2026-10-23
+
+- Phạm vi thay đổi: DT-20 phần 20a, nền Tiểu học (YCTD-158).
+- Chức năng mới: danh mục môn học và hoạt động giáo dục, bộ môn mẫu Tiểu học, số tiết theo khối của chương trình, phân công giảng dạy theo môn, tổng tiết của giáo viên, môn tự chọn của học sinh; nhóm menu "7. Dạy học Tiểu học".
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0076_create_subjects`.
+- Thay đổi API: `/subjects`, `/subjects/templates`, `/curricula/{id}/subjects`, `/teaching-assignments`, `/children/{id}/elective-subjects`; phân công lớp nhận `subject_id`, `periods_per_week`.
+- Kiểm thử: kịch bản CT-838 đến CT-843. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/subjects/subjects.test.ts` CT-20a-1 đến CT-20a-5 đạt 5/5; kiểm thử đơn vị toàn bộ kho mã đạt 1047/1047 (không sửa kỳ vọng của kiểm thử đang có, trừ CT-19c-1 như trên); kiểm thử giao diện `tests/e2e/87-primary-subjects.spec.ts` (CT-20a-6) đạt; toàn bộ kiểm thử giao diện 159 kịch bản: hai lượt chạy riêng cuối cùng mỗi lượt đạt 158/159, mỗi lượt hỏng một kịch bản khác nhau do môi trường máy (58 khi máy chủ giao diện từ chối kết nối, 23 khi quá thời gian 30 giây), mọi kịch bản đều đạt ở ít nhất một lượt; CI là kết quả chính; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: thay chỉ mục duy nhất của phân công lớp (thêm môn) ở mọi cơ sở dữ liệu năm học.
+- Khả năng tương thích: trường chỉ có Mầm non không đổi hành vi; điểm cuối cũ chỉ thêm trường.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 20a; chạy phần quay lui của tệp năm học `0076`.
 
 ### Phiên bản 0.106.0 – 2026-10-23
 

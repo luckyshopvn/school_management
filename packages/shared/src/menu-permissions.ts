@@ -92,6 +92,10 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/class-imports': gated(CHILDREN_AND_CLASSES, 'P01.import.children'),
   // Phân công phụ trách lớp: ai xem được lớp đều xem được, phân công cần quyền quản lý lớp (YCTD-111)
   '/class-assignments': CHILDREN_AND_CLASSES,
+  // Nền Tiểu học (DT-20 phần 20a): môn học như danh mục dùng chung (sửa cần quyền quản lý danh mục); phân công giảng dạy
+  // theo môn như phân công phụ trách lớp
+  '/subjects': anyOf('P01.view', 'P01.catalog.manage', 'P02.class.manage'),
+  '/teaching-assignments': CHILDREN_AND_CLASSES,
   // Khai báo tuần: ai xem được thiết lập thì xem, sửa cần quyền quản lý năm học như 2.1 Năm học (DT-16 phần 16e)
   '/school-weeks': anyOf('P01.view', 'P01.academic-year.manage'),
   '/staff': 'P07.staff.view',

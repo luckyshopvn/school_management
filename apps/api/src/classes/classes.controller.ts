@@ -16,6 +16,7 @@ import {
   type RequestBody,
 } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
+import { readPeriods } from '../subjects/subjects.js';
 import { sendWorkbook } from '../children/student-workbook.js';
 import { readTableFileFormat } from '../exports/table-file.js';
 import {
@@ -301,7 +302,13 @@ export class ClassesController {
       errors.push({ field: 'assignment_role', message: 'Vai trò trong lớp là homeroom hoặc subject' });
     }
     const subjectName = readOptionalText(body, 'subject_name', errors) ?? null;
-    if (role === 'subject' && !subjectName) {
+    // Môn của danh mục (DT-20 phần 20a) thay cho tên môn tự do; có môn thì không cần tên
+    const subjectId = readOptionalUuid(body, 'subject_id', errors) ?? null;
+    const periods =
+      body?.periods_per_week === undefined || body.periods_per_week === null
+        ? null
+        : (readPeriods(body.periods_per_week, 'periods_per_week', errors) ?? null);
+    if (role === 'subject' && !subjectName && !subjectId) {
       errors.push({ field: 'subject_name', message: 'Bắt buộc nhập môn dạy của giáo viên bộ môn' });
     }
     const fromDate = readOptionalDate(body, 'from_date', errors);
@@ -317,6 +324,8 @@ export class ClassesController {
         assignment_role: role as AssignmentRole,
         subject_name: subjectName,
         from_date: fromDate,
+        subject_id: subjectId,
+        periods_per_week: periods,
       },
       originOf(request, currentUser),
     );

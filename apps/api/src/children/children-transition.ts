@@ -142,6 +142,14 @@ export const childrenTransitionStep: AcademicYearTransitionStep = {
     for (const row of enrollments) {
       await next.insertInto('class_enrollments').values(row).execute();
     }
+    // Môn tự chọn của học sinh đi cùng hồ sơ (DT-20 phần 20a)
+    for (const row of await previous
+      .selectFrom('child_elective_subjects')
+      .selectAll()
+      .where('child_id', 'in', childIds)
+      .execute()) {
+      await next.insertInto('child_elective_subjects').values(row).execute();
+    }
     // Tài khoản học và thi của học sinh đi cùng hồ sơ (DT-16 phần 16g)
     for (const row of await previous
       .selectFrom('student_learning_accounts')

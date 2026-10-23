@@ -145,6 +145,39 @@ export interface CurriculaTable extends CatalogRecordColumns {
   status: Generated<CatalogStatus>;
 }
 
+// Môn học và hoạt động giáo dục theo cấp (DT-20 phần 20a, YCTD-158)
+export type SubjectKind = 'subject' | 'activity';
+export type SubjectAssessment = 'comment' | 'comment_and_score';
+
+export interface SubjectsTable extends CatalogRecordColumns {
+  code: string;
+  name: string;
+  school_level: SchoolLevelCode;
+  kind: ColumnType<SubjectKind, SubjectKind | undefined, SubjectKind>;
+  assessment: ColumnType<SubjectAssessment, SubjectAssessment | undefined, SubjectAssessment>;
+  order_no: Generated<number>;
+  status: Generated<CatalogStatus>;
+}
+
+// Số tiết mỗi tuần của môn theo khối trong một chương trình (YCTD-158); kiểu numeric đọc ra chuỗi
+export interface CurriculumSubjectsTable {
+  id: Generated<string>;
+  curriculum_id: string;
+  subject_id: string;
+  grade_level_code: string;
+  periods_per_week: ColumnType<string, string | number, string | number>;
+  is_elective: Generated<boolean>;
+  created_at: CreatedTimestamp;
+}
+
+// Môn tự chọn học sinh đăng ký (YCTD-158)
+export interface ChildElectiveSubjectsTable {
+  child_id: string;
+  subject_id: string;
+  created_at: CreatedTimestamp;
+  created_by: string | null;
+}
+
 // Cấp học của trường chính, phân hiệu, điểm trường (YCTD-152)
 export interface OrgUnitLevelsTable {
   org_unit_id: string;
@@ -191,6 +224,9 @@ export interface ClassStaffAssignmentsTable extends CatalogRecordColumns {
   from_date: string;
   to_date: string | null;
   status: Generated<AssignmentStatus>;
+  // Môn của danh mục (DT-20 phần 20a); phân công cũ ghi tên môn tự do thì trống
+  subject_id: ColumnType<string | null, string | null | undefined, string | null>;
+  periods_per_week: ColumnType<string | null, string | number | null | undefined, string | number | null>;
 }
 
 export type FilePurpose =
@@ -4780,6 +4816,9 @@ export interface SchoolYearDatabase {
   rooms: RoomsTable;
   grade_levels: GradeLevelsTable;
   curricula: CurriculaTable;
+  subjects: SubjectsTable;
+  curriculum_subjects: CurriculumSubjectsTable;
+  child_elective_subjects: ChildElectiveSubjectsTable;
   org_unit_levels: OrgUnitLevelsTable;
   classes: ClassesTable;
   class_staff_assignments: ClassStaffAssignmentsTable;

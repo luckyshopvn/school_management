@@ -210,6 +210,15 @@ import {
 } from './entry-admissions/entry-admission-catalogs.js';
 import { GradeLevelsController, GradeLevelsService } from './catalogs/grade-levels.js';
 import { CurriculaController, CurriculaService } from './catalogs/curricula.js';
+import {
+  CurriculumSubjectsController,
+  ElectiveSubjectsController,
+  ElectiveSubjectsService,
+  SubjectsController,
+  SubjectsService,
+  TeachingAssignmentsController,
+  TeachingAssignmentsService,
+} from './subjects/subjects.js';
 import { ClassAssignmentsController, ClassesController } from './classes/classes.controller.js';
 import { ClassesService } from './classes/classes.service.js';
 import { ChildScope } from './children/child-scope.js';
@@ -456,6 +465,10 @@ export class ApplicationModule {
         EmisSendingController,
         GradeLevelsController,
         CurriculaController,
+        SubjectsController,
+        CurriculumSubjectsController,
+        ElectiveSubjectsController,
+        TeachingAssignmentsController,
         ClassesController,
         ClassAssignmentsController,
         ChildrenController,
@@ -670,6 +683,9 @@ export class ApplicationModule {
         EmisSending,
         GradeLevelsService,
         CurriculaService,
+        SubjectsService,
+        ElectiveSubjectsService,
+        TeachingAssignmentsService,
         ClassesService,
         ChildScope,
         ChildrenService,

@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.34
+- Phiên bản: 0.35
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,30 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-158: DT-20 phần 20a: nền Tiểu học – 2026-10-23
+
+- Lý do: phần 20a của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.3, 11.4 (kế hoạch DT-20 ở YCTD-157; lộ trình Eric chốt ngày 2026-10-19). Trước phần này chưa có danh mục môn học, số tiết, phân công theo môn: giáo viên bộ môn chỉ ghi tên môn tự do. Căn cứ: Chương trình giáo dục phổ thông 2018 ban hành kèm Thông tư 32/2018/TT-BGDĐT (môn học, hoạt động giáo dục và thời lượng cấp Tiểu học; số tiết mỗi tuần là thời lượng cả năm chia 35 tuần, ví dụ Tiếng Việt 420, 350, 245, 245, 245 tiết, Toán 105, 175, 175, 175, 175 tiết, Đạo đức 35 tiết, Hoạt động trải nghiệm 105 tiết mỗi năm); Thông tư 27/2020/TT-BGDĐT (môn có bài kiểm tra định kỳ, 20c rà lại). Chưa khảo sát hệ thống của Sở cấp Tiểu học; số mục menu đánh tạm. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Môn học và hoạt động giáo dục** (bảng `subjects`, tệp năm học `0076_create_subjects`): mã (duy nhất, không đổi), tên, cấp (không đổi), loại (môn học, hoạt động giáo dục), cách đánh giá (nhận xét; nhận xét và điểm kiểm tra định kỳ), thứ tự, trạng thái. Danh mục trống; nút "Nạp môn mẫu" tạo mười ba môn, hoạt động Tiểu học (mã có tiền tố `TH-`: Tiếng Việt, Toán, Ngoại ngữ 1, Đạo đức, Tự nhiên và Xã hội, Lịch sử và Địa lí, Khoa học, Tin học và Công nghệ, Giáo dục thể chất, Nghệ thuật Âm nhạc, Nghệ thuật Mĩ thuật, Hoạt động trải nghiệm, Tiếng dân tộc thiểu số), tạo chương trình mặc định `CT-TH-2018` nếu cấp chưa có, điền số tiết cho các khối mẫu K1 đến K5 đang có; nạp lại không trùng. Tổng tiết bắt buộc của bộ mẫu: 25, 25, 28, 30, 30 tiết mỗi tuần ở lớp 1 đến 5; nhà trường đối chiếu kế hoạch giáo dục của trường và sửa.
+  - **Số tiết theo khối** (bảng `curriculum_subjects`): mỗi chương trình (`curricula` của YCTD-152), mỗi môn, mỗi khối một dòng số tiết mỗi tuần (bội của 0,5 từ 0,5 đến 40) và cờ tự chọn; môn, khối phải cùng cấp với chương trình và thuộc khối áp dụng; ghi cả bảng một lần, có nhật ký.
+  - **Phân công giảng dạy theo môn**: `class_staff_assignments` thêm `subject_id`, `periods_per_week`. Lớp Tiểu học phân công giáo viên bộ môn phải chọn môn trong danh mục (cùng cấp, đang dùng), tên môn lấy theo danh mục; một môn của lớp chỉ một giáo viên đang dạy; một giáo viên dạy được nhiều môn của cùng lớp (chỉ mục duy nhất đổi thành người, vai trò, môn). Lớp Mầm non giữ cách cũ (tên môn tự do). Trang "7.2. Phân công giảng dạy theo môn": chọn lớp Tiểu học, bảng môn theo chương trình của lớp và khối, giáo viên, số tiết được phân (trống là số tiết của chương trình), kết thúc phân công; bảng tổng tiết mỗi tuần của giáo viên.
+  - **Hồ sơ học sinh Tiểu học**: môn tự chọn học sinh đăng ký (bảng `child_elective_subjects`), chỉ chọn được môn tự chọn của khối lớp đang học theo chương trình của lớp; khối "Môn tự chọn" ở chi tiết hồ sơ học sinh chỉ hiện khi khối có môn tự chọn (trẻ Mầm non không có).
+  - **Menu**: phân hệ Quản lý giáo dục thêm nhóm "7. Dạy học Tiểu học" (7.1 Môn học và hoạt động giáo dục, 7.2 Phân công giảng dạy theo môn) gắn cấp Tiểu học (`levels: ['TH']`, YCTD-153), chỉ hiện khi làm việc ở cấp Tiểu học hoặc "Tất cả" ở trường có Tiểu học; số nhóm tạm, đánh lại khi khảo sát Sở. Khi chưa tải xong cấp học, cổng quản trị dùng cây menu của trường Mầm non (không thoáng hiện nhóm Tiểu học).
+  - **Chuyển năm học**: môn học, số tiết theo khối chép sang năm học mới cùng chương trình (giữ mã định danh); phân công, môn tự chọn chép theo lớp, học sinh như hiện có.
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/school-year/migrations/0076_create_subjects.ts`, `schema.ts`, `index.ts`); máy chủ API (`subjects/subjects.ts`, `classes/classes.service.ts`, `classes/classes.controller.ts`, `catalogs/catalogs-transition.ts`, `children/children-transition.ts`, `application.module.ts`); cổng quản trị (`subjects/SubjectsPage.tsx`, `subjects/TeachingAssignmentsPage.tsx`, `subjects/ElectiveSubjectsSection.tsx`, `subjects/subjects-api.ts`, `children/ChildDetailPanel.tsx`, `router.tsx`, `pages/menu-permissions.ts`, `school-levels/working-level.tsx`); gói dùng chung (`subjects.ts`, `portal-menu.ts`, `menu-permissions.ts`, `index.ts`); kiểm thử (kiểm thử CT-19c-1 sửa cách so cây menu Mầm non vì cây gốc nay có nhóm Tiểu học); tài liệu `01`, `02`, `03`, `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: tệp năm học `0076` tạo `subjects`, `curriculum_subjects`, `child_elective_subjects`, thêm hai cột trống ở `class_staff_assignments`, thay chỉ mục duy nhất của phân công (thêm môn; phân công không có môn giữ đúng quy tắc cũ). Không đổi dữ liệu cũ; trước và sau chuyển: phân công cũ có môn trống, không có môn học nào nên trường Mầm non không thấy gì mới. Số migration định danh 0067 giữ sẵn để trống (không thêm quyền).
+- API bị ảnh hưởng: mới `GET, POST /subjects`, `PATCH /subjects/{id}`, `POST /subjects/templates`, `GET, PUT /curricula/{id}/subjects`, `GET /teaching-assignments`, `GET /teaching-assignments/teachers`, `GET, PUT /children/{id}/elective-subjects`; `POST /classes/{id}/staff-assignments` nhận `subject_id`, `periods_per_week` (xem `17_DAC_TA_API.md`).
+- Giao diện bị ảnh hưởng: MH-261, MH-262; chi tiết hồ sơ học sinh.
+- Quyền bị ảnh hưởng: PQ-93 (không thêm quyền). Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
+- Ảnh hưởng chức năng cũ: trường chỉ có Mầm non không thấy nhóm menu mới, không đổi phân công lớp; kiểm thử đang có không sửa kỳ vọng, trừ CT-19c-1 (so cây menu Mầm non với cây gốc bỏ nhóm Tiểu học thay vì cả cây gốc).
+- Hạn chế:
+  - Chưa kiểm định mức tiết của giáo viên (22c1 kiểm khi xếp thời khoá biểu);
+  - Chưa có trường riêng khác của hồ sơ học sinh Tiểu học (khớp Sở sau khảo sát);
+  - Bộ môn mẫu theo bảng thời lượng phổ biến của chương trình 2018; nhà trường tự đối chiếu và sửa;
+  - Phân công theo môn chưa nhập Excel.
+- Kiểm thử cần thực hiện: kịch bản CT-838 đến CT-843 (trong mã kiểm thử là CT-20a-1 đến CT-20a-6); kiểm thử đơn vị mới `apps/api/src/subjects/subjects.test.ts`; kiểm thử giao diện mới `tests/e2e/87-primary-subjects.spec.ts`
+- Trạng thái: Đã triển khai
 
 ### YCTD-156: DT-19 phần 19f: chuyển và kiểm dữ liệu Mầm non, dữ liệu mẫu đa cấp, chuẩn bị DT-20, DT-21 – 2026-10-23
 

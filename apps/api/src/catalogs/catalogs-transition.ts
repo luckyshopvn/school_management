@@ -55,5 +55,12 @@ export const catalogsTransitionStep: AcademicYearTransitionStep = {
     for (const row of await previous.selectFrom('curricula').selectAll().execute()) {
       await next.insertInto('curricula').values(row).execute();
     }
+    // Môn học và số tiết theo khối (DT-20 phần 20a, YCTD-158) giữ mã định danh để phân công chép sang tham chiếu được
+    for (const row of await previous.selectFrom('subjects').selectAll().execute()) {
+      await next.insertInto('subjects').values(row).execute();
+    }
+    for (const row of await previous.selectFrom('curriculum_subjects').selectAll().execute()) {
+      await next.insertInto('curriculum_subjects').values(row).execute();
+    }
   },
 };
