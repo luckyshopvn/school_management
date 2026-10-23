@@ -57,6 +57,8 @@ const group = (number: string, label: string, children: PortalMenuNode[]): Porta
 // Mục chỉ của Mầm non (DT-19 phần 19c): hồ sơ cuối cấp mầm non, biểu EMIS Mầm non, cân đo theo tháng tuổi, hoàn thành
 // chương trình Mầm non. Cấp khác thêm mục của mình ở DT-20, DT-21 bằng cùng thuộc tính
 const preschool = (node: PortalMenuNode): PortalMenuNode => ({ ...node, levels: ['MN'] });
+// Mục chỉ của Tiểu học (DT-20 phần 20b): bán trú theo danh sách ăn, nề nếp và thi đua lớp
+const primary = (node: PortalMenuNode): PortalMenuNode => ({ ...node, levels: ['TH'] });
 
 export const PORTAL_WORKSPACES: PortalWorkspace[] = [
   {
@@ -120,6 +122,8 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           leaf('4.6.3.', 'Thuốc và dặn thuốc', '/medicines'),
         ]),
         leaf('4.7.', 'Điểm danh', '/attendance'),
+        primary(leaf('4.8.', 'Bán trú', '/boarding')),
+        primary(leaf('4.9.', 'Nề nếp, thi đua lớp', '/conduct')),
       ]),
       group('5.', 'Công cụ hỗ trợ', [
         leaf('5.1.', 'Thống kê lớp, nhân sự, học sinh', '/statistics'),

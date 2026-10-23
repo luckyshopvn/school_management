@@ -344,6 +344,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/admissions',
   '/interactions',
   '/kitchen',
+  '/boarding',
+  '/conduct',
   '/medicines',
   '/inventory',
   '/activities',
