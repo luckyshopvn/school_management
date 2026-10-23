@@ -57,6 +57,7 @@ export function ClassesScreen({
   onOpenPayslips,
   onOpenWork,
   onOpenStocktake,
+  onOpenTimetable,
 }: {
   onOpen(myClass: MyClass): void;
   onOpenPickup(myClass: MyClass): void;
@@ -73,6 +74,7 @@ export function ClassesScreen({
   onOpenPayslips(): void;
   onOpenWork(): void;
   onOpenStocktake(): void;
+  onOpenTimetable(): void;
 }) {
   const session = useSession();
   const [classes, setClasses] = useState<MyClass[]>();
@@ -124,6 +126,10 @@ export function ClassesScreen({
           </Button>
         ) : null}
         {canStocktake ? <Button onClick={onOpenStocktake}>Kiểm kê thiết bị</Button> : null}
+        {/* Lịch dạy theo thời khoá biểu (DT-20 phần 22c1): giáo viên có lớp cấp phổ thông */}
+        {(classes ?? []).some((myClass) => hasLevelFeature(myClass.school_level, 'period_timetable')) ? (
+          <Button onClick={onOpenTimetable}>Lịch dạy của tôi</Button>
+        ) : null}
         {classes && classes.length === 0 && gateUnitIds.length === 0 ? (
           <p className="text-content text-text-secondary">Bạn chưa được phân công lớp nào.</p>
         ) : null}

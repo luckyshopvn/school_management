@@ -80,6 +80,7 @@ export type {
   UserFeedbackType,
   IntegrationCredentialConnector,
   DemoAccount,
+  PeriodSession,
   SystemDatabase,
 } from '../system/schema.js';
 export type {
@@ -277,6 +278,10 @@ export type {
   FoodInspectionStep,
   FoodSampleStatus,
   FoodSampleForm,
+  SubjectAssessment,
+  SubjectKind,
+  TimetableSource,
+  TimetableVersionStatus,
 } from '../school-year/schema.js';
 export { DEFAULT_TAX_TABLE_ID } from '../school-year/migrations/0022_create_payrolls.js';
 export { MEAL_SERVICE_ID } from '../school-year/migrations/0010_create_fee_catalogs.js';

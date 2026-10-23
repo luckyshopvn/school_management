@@ -170,6 +170,39 @@ export interface CurriculumSubjectsTable {
   created_at: CreatedTimestamp;
 }
 
+// Thời khoá biểu theo môn (DT-20 phần 22c1, YCTD-160)
+export type TimetableVersionStatus = 'draft' | 'published';
+export type TimetableSource = 'manual' | 'import' | 'generator';
+
+export interface TimetableVersionsTable {
+  id: Generated<string>;
+  school_level: SchoolLevelCode;
+  name: string;
+  effective_from: string;
+  status: Generated<TimetableVersionStatus>;
+  source: ColumnType<TimetableSource, TimetableSource | undefined, TimetableSource>;
+  note: string | null;
+  published_at: Date | null;
+  published_by: string | null;
+  published_by_name: string | null;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface TimetableLessonsTable {
+  id: Generated<string>;
+  version_id: string;
+  class_id: string;
+  weekday: number;
+  period_no: number;
+  subject_id: string;
+  teacher_user_id: string | null;
+  teacher_name: string | null;
+  room_id: string | null;
+  created_at: CreatedTimestamp;
+}
+
 // Môn tự chọn học sinh đăng ký (YCTD-158)
 export interface ChildElectiveSubjectsTable {
   child_id: string;
@@ -4884,6 +4917,8 @@ export interface SchoolYearDatabase {
   subjects: SubjectsTable;
   curriculum_subjects: CurriculumSubjectsTable;
   child_elective_subjects: ChildElectiveSubjectsTable;
+  timetable_versions: TimetableVersionsTable;
+  timetable_lessons: TimetableLessonsTable;
   org_unit_levels: OrgUnitLevelsTable;
   classes: ClassesTable;
   class_staff_assignments: ClassStaffAssignmentsTable;

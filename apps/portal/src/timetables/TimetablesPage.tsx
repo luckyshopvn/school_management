@@ -1,0 +1,588 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { PERMISSION_CODES, TIMETABLE_WEEKDAY_LABELS, type SchoolLevelCode } from '@school-management/shared';
+import { Alert, Button, FORM_CONTROL_CLASS, StatusBadge, Toast } from '@school-management/ui';
+import { AppShell } from '../pages/AppShell.js';
+import { menuPageTitle } from '../pages/page-title.js';
+import { ApiError, requestJson } from '../session/api-client.js';
+import { useHasPermission } from '../session/permissions.js';
+import { useEnabledSchoolLevels } from '../school-levels/enabled-levels.js';
+import { readClassTeaching } from '../subjects/subjects-api.js';
+import {
+  createTimetableVersion,
+  deleteTimetableVersion,
+  downloadTimetableTemplate,
+  importTimetable,
+  listTimetableVersions,
+  publishTimetable,
+  readConflicts,
+  readVersionLessons,
+  saveClassLessons,
+  type PeriodSlot,
+  type TimetableLesson,
+  type TimetableVersion,
+} from './timetables-api.js';
+
+// 7.4 Thời khoá biểu (DT-20 phần 22c1, YCTD-160): bản thời khoá biểu theo cấp (nháp, đã ban hành, đang áp dụng); lưới thứ ×
+// tiết xem theo lớp, giáo viên hoặc phòng; bản nháp sửa theo lớp (chọn môn của khối lớp, giáo viên theo phân công), nhập
+// Excel, kiểm tra xung đột, ban hành. Bản đã ban hành chỉ đọc; tạo bản nháp mới chép từ bản cũ để sửa. Máy xếp tự động là 22c2
+const messageOf = (error: unknown) =>
+  error instanceof ApiError
+    ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
+    : 'Không kết nối được tới máy chủ, vui lòng thử lại';
+
+const DAYS = [1, 2, 3, 4, 5, 6];
+const SOURCE_LABELS: Record<TimetableVersion['source'], string> = {
+  manual: 'Nhập tay',
+  import: 'Nhập Excel',
+  generator: 'Máy xếp',
+};
+
+interface ClassOption {
+  id: string;
+  name: string;
+  school_level: SchoolLevelCode;
+  status: string;
+}
+
+function VersionForm({
+  level,
+  versions,
+  onCreated,
+}: {
+  level: SchoolLevelCode;
+  versions: TimetableVersion[];
+  onCreated(version: TimetableVersion): void;
+}) {
+  const [name, setName] = useState('');
+  const [effectiveFrom, setEffectiveFrom] = useState('');
+  const [copyFrom, setCopyFrom] = useState('');
+  const create = useMutation({
+    mutationFn: () =>
+      createTimetableVersion({
+        school_level: level,
+        name,
+        effective_from: effectiveFrom,
+        copy_from_id: copyFrom || null,
+      }),
+    onSuccess: (version) => {
+      setName('');
+      setEffectiveFrom('');
+      setCopyFrom('');
+      onCreated(version);
+    },
+  });
+  return (
+    <form
+      aria-label="Tạo bản thời khoá biểu"
+      className="flex flex-wrap items-end gap-2"
+      onSubmit={(event) => {
+        event.preventDefault();
+        create.mutate();
+      }}
+    >
+      <label className="text-label font-medium text-text">
+        Tên bản
+        <input
+          aria-label="Tên bản"
+          className={`mt-2 block ${FORM_CONTROL_CLASS}`}
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+        />
+      </label>
+      <label className="text-label font-medium text-text">
+        Áp dụng từ ngày
+        <input
+          type="date"
+          aria-label="Áp dụng từ ngày"
+          className={`mt-2 block ${FORM_CONTROL_CLASS}`}
+          value={effectiveFrom}
+          onChange={(event) => setEffectiveFrom(event.target.value)}
+        />
+      </label>
+      <label className="text-label font-medium text-text">
+        Chép từ bản
+        <select
+          aria-label="Chép từ bản"
+          className={`mt-2 block ${FORM_CONTROL_CLASS}`}
+          value={copyFrom}
+          onChange={(event) => setCopyFrom(event.target.value)}
+        >
+          <option value="">Bản trống</option>
+          {versions.map((version) => (
+            <option key={version.id} value={version.id}>
+              {version.name}
+            </option>
+          ))}
+        </select>
+      </label>
+      <Button type="submit" variant="primary" disabled={!name || !effectiveFrom || create.isPending}>
+        Tạo bản nháp
+      </Button>
+      {create.error ? <Alert tone="danger">{messageOf(create.error)}</Alert> : null}
+    </form>
+  );
+}
+
+// Lưới thứ × tiết; ô hiện môn và giáo viên (xem theo lớp) hoặc lớp và môn (xem theo giáo viên, phòng)
+function ReadOnlyGrid({
+  slots,
+  lessons,
+  mode,
+}: {
+  slots: PeriodSlot[];
+  lessons: TimetableLesson[];
+  mode: 'class' | 'teacher' | 'room';
+}) {
+  const periods =
+    slots.length > 0 ? slots.map((slot) => slot.period_no) : [...new Set(lessons.map((lesson) => lesson.period_no))];
+  return (
+    <div className="overflow-x-auto">
+      <table className="text-content" aria-label="Lưới thời khoá biểu">
+        <thead className="text-left text-label font-medium text-text-secondary">
+          <tr>
+            <th className="px-3 py-2">Tiết</th>
+            {DAYS.map((day) => (
+              <th key={day} className="px-3 py-2">
+                {TIMETABLE_WEEKDAY_LABELS[day]}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {periods.map((period) => {
+            const slot = slots.find((item) => item.period_no === period);
+            return (
+              <tr key={period} className="border-t border-border">
+                <th scope="row" className="px-3 py-2 text-left font-medium">
+                  Tiết {period}
+                  {slot ? <span className="block text-label text-text-secondary">{slot.start_time}</span> : null}
+                </th>
+                {DAYS.map((day) => (
+                  <td key={day} className="px-3 py-2 align-top">
+                    {lessons
+                      .filter((lesson) => lesson.weekday === day && lesson.period_no === period)
+                      .map((lesson) => (
+                        <span key={lesson.id} className="block">
+                          {mode === 'class' ? lesson.subject_name : `${lesson.class_name} · ${lesson.subject_name}`}
+                          <span className="block text-label text-text-secondary">
+                            {mode === 'teacher'
+                              ? (lesson.room_name ?? '')
+                              : (lesson.teacher_name ?? 'Chưa có giáo viên')}
+                          </span>
+                        </span>
+                      ))}
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// Sửa tiết của một lớp trong bản nháp: mỗi ô chọn một môn của khối lớp theo chương trình
+function ClassEditor({
+  versionId,
+  classId,
+  slots,
+  lessons,
+  onSaved,
+}: {
+  versionId: string;
+  classId: string;
+  slots: PeriodSlot[];
+  lessons: TimetableLesson[];
+  onSaved(message: string): void;
+}) {
+  const queryClient = useQueryClient();
+  const teaching = useQuery({ queryKey: ['class-teaching', classId], queryFn: () => readClassTeaching(classId) });
+  const [cells, setCells] = useState<Record<string, string>>({});
+  useEffect(() => {
+    setCells(Object.fromEntries(lessons.map((lesson) => [`${lesson.weekday}:${lesson.period_no}`, lesson.subject_id])));
+  }, [lessons]);
+  const save = useMutation({
+    mutationFn: () =>
+      saveClassLessons(
+        versionId,
+        classId,
+        Object.entries(cells)
+          .filter(([, subjectId]) => subjectId)
+          .map(([key, subjectId]) => {
+            const [weekday, period] = key.split(':').map(Number);
+            const existing = lessons.find((lesson) => lesson.weekday === weekday && lesson.period_no === period);
+            return {
+              weekday: weekday ?? 1,
+              period_no: period ?? 1,
+              subject_id: subjectId,
+              room_id: existing?.subject_id === subjectId ? existing.room_id : null,
+            };
+          }),
+      ),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['version-lessons'] });
+      await queryClient.invalidateQueries({ queryKey: ['timetable-conflicts'] });
+      onSaved('Đã ghi thời khoá biểu của lớp');
+    },
+  });
+  const subjects = teaching.data?.subjects ?? [];
+  const counts = (subjectId: string) => Object.values(cells).filter((value) => value === subjectId).length;
+  return (
+    <section className="flex flex-col gap-3" aria-label="Sửa thời khoá biểu của lớp">
+      {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
+      {slots.length === 0 ? (
+        <Alert tone="info">Chưa có khung giờ tiết học của cấp; khai báo ở 7.3 Khung giờ tiết học.</Alert>
+      ) : null}
+      <div className="overflow-x-auto">
+        <table className="text-content" aria-label="Lưới sửa thời khoá biểu">
+          <thead className="text-left text-label font-medium text-text-secondary">
+            <tr>
+              <th className="px-3 py-2">Tiết</th>
+              {DAYS.map((day) => (
+                <th key={day} className="px-3 py-2">
+                  {TIMETABLE_WEEKDAY_LABELS[day]}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {slots.map((slot) => (
+              <tr key={slot.period_no} className="border-t border-border">
+                <th scope="row" className="px-3 py-2 text-left font-medium">
+                  Tiết {slot.period_no}
+                </th>
+                {DAYS.map((day) => {
+                  const key = `${day}:${slot.period_no}`;
+                  return (
+                    <td key={day} className="px-2 py-1">
+                      <select
+                        className={FORM_CONTROL_CLASS}
+                        aria-label={`${TIMETABLE_WEEKDAY_LABELS[day]} tiết ${slot.period_no}`}
+                        value={cells[key] ?? ''}
+                        onChange={(event) => setCells((current) => ({ ...current, [key]: event.target.value }))}
+                      >
+                        <option value="">—</option>
+                        {subjects.map((subject) => (
+                          <option key={subject.subject_id} value={subject.subject_id}>
+                            {subject.subject_name}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <ul className="flex flex-wrap gap-3 text-label text-text-secondary" aria-label="Số tiết đã xếp theo môn">
+        {subjects.map((subject) => (
+          <li key={subject.subject_id}>
+            {subject.subject_name}: {counts(subject.subject_id)}/{subject.periods_per_week}
+            {subject.assignment ? '' : ' (chưa phân công)'}
+          </li>
+        ))}
+      </ul>
+      <div>
+        <Button variant="primary" disabled={save.isPending || slots.length === 0} onClick={() => save.mutate()}>
+          Ghi thời khoá biểu của lớp
+        </Button>
+      </div>
+    </section>
+  );
+}
+
+export function TimetablesPage() {
+  const canManage = useHasPermission(PERMISSION_CODES.timetableManage);
+  const enabled = useEnabledSchoolLevels();
+  const levels = enabled.levels.filter((level) => level.value !== 'MN');
+  const [chosenLevel, setChosenLevel] = useState<SchoolLevelCode>();
+  const level = levels.find((item) => item.value === chosenLevel)?.value ?? levels[0]?.value;
+  const queryClient = useQueryClient();
+  const [toastMessage, setToastMessage] = useState<string>();
+  const closeToast = useCallback(() => setToastMessage(undefined), []);
+  const versions = useQuery({
+    queryKey: ['timetable-versions', level],
+    queryFn: () => listTimetableVersions(level ?? 'TH'),
+    enabled: Boolean(level),
+  });
+  const [versionId, setVersionId] = useState('');
+  const version =
+    versions.data?.find((item) => item.id === versionId) ??
+    versions.data?.find((item) => item.is_current) ??
+    versions.data?.[0];
+  const classes = useQuery({
+    queryKey: ['classes', 'level', level],
+    queryFn: () => requestJson<ClassOption[]>(`/api/v1/classes?school_level=${level ?? 'TH'}&status=active`),
+    enabled: Boolean(level),
+  });
+  const [mode, setMode] = useState<'class' | 'teacher' | 'room'>('class');
+  const [target, setTarget] = useState('');
+  const all = useQuery({
+    queryKey: ['version-lessons', version?.id, 'all'],
+    queryFn: () => readVersionLessons(version?.id ?? ''),
+    enabled: Boolean(version),
+  });
+  const filtered = useMemo(() => {
+    const lessons = all.data?.lessons ?? [];
+    return lessons.filter((lesson) =>
+      mode === 'class'
+        ? lesson.class_id === target
+        : mode === 'teacher'
+          ? lesson.teacher_user_id === target
+          : lesson.room_id === target,
+    );
+  }, [all.data, mode, target]);
+  const teachers = [
+    ...new Map(
+      (all.data?.lessons ?? [])
+        .filter((lesson) => lesson.teacher_user_id)
+        .map((lesson) => [lesson.teacher_user_id as string, lesson.teacher_name ?? '']),
+    ),
+  ];
+  const rooms = [
+    ...new Map(
+      (all.data?.lessons ?? [])
+        .filter((lesson) => lesson.room_id)
+        .map((lesson) => [lesson.room_id as string, lesson.room_name ?? '']),
+    ),
+  ];
+  const conflicts = useQuery({
+    queryKey: ['timetable-conflicts', version?.id],
+    queryFn: () => readConflicts(version?.id ?? ''),
+    enabled: false,
+  });
+  const refresh = async () => {
+    await queryClient.invalidateQueries({ queryKey: ['timetable-versions'] });
+    await queryClient.invalidateQueries({ queryKey: ['version-lessons'] });
+  };
+  const publish = useMutation({
+    mutationFn: () => publishTimetable(version?.id ?? ''),
+    onSuccess: async () => {
+      await refresh();
+      setToastMessage('Đã ban hành thời khoá biểu');
+    },
+  });
+  const remove = useMutation({
+    mutationFn: () => deleteTimetableVersion(version?.id ?? ''),
+    onSuccess: async () => {
+      setVersionId('');
+      await refresh();
+      setToastMessage('Đã xoá bản nháp');
+    },
+  });
+  const [file, setFile] = useState<File>();
+  const upload = useMutation({
+    mutationFn: () => importTimetable(version?.id ?? '', file as File),
+    onSuccess: async (result) => {
+      await refresh();
+      if (result.errors.length === 0) {
+        setToastMessage(`Đã nhập ${result.imported} tiết của ${result.classes} lớp`);
+      }
+    },
+  });
+  const isDraft = version?.status === 'draft';
+
+  return (
+    <AppShell>
+      <Toast message={toastMessage} onClose={closeToast} />
+      <div className="flex flex-col gap-6">
+        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/timetables')}</h1>
+        {!level ? (
+          <Alert tone="info">Trường chưa bật cấp Tiểu học, THCS hoặc THPT; bật cấp học ở 1.4 Cấu hình trường.</Alert>
+        ) : (
+          <>
+            {levels.length > 1 ? (
+              <label className="text-label font-medium text-text">
+                Cấp học
+                <select
+                  aria-label="Cấp học"
+                  className={`mt-2 block ${FORM_CONTROL_CLASS}`}
+                  value={level}
+                  onChange={(event) => setChosenLevel(event.target.value as SchoolLevelCode)}
+                >
+                  {levels.map((item) => (
+                    <option key={item.value} value={item.value}>
+                      {item.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+            <section className="flex flex-col gap-3" aria-label="Các bản thời khoá biểu">
+              <h2 className="text-section-title font-semibold text-text">Các bản thời khoá biểu</h2>
+              <table className="w-full text-content" aria-label="Bản thời khoá biểu">
+                <thead className="text-left text-label font-medium text-text-secondary">
+                  <tr>
+                    <th className="px-3 py-2">Tên bản</th>
+                    <th className="px-3 py-2">Áp dụng từ</th>
+                    <th className="px-3 py-2">Trạng thái</th>
+                    <th className="px-3 py-2">Nguồn</th>
+                    <th className="px-3 py-2" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {(versions.data ?? []).map((item) => (
+                    <tr key={item.id} className="border-t border-border" aria-current={item.id === version?.id}>
+                      <td className="px-3 py-2">{item.name}</td>
+                      <td className="px-3 py-2">{item.effective_from.split('-').reverse().join('/')}</td>
+                      <td className="px-3 py-2">
+                        <StatusBadge
+                          tone={item.status === 'published' ? 'success' : 'neutral'}
+                          label={
+                            item.status === 'published' ? (item.is_current ? 'Đang áp dụng' : 'Đã ban hành') : 'Nháp'
+                          }
+                        />
+                      </td>
+                      <td className="px-3 py-2">{SOURCE_LABELS[item.source]}</td>
+                      <td className="px-3 py-2 text-right">
+                        <Button variant="text" onClick={() => setVersionId(item.id)}>
+                          Mở
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                  {versions.data && versions.data.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-3 py-2 text-text-secondary">
+                        Chưa có bản thời khoá biểu nào.
+                      </td>
+                    </tr>
+                  ) : null}
+                </tbody>
+              </table>
+              {canManage ? (
+                <VersionForm
+                  level={level}
+                  versions={versions.data ?? []}
+                  onCreated={async (created) => {
+                    await refresh();
+                    setVersionId(created.id);
+                    setToastMessage(`Đã tạo bản nháp ${created.name}`);
+                  }}
+                />
+              ) : null}
+            </section>
+            {version ? (
+              <section className="flex flex-col gap-3" aria-label={`Bản ${version.name}`}>
+                <h2 className="text-section-title font-semibold text-text">
+                  {version.name} {isDraft ? '(nháp)' : '(đã ban hành)'}
+                </h2>
+                {canManage && isDraft ? (
+                  <div className="flex flex-wrap items-end gap-2">
+                    <Button onClick={() => void conflicts.refetch()}>Kiểm tra xung đột</Button>
+                    <Button variant="primary" disabled={publish.isPending} onClick={() => publish.mutate()}>
+                      Ban hành
+                    </Button>
+                    <Button onClick={() => void downloadTimetableTemplate(version.id)}>Tải mẫu Excel</Button>
+                    <label className="text-label font-medium text-text">
+                      Tệp thời khoá biểu
+                      <input
+                        type="file"
+                        accept=".xlsx"
+                        aria-label="Tệp thời khoá biểu"
+                        className="mt-2 block text-label"
+                        onChange={(event) => setFile(event.target.files?.[0])}
+                      />
+                    </label>
+                    <Button disabled={!file || upload.isPending} onClick={() => upload.mutate()}>
+                      Nhập Excel
+                    </Button>
+                    <Button variant="text" disabled={remove.isPending} onClick={() => remove.mutate()}>
+                      Xoá bản nháp
+                    </Button>
+                  </div>
+                ) : null}
+                {publish.error ? <Alert tone="danger">{messageOf(publish.error)}</Alert> : null}
+                {upload.error ? <Alert tone="danger">{messageOf(upload.error)}</Alert> : null}
+                {upload.data && upload.data.errors.length > 0 ? (
+                  <Alert tone="danger">
+                    Tệp có {upload.data.errors.length} lỗi, chưa nhập:{' '}
+                    {upload.data.errors
+                      .slice(0, 10)
+                      .map((error) => `dòng ${error.row}${error.column ? ` (${error.column})` : ''}: ${error.message}`)
+                      .join('; ')}
+                  </Alert>
+                ) : null}
+                {conflicts.data ? (
+                  <section aria-label="Xung đột" className="flex flex-col gap-1">
+                    {conflicts.data.length === 0 ? (
+                      <Alert tone="success">Không có xung đột.</Alert>
+                    ) : (
+                      <ul className="flex flex-col gap-1 text-content">
+                        {conflicts.data.map((conflict, index) => (
+                          <li
+                            key={index}
+                            className={conflict.severity === 'hard' ? 'text-danger' : 'text-text-secondary'}
+                          >
+                            {conflict.severity === 'hard' ? 'Phải sửa: ' : 'Cảnh báo: '}
+                            {conflict.message}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </section>
+                ) : null}
+                <div className="flex flex-wrap items-end gap-3">
+                  <label className="text-label font-medium text-text">
+                    Xem theo
+                    <select
+                      aria-label="Xem theo"
+                      className={`mt-2 block ${FORM_CONTROL_CLASS}`}
+                      value={mode}
+                      onChange={(event) => {
+                        setMode(event.target.value as typeof mode);
+                        setTarget('');
+                      }}
+                    >
+                      <option value="class">Lớp</option>
+                      <option value="teacher">Giáo viên</option>
+                      <option value="room">Phòng</option>
+                    </select>
+                  </label>
+                  <label className="text-label font-medium text-text">
+                    {mode === 'class' ? 'Lớp' : mode === 'teacher' ? 'Giáo viên' : 'Phòng'}
+                    <select
+                      aria-label={mode === 'class' ? 'Chọn lớp' : mode === 'teacher' ? 'Chọn giáo viên' : 'Chọn phòng'}
+                      className={`mt-2 block ${FORM_CONTROL_CLASS}`}
+                      value={target}
+                      onChange={(event) => setTarget(event.target.value)}
+                    >
+                      <option value="">Chọn</option>
+                      {(mode === 'class'
+                        ? (classes.data ?? []).map((item) => [item.id, item.name] as const)
+                        : mode === 'teacher'
+                          ? teachers
+                          : rooms
+                      ).map(([id, name]) => (
+                        <option key={id} value={id}>
+                          {name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+                {target && all.data ? (
+                  canManage && isDraft && mode === 'class' ? (
+                    <ClassEditor
+                      versionId={version.id}
+                      classId={target}
+                      slots={all.data.slots}
+                      lessons={filtered}
+                      onSaved={setToastMessage}
+                    />
+                  ) : (
+                    <ReadOnlyGrid slots={all.data.slots} lessons={filtered} mode={mode} />
+                  )
+                ) : null}
+              </section>
+            ) : null}
+          </>
+        )}
+      </div>
+    </AppShell>
+  );
+}

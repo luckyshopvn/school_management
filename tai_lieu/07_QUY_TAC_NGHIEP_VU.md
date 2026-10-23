@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.74
+- Phiên bản: 1.75
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -240,6 +240,7 @@ Bổ sung ngày 2026-10-09 theo yêu cầu tách vai trò Ban Giám hiệu thàn
 | BR-167 | Danh sách ăn bán trú lớp ngoài Mầm non (YCTD-159): học sinh đang học lớp, đăng ký bán trú của tháng (từ ngày bắt đầu dịch vụ) trừ học sinh cắt suất; chỉ ngày học; ngày đã chốt lưu số suất, không sửa cắt suất, mở lại phải có lý do; số suất của bếp, kiểm thực theo danh sách này; lớp ngoài Mầm non không báo cơm |
 | BR-168 | Phụ huynh cắt suất bán trú (YCTD-159): từ hôm nay trở đi, con đã đăng ký, lớp chưa chốt; hôm nay chỉ trước giờ vào học của đơn vị (mặc định 07:30). Tiền ăn học sinh lớp ngoài Mầm non theo ngày lớp đã chốt suất mà không cắt suất; còn ngày học chưa chốt suất thì chưa tính được |
 | BR-169 | Nề nếp, thi đua lớp (YCTD-159): tuỳ trường, chưa bật không ghi điểm; tiêu chí cùng cấp với lớp; điểm ghi = điểm mỗi lần × số lần (dấu theo loại); điểm tuần = điểm nền + tổng điểm trong tuần (thứ hai đến chủ nhật); tháng, học kỳ = trung bình điểm tuần có thứ hai trong kỳ; bằng điểm cùng hạng; người ghi xóa dòng của mình trong ngày, người quản lý xóa mọi dòng |
+| BR-170 | Thời khoá biểu (YCTD-160): khung giờ tiết theo năm học và cấp, tiết 1 đến 15 không trùng, giờ HH:MM, tiết sau không bắt đầu trước khi tiết trước kết thúc; bản thời khoá biểu theo cấp, nháp sửa được, đã ban hành chỉ đọc; bản đang áp dụng là bản đã ban hành có ngày áp dụng gần nhất không sau ngày xem; một lớp một tiết một môn; giáo viên theo phân công môn ở lớp; phòng thuộc đơn vị của lớp; xung đột cứng (chặn ban hành): giáo viên dạy hai lớp cùng tiết, phòng dùng cho hai lớp cùng tiết, tiết ngoài khung giờ của cấp, ngày ngoài ngày học trong tuần của cấp, môn không có trong chương trình của khối lớp; xung đột mềm (cảnh báo): số tiết của môn trong tuần khác chương trình (số lẻ làm tròn lên), tiết chưa có giáo viên, giáo viên không phải người được phân công môn ở lớp; bản chưa có tiết nào không ban hành được |
 
 Danh mục chứng từ áp dụng hạn mức: phiếu chi, phiếu đảo phiếu thu (YCTD-23), phiếu đảo phiếu chi (YCTD-24), đề nghị mua hàng, phiếu điều chỉnh hóa đơn, miễn giảm học phí, bảng lương kỳ, chốt kỳ tài chính. Mức hạn mức cụ thể chưa có, xem Q-22 và Q-112.
 

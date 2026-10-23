@@ -478,10 +478,77 @@ ${
     return layout(frame, { title: 'Công khai theo quy định', active: 'disclosure', content });
   }
 
-  timetable(site: SiteContext): string {
-    const content =
+  // Thời khoá biểu đang áp dụng của các lớp (DT-20 phần 22c1, YCTD-160): bản đã ban hành có ngày áp dụng gần nhất không sau
+  // hôm nay của từng cấp; mỗi lớp một bảng thứ × tiết, ghi môn và giáo viên. Chưa ban hành bản nào thì giữ lời nhắn cũ
+  async timetable(site: SiteContext): Promise<string> {
+    const placeholder =
       '<h1>Thời khóa biểu</h1><p class="meta">Thời khóa biểu sẽ được cập nhật khi nhà trường đưa vào dùng phân hệ xếp thời khóa biểu.</p>';
-    return layout(site.frame, { title: 'Thời khóa biểu', active: 'timetable', content });
+    const current = await this.currentSchoolYear.find();
+    if (!current) {
+      return layout(site.frame, { title: 'Thời khóa biểu', active: 'timetable', content: placeholder });
+    }
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
+    const versions = await current.database
+      .selectFrom('timetable_versions')
+      .select(['id', 'school_level', 'effective_from'])
+      .where('status', '=', 'published')
+      .where('effective_from', '<=', today)
+      .orderBy('effective_from', 'desc')
+      .orderBy('published_at', 'desc')
+      .execute();
+    const applying = [...new Map(versions.reverse().map((version) => [version.school_level, version])).values()];
+    const lessons = applying.length
+      ? await current.database
+          .selectFrom('timetable_lessons')
+          .innerJoin('classes', 'classes.id', 'timetable_lessons.class_id')
+          .innerJoin('subjects', 'subjects.id', 'timetable_lessons.subject_id')
+          .select([
+            'classes.id as class_id',
+            'classes.name as class_name',
+            'timetable_lessons.weekday',
+            'timetable_lessons.period_no',
+            'subjects.name as subject_name',
+            'timetable_lessons.teacher_name',
+          ])
+          .where(
+            'timetable_lessons.version_id',
+            'in',
+            applying.map((version) => version.id),
+          )
+          .orderBy('classes.name')
+          .execute()
+      : [];
+    if (lessons.length === 0) {
+      return layout(site.frame, { title: 'Thời khóa biểu', active: 'timetable', content: placeholder });
+    }
+    const days = [...new Set(lessons.map((lesson) => lesson.weekday))].sort((left, right) => left - right);
+    const periods = [...new Set(lessons.map((lesson) => lesson.period_no))].sort((left, right) => left - right);
+    const dayLabel = (weekday: number) => (weekday === 7 ? 'Chủ nhật' : `Thứ ${weekday + 1}`);
+    const classes = [...new Map(lessons.map((lesson) => [lesson.class_id, lesson.class_name])).entries()];
+    const tables = classes
+      .map(([classId, className]) => {
+        const cell = (weekday: number, period: number) => {
+          const lesson = lessons.find(
+            (item) => item.class_id === classId && item.weekday === weekday && item.period_no === period,
+          );
+          return lesson
+            ? `${e(lesson.subject_name)}${lesson.teacher_name ? `<br><span class="meta">${e(lesson.teacher_name)}</span>` : ''}`
+            : '';
+        };
+        const rows = periods
+          .map(
+            (period) =>
+              `<tr><th>Tiết ${period}</th>${days.map((day) => `<td>${cell(day, period)}</td>`).join('')}</tr>`,
+          )
+          .join('');
+        return `<section><h2>${e(className)}</h2><table><thead><tr><th></th>${days.map((day) => `<th>${dayLabel(day)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></section>`;
+      })
+      .join('');
+    return layout(site.frame, {
+      title: 'Thời khóa biểu',
+      active: 'timetable',
+      content: `<h1>Thời khóa biểu</h1>${tables}`,
+    });
   }
 
   async albumIndex(site: SiteContext, page: number): Promise<string> {

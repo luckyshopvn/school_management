@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.81
+- Phiên bản: 1.82
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -191,6 +191,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-91 | Menu theo cấp học (YCTD-153): không thêm quyền. Mọi người đã đăng nhập chọn được cấp đang làm việc trong các cấp mình được xem (cấp đang bật thu hẹp theo phạm vi cấp, PQ-90); chọn cấp chỉ đổi cái hiện ra, không cấp thêm quyền, máy chủ vẫn kiểm tra quyền và cấp ở mọi yêu cầu (tham số `school_level` ngoài cấp được xem trả 403). Cây quyền ở 1.3 Phân quyền nhóm theo menu ẩn mục của cấp trường chưa bật; quyền đã gán của mục đó giữ nguyên |
 | PQ-92 | Ứng dụng phụ huynh, giáo viên theo cấp (YCTD-155): không thêm quyền. Đếm người nhận tin (`POST /news-recipients/count`) cùng quyền soạn tin tức của đơn vị (`P14.content.manage`), phạm vi công bố kiểm tra như khi soạn tin; phụ huynh (VT-14) bị từ chối. Ẩn chức năng theo cấp ở ứng dụng không bớt quyền đã có; máy chủ vẫn kiểm tra quyền ở mọi yêu cầu |
 | PQ-93 | Nền Tiểu học (YCTD-158): không thêm quyền. Môn học, bộ môn mẫu, số tiết theo khối: mọi người đã đăng nhập xem, `P01.catalog.manage` sửa (như khối, chương trình). Phân công giảng dạy theo môn: xem theo phạm vi đơn vị của `P02.view`, `P02.edit`, `P02.class.manage`; phân công, kết thúc cần `P02.class.manage` (như 3.3). Môn tự chọn: xem theo phạm vi `P02.view`, `P02.child.manage`; sửa cần `P02.child.manage` của đơn vị học sinh |
+| PQ-94 | Thời khoá biểu (YCTD-160): quyền mới `P02.timetable.manage` thuộc P02 cho VT-02, VT-15: khai báo khung giờ tiết, tạo, sửa, xoá bản nháp, nhập Excel, ban hành. Xem bản, xung đột, lưới theo lớp, giáo viên, phòng: vai trò nhân sự có `P02.view`, `P02.edit`, `P02.class.manage` hoặc `P02.timetable.manage` (vai trò phụ huynh VT-14 không tính). Khung giờ: mọi người đã đăng nhập xem. Lịch dạy của tôi: mọi giáo viên. Thời khoá biểu của con: phụ huynh của học sinh hoặc nhân sự xem được lớp |
 
 ## 5. Phân cấp phê duyệt
 
