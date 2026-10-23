@@ -550,7 +550,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 | 19c | 2 | Đã làm, YCTD-153, phiên bản 0.103.0, PR 131: thuộc tính `levels` ở phân hệ và mục menu (mục chỉ Mầm non gắn `MN`), tên phân hệ theo cấp (`levelTitle`), bộ chọn cấp đang làm việc lưu theo tài khoản (định danh 0065 `user_preferences`), tham số cấp dùng chung `school_level` (`SchoolLevelResolver.requested`), bảng nhãn thuật ngữ theo cấp, cây quyền và Truy cập nhanh lọc theo cấp bật; e2e 83 |
 | 19d | 2 | Đã làm (PR 132, YCTD-154, phiên bản 0.104.0) |
 | 19e | 3 | Chưa làm, chờ đợt 2 |
-| 19f | 3 | Đã làm (PR …, YCTD-156, phiên bản 0.105.0): tệp vá năm học 0075, hệ thống 0025 (định danh 0066 để trống), lệnh kiểm `level-check`, trường liên cấp trong bản trình diễn, e2e 86, mục 10.10 |
+| 19f | 3 | Đã làm (PR 134, YCTD-156, phiên bản 0.105.0): tệp vá năm học 0075, hệ thống 0025 (định danh 0066 để trống), lệnh kiểm `level-check`, trường liên cấp trong bản trình diễn, e2e 86, mục 10.10 |
 
 ### 10.10 Ghi chú chuẩn bị cho DT-20, DT-21 (YCTD-156)
 

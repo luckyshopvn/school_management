@@ -26,7 +26,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Đối chiếu trước, sau chuyển: trên cơ sở dữ liệu kiểm thử, lệnh kiểm trước khi vá báo đơn vị thiếu cấp, lớp lệch khối, thiếu chương trình mặc định; sau khi vá hai lần không còn lỗi đó và số đếm khớp; bản trình diễn sau khi tạo không có lỗi toàn vẹn.
 - Rủi ro: năm đã đóng không có cột cấp nên tính năng mới chỉ đọc năm đang dùng; lệnh kiểm phải chạy ở bản sao.
 - Kiểm thử cần thực hiện: CT-828 đến CT-832. Kết quả ngày 23/10/2026: kiểm thử đơn vị `database/src/level-check.test.ts` CT-19f-1 đến CT-19f-3 đạt 3/3, `apps/api/src/demo/administration-18h.test.ts` CT-19f-4 đạt (CT-18h-1 đến CT-18h-9 vẫn đạt); kiểm thử đơn vị toàn bộ kho mã 1038/1038; kiểm thử giao diện `tests/e2e/86-multi-level.spec.ts` (CT-19f-5) đạt; toàn bộ kiểm thử giao diện 157/157; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
-- Trạng thái: Đã triển khai (PR …).
+- Trạng thái: Đã triển khai (PR 134).
 
 ### YCTD-154: DT-19 phần 19d: số liệu theo cấp học – 2026-10-22
 
