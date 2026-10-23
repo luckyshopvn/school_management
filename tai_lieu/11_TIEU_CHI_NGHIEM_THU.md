@@ -831,10 +831,10 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-756 | Cho phụ huynh có con Tiểu học đăng ký bán trú / Khi báo cắt suất ngày học kế tiếp, ngày đã qua, con người khác / Thì nhận, từ chối 422, từ chối 403 (CT-847; YCTD-159) |
 | AC-757 | Cho trường chưa bật nề nếp / Khi giáo viên ghi điểm; Ban Giám hiệu bật và nạp tiêu chí mặc định / Thì từ chối 422; ghi điểm được, tiêu chí khác cấp bị từ chối (CT-848, CT-849; YCTD-159) |
 | AC-758 | Cho hai lớp Tiểu học có điểm trong tuần / Khi xem xếp hạng tuần, tháng / Thì điểm tuần là điểm nền cộng điểm ghi, tháng là trung bình tuần, bằng điểm cùng hạng (CT-844, CT-849, CT-850; YCTD-159) |
-| AC-759 | Cho trường bật Tiểu học đã nạp môn mẫu / Khi Ban Giám hiệu nạp cấu hình mặc định hai lần / Thì có 6 mức, 15 phẩm chất, năng lực, 4 kỳ, bài kiểm tra giữa kỳ chỉ Tiếng Việt, Toán lớp 4, 5; lần hai không tạo thêm (CT-852, CT-857; YCTD-161) |
-| AC-760 | Cho lớp 4 có giáo viên chủ nhiệm và giáo viên Toán / Khi mỗi người nhập môn của mình, nhập môn của người khác, nhập điểm ở môn không có bài kiểm tra / Thì nhận; 403; 400 (CT-853; YCTD-161) |
-| AC-761 | Cho kỳ quá hạn hoặc đã khoá / Khi giáo viên, Hiệu trưởng sửa; Hiệu trưởng mở khoá không lý do, có lý do / Thì quá hạn: giáo viên 422, Hiệu trưởng nhận; đã khoá: cả hai 422; mở khoá 400, nhận (CT-854; YCTD-161) |
-| AC-762 | Cho lớp đã nhập kỳ cuối năm / Khi xem tổng hợp, gợi ý cuối năm, phụ huynh xem trước và sau khi khoá / Thì số theo mức, điểm theo khoảng đúng; gợi ý theo Điều 9; phụ huynh chỉ thấy kỳ đã khoá và kết quả cuối năm (CT-851, CT-855, CT-856; YCTD-161) |
+| AC-762 | Cho trường bật Tiểu học đã nạp môn mẫu / Khi Ban Giám hiệu nạp cấu hình mặc định hai lần / Thì có 6 mức, 15 phẩm chất, năng lực, 4 kỳ, bài kiểm tra giữa kỳ chỉ Tiếng Việt, Toán lớp 4, 5; lần hai không tạo thêm (CT-858, CT-863; YCTD-161) |
+| AC-763 | Cho lớp 4 có giáo viên chủ nhiệm và giáo viên Toán / Khi mỗi người nhập môn của mình, nhập môn của người khác, nhập điểm ở môn không có bài kiểm tra / Thì nhận; 403; 400 (CT-859; YCTD-161) |
+| AC-764 | Cho kỳ quá hạn hoặc đã khoá / Khi giáo viên, Hiệu trưởng sửa; Hiệu trưởng mở khoá không lý do, có lý do / Thì quá hạn: giáo viên 422, Hiệu trưởng nhận; đã khoá: cả hai 422; mở khoá 400, nhận (CT-860; YCTD-161) |
+| AC-765 | Cho lớp đã nhập kỳ cuối năm / Khi xem tổng hợp, gợi ý cuối năm, phụ huynh xem trước và sau khi khoá / Thì số theo mức, điểm theo khoảng đúng; gợi ý theo Điều 9; phụ huynh chỉ thấy kỳ đã khoá và kết quả cuối năm (CT-857, CT-861, CT-862; YCTD-161) |
 
 ## 20. Chưa xác minh được
 

@@ -22,7 +22,7 @@
 - Cơ sở dữ liệu: tệp năm học `0079_create_student_assessments`, tệp định danh `0070_add_assessment_permissions`.
 - Máy chủ API: cấu hình đánh giá theo cấp, nạp mặc định; nhập kết quả định kỳ theo phân công, hạn nhập, khoá số liệu; nhận xét thường xuyên; tổng hợp cuối kỳ; gợi ý, xác nhận cuối năm; phụ huynh xem; chuyển cấu hình sang năm học mới.
 - Cổng quản trị: 7.3 Đánh giá học sinh; ứng dụng giáo viên: màn hình đánh giá; ứng dụng phụ huynh: kết quả đánh giá.
-- Thêm quy tắc BR-170 đến BR-172, chức năng P02-39 đến P02-41, kịch bản CT-851 đến CT-857, tiêu chí AC-759 đến AC-762. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/assessments/assessments.test.ts` CT-20c-1 đến CT-20c-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.3 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của Tiểu học của CT-19c-1); kiểm thử đơn vị toàn bộ kho mã đạt 1059/1059; kiểm thử giao diện `tests/e2e/90-student-assessments.spec.ts` (CT-20c-7) đạt; toàn bộ kiểm thử giao diện đạt 160/161 (spec 90 mới đạt; spec 38 nhắc nợ chập chờn, không liên quan, đạt ở lượt trước); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm quy tắc BR-171 đến BR-173, chức năng P02-42 đến P02-44, kịch bản CT-857 đến CT-863, tiêu chí AC-762 đến AC-765. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/assessments/assessments.test.ts` CT-20c-1 đến CT-20c-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.3 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của Tiểu học của CT-19c-1); kiểm thử đơn vị toàn bộ kho mã đạt 1059/1059; kiểm thử giao diện `tests/e2e/90-student-assessments.spec.ts` (CT-20c-7) đạt; toàn bộ kiểm thử giao diện đạt 160/161 (spec 90 mới đạt; spec 38 nhắc nợ chập chờn, không liên quan, đạt ở lượt trước); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
@@ -30,7 +30,7 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-161, `07_QUY_TAC_NGHIEP_VU.md` BR-170 đến BR-172, `10_YEU_CAU_CHUC_NANG.md` P02-39 đến P02-41, `11_TIEU_CHI_NGHIEM_THU.md` AC-759 đến AC-762, `14_DAC_TA_GIAO_DIEN.md`, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-851 đến CT-857, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.8. Phiên bản 0.109.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-161, `07_QUY_TAC_NGHIEP_VU.md` BR-171 đến BR-173, `10_YEU_CAU_CHUC_NANG.md` P02-42 đến P02-44, `11_TIEU_CHI_NGHIEM_THU.md` AC-762 đến AC-765, `14_DAC_TA_GIAO_DIEN.md`, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-857 đến CT-863, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.8. Phiên bản 0.110.0.
 
 #### Vấn đề tồn đọng
 
