@@ -61,6 +61,7 @@ import { healthTransitionStep } from './health/health-transition.js';
 import { KitchenAccess } from './kitchen/kitchen-access.js';
 import { KitchenCatalogsController, KitchenCatalogsService } from './kitchen/kitchen-catalogs.js';
 import { KitchenMealsController, KitchenMealsService } from './kitchen/kitchen-meals.js';
+import { BoardingController, BoardingService } from './boarding/boarding.js';
 import { KitchenMenusController, KitchenMenusService } from './kitchen/kitchen-menus.js';
 import { MenuImportsController, MenuImportsService } from './kitchen/menu-imports.js';
 import { KitchenPurchasesController, KitchenPurchasesService } from './kitchen/kitchen-purchases.js';
@@ -482,6 +483,7 @@ export class ApplicationModule {
         KitchenMenusController,
         MenuImportsController,
         KitchenMealsController,
+        BoardingController,
         KitchenPurchasesController,
         // Bán trú: kiểm thực ba bước và an toàn thực phẩm (DT-18 phần 22b)
         FoodSafetyRecordsController,
@@ -693,6 +695,7 @@ export class ApplicationModule {
         KitchenAccess,
         KitchenCatalogsService,
         KitchenMealsService,
+        BoardingService,
         KitchenMenusService,
         MenuImportsService,
         KitchenPurchasesService,

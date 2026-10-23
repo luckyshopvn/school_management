@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import type { SchoolYearDatabase } from '@school-management/database';
+import { MEAL_SERVICE_ID, type SchoolYearDatabase } from '@school-management/database';
 import {
   ApplicationError,
   Clock,
@@ -19,6 +19,7 @@ import { assertPeriodOpen } from '../finance/fiscal-period-lock.js';
 import { pickSmsRecipients } from '../finance/receivables.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { extracurricularItems } from '../activities/extracurricular-fees.js';
+import { boardingMealDays, BOARDING_RULE_CODE, unclosedBoardingDays } from '../boarding/boarding-roster.js';
 import { DiscountsService } from './discounts.service.js';
 import { invoiceAmounts, recalculatePendingDiscounts } from './invoice-amounts.js';
 import { formatPeriod, periodRange, RegistrationPeriods, type Period } from './registration-periods.js';
@@ -111,17 +112,13 @@ export class FeeCalculationService {
         missingGrades.map((gradeLevel) => ({ field: 'grade_level', message: gradeLevel })),
       );
     }
-    await this.assertAttendanceLocked(database, children, schoolDays);
     const registrations = await this.activeRegistrations(
       database,
       children.map((child) => child.id),
       period,
     );
-    const presentDays = await this.presentDays(
-      database,
-      children.map((child) => child.id),
-      schoolDays,
-    );
+    await this.assertAttendanceLocked(database, children, schoolDays, registrations);
+    const presentDays = await this.presentDays(database, children, schoolDays);
     const previousTotals = await this.previousTotals(
       database,
       children.map((child) => child.id),
@@ -169,7 +166,8 @@ export class FeeCalculationService {
       items.push(...(extracurricular.get(child.id) ?? []));
       const total = items.reduce((sum, item) => sum + item.amount, 0);
       const flags: string[] = [];
-      if (enrolledDays.length - present >= ABSENCE_FLAG_DAYS) {
+      // Lớp ngoài Mầm non không điểm danh theo ngày nên không đánh dấu nghỉ nhiều theo ngày ăn (YCTD-159)
+      if (child.school_level === 'MN' && enrolledDays.length - present >= ABSENCE_FLAG_DAYS) {
         flags.push('absent_many');
       }
       const previous = previousTotals.get(child.id);
@@ -402,7 +400,14 @@ export class FeeCalculationService {
         join.onRef('class_enrollments.child_id', '=', 'children.id').on('class_enrollments.is_current', '=', true),
       )
       .innerJoin('classes', 'classes.id', 'class_enrollments.class_id')
-      .select(['children.id', 'children.full_name', 'children.org_unit_id', 'classes.grade_level'])
+      .select([
+        'children.id',
+        'children.full_name',
+        'children.org_unit_id',
+        'classes.grade_level',
+        'classes.id as class_id',
+        'classes.school_level',
+      ])
       .where('children.id', '=', childId)
       .executeTakeFirst();
     if (!child) {
@@ -450,7 +455,7 @@ export class FeeCalculationService {
     }
     const schoolDays = await this.schoolDays(period);
     const prices = await this.priceTable(database, period);
-    const presentDays = await this.presentDays(database, [childId], schoolDays);
+    const presentDays = await this.presentDays(database, [child], schoolDays);
     const missing: FieldError[] = [];
     const items = pending
       .map((registration) =>
@@ -750,6 +755,7 @@ export class FeeCalculationService {
         'classes.id as class_id',
         'classes.name as class_name',
         'classes.grade_level',
+        'classes.school_level',
       ])
       .where('children.org_unit_id', '=', orgUnitId)
       .where((expression) =>
@@ -774,13 +780,33 @@ export class FeeCalculationService {
     return query.orderBy('children.full_name').execute();
   }
 
-  // Còn ngày học chưa chốt điểm danh thì chặn và liệt kê lớp, ngày (Q-151, AC-222)
+  // Còn ngày học chưa chốt điểm danh thì chặn và liệt kê lớp, ngày (Q-151, AC-222). Lớp ngoài Mầm non không điểm danh theo
+  // ngày: lớp có học sinh đăng ký bán trú thì phải chốt suất đủ các ngày học (YCTD-159)
   private async assertAttendanceLocked(
     database: Kysely<SchoolYearDatabase>,
-    children: Array<{ class_id: string; class_name: string }>,
+    children: Array<{ id: string; class_id: string; class_name: string; school_level: string }>,
     schoolDays: string[],
+    registrations: Array<{ child_id: string; service_id: string }>,
   ): Promise<void> {
-    const classes = new Map(children.map((child) => [child.class_id, child.class_name]));
+    const boardingChildren = new Set(
+      registrations.filter((row) => row.service_id === MEAL_SERVICE_ID).map((row) => row.child_id),
+    );
+    const boardingClasses = new Map(
+      children
+        .filter((child) => child.school_level !== 'MN' && boardingChildren.has(child.id))
+        .map((child) => [child.class_id, child.class_name]),
+    );
+    const unclosed = await unclosedBoardingDays(database, [...boardingClasses.keys()], schoolDays);
+    if (unclosed.length > 0) {
+      throw ruleViolationError(
+        BOARDING_RULE_CODE,
+        'Còn ngày học lớp chưa chốt suất bán trú, chốt xong mới tính được',
+        unclosed.map((row) => ({ field: boardingClasses.get(row.class_id) ?? row.class_id, message: row.date })),
+      );
+    }
+    const classes = new Map(
+      children.filter((child) => child.school_level === 'MN').map((child) => [child.class_id, child.class_name]),
+    );
     if (classes.size === 0) {
       return;
     }
@@ -878,14 +904,21 @@ export class FeeCalculationService {
     );
   }
 
-  // Số ngày ăn bằng số ngày có mặt, đi muộn, về sớm theo điểm danh đã chốt (BR-14, BR-58, Q-39)
+  // Số ngày ăn bằng số ngày có mặt, đi muộn, về sớm theo điểm danh đã chốt (BR-14, BR-58, Q-39). Học sinh lớp ngoài Mầm non:
+  // ngày lớp đã chốt suất bán trú mà học sinh không cắt suất (YCTD-159)
   private async presentDays(
     database: Kysely<SchoolYearDatabase>,
-    childIds: string[],
+    children: Array<{ id: string; class_id: string; school_level: string }>,
     schoolDays: string[],
   ): Promise<Map<string, number>> {
+    const childIds = children.filter((child) => child.school_level === 'MN').map((child) => child.id);
+    const result = await boardingMealDays(
+      database,
+      children.filter((child) => child.school_level !== 'MN'),
+      schoolDays,
+    );
     if (childIds.length === 0 || schoolDays.length === 0) {
-      return new Map();
+      return result;
     }
     const rows = await database
       .selectFrom('attendance_records')
@@ -896,7 +929,10 @@ export class FeeCalculationService {
       .where('status', 'in', PRESENT_STATUSES as never)
       .groupBy('child_id')
       .execute();
-    return new Map(rows.map((row) => [row.child_id, Number(row.days)]));
+    for (const row of rows) {
+      result.set(row.child_id, Number(row.days));
+    }
+    return result;
   }
 
   private async previousTotals(

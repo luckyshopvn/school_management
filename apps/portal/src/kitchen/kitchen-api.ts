@@ -17,6 +17,9 @@ export const SOURCE_LABELS = {
   attendance_locked: 'Điểm danh đã chốt',
   meal_report: 'Báo cơm',
   attendance_open: 'Điểm danh chưa chốt',
+  // Lớp ngoài Mầm non theo danh sách bán trú (DT-20 phần 20b)
+  boarding_closed: 'Bán trú đã chốt suất',
+  boarding_open: 'Bán trú chưa chốt suất',
 };
 
 export interface Ingredient {
