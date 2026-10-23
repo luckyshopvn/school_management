@@ -176,6 +176,7 @@ test('CT-20b-7: bán trú lớp Tiểu học (cắt suất, chốt số suất);
 
     // Bán trú: danh sách ăn của lớp, cắt suất một học sinh, chốt số suất
     await openMenu(portal, '/boarding');
+    await portal.getByLabel('Đơn vị', { exact: true }).selectOption(reference.org_unit_id);
     await portal.getByRole('combobox', { name: 'Lớp' }).selectOption({ label: className });
     await portal.getByLabel('Ngày', { exact: true }).fill(mealDate);
     const roster = portal.getByRole('region', { name: 'Danh sách ăn bán trú' });
@@ -191,6 +192,7 @@ test('CT-20b-7: bán trú lớp Tiểu học (cắt suất, chốt số suất);
 
     // Nề nếp: nạp tiêu chí mặc định, ghi điểm cho lớp, xem xếp hạng tuần
     await openMenu(portal, '/conduct');
+    await portal.getByLabel('Đơn vị', { exact: true }).selectOption(reference.org_unit_id);
     await portal.getByRole('tab', { name: 'Tiêu chí' }).click();
     await portal.getByRole('button', { name: 'Nạp bộ tiêu chí mặc định' }).click();
     await expect(portal.getByRole('table', { name: 'Tiêu chí nề nếp' })).toContainText('Đi học muộn');
