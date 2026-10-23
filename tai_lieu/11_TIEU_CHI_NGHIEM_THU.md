@@ -1,8 +1,8 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.52
-- Ngày cập nhật: 2026-10-22
+- Phiên bản: 1.53
+- Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -818,6 +818,9 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-743 | Cho trường bật Tiểu học có một lớp khối 1 / Khi xem 5.1 không lọc, lọc Tiểu học, lọc Mầm non / Thì lớp khối 1 ở bảng theo khối, không vào nhóm tuổi; lọc trả đúng lớp, học sinh của cấp (CT-821, CT-827; YCTD-154) |
 | AC-744 | Cho trường liên cấp / Khi xem báo cáo chấm công và suất ăn; biểu mẫu EMIS, hồ sơ cuối cấp / Thì lớp Tiểu học ở nhóm "Cấp Tiểu học"; biểu mẫu Mầm non không có lớp, trẻ Tiểu học (CT-822, CT-823, CT-826; YCTD-154) |
 | AC-745 | Cho kế toán / Khi tạo biểu phí Tiểu học có khối Mầm non, biểu phí Tiểu học đúng, biểu phí THCS chưa bật / Thì khối khác cấp bị từ chối; hai cấp cùng ngày hiệu lực đều hiệu lực; cấp chưa bật bị từ chối (CT-824; YCTD-154) |
+| AC-746 | Cho cơ sở dữ liệu có đơn vị thiếu cấp, lớp lệch khối, thiếu chương trình mặc định / Khi chạy tệp vá hai lần / Thì lỗi đó hết, kết quả hai lần như nhau, số đếm không đổi; cấp website được bật, không tắt cấp (CT-828, CT-829; YCTD-156) |
+| AC-747 | Cho người vận hành / Khi chạy lệnh kiểm trước, sau chuyển / Thì có số đếm từng năm học, lỗi toàn vẹn, khác biệt số đếm, không có dữ liệu cá nhân (CT-830; YCTD-156) |
+| AC-748 | Cho người thử bản trình diễn, trường liên cấp / Khi tạo bản trình diễn; bật Tiểu học, mở lớp khối 1 / Thì có Tiểu học, THCS, lớp 1A, 6A, phụ huynh có con ở hai cấp, lệnh kiểm không lỗi; phụ huynh thấy hai con, trường trở lại Mầm non ở cuối (CT-831, CT-832; YCTD-156) |
 
 ## 20. Chưa xác minh được
 

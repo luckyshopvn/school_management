@@ -1,8 +1,8 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.70
-- Ngày cập nhật: 2026-10-22
+- Phiên bản: 1.71
+- Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -233,6 +233,8 @@ Bổ sung ngày 2026-10-09 theo yêu cầu tách vai trò Ban Giám hiệu thàn
 | BR-160 | Tham số cấp của thống kê, báo cáo (YCTD-154): cấp chọn phải đang bật và trong phạm vi cấp của người dùng; không chọn thì lọc theo phạm vi cấp của người dùng nếu hẹp hơn mọi cấp đang bật, còn lại không lọc; lọc theo cấp của lớp đang học |
 | BR-161 | Số liệu riêng Mầm non (YCTD-154): nhóm tuổi, biểu mẫu EMIS Mầm non, tăng trưởng theo tháng tuổi, hồ sơ cuối cấp chỉ tính lớp cấp Mầm non; trẻ đang học lớp cấp khác không tính; lớp cấp khác thống kê theo khối, báo cáo chấm công và suất ăn nhóm theo cấp |
 | BR-162 | Biểu phí theo cấp (YCTD-154): mỗi biểu phí thuộc một cấp đang bật; phiên bản mới của cấp phải sau phiên bản mới nhất của cùng cấp và kết thúc phiên bản đó; dòng giá chỉ nhận khối cùng cấp; tính phí tra giá theo khối của trẻ trong phiên bản hiệu lực của cấp |
+| BR-163 | Chuyển dữ liệu cấp học (YCTD-156): tệp vá chạy lặp được, chỉ ghi cột cấp và dòng cấp; đơn vị thiếu cấp nhận MN; lớp lấy cấp theo khối; cấp Mầm non luôn có một chương trình mặc định; cấp khai báo ở website được bật, không tắt cấp nào |
+| BR-164 | Kiểm đối chiếu cấp học (YCTD-156): lệnh kiểm chỉ đọc, chạy trước và sau mỗi lần chuyển ở bản sao dữ liệu thử; số đếm nghiệp vụ từng năm học phải khớp; không có lớp lệch khối, đơn vị chưa có cấp, mã cấp lạ; kết quả không chứa dữ liệu cá nhân |
 
 Danh mục chứng từ áp dụng hạn mức: phiếu chi, phiếu đảo phiếu thu (YCTD-23), phiếu đảo phiếu chi (YCTD-24), đề nghị mua hàng, phiếu điều chỉnh hóa đơn, miễn giảm học phí, bảng lương kỳ, chốt kỳ tài chính. Mức hạn mức cụ thể chưa có, xem Q-22 và Q-112.
 

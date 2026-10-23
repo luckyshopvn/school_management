@@ -1,8 +1,8 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.31
-- Ngày cập nhật: 2026-10-22
+- Phiên bản: 0.32
+- Ngày cập nhật: 2026-10-23
 - Trạng thái: Đang cập nhật
 
 ## Quy ước
@@ -10,6 +10,23 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-156: DT-19 phần 19f: chuyển và kiểm dữ liệu Mầm non, dữ liệu mẫu đa cấp, chuẩn bị DT-20, DT-21 – 2026-10-23
+
+- Lý do: phần 19f của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 10.3, 10.4 (quyết định của Eric ngày 2026-10-19 mở rộng ra mọi cấp học), phần cuối của DT-19. Không đổi hành vi Mầm non: kiểm thử đơn vị và e2e đang có đạt mà không sửa kỳ vọng. Dữ liệu mẫu hoàn toàn giả. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Chuyển dữ liệu, chạy lặp được:** tệp năm học `0075_backfill_school_levels` vá phần còn thiếu sau 0072, 0073: đơn vị chưa có dòng cấp nhận `MN`, lớp lệch cấp với khối lấy lại cấp theo khối, cấp Mầm non chưa có chương trình mặc định thì nạp `CT-GDMN` hoặc đặt chương trình Mầm non đang dùng làm mặc định; chỉ ghi cột cấp. Tệp hệ thống `0025_backfill_school_levels` bật ở `school_levels` các cấp đã khai báo ở cấu hình website (18f), không tắt cấp nào. Học kỳ, tuần không có cấp là lịch chung nên không cần gán. Tệp định danh 0066 giữ sẵn để trống: phạm vi cấp không có dòng nghĩa là mọi cấp, không cần chốt. Năm học đã đóng giữ nguyên cấu trúc (QU-11), không chạy tệp năm học.
+  - **Lệnh kiểm đối chiếu chỉ đọc** (`pnpm --filter @school-management/database level-check`, `database/src/level-check.ts`): mỗi cơ sở dữ liệu năm học (kể cả năm đã đóng) đếm khối, lớp, học sinh, nhân sự, biểu phí, phiếu thu, điểm danh, kết quả khám, hồ sơ cuối cấp; kiểm toàn vẹn (lớp lệch cấp với khối, đơn vị chưa có cấp, lớp thuộc cấp mà đơn vị không có, mã cấp lạ, cấp Mầm non có lớp mà thiếu chương trình mặc định); hệ thống: có cấp đang bật, mã cấp của học kỳ, tuần. `--out` ghi kết quả JSON, `--compare` so khớp số đếm với lần kiểm trước; thoát mã 1 khi có lỗi hoặc lệch. Kết quả chỉ có số đếm và tên cơ sở dữ liệu, không có dữ liệu cá nhân; năm đã đóng chưa có cột cấp thì chỉ đếm. Chạy ở bản sao dữ liệu thử.
+  - **Dữ liệu trình diễn đa cấp (18h, phiên bản dữ liệu `19f-1`):** bước mới "Trường liên cấp: Tiểu học, THCS": bật Mầm non, Tiểu học, THCS; Điểm trường Hoa Mai thêm Tiểu học, THCS; khối mẫu, chương trình mặc định của hai cấp; lớp 1A (khối 1), 6A (khối 6) có giáo viên chủ nhiệm của lớp Mầm non; bốn học sinh giả, học sinh đầu tiên là con thứ hai của phụ huynh `0900000001` (một tài khoản, hai con ở hai cấp). Dữ liệu Mầm non của bản trình diễn giữ nguyên.
+  - **Kiểm thử đa cấp:** e2e `86-multi-level.spec.ts` (bật Tiểu học, nạp khối, cấp của Phân hiệu A, lớp khối 1, cấp đang làm việc, phụ huynh thấy hai con ở hai cấp; cuối kịch bản trả lại trường chỉ có Mầm non).
+  - **Chuẩn bị DT-20, DT-21:** `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 10.10 chốt điểm mở đường và quy ước; `12_KIEN_TRUC_HE_THONG.md` QĐ-24 "đọc cấp qua `SchoolLevelResolver`".
+  - **Quyền:** không thêm quyền.
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/school-year/migrations/0075_backfill_school_levels.ts`, `database/system/migrations/0025_backfill_school_levels.ts`, `index.ts`, `database/src/level-check.ts`, `level-check-command.ts`, `package.json`); máy chủ API (`demo/demo-data.ts`); kiểm thử (`database/src/level-check.test.ts`, `demo/administration-18h.test.ts`, `tests/e2e/86-multi-level.spec.ts`).
+- Dữ liệu bị ảnh hưởng: chỉ cột cấp và dòng cấp của đơn vị, chương trình mặc định Mầm non khi còn thiếu; cấp bật theo cấu hình website khi website đã khai báo cấp khác Mầm non.
+- Đối chiếu trước, sau chuyển: trên cơ sở dữ liệu kiểm thử, lệnh kiểm trước khi vá báo đơn vị thiếu cấp, lớp lệch khối, thiếu chương trình mặc định; sau khi vá hai lần không còn lỗi đó và số đếm khớp; bản trình diễn sau khi tạo không có lỗi toàn vẹn.
+- Rủi ro: năm đã đóng không có cột cấp nên tính năng mới chỉ đọc năm đang dùng; lệnh kiểm phải chạy ở bản sao.
+- Kiểm thử cần thực hiện: CT-828 đến CT-832. Kết quả ngày 23/10/2026: kiểm thử đơn vị `database/src/level-check.test.ts` CT-19f-1 đến CT-19f-3 đạt 3/3, `apps/api/src/demo/administration-18h.test.ts` CT-19f-4 đạt (CT-18h-1 đến CT-18h-9 vẫn đạt); kiểm thử đơn vị toàn bộ kho mã 1038/1038; kiểm thử giao diện `tests/e2e/86-multi-level.spec.ts` (CT-19f-5) đạt; toàn bộ kiểm thử giao diện 157/157; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Trạng thái: Đã triển khai (PR …).
 
 ### YCTD-154: DT-19 phần 19d: số liệu theo cấp học – 2026-10-22
 
