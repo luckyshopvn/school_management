@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu).
-- Phiên bản: 1.38
+- Phiên bản: 1.39
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -550,7 +550,21 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 | 19c | 2 | Đã làm, YCTD-153, phiên bản 0.103.0, PR 131: thuộc tính `levels` ở phân hệ và mục menu (mục chỉ Mầm non gắn `MN`), tên phân hệ theo cấp (`levelTitle`), bộ chọn cấp đang làm việc lưu theo tài khoản (định danh 0065 `user_preferences`), tham số cấp dùng chung `school_level` (`SchoolLevelResolver.requested`), bảng nhãn thuật ngữ theo cấp, cây quyền và Truy cập nhanh lọc theo cấp bật; e2e 83 |
 | 19d | 2 | Đã làm (PR 132, YCTD-154, phiên bản 0.104.0) |
 | 19e | 3 | Đã làm, YCTD-155, phiên bản 0.105.0, PR 133: bảng chức năng theo cấp `LEVEL_FEATURES` (gói dùng chung), cấp của con ở danh sách con, ứng dụng phụ huynh và ứng dụng giáo viên hiện tên cấp, ẩn chức năng chỉ của Mầm non ở con, lớp cấp khác; tin tức có cấp nhận (năm học 0074 `news.audience_levels`), người xem, người nhận theo cấp con học, số người nhận trước khi công bố (`POST /news-recipients/count`); e2e 85 |
-| 19f | 3 | Chưa làm, chờ đợt 2 |
+| 19f | 3 | Đã làm (PR 134, YCTD-156, phiên bản 0.106.0): tệp vá năm học 0075, hệ thống 0025 (định danh 0066 để trống), lệnh kiểm `level-check`, trường liên cấp trong bản trình diễn, e2e 86, mục 10.10 |
+
+### 10.10 Ghi chú chuẩn bị cho DT-20, DT-21 (YCTD-156)
+
+Chốt sau khi 19a đến 19f gộp. DT-20 (Tiểu học, kèm 22c) và DT-21 (THCS, THPT, kèm 22g) xây trên các điểm dưới đây, không sửa khung:
+
+- **Đọc cấp:** mọi chỗ cần biết trường có những cấp nào, người dùng xem được cấp nào đọc qua `SchoolLevelResolver` (`apps/api/src/common/school-levels.ts`: `enabled`, `isEnabled`, `forUser`, `requested`, `assertCanAccess`); không đọc cột rời, không ghi cứng `MN`. Ghi dữ liệu theo cấp thì kiểm cấp đang bật (`assertLevelEnabled` ở `catalogs/school-level-fields.ts`).
+- **Tham số cấp dùng chung:** điểm cuối mới nhận `school_level` (mã cấp, trống hoặc `all`) qua `readLevelFilter` ở `common/report-levels.ts`; cổng quản trị gửi cấp đang làm việc ở thanh đầu trang (`useWorkingSchoolLevels`, `useReportLevel`, `LevelSelect`).
+- **Cấu trúc:** khối theo cấp (khối mẫu K1 đến K12 ở `GRADE_LEVEL_TEMPLATES`), lớp lấy cấp theo khối, `curricula` (mỗi cấp một chương trình mặc định; chương trình môn học, số tiết, tổ hợp môn thêm bảng con của `curricula`), `org_unit_levels`, học kỳ, tuần, ngày học riêng của cấp (`school_level` ở `academic_terms`, `school_weeks`, `academic_year_level_settings`; nghiệp vụ hiện có đọc lịch chung, thời khoá biểu 22c đọc lịch của cấp), khối kế tiếp khi lên lớp (`nextGradeLevel`, `GET /grade-levels/next`).
+- **Menu, nhãn:** phân hệ, mục menu mới gắn `levels` (19c); nhãn "Trẻ"/"Học sinh" lấy từ bảng thuật ngữ theo cấp, không ghi cứng ở trang.
+- **Số liệu:** biểu mẫu riêng Mầm non (EMIS, tăng trưởng theo tháng tuổi, hồ sơ cuối cấp) chỉ tính lớp Mầm non; biểu EMIS, chuẩn tăng trưởng, hồ sơ chuyển cấp của cấp khác là biểu mới theo cấp. Biểu phí theo cấp (mỗi cấp một chuỗi phiên bản, giá theo khối).
+- **Phụ huynh, giáo viên:** chọn con, chọn lớp theo cấp, thông báo theo cấp (19e; chức năng hiện theo cấp ở `packages/shared/src/level-features.ts`, đối tượng nhận tin `audience_levels`); màn hình điểm, nhận xét, học bạ, thời khoá biểu, sổ đầu bài đặt vào khung đó và khai báo cấp ở `level-features.ts`.
+- **Dữ liệu và kiểm thử:** bản trình diễn có điểm trường liên cấp (Tiểu học, THCS: lớp 1A, 6A, một phụ huynh có con ở hai cấp); e2e `86-multi-level.spec.ts` là mẫu cho kịch bản liên cấp; kịch bản bật cấp khác phải trả lại trường chỉ có Mầm non ở cuối (qua 1.4 để xóa bộ nhớ đệm cấp học). Lệnh `pnpm --filter @school-management/database level-check` kiểm toàn vẹn cấp trước, sau mỗi lần chuyển dữ liệu.
+- **Chưa làm ở DT-19:** sổ điểm, học bạ số, thời khoá biểu, sổ đầu bài, điểm danh theo tiết, đánh giá theo TT 27/2020, TT 22/2021, khen thưởng cuối năm, EMIS các cấp, xét tốt nghiệp, tổ hợp môn; khảo sát hệ thống của Sở cho Tiểu học khi Eric có tài khoản.
+
 
 ## 11. DT-20: Tiểu học (kèm 22c thời khoá biểu)
 

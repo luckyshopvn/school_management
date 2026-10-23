@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.31
+- Phiên bản: 0.32
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.106.0 – 2026-10-23
+
+- Phạm vi thay đổi: DT-19 phần 19f, chuyển và kiểm dữ liệu Mầm non, dữ liệu mẫu đa cấp, chuẩn bị DT-20, DT-21 (YCTD-156).
+- Chức năng mới: tệp vá cấp học chạy lặp được; lệnh kiểm đối chiếu chỉ đọc `level-check`; trường liên cấp trong bản trình diễn.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0075_backfill_school_levels`; tệp hệ thống `0025_backfill_school_levels`.
+- Thay đổi API: không có.
+- Kiểm thử: kịch bản CT-833 đến CT-837. Kết quả ngày 23/10/2026: kiểm thử đơn vị `database/src/level-check.test.ts` CT-19f-1 đến CT-19f-3 đạt 3/3, `apps/api/src/demo/administration-18h.test.ts` CT-19f-4 đạt (CT-18h-1 đến CT-18h-9 vẫn đạt); kiểm thử đơn vị toàn bộ kho mã 1042/1042; kiểm thử giao diện `tests/e2e/86-multi-level.spec.ts` (CT-19f-5) đạt; toàn bộ kiểm thử giao diện 158/158; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: năm học đã đóng giữ cấu trúc cũ.
+- Khả năng tương thích: không đổi điểm cuối; trường chỉ có Mầm non như cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 19f; hai tệp vá không có phần quay lui vì chỉ vá dữ liệu cho khớp cấu trúc.
 
 ### Phiên bản 0.105.0 – 2026-10-23
 

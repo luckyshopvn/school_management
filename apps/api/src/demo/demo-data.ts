@@ -5,8 +5,9 @@ import type { DemoAccount } from '@school-management/database';
 // người dùng thao tác, nên đi qua đủ kiểm tra nghiệp vụ, mã hóa và nhật ký. Phủ các phân hệ cũ (trường, lớp, nhân sự, học
 // sinh, điểm danh, y tế, bếp, học phí, hoạt động, giảng dạy, tương tác, kho, cơ sở vật chất, văn thư lưu trữ, tuyển dụng,
 // tuyển sinh, thuốc) và các phần DT-18 đã gộp: 18a văn bản đến, 18b văn bản đi, 18c giao việc và lịch đơn vị, 18d KPI,
-// 18f website, 18g nơi để và kiểm kê thiết bị. Mỗi phân hệ một bước; bước lỗi được ghi lại, các bước sau vẫn chạy
-export const DEMO_SEED_VERSION = '18h-1';
+// 18f website, 18g nơi để và kiểm kê thiết bị; từ DT-19 phần 19f thêm trường liên cấp (Tiểu học, THCS). Mỗi phân hệ một bước;
+// bước lỗi được ghi lại, các bước sau vẫn chạy
+export const DEMO_SEED_VERSION = '19f-1';
 
 export interface DemoUser {
   key: string;
@@ -163,6 +164,16 @@ const CHILD_NAMES = [
   ['Mai Thu Trang', 'female'],
   ['Cao Tuấn Kiệt', 'male'],
   ['Dương Bảo Ngọc', 'female'],
+] as const;
+
+// Trường liên cấp của bản trình diễn (DT-19 phần 19f, YCTD-156): cấp bật và học sinh giả của lớp 1A, 6A (tên, số điện thoại
+// bịa); học sinh đầu tiên là con thứ hai của phụ huynh 0900000001
+export const DEMO_MULTI_LEVELS = ['MN', 'TH', 'THCS'];
+const DEMO_MULTI_LEVEL_CHILDREN = [
+  ['Nguyễn Minh Khang', 'male', 'class1A', 6, '0900000001'],
+  ['Bùi Thanh Hà', 'female', 'class1A', 6, '0900000201'],
+  ['Tô Gia Bảo', 'male', 'class6A', 11, '0900000202'],
+  ['Hà Phương Nhi', 'female', 'class6A', 11, '0900000203'],
 ] as const;
 
 const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0]);
@@ -986,6 +997,83 @@ export async function seedDemoData(context: DemoSeedContext): Promise<DemoSeedRe
       pharmacy_id: pharmacy.id,
       stock_qty: 5,
     });
+  });
+
+  // ---- Trường liên cấp (DT-19 phần 19f): điểm trường Hoa Mai có thêm Tiểu học, THCS; dữ liệu Mầm non ở trên giữ nguyên ----
+  await step('Trường liên cấp: Tiểu học, THCS', async () => {
+    const { levels } = await api.call<{ levels: Array<Record<string, unknown>> }>('principal', 'GET', '/school-levels');
+    await api.call('principal', 'PUT', '/school-levels', {
+      levels: levels.map((level) => ({
+        code: level.code,
+        is_enabled: DEMO_MULTI_LEVELS.includes(level.code as string),
+        order_no: level.order_no,
+        display_name: level.display_name,
+        learner_term: level.learner_term,
+        context_label: level.context_label,
+      })),
+    });
+    await api.call('principal', 'PUT', `/org-units/${ids.DT1}/levels`, { school_levels: DEMO_MULTI_LEVELS });
+    for (const [level, code, name] of [
+      ['TH', 'CT-GDPT-TH', 'Chương trình giáo dục phổ thông cấp Tiểu học'],
+      ['THCS', 'CT-GDPT-THCS', 'Chương trình giáo dục phổ thông cấp THCS'],
+    ] as const) {
+      await api.call('principal', 'POST', '/grade-levels/templates', { school_level: level });
+      await api.call('principal', 'POST', '/curricula', { code, name, school_level: level, is_default: true });
+    }
+    for (const [key, code, name, grade, teacher] of [
+      ['class1A', '1A', 'Lớp 1A', 'K1', 'teacherA'],
+      ['class6A', '6A', 'Lớp 6A', 'K6', 'teacherB'],
+    ] as const) {
+      const row = await api.call('principal', 'POST', '/classes', {
+        org_unit_id: ids.DT1,
+        code,
+        name,
+        grade_level: grade,
+        max_size: 35,
+      });
+      ids[key] = row.id as string;
+      // Giáo viên dạy cả lớp Mầm non và lớp của cấp khác
+      await api.call('principal', 'POST', `/classes/${ids[key]}/staff-assignments`, {
+        staff_user_id: user(teacher),
+        assignment_role: 'homeroom',
+        from_date: year.calendar.first_term.start_date,
+      });
+    }
+    // Phụ huynh đầu tiên (0900000001) có thêm con học lớp 1A: một tài khoản, hai con ở hai cấp
+    let index = 0;
+    for (const [fullName, gender, classKey, age, phone] of DEMO_MULTI_LEVEL_CHILDREN) {
+      index += 1;
+      const file = await api.upload(
+        'admissions',
+        '/files',
+        { org_unit_id: ids.DT1 ?? '', purpose: 'birth_certificate' },
+        { name: 'giay-khai-sinh.png', content: PNG, type: 'image/png' },
+      );
+      const child = await api.call('admissions', 'POST', '/children', {
+        org_unit_id: ids.DT1,
+        full_name: fullName,
+        dob: `${year.startYear - age}-0${index + 1}-1${index}`,
+        gender,
+        national_id: `000000${String(900 + index).padStart(6, '0')}`,
+        birth_certificate_file_id: file.id,
+        photo_consent: 'pending',
+        health: { has_allergies: false },
+        guardians: [
+          {
+            full_name: phone === '0900000001' ? 'Phụ huynh của An' : `Phụ huynh của ${fullName.split(' ').at(-1)}`,
+            phone,
+            relationship_item_id: ids.mother,
+            is_primary: true,
+          },
+        ],
+        confirm_possible_duplicate: true,
+      });
+      await api.call('admissions', 'POST', `/children/${child.id as string}/submit`);
+      await api.call('principal', 'POST', `/children/${child.id as string}/approve`, {
+        class_id: ids[classKey],
+        confirm_over_capacity: true,
+      });
+    }
   });
 
   return report;

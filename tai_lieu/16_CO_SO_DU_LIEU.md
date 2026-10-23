@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.96
+- Phiên bản: 1.97
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -603,6 +603,8 @@ Tệp `database/system/migrations/0017_adjust_signing_to_so_templates.ts` (DT-17
 Tệp `database/school-year/migrations/0059_create_emis_report_values.ts` của cơ sở dữ liệu năm học (DT-16 phần 16j, YCTD-129) tạo `emis_report_values` (ràng buộc duy nhất `emis_report_values_row_unique` trên form_code, tab_key, row_code; ràng buộc kiểm tra `emis_report_values_values_check` `values` là đối tượng); phần quay lui xóa bảng. Số tệp migration hệ thống 0014 dành cho phần 16j không dùng; không có migration định danh.
 
 Tệp `database/school-year/migrations/0060_add_emis_so_indicators.ts` của cơ sở dữ liệu năm học (DT-17 phần 17a, YCTD-132) thêm `children.policy_benefits`, `staff.concurrent_disability_support`, `staff.concurrent_shared_position`, `rooms.built_this_year`, tạo `emis_record_submissions`; xóa các dòng `emis_report_values` theo mã cũ không đổi được sang mã của Sở (`emis-start-of-year` thẻ `budget`, `emis-facilities` thẻ `facilities`, toàn bộ `emis-foreign-language`). Phần quay lui xóa bảng và bốn cột, không khôi phục số liệu đã xóa. Không có migration hệ thống, định danh.
+
+Chuyển dữ liệu đa cấp học (DT-19 phần 19f, YCTD-156): tệp năm học `0075_backfill_school_levels` (đơn vị thiếu dòng `org_unit_levels` nhận MN; `classes.school_level` lấy theo khối; chương trình mặc định Mầm non khi còn thiếu) và tệp hệ thống `0025_backfill_school_levels` (bật ở `school_levels` các cấp của `website_settings.school_levels`) chạy lặp được, không thêm bảng, cột. Lệnh kiểm `level-check` chỉ đọc các bảng `grade_levels`, `classes`, `children`, `staff`, `fee_schedules`, `receipts`, `attendance_records`, `health_check_results`, `final_year_records`, `org_units`, `org_unit_levels`, `curricula` của mọi cơ sở dữ liệu năm học và `school_levels`, `academic_terms`, `school_weeks` của cơ sở dữ liệu hệ thống.
 
 ## 19. Quan hệ chính giữa các bảng
 
