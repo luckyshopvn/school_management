@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
-- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học.
-- Phiên bản: 1.37
+- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu).
+- Phiên bản: 1.38
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -551,3 +551,151 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 | 19d | 2 | Đã làm (PR 132, YCTD-154, phiên bản 0.104.0) |
 | 19e | 3 | Đã làm, YCTD-155, phiên bản 0.105.0, PR 133: bảng chức năng theo cấp `LEVEL_FEATURES` (gói dùng chung), cấp của con ở danh sách con, ứng dụng phụ huynh và ứng dụng giáo viên hiện tên cấp, ẩn chức năng chỉ của Mầm non ở con, lớp cấp khác; tin tức có cấp nhận (năm học 0074 `news.audience_levels`), người xem, người nhận theo cấp con học, số người nhận trước khi công bố (`POST /news-recipients/count`); e2e 85 |
 | 19f | 3 | Chưa làm, chờ đợt 2 |
+
+## 11. DT-20: Tiểu học (kèm 22c thời khoá biểu)
+
+### 11.1 Căn cứ và mục tiêu
+
+1. Lộ trình Eric chốt ngày 2026-10-19: DT-18 → DT-19 (nền đa cấp học) → DT-20 (Tiểu học, kèm 22c thời khoá biểu) → DT-21 (THCS, THPT, kèm 22g) → DT-22 → DT-SaaS. Phạm vi DT-20 theo kế hoạch DT-18: hồ sơ học sinh tiểu học; đánh giá theo Thông tư 27/2020/TT-BGDĐT (nhận xét, mức đạt theo môn học và hoạt động giáo dục, phẩm chất, năng lực); học bạ số; thời khoá biểu (nhập Excel và máy xếp); sổ đầu bài, điểm danh theo tiết; bán trú; khen thưởng cuối năm; báo cáo EMIS tiểu học; nề nếp và thi đua (tuỳ trường). Phần 22c thời khoá biểu thuộc DT-22 nhưng Eric cho chạy cùng DT-20; theo đề xuất trong kế hoạch DT-22 (khoảng 2 đơn vị, rủi ro kỹ thuật lớn nhất), 22c tách hai phần: khung và nhập Excel trước, máy xếp sau.
+2. Mục tiêu: trường bật cấp Tiểu học (19a) dùng được School Management cho nghiệp vụ hằng ngày và cuối năm của Tiểu học, theo Chương trình giáo dục phổ thông 2018 và Thông tư 27/2020; trường chỉ có Mầm non không đổi gì.
+3. **Chưa khảo sát hệ thống của Sở cấp Tiểu học:** Eric chưa có tài khoản trường Tiểu học trên hệ thống của Sở. DT-20 làm theo văn bản quy phạm và nghiệp vụ chung; màn hình, cột, số mục menu, mẫu biểu EMIS khớp Sở khảo sát sau (khi Eric có tài khoản), như đã làm với Mầm non ở DT-15, DT-16. Phần nào cần khớp Sở ghi rõ ở 11.4 và để chỗ đổi (danh mục, mẫu biểu cấu hình được) thay vì ghi cứng.
+4. Hiện trạng mã (đọc ngày 2026-10-23, nhánh chính đã có 19a đến 19e; 19f đang chờ gộp):
+   - **Nền DT-19 dùng lại:** `school_levels` và `SchoolLevelResolver` (19a, đọc cấp, phạm vi cấp của người dùng, `requested` cho tham số `?school_level=`); khối `grade_levels.school_level`, khối mẫu K1 đến K5, lớp `classes.school_level`, khung chương trình `curricula` (chưa có môn học, số tiết), `org_unit_levels`, học kỳ, tuần, ngày học theo cấp (19b); thuộc tính `levels` ở cây menu, `levelTitle` của phân hệ Quản lý giáo dục, nhãn "Học sinh"/"Lớp", bộ chọn cấp đang làm việc (19c); tham số cấp ở thống kê, báo cáo, EMIS, biểu phí theo khối (`fee_schedules.school_level`, 19d); bảng chức năng theo cấp `LEVEL_FEATURES` cho ứng dụng phụ huynh, giáo viên, tin tức có cấp nhận (19e); dữ liệu mẫu liên cấp, lệnh kiểm đối chiếu (19f).
+   - **Đã có, dùng lại hoặc mở rộng:** `children` (hồ sơ học sinh dùng chung mọi cấp, nhãn theo cấp), `class_enrollments`, `class_staff_assignments` (chủ nhiệm, bộ môn có `subject_name` tự do), điểm danh theo ngày (`attendance_days`, `attendance_records`, gắn suất ăn Mầm non), bếp và thực đơn (`kitchen`), bán trú và an toàn thực phẩm (22b), học phí, dịch vụ (`fees`, `service_registrations`), giảng dạy (`lessons`, `lesson_plans`, bảng `timetables` đơn giản: lớp, thứ, tiết, giờ, tên hoạt động, giáo viên, nháp hay công bố), kí hồ sơ bản chạy nội bộ (16k, 17b), xuất PDF và xuất nền (16a), website trường có chỗ cho trang thời khoá biểu (18f), thi đua khen thưởng cán bộ (22d, không dùng cho học sinh).
+   - **Chưa có:** danh mục môn học và hoạt động giáo dục, số tiết theo khối; phân công giảng dạy theo môn; đánh giá học sinh (mọi loại); học bạ; khen thưởng học sinh; sổ đầu bài; điểm danh theo tiết; thời khoá biểu theo môn, phòng, có kiểm tra xung đột; biểu EMIS Tiểu học.
+
+### 11.2 Nguyên tắc
+
+- **Không đổi hành vi Mầm non:** chức năng mới gắn `levels: ['TH']` ở menu và `LEVEL_FEATURES` ở ứng dụng; bảng mới có cột cấp hoặc gắn với lớp, khối có cấp. Toàn bộ e2e và kiểm thử đơn vị hiện có vẫn đạt không sửa kỳ vọng.
+- **Đọc cấp qua `SchoolLevelResolver`** (quy ước của 19f); điểm cuối mới nhận tham số `school_level` dùng chung; máy chủ chặn chức năng Tiểu học ở lớp không thuộc cấp `TH` (khác 19e chỉ ẩn ở ứng dụng).
+- **Danh mục cấu hình được, có bộ mặc định:** môn học, hoạt động, số tiết, mẫu nhận xét, mẫu học bạ, biểu EMIS nạp mặc định theo văn bản hiện hành, trường sửa được; đổi văn bản hoặc khớp Sở thì sửa danh mục, không sửa mã. Mã môn, mã mức đánh giá cố định trong mã như bốn mã cấp.
+- **Văn bản gốc trước phạm vi chi tiết:** mỗi phần đọc toàn văn văn bản căn cứ (Thông tư 27/2020/TT-BGDĐT về đánh giá học sinh tiểu học; Chương trình giáo dục phổ thông 2018 về môn học, hoạt động và thời lượng; Điều lệ trường tiểu học; văn bản hướng dẫn học bạ số, bán trú hiện hành) và ghi số hiệu, điều khoản vào YCTD của phần; chỗ kế hoạch này tóm tắt chỉ để chia phần.
+- **Một nguồn sự thật cho tiết học:** thời khoá biểu (22c) là nguồn của sổ đầu bài và điểm danh theo tiết (20d); phân công giảng dạy (20a) là nguồn của thời khoá biểu và quyền nhập đánh giá theo môn (20c).
+- **Học bạ là bản chốt:** học bạ (20e) đọc từ đánh giá đã khoá (20c), không nhập lại; sửa sau khi chốt phải mở khoá có lý do và ghi nhật ký; kí bằng luồng kí nội bộ đã có (16k, 17b), chữ ký số thật để sau.
+- **Viết sẵn cho đa thuê bao:** không thêm biến `.env` riêng của trường; khóa Redis qua `cacheKey`, tệp qua `storageKey`; bảng mới thuộc cơ sở dữ liệu của trường.
+- **Dữ liệu thật:** không đưa dữ liệu thật của trường, học sinh, giáo viên vào mã, dữ liệu mẫu, kiểm thử, tài liệu; dữ liệu mẫu Tiểu học chỉ ở bản trình diễn (18h, 19f).
+- **Máy xếp thời khoá biểu chạy trong trường:** không gửi dữ liệu ra dịch vụ ngoài; chạy nền (tác vụ của `worker`), có giới hạn thời gian, trả kết quả tốt nhất tìm được.
+
+### 11.3 Các phần
+
+Số migration giữ sẵn bắt đầu sau DT-19 (19f giữ năm học 0075, hệ thống 0025, định danh 0066): năm học 0076, hệ thống 0026, định danh 0067. Phần nào không cần số đã giữ thì để trống, không cho phần khác dùng (kho mã đã bật `allowUnorderedMigrations`). YCTD-157 dành cho chính bản kế hoạch này; YCTD của các phần từ YCTD-158. Spec e2e từ `87-`.
+
+| Phần | Phạm vi | Đợt | Phụ thuộc | YCTD giữ sẵn | Migration giữ sẵn | e2e giữ sẵn |
+|---|---|---|---|---|---|---|
+| 20a | Nền Tiểu học: danh mục môn học và hoạt động giáo dục, số tiết theo khối, gắn vào `curricula`; phân công giảng dạy theo môn; hồ sơ học sinh Tiểu học; phân hệ, menu Tiểu học (khung) | 1 | 19f đã gộp | YCTD-158 | Năm học 0076; định danh 0067 | 87 |
+| 20b | Bán trú Tiểu học; nề nếp và thi đua lớp (tuỳ trường, bật tắt) | 1 | 19f đã gộp | YCTD-159 | Năm học 0077; định danh 0068 | 88 |
+| 22c1 | Thời khoá biểu, phần khung: tiết, buổi, khung giờ theo cấp; thời khoá biểu lớp, giáo viên, phòng; nhập Excel; kiểm tra xung đột; ban hành có phiên bản; xem ở ứng dụng giáo viên, phụ huynh, trang công khai | 2 | 20a | YCTD-160 | Năm học 0078; hệ thống 0026; định danh 0069 | 89 |
+| 20c | Đánh giá học sinh theo Thông tư 27/2020: thường xuyên (nhận xét), định kỳ (mức đạt môn học và hoạt động, điểm bài kiểm tra định kỳ), phẩm chất, năng lực; tổng hợp cuối kỳ, cuối năm; khoá số liệu | 2 | 20a | YCTD-161 | Năm học 0079; định danh 0070 | 90 |
+| 20d | Sổ đầu bài và điểm danh theo tiết: ghi tiết dạy theo thời khoá biểu, nhận xét tiết, kí sổ; điểm danh theo tiết ở ứng dụng giáo viên; phụ huynh xem | 3 | 22c1 | YCTD-162 | Năm học 0080; định danh 0071 | 91 |
+| 20e | Học bạ số, khen thưởng cuối năm, hoàn thành chương trình lớp học và hoàn thành chương trình tiểu học; lên lớp, rèn luyện trong hè, kiểm tra lại | 3 | 20c | YCTD-163 | Năm học 0081; định danh 0072 | 92 |
+| 22c2 | Thời khoá biểu, phần máy xếp: xếp tự động theo ràng buộc có mức quan trọng, nhiều phương án; chỉnh tay có kiểm tra; dạy thay, đổi tiết; báo cáo tiết dạy, dùng phòng; mã QR tra cứu | 4 | 22c1 | YCTD-164 | Năm học 0082; định danh 0073 | 93 |
+| 20f | Báo cáo, thống kê Tiểu học và EMIS Tiểu học (khung biểu cấu hình được, khớp Sở sau khảo sát); tổng hợp kết quả đánh giá theo lớp, khối, trường | 4 | 20c, 20e | YCTD-165 | Năm học 0083; hệ thống 0027; định danh 0074 | 94 |
+
+Đợt làm, mỗi lúc tối đa hai phiên:
+- Đợt 1: 20a và 20b (20b không cần môn học; chỉ dùng lớp, khối, cấp của DT-19).
+- Đợt 2: 22c1 và 20c, bắt đầu khi 20a đã gộp.
+- Đợt 3: 20d (khi 22c1 đã gộp) và 20e (khi 20c đã gộp).
+- Đợt 4: 22c2 (khi 22c1 đã gộp) và 20f (khi 20c, 20e đã gộp).
+
+Thứ tự gộp để đánh số tài liệu (phiên bản, CT, AC, BR, MH, PQ, mã chức năng) theo đợt; phần gộp sau đánh lại số tài liệu theo nhánh chính lúc gộp. YCTD, số migration, số e2e giữ sẵn ở bảng trên không đổi theo thứ tự gộp.
+
+### 11.4 Phạm vi chi tiết
+
+#### 20a. Nền Tiểu học
+
+- **Môn học và hoạt động giáo dục** (năm học 0076): danh mục môn, hoạt động theo cấp (mã cố định, tên, loại: môn bắt buộc, tự chọn, hoạt động giáo dục; cách đánh giá: nhận xét và mức đạt, hay nhận xét, mức đạt và điểm bài kiểm tra định kỳ); số tiết mỗi tuần theo khối; gắn vào chương trình `curricula` của 19b. Nạp mặc định theo Chương trình giáo dục phổ thông 2018 cấp Tiểu học (Tiếng Việt, Toán, Đạo đức, Ngoại ngữ 1, Tự nhiên và Xã hội, Lịch sử và Địa lí, Khoa học, Tin học và Công nghệ, Giáo dục thể chất, Nghệ thuật, Hoạt động trải nghiệm; môn tự chọn Tiếng dân tộc thiểu số, Ngoại ngữ 1 ở lớp 1, 2); thời lượng đối chiếu văn bản gốc trước khi nạp.
+- **Phân công giảng dạy theo môn:** `class_staff_assignments` thêm môn (thay `subject_name` tự do, dữ liệu cũ giữ nguyên ở Mầm non), số tiết được phân; tổng tiết của giáo viên so với định mức (cấu hình); một môn của một lớp một giáo viên tại một thời điểm. Màn hình phân công theo lớp và theo giáo viên, nhập Excel.
+- **Hồ sơ học sinh Tiểu học:** dùng chung `children`; thêm trường riêng Tiểu học khi cần (học hòa nhập, học hai buổi một ngày, bán trú, môn tự chọn đăng ký) ở lớp dịch vụ theo cấp; mẫu nhập Excel theo cấp đã có ở 19d. Cột, nhãn khớp Sở sau khảo sát.
+- **Phân hệ, menu:** phân hệ Quản lý giáo dục khi làm việc ở cấp Tiểu học hiện các nhóm của Tiểu học (gắn `levels: ['TH']`); số mục đánh tạm theo nhóm riêng, đánh lại khi khảo sát Sở. Quyền mới cho danh mục môn, phân công giảng dạy (định danh 0067).
+- **Chức năng ứng dụng:** thêm mã chức năng Tiểu học vào `LEVEL_FEATURES` (19e) khi phần tương ứng làm.
+
+#### 20b. Bán trú Tiểu học; nề nếp và thi đua lớp
+
+- **Bán trú:** đăng ký bán trú theo học sinh và tháng (dùng dịch vụ, biểu phí theo khối của 19d), danh sách ăn theo ngày cho lớp Tiểu học (không dùng điểm danh theo ngày của Mầm non: giáo viên chốt số suất, báo cắt suất), nối bếp, thực đơn, kiểm thực ba bước (22b), tiền ăn tính theo ngày ăn thực tế như Mầm non. Ứng dụng phụ huynh báo cắt suất trước giờ chốt.
+- **Nề nếp và thi đua lớp** (tuỳ trường, bật ở 1.4 Cấu hình trường): tiêu chí nề nếp theo tuần (cấu hình), ghi điểm cộng trừ theo lớp, người ghi (giáo viên trực, đội cờ đỏ là học sinh không có tài khoản thì giáo viên ghi thay), tổng hợp tuần, tháng, học kỳ, xếp hạng lớp. Không dùng bảng thi đua cán bộ của 22d.
+- Quyền mới (định danh 0068).
+
+#### 22c1. Thời khoá biểu: khung và nhập Excel
+
+- **Khung thời gian theo cấp** (hệ thống 0026, cạnh `academic_year_level_settings` của 19b): buổi sáng, chiều; số tiết mỗi buổi; giờ bắt đầu, kết thúc từng tiết; ngày học trong tuần lấy theo cấp (19b).
+- **Thời khoá biểu** (năm học 0078): phiên bản theo ngày hiệu lực; mỗi ô là lớp, thứ, tiết, môn, giáo viên (từ phân công 20a), phòng (từ danh mục phòng của cơ sở vật chất). Bảng `timetables` hiện có (hoạt động Mầm non) giữ nguyên cho Mầm non; thời khoá biểu theo môn là bảng mới, không đổi dữ liệu cũ.
+- **Nhập Excel** theo mẫu (lớp × thứ × tiết), báo lỗi theo dòng như công cụ của 16a; **kiểm tra xung đột**: giáo viên trùng tiết, phòng trùng tiết, lớp vượt hoặc thiếu số tiết của môn so với chương trình, giáo viên vượt định mức; xung đột cứng chặn ban hành, xung đột mềm cảnh báo.
+- **Ban hành** có phiên bản, người ban hành, ngày áp dụng; bản cũ giữ để tra cứu; thông báo giáo viên, phụ huynh của lớp.
+- **Xem:** theo lớp, giáo viên, phòng ở cổng quản trị; ứng dụng giáo viên (lịch dạy của tôi), ứng dụng phụ huynh (thời khoá biểu của con); trang công khai ở website trường (18f) khi trường bật; xuất Excel, PDF.
+
+#### 20c. Đánh giá học sinh theo Thông tư 27/2020
+
+Phạm vi chốt sau khi đọc toàn văn Thông tư 27/2020/TT-BGDĐT; tóm tắt để chia phần:
+- **Đánh giá thường xuyên:** nhận xét theo môn, hoạt động, phẩm chất, năng lực trong quá trình học (giáo viên nhập nhanh theo lớp, có thư viện câu nhận xét do trường quản lý); phụ huynh xem ở ứng dụng.
+- **Đánh giá định kỳ** giữa và cuối mỗi học kỳ: mức đạt từng môn, hoạt động (Hoàn thành tốt, Hoàn thành, Chưa hoàn thành); điểm bài kiểm tra định kỳ cuối học kỳ ở các môn văn bản quy định (thang 10, theo khối); mức phẩm chất chủ yếu và năng lực chung, năng lực đặc thù (Tốt, Đạt, Cần cố gắng).
+- **Tổng hợp cuối năm:** mức hoàn thành chương trình lớp học của từng học sinh theo quy tắc của Thông tư (gợi ý từ máy, giáo viên chủ nhiệm xác nhận); bảng tổng hợp kết quả theo lớp.
+- **Quyền nhập** theo phân công (giáo viên bộ môn nhập môn mình dạy, chủ nhiệm nhập phẩm chất, năng lực, tổng hợp); **khoá số liệu** theo kỳ (Hiệu trưởng khoá, mở khoá có lý do, nhật ký); hạn nhập theo lịch học kỳ của cấp (19b).
+- Nhập Excel theo mẫu lớp × môn; xuất bảng tổng hợp.
+
+#### 20d. Sổ đầu bài và điểm danh theo tiết
+
+- **Sổ đầu bài điện tử:** mỗi tiết theo thời khoá biểu đã ban hành (22c1) sinh một dòng; giáo viên dạy ghi tên bài, nội dung, nhận xét tiết, xếp loại tiết (nếu trường dùng), học sinh vắng; dạy thay, đổi tiết ghi người dạy thực tế; Hiệu trưởng, tổ trưởng xem và kí theo tuần (luồng kí nội bộ).
+- **Điểm danh theo tiết:** ở ứng dụng giáo viên (mã chức năng mới trong `LEVEL_FEATURES` cho cấp `TH`, `THCS`, `THPT`), tổng hợp vắng có phép, không phép theo ngày; phụ huynh xem, báo vắng theo ngày (dùng lại báo vắng của 19e cho cấp khác khi phần này làm). Điểm danh theo ngày của Mầm non không đổi.
+- Báo cáo chuyên cần theo lớp, tháng.
+
+#### 20e. Học bạ số và khen thưởng cuối năm
+
+- **Học bạ số** theo mẫu hiện hành của Bộ (đối chiếu văn bản gốc): thông tin học sinh, kết quả từng năm học đọc từ đánh giá đã khoá (20c), nhận xét của giáo viên chủ nhiệm, xác nhận của Hiệu trưởng; xuất PDF theo mẫu, kí bằng luồng kí nội bộ; lưu theo học sinh qua các năm học (chép sang năm học mới khi chuyển năm, 5.7).
+- **Khen thưởng cuối năm:** đề xuất khen thưởng học sinh theo tiêu chí của Thông tư 27/2020 (máy gợi ý từ kết quả đánh giá, giáo viên chủ nhiệm đề nghị, Hiệu trưởng duyệt), giấy khen có mã tra cứu (dùng lại mẫu giấy khen 22d nếu hợp), khen thưởng đột xuất.
+- **Hoàn thành chương trình:** danh sách hoàn thành chương trình lớp học, chưa hoàn thành (rèn luyện trong hè, kiểm tra lại, ở lại lớp); hoàn thành chương trình tiểu học ở lớp 5 nối hồ sơ chuyển cấp (tuyển sinh đầu cấp, 17c, 17d); lên lớp theo khối kế tiếp (logic của 19b).
+- Phụ huynh xem học bạ, kết quả cuối năm ở ứng dụng.
+
+#### 22c2. Thời khoá biểu: máy xếp
+
+- **Máy xếp tự động** từ phân công (20a), khung thời gian, số tiết, phòng: ràng buộc cứng (không trùng giáo viên, phòng, lớp; giáo viên bận), ràng buộc mềm có mức quan trọng (tiết đôi, môn không học tiết cuối, rải đều trong tuần, giáo viên ít tiết trống); nhiều phương án để so; chạy nền có giới hạn thời gian; thuật toán chọn khi làm (tìm kiếm có ràng buộc hoặc heuristic), không dùng dịch vụ ngoài.
+- **Chỉnh tay** trên lưới có kiểm tra xung đột ngay; **dạy thay, đổi tiết** theo ngày (không đổi bản ban hành, ghi vào sổ đầu bài 20d); **báo cáo** tiết dạy theo giáo viên, dùng phòng; **mã QR** tra cứu thời khoá biểu của lớp, giáo viên (đường dẫn không có tên miền ghi cứng).
+- Nếu máy xếp chưa đạt chất lượng ở trường có dữ liệu thử, phần này dừng ở chỉnh tay và kiểm tra xung đột, ghi lại để đánh giá (mục 11.6).
+
+#### 20f. Báo cáo, thống kê và EMIS Tiểu học
+
+- **Thống kê Tiểu học:** lớp, học sinh theo khối, giới tính, dân tộc, khuyết tật, học hai buổi, bán trú (dùng khung tham số cấp của 19d); kết quả đánh giá theo lớp, khối, trường; khen thưởng; hoàn thành chương trình.
+- **EMIS Tiểu học:** khung biểu cấu hình được (danh mục chỉ tiêu, công thức đọc từ dữ liệu), lập, xuất tệp theo bố cục của Bộ, đánh dấu đã gửi (mẫu "gửi lên cấp trên" bản chạy nội bộ của 16a); nội dung biểu khớp Sở khi khảo sát. Danh mục biểu ở hệ thống 0027.
+- Gợi ý khảo sát: khi Eric có tài khoản Tiểu học, khảo sát như mục 31 (màn hình, cột, nút, biểu) rồi ghi đối chiếu vào tài liệu 31 và điều chỉnh 20a, 20f theo kết quả.
+
+### 11.5 Quyết định thiết kế
+
+Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+- **Tách 22c thành 22c1 và 22c2:** khung, nhập Excel, kiểm tra xung đột đủ dùng cho trường tự xếp bằng phần mềm khác; máy xếp là bài toán tối ưu, rủi ro cao, làm sau và có thể dừng ở chỉnh tay.
+- **Thời khoá biểu theo môn là bảng mới:** bảng `timetables` hiện có là lịch hoạt động Mầm non (tên hoạt động tự do); không chuyển đổi để không đổi hành vi Mầm non.
+- **Bán trú Tiểu học không dùng điểm danh theo ngày của Mầm non:** Tiểu học điểm danh theo tiết (20d); suất ăn chốt theo danh sách bán trú và báo cắt suất.
+- **Nề nếp, thi đua lớp tách khỏi thi đua cán bộ (22d)** và bật tắt theo trường vì không phải trường nào cũng dùng.
+- **Không làm ở DT-20:** sổ điểm theo Thông tư 22/2021, tổ hợp môn, xét tốt nghiệp, sơ đồ chỗ ngồi, sao đỏ cấp THCS, THPT (DT-21); ngân hàng câu hỏi, ra đề (22g); chữ ký số thật, đồng bộ CSDL ngành thật (bản chạy nội bộ như DT-16).
+
+### 11.6 Rủi ro và cách kiểm
+
+| Rủi ro | Cách kiểm |
+|---|---|
+| Hiểu sai Thông tư 27/2020 (mức đạt, môn có điểm, quy tắc tổng hợp, khen thưởng) | Đọc toàn văn trước khi viết phạm vi 20c, 20e; ghi điều khoản vào YCTD; kiểm thử đơn vị cho từng quy tắc tổng hợp với bảng ví dụ |
+| Màn hình, cột, biểu EMIS lệch Sở vì chưa khảo sát | Danh mục, mẫu biểu cấu hình được; số mục menu đánh tạm; khảo sát khi có tài khoản rồi chỉnh (11.4, 20f) |
+| Máy xếp thời khoá biểu chậm hoặc kết quả kém | Chạy nền có giới hạn thời gian; đo trên dữ liệu thử cỡ 30 lớp, 60 giáo viên; chưa đạt thì dừng ở chỉnh tay (22c2) |
+| Sổ đầu bài, điểm danh theo tiết lệch thời khoá biểu khi đổi bản ban hành | Sổ sinh từ bản đang áp dụng theo ngày; dạy thay, đổi tiết ghi riêng; kiểm thử đổi bản giữa tuần |
+| Học bạ bị sửa sau khi chốt | Học bạ đọc đánh giá đã khoá; mở khoá có lý do, nhật ký; kiểm thử quyền |
+| Thay đổi làm đổi hành vi Mầm non (menu, điểm danh, bán trú, giảng dạy) | Mục mới gắn cấp `TH`; giữ bảng cũ; e2e và kiểm thử đơn vị hiện có đạt không sửa kỳ vọng |
+| Hai phần cùng đợt cùng sửa tệp chung (cây menu, `LEVEL_FEATURES`, danh sách migration, quyền) | Số migration giữ sẵn riêng; sửa tệp chung theo kiểu thêm cuối; gộp origin/main trước khi mở PR |
+
+**Cổng kiểm của mỗi phần DT-20:** kiểm thử đơn vị toàn bộ kho mã đạt không sửa kỳ vọng; e2e toàn bộ hiện có đạt cộng e2e mới của phần (chạy riêng, giữ khoá `e2e.lock`, không chạy cùng kiểm thử đơn vị toàn kho); typecheck, lint, build đạt; CI 4/4 xanh; phiên bản phần mềm tăng theo từng phần, riêng bản kế hoạch này (YCTD-157) chỉ đổi tài liệu.
+
+### 11.7 Quy ước chung của DT-20
+
+- Mỗi phần ghi YCTD giữ sẵn ở mục 11.3, cập nhật tài liệu theo quy ước của kho (02, 07, 08, 10, 11, 14, 16, 17, 21, 23, 24, 32, `index.md` khi có thay đổi tương ứng), ghi văn bản căn cứ đã đọc, mở PR, gộp khi mọi kiểm tra CI đạt.
+- Mã mới theo mục 11.2 (đa thuê bao, đọc cấp qua `SchoolLevelResolver`, không đổi hành vi Mầm non).
+- Các điểm chi tiết không nêu ở đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 và ghi vào YCTD của từng phần.
+
+### 11.8 Tiến độ
+
+| Phần | Đợt | Tiến độ |
+|---|---|---|
+| 20a | 1 | Chưa làm, chờ 19f |
+| 20b | 1 | Chưa làm, chờ 19f |
+| 22c1 | 2 | Chưa làm, chờ 20a |
+| 20c | 2 | Chưa làm, chờ 20a |
+| 20d | 3 | Chưa làm, chờ 22c1 |
+| 20e | 3 | Chưa làm, chờ 20c |
+| 22c2 | 4 | Chưa làm, chờ 22c1 |
+| 20f | 4 | Chưa làm, chờ 20c, 20e |
