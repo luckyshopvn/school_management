@@ -1,3 +1,4 @@
+import { ElectiveSubjectsSection } from '../subjects/ElectiveSubjectsSection.js';
 import { useId, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
@@ -385,6 +386,10 @@ export function ChildDetailPanel({ childId, onChanged }: { childId: string; onCh
       ) : null}
 
       {data.status === 'active' ? <AuthorizedPickupsSection childId={data.id} childName={data.full_name} /> : null}
+      {/* Môn tự chọn của học sinh Tiểu học (DT-20 phần 20a); trẻ Mầm non không có mục này */}
+      {data.status === 'active' && data.current_class ? (
+        <ElectiveSubjectsSection childId={data.id} onChanged={onChanged} />
+      ) : null}
 
       {pendingCapacity ? (
         <ConfirmDialog

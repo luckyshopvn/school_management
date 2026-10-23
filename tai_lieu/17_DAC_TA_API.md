@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.102
+- Phiên bản: 1.103
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -844,6 +844,13 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | GET | /api/v1/grade-levels/next | Khối kế tiếp khi lên lớp (`code`); trả `kind` (grade hoặc completed), `code`, `school_level` (YCTD-152) |
 | GET, POST | /api/v1/curricula | Chương trình theo cấp; lọc `school_level` (YCTD-152) |
 | PATCH | /api/v1/curricula/{id} | Sửa tên, khối áp dụng, mặc định, ghi chú, trạng thái; không đổi mã, cấp (YCTD-152) |
+| GET, POST | /api/v1/subjects | Môn học theo cấp (lọc `school_level`; mọi người đã đăng nhập); thêm môn (cần `P01.catalog.manage`) (P02-34, YCTD-158) |
+| PATCH | /api/v1/subjects/{id} | Sửa tên, loại, cách đánh giá, thứ tự, trạng thái; mã, cấp không đổi (P02-34) |
+| POST | /api/v1/subjects/templates | Nạp bộ môn mẫu của cấp (P02-34) |
+| GET, PUT | /api/v1/curricula/{id}/subjects | Số tiết theo khối của chương trình; thay cả bảng (P02-34) |
+| GET | /api/v1/teaching-assignments | Môn của lớp theo chương trình và khối kèm giáo viên đang dạy (`class_id`) (P02-35) |
+| GET | /api/v1/teaching-assignments/teachers | Tổng tiết mỗi tuần của giáo viên theo cấp (P02-35) |
+| GET, PUT | /api/v1/children/{id}/elective-subjects | Môn tự chọn của học sinh và các môn chọn được (P02-36) |
 | GET | /api/v1/audit-logs | Tra nhật ký thao tác; `page_size` đến 200 (YCTD-109) |
 | GET, POST | /api/v1/api-clients | Danh sách và cấp khóa API cho đối tác |
 | POST | /api/v1/api-clients/{id}/revoke | Thu hồi khóa API |
@@ -1470,6 +1477,16 @@ Giao kèo ứng dụng phụ huynh, giáo viên và tin tức theo cấp (DT-19 
 3. `GET /news`, `GET /news/{id}`: phụ huynh (không có vai trò nhân sự) chỉ thấy tin có `audience_levels` trống hoặc có cấp của một con đang học; `child_id` thì theo cấp của con đó; tin ngoài cấp trả 403 ở `GET /news/{id}`. Nhân sự không lọc theo cấp.
 4. `POST /news-recipients/count` nhận `org_unit_id`, `scope_type`, `scope_id` (không gửi là đơn vị), `audience_levels`; trả `{ recipient_count }` là số tài khoản phụ huynh của trẻ đang học trong phạm vi (có cấp nhận thì chỉ trẻ học lớp thuộc các cấp đó; phạm vi lớp, trẻ không lọc cấp). Không có quyền soạn tin của đơn vị trả 403.
 5. Công bố tin toàn trường, đơn vị có cấp nhận gửi thông báo `news_published` tới từng tài khoản phụ huynh như mục 4; tin không có cấp nhận gửi theo vai trò VT-14 của đơn vị như trước.
+
+
+Giao kèo nền Tiểu học (DT-20 phần 20a, YCTD-158, BR-166):
+
+1. `POST /subjects` nhận `code`, `name`, `school_level`, `kind`, `assessment`, `order_no`; cấp chưa bật trả 422; mã trùng 409. `PATCH` gửi `code` hoặc `school_level` trả 400.
+2. `POST /subjects/templates` nhận `school_level`; trả `created_subjects` (mã môn mới), `curriculum_id` (chương trình mặc định của cấp, tạo nếu chưa có), `created_periods` (số dòng số tiết mới); cấp chưa bật 422, cấp chưa có bộ mẫu 422.
+3. `PUT /curricula/{id}/subjects` nhận `subjects` (`subject_id`, `grade_level_code`, `periods_per_week`, `is_elective`); số tiết sai, trùng môn và khối trả 400; môn, khối khác cấp hoặc ngoài khối áp dụng trả 422. `GET` trả các dòng kèm `subject_code`, `subject_name`, `kind`; `periods_per_week` là số.
+4. `POST /classes/{id}/staff-assignments` nhận thêm `subject_id`, `periods_per_week`; lớp Tiểu học vai trò bộ môn thiếu `subject_id` trả 400; môn khác cấp, ngừng dùng trả 400; môn đã có giáo viên trả 422. Phân công trả thêm `subject_id`, `periods_per_week`.
+5. `GET /teaching-assignments?class_id=` trả `class`, `curriculum`, `subjects` (dòng số tiết của khối lớp kèm `assignment`), `planned_periods`; `GET /teaching-assignments/teachers?school_level=` trả `staff_user_id`, `staff_name`, `total_periods`, `classes`.
+6. `GET /children/{id}/elective-subjects` trả `subjects` (đã chọn), `options` (môn tự chọn của khối); `PUT` nhận `subject_ids`; môn ngoài `options` trả 422.
 
 
 Giao kèo kế hoạch giáo dục (DT-18 phần 22i, YCTD-147, BR-142):

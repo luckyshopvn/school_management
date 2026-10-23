@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.71
+- Phiên bản: 1.72
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -922,6 +922,12 @@ Ca CT-105 đến CT-550 lần lượt kiểm tra AC-149 đến AC-594. CT-534 đ
 | CT-835 | P01-45 | So khớp hai lần kiểm: khớp; lệch số học sinh; thiếu năm học | Trống; "children: 5 thành 4"; "không còn trong lần kiểm sau" | Kiểm thử đơn vị CT-19f-3 đạt ngày 23/10/2026 | Đạt |
 | CT-836 | P01-46 | Tạo bản trình diễn trên cơ sở dữ liệu trống | Mọi bước đạt; MN, TH, THCS bật; lớp 1A cấp TH, 6A cấp THCS; phụ huynh 0900000001 có con MN, TH; lệnh kiểm không lỗi | Kiểm thử đơn vị CT-19f-4 đạt ngày 23/10/2026 | Đạt |
 | CT-837 | P01-46 | Giao diện: bật Tiểu học, nạp khối, thêm cấp cho Phân hiệu A, mở lớp khối 1, chọn cấp đang làm việc; phụ huynh đăng nhập | Lớp cấp TH; ô ngữ cảnh Cấp TH; phụ huynh thấy hai con; cuối kịch bản tắt Tiểu học | Kiểm thử giao diện `tests/e2e/86-multi-level.spec.ts` CT-19f-5 đạt ngày 23/10/2026 | Đạt |
+| CT-838 | P02-34 | Hàm kiểm tra môn, số tiết; tổng tiết bắt buộc của bộ mẫu theo khối | hợp lệ; 400 các ca sai; 25, 25, 28, 30, 30 | Kiểm thử tự động `apps/api/src/subjects/subjects.test.ts` CT-20a-1 đạt ngày 23/10/2026 | Đạt |
+| CT-839 | P02-34 | Nạp bộ mẫu khi Tiểu học chưa bật; bật, nạp khối mẫu; giáo viên nạp; Hiệu trưởng nạp; nạp lại | 422; 403; 13 môn, CT-TH-2018 mặc định, số tiết Tiếng Việt 12, 10, 7, 7, 7, Ngoại ngữ 1 tự chọn ở K1, K2; không tạo thêm | Kiểm thử tự động `apps/api/src/subjects/subjects.test.ts` CT-20a-2 đạt ngày 23/10/2026 | Đạt |
+| CT-840 | P02-34 | Sửa số tiết: khối Mầm non; giáo viên ghi; thay bảng với Tiếng Việt K1 11,5; đổi mã môn; trùng mã | 422; 403; 11,5; 400; 409 | Kiểm thử tự động `apps/api/src/subjects/subjects.test.ts` CT-20a-3 đạt ngày 23/10/2026 | Đạt |
+| CT-841 | P02-35 | Phân công lớp 1A: tên môn tự do; Tiếng Việt; giáo viên khác cùng môn; Toán 4 tiết cùng giáo viên; số tiết 0,2; môn Tiểu học cho lớp Mầm non; lớp Mầm non tên tự do; bảng môn của lớp; tổng tiết | 400; 201; 422; 201; 400; 400; 201; 11,5 và 4; 15,5 tiết, 1 lớp | Kiểm thử tự động `apps/api/src/subjects/subjects.test.ts` CT-20a-4 đạt ngày 23/10/2026 | Đạt |
+| CT-842 | P02-36 | Môn tự chọn: học sinh lớp 1A; chọn Tiếng Việt; chọn Ngoại ngữ 1; giáo viên sửa; trẻ Mầm non | Ngoại ngữ 1, Tiếng dân tộc thiểu số; 422; lưu; 403; không có môn | Kiểm thử tự động `apps/api/src/subjects/subjects.test.ts` CT-20a-5 đạt ngày 23/10/2026 | Đạt |
+| CT-843 | P02-34, P02-35 | Giao diện: bật Tiểu học; 7.1 nạp môn mẫu; số tiết Tiếng Việt khối 1; tổng khối 1; sửa Đạo đức khối 1 thành 2, ghi, tải lại; 7.2 chọn lớp 1C, phân công Tiếng Việt; tổng tiết giáo viên; tắt Tiểu học | có môn; 12; 25; 26, giữ 2; giáo viên · 12 tiết; 12 | Kiểm thử giao diện `tests/e2e/87-primary-subjects.spec.ts` CT-20a-6 đạt ngày 23/10/2026 | Đạt |
 | CT-844 | P02-38 | Tuần chứa ngày; tháng 2; khoảng học kỳ; xếp hạng ba lớp trong tháng; chức năng bán trú theo cấp | Thứ hai đến chủ nhật; 4 tuần; tuần có thứ hai trong kỳ; 1B, 1C cùng hạng 1 (100), 1A hạng 3 (99); chỉ Tiểu học | Kiểm thử đơn vị CT-20b-1 đạt ngày 23/10/2026 | Đạt |
 | CT-845 | P04-07 | Danh sách ăn lớp 1A; lớp Mầm non; giáo viên lớp khác; cắt suất; học sinh chưa đăng ký; bếp; báo cơm lớp Tiểu học | 2 suất; 422; 403; 1 suất; 422; nguồn bán trú chưa chốt; 422 | Kiểm thử đơn vị CT-20b-2 đạt ngày 23/10/2026 | Đạt |
 | CT-846 | P04-07 | Chốt ngày mai; chốt hôm nay; cắt suất sau chốt; mở lại không lý do, có lý do; ngày ăn thực tế | 422; 1 suất đã chốt; 422; 400, 200; An 1 ngày, Bình 0 ngày, ngày chưa chốt được liệt kê | Kiểm thử đơn vị CT-20b-3 đạt ngày 23/10/2026 | Đạt |

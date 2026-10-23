@@ -54,11 +54,12 @@ const group = (number: string, label: string, children: PortalMenuNode[]): Porta
   label,
   children,
 });
+// Mục chỉ của Tiểu học: nhóm 7 (DT-20 phần 20a) tạm đánh số tiếp sau nhóm cuối của Sở, đánh lại khi khảo sát hệ thống của
+// Sở cấp Tiểu học (tài liệu 32 mục 11.1); 4.8 Bán trú, 4.9 Nề nếp, thi đua lớp (phần 20b)
+const primary = (node: PortalMenuNode): PortalMenuNode => ({ ...node, levels: ['TH'] });
 // Mục chỉ của Mầm non (DT-19 phần 19c): hồ sơ cuối cấp mầm non, biểu EMIS Mầm non, cân đo theo tháng tuổi, hoàn thành
 // chương trình Mầm non. Cấp khác thêm mục của mình ở DT-20, DT-21 bằng cùng thuộc tính
 const preschool = (node: PortalMenuNode): PortalMenuNode => ({ ...node, levels: ['MN'] });
-// Mục chỉ của Tiểu học (DT-20 phần 20b): bán trú theo danh sách ăn, nề nếp và thi đua lớp
-const primary = (node: PortalMenuNode): PortalMenuNode => ({ ...node, levels: ['TH'] });
 
 export const PORTAL_WORKSPACES: PortalWorkspace[] = [
   {
@@ -151,6 +152,12 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('6.1.', 'Thực trạng và nhu cầu đầu tư phòng học, nhà công vụ', '/facility-investments'),
         leaf('6.2.', 'Nhập liệu cơ sở vật chất', '/facility-input'),
       ]),
+      primary(
+        group('7.', 'Dạy học Tiểu học', [
+          leaf('7.1.', 'Môn học và hoạt động giáo dục', '/subjects'),
+          leaf('7.2.', 'Phân công giảng dạy theo môn', '/teaching-assignments'),
+        ]),
+      ),
     ],
   },
   {

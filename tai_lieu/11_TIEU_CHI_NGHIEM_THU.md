@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.55
+- Phiên bản: 1.56
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -824,6 +824,9 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-749 | Cho cơ sở dữ liệu có đơn vị thiếu cấp, lớp lệch khối, thiếu chương trình mặc định / Khi chạy tệp vá hai lần / Thì lỗi đó hết, kết quả hai lần như nhau, số đếm không đổi; cấp website được bật, không tắt cấp (CT-833, CT-834; YCTD-156) |
 | AC-750 | Cho người vận hành / Khi chạy lệnh kiểm trước, sau chuyển / Thì có số đếm từng năm học, lỗi toàn vẹn, khác biệt số đếm, không có dữ liệu cá nhân (CT-835; YCTD-156) |
 | AC-751 | Cho người thử bản trình diễn, trường liên cấp / Khi tạo bản trình diễn; bật Tiểu học, mở lớp khối 1 / Thì có Tiểu học, THCS, lớp 1A, 6A, phụ huynh có con ở hai cấp, lệnh kiểm không lỗi; phụ huynh thấy hai con, trường trở lại Mầm non ở cuối (CT-836, CT-837; YCTD-156) |
+| AC-752 | Cho trường chỉ có Mầm non / Khi nâng cấp lên phiên bản có nền Tiểu học / Thì menu, phân công lớp, hồ sơ trẻ như trước; không có nhóm "Dạy học Tiểu học" (CT-838, CT-841; YCTD-158) |
+| AC-753 | Cho trường bật Tiểu học có khối 1 đến 5 / Khi Hiệu trưởng nạp môn mẫu rồi sửa số tiết / Thì có đủ môn, chương trình mặc định, số tiết theo khối (lớp 1 tổng 25 tiết bắt buộc), nạp lại không trùng; môn, khối khác cấp bị từ chối (CT-838, CT-839, CT-840, CT-843; YCTD-158) |
+| AC-754 | Cho lớp Tiểu học / Khi phân công giáo viên bộ môn và đăng ký môn tự chọn / Thì phải chọn môn của danh mục, một môn một giáo viên, một giáo viên nhiều môn, tổng tiết của giáo viên đúng; học sinh chỉ chọn môn tự chọn của khối (CT-841, CT-842, CT-843; YCTD-158) |
 | AC-755 | Cho lớp Tiểu học có hai học sinh đăng ký bán trú / Khi giáo viên chủ nhiệm cắt suất một học sinh, chốt số suất / Thì danh sách ăn 1 suất, bếp nhận 1 suất nguồn bán trú đã chốt, không cắt suất được sau khi chốt; lớp Mầm non bị từ chối (CT-845, CT-846; YCTD-159) |
 | AC-756 | Cho phụ huynh có con Tiểu học đăng ký bán trú / Khi báo cắt suất ngày học kế tiếp, ngày đã qua, con người khác / Thì nhận, từ chối 422, từ chối 403 (CT-847; YCTD-159) |
 | AC-757 | Cho trường chưa bật nề nếp / Khi giáo viên ghi điểm; Ban Giám hiệu bật và nạp tiêu chí mặc định / Thì từ chối 422; ghi điểm được, tiêu chí khác cấp bị từ chối (CT-848, CT-849; YCTD-159) |

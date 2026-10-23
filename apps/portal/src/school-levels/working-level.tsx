@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ALL_SCHOOL_LEVELS,
-  PORTAL_WORKSPACES,
   portalWorkspacesForLevels,
   schoolLevelContextLabel,
   schoolLevelTerms,
@@ -116,11 +115,13 @@ export function SchoolLevelSwitcher() {
 }
 
 // Phân hệ và mục menu thuộc cấp trường đang bật, cho cây quyền ở 1.3 Phân quyền nhóm theo menu (DT-19 phần 19c): mục của
-// cấp chưa bật ẩn khỏi cây; trường chỉ có Mầm non giữ đủ cây như trước. Chưa tải xong thì dùng cây đầy đủ
+// cấp chưa bật ẩn khỏi cây; trường chỉ có Mầm non giữ đủ cây như trước. Chưa tải xong thì dùng cây của trường mầm non
 export function useEnabledLevelWorkspaces(): PortalWorkspace[] {
   const levels = useQuery({ queryKey: ['school-levels'], queryFn: listSchoolLevels });
   return useMemo(() => {
     const enabled = levels.data?.levels.filter((level) => level.is_enabled);
-    return enabled && enabled.length > 0 ? portalWorkspacesForLevels(enabled) : PORTAL_WORKSPACES;
+    return portalWorkspacesForLevels(
+      enabled && enabled.length > 0 ? enabled : [{ code: 'MN', display_name: 'Mầm non' }],
+    );
   }, [levels.data]);
 }

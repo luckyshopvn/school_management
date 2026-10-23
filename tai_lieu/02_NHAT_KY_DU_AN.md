@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.35
+- Phiên bản: 0.36
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đang cập nhật
 
@@ -22,7 +22,7 @@
 - Cơ sở dữ liệu: tệp năm học `0077_create_boarding_and_conduct`, tệp định danh `0068_add_boarding_conduct_permissions`.
 - Máy chủ API: bán trú lớp ngoài Mầm non (danh sách ăn, cắt suất, chốt, mở lại, phụ huynh cắt suất), bếp và tiền ăn đọc danh sách bán trú; nề nếp (cấu hình, tiêu chí, ghi điểm, xếp hạng), chuyển cấu hình sang năm học mới.
 - Cổng quản trị: 4.8 Bán trú, 4.9 Nề nếp, thi đua lớp (chỉ Tiểu học), thẻ nề nếp ở 1.4 Cấu hình trường; ứng dụng giáo viên, phụ huynh theo cấp.
-- Thêm quy tắc BR-167 đến BR-169, chức năng P04-07, P02-37, P02-38, kịch bản CT-844 đến CT-850, tiêu chí AC-755 đến AC-758. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/boarding/boarding.test.ts` CT-20b-1 đến CT-20b-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm hai mục menu vào bảng đối chiếu điều kiện cũ của CT-15e-2; CT-19c-1, CT-19c-2 so cây menu Mầm non với cây gốc bỏ hai mục chỉ của Tiểu học, cây menu Mầm non giữ nguyên); kiểm thử đơn vị toàn bộ kho mã đạt 1048/1048; kiểm thử giao diện `tests/e2e/88-boarding-conduct.spec.ts` (CT-20b-7) đạt; toàn bộ kiểm thử giao diện đạt 159/159; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm quy tắc BR-167 đến BR-169, chức năng P04-07, P02-37, P02-38, kịch bản CT-844 đến CT-850, tiêu chí AC-755 đến AC-758. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/boarding/boarding.test.ts` CT-20b-1 đến CT-20b-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm hai mục menu vào bảng đối chiếu điều kiện cũ của CT-15e-2; CT-19c-1, CT-19c-2 so cây menu Mầm non với cây gốc bỏ hai mục chỉ của Tiểu học, cây menu Mầm non giữ nguyên); kiểm thử đơn vị toàn bộ kho mã …; kiểm thử giao diện `tests/e2e/88-boarding-conduct.spec.ts` (CT-20b-7) đạt; toàn bộ kiểm thử giao diện …; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
@@ -35,6 +35,28 @@
 #### Vấn đề tồn đọng
 
 - Không.
+
+### 2026-10-23 — DT-20 phần 20a: nền Tiểu học
+
+#### Công việc đã thực hiện
+
+- Đọc mục 11 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà `curricula`, khối mẫu (YCTD-152), phân công phụ trách lớp, chuyển năm học, chi tiết hồ sơ học sinh; tra bảng thời lượng cấp Tiểu học của Chương trình giáo dục phổ thông 2018.
+- Cơ sở dữ liệu: tệp năm học `0076_create_subjects`. Máy chủ API: môn học, nạp bộ mẫu, số tiết theo khối, phân công theo môn, tổng tiết của giáo viên, môn tự chọn; chép sang năm học mới.
+- Cổng quản trị: 7.1 Môn học và hoạt động giáo dục, 7.2 Phân công giảng dạy theo môn, khối "Môn tự chọn" ở hồ sơ học sinh; nhóm menu Tiểu học.
+- Thêm quy tắc BR-166, chức năng P02-34 đến P02-36, quyền PQ-93, màn hình MH-261, MH-262, kịch bản CT-838 đến CT-843, tiêu chí AC-752 đến AC-754. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/subjects/subjects.test.ts` CT-20a-1 đến CT-20a-5 đạt 5/5; kiểm thử đơn vị toàn bộ kho mã đạt 1047/1047 (không sửa kỳ vọng của kiểm thử đang có, trừ CT-19c-1 như trên); kiểm thử giao diện `tests/e2e/87-primary-subjects.spec.ts` (CT-20a-6) đạt; toàn bộ kiểm thử giao diện 159 kịch bản: hai lượt chạy riêng cuối cùng mỗi lượt đạt 158/159, mỗi lượt hỏng một kịch bản khác nhau do môi trường máy (58 khi máy chủ giao diện từ chối kết nối, 23 khi quá thời gian 30 giây), mọi kịch bản đều đạt ở ít nhất một lượt; CI là kết quả chính; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 20a của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.4. Danh mục môn trống, nạp bộ mẫu bằng nút; mã môn có tiền tố cấp; một môn của lớp một giáo viên, một giáo viên nhiều môn; lớp Mầm non giữ tên môn tự do; không thêm quyền (dùng quyền quản lý danh mục, quản lý lớp, quản lý hồ sơ học sinh), để trống migration định danh 0067. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-158, `07_QUY_TAC_NGHIEP_VU.md` BR-166, `08_VAI_TRO_NGUOI_DUNG.md` PQ-93, `10_YEU_CAU_CHUC_NANG.md` P02-34 đến P02-36, `11_TIEU_CHI_NGHIEM_THU.md` AC-752 đến AC-754, `14_DAC_TA_GIAO_DIEN.md` MH-261, MH-262, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-838 đến CT-843, `23_LICH_SU_PHIEN_BAN.md` 0.107.0.
+
+#### Vấn đề tồn đọng
+
+- 22c1 dùng phân công theo môn làm nguồn thời khoá biểu và kiểm định mức tiết; 20c dùng cách đánh giá của môn; khảo sát Sở cấp Tiểu học để đánh lại số menu, thêm trường hồ sơ.
+
 
 ### 2026-10-23 — DT-19 phần 19f: chuyển và kiểm dữ liệu Mầm non, dữ liệu mẫu đa cấp
 

@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.88
+- Phiên bản: 1.89
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -620,6 +620,8 @@ Từ YCTD-149 (DT-18 phần 22f), phân hệ "Bảo đảm chất lượng" (kh�
 | MH-258 | Cấp học của trường (YCTD-151; thẻ ở "1.4. Cấu hình trường", `/settings`): bảng bốn cấp có ô Bật, Mã, Thứ tự, Tên hiển thị, Gọi người học, Nhãn ô ngữ cảnh, Số lớp năm học này; nút "Ghi cấp học", báo "Đã ghi cấp học của trường"; cảnh báo "Cấp … đang có … lớp" khi bỏ tích cấp có lớp; người không có quyền thấy ô bị khóa, không có nút. Chi tiết tài khoản (1.1) có khối "Phạm vi cấp học" (ô chọn các cấp đang bật, nút "Ghi phạm vi cấp học") khi trường bật từ hai cấp | Mọi người đã đăng nhập xem; sửa: Hiệu trưởng (`P01.school-level.manage`); phạm vi cấp: người quản lý tài khoản |
 | MH-259 | Bộ chọn cấp đang làm việc (YCTD-153; thanh đầu trang, ngay trước ô ngữ cảnh năm học): nhãn "Cấp học", ô chọn "Tất cả" và các cấp người dùng được xem (tên hiển thị của cấp); chỉ hiện ở trường từ hai cấp, ẩn ở màn hình hẹp; đổi cấp thì menu, tên phân hệ, ô ngữ cảnh, nhãn thuật ngữ đổi ngay; lưu không được thì báo "Chưa lưu được cấp học" | Mọi người đã đăng nhập |
 | MH-260 | Ứng dụng phụ huynh, giáo viên theo cấp và tin tức có cấp nhận (YCTD-155): thẻ con ghi "<tên cấp> · <lớp>" khi các con học nhiều cấp, con cấp khác không có nút Báo vắng, Điểm danh tháng này, Nhật ký, Hồ sơ cuối cấp; Lớp của tôi ghi tên cấp cạnh tên lớp khi giáo viên dạy nhiều cấp, lớp cấp khác không có Nhật ký, Chăm sóc và y tế, Báo cơm, sĩ số "… học sinh"; "Thêm tin tức" có ô "Cấp nhận tin (không chọn là mọi cấp)" ở trường từ hai cấp và dòng "Khi công bố, tin gửi tới … tài khoản phụ huynh" | Phụ huynh; giáo viên; người soạn tin tức |
+| MH-261 | 7.1. Môn học và hoạt động giáo dục (YCTD-158, `/subjects`): chọn cấp (khi trường bật nhiều cấp ngoài Mầm non); bảng "Môn học" (mã, tên, loại, cách đánh giá, trạng thái, nút Ngừng dùng/Dùng lại), nút "Nạp môn mẫu", biểu mẫu "Thêm môn"; bảng số tiết theo khối của chương trình chọn được (ô số tiết, ô "TC" tự chọn, dòng "Tổng tiết bắt buộc"), nút "Ghi số tiết" | Mọi người xem; `P01.catalog.manage` sửa |
+| MH-262 | 7.2. Phân công giảng dạy theo môn (YCTD-158, `/teaching-assignments`): chọn đơn vị, lớp Tiểu học; bảng môn của lớp (tiết theo chương trình, giáo viên dạy hoặc ô chọn giáo viên bộ môn, ô số tiết phân, nút "Phân công", "Kết thúc"); bảng "Tổng tiết mỗi tuần của giáo viên". Hồ sơ học sinh có khối "Môn tự chọn" (ô chọn các môn tự chọn của khối, nút "Ghi môn tự chọn") khi khối có môn tự chọn | Xem theo phạm vi lớp; `P02.class.manage` phân công; `P02.child.manage` sửa môn tự chọn |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 
@@ -634,6 +636,8 @@ Từ YCTD-153 (DT-19 phần 19c), menu ngang và ô Phân hệ theo cấp đang 
 Từ YCTD-155 (DT-19 phần 19e), ứng dụng phụ huynh và ứng dụng giáo viên hiện chức năng theo cấp của con, của lớp (MH-260); trường chỉ có Mầm non thấy y như trước. Biểu mẫu "Thêm tin tức" ở "Hoạt động và tin tức" có ô cấp nhận (trường từ hai cấp) và số tài khoản phụ huynh nhận tin.
 
 Từ YCTD-159 (DT-20 phần 20b), mục 4.8 "Bán trú" (chọn đơn vị, lớp Tiểu học, ngày; bảng học sinh đăng ký với nút "Cắt suất", "Bỏ cắt suất", ô lý do; "Chốt số suất", ngày đã chốt có "Mở lại ngày đã chốt" kèm lý do) và 4.9 "Nề nếp, thi đua lớp" (thẻ Ghi điểm: lớp, ngày, tiêu chí, số lần, người báo, ghi chú, bảng điểm trong tuần; thẻ Xếp hạng: kỳ tuần, tháng, học kỳ I, II, bảng hạng; thẻ Tiêu chí: thêm, nạp bộ mặc định, ngừng dùng) chỉ hiện khi trường bật Tiểu học. 1.4 Cấu hình trường có thẻ "Nề nếp, thi đua lớp" (bật, điểm nền mỗi tuần). Ứng dụng giáo viên có nút "Bán trú" ở lớp Tiểu học (danh sách ăn, cắt suất, chốt số suất); ứng dụng phụ huynh có "Cắt suất bán trú" ở con Tiểu học (ngày, lý do, danh sách ngày đã cắt, hủy). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+Từ YCTD-158 (DT-20 phần 20a), phân hệ Quản lý giáo dục có nhóm "7. Dạy học Tiểu học" (MH-261, MH-262) chỉ khi làm việc ở cấp Tiểu học hoặc "Tất cả" ở trường có Tiểu học; trường chỉ có Mầm non không thấy nhóm này.
 
 Từ YCTD-156 (DT-19 phần 19f), không đổi màn hình; bản trình diễn có trường liên cấp (Điểm trường Hoa Mai có Mầm non, Tiểu học, THCS) nên cổng quản trị của bản trình diễn có bộ chọn cấp đang làm việc, ô "Cấp học" ở thống kê, báo cáo, biểu phí và bảng "Cấp học của đơn vị". Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
 

@@ -51,6 +51,9 @@ export interface StaffAssignment {
   from_date: string;
   to_date: string | null;
   status: 'active' | 'ended';
+  // Môn của danh mục và số tiết được phân (DT-20 phần 20a); phân công cũ ghi tên môn tự do thì trống
+  subject_id: string | null;
+  periods_per_week: string | null;
 }
 
 export interface ClassInput {
@@ -84,6 +87,8 @@ export interface AssignmentInput {
   assignment_role: AssignmentRole;
   subject_name: string | null;
   from_date: string | null;
+  subject_id?: string | null;
+  periods_per_week?: number | null;
 }
 
 const CLASS_COLUMNS = [
@@ -116,6 +121,8 @@ const ASSIGNMENT_COLUMNS = [
   'from_date',
   'to_date',
   'status',
+  'subject_id',
+  'periods_per_week',
 ] as const;
 const PERMISSION = PERMISSION_CODES.classManage;
 // Giáo viên chủ nhiệm là VT-07, giáo viên bộ môn là VT-08 (YCTD-44)
@@ -705,6 +712,7 @@ export class ClassesService {
     if (existing.status !== 'active') {
       throw ruleViolationError('BR-02', 'Lớp đã đóng, không phân công thêm giáo viên');
     }
+    const subject = await this.assignmentSubject(database, existing, input);
     const roleCode = ROLE_OF_ASSIGNMENT[input.assignment_role];
     const staff = (await this.identityClient.listStaff(accessToken, roleCode, existing.org_unit_id)).find(
       (entry) => entry.user_id === input.staff_user_id,
@@ -729,7 +737,9 @@ export class ClassesService {
             staff_user_id: staff.user_id,
             staff_name: staff.full_name,
             assignment_role: input.assignment_role,
-            subject_name: input.assignment_role === 'subject' ? input.subject_name : null,
+            subject_name: input.assignment_role === 'subject' ? (subject?.name ?? input.subject_name) : null,
+            subject_id: subject?.id ?? null,
+            periods_per_week: subject ? (input.periods_per_week ?? null) : null,
             from_date: input.from_date ?? VIETNAM_DATE.format(this.clock.now()),
             created_by: origin.actorUserId,
           })
@@ -749,6 +759,48 @@ export class ClassesService {
       'Người này đang được phân công vào lớp với cùng vai trò',
       'staff_user_id',
     );
+  }
+
+  // Phân công bộ môn theo môn của danh mục (DT-20 phần 20a, YCTD-158): lớp Tiểu học bắt buộc chọn môn của danh mục, cùng cấp
+  // với lớp, đang dùng; một môn của lớp chỉ một giáo viên đang dạy. Lớp Mầm non giữ cách cũ (tên môn tự do), chọn môn của
+  // danh mục thì cũng phải cùng cấp
+  private async assignmentSubject(
+    database: Kysely<SchoolYearDatabase>,
+    classRecord: ClassRecord,
+    input: AssignmentInput,
+  ): Promise<{ id: string; name: string } | null> {
+    if (!input.subject_id) {
+      if (input.assignment_role === 'subject' && classRecord.school_level === 'TH') {
+        throw validationError([{ field: 'subject_id', message: 'Lớp Tiểu học chọn môn trong danh mục môn học' }]);
+      }
+      return null;
+    }
+    if (input.assignment_role !== 'subject') {
+      throw validationError([{ field: 'subject_id', message: 'Chỉ giáo viên bộ môn được phân công theo môn' }]);
+    }
+    const subject = await database
+      .selectFrom('subjects')
+      .select(['id', 'name', 'school_level', 'status'])
+      .where('id', '=', input.subject_id)
+      .executeTakeFirst();
+    if (!subject || subject.status !== 'active' || subject.school_level !== classRecord.school_level) {
+      throw validationError([
+        { field: 'subject_id', message: 'Môn không có, đã ngừng dùng hoặc không cùng cấp với lớp' },
+      ]);
+    }
+    const taken = await database
+      .selectFrom('class_staff_assignments')
+      .select('staff_name')
+      .where('class_id', '=', classRecord.id)
+      .where('subject_id', '=', subject.id)
+      .where('status', '=', 'active')
+      .executeTakeFirst();
+    if (taken) {
+      throw ruleViolationError('YCTD-158', `Môn ${subject.name} của lớp đang do ${taken.staff_name} dạy`, [
+        { field: 'subject_id', message: 'Kết thúc phân công cũ trước khi phân công giáo viên khác' },
+      ]);
+    }
+    return subject;
   }
 
   async endAssignment(
