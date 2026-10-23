@@ -7,13 +7,21 @@ import {
   validationError,
   type FieldError,
 } from '@school-management/server';
-import { PERMISSION_CODES } from '@school-management/shared';
+import {
+  isSchoolLevelCode,
+  levelOf,
+  matchesAudienceLevels,
+  PERMISSION_CODES,
+  SCHOOL_LEVEL_CODES,
+  type SchoolLevelCode,
+} from '@school-management/shared';
 import type { Request } from 'express';
 import type { Kysely, Transaction } from 'kysely';
 import { AuthenticatedUser } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf, writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
+import { SchoolLevelResolver } from '../common/school-levels.js';
 import { queueNotification, type NotificationRecipient } from '../common/notification-queue.js';
 import {
   isUuid,
@@ -33,6 +41,7 @@ import {
   covers,
   inAudience,
   MAXIMUM_CONTENT,
+  newsLevelCondition,
   NO_ID,
   readReason,
   readScope,
@@ -67,6 +76,8 @@ interface PublishableRow {
   scope_id: string | null;
   status: ContentStatus;
   created_by: string;
+  // Chỉ tin tức có cấp nhận (DT-19 phần 19e)
+  audience_levels?: string[];
 }
 
 type ContentInput = Record<string, string | null | undefined> & {
@@ -80,7 +91,27 @@ export class ContentService {
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly access: ActivityAccess,
     private readonly clock: Clock,
+    private readonly schoolLevels: SchoolLevelResolver,
   ) {}
+
+  // Cấp nhận tin (DT-19 phần 19e) chỉ dùng cho phạm vi toàn trường, đơn vị; phạm vi lớp, trẻ đã thuộc một cấp nên lưu trống.
+  // Cấp phải đang bật ở trường
+  private async normalizeAudienceLevels(
+    scopeType: ContentScopeType,
+    levels: SchoolLevelCode[] | undefined,
+  ): Promise<SchoolLevelCode[] | undefined> {
+    if (levels === undefined) {
+      return scopeType === 'school' || scopeType === 'unit' ? undefined : [];
+    }
+    if (scopeType !== 'school' && scopeType !== 'unit') {
+      return [];
+    }
+    const enabled = await this.schoolLevels.enabled();
+    if (levels.some((level) => !enabled.includes(level))) {
+      throw validationError([{ field: 'audience_levels', message: 'Cấp học chưa bật ở trường' }]);
+    }
+    return levels;
+  }
 
   async create(
     currentUser: CurrentUser,
@@ -88,6 +119,7 @@ export class ContentService {
     orgUnitId: string,
     input: ContentInput,
     origin: ChangeOrigin,
+    audienceLevels?: SchoolLevelCode[],
   ) {
     const { database } = await this.currentSchoolYear.require();
     await this.access.assertStaff(
@@ -105,11 +137,14 @@ export class ContentService {
       input.scope_id ?? orgUnitId,
     );
     await this.assertReferences(database, orgUnitId, input);
+    const levels =
+      table === 'news' ? await this.normalizeAudienceLevels(input.scope_type ?? 'unit', audienceLevels) : undefined;
     return database.transaction().execute(async (transaction) => {
       const created = await transaction
         .insertInto(table as 'news')
         .values({
           ...(input as Record<string, unknown>),
+          ...(levels !== undefined ? { audience_levels: levels } : {}),
           org_unit_id: orgUnitId,
           scope_type: input.scope_type ?? 'unit',
           scope_id: input.scope_type === undefined ? orgUnitId : (input.scope_id ?? null),
@@ -137,9 +172,14 @@ export class ContentService {
     id: string,
     input: ContentInput,
     origin: ChangeOrigin,
+    audienceLevels?: SchoolLevelCode[],
   ) {
     const { database } = await this.currentSchoolYear.require();
     const existing = await this.findManaged(database, currentUser, table, id);
+    const levels =
+      table === 'news' && (audienceLevels !== undefined || input.scope_type !== undefined)
+        ? await this.normalizeAudienceLevels(input.scope_type ?? existing.scope_type, audienceLevels)
+        : undefined;
     if (input.scope_type !== undefined) {
       await this.assertScope(
         database,
@@ -154,7 +194,11 @@ export class ContentService {
     return database.transaction().execute(async (transaction) => {
       const updated = await transaction
         .updateTable(table as 'news')
-        .set({ ...(input as Record<string, unknown>), updated_at: this.clock.now() })
+        .set({
+          ...(input as Record<string, unknown>),
+          ...(levels !== undefined ? { audience_levels: levels } : {}),
+          updated_at: this.clock.now(),
+        })
         .where('id', '=', id)
         .returningAll()
         .executeTakeFirstOrThrow();
@@ -220,7 +264,11 @@ export class ContentService {
             : managed.wholeSchool
               ? [expression.lit(true)]
               : [expression('org_unit_id', 'in', managed.orgUnitIds.length ? managed.orgUnitIds : [NO_ID])]),
-          expression.and([expression('status', '=', 'published'), audienceCondition(audience)(expression)]),
+          expression.and([
+            expression('status', '=', 'published'),
+            audienceCondition(audience)(expression),
+            ...(table === 'news' ? [newsLevelCondition(audience.levels)(expression)] : []),
+          ]),
         ]),
       );
     if (filter.orgUnitId) {
@@ -251,19 +299,49 @@ export class ContentService {
     if (await this.access.canStaff(currentUser, PERMISSIONS[table], row.org_unit_id)) {
       return 'manage' as const;
     }
+    const audience = row.status === 'published' ? await this.access.audience(database, currentUser) : undefined;
     if (
-      row.status === 'published' &&
-      inAudience(await this.access.audience(database, currentUser), row.scope_type, row.scope_id)
+      audience &&
+      inAudience(audience, row.scope_type, row.scope_id) &&
+      matchesAudienceLevels(row.audience_levels, audience.levels ?? null)
     ) {
       return 'audience' as const;
     }
     throw new ApplicationError('ERR_FORBIDDEN', `Bạn không có quyền xem ${LABELS[table]} này`);
   }
 
+  // Số phụ huynh (tài khoản) sẽ nhận tin trước khi công bố (DT-19 phần 19e): phụ huynh có tài khoản của trẻ đang học trong
+  // phạm vi, có cấp nhận thì chỉ trẻ học lớp thuộc các cấp đó. Cùng quyền với soạn tin của đơn vị
+  async newsRecipientCount(
+    currentUser: CurrentUser,
+    orgUnitId: string,
+    scope: { scope_type: ContentScopeType; scope_id: string | null },
+    audienceLevels: SchoolLevelCode[] | undefined,
+  ): Promise<{ recipient_count: number }> {
+    const { database } = await this.currentSchoolYear.require();
+    await this.access.assertStaff(
+      currentUser,
+      PERMISSIONS.news,
+      orgUnitId,
+      'Bạn không có quyền quản lý tin tức của đơn vị này',
+    );
+    await this.assertScope(database, currentUser, 'news', orgUnitId, scope.scope_type, scope.scope_id);
+    const levels = (await this.normalizeAudienceLevels(scope.scope_type, audienceLevels)) ?? [];
+    if (scope.scope_type === 'school' || scope.scope_type === 'unit') {
+      const userIds = await guardiansInScope(database, scope.scope_type === 'unit' ? scope.scope_id : null, levels);
+      return { recipient_count: userIds.length };
+    }
+    const recipients = await database
+      .transaction()
+      .execute((transaction) => audienceRecipients(transaction, scope.scope_type, scope.scope_id));
+    return { recipient_count: recipients.length };
+  }
+
   async findRow(database: Executor, table: PublishableTable, id: string): Promise<PublishableRow> {
     const row = await database
       .selectFrom(table as 'news')
       .select(['id', 'org_unit_id', 'title', 'scope_type', 'scope_id', 'status', 'created_by'])
+      .$if(table === 'news', (query) => query.select('audience_levels'))
       .where('id', '=', id)
       .executeTakeFirst();
     if (!row) {
@@ -291,6 +369,7 @@ export class ContentService {
       unitIds: [child.org_unit_id],
       classIds: child.class_id ? [child.class_id] : [],
       childIds: [childId],
+      levels: audience.levels ? [levelOf(child.school_level)] : null,
     };
   }
 
@@ -472,7 +551,12 @@ export class ContentService {
           body: existing.title,
           targetType: 'news',
           targetId: existing.id,
-          recipients: await audienceRecipients(transaction, existing.scope_type, existing.scope_id),
+          recipients: await audienceRecipients(
+            transaction,
+            existing.scope_type,
+            existing.scope_id,
+            existing.audience_levels ?? [],
+          ),
         });
       }
       await writeAuditLog(transaction, {
@@ -489,12 +573,22 @@ export class ContentService {
   }
 }
 
-// Phụ huynh nhận thông báo theo phạm vi công bố: theo vai trò phụ huynh ở đơn vị, hoặc phụ huynh của lớp, của trẻ
+// Phụ huynh nhận thông báo theo phạm vi công bố: theo vai trò phụ huynh ở đơn vị, hoặc phụ huynh của lớp, của trẻ. Tin toàn
+// trường, đơn vị có cấp nhận (DT-19 phần 19e) chỉ gửi phụ huynh có con đang học lớp thuộc các cấp đó
 async function audienceRecipients(
   transaction: Transaction<SchoolYearDatabase>,
   scopeType: ContentScopeType,
   scopeId: string | null,
+  audienceLevels: readonly string[] = [],
 ): Promise<NotificationRecipient[]> {
+  if ((scopeType === 'school' || scopeType === 'unit') && audienceLevels.length > 0) {
+    const userIds = await guardiansInScope(
+      transaction,
+      scopeType === 'unit' ? (scopeId ?? NO_ID) : null,
+      audienceLevels,
+    );
+    return userIds.map((userId) => ({ userId, channel: 'in_app' as const }));
+  }
   if (scopeType === 'school' || scopeType === 'unit') {
     const units =
       scopeType === 'unit'
@@ -520,6 +614,52 @@ async function audienceRecipients(
     (await guardianUserIds(transaction, childId)).forEach((id) => userIds.add(id));
   }
   return [...userIds].map((userId) => ({ userId, channel: 'in_app' as const }));
+}
+
+// Tài khoản phụ huynh của trẻ đang học trong đơn vị (trống là toàn trường), có cấp thì chỉ trẻ đang học lớp thuộc các cấp đó
+async function guardiansInScope(
+  executor: Executor,
+  orgUnitId: string | null,
+  levels: readonly string[],
+): Promise<string[]> {
+  let query = executor
+    .selectFrom('child_guardians')
+    .innerJoin('guardians', 'guardians.id', 'child_guardians.guardian_id')
+    .innerJoin('children', 'children.id', 'child_guardians.child_id')
+    .select('guardians.user_id')
+    .distinct()
+    .where('guardians.user_id', 'is not', null)
+    .where('children.status', '=', 'active');
+  if (orgUnitId) {
+    query = query.where('children.org_unit_id', '=', orgUnitId);
+  }
+  if (levels.length > 0) {
+    query = query.where((expression) =>
+      expression.exists(
+        expression
+          .selectFrom('class_enrollments')
+          .innerJoin('classes', 'classes.id', 'class_enrollments.class_id')
+          .select('class_enrollments.id')
+          .whereRef('class_enrollments.child_id', '=', 'children.id')
+          .where('class_enrollments.is_current', '=', true)
+          .where('classes.school_level', 'in', levels as SchoolLevelCode[]),
+      ),
+    );
+  }
+  return (await query.execute()).map((row) => row.user_id).filter((id): id is string => id !== null);
+}
+
+// Cấp nhận tin gửi lên: mảng mã cấp, không trùng, xếp theo thứ tự cấp; không gửi là không đổi
+export function readAudienceLevels(body: RequestBody, errors: FieldError[]): SchoolLevelCode[] | undefined {
+  const value: unknown = body?.audience_levels;
+  if (value === undefined) {
+    return undefined;
+  }
+  if (!Array.isArray(value) || value.some((level) => !isSchoolLevelCode(level))) {
+    errors.push({ field: 'audience_levels', message: 'Cấp nhận là danh sách mã MN, TH, THCS, THPT' });
+    return undefined;
+  }
+  return SCHOOL_LEVEL_CODES.filter((level) => value.includes(level));
 }
 
 function capitalize(text: string) {
@@ -617,8 +757,9 @@ function publishableController(path: string, table: PublishableTable) {
       const errors: FieldError[] = [];
       const orgUnitId = readRequiredUuid(body, 'org_unit_id', errors, 'Bắt buộc chọn đơn vị');
       const input = readContentInput(table, body, errors, true);
+      const audienceLevels = table === 'news' ? readAudienceLevels(body, errors) : undefined;
       check(errors);
-      return this.content.create(currentUser, table, orgUnitId, input, originOf(request, currentUser));
+      return this.content.create(currentUser, table, orgUnitId, input, originOf(request, currentUser), audienceLevels);
     }
 
     @Patch(':id')
@@ -630,8 +771,9 @@ function publishableController(path: string, table: PublishableTable) {
     ) {
       const errors: FieldError[] = [];
       const input = readContentInput(table, body, errors, false);
+      const audienceLevels = table === 'news' ? readAudienceLevels(body, errors) : undefined;
       check(errors);
-      return this.content.update(currentUser, table, id, input, originOf(request, currentUser));
+      return this.content.update(currentUser, table, id, input, originOf(request, currentUser), audienceLevels);
     }
 
     @Post(':id/publish')
@@ -659,6 +801,28 @@ function publishableController(path: string, table: PublishableTable) {
 }
 
 export const NewsController = publishableController('news', 'news');
+
+// Đếm người nhận tin trước khi công bố (DT-19 phần 19e): { org_unit_id, scope_type, scope_id, audience_levels }
+@Controller('news-recipients')
+export class NewsRecipientsController {
+  constructor(private readonly content: ContentService) {}
+
+  @Post('count')
+  @HttpCode(200)
+  count(@Body() body: RequestBody, @AuthenticatedUser() currentUser: CurrentUser) {
+    const errors: FieldError[] = [];
+    const orgUnitId = readRequiredUuid(body, 'org_unit_id', errors, 'Bắt buộc chọn đơn vị');
+    const scope = readScope(body, errors, false);
+    const audienceLevels = readAudienceLevels(body, errors);
+    check(errors);
+    return this.content.newsRecipientCount(
+      currentUser,
+      orgUnitId,
+      scope ?? { scope_type: 'unit', scope_id: orgUnitId },
+      audienceLevels,
+    );
+  }
+}
 export const LibraryItemsController = publishableController('library-items', 'library_items');
 export const ColoringPagesController = publishableController('coloring-pages', 'coloring_pages');
 

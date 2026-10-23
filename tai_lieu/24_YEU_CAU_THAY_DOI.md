@@ -1,8 +1,8 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.31
-- Ngày cập nhật: 2026-10-22
+- Phiên bản: 0.32
+- Ngày cập nhật: 2026-10-23
 - Trạng thái: Đang cập nhật
 
 ## Quy ước
@@ -10,6 +10,30 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-155: DT-19 phần 19e: cổng phụ huynh và ứng dụng giáo viên đa cấp – 2026-10-23
+
+- Lý do: phần 19e của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 10.3, 10.4 (quyết định của Eric ngày 2026-10-19 mở rộng ra mọi cấp học; nền cấp học YCTD-151, cấu trúc theo cấp YCTD-152, menu theo cấp YCTD-153). Trước phần này ứng dụng phụ huynh, ứng dụng giáo viên hiện mọi chức năng Mầm non cho mọi con, mọi lớp; tin tức gửi mọi phụ huynh của đơn vị, chưa chọn được cấp nhận và chưa biết số người nhận trước khi công bố. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Chức năng theo cấp** (`packages/shared/src/level-features.ts`): bảng `LEVEL_FEATURES` ghi chức năng chỉ của Mầm non (điểm danh và báo vắng theo ngày, nhật ký, chăm sóc hằng ngày, báo cơm, báo cáo tăng trưởng theo tháng tuổi, hồ sơ cuối cấp); chức năng không có trong bảng là của mọi cấp (đưa đón, dặn thuốc, thực đơn, học phí, dịch vụ, hình ảnh, sức khỏe, học tập, trao đổi, hoạt động, giảng dạy). `hasLevelFeature`, `levelOf` (cấp trống là Mầm non). DT-20, DT-21 thêm chức năng của cấp mình bằng cùng bảng.
+  - **Danh sách con có cấp:** dòng học sinh (`GET /children`) thêm `school_level` là cấp của lớp đang học (trống khi chưa xếp lớp).
+  - **Ứng dụng phụ huynh:** phụ huynh có con ở nhiều cấp thấy đủ các con, mỗi con một thẻ ghi "<tên cấp> · <lớp>" (tên cấp lấy từ 1.4 qua `GET /portal-context/school-levels`); con học lớp cấp khác không có nút Báo vắng, Điểm danh tháng này, Nhật ký, Hồ sơ cuối cấp; mục Sức khỏe không có Chăm sóc hằng ngày và báo cáo Tăng trưởng. Phụ huynh chỉ có con Mầm non thấy y như trước (không có tên cấp).
+  - **Ứng dụng giáo viên:** giáo viên dạy, chủ nhiệm lớp ở nhiều cấp thấy lớp xếp theo cấp, có tên cấp; lớp cấp khác không mở điểm danh theo ngày, không có Nhật ký, Chăm sóc và y tế, Báo cơm; sĩ số ghi "… học sinh" thay "… trẻ" theo bảng nhãn của YCTD-153.
+  - **Tin tức theo cấp:** tin có cấp nhận (`news.audience_levels`, tệp năm học `0074_add_news_audience_levels`; trống là mọi cấp). Cấp nhận chỉ dùng cho phạm vi toàn trường, đơn vị; phạm vi lớp, trẻ lưu trống. Cấp phải đang bật. Phụ huynh chỉ thấy, chỉ nhận thông báo tin có cấp nhận khi có con đang học lớp thuộc các cấp đó; xem theo một con thì theo cấp của con đó; nhân sự xem mọi tin như cũ. Tin không ghi cấp gửi theo vai trò phụ huynh của đơn vị như trước.
+  - **Số người nhận trước khi gửi:** `POST /news-recipients/count` trả số tài khoản phụ huynh của trẻ đang học trong phạm vi (có cấp nhận thì chỉ trẻ học lớp thuộc các cấp đó); biểu mẫu "Thêm tin tức" hiện "Khi công bố, tin gửi tới … tài khoản phụ huynh" và ô "Cấp nhận tin" (chỉ ở trường từ hai cấp).
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/school-year/migrations/0074_add_news_audience_levels.ts`, `schema.ts`, `index.ts`); máy chủ API (`children/student-list.ts`, `activities/activity-access.ts`, `activities/content.ts`, `application.module.ts`); ứng dụng phụ huynh (`screens/HomeScreen.tsx`, `screens/HealthPanel.tsx`, `screens/school-levels.ts`, `package.json`); ứng dụng giáo viên (`screens/ClassesScreen.tsx`, `package.json`); cổng quản trị (`activities/ActivitiesPage.tsx`); gói dùng chung (`level-features.ts`, `index.ts`); kiểm thử; tài liệu `01`, `02`, `03`, `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: tệp năm học `0074` thêm cột `news.audience_levels` (mảng chữ, mặc định trống, chỉ nhận MN, TH, THCS, THPT) ở mọi cơ sở dữ liệu năm học. Không đổi dữ liệu cũ; trước và sau chuyển: mọi tin có cấp nhận trống nên người xem, người nhận không đổi.
+- API bị ảnh hưởng: `GET /children` thêm `school_level`; `POST, PATCH /news` nhận `audience_levels`, trả thêm `audience_levels`; `GET /news` lọc theo cấp con học; mới `POST /news-recipients/count` (xem `17_DAC_TA_API.md`).
+- Giao diện bị ảnh hưởng: MH-260; ứng dụng phụ huynh (trang chủ, Sức khỏe), ứng dụng giáo viên (Lớp của tôi), biểu mẫu "Thêm tin tức" ở cổng quản trị.
+- Quyền bị ảnh hưởng: PQ-92. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
+- Ảnh hưởng chức năng cũ: trường chỉ có Mầm non thấy ứng dụng phụ huynh, giáo viên y như trước; biểu mẫu "Thêm tin tức" thêm dòng số người nhận; kiểm thử đang có không sửa kỳ vọng.
+- Hạn chế:
+  - Ẩn chức năng theo cấp ở ứng dụng; máy chủ chưa chặn gọi chức năng Mầm non cho lớp cấp khác (nghiệp vụ cấp khác thêm ở DT-20, DT-21);
+  - Lớp cấp khác không có mục "Chăm sóc và y tế" ở ứng dụng giáo viên nên sự kiện y tế của học sinh cấp khác ghi ở cổng quản trị;
+  - Tin tức chưa gửi theo khối (gửi theo lớp, theo cấp đã có); hoạt động lớp, thư viện, hình tô màu, bình chọn chưa có cấp nhận;
+  - Số người nhận đếm tài khoản phụ huynh của trẻ đang học, chưa trừ tài khoản bị khóa ở dịch vụ định danh.
+- Kiểm thử cần thực hiện: kịch bản CT-828 đến CT-832 (trong mã kiểm thử là CT-19e-1 đến CT-19e-5); kiểm thử đơn vị mới `apps/api/src/school-levels/multi-level-apps.test.ts`; kiểm thử giao diện mới `tests/e2e/85-multi-level-apps.spec.ts`
+- Trạng thái: Đã triển khai
 
 ### YCTD-154: DT-19 phần 19d: số liệu theo cấp học – 2026-10-22
 

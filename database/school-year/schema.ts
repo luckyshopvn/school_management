@@ -2085,6 +2085,8 @@ export interface NewsTable extends AuthoredColumns, PublishingColumns {
   summary: string | null;
   content: string;
   cover_file_id: string | null;
+  // Cấp nhận tin (DT-19 phần 19e): trống là mọi cấp
+  audience_levels: Generated<string[]>;
 }
 
 export interface LibraryAlbumsTable extends AuthoredColumns {

@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { PERMISSION_CODES } from '@school-management/shared';
+import { PERMISSION_CODES, type SchoolLevelCode } from '@school-management/shared';
 import {
   Alert,
   Button,
@@ -36,6 +36,7 @@ import {
   type Registration,
 } from './activities-api.js';
 import { FacebookPostButton, useFacebookPosts } from './FacebookPostButton.js';
+import { useEnabledSchoolLevels } from '../school-levels/enabled-levels.js';
 
 // MH-23, MH-24, MH-36 Hoạt động và tin tức (P14-01 đến P14-06, P14-09 đến P14-12; YCTD-78): duyệt, từ chối, ẩn hoạt động
 // của lớp; danh mục; tin tức kèm bình luận (chỉ ẩn kèm lý do); thư viện và hình tô màu; hoạt động ngoại khóa và đăng ký.
@@ -433,8 +434,22 @@ function NewsForm({
 }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  // Cấp nhận tin (DT-19 phần 19e): trường nhiều cấp chọn cấp, không chọn là mọi cấp; trường một cấp không có ô chọn
+  const enabledLevels = useEnabledSchoolLevels();
+  const [audienceLevels, setAudienceLevels] = useState<SchoolLevelCode[]>([]);
+  const levelsBody = enabledLevels.multiLevel ? { audience_levels: audienceLevels } : {};
+  // Số phụ huynh nhận tin khi công bố, hiện trước khi gửi
+  const recipients = useQuery({
+    queryKey: ['news-recipients', orgUnitId, audienceLevels.join(',')],
+    queryFn: () =>
+      postJson<{ recipient_count: number }>('/api/v1/news-recipients/count', {
+        org_unit_id: orgUnitId,
+        ...levelsBody,
+      }),
+    enabled: Boolean(orgUnitId),
+  });
   const create = useMutation({
-    mutationFn: () => postJson<ContentItem>('/api/v1/news', { org_unit_id: orgUnitId, title, content }),
+    mutationFn: () => postJson<ContentItem>('/api/v1/news', { org_unit_id: orgUnitId, title, content, ...levelsBody }),
     onSuccess: onSaved,
   });
   return (
@@ -459,6 +474,33 @@ function NewsForm({
             onChange={(event) => setContent(event.target.value)}
           />
         </FormRow>
+        {enabledLevels.multiLevel ? (
+          <FormRow label="Cấp nhận tin (không chọn là mọi cấp)">
+            <span className="flex flex-wrap gap-4">
+              {enabledLevels.levels.map((level) => (
+                <label key={level.value} className="flex items-center gap-2 text-content">
+                  <input
+                    type="checkbox"
+                    checked={audienceLevels.includes(level.value)}
+                    onChange={(event) =>
+                      setAudienceLevels((current) =>
+                        event.target.checked
+                          ? [...current, level.value]
+                          : current.filter((value) => value !== level.value),
+                      )
+                    }
+                  />
+                  {level.label}
+                </label>
+              ))}
+            </span>
+          </FormRow>
+        ) : null}
+        {recipients.data ? (
+          <p className="text-label text-text-secondary" data-testid="news-recipient-count">
+            Khi công bố, tin gửi tới {recipients.data.recipient_count} tài khoản phụ huynh
+          </p>
+        ) : null}
       </FormBlock>
       <FormButtons busy={create.isPending} disabled={!title || !content} onCancel={onCancel} />
     </form>

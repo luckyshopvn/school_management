@@ -1,8 +1,8 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.31
-- Ngày cập nhật: 2026-10-22
+- Phiên bản: 0.32
+- Ngày cập nhật: 2026-10-23
 - Trạng thái: Đang cập nhật
 
 ## Quy ước ghi nhật ký
@@ -13,6 +13,29 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-23 — DT-19 phần 19e: cổng phụ huynh và ứng dụng giáo viên đa cấp
+
+#### Công việc đã thực hiện
+
+- Đọc mục 10 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà danh sách con, các nút chức năng của ứng dụng phụ huynh, ứng dụng giáo viên, tin tức và người nhận thông báo.
+- Gói dùng chung: `LEVEL_FEATURES`, `hasLevelFeature`, `levelOf`, `matchesAudienceLevels`. Ứng dụng phụ huynh, giáo viên dùng gói dùng chung.
+- Cơ sở dữ liệu: tệp năm học `0074_add_news_audience_levels`. Máy chủ API: cấp của con ở danh sách học sinh; phạm vi xem tin theo cấp con học; người nhận tin theo cấp; `POST /news-recipients/count`.
+- Ứng dụng phụ huynh: tên cấp ở thẻ con khi các con học nhiều cấp; ẩn chức năng chỉ của Mầm non ở con cấp khác. Ứng dụng giáo viên: lớp xếp theo cấp, tên cấp, ẩn chức năng chỉ của Mầm non ở lớp cấp khác. Cổng quản trị: ô "Cấp nhận tin" và số người nhận ở "Thêm tin tức".
+- Thêm quy tắc BR-163, chức năng P01-43 đến P01-44, quyền PQ-92, màn hình MH-260, kịch bản CT-828 đến CT-832, tiêu chí AC-746 đến AC-748. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/school-levels/multi-level-apps.test.ts` CT-19e-1 đến CT-19e-4 đạt 4/4; kiểm thử đơn vị toàn bộ kho mã đạt 1038/1038 (không sửa kỳ vọng của kiểm thử đang có); kiểm thử giao diện `tests/e2e/85-multi-level-apps.spec.ts` (CT-19e-5) đạt; toàn bộ kiểm thử giao diện đạt 157/157; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 19e của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 10.4. Chức năng chỉ của Mầm non: điểm danh và báo vắng theo ngày, nhật ký, chăm sóc hằng ngày, báo cơm, báo cáo tăng trưởng theo tháng tuổi, hồ sơ cuối cấp; đưa đón, dặn thuốc, thực đơn dùng cho mọi cấp; cấp nhận tin lưu ở tin tức (chưa ở hoạt động lớp, thư viện); cấp nhận chỉ dùng cho phạm vi toàn trường, đơn vị; số người nhận đếm tài khoản phụ huynh của trẻ đang học. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-155, `07_QUY_TAC_NGHIEP_VU.md` BR-163, `08_VAI_TRO_NGUOI_DUNG.md` PQ-92, `10_YEU_CAU_CHUC_NANG.md` P01-43 đến P01-44, `11_TIEU_CHI_NGHIEM_THU.md` AC-746 đến AC-748, `14_DAC_TA_GIAO_DIEN.md` MH-260, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-828 đến CT-832, `23_LICH_SU_PHIEN_BAN.md` 0.105.0.
+
+#### Vấn đề tồn đọng
+
+- DT-20, DT-21 thêm chức năng của cấp khác (điểm danh theo tiết, sổ điểm, sổ đầu bài, học bạ) vào `LEVEL_FEATURES` và chặn ở máy chủ; tin gửi theo khối làm cùng DT-20.
+
 
 ### 2026-10-22 — DT-19 phần 19d: số liệu theo cấp học
 

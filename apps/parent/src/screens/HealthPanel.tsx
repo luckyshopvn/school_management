@@ -1,3 +1,4 @@
+import { hasLevelFeature } from '@school-management/shared';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Button, TextField } from '@school-management/ui';
 import { ApiError, requestJson } from '../session/api-client.js';
@@ -65,7 +66,15 @@ function describe(evaluation: Evaluation): string {
 const messageOf = (error: unknown) =>
   error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại';
 
-export function HealthPanel({ child }: { child: { id: string; full_name: string } }) {
+// Chăm sóc hằng ngày, báo cáo tăng trưởng theo tháng tuổi chỉ hiện ở con học lớp Mầm non (DT-19 phần 19e)
+export function HealthPanel({
+  child,
+  schoolLevel,
+}: {
+  child: { id: string; full_name: string };
+  schoolLevel?: string | null;
+}) {
+  const preschool = hasLevelFeature(schoolLevel, 'daily_care');
   const [summary, setSummary] = useState<HealthSummary>();
   const [reports, setReports] = useState<ReportRequest[]>([]);
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -135,13 +144,17 @@ export function HealthPanel({ child }: { child: { id: string; full_name: string 
         </article>
       ))}
 
-      <h3 className="text-content font-semibold">Chăm sóc hằng ngày</h3>
-      {(summary?.daily_care ?? []).map((care) => (
-        <p key={care.id} className="text-content">
-          {care.care_date}: {care.temperature !== null ? `${care.temperature} độ` : ''} {care.condition_note ?? ''}{' '}
-          {care.special_care_note ?? ''}
-        </p>
-      ))}
+      {preschool ? (
+        <>
+          <h3 className="text-content font-semibold">Chăm sóc hằng ngày</h3>
+          {(summary?.daily_care ?? []).map((care) => (
+            <p key={care.id} className="text-content">
+              {care.care_date}: {care.temperature !== null ? `${care.temperature} độ` : ''} {care.condition_note ?? ''}{' '}
+              {care.special_care_note ?? ''}
+            </p>
+          ))}
+        </>
+      ) : null}
 
       <h3 className="text-content font-semibold">Chỉ số và kết quả khám</h3>
       {(summary?.measurements ?? []).map((row) => (
@@ -172,7 +185,7 @@ export function HealthPanel({ child }: { child: { id: string; full_name: string 
             onChange={(event) => setReportType(event.target.value as 'growth' | 'medical' | 'full')}
           >
             <option value="full">Đầy đủ</option>
-            <option value="growth">Tăng trưởng</option>
+            {hasLevelFeature(schoolLevel, 'growth') ? <option value="growth">Tăng trưởng</option> : null}
             <option value="medical">Y tế</option>
           </select>
         </label>

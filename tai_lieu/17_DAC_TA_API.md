@@ -1,8 +1,8 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.100
-- Ngày cập nhật: 2026-10-22
+- Phiên bản: 1.101
+- Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -1460,6 +1460,15 @@ Giao kèo menu theo cấp học (DT-19 phần 19c, YCTD-153, BR-159):
 4. `GET /me/quick-links` không trả lối tắt tới mục menu của cấp trường chưa bật; `PUT` giữ kiểm tra cũ.
 
 
+Giao kèo ứng dụng phụ huynh, giáo viên và tin tức theo cấp (DT-19 phần 19e, YCTD-155, BR-163):
+
+1. `GET /children` thêm `school_level` ở mỗi dòng: cấp của lớp đang học, `null` khi chưa xếp lớp (ứng dụng coi là Mầm non). `GET /classes` đã có `school_level` (YCTD-152).
+2. `POST /news`, `PATCH /news/{id}` nhận `audience_levels` (mảng mã cấp; không gửi là không đổi, khi tạo là trống); mã sai hoặc cấp chưa bật trả 400 ở `audience_levels`; phạm vi lớp, trẻ luôn lưu `[]`. Tin trả thêm `audience_levels`.
+3. `GET /news`, `GET /news/{id}`: phụ huynh (không có vai trò nhân sự) chỉ thấy tin có `audience_levels` trống hoặc có cấp của một con đang học; `child_id` thì theo cấp của con đó; tin ngoài cấp trả 403 ở `GET /news/{id}`. Nhân sự không lọc theo cấp.
+4. `POST /news-recipients/count` nhận `org_unit_id`, `scope_type`, `scope_id` (không gửi là đơn vị), `audience_levels`; trả `{ recipient_count }` là số tài khoản phụ huynh của trẻ đang học trong phạm vi (có cấp nhận thì chỉ trẻ học lớp thuộc các cấp đó; phạm vi lớp, trẻ không lọc cấp). Không có quyền soạn tin của đơn vị trả 403.
+5. Công bố tin toàn trường, đơn vị có cấp nhận gửi thông báo `news_published` tới từng tài khoản phụ huynh như mục 4; tin không có cấp nhận gửi theo vai trò VT-14 của đơn vị như trước.
+
+
 Giao kèo kế hoạch giáo dục (DT-18 phần 22i, YCTD-147, BR-142):
 
 1. `POST /education-plan-templates`, `PUT /{id}` nhận `code`, `name`, `description`, `school_level`, `scope`, `period`, `sections` (1 đến 30 mục, mã chữ thường, số, gạch dưới; mục bảng 1 đến 10 cột), `approval_steps` (sắp lại theo thứ tự cố định), `requires_signing`, `archive_folder_id`, `sort_order`, `status`; `POST /defaults` nhận `school_level`, trả `created`, `skipped`; `DELETE` mẫu đã có kế hoạch trả 422.
@@ -1670,6 +1679,7 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | POST | /api/v1/account-directory/staff-accounts | Lấy danh sách CBQL/GV: `staff_ids` (1 đến 200), `role_code`; tạo tài khoản từng người qua dịch vụ định danh, liên kết hồ sơ nhân sự; trả từng dòng `login`, `temporary_password` hoặc `error` |
 | POST | /api/v1/activities/{id}/facebook-post | Đăng hoạt động đã công bố lên Fanpage (P14.facebook.manage) |
 | POST | /api/v1/news/{id}/facebook-post | Đăng tin tức đã công bố, phạm vi toàn trường hoặc đơn vị, lên Fanpage |
+| POST | /api/v1/news-recipients/count | Số tài khoản phụ huynh nhận tin trước khi công bố theo phạm vi và cấp nhận (cần quyền soạn tin tức của đơn vị) (P01-44, YCTD-155) |
 | GET | /api/v1/facebook-posts | Bài đăng Fanpage trong phạm vi đơn vị; lọc `source_type`, `source_id` |
 | POST | /api/v1/facebook-posts/{id}/retry | Thử đăng lại bài đăng lỗi |
 | GET, PATCH | /api/v1/activities/{id} | Chi tiết kèm ảnh, lượt thích, số bình luận; sửa khi chưa công bố |
