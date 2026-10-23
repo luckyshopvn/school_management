@@ -2,6 +2,7 @@ import type { SchoolYearDatabase, SigningObjectType } from '@school-management/d
 import { ApplicationError } from '@school-management/server';
 import {
   CLASS_STAGE_LABELS,
+  SCHOOL_LEVELS,
   classStageOf,
   SCHOOL_PROFILE_SECTIONS,
   SIGNING_DOSSIER_ROOTS,
@@ -290,6 +291,33 @@ async function stageOf(database: Kysely<SchoolYearDatabase>) {
   };
 }
 
+// Ô "Khối" của hồ sơ lớp, học sinh: Mầm non ghi nhóm lớp (Nhà trẻ, Mẫu giáo) như Sở; cấp khác ghi tên khối (DT-19 phần 19d,
+// YCTD-154)
+async function blockLabelOf(database: Kysely<SchoolYearDatabase>) {
+  const [stage, grades] = await Promise.all([
+    stageOf(database),
+    database.selectFrom('grade_levels').select(['code', 'name', 'school_level']).execute(),
+  ]);
+  return (ageGroup: ClassAgeGroupKey | null, gradeLevel: string): string => {
+    const grade = grades.find((item) => item.code === gradeLevel);
+    return grade && grade.school_level !== 'MN' ? grade.name : CLASS_STAGE_LABELS[stage(ageGroup, gradeLevel)];
+  };
+}
+
+// Ô "Cấp dạy" của hồ sơ nhân sự: các cấp của đơn vị chính của nhân sự; đơn vị chưa khai báo cấp là Mầm non (YCTD-154)
+async function teachingLevelsOf(database: Kysely<SchoolYearDatabase>, staffId: string): Promise<string> {
+  const rows = await database
+    .selectFrom('staff')
+    .innerJoin('org_unit_levels', 'org_unit_levels.org_unit_id', 'staff.org_unit_id')
+    .select('org_unit_levels.school_level')
+    .where('staff.id', '=', staffId)
+    .execute();
+  const codes = rows.map((row) => row.school_level);
+  return SCHOOL_LEVELS.filter((level) => (codes.length > 0 ? codes : ['MN']).includes(level.value))
+    .map((level) => level.label)
+    .join(', ');
+}
+
 // Danh sách đối tượng lập hồ sơ của từng loại (lưới của 2.2): trường là Trường chính; lớp, sổ đầu bài là các lớp của năm học;
 // nhân sự đang làm việc; học sinh đã duyệt hồ sơ (bỏ hồ sơ nháp, chờ duyệt, đã xóa)
 export async function listSigningObjects(
@@ -542,10 +570,10 @@ async function classContent(
   academicYearId: string,
   classId: string,
 ): Promise<DossierContent> {
-  const [row, school, stage] = await Promise.all([
+  const [row, school, blockLabel] = await Promise.all([
     classRow(database, academicYearId, classId),
     schoolIdentity(database),
-    stageOf(database),
+    blockLabelOf(database),
   ]);
   const children = await database
     .selectFrom('class_enrollments')
@@ -563,7 +591,7 @@ async function classContent(
       section('Thông tin lớp', [
         ['Tên trường', school.name],
         ['Mã trường', school.code],
-        ['Khối', CLASS_STAGE_LABELS[stage(row.age_group, row.grade_level)]],
+        ['Khối', blockLabel(row.age_group, row.grade_level)],
         ['Tên lớp', row.name],
         ['Mã phân hiệu', branch.code],
         ['Tên phân hiệu', branch.name],
@@ -620,7 +648,7 @@ async function staffContent(
   if (!row) {
     throw notFoundError('Không có nhân sự này', 'staff');
   }
-  const [school, contracts, certificates, history, evaluation] = await Promise.all([
+  const [school, contracts, certificates, history, evaluation, teachingLevels] = await Promise.all([
     schoolIdentity(database),
     database
       .selectFrom('employment_contracts')
@@ -658,6 +686,7 @@ async function staffContent(
       .where('status', '=', 'finalized')
       .orderBy('finalized_at', 'desc')
       .executeTakeFirst(),
+    teachingLevelsOf(database, staffId),
   ]);
   const ratings = evaluation
     ? await database
@@ -709,7 +738,7 @@ async function staffContent(
       ]),
       section('Vị trí việc làm, tiêu chuẩn chức danh', [
         ['Vị trí việc làm', p('job_position')],
-        ['Cấp dạy', 'Mầm non'],
+        ['Cấp dạy', teachingLevels],
         ['Biên chế cấp dạy chính', null],
         ['Dạy nhóm lớp', p('teaching_group')],
         ['Dạy nhóm lớp kiêm nhiệm', null],
@@ -861,9 +890,9 @@ async function childContent(
   if (!row) {
     throw notFoundError('Không có học sinh này', 'child');
   }
-  const [school, stage, guardians] = await Promise.all([
+  const [school, blockLabel, guardians] = await Promise.all([
     schoolIdentity(database),
-    stageOf(database),
+    blockLabelOf(database),
     database
       .selectFrom('child_guardians')
       .innerJoin('guardians', 'guardians.id', 'child_guardians.guardian_id')
@@ -893,7 +922,7 @@ async function childContent(
     sections: [
       section('Thông tin chung', [
         ['Tên trường', school.name],
-        ['Khối', row.grade_level ? CLASS_STAGE_LABELS[stage(row.age_group, row.grade_level)] : ''],
+        ['Khối', row.grade_level ? blockLabel(row.age_group, row.grade_level) : ''],
         ['Tên lớp', row.class_name],
         ['Mã phân hiệu', branch.code],
         ['Tên phân hiệu', branch.name],

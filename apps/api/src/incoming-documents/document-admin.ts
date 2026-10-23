@@ -9,6 +9,7 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
 import { conflictOnDuplicate, notFoundError, type RequestBody } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
+import { readSchoolLevel } from '../catalogs/school-level-fields.js';
 import {
   CATALOG_KINDS,
   escapeLike,
@@ -166,7 +167,8 @@ export class DocumentAdminService {
       code: readText(body, 'code', errors, { required: true, maximum: 50 }) ?? '',
       name: readText(body, 'name', errors, { required: true, maximum: 200 }) ?? '',
       level: readInteger(body, 'level', errors, { min: 0, max: 2 }, 0) ?? 0,
-      education_level: readText(body, 'education_level', errors, { maximum: 50 }),
+      // Cấp học theo bộ bốn mã dùng chung (DT-19 phần 19d, YCTD-154); trống là mọi cấp
+      education_level: readSchoolLevel(body, 'education_level', errors) ?? null,
       sort_order: readInteger(body, 'sort_order', errors, { min: 0, max: 9999 }, 0) ?? 0,
       active: readBoolean(body, 'active', errors, true),
     };

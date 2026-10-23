@@ -524,6 +524,8 @@ export interface FeeSchedulesTable extends CatalogRecordColumns {
   name: string;
   effective_from: string;
   effective_to: string | null;
+  // Cấp của biểu phí (DT-19 phần 19d, YCTD-154); mỗi cấp một chuỗi phiên bản
+  school_level: ColumnType<SchoolLevelCode, SchoolLevelCode | undefined, SchoolLevelCode>;
 }
 
 export interface FeeScheduleItemsTable {

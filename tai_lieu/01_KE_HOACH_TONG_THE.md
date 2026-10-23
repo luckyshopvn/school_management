@@ -1,7 +1,7 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.32
+- Phiên bản: 1.33
 - Ngày cập nhật: 2026-10-22
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -75,6 +75,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.101.0 | DT-19 phần 19a: nền cấp học của trường (bảng `school_levels`, `SchoolLevelResolver`, phạm vi cấp của người dùng, thẻ Cấp học của trường; ô ngữ cảnh, website đọc cấp từ một nguồn) | YCTD-151 |
 | 0.102.0 | DT-19 phần 19b: cấu trúc theo cấp học (khối, chương trình, lớp, đơn vị, học kỳ, tuần theo cấp; khối mẫu Tiểu học, THCS, THPT; trường Mầm non giữ nguyên) | YCTD-152 |
 | 0.103.0 | DT-19 phần 19c: menu và phân hệ theo cấp học (thuộc tính `levels`, tên phân hệ theo cấp, bộ chọn cấp đang làm việc, tham số cấp dùng chung, nhãn thuật ngữ theo cấp) | YCTD-153 |
+| 0.104.0 | DT-19 phần 19d: số liệu theo cấp học (tham số cấp dùng chung; thống kê, chấm công và suất ăn theo cấp; EMIS, tăng trưởng, hồ sơ cuối cấp chỉ Mầm non; biểu phí theo cấp) | YCTD-154 |
 | 0.83.0 | DT-15 phần 15f3, các phân hệ Bếp – kho, mua hàng; Tương tác – truyền thông; Giảng dạy; Tuyển sinh, tuyển dụng; Báo cáo theo giao diện chung của Sở: tiêu đề đánh số theo menu, 32 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối; nghiệp vụ không đổi (YCTD-115) | 13, 21 | Đã có |
 | 0.81.0 | DT-15 phần 15f2, phân hệ Nhân sự – chấm công, lương theo giao diện chung của Sở: tiêu đề đánh số theo menu, 17 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối, hộp xác nhận xóa; nghiệp vụ không đổi (YCTD-113) | 13, 21 | Đã có |
 | 0.82.0 | DT-15 phần 15f1, phân hệ Tài chính – học phí theo giao diện chung của Sở: tiêu đề đánh số theo menu, 20 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối, hộp xác nhận xóa; nghiệp vụ không đổi (YCTD-114) | 13, 21 | Đã có |

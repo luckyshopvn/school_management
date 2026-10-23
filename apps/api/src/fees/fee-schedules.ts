@@ -1,7 +1,7 @@
-import { Body, Controller, Delete, Get, Injectable, Param, Post, Put, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Injectable, Param, Post, Put, Query, Req } from '@nestjs/common';
 import type { FeeType, SchoolYearDatabase } from '@school-management/database';
 import { Clock, ruleViolationError, validationError, type FieldError } from '@school-management/server';
-import { PERMISSION_CODES } from '@school-management/shared';
+import { PERMISSION_CODES, type SchoolLevelCode } from '@school-management/shared';
 import type { Request } from 'express';
 import { sql, type Kysely, type Transaction } from 'kysely';
 import { VIETNAM_DATE } from '../attendance/school-calendar.js';
@@ -11,10 +11,14 @@ import { originOf, writeAuditLog, type ChangeOrigin } from '../common/audit-log.
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { isUuid, notFoundError, readRequiredText, type RequestBody } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
+import { assertLevelEnabled, readSchoolLevel } from '../catalogs/school-level-fields.js';
+import { SchoolLevelResolver } from '../common/school-levels.js';
 import { readAmount } from './fee-catalog-fields.js';
 
 // Biểu phí dùng chung toàn trường theo phiên bản (P05-01, BR-17, BR-18, YCTD-49): mỗi phiên bản bắt đầu từ ngày 1 của
-// một tháng, phiên bản sau đặt ngày kết thúc cho phiên bản trước. Phiên bản đã tới ngày hiệu lực không sửa được
+// một tháng, phiên bản sau đặt ngày kết thúc cho phiên bản trước. Phiên bản đã tới ngày hiệu lực không sửa được. Từ DT-19 phần
+// 19d (YCTD-154) biểu phí thuộc một cấp học (mặc định Mầm non): chuỗi phiên bản tính riêng từng cấp, dòng giá chỉ nhận khối cùng
+// cấp; Mầm non theo nhóm tuổi của khối như trước, cấp khác theo khối
 export interface FeeScheduleItemInput {
   grade_level: string;
   fee_type: FeeType;
@@ -23,7 +27,7 @@ export interface FeeScheduleItemInput {
 }
 
 const FIRST_DAY_PATTERN = /^\d{4}-\d{2}-01$/;
-const SCHEDULE_COLUMNS = ['id', 'name', 'effective_from', 'effective_to'] as const;
+const SCHEDULE_COLUMNS = ['id', 'name', 'effective_from', 'effective_to', 'school_level'] as const;
 
 function dayBefore(date: string): string {
   return new Date(Date.parse(`${date}T00:00:00Z`) - 86_400_000).toISOString().slice(0, 10);
@@ -34,13 +38,14 @@ export class FeeSchedulesService {
   constructor(
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly clock: Clock,
+    private readonly schoolLevels: SchoolLevelResolver,
   ) {}
 
   private today(): string {
     return VIETNAM_DATE.format(this.clock.now());
   }
 
-  async list() {
+  async list(level?: SchoolLevelCode) {
     const current = await this.currentSchoolYear.find();
     if (!current) {
       return [];
@@ -48,7 +53,9 @@ export class FeeSchedulesService {
     const schedules = await current.database
       .selectFrom('fee_schedules')
       .select(SCHEDULE_COLUMNS)
+      .$if(level !== undefined, (query) => query.where('school_level', '=', level ?? 'MN'))
       .orderBy('effective_from', 'desc')
+      .orderBy('school_level')
       .execute();
     const items = await this.items(
       current.database,
@@ -65,12 +72,17 @@ export class FeeSchedulesService {
   }
 
   // Phiên bản mới phải sau phiên bản mới nhất; phiên bản trước kết thúc ngay trước ngày hiệu lực mới
-  async create(input: { name: string; effectiveFrom: string; items: FeeScheduleItemInput[] }, origin: ChangeOrigin) {
+  async create(
+    input: { name: string; effectiveFrom: string; items: FeeScheduleItemInput[]; schoolLevel: SchoolLevelCode },
+    origin: ChangeOrigin,
+  ) {
+    await assertLevelEnabled(this.schoolLevels, input.schoolLevel);
     const { database } = await this.currentSchoolYear.require();
-    await this.validateItems(database, input.items);
+    await this.validateItems(database, input.items, input.schoolLevel);
     const latest = await database
       .selectFrom('fee_schedules')
       .select(SCHEDULE_COLUMNS)
+      .where('school_level', '=', input.schoolLevel)
       .orderBy('effective_from', 'desc')
       .executeTakeFirst();
     if (latest && latest.effective_from >= input.effectiveFrom) {
@@ -89,7 +101,12 @@ export class FeeSchedulesService {
       }
       const schedule = await transaction
         .insertInto('fee_schedules')
-        .values({ name: input.name, effective_from: input.effectiveFrom, created_by: origin.actorUserId })
+        .values({
+          name: input.name,
+          effective_from: input.effectiveFrom,
+          school_level: input.schoolLevel,
+          created_by: origin.actorUserId,
+        })
         .returning(SCHEDULE_COLUMNS)
         .executeTakeFirstOrThrow();
       await this.insertItems(transaction, schedule.id, input.items);
@@ -112,7 +129,7 @@ export class FeeSchedulesService {
     const { database } = await this.currentSchoolYear.require();
     const schedule = await this.find(database, scheduleId);
     this.assertNotEffective(schedule.effective_from);
-    await this.validateItems(database, input.items);
+    await this.validateItems(database, input.items, schedule.school_level);
     const before = await this.read(scheduleId);
     await database.transaction().execute(async (transaction) => {
       await transaction
@@ -149,6 +166,7 @@ export class FeeSchedulesService {
       await transaction
         .updateTable('fee_schedules')
         .set({ effective_to: null, updated_at: this.clock.now() })
+        .where('school_level', '=', schedule.school_level)
         .where('effective_to', '=', dayBefore(schedule.effective_from))
         .execute();
       await writeAuditLog(transaction, {
@@ -205,7 +223,13 @@ export class FeeSchedulesService {
   }
 
   private present(
-    schedule: { id: string; name: string; effective_from: string; effective_to: string | null },
+    schedule: {
+      id: string;
+      name: string;
+      effective_from: string;
+      effective_to: string | null;
+      school_level: SchoolLevelCode;
+    },
     items: Awaited<ReturnType<FeeSchedulesService['items']>>,
     today: string,
   ) {
@@ -224,11 +248,15 @@ export class FeeSchedulesService {
     };
   }
 
-  // Bậc học và dịch vụ phải có trong danh mục; mỗi bậc học một dòng học phí, mỗi dịch vụ một giá
-  private async validateItems(database: Kysely<SchoolYearDatabase>, items: FeeScheduleItemInput[]): Promise<void> {
-    const gradeLevels = new Set(
-      (await database.selectFrom('grade_levels').select('code').execute()).map((row) => row.code),
-    );
+  // Bậc học và dịch vụ phải có trong danh mục; mỗi bậc học một dòng học phí, mỗi dịch vụ một giá; bậc học cùng cấp với biểu phí
+  private async validateItems(
+    database: Kysely<SchoolYearDatabase>,
+    items: FeeScheduleItemInput[],
+    level: SchoolLevelCode,
+  ): Promise<void> {
+    const gradeRows = await database.selectFrom('grade_levels').select(['code', 'school_level']).execute();
+    const gradeLevels = new Set(gradeRows.map((row) => row.code));
+    const levelOf = new Map(gradeRows.map((row) => [row.code, row.school_level]));
     const services = new Map(
       (await database.selectFrom('services').select(['id', 'status']).execute()).map((row) => [row.id, row.status]),
     );
@@ -237,6 +265,8 @@ export class FeeSchedulesService {
     items.forEach((item, index) => {
       if (!gradeLevels.has(item.grade_level)) {
         errors.push({ field: `items.${index}.grade_level`, message: 'Bậc học không có trong danh mục' });
+      } else if (levelOf.get(item.grade_level) !== level) {
+        errors.push({ field: `items.${index}.grade_level`, message: 'Bậc học không cùng cấp với biểu phí' });
       }
       if (item.fee_type === 'service' && services.get(item.service_id ?? '') !== 'active') {
         errors.push({ field: `items.${index}.service_id`, message: 'Dịch vụ không có hoặc đã ngừng sử dụng' });
@@ -300,8 +330,13 @@ export class FeeSchedulesController {
   constructor(private readonly feeSchedulesService: FeeSchedulesService) {}
 
   @Get()
-  list() {
-    return this.feeSchedulesService.list();
+  list(@Query('school_level') level?: string) {
+    const errors: FieldError[] = [];
+    const parsed = readSchoolLevel({ school_level: level }, 'school_level', errors);
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.feeSchedulesService.list(parsed);
   }
 
   @Get(':id')
@@ -323,11 +358,12 @@ export class FeeSchedulesController {
       errors.push({ field: 'effective_from', message: 'Ngày hiệu lực là ngày 1 của một tháng, dạng YYYY-MM-01' });
     }
     const items = readItems(body, errors);
+    const schoolLevel = readSchoolLevel(body, 'school_level', errors) ?? 'MN';
     if (errors.length > 0) {
       throw validationError(errors);
     }
     return this.feeSchedulesService.create(
-      { name, effectiveFrom: effectiveFrom as string, items },
+      { name, effectiveFrom: effectiveFrom as string, items, schoolLevel },
       originOf(request, currentUser),
     );
   }

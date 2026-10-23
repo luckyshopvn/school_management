@@ -1,12 +1,14 @@
 import { Controller, Get, Injectable, Query } from '@nestjs/common';
 import { ApplicationError, Clock, validationError, type FieldError } from '@school-management/server';
-import { PERMISSION_CODES } from '@school-management/shared';
+import { PERMISSION_CODES, type SchoolLevelCode } from '@school-management/shared';
 import { AuthenticatedUser } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { VIETNAM_DATE } from '../attendance/school-calendar.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
+import { readLevelParameter, resolveLevelFilter, type LevelFilter } from '../common/report-levels.js';
 import { notFoundError } from '../common/request-fields.js';
+import { SchoolLevelResolver } from '../common/school-levels.js';
 import { KitchenAccess } from '../kitchen/kitchen-access.js';
 import {
   buildReport,
@@ -31,6 +33,8 @@ export interface AttendanceMealsFilter {
   date: string;
   orgUnitId: string | null;
   classId: string | null;
+  // Cấp của lớp (DT-19 phần 19d, YCTD-154); trống là mọi cấp người dùng được xem
+  schoolLevel?: SchoolLevelCode;
 }
 
 export function readAttendanceMealsFilter(query: QueryValues, errors: FieldError[]): AttendanceMealsFilter {
@@ -47,6 +51,7 @@ export function readAttendanceMealsFilter(query: QueryValues, errors: FieldError
     date,
     orgUnitId: optionalUuid(query, 'org_unit_id', errors),
     classId: optionalUuid(query, 'class_id', errors),
+    schoolLevel: readLevelParameter(query, errors),
   };
 }
 
@@ -58,6 +63,7 @@ export class AttendanceMealsService {
     private readonly reports: ReportsService,
     private readonly kitchenAccess: KitchenAccess,
     private readonly clock: Clock,
+    private readonly schoolLevels: SchoolLevelResolver,
   ) {}
 
   // Báo cáo trên màn hình và dữ liệu cho tệp Excel: các lớp trong phạm vi, mỗi lớp từng ngày, nhóm theo khối
@@ -68,7 +74,8 @@ export class AttendanceMealsService {
       await this.assertClassInScope(filter.classId, scope.orgUnitIds, scope.classIds);
       classIds = [filter.classId];
     }
-    return this.compute(scope.orgUnitIds, classIds, filter.period, filter.date);
+    const levels = await resolveLevelFilter(this.schoolLevels, currentUser, filter.schoolLevel);
+    return this.compute(scope.orgUnitIds, classIds, filter.period, filter.date, levels);
   }
 
   // Bảng điểm danh từng trẻ của một lớp trong kỳ (mã P, K, B, N theo mẫu)
@@ -152,7 +159,13 @@ export class AttendanceMealsService {
     }
   }
 
-  async compute(orgUnitIds: string[], classIds: string[] | null, period: Period, date: string) {
+  async compute(
+    orgUnitIds: string[],
+    classIds: string[] | null,
+    period: Period,
+    date: string,
+    levels: LevelFilter = null,
+  ) {
     const { academicYearId, database } = await this.currentSchoolYear.require();
     const system = this.databases.system;
     const { from, to } = periodRange(period, date);
@@ -195,9 +208,10 @@ export class AttendanceMealsService {
 
     const classes = await database
       .selectFrom('classes')
-      .select(['id', 'name', 'org_unit_id', 'grade_level', 'status'])
+      .select(['id', 'name', 'org_unit_id', 'grade_level', 'status', 'school_level'])
       .where('org_unit_id', 'in', orgUnitIds)
       .$if(classIds !== null, (query) => query.where('id', 'in', nonEmpty(classIds ?? [])))
+      .$if(levels !== null, (query) => query.where('school_level', 'in', levels ?? []))
       .execute();
     const ids = nonEmpty(classes.map((row) => row.id));
     const enrollments = await database

@@ -1,3 +1,4 @@
+import type { SchoolLevelCode } from '@school-management/shared';
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -10,6 +11,7 @@ import {
   StatusBadge,
 } from '@school-management/ui';
 import { listGradeLevels } from '../catalogs/catalogs-api.js';
+import { useEnabledSchoolLevels } from '../school-levels/enabled-levels.js';
 import { ApiError } from '../session/api-client.js';
 import {
   createFeeSchedule,
@@ -67,12 +69,16 @@ export function FeeSchedulesSection({
   const queryClient = useQueryClient();
   const schedules = useQuery({ queryKey: ['fee-schedules'], queryFn: listFeeSchedules });
   const gradeLevels = useQuery({ queryKey: ['grade-levels'], queryFn: listGradeLevels });
+  const { levels, multiLevel } = useEnabledSchoolLevels();
   const [form, setForm] = useState<{
     editingId?: string;
     name: string;
     month: string;
     cells: Record<string, string>;
+    // Cấp của biểu phí (DT-19 phần 19d, YCTD-154); trường một cấp luôn là cấp đó
+    schoolLevel: SchoolLevelCode;
   }>();
+  const levelName = (code: SchoolLevelCode | undefined) => levels.find((level) => level.value === code)?.label ?? '';
   const activeServices = services.filter((service) => service.status === 'active');
   const columns = [{ id: TUITION, label: 'Học phí chính khóa (tháng)' }].concat(
     activeServices.map((service) => ({ id: service.id, label: `${service.name} (${service.unit})` })),
@@ -88,7 +94,12 @@ export function FeeSchedulesSection({
       if (form.editingId) {
         await replaceFeeSchedule(form.editingId, { name: form.name, items });
       } else {
-        await createFeeSchedule({ name: form.name, effective_from: `${form.month}-01`, items });
+        await createFeeSchedule({
+          name: form.name,
+          effective_from: `${form.month}-01`,
+          items,
+          school_level: form.schoolLevel,
+        });
       }
     },
     onSuccess: async () => {
@@ -108,7 +119,10 @@ export function FeeSchedulesSection({
     onError: () => setDeleting(undefined),
   });
 
-  const latest = schedules.data?.[0];
+  // Phiên bản mới nhất của cấp để điền sẵn giá
+  const latestOf = (level: SchoolLevelCode) =>
+    schedules.data?.find((schedule) => (schedule.school_level ?? 'MN') === level);
+  const firstLevel = levels[0]?.value ?? 'MN';
   return (
     <section className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4" aria-label="Biểu phí">
       <div className="flex items-center justify-between">
@@ -116,7 +130,10 @@ export function FeeSchedulesSection({
         {canManage && !form ? (
           <Button
             variant="primary"
-            onClick={() => setForm({ name: '', month: '', cells: latest ? toCells(latest.items) : {} })}
+            onClick={() => {
+              const latest = latestOf(firstLevel);
+              setForm({ name: '', month: '', cells: latest ? toCells(latest.items) : {}, schoolLevel: firstLevel });
+            }}
           >
             Tạo phiên bản biểu phí
           </Button>
@@ -141,6 +158,25 @@ export function FeeSchedulesSection({
                 onChange={(event) => setForm({ ...form, name: event.target.value })}
               />
             </FormRow>
+            {form.editingId || !multiLevel ? null : (
+              <FormRow label="Cấp học">
+                <select
+                  className={FORM_CONTROL_CLASS}
+                  value={form.schoolLevel}
+                  onChange={(event) => {
+                    const level = event.target.value as SchoolLevelCode;
+                    const latest = latestOf(level);
+                    setForm({ ...form, schoolLevel: level, cells: latest ? toCells(latest.items) : {} });
+                  }}
+                >
+                  {levels.map((level) => (
+                    <option key={level.value} value={level.value}>
+                      {level.label}
+                    </option>
+                  ))}
+                </select>
+              </FormRow>
+            )}
             {form.editingId ? null : (
               <FormRow label="Hiệu lực từ tháng">
                 <input
@@ -166,7 +202,7 @@ export function FeeSchedulesSection({
               </thead>
               <tbody>
                 {(gradeLevels.data ?? [])
-                  .filter((grade) => grade.status === 'active')
+                  .filter((grade) => grade.status === 'active' && grade.school_level === form.schoolLevel)
                   .map((grade) => (
                     <tr key={grade.code} className="border-t border-border">
                       <td className="px-2 py-2 font-medium">{grade.name}</td>
@@ -215,6 +251,9 @@ export function FeeSchedulesSection({
         >
           <div className="flex flex-wrap items-center gap-3">
             <span className="font-semibold">{schedule.name}</span>
+            {multiLevel ? (
+              <span className="text-label text-text-secondary">{levelName(schedule.school_level ?? 'MN')}</span>
+            ) : null}
             <span className="text-label text-text-secondary">
               Từ {schedule.effective_from}
               {schedule.effective_to ? ` đến ${schedule.effective_to}` : ''}
@@ -233,6 +272,7 @@ export function FeeSchedulesSection({
                       name: schedule.name,
                       month: schedule.effective_from.slice(0, 7),
                       cells: toCells(schedule.items),
+                      schoolLevel: schedule.school_level ?? 'MN',
                     })
                   }
                 >

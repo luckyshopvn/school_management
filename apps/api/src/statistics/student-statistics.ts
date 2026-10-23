@@ -8,6 +8,8 @@ import { AuthenticatedUser, RequirePermission } from '../authentication/authenti
 import type { CurrentUser } from '../authentication/current-user.js';
 import { VIETNAM_DATE } from '../attendance/school-calendar.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
+import { readLevelFilter, type LevelFilter } from '../common/report-levels.js';
+import { SchoolLevelResolver } from '../common/school-levels.js';
 import {
   buildTableFile,
   CONTENT_TYPES,
@@ -40,12 +42,14 @@ function readStatisticsTerm(query: QueryValues, errors: FieldError[]): StudentHe
   return term as StudentHealthTerm | null;
 }
 
-// Học sinh đang học của các đơn vị kèm dữ kiện thống kê; dùng chung cho 5.3 và báo cáo sức khỏe đầu năm
+// Học sinh đang học của các đơn vị kèm dữ kiện thống kê; dùng chung cho 5.3 và báo cáo sức khỏe đầu năm. Lọc cấp thì chỉ học
+// sinh đang học lớp thuộc cấp đó (DT-19 phần 19d, YCTD-154)
 export async function loadStudentFacts(
   database: Kysely<SchoolYearDatabase>,
   orgUnitIds: string[],
   term: StudentHealthTerm,
   today: string,
+  levels: LevelFilter = null,
 ): Promise<StudentFacts[]> {
   const children = await database
     .selectFrom('children')
@@ -69,6 +73,7 @@ export async function loadStudentFacts(
     ])
     .where('children.status', '=', 'active')
     .where('children.org_unit_id', 'in', nonEmpty(orgUnitIds))
+    .$if(levels !== null, (query) => query.where('classes.school_level', 'in', levels ?? []))
     .orderBy('org_units.name')
     .orderBy('classes.name')
     .orderBy('children.full_name')
@@ -129,15 +134,25 @@ export class StudentStatisticsService {
     private readonly reports: ReportsService,
     private readonly schoolTerms: SchoolTerms,
     private readonly clock: Clock,
+    private readonly schoolLevels: SchoolLevelResolver,
   ) {}
 
-  async students(currentUser: CurrentUser, orgUnitId: string | null, chosenTerm: StudentHealthTerm | null) {
+  levelFilter(currentUser: CurrentUser, query: QueryValues): Promise<LevelFilter> {
+    return readLevelFilter(this.schoolLevels, currentUser, query);
+  }
+
+  async students(
+    currentUser: CurrentUser,
+    orgUnitId: string | null,
+    chosenTerm: StudentHealthTerm | null,
+    levels: LevelFilter = null,
+  ) {
     const scope = await this.reports.unitScope(currentUser, PERMISSION_CODES.childStatisticsView, orgUnitId, false);
     const { database } = await this.currentSchoolYear.require();
     const today = VIETNAM_DATE.format(this.clock.now());
     const terms = await this.schoolTerms.ranges();
     const term = chosenTerm ?? termOfDate(today, terms);
-    const facts = await loadStudentFacts(database, scope.orgUnitIds, term, today);
+    const facts = await loadStudentFacts(database, scope.orgUnitIds, term, today, levels);
     return {
       on_date: today,
       term,
@@ -154,8 +169,9 @@ export class StudentStatisticsService {
     format: TableFileFormat,
     query: QueryValues,
     ip: string | null,
+    levels: LevelFilter = null,
   ) {
-    const report = await this.students(currentUser, orgUnitId, chosenTerm);
+    const report = await this.students(currentUser, orgUnitId, chosenTerm, levels);
     const createdAt = this.clock.now();
     const sheets = statisticsSheets(report);
     const buffer = await buildTableFile(format, sheets, createdAt);
@@ -281,12 +297,17 @@ export class StudentStatisticsController {
 
   @Get('students')
   @RequirePermission(PERMISSION_CODES.childStatisticsView)
-  students(@Query() query: QueryValues, @AuthenticatedUser() currentUser: CurrentUser) {
+  async students(@Query() query: QueryValues, @AuthenticatedUser() currentUser: CurrentUser) {
     const errors: FieldError[] = [];
     const orgUnitId = optionalUuid(query, 'org_unit_id', errors);
     const term = readStatisticsTerm(query, errors);
     check(errors);
-    return this.statistics.students(currentUser, orgUnitId, term);
+    return this.statistics.students(
+      currentUser,
+      orgUnitId,
+      term,
+      await this.statistics.levelFilter(currentUser, query),
+    );
   }
 
   @Get('students/export')
@@ -302,7 +323,8 @@ export class StudentStatisticsController {
     const term = readStatisticsTerm(query, errors);
     const format = readTableFileFormat(query.format) ?? 'xlsx';
     check(errors);
-    const file = await this.statistics.export(currentUser, orgUnitId, term, format, query, request.ip ?? null);
+    const levels = await this.statistics.levelFilter(currentUser, query);
+    const file = await this.statistics.export(currentUser, orgUnitId, term, format, query, request.ip ?? null, levels);
     response.setHeader('content-type', file.contentType);
     response.setHeader('content-disposition', `attachment; filename="${file.fileName}"`);
     response.setHeader('x-export-log-id', file.logId);

@@ -73,11 +73,12 @@ const query = (orgUnitId: string, term: string, extra: Record<string, string> = 
     Object.entries({ org_unit_id: orgUnitId, term, ...extra }).filter(([, value]) => value !== ''),
   ).toString();
 
-export const readStudentStatistics = (orgUnitId: string, term: string): Promise<StudentStatistics> =>
-  requestJson(`/api/v1/statistics/students?${query(orgUnitId, term)}`);
+// Cấp học trống là mọi cấp (DT-19 phần 19d, YCTD-154)
+export const readStudentStatistics = (orgUnitId: string, term: string, schoolLevel = ''): Promise<StudentStatistics> =>
+  requestJson(`/api/v1/statistics/students?${query(orgUnitId, term, { school_level: schoolLevel })}`);
 
-export const exportStudentStatistics = (orgUnitId: string, term: string, format: 'xlsx' | 'pdf') =>
+export const exportStudentStatistics = (orgUnitId: string, term: string, format: 'xlsx' | 'pdf', schoolLevel = '') =>
   downloadFile(
-    `/api/v1/statistics/students/export?${query(orgUnitId, term, { format })}`,
+    `/api/v1/statistics/students/export?${query(orgUnitId, term, { format, school_level: schoolLevel })}`,
     `thong-ke-hoc-sinh.${format}`,
   );

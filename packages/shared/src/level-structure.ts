@@ -66,3 +66,26 @@ export function nextGradeLevel(
     ? { kind: 'grade', code: firstOfNext.code, school_level: nextLevel }
     : { kind: 'completed', school_level: current.school_level };
 }
+
+// Nhóm khối của báo cáo chấm công và suất ăn (DT-19 phần 19d, YCTD-154): lớp Mầm non chia Nhà trẻ, Mẫu giáo theo tháng tuổi của
+// khối như trước; lớp của cấp khác gộp theo cấp. Thứ tự là thứ tự dòng của báo cáo
+export const ATTENDANCE_STAGES = [
+  { key: 'nha_tre', label: 'Khối Nhà trẻ' },
+  { key: 'mau_giao', label: 'Khối Mẫu giáo' },
+  { key: 'TH', label: 'Cấp Tiểu học' },
+  { key: 'THCS', label: 'Cấp Trung học cơ sở' },
+  { key: 'THPT', label: 'Cấp Trung học phổ thông' },
+] as const;
+
+export type AttendanceStage = (typeof ATTENDANCE_STAGES)[number]['key'];
+
+export function attendanceStageOf(
+  schoolLevel: SchoolLevelCode,
+  ageFromMonths: number | null | undefined,
+): AttendanceStage {
+  if (schoolLevel !== 'MN') {
+    return schoolLevel;
+  }
+  // Nhà trẻ là khối cho trẻ dưới 36 tháng tuổi; còn lại là mẫu giáo
+  return ageFromMonths !== null && ageFromMonths !== undefined && ageFromMonths < 36 ? 'nha_tre' : 'mau_giao';
+}
