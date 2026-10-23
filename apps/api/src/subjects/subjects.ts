@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Injectable, Param, Patch, Post, Put, Query, Req } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Injectable, Param, Patch, Post, Put, Query, Req } from '@nestjs/common';
 import type { CatalogStatus, SchoolYearDatabase } from '@school-management/database';
 import {
   ApplicationError,
@@ -465,6 +465,7 @@ export class SubjectsController {
   }
 
   @Post('templates')
+  @HttpCode(200)
   @RequirePermission(PERMISSION_CODES.catalogManage)
   loadTemplate(@Body() body: RequestBody, @Req() request: Request, @AuthenticatedUser() currentUser: CurrentUser) {
     const errors: FieldError[] = [];
