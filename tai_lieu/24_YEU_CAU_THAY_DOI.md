@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.32
+- Phiên bản: 0.33
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,21 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-157: Kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu) – 2026-10-23
+
+- Lý do: lộ trình Eric chốt ngày 2026-10-19 (DT-19 → DT-20 Tiểu học, kèm 22c thời khoá biểu → DT-21). DT-19 đã gộp 19a đến 19e, 19f đang chờ gộp; cần bản kế hoạch DT-20 trước khi làm để chia phần, giữ sẵn số YCTD, migration, e2e, và chỉ rõ phần nào dựa trên nền DT-19. Đầu vào: dòng DT-20 của kế hoạch DT-18 (hồ sơ học sinh tiểu học, đánh giá theo Thông tư 27/2020, học bạ số, thời khoá biểu, sổ đầu bài, điểm danh theo tiết, bán trú, khen thưởng cuối năm, EMIS tiểu học, nề nếp và thi đua tuỳ trường) và phần 22c của kế hoạch DT-22 (khoảng 2 đơn vị, khung và nhập Excel trước, máy xếp sau). Chưa khảo sát hệ thống của Sở cấp Tiểu học vì Eric chưa có tài khoản; phần cần khớp Sở khảo sát sau.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - `32_KE_HOACH_THEO_HE_THONG_SO.md` phiên bản 1.38: thêm mục 11 "DT-20: Tiểu học (kèm 22c thời khoá biểu)" gồm căn cứ, mục tiêu và hiện trạng mã (11.1: nền DT-19 dùng lại, phần đã có như `children`, `class_staff_assignments`, `timetables` đơn giản của Mầm non, bếp, 22b, kí nội bộ; phần chưa có); nguyên tắc (11.2: không đổi hành vi Mầm non, đọc cấp qua `SchoolLevelResolver`, danh mục cấu hình được có bộ mặc định, đọc văn bản gốc trước phạm vi chi tiết, thời khoá biểu là nguồn của sổ đầu bài, học bạ là bản chốt, máy xếp chạy trong trường); tám phần 20a, 20b, 22c1, 20c, 20d, 20e, 22c2, 20f với phạm vi, đợt, phụ thuộc, YCTD-158 đến YCTD-165, migration giữ sẵn (năm học 0076 đến 0083, hệ thống 0026 và 0027, định danh 0067 đến 0074), e2e `87-` đến `94-` (11.3); bốn đợt, mỗi lúc tối đa hai phiên; phạm vi chi tiết (11.4); quyết định thiết kế (11.5: tách 22c thành 22c1, 22c2; thời khoá biểu theo môn là bảng mới; bán trú Tiểu học không dùng điểm danh theo ngày của Mầm non; nề nếp tách khỏi thi đua cán bộ; phần để DT-21, 22g); rủi ro, cách kiểm và cổng kiểm (11.6); quy ước chung (11.7); bảng tiến độ (11.8).
+  - YCTD-157 dành cho chính bản kế hoạch này; các phần bắt đầu từ YCTD-158.
+- Thành phần bị ảnh hưởng: tài liệu `02`, `24`, `32`, `index.md`. Không đổi mã nguồn.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không. Phiên bản phần mềm giữ nguyên (thay đổi chỉ tài liệu); nếu số tài liệu va với PR của 19f thì phần gộp sau đánh lại.
+- Kiểm thử cần thực hiện: rà bảng không thiếu dấu `|` kết thúc; số YCTD, migration, e2e giữ sẵn không trùng DT-19 và không trùng giữa các phần; kiểm tra định dạng tài liệu đạt.
+- Trạng thái: Đã triển khai
 
 ### YCTD-155: DT-19 phần 19e: cổng phụ huynh và ứng dụng giáo viên đa cấp – 2026-10-23
 
