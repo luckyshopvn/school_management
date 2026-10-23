@@ -72,6 +72,7 @@ import { migration as addSchoolLevelStructure } from './migrations/0072_add_scho
 import { migration as addFeeScheduleSchoolLevel } from './migrations/0073_add_fee_schedule_school_level.js';
 import { migration as addNewsAudienceLevels } from './migrations/0074_add_news_audience_levels.js';
 import { migration as backfillSchoolLevels } from './migrations/0075_backfill_school_levels.js';
+import { migration as createBoardingAndConduct } from './migrations/0077_create_boarding_and_conduct.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
@@ -148,4 +149,5 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0073_add_fee_schedule_school_level': addFeeScheduleSchoolLevel,
   '0074_add_news_audience_levels': addNewsAudienceLevels,
   '0075_backfill_school_levels': backfillSchoolLevels,
+  '0077_create_boarding_and_conduct': createBoardingAndConduct,
 };
