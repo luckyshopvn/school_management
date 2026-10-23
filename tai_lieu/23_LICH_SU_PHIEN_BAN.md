@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.34
+- Phiên bản: 0.35
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.109.0 – 2026-10-23
+
+- Phạm vi thay đổi: DT-20 phần 20c, đánh giá học sinh theo Thông tư 27/2020 (YCTD-161).
+- Chức năng mới: cấu hình mức đạt, phẩm chất, năng lực, kỳ đánh giá, bài kiểm tra định kỳ theo cấp (nạp mặc định của Thông tư); nhập kết quả định kỳ theo phân công ở cổng quản trị và ứng dụng giáo viên; nhận xét thường xuyên; tổng hợp cuối kỳ; gợi ý và xác nhận kết quả cuối năm; khoá, mở khoá số liệu; phụ huynh xem kết quả đã khoá.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: tệp năm học `0079_create_student_assessments`; tệp định danh `0070_add_assessment_permissions`.
+- Thay đổi API: `/assessment/config` (`/defaults`, `/levels`, `/items`, `/periods/{id}`, `/periods/{id}/tests`, `/templates`); `/assessment/classes/{id}`, `/subjects/{subjectId}`, `/competencies`, `/comments`, `/summary`, `/year-results`; `/assessment/comments/{id}`; `/assessment/locks`, `/locks/unlock`; `/assessment/children/{id}`.
+- Kiểm thử: kịch bản CT-851 đến CT-857. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/assessments/assessments.test.ts` CT-20c-1 đến CT-20c-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.3 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của Tiểu học của CT-19c-1); kiểm thử đơn vị toàn bộ kho mã đạt 1059/1059; kiểm thử giao diện `tests/e2e/90-student-assessments.spec.ts` (CT-20c-7) đạt; toàn bộ kiểm thử giao diện đạt 160/161 (spec 90 mới đạt; spec 38 nhắc nợ chập chờn, không liên quan, đạt ở lượt trước); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: hạn nhập mặc định theo ngày kết thúc học kỳ.
+- Khả năng tương thích: không đổi điểm cuối cũ; trường chỉ có Mầm non thấy như cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 20c; chạy phần quay lui của tệp năm học `0079` và tệp định danh `0070`.
 
 ### Phiên bản 0.108.0 – 2026-10-23
 

@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.36
+- Phiên bản: 0.37
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,29 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-161: DT-20 phần 20c: đánh giá học sinh theo Thông tư 27/2020 – 2026-10-23
+
+- Lý do: phần 20c của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.4 (đợt 2 của DT-20, sau 20a). Văn bản căn cứ đã đọc: Thông tư 27/2020/TT-BGDĐT ban hành Quy định đánh giá học sinh tiểu học (Điều 5 đánh giá thường xuyên; Điều 6, 7 đánh giá định kỳ, bài kiểm tra định kỳ; Điều 8 tổng hợp; Điều 9 khen thưởng và hoàn thành chương trình lớp học), Chương trình giáo dục phổ thông 2018 (danh mục phẩm chất chủ yếu, năng lực chung, năng lực đặc thù). Không đổi hành vi Mầm non: chức năng chỉ ở lớp có kỳ đánh giá của cấp; lớp Mầm non bị từ chối (422). Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Cấu hình theo cấp, không ghi cứng** (`apps/api/src/assessments/assessment-config.ts`): mức đạt của hai thang (môn học, hoạt động giáo dục; phẩm chất, năng lực) có hạng (hạng 1 cao nhất, hạng cuối là chưa đạt), thay cả thang một lần, mức đã dùng ở kết quả không bỏ được; danh mục phẩm chất, năng lực theo ba nhóm (phẩm chất chủ yếu, năng lực chung, năng lực đặc thù) thêm, sửa, ngừng dùng; kỳ đánh giá định kỳ (giữa, cuối học kỳ I, giữa học kỳ II, cuối năm) có hạn nhập (trống là ngày kết thúc học kỳ theo lịch năm học của cấp, 19b); môn, khối có bài kiểm tra định kỳ của từng kỳ (chỉ môn "nhận xét và điểm" của 20a); thư viện câu nhận xét. "Nạp cấu hình mặc định" theo Thông tư: Hoàn thành tốt, Hoàn thành, Chưa hoàn thành; Tốt, Đạt, Cần cố gắng; 5 phẩm chất, 3 năng lực chung, 7 năng lực đặc thù; 4 kỳ; bài kiểm tra cuối học kỳ I, cuối năm ở mọi môn có điểm của chương trình mặc định, giữa học kỳ ở Tiếng Việt, Toán lớp 4, 5; 6 câu nhận xét mẫu. Nạp lại không ghi đè mục đã có.
+  - **Nhập theo phân công** (`apps/api/src/assessments/assessments.ts`): môn của lớp lấy từ chương trình của lớp (trống là chương trình mặc định của cấp) và khối (20a). Giáo viên bộ môn được phân công môn của lớp nhập môn đó; giáo viên chủ nhiệm nhập các môn chưa có giáo viên bộ môn, phẩm chất, năng lực, kết quả cuối năm; người có `P02.assessment.manage` nhập thay mọi lớp trong phạm vi. Mức phải có ở thang của cấp; điểm bài kiểm tra là số nguyên 1 đến 10 và chỉ ở môn, khối có bài kiểm tra của kỳ. Quá hạn nhập chỉ người quản lý sửa; kỳ đã khoá thì không ai sửa.
+  - **Đánh giá thường xuyên:** nhận xét theo ngày cho học sinh (chung, theo môn hoặc phẩm chất, năng lực), không ghi cho ngày chưa đến; người viết xóa của mình, người quản lý xóa mọi nhận xét.
+  - **Tổng hợp cuối kỳ:** bảng của lớp: số học sinh theo mức của từng môn, phẩm chất, năng lực, số chưa nhập, điểm bài kiểm tra theo khoảng 9-10, 7-8, 5-6, dưới 5.
+  - **Tổng hợp cuối năm:** gợi ý kết quả hoàn thành chương trình lớp học theo Điều 9 từ kết quả kỳ cuối năm (Hoàn thành xuất sắc: mọi môn, phẩm chất, năng lực ở hạng 1 và bài kiểm tra cuối năm từ 9; Hoàn thành tốt: như trên, bài kiểm tra từ 7; Hoàn thành: không có mức chưa đạt, bài kiểm tra từ 5; còn lại Chưa hoàn thành; thiếu kết quả thì không gợi ý); giáo viên chủ nhiệm xác nhận (giữ cả gợi ý và kết quả xác nhận). Ngưỡng điểm theo Thông tư ở bộ mặc định của gói dùng chung.
+  - **Khoá số liệu** theo kỳ và lớp: Ban Giám hiệu khoá một kỳ ở mọi lớp của cấp trong phạm vi (hoặc các lớp chọn), mở khoá từng lớp kèm lý do; ghi nhật ký.
+  - **Phụ huynh** xem ở ứng dụng phụ huynh (con học lớp Tiểu học, `LEVEL_FEATURES.student_assessment`): các kỳ đã khoá (mức, điểm, nhận xét từng môn; phẩm chất, năng lực), kết quả cuối năm khi kỳ cuối năm đã khoá, nhận xét thường xuyên.
+  - **Dùng lại cho 20e, 20f:** kết quả theo kỳ, học sinh, môn (`subject_results`), phẩm chất, năng lực (`competency_results`), kết quả cuối năm (`year_results`) và trạng thái khoá là nguồn của học bạ, khen thưởng, EMIS.
+  - **Quyền mới** (tệp định danh `0070`): `P02.assessment.enter` (VT-07, VT-08), `P02.assessment.view` (VT-02, VT-15, VT-03), `P02.assessment.manage` (VT-02, VT-15).
+  - **Giao diện:** cổng quản trị mục 7.3 "Đánh giá học sinh" (chỉ khi trường bật Tiểu học) với các thẻ Nhập kết quả, Nhận xét thường xuyên, Tổng hợp cuối kỳ, Cuối năm, Khoá số liệu, Cấu hình; ứng dụng giáo viên có nút "Đánh giá học sinh" ở lớp Tiểu học.
+  - **Chuyển năm học:** cấu hình (mức, danh mục, kỳ, bài kiểm tra, câu nhận xét) chuyển sang năm học mới, hạn nhập bỏ trống; kết quả ở lại năm cũ.
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/school-year/migrations/0079_create_student_assessments.ts`, `database/identity/migrations/0070_add_assessment_permissions.ts`, `schema.ts`); gói dùng chung (`assessments.ts`, `PERMISSION_CODES`, `portal-menu.ts`, `menu-permissions.ts`, `level-features.ts`); máy chủ API (`assessments/`, `subjects/subjects.ts` xuất hàm đọc môn của chương trình); cổng quản trị (`assessments/`); ứng dụng giáo viên (`AssessmentScreen.tsx`), ứng dụng phụ huynh (`AssessmentPanel.tsx`).
+- Dữ liệu bị ảnh hưởng: tệp năm học `0079` thêm `assessment_levels`, `competency_items`, `assessment_periods`, `assessment_tests`, `comment_templates`, `subject_results`, `competency_results`, `regular_comments`, `assessment_locks`, `year_results`; tệp định danh `0070` thêm ba quyền. Không đổi dữ liệu đang có.
+- Đối chiếu trước, sau chuyển: không chuyển dữ liệu; cấu hình trống đến khi nhà trường nạp.
+- Rủi ro: hạn nhập mặc định theo ngày kết thúc học kỳ; trường cần ghi hạn riêng nếu muốn nhập sau ngày đó.
+- Chưa làm trong phần này, ghi để làm tiếp: nhập Excel theo mẫu lớp × môn, xuất bảng tổng hợp ra tệp; màn hình sửa thư viện câu nhận xét, mức đạt, danh mục ở cổng (máy chủ đã có điểm cuối, giao diện hiện xem và nạp mặc định, sửa hạn nhập).
+- Kiểm thử cần thực hiện: CT-851 đến CT-857. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/assessments/assessments.test.ts` CT-20c-1 đến CT-20c-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.3 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của Tiểu học của CT-19c-1); kiểm thử đơn vị toàn bộ kho mã đạt 1059/1059; kiểm thử giao diện `tests/e2e/90-student-assessments.spec.ts` (CT-20c-7) đạt; toàn bộ kiểm thử giao diện đạt 160/161 (spec 90 mới đạt; spec 38 nhắc nợ chập chờn, không liên quan, đạt ở lượt trước); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Trạng thái: Đã triển khai (PR #138).
 
 ### YCTD-159: DT-20 phần 20b: bán trú Tiểu học; nề nếp và thi đua lớp – 2026-10-23
 

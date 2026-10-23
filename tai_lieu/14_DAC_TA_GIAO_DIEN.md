@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.89
+- Phiên bản: 1.90
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -634,6 +634,8 @@ Từ YCTD-151 (DT-19 phần 19a), "1.4. Cấu hình trường" có thẻ "Cấp 
 Từ YCTD-153 (DT-19 phần 19c), menu ngang và ô Phân hệ theo cấp đang làm việc (MH-259): mục chỉ của Mầm non (Quản lý giáo dục Mầm non 4.3 Cân nặng, chiều cao (4.3.1, 4.3.2), 4.4 Hoàn thành chương trình; Tuyển sinh đầu cấp 1.1 Hồ sơ học sinh cuối cấp mầm non; Báo cáo số liệu 1.1 Báo cáo EMIS đầu năm (1.1.1, 1.1.2), 2.1 Báo cáo EMIS cuối năm, 2.4 Báo cáo giáo dục mầm non cuối năm) ẩn khi làm việc ở cấp khác; phân hệ "Quản lý giáo dục Mầm non" thành "Quản lý giáo dục <tên cấp>" khi làm việc ở một cấp, "Quản lý giáo dục" khi chọn "Tất cả" ở trường nhiều cấp. Ô ngữ cảnh lấy nhãn của cấp đang làm việc. Nhãn "Trẻ" ở 4.7 Điểm danh, phiếu thu, thẻ "Trẻ đang học" ở trang chủ đổi thành "Học sinh" ở cấp khác. Trường chỉ có Mầm non thấy y như trước.
 
 Từ YCTD-155 (DT-19 phần 19e), ứng dụng phụ huynh và ứng dụng giáo viên hiện chức năng theo cấp của con, của lớp (MH-260); trường chỉ có Mầm non thấy y như trước. Biểu mẫu "Thêm tin tức" ở "Hoạt động và tin tức" có ô cấp nhận (trường từ hai cấp) và số tài khoản phụ huynh nhận tin.
+
+Từ YCTD-161 (DT-20 phần 20c), mục 7.3 "Đánh giá học sinh" (chỉ hiện khi trường bật Tiểu học): chọn đơn vị, lớp Tiểu học, kỳ đánh giá; thẻ Nhập kết quả (nội dung là một môn của lớp hoặc "Phẩm chất, năng lực"; bảng học sinh với mức đạt, điểm kiểm tra định kỳ khi kỳ có bài kiểm tra, nhận xét gợi ý từ thư viện; ô bị khoá khi người dùng chỉ xem, quá hạn hoặc đã khoá), Nhận xét thường xuyên (học sinh, môn, nội dung; danh sách trong tháng), Tổng hợp cuối kỳ (bảng môn học, bảng phẩm chất, năng lực theo mức, số chưa nhập, điểm theo khoảng), Cuối năm (gợi ý, kết quả xác nhận), Khoá số liệu và Cấu hình (chỉ Ban Giám hiệu: nạp cấu hình mặc định, xem mức, danh mục, bài kiểm tra theo kỳ, sửa hạn nhập). Ứng dụng giáo viên có nút "Đánh giá học sinh" ở lớp Tiểu học (kỳ, môn được phân công, mức, điểm, nhận xét); ứng dụng phụ huynh có "Kết quả đánh giá" ở con Tiểu học. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
 
 Từ YCTD-159 (DT-20 phần 20b), mục 4.8 "Bán trú" (chọn đơn vị, lớp Tiểu học, ngày; bảng học sinh đăng ký với nút "Cắt suất", "Bỏ cắt suất", ô lý do; "Chốt số suất", ngày đã chốt có "Mở lại ngày đã chốt" kèm lý do) và 4.9 "Nề nếp, thi đua lớp" (thẻ Ghi điểm: lớp, ngày, tiêu chí, số lần, người báo, ghi chú, bảng điểm trong tuần; thẻ Xếp hạng: kỳ tuần, tháng, học kỳ I, II, bảng hạng; thẻ Tiêu chí: thêm, nạp bộ mặc định, ngừng dùng) chỉ hiện khi trường bật Tiểu học. 1.4 Cấu hình trường có thẻ "Nề nếp, thi đua lớp" (bật, điểm nền mỗi tuần). Ứng dụng giáo viên có nút "Bán trú" ở lớp Tiểu học (danh sách ăn, cắt suất, chốt số suất); ứng dụng phụ huynh có "Cắt suất bán trú" ở con Tiểu học (ngày, lý do, danh sách ngày đã cắt, hủy). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
 

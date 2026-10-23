@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.74
+- Phiên bản: 1.75
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -240,6 +240,9 @@ Bổ sung ngày 2026-10-09 theo yêu cầu tách vai trò Ban Giám hiệu thàn
 | BR-167 | Danh sách ăn bán trú lớp ngoài Mầm non (YCTD-159): học sinh đang học lớp, đăng ký bán trú của tháng (từ ngày bắt đầu dịch vụ) trừ học sinh cắt suất; chỉ ngày học; ngày đã chốt lưu số suất, không sửa cắt suất, mở lại phải có lý do; số suất của bếp, kiểm thực theo danh sách này; lớp ngoài Mầm non không báo cơm |
 | BR-168 | Phụ huynh cắt suất bán trú (YCTD-159): từ hôm nay trở đi, con đã đăng ký, lớp chưa chốt; hôm nay chỉ trước giờ vào học của đơn vị (mặc định 07:30). Tiền ăn học sinh lớp ngoài Mầm non theo ngày lớp đã chốt suất mà không cắt suất; còn ngày học chưa chốt suất thì chưa tính được |
 | BR-169 | Nề nếp, thi đua lớp (YCTD-159): tuỳ trường, chưa bật không ghi điểm; tiêu chí cùng cấp với lớp; điểm ghi = điểm mỗi lần × số lần (dấu theo loại); điểm tuần = điểm nền + tổng điểm trong tuần (thứ hai đến chủ nhật); tháng, học kỳ = trung bình điểm tuần có thứ hai trong kỳ; bằng điểm cùng hạng; người ghi xóa dòng của mình trong ngày, người quản lý xóa mọi dòng |
+| BR-170 | Quyền nhập đánh giá học sinh (YCTD-161): giáo viên bộ môn được phân công môn của lớp nhập môn đó; giáo viên chủ nhiệm nhập môn chưa có giáo viên bộ môn, phẩm chất, năng lực, kết quả cuối năm; người quản lý đánh giá nhập thay; mức phải có ở thang của cấp; điểm bài kiểm tra là số nguyên 1 đến 10, chỉ ở môn, khối có bài kiểm tra của kỳ |
+| BR-171 | Hạn nhập và khoá số liệu (YCTD-161): hạn là ngày ghi ở kỳ, trống là ngày kết thúc học kỳ theo lịch của cấp; quá hạn chỉ người quản lý sửa; kỳ đã khoá ở lớp thì không ai sửa đến khi mở khoá kèm lý do; phụ huynh chỉ xem kỳ đã khoá |
+| BR-172 | Gợi ý kết quả cuối năm (Điều 9 Thông tư 27/2020, YCTD-161): Hoàn thành xuất sắc khi mọi môn, phẩm chất, năng lực ở mức hạng 1 và bài kiểm tra cuối năm từ 9; Hoàn thành tốt như trên với bài kiểm tra từ 7; Hoàn thành khi không có mức hạng cuối và bài kiểm tra từ 5; còn lại Chưa hoàn thành; thiếu kết quả không gợi ý; giáo viên chủ nhiệm xác nhận |
 
 Danh mục chứng từ áp dụng hạn mức: phiếu chi, phiếu đảo phiếu thu (YCTD-23), phiếu đảo phiếu chi (YCTD-24), đề nghị mua hàng, phiếu điều chỉnh hóa đơn, miễn giảm học phí, bảng lương kỳ, chốt kỳ tài chính. Mức hạn mức cụ thể chưa có, xem Q-22 và Q-112.
 
