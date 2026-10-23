@@ -1,8 +1,8 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, thành phần, xác thực, phân quyền, lưu trữ tệp, ghi nhật ký, giám sát, sao lưu, phục hồi, triển khai.
-- Phiên bản: 1.13
-- Ngày cập nhật: 2026-10-23
+- Phiên bản: 1.12
+- Ngày cập nhật: 2026-10-15
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -237,7 +237,6 @@ Thứ tự dựng (YCTD-32): môi trường phát triển chạy Docker trên m�
 | QĐ-21 | Tài khoản kết nối của máy chủ API có quyền tạo cơ sở dữ liệu để mở năm học; không có quyền quản trị toàn hệ thống (YCTD-34) | Đã chốt ngày 2026-10-09 |
 | QĐ-22 | Mã phiên ký bằng khóa bất đối xứng Ed25519; dịch vụ định danh giữ khóa bí mật, máy chủ API chỉ giữ khóa công khai (YCTD-34) | Đã chốt ngày 2026-10-09 |
 | QĐ-23 | Đơn vị tổ chức là cây hai cấp: cấp 1 là Trường chính, chỉ một đơn vị; cấp 2 là Phân hiệu hoặc Điểm trường, chọn loại cho từng đơn vị, trực thuộc thẳng Trường chính; nhãn cố định; cả hai cấp có lớp; trẻ gắn với đơn vị của lớp trẻ đang học (YCTD-38) | Đã chốt ngày 2026-10-09 |
-| QĐ-24 | Nền đa cấp học (DT-19, YCTD-151 đến YCTD-156): bốn mã cấp cố định; cấp của trường ở `school_levels` (cơ sở dữ liệu hệ thống), đọc qua `SchoolLevelResolver`; cấp là thuộc tính của khối, lớp, đơn vị, chương trình, lịch, biểu phí; tham số cấp dùng chung `school_level`; một năm học một cơ sở dữ liệu cho cả trường, không tách theo cấp; chuyển dữ liệu bằng tệp vá chạy lặp được và lệnh kiểm đối chiếu chỉ đọc | Đã chốt ngày 2026-10-23 theo `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 10, 10.10 |
 
 ## 14. Chưa xác minh được
 

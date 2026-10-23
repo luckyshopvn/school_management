@@ -1,8 +1,8 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.79
-- Ngày cập nhật: 2026-10-22
+- Phiên bản: 1.80
+- Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -189,6 +189,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-89 | Bảo đảm chất lượng, tự đánh giá (YCTD-149): quyền mới thuộc P09: `P09.quality.use` cho VT-02, VT-15, VT-03, VT-04, VT-05, VT-06, VT-07, VT-08, VT-09, VT-10, VT-11, VT-12, VT-16, VT-17 (xem đợt mình thuộc hội đồng hoặc nhóm công tác; soạn, nộp phiếu, thêm minh chứng cho tiêu chí của nhóm mình); `P09.quality.manage` cho VT-02, VT-15 (bộ tiêu chuẩn, đợt, hội đồng, nhóm, duyệt phiếu, kế thừa minh chứng, kế hoạch cải tiến, công nhận; cần phạm vi toàn trường). VT-14 không có phân hệ "Bảo đảm chất lượng" |
 | PQ-90 | Cấp học của trường (YCTD-151): quyền mới `P01.school-level.manage` thuộc P01, chỉ VT-02: bật, tắt, thứ tự, tên hiển thị, thuật ngữ, nhãn ô ngữ cảnh của cấp học ở 1.4 Cấu hình trường. Mọi người đã đăng nhập xem được danh sách cấp. Phạm vi cấp học của tài khoản do người có `P01.account.manage` (hoặc `P01.account.manage-in-unit` trong phạm vi đơn vị) đặt; phạm vi chỉ thu hẹp, không cấp thêm quyền, không tạo vai trò theo cấp. VT-01 không có quyền cấu hình cấp học (PQ-10) |
 | PQ-91 | Menu theo cấp học (YCTD-153): không thêm quyền. Mọi người đã đăng nhập chọn được cấp đang làm việc trong các cấp mình được xem (cấp đang bật thu hẹp theo phạm vi cấp, PQ-90); chọn cấp chỉ đổi cái hiện ra, không cấp thêm quyền, máy chủ vẫn kiểm tra quyền và cấp ở mọi yêu cầu (tham số `school_level` ngoài cấp được xem trả 403). Cây quyền ở 1.3 Phân quyền nhóm theo menu ẩn mục của cấp trường chưa bật; quyền đã gán của mục đó giữ nguyên |
+| PQ-92 | Ứng dụng phụ huynh, giáo viên theo cấp (YCTD-155): không thêm quyền. Đếm người nhận tin (`POST /news-recipients/count`) cùng quyền soạn tin tức của đơn vị (`P14.content.manage`), phạm vi công bố kiểm tra như khi soạn tin; phụ huynh (VT-14) bị từ chối. Ẩn chức năng theo cấp ở ứng dụng không bớt quyền đã có; máy chủ vẫn kiểm tra quyền ở mọi yêu cầu |
 
 ## 5. Phân cấp phê duyệt
 

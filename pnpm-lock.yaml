@@ -139,6 +139,9 @@ importers:
 
   apps/parent:
     dependencies:
+      '@school-management/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@school-management/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -222,6 +225,9 @@ importers:
 
   apps/teacher:
     dependencies:
+      '@school-management/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@school-management/ui':
         specifier: workspace:*
         version: link:../../packages/ui

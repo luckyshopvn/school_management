@@ -76,7 +76,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.102.0 | DT-19 phần 19b: cấu trúc theo cấp học (khối, chương trình, lớp, đơn vị, học kỳ, tuần theo cấp; khối mẫu Tiểu học, THCS, THPT; trường Mầm non giữ nguyên) | YCTD-152 |
 | 0.103.0 | DT-19 phần 19c: menu và phân hệ theo cấp học (thuộc tính `levels`, tên phân hệ theo cấp, bộ chọn cấp đang làm việc, tham số cấp dùng chung, nhãn thuật ngữ theo cấp) | YCTD-153 |
 | 0.104.0 | DT-19 phần 19d: số liệu theo cấp học (tham số cấp dùng chung; thống kê, chấm công và suất ăn theo cấp; EMIS, tăng trưởng, hồ sơ cuối cấp chỉ Mầm non; biểu phí theo cấp) | YCTD-154 |
-| 0.105.0 | DT-19 phần 19f: tệp vá cấp học chạy lặp được, lệnh kiểm đối chiếu chỉ đọc, trường liên cấp trong bản trình diễn, e2e liên cấp, ghi chú chuẩn bị DT-20, DT-21 | YCTD-156 |
+| 0.105.0 | DT-19 phần 19e: cổng phụ huynh và ứng dụng giáo viên đa cấp (chức năng theo cấp, tên cấp của con và lớp, tin tức có cấp nhận, số người nhận trước khi công bố) | YCTD-155 |
 | 0.83.0 | DT-15 phần 15f3, các phân hệ Bếp – kho, mua hàng; Tương tác – truyền thông; Giảng dạy; Tuyển sinh, tuyển dụng; Báo cáo theo giao diện chung của Sở: tiêu đề đánh số theo menu, 32 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối; nghiệp vụ không đổi (YCTD-115) | 13, 21 | Đã có |
 | 0.81.0 | DT-15 phần 15f2, phân hệ Nhân sự – chấm công, lương theo giao diện chung của Sở: tiêu đề đánh số theo menu, 17 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối, hộp xác nhận xóa; nghiệp vụ không đổi (YCTD-113) | 13, 21 | Đã có |
 | 0.82.0 | DT-15 phần 15f1, phân hệ Tài chính – học phí theo giao diện chung của Sở: tiêu đề đánh số theo menu, 20 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối, hộp xác nhận xóa; nghiệp vụ không đổi (YCTD-114) | 13, 21 | Đã có |

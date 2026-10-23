@@ -243,6 +243,8 @@ function selectStudentColumns(selection: ReturnType<typeof filteredStudents>) {
     'classes.name as class_name',
     'classes.grade_level',
     'grade_levels.name as grade_name',
+    // Cấp của lớp đang học (DT-19 phần 19e): ứng dụng phụ huynh hiện chức năng theo cấp; chưa xếp lớp là trống
+    'classes.school_level',
     profileText('ethnicity').as('ethnicity'),
     profileText('policy_target').as('policy_target'),
     profileText('disability_type').as('disability_type'),
@@ -292,6 +294,7 @@ export interface StudentRecord {
   class_name: string | null;
   grade_level: string | null;
   grade_name: string | null;
+  school_level: string | null;
   ethnicity: string | null;
   policy_target: string | null;
   disability_type: string | null;

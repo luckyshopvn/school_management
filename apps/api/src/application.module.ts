@@ -95,6 +95,7 @@ import {
   LibraryAlbumsService,
   LibraryItemsController,
   NewsController,
+  NewsRecipientsController,
 } from './activities/content.js';
 import { ExtracurricularController, ExtracurricularService } from './activities/extracurricular.js';
 import { PurchasingController, PurchasingService } from './inventory/purchasing.js';
@@ -508,6 +509,7 @@ export class ApplicationModule {
         LibraryTopicsController,
         ContentFilesController,
         NewsController,
+        NewsRecipientsController,
         LibraryItemsController,
         ColoringPagesController,
         LibraryAlbumsController,

@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import type { ContentScopeType, SchoolYearDatabase } from '@school-management/database';
 import { ApplicationError, validationError, type FieldError } from '@school-management/server';
-import type { ExpressionBuilder, Kysely, Transaction } from 'kysely';
+import { levelOf, type SchoolLevelCode } from '@school-management/shared';
+import { sql, type ExpressionBuilder, type Kysely, type Transaction } from 'kysely';
 import { CurrentUser, type OrganizationScope } from '../authentication/current-user.js';
 import type { RequestBody } from '../common/request-fields.js';
 import { isUuid } from '../common/request-fields.js';
@@ -24,6 +25,7 @@ export interface GuardianChild {
   org_unit_id: string;
   class_id: string | null;
   grade_level: string | null;
+  school_level: string | null;
 }
 
 // Tập đơn vị, lớp, trẻ mà một người được xem nội dung đã công bố (BR-69)
@@ -32,6 +34,8 @@ export interface AudienceScope {
   unitIds: string[];
   classIds: string[];
   childIds: string[];
+  // Cấp các con đang học (DT-19 phần 19e), lọc tin tức theo cấp nhận; không có (nhân sự) là không lọc theo cấp
+  levels?: SchoolLevelCode[] | null;
 }
 
 @Injectable()
@@ -104,6 +108,7 @@ export class ActivityAccess {
         'children.org_unit_id',
         'class_enrollments.class_id',
         'classes.grade_level',
+        'classes.school_level',
       ])
       .where('guardians.user_id', '=', currentUser.id)
       .where('children.status', '=', 'active')
@@ -132,6 +137,11 @@ export class ActivityAccess {
         ]),
       ],
       childIds: children.map((child) => child.child_id),
+      // Người chỉ là phụ huynh xem tin theo cấp con học; người có vai trò nhân sự xem mọi cấp như cũ
+      levels:
+        staff.description.assignments.length > 0
+          ? null
+          : [...new Set(children.map((child) => levelOf(child.school_level)))],
     };
   }
 
@@ -168,6 +178,18 @@ export function audienceCondition(audience: AudienceScope) {
       reference.and([reference('scope_type', '=', 'child'), reference('scope_id', 'in', none(audience.childIds))]),
     ]) as never;
   };
+}
+
+// Điều kiện xem tin tức theo cấp nhận (DT-19 phần 19e): tin không ghi cấp là của mọi cấp; tin có cấp chỉ hiện với phụ huynh có
+// con học ở một trong các cấp đó. Nhân sự (levels không có) không lọc theo cấp
+export function newsLevelCondition(levels: readonly SchoolLevelCode[] | null | undefined) {
+  return (expression: ExpressionBuilder<SchoolYearDatabase, 'news'>) =>
+    levels
+      ? expression.or([
+          sql<boolean>`cardinality(news.audience_levels) = 0`,
+          sql<boolean>`news.audience_levels && ${[...levels]}::text[]`,
+        ])
+      : expression.lit(true);
 }
 
 // Kiểm tra một bản ghi đã công bố có thuộc phạm vi xem của người dùng
