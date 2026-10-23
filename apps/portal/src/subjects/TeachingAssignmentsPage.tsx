@@ -153,6 +153,7 @@ export function TeachingAssignmentsPage() {
           <label className="text-label font-medium text-text">
             Lớp Tiểu học
             <select
+              aria-label="Lớp Tiểu học"
               className={`mt-2 block ${FORM_CONTROL_CLASS}`}
               value={classId}
               onChange={(event) => setClassId(event.target.value)}

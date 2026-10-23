@@ -291,6 +291,7 @@ function PeriodsMatrix({
           Chương trình
           <select
             className={`mt-2 block ${FORM_CONTROL_CLASS}`}
+            aria-label="Chương trình"
             value={curriculum?.id ?? ''}
             onChange={(event) => setChosen(event.target.value)}
           >
@@ -410,6 +411,7 @@ export function SubjectsPage() {
                 Cấp học
                 <select
                   className={`mt-2 block ${FORM_CONTROL_CLASS}`}
+                  aria-label="Cấp học"
                   value={level}
                   onChange={(event) => setChosen(event.target.value as SchoolLevelCode)}
                 >
