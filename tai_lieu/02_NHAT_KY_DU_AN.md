@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.32
+- Phiên bản: 0.33
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,28 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-23 — Kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu)
+
+#### Công việc đã thực hiện
+
+- Đọc dòng DT-20 của kế hoạch DT-18 và phần 22c của kế hoạch DT-22 (cỡ khoảng 2 đơn vị, khung và nhập Excel trước, máy xếp sau); đọc mục 10 (DT-19) và mã hiện tại: `school_levels`, `SchoolLevelResolver`, khối, lớp, `curricula`, lịch theo cấp, `LEVEL_FEATURES`, `class_staff_assignments`, bảng `timetables` của phân hệ Giảng dạy, điểm danh theo ngày, bếp, 22b, bảng thi đua cán bộ 22d.
+- Thêm mục 11 vào `32_KE_HOACH_THEO_HE_THONG_SO.md` (phiên bản 1.38): kế hoạch DT-20 gồm tám phần 20a, 20b, 22c1, 20c, 20d, 20e, 22c2, 20f chạy bốn đợt; rủi ro, cách kiểm; bảng tiến độ.
+- Ghi YCTD-157 (chỉ đổi tài liệu).
+
+#### Quyết định
+
+- Tách 22c thành 22c1 (khung, nhập Excel, kiểm tra xung đột, ban hành) và 22c2 (máy xếp, chỉnh tay, dạy thay); thời khoá biểu theo môn là bảng mới, giữ bảng `timetables` của Mầm non; danh mục môn, mẫu nhận xét, học bạ, biểu EMIS cấu hình được vì chưa khảo sát Sở cấp Tiểu học; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Giữ sẵn YCTD-158 đến YCTD-165, migration năm học 0076 đến 0083, hệ thống 0026 và 0027, định danh 0067 đến 0074, e2e `87-` đến `94-`.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-157, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11. Không đổi mã nguồn, không đổi phiên bản phần mềm.
+
+#### Vấn đề tồn đọng
+
+- Khảo sát hệ thống của Sở cấp Tiểu học khi Eric có tài khoản; đọc toàn văn Thông tư 27/2020/TT-BGDĐT và văn bản về học bạ số trước khi làm 20c, 20e.
+
 
 ### 2026-10-23 — DT-19 phần 19e: cổng phụ huynh và ứng dụng giáo viên đa cấp
 
