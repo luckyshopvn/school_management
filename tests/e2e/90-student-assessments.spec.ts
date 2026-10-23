@@ -152,7 +152,7 @@ test('CT-20c-7: cấu hình mặc định, giáo viên nhập ở ứng dụng, 
     await portal.getByRole('button', { name: 'Nạp cấu hình mặc định (Thông tư 27/2020)' }).click();
     await expect(toast(portal, 'Đã nạp cấu hình đánh giá theo Thông tư 27/2020')).toBeVisible();
     const periods = portal.getByRole('table', { name: 'Kỳ đánh giá' });
-    await expect(periods.getByRole('row', { name: /Giữa học kỳ I/ })).toContainText('Tiếng Việt');
+    await expect(periods.getByRole('row', { name: /^Giữa học kỳ I / })).toContainText('Tiếng Việt');
 
     // Ứng dụng giáo viên: chủ nhiệm nhập Tiếng Việt giữa học kỳ I
     const teacherPage = await (await browser.newContext()).newPage();
