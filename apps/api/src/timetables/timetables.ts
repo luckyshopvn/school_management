@@ -203,8 +203,17 @@ export class TimetablesService {
     private readonly clock: Clock,
   ) {}
 
+  // Nhân sự xem được lớp; vai trò phụ huynh (VT-14) cũng có quyền xem hồ sơ con nên không tính, phụ huynh xem qua thời khoá
+  // biểu của con
+  private isStaffViewer(currentUser: CurrentUser): boolean {
+    return currentUser.description.assignments.some(
+      (assignment) =>
+        assignment.role_code !== 'VT-14' && VIEW_PERMISSIONS.some((code) => assignment.permissions.includes(code)),
+    );
+  }
+
   assertCanView(currentUser: CurrentUser) {
-    if (!VIEW_PERMISSIONS.some((code) => currentUser.hasPermission(code))) {
+    if (!this.isStaffViewer(currentUser)) {
       throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không xem được thời khoá biểu');
     }
   }
@@ -744,7 +753,7 @@ export class TimetablesService {
       .where('child_guardians.child_id', '=', childId)
       .where('guardians.user_id', '=', currentUser.id)
       .executeTakeFirst();
-    if (!guardian && !VIEW_PERMISSIONS.some((code) => currentUser.hasPermission(code))) {
+    if (!guardian && !this.isStaffViewer(currentUser)) {
       throw new ApplicationError(
         'ERR_FORBIDDEN',
         'Chỉ phụ huynh của học sinh hoặc nhân sự xem được thời khoá biểu này',
