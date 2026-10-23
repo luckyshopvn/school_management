@@ -1,4 +1,5 @@
 import ExcelJS from 'exceljs';
+import { ATTENDANCE_STAGES } from '@school-management/shared';
 import {
   DAY_CODES,
   ratePercent,
@@ -195,7 +196,7 @@ function overviewRows(report: AttendanceMealsReport): OverviewRow[] {
       day.counted && day.passed ? (days.find((item) => item.date === day.date)?.present ?? 0) : null,
     );
   const rows: OverviewRow[] = [];
-  for (const stage of ['nha_tre', 'mau_giao'] as const) {
+  for (const { key: stage } of ATTENDANCE_STAGES) {
     const stageGroup = report.groups.find((group) => group.kind === 'stage' && group.key === stage);
     if (!stageGroup) {
       continue;

@@ -50,6 +50,8 @@ interface PriceTable {
   scheduleName: string;
   tuition: Map<string, number>;
   services: Map<string, number>;
+  // Biểu phí của từng khối khi trường có biểu phí theo cấp (YCTD-154); khối không có ở đây dùng biểu phí đầu tiên
+  scheduleOfGrade: Map<string, { id: string; name: string }>;
 }
 
 const priceKey = (gradeLevel: string, serviceId: string) => `${gradeLevel}:${serviceId}`;
@@ -189,8 +191,8 @@ export class FeeCalculationService {
             enrolled_days: enrolledDays.length,
             present_days: present,
             grade_level: child.grade_level,
-            fee_schedule_id: prices.scheduleId,
-            fee_schedule_name: prices.scheduleName,
+            fee_schedule_id: prices.scheduleOfGrade.get(child.grade_level)?.id ?? prices.scheduleId,
+            fee_schedule_name: prices.scheduleOfGrade.get(child.grade_level)?.name ?? prices.scheduleName,
           },
         },
       ];
@@ -803,35 +805,47 @@ export class FeeCalculationService {
     }
   }
 
-  // Phiên bản biểu phí hiệu lực vào ngày đầu kỳ (BR-17, BR-18)
+  // Phiên bản biểu phí hiệu lực vào ngày đầu kỳ (BR-17, BR-18). Mỗi cấp một phiên bản hiệu lực (YCTD-154); mã khối không trùng
+  // giữa các cấp nên gộp giá của các cấp vào một bảng tra theo khối
   private async priceTable(database: Kysely<SchoolYearDatabase>, period: Period): Promise<PriceTable> {
     const { from } = periodRange(period);
-    const schedule = await database
+    const schedules = await database
       .selectFrom('fee_schedules')
-      .select(['id', 'name'])
+      .select(['id', 'name', 'school_level'])
       .where('effective_from', '<=', from)
       .where((expression) =>
         expression.or([expression('effective_to', 'is', null), expression('effective_to', '>=', from)]),
       )
-      .executeTakeFirst();
+      .orderBy('school_level')
+      .execute();
+    const schedule = schedules.find((row) => row.school_level === 'MN') ?? schedules[0];
     if (!schedule) {
       throw ruleViolationError('BR-17', 'Chưa có biểu phí hiệu lực trong kỳ');
     }
     const items = await database
       .selectFrom('fee_schedule_items')
-      .select(['grade_level', 'fee_type', 'service_id', 'amount'])
-      .where('fee_schedule_id', '=', schedule.id)
+      .select(['fee_schedule_id', 'grade_level', 'fee_type', 'service_id', 'amount'])
+      .where(
+        'fee_schedule_id',
+        'in',
+        schedules.map((row) => row.id),
+      )
       .execute();
     const tuition = new Map<string, number>();
     const services = new Map<string, number>();
+    const scheduleOfGrade = new Map<string, { id: string; name: string }>();
     for (const item of items) {
+      const owner = schedules.find((row) => row.id === item.fee_schedule_id);
+      if (owner) {
+        scheduleOfGrade.set(item.grade_level, { id: owner.id, name: owner.name });
+      }
       if (item.fee_type === 'tuition') {
         tuition.set(item.grade_level, Number(item.amount));
       } else if (item.service_id) {
         services.set(priceKey(item.grade_level, item.service_id), Number(item.amount));
       }
     }
-    return { scheduleId: schedule.id, scheduleName: schedule.name, tuition, services };
+    return { scheduleId: schedule.id, scheduleName: schedule.name, tuition, services, scheduleOfGrade };
   }
 
   private async activeRegistrations(database: Kysely<SchoolYearDatabase>, childIds: string[], period: Period) {

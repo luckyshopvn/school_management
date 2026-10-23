@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.85
+- Phiên bản: 1.86
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -632,6 +632,8 @@ Từ YCTD-151 (DT-19 phần 19a), "1.4. Cấu hình trường" có thẻ "Cấp 
 Từ YCTD-153 (DT-19 phần 19c), menu ngang và ô Phân hệ theo cấp đang làm việc (MH-259): mục chỉ của Mầm non (Quản lý giáo dục Mầm non 4.3 Cân nặng, chiều cao (4.3.1, 4.3.2), 4.4 Hoàn thành chương trình; Tuyển sinh đầu cấp 1.1 Hồ sơ học sinh cuối cấp mầm non; Báo cáo số liệu 1.1 Báo cáo EMIS đầu năm (1.1.1, 1.1.2), 2.1 Báo cáo EMIS cuối năm, 2.4 Báo cáo giáo dục mầm non cuối năm) ẩn khi làm việc ở cấp khác; phân hệ "Quản lý giáo dục Mầm non" thành "Quản lý giáo dục <tên cấp>" khi làm việc ở một cấp, "Quản lý giáo dục" khi chọn "Tất cả" ở trường nhiều cấp. Ô ngữ cảnh lấy nhãn của cấp đang làm việc. Nhãn "Trẻ" ở 4.7 Điểm danh, phiếu thu, thẻ "Trẻ đang học" ở trang chủ đổi thành "Học sinh" ở cấp khác. Trường chỉ có Mầm non thấy y như trước.
 
 Từ YCTD-155 (DT-19 phần 19e), ứng dụng phụ huynh và ứng dụng giáo viên hiện chức năng theo cấp của con, của lớp (MH-260); trường chỉ có Mầm non thấy y như trước. Biểu mẫu "Thêm tin tức" ở "Hoạt động và tin tức" có ô cấp nhận (trường từ hai cấp) và số tài khoản phụ huynh nhận tin.
+
+Từ YCTD-154 (DT-19 phần 19d), ô "Cấp học" (lựa chọn trống là theo cấp đang làm việc ở thanh đầu trang, hoặc "Tất cả cấp"; chỉ hiện ở trường bật từ hai cấp) ở 5.1 và 5.3 Thống kê, báo cáo điểm danh và suất ăn; 5.1 có thêm bảng "Lớp theo khối (cấp ngoài Mầm non)"; báo cáo điểm danh và suất ăn có nhóm "Cấp Tiểu học", "Cấp Trung học cơ sở", "Cấp Trung học phổ thông" sau Nhà trẻ, Mẫu giáo. Biểu mẫu biểu phí có ô "Cấp học" khi tạo phiên bản (bảng giá chỉ có khối của cấp đã chọn, giá điền sẵn theo phiên bản mới nhất của cấp), mỗi phiên bản ghi cấp. Trường chỉ có Mầm non thấy như cũ. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
 
 Từ YCTD-152 (DT-19 phần 19b), cấu trúc theo cấp học: MH-34 (danh mục bậc học) thêm cột và ô "Cấp học" (không đổi sau khi tạo), tháng tuổi bỏ trống được ở khối ngoài Mầm non, "Nạp khối mẫu theo cấp" (Tiểu học, THCS, THPT) và thẻ "Chương trình" (lưới khóa `curricula`: mã, tên, cấp học, khối áp dụng, mặc định của cấp). Ô cấp học chỉ có cấp đang bật; khối mẫu chỉ hiện khi trường bật cấp ngoài Mầm non. Khi trường bật từ hai cấp: biểu mẫu lớp hiện "Cấp học" (theo khối) và "Chương trình" (trống là mặc định của cấp), ẩn nhóm tuổi, học 2 buổi/ngày, ghép độ tuổi, lớp ghép khi khối thuộc cấp khác Mầm non; MH-45 (lịch năm học) có ô "Lịch của cấp" (lịch chung hoặc một cấp), báo cấp đang theo lịch chung, nút "Bỏ lịch riêng của cấp"; cây đơn vị có bảng "Cấp học của đơn vị" (mỗi đơn vị một dòng, bốn ô chọn cấp, nút Ghi). Trường chỉ có Mầm non giữ biểu mẫu lớp, lịch, cây đơn vị như cũ. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
 

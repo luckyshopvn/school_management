@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
 import { Alert, Button } from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
+import { LevelSelect, useReportLevel } from '../school-levels/LevelSelect.js';
 import { messageOf } from '../health/health-api.js';
 import { AppShell } from '../pages/AppShell.js';
 import { formatNumber } from '../reports/reports-api.js';
@@ -68,10 +69,10 @@ function BreakdownTable({ title, label, items }: { title: string; label: string;
   );
 }
 
-function ClassesView({ orgUnitId }: { orgUnitId: string }) {
+function ClassesView({ orgUnitId, schoolLevel }: { orgUnitId: string; schoolLevel: string }) {
   const stats = useQuery({
-    queryKey: ['statistics', 'classes', orgUnitId],
-    queryFn: () => readClassStatistics(orgUnitId),
+    queryKey: ['statistics', 'classes', orgUnitId, schoolLevel],
+    queryFn: () => readClassStatistics(orgUnitId, schoolLevel),
     retry: false,
   });
   if (stats.error) {
@@ -98,6 +99,20 @@ function ClassesView({ orgUnitId }: { orgUnitId: string }) {
           group.children_percent,
         ])}
       />
+      {stats.data.grade_groups && stats.data.grade_groups.length > 0 ? (
+        <Table
+          title="Lớp theo khối (cấp ngoài Mầm non)"
+          headers={['Khối', 'Số lớp', 'Tỷ lệ lớp (%)', 'Số học sinh', 'Nữ', 'Tỷ lệ học sinh (%)']}
+          rows={stats.data.grade_groups.map((group) => [
+            group.label,
+            group.class_count,
+            group.class_percent,
+            group.children_count,
+            group.female_count,
+            group.children_percent,
+          ])}
+        />
+      ) : null}
     </>
   );
 }
@@ -137,6 +152,7 @@ export function StatisticsPage() {
   const tab = chosen ?? tabs[0];
   const unitChoice = useUnitChoice();
   const [orgUnitId, setOrgUnitId] = useState('');
+  const level = useReportLevel();
   return (
     <AppShell>
       <div className="flex flex-col gap-4">
@@ -159,10 +175,11 @@ export function StatisticsPage() {
           selectedId={orgUnitId}
           onSelect={setOrgUnitId}
         />
+        {tab === 'staff' ? null : <LevelSelect value={level.value} onChange={level.setValue} />}
         {tab === undefined ? <Alert tone="info">Bạn chưa được cấp quyền xem thống kê.</Alert> : null}
-        {tab === 'classes' ? <ClassesView orgUnitId={orgUnitId} /> : null}
+        {tab === 'classes' ? <ClassesView orgUnitId={orgUnitId} schoolLevel={level.effective} /> : null}
         {tab === 'staff' ? <StaffView orgUnitId={orgUnitId} /> : null}
-        {tab === 'children' ? <StudentStatisticsView orgUnitId={orgUnitId} /> : null}
+        {tab === 'children' ? <StudentStatisticsView orgUnitId={orgUnitId} schoolLevel={level.effective} /> : null}
       </div>
     </AppShell>
   );

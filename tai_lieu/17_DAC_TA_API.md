@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.100
+- Phiên bản: 1.101
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -1044,6 +1044,7 @@ Giáo viên chủ nhiệm và giáo viên bộ môn chỉ thao tác trên lớp 
 |---|---|---|
 | GET, POST | /api/v1/fee-schedules | Danh sách phiên bản biểu phí và tạo phiên bản mới |
 | GET, PUT, DELETE | /api/v1/fee-schedules/{id} | Xem; sửa, xóa phiên bản chưa tới ngày hiệu lực (YCTD-49) |
+| GET, POST | /api/v1/fee-schedules (từ YCTD-154) | `GET` lọc `school_level`; `POST` nhận `school_level` (mặc định MN, cấp phải đang bật); mỗi phiên bản trả `school_level` |
 | GET, POST | /api/v1/services | Danh sách và tạo dịch vụ |
 | PATCH | /api/v1/services/{id} | Sửa, ngừng sử dụng dịch vụ (YCTD-49) |
 | GET, POST | /api/v1/service-registrations | Bảng đăng ký của đơn vị theo kỳ và đăng ký dịch vụ |
@@ -1459,7 +1460,7 @@ Giao kèo menu theo cấp học (DT-19 phần 19c, YCTD-153, BR-159):
 4. `GET /me/quick-links` không trả lối tắt tới mục menu của cấp trường chưa bật; `PUT` giữ kiểm tra cũ.
 
 
-Giao kèo ứng dụng phụ huynh, giáo viên và tin tức theo cấp (DT-19 phần 19e, YCTD-155, BR-160):
+Giao kèo ứng dụng phụ huynh, giáo viên và tin tức theo cấp (DT-19 phần 19e, YCTD-155, BR-163):
 
 1. `GET /children` thêm `school_level` ở mỗi dòng: cấp của lớp đang học, `null` khi chưa xếp lớp (ứng dụng coi là Mầm non). `GET /classes` đã có `school_level` (YCTD-152).
 2. `POST /news`, `PATCH /news/{id}` nhận `audience_levels` (mảng mã cấp; không gửi là không đổi, khi tạo là trống); mã sai hoặc cấp chưa bật trả 400 ở `audience_levels`; phạm vi lớp, trẻ luôn lưu `[]`. Tin trả thêm `audience_levels`.
@@ -1812,6 +1813,7 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | GET | /api/v1/reports/growth | Tổng hợp cân nặng, chiều cao theo đợt hoặc tháng, lọc đơn vị, giới tính, kênh (P10-14, YCTD-105); từ YCTD-125 theo học kỳ (`term`), so sánh với đợt khác (`compare_round_id`), số được khám định kỳ |
 | GET | /api/v1/reports/growth/export | Xuất Excel tổng hợp cân nặng, chiều cao, ghi nhật ký xuất (BR-74, YCTD-105) |
 | GET | /api/v1/statistics/classes | Thống kê lớp học theo nhóm tuổi (P17-16, YCTD-105) |
+| GET | /api/v1/statistics/classes, /statistics/children, /statistics/students, /statistics/missing-child-fields, /reports/attendance-meals (từ YCTD-154) | Nhận `school_level` (mã cấp đang bật, trong phạm vi cấp của người dùng, 403 nếu không; trống hoặc `all` là mọi cấp được xem); 5.1 trả thêm `grade_groups` (lớp cấp ngoài Mầm non theo khối); chấm công và suất ăn có `stage` theo cấp (`TH`, `THCS`, `THPT`) |
 | GET | /api/v1/statistics/children | Thống kê học sinh (P17-16, YCTD-105) |
 | GET | /api/v1/statistics/students | 5.3 Thống kê học sinh theo Sở theo học kỳ (`term`), lọc `org_unit_id` (P17-21, BR-123, YCTD-125) |
 | GET | /api/v1/statistics/students/export | Xuất Excel hoặc PDF (`format`) năm bảng của 5.3, ghi nhật ký xuất (BR-74, YCTD-125) |

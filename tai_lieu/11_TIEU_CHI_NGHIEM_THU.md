@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.52
+- Phiên bản: 1.53
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -814,9 +814,13 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-739 | Cho trường chỉ có Mầm non / Khi nâng cấp lên phiên bản có menu theo cấp / Thì menu (tên phân hệ, số thứ bậc, thứ tự, mục), ô ngữ cảnh "Cấp MN", chữ "Trẻ", lối tắt, cây quyền như trước; không có bộ chọn cấp (CT-811, CT-815, CT-819; YCTD-153) |
 | AC-740 | Cho trường bật Mầm non và Tiểu học / Khi người dùng chọn Tiểu học ở bộ chọn cấp / Thì mục chỉ của Mầm non ẩn, phân hệ thành "Quản lý giáo dục Tiểu học", ô ngữ cảnh "Cấp TH", thẻ "Học sinh đang học"; tải lại vẫn là Tiểu học; chọn "Tất cả" thì phân hệ "Quản lý giáo dục", ô ngữ cảnh ghép hai cấp (CT-812, CT-813, CT-814, CT-816, CT-819; YCTD-153) |
 | AC-741 | Cho người dùng có phạm vi cấp / Khi chọn cấp ngoài phạm vi, gửi tham số cấp chưa bật, hoặc trường tắt cấp có lối tắt / Thì bị từ chối (400, 403); lối tắt của cấp chưa bật ẩn và hiện lại khi bật cấp (CT-816, CT-817, CT-818; YCTD-153) |
-| AC-742 | Cho trường chỉ có Mầm non / Khi nâng cấp lên phiên bản có ứng dụng theo cấp / Thì ứng dụng phụ huynh, giáo viên y như trước (không có tên cấp, đủ chức năng); tin tức cũ vẫn hiện và gửi như trước (CT-820, CT-823; YCTD-155) |
-| AC-743 | Cho phụ huynh có một con Mầm non, một con Tiểu học và giáo viên dạy hai lớp ở hai cấp / Khi mở ứng dụng / Thì thấy đủ các con, các lớp kèm tên cấp; con, lớp Tiểu học không có báo vắng, điểm danh theo ngày, nhật ký, chăm sóc hằng ngày, báo cơm, hồ sơ cuối cấp; lớp Tiểu học ghi sĩ số "… học sinh" (CT-820, CT-821, CT-824; YCTD-155) |
-| AC-744 | Cho người soạn tin của trường bật Mầm non và Tiểu học / Khi chọn cấp nhận Tiểu học rồi công bố / Thì biểu mẫu hiện số tài khoản phụ huynh nhận tin; chỉ phụ huynh có con Tiểu học thấy và nhận thông báo; cấp chưa bật, mã sai bị từ chối; phụ huynh không đếm được người nhận (CT-822, CT-823, CT-824; YCTD-155) |
+| AC-742 | Cho trường chỉ có Mầm non / Khi xem 5.1, chấm công và suất ăn, EMIS, biểu phí / Thì số liệu như trước, không có ô cấp học; cấp chưa bật bị từ chối (CT-820; YCTD-154) |
+| AC-743 | Cho trường bật Tiểu học có một lớp khối 1 / Khi xem 5.1 không lọc, lọc Tiểu học, lọc Mầm non / Thì lớp khối 1 ở bảng theo khối, không vào nhóm tuổi; lọc trả đúng lớp, học sinh của cấp (CT-821, CT-827; YCTD-154) |
+| AC-744 | Cho trường liên cấp / Khi xem báo cáo chấm công và suất ăn; biểu mẫu EMIS, hồ sơ cuối cấp / Thì lớp Tiểu học ở nhóm "Cấp Tiểu học"; biểu mẫu Mầm non không có lớp, trẻ Tiểu học (CT-822, CT-823, CT-826; YCTD-154) |
+| AC-745 | Cho kế toán / Khi tạo biểu phí Tiểu học có khối Mầm non, biểu phí Tiểu học đúng, biểu phí THCS chưa bật / Thì khối khác cấp bị từ chối; hai cấp cùng ngày hiệu lực đều hiệu lực; cấp chưa bật bị từ chối (CT-824; YCTD-154) |
+| AC-746 | Cho trường chỉ có Mầm non / Khi nâng cấp lên phiên bản có ứng dụng theo cấp / Thì ứng dụng phụ huynh, giáo viên y như trước (không có tên cấp, đủ chức năng); tin tức cũ vẫn hiện và gửi như trước (CT-828, CT-831; YCTD-155) |
+| AC-747 | Cho phụ huynh có một con Mầm non, một con Tiểu học và giáo viên dạy hai lớp ở hai cấp / Khi mở ứng dụng / Thì thấy đủ các con, các lớp kèm tên cấp; con, lớp Tiểu học không có báo vắng, điểm danh theo ngày, nhật ký, chăm sóc hằng ngày, báo cơm, hồ sơ cuối cấp; lớp Tiểu học ghi sĩ số "… học sinh" (CT-828, CT-829, CT-832; YCTD-155) |
+| AC-748 | Cho người soạn tin của trường bật Mầm non và Tiểu học / Khi chọn cấp nhận Tiểu học rồi công bố / Thì biểu mẫu hiện số tài khoản phụ huynh nhận tin; chỉ phụ huynh có con Tiểu học thấy và nhận thông báo; cấp chưa bật, mã sai bị từ chối; phụ huynh không đếm được người nhận (CT-830, CT-831, CT-832; YCTD-155) |
 
 ## 20. Chưa xác minh được
 

@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.31
+- Phiên bản: 0.32
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đang cập nhật
 
@@ -22,7 +22,7 @@
 - Gói dùng chung: `LEVEL_FEATURES`, `hasLevelFeature`, `levelOf`, `matchesAudienceLevels`. Ứng dụng phụ huynh, giáo viên dùng gói dùng chung.
 - Cơ sở dữ liệu: tệp năm học `0074_add_news_audience_levels`. Máy chủ API: cấp của con ở danh sách học sinh; phạm vi xem tin theo cấp con học; người nhận tin theo cấp; `POST /news-recipients/count`.
 - Ứng dụng phụ huynh: tên cấp ở thẻ con khi các con học nhiều cấp; ẩn chức năng chỉ của Mầm non ở con cấp khác. Ứng dụng giáo viên: lớp xếp theo cấp, tên cấp, ẩn chức năng chỉ của Mầm non ở lớp cấp khác. Cổng quản trị: ô "Cấp nhận tin" và số người nhận ở "Thêm tin tức".
-- Thêm quy tắc BR-160, chức năng P01-43 đến P01-44, quyền PQ-92, màn hình MH-260, kịch bản CT-820 đến CT-824, tiêu chí AC-742 đến AC-744. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/school-levels/multi-level-apps.test.ts` CT-19e-1 đến CT-19e-4 đạt 4/4; kiểm thử đơn vị toàn bộ kho mã đạt 1031/1031 (không sửa kỳ vọng của kiểm thử đang có); kiểm thử giao diện `tests/e2e/85-multi-level-apps.spec.ts` (CT-19e-5) đạt; toàn bộ kiểm thử giao diện đạt 156/156; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm quy tắc BR-163, chức năng P01-43 đến P01-44, quyền PQ-92, màn hình MH-260, kịch bản CT-828 đến CT-832, tiêu chí AC-746 đến AC-748. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/school-levels/multi-level-apps.test.ts` CT-19e-1 đến CT-19e-4 đạt 4/4; kiểm thử đơn vị toàn bộ kho mã … (không sửa kỳ vọng của kiểm thử đang có); kiểm thử giao diện `tests/e2e/85-multi-level-apps.spec.ts` (CT-19e-5) đạt; toàn bộ kiểm thử giao diện …; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
@@ -30,12 +30,34 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-155, `07_QUY_TAC_NGHIEP_VU.md` BR-160, `08_VAI_TRO_NGUOI_DUNG.md` PQ-92, `10_YEU_CAU_CHUC_NANG.md` P01-43 đến P01-44, `11_TIEU_CHI_NGHIEM_THU.md` AC-742 đến AC-744, `14_DAC_TA_GIAO_DIEN.md` MH-260, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-820 đến CT-824, `23_LICH_SU_PHIEN_BAN.md` 0.104.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-155, `07_QUY_TAC_NGHIEP_VU.md` BR-163, `08_VAI_TRO_NGUOI_DUNG.md` PQ-92, `10_YEU_CAU_CHUC_NANG.md` P01-43 đến P01-44, `11_TIEU_CHI_NGHIEM_THU.md` AC-746 đến AC-748, `14_DAC_TA_GIAO_DIEN.md` MH-260, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-828 đến CT-832, `23_LICH_SU_PHIEN_BAN.md` 0.105.0.
 
 #### Vấn đề tồn đọng
 
 - DT-20, DT-21 thêm chức năng của cấp khác (điểm danh theo tiết, sổ điểm, sổ đầu bài, học bạ) vào `LEVEL_FEATURES` và chặn ở máy chủ; tin gửi theo khối làm cùng DT-20.
 
+
+### 2026-10-22 — DT-19 phần 19d: số liệu theo cấp học
+
+#### Công việc đã thực hiện
+
+- Đọc mục 10 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà các chỗ tính theo tháng tuổi, nhóm tuổi Mầm non ở thống kê, EMIS, chấm công và suất ăn, tăng trưởng, hồ sơ cuối cấp, biểu phí, nhập Excel, kí hồ sơ.
+- Cơ sở dữ liệu: tệp năm học `0073_add_fee_schedule_school_level`.
+- Máy chủ API: tham số cấp dùng chung, lọc cấp ở thống kê, chấm công và suất ăn; biểu mẫu Mầm non chỉ tính cấp Mầm non; biểu phí theo cấp; kí hồ sơ theo cấp; kiểm bốn mã ở danh mục văn bản.
+- Cổng quản trị: ô "Cấp học" ở thống kê, báo cáo chấm công và suất ăn, biểu phí.
+- Thêm quy tắc BR-160 đến BR-162, chức năng P17-29, P17-30, P05-14, kịch bản CT-820 đến CT-827, tiêu chí AC-742 đến AC-745. Kết quả ngày 22/10/2026: kiểm thử đơn vị `apps/api/src/statistics/level-reports.test.ts` CT-19d-1 đến CT-19d-7 đạt 7/7; kiểm thử đơn vị đang có không sửa kỳ vọng; kiểm thử đơn vị toàn bộ kho mã 1034/1034; kiểm thử giao diện `tests/e2e/84-level-reports.spec.ts` (CT-19d-8) đạt; toàn bộ kiểm thử giao diện 154/156 ở lượt cuối trên máy (hai ca 59 quên mật khẩu, 65 gửi thiết bị lên cấp trên chập chờn, không thuộc phần sửa và đạt ở các lượt trước; spec 84 đạt), CI là kết quả chính thức; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 19d của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 10.4. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: không có tham số cấp thì chỉ lọc khi người dùng bị giới hạn cấp; biểu mẫu Mầm non bỏ trẻ của lớp cấp khác, giữ trẻ chưa xếp lớp; biểu phí mỗi cấp một chuỗi phiên bản; lớp cấp khác ở báo cáo chấm công và suất ăn thành nhóm theo cấp.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-154, `07_QUY_TAC_NGHIEP_VU.md` BR-160 đến BR-162, `10_YEU_CAU_CHUC_NANG.md` P17-29, P17-30, P05-14, `11_TIEU_CHI_NGHIEM_THU.md` AC-742 đến AC-745, `14_DAC_TA_GIAO_DIEN.md`, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-820 đến CT-827, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 10.9. Phiên bản 0.104.0.
+
+#### Vấn đề tồn đọng
+
+- Biểu EMIS, chuẩn tăng trưởng, hồ sơ chuyển cấp của Tiểu học, THCS, THPT ở DT-20, DT-21; lệnh kiểm đối chiếu nhiều năm học ở 19f.
 
 ### 2026-10-22 — DT-19 phần 19c: menu và phân hệ theo cấp học
 

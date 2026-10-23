@@ -33,6 +33,7 @@ import { AuthenticatedUser, RequirePermission } from '../authentication/authenti
 import type { CurrentUser } from '../authentication/current-user.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
+import { childIdsOutsideLevel } from '../common/report-levels.js';
 import { notFoundError, type RequestBody } from '../common/request-fields.js';
 import { childIsNursery, hasDisability, staffCategory } from '../facilities/emis-calc.js';
 import { EmisReportService } from '../facilities/emis-report.js';
@@ -841,6 +842,8 @@ export class EmisForms {
         .selectFrom('classes')
         .select(['id', 'age_group', 'mixed_age_count', 'room_id', 'two_sessions_per_day', 'boarding'])
         .where('status', '=', 'active')
+        // Biểu mẫu EMIS Mầm non chỉ tính lớp cấp Mầm non (DT-19 phần 19d, YCTD-154)
+        .where('school_level', '=', 'MN')
         .execute(),
       this.data.classes(
         database,
@@ -945,9 +948,11 @@ export class EmisForms {
       .where('children.status', '=', 'active')
       .where('children.deleted_at', 'is', null)
       .execute();
+    // Bỏ trẻ đang học lớp ngoài cấp Mầm non (YCTD-154)
+    const outside = await childIdsOutsideLevel(context.database, 'MN');
     const seen = new Set<string>();
     return rows.filter((row) => {
-      if (seen.has(row.id)) {
+      if (seen.has(row.id) || outside.has(row.id)) {
         return false;
       }
       seen.add(row.id);
@@ -1320,10 +1325,12 @@ export class EmisForms {
       database.selectFrom('program_completions').select(['child_id', 'result']).execute(),
     ]);
     const completion = new Map(completions.map((row) => [row.child_id, row.result]));
+    // Bỏ trẻ đang học lớp ngoài cấp Mầm non (YCTD-154)
+    const outside = await childIdsOutsideLevel(database, 'MN');
     const seen = new Set<string>();
     const result: YearChild[] = [];
     for (const child of children) {
-      if (seen.has(child.id)) {
+      if (seen.has(child.id) || outside.has(child.id)) {
         continue;
       }
       seen.add(child.id);
