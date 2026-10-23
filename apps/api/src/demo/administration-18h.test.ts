@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { randomBytes, randomUUID } from 'node:crypto';
 import { after, before, describe, it } from 'node:test';
 import {
+  collectLevelReport,
   createDatabase,
   createEmptyDatabase,
   dropDatabaseIfExists,
@@ -10,6 +11,7 @@ import {
   readConnectionString,
   replaceDatabaseName,
   type IdentityDatabase,
+  type SchoolYearDatabase,
   type SystemDatabase,
 } from '@school-management/database';
 import { createTestUser, postJson } from '@school-management/identity/testing';
@@ -22,7 +24,7 @@ import { RecordingSmsGateway } from '../notifications/sms-gateway.js';
 import { openTestAcademicYear, sendJson, startApiTestEnvironment, type ApiTestEnvironment } from '../test-support.js';
 import { DemoAwareSmsGateway, DemoMode } from './demo-mode.js';
 import { DemoGuardError, resetDemoEnvironment } from './demo-seed.js';
-import { DEMO_USERS } from './demo-data.js';
+import { DEMO_MULTI_LEVELS, DEMO_USERS } from './demo-data.js';
 
 // Quản trị và trình diễn (DT-18 phần 18h, YCTD-145): đăng nhập thay, gói ZIP toàn bộ dữ liệu, bản trình diễn. Kịch bản
 // CT-18h-1 đến CT-18h-9
@@ -417,6 +419,49 @@ describe('Bản trình diễn', () => {
     assert.equal(secondUsers.length, firstUsers.length);
     assert.ok(!secondUsers.some((row) => firstUsers.some((old) => old.id === row.id)), 'tài khoản cũ đã bị xóa');
     assert.ok(DEMO_USERS.length > 0);
+  });
+
+  it('CT-19f-4: bản trình diễn có trường liên cấp: Mầm non, Tiểu học, THCS bật; lớp 1A, 6A; phụ huynh đầu tiên có con ở hai cấp; kiểm đối chiếu không có lỗi', async () => {
+    const system = createDatabase<SystemDatabase>(systemUrl);
+    try {
+      const enabled = await system.selectFrom('school_levels').select('code').where('is_enabled', '=', true).execute();
+      assert.deepEqual(enabled.map((row) => row.code).sort(), [...DEMO_MULTI_LEVELS].sort());
+      const registry = await system
+        .selectFrom('academic_year_databases')
+        .select('database_name')
+        .executeTakeFirstOrThrow();
+      const year = createDatabase<SchoolYearDatabase>(replaceDatabaseName(baseUrl, registry.database_name));
+      try {
+        const classes = await year.selectFrom('classes').select(['code', 'school_level']).orderBy('code').execute();
+        assert.deepEqual(
+          classes.filter((row) => row.school_level !== 'MN').map((row) => [row.code, row.school_level]),
+          [
+            ['1A', 'TH'],
+            ['6A', 'THCS'],
+          ],
+        );
+        const family = await year
+          .selectFrom('guardians')
+          .innerJoin('child_guardians', 'child_guardians.guardian_id', 'guardians.id')
+          .innerJoin('class_enrollments', 'class_enrollments.child_id', 'child_guardians.child_id')
+          .innerJoin('classes', 'classes.id', 'class_enrollments.class_id')
+          .select('classes.school_level')
+          .where('guardians.phone', '=', '0900000001')
+          .where('class_enrollments.is_current', '=', true)
+          .execute();
+        assert.deepEqual(family.map((row) => row.school_level).sort(), ['MN', 'TH']);
+      } finally {
+        await year.destroy();
+      }
+    } finally {
+      await system.destroy();
+    }
+    const check = await collectLevelReport(systemUrl);
+    assert.deepEqual(check.system_issues, []);
+    assert.deepEqual(
+      check.years.flatMap((year) => year.issues),
+      [],
+    );
   });
 
   it('CT-18h-9: lệnh từ chối chạy trên cơ sở dữ liệu có dữ liệu mà chưa đánh dấu bản trình diễn, không xóa gì', async () => {

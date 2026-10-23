@@ -8,6 +8,13 @@ export {
 } from './database-administration.js';
 export { readConnectionString, replaceDatabaseName, type ServiceDatabaseKind } from './environment.js';
 export { migrateToLatest, schoolYearDatabasesToMigrate, type DatabaseKind } from './migrate.js';
+export {
+  checkSchoolYearDatabase,
+  collectLevelReport,
+  compareLevelReports,
+  type LevelReport,
+  type YearLevelReport,
+} from './level-check.js';
 export type {
   ApiClientScope,
   IdentityDatabase,

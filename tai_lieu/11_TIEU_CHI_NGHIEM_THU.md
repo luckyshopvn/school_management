@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.53
+- Phiên bản: 1.54
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -821,6 +821,9 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-746 | Cho trường chỉ có Mầm non / Khi nâng cấp lên phiên bản có ứng dụng theo cấp / Thì ứng dụng phụ huynh, giáo viên y như trước (không có tên cấp, đủ chức năng); tin tức cũ vẫn hiện và gửi như trước (CT-828, CT-831; YCTD-155) |
 | AC-747 | Cho phụ huynh có một con Mầm non, một con Tiểu học và giáo viên dạy hai lớp ở hai cấp / Khi mở ứng dụng / Thì thấy đủ các con, các lớp kèm tên cấp; con, lớp Tiểu học không có báo vắng, điểm danh theo ngày, nhật ký, chăm sóc hằng ngày, báo cơm, hồ sơ cuối cấp; lớp Tiểu học ghi sĩ số "… học sinh" (CT-828, CT-829, CT-832; YCTD-155) |
 | AC-748 | Cho người soạn tin của trường bật Mầm non và Tiểu học / Khi chọn cấp nhận Tiểu học rồi công bố / Thì biểu mẫu hiện số tài khoản phụ huynh nhận tin; chỉ phụ huynh có con Tiểu học thấy và nhận thông báo; cấp chưa bật, mã sai bị từ chối; phụ huynh không đếm được người nhận (CT-830, CT-831, CT-832; YCTD-155) |
+| AC-749 | Cho cơ sở dữ liệu có đơn vị thiếu cấp, lớp lệch khối, thiếu chương trình mặc định / Khi chạy tệp vá hai lần / Thì lỗi đó hết, kết quả hai lần như nhau, số đếm không đổi; cấp website được bật, không tắt cấp (CT-833, CT-834; YCTD-156) |
+| AC-750 | Cho người vận hành / Khi chạy lệnh kiểm trước, sau chuyển / Thì có số đếm từng năm học, lỗi toàn vẹn, khác biệt số đếm, không có dữ liệu cá nhân (CT-835; YCTD-156) |
+| AC-751 | Cho người thử bản trình diễn, trường liên cấp / Khi tạo bản trình diễn; bật Tiểu học, mở lớp khối 1 / Thì có Tiểu học, THCS, lớp 1A, 6A, phụ huynh có con ở hai cấp, lệnh kiểm không lỗi; phụ huynh thấy hai con, trường trở lại Mầm non ở cuối (CT-836, CT-837; YCTD-156) |
 
 ## 20. Chưa xác minh được
 
