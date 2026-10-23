@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.55
+- Phiên bản: 1.56
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -827,6 +827,10 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-752 | Cho trường chỉ có Mầm non / Khi nâng cấp lên phiên bản có nền Tiểu học / Thì menu, phân công lớp, hồ sơ trẻ như trước; không có nhóm "Dạy học Tiểu học" (CT-838, CT-841; YCTD-158) |
 | AC-753 | Cho trường bật Tiểu học có khối 1 đến 5 / Khi Hiệu trưởng nạp môn mẫu rồi sửa số tiết / Thì có đủ môn, chương trình mặc định, số tiết theo khối (lớp 1 tổng 25 tiết bắt buộc), nạp lại không trùng; môn, khối khác cấp bị từ chối (CT-838, CT-839, CT-840, CT-843; YCTD-158) |
 | AC-754 | Cho lớp Tiểu học / Khi phân công giáo viên bộ môn và đăng ký môn tự chọn / Thì phải chọn môn của danh mục, một môn một giáo viên, một giáo viên nhiều môn, tổng tiết của giáo viên đúng; học sinh chỉ chọn môn tự chọn của khối (CT-841, CT-842, CT-843; YCTD-158) |
+| AC-755 | Cho lớp Tiểu học có hai học sinh đăng ký bán trú / Khi giáo viên chủ nhiệm cắt suất một học sinh, chốt số suất / Thì danh sách ăn 1 suất, bếp nhận 1 suất nguồn bán trú đã chốt, không cắt suất được sau khi chốt; lớp Mầm non bị từ chối (CT-845, CT-846; YCTD-159) |
+| AC-756 | Cho phụ huynh có con Tiểu học đăng ký bán trú / Khi báo cắt suất ngày học kế tiếp, ngày đã qua, con người khác / Thì nhận, từ chối 422, từ chối 403 (CT-847; YCTD-159) |
+| AC-757 | Cho trường chưa bật nề nếp / Khi giáo viên ghi điểm; Ban Giám hiệu bật và nạp tiêu chí mặc định / Thì từ chối 422; ghi điểm được, tiêu chí khác cấp bị từ chối (CT-848, CT-849; YCTD-159) |
+| AC-758 | Cho hai lớp Tiểu học có điểm trong tuần / Khi xem xếp hạng tuần, tháng / Thì điểm tuần là điểm nền cộng điểm ghi, tháng là trung bình tuần, bằng điểm cùng hạng (CT-844, CT-849, CT-850; YCTD-159) |
 
 ## 20. Chưa xác minh được
 

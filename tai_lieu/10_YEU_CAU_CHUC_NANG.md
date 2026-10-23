@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.75
+- Phiên bản: 1.76
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -105,6 +105,8 @@
 | P02-34 | Môn học và số tiết theo khối (7.1., YCTD-158) | Xem: mọi người đã đăng nhập; sửa: `P01.catalog.manage` | Môn (mã, tên, cấp, loại, cách đánh giá); bảng số tiết của chương trình | Nạp bộ mẫu Tiểu học; kiểm tra cấp, khối; ghi cả bảng số tiết; nhật ký | Danh mục môn, bảng số tiết, tổng tiết bắt buộc theo khối | BR-166 |
 | P02-35 | Phân công giảng dạy theo môn (7.2., YCTD-158) | Xem theo phạm vi lớp; phân công: `P02.class.manage` | Lớp Tiểu học, môn, giáo viên bộ môn, số tiết | Kiểm tra môn cùng cấp, một môn một giáo viên; ghi phân công; tổng tiết của giáo viên | Bảng môn của lớp kèm giáo viên; tổng tiết mỗi tuần của giáo viên | BR-166 |
 | P02-36 | Môn tự chọn của học sinh (hồ sơ học sinh, YCTD-158) | Xem: `P02.view`, `P02.child.manage`; sửa: `P02.child.manage` | Danh sách môn tự chọn | Kiểm tra môn là môn tự chọn của khối lớp đang học; thay cả danh sách; nhật ký | Môn tự chọn ở hồ sơ học sinh | BR-166 |
+| P02-37 | Nề nếp lớp: cấu hình, tiêu chí, ghi điểm (YCTD-159) | Bật, tiêu chí: VT-02, VT-15 (`P02.conduct.manage`); ghi điểm: VT-02, VT-15, VT-03, VT-07, VT-08 (`P02.conduct.record`) | Bật, điểm nền; mã, tên, loại, điểm tiêu chí; lớp, ngày, tiêu chí, số lần, người báo, ghi chú | Ghi điểm cộng, trừ theo lớp; ghi thay đội cờ đỏ | Thẻ nề nếp ở 1.4, 4.9 Nề nếp, thi đua lớp (Ghi điểm, Tiêu chí) | BR-169 |
+| P02-38 | Thi đua lớp: tổng hợp, xếp hạng (YCTD-159) | Người có `P02.conduct.record` | Kỳ (tuần, tháng, học kỳ), ngày, đơn vị, khối | Điểm cộng, trừ, điểm, hạng của lớp | 4.9 Nề nếp, thi đua lớp (Xếp hạng) | BR-169 |
 
 ## 4. Phân hệ P03 — Giảng dạy
 
@@ -129,6 +131,7 @@
 | P04-04 | Nhật ký của bé (G1) | VT-07 | Trẻ, ngày, nội dung ăn, ngủ, vệ sinh, tâm trạng | Ghi nhật ký, công bố cho phụ huynh của trẻ; chỉ giáo viên chủ nhiệm ghi; công bố cả lớp, còn trẻ chưa có nội dung phải xác nhận; sửa sau công bố ghi lý do (YCTD-65) | Nhật ký trong ngày | BR-15 |
 | P04-05 | Ghi nhận ăn, ngủ, vệ sinh (G1) | VT-07 | Trẻ, bữa, số lượng ăn, thời lượng ngủ | Ghi nhận chi tiết trong ngày; ghi trong cùng nhật ký của bé (YCTD-65) | Chi tiết chăm sóc | BR-15 |
 | P04-06 | Chốt điểm danh ngày (G1) | VT-07, VT-03 | Ngày, lớp | Khóa bản ghi trong ngày, cho phép sửa kèm lý do | Số liệu điểm danh đã chốt | BR-12 |
+| P04-07 | Bán trú lớp Tiểu học: danh sách ăn, cắt suất, chốt số suất (YCTD-159) | Giáo viên chủ nhiệm; VT-02, VT-15, VT-03, VT-07, VT-10 (`P04.boarding.manage`); phụ huynh cắt suất của con | Lớp, ngày, học sinh, lý do | Danh sách ăn đăng ký trừ cắt suất; chốt, mở lại; số suất cho bếp; tiền ăn theo ngày ăn thực tế | 4.8 Bán trú, màn hình Bán trú ở ứng dụng giáo viên, Cắt suất bán trú ở ứng dụng phụ huynh | BR-167, BR-168 |
 
 ## 6. Phân hệ P05 — Học phí, khoản thu và giảm trừ
 

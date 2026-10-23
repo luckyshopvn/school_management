@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.73
+- Phiên bản: 1.74
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -237,6 +237,9 @@ Bổ sung ngày 2026-10-09 theo yêu cầu tách vai trò Ban Giám hiệu thàn
 | BR-164 | Chuyển dữ liệu cấp học (YCTD-156): tệp vá chạy lặp được, chỉ ghi cột cấp và dòng cấp; đơn vị thiếu cấp nhận MN; lớp lấy cấp theo khối; cấp Mầm non luôn có một chương trình mặc định; cấp khai báo ở website được bật, không tắt cấp nào |
 | BR-165 | Kiểm đối chiếu cấp học (YCTD-156): lệnh kiểm chỉ đọc, chạy trước và sau mỗi lần chuyển ở bản sao dữ liệu thử; số đếm nghiệp vụ từng năm học phải khớp; không có lớp lệch khối, đơn vị chưa có cấp, mã cấp lạ; kết quả không chứa dữ liệu cá nhân |
 | BR-166 | Môn học theo cấp (YCTD-158): mã môn duy nhất trong trường, mã và cấp không đổi sau khi tạo; số tiết mỗi tuần là bội của 0,5 từ 0,5 đến 40; mỗi chương trình, môn, khối một dòng; môn và khối cùng cấp với chương trình, khối thuộc khối áp dụng. Phân công bộ môn ở lớp Tiểu học bắt buộc chọn môn của danh mục cùng cấp đang dùng; một môn của lớp chỉ một giáo viên đang dạy; một giáo viên dạy được nhiều môn của cùng lớp; lớp Mầm non ghi tên môn tự do như cũ. Môn tự chọn của học sinh phải là môn tự chọn của khối lớp đang học theo chương trình của lớp |
+| BR-167 | Danh sách ăn bán trú lớp ngoài Mầm non (YCTD-159): học sinh đang học lớp, đăng ký bán trú của tháng (từ ngày bắt đầu dịch vụ) trừ học sinh cắt suất; chỉ ngày học; ngày đã chốt lưu số suất, không sửa cắt suất, mở lại phải có lý do; số suất của bếp, kiểm thực theo danh sách này; lớp ngoài Mầm non không báo cơm |
+| BR-168 | Phụ huynh cắt suất bán trú (YCTD-159): từ hôm nay trở đi, con đã đăng ký, lớp chưa chốt; hôm nay chỉ trước giờ vào học của đơn vị (mặc định 07:30). Tiền ăn học sinh lớp ngoài Mầm non theo ngày lớp đã chốt suất mà không cắt suất; còn ngày học chưa chốt suất thì chưa tính được |
+| BR-169 | Nề nếp, thi đua lớp (YCTD-159): tuỳ trường, chưa bật không ghi điểm; tiêu chí cùng cấp với lớp; điểm ghi = điểm mỗi lần × số lần (dấu theo loại); điểm tuần = điểm nền + tổng điểm trong tuần (thứ hai đến chủ nhật); tháng, học kỳ = trung bình điểm tuần có thứ hai trong kỳ; bằng điểm cùng hạng; người ghi xóa dòng của mình trong ngày, người quản lý xóa mọi dòng |
 
 Danh mục chứng từ áp dụng hạn mức: phiếu chi, phiếu đảo phiếu thu (YCTD-23), phiếu đảo phiếu chi (YCTD-24), đề nghị mua hàng, phiếu điều chỉnh hóa đơn, miễn giảm học phí, bảng lương kỳ, chốt kỳ tài chính. Mức hạn mức cụ thể chưa có, xem Q-22 và Q-112.
 

@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.33
+- Phiên bản: 0.34
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.108.0 – 2026-10-23
+
+- Phạm vi thay đổi: DT-20 phần 20b, bán trú Tiểu học; nề nếp và thi đua lớp (YCTD-159).
+- Chức năng mới: danh sách ăn bán trú theo ngày của lớp Tiểu học, cắt suất (giáo viên, phụ huynh), chốt và mở lại số suất; số suất bếp, tiền ăn theo ngày ăn thực tế của lớp Tiểu học; nề nếp, thi đua lớp tuỳ trường (cấu hình, tiêu chí, ghi điểm, xếp hạng tuần, tháng, học kỳ).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: tệp năm học `0077_create_boarding_and_conduct`; tệp định danh `0068_add_boarding_conduct_permissions`.
+- Thay đổi API: `/boarding/classes/{id}/roster`, `/cuts`, `/close`, `/reopen`; `/boarding/children/{id}/cuts`, `/{date}`; `/conduct/settings`, `/conduct/criteria`, `/defaults`, `/{id}`, `/conduct/entries`, `/{id}`, `/conduct/ranking`; nguồn số suất `boarding_closed`, `boarding_open` ở bếp.
+- Kiểm thử: kịch bản CT-844 đến CT-850. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/boarding/boarding.test.ts` CT-20b-1 đến CT-20b-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm hai mục menu vào bảng đối chiếu điều kiện cũ của CT-15e-2; CT-19c-1, CT-19c-2 so cây menu Mầm non với cây gốc bỏ hai mục chỉ của Tiểu học, cây menu Mầm non giữ nguyên); kiểm thử đơn vị toàn bộ kho mã đạt 1053/1053; kiểm thử giao diện `tests/e2e/88-boarding-conduct.spec.ts` (CT-20b-7) đạt; toàn bộ kiểm thử giao diện đạt 160/160; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: tính tiền ăn lớp Tiểu học cần chốt suất đủ ngày học.
+- Khả năng tương thích: không đổi điểm cuối cũ; trường chỉ có Mầm non thấy như cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 20b; chạy phần quay lui của tệp năm học `0077` và tệp định danh `0068`.
 
 ### Phiên bản 0.107.0 – 2026-10-23
 

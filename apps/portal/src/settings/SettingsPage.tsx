@@ -18,6 +18,7 @@ import { AppShell } from '../pages/AppShell.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
 import { SchoolLevelsBlock } from '../school-levels/SchoolLevelsBlock.js';
+import { ConductSettingsBlock } from '../conduct/ConductSettingsBlock.js';
 import {
   readIdentitySettings,
   readSettings,
@@ -513,6 +514,7 @@ function LoginSecuritySettings({ onSaved }: { onSaved(message: string): void }) 
 export function SettingsPage() {
   const canManage = useHasPermission(PERMISSION_CODES.settingManage);
   const canManageLevels = useHasPermission(PERMISSION_CODES.schoolLevelManage);
+  const canManageConduct = useHasPermission(PERMISSION_CODES.conductManage);
   const currentUser = useQuery({ queryKey: ['current-user'], queryFn: fetchCurrentUser });
   const units = useQuery({ queryKey: ['org-units', 'flat', ''], queryFn: () => listOrgUnits() });
   const [orgUnitId, setOrgUnitId] = useState<string>();
@@ -539,6 +541,7 @@ export function SettingsPage() {
           />
         ) : null}
         <SchoolLevelsBlock editable={canManageLevels} onSaved={setToastMessage} />
+        {canManageConduct ? <ConductSettingsBlock editable onSaved={setToastMessage} /> : null}
         <section
           className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4"
           aria-label="Cấu hình theo đơn vị"
