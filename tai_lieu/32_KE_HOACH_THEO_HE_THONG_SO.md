@@ -707,7 +707,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 |---|---|---|
 | 20a | 1 | Đã làm, YCTD-158, phiên bản 0.107.0, PR 136: môn học và hoạt động giáo dục (năm học 0076 `subjects`), bộ môn mẫu Tiểu học, số tiết theo khối của chương trình (`curriculum_subjects`), phân công giảng dạy theo môn (`class_staff_assignments.subject_id`), tổng tiết của giáo viên, môn tự chọn của học sinh, nhóm menu "7. Dạy học Tiểu học"; định danh 0067 để trống (không thêm quyền); e2e 87 |
 | 20b | 1 | Đã làm (PR #137, YCTD-159, phiên bản 0.108.0) |
-| 22c1 | 2 | Đã làm, YCTD-160, phiên bản 0.109.0, PR …: khung giờ tiết học (hệ thống 0026 `period_slots`), bản thời khoá biểu có ngày áp dụng và tiết theo lớp (năm học 0078 `timetable_versions`, `timetable_lessons`), giáo viên theo phân công của 20a, nhập Excel, kiểm tra xung đột (hàm `findTimetableConflicts` dùng chung với 22c2), ban hành; xem ở 7.4, ứng dụng giáo viên, phụ huynh, website; quyền `P02.timetable.manage` (định danh 0069); e2e 89 |
+| 22c1 | 2 | Đã làm, YCTD-160, phiên bản 0.109.0, PR 138: khung giờ tiết học (hệ thống 0026 `period_slots`), bản thời khoá biểu có ngày áp dụng và tiết theo lớp (năm học 0078 `timetable_versions`, `timetable_lessons`), giáo viên theo phân công của 20a, nhập Excel, kiểm tra xung đột (hàm `findTimetableConflicts` dùng chung với 22c2), ban hành; xem ở 7.4, ứng dụng giáo viên, phụ huynh, website; quyền `P02.timetable.manage` (định danh 0069); e2e 89 |
 | 20c | 2 | Chưa làm, chờ 20a |
 | 20d | 3 | Chưa làm, chờ 22c1 |
 | 20e | 3 | Chưa làm, chờ 20c |
