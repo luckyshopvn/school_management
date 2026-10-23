@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.73
+- Phiên bản: 1.74
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -62,6 +62,8 @@
 | P01-42 | Chọn cấp đang làm việc (thanh đầu trang, YCTD-153) | Mọi người đã đăng nhập ở trường từ hai cấp | "Tất cả" hoặc một cấp được xem | Kiểm tra mã cấp, phạm vi cấp của tài khoản; lưu theo tài khoản; truyền tham số `school_level` cho API | Cấp đang làm việc ở `/auth/me`; menu, ô ngữ cảnh, nhãn đổi theo | BR-159 |
 | P01-43 | Ứng dụng phụ huynh, giáo viên theo cấp (YCTD-155) | Phụ huynh (VT-14), giáo viên | Cấp của lớp đang học của con, cấp của lớp được phân công | Hiện tên cấp khi có từ hai cấp; ẩn chức năng chỉ của Mầm non ở con, lớp cấp khác; nhãn "trẻ"/"học sinh" theo cấp | Thẻ con, danh sách lớp theo cấp; trường mầm non giữ nguyên | BR-163 |
 | P01-44 | Tin tức theo cấp nhận, số người nhận (YCTD-155) | Người soạn tin tức của đơn vị (`P14.content.manage`) | Phạm vi công bố, cấp nhận (trống là mọi cấp) | Kiểm tra cấp đang bật; lưu cấp nhận; đếm tài khoản phụ huynh nhận tin; khi công bố gửi phụ huynh có con học cấp đó | Tin hiện với phụ huynh đúng cấp; số người nhận ở biểu mẫu | BR-163 |
+| P01-45 | Kiểm đối chiếu dữ liệu đa cấp học (YCTD-156) | Người vận hành (lệnh trên máy chủ) | `--out`, `--compare` | Đếm dữ liệu từng năm học, kiểm toàn vẹn cấp, so khớp hai lần kiểm | Bảng số đếm, danh sách lỗi, tệp JSON | BR-165 |
+| P01-46 | Bản trình diễn trường liên cấp (YCTD-156) | Lệnh trên máy chủ; người thử: mọi người | Lệnh reset của bản trình diễn | Bật Tiểu học, THCS; lớp 1A, 6A; phụ huynh có con ở hai cấp | Dữ liệu giả đa cấp | BR-164 |
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 
