@@ -38,7 +38,12 @@ describe('Cây menu và nhãn theo cấp học', () => {
       menu: workspace.menu.filter((node) => !node.levels || node.levels.includes('MN')),
     }));
     assert.deepEqual(portalWorkspacesForLevels(levelsOf('MN')), withoutPrimary);
-    assert.deepEqual([...portalMenuPathsOutsideLevels(['MN'])].sort(), ['/subjects', '/teaching-assignments']);
+    assert.deepEqual([...portalMenuPathsOutsideLevels(['MN'])].sort(), [
+      '/period-slots',
+      '/subjects',
+      '/teaching-assignments',
+      '/timetables',
+    ]);
     assert.equal(portalMenuPathsOutsideLevels(['MN', 'TH']).size, 0);
   });
 

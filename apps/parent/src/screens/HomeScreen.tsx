@@ -16,6 +16,7 @@ import { PhotoConsentPanel } from './PhotoConsentPanel.js';
 import { NotificationsPanel } from './NotificationsPanel.js';
 import { ServicesPanel } from './ServicesPanel.js';
 import { FinalYearPanel } from './FinalYearPanel.js';
+import { TimetablePanel } from './TimetablePanel.js';
 import { hasLevelFeature, levelOf } from '@school-management/shared';
 import { useSchoolLevelNames } from './school-levels.js';
 
@@ -125,6 +126,7 @@ function ChildCard({
     | 'menu'
     | 'medication'
     | 'final-year'
+    | 'timetable'
   >('none');
   const [attendance, setAttendance] = useState<MonthAttendance>();
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -173,6 +175,9 @@ function ChildCard({
         <Button onClick={() => setView(view === 'activities' ? 'none' : 'activities')}>Hoạt động</Button>
         <Button onClick={() => setView(view === 'menu' ? 'none' : 'menu')}>Thực đơn</Button>
         <Button onClick={() => setView(view === 'medication' ? 'none' : 'medication')}>Dặn thuốc</Button>
+        {has('period_timetable') ? (
+          <Button onClick={() => setView(view === 'timetable' ? 'none' : 'timetable')}>Thời khoá biểu</Button>
+        ) : null}
         {has('final_year_record') ? (
           <Button onClick={() => setView(view === 'final-year' ? 'none' : 'final-year')}>Hồ sơ cuối cấp</Button>
         ) : null}
@@ -189,6 +194,7 @@ function ChildCard({
       {view === 'services' ? <ServicesPanel child={child} /> : null}
       {view === 'invoices' ? <InvoicesPanel child={child} /> : null}
       {view === 'final-year' ? <FinalYearPanel child={child} /> : null}
+      {view === 'timetable' ? <TimetablePanel child={child} /> : null}
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       {view === 'absence' ? (
         <AbsenceForm
