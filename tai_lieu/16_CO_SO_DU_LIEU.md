@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.97
+- Phiên bản: 1.98
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -199,6 +199,11 @@ Ràng buộc duy nhất: `attendance_records` trên bộ đôi trẻ, ngày; `ab
 | fee_schedule_items | Mức phí của phiên bản theo bậc học | fee_schedule_id, grade_level, fee_type (học phí chính khóa hoặc dịch vụ), service_id, amount (đồng, không âm); duy nhất theo phiên bản, bậc học, khoản phí |
 | services | Danh mục dịch vụ dùng chung toàn trường | code (duy nhất), name, unit, calculation_method (theo tháng hoặc theo ngày có mặt), is_mandatory, is_system (bán trú tạo sẵn), status |
 | service_registrations | Đăng ký dịch vụ theo kỳ | child_id, org_unit_id, period_year, period_month, service_id, status (đang hiệu lực, chờ duyệt đăng ký trễ, chờ duyệt hủy, đã hủy, bị từ chối), source (phụ huynh, nhà trường, hệ thống, tự giữ từ tháng trước), registered_by, registered_at, is_late, service_start_date (bắt buộc khi đăng ký trễ, Q-150), late_charge_method (cả tháng hoặc theo ngày thực tế), decided_by, decided_at, decision_note, cancel_requested_by, cancel_requested_at, cancelled_by, cancelled_at (YCTD-50) |
+| boarding_meal_days (từ YCTD-159) | Ngày đã chốt suất bán trú của lớp ngoài Mầm non (tệp năm học `0077`) | id, class_id, meal_date (duy nhất theo lớp), status (`closed`, `reopened`), headcount, closed_by, closed_by_name, closed_at |
+| boarding_meal_cuts (từ YCTD-159) | Cắt suất bán trú theo học sinh, ngày | id, child_id, class_id, meal_date (duy nhất theo học sinh), reason, source (`parent`, `teacher`, `school`), created_by, created_by_name, created_at |
+| conduct_settings (từ YCTD-159) | Cấu hình nề nếp của trường (một dòng) | id = 1, enabled (mặc định chưa bật), base_points (mặc định 100), updated_by_name, updated_at; chuyển sang năm học mới |
+| conduct_criteria (từ YCTD-159) | Tiêu chí nề nếp | id (giữ khi chuyển năm), code (duy nhất), name, kind (`plus`, `minus`), points (1 đến 100), school_level (mặc định TH), order_no, status |
+| conduct_entries (từ YCTD-159) | Điểm nề nếp đã ghi | id, class_id, criterion_id, entry_date, quantity, points (có dấu), note, reported_by (đội cờ đỏ), recorded_by, recorded_by_name, created_at |
 | registration_periods | Trạng thái chốt danh sách đăng ký của kỳ theo đơn vị (YCTD-50) | org_unit_id, period_year, period_month (duy nhất cùng đơn vị), status (đang mở hoặc đã chốt), locked_by, locked_at |
 | summer_registrations | Đăng ký học hè theo tháng (P05-13, BR-92) | child_id, org_unit_id, period_year, period_month (duy nhất cùng trẻ), status (đang hiệu lực hoặc đã hủy), source, registered_by, registered_at, cancelled_by, cancelled_at |
 | invoices | Hóa đơn học phí | code (cấp khi phát hành, dạng HD-000001), child_id, org_unit_id, period_year, period_month, invoice_kind (chính, bổ sung hoặc đầu kỳ; mỗi trẻ tối đa một hóa đơn đầu kỳ, YCTD-54), status (nháp hoặc đã phát hành), calculation_run_id, total_amount, basis (số ngày học, số ngày đang học, số ngày có mặt, bậc học, biểu phí), review_flags (dòng cần kiểm tra), due_date, issued_at, issued_by; số đã giảm trừ, điều chỉnh, đã thu tính từ bảng liên quan (YCTD-51) |

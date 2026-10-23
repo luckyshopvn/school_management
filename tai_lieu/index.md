@@ -33,7 +33,7 @@
 | 21 | [21_KICH_BAN_KIEM_THU.md](21_KICH_BAN_KIEM_THU.md) | Kịch bản kiểm thử | CT-001 đến CT-814 | 10 Kiểm thử | Đã phê duyệt |
 | 22 | [22_BAO_MAT.md](22_BAO_MAT.md) | Bảo mật | BM-01 đến BM-72 | 10 Kiểm thử | Đã phê duyệt |
 | 23 | [23_LICH_SU_PHIEN_BAN.md](23_LICH_SU_PHIEN_BAN.md) | Lịch sử phiên bản | Các phiên bản từ 0.1.0 | 11 Nghiệm thu và phát hành | Đang cập nhật |
-| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-157, đánh giá ảnh hưởng | 12 Vận hành và cải tiến | Đang cập nhật |
+| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-159, đánh giá ảnh hưởng | 12 Vận hành và cải tiến | Đang cập nhật |
 | 25 | [25_QUY_TRINH_NGHIEP_VU/](25_QUY_TRINH_NGHIEP_VU/) | Quy trình nghiệp vụ | Mười đặc tả QT-01 đến QT-10 và phiếu yêu cầu trống | 03 Phân tích nghiệp vụ | Đã phê duyệt |
 | 26 | [26_SO_DO_CHUC_NANG/](26_SO_DO_CHUC_NANG/) | Sơ đồ chức năng gốc | Tám ảnh sơ đồ chức năng do Eric gửi, nguồn đầu vào của bộ tài liệu | 01 Xác định ý tưởng | Tài liệu nguồn |
 | 27 | [27_BO_CA_KIEM_THU_CHI_TIET/](27_BO_CA_KIEM_THU_CHI_TIET/) | Bộ ca kiểm thử chi tiết | Ca kiểm thử chi tiết theo việc N21, mã CTC-..., năm đợt, 453 ca, 6 ca không áp dụng | 10 Kiểm thử | Đã phê duyệt |
@@ -78,18 +78,18 @@ Mã quy trình dạng `QT-nn`, đánh số tăng dần, không tái sử dụng 
 | Phân hệ đã xác định | 19 | Từ P01 đến P19; P11 Xe đưa đón đã bỏ |
 | Vai trò đã xác định | 19 | Từ VT-01 đến VT-20, VT-13 đã bỏ; VT-02 Hiệu trưởng và VT-15 Phó Hiệu trưởng hợp thành Ban Giám hiệu |
 | Quy trình nghiệp vụ đã đặc tả | 10 | Đủ mười lăm mục theo khuôn đặc tả |
-| Chức năng đã liệt kê | 264 | 274 mã; P08-05, P11-01 đến P11-07, P17-09, P17-15 đã bỏ |
-| Tiêu chí nghiệm thu đã viết | 751 | Từ AC-01 đến AC-751; AC-498 không áp dụng; AC-42, AC-53 đến AC-57, AC-171 đã bỏ; AC-94 đến AC-134 nằm trong các đặc tả quy trình |
-| Quy tắc nghiệp vụ đã xác định | 165 | Từ BR-01 đến BR-165; BR-27, BR-42, BR-54, BR-55, BR-57 đã bỏ |
+| Chức năng đã liệt kê | 267 | 277 mã; P08-05, P11-01 đến P11-07, P17-09, P17-15 đã bỏ |
+| Tiêu chí nghiệm thu đã viết | 755 | Từ AC-01 đến AC-758; AC-498 không áp dụng; AC-42, AC-53 đến AC-57, AC-171 đã bỏ; AC-94 đến AC-134 nằm trong các đặc tả quy trình |
+| Quy tắc nghiệp vụ đã xác định | 168 | Từ BR-01 đến BR-169; BR-27, BR-42, BR-54, BR-55, BR-57 đã bỏ |
 | Giả định đã ghi nhận | 92 | Từ GD-01 đến GD-92; mọi giả định đã được xác nhận hoặc ghi không còn hiệu lực ngày 09/10/2026 |
 | Câu hỏi mở chờ trả lời | 0 | Đã cấp mã đến Q-156; mọi câu đã được trả lời ngày 09/10/2026 |
 | Bảng dữ liệu dự kiến | 343 | Xem `16_CO_SO_DU_LIEU.md`, đếm lại ngày 2026-10-15 theo tên bảng ở mục 2 đến mục 18 (mỗi tên đếm một lần), đã gồm `user_quick_links` (YCTD-102), tám bảng của YCTD-104, `growth_rounds` (YCTD-105) và `equipment_items`, `equipment_holdings`, `school_profiles` (YCTD-106), `user_grid_settings` (YCTD-107), `feedback` (YCTD-110); tám bảng xe đưa đón và bảng `meal_registrations` đã gỡ |
 | Màn hình dự kiến | 249 | Đếm lại ngày 2026-10-15, cộng MH-142 đến MH-151 và MP-22 (YCTD-134), MH-152 đến MH-157 (YCTD-135), MH-158 đến MH-166 (YCTD-138), MH-167 đến MH-179 (YCTD-139), MH-180 đến MH-186 (YCTD-140), MH-187 đến MH-202 (YCTD-141), MH-203 đến MH-205 và MG-18 (YCTD-143), MH-206 đến MH-215 (YCTD-144), MH-216 đến MH-224 (YCTD-142), MH-225 đến MH-229 (YCTD-145), MH-230 đến MH-235 (YCTD-147), MH-236 đến MH-240 (YCTD-146), MH-241 đến MH-252 (YCTD-148), MH-253 đến MH-257 (YCTD-149): 92 mã MH (MH-01 đến MH-94, MH-64 và MH-66 chưa cấp; MH-65 chạy trong ứng dụng phụ huynh), 17 màn hình ứng dụng giáo viên, 20 màn hình ứng dụng phụ huynh; MG-13, MP-13 đã bỏ |
-| Ca kiểm thử khởi đầu | 837 | Từ CT-001 đến CT-837; CT-048, CT-059 đến CT-063, CT-127, CT-454 không áp dụng |
+| Ca kiểm thử khởi đầu | 844 | Từ CT-001 đến CT-850; CT-048, CT-059 đến CT-063, CT-127, CT-454 không áp dụng |
 | Cổng kiểm soát chất lượng | 12 | Từ CG-01 đến CG-12, xem `01_KE_HOACH_TONG_THE.md` |
 | Đợt xây dựng | 12 | Từ DT-00 đến DT-11, xem `01_KE_HOACH_TONG_THE.md` |
 | Rủi ro đã ghi nhận | 14 | Từ RR-01 đến RR-14, xem `01_KE_HOACH_TONG_THE.md` |
-| Yêu cầu thay đổi | 157 | Từ YCTD-01 đến YCTD-157 (số giữ sẵn của DT-18 ghi khi phần gộp; YCTD-142 gộp sau YCTD-143, YCTD-144; YCTD-156 của 19f ghi khi gộp), xem `24_YEU_CAU_THAY_DOI.md` |
+| Yêu cầu thay đổi | 158 | Từ YCTD-01 đến YCTD-159 (số giữ sẵn của DT-18 ghi khi phần gộp; YCTD-142 gộp sau YCTD-143, YCTD-144; YCTD-156 của 19f ghi khi gộp), xem `24_YEU_CAU_THAY_DOI.md` |
 
 ## Quyết định đã chốt
 

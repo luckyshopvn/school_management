@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.74
+- Phiên bản: 1.75
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -102,6 +102,8 @@
 | P02-31 | Gửi thông báo tuyển sinh đầu cấp (1.5 của phân hệ Tuyển sinh đầu cấp, bản chạy nội bộ, G3, YCTD-135) | VT-02, VT-15, VT-12 gửi (`P02.entry-intake.manage`); VT-03 xem | Đợt; nội dung tin nhắn (tối đa 1000 ký tự); bộ lọc loại hình, phân tuyến, có số điện thoại, đã gửi thông báo, PH đồng ý nhập học, phường/xã, khu phố, số ĐDCN, họ tên; tệp Excel nội dung gửi; tệp Excel học sinh ngoài hệ thống | Sao chép nội dung vào "Nội dung gửi" của người nhận chọn; nhập nội dung gửi riêng theo số định danh hoặc mã hồ sơ; nhập học sinh ngoài hệ thống; Gửi thông báo qua ứng dụng phụ huynh và Zalo OA tới tài khoản cùng số điện thoại; ghi trạng thái gửi theo người | Danh sách người nhận, thông báo, trạng thái gửi | BR-133, PQ-77 |
 | P02-32 | Chuyển hồ sơ trúng tuyển sang CSDL và Danh sách trúng tuyển (1.6 của phân hệ Tuyển sinh đầu cấp, 5.11 của phân hệ Mầm non, bản chạy nội bộ, G3, YCTD-135) | VT-02, VT-15 chuyển (`P02.entry-intake.transfer`); VT-12, VT-03 xem | Bộ lọc đã hoặc chưa chuyển, loại hồ sơ, họ tên hoặc số ĐDCN, tỉnh, phường/xã, khu phố, mã gói tin; điểm trường, ô Tự do; lớp xếp cho học sinh chọn | Cập nhật điểm trường, loại hồ sơ; Bước 1: Xếp lớp (5.11); Chuyển hồ sơ sang CSDL (hỏi xóa lớp đã xếp, hỏi vẫn chuyển hồ sơ trùng họ tên và ngày sinh): tạo hồ sơ học sinh ở năm học nhận trẻ, mã gói tin, mã GUID, kết quả từng hồ sơ; Xuất Excel; Xem kết quả đồng bộ | Hồ sơ học sinh mới, bảng kết quả, tệp Excel | BR-133, PQ-77 |
 | P02-33 | Danh sách kết quả chuyển hồ sơ (1.7 của phân hệ Tuyển sinh đầu cấp, bản chạy nội bộ, G3, YCTD-135) | VT-02, VT-15 hủy nhập học (`P02.entry-intake.transfer`); VT-12, VT-03 xem | Bộ lọc họ tên, mã học sinh, mã số ĐDCN, loại hồ sơ, mã gói tin, mã GUID | Danh sách hồ sơ đã chuyển, đã hủy nhập học; Hủy nhập học hồ sơ học sinh chưa phát sinh dữ liệu (xóa mềm, giữ tài khoản phụ huynh); Xem kết quả hủy nhập học; Xuất Excel | Lưới kết quả chuyển, bảng kết quả hủy, tệp Excel | BR-133, PQ-77 |
+| P02-37 | Nề nếp lớp: cấu hình, tiêu chí, ghi điểm (YCTD-159) | Bật, tiêu chí: VT-02, VT-15 (`P02.conduct.manage`); ghi điểm: VT-02, VT-15, VT-03, VT-07, VT-08 (`P02.conduct.record`) | Bật, điểm nền; mã, tên, loại, điểm tiêu chí; lớp, ngày, tiêu chí, số lần, người báo, ghi chú | Ghi điểm cộng, trừ theo lớp; ghi thay đội cờ đỏ | Thẻ nề nếp ở 1.4, 4.9 Nề nếp, thi đua lớp (Ghi điểm, Tiêu chí) | BR-169 |
+| P02-38 | Thi đua lớp: tổng hợp, xếp hạng (YCTD-159) | Người có `P02.conduct.record` | Kỳ (tuần, tháng, học kỳ), ngày, đơn vị, khối | Điểm cộng, trừ, điểm, hạng của lớp | 4.9 Nề nếp, thi đua lớp (Xếp hạng) | BR-169 |
 
 ## 4. Phân hệ P03 — Giảng dạy
 
@@ -126,6 +128,7 @@
 | P04-04 | Nhật ký của bé (G1) | VT-07 | Trẻ, ngày, nội dung ăn, ngủ, vệ sinh, tâm trạng | Ghi nhật ký, công bố cho phụ huynh của trẻ; chỉ giáo viên chủ nhiệm ghi; công bố cả lớp, còn trẻ chưa có nội dung phải xác nhận; sửa sau công bố ghi lý do (YCTD-65) | Nhật ký trong ngày | BR-15 |
 | P04-05 | Ghi nhận ăn, ngủ, vệ sinh (G1) | VT-07 | Trẻ, bữa, số lượng ăn, thời lượng ngủ | Ghi nhận chi tiết trong ngày; ghi trong cùng nhật ký của bé (YCTD-65) | Chi tiết chăm sóc | BR-15 |
 | P04-06 | Chốt điểm danh ngày (G1) | VT-07, VT-03 | Ngày, lớp | Khóa bản ghi trong ngày, cho phép sửa kèm lý do | Số liệu điểm danh đã chốt | BR-12 |
+| P04-07 | Bán trú lớp Tiểu học: danh sách ăn, cắt suất, chốt số suất (YCTD-159) | Giáo viên chủ nhiệm; VT-02, VT-15, VT-03, VT-07, VT-10 (`P04.boarding.manage`); phụ huynh cắt suất của con | Lớp, ngày, học sinh, lý do | Danh sách ăn đăng ký trừ cắt suất; chốt, mở lại; số suất cho bếp; tiền ăn theo ngày ăn thực tế | 4.8 Bán trú, màn hình Bán trú ở ứng dụng giáo viên, Cắt suất bán trú ở ứng dụng phụ huynh | BR-167, BR-168 |
 
 ## 6. Phân hệ P05 — Học phí, khoản thu và giảm trừ
 
