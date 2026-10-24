@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.100
+- Phiên bản: 1.101
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -632,6 +632,7 @@ Từ YCTD-182 (DT-22 phần 22e), phân hệ "Hồ sơ chuyên môn" có thêm n
 | MH-274 | 7.14. Sổ điểm (YCTD-170, `/scores`): chọn đơn vị, lớp THCS, THPT, học kỳ; tab "Nhập điểm" (bảng điểm theo môn: TX1 đến TXn, giữa kỳ, cuối kỳ, trung bình tính ngay, kết quả Đạt, Chưa đạt cho môn nhận xét, nhận xét; nút "Ghi điểm"), "Tổng hợp, xếp loại" (điểm trung bình các môn, gợi ý học tập, ô xếp loại học tập, rèn luyện, nhận xét; nút "Lấy gợi ý học tập", "Ghi xếp loại"), "Khoá điểm" (khoá mọi lớp, mở khoá từng lớp kèm lý do) và "Cấu hình" (hệ số, số tuần, ngưỡng) chỉ cho người có `P02.assessment.manage`; chỉ hiện ở THCS, THPT |
 | MH-275 | Ứng dụng giáo viên, lớp THCS, THPT: nút "Sổ điểm" ở danh sách lớp mở bảng điểm theo học kỳ, môn mình được phân công (TX, giữa kỳ, cuối kỳ, kết quả Đạt, Chưa đạt), nút "Lưu điểm" |
 | MH-276 | Ứng dụng phụ huynh, con học THCS, THPT: nút "Điểm học tập" hiện điểm các học kỳ đã khoá (điểm từng môn, trung bình, xếp loại học tập, rèn luyện), xếp loại cả năm khi học kỳ II đã khoá |
+| MH-288 | 7.8. Học bạ, khen thưởng, lên lớp cho THCS, THPT (YCTD-172, `/learning-records`): chọn lớp Tiểu học, THCS hoặc THPT; tab "Danh hiệu" nạp danh hiệu mặc định theo Thông tư của cấp (Thông tư 22/2021: Xuất sắc, Giỏi, đột xuất); "Khen thưởng", "Hoàn thành chương trình", "Học bạ" như Tiểu học, cột kết quả cuối năm hiện "Học tập: …; rèn luyện: …" cho THCS, THPT; ứng dụng phụ huynh nút "Học bạ" hiện cho THCS, THPT |
 | MH-277 | 8.1. Ngân hàng câu hỏi (YCTD-168, `/question-bank`): chọn cấp (nếu nhiều), môn, khối; khối "Chủ đề" (danh sách, thêm chủ đề); khối "Soạn câu hỏi" (chủ đề, mức nhận thức, dạng, điểm, nội dung, lựa chọn A đến D hoặc ý a đến d, đáp án, hướng dẫn chấm, "Lưu câu hỏi"); bảng "Câu hỏi" (lọc trạng thái, tìm; nội dung, chủ đề, mức, dạng, trạng thái, người soạn; Sửa, Gửi thẩm định, Duyệt, Trả lại, Ngừng dùng); "Thống kê câu dùng được"; "Nhập câu hỏi từ Excel" (Tải mẫu Excel, tệp, Nhập Excel) | Soạn: `P02.question.author`; duyệt: `P02.exam.review` |
 | MH-278 | 8.2. Ma trận đề (YCTD-168, `/exam-matrices`): bảng "Ma trận đề" (tên, khối, số câu, điểm, kiểm tra, Mở); khối "Soạn ma trận" (môn, khối, tên, tỉ lệ bốn mức, bảng dòng: chủ đề, mức, dạng, số câu, điểm mỗi câu, yêu cầu cần đạt, Bỏ; Thêm dòng, Lưu ma trận); "Kiểm tra ma trận" (tổng câu, điểm, tỉ lệ, các điểm lệch) | Xem: người soạn đề; lập: `P02.exam.review` |
 | MH-279 | 8.3. Kế hoạch kiểm tra (YCTD-168, `/assessment-plans`): bảng "Kế hoạch kiểm tra" (học kỳ, khối, môn, loại, hình thức, thời gian, ngày kèm nhắc thời khoá biểu, trạng thái, số đề; Gửi duyệt, Duyệt, Trả lại); khối "Thêm kế hoạch kiểm tra" | Lập: `P02.exam.review`; duyệt: `P02.exam.manage` |
@@ -666,6 +667,7 @@ Từ YCTD-159 (DT-20 phần 20b), mục 4.8 "Bán trú" (chọn đơn vị, lớ
 
 Từ YCTD-158 (DT-20 phần 20a), phân hệ Quản lý giáo dục có nhóm "7. Dạy học Tiểu học" (MH-261, MH-262) chỉ khi làm việc ở cấp Tiểu học hoặc "Tất cả" ở trường có Tiểu học; trường chỉ có Mầm non không thấy nhóm này.
 
+Từ YCTD-167 (DT-21 phần 21a), nhóm 7 đổi tên "7. Dạy học" và hiện ở cả Tiểu học, THCS, THPT: 7.1 Môn học và hoạt động giáo dục, 7.2 Phân công giảng dạy theo môn (có ô chọn cấp khi trường bật nhiều cấp ngoài Mầm non) dùng chung ba cấp; 7.3, 7.4, 7.5 vẫn chỉ ở Tiểu học; 7.12 Tổ hợp môn chỉ ở THPT (MH-271); 7.13 Tổ bộ môn ở THCS, THPT (MH-272); 7.14 Sổ điểm ở THCS, THPT (MH-274, YCTD-170); 7.8 Học bạ, khen thưởng, lên lớp dùng chung Tiểu học, THCS, THPT (MH-288, YCTD-172).
 Từ YCTD-165 (DT-20 phần 20f), mục 7.15 "Báo cáo, thống kê, EMIS Tiểu học" (chỉ hiện khi trường bật Tiểu học): chọn đơn vị; thẻ Sĩ số (bảng theo khối và Toàn trường), Kết quả đánh giá (chọn kỳ, gộp theo lớp, khối, toàn trường; bảng môn học, bảng phẩm chất, năng lực), Cuối năm (gộp; kết quả cuối năm, hoàn thành chương trình, khen thưởng), Chuyên cần, bán trú (từ ngày, đến ngày; bảng theo lớp), mỗi thẻ có Xuất Excel, Xuất PDF; thẻ EMIS Tiểu học (chọn biểu, bảng Chỉ tiêu, Mã số, Đơn vị và các cột; ô nhập tay ở dòng nhập tay, Lưu số nhập tay; biểu đã gửi thì khoá; Ban Giám hiệu có Sửa khung biểu: mã dòng, chỉ tiêu, loại, công thức, Thêm dòng, Lưu khung biểu). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
 
 Từ YCTD-167 (DT-21 phần 21a), nhóm 7 đổi tên "7. Dạy học" và hiện ở cả Tiểu học, THCS, THPT: 7.1 Môn học và hoạt động giáo dục, 7.2 Phân công giảng dạy theo môn (có ô chọn cấp khi trường bật nhiều cấp ngoài Mầm non) dùng chung ba cấp; 7.3, 7.4, 7.5 vẫn chỉ ở Tiểu học; 7.12 Tổ hợp môn chỉ ở THPT (MH-271); 7.13 Tổ bộ môn ở THCS, THPT (MH-272); 7.14 Sổ điểm ở THCS, THPT (MH-274, YCTD-170).

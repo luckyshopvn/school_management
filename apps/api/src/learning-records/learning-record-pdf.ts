@@ -26,6 +26,18 @@ export interface LearningRecordContent {
   year_result: string | null;
   awards: string[];
   completion: string | null;
+  // Học bạ THCS, THPT (DT-21 phần 21e): điểm trung bình môn học kỳ I, II, cả năm (môn nhận xét ghi Đạt, Chưa đạt), xếp loại
+  // học tập, rèn luyện theo học kỳ và cả năm; không có thì là học bạ Tiểu học
+  secondary?: {
+    subjects: Array<{
+      name: string;
+      mode: 'score' | 'comment';
+      first: string | null;
+      second: string | null;
+      year: string | null;
+    }>;
+    ratings: Record<'first' | 'second' | 'year', { learning: string | null; conduct: string | null }>;
+  };
 }
 
 const dateText = (value: string | null) => (value ? value.split('-').reverse().join('/') : '');
@@ -59,6 +71,16 @@ export function learningRecordSheets(
       rows: [
         ...infoRows(content, nationalId),
         ['Năm học, lớp', `${content.academic_year_name}, lớp ${content.class_name}`],
+        ...(content.secondary?.subjects ?? []).map((subject): [string, string] => [
+          subject.name,
+          `HK I ${subject.first ?? '-'}; HK II ${subject.second ?? '-'}; cả năm ${subject.year ?? '-'}`,
+        ]),
+        ...(content.secondary
+          ? (['first', 'second', 'year'] as const).map((term): [string, string] => [
+              `Xếp loại ${term === 'first' ? 'học kỳ I' : term === 'second' ? 'học kỳ II' : 'cả năm'}`,
+              `Học tập: ${content.secondary?.ratings[term].learning ?? '-'}; rèn luyện: ${content.secondary?.ratings[term].conduct ?? '-'}`,
+            ])
+          : []),
         ...content.subjects.map((subject): [string, string] => [
           subject.name,
           [subject.level, subject.score === null ? null : `điểm ${subject.score}`, subject.comment]
@@ -110,23 +132,49 @@ export async function learningRecordPdf(
         },
         layout: 'noBorders',
       },
-      { text: '1. Môn học và hoạt động giáo dục', bold: true, margin: [0, 10, 0, 0] },
-      table(
-        ['30%', '20%', '12%', '*'],
-        ['Môn học, hoạt động giáo dục', 'Mức đạt', 'Điểm KTĐK', 'Nhận xét'],
-        content.subjects.map((subject) => [
-          subject.name,
-          subject.level ?? '',
-          subject.score === null ? '' : String(subject.score),
-          subject.comment ?? '',
-        ]),
-      ),
-      { text: '2. Phẩm chất chủ yếu và năng lực', bold: true },
-      table(
-        ['30%', '40%', '*'],
-        ['Nhóm', 'Phẩm chất, năng lực', 'Mức đạt'],
-        content.competencies.map((item) => [item.group, item.name, item.level ?? '']),
-      ),
+      ...(content.secondary
+        ? [
+            { text: '1. Kết quả học tập các môn học', bold: true, margin: [0, 10, 0, 0] } as PdfContent,
+            table(
+              ['40%', '20%', '20%', '*'],
+              ['Môn học', 'Học kỳ I', 'Học kỳ II', 'Cả năm'],
+              content.secondary.subjects.map((subject) => [
+                subject.name,
+                subject.first ?? '',
+                subject.second ?? '',
+                subject.year ?? '',
+              ]),
+            ),
+            { text: '2. Kết quả học tập, rèn luyện', bold: true } as PdfContent,
+            table(
+              ['40%', '30%', '*'],
+              ['Kỳ', 'Học tập', 'Rèn luyện'],
+              (['first', 'second', 'year'] as const).map((term) => [
+                term === 'first' ? 'Học kỳ I' : term === 'second' ? 'Học kỳ II' : 'Cả năm',
+                content.secondary?.ratings[term].learning ?? '',
+                content.secondary?.ratings[term].conduct ?? '',
+              ]),
+            ),
+          ]
+        : [
+            { text: '1. Môn học và hoạt động giáo dục', bold: true, margin: [0, 10, 0, 0] } as PdfContent,
+            table(
+              ['30%', '20%', '12%', '*'],
+              ['Môn học, hoạt động giáo dục', 'Mức đạt', 'Điểm KTĐK', 'Nhận xét'],
+              content.subjects.map((subject) => [
+                subject.name,
+                subject.level ?? '',
+                subject.score === null ? '' : String(subject.score),
+                subject.comment ?? '',
+              ]),
+            ),
+            { text: '2. Phẩm chất chủ yếu và năng lực', bold: true } as PdfContent,
+            table(
+              ['30%', '40%', '*'],
+              ['Nhóm', 'Phẩm chất, năng lực', 'Mức đạt'],
+              content.competencies.map((item) => [item.group, item.name, item.level ?? '']),
+            ),
+          ]),
       {
         table: {
           widths: ['32%', '*'],

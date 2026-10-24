@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số).
-- Phiên bản: 1.54
+- Phiên bản: 1.55
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -898,7 +898,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 | 21b | 2 | Đã làm, YCTD-169, phiên bản 0.118.0, PR 151: menu thời khoá biểu ba cấp; tiết học nhóm (năm học 0086 `timetable_lessons.group_no`); luật nhóm, tiết đôi, phòng bộ môn; nhập Excel cột Nhóm; thời khoá biểu của con theo tổ hợp môn; máy xếp bỏ qua môn học lựa chọn; dạy thay chỉ cho tiết cả lớp; chưa làm: xếp tự động tiết nhóm, đổi tiết nhóm, định mức tổ bộ môn; e2e 97 |
 | 21c | 2 | Đã làm, YCTD-170, phiên bản 0.115.0: sổ điểm theo Thông tư 22/2021 (năm học 0087 `score_entries`, `subject_term_results`, `term_ratings`, `score_locks`, `score_configs`), trung bình học kỳ, cả năm, gợi ý và xác nhận xếp loại học tập, rèn luyện, khoá điểm, cấu hình theo cấp, mục 7.14, ứng dụng giáo viên, phụ huynh; định danh 0078 để trống (không thêm quyền); e2e 98 |
 | 21d | 3 | Chưa làm, chờ 21b, 20d |
-| 21e | 3 | Chưa làm, chờ 21c, 20e |
+| 21e | 3 | Đã làm, YCTD-172, phiên bản 0.120.0: học bạ số, khen thưởng (Xuất sắc, Giỏi), xét lên lớp, hoàn thành cấp học THCS, THPT trên khung 20e (đọc sổ điểm 21c), học bạ có điểm trung bình hai học kỳ, cả năm, kí nội bộ in đủ số định danh kèm kiểm quyền (năm học 0089 căn cứ danh hiệu); định danh 0080 để trống (không thêm quyền); e2e 100 |
 | 22g2 | 4 | Chưa làm, chờ 22g1, 21c |
 | 21f | 4 | Chưa làm, chờ 21e |
 | 21g | 5 | Chưa làm, chờ 21c, 21e, 21f |

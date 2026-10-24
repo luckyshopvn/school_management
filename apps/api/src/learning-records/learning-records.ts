@@ -11,13 +11,19 @@ import {
   COMPETENCY_GROUP_LABELS,
   COMPLETION_OUTCOME_LABELS,
   PERMISSION_CODES,
+  RATING_LABELS,
   SIGNING_SIGNATURE_TYPE_LABELS,
   STUDENT_AWARD_DEFAULTS,
   YEAR_RESULT_LABELS,
   completionOutcome,
   isSigningProvider,
   nextGradeLevel,
+  SECONDARY_AWARD_RULE,
+  secondaryAwardBases,
+  secondaryPassed,
+  SUBJECT_PASS_LABELS,
   type SchoolLevelCode,
+  type StudentAwardBasis,
   type YearResultCode,
 } from '@school-management/shared';
 import type { Request, Response } from 'express';
@@ -42,6 +48,7 @@ import {
 } from '../common/request-fields.js';
 import { storageKey } from '../common/resource-names.js';
 import { SchoolLevelResolver } from '../common/school-levels.js';
+import { ScoresService } from '../scores/scores.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { certificatePdf } from '../emulation/emulation-documents.js';
 import { CONTENT_TYPES } from '../exports/table-file.js';
@@ -59,11 +66,16 @@ import { learningRecordPdf, learningRecordSheets, type LearningRecordContent } f
 //   nhận, kí học bạ, mở lại học bạ đã kí kèm lý do; xem: `P02.assessment.view` trong phạm vi đơn vị;
 // - danh hiệu cuối năm có căn cứ "xuất sắc" chỉ cho học sinh có kết quả cuối năm Hoàn thành xuất sắc; căn cứ "tiêu biểu" cho
 //   học sinh Hoàn thành tốt trở lên kèm thành tích (bắt buộc ghi); khen thưởng đột xuất không cần kết quả cuối năm;
+// - THCS, THPT (DT-21 phần 21e, YCTD-172) dùng cùng bảng, quy trình: kết quả cuối năm đọc từ sổ điểm 21c (học kỳ II đã khoá,
+//   xếp loại học tập, rèn luyện cả năm giáo viên chủ nhiệm đã xác nhận); danh hiệu Xuất sắc, Giỏi và điều kiện lên lớp theo
+//   Thông tư 22/2021 (học tập, rèn luyện cả năm từ Đạt trở lên); học bạ có bảng điểm trung bình hai học kỳ, cả năm
 // - số định danh in đủ khi người xem, người kí có quyền xem số định danh trong phạm vi đơn vị (ghi nhật ký truy cập), còn lại
 //   in che; tệp đã kí in đủ nên chỉ người có quyền xem số định danh hoặc phụ huynh của học sinh tải được
 export const LEARNING_RECORD_RULE_CODE = 'YCTD-163';
 type Executor = Kysely<SchoolYearDatabase> | Transaction<SchoolYearDatabase>;
 const CODE_PATTERN = /^[A-Z0-9]{12}$/;
+const AWARD_BASES: StudentAwardBasis[] = ['excellent', 'outstanding', 'secondary_excellent', 'secondary_good'];
+const SECONDARY_EXCELLENT_AVERAGE = SECONDARY_AWARD_RULE.excellent_min_average;
 const GENDER_LABELS: Record<string, string> = { male: 'Nam', female: 'Nữ' };
 
 interface ClassContext {
@@ -95,6 +107,7 @@ export class LearningRecordsService {
     private readonly fileStorage: FileStorage,
     private readonly signer: DossierSigner,
     private readonly clock: Clock,
+    private readonly scores: ScoresService,
   ) {}
 
   private today(): string {
@@ -155,7 +168,17 @@ export class LearningRecordsService {
   }
 
   // Kỳ cuối năm của cấp và trạng thái khoá của lớp; học bạ, hoàn thành chương trình chỉ làm khi kỳ cuối năm đã khoá
+  private isSecondary(level: SchoolLevelCode): boolean {
+    return level === 'THCS' || level === 'THPT';
+  }
+
   private async yearEnd(database: Executor, classRow: ClassContext) {
+    if (this.isSecondary(classRow.school_level)) {
+      return {
+        period: { id: 'second_term', name: 'Học kỳ II' },
+        locked: await this.scores.isYearLocked(database, classRow.id),
+      };
+    }
     const period = await database
       .selectFrom('assessment_periods')
       .select(['id', 'name'])
@@ -179,25 +202,86 @@ export class LearningRecordsService {
   private async assertYearEndLocked(database: Executor, classRow: ClassContext) {
     const yearEnd = await this.yearEnd(database, classRow);
     if (!yearEnd.period || !yearEnd.locked) {
-      throw rule('Kỳ cuối năm của lớp chưa khoá số liệu; Ban Giám hiệu khoá ở Đánh giá học sinh trước');
+      throw rule(
+        this.isSecondary(classRow.school_level)
+          ? 'Học kỳ II của lớp chưa khoá điểm; Ban Giám hiệu khoá ở Sổ điểm trước'
+          : 'Kỳ cuối năm của lớp chưa khoá số liệu; Ban Giám hiệu khoá ở Đánh giá học sinh trước',
+      );
     }
     return yearEnd.period;
   }
 
-  private async students(database: Executor, classId: string) {
-    return database
+  // Học sinh của lớp kèm kết quả cuối năm: Tiểu học đọc kết quả hoàn thành chương trình (20c), THCS, THPT đọc xếp loại học
+  // tập, rèn luyện cả năm (21c). `has_result`: đã có kết quả đã xác nhận; `needs_support`: chưa đạt, cần rèn luyện hoặc kiểm tra lại
+  private async students(database: Executor, classRow: { id: string; school_level: SchoolLevelCode }) {
+    const classId = classRow.id;
+    const rows = await database
       .selectFrom('class_enrollments')
       .innerJoin('children', 'children.id', 'class_enrollments.child_id')
       .leftJoin('year_results', (join) =>
         join.onRef('year_results.child_id', '=', 'children.id').on('year_results.class_id', '=', classId),
       )
-      .select(['children.id as child_id', 'children.full_name', 'year_results.result as year_result'])
+      .leftJoin('term_ratings', (join) =>
+        join
+          .onRef('term_ratings.child_id', '=', 'children.id')
+          .on('term_ratings.class_id', '=', classId)
+          .on('term_ratings.term_type', '=', 'year'),
+      )
+      .select([
+        'children.id as child_id',
+        'children.full_name',
+        'year_results.result as year_result',
+        'term_ratings.learning',
+        'term_ratings.conduct',
+      ])
       .where('class_enrollments.class_id', '=', classId)
       .where('class_enrollments.is_current', '=', true)
       .where('children.status', '=', 'active')
       .where('children.deleted_at', 'is', null)
       .orderBy('children.full_name')
       .execute();
+    const secondary = this.isSecondary(classRow.school_level);
+    return rows.map((row) => {
+      const passed = secondary ? secondaryPassed(row.learning, row.conduct) : null;
+      return {
+        child_id: row.child_id,
+        full_name: row.full_name,
+        year_result: secondary ? null : row.year_result,
+        learning: secondary ? row.learning : null,
+        conduct: secondary ? row.conduct : null,
+        has_result: secondary ? passed !== null : Boolean(row.year_result),
+        needs_support: secondary ? passed === false : row.year_result === 'not_completed',
+        year_label:
+          secondary && row.learning && row.conduct
+            ? `Học tập: ${RATING_LABELS[row.learning]}; rèn luyện: ${RATING_LABELS[row.conduct]}`
+            : null,
+      };
+    });
+  }
+
+  // Kết quả cuối năm của THCS, THPT để xét danh hiệu: học tập, rèn luyện đã xác nhận, số môn tính điểm có trung bình cả năm
+  // từ ngưỡng của danh hiệu Xuất sắc
+  private async secondaryFacts(database: Executor, classRow: ClassContext) {
+    const summary = await this.scores.summariesFor(database, classRow.id, 'year');
+    const electives = new Set(
+      summary.subjects.filter((subject) => subject.is_elective).map((subject) => subject.subject_id),
+    );
+    return new Map(
+      summary.rows.map((row) => [
+        row.child_id,
+        {
+          learning: row.learning,
+          conduct: row.conduct,
+          highSubjects: row.subjects.filter(
+            (item) =>
+              item.mode === 'score' &&
+              !electives.has(item.subject_id) &&
+              item.average !== null &&
+              item.average >= SECONDARY_EXCELLENT_AVERAGE,
+          ).length,
+        },
+      ]),
+    );
   }
 
   // ---------- Danh hiệu khen thưởng ----------
@@ -255,7 +339,7 @@ export class LearningRecordsService {
       code: string;
       name: string;
       kind: 'year_end' | 'special';
-      basis: 'excellent' | 'outstanding' | null;
+      basis: StudentAwardBasis | null;
     },
     origin: ChangeOrigin,
   ) {
@@ -325,8 +409,9 @@ export class LearningRecordsService {
     const { database } = await this.currentSchoolYear.require();
     const classRow = await this.findClass(database, classId);
     const access = await this.assertView(database, currentUser, classRow);
+    const facts = this.isSecondary(classRow.school_level) ? await this.secondaryFacts(database, classRow) : null;
     const [students, titles, awards] = await Promise.all([
-      this.students(database, classId),
+      this.students(database, classRow),
       database
         .selectFrom('student_award_titles')
         .select(['id', 'code', 'name', 'kind', 'basis'])
@@ -360,11 +445,17 @@ export class LearningRecordsService {
         ...student,
         // Gợi ý theo Điều 15: Hoàn thành xuất sắc là học sinh Xuất sắc; Hoàn thành tốt là ứng viên học sinh Tiêu biểu
         suggested_title_ids: titles
-          .filter(
-            (title) =>
+          .filter((title) => {
+            const fact = facts?.get(student.child_id);
+            if (fact) {
+              // Gợi ý danh hiệu cao nhất đủ điều kiện
+              return title.basis === secondaryAwardBases(fact)[0];
+            }
+            return (
               (title.basis === 'excellent' && student.year_result === 'excellent') ||
-              (title.basis === 'outstanding' && student.year_result === 'good'),
-          )
+              (title.basis === 'outstanding' && student.year_result === 'good')
+            );
+          })
           .map((title) => title.id),
         awards: awards.filter((award) => award.child_id === student.child_id),
       })),
@@ -391,13 +482,23 @@ export class LearningRecordsService {
         { field: 'title_id', message: 'Danh hiệu không có, đã ngừng dùng hoặc khác cấp của lớp' },
       ]);
     }
-    const student = (await this.students(database, classId)).find((row) => row.child_id === input.childId);
+    const student = (await this.students(database, classRow)).find((row) => row.child_id === input.childId);
     if (!student) {
       throw validationError([{ field: 'child_id', message: 'Học sinh không học lớp này' }]);
     }
     if (title.kind === 'year_end') {
       await this.assertYearEndLocked(database, classRow);
-      if (title.basis === 'excellent' && student.year_result !== 'excellent') {
+      if (title.basis === 'secondary_excellent' || title.basis === 'secondary_good') {
+        const fact = (await this.secondaryFacts(database, classRow)).get(input.childId);
+        const bases = fact ? (secondaryAwardBases(fact) as string[]) : [];
+        if (!bases.includes(title.basis)) {
+          throw rule(
+            title.basis === 'secondary_excellent'
+              ? `Danh hiệu này cần học tập, rèn luyện cả năm Tốt và ít nhất ${SECONDARY_AWARD_RULE.excellent_min_subjects} môn có điểm trung bình cả năm từ ${SECONDARY_AWARD_RULE.excellent_min_average}`
+              : 'Danh hiệu này cần học tập, rèn luyện cả năm đều Tốt',
+          );
+        }
+      } else if (title.basis === 'excellent' && student.year_result !== 'excellent') {
         throw rule('Danh hiệu này chỉ cho học sinh có kết quả cuối năm Hoàn thành xuất sắc');
       }
       if (title.basis === 'outstanding') {
@@ -614,7 +715,7 @@ export class LearningRecordsService {
     const classRow = await this.findClass(database, classId);
     const access = await this.assertView(database, currentUser, classRow);
     const [students, results, yearEnd, progression] = await Promise.all([
-      this.students(database, classId),
+      this.students(database, classRow),
       database
         .selectFrom('completion_results')
         .select([
@@ -640,9 +741,9 @@ export class LearningRecordsService {
       next_grade_level: progression.nextCode,
       rows: students.map((student) => ({
         ...student,
-        suggested_outcome: student.year_result
+        suggested_outcome: student.has_result
           ? completionOutcome({
-              yearResult: student.year_result as YearResultCode,
+              yearResult: (student.needs_support ? 'not_completed' : 'completed') as YearResultCode,
               lastGrade: progression.lastGrade,
               supportResult: null,
             })
@@ -669,7 +770,7 @@ export class LearningRecordsService {
     const access = await this.access(database, currentUser, classRow);
     this.assertEdit(access);
     await this.assertYearEndLocked(database, classRow);
-    const students = await this.students(database, classId);
+    const students = await this.students(database, classRow);
     const progression = await this.progression(database, classRow);
     const errors: FieldError[] = [];
     const rows = entries.map((entry, index) => {
@@ -678,11 +779,11 @@ export class LearningRecordsService {
         errors.push({ field: `entries[${index}].child_id`, message: 'Học sinh không học lớp này' });
         return null;
       }
-      if (!student.year_result) {
+      if (!student.has_result) {
         errors.push({ field: `entries[${index}].child_id`, message: 'Học sinh chưa có kết quả cuối năm đã xác nhận' });
         return null;
       }
-      const passed = student.year_result !== 'not_completed';
+      const passed = !student.needs_support;
       if (passed && (entry.support_plan || entry.support_result)) {
         errors.push({
           field: `entries[${index}].support_plan`,
@@ -696,13 +797,13 @@ export class LearningRecordsService {
         });
       }
       const outcome = completionOutcome({
-        yearResult: student.year_result as YearResultCode,
+        yearResult: (passed ? 'completed' : 'not_completed') as YearResultCode,
         lastGrade: progression.lastGrade,
         supportResult: entry.support_result,
       });
       return {
         child_id: entry.child_id,
-        year_result: student.year_result,
+        year_result: student.year_result ?? student.learning ?? '',
         outcome,
         support_plan: passed ? null : entry.support_plan,
         support_result: passed ? null : entry.support_result,
@@ -770,6 +871,9 @@ export class LearningRecordsService {
     periodId: string,
     childId: string,
   ): Promise<LearningRecordContent> {
+    if (this.isSecondary(classRow.school_level)) {
+      return this.buildSecondaryContent(database, classRow, childId);
+    }
     const [child, guardians, grade, homeroom, subjects, competencies, levels, year, awards, completion] =
       await Promise.all([
         database
@@ -868,13 +972,114 @@ export class LearningRecordsService {
     };
   }
 
+  // Học bạ THCS, THPT: điểm trung bình môn từng học kỳ, cả năm, xếp loại học tập, rèn luyện (đọc từ sổ điểm 21c)
+  private async buildSecondaryContent(
+    database: Executor,
+    classRow: ClassContext,
+    childId: string,
+  ): Promise<LearningRecordContent> {
+    const [child, guardians, grade, homeroom, awards, completion, first, second, year] = await Promise.all([
+      database
+        .selectFrom('children')
+        .select(['full_name', 'gender', 'dob', 'place_of_birth', 'address', 'moet_student_code'])
+        .where('id', '=', childId)
+        .executeTakeFirstOrThrow(),
+      database
+        .selectFrom('child_guardians')
+        .innerJoin('guardians', 'guardians.id', 'child_guardians.guardian_id')
+        .select('guardians.full_name')
+        .where('child_guardians.child_id', '=', childId)
+        .execute(),
+      database.selectFrom('grade_levels').select('name').where('code', '=', classRow.grade_level).executeTakeFirst(),
+      database
+        .selectFrom('class_staff_assignments')
+        .select('staff_name')
+        .where('class_id', '=', classRow.id)
+        .where('assignment_role', '=', 'homeroom')
+        .where('status', '=', 'active')
+        .executeTakeFirst(),
+      database
+        .selectFrom('student_awards')
+        .select('title_name')
+        .where('class_id', '=', classRow.id)
+        .where('child_id', '=', childId)
+        .where('status', '=', 'approved')
+        .execute(),
+      database
+        .selectFrom('completion_results')
+        .select('outcome')
+        .where('class_id', '=', classRow.id)
+        .where('child_id', '=', childId)
+        .executeTakeFirst(),
+      this.scores.summariesFor(database, classRow.id, 'first_term'),
+      this.scores.summariesFor(database, classRow.id, 'second_term'),
+      this.scores.summariesFor(database, classRow.id, 'year'),
+    ]);
+    const rowOf = (summary: typeof year) => summary.rows.find((row) => row.child_id === childId);
+    const cell = (summary: typeof year, subjectId: string) => {
+      const item = rowOf(summary)?.subjects.find((entry) => entry.subject_id === subjectId);
+      if (!item) {
+        return null;
+      }
+      return item.mode === 'score'
+        ? item.average === null
+          ? null
+          : String(item.average)
+        : item.passed
+          ? SUBJECT_PASS_LABELS[item.passed]
+          : null;
+    };
+    const ratingOf = (summary: typeof year) => {
+      const row = rowOf(summary);
+      return {
+        learning: row?.learning ? RATING_LABELS[row.learning] : null,
+        conduct: row?.conduct ? RATING_LABELS[row.conduct] : null,
+      };
+    };
+    const yearRating = ratingOf(year);
+    return {
+      school_name: await this.schoolName(database),
+      academic_year_name: await this.yearName(),
+      class_name: classRow.name,
+      grade_name: grade?.name ?? classRow.grade_level,
+      student: {
+        full_name: child.full_name,
+        gender: GENDER_LABELS[child.gender] ?? child.gender,
+        dob: child.dob,
+        place_of_birth: child.place_of_birth,
+        address: child.address,
+        moet_student_code: child.moet_student_code,
+        guardians: guardians.map((row) => row.full_name),
+      },
+      homeroom_teacher: homeroom?.staff_name ?? null,
+      subjects: [],
+      competencies: [],
+      year_result:
+        yearRating.learning && yearRating.conduct
+          ? `Học tập: ${yearRating.learning}; rèn luyện: ${yearRating.conduct}`
+          : null,
+      awards: awards.map((row) => row.title_name),
+      completion: completion ? COMPLETION_OUTCOME_LABELS[completion.outcome] : null,
+      secondary: {
+        subjects: year.subjects.map((subject) => ({
+          name: subject.subject_name,
+          mode: subject.mode,
+          first: cell(first, subject.subject_id),
+          second: cell(second, subject.subject_id),
+          year: cell(year, subject.subject_id),
+        })),
+        ratings: { first: ratingOf(first), second: ratingOf(second), year: yearRating },
+      },
+    };
+  }
+
   async classRecords(currentUser: CurrentUser, classId: string) {
     const { database } = await this.currentSchoolYear.require();
     const classRow = await this.findClass(database, classId);
     const access = await this.assertView(database, currentUser, classRow);
     const yearName = await this.yearName();
     const [students, records, yearEnd] = await Promise.all([
-      this.students(database, classId),
+      this.students(database, classRow),
       database
         .selectFrom('learning_records')
         .select(['id', 'child_id', 'status', 'homeroom_comment', 'signed_at', 'signer_name', 'prepared_by_name'])
@@ -902,7 +1107,7 @@ export class LearningRecordsService {
     this.assertEdit(access);
     const period = await this.assertYearEndLocked(database, classRow);
     const yearName = await this.yearName();
-    const students = await this.students(database, classId);
+    const students = await this.students(database, classRow);
     const signed = new Set(
       (
         await database
@@ -1279,8 +1484,9 @@ export class LearningRecordsController {
     if (!kind) {
       errors.push({ field: 'kind', message: 'Loại là year_end (cuối năm) hoặc special (đột xuất)' });
     }
-    const basis: 'excellent' | 'outstanding' | null =
-      body?.basis === 'excellent' || body?.basis === 'outstanding' ? body.basis : null;
+    const basis: StudentAwardBasis | null = AWARD_BASES.includes(body?.basis as StudentAwardBasis)
+      ? (body?.basis as StudentAwardBasis)
+      : null;
     const input = {
       school_level: readSchoolLevel(body, 'school_level', errors) ?? 'TH',
       code: readRequiredText(body, 'code', errors),

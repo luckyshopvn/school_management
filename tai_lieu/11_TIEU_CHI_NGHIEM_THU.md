@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.67
+- Phiên bản: 1.68
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -844,6 +844,9 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-780 | Cho lớp THCS có môn của chương trình / Khi giáo viên nhập điểm thường xuyên, giữa kỳ, cuối kỳ / Thì trung bình môn tính theo hệ số 1, 2, 3 và làm tròn một chữ số, môn nhận xét ghi Đạt, Chưa đạt; giáo viên chỉ nhập môn được phân công, điểm sai bị từ chối; lớp Mầm non bị từ chối (CT-897, CT-899; YCTD-170) |
 | AC-781 | Cho điểm đã nhập đủ / Khi tổng hợp học kỳ, cả năm và xác nhận xếp loại / Thì máy gợi ý học tập theo ngưỡng (Tốt, Khá, Đạt, Chưa đạt), cả năm tính từ hai học kỳ, giáo viên chủ nhiệm xác nhận học tập, rèn luyện, giáo viên môn không xác nhận (CT-897, CT-900; YCTD-170) |
 | AC-782 | Cho học kỳ / Khi Hiệu trưởng khoá điểm, mở khoá kèm lý do, và phụ huynh xem / Thì khoá thì không sửa được (kể cả người quản lý), quá hạn thì chỉ người quản lý sửa; phụ huynh chỉ xem học kỳ đã khoá của con mình (CT-901, CT-902, CT-903; YCTD-170) |
+| AC-795 | Cho lớp THCS có điểm và xếp loại cả năm đã xác nhận / Khi học kỳ II đã khoá và giáo viên chủ nhiệm đề nghị khen thưởng / Thì Xuất sắc chỉ cho học sinh Tốt, Tốt và đủ 6 môn từ 9,0, Giỏi cho Tốt, Tốt; chưa khoá, không đủ điều kiện, đề nghị trùng bị từ chối; duyệt cấp mã tra cứu (CT-935; YCTD-172) |
+| AC-796 | Cho học sinh THCS, THPT có xếp loại cả năm / Khi ghi kết quả hoàn thành chương trình / Thì chưa có xếp loại không ghi được; đạt thì lên lớp, ở khối 9 hoặc 12 hoàn thành cấp học; chưa đạt thì rèn luyện, kiểm tra lại, đạt thì lên lớp, không đạt thì ở lại lớp (CT-936; YCTD-172) |
+| AC-797 | Cho lớp THCS, THPT đã khoá học kỳ II / Khi lập, kí học bạ và phụ huynh xem / Thì học bạ có điểm trung bình hai học kỳ, cả năm, xếp loại, khen thưởng, hoàn thành chương trình; kí in đủ số định danh và ghi nhật ký; phụ huynh chỉ tải bản đã kí của con mình; học bạ Tiểu học không đổi (CT-937, CT-938, CT-939; YCTD-172) |
 | AC-783 | Cho trường có lớp 4, lớp 5 với học sinh nữ dân tộc, khuyết tật, bán trú, lớp 2 buổi/ngày / Khi xem sĩ số; phụ huynh xem / Thì số theo khối và toàn trường đúng; 403 (CT-905, CT-910; YCTD-165) |
 | AC-784 | Cho kết quả kỳ cuối học kỳ I, kết quả cuối năm, hoàn thành, khen thưởng / Khi xem theo khối, toàn trường, theo lớp / Thì số theo mức, điểm theo khoảng, kết quả cuối năm, ở lại lớp, khen thưởng đúng (CT-906, CT-907; YCTD-165) |
 | AC-785 | Cho sổ đầu bài có vắng, ngày đã chốt suất, cắt suất / Khi xem chuyên cần, bán trú; xuất Excel, PDF / Thì số theo lớp đúng; tệp tải được, có nhật ký xuất (CT-908; YCTD-165) |
