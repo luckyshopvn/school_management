@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.102
+- Phiên bản: 1.103
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -79,15 +79,18 @@
 | subjects | Môn học và hoạt động giáo dục theo cấp (P02-34, BR-166; YCTD-158, tệp năm học `0076_create_subjects`) | code (duy nhất), name, school_level, kind (`subject`, `activity`), assessment (`comment`, `comment_and_score`), order_no, status, thời điểm, người tạo |
 | timetable_versions | Bản thời khoá biểu theo cấp (P02-40, BR-170; YCTD-160, tệp năm học `0078_create_timetables`) | school_level, name, effective_from, status (`draft`, `published`), source (`manual`, `import`, `generator`), note, published_at, published_by, published_by_name, thời điểm, người tạo |
 | timetable_lessons | Tiết của lớp trong một bản (P02-40; YCTD-160) | version_id (khóa ngoại, xóa theo), class_id, weekday (1 đến 7, 1 là thứ Hai), period_no, subject_id, teacher_user_id, teacher_name, room_id; duy nhất theo bản, lớp, thứ, tiết |
+| class_logs | Sổ đầu bài: một lớp, ngày, tiết một dòng (P02-45, BR-174; YCTD-162, tệp năm học `0080_create_class_logs`) | class_id, lesson_date, period_no (1 đến 15), subject_id, timetable_lesson_id (khóa ngoại, xóa thì để trống), teacher_user_id, teacher_name, lesson_title (1 đến 300 ký tự), content, comment, rating (A, B, C, D), status (`draft`, `signed`), signed_at, created_by, thời điểm tạo, sửa; duy nhất theo lớp, ngày, tiết |
+| period_attendance | Điểm danh theo tiết (P02-45, P02-47; YCTD-162) | class_log_id (khóa ngoại, xóa theo), child_id, status (`present`, `late`, `absent_excused`, `absent_unexcused`), note; khóa chính lớp tiết, học sinh |
+| class_log_reviews | Ban giám hiệu ký sổ đầu bài theo tuần (P02-46; YCTD-162) | class_id, week_start (thứ Hai), reviewer_user_id, reviewer_name, comment, signed_at; duy nhất theo lớp, tuần |
 | curriculum_subjects | Số tiết mỗi tuần theo khối của chương trình (P02-34; YCTD-158) | curriculum_id (khóa ngoại `curricula`, xóa theo), subject_id, grade_level_code, periods_per_week (numeric 4,1), is_elective; duy nhất theo chương trình, môn, khối |
 | child_elective_subjects | Môn tự chọn của học sinh (P02-36; YCTD-158) | child_id (khóa ngoại `children`, xóa theo), subject_id, created_at, created_by; khóa chính (child_id, subject_id) |
 | subjects (bổ sung) | YCTD-167, tệp năm học `0084_create_secondary_foundation` | `assessment` thêm giá trị `score` (môn đánh giá bằng điểm số); `option_group` (`social_science`, `natural_science`, `technology_arts`, có thể trống) là nhóm môn lựa chọn của THPT |
-| subject_combinations | Tổ hợp môn THPT (P02-45, BR-174; YCTD-167) | code (duy nhất), name, school_level (`THCS`, `THPT`; hiện dùng THPT), order_no, status, thời điểm, người tạo |
-| subject_combination_subjects | Môn của tổ hợp (P02-45) | combination_id (khóa ngoại `subject_combinations`, xóa theo), subject_id; khóa chính (combination_id, subject_id) |
-| child_subject_combinations | Tổ hợp học sinh đăng ký (P02-46) | child_id (khóa chính, khóa ngoại `children`, xóa theo), combination_id, status (`pending`, `approved`), previous_combination_id (tổ hợp đã duyệt trước khi đổi), requested_by, approved_by, thời điểm |
-| subject_teams | Tổ bộ môn (P02-47) | code (duy nhất), name, school_level (`THCS`, `THPT`), status, thời điểm, người tạo |
-| subject_team_subjects | Môn của tổ (P02-47) | team_id (khóa ngoại, xóa theo), subject_id; khóa chính (team_id, subject_id) |
-| subject_team_members | Thành viên tổ (P02-47) | team_id (khóa ngoại, xóa theo), staff_user_id, staff_name, role (`head`, `member`), created_at; khóa chính (team_id, staff_user_id); chỉ mục duy nhất một tổ trưởng mỗi tổ |
+| subject_combinations | Tổ hợp môn THPT (P02-48, BR-175; YCTD-167) | code (duy nhất), name, school_level (`THCS`, `THPT`; hiện dùng THPT), order_no, status, thời điểm, người tạo |
+| subject_combination_subjects | Môn của tổ hợp (P02-48) | combination_id (khóa ngoại `subject_combinations`, xóa theo), subject_id; khóa chính (combination_id, subject_id) |
+| child_subject_combinations | Tổ hợp học sinh đăng ký (P02-49) | child_id (khóa chính, khóa ngoại `children`, xóa theo), combination_id, status (`pending`, `approved`), previous_combination_id (tổ hợp đã duyệt trước khi đổi), requested_by, approved_by, thời điểm |
+| subject_teams | Tổ bộ môn (P02-50) | code (duy nhất), name, school_level (`THCS`, `THPT`), status, thời điểm, người tạo |
+| subject_team_subjects | Môn của tổ (P02-50) | team_id (khóa ngoại, xóa theo), subject_id; khóa chính (team_id, subject_id) |
+| subject_team_members | Thành viên tổ (P02-50) | team_id (khóa ngoại, xóa theo), staff_user_id, staff_name, role (`head`, `member`), created_at; khóa chính (team_id, staff_user_id); chỉ mục duy nhất một tổ trưởng mỗi tổ |
 | org_unit_levels | Cấp học của đơn vị (YCTD-152, tệp năm học `0072`); đơn vị chưa có dòng coi là MN | org_unit_id (khóa ngoại, xóa theo), school_level, created_at, created_by; khóa chính (org_unit_id, school_level) |
 | catalog_items | Mục danh mục dùng chung, không thuộc đơn vị (P01-05, YCTD-42) | catalog_type (loại do hệ thống định nghĩa), code (duy nhất trong loại), name, order_no, status, attributes (thuộc tính riêng của loại; loại nghỉ phép có is_paid, deducts_annual_leave, insurance_paid, YCTD-59) |
 | school_profiles | Hồ sơ trường của Trường chính, một dòng mỗi năm học (P01-15, BR-103, YCTD-106); mỗi thẻ một cột jsonb khóa cố định | org_unit_id (duy nhất, Trường chính), general, other_info, foreign_elements, internet, it_infrastructure, office_accounts (mảng, không có mật khẩu), updated_by. Từ YCTD-136 `general` có thêm khóa cố định `floor_area_m2` (diện tích sàn xây dựng, số), `national_standard_level` ('1', '2'), `national_standard_year`, `accreditation_year` (số nguyên 1900 đến 2100), `national_standard_date`, `accreditation_date` (ngày), `national_standard_registration` (chữ), `accreditation_level` ('1' đến '4') cho 1.7 và báo cáo EMIS đọc |

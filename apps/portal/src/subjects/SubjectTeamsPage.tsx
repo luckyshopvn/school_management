@@ -20,7 +20,7 @@ import {
   type SubjectTeam,
 } from './subjects-api.js';
 
-// 7.7 Tổ bộ môn (DT-21 phần 21a, YCTD-167): tổ chuyên môn của THCS, THPT gồm các môn, tổ trưởng, thành viên là giáo viên bộ
+// 7.9 Tổ bộ môn (DT-21 phần 21a, YCTD-167): tổ chuyên môn của THCS, THPT gồm các môn, tổ trưởng, thành viên là giáo viên bộ
 // môn (VT-08) của đơn vị; tổng tiết mỗi tuần của thành viên theo phân công giảng dạy (7.2). Mọi người xem; người quản lý
 // danh mục (P01.catalog.manage) tạo, sửa
 const messageOf = (error: unknown) =>

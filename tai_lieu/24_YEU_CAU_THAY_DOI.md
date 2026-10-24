@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.41
+- Phiên bản: 0.42
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -18,15 +18,40 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
   - **Môn học khối 6 đến 12** (`packages/shared/src/subjects.ts`): bộ mẫu THCS (14 môn, khối 6 đến 9), THPT (17 môn, khối 10 đến 12), chương trình mặc định `CT-THCS-2018`, `CT-THPT-2018`; cách đánh giá thêm `score`; `subjects.option_group` (xã hội, tự nhiên, công nghệ và nghệ thuật). `POST /subjects/templates` nhận cả THCS, THPT.
   - **Tổ hợp môn THPT** (`apps/api/src/subjects/secondary.ts`): đúng 4 môn lựa chọn thuộc ít nhất 2 nhóm; tổ hợp đã có học sinh không đổi môn. **Đăng ký tổ hợp** của học sinh lớp THPT: đăng ký đầu có hiệu lực ngay, đổi thì chờ `P02.class.manage` duyệt hoặc từ chối; duyệt xong môn tự chọn theo tổ hợp.
   - **Tổ bộ môn** THCS, THPT: môn cùng cấp, một tổ trưởng, thành viên là giáo viên bộ môn (VT-08) của đơn vị, tổng tiết theo phân công.
-  - **Cổng quản trị:** nhóm menu 7 đổi tên "Dạy học" hiện ở ba cấp (7.1, 7.2 dùng chung, 7.2 có ô chọn cấp); 7.6 Tổ hợp môn (THPT), 7.7 Tổ bộ môn; mục "Tổ hợp môn" ở hồ sơ học sinh. Chuyển năm học chép tổ hợp, tổ bộ môn, tổ hợp đã đăng ký.
+  - **Cổng quản trị:** nhóm menu 7 đổi tên "Dạy học" hiện ở ba cấp (7.1, 7.2 dùng chung, 7.2 có ô chọn cấp); 7.8 Tổ hợp môn (THPT), 7.9 Tổ bộ môn; mục "Tổ hợp môn" ở hồ sơ học sinh. Chuyển năm học chép tổ hợp, tổ bộ môn, tổ hợp đã đăng ký.
   - Cơ sở dữ liệu: tệp năm học `0084_create_secondary_foundation`; định danh `0075` để trống (không thêm quyền).
 - Thành phần bị ảnh hưởng: `database`, `packages/shared`, `apps/api` (subjects, catalogs, children), `apps/portal`, tài liệu `01`, `02`, `07`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
 - Dữ liệu bị ảnh hưởng: thêm cột `option_group`, đổi ràng buộc `assessment` của `subjects`; sáu bảng mới; dữ liệu cũ giữ nguyên.
 - API bị ảnh hưởng: thêm `/subject-combinations`, `/children/{id}/subject-combination`, `/subject-teams`; `/subjects` nhận `option_group`, `score`.
 - Giao diện bị ảnh hưởng: nhóm menu 7, 7.2, hồ sơ học sinh; trường chỉ có Mầm non thấy như cũ.
 - Quyền bị ảnh hưởng: không thêm quyền.
-- Ảnh hưởng chức năng cũ: không đổi kỳ vọng kiểm thử cũ trừ danh sách mục chỉ thuộc cấp ở CT-19c-1, CT-19c-2 (thêm 7.6, 7.7); tên nhóm 7 đổi.
-- Kiểm thử cần thực hiện: CT-864 đến CT-869; kiểm thử đơn vị, e2e toàn bộ; typecheck, lint, build.
+- Ảnh hưởng chức năng cũ: không đổi kỳ vọng kiểm thử cũ trừ danh sách mục chỉ thuộc cấp ở CT-19c-1, CT-19c-2 (thêm 7.8, 7.9); tên nhóm 7 đổi.
+- Kiểm thử cần thực hiện: CT-870 đến CT-875; kiểm thử đơn vị, e2e toàn bộ; typecheck, lint, build.
+### YCTD-162: DT-20 phần 20d: sổ đầu bài và điểm danh theo tiết – 2026-10-24
+
+- Lý do: phần 20d của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.3, 11.4 (kế hoạch DT-20 ở YCTD-157). Dùng bản thời khoá biểu đang áp dụng của 22c1 (YCTD-160) làm nguồn tiết dạy; dùng báo vắng theo ngày đang có (`absence_records`) để đối chiếu. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Sổ đầu bài** (bảng `class_logs`, tệp năm học `0080_create_class_logs`): mỗi lớp, ngày, tiết một dòng: môn, tiết của thời khoá biểu, giáo viên, tên bài, nội dung, nhận xét tiết, xếp loại tiết (A, B, C, D), trạng thái đã ghi hoặc đã ký, thời điểm ký.
+  - **Điểm danh theo tiết** (bảng `period_attendance`): mỗi tiết đã ghi, mỗi học sinh một trạng thái (có mặt, đi muộn, vắng có phép, vắng không phép) kèm ghi chú.
+  - **Ban giám hiệu ký sổ tuần** (bảng `class_log_reviews`): lớp, thứ Hai đầu tuần, người ký, nhận xét, thời điểm ký; mỗi lớp mỗi tuần một lần.
+  - **Quy tắc**: tiết của sổ đầu bài lấy theo bản thời khoá biểu đang áp dụng của cấp vào ngày dạy (22c1); chỉ giáo viên của tiết ghi, sửa, ký; không ghi trước ngày dạy; ghi lại cùng lớp, ngày, tiết thì sửa bản đã ghi; điểm danh từng học sinh đang học của lớp (có mặt, đi muộn, vắng có phép, vắng không phép), chưa ghi thì mặc định có mặt, có báo vắng của ngày thì mặc định vắng có phép; tiết đã ký không sửa; Ban giám hiệu ký sổ tuần một lần, ký rồi khoá ghi, sửa mọi tiết trong tuần.
+  - **Ứng dụng giáo viên**: nút "Sổ đầu bài" (giáo viên có lớp cấp phổ thông, `LEVEL_FEATURES.period_attendance`): các tiết tôi dạy trong ngày theo thời khoá biểu; mở tiết ghi tên bài, nội dung, nhận xét, xếp loại, điểm danh từng học sinh (hiện lý do phụ huynh báo vắng); nút "Lưu tiết", "Ký sổ".
+  - **Ứng dụng phụ huynh**: thẻ con học cấp phổ thông có "Điểm danh theo tiết" (số tiết theo trạng thái trong tháng, các tiết vắng, đi muộn) và "Báo vắng" (trước đây chỉ hiện ở Mầm non).
+  - **Cổng quản trị**: "7.6. Sổ đầu bài" (chọn lớp, ngày trong tuần; bảng các tiết trong tuần: môn, giáo viên, tên bài, số vắng, muộn, trạng thái; xem chi tiết tiết; Ban giám hiệu nhập nhận xét và "Ký sổ tuần"); "7.7. Chuyên cần theo tiết" (lớp, khoảng ngày; theo học sinh: số tiết có mặt, đi muộn, vắng có phép, vắng không phép; số ngày có vắng, ngày báo vắng, ngày vắng không báo, ngày báo vắng nhưng vẫn có mặt).
+  - **Quyền mới** `P02.class-log.review` (tệp định danh `0071_add_class_log_permission`) cho Hiệu trưởng, Phó Hiệu trưởng.
+  - **Điểm danh Mầm non giữ nguyên**: bảng `attendance_records`, màn hình điểm danh theo ngày, "Điểm danh tháng này" của phụ huynh không đổi.
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/school-year/migrations/0080_create_class_logs.ts`, `database/identity/migrations/0071_add_class_log_permission.ts`, `schema.ts`, `index.ts`, `database/src/index.ts`); máy chủ API (`class-logs/class-logs.ts`, `timetables/timetables.ts`, `application.module.ts`); cổng quản trị (`class-logs/ClassLogsPage.tsx`, `class-logs/class-logs-api.ts`, `router.tsx`); ứng dụng giáo viên (`screens/ClassLogScreen.tsx`, `screens/ClassesScreen.tsx`, `Application.tsx`); ứng dụng phụ huynh (`screens/PeriodAttendancePanel.tsx`, `screens/HomeScreen.tsx`); gói dùng chung (`index.ts`, `portal-menu.ts`, `menu-permissions.ts`, `level-features.ts`, `subjects.ts`); kiểm thử (CT-19c-1 thêm hai đường dẫn chỉ của Tiểu học vào danh sách so; `tests/e2e/85-multi-level-apps.spec.ts` CT-19e-5 đổi kỳ vọng nút Báo vắng ở thẻ con Tiểu học); tài liệu `01`, `02`, `03`, `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: ba bảng mới, một quyền mới; không đổi dữ liệu cũ.
+- API bị ảnh hưởng: mới `GET /class-logs/week`, `GET /class-logs/mine`, `GET /class-logs/lesson`, `PUT /class-logs`, `POST /class-logs/{id}/sign`, `POST /class-logs/reviews`, `GET /period-attendance/summary`, `GET /children/{id}/period-attendance` (xem `17_DAC_TA_API.md`).
+- Giao diện bị ảnh hưởng: MH-265, MH-266; ứng dụng giáo viên, ứng dụng phụ huynh.
+- Quyền bị ảnh hưởng: PQ-95. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
+- Ảnh hưởng chức năng cũ: trường chỉ có Mầm non không thấy mục mới; điểm danh theo ngày của Mầm non không đổi; kiểm thử đang có không sửa kỳ vọng, trừ CT-19c-1 (danh sách đường dẫn chỉ của Tiểu học thêm hai trang) và CT-19e-5 (thẻ con học Tiểu học nay có "Báo vắng"; "Điểm danh tháng này" vẫn chỉ ở Mầm non).
+- Hạn chế:
+  - Chưa có dạy thay, đổi tiết theo ngày (22c2): tiết ngoài thời khoá biểu chưa ghi được;
+  - Điểm danh theo tiết chưa gửi thông báo cho phụ huynh, chưa ghi ngược vào điểm danh theo ngày;
+  - Giáo viên chủ nhiệm chưa có quyền riêng để ký sổ thay Ban giám hiệu;
+  - Chưa xuất sổ đầu bài ra PDF, Excel.
+- Kiểm thử cần thực hiện: kịch bản CT-864 đến CT-869 (trong mã kiểm thử là CT-20d-1 đến CT-20d-6); kiểm thử đơn vị mới `apps/api/src/class-logs/class-logs.test.ts`; kiểm thử giao diện mới `tests/e2e/91-class-logs.spec.ts`
 - Trạng thái: Đã triển khai
 
 ### YCTD-180: Kế hoạch DT-22 thư viện, bồi dưỡng, kho học liệu số (22a, 22e, 22h) – 2026-10-24

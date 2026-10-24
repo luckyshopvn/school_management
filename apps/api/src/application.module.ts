@@ -240,6 +240,12 @@ import {
   TimetablesService,
   TimetableVersionsController,
 } from './timetables/timetables.js';
+import {
+  ChildPeriodAttendanceController,
+  ClassLogsController,
+  ClassLogsService,
+  PeriodAttendanceController,
+} from './class-logs/class-logs.js';
 import { ClassAssignmentsController, ClassesController } from './classes/classes.controller.js';
 import { ClassesService } from './classes/classes.service.js';
 import { ChildScope } from './children/child-scope.js';
@@ -497,6 +503,9 @@ export class ApplicationModule {
         TimetableVersionsController,
         TimetablesController,
         ChildTimetableController,
+        ClassLogsController,
+        PeriodAttendanceController,
+        ChildPeriodAttendanceController,
         ClassesController,
         ClassAssignmentsController,
         ChildrenController,
@@ -724,6 +733,7 @@ export class ApplicationModule {
         ChildCombinationsService,
         SubjectTeamsService,
         TimetablesService,
+        ClassLogsService,
         ClassesService,
         ChildScope,
         ChildrenService,

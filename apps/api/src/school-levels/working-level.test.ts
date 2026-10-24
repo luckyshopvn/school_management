@@ -40,6 +40,9 @@ const PRIMARY_ONLY_PATHS = [
   '/timetables',
   // Đánh giá học sinh (DT-20 phần 20c)
   '/student-assessments',
+  // Sổ đầu bài, chuyên cần theo tiết (DT-20 phần 20d)
+  '/class-logs',
+  '/period-attendance',
 ];
 // Mục chỉ của THCS, THPT (DT-21 phần 21a): trường chỉ có Mầm non hay Tiểu học không thấy
 const SECONDARY_ONLY_PATHS = ['/subject-combinations', '/subject-teams'];

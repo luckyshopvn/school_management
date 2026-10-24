@@ -387,3 +387,13 @@ export const PERIOD_SESSION_LABELS: Record<'morning' | 'afternoon', string> = {
   morning: 'Sáng',
   afternoon: 'Chiều',
 };
+
+// Điểm danh theo tiết (DT-20 phần 20d, YCTD-162)
+export type PeriodAttendanceStatus = 'present' | 'late' | 'absent_excused' | 'absent_unexcused';
+
+export const PERIOD_ATTENDANCE_LABELS: Record<PeriodAttendanceStatus, string> = {
+  present: 'Có mặt',
+  late: 'Đi muộn',
+  absent_excused: 'Vắng có phép',
+  absent_unexcused: 'Vắng không phép',
+};

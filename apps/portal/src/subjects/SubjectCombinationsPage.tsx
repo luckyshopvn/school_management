@@ -15,7 +15,7 @@ import {
   type Combination,
 } from './subjects-api.js';
 
-// 7.6 Tổ hợp môn (DT-21 phần 21a, YCTD-167): tổ hợp môn lựa chọn của THPT do trường xây dựng từ các môn lựa chọn của
+// 7.8 Tổ hợp môn (DT-21 phần 21a, YCTD-167): tổ hợp môn lựa chọn của THPT do trường xây dựng từ các môn lựa chọn của
 // 7.1 (nhóm khoa học xã hội, khoa học tự nhiên, công nghệ và nghệ thuật); danh sách học sinh đăng ký theo tổ hợp. Mọi người
 // xem; người quản lý danh mục (P01.catalog.manage) tạo, sửa. Học sinh đăng ký ở hồ sơ học sinh
 const messageOf = (error: unknown) =>

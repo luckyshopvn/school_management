@@ -253,6 +253,8 @@ export const PERMISSION_CODES = {
   schoolLevelManage: 'P01.school-level.manage',
   // Lập, nhập, ban hành thời khoá biểu, khung giờ tiết học (DT-20 phần 22c1)
   timetableManage: 'P02.timetable.manage',
+  // Kiểm tra, ký sổ đầu bài theo tuần (DT-20 phần 20d)
+  classLogReview: 'P02.class-log.review',
   // Thi đua, khen thưởng (DT-18 phần 22d)
   emulationUse: 'P09.emulation.use',
   emulationManage: 'P09.emulation.manage',
@@ -584,6 +586,9 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/period-slots',
   '/timetables',
   '/student-assessments',
+  // Sổ đầu bài, chuyên cần theo tiết (DT-20 phần 20d)
+  '/class-logs',
+  '/period-attendance',
   // Nền THCS, THPT: tổ hợp môn, tổ bộ môn (DT-21 phần 21a)
   '/subject-combinations',
   '/subject-teams',
