@@ -225,6 +225,14 @@ import {
 import { GradeLevelsController, GradeLevelsService } from './catalogs/grade-levels.js';
 import { CurriculaController, CurriculaService } from './catalogs/curricula.js';
 import {
+  ChildCombinationsController,
+  ChildCombinationsService,
+  CombinationsController,
+  CombinationsService,
+  SubjectTeamsController,
+  SubjectTeamsService,
+} from './subjects/secondary.js';
+import {
   CurriculumSubjectsController,
   ElectiveSubjectsController,
   ElectiveSubjectsService,
@@ -513,6 +521,9 @@ export class ApplicationModule {
         CurriculumSubjectsController,
         ElectiveSubjectsController,
         TeachingAssignmentsController,
+        CombinationsController,
+        ChildCombinationsController,
+        SubjectTeamsController,
         PeriodSlotsController,
         TimetableVersionsController,
         TimetablesController,
@@ -753,6 +764,9 @@ export class ApplicationModule {
         SubjectsService,
         ElectiveSubjectsService,
         TeachingAssignmentsService,
+        CombinationsService,
+        ChildCombinationsService,
+        SubjectTeamsService,
         TimetablesService,
         ClassLogsService,
         TimetableGeneratorService,

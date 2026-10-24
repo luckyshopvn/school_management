@@ -2,6 +2,7 @@
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
 - Phiên bản: 1.109
+- Phiên bản: 1.108
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -851,6 +852,14 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | GET | /api/v1/teaching-assignments | Môn của lớp theo chương trình và khối kèm giáo viên đang dạy (`class_id`) (P02-35) |
 | GET | /api/v1/teaching-assignments/teachers | Tổng tiết mỗi tuần của giáo viên theo cấp (P02-35) |
 | GET, PUT | /api/v1/children/{id}/elective-subjects | Môn tự chọn của học sinh và các môn chọn được (P02-36) |
+| GET, POST | /api/v1/subject-combinations | Tổ hợp môn THPT kèm môn và số học sinh (mọi người đã đăng nhập); thêm tổ hợp (cần `P01.catalog.manage`) (P02-55, YCTD-167) |
+| PATCH | /api/v1/subject-combinations/{id} | Sửa tên, thứ tự, trạng thái, danh sách môn (khi chưa có học sinh); mã không đổi (P02-55) |
+| GET | /api/v1/subject-combinations/{id}/students | Học sinh đã đăng ký tổ hợp kèm lớp, trạng thái (cần `P02.view`) (P02-55) |
+| GET, PUT | /api/v1/children/{id}/subject-combination | Tổ hợp đã đăng ký và các tổ hợp chọn được; đăng ký hoặc đề nghị đổi (P02-56) |
+| POST | /api/v1/children/{id}/subject-combination/approve, /reject | Duyệt hoặc từ chối đổi tổ hợp (cần `P02.class.manage`) (P02-56) |
+| GET, POST, PATCH | /api/v1/subject-teams | Tổ bộ môn; thêm, sửa tổ (cần `P01.catalog.manage`) (P02-57) |
+| PUT, DELETE | /api/v1/subject-teams/{id}/members, /members/{staffUserId} | Thêm, đặt vai trò, bỏ thành viên (P02-57) |
+| GET | /api/v1/subject-teams/{id}/loads | Tổng tiết mỗi tuần của giáo viên trong các môn của tổ (P02-57) |
 | GET, PUT | /api/v1/period-slots | Khung giờ tiết học của cấp ở năm học đang dùng; thay cả khung (cần `P02.timetable.manage`) (P02-39, YCTD-160) |
 | GET, POST | /api/v1/timetable-versions | Bản thời khoá biểu theo cấp kèm `is_current`; tạo bản nháp, chép từ bản khác (P02-40) |
 | PATCH, DELETE | /api/v1/timetable-versions/{id} | Sửa tên, ngày áp dụng, ghi chú; xoá bản nháp (P02-40) |
@@ -1406,14 +1415,6 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, PUT, POST, PATCH | /api/v1/learning-records/classes/{id}/completion, /learning-records, /learning-records/prepare; /learning-records/learning-records/{id}, /sign, /reopen, /file; /learning-records/children/{id} (từ YCTD-163) | Hoàn thành chương trình (`entries`: `child_id`, `support_plan`, `support_result`, `support_note`), học bạ của lớp, lập, nhận xét, kí nội bộ, mở lại (`reason`), tải PDF, học bạ và khen thưởng của học sinh (phụ huynh: bản đã kí) |
 | GET | /api/v1/public/student-awards/verify (từ YCTD-163) | Tra cứu công khai mã giấy khen học sinh (`code` 12 kí tự), giới hạn tần suất |
 | GET, POST, PUT, DELETE | /api/v1/emulation/decisions, /{id}, /document, /outgoing, /issue, /upper-result; /emulation/awards/{id}/certificate; /emulation/history, /export, /{id}; GET /public/emulation-awards/verify | Quyết định, giấy khen, sổ theo dõi, tra cứu công khai (P09-38, P09-39) |
-| GET, PUT, POST, PATCH | /api/v1/training/catalog, /training/settings, /training/topics, /training/topics/{id}, /training/competency-domains, /training/competency-domains/{id} | Danh mục bồi dưỡng; sửa cần `P09.training.manage` (P09-49, YCTD-182) |
-| GET, POST, PATCH | /api/v1/training/courses, /training/courses/{id} | Khoá bồi dưỡng kèm số đăng ký, đăng ký của tôi; chi tiết kèm đăng ký theo quyền; tạo, sửa, đổi trạng thái (P09-45) |
-| POST | /api/v1/training/courses/{id}/registrations, /training/registrations/{id}/cancel, /training/registrations/{id}/review | Đăng ký, huỷ, duyệt (P09-45) |
-| PUT, POST, GET | /api/v1/training/courses/{id}/results, /certificates, /certificates.pdf | Ghi kết quả; cấp chứng nhận; tải mọi chứng nhận của khoá (P09-46) |
-| POST, DELETE, GET | /api/v1/training/certificates, /training/certificates/{id}, /revoke, /reissue, /pdf | Chứng chỉ nhập tay; xoá; thu hồi, cấp lại, tải chứng nhận (P09-46, P09-47) |
-| GET | /api/v1/training/mine, /training/records | Hồ sơ bồi dưỡng của tôi; theo tổ, trường (P09-47) |
-| GET, PUT, POST | /api/v1/training/competency/mine, /training/competency, /training/competency/{id}/confirm | Tự đánh giá năng lực số; bản đồ năng lực; xác nhận (P09-48) |
-| GET | /api/v1/public/training-certificates/verify | Tra cứu chứng nhận bồi dưỡng theo `code` 12 ký tự, không cần đăng nhập (P09-46) |
 | GET, PUT, POST, DELETE | /api/v1/website/settings, /website/settings/images/{purpose}, /website/sample-content, /website/disclosure-categories | Thông tin website, biểu trưng, ảnh đầu trang, nội dung mẫu, nhóm công khai (P14-13, YCTD-144) |
 | GET, POST, PATCH, DELETE | /api/v1/website/domains, /website/domains/{id}, /website/domains/{id}/dns-confirmation | Tên miền (P14-13, YCTD-144) |
 | GET, POST, PUT, DELETE | /api/v1/website/posts, /website/posts/{id}, /submit, /approve, /return, /unpublish, /files, /files/{fileId} | Bài viết, luồng duyệt, tệp (P14-14, YCTD-144) |
@@ -1540,6 +1541,13 @@ Giao kèo nền Tiểu học (DT-20 phần 20a, YCTD-158, BR-166):
 6. `GET /children/{id}/elective-subjects` trả `subjects` (đã chọn), `options` (môn tự chọn của khối); `PUT` nhận `subject_ids`; môn ngoài `options` trả 422.
 
 
+Giao kèo nền THCS, THPT (DT-21 phần 21a, YCTD-167, BR-179):
+
+1. `POST /subjects`, `PATCH /subjects/{id}` nhận thêm `assessment` = `score` và `option_group` (`social_science`, `natural_science`, `technology_arts` hoặc null); giá trị khác trả 400. `POST /subjects/templates` nhận cấp `THCS`, `THPT` như `TH` (chương trình mặc định `CT-THCS-2018`, `CT-THPT-2018`).
+2. `POST /subject-combinations` nhận `code`, `name`, `order_no`, `subject_ids`; thiếu `subject_ids` trả 400; cấp THPT chưa bật, môn không phải môn lựa chọn đang dùng của THPT, sai số môn (4) hoặc ít hơn 2 nhóm trả 422; mã trùng 409. `PATCH` gửi `code` trả 400; đổi `subject_ids` khi đã có học sinh trả 422. Mỗi tổ hợp trả `subjects`, `student_count`.
+3. `GET /children/{id}/subject-combination` trả `registration` (`combination_id`, `combination_code`, `combination_name`, `status`, `previous_combination_id`) hoặc null và `options` (tổ hợp đang dùng; rỗng nếu học sinh không học lớp THPT). `PUT` nhận `combination_id`; học sinh không học lớp THPT, tổ hợp ngừng dùng trả 422; đăng ký lần đầu `approved`, đổi sang tổ hợp khác `pending` (giữ `previous_combination_id`). `approve` đặt `approved` và thay môn tự chọn theo môn của tổ hợp; `reject` trả về tổ hợp trước; không có đề nghị chờ duyệt trả 422.
+4. `POST /subject-teams` nhận `code`, `name`, `school_level` (`THCS` hoặc `THPT`), `subject_ids`; cấp khác trả 400; môn khác cấp 422; mã trùng 409. `PUT /subject-teams/{id}/members` nhận `org_unit_id`, `staff_user_id`, `role` (`head` hoặc `member`); người không có vai trò giáo viên bộ môn (VT-08) ở đơn vị trả 400; tổ trưởng mới thay tổ trưởng cũ (thành thành viên). `GET /subject-teams/{id}/loads` trả `staff_user_id`, `staff_name`, `total_periods`.
+
 Giao kèo thời khoá biểu (DT-20 phần 22c1, YCTD-160, BR-170):
 
 1. `PUT /period-slots` nhận `school_level`, `slots` (`period_no`, `session`, `start_time`, `end_time`); sai giờ, trùng tiết, chồng giờ trả 400 ở `slots[n].…` hoặc `slots`.
@@ -1569,17 +1577,6 @@ Giao kèo máy xếp thời khoá biểu (DT-20 phần 22c2, YCTD-164, BR-178):
 5. `POST /timetable-changes` nhận `kind` (`substitute` kèm `teacher_user_id`; `swap` kèm `target_date`, `target_period_no`), `date`, `class_id`, `period_no`, `reason` (tối đa 500 ký tự); tiết không có trong bản đang áp dụng, tiết đã có thay đổi, giáo viên đang có tiết khác cùng lúc trả 422; trả các dòng đã ghi (201). `GET /timetable-changes/day` nhận `date`, `class_id` hoặc `teacher_user_id`; trả tiết kèm `change` (`kind`, `reason`, `original_subject_name`, `original_teacher_user_id`, `original_teacher_name`).
 6. `GET /timetable-reports/teaching` nhận `from`, `to` (tối đa 92 ngày) trả `days`, `teachers` (`planned`, `substitute_taught`, `substituted_away`, `swapped`, `actual`); `GET /timetable-reports/rooms` nhận `date` trả `slot_count`, `rooms` (`periods`, `usage_percent`, `by_weekday`, `classes`).
 7. `POST /timetable-lookup-codes` nhận `kind` (`class`, `teacher`), `target_id`; đã có mã còn hiệu lực thì trả mã đó. `GET /public/timetable-lookup/{code}` không cần đăng nhập, trả `kind`, `target_name`, `versions`, `slots`, `lessons`, `changes`; mã sai hoặc đã thu hồi trả 404.
-
-
-Giao kèo hồ sơ bồi dưỡng giáo viên (DT-22 phần 22e, YCTD-182, BR-179; danh mục ở cơ sở dữ liệu hệ thống, còn lại ở năm học hiện hành):
-
-1. `POST /training/courses` nhận `name`, `topic_id` (tùy chọn, có trong danh mục), `organizer_kind` (`school`, `external`), `organizer_name`, `mode`, `location`, `start_date`, `end_date`, `periods` (1 đến 1000), `sessions`, `quota`, `registration_deadline`, `issues_certificate` (chỉ khoá `school`); sai trả 400. `PATCH` chỉ có `status` thì đổi trạng thái.
-2. `POST …/registrations` nhận `note`; khoá không mở, quá hạn, hết chỉ tiêu, chưa có hồ sơ cán bộ trả 422; đã đăng ký trả 409. `POST …/review` nhận `decision` (`approve`, `reject`), `note`; tổ trưởng chỉ đăng ký `pending` của tổ mình, người khác trả 403. `…/cancel` chỉ người đăng ký, chỉ đăng ký đang chờ.
-3. `PUT …/results` nhận `results` (`registration_id`, `attended_sessions`, `result`, `credited_periods`, `comment`); đăng ký chưa duyệt, số buổi, số tiết quá khoá trả 400. `POST …/certificates` trả 201 `issued`, `certificates` (`id`, `lookup_code`); khoá không cấp chứng nhận hoặc không còn người đạt chưa cấp trả 422.
-4. `POST /training/certificates/{id}/revoke` nhận `reason` (bắt buộc); `/reissue` trả bản mới mã mới; chứng nhận do trường cấp không xoá (422). `GET …/pdf` chỉ người được cấp hoặc Ban Giám hiệu (người khác 404).
-5. `GET /public/training-certificates/verify?code=` trả `code`, `staff_name`, `certificate_name`, `course_name`, `issued_by`, `issued_date`, `periods`, `status` (`valid`, `revoked`); mã sai dạng 400, không thấy 404, quá 60 lần mỗi phút 429.
-6. `GET /training/mine` trả `required_periods`, `total_periods`, `missing_periods`, `registrations`, `certificates` (kèm `expiring_soon`), `competency_gaps`. `GET /training/records` (`department_id` tùy chọn) trả `rows`, `departments`, `plan`.
-7. `PUT /training/competency/mine` nhận `term`, `scores` (`domain_code`, `level`) đủ mọi miền đang dùng; kỳ đã xác nhận trả 422. `POST /training/competency/{id}/confirm` nhận `scores` (`domain_code`, `level`, `reason`); đổi mức không có lý do trả 400.
 
 
 Giao kèo kế hoạch giáo dục (DT-18 phần 22i, YCTD-147, BR-142):

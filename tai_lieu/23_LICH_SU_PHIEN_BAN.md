@@ -2,6 +2,7 @@
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
 - Phiên bản: 0.40
+- Phiên bản: 0.39
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -18,16 +19,15 @@
 
 ### Phiên bản 0.114.0 – 2026-10-24
 
-- Phạm vi thay đổi: DT-22 phần 22e, hồ sơ bồi dưỡng giáo viên (YCTD-182).
-- Chức năng mới: danh mục bồi dưỡng (định mức tiết, chuyên đề theo chương trình, khung năng lực số); khoá bồi dưỡng, đăng ký, duyệt hai cấp, kết quả; chứng nhận có mã tra cứu công khai, thu hồi, cấp lại; chứng chỉ nhập tay; hồ sơ bồi dưỡng của tôi, của tổ, của trường; tự đánh giá năng lực số, xác nhận, bản đồ năng lực, gợi ý chuyên đề; ứng dụng giáo viên "Bồi dưỡng của tôi"; Việc của tôi có nguồn bồi dưỡng.
-- Lỗi đã sửa: không có.
-- Thay đổi dữ liệu: tệp hệ thống `0041_create_training_catalogs`; tệp năm học `0101_create_training_records` (thêm cột `staff_certificates`); tệp định danh `0091_add_training_permissions`.
-- Thay đổi API: `/training/*`, `/public/training-certificates/verify`.
-- Kiểm thử: kịch bản CT-891 đến CT-897. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/training/training.test.ts` CT-22e-1 đến CT-22e-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa (api, shared, database) đạt 1022/1022 (api 1016, database 6); kiểm thử giao diện `tests/e2e/121-teacher-training.spec.ts` (CT-22e-7) đạt; kiểm thử giao diện chạy trên máy (toàn bộ spec trên nhánh trước khi gộp 20e, 22c2) 161/164, trong đó 121, 02, 03, 58 đạt; spec 22 (bảng lương) lỗi do spec 121 thêm nhân sự làm từ năm trước vào trường gốc nên bảng lương đòi chốt công tháng trước (BR-43), đã sửa spec 121 cho nhân sự bắt đầu từ hôm nay; spec 04 (lưới Tài khoản), 76 (gói ZIP) lỗi không liên quan 22e, 76 hết thời gian chờ khi máy chạy năm phiên cùng lúc; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
-- Rủi ro: cột thêm của `staff_certificates` cho phép trống hoặc có mặc định, dữ liệu cũ vẫn hợp lệ.
-- Khả năng tương thích: không đổi hành vi phần đã có.
-- Phương án quay lui: hoàn lại commit gộp của nhánh 22e; chạy phần quay lui của tệp hệ thống `0041`, năm học `0101`, định danh `0091`.
-
+- Phạm vi thay đổi: DT-21 phần 21a, nền THCS, THPT (YCTD-167).
+- Chức năng mới: bộ môn mẫu THCS (khối 6 đến 9), THPT (khối 10 đến 12) theo Chương trình giáo dục phổ thông 2018; cách đánh giá bằng điểm số; nhóm môn lựa chọn THPT; tổ hợp môn; học sinh đăng ký tổ hợp (đổi thì chờ duyệt); tổ bộ môn; phân công giảng dạy theo môn, môn học dùng chung ba cấp; mục menu 7.12 Tổ hợp môn, 7.13 Tổ bộ môn.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: tệp năm học `0084_create_secondary_foundation`; tệp định danh `0075` để trống (không thêm quyền).
+- Thay đổi API: `/subject-combinations`, `/subject-combinations/{id}/students`, `/children/{id}/subject-combination` (`/approve`, `/reject`), `/subject-teams` (`/members`, `/loads`); `/subjects` nhận `option_group`, `assessment` = `score`.
+- Kiểm thử: kịch bản CT-891 đến CT-896. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/subjects/secondary.test.ts` CT-21a-1 đến CT-21a-5 đạt 5/5 trên nhánh trước khi gộp 20d, 20e, 22c2; sau khi gộp chạy lại được CT-21a-1 và các ca menu CT-19c-1 đến CT-19c-4 (đạt), các ca cần cơ sở dữ liệu chưa chạy lại vì cơ sở dữ liệu định danh dùng chung trên máy đã chạy migration của nhánh khác; typecheck, lint, prettier đạt; e2e CT-21a-6 và e2e toàn bộ do CI chạy, chưa chạy trên máy
+- Rủi ro: số môn, số nhóm của tổ hợp và thời lượng môn là mặc định theo chương trình, cần đối chiếu văn bản gốc; chưa khảo sát hệ thống của Sở cấp THCS, THPT.
+- Khả năng tương thích: trường chỉ có Mầm non hoặc Tiểu học thấy như cũ trừ tên nhóm 7 đổi thành "Dạy học"; môn cũ giữ nguyên, nhóm môn trống.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 21a; chạy phần quay lui của tệp năm học `0084`.
 ### Phiên bản 0.113.0 – 2026-10-24
 
 - Phạm vi thay đổi: DT-20 phần 22c2, thời khoá biểu phần máy xếp (YCTD-164).

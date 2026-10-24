@@ -2,6 +2,7 @@
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
 - Phiên bản: 0.44
+- Phiên bản: 0.43
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -11,35 +12,22 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
-### YCTD-182: DT-22 phần 22e: hồ sơ bồi dưỡng giáo viên – 2026-10-24
+### YCTD-167: DT-21 phần 21a: nền THCS, THPT – 2026-10-24
 
-- Lý do: phần 22e của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 13.3, 13.4 (kế hoạch DT-22, Eric duyệt bản chín phần ngày 2026-10-19). Chỉ phần quản trị (ghi nhận, theo dõi, cấp chứng nhận), không làm lớp học trực tuyến, khoá học điện tử, bài thi trực tuyến. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
-- Văn bản căn cứ (bộ mặc định của danh mục ghi số hiệu, sửa được): Thông tư 19/2019/TT-BGDĐT ban hành Quy chế bồi dưỡng thường xuyên giáo viên, cán bộ quản lý cơ sở giáo dục mầm non, phổ thông và giáo viên trung tâm giáo dục thường xuyên (hiệu lực 28/12/2019), sửa đổi bởi Thông tư 17/2022/TT-BGDĐT; chương trình bồi dưỡng thường xuyên giáo viên phổ thông (Thông tư 17/2019/TT-BGDĐT), mầm non (Thông tư 12/2019/TT-BGDĐT) với thời lượng 120 tiết mỗi năm học, ba chương trình mỗi chương trình khoảng 40 tiết; Khung năng lực số đối với giáo viên, cán bộ quản lí theo Thông tư 18/2026/TT-BGDĐT (ban hành 27/03/2026, hiệu lực 12/05/2026): 6 miền, 20 năng lực thành phần, 3 mức Cơ bản, Thành thạo, Nâng cao. Toàn văn Mục B của Thông tư 18/2026/TT-BGDĐT chưa đọc được (trang toàn văn từ chối truy cập); tên 6 miền mặc định lấy theo bản tóm tắt trên cổng thông tin chính thức, trường đối chiếu toàn văn và sửa ở 6.5 Danh mục bồi dưỡng.
-- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
-  - **Danh mục** (cơ sở dữ liệu hệ thống, tệp `0041_create_training_catalogs`): thiết lập một dòng `training_settings` (định mức tiết mỗi năm học mặc định 120, ngưỡng mức năng lực gợi ý mặc định 2, đơn vị cấp in trên chứng nhận, căn cứ); chuyên đề `training_topics` (mã, tên, chương trình 1 đến 3, số tiết mặc định, miền năng lực số gắn kèm, trạng thái; mặc định ba chương trình 40 tiết và sáu chuyên đề "Năng lực số: …" gắn sáu miền); khung năng lực số `digital_competency_domains` (6 miền), `digital_competency_levels` (3 mức).
-  - **Khoá bồi dưỡng** (năm học, tệp `0101_create_training_records`, bảng `training_courses`): trường tổ chức hoặc ghi nhận khoá của cấp trên, đơn vị ngoài; chuyên đề, hình thức (tập trung, trực tuyến ở hệ thống ngoài, tự học có kiểm tra), địa điểm, thời gian, số tiết, số buổi, chỉ tiêu, hạn đăng ký, có cấp chứng nhận; trạng thái đang mở, đã đóng đăng ký, đã kết thúc.
-  - **Đăng ký và duyệt** (`training_registrations`): giáo viên đăng ký; tổ trưởng duyệt cấp tổ (tùy chọn), Ban Giám hiệu duyệt; điểm danh số buổi có mặt; kết quả đạt, không đạt, số tiết ghi nhận, nhận xét. Việc của tôi có nguồn "Bồi dưỡng giáo viên": đăng ký chờ duyệt (tổ trưởng, Ban Giám hiệu), chứng chỉ của mình sắp hết hạn.
-  - **Chứng chỉ ở một bảng**: `staff_certificates` thêm cột `kind` (nhập tay, từ khoá, chứng nhận do trường cấp), `file_id`, `course_id`, `registration_id`, `periods`, `lookup_code` (duy nhất), `revoked_at`, `revoke_reason`; cột cũ giữ nguyên, dữ liệu cũ là loại nhập tay; màn hình nhân sự hiện có không đổi.
-  - **Chứng nhận có mã tra cứu công khai**: người đạt khoá trường tổ chức nhận chứng nhận PDF khổ A4 ngang có mã QR (như giấy khen 22d); tải từng bản hoặc cả khoá trong một tệp; thu hồi, cấp lại; trang công khai "Tra cứu chứng nhận bồi dưỡng" (`/tra-cuu-chung-nhan`) chỉ tra theo mã, giới hạn 60 lần mỗi phút trên một địa chỉ mạng, chỉ trả tên người, khoá, đơn vị cấp, ngày cấp, số tiết, trạng thái.
-  - **Hồ sơ bồi dưỡng**: của tôi (khoá, kết quả, chứng chỉ, tổng tiết so với định mức, thiếu tiết); theo tổ (tổ trưởng), theo trường (Ban Giám hiệu): số khoá đạt, tiết từ khoá, tiết từ chứng chỉ, còn thiếu, chứng chỉ sắp hết hạn, số người đủ định mức theo tổ, tiến độ kế hoạch (khoá đã kết thúc trên tổng khoá).
-  - **Năng lực số**: giáo viên tự đánh giá theo kỳ (học kỳ I, học kỳ II, cả năm) mỗi miền một mức (`digital_competency_assessments`, `digital_competency_scores`); tổ trưởng, Ban Giám hiệu xác nhận hoặc chỉnh có lý do; bản đồ năng lực (bảng giáo viên × miền, ô dưới ngưỡng tô màu, dòng trung bình); khoảng trống năng lực gợi ý chuyên đề theo quy tắc, không dùng AI.
-  - **Menu**: nhóm mới "6. Bồi dưỡng giáo viên" của phân hệ Hồ sơ chuyên môn (6.1 Bồi dưỡng của tôi, 6.2 Khoá bồi dưỡng, 6.3 Hồ sơ bồi dưỡng, 6.4 Năng lực số, 6.5 Danh mục bồi dưỡng); không thêm phân hệ. Ứng dụng giáo viên có "Bồi dưỡng của tôi" (khoá đang mở, đăng ký, kết quả, chứng nhận kèm mã).
-  - **Quyền mới** (tệp định danh `0091_add_training_permissions`): `P09.training.use` (mọi cán bộ, giáo viên, nhân viên dùng cổng quản trị), `P09.training.review` (tổ trưởng), `P09.training.manage` (Hiệu trưởng, Phó Hiệu trưởng).
-- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/system/migrations/0041_create_training_catalogs.ts`, `database/school-year/migrations/0101_create_training_records.ts`, `database/identity/migrations/0091_add_training_permissions.ts`, `schema.ts` hệ thống, năm học, `index.ts`, `database/src/index.ts`); máy chủ API (`training/training.ts`, `training/training.controller.ts`, `training/training-documents.ts`, `my-work/my-work-sources.ts`, `application.module.ts`); cổng quản trị (`training/TrainingPages.tsx`, `training/training-api.ts`, `router.tsx`); ứng dụng giáo viên (`screens/TrainingScreen.tsx`, `screens/ClassesScreen.tsx`, `Application.tsx`); gói dùng chung (`training.ts`, `index.ts`, `portal-menu.ts`, `menu-permissions.ts`, `professional-records.ts`); tài liệu `01`, `02`, `03`, `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
-- Dữ liệu bị ảnh hưởng: bốn bảng hệ thống mới có bộ mặc định, bốn bảng năm học mới, tám cột thêm của `staff_certificates` (đều cho phép trống hoặc có mặc định), ba quyền mới; không đổi dữ liệu cũ.
-- API bị ảnh hưởng: mới `/training/catalog`, `/training/settings`, `/training/topics`, `/training/competency-domains`, `/training/courses`, `/training/courses/{id}`, `/registrations`, `/results`, `/certificates`, `/certificates.pdf`, `/training/registrations/{id}/cancel`, `/review`, `/training/certificates`, `/training/certificates/{id}`, `/revoke`, `/reissue`, `/pdf`, `/training/mine`, `/training/records`, `/training/competency`, `/training/competency/mine`, `/training/competency/{id}/confirm`, `/public/training-certificates/verify` (xem `17_DAC_TA_API.md`).
-- Giao diện bị ảnh hưởng: MH-271, MH-272, MH-273, MH-274, MH-275, MH-276; ứng dụng giáo viên.
-- Quyền bị ảnh hưởng: PQ-97. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
-- Ảnh hưởng chức năng cũ: không có; phân hệ Hồ sơ chuyên môn thêm một nhóm cuối; kiểm thử đang có không sửa kỳ vọng.
-- Hạn chế:
-  - Chưa có khai báo nhu cầu bồi dưỡng riêng của giáo viên, tổ và luồng duyệt kế hoạch bồi dưỡng năm học qua luồng của 18e; khoá là kế hoạch, tiến độ tính theo khoá đã kết thúc;
-  - Cột tệp bản sao của chứng chỉ (`file_id`) có sẵn nhưng chưa có ô tải tệp (cần thêm mục đích tệp mới);
-  - Chưa có điểm danh từng buổi (chỉ ghi số buổi có mặt), chưa nhắc hạn đăng ký qua thông báo;
-  - Chưa xuất Excel, PDF báo cáo hồ sơ bồi dưỡng; chưa có biểu đồ mạng nhện (bản đồ năng lực dạng bảng);
-  - Chưa nối kết quả bồi dưỡng vào KPI 18d, thi đua 22d.
-- Kiểm thử cần thực hiện: kịch bản CT-891 đến CT-897 (trong mã kiểm thử là CT-22e-1 đến CT-22e-7); kiểm thử đơn vị mới `apps/api/src/training/training.test.ts`; kiểm thử giao diện mới `tests/e2e/121-teacher-training.spec.ts`
-- Trạng thái: Đã triển khai
-
+- Lý do: phần 21a của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.3, 12.4 (kế hoạch DT-21 ở YCTD-166). Văn bản căn cứ: Chương trình giáo dục phổ thông 2018 (Thông tư 32/2018/TT-BGDĐT), Thông tư 22/2021/TT-BGDĐT; thời lượng và quy tắc tổ hợp trong bộ mẫu là mặc định, chưa đối chiếu toàn văn, trường sửa được. Không đổi hành vi Mầm non, Tiểu học. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi:
+  - **Môn học khối 6 đến 12** (`packages/shared/src/subjects.ts`): bộ mẫu THCS (14 môn, khối 6 đến 9), THPT (17 môn, khối 10 đến 12), chương trình mặc định `CT-THCS-2018`, `CT-THPT-2018`; cách đánh giá thêm `score`; `subjects.option_group` (xã hội, tự nhiên, công nghệ và nghệ thuật). `POST /subjects/templates` nhận cả THCS, THPT.
+  - **Tổ hợp môn THPT** (`apps/api/src/subjects/secondary.ts`): đúng 4 môn lựa chọn thuộc ít nhất 2 nhóm; tổ hợp đã có học sinh không đổi môn. **Đăng ký tổ hợp** của học sinh lớp THPT: đăng ký đầu có hiệu lực ngay, đổi thì chờ `P02.class.manage` duyệt hoặc từ chối; duyệt xong môn tự chọn theo tổ hợp.
+  - **Tổ bộ môn** THCS, THPT: môn cùng cấp, một tổ trưởng, thành viên là giáo viên bộ môn (VT-08) của đơn vị, tổng tiết theo phân công.
+  - **Cổng quản trị:** nhóm menu 7 đổi tên "Dạy học" hiện ở ba cấp (7.1, 7.2 dùng chung, 7.2 có ô chọn cấp); 7.12 Tổ hợp môn (THPT), 7.13 Tổ bộ môn; mục "Tổ hợp môn" ở hồ sơ học sinh. Chuyển năm học chép tổ hợp, tổ bộ môn, tổ hợp đã đăng ký.
+  - Cơ sở dữ liệu: tệp năm học `0084_create_secondary_foundation`; định danh `0075` để trống (không thêm quyền).
+- Thành phần bị ảnh hưởng: `database`, `packages/shared`, `apps/api` (subjects, catalogs, children), `apps/portal`, tài liệu `01`, `02`, `07`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: thêm cột `option_group`, đổi ràng buộc `assessment` của `subjects`; sáu bảng mới; dữ liệu cũ giữ nguyên.
+- API bị ảnh hưởng: thêm `/subject-combinations`, `/children/{id}/subject-combination`, `/subject-teams`; `/subjects` nhận `option_group`, `score`.
+- Giao diện bị ảnh hưởng: nhóm menu 7, 7.2, hồ sơ học sinh; trường chỉ có Mầm non thấy như cũ.
+- Quyền bị ảnh hưởng: không thêm quyền.
+- Ảnh hưởng chức năng cũ: không đổi kỳ vọng kiểm thử cũ trừ danh sách mục chỉ thuộc cấp ở CT-19c-1, CT-19c-2 (thêm 7.12, 7.13); tên nhóm 7 đổi.
+- Kiểm thử cần thực hiện: CT-891 đến CT-896; kiểm thử đơn vị, e2e toàn bộ; typecheck, lint, build.
 ### YCTD-164: DT-20 phần 22c2: thời khoá biểu, máy xếp – 2026-10-24
 
 - Lý do: phần 22c2 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.3, 11.4 (kế hoạch DT-20 ở YCTD-157; phần 22c của kế hoạch DT-22 Eric duyệt ngày 2026-10-19 có máy xếp tự động, nhiều phương án, chỉnh mức quan trọng ràng buộc, chỉnh tay, dạy thay, đổi tiết, báo cáo tiết dạy, dùng phòng, mã QR tra cứu). Xây trên phần khung 22c1 (YCTD-160): khung giờ tiết, bản thời khoá biểu, kiểm tra xung đột, ban hành có phiên bản; môn, số tiết, phân công của 20a (YCTD-158). Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
