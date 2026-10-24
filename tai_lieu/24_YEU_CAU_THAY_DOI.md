@@ -30,7 +30,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - API bị ảnh hưởng: mới `/learning-resources` (tìm, tạo), `/learning-resources/{id}` (xem, sửa), `/files`, `/links`, `/lesson-plans`, `/submit`, `/review`, `/hide`, `/restore`, `/retire`, `/download`, `/reports`; `/learning-resources/catalog`, `/types`, `/licenses`, `/topics`, `/collections`, `/collections/{id}/items`, `/export`, `/learning-resources/reports`, `/reports/{id}/handle`, `/learning-resources/statistics` (xem `17_DAC_TA_API.md`).
 - Giao diện bị ảnh hưởng: MH-301 đến MH-307.
 - Quyền bị ảnh hưởng: PQ-102. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
-- Ảnh hưởng chức năng cũ: ô chọn phân hệ có thêm "Kho học liệu" (cổng quản trị có 21 phân hệ); kiểm thử đang có không sửa kỳ vọng, trừ `58-system-admin-full-so.spec.ts` CT-16d-12 và `apps/api/src/system-admin-so.test.ts` CT-16d-3 (số phân hệ 20 thành 21).
+- Ảnh hưởng chức năng cũ: ô chọn phân hệ có thêm "Kho học liệu" (cổng quản trị có 21 phân hệ); danh sách của ô chọn phân hệ giới hạn chiều cao theo khung nhìn và cuộn được (21 mục dài quá màn hình thấp); kiểm thử đang có không sửa kỳ vọng, trừ `58-system-admin-full-so.spec.ts` CT-16d-12 và `apps/api/src/system-admin-so.test.ts` CT-16d-3 (số phân hệ 20 thành 21).
 - Hạn chế:
   - Chưa có xem trước PDF, ảnh ngay trên trang (tải về để xem);
   - Kế hoạch bài dạy tham chiếu hiện dạng dữ liệu thô; chưa chọn kế hoạch bài dạy từ danh sách ở giao diện (API có sẵn);
