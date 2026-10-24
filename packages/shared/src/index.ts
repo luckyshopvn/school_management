@@ -594,6 +594,7 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/class-logs',
   '/period-attendance',
   '/learning-records',
+  '/primary-reports',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];

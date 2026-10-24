@@ -45,6 +45,8 @@ const PRIMARY_ONLY_PATHS = [
   '/period-attendance',
   // Học bạ, khen thưởng, lên lớp (DT-20 phần 20e)
   '/learning-records',
+  // Báo cáo, thống kê, EMIS Tiểu học (DT-20 phần 20f)
+  '/primary-reports',
 ];
 
 describe('Cây menu và nhãn theo cấp học', () => {
