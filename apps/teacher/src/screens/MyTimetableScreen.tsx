@@ -11,6 +11,7 @@ interface Lesson {
   weekday: number;
   period_no: number;
   subject_name: string;
+  group_no?: number;
   room_name: string | null;
 }
 
@@ -68,6 +69,7 @@ export function MyTimetableScreen({ onBack }: { onBack(): void }) {
                         {time ? ` (${time.start_time}–${time.end_time})` : ''}
                       </span>{' '}
                       {lesson.class_name} · {lesson.subject_name}
+                      {lesson.group_no ? ` (nhóm ${lesson.group_no})` : ''}
                       {lesson.room_name ? ` · ${lesson.room_name}` : ''}
                     </li>
                   );

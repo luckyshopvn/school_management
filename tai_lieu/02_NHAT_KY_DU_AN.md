@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.49
+- Phiên bản: 0.50
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,27 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-24 — DT-21 phần 21b: thời khoá biểu THCS, THPT
+
+#### Công việc đã thực hiện
+
+- Đọc mục 12 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và mã 22c1 (`timetables.ts`, `timetable-rules.ts`), 22c2 (máy xếp, dạy thay, báo cáo), 21a (tổ hợp môn, menu).
+- Cơ sở dữ liệu: tệp năm học `0086`. Máy chủ API: nhóm học, luật xung đột mới, thời khoá biểu của con theo tổ hợp, cột Nhóm khi nhập Excel, máy xếp bỏ qua môn học lựa chọn, dạy thay chỉ cho tiết cả lớp, trang công khai. Cổng quản trị: menu ba cấp, khối "Tiết học nhóm". Ứng dụng giáo viên, phụ huynh ghi nhóm.
+- Thêm quy tắc BR-185, chức năng P02-65, màn hình MH-281, kịch bản CT-920 đến CT-926, tiêu chí AC-791. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/timetables/secondary-timetables.test.ts` CT-21b-1 đến CT-21b-6 đạt 6/6; trên máy đã chạy kiểm thử đơn vị các gói sửa (thời khoá biểu, máy xếp, cấp học, đường dẫn nhanh, sổ đầu bài) đạt 56/56; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 89, 93, 95 và `tests/e2e/97-secondary-timetables.spec.ts` (CT-21b-7); kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
+
+#### Quyết định
+
+- Thực hiện phần 21b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.4. Nhóm học là cột `group_no` của tiết (0 là cả lớp) thay vì bảng nhóm riêng; học sinh thuộc nhóm theo tổ hợp môn của 21a, lọc khi xem; máy xếp không xếp môn học lựa chọn, tiết nhóm nhập tay hoặc Excel; dạy thay, đổi tiết chỉ cho tiết cả lớp. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Khi chạy kiểm thử trên máy dùng cơ sở dữ liệu định danh riêng `school_identity_21b`; chỉ chạy các kịch bản giao diện của phần mình và bị ảnh hưởng; kiểm thử giao diện toàn bộ do CI chạy.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-169, `07_QUY_TAC_NGHIEP_VU.md` BR-185, `10_YEU_CAU_CHUC_NANG.md` P02-65, `11_TIEU_CHI_NGHIEM_THU.md` AC-791, `14_DAC_TA_GIAO_DIEN.md` MH-281, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-920 đến CT-926, `23_LICH_SU_PHIEN_BAN.md` 0.118.0.
+
+#### Vấn đề tồn đọng
+
+- Xếp tự động tiết nhóm; dạy thay, đổi tiết cho tiết nhóm; định mức tiết của tổ bộ môn làm cảnh báo; sổ đầu bài, điểm danh theo tiết cho tiết nhóm thuộc 21d.
 
 ### 2026-10-24 — DT-21 phần 22g1: kiểm tra, đánh giá, phần đề
 
