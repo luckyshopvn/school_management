@@ -81,6 +81,8 @@ export type {
   IntegrationCredentialConnector,
   DemoAccount,
   PeriodSession,
+  ReportFormPeriod,
+  ReportFormRowKind,
   SystemDatabase,
 } from '../system/schema.js';
 export type {
