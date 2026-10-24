@@ -233,6 +233,7 @@ import {
 } from './entry-admissions/entry-admission-catalogs.js';
 import { GradeLevelsController, GradeLevelsService } from './catalogs/grade-levels.js';
 import { CurriculaController, CurriculaService } from './catalogs/curricula.js';
+import { GraduationController, GraduationService } from './graduation/graduation.js';
 import { ScoresController, ScoresService } from './scores/scores.js';
 import {
   ChildCombinationsController,
@@ -552,6 +553,7 @@ export class ApplicationModule {
         ChildCombinationsController,
         SubjectTeamsController,
         ScoresController,
+        GraduationController,
         PeriodSlotsController,
         TimetableVersionsController,
         TimetablesController,
@@ -808,6 +810,7 @@ export class ApplicationModule {
         ChildCombinationsService,
         SubjectTeamsService,
         ScoresService,
+        GraduationService,
         TimetablesService,
         ExamsService,
         ExamGradingService,

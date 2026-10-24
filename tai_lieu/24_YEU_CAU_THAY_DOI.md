@@ -25,10 +25,10 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
   - **Báo lỗi** (`learning_resource_reports`): sai nội dung, lỗi tệp, nghi vi phạm bản quyền; thủ kho xử lý, trả lời, ẩn tạm học liệu nếu cần.
   - **Thống kê**: lượt xem, tải (`learning_resource_usage`), báo lỗi theo học liệu; học liệu theo môn, khối, loại, giấy phép, tổ; đóng góp theo giáo viên; chờ duyệt, quá hạn duyệt, giấy phép sắp hết hiệu lực (30 ngày).
   - **Quyền mới** (tệp định danh `0092_add_learning_resource_permissions`): `P09.learning-resource.use`, `.review` (tổ trưởng), `.approve` (Ban Giám hiệu), `.manage` (thủ kho; mặc định Ban Giám hiệu).
-- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/system/migrations/0042_create_learning_resources.ts`, `database/school-year/migrations/0102_create_learning_resource_activity.ts`, `database/identity/migrations/0092_add_learning_resource_permissions.ts`, `schema.ts` hệ thống, năm học, `index.ts`, `database/src/index.ts`); máy chủ API (`learning-resources/learning-resources.ts`, `learning-resources/learning-resource-rules.ts`, `learning-resources/learning-resources.controller.ts`, `my-work/my-work-sources.ts`, `application.module.ts`); cổng quản trị (`learning-resources/LearningResourcePages.tsx`, `learning-resources/learning-resources-api.ts`, `router.tsx`, `pages/workspaces.tsx`); gói dùng chung (`learning-resources.ts`, `index.ts`, `portal-menu.ts`, `menu-permissions.ts`, `professional-records.ts`); kiểm thử (`tests/e2e/58-system-admin-full-so.spec.ts` đếm 20 phân hệ); tài liệu `01`, `02`, `03`, `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/system/migrations/0042_create_learning_resources.ts`, `database/school-year/migrations/0102_create_learning_resource_activity.ts`, `database/identity/migrations/0092_add_learning_resource_permissions.ts`, `schema.ts` hệ thống, năm học, `index.ts`, `database/src/index.ts`); máy chủ API (`learning-resources/learning-resources.ts`, `learning-resources/learning-resource-rules.ts`, `learning-resources/learning-resources.controller.ts`, `my-work/my-work-sources.ts`, `application.module.ts`); cổng quản trị (`learning-resources/LearningResourcePages.tsx`, `learning-resources/learning-resources-api.ts`, `router.tsx`, `pages/workspaces.tsx`); gói dùng chung (`learning-resources.ts`, `index.ts`, `portal-menu.ts`, `menu-permissions.ts`, `professional-records.ts`); kiểm thử (`tests/e2e/58-system-admin-full-so.spec.ts` đếm 21 phân hệ); tài liệu `01`, `02`, `03`, `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
 - Dữ liệu bị ảnh hưởng: bảy bảng hệ thống mới (có bộ mặc định loại, giấy phép), ba bảng năm học mới, bốn quyền mới; không đổi dữ liệu cũ.
 - API bị ảnh hưởng: mới `/learning-resources` (tìm, tạo), `/learning-resources/{id}` (xem, sửa), `/files`, `/links`, `/lesson-plans`, `/submit`, `/review`, `/hide`, `/restore`, `/retire`, `/download`, `/reports`; `/learning-resources/catalog`, `/types`, `/licenses`, `/topics`, `/collections`, `/collections/{id}/items`, `/export`, `/learning-resources/reports`, `/reports/{id}/handle`, `/learning-resources/statistics` (xem `17_DAC_TA_API.md`).
-- Giao diện bị ảnh hưởng: MH-301 đến MH-307.
+- Giao diện bị ảnh hưởng: MH-302 đến MH-308.
 - Quyền bị ảnh hưởng: PQ-102. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
 - Ảnh hưởng chức năng cũ: ô chọn phân hệ có thêm "Kho học liệu" (cổng quản trị có 21 phân hệ); danh sách của ô chọn phân hệ giới hạn chiều cao theo khung nhìn và cuộn được (21 mục dài quá màn hình thấp); kiểm thử đang có không sửa kỳ vọng, trừ `58-system-admin-full-so.spec.ts` CT-16d-12 và `apps/api/src/system-admin-so.test.ts` CT-16d-3 (số phân hệ 20 thành 21).
 - Hạn chế:
@@ -37,7 +37,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
   - Chưa có ứng dụng giáo viên cho kho học liệu (chỉ cổng quản trị);
   - Chưa nhắc hạn duyệt, chưa thông báo khi học liệu bị trả lại (chỉ Việc của tôi);
   - Câu hỏi, đề, rubric, chia sẻ bằng gói tệp làm ở 22h2.
-- Kiểm thử cần thực hiện: kịch bản CT-963 đến CT-969 (trong mã kiểm thử là CT-22h1-1 đến CT-22h1-7); kiểm thử đơn vị mới `apps/api/src/learning-resources/learning-resources.test.ts`; kiểm thử giao diện mới `tests/e2e/122-learning-resources.spec.ts`
+- Kiểm thử cần thực hiện: kịch bản CT-968 đến CT-974 (trong mã kiểm thử là CT-22h1-1 đến CT-22h1-7); kiểm thử đơn vị mới `apps/api/src/learning-resources/learning-resources.test.ts`; kiểm thử giao diện mới `tests/e2e/122-learning-resources.spec.ts`
 - Trạng thái: Đã triển khai
 
 ### YCTD-171: DT-21 phần 21d: sổ đầu bài, điểm danh theo tiết THCS, THPT; sơ đồ chỗ ngồi; thi đua lớp, sao đỏ – 2026-10-25
@@ -78,6 +78,21 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
   - Kiểm tra bù: mở khoá, nhập bài, khoá lại trước khi chuyển; đã chuyển sổ điểm thì sửa ở sổ điểm;
   - AI tắt (không chấm tự luận bằng AI).
 - Kiểm thử cần thực hiện: kịch bản CT-940 đến CT-946 (trong mã kiểm thử là CT-22g2-1 đến CT-22g2-7); kiểm thử đơn vị mới `apps/api/src/exam-grading/exam-grading.test.ts`; kiểm thử giao diện mới `tests/e2e/101-exam-grading.spec.ts`
+### YCTD-174: DT-21 phần 21f: xét tốt nghiệp THCS, THPT và hồ sơ thi – 2026-10-25
+- Lý do: phần 21f của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12 (kế hoạch DT-21 ở YCTD-166; sổ điểm 21c ở YCTD-170; học bạ, lên lớp 21e ở YCTD-172). Quy chế thi, xét tốt nghiệp nhớ theo văn bản hiện hành, chưa đối chiếu toàn văn nên để cấu hình theo cấp và ghi vào tài liệu. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi:
+  - **Hàm dùng chung** (`packages/shared/src/graduation.ts`): cấu hình mặc định THCS, THPT, điểm trung bình học bạ, điểm xét, điều kiện, số báo danh, chia phòng, kiểm tra cấu hình, nhãn.
+  - **Máy chủ** (`apps/api/src/graduation`): kỳ xét, thí sinh từ lớp cuối cấp (điều kiện từ xếp loại cả năm ở sổ điểm 21c, điểm trung bình lớp 10, 11 từ học bạ 21e), hồ sơ dự thi, số báo danh, phòng thi, điểm thi, xét, công nhận có biên bản hội đồng, số giấy chứng nhận, PDF giấy chứng nhận và biên bản, tệp xlsx, đánh dấu đã gửi, hồ sơ chuyển cấp; dùng quyền sẵn có (`P02.assessment.view`, `P02.student-record.approve`).
+  - **Giao diện:** mục 7.17 Xét tốt nghiệp, hồ sơ thi (chỉ THCS, THPT).
+  - **Dữ liệu:** tệp năm học `0091_create_graduation`; cấu hình theo cấp chép sang năm học mới.
+  - **Kết nối Sở, Bộ:** chỉ làm bản chạy nội bộ (xuất tệp, trạng thái thủ công), để chỗ nối sau.
+- Thành phần bị ảnh hưởng: `database`, `packages/shared`, `apps/api`, `apps/portal`, `tests/e2e`, tài liệu `01`, `02`, `07`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`.
+- Dữ liệu bị ảnh hưởng: thêm chín bảng; dữ liệu cũ giữ nguyên.
+- API bị ảnh hưởng: thêm nhóm `/graduation`; điểm cuối cũ không đổi.
+- Giao diện bị ảnh hưởng: thêm mục 7.17 ở THCS, THPT; cấp khác không đổi.
+- Quyền bị ảnh hưởng: không thêm quyền.
+- Ảnh hưởng chức năng cũ: không đổi kỳ vọng kiểm thử cũ; kiểm thử menu, cấp học thêm đường dẫn `/graduation` vào mục chỉ của THCS, THPT.
+- Kiểm thử cần thực hiện: CT-947 đến CT-951; kiểm thử đơn vị gói xét tốt nghiệp, menu, cấp học; e2e 102 (CI chạy cùng e2e toàn bộ); typecheck, lint, build.
 - Trạng thái: Đã triển khai
 
 ### YCTD-172: DT-21 phần 21e: học bạ số, khen thưởng, xét lên lớp THCS, THPT – 2026-10-24

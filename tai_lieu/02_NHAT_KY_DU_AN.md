@@ -21,7 +21,7 @@
 - Đọc mục 13 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà kho tệp (`FileStorage`, `storageKey`), tệp đính kèm văn bản đến ở cơ sở dữ liệu hệ thống, luồng duyệt và Việc của tôi của 18e, môn học 20a, kế hoạch bài dạy (`lesson_plans`), cách thêm phân hệ của 22f.
 - Cơ sở dữ liệu: tệp hệ thống `0042`, năm học `0102`, định danh `0092`. Máy chủ API: danh mục, học liệu, phiên bản (tệp, liên kết, kế hoạch bài dạy), gửi duyệt, duyệt hai bước theo rủi ro, ẩn, mở lại, ngừng dùng, tìm, xem, tải, bộ sưu tập, báo lỗi, thống kê, nguồn Việc của tôi.
 - Cổng quản trị: phân hệ "Kho học liệu" (7 mục).
-- Thêm quy tắc BR-195, chức năng P09-50 đến P09-55, quyền PQ-102, màn hình MH-301 đến MH-307, kịch bản CT-963 đến CT-969, tiêu chí AC-809 đến AC-811. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/learning-resources/learning-resources.test.ts` CT-22h1-1 đến CT-22h1-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa đạt 37/37 (kho học liệu, system-admin-so CT-16d-3 đếm 21 phân hệ, quick-links, menu theo cấp, Việc của tôi); kiểm thử giao diện `tests/e2e/122-learning-resources.spec.ts` (CT-22h1-7) đạt; kiểm thử giao diện chạy trên máy 01 (CT-15a-9 chọn phân hệ), 02, 03, 58, 122; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm quy tắc BR-196, chức năng P09-50 đến P09-55, quyền PQ-102, màn hình MH-302 đến MH-308, kịch bản CT-968 đến CT-974, tiêu chí AC-813 đến AC-815. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/learning-resources/learning-resources.test.ts` CT-22h1-1 đến CT-22h1-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa đạt 37/37 (kho học liệu, system-admin-so CT-16d-3 đếm 21 phân hệ, quick-links, menu theo cấp, Việc của tôi); kiểm thử giao diện `tests/e2e/122-learning-resources.spec.ts` (CT-22h1-7) đạt; kiểm thử giao diện chạy trên máy 01, 02, 03, 58, 83, 122 đạt 18/18; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
@@ -29,7 +29,7 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-183, `07_QUY_TAC_NGHIEP_VU.md` BR-195, `08_VAI_TRO_NGUOI_DUNG.md` PQ-102, `10_YEU_CAU_CHUC_NANG.md` P09-50 đến P09-55, `11_TIEU_CHI_NGHIEM_THU.md` AC-809 đến AC-811, `14_DAC_TA_GIAO_DIEN.md` MH-301 đến MH-307, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-963 đến CT-969, `23_LICH_SU_PHIEN_BAN.md` 0.124.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-183, `07_QUY_TAC_NGHIEP_VU.md` BR-196, `08_VAI_TRO_NGUOI_DUNG.md` PQ-102, `10_YEU_CAU_CHUC_NANG.md` P09-50 đến P09-55, `11_TIEU_CHI_NGHIEM_THU.md` AC-813 đến AC-815, `14_DAC_TA_GIAO_DIEN.md` MH-302 đến MH-308, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-968 đến CT-974, `23_LICH_SU_PHIEN_BAN.md` 0.125.0.
 
 #### Vấn đề tồn đọng
 
@@ -99,6 +99,14 @@
 
 - Nhận dạng ảnh chụp, ảnh quét phiếu (OMR) ở worker; phiếu trả lời riêng từng mã đề; mẫu phiếu theo Sở khi khảo sát.
 
+### 2026-10-25 — DT-21 phần 21f: xét tốt nghiệp THCS, THPT và hồ sơ thi
+- Đọc mục 12 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và mã 20e (học bạ), 21c (sổ điểm), 21e (học bạ, lên lớp).
+- Làm hàm xét tốt nghiệp dùng chung, máy chủ `graduation` (kỳ, thí sinh, hồ sơ dự thi, số báo danh, phòng thi, điểm, xét, công nhận, giấy chứng nhận, biên bản, tệp xuất, hồ sơ chuyển cấp), cổng quản trị mục 7.16 và e2e 102.
+- Cơ sở dữ liệu: tệp năm học `0091`; hệ thống `0029`, định danh `0082` để trống.
+- Kiểm thử: kiểm thử đơn vị `graduation.test.ts` CT-21f-1 đến CT-21f-5 đạt 5/5; chạy cùng menu, cấp học đạt 13/13; typecheck, prettier, eslint đạt; e2e CT-21f-6 (102) do CI chạy cùng e2e toàn bộ; e2e toàn bộ do CI chạy.
+- Dùng quyền sẵn có của đánh giá, học bạ thay vì thêm quyền mới; cấu hình xét (hệ số, điểm đạt, điểm liệt, môn thi) lưu theo cấp và chép sang năm học mới để đổi theo quy chế từng năm; kết nối Sở, Bộ chỉ xuất tệp và đánh dấu thủ công; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-174, `23_LICH_SU_PHIEN_BAN.md` bản 0.124.0.
+- Đối chiếu quy chế thi, xét tốt nghiệp hiện hành (công thức, hệ số, điểm liệt, môn thi) và mẫu giấy chứng nhận, tệp theo Bộ, Sở; nối Sở, Bộ khi có thông tin; khảo sát hệ thống của Sở cấp THCS, THPT.
 
 ### 2026-10-24 — DT-21 phần 21e: học bạ số, khen thưởng, xét lên lớp THCS, THPT
 

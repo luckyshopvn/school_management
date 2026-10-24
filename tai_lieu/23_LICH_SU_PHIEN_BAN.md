@@ -16,17 +16,28 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.124.0 – 2026-10-24
+### Phiên bản 0.125.0 – 2026-10-24
 
 - Phạm vi thay đổi: DT-22 phần 22h1, kho học liệu số phần lõi (YCTD-183).
 - Chức năng mới: phân hệ Kho học liệu; tải tệp, liên kết ngoài, tham chiếu kế hoạch bài dạy, phiên bản; metadata theo cấp, khối, môn, chủ đề; giấy phép bắt buộc; kiểm duyệt phân luồng theo rủi ro; bộ sưu tập; báo lỗi; thống kê; Việc của tôi có nguồn kho học liệu.
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp hệ thống `0042_create_learning_resources`; tệp năm học `0102_create_learning_resource_activity`; tệp định danh `0092_add_learning_resource_permissions`.
 - Thay đổi API: `/learning-resources/*`.
-- Kiểm thử: kịch bản CT-963 đến CT-969. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/learning-resources/learning-resources.test.ts` CT-22h1-1 đến CT-22h1-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa đạt 37/37 (kho học liệu, system-admin-so CT-16d-3 đếm 21 phân hệ, quick-links, menu theo cấp, Việc của tôi); kiểm thử giao diện `tests/e2e/122-learning-resources.spec.ts` (CT-22h1-7) đạt; kiểm thử giao diện chạy trên máy 01 (CT-15a-9 chọn phân hệ), 02, 03, 58, 122; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử: kịch bản CT-968 đến CT-974. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/learning-resources/learning-resources.test.ts` CT-22h1-1 đến CT-22h1-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa đạt 37/37 (kho học liệu, system-admin-so CT-16d-3 đếm 21 phân hệ, quick-links, menu theo cấp, Việc của tôi); kiểm thử giao diện `tests/e2e/122-learning-resources.spec.ts` (CT-22h1-7) đạt; kiểm thử giao diện chạy trên máy 01, 02, 03, 58, 83, 122 đạt 18/18; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Rủi ro: không có thay đổi dữ liệu cũ.
 - Khả năng tương thích: thêm một phân hệ; các phân hệ khác không đổi.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 22h1; chạy phần quay lui của tệp hệ thống `0042`, năm học `0102`, định danh `0092` (xoá tệp học liệu ở kho tệp theo tiền tố `learning-resources/`).
+
+### Phiên bản 0.124.0 – 2026-10-25
+- Phạm vi thay đổi: DT-21 phần 21f, xét tốt nghiệp THCS, THPT và hồ sơ thi (YCTD-174).
+- Chức năng mới: kỳ xét tốt nghiệp theo cấp; danh sách thí sinh từ lớp cuối cấp theo xếp loại cả năm; hồ sơ dự thi (bài thi, miễn thi, ưu tiên, khuyến khích), số báo danh, phòng thi, điểm thi (THPT); xét kết quả theo công thức cấu hình được; công nhận tốt nghiệp có biên bản hội đồng, giấy chứng nhận PDF; tệp xuất, đánh dấu đã gửi thủ công; hồ sơ chuyển cấp THCS; mục 7.16 của cổng quản trị.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: tệp năm học `0091_create_graduation`; cấu hình xét tốt nghiệp chép sang năm học mới; tệp hệ thống `0029`, định danh `0082` để trống (dùng quyền sẵn có).
+- Thay đổi API: nhóm điểm cuối mới `/graduation` (cấu hình, kỳ, thí sinh, phòng, xét, công nhận, biên bản, tệp xuất, hồ sơ chuyển cấp).
+- Kiểm thử: kịch bản CT-963 đến CT-967. Kết quả ngày 25/10/2026: kiểm thử đơn vị `graduation.test.ts` CT-21f-1 đến CT-21f-5 đạt 5/5; chạy cùng menu, cấp học đạt 13/13; typecheck, prettier, eslint đạt; e2e CT-21f-6 (102) do CI chạy cùng e2e toàn bộ.
+- Rủi ro: công thức, hệ số, điểm liệt, môn thi là mặc định theo quy chế nhớ, cần đối chiếu văn bản gốc của năm; mẫu giấy chứng nhận, bố cục tệp là bố cục chung, mẫu của Bộ, Sở khớp khi khảo sát; chưa nối Sở, Bộ.
+- Khả năng tương thích: không đổi chức năng cũ; trường chỉ có Mầm non, Tiểu học không thấy mục 7.16.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 21f; chạy phần quay lui của tệp năm học `0091`.
 
 ### Phiên bản 0.123.0 – 2026-10-25
 
@@ -63,7 +74,6 @@
 - Rủi ro: chuyển nhầm loại điểm vào sổ điểm; đã yêu cầu khoá trước, giáo viên dạy môn xác nhận, sổ điểm kiểm tra khoá, hạn.
 - Khả năng tương thích: trường không bật THCS, THPT không đổi hành vi.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 22g2; chạy phần quay lui của tệp năm học `0090`, định danh `0081`.
-
 ### Phiên bản 0.120.0 – 2026-10-24
 
 - Phạm vi thay đổi: DT-21 phần 21e, học bạ số, khen thưởng, xét lên lớp THCS, THPT (YCTD-172).
