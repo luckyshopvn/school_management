@@ -35,12 +35,23 @@ export const migration: Migration = {
   async up(database) {
     await database.schema
       .createTable('training_settings')
-      .addColumn('id', 'smallint', (column) => column.primaryKey().defaultTo(1).check(sql`id = 1`))
+      .addColumn('id', 'smallint', (column) =>
+        column
+          .primaryKey()
+          .defaultTo(1)
+          .check(sql`id = 1`),
+      )
       .addColumn('annual_required_periods', 'integer', (column) =>
-        column.notNull().defaultTo(120).check(sql`annual_required_periods between 0 and 1000`),
+        column
+          .notNull()
+          .defaultTo(120)
+          .check(sql`annual_required_periods between 0 and 1000`),
       )
       .addColumn('competency_gap_level', 'smallint', (column) =>
-        column.notNull().defaultTo(2).check(sql`competency_gap_level between 1 and 10`),
+        column
+          .notNull()
+          .defaultTo(2)
+          .check(sql`competency_gap_level between 1 and 10`),
       )
       .addColumn('certificate_issuer', 'text')
       .addColumn('legal_basis', 'text')
@@ -55,7 +66,10 @@ export const migration: Migration = {
       .addColumn('description', 'text')
       .addColumn('order_no', 'integer', (column) => column.notNull().defaultTo(0))
       .addColumn('status', 'text', (column) =>
-        column.notNull().defaultTo('active').check(sql`status in ('active', 'inactive')`),
+        column
+          .notNull()
+          .defaultTo('active')
+          .check(sql`status in ('active', 'inactive')`),
       )
       .addColumn('created_at', 'timestamptz', (column) => column.notNull().defaultTo(sql`now()`))
       .execute();
@@ -72,12 +86,18 @@ export const migration: Migration = {
       .addColumn('name', 'text', (column) => column.notNull().check(sql`char_length(name) between 1 and 300`))
       .addColumn('program_no', 'smallint', (column) => column.notNull().check(sql`program_no between 1 and 3`))
       .addColumn('default_periods', 'integer', (column) =>
-        column.notNull().defaultTo(0).check(sql`default_periods between 0 and 1000`),
+        column
+          .notNull()
+          .defaultTo(0)
+          .check(sql`default_periods between 0 and 1000`),
       )
       .addColumn('competency_domain_code', 'text')
       .addColumn('order_no', 'integer', (column) => column.notNull().defaultTo(0))
       .addColumn('status', 'text', (column) =>
-        column.notNull().defaultTo('active').check(sql`status in ('active', 'inactive')`),
+        column
+          .notNull()
+          .defaultTo('active')
+          .check(sql`status in ('active', 'inactive')`),
       )
       .addColumn('created_at', 'timestamptz', (column) => column.notNull().defaultTo(sql`now()`))
       .execute();

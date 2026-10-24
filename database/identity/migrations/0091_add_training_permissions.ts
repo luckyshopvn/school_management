@@ -48,7 +48,9 @@ export const migration: Migration = {
         values (${permission.code}, 'P09', ${permission.description})`.execute(database);
       await sql`insert into role_permissions (role_id, permission_id)
         select roles.id, permissions.id from roles, permissions
-        where roles.code in (${sql.join(permission.roles)}) and permissions.code = ${permission.code}`.execute(database);
+        where roles.code in (${sql.join(permission.roles)}) and permissions.code = ${permission.code}`.execute(
+        database,
+      );
     }
   },
   async down(database) {

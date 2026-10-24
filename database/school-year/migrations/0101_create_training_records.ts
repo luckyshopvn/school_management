@@ -29,18 +29,29 @@ export const migration: Migration = {
       )
       .addColumn('organizer_name', 'text')
       .addColumn('mode', 'text', (column) =>
-        column.notNull().defaultTo('in_person').check(sql`mode in ('in_person', 'online', 'self_study')`),
+        column
+          .notNull()
+          .defaultTo('in_person')
+          .check(sql`mode in ('in_person', 'online', 'self_study')`),
       )
       .addColumn('location', 'text')
       .addColumn('start_date', 'date', (column) => column.notNull())
       .addColumn('end_date', 'date', (column) => column.notNull())
       .addColumn('periods', 'integer', (column) => column.notNull().check(sql`periods between 1 and 1000`))
-      .addColumn('sessions', 'integer', (column) => column.notNull().defaultTo(1).check(sql`sessions between 1 and 200`))
+      .addColumn('sessions', 'integer', (column) =>
+        column
+          .notNull()
+          .defaultTo(1)
+          .check(sql`sessions between 1 and 200`),
+      )
       .addColumn('quota', 'integer', (column) => column.check(sql`quota is null or quota >= 1`))
       .addColumn('registration_deadline', 'date')
       .addColumn('issues_certificate', 'boolean', (column) => column.notNull().defaultTo(false))
       .addColumn('status', 'text', (column) =>
-        column.notNull().defaultTo('open').check(sql`status in ('open', 'closed', 'completed')`),
+        column
+          .notNull()
+          .defaultTo('open')
+          .check(sql`status in ('open', 'closed', 'completed')`),
       )
       .addColumn('note', 'text')
       .addColumn('created_by', 'uuid')
@@ -52,7 +63,9 @@ export const migration: Migration = {
     await database.schema
       .createTable('training_registrations')
       .addColumn('id', 'uuid', (column) => column.primaryKey().defaultTo(sql`gen_random_uuid()`))
-      .addColumn('course_id', 'uuid', (column) => column.notNull().references('training_courses.id').onDelete('cascade'))
+      .addColumn('course_id', 'uuid', (column) =>
+        column.notNull().references('training_courses.id').onDelete('cascade'),
+      )
       .addColumn('staff_id', 'uuid', (column) => column.notNull().references('staff.id'))
       .addColumn('staff_name', 'text', (column) => column.notNull())
       .addColumn('department_id', 'uuid')
@@ -85,7 +98,10 @@ export const migration: Migration = {
     await database.schema
       .alterTable('staff_certificates')
       .addColumn('kind', 'text', (column) =>
-        column.notNull().defaultTo('manual').check(sql`kind in ('manual', 'course', 'school')`),
+        column
+          .notNull()
+          .defaultTo('manual')
+          .check(sql`kind in ('manual', 'course', 'school')`),
       )
       .addColumn('file_id', 'uuid')
       .addColumn('course_id', 'uuid', (column) => column.references('training_courses.id').onDelete('set null'))
@@ -106,7 +122,10 @@ export const migration: Migration = {
       .addColumn('department_id', 'uuid')
       .addColumn('term', 'text', (column) => column.notNull().check(sql`term in ('term_1', 'term_2', 'year')`))
       .addColumn('status', 'text', (column) =>
-        column.notNull().defaultTo('submitted').check(sql`status in ('submitted', 'confirmed')`),
+        column
+          .notNull()
+          .defaultTo('submitted')
+          .check(sql`status in ('submitted', 'confirmed')`),
       )
       .addColumn('confirmed_by_name', 'text')
       .addColumn('confirmed_at', 'timestamptz')
