@@ -150,7 +150,11 @@ test('CT-21b-7: tiết cả lớp và tiết nhóm cùng ô, kiểm tra xung đ�
       },
     ])
     .execute();
-  for (const [index, subjectId] of [math, physics, geography].entries()) {
+  for (const [index, [subjectId, subjectName]] of [
+    [math, mathName],
+    [physics, physicsName],
+    [geography, geographyName],
+  ].entries()) {
     await schoolYear
       .insertInto('class_staff_assignments')
       .values({
@@ -158,6 +162,7 @@ test('CT-21b-7: tiết cả lớp và tiết nhóm cùng ô, kiểm tra xung đ�
         staff_user_id: teachers[index]?.id ?? '',
         staff_name: `Giáo viên ${suffix}-${index}`,
         assignment_role: 'subject',
+        subject_name: subjectName,
         subject_id: subjectId,
         from_date: '2026-01-01',
       })
