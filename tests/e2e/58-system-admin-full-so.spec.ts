@@ -127,7 +127,7 @@ test('CT-16d-12: 1.2 bỏ phân hệ của nhóm thì người dùng của nhóm
   await expect(reports).toBeChecked();
   try {
     await reports.uncheck();
-    await expect(section.getByText('Đã chọn 18/19 phân hệ')).toBeVisible();
+    await expect(section.getByText('Đã chọn 19/20 phân hệ')).toBeVisible();
     await section.getByRole('button', { name: 'Ghi' }).click();
     await expect(page.getByRole('status').filter({ hasText: 'Đã ghi phân hệ của nhóm VT-19' })).toBeVisible();
 
@@ -138,7 +138,7 @@ test('CT-16d-12: 1.2 bỏ phân hệ của nhóm thì người dùng của nhóm
     // Trả lại phân hệ để các kịch bản khác không bị ảnh hưởng
     await section.getByRole('button', { name: 'Chọn tất cả', exact: true }).click();
     await section.getByRole('button', { name: 'Ghi' }).click();
-    await expect(section.getByText('Đã chọn 19/19 phân hệ')).toBeVisible();
+    await expect(section.getByText('Đã chọn 20/20 phân hệ')).toBeVisible();
     await memberPage.close();
   }
 });

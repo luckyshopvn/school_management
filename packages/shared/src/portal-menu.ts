@@ -24,7 +24,8 @@ export type PortalWorkspaceKey =
   | 'website'
   | 'professional-records'
   | 'emulation'
-  | 'quality-assurance';
+  | 'quality-assurance'
+  | 'library';
 
 export interface PortalMenuNode {
   // Số thứ bậc có dấu chấm cuối như của Sở, ví dụ "4.1.1."
@@ -599,6 +600,28 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('2.1.', 'Theo dõi công nhận', '/quality/recognition'),
         leaf('2.2.', 'Bộ tiêu chuẩn đánh giá', '/quality/frameworks'),
       ]),
+    ],
+  },
+  {
+    // Thư viện trường học (DT-22 phần 22a); phân hệ riêng nên đánh số liên tục, tên mục do Claude tự đặt theo ủy quyền của Eric
+    // ngày 2026-10-11. Không đặt `levels`: mọi cấp có thư viện; cấp có học sinh mượn do thiết lập ở 4.1 (mặc định Tiểu học,
+    // THCS, THPT; Mầm non chỉ cán bộ mượn)
+    key: 'library',
+    label: 'Thư viện',
+    menu: [
+      group('1.', 'Danh mục', [
+        leaf('1.1.', 'Ấn phẩm và bản sao', '/library/titles'),
+        leaf('1.2.', 'Bạn đọc', '/library/readers'),
+      ]),
+      group('2.', 'Mượn trả', [
+        leaf('2.1.', 'Mượn, trả, đặt trước', '/library/circulation'),
+        leaf('2.2.', 'Phát và thu sách giáo khoa', '/library/textbooks'),
+      ]),
+      group('3.', 'Kiểm kê và báo cáo', [
+        leaf('3.1.', 'Kiểm kê', '/library/stocktakes'),
+        leaf('3.2.', 'Báo cáo thư viện', '/library/reports'),
+      ]),
+      group('4.', 'Thiết lập', [leaf('4.1.', 'Quy định mượn và phân loại', '/library/settings')]),
     ],
   },
 ];
