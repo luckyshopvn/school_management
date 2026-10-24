@@ -58,6 +58,11 @@ const group = (number: string, label: string, children: PortalMenuNode[]): Porta
 // Mục chỉ của Tiểu học: nhóm 7 (DT-20 phần 20a) tạm đánh số tiếp sau nhóm cuối của Sở, đánh lại khi khảo sát hệ thống của
 // Sở cấp Tiểu học (tài liệu 32 mục 11.1); 4.8 Bán trú, 4.9 Nề nếp, thi đua lớp (phần 20b)
 const primary = (node: PortalMenuNode): PortalMenuNode => ({ ...node, levels: ['TH'] });
+// Mục của THCS, THPT (DT-21 phần 21a): nhóm 7 dùng chung ba cấp; mục riêng cấp THCS, THPT thêm vào nhóm đó
+const secondary = (node: PortalMenuNode, levels: readonly SchoolLevelCode[] = ['THCS', 'THPT']): PortalMenuNode => ({
+  ...node,
+  levels,
+});
 // Mục chỉ của Mầm non (DT-19 phần 19c): hồ sơ cuối cấp mầm non, biểu EMIS Mầm non, cân đo theo tháng tuổi, hoàn thành
 // chương trình Mầm non. Cấp khác thêm mục của mình ở DT-20, DT-21 bằng cùng thuộc tính
 const preschool = (node: PortalMenuNode): PortalMenuNode => ({ ...node, levels: ['MN'] });
@@ -153,25 +158,29 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('6.1.', 'Thực trạng và nhu cầu đầu tư phòng học, nhà công vụ', '/facility-investments'),
         leaf('6.2.', 'Nhập liệu cơ sở vật chất', '/facility-input'),
       ]),
-      primary(
-        group('7.', 'Dạy học Tiểu học', [
+      secondary(
+        group('7.', 'Dạy học', [
           leaf('7.1.', 'Môn học và hoạt động giáo dục', '/subjects'),
           leaf('7.2.', 'Phân công giảng dạy theo môn', '/teaching-assignments'),
-          // Thời khoá biểu phần khung (DT-20 phần 22c1)
-          leaf('7.3.', 'Khung giờ tiết học', '/period-slots'),
-          leaf('7.4.', 'Thời khoá biểu', '/timetables'),
+          // Thời khoá biểu phần khung (DT-20 phần 22c1); THCS, THPT dùng chung ở DT-21 phần 21b
+          primary(leaf('7.3.', 'Khung giờ tiết học', '/period-slots')),
+          primary(leaf('7.4.', 'Thời khoá biểu', '/timetables')),
           // Đánh giá học sinh theo Thông tư 27/2020 (DT-20 phần 20c)
-          leaf('7.5.', 'Đánh giá học sinh', '/student-assessments'),
-          // Sổ đầu bài, điểm danh theo tiết (DT-20 phần 20d)
-          leaf('7.6.', 'Sổ đầu bài', '/class-logs'),
-          leaf('7.7.', 'Chuyên cần theo tiết', '/period-attendance'),
+          primary(leaf('7.5.', 'Đánh giá học sinh', '/student-assessments')),
+          // Sổ đầu bài, điểm danh theo tiết (DT-20 phần 20d); THCS, THPT dùng chung ở DT-21 phần 21d
+          primary(leaf('7.6.', 'Sổ đầu bài', '/class-logs')),
+          primary(leaf('7.7.', 'Chuyên cần theo tiết', '/period-attendance')),
           // Học bạ số, khen thưởng, hoàn thành chương trình, lên lớp (DT-20 phần 20e)
-          leaf('7.8.', 'Học bạ, khen thưởng, lên lớp', '/learning-records'),
+          primary(leaf('7.8.', 'Học bạ, khen thưởng, lên lớp', '/learning-records')),
           // Máy xếp, dạy thay, đổi tiết, báo cáo, mã QR (DT-20 phần 22c2)
-          leaf('7.9.', 'Xếp thời khoá biểu tự động', '/timetable-generator'),
-          leaf('7.10.', 'Dạy thay, đổi tiết', '/timetable-changes'),
-          leaf('7.11.', 'Báo cáo tiết dạy, dùng phòng, mã QR', '/timetable-reports'),
+          primary(leaf('7.9.', 'Xếp thời khoá biểu tự động', '/timetable-generator')),
+          primary(leaf('7.10.', 'Dạy thay, đổi tiết', '/timetable-changes')),
+          primary(leaf('7.11.', 'Báo cáo tiết dạy, dùng phòng, mã QR', '/timetable-reports')),
+          // Tổ hợp môn (THPT) và tổ bộ môn (DT-21 phần 21a)
+          secondary(leaf('7.12.', 'Tổ hợp môn', '/subject-combinations'), ['THPT']),
+          secondary(leaf('7.13.', 'Tổ bộ môn', '/subject-teams')),
         ]),
+        ['TH', 'THCS', 'THPT'],
       ),
     ],
   },

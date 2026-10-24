@@ -1,7 +1,8 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.109
+- Phiên bản: 1.110
+- Phiên bản: 1.108
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -851,6 +852,14 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | GET | /api/v1/teaching-assignments | Môn của lớp theo chương trình và khối kèm giáo viên đang dạy (`class_id`) (P02-35) |
 | GET | /api/v1/teaching-assignments/teachers | Tổng tiết mỗi tuần của giáo viên theo cấp (P02-35) |
 | GET, PUT | /api/v1/children/{id}/elective-subjects | Môn tự chọn của học sinh và các môn chọn được (P02-36) |
+| GET, POST | /api/v1/subject-combinations | Tổ hợp môn THPT kèm môn và số học sinh (mọi người đã đăng nhập); thêm tổ hợp (cần `P01.catalog.manage`) (P02-55, YCTD-167) |
+| PATCH | /api/v1/subject-combinations/{id} | Sửa tên, thứ tự, trạng thái, danh sách môn (khi chưa có học sinh); mã không đổi (P02-55) |
+| GET | /api/v1/subject-combinations/{id}/students | Học sinh đã đăng ký tổ hợp kèm lớp, trạng thái (cần `P02.view`) (P02-55) |
+| GET, PUT | /api/v1/children/{id}/subject-combination | Tổ hợp đã đăng ký và các tổ hợp chọn được; đăng ký hoặc đề nghị đổi (P02-56) |
+| POST | /api/v1/children/{id}/subject-combination/approve, /reject | Duyệt hoặc từ chối đổi tổ hợp (cần `P02.class.manage`) (P02-56) |
+| GET, POST, PATCH | /api/v1/subject-teams | Tổ bộ môn; thêm, sửa tổ (cần `P01.catalog.manage`) (P02-57) |
+| PUT, DELETE | /api/v1/subject-teams/{id}/members, /members/{staffUserId} | Thêm, đặt vai trò, bỏ thành viên (P02-57) |
+| GET | /api/v1/subject-teams/{id}/loads | Tổng tiết mỗi tuần của giáo viên trong các môn của tổ (P02-57) |
 | GET, PUT | /api/v1/period-slots | Khung giờ tiết học của cấp ở năm học đang dùng; thay cả khung (cần `P02.timetable.manage`) (P02-39, YCTD-160) |
 | GET, POST | /api/v1/timetable-versions | Bản thời khoá biểu theo cấp kèm `is_current`; tạo bản nháp, chép từ bản khác (P02-40) |
 | PATCH, DELETE | /api/v1/timetable-versions/{id} | Sửa tên, ngày áp dụng, ghi chú; xoá bản nháp (P02-40) |
@@ -1559,6 +1568,13 @@ Giao kèo nền Tiểu học (DT-20 phần 20a, YCTD-158, BR-166):
 5. `GET /teaching-assignments?class_id=` trả `class`, `curriculum`, `subjects` (dòng số tiết của khối lớp kèm `assignment`), `planned_periods`; `GET /teaching-assignments/teachers?school_level=` trả `staff_user_id`, `staff_name`, `total_periods`, `classes`.
 6. `GET /children/{id}/elective-subjects` trả `subjects` (đã chọn), `options` (môn tự chọn của khối); `PUT` nhận `subject_ids`; môn ngoài `options` trả 422.
 
+
+Giao kèo nền THCS, THPT (DT-21 phần 21a, YCTD-167, BR-179):
+
+1. `POST /subjects`, `PATCH /subjects/{id}` nhận thêm `assessment` = `score` và `option_group` (`social_science`, `natural_science`, `technology_arts` hoặc null); giá trị khác trả 400. `POST /subjects/templates` nhận cấp `THCS`, `THPT` như `TH` (chương trình mặc định `CT-THCS-2018`, `CT-THPT-2018`).
+2. `POST /subject-combinations` nhận `code`, `name`, `order_no`, `subject_ids`; thiếu `subject_ids` trả 400; cấp THPT chưa bật, môn không phải môn lựa chọn đang dùng của THPT, sai số môn (4) hoặc ít hơn 2 nhóm trả 422; mã trùng 409. `PATCH` gửi `code` trả 400; đổi `subject_ids` khi đã có học sinh trả 422. Mỗi tổ hợp trả `subjects`, `student_count`.
+3. `GET /children/{id}/subject-combination` trả `registration` (`combination_id`, `combination_code`, `combination_name`, `status`, `previous_combination_id`) hoặc null và `options` (tổ hợp đang dùng; rỗng nếu học sinh không học lớp THPT). `PUT` nhận `combination_id`; học sinh không học lớp THPT, tổ hợp ngừng dùng trả 422; đăng ký lần đầu `approved`, đổi sang tổ hợp khác `pending` (giữ `previous_combination_id`). `approve` đặt `approved` và thay môn tự chọn theo môn của tổ hợp; `reject` trả về tổ hợp trước; không có đề nghị chờ duyệt trả 422.
+4. `POST /subject-teams` nhận `code`, `name`, `school_level` (`THCS` hoặc `THPT`), `subject_ids`; cấp khác trả 400; môn khác cấp 422; mã trùng 409. `PUT /subject-teams/{id}/members` nhận `org_unit_id`, `staff_user_id`, `role` (`head` hoặc `member`); người không có vai trò giáo viên bộ môn (VT-08) ở đơn vị trả 400; tổ trưởng mới thay tổ trưởng cũ (thành thành viên). `GET /subject-teams/{id}/loads` trả `staff_user_id`, `staff_name`, `total_periods`.
 
 Giao kèo thời khoá biểu (DT-20 phần 22c1, YCTD-160, BR-170):
 

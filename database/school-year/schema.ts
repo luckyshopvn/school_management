@@ -147,7 +147,8 @@ export interface CurriculaTable extends CatalogRecordColumns {
 
 // Môn học và hoạt động giáo dục theo cấp (DT-20 phần 20a, YCTD-158)
 export type SubjectKind = 'subject' | 'activity';
-export type SubjectAssessment = 'comment' | 'comment_and_score';
+export type SubjectAssessment = 'comment' | 'comment_and_score' | 'score';
+export type SubjectOptionGroup = 'social_science' | 'natural_science' | 'technology_arts';
 
 export interface SubjectsTable extends CatalogRecordColumns {
   code: string;
@@ -155,8 +156,59 @@ export interface SubjectsTable extends CatalogRecordColumns {
   school_level: SchoolLevelCode;
   kind: ColumnType<SubjectKind, SubjectKind | undefined, SubjectKind>;
   assessment: ColumnType<SubjectAssessment, SubjectAssessment | undefined, SubjectAssessment>;
+  // Nhóm môn học lựa chọn của THPT (DT-21 phần 21a, YCTD-167)
+  option_group: ColumnType<SubjectOptionGroup | null, SubjectOptionGroup | null | undefined, SubjectOptionGroup | null>;
   order_no: Generated<number>;
   status: Generated<CatalogStatus>;
+}
+
+// Nền THCS, THPT (DT-21 phần 21a, YCTD-167): tổ hợp môn, tổ hợp học sinh đăng ký, tổ bộ môn
+export interface SubjectCombinationsTable extends CatalogRecordColumns {
+  code: string;
+  name: string;
+  school_level: 'THCS' | 'THPT';
+  order_no: Generated<number>;
+  status: Generated<CatalogStatus>;
+}
+
+export interface SubjectCombinationSubjectsTable {
+  combination_id: string;
+  subject_id: string;
+}
+
+export type ChildCombinationStatus = 'pending' | 'approved';
+
+export interface ChildSubjectCombinationsTable {
+  child_id: string;
+  combination_id: string;
+  status: Generated<ChildCombinationStatus>;
+  previous_combination_id: string | null;
+  requested_by: string | null;
+  approved_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface SubjectTeamsTable extends CatalogRecordColumns {
+  code: string;
+  name: string;
+  school_level: 'THCS' | 'THPT';
+  status: Generated<CatalogStatus>;
+}
+
+export interface SubjectTeamSubjectsTable {
+  team_id: string;
+  subject_id: string;
+}
+
+export type SubjectTeamRole = 'head' | 'member';
+
+export interface SubjectTeamMembersTable {
+  team_id: string;
+  staff_user_id: string;
+  staff_name: string;
+  role: Generated<SubjectTeamRole>;
+  created_at: CreatedTimestamp;
 }
 
 // Số tiết mỗi tuần của môn theo khối trong một chương trình (YCTD-158); kiểu numeric đọc ra chuỗi
@@ -5423,6 +5475,12 @@ export interface SchoolYearDatabase {
   subjects: SubjectsTable;
   curriculum_subjects: CurriculumSubjectsTable;
   child_elective_subjects: ChildElectiveSubjectsTable;
+  subject_combinations: SubjectCombinationsTable;
+  subject_combination_subjects: SubjectCombinationSubjectsTable;
+  child_subject_combinations: ChildSubjectCombinationsTable;
+  subject_teams: SubjectTeamsTable;
+  subject_team_subjects: SubjectTeamSubjectsTable;
+  subject_team_members: SubjectTeamMembersTable;
   timetable_versions: TimetableVersionsTable;
   timetable_lessons: TimetableLessonsTable;
   class_logs: ClassLogsTable;

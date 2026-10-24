@@ -1,3 +1,4 @@
+import { ChildCombinationSection } from '../subjects/ChildCombinationSection.js';
 import { ElectiveSubjectsSection } from '../subjects/ElectiveSubjectsSection.js';
 import { useId, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -389,6 +390,10 @@ export function ChildDetailPanel({ childId, onChanged }: { childId: string; onCh
       {/* Môn tự chọn của học sinh Tiểu học (DT-20 phần 20a); trẻ Mầm non không có mục này */}
       {data.status === 'active' && data.current_class ? (
         <ElectiveSubjectsSection childId={data.id} onChanged={onChanged} />
+      ) : null}
+      {/* Tổ hợp môn của học sinh THPT (DT-21 phần 21a); chỉ hiện khi lớp đang học là THPT */}
+      {data.status === 'active' && data.current_class ? (
+        <ChildCombinationSection childId={data.id} onChanged={onChanged} />
       ) : null}
 
       {pendingCapacity ? (

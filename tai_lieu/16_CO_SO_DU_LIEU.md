@@ -1,7 +1,8 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.105
+- Phiên bản: 1.106
+- Phiên bản: 1.104
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -106,6 +107,13 @@
 | library_counters | Bộ đếm cấp số đăng ký cá biệt (copy) và số thẻ (card) (P02-55, P02-56; YCTD-181) | name (khóa chính), value |
 | curriculum_subjects | Số tiết mỗi tuần theo khối của chương trình (P02-34; YCTD-158) | curriculum_id (khóa ngoại `curricula`, xóa theo), subject_id, grade_level_code, periods_per_week (numeric 4,1), is_elective; duy nhất theo chương trình, môn, khối |
 | child_elective_subjects | Môn tự chọn của học sinh (P02-36; YCTD-158) | child_id (khóa ngoại `children`, xóa theo), subject_id, created_at, created_by; khóa chính (child_id, subject_id) |
+| subjects (bổ sung) | YCTD-167, tệp năm học `0084_create_secondary_foundation` | `assessment` thêm giá trị `score` (môn đánh giá bằng điểm số); `option_group` (`social_science`, `natural_science`, `technology_arts`, có thể trống) là nhóm môn lựa chọn của THPT |
+| subject_combinations | Tổ hợp môn THPT (P02-55, BR-179; YCTD-167) | code (duy nhất), name, school_level (`THCS`, `THPT`; hiện dùng THPT), order_no, status, thời điểm, người tạo |
+| subject_combination_subjects | Môn của tổ hợp (P02-55) | combination_id (khóa ngoại `subject_combinations`, xóa theo), subject_id; khóa chính (combination_id, subject_id) |
+| child_subject_combinations | Tổ hợp học sinh đăng ký (P02-56) | child_id (khóa chính, khóa ngoại `children`, xóa theo), combination_id, status (`pending`, `approved`), previous_combination_id (tổ hợp đã duyệt trước khi đổi), requested_by, approved_by, thời điểm |
+| subject_teams | Tổ bộ môn (P02-57) | code (duy nhất), name, school_level (`THCS`, `THPT`), status, thời điểm, người tạo |
+| subject_team_subjects | Môn của tổ (P02-57) | team_id (khóa ngoại, xóa theo), subject_id; khóa chính (team_id, subject_id) |
+| subject_team_members | Thành viên tổ (P02-57) | team_id (khóa ngoại, xóa theo), staff_user_id, staff_name, role (`head`, `member`), created_at; khóa chính (team_id, staff_user_id); chỉ mục duy nhất một tổ trưởng mỗi tổ |
 | org_unit_levels | Cấp học của đơn vị (YCTD-152, tệp năm học `0072`); đơn vị chưa có dòng coi là MN | org_unit_id (khóa ngoại, xóa theo), school_level, created_at, created_by; khóa chính (org_unit_id, school_level) |
 | catalog_items | Mục danh mục dùng chung, không thuộc đơn vị (P01-05, YCTD-42) | catalog_type (loại do hệ thống định nghĩa), code (duy nhất trong loại), name, order_no, status, attributes (thuộc tính riêng của loại; loại nghỉ phép có is_paid, deducts_annual_leave, insurance_paid, YCTD-59) |
 | school_profiles | Hồ sơ trường của Trường chính, một dòng mỗi năm học (P01-15, BR-103, YCTD-106); mỗi thẻ một cột jsonb khóa cố định | org_unit_id (duy nhất, Trường chính), general, other_info, foreign_elements, internet, it_infrastructure, office_accounts (mảng, không có mật khẩu), updated_by. Từ YCTD-136 `general` có thêm khóa cố định `floor_area_m2` (diện tích sàn xây dựng, số), `national_standard_level` ('1', '2'), `national_standard_year`, `accreditation_year` (số nguyên 1900 đến 2100), `national_standard_date`, `accreditation_date` (ngày), `national_standard_registration` (chữ), `accreditation_level` ('1' đến '4') cho 1.7 và báo cáo EMIS đọc |
