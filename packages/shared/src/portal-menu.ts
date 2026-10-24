@@ -57,7 +57,7 @@ const group = (number: string, label: string, children: PortalMenuNode[]): Porta
   children,
 });
 // Mục chỉ của Tiểu học: nhóm 7 (DT-20 phần 20a) tạm đánh số tiếp sau nhóm cuối của Sở, đánh lại khi khảo sát hệ thống của
-// Sở cấp Tiểu học (tài liệu 32 mục 11.1); 4.8 Bán trú, 4.9 Nề nếp, thi đua lớp (phần 20b)
+// Sở cấp Tiểu học (tài liệu 32 mục 11.1); 4.8 Bán trú, 4.9 Nề nếp, thi đua lớp (phần 20b; THCS, THPT dùng chung từ 21d)
 const primary = (node: PortalMenuNode): PortalMenuNode => ({ ...node, levels: ['TH'] });
 // Mục của THCS, THPT (DT-21 phần 21a): nhóm 7 dùng chung ba cấp; mục riêng cấp THCS, THPT thêm vào nhóm đó
 const secondary = (node: PortalMenuNode, levels: readonly SchoolLevelCode[] = ['THCS', 'THPT']): PortalMenuNode => ({
@@ -131,7 +131,7 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         ]),
         leaf('4.7.', 'Điểm danh', '/attendance'),
         primary(leaf('4.8.', 'Bán trú', '/boarding')),
-        primary(leaf('4.9.', 'Nề nếp, thi đua lớp', '/conduct')),
+        secondary(leaf('4.9.', 'Nề nếp, thi đua lớp', '/conduct'), ['TH', 'THCS', 'THPT']),
       ]),
       group('5.', 'Công cụ hỗ trợ', [
         leaf('5.1.', 'Thống kê lớp, nhân sự, học sinh', '/statistics'),
@@ -169,8 +169,8 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           // Đánh giá học sinh theo Thông tư 27/2020 (DT-20 phần 20c)
           primary(leaf('7.5.', 'Đánh giá học sinh', '/student-assessments')),
           // Sổ đầu bài, điểm danh theo tiết (DT-20 phần 20d); THCS, THPT dùng chung ở DT-21 phần 21d
-          primary(leaf('7.6.', 'Sổ đầu bài', '/class-logs')),
-          primary(leaf('7.7.', 'Chuyên cần theo tiết', '/period-attendance')),
+          secondary(leaf('7.6.', 'Sổ đầu bài', '/class-logs'), ['TH', 'THCS', 'THPT']),
+          secondary(leaf('7.7.', 'Chuyên cần theo tiết', '/period-attendance'), ['TH', 'THCS', 'THPT']),
           // Học bạ số, khen thưởng, hoàn thành chương trình, lên lớp (DT-20 phần 20e)
           // Học bạ số THCS, THPT dùng chung ở DT-21 phần 21e
           secondary(leaf('7.8.', 'Học bạ, khen thưởng, lên lớp', '/learning-records'), ['TH', 'THCS', 'THPT']),
@@ -185,6 +185,8 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           secondary(leaf('7.14.', 'Sổ điểm', '/scores')),
           // Báo cáo, thống kê, EMIS Tiểu học (DT-20 phần 20f)
           primary(leaf('7.15.', 'Báo cáo, thống kê, EMIS Tiểu học', '/primary-reports')),
+          // Sơ đồ chỗ ngồi theo lớp (DT-21 phần 21d)
+          secondary(leaf('7.16.', 'Sơ đồ chỗ ngồi', '/seating-charts')),
         ]),
         ['TH', 'THCS', 'THPT'],
       ),

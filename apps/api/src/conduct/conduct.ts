@@ -35,19 +35,25 @@ import {
   readInteger,
   readOptionalText,
   readRequiredText,
+  readOptionalUuid,
   readRequiredUuid,
   readStatus,
   type RequestBody,
 } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
-import { conductPeriod, DEFAULT_CONDUCT_CRITERIA, rankClasses } from './conduct-calc.js';
+import { readRatingSettings } from '../class-logs/class-logs.js';
+import { conductPeriod, defaultConductCriteria, rankClasses } from './conduct-calc.js';
 
 // Nề nếp và thi đua lớp (DT-20 phần 20b, YCTD-159; tài liệu 32 mục 11.4), tuỳ trường: Ban Giám hiệu bật ở 1.4 Cấu hình trường,
 // đặt điểm nền mỗi tuần, khai báo tiêu chí cộng hoặc trừ điểm (nạp bộ mặc định của Tiểu học được). Giáo viên trực tuần ghi
 // điểm theo lớp và ngày, ghi thay đội cờ đỏ (học sinh không có tài khoản) ở ô "Người báo". Tổng hợp, xếp hạng theo tuần, tháng,
-// học kỳ tính khi xem. Chưa bật thì chỉ đọc, sửa được cấu hình. Không dùng bảng thi đua cán bộ của 22d
+// học kỳ tính khi xem. Chưa bật thì chỉ đọc, sửa được cấu hình. Không dùng bảng thi đua cán bộ của 22d.
+// THCS, THPT (DT-21 phần 21d, YCTD-171): bộ tiêu chí mặc định của cấp; đội sao đỏ (học sinh không có tài khoản, người quản lý
+// thi đua lập danh sách) báo lỗi, giáo viên trực ghi thay và chọn sao đỏ báo; sao đỏ không chấm lớp mình. Xếp hạng cộng điểm
+// theo xếp loại tiết ở sổ đầu bài nếu cấp bật (`class_log_settings.conduct_points`)
 export const CONDUCT_RULE_CODE = 'YCTD-159';
+export const RED_STAR_RULE_CODE = 'YCTD-171';
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const CRITERION_COLUMNS = ['id', 'code', 'name', 'kind', 'points', 'school_level', 'order_no', 'status'] as const;
 const KINDS: ConductCriterionKind[] = ['plus', 'minus'];
@@ -214,7 +220,8 @@ export class ConductService {
     );
     const created: string[] = [];
     let order = 0;
-    for (const item of DEFAULT_CONDUCT_CRITERIA) {
+    const defaults = defaultConductCriteria(level);
+    for (const item of defaults) {
       order += 1;
       if (existing.has(item.code)) {
         continue;
@@ -224,7 +231,7 @@ export class ConductService {
     }
     return {
       created,
-      skipped: DEFAULT_CONDUCT_CRITERIA.map((item) => item.code).filter((code) => !created.includes(code)),
+      skipped: defaults.map((item) => item.code).filter((code) => !created.includes(code)),
     };
   }
 
@@ -248,6 +255,7 @@ export class ConductService {
       .selectFrom('conduct_entries')
       .innerJoin('classes', 'classes.id', 'conduct_entries.class_id')
       .innerJoin('conduct_criteria', 'conduct_criteria.id', 'conduct_entries.criterion_id')
+      .leftJoin('children as reporter', 'reporter.id', 'conduct_entries.reporter_child_id')
       .select([
         'conduct_entries.id',
         'conduct_entries.class_id',
@@ -260,6 +268,8 @@ export class ConductService {
         'conduct_entries.points',
         'conduct_entries.note',
         'conduct_entries.reported_by',
+        'conduct_entries.reporter_child_id',
+        'reporter.full_name as reporter_name',
         'conduct_entries.recorded_by_name',
         'conduct_entries.created_at',
       ])
@@ -284,6 +294,7 @@ export class ConductService {
       quantity: number;
       note: string | null;
       reportedBy: string | null;
+      reporterChildId?: string | null;
     },
     origin: ChangeOrigin,
   ) {
@@ -307,6 +318,9 @@ export class ConductService {
         { field: 'criterion_id', message: 'Chọn tiêu chí của cấp của lớp' },
       ]);
     }
+    if (input.reporterChildId) {
+      await this.assertRedStar(input.reporterChildId, input.classId);
+    }
     const points = (criterion.kind === 'plus' ? 1 : -1) * criterion.points * input.quantity;
     return database.transaction().execute(async (transaction) => {
       const created = await transaction
@@ -319,10 +333,21 @@ export class ConductService {
           points,
           note: input.note,
           reported_by: input.reportedBy,
+          reporter_child_id: input.reporterChildId ?? null,
           recorded_by: currentUser.id,
           recorded_by_name: currentUser.description.full_name,
         })
-        .returning(['id', 'class_id', 'criterion_id', 'entry_date', 'quantity', 'points', 'note', 'reported_by'])
+        .returning([
+          'id',
+          'class_id',
+          'criterion_id',
+          'entry_date',
+          'quantity',
+          'points',
+          'note',
+          'reported_by',
+          'reporter_child_id',
+        ])
         .executeTakeFirstOrThrow();
       await writeAuditLog(transaction, {
         origin,
@@ -437,6 +462,29 @@ export class ConductService {
             .where('entry_date', '>=', period.from)
             .where('entry_date', '<=', period.to)
             .execute();
+    // Điểm theo xếp loại tiết ở sổ đầu bài (21d): mỗi tiết đã ghi có xếp loại cộng, trừ theo cấu hình của cấp
+    const lessonPoints = (await readRatingSettings(database, filter.level)).conduct_points;
+    const lessonEntries =
+      lessonPoints && classes.length > 0
+        ? (
+            await database
+              .selectFrom('class_logs')
+              .select(['class_id', 'lesson_date', 'rating'])
+              .where(
+                'class_id',
+                'in',
+                classes.map((row) => row.class_id),
+              )
+              .where('lesson_date', '>=', period.from)
+              .where('lesson_date', '<=', period.to)
+              .where('rating', 'is not', null)
+              .execute()
+          ).map((row) => ({
+            class_id: row.class_id,
+            entry_date: row.lesson_date,
+            points: lessonPoints[row.rating as keyof typeof lessonPoints] ?? 0,
+          }))
+        : [];
     const settings = await this.settings();
     return {
       period: filter.period,
@@ -445,8 +493,117 @@ export class ConductService {
       weeks: period.weeks.length,
       base_points: settings.base_points,
       enabled: settings.enabled,
-      classes: rankClasses(classes, entries, period, settings.base_points),
+      lesson_points: lessonPoints,
+      classes: rankClasses(classes, entries, period, settings.base_points, lessonEntries),
     };
+  }
+
+  // Sao đỏ báo lỗi phải là thành viên đang hoạt động của đội và không thuộc lớp bị ghi
+  private async assertRedStar(childId: string, classId: string) {
+    const { database } = await this.currentSchoolYear.require();
+    const member = await database
+      .selectFrom('red_star_members')
+      .select('status')
+      .where('child_id', '=', childId)
+      .executeTakeFirst();
+    if (member?.status !== 'active') {
+      throw ruleViolationError(RED_STAR_RULE_CODE, 'Người báo không có trong đội sao đỏ đang hoạt động', [
+        { field: 'reporter_child_id', message: 'Chọn sao đỏ trong danh sách' },
+      ]);
+    }
+    const ownClass = await database
+      .selectFrom('class_enrollments')
+      .select('class_id')
+      .where('child_id', '=', childId)
+      .where('class_id', '=', classId)
+      .where('is_current', '=', true)
+      .executeTakeFirst();
+    if (ownClass) {
+      throw ruleViolationError(RED_STAR_RULE_CODE, 'Sao đỏ không chấm lớp mình', [
+        { field: 'reporter_child_id', message: 'Chọn sao đỏ của lớp khác' },
+      ]);
+    }
+  }
+
+  // Đội sao đỏ của cấp: học sinh, lớp, nhiệm vụ (khu vực, lớp theo dõi)
+  async redStars(level: SchoolLevelCode | undefined) {
+    const { database } = await this.currentSchoolYear.require();
+    return database
+      .selectFrom('red_star_members')
+      .innerJoin('children', 'children.id', 'red_star_members.child_id')
+      .leftJoin('class_enrollments', (join) =>
+        join
+          .onRef('class_enrollments.child_id', '=', 'red_star_members.child_id')
+          .on('class_enrollments.is_current', '=', true),
+      )
+      .leftJoin('classes', 'classes.id', 'class_enrollments.class_id')
+      .select([
+        'red_star_members.child_id',
+        'children.full_name',
+        'classes.id as class_id',
+        'classes.name as class_name',
+        'classes.school_level',
+        'red_star_members.duty',
+        'red_star_members.status',
+        'red_star_members.updated_by_name',
+        'red_star_members.updated_at',
+      ])
+      .$if(level !== undefined, (query) => query.where('classes.school_level', '=', level ?? 'THCS'))
+      .orderBy('classes.name')
+      .orderBy('children.full_name')
+      .execute();
+  }
+
+  async saveRedStar(
+    currentUser: CurrentUser,
+    input: { childId: string; duty: string | null; status: 'active' | 'inactive' },
+    origin: ChangeOrigin,
+  ) {
+    const { database } = await this.currentSchoolYear.require();
+    const enrolled = await database
+      .selectFrom('class_enrollments')
+      .innerJoin('classes', 'classes.id', 'class_enrollments.class_id')
+      .innerJoin('children', 'children.id', 'class_enrollments.child_id')
+      .select(['classes.school_level', 'classes.org_unit_id', 'children.status'])
+      .where('class_enrollments.child_id', '=', input.childId)
+      .where('class_enrollments.is_current', '=', true)
+      .executeTakeFirst();
+    if (!enrolled || enrolled.status !== 'active') {
+      throw notFoundError('Không tìm thấy học sinh đang học', 'child');
+    }
+    if (enrolled.school_level !== 'THCS' && enrolled.school_level !== 'THPT') {
+      throw ruleViolationError(RED_STAR_RULE_CODE, 'Đội sao đỏ gồm học sinh THCS, THPT');
+    }
+    await this.organizationScopes.assertCanAccess(currentUser, PERMISSION_CODES.conductManage, enrolled.org_unit_id);
+    return database.transaction().execute(async (transaction) => {
+      const before = await transaction
+        .selectFrom('red_star_members')
+        .selectAll()
+        .where('child_id', '=', input.childId)
+        .executeTakeFirst();
+      const values = {
+        duty: input.duty,
+        status: input.status,
+        updated_by_name: currentUser.description.full_name,
+        updated_at: this.clock.now(),
+      };
+      const saved = await transaction
+        .insertInto('red_star_members')
+        .values({ child_id: input.childId, ...values })
+        .onConflict((conflict) => conflict.column('child_id').doUpdateSet(values))
+        .returningAll()
+        .executeTakeFirstOrThrow();
+      await writeAuditLog(transaction, {
+        origin,
+        orgUnitId: enrolled.org_unit_id,
+        entityName: 'red_star_members',
+        entityId: input.childId,
+        action: before ? 'update' : 'create',
+        before: before ?? null,
+        after: saved,
+      });
+      return saved;
+    });
   }
 }
 
@@ -580,6 +737,7 @@ export class ConductController {
       quantity: readInteger(body, 'quantity', errors, { min: 1, max: 50 }) ?? 1,
       note: readOptionalText(body, 'note', errors) ?? null,
       reportedBy: readOptionalText(body, 'reported_by', errors) ?? null,
+      reporterChildId: readOptionalUuid(body, 'reporter_child_id', errors) ?? null,
     };
     if (errors.length > 0) {
       throw validationError(errors);
@@ -595,6 +753,37 @@ export class ConductController {
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
     return this.conduct.remove(currentUser, entryId, originOf(request, currentUser));
+  }
+
+  @Get('red-stars')
+  @RequirePermission(PERMISSION_CODES.conductRecord)
+  redStars(@Query('school_level') level: string | undefined) {
+    const errors: FieldError[] = [];
+    const parsed = readSchoolLevel({ school_level: level }, 'school_level', errors);
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.conduct.redStars(parsed);
+  }
+
+  @Put('red-stars/:childId')
+  @RequirePermission(PERMISSION_CODES.conductManage)
+  saveRedStar(
+    @Param('childId', uuidParameter('Mã học sinh không hợp lệ')) childId: string,
+    @Body() body: RequestBody,
+    @Req() request: Request,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const errors: FieldError[] = [];
+    const duty = readOptionalText(body, 'duty', errors) ?? null;
+    if (duty && duty.length > 200) {
+      errors.push({ field: 'duty', message: 'Tối đa 200 ký tự' });
+    }
+    const status = readStatus(body, errors) ?? 'active';
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.conduct.saveRedStar(currentUser, { childId, duty, status }, originOf(request, currentUser));
   }
 
   @Get('ranking')

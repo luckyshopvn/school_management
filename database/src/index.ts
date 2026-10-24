@@ -315,6 +315,8 @@ export type {
   TimetableSource,
   ClassLogStatus,
   PeriodAttendanceStatus,
+  LessonRatingMode,
+  LessonRatingCode,
   StaffCertificateKind,
   TrainingOrganizerKind,
   TrainingMode,

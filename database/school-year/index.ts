@@ -83,6 +83,7 @@ import { migration as createTimetableGenerator } from './migrations/0082_create_
 import { migration as createSecondaryFoundation } from './migrations/0084_create_secondary_foundation.js';
 import { migration as addTimetableGroups } from './migrations/0086_add_timetable_groups.js';
 import { migration as createScores } from './migrations/0087_create_scores.js';
+import { migration as createSecondaryClassRecords } from './migrations/0088_create_secondary_class_records.js';
 import { migration as createExamGrading } from './migrations/0090_create_exam_grading.js';
 import { migration as createQuestionBankAndExams } from './migrations/0085_create_question_bank_and_exams.js';
 import { migration as createTrainingRecords } from './migrations/0101_create_training_records.js';
@@ -175,6 +176,7 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0084_create_secondary_foundation': createSecondaryFoundation,
   '0086_add_timetable_groups': addTimetableGroups,
   '0087_create_scores': createScores,
+  '0088_create_secondary_class_records': createSecondaryClassRecords,
   '0090_create_exam_grading': createExamGrading,
   '0085_create_question_bank_and_exams': createQuestionBankAndExams,
   '0101_create_training_records': createTrainingRecords,

@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.114
+- Phiên bản: 1.115
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -35,7 +35,7 @@
 | period_slots | Khung giờ tiết học theo năm học và cấp, cơ sở dữ liệu hệ thống (P02-39, BR-170; YCTD-160, tệp hệ thống `0026_create_period_slots`) | academic_year_id, school_level, period_no (1 đến 15), session (`morning`, `afternoon`), start_time, end_time (HH:MM, kết thúc sau bắt đầu), created_at, created_by; duy nhất theo năm học, cấp, tiết |
 | training_settings | Thiết lập bồi dưỡng một dòng, cơ sở dữ liệu hệ thống (P09-49, BR-186; YCTD-182, tệp hệ thống `0041_create_training_catalogs`) | id (luôn 1), annual_required_periods (mặc định 120), competency_gap_level (mặc định 2), certificate_issuer, legal_basis, updated_at, updated_by |
 | training_topics | Chuyên đề bồi dưỡng (P09-49; YCTD-182) | code (duy nhất), name, program_no (1 đến 3), default_periods, competency_domain_code, order_no, status (`active`, `inactive`), created_at |
-| resource_types | Loại học liệu, cơ sở dữ liệu hệ thống (P09-55, BR-192; YCTD-183, tệp hệ thống `0042_create_learning_resources`) | code (duy nhất), name, requires_school_review, order_no, status, created_at; mặc định 8 loại |
+| resource_types | Loại học liệu, cơ sở dữ liệu hệ thống (P09-55, BR-195; YCTD-183, tệp hệ thống `0042_create_learning_resources`) | code (duy nhất), name, requires_school_review, order_no, status, created_at; mặc định 8 loại |
 | resource_licenses | Giấy phép học liệu (P09-51, P09-55; YCTD-183) | code (duy nhất), name, blocked, private_only, requires_grant_source, order_no, status, created_at; mặc định 10 giấy phép |
 | resource_topics | Chủ đề học liệu theo môn, khối (P09-50, P09-55; YCTD-183) | subject_code, grade_level_code, name, order_no, status, created_by, created_at |
 | learning_resources | Học liệu (P09-50 đến P09-52; YCTD-183) | title, description, type_id (khóa ngoại), school_level, grade_level_code, subject_code, subject_name, topic_id, week_no, keywords (mảng), author_name, language, duration_minutes, license_id, license_source, origin, responsible_name, license_expires_on, visibility (`private`, `unit`, `school`, `network` chưa bật), status (`draft`, `pending_unit`, `pending_school`, `published`, `returned`, `hidden`, `retired`), needs_school_review, owner_user_id, owner_name, department_id, department_name, current_version, published_version, submitted_at, published_at, return_note, thời điểm |
@@ -259,6 +259,10 @@ Ràng buộc duy nhất: `attendance_records` trên bộ đôi trẻ, ngày; `ab
 | conduct_settings (từ YCTD-159) | Cấu hình nề nếp của trường (một dòng) | id = 1, enabled (mặc định chưa bật), base_points (mặc định 100), updated_by_name, updated_at; chuyển sang năm học mới |
 | conduct_criteria (từ YCTD-159) | Tiêu chí nề nếp | id (giữ khi chuyển năm), code (duy nhất), name, kind (`plus`, `minus`), points (1 đến 100), school_level (mặc định TH), order_no, status |
 | conduct_entries (từ YCTD-159) | Điểm nề nếp đã ghi | id, class_id, criterion_id, entry_date, quantity, points (có dấu), note, reported_by (đội cờ đỏ), recorded_by, recorded_by_name, created_at |
+| class_log_settings (từ YCTD-171) | Quy tắc xếp loại tiết ở sổ đầu bài theo cấp (tệp năm học `0088`) | school_level (khóa chính, `TH`, `THCS`, `THPT`), rating_mode (`off`, `optional`, `required`), rating_labels (JSON A đến D), low_rating_comment, conduct_points (JSON A đến D hoặc trống), updated_by_name, updated_at; `class_logs` thêm group_no (0 là cả lớp, khoá duy nhất lớp, ngày, tiết, nhóm) |
+| seating_charts (từ YCTD-171) | Bản sơ đồ chỗ ngồi của lớp theo ngày áp dụng | id, class_id, subject_id (trống là cả lớp), effective_from, desk_columns, desk_rows, seats_per_desk, note, updated_by, updated_by_name; duy nhất theo lớp, môn, ngày áp dụng |
+| seating_assignments (từ YCTD-171) | Chỗ của học sinh trong bản sơ đồ | chart_id, child_id (khóa chính cùng chart_id), column_no, row_no, seat_no (duy nhất trong bản) |
+| red_star_members (từ YCTD-171) | Đội sao đỏ (học sinh không có tài khoản) | child_id (khóa chính), status, duty, updated_by_name, updated_at; `conduct_entries` thêm reporter_child_id (sao đỏ báo) |
 | assessment_levels (từ YCTD-161) | Mức đạt theo cấp, thang (tệp năm học `0079`) | id, school_level, scale (`subject`, `competency`), code, name, rank (1 là cao nhất; duy nhất theo cấp, thang) |
 | competency_items (từ YCTD-161) | Phẩm chất, năng lực theo cấp | id, school_level, group_code (`quality`, `general`, `specific`), code (duy nhất theo cấp), name, order_no, status |
 | assessment_periods (từ YCTD-161) | Kỳ đánh giá định kỳ | id, school_level, code, name, term_type, kind (`mid`, `end`), is_year_end, order_no, entry_deadline (trống là cuối học kỳ) |

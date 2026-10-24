@@ -31,6 +31,7 @@ export * from './emulation.js';
 export * from './quality-assurance.js';
 export * from './school-levels.js';
 export * from './level-structure.js';
+export * from './class-records.js';
 export * from './training.js';
 export * from './learning-resources.js';
 
@@ -269,6 +270,9 @@ export const PERMISSION_CODES = {
   timetableManage: 'P02.timetable.manage',
   // Kiểm tra, ký sổ đầu bài theo tuần (DT-20 phần 20d)
   classLogReview: 'P02.class-log.review',
+  // Sơ đồ chỗ ngồi mọi lớp, quy tắc xếp loại tiết theo cấp (DT-21 phần 21d)
+  seatingManage: 'P02.seating.manage',
+  classLogSettings: 'P02.class-log.settings',
   // Thi đua, khen thưởng (DT-18 phần 22d)
   emulationUse: 'P09.emulation.use',
   emulationManage: 'P09.emulation.manage',
@@ -651,6 +655,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/exam-matrices',
   '/assessment-plans',
   '/exams',
+  // Sơ đồ chỗ ngồi (DT-21 phần 21d)
+  '/seating-charts',
   // Chấm bài kiểm tra, báo cáo (DT-21 phần 22g2)
   '/exam-grading',
   '/exam-reports',

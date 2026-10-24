@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Injectable, Param, Post, Put, Query, Req } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Injectable, Param, Post, Put, Query, Req, Res } from '@nestjs/common';
 import type { PeriodAttendanceStatus, SchoolYearDatabase } from '@school-management/database';
 import {
   ApplicationError,
@@ -7,15 +7,28 @@ import {
   validationError,
   type FieldError,
 } from '@school-management/server';
-import { PERMISSION_CODES, type SchoolLevelCode } from '@school-management/shared';
-import type { Request } from 'express';
+import {
+  LESSON_RATING_RULE_LABELS,
+  LESSON_RATINGS,
+  lessonRatingIssue,
+  PERMISSION_CODES,
+  type LessonRating,
+  type LessonRatingRule,
+  type LessonRatingSettings,
+  type SchoolLevelCode,
+} from '@school-management/shared';
+import type { Request, Response } from 'express';
 import type { Kysely, Transaction } from 'kysely';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
+import { readSchoolLevel } from '../catalogs/school-level-fields.js';
 import { originOf, writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { isUuid, notFoundError, readOptionalText, type RequestBody } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
+import { readTableFileFormat } from '../exports/table-file.js';
+import { buildFacilitiesWorkbook, fileStamp, sendWorkbook } from '../facilities/facilities-workbook.js';
+import { effectiveSeating } from '../seating/seating.js';
 import { TimetableChangesService } from '../timetables/timetable-changes.js';
 import { TimetablesService } from '../timetables/timetables.js';
 
@@ -24,8 +37,12 @@ import { TimetablesService } from '../timetables/timetables.js';
 // dung, nhận xét, xếp loại tiết (A đến D, tùy trường), điểm danh từng học sinh, rồi ký sổ (khoá với giáo viên); không ghi
 // trước ngày dạy; Ban giám hiệu (P02.class-log.review) ký sổ theo tuần, tuần đã ký khoá mọi tiết. Học sinh có báo vắng của
 // ngày (`absence_records`) mặc định "vắng có phép"; điểm danh theo ngày của Mầm non không đổi. Dạy thay, đổi tiết theo ngày
-// là 22c2: tiết của một ngày là tiết thực tế sau dạy thay, đổi tiết (người dạy thực tế ghi sổ, YCTD-164)
+// là 22c2: tiết của một ngày là tiết thực tế sau dạy thay, đổi tiết (người dạy thực tế ghi sổ, YCTD-164).
+// THCS, THPT (DT-21 phần 21d, YCTD-171): tiết nhóm của 21b ghi sổ riêng từng nhóm, danh sách điểm danh là học sinh có môn của
+// tiết trong tổ hợp đang hiệu lực (lớp chưa ai đăng ký tổ hợp thì cả lớp); quy tắc xếp loại tiết theo cấp
+// (`class_log_settings`); chi tiết tiết kèm sơ đồ chỗ ngồi đang áp dụng; xuất sổ đầu bài tuần ra Excel, PDF
 export const CLASS_LOG_RULE_CODE = 'YCTD-162';
+export const SECONDARY_CLASS_LOG_RULE_CODE = 'YCTD-171';
 type Executor = Kysely<SchoolYearDatabase> | Transaction<SchoolYearDatabase>;
 
 const STATUSES: PeriodAttendanceStatus[] = ['present', 'late', 'absent_excused', 'absent_unexcused'];
@@ -36,11 +53,41 @@ export interface ClassLogInput {
   class_id: string;
   lesson_date: string;
   period_no: number;
+  group_no: number;
   lesson_title: string;
   content: string | null;
   comment: string | null;
   rating: string | null;
   attendance: Array<{ child_id: string; status: PeriodAttendanceStatus; note: string | null }>;
+}
+
+const DEFAULT_RATING_SETTINGS: LessonRatingSettings = {
+  rating_mode: 'optional',
+  rating_labels: { A: 'Tốt', B: 'Khá', C: 'Trung bình', D: 'Chưa đạt' },
+  low_rating_comment: false,
+  conduct_points: null,
+};
+
+// Quy tắc xếp loại tiết của cấp; cấp chưa có dòng (Mầm non) theo mặc định của 20d
+export async function readRatingSettings(database: Executor, level: SchoolLevelCode): Promise<LessonRatingSettings> {
+  const row = await database
+    .selectFrom('class_log_settings')
+    .select(['rating_mode', 'rating_labels', 'low_rating_comment', 'conduct_points'])
+    .where('school_level', '=', level)
+    .executeTakeFirst();
+  return row ?? DEFAULT_RATING_SETTINGS;
+}
+
+function readGroupNo(value: unknown, errors: FieldError[]): number {
+  if (value === undefined || value === null || value === '') {
+    return 0;
+  }
+  const number = typeof value === 'string' ? Number(value) : value;
+  if (typeof number !== 'number' || !Number.isInteger(number) || number < 0 || number > 9) {
+    errors.push({ field: 'group_no', message: 'Nhóm là số nguyên từ 0 (cả lớp) đến 9' });
+    return 0;
+  }
+  return number;
 }
 
 // Thứ theo ISO (1 là thứ Hai) của một ngày YYYY-MM-DD
@@ -78,6 +125,7 @@ export function parseClassLogInput(body: RequestBody): ClassLogInput {
   if (typeof period !== 'number' || !Number.isInteger(period) || period < 1 || period > 15) {
     errors.push({ field: 'period_no', message: 'Tiết là số nguyên từ 1 đến 15' });
   }
+  const groupNo = readGroupNo(body?.group_no, errors);
   const title = typeof body?.lesson_title === 'string' ? body.lesson_title.trim() : '';
   if (title === '' || title.length > 300) {
     errors.push({ field: 'lesson_title', message: 'Tên bài từ 1 đến 300 ký tự' });
@@ -124,6 +172,7 @@ export function parseClassLogInput(body: RequestBody): ClassLogInput {
     class_id: body?.class_id as string,
     lesson_date: body?.lesson_date as string,
     period_no: period as number,
+    group_no: groupNo,
     lesson_title: title,
     content,
     comment,
@@ -137,6 +186,7 @@ const LOG_COLUMNS = [
   'class_id',
   'lesson_date',
   'period_no',
+  'group_no',
   'subject_id',
   'timetable_lesson_id',
   'teacher_user_id',
@@ -237,21 +287,28 @@ export class ClassLogsService {
     for (const day of dates) {
       const planned = await this.plannedLessons(database, classRow.school_level as SchoolLevelCode, classId, day);
       const dayLogs = logs.filter((log) => log.lesson_date === day);
-      const periods = [
-        ...new Set([...planned.map((lesson) => lesson.period_no), ...dayLogs.map((log) => log.period_no)]),
-      ].sort((left, right) => left - right);
-      if (periods.length === 0) {
+      // Mỗi tiết, mỗi nhóm học (21b) một dòng
+      const slots = [
+        ...new Set([
+          ...planned.map((lesson) => `${lesson.period_no}:${lesson.group_no}`),
+          ...dayLogs.map((log) => `${log.period_no}:${log.group_no}`),
+        ]),
+      ]
+        .map((key) => key.split(':').map(Number) as [number, number])
+        .sort((left, right) => left[0] - right[0] || left[1] - right[1]);
+      if (slots.length === 0) {
         continue;
       }
       days.push({
         date: day,
         weekday: isoWeekday(day),
-        lessons: periods.map((period) => {
-          const lesson = planned.find((item) => item.period_no === period);
-          const log = dayLogs.find((item) => item.period_no === period);
+        lessons: slots.map(([period, group]) => {
+          const lesson = planned.find((item) => item.period_no === period && item.group_no === group);
+          const log = dayLogs.find((item) => item.period_no === period && item.group_no === group);
           const logAbsences = log ? absences.filter((row) => row.class_log_id === log.id) : [];
           return {
             period_no: period,
+            group_no: group,
             subject_id: log?.subject_id ?? lesson?.subject_id ?? null,
             subject_name: log?.subject_name ?? lesson?.subject_name ?? null,
             teacher_user_id: log?.teacher_user_id ?? lesson?.teacher_user_id ?? null,
@@ -280,7 +337,7 @@ export class ClassLogsService {
     const logs = lessons.length
       ? await database
           .selectFrom('class_logs')
-          .select(['id', 'class_id', 'period_no', 'status', 'lesson_title'])
+          .select(['id', 'class_id', 'period_no', 'group_no', 'status', 'lesson_title'])
           .where('lesson_date', '=', date)
           .where(
             'class_id',
@@ -295,20 +352,64 @@ export class ClassLogsService {
         class_id: lesson.class_id,
         class_name: lesson.class_name,
         period_no: lesson.period_no,
+        group_no: lesson.group_no,
         subject_name: lesson.subject_name,
-        log: logs.find((log) => log.class_id === lesson.class_id && log.period_no === lesson.period_no) ?? null,
+        log:
+          logs.find(
+            (log) =>
+              log.class_id === lesson.class_id &&
+              log.period_no === lesson.period_no &&
+              log.group_no === lesson.group_no,
+          ) ?? null,
       })),
     };
   }
 
   // Một tiết: thông tin theo thời khoá biểu, tiết đã ghi và danh sách học sinh kèm điểm danh (chưa ghi thì có mặt, có báo
   // vắng của ngày thì vắng có phép)
-  async detail(currentUser: CurrentUser, classId: string, date: string, periodNo: number) {
+  // Học sinh của tiết nhóm: có môn của tiết trong tổ hợp đang hiệu lực (tổ hợp đã duyệt, hoặc tổ hợp cũ khi đổi tổ hợp còn chờ
+  // duyệt, như thời khoá biểu của con ở 21b). Trống là lớp chưa ai đăng ký tổ hợp có môn đó: điểm danh cả lớp
+  private async groupMembers(database: Executor, classId: string, subjectId: string): Promise<Set<string> | null> {
+    const rows = await database
+      .selectFrom('class_enrollments')
+      .innerJoin('child_subject_combinations', 'child_subject_combinations.child_id', 'class_enrollments.child_id')
+      .innerJoin('subject_combination_subjects', (join) =>
+        join
+          .on('subject_combination_subjects.subject_id', '=', subjectId)
+          .on((expression) =>
+            expression.or([
+              expression.and([
+                expression('child_subject_combinations.status', '=', 'approved'),
+                expression(
+                  'subject_combination_subjects.combination_id',
+                  '=',
+                  expression.ref('child_subject_combinations.combination_id'),
+                ),
+              ]),
+              expression.and([
+                expression('child_subject_combinations.status', '!=', 'approved'),
+                expression(
+                  'subject_combination_subjects.combination_id',
+                  '=',
+                  expression.ref('child_subject_combinations.previous_combination_id'),
+                ),
+              ]),
+            ]),
+          ),
+      )
+      .select('class_enrollments.child_id')
+      .where('class_enrollments.class_id', '=', classId)
+      .where('class_enrollments.is_current', '=', true)
+      .execute();
+    return rows.length > 0 ? new Set(rows.map((row) => row.child_id)) : null;
+  }
+
+  async detail(currentUser: CurrentUser, classId: string, date: string, periodNo: number, groupNo = 0) {
     const { database } = await this.currentSchoolYear.require();
     const classRow = await this.findClass(database, classId);
     await this.assertCanView(database, currentUser, classId);
     const lesson = (await this.plannedLessons(database, classRow.school_level as SchoolLevelCode, classId, date)).find(
-      (item) => item.period_no === periodNo,
+      (item) => item.period_no === periodNo && item.group_no === groupNo,
     );
     const log = await database
       .selectFrom('class_logs')
@@ -316,11 +417,14 @@ export class ClassLogsService {
       .where('class_id', '=', classId)
       .where('lesson_date', '=', date)
       .where('period_no', '=', periodNo)
+      .where('group_no', '=', groupNo)
       .executeTakeFirst();
     if (!lesson && !log) {
       throw notFoundError('Lớp không có tiết này theo thời khoá biểu đang áp dụng', 'class_log');
     }
-    const students = await database
+    const subjectId = log?.subject_id ?? (lesson?.subject_id as string);
+    const members = groupNo > 0 ? await this.groupMembers(database, classId, subjectId) : null;
+    const allStudents = await database
       .selectFrom('class_enrollments')
       .innerJoin('children', 'children.id', 'class_enrollments.child_id')
       .leftJoin('absence_records', (join) =>
@@ -344,16 +448,25 @@ export class ClassLogsService {
           .where('class_log_id', '=', log.id)
           .execute()
       : [];
+    const students = allStudents.filter(
+      (student) => !members || members.has(student.id) || marks.some((mark) => mark.child_id === student.id),
+    );
     const review = await this.review(database, classId, weekStartOf(date));
+    const seating = await effectiveSeating(database, classId, subjectId, date);
     return {
       class: classRow,
       lesson_date: date,
       period_no: periodNo,
+      group_no: groupNo,
+      // Tiết nhóm mà lớp chưa ai đăng ký tổ hợp có môn: danh sách là cả lớp
+      group_filtered: members !== null,
       subject_name: lesson?.subject_name ?? null,
       teacher_name: log?.teacher_name ?? lesson?.teacher_name ?? null,
       log: log ?? null,
       week_signed: Boolean(review),
       can_edit: this.canEdit(currentUser, log, lesson?.teacher_user_id ?? null, Boolean(review)),
+      rating: await readRatingSettings(database, classRow.school_level as SchoolLevelCode),
+      seating,
       students: students.map((student) => {
         const mark = marks.find((item) => item.child_id === student.id);
         return {
@@ -385,16 +498,25 @@ export class ClassLogsService {
     }
     const lesson = (
       await this.plannedLessons(database, classRow.school_level as SchoolLevelCode, input.class_id, input.lesson_date)
-    ).find((item) => item.period_no === input.period_no);
+    ).find((item) => item.period_no === input.period_no && item.group_no === input.group_no);
     const existing = await database
       .selectFrom('class_logs')
       .select(LOG_COLUMNS)
       .where('class_id', '=', input.class_id)
       .where('lesson_date', '=', input.lesson_date)
       .where('period_no', '=', input.period_no)
+      .where('group_no', '=', input.group_no)
       .executeTakeFirst();
     if (!lesson && !existing) {
       throw ruleViolationError(CLASS_LOG_RULE_CODE, 'Lớp không có tiết này theo thời khoá biểu đang áp dụng');
+    }
+    const ratingIssue = lessonRatingIssue(
+      await readRatingSettings(database, classRow.school_level as SchoolLevelCode),
+      input,
+      false,
+    );
+    if (ratingIssue) {
+      throw ruleViolationError(SECONDARY_CLASS_LOG_RULE_CODE, ratingIssue);
     }
     const weekSigned = Boolean(await this.review(database, input.class_id, weekStartOf(input.lesson_date)));
     if (weekSigned) {
@@ -443,6 +565,7 @@ export class ClassLogsService {
               class_id: input.class_id,
               lesson_date: input.lesson_date,
               period_no: input.period_no,
+              group_no: input.group_no,
               subject_id: lesson?.subject_id as string,
               timetable_lesson_id: lesson?.id ?? null,
               teacher_user_id: currentUser.id,
@@ -482,6 +605,15 @@ export class ClassLogsService {
     }
     if (log.status === 'signed') {
       throw ruleViolationError(CLASS_LOG_RULE_CODE, 'Tiết đã ký sổ');
+    }
+    const classRow = await this.findClass(database, log.class_id);
+    const ratingIssue = lessonRatingIssue(
+      await readRatingSettings(database, classRow.school_level as SchoolLevelCode),
+      log,
+      true,
+    );
+    if (ratingIssue) {
+      throw ruleViolationError(SECONDARY_CLASS_LOG_RULE_CODE, ratingIssue);
     }
     return database.transaction().execute(async (transaction) => {
       const signed = await transaction
@@ -658,6 +790,172 @@ export class ClassLogsService {
     );
     return { month, counts, records: rows.filter((row) => row.status !== 'present') };
   }
+
+  // Quy tắc xếp loại tiết của các cấp phổ thông (21d)
+  async settings() {
+    const { database } = await this.currentSchoolYear.require();
+    return database
+      .selectFrom('class_log_settings')
+      .select([
+        'school_level',
+        'rating_mode',
+        'rating_labels',
+        'low_rating_comment',
+        'conduct_points',
+        'updated_by_name',
+        'updated_at',
+      ])
+      .orderBy('school_level')
+      .execute();
+  }
+
+  async saveSettings(
+    currentUser: CurrentUser,
+    level: SchoolLevelCode,
+    input: LessonRatingSettings,
+    origin: ChangeOrigin,
+  ) {
+    const { database } = await this.currentSchoolYear.require();
+    return database.transaction().execute(async (transaction) => {
+      const before = await transaction
+        .selectFrom('class_log_settings')
+        .selectAll()
+        .where('school_level', '=', level)
+        .executeTakeFirst();
+      const values = {
+        rating_mode: input.rating_mode,
+        rating_labels: JSON.stringify(input.rating_labels),
+        low_rating_comment: input.low_rating_comment,
+        conduct_points: input.conduct_points ? JSON.stringify(input.conduct_points) : null,
+        updated_by_name: currentUser.description.full_name,
+        updated_at: this.clock.now(),
+      };
+      const saved = await transaction
+        .insertInto('class_log_settings')
+        .values({ school_level: level, ...values })
+        .onConflict((conflict) => conflict.column('school_level').doUpdateSet(values))
+        .returningAll()
+        .executeTakeFirstOrThrow();
+      await writeAuditLog(transaction, {
+        origin,
+        orgUnitId: null,
+        entityName: 'class_log_settings',
+        entityId: '00000000-0000-0000-0000-000000000001',
+        action: before ? 'update' : 'create',
+        before: before ?? null,
+        after: saved,
+      });
+      return saved;
+    });
+  }
+
+  // Sổ đầu bài một tuần của lớp ra Excel, PDF: mỗi tiết, mỗi nhóm một dòng; ghi nhật ký xuất như các báo cáo khác
+  async exportWeek(currentUser: CurrentUser, classId: string, date: string, format: 'xlsx' | 'pdf', ip: string | null) {
+    const week = await this.week(currentUser, classId, date);
+    const { database } = await this.currentSchoolYear.require();
+    const settings = await readRatingSettings(database, week.class.school_level as SchoolLevelCode);
+    const logs = week.days.flatMap((day) => day.lessons.map((lesson) => ({ day, lesson })));
+    const now = this.clock.now();
+    const dateText = (value: string) => value.split('-').reverse().join('/');
+    return buildFacilitiesWorkbook({
+      database,
+      currentUser,
+      reportCode: 'class-log-week',
+      fileName: `so-dau-bai-${week.week_start}-${fileStamp(now)}`,
+      filters: { class_id: classId, week_start: week.week_start },
+      orgUnitIds: [week.class.org_unit_id],
+      sheets: [
+        {
+          title: 'Sổ đầu bài',
+          heading: [
+            `Sổ đầu bài ${week.class.name}, tuần từ ${dateText(week.week_start)}`,
+            week.review
+              ? `Ban giám hiệu ký: ${week.review.reviewer_name}${week.review.comment ? `. ${week.review.comment}` : ''}`
+              : 'Ban giám hiệu chưa ký sổ tuần này',
+          ],
+          columns: [
+            { key: 'date', label: 'Ngày', width: 12 },
+            { key: 'period', label: 'Tiết', width: 6 },
+            { key: 'subject', label: 'Môn', width: 18 },
+            { key: 'title', label: 'Tên bài', width: 32 },
+            { key: 'absent', label: 'Vắng', width: 7 },
+            { key: 'late', label: 'Muộn', width: 7 },
+            { key: 'comment', label: 'Nhận xét', width: 30 },
+            { key: 'rating', label: 'Xếp loại', width: 12 },
+            { key: 'teacher', label: 'Giáo viên', width: 20 },
+            { key: 'status', label: 'Ký', width: 10 },
+          ],
+          rows: logs.map(({ day, lesson }) => ({
+            date: dateText(day.date),
+            period: lesson.group_no > 0 ? `${lesson.period_no} (N${lesson.group_no})` : lesson.period_no,
+            subject: lesson.subject_name ?? '',
+            title: lesson.log?.lesson_title ?? 'Chưa ghi',
+            absent: lesson.log ? lesson.absent_count : '',
+            late: lesson.log ? lesson.late_count : '',
+            comment: lesson.log?.comment ?? '',
+            rating: lesson.log?.rating
+              ? `${lesson.log.rating} (${settings.rating_labels[lesson.log.rating as LessonRating]})`
+              : '',
+            teacher: lesson.teacher_name ?? '',
+            status: lesson.log?.status === 'signed' ? 'Đã ký' : '',
+          })),
+        },
+      ],
+      ipAddress: ip,
+      createdAt: now,
+      format,
+    });
+  }
+}
+
+export function parseRatingSettings(body: RequestBody): { level: SchoolLevelCode; settings: LessonRatingSettings } {
+  const errors: FieldError[] = [];
+  const level = readSchoolLevel(body, 'school_level', errors);
+  if (!level || level === 'MN') {
+    errors.push({ field: 'school_level', message: 'Cấp học là TH, THCS hoặc THPT' });
+  }
+  const mode = body?.rating_mode as LessonRatingRule;
+  if (!(mode in LESSON_RATING_RULE_LABELS)) {
+    errors.push({ field: 'rating_mode', message: 'Quy tắc là off, optional hoặc required' });
+  }
+  const rawLabels = (
+    typeof body?.rating_labels === 'object' && body.rating_labels !== null ? body.rating_labels : {}
+  ) as Record<string, unknown> | undefined;
+  const labels = {} as Record<LessonRating, string>;
+  for (const code of LESSON_RATINGS) {
+    const text = typeof rawLabels?.[code] === 'string' ? (rawLabels[code] as string).trim() : '';
+    if (text === '' || text.length > 50) {
+      errors.push({ field: `rating_labels.${code}`, message: 'Nhãn xếp loại từ 1 đến 50 ký tự' });
+    }
+    labels[code] = text;
+  }
+  let points: Record<LessonRating, number> | null = null;
+  if (body?.conduct_points !== undefined && body.conduct_points !== null) {
+    const raw = (typeof body.conduct_points === 'object' ? body.conduct_points : {}) as Record<string, unknown>;
+    points = {} as Record<LessonRating, number>;
+    for (const code of LESSON_RATINGS) {
+      const value = raw[code];
+      if (typeof value !== 'number' || !Number.isInteger(value) || value < -20 || value > 20) {
+        errors.push({ field: `conduct_points.${code}`, message: 'Điểm thi đua mỗi tiết là số nguyên từ -20 đến 20' });
+      }
+      points[code] = value as number;
+    }
+  }
+  if (typeof body?.low_rating_comment !== 'boolean') {
+    errors.push({ field: 'low_rating_comment', message: 'Bắt buộc chọn có hoặc không' });
+  }
+  if (errors.length > 0) {
+    throw validationError(errors);
+  }
+  return {
+    level: level as SchoolLevelCode,
+    settings: {
+      rating_mode: mode,
+      rating_labels: labels,
+      low_rating_comment: body?.low_rating_comment as boolean,
+      conduct_points: points,
+    },
+  };
 }
 
 function readDateQuery(value: unknown, field: string, fallback?: string): string {
@@ -684,6 +982,41 @@ export class ClassLogsController {
     return this.classLogs.week(currentUser, query.class_id, readDateQuery(query.date, 'date', todayInVietnam()));
   }
 
+  @Get('week/export')
+  async exportWeek(
+    @Query() query: Record<string, string | undefined>,
+    @Req() request: Request,
+    @AuthenticatedUser() currentUser: CurrentUser,
+    @Res() response: Response,
+  ) {
+    const format = readTableFileFormat(query.format ?? 'xlsx');
+    if (!isUuid(query.class_id) || !format) {
+      throw validationError([{ field: 'class_id', message: 'Bắt buộc chọn lớp; định dạng là xlsx hoặc pdf' }]);
+    }
+    sendWorkbook(
+      response,
+      await this.classLogs.exportWeek(
+        currentUser,
+        query.class_id,
+        readDateQuery(query.date, 'date', todayInVietnam()),
+        format,
+        request.ip ?? null,
+      ),
+    );
+  }
+
+  @Get('settings')
+  settings() {
+    return this.classLogs.settings();
+  }
+
+  @Put('settings')
+  @RequirePermission(PERMISSION_CODES.classLogSettings)
+  saveSettings(@Body() body: RequestBody, @Req() request: Request, @AuthenticatedUser() currentUser: CurrentUser) {
+    const { level, settings } = parseRatingSettings(body);
+    return this.classLogs.saveSettings(currentUser, level, settings, originOf(request, currentUser));
+  }
+
   @Get('mine')
   mine(@Query('date') date: string | undefined, @AuthenticatedUser() currentUser: CurrentUser) {
     return this.classLogs.mine(currentUser, readDateQuery(date, 'date', todayInVietnam()));
@@ -695,7 +1028,12 @@ export class ClassLogsController {
     if (!isUuid(query.class_id) || !Number.isInteger(period) || period < 1 || period > 15) {
       throw validationError([{ field: 'period_no', message: 'Bắt buộc chọn lớp và tiết' }]);
     }
-    return this.classLogs.detail(currentUser, query.class_id, readDateQuery(query.date, 'date'), period);
+    const errors: FieldError[] = [];
+    const group = readGroupNo(query.group_no, errors);
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.classLogs.detail(currentUser, query.class_id, readDateQuery(query.date, 'date'), period, group);
   }
 
   @Put()

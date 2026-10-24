@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.118
+- Phiên bản: 1.119
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -901,6 +901,11 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | PUT | /api/v1/class-logs | Ghi tiết và điểm danh theo tiết (P02-45) |
 | POST | /api/v1/class-logs/{id}/sign | Giáo viên ký tiết (P02-45) |
 | POST | /api/v1/class-logs/reviews | Ban giám hiệu ký sổ tuần (cần `P02.class-log.review`) (P02-46) |
+| GET, PUT | /api/v1/class-logs/lesson, /class-logs (từ YCTD-171) | Thêm `group_no` (0 đến 9, mặc định 0); chi tiết trả `group_filtered`, `rating` (quy tắc của cấp), `seating` (sơ đồ đang dùng); vi phạm quy tắc xếp loại trả 422 mã YCTD-171 |
+| GET, PUT | /api/v1/class-logs/settings (từ YCTD-171) | Quy tắc xếp loại tiết theo cấp (`school_level`, `rating_mode`, `rating_labels`, `low_rating_comment`, `conduct_points`); sửa cần `P02.class-log.settings` |
+| GET | /api/v1/class-logs/week/export (từ YCTD-171) | Xuất sổ đầu bài tuần của lớp (`class_id`, `date`, `format` = `xlsx`, `pdf`), ghi nhật ký xuất |
+| GET, POST, PUT, DELETE | /api/v1/seating-charts, /{id}, /{id}/export (từ YCTD-171) | Sơ đồ chỗ ngồi: danh sách theo lớp (`class_id`, `date`) kèm `can_manage`, `current_chart_id`, học sinh; lập (`mode` = `manual`, `by_name`, `rotate`; `from_chart_id`, `rotate` = `columns`, `rows`); sửa chỗ; xoá; in `format` = `pdf`, `xlsx` |
+| GET, PUT | /api/v1/conduct/red-stars, /red-stars/{childId} (từ YCTD-171) | Đội sao đỏ theo cấp; thêm, sửa nhiệm vụ, ngừng (`duty`, `status`) cần `P02.conduct.manage`; `POST /conduct/entries` nhận `reporter_child_id`; `/conduct/ranking` trả `lesson_points` và cột điểm tiết của lớp |
 | GET | /api/v1/period-attendance/summary | Chuyên cần theo tiết của lớp trong khoảng ngày (P02-47) |
 | GET | /api/v1/children/{id}/period-attendance | Điểm danh theo tiết của con trong tháng (P02-47) |
 | GET | /api/v1/library/settings | Thiết lập thư viện: cấp có học sinh mượn, ngày giữ chỗ, quy định mượn, phân loại, chỉ tiêu (cần `P02.library.view` hoặc `manage`) (P02-75, YCTD-181) |
@@ -1709,7 +1714,7 @@ Giao kèo kiểm tra, đánh giá phần chấm (DT-21 phần 22g2, YCTD-173, BR
 4. `POST /lock` (`P02.exam.manage`) còn học sinh chưa có bài, thiếu điểm tự luận, cần xem lại trả 422 kèm tên học sinh. `/transfer` khi chưa khoá hoặc đã chuyển trả 422; quyền, khoá, hạn theo sổ điểm 21c (403, 422 mã YCTD-170).
 
 
-Giao kèo kho học liệu số (DT-22 phần 22h1, YCTD-183, BR-192; học liệu, phiên bản, bộ sưu tập, danh mục ở cơ sở dữ liệu hệ thống, sự kiện, báo lỗi, lượt ở năm học hiện hành):
+Giao kèo kho học liệu số (DT-22 phần 22h1, YCTD-183, BR-195; học liệu, phiên bản, bộ sưu tập, danh mục ở cơ sở dữ liệu hệ thống, sự kiện, báo lỗi, lượt ở năm học hiện hành):
 
 1. `POST /learning-resources` nhận `title` (1 đến 300 ký tự), `type_id`, `school_level` (`MN`, `TH`, `THCS`, `THPT`), `grade_level_code`, `subject_code` (có trong môn của năm học), `topic_id`, `week_no` (1 đến 60), `keywords` (tối đa 30, mỗi từ 50 ký tự), `author_name`, `language`, `duration_minutes`, `license_id`, `license_source`, `origin`, `responsible_name`, `license_expires_on`, `visibility` (`private`, `unit`, `school`; `network` trả 400 "chưa bật"); trả học liệu nháp.
 2. `POST …/files` (tệp `file`, tối đa 50 MB; sai định dạng 400), `…/links` (`url` http, https), `…/lesson-plans` (`lesson_plan_id` của chính người sở hữu); chỉ người sở hữu (403), học liệu đang chờ duyệt, ẩn, ngừng dùng trả 422; trả phiên bản mới.

@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.49
+- Phiên bản: 0.50
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,17 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.123.0 – 2026-10-24
+### Phiên bản 0.124.0 – 2026-10-24
 
 - Phạm vi thay đổi: DT-22 phần 22h1, kho học liệu số phần lõi (YCTD-183).
 - Chức năng mới: phân hệ Kho học liệu; tải tệp, liên kết ngoài, tham chiếu kế hoạch bài dạy, phiên bản; metadata theo cấp, khối, môn, chủ đề; giấy phép bắt buộc; kiểm duyệt phân luồng theo rủi ro; bộ sưu tập; báo lỗi; thống kê; Việc của tôi có nguồn kho học liệu.
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp hệ thống `0042_create_learning_resources`; tệp năm học `0102_create_learning_resource_activity`; tệp định danh `0092_add_learning_resource_permissions`.
 - Thay đổi API: `/learning-resources/*`.
-- Kiểm thử: kịch bản CT-957 đến CT-963. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/learning-resources/learning-resources.test.ts` CT-22h1-1 đến CT-22h1-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa đạt (kho học liệu, system-admin-so CT-16d-3 đếm 21 phân hệ, quick-links, menu theo cấp, Việc của tôi); kiểm thử giao diện `tests/e2e/122-learning-resources.spec.ts` (CT-22h1-7) đạt; kiểm thử giao diện chạy trên máy 02, 03, 58, 122 đạt 9/9; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử: kịch bản CT-963 đến CT-969. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/learning-resources/learning-resources.test.ts` CT-22h1-1 đến CT-22h1-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa đạt 37/37 (kho học liệu, system-admin-so CT-16d-3 đếm 21 phân hệ, quick-links, menu theo cấp, Việc của tôi); kiểm thử giao diện `tests/e2e/122-learning-resources.spec.ts` (CT-22h1-7) đạt; kiểm thử giao diện chạy trên máy 01 (CT-15a-9 chọn phân hệ), 02, 03, 58, 122; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Rủi ro: không có thay đổi dữ liệu cũ.
 - Khả năng tương thích: thêm một phân hệ; các phân hệ khác không đổi.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 22h1; chạy phần quay lui của tệp hệ thống `0042`, năm học `0102`, định danh `0092` (xoá tệp học liệu ở kho tệp theo tiền tố `learning-resources/`).
+
+### Phiên bản 0.123.0 – 2026-10-25
+
+- Phạm vi thay đổi: DT-21 phần 21d, sổ đầu bài, điểm danh theo tiết THCS, THPT; sơ đồ chỗ ngồi; thi đua lớp, sao đỏ (YCTD-171).
+- Chức năng mới: tiết nhóm ở sổ đầu bài; quy tắc xếp loại tiết theo cấp; xuất sổ đầu bài tuần; sơ đồ chỗ ngồi (7.16); đội sao đỏ, sao đỏ báo lỗi, điểm tiết trong xếp hạng thi đua; 7.6, 7.7, 4.9 hiện ở THCS, THPT.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: tệp năm học `0088_create_secondary_class_records`; tệp định danh `0079_add_secondary_class_record_permissions`.
+- Thay đổi API: `/class-logs/lesson` nhận `group_no`, trả quy tắc xếp loại, sơ đồ chỗ ngồi; `PUT /class-logs` nhận `group_no`; `/class-logs/settings`, `/class-logs/week/export`; `/seating-charts`; `/conduct/red-stars`; `POST /conduct/entries` nhận `reporter_child_id`; `/conduct/ranking` trả điểm tiết.
+- Kiểm thử: kịch bản CT-957 đến CT-962. Kết quả ngày 25/10/2026: kiểm thử đơn vị `apps/api/src/class-logs/secondary-class-records.test.ts` CT-21d-1 đến CT-21d-5 đạt 5/5; kiểm thử đơn vị các gói đã sửa trên máy (database 6/6, api 1052/1052) đạt, kiểm thử đang có không sửa kỳ vọng (thêm mục 7.16 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của THCS, THPT của CT-19c-1); e2e trên máy 02, 03, 06, 08, 58, 88, 91, 97, 99 đạt; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: quy tắc, tiêu chí chưa khớp từng Sở, trường (sửa ở cấu hình).
+- Khả năng tương thích: không đổi điểm cuối cũ (tham số mới mặc định như cũ); trường chỉ có Mầm non, Tiểu học thấy như cũ (thêm khối quy tắc xếp loại tiết cho Ban Giám hiệu ở 7.6).
+- Phương án quay lui: hoàn lại commit gộp của nhánh 21d; chạy phần quay lui của tệp năm học `0088` và tệp định danh `0079`.
 
 ### Phiên bản 0.122.0 – 2026-10-24
 
