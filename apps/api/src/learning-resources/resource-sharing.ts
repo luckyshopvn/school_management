@@ -16,7 +16,6 @@ import {
   readPackage,
   RESOURCE_SHARING_RULE_CODE,
   rubricMaxScore,
-  sha256,
   topicGaps,
   type PackageItem,
   type RubricCriterion,
