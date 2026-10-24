@@ -21,6 +21,7 @@ import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { EducationPlansService } from '../education-plans/education-plans.js';
 import { EmulationCouncilService } from '../emulation/emulation-council.js';
 import { ProfessionalRecordsService } from '../professional-records/professional-records.js';
+import { TrainingService } from '../training/training.js';
 import { LEADER_ROLE, MANAGER_ROLE, TeachingAccess } from '../teaching/teaching-access.js';
 
 // Nguồn việc của Việc của tôi (DT-18 phần 18e, YCTD-142). Mỗi phân hệ cung cấp một nguồn qua giao diện chung MyWorkSource:
@@ -1162,6 +1163,52 @@ export class EmulationWorkSource extends MyWorkSource {
   }
 }
 
+// Hồ sơ bồi dưỡng giáo viên (DT-22 phần 22e): đăng ký chờ duyệt (tổ trưởng: của tổ mình; Ban Giám hiệu: mọi đăng ký chờ),
+// chứng chỉ của mình sắp hết hạn
+@Injectable()
+export class TrainingWorkSource extends MyWorkSource {
+  readonly code = 'training' as const;
+  constructor(
+    private readonly training: TrainingService,
+    private readonly clock: Clock,
+  ) {
+    super();
+  }
+
+  async collect(currentUser: CurrentUser): Promise<MyWorkItem[]> {
+    const codes = [PERMISSION_CODES.trainingUse, PERMISSION_CODES.trainingReview, PERMISSION_CODES.trainingManage];
+    if (!codes.some((code) => currentUser.hasPermission(code))) {
+      return [];
+    }
+    const now = this.clock.now();
+    const pending = await this.training.pendingWork(currentUser);
+    return [
+      ...pending.review.map((row) =>
+        item(now, {
+          source: this.code,
+          kind: row.status === 'team_approved' ? 'Đăng ký bồi dưỡng tổ đã duyệt' : 'Đăng ký bồi dưỡng chờ duyệt',
+          title: `${row.course_name} – ${row.staff_name}`,
+          detail: null,
+          link: '/training/courses',
+          deadline: row.registration_deadline,
+          received_at: row.created_at,
+        }),
+      ),
+      ...pending.expiring.map((row) =>
+        item(now, {
+          source: this.code,
+          kind: 'Chứng chỉ sắp hết hạn',
+          title: row.name,
+          detail: null,
+          link: '/training/mine',
+          deadline: row.expire_date,
+          received_at: null,
+        }),
+      ),
+    ];
+  }
+}
+
 export const MY_WORK_SOURCE_TYPES = [
   IncomingWorkSource,
   OutgoingWorkSource,
@@ -1175,4 +1222,5 @@ export const MY_WORK_SOURCE_TYPES = [
   LeaveWorkSource,
   FoodSafetyWorkSource,
   EmulationWorkSource,
+  TrainingWorkSource,
 ];
