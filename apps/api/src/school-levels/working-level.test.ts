@@ -40,6 +40,9 @@ const PRIMARY_ONLY_PATHS = [
   '/timetables',
   // Đánh giá học sinh (DT-20 phần 20c)
   '/student-assessments',
+  // Sổ đầu bài, chuyên cần theo tiết (DT-20 phần 20d)
+  '/class-logs',
+  '/period-attendance',
   // Học bạ, khen thưởng, lên lớp (DT-20 phần 20e)
   '/learning-records',
 ];

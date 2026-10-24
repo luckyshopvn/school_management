@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.75
+- Phiên bản: 1.76
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -948,6 +948,12 @@ Ca CT-105 đến CT-550 lần lượt kiểm tra AC-149 đến AC-594. CT-534 đ
 | CT-861 | P02-44 | Nhập kỳ cuối năm; tổng hợp môn Toán; gợi ý; giáo viên Toán xác nhận; chủ nhiệm xác nhận khác gợi ý | T 1, H 1; điểm 9-10: 1, 7-8: 1; An xuất sắc, Bình hoàn thành; 403; lưu cả gợi ý và kết quả | Kiểm thử đơn vị CT-20c-5 đạt ngày 23/10/2026 | Đạt |
 | CT-862 | P02-43, P02-44 | Nhận xét thường xuyên; giáo viên Toán nhận xét Tiếng Việt; phụ huynh xem trước, sau khoá kỳ cuối năm; phụ huynh khác; xác nhận sau khoá | 201; 403; 0 kỳ, 1 nhận xét; có kỳ cuối năm, điểm Toán 9, xuất sắc; 403; 422 | Kiểm thử đơn vị CT-20c-6 đạt ngày 23/10/2026 | Đạt |
 | CT-863 | P02-42 đến P02-44 | Giao diện: nạp cấu hình mặc định; giáo viên nhập Tiếng Việt giữa học kỳ I ở ứng dụng; tổng hợp, khoá; phụ huynh xem | Kỳ có bài kiểm tra Tiếng Việt; đã lưu; điểm 9-10 là 1, đã khoá; thấy mức, điểm, nhận xét | Kiểm thử giao diện `tests/e2e/90-student-assessments.spec.ts` CT-20c-7 đạt ngày 23/10/2026 | Đạt |
+| CT-864 | P02-45 | Hàm thứ theo ISO, đầu tuần; dữ liệu tiết: tên bài rỗng, tiết 16, ngày sai dạng, xếp loại E, trạng thái lạ, trùng học sinh | 1, 6, 7; thứ Hai của tuần; 400 các ca sai; tên bài cắt khoảng trắng, xếp loại rỗng thành trống | Kiểm thử tự động `apps/api/src/class-logs/class-logs.test.ts` CT-20d-1 đạt ngày 24/10/2026 | Đạt |
+| CT-865 | P02-45 | Cô dạy Tiếng Việt xem tiết thứ Hai, thứ Ba; mở tiết 1 (một học sinh có báo vắng); mở tiết 5 | Một tiết, chưa ghi; không có tiết; có mặt và vắng có phép kèm lý do; 404 | Kiểm thử tự động `apps/api/src/class-logs/class-logs.test.ts` CT-20d-2 đạt ngày 24/10/2026 | Đạt |
+| CT-866 | P02-45 | Cô dạy Toán ghi tiết 1; ghi ngày chưa đến; học sinh ngoài lớp; tiết 3 không có; ghi, ghi lại; cô khác ký; ký; sửa, ký lại | 403; 422; 400; 422; cùng một dòng, xếp loại B; 403; đã ký; 422; 422 | Kiểm thử tự động `apps/api/src/class-logs/class-logs.test.ts` CT-20d-3 đạt ngày 24/10/2026 | Đạt |
+| CT-867 | P02-46 | Nhân sự xem sổ tuần; phụ huynh xem; giáo viên ký tuần; Hiệu trưởng ký; ký lại; ghi tiết 2 sau khi ký | Tiết 1 đã ký 1 vắng 1 muộn, tiết 2 chưa ghi; 403; 403; 201, 2 tiết, 1 chưa ký; 422; 422 | Kiểm thử tự động `apps/api/src/class-logs/class-logs.test.ts` CT-20d-4 đạt ngày 24/10/2026 | Đạt |
+| CT-868 | P02-47 | Phụ huynh xem điểm danh theo tiết tháng 10; phụ huynh khác; tổng hợp chuyên cần tháng 10 | 1 đi muộn; 403; 1 tiết; học sinh báo vắng có 1 ngày vắng, 1 ngày báo, 0 ngày vắng không báo | Kiểm thử tự động `apps/api/src/class-logs/class-logs.test.ts` CT-20d-5 đạt ngày 24/10/2026 | Đạt |
+| CT-869 | P02-45, P02-46, P02-47 | Giao diện: bật Tiểu học, bản thời khoá biểu thử; ứng dụng giáo viên ghi tiết hôm nay, đặt đi muộn, ký sổ; ứng dụng phụ huynh; 7.6 ký sổ tuần; 7.7 chuyên cần; tắt Tiểu học | Học sinh báo vắng mặc định vắng có phép; Đã ký; phụ huynh thấy Đi muộn: 1; 1 vắng, 1 muộn; đã ký tuần; số liệu đúng từng học sinh | Kiểm thử giao diện `tests/e2e/91-class-logs.spec.ts` CT-20d-6 đạt ngày 24/10/2026 | Đạt |
 | CT-870 | P02-49 | Kết quả hoàn thành với các bộ kết quả cuối năm, khối cuối cấp, đánh giá bổ sung | Lên lớp, hoàn thành cấp học, đang rèn luyện, ở lại lớp | Kiểm thử đơn vị CT-20e-1 đạt ngày 24/10/2026 | Đạt |
 | CT-871 | P02-48 | Nạp danh hiệu; đề nghị trước khoá; sai căn cứ; giáo viên khác; trùng; thiếu thành tích; duyệt; giấy khen; tra cứu | 403 rồi 3, 0; 422; 422; 403; 422; 400; mã 12 kí tự; PDF cho phụ huynh, 403 phụ huynh khác; tìm thấy | Kiểm thử đơn vị CT-20e-2 đạt ngày 24/10/2026 | Đạt |
 | CT-872 | P02-49 | Gợi ý lớp 4; học sinh hoàn thành có rèn luyện; rèn luyện trong hè; kiểm tra lại chưa đạt, đạt; lớp 5 | Khối sau K5; 400; đang rèn luyện ở K4; ở lại lớp; lên K5; hoàn thành cấp học | Kiểm thử đơn vị CT-20e-3 đạt ngày 24/10/2026 | Đạt |
