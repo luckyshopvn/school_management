@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.45
+- Phiên bản: 0.46
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.120.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-22 phần 22h1, kho học liệu số phần lõi (YCTD-183).
+- Chức năng mới: phân hệ Kho học liệu; tải tệp, liên kết ngoài, tham chiếu kế hoạch bài dạy, phiên bản; metadata theo cấp, khối, môn, chủ đề; giấy phép bắt buộc; kiểm duyệt phân luồng theo rủi ro; bộ sưu tập; báo lỗi; thống kê; Việc của tôi có nguồn kho học liệu.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp hệ thống `0042_create_learning_resources`; tệp năm học `0102_create_learning_resource_activity`; tệp định danh `0092_add_learning_resource_permissions`.
+- Thay đổi API: `/learning-resources/*`.
+- Kiểm thử: kịch bản CT-934 đến CT-940. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/learning-resources/learning-resources.test.ts` CT-22h1-1 đến CT-22h1-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa đạt 33/33 (kho học liệu, bồi dưỡng, Việc của tôi, menu theo cấp, lối tắt); kiểm thử giao diện `tests/e2e/122-learning-resources.spec.ts` (CT-22h1-7) đạt; kiểm thử giao diện chạy trên máy 02, 03, 58, 122 đạt 9/9; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: không có thay đổi dữ liệu cũ.
+- Khả năng tương thích: thêm một phân hệ; các phân hệ khác không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 22h1; chạy phần quay lui của tệp hệ thống `0042`, năm học `0102`, định danh `0092` (xoá tệp học liệu ở kho tệp theo tiền tố `learning-resources/`).
 
 ### Phiên bản 0.119.0 – 2026-10-24
 

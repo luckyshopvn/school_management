@@ -189,9 +189,9 @@ export function detectResourceFileType(fileName: string, body: Buffer): string |
 // Tên tệp chuẩn hoá: bỏ đường dẫn, ký tự điều khiển, ký tự cấm của hệ điều hành; tối đa 200 ký tự
 export function normalizeFileName(fileName: string): string {
   const base = fileName.split(/[\\/]/).pop() ?? '';
-  const cleaned = base
-    .normalize('NFC')
-    .replace(/[\u0000-\u001f<>:"|?*]/g, '')
+  const cleaned = [...base.normalize('NFC')]
+    .filter((character) => character.charCodeAt(0) >= 32 && !'<>:"|?*'.includes(character))
+    .join('')
     .replace(/\s+/g, ' ')
     .trim();
   return (cleaned || 'hoc-lieu').slice(0, 200);

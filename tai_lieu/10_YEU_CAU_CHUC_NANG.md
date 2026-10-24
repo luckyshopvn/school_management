@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.87
+- Phiên bản: 1.88
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -281,6 +281,12 @@
 | P09-47 | Hồ sơ bồi dưỡng cá nhân, tổ, trường và chứng chỉ (6.1., 6.3., YCTD-182) | Của mình: `P09.training.use`; tổ: tổ trưởng; trường: Ban Giám hiệu | Chứng chỉ nhập tay (tên, nơi cấp, ngày cấp, hết hạn, số tiết) | Cộng tiết khoá đạt và chứng chỉ trong năm học, so định mức; chứng chỉ sắp hết hạn | Hồ sơ của tôi; bảng theo cá nhân, theo tổ, tiến độ kế hoạch | BR-186 |
 | P09-48 | Năng lực số của giáo viên (6.1., 6.4., YCTD-182) | Tự đánh giá: `P09.training.use`; xác nhận: tổ trưởng (tổ mình), Ban Giám hiệu | Kỳ; mức từng miền; mức xác nhận, lý do | Đủ miền; khoá sau xác nhận; đổi mức có lý do; khoảng trống dưới ngưỡng gợi ý chuyên đề | Bản đồ năng lực, trung bình theo miền, gợi ý bồi dưỡng | BR-186 |
 | P09-49 | Danh mục bồi dưỡng (6.5., YCTD-182) | Xem: người có quyền bồi dưỡng; sửa: `P09.training.manage` | Định mức tiết, ngưỡng, đơn vị cấp; chuyên đề; miền năng lực | Bộ mặc định ghi số hiệu văn bản; mã không trùng | Danh mục dùng cho khoá, hồ sơ, năng lực số | BR-186 |
+| P09-50 | Thêm học liệu, tệp, liên kết, phiên bản (Kho học liệu 2., YCTD-183) | `P09.learning-resource.use` | Metadata (loại, cấp, khối, môn, chủ đề, tuần, từ khoá, tác giả, giấy phép, nguồn gốc, phạm vi); tệp; liên kết; kế hoạch bài dạy | Kiểm định dạng theo chữ ký, dung lượng, chuẩn hoá tên; liên kết http, https; tham chiếu kế hoạch bài dạy; mỗi lần thêm là phiên bản mới | Học liệu nháp có phiên bản | BR-187 |
+| P09-51 | Giấy phép bắt buộc, kiểm duyệt phân luồng (Kho học liệu 2., 3., YCTD-183) | Gửi: người sở hữu; duyệt tổ: tổ trưởng cùng tổ; duyệt trường: `P09.learning-resource.approve` | Gửi duyệt; duyệt hoặc trả lại kèm lý do | Chặn khi thiếu, bị chặn, không rõ giấy phép; thêm bước Ban Giám hiệu cho liên kết, video, có xin phép, loại trường chọn; sự kiện; Việc của tôi | Học liệu đã công bố | BR-187 |
+| P09-52 | Tìm, xem, tải học liệu (Kho học liệu 1., YCTD-183) | `P09.learning-resource.use` | Từ khoá, loại, cấp, khối, môn, chủ đề, giấy phép | Lọc theo phạm vi xem; chỉ bản đã công bố với người khác; ghi lượt xem, tải | Danh sách, chi tiết, tệp hoặc liên kết | BR-187 |
+| P09-53 | Bộ sưu tập học liệu (Kho học liệu 4., YCTD-183) | `P09.learning-resource.use` | Tên, phạm vi; danh sách học liệu theo thứ tự | Chỉ học liệu người lập thấy được; chỉ người lập sửa | Bộ sưu tập; tệp Excel danh sách | BR-187 |
+| P09-54 | Báo lỗi học liệu (Kho học liệu 5., YCTD-183) | Báo: `P09.learning-resource.use`; xử lý: `P09.learning-resource.manage` | Loại lỗi, mô tả; kết quả, trả lời, ẩn tạm | Thủ kho xử lý, ẩn tạm học liệu khi cần | Báo lỗi đã xử lý | BR-187 |
+| P09-55 | Thống kê kho, danh mục kho (Kho học liệu 6., 7., YCTD-183) | Thống kê: tổ trưởng (tổ mình), Ban Giám hiệu, thủ kho; danh mục: `P09.learning-resource.manage` | Loại học liệu, giấy phép, chủ đề | Đếm theo môn, khối, loại, giấy phép, tổ, giáo viên; chờ duyệt, quá hạn, giấy phép sắp hết hiệu lực; lượt xem, tải, báo lỗi | Bảng thống kê; danh mục | BR-187 |
 
 ## 11. Phân hệ P10 — Y tế học đường
 

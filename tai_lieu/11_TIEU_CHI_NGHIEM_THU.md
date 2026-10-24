@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.67
+- Phiên bản: 1.68
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -867,6 +867,9 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-792 | Cho trường đã có dữ liệu nhân sự, chứng chỉ / Khi nâng cấp lên phiên bản có hồ sơ bồi dưỡng / Thì chứng chỉ cũ vẫn hiện đúng, là loại nhập tay; các phân hệ khác không đổi (CT-927, CT-931; YCTD-182) |
 | AC-793 | Cho khoá trường tổ chức có cấp chứng nhận / Khi giáo viên đăng ký, tổ trưởng, Ban Giám hiệu duyệt, ghi kết quả đạt, cấp chứng nhận / Thì quá hạn, hết chỉ tiêu, tổ khác bị từ chối; người đạt nhận chứng nhận có mã; trang công khai tra theo mã chỉ trả trường tối thiểu, thu hồi thì báo đã thu hồi (CT-929, CT-930, CT-933; YCTD-182) |
 | AC-794 | Cho giáo viên có khoá đạt, chứng chỉ, tự đánh giá năng lực số / Khi xem hồ sơ của tôi, tổ trưởng, Ban Giám hiệu xem hồ sơ, bản đồ năng lực / Thì tổng tiết so định mức, thiếu tiết, sắp hết hạn đúng; miền dưới ngưỡng có gợi ý chuyên đề; xác nhận đổi mức phải có lý do (CT-928, CT-931, CT-932, CT-933; YCTD-182) |
+| AC-795 | Cho trường đang dùng hệ thống / Khi nâng cấp lên phiên bản có kho học liệu / Thì có thêm phân hệ "Kho học liệu", các phân hệ khác và dữ liệu cũ không đổi (CT-935, CT-940; YCTD-183) |
+| AC-796 | Cho giáo viên thêm học liệu / Khi gửi duyệt / Thì thiếu, bị chặn, không rõ giấy phép hoặc phạm vi cá nhân thì không gửi được; tổ trưởng cùng tổ duyệt thì công bố; liên kết ngoài, video, tài liệu có xin phép thêm bước Ban Giám hiệu; trả lại phải có lý do (CT-934, CT-936, CT-937, CT-940; YCTD-183) |
+| AC-797 | Cho học liệu đã công bố / Khi người khác tìm, tải, đưa vào bộ sưu tập, báo lỗi / Thì chỉ thấy bản đã công bố đúng phạm vi; lượt tải được ghi; thủ kho xử lý báo lỗi, ẩn tạm; thống kê đúng (CT-938, CT-939, CT-940; YCTD-183) |
 
 ## 20. Chưa xác minh được
 

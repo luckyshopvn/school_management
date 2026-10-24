@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.49
+- Phiên bản: 0.50
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,35 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-183: DT-22 phần 22h1: kho học liệu số, phần lõi – 2026-10-24
+
+- Lý do: phần 22h1 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 13.3, 13.4 (kế hoạch DT-22, Eric duyệt bản chín phần ngày 2026-10-19). Kho học liệu của trường có giấy phép bắt buộc và kiểm duyệt; không làm bảng câu hỏi (thuộc 22g1, 22h2), chia sẻ liên trường chờ DT-SaaS, không gọi AI. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Căn cứ giấy phép: bộ giấy phép mặc định gồm tự biên soạn dùng nội bộ, sáu giấy phép Creative Commons 4.0 (CC BY, CC BY-SA, CC BY-NC, CC BY-NC-SA, CC BY-ND) và CC0 1.0, tài liệu có xin phép (ghi nơi cấp phép), văn bản do cơ quan nhà nước ban hành, không rõ giấy phép (chỉ xem cá nhân); không đưa nội dung có bản quyền vào mã, dữ liệu mẫu, kiểm thử.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Phân hệ mới "Kho học liệu"** (khoá `learning-resources`, dùng cho mọi cấp; cấp, khối, môn là metadata của từng học liệu): 1. Tìm học liệu, 2. Học liệu của tôi, 3. Duyệt học liệu, 4. Bộ sưu tập, 5. Báo lỗi học liệu, 6. Thống kê kho, 7. Danh mục kho. Phụ huynh không có phân hệ này; học sinh, phụ huynh không xem kho ở DT-22.
+  - **Danh mục** (cơ sở dữ liệu hệ thống, tệp `0042_create_learning_resources`): loại học liệu (`resource_types`, 8 loại mặc định; loại video và loại trường chọn thêm bước Ban Giám hiệu), giấy phép (`resource_licenses`, cờ chặn, chỉ xem cá nhân, cần ghi nơi cấp phép), chủ đề theo môn, khối (`resource_topics`, giáo viên thêm được).
+  - **Học liệu** (`learning_resources`, cơ sở dữ liệu hệ thống vì không theo năm học): tiêu đề, mô tả, loại, cấp, khối, môn (lưu mã và tên vì môn ở năm học), chủ đề, tuần dạy, từ khoá, tác giả, ngôn ngữ, thời lượng; giấy phép, nơi cấp phép, nguồn gốc, người chịu trách nhiệm, ngày hết hiệu lực giấy phép; phạm vi xem cá nhân, tổ, trường (giá trị liên trường `network` lưu sẵn, không bật); trạng thái nháp, chờ tổ duyệt, chờ Ban Giám hiệu duyệt, đã công bố, bị trả lại, ẩn tạm, ngừng dùng.
+  - **Phiên bản** (`learning_resource_versions`): tệp tải lên qua kho tệp (khoá qua `storageKey`), liên kết ngoài, hoặc tham chiếu kế hoạch bài dạy ở năm học (không sao chép); mã băm SHA-256 của tệp.
+  - **Kiểm duyệt phân luồng**: học liệu có liên kết ngoài, loại video, giấy phép có xin phép hoặc loại do trường đặt thêm bước Ban Giám hiệu; trả lại phải có lý do; người duyệt không duyệt học liệu của mình; học liệu đã công bố mà bản nộp lại bị trả thì bản đã công bố vẫn dùng; người khác chỉ thấy bản đã công bố (phạm vi trường, hoặc phạm vi tổ khi cùng tổ), không thấy lịch sử duyệt; sự kiện duyệt ở năm học (`learning_resource_events`, tệp năm học `0102_create_learning_resource_activity`); Việc của tôi có nguồn "Kho học liệu" (học liệu chờ duyệt, học liệu bị trả lại, báo lỗi chờ xử lý).
+  - **Bộ sưu tập** (`resource_collections`, `resource_collection_items`): giáo viên lập, thêm, bỏ, sắp xếp học liệu, chia sẻ cá nhân, tổ, trường, xuất danh sách Excel.
+  - **Báo lỗi** (`learning_resource_reports`): sai nội dung, lỗi tệp, nghi vi phạm bản quyền; thủ kho xử lý, trả lời, ẩn tạm học liệu nếu cần.
+  - **Thống kê**: lượt xem, tải (`learning_resource_usage`), báo lỗi theo học liệu; học liệu theo môn, khối, loại, giấy phép, tổ; đóng góp theo giáo viên; chờ duyệt, quá hạn duyệt, giấy phép sắp hết hiệu lực (30 ngày).
+  - **Quyền mới** (tệp định danh `0092_add_learning_resource_permissions`): `P09.learning-resource.use`, `.review` (tổ trưởng), `.approve` (Ban Giám hiệu), `.manage` (thủ kho; mặc định Ban Giám hiệu).
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/system/migrations/0042_create_learning_resources.ts`, `database/school-year/migrations/0102_create_learning_resource_activity.ts`, `database/identity/migrations/0092_add_learning_resource_permissions.ts`, `schema.ts` hệ thống, năm học, `index.ts`, `database/src/index.ts`); máy chủ API (`learning-resources/learning-resources.ts`, `learning-resources/learning-resource-rules.ts`, `learning-resources/learning-resources.controller.ts`, `my-work/my-work-sources.ts`, `application.module.ts`); cổng quản trị (`learning-resources/LearningResourcePages.tsx`, `learning-resources/learning-resources-api.ts`, `router.tsx`, `pages/workspaces.tsx`); gói dùng chung (`learning-resources.ts`, `index.ts`, `portal-menu.ts`, `menu-permissions.ts`, `professional-records.ts`); kiểm thử (`tests/e2e/58-system-admin-full-so.spec.ts` đếm 20 phân hệ); tài liệu `01`, `02`, `03`, `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: bảy bảng hệ thống mới (có bộ mặc định loại, giấy phép), ba bảng năm học mới, bốn quyền mới; không đổi dữ liệu cũ.
+- API bị ảnh hưởng: mới `/learning-resources` (tìm, tạo), `/learning-resources/{id}` (xem, sửa), `/files`, `/links`, `/lesson-plans`, `/submit`, `/review`, `/hide`, `/restore`, `/retire`, `/download`, `/reports`; `/learning-resources/catalog`, `/types`, `/licenses`, `/topics`, `/collections`, `/collections/{id}/items`, `/export`, `/learning-resources/reports`, `/reports/{id}/handle`, `/learning-resources/statistics` (xem `17_DAC_TA_API.md`).
+- Giao diện bị ảnh hưởng: MH-288 đến MH-294.
+- Quyền bị ảnh hưởng: PQ-99. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
+- Ảnh hưởng chức năng cũ: ô chọn phân hệ có thêm "Kho học liệu" (cổng quản trị có 20 phân hệ); kiểm thử đang có không sửa kỳ vọng, trừ `58-system-admin-full-so.spec.ts` CT-16d-12 (số phân hệ 19 thành 20).
+- Hạn chế:
+  - Chưa có xem trước PDF, ảnh ngay trên trang (tải về để xem);
+  - Kế hoạch bài dạy tham chiếu hiện dạng dữ liệu thô; chưa chọn kế hoạch bài dạy từ danh sách ở giao diện (API có sẵn);
+  - Chưa có ứng dụng giáo viên cho kho học liệu (chỉ cổng quản trị);
+  - Chưa nhắc hạn duyệt, chưa thông báo khi học liệu bị trả lại (chỉ Việc của tôi);
+  - Câu hỏi, đề, rubric, chia sẻ bằng gói tệp làm ở 22h2.
+- Kiểm thử cần thực hiện: kịch bản CT-934 đến CT-940 (trong mã kiểm thử là CT-22h1-1 đến CT-22h1-7); kiểm thử đơn vị mới `apps/api/src/learning-resources/learning-resources.test.ts`; kiểm thử giao diện mới `tests/e2e/122-learning-resources.spec.ts`
+- Trạng thái: Đã triển khai
 
 ### YCTD-182: DT-22 phần 22e: hồ sơ bồi dưỡng giáo viên – 2026-10-24
 

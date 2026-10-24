@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.100
+- Phiên bản: 1.101
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -355,6 +355,8 @@ Từ YCTD-149 (DT-18 phần 22f), phân hệ "Bảo đảm chất lượng" (kh�
 
 Từ YCTD-182 (DT-22 phần 22e), phân hệ "Hồ sơ chuyên môn" có thêm nhóm "6. Bồi dưỡng giáo viên" (6.1 đến 6.5, MH-282 đến MH-286); trang công khai "Tra cứu chứng nhận bồi dưỡng" (MH-287).
 
+Từ YCTD-183 (DT-22 phần 22h1), phân hệ "Kho học liệu" (khóa `learning-resources`) đứng cuối ô chọn phân hệ, cổng quản trị có 20 phân hệ; phân hệ riêng nên đánh số liên tục (MH-288 đến MH-294).
+
 ## 2. Danh sách màn hình theo kênh
 
 ### 2.1 Cổng quản trị
@@ -649,6 +651,13 @@ Từ YCTD-182 (DT-22 phần 22e), phân hệ "Hồ sơ chuyên môn" có thêm n
 | MH-285 | 6.4. Năng lực số (YCTD-182, `/training/competency`): thẻ kỳ; bảng "Bản đồ năng lực số" (giáo viên × miền, ô dưới ngưỡng tô đỏ nhạt, dòng trung bình, "Xác nhận"); khối xác nhận (mức xác nhận, lý do đổi mức) | Tổ trưởng (tổ mình), Ban Giám hiệu |
 | MH-286 | 6.5. Danh mục bồi dưỡng (YCTD-182, `/training/settings`): căn cứ; khối "Thiết lập" (định mức tiết, ngưỡng gợi ý, đơn vị cấp); bảng, biểu mẫu chuyên đề (chương trình, số tiết, miền gắn kèm, đang dùng hoặc ngừng); khung năng lực số (mức, miền, "Thêm miền") | `P09.training.manage` |
 | MH-287 | Tra cứu chứng nhận bồi dưỡng (YCTD-182, `/tra-cuu-chung-nhan?ma=…`, công khai): ô mã tra cứu, nút "Tra cứu"; khối "Kết quả tra cứu" (còn hiệu lực hoặc đã thu hồi, người được cấp, khoá, đơn vị cấp, ngày cấp, số tiết) | Không cần đăng nhập |
+| MH-288 | Kho học liệu 1. Tìm học liệu (YCTD-183, `/learning-resources`): biểu mẫu "Tìm học liệu" (từ khoá, loại, cấp, môn, "Tìm"); bảng "Kết quả tìm học liệu" (tiêu đề, loại, môn, khối, giấy phép, người đóng góp, trạng thái, "Mở"); khối chi tiết học liệu (metadata, bảng "Phiên bản" có "Tải về" hoặc "Mở liên kết", lượt xem, tải, biểu mẫu "Báo lỗi học liệu") | Người có quyền kho học liệu |
+| MH-289 | Kho học liệu 2. Học liệu của tôi (YCTD-183, `/learning-resources/mine`): bảng "Học liệu của tôi"; khối chi tiết (ô tệp, "Tải tệp lên", địa chỉ, tiêu đề liên kết, "Thêm liên kết", "Gửi duyệt", "Ngừng dùng", lý do bị trả lại, lịch sử duyệt); biểu mẫu "Thêm học liệu" (tiêu đề, loại, phạm vi xem, cấp, khối, môn, chủ đề, từ khoá, tác giả, giấy phép, nơi cấp phép khi cần, nguồn gốc) | Người có quyền kho học liệu |
+| MH-290 | Kho học liệu 3. Duyệt học liệu (YCTD-183, `/learning-resources/review`): bảng "Học liệu chờ duyệt" (học liệu chờ chính người dùng duyệt); khối chi tiết có ô "Ý kiến duyệt", "Duyệt", "Trả lại" | Tổ trưởng, Ban Giám hiệu |
+| MH-291 | Kho học liệu 4. Bộ sưu tập (YCTD-183, `/learning-resources/collections`): bảng "Danh sách bộ sưu tập"; khối bộ sưu tập (danh sách có "Lên", "Xuống", "Bỏ", ô "Thêm học liệu", "Thêm vào bộ sưu tập", "Xoá bộ sưu tập", "Xuất danh sách"); biểu mẫu "Lập bộ sưu tập" (tên, phạm vi chia sẻ) | Người có quyền kho học liệu |
+| MH-292 | Kho học liệu 5. Báo lỗi học liệu (YCTD-183, `/learning-resources/reports`): bảng "Báo lỗi học liệu" (học liệu, loại lỗi, mô tả, người báo, trạng thái, trả lời, "Xử lý"); khối "Xử lý báo lỗi" (trả lời, "Ẩn tạm học liệu", "Đã xử lý", "Không chấp nhận") | Thủ kho xử lý; người khác xem báo lỗi của mình |
+| MH-293 | Kho học liệu 6. Thống kê kho (YCTD-183, `/learning-resources/statistics`): dòng tổng quan (tổng, đã công bố, chờ duyệt, quá hạn, giấy phép sắp hết hiệu lực); bảng theo môn, khối, loại, giấy phép, tổ, đóng góp theo giáo viên; bảng "Lượt xem, tải" kèm số báo lỗi | Tổ trưởng (tổ mình), Ban Giám hiệu, thủ kho |
+| MH-294 | Kho học liệu 7. Danh mục kho (YCTD-183, `/learning-resources/settings`): loại học liệu (ô "Thêm bước Ban Giám hiệu duyệt"); giấy phép (ô "Chặn công bố", biểu mẫu "Thêm giấy phép"); chủ đề (biểu mẫu "Thêm chủ đề") | `P09.learning-resource.manage` |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 

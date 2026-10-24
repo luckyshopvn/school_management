@@ -3126,14 +3126,7 @@ export interface DigitalCompetencyScoresTable {
 
 // Phần theo năm học của kho học liệu số (DT-22 phần 22h1, YCTD-183)
 export type LearningResourceAction =
-  | 'submit'
-  | 'unit_approve'
-  | 'school_approve'
-  | 'return'
-  | 'publish'
-  | 'hide'
-  | 'restore'
-  | 'retire';
+  'submit' | 'unit_approve' | 'school_approve' | 'return' | 'publish' | 'hide' | 'restore' | 'retire';
 export type LearningResourceReportKind = 'content' | 'file' | 'copyright';
 
 export interface LearningResourceEventsTable {
