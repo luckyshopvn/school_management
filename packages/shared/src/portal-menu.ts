@@ -171,7 +171,8 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           primary(leaf('7.6.', 'Sổ đầu bài', '/class-logs')),
           primary(leaf('7.7.', 'Chuyên cần theo tiết', '/period-attendance')),
           // Học bạ số, khen thưởng, hoàn thành chương trình, lên lớp (DT-20 phần 20e)
-          primary(leaf('7.8.', 'Học bạ, khen thưởng, lên lớp', '/learning-records')),
+          // Học bạ số THCS, THPT dùng chung ở DT-21 phần 21e
+          secondary(leaf('7.8.', 'Học bạ, khen thưởng, lên lớp', '/learning-records'), ['TH', 'THCS', 'THPT']),
           // Máy xếp, dạy thay, đổi tiết, báo cáo, mã QR (DT-20 phần 22c2)
           leaf('7.9.', 'Xếp thời khoá biểu tự động', '/timetable-generator'),
           leaf('7.10.', 'Dạy thay, đổi tiết', '/timetable-changes'),

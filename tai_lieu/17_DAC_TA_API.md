@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.115
+- Phiên bản: 1.116
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -1594,6 +1594,14 @@ Giao kèo sổ điểm THCS, THPT (DT-21 phần 21c, YCTD-170, BR-180):
 4. `GET /scores/classes/{id}/summary?term_type=` (`first_term`, `second_term`, `year`) trả `subjects`, `rows` (`subjects` điểm trung bình hoặc kết quả, `suggested`, `learning`, `conduct`, `comment`), `locked`, `can_rate`. `PUT /scores/classes/{id}/ratings` nhận `term_type`, `entries` (`child_id`, `learning`, `conduct` là `good`, `fair`, `pass`, `fail` hoặc trống, `comment`); chỉ giáo viên chủ nhiệm hoặc người quản lý (403); học kỳ đã khoá trả 422 (cả năm theo học kỳ II).
 5. `POST /scores/locks` nhận `term_type`, `school_level`, `class_ids` (tuỳ chọn); trả `locked_class_count`. `GET /scores/locks?term_type=&school_level=` trả trạng thái từng lớp. `POST /scores/locks/unlock` nhận `term_type`, `class_id`, `reason` (3 đến 500 ký tự); lớp chưa khoá trả 422. `GET /scores/children/{id}` chỉ phụ huynh của con (403 nếu không), trả `terms` đã khoá và `year_rating` khi học kỳ II đã khoá.
 
+Giao kèo học bạ, khen thưởng, lên lớp THCS, THPT (DT-21 phần 21e, YCTD-172, BR-187; dùng các điểm cuối `/learning-records` của 20e, không thêm điểm cuối):
+
+1. Lớp THCS, THPT dùng cùng điểm cuối với Tiểu học. `GET /learning-records/classes/{id}/awards`, `/completion`, `/learning-records` trả mỗi học sinh thêm `has_result` (đã có kết quả cuối năm đã xác nhận), `needs_support` (học tập hoặc rèn luyện cả năm Chưa đạt), `year_label` ("Học tập: Tốt; rèn luyện: Tốt"; null với Tiểu học), `learning`, `conduct`; `year_result` là null với THCS, THPT.
+2. `year_end_locked` là học kỳ II của lớp đã khoá điểm (sổ điểm, BR-180). Chưa khoá thì đề nghị danh hiệu cuối năm, ghi hoàn thành chương trình, lập học bạ trả 422.
+3. `GET /learning-records/award-titles?school_level=THCS|THPT`, `POST /learning-records/award-titles/defaults` nạp Xuất sắc (`secondary_excellent`), Giỏi (`secondary_good`), đột xuất; `POST /award-titles` nhận thêm hai căn cứ này. `POST /classes/{id}/awards` với căn cứ Xuất sắc cần học tập, rèn luyện cả năm Tốt và ít nhất 6 môn tính điểm có điểm trung bình cả năm từ 9,0, Giỏi cần học tập, rèn luyện cả năm Tốt, không đủ trả 422; `suggested_title_ids` là danh hiệu cao nhất đủ điều kiện.
+4. `PUT /classes/{id}/completion` với THCS, THPT: học sinh chưa có xếp loại cả năm trả 400; đạt (học tập, rèn luyện từ Đạt) thì `promoted`, khối cuối cấp `level_completed`; chưa đạt thì `pending_support` (kèm `support_plan` `summer_training` hoặc `retest`), kết quả `completed` thì lên lớp hoặc hoàn thành cấp, `not_completed` thì `retained`.
+5. `POST /classes/{id}/learning-records/prepare` lập học bạ có khối `secondary` (`subjects`: tên, `mode`, `first`, `second`, `year`; `ratings` theo `first`, `second`, `year`); kí, tệp, mở lại, `GET /learning-records/children/{id}` như Tiểu học.
+
 Giao kèo thời khoá biểu (DT-20 phần 22c1, YCTD-160, BR-170):
 
 1. `PUT /period-slots` nhận `school_level`, `slots` (`period_no`, `session`, `start_time`, `end_time`); sai giờ, trùng tiết, chồng giờ trả 400 ở `slots[n].…` hoặc `slots`.
@@ -1647,7 +1655,7 @@ Giao kèo hồ sơ bồi dưỡng giáo viên (DT-22 phần 22e, YCTD-182, BR-18
 7. `PUT /training/competency/mine` nhận `term`, `scores` (`domain_code`, `level`) đủ mọi miền đang dùng; kỳ đã xác nhận trả 422. `POST /training/competency/{id}/confirm` nhận `scores` (`domain_code`, `level`, `reason`); đổi mức không có lý do trả 400.
 
 
-Giao kèo kho học liệu số (DT-22 phần 22h1, YCTD-183, BR-187; học liệu, phiên bản, bộ sưu tập, danh mục ở cơ sở dữ liệu hệ thống, sự kiện, báo lỗi, lượt ở năm học hiện hành):
+Giao kèo kho học liệu số (DT-22 phần 22h1, YCTD-183, BR-188; học liệu, phiên bản, bộ sưu tập, danh mục ở cơ sở dữ liệu hệ thống, sự kiện, báo lỗi, lượt ở năm học hiện hành):
 
 1. `POST /learning-resources` nhận `title` (1 đến 300 ký tự), `type_id`, `school_level` (`MN`, `TH`, `THCS`, `THPT`), `grade_level_code`, `subject_code` (có trong môn của năm học), `topic_id`, `week_no` (1 đến 60), `keywords` (tối đa 30, mỗi từ 50 ký tự), `author_name`, `language`, `duration_minutes`, `license_id`, `license_source`, `origin`, `responsible_name`, `license_expires_on`, `visibility` (`private`, `unit`, `school`; `network` trả 400 "chưa bật"); trả học liệu nháp.
 2. `POST …/files` (tệp `file`, tối đa 50 MB; sai định dạng 400), `…/links` (`url` http, https), `…/lesson-plans` (`lesson_plan_id` của chính người sở hữu); chỉ người sở hữu (403), học liệu đang chờ duyệt, ẩn, ngừng dùng trả 422; trả phiên bản mới.

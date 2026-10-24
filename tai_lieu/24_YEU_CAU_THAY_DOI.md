@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.50
+- Phiên bản: 0.51
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -28,7 +28,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/system/migrations/0042_create_learning_resources.ts`, `database/school-year/migrations/0102_create_learning_resource_activity.ts`, `database/identity/migrations/0092_add_learning_resource_permissions.ts`, `schema.ts` hệ thống, năm học, `index.ts`, `database/src/index.ts`); máy chủ API (`learning-resources/learning-resources.ts`, `learning-resources/learning-resource-rules.ts`, `learning-resources/learning-resources.controller.ts`, `my-work/my-work-sources.ts`, `application.module.ts`); cổng quản trị (`learning-resources/LearningResourcePages.tsx`, `learning-resources/learning-resources-api.ts`, `router.tsx`, `pages/workspaces.tsx`); gói dùng chung (`learning-resources.ts`, `index.ts`, `portal-menu.ts`, `menu-permissions.ts`, `professional-records.ts`); kiểm thử (`tests/e2e/58-system-admin-full-so.spec.ts` đếm 20 phân hệ); tài liệu `01`, `02`, `03`, `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
 - Dữ liệu bị ảnh hưởng: bảy bảng hệ thống mới (có bộ mặc định loại, giấy phép), ba bảng năm học mới, bốn quyền mới; không đổi dữ liệu cũ.
 - API bị ảnh hưởng: mới `/learning-resources` (tìm, tạo), `/learning-resources/{id}` (xem, sửa), `/files`, `/links`, `/lesson-plans`, `/submit`, `/review`, `/hide`, `/restore`, `/retire`, `/download`, `/reports`; `/learning-resources/catalog`, `/types`, `/licenses`, `/topics`, `/collections`, `/collections/{id}/items`, `/export`, `/learning-resources/reports`, `/reports/{id}/handle`, `/learning-resources/statistics` (xem `17_DAC_TA_API.md`).
-- Giao diện bị ảnh hưởng: MH-288 đến MH-294.
+- Giao diện bị ảnh hưởng: MH-289 đến MH-295.
 - Quyền bị ảnh hưởng: PQ-99. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
 - Ảnh hưởng chức năng cũ: ô chọn phân hệ có thêm "Kho học liệu" (cổng quản trị có 20 phân hệ); kiểm thử đang có không sửa kỳ vọng, trừ `58-system-admin-full-so.spec.ts` CT-16d-12 (số phân hệ 19 thành 20).
 - Hạn chế:
@@ -37,9 +37,27 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
   - Chưa có ứng dụng giáo viên cho kho học liệu (chỉ cổng quản trị);
   - Chưa nhắc hạn duyệt, chưa thông báo khi học liệu bị trả lại (chỉ Việc của tôi);
   - Câu hỏi, đề, rubric, chia sẻ bằng gói tệp làm ở 22h2.
-- Kiểm thử cần thực hiện: kịch bản CT-934 đến CT-940 (trong mã kiểm thử là CT-22h1-1 đến CT-22h1-7); kiểm thử đơn vị mới `apps/api/src/learning-resources/learning-resources.test.ts`; kiểm thử giao diện mới `tests/e2e/122-learning-resources.spec.ts`
+- Kiểm thử cần thực hiện: kịch bản CT-940 đến CT-946 (trong mã kiểm thử là CT-22h1-1 đến CT-22h1-7); kiểm thử đơn vị mới `apps/api/src/learning-resources/learning-resources.test.ts`; kiểm thử giao diện mới `tests/e2e/122-learning-resources.spec.ts`
 - Trạng thái: Đã triển khai
 
+### YCTD-172: DT-21 phần 21e: học bạ số, khen thưởng, xét lên lớp THCS, THPT – 2026-10-24
+
+- Lý do: phần 21e của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.3, 12.4 (kế hoạch DT-21 ở YCTD-166; sổ điểm 21c ở YCTD-170; khung học bạ Tiểu học 20e ở YCTD-163). Văn bản căn cứ: Thông tư 22/2021/TT-BGDĐT (danh hiệu học sinh Xuất sắc, Giỏi; điều kiện lên lớp; rèn luyện trong hè, kiểm tra lại); điều kiện nhớ theo văn bản, chưa đối chiếu toàn văn nên để hằng số, ghi vào tài liệu. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi:
+  - **Dùng lại khung 20e** (`apps/api/src/learning-records`): các bảng `student_award_titles`, `student_awards`, `completion_results`, `learning_records` và điểm cuối `/learning-records` nhận lớp THCS, THPT; kết quả cuối năm đọc từ sổ điểm 21c (học kỳ II đã khoá điểm, xếp loại học tập, rèn luyện cả năm đã xác nhận); không thêm điểm cuối, không thêm quyền (định danh `0080` để trống).
+  - **Khen thưởng:** danh hiệu mặc định THCS, THPT (Xuất sắc, Giỏi, đột xuất); căn cứ `secondary_excellent` (học tập, rèn luyện cả năm Tốt và ít nhất 6 môn tính điểm có trung bình cả năm từ 9,0), `secondary_good` (học tập, rèn luyện cả năm Tốt); gợi ý danh hiệu cao nhất đủ điều kiện (hàm dùng chung `secondaryAwardBases`).
+  - **Xét lên lớp:** học tập và rèn luyện cả năm từ Đạt trở lên là lên lớp, khối cuối cấp là hoàn thành chương trình cấp học; Chưa đạt thì rèn luyện trong hè, kiểm tra lại rồi lên lớp hoặc ở lại lớp (`secondaryPassed`, `completionOutcome`).
+  - **Học bạ:** nội dung thêm khối `secondary` (điểm trung bình môn học kỳ I, II, cả năm, kết quả môn nhận xét, xếp loại học tập, rèn luyện theo kỳ và cả năm), bố cục PDF riêng; kí nội bộ (16k, 17b) in đủ số định danh kèm kiểm quyền xem số định danh và nhật ký truy cập như 20e.
+  - **Giao diện:** mục 7.8 dùng chung ba cấp (chọn lớp Tiểu học, THCS, THPT; nạp danh hiệu theo cấp; kết quả cuối năm hiện học tập, rèn luyện); ứng dụng phụ huynh nút "Học bạ" cho THCS, THPT.
+  - Dữ liệu: tệp năm học `0089_widen_award_basis` (thêm hai căn cứ danh hiệu).
+- Thành phần bị ảnh hưởng: `database`, `packages/shared`, `apps/api` (learning-records, scores), `apps/portal`, tài liệu `01`, `02`, `07`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`.
+- Dữ liệu bị ảnh hưởng: nới ràng buộc căn cứ danh hiệu; dữ liệu cũ giữ nguyên.
+- API bị ảnh hưởng: các điểm cuối `/learning-records` trả thêm trường cho lớp mọi cấp (`has_result`, `needs_support`, `year_label`, `learning`, `conduct`); Tiểu học không đổi giá trị cũ.
+- Giao diện bị ảnh hưởng: mục 7.8, ứng dụng phụ huynh; trường chỉ có Mầm non thấy như cũ.
+- Quyền bị ảnh hưởng: không thêm quyền.
+- Ảnh hưởng chức năng cũ: không đổi kỳ vọng kiểm thử cũ của 20e (CT-20e-1 đến CT-20e-6).
+- Kiểm thử cần thực hiện: CT-934 đến CT-939; kiểm thử đơn vị gói học bạ, sổ điểm, menu; e2e 100, 92, 98 và 02, 03, 58; typecheck, lint, build.
+- Trạng thái: Đã triển khai
 ### YCTD-182: DT-22 phần 22e: hồ sơ bồi dưỡng giáo viên – 2026-10-24
 
 - Lý do: phần 22e của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 13.3, 13.4 (kế hoạch DT-22, Eric duyệt bản chín phần ngày 2026-10-19). Chỉ phần quản trị (ghi nhận, theo dõi, cấp chứng nhận), không làm lớp học trực tuyến, khoá học điện tử, bài thi trực tuyến. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.

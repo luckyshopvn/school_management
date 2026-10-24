@@ -5409,7 +5409,7 @@ export interface YearResultsTable {
 
 // Học bạ số, khen thưởng học sinh, hoàn thành chương trình (DT-20 phần 20e, YCTD-163)
 export type StudentAwardKind = 'year_end' | 'special';
-export type StudentAwardBasis = 'excellent' | 'outstanding';
+export type StudentAwardBasis = 'excellent' | 'outstanding' | 'secondary_excellent' | 'secondary_good';
 export type StudentAwardStatus = 'proposed' | 'approved' | 'rejected';
 export type CompletionOutcome = 'promoted' | 'level_completed' | 'pending_support' | 'retained';
 export type SupportPlan = 'summer_training' | 'retest';
