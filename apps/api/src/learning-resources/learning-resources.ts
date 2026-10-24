@@ -668,7 +668,7 @@ export class LearningResourcesService {
 
   async setLifecycle(currentUser: CurrentUser, id: string, action: 'hide' | 'restore' | 'retire', note: string | null) {
     const context = await this.context(currentUser);
-    const row = await this.findResource(id);
+    const row = await this.visibleResource(context, id);
     let status: LearningResourceStatus;
     if (action === 'retire') {
       if (row.owner_user_id !== context.userId && !context.canManage) {

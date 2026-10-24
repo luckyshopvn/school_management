@@ -320,15 +320,34 @@ export class LearningResourcesController {
     return this.resources.review(currentUser, id, decision, note(body));
   }
 
-  @Post(':id/:action(hide|restore|retire)')
+  @Post(':id/hide')
   @HttpCode(200)
-  lifecycle(
+  hide(
     @Param('id', uuidParameter(ID)) id: string,
-    @Param('action') action: 'hide' | 'restore' | 'retire',
     @Body() body: RequestBody,
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
-    return this.resources.setLifecycle(currentUser, id, action, note(body));
+    return this.resources.setLifecycle(currentUser, id, 'hide', note(body));
+  }
+
+  @Post(':id/restore')
+  @HttpCode(200)
+  restore(
+    @Param('id', uuidParameter(ID)) id: string,
+    @Body() body: RequestBody,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    return this.resources.setLifecycle(currentUser, id, 'restore', note(body));
+  }
+
+  @Post(':id/retire')
+  @HttpCode(200)
+  retire(
+    @Param('id', uuidParameter(ID)) id: string,
+    @Body() body: RequestBody,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    return this.resources.setLifecycle(currentUser, id, 'retire', note(body));
   }
 
   @Get(':id/download')

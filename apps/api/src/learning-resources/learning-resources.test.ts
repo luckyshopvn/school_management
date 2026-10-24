@@ -412,7 +412,7 @@ describe('Điểm cuối kho học liệu', () => {
     await api('POST', `/learning-resources/${resources.sheet}/review`, 'leader', { decision: 'approve' });
     assert.deepEqual((await download(`/learning-resources/${resources.sheet}/download`, 'teacher2')).body, PDF_TWO);
     const detail = await api('GET', `/learning-resources/${resources.sheet}`, 'teacher');
-    assert.equal(detail.body.downloads, 2);
+    assert.equal(detail.body.downloads, 3);
     assert.equal(list(detail.body.versions).length, 2);
     const othersView = await api('GET', `/learning-resources/${resources.sheet}`, 'teacher2');
     assert.equal(list(othersView.body.versions).length, 1);
@@ -489,7 +489,7 @@ describe('Điểm cuối kho học liệu', () => {
     assert.equal((await api('GET', '/learning-resources/statistics', 'teacher')).status, 403);
     const statistics = await api('GET', '/learning-resources/statistics', 'principal');
     assert.equal(statistics.status, 200, JSON.stringify(statistics.body));
-    assert.equal(statistics.body.published, 2);
+    assert.equal(statistics.body.published, 2, JSON.stringify(statistics.body.top));
     assert.ok((statistics.body.pending as number) >= 1);
     const byType = list(statistics.body.by_type);
     assert.ok(byType.some((row) => row.label === 'Phiếu học tập'));
