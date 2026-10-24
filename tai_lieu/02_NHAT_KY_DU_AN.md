@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.53
+- Phiên bản: 0.54
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -20,7 +20,7 @@
 
 - Đọc mục 13 của `32_KE_HOACH_THEO_HE_THONG_SO.md` (kế hoạch DT-22) và mã trên nhánh chính: học sinh, cán bộ, lớp, môn, thông báo, nhật ký xuất, tem QR của thiết bị (`equipment-locations`), kiểm kê thiết bị, kho tệp, chuyển năm học; rà bảng `library_items`, `library_albums` (Mầm non) và `asset_loans` để không dùng nhầm.
 - Cơ sở dữ liệu: tệp năm học `0100`, định danh `0090`. Máy chủ API: danh mục, bản sao, tem, thanh lý, tệp số, sổ đăng ký, thẻ bạn đọc, mượn trả, đặt trước, sách giáo khoa, kiểm kê, báo cáo, chuyển năm học. Cổng quản trị: phân hệ "Thư viện" 7 trang. Ứng dụng giáo viên, phụ huynh.
-- Thêm quy tắc BR-188 đến BR-190, chức năng P02-69 đến P02-73, quyền PQ-99, màn hình MH-289 đến MH-297, kịch bản CT-940 đến CT-949, tiêu chí AC-798 đến AC-801. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/library/library.test.ts` CT-22a-1 đến CT-22a-8 đạt 8/8; trên máy đã chạy kiểm thử đơn vị các gói sửa (thư viện, số phân hệ `system-admin-so`, đường dẫn nhanh, cấp học, chuyển năm học) đạt 52/52; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 81, 82, 84 và `tests/e2e/120-library.spec.ts` (CT-22a-9) đạt; kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
+- Thêm quy tắc BR-189 đến BR-191, chức năng P02-71 đến P02-75, quyền PQ-100, màn hình MH-291 đến MH-299, kịch bản CT-947 đến CT-956, tiêu chí AC-801 đến AC-804. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/library/library.test.ts` CT-22a-1 đến CT-22a-8 đạt 8/8; trên máy đã chạy kiểm thử đơn vị các gói sửa (thư viện, số phân hệ `system-admin-so`, đường dẫn nhanh, cấp học, chuyển năm học) đạt 52/52; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 81, 82, 84 và `tests/e2e/120-library.spec.ts` (CT-22a-9) đạt; kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
 
 #### Quyết định
 
@@ -29,11 +29,32 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-181, `07_QUY_TAC_NGHIEP_VU.md` BR-188 đến BR-190, `08_VAI_TRO_NGUOI_DUNG.md` PQ-99, `10_YEU_CAU_CHUC_NANG.md` P02-69 đến P02-73, `11_TIEU_CHI_NGHIEM_THU.md` AC-798 đến AC-801, `14_DAC_TA_GIAO_DIEN.md` MH-289 đến MH-297, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-940 đến CT-949, `23_LICH_SU_PHIEN_BAN.md` 0.121.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-181, `07_QUY_TAC_NGHIEP_VU.md` BR-189 đến BR-191, `08_VAI_TRO_NGUOI_DUNG.md` PQ-100, `10_YEU_CAU_CHUC_NANG.md` P02-71 đến P02-75, `11_TIEU_CHI_NGHIEM_THU.md` AC-801 đến AC-804, `14_DAC_TA_GIAO_DIEN.md` MH-291 đến MH-299, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-947 đến CT-956, `23_LICH_SU_PHIEN_BAN.md` 0.122.0.
 
 #### Vấn đề tồn đọng
 
 - Đọc văn bản gốc về chuẩn thư viện cơ sở giáo dục phổ thông để nạp ngưỡng chỉ tiêu; nhập Excel danh mục; ghi minh chứng sang 22f; ảnh bìa, ô chọn môn ở giao diện, thẻ đã trả, đã mất ở danh sách lượt mượn.
+
+### 2026-10-24 — DT-21 phần 22g2: kiểm tra, đánh giá, phần chấm
+
+#### Công việc đã thực hiện
+
+- Đọc mục 12 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà đề, mã đề, bản chụp câu của 22g1, sổ điểm 21c (quyền nhập, khoá, hạn), bộ dựng PDF (18d), tệp bảng Excel, PDF (16a), công cụ nhập Excel.
+- Cơ sở dữ liệu: tệp năm học `0090`, định danh `0081`. Máy chủ API: hàm thuần chấm phiếu, thống kê câu; bài kiểm tra của lớp, phiếu trả lời, nhập bài, nhập tệp quét, khoá, chuyển sổ điểm qua `recordExamScores` của 21c, báo cáo, xuất Excel, PDF. Cổng quản trị: 8.5, 8.6.
+- Thêm quy tắc BR-188, chức năng P02-69 đến P02-70, quyền PQ-99, màn hình MH-289 đến MH-290, kịch bản CT-940 đến CT-946, tiêu chí AC-798 đến AC-800. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/exam-grading/exam-grading.test.ts` CT-22g2-1 đến CT-22g2-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa (api, database, shared) đạt (shared; database 6/6; api 1047/1047); kiểm thử giao diện `tests/e2e/101-exam-grading.spec.ts` (CT-22g2-7) cùng 96, 98, 02, 03, 58 đạt; toàn bộ kiểm thử giao diện do CI chạy (trên máy: 02, 03, 06, 08, 58, 59, 96, 98, 101 đạt 26/26; 101 rồi 54 đạt 14/14); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 22g2 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12: chấm theo phiếu bằng nhập tay và nhập tệp quét theo mẫu (phương án dự phòng của mục 12), chưa nhận dạng ảnh; đúng sai bốn ý chấm bậc thang mặc định, đổi được theo bài; chuyển điểm chỉ qua sổ điểm 21c; khoá điểm dùng quyền quản lý đề của 22g1; quyền mới `P02.exam.grade`; AI tắt. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-173, `07_QUY_TAC_NGHIEP_VU.md` BR-188, `08_VAI_TRO_NGUOI_DUNG.md` PQ-99, `10_YEU_CAU_CHUC_NANG.md` P02-69 đến P02-70, `11_TIEU_CHI_NGHIEM_THU.md` AC-798 đến AC-800, `14_DAC_TA_GIAO_DIEN.md` MH-289 đến MH-290, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-940 đến CT-946, `23_LICH_SU_PHIEN_BAN.md` 0.121.0.
+
+#### Vấn đề tồn đọng
+
+- Nhận dạng ảnh chụp, ảnh quét phiếu (OMR) ở worker; phiếu trả lời riêng từng mã đề; mẫu phiếu theo Sở khi khảo sát.
+
 
 ### 2026-10-24 — DT-21 phần 21e: học bạ số, khen thưởng, xét lên lớp THCS, THPT
 

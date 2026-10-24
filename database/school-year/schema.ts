@@ -5669,6 +5669,59 @@ export interface QuestionUsagesTable {
   exam_id: string;
   used_on: string;
   created_at: CreatedTimestamp;
+  // Kết quả sử dụng ghi khi khoá bài kiểm tra (DT-21 phần 22g2)
+  attempts: number | null;
+  difficulty: ColumnType<string | null, number | null | undefined, number | null>;
+  discrimination: ColumnType<string | null, number | null | undefined, number | null>;
+}
+
+// Chấm bài kiểm tra (DT-21 phần 22g2, YCTD-173)
+export type ExamSessionStatus = 'grading' | 'locked' | 'transferred';
+
+export interface ExamSessionsTable {
+  id: Generated<string>;
+  exam_id: string;
+  class_id: string;
+  subject_id: string;
+  term_type: 'first_term' | 'second_term';
+  score_kind: 'regular' | 'mid' | 'final';
+  score_seq: Generated<number>;
+  true_false_rule: ColumnType<
+    'tiered' | 'proportional',
+    'tiered' | 'proportional' | undefined,
+    'tiered' | 'proportional'
+  >;
+  double_marking: Generated<boolean>;
+  mark_tolerance: ColumnType<string, number | undefined, number>;
+  absent_policy: ColumnType<'skip' | 'zero', 'skip' | 'zero' | undefined, 'skip' | 'zero'>;
+  status: ColumnType<ExamSessionStatus, ExamSessionStatus | undefined, ExamSessionStatus>;
+  locked_at: Date | null;
+  locked_by_name: string | null;
+  transferred_at: Date | null;
+  transferred_by_name: string | null;
+  created_by: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ExamSheetsTable {
+  id: Generated<string>;
+  session_id: string;
+  child_id: string;
+  variant_code: string | null;
+  absent: Generated<boolean>;
+  answers: DefaultJson;
+  essay: DefaultJson;
+  objective_score: ColumnType<string | null, number | null | undefined, number | null>;
+  essay_score: ColumnType<string | null, number | null | undefined, number | null>;
+  total_score: ColumnType<string | null, number | null | undefined, number | null>;
+  results: DefaultJson;
+  needs_review: Generated<boolean>;
+  source: ColumnType<'manual' | 'import', 'manual' | 'import' | undefined, 'manual' | 'import'>;
+  updated_by: string | null;
+  updated_by_name: string | null;
+  updated_at: UpdatedTimestamp;
 }
 
 export interface ExamMatricesTable {
@@ -5762,6 +5815,8 @@ export interface SchoolYearDatabase {
   exams: ExamsTable;
   exam_questions: ExamQuestionsTable;
   exam_variants: ExamVariantsTable;
+  exam_sessions: ExamSessionsTable;
+  exam_sheets: ExamSheetsTable;
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
   settings: SettingsTable;

@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.47
+- Phiên bản: 0.48
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,17 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.121.0 – 2026-10-24
+### Phiên bản 0.122.0 – 2026-10-24
 
 - Phạm vi thay đổi: DT-22 phần 22a, thư viện trường học (YCTD-181).
 - Chức năng mới: phân hệ "Thư viện" (danh mục ấn phẩm, bản sao có số đăng ký cá biệt và tem mã QR, thanh lý, tệp tài liệu số, sổ đăng ký cá biệt; thẻ bạn đọc cho cán bộ và học sinh; mượn, trả, gia hạn, báo mất, phạt trễ hạn, nhắc quá hạn, đặt trước; phát và thu sách giáo khoa theo bộ sách của khối; kiểm kê và xử lý bản thiếu; báo cáo, chỉ tiêu theo chuẩn thư viện có ngưỡng cấu hình; thiết lập quy định mượn); ứng dụng giáo viên "Sách tôi đang mượn", ứng dụng phụ huynh "Sách thư viện".
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp năm học `0100_create_library` (15 bảng `library_*`); tệp định danh `0090_add_library_permissions`; chuyển năm học chép kho thư viện sang năm mới.
 - Thay đổi API: `/library/*` (xem `17_DAC_TA_API.md`).
-- Kiểm thử: kịch bản CT-940 đến CT-949. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/library/library.test.ts` CT-22a-1 đến CT-22a-8 đạt 8/8; trên máy đã chạy kiểm thử đơn vị các gói sửa (thư viện, số phân hệ `system-admin-so`, đường dẫn nhanh, cấp học, chuyển năm học) đạt 52/52; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 81, 82, 84 và `tests/e2e/120-library.spec.ts` (CT-22a-9) đạt; kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
+- Kiểm thử: kịch bản CT-947 đến CT-956. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/library/library.test.ts` CT-22a-1 đến CT-22a-8 đạt 8/8; trên máy đã chạy kiểm thử đơn vị các gói sửa (thư viện, số phân hệ `system-admin-so`, đường dẫn nhanh, cấp học, chuyển năm học) đạt 52/52; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 81, 82, 84 và `tests/e2e/120-library.spec.ts` (CT-22a-9) đạt; kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
 - Rủi ro: chỉ tiêu theo chuẩn thư viện chưa có ngưỡng mặc định vì chưa đọc văn bản gốc, trường tự nhập; không có thay đổi dữ liệu cũ.
 - Khả năng tương thích: không đổi bảng `library_items`, `library_albums` (kho nội dung Mầm non) và `asset_loans` (mượn thiết bị); trường chỉ có Mầm non chỉ có cán bộ mượn sách.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 22a; chạy phần quay lui của tệp năm học `0100`, định danh `0090`.
+
+### Phiên bản 0.121.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-21 phần 22g2, kiểm tra, đánh giá phần chấm (YCTD-173).
+- Chức năng mới: bài kiểm tra của lớp từ đề đã khoá; phiếu trả lời; nhập bài tay, nhập tệp quét; chấm tự luận hai người; khoá điểm; chuyển điểm vào sổ điểm; báo cáo theo câu, chủ đề, mức nhận thức, lớp, phân bố điểm, xuất Excel, PDF.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0090_create_exam_grading`; tệp định danh `0081_add_exam_grading_permission`.
+- Thay đổi API: `/exam-grading/…`.
+- Kiểm thử: kịch bản CT-940 đến CT-946. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/exam-grading/exam-grading.test.ts` CT-22g2-1 đến CT-22g2-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa (api, database, shared) đạt (shared; database 6/6; api 1047/1047); kiểm thử giao diện `tests/e2e/101-exam-grading.spec.ts` (CT-22g2-7) cùng 96, 98, 02, 03, 58 đạt; toàn bộ kiểm thử giao diện do CI chạy (trên máy: 02, 03, 06, 08, 58, 59, 96, 98, 101 đạt 26/26; 101 rồi 54 đạt 14/14); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: chuyển nhầm loại điểm vào sổ điểm; đã yêu cầu khoá trước, giáo viên dạy môn xác nhận, sổ điểm kiểm tra khoá, hạn.
+- Khả năng tương thích: trường không bật THCS, THPT không đổi hành vi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 22g2; chạy phần quay lui của tệp năm học `0090`, định danh `0081`.
 
 ### Phiên bản 0.120.0 – 2026-10-24
 
