@@ -1,8 +1,8 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.37
-- Ngày cập nhật: 2026-10-23
+- Phiên bản: 0.38
+- Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
 ## Quy ước
@@ -10,6 +10,22 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-166: Kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá) – 2026-10-24
+
+- Lý do: lộ trình Eric chốt ngày 2026-10-19 (DT-20 Tiểu học → DT-21 THCS, THPT kèm 22g kiểm tra, đánh giá → DT-22). Cần bản kế hoạch DT-21 trước khi làm để chia phần, giữ sẵn số YCTD, migration, e2e và chỉ rõ phần nào dùng lại DT-19, DT-20. Đầu vào: dòng DT-21 của kế hoạch DT-18 (sổ điểm theo Thông tư 22/2021, học bạ số, thời khoá biểu môn học, sổ đầu bài, thi đua lớp và sao đỏ, sơ đồ chỗ ngồi, tổ hợp môn, xét tốt nghiệp và hồ sơ thi, EMIS THCS và THPT) và phần 22g của kế hoạch DT-22 (kế hoạch kiểm tra, ngân hàng câu hỏi, đề nhiều mã, chấm trắc nghiệm theo phiếu, khoá đề, khoá điểm, báo cáo theo câu; nối sổ điểm). Eric chưa có tài khoản Sở cấp THCS, THPT nên phần đối chiếu với Sở khảo sát sau.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - `32_KE_HOACH_THEO_HE_THONG_SO.md` phiên bản 1.43: thêm mục 12 "DT-21: THCS và THPT (kèm 22g kiểm tra, đánh giá)" gồm căn cứ, mục tiêu và hiện trạng mã (12.1: nền DT-19, phần DT-20 đã gộp dùng lại ngay, phần DT-20 chưa gộp, phần chưa có); nguyên tắc (12.2); chín phần 21a, 22g1, 21b, 21c, 21d, 21e, 22g2, 21f, 21g chạy năm đợt, mỗi đợt tối đa hai phần (12.3); phạm vi chi tiết (12.4); bảng tái dùng và làm mới (12.5); quyết định thiết kế (12.6); rủi ro và cách kiểm (12.7); quy ước, tiến độ (12.8, 12.9).
+  - Số giữ sẵn: YCTD-166 cho chính bản kế hoạch này, các phần YCTD-167 đến YCTD-175; migration năm học 0084 đến 0092, hệ thống 0028 và 0029, định danh 0075 đến 0083 (DT-20 giữ đến năm học 0083, hệ thống 0027, định danh 0074); e2e `95-` đến `103-`.
+  - Tách 22g thành 22g1 (đề, làm sớm song song với 21a) và 22g2 (chấm, báo cáo, chuyển điểm vào sổ điểm 21c).
+- Thành phần bị ảnh hưởng: tài liệu `02`, `24`, `32`, `index.md`. Không đổi mã nguồn.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không. Phiên bản phần mềm giữ nguyên (thay đổi chỉ tài liệu); nếu số tài liệu va với PR của DT-20 thì phần gộp sau đánh lại.
+- Kiểm thử cần thực hiện: rà bảng không thiếu dấu `|` kết thúc; số YCTD, migration, e2e giữ sẵn không trùng DT-20 và không trùng giữa các phần; kiểm tra định dạng tài liệu đạt.
+- Trạng thái: Đã triển khai
 
 ### YCTD-160: DT-20 phần 22c1: thời khoá biểu, phần khung – 2026-10-23
 
