@@ -282,6 +282,15 @@ import {
   TrainingSettingsPage,
   VerifyTrainingCertificatePage,
 } from './training/TrainingPages.js';
+import {
+  CollectionsPage,
+  MyResourcesPage,
+  ResourceReportsPage,
+  ResourceReviewPage,
+  ResourceSearchPage,
+  ResourceSettingsPage,
+  ResourceStatisticsPage,
+} from './learning-resources/LearningResourcePages.js';
 
 // Trang dùng được khi chưa đăng nhập (DT-16 phần 16c thêm Quên mật khẩu)
 const PUBLIC_PATHS = ['/login', '/forgot-password'];
@@ -707,6 +716,22 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/training/records', component: TrainingRecordsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/training/competency', component: CompetencyPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/training/settings', component: TrainingSettingsPage }),
+  // Kho học liệu số (DT-22 phần 22h1)
+  createRoute({ getParentRoute: () => rootRoute, path: '/learning-resources', component: ResourceSearchPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/learning-resources/mine', component: MyResourcesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/learning-resources/review', component: ResourceReviewPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/learning-resources/collections', component: CollectionsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/learning-resources/reports', component: ResourceReportsPage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/learning-resources/statistics',
+    component: ResourceStatisticsPage,
+  }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/learning-resources/settings',
+    component: ResourceSettingsPage,
+  }),
   createRoute({
     getParentRoute: () => rootRoute,
     path: '/tra-cuu-chung-nhan',

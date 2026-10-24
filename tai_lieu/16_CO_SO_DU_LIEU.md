@@ -1,8 +1,8 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.114
-- Ngày cập nhật: 2026-10-25
+- Phiên bản: 1.115
+- Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -35,6 +35,13 @@
 | period_slots | Khung giờ tiết học theo năm học và cấp, cơ sở dữ liệu hệ thống (P02-39, BR-170; YCTD-160, tệp hệ thống `0026_create_period_slots`) | academic_year_id, school_level, period_no (1 đến 15), session (`morning`, `afternoon`), start_time, end_time (HH:MM, kết thúc sau bắt đầu), created_at, created_by; duy nhất theo năm học, cấp, tiết |
 | training_settings | Thiết lập bồi dưỡng một dòng, cơ sở dữ liệu hệ thống (P09-49, BR-186; YCTD-182, tệp hệ thống `0041_create_training_catalogs`) | id (luôn 1), annual_required_periods (mặc định 120), competency_gap_level (mặc định 2), certificate_issuer, legal_basis, updated_at, updated_by |
 | training_topics | Chuyên đề bồi dưỡng (P09-49; YCTD-182) | code (duy nhất), name, program_no (1 đến 3), default_periods, competency_domain_code, order_no, status (`active`, `inactive`), created_at |
+| resource_types | Loại học liệu, cơ sở dữ liệu hệ thống (P09-55, BR-196; YCTD-183, tệp hệ thống `0042_create_learning_resources`) | code (duy nhất), name, requires_school_review, order_no, status, created_at; mặc định 8 loại |
+| resource_licenses | Giấy phép học liệu (P09-51, P09-55; YCTD-183) | code (duy nhất), name, blocked, private_only, requires_grant_source, order_no, status, created_at; mặc định 10 giấy phép |
+| resource_topics | Chủ đề học liệu theo môn, khối (P09-50, P09-55; YCTD-183) | subject_code, grade_level_code, name, order_no, status, created_by, created_at |
+| learning_resources | Học liệu (P09-50 đến P09-52; YCTD-183) | title, description, type_id (khóa ngoại), school_level, grade_level_code, subject_code, subject_name, topic_id, week_no, keywords (mảng), author_name, language, duration_minutes, license_id, license_source, origin, responsible_name, license_expires_on, visibility (`private`, `unit`, `school`, `network` chưa bật), status (`draft`, `pending_unit`, `pending_school`, `published`, `returned`, `hidden`, `retired`), needs_school_review, owner_user_id, owner_name, department_id, department_name, current_version, published_version, submitted_at, published_at, return_note, thời điểm |
+| learning_resource_versions | Phiên bản học liệu (P09-50; YCTD-183) | resource_id (khóa ngoại, xóa theo), version_no, kind (`file`, `link`, `lesson_plan`), storage_key, file_name, content_type, size_bytes, sha256, url, link_title, lesson_plan_id, lesson_plan_database, note, created_by, created_at; duy nhất theo học liệu, phiên bản |
+| resource_collections | Bộ sưu tập học liệu (P09-53; YCTD-183) | name, description, owner_user_id, owner_name, department_id, visibility (`private`, `unit`, `school`), thời điểm |
+| resource_collection_items | Học liệu trong bộ sưu tập (P09-53; YCTD-183) | collection_id, resource_id (khóa ngoại, xóa theo), position, added_at; khóa chính bộ sưu tập, học liệu |
 | digital_competency_domains | Miền năng lực số của giáo viên (P09-48, P09-49; YCTD-182) | code (duy nhất), name, description, order_no, status, created_at |
 | digital_competency_levels | Mức năng lực số (P09-48; YCTD-182) | level_no (khoá chính, 1 đến 10), name, description |
 | user_quick_links | Lối tắt Truy cập nhanh trên trang chủ cổng quản trị của từng tài khoản, lưu ở cơ sở dữ liệu hệ thống để giữ qua các năm học (YCTD-102, tệp `database/system/migrations/0004_create_user_quick_links.ts`) | id, user_id (mã tài khoản ở dịch vụ định danh, không có khóa ngoại vì khác cơ sở dữ liệu), path (trong danh sách cho phép `PORTAL_QUICK_LINK_PATHS`), label (1 đến 100 ký tự), position (từ 0, thứ tự hiển thị), created_at; duy nhất trên user_id, path; tối đa 12 dòng mỗi tài khoản |
@@ -442,6 +449,9 @@ Thi đua, khen thưởng (DT-18 phần 22d, YCTD-148). Cơ sở dữ liệu năm
 | training_registrations | Đăng ký và kết quả bồi dưỡng (P09-45, P09-46; YCTD-182) | course_id (khóa ngoại, xóa theo), staff_id, staff_name, department_id, status (`pending`, `team_approved`, `approved`, `rejected`, `cancelled`), note, team_reviewed_by_name, team_reviewed_at, reviewed_by_name, reviewed_at, review_note, attended_sessions, result (`passed`, `failed`), credited_periods, result_comment, thời điểm; duy nhất theo khoá, cán bộ |
 | digital_competency_assessments | Tự đánh giá năng lực số theo kỳ (P09-48; YCTD-182) | staff_id, staff_name, department_id, term (`term_1`, `term_2`, `year`), status (`submitted`, `confirmed`), confirmed_by_name, confirmed_at, thời điểm; duy nhất theo cán bộ, kỳ |
 | digital_competency_scores | Mức từng miền của bản tự đánh giá (P09-48; YCTD-182) | assessment_id (khóa ngoại, xóa theo), domain_code, domain_name, self_level, confirmed_level, reason; khóa chính bản, miền |
+| learning_resource_events | Sự kiện duyệt học liệu theo năm học (P09-51; YCTD-183, tệp năm học `0102_create_learning_resource_activity`) | resource_id, version_no, action (`submit`, `unit_approve`, `school_approve`, `return`, `publish`, `hide`, `restore`, `retire`), note, actor_user_id, actor_name, created_at |
+| learning_resource_reports | Báo lỗi học liệu (P09-54; YCTD-183) | resource_id, resource_title, kind (`content`, `file`, `copyright`), description, status (`open`, `resolved`, `rejected`), reporter_user_id, reporter_name, response, handled_by_name, handled_at, created_at |
+| learning_resource_usage | Lượt xem, tải học liệu (P09-52, P09-55; YCTD-183) | resource_id, kind (`view`, `download`), user_id, created_at |
 
 Mở năm học mới chép thư viện mẫu, giữ mã định danh (bỏ liên kết thư mục không có ở năm mới); kế hoạch ở lại năm cũ để sao chép, so sánh.
 

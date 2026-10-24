@@ -1,8 +1,8 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.118
-- Ngày cập nhật: 2026-10-25
+- Phiên bản: 1.119
+- Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -1486,6 +1486,14 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET | /api/v1/training/mine, /training/records | Hồ sơ bồi dưỡng của tôi; theo tổ, trường (P09-47) |
 | GET, PUT, POST | /api/v1/training/competency/mine, /training/competency, /training/competency/{id}/confirm | Tự đánh giá năng lực số; bản đồ năng lực; xác nhận (P09-48) |
 | GET | /api/v1/public/training-certificates/verify | Tra cứu chứng nhận bồi dưỡng theo `code` 12 ký tự, không cần đăng nhập (P09-46) |
+| GET, POST, PATCH | /api/v1/learning-resources/catalog, /types, /types/{id}, /licenses, /licenses/{id}, /topics, /topics/{id} | Danh mục kho học liệu; sửa loại, giấy phép, chủ đề cần `P09.learning-resource.manage` (giáo viên thêm được chủ đề) (P09-55, YCTD-183) |
+| GET, POST, PUT | /api/v1/learning-resources, /learning-resources/{id} | Tìm (`q`, `type_id`, `school_level`, `grade_level_code`, `subject_code`, `topic_id`, `license_id`, `scope` = `all`, `mine`, `review`); tạo; xem; sửa metadata (P09-50, P09-52) |
+| POST | /api/v1/learning-resources/{id}/files, /links, /lesson-plans | Thêm phiên bản: tệp (`file`), liên kết (`url`, `link_title`), kế hoạch bài dạy (`lesson_plan_id`) (P09-50) |
+| POST | /api/v1/learning-resources/{id}/submit, /review, /hide, /restore, /retire | Gửi duyệt; duyệt, trả lại; ẩn tạm, mở lại, ngừng dùng (P09-51) |
+| GET | /api/v1/learning-resources/{id}/download | Tải phiên bản (`version` tùy chọn): tệp; liên kết hoặc kế hoạch bài dạy trả JSON (P09-52) |
+| GET, POST, PATCH, PUT, DELETE | /api/v1/learning-resources/collections, /collections/{id}, /collections/{id}/items, /collections/{id}/export | Bộ sưu tập (P09-53) |
+| GET, POST | /api/v1/learning-resources/{id}/reports, /learning-resources/reports, /learning-resources/reports/{id}/handle | Báo lỗi; danh sách; xử lý (P09-54) |
+| GET | /api/v1/learning-resources/statistics | Thống kê kho (P09-55) |
 | GET, PUT, POST, DELETE | /api/v1/website/settings, /website/settings/images/{purpose}, /website/sample-content, /website/disclosure-categories | Thông tin website, biểu trưng, ảnh đầu trang, nội dung mẫu, nhóm công khai (P14-13, YCTD-144) |
 | GET, POST, PATCH, DELETE | /api/v1/website/domains, /website/domains/{id}, /website/domains/{id}/dns-confirmation | Tên miền (P14-13, YCTD-144) |
 | GET, POST, PUT, DELETE | /api/v1/website/posts, /website/posts/{id}, /submit, /approve, /return, /unpublish, /files, /files/{fileId} | Bài viết, luồng duyệt, tệp (P14-14, YCTD-144) |
@@ -1713,6 +1721,17 @@ Giao kèo kiểm tra, đánh giá phần chấm (DT-21 phần 22g2, YCTD-173, BR
 2. `PUT /sheets/{childId}`: `answers` là đối tượng số câu → mảng lựa chọn; `essay` là đối tượng mã câu → `first`, `second`; mã đề sai, điểm tự luận ngoài 0 đến điểm câu trả 400; bài kiểm tra đã khoá trả 422.
 3. `POST /import` (tệp `file`, cột Mã hệ thống, Họ và tên, Mã đề, Vắng, Câu 1 đến Câu n) trả `imported`, `errors` (`row`, `column`, `message`); có lỗi thì không ghi.
 4. `POST /lock` (`P02.exam.manage`) còn học sinh chưa có bài, thiếu điểm tự luận, cần xem lại trả 422 kèm tên học sinh. `/transfer` khi chưa khoá hoặc đã chuyển trả 422; quyền, khoá, hạn theo sổ điểm 21c (403, 422 mã YCTD-170).
+
+
+Giao kèo kho học liệu số (DT-22 phần 22h1, YCTD-183, BR-196; học liệu, phiên bản, bộ sưu tập, danh mục ở cơ sở dữ liệu hệ thống, sự kiện, báo lỗi, lượt ở năm học hiện hành):
+
+1. `POST /learning-resources` nhận `title` (1 đến 300 ký tự), `type_id`, `school_level` (`MN`, `TH`, `THCS`, `THPT`), `grade_level_code`, `subject_code` (có trong môn của năm học), `topic_id`, `week_no` (1 đến 60), `keywords` (tối đa 30, mỗi từ 50 ký tự), `author_name`, `language`, `duration_minutes`, `license_id`, `license_source`, `origin`, `responsible_name`, `license_expires_on`, `visibility` (`private`, `unit`, `school`; `network` trả 400 "chưa bật"); trả học liệu nháp.
+2. `POST …/files` (tệp `file`, tối đa 50 MB; sai định dạng 400), `…/links` (`url` http, https), `…/lesson-plans` (`lesson_plan_id` của chính người sở hữu); chỉ người sở hữu (403), học liệu đang chờ duyệt, ẩn, ngừng dùng trả 422; trả phiên bản mới.
+3. `POST …/submit` trả học liệu `pending_unit` (hoặc `pending_school` khi người sở hữu không thuộc tổ) kèm `needs_school_review`; thiếu phiên bản, phạm vi cá nhân, thiếu hoặc bị chặn hoặc không rõ giấy phép, có xin phép thiếu nơi cấp trả 422.
+4. `POST …/review` nhận `decision` (`approve`, `return`), `note` (bắt buộc khi trả lại); không phải người duyệt của bước trả 403; duyệt bước tổ của học liệu rủi ro chuyển `pending_school`, còn lại công bố (`published_version` là phiên bản hiện tại).
+5. `GET /learning-resources/{id}` trả `resource`, `versions` (người khác chỉ thấy bản đã công bố), `events` (chỉ người sở hữu, người duyệt, thủ kho), `views`, `downloads`; học liệu không thấy được trả 404.
+6. `PUT /collections/{id}/items` nhận `resource_ids` theo thứ tự (không trùng, tối đa 500, chỉ học liệu người lập thấy được; sai trả 400; người khác sửa trả 403).
+7. `POST /learning-resources/{id}/reports` nhận `kind` (`content`, `file`, `copyright`), `description`; `POST /learning-resources/reports/{id}/handle` nhận `status` (`resolved`, `rejected`), `response` (bắt buộc), `hide` (ẩn tạm học liệu); báo lỗi đã xử lý trả 422.
 
 
 Giao kèo kế hoạch giáo dục (DT-18 phần 22i, YCTD-147, BR-142):

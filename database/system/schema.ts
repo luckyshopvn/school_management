@@ -1243,6 +1243,119 @@ export interface TrainingTopicsTable {
   created_at: Generated<Date>;
 }
 
+// Kho học liệu số (DT-22 phần 22h1, YCTD-183)
+export type ResourceVisibility = 'private' | 'unit' | 'school' | 'network';
+export type LearningResourceStatus =
+  'draft' | 'pending_unit' | 'pending_school' | 'published' | 'returned' | 'hidden' | 'retired';
+export type ResourceVersionKind = 'file' | 'link' | 'lesson_plan';
+
+export interface ResourceTypesTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  requires_school_review: Generated<boolean>;
+  order_no: Generated<number>;
+  status: Generated<TrainingCatalogStatus>;
+  created_at: Generated<Date>;
+}
+
+export interface ResourceLicensesTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  blocked: Generated<boolean>;
+  private_only: Generated<boolean>;
+  requires_grant_source: Generated<boolean>;
+  order_no: Generated<number>;
+  status: Generated<TrainingCatalogStatus>;
+  created_at: Generated<Date>;
+}
+
+export interface ResourceTopicsTable {
+  id: Generated<string>;
+  subject_code: string | null;
+  grade_level_code: string | null;
+  name: string;
+  order_no: Generated<number>;
+  status: Generated<TrainingCatalogStatus>;
+  created_by: string | null;
+  created_at: Generated<Date>;
+}
+
+export interface LearningResourcesTable {
+  id: Generated<string>;
+  title: string;
+  description: string | null;
+  type_id: string;
+  school_level: string | null;
+  grade_level_code: string | null;
+  subject_code: string | null;
+  subject_name: string | null;
+  topic_id: string | null;
+  week_no: number | null;
+  keywords: Generated<string[]>;
+  author_name: string | null;
+  language: Generated<string>;
+  duration_minutes: number | null;
+  license_id: string | null;
+  license_source: string | null;
+  origin: string | null;
+  responsible_name: string | null;
+  license_expires_on: string | null;
+  visibility: Generated<ResourceVisibility>;
+  status: Generated<LearningResourceStatus>;
+  needs_school_review: Generated<boolean>;
+  owner_user_id: string;
+  owner_name: string;
+  department_id: string | null;
+  department_name: string | null;
+  current_version: Generated<number>;
+  published_version: number | null;
+  submitted_at: Date | null;
+  published_at: Date | null;
+  return_note: string | null;
+  created_at: Generated<Date>;
+  updated_at: Generated<Date>;
+}
+
+export interface LearningResourceVersionsTable {
+  id: Generated<string>;
+  resource_id: string;
+  version_no: number;
+  kind: ResourceVersionKind;
+  storage_key: string | null;
+  file_name: string | null;
+  content_type: string | null;
+  size_bytes: number | null;
+  sha256: string | null;
+  url: string | null;
+  link_title: string | null;
+  lesson_plan_id: string | null;
+  lesson_plan_database: string | null;
+  note: string | null;
+  created_by: string;
+  created_at: Generated<Date>;
+}
+
+export interface ResourceCollectionsTable {
+  id: Generated<string>;
+  name: string;
+  description: string | null;
+  owner_user_id: string;
+  owner_name: string;
+  department_id: string | null;
+  visibility: Generated<'private' | 'unit' | 'school'>;
+  created_at: Generated<Date>;
+  updated_at: Generated<Date>;
+}
+
+export interface ResourceCollectionItemsTable {
+  collection_id: string;
+  resource_id: string;
+  position: number;
+  added_at: Generated<Date>;
+}
+
 // Khung biểu báo cáo cấu hình được, EMIS Tiểu học (DT-20 phần 20f, YCTD-165)
 export type ReportFormPeriod = 'start_of_year' | 'end_of_year';
 export type ReportFormRowKind = 'heading' | 'formula' | 'manual';
@@ -1283,6 +1396,13 @@ export interface SystemDatabase {
   digital_competency_domains: DigitalCompetencyDomainsTable;
   digital_competency_levels: DigitalCompetencyLevelsTable;
   training_topics: TrainingTopicsTable;
+  resource_types: ResourceTypesTable;
+  resource_licenses: ResourceLicensesTable;
+  resource_topics: ResourceTopicsTable;
+  learning_resources: LearningResourcesTable;
+  learning_resource_versions: LearningResourceVersionsTable;
+  resource_collections: ResourceCollectionsTable;
+  resource_collection_items: ResourceCollectionItemsTable;
   integration_credentials: IntegrationCredentialsTable;
   user_quick_links: UserQuickLinksTable;
   user_grid_settings: UserGridSettingsTable;

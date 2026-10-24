@@ -42,6 +42,7 @@ export const WORKSPACE_ICONS: Record<WorkspaceKey, IconName> = {
   emulation: 'sign',
   'quality-assurance': 'chart',
   library: 'book',
+  'learning-resources': 'book',
 };
 
 const WORKSPACE_KEY = 'portal.workspace';
@@ -185,7 +186,7 @@ export function WorkspaceSwitcher({ state }: { state: WorkspaceState }) {
         <ul
           role="menu"
           aria-label="Chọn phân hệ"
-          className="absolute left-0 top-10 z-40 w-72 max-w-[calc(100vw-32px)] rounded-md border border-border bg-card py-1 shadow-lg"
+          className="absolute left-0 top-10 z-40 max-h-[calc(100vh-64px)] w-72 max-w-[calc(100vw-32px)] overflow-y-auto rounded-md border border-border bg-card py-1 shadow-lg"
         >
           {state.workspaces.map((workspace) => (
             <li key={workspace.key} role="none">

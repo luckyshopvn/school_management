@@ -25,7 +25,8 @@ export type PortalWorkspaceKey =
   | 'professional-records'
   | 'emulation'
   | 'quality-assurance'
-  | 'library';
+  | 'library'
+  | 'learning-resources';
 
 export interface PortalMenuNode {
   // Số thứ bậc có dấu chấm cuối như của Sở, ví dụ "4.1.1."
@@ -626,6 +627,21 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('3.2.', 'Báo cáo thư viện', '/library/reports'),
       ]),
       group('4.', 'Thiết lập', [leaf('4.1.', 'Quy định mượn và phân loại', '/library/settings')]),
+    ],
+  },
+  {
+    // Kho học liệu số (DT-22 phần 22h1): phân hệ riêng nên đánh số liên tục, tên mục do Claude tự đặt theo ủy quyền của Eric
+    // ngày 2026-10-11; dùng cho mọi cấp (cấp, khối, môn là metadata của từng học liệu)
+    key: 'learning-resources',
+    label: 'Kho học liệu',
+    menu: [
+      leaf('1.', 'Tìm học liệu', '/learning-resources'),
+      leaf('2.', 'Học liệu của tôi', '/learning-resources/mine'),
+      leaf('3.', 'Duyệt học liệu', '/learning-resources/review'),
+      leaf('4.', 'Bộ sưu tập', '/learning-resources/collections'),
+      leaf('5.', 'Báo lỗi học liệu', '/learning-resources/reports'),
+      leaf('6.', 'Thống kê kho', '/learning-resources/statistics'),
+      leaf('7.', 'Danh mục kho', '/learning-resources/settings'),
     ],
   },
 ];
