@@ -17,7 +17,7 @@ import {
 } from './timetable-generator-api.js';
 import { listLevelClasses } from './TimetableGeneratorPage.js';
 
-// 7.6 Dạy thay, đổi tiết (DT-20 phần 22c2, YCTD-164): ghi theo ngày, không sửa bản đã ban hành. Dạy thay: chọn ngày, lớp,
+// 7.7 Dạy thay, đổi tiết (DT-20 phần 22c2, YCTD-164): ghi theo ngày, không sửa bản đã ban hành. Dạy thay: chọn ngày, lớp,
 // tiết, giáo viên dạy thay; đổi tiết: đổi chỗ hai tiết của cùng lớp (cùng ngày hoặc khác ngày). Máy chủ chặn khi giáo viên
 // đang có tiết khác cùng lúc. Danh sách thay đổi từ hôm nay trở đi 14 ngày (sổ đầu bài 20d ghi người dạy thực tế theo đây)
 const messageOf = (error: unknown) =>

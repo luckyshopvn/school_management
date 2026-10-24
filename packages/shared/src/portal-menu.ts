@@ -159,10 +159,12 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           // Thời khoá biểu phần khung (DT-20 phần 22c1)
           leaf('7.3.', 'Khung giờ tiết học', '/period-slots'),
           leaf('7.4.', 'Thời khoá biểu', '/timetables'),
+          // Đánh giá học sinh theo Thông tư 27/2020 (DT-20 phần 20c)
+          leaf('7.5.', 'Đánh giá học sinh', '/student-assessments'),
           // Máy xếp, dạy thay, đổi tiết, báo cáo, mã QR (DT-20 phần 22c2)
-          leaf('7.5.', 'Xếp thời khoá biểu tự động', '/timetable-generator'),
-          leaf('7.6.', 'Dạy thay, đổi tiết', '/timetable-changes'),
-          leaf('7.7.', 'Báo cáo tiết dạy, dùng phòng, mã QR', '/timetable-reports'),
+          leaf('7.6.', 'Xếp thời khoá biểu tự động', '/timetable-generator'),
+          leaf('7.7.', 'Dạy thay, đổi tiết', '/timetable-changes'),
+          leaf('7.8.', 'Báo cáo tiết dạy, dùng phòng, mã QR', '/timetable-reports'),
         ]),
       ),
     ],

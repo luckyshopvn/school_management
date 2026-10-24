@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.104
+- Phiên bản: 1.105
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -1372,6 +1372,9 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, POST | /api/v1/boarding/classes/{id}/roster, /cuts, /close, /reopen (từ YCTD-159) | Danh sách ăn bán trú lớp ngoài Mầm non theo ngày; cắt suất (`child_id`, `date`, `cut`, `reason`), chốt (`date`), mở lại (`date`, `reason` bắt buộc); giáo viên chủ nhiệm hoặc `P04.boarding.manage`; lớp Mầm non trả 422 mã YCTD-159 |
 | GET, POST, DELETE | /api/v1/boarding/children/{id}/cuts, /{date} (từ YCTD-159) | Phụ huynh xem ngày cắt suất của con trong tháng (`month`), báo (`date`, `reason`), hủy cắt suất |
 | GET, PUT, POST, PATCH, DELETE | /api/v1/conduct/settings, /conduct/criteria, /defaults, /{id}, /conduct/entries, /{id}, /conduct/ranking (từ YCTD-159) | Nề nếp: cấu hình (`enabled`, `base_points`; sửa cần `P02.conduct.manage`), tiêu chí, ghi điểm (`class_id`, `criterion_id`, `date`, `quantity`, `reported_by`, `note`; cần `P02.conduct.record`), xếp hạng (`period` = `week`, `month`, `first_term`, `second_term`, `date`, `school_level`, `org_unit_id`, `grade_level`) |
+| GET, POST, PUT, PATCH | /api/v1/assessment/config, /defaults, /levels, /items, /items/{id}, /periods/{id}, /periods/{id}/tests, /templates, /templates/{id} (từ YCTD-161) | Cấu hình đánh giá theo `school_level`; đọc: mọi người đã đăng nhập; sửa, nạp mặc định: `P02.assessment.manage` |
+| GET, PUT, POST, DELETE | /api/v1/assessment/classes/{id}, /subjects/{subjectId}, /competencies, /comments, /summary, /year-results; /assessment/comments/{id} (từ YCTD-161) | Tổng quan lớp (kỳ, môn, quyền nhập), bảng nhập theo `period_id`, lưu (`entries`: `child_id`, `level_code`, `score`, `comment`), nhận xét thường xuyên, tổng hợp cuối kỳ, gợi ý và xác nhận cuối năm; quá hạn, đã khoá trả 422 mã YCTD-161 |
+| GET, POST | /api/v1/assessment/locks, /locks/unlock; /assessment/children/{id} (từ YCTD-161) | Khoá kỳ (`period_id`, `class_ids` trống là mọi lớp của cấp trong phạm vi), mở khoá (`reason` bắt buộc); phụ huynh xem kết quả đã khoá của con |
 | GET, POST, PUT, DELETE | /api/v1/emulation/decisions, /{id}, /document, /outgoing, /issue, /upper-result; /emulation/awards/{id}/certificate; /emulation/history, /export, /{id}; GET /public/emulation-awards/verify | Quyết định, giấy khen, sổ theo dõi, tra cứu công khai (P09-38, P09-39) |
 | GET, PUT, POST, DELETE | /api/v1/website/settings, /website/settings/images/{purpose}, /website/sample-content, /website/disclosure-categories | Thông tin website, biểu trưng, ảnh đầu trang, nội dung mẫu, nhóm công khai (P14-13, YCTD-144) |
 | GET, POST, PATCH, DELETE | /api/v1/website/domains, /website/domains/{id}, /website/domains/{id}/dns-confirmation | Tên miền (P14-13, YCTD-144) |

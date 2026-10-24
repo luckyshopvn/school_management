@@ -64,6 +64,9 @@ import { KitchenMealsController, KitchenMealsService } from './kitchen/kitchen-m
 import { BoardingController, BoardingService } from './boarding/boarding.js';
 import { ConductController, ConductService } from './conduct/conduct.js';
 import { conductTransitionStep } from './conduct/conduct-transition.js';
+import { AssessmentConfigController, AssessmentConfigService } from './assessments/assessment-config.js';
+import { AssessmentsController, AssessmentsService } from './assessments/assessments.js';
+import { assessmentTransitionStep } from './assessments/assessment-transition.js';
 import { KitchenMenusController, KitchenMenusService } from './kitchen/kitchen-menus.js';
 import { MenuImportsController, MenuImportsService } from './kitchen/menu-imports.js';
 import { KitchenPurchasesController, KitchenPurchasesService } from './kitchen/kitchen-purchases.js';
@@ -533,6 +536,8 @@ export class ApplicationModule {
         KitchenMealsController,
         BoardingController,
         ConductController,
+        AssessmentConfigController,
+        AssessmentsController,
         KitchenPurchasesController,
         // Bán trú: kiểm thực ba bước và an toàn thực phẩm (DT-18 phần 22b)
         FoodSafetyRecordsController,
@@ -686,6 +691,7 @@ export class ApplicationModule {
             educationPlansTransitionStep,
             emulationTransitionStep,
             qualityAssuranceTransitionStep,
+            assessmentTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -759,6 +765,8 @@ export class ApplicationModule {
         KitchenMealsService,
         BoardingService,
         ConductService,
+        AssessmentConfigService,
+        AssessmentsService,
         KitchenMenusService,
         MenuImportsService,
         KitchenPurchasesService,
