@@ -478,11 +478,16 @@ describe('Điểm cuối máy xếp thời khoá biểu', () => {
       teachers[0]?.userId,
     );
 
-    // Đổi tiết: hai tiết khác môn của lớp 1B trong cùng ngày; tránh giáo viên 3 (dạy cả lớp 1A) để không vướng tiết của lớp
+    // Đổi tiết: hai tiết khác môn của lớp 1B trong cùng ngày; tránh giáo viên 3 (dạy cả lớp 1A) và người vừa dạy thay để không vướng tiết của lớp
     // khác
     const dayB = list(
       (await api('GET', `/timetable-changes/day?date=${schoolDay}&class_id=${classes['1B']}`, viewer.accessToken)).body,
-    ).filter((lesson) => lesson.teacher_user_id !== teachers[2]?.userId && !lesson.change);
+    ).filter(
+      (lesson) =>
+        lesson.teacher_user_id !== teachers[2]?.userId &&
+        lesson.teacher_user_id !== substitute?.userId &&
+        !lesson.change,
+    );
     const first = dayB[0] as Record<string, unknown>;
     const second = dayB.find((lesson) => lesson.subject_name !== first.subject_name) as Record<string, unknown>;
     const swap = await api('POST', '/timetable-changes', principal.accessToken, {

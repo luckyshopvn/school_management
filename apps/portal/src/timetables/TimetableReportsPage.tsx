@@ -20,7 +20,7 @@ import {
 } from './timetable-generator-api.js';
 import { listLevelClasses } from './TimetableGeneratorPage.js';
 
-// 7.10 Báo cáo tiết dạy, dùng phòng và mã QR tra cứu (DT-20 phần 22c2, YCTD-164): tiết dạy theo giáo viên trong khoảng ngày
+// 7.11 Báo cáo tiết dạy, dùng phòng và mã QR tra cứu (DT-20 phần 22c2, YCTD-164): tiết dạy theo giáo viên trong khoảng ngày
 // (theo thời khoá biểu, dạy thay, được dạy thay, đổi tiết, thực dạy); dùng phòng của bản đang áp dụng; mã QR của lớp hoặc
 // giáo viên trỏ tới trang tra cứu công khai (địa chỉ ghép từ tên miền đang mở), in được, thu hồi được
 const messageOf = (error: unknown) =>
