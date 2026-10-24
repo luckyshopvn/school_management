@@ -1,8 +1,8 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.76
-- Ngày cập nhật: 2026-10-23
+- Phiên bản: 1.77
+- Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -244,6 +244,9 @@ Bổ sung ngày 2026-10-09 theo yêu cầu tách vai trò Ban Giám hiệu thàn
 | BR-171 | Quyền nhập đánh giá học sinh (YCTD-161): giáo viên bộ môn được phân công môn của lớp nhập môn đó; giáo viên chủ nhiệm nhập môn chưa có giáo viên bộ môn, phẩm chất, năng lực, kết quả cuối năm; người quản lý đánh giá nhập thay; mức phải có ở thang của cấp; điểm bài kiểm tra là số nguyên 1 đến 10, chỉ ở môn, khối có bài kiểm tra của kỳ |
 | BR-172 | Hạn nhập và khoá số liệu (YCTD-161): hạn là ngày ghi ở kỳ, trống là ngày kết thúc học kỳ theo lịch của cấp; quá hạn chỉ người quản lý sửa; kỳ đã khoá ở lớp thì không ai sửa đến khi mở khoá kèm lý do; phụ huynh chỉ xem kỳ đã khoá |
 | BR-173 | Gợi ý kết quả cuối năm (Điều 9 Thông tư 27/2020, YCTD-161): Hoàn thành xuất sắc khi mọi môn, phẩm chất, năng lực ở mức hạng 1 và bài kiểm tra cuối năm từ 9; Hoàn thành tốt như trên với bài kiểm tra từ 7; Hoàn thành khi không có mức hạng cuối và bài kiểm tra từ 5; còn lại Chưa hoàn thành; thiếu kết quả không gợi ý; giáo viên chủ nhiệm xác nhận |
+| BR-175 | Khen thưởng học sinh (Điều 15 Thông tư 27/2020, YCTD-163): đề nghị khi kỳ cuối năm đã khoá; danh hiệu căn cứ Hoàn thành xuất sắc chỉ cho học sinh có kết quả cuối năm Hoàn thành xuất sắc; căn cứ tiêu biểu cho Hoàn thành tốt trở lên và bắt buộc ghi thành tích; đột xuất bắt buộc ghi thành tích; không trùng danh hiệu; Ban Giám hiệu duyệt cấp mã tra cứu, không duyệt phải ghi lý do |
+| BR-176 | Hoàn thành chương trình (Điều 11, YCTD-163): kết quả cuối năm từ Hoàn thành trở lên là hoàn thành chương trình lớp học, lên khối kế tiếp; ở khối cuối cấp là hoàn thành chương trình cấp học; chưa hoàn thành thì rèn luyện trong hè hoặc kiểm tra lại, đánh giá bổ sung đạt thì lên lớp, chưa đạt thì ở lại lớp |
+| BR-177 | Học bạ số (Điều 13, YCTD-163): lập từ kết quả kỳ cuối năm đã khoá; Hiệu trưởng xác nhận và kí nội bộ, người kí có quyền xem số định danh; đã kí thì không sửa, mở lại phải có lý do; tệp đã kí in đủ số định danh, chỉ người có quyền xem số định danh hoặc phụ huynh của học sinh tải được; phụ huynh chỉ xem học bạ đã kí |
 
 Danh mục chứng từ áp dụng hạn mức: phiếu chi, phiếu đảo phiếu thu (YCTD-23), phiếu đảo phiếu chi (YCTD-24), đề nghị mua hàng, phiếu điều chỉnh hóa đơn, miễn giảm học phí, bảng lương kỳ, chốt kỳ tài chính. Mức hạn mức cụ thể chưa có, xem Q-22 và Q-112.
 

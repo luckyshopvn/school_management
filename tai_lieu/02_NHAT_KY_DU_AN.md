@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.40
+- Phiên bản: 0.41
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,28 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-24 — DT-20 phần 20e: học bạ số, khen thưởng cuối năm, hoàn thành chương trình, lên lớp
+
+#### Công việc đã thực hiện
+
+- Đọc mục 11 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và Thông tư 27/2020/TT-BGDĐT; rà kết quả đánh giá, khoá số liệu của 20c, luồng kí nội bộ 16k, mẫu giấy khen 22d, số định danh và nhật ký truy cập, khối kế tiếp của 19b, bước chuyển năm học.
+- Cơ sở dữ liệu: tệp năm học `0081_create_student_records`, tệp định danh `0072_add_student_record_permissions`.
+- Máy chủ API: danh hiệu, đề nghị, duyệt khen thưởng, giấy khen, tra cứu công khai; hoàn thành chương trình, rèn luyện, kiểm tra lại, lên lớp; học bạ (lập, nhận xét, kí nội bộ, mở lại, tải); phụ huynh xem; kết chuyển năm học.
+- Cổng quản trị: 7.8 Học bạ, khen thưởng, lên lớp; ứng dụng phụ huynh: học bạ.
+- Thêm quy tắc BR-175 đến BR-177, chức năng P02-48 đến P02-50, kịch bản CT-870 đến CT-876, tiêu chí AC-769 đến AC-772. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/learning-records/learning-records.test.ts` CT-20e-1 đến CT-20e-6 đạt 6/6 (gồm mở năm học mới để kiểm kết chuyển); kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.8 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của Tiểu học của CT-19c-1); kiểm thử đơn vị toàn bộ kho mã đạt 1070/1070; kiểm thử giao diện `tests/e2e/92-learning-records.spec.ts` (CT-20e-7) đạt; toàn bộ kiểm thử giao diện E2E_PLACEHOLDER; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 20e của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.4. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: học bạ là bản chốt dạng JSON lúc lập; người kí phải có quyền xem số định danh để in đủ như mẫu; tệp đã kí chỉ người có quyền xem số định danh hoặc phụ huynh tải được; học sinh hoàn thành tiểu học thôi học ở năm học mới khi kết chuyển.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-163, `07_QUY_TAC_NGHIEP_VU.md` BR-175 đến BR-177, `10_YEU_CAU_CHUC_NANG.md` P02-48 đến P02-50, `11_TIEU_CHI_NGHIEM_THU.md` AC-769 đến AC-772, `14_DAC_TA_GIAO_DIEN.md`, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-870 đến CT-876, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.8. Phiên bản 0.112.0.
+
+#### Vấn đề tồn đọng
+
+- Trang tra cứu mã giấy khen trên cổng công khai; xếp lớp năm mới tự động theo khối năm sau.
 
 ### 2026-10-24 — Kế hoạch DT-22 thư viện, bồi dưỡng, kho học liệu số (22a, 22e, 22h)
 

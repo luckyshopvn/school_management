@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.40
+- Phiên bản: 0.41
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,25 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-163: DT-20 phần 20e: học bạ số, khen thưởng cuối năm, hoàn thành chương trình, lên lớp – 2026-10-24
+
+- Lý do: phần 20e của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.4 (đợt 3 của DT-20, sau 20c). Văn bản căn cứ đã đọc: Thông tư 27/2020/TT-BGDĐT (Điều 11 hoàn thành chương trình lớp học, chương trình tiểu học và đánh giá bổ sung cho học sinh chưa hoàn thành; Điều 13 hồ sơ đánh giá là học bạ; Điều 15 khen thưởng: Hiệu trưởng tặng giấy khen học sinh Xuất sắc, học sinh Tiêu biểu hoàn thành tốt trong học tập và rèn luyện, khen thưởng đột xuất). Mọi số liệu đọc từ kết quả đánh giá đã khoá và kết quả cuối năm đã xác nhận của 20c, không nhập lại. Không đổi hành vi Mầm non (chương trình hoàn thành của Mầm non, 17c giữ nguyên). Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Khen thưởng cuối năm** (`apps/api/src/learning-records/learning-records.ts`): danh hiệu khen thưởng học sinh theo cấp cấu hình được (mã, tên, loại cuối năm hoặc đột xuất, căn cứ gợi ý), "Nạp danh hiệu mặc định": Học sinh Xuất sắc (căn cứ Hoàn thành xuất sắc), Học sinh Tiêu biểu hoàn thành tốt trong học tập và rèn luyện (căn cứ Hoàn thành tốt, bắt buộc ghi thành tích), Khen thưởng đột xuất (bắt buộc ghi thành tích). Máy gợi ý danh hiệu theo kết quả cuối năm; giáo viên chủ nhiệm (hoặc Ban Giám hiệu) đề nghị khi kỳ cuối năm đã khoá; danh hiệu cuối năm kiểm kết quả cuối năm; không trùng danh hiệu với một học sinh; Ban Giám hiệu duyệt (cấp mã tra cứu 12 kí tự) hoặc không duyệt (bắt buộc ghi lý do). Giấy khen PDF dùng mẫu giấy khen của 22d, in mã tra cứu; trang tra cứu công khai `/public/student-awards/verify` (giới hạn tần suất).
+  - **Hoàn thành chương trình, lên lớp:** kết quả cuối năm từ Hoàn thành trở lên là hoàn thành chương trình lớp học, lên khối kế tiếp theo 19b (`nextGradeLevel`); ở khối cuối cấp là hoàn thành chương trình cấp học (tiểu học). Chưa hoàn thành thì ghi hình thức rèn luyện trong hè hoặc kiểm tra lại và kết quả đánh giá bổ sung: đạt thì lên lớp (hoặc hoàn thành tiểu học), chưa đạt thì ở lại lớp; chưa đánh giá bổ sung là đang rèn luyện. Lưu khối năm sau của từng học sinh để xếp lớp năm mới; 20f (EMIS) đọc bảng này.
+  - **Học bạ số:** lập (hoặc lập lại) học bạ nháp của cả lớp khi kỳ cuối năm đã khoá: thông tin học sinh, quá trình học tập của năm, kết quả môn học, hoạt động giáo dục (mức đạt, điểm kiểm tra định kỳ cuối năm, nhận xét), phẩm chất chủ yếu, năng lực, đánh giá kết quả giáo dục, khen thưởng đã duyệt, hoàn thành chương trình, nhận xét của giáo viên chủ nhiệm; nội dung chốt ở học bạ, sửa kết quả sau đó không đổi học bạ đã kí. Hiệu trưởng xác nhận và kí bằng luồng kí nội bộ (16k, `DossierSigner`, cần chứng thư đã đăng ký); tệp đã kí lưu ở kho tệp; mở lại học bạ đã kí phải có lý do; lập lại không đụng học bạ đã kí. PDF in đủ số định danh như mẫu khi người xem, người kí có quyền xem số định danh trong phạm vi đơn vị (ghi nhật ký truy cập dữ liệu), còn lại in che; tệp đã kí chỉ người có quyền xem số định danh hoặc phụ huynh của học sinh tải được; người kí phải có quyền xem số định danh.
+  - **Phụ huynh** ở ứng dụng phụ huynh (con học Tiểu học, `LEVEL_FEATURES.learning_record`): học bạ các năm đã kí (tải PDF), khen thưởng đã duyệt (tải giấy khen), kết quả hoàn thành chương trình.
+  - **Kết chuyển năm học** (dùng cơ chế chuyển năm có sẵn): danh hiệu khen thưởng, học bạ của mọi năm (không trỏ lớp) chép sang năm học mới; học sinh hoàn thành chương trình cấp học chuyển trạng thái "Hoàn thành chương trình" và thôi xếp lớp ở năm học mới; khen thưởng, kết quả ở lại năm cũ.
+  - **Quyền mới** (tệp định danh `0072`): `P02.student-record.approve` (VT-02, VT-15). Giáo viên chủ nhiệm dùng quyền nhập đánh giá của 20c và phân công chủ nhiệm; xem: `P02.assessment.view`.
+  - **Giao diện:** cổng quản trị mục 7.8 "Học bạ, khen thưởng, lên lớp" (chỉ khi trường bật Tiểu học) với các thẻ Khen thưởng, Hoàn thành chương trình, Học bạ, Danh hiệu (Ban Giám hiệu); ứng dụng phụ huynh có nút "Học bạ" ở con Tiểu học.
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/school-year/migrations/0081_create_student_records.ts`, `database/identity/migrations/0072_add_student_record_permissions.ts`, `schema.ts`); gói dùng chung (`student-records.ts`, `PERMISSION_CODES`, `portal-menu.ts`, `menu-permissions.ts`, `level-features.ts`); máy chủ API (`learning-records/`); cổng quản trị (`learning-records/`); ứng dụng phụ huynh (`LearningRecordPanel.tsx`).
+- Dữ liệu bị ảnh hưởng: tệp năm học `0081` thêm `student_award_titles`, `student_awards`, `completion_results`, `learning_records`; tệp định danh `0072` thêm một quyền. Không đổi dữ liệu đang có.
+- Đối chiếu trước, sau chuyển: không chuyển dữ liệu; học bạ, khen thưởng trống đến khi nhà trường lập.
+- Rủi ro: học bạ là bản chốt lúc lập; sửa đánh giá sau khi lập phải lập lại học bạ nháp (học bạ đã kí phải mở lại trước).
+- Chưa làm trong phần này, ghi để làm tiếp: trang tra cứu mã giấy khen trên cổng công khai (điểm cuối công khai đã có, mã QR in mã); xếp lớp năm mới tự động theo khối năm sau (dữ liệu khối năm sau đã có, xếp lớp vẫn theo chuyển lớp ở năm mới).
+- Kiểm thử cần thực hiện: CT-870 đến CT-876. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/learning-records/learning-records.test.ts` CT-20e-1 đến CT-20e-6 đạt 6/6 (gồm mở năm học mới để kiểm kết chuyển); kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.8 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của Tiểu học của CT-19c-1); kiểm thử đơn vị toàn bộ kho mã đạt 1070/1070; kiểm thử giao diện `tests/e2e/92-learning-records.spec.ts` (CT-20e-7) đạt; toàn bộ kiểm thử giao diện E2E_PLACEHOLDER; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Trạng thái: Đã triển khai (PR #143).
 
 ### YCTD-180: Kế hoạch DT-22 thư viện, bồi dưỡng, kho học liệu số (22a, 22e, 22h) – 2026-10-24
 

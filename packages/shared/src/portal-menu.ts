@@ -162,7 +162,7 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           // Đánh giá học sinh theo Thông tư 27/2020 (DT-20 phần 20c)
           leaf('7.5.', 'Đánh giá học sinh', '/student-assessments'),
           // Học bạ số, khen thưởng, hoàn thành chương trình, lên lớp (DT-20 phần 20e)
-          leaf('7.6.', 'Học bạ, khen thưởng, lên lớp', '/learning-records'),
+          leaf('7.8.', 'Học bạ, khen thưởng, lên lớp', '/learning-records'),
         ]),
       ),
     ],
