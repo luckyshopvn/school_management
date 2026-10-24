@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.50
+- Phiên bản: 0.51
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -11,6 +11,24 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-172: DT-21 phần 21e: học bạ số, khen thưởng, xét lên lớp THCS, THPT – 2026-10-24
+
+- Lý do: phần 21e của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.3, 12.4 (kế hoạch DT-21 ở YCTD-166; sổ điểm 21c ở YCTD-170; khung học bạ Tiểu học 20e ở YCTD-163). Văn bản căn cứ: Thông tư 22/2021/TT-BGDĐT (danh hiệu học sinh Xuất sắc, Giỏi; điều kiện lên lớp; rèn luyện trong hè, kiểm tra lại); điều kiện nhớ theo văn bản, chưa đối chiếu toàn văn nên để hằng số, ghi vào tài liệu. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi:
+  - **Dùng lại khung 20e** (`apps/api/src/learning-records`): các bảng `student_award_titles`, `student_awards`, `completion_results`, `learning_records` và điểm cuối `/learning-records` nhận lớp THCS, THPT; kết quả cuối năm đọc từ sổ điểm 21c (học kỳ II đã khoá điểm, xếp loại học tập, rèn luyện cả năm đã xác nhận); không thêm điểm cuối, không thêm quyền (định danh `0080` để trống).
+  - **Khen thưởng:** danh hiệu mặc định THCS, THPT (Xuất sắc, Giỏi, đột xuất); căn cứ `secondary_excellent` (học tập, rèn luyện cả năm Tốt và ít nhất 6 môn tính điểm có trung bình cả năm từ 9,0), `secondary_good` (học tập, rèn luyện cả năm Tốt); gợi ý danh hiệu cao nhất đủ điều kiện (hàm dùng chung `secondaryAwardBases`).
+  - **Xét lên lớp:** học tập và rèn luyện cả năm từ Đạt trở lên là lên lớp, khối cuối cấp là hoàn thành chương trình cấp học; Chưa đạt thì rèn luyện trong hè, kiểm tra lại rồi lên lớp hoặc ở lại lớp (`secondaryPassed`, `completionOutcome`).
+  - **Học bạ:** nội dung thêm khối `secondary` (điểm trung bình môn học kỳ I, II, cả năm, kết quả môn nhận xét, xếp loại học tập, rèn luyện theo kỳ và cả năm), bố cục PDF riêng; kí nội bộ (16k, 17b) in đủ số định danh kèm kiểm quyền xem số định danh và nhật ký truy cập như 20e.
+  - **Giao diện:** mục 7.8 dùng chung ba cấp (chọn lớp Tiểu học, THCS, THPT; nạp danh hiệu theo cấp; kết quả cuối năm hiện học tập, rèn luyện); ứng dụng phụ huynh nút "Học bạ" cho THCS, THPT.
+  - Dữ liệu: tệp năm học `0089_widen_award_basis` (thêm hai căn cứ danh hiệu).
+- Thành phần bị ảnh hưởng: `database`, `packages/shared`, `apps/api` (learning-records, scores), `apps/portal`, tài liệu `01`, `02`, `07`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`.
+- Dữ liệu bị ảnh hưởng: nới ràng buộc căn cứ danh hiệu; dữ liệu cũ giữ nguyên.
+- API bị ảnh hưởng: các điểm cuối `/learning-records` trả thêm trường cho lớp mọi cấp (`has_result`, `needs_support`, `year_label`, `learning`, `conduct`); Tiểu học không đổi giá trị cũ.
+- Giao diện bị ảnh hưởng: mục 7.8, ứng dụng phụ huynh; trường chỉ có Mầm non thấy như cũ.
+- Quyền bị ảnh hưởng: không thêm quyền.
+- Ảnh hưởng chức năng cũ: không đổi kỳ vọng kiểm thử cũ của 20e (CT-20e-1 đến CT-20e-6).
+- Kiểm thử cần thực hiện: CT-934 đến CT-939; kiểm thử đơn vị gói học bạ, sổ điểm, menu; e2e 100, 92, 98 và 02, 03, 58; typecheck, lint, build.
+- Trạng thái: Đã triển khai
 ### YCTD-182: DT-22 phần 22e: hồ sơ bồi dưỡng giáo viên – 2026-10-24
 
 - Lý do: phần 22e của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 13.3, 13.4 (kế hoạch DT-22, Eric duyệt bản chín phần ngày 2026-10-19). Chỉ phần quản trị (ghi nhận, theo dõi, cấp chứng nhận), không làm lớp học trực tuyến, khoá học điện tử, bài thi trực tuyến. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
@@ -235,7 +253,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/school-year/migrations/0100_create_library.ts`, `database/identity/migrations/0090_add_library_permissions.ts`, `schema.ts`, `index.ts`, `database/src/index.ts`); máy chủ API (`library/library-calc.ts`, `library-core.ts`, `library-catalog.ts`, `library-circulation.ts`, `library-reports.ts`, `library-transition.ts`, `application.module.ts`); cổng quản trị (`apps/portal/src/library/`, `router.tsx`, `pages/workspaces.tsx`); ứng dụng giáo viên (`screens/MyLibraryScreen.tsx`, `ClassesScreen.tsx`, `Application.tsx`); ứng dụng phụ huynh (`screens/LibraryPanel.tsx`, `HomeScreen.tsx`); gói dùng chung (`index.ts`, `portal-menu.ts`, `menu-permissions.ts`, `level-features.ts`); kiểm thử (`library.test.ts`, `tests/e2e/120-library.spec.ts`, số phân hệ ở `58-system-admin-full-so.spec.ts`, `system-admin-so.test.ts`).
 - Dữ liệu bị ảnh hưởng: 15 bảng mới, hai quyền mới; không đổi dữ liệu cũ.
 - API bị ảnh hưởng: mới `/library/*` (xem `17_DAC_TA_API.md`).
-- Giao diện bị ảnh hưởng: MH-288 đến MH-296.
+- Giao diện bị ảnh hưởng: MH-289 đến MH-297.
 - Quyền bị ảnh hưởng: PQ-99. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
 - Ảnh hưởng chức năng cũ: trường chỉ có Mầm non thấy thêm phân hệ "Thư viện" (cán bộ mượn sách) và nút "Sách tôi đang mượn" ở ứng dụng giáo viên; kho nội dung Mầm non không đổi; số phân hệ ở 1.2 Phân quyền nhóm thành 20.
 - Hạn chế (ghi để làm sau):
@@ -245,7 +263,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
   - Danh sách lượt mượn trên giao diện chỉ lọc đang mượn, quá hạn; chưa có thẻ đã trả, đã mất; chưa cấp thẻ lẻ từng người (có đồng bộ thẻ);
   - Chỉ tiêu theo chuẩn thư viện chưa nạp ngưỡng mặc định (cần đọc văn bản gốc);
   - Bồi thường sách mất chỉ ghi nhận, không thu tiền.
-- Kiểm thử cần thực hiện: kịch bản CT-934 đến CT-943 (trong mã kiểm thử là CT-22a-1 đến CT-22a-9); kiểm thử đơn vị mới `apps/api/src/library/library.test.ts`; kiểm thử giao diện mới `tests/e2e/120-library.spec.ts`; kiểm thử đang có không sửa kỳ vọng, trừ số phân hệ ở CT-16d-12 (`58-system-admin-full-so.spec.ts`) và `system-admin-so.test.ts` (19 thành 20). Kết quả: kiểm thử đơn vị `apps/api/src/library/library.test.ts` CT-22a-1 đến CT-22a-8 đạt 8/8; trên máy đã chạy kiểm thử đơn vị các gói sửa (thư viện, số phân hệ `system-admin-so`, đường dẫn nhanh, cấp học, chuyển năm học) đạt 52/52; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 81, 82, 84 và `tests/e2e/120-library.spec.ts` (CT-22a-9) đạt; kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
+- Kiểm thử cần thực hiện: kịch bản CT-940 đến CT-949 (trong mã kiểm thử là CT-22a-1 đến CT-22a-9); kiểm thử đơn vị mới `apps/api/src/library/library.test.ts`; kiểm thử giao diện mới `tests/e2e/120-library.spec.ts`; kiểm thử đang có không sửa kỳ vọng, trừ số phân hệ ở CT-16d-12 (`58-system-admin-full-so.spec.ts`) và `system-admin-so.test.ts` (19 thành 20). Kết quả: kiểm thử đơn vị `apps/api/src/library/library.test.ts` CT-22a-1 đến CT-22a-8 đạt 8/8; trên máy đã chạy kiểm thử đơn vị các gói sửa (thư viện, số phân hệ `system-admin-so`, đường dẫn nhanh, cấp học, chuyển năm học) đạt 52/52; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 81, 82, 84 và `tests/e2e/120-library.spec.ts` (CT-22a-9) đạt; kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
 - Trạng thái: Đã triển khai
 
 ### YCTD-180: Kế hoạch DT-22 thư viện, bồi dưỡng, kho học liệu số (22a, 22e, 22h) – 2026-10-24

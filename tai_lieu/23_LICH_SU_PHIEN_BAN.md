@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.46
+- Phiên bản: 0.47
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,18 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.120.0 – 2026-10-24
+### Phiên bản 0.121.0 – 2026-10-24
 
 - Phạm vi thay đổi: DT-22 phần 22a, thư viện trường học (YCTD-181).
 - Chức năng mới: phân hệ "Thư viện" (danh mục ấn phẩm, bản sao có số đăng ký cá biệt và tem mã QR, thanh lý, tệp tài liệu số, sổ đăng ký cá biệt; thẻ bạn đọc cho cán bộ và học sinh; mượn, trả, gia hạn, báo mất, phạt trễ hạn, nhắc quá hạn, đặt trước; phát và thu sách giáo khoa theo bộ sách của khối; kiểm kê và xử lý bản thiếu; báo cáo, chỉ tiêu theo chuẩn thư viện có ngưỡng cấu hình; thiết lập quy định mượn); ứng dụng giáo viên "Sách tôi đang mượn", ứng dụng phụ huynh "Sách thư viện".
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp năm học `0100_create_library` (15 bảng `library_*`); tệp định danh `0090_add_library_permissions`; chuyển năm học chép kho thư viện sang năm mới.
 - Thay đổi API: `/library/*` (xem `17_DAC_TA_API.md`).
-- Kiểm thử: kịch bản CT-934 đến CT-943. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/library/library.test.ts` CT-22a-1 đến CT-22a-8 đạt 8/8; trên máy đã chạy kiểm thử đơn vị các gói sửa (thư viện, số phân hệ `system-admin-so`, đường dẫn nhanh, cấp học, chuyển năm học) đạt 52/52; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 81, 82, 84 và `tests/e2e/120-library.spec.ts` (CT-22a-9) đạt; kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
+- Kiểm thử: kịch bản CT-940 đến CT-949. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/library/library.test.ts` CT-22a-1 đến CT-22a-8 đạt 8/8; trên máy đã chạy kiểm thử đơn vị các gói sửa (thư viện, số phân hệ `system-admin-so`, đường dẫn nhanh, cấp học, chuyển năm học) đạt 52/52; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 81, 82, 84 và `tests/e2e/120-library.spec.ts` (CT-22a-9) đạt; kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
 - Rủi ro: chỉ tiêu theo chuẩn thư viện chưa có ngưỡng mặc định vì chưa đọc văn bản gốc, trường tự nhập; không có thay đổi dữ liệu cũ.
 - Khả năng tương thích: không đổi bảng `library_items`, `library_albums` (kho nội dung Mầm non) và `asset_loans` (mượn thiết bị); trường chỉ có Mầm non chỉ có cán bộ mượn sách.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 22a; chạy phần quay lui của tệp năm học `0100`, định danh `0090`.
 
+### Phiên bản 0.120.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-21 phần 21e, học bạ số, khen thưởng, xét lên lớp THCS, THPT (YCTD-172).
+- Chức năng mới: danh hiệu học sinh Xuất sắc, Giỏi theo Thông tư 22/2021 (gợi ý, đề nghị, duyệt, giấy khen có mã tra cứu); xét lên lớp, hoàn thành chương trình cấp học, rèn luyện trong hè, kiểm tra lại theo xếp loại học tập, rèn luyện cả năm; học bạ số có điểm trung bình hai học kỳ, cả năm, xếp loại, kí nội bộ in đủ số định danh kèm kiểm quyền; phụ huynh tải học bạ đã kí; mục 7.8 dùng chung Tiểu học, THCS, THPT.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: tệp năm học `0089_widen_award_basis` (thêm căn cứ danh hiệu THCS, THPT); tệp định danh `0080` để trống (dùng quyền học bạ của 20e, không thêm quyền).
+- Thay đổi API: không thêm điểm cuối; các điểm cuối `/learning-records` nhận lớp THCS, THPT, trả thêm `has_result`, `needs_support`, `year_label`, `learning`, `conduct`.
+- Kiểm thử: kịch bản CT-934 đến CT-939. Kết quả ngày 24/10/2026: kiểm thử đơn vị `learning-records-secondary.test.ts` CT-21e-1 đến CT-21e-5 đạt 5/5; chạy cùng học bạ 20e, sổ điểm 21c, sổ điểm, môn học, đánh giá, menu, cấp học đạt 45/45; typecheck, prettier đạt; e2e 100, 92, 98, 58 và 02, 03, 06, 08 đạt; e2e CT-21e-6 đạt; e2e toàn bộ do CI chạy.
+- Rủi ro: điều kiện danh hiệu Xuất sắc (6 môn từ 9,0), điều kiện lên lớp là mặc định theo Thông tư 22/2021, cần đối chiếu văn bản gốc; mẫu học bạ THCS, THPT là bố cục chung, mẫu của Bộ, Sở khớp khi khảo sát; chưa khảo sát hệ thống của Sở cấp THCS, THPT.
+- Khả năng tương thích: học bạ, khen thưởng, lên lớp Tiểu học không đổi; trường chỉ có Mầm non thấy như cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 21e; chạy phần quay lui của tệp năm học `0089`.
 ### Phiên bản 0.119.0 – 2026-10-24
 
 - Phạm vi thay đổi: DT-22 phần 22e, hồ sơ bồi dưỡng giáo viên (YCTD-182).

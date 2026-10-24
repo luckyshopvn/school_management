@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.111
+- Phiên bản: 1.112
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -93,21 +93,21 @@
 | class_logs | Sổ đầu bài: một lớp, ngày, tiết một dòng (P02-45, BR-174; YCTD-162, tệp năm học `0080_create_class_logs`) | class_id, lesson_date, period_no (1 đến 15), subject_id, timetable_lesson_id (khóa ngoại, xóa thì để trống), teacher_user_id, teacher_name, lesson_title (1 đến 300 ký tự), content, comment, rating (A, B, C, D), status (`draft`, `signed`), signed_at, created_by, thời điểm tạo, sửa; duy nhất theo lớp, ngày, tiết |
 | period_attendance | Điểm danh theo tiết (P02-45, P02-47; YCTD-162) | class_log_id (khóa ngoại, xóa theo), child_id, status (`present`, `late`, `absent_excused`, `absent_unexcused`), note; khóa chính lớp tiết, học sinh |
 | class_log_reviews | Ban giám hiệu ký sổ đầu bài theo tuần (P02-46; YCTD-162) | class_id, week_start (thứ Hai), reviewer_user_id, reviewer_name, comment, signed_at; duy nhất theo lớp, tuần |
-| library_settings | Thiết lập thư viện, một dòng (P02-70, BR-187, BR-188; YCTD-181, tệp năm học `0100_create_library`) | student_levels (mảng cấp có học sinh mượn, mặc định TH, THCS, THPT), hold_days (1 đến 30), updated_by_name, updated_at |
-| library_loan_rules | Quy định mượn theo loại bạn đọc (P02-70, BR-187; YCTD-181) | reader_kind (`staff`, `student`, khóa chính), max_items, loan_days, max_renewals, fine_per_day (0 là không phạt) |
-| library_categories | Phân loại ấn phẩm cấu hình được, có bộ mặc định SGK, SGV, STK, TRUYEN, BAO, TLS (P02-66; YCTD-181) | code (duy nhất), name, lendable (cho mượn về), order_no, status |
-| library_titles | Ấn phẩm (P02-66; YCTD-181) | category_id, title, authors, publisher, publish_year, isbn, school_level, grade_level, subject_id (khóa ngoại `subjects`), topic, language, shelf, description, status (`active`, `retired`) |
-| library_title_files | Tệp tài liệu số đính vào ấn phẩm, lưu ở kho tệp riêng (P02-66; YCTD-181) | title_id, file_name, content_type, size_bytes, storage_key, created_by |
-| library_copies | Bản sao có số đăng ký cá biệt, cũng là nội dung mã vạch, mã QR (P02-66, BR-189; YCTD-181) | title_id, copy_no (duy nhất, dạng SH-nnnnnn), source (`purchase`, `donation`, `supplied`), price, acquired_on, shelf, condition (`good`, `damaged`, `lost`, `disposed`), note, disposed_on, disposal_reason, disposed_by_name |
-| library_readers | Thẻ bạn đọc của cán bộ hoặc học sinh (P02-67, BR-187; YCTD-181) | reader_kind, staff_id (khóa ngoại `staff`) hoặc child_id (khóa ngoại `children`), đúng một trong hai và duy nhất theo người, card_no (duy nhất, dạng TV-nnnnnn), status (`active`, `locked`), locked_reason, issued_on |
-| library_loans | Lượt mượn một bản (P02-68, P02-69, BR-187; YCTD-181) | copy_id, reader_id, class_id, kind (`regular`, `textbook`), loaned_on, due_on, returned_on, renewals, status (`open`, `returned`, `lost`), return_condition, fine_amount, note, loaned_by_name, received_by_name, reminded_on; một bản chỉ một lượt mở |
-| library_reservations | Đặt trước theo ấn phẩm (P02-68, BR-188; YCTD-181) | title_id, reader_id, status (`waiting`, `ready`, `fulfilled`, `cancelled`, `expired`), copy_id (bản đang giữ), reserved_at, ready_on, expires_on, closed_at; duy nhất lượt đang mở theo ấn phẩm, bạn đọc |
-| library_textbook_sets | Bộ sách giáo khoa theo khối để phát cho lớp (P02-69, BR-189; YCTD-181) | name, grade_level, status |
-| library_textbook_set_titles | Đầu sách của bộ sách giáo khoa (P02-69; YCTD-181) | set_id (khóa ngoại, xóa theo), title_id; khóa chính (set_id, title_id) |
-| library_stocktakes | Đợt kiểm kê (P02-70, BR-189; YCTD-181) | name, shelf (trống là cả kho), status (`open`, `closed`), started_by_name, started_at, closed_at, closed_by_name |
-| library_stocktake_items | Bản sao đã quét trong đợt kiểm kê (P02-70; YCTD-181) | stocktake_id, copy_id, scanned_by_name, scanned_at; khóa chính (stocktake_id, copy_id) |
-| library_indicators | Chỉ tiêu báo cáo theo chuẩn thư viện, ngưỡng để trống đến khi đọc văn bản gốc (P02-70, BR-189; YCTD-181) | code (khóa chính), name, threshold, enabled, order_no |
-| library_counters | Bộ đếm cấp số đăng ký cá biệt (copy) và số thẻ (card) (P02-66, P02-67; YCTD-181) | name (khóa chính), value |
+| library_settings | Thiết lập thư viện, một dòng (P02-73, BR-188, BR-189; YCTD-181, tệp năm học `0100_create_library`) | student_levels (mảng cấp có học sinh mượn, mặc định TH, THCS, THPT), hold_days (1 đến 30), updated_by_name, updated_at |
+| library_loan_rules | Quy định mượn theo loại bạn đọc (P02-73, BR-188; YCTD-181) | reader_kind (`staff`, `student`, khóa chính), max_items, loan_days, max_renewals, fine_per_day (0 là không phạt) |
+| library_categories | Phân loại ấn phẩm cấu hình được, có bộ mặc định SGK, SGV, STK, TRUYEN, BAO, TLS (P02-69; YCTD-181) | code (duy nhất), name, lendable (cho mượn về), order_no, status |
+| library_titles | Ấn phẩm (P02-69; YCTD-181) | category_id, title, authors, publisher, publish_year, isbn, school_level, grade_level, subject_id (khóa ngoại `subjects`), topic, language, shelf, description, status (`active`, `retired`) |
+| library_title_files | Tệp tài liệu số đính vào ấn phẩm, lưu ở kho tệp riêng (P02-69; YCTD-181) | title_id, file_name, content_type, size_bytes, storage_key, created_by |
+| library_copies | Bản sao có số đăng ký cá biệt, cũng là nội dung mã vạch, mã QR (P02-69, BR-190; YCTD-181) | title_id, copy_no (duy nhất, dạng SH-nnnnnn), source (`purchase`, `donation`, `supplied`), price, acquired_on, shelf, condition (`good`, `damaged`, `lost`, `disposed`), note, disposed_on, disposal_reason, disposed_by_name |
+| library_readers | Thẻ bạn đọc của cán bộ hoặc học sinh (P02-70, BR-188; YCTD-181) | reader_kind, staff_id (khóa ngoại `staff`) hoặc child_id (khóa ngoại `children`), đúng một trong hai và duy nhất theo người, card_no (duy nhất, dạng TV-nnnnnn), status (`active`, `locked`), locked_reason, issued_on |
+| library_loans | Lượt mượn một bản (P02-71, P02-72, BR-188; YCTD-181) | copy_id, reader_id, class_id, kind (`regular`, `textbook`), loaned_on, due_on, returned_on, renewals, status (`open`, `returned`, `lost`), return_condition, fine_amount, note, loaned_by_name, received_by_name, reminded_on; một bản chỉ một lượt mở |
+| library_reservations | Đặt trước theo ấn phẩm (P02-71, BR-189; YCTD-181) | title_id, reader_id, status (`waiting`, `ready`, `fulfilled`, `cancelled`, `expired`), copy_id (bản đang giữ), reserved_at, ready_on, expires_on, closed_at; duy nhất lượt đang mở theo ấn phẩm, bạn đọc |
+| library_textbook_sets | Bộ sách giáo khoa theo khối để phát cho lớp (P02-72, BR-190; YCTD-181) | name, grade_level, status |
+| library_textbook_set_titles | Đầu sách của bộ sách giáo khoa (P02-72; YCTD-181) | set_id (khóa ngoại, xóa theo), title_id; khóa chính (set_id, title_id) |
+| library_stocktakes | Đợt kiểm kê (P02-73, BR-190; YCTD-181) | name, shelf (trống là cả kho), status (`open`, `closed`), started_by_name, started_at, closed_at, closed_by_name |
+| library_stocktake_items | Bản sao đã quét trong đợt kiểm kê (P02-73; YCTD-181) | stocktake_id, copy_id, scanned_by_name, scanned_at; khóa chính (stocktake_id, copy_id) |
+| library_indicators | Chỉ tiêu báo cáo theo chuẩn thư viện, ngưỡng để trống đến khi đọc văn bản gốc (P02-73, BR-190; YCTD-181) | code (khóa chính), name, threshold, enabled, order_no |
+| library_counters | Bộ đếm cấp số đăng ký cá biệt (copy) và số thẻ (card) (P02-69, P02-70; YCTD-181) | name (khóa chính), value |
 | curriculum_subjects | Số tiết mỗi tuần theo khối của chương trình (P02-34; YCTD-158) | curriculum_id (khóa ngoại `curricula`, xóa theo), subject_id, grade_level_code, periods_per_week (numeric 4,1), is_elective; duy nhất theo chương trình, môn, khối |
 | child_elective_subjects | Môn tự chọn của học sinh (P02-36; YCTD-158) | child_id (khóa ngoại `children`, xóa theo), subject_id, created_at, created_by; khóa chính (child_id, subject_id) |
 | subjects (bổ sung) | YCTD-167, tệp năm học `0084_create_secondary_foundation` | `assessment` thêm giá trị `score` (môn đánh giá bằng điểm số); `option_group` (`social_science`, `natural_science`, `technology_arts`, có thể trống) là nhóm môn lựa chọn của THPT |
@@ -122,6 +122,7 @@
 | subject_term_results | Kết quả môn nhận xét, nhận xét của giáo viên môn (P02-58) | class_id, child_id, subject_id, term_type, result (`pass`, `fail`, trống), comment, người sửa; duy nhất theo học sinh, môn, học kỳ |
 | term_ratings | Xếp loại học tập, rèn luyện (P02-59) | class_id, child_id, term_type (`first_term`, `second_term`, `year`), learning_suggested, learning, conduct (`good`, `fair`, `pass`, `fail`), comment, người sửa; duy nhất theo lớp, học sinh, kỳ |
 | score_locks | Khoá điểm theo học kỳ và lớp (P02-59) | class_id, term_type, locked_by, locked_by_name, locked_at; khóa chính (class_id, term_type) |
+| student_award_titles (bổ sung) | YCTD-172, tệp năm học `0089_widen_award_basis` | `basis` thêm giá trị `secondary_excellent` (học sinh Xuất sắc), `secondary_good` (học sinh Giỏi) của THCS, THPT; bảng `student_awards`, `completion_results`, `learning_records` của 20e dùng chung (`completion_results.year_result` ghi mã xếp loại học tập cả năm; `learning_records.content` thêm khối `secondary` với điểm trung bình hai học kỳ, cả năm, xếp loại) |
 | org_unit_levels | Cấp học của đơn vị (YCTD-152, tệp năm học `0072`); đơn vị chưa có dòng coi là MN | org_unit_id (khóa ngoại, xóa theo), school_level, created_at, created_by; khóa chính (org_unit_id, school_level) |
 | catalog_items | Mục danh mục dùng chung, không thuộc đơn vị (P01-05, YCTD-42) | catalog_type (loại do hệ thống định nghĩa), code (duy nhất trong loại), name, order_no, status, attributes (thuộc tính riêng của loại; loại nghỉ phép có is_paid, deducts_annual_leave, insurance_paid, YCTD-59) |
 | school_profiles | Hồ sơ trường của Trường chính, một dòng mỗi năm học (P01-15, BR-103, YCTD-106); mỗi thẻ một cột jsonb khóa cố định | org_unit_id (duy nhất, Trường chính), general, other_info, foreign_elements, internet, it_infrastructure, office_accounts (mảng, không có mật khẩu), updated_by. Từ YCTD-136 `general` có thêm khóa cố định `floor_area_m2` (diện tích sàn xây dựng, số), `national_standard_level` ('1', '2'), `national_standard_year`, `accreditation_year` (số nguyên 1900 đến 2100), `national_standard_date`, `accreditation_date` (ngày), `national_standard_registration` (chữ), `accreditation_level` ('1' đến '4') cho 1.7 và báo cáo EMIS đọc |
