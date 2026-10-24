@@ -17,14 +17,17 @@ import { openMenu } from './menu.js';
 // hai học sinh (một nữ dân tộc thiểu số); Hiệu trưởng xem sĩ số theo khối, xuất Excel; biểu EMIS Tiểu học đầu năm tính số
 // học sinh từ dữ liệu, nhập tay một dòng, sửa khung thêm một dòng công thức. Cuối kịch bản trả khung, tắt lại Tiểu học. Dữ
 // liệu giả
-const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
-const system = createDatabase<SystemDatabase>(
-  replaceDatabaseName(readConnectionString('system'), E2E_SYSTEM_DATABASE_NAME),
-);
+// Kết nối tạo trong beforeAll để lần chạy lại (retry) trong cùng tiến trình không dùng kết nối đã đóng
+let identity: ReturnType<typeof createDatabase<IdentityDatabase>>;
+let system: ReturnType<typeof createDatabase<SystemDatabase>>;
 let schoolYear: ReturnType<typeof createDatabase<SchoolYearDatabase>>;
 const toast = (page: Page, text: string | RegExp) => page.getByRole('status').filter({ hasText: text });
 
 test.beforeAll(async () => {
+  identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
+  system = createDatabase<SystemDatabase>(
+    replaceDatabaseName(readConnectionString('system'), E2E_SYSTEM_DATABASE_NAME),
+  );
   const systemUrl = readConnectionString('system');
   const [databaseName] = await listDatabasesWithPrefix(systemUrl, E2E_SCHOOL_YEAR_DATABASE_PREFIX);
   schoolYear = createDatabase<SchoolYearDatabase>(replaceDatabaseName(systemUrl, databaseName ?? ''));
@@ -161,7 +164,7 @@ test('CT-20f-7: sĩ số Tiểu học theo khối, xuất Excel; biểu EMIS Ti�
 
     // EMIS Tiểu học đầu năm: dòng 201 tính từ dữ liệu, dòng 209 nhập tay
     await portal.getByRole('tab', { name: 'EMIS Tiểu học' }).click();
-    await portal.getByLabel('Biểu', { exact: true }).selectOption('emis-th-dau-nam');
+    await portal.getByRole('combobox', { name: /^Biểu/ }).selectOption('emis-th-dau-nam');
     const sheet = portal.getByRole('table', { name: 'Biểu EMIS Tiểu học đầu năm (khung)' });
     await expect(sheet.getByRole('row', { name: /^Tổng số học sinh/ })).toContainText(String(primaryStudents.count));
     await portal.getByLabel('Học sinh học tiếng dân tộc thiểu số Tổng số', { exact: true }).fill('1');
