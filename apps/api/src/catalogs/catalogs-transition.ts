@@ -62,6 +62,13 @@ export const catalogsTransitionStep: AcademicYearTransitionStep = {
     for (const row of await previous.selectFrom('curriculum_subjects').selectAll().execute()) {
       await next.insertInto('curriculum_subjects').values(row).execute();
     }
+    // Cấu hình sổ điểm theo cấp (DT-21 phần 21c, YCTD-170); điểm, xếp loại, khoá điểm là dữ liệu của năm học nên không chép
+    for (const row of await previous.selectFrom('score_configs').selectAll().execute()) {
+      await next
+        .insertInto('score_configs')
+        .values({ ...row, config: JSON.stringify(row.config) })
+        .execute();
+    }
     // Tổ hợp môn và tổ bộ môn (DT-21 phần 21a, YCTD-167) giữ mã định danh; tổ hợp học sinh đăng ký đi cùng hồ sơ học sinh
     for (const row of await previous.selectFrom('subject_combinations').selectAll().execute()) {
       await next.insertInto('subject_combinations').values(row).execute();

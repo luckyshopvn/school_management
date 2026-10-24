@@ -1,8 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.40
-- Phiên bản: 0.39
+- Phiên bản: 0.41
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.115.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-21 phần 21c, sổ điểm THCS, THPT theo Thông tư 22/2021 (YCTD-170).
+- Chức năng mới: bảng điểm (đánh giá thường xuyên, giữa kỳ, cuối kỳ, kết quả môn nhận xét), điểm trung bình môn học kỳ, cả năm, gợi ý và xác nhận xếp loại học tập, rèn luyện, khoá điểm theo học kỳ và lớp, cấu hình hệ số, số lần đánh giá, ngưỡng theo cấp; nhập ở cổng quản trị (7.14 Sổ điểm) và ứng dụng giáo viên; phụ huynh xem điểm đã khoá ở ứng dụng phụ huynh.
+- Lỗi đã sửa: dòng "Phiên bản" thừa ở đầu các tài liệu 01, 02, 07, 10, 11, 14, 16, 17, 21, 23, 24, 32 do gộp bản 21a.
+- Thay đổi dữ liệu: tệp năm học `0087_create_scores`; tệp định danh `0078` để trống (dùng quyền đánh giá học sinh `P02.assessment.*` của 20c, không thêm quyền).
+- Thay đổi API: `/scores/config`, `/scores/classes/{id}` (`/subjects/{subjectId}`, `/summary`, `/ratings`), `/scores/locks` (`/unlock`), `/scores/children/{id}`.
+- Kiểm thử: kịch bản CT-897 đến CT-903. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/scores/scores.test.ts` CT-21c-1 đến CT-21c-6 đạt 6/6; chạy cùng `secondary.test.ts`, `subjects.test.ts`, `working-level.test.ts`, `menu-permissions.test.ts` đạt 28/28 (đã thêm 7.14 vào danh sách mục chỉ của THCS, THPT ở CT-19c-1, CT-19c-2); typecheck, eslint, prettier đạt; e2e CT-21c-7 đạt (cùng 02, 03, 06, 08 chạy trước); e2e toàn bộ do CI chạy.
+- Rủi ro: hệ số, số lần đánh giá, ngưỡng xếp loại là mặc định theo Thông tư 22/2021, cần đối chiếu văn bản gốc; xếp loại rèn luyện do giáo viên chủ nhiệm nhập tay (chưa có quy tắc gợi ý); chưa khảo sát hệ thống của Sở cấp THCS, THPT.
+- Khả năng tương thích: trường chỉ có Mầm non hoặc Tiểu học thấy như cũ; bảng đánh giá Thông tư 27/2020 của 20c không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 21c; chạy phần quay lui của tệp năm học `0087`.
 
 ### Phiên bản 0.114.0 – 2026-10-24
 

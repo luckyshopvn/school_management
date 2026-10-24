@@ -1,8 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.105
-- Phiên bản: 1.104
+- Phiên bản: 1.106
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -99,6 +98,11 @@
 | subject_teams | Tổ bộ môn (P02-57) | code (duy nhất), name, school_level (`THCS`, `THPT`), status, thời điểm, người tạo |
 | subject_team_subjects | Môn của tổ (P02-57) | team_id (khóa ngoại, xóa theo), subject_id; khóa chính (team_id, subject_id) |
 | subject_team_members | Thành viên tổ (P02-57) | team_id (khóa ngoại, xóa theo), staff_user_id, staff_name, role (`head`, `member`), created_at; khóa chính (team_id, staff_user_id); chỉ mục duy nhất một tổ trưởng mỗi tổ |
+| score_configs | Cấu hình sổ điểm theo cấp (P02-60, BR-180; YCTD-170, tệp năm học `0087_create_scores`) | school_level (khóa chính, `THCS`, `THPT`), config (JSON: hệ số, số lần đánh giá thường xuyên, số tuần, môn chủ chốt, ngưỡng xếp loại, hệ số hai học kỳ), updated_by, updated_at; chưa có dòng thì dùng bộ mặc định |
+| score_entries | Điểm của học sinh (P02-58) | class_id, child_id, subject_id, term_type (`first_term`, `second_term`), kind (`regular`, `mid`, `final`), seq, score (numeric 3,1, 0 đến 10), source (`manual`, `import`, `exam`), người sửa; duy nhất theo học sinh, môn, học kỳ, loại, thứ tự |
+| subject_term_results | Kết quả môn nhận xét, nhận xét của giáo viên môn (P02-58) | class_id, child_id, subject_id, term_type, result (`pass`, `fail`, trống), comment, người sửa; duy nhất theo học sinh, môn, học kỳ |
+| term_ratings | Xếp loại học tập, rèn luyện (P02-59) | class_id, child_id, term_type (`first_term`, `second_term`, `year`), learning_suggested, learning, conduct (`good`, `fair`, `pass`, `fail`), comment, người sửa; duy nhất theo lớp, học sinh, kỳ |
+| score_locks | Khoá điểm theo học kỳ và lớp (P02-59) | class_id, term_type, locked_by, locked_by_name, locked_at; khóa chính (class_id, term_type) |
 | org_unit_levels | Cấp học của đơn vị (YCTD-152, tệp năm học `0072`); đơn vị chưa có dòng coi là MN | org_unit_id (khóa ngoại, xóa theo), school_level, created_at, created_by; khóa chính (org_unit_id, school_level) |
 | catalog_items | Mục danh mục dùng chung, không thuộc đơn vị (P01-05, YCTD-42) | catalog_type (loại do hệ thống định nghĩa), code (duy nhất trong loại), name, order_no, status, attributes (thuộc tính riêng của loại; loại nghỉ phép có is_paid, deducts_annual_leave, insurance_paid, YCTD-59) |
 | school_profiles | Hồ sơ trường của Trường chính, một dòng mỗi năm học (P01-15, BR-103, YCTD-106); mỗi thẻ một cột jsonb khóa cố định | org_unit_id (duy nhất, Trường chính), general, other_info, foreign_elements, internet, it_infrastructure, office_accounts (mảng, không có mật khẩu), updated_by. Từ YCTD-136 `general` có thêm khóa cố định `floor_area_m2` (diện tích sàn xây dựng, số), `national_standard_level` ('1', '2'), `national_standard_year`, `accreditation_year` (số nguyên 1900 đến 2100), `national_standard_date`, `accreditation_date` (ngày), `national_standard_registration` (chữ), `accreditation_level` ('1' đến '4') cho 1.7 và báo cáo EMIS đọc |
