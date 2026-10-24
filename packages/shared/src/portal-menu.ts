@@ -642,6 +642,10 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
       leaf('5.', 'Báo lỗi học liệu', '/learning-resources/reports'),
       leaf('6.', 'Thống kê kho', '/learning-resources/statistics'),
       leaf('7.', 'Danh mục kho', '/learning-resources/settings'),
+      // Câu hỏi, đề, rubric, gói chia sẻ (DT-22 phần 22h2)
+      leaf('8.', 'Câu hỏi, đề trong kho', '/learning-resources/questions'),
+      leaf('9.', 'Rubric', '/learning-resources/rubrics'),
+      leaf('10.', 'Gói chia sẻ liên trường', '/learning-resources/packages'),
     ],
   },
 ];

@@ -212,6 +212,8 @@ import { TrainingController, TrainingVerificationController } from './training/t
 import { TrainingService } from './training/training.js';
 import { LearningResourcesController } from './learning-resources/learning-resources.controller.js';
 import { LearningResourcesService } from './learning-resources/learning-resources.js';
+import { ResourceSharingController } from './learning-resources/resource-sharing.controller.js';
+import { ResourceSharingService } from './learning-resources/resource-sharing.js';
 import { EmulationService } from './emulation/emulation.js';
 import { emulationTransitionStep } from './emulation/emulation-transition.js';
 import { QualityAssuranceController } from './quality-assurance/quality-assurance.controller.js';
@@ -523,6 +525,7 @@ export class ApplicationModule {
         TrainingController,
         TrainingVerificationController,
         LearningResourcesController,
+        ResourceSharingController,
         // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
         QualityAssuranceController,
         LibraryCatalogController,
@@ -1033,6 +1036,7 @@ export class ApplicationModule {
         EmulationCouncilService,
         TrainingService,
         LearningResourcesService,
+        ResourceSharingService,
         // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
         QualityAssuranceService,
         LibraryCore,

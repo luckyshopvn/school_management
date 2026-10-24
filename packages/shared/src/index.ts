@@ -265,6 +265,8 @@ export const PERMISSION_CODES = {
   learningResourceReview: 'P09.learning-resource.review',
   learningResourceApprove: 'P09.learning-resource.approve',
   learningResourceManage: 'P09.learning-resource.manage',
+  // Gói chia sẻ học liệu liên trường (DT-22 phần 22h2)
+  learningResourceShare: 'P09.learning-resource.share',
   // Cấu hình cấp học của trường ở 1.4 Cấu hình trường (DT-19 phần 19a)
   schoolLevelManage: 'P01.school-level.manage',
   // Lập, nhập, ban hành thời khoá biểu, khung giờ tiết học (DT-20 phần 22c1)
@@ -605,6 +607,10 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/learning-resources/reports',
   '/learning-resources/statistics',
   '/learning-resources/settings',
+  // Câu hỏi, đề, rubric, gói chia sẻ trong kho (DT-22 phần 22h2)
+  '/learning-resources/questions',
+  '/learning-resources/rubrics',
+  '/learning-resources/packages',
   // Thi đua, khen thưởng (DT-18 phần 22d)
   '/emulation/campaigns',
   '/emulation/registrations',

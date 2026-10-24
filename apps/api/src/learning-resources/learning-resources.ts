@@ -48,7 +48,7 @@ type ResourceRow = Selectable<SystemDatabase['learning_resources']>;
 const DAY = 86_400_000;
 const NO_ID = '00000000-0000-0000-0000-000000000000';
 
-interface ResourceContext {
+export interface ResourceContext {
   userId: string;
   name: string;
   staffDepartmentId: string | null;
@@ -905,7 +905,7 @@ export class LearningResourcesService {
 
   // ---- Bộ sưu tập ----
 
-  private async visibleCollection(context: ResourceContext, id: string) {
+  async visibleCollection(context: ResourceContext, id: string) {
     const collection = await this.system
       .selectFrom('resource_collections')
       .selectAll()

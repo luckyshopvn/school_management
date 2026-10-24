@@ -325,6 +325,7 @@ export type {
   TrainingResult,
   CompetencyTerm,
   LearningResourceAction,
+  ResourceQuestionItemKind,
   LearningResourceReportKind,
   TimetableVersionStatus,
   TimetableGenerationStatus,

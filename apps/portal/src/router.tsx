@@ -291,6 +291,7 @@ import {
   ResourceSettingsPage,
   ResourceStatisticsPage,
 } from './learning-resources/LearningResourcePages.js';
+import { ResourceBankPage, ResourcePackagesPage, RubricsPage } from './learning-resources/ResourceSharingPages.js';
 
 // Trang dùng được khi chưa đăng nhập (DT-16 phần 16c thêm Quên mật khẩu)
 const PUBLIC_PATHS = ['/login', '/forgot-password'];
@@ -731,6 +732,14 @@ const routeTree = rootRoute.addChildren([
     getParentRoute: () => rootRoute,
     path: '/learning-resources/settings',
     component: ResourceSettingsPage,
+  }),
+  // Câu hỏi, đề, rubric, gói chia sẻ (DT-22 phần 22h2)
+  createRoute({ getParentRoute: () => rootRoute, path: '/learning-resources/questions', component: ResourceBankPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/learning-resources/rubrics', component: RubricsPage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/learning-resources/packages',
+    component: ResourcePackagesPage,
   }),
   createRoute({
     getParentRoute: () => rootRoute,
