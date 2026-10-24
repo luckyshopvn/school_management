@@ -265,12 +265,20 @@ import {
   OutgoingSearchPage,
 } from './outgoing-documents/OutgoingListPages.js';
 import { VerifyDocumentPage } from './outgoing-documents/VerifyDocumentPage.js';
+import {
+  CompetencyPage,
+  MyTrainingPage,
+  TrainingCoursesPage,
+  TrainingRecordsPage,
+  TrainingSettingsPage,
+  VerifyTrainingCertificatePage,
+} from './training/TrainingPages.js';
 
 // Trang dùng được khi chưa đăng nhập (DT-16 phần 16c thêm Quên mật khẩu)
 const PUBLIC_PATHS = ['/login', '/forgot-password'];
 // Trang công khai mở được cả khi đã hay chưa đăng nhập: tra cứu mã QR của văn bản đi (DT-18 phần 18b)
-// và mã QR thời khoá biểu (DT-20 phần 22c2)
-const OPEN_PATHS = ['/tra-cuu-van-ban', '/tra-cuu-khen-thuong', '/tra-cuu-thoi-khoa-bieu'];
+// và mã QR thời khoá biểu (DT-20 phần 22c2), chứng nhận bồi dưỡng (DT-22 phần 22e)
+const OPEN_PATHS = ['/tra-cuu-van-ban', '/tra-cuu-khen-thuong', '/tra-cuu-thoi-khoa-bieu', '/tra-cuu-chung-nhan'];
 
 // Chuyển hướng theo trạng thái phiên: chưa đăng nhập về MH-47; bắt buộc đổi mật khẩu về MH-48 (BM-07)
 function SessionGate() {
@@ -681,6 +689,17 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/emulation/reports', component: EmulationReportsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/emulation/titles', component: EmulationTitlesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/tra-cuu-khen-thuong', component: VerifyAwardPage }),
+  // Hồ sơ bồi dưỡng giáo viên (DT-22 phần 22e)
+  createRoute({ getParentRoute: () => rootRoute, path: '/training/mine', component: MyTrainingPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/training/courses', component: TrainingCoursesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/training/records', component: TrainingRecordsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/training/competency', component: CompetencyPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/training/settings', component: TrainingSettingsPage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/tra-cuu-chung-nhan',
+    component: VerifyTrainingCertificatePage,
+  }),
   // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
   createRoute({ getParentRoute: () => rootRoute, path: '/quality/assessments', component: QualityAssessmentsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/quality/reports', component: QualityReportsPage }),

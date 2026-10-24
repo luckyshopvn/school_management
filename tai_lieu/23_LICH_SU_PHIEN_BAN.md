@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.45
+- Phiên bản: 0.46
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,17 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.119.0 – 2026-10-24
+### Phiên bản 0.120.0 – 2026-10-24
 
 - Phạm vi thay đổi: DT-21 phần 22g2, kiểm tra, đánh giá phần chấm (YCTD-173).
 - Chức năng mới: bài kiểm tra của lớp từ đề đã khoá; phiếu trả lời; nhập bài tay, nhập tệp quét; chấm tự luận hai người; khoá điểm; chuyển điểm vào sổ điểm; báo cáo theo câu, chủ đề, mức nhận thức, lớp, phân bố điểm, xuất Excel, PDF.
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp năm học `0090_create_exam_grading`; tệp định danh `0081_add_exam_grading_permission`.
 - Thay đổi API: `/exam-grading/…`.
-- Kiểm thử: kịch bản CT-927 đến CT-933. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/exam-grading/exam-grading.test.ts` CT-22g2-1 đến CT-22g2-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa (api, database, shared) đạt (shared; database 6/6; api 1047/1047); kiểm thử giao diện `tests/e2e/101-exam-grading.spec.ts` (CT-22g2-7) cùng 96, 98, 02, 03, 58 đạt; toàn bộ kiểm thử giao diện do CI chạy (trên máy: 02, 03, 06, 08, 58, 59, 96, 98, 101 đạt 26/26); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử: kịch bản CT-934 đến CT-940. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/exam-grading/exam-grading.test.ts` CT-22g2-1 đến CT-22g2-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa (api, database, shared) đạt (shared; database 6/6; api 1047/1047); kiểm thử giao diện `tests/e2e/101-exam-grading.spec.ts` (CT-22g2-7) cùng 96, 98, 02, 03, 58 đạt; toàn bộ kiểm thử giao diện do CI chạy (trên máy: 02, 03, 06, 08, 58, 59, 96, 98, 101 đạt 26/26); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Rủi ro: chuyển nhầm loại điểm vào sổ điểm; đã yêu cầu khoá trước, giáo viên dạy môn xác nhận, sổ điểm kiểm tra khoá, hạn.
 - Khả năng tương thích: trường không bật THCS, THPT không đổi hành vi.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 22g2; chạy phần quay lui của tệp năm học `0090`, định danh `0081`.
+
+### Phiên bản 0.119.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-22 phần 22e, hồ sơ bồi dưỡng giáo viên (YCTD-182).
+- Chức năng mới: danh mục bồi dưỡng (định mức tiết, chuyên đề theo chương trình, khung năng lực số); khoá bồi dưỡng, đăng ký, duyệt hai cấp, kết quả; chứng nhận có mã tra cứu công khai, thu hồi, cấp lại; chứng chỉ nhập tay; hồ sơ bồi dưỡng của tôi, của tổ, của trường; tự đánh giá năng lực số, xác nhận, bản đồ năng lực, gợi ý chuyên đề; ứng dụng giáo viên "Bồi dưỡng của tôi"; Việc của tôi có nguồn bồi dưỡng.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp hệ thống `0041_create_training_catalogs`; tệp năm học `0101_create_training_records` (thêm cột `staff_certificates`); tệp định danh `0091_add_training_permissions`.
+- Thay đổi API: `/training/*`, `/public/training-certificates/verify`.
+- Kiểm thử: kịch bản CT-927 đến CT-933. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/training/training.test.ts` CT-22e-1 đến CT-22e-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa (api, shared, database) đạt 1022/1022 (api 1016, database 6); kiểm thử giao diện `tests/e2e/121-teacher-training.spec.ts` (CT-22e-7) đạt; kiểm thử giao diện chạy trên máy (toàn bộ spec trên nhánh trước khi gộp 20e, 22c2) 161/164; spec 22 (bảng lương) lỗi do spec 121 thêm nhân sự làm từ năm trước vào trường gốc nên bảng lương đòi chốt công tháng trước (BR-43), đã sửa spec 121 cho nhân sự bắt đầu từ hôm nay, chạy lại 02, 03, 121, 21, 22 đạt; spec 04 (lưới Tài khoản), 76 (gói ZIP) lỗi không liên quan 22e; spec 58 đạt; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: cột thêm của `staff_certificates` cho phép trống hoặc có mặc định, dữ liệu cũ vẫn hợp lệ.
+- Khả năng tương thích: không đổi hành vi phần đã có.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 22e; chạy phần quay lui của tệp hệ thống `0041`, năm học `0101`, định danh `0091`.
 
 ### Phiên bản 0.118.0 – 2026-10-24
 

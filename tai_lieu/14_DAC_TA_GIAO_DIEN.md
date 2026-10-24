@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.100
+- Phiên bản: 1.101
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -353,6 +353,8 @@ Từ YCTD-142 (DT-18 phần 18e), phân hệ "Hồ sơ chuyên môn" (khóa `pro
 
 Từ YCTD-149 (DT-18 phần 22f), phân hệ "Bảo đảm chất lượng" (khóa `quality-assurance`) đứng cuối ô chọn phân hệ, cổng quản trị có 19 phân hệ; phân hệ riêng nên đánh số liên tục, tên mục do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11. Mục hiện theo quyền `P09.quality.*` (PQ-89). Mục 1.7 Rà soát thông tin kiểm định CLGD vẫn ở phân hệ Quản lý giáo dục Mầm non như Sở.
 
+Từ YCTD-182 (DT-22 phần 22e), phân hệ "Hồ sơ chuyên môn" có thêm nhóm "6. Bồi dưỡng giáo viên" (6.1 đến 6.5, MH-282 đến MH-286); trang công khai "Tra cứu chứng nhận bồi dưỡng" (MH-287).
+
 ## 2. Danh sách màn hình theo kênh
 
 ### 2.1 Cổng quản trị
@@ -641,8 +643,14 @@ Từ YCTD-149 (DT-18 phần 22f), phân hệ "Bảo đảm chất lượng" (kh�
 | MH-269 | 7.11. Báo cáo tiết dạy, dùng phòng, mã QR (YCTD-164, `/timetable-reports`): thẻ "Tiết dạy theo giáo viên" (từ ngày, đến ngày; bảng theo thời khoá biểu, dạy thay, được dạy thay, đổi tiết, thực dạy); thẻ "Dùng phòng" (ngày áp dụng; bảng tiết/tuần, tỉ lệ dùng, số tiết theo thứ, lớp dùng); thẻ "Mã QR tra cứu" (tra cứu theo lớp hoặc giáo viên, "Tạo mã QR", "In mã QR"; các mã kèm ảnh QR, đường dẫn, "Thu hồi") | Báo cáo: nhân sự xem được thời khoá biểu; mã QR: `P02.timetable.manage` |
 | MH-270 | Trang tra cứu thời khoá biểu (YCTD-164, `/tra-cuu-thoi-khoa-bieu?ma=…`, không cần đăng nhập): tiêu đề theo lớp hoặc giáo viên, bản đang áp dụng, lưới thứ × tiết, danh sách dạy thay, đổi tiết 7 ngày tới; mã sai hoặc đã thu hồi thì báo lỗi | Mọi người có mã |
 | MH-281 | 7.4. Thời khoá biểu ở THCS, THPT (YCTD-169, `/timetables`): cùng màn hình của Tiểu học; khi chọn lớp ở bản nháp có thêm khối "Tiết học nhóm" (mỗi dòng: Thứ, Tiết, Nhóm, Môn; nút "Thêm tiết nhóm", "Xóa"); lưới chung ghi môn theo nhóm ("Nhóm 1 · …"); ô "Kiểm tra ngay" báo tiết cả lớp trùng ô với tiết nhóm; 7.3, 7.4, 7.9, 7.10, 7.11 hiện ở cả ba cấp Tiểu học, THCS, THPT | `P02.timetable.manage` ghi; nhân sự xem được lớp xem |
-| MH-282 | 8.5. Chấm bài kiểm tra (YCTD-173, `/exam-grading`): bảng "Bài kiểm tra của lớp" (đề, lớp, học kỳ, loại điểm, đã chấm, trung bình, trạng thái, Mở); khung bài kiểm tra (Tải phiếu trả lời, Tải mẫu tệp quét, tệp, Nhập tệp quét; Khoá điểm, Mở khoá, Chuyển vào sổ điểm; nhắc các bài chặn khoá; bảng "Bài làm của học sinh": mã đề hoặc vắng, trắc nghiệm, tự luận, tổng, ghi chú, Nhập bài, Sửa bài; khung bài của học sinh: vắng, mã đề, ô đáp án từng câu, điểm tự luận người chấm 1, 2, Lưu bài); khối "Tạo bài kiểm tra của lớp" (đề đã khoá, lớp, học kỳ, loại điểm, lần, chấm đúng sai, học sinh vắng, chấm tự luận hai người, ngưỡng lệch) | `P02.exam.grade`, `P02.exam.manage` |
-| MH-283 | 8.6. Báo cáo kết quả kiểm tra (YCTD-173, `/exam-reports`): chọn đề, lớp; Xuất Excel, Xuất PDF; số bài đã khoá, điểm trung bình; bảng "Kết quả theo câu" (câu, nội dung, dạng, mức, chủ đề, độ khó, độ phân biệt, nên xem lại); "Kết quả theo chủ đề", "Kết quả theo mức nhận thức" (số câu, điểm tối đa, tỉ lệ điểm đạt); "Kết quả theo lớp" (giáo viên, số bài, trung bình, thấp nhất, cao nhất, tỉ lệ từ 5 điểm); "Phân bố điểm" | `P02.exam.grade`, `P02.exam.review`, `P02.exam.manage` |
+| MH-282 | 6.1. Bồi dưỡng của tôi (YCTD-182, `/training/mine`): dòng số tiết đã có so với định mức, còn thiếu; khối "Khoá đang mở đăng ký" (nút "Đăng ký"); bảng "Khoá của tôi" (trạng thái, kết quả, tiết ghi nhận, "Huỷ đăng ký"); bảng "Chứng chỉ của tôi" (loại, nơi cấp, ngày cấp, hết hạn, số tiết, mã tra cứu, "Tải chứng nhận", "Xoá"); biểu mẫu "Thêm chứng chỉ"; khối "Năng lực số của tôi" (thẻ kỳ, mức từng miền, "Gửi tự đánh giá", gợi ý bồi dưỡng). Ứng dụng giáo viên: "Bồi dưỡng của tôi" | `P09.training.use` |
+| MH-283 | 6.2. Khoá bồi dưỡng (YCTD-182, `/training/courses`): bảng khoá (tên, chuyên đề, thời gian, số tiết, đăng ký, trạng thái, "Mở"); khối chi tiết khoá (nút "Đóng đăng ký", "Mở lại đăng ký", "Kết thúc khoá", "Cấp chứng nhận", "Tải chứng nhận (PDF)"; bảng "Đăng ký khoá" có "Duyệt", "Không duyệt", ô số buổi có mặt, kết quả, nhận xét, "Thu hồi", "Cấp lại"; nút "Ghi kết quả"); biểu mẫu "Tạo khoá bồi dưỡng" | Xem: người có quyền bồi dưỡng; quản lý: `P09.training.manage`; duyệt tổ: tổ trưởng |
+| MH-284 | 6.3. Hồ sơ bồi dưỡng (YCTD-182, `/training/records`): dòng năm học, định mức, tiến độ kế hoạch; bảng "Hoàn thành định mức theo tổ"; bảng "Hồ sơ bồi dưỡng theo cá nhân" (số khoá đạt, tiết từ khoá, tiết từ chứng chỉ, tổng, còn thiếu, chứng chỉ sắp hết hạn) | Tổ trưởng (tổ mình), Ban Giám hiệu |
+| MH-285 | 6.4. Năng lực số (YCTD-182, `/training/competency`): thẻ kỳ; bảng "Bản đồ năng lực số" (giáo viên × miền, ô dưới ngưỡng tô đỏ nhạt, dòng trung bình, "Xác nhận"); khối xác nhận (mức xác nhận, lý do đổi mức) | Tổ trưởng (tổ mình), Ban Giám hiệu |
+| MH-286 | 6.5. Danh mục bồi dưỡng (YCTD-182, `/training/settings`): căn cứ; khối "Thiết lập" (định mức tiết, ngưỡng gợi ý, đơn vị cấp); bảng, biểu mẫu chuyên đề (chương trình, số tiết, miền gắn kèm, đang dùng hoặc ngừng); khung năng lực số (mức, miền, "Thêm miền") | `P09.training.manage` |
+| MH-287 | Tra cứu chứng nhận bồi dưỡng (YCTD-182, `/tra-cuu-chung-nhan?ma=…`, công khai): ô mã tra cứu, nút "Tra cứu"; khối "Kết quả tra cứu" (còn hiệu lực hoặc đã thu hồi, người được cấp, khoá, đơn vị cấp, ngày cấp, số tiết) | Không cần đăng nhập |
+| MH-288 | 8.5. Chấm bài kiểm tra (YCTD-173, `/exam-grading`): bảng "Bài kiểm tra của lớp" (đề, lớp, học kỳ, loại điểm, đã chấm, trung bình, trạng thái, Mở); khung bài kiểm tra (Tải phiếu trả lời, Tải mẫu tệp quét, tệp, Nhập tệp quét; Khoá điểm, Mở khoá, Chuyển vào sổ điểm; nhắc các bài chặn khoá; bảng "Bài làm của học sinh": mã đề hoặc vắng, trắc nghiệm, tự luận, tổng, ghi chú, Nhập bài, Sửa bài; khung bài của học sinh: vắng, mã đề, ô đáp án từng câu, điểm tự luận người chấm 1, 2, Lưu bài); khối "Tạo bài kiểm tra của lớp" (đề đã khoá, lớp, học kỳ, loại điểm, lần, chấm đúng sai, học sinh vắng, chấm tự luận hai người, ngưỡng lệch) | `P02.exam.grade`, `P02.exam.manage` |
+| MH-289 | 8.6. Báo cáo kết quả kiểm tra (YCTD-173, `/exam-reports`): chọn đề, lớp; Xuất Excel, Xuất PDF; số bài đã khoá, điểm trung bình; bảng "Kết quả theo câu" (câu, nội dung, dạng, mức, chủ đề, độ khó, độ phân biệt, nên xem lại); "Kết quả theo chủ đề", "Kết quả theo mức nhận thức" (số câu, điểm tối đa, tỉ lệ điểm đạt); "Kết quả theo lớp" (giáo viên, số bài, trung bình, thấp nhất, cao nhất, tỉ lệ từ 5 điểm); "Phân bố điểm" | `P02.exam.grade`, `P02.exam.review`, `P02.exam.manage` |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 
@@ -673,7 +681,7 @@ Từ YCTD-160 (DT-20 phần 22c1), nhóm "7. Dạy học Tiểu học" có thêm
 
 Từ YCTD-168 (DT-21 phần 22g1), phân hệ Quản lý giáo dục có nhóm "8. Kiểm tra, đánh giá" chỉ hiện khi trường bật THCS hoặc THPT: 8.1 Ngân hàng câu hỏi, 8.2 Ma trận đề, 8.3 Kế hoạch kiểm tra, 8.4 Đề kiểm tra (MH-277 đến MH-280); số mục tạm, đánh lại khi khảo sát Sở.
 
-Từ YCTD-173 (DT-21 phần 22g2), nhóm "8. Kiểm tra, đánh giá" thêm 8.5 Chấm bài kiểm tra, 8.6 Báo cáo kết quả kiểm tra (MH-282 đến MH-283).
+Từ YCTD-173 (DT-21 phần 22g2), nhóm "8. Kiểm tra, đánh giá" thêm 8.5 Chấm bài kiểm tra, 8.6 Báo cáo kết quả kiểm tra (MH-288 đến MH-289).
 
 Từ YCTD-164 (DT-20 phần 22c2), nhóm "7. Dạy học Tiểu học" có thêm 7.9 Xếp thời khoá biểu tự động, 7.10 Dạy thay, đổi tiết, 7.11 Báo cáo tiết dạy, dùng phòng, mã QR (MH-267 đến MH-269); trang tra cứu công khai MH-270; lưới sửa của lớp ở 7.4 có khối "Kiểm tra ngay".
 

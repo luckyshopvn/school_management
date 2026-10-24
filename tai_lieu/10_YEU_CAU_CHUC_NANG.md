@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.87
+- Phiên bản: 1.88
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -134,8 +134,8 @@
 | P02-53 | Dạy thay, đổi tiết (7.10., YCTD-164) | Ghi, xoá: `P02.timetable.manage`; xem: nhân sự xem được thời khoá biểu | Ngày, lớp, tiết; giáo viên dạy thay hoặc ngày, tiết đổi; lý do | Kiểm tra tiết có trong bản đang áp dụng, chưa có thay đổi, giáo viên rảnh; ghi một hoặc hai dòng | Tiết thực tế của ngày; danh sách thay đổi | BR-178 |
 | P02-54 | Báo cáo tiết dạy, dùng phòng, mã QR tra cứu (7.11., trang tra cứu, YCTD-164) | Báo cáo: nhân sự xem được thời khoá biểu; mã QR: `P02.timetable.manage`; trang tra cứu: không cần đăng nhập | Khoảng ngày; ngày áp dụng; lớp hoặc giáo viên | Đếm tiết theo thời khoá biểu, dạy thay, được dạy thay, đổi tiết, thực dạy; tiết dùng phòng; tạo, thu hồi mã | Bảng báo cáo; mã QR in được; trang thời khoá biểu và thay đổi 7 ngày tới | BR-178 |
 | P02-65 | Thời khoá biểu THCS, THPT: tiết học nhóm (7.4., YCTD-169) | `P02.timetable.manage` | Cấp THCS, THPT; tiết của lớp có số nhóm; cột Nhóm của tệp Excel | Cùng chức năng thời khoá biểu của Tiểu học (khung giờ, bản nháp, nhập Excel, xung đột, ban hành, máy xếp, dạy thay, báo cáo); thêm tiết học nhóm cùng ô; luật nhóm, tiết đôi, phòng bộ môn | Bản thời khoá biểu có tiết nhóm; thời khoá biểu của con theo tổ hợp môn | BR-185 |
-| P02-66 | Chấm bài kiểm tra (8.5., YCTD-173) | Chấm: `P02.exam.grade`; khoá: `P02.exam.manage`; chuyển: người nhập điểm của lớp (21c) | Đề đã khoá, lớp, học kỳ, loại điểm, cách chấm; bài làm từng học sinh; tệp quét theo mẫu | Chấm theo đáp án của mã đề; tự luận hai người; khoá; ghi kết quả dùng câu; chuyển sổ điểm | Phiếu trả lời PDF; điểm bài; điểm trong sổ điểm | BR-186 |
-| P02-67 | Báo cáo kết quả kiểm tra (8.6., YCTD-173) | `P02.exam.grade` (lớp mình dạy), `P02.exam.review`, `P02.exam.manage` | Đề, lớp | Thống kê bài đã khoá theo câu, chủ đề, mức nhận thức, lớp, phân bố điểm | Bảng báo cáo; Excel, PDF | BR-186 |
+| P02-66 | Chấm bài kiểm tra (8.5., YCTD-173) | Chấm: `P02.exam.grade`; khoá: `P02.exam.manage`; chuyển: người nhập điểm của lớp (21c) | Đề đã khoá, lớp, học kỳ, loại điểm, cách chấm; bài làm từng học sinh; tệp quét theo mẫu | Chấm theo đáp án của mã đề; tự luận hai người; khoá; ghi kết quả dùng câu; chuyển sổ điểm | Phiếu trả lời PDF; điểm bài; điểm trong sổ điểm | BR-187 |
+| P02-67 | Báo cáo kết quả kiểm tra (8.6., YCTD-173) | `P02.exam.grade` (lớp mình dạy), `P02.exam.review`, `P02.exam.manage` | Đề, lớp | Thống kê bài đã khoá theo câu, chủ đề, mức nhận thức, lớp, phân bố điểm | Bảng báo cáo; Excel, PDF | BR-187 |
 
 ## 4. Phân hệ P03 — Giảng dạy
 
@@ -278,6 +278,11 @@
 | P09-42 | Phiếu đánh giá tiêu chí (YCTD-149) | Thành viên nhóm được phân công (`P09.quality.use`); duyệt: VT-02, VT-15 (`P09.quality.manage`, toàn trường) | Chỉ báo đạt, hiện trạng, điểm mạnh, điểm yếu, kế hoạch cải tiến, mức | Gợi ý mức theo chỉ báo; nộp, duyệt, trả lại, mở lại | Phiếu, danh sách phiếu của tôi, của đợt | BR-152 |
 | P09-43 | Minh chứng (YCTD-149) | Thành viên nhóm của tiêu chí; VT-02, VT-15 (`P09.quality.manage`, toàn trường) | Tiêu chí, hộp, tên, số, ngày, nơi ban hành, trạng thái, nguồn (tệp, hồ sơ 18e, văn bản 18a, 18b), tiêu chí dùng chung | Đánh mã; kiểm tra nguồn; tải tệp; kế thừa năm trước | Danh sách minh chứng, danh mục Excel | BR-153 |
 | P09-44 | Báo cáo tự đánh giá, kế hoạch cải tiến, công nhận (YCTD-149) | VT-02, VT-15 (`P09.quality.manage`, toàn trường); xuất báo cáo: thành viên hội đồng, nhóm | Đợt; kết quả công nhận | Dựng báo cáo từ 1.7, phiếu, minh chứng; tạo kế hoạch công việc nháp theo đơn vị; tính hiệu lực; ghi vào 1.7 | Báo cáo Word, PDF; kế hoạch công việc nháp; trang theo dõi công nhận | BR-153 |
+| P09-45 | Khoá bồi dưỡng, đăng ký và duyệt (6.2., ứng dụng giáo viên, YCTD-182) | Tạo khoá: `P09.training.manage`; đăng ký: `P09.training.use`; duyệt: tổ trưởng (tổ mình), Ban Giám hiệu | Khoá (tên, chuyên đề, đơn vị tổ chức, hình thức, thời gian, số tiết, số buổi, chỉ tiêu, hạn); đăng ký; quyết định duyệt | Kiểm tra trạng thái, hạn, chỉ tiêu; duyệt hai cấp; nhật ký | Khoá có đăng ký đã duyệt; Việc của tôi | BR-186 |
+| P09-46 | Kết quả, chứng nhận có mã tra cứu (6.2., trang tra cứu công khai, YCTD-182) | Kết quả, cấp, thu hồi: `P09.training.manage`; tra cứu: không cần đăng nhập | Số buổi có mặt, kết quả, nhận xét; mã tra cứu | Tính tiết ghi nhận; cấp chứng nhận cho người đạt, mã 12 ký tự, PDF có mã QR; thu hồi có lý do, cấp lại; tra cứu giới hạn tần suất | Chứng nhận PDF; kết quả tra cứu tối thiểu | BR-186 |
+| P09-47 | Hồ sơ bồi dưỡng cá nhân, tổ, trường và chứng chỉ (6.1., 6.3., YCTD-182) | Của mình: `P09.training.use`; tổ: tổ trưởng; trường: Ban Giám hiệu | Chứng chỉ nhập tay (tên, nơi cấp, ngày cấp, hết hạn, số tiết) | Cộng tiết khoá đạt và chứng chỉ trong năm học, so định mức; chứng chỉ sắp hết hạn | Hồ sơ của tôi; bảng theo cá nhân, theo tổ, tiến độ kế hoạch | BR-186 |
+| P09-48 | Năng lực số của giáo viên (6.1., 6.4., YCTD-182) | Tự đánh giá: `P09.training.use`; xác nhận: tổ trưởng (tổ mình), Ban Giám hiệu | Kỳ; mức từng miền; mức xác nhận, lý do | Đủ miền; khoá sau xác nhận; đổi mức có lý do; khoảng trống dưới ngưỡng gợi ý chuyên đề | Bản đồ năng lực, trung bình theo miền, gợi ý bồi dưỡng | BR-186 |
+| P09-49 | Danh mục bồi dưỡng (6.5., YCTD-182) | Xem: người có quyền bồi dưỡng; sửa: `P09.training.manage` | Định mức tiết, ngưỡng, đơn vị cấp; chuyên đề; miền năng lực | Bộ mặc định ghi số hiệu văn bản; mã không trùng | Danh mục dùng cho khoá, hồ sơ, năng lực số | BR-186 |
 
 ## 11. Phân hệ P10 — Y tế học đường
 
