@@ -515,6 +515,62 @@ export class ScoresService {
     return this.sheet(currentUser, classId, subjectId, term);
   }
 
+  // Một cửa ghi điểm bài kiểm tra tập trung từ 22g2 (YCTD-173): giáo viên được phân công môn của lớp (hoặc người quản lý)
+  // xác nhận; cùng kiểm tra khoá, hạn nhập như nhập tay; điểm ghi nguồn `exam` vào đúng loại điểm, lần
+  async recordExamScores(
+    currentUser: CurrentUser,
+    input: {
+      class_id: string;
+      subject_id: string;
+      term_type: TermType;
+      kind: 'regular' | 'mid' | 'final';
+      seq: number;
+      scores: Array<{ child_id: string; score: number }>;
+    },
+    transaction: Executor,
+  ) {
+    const classRow = await this.findClass(transaction, input.class_id);
+    const config = await readScoreConfig(transaction, classRow.school_level);
+    const subjects = await this.classSubjects(transaction, classRow, config);
+    const subject = subjects.find((row) => row.subject_id === input.subject_id);
+    if (!subject || subject.mode !== 'score') {
+      throw ruleViolationError(SCORE_RULE_CODE, 'Môn không tính điểm số ở khối của lớp, không chuyển được điểm');
+    }
+    const access = await this.access(transaction, currentUser, classRow, subjects);
+    if (!access.subjectIds.includes(input.subject_id)) {
+      throw new ApplicationError('ERR_FORBIDDEN', 'Chỉ giáo viên được phân công môn của lớp xác nhận chuyển điểm');
+    }
+    await this.assertWritable(transaction, access, classRow, input.term_type);
+    const seq = input.kind === 'regular' ? input.seq : 1;
+    const base = {
+      updated_by: currentUser.id,
+      updated_by_name: currentUser.description.full_name,
+      updated_at: this.clock.now(),
+    };
+    for (const row of input.scores) {
+      await transaction
+        .insertInto('score_entries')
+        .values({
+          class_id: input.class_id,
+          child_id: row.child_id,
+          subject_id: input.subject_id,
+          term_type: input.term_type,
+          kind: input.kind,
+          seq,
+          score: row.score,
+          source: 'exam',
+          ...base,
+        })
+        .onConflict((conflict) =>
+          conflict
+            .columns(['child_id', 'subject_id', 'term_type', 'kind', 'seq'])
+            .doUpdateSet({ score: row.score, source: 'exam', class_id: input.class_id, ...base }),
+        )
+        .execute();
+    }
+    return { written: input.scores.length };
+  }
+
   // Điểm trung bình, kết quả từng môn và gợi ý xếp loại của từng học sinh trong học kỳ hoặc cả năm
   private async studentSummaries(
     database: Executor,

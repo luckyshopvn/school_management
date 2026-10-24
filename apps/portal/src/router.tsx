@@ -32,6 +32,8 @@ import { QuestionBankPage } from './exams/QuestionBankPage.js';
 import { ExamMatricesPage } from './exams/ExamMatricesPage.js';
 import { AssessmentPlansPage } from './exams/AssessmentPlansPage.js';
 import { ExamsPage } from './exams/ExamsPage.js';
+import { ExamGradingPage } from './exam-grading/ExamGradingPage.js';
+import { ExamReportsPage } from './exam-grading/ExamReportsPage.js';
 import { ChildrenPage } from './children/ChildrenPage.js';
 import { StudentMovementsPage } from './children/StudentMovementsPage.js';
 import { DefaultPasswordsPage } from './students/DefaultPasswordsPage.js';
@@ -369,6 +371,8 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/exam-matrices', component: ExamMatricesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/assessment-plans', component: AssessmentPlansPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/exams', component: ExamsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/exam-grading', component: ExamGradingPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/exam-reports', component: ExamReportsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/classes', component: ClassesPage }),
   // Trường học, lớp học theo Sở (DT-15 phần 15b, YCTD-111)
   createRoute({ getParentRoute: () => rootRoute, path: '/branches', component: BranchesPage }),
