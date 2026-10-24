@@ -122,10 +122,10 @@ describe('Điểm cuối kho học liệu', () => {
   const api = (method: string, path: string, name: string, body?: unknown) =>
     sendJson(method, `${environment.baseUrl}${path}`, token(name), body);
   const list = (body: unknown) => body as unknown as Array<Record<string, unknown>>;
-  const upload = async (id: string, name: string, file: Buffer, fileName = 'phieu-hoc-tap.pdf') => {
+  const upload = async (id: string | undefined, name: string, file: Buffer, fileName = 'phieu-hoc-tap.pdf') => {
     const form = new FormData();
     form.append('file', new Blob([file], { type: 'application/pdf' }), fileName);
-    const response = await fetch(`${environment.baseUrl}/learning-resources/${id}/files`, {
+    const response = await fetch(`${environment.baseUrl}/learning-resources/${id ?? ''}/files`, {
       method: 'POST',
       headers: { authorization: `Bearer ${token(name)}` },
       body: form,
