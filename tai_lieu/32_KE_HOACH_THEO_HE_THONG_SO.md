@@ -1050,7 +1050,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 
 | Phần | Đợt | Tiến độ |
 |---|---|---|
-| 22a | 1 | Đã làm, YCTD-181, phiên bản 0.114.0, PR @@PR@@: phân hệ Thư viện (danh mục, bản sao có số đăng ký cá biệt và tem QR, thanh lý, tệp số, sổ đăng ký; thẻ bạn đọc; mượn trả, phạt, nhắc quá hạn, đặt trước; phát và thu sách giáo khoa; kiểm kê; báo cáo và chỉ tiêu theo chuẩn có ngưỡng cấu hình; thiết lập), ứng dụng giáo viên, phụ huynh; toàn bộ ở cơ sở dữ liệu năm học (năm học 0100, định danh 0090, hệ thống 0040 không dùng); chưa làm: nhập Excel danh mục, minh chứng sang 22f, ảnh bìa; e2e 120 |
+| 22a | 1 | Đã làm, YCTD-181, phiên bản 0.114.0, PR 147: phân hệ Thư viện (danh mục, bản sao có số đăng ký cá biệt và tem QR, thanh lý, tệp số, sổ đăng ký; thẻ bạn đọc; mượn trả, phạt, nhắc quá hạn, đặt trước; phát và thu sách giáo khoa; kiểm kê; báo cáo và chỉ tiêu theo chuẩn có ngưỡng cấu hình; thiết lập), ứng dụng giáo viên, phụ huynh; toàn bộ ở cơ sở dữ liệu năm học (năm học 0100, định danh 0090, hệ thống 0040 không dùng); chưa làm: nhập Excel danh mục, minh chứng sang 22f, ảnh bìa; e2e 120 |
 | 22e | 1 | Chưa làm, làm được ngay |
 | 22h1 | 2 | Chưa làm, bắt đầu khi 22a hoặc 22e gộp |
 | 22h2 | 3 | Chưa làm, chờ 22h1 và 22g1 (DT-21); thống kê sử dụng câu hỏi chờ thêm 22g2 |
