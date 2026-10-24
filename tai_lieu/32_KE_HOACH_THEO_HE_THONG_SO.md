@@ -709,7 +709,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 | 20b | 1 | Đã làm (PR #137, YCTD-159, phiên bản 0.108.0) |
 | 22c1 | 2 | Đã làm, YCTD-160, phiên bản 0.109.0, PR 138: khung giờ tiết học (hệ thống 0026 `period_slots`), bản thời khoá biểu có ngày áp dụng và tiết theo lớp (năm học 0078 `timetable_versions`, `timetable_lessons`), giáo viên theo phân công của 20a, nhập Excel, kiểm tra xung đột (hàm `findTimetableConflicts` dùng chung với 22c2), ban hành; xem ở 7.4, ứng dụng giáo viên, phụ huynh, website; quyền `P02.timetable.manage` (định danh 0069); e2e 89 |
 | 20c | 2 | Đã làm (PR #139, YCTD-161, phiên bản 0.110.0) |
-| 20d | 3 | Đã làm, YCTD-162, phiên bản 0.111.0, PR …: sổ đầu bài theo bản thời khoá biểu đang áp dụng (năm học 0080 `class_logs`), điểm danh theo tiết (`period_attendance`), giáo viên ký tiết, Ban giám hiệu ký sổ tuần (`class_log_reviews`, quyền `P02.class-log.review` định danh 0071); ứng dụng giáo viên Sổ đầu bài, phụ huynh Điểm danh theo tiết; 7.6, 7.7 có tổng hợp chuyên cần đối chiếu báo vắng; điểm danh Mầm non giữ nguyên; e2e 91 |
+| 20d | 3 | Đã làm, YCTD-162, phiên bản 0.111.0, PR 142: sổ đầu bài theo bản thời khoá biểu đang áp dụng (năm học 0080 `class_logs`), điểm danh theo tiết (`period_attendance`), giáo viên ký tiết, Ban giám hiệu ký sổ tuần (`class_log_reviews`, quyền `P02.class-log.review` định danh 0071); ứng dụng giáo viên Sổ đầu bài, phụ huynh Điểm danh theo tiết; 7.6, 7.7 có tổng hợp chuyên cần đối chiếu báo vắng; điểm danh Mầm non giữ nguyên; e2e 91 |
 | 20e | 3 | Chưa làm, chờ 20c |
 | 22c2 | 4 | Chưa làm, chờ 22c1 |
 | 20f | 4 | Chưa làm, chờ 20c, 20e |
