@@ -1705,7 +1705,11 @@ export class TrainingService {
 
   // ---- Việc của tôi ----
 
+  // Chưa mở năm học thì không có việc chờ (Việc của tôi không báo lỗi)
   async pendingWork(currentUser: CurrentUser) {
+    if (!(await this.currentSchoolYear.find())) {
+      return { review: [], expiring: [] };
+    }
     const context = await this.context(currentUser);
     const review =
       context.canManage || context.canReview
