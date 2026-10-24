@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.84
+- Phiên bản: 1.85
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -258,6 +258,7 @@ Bổ sung ngày 2026-10-09 theo yêu cầu tách vai trò Ban Giám hiệu thàn
 | BR-186 | Mượn, trả sách thư viện (YCTD-181): mỗi bạn đọc (cán bộ hoặc học sinh đang học ở cấp có bật mượn sách) một thẻ, thẻ khóa khi người đó nghỉ; chỉ mượn bản tốt, ấn phẩm cho mượn về, đang dùng, chưa có người mượn, không đang giữ chỗ cho người khác; số bản mượn cùng lúc tối đa theo quy định của loại bạn đọc; còn bản quá hạn thì không mượn tiếp; hạn trả = ngày mượn + số ngày của quy định; gia hạn tối đa theo quy định, không gia hạn khi có người đặt trước hoặc với sách giáo khoa cấp đầu năm; trả trễ phạt số ngày trễ nhân mức phạt mỗi ngày (mức 0 là không phạt); trả hỏng hoặc mất đổi tình trạng bản sao, bồi thường chỉ ghi nhận, không thu tiền ở phân hệ này |
 | BR-187 | Đặt trước sách thư viện (YCTD-181): chỉ đặt khi ấn phẩm không còn bản sẵn sàng; mỗi bạn đọc một lượt đặt đang mở cho một ấn phẩm; bản được trả về giữ cho người đặt sớm nhất trong số ngày giữ chỗ của thiết lập (mặc định 3 ngày) và báo cho họ; quá hạn giữ chỗ thì lượt đặt hết hiệu lực, bản chuyển cho người kế tiếp; người đặt mượn bản giữ thì lượt đặt đóng |
 | BR-188 | Sách giáo khoa cấp đầu năm, kiểm kê, thanh lý (YCTD-181): bộ sách theo khối phát cho cả lớp, mỗi học sinh một bản mỗi đầu sách của bộ, hạn là ngày kết thúc năm học, thiếu bản thì phát phần còn đủ và báo đầu sách thiếu; kiểm kê quét bản sao, bản thiếu là bản tốt không đang mượn chưa quét, bản thừa là bản quét được nhưng đang mượn, đã mất hoặc đã thanh lý; chỉ xử lý (đánh dấu mất, thanh lý) bản thiếu của đợt đã đóng; thanh lý cần lý do và bản không đang cho mượn; chỉ tiêu theo chuẩn thư viện có ngưỡng cấu hình, chưa đặt ngưỡng thì chưa kết luận đạt hay chưa đạt |
+| BR-185 | Thời khoá biểu THCS, THPT, nhóm học (YCTD-169): tiết có số nhóm, 0 là cả lớp, 1 đến 9 là nhóm học môn lựa chọn cùng tiết; một lớp, một nhóm, một tiết chỉ một môn; tiết cả lớp cùng ô với tiết nhóm là xung đột cứng chặn ban hành; giáo viên, phòng trùng tiết tính trên mọi nhóm; môn học lựa chọn của THPT (có nhóm môn) không so số tiết cả lớp với chương trình và máy xếp không xếp cả lớp; môn có quy tắc tiết đôi mà các tiết trong ngày không liền nhau, môn có phòng bộ môn mà ô không dùng phòng đó là cảnh báo; thời khoá biểu của con chỉ hiện tiết cả lớp và tiết nhóm có môn nằm trong tổ hợp môn đang hiệu lực của con (tổ hợp đã duyệt, hoặc tổ hợp cũ khi đổi tổ hợp còn chờ duyệt); dạy thay, đổi tiết chỉ áp dụng cho tiết cả lớp |
 
 Danh mục chứng từ áp dụng hạn mức: phiếu chi, phiếu đảo phiếu thu (YCTD-23), phiếu đảo phiếu chi (YCTD-24), đề nghị mua hàng, phiếu điều chỉnh hóa đơn, miễn giảm học phí, bảng lương kỳ, chốt kỳ tài chính. Mức hạn mức cụ thể chưa có, xem Q-22 và Q-112.
 
