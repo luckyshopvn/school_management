@@ -287,6 +287,8 @@ export type {
   SubjectAssessment,
   SubjectKind,
   TimetableSource,
+  ClassLogStatus,
+  PeriodAttendanceStatus,
   TimetableVersionStatus,
 } from '../school-year/schema.js';
 export { DEFAULT_TAX_TABLE_ID } from '../school-year/migrations/0022_create_payrolls.js';
