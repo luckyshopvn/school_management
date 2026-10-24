@@ -1,8 +1,8 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.105
-- Ngày cập nhật: 2026-10-23
+- Phiên bản: 1.106
+- Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -861,6 +861,14 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | GET, POST | /api/v1/timetable-versions/{id}/import-template, /import | Tệp mẫu; nhập Excel vào bản nháp (P02-40) |
 | GET | /api/v1/timetables, /api/v1/timetables/mine | Bản đang áp dụng theo lớp, giáo viên, phòng, ngày; lịch dạy của tôi (P02-41) |
 | GET | /api/v1/children/{id}/timetable | Thời khoá biểu đang áp dụng của lớp con đang học (P02-41) |
+| GET | /api/v1/class-logs/week | Sổ đầu bài của lớp trong tuần chứa `date`: tiết theo thời khoá biểu kèm tiết đã ghi, số vắng, muộn, chữ ký Ban giám hiệu (P02-46, YCTD-162) |
+| GET | /api/v1/class-logs/mine | Các tiết tôi dạy trong ngày kèm tiết đã ghi (P02-45) |
+| GET | /api/v1/class-logs/lesson | Chi tiết một tiết (`class_id`, `date`, `period_no`) kèm học sinh và điểm danh mặc định (P02-45) |
+| PUT | /api/v1/class-logs | Ghi tiết và điểm danh theo tiết (P02-45) |
+| POST | /api/v1/class-logs/{id}/sign | Giáo viên ký tiết (P02-45) |
+| POST | /api/v1/class-logs/reviews | Ban giám hiệu ký sổ tuần (cần `P02.class-log.review`) (P02-46) |
+| GET | /api/v1/period-attendance/summary | Chuyên cần theo tiết của lớp trong khoảng ngày (P02-47) |
+| GET | /api/v1/children/{id}/period-attendance | Điểm danh theo tiết của con trong tháng (P02-47) |
 | GET | /api/v1/audit-logs | Tra nhật ký thao tác; `page_size` đến 200 (YCTD-109) |
 | GET, POST | /api/v1/api-clients | Danh sách và cấp khóa API cho đối tác |
 | POST | /api/v1/api-clients/{id}/revoke | Thu hồi khóa API |
@@ -1510,6 +1518,16 @@ Giao kèo thời khoá biểu (DT-20 phần 22c1, YCTD-160, BR-170):
 4. `GET …/conflicts` trả mảng `severity` (`hard`, `soft`), `code` (`teacher_clash`, `room_clash`, `period_outside_frame`, `day_outside_week`, `subject_outside_curriculum`, `periods_mismatch`, `missing_teacher`, `teacher_not_assigned`), `message`, `class_id`, `weekday`, `period_no`. `POST …/publish` còn xung đột cứng hoặc bản trống trả 422 (`details` liệt kê xung đột).
 5. `POST …/import` (tệp `file`) trả `imported`, `classes`, `errors` (`row`, `column`, `message`); có lỗi thì không ghi.
 6. `GET /timetables` (nhân sự), `/timetables/mine` (giáo viên), `/children/{id}/timetable` (phụ huynh của học sinh, nhân sự) trả `versions` (bản đang áp dụng của từng cấp), `slots` (khung giờ theo cấp), `lessons`.
+
+
+Giao kèo sổ đầu bài (DT-20 phần 20d, YCTD-162, BR-174):
+
+1. `PUT /class-logs` nhận `class_id`, `lesson_date` (YYYY-MM-DD), `period_no` (1 đến 15), `lesson_title` (1 đến 300 ký tự), `content` (tối đa 2000), `comment` (tối đa 1000), `rating` (A, B, C, D hoặc rỗng), `attendance` (`child_id`, `status` là `present`, `late`, `absent_excused`, `absent_unexcused`, `note` tối đa 300; không trùng học sinh); sai trả 400; học sinh không thuộc lớp trả 400; không phải giáo viên của tiết trả 403; ngày chưa đến, lớp không có tiết, tiết đã ký, tuần đã ký trả 422. Ghi lại cùng lớp, ngày, tiết thì sửa bản đã ghi và thay toàn bộ điểm danh.
+2. `POST /class-logs/{id}/sign` trả tiết đã ký; người khác trả 403; đã ký trả 422.
+3. `GET /class-logs/lesson` trả `subject_name`, `teacher_name`, `log`, `week_signed`, `can_edit`, `students` (`child_id`, `full_name`, `absence_reason` khi có báo vắng của ngày, `status`, `note`); lớp không có tiết và chưa ghi trả 404.
+4. `POST /class-logs/reviews` nhận `class_id`, `date` (ngày bất kỳ trong tuần), `comment`; trả 201 `review`, `lessons`, `unsigned_lessons`; tuần đã ký trả 422.
+5. `GET /period-attendance/summary` (`class_id`, `from`, `to`) trả `lessons` (số tiết đã ghi) và `students` (`present`, `late`, `absent_excused`, `absent_unexcused`, `absent_days`, `notice_days`, `absent_without_notice_days`, `notice_but_present_days`, `daily_absent_days`).
+6. `GET /children/{id}/period-attendance?month=YYYY-MM` (phụ huynh của học sinh, nhân sự) trả `counts` theo trạng thái và `records` (các tiết không có mặt: `lesson_date`, `period_no`, `subject_name`, `status`, `note`); phụ huynh khác trả 403.
 
 
 Giao kèo kế hoạch giáo dục (DT-18 phần 22i, YCTD-147, BR-142):
