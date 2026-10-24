@@ -26,6 +26,7 @@ import { TimetableGeneratorPage } from './timetables/TimetableGeneratorPage.js';
 import { TimetableChangesPage } from './timetables/TimetableChangesPage.js';
 import { TimetableReportsPage } from './timetables/TimetableReportsPage.js';
 import { TimetableLookupPage } from './timetables/TimetableLookupPage.js';
+import { PrimaryReportsPage } from './primary-reports/PrimaryReportsPage.js';
 import { ChildrenPage } from './children/ChildrenPage.js';
 import { StudentMovementsPage } from './children/StudentMovementsPage.js';
 import { DefaultPasswordsPage } from './students/DefaultPasswordsPage.js';
@@ -347,6 +348,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/timetable-changes', component: TimetableChangesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/timetable-reports', component: TimetableReportsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/tra-cuu-thoi-khoa-bieu', component: TimetableLookupPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/primary-reports', component: PrimaryReportsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/classes', component: ClassesPage }),
   // Trường học, lớp học theo Sở (DT-15 phần 15b, YCTD-111)
   createRoute({ getParentRoute: () => rootRoute, path: '/branches', component: BranchesPage }),

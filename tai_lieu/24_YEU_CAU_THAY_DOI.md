@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.45
+- Phiên bản: 0.46
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,23 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-165: DT-20 phần 20f: báo cáo, thống kê và EMIS Tiểu học – 2026-10-24
+
+- Lý do: phần 20f của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.4 (đợt 4, phần cuối của DT-20). Văn bản căn cứ: Thông tư 27/2020/TT-BGDĐT (mức đạt, hoàn thành chương trình, khen thưởng dùng ở biểu cuối năm); biểu EMIS Tiểu học của Bộ, Sở chưa đối chiếu được vì chưa có tài khoản Sở cấp Tiểu học nên phần này dựng khung cấu hình được, chờ khảo sát (mục 31). Không đổi hành vi Mầm non: biểu EMIS Mầm non, thống kê 5.1, 5.3 giữ nguyên. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Thống kê Tiểu học** (`apps/api/src/primary-reports/`): sĩ số theo khối (lớp, lớp 2 buổi/ngày, lớp có bán trú, học sinh, nữ, dân tộc thiểu số, khuyết tật theo hồ sơ CSDL ngành, học 2 buổi/ngày, bán trú theo hồ sơ học sinh hoặc lớp); kết quả đánh giá định kỳ của kỳ (20c) theo lớp, khối hoặc toàn trường: số học sinh theo mức của từng môn, điểm kiểm tra theo khoảng 9-10, 7-8, 5-6, dưới 5, phẩm chất, năng lực; cuối năm theo lớp, khối, trường: kết quả cuối năm, chưa xác nhận, hoàn thành chương trình, lên lớp, ở lại lớp, khen thưởng (20c, 20e); chuyên cần theo tiết (20d: tiết đã ghi sổ, có mặt, đi muộn, vắng có phép, không phép) và bán trú (20b: ngày đã chốt suất, suất ăn, lượt cắt suất) theo lớp trong khoảng ngày. Phạm vi là các đơn vị người dùng được xem thống kê học sinh (`P17.child-statistics.view`); chọn đơn vị thì chỉ đơn vị đó. Mỗi báo cáo xuất Excel hoặc PDF, ghi nhật ký xuất.
+  - **Khung biểu EMIS Tiểu học cấu hình được** (tệp hệ thống `0027`): danh mục biểu (mã, tên, cấp, kỳ đầu năm hoặc cuối năm, các cột tách số tổng số, nữ, dân tộc thiểu số, nữ dân tộc thiểu số, khuyết tật) và dòng chỉ tiêu theo thứ tự (đề mục, công thức tính từ dữ liệu, nhập tay). Công thức theo cú pháp `students` hoặc `classes` kèm điều kiện nối dấu chấm (`grade=K1`, `two_sessions`, `boarding`, `awarded`, `year_result=…`, `completion=…`), kiểm khi lưu; dòng lớp chỉ có cột tổng số. Nạp hai biểu khung: EMIS Tiểu học đầu năm (lớp, học sinh theo khối, 2 buổi/ngày, bán trú, một dòng nhập tay), cuối năm (kết quả giáo dục, hoàn thành chương trình, khen thưởng, một dòng nhập tay). Số nhập tay lưu ở `emis_report_values` của năm học như biểu Mầm non (không thêm bảng năm học: số tệp năm học `0083` giữ sẵn không dùng). Xuất Excel, PDF theo bố cục TT, Chỉ tiêu, Mã số, Đơn vị, các cột; gửi lên cấp trên, đánh dấu đã gửi, mở khoá dùng luồng có sẵn của 16a (biểu đã gửi khoá ô nhập tay). Ban Giám hiệu sửa khung (thay cả bộ dòng) cần quyền mới `P17.report-form.manage` (tệp định danh `0074`).
+  - **Giao diện:** cổng quản trị mục 7.15 "Báo cáo, thống kê, EMIS Tiểu học" (chỉ khi trường bật Tiểu học) với các thẻ Sĩ số, Kết quả đánh giá, Cuối năm, Chuyên cần, bán trú (nút Xuất Excel, Xuất PDF), EMIS Tiểu học (chọn biểu, bảng chỉ tiêu, ô nhập tay, Lưu số nhập tay, Sửa khung biểu).
+  - **Sửa lỗi:** lọc theo danh sách đơn vị dùng mã rỗng chuỗi `''` cho cột uuid gây lỗi hệ thống khi người dùng chỉ được xem một số đơn vị (thống kê Tiểu học khi chọn đơn vị; nề nếp 20b: danh sách điểm, xếp hạng; khoá số liệu 20c: danh sách lớp, khoá mọi lớp), nay dùng uuid rỗng; kiểm thử đơn vị thêm trường hợp chọn đơn vị.
+  - **Dùng lại:** tham số cấp, nhóm theo khối của 19d (báo cáo cố định cấp Tiểu học), khung xuất tệp, nhật ký xuất, luồng gửi lên cấp trên của 16a, cách đọc dân tộc, khuyết tật của biểu EMIS Mầm non.
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/system/migrations/0027_create_report_forms.ts`, `database/identity/migrations/0074_add_report_form_permission.ts`, `system/schema.ts`); gói dùng chung (`primary-reports.ts`, `PERMISSION_CODES`, `portal-menu.ts`, `menu-permissions.ts`); máy chủ API (`primary-reports/`); cổng quản trị (`primary-reports/`).
+- Dữ liệu bị ảnh hưởng: tệp hệ thống `0027` thêm `report_forms`, `report_form_rows` và hai biểu khung; tệp định danh `0074` thêm một quyền. Không đổi dữ liệu đang có.
+- Đối chiếu trước, sau chuyển: không chuyển dữ liệu.
+- Rủi ro: biểu khung chưa khớp biểu thật của Bộ, Sở; khi có tài khoản Sở cấp Tiểu học thì khảo sát, sửa dòng, mã số bằng "Sửa khung biểu" (không cần đổi mã) và ghi đối chiếu vào tài liệu 31.
+- Chưa làm trong phần này, ghi để làm tiếp: thêm biểu mới vào danh mục từ giao diện (hiện sửa dòng của biểu có sẵn; biểu thêm bằng tệp thay đổi cấu trúc hệ thống và cần khởi động lại để đăng ký gửi lên cấp trên); cột tách số tuỳ biến ngoài năm cột có sẵn.
+- Kiểm thử cần thực hiện: CT-904 đến CT-910. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/primary-reports/primary-reports.test.ts` CT-20f-1 đến CT-20f-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.15 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của Tiểu học của CT-19c-1); kiểm thử đơn vị toàn bộ kho mã đạt 1081/1081 trước khi gộp main lần cuối; sau khi gộp chạy lại các tệp bị ảnh hưởng (primary-reports, working-level, menu-permissions) đạt 18/18; kiểm thử giao diện `tests/e2e/94-primary-reports.spec.ts` (CT-20f-7) đạt; toàn bộ kiểm thử giao diện trên máy chạy các kịch bản 02, 03, 94 đạt 5/5 (trước đó 02, 03, 06, 08, 58, 94 đạt 18/18); e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Trạng thái: Đã triển khai (PR #148).
 
 ### YCTD-170: DT-21 phần 21c: sổ điểm THCS, THPT theo Thông tư 22/2021 – 2026-10-24
 
