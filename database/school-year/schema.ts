@@ -203,6 +203,75 @@ export interface SubjectTeamSubjectsTable {
 
 export type SubjectTeamRole = 'head' | 'member';
 
+// Sổ điểm THCS, THPT theo Thông tư 22/2021 (DT-21 phần 21c, YCTD-170)
+export type ScoreTermTypeValue = 'first_term' | 'second_term';
+export type ScoreKindValue = 'regular' | 'mid' | 'final';
+export type ScoreSourceValue = 'manual' | 'import' | 'exam';
+export type RatingTermValue = 'first_term' | 'second_term' | 'year';
+export type RatingValue = 'good' | 'fair' | 'pass' | 'fail';
+
+// Cấu hình sổ điểm của cấp (hệ số, số lần đánh giá thường xuyên, ngưỡng xếp loại) lưu dạng JSON; trống là bộ mặc định
+export interface ScoreConfigsTable {
+  school_level: SchoolLevelCode;
+  config: ColumnType<unknown, string, string>;
+  updated_by: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+// Một điểm: điểm thường xuyên có thứ tự seq (1, 2, ...), giữa kỳ, cuối kỳ seq 1; điểm kiểm tra tập trung của 22g chuyển vào
+// với source = 'exam' (DT-21 phần 22g2)
+export interface ScoreEntriesTable {
+  id: Generated<string>;
+  class_id: string;
+  child_id: string;
+  subject_id: string;
+  term_type: ScoreTermTypeValue;
+  kind: ScoreKindValue;
+  seq: Generated<number>;
+  score: ColumnType<string, string | number, string | number>;
+  source: Generated<ScoreSourceValue>;
+  updated_by: string;
+  updated_by_name: string;
+  updated_at: UpdatedTimestamp;
+}
+
+// Kết quả môn đánh giá bằng nhận xét và nhận xét của giáo viên môn theo học kỳ
+export interface SubjectTermResultsTable {
+  id: Generated<string>;
+  class_id: string;
+  child_id: string;
+  subject_id: string;
+  term_type: ScoreTermTypeValue;
+  result: 'pass' | 'fail' | null;
+  comment: string | null;
+  updated_by: string;
+  updated_by_name: string;
+  updated_at: UpdatedTimestamp;
+}
+
+// Xếp loại học tập, rèn luyện theo học kỳ và cả năm; suggested là gợi ý của máy lúc ghi
+export interface TermRatingsTable {
+  id: Generated<string>;
+  class_id: string;
+  child_id: string;
+  term_type: RatingTermValue;
+  learning_suggested: RatingValue | null;
+  learning: RatingValue | null;
+  conduct: RatingValue | null;
+  comment: string | null;
+  updated_by: string;
+  updated_by_name: string;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ScoreLocksTable {
+  class_id: string;
+  term_type: ScoreTermTypeValue;
+  locked_by: string;
+  locked_by_name: string;
+  locked_at: CreatedTimestamp;
+}
+
 export interface SubjectTeamMembersTable {
   team_id: string;
   staff_user_id: string;
@@ -5475,6 +5544,11 @@ export interface SchoolYearDatabase {
   subjects: SubjectsTable;
   curriculum_subjects: CurriculumSubjectsTable;
   child_elective_subjects: ChildElectiveSubjectsTable;
+  score_configs: ScoreConfigsTable;
+  score_entries: ScoreEntriesTable;
+  subject_term_results: SubjectTermResultsTable;
+  term_ratings: TermRatingsTable;
+  score_locks: ScoreLocksTable;
   subject_combinations: SubjectCombinationsTable;
   subject_combination_subjects: SubjectCombinationSubjectsTable;
   child_subject_combinations: ChildSubjectCombinationsTable;

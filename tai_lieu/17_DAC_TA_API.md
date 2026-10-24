@@ -1,8 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.110
-- Phiên bản: 1.108
+- Phiên bản: 1.111
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -860,6 +859,13 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | GET, POST, PATCH | /api/v1/subject-teams | Tổ bộ môn; thêm, sửa tổ (cần `P01.catalog.manage`) (P02-57) |
 | PUT, DELETE | /api/v1/subject-teams/{id}/members, /members/{staffUserId} | Thêm, đặt vai trò, bỏ thành viên (P02-57) |
 | GET | /api/v1/subject-teams/{id}/loads | Tổng tiết mỗi tuần của giáo viên trong các môn của tổ (P02-57) |
+| GET, PUT | /api/v1/scores/config | Cấu hình sổ điểm của cấp (`school_level`); sửa cần `P02.assessment.manage` (P02-60, YCTD-170) |
+| GET | /api/v1/scores/classes/{id} | Môn, quyền nhập, học kỳ (hạn, khoá), cấu hình của lớp (P02-58) |
+| GET, PUT | /api/v1/scores/classes/{id}/subjects/{subjectId} | Bảng điểm một môn theo học kỳ (`term_type`); ghi điểm theo học sinh (P02-58) |
+| GET | /api/v1/scores/classes/{id}/summary | Điểm trung bình, kết quả, gợi ý xếp loại theo học kỳ hoặc `year` (P02-59) |
+| PUT | /api/v1/scores/classes/{id}/ratings | Xác nhận xếp loại học tập, rèn luyện, nhận xét (P02-59) |
+| GET, POST | /api/v1/scores/locks, /locks/unlock | Trạng thái khoá, khoá điểm theo học kỳ, mở khoá kèm lý do (cần `P02.assessment.manage`) (P02-59) |
+| GET | /api/v1/scores/children/{id} | Điểm đã khoá của con cho phụ huynh (P02-60) |
 | GET, PUT | /api/v1/period-slots | Khung giờ tiết học của cấp ở năm học đang dùng; thay cả khung (cần `P02.timetable.manage`) (P02-39, YCTD-160) |
 | GET, POST | /api/v1/timetable-versions | Bản thời khoá biểu theo cấp kèm `is_current`; tạo bản nháp, chép từ bản khác (P02-40) |
 | PATCH, DELETE | /api/v1/timetable-versions/{id} | Sửa tên, ngày áp dụng, ghi chú; xoá bản nháp (P02-40) |
@@ -897,34 +903,34 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | POST | /api/v1/class-logs/reviews | Ban giám hiệu ký sổ tuần (cần `P02.class-log.review`) (P02-46) |
 | GET | /api/v1/period-attendance/summary | Chuyên cần theo tiết của lớp trong khoảng ngày (P02-47) |
 | GET | /api/v1/children/{id}/period-attendance | Điểm danh theo tiết của con trong tháng (P02-47) |
-| GET | /api/v1/library/settings | Thiết lập thư viện: cấp có học sinh mượn, ngày giữ chỗ, quy định mượn, phân loại, chỉ tiêu (cần `P02.library.view` hoặc `manage`) (P02-59, YCTD-181) |
-| PUT | /api/v1/library/settings | Ghi thiết lập, quy định mượn, ngưỡng chỉ tiêu (cần `P02.library.manage`) (P02-59) |
-| POST, PATCH | /api/v1/library/categories, /api/v1/library/categories/{id} | Thêm, sửa phân loại ấn phẩm (P02-55) |
-| GET, POST | /api/v1/library/titles | Tra cứu ấn phẩm (từ khóa, phân loại, khối, cấp, trạng thái, phân trang), thêm ấn phẩm (P02-55) |
-| GET, PATCH | /api/v1/library/titles/{id} | Chi tiết ấn phẩm kèm bản sao, tệp; sửa, ngừng dùng (P02-55) |
-| POST | /api/v1/library/titles/{id}/copies | Thêm số bản sao, cấp số đăng ký liên tiếp (P02-55) |
-| GET, POST, DELETE | /api/v1/library/titles/{id}/files, /api/v1/library/titles/{id}/files/{fileId} | Tệp tài liệu số của ấn phẩm: liệt kê, tải lên, tải xuống, xóa (P02-55) |
-| GET, PATCH | /api/v1/library/copies, /api/v1/library/copies/{id} | Liệt kê bản sao; đổi tình trạng tốt, hỏng, kệ, ghi chú (P02-55) |
-| POST | /api/v1/library/copies/dispose | Thanh lý các bản sao kèm lý do (P02-55) |
-| POST | /api/v1/library/labels | Tem mã PDF của các bản sao (P02-55) |
-| GET | /api/v1/library/registry | Sổ đăng ký cá biệt, `format` xlsx hoặc pdf (P02-55) |
-| GET, POST | /api/v1/library/readers | Danh sách bạn đọc; cấp thẻ cho một người (P02-56) |
-| GET | /api/v1/library/readers/lookup | Tìm bạn đọc theo số thẻ hoặc tên (P02-56) |
-| POST | /api/v1/library/readers/sync | Cấp thẻ cho cán bộ, học sinh đủ điều kiện, khóa thẻ người đã nghỉ (P02-56) |
-| PATCH, GET | /api/v1/library/readers/{id}, /api/v1/library/readers/{id}/loans | Khóa, mở khóa thẻ; lịch sử mượn (P02-56) |
-| POST | /api/v1/library/readers/cards | Thẻ bạn đọc PDF (P02-56) |
-| GET, POST | /api/v1/library/loans | Danh sách lượt mượn (trạng thái open, overdue, returned, lost); cho mượn một hoặc nhiều bản (P02-57) |
-| POST | /api/v1/library/loans/return, /api/v1/library/loans/return-many | Nhận trả một bản; trả hàng loạt kèm tình trạng (P02-57, P02-58) |
-| POST | /api/v1/library/loans/{id}/renew, /api/v1/library/loans/{id}/lost | Gia hạn; báo mất (P02-57) |
-| POST | /api/v1/library/loans/remind | Nhắc bạn đọc có bản quá hạn (P02-57) |
-| GET, POST, DELETE | /api/v1/library/reservations, /api/v1/library/reservations/{id} | Danh sách, thêm, hủy lượt đặt trước (P02-57) |
-| GET, POST, PATCH | /api/v1/library/textbook-sets, /api/v1/library/textbook-sets/{id} | Bộ sách giáo khoa theo khối (P02-58) |
-| POST, GET | /api/v1/library/textbooks/issue, /api/v1/library/textbooks/outstanding | Phát bộ sách cho lớp; sách giáo khoa lớp còn giữ (P02-58) |
-| GET, POST | /api/v1/library/stocktakes | Danh sách, mở đợt kiểm kê (P02-59) |
-| GET, POST | /api/v1/library/stocktakes/{id}, /scan, /close, /resolve | Kết quả đợt; quét mã; đóng đợt; xử lý bản thiếu (P02-59) |
-| GET | /api/v1/library/reports/overview, /api/v1/library/reports/export | Báo cáo thư viện và chỉ tiêu; xuất `type` overview, loans, overdue (P02-59) |
-| GET | /api/v1/library/my-loans | Sách cán bộ đang mượn (P02-57) |
-| GET | /api/v1/library/children/{id}/loans | Sách con đang mượn (phụ huynh của học sinh, nhân sự quản lý) (P02-57) |
+| GET | /api/v1/library/settings | Thiết lập thư viện: cấp có học sinh mượn, ngày giữ chỗ, quy định mượn, phân loại, chỉ tiêu (cần `P02.library.view` hoặc `manage`) (P02-65, YCTD-181) |
+| PUT | /api/v1/library/settings | Ghi thiết lập, quy định mượn, ngưỡng chỉ tiêu (cần `P02.library.manage`) (P02-65) |
+| POST, PATCH | /api/v1/library/categories, /api/v1/library/categories/{id} | Thêm, sửa phân loại ấn phẩm (P02-61) |
+| GET, POST | /api/v1/library/titles | Tra cứu ấn phẩm (từ khóa, phân loại, khối, cấp, trạng thái, phân trang), thêm ấn phẩm (P02-61) |
+| GET, PATCH | /api/v1/library/titles/{id} | Chi tiết ấn phẩm kèm bản sao, tệp; sửa, ngừng dùng (P02-61) |
+| POST | /api/v1/library/titles/{id}/copies | Thêm số bản sao, cấp số đăng ký liên tiếp (P02-61) |
+| GET, POST, DELETE | /api/v1/library/titles/{id}/files, /api/v1/library/titles/{id}/files/{fileId} | Tệp tài liệu số của ấn phẩm: liệt kê, tải lên, tải xuống, xóa (P02-61) |
+| GET, PATCH | /api/v1/library/copies, /api/v1/library/copies/{id} | Liệt kê bản sao; đổi tình trạng tốt, hỏng, kệ, ghi chú (P02-61) |
+| POST | /api/v1/library/copies/dispose | Thanh lý các bản sao kèm lý do (P02-61) |
+| POST | /api/v1/library/labels | Tem mã PDF của các bản sao (P02-61) |
+| GET | /api/v1/library/registry | Sổ đăng ký cá biệt, `format` xlsx hoặc pdf (P02-61) |
+| GET, POST | /api/v1/library/readers | Danh sách bạn đọc; cấp thẻ cho một người (P02-62) |
+| GET | /api/v1/library/readers/lookup | Tìm bạn đọc theo số thẻ hoặc tên (P02-62) |
+| POST | /api/v1/library/readers/sync | Cấp thẻ cho cán bộ, học sinh đủ điều kiện, khóa thẻ người đã nghỉ (P02-62) |
+| PATCH, GET | /api/v1/library/readers/{id}, /api/v1/library/readers/{id}/loans | Khóa, mở khóa thẻ; lịch sử mượn (P02-62) |
+| POST | /api/v1/library/readers/cards | Thẻ bạn đọc PDF (P02-62) |
+| GET, POST | /api/v1/library/loans | Danh sách lượt mượn (trạng thái open, overdue, returned, lost); cho mượn một hoặc nhiều bản (P02-63) |
+| POST | /api/v1/library/loans/return, /api/v1/library/loans/return-many | Nhận trả một bản; trả hàng loạt kèm tình trạng (P02-63, P02-64) |
+| POST | /api/v1/library/loans/{id}/renew, /api/v1/library/loans/{id}/lost | Gia hạn; báo mất (P02-63) |
+| POST | /api/v1/library/loans/remind | Nhắc bạn đọc có bản quá hạn (P02-63) |
+| GET, POST, DELETE | /api/v1/library/reservations, /api/v1/library/reservations/{id} | Danh sách, thêm, hủy lượt đặt trước (P02-63) |
+| GET, POST, PATCH | /api/v1/library/textbook-sets, /api/v1/library/textbook-sets/{id} | Bộ sách giáo khoa theo khối (P02-64) |
+| POST, GET | /api/v1/library/textbooks/issue, /api/v1/library/textbooks/outstanding | Phát bộ sách cho lớp; sách giáo khoa lớp còn giữ (P02-64) |
+| GET, POST | /api/v1/library/stocktakes | Danh sách, mở đợt kiểm kê (P02-65) |
+| GET, POST | /api/v1/library/stocktakes/{id}, /scan, /close, /resolve | Kết quả đợt; quét mã; đóng đợt; xử lý bản thiếu (P02-65) |
+| GET | /api/v1/library/reports/overview, /api/v1/library/reports/export | Báo cáo thư viện và chỉ tiêu; xuất `type` overview, loans, overdue (P02-65) |
+| GET | /api/v1/library/my-loans | Sách cán bộ đang mượn (P02-63) |
+| GET | /api/v1/library/children/{id}/loans | Sách con đang mượn (phụ huynh của học sinh, nhân sự quản lý) (P02-63) |
 | GET | /api/v1/audit-logs | Tra nhật ký thao tác; `page_size` đến 200 (YCTD-109) |
 | GET, POST | /api/v1/api-clients | Danh sách và cấp khóa API cho đối tác |
 | POST | /api/v1/api-clients/{id}/revoke | Thu hồi khóa API |
@@ -1576,6 +1582,14 @@ Giao kèo nền THCS, THPT (DT-21 phần 21a, YCTD-167, BR-179):
 3. `GET /children/{id}/subject-combination` trả `registration` (`combination_id`, `combination_code`, `combination_name`, `status`, `previous_combination_id`) hoặc null và `options` (tổ hợp đang dùng; rỗng nếu học sinh không học lớp THPT). `PUT` nhận `combination_id`; học sinh không học lớp THPT, tổ hợp ngừng dùng trả 422; đăng ký lần đầu `approved`, đổi sang tổ hợp khác `pending` (giữ `previous_combination_id`). `approve` đặt `approved` và thay môn tự chọn theo môn của tổ hợp; `reject` trả về tổ hợp trước; không có đề nghị chờ duyệt trả 422.
 4. `POST /subject-teams` nhận `code`, `name`, `school_level` (`THCS` hoặc `THPT`), `subject_ids`; cấp khác trả 400; môn khác cấp 422; mã trùng 409. `PUT /subject-teams/{id}/members` nhận `org_unit_id`, `staff_user_id`, `role` (`head` hoặc `member`); người không có vai trò giáo viên bộ môn (VT-08) ở đơn vị trả 400; tổ trưởng mới thay tổ trưởng cũ (thành thành viên). `GET /subject-teams/{id}/loads` trả `staff_user_id`, `staff_name`, `total_periods`.
 
+Giao kèo sổ điểm THCS, THPT (DT-21 phần 21c, YCTD-170, BR-180):
+
+1. `GET /scores/config?school_level=` (THCS hoặc THPT, cấp khác 400) trả `config` (đã lưu hoặc mặc định). `PUT` nhận `school_level`, `config`; cấu hình sai (hệ số ngoài 1 đến 9, thiếu ba mức Tốt, Khá, Đạt, dòng cuối số lần đánh giá có giới hạn) trả 400; không có quyền quản lý 403.
+2. `GET /scores/classes/{id}` trả `class`, `access` (`manage`, `homeroom`, `subject_ids`), `subjects` (`mode` là `score` hoặc `comment`, `required_regular`, `is_elective`), `terms` (`term_type`, `deadline`, `locked`), `config`; lớp không thuộc THCS, THPT trả 422; không có quyền xem 403.
+3. `PUT /scores/classes/{id}/subjects/{subjectId}` nhận `term_type` (`first_term`, `second_term`) và `entries` (tối đa 200: `child_id`, `regular` tối đa 10 điểm, `mid`, `final`, `result`, `comment`); điểm ngoài 0 đến 10 hoặc quá một chữ số thập phân, môn nhận xét có điểm, môn tính điểm có `result` trả 400; không được phân công môn 403; học kỳ đã khoá hoặc quá hạn (người không quản lý) trả 422. Điểm null xoá điểm đó. Trả bảng điểm kèm `average`.
+4. `GET /scores/classes/{id}/summary?term_type=` (`first_term`, `second_term`, `year`) trả `subjects`, `rows` (`subjects` điểm trung bình hoặc kết quả, `suggested`, `learning`, `conduct`, `comment`), `locked`, `can_rate`. `PUT /scores/classes/{id}/ratings` nhận `term_type`, `entries` (`child_id`, `learning`, `conduct` là `good`, `fair`, `pass`, `fail` hoặc trống, `comment`); chỉ giáo viên chủ nhiệm hoặc người quản lý (403); học kỳ đã khoá trả 422 (cả năm theo học kỳ II).
+5. `POST /scores/locks` nhận `term_type`, `school_level`, `class_ids` (tuỳ chọn); trả `locked_class_count`. `GET /scores/locks?term_type=&school_level=` trả trạng thái từng lớp. `POST /scores/locks/unlock` nhận `term_type`, `class_id`, `reason` (3 đến 500 ký tự); lớp chưa khoá trả 422. `GET /scores/children/{id}` chỉ phụ huynh của con (403 nếu không), trả `terms` đã khoá và `year_rating` khi học kỳ II đã khoá.
+
 Giao kèo thời khoá biểu (DT-20 phần 22c1, YCTD-160, BR-170):
 
 1. `PUT /period-slots` nhận `school_level`, `slots` (`period_no`, `session`, `start_time`, `end_time`); sai giờ, trùng tiết, chồng giờ trả 400 ở `slots[n].…` hoặc `slots`.
@@ -1595,7 +1609,7 @@ Giao kèo sổ đầu bài (DT-20 phần 20d, YCTD-162, BR-174):
 5. `GET /period-attendance/summary` (`class_id`, `from`, `to`) trả `lessons` (số tiết đã ghi) và `students` (`present`, `late`, `absent_excused`, `absent_unexcused`, `absent_days`, `notice_days`, `absent_without_notice_days`, `notice_but_present_days`, `daily_absent_days`).
 6. `GET /children/{id}/period-attendance?month=YYYY-MM` (phụ huynh của học sinh, nhân sự) trả `counts` theo trạng thái và `records` (các tiết không có mặt: `lesson_date`, `period_no`, `subject_name`, `status`, `note`); phụ huynh khác trả 403.
 
-Giao kèo thư viện (DT-22 phần 22a, YCTD-181, BR-179 đến BR-181):
+Giao kèo thư viện (DT-22 phần 22a, YCTD-181, BR-181 đến BR-183):
 
 1. Điểm cuối thư viện cần `P02.library.manage`, riêng tra cứu ấn phẩm, xem thiết lập, `my-loans` cần `P02.library.view` hoặc `manage`; `children/{id}/loans` kiểm tra quan hệ phụ huynh, không cần quyền. Lỗi dữ liệu trả 400; không tìm thấy trả 404; vi phạm quy tắc (thẻ khóa, vượt mức, quá hạn, bản không cho mượn, đặt trước khi còn bản, đợt kiểm kê đã đóng) trả 422 với `rule_code` YCTD-181.
 2. `POST /library/titles/{id}/copies` nhận `quantity` (1 đến 500), `source`, `price`, `acquired_on`, `shelf`; trả mảng `id`, `copy_no`.

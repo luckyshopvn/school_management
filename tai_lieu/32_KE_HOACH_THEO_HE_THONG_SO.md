@@ -1,8 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số).
-- Phiên bản: 1.50
-- Phiên bản: 1.48
+- Phiên bản: 1.51
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -897,7 +896,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 | 21a | 1 | Đã làm, YCTD-167, phiên bản 0.114.0: bộ môn mẫu THCS, THPT, nhóm môn lựa chọn (năm học 0084 `subjects.option_group`), tổ hợp môn và đăng ký (đổi thì chờ duyệt), tổ bộ môn, nhóm menu "7. Dạy học" dùng chung ba cấp, 7.12, 7.13; định danh 0075 để trống (không thêm quyền); e2e 95 |
 | 22g1 | 1 | Chưa làm, 20a đã gộp |
 | 21b | 2 | Chưa làm, chờ 21a, 22c2 |
-| 21c | 2 | Chưa làm, chờ 21a (20c đã gộp) |
+| 21c | 2 | Đã làm, YCTD-170, phiên bản 0.115.0: sổ điểm theo Thông tư 22/2021 (năm học 0087 `score_entries`, `subject_term_results`, `term_ratings`, `score_locks`, `score_configs`), trung bình học kỳ, cả năm, gợi ý và xác nhận xếp loại học tập, rèn luyện, khoá điểm, cấu hình theo cấp, mục 7.14, ứng dụng giáo viên, phụ huynh; định danh 0078 để trống (không thêm quyền); e2e 98 |
 | 21d | 3 | Chưa làm, chờ 21b, 20d |
 | 21e | 3 | Chưa làm, chờ 21c, 20e |
 | 22g2 | 4 | Chưa làm, chờ 22g1, 21c |
@@ -1051,7 +1050,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 
 | Phần | Đợt | Tiến độ |
 |---|---|---|
-| 22a | 1 | Đã làm, YCTD-181, phiên bản 0.115.0, PR 147: phân hệ Thư viện (danh mục, bản sao có số đăng ký cá biệt và tem QR, thanh lý, tệp số, sổ đăng ký; thẻ bạn đọc; mượn trả, phạt, nhắc quá hạn, đặt trước; phát và thu sách giáo khoa; kiểm kê; báo cáo và chỉ tiêu theo chuẩn có ngưỡng cấu hình; thiết lập), ứng dụng giáo viên, phụ huynh; toàn bộ ở cơ sở dữ liệu năm học (năm học 0100, định danh 0090, hệ thống 0040 không dùng); chưa làm: nhập Excel danh mục, minh chứng sang 22f, ảnh bìa; e2e 120 |
+| 22a | 1 | Đã làm, YCTD-181, phiên bản 0.116.0, PR 147: phân hệ Thư viện (danh mục, bản sao có số đăng ký cá biệt và tem QR, thanh lý, tệp số, sổ đăng ký; thẻ bạn đọc; mượn trả, phạt, nhắc quá hạn, đặt trước; phát và thu sách giáo khoa; kiểm kê; báo cáo và chỉ tiêu theo chuẩn có ngưỡng cấu hình; thiết lập), ứng dụng giáo viên, phụ huynh; toàn bộ ở cơ sở dữ liệu năm học (năm học 0100, định danh 0090, hệ thống 0040 không dùng); chưa làm: nhập Excel danh mục, minh chứng sang 22f, ảnh bìa; e2e 120 |
 | 22e | 1 | Chưa làm, làm được ngay |
 | 22h1 | 2 | Chưa làm, bắt đầu khi 22a hoặc 22e gộp |
 | 22h2 | 3 | Chưa làm, chờ 22h1 và 22g1 (DT-21); thống kê sử dụng câu hỏi chờ thêm 22g2 |

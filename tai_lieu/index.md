@@ -79,8 +79,8 @@ Mã quy trình dạng `QT-nn`, đánh số tăng dần, không tái sử dụng 
 | Vai trò đã xác định | 19 | Từ VT-01 đến VT-20, VT-13 đã bỏ; VT-02 Hiệu trưởng và VT-15 Phó Hiệu trưởng hợp thành Ban Giám hiệu |
 | Quy trình nghiệp vụ đã đặc tả | 10 | Đủ mười lăm mục theo khuôn đặc tả |
 | Chức năng đã liệt kê | 291 | 301 mã; P08-05, P11-01 đến P11-07, P17-09, P17-15 đã bỏ |
-| Tiêu chí nghiệm thu đã viết | 780 | Từ AC-01 đến AC-780; AC-498 không áp dụng; AC-42, AC-53 đến AC-57, AC-171 đã bỏ; AC-94 đến AC-134 nằm trong các đặc tả quy trình |
-| Quy tắc nghiệp vụ đã xác định | 181 | Từ BR-01 đến BR-181; BR-27, BR-42, BR-54, BR-55, BR-57 đã bỏ |
+| Tiêu chí nghiệm thu đã viết | 786 | Từ AC-01 đến AC-786; AC-498 không áp dụng; AC-42, AC-53 đến AC-57, AC-171 đã bỏ; AC-94 đến AC-134 nằm trong các đặc tả quy trình |
+| Quy tắc nghiệp vụ đã xác định | 183 | Từ BR-01 đến BR-183; BR-27, BR-42, BR-54, BR-55, BR-57 đã bỏ |
 | Giả định đã ghi nhận | 92 | Từ GD-01 đến GD-92; mọi giả định đã được xác nhận hoặc ghi không còn hiệu lực ngày 09/10/2026 |
 | Câu hỏi mở chờ trả lời | 0 | Đã cấp mã đến Q-156; mọi câu đã được trả lời ngày 09/10/2026 |
 | Bảng dữ liệu dự kiến | 374 | Xem `16_CO_SO_DU_LIEU.md`, đếm lại ngày 2026-10-15 theo tên bảng ở mục 2 đến mục 18 (mỗi tên đếm một lần), đã gồm `user_quick_links` (YCTD-102), tám bảng của YCTD-104, `growth_rounds` (YCTD-105) và `equipment_items`, `equipment_holdings`, `school_profiles` (YCTD-106), `user_grid_settings` (YCTD-107), `feedback` (YCTD-110); tám bảng xe đưa đón và bảng `meal_registrations` đã gỡ |

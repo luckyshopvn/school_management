@@ -52,6 +52,7 @@ export function ClassesScreen({
   onOpenMealReport,
   onOpenBoarding,
   onOpenAssessment,
+  onOpenScores,
   onOpenMedication,
   onOpenGate,
   onOpenLeave,
@@ -72,6 +73,7 @@ export function ClassesScreen({
   onOpenMealReport(myClass: MyClass): void;
   onOpenBoarding(myClass: MyClass): void;
   onOpenAssessment(myClass: MyClass): void;
+  onOpenScores(myClass: MyClass): void;
   onOpenMedication(myClass: MyClass): void;
   onOpenGate(orgUnitIds: string[]): void;
   onOpenLeave(): void;
@@ -183,6 +185,11 @@ export function ClassesScreen({
               {hasLevelFeature(myClass.school_level, 'meal_report') ? (
                 <Button aria-label={`Báo cơm lớp ${myClass.name}`} onClick={() => onOpenMealReport(myClass)}>
                   Báo cơm
+                </Button>
+              ) : null}
+              {hasLevelFeature(myClass.school_level, 'student_scores') ? (
+                <Button aria-label={`Sổ điểm lớp ${myClass.name}`} onClick={() => onOpenScores(myClass)}>
+                  Sổ điểm
                 </Button>
               ) : null}
               {hasLevelFeature(myClass.school_level, 'student_assessment') ? (

@@ -1,8 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.45
-- Phiên bản: 0.43
+- Phiên bản: 0.46
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -21,7 +20,7 @@
 
 - Đọc mục 13 của `32_KE_HOACH_THEO_HE_THONG_SO.md` (kế hoạch DT-22) và mã trên nhánh chính: học sinh, cán bộ, lớp, môn, thông báo, nhật ký xuất, tem QR của thiết bị (`equipment-locations`), kiểm kê thiết bị, kho tệp, chuyển năm học; rà bảng `library_items`, `library_albums` (Mầm non) và `asset_loans` để không dùng nhầm.
 - Cơ sở dữ liệu: tệp năm học `0100`, định danh `0090`. Máy chủ API: danh mục, bản sao, tem, thanh lý, tệp số, sổ đăng ký, thẻ bạn đọc, mượn trả, đặt trước, sách giáo khoa, kiểm kê, báo cáo, chuyển năm học. Cổng quản trị: phân hệ "Thư viện" 7 trang. Ứng dụng giáo viên, phụ huynh.
-- Thêm quy tắc BR-179 đến BR-181, chức năng P02-55 đến P02-59, quyền PQ-97, màn hình MH-271 đến MH-279, kịch bản CT-891 đến CT-900, tiêu chí AC-777 đến AC-780. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/library/library.test.ts` CT-22a-1 đến CT-22a-8 đạt 8/8; trên máy đã chạy kiểm thử đơn vị các gói sửa (thư viện, số phân hệ `system-admin-so`, đường dẫn nhanh, cấp học, chuyển năm học) đạt 52/52; kiểm thử giao diện chạy trên máy: 02, 03, 58 (số phân hệ 20/20) và `tests/e2e/120-library.spec.ts` (CT-22a-9) đạt 9/9; kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
+- Thêm quy tắc BR-181 đến BR-183, chức năng P02-61 đến P02-65, quyền PQ-97, màn hình MH-277 đến MH-285, kịch bản CT-904 đến CT-913, tiêu chí AC-783 đến AC-786. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/library/library.test.ts` CT-22a-1 đến CT-22a-8 đạt 8/8; trên máy đã chạy kiểm thử đơn vị các gói sửa (thư viện, số phân hệ `system-admin-so`, đường dẫn nhanh, cấp học, chuyển năm học) đạt 52/52; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 81, 82, 84 và `tests/e2e/120-library.spec.ts` (CT-22a-9) đạt; kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
 
 #### Quyết định
 
@@ -30,11 +29,33 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-181, `07_QUY_TAC_NGHIEP_VU.md` BR-179 đến BR-181, `08_VAI_TRO_NGUOI_DUNG.md` PQ-97, `10_YEU_CAU_CHUC_NANG.md` P02-55 đến P02-59, `11_TIEU_CHI_NGHIEM_THU.md` AC-777 đến AC-780, `14_DAC_TA_GIAO_DIEN.md` MH-271 đến MH-279, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-891 đến CT-900, `23_LICH_SU_PHIEN_BAN.md` 0.115.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-181, `07_QUY_TAC_NGHIEP_VU.md` BR-181 đến BR-183, `08_VAI_TRO_NGUOI_DUNG.md` PQ-97, `10_YEU_CAU_CHUC_NANG.md` P02-61 đến P02-65, `11_TIEU_CHI_NGHIEM_THU.md` AC-783 đến AC-786, `14_DAC_TA_GIAO_DIEN.md` MH-277 đến MH-285, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-904 đến CT-913, `23_LICH_SU_PHIEN_BAN.md` 0.116.0.
 
 #### Vấn đề tồn đọng
 
 - Đọc văn bản gốc về chuẩn thư viện cơ sở giáo dục phổ thông để nạp ngưỡng chỉ tiêu; nhập Excel danh mục; ghi minh chứng sang 22f; ảnh bìa, ô chọn môn ở giao diện, thẻ đã trả, đã mất ở danh sách lượt mượn.
+
+### 2026-10-24 — DT-21 phần 21c: sổ điểm THCS, THPT
+
+#### Công việc đã thực hiện
+
+- Đọc mục 12 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và mã 20c (`assessments`: phân quyền nhập theo phân công, hạn nhập, khoá, nhật ký, phụ huynh xem), 21a (môn THCS, THPT, phân công theo môn).
+- Cơ sở dữ liệu: tệp năm học `0087` (cấu hình, điểm, kết quả môn nhận xét, xếp loại, khoá điểm); tệp định danh `0078` để trống. Gói dùng chung: hàm tính trung bình, xếp loại. Máy chủ API: `/scores`. Cổng quản trị: 7.14 Sổ điểm; ứng dụng giáo viên, ứng dụng phụ huynh.
+- Kiểm thử: kiểm thử đơn vị `apps/api/src/scores/scores.test.ts` CT-21c-1 đến CT-21c-6 đạt 6/6; chạy cùng `secondary.test.ts`, `subjects.test.ts`, `working-level.test.ts`, `menu-permissions.test.ts` đạt 28/28 (đã thêm 7.14 vào danh sách mục chỉ của THCS, THPT ở CT-19c-1, CT-19c-2); typecheck, eslint, prettier đạt; e2e CT-21c-7 đạt; e2e toàn bộ do CI chạy.
+- Sửa dòng "Phiên bản" thừa ở đầu các tài liệu do gộp bản 21a.
+
+#### Quyết định
+
+- Điểm là bảng riêng `score_entries` (không dùng bảng đánh giá Thông tư 27/2020 của 20c vì lưu mức đạt và điểm nguyên); tái dùng quyền, cách phân quyền, khoá của 20c nên không thêm quyền; điểm trung bình tính khi đọc, không lưu; xếp loại học tập gợi ý theo ngưỡng cấu hình, rèn luyện nhập tay; điểm có nguồn `exam` để 22g2 chuyển điểm vào; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-170, `23_LICH_SU_PHIEN_BAN.md` bản 0.115.0.
+
+#### Vấn đề tồn đọng
+
+- Hệ số, số lần đánh giá, ngưỡng xếp loại đối chiếu toàn văn Thông tư 22/2021; quy tắc gợi ý xếp loại rèn luyện; khảo sát hệ thống của Sở cấp THCS, THPT khi Eric có tài khoản.
+
 
 ### 2026-10-24 — DT-21 phần 21a: nền THCS, THPT
 
@@ -1751,7 +1772,7 @@
 - Agent 11b viết mã, kiểm thử máy chủ, nháp tài liệu trong worktree riêng (dừng giữa chừng vì giới hạn phiên rồi làm tiếp); người điều phối gộp nhánh 11e, đánh số tám kịch bản mới CT-208 đến CT-215 kèm AC-252 đến AC-259, chạy toàn bộ kiểm thử, đưa nháp vào tài liệu.
 - Cơ sở dữ liệu: bốn bảng (tệp 0041). Máy chủ API: đề nghị tuyển dụng DNTD-000001 duyệt bởi Ban Giám hiệu, tin tuyển dụng công khai đến hết hạn, nộp hồ sơ không cần tài khoản có giới hạn số lần, hồ sơ ứng viên có ghi nhật ký truy cập dữ liệu cá nhân, phỏng vấn nhiều vòng, quyết định tuyển, tạo hồ sơ nhân sự; bước chuyển năm học `recruitment`.
 - Cổng quản trị: trang Tuyển dụng. Ứng dụng phụ huynh: trang Tuyển dụng giáo viên và nhân viên công khai.
-- Kết quả: máy chủ API 494/494, kiểm thử giao diện 52/52.
+- Kết quả: máy chủ API 494/494, kiểm thử giao diện 59/59.
 
 #### Quyết định
 

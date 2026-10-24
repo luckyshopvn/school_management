@@ -21,7 +21,9 @@ export type LevelFeature =
   | 'library_loans'
   // Sổ đầu bài, điểm danh theo tiết (DT-20 phần 20d): lớp, con học cấp phổ thông
   | 'period_attendance'
-  | 'learning_record';
+  | 'learning_record'
+  // Sổ điểm theo Thông tư 22/2021 (DT-21 phần 21c): giáo viên nhập, phụ huynh xem điểm đã khoá
+  | 'student_scores';
 
 export const LEVEL_FEATURES: Record<LevelFeature, readonly SchoolLevelCode[]> = {
   daily_attendance: ['MN'],
@@ -39,6 +41,7 @@ export const LEVEL_FEATURES: Record<LevelFeature, readonly SchoolLevelCode[]> = 
   period_attendance: ['TH', 'THCS', 'THPT'],
   // Học bạ số, khen thưởng đã duyệt (DT-20 phần 20e): phụ huynh xem, tải học bạ đã kí của con
   learning_record: ['TH'],
+  student_scores: ['THCS', 'THPT'],
 };
 
 // Cấp của con hoặc lớp như máy chủ trả; trống (con chưa xếp lớp, máy chủ cũ) là Mầm non như mọi chỗ đọc cấp khác

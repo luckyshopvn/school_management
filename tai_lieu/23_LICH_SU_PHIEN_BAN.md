@@ -1,8 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.41
-- Phiên bản: 0.39
+- Phiên bản: 0.42
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -17,17 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.115.0 – 2026-10-24
+### Phiên bản 0.116.0 – 2026-10-24
 
 - Phạm vi thay đổi: DT-22 phần 22a, thư viện trường học (YCTD-181).
 - Chức năng mới: phân hệ "Thư viện" (danh mục ấn phẩm, bản sao có số đăng ký cá biệt và tem mã QR, thanh lý, tệp tài liệu số, sổ đăng ký cá biệt; thẻ bạn đọc cho cán bộ và học sinh; mượn, trả, gia hạn, báo mất, phạt trễ hạn, nhắc quá hạn, đặt trước; phát và thu sách giáo khoa theo bộ sách của khối; kiểm kê và xử lý bản thiếu; báo cáo, chỉ tiêu theo chuẩn thư viện có ngưỡng cấu hình; thiết lập quy định mượn); ứng dụng giáo viên "Sách tôi đang mượn", ứng dụng phụ huynh "Sách thư viện".
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp năm học `0100_create_library` (15 bảng `library_*`); tệp định danh `0090_add_library_permissions`; chuyển năm học chép kho thư viện sang năm mới.
 - Thay đổi API: `/library/*` (xem `17_DAC_TA_API.md`).
-- Kiểm thử: kịch bản CT-891 đến CT-900. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/library/library.test.ts` CT-22a-1 đến CT-22a-8 đạt 8/8; trên máy đã chạy kiểm thử đơn vị các gói sửa (thư viện, số phân hệ `system-admin-so`, đường dẫn nhanh, cấp học, chuyển năm học) đạt 52/52; kiểm thử giao diện chạy trên máy: 02, 03, 58 (số phân hệ 20/20) và `tests/e2e/120-library.spec.ts` (CT-22a-9) đạt 9/9; kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
+- Kiểm thử: kịch bản CT-904 đến CT-913. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/library/library.test.ts` CT-22a-1 đến CT-22a-8 đạt 8/8; trên máy đã chạy kiểm thử đơn vị các gói sửa (thư viện, số phân hệ `system-admin-so`, đường dẫn nhanh, cấp học, chuyển năm học) đạt 52/52; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 81, 82, 84 và `tests/e2e/120-library.spec.ts` (CT-22a-9) đạt; kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
 - Rủi ro: chỉ tiêu theo chuẩn thư viện chưa có ngưỡng mặc định vì chưa đọc văn bản gốc, trường tự nhập; không có thay đổi dữ liệu cũ.
 - Khả năng tương thích: không đổi bảng `library_items`, `library_albums` (kho nội dung Mầm non) và `asset_loans` (mượn thiết bị); trường chỉ có Mầm non chỉ có cán bộ mượn sách.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 22a; chạy phần quay lui của tệp năm học `0100`, định danh `0090`.
+
+### Phiên bản 0.115.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-21 phần 21c, sổ điểm THCS, THPT theo Thông tư 22/2021 (YCTD-170).
+- Chức năng mới: bảng điểm (đánh giá thường xuyên, giữa kỳ, cuối kỳ, kết quả môn nhận xét), điểm trung bình môn học kỳ, cả năm, gợi ý và xác nhận xếp loại học tập, rèn luyện, khoá điểm theo học kỳ và lớp, cấu hình hệ số, số lần đánh giá, ngưỡng theo cấp; nhập ở cổng quản trị (7.14 Sổ điểm) và ứng dụng giáo viên; phụ huynh xem điểm đã khoá ở ứng dụng phụ huynh.
+- Lỗi đã sửa: dòng "Phiên bản" thừa ở đầu các tài liệu 01, 02, 07, 10, 11, 14, 16, 17, 21, 23, 24, 32 do gộp bản 21a.
+- Thay đổi dữ liệu: tệp năm học `0087_create_scores`; tệp định danh `0078` để trống (dùng quyền đánh giá học sinh `P02.assessment.*` của 20c, không thêm quyền).
+- Thay đổi API: `/scores/config`, `/scores/classes/{id}` (`/subjects/{subjectId}`, `/summary`, `/ratings`), `/scores/locks` (`/unlock`), `/scores/children/{id}`.
+- Kiểm thử: kịch bản CT-897 đến CT-903. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/scores/scores.test.ts` CT-21c-1 đến CT-21c-6 đạt 6/6; chạy cùng `secondary.test.ts`, `subjects.test.ts`, `working-level.test.ts`, `menu-permissions.test.ts` đạt 28/28 (đã thêm 7.14 vào danh sách mục chỉ của THCS, THPT ở CT-19c-1, CT-19c-2); typecheck, eslint, prettier đạt; e2e CT-21c-7 đạt (cùng 02, 03, 06, 08 chạy trước); e2e toàn bộ do CI chạy.
+- Rủi ro: hệ số, số lần đánh giá, ngưỡng xếp loại là mặc định theo Thông tư 22/2021, cần đối chiếu văn bản gốc; xếp loại rèn luyện do giáo viên chủ nhiệm nhập tay (chưa có quy tắc gợi ý); chưa khảo sát hệ thống của Sở cấp THCS, THPT.
+- Khả năng tương thích: trường chỉ có Mầm non hoặc Tiểu học thấy như cũ; bảng đánh giá Thông tư 27/2020 của 20c không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 21c; chạy phần quay lui của tệp năm học `0087`.
 
 ### Phiên bản 0.114.0 – 2026-10-24
 
