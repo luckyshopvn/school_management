@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.40
+- Phiên bản: 0.41
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,28 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-24 — DT-20 phần 20d: sổ đầu bài và điểm danh theo tiết
+
+#### Công việc đã thực hiện
+
+- Đọc mục 11 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà thời khoá biểu của 22c1 (bản đang áp dụng, tiết theo giáo viên), điểm danh theo ngày Mầm non (`attendance_records`), báo vắng của phụ huynh (`absence_records`).
+- Cơ sở dữ liệu: tệp năm học `0080`, định danh `0071`. Máy chủ API: sổ đầu bài theo tuần, tiết của tôi trong ngày, chi tiết tiết kèm điểm danh mặc định, ghi tiết, giáo viên ký tiết, Ban giám hiệu ký sổ tuần, tổng hợp chuyên cần, điểm danh theo tiết của con.
+- Cổng quản trị: 7.6 Sổ đầu bài, 7.7 Chuyên cần theo tiết. Ứng dụng giáo viên: Sổ đầu bài. Ứng dụng phụ huynh: Điểm danh theo tiết, Báo vắng ở cấp phổ thông.
+- Thêm quy tắc BR-174, chức năng P02-45 đến P02-47, quyền PQ-95, màn hình MH-265, MH-266, kịch bản CT-864 đến CT-869, tiêu chí AC-766 đến AC-768. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/class-logs/class-logs.test.ts` CT-20d-1 đến CT-20d-5 đạt 5/5; kiểm thử đơn vị toàn bộ kho mã đạt 1069/1069; kiểm thử giao diện `tests/e2e/91-class-logs.spec.ts` (CT-20d-6) đạt; toàn bộ kiểm thử giao diện đạt 162/163 (CT-20b-7 `88-boarding-conduct.spec.ts` lỗi chập chờn: danh sách ăn chưa làm mới sau khi đổi ngày, không liên quan 20d; lượt chạy trước cùng mã đạt); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 20d của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.4. Sổ đầu bài một dòng một lớp, ngày, tiết, lấy tiết theo bản thời khoá biểu đang áp dụng; điểm danh theo tiết là bảng riêng, không đổi điểm danh theo ngày của Mầm non; mặc định vắng có phép khi phụ huynh đã báo vắng ngày đó; Ban giám hiệu ký theo tuần và khoá cả tuần; quyền ký sổ tuần cho Hiệu trưởng, Phó Hiệu trưởng. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-162, `07_QUY_TAC_NGHIEP_VU.md` BR-174, `08_VAI_TRO_NGUOI_DUNG.md` PQ-95, `10_YEU_CAU_CHUC_NANG.md` P02-45 đến P02-47, `11_TIEU_CHI_NGHIEM_THU.md` AC-766 đến AC-768, `14_DAC_TA_GIAO_DIEN.md` MH-265, MH-266, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-864 đến CT-869, `23_LICH_SU_PHIEN_BAN.md` 0.111.0.
+
+#### Vấn đề tồn đọng
+
+- 22c2: dạy thay, đổi tiết theo ngày để ghi sổ đầu bài cho tiết ngoài thời khoá biểu; thông báo điểm danh theo tiết cho phụ huynh; xuất sổ đầu bài.
+
 
 ### 2026-10-24 — Kế hoạch DT-22 thư viện, bồi dưỡng, kho học liệu số (22a, 22e, 22h)
 

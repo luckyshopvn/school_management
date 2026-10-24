@@ -288,6 +288,8 @@ export type {
   SubjectAssessment,
   SubjectKind,
   TimetableSource,
+  ClassLogStatus,
+  PeriodAttendanceStatus,
   StaffCertificateKind,
   TrainingOrganizerKind,
   TrainingMode,
