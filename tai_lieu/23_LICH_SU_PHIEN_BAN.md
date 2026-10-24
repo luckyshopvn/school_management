@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.46
+- Phiên bản: 0.47
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,18 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.120.0 – 2026-10-24
+### Phiên bản 0.121.0 – 2026-10-24
 
 - Phạm vi thay đổi: DT-21 phần 22g2, kiểm tra, đánh giá phần chấm (YCTD-173).
 - Chức năng mới: bài kiểm tra của lớp từ đề đã khoá; phiếu trả lời; nhập bài tay, nhập tệp quét; chấm tự luận hai người; khoá điểm; chuyển điểm vào sổ điểm; báo cáo theo câu, chủ đề, mức nhận thức, lớp, phân bố điểm, xuất Excel, PDF.
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp năm học `0090_create_exam_grading`; tệp định danh `0081_add_exam_grading_permission`.
 - Thay đổi API: `/exam-grading/…`.
-- Kiểm thử: kịch bản CT-934 đến CT-940. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/exam-grading/exam-grading.test.ts` CT-22g2-1 đến CT-22g2-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa (api, database, shared) đạt (shared; database 6/6; api 1047/1047); kiểm thử giao diện `tests/e2e/101-exam-grading.spec.ts` (CT-22g2-7) cùng 96, 98, 02, 03, 58 đạt; toàn bộ kiểm thử giao diện do CI chạy (trên máy: 02, 03, 06, 08, 58, 59, 96, 98, 101 đạt 26/26); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử: kịch bản CT-940 đến CT-946. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/exam-grading/exam-grading.test.ts` CT-22g2-1 đến CT-22g2-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa (api, database, shared) đạt (shared; database 6/6; api 1047/1047); kiểm thử giao diện `tests/e2e/101-exam-grading.spec.ts` (CT-22g2-7) cùng 96, 98, 02, 03, 58 đạt; toàn bộ kiểm thử giao diện do CI chạy (trên máy: 02, 03, 06, 08, 58, 59, 96, 98, 101 đạt 26/26; 101 rồi 54 đạt 14/14); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Rủi ro: chuyển nhầm loại điểm vào sổ điểm; đã yêu cầu khoá trước, giáo viên dạy môn xác nhận, sổ điểm kiểm tra khoá, hạn.
 - Khả năng tương thích: trường không bật THCS, THPT không đổi hành vi.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 22g2; chạy phần quay lui của tệp năm học `0090`, định danh `0081`.
 
+### Phiên bản 0.120.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-21 phần 21e, học bạ số, khen thưởng, xét lên lớp THCS, THPT (YCTD-172).
+- Chức năng mới: danh hiệu học sinh Xuất sắc, Giỏi theo Thông tư 22/2021 (gợi ý, đề nghị, duyệt, giấy khen có mã tra cứu); xét lên lớp, hoàn thành chương trình cấp học, rèn luyện trong hè, kiểm tra lại theo xếp loại học tập, rèn luyện cả năm; học bạ số có điểm trung bình hai học kỳ, cả năm, xếp loại, kí nội bộ in đủ số định danh kèm kiểm quyền; phụ huynh tải học bạ đã kí; mục 7.8 dùng chung Tiểu học, THCS, THPT.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: tệp năm học `0089_widen_award_basis` (thêm căn cứ danh hiệu THCS, THPT); tệp định danh `0080` để trống (dùng quyền học bạ của 20e, không thêm quyền).
+- Thay đổi API: không thêm điểm cuối; các điểm cuối `/learning-records` nhận lớp THCS, THPT, trả thêm `has_result`, `needs_support`, `year_label`, `learning`, `conduct`.
+- Kiểm thử: kịch bản CT-934 đến CT-939. Kết quả ngày 24/10/2026: kiểm thử đơn vị `learning-records-secondary.test.ts` CT-21e-1 đến CT-21e-5 đạt 5/5; chạy cùng học bạ 20e, sổ điểm 21c, sổ điểm, môn học, đánh giá, menu, cấp học đạt 45/45; typecheck, prettier đạt; e2e 100, 92, 98, 58 và 02, 03, 06, 08 đạt; e2e CT-21e-6 đạt; e2e toàn bộ do CI chạy.
+- Rủi ro: điều kiện danh hiệu Xuất sắc (6 môn từ 9,0), điều kiện lên lớp là mặc định theo Thông tư 22/2021, cần đối chiếu văn bản gốc; mẫu học bạ THCS, THPT là bố cục chung, mẫu của Bộ, Sở khớp khi khảo sát; chưa khảo sát hệ thống của Sở cấp THCS, THPT.
+- Khả năng tương thích: học bạ, khen thưởng, lên lớp Tiểu học không đổi; trường chỉ có Mầm non thấy như cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 21e; chạy phần quay lui của tệp năm học `0089`.
 ### Phiên bản 0.119.0 – 2026-10-24
 
 - Phạm vi thay đổi: DT-22 phần 22e, hồ sơ bồi dưỡng giáo viên (YCTD-182).

@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.68
+- Phiên bản: 1.69
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -844,6 +844,12 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-780 | Cho lớp THCS có môn của chương trình / Khi giáo viên nhập điểm thường xuyên, giữa kỳ, cuối kỳ / Thì trung bình môn tính theo hệ số 1, 2, 3 và làm tròn một chữ số, môn nhận xét ghi Đạt, Chưa đạt; giáo viên chỉ nhập môn được phân công, điểm sai bị từ chối; lớp Mầm non bị từ chối (CT-897, CT-899; YCTD-170) |
 | AC-781 | Cho điểm đã nhập đủ / Khi tổng hợp học kỳ, cả năm và xác nhận xếp loại / Thì máy gợi ý học tập theo ngưỡng (Tốt, Khá, Đạt, Chưa đạt), cả năm tính từ hai học kỳ, giáo viên chủ nhiệm xác nhận học tập, rèn luyện, giáo viên môn không xác nhận (CT-897, CT-900; YCTD-170) |
 | AC-782 | Cho học kỳ / Khi Hiệu trưởng khoá điểm, mở khoá kèm lý do, và phụ huynh xem / Thì khoá thì không sửa được (kể cả người quản lý), quá hạn thì chỉ người quản lý sửa; phụ huynh chỉ xem học kỳ đã khoá của con mình (CT-901, CT-902, CT-903; YCTD-170) |
+| AC-795 | Cho lớp THCS có điểm và xếp loại cả năm đã xác nhận / Khi học kỳ II đã khoá và giáo viên chủ nhiệm đề nghị khen thưởng / Thì Xuất sắc chỉ cho học sinh Tốt, Tốt và đủ 6 môn từ 9,0, Giỏi cho Tốt, Tốt; chưa khoá, không đủ điều kiện, đề nghị trùng bị từ chối; duyệt cấp mã tra cứu (CT-935; YCTD-172) |
+| AC-796 | Cho học sinh THCS, THPT có xếp loại cả năm / Khi ghi kết quả hoàn thành chương trình / Thì chưa có xếp loại không ghi được; đạt thì lên lớp, ở khối 9 hoặc 12 hoàn thành cấp học; chưa đạt thì rèn luyện, kiểm tra lại, đạt thì lên lớp, không đạt thì ở lại lớp (CT-936; YCTD-172) |
+| AC-797 | Cho lớp THCS, THPT đã khoá học kỳ II / Khi lập, kí học bạ và phụ huynh xem / Thì học bạ có điểm trung bình hai học kỳ, cả năm, xếp loại, khen thưởng, hoàn thành chương trình; kí in đủ số định danh và ghi nhật ký; phụ huynh chỉ tải bản đã kí của con mình; học bạ Tiểu học không đổi (CT-937, CT-938, CT-939; YCTD-172) |
+| AC-798 | Cho đề đã khoá / Khi giáo viên dạy môn tạo bài kiểm tra cho lớp và nhập bài tay hoặc tệp quét / Thì máy chấm đúng theo đáp án của mã đề, đúng sai bậc thang, tự luận hai người lệch quá ngưỡng thì cần xem lại; tệp có lỗi thì báo dòng, không ghi (CT-940, CT-941, CT-942, CT-946; YCTD-173) |
+| AC-799 | Cho bài kiểm tra đã đủ bài / Khi người quản lý khoá điểm / Thì không sửa được bài, độ khó, độ phân biệt ghi vào lịch sử dùng câu; còn thiếu bài thì không khoá; mở khoá phải có lý do; giáo viên dạy môn chuyển điểm vào đúng loại điểm của sổ điểm, vắng theo cấu hình (CT-943, CT-944, CT-946; YCTD-173) |
+| AC-800 | Cho các bài đã khoá của đề / Khi xem báo cáo / Thì thấy độ khó, độ phân biệt từng câu, câu nên xem lại, tỉ lệ theo chủ đề, mức nhận thức, từng lớp, phân bố điểm; xuất Excel, PDF; phụ huynh không xem được (CT-940, CT-945, CT-946; YCTD-173) |
 | AC-783 | Cho trường có lớp 4, lớp 5 với học sinh nữ dân tộc, khuyết tật, bán trú, lớp 2 buổi/ngày / Khi xem sĩ số; phụ huynh xem / Thì số theo khối và toàn trường đúng; 403 (CT-905, CT-910; YCTD-165) |
 | AC-784 | Cho kết quả kỳ cuối học kỳ I, kết quả cuối năm, hoàn thành, khen thưởng / Khi xem theo khối, toàn trường, theo lớp / Thì số theo mức, điểm theo khoảng, kết quả cuối năm, ở lại lớp, khen thưởng đúng (CT-906, CT-907; YCTD-165) |
 | AC-785 | Cho sổ đầu bài có vắng, ngày đã chốt suất, cắt suất / Khi xem chuyên cần, bán trú; xuất Excel, PDF / Thì số theo lớp đúng; tệp tải được, có nhật ký xuất (CT-908; YCTD-165) |
@@ -867,9 +873,6 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-792 | Cho trường đã có dữ liệu nhân sự, chứng chỉ / Khi nâng cấp lên phiên bản có hồ sơ bồi dưỡng / Thì chứng chỉ cũ vẫn hiện đúng, là loại nhập tay; các phân hệ khác không đổi (CT-927, CT-931; YCTD-182) |
 | AC-793 | Cho khoá trường tổ chức có cấp chứng nhận / Khi giáo viên đăng ký, tổ trưởng, Ban Giám hiệu duyệt, ghi kết quả đạt, cấp chứng nhận / Thì quá hạn, hết chỉ tiêu, tổ khác bị từ chối; người đạt nhận chứng nhận có mã; trang công khai tra theo mã chỉ trả trường tối thiểu, thu hồi thì báo đã thu hồi (CT-929, CT-930, CT-933; YCTD-182) |
 | AC-794 | Cho giáo viên có khoá đạt, chứng chỉ, tự đánh giá năng lực số / Khi xem hồ sơ của tôi, tổ trưởng, Ban Giám hiệu xem hồ sơ, bản đồ năng lực / Thì tổng tiết so định mức, thiếu tiết, sắp hết hạn đúng; miền dưới ngưỡng có gợi ý chuyên đề; xác nhận đổi mức phải có lý do (CT-928, CT-931, CT-932, CT-933; YCTD-182) |
-| AC-795 | Cho đề đã khoá / Khi giáo viên dạy môn tạo bài kiểm tra cho lớp và nhập bài tay hoặc tệp quét / Thì máy chấm đúng theo đáp án của mã đề, đúng sai bậc thang, tự luận hai người lệch quá ngưỡng thì cần xem lại; tệp có lỗi thì báo dòng, không ghi (CT-934, CT-935, CT-936, CT-940; YCTD-173) |
-| AC-796 | Cho bài kiểm tra đã đủ bài / Khi người quản lý khoá điểm / Thì không sửa được bài, độ khó, độ phân biệt ghi vào lịch sử dùng câu; còn thiếu bài thì không khoá; mở khoá phải có lý do; giáo viên dạy môn chuyển điểm vào đúng loại điểm của sổ điểm, vắng theo cấu hình (CT-937, CT-938, CT-940; YCTD-173) |
-| AC-797 | Cho các bài đã khoá của đề / Khi xem báo cáo / Thì thấy độ khó, độ phân biệt từng câu, câu nên xem lại, tỉ lệ theo chủ đề, mức nhận thức, từng lớp, phân bố điểm; xuất Excel, PDF; phụ huynh không xem được (CT-934, CT-939, CT-940; YCTD-173) |
 
 ## 20. Chưa xác minh được
 
