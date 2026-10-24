@@ -19,6 +19,7 @@
     "@school-management/server": "workspace:*",
     "@school-management/shared": "workspace:*",
     "exceljs": "^4.4.0",
+    "ioredis": "^5.11.1",
     "jose": "^6.2.12",
     "kysely": "^0.29.6",
     "pdfmake": "0.3.11",

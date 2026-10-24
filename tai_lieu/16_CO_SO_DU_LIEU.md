@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.102
+- Phiên bản: 1.104
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -79,6 +79,13 @@
 | subjects | Môn học và hoạt động giáo dục theo cấp (P02-34, BR-166; YCTD-158, tệp năm học `0076_create_subjects`) | code (duy nhất), name, school_level, kind (`subject`, `activity`), assessment (`comment`, `comment_and_score`), order_no, status, thời điểm, người tạo |
 | timetable_versions | Bản thời khoá biểu theo cấp (P02-40, BR-170; YCTD-160, tệp năm học `0078_create_timetables`) | school_level, name, effective_from, status (`draft`, `published`), source (`manual`, `import`, `generator`), note, published_at, published_by, published_by_name, thời điểm, người tạo |
 | timetable_lessons | Tiết của lớp trong một bản (P02-40; YCTD-160) | version_id (khóa ngoại, xóa theo), class_id, weekday (1 đến 7, 1 là thứ Hai), period_no, subject_id, teacher_user_id, teacher_name, room_id; duy nhất theo bản, lớp, thứ, tiết |
+| timetable_generator_settings | Cài đặt máy xếp theo cấp (P02-51, BR-178; YCTD-164, tệp năm học `0082_create_timetable_generator`) | school_level (khóa chính), weights (mức 0 đến 10 của ràng buộc mềm), time_limit_seconds (5 đến 600), variant_count (1 đến 5), updated_by, updated_at |
+| timetable_subject_rules | Quy tắc xếp của môn (P02-51; YCTD-164) | subject_id (khóa chính, xóa theo môn), double_period, avoid_last_period, max_per_day (1 đến 10), room_id (phòng riêng), updated_by, updated_at |
+| timetable_teacher_busy | Tiết giáo viên báo bận trong tuần (P02-51; YCTD-164) | teacher_user_id, teacher_name, weekday, period_no, created_by, created_at; duy nhất theo giáo viên, thứ, tiết |
+| timetable_generation_runs | Lần xếp chạy nền (P02-51; YCTD-164) | school_level, status (`queued`, `running`, `completed`, `failed`, `cancelled`), weights, time_limit_seconds, variant_count, percent, best_score, best_hard, message, issues, người, thời điểm tạo, cập nhật, finished_at |
+| timetable_generation_variants | Phương án của lần xếp (P02-51; YCTD-164) | run_id (khóa ngoại, xóa theo), variant_no, score, hard_count, soft, violations, placements (lớp, môn, giáo viên, phòng, thứ, tiết), version_id (bản nháp tạo từ phương án); duy nhất theo lần xếp, số phương án |
+| timetable_changes | Dạy thay, đổi tiết theo ngày (P02-53, BR-178; YCTD-164) | change_date, class_id, period_no, kind (`substitute`, `swap`), pair_id (đổi tiết), subject_id, teacher_user_id, teacher_name, room_id, original_subject_id, original_teacher_user_id, original_teacher_name, reason, người, thời điểm tạo; duy nhất theo ngày, lớp, tiết |
+| timetable_lookup_codes | Mã tra cứu thời khoá biểu (P02-54; YCTD-164) | kind (`class`, `teacher`), target_id, target_name, code (duy nhất), created_by, created_at, revoked_at; một mã còn hiệu lực cho mỗi lớp, giáo viên |
 | class_logs | Sổ đầu bài: một lớp, ngày, tiết một dòng (P02-45, BR-174; YCTD-162, tệp năm học `0080_create_class_logs`) | class_id, lesson_date, period_no (1 đến 15), subject_id, timetable_lesson_id (khóa ngoại, xóa thì để trống), teacher_user_id, teacher_name, lesson_title (1 đến 300 ký tự), content, comment, rating (A, B, C, D), status (`draft`, `signed`), signed_at, created_by, thời điểm tạo, sửa; duy nhất theo lớp, ngày, tiết |
 | period_attendance | Điểm danh theo tiết (P02-45, P02-47; YCTD-162) | class_log_id (khóa ngoại, xóa theo), child_id, status (`present`, `late`, `absent_excused`, `absent_unexcused`), note; khóa chính lớp tiết, học sinh |
 | class_log_reviews | Ban giám hiệu ký sổ đầu bài theo tuần (P02-46; YCTD-162) | class_id, week_start (thứ Hai), reviewer_user_id, reviewer_name, comment, signed_at; duy nhất theo lớp, tuần |
@@ -223,6 +230,10 @@ Ràng buộc duy nhất: `attendance_records` trên bộ đôi trẻ, ngày; `ab
 | regular_comments (từ YCTD-161) | Nhận xét thường xuyên | id, class_id, child_id, subject_id, item_id, comment_date, content, author_id, author_name, created_at |
 | assessment_locks (từ YCTD-161) | Khoá số liệu theo kỳ, lớp | period_id, class_id (khóa chính), locked_by, locked_by_name, locked_at |
 | year_results (từ YCTD-161) | Kết quả cuối năm (hoàn thành chương trình lớp học) | id, class_id, child_id (duy nhất), suggested, result (`excellent`, `good`, `completed`, `not_completed`), note, confirmed_by, confirmed_by_name, confirmed_at |
+| student_award_titles (từ YCTD-163) | Danh hiệu khen thưởng học sinh theo cấp (tệp năm học `0081`) | id, school_level, code (duy nhất theo cấp), name, kind (`year_end`, `special`), basis (`excellent`, `outstanding`, trống), order_no, status |
+| student_awards (từ YCTD-163) | Đề nghị, duyệt khen thưởng học sinh | id, class_id, child_id, title_id, title_name, achievement, status (`proposed`, `approved`, `rejected`; không trùng học sinh, danh hiệu khi chưa bị từ chối), proposed_by, proposed_by_name, proposed_at, decided_by, decided_by_name, decided_at, decision_note, lookup_code (duy nhất) |
+| completion_results (từ YCTD-163) | Hoàn thành chương trình, lên lớp | id, class_id, child_id (duy nhất theo lớp), grade_level, year_result, outcome (`promoted`, `level_completed`, `pending_support`, `retained`), support_plan (`summer_training`, `retest`), support_result, support_note, next_grade_level, confirmed_by, confirmed_by_name, confirmed_at |
+| learning_records (từ YCTD-163) | Học bạ theo năm học | id, child_id, academic_year_name (duy nhất theo học sinh), class_id (trống ở học bạ chép từ năm trước), class_name, grade_level, school_level, content (JSON chốt lúc lập), homeroom_comment, status (`draft`, `signed`), signed_storage_key, signed_at, signer_name, signature_method, prepared_by_name, updated_at |
 | registration_periods | Trạng thái chốt danh sách đăng ký của kỳ theo đơn vị (YCTD-50) | org_unit_id, period_year, period_month (duy nhất cùng đơn vị), status (đang mở hoặc đã chốt), locked_by, locked_at |
 | summer_registrations | Đăng ký học hè theo tháng (P05-13, BR-92) | child_id, org_unit_id, period_year, period_month (duy nhất cùng trẻ), status (đang hiệu lực hoặc đã hủy), source, registered_by, registered_at, cancelled_by, cancelled_at |
 | invoices | Hóa đơn học phí | code (cấp khi phát hành, dạng HD-000001), child_id, org_unit_id, period_year, period_month, invoice_kind (chính, bổ sung hoặc đầu kỳ; mỗi trẻ tối đa một hóa đơn đầu kỳ, YCTD-54), status (nháp hoặc đã phát hành), calculation_run_id, total_amount, basis (số ngày học, số ngày đang học, số ngày có mặt, bậc học, biểu phí), review_flags (dòng cần kiểm tra), due_date, issued_at, issued_by; số đã giảm trừ, điều chỉnh, đã thu tính từ bảng liên quan (YCTD-51) |

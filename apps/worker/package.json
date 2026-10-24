@@ -10,6 +10,7 @@
     "test": "node --env-file-if-exists=../../.env --test \"dist/**/*.test.js\""
   },
   "dependencies": {
+    "@school-management/server": "workspace:*",
     "ioredis": "^5.8.0"
   },
   "devDependencies": {

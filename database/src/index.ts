@@ -109,6 +109,12 @@ export type {
   AssessmentPeriodKind,
   CommentTemplateTarget,
   YearResultCode,
+  StudentAwardKind,
+  StudentAwardBasis,
+  StudentAwardStatus,
+  CompletionOutcome,
+  SupportPlan,
+  LearningRecordStatus,
   ClassStatus,
   ContractType,
   DiscountCalculationMethod,
@@ -298,6 +304,9 @@ export type {
   TrainingResult,
   CompetencyTerm,
   TimetableVersionStatus,
+  TimetableGenerationStatus,
+  TimetableChangeKind,
+  TimetableLookupKind,
 } from '../school-year/schema.js';
 export { DEFAULT_TAX_TABLE_ID } from '../school-year/migrations/0022_create_payrolls.js';
 export { MEAL_SERVICE_ID } from '../school-year/migrations/0010_create_fee_catalogs.js';

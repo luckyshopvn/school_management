@@ -63,6 +63,7 @@ import { migration as addBoardingConductPermissions } from './migrations/0068_ad
 import { migration as addTimetablePermission } from './migrations/0069_add_timetable_permission.js';
 import { migration as addAssessmentPermissions } from './migrations/0070_add_assessment_permissions.js';
 import { migration as addClassLogPermission } from './migrations/0071_add_class_log_permission.js';
+import { migration as addStudentRecordPermissions } from './migrations/0072_add_student_record_permissions.js';
 import { migration as addTrainingPermissions } from './migrations/0091_add_training_permissions.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu định danh, theo số thứ tự (QU-01)
@@ -131,5 +132,6 @@ export const identityMigrations: Record<string, Migration> = {
   '0069_add_timetable_permission': addTimetablePermission,
   '0070_add_assessment_permissions': addAssessmentPermissions,
   '0071_add_class_log_permission': addClassLogPermission,
+  '0072_add_student_record_permissions': addStudentRecordPermissions,
   '0091_add_training_permissions': addTrainingPermissions,
 };
