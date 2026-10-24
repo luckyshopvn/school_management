@@ -38,6 +38,10 @@ const PRIMARY_ONLY_PATHS = [
   // Thời khoá biểu phần khung (DT-20 phần 22c1)
   '/period-slots',
   '/timetables',
+  // Máy xếp, dạy thay, đổi tiết, báo cáo (DT-20 phần 22c2)
+  '/timetable-generator',
+  '/timetable-changes',
+  '/timetable-reports',
 ];
 
 describe('Cây menu và nhãn theo cấp học', () => {
