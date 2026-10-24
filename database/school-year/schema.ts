@@ -203,6 +203,105 @@ export interface SubjectTeamSubjectsTable {
 
 export type SubjectTeamRole = 'head' | 'member';
 
+// Xét tốt nghiệp THCS, THPT và hồ sơ thi (DT-21 phần 21f, YCTD-174)
+export interface GraduationConfigsTable {
+  school_level: 'THCS' | 'THPT';
+  config: ColumnType<unknown, string, string>;
+  updated_by: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface GraduationSessionsTable {
+  id: Generated<string>;
+  school_level: 'THCS' | 'THPT';
+  name: string;
+  academic_year_name: string;
+  exam_date: ColumnType<string | null, string | null | undefined, string | null>;
+  status: Generated<'open' | 'finalized'>;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface GraduationRoomsTable {
+  id: Generated<string>;
+  session_id: string;
+  code: string;
+  name: string;
+  capacity: number;
+  proctors: string | null;
+}
+
+export interface GraduationCandidatesTable {
+  id: Generated<string>;
+  session_id: string;
+  child_id: string;
+  class_id: string;
+  exam_number: string | null;
+  eligible: Generated<boolean>;
+  eligibility_note: string | null;
+  priority_points: ColumnType<string, string | number | undefined, string | number>;
+  incentive_points: ColumnType<string, string | number | undefined, string | number>;
+  grade_averages: ColumnType<unknown, string | null | undefined, string | null>;
+  exam_subjects: ColumnType<unknown, string | undefined, string>;
+  exempt_subjects: ColumnType<unknown, string | undefined, string>;
+  room_id: string | null;
+}
+
+export interface GraduationScoresTable {
+  candidate_id: string;
+  subject_code: string;
+  score: ColumnType<string, string | number, string | number>;
+  updated_by_name: string;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface GraduationDecisionsTable {
+  candidate_id: string;
+  outcome: 'graduated' | 'not_graduated';
+  status: Generated<'proposed' | 'confirmed'>;
+  exam_average: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+  score: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+  note: string | null;
+  certificate_no: string | null;
+  decided_by_name: string | null;
+  decided_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface GraduationMinutesTable {
+  id: Generated<string>;
+  session_id: string;
+  kind: 'council' | 'exam_room' | 'scoring';
+  title: string;
+  content: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface GraduationSubmissionsTable {
+  id: Generated<string>;
+  session_id: string;
+  kind: 'candidates' | 'results';
+  file_name: string;
+  exported_by_name: string;
+  exported_at: CreatedTimestamp;
+  status: Generated<'exported' | 'sent'>;
+  sent_by_name: string | null;
+  sent_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  note: string | null;
+}
+
+export interface TransferDossiersTable {
+  id: Generated<string>;
+  session_id: string;
+  child_id: string;
+  destination: string | null;
+  status: Generated<'prepared' | 'sent'>;
+  prepared_by_name: string;
+  prepared_at: CreatedTimestamp;
+  sent_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+}
+
 // Sổ điểm THCS, THPT theo Thông tư 22/2021 (DT-21 phần 21c, YCTD-170)
 export type ScoreTermTypeValue = 'first_term' | 'second_term';
 export type ScoreKindValue = 'regular' | 'mid' | 'final';
@@ -5597,6 +5696,15 @@ export interface SchoolYearDatabase {
   subjects: SubjectsTable;
   curriculum_subjects: CurriculumSubjectsTable;
   child_elective_subjects: ChildElectiveSubjectsTable;
+  graduation_configs: GraduationConfigsTable;
+  graduation_sessions: GraduationSessionsTable;
+  graduation_rooms: GraduationRoomsTable;
+  graduation_candidates: GraduationCandidatesTable;
+  graduation_scores: GraduationScoresTable;
+  graduation_decisions: GraduationDecisionsTable;
+  graduation_minutes: GraduationMinutesTable;
+  graduation_submissions: GraduationSubmissionsTable;
+  transfer_dossiers: TransferDossiersTable;
   score_configs: ScoreConfigsTable;
   score_entries: ScoreEntriesTable;
   subject_term_results: SubjectTermResultsTable;

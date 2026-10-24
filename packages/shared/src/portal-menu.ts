@@ -181,6 +181,8 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           secondary(leaf('7.13.', 'Tổ bộ môn', '/subject-teams')),
           // Sổ điểm theo Thông tư 22/2021 (DT-21 phần 21c)
           secondary(leaf('7.14.', 'Sổ điểm', '/scores')),
+          // Xét tốt nghiệp, hồ sơ thi (DT-21 phần 21f)
+          secondary(leaf('7.15.', 'Xét tốt nghiệp, hồ sơ thi', '/graduation')),
           // Báo cáo, thống kê, EMIS Tiểu học (DT-20 phần 20f)
           primary(leaf('7.15.', 'Báo cáo, thống kê, EMIS Tiểu học', '/primary-reports')),
         ]),

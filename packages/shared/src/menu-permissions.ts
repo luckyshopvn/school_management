@@ -107,6 +107,8 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/subject-teams': anyOf('P01.view', 'P01.catalog.manage', 'P02.class.manage'),
   // Sổ điểm THCS, THPT (DT-21 phần 21c): dùng quyền đánh giá học sinh như 7.5
   '/scores': anyOf('P02.assessment.enter', 'P02.assessment.view', 'P02.assessment.manage'),
+  // Xét tốt nghiệp, hồ sơ thi (DT-21 phần 21f): xem như đánh giá học sinh, công nhận cần quyền duyệt học bạ
+  '/graduation': anyOf('P02.assessment.view', 'P02.assessment.manage', 'P02.student-record.approve'),
   '/student-assessments': anyOf('P02.assessment.enter', 'P02.assessment.view', 'P02.assessment.manage'),
   // Sổ đầu bài, chuyên cần theo tiết (DT-20 phần 20d): ai xem được lớp đều xem; ký sổ theo tuần cần P02.class-log.review
   '/class-logs': anyOf('P02.class.manage', 'P02.view', 'P02.edit', 'P02.class-log.review'),
