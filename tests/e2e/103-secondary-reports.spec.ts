@@ -61,7 +61,8 @@ test('CT-21g-5: kết quả cuối năm THPT theo lớp, xuất Excel; biểu EM
     .where('status', '=', 'open')
     .executeTakeFirstOrThrow();
   const principal = await createTestUser(identity, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
-  await schoolYear
+  // Khối 10 chỉ tạo khi chưa có và xoá lại cuối kịch bản để không đổi danh mục bậc học của kịch bản khác (82)
+  const createdGrade = await schoolYear
     .insertInto('grade_levels')
     .values({
       code: 'K10',
@@ -72,7 +73,8 @@ test('CT-21g-5: kết quả cuối năm THPT theo lớp, xuất Excel; biểu EM
       school_level: 'THPT',
     })
     .onConflict((conflict) => conflict.column('code').doNothing())
-    .execute();
+    .returning('code')
+    .executeTakeFirst();
   const className = `Lớp 10R ${suffix}`;
   const classRow = await schoolYear
     .insertInto('classes')
@@ -188,6 +190,11 @@ test('CT-21g-5: kết quả cuối năm THPT theo lớp, xuất Excel; biểu EM
     if (original.length > 0) {
       await system.insertInto('report_form_rows').values(original).execute();
     }
+    // Đóng lớp thử để trang của kịch bản khác (học bạ 92) không lấy lớp này làm lớp mặc định
+    await schoolYear.updateTable('classes').set({ status: 'closed' }).where('id', '=', classRow.id).execute();
     await setSecondaryEnabled(portal, false);
+    if (createdGrade) {
+      await schoolYear.deleteFrom('grade_levels').where('code', '=', 'K10').execute();
+    }
   }
 });
