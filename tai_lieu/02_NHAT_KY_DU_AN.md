@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.52
+- Phiên bản: 0.53
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -22,7 +22,7 @@
 - Cơ sở dữ liệu: tệp năm học `0088_create_secondary_class_records`, tệp định danh `0079_add_secondary_class_record_permissions`.
 - Máy chủ API: sổ đầu bài (tiết nhóm, quy tắc xếp loại, xuất tuần, sơ đồ trong chi tiết tiết); sơ đồ chỗ ngồi; nề nếp (tiêu chí mặc định THCS, THPT, đội sao đỏ, sao đỏ báo, điểm tiết).
 - Cổng quản trị: 7.6 (nhóm, xuất, khối quy tắc xếp loại tiết), 7.16 Sơ đồ chỗ ngồi, 4.9 (chọn cấp, thẻ Đội sao đỏ, sao đỏ báo, cột điểm tiết). Ứng dụng giáo viên: sổ đầu bài hiện nhóm, nhãn, quy tắc, sơ đồ.
-- Thêm quy tắc BR-187 đến BR-189, chức năng P02-66 đến P02-68, màn hình MH-288, phân quyền PQ-99, kịch bản CT-934 đến CT-939, tiêu chí AC-795 đến AC-798. Kết quả ngày 25/10/2026: kiểm thử đơn vị `apps/api/src/class-logs/secondary-class-records.test.ts` CT-21d-1 đến CT-21d-5 đạt 5/5; kiểm thử đơn vị các gói đã sửa trên máy (database 6/6, api 1052/1052) đạt, kiểm thử đang có không sửa kỳ vọng (thêm mục 7.16 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của THCS, THPT của CT-19c-1); e2e trên máy 02, 03, 06, 08, 58, 88, 91, 97, 99 đạt; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm quy tắc BR-188 đến BR-190, chức năng P02-69 đến P02-71, màn hình MH-289, phân quyền PQ-99, kịch bản CT-940 đến CT-945, tiêu chí AC-798 đến AC-801. Kết quả ngày 25/10/2026: kiểm thử đơn vị `apps/api/src/class-logs/secondary-class-records.test.ts` CT-21d-1 đến CT-21d-5 đạt 5/5; kiểm thử đơn vị các gói đã sửa trên máy (database 6/6, api 1052/1052) đạt, kiểm thử đang có không sửa kỳ vọng (thêm mục 7.16 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của THCS, THPT của CT-19c-1); e2e trên máy 02, 03, 06, 08, 58, 88, 91, 97, 99 đạt; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
@@ -30,12 +30,32 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-171, `07_QUY_TAC_NGHIEP_VU.md` BR-187 đến BR-189, `08_VAI_TRO_NGUOI_DUNG.md` PQ-99, `10_YEU_CAU_CHUC_NANG.md` P02-66 đến P02-68, `11_TIEU_CHI_NGHIEM_THU.md` AC-795 đến AC-798, `14_DAC_TA_GIAO_DIEN.md` MH-288, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-934 đến CT-939, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.9. Phiên bản 0.120.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-171, `07_QUY_TAC_NGHIEP_VU.md` BR-188 đến BR-190, `08_VAI_TRO_NGUOI_DUNG.md` PQ-99, `10_YEU_CAU_CHUC_NANG.md` P02-69 đến P02-71, `11_TIEU_CHI_NGHIEM_THU.md` AC-798 đến AC-801, `14_DAC_TA_GIAO_DIEN.md` MH-289, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-940 đến CT-945, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.9. Phiên bản 0.121.0.
 
 #### Vấn đề tồn đọng
 
 - Khảo sát hệ thống của Sở cấp THCS, THPT để khớp biểu mẫu sổ đầu bài, số mục menu; sơ đồ chỗ ngồi theo tiết; tài khoản học sinh hạn chế cho sao đỏ nếu Eric yêu cầu.
 
+### 2026-10-24 — DT-21 phần 21e: học bạ số, khen thưởng, xét lên lớp THCS, THPT
+
+#### Công việc đã thực hiện
+
+- Đọc mục 12 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và mã 20e (`learning-records`: danh hiệu, khen thưởng, hoàn thành chương trình, học bạ, kí nội bộ, in đủ số định danh kèm kiểm quyền), sổ điểm 21c.
+- Mở rộng khung 20e cho lớp THCS, THPT: kết quả cuối năm đọc từ sổ điểm (học kỳ II đã khoá, xếp loại cả năm); danh hiệu Xuất sắc, Giỏi; xét lên lớp; học bạ có điểm trung bình hai học kỳ, cả năm; cổng quản trị mục 7.8 dùng chung ba cấp; ứng dụng phụ huynh nút Học bạ.
+- Cơ sở dữ liệu: tệp năm học `0089` (căn cứ danh hiệu); tệp định danh `0080` để trống.
+- Kiểm thử: kiểm thử đơn vị `learning-records-secondary.test.ts` CT-21e-1 đến CT-21e-5 đạt 5/5; chạy cùng học bạ 20e, sổ điểm 21c, sổ điểm, môn học, đánh giá, menu, cấp học đạt 45/45; typecheck, prettier đạt; e2e 100, 92, 98, 58 và 02, 03, 06, 08 đạt; e2e CT-21e-6 đạt; e2e toàn bộ do CI chạy.
+
+#### Quyết định
+
+- Dùng lại bảng, điểm cuối, quy trình kí của 20e (rẽ nhánh theo cấp) thay vì làm module riêng để học bạ, khen thưởng, lên lớp của mọi cấp ở một nơi và kí, in số định danh giữ một cách; không thêm quyền; điều kiện danh hiệu, lên lớp là hằng số mặc định theo Thông tư 22/2021; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-172, `23_LICH_SU_PHIEN_BAN.md` bản 0.120.0.
+
+#### Vấn đề tồn đọng
+
+- Đối chiếu toàn văn Thông tư 22/2021 (danh hiệu, lên lớp, mẫu học bạ); mẫu học bạ THCS, THPT khớp mẫu của Bộ, Sở khi khảo sát; khảo sát hệ thống của Sở cấp THCS, THPT khi Eric có tài khoản.
 ### 2026-10-24 — DT-22 phần 22e: hồ sơ bồi dưỡng giáo viên
 
 #### Công việc đã thực hiện

@@ -15,7 +15,7 @@ export interface AwardTitle {
   code: string;
   name: string;
   kind: 'year_end' | 'special';
-  basis: 'excellent' | 'outstanding' | null;
+  basis: 'excellent' | 'outstanding' | 'secondary_excellent' | 'secondary_good' | null;
   status?: 'active' | 'inactive';
 }
 
@@ -26,6 +26,9 @@ export interface ClassAwards {
     child_id: string;
     full_name: string;
     year_result: string | null;
+    year_label: string | null;
+    has_result: boolean;
+    needs_support: boolean;
     suggested_title_ids: string[];
     awards: Array<{
       id: string;
@@ -47,6 +50,9 @@ export interface ClassCompletion {
     child_id: string;
     full_name: string;
     year_result: string | null;
+    year_label: string | null;
+    has_result: boolean;
+    needs_support: boolean;
     suggested_outcome: CompletionOutcome | null;
     result: {
       outcome: CompletionOutcome;
@@ -80,11 +86,12 @@ export const messageOf = (error: unknown) =>
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
     : 'Không kết nối được tới máy chủ, vui lòng thử lại';
 
-export const readTitles = () => requestJson<AwardTitle[]>('/api/v1/learning-records/award-titles?school_level=TH');
-export const loadTitleDefaults = () =>
+export const readTitles = (level: string) =>
+  requestJson<AwardTitle[]>(`/api/v1/learning-records/award-titles?school_level=${level}`);
+export const loadTitleDefaults = (level: string) =>
   requestJson<{ created: number }>('/api/v1/learning-records/award-titles/defaults', {
     method: 'POST',
-    body: JSON.stringify({ school_level: 'TH' }),
+    body: JSON.stringify({ school_level: level }),
   });
 export const readClassAwards = (classId: string) =>
   requestJson<ClassAwards>(`/api/v1/learning-records/classes/${classId}/awards`);
