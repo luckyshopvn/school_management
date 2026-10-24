@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.111
+- Phiên bản: 1.112
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -1420,6 +1420,8 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, POST, PATCH | /api/v1/learning-records/award-titles, /defaults, /{id}; /learning-records/classes/{id}/awards; /learning-records/awards/{id}/decide, /certificate (từ YCTD-163) | Danh hiệu (sửa: `P02.student-record.approve`), khen thưởng của lớp kèm gợi ý, đề nghị (`child_id`, `title_id`, `achievement`), duyệt (`approve`, `note`), giấy khen PDF; trái quy tắc trả 422 mã YCTD-163 |
 | GET, PUT, POST, PATCH | /api/v1/learning-records/classes/{id}/completion, /learning-records, /learning-records/prepare; /learning-records/learning-records/{id}, /sign, /reopen, /file; /learning-records/children/{id} (từ YCTD-163) | Hoàn thành chương trình (`entries`: `child_id`, `support_plan`, `support_result`, `support_note`), học bạ của lớp, lập, nhận xét, kí nội bộ, mở lại (`reason`), tải PDF, học bạ và khen thưởng của học sinh (phụ huynh: bản đã kí) |
 | GET | /api/v1/public/student-awards/verify (từ YCTD-163) | Tra cứu công khai mã giấy khen học sinh (`code` 12 kí tự), giới hạn tần suất |
+| GET | /api/v1/primary-reports/enrollment, /assessments, /year-end, /attendance, /{report}/export (từ YCTD-165) | Thống kê Tiểu học (`org_unit_id`; `period_id`, `group` = `class`, `grade`, `school`; `from`, `to`); xuất `format` = `xlsx`, `pdf`; cần `P17.child-statistics.view` |
+| GET, PUT | /api/v1/primary-reports/emis, /{code}, /{code}/values, /{code}/rows, /{code}/export (từ YCTD-165) | Biểu EMIS Tiểu học cấu hình được: danh sách, biểu đã tính, lưu số nhập tay (`rows`: `code`, `values`), thay khung (`rows`: `code`, `label`, `unit`, `kind`, `formula`; cần `P17.report-form.manage`), xuất; biểu đã gửi trả 422 mã YCTD-165 |
 | GET, POST, PUT, DELETE | /api/v1/emulation/decisions, /{id}, /document, /outgoing, /issue, /upper-result; /emulation/awards/{id}/certificate; /emulation/history, /export, /{id}; GET /public/emulation-awards/verify | Quyết định, giấy khen, sổ theo dõi, tra cứu công khai (P09-38, P09-39) |
 | GET, PUT, POST, DELETE | /api/v1/website/settings, /website/settings/images/{purpose}, /website/sample-content, /website/disclosure-categories | Thông tin website, biểu trưng, ảnh đầu trang, nội dung mẫu, nhóm công khai (P14-13, YCTD-144) |
 | GET, POST, PATCH, DELETE | /api/v1/website/domains, /website/domains/{id}, /website/domains/{id}/dns-confirmation | Tên miền (P14-13, YCTD-144) |
@@ -1562,7 +1564,7 @@ Giao kèo sổ điểm THCS, THPT (DT-21 phần 21c, YCTD-170, BR-180):
 4. `GET /scores/classes/{id}/summary?term_type=` (`first_term`, `second_term`, `year`) trả `subjects`, `rows` (`subjects` điểm trung bình hoặc kết quả, `suggested`, `learning`, `conduct`, `comment`), `locked`, `can_rate`. `PUT /scores/classes/{id}/ratings` nhận `term_type`, `entries` (`child_id`, `learning`, `conduct` là `good`, `fair`, `pass`, `fail` hoặc trống, `comment`); chỉ giáo viên chủ nhiệm hoặc người quản lý (403); học kỳ đã khoá trả 422 (cả năm theo học kỳ II).
 5. `POST /scores/locks` nhận `term_type`, `school_level`, `class_ids` (tuỳ chọn); trả `locked_class_count`. `GET /scores/locks?term_type=&school_level=` trả trạng thái từng lớp. `POST /scores/locks/unlock` nhận `term_type`, `class_id`, `reason` (3 đến 500 ký tự); lớp chưa khoá trả 422. `GET /scores/children/{id}` chỉ phụ huynh của con (403 nếu không), trả `terms` đã khoá và `year_rating` khi học kỳ II đã khoá.
 
-Giao kèo học bạ, khen thưởng, lên lớp THCS, THPT (DT-21 phần 21e, YCTD-172, BR-181; dùng các điểm cuối `/learning-records` của 20e, không thêm điểm cuối):
+Giao kèo học bạ, khen thưởng, lên lớp THCS, THPT (DT-21 phần 21e, YCTD-172, BR-184; dùng các điểm cuối `/learning-records` của 20e, không thêm điểm cuối):
 
 1. Lớp THCS, THPT dùng cùng điểm cuối với Tiểu học. `GET /learning-records/classes/{id}/awards`, `/completion`, `/learning-records` trả mỗi học sinh thêm `has_result` (đã có kết quả cuối năm đã xác nhận), `needs_support` (học tập hoặc rèn luyện cả năm Chưa đạt), `year_label` ("Học tập: Tốt; rèn luyện: Tốt"; null với Tiểu học), `learning`, `conduct`; `year_result` là null với THCS, THPT.
 2. `year_end_locked` là học kỳ II của lớp đã khoá điểm (sổ điểm, BR-180). Chưa khoá thì đề nghị danh hiệu cuối năm, ghi hoàn thành chương trình, lập học bạ trả 422.
