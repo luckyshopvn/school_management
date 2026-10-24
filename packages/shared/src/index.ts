@@ -24,6 +24,7 @@ export * from './school-level-terms.js';
 export * from './level-features.js';
 export * from './subjects.js';
 export * from './assessments.js';
+export * from './scores.js';
 export * from './student-records.js';
 export * from './primary-reports.js';
 export * from './emulation.js';
@@ -590,6 +591,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/period-slots',
   '/timetables',
   '/student-assessments',
+  // Sổ điểm THCS, THPT (DT-21 phần 21c)
+  '/scores',
   // Sổ đầu bài, chuyên cần theo tiết (DT-20 phần 20d)
   '/class-logs',
   '/period-attendance',
@@ -598,6 +601,9 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/timetable-generator',
   '/timetable-changes',
   '/timetable-reports',
+  // Nền THCS, THPT: tổ hợp môn, tổ bộ môn (DT-21 phần 21a)
+  '/subject-combinations',
+  '/subject-teams',
   '/primary-reports',
 ] as const;
 
@@ -892,6 +898,9 @@ export const DATA_GRID_KEYS = [
   // Môn học, phân công giảng dạy theo môn (DT-20 phần 20a)
   'subjects',
   'teaching-assignments',
+  // Tổ hợp môn, tổ bộ môn (DT-21 phần 21a)
+  'subject-combinations',
+  'subject-teams',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;
