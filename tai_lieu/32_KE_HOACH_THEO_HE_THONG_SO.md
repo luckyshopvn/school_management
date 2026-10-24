@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
-- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá).
-- Phiên bản: 1.44
+- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số).
+- Phiên bản: 1.45
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -902,3 +902,155 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 | 22g2 | 4 | Chưa làm, chờ 22g1, 21c |
 | 21f | 4 | Chưa làm, chờ 21e |
 | 21g | 5 | Chưa làm, chờ 21c, 21e, 21f |
+
+## 13. DT-22: thư viện, bồi dưỡng, kho học liệu số (22a, 22e, 22h)
+
+### 13.1 Căn cứ và mục tiêu
+
+1. Lộ trình Eric chốt ngày 2026-10-19: DT-18 (kèm 22b, 22d, 22f, 22i) → DT-19 → DT-20 (kèm 22c) → DT-21 (kèm 22g) → DT-22 → DT-SaaS. Bản kế hoạch "bổ sung 9 phần theo khảo sát 9 trang" (bản để Eric phê duyệt, lưu ngoài kho) đã được Eric duyệt đủ chín phần; sáu phần đã chạy cùng DT-18, DT-20, DT-21. DT-22 là phần còn lại: **22a thư viện trường học, 22e hồ sơ bồi dưỡng giáo viên, 22h kho học liệu số của trường**. Phạm vi và độ lớn từng phần theo bản kế hoạch đó, chốt lại ở 13.3, 13.4 sau khi đối chiếu mã.
+2. Quyết định của Eric đã chốt, áp dụng cho cả DT-22:
+   - **AI là thành phần riêng, mặc định tắt**: chỉ gợi ý, có người duyệt, dùng dữ liệu đã khử định danh, không gửi dữ liệu trẻ em ra dịch vụ ngoài. Ba phần của DT-22 **không gọi AI**; chỗ AI có thể gợi ý sau này (gắn thẻ và chủ đề cho học liệu, soạn câu hỏi nháp, gợi ý nội dung bồi dưỡng) chỉ để sẵn điểm nối, không làm trong DT-22 (13.5).
+   - **Khách hàng là trường đơn lẻ**: không làm phần tổng hợp cho Phòng, Sở; chia sẻ học liệu liên trường thật chờ DT-SaaS, DT-22 chỉ làm bản chạy nội bộ bằng gói tệp (22h2).
+3. Mục tiêu: trường có ba thứ còn thiếu của một trường phổ thông hoàn chỉnh: thư viện quản lý được sách, bạn đọc, mượn trả, kiểm kê, báo cáo theo chuẩn; hồ sơ bồi dưỡng của từng giáo viên (kế hoạch, đăng ký, kết quả, chứng chỉ, chứng nhận có mã tra cứu, năng lực số); kho học liệu số có giấy phép và kiểm duyệt, nối với ngân hàng câu hỏi của 22g1.
+4. Các phần này **không cần khảo sát hệ thống của Sở** (Sở không có chức năng tương ứng) mà chỉ làm theo nghiệp vụ chung và văn bản quy phạm; phạm vi suy ra từ mô tả công khai của chín trang đã khảo sát và từ thông tư, Eric chỉnh khi nghiệm thu (Eric đã quyết định không xin demo, ngày 2026-10-19).
+5. Hiện trạng mã (đọc trên nhánh chính ngày 2026-10-24, sau khi 20a, 20b, 22c1 đã gộp; kế hoạch DT-21 ở mục 12, PR 140, có thể chưa gộp):
+   - **Đã có, dùng lại:**
+     - Kho hồ sơ chuyên môn 18e (`professional_folders`, `professional_rounds`, `professional_documents`, `professional_document_versions`, `professional_document_events`, nhóm công tác): thư mục theo năm học, đợt nộp, luồng duyệt tổ trưởng rồi Ban Giám hiệu, phiên bản, trả lại, kí nội bộ qua `DossierSigner`. Việc của tôi (`my-work`, giao diện `MyWorkSource`) cho phần mới tự thêm nguồn việc chờ.
+     - Tệp: bảng `files` và `FileStorage` (`S3FileStorage`, `MemoryFileStorage`), khoá tệp qua hàm chung.
+     - Mã tra cứu công khai: `DossierSigner` có mã QR tra cứu; giấy khen 22d có mã và điểm cuối công khai `public/emulation-awards/verify` có giới hạn tần suất (`AdmissionsRateLimiter`); website trường 18f, trang công khai.
+     - Nhân sự: `staff`, `staff_certificates` (tên, số, nơi cấp, ngày cấp, ngày hết hạn; **chưa có tệp bản sao, chưa gắn khoá học**), `work_history`; thông báo (`notifications`), nhắc hạn.
+     - Học sinh, lớp: `children`, `class_enrollments`, `classes`, cấp học và khối (DT-19), môn học `subjects` và chương trình (20a).
+     - Giảng dạy: `lesson_plans` (kế hoạch bài dạy, 16), kế hoạch giáo dục 22i.
+   - **Có tên gần giống nhưng khác nghiệp vụ, không dùng lại:** `library_items`, `library_albums`, `library_topics`, `coloring_pages` (kho nội dung cho phụ huynh và bé ở Mầm non: ảnh, tranh tô màu, ứng dụng phụ huynh xem), **không phải thư viện sách**; `asset_loans` (mượn thiết bị: mỗi thiết bị tối đa một lần mượn mở, không có bản sao, đặt trước, phạt, bạn đọc).
+   - **Chưa có:** danh mục ấn phẩm, bản sao, thẻ bạn đọc, mượn trả, kiểm kê thư viện; kế hoạch, khoá, đăng ký và kết quả bồi dưỡng, chứng nhận do trường cấp, khung năng lực số; kho học liệu, giấy phép học liệu, kiểm duyệt học liệu, bộ sưu tập; ngân hàng câu hỏi (kế hoạch ở 22g1, YCTD-168, chưa làm).
+
+### 13.2 Nguyên tắc
+
+- **Không đổi hành vi các phần đã có:** mỗi phần là phân hệ hoặc nhóm menu mới, gắn `levels` theo cấp được dùng; bảng mới có tiền tố riêng, không sửa bảng cũ ngoài việc thêm cột có giá trị mặc định (`staff_certificates` ở 22e). Toàn bộ e2e và kiểm thử đơn vị hiện có vẫn đạt không sửa kỳ vọng.
+- **Một nguồn sự thật:** câu hỏi chỉ nằm ở ngân hàng của 22g1 (kho 22h2 tham chiếu, không sao chép); chứng chỉ của giáo viên chỉ nằm ở `staff_certificates` (22e mở rộng, không bảng thứ hai); tệp minh chứng nằm ở `files`, kho hồ sơ 18e chỉ lưu tham chiếu; thông báo qua hàng đợi thông báo chung.
+- **Dùng lại luồng duyệt và kí của 18e**, không viết luồng duyệt thứ hai: duyệt học liệu (22h1), duyệt đăng ký bồi dưỡng (22e) đi qua cùng mô hình trạng thái, sự kiện, Việc của tôi.
+- **Giấy phép, nguồn gốc và bản quyền:** học liệu phải có giấy phép trước khi công bố; không đưa nội dung có bản quyền (sách giáo khoa, bài giảng, video) vào mã, dữ liệu mẫu, kiểm thử, tài liệu; dữ liệu mẫu chỉ là nhan đề, số liệu bịa rõ ràng ở bản trình diễn (18h, 19f).
+- **Dữ liệu cá nhân tối thiểu:** thẻ bạn đọc, lịch sử mượn của học sinh chỉ người có quyền xem (thủ thư, giáo viên chủ nhiệm lớp đó, phụ huynh của chính con); hồ sơ bồi dưỡng của giáo viên theo quyền như hồ sơ nhân sự (cá nhân, tổ trưởng, Ban Giám hiệu).
+- **Không gọi dịch vụ ngoài:** không tải ảnh bìa, siêu dữ liệu sách, đoạn video từ dịch vụ ngoài khi thêm; liên kết video ngoài chỉ lưu địa chỉ, không nhúng hay tải về; quét mã vạch bằng bàn phím hoặc máy quét giả lập bàn phím, camera điện thoại chỉ ở trình duyệt cục bộ.
+- **Công khai chỉ qua mã tra cứu:** trang công khai của 22e chỉ cho tra theo mã chứng nhận (có giới hạn tần suất như 22d), không liệt kê.
+- **Văn bản gốc trước phạm vi chi tiết:** mỗi phần đọc toàn văn văn bản còn hiệu lực lúc làm và ghi số hiệu, điều khoản vào YCTD của phần. Văn bản dự kiến, **kiểm lại hiệu lực trước khi nạp mặc định**: Luật Thư viện 2019 và văn bản hướng dẫn, thông tư về tiêu chuẩn thư viện cơ sở giáo dục phổ thông (22a); quy chế bồi dưỡng thường xuyên giáo viên, cán bộ quản lý cơ sở giáo dục mầm non, phổ thông, chuẩn nghề nghiệp giáo viên, khung năng lực số của giáo viên theo văn bản của Bộ hiện hành (22e); quy định về sách giáo khoa, bản quyền, giấy phép Creative Commons (22h). Chỗ kế hoạch này tóm tắt chỉ để chia phần.
+- **Danh mục cấu hình được, có bộ mặc định:** phân loại ấn phẩm, quy định mượn, loại bạn đọc, chỉ tiêu báo cáo thư viện; loại bồi dưỡng, định mức tiết, khung năng lực số; bộ giấy phép, loại học liệu, chủ đề. Đổi văn bản thì sửa danh mục, không sửa mã; mã cố định chỉ cho trạng thái luồng.
+- **Viết sẵn cho đa thuê bao:** không thêm biến `.env` riêng trường; khoá Redis qua `cacheKey`, tệp qua `storageKey`; đường dẫn công khai không ghi cứng tên miền.
+
+### 13.3 Các phần
+
+Số giữ sẵn bắt đầu **sau dải của DT-21 và chừa khoảng rộng** để hai đợt chạy song song không va nhau (kho mã đã bật `allowUnorderedMigrations`): migration năm học từ 0100, hệ thống từ 0040, định danh từ 0090; YCTD-180 dành cho chính bản kế hoạch này, các phần từ YCTD-181; spec e2e từ `120-`. DT-21 giữ đến năm học 0092, hệ thống 0029, định danh 0083, YCTD-175, e2e `103-`; DT-20 giữ đến năm học 0083, hệ thống 0027, định danh 0074, e2e `94-`. **Khoảng trống chừa lại** (năm học 0084 đến 0099 chưa giữ, hệ thống 0030 đến 0039, định danh 0084 đến 0089, e2e `104-` đến `119-`, YCTD-176 đến YCTD-179) là dự phòng cho bổ sung của DT-19, DT-20, DT-21, **không dùng cho DT-22**. Phần nào không cần số đã giữ thì để trống, không cho phần khác dùng.
+
+| Phần | Phạm vi | Đợt | Phụ thuộc | YCTD giữ sẵn | Migration giữ sẵn | e2e giữ sẵn |
+|---|---|---|---|---|---|---|
+| 22a | Thư viện trường học: danh mục ấn phẩm và bản sao, thẻ bạn đọc (cán bộ, học sinh), mượn trả, quá hạn, đặt trước, phát và thu sách giáo khoa, kiểm kê, báo cáo theo chuẩn | 1 | DT-19 (cấp học), 20a (môn, khối); chạy ngay | YCTD-181 | Năm học 0100; hệ thống 0040; định danh 0090 | 120 |
+| 22e | Hồ sơ bồi dưỡng giáo viên: kế hoạch, khoá, đăng ký, kết quả, số tiết; chứng chỉ (mở rộng `staff_certificates`); chứng nhận có mã tra cứu công khai; bản đồ năng lực số. Không làm LMS | 1 | 18e, 18f, hồ sơ nhân sự (đã gộp); chạy ngay | YCTD-182 | Năm học 0101; hệ thống 0041; định danh 0091 | 121 |
+| 22h1 | Kho học liệu số, phần lõi: kho tệp và liên kết, metadata theo cấp, lớp, môn, chủ đề; giấy phép bắt buộc; kiểm duyệt phân luồng; bộ sưu tập; báo lỗi; thống kê | 2 | 18e (luồng duyệt, kho tệp), 20a (môn); không cần 22g1 | YCTD-183 | Năm học 0102; hệ thống 0042; định danh 0092 | 122 |
+| 22h2 | Kho học liệu số, phần câu hỏi và chia sẻ: câu hỏi, đề, ma trận của 22g1 hiện trong kho; rubric; gói chia sẻ liên trường bản chạy nội bộ (xuất, nhập có kiểm) | 3 | 22h1, **22g1 (ngân hàng câu hỏi, ma trận, đề; YCTD-168, năm học 0085, định danh 0076, e2e 96) đã gộp**; phần thống kê sử dụng câu hỏi cần thêm **22g2 (chấm, báo cáo; YCTD-173)** | YCTD-184 | Năm học 0103; định danh 0093 | 123 |
+
+Giữ chỗ chưa giao phiên: **YCTD-185** cho thành phần AI riêng (13.5), migration năm học 0104, hệ thống 0043, định danh 0094, e2e `124-`; YCTD-186 đến YCTD-189, năm học 0105 đến 0109, hệ thống 0044 đến 0049, định danh 0095 đến 0099, e2e `125-` đến `129-` dự phòng cho bổ sung của DT-22. Khi thành phần AI được giao phiên thì ghi bản kế hoạch riêng, không sửa mục này.
+
+Đợt làm, mỗi lúc tối đa hai phiên:
+- **Đợt 1: 22a và 22e**, độc lập nhau, làm được ngay, không chờ DT-20, DT-21.
+- **Đợt 2: 22h1.** Chỉ cần kho hồ sơ 18e (đã gộp) nên **bắt đầu ngay khi một trong hai phần đợt 1 gộp**, không chờ cả hai.
+- **Đợt 3: 22h2**, bắt đầu khi 22h1 **và 22g1** (DT-21, đợt 1) đã gộp; phần thống kê sử dụng câu hỏi, mức nhận thức chờ thêm **22g2** (DT-21, đợt 4, ghi kết quả sử dụng vào lịch sử câu hỏi): nếu 22g2 chưa gộp thì 22h2 làm phần còn lại, ghi phần thống kê vào YCTD-184 để làm sau khi 22g2 gộp. Nếu 22g1 gộp trễ thì 22h2 chờ, không tự làm ngân hàng câu hỏi thứ hai, không tạm làm bảng câu hỏi riêng. 22h1 không phụ thuộc 22g1 nên không bị chặn.
+
+Thứ tự gộp để đánh số tài liệu (phiên bản, CT, AC, BR, MH, PQ, mã chức năng) theo đợt: 22a, 22e, 22h1, 22h2; phần gộp sau đánh lại số tài liệu theo nhánh chính lúc gộp. YCTD, số migration, số e2e giữ sẵn ở bảng trên không đổi theo thứ tự gộp.
+
+Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để so sánh): 22a khoảng 1, 22e khoảng 0,75, 22h1 khoảng 1, 22h2 khoảng 0,5; tổng khoảng 3,25 đơn vị, nhỏ hơn DT-20 và DT-21.
+
+### 13.4 Phạm vi chi tiết
+
+#### 22a. Thư viện trường học
+
+- **Danh mục ấn phẩm:** nhan đề, tác giả, nhà xuất bản, năm xuất bản, ISBN (nhập tay, không tra dịch vụ ngoài), phân loại (sách giáo khoa, sách giáo viên, sách tham khảo, truyện, báo, tạp chí, tài liệu số), cấp, khối, môn (theo `subjects` của 20a), chủ đề, ngôn ngữ, kệ hoặc vị trí, ảnh bìa (tải lên, tuỳ chọn); tài liệu số đính tệp (`files`). Nhập từ Excel theo mẫu, báo lỗi theo dòng như công cụ của 16a.
+- **Bản sao** (số đăng ký cá biệt, mã vạch hoặc mã QR do hệ thống sinh): nguồn (mua, tặng, cấp), giá, ngày nhập, tình trạng (tốt, hỏng, mất, thanh lý); in nhãn mã (PDF theo khổ nhãn cấu hình); sổ đăng ký cá biệt xuất Excel, PDF. Thanh lý có biên bản, lý do, người duyệt.
+- **Bạn đọc và thẻ:** cán bộ lấy từ `staff`, học sinh lấy từ `children` theo lớp đang học ở cấp bật thư viện; thẻ tự cấp khi nhập học, tự khoá khi nghỉ, chuyển trường, tốt nghiệp (không xoá lịch sử); mã thẻ in được (PDF). Mầm non: chỉ cán bộ mượn; bạn đọc nhí mượn theo lớp không nằm trong phạm vi.
+- **Quy định mượn** cấu hình theo loại bạn đọc: số bản tối đa cùng lúc, số ngày mượn, số lần gia hạn, mức phạt trễ (nếu trường dùng), loại ấn phẩm không cho mượn về (đọc tại chỗ).
+- **Mượn trả:** quét mã thẻ và mã bản sao; kiểm tra quy định; trả có đánh giá tình trạng (hỏng, mất kèm xử lý bồi thường ghi nhận, không thu tiền trong phân hệ này); gia hạn; **đặt trước** khi các bản đã cho mượn hết; **quá hạn**: danh sách, nhắc qua thông báo (hàng đợi chung) và Việc của tôi của thủ thư; **mượn lớp** (giáo viên mượn bộ sách cho lớp).
+- **Phát và thu sách giáo khoa** (tuỳ trường): bộ sách theo khối và năm học, phát cho học sinh đầu năm, thu cuối năm, danh sách chưa trả, hỏng, mất; dùng cùng bản sao và nhật ký với mượn trả.
+- **Kiểm kê:** đợt kiểm kê theo kệ hoặc cả kho, quét bản sao có mặt, đối chiếu (thừa, thiếu, hỏng), biên bản, xử lý chênh lệch (đánh dấu mất, thanh lý).
+- **Báo cáo:** thống kê kho (số đầu sách, số bản, theo phân loại, theo khối), số bản sách giáo khoa, tham khảo trên học sinh, tỉ lệ bạn đọc, lượt mượn theo lớp, tháng, ấn phẩm mượn nhiều, bạn đọc tích cực; **chỉ tiêu theo chuẩn thư viện cơ sở giáo dục phổ thông** nạp theo văn bản gốc sau khi đọc (danh mục chỉ tiêu và ngưỡng cấu hình được), sổ mượn trả; xuất Excel, PDF. Kết quả đo chuẩn thư viện **ghi làm minh chứng cho 22f** (bảo đảm chất lượng) qua tham chiếu, không nhập lại.
+- **Menu, quyền:** phân hệ **Thư viện** (gắn `levels` theo cấp bật, mặc định bật `TH`, `THCS`, `THPT`, `MN` tuỳ trường), quyền riêng (định danh 0090) gán cho vai trò thủ thư; ứng dụng phụ huynh xem sách con đang mượn và hạn trả (mã chức năng mới trong `LEVEL_FEATURES` cho cấp có thư viện); ứng dụng giáo viên xem sách mình đang mượn.
+- **Lưu ở đâu:** danh mục, bản sao, bạn đọc không theo năm học nên ưu tiên cơ sở dữ liệu hệ thống (0040); kỳ kiểm kê, số liệu theo năm ở năm học 0100. Chốt khi làm và ghi vào YCTD-181; chuyển năm học giữ nguyên kho, lịch sử mượn, chỉ chép cấu hình.
+
+#### 22e. Hồ sơ bồi dưỡng giáo viên
+
+Chỉ phần **quản trị**: ghi nhận, theo dõi, cấp chứng nhận. **Không làm** lớp học trực tuyến, khoá học điện tử, bài thi trực tuyến, kho video bài giảng bồi dưỡng.
+- **Kế hoạch bồi dưỡng năm học:** nhu cầu của giáo viên (tự khai báo hoặc tổ chuyên môn đề xuất), danh mục nội dung và chuyên đề bồi dưỡng (cấu hình; bộ mặc định theo quy chế bồi dưỡng thường xuyên sau khi đọc văn bản gốc), hình thức (tập trung, trực tuyến ở hệ thống ngoài, tự học có kiểm tra), thời lượng (tiết), kế hoạch của trường duyệt bằng luồng của 18e; nối kế hoạch giáo dục 22i và kế hoạch công việc khi trường muốn.
+- **Khoá, đợt bồi dưỡng:** do trường tổ chức hoặc do cấp trên, đơn vị ngoài tổ chức (ghi nhận): tên, thời gian, địa điểm, đơn vị tổ chức, số tiết, chỉ tiêu, hạn đăng ký; **đăng ký** của giáo viên, duyệt của tổ trưởng và Ban Giám hiệu (Việc của tôi), nhắc hạn; **điểm danh** buổi học (với khoá trường tổ chức); **kết quả** (đạt, không đạt, số tiết được ghi nhận, nhận xét).
+- **Hồ sơ bồi dưỡng cá nhân theo năm học:** các khoá đã dự, tổng số tiết so với định mức năm (cấu hình), chứng chỉ, bản sao tệp minh chứng (`files`, và tham chiếu vào thư mục cá nhân của 18e khi giáo viên chọn); xem theo cá nhân, tổ, trường; thiếu tiết so với định mức, cảnh báo.
+- **Chứng chỉ:** mở rộng `staff_certificates` (thêm cột: tệp bản sao, loại, khoá liên quan, số tiết, ghi chú, nhắc hết hạn; không đổi cột cũ, dữ liệu cũ vẫn hợp lệ); chứng chỉ nhập tay (từ nơi khác) và chứng chỉ sinh từ khoá cùng một bảng.
+- **Chứng nhận do trường cấp có mã tra cứu công khai:** với khoá trường tổ chức: mẫu chứng nhận (cấu hình), mã duy nhất, mã QR (dùng lại `DossierSigner` và cách sinh mã của 22d), xuất PDF hàng loạt, trang tra cứu công khai theo mã (điểm cuối công khai có giới hạn tần suất, chỉ trả tên người, khoá, ngày cấp, trạng thái; không trả dữ liệu khác), thu hồi, cấp lại.
+- **Bản đồ năng lực số:** khung năng lực số của giáo viên (miền, mức, mô tả; cấu hình, bộ mặc định theo văn bản của Bộ hiện hành sau khi đọc); giáo viên tự đánh giá theo kỳ, tổ trưởng và Ban Giám hiệu xác nhận hoặc chỉnh có lý do; biểu đồ mạng nhện của cá nhân, bản đồ nhiệt của tổ, trường; **khoảng trống năng lực gợi ý nội dung bồi dưỡng theo quy tắc** (mức dưới ngưỡng thì gợi ý chuyên đề gắn miền đó), không dùng AI; kết quả theo dõi qua các năm.
+- **Báo cáo:** tiến độ kế hoạch, tỉ lệ hoàn thành định mức tiết theo tổ, chuyên đề, đơn vị tổ chức; chứng chỉ sắp hết hạn; xuất Excel, PDF. Kết quả bồi dưỡng là **đầu vào tuỳ chọn cho KPI 18d và thi đua 22d** (điều kiện, minh chứng) qua tham chiếu, không sửa hai phần đó nếu không cần.
+- **Menu, quyền:** nhóm mới trong phân hệ nhân sự hoặc Hồ sơ chuyên môn (chốt khi làm), quyền riêng (định danh 0091); ứng dụng giáo viên xem khoá của mình, đăng ký, nhận chứng nhận; Việc của tôi có nguồn "đăng ký chờ duyệt", "chứng chỉ sắp hết hạn".
+- **Lưu ở đâu:** cấu hình (danh mục chuyên đề, định mức, khung năng lực số) ở hệ thống 0041; khoá, đăng ký, kết quả, đánh giá năng lực theo năm học ở năm học 0101.
+
+#### 22h1. Kho học liệu số: lõi
+
+- **Kho học liệu của trường:** loại học liệu (kế hoạch bài dạy, bài trình chiếu, video, phiếu học tập, tài liệu tham khảo, hình ảnh, đề kiểm tra dạng tệp, loại khác; cấu hình); tệp tải lên qua `FileStorage` (giới hạn định dạng, dung lượng, tên tệp chuẩn hoá) hoặc **liên kết ngoài** (chỉ lưu địa chỉ và tiêu đề, không tải về, không nhúng); kế hoạch bài dạy đã có ở `lesson_plans` **đưa vào kho bằng tham chiếu** (không sao chép, sửa ở nơi cũ thì kho thấy bản mới).
+- **Metadata:** cấp, khối, môn (`subjects` 20a, mở rộng theo DT-21 khi có), chủ đề hoặc bài (danh mục chủ đề theo môn, khối, cấu hình, trường tự nhập), tuần dạy dự kiến, loại, từ khoá, tác giả (cán bộ trong trường hoặc nguồn ngoài), ngôn ngữ, thời lượng; tìm kiếm, lọc nhiều tiêu chí, xem trước (PDF, ảnh).
+- **Giấy phép bắt buộc:** bộ giấy phép cấu hình (tự biên soạn dùng nội bộ, các loại Creative Commons, tài liệu có xin phép ghi rõ nơi cấp, tài liệu do cơ quan nhà nước ban hành, không rõ giấy phép); mỗi học liệu có giấy phép, nguồn gốc và người chịu trách nhiệm; **không công bố khi thiếu giấy phép hoặc giấy phép bị trường đặt là chặn**; học liệu "không rõ" chỉ xem cá nhân.
+- **Kiểm duyệt phân luồng** (dùng luồng duyệt của 18e): tải lên → tổ trưởng chuyên môn của môn duyệt → công bố trong trường; **phân luồng theo rủi ro**: học liệu có liên kết ngoài, video, nguồn có xin phép hoặc loại do trường chọn thêm bước Ban Giám hiệu; trả lại kèm lý do; sự kiện, nhật ký; Việc của tôi.
+- **Phiên bản và vòng đời:** nộp lại thành phiên bản mới, bản cũ lưu; ngừng dùng (ẩn, giữ lịch sử); phạm vi xem (`private` cá nhân, `unit` tổ, `school` toàn trường; giá trị `network` liên trường lưu sẵn trong danh mục nhưng **không bật** ở DT-22, để DT-SaaS).
+- **Bộ sưu tập:** giáo viên hoặc tổ lập theo chủ đề, theo khối, theo tuần; thêm, sắp xếp học liệu; chia sẻ trong trường; xuất danh sách.
+- **Báo lỗi:** người dùng báo sai nội dung, lỗi tệp, nghi vi phạm bản quyền; thủ kho (người điều phối do trường chỉ định) tiếp nhận, xử lý, ẩn tạm, trả lời; thống kê số báo lỗi theo học liệu.
+- **Thống kê:** lượt xem, tải về; học liệu theo môn, khối, loại, giấy phép, tổ; đóng góp theo giáo viên; học liệu chưa duyệt, quá hạn duyệt, sắp mất hiệu lực giấy phép (nếu có hạn).
+- **Menu, quyền:** phân hệ **Kho học liệu** (gắn `levels` theo cấp; chỉ cổng quản trị và ứng dụng giáo viên, không có học sinh, phụ huynh trong DT-22), quyền riêng (định danh 0092).
+- **Lưu ở đâu:** học liệu, giấy phép, chủ đề, bộ sưu tập không theo năm học nên ưu tiên hệ thống 0042; duyệt, báo lỗi, thống kê theo năm ở năm học 0102.
+
+#### 22h2. Kho học liệu số: câu hỏi và chia sẻ
+
+Chỉ bắt đầu khi 22g1 đã gộp; phạm vi dưới đây chốt lại theo hình dạng thật của ngân hàng câu hỏi, ma trận, đề của 22g1 (ghi vào YCTD-184).
+- **Câu hỏi, đề, ma trận trong kho:** kho hiện các đối tượng của 22g1 như một loại học liệu **tham chiếu** (khoá `question_id`, `exam_id`), dùng chung ô tìm kiếm, bộ lọc metadata của kho; bộ sưu tập chứa được câu hỏi và đề. **Không** sao chép câu hỏi, không có luồng duyệt thứ hai: kho đọc trạng thái (nháp, thẩm định, dùng được, ngừng dùng) của 22g1 và chuyển người dùng sang màn hình duyệt của 22g1; thống kê sử dụng câu hỏi lấy từ lịch sử sử dụng của câu hỏi (22g1 tạo đề, 22g2 ghi kết quả chấm vào lịch sử, nên cần 22g2).
+- **Rubric:** mẫu rubric có cấu trúc (tiêu chí × mức, mô tả, điểm), tạo, nhân bản, in; dùng cho bài tự luận, sản phẩm học tập; nối bằng khoá tham chiếu với câu hỏi tự luận của 22g1 khi 22g1 có chỗ nối (chốt lúc làm); phiếu học tập có cấu trúc (tiêu đề, câu hỏi ngắn, in) nếu 22h1 chưa đủ dùng.
+- **Chia sẻ liên trường, bản chạy nội bộ:** **xuất gói** (một bộ sưu tập hoặc nhóm học liệu thành một tệp nén có bản kê: metadata, giấy phép, mã băm từng tệp, tên trường nguồn do trường tự đặt, mã gói; **không có dữ liệu cá nhân** của học sinh hay phụ huynh; học liệu giấy phép "không rõ" hoặc bị chặn không được xuất) và **nhập gói** từ trường khác (kiểm bản kê, mã băm, giấy phép, loại trùng; vào kho ở trạng thái chờ duyệt, qua luồng duyệt của 22h1, ghi nguồn gốc gói). Danh mục chung liên trường thật (tìm trên mạng lưới, đồng bộ, xếp hạng) **chờ DT-SaaS**.
+- **Thống kê sử dụng chung** của kho: học liệu và câu hỏi theo môn, chủ đề, mức nhận thức; chỗ trống chủ đề (chủ đề chưa có học liệu hoặc câu hỏi).
+- Quyền mới (định danh 0093).
+
+### 13.5 Quyết định thiết kế và phương án đã loại
+
+Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, trừ hai quyết định của Eric ở 13.1.
+
+- **Tách 22h thành 22h1 và 22h2:** lõi kho (kho, giấy phép, kiểm duyệt, bộ sưu tập) không cần ngân hàng câu hỏi nên làm sớm; phần câu hỏi, đề phụ thuộc 22g1 nên làm sau. Phương án loại: làm cả 22h một lần sau 22g1 (chặn nhóm phiên không cần thiết); làm kho câu hỏi riêng trong 22h để khỏi chờ (hai ngân hàng câu hỏi, lệch dữ liệu).
+- **Thư viện sách làm bảng mới, không dùng lại `library_items`:** bảng đó là kho nội dung cho phụ huynh ở Mầm non (ảnh, tranh tô màu), khác nghiệp vụ; dùng chung tên "thư viện" chỉ gây nhầm. Tên bảng mới có tiền tố riêng (chốt khi làm). `asset_loans` (mượn thiết bị) cũng giữ nguyên: không có bản sao, đặt trước, phạt.
+- **Chứng chỉ ở một bảng:** mở rộng `staff_certificates` thay vì bảng chứng chỉ mới của 22e; cột thêm đều nullable.
+- **Không làm LMS, khoá học trực tuyến, bài thi trực tuyến** (22e); không làm thiết kế bài giảng điện tử (22h chỉ nhận bài giảng đã xuất làm học liệu); không làm cổng giáo án công cộng, giải bài tập, từ điển (đã loại ở bản kế hoạch chín phần).
+- **Không dùng AI trong DT-22**; điểm nối để sẵn: danh mục chủ đề, thẻ và từ khoá của học liệu (22h1) và danh sách khoảng trống năng lực (22e) là dữ liệu đã khử định danh có thể làm đầu vào cho gợi ý sau này; không thêm cột hay bảng riêng cho AI. Khi Eric cho làm thành phần AI (YCTD-185): bản kế hoạch riêng, tắt mặc định, chỉ gợi ý, người duyệt, chỉ dữ liệu đã khử định danh.
+- **Chia sẻ liên trường bằng gói tệp, không bằng máy chủ chung:** khách hàng là trường đơn lẻ, DT-SaaS chưa làm; gói tệp đủ để hai trường trao đổi và là hình dạng dữ liệu để DT-SaaS đọc lại.
+- **Học sinh, phụ huynh không xem kho học liệu ở DT-22:** nguồn không nêu; tránh bề mặt công khai thêm khi chưa có yêu cầu. Khi có yêu cầu thì thêm bằng YCTD riêng.
+- **Không làm ở DT-22:** tổng hợp cho Phòng, Sở (DT-SaaS S6); thu tiền bồi thường sách trong phân hệ thư viện (chỉ ghi nhận); kết nối cơ sở dữ liệu thư viện quốc gia hay dịch vụ tra ISBN ngoài; tìm kiếm toàn văn nội dung tệp.
+
+### 13.6 Rủi ro và cách kiểm
+
+| Rủi ro | Cách kiểm |
+|---|---|
+| Phạm vi suy ra từ mô tả công khai, không có màn hình thật của chín trang nguồn | Chốt phạm vi từng phần theo văn bản quy phạm đọc toàn văn; ghi giả định vào YCTD; Eric chỉnh khi nghiệm thu; không sao chép nguyên văn, hình ảnh, tên gọi riêng của các trang nguồn |
+| Chuẩn thư viện, quy chế bồi dưỡng, khung năng lực số thay đổi hoặc đã bị thay | Đọc văn bản còn hiệu lực lúc làm; chỉ tiêu, định mức, khung cấu hình được, bộ mặc định ghi số hiệu văn bản; không ghi cứng số liệu |
+| Học liệu vi phạm bản quyền, thiếu giấy phép | Giấy phép bắt buộc mới công bố; báo lỗi nghi vi phạm; ẩn tạm; bộ giấy phép cấu hình; không nội dung có bản quyền trong mã, dữ liệu mẫu, kiểm thử |
+| Lộ dữ liệu học sinh qua lịch sử mượn, gói chia sẻ, tra cứu chứng nhận | Quyền xem theo thủ thư, chủ nhiệm, phụ huynh của con; gói chia sẻ không chứa dữ liệu cá nhân (kiểm thử khoá trường nhạy cảm); điểm cuối công khai chỉ tra theo mã, có giới hạn tần suất, chỉ trả trường tối thiểu |
+| 22h2 bắt đầu khi 22g1 chưa gộp, dẫn tới ngân hàng câu hỏi thứ hai | Bảng 13.3 ghi 22h2 chờ 22g1 (và 22g2 cho thống kê sử dụng); không tạo bảng câu hỏi trong DT-22; kiểm thử kho chỉ tham chiếu |
+| Nhầm với `library_items` Mầm non | Tiền tố bảng, tên phân hệ, tên quyền khác; kiểm thử thư viện Mầm non (cho phụ huynh) không đổi |
+| Mở rộng `staff_certificates` làm hỏng dữ liệu, màn hình nhân sự hiện có | Cột thêm nullable; chuyển dữ liệu theo từng bước; e2e nhân sự hiện có đạt không sửa kỳ vọng |
+| Tệp tải lên lớn, định dạng nguy hiểm | Giới hạn định dạng và dung lượng cấu hình; chuẩn hoá tên tệp; xem trước chỉ với định dạng an toàn; dùng `FileStorage` như các nơi khác |
+| Hai phần cùng đợt cùng sửa tệp chung (cây menu, `LEVEL_FEATURES`, danh sách migration, quyền, `my-work`) | Số migration giữ sẵn riêng và rộng; sửa tệp chung theo kiểu thêm cuối; gộp origin/main trước khi mở PR |
+| Va số với DT-20, DT-21 chạy song song | Dải số DT-22 bắt đầu sau dải DT-21 và chừa khoảng trống 13.3; DT-22 không dùng số trong khoảng trống |
+
+**Cổng kiểm của mỗi phần DT-22:** kiểm thử đơn vị toàn bộ kho mã đạt không sửa kỳ vọng; e2e toàn bộ hiện có đạt cộng e2e mới của phần (chạy riêng, giữ khoá `e2e.lock`, không chạy cùng kiểm thử đơn vị toàn kho); typecheck, lint, build đạt; CI 4/4 xanh; phiên bản phần mềm tăng theo từng phần, riêng bản kế hoạch này (YCTD-180) chỉ đổi tài liệu.
+
+### 13.7 Quy ước chung của DT-22
+
+- Mỗi phần ghi YCTD giữ sẵn ở mục 13.3, cập nhật tài liệu theo quy ước của kho (02, 07, 08, 10, 11, 14, 16, 17, 21, 23, 24, 32, `index.md` khi có thay đổi tương ứng), ghi văn bản căn cứ đã đọc, mở PR, gộp khi mọi kiểm tra CI đạt.
+- Mã mới theo mục 13.2 (đa thuê bao, không đổi hành vi các phần đã có, không gọi dịch vụ ngoài, không AI).
+- Các điểm chi tiết không nêu ở đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 và ghi vào YCTD của từng phần.
+- Nếu trong lúc làm, một phần cần số ngoài khoảng đã giữ, ghi vào YCTD và lấy ở dải dự phòng của DT-22 (13.3), không lấy từ khoảng trống chừa cho DT-19 đến DT-21.
+
+### 13.8 Tiến độ
+
+| Phần | Đợt | Tiến độ |
+|---|---|---|
+| 22a | 1 | Chưa làm, làm được ngay |
+| 22e | 1 | Chưa làm, làm được ngay |
+| 22h1 | 2 | Chưa làm, bắt đầu khi 22a hoặc 22e gộp |
+| 22h2 | 3 | Chưa làm, chờ 22h1 và 22g1 (DT-21); thống kê sử dụng câu hỏi chờ thêm 22g2 |
