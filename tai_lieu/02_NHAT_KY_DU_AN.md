@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.43
+- Phiên bản: 0.44
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,28 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-24 — DT-22 phần 22e: hồ sơ bồi dưỡng giáo viên
+
+#### Công việc đã thực hiện
+
+- Đọc mục 13 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà `staff_certificates`, mã tra cứu và trang công khai của giấy khen 22d, giới hạn tần suất của điểm cuối công khai, Việc của tôi, phân hệ Hồ sơ chuyên môn; tra văn bản: Thông tư 19/2019/TT-BGDĐT ban hành Quy chế bồi dưỡng thường xuyên giáo viên, cán bộ quản lý cơ sở giáo dục mầm non, phổ thông và giáo viên trung tâm giáo dục thường xuyên (hiệu lực 28/12/2019), sửa đổi bởi Thông tư 17/2022/TT-BGDĐT; chương trình bồi dưỡng thường xuyên giáo viên phổ thông (Thông tư 17/2019/TT-BGDĐT), mầm non (Thông tư 12/2019/TT-BGDĐT) với thời lượng 120 tiết mỗi năm học, ba chương trình mỗi chương trình khoảng 40 tiết; Khung năng lực số đối với giáo viên, cán bộ quản lí theo Thông tư 18/2026/TT-BGDĐT (ban hành 27/03/2026, hiệu lực 12/05/2026): 6 miền, 20 năng lực thành phần, 3 mức Cơ bản, Thành thạo, Nâng cao.
+- Cơ sở dữ liệu: tệp hệ thống `0041`, năm học `0101`, định danh `0091`. Máy chủ API: danh mục, khoá, đăng ký, duyệt hai cấp, kết quả, chứng nhận PDF có mã QR, thu hồi, cấp lại, tra cứu công khai, chứng chỉ nhập tay, hồ sơ theo cá nhân, tổ, trường, năng lực số, nguồn Việc của tôi.
+- Cổng quản trị: nhóm "6. Bồi dưỡng giáo viên" (6.1 đến 6.5), trang "Tra cứu chứng nhận bồi dưỡng". Ứng dụng giáo viên: Bồi dưỡng của tôi.
+- Thêm quy tắc BR-179, chức năng P09-45 đến P09-49, quyền PQ-97, màn hình MH-271 đến MH-276, kịch bản CT-891 đến CT-897, tiêu chí AC-777 đến AC-779. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/training/training.test.ts` CT-22e-1 đến CT-22e-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa (api, shared, database) đạt 1022/1022 (api 1016, database 6); kiểm thử giao diện `tests/e2e/121-teacher-training.spec.ts` (CT-22e-7) đạt; kiểm thử giao diện chạy trên máy (toàn bộ spec trên nhánh trước khi gộp 20e, 22c2) 161/164, trong đó 121, 02, 03, 58 đạt; ba spec lỗi (04 lưới Tài khoản, 22 bảng lương, 76 gói ZIP) không liên quan 22e, 22 và 76 hết thời gian chờ khi máy chạy năm phiên cùng lúc; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 22e của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 13.4. Nhóm menu mới trong phân hệ Hồ sơ chuyên môn (không thêm phân hệ); quyền dùng, duyệt cấp tổ, quản lý thuộc P09; danh mục ở cơ sở dữ liệu hệ thống, khoá, đăng ký, năng lực số ở năm học; chứng chỉ ở một bảng `staff_certificates`; mã tra cứu và trang công khai theo cách của 22d; tổ trưởng duyệt cấp tổ tùy chọn, Ban Giám hiệu duyệt cuối; tên miền năng lực số mặc định theo bản tóm tắt vì chưa đọc được toàn văn Mục B. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-182, `07_QUY_TAC_NGHIEP_VU.md` BR-179, `08_VAI_TRO_NGUOI_DUNG.md` PQ-97, `10_YEU_CAU_CHUC_NANG.md` P09-45 đến P09-49, `11_TIEU_CHI_NGHIEM_THU.md` AC-777 đến AC-779, `14_DAC_TA_GIAO_DIEN.md` MH-271 đến MH-276, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-891 đến CT-897, `23_LICH_SU_PHIEN_BAN.md` 0.114.0.
+
+#### Vấn đề tồn đọng
+
+- Đối chiếu tên 6 miền, 20 năng lực thành phần với toàn văn Thông tư 18/2026/TT-BGDĐT; khai báo nhu cầu và duyệt kế hoạch bồi dưỡng qua luồng 18e; tải tệp bản sao chứng chỉ; xuất báo cáo; nối KPI 18d, thi đua 22d.
+
 
 ### 2026-10-24 — DT-20 phần 22c2: thời khoá biểu, máy xếp
 
