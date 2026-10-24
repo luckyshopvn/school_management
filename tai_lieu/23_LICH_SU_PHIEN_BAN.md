@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.43
+- Phiên bản: 0.44
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -23,10 +23,22 @@
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp năm học `0086_add_timetable_groups` (cột `timetable_lessons.group_no`, khóa duy nhất thêm nhóm).
 - Thay đổi API: `group_no` ở tiết của `/timetable-versions/{id}/classes/{classId}/lessons`, `/check`, `/lessons`, `/timetables`, `/children/{id}/timetable`; cột Nhóm của `/timetable-versions/{id}/import`.
-- Kiểm thử: kịch bản CT-921 đến CT-927. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/timetables/secondary-timetables.test.ts` CT-21b-1 đến CT-21b-6 đạt 6/6; trên máy đã chạy kiểm thử đơn vị các gói sửa (thời khoá biểu, máy xếp, cấp học, đường dẫn nhanh, sổ đầu bài) đạt 56/56; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 89, 93, 95 và `tests/e2e/97-secondary-timetables.spec.ts` (CT-21b-7) đạt; kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
+- Kiểm thử: kịch bản CT-920 đến CT-926. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/timetables/secondary-timetables.test.ts` CT-21b-1 đến CT-21b-6 đạt 6/6; trên máy đã chạy kiểm thử đơn vị các gói sửa (thời khoá biểu, máy xếp, cấp học, đường dẫn nhanh, sổ đầu bài) đạt 56/56; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 89, 93, 95 và `tests/e2e/97-secondary-timetables.spec.ts` (CT-21b-7); kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
 - Rủi ro: dạy thay, đổi tiết chưa áp dụng cho tiết nhóm; xếp tự động tiết nhóm chưa có; không có thay đổi dữ liệu cũ.
 - Khả năng tương thích: tiết cũ có `group_no = 0`, Mầm non, Tiểu học không đổi.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 21b; chạy phần quay lui của tệp năm học `0086` (xóa tiết nhóm).
+
+### Phiên bản 0.117.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-21 phần 22g1, kiểm tra, đánh giá phần đề (YCTD-168).
+- Chức năng mới: ngân hàng câu hỏi có thẩm định, nhập Excel, thống kê; ma trận và bảng đặc tả; kế hoạch kiểm tra; giao đề, bốc câu theo ma trận, đề nhiều mã, thẩm định, khoá đề; tải đề, đáp án ra Word, PDF.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0085_create_question_bank_and_exams`; tệp định danh `0076_add_exam_permissions`.
+- Thay đổi API: `/question-topics`, `/questions/…`, `/exam-matrices/…`, `/assessment-plans/…`, `/exams/…`.
+- Kiểm thử: kịch bản CT-911 đến CT-919. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/exams/exam-rules.test.ts` CT-22g1-1 đến CT-22g1-4 đạt 4/4, `apps/api/src/exams/exams.test.ts` CT-22g1-5 đến CT-22g1-8 đạt 4/4; kiểm thử đơn vị chạy trên máy các gói đã sửa: shared đạt, database 6/6, api 1018 ca đạt 1016, hai ca `children.test.ts` (CTC-P02-013, CTC-P02-057) chập chờn khi chạy chung, chạy lại riêng đạt 26/26; sau khi gộp 21a, 21c, 20f chạy lại `exams`, `working-level` đạt 16/16; kiểm thử giao diện `tests/e2e/96-exam-bank.spec.ts` (CT-22g1-9) đạt; kiểm thử giao diện trên máy chạy 02, 03, 06, 08, 58, 96 đạt 18/18; sau khi gộp 21a, 21c chạy lại 02, 03, 06, 08, 58, 59, 96 đạt 24/24; e2e toàn bộ do CI chạy (đạt 5/5 trước khi gộp 20f); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: lộ đề trước giờ kiểm tra; đã giới hạn người xem, ghi nhật ký tải.
+- Khả năng tương thích: trường không bật THCS, THPT không đổi hành vi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 22g1; chạy phần quay lui của tệp năm học `0085`, định danh `0076`.
 
 ### Phiên bản 0.116.0 – 2026-10-24
 
@@ -35,7 +47,7 @@
 - Lỗi đã sửa: lọc theo danh sách đơn vị dùng mã rỗng chuỗi `''` cho cột uuid gây lỗi hệ thống khi người dùng chỉ được xem một số đơn vị (thống kê Tiểu học khi chọn đơn vị; nề nếp 20b: danh sách điểm, xếp hạng; khoá số liệu 20c: danh sách lớp, khoá mọi lớp), nay dùng uuid rỗng.
 - Thay đổi dữ liệu: tệp hệ thống `0027_create_report_forms`; tệp định danh `0074_add_report_form_permission`.
 - Thay đổi API: `/primary-reports/enrollment`, `/assessments`, `/year-end`, `/attendance`, `/{report}/export`; `/primary-reports/emis`, `/{code}`, `/{code}/values`, `/{code}/rows`, `/{code}/export`; biểu `emis-th-dau-nam`, `emis-th-cuoi-nam` ở `/upper-level-submissions`.
-- Kiểm thử: kịch bản CT-904 đến CT-910. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/primary-reports/primary-reports.test.ts` CT-20f-1 đến CT-20f-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.15 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của Tiểu học của CT-19c-1); kiểm thử đơn vị toàn bộ kho mã đạt 1081/1081 trước khi gộp main lần cuối; sau khi gộp chạy lại các tệp bị ảnh hưởng (primary-reports, working-level, menu-permissions) đạt 18/18; kiểm thử giao diện `tests/e2e/94-primary-reports.spec.ts` (CT-20f-7) đạt; toàn bộ kiểm thử giao diện trên máy chạy các kịch bản 02, 03, 94 đạt 5/5 (trước đó 02, 03, 06, 08, 58, 94 đạt 18/18); e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử: kịch bản CT-904 đến CT-910. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/primary-reports/primary-reports.test.ts` CT-20f-1 đến CT-20f-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.15 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của Tiểu học của CT-19c-1); kiểm thử đơn vị toàn bộ kho mã đạt 1081/1081 trước khi gộp main lần cuối; sau khi gộp chạy lại các tệp bị ảnh hưởng (primary-reports, working-level, menu-permissions) đạt 18/18; kiểm thử giao diện `tests/e2e/94-primary-reports.spec.ts` (CT-20f-7) đạt; kiểm thử giao diện trên máy chạy các kịch bản 02, 03, 94 đạt 5/5 (trước đó 02, 03, 06, 08, 58, 94 đạt 18/18); e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Rủi ro: biểu khung chưa khớp Sở.
 - Khả năng tương thích: không đổi điểm cuối cũ; trường chỉ có Mầm non thấy như cũ.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 20f; chạy phần quay lui của tệp hệ thống `0027` và tệp định danh `0074`.

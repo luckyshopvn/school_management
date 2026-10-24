@@ -52,8 +52,16 @@ const PRIMARY_ONLY_PATHS = [
   // Báo cáo, thống kê, EMIS Tiểu học (DT-20 phần 20f)
   '/primary-reports',
 ];
-// Mục chỉ của THCS, THPT (DT-21 phần 21a): trường chỉ có Mầm non hay Tiểu học không thấy
-const SECONDARY_ONLY_PATHS = ['/subject-combinations', '/subject-teams', '/scores'];
+// Mục chỉ của THCS, THPT (DT-21 phần 21a; kiểm tra, đánh giá phần đề 22g1): trường chỉ có Mầm non hay Tiểu học không thấy
+const SECONDARY_ONLY_PATHS = [
+  '/subject-combinations',
+  '/subject-teams',
+  '/scores',
+  '/question-bank',
+  '/exam-matrices',
+  '/assessment-plans',
+  '/exams',
+];
 
 describe('Cây menu và nhãn theo cấp học', () => {
   it('CT-19c-1: trường chỉ có Mầm non giữ y hệt cây menu (tên phân hệ, số thứ bậc, thứ tự, mục)', () => {
