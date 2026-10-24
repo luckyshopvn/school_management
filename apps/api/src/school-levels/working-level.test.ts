@@ -61,6 +61,8 @@ const SECONDARY_ONLY_PATHS = [
   '/exam-matrices',
   '/assessment-plans',
   '/exams',
+  // Sơ đồ chỗ ngồi (DT-21 phần 21d)
+  '/seating-charts',
 ];
 
 describe('Cây menu và nhãn theo cấp học', () => {

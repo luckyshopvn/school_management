@@ -263,6 +263,7 @@ import {
   ClassLogsService,
   PeriodAttendanceController,
 } from './class-logs/class-logs.js';
+import { SeatingController, SeatingService } from './seating/seating.js';
 import {
   createGenerationQueue,
   TimetableGenerationJobs,
@@ -547,6 +548,8 @@ export class ApplicationModule {
         ClassLogsController,
         PeriodAttendanceController,
         ChildPeriodAttendanceController,
+        // Sơ đồ chỗ ngồi (DT-21 phần 21d)
+        SeatingController,
         // Máy xếp thời khoá biểu, dạy thay, đổi tiết, báo cáo, mã tra cứu (DT-20 phần 22c2)
         TimetableGeneratorController,
         TimetableGenerationsController,
@@ -789,6 +792,7 @@ export class ApplicationModule {
         TimetablesService,
         ExamsService,
         ClassLogsService,
+        SeatingService,
         TimetableGeneratorService,
         TimetableChangesService,
         TimetableGenerationJobs,

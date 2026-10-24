@@ -343,6 +343,8 @@ export interface ClassLogsTable {
   content: string | null;
   comment: string | null;
   rating: string | null;
+  // Nhóm học của tiết (21b): 0 là cả lớp
+  group_no: Generated<number>;
   status: Generated<ClassLogStatus>;
   signed_at: Date | null;
   created_by: string | null;
@@ -5158,9 +5160,56 @@ export interface ConductEntriesTable {
   points: number;
   note: string | null;
   reported_by: string | null;
+  // Học sinh đội sao đỏ báo lỗi, giáo viên trực ghi thay (DT-21 phần 21d)
+  reporter_child_id: string | null;
   recorded_by: string;
   recorded_by_name: string;
   created_at: CreatedTimestamp;
+}
+
+// Sổ đầu bài, sơ đồ chỗ ngồi, sao đỏ cấp THCS, THPT (DT-21 phần 21d, YCTD-171)
+export type LessonRatingMode = 'off' | 'optional' | 'required';
+export type LessonRatingCode = 'A' | 'B' | 'C' | 'D';
+
+export interface ClassLogSettingsTable {
+  school_level: SchoolLevelCode;
+  rating_mode: LessonRatingMode;
+  rating_labels: ColumnType<Record<LessonRatingCode, string>, string, string>;
+  low_rating_comment: boolean;
+  conduct_points: ColumnType<Record<LessonRatingCode, number> | null, string | null, string | null>;
+  updated_by_name: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface SeatingChartsTable {
+  id: Generated<string>;
+  class_id: string;
+  subject_id: string | null;
+  effective_from: string;
+  desk_columns: number;
+  desk_rows: number;
+  seats_per_desk: Generated<number>;
+  note: string | null;
+  updated_by: string | null;
+  updated_by_name: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface SeatingAssignmentsTable {
+  chart_id: string;
+  child_id: string;
+  column_no: number;
+  row_no: number;
+  seat_no: number;
+}
+
+export interface RedStarMembersTable {
+  child_id: string;
+  status: Generated<CatalogStatus>;
+  duty: string | null;
+  updated_by_name: string | null;
+  updated_at: UpdatedTimestamp;
 }
 
 // Đánh giá học sinh theo Thông tư 27/2020 (DT-20 phần 20c, YCTD-161)
@@ -5812,6 +5861,10 @@ export interface SchoolYearDatabase {
   conduct_settings: ConductSettingsTable;
   conduct_criteria: ConductCriteriaTable;
   conduct_entries: ConductEntriesTable;
+  class_log_settings: ClassLogSettingsTable;
+  seating_charts: SeatingChartsTable;
+  seating_assignments: SeatingAssignmentsTable;
+  red_star_members: RedStarMembersTable;
   assessment_levels: AssessmentLevelsTable;
   competency_items: CompetencyItemsTable;
   assessment_periods: AssessmentPeriodsTable;

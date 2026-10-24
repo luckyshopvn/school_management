@@ -1,6 +1,7 @@
+import type { SchoolLevelCode } from '@school-management/shared';
 import { ApiError, requestJson } from '../session/api-client.js';
 
-// Gọi các điểm cuối nề nếp, thi đua lớp (DT-20 phần 20b, YCTD-159)
+// Gọi các điểm cuối nề nếp, thi đua lớp (DT-20 phần 20b, YCTD-159); theo cấp, đội sao đỏ, điểm tiết (DT-21 phần 21d)
 export type ConductKind = 'plus' | 'minus';
 export type ConductPeriod = 'week' | 'month' | 'first_term' | 'second_term';
 
@@ -41,8 +42,19 @@ export interface ConductEntry {
   points: number;
   note: string | null;
   reported_by: string | null;
+  reporter_child_id: string | null;
+  reporter_name: string | null;
   recorded_by_name: string;
   created_at: string;
+}
+
+export interface RedStarMember {
+  child_id: string;
+  full_name: string;
+  class_id: string | null;
+  class_name: string | null;
+  duty: string | null;
+  status: 'active' | 'inactive';
 }
 
 export interface ConductRanking {
@@ -52,12 +64,14 @@ export interface ConductRanking {
   weeks: number;
   base_points: number;
   enabled: boolean;
+  lesson_points: Record<'A' | 'B' | 'C' | 'D', number> | null;
   classes: Array<{
     class_id: string;
     class_name: string;
     grade_level: string;
     plus_points: number;
     minus_points: number;
+    lesson_points: number;
     score: number;
     rank: number;
   }>;
@@ -84,11 +98,15 @@ export function weekOf(date: string): { from: string; to: string } {
 export const readConductSettings = () => requestJson<ConductSettings>('/api/v1/conduct/settings');
 export const saveConductSettings = (input: { enabled: boolean; base_points: number }) =>
   requestJson<ConductSettings>('/api/v1/conduct/settings', { method: 'PUT', body: JSON.stringify(input) });
-export const listConductCriteria = () => requestJson<ConductCriterion[]>('/api/v1/conduct/criteria?school_level=TH');
-export const createConductCriterion = (input: { code: string; name: string; kind: ConductKind; points: number }) =>
+export const listConductCriteria = (level: SchoolLevelCode) =>
+  requestJson<ConductCriterion[]>(`/api/v1/conduct/criteria?school_level=${level}`);
+export const createConductCriterion = (
+  level: SchoolLevelCode,
+  input: { code: string; name: string; kind: ConductKind; points: number },
+) =>
   requestJson<ConductCriterion>('/api/v1/conduct/criteria', {
     method: 'POST',
-    body: JSON.stringify({ ...input, school_level: 'TH' }),
+    body: JSON.stringify({ ...input, school_level: level }),
   });
 export const updateConductCriterion = (
   criterionId: string,
@@ -98,10 +116,10 @@ export const updateConductCriterion = (
     method: 'PATCH',
     body: JSON.stringify(changes),
   });
-export const loadDefaultCriteria = () =>
+export const loadDefaultCriteria = (level: SchoolLevelCode) =>
   requestJson<{ created: string[]; skipped: string[] }>('/api/v1/conduct/criteria/defaults', {
     method: 'POST',
-    body: JSON.stringify({ school_level: 'TH' }),
+    body: JSON.stringify({ school_level: level }),
   });
 export const listConductEntries = (filter: { from: string; to: string; class_id?: string }) =>
   requestJson<ConductEntry[]>(
@@ -114,12 +132,20 @@ export const recordConductEntry = (input: {
   quantity: number;
   note: string | null;
   reported_by: string | null;
+  reporter_child_id?: string | null;
 }) => requestJson('/api/v1/conduct/entries', { method: 'POST', body: JSON.stringify(input) });
 export const deleteConductEntry = (entryId: string) =>
   requestJson(`/api/v1/conduct/entries/${entryId}`, { method: 'DELETE' });
-export const readConductRanking = (filter: { period: ConductPeriod; date: string; org_unit_id?: string }) =>
+export const readConductRanking = (filter: {
+  period: ConductPeriod;
+  date: string;
+  org_unit_id?: string;
+  school_level: SchoolLevelCode;
+}) =>
   requestJson<ConductRanking>(
-    `/api/v1/conduct/ranking?${new URLSearchParams(
-      Object.entries({ ...filter, school_level: 'TH' }).filter(([, value]) => value) as string[][],
-    )}`,
+    `/api/v1/conduct/ranking?${new URLSearchParams(Object.entries(filter).filter(([, value]) => value) as string[][])}`,
   );
+export const listRedStars = (level: SchoolLevelCode) =>
+  requestJson<RedStarMember[]>(`/api/v1/conduct/red-stars?school_level=${level}`);
+export const saveRedStar = (childId: string, input: { duty?: string | null; status?: 'active' | 'inactive' }) =>
+  requestJson<RedStarMember>(`/api/v1/conduct/red-stars/${childId}`, { method: 'PUT', body: JSON.stringify(input) });

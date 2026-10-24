@@ -1,14 +1,23 @@
 import { useCallback, useEffect, useState } from 'react';
-import { PERIOD_ATTENDANCE_LABELS, type PeriodAttendanceStatus } from '@school-management/shared';
+import {
+  LESSON_RATINGS,
+  PERIOD_ATTENDANCE_LABELS,
+  type LessonRating,
+  type LessonRatingSettings,
+  type PeriodAttendanceStatus,
+} from '@school-management/shared';
 import { Alert, ApplicationHeader, Button, FORM_CONTROL_CLASS } from '@school-management/ui';
 import { ApiError, requestJson } from '../session/api-client.js';
 
 // Sổ đầu bài (DT-20 phần 20d, YCTD-162): các tiết tôi dạy trong ngày theo thời khoá biểu đang áp dụng; mở một tiết ghi tên
-// bài, nội dung, nhận xét, xếp loại tiết và điểm danh từng học sinh (mặc định có mặt, có báo vắng thì vắng có phép), rồi ký sổ
+// bài, nội dung, nhận xét, xếp loại tiết và điểm danh từng học sinh (mặc định có mặt, có báo vắng thì vắng có phép), rồi ký sổ.
+// THCS, THPT (DT-21 phần 21d, YCTD-171): tiết nhóm (21b) ghi riêng, danh sách là học sinh của nhóm; nhãn và quy tắc xếp loại
+// tiết theo cấp (bắt buộc khi ký, tiết C, D phải nhận xét); xem sơ đồ chỗ ngồi đang dùng của lớp
 interface MyLesson {
   class_id: string;
   class_name: string;
   period_no: number;
+  group_no: number;
   subject_name: string;
   log: { id: string; status: 'draft' | 'signed'; lesson_title: string } | null;
 }
@@ -25,6 +34,15 @@ interface LessonDetail {
   } | null;
   week_signed: boolean;
   can_edit: boolean;
+  group_filtered: boolean;
+  rating: LessonRatingSettings;
+  seating: {
+    effective_from: string;
+    desk_columns: number;
+    desk_rows: number;
+    seats_per_desk: number;
+    assignments: Array<{ child_id: string; full_name: string; column_no: number; row_no: number; seat_no: number }>;
+  } | null;
   students: Array<{
     child_id: string;
     full_name: string;
@@ -35,7 +53,40 @@ interface LessonDetail {
 }
 
 const STATUSES = Object.keys(PERIOD_ATTENDANCE_LABELS) as PeriodAttendanceStatus[];
-const RATINGS = ['A', 'B', 'C', 'D'];
+const groupText = (groupNo: number) => (groupNo > 0 ? ` · Nhóm ${groupNo}` : '');
+
+// Sơ đồ chỗ ngồi chỉ xem: bàn giáo viên ở trên, mỗi dãy một cột
+function SeatingView({ seating }: { seating: NonNullable<LessonDetail['seating']> }) {
+  const rows = Array.from({ length: seating.desk_rows }, (_value, index) => index + 1);
+  const columns = Array.from({ length: seating.desk_columns }, (_value, index) => index + 1);
+  return (
+    <details className="rounded-lg border border-border bg-card p-3">
+      <summary className="text-content font-semibold">Sơ đồ chỗ ngồi</summary>
+      <div className="mt-2 text-label text-text-secondary">Bàn giáo viên ở trên</div>
+      <div
+        className="mt-2 grid gap-2"
+        style={{ gridTemplateColumns: `repeat(${seating.desk_columns}, minmax(0, 1fr))` }}
+      >
+        {rows.flatMap((row) =>
+          columns.map((column) => (
+            <div
+              key={`${column}:${row}`}
+              className="rounded-md border border-border p-1 text-label"
+              aria-label={`Dãy ${column} bàn ${row}`}
+            >
+              {seating.assignments
+                .filter((seat) => seat.column_no === column && seat.row_no === row)
+                .sort((left, right) => left.seat_no - right.seat_no)
+                .map((seat) => (
+                  <div key={seat.child_id}>{seat.full_name}</div>
+                ))}
+            </div>
+          )),
+        )}
+      </div>
+    </details>
+  );
+}
 
 const todayInVietnam = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const messageOf = (error: unknown) =>
@@ -55,7 +106,7 @@ function LessonForm({ lesson, date, onDone }: { lesson: MyLesson; date: string; 
 
   useEffect(() => {
     requestJson<LessonDetail>(
-      `/api/v1/class-logs/lesson?class_id=${lesson.class_id}&date=${date}&period_no=${lesson.period_no}`,
+      `/api/v1/class-logs/lesson?class_id=${lesson.class_id}&date=${date}&period_no=${lesson.period_no}&group_no=${lesson.group_no}`,
     )
       .then((loaded) => {
         setDetail(loaded);
@@ -78,6 +129,7 @@ function LessonForm({ lesson, date, onDone }: { lesson: MyLesson; date: string; 
           class_id: lesson.class_id,
           lesson_date: date,
           period_no: lesson.period_no,
+          group_no: lesson.group_no,
           lesson_title: title,
           content: content || null,
           comment: comment || null,
@@ -104,7 +156,11 @@ function LessonForm({ lesson, date, onDone }: { lesson: MyLesson; date: string; 
     <section className="flex flex-col gap-3" aria-label="Ghi tiết dạy">
       <h2 className="text-section-title font-semibold text-text">
         Tiết {lesson.period_no} · {lesson.class_name} · {lesson.subject_name}
+        {groupText(lesson.group_no)}
       </h2>
+      {lesson.group_no > 0 && !detail.group_filtered ? (
+        <Alert tone="info">Lớp chưa đăng ký tổ hợp có môn này nên danh sách là cả lớp.</Alert>
+      ) : null}
       {detail.week_signed ? <Alert tone="info">Ban giám hiệu đã ký sổ tuần này, không sửa được.</Alert> : null}
       {detail.log?.status === 'signed' ? <Alert tone="success">Tiết đã ký sổ.</Alert> : null}
       <label className="text-label font-medium text-text">
@@ -137,23 +193,29 @@ function LessonForm({ lesson, date, onDone }: { lesson: MyLesson; date: string; 
           onChange={(event) => setComment(event.target.value)}
         />
       </label>
-      <label className="text-label font-medium text-text">
-        Xếp loại tiết
-        <select
-          aria-label="Xếp loại tiết"
-          className={`mt-2 block ${FORM_CONTROL_CLASS}`}
-          value={rating}
-          disabled={readOnly}
-          onChange={(event) => setRating(event.target.value)}
-        >
-          <option value="">Chưa xếp loại</option>
-          {RATINGS.map((item) => (
-            <option key={item} value={item}>
-              {item}
-            </option>
-          ))}
-        </select>
-      </label>
+      {detail.rating.rating_mode === 'off' ? null : (
+        <label className="text-label font-medium text-text">
+          Xếp loại tiết{detail.rating.rating_mode === 'required' ? ' (bắt buộc khi ký sổ)' : ''}
+          <select
+            aria-label="Xếp loại tiết"
+            className={`mt-2 block ${FORM_CONTROL_CLASS}`}
+            value={rating}
+            disabled={readOnly}
+            onChange={(event) => setRating(event.target.value)}
+          >
+            <option value="">Chưa xếp loại</option>
+            {LESSON_RATINGS.map((item: LessonRating) => (
+              <option key={item} value={item}>
+                {item} ({detail.rating.rating_labels[item]})
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+      {detail.rating.low_rating_comment && (rating === 'C' || rating === 'D') && !comment.trim() ? (
+        <Alert tone="info">Tiết xếp loại {rating} cần ghi nhận xét tiết.</Alert>
+      ) : null}
+      {detail.seating ? <SeatingView seating={detail.seating} /> : null}
       <ul className="flex flex-col gap-2" aria-label="Điểm danh học sinh">
         {detail.students.map((student) => (
           <li key={student.child_id} className="flex flex-col gap-1 rounded-lg border border-border bg-card p-3">
@@ -248,7 +310,7 @@ export function ClassLogScreen({ onBack }: { onBack(): void }) {
             ) : null}
             <ul className="flex flex-col gap-2" aria-label="Tiết dạy trong ngày">
               {(lessons ?? []).map((lesson) => (
-                <li key={`${lesson.class_id}:${lesson.period_no}`}>
+                <li key={`${lesson.class_id}:${lesson.period_no}:${lesson.group_no}`}>
                   <button
                     type="button"
                     className="w-full rounded-lg border border-border bg-card p-3 text-left text-content"
@@ -258,7 +320,8 @@ export function ClassLogScreen({ onBack }: { onBack(): void }) {
                     }}
                   >
                     <span className="font-semibold">Tiết {lesson.period_no}</span> {lesson.class_name} ·{' '}
-                    {lesson.subject_name} ·{' '}
+                    {lesson.subject_name}
+                    {groupText(lesson.group_no)} ·{' '}
                     {lesson.log ? (lesson.log.status === 'signed' ? 'Đã ký' : 'Đã ghi') : 'Chưa ghi'}
                   </button>
                 </li>
