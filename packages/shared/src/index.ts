@@ -267,6 +267,9 @@ export const PERMISSION_CODES = {
   assessmentEnter: 'P02.assessment.enter',
   assessmentView: 'P02.assessment.view',
   assessmentManage: 'P02.assessment.manage',
+  // Thư viện trường học (DT-22 phần 22a)
+  schoolLibraryView: 'P02.library.view',
+  schoolLibraryManage: 'P02.library.manage',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -577,6 +580,13 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/quality/evidences',
   '/quality/recognition',
   '/quality/frameworks',
+  '/library/titles',
+  '/library/readers',
+  '/library/circulation',
+  '/library/textbooks',
+  '/library/stocktakes',
+  '/library/reports',
+  '/library/settings',
   // Nền Tiểu học: môn học và hoạt động giáo dục, phân công giảng dạy theo môn (DT-20 phần 20a)
   '/subjects',
   '/teaching-assignments',
