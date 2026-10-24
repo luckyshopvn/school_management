@@ -76,6 +76,7 @@ import { migration as createSubjects } from './migrations/0076_create_subjects.j
 import { migration as createBoardingAndConduct } from './migrations/0077_create_boarding_and_conduct.js';
 import { migration as createTimetables } from './migrations/0078_create_timetables.js';
 import { migration as createStudentAssessments } from './migrations/0079_create_student_assessments.js';
+import { migration as createLibrary } from './migrations/0100_create_library.js';
 import { migration as createClassLogs } from './migrations/0080_create_class_logs.js';
 import { migration as createStudentRecords } from './migrations/0081_create_student_records.js';
 import { migration as createTimetableGenerator } from './migrations/0082_create_timetable_generator.js';
@@ -167,6 +168,7 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0077_create_boarding_and_conduct': createBoardingAndConduct,
   '0078_create_timetables': createTimetables,
   '0079_create_student_assessments': createStudentAssessments,
+  '0100_create_library': createLibrary,
   '0080_create_class_logs': createClassLogs,
   '0081_create_student_records': createStudentRecords,
   '0082_create_timetable_generator': createTimetableGenerator,

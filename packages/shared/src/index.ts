@@ -283,6 +283,9 @@ export const PERMISSION_CODES = {
   assessmentEnter: 'P02.assessment.enter',
   assessmentView: 'P02.assessment.view',
   assessmentManage: 'P02.assessment.manage',
+  // Thư viện trường học (DT-22 phần 22a)
+  schoolLibraryView: 'P02.library.view',
+  schoolLibraryManage: 'P02.library.manage',
   studentRecordApprove: 'P02.student-record.approve',
   reportFormManage: 'P17.report-form.manage',
   // Kiểm tra, đánh giá phần đề (DT-21 phần 22g1)
@@ -615,6 +618,13 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/quality/evidences',
   '/quality/recognition',
   '/quality/frameworks',
+  '/library/titles',
+  '/library/readers',
+  '/library/circulation',
+  '/library/textbooks',
+  '/library/stocktakes',
+  '/library/reports',
+  '/library/settings',
   // Nền Tiểu học: môn học và hoạt động giáo dục, phân công giảng dạy theo môn (DT-20 phần 20a)
   '/subjects',
   '/teaching-assignments',

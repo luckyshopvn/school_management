@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.54
+- Phiên bản: 0.55
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -21,7 +21,7 @@
 - Đọc mục 13 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà kho tệp (`FileStorage`, `storageKey`), tệp đính kèm văn bản đến ở cơ sở dữ liệu hệ thống, luồng duyệt và Việc của tôi của 18e, môn học 20a, kế hoạch bài dạy (`lesson_plans`), cách thêm phân hệ của 22f.
 - Cơ sở dữ liệu: tệp hệ thống `0042`, năm học `0102`, định danh `0092`. Máy chủ API: danh mục, học liệu, phiên bản (tệp, liên kết, kế hoạch bài dạy), gửi duyệt, duyệt hai bước theo rủi ro, ẩn, mở lại, ngừng dùng, tìm, xem, tải, bộ sưu tập, báo lỗi, thống kê, nguồn Việc của tôi.
 - Cổng quản trị: phân hệ "Kho học liệu" (7 mục).
-- Thêm quy tắc BR-189, chức năng P09-50 đến P09-55, quyền PQ-100, màn hình MH-291 đến MH-297, kịch bản CT-947 đến CT-953, tiêu chí AC-801 đến AC-803. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/learning-resources/learning-resources.test.ts` CT-22h1-1 đến CT-22h1-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa đạt 33/33 (kho học liệu, bồi dưỡng, Việc của tôi, menu theo cấp, lối tắt) và system-admin-so (CT-16d-3 đếm 20 phân hệ); kiểm thử giao diện `tests/e2e/122-learning-resources.spec.ts` (CT-22h1-7) đạt; kiểm thử giao diện chạy trên máy 02, 03, 58, 122 đạt 9/9; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm quy tắc BR-192, chức năng P09-50 đến P09-55, quyền PQ-101, màn hình MH-300 đến MH-306, kịch bản CT-957 đến CT-963, tiêu chí AC-805 đến AC-807. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/learning-resources/learning-resources.test.ts` CT-22h1-1 đến CT-22h1-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa đạt (kho học liệu, system-admin-so CT-16d-3 đếm 21 phân hệ, quick-links, menu theo cấp, Việc của tôi); kiểm thử giao diện `tests/e2e/122-learning-resources.spec.ts` (CT-22h1-7) đạt; kiểm thử giao diện chạy trên máy 02, 03, 58, 122 đạt 9/9; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
@@ -29,12 +29,33 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-183, `07_QUY_TAC_NGHIEP_VU.md` BR-189, `08_VAI_TRO_NGUOI_DUNG.md` PQ-100, `10_YEU_CAU_CHUC_NANG.md` P09-50 đến P09-55, `11_TIEU_CHI_NGHIEM_THU.md` AC-801 đến AC-803, `14_DAC_TA_GIAO_DIEN.md` MH-291 đến MH-297, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-947 đến CT-953, `23_LICH_SU_PHIEN_BAN.md` 0.122.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-183, `07_QUY_TAC_NGHIEP_VU.md` BR-192, `08_VAI_TRO_NGUOI_DUNG.md` PQ-101, `10_YEU_CAU_CHUC_NANG.md` P09-50 đến P09-55, `11_TIEU_CHI_NGHIEM_THU.md` AC-805 đến AC-807, `14_DAC_TA_GIAO_DIEN.md` MH-300 đến MH-306, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-957 đến CT-963, `23_LICH_SU_PHIEN_BAN.md` 0.123.0.
 
 #### Vấn đề tồn đọng
 
 - 22h2: câu hỏi, đề, rubric trong kho (tham chiếu 22g1), chia sẻ liên trường bằng gói tệp; xem trước PDF, ảnh; ứng dụng giáo viên cho kho học liệu.
 
+
+### 2026-10-24 — DT-22 phần 22a: thư viện trường học
+
+#### Công việc đã thực hiện
+
+- Đọc mục 13 của `32_KE_HOACH_THEO_HE_THONG_SO.md` (kế hoạch DT-22) và mã trên nhánh chính: học sinh, cán bộ, lớp, môn, thông báo, nhật ký xuất, tem QR của thiết bị (`equipment-locations`), kiểm kê thiết bị, kho tệp, chuyển năm học; rà bảng `library_items`, `library_albums` (Mầm non) và `asset_loans` để không dùng nhầm.
+- Cơ sở dữ liệu: tệp năm học `0100`, định danh `0090`. Máy chủ API: danh mục, bản sao, tem, thanh lý, tệp số, sổ đăng ký, thẻ bạn đọc, mượn trả, đặt trước, sách giáo khoa, kiểm kê, báo cáo, chuyển năm học. Cổng quản trị: phân hệ "Thư viện" 7 trang. Ứng dụng giáo viên, phụ huynh.
+- Thêm quy tắc BR-189 đến BR-191, chức năng P02-71 đến P02-75, quyền PQ-100, màn hình MH-291 đến MH-299, kịch bản CT-947 đến CT-956, tiêu chí AC-801 đến AC-804. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/library/library.test.ts` CT-22a-1 đến CT-22a-8 đạt 8/8; trên máy đã chạy kiểm thử đơn vị các gói sửa (thư viện, số phân hệ `system-admin-so`, đường dẫn nhanh, cấp học, chuyển năm học) đạt 52/52; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 81, 82, 84 và `tests/e2e/120-library.spec.ts` (CT-22a-9) đạt; kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
+
+#### Quyết định
+
+- Thực hiện phần 22a của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 13.4. Toàn bộ ở cơ sở dữ liệu năm học (cần khóa ngoại tới học sinh, cán bộ, lớp) và chép sang năm mới; số hệ thống 0040 không dùng; không có vai trò thủ thư cố định, trường gán `P02.library.manage` cho nhóm của thủ thư; chỉ tiêu theo chuẩn để ngưỡng trống đến khi đọc văn bản gốc; không dùng AI, không gọi dịch vụ ngoài. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Khi chạy kiểm thử cục bộ dùng cơ sở dữ liệu định danh riêng `school_identity_22a` vì cơ sở dùng chung đã có tệp của phiên khác; không chạy lệnh migrate toàn bộ lên cơ sở năm học dùng chung.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-181, `07_QUY_TAC_NGHIEP_VU.md` BR-189 đến BR-191, `08_VAI_TRO_NGUOI_DUNG.md` PQ-100, `10_YEU_CAU_CHUC_NANG.md` P02-71 đến P02-75, `11_TIEU_CHI_NGHIEM_THU.md` AC-801 đến AC-804, `14_DAC_TA_GIAO_DIEN.md` MH-291 đến MH-299, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-947 đến CT-956, `23_LICH_SU_PHIEN_BAN.md` 0.122.0.
+
+#### Vấn đề tồn đọng
+
+- Đọc văn bản gốc về chuẩn thư viện cơ sở giáo dục phổ thông để nạp ngưỡng chỉ tiêu; nhập Excel danh mục; ghi minh chứng sang 22f; ảnh bìa, ô chọn môn ở giao diện, thẻ đã trả, đã mất ở danh sách lượt mượn.
 
 ### 2026-10-24 — DT-21 phần 22g2: kiểm tra, đánh giá, phần chấm
 

@@ -5407,6 +5407,184 @@ export interface YearResultsTable {
   confirmed_at: UpdatedTimestamp;
 }
 
+// Thư viện trường học (DT-22 phần 22a, YCTD-181)
+export type LibraryReaderKind = 'staff' | 'student';
+export type LibraryCopyCondition = 'good' | 'damaged' | 'lost' | 'disposed';
+export type LibraryCopySource = 'purchase' | 'donation' | 'supplied';
+export type LibraryLoanKind = 'regular' | 'textbook';
+export type LibraryLoanStatus = 'open' | 'returned' | 'lost';
+export type LibraryReservationStatus = 'waiting' | 'ready' | 'fulfilled' | 'cancelled' | 'expired';
+
+export interface LibrarySettingsTable {
+  id: Generated<number>;
+  student_levels: ColumnType<SchoolLevelCode[], SchoolLevelCode[] | undefined, SchoolLevelCode[]>;
+  hold_days: Generated<number>;
+  updated_by_name: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface LibraryLoanRulesTable {
+  reader_kind: LibraryReaderKind;
+  max_items: number;
+  loan_days: number;
+  max_renewals: number;
+  fine_per_day: Generated<number>;
+}
+
+export interface LibraryCategoriesTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  lendable: Generated<boolean>;
+  order_no: Generated<number>;
+  status: Generated<CatalogStatus>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface LibraryTitlesTable {
+  id: Generated<string>;
+  category_id: string;
+  title: string;
+  authors: string | null;
+  publisher: string | null;
+  publish_year: number | null;
+  isbn: string | null;
+  school_level: SchoolLevelCode | null;
+  grade_level: string | null;
+  subject_id: string | null;
+  topic: string | null;
+  language: Generated<string>;
+  shelf: string | null;
+  description: string | null;
+  status: Generated<'active' | 'retired'>;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface LibraryTitleFilesTable {
+  id: Generated<string>;
+  title_id: string;
+  file_name: string;
+  content_type: string;
+  size_bytes: number;
+  storage_key: string;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface LibraryCopiesTable {
+  id: Generated<string>;
+  title_id: string;
+  copy_no: string;
+  source: Generated<LibraryCopySource>;
+  price: number | null;
+  acquired_on: string | null;
+  shelf: string | null;
+  condition: Generated<LibraryCopyCondition>;
+  note: string | null;
+  disposed_on: string | null;
+  disposal_reason: string | null;
+  disposed_by_name: string | null;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface LibraryReadersTable {
+  id: Generated<string>;
+  reader_kind: LibraryReaderKind;
+  staff_id: string | null;
+  child_id: string | null;
+  card_no: string;
+  status: Generated<'active' | 'locked'>;
+  locked_reason: string | null;
+  issued_on: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface LibraryLoansTable {
+  id: Generated<string>;
+  copy_id: string;
+  reader_id: string;
+  class_id: string | null;
+  kind: Generated<LibraryLoanKind>;
+  loaned_on: string;
+  due_on: string;
+  returned_on: string | null;
+  renewals: Generated<number>;
+  status: Generated<LibraryLoanStatus>;
+  return_condition: 'good' | 'damaged' | 'lost' | null;
+  fine_amount: Generated<number>;
+  note: string | null;
+  loaned_by: string | null;
+  loaned_by_name: string | null;
+  received_by_name: string | null;
+  reminded_on: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface LibraryReservationsTable {
+  id: Generated<string>;
+  title_id: string;
+  reader_id: string;
+  status: Generated<LibraryReservationStatus>;
+  copy_id: string | null;
+  reserved_at: Generated<Date>;
+  ready_on: string | null;
+  expires_on: string | null;
+  closed_at: Date | null;
+  created_by: string | null;
+}
+
+export interface LibraryTextbookSetsTable {
+  id: Generated<string>;
+  name: string;
+  grade_level: string;
+  status: Generated<CatalogStatus>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface LibraryTextbookSetTitlesTable {
+  set_id: string;
+  title_id: string;
+}
+
+export interface LibraryStocktakesTable {
+  id: Generated<string>;
+  name: string;
+  shelf: string | null;
+  status: Generated<'open' | 'closed'>;
+  started_by_name: string;
+  started_at: Generated<Date>;
+  closed_at: Date | null;
+  closed_by_name: string | null;
+}
+
+export interface LibraryStocktakeItemsTable {
+  stocktake_id: string;
+  copy_id: string;
+  scanned_by_name: string;
+  scanned_at: Generated<Date>;
+}
+
+export interface LibraryIndicatorsTable {
+  code: string;
+  name: string;
+  threshold: ColumnType<string | null, number | string | null | undefined, number | string | null>;
+  enabled: Generated<boolean>;
+  order_no: Generated<number>;
+}
+
+export interface LibraryCountersTable {
+  name: string;
+  value: Generated<number>;
+}
+
 // Học bạ số, khen thưởng học sinh, hoàn thành chương trình (DT-20 phần 20e, YCTD-163)
 export type StudentAwardKind = 'year_end' | 'special';
 export type StudentAwardBasis = 'excellent' | 'outstanding' | 'secondary_excellent' | 'secondary_good';
@@ -6010,6 +6188,21 @@ export interface SchoolYearDatabase {
   regular_comments: RegularCommentsTable;
   assessment_locks: AssessmentLocksTable;
   year_results: YearResultsTable;
+  library_settings: LibrarySettingsTable;
+  library_loan_rules: LibraryLoanRulesTable;
+  library_categories: LibraryCategoriesTable;
+  library_titles: LibraryTitlesTable;
+  library_title_files: LibraryTitleFilesTable;
+  library_copies: LibraryCopiesTable;
+  library_readers: LibraryReadersTable;
+  library_loans: LibraryLoansTable;
+  library_reservations: LibraryReservationsTable;
+  library_textbook_sets: LibraryTextbookSetsTable;
+  library_textbook_set_titles: LibraryTextbookSetTitlesTable;
+  library_stocktakes: LibraryStocktakesTable;
+  library_stocktake_items: LibraryStocktakeItemsTable;
+  library_indicators: LibraryIndicatorsTable;
+  library_counters: LibraryCountersTable;
   student_award_titles: StudentAwardTitlesTable;
   student_awards: StudentAwardsTable;
   completion_results: CompletionResultsTable;

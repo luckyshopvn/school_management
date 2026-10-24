@@ -224,6 +224,13 @@ import {
   QualityRecognitionPage,
   QualityReportsPage,
 } from './quality-assurance/QualityPages.js';
+import { LibraryCirculationPage } from './library/LibraryCirculationPage.js';
+import { LibraryReadersPage } from './library/LibraryReadersPage.js';
+import { LibraryReportsPage } from './library/LibraryReportsPage.js';
+import { LibrarySettingsPage } from './library/LibrarySettingsPage.js';
+import { LibraryStocktakesPage } from './library/LibraryStocktakesPage.js';
+import { LibraryTextbooksPage } from './library/LibraryTextbooksPage.js';
+import { LibraryTitlesPage } from './library/LibraryTitlesPage.js';
 import { DirectiveFormPage, DirectiveInboxPage, DirectiveOutboxPage } from './directives/DirectivePages.js';
 import { IncomingReportPage, StatisticsReportPage, SummaryReportPage } from './directives/ReportPages.js';
 import {
@@ -731,6 +738,14 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/quality/evidences', component: QualityEvidencesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/quality/recognition', component: QualityRecognitionPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/quality/frameworks', component: QualityFrameworksPage }),
+  // Thư viện trường học (DT-22 phần 22a)
+  createRoute({ getParentRoute: () => rootRoute, path: '/library/titles', component: LibraryTitlesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/library/readers', component: LibraryReadersPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/library/circulation', component: LibraryCirculationPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/library/textbooks', component: LibraryTextbooksPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/library/stocktakes', component: LibraryStocktakesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/library/reports', component: LibraryReportsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/library/settings', component: LibrarySettingsPage }),
 ]);
 
 export const router = createRouter({ routeTree });

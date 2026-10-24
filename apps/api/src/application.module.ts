@@ -64,6 +64,11 @@ import { KitchenMealsController, KitchenMealsService } from './kitchen/kitchen-m
 import { BoardingController, BoardingService } from './boarding/boarding.js';
 import { ConductController, ConductService } from './conduct/conduct.js';
 import { conductTransitionStep } from './conduct/conduct-transition.js';
+import { LibraryCatalogController, LibraryCatalogService } from './library/library-catalog.js';
+import { LibraryCirculationController, LibraryCirculationService } from './library/library-circulation.js';
+import { LibraryCore } from './library/library-core.js';
+import { LibraryReportsController, LibraryReportsService } from './library/library-reports.js';
+import { libraryTransitionStep } from './library/library-transition.js';
 import { AssessmentConfigController, AssessmentConfigService } from './assessments/assessment-config.js';
 import { AssessmentsController, AssessmentsService } from './assessments/assessments.js';
 import {
@@ -518,6 +523,9 @@ export class ApplicationModule {
         LearningResourcesController,
         // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
         QualityAssuranceController,
+        LibraryCatalogController,
+        LibraryCirculationController,
+        LibraryReportsController,
         MyWorkController,
         // Cấp học của trường (DT-19 phần 19a)
         SchoolLevelsController,
@@ -750,6 +758,7 @@ export class ApplicationModule {
             emulationTransitionStep,
             qualityAssuranceTransitionStep,
             assessmentTransitionStep,
+            libraryTransitionStep,
             learningRecordsTransitionStep,
             ...(options.transitionSteps ?? []),
           ],
@@ -1019,6 +1028,10 @@ export class ApplicationModule {
         LearningResourcesService,
         // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
         QualityAssuranceService,
+        LibraryCore,
+        LibraryCatalogService,
+        LibraryCirculationService,
+        LibraryReportsService,
         ...MY_WORK_SOURCE_TYPES,
         {
           provide: MY_WORK_SOURCES,
