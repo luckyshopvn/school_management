@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.44
+- Phiên bản: 0.45
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.119.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-21 phần 22g2, kiểm tra, đánh giá phần chấm (YCTD-173).
+- Chức năng mới: bài kiểm tra của lớp từ đề đã khoá; phiếu trả lời; nhập bài tay, nhập tệp quét; chấm tự luận hai người; khoá điểm; chuyển điểm vào sổ điểm; báo cáo theo câu, chủ đề, mức nhận thức, lớp, phân bố điểm, xuất Excel, PDF.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0090_create_exam_grading`; tệp định danh `0081_add_exam_grading_permission`.
+- Thay đổi API: `/exam-grading/…`.
+- Kiểm thử: kịch bản CT-927 đến CT-933. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/exam-grading/exam-grading.test.ts` CT-22g2-1 đến CT-22g2-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa (api, database, shared) đạt (shared; database 6/6; api 1047/1047); kiểm thử giao diện `tests/e2e/101-exam-grading.spec.ts` (CT-22g2-7) cùng 96, 98, 02, 03, 58 đạt; toàn bộ kiểm thử giao diện do CI chạy (trên máy: 02, 03, 06, 08, 58, 59, 96, 98, 101 đạt 26/26); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: chuyển nhầm loại điểm vào sổ điểm; đã yêu cầu khoá trước, giáo viên dạy môn xác nhận, sổ điểm kiểm tra khoá, hạn.
+- Khả năng tương thích: trường không bật THCS, THPT không đổi hành vi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 22g2; chạy phần quay lui của tệp năm học `0090`, định danh `0081`.
 
 ### Phiên bản 0.118.0 – 2026-10-24
 

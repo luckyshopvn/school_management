@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.86
+- Phiên bản: 1.87
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -134,6 +134,8 @@
 | P02-53 | Dạy thay, đổi tiết (7.10., YCTD-164) | Ghi, xoá: `P02.timetable.manage`; xem: nhân sự xem được thời khoá biểu | Ngày, lớp, tiết; giáo viên dạy thay hoặc ngày, tiết đổi; lý do | Kiểm tra tiết có trong bản đang áp dụng, chưa có thay đổi, giáo viên rảnh; ghi một hoặc hai dòng | Tiết thực tế của ngày; danh sách thay đổi | BR-178 |
 | P02-54 | Báo cáo tiết dạy, dùng phòng, mã QR tra cứu (7.11., trang tra cứu, YCTD-164) | Báo cáo: nhân sự xem được thời khoá biểu; mã QR: `P02.timetable.manage`; trang tra cứu: không cần đăng nhập | Khoảng ngày; ngày áp dụng; lớp hoặc giáo viên | Đếm tiết theo thời khoá biểu, dạy thay, được dạy thay, đổi tiết, thực dạy; tiết dùng phòng; tạo, thu hồi mã | Bảng báo cáo; mã QR in được; trang thời khoá biểu và thay đổi 7 ngày tới | BR-178 |
 | P02-65 | Thời khoá biểu THCS, THPT: tiết học nhóm (7.4., YCTD-169) | `P02.timetable.manage` | Cấp THCS, THPT; tiết của lớp có số nhóm; cột Nhóm của tệp Excel | Cùng chức năng thời khoá biểu của Tiểu học (khung giờ, bản nháp, nhập Excel, xung đột, ban hành, máy xếp, dạy thay, báo cáo); thêm tiết học nhóm cùng ô; luật nhóm, tiết đôi, phòng bộ môn | Bản thời khoá biểu có tiết nhóm; thời khoá biểu của con theo tổ hợp môn | BR-185 |
+| P02-66 | Chấm bài kiểm tra (8.5., YCTD-173) | Chấm: `P02.exam.grade`; khoá: `P02.exam.manage`; chuyển: người nhập điểm của lớp (21c) | Đề đã khoá, lớp, học kỳ, loại điểm, cách chấm; bài làm từng học sinh; tệp quét theo mẫu | Chấm theo đáp án của mã đề; tự luận hai người; khoá; ghi kết quả dùng câu; chuyển sổ điểm | Phiếu trả lời PDF; điểm bài; điểm trong sổ điểm | BR-186 |
+| P02-67 | Báo cáo kết quả kiểm tra (8.6., YCTD-173) | `P02.exam.grade` (lớp mình dạy), `P02.exam.review`, `P02.exam.manage` | Đề, lớp | Thống kê bài đã khoá theo câu, chủ đề, mức nhận thức, lớp, phân bố điểm | Bảng báo cáo; Excel, PDF | BR-186 |
 
 ## 4. Phân hệ P03 — Giảng dạy
 

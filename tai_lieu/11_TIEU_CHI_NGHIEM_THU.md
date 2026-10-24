@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.66
+- Phiên bản: 1.67
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -864,6 +864,9 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-775 | Cho bản đang áp dụng / Khi ghi dạy thay, đổi tiết của một ngày / Thì tiết thực tế của ngày đổi, bản ban hành giữ nguyên; giáo viên đang có tiết khác cùng lúc bị chặn; báo cáo tiết dạy tính đúng (CT-888, CT-890; YCTD-164) |
 | AC-776 | Cho mã QR của lớp hoặc giáo viên / Khi người không đăng nhập mở đường dẫn của mã / Thì thấy thời khoá biểu đang áp dụng và thay đổi 7 ngày tới; mã thu hồi thì báo không đúng (CT-889, CT-890; YCTD-164) |
 | AC-791 | Cho lớp THPT có tiết cả lớp và hai nhóm học môn lựa chọn cùng ô / Khi thêm tiết cả lớp vào ô đã có tiết nhóm, ban hành, xem thời khoá biểu của ba học sinh (hai tổ hợp, một chưa đăng ký tổ hợp) / Thì xung đột cứng chặn ban hành; sau khi sửa ban hành được; mỗi học sinh chỉ thấy tiết cả lớp và tiết nhóm của tổ hợp mình; dạy thay tiết nhóm bị từ chối, tiết cả lớp được; tiết đôi, phòng bộ môn hiện ở cảnh báo (CT-920 đến CT-926; YCTD-169) |
+| AC-792 | Cho đề đã khoá / Khi giáo viên dạy môn tạo bài kiểm tra cho lớp và nhập bài tay hoặc tệp quét / Thì máy chấm đúng theo đáp án của mã đề, đúng sai bậc thang, tự luận hai người lệch quá ngưỡng thì cần xem lại; tệp có lỗi thì báo dòng, không ghi (CT-927, CT-928, CT-929, CT-933; YCTD-173) |
+| AC-793 | Cho bài kiểm tra đã đủ bài / Khi người quản lý khoá điểm / Thì không sửa được bài, độ khó, độ phân biệt ghi vào lịch sử dùng câu; còn thiếu bài thì không khoá; mở khoá phải có lý do; giáo viên dạy môn chuyển điểm vào đúng loại điểm của sổ điểm, vắng theo cấu hình (CT-930, CT-931, CT-933; YCTD-173) |
+| AC-794 | Cho các bài đã khoá của đề / Khi xem báo cáo / Thì thấy độ khó, độ phân biệt từng câu, câu nên xem lại, tỉ lệ theo chủ đề, mức nhận thức, từng lớp, phân bố điểm; xuất Excel, PDF; phụ huynh không xem được (CT-927, CT-932, CT-933; YCTD-173) |
 
 ## 20. Chưa xác minh được
 
