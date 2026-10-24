@@ -1,8 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.83
-- Phiên bản: 1.81
+- Phiên bản: 1.84
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -117,6 +116,9 @@
 | P02-55 | Tổ hợp môn THPT (7.6., YCTD-167) | Xem: mọi người đã đăng nhập; tạo, sửa: `P01.catalog.manage` | Mã, tên, 4 môn lựa chọn, trạng thái | Kiểm tra môn lựa chọn đang dùng của THPT, đủ số môn và số nhóm; mã duy nhất; không đổi môn khi đã có học sinh; nhật ký | Bảng tổ hợp, danh sách học sinh theo tổ hợp | BR-179 |
 | P02-56 | Đăng ký tổ hợp môn của học sinh (hồ sơ học sinh, YCTD-167) | Xem: `P02.view`, `P02.child.manage`; đăng ký: `P02.child.manage`; duyệt: `P02.class.manage` | Tổ hợp; duyệt hoặc từ chối đổi tổ hợp | Chỉ lớp THPT; đăng ký đầu có hiệu lực ngay, đổi thì chờ duyệt; duyệt xong môn tự chọn theo tổ hợp; nhật ký | Mục "Tổ hợp môn" ở hồ sơ học sinh | BR-179 |
 | P02-57 | Tổ bộ môn (7.7., YCTD-167) | Xem: mọi người đã đăng nhập; sửa: `P01.catalog.manage` | Mã, tên, cấp, môn, tổ trưởng, thành viên | Môn cùng cấp với tổ; một tổ trưởng; thành viên có vai trò giáo viên bộ môn ở đơn vị; tổng tiết thành viên theo phân công; nhật ký | Bảng tổ bộ môn, thành viên, tổng tiết | BR-179 |
+| P02-58 | Nhập điểm theo môn (7.14., ứng dụng giáo viên, YCTD-170) | Xem: người có quyền xem, giáo viên lớp; nhập: `P02.assessment.enter` theo phân công, `P02.assessment.manage` nhập thay | Điểm thường xuyên, giữa kỳ, cuối kỳ, kết quả Đạt, Chưa đạt, nhận xét | Điểm 0 đến 10 một chữ số thập phân; môn nhận xét không nhập điểm; trung bình tính khi đọc; hạn nhập, khoá điểm; nhật ký | Bảng điểm theo môn, trung bình | BR-180 |
+| P02-59 | Tổng hợp, xếp loại, khoá điểm (7.14., YCTD-170) | Xem như P02-58; xác nhận xếp loại: giáo viên chủ nhiệm, `P02.assessment.manage`; khoá, mở khoá: `P02.assessment.manage` | Xếp loại học tập, rèn luyện, nhận xét; khoá, mở khoá theo học kỳ và lớp | Gợi ý xếp loại theo ngưỡng; học kỳ II quyết định xếp loại cả năm; mở khoá kèm lý do; nhật ký | Bảng tổng hợp theo học kỳ, cả năm; khoá điểm | BR-180 |
+| P02-60 | Cấu hình sổ điểm; phụ huynh xem điểm (7.14., ứng dụng phụ huynh, YCTD-170) | Cấu hình: `P02.assessment.manage`; phụ huynh xem điểm đã khoá của con | Hệ số, số tuần, số lần đánh giá thường xuyên, ngưỡng xếp loại | Kiểm tra cấu hình; phụ huynh chỉ xem học kỳ đã khoá | Cấu hình sổ điểm; điểm của con | BR-180 |
 | P02-45 | Ghi sổ đầu bài, điểm danh theo tiết (ứng dụng giáo viên, YCTD-162) | Giáo viên của tiết theo thời khoá biểu | Ngày; tiết; tên bài, nội dung, nhận xét, xếp loại; trạng thái từng học sinh | Lấy tiết theo bản đang áp dụng; mặc định có mặt hoặc vắng có phép theo báo vắng; không ghi trước ngày dạy; ký tiết thì khoá; nhật ký | Tiết đã ghi, đã ký; điểm danh theo tiết | BR-174 |
 | P02-46 | Kiểm tra, ký sổ đầu bài theo tuần (7.6., YCTD-162) | Xem: nhân sự xem được lớp; ký: `P02.class-log.review` | Lớp; ngày trong tuần; nhận xét | Liệt kê tiết của tuần theo thời khoá biểu kèm tiết đã ghi, số vắng, muộn; ký một lần mỗi tuần, khoá ghi tiết trong tuần | Sổ tuần; chữ ký Ban giám hiệu | BR-174 |
 | P02-47 | Chuyên cần theo tiết (7.7., ứng dụng phụ huynh, YCTD-162) | Nhân sự xem được lớp; phụ huynh của học sinh | Lớp, khoảng ngày; con, tháng | Đếm tiết theo trạng thái; đối chiếu báo vắng theo ngày và điểm danh theo ngày | Bảng chuyên cần theo học sinh; điểm danh theo tiết của con | BR-174 |
@@ -127,7 +129,7 @@
 | P02-52 | Chỉnh tay có kiểm tra ngay (7.4., YCTD-164) | `P02.timetable.manage` | Các ô đang sửa của lớp trong bản nháp | Tính xung đột của bản nếu ghi các ô đó, không ghi | Ô dính xung đột cứng; danh sách xung đột của lớp | BR-178, BR-170 |
 | P02-53 | Dạy thay, đổi tiết (7.10., YCTD-164) | Ghi, xoá: `P02.timetable.manage`; xem: nhân sự xem được thời khoá biểu | Ngày, lớp, tiết; giáo viên dạy thay hoặc ngày, tiết đổi; lý do | Kiểm tra tiết có trong bản đang áp dụng, chưa có thay đổi, giáo viên rảnh; ghi một hoặc hai dòng | Tiết thực tế của ngày; danh sách thay đổi | BR-178 |
 | P02-54 | Báo cáo tiết dạy, dùng phòng, mã QR tra cứu (7.11., trang tra cứu, YCTD-164) | Báo cáo: nhân sự xem được thời khoá biểu; mã QR: `P02.timetable.manage`; trang tra cứu: không cần đăng nhập | Khoảng ngày; ngày áp dụng; lớp hoặc giáo viên | Đếm tiết theo thời khoá biểu, dạy thay, được dạy thay, đổi tiết, thực dạy; tiết dùng phòng; tạo, thu hồi mã | Bảng báo cáo; mã QR in được; trang thời khoá biểu và thay đổi 7 ngày tới | BR-178 |
-| P02-58 | Thời khoá biểu THCS, THPT: tiết học nhóm (7.4., YCTD-169) | `P02.timetable.manage` | Cấp THCS, THPT; tiết của lớp có số nhóm; cột Nhóm của tệp Excel | Cùng chức năng thời khoá biểu của Tiểu học (khung giờ, bản nháp, nhập Excel, xung đột, ban hành, máy xếp, dạy thay, báo cáo); thêm tiết học nhóm cùng ô; luật nhóm, tiết đôi, phòng bộ môn | Bản thời khoá biểu có tiết nhóm; thời khoá biểu của con theo tổ hợp môn | BR-180 |
+| P02-66 | Thời khoá biểu THCS, THPT: tiết học nhóm (7.4., YCTD-169) | `P02.timetable.manage` | Cấp THCS, THPT; tiết của lớp có số nhóm; cột Nhóm của tệp Excel | Cùng chức năng thời khoá biểu của Tiểu học (khung giờ, bản nháp, nhập Excel, xung đột, ban hành, máy xếp, dạy thay, báo cáo); thêm tiết học nhóm cùng ô; luật nhóm, tiết đôi, phòng bộ môn | Bản thời khoá biểu có tiết nhóm; thời khoá biểu của con theo tổ hợp môn | BR-184 |
 
 ## 4. Phân hệ P03 — Giảng dạy
 

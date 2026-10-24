@@ -1,8 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.45
-- Phiên bản: 0.43
+- Phiên bản: 0.46
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -21,7 +20,7 @@
 
 - Đọc mục 12 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và mã 22c1 (`timetables.ts`, `timetable-rules.ts`), 22c2 (máy xếp, dạy thay, báo cáo), 21a (tổ hợp môn, menu).
 - Cơ sở dữ liệu: tệp năm học `0086`. Máy chủ API: nhóm học, luật xung đột mới, thời khoá biểu của con theo tổ hợp, cột Nhóm khi nhập Excel, máy xếp bỏ qua môn học lựa chọn, dạy thay chỉ cho tiết cả lớp, trang công khai. Cổng quản trị: menu ba cấp, khối "Tiết học nhóm". Ứng dụng giáo viên, phụ huynh ghi nhóm.
-- Thêm quy tắc BR-180, chức năng P02-58, màn hình MH-274, kịch bản CT-897 đến CT-903, tiêu chí AC-780. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/timetables/secondary-timetables.test.ts` CT-21b-1 đến CT-21b-6 đạt 6/6; trên máy đã chạy kiểm thử đơn vị các gói sửa (thời khoá biểu, máy xếp, cấp học, đường dẫn nhanh, sổ đầu bài) đạt 56/56; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 89, 93 và `tests/e2e/97-secondary-timetables.spec.ts` (CT-21b-7) đạt 16/16; kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
+- Thêm quy tắc BR-184, chức năng P02-66, màn hình MH-286, kịch bản CT-914 đến CT-920, tiêu chí AC-787. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/timetables/secondary-timetables.test.ts` CT-21b-1 đến CT-21b-6 đạt 6/6; trên máy đã chạy kiểm thử đơn vị các gói sửa (thời khoá biểu, máy xếp, cấp học, đường dẫn nhanh, sổ đầu bài) đạt 56/56; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 89, 93, 95 và `tests/e2e/97-secondary-timetables.spec.ts` (CT-21b-7); kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
 
 #### Quyết định
 
@@ -30,11 +29,33 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-169, `07_QUY_TAC_NGHIEP_VU.md` BR-180, `10_YEU_CAU_CHUC_NANG.md` P02-58, `11_TIEU_CHI_NGHIEM_THU.md` AC-780, `14_DAC_TA_GIAO_DIEN.md` MH-274, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-897 đến CT-903, `23_LICH_SU_PHIEN_BAN.md` 0.115.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-169, `07_QUY_TAC_NGHIEP_VU.md` BR-184, `10_YEU_CAU_CHUC_NANG.md` P02-66, `11_TIEU_CHI_NGHIEM_THU.md` AC-787, `14_DAC_TA_GIAO_DIEN.md` MH-286, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-914 đến CT-920, `23_LICH_SU_PHIEN_BAN.md` 0.117.0.
 
 #### Vấn đề tồn đọng
 
 - Xếp tự động tiết nhóm; dạy thay, đổi tiết cho tiết nhóm; định mức tiết của tổ bộ môn làm cảnh báo; sổ đầu bài, điểm danh theo tiết cho tiết nhóm thuộc 21d.
+
+### 2026-10-24 — DT-21 phần 21c: sổ điểm THCS, THPT
+
+#### Công việc đã thực hiện
+
+- Đọc mục 12 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và mã 20c (`assessments`: phân quyền nhập theo phân công, hạn nhập, khoá, nhật ký, phụ huynh xem), 21a (môn THCS, THPT, phân công theo môn).
+- Cơ sở dữ liệu: tệp năm học `0087` (cấu hình, điểm, kết quả môn nhận xét, xếp loại, khoá điểm); tệp định danh `0078` để trống. Gói dùng chung: hàm tính trung bình, xếp loại. Máy chủ API: `/scores`. Cổng quản trị: 7.14 Sổ điểm; ứng dụng giáo viên, ứng dụng phụ huynh.
+- Kiểm thử: kiểm thử đơn vị `apps/api/src/scores/scores.test.ts` CT-21c-1 đến CT-21c-6 đạt 6/6; chạy cùng `secondary.test.ts`, `subjects.test.ts`, `working-level.test.ts`, `menu-permissions.test.ts` đạt 28/28 (đã thêm 7.14 vào danh sách mục chỉ của THCS, THPT ở CT-19c-1, CT-19c-2); typecheck, eslint, prettier đạt; e2e CT-21c-7 đạt; e2e toàn bộ do CI chạy.
+- Sửa dòng "Phiên bản" thừa ở đầu các tài liệu do gộp bản 21a.
+
+#### Quyết định
+
+- Điểm là bảng riêng `score_entries` (không dùng bảng đánh giá Thông tư 27/2020 của 20c vì lưu mức đạt và điểm nguyên); tái dùng quyền, cách phân quyền, khoá của 20c nên không thêm quyền; điểm trung bình tính khi đọc, không lưu; xếp loại học tập gợi ý theo ngưỡng cấu hình, rèn luyện nhập tay; điểm có nguồn `exam` để 22g2 chuyển điểm vào; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-170, `23_LICH_SU_PHIEN_BAN.md` bản 0.115.0.
+
+#### Vấn đề tồn đọng
+
+- Hệ số, số lần đánh giá, ngưỡng xếp loại đối chiếu toàn văn Thông tư 22/2021; quy tắc gợi ý xếp loại rèn luyện; khảo sát hệ thống của Sở cấp THCS, THPT khi Eric có tài khoản.
+
 
 ### 2026-10-24 — DT-21 phần 21a: nền THCS, THPT
 

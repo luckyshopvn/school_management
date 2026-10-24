@@ -1,8 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.110
-- Phiên bản: 1.108
+- Phiên bản: 1.111
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -860,6 +859,13 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | GET, POST, PATCH | /api/v1/subject-teams | Tổ bộ môn; thêm, sửa tổ (cần `P01.catalog.manage`) (P02-57) |
 | PUT, DELETE | /api/v1/subject-teams/{id}/members, /members/{staffUserId} | Thêm, đặt vai trò, bỏ thành viên (P02-57) |
 | GET | /api/v1/subject-teams/{id}/loads | Tổng tiết mỗi tuần của giáo viên trong các môn của tổ (P02-57) |
+| GET, PUT | /api/v1/scores/config | Cấu hình sổ điểm của cấp (`school_level`); sửa cần `P02.assessment.manage` (P02-60, YCTD-170) |
+| GET | /api/v1/scores/classes/{id} | Môn, quyền nhập, học kỳ (hạn, khoá), cấu hình của lớp (P02-58) |
+| GET, PUT | /api/v1/scores/classes/{id}/subjects/{subjectId} | Bảng điểm một môn theo học kỳ (`term_type`); ghi điểm theo học sinh (P02-58) |
+| GET | /api/v1/scores/classes/{id}/summary | Điểm trung bình, kết quả, gợi ý xếp loại theo học kỳ hoặc `year` (P02-59) |
+| PUT | /api/v1/scores/classes/{id}/ratings | Xác nhận xếp loại học tập, rèn luyện, nhận xét (P02-59) |
+| GET, POST | /api/v1/scores/locks, /locks/unlock | Trạng thái khoá, khoá điểm theo học kỳ, mở khoá kèm lý do (cần `P02.assessment.manage`) (P02-59) |
+| GET | /api/v1/scores/children/{id} | Điểm đã khoá của con cho phụ huynh (P02-60) |
 | GET, PUT | /api/v1/period-slots | Khung giờ tiết học của cấp ở năm học đang dùng; thay cả khung (cần `P02.timetable.manage`) (P02-39, YCTD-160) |
 | GET, POST | /api/v1/timetable-versions | Bản thời khoá biểu theo cấp kèm `is_current`; tạo bản nháp, chép từ bản khác (P02-40) |
 | PATCH, DELETE | /api/v1/timetable-versions/{id} | Sửa tên, ngày áp dụng, ghi chú; xoá bản nháp (P02-40) |
@@ -1548,6 +1554,14 @@ Giao kèo nền THCS, THPT (DT-21 phần 21a, YCTD-167, BR-179):
 3. `GET /children/{id}/subject-combination` trả `registration` (`combination_id`, `combination_code`, `combination_name`, `status`, `previous_combination_id`) hoặc null và `options` (tổ hợp đang dùng; rỗng nếu học sinh không học lớp THPT). `PUT` nhận `combination_id`; học sinh không học lớp THPT, tổ hợp ngừng dùng trả 422; đăng ký lần đầu `approved`, đổi sang tổ hợp khác `pending` (giữ `previous_combination_id`). `approve` đặt `approved` và thay môn tự chọn theo môn của tổ hợp; `reject` trả về tổ hợp trước; không có đề nghị chờ duyệt trả 422.
 4. `POST /subject-teams` nhận `code`, `name`, `school_level` (`THCS` hoặc `THPT`), `subject_ids`; cấp khác trả 400; môn khác cấp 422; mã trùng 409. `PUT /subject-teams/{id}/members` nhận `org_unit_id`, `staff_user_id`, `role` (`head` hoặc `member`); người không có vai trò giáo viên bộ môn (VT-08) ở đơn vị trả 400; tổ trưởng mới thay tổ trưởng cũ (thành thành viên). `GET /subject-teams/{id}/loads` trả `staff_user_id`, `staff_name`, `total_periods`.
 
+Giao kèo sổ điểm THCS, THPT (DT-21 phần 21c, YCTD-170, BR-180):
+
+1. `GET /scores/config?school_level=` (THCS hoặc THPT, cấp khác 400) trả `config` (đã lưu hoặc mặc định). `PUT` nhận `school_level`, `config`; cấu hình sai (hệ số ngoài 1 đến 9, thiếu ba mức Tốt, Khá, Đạt, dòng cuối số lần đánh giá có giới hạn) trả 400; không có quyền quản lý 403.
+2. `GET /scores/classes/{id}` trả `class`, `access` (`manage`, `homeroom`, `subject_ids`), `subjects` (`mode` là `score` hoặc `comment`, `required_regular`, `is_elective`), `terms` (`term_type`, `deadline`, `locked`), `config`; lớp không thuộc THCS, THPT trả 422; không có quyền xem 403.
+3. `PUT /scores/classes/{id}/subjects/{subjectId}` nhận `term_type` (`first_term`, `second_term`) và `entries` (tối đa 200: `child_id`, `regular` tối đa 10 điểm, `mid`, `final`, `result`, `comment`); điểm ngoài 0 đến 10 hoặc quá một chữ số thập phân, môn nhận xét có điểm, môn tính điểm có `result` trả 400; không được phân công môn 403; học kỳ đã khoá hoặc quá hạn (người không quản lý) trả 422. Điểm null xoá điểm đó. Trả bảng điểm kèm `average`.
+4. `GET /scores/classes/{id}/summary?term_type=` (`first_term`, `second_term`, `year`) trả `subjects`, `rows` (`subjects` điểm trung bình hoặc kết quả, `suggested`, `learning`, `conduct`, `comment`), `locked`, `can_rate`. `PUT /scores/classes/{id}/ratings` nhận `term_type`, `entries` (`child_id`, `learning`, `conduct` là `good`, `fair`, `pass`, `fail` hoặc trống, `comment`); chỉ giáo viên chủ nhiệm hoặc người quản lý (403); học kỳ đã khoá trả 422 (cả năm theo học kỳ II).
+5. `POST /scores/locks` nhận `term_type`, `school_level`, `class_ids` (tuỳ chọn); trả `locked_class_count`. `GET /scores/locks?term_type=&school_level=` trả trạng thái từng lớp. `POST /scores/locks/unlock` nhận `term_type`, `class_id`, `reason` (3 đến 500 ký tự); lớp chưa khoá trả 422. `GET /scores/children/{id}` chỉ phụ huynh của con (403 nếu không), trả `terms` đã khoá và `year_rating` khi học kỳ II đã khoá.
+
 Giao kèo thời khoá biểu (DT-20 phần 22c1, YCTD-160, BR-170):
 
 1. `PUT /period-slots` nhận `school_level`, `slots` (`period_no`, `session`, `start_time`, `end_time`); sai giờ, trùng tiết, chồng giờ trả 400 ở `slots[n].…` hoặc `slots`.
@@ -1556,7 +1570,7 @@ Giao kèo thời khoá biểu (DT-20 phần 22c1, YCTD-160, BR-170):
 4. `GET …/conflicts` trả mảng `severity` (`hard`, `soft`), `code` (`teacher_clash`, `room_clash`, `period_outside_frame`, `day_outside_week`, `subject_outside_curriculum`, `periods_mismatch`, `missing_teacher`, `teacher_not_assigned`), `message`, `class_id`, `weekday`, `period_no`. `POST …/publish` còn xung đột cứng hoặc bản trống trả 422 (`details` liệt kê xung đột).
 5. `POST …/import` (tệp `file`) trả `imported`, `classes`, `errors` (`row`, `column`, `message`); có lỗi thì không ghi.
 6. `GET /timetables` (nhân sự), `/timetables/mine` (giáo viên), `/children/{id}/timetable` (phụ huynh của học sinh, nhân sự) trả `versions` (bản đang áp dụng của từng cấp), `slots` (khung giờ theo cấp), `lessons`.
-7. Từ YCTD-169 (DT-21 phần 21b, BR-180): mỗi tiết có `group_no` (0 là cả lớp, 1 đến 9 là nhóm học môn lựa chọn cùng tiết); `PUT …/lessons` và `POST …/check` nhận `group_no` (bỏ trống là 0), một lớp, một nhóm, một tiết chỉ một môn, nhóm ngoài 0 đến 9 trả 400; các điểm cuối xem tiết (`GET …/lessons`, `/timetables`, `/timetables/mine`) trả `group_no`; `GET /children/{id}/timetable` chỉ trả tiết cả lớp và tiết nhóm có môn nằm trong tổ hợp môn đang hiệu lực của con; `POST …/import` nhận thêm cột Nhóm (trống là cả lớp, tệp không có cột này vẫn nhận); `GET …/conflicts` thêm mã `class_group_clash` (cứng), `double_period_split`, `room_not_subject_room` (mềm); `POST /timetable-changes` với tiết học nhóm trả 422.
+7. Từ YCTD-169 (DT-21 phần 21b, BR-184): mỗi tiết có `group_no` (0 là cả lớp, 1 đến 9 là nhóm học môn lựa chọn cùng tiết); `PUT …/lessons` và `POST …/check` nhận `group_no` (bỏ trống là 0), một lớp, một nhóm, một tiết chỉ một môn, nhóm ngoài 0 đến 9 trả 400; các điểm cuối xem tiết (`GET …/lessons`, `/timetables`, `/timetables/mine`) trả `group_no`; `GET /children/{id}/timetable` chỉ trả tiết cả lớp và tiết nhóm có môn nằm trong tổ hợp môn đang hiệu lực của con; `POST …/import` nhận thêm cột Nhóm (trống là cả lớp, tệp không có cột này vẫn nhận); `GET …/conflicts` thêm mã `class_group_clash` (cứng), `double_period_split`, `room_not_subject_room` (mềm); `POST /timetable-changes` với tiết học nhóm trả 422.
 
 
 Giao kèo sổ đầu bài (DT-20 phần 20d, YCTD-162, BR-174):
