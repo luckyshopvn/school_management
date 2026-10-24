@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.79
+- Phiên bản: 1.80
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -249,6 +249,9 @@ Bổ sung ngày 2026-10-09 theo yêu cầu tách vai trò Ban Giám hiệu thàn
 | BR-176 | Hoàn thành chương trình (Điều 11, YCTD-163): kết quả cuối năm từ Hoàn thành trở lên là hoàn thành chương trình lớp học, lên khối kế tiếp; ở khối cuối cấp là hoàn thành chương trình cấp học; chưa hoàn thành thì rèn luyện trong hè hoặc kiểm tra lại, đánh giá bổ sung đạt thì lên lớp, chưa đạt thì ở lại lớp |
 | BR-177 | Học bạ số (Điều 13, YCTD-163): lập từ kết quả kỳ cuối năm đã khoá; Hiệu trưởng xác nhận và kí nội bộ, người kí có quyền xem số định danh; đã kí thì không sửa, mở lại phải có lý do; tệp đã kí in đủ số định danh, chỉ người có quyền xem số định danh hoặc phụ huynh của học sinh tải được; phụ huynh chỉ xem học bạ đã kí |
 | BR-178 | Máy xếp thời khoá biểu (YCTD-164): đề bài là lớp đang hoạt động của cấp, môn và số tiết theo chương trình của khối (số lẻ làm tròn lên), giáo viên theo phân công môn ở lớp, khung giờ tiết, ngày học trong tuần, quy tắc môn, tiết giáo viên báo bận; ràng buộc bắt buộc (luôn giữ, mỗi vi phạm 1000 điểm phạt): giáo viên không dạy hai lớp cùng tiết, phòng không dùng cho hai lớp cùng tiết, giáo viên không dạy vào tiết đã báo bận, xếp đủ số tiết của môn; ràng buộc mềm có mức quan trọng 0 (tắt) đến 10, điểm phạt nhân với mức: tiết đôi (môn cần hai tiết liền trong một buổi), môn tránh tiết cuối buổi, rải đều trong tuần (số tiết một ngày của môn không quá mức chia đều hoặc mức trường đặt), giáo viên ít tiết trống giữa buổi, lớp không có tiết trống giữa buổi; mặc định 5, 3, 6, 4, 8; giới hạn thời gian 5 đến 600 giây, 1 đến 5 phương án; mỗi cấp mỗi lúc một lần xếp; kết quả chỉ là bản nháp, chọn phương án thì tạo bản nháp mới nguồn máy xếp rồi ban hành theo BR-170; dạy thay, đổi tiết ghi theo ngày, không sửa bản đã ban hành, giáo viên phải rảnh ở tiết mới, một tiết một thay đổi, đổi tiết là hai tiết của cùng lớp; mã tra cứu ngẫu nhiên 12 ký tự cho lớp hoặc giáo viên, thu hồi được, trang tra cứu chỉ hiện thời khoá biểu đang áp dụng và thay đổi 7 ngày tới |
+| BR-179 | Thống kê Tiểu học (YCTD-165): chỉ lớp đang học cấp Tiểu học và học sinh đang học các lớp đó trong phạm vi đơn vị của người xem; dân tộc thiểu số, khuyết tật theo hồ sơ CSDL ngành như biểu Mầm non; học 2 buổi/ngày, bán trú theo hồ sơ học sinh hoặc lớp; kết quả đánh giá theo kỳ chỉ tính học sinh đang học lớp |
+| BR-180 | Khung biểu EMIS cấu hình được (YCTD-165): dòng đề mục, công thức hoặc nhập tay; công thức kiểm cú pháp khi lưu, sai thì từ chối; mã dòng không trùng trong biểu; dòng lớp chỉ có cột tổng số; số nhập tay là số nguyên không âm, chỉ ở dòng nhập tay; sửa khung cần quyền sửa khung biểu |
+| BR-181 | Gửi biểu EMIS Tiểu học (YCTD-165): dùng luồng gửi lên cấp trên của 16a; biểu đã đánh dấu đã gửi thì khoá ô nhập tay đến khi mở khoá |
 
 Danh mục chứng từ áp dụng hạn mức: phiếu chi, phiếu đảo phiếu thu (YCTD-23), phiếu đảo phiếu chi (YCTD-24), đề nghị mua hàng, phiếu điều chỉnh hóa đơn, miễn giảm học phí, bảng lương kỳ, chốt kỳ tài chính. Mức hạn mức cụ thể chưa có, xem Q-22 và Q-112.
 
