@@ -8,6 +8,7 @@ import { ApiError, requestJson } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import { useEnabledSchoolLevels } from '../school-levels/enabled-levels.js';
 import { readClassTeaching } from '../subjects/subjects-api.js';
+import { checkClassLessons } from './timetable-generator-api.js';
 import {
   createTimetableVersion,
   deleteTimetableVersion,
@@ -125,7 +126,7 @@ function VersionForm({
 }
 
 // Lưới thứ × tiết; ô hiện môn và giáo viên (xem theo lớp) hoặc lớp và môn (xem theo giáo viên, phòng)
-function ReadOnlyGrid({
+export function ReadOnlyGrid({
   slots,
   lessons,
   mode,
@@ -187,12 +188,14 @@ function ReadOnlyGrid({
 function ClassEditor({
   versionId,
   classId,
+  className,
   slots,
   lessons,
   onSaved,
 }: {
   versionId: string;
   classId: string;
+  className: string;
   slots: PeriodSlot[];
   lessons: TimetableLesson[];
   onSaved(message: string): void;
@@ -203,24 +206,21 @@ function ClassEditor({
   useEffect(() => {
     setCells(Object.fromEntries(lessons.map((lesson) => [`${lesson.weekday}:${lesson.period_no}`, lesson.subject_id])));
   }, [lessons]);
+  const cellInputs = Object.entries(cells)
+    .filter(([, subjectId]) => subjectId)
+    .map(([key, subjectId]) => {
+      const [weekday, period] = key.split(':').map(Number);
+      const existing = lessons.find((lesson) => lesson.weekday === weekday && lesson.period_no === period);
+      return {
+        weekday: weekday ?? 1,
+        period_no: period ?? 1,
+        subject_id: subjectId,
+        room_id: existing?.subject_id === subjectId ? existing.room_id : null,
+      };
+    })
+    .sort((left, right) => left.weekday - right.weekday || left.period_no - right.period_no);
   const save = useMutation({
-    mutationFn: () =>
-      saveClassLessons(
-        versionId,
-        classId,
-        Object.entries(cells)
-          .filter(([, subjectId]) => subjectId)
-          .map(([key, subjectId]) => {
-            const [weekday, period] = key.split(':').map(Number);
-            const existing = lessons.find((lesson) => lesson.weekday === weekday && lesson.period_no === period);
-            return {
-              weekday: weekday ?? 1,
-              period_no: period ?? 1,
-              subject_id: subjectId,
-              room_id: existing?.subject_id === subjectId ? existing.room_id : null,
-            };
-          }),
-      ),
+    mutationFn: () => saveClassLessons(versionId, classId, cellInputs),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['version-lessons'] });
       await queryClient.invalidateQueries({ queryKey: ['timetable-conflicts'] });
@@ -229,6 +229,38 @@ function ClassEditor({
   });
   const subjects = teaching.data?.subjects ?? [];
   const counts = (subjectId: string) => Object.values(cells).filter((value) => value === subjectId).length;
+  // Kiểm tra ngay khi chỉnh tay (22c2): gửi các ô đang sửa sau 0,4 giây không gõ thêm, máy chủ trả xung đột nếu ghi
+  const [checkedCells, setCheckedCells] = useState<string>();
+  const cellsKey = JSON.stringify(cellInputs);
+  const dirty =
+    cellsKey !==
+    JSON.stringify(
+      [...lessons]
+        .sort((left, right) => left.weekday - right.weekday || left.period_no - right.period_no)
+        .map((lesson) => ({
+          weekday: lesson.weekday,
+          period_no: lesson.period_no,
+          subject_id: lesson.subject_id,
+          room_id: lesson.room_id,
+        })),
+    );
+  useEffect(() => {
+    const timer = setTimeout(() => setCheckedCells(cellsKey), 400);
+    return () => clearTimeout(timer);
+  }, [cellsKey]);
+  const check = useQuery({
+    queryKey: ['timetable-check', versionId, classId, checkedCells],
+    queryFn: () => checkClassLessons(versionId, classId, JSON.parse(checkedCells ?? '[]') as typeof cellInputs),
+    enabled: dirty && checkedCells === cellsKey,
+  });
+  const relevant = (check.data ?? []).filter(
+    (conflict) => conflict.class_id === classId || (!conflict.class_id && conflict.message.includes(className)),
+  );
+  const hardCells = new Set(
+    relevant
+      .filter((conflict) => conflict.severity === 'hard' && conflict.weekday && conflict.period_no)
+      .map((conflict) => `${conflict.weekday}:${conflict.period_no}`),
+  );
   return (
     <section className="flex flex-col gap-3" aria-label="Sửa thời khoá biểu của lớp">
       {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
@@ -258,7 +290,8 @@ function ClassEditor({
                   return (
                     <td key={day} className="px-2 py-1">
                       <select
-                        className={FORM_CONTROL_CLASS}
+                        className={`${FORM_CONTROL_CLASS}${hardCells.has(key) ? ' border-danger' : ''}`}
+                        aria-invalid={hardCells.has(key) || undefined}
                         aria-label={`${TIMETABLE_WEEKDAY_LABELS[day]} tiết ${slot.period_no}`}
                         value={cells[key] ?? ''}
                         onChange={(event) => setCells((current) => ({ ...current, [key]: event.target.value }))}
@@ -286,6 +319,22 @@ function ClassEditor({
           </li>
         ))}
       </ul>
+      {dirty && check.data ? (
+        <section aria-label="Kiểm tra ngay" className="flex flex-col gap-1">
+          {relevant.length === 0 ? (
+            <Alert tone="success">Các ô đang sửa không gây xung đột.</Alert>
+          ) : (
+            <ul className="flex flex-col gap-1 text-content">
+              {relevant.map((conflict, index) => (
+                <li key={index} className={conflict.severity === 'hard' ? 'text-danger' : 'text-text-secondary'}>
+                  {conflict.severity === 'hard' ? 'Phải sửa: ' : 'Cảnh báo: '}
+                  {conflict.message}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      ) : null}
       <div>
         <Button variant="primary" disabled={save.isPending || slots.length === 0} onClick={() => save.mutate()}>
           Ghi thời khoá biểu của lớp
@@ -570,6 +619,7 @@ export function TimetablesPage() {
                     <ClassEditor
                       versionId={version.id}
                       classId={target}
+                      className={classes.data?.find((item) => item.id === target)?.name ?? ''}
                       slots={all.data.slots}
                       lessons={filtered}
                       onSaved={setToastMessage}

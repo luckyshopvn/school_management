@@ -19,6 +19,10 @@ import { TimetablesPage } from './timetables/TimetablesPage.js';
 import { StudentAssessmentsPage } from './assessments/StudentAssessmentsPage.js';
 import { ClassLogsPage, PeriodAttendancePage } from './class-logs/ClassLogsPage.js';
 import { LearningRecordsPage } from './learning-records/LearningRecordsPage.js';
+import { TimetableGeneratorPage } from './timetables/TimetableGeneratorPage.js';
+import { TimetableChangesPage } from './timetables/TimetableChangesPage.js';
+import { TimetableReportsPage } from './timetables/TimetableReportsPage.js';
+import { TimetableLookupPage } from './timetables/TimetableLookupPage.js';
 import { QuestionBankPage } from './exams/QuestionBankPage.js';
 import { ExamMatricesPage } from './exams/ExamMatricesPage.js';
 import { AssessmentPlansPage } from './exams/AssessmentPlansPage.js';
@@ -259,7 +263,8 @@ import { VerifyDocumentPage } from './outgoing-documents/VerifyDocumentPage.js';
 // Trang dùng được khi chưa đăng nhập (DT-16 phần 16c thêm Quên mật khẩu)
 const PUBLIC_PATHS = ['/login', '/forgot-password'];
 // Trang công khai mở được cả khi đã hay chưa đăng nhập: tra cứu mã QR của văn bản đi (DT-18 phần 18b)
-const OPEN_PATHS = ['/tra-cuu-van-ban', '/tra-cuu-khen-thuong'];
+// và mã QR thời khoá biểu (DT-20 phần 22c2)
+const OPEN_PATHS = ['/tra-cuu-van-ban', '/tra-cuu-khen-thuong', '/tra-cuu-thoi-khoa-bieu'];
 
 // Chuyển hướng theo trạng thái phiên: chưa đăng nhập về MH-47; bắt buộc đổi mật khẩu về MH-48 (BM-07)
 function SessionGate() {
@@ -334,6 +339,10 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/class-logs', component: ClassLogsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/period-attendance', component: PeriodAttendancePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/learning-records', component: LearningRecordsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/timetable-generator', component: TimetableGeneratorPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/timetable-changes', component: TimetableChangesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/timetable-reports', component: TimetableReportsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/tra-cuu-thoi-khoa-bieu', component: TimetableLookupPage }),
   // Kiểm tra, đánh giá phần đề (DT-21 phần 22g1)
   createRoute({ getParentRoute: () => rootRoute, path: '/question-bank', component: QuestionBankPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/exam-matrices', component: ExamMatricesPage }),

@@ -596,6 +596,10 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/class-logs',
   '/period-attendance',
   '/learning-records',
+  // Máy xếp, dạy thay, đổi tiết, báo cáo (DT-20 phần 22c2)
+  '/timetable-generator',
+  '/timetable-changes',
+  '/timetable-reports',
   // Kiểm tra, đánh giá phần đề (DT-21 phần 22g1)
   '/question-bank',
   '/exam-matrices',

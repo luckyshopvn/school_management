@@ -58,6 +58,11 @@ export default defineConfig({
         ZALO_SENDER: 'development',
       },
     },
+    // Tiến trình chạy nền: máy xếp thời khoá biểu (DT-20 phần 22c2); không mở cổng nên chờ dòng báo đã nối Redis
+    {
+      command: 'node ../apps/worker/dist/main.js',
+      wait: { stdout: /Tiến trình chạy nền đã kết nối Redis/ },
+    },
     {
       command: `pnpm --filter @school-management/portal exec vite --port ${E2E_PORTAL_PORT} --strictPort`,
       url: `http://localhost:${E2E_PORTAL_PORT}`,

@@ -45,6 +45,10 @@ const PRIMARY_ONLY_PATHS = [
   '/period-attendance',
   // Học bạ, khen thưởng, lên lớp (DT-20 phần 20e)
   '/learning-records',
+  // Máy xếp, dạy thay, đổi tiết, báo cáo (DT-20 phần 22c2)
+  '/timetable-generator',
+  '/timetable-changes',
+  '/timetable-reports',
 ];
 // Mục của THCS, THPT (DT-21 phần 22g1): trường chỉ có Mầm non hoặc Tiểu học không thấy
 const SECONDARY_ONLY_PATHS = ['/question-bank', '/exam-matrices', '/assessment-plans', '/exams'];

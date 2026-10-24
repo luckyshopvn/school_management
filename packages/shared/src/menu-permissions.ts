@@ -104,6 +104,10 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/class-logs': anyOf('P02.class.manage', 'P02.view', 'P02.edit', 'P02.class-log.review'),
   '/period-attendance': anyOf('P02.class.manage', 'P02.view', 'P02.edit', 'P02.class-log.review'),
   '/learning-records': anyOf('P02.assessment.enter', 'P02.assessment.view', 'P02.student-record.approve'),
+  // Máy xếp chỉ người lập thời khoá biểu; dạy thay, đổi tiết, báo cáo ai xem được thời khoá biểu đều xem (DT-20 phần 22c2)
+  '/timetable-generator': anyOf('P02.timetable.manage'),
+  '/timetable-changes': anyOf('P02.class.manage', 'P02.view', 'P02.edit', 'P02.timetable.manage'),
+  '/timetable-reports': anyOf('P02.class.manage', 'P02.view', 'P02.edit', 'P02.timetable.manage'),
   // Kiểm tra, đánh giá phần đề (DT-21 phần 22g1): người soạn câu hỏi, thẩm định, quản lý đề
   '/question-bank': anyOf('P02.question.author', 'P02.exam.review', 'P02.exam.manage'),
   '/exam-matrices': anyOf('P02.question.author', 'P02.exam.review', 'P02.exam.manage'),

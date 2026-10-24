@@ -87,6 +87,9 @@ jobs:
           - image: identity
             dockerfile: deploy/docker/server.Dockerfile
             target: identity
+          - image: worker
+            dockerfile: deploy/docker/server.Dockerfile
+            target: worker
           - image: web
             dockerfile: deploy/docker/web.Dockerfile
             target: web

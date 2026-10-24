@@ -3,7 +3,8 @@
 // - cứng: giáo viên dạy hai lớp cùng một tiết; phòng dùng cho hai lớp cùng một tiết; tiết ngoài khung giờ của cấp; ngày ngoài
 //   ngày học trong tuần của cấp; môn không có trong chương trình của khối lớp;
 // - mềm: số tiết của môn trong tuần khác số tiết của chương trình (thiếu hoặc thừa); tiết chưa có giáo viên; giáo viên của
-//   tiết không phải giáo viên được phân công môn đó ở lớp.
+//   tiết không phải giáo viên được phân công môn đó ở lớp; giáo viên dạy vào tiết đã báo bận (22c2: máy xếp coi là cứng,
+//   chỉnh tay chỉ cảnh báo để trường tự quyết).
 export interface TimetableLessonInput {
   class_id: string;
   class_name: string;
@@ -26,6 +27,8 @@ export interface TimetableContext {
   planned: Map<string, Map<string, { subject_name: string; periods: number }>>;
   // Giáo viên được phân công: "lớp:môn" → mã tài khoản giáo viên
   assigned: Map<string, string>;
+  // Tiết giáo viên báo bận (22c2): "giáo viên:thứ:tiết"
+  busy?: Set<string>;
 }
 
 export interface TimetableConflict {
@@ -38,7 +41,8 @@ export interface TimetableConflict {
     | 'subject_outside_curriculum'
     | 'periods_mismatch'
     | 'missing_teacher'
-    | 'teacher_not_assigned';
+    | 'teacher_not_assigned'
+    | 'teacher_busy';
   message: string;
   class_id?: string;
   weekday?: number;
@@ -90,6 +94,14 @@ export function findTimetableConflicts(
         ...at,
       });
     } else {
+      if (context.busy?.has(`${lesson.teacher_user_id}:${lesson.weekday}:${lesson.period_no}`)) {
+        conflicts.push({
+          severity: 'soft',
+          code: 'teacher_busy',
+          message: `${lesson.class_name}: ${SLOT(lesson)} giáo viên ${lesson.teacher_name ?? ''} đã báo bận`,
+          ...at,
+        });
+      }
       const assigned = context.assigned.get(`${lesson.class_id}:${lesson.subject_id}`);
       if (assigned && assigned !== lesson.teacher_user_id) {
         conflicts.push({
