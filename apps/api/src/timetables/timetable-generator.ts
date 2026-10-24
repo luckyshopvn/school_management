@@ -101,10 +101,12 @@ export abstract class TimetableGenerationQueue {
 
 export class RedisTimetableGenerationQueue extends TimetableGenerationQueue {
   private readonly redis: Redis;
+  private readonly logger = new Logger('TimetableGenerationQueue');
 
   constructor(redisUrl: string) {
     super();
     this.redis = new Redis(redisUrl, { maxRetriesPerRequest: 3, lazyConnect: true });
+    this.redis.on('error', (error: Error) => this.logger.warn(`Redis của hàng đợi máy xếp lỗi: ${error.message}`));
   }
 
   async enqueue(job: GenerationJob) {
@@ -167,7 +169,10 @@ export class InProcessTimetableGenerationQueue extends TimetableGenerationQueue 
         best_hard: result.variants[0]?.hard_count ?? null,
         issues: result.issues,
       });
-    })();
+    })().catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : String(error);
+      this.states.set(job.run_id, state('failed', 0, `Máy xếp lỗi: ${message}`));
+    });
     this.running.set(job.run_id, work);
   }
 

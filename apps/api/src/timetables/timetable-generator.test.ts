@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { createDatabase, replaceDatabaseName, type SchoolYearDatabase } from '@school-management/database';
-import type { Kysely } from 'kysely';
+import { sql, type Kysely } from 'kysely';
 import {
   openTestAcademicYear,
   sendJson,
@@ -96,12 +96,9 @@ describe('Điểm cuối máy xếp thời khoá biểu', () => {
   const api = (method: string, path: string, token: string, body?: unknown) => sendJson(method, url(path), token, body);
   const list = (body: unknown) => body as unknown as Array<Record<string, unknown>>;
   const queue = () => environment.api.get(TimetableGenerationQueue) as InProcessTimetableGenerationQueue;
-  // Ngày học gần nhất từ hôm nay (thứ Hai đến thứ Sáu) để thay đổi hiện ở trang tra cứu 7 ngày tới
+  // Ngày trong 7 ngày tới (để thay đổi hiện ở trang tra cứu) mà lớp 1A có tiết Tiếng Việt của giáo viên 1; tìm ở CT-22c2-12
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
   let schoolDay = today;
-  while (isoWeekday(schoolDay) > 5) {
-    schoolDay = addDays(schoolDay, 1);
-  }
 
   before(async () => {
     environment = await startApiTestEnvironment();
@@ -361,11 +358,8 @@ describe('Điểm cuối máy xếp thời khoá biểu', () => {
       .executeTakeFirstOrThrow();
     const blocked = await api('POST', '/timetable-generations', principal.accessToken, { school_level: 'TH' });
     assert.equal(blocked.status, 422, JSON.stringify(blocked.body));
-    await schoolYear
-      .updateTable('timetable_generation_runs')
-      .set({ created_at: new Date(Date.now() - 11 * 60_000) })
-      .where('id', '=', stuck.id)
-      .execute();
+    await sql`update timetable_generation_runs set created_at = now() - interval '11 minutes'
+      where id = ${stuck.id}`.execute(schoolYear);
     const failed = await api('GET', `/timetable-generations/${stuck.id}`, principal.accessToken);
     assert.equal(failed.body.status, 'failed');
     assert.match(failed.body.message as string, /chưa nhận lần xếp sau 10 phút/);
@@ -381,9 +375,17 @@ describe('Điểm cuối máy xếp thời khoá biểu', () => {
   });
 
   it('CT-22c2-12: dạy thay, đổi tiết theo ngày, không sửa bản ban hành; chặn giáo viên trùng tiết; báo cáo tiết dạy, phòng', async () => {
-    const day = list(
-      (await api('GET', `/timetable-changes/day?date=${schoolDay}&class_id=${classes['1A']}`, viewer.accessToken)).body,
-    );
+    let day: Array<Record<string, unknown>> = [];
+    for (let offset = 0; offset < 7; offset += 1) {
+      schoolDay = addDays(today, offset);
+      day = list(
+        (await api('GET', `/timetable-changes/day?date=${schoolDay}&class_id=${classes['1A']}`, viewer.accessToken))
+          .body,
+      );
+      if (day.some((lesson) => lesson.teacher_user_id === teachers[0]?.userId)) {
+        break;
+      }
+    }
     assert.ok(day.length > 0);
     const tv = day.find((lesson) => lesson.teacher_user_id === teachers[0]?.userId) as Record<string, unknown>;
     // Giáo viên 2 đang dạy lớp 1B cùng tiết thì không dạy thay được
