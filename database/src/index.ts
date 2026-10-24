@@ -82,6 +82,9 @@ export type {
   DemoAccount,
   PeriodSession,
   TrainingCatalogStatus,
+  ResourceVisibility,
+  LearningResourceStatus,
+  ResourceVersionKind,
   SystemDatabase,
 } from '../system/schema.js';
 export type {
@@ -303,6 +306,8 @@ export type {
   TrainingRegistrationStatus,
   TrainingResult,
   CompetencyTerm,
+  LearningResourceAction,
+  LearningResourceReportKind,
   TimetableVersionStatus,
   TimetableGenerationStatus,
   TimetableChangeKind,

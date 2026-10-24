@@ -52,6 +52,13 @@ const EDUCATION_PLAN_ANY = anyOf(
 // Hồ sơ bồi dưỡng giáo viên (DT-22 phần 22e)
 const TRAINING_ANY = anyOf('P09.training.use', 'P09.training.review', 'P09.training.manage');
 const TRAINING_OVERSIGHT = anyOf('P09.training.review', 'P09.training.manage');
+// Kho học liệu số (DT-22 phần 22h1)
+const RESOURCE_ANY = anyOf(
+  'P09.learning-resource.use',
+  'P09.learning-resource.review',
+  'P09.learning-resource.approve',
+  'P09.learning-resource.manage',
+);
 // Thi đua, khen thưởng (DT-18 phần 22d)
 const EMULATION_ANY = anyOf('P09.emulation.use', 'P09.emulation.manage', 'P09.emulation.decide');
 const EMULATION_MANAGE = anyOf('P09.emulation.manage', 'P09.emulation.decide');
@@ -288,6 +295,18 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/training/records': TRAINING_OVERSIGHT,
   '/training/competency': TRAINING_OVERSIGHT,
   '/training/settings': 'P09.training.manage',
+  // Kho học liệu số (DT-22 phần 22h1): mọi cán bộ dùng kho; duyệt theo tổ, trường; thủ kho xử lý báo lỗi, danh mục
+  '/learning-resources': RESOURCE_ANY,
+  '/learning-resources/mine': RESOURCE_ANY,
+  '/learning-resources/review': anyOf('P09.learning-resource.review', 'P09.learning-resource.approve'),
+  '/learning-resources/collections': RESOURCE_ANY,
+  '/learning-resources/reports': RESOURCE_ANY,
+  '/learning-resources/statistics': anyOf(
+    'P09.learning-resource.review',
+    'P09.learning-resource.approve',
+    'P09.learning-resource.manage',
+  ),
+  '/learning-resources/settings': 'P09.learning-resource.manage',
   '/emulation/campaigns': EMULATION_ANY,
   '/emulation/registrations': EMULATION_ANY,
   '/emulation/nominations': EMULATION_ANY,
