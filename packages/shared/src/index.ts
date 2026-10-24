@@ -31,6 +31,7 @@ export * from './emulation.js';
 export * from './quality-assurance.js';
 export * from './school-levels.js';
 export * from './level-structure.js';
+export * from './training.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -252,6 +253,10 @@ export const PERMISSION_CODES = {
   educationPlanApprove: 'P09.education-plan.approve',
   educationPlanFinalize: 'P09.education-plan.finalize',
   educationPlanManage: 'P09.education-plan.manage',
+  // Hồ sơ bồi dưỡng giáo viên (DT-22 phần 22e)
+  trainingUse: 'P09.training.use',
+  trainingReview: 'P09.training.review',
+  trainingManage: 'P09.training.manage',
   // Cấu hình cấp học của trường ở 1.4 Cấu hình trường (DT-19 phần 19a)
   schoolLevelManage: 'P01.school-level.manage',
   // Lập, nhập, ban hành thời khoá biểu, khung giờ tiết học (DT-20 phần 22c1)
@@ -573,6 +578,12 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/education-plans/review',
   '/education-plans/progress',
   '/education-plan-templates',
+  // Hồ sơ bồi dưỡng giáo viên (DT-22 phần 22e)
+  '/training/mine',
+  '/training/courses',
+  '/training/records',
+  '/training/competency',
+  '/training/settings',
   // Thi đua, khen thưởng (DT-18 phần 22d)
   '/emulation/campaigns',
   '/emulation/registrations',

@@ -208,6 +208,8 @@ import { EducationPlansService } from './education-plans/education-plans.js';
 import { educationPlansTransitionStep } from './education-plans/education-plans-transition.js';
 import { EmulationController, EmulationVerificationController } from './emulation/emulation.controller.js';
 import { EmulationCouncilService } from './emulation/emulation-council.js';
+import { TrainingController, TrainingVerificationController } from './training/training.controller.js';
+import { TrainingService } from './training/training.js';
 import { EmulationService } from './emulation/emulation.js';
 import { emulationTransitionStep } from './emulation/emulation-transition.js';
 import { QualityAssuranceController } from './quality-assurance/quality-assurance.controller.js';
@@ -512,6 +514,8 @@ export class ApplicationModule {
         // Thi đua, khen thưởng (DT-18 phần 22d)
         EmulationController,
         EmulationVerificationController,
+        TrainingController,
+        TrainingVerificationController,
         // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
         QualityAssuranceController,
         LibraryCatalogController,
@@ -1013,6 +1017,7 @@ export class ApplicationModule {
         // Thi đua, khen thưởng (DT-18 phần 22d)
         EmulationService,
         EmulationCouncilService,
+        TrainingService,
         // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
         QualityAssuranceService,
         LibraryCore,
