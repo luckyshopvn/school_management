@@ -463,7 +463,7 @@ describe('Điểm cuối thời khoá biểu THPT', () => {
     });
     assert.equal(template.status, 200);
     const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.load((await template.arrayBuffer()));
+    await workbook.xlsx.load(await template.arrayBuffer());
     assert.ok(workbook.worksheets[0]?.getRow(1).values?.toString().includes('Nhóm'));
     const bad = await upload(
       `/timetable-versions/${draft}/import`,
