@@ -1,8 +1,8 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.87
-- Ngày cập nhật: 2026-10-24
+- Phiên bản: 1.88
+- Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -134,6 +134,9 @@
 | P02-53 | Dạy thay, đổi tiết (7.10., YCTD-164) | Ghi, xoá: `P02.timetable.manage`; xem: nhân sự xem được thời khoá biểu | Ngày, lớp, tiết; giáo viên dạy thay hoặc ngày, tiết đổi; lý do | Kiểm tra tiết có trong bản đang áp dụng, chưa có thay đổi, giáo viên rảnh; ghi một hoặc hai dòng | Tiết thực tế của ngày; danh sách thay đổi | BR-178 |
 | P02-54 | Báo cáo tiết dạy, dùng phòng, mã QR tra cứu (7.11., trang tra cứu, YCTD-164) | Báo cáo: nhân sự xem được thời khoá biểu; mã QR: `P02.timetable.manage`; trang tra cứu: không cần đăng nhập | Khoảng ngày; ngày áp dụng; lớp hoặc giáo viên | Đếm tiết theo thời khoá biểu, dạy thay, được dạy thay, đổi tiết, thực dạy; tiết dùng phòng; tạo, thu hồi mã | Bảng báo cáo; mã QR in được; trang thời khoá biểu và thay đổi 7 ngày tới | BR-178 |
 | P02-65 | Thời khoá biểu THCS, THPT: tiết học nhóm (7.4., YCTD-169) | `P02.timetable.manage` | Cấp THCS, THPT; tiết của lớp có số nhóm; cột Nhóm của tệp Excel | Cùng chức năng thời khoá biểu của Tiểu học (khung giờ, bản nháp, nhập Excel, xung đột, ban hành, máy xếp, dạy thay, báo cáo); thêm tiết học nhóm cùng ô; luật nhóm, tiết đôi, phòng bộ môn | Bản thời khoá biểu có tiết nhóm; thời khoá biểu của con theo tổ hợp môn | BR-185 |
+| P02-66 | Sổ đầu bài, điểm danh theo tiết THCS, THPT: tiết nhóm, quy tắc xếp loại tiết theo cấp, xuất sổ tuần (7.6., 7.7., ứng dụng giáo viên, YCTD-171) | Ghi, ký: giáo viên của tiết, nhóm; quy tắc: `P02.class-log.settings`; xem, xuất: như xem sổ đầu bài | Tiết, nhóm, tên bài, nhận xét, xếp loại, điểm danh; quy tắc của cấp | Sổ tuần theo nhóm, tệp Excel, PDF | 7.6 Sổ đầu bài; ứng dụng giáo viên Sổ đầu bài | BR-187 |
+| P02-67 | Sơ đồ chỗ ngồi theo lớp (7.16., YCTD-171) | Sửa: chủ nhiệm lớp, `P02.seating.manage`; xem: như xem sổ đầu bài | Ngày áp dụng, số dãy, bàn, chỗ, môn (tuỳ chọn), cách xếp, chỗ của từng học sinh | Sơ đồ đang dùng, tệp PDF, Excel | 7.16 Sơ đồ chỗ ngồi; chi tiết tiết ở 7.6, ứng dụng giáo viên | BR-188 |
+| P02-68 | Thi đua lớp, sao đỏ THCS, THPT (4.9., YCTD-171) | Đội sao đỏ: `P02.conduct.manage`; ghi điểm: `P02.conduct.record` | Cấp; học sinh, nhiệm vụ; sao đỏ báo | Đội sao đỏ, dòng nề nếp có sao đỏ báo, xếp hạng có điểm tiết | 4.9 Nề nếp, thi đua lớp | BR-189 |
 
 ## 4. Phân hệ P03 — Giảng dạy
 

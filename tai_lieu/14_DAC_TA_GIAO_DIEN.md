@@ -1,8 +1,8 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.100
-- Ngày cập nhật: 2026-10-24
+- Phiên bản: 1.101
+- Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -649,6 +649,7 @@ Từ YCTD-182 (DT-22 phần 22e), phân hệ "Hồ sơ chuyên môn" có thêm n
 | MH-285 | 6.4. Năng lực số (YCTD-182, `/training/competency`): thẻ kỳ; bảng "Bản đồ năng lực số" (giáo viên × miền, ô dưới ngưỡng tô đỏ nhạt, dòng trung bình, "Xác nhận"); khối xác nhận (mức xác nhận, lý do đổi mức) | Tổ trưởng (tổ mình), Ban Giám hiệu |
 | MH-286 | 6.5. Danh mục bồi dưỡng (YCTD-182, `/training/settings`): căn cứ; khối "Thiết lập" (định mức tiết, ngưỡng gợi ý, đơn vị cấp); bảng, biểu mẫu chuyên đề (chương trình, số tiết, miền gắn kèm, đang dùng hoặc ngừng); khung năng lực số (mức, miền, "Thêm miền") | `P09.training.manage` |
 | MH-287 | Tra cứu chứng nhận bồi dưỡng (YCTD-182, `/tra-cuu-chung-nhan?ma=…`, công khai): ô mã tra cứu, nút "Tra cứu"; khối "Kết quả tra cứu" (còn hiệu lực hoặc đã thu hồi, người được cấp, khoá, đơn vị cấp, ngày cấp, số tiết) | Không cần đăng nhập |
+| MH-288 | 7.16. Sơ đồ chỗ ngồi (YCTD-171, `/seating-charts`): chọn lớp THCS, THPT, chọn bản sơ đồ (ngày áp dụng, môn, bản đang dùng); dòng số dãy, bàn, chỗ, sĩ số; khối "Học sinh chưa xếp chỗ"; lưới "Sơ đồ chỗ ngồi" (bàn giáo viên ở trên, mỗi dãy một cột, mỗi bàn các chỗ; kéo thả hoặc bấm chọn rồi bấm chỗ đích, chỗ có người thì đổi chỗ); nút "Lưu sơ đồ", "In sơ đồ", "Xoá bản này"; khối "Lập sơ đồ mới" (ngày áp dụng, số dãy, số bàn mỗi dãy, số chỗ mỗi bàn, áp dụng cho cả lớp hoặc riêng môn, cách xếp theo tên, xoay vòng theo dãy, theo bàn, để trống; nút "Lập sơ đồ") | Chủ nhiệm lớp, người có `P02.seating.manage` sửa; người xem được sổ đầu bài xem |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 
@@ -676,6 +677,8 @@ Từ YCTD-163 (DT-20 phần 20e), mục 7.8 "Học bạ, khen thưởng, lên l�
 Từ YCTD-161 (DT-20 phần 20c), mục 7.3 "Đánh giá học sinh" (chỉ hiện khi trường bật Tiểu học): chọn đơn vị, lớp Tiểu học, kỳ đánh giá; thẻ Nhập kết quả (nội dung là một môn của lớp hoặc "Phẩm chất, năng lực"; bảng học sinh với mức đạt, điểm kiểm tra định kỳ khi kỳ có bài kiểm tra, nhận xét gợi ý từ thư viện; ô bị khoá khi người dùng chỉ xem, quá hạn hoặc đã khoá), Nhận xét thường xuyên (học sinh, môn, nội dung; danh sách trong tháng), Tổng hợp cuối kỳ (bảng môn học, bảng phẩm chất, năng lực theo mức, số chưa nhập, điểm theo khoảng), Cuối năm (gợi ý, kết quả xác nhận), Khoá số liệu và Cấu hình (chỉ Ban Giám hiệu: nạp cấu hình mặc định, xem mức, danh mục, bài kiểm tra theo kỳ, sửa hạn nhập). Ứng dụng giáo viên có nút "Đánh giá học sinh" ở lớp Tiểu học (kỳ, môn được phân công, mức, điểm, nhận xét); ứng dụng phụ huynh có "Kết quả đánh giá" ở con Tiểu học. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
 
 Từ YCTD-160 (DT-20 phần 22c1), nhóm "7. Dạy học Tiểu học" có thêm 7.3 Khung giờ tiết học, 7.4 Thời khoá biểu (MH-263, MH-264); trang "Thời khóa biểu" của website trường hiện bảng của từng lớp khi đã có bản ban hành.
+
+Từ YCTD-171 (DT-21 phần 21d), 7.6 Sổ đầu bài, 7.7 Chuyên cần theo tiết và 4.9 Nề nếp, thi đua lớp hiện ở Tiểu học, THCS, THPT; thêm 7.16 Sơ đồ chỗ ngồi (MH-288, chỉ THCS, THPT). 7.6: cột Tiết ghi "Nhóm n" cho tiết nhóm, nút "Xuất Excel", "Xuất PDF" của sổ tuần, chi tiết tiết có nhãn xếp loại và sơ đồ chỗ ngồi; Ban Giám hiệu có khối "Quy tắc xếp loại tiết" theo từng cấp (xếp loại tiết, nhãn A đến D, tiết C, D phải nhận xét, tính điểm thi đua và điểm từng loại; nút "Lưu quy tắc <cấp>"). 4.9: ô "Cấp học" khi trường bật nhiều cấp ngoài Mầm non; ở THCS, THPT thẻ "Đội sao đỏ" (lớp của học sinh, học sinh, nhiệm vụ, nút "Thêm vào đội sao đỏ"; bảng có nút "Ngừng", "Hoạt động lại"), thẻ Ghi điểm có ô "Sao đỏ báo" (sao đỏ lớp khác) thay ô "Người báo"; Xếp hạng có cột "Điểm tiết" khi cấp tính điểm tiết. Ứng dụng giáo viên, Sổ đầu bài: tiết nhóm ghi "Nhóm n", nhãn xếp loại theo cấp, ghi "bắt buộc khi ký sổ", nhắc nhận xét tiết C, D, khối "Sơ đồ chỗ ngồi". Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
 
 Từ YCTD-168 (DT-21 phần 22g1), phân hệ Quản lý giáo dục có nhóm "8. Kiểm tra, đánh giá" chỉ hiện khi trường bật THCS hoặc THPT: 8.1 Ngân hàng câu hỏi, 8.2 Ma trận đề, 8.3 Kế hoạch kiểm tra, 8.4 Đề kiểm tra (MH-277 đến MH-280); số mục tạm, đánh lại khi khảo sát Sở.
 

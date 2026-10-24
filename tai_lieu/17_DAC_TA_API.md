@@ -1,8 +1,8 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.114
-- Ngày cập nhật: 2026-10-24
+- Phiên bản: 1.115
+- Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -901,6 +901,11 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | PUT | /api/v1/class-logs | Ghi tiết và điểm danh theo tiết (P02-45) |
 | POST | /api/v1/class-logs/{id}/sign | Giáo viên ký tiết (P02-45) |
 | POST | /api/v1/class-logs/reviews | Ban giám hiệu ký sổ tuần (cần `P02.class-log.review`) (P02-46) |
+| GET, PUT | /api/v1/class-logs/lesson, /class-logs (từ YCTD-171) | Thêm `group_no` (0 đến 9, mặc định 0); chi tiết trả `group_filtered`, `rating` (quy tắc của cấp), `seating` (sơ đồ đang dùng); vi phạm quy tắc xếp loại trả 422 mã YCTD-171 |
+| GET, PUT | /api/v1/class-logs/settings (từ YCTD-171) | Quy tắc xếp loại tiết theo cấp (`school_level`, `rating_mode`, `rating_labels`, `low_rating_comment`, `conduct_points`); sửa cần `P02.class-log.settings` |
+| GET | /api/v1/class-logs/week/export (từ YCTD-171) | Xuất sổ đầu bài tuần của lớp (`class_id`, `date`, `format` = `xlsx`, `pdf`), ghi nhật ký xuất |
+| GET, POST, PUT, DELETE | /api/v1/seating-charts, /{id}, /{id}/export (từ YCTD-171) | Sơ đồ chỗ ngồi: danh sách theo lớp (`class_id`, `date`) kèm `can_manage`, `current_chart_id`, học sinh; lập (`mode` = `manual`, `by_name`, `rotate`; `from_chart_id`, `rotate` = `columns`, `rows`); sửa chỗ; xoá; in `format` = `pdf`, `xlsx` |
+| GET, PUT | /api/v1/conduct/red-stars, /red-stars/{childId} (từ YCTD-171) | Đội sao đỏ theo cấp; thêm, sửa nhiệm vụ, ngừng (`duty`, `status`) cần `P02.conduct.manage`; `POST /conduct/entries` nhận `reporter_child_id`; `/conduct/ranking` trả `lesson_points` và cột điểm tiết của lớp |
 | GET | /api/v1/period-attendance/summary | Chuyên cần theo tiết của lớp trong khoảng ngày (P02-47) |
 | GET | /api/v1/children/{id}/period-attendance | Điểm danh theo tiết của con trong tháng (P02-47) |
 | GET | /api/v1/audit-logs | Tra nhật ký thao tác; `page_size` đến 200 (YCTD-109) |

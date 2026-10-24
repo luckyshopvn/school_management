@@ -1,8 +1,8 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.67
-- Ngày cập nhật: 2026-10-24
+- Phiên bản: 1.68
+- Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -867,6 +867,10 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-792 | Cho trường đã có dữ liệu nhân sự, chứng chỉ / Khi nâng cấp lên phiên bản có hồ sơ bồi dưỡng / Thì chứng chỉ cũ vẫn hiện đúng, là loại nhập tay; các phân hệ khác không đổi (CT-927, CT-931; YCTD-182) |
 | AC-793 | Cho khoá trường tổ chức có cấp chứng nhận / Khi giáo viên đăng ký, tổ trưởng, Ban Giám hiệu duyệt, ghi kết quả đạt, cấp chứng nhận / Thì quá hạn, hết chỉ tiêu, tổ khác bị từ chối; người đạt nhận chứng nhận có mã; trang công khai tra theo mã chỉ trả trường tối thiểu, thu hồi thì báo đã thu hồi (CT-929, CT-930, CT-933; YCTD-182) |
 | AC-794 | Cho giáo viên có khoá đạt, chứng chỉ, tự đánh giá năng lực số / Khi xem hồ sơ của tôi, tổ trưởng, Ban Giám hiệu xem hồ sơ, bản đồ năng lực / Thì tổng tiết so định mức, thiếu tiết, sắp hết hạn đúng; miền dưới ngưỡng có gợi ý chuyên đề; xác nhận đổi mức phải có lý do (CT-928, CT-931, CT-932, CT-933; YCTD-182) |
+| AC-795 | Cho lớp THPT có tiết 2 hai nhóm (Vật lí, Địa lí) / Khi giáo viên Vật lí mở tiết nhóm 1, ghi; giáo viên Địa lí ghi nhóm 2; giáo viên Vật lí ghi nhóm 2 / Thì danh sách chỉ học sinh tổ hợp có Vật lí; hai sổ riêng; 403; sổ tuần hiện từng nhóm (CT-935, CT-939; YCTD-171) |
+| AC-796 | Cho quy tắc THPT mặc định / Khi lưu tiết C không nhận xét, ký tiết chưa xếp loại, giáo viên sửa quy tắc, Ban Giám hiệu sửa, xuất sổ tuần / Thì 422 kèm lý do; 403; quy tắc THPT đổi, Tiểu học giữ; tải được Excel có nhật ký xuất (CT-934, CT-936, CT-939; YCTD-171) |
+| AC-797 | Cho lớp THPT có chủ nhiệm / Khi giáo viên bộ môn lập sơ đồ, chủ nhiệm xếp theo tên, xoay vòng theo dãy, lập trùng ngày, xếp học sinh lớp khác, xem tiết trước ngày xoay, in / Thì 403; chỗ theo tên; dãy đổi vòng; 422; 400; tiết dùng bản cũ; tải được PDF (CT-934, CT-937, CT-939; YCTD-171) |
+| AC-798 | Cho đội sao đỏ có học sinh lớp 10B, tiết THPT xếp loại A, B, C / Khi ghi điểm lớp 10A có sao đỏ báo, ghi lớp 10B, người báo không trong đội, sao đỏ ngừng; xem xếp hạng tuần / Thì ghi được; 422 không chấm lớp mình; 422; 422; điểm tiết cộng vào điểm, cột Điểm tiết riêng (CT-934, CT-938, CT-939; YCTD-171) |
 
 ## 20. Chưa xác minh được
 
