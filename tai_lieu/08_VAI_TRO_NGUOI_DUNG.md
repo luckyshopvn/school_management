@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.88
+- Phiên bản: 1.89
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -197,7 +197,8 @@ Ghi chú áp dụng cho bảng:
 | PQ-97 | Kiểm tra, đánh giá phần đề (YCTD-168): quyền mới thuộc P02: `P02.question.author` (VT-07, VT-08, VT-17) soạn câu hỏi, soạn đề được giao; `P02.exam.review` (VT-02, VT-15, VT-17) duyệt câu hỏi, lập ma trận, kế hoạch kiểm tra, thẩm định đề; `P02.exam.manage` (VT-02, VT-15) duyệt kế hoạch, giao đề, khoá và mở khoá đề, xem mọi đề. Đề chỉ người ra đề, người thẩm định được giao và người có `P02.exam.manage` xem, tải |
 | PQ-98 | Hồ sơ bồi dưỡng giáo viên (YCTD-182): quyền mới thuộc P09: `P09.training.use` (VT-02, VT-15, VT-03 đến VT-12, VT-16, VT-17: đăng ký khoá, hồ sơ, chứng chỉ của mình, tự đánh giá năng lực số); `P09.training.review` (VT-17: duyệt cấp tổ, xem hồ sơ, xác nhận năng lực số của tổ mình); `P09.training.manage` (VT-02, VT-15: khoá, duyệt cuối, kết quả, chứng nhận, danh mục, hồ sơ toàn trường). Phụ huynh (VT-14) không có. Trang tra cứu chứng nhận không cần đăng nhập |
 | PQ-99 | Kiểm tra, đánh giá phần chấm (YCTD-173): quyền mới `P02.exam.grade` (VT-02, VT-07, VT-08, VT-15, VT-17) tạo bài kiểm tra cho lớp mình dạy môn của đề (hoặc chủ nhiệm), nhập bài, nhập tệp quét, chấm tự luận, xem báo cáo các lớp đó; `P02.exam.manage` khoá, mở khoá điểm, tạo cho mọi lớp; `P02.exam.review` xem bài kiểm tra, báo cáo mọi lớp; chuyển điểm vào sổ điểm theo quyền nhập điểm của 21c (giáo viên dạy môn của lớp hoặc `P02.assessment.manage`) |
-| PQ-100 | Sổ đầu bài, sơ đồ chỗ ngồi THCS, THPT (YCTD-171): quyền mới thuộc P02 cho VT-02, VT-15: `P02.class-log.settings` sửa quy tắc xếp loại tiết theo cấp và điểm thi đua theo xếp loại tiết; `P02.seating.manage` xếp sơ đồ chỗ ngồi mọi lớp. Giáo viên chủ nhiệm xếp sơ đồ lớp mình không cần quyền; xem sơ đồ như xem sổ đầu bài. Đội sao đỏ dùng `P02.conduct.manage` (thêm, ngừng), `P02.conduct.record` (xem, chọn sao đỏ báo khi ghi điểm) |
+| PQ-100 | Thư viện trường học (YCTD-181): quyền mới `P02.library.view` (tra cứu danh mục ấn phẩm, xem sách mình đang mượn) cho mọi vai trò nhân sự dùng cổng quản trị (VT-02, VT-15, VT-03 đến VT-12, VT-16, VT-17) và `P02.library.manage` (danh mục, bản sao, thẻ bạn đọc, mượn trả, đặt trước, sách giáo khoa, kiểm kê, thiết lập, báo cáo) cho VT-02, VT-15, VT-03; trường có thủ thư thì gán `P02.library.manage` cho nhóm người dùng của thủ thư ở 1.1. Phân hệ "Thư viện" ẩn với phụ huynh (VT-14) ở 1.2. Phụ huynh xem sách của con ở ứng dụng, máy chủ kiểm tra quan hệ phụ huynh. Người quản lý ngoài toàn trường chỉ thấy bạn đọc, lượt mượn của đơn vị mình |
+| PQ-101 | Sổ đầu bài, sơ đồ chỗ ngồi THCS, THPT (YCTD-171): quyền mới thuộc P02 cho VT-02, VT-15: `P02.class-log.settings` sửa quy tắc xếp loại tiết theo cấp và điểm thi đua theo xếp loại tiết; `P02.seating.manage` xếp sơ đồ chỗ ngồi mọi lớp. Giáo viên chủ nhiệm xếp sơ đồ lớp mình không cần quyền; xem sơ đồ như xem sổ đầu bài. Đội sao đỏ dùng `P02.conduct.manage` (thêm, ngừng), `P02.conduct.record` (xem, chọn sao đỏ báo khi ghi điểm) |
 
 ## 5. Phân cấp phê duyệt
 
