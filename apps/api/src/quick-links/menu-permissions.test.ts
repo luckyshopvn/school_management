@@ -151,6 +151,7 @@ function legacyVisibility(has: (code: string) => boolean): Partial<Record<Portal
     '/kitchen': canManageKitchen || canApproveMenus || canViewKitchenReport,
     '/boarding': has('P04.boarding.manage'),
     '/conduct': has('P02.conduct.record') || has('P02.conduct.manage'),
+    '/student-assessments': has('P02.assessment.enter') || has('P02.assessment.view') || has('P02.assessment.manage'),
     '/student-health': canManageHealth || canViewGrowthReport,
     '/health': canManageHealth || canRecordMedicalEvents,
     '/medicines': canManageMedicines || canAdministerMedication || canApproveMedicinePurchases,

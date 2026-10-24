@@ -16,6 +16,7 @@ import { SubjectsPage } from './subjects/SubjectsPage.js';
 import { TeachingAssignmentsPage } from './subjects/TeachingAssignmentsPage.js';
 import { PeriodSlotsPage } from './timetables/PeriodSlotsPage.js';
 import { TimetablesPage } from './timetables/TimetablesPage.js';
+import { StudentAssessmentsPage } from './assessments/StudentAssessmentsPage.js';
 import { ChildrenPage } from './children/ChildrenPage.js';
 import { StudentMovementsPage } from './children/StudentMovementsPage.js';
 import { DefaultPasswordsPage } from './students/DefaultPasswordsPage.js';
@@ -322,6 +323,7 @@ const routeTree = rootRoute.addChildren([
   // Thời khoá biểu phần khung (DT-20 phần 22c1)
   createRoute({ getParentRoute: () => rootRoute, path: '/period-slots', component: PeriodSlotsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/timetables', component: TimetablesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/student-assessments', component: StudentAssessmentsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/classes', component: ClassesPage }),
   // Trường học, lớp học theo Sở (DT-15 phần 15b, YCTD-111)
   createRoute({ getParentRoute: () => rootRoute, path: '/branches', component: BranchesPage }),

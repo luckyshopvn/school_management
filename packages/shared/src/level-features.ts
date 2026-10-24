@@ -15,7 +15,8 @@ export type LevelFeature =
   | 'final_year_record'
   | 'boarding_meal'
   // Thời khoá biểu theo tiết (DT-20 phần 22c1): lớp, con học cấp phổ thông
-  | 'period_timetable';
+  | 'period_timetable'
+  | 'student_assessment';
 
 export const LEVEL_FEATURES: Record<LevelFeature, readonly SchoolLevelCode[]> = {
   daily_attendance: ['MN'],
@@ -27,6 +28,8 @@ export const LEVEL_FEATURES: Record<LevelFeature, readonly SchoolLevelCode[]> = 
   // Bán trú theo danh sách ăn, cắt suất (DT-20 phần 20b): lớp Tiểu học thay cho báo cơm theo điểm danh của Mầm non
   boarding_meal: ['TH'],
   period_timetable: ['TH', 'THCS', 'THPT'],
+  // Đánh giá học sinh theo Thông tư 27/2020 (DT-20 phần 20c): nhập ở ứng dụng giáo viên, phụ huynh xem kết quả đã khoá
+  student_assessment: ['TH'],
 };
 
 // Cấp của con hoặc lớp như máy chủ trả; trống (con chưa xếp lớp, máy chủ cũ) là Mầm non như mọi chỗ đọc cấp khác
