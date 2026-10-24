@@ -252,7 +252,7 @@ test('CT-22c2-14: máy xếp chạy nền, phương án thành bản nháp, ki�
     // Trang tra cứu mở được khi chưa đăng nhập
     const publicPage = await (await browser.newContext()).newPage();
     await publicPage.goto(link ?? '');
-    await expect(publicPage.getByRole('heading', { name: `Thời khoá biểu lớp ${className}` })).toBeVisible();
+    await expect(publicPage.getByRole('heading', { name: `Thời khoá biểu ${className}` })).toBeVisible();
     await expect(publicPage.getByRole('table', { name: 'Thời khoá biểu tra cứu' })).toContainText('Tiếng Việt');
     await expect(publicPage.getByRole('region', { name: 'Thay đổi 7 ngày tới' })).toContainText(
       `tiết 1: dạy thay — Tiếng Việt (${nameB})`,

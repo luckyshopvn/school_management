@@ -26,7 +26,7 @@ export function TimetableLookupPage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-4 bg-page p-4">
       <h1 className="text-page-title font-bold text-text">
-        Thời khoá biểu{data ? ` ${data.kind === 'class' ? 'lớp' : 'giáo viên'} ${data.target_name}` : ''}
+        Thời khoá biểu{data ? ` ${data.kind === 'class' ? '' : 'giáo viên '}${data.target_name}` : ''}
       </h1>
       {!code ? <Alert tone="info">Quét mã QR thời khoá biểu do nhà trường cấp để xem.</Alert> : null}
       {lookup.error ? (
