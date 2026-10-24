@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.102
+- Phiên bản: 1.103
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -79,13 +79,16 @@
 | subjects | Môn học và hoạt động giáo dục theo cấp (P02-34, BR-166; YCTD-158, tệp năm học `0076_create_subjects`) | code (duy nhất), name, school_level, kind (`subject`, `activity`), assessment (`comment`, `comment_and_score`), order_no, status, thời điểm, người tạo |
 | timetable_versions | Bản thời khoá biểu theo cấp (P02-40, BR-170; YCTD-160, tệp năm học `0078_create_timetables`) | school_level, name, effective_from, status (`draft`, `published`), source (`manual`, `import`, `generator`), note, published_at, published_by, published_by_name, thời điểm, người tạo |
 | timetable_lessons | Tiết của lớp trong một bản (P02-40; YCTD-160) | version_id (khóa ngoại, xóa theo), class_id, weekday (1 đến 7, 1 là thứ Hai), period_no, subject_id, teacher_user_id, teacher_name, room_id; duy nhất theo bản, lớp, thứ, tiết |
-| timetable_generator_settings | Cài đặt máy xếp theo cấp (P02-45, BR-174; YCTD-164, tệp năm học `0082_create_timetable_generator`) | school_level (khóa chính), weights (mức 0 đến 10 của ràng buộc mềm), time_limit_seconds (5 đến 600), variant_count (1 đến 5), updated_by, updated_at |
-| timetable_subject_rules | Quy tắc xếp của môn (P02-45; YCTD-164) | subject_id (khóa chính, xóa theo môn), double_period, avoid_last_period, max_per_day (1 đến 10), room_id (phòng riêng), updated_by, updated_at |
-| timetable_teacher_busy | Tiết giáo viên báo bận trong tuần (P02-45; YCTD-164) | teacher_user_id, teacher_name, weekday, period_no, created_by, created_at; duy nhất theo giáo viên, thứ, tiết |
-| timetable_generation_runs | Lần xếp chạy nền (P02-45; YCTD-164) | school_level, status (`queued`, `running`, `completed`, `failed`, `cancelled`), weights, time_limit_seconds, variant_count, percent, best_score, best_hard, message, issues, người, thời điểm tạo, cập nhật, finished_at |
-| timetable_generation_variants | Phương án của lần xếp (P02-45; YCTD-164) | run_id (khóa ngoại, xóa theo), variant_no, score, hard_count, soft, violations, placements (lớp, môn, giáo viên, phòng, thứ, tiết), version_id (bản nháp tạo từ phương án); duy nhất theo lần xếp, số phương án |
-| timetable_changes | Dạy thay, đổi tiết theo ngày (P02-47, BR-174; YCTD-164) | change_date, class_id, period_no, kind (`substitute`, `swap`), pair_id (đổi tiết), subject_id, teacher_user_id, teacher_name, room_id, original_subject_id, original_teacher_user_id, original_teacher_name, reason, người, thời điểm tạo; duy nhất theo ngày, lớp, tiết |
-| timetable_lookup_codes | Mã tra cứu thời khoá biểu (P02-48; YCTD-164) | kind (`class`, `teacher`), target_id, target_name, code (duy nhất), created_by, created_at, revoked_at; một mã còn hiệu lực cho mỗi lớp, giáo viên |
+| timetable_generator_settings | Cài đặt máy xếp theo cấp (P02-48, BR-175; YCTD-164, tệp năm học `0082_create_timetable_generator`) | school_level (khóa chính), weights (mức 0 đến 10 của ràng buộc mềm), time_limit_seconds (5 đến 600), variant_count (1 đến 5), updated_by, updated_at |
+| timetable_subject_rules | Quy tắc xếp của môn (P02-48; YCTD-164) | subject_id (khóa chính, xóa theo môn), double_period, avoid_last_period, max_per_day (1 đến 10), room_id (phòng riêng), updated_by, updated_at |
+| timetable_teacher_busy | Tiết giáo viên báo bận trong tuần (P02-48; YCTD-164) | teacher_user_id, teacher_name, weekday, period_no, created_by, created_at; duy nhất theo giáo viên, thứ, tiết |
+| timetable_generation_runs | Lần xếp chạy nền (P02-48; YCTD-164) | school_level, status (`queued`, `running`, `completed`, `failed`, `cancelled`), weights, time_limit_seconds, variant_count, percent, best_score, best_hard, message, issues, người, thời điểm tạo, cập nhật, finished_at |
+| timetable_generation_variants | Phương án của lần xếp (P02-48; YCTD-164) | run_id (khóa ngoại, xóa theo), variant_no, score, hard_count, soft, violations, placements (lớp, môn, giáo viên, phòng, thứ, tiết), version_id (bản nháp tạo từ phương án); duy nhất theo lần xếp, số phương án |
+| timetable_changes | Dạy thay, đổi tiết theo ngày (P02-50, BR-175; YCTD-164) | change_date, class_id, period_no, kind (`substitute`, `swap`), pair_id (đổi tiết), subject_id, teacher_user_id, teacher_name, room_id, original_subject_id, original_teacher_user_id, original_teacher_name, reason, người, thời điểm tạo; duy nhất theo ngày, lớp, tiết |
+| timetable_lookup_codes | Mã tra cứu thời khoá biểu (P02-51; YCTD-164) | kind (`class`, `teacher`), target_id, target_name, code (duy nhất), created_by, created_at, revoked_at; một mã còn hiệu lực cho mỗi lớp, giáo viên |
+| class_logs | Sổ đầu bài: một lớp, ngày, tiết một dòng (P02-45, BR-174; YCTD-162, tệp năm học `0080_create_class_logs`) | class_id, lesson_date, period_no (1 đến 15), subject_id, timetable_lesson_id (khóa ngoại, xóa thì để trống), teacher_user_id, teacher_name, lesson_title (1 đến 300 ký tự), content, comment, rating (A, B, C, D), status (`draft`, `signed`), signed_at, created_by, thời điểm tạo, sửa; duy nhất theo lớp, ngày, tiết |
+| period_attendance | Điểm danh theo tiết (P02-45, P02-47; YCTD-162) | class_log_id (khóa ngoại, xóa theo), child_id, status (`present`, `late`, `absent_excused`, `absent_unexcused`), note; khóa chính lớp tiết, học sinh |
+| class_log_reviews | Ban giám hiệu ký sổ đầu bài theo tuần (P02-46; YCTD-162) | class_id, week_start (thứ Hai), reviewer_user_id, reviewer_name, comment, signed_at; duy nhất theo lớp, tuần |
 | curriculum_subjects | Số tiết mỗi tuần theo khối của chương trình (P02-34; YCTD-158) | curriculum_id (khóa ngoại `curricula`, xóa theo), subject_id, grade_level_code, periods_per_week (numeric 4,1), is_elective; duy nhất theo chương trình, môn, khối |
 | child_elective_subjects | Môn tự chọn của học sinh (P02-36; YCTD-158) | child_id (khóa ngoại `children`, xóa theo), subject_id, created_at, created_by; khóa chính (child_id, subject_id) |
 | org_unit_levels | Cấp học của đơn vị (YCTD-152, tệp năm học `0072`); đơn vị chưa có dòng coi là MN | org_unit_id (khóa ngoại, xóa theo), school_level, created_at, created_by; khóa chính (org_unit_id, school_level) |

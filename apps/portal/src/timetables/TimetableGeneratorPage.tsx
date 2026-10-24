@@ -26,7 +26,7 @@ import {
 } from './timetable-generator-api.js';
 import { ReadOnlyGrid } from './TimetablesPage.js';
 
-// 7.6 Xếp thời khoá biểu tự động (DT-20 phần 22c2, YCTD-164): mức quan trọng của ràng buộc, quy tắc xếp của môn, tiết giáo
+// 7.8 Xếp thời khoá biểu tự động (DT-20 phần 22c2, YCTD-164): mức quan trọng của ràng buộc, quy tắc xếp của môn, tiết giáo
 // viên báo bận; kiểm tra dữ liệu trước khi xếp; chạy máy xếp ở tiến trình chạy nền có giới hạn thời gian, theo dõi tiến độ;
 // so các phương án (điểm phạt theo ràng buộc, vi phạm bắt buộc), xem trước theo lớp; chọn phương án thành bản nháp ở 7.4 để
 // sửa tay, kiểm tra xung đột, ban hành
@@ -638,6 +638,6 @@ export function TimetableGeneratorPage() {
   );
 }
 
-// Lớp đang hoạt động của một cấp, dùng ở 7.7, 7.8
+// Lớp đang hoạt động của một cấp, dùng ở 7.9, 7.10
 export const listLevelClasses = (level: SchoolLevelCode): Promise<Array<{ id: string; name: string }>> =>
   requestJson(`/api/v1/classes?school_level=${level}&status=active`);

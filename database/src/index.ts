@@ -287,6 +287,8 @@ export type {
   SubjectAssessment,
   SubjectKind,
   TimetableSource,
+  ClassLogStatus,
+  PeriodAttendanceStatus,
   TimetableVersionStatus,
   TimetableGenerationStatus,
   TimetableChangeKind,

@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.106
+- Phiên bản: 1.107
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -861,25 +861,33 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | GET, POST | /api/v1/timetable-versions/{id}/import-template, /import | Tệp mẫu; nhập Excel vào bản nháp (P02-40) |
 | GET | /api/v1/timetables, /api/v1/timetables/mine | Bản đang áp dụng theo lớp, giáo viên, phòng, ngày; lịch dạy của tôi (P02-41) |
 | GET | /api/v1/children/{id}/timetable | Thời khoá biểu đang áp dụng của lớp con đang học (P02-41) |
-| GET, PUT | /api/v1/timetable-generator/settings | Mức quan trọng của ràng buộc, giới hạn thời gian, số phương án của cấp (P02-45, YCTD-164) |
-| GET, PUT | /api/v1/timetable-generator/subject-rules | Quy tắc xếp của môn, phòng chọn được (P02-45) |
-| GET | /api/v1/timetable-generator/teacher-busy | Giáo viên được phân công ở cấp kèm tiết bận, khung giờ, ngày học (P02-45) |
-| PUT | /api/v1/timetable-generator/teacher-busy/{teacherUserId} | Thay tiết bận của giáo viên (P02-45) |
-| GET | /api/v1/timetable-generator/precheck | Số lớp, giáo viên, tiết, ô; vấn đề của dữ liệu trước khi xếp (P02-45) |
-| GET, POST | /api/v1/timetable-generations | Lần xếp của cấp; bắt đầu lần xếp (P02-45) |
-| GET | /api/v1/timetable-generations/{id} | Trạng thái, tiến độ, vấn đề, các phương án (P02-45) |
-| POST | /api/v1/timetable-generations/{id}/cancel | Huỷ lần xếp chưa xong (P02-45) |
-| GET | /api/v1/timetable-generations/{id}/variants/{no} | Tiết của phương án kèm tên lớp, môn, giáo viên, phòng, khung giờ (P02-45) |
-| POST | /api/v1/timetable-generations/{id}/variants/{no}/apply | Tạo bản nháp từ phương án (P02-45) |
-| POST | /api/v1/timetable-versions/{id}/classes/{classId}/check | Xung đột nếu ghi các ô đang sửa của lớp, không ghi (P02-46) |
-| GET, POST | /api/v1/timetable-changes | Dạy thay, đổi tiết trong khoảng ngày; ghi thay đổi (P02-47) |
-| GET | /api/v1/timetable-changes/day | Tiết thực tế của một ngày theo lớp hoặc giáo viên (P02-47) |
-| GET | /api/v1/timetable-changes/teachers | Giáo viên có thể dạy thay (P02-47) |
-| DELETE | /api/v1/timetable-changes/{id} | Xoá thay đổi (đổi tiết xoá cả cặp) (P02-47) |
-| GET | /api/v1/timetable-reports/teaching, /api/v1/timetable-reports/rooms | Báo cáo tiết dạy theo giáo viên; dùng phòng (P02-48) |
-| GET, POST | /api/v1/timetable-lookup-codes | Mã tra cứu còn hiệu lực; tạo mã của lớp hoặc giáo viên (P02-48) |
-| DELETE | /api/v1/timetable-lookup-codes/{id} | Thu hồi mã (P02-48) |
-| GET | /api/v1/public/timetable-lookup/{code} | Trang tra cứu không cần đăng nhập: thời khoá biểu đang áp dụng, thay đổi 7 ngày tới (P02-48) |
+| GET, PUT | /api/v1/timetable-generator/settings | Mức quan trọng của ràng buộc, giới hạn thời gian, số phương án của cấp (P02-48, YCTD-164) |
+| GET, PUT | /api/v1/timetable-generator/subject-rules | Quy tắc xếp của môn, phòng chọn được (P02-48) |
+| GET | /api/v1/timetable-generator/teacher-busy | Giáo viên được phân công ở cấp kèm tiết bận, khung giờ, ngày học (P02-48) |
+| PUT | /api/v1/timetable-generator/teacher-busy/{teacherUserId} | Thay tiết bận của giáo viên (P02-48) |
+| GET | /api/v1/timetable-generator/precheck | Số lớp, giáo viên, tiết, ô; vấn đề của dữ liệu trước khi xếp (P02-48) |
+| GET, POST | /api/v1/timetable-generations | Lần xếp của cấp; bắt đầu lần xếp (P02-48) |
+| GET | /api/v1/timetable-generations/{id} | Trạng thái, tiến độ, vấn đề, các phương án (P02-48) |
+| POST | /api/v1/timetable-generations/{id}/cancel | Huỷ lần xếp chưa xong (P02-48) |
+| GET | /api/v1/timetable-generations/{id}/variants/{no} | Tiết của phương án kèm tên lớp, môn, giáo viên, phòng, khung giờ (P02-48) |
+| POST | /api/v1/timetable-generations/{id}/variants/{no}/apply | Tạo bản nháp từ phương án (P02-48) |
+| POST | /api/v1/timetable-versions/{id}/classes/{classId}/check | Xung đột nếu ghi các ô đang sửa của lớp, không ghi (P02-49) |
+| GET, POST | /api/v1/timetable-changes | Dạy thay, đổi tiết trong khoảng ngày; ghi thay đổi (P02-50) |
+| GET | /api/v1/timetable-changes/day | Tiết thực tế của một ngày theo lớp hoặc giáo viên (P02-50) |
+| GET | /api/v1/timetable-changes/teachers | Giáo viên có thể dạy thay (P02-50) |
+| DELETE | /api/v1/timetable-changes/{id} | Xoá thay đổi (đổi tiết xoá cả cặp) (P02-50) |
+| GET | /api/v1/timetable-reports/teaching, /api/v1/timetable-reports/rooms | Báo cáo tiết dạy theo giáo viên; dùng phòng (P02-51) |
+| GET, POST | /api/v1/timetable-lookup-codes | Mã tra cứu còn hiệu lực; tạo mã của lớp hoặc giáo viên (P02-51) |
+| DELETE | /api/v1/timetable-lookup-codes/{id} | Thu hồi mã (P02-51) |
+| GET | /api/v1/public/timetable-lookup/{code} | Trang tra cứu không cần đăng nhập: thời khoá biểu đang áp dụng, thay đổi 7 ngày tới (P02-51) |
+| GET | /api/v1/class-logs/week | Sổ đầu bài của lớp trong tuần chứa `date`: tiết theo thời khoá biểu kèm tiết đã ghi, số vắng, muộn, chữ ký Ban giám hiệu (P02-46, YCTD-162) |
+| GET | /api/v1/class-logs/mine | Các tiết tôi dạy trong ngày kèm tiết đã ghi (P02-45) |
+| GET | /api/v1/class-logs/lesson | Chi tiết một tiết (`class_id`, `date`, `period_no`) kèm học sinh và điểm danh mặc định (P02-45) |
+| PUT | /api/v1/class-logs | Ghi tiết và điểm danh theo tiết (P02-45) |
+| POST | /api/v1/class-logs/{id}/sign | Giáo viên ký tiết (P02-45) |
+| POST | /api/v1/class-logs/reviews | Ban giám hiệu ký sổ tuần (cần `P02.class-log.review`) (P02-46) |
+| GET | /api/v1/period-attendance/summary | Chuyên cần theo tiết của lớp trong khoảng ngày (P02-47) |
+| GET | /api/v1/children/{id}/period-attendance | Điểm danh theo tiết của con trong tháng (P02-47) |
 | GET | /api/v1/audit-logs | Tra nhật ký thao tác; `page_size` đến 200 (YCTD-109) |
 | GET, POST | /api/v1/api-clients | Danh sách và cấp khóa API cho đối tác |
 | POST | /api/v1/api-clients/{id}/revoke | Thu hồi khóa API |
@@ -1531,7 +1539,17 @@ Giao kèo thời khoá biểu (DT-20 phần 22c1, YCTD-160, BR-170):
 6. `GET /timetables` (nhân sự), `/timetables/mine` (giáo viên), `/children/{id}/timetable` (phụ huynh của học sinh, nhân sự) trả `versions` (bản đang áp dụng của từng cấp), `slots` (khung giờ theo cấp), `lessons`.
 
 
-Giao kèo máy xếp thời khoá biểu (DT-20 phần 22c2, YCTD-164, BR-174):
+Giao kèo sổ đầu bài (DT-20 phần 20d, YCTD-162, BR-174):
+
+1. `PUT /class-logs` nhận `class_id`, `lesson_date` (YYYY-MM-DD), `period_no` (1 đến 15), `lesson_title` (1 đến 300 ký tự), `content` (tối đa 2000), `comment` (tối đa 1000), `rating` (A, B, C, D hoặc rỗng), `attendance` (`child_id`, `status` là `present`, `late`, `absent_excused`, `absent_unexcused`, `note` tối đa 300; không trùng học sinh); sai trả 400; học sinh không thuộc lớp trả 400; không phải giáo viên của tiết trả 403; ngày chưa đến, lớp không có tiết, tiết đã ký, tuần đã ký trả 422. Ghi lại cùng lớp, ngày, tiết thì sửa bản đã ghi và thay toàn bộ điểm danh.
+2. `POST /class-logs/{id}/sign` trả tiết đã ký; người khác trả 403; đã ký trả 422.
+3. `GET /class-logs/lesson` trả `subject_name`, `teacher_name`, `log`, `week_signed`, `can_edit`, `students` (`child_id`, `full_name`, `absence_reason` khi có báo vắng của ngày, `status`, `note`); lớp không có tiết và chưa ghi trả 404.
+4. `POST /class-logs/reviews` nhận `class_id`, `date` (ngày bất kỳ trong tuần), `comment`; trả 201 `review`, `lessons`, `unsigned_lessons`; tuần đã ký trả 422.
+5. `GET /period-attendance/summary` (`class_id`, `from`, `to`) trả `lessons` (số tiết đã ghi) và `students` (`present`, `late`, `absent_excused`, `absent_unexcused`, `absent_days`, `notice_days`, `absent_without_notice_days`, `notice_but_present_days`, `daily_absent_days`).
+6. `GET /children/{id}/period-attendance?month=YYYY-MM` (phụ huynh của học sinh, nhân sự) trả `counts` theo trạng thái và `records` (các tiết không có mặt: `lesson_date`, `period_no`, `subject_name`, `status`, `note`); phụ huynh khác trả 403.
+
+
+Giao kèo máy xếp thời khoá biểu (DT-20 phần 22c2, YCTD-164, BR-175):
 
 1. `PUT /timetable-generator/settings` nhận `school_level`, `weights` (`double_period`, `avoid_last_period`, `spread_week`, `teacher_gaps`, `class_gaps`, số nguyên 0 đến 10), `time_limit_seconds` (5 đến 600), `variant_count` (1 đến 5); sai trả 400. `PUT …/subject-rules` nhận `school_level`, `rules` (`subject_id`, `double_period`, `avoid_last_period`, `max_per_day` 1 đến 10 hoặc trống, `room_id`); môn khác cấp trả 400. `PUT …/teacher-busy/{teacherUserId}` nhận `slots` (`weekday`, `period_no`); giáo viên chưa phân công trả 404.
 2. `POST /timetable-generations` nhận `school_level` (và tùy chọn `weights`, `time_limit_seconds`, `variant_count` thay cài đặt đã lưu); trả lần xếp trạng thái `queued` (201). Cấp còn lần xếp chưa xong hoặc không có tiết nào cần xếp trả 422.

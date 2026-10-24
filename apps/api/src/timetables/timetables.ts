@@ -205,7 +205,7 @@ export class TimetablesService {
 
   // Nhân sự xem được lớp; vai trò phụ huynh (VT-14) cũng có quyền xem hồ sơ con nên không tính, phụ huynh xem qua thời khoá
   // biểu của con
-  private isStaffViewer(currentUser: CurrentUser): boolean {
+  isStaffViewer(currentUser: CurrentUser): boolean {
     return currentUser.description.assignments.some(
       (assignment) =>
         assignment.role_code !== 'VT-14' && VIEW_PERMISSIONS.some((code) => assignment.permissions.includes(code)),

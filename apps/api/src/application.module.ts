@@ -233,6 +233,12 @@ import {
   TimetableVersionsController,
 } from './timetables/timetables.js';
 import {
+  ChildPeriodAttendanceController,
+  ClassLogsController,
+  ClassLogsService,
+  PeriodAttendanceController,
+} from './class-logs/class-logs.js';
+import {
   createGenerationQueue,
   TimetableGenerationJobs,
   TimetableGenerationQueue,
@@ -501,6 +507,9 @@ export class ApplicationModule {
         TimetableVersionsController,
         TimetablesController,
         ChildTimetableController,
+        ClassLogsController,
+        PeriodAttendanceController,
+        ChildPeriodAttendanceController,
         // Máy xếp thời khoá biểu, dạy thay, đổi tiết, báo cáo, mã tra cứu (DT-20 phần 22c2)
         TimetableGeneratorController,
         TimetableGenerationsController,
@@ -732,6 +741,7 @@ export class ApplicationModule {
         ElectiveSubjectsService,
         TeachingAssignmentsService,
         TimetablesService,
+        ClassLogsService,
         TimetableGeneratorService,
         TimetableChangesService,
         TimetableGenerationJobs,

@@ -32,6 +32,8 @@ const MAXIMUM_REPORT_DAYS = 92;
 type Executor = Kysely<SchoolYearDatabase> | Transaction<SchoolYearDatabase>;
 
 export interface EffectiveLesson {
+  // Tiết của thời khoá biểu ở ô đó (sổ đầu bài 20d trỏ về); trống khi ô không có tiết theo thời khoá biểu
+  id: string | null;
   class_id: string;
   class_name: string;
   weekday: number;
@@ -173,6 +175,7 @@ export class TimetableChangesService {
     const result = new Map<string, EffectiveLesson>();
     for (const lesson of base) {
       result.set(`${lesson.class_id}:${lesson.period_no}`, {
+        id: lesson.id,
         class_id: lesson.class_id,
         class_name: lesson.class_name,
         weekday,
@@ -188,6 +191,7 @@ export class TimetableChangesService {
     }
     for (const change of changes) {
       result.set(`${change.class_id}:${change.period_no}`, {
+        id: result.get(`${change.class_id}:${change.period_no}`)?.id ?? null,
         class_id: change.class_id,
         class_name: change.class_name,
         weekday,

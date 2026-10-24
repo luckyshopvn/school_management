@@ -454,6 +454,19 @@ describe('Điểm cuối máy xếp thời khoá biểu', () => {
     const changed = after.find((lesson) => lesson.period_no === free.period_no);
     assert.equal(changed?.teacher_user_id, substitute?.userId);
     assert.equal((changed?.change as Record<string, unknown>).kind, 'substitute');
+    // Sổ đầu bài (20d): lịch dạy của người dạy thay có tiết này, của giáo viên gốc không còn
+    const mine = async (user: LoggedInUser | undefined) =>
+      list((await api('GET', `/class-logs/mine?date=${schoolDay}`, user?.accessToken ?? '')).body.lessons);
+    assert.ok(
+      (await mine(substitute)).some(
+        (lesson) => lesson.class_id === classes['1A'] && lesson.period_no === free.period_no,
+      ),
+    );
+    assert.ok(
+      !(await mine(teachers[0])).some(
+        (lesson) => lesson.class_id === classes['1A'] && lesson.period_no === free.period_no,
+      ),
+    );
     // Bản ban hành giữ nguyên
     const published = list(
       (await api('GET', `/timetable-versions/${versionId}/lessons?class_id=${classes['1A']}`, viewer.accessToken)).body

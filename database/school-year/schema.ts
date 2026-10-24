@@ -203,6 +203,47 @@ export interface TimetableLessonsTable {
   created_at: CreatedTimestamp;
 }
 
+// Sổ đầu bài và điểm danh theo tiết (DT-20 phần 20d, YCTD-162)
+export type ClassLogStatus = 'draft' | 'signed';
+export type PeriodAttendanceStatus = 'present' | 'late' | 'absent_excused' | 'absent_unexcused';
+
+export interface ClassLogsTable {
+  id: Generated<string>;
+  class_id: string;
+  lesson_date: string;
+  period_no: number;
+  subject_id: string;
+  timetable_lesson_id: string | null;
+  teacher_user_id: string;
+  teacher_name: string;
+  lesson_title: string;
+  content: string | null;
+  comment: string | null;
+  rating: string | null;
+  status: Generated<ClassLogStatus>;
+  signed_at: Date | null;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface PeriodAttendanceTable {
+  class_log_id: string;
+  child_id: string;
+  status: PeriodAttendanceStatus;
+  note: string | null;
+}
+
+export interface ClassLogReviewsTable {
+  id: Generated<string>;
+  class_id: string;
+  week_start: string;
+  reviewer_user_id: string;
+  reviewer_name: string;
+  comment: string | null;
+  signed_at: CreatedTimestamp;
+}
+
 // Máy xếp thời khoá biểu, dạy thay, đổi tiết, mã tra cứu (DT-20 phần 22c2, YCTD-164)
 export type TimetableGenerationStatus = 'queued' | 'running' | 'completed' | 'failed' | 'cancelled';
 export type TimetableChangeKind = 'substitute' | 'swap';
@@ -5133,6 +5174,9 @@ export interface SchoolYearDatabase {
   child_elective_subjects: ChildElectiveSubjectsTable;
   timetable_versions: TimetableVersionsTable;
   timetable_lessons: TimetableLessonsTable;
+  class_logs: ClassLogsTable;
+  period_attendance: PeriodAttendanceTable;
+  class_log_reviews: ClassLogReviewsTable;
   timetable_generator_settings: TimetableGeneratorSettingsTable;
   timetable_subject_rules: TimetableSubjectRulesTable;
   timetable_teacher_busy: TimetableTeacherBusyTable;

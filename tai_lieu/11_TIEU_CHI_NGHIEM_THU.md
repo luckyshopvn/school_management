@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.59
+- Phiên bản: 1.60
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -838,10 +838,13 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-763 | Cho lớp 4 có giáo viên chủ nhiệm và giáo viên Toán / Khi mỗi người nhập môn của mình, nhập môn của người khác, nhập điểm ở môn không có bài kiểm tra / Thì nhận; 403; 400 (CT-859; YCTD-161) |
 | AC-764 | Cho kỳ quá hạn hoặc đã khoá / Khi giáo viên, Hiệu trưởng sửa; Hiệu trưởng mở khoá không lý do, có lý do / Thì quá hạn: giáo viên 422, Hiệu trưởng nhận; đã khoá: cả hai 422; mở khoá 400, nhận (CT-860; YCTD-161) |
 | AC-765 | Cho lớp đã nhập kỳ cuối năm / Khi xem tổng hợp, gợi ý cuối năm, phụ huynh xem trước và sau khi khoá / Thì số theo mức, điểm theo khoảng đúng; gợi ý theo Điều 9; phụ huynh chỉ thấy kỳ đã khoá và kết quả cuối năm (CT-857, CT-861, CT-862; YCTD-161) |
-| AC-766 | Cho trường có Tiểu học đã khai báo khung giờ, môn, phân công / Khi Hiệu trưởng chạy máy xếp / Thì tiến trình chạy nền xếp trong giới hạn thời gian, báo tiến độ, cho các phương án không vi phạm ràng buộc bắt buộc nếu xếp được; dữ liệu không thể xếp được báo rõ ràng buộc nào bị vi phạm (CT-864, CT-866, CT-867, CT-868, CT-870, CT-873; YCTD-164) |
-| AC-767 | Cho các phương án đã xếp / Khi chọn một phương án / Thì tạo bản nháp nguồn máy xếp, sửa tay có kiểm tra ngay, ban hành theo luồng phiên bản; mức quan trọng 0 tắt ràng buộc mềm (CT-865, CT-869, CT-873, CT-874, CT-877; YCTD-164) |
-| AC-768 | Cho bản đang áp dụng / Khi ghi dạy thay, đổi tiết của một ngày / Thì tiết thực tế của ngày đổi, bản ban hành giữ nguyên; giáo viên đang có tiết khác cùng lúc bị chặn; báo cáo tiết dạy tính đúng (CT-875, CT-877; YCTD-164) |
-| AC-769 | Cho mã QR của lớp hoặc giáo viên / Khi người không đăng nhập mở đường dẫn của mã / Thì thấy thời khoá biểu đang áp dụng và thay đổi 7 ngày tới; mã thu hồi thì báo không đúng (CT-876, CT-877; YCTD-164) |
+| AC-766 | Cho trường chỉ có Mầm non / Khi nâng cấp lên phiên bản có sổ đầu bài / Thì không có mục mới, điểm danh theo ngày và ứng dụng như trước (CT-864, CT-869; YCTD-162) |
+| AC-767 | Cho giáo viên có tiết trong thời khoá biểu đang áp dụng / Khi mở Sổ đầu bài, ghi tiết, điểm danh, ký sổ / Thì học sinh đã báo vắng mặc định vắng có phép; giáo viên khác, ngày chưa đến, học sinh ngoài lớp bị từ chối; tiết đã ký không sửa (CT-865, CT-866, CT-869; YCTD-162) |
+| AC-768 | Cho sổ của lớp trong tuần / Khi Ban giám hiệu ký sổ tuần, phụ huynh mở Điểm danh theo tiết, nhân sự mở Chuyên cần theo tiết / Thì ký một lần và khoá ghi trong tuần; phụ huynh chỉ thấy con mình; bảng chuyên cần đối chiếu đúng ngày báo vắng (CT-867, CT-868, CT-869; YCTD-162) |
+| AC-769 | Cho trường có Tiểu học đã khai báo khung giờ, môn, phân công / Khi Hiệu trưởng chạy máy xếp / Thì tiến trình chạy nền xếp trong giới hạn thời gian, báo tiến độ, cho các phương án không vi phạm ràng buộc bắt buộc nếu xếp được; dữ liệu không thể xếp được báo rõ ràng buộc nào bị vi phạm (CT-870, CT-872, CT-873, CT-874, CT-876, CT-879; YCTD-164) |
+| AC-770 | Cho các phương án đã xếp / Khi chọn một phương án / Thì tạo bản nháp nguồn máy xếp, sửa tay có kiểm tra ngay, ban hành theo luồng phiên bản; mức quan trọng 0 tắt ràng buộc mềm (CT-871, CT-875, CT-879, CT-880, CT-883; YCTD-164) |
+| AC-771 | Cho bản đang áp dụng / Khi ghi dạy thay, đổi tiết của một ngày / Thì tiết thực tế của ngày đổi, bản ban hành giữ nguyên; giáo viên đang có tiết khác cùng lúc bị chặn; báo cáo tiết dạy tính đúng (CT-881, CT-883; YCTD-164) |
+| AC-772 | Cho mã QR của lớp hoặc giáo viên / Khi người không đăng nhập mở đường dẫn của mã / Thì thấy thời khoá biểu đang áp dụng và thay đổi 7 ngày tới; mã thu hồi thì báo không đúng (CT-882, CT-883; YCTD-164) |
 
 ## 20. Chưa xác minh được
 

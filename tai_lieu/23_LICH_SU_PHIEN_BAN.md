@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.37
+- Phiên bản: 0.38
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,7 +16,7 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.111.0 – 2026-10-24
+### Phiên bản 0.112.0 – 2026-10-24
 
 - Phạm vi thay đổi: DT-20 phần 22c2, thời khoá biểu phần máy xếp (YCTD-164).
 - Chức năng mới: máy xếp chạy nền có giới hạn thời gian, nhiều phương án, mức quan trọng của ràng buộc chỉnh được, quy tắc môn, tiết giáo viên báo bận; phương án thành bản nháp; chỉnh tay có kiểm tra ngay; dạy thay, đổi tiết theo ngày; báo cáo tiết dạy, dùng phòng; mã QR và trang tra cứu công khai.
@@ -24,10 +24,22 @@
 - Thay đổi dữ liệu: tệp năm học `0082_create_timetable_generator`.
 - Thay đổi API: `/timetable-generator/…`, `/timetable-generations/…`, `/timetable-versions/{id}/classes/{classId}/check`, `/timetable-changes/…`, `/timetable-reports/…`, `/timetable-lookup-codes/…`, `/public/timetable-lookup/{code}`.
 - Triển khai: ảnh Docker mới `worker` và dịch vụ `worker` (chỉ nối Redis); máy chủ API thêm biến `REDIS_URL`.
-- Kiểm thử: kịch bản CT-864 đến CT-877. Kết quả ngày 24/10/2026: kiểm thử đơn vị máy xếp `packages/server/src/timetable-solver.test.ts` CT-22c2-1 đến CT-22c2-6 đạt 6/6, tiến trình chạy nền `apps/worker/src/timetable-generation.test.ts` CT-22c2-7 đạt, máy chủ API `apps/api/src/timetables/timetable-generator.test.ts` CT-22c2-8 đến CT-22c2-13 đạt 6/6; kiểm thử đơn vị toàn bộ kho mã 1067/1067 (hai ca chạy lại riêng đạt: `leave.test.ts` lỗi hết bộ nhớ của máy, CT-22c2-12 sửa cách chọn cặp đổi tiết); kiểm thử giao diện `tests/e2e/93-timetable-generator.spec.ts` (CT-22c2-14) đạt; toàn bộ kiểm thử giao diện 163/163 (162 ca ở lần chạy đủ, ca 93 chạy lại đạt sau khi sửa bộ chọn thông báo); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử: kịch bản CT-870 đến CT-883. Kết quả ngày 24/10/2026: kiểm thử đơn vị máy xếp `packages/server/src/timetable-solver.test.ts` CT-22c2-1 đến CT-22c2-6 đạt 6/6, tiến trình chạy nền `apps/worker/src/timetable-generation.test.ts` CT-22c2-7 đạt, máy chủ API `apps/api/src/timetables/timetable-generator.test.ts` CT-22c2-8 đến CT-22c2-13 đạt 6/6; kiểm thử đơn vị toàn bộ kho mã 1067/1067 trước khi gộp 20d (hai ca chạy lại riêng: `leave.test.ts` lỗi hết bộ nhớ của máy, CT-22c2-12 sửa cách chọn cặp đổi tiết); sau khi gộp 20d chạy lại toàn kho …; kiểm thử giao diện `tests/e2e/93-timetable-generator.spec.ts` (CT-22c2-14) đạt; toàn bộ kiểm thử giao diện 163/163 trước khi gộp 20d (ca 93 chạy lại sau khi sửa bộ chọn thông báo); sau khi gộp 20d …; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Rủi ro: máy xếp chạy lâu ở trường lớn; đã giới hạn thời gian và chạy ở tiến trình riêng.
 - Khả năng tương thích: trường chỉ có Mầm non không đổi hành vi.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 22c2; chạy phần quay lui của tệp năm học `0082`; bỏ dịch vụ `worker`.
+
+### Phiên bản 0.111.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-20 phần 20d, sổ đầu bài và điểm danh theo tiết (YCTD-162).
+- Chức năng mới: sổ đầu bài theo thời khoá biểu (tên bài, nội dung, nhận xét, xếp loại tiết, giáo viên ký); điểm danh theo tiết ở ứng dụng giáo viên; Ban giám hiệu ký sổ tuần; phụ huynh xem điểm danh theo tiết, báo vắng ở cấp phổ thông; tổng hợp chuyên cần theo tiết đối chiếu báo vắng theo ngày.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0080_create_class_logs`; tệp định danh `0071_add_class_log_permission`.
+- Thay đổi API: `/class-logs`, `/class-logs/week`, `/class-logs/mine`, `/class-logs/lesson`, `/class-logs/{id}/sign`, `/class-logs/reviews`, `/period-attendance/summary`, `/children/{id}/period-attendance`.
+- Kiểm thử: kịch bản CT-864 đến CT-869. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/class-logs/class-logs.test.ts` CT-20d-1 đến CT-20d-5 đạt 5/5; kiểm thử đơn vị toàn bộ kho mã đạt 1069/1069; kiểm thử giao diện `tests/e2e/91-class-logs.spec.ts` (CT-20d-6) đạt; toàn bộ kiểm thử giao diện đạt 162/163 (CT-20b-7 `88-boarding-conduct.spec.ts` lỗi chập chờn: danh sách ăn chưa làm mới sau khi đổi ngày, không liên quan 20d; lượt chạy trước cùng mã đạt); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: không có thay đổi dữ liệu cũ.
+- Khả năng tương thích: trường chỉ có Mầm non không đổi hành vi; điểm danh Mầm non giữ nguyên.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 20d; chạy phần quay lui của tệp năm học `0080`, định danh `0071`.
 
 ### Phiên bản 0.110.0 – 2026-10-23
 
