@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.62
+- Phiên bản: 1.63
 - Phiên bản: 1.61
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
@@ -853,6 +853,7 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-774 | Cho các phương án đã xếp / Khi chọn một phương án / Thì tạo bản nháp nguồn máy xếp, sửa tay có kiểm tra ngay, ban hành theo luồng phiên bản; mức quan trọng 0 tắt ràng buộc mềm (CT-878, CT-882, CT-886, CT-887, CT-890; YCTD-164) |
 | AC-775 | Cho bản đang áp dụng / Khi ghi dạy thay, đổi tiết của một ngày / Thì tiết thực tế của ngày đổi, bản ban hành giữ nguyên; giáo viên đang có tiết khác cùng lúc bị chặn; báo cáo tiết dạy tính đúng (CT-888, CT-890; YCTD-164) |
 | AC-776 | Cho mã QR của lớp hoặc giáo viên / Khi người không đăng nhập mở đường dẫn của mã / Thì thấy thời khoá biểu đang áp dụng và thay đổi 7 ngày tới; mã thu hồi thì báo không đúng (CT-889, CT-890; YCTD-164) |
+| AC-780 | Cho lớp THPT có tiết cả lớp và hai nhóm học môn lựa chọn cùng ô / Khi thêm tiết cả lớp vào ô đã có tiết nhóm, ban hành, xem thời khoá biểu của ba học sinh (hai tổ hợp, một chưa đăng ký tổ hợp) / Thì xung đột cứng chặn ban hành; sau khi sửa ban hành được; mỗi học sinh chỉ thấy tiết cả lớp và tiết nhóm của tổ hợp mình; dạy thay tiết nhóm bị từ chối, tiết cả lớp được; tiết đôi, phòng bộ môn hiện ở cảnh báo (CT-897 đến CT-903; YCTD-169) |
 
 ## 20. Chưa xác minh được
 
