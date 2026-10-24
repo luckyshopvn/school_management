@@ -26,7 +26,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Rủi ro: biểu khung chưa khớp biểu thật của Bộ, Sở; khi có tài khoản Sở cấp Tiểu học thì khảo sát, sửa dòng, mã số bằng "Sửa khung biểu" (không cần đổi mã) và ghi đối chiếu vào tài liệu 31.
 - Chưa làm trong phần này, ghi để làm tiếp: thêm biểu mới vào danh mục từ giao diện (hiện sửa dòng của biểu có sẵn; biểu thêm bằng tệp thay đổi cấu trúc hệ thống và cần khởi động lại để đăng ký gửi lên cấp trên); cột tách số tuỳ biến ngoài năm cột có sẵn.
 - Kiểm thử cần thực hiện: CT-891 đến CT-897. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/primary-reports/primary-reports.test.ts` CT-20f-1 đến CT-20f-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.12 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của Tiểu học của CT-19c-1); kiểm thử đơn vị toàn bộ kho mã đạt 1081/1081 trước khi gộp 22c2; sau khi gộp chạy lại các tệp kiểm thử bị ảnh hưởng (primary-reports, working-level, menu-permissions đạt 18/18; boarding, assessments, primary-reports sau khi sửa lọc đơn vị đạt 18/18); kiểm thử giao diện `tests/e2e/94-primary-reports.spec.ts` (CT-20f-7) đạt; toàn bộ kiểm thử giao diện trên máy chạy các kịch bản 02, 03, 06, 08, 58, 94 đạt 18/18 (e2e toàn bộ do CI chạy); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
-- Trạng thái: Đã triển khai (PR #145).
+- Trạng thái: Đã triển khai (PR #148).
 
 ### YCTD-164: DT-20 phần 22c2: thời khoá biểu, máy xếp – 2026-10-24
 

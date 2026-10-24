@@ -712,7 +712,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 | 20d | 3 | Đã làm, YCTD-162, phiên bản 0.111.0, PR 142: sổ đầu bài theo bản thời khoá biểu đang áp dụng (năm học 0080 `class_logs`), điểm danh theo tiết (`period_attendance`), giáo viên ký tiết, Ban giám hiệu ký sổ tuần (`class_log_reviews`, quyền `P02.class-log.review` định danh 0071); ứng dụng giáo viên Sổ đầu bài, phụ huynh Điểm danh theo tiết; 7.6, 7.7 có tổng hợp chuyên cần đối chiếu báo vắng; điểm danh Mầm non giữ nguyên; e2e 91 |
 | 20e | 3 | Đã làm (PR #144, YCTD-163, phiên bản 0.112.0) |
 | 22c2 | 4 | Đã làm, YCTD-164, phiên bản 0.113.0, PR 143: máy xếp tự viết (xếp tham lam rồi tìm kiếm cục bộ, ràng buộc bắt buộc và năm ràng buộc mềm có mức 0 đến 10, nhiều phương án, giới hạn thời gian) chạy ở `apps/worker` qua hàng đợi Redis; phương án thành bản nháp (năm học 0082); chỉnh tay có kiểm tra ngay; dạy thay, đổi tiết theo ngày (`timetable_changes`, nguồn tiết thực tế cho 20d); báo cáo tiết dạy, dùng phòng; mã QR và trang tra cứu công khai; định danh 0073 để trống; e2e 93. Đo trên dữ liệu thử 30 lớp, 66 giáo viên: điểm phạt 0 trong khoảng 12 giây mỗi phương án nên không phải dừng ở chỉnh tay |
-| 20f | 4 | Đã làm (PR #145, YCTD-165, phiên bản 0.114.0) |
+| 20f | 4 | Đã làm (PR #148, YCTD-165, phiên bản 0.114.0) |
 
 
 ## 12. DT-21: THCS và THPT (kèm 22g kiểm tra, đánh giá)
