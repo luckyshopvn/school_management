@@ -34,6 +34,12 @@
 #### Vấn đề tồn đọng
 
 - Xếp tự động tiết nhóm; dạy thay, đổi tiết cho tiết nhóm; định mức tiết của tổ bộ môn làm cảnh báo; sổ đầu bài, điểm danh theo tiết cho tiết nhóm thuộc 21d.
+### 2026-10-24 — Sửa kiểm thử chập chờn CT-22c2-12 (dạy thay, đổi tiết)
+
+#### Công việc đã thực hiện
+
+- Kiểm thử đơn vị CT-22c2-12 (`apps/api/src/timetables/timetable-generator.test.ts`, YCTD-164) hỏng trên CI của PR 145 (đọc `period_no` của giá trị trống) trong khi nhánh chính vẫn đạt. Nguyên nhân: ca kiểm thử chọn trước người dạy thay rồi mới tìm tiết người đó rảnh, và chọn trước một cặp tiết để đổi; với phương án ngẫu nhiên của máy xếp, có ngày mọi tiết của giáo viên 1 đều trùng tiết người dạy thay, hoặc cặp đã chọn vướng giáo viên dạy lớp khác. Không phụ thuộc thứ trong tuần (vòng tìm đã bỏ qua ngày không có tiết).
+- Sửa ca kiểm thử: tìm cùng lúc ngày, tiết và người dạy thay đang rảnh trong 7 ngày tới; tiết trùng dùng để thử chặn dạy thay; đổi tiết thử lần lượt các cặp khác môn của lớp 1B tới cặp đầu tiên máy chủ nhận, các cặp bị chặn phải trả 422. Không đổi mã nghiệp vụ, không đổi kỳ vọng. Chạy lại 15 lần trên máy (ngày thứ Bảy) đều đạt 6/6.
 
 ### 2026-10-24 — DT-21 phần 21c: sổ điểm THCS, THPT
 
