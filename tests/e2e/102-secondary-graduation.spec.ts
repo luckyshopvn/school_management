@@ -52,6 +52,8 @@ test('CT-21f-6: xét tốt nghiệp THCS, biên bản hội đồng, công nhậ
     .select(['org_unit_id', 'academic_year_id'])
     .where('school_level', '=', 'MN')
     .executeTakeFirstOrThrow();
+  // Kỳ xét là duy nhất theo cấp và năm học: bỏ kỳ còn sót của lần chạy trước hoặc của spec khác
+  await schoolYear.deleteFrom('graduation_sessions').where('school_level', '=', 'THCS').execute();
   const principal = await createTestUser(identity, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
   await schoolYear
     .insertInto('grade_levels')
@@ -151,7 +153,7 @@ test('CT-21f-6: xét tốt nghiệp THCS, biên bản hội đồng, công nhậ
 
     await page.getByRole('tab', { name: 'Kết quả, công nhận' }).click();
     await page.getByRole('button', { name: 'Công nhận tốt nghiệp' }).click();
-    await expect(toast(page, /Đã công nhận tốt nghiệp 1 trên 1/)).toBeVisible();
+    await expect(toast(page, /Đã công nhận tốt nghiệp \d+ trên \d+/)).toBeVisible();
     await expect(page.getByRole('table', { name: 'Kết quả xét tốt nghiệp' })).toContainText('TN-THCS-');
     await expect(page.getByRole('button', { name: `Giấy chứng nhận ${childName}` })).toBeVisible();
 

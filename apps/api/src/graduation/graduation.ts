@@ -1119,7 +1119,7 @@ export class GraduationService {
             },
           ];
     const buffer = await buildTableFile('xlsx', sheets, this.clock.now());
-    const fileName = `${kind === 'candidates' ? 'thi-sinh' : 'ket-qua'}-${view.session.school_level.toLowerCase()}-${view.session.academic_year_name}.xlsx`;
+    const fileName = `${kind === 'candidates' ? 'thi-sinh' : 'ket-qua'}-${view.session.school_level.toLowerCase()}-${view.session.academic_year_name.replace(/[^0-9A-Za-z]+/g, '-')}.xlsx`;
     await database.transaction().execute(async (transaction) => {
       const created = await transaction
         .insertInto('graduation_submissions')
@@ -1296,7 +1296,7 @@ function throwIf(errors: FieldError[]) {
 
 function sendFile(response: Response, contentType: string, fileName: string, data: Buffer) {
   response.setHeader('Content-Type', contentType);
-  response.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+  response.setHeader('Content-Disposition', `attachment; filename="${fileName.replace(/[^0-9A-Za-z._-]+/g, '-')}"`);
   response.send(data);
 }
 
