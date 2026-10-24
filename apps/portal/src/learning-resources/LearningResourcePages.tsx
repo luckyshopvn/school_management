@@ -332,6 +332,7 @@ function ResourceDetailPanel({ id, onMessage }: { id: string; onMessage(message:
         >
           <Field label="Loại lỗi">
             <select
+              aria-label="Loại lỗi"
               className={FORM_CONTROL_CLASS}
               value={report.kind}
               onChange={(event) => setReport({ ...report, kind: event.target.value as LearningResourceReportKind })}
@@ -387,6 +388,7 @@ export function ResourceSearchPage() {
         </Field>
         <Field label="Loại học liệu">
           <select
+            aria-label="Loại học liệu"
             className={FORM_CONTROL_CLASS}
             value={filter.type_id}
             onChange={(event) => setFilter({ ...filter, type_id: event.target.value })}
@@ -401,6 +403,7 @@ export function ResourceSearchPage() {
         </Field>
         <Field label="Cấp học">
           <select
+            aria-label="Cấp học"
             className={FORM_CONTROL_CLASS}
             value={filter.school_level}
             onChange={(event) => setFilter({ ...filter, school_level: event.target.value })}
@@ -415,6 +418,7 @@ export function ResourceSearchPage() {
         </Field>
         <Field label="Môn học">
           <select
+            aria-label="Môn học"
             className={FORM_CONTROL_CLASS}
             value={filter.subject_code}
             onChange={(event) => setFilter({ ...filter, subject_code: event.target.value })}
@@ -501,6 +505,7 @@ function ResourceForm({ onCreated }: { onCreated(id: string, message: string): v
         </Field>
         <Field label="Loại học liệu">
           <select
+            aria-label="Loại học liệu"
             className={FORM_CONTROL_CLASS}
             value={form.type_id}
             onChange={(event) => setForm({ ...form, type_id: event.target.value })}
@@ -517,6 +522,7 @@ function ResourceForm({ onCreated }: { onCreated(id: string, message: string): v
         </Field>
         <Field label="Phạm vi xem">
           <select
+            aria-label="Phạm vi xem"
             className={FORM_CONTROL_CLASS}
             value={form.visibility}
             onChange={(event) => setForm({ ...form, visibility: event.target.value as ResourceVisibility })}
@@ -529,7 +535,12 @@ function ResourceForm({ onCreated }: { onCreated(id: string, message: string): v
           </select>
         </Field>
         <Field label="Cấp học">
-          <select className={FORM_CONTROL_CLASS} value={form.school_level ?? ''} onChange={text('school_level')}>
+          <select
+            aria-label="Cấp học"
+            className={FORM_CONTROL_CLASS}
+            value={form.school_level ?? ''}
+            onChange={text('school_level')}
+          >
             <option value="">Không ghi</option>
             {LEVELS.map((level) => (
               <option key={level.value} value={level.value}>
@@ -540,6 +551,7 @@ function ResourceForm({ onCreated }: { onCreated(id: string, message: string): v
         </Field>
         <Field label="Khối">
           <select
+            aria-label="Khối"
             className={FORM_CONTROL_CLASS}
             value={form.grade_level_code ?? ''}
             onChange={text('grade_level_code')}
@@ -555,7 +567,12 @@ function ResourceForm({ onCreated }: { onCreated(id: string, message: string): v
           </select>
         </Field>
         <Field label="Môn học">
-          <select className={FORM_CONTROL_CLASS} value={form.subject_code ?? ''} onChange={text('subject_code')}>
+          <select
+            aria-label="Môn học"
+            className={FORM_CONTROL_CLASS}
+            value={form.subject_code ?? ''}
+            onChange={text('subject_code')}
+          >
             <option value="">Không ghi</option>
             {(catalog.data?.subjects ?? [])
               .filter((subject) => !form.school_level || subject.school_level === form.school_level)
@@ -567,7 +584,12 @@ function ResourceForm({ onCreated }: { onCreated(id: string, message: string): v
           </select>
         </Field>
         <Field label="Chủ đề">
-          <select className={FORM_CONTROL_CLASS} value={form.topic_id ?? ''} onChange={text('topic_id')}>
+          <select
+            aria-label="Chủ đề"
+            className={FORM_CONTROL_CLASS}
+            value={form.topic_id ?? ''}
+            onChange={text('topic_id')}
+          >
             <option value="">Không ghi</option>
             {(catalog.data?.topics ?? [])
               .filter((topic) => topic.status === 'active')
@@ -589,7 +611,12 @@ function ResourceForm({ onCreated }: { onCreated(id: string, message: string): v
           <input className={FORM_CONTROL_CLASS} value={form.author_name ?? ''} onChange={text('author_name')} />
         </Field>
         <Field label="Giấy phép">
-          <select className={FORM_CONTROL_CLASS} value={form.license_id ?? ''} onChange={text('license_id')}>
+          <select
+            aria-label="Giấy phép"
+            className={FORM_CONTROL_CLASS}
+            value={form.license_id ?? ''}
+            onChange={text('license_id')}
+          >
             <option value="">Chọn giấy phép</option>
             {(catalog.data?.licenses ?? [])
               .filter((item) => item.status === 'active')
@@ -768,6 +795,7 @@ export function CollectionsPage() {
             <div className="flex flex-wrap items-end gap-2">
               <Field label="Thêm học liệu">
                 <select
+                  aria-label="Thêm học liệu"
                   className={FORM_CONTROL_CLASS}
                   value={adding}
                   onChange={(event) => setAdding(event.target.value)}
@@ -819,6 +847,7 @@ export function CollectionsPage() {
           </Field>
           <Field label="Phạm vi chia sẻ">
             <select
+              aria-label="Phạm vi chia sẻ"
               className={FORM_CONTROL_CLASS}
               value={form.visibility}
               onChange={(event) => setForm({ ...form, visibility: event.target.value })}
