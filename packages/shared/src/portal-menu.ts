@@ -159,6 +159,9 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           // Thời khoá biểu phần khung (DT-20 phần 22c1)
           leaf('7.3.', 'Khung giờ tiết học', '/period-slots'),
           leaf('7.4.', 'Thời khoá biểu', '/timetables'),
+          // Sổ đầu bài, điểm danh theo tiết (DT-20 phần 20d)
+          leaf('7.5.', 'Sổ đầu bài', '/class-logs'),
+          leaf('7.6.', 'Chuyên cần theo tiết', '/period-attendance'),
         ]),
       ),
     ],
