@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.104
+- Phiên bản: 1.105
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -851,6 +851,16 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | GET | /api/v1/teaching-assignments | Môn của lớp theo chương trình và khối kèm giáo viên đang dạy (`class_id`) (P02-35) |
 | GET | /api/v1/teaching-assignments/teachers | Tổng tiết mỗi tuần của giáo viên theo cấp (P02-35) |
 | GET, PUT | /api/v1/children/{id}/elective-subjects | Môn tự chọn của học sinh và các môn chọn được (P02-36) |
+| GET, PUT | /api/v1/period-slots | Khung giờ tiết học của cấp ở năm học đang dùng; thay cả khung (cần `P02.timetable.manage`) (P02-39, YCTD-160) |
+| GET, POST | /api/v1/timetable-versions | Bản thời khoá biểu theo cấp kèm `is_current`; tạo bản nháp, chép từ bản khác (P02-40) |
+| PATCH, DELETE | /api/v1/timetable-versions/{id} | Sửa tên, ngày áp dụng, ghi chú; xoá bản nháp (P02-40) |
+| GET | /api/v1/timetable-versions/{id}/lessons | Tiết của bản kèm khung giờ; lọc `class_id`, `teacher_user_id`, `room_id` (P02-40) |
+| PUT | /api/v1/timetable-versions/{id}/classes/{classId}/lessons | Thay tiết của một lớp trong bản nháp (P02-40) |
+| GET | /api/v1/timetable-versions/{id}/conflicts | Xung đột cứng, mềm của bản (P02-40) |
+| POST | /api/v1/timetable-versions/{id}/publish | Ban hành bản nháp (P02-40) |
+| GET, POST | /api/v1/timetable-versions/{id}/import-template, /import | Tệp mẫu; nhập Excel vào bản nháp (P02-40) |
+| GET | /api/v1/timetables, /api/v1/timetables/mine | Bản đang áp dụng theo lớp, giáo viên, phòng, ngày; lịch dạy của tôi (P02-41) |
+| GET | /api/v1/children/{id}/timetable | Thời khoá biểu đang áp dụng của lớp con đang học (P02-41) |
 | GET | /api/v1/audit-logs | Tra nhật ký thao tác; `page_size` đến 200 (YCTD-109) |
 | GET, POST | /api/v1/api-clients | Danh sách và cấp khóa API cho đối tác |
 | POST | /api/v1/api-clients/{id}/revoke | Thu hồi khóa API |
@@ -1490,6 +1500,16 @@ Giao kèo nền Tiểu học (DT-20 phần 20a, YCTD-158, BR-166):
 4. `POST /classes/{id}/staff-assignments` nhận thêm `subject_id`, `periods_per_week`; lớp Tiểu học vai trò bộ môn thiếu `subject_id` trả 400; môn khác cấp, ngừng dùng trả 400; môn đã có giáo viên trả 422. Phân công trả thêm `subject_id`, `periods_per_week`.
 5. `GET /teaching-assignments?class_id=` trả `class`, `curriculum`, `subjects` (dòng số tiết của khối lớp kèm `assignment`), `planned_periods`; `GET /teaching-assignments/teachers?school_level=` trả `staff_user_id`, `staff_name`, `total_periods`, `classes`.
 6. `GET /children/{id}/elective-subjects` trả `subjects` (đã chọn), `options` (môn tự chọn của khối); `PUT` nhận `subject_ids`; môn ngoài `options` trả 422.
+
+
+Giao kèo thời khoá biểu (DT-20 phần 22c1, YCTD-160, BR-170):
+
+1. `PUT /period-slots` nhận `school_level`, `slots` (`period_no`, `session`, `start_time`, `end_time`); sai giờ, trùng tiết, chồng giờ trả 400 ở `slots[n].…` hoặc `slots`.
+2. `POST /timetable-versions` nhận `school_level`, `name`, `effective_from` (YYYY-MM-DD), `copy_from_id` (tùy chọn, cùng cấp); trả bản nháp. `PATCH`, `DELETE`, `PUT …/classes/{classId}/lessons`, `POST …/import` với bản đã ban hành trả 422.
+3. `PUT …/classes/{classId}/lessons` nhận `lessons` (`weekday` 1 đến 7, `period_no` 1 đến 15, `subject_id`, `room_id` tùy chọn); trùng ô trả 400; môn khác cấp, phòng ngoài đơn vị trả 400; lớp khác cấp với bản trả 422. Giáo viên của tiết lấy theo phân công môn ở lớp.
+4. `GET …/conflicts` trả mảng `severity` (`hard`, `soft`), `code` (`teacher_clash`, `room_clash`, `period_outside_frame`, `day_outside_week`, `subject_outside_curriculum`, `periods_mismatch`, `missing_teacher`, `teacher_not_assigned`), `message`, `class_id`, `weekday`, `period_no`. `POST …/publish` còn xung đột cứng hoặc bản trống trả 422 (`details` liệt kê xung đột).
+5. `POST …/import` (tệp `file`) trả `imported`, `classes`, `errors` (`row`, `column`, `message`); có lỗi thì không ghi.
+6. `GET /timetables` (nhân sự), `/timetables/mine` (giáo viên), `/children/{id}/timetable` (phụ huynh của học sinh, nhân sự) trả `versions` (bản đang áp dụng của từng cấp), `slots` (khung giờ theo cấp), `lessons`.
 
 
 Giao kèo kế hoạch giáo dục (DT-18 phần 22i, YCTD-147, BR-142):

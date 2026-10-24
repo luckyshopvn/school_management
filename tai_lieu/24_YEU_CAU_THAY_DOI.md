@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.37
+- Phiên bản: 0.38
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đang cập nhật
 
@@ -31,8 +31,37 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Đối chiếu trước, sau chuyển: không chuyển dữ liệu; cấu hình trống đến khi nhà trường nạp.
 - Rủi ro: hạn nhập mặc định theo ngày kết thúc học kỳ; trường cần ghi hạn riêng nếu muốn nhập sau ngày đó.
 - Chưa làm trong phần này, ghi để làm tiếp: nhập Excel theo mẫu lớp × môn, xuất bảng tổng hợp ra tệp; màn hình sửa thư viện câu nhận xét, mức đạt, danh mục ở cổng (máy chủ đã có điểm cuối, giao diện hiện xem và nạp mặc định, sửa hạn nhập).
-- Kiểm thử cần thực hiện: CT-857 đến CT-863. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/assessments/assessments.test.ts` CT-20c-1 đến CT-20c-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.3 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của Tiểu học của CT-19c-1); kiểm thử đơn vị toàn bộ kho mã đạt 1059/1059; kiểm thử giao diện `tests/e2e/90-student-assessments.spec.ts` (CT-20c-7) đạt; toàn bộ kiểm thử giao diện đạt 160/161 (spec 90 mới đạt; spec 38 nhắc nợ chập chờn, không liên quan, đạt ở lượt trước); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử cần thực hiện: CT-857 đến CT-863. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/assessments/assessments.test.ts` CT-20c-1 đến CT-20c-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.3 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của Tiểu học của CT-19c-1); kiểm thử đơn vị toàn bộ kho mã E2E_UNIT; kiểm thử giao diện `tests/e2e/90-student-assessments.spec.ts` (CT-20c-7) đạt; toàn bộ kiểm thử giao diện E2E_PLACEHOLDER; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Trạng thái: Đã triển khai (PR #139).
+
+### YCTD-160: DT-20 phần 22c1: thời khoá biểu, phần khung – 2026-10-23
+
+- Lý do: phần 22c1 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.3, 11.4 (kế hoạch DT-20 ở YCTD-157; phần 22c của kế hoạch DT-22 Eric duyệt ngày 2026-10-19, khung và nhập Excel làm trước, máy xếp sau ở 22c2). Dùng môn học, số tiết theo khối và phân công giảng dạy theo môn của 20a (YCTD-158). Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Khung giờ tiết học** (bảng `period_slots`, tệp hệ thống `0026_create_period_slots`): theo năm học và cấp, mỗi tiết một dòng (số tiết 1 đến 15, buổi sáng hoặc chiều, giờ bắt đầu, kết thúc dạng HH:MM; tiết sau không bắt đầu trước khi tiết trước kết thúc). Trang "7.3. Khung giờ tiết học" có nút điền khung mẫu Tiểu học 35 phút một tiết.
+  - **Bản thời khoá biểu** (bảng `timetable_versions`, tệp năm học `0078_create_timetables`): theo cấp, có tên, ngày áp dụng, trạng thái nháp hoặc đã ban hành, nguồn (nhập tay, nhập Excel, máy xếp của 22c2); tạo bản trống hoặc chép từ bản khác; bản nháp sửa, xoá được, bản đã ban hành chỉ đọc. Bản đang áp dụng của một cấp vào một ngày là bản đã ban hành có ngày áp dụng gần nhất không sau ngày đó.
+  - **Tiết học** (bảng `timetable_lessons`): lớp, thứ (ISO, 1 là thứ Hai), tiết, môn, giáo viên, phòng; một lớp một tiết một môn. Giáo viên luôn lấy theo phân công môn ở lớp (20a); phòng thuộc đơn vị của lớp. Bảng `timetables` của phân hệ Giảng dạy (lịch hoạt động Mầm non) giữ nguyên.
+  - **Kiểm tra xung đột**: xung đột cứng (chặn ban hành): giáo viên dạy hai lớp cùng tiết, phòng dùng cho hai lớp cùng tiết, tiết ngoài khung giờ của cấp, ngày ngoài ngày học trong tuần của cấp, môn không có trong chương trình của khối lớp; xung đột mềm (cảnh báo): số tiết của môn trong tuần khác chương trình (số lẻ làm tròn lên), tiết chưa có giáo viên, giáo viên không phải người được phân công môn ở lớp. Ban hành bị chặn khi còn xung đột cứng (trả danh sách xung đột).
+  - **Nhập Excel** vào bản nháp: tệp mẫu (Mã lớp, Thứ 2 đến 7 hoặc CN, Tiết, Mã môn, Mã phòng) kèm danh mục lớp, môn, phòng; dòng lỗi báo theo dòng và cột, có lỗi thì không ghi; tệp đúng thay toàn bộ tiết của các lớp có trong tệp, lớp không có giữ nguyên.
+  - **Trang "7.4. Thời khoá biểu"**: danh sách bản, tạo bản nháp, mở bản; lưới thứ × tiết xem theo lớp, giáo viên hoặc phòng; bản nháp sửa theo lớp (mỗi ô chọn môn của khối lớp, đếm số tiết đã xếp so với chương trình); nút "Kiểm tra xung đột", "Ban hành", "Tải mẫu Excel", "Nhập Excel", "Xoá bản nháp".
+  - **Xem bản đang áp dụng**: ứng dụng giáo viên có "Lịch dạy của tôi" (giáo viên có lớp cấp phổ thông); ứng dụng phụ huynh có "Thời khoá biểu" ở thẻ con học cấp phổ thông (`LEVEL_FEATURES.period_timetable`); trang "Thời khóa biểu" của website trường (18f) hiện bảng của từng lớp khi đã có bản ban hành.
+  - **Quyền mới** `P02.timetable.manage` (tệp định danh `0069_add_timetable_permission`) cho Hiệu trưởng, Phó Hiệu trưởng.
+  - **Sửa lỗi 1.1 Khai báo cơ sở vật chất**: bấm "Thêm mới" trước khi danh sách đơn vị tải xong thì phòng mới chưa có đơn vị dù ô chọn hiện đơn vị đầu (máy chủ báo "Bắt buộc chọn đơn vị"); nay nhận đơn vị mặc định khi danh sách về (`facilities/FacilityRoomsPage.tsx`).
+  - **Chuẩn bị cho 22c2**: kiểm tra xung đột là hàm thuần `findTimetableConflicts` dùng chung; máy xếp ghi kết quả vào bản nháp với nguồn `generator`.
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/system/migrations/0026_create_period_slots.ts`, `database/school-year/migrations/0078_create_timetables.ts`, `database/identity/migrations/0069_add_timetable_permission.ts`, `schema.ts`, `index.ts`, `database/src/index.ts`); máy chủ API (`timetables/timetables.ts`, `timetables/timetable-rules.ts`, `website/website-public.ts`, `application.module.ts`); cổng quản trị (`timetables/PeriodSlotsPage.tsx`, `timetables/TimetablesPage.tsx`, `timetables/timetables-api.ts`, `router.tsx`); ứng dụng giáo viên (`screens/MyTimetableScreen.tsx`, `screens/ClassesScreen.tsx`, `Application.tsx`); ứng dụng phụ huynh (`screens/TimetablePanel.tsx`, `screens/HomeScreen.tsx`); gói dùng chung (`index.ts`, `portal-menu.ts`, `menu-permissions.ts`, `level-features.ts`, `subjects.ts`); kiểm thử (CT-19c-1 thêm hai đường dẫn chỉ của Tiểu học vào danh sách so); tài liệu `01`, `02`, `03`, `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: ba bảng mới, một quyền mới; không đổi dữ liệu cũ. Trường chỉ có Mầm non không có bản thời khoá biểu nào nên mọi màn hình, trang website như trước.
+- API bị ảnh hưởng: mới `GET, PUT /period-slots`, `GET, POST /timetable-versions`, `PATCH, DELETE /timetable-versions/{id}`, `GET /timetable-versions/{id}/lessons`, `PUT /timetable-versions/{id}/classes/{classId}/lessons`, `GET /timetable-versions/{id}/conflicts`, `POST /timetable-versions/{id}/publish`, `GET /timetable-versions/{id}/import-template`, `POST /timetable-versions/{id}/import`, `GET /timetables`, `GET /timetables/mine`, `GET /children/{id}/timetable` (xem `17_DAC_TA_API.md`).
+- Giao diện bị ảnh hưởng: MH-263, MH-264; ứng dụng giáo viên, ứng dụng phụ huynh, trang "Thời khóa biểu" của website.
+- Quyền bị ảnh hưởng: PQ-94. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
+- Ảnh hưởng chức năng cũ: trường chỉ có Mầm non không thấy mục mới; bảng `timetables` của Giảng dạy không đổi; kiểm thử đang có không sửa kỳ vọng, trừ CT-19c-1 (danh sách đường dẫn chỉ của Tiểu học thêm hai trang).
+- Hạn chế:
+  - Chưa kiểm định mức tiết của giáo viên khi xếp (chưa có cấu hình định mức; làm cùng 22c2);
+  - Chưa có dạy thay, đổi tiết theo ngày, xuất PDF, mã QR tra cứu (22c2);
+  - Giáo viên của tiết luôn theo phân công môn ở lớp; muốn đổi giáo viên thì đổi phân công ở 7.2;
+  - Khung giờ tiết khai báo theo từng năm học, chưa chép sang năm học mới;
+  - Ban hành chưa gửi thông báo cho giáo viên, phụ huynh.
+- Kiểm thử cần thực hiện: kịch bản CT-851 đến CT-856 (trong mã kiểm thử là CT-22c1-1 đến CT-22c1-6); kiểm thử đơn vị mới `apps/api/src/timetables/timetables.test.ts`; kiểm thử giao diện mới `tests/e2e/89-timetables.spec.ts`
+- Trạng thái: Đã triển khai
 
 ### YCTD-159: DT-20 phần 20b: bán trú Tiểu học; nề nếp và thi đua lớp – 2026-10-23
 

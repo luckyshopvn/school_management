@@ -16,6 +16,7 @@ import { LoginScreen } from './screens/LoginScreen.js';
 import { MedicationScreen } from './screens/MedicationScreen.js';
 import { PickupScreen } from './screens/PickupScreen.js';
 import { StocktakeScreen } from './screens/StocktakeScreen.js';
+import { MyTimetableScreen } from './screens/MyTimetableScreen.js';
 import { TeachingScreen } from './screens/TeachingScreen.js';
 import { WorkScreen } from './screens/WorkScreen.js';
 import { DemoBanner } from '@school-management/ui';
@@ -45,6 +46,7 @@ function Screens() {
     | { screen: 'payslips' }
     | { screen: 'work' }
     | { screen: 'stocktake' }
+    | { screen: 'timetable' }
   >();
   const back = () => setOpened(undefined);
   if (session.status === 'checking') {
@@ -98,6 +100,9 @@ function Screens() {
   if (opened?.screen === 'leave') {
     return <LeaveScreen onBack={back} />;
   }
+  if (opened?.screen === 'timetable') {
+    return <MyTimetableScreen onBack={back} />;
+  }
   if (opened?.screen === 'stocktake') {
     return <StocktakeScreen onBack={back} />;
   }
@@ -122,6 +127,7 @@ function Screens() {
       onOpenPayslips={() => setOpened({ screen: 'payslips' })}
       onOpenWork={() => setOpened({ screen: 'work' })}
       onOpenStocktake={() => setOpened({ screen: 'stocktake' })}
+      onOpenTimetable={() => setOpened({ screen: 'timetable' })}
     />
   );
 }

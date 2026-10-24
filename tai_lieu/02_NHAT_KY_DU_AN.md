@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.37
+- Phiên bản: 0.38
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đang cập nhật
 
@@ -22,7 +22,7 @@
 - Cơ sở dữ liệu: tệp năm học `0079_create_student_assessments`, tệp định danh `0070_add_assessment_permissions`.
 - Máy chủ API: cấu hình đánh giá theo cấp, nạp mặc định; nhập kết quả định kỳ theo phân công, hạn nhập, khoá số liệu; nhận xét thường xuyên; tổng hợp cuối kỳ; gợi ý, xác nhận cuối năm; phụ huynh xem; chuyển cấu hình sang năm học mới.
 - Cổng quản trị: 7.3 Đánh giá học sinh; ứng dụng giáo viên: màn hình đánh giá; ứng dụng phụ huynh: kết quả đánh giá.
-- Thêm quy tắc BR-171 đến BR-173, chức năng P02-42 đến P02-44, kịch bản CT-857 đến CT-863, tiêu chí AC-762 đến AC-765. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/assessments/assessments.test.ts` CT-20c-1 đến CT-20c-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.3 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của Tiểu học của CT-19c-1); kiểm thử đơn vị toàn bộ kho mã đạt 1059/1059; kiểm thử giao diện `tests/e2e/90-student-assessments.spec.ts` (CT-20c-7) đạt; toàn bộ kiểm thử giao diện đạt 160/161 (spec 90 mới đạt; spec 38 nhắc nợ chập chờn, không liên quan, đạt ở lượt trước); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm quy tắc BR-171 đến BR-173, chức năng P02-42 đến P02-44, kịch bản CT-857 đến CT-863, tiêu chí AC-762 đến AC-765. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/assessments/assessments.test.ts` CT-20c-1 đến CT-20c-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.3 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của Tiểu học của CT-19c-1); kiểm thử đơn vị toàn bộ kho mã E2E_UNIT; kiểm thử giao diện `tests/e2e/90-student-assessments.spec.ts` (CT-20c-7) đạt; toàn bộ kiểm thử giao diện E2E_PLACEHOLDER; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
@@ -35,6 +35,28 @@
 #### Vấn đề tồn đọng
 
 - Nhập Excel theo mẫu lớp × môn, xuất bảng tổng hợp ra tệp; màn hình sửa thư viện câu nhận xét, mức đạt, danh mục ở cổng (điểm cuối đã có).
+
+### 2026-10-23 — DT-20 phần 22c1: thời khoá biểu, phần khung
+
+#### Công việc đã thực hiện
+
+- Đọc mục 11 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và phần 22c của kế hoạch DT-22; rà bảng `timetables` của Giảng dạy, lịch theo cấp (YCTD-152), công cụ nhập Excel (16a), trang thời khoá biểu chờ sẵn của website (18f), môn học và phân công theo môn (YCTD-158).
+- Cơ sở dữ liệu: tệp hệ thống `0026`, năm học `0078`, định danh `0069`. Máy chủ API: khung giờ tiết, bản thời khoá biểu, tiết theo lớp, kiểm tra xung đột (hàm thuần dùng chung với 22c2), ban hành, nhập Excel, xem bản đang áp dụng; trang website.
+- Cổng quản trị: 7.3 Khung giờ tiết học, 7.4 Thời khoá biểu. Ứng dụng giáo viên: Lịch dạy của tôi. Ứng dụng phụ huynh: Thời khoá biểu của con.
+- Thêm quy tắc BR-170, chức năng P02-39 đến P02-41, quyền PQ-94, màn hình MH-263, MH-264, kịch bản CT-851 đến CT-856, tiêu chí AC-759 đến AC-761. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/timetables/timetables.test.ts` CT-22c1-1 đến CT-22c1-5 đạt 5/5; kiểm thử đơn vị toàn bộ kho mã đạt 1058/1058 (không sửa kỳ vọng của kiểm thử đang có, trừ danh sách đường dẫn của CT-19c-1); kiểm thử giao diện `tests/e2e/89-timetables.spec.ts` (CT-22c1-6) đạt; toàn bộ kiểm thử giao diện đạt 161/161; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 22c1 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.4. Thời khoá biểu theo môn là bảng mới, có phiên bản và ngày áp dụng; giáo viên của tiết theo phân công; ban hành chặn khi còn xung đột cứng; nhập Excel một dòng một tiết; khung giờ lưu ở cơ sở dữ liệu hệ thống cạnh lịch theo cấp; quyền lập, ban hành cho Hiệu trưởng, Phó Hiệu trưởng. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-160, `07_QUY_TAC_NGHIEP_VU.md` BR-170, `08_VAI_TRO_NGUOI_DUNG.md` PQ-94, `10_YEU_CAU_CHUC_NANG.md` P02-39 đến P02-41, `11_TIEU_CHI_NGHIEM_THU.md` AC-759 đến AC-761, `14_DAC_TA_GIAO_DIEN.md` MH-263, MH-264, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-851 đến CT-856, `23_LICH_SU_PHIEN_BAN.md` 0.109.0.
+
+#### Vấn đề tồn đọng
+
+- 22c2: máy xếp tự động, chỉnh tay có kiểm tra ngay, dạy thay, đổi tiết, định mức tiết, báo cáo tiết dạy, mã QR; 20d dùng bản đang áp dụng làm nguồn sổ đầu bài, điểm danh theo tiết.
+
 
 ### 2026-10-23 — DT-20 phần 20b: bán trú Tiểu học; nề nếp và thi đua lớp
 

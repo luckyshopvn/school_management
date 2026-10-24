@@ -60,6 +60,7 @@ import { migration as addQualityAssurancePermissions } from './migrations/0063_a
 import { migration as addUserSchoolLevels } from './migrations/0064_add_user_school_levels.js';
 import { migration as createUserPreferences } from './migrations/0065_create_user_preferences.js';
 import { migration as addBoardingConductPermissions } from './migrations/0068_add_boarding_conduct_permissions.js';
+import { migration as addTimetablePermission } from './migrations/0069_add_timetable_permission.js';
 import { migration as addAssessmentPermissions } from './migrations/0070_add_assessment_permissions.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu định danh, theo số thứ tự (QU-01)
@@ -125,5 +126,6 @@ export const identityMigrations: Record<string, Migration> = {
   '0064_add_user_school_levels': addUserSchoolLevels,
   '0065_create_user_preferences': createUserPreferences,
   '0068_add_boarding_conduct_permissions': addBoardingConductPermissions,
+  '0069_add_timetable_permission': addTimetablePermission,
   '0070_add_assessment_permissions': addAssessmentPermissions,
 };

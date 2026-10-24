@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   PERMISSION_CODES,
@@ -268,6 +268,18 @@ export function FacilityRoomsPage({ path = '/facility-rooms' }: { path?: PortalQ
   const [condition, setCondition] = useState('');
   const [search, setSearch] = useState('');
   const [draft, setDraft] = useState<{ value: RoomDraft; roomId: string | null }>();
+  // Bấm "Thêm mới" khi danh sách đơn vị chưa tải xong thì phòng mới chưa có đơn vị dù ô chọn hiện đơn vị đầu; nhận đơn vị
+  // mặc định khi danh sách về
+  const defaultUnitId = unitChoice.selectedId;
+  useEffect(() => {
+    if (defaultUnitId) {
+      setDraft((current) =>
+        current && current.roomId === null && current.value.org_unit_id === ''
+          ? { ...current, value: { ...current.value, org_unit_id: defaultUnitId } }
+          : current,
+      );
+    }
+  }, [defaultUnitId, draft?.roomId, draft?.value.org_unit_id]);
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
   const filters = { org_unit_id: orgUnitId, room_block: block, room_type: roomType, condition };

@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.73
+- Phiên bản: 1.74
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -935,6 +935,12 @@ Ca CT-105 đến CT-550 lần lượt kiểm tra AC-149 đến AC-594. CT-534 đ
 | CT-848 | P02-37 | Cấu hình mặc định; giáo viên bật; nạp tiêu chí mặc định hai lần; ghi điểm khi chưa bật; bật; mã trùng | Chưa bật, 100; 403; 8 rồi 0 tiêu chí; 422; 200; 409 | Kiểm thử đơn vị CT-20b-5 đạt ngày 23/10/2026 | Đạt |
 | CT-849 | P02-37, P02-38 | Ghi Đi học muộn ×2 có người báo; Việc tốt cho 1B; tiêu chí Tiểu học cho lớp Mầm non; xếp hạng tuần; xóa dòng của người khác, của mình | -2; 201; 422; 1B 103 hạng 1, 1A 98 hạng 2; 403, 200 | Kiểm thử đơn vị CT-20b-6 đạt ngày 23/10/2026 | Đạt |
 | CT-850 | P04-07, P02-37, P02-38 | Giao diện: bật Tiểu học, bật nề nếp; 4.8 cắt suất, chốt; 4.9 nạp tiêu chí, ghi điểm, xếp hạng; ứng dụng giáo viên, phụ huynh | 1 suất đã chốt; lớp 103 điểm; nút Bán trú, không Báo cơm; Cắt suất bán trú ở con Tiểu học | Kiểm thử giao diện `tests/e2e/88-boarding-conduct.spec.ts` CT-20b-7 đạt ngày 23/10/2026 | Đạt |
+| CT-851 | P02-39, P02-40 | Hàm kiểm tra khung giờ (giờ ngược, tiết 16, trùng tiết, chồng giờ, buổi sai), ô tiết (trùng ô, thứ 8), thứ trong tệp; xung đột của bộ tiết mẫu | 400 các ca sai; 2→1, 7→6, CN→7; đủ năm loại xung đột cứng, ba loại mềm | Kiểm thử tự động `apps/api/src/timetables/timetables.test.ts` CT-22c1-1 đạt ngày 23/10/2026 | Đạt |
+| CT-852 | P02-39, P02-40 | Giáo viên ghi khung giờ; Hiệu trưởng ghi bốn tiết; giáo viên tạo bản; tạo bản nháp; xếp ba tiết lớp 1A; môn không có | 403; 4 tiết; 403; nháp; giáo viên theo phân công; 400 | Kiểm thử tự động `apps/api/src/timetables/timetables.test.ts` CT-22c1-2 đạt ngày 23/10/2026 | Đạt |
+| CT-853 | P02-40 | Lớp 1B cùng tiết, cùng cô với 1A; ban hành; sửa; ban hành; sửa bản đã ban hành; xoá; chép bản; danh sách bản; xoá bản chép | xung đột cứng trùng giáo viên, ngoài khung; 422; chỉ còn cảnh báo; đã ban hành; 422; 422; 3 tiết; nháp, đang áp dụng; 204 | Kiểm thử tự động `apps/api/src/timetables/timetables.test.ts` CT-22c1-3 đạt ngày 23/10/2026 | Đạt |
+| CT-854 | P02-41 | Xem theo lớp 1A, theo cô dạy Tiếng Việt; phụ huynh xem lưới nhân sự; lịch dạy của cô dạy Toán; phụ huynh của học sinh; phụ huynh khác | Tiếng Việt, Toán, 4 tiết khung; lớp 1A, 1B; 403; Lớp 1A Toán; 2 tiết; 403 | Kiểm thử tự động `apps/api/src/timetables/timetables.test.ts` CT-22c1-4 đạt ngày 23/10/2026 | Đạt |
+| CT-855 | P02-40 | Nhập Excel bản chép: dòng sai lớp, thứ, môn, phòng, trùng ô; tệp đúng ba dòng của 1A có phòng, Chủ nhật | báo lỗi dòng 3, 4, 5, không ghi; thay tiết 1A, giữ 1B, nguồn nhập Excel, xung đột ngày ngoài tuần | Kiểm thử tự động `apps/api/src/timetables/timetables.test.ts` CT-22c1-5 đạt ngày 23/10/2026 | Đạt |
+| CT-856 | P02-39, P02-40, P02-41 | Giao diện: bật Tiểu học, nạp môn; 7.3 điền khung mẫu, ghi; 7.4 tạo bản, xếp Tiếng Việt hai tiết, ghi, kiểm tra xung đột, ban hành; ứng dụng giáo viên; ứng dụng phụ huynh; tắt Tiểu học | ghi được khung; cảnh báo số tiết; Đang áp dụng; Lịch dạy có tiết 1 07:15–07:50; Thời khoá biểu của con có tiết 1 | Kiểm thử giao diện `tests/e2e/89-timetables.spec.ts` CT-22c1-6 đạt ngày 23/10/2026 | Đạt |
 | CT-857 | P02-44 | Gợi ý cuối năm với các bộ hạng mức, điểm | Xuất sắc, tốt, hoàn thành, chưa hoàn thành; thiếu kết quả không gợi ý | Kiểm thử đơn vị CT-20c-1 đạt ngày 23/10/2026 | Đạt |
 | CT-858 | P02-42 | Giáo viên nạp mặc định; Hiệu trưởng nạp hai lần; bài kiểm tra giữa kỳ, cuối kỳ khối 4 | 403; 6 mức, 15 mục, 4 kỳ rồi 0; giữa kỳ Tiếng Việt, Toán; cuối kỳ có Khoa học, không có Đạo đức | Kiểm thử đơn vị CT-20c-2 đạt ngày 23/10/2026 | Đạt |
 | CT-859 | P02-43 | Quyền nhập của chủ nhiệm, giáo viên Toán; chủ nhiệm nhập Toán; Toán có điểm; Đạo đức có điểm; mức X, điểm 11; lớp Mầm non | Chủ nhiệm không có Toán, có phẩm chất; 403; 200; 400; 400; 422 | Kiểm thử đơn vị CT-20c-3 đạt ngày 23/10/2026 | Đạt |

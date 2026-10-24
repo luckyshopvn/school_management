@@ -251,6 +251,8 @@ export const PERMISSION_CODES = {
   educationPlanManage: 'P09.education-plan.manage',
   // Cấu hình cấp học của trường ở 1.4 Cấu hình trường (DT-19 phần 19a)
   schoolLevelManage: 'P01.school-level.manage',
+  // Lập, nhập, ban hành thời khoá biểu, khung giờ tiết học (DT-20 phần 22c1)
+  timetableManage: 'P02.timetable.manage',
   // Thi đua, khen thưởng (DT-18 phần 22d)
   emulationUse: 'P09.emulation.use',
   emulationManage: 'P09.emulation.manage',
@@ -578,6 +580,9 @@ export const PORTAL_QUICK_LINK_PATHS = [
   // Nền Tiểu học: môn học và hoạt động giáo dục, phân công giảng dạy theo môn (DT-20 phần 20a)
   '/subjects',
   '/teaching-assignments',
+  // Thời khoá biểu: khung giờ tiết học, thời khoá biểu theo môn (DT-20 phần 22c1)
+  '/period-slots',
+  '/timetables',
   '/student-assessments',
 ] as const;
 

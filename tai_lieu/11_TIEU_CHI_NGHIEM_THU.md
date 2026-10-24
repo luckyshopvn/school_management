@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.57
+- Phiên bản: 1.58
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -831,6 +831,9 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-756 | Cho phụ huynh có con Tiểu học đăng ký bán trú / Khi báo cắt suất ngày học kế tiếp, ngày đã qua, con người khác / Thì nhận, từ chối 422, từ chối 403 (CT-847; YCTD-159) |
 | AC-757 | Cho trường chưa bật nề nếp / Khi giáo viên ghi điểm; Ban Giám hiệu bật và nạp tiêu chí mặc định / Thì từ chối 422; ghi điểm được, tiêu chí khác cấp bị từ chối (CT-848, CT-849; YCTD-159) |
 | AC-758 | Cho hai lớp Tiểu học có điểm trong tuần / Khi xem xếp hạng tuần, tháng / Thì điểm tuần là điểm nền cộng điểm ghi, tháng là trung bình tuần, bằng điểm cùng hạng (CT-844, CT-849, CT-850; YCTD-159) |
+| AC-759 | Cho trường chỉ có Mầm non / Khi nâng cấp lên phiên bản có thời khoá biểu / Thì không có mục mới, ứng dụng và website như trước (CT-851, CT-856; YCTD-160) |
+| AC-760 | Cho Hiệu trưởng trường có Tiểu học / Khi khai báo khung giờ, tạo bản, xếp tiết hoặc nhập Excel rồi ban hành / Thì xung đột cứng (trùng giáo viên, ngoài khung giờ, ngoài ngày học) chặn ban hành, xung đột mềm chỉ cảnh báo; tệp lỗi báo theo dòng; bản đã ban hành chỉ đọc, sửa bằng bản chép (CT-851, CT-852, CT-853, CT-855, CT-856; YCTD-160) |
+| AC-761 | Cho bản đã ban hành đang áp dụng / Khi giáo viên mở Lịch dạy của tôi, phụ huynh mở Thời khoá biểu của con / Thì thấy đúng tiết của mình, của lớp con; phụ huynh khác không xem được (CT-854, CT-856; YCTD-160) |
 | AC-762 | Cho trường bật Tiểu học đã nạp môn mẫu / Khi Ban Giám hiệu nạp cấu hình mặc định hai lần / Thì có 6 mức, 15 phẩm chất, năng lực, 4 kỳ, bài kiểm tra giữa kỳ chỉ Tiếng Việt, Toán lớp 4, 5; lần hai không tạo thêm (CT-858, CT-863; YCTD-161) |
 | AC-763 | Cho lớp 4 có giáo viên chủ nhiệm và giáo viên Toán / Khi mỗi người nhập môn của mình, nhập môn của người khác, nhập điểm ở môn không có bài kiểm tra / Thì nhận; 403; 400 (CT-859; YCTD-161) |
 | AC-764 | Cho kỳ quá hạn hoặc đã khoá / Khi giáo viên, Hiệu trưởng sửa; Hiệu trưởng mở khoá không lý do, có lý do / Thì quá hạn: giáo viên 422, Hiệu trưởng nhận; đã khoá: cả hai 422; mở khoá 400, nhận (CT-860; YCTD-161) |

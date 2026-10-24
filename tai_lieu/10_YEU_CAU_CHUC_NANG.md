@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.77
+- Phiên bản: 1.78
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -107,6 +107,9 @@
 | P02-36 | Môn tự chọn của học sinh (hồ sơ học sinh, YCTD-158) | Xem: `P02.view`, `P02.child.manage`; sửa: `P02.child.manage` | Danh sách môn tự chọn | Kiểm tra môn là môn tự chọn của khối lớp đang học; thay cả danh sách; nhật ký | Môn tự chọn ở hồ sơ học sinh | BR-166 |
 | P02-37 | Nề nếp lớp: cấu hình, tiêu chí, ghi điểm (YCTD-159) | Bật, tiêu chí: VT-02, VT-15 (`P02.conduct.manage`); ghi điểm: VT-02, VT-15, VT-03, VT-07, VT-08 (`P02.conduct.record`) | Bật, điểm nền; mã, tên, loại, điểm tiêu chí; lớp, ngày, tiêu chí, số lần, người báo, ghi chú | Ghi điểm cộng, trừ theo lớp; ghi thay đội cờ đỏ | Thẻ nề nếp ở 1.4, 4.9 Nề nếp, thi đua lớp (Ghi điểm, Tiêu chí) | BR-169 |
 | P02-38 | Thi đua lớp: tổng hợp, xếp hạng (YCTD-159) | Người có `P02.conduct.record` | Kỳ (tuần, tháng, học kỳ), ngày, đơn vị, khối | Điểm cộng, trừ, điểm, hạng của lớp | 4.9 Nề nếp, thi đua lớp (Xếp hạng) | BR-169 |
+| P02-39 | Khung giờ tiết học (7.3., YCTD-160) | Xem: mọi người đã đăng nhập; sửa: `P02.timetable.manage` | Cấp; các tiết (số, buổi, giờ) | Kiểm tra số tiết, giờ, chồng giờ; thay cả khung của năm học đang dùng; nhật ký | Khung giờ dùng cho thời khoá biểu, ứng dụng | BR-170 |
+| P02-40 | Lập, nhập và ban hành thời khoá biểu (7.4., YCTD-160) | `P02.timetable.manage` | Bản (tên, ngày áp dụng, chép từ bản); tiết của lớp; tệp Excel | Giáo viên theo phân công; kiểm tra xung đột cứng, mềm; ban hành khi không còn xung đột cứng; nhập Excel báo lỗi theo dòng | Bản đã ban hành có ngày áp dụng; bản đang áp dụng | BR-170 |
+| P02-41 | Xem thời khoá biểu (7.4., ứng dụng giáo viên, phụ huynh, website, YCTD-160) | Nhân sự xem được lớp; giáo viên; phụ huynh của học sinh; khách website | Lớp, giáo viên, phòng; ngày | Lấy bản đang áp dụng của từng cấp | Lưới thứ × tiết; lịch dạy của tôi; thời khoá biểu của con; trang website | BR-170 |
 | P02-42 | Cấu hình đánh giá học sinh theo cấp (YCTD-161) | VT-02, VT-15 (`P02.assessment.manage`) | Mức đạt, phẩm chất, năng lực, kỳ, hạn nhập, bài kiểm tra định kỳ, câu nhận xét; nạp mặc định | Cấu hình của cấp | 7.3, thẻ Cấu hình | BR-172 |
 | P02-43 | Nhập đánh giá học sinh: kết quả định kỳ, nhận xét thường xuyên (YCTD-161) | Giáo viên được phân công (`P02.assessment.enter`); người quản lý nhập thay | Lớp, kỳ, môn hoặc phẩm chất, năng lực; mức, điểm, nhận xét | Kết quả theo kỳ của học sinh | 7.3 Nhập kết quả, Nhận xét thường xuyên; màn hình Đánh giá học sinh ở ứng dụng giáo viên | BR-171, BR-172 |
 | P02-44 | Tổng hợp cuối kỳ, cuối năm, khoá số liệu; phụ huynh xem (YCTD-161) | Xem: `P02.assessment.view`, giáo viên của lớp; xác nhận cuối năm: chủ nhiệm; khoá: `P02.assessment.manage`; phụ huynh | Lớp, kỳ; kết quả cuối năm; lý do mở khoá | Bảng tổng hợp, kết quả cuối năm, trạng thái khoá | 7.3 Tổng hợp cuối kỳ, Cuối năm, Khoá số liệu; Kết quả đánh giá ở ứng dụng phụ huynh | BR-172, BR-173 |

@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.35
+- Phiên bản: 0.36
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -23,10 +23,22 @@
 - Lỗi đã sửa: không.
 - Thay đổi dữ liệu: tệp năm học `0079_create_student_assessments`; tệp định danh `0070_add_assessment_permissions`.
 - Thay đổi API: `/assessment/config` (`/defaults`, `/levels`, `/items`, `/periods/{id}`, `/periods/{id}/tests`, `/templates`); `/assessment/classes/{id}`, `/subjects/{subjectId}`, `/competencies`, `/comments`, `/summary`, `/year-results`; `/assessment/comments/{id}`; `/assessment/locks`, `/locks/unlock`; `/assessment/children/{id}`.
-- Kiểm thử: kịch bản CT-857 đến CT-863. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/assessments/assessments.test.ts` CT-20c-1 đến CT-20c-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.3 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của Tiểu học của CT-19c-1); kiểm thử đơn vị toàn bộ kho mã đạt 1059/1059; kiểm thử giao diện `tests/e2e/90-student-assessments.spec.ts` (CT-20c-7) đạt; toàn bộ kiểm thử giao diện đạt 160/161 (spec 90 mới đạt; spec 38 nhắc nợ chập chờn, không liên quan, đạt ở lượt trước); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử: kịch bản CT-857 đến CT-863. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/assessments/assessments.test.ts` CT-20c-1 đến CT-20c-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.3 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của Tiểu học của CT-19c-1); kiểm thử đơn vị toàn bộ kho mã E2E_UNIT; kiểm thử giao diện `tests/e2e/90-student-assessments.spec.ts` (CT-20c-7) đạt; toàn bộ kiểm thử giao diện E2E_PLACEHOLDER; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Rủi ro: hạn nhập mặc định theo ngày kết thúc học kỳ.
 - Khả năng tương thích: không đổi điểm cuối cũ; trường chỉ có Mầm non thấy như cũ.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 20c; chạy phần quay lui của tệp năm học `0079` và tệp định danh `0070`.
+
+### Phiên bản 0.109.0 – 2026-10-23
+
+- Phạm vi thay đổi: DT-20 phần 22c1, thời khoá biểu phần khung (YCTD-160).
+- Chức năng mới: khung giờ tiết học theo cấp; bản thời khoá biểu có ngày áp dụng; sửa tiết theo lớp; nhập Excel; kiểm tra xung đột; ban hành; xem theo lớp, giáo viên, phòng; lịch dạy của giáo viên; thời khoá biểu của con; trang thời khoá biểu của website.
+- Lỗi đã sửa: 1.1 Khai báo cơ sở vật chất (phân hệ Cơ sở vật chất) báo "Bắt buộc chọn đơn vị" khi bấm Thêm mới trước khi danh sách đơn vị tải xong; nay phòng mới nhận đơn vị mặc định khi danh sách về (lỗi làm kiểm thử giao diện 50 chập chờn).
+- Thay đổi dữ liệu: tệp hệ thống `0026_create_period_slots`; tệp năm học `0078_create_timetables`; tệp định danh `0069_add_timetable_permission`.
+- Thay đổi API: `/period-slots`, `/timetable-versions`, `/timetables`, `/timetables/mine`, `/children/{id}/timetable`.
+- Kiểm thử: kịch bản CT-851 đến CT-856. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/timetables/timetables.test.ts` CT-22c1-1 đến CT-22c1-5 đạt 5/5; kiểm thử đơn vị toàn bộ kho mã đạt 1058/1058 (không sửa kỳ vọng của kiểm thử đang có, trừ danh sách đường dẫn của CT-19c-1); kiểm thử giao diện `tests/e2e/89-timetables.spec.ts` (CT-22c1-6) đạt; toàn bộ kiểm thử giao diện đạt 161/161; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: không có thay đổi dữ liệu cũ.
+- Khả năng tương thích: trường chỉ có Mầm non không đổi hành vi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 22c1; chạy phần quay lui của tệp hệ thống `0026`, năm học `0078`, định danh `0069`.
 
 ### Phiên bản 0.108.0 – 2026-10-23
 
