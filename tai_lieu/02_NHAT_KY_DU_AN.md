@@ -21,7 +21,7 @@
 
 - Đọc mục 12 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và mã 20a (`subjects`, `curriculum_subjects`, phân công theo môn, môn tự chọn), cây menu theo cấp, e2e 87.
 - Cơ sở dữ liệu: tệp năm học `0084` (`subjects.option_group`, giá trị `score` của cách đánh giá, tổ hợp môn, tổ hợp học sinh đăng ký, tổ bộ môn); tệp định danh `0075` để trống. Máy chủ API: bộ môn mẫu THCS, THPT, tổ hợp môn, đăng ký và duyệt đổi tổ hợp, tổ bộ môn; chép sang năm học mới. Cổng quản trị: 7.1, 7.2 dùng chung ba cấp, 7.12 Tổ hợp môn, 7.13 Tổ bộ môn, mục "Tổ hợp môn" ở hồ sơ học sinh.
-- Kiểm thử: kiểm thử đơn vị `secondary.test.ts` CT-21a-1 đến CT-21a-5 đạt 5/5; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.12, 7.13 vào danh sách mục chỉ của THCS, THPT ở CT-19c-1, CT-19c-2); e2e CT-21a-6 __E2E__
+- Kiểm thử: kiểm thử đơn vị `secondary.test.ts` CT-21a-1 đến CT-21a-5 đạt 5/5 trên nhánh trước khi gộp 20d, 20e, 22c2; sau khi gộp chạy lại được CT-21a-1 và các ca menu CT-19c-1 đến CT-19c-4 (đạt), các ca cần cơ sở dữ liệu chưa chạy lại vì cơ sở dữ liệu định danh dùng chung trên máy đã chạy migration của nhánh khác; typecheck, lint, prettier đạt; e2e CT-21a-6 và e2e toàn bộ do CI chạy, chưa chạy trên máy
 
 #### Quyết định
 

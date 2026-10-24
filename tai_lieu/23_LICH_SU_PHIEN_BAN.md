@@ -24,7 +24,7 @@
 - Lỗi đã sửa: không.
 - Thay đổi dữ liệu: tệp năm học `0084_create_secondary_foundation`; tệp định danh `0075` để trống (không thêm quyền).
 - Thay đổi API: `/subject-combinations`, `/subject-combinations/{id}/students`, `/children/{id}/subject-combination` (`/approve`, `/reject`), `/subject-teams` (`/members`, `/loads`); `/subjects` nhận `option_group`, `assessment` = `score`.
-- Kiểm thử: kịch bản CT-891 đến CT-896. Kết quả ngày 24/10/2026: __SUMMARY__
+- Kiểm thử: kịch bản CT-891 đến CT-896. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/subjects/secondary.test.ts` CT-21a-1 đến CT-21a-5 đạt 5/5 trên nhánh trước khi gộp 20d, 20e, 22c2; sau khi gộp chạy lại được CT-21a-1 và các ca menu CT-19c-1 đến CT-19c-4 (đạt), các ca cần cơ sở dữ liệu chưa chạy lại vì cơ sở dữ liệu định danh dùng chung trên máy đã chạy migration của nhánh khác; typecheck, lint, prettier đạt; e2e CT-21a-6 và e2e toàn bộ do CI chạy, chưa chạy trên máy
 - Rủi ro: số môn, số nhóm của tổ hợp và thời lượng môn là mặc định theo chương trình, cần đối chiếu văn bản gốc; chưa khảo sát hệ thống của Sở cấp THCS, THPT.
 - Khả năng tương thích: trường chỉ có Mầm non hoặc Tiểu học thấy như cũ trừ tên nhóm 7 đổi thành "Dạy học"; môn cũ giữ nguyên, nhóm môn trống.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 21a; chạy phần quay lui của tệp năm học `0084`.
