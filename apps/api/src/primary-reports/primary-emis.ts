@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Injectable, OnModuleInit, Param, Post, Put, Query, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Injectable, OnModuleInit, Param, Put, Query, Req, Res } from '@nestjs/common';
 import {
   ApplicationError,
   Clock,

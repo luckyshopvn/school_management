@@ -314,7 +314,15 @@ function EmisTab({ onSaved }: { onSaved(message: string): void }) {
             ]),
         ),
       );
-      setRows(view.data.rows.map(({ values: _values, ...row }) => row));
+      setRows(
+        view.data.rows.map((row) => ({
+          code: row.code,
+          label: row.label,
+          unit: row.unit,
+          kind: row.kind,
+          formula: row.formula,
+        })),
+      );
     }
   }, [view.data]);
   const refresh = async (message: string) => {
