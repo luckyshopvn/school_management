@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.61
+- Phiên bản: 1.62
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -849,6 +849,10 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-774 | Cho các phương án đã xếp / Khi chọn một phương án / Thì tạo bản nháp nguồn máy xếp, sửa tay có kiểm tra ngay, ban hành theo luồng phiên bản; mức quan trọng 0 tắt ràng buộc mềm (CT-878, CT-882, CT-886, CT-887, CT-890; YCTD-164) |
 | AC-775 | Cho bản đang áp dụng / Khi ghi dạy thay, đổi tiết của một ngày / Thì tiết thực tế của ngày đổi, bản ban hành giữ nguyên; giáo viên đang có tiết khác cùng lúc bị chặn; báo cáo tiết dạy tính đúng (CT-888, CT-890; YCTD-164) |
 | AC-776 | Cho mã QR của lớp hoặc giáo viên / Khi người không đăng nhập mở đường dẫn của mã / Thì thấy thời khoá biểu đang áp dụng và thay đổi 7 ngày tới; mã thu hồi thì báo không đúng (CT-889, CT-890; YCTD-164) |
+| AC-777 | Cho giáo viên soạn câu hỏi / Khi gửi thẩm định / Thì tổ trưởng duyệt hoặc trả lại có lý do; câu chưa duyệt chỉ người soạn và người thẩm định thấy; nhập Excel có lỗi thì báo theo dòng, không ghi (CT-894, CT-895, CT-899; YCTD-168) |
+| AC-778 | Cho ma trận đề / Khi lưu / Thì máy báo lệch tổng điểm, tỉ lệ mức nhận thức so với mẫu; ma trận hợp lệ mới bốc câu được (CT-891, CT-896, CT-899; YCTD-168) |
+| AC-779 | Cho đề được giao theo kế hoạch đã duyệt / Khi bốc câu theo ma trận và trộn mã / Thì đủ câu đúng chủ đề, mức, dạng, không trùng; thiếu câu báo dòng thiếu; các mã đề khác thứ tự, đáp án đúng theo mã (CT-892, CT-893, CT-897, CT-899; YCTD-168) |
+| AC-780 | Cho đề đã thẩm định / Khi khoá đề / Thì đề không sửa được, lịch sử dùng câu được ghi; mở khoá phải ghi lý do; người không được giao không xem, không tải được đề; mỗi lần tải ghi nhật ký (CT-897, CT-898, CT-899; YCTD-168) |
 
 ## 20. Chưa xác minh được
 

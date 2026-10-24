@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.108
+- Phiên bản: 1.109
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -1404,6 +1404,20 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, POST | /api/v1/assessment/locks, /locks/unlock; /assessment/children/{id} (từ YCTD-161) | Khoá kỳ (`period_id`, `class_ids` trống là mọi lớp của cấp trong phạm vi), mở khoá (`reason` bắt buộc); phụ huynh xem kết quả đã khoá của con |
 | GET, POST, PATCH | /api/v1/learning-records/award-titles, /defaults, /{id}; /learning-records/classes/{id}/awards; /learning-records/awards/{id}/decide, /certificate (từ YCTD-163) | Danh hiệu (sửa: `P02.student-record.approve`), khen thưởng của lớp kèm gợi ý, đề nghị (`child_id`, `title_id`, `achievement`), duyệt (`approve`, `note`), giấy khen PDF; trái quy tắc trả 422 mã YCTD-163 |
 | GET, PUT, POST, PATCH | /api/v1/learning-records/classes/{id}/completion, /learning-records, /learning-records/prepare; /learning-records/learning-records/{id}, /sign, /reopen, /file; /learning-records/children/{id} (từ YCTD-163) | Hoàn thành chương trình (`entries`: `child_id`, `support_plan`, `support_result`, `support_note`), học bạ của lớp, lập, nhận xét, kí nội bộ, mở lại (`reason`), tải PDF, học bạ và khen thưởng của học sinh (phụ huynh: bản đã kí) |
+| GET, POST | /api/v1/question-topics | Chủ đề theo môn, khối; thêm (`P02.exam.review`) (P02-55, YCTD-168) |
+| GET, POST | /api/v1/questions | Câu hỏi (lọc môn, khối, chủ đề, mức, dạng, trạng thái, tìm); soạn câu nháp (P02-55) |
+| GET | /api/v1/questions/stats, /api/v1/questions/import-template | Thống kê câu dùng được theo chủ đề, mức, dạng; tệp mẫu nhập (P02-55) |
+| POST | /api/v1/questions/import | Nhập câu hỏi từ Excel thành câu nháp (P02-55) |
+| GET, PUT | /api/v1/questions/{id} | Xem, sửa câu hỏi (P02-55) |
+| POST | /api/v1/questions/{id}/submit, /review, /retire | Gửi thẩm định; duyệt hoặc trả lại (`decision`, `note`); ngừng dùng (P02-55) |
+| GET, POST, PUT | /api/v1/exam-matrices, /api/v1/exam-matrices/{id} | Ma trận kèm tổng hợp `summary`, điểm lệch `issues` (P02-56) |
+| GET, POST, PUT | /api/v1/assessment-plans, /api/v1/assessment-plans/{id} | Kế hoạch kiểm tra kèm `exam_count`, `locked_count`, `timetable_note` (P02-57) |
+| POST | /api/v1/assessment-plans/{id}/submit, /decide | Gửi duyệt; duyệt hoặc trả lại (P02-57) |
+| GET, POST | /api/v1/exams, /api/v1/exams/staff | Đề được giao (người quản lý thấy mọi đề); giao đề; người có thể ra đề, thẩm định (P02-58) |
+| GET, PATCH | /api/v1/exams/{id} | Đề kèm câu, mã đề, đáp án từng mã; sửa tên, số mã, ma trận, hạn (P02-58) |
+| POST, DELETE | /api/v1/exams/{id}/generate, /questions, /questions/{questionId}, /variants | Bốc câu theo ma trận (`seed` tùy chọn); thêm, bỏ câu; trộn mã đề (P02-58) |
+| POST | /api/v1/exams/{id}/submit, /review, /lock, /unlock | Gửi thẩm định; duyệt hoặc trả lại; khoá; mở khoá (`reason`) (P02-58) |
+| GET | /api/v1/exams/{id}/export | Tải đề một mã (`part=paper`, `code`) hoặc đáp án (`part=answers`), `format=pdf` hoặc `docx` (P02-58) |
 | GET | /api/v1/public/student-awards/verify (từ YCTD-163) | Tra cứu công khai mã giấy khen học sinh (`code` 12 kí tự), giới hạn tần suất |
 | GET, POST, PUT, DELETE | /api/v1/emulation/decisions, /{id}, /document, /outgoing, /issue, /upper-result; /emulation/awards/{id}/certificate; /emulation/history, /export, /{id}; GET /public/emulation-awards/verify | Quyết định, giấy khen, sổ theo dõi, tra cứu công khai (P09-38, P09-39) |
 | GET, PUT, POST, DELETE | /api/v1/website/settings, /website/settings/images/{purpose}, /website/sample-content, /website/disclosure-categories | Thông tin website, biểu trưng, ảnh đầu trang, nội dung mẫu, nhóm công khai (P14-13, YCTD-144) |
@@ -1561,6 +1575,16 @@ Giao kèo máy xếp thời khoá biểu (DT-20 phần 22c2, YCTD-164, BR-178):
 5. `POST /timetable-changes` nhận `kind` (`substitute` kèm `teacher_user_id`; `swap` kèm `target_date`, `target_period_no`), `date`, `class_id`, `period_no`, `reason` (tối đa 500 ký tự); tiết không có trong bản đang áp dụng, tiết đã có thay đổi, giáo viên đang có tiết khác cùng lúc trả 422; trả các dòng đã ghi (201). `GET /timetable-changes/day` nhận `date`, `class_id` hoặc `teacher_user_id`; trả tiết kèm `change` (`kind`, `reason`, `original_subject_name`, `original_teacher_user_id`, `original_teacher_name`).
 6. `GET /timetable-reports/teaching` nhận `from`, `to` (tối đa 92 ngày) trả `days`, `teachers` (`planned`, `substitute_taught`, `substituted_away`, `swapped`, `actual`); `GET /timetable-reports/rooms` nhận `date` trả `slot_count`, `rooms` (`periods`, `usage_percent`, `by_weekday`, `classes`).
 7. `POST /timetable-lookup-codes` nhận `kind` (`class`, `teacher`), `target_id`; đã có mã còn hiệu lực thì trả mã đó. `GET /public/timetable-lookup/{code}` không cần đăng nhập, trả `kind`, `target_name`, `versions`, `slots`, `lessons`, `changes`; mã sai hoặc đã thu hồi trả 404.
+
+
+Giao kèo kiểm tra, đánh giá phần đề (DT-21 phần 22g1, YCTD-168, BR-179):
+
+1. `POST, PUT /questions` nhận `school_level` (TH, THCS, THPT), `subject_id`, `grade_level_code`, `topic_id`, `cognitive_level`, `question_type`, `content`, `options` (mảng chữ), `answer` (mảng: khoá đúng; Đ, S từng ý; đáp số), `guidance`, `score` (0 đến 10); sai dạng trả 400; môn, khối khác cấp, chủ đề khác môn trả 400; sửa câu không được phép trả 403.
+2. `POST /questions/{id}/review`, `/assessment-plans/{id}/decide`, `/exams/{id}/review` nhận `decision` (`approve`, `return`) và `note` (bắt buộc khi trả lại); sai trạng thái trả 422 mã YCTD-168.
+3. `POST /questions/import?school_level=` (tệp `file`) trả `imported`, `errors` (`row`, `column`, `message`); có lỗi thì không ghi.
+4. `POST, PUT /exam-matrices` nhận `school_level`, `subject_id`, `grade_level_code`, `name`, `total_score`, `target_ratios` (bốn mức, tổng 100), `tolerance`, `rows`; trả ma trận kèm `summary` (`count`, `score`, `ratios`) và `issues` (`total_score`, `ratio`, `empty`).
+5. `POST /exams` (`P02.exam.manage`) nhận `plan_id` (kế hoạch đã duyệt; môn, khối, thời gian lấy theo kế hoạch) hoặc `school_level`, `subject_id`, `grade_level_code`; `title`, `matrix_id`, `variant_count`, `avoid_recent_days`, `author_user_id`, `reviewer_user_id`, `due_date`. Người không được giao gọi `GET /exams/{id}`, `/export` trả 403.
+6. `POST /exams/{id}/generate` thiếu câu trả 422 kèm `details` từng dòng thiếu; ma trận chưa hợp lệ trả 422. `/submit` khi chưa trộn mã đề trả 422. Đề đã gửi, đã khoá không sửa (422).
 
 
 Giao kèo kế hoạch giáo dục (DT-18 phần 22i, YCTD-147, BR-142):

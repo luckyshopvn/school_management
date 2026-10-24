@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.43
+- Phiên bản: 0.44
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,27 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-24 — DT-21 phần 22g1: kiểm tra, đánh giá, phần đề
+
+#### Công việc đã thực hiện
+
+- Đọc mục 12 của `32_KE_HOACH_THEO_HE_THONG_SO.md`, phần 22g của kế hoạch DT-22, mục 13 (22h2 tham chiếu ngân hàng câu hỏi); rà môn học (20a), khối, cấp (DT-19), bộ dựng Word, PDF (18d), công cụ nhập Excel (16a), thời khoá biểu (22c1).
+- Cơ sở dữ liệu: tệp năm học `0085`, định danh `0076`. Máy chủ API: hàm thuần của ma trận, bốc câu, trộn đề; ngân hàng câu hỏi, chủ đề, ma trận, kế hoạch, đề; xuất Word, PDF. Cổng quản trị: nhóm 8 "Kiểm tra, đánh giá" (8.1 đến 8.4) cho THCS, THPT.
+- Thêm quy tắc BR-179, chức năng P02-55 đến P02-58, quyền PQ-97, màn hình MH-271 đến MH-274, kịch bản CT-891 đến CT-899, tiêu chí AC-777 đến AC-780. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/exams/exam-rules.test.ts` CT-22g1-1 đến CT-22g1-4 đạt 4/4, `apps/api/src/exams/exams.test.ts` CT-22g1-5 đến CT-22g1-8 đạt 4/4; kiểm thử đơn vị chạy trên máy các gói đã sửa: shared đạt, database 6/6, api 1018 ca đạt 1016, hai ca `children.test.ts` (CTC-P02-013, CTC-P02-057) chập chờn khi chạy chung, chạy lại riêng đạt 26/26; kiểm thử giao diện `tests/e2e/96-exam-bank.spec.ts` (CT-22g1-9) đạt; kiểm thử giao diện trên máy chạy 02, 03, 06, 08, 58, 96 đạt 18/18; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 22g1 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.4: ngân hàng câu hỏi là nguồn duy nhất; câu trong đề lưu bản chụp; bốn mức nhận thức, bốn dạng câu cố định trong mã, tỉ lệ cấu hình theo ma trận; mã đề đầu giữ thứ tự soạn; ba quyền mới (soạn, thẩm định, quản lý); không dùng AI. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-168, `07_QUY_TAC_NGHIEP_VU.md` BR-179, `08_VAI_TRO_NGUOI_DUNG.md` PQ-97, `10_YEU_CAU_CHUC_NANG.md` P02-55 đến P02-58, `11_TIEU_CHI_NGHIEM_THU.md` AC-777 đến AC-780, `14_DAC_TA_GIAO_DIEN.md` MH-271 đến MH-274, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-891 đến CT-899, `23_LICH_SU_PHIEN_BAN.md` 0.114.0.
+
+#### Vấn đề tồn đọng
+
+- 22g2: phiếu trả lời, chấm, chuyển điểm vào sổ điểm, báo cáo theo câu; 22h2 đọc câu hỏi, ma trận, đề từ đây; ảnh, công thức ký hiệu trong câu hỏi; mẫu ma trận theo văn bản khi khớp Sở.
+
 
 ### 2026-10-24 — DT-20 phần 22c2: thời khoá biểu, máy xếp
 

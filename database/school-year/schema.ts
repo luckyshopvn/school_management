@@ -5231,7 +5231,149 @@ export interface LearningRecordsTable {
   updated_at: UpdatedTimestamp;
 }
 
+// Kiểm tra, đánh giá phần đề (DT-21 phần 22g1, YCTD-168)
+export type QuestionStatus = 'draft' | 'review' | 'approved' | 'retired';
+export type CognitiveLevelCode = 'recognition' | 'comprehension' | 'application' | 'high_application';
+export type QuestionTypeCode = 'multiple_choice' | 'true_false' | 'short_answer' | 'essay';
+export type AssessmentPlanStatus = 'draft' | 'submitted' | 'approved' | 'rejected';
+export type ExamStatus = 'draft' | 'submitted' | 'approved' | 'locked';
+
+export interface QuestionTopicsTable {
+  id: Generated<string>;
+  subject_id: string;
+  grade_level_code: string | null;
+  name: string;
+  order_no: Generated<number>;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface QuestionsTable {
+  id: Generated<string>;
+  school_level: SchoolLevelCode;
+  subject_id: string;
+  grade_level_code: string;
+  topic_id: string | null;
+  cognitive_level: CognitiveLevelCode;
+  question_type: QuestionTypeCode;
+  content: string;
+  options: DefaultJson;
+  answer: DefaultJson;
+  guidance: string | null;
+  score: ColumnType<string, number | undefined, number>;
+  status: ColumnType<QuestionStatus, QuestionStatus | undefined, QuestionStatus>;
+  review_note: string | null;
+  author_user_id: string;
+  author_name: string;
+  reviewed_by: string | null;
+  reviewed_by_name: string | null;
+  reviewed_at: Date | null;
+  last_used_at: ColumnType<string | null, string | null | undefined, string | null>;
+  use_count: Generated<number>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface QuestionUsagesTable {
+  id: Generated<string>;
+  question_id: string;
+  exam_id: string;
+  used_on: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface ExamMatricesTable {
+  id: Generated<string>;
+  school_level: SchoolLevelCode;
+  subject_id: string;
+  grade_level_code: string;
+  name: string;
+  total_score: ColumnType<string, number | undefined, number>;
+  target_ratios: JsonDocument;
+  tolerance: ColumnType<string, number | undefined, number>;
+  rows: DefaultJson;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string | null;
+  created_by_name: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface AssessmentPlansTable {
+  id: Generated<string>;
+  school_level: SchoolLevelCode;
+  term: 'HK1' | 'HK2';
+  grade_level_code: string;
+  subject_id: string;
+  kind: 'regular' | 'midterm' | 'final';
+  form: 'written' | 'multiple_choice' | 'mixed' | 'practical' | 'oral';
+  duration_minutes: number;
+  planned_date: string | null;
+  status: ColumnType<AssessmentPlanStatus, AssessmentPlanStatus | undefined, AssessmentPlanStatus>;
+  note: string | null;
+  review_note: string | null;
+  reviewed_by_name: string | null;
+  reviewed_at: Date | null;
+  created_by: string | null;
+  created_by_name: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ExamsTable {
+  id: Generated<string>;
+  plan_id: string | null;
+  matrix_id: string | null;
+  school_level: SchoolLevelCode;
+  subject_id: string;
+  grade_level_code: string;
+  title: string;
+  duration_minutes: Generated<number>;
+  variant_count: Generated<number>;
+  avoid_recent_days: Generated<number>;
+  status: ColumnType<ExamStatus, ExamStatus | undefined, ExamStatus>;
+  author_user_id: string;
+  author_name: string;
+  reviewer_user_id: string | null;
+  reviewer_name: string | null;
+  due_date: string | null;
+  review_note: string | null;
+  submitted_at: Date | null;
+  reviewed_at: Date | null;
+  locked_at: Date | null;
+  locked_by_name: string | null;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ExamQuestionsTable {
+  id: Generated<string>;
+  exam_id: string;
+  question_id: string;
+  order_no: number;
+  score: ColumnType<string, number, number>;
+  snapshot: JsonDocument;
+}
+
+export interface ExamVariantsTable {
+  id: Generated<string>;
+  exam_id: string;
+  code: string;
+  items: JsonDocument;
+  created_at: CreatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
+  question_topics: QuestionTopicsTable;
+  questions: QuestionsTable;
+  question_usages: QuestionUsagesTable;
+  exam_matrices: ExamMatricesTable;
+  assessment_plans: AssessmentPlansTable;
+  exams: ExamsTable;
+  exam_questions: ExamQuestionsTable;
+  exam_variants: ExamVariantsTable;
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
   settings: SettingsTable;
