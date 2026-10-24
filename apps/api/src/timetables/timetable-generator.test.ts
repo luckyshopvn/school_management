@@ -375,34 +375,41 @@ describe('Điểm cuối máy xếp thời khoá biểu', () => {
   });
 
   it('CT-22c2-12: dạy thay, đổi tiết theo ngày, không sửa bản ban hành; chặn giáo viên trùng tiết; báo cáo tiết dạy, phòng', async () => {
-    let day: Array<Record<string, unknown>> = [];
-    for (let offset = 0; offset < 7; offset += 1) {
+    // Tìm trong 7 ngày tới một tiết của giáo viên 1 ở lớp 1A mà giáo viên 2 hoặc 3 đang rảnh (không phụ thuộc thứ trong tuần
+    // hay phương án ngẫu nhiên của máy xếp); tiết trùng của người kia dùng để thử chặn dạy thay
+    let free: Record<string, unknown> | undefined;
+    let substitute: LoggedInUser | undefined;
+    let blocked: { date: string; period_no: unknown; teacher: LoggedInUser } | undefined;
+    const lessonsOf = async (query: string) =>
+      list((await api('GET', `/timetable-changes/day?${query}`, viewer.accessToken)).body);
+    search: for (let offset = 0; offset < 7; offset += 1) {
       schoolDay = addDays(today, offset);
-      day = list(
-        (await api('GET', `/timetable-changes/day?date=${schoolDay}&class_id=${classes['1A']}`, viewer.accessToken))
-          .body,
-      );
-      if (day.some((lesson) => lesson.teacher_user_id === teachers[0]?.userId)) {
-        break;
+      const day = await lessonsOf(`date=${schoolDay}&class_id=${classes['1A']}`);
+      const own = day.filter((lesson) => lesson.teacher_user_id === teachers[0]?.userId);
+      for (const candidate of [teachers[1], teachers[2]]) {
+        if (own.length === 0 || !candidate) continue;
+        const busy = await lessonsOf(`date=${schoolDay}&teacher_user_id=${candidate.userId}`);
+        const clash = own.find((lesson) => busy.some((other) => other.period_no === lesson.period_no));
+        blocked ??= clash ? { date: schoolDay, period_no: clash.period_no, teacher: candidate } : undefined;
+        free = own.find((lesson) => !busy.some((other) => other.period_no === lesson.period_no));
+        if (free) {
+          substitute = candidate;
+          break search;
+        }
       }
     }
-    assert.ok(day.length > 0);
-    const tv = day.find((lesson) => lesson.teacher_user_id === teachers[0]?.userId) as Record<string, unknown>;
-    // Giáo viên 2 đang dạy lớp 1B cùng tiết thì không dạy thay được
-    const busyAtSamePeriod = list(
-      (await api('GET', `/timetable-changes/day?date=${schoolDay}&class_id=${classes['1B']}`, viewer.accessToken)).body,
-    ).find((lesson) => lesson.period_no === tv.period_no && lesson.teacher_user_id === teachers[1]?.userId);
-    const substitute = busyAtSamePeriod ? teachers[2] : teachers[1];
-    const blockedTeacher = busyAtSamePeriod ? teachers[1] : undefined;
-    if (blockedTeacher) {
-      const blocked = await api('POST', '/timetable-changes', principal.accessToken, {
+    assert.ok(free, 'không tìm được tiết để thử dạy thay');
+    const chosen = free;
+    // Giáo viên đang dạy lớp khác cùng tiết thì không dạy thay được
+    if (blocked) {
+      const refused = await api('POST', '/timetable-changes', principal.accessToken, {
         kind: 'substitute',
-        date: schoolDay,
+        date: blocked.date,
         class_id: classes['1A'],
-        period_no: tv.period_no,
-        teacher_user_id: blockedTeacher.userId,
+        period_no: blocked.period_no,
+        teacher_user_id: blocked.teacher.userId,
       });
-      assert.equal(blocked.status, 422, JSON.stringify(blocked.body));
+      assert.equal(refused.status, 422, JSON.stringify(refused.body));
     }
     assert.equal(
       (
@@ -410,32 +417,17 @@ describe('Điểm cuối máy xếp thời khoá biểu', () => {
           kind: 'substitute',
           date: schoolDay,
           class_id: classes['1A'],
-          period_no: tv.period_no,
+          period_no: chosen.period_no,
           teacher_user_id: substitute?.userId,
         })
       ).status,
       403,
     );
-    // Giáo viên dạy thay phải rảnh: chọn tiết mà người dạy thay không có tiết
-    const substituteLessons = list(
-      (
-        await api(
-          'GET',
-          `/timetable-changes/day?date=${schoolDay}&teacher_user_id=${substitute?.userId}`,
-          viewer.accessToken,
-        )
-      ).body,
-    );
-    const free = day.find(
-      (lesson) =>
-        lesson.teacher_user_id === teachers[0]?.userId &&
-        !substituteLessons.some((other) => other.period_no === lesson.period_no),
-    ) as Record<string, unknown>;
     const created = await api('POST', '/timetable-changes', principal.accessToken, {
       kind: 'substitute',
       date: schoolDay,
       class_id: classes['1A'],
-      period_no: free.period_no,
+      period_no: chosen.period_no,
       teacher_user_id: substitute?.userId,
       reason: 'Cô ốm',
     });
@@ -444,14 +436,14 @@ describe('Điểm cuối máy xếp thời khoá biểu', () => {
       kind: 'substitute',
       date: schoolDay,
       class_id: classes['1A'],
-      period_no: free.period_no,
+      period_no: chosen.period_no,
       teacher_user_id: substitute?.userId,
     });
     assert.equal(duplicate.status, 422);
     const after = list(
       (await api('GET', `/timetable-changes/day?date=${schoolDay}&class_id=${classes['1A']}`, viewer.accessToken)).body,
     );
-    const changed = after.find((lesson) => lesson.period_no === free.period_no);
+    const changed = after.find((lesson) => lesson.period_no === chosen.period_no);
     assert.equal(changed?.teacher_user_id, substitute?.userId);
     assert.equal((changed?.change as Record<string, unknown>).kind, 'substitute');
     // Sổ đầu bài (20d): lịch dạy của người dạy thay có tiết này, của giáo viên gốc không còn
@@ -459,12 +451,12 @@ describe('Điểm cuối máy xếp thời khoá biểu', () => {
       list((await api('GET', `/class-logs/mine?date=${schoolDay}`, user?.accessToken ?? '')).body.lessons);
     assert.ok(
       (await mine(substitute)).some(
-        (lesson) => lesson.class_id === classes['1A'] && lesson.period_no === free.period_no,
+        (lesson) => lesson.class_id === classes['1A'] && lesson.period_no === chosen.period_no,
       ),
     );
     assert.ok(
       !(await mine(teachers[0])).some(
-        (lesson) => lesson.class_id === classes['1A'] && lesson.period_no === free.period_no,
+        (lesson) => lesson.class_id === classes['1A'] && lesson.period_no === chosen.period_no,
       ),
     );
     // Bản ban hành giữ nguyên
@@ -473,32 +465,39 @@ describe('Điểm cuối máy xếp thời khoá biểu', () => {
         .lessons,
     );
     assert.equal(
-      published.find((lesson) => lesson.weekday === isoWeekday(schoolDay) && lesson.period_no === free.period_no)
+      published.find((lesson) => lesson.weekday === isoWeekday(schoolDay) && lesson.period_no === chosen.period_no)
         ?.teacher_user_id,
       teachers[0]?.userId,
     );
 
-    // Đổi tiết: hai tiết khác môn của lớp 1B trong cùng ngày; tránh giáo viên 3 (dạy cả lớp 1A) và người vừa dạy thay để không vướng tiết của lớp
-    // khác
+    // Đổi tiết: hai tiết khác môn của lớp 1B trong cùng ngày. Cặp nào giáo viên đang dạy lớp khác ở chỗ mới thì máy chủ chặn
+    // (422); thử lần lượt tới cặp đầu tiên được nhận để ca kiểm thử không phụ thuộc phương án ngẫu nhiên của máy xếp
     const dayB = list(
       (await api('GET', `/timetable-changes/day?date=${schoolDay}&class_id=${classes['1B']}`, viewer.accessToken)).body,
-    ).filter(
-      (lesson) =>
-        lesson.teacher_user_id !== teachers[2]?.userId &&
-        lesson.teacher_user_id !== substitute?.userId &&
-        !lesson.change,
-    );
-    const first = dayB[0] as Record<string, unknown>;
-    const second = dayB.find((lesson) => lesson.subject_name !== first.subject_name) as Record<string, unknown>;
-    const swap = await api('POST', '/timetable-changes', principal.accessToken, {
-      kind: 'swap',
-      date: schoolDay,
-      class_id: classes['1B'],
-      period_no: first.period_no,
-      target_date: schoolDay,
-      target_period_no: second.period_no,
-    });
-    assert.equal(swap.status, 201, JSON.stringify(swap.body));
+    ).filter((lesson) => !lesson.change);
+    let first: Record<string, unknown> | undefined;
+    let second: Record<string, unknown> | undefined;
+    let swap: Awaited<ReturnType<typeof api>> | undefined;
+    pairs: for (const left of dayB) {
+      for (const right of dayB) {
+        if ((left.period_no as number) >= (right.period_no as number) || left.subject_name === right.subject_name)
+          continue;
+        const attempt = await api('POST', '/timetable-changes', principal.accessToken, {
+          kind: 'swap',
+          date: schoolDay,
+          class_id: classes['1B'],
+          period_no: left.period_no,
+          target_date: schoolDay,
+          target_period_no: right.period_no,
+        });
+        if (attempt.status === 201) {
+          [first, second, swap] = [left, right, attempt];
+          break pairs;
+        }
+        assert.equal(attempt.status, 422, JSON.stringify(attempt.body));
+      }
+    }
+    assert.ok(first && second && swap, 'không có cặp tiết đổi được');
     assert.equal(list(swap.body).length, 2);
     const swapped = list(
       (await api('GET', `/timetable-changes/day?date=${schoolDay}&class_id=${classes['1B']}`, viewer.accessToken)).body,
