@@ -1635,6 +1635,15 @@ Giao kèo học bạ, khen thưởng, lên lớp THCS, THPT (DT-21 phần 21e, Y
 4. `PUT /classes/{id}/completion` với THCS, THPT: học sinh chưa có xếp loại cả năm trả 400; đạt (học tập, rèn luyện từ Đạt) thì `promoted`, khối cuối cấp `level_completed`; chưa đạt thì `pending_support` (kèm `support_plan` `summer_training` hoặc `retest`), kết quả `completed` thì lên lớp hoặc hoàn thành cấp, `not_completed` thì `retained`.
 5. `POST /classes/{id}/learning-records/prepare` lập học bạ có khối `secondary` (`subjects`: tên, `mode`, `first`, `second`, `year`; `ratings` theo `first`, `second`, `year`); kí, tệp, mở lại, `GET /learning-records/children/{id}` như Tiểu học.
 
+Giao kèo xét tốt nghiệp, hồ sơ thi THCS, THPT (DT-21 phần 21f, YCTD-174, BR-195; tiền tố `/graduation`, quyền xem `P02.assessment.view`, quản lý `P02.student-record.approve` toàn trường):
+
+1. `GET|PUT /config?school_level=THCS|THPT` đọc, ghi cấu hình (hệ số, điểm đạt, điểm liệt, bài thi, tiền tố); `PUT` sai quy tắc trả 400. `GET|POST /sessions` liệt kê, tạo kỳ (một kỳ cho mỗi cấp, năm học; trùng 409); `GET /sessions/{id}` trả toàn bộ kỳ: cấu hình, môn, thí sinh (điều kiện, điểm trung bình, bài thi, điểm, kết quả), phòng, biên bản, tệp xuất, hồ sơ chuyển cấp.
+2. `POST /sessions/{id}/candidates/generate` lập thí sinh từ lớp khối cuối cấp (khối 9 hoặc 12), điều kiện theo xếp loại cả năm; `PATCH /candidates/{id}` ghi ưu tiên, khuyến khích (không quá mức tối đa), bài thi (bắt buộc cộng đúng số tự chọn trong danh sách), miễn thi, điểm trung bình các lớp; `PUT /candidates/{id}/scores` ghi điểm thi; `POST /sessions/{id}/exam-numbers` đánh số báo danh.
+3. `POST /sessions/{id}/rooms` thêm phòng; `POST /sessions/{id}/rooms/assign` xếp thí sinh, thiếu sức chứa trả 422.
+4. `POST /sessions/{id}/evaluate` xét: THCS đủ điều kiện thì đề xuất tốt nghiệp; THPT thiếu điểm thì chưa xét. `POST /sessions/{id}/confirm` công nhận: thiếu biên bản hội đồng hoặc còn thí sinh chưa có kết quả trả 422; cấp `certificate_no` dạng `tiền tố-năm-00001`; kỳ đã công nhận không sửa được (422).
+5. `POST /sessions/{id}/minutes`, `GET /minutes/{id}/file` (PDF); `GET /candidates/{id}/certificate` (PDF, chỉ khi đã công nhận); `GET /sessions/{id}/export?kind=candidates|results` (xlsx, ghi tệp đã xuất); `POST /submissions/{id}/mark-sent`.
+6. `POST /sessions/{id}/transfer-dossiers` lập hồ sơ chuyển cấp cho học sinh THCS đã tốt nghiệp và có học bạ đã kí (trả `created`, `skipped`); `POST /transfer-dossiers/{id}/mark-sent`. Chỉ làm bản chạy nội bộ, nối Sở, Bộ ở bước sau.
+
 Giao kèo thời khoá biểu (DT-20 phần 22c1, YCTD-160, BR-170):
 
 1. `PUT /period-slots` nhận `school_level`, `slots` (`period_no`, `session`, `start_time`, `end_time`); sai giờ, trùng tiết, chồng giờ trả 400 ở `slots[n].…` hoặc `slots`.

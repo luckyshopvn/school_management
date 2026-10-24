@@ -900,7 +900,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 | 21d | 3 | Đã làm (PR #157, YCTD-171, phiên bản 0.123.0) |
 | 21e | 3 | Đã làm, YCTD-172, phiên bản 0.120.0: học bạ số, khen thưởng (Xuất sắc, Giỏi), xét lên lớp, hoàn thành cấp học THCS, THPT trên khung 20e (đọc sổ điểm 21c), học bạ có điểm trung bình hai học kỳ, cả năm, kí nội bộ in đủ số định danh kèm kiểm quyền (năm học 0089 căn cứ danh hiệu); định danh 0080 để trống (không thêm quyền); e2e 100 |
 | 22g2 | 4 | Đã làm, YCTD-173, phiên bản 0.121.0, PR 155: bài kiểm tra của lớp từ đề đã khoá; phiếu trả lời PDF; nhập bài tay, nhập tệp quét theo mẫu (chưa nhận dạng ảnh); chấm tự luận hai người; khoá điểm; chuyển sổ điểm 21c qua một cửa; báo cáo theo câu, chủ đề, mức nhận thức, lớp, phân bố điểm, xuất Excel, PDF; ghi kết quả dùng câu (năm học 0090); quyền `P02.exam.grade` (định danh 0081); menu 8.5, 8.6; e2e 101 |
-| 21f | 4 | Chưa làm, chờ 21e |
+| 21f | 4 | Đã làm, YCTD-174, phiên bản 0.124.0: kỳ xét tốt nghiệp THCS, THPT, hồ sơ dự thi, số báo danh, phòng thi, điểm thi, công nhận có biên bản hội đồng, giấy chứng nhận, tệp xuất và đánh dấu đã gửi thủ công, hồ sơ chuyển cấp THCS (năm học 0091); hệ thống 0029, định danh 0082 để trống (không thêm quyền); e2e 102 |
 | 21g | 5 | Chưa làm, chờ 21c, 21e, 21f |
 
 ## 13. DT-22: thư viện, bồi dưỡng, kho học liệu số (22a, 22e, 22h)

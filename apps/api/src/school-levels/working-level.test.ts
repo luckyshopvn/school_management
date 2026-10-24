@@ -57,6 +57,7 @@ const SECONDARY_ONLY_PATHS = [
   '/subject-combinations',
   '/subject-teams',
   '/scores',
+  '/graduation',
   '/question-bank',
   '/exam-matrices',
   '/assessment-plans',

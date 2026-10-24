@@ -12,6 +12,7 @@ import { ApprovalThresholdsPage } from './catalogs/ApprovalThresholdsPage.js';
 import { CommonCatalogPage } from './catalogs/CommonCatalogPage.js';
 import { DepartmentsPage } from './catalogs/DepartmentsPage.js';
 import { RoomsAndGradeLevelsPage } from './catalogs/RoomsAndGradeLevelsPage.js';
+import { GraduationPage } from './graduation/GraduationPage.js';
 import { ScoresPage } from './scores/ScoresPage.js';
 import { SubjectCombinationsPage } from './subjects/SubjectCombinationsPage.js';
 import { SubjectsPage } from './subjects/SubjectsPage.js';
@@ -358,6 +359,8 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/subject-teams', component: SubjectTeamsPage }),
   // Sổ điểm THCS, THPT (DT-21 phần 21c)
   createRoute({ getParentRoute: () => rootRoute, path: '/scores', component: ScoresPage }),
+  // Xét tốt nghiệp, hồ sơ thi THCS, THPT (DT-21 phần 21f)
+  createRoute({ getParentRoute: () => rootRoute, path: '/graduation', component: GraduationPage }),
   // Thời khoá biểu phần khung (DT-20 phần 22c1)
   createRoute({ getParentRoute: () => rootRoute, path: '/period-slots', component: PeriodSlotsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/timetables', component: TimetablesPage }),
