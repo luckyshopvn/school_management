@@ -7,9 +7,15 @@ import {
   replaceDatabaseName,
   type IdentityDatabase,
   type SchoolYearDatabase,
+  type SystemDatabase,
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
-import { E2E_PARENT_PORT, E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_TEACHER_PORT } from '../e2e-environment.mjs';
+import {
+  E2E_PARENT_PORT,
+  E2E_SCHOOL_YEAR_DATABASE_PREFIX,
+  E2E_SYSTEM_DATABASE_NAME,
+  E2E_TEACHER_PORT,
+} from '../e2e-environment.mjs';
 import { openMenu } from './menu.js';
 
 // Thư viện trường học (DT-22 phần 22a, YCTD-181), kịch bản CT-22a-9: trường bật thêm Tiểu học; thủ thư (Hiệu trưởng) thêm ấn
@@ -47,11 +53,18 @@ test('CT-22a-9: thêm ấn phẩm, bản sao; đồng bộ thẻ; mượn, trả
 }) => {
   test.setTimeout(240_000);
   const suffix = Date.now() % 1_000_000;
-  const reference = await schoolYear
-    .selectFrom('classes')
-    .select(['org_unit_id', 'academic_year_id'])
-    .where('school_level', '=', 'MN')
+  // Đơn vị và năm học đang mở do các kịch bản đầu bộ (02, 03) tạo; không phụ thuộc lớp Mầm non của kịch bản khác
+  const unit = await schoolYear.selectFrom('org_units').select('id').orderBy('created_at').executeTakeFirstOrThrow();
+  const system = createDatabase<SystemDatabase>(
+    replaceDatabaseName(readConnectionString('system'), E2E_SYSTEM_DATABASE_NAME),
+  );
+  const openYear = await system
+    .selectFrom('academic_years')
+    .select('id')
+    .where('status', '=', 'open')
     .executeTakeFirstOrThrow();
+  await system.destroy();
+  const reference = { org_unit_id: unit.id, academic_year_id: openYear.id };
   const principal = await createTestUser(identity, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
   const teacher = await createTestUser(identity, { roles: [{ roleCode: 'VT-07', orgUnitId: reference.org_unit_id }] });
   const parent = await createTestUser(identity, { roles: [{ roleCode: 'VT-14', orgUnitId: reference.org_unit_id }] });
@@ -77,9 +90,9 @@ test('CT-22a-9: thêm ấn phẩm, bản sao; đồng bộ thẻ; mượn, trả
     .returning('id')
     .executeTakeFirstOrThrow();
   const relationship = await schoolYear
-    .selectFrom('catalog_items')
-    .select('id')
-    .where('catalog_type', '=', 'parent_relationship')
+    .insertInto('catalog_items')
+    .values({ catalog_type: 'parent_relationship', code: `TV-${suffix}`, name: 'Mẹ' })
+    .returning('id')
     .executeTakeFirstOrThrow();
   const guardian = await schoolYear
     .insertInto('guardians')

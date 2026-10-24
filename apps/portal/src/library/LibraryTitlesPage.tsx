@@ -83,10 +83,10 @@ function formOf(title: LibraryTitle | undefined, categories: LibraryCategory[]):
   };
 }
 
-function inputOf(form: FormState): TitleInput {
+function inputOf(form: FormState, defaultCategoryId: string): TitleInput {
   const text = (value: string) => (value.trim() === '' ? null : value.trim());
   return {
-    category_id: form.category_id,
+    category_id: form.category_id || defaultCategoryId,
     title: form.title.trim(),
     authors: text(form.authors),
     publisher: text(form.publisher),
@@ -113,11 +113,14 @@ function TitleForm({
   onCancel(): void;
 }) {
   const [form, setForm] = useState(() => formOf(title, categories));
+  // Danh sách phân loại có thể tải sau khi mở biểu mẫu: chưa chọn thì dùng phân loại đầu tiên
+  const defaultCategoryId = categories[0]?.id ?? '';
+  const categoryId = form.category_id || defaultCategoryId;
   const set = (field: keyof FormState) => (event: { target: { value: string } }) =>
     setForm({ ...form, [field]: event.target.value });
   const save = useMutation({
     mutationFn: async () => {
-      const input = inputOf(form);
+      const input = inputOf(form, defaultCategoryId);
       if (title) {
         await updateTitle(title.id, input);
         return { id: title.id, message: 'Đã cập nhật ấn phẩm' };
@@ -132,7 +135,7 @@ function TitleForm({
       <div className="flex flex-wrap items-end gap-3">
         <label className="flex flex-col gap-2 text-label font-medium text-text">
           Phân loại
-          <select value={form.category_id} onChange={set('category_id')} className={SELECT_CLASS}>
+          <select value={categoryId} onChange={set('category_id')} className={SELECT_CLASS}>
             {categories.map((item) => (
               <option key={item.id} value={item.id}>
                 {item.name}
@@ -166,7 +169,7 @@ function TitleForm({
       <div className="flex gap-3">
         <Button
           variant="primary"
-          disabled={save.isPending || form.title.trim() === '' || form.category_id === ''}
+          disabled={save.isPending || form.title.trim() === '' || categoryId === ''}
           onClick={() => save.mutate()}
         >
           {title ? 'Lưu thay đổi' : 'Thêm ấn phẩm'}
