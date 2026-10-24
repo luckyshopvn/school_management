@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.46
+- Phiên bản: 0.47
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -26,6 +26,13 @@
 #### Quyết định
 
 - Không thêm YCTD mới (sửa lỗi trong phạm vi YCTD-159). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+### 2026-10-24 — Sửa kiểm thử chập chờn CT-22c2-12 (dạy thay, đổi tiết)
+
+#### Công việc đã thực hiện
+
+- Kiểm thử đơn vị CT-22c2-12 (`apps/api/src/timetables/timetable-generator.test.ts`, YCTD-164) hỏng trên CI của PR 145 (đọc `period_no` của giá trị trống) trong khi nhánh chính vẫn đạt. Nguyên nhân: ca kiểm thử chọn trước người dạy thay rồi mới tìm tiết người đó rảnh, và chọn trước một cặp tiết để đổi; với phương án ngẫu nhiên của máy xếp, có ngày mọi tiết của giáo viên 1 đều trùng tiết người dạy thay, hoặc cặp đã chọn vướng giáo viên dạy lớp khác. Không phụ thuộc thứ trong tuần (vòng tìm đã bỏ qua ngày không có tiết).
+- Sửa ca kiểm thử: tìm cùng lúc ngày, tiết và người dạy thay đang rảnh trong 7 ngày tới; tiết trùng dùng để thử chặn dạy thay; đổi tiết thử lần lượt các cặp khác môn của lớp 1B tới cặp đầu tiên máy chủ nhận, các cặp bị chặn phải trả 422. Không đổi mã nghiệp vụ, không đổi kỳ vọng. Chạy lại 15 lần trên máy (ngày thứ Bảy) đều đạt 6/6.
 
 ### 2026-10-24 — DT-21 phần 21c: sổ điểm THCS, THPT
 
