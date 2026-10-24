@@ -1,8 +1,8 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.70
-- Ngày cập nhật: 2026-10-24
+- Phiên bản: 1.71
+- Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -850,10 +850,10 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-798 | Cho đề đã khoá / Khi giáo viên dạy môn tạo bài kiểm tra cho lớp và nhập bài tay hoặc tệp quét / Thì máy chấm đúng theo đáp án của mã đề, đúng sai bậc thang, tự luận hai người lệch quá ngưỡng thì cần xem lại; tệp có lỗi thì báo dòng, không ghi (CT-940, CT-941, CT-942, CT-946; YCTD-173) |
 | AC-799 | Cho bài kiểm tra đã đủ bài / Khi người quản lý khoá điểm / Thì không sửa được bài, độ khó, độ phân biệt ghi vào lịch sử dùng câu; còn thiếu bài thì không khoá; mở khoá phải có lý do; giáo viên dạy môn chuyển điểm vào đúng loại điểm của sổ điểm, vắng theo cấu hình (CT-943, CT-944, CT-946; YCTD-173) |
 | AC-800 | Cho các bài đã khoá của đề / Khi xem báo cáo / Thì thấy độ khó, độ phân biệt từng câu, câu nên xem lại, tỉ lệ theo chủ đề, mức nhận thức, từng lớp, phân bố điểm; xuất Excel, PDF; phụ huynh không xem được (CT-940, CT-945, CT-946; YCTD-173) |
-| AC-805 | Cho kỳ xét tốt nghiệp THPT / Khi lập danh sách, chọn bài thi, đánh số báo danh, xếp phòng / Thì chỉ học sinh khối 12 có xếp loại cả năm đủ điều kiện; bài thi gồm bắt buộc và đúng số bài tự chọn; số báo danh theo tiền tố và số thứ tự; xếp phòng không vượt sức chứa, thiếu chỗ báo 422 (CT-21f-1, CT-21f-2; YCTD-174) |
-| AC-806 | Cho thí sinh THPT có điểm thi / Khi xét kết quả / Thì thiếu điểm bài thi thì chưa xét; điểm xét theo hệ số cấu hình, cộng ưu tiên, khuyến khích; bài thi từ điểm liệt không đạt; chưa đủ điểm đạt không đạt (CT-21f-1, CT-21f-3; YCTD-174) |
-| AC-807 | Cho kỳ xét có kết quả đề xuất / Khi công nhận tốt nghiệp / Thì thiếu biên bản hội đồng báo 422; có biên bản thì cấp số giấy chứng nhận, kỳ chuyển đã công nhận; giấy chứng nhận, biên bản tải được PDF (CT-21f-3, CT-21f-4, CT-21f-6; YCTD-174) |
-| AC-808 | Cho kỳ xét THCS đã công nhận / Khi xuất tệp và lập hồ sơ chuyển cấp / Thì có tệp danh sách, kết quả, đánh dấu đã gửi thủ công; hồ sơ chuyển cấp chỉ cho học sinh tốt nghiệp có học bạ đã kí, học sinh khác được liệt kê là bỏ qua; người không có quyền không sửa được (CT-21f-5; YCTD-174) |
+| AC-809 | Cho kỳ xét tốt nghiệp THPT / Khi lập danh sách, chọn bài thi, đánh số báo danh, xếp phòng / Thì chỉ học sinh khối 12 có xếp loại cả năm đủ điều kiện; bài thi gồm bắt buộc và đúng số bài tự chọn; số báo danh theo tiền tố và số thứ tự; xếp phòng không vượt sức chứa, thiếu chỗ báo 422 (CT-21f-1, CT-21f-2; YCTD-174) |
+| AC-810 | Cho thí sinh THPT có điểm thi / Khi xét kết quả / Thì thiếu điểm bài thi thì chưa xét; điểm xét theo hệ số cấu hình, cộng ưu tiên, khuyến khích; bài thi từ điểm liệt không đạt; chưa đủ điểm đạt không đạt (CT-21f-1, CT-21f-3; YCTD-174) |
+| AC-811 | Cho kỳ xét có kết quả đề xuất / Khi công nhận tốt nghiệp / Thì thiếu biên bản hội đồng báo 422; có biên bản thì cấp số giấy chứng nhận, kỳ chuyển đã công nhận; giấy chứng nhận, biên bản tải được PDF (CT-21f-3, CT-21f-4, CT-21f-6; YCTD-174) |
+| AC-812 | Cho kỳ xét THCS đã công nhận / Khi xuất tệp và lập hồ sơ chuyển cấp / Thì có tệp danh sách, kết quả, đánh dấu đã gửi thủ công; hồ sơ chuyển cấp chỉ cho học sinh tốt nghiệp có học bạ đã kí, học sinh khác được liệt kê là bỏ qua; người không có quyền không sửa được (CT-21f-5; YCTD-174) |
 | AC-783 | Cho trường có lớp 4, lớp 5 với học sinh nữ dân tộc, khuyết tật, bán trú, lớp 2 buổi/ngày / Khi xem sĩ số; phụ huynh xem / Thì số theo khối và toàn trường đúng; 403 (CT-905, CT-910; YCTD-165) |
 | AC-784 | Cho kết quả kỳ cuối học kỳ I, kết quả cuối năm, hoàn thành, khen thưởng / Khi xem theo khối, toàn trường, theo lớp / Thì số theo mức, điểm theo khoảng, kết quả cuối năm, ở lại lớp, khen thưởng đúng (CT-906, CT-907; YCTD-165) |
 | AC-785 | Cho sổ đầu bài có vắng, ngày đã chốt suất, cắt suất / Khi xem chuyên cần, bán trú; xuất Excel, PDF / Thì số theo lớp đúng; tệp tải được, có nhật ký xuất (CT-908; YCTD-165) |
@@ -870,6 +870,10 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-802 | Cho cán bộ và học sinh Tiểu học, một học sinh Mầm non / Khi đồng bộ thẻ, khóa thẻ, mượn nhiều bản, mượn bản đang mượn, báo, tạp chí / Thì thẻ cấp cho đúng đối tượng, không cấp cho Mầm non, thẻ khóa không mượn được, vượt mức, bản đang mượn, sách đọc tại chỗ bị từ chối 422 (CT-949, CT-950; YCTD-181) |
 | AC-803 | Cho bản mượn quá hạn 4 ngày, mức phạt 500 đồng mỗi ngày / Khi mượn tiếp, trả, gia hạn hai lần, đặt trước khi hết bản / Thì chặn mượn tiếp, phạt 2.000 đồng, gia hạn vượt mức bị từ chối, bản trả về giữ cho người đặt trước, người khác không mượn được, báo mất đánh dấu mất, phụ huynh chỉ thấy sách của con mình (CT-950, CT-951; YCTD-181) |
 | AC-804 | Cho lớp Tiểu học 3 học sinh, kho 3 bản sách giáo khoa; một đợt kiểm kê / Khi phát bộ sách, phát lại, phát cho lớp Mầm non, thu hàng loạt, kiểm kê và thanh lý bản thiếu, mở năm học mới / Thì phát 3 bản, không phát trùng, báo thiếu khi thêm học sinh, lớp khác khối bị từ chối, bản thiếu liệt kê đúng và xử lý được sau khi đóng đợt, năm mới giữ phân loại, bản đang mượn, số đăng ký chạy tiếp (CT-952, CT-953, CT-954, CT-955; YCTD-181) |
+| AC-805 | Cho lớp THPT có tiết 2 hai nhóm (Vật lí, Địa lí) / Khi giáo viên Vật lí mở tiết nhóm 1, ghi; giáo viên Địa lí ghi nhóm 2; giáo viên Vật lí ghi nhóm 2 / Thì danh sách chỉ học sinh tổ hợp có Vật lí; hai sổ riêng; 403; sổ tuần hiện từng nhóm (CT-958, CT-962; YCTD-171) |
+| AC-806 | Cho quy tắc THPT mặc định / Khi lưu tiết C không nhận xét, ký tiết chưa xếp loại, giáo viên sửa quy tắc, Ban Giám hiệu sửa, xuất sổ tuần / Thì 422 kèm lý do; 403; quy tắc THPT đổi, Tiểu học giữ; tải được Excel có nhật ký xuất (CT-957, CT-959, CT-962; YCTD-171) |
+| AC-807 | Cho lớp THPT có chủ nhiệm / Khi giáo viên bộ môn lập sơ đồ, chủ nhiệm xếp theo tên, xoay vòng theo dãy, lập trùng ngày, xếp học sinh lớp khác, xem tiết trước ngày xoay, in / Thì 403; chỗ theo tên; dãy đổi vòng; 422; 400; tiết dùng bản cũ; tải được PDF (CT-957, CT-960, CT-962; YCTD-171) |
+| AC-808 | Cho đội sao đỏ có học sinh lớp 10B, tiết THPT xếp loại A, B, C / Khi ghi điểm lớp 10A có sao đỏ báo, ghi lớp 10B, người báo không trong đội, sao đỏ ngừng; xem xếp hạng tuần / Thì ghi được; 422 không chấm lớp mình; 422; 422; điểm tiết cộng vào điểm, cột Điểm tiết riêng (CT-957, CT-961, CT-962; YCTD-171) |
 | AC-770 | Cho lớp 4 có học sinh hoàn thành và chưa hoàn thành, lớp 5 / Khi ghi kết quả, rèn luyện, kiểm tra lại đạt, chưa đạt / Thì lên khối 5; đang rèn luyện; ở lại lớp; lên lớp; lớp 5 hoàn thành chương trình cấp học (CT-870, CT-872; YCTD-163) |
 | AC-771 | Cho kỳ cuối năm đã khoá / Khi lập học bạ, sửa nhận xét, kí khi chưa và đã đăng ký chứng thư, mở lại / Thì học bạ có kết quả, khen thưởng, hoàn thành; 422 rồi kí nội bộ; đã kí không sửa; mở lại cần lý do; tải tệp ghi nhật ký số định danh (CT-873; YCTD-163) |
 | AC-772 | Cho phụ huynh, phụ huynh khác, năm học mới / Khi xem học bạ, khen thưởng; mở năm học mới / Thì chỉ thấy bản đã kí của con mình, phụ huynh khác 403; học bạ, danh hiệu chép sang, học sinh hoàn thành tiểu học thôi học (CT-874, CT-875; YCTD-163) |

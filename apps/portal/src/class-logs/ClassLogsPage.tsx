@@ -1,9 +1,14 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  LESSON_RATING_RULE_LABELS,
+  LESSON_RATINGS,
   PERIOD_ATTENDANCE_LABELS,
   PERMISSION_CODES,
   TIMETABLE_WEEKDAY_LABELS,
+  type LessonRating,
+  type LessonRatingRule,
+  type LessonRatingSettings,
   type SchoolLevelCode,
 } from '@school-management/shared';
 import { Alert, Button, FORM_CONTROL_CLASS, StatusBadge, Toast } from '@school-management/ui';
@@ -12,16 +17,23 @@ import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError, requestJson } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import { useEnabledSchoolLevels } from '../school-levels/enabled-levels.js';
+import { SeatingGrid } from '../seating/SeatingGrid.js';
 import {
+  exportClassLogWeek,
   readClassLogDetail,
+  readClassLogSettings,
   readClassLogWeek,
   readPeriodAttendanceSummary,
+  saveClassLogSettings,
   signClassLogWeek,
+  type ClassLogSettingsRow,
 } from './class-logs-api.js';
 
 // 7.6 Sổ đầu bài, 7.7 Chuyên cần theo tiết (DT-20 phần 20d, YCTD-162): xem sổ đầu bài của lớp theo tuần (tiết theo thời khoá
 // biểu đang áp dụng, tiết đã ghi, số học sinh vắng, đi muộn), mở một tiết xem nội dung và điểm danh; Ban giám hiệu ký sổ tuần.
-// Giáo viên ghi, ký tiết ở ứng dụng giáo viên. Trang chuyên cần tổng hợp theo học sinh, đối chiếu báo vắng theo ngày
+// Giáo viên ghi, ký tiết ở ứng dụng giáo viên. Trang chuyên cần tổng hợp theo học sinh, đối chiếu báo vắng theo ngày.
+// THCS, THPT (DT-21 phần 21d, YCTD-171): tiết nhóm hiện từng nhóm; tiết kèm sơ đồ chỗ ngồi đang dùng; xuất sổ tuần ra Excel,
+// PDF; Ban giám hiệu cấu hình quy tắc xếp loại tiết theo cấp (P02.class-log.settings)
 const messageOf = (error: unknown) =>
   error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
@@ -74,10 +86,22 @@ function ClassPicker({ value, onChange }: { value: string; onChange(value: strin
   );
 }
 
-function LessonDetail({ classId, date, periodNo }: { classId: string; date: string; periodNo: number }) {
+const groupText = (groupNo: number) => (groupNo > 0 ? ` · Nhóm ${groupNo}` : '');
+
+function LessonDetail({
+  classId,
+  date,
+  periodNo,
+  groupNo,
+}: {
+  classId: string;
+  date: string;
+  periodNo: number;
+  groupNo: number;
+}) {
   const detail = useQuery({
-    queryKey: ['class-log-detail', classId, date, periodNo],
-    queryFn: () => readClassLogDetail(classId, date, periodNo),
+    queryKey: ['class-log-detail', classId, date, periodNo, groupNo],
+    queryFn: () => readClassLogDetail(classId, date, periodNo, groupNo),
   });
   if (detail.error) {
     return <Alert tone="danger">{messageOf(detail.error)}</Alert>;
@@ -89,7 +113,8 @@ function LessonDetail({ classId, date, periodNo }: { classId: string; date: stri
   return (
     <section className="flex flex-col gap-2 rounded-lg border border-border p-3" aria-label="Chi tiết tiết dạy">
       <h3 className="text-content font-semibold">
-        {dateText(data.lesson_date)} tiết {data.period_no}: {data.subject_name ?? ''}
+        {dateText(data.lesson_date)} tiết {data.period_no}
+        {groupText(data.group_no)}: {data.subject_name ?? ''}
       </h3>
       {data.log ? (
         <dl className="grid grid-cols-1 gap-1 text-content md:grid-cols-2">
@@ -100,7 +125,7 @@ function LessonDetail({ classId, date, periodNo }: { classId: string; date: stri
           <dt className="text-text-secondary">Nhận xét tiết</dt>
           <dd>{data.log.comment ?? ''}</dd>
           <dt className="text-text-secondary">Xếp loại tiết</dt>
-          <dd>{data.log.rating ?? ''}</dd>
+          <dd>{data.log.rating ? `${data.log.rating} (${data.rating.rating_labels[data.log.rating]})` : ''}</dd>
         </dl>
       ) : (
         <p className="text-content text-text-secondary">Giáo viên chưa ghi tiết này.</p>
@@ -115,16 +140,160 @@ function LessonDetail({ classId, date, periodNo }: { classId: string; date: stri
             </li>
           ))}
       </ul>
+      {data.seating ? (
+        <details>
+          <summary className="cursor-pointer text-content text-text-secondary">
+            Sơ đồ chỗ ngồi (áp dụng từ {dateText(data.seating.effective_from)})
+          </summary>
+          <SeatingGrid
+            layout={data.seating}
+            assignments={data.seating.assignments}
+            names={Object.fromEntries(data.seating.assignments.map((seat) => [seat.child_id, seat.full_name]))}
+          />
+        </details>
+      ) : null}
     </section>
+  );
+}
+
+// Quy tắc xếp loại tiết của một cấp: không dùng, tuỳ chọn, bắt buộc khi ký; nhãn A đến D; tiết C, D phải nhận xét; điểm thi
+// đua lớp theo xếp loại tiết
+function RatingSettingsForm({ row, levelName }: { row: ClassLogSettingsRow; levelName: string }) {
+  const queryClient = useQueryClient();
+  const [mode, setMode] = useState<LessonRatingRule>(row.rating_mode);
+  const [labels, setLabels] = useState(row.rating_labels);
+  const [lowComment, setLowComment] = useState(row.low_rating_comment);
+  const [points, setPoints] = useState<Record<LessonRating, string> | null>(
+    row.conduct_points
+      ? (Object.fromEntries(LESSON_RATINGS.map((code) => [code, String(row.conduct_points?.[code] ?? 0)])) as Record<
+          LessonRating,
+          string
+        >)
+      : null,
+  );
+  const [toastMessage, setToastMessage] = useState<string>();
+  const closeToast = useCallback(() => setToastMessage(undefined), []);
+  const save = useMutation({
+    mutationFn: () => {
+      const settings: LessonRatingSettings = {
+        rating_mode: mode,
+        rating_labels: labels,
+        low_rating_comment: lowComment,
+        conduct_points: points
+          ? (Object.fromEntries(LESSON_RATINGS.map((code) => [code, Number(points[code])])) as Record<
+              LessonRating,
+              number
+            >)
+          : null,
+      };
+      return saveClassLogSettings(row.school_level, settings);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['class-log-settings'] });
+      setToastMessage(`Đã lưu quy tắc xếp loại tiết ${levelName}`);
+    },
+  });
+  return (
+    <fieldset className="flex flex-col gap-3 rounded-lg border border-border p-3" aria-label={`Quy tắc ${levelName}`}>
+      <Toast message={toastMessage} onClose={closeToast} />
+      <legend className="px-1 text-content font-semibold">{levelName}</legend>
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="text-label font-medium text-text">
+          Xếp loại tiết
+          <select
+            aria-label={`Xếp loại tiết ${levelName}`}
+            className={`mt-2 block ${FORM_CONTROL_CLASS}`}
+            value={mode}
+            onChange={(event) => setMode(event.target.value as LessonRatingRule)}
+          >
+            {(Object.keys(LESSON_RATING_RULE_LABELS) as LessonRatingRule[]).map((value) => (
+              <option key={value} value={value}>
+                {LESSON_RATING_RULE_LABELS[value]}
+              </option>
+            ))}
+          </select>
+        </label>
+        {LESSON_RATINGS.map((code) => (
+          <label key={code} className="text-label font-medium text-text">
+            Nhãn {code}
+            <input
+              aria-label={`Nhãn ${code} ${levelName}`}
+              className={`mt-2 block w-28 ${FORM_CONTROL_CLASS}`}
+              value={labels[code]}
+              onChange={(event) => setLabels({ ...labels, [code]: event.target.value })}
+            />
+          </label>
+        ))}
+      </div>
+      <label className="flex items-center gap-2 text-label text-text">
+        <input type="checkbox" checked={lowComment} onChange={(event) => setLowComment(event.target.checked)} />
+        Tiết xếp loại C, D phải có nhận xét
+      </label>
+      <label className="flex items-center gap-2 text-label text-text">
+        <input
+          type="checkbox"
+          checked={points !== null}
+          onChange={(event) => setPoints(event.target.checked ? { A: '2', B: '0', C: '-2', D: '-5' } : null)}
+        />
+        Tính điểm thi đua lớp theo xếp loại tiết
+      </label>
+      {points ? (
+        <div className="flex flex-wrap items-end gap-3">
+          {LESSON_RATINGS.map((code) => (
+            <label key={code} className="text-label font-medium text-text">
+              Điểm tiết {code}
+              <input
+                type="number"
+                aria-label={`Điểm tiết ${code} ${levelName}`}
+                className={`mt-2 block w-24 ${FORM_CONTROL_CLASS}`}
+                value={points[code]}
+                onChange={(event) => setPoints({ ...points, [code]: event.target.value })}
+              />
+            </label>
+          ))}
+        </div>
+      ) : null}
+      {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
+      <div>
+        <Button variant="primary" disabled={save.isPending} onClick={() => save.mutate()}>
+          Lưu quy tắc {levelName}
+        </Button>
+      </div>
+    </fieldset>
+  );
+}
+
+function RatingSettingsBlock() {
+  const enabled = useEnabledSchoolLevels();
+  const settings = useQuery({ queryKey: ['class-log-settings'], queryFn: readClassLogSettings });
+  const rows = (settings.data ?? []).filter((row) => enabled.levels.some((level) => level.value === row.school_level));
+  if (rows.length === 0) {
+    return null;
+  }
+  return (
+    <details className="rounded-xl border border-border bg-card p-4">
+      <summary className="cursor-pointer text-section-title font-semibold text-text">Quy tắc xếp loại tiết</summary>
+      <div className="mt-3 flex flex-col gap-3">
+        {rows.map((row) => (
+          <RatingSettingsForm
+            key={`${row.school_level}:${String(row.updated_by_name)}`}
+            row={row}
+            levelName={enabled.levels.find((level) => level.value === row.school_level)?.label ?? row.school_level}
+          />
+        ))}
+      </div>
+    </details>
   );
 }
 
 export function ClassLogsPage() {
   const canReview = useHasPermission(PERMISSION_CODES.classLogReview);
+  const canConfigure = useHasPermission(PERMISSION_CODES.classLogSettings);
   const queryClient = useQueryClient();
   const [classId, setClassId] = useState('');
   const [date, setDate] = useState(todayInVietnam());
-  const [opened, setOpened] = useState<{ date: string; period: number }>();
+  const [opened, setOpened] = useState<{ date: string; period: number; group: number }>();
+  const [exportError, setExportError] = useState<string>();
   const [comment, setComment] = useState('');
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
@@ -146,6 +315,7 @@ export function ClassLogsPage() {
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/class-logs')}</h1>
+        {canConfigure ? <RatingSettingsBlock /> : null}
         <div className="flex flex-wrap items-end gap-3">
           <ClassPicker value={classId} onChange={setClassId} />
           <label className="text-label font-medium text-text">
@@ -162,9 +332,27 @@ export function ClassLogsPage() {
         {week.error ? <Alert tone="danger">{messageOf(week.error)}</Alert> : null}
         {week.data ? (
           <section className="flex flex-col gap-3" aria-label="Sổ đầu bài tuần">
-            <h2 className="text-section-title font-semibold text-text">
-              Tuần từ {dateText(week.data.week_start)} · {week.data.class.name}
-            </h2>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-section-title font-semibold text-text">
+                Tuần từ {dateText(week.data.week_start)} · {week.data.class.name}
+              </h2>
+              <div className="flex gap-2">
+                {(['xlsx', 'pdf'] as const).map((format) => (
+                  <Button
+                    key={format}
+                    onClick={() => {
+                      setExportError(undefined);
+                      exportClassLogWeek(classId, date, format).catch((error: unknown) =>
+                        setExportError(messageOf(error)),
+                      );
+                    }}
+                  >
+                    {format === 'xlsx' ? 'Xuất Excel' : 'Xuất PDF'}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            {exportError ? <Alert tone="danger">{exportError}</Alert> : null}
             {week.data.days.length === 0 ? (
               <p className="text-content text-text-secondary">
                 Tuần này lớp chưa có tiết theo thời khoá biểu đang áp dụng.
@@ -186,11 +374,14 @@ export function ClassLogsPage() {
               <tbody>
                 {week.data.days.flatMap((day) =>
                   day.lessons.map((lesson) => (
-                    <tr key={`${day.date}:${lesson.period_no}`} className="border-t border-border">
+                    <tr key={`${day.date}:${lesson.period_no}:${lesson.group_no}`} className="border-t border-border">
                       <td className="px-3 py-2">
                         {TIMETABLE_WEEKDAY_LABELS[day.weekday]} {dateText(day.date)}
                       </td>
-                      <td className="px-3 py-2">{lesson.period_no}</td>
+                      <td className="px-3 py-2">
+                        {lesson.period_no}
+                        {groupText(lesson.group_no)}
+                      </td>
                       <td className="px-3 py-2">{lesson.subject_name ?? ''}</td>
                       <td className="px-3 py-2">{lesson.teacher_name ?? ''}</td>
                       <td className="px-3 py-2">{lesson.log?.lesson_title ?? ''}</td>
@@ -204,7 +395,12 @@ export function ClassLogsPage() {
                         />
                       </td>
                       <td className="px-3 py-2 text-right">
-                        <Button variant="text" onClick={() => setOpened({ date: day.date, period: lesson.period_no })}>
+                        <Button
+                          variant="text"
+                          onClick={() =>
+                            setOpened({ date: day.date, period: lesson.period_no, group: lesson.group_no })
+                          }
+                        >
                           Xem
                         </Button>
                       </td>
@@ -213,7 +409,9 @@ export function ClassLogsPage() {
                 )}
               </tbody>
             </table>
-            {opened ? <LessonDetail classId={classId} date={opened.date} periodNo={opened.period} /> : null}
+            {opened ? (
+              <LessonDetail classId={classId} date={opened.date} periodNo={opened.period} groupNo={opened.group} />
+            ) : null}
             {week.data.review ? (
               <Alert tone="success">
                 Ban giám hiệu đã ký sổ tuần: {week.data.review.reviewer_name}

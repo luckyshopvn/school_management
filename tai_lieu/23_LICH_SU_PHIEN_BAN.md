@@ -1,8 +1,8 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.48
-- Ngày cập nhật: 2026-10-24
+- Phiên bản: 0.49
+- Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
 
@@ -16,16 +16,27 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.123.0 – 2026-10-25
+### Phiên bản 0.124.0 – 2026-10-25
 - Phạm vi thay đổi: DT-21 phần 21f, xét tốt nghiệp THCS, THPT và hồ sơ thi (YCTD-174).
 - Chức năng mới: kỳ xét tốt nghiệp theo cấp; danh sách thí sinh từ lớp cuối cấp theo xếp loại cả năm; hồ sơ dự thi (bài thi, miễn thi, ưu tiên, khuyến khích), số báo danh, phòng thi, điểm thi (THPT); xét kết quả theo công thức cấu hình được; công nhận tốt nghiệp có biên bản hội đồng, giấy chứng nhận PDF; tệp xuất, đánh dấu đã gửi thủ công; hồ sơ chuyển cấp THCS; mục 7.16 của cổng quản trị.
 - Lỗi đã sửa: không.
 - Thay đổi dữ liệu: tệp năm học `0091_create_graduation`; cấu hình xét tốt nghiệp chép sang năm học mới; tệp hệ thống `0029`, định danh `0082` để trống (dùng quyền sẵn có).
 - Thay đổi API: nhóm điểm cuối mới `/graduation` (cấu hình, kỳ, thí sinh, phòng, xét, công nhận, biên bản, tệp xuất, hồ sơ chuyển cấp).
-- Kiểm thử: kịch bản CT-957 đến CT-961. Kết quả ngày 25/10/2026: kiểm thử đơn vị `graduation.test.ts` CT-21f-1 đến CT-21f-5 đạt 5/5; chạy cùng menu, cấp học đạt 13/13; typecheck, prettier, eslint đạt; e2e CT-21f-6 (102) do CI chạy cùng e2e toàn bộ.
+- Kiểm thử: kịch bản CT-963 đến CT-967. Kết quả ngày 25/10/2026: kiểm thử đơn vị `graduation.test.ts` CT-21f-1 đến CT-21f-5 đạt 5/5; chạy cùng menu, cấp học đạt 13/13; typecheck, prettier, eslint đạt; e2e CT-21f-6 (102) do CI chạy cùng e2e toàn bộ.
 - Rủi ro: công thức, hệ số, điểm liệt, môn thi là mặc định theo quy chế nhớ, cần đối chiếu văn bản gốc của năm; mẫu giấy chứng nhận, bố cục tệp là bố cục chung, mẫu của Bộ, Sở khớp khi khảo sát; chưa nối Sở, Bộ.
 - Khả năng tương thích: không đổi chức năng cũ; trường chỉ có Mầm non, Tiểu học không thấy mục 7.16.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 21f; chạy phần quay lui của tệp năm học `0091`.
+### Phiên bản 0.123.0 – 2026-10-25
+
+- Phạm vi thay đổi: DT-21 phần 21d, sổ đầu bài, điểm danh theo tiết THCS, THPT; sơ đồ chỗ ngồi; thi đua lớp, sao đỏ (YCTD-171).
+- Chức năng mới: tiết nhóm ở sổ đầu bài; quy tắc xếp loại tiết theo cấp; xuất sổ đầu bài tuần; sơ đồ chỗ ngồi (7.16); đội sao đỏ, sao đỏ báo lỗi, điểm tiết trong xếp hạng thi đua; 7.6, 7.7, 4.9 hiện ở THCS, THPT.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: tệp năm học `0088_create_secondary_class_records`; tệp định danh `0079_add_secondary_class_record_permissions`.
+- Thay đổi API: `/class-logs/lesson` nhận `group_no`, trả quy tắc xếp loại, sơ đồ chỗ ngồi; `PUT /class-logs` nhận `group_no`; `/class-logs/settings`, `/class-logs/week/export`; `/seating-charts`; `/conduct/red-stars`; `POST /conduct/entries` nhận `reporter_child_id`; `/conduct/ranking` trả điểm tiết.
+- Kiểm thử: kịch bản CT-957 đến CT-962. Kết quả ngày 25/10/2026: kiểm thử đơn vị `apps/api/src/class-logs/secondary-class-records.test.ts` CT-21d-1 đến CT-21d-5 đạt 5/5; kiểm thử đơn vị các gói đã sửa trên máy (database 6/6, api 1052/1052) đạt, kiểm thử đang có không sửa kỳ vọng (thêm mục 7.16 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của THCS, THPT của CT-19c-1); e2e trên máy 02, 03, 06, 08, 58, 88, 91, 97, 99 đạt; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: quy tắc, tiêu chí chưa khớp từng Sở, trường (sửa ở cấu hình).
+- Khả năng tương thích: không đổi điểm cuối cũ (tham số mới mặc định như cũ); trường chỉ có Mầm non, Tiểu học thấy như cũ (thêm khối quy tắc xếp loại tiết cho Ban Giám hiệu ở 7.6).
+- Phương án quay lui: hoàn lại commit gộp của nhánh 21d; chạy phần quay lui của tệp năm học `0088` và tệp định danh `0079`.
 
 ### Phiên bản 0.122.0 – 2026-10-24
 

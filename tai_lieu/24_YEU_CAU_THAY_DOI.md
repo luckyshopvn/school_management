@@ -1,8 +1,8 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.52
-- Ngày cập nhật: 2026-10-24
+- Phiên bản: 0.53
+- Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
 ## Quy ước
@@ -10,6 +10,21 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-171: DT-21 phần 21d: sổ đầu bài, điểm danh theo tiết THCS, THPT; sơ đồ chỗ ngồi; thi đua lớp, sao đỏ – 2026-10-25
+
+- Lý do: phần 21d của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.4 (đợt 3). Văn bản căn cứ: Điều lệ trường trung học cơ sở, trường trung học phổ thông và trường phổ thông có nhiều cấp học (Thông tư 32/2020/TT-BGDĐT) xếp sổ ghi đầu bài vào hồ sơ quản lý hoạt động giáo dục của nhà trường; Thông tư 22/2021/TT-BGDĐT không quy định xếp loại tiết học. Văn bản không quy định cách xếp loại tiết, sơ đồ chỗ ngồi, đội sao đỏ nên các điểm này tuỳ trường, cấu hình được. Chưa khảo sát hệ thống của Sở cấp THCS, THPT: số mục menu, cột, biểu mẫu khớp Sở sau. Không đổi hành vi Mầm non, Tiểu học. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Sổ đầu bài, điểm danh theo tiết THCS, THPT** (mở rộng 20d, không viết lại): mục 7.6 Sổ đầu bài, 7.7 Chuyên cần theo tiết hiện ở Tiểu học, THCS, THPT. Tiết nhóm của thời khoá biểu (21b, `group_no`) ghi sổ riêng từng nhóm (`class_logs.group_no`, khoá duy nhất thêm nhóm; sổ cũ là nhóm 0); giáo viên của nhóm ghi, ký nhóm mình; danh sách điểm danh tiết nhóm là học sinh có môn của tiết trong tổ hợp đang hiệu lực (tổ hợp đã duyệt, hoặc tổ hợp cũ khi đổi còn chờ duyệt, như thời khoá biểu của con ở 21b), lớp chưa ai đăng ký tổ hợp có môn đó thì cả lớp. Quy tắc xếp loại tiết theo cấp (`class_log_settings`): không dùng, tuỳ chọn, hoặc bắt buộc khi ký tiết; nhãn A, B, C, D sửa được (mặc định Tốt, Khá, Trung bình, Chưa đạt); tiết C, D phải có nhận xét nếu bật; Tiểu học giữ như 20d (tuỳ chọn, không bắt nhận xét), THCS, THPT mặc định bắt buộc khi ký, tiết C, D phải nhận xét. Ban Giám hiệu sửa quy tắc cần quyền mới `P02.class-log.settings` (tệp định danh `0079`). Xuất sổ đầu bài một tuần của lớp ra Excel, PDF (mỗi tiết, mỗi nhóm một dòng; chữ ký tuần của Ban Giám hiệu), ghi nhật ký xuất. Chi tiết tiết kèm sơ đồ chỗ ngồi đang dùng. Ứng dụng giáo viên hiện nhóm, nhãn xếp loại, quy tắc, sơ đồ chỗ ngồi. Phụ huynh xem điểm danh theo tiết, báo vắng theo ngày dùng chung như 20d (chức năng ứng dụng đã gồm THCS, THPT).
+  - **Sơ đồ chỗ ngồi** (`seating_charts`, `seating_assignments`, tệp năm học `0088`): mỗi lớp THCS, THPT có các bản theo ngày áp dụng (số dãy 1 đến 8, số bàn mỗi dãy 1 đến 15, số chỗ mỗi bàn 1 đến 4); bản mới nhất có ngày áp dụng không sau ngày xem là bản đang dùng; trường muốn xếp riêng theo môn thì lập bản có môn, tiết của môn đó dùng bản của môn. Lập bản: xếp theo danh sách tên (lấp từng bàn từ bàn đầu), xoay vòng từ bản cũ theo dãy hoặc theo bàn, hoặc để trống rồi tự xếp; kéo thả hoặc bấm chọn rồi bấm chỗ đích ở cổng (chỗ có người thì đổi chỗ). Giáo viên chủ nhiệm xếp lớp mình; người có quyền mới `P02.seating.manage` (VT-02, VT-15) xếp mọi lớp; người xem được sổ đầu bài của lớp xem được sơ đồ. In sơ đồ ra PDF, Excel. Mục 7.16 "Sơ đồ chỗ ngồi" (MH-300). Máy chủ từ chối lớp ngoài THCS, THPT.
+  - **Thi đua lớp, sao đỏ THCS, THPT** (mở rộng 20b): mục 4.9 hiện ở Tiểu học, THCS, THPT, có ô chọn cấp khi trường bật nhiều cấp ngoài Mầm non; bộ tiêu chí mặc định THCS, THPT (việc tốt, phong trào, vệ sinh tốt; đi muộn, nghỉ không phép, đồng phục, trật tự, điện thoại, chào cờ, để xe, vệ sinh kém), mã có tiền tố cấp vì mã tiêu chí duy nhất toàn trường. Đội sao đỏ (`red_star_members`): học sinh THCS, THPT, không có tài khoản; người quản lý thi đua (`P02.conduct.manage`) thêm, ghi nhiệm vụ, ngừng; giáo viên trực ghi điểm thay và chọn sao đỏ báo (`conduct_entries.reporter_child_id`); sao đỏ phải đang hoạt động và không chấm lớp mình. Xếp hạng cộng điểm theo xếp loại tiết ở sổ đầu bài nếu cấp bật (`class_log_settings.conduct_points`; mặc định THCS, THPT: A +2, B 0, C -2, D -5; Tiểu học không tính), cột "Điểm tiết" riêng. Không dùng bảng thi đua cán bộ của 22d.
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/school-year/migrations/0088_create_secondary_class_records.ts`, `database/identity/migrations/0079_add_secondary_class_record_permissions.ts`, `school-year/schema.ts`); gói dùng chung (`class-records.ts`, `PERMISSION_CODES`, `portal-menu.ts`, `menu-permissions.ts`); máy chủ API (`class-logs/`, `seating/`, `conduct/`); cổng quản trị (`class-logs/`, `seating/`, `conduct/`); ứng dụng giáo viên (`ClassLogScreen`).
+- Dữ liệu bị ảnh hưởng: tệp năm học `0088` thêm cột `class_logs.group_no` (mặc định 0), `conduct_entries.reporter_child_id`, bảng `class_log_settings` (ba dòng TH, THCS, THPT), `seating_charts`, `seating_assignments`, `red_star_members`; tệp định danh `0079` thêm hai quyền. Sổ đầu bài, nề nếp đang có giữ nguyên.
+- Đối chiếu trước, sau chuyển: không chuyển dữ liệu; sổ đầu bài cũ là nhóm 0.
+- Rủi ro: quy tắc xếp loại tiết, tiêu chí, điểm tiết chưa khớp quy định riêng của từng Sở, trường; sửa ở cấu hình, không cần đổi mã. Tiết nhóm của lớp chưa đăng ký tổ hợp hiện cả lớp.
+- Chưa làm trong phần này, ghi để làm tiếp: sơ đồ chỗ ngồi theo tiết (hiện theo lớp hoặc theo môn); tài khoản học sinh hạn chế cho sao đỏ tự ghi (chỉ làm khi Eric yêu cầu, 12.6); biểu mẫu sổ đầu bài khớp Sở sau khảo sát.
+- Kiểm thử cần thực hiện: CT-957 đến CT-962. Kết quả ngày 25/10/2026: kiểm thử đơn vị `apps/api/src/class-logs/secondary-class-records.test.ts` CT-21d-1 đến CT-21d-5 đạt 5/5; kiểm thử đơn vị các gói đã sửa trên máy (database 6/6, api 1052/1052) đạt, kiểm thử đang có không sửa kỳ vọng (thêm mục 7.16 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của THCS, THPT của CT-19c-1); e2e trên máy 02, 03, 06, 08, 58, 88, 91, 97, 99 đạt; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Trạng thái: Đã triển khai (PR #157).
 
 ### YCTD-173: DT-21 phần 22g2: kiểm tra, đánh giá, phần chấm – 2026-10-24
 
@@ -39,13 +54,13 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Nội dung thay đổi:
   - **Hàm dùng chung** (`packages/shared/src/graduation.ts`): cấu hình mặc định THCS, THPT, điểm trung bình học bạ, điểm xét, điều kiện, số báo danh, chia phòng, kiểm tra cấu hình, nhãn.
   - **Máy chủ** (`apps/api/src/graduation`): kỳ xét, thí sinh từ lớp cuối cấp (điều kiện từ xếp loại cả năm ở sổ điểm 21c, điểm trung bình lớp 10, 11 từ học bạ 21e), hồ sơ dự thi, số báo danh, phòng thi, điểm thi, xét, công nhận có biên bản hội đồng, số giấy chứng nhận, PDF giấy chứng nhận và biên bản, tệp xlsx, đánh dấu đã gửi, hồ sơ chuyển cấp; dùng quyền sẵn có (`P02.assessment.view`, `P02.student-record.approve`).
-  - **Giao diện:** mục 7.16 Xét tốt nghiệp, hồ sơ thi (chỉ THCS, THPT).
+  - **Giao diện:** mục 7.17 Xét tốt nghiệp, hồ sơ thi (chỉ THCS, THPT).
   - **Dữ liệu:** tệp năm học `0091_create_graduation`; cấu hình theo cấp chép sang năm học mới.
   - **Kết nối Sở, Bộ:** chỉ làm bản chạy nội bộ (xuất tệp, trạng thái thủ công), để chỗ nối sau.
 - Thành phần bị ảnh hưởng: `database`, `packages/shared`, `apps/api`, `apps/portal`, `tests/e2e`, tài liệu `01`, `02`, `07`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`.
 - Dữ liệu bị ảnh hưởng: thêm chín bảng; dữ liệu cũ giữ nguyên.
 - API bị ảnh hưởng: thêm nhóm `/graduation`; điểm cuối cũ không đổi.
-- Giao diện bị ảnh hưởng: thêm mục 7.16 ở THCS, THPT; cấp khác không đổi.
+- Giao diện bị ảnh hưởng: thêm mục 7.17 ở THCS, THPT; cấp khác không đổi.
 - Quyền bị ảnh hưởng: không thêm quyền.
 - Ảnh hưởng chức năng cũ: không đổi kỳ vọng kiểm thử cũ; kiểm thử menu, cấp học thêm đường dẫn `/graduation` vào mục chỉ của THCS, THPT.
 - Kiểm thử cần thực hiện: CT-947 đến CT-951; kiểm thử đơn vị gói xét tốt nghiệp, menu, cấp học; e2e 102 (CI chạy cùng e2e toàn bộ); typecheck, lint, build.
