@@ -80,6 +80,7 @@ import { migration as createClassLogs } from './migrations/0080_create_class_log
 import { migration as createStudentRecords } from './migrations/0081_create_student_records.js';
 import { migration as createTimetableGenerator } from './migrations/0082_create_timetable_generator.js';
 import { migration as createSecondaryFoundation } from './migrations/0084_create_secondary_foundation.js';
+import { migration as addTimetableGroups } from './migrations/0086_add_timetable_groups.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
@@ -164,4 +165,5 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0081_create_student_records': createStudentRecords,
   '0082_create_timetable_generator': createTimetableGenerator,
   '0084_create_secondary_foundation': createSecondaryFoundation,
+  '0086_add_timetable_groups': addTimetableGroups,
 };

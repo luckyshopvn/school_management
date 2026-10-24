@@ -252,6 +252,8 @@ export interface TimetableLessonsTable {
   teacher_user_id: string | null;
   teacher_name: string | null;
   room_id: string | null;
+  // 0 là tiết cả lớp, 1 đến 9 là nhóm học (DT-21 phần 21b, YCTD-169)
+  group_no: Generated<number>;
   created_at: CreatedTimestamp;
 }
 
