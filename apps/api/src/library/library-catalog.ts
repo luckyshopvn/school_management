@@ -17,7 +17,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { LibraryCopyCondition, LibraryCopySource, SchoolYearDatabase } from '@school-management/database';
-import { ApplicationError, Clock, ruleViolationError, validationError, type FieldError } from '@school-management/server';
+import { Clock, ruleViolationError, validationError, type FieldError } from '@school-management/server';
 import { PERMISSION_CODES, SCHOOL_LEVEL_CODES, type SchoolLevelCode } from '@school-management/shared';
 import type { Request, Response } from 'express';
 import { sql, type Kysely } from 'kysely';
@@ -137,7 +137,10 @@ export class LibraryCatalogService {
       ...settings,
       rules,
       categories,
-      indicators: indicators.map((item) => ({ ...item, threshold: item.threshold === null ? null : Number(item.threshold) })),
+      indicators: indicators.map((item) => ({
+        ...item,
+        threshold: item.threshold === null ? null : Number(item.threshold),
+      })),
     };
   }
 
@@ -146,7 +149,13 @@ export class LibraryCatalogService {
     input: {
       studentLevels: SchoolLevelCode[];
       holdDays: number;
-      rules: Array<{ reader_kind: 'staff' | 'student'; max_items: number; loan_days: number; max_renewals: number; fine_per_day: number }>;
+      rules: Array<{
+        reader_kind: 'staff' | 'student';
+        max_items: number;
+        loan_days: number;
+        max_renewals: number;
+        fine_per_day: number;
+      }>;
       indicators: Array<{ code: string; threshold: number | null; enabled: boolean }>;
     },
     origin: ChangeOrigin,
@@ -196,7 +205,10 @@ export class LibraryCatalogService {
     return this.settings();
   }
 
-  async createCategory(input: { code: string; name: string; lendable: boolean; order_no: number }, origin: ChangeOrigin) {
+  async createCategory(
+    input: { code: string; name: string; lendable: boolean; order_no: number },
+    origin: ChangeOrigin,
+  ) {
     const database = await this.core.database();
     return conflictOnDuplicate(
       database.transaction().execute(async (transaction) => {
@@ -261,7 +273,9 @@ export class LibraryCatalogService {
     const query = database
       .selectFrom('library_titles')
       .innerJoin('library_categories', 'library_categories.id', 'library_titles.category_id')
-      .$if(filter.status !== undefined, (builder) => builder.where('library_titles.status', '=', filter.status ?? 'active'))
+      .$if(filter.status !== undefined, (builder) =>
+        builder.where('library_titles.status', '=', filter.status ?? 'active'),
+      )
       .$if(filter.categoryId !== undefined, (builder) =>
         builder.where('library_titles.category_id', '=', filter.categoryId ?? ''),
       )
@@ -286,9 +300,7 @@ export class LibraryCatalogService {
           ]),
         );
       });
-    const total = await query
-      .select((eb) => eb.fn.countAll<string>().as('total'))
-      .executeTakeFirstOrThrow();
+    const total = await query.select((eb) => eb.fn.countAll<string>().as('total')).executeTakeFirstOrThrow();
     const rows = await query
       .select([...TITLE_COLUMNS, 'library_categories.name as category_name', 'library_categories.lendable'])
       .orderBy('library_titles.title')
@@ -296,7 +308,10 @@ export class LibraryCatalogService {
       .limit(filter.limit)
       .offset(filter.offset)
       .execute();
-    const counts = await this.copyCounts(database, rows.map((row) => row.id));
+    const counts = await this.copyCounts(
+      database,
+      rows.map((row) => row.id),
+    );
     return {
       total: Number(total.total),
       items: rows.map((row) => ({ ...row, ...(counts.get(row.id) ?? { copies_total: 0, copies_available: 0 }) })),
@@ -324,7 +339,10 @@ export class LibraryCatalogService {
       .groupBy('library_copies.title_id')
       .execute();
     for (const row of rows) {
-      result.set(row.title_id, { copies_total: Number(row.copies_total), copies_available: Number(row.copies_available) });
+      result.set(row.title_id, {
+        copies_total: Number(row.copies_total),
+        copies_available: Number(row.copies_available),
+      });
     }
     return result;
   }
@@ -340,7 +358,11 @@ export class LibraryCatalogService {
     if (!row) {
       throw notFoundError('Không tìm thấy ấn phẩm', 'library_title');
     }
-    const [copies, files, counts] = await Promise.all([this.copies({ titleId }), this.titleFiles(titleId), this.copyCounts(database, [titleId])]);
+    const [copies, files, counts] = await Promise.all([
+      this.copies({ titleId }),
+      this.titleFiles(titleId),
+      this.copyCounts(database, [titleId]),
+    ]);
     return { ...row, ...(counts.get(titleId) ?? { copies_total: 0, copies_available: 0 }), copies, files };
   }
 
@@ -357,7 +379,11 @@ export class LibraryCatalogService {
       }
     }
     if (input.subject_id) {
-      const subject = await database.selectFrom('subjects').select('id').where('id', '=', input.subject_id).executeTakeFirst();
+      const subject = await database
+        .selectFrom('subjects')
+        .select('id')
+        .where('id', '=', input.subject_id)
+        .executeTakeFirst();
       if (!subject) {
         throw validationError([{ field: 'subject_id', message: 'Không tìm thấy môn học' }]);
       }
@@ -386,7 +412,11 @@ export class LibraryCatalogService {
     });
   }
 
-  async updateTitle(titleId: string, changes: Partial<TitleInput> & { status?: 'active' | 'retired' }, origin: ChangeOrigin) {
+  async updateTitle(
+    titleId: string,
+    changes: Partial<TitleInput> & { status?: 'active' | 'retired' },
+    origin: ChangeOrigin,
+  ) {
     const database = await this.core.database();
     const existing = await this.core.findTitle(database, titleId);
     await this.assertTitleRefs(database, changes);
@@ -445,7 +475,9 @@ export class LibraryCatalogService {
         'library_loans.id as loan_id',
         'library_loans.due_on as loan_due_on',
       ])
-      .$if(filter.titleId !== undefined, (builder) => builder.where('library_copies.title_id', '=', filter.titleId ?? ''))
+      .$if(filter.titleId !== undefined, (builder) =>
+        builder.where('library_copies.title_id', '=', filter.titleId ?? ''),
+      )
       .$if(filter.code !== undefined, (builder) =>
         builder.where('library_copies.copy_no', '=', normalizeScannedCode(filter.code ?? '')),
       )
@@ -653,7 +685,9 @@ export class LibraryCatalogService {
         },
       ],
     };
-    const buffer = await pdfmake.createPdf(definition as unknown as Parameters<typeof pdfmake.createPdf>[0]).getBuffer();
+    const buffer = await pdfmake
+      .createPdf(definition as unknown as Parameters<typeof pdfmake.createPdf>[0])
+      .getBuffer();
     const fileName = `tem-ma-sach-${fileStamp(createdAt)}.pdf`;
     const log = await database
       .insertInto('export_logs')
@@ -748,7 +782,12 @@ export class LibraryCatalogService {
       .execute();
   }
 
-  async attachFile(titleId: string, file: { fileName: string; body: Buffer }, currentUser: CurrentUser, origin: ChangeOrigin) {
+  async attachFile(
+    titleId: string,
+    file: { fileName: string; body: Buffer },
+    currentUser: CurrentUser,
+    origin: ChangeOrigin,
+  ) {
     const database = await this.core.database();
     await this.core.findTitle(database, titleId);
     if (file.body.length === 0 || file.body.length > MAXIMUM_DIGITAL_BYTES) {
@@ -841,7 +880,11 @@ export class LibraryCatalogService {
 // Điểm cuối
 // ------------------------------------------------------------------------------------------------------------------
 
-function readSchoolLevelOrNull(body: RequestBody, field: string, errors: FieldError[]): SchoolLevelCode | null | undefined {
+function readSchoolLevelOrNull(
+  body: RequestBody,
+  field: string,
+  errors: FieldError[],
+): SchoolLevelCode | null | undefined {
   const value = body?.[field];
   if (value === undefined) {
     return undefined;
@@ -936,7 +979,13 @@ export class LibraryCatalogController {
       errors.push({ field: 'student_levels', message: 'Cấp học là MN, TH, THCS hoặc THPT' });
     }
     const holdDays = readRequiredInteger(body, 'hold_days', errors, { min: 1, max: 30 });
-    const rules: Array<{ reader_kind: 'staff' | 'student'; max_items: number; loan_days: number; max_renewals: number; fine_per_day: number }> = [];
+    const rules: Array<{
+      reader_kind: 'staff' | 'student';
+      max_items: number;
+      loan_days: number;
+      max_renewals: number;
+      fine_per_day: number;
+    }> = [];
     const rawRules = body?.rules;
     if (!Array.isArray(rawRules)) {
       errors.push({ field: 'rules', message: 'Bắt buộc có quy định mượn' });
@@ -964,7 +1013,10 @@ export class LibraryCatalogController {
       } else {
         for (const raw of rawIndicators as RequestBody[]) {
           const threshold = raw?.threshold;
-          if (typeof raw?.code !== 'string' || (threshold !== null && threshold !== undefined && (typeof threshold !== 'number' || threshold < 0))) {
+          if (
+            typeof raw?.code !== 'string' ||
+            (threshold !== null && threshold !== undefined && (typeof threshold !== 'number' || threshold < 0))
+          ) {
             errors.push({ field: 'indicators', message: 'Chỉ tiêu cần mã và ngưỡng không âm' });
             continue;
           }
@@ -1106,7 +1158,10 @@ export class LibraryCatalogController {
     if (!COPY_SOURCES.includes(source)) {
       errors.push({ field: 'source', message: 'Nguồn là purchase, donation hoặc supplied' });
     }
-    const price = body?.price === undefined || body.price === null ? null : readInteger(body, 'price', errors, { min: 0, max: 1000000000 }) ?? null;
+    const price =
+      body?.price === undefined || body.price === null
+        ? null
+        : (readInteger(body, 'price', errors, { min: 0, max: 1000000000 }) ?? null);
     const acquired = readOptionalText(body, 'acquired_on', errors) ?? null;
     if (acquired !== null && !/^\d{4}-\d{2}-\d{2}$/.test(acquired)) {
       errors.push({ field: 'acquired_on', message: 'Ngày theo dạng YYYY-MM-DD' });
@@ -1153,7 +1208,10 @@ export class LibraryCatalogController {
     const errors: FieldError[] = [];
     const condition = body?.condition as LibraryCopyCondition | undefined;
     if (condition !== undefined && !COPY_CONDITIONS.includes(condition)) {
-      errors.push({ field: 'condition', message: 'Tình trạng là good hoặc damaged; mất, thanh lý làm ở chức năng riêng' });
+      errors.push({
+        field: 'condition',
+        message: 'Tình trạng là good hoặc damaged; mất, thanh lý làm ở chức năng riêng',
+      });
     }
     const changes = {
       condition,

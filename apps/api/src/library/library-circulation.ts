@@ -1,6 +1,12 @@
 import { Body, Controller, Delete, Get, HttpCode, Injectable, Param, Patch, Post, Query, Req } from '@nestjs/common';
 import type { SchoolYearDatabase } from '@school-management/database';
-import { ApplicationError, Clock, ruleViolationError, validationError, type FieldError } from '@school-management/server';
+import {
+  ApplicationError,
+  Clock,
+  ruleViolationError,
+  validationError,
+  type FieldError,
+} from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { Request } from 'express';
 import { sql, type Kysely } from 'kysely';
@@ -11,7 +17,6 @@ import { queueNotification, type NotificationRecipient } from '../common/notific
 import {
   isUuid,
   notFoundError,
-  readInteger,
   readOptionalText,
   readOptionalUuid,
   readRequiredText,
@@ -98,13 +103,24 @@ export class LibraryCirculationService {
 
   async readers(
     currentUser: CurrentUser,
-    filter: { kind?: 'staff' | 'student'; query?: string; classId?: string; status?: 'active' | 'locked'; limit: number; offset: number },
+    filter: {
+      kind?: 'staff' | 'student';
+      query?: string;
+      classId?: string;
+      status?: 'active' | 'locked';
+      limit: number;
+      offset: number;
+    },
   ) {
     const database = await this.core.database();
     const scope = await this.organizationScopes.resolve(currentUser, MANAGE);
     const base = this.readerQuery(database)
-      .$if(filter.kind !== undefined, (builder) => builder.where('library_readers.reader_kind', '=', filter.kind ?? 'staff'))
-      .$if(filter.status !== undefined, (builder) => builder.where('library_readers.status', '=', filter.status ?? 'active'))
+      .$if(filter.kind !== undefined, (builder) =>
+        builder.where('library_readers.reader_kind', '=', filter.kind ?? 'staff'),
+      )
+      .$if(filter.status !== undefined, (builder) =>
+        builder.where('library_readers.status', '=', filter.status ?? 'active'),
+      )
       .$if(filter.classId !== undefined, (builder) => builder.where('classes.id', '=', filter.classId ?? ''))
       .$if(!scope.wholeSchool, (builder) =>
         builder.where(sql<string>`coalesce(staff.org_unit_id, children.org_unit_id)`, 'in', [...scope.orgUnitIds, '']),
@@ -125,7 +141,10 @@ export class LibraryCirculationService {
       .limit(filter.limit)
       .offset(filter.offset)
       .execute();
-    const loanCounts = await this.loanCounts(database, rows.map((row) => row.id));
+    const loanCounts = await this.loanCounts(
+      database,
+      rows.map((row) => row.id),
+    );
     return {
       total: Number(total.total),
       items: rows.map((row) => ({ ...row, ...(loanCounts.get(row.id) ?? { open_loans: 0, overdue_loans: 0 }) })),
@@ -180,7 +199,10 @@ export class LibraryCirculationService {
       )
       .limit(20)
       .execute();
-    const loanCounts = await this.loanCounts(database, rows.map((row) => row.id));
+    const loanCounts = await this.loanCounts(
+      database,
+      rows.map((row) => row.id),
+    );
     return rows.map((row) => ({ ...row, ...(loanCounts.get(row.id) ?? { open_loans: 0, overdue_loans: 0 }) }));
   }
 
@@ -233,7 +255,10 @@ export class LibraryCirculationService {
         throw ruleViolationError(LIBRARY_RULE_CODE, 'Học sinh không còn đang học, không cấp thẻ');
       }
       if (!child.school_level || !settings.student_levels.includes(child.school_level)) {
-        throw ruleViolationError(LIBRARY_RULE_CODE, 'Học sinh chưa xếp lớp hoặc lớp thuộc cấp chưa bật mượn sách ở thiết lập thư viện');
+        throw ruleViolationError(
+          LIBRARY_RULE_CODE,
+          'Học sinh chưa xếp lớp hoặc lớp thuộc cấp chưa bật mượn sách ở thiết lập thư viện',
+        );
       }
       if (currentUser) {
         await this.organizationScopes.assertCanAccess(currentUser, MANAGE, child.org_unit_id);
@@ -269,7 +294,9 @@ export class LibraryCirculationService {
 
   async issueReader(currentUser: CurrentUser, person: { staffId?: string; childId?: string }, origin: ChangeOrigin) {
     const database = await this.core.database();
-    const created = await database.transaction().execute((transaction) => this.ensureReader(transaction, person, currentUser, origin));
+    const created = await database
+      .transaction()
+      .execute((transaction) => this.ensureReader(transaction, person, currentUser, origin));
     return this.findReader(database, created.id);
   }
 
@@ -283,7 +310,13 @@ export class LibraryCirculationService {
         .selectFrom('staff')
         .select('staff.id')
         .where('staff.status', '=', 'active')
-        .where((eb) => eb.not(eb.exists(eb.selectFrom('library_readers').select('id').whereRef('library_readers.staff_id', '=', 'staff.id'))))
+        .where((eb) =>
+          eb.not(
+            eb.exists(
+              eb.selectFrom('library_readers').select('id').whereRef('library_readers.staff_id', '=', 'staff.id'),
+            ),
+          ),
+        )
         .$if(!scope.wholeSchool, (builder) => builder.where('staff.org_unit_id', 'in', [...scope.orgUnitIds, '']))
         .execute();
       const students =
@@ -292,16 +325,27 @@ export class LibraryCirculationService {
           : await transaction
               .selectFrom('children')
               .innerJoin('class_enrollments', (join) =>
-                join.onRef('class_enrollments.child_id', '=', 'children.id').on('class_enrollments.is_current', '=', true),
+                join
+                  .onRef('class_enrollments.child_id', '=', 'children.id')
+                  .on('class_enrollments.is_current', '=', true),
               )
               .innerJoin('classes', 'classes.id', 'class_enrollments.class_id')
               .select('children.id')
               .where('children.status', '=', 'active')
               .where('classes.school_level', 'in', settings.student_levels)
               .where((eb) =>
-                eb.not(eb.exists(eb.selectFrom('library_readers').select('id').whereRef('library_readers.child_id', '=', 'children.id'))),
+                eb.not(
+                  eb.exists(
+                    eb
+                      .selectFrom('library_readers')
+                      .select('id')
+                      .whereRef('library_readers.child_id', '=', 'children.id'),
+                  ),
+                ),
               )
-              .$if(!scope.wholeSchool, (builder) => builder.where('children.org_unit_id', 'in', [...scope.orgUnitIds, '']))
+              .$if(!scope.wholeSchool, (builder) =>
+                builder.where('children.org_unit_id', 'in', [...scope.orgUnitIds, '']),
+              )
               .execute();
       const total = staff.length + students.length;
       if (total > 0) {
@@ -312,12 +356,19 @@ export class LibraryCirculationService {
           ...students.map((row) => ({ reader_kind: 'student' as const, staff_id: null, child_id: row.id })),
         ].map((row, index) => ({ ...row, card_no: numbers[index] ?? '', issued_on: today }));
         for (let start = 0; start < values.length; start += 500) {
-          await transaction.insertInto('library_readers').values(values.slice(start, start + 500)).execute();
+          await transaction
+            .insertInto('library_readers')
+            .values(values.slice(start, start + 500))
+            .execute();
         }
       }
       const locked = await transaction
         .updateTable('library_readers')
-        .set({ status: 'locked', locked_reason: 'Đã nghỉ, chuyển trường hoặc không còn trong cấp có học sinh mượn', updated_at: this.clock.now() })
+        .set({
+          status: 'locked',
+          locked_reason: 'Đã nghỉ, chuyển trường hoặc không còn trong cấp có học sinh mượn',
+          updated_at: this.clock.now(),
+        })
         .where('status', '=', 'active')
         .where((eb) =>
           eb.or([
@@ -378,7 +429,11 @@ export class LibraryCirculationService {
 
   private async recipientsOf(executor: LibraryExecutor, reader: ReaderRow): Promise<NotificationRecipient[]> {
     if (reader.staff_id) {
-      const staff = await executor.selectFrom('staff').select('user_id').where('id', '=', reader.staff_id).executeTakeFirst();
+      const staff = await executor
+        .selectFrom('staff')
+        .select('user_id')
+        .where('id', '=', reader.staff_id)
+        .executeTakeFirst();
       return staff?.user_id ? [{ userId: staff.user_id, channel: 'in_app' }] : [];
     }
     if (!reader.child_id) {
@@ -391,7 +446,9 @@ export class LibraryCirculationService {
       .where('child_guardians.child_id', '=', reader.child_id)
       .where('guardians.user_id', 'is not', null)
       .execute();
-    return guardians.flatMap((guardian) => (guardian.user_id ? [{ userId: guardian.user_id, channel: 'in_app' as const }] : []));
+    return guardians.flatMap((guardian) =>
+      guardian.user_id ? [{ userId: guardian.user_id, channel: 'in_app' as const }] : [],
+    );
   }
 
   private async openLoanCount(executor: LibraryExecutor, readerId: string): Promise<number> {
@@ -433,8 +490,12 @@ export class LibraryCirculationService {
       .$if(filter.status === 'returned' || filter.status === 'lost', (builder) =>
         builder.where('library_loans.status', '=', filter.status === 'lost' ? 'lost' : 'returned'),
       )
-      .$if(filter.readerId !== undefined, (builder) => builder.where('library_loans.reader_id', '=', filter.readerId ?? ''))
-      .$if(filter.classId !== undefined, (builder) => builder.where('library_loans.class_id', '=', filter.classId ?? ''))
+      .$if(filter.readerId !== undefined, (builder) =>
+        builder.where('library_loans.reader_id', '=', filter.readerId ?? ''),
+      )
+      .$if(filter.classId !== undefined, (builder) =>
+        builder.where('library_loans.class_id', '=', filter.classId ?? ''),
+      )
       .$if(filter.kind !== undefined, (builder) => builder.where('library_loans.kind', '=', filter.kind ?? 'regular'))
       .$if(!scope.wholeSchool, (builder) =>
         builder.where(sql<string>`coalesce(staff.org_unit_id, children.org_unit_id)`, 'in', [...scope.orgUnitIds, '']),
@@ -579,7 +640,10 @@ export class LibraryCirculationService {
 
   private assertCopyLendable(copy: { copy_no: string; condition: string; title_status: string; lendable: boolean }) {
     if (copy.condition !== 'good') {
-      throw ruleViolationError(LIBRARY_RULE_CODE, `Bản ${copy.copy_no} không ở tình trạng tốt (${copy.condition}), không cho mượn`);
+      throw ruleViolationError(
+        LIBRARY_RULE_CODE,
+        `Bản ${copy.copy_no} không ở tình trạng tốt (${copy.condition}), không cho mượn`,
+      );
     }
     if (copy.title_status !== 'active') {
       throw ruleViolationError(LIBRARY_RULE_CODE, `Ấn phẩm của bản ${copy.copy_no} đã ngừng dùng`);
@@ -679,7 +743,10 @@ export class LibraryCirculationService {
       .where('library_loans.status', '=', 'open');
     const open = input.loanId
       ? await query.where('library_loans.id', '=', input.loanId).forUpdate().executeTakeFirst()
-      : await query.where('library_copies.copy_no', '=', normalizeScannedCode(input.copyCode ?? '')).forUpdate().executeTakeFirst();
+      : await query
+          .where('library_copies.copy_no', '=', normalizeScannedCode(input.copyCode ?? ''))
+          .forUpdate()
+          .executeTakeFirst();
     if (!open) {
       throw ruleViolationError(LIBRARY_RULE_CODE, 'Không có lượt mượn đang mở của bản này');
     }
@@ -709,7 +776,10 @@ export class LibraryCirculationService {
         .where('id', '=', open.copy_id)
         .execute();
     }
-    const notified = lost || input.condition === 'damaged' ? null : await this.holdForNextReservation(transaction, open.title_id, open.copy_id);
+    const notified =
+      lost || input.condition === 'damaged'
+        ? null
+        : await this.holdForNextReservation(transaction, open.title_id, open.copy_id);
     return {
       orgUnitId: reader.org_unit_id,
       loan: {
@@ -723,7 +793,11 @@ export class LibraryCirculationService {
   }
 
   // Trả hàng loạt (thu sách giáo khoa cuối năm): mỗi dòng một lượt mượn và tình trạng; cùng thành công hoặc không dòng nào
-  async giveBackMany(currentUser: CurrentUser, items: Array<{ loanId: string; condition: 'good' | 'damaged' | 'lost' }>, origin: ChangeOrigin) {
+  async giveBackMany(
+    currentUser: CurrentUser,
+    items: Array<{ loanId: string; condition: 'good' | 'damaged' | 'lost' }>,
+    origin: ChangeOrigin,
+  ) {
     const database = await this.core.database();
     return database.transaction().execute(async (transaction) => {
       const results = [];
@@ -843,7 +917,9 @@ export class LibraryCirculationService {
         ])
         .where('library_loans.status', '=', 'open')
         .where('library_loans.due_on', '<', today)
-        .where((eb) => eb.or([eb('library_loans.reminded_on', 'is', null), eb('library_loans.reminded_on', '<', today)]))
+        .where((eb) =>
+          eb.or([eb('library_loans.reminded_on', 'is', null), eb('library_loans.reminded_on', '<', today)]),
+        )
         .execute();
       const byReader = new Map<string, typeof rows>();
       for (const row of rows) {
@@ -875,7 +951,11 @@ export class LibraryCirculationService {
         await transaction
           .updateTable('library_loans')
           .set({ reminded_on: today })
-          .where('id', 'in', items.map((item) => item.id))
+          .where(
+            'id',
+            'in',
+            items.map((item) => item.id),
+          )
           .execute();
         readers += 1;
         loans += items.length;
@@ -907,7 +987,11 @@ export class LibraryCirculationService {
       .where((eb) =>
         eb.not(
           eb.exists(
-            eb.selectFrom('library_loans').select('id').whereRef('library_loans.copy_id', '=', 'library_copies.id').where('library_loans.status', '=', 'open'),
+            eb
+              .selectFrom('library_loans')
+              .select('id')
+              .whereRef('library_loans.copy_id', '=', 'library_copies.id')
+              .where('library_loans.status', '=', 'open'),
           ),
         ),
       )
@@ -928,7 +1012,11 @@ export class LibraryCirculationService {
   }
 
   // Giữ một bản đã sẵn sàng cho người đặt trước đầu hàng đợi của ấn phẩm; báo cho họ. Trả tên người được giữ chỗ
-  private async holdForNextReservation(transaction: LibraryExecutor, titleId: string, preferredCopyId?: string): Promise<string | null> {
+  private async holdForNextReservation(
+    transaction: LibraryExecutor,
+    titleId: string,
+    preferredCopyId?: string,
+  ): Promise<string | null> {
     await this.expireReservations(transaction, titleId);
     const next = await transaction
       .selectFrom('library_reservations')
@@ -1008,10 +1096,18 @@ export class LibraryCirculationService {
         'library_reservations.ready_on',
         'library_reservations.expires_on',
       ])
-      .$if(filter.status !== undefined, (builder) => builder.where('library_reservations.status', '=', (filter.status ?? 'waiting') as 'waiting'))
-      .$if(filter.status === undefined, (builder) => builder.where('library_reservations.status', 'in', ['waiting', 'ready']))
-      .$if(filter.readerId !== undefined, (builder) => builder.where('library_reservations.reader_id', '=', filter.readerId ?? ''))
-      .$if(filter.titleId !== undefined, (builder) => builder.where('library_reservations.title_id', '=', filter.titleId ?? ''))
+      .$if(filter.status !== undefined, (builder) =>
+        builder.where('library_reservations.status', '=', (filter.status ?? 'waiting') as 'waiting'),
+      )
+      .$if(filter.status === undefined, (builder) =>
+        builder.where('library_reservations.status', 'in', ['waiting', 'ready']),
+      )
+      .$if(filter.readerId !== undefined, (builder) =>
+        builder.where('library_reservations.reader_id', '=', filter.readerId ?? ''),
+      )
+      .$if(filter.titleId !== undefined, (builder) =>
+        builder.where('library_reservations.title_id', '=', filter.titleId ?? ''),
+      )
       .$if(!scope.wholeSchool, (builder) =>
         builder.where(sql<string>`coalesce(staff.org_unit_id, children.org_unit_id)`, 'in', [...scope.orgUnitIds, '']),
       )
@@ -1133,7 +1229,10 @@ export class LibraryCirculationService {
       .select(['library_textbook_set_titles.set_id', 'library_titles.id as title_id', 'library_titles.title'])
       .orderBy('library_titles.title')
       .execute();
-    return sets.map((set) => ({ ...set, titles: titles.filter((title) => title.set_id === set.id).map(({ title_id, title }) => ({ title_id, title })) }));
+    return sets.map((set) => ({
+      ...set,
+      titles: titles.filter((title) => title.set_id === set.id).map(({ title_id, title }) => ({ title_id, title })),
+    }));
   }
 
   async saveTextbookSet(
@@ -1151,7 +1250,12 @@ export class LibraryCirculationService {
       if (id) {
         const updated = await transaction
           .updateTable('library_textbook_sets')
-          .set({ name: input.name, grade_level: input.gradeLevel, ...(input.status ? { status: input.status } : {}), updated_at: this.clock.now() })
+          .set({
+            name: input.name,
+            grade_level: input.gradeLevel,
+            ...(input.status ? { status: input.status } : {}),
+            updated_at: this.clock.now(),
+          })
           .where('id', '=', id)
           .returning('id')
           .executeTakeFirst();
@@ -1312,7 +1416,11 @@ export class LibraryCirculationService {
   // Sách giáo khoa lớp còn giữ: theo học sinh, kèm hạn, để thu cuối năm
   async textbooksOfClass(currentUser: CurrentUser, classId: string) {
     const database = await this.core.database();
-    const classRow = await database.selectFrom('classes').select(['id', 'org_unit_id']).where('id', '=', classId).executeTakeFirst();
+    const classRow = await database
+      .selectFrom('classes')
+      .select(['id', 'org_unit_id'])
+      .where('id', '=', classId)
+      .executeTakeFirst();
     if (!classRow) {
       throw notFoundError('Không tìm thấy lớp', 'class');
     }
@@ -1345,11 +1453,19 @@ export class LibraryCirculationService {
 
   async myLoans(currentUser: CurrentUser) {
     const database = await this.core.database();
-    const staff = await database.selectFrom('staff').select('id').where('user_id', '=', currentUser.id).executeTakeFirst();
+    const staff = await database
+      .selectFrom('staff')
+      .select('id')
+      .where('user_id', '=', currentUser.id)
+      .executeTakeFirst();
     if (!staff) {
       return { reader: null, loans: [] };
     }
-    const reader = await database.selectFrom('library_readers').select(['id', 'card_no', 'status']).where('staff_id', '=', staff.id).executeTakeFirst();
+    const reader = await database
+      .selectFrom('library_readers')
+      .select(['id', 'card_no', 'status'])
+      .where('staff_id', '=', staff.id)
+      .executeTakeFirst();
     if (!reader) {
       return { reader: null, loans: [] };
     }
@@ -1368,7 +1484,11 @@ export class LibraryCirculationService {
     if (!guardian) {
       throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không phải phụ huynh của học sinh này');
     }
-    const reader = await database.selectFrom('library_readers').select(['id', 'card_no', 'status']).where('child_id', '=', childId).executeTakeFirst();
+    const reader = await database
+      .selectFrom('library_readers')
+      .select(['id', 'card_no', 'status'])
+      .where('child_id', '=', childId)
+      .executeTakeFirst();
     if (!reader) {
       return { reader: null, loans: [] };
     }
@@ -1503,12 +1623,20 @@ export class LibraryCirculationController {
     if (errors.length > 0) {
       throw validationError(errors);
     }
-    return this.circulation.setReaderStatus(readerId, status as 'active' | 'locked', reason, originOf(request, currentUser));
+    return this.circulation.setReaderStatus(
+      readerId,
+      status as 'active' | 'locked',
+      reason,
+      originOf(request, currentUser),
+    );
   }
 
   @Get('readers/:id/loans')
   @RequirePermission(MANAGE)
-  history(@Param('id', uuidParameter('Mã bạn đọc không hợp lệ')) readerId: string, @AuthenticatedUser() currentUser: CurrentUser) {
+  history(
+    @Param('id', uuidParameter('Mã bạn đọc không hợp lệ')) readerId: string,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
     return this.circulation.readerLoanHistory(currentUser, readerId);
   }
 
@@ -1546,7 +1674,12 @@ export class LibraryCirculationController {
     const errors: FieldError[] = [];
     const readerId = readRequiredUuid(body, 'reader_id', errors, 'Bắt buộc chọn bạn đọc');
     const codes = body?.copy_codes;
-    if (!Array.isArray(codes) || codes.length === 0 || codes.length > 50 || codes.some((code) => typeof code !== 'string' || !code.trim())) {
+    if (
+      !Array.isArray(codes) ||
+      codes.length === 0 ||
+      codes.length > 50 ||
+      codes.some((code) => typeof code !== 'string' || !code.trim())
+    ) {
       errors.push({ field: 'copy_codes', message: 'Quét từ 1 đến 50 mã bản sao' });
     }
     const classId = readOptionalUuid(body, 'class_id', errors) ?? null;
@@ -1554,7 +1687,11 @@ export class LibraryCirculationController {
     if (errors.length > 0) {
       throw validationError(errors);
     }
-    return this.circulation.lend(currentUser, { readerId, copyCodes: codes as string[], classId, note }, originOf(request, currentUser));
+    return this.circulation.lend(
+      currentUser,
+      { readerId, copyCodes: codes as string[], classId, note },
+      originOf(request, currentUser),
+    );
   }
 
   @Post('loans/return')
@@ -1736,7 +1873,10 @@ export class LibraryCirculationController {
 
   // Phụ huynh: sách con đang mượn (ứng dụng phụ huynh); máy chủ kiểm tra quan hệ phụ huynh, không cần quyền
   @Get('children/:id/loans')
-  childLoans(@Param('id', uuidParameter('Mã học sinh không hợp lệ')) childId: string, @AuthenticatedUser() currentUser: CurrentUser) {
+  childLoans(
+    @Param('id', uuidParameter('Mã học sinh không hợp lệ')) childId: string,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
     return this.circulation.childLoans(currentUser, childId);
   }
 }
@@ -1750,7 +1890,13 @@ function readSetInput(body: RequestBody) {
     errors.push({ field: 'title_ids', message: 'Chọn tối đa 50 đầu sách' });
   }
   const status: 'active' | 'inactive' | null | undefined =
-    body?.status === undefined ? undefined : body.status === 'inactive' ? 'inactive' : body.status === 'active' ? 'active' : null;
+    body?.status === undefined
+      ? undefined
+      : body.status === 'inactive'
+        ? 'inactive'
+        : body.status === 'active'
+          ? 'active'
+          : null;
   if (status === null) {
     errors.push({ field: 'status', message: 'Trạng thái là active hoặc inactive' });
   }

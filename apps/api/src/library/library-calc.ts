@@ -70,7 +70,8 @@ export function indicatorValues(input: IndicatorInput): Record<IndicatorCode, nu
     teacher_books_per_teacher: ratio(input.teacherBookCopies, input.teachers),
     titles_total: input.activeTitles,
     copies_per_student: ratio(input.totalCopies, input.students),
-    reader_rate: input.students + input.teachers > 0 ? ratio(input.readersWithLoan * 100, input.students + input.teachers) : null,
+    reader_rate:
+      input.students + input.teachers > 0 ? ratio(input.readersWithLoan * 100, input.students + input.teachers) : null,
     digital_titles: input.digitalTitles,
   };
 }

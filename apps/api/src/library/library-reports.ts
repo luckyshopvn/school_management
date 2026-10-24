@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpCode, Injectable, Param, Post, Query, Req, Res } from '@nestjs/common';
-import { ApplicationError, Clock, ruleViolationError, validationError, type FieldError } from '@school-management/server';
+import { Clock, ruleViolationError, validationError, type FieldError } from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { Request, Response } from 'express';
 import { sql } from 'kysely';
@@ -7,11 +7,24 @@ import pdfmake, { type PdfContent } from 'pdfmake';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf, writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
-import { isUuid, notFoundError, readOptionalText, readRequiredText, type RequestBody } from '../common/request-fields.js';
+import {
+  isUuid,
+  notFoundError,
+  readOptionalText,
+  readRequiredText,
+  type RequestBody,
+} from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { ensureFonts, readTableFileFormat, type TableFileFormat } from '../exports/table-file.js';
 import { buildFacilitiesWorkbook, fileStamp, sendWorkbook } from '../facilities/facilities-workbook.js';
-import { indicatorPassed, indicatorValues, LIBRARY_RULE_CODE, normalizeScannedCode, overdueDays, stocktakeResult } from './library-calc.js';
+import {
+  indicatorPassed,
+  indicatorValues,
+  LIBRARY_RULE_CODE,
+  normalizeScannedCode,
+  overdueDays,
+  stocktakeResult,
+} from './library-calc.js';
 import { LibraryCatalogService } from './library-catalog.js';
 import { LibraryCore } from './library-core.js';
 
@@ -99,7 +112,13 @@ export class LibraryReportsService {
     const copy = await database
       .selectFrom('library_copies')
       .innerJoin('library_titles', 'library_titles.id', 'library_copies.title_id')
-      .select(['library_copies.id', 'library_copies.copy_no', 'library_copies.condition', 'library_copies.shelf', 'library_titles.title'])
+      .select([
+        'library_copies.id',
+        'library_copies.copy_no',
+        'library_copies.condition',
+        'library_copies.shelf',
+        'library_titles.title',
+      ])
       .where('library_copies.copy_no', '=', normalizeScannedCode(code))
       .executeTakeFirst();
     if (!copy) {
@@ -156,16 +175,30 @@ export class LibraryReportsService {
         ),
       ])
       .$if(stocktake.shelf !== null, (builder) =>
-        builder.where((eb) => eb.or([eb('library_copies.shelf', '=', stocktake.shelf ?? ''), eb('library_copies.id', 'in', [...scanned, ''])])),
+        builder.where((eb) =>
+          eb.or([
+            eb('library_copies.shelf', '=', stocktake.shelf ?? ''),
+            eb('library_copies.id', 'in', [...scanned, '']),
+          ]),
+        ),
       )
       .orderBy('library_copies.copy_no')
       .execute();
-    const result = stocktakeResult(rows.map((row) => ({ id: row.id, condition: row.condition, onLoan: row.on_loan, scanned: scanned.has(row.id) })));
+    const result = stocktakeResult(
+      rows.map((row) => ({ id: row.id, condition: row.condition, onLoan: row.on_loan, scanned: scanned.has(row.id) })),
+    );
     const byId = new Map(rows.map((row) => [row.id, row]));
     const describe = (ids: string[]) =>
       ids.map((id) => {
         const row = byId.get(id);
-        return { id, copy_no: row?.copy_no ?? '', title: row?.title ?? '', shelf: row?.shelf ?? null, condition: row?.condition ?? 'good', on_loan: row?.on_loan ?? false };
+        return {
+          id,
+          copy_no: row?.copy_no ?? '',
+          title: row?.title ?? '',
+          shelf: row?.shelf ?? null,
+          condition: row?.condition ?? 'good',
+          on_loan: row?.on_loan ?? false,
+        };
       });
     return {
       ...stocktake,
@@ -255,116 +288,150 @@ export class LibraryReportsService {
     const today = this.core.today();
     const num = (value: string | number | null | undefined) => Number(value ?? 0);
 
-    const [byCategory, byGrade, conditions, titleCounts, students, teachers, readersWithLoan, loanTotals, byMonth, byClass, topTitles, topReaders, indicators] =
-      await Promise.all([
-        database
-          .selectFrom('library_categories')
-          .leftJoin('library_titles', (join) => join.onRef('library_titles.category_id', '=', 'library_categories.id').on('library_titles.status', '=', 'active'))
-          .leftJoin('library_copies', (join) =>
-            join.onRef('library_copies.title_id', '=', 'library_titles.id').on('library_copies.condition', 'in', ['good', 'damaged']),
-          )
-          .select([
-            'library_categories.code',
-            'library_categories.name',
-            sql<string>`count(distinct library_titles.id)`.as('titles'),
-            sql<string>`count(library_copies.id)`.as('copies'),
-          ])
-          .groupBy(['library_categories.code', 'library_categories.name', 'library_categories.order_no'])
-          .orderBy('library_categories.order_no')
-          .execute(),
-        database
-          .selectFrom('library_titles')
-          .innerJoin('library_copies', (join) =>
-            join.onRef('library_copies.title_id', '=', 'library_titles.id').on('library_copies.condition', 'in', ['good', 'damaged']),
-          )
-          .select([sql<string>`coalesce(library_titles.grade_level, '')`.as('grade_level'), sql<string>`count(*)`.as('copies')])
-          .where('library_titles.status', '=', 'active')
-          .groupBy(sql`coalesce(library_titles.grade_level, '')`)
-          .orderBy(sql`coalesce(library_titles.grade_level, '')`)
-          .execute(),
-        database
-          .selectFrom('library_copies')
-          .select(['condition', sql<string>`count(*)`.as('copies')])
-          .groupBy('condition')
-          .execute(),
-        database
-          .selectFrom('library_titles')
-          .leftJoin('library_title_files', 'library_title_files.title_id', 'library_titles.id')
-          .select([
-            sql<string>`count(distinct library_titles.id)`.as('active_titles'),
-            sql<string>`count(distinct library_title_files.title_id)`.as('digital_titles'),
-          ])
-          .where('library_titles.status', '=', 'active')
-          .executeTakeFirstOrThrow(),
-        settings.student_levels.length === 0
-          ? Promise.resolve({ total: '0' })
-          : database
-              .selectFrom('children')
-              .innerJoin('class_enrollments', (join) =>
-                join.onRef('class_enrollments.child_id', '=', 'children.id').on('class_enrollments.is_current', '=', true),
-              )
-              .innerJoin('classes', 'classes.id', 'class_enrollments.class_id')
-              .select((eb) => eb.fn.countAll<string>().as('total'))
-              .where('children.status', '=', 'active')
-              .where('classes.school_level', 'in', settings.student_levels)
-              .executeTakeFirstOrThrow(),
-        database
-          .selectFrom('staff')
-          .select((eb) => eb.fn.countAll<string>().as('total'))
-          .where('status', '=', 'active')
-          .executeTakeFirstOrThrow(),
-        database
-          .selectFrom('library_loans')
-          .select(sql<string>`count(distinct reader_id)`.as('total'))
-          .executeTakeFirstOrThrow(),
-        database
-          .selectFrom('library_loans')
-          .select([
-            sql<string>`count(*)`.as('loans'),
-            sql<string>`count(*) filter (where status = 'open')`.as('open_loans'),
-            sql<string>`count(*) filter (where status = 'open' and due_on < ${today}::date)`.as('overdue_loans'),
-            sql<string>`count(*) filter (where status = 'lost')`.as('lost_loans'),
-          ])
-          .executeTakeFirstOrThrow(),
-        database
-          .selectFrom('library_loans')
-          .select([sql<string>`to_char(loaned_on, 'YYYY-MM')`.as('month'), sql<string>`count(*)`.as('loans')])
-          .where('kind', '=', 'regular')
-          .groupBy(sql`to_char(loaned_on, 'YYYY-MM')`)
-          .orderBy(sql`to_char(loaned_on, 'YYYY-MM')`)
-          .execute(),
-        database
-          .selectFrom('library_loans')
-          .innerJoin('classes', 'classes.id', 'library_loans.class_id')
-          .select(['classes.name as class_name', sql<string>`count(*)`.as('loans')])
-          .where('library_loans.kind', '=', 'regular')
-          .groupBy('classes.name')
-          .orderBy(sql`count(*)`, 'desc')
-          .limit(10)
-          .execute(),
-        database
-          .selectFrom('library_loans')
-          .innerJoin('library_copies', 'library_copies.id', 'library_loans.copy_id')
-          .innerJoin('library_titles', 'library_titles.id', 'library_copies.title_id')
-          .select(['library_titles.title', sql<string>`count(*)`.as('loans')])
-          .where('library_loans.kind', '=', 'regular')
-          .groupBy('library_titles.title')
-          .orderBy(sql`count(*)`, 'desc')
-          .limit(10)
-          .execute(),
-        database
-          .selectFrom('library_loans')
-          .innerJoin('library_readers', 'library_readers.id', 'library_loans.reader_id')
-          .leftJoin('staff', 'staff.id', 'library_readers.staff_id')
-          .leftJoin('children', 'children.id', 'library_readers.child_id')
-          .select([sql<string>`coalesce(staff.full_name, children.full_name)`.as('reader_name'), 'library_readers.card_no', sql<string>`count(*)`.as('loans')])
-          .where('library_loans.kind', '=', 'regular')
-          .groupBy([sql`coalesce(staff.full_name, children.full_name)`, 'library_readers.card_no'])
-          .orderBy(sql`count(*)`, 'desc')
-          .limit(10)
-          .execute(),
-        database.selectFrom('library_indicators').select(['code', 'name', 'threshold', 'enabled']).orderBy('order_no').execute(),
-      ]);
+    const [
+      byCategory,
+      byGrade,
+      conditions,
+      titleCounts,
+      students,
+      teachers,
+      readersWithLoan,
+      loanTotals,
+      byMonth,
+      byClass,
+      topTitles,
+      topReaders,
+      indicators,
+    ] = await Promise.all([
+      database
+        .selectFrom('library_categories')
+        .leftJoin('library_titles', (join) =>
+          join
+            .onRef('library_titles.category_id', '=', 'library_categories.id')
+            .on('library_titles.status', '=', 'active'),
+        )
+        .leftJoin('library_copies', (join) =>
+          join
+            .onRef('library_copies.title_id', '=', 'library_titles.id')
+            .on('library_copies.condition', 'in', ['good', 'damaged']),
+        )
+        .select([
+          'library_categories.code',
+          'library_categories.name',
+          sql<string>`count(distinct library_titles.id)`.as('titles'),
+          sql<string>`count(library_copies.id)`.as('copies'),
+        ])
+        .groupBy(['library_categories.code', 'library_categories.name', 'library_categories.order_no'])
+        .orderBy('library_categories.order_no')
+        .execute(),
+      database
+        .selectFrom('library_titles')
+        .innerJoin('library_copies', (join) =>
+          join
+            .onRef('library_copies.title_id', '=', 'library_titles.id')
+            .on('library_copies.condition', 'in', ['good', 'damaged']),
+        )
+        .select([
+          sql<string>`coalesce(library_titles.grade_level, '')`.as('grade_level'),
+          sql<string>`count(*)`.as('copies'),
+        ])
+        .where('library_titles.status', '=', 'active')
+        .groupBy(sql`coalesce(library_titles.grade_level, '')`)
+        .orderBy(sql`coalesce(library_titles.grade_level, '')`)
+        .execute(),
+      database
+        .selectFrom('library_copies')
+        .select(['condition', sql<string>`count(*)`.as('copies')])
+        .groupBy('condition')
+        .execute(),
+      database
+        .selectFrom('library_titles')
+        .leftJoin('library_title_files', 'library_title_files.title_id', 'library_titles.id')
+        .select([
+          sql<string>`count(distinct library_titles.id)`.as('active_titles'),
+          sql<string>`count(distinct library_title_files.title_id)`.as('digital_titles'),
+        ])
+        .where('library_titles.status', '=', 'active')
+        .executeTakeFirstOrThrow(),
+      settings.student_levels.length === 0
+        ? Promise.resolve({ total: '0' })
+        : database
+            .selectFrom('children')
+            .innerJoin('class_enrollments', (join) =>
+              join
+                .onRef('class_enrollments.child_id', '=', 'children.id')
+                .on('class_enrollments.is_current', '=', true),
+            )
+            .innerJoin('classes', 'classes.id', 'class_enrollments.class_id')
+            .select((eb) => eb.fn.countAll<string>().as('total'))
+            .where('children.status', '=', 'active')
+            .where('classes.school_level', 'in', settings.student_levels)
+            .executeTakeFirstOrThrow(),
+      database
+        .selectFrom('staff')
+        .select((eb) => eb.fn.countAll<string>().as('total'))
+        .where('status', '=', 'active')
+        .executeTakeFirstOrThrow(),
+      database
+        .selectFrom('library_loans')
+        .select(sql<string>`count(distinct reader_id)`.as('total'))
+        .executeTakeFirstOrThrow(),
+      database
+        .selectFrom('library_loans')
+        .select([
+          sql<string>`count(*)`.as('loans'),
+          sql<string>`count(*) filter (where status = 'open')`.as('open_loans'),
+          sql<string>`count(*) filter (where status = 'open' and due_on < ${today}::date)`.as('overdue_loans'),
+          sql<string>`count(*) filter (where status = 'lost')`.as('lost_loans'),
+        ])
+        .executeTakeFirstOrThrow(),
+      database
+        .selectFrom('library_loans')
+        .select([sql<string>`to_char(loaned_on, 'YYYY-MM')`.as('month'), sql<string>`count(*)`.as('loans')])
+        .where('kind', '=', 'regular')
+        .groupBy(sql`to_char(loaned_on, 'YYYY-MM')`)
+        .orderBy(sql`to_char(loaned_on, 'YYYY-MM')`)
+        .execute(),
+      database
+        .selectFrom('library_loans')
+        .innerJoin('classes', 'classes.id', 'library_loans.class_id')
+        .select(['classes.name as class_name', sql<string>`count(*)`.as('loans')])
+        .where('library_loans.kind', '=', 'regular')
+        .groupBy('classes.name')
+        .orderBy(sql`count(*)`, 'desc')
+        .limit(10)
+        .execute(),
+      database
+        .selectFrom('library_loans')
+        .innerJoin('library_copies', 'library_copies.id', 'library_loans.copy_id')
+        .innerJoin('library_titles', 'library_titles.id', 'library_copies.title_id')
+        .select(['library_titles.title', sql<string>`count(*)`.as('loans')])
+        .where('library_loans.kind', '=', 'regular')
+        .groupBy('library_titles.title')
+        .orderBy(sql`count(*)`, 'desc')
+        .limit(10)
+        .execute(),
+      database
+        .selectFrom('library_loans')
+        .innerJoin('library_readers', 'library_readers.id', 'library_loans.reader_id')
+        .leftJoin('staff', 'staff.id', 'library_readers.staff_id')
+        .leftJoin('children', 'children.id', 'library_readers.child_id')
+        .select([
+          sql<string>`coalesce(staff.full_name, children.full_name)`.as('reader_name'),
+          'library_readers.card_no',
+          sql<string>`count(*)`.as('loans'),
+        ])
+        .where('library_loans.kind', '=', 'regular')
+        .groupBy([sql`coalesce(staff.full_name, children.full_name)`, 'library_readers.card_no'])
+        .orderBy(sql`count(*)`, 'desc')
+        .limit(10)
+        .execute(),
+      database
+        .selectFrom('library_indicators')
+        .select(['code', 'name', 'threshold', 'enabled'])
+        .orderBy('order_no')
+        .execute(),
+    ]);
 
     const copiesOf = (code: string) => num(byCategory.find((row) => row.code === code)?.copies);
     const studentCount = num(students.total);
@@ -387,7 +454,12 @@ export class LibraryReportsService {
       teachers: teacherCount,
       titles: num(titleCounts.active_titles),
       copies: totalCopies,
-      by_category: byCategory.map((row) => ({ code: row.code, name: row.name, titles: num(row.titles), copies: num(row.copies) })),
+      by_category: byCategory.map((row) => ({
+        code: row.code,
+        name: row.name,
+        titles: num(row.titles),
+        copies: num(row.copies),
+      })),
       by_grade: byGrade.map((row) => ({ grade_level: row.grade_level, copies: num(row.copies) })),
       by_condition: conditions.map((row) => ({ condition: row.condition, copies: num(row.copies) })),
       loans: {
@@ -399,7 +471,11 @@ export class LibraryReportsService {
       by_month: byMonth.map((row) => ({ month: row.month, loans: num(row.loans) })),
       by_class: byClass.map((row) => ({ class_name: row.class_name, loans: num(row.loans) })),
       top_titles: topTitles.map((row) => ({ title: row.title, loans: num(row.loans) })),
-      top_readers: topReaders.map((row) => ({ reader_name: row.reader_name, card_no: row.card_no, loans: num(row.loans) })),
+      top_readers: topReaders.map((row) => ({
+        reader_name: row.reader_name,
+        card_no: row.card_no,
+        loans: num(row.loans),
+      })),
       indicators: indicators
         .filter((item) => item.enabled)
         .map((item) => {
@@ -410,7 +486,12 @@ export class LibraryReportsService {
     };
   }
 
-  async exportReport(type: 'overview' | 'loans' | 'overdue', format: TableFileFormat, currentUser: CurrentUser, ipAddress: string | null) {
+  async exportReport(
+    type: 'overview' | 'loans' | 'overdue',
+    format: TableFileFormat,
+    currentUser: CurrentUser,
+    ipAddress: string | null,
+  ) {
     const database = await this.core.database();
     const createdAt = this.clock.now();
     const today = this.core.today();
@@ -493,7 +574,9 @@ export class LibraryReportsService {
         'library_loans.status',
         'library_loans.fine_amount',
       ])
-      .$if(type === 'overdue', (builder) => builder.where('library_loans.status', '=', 'open').where('library_loans.due_on', '<', today))
+      .$if(type === 'overdue', (builder) =>
+        builder.where('library_loans.status', '=', 'open').where('library_loans.due_on', '<', today),
+      )
       .orderBy('library_loans.due_on')
       .execute();
     const STATUS: Record<string, string> = { open: 'Đang mượn', returned: 'Đã trả', lost: 'Mất' };
@@ -537,7 +620,9 @@ export class LibraryReportsService {
       .leftJoin('staff', 'staff.id', 'library_readers.staff_id')
       .leftJoin('children', 'children.id', 'library_readers.child_id')
       .leftJoin('class_enrollments', (join) =>
-        join.onRef('class_enrollments.child_id', '=', 'library_readers.child_id').on('class_enrollments.is_current', '=', true),
+        join
+          .onRef('class_enrollments.child_id', '=', 'library_readers.child_id')
+          .on('class_enrollments.is_current', '=', true),
       )
       .leftJoin('classes', 'classes.id', 'class_enrollments.class_id')
       .select([
@@ -565,7 +650,10 @@ export class LibraryReportsService {
               width: '*',
               stack: [
                 { text: row.full_name, bold: true, fontSize: 10, margin: [0, 8, 0, 2] },
-                { text: row.reader_kind === 'staff' ? 'Cán bộ, giáo viên' : `Lớp ${row.class_name ?? ''}`, fontSize: 8 },
+                {
+                  text: row.reader_kind === 'staff' ? 'Cán bộ, giáo viên' : `Lớp ${row.class_name ?? ''}`,
+                  fontSize: 8,
+                },
                 { text: row.card_no, fontSize: 9, margin: [0, 4, 0, 0] },
               ],
             },
@@ -592,11 +680,18 @@ export class LibraryReportsService {
       content: [
         {
           table: { widths: ['*', '*'], heights: 118, dontBreakRows: true, body },
-          layout: { hLineWidth: () => 0.5, vLineWidth: () => 0.5, hLineColor: () => '#999999', vLineColor: () => '#999999' },
+          layout: {
+            hLineWidth: () => 0.5,
+            vLineWidth: () => 0.5,
+            hLineColor: () => '#999999',
+            vLineColor: () => '#999999',
+          },
         },
       ],
     };
-    const buffer = await pdfmake.createPdf(definition as unknown as Parameters<typeof pdfmake.createPdf>[0]).getBuffer();
+    const buffer = await pdfmake
+      .createPdf(definition as unknown as Parameters<typeof pdfmake.createPdf>[0])
+      .getBuffer();
     const createdAt = this.clock.now();
     const fileName = `the-ban-doc-${fileStamp(createdAt)}.pdf`;
     const log = await database
@@ -743,4 +838,3 @@ export class LibraryReportsController {
     sendWorkbook(response, await this.reports.cards(ids as string[], currentUser, request.ip ?? null));
   }
 }
-

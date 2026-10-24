@@ -51,7 +51,19 @@ describe('Tính thuần của thư viện', () => {
     assert.equal(values.reference_per_student, 0.5);
     assert.equal(values.teacher_books_per_teacher, 4);
     assert.equal(values.reader_rate, 20);
-    assert.equal(indicatorValues({ ...{ students: 0, teachers: 0 }, textbookCopies: 1, referenceCopies: 0, teacherBookCopies: 0, totalCopies: 1, activeTitles: 1, digitalTitles: 0, readersWithLoan: 0 }).textbooks_per_student, null);
+    assert.equal(
+      indicatorValues({
+        ...{ students: 0, teachers: 0 },
+        textbookCopies: 1,
+        referenceCopies: 0,
+        teacherBookCopies: 0,
+        totalCopies: 1,
+        activeTitles: 1,
+        digitalTitles: 0,
+        readersWithLoan: 0,
+      }).textbooks_per_student,
+      null,
+    );
     assert.equal(indicatorPassed(1.5, 1), true);
     assert.equal(indicatorPassed(0.5, 1), false);
     assert.equal(indicatorPassed(1, null), null);
@@ -84,7 +96,8 @@ describe('Thư viện trường học', () => {
     sendJson(method, `${environment.baseUrl}${path}`, accessToken, body);
 
   const category = async (code: string) =>
-    (await schoolYear.selectFrom('library_categories').select('id').where('code', '=', code).executeTakeFirstOrThrow()).id;
+    (await schoolYear.selectFrom('library_categories').select('id').where('code', '=', code).executeTakeFirstOrThrow())
+      .id;
 
   async function addTitle(key: string, categoryCode: string, quantity: number, extra: Record<string, unknown> = {}) {
     const created = await api('POST', '/library/titles', principal.accessToken, {
@@ -210,7 +223,12 @@ describe('Thư viện trường học', () => {
           .executeTakeFirstOrThrow();
         await schoolYear
           .insertInto('child_guardians')
-          .values({ child_id: child.id, guardian_id: guardian.id, relationship_item_id: relationship.id, is_primary: true })
+          .values({
+            child_id: child.id,
+            guardian_id: guardian.id,
+            relationship_item_id: relationship.id,
+            is_primary: true,
+          })
           .execute();
       }
     }
@@ -246,7 +264,10 @@ describe('Thư viện trường học', () => {
     assert.equal(first.copies_total, 3);
     assert.equal(first.copies_available, 3);
     // Giáo viên tra cứu được nhưng không ghi được
-    const denied = await api('POST', '/library/titles', token('teacher'), { category_id: await category('SGK'), title: 'X' });
+    const denied = await api('POST', '/library/titles', token('teacher'), {
+      category_id: await category('SGK'),
+      title: 'X',
+    });
     assert.equal(denied.status, 403);
     assert.equal((await api('GET', '/library/titles', token('parent'))).status, 403);
     const invalid = await api('POST', `/library/titles/${titles.Toan1}/copies`, principal.accessToken, { quantity: 0 });
@@ -258,7 +279,11 @@ describe('Thư viện trường học', () => {
     assert.equal(synced.status, 200, JSON.stringify(synced.body));
     assert.equal(synced.body.issued_staff, 1);
     assert.equal(synced.body.issued_students, 3);
-    assert.equal(((await api('POST', '/library/readers/sync', principal.accessToken)).body as Record<string, number>).issued_students, 0);
+    assert.equal(
+      ((await api('POST', '/library/readers/sync', principal.accessToken)).body as Record<string, number>)
+        .issued_students,
+      0,
+    );
     const list = await api('GET', '/library/readers?limit=50', principal.accessToken);
     const names = (list.body.items as Array<{ full_name: string; id: string }>).map((row) => row.full_name);
     assert.ok(!names.includes('Học sinh Dung'));
@@ -269,11 +294,20 @@ describe('Thư viện trường học', () => {
     assert.equal(errorOf(mam.body).code, 'ERR_RULE_VIOLATION', JSON.stringify(mam.body));
     const locked = await api('PATCH', `/library/readers/${readers.Chi}`, principal.accessToken, { status: 'locked' });
     assert.equal(locked.status, 400);
-    const ok = await api('PATCH', `/library/readers/${readers.Chi}`, principal.accessToken, { status: 'locked', reason: 'Mất thẻ' });
+    const ok = await api('PATCH', `/library/readers/${readers.Chi}`, principal.accessToken, {
+      status: 'locked',
+      reason: 'Mất thẻ',
+    });
     assert.equal(ok.status, 200, JSON.stringify(ok.body));
-    const lend = await api('POST', '/library/loans', principal.accessToken, { reader_id: readers.Chi, copy_codes: [copies.Truyen?.[0]] });
+    const lend = await api('POST', '/library/loans', principal.accessToken, {
+      reader_id: readers.Chi,
+      copy_codes: [copies.Truyen?.[0]],
+    });
     assert.equal(errorOf(lend.body).code, 'ERR_RULE_VIOLATION');
-    assert.equal((await api('PATCH', `/library/readers/${readers.Chi}`, principal.accessToken, { status: 'active' })).status, 200);
+    assert.equal(
+      (await api('PATCH', `/library/readers/${readers.Chi}`, principal.accessToken, { status: 'active' })).status,
+      200,
+    );
   });
 
   it('CT-22a-4: mượn đúng quy định; quá hạn chặn mượn tiếp; trả tính phạt; gia hạn; sách đọc tại chỗ không cho mượn', async () => {
@@ -290,7 +324,10 @@ describe('Thư viện trường học', () => {
     const lent = await api('POST', '/library/loans', principal.accessToken, { reader_id: readers.An, copy_codes: [a] });
     assert.equal(lent.status, 201, JSON.stringify(lent.body));
     // Một bản chỉ một người mượn
-    const again = await api('POST', '/library/loans', principal.accessToken, { reader_id: readers.Binh, copy_codes: [a] });
+    const again = await api('POST', '/library/loans', principal.accessToken, {
+      reader_id: readers.Binh,
+      copy_codes: [a],
+    });
     assert.equal(errorOf(again.body).code, 'ERR_RULE_VIOLATION');
     // Vượt mức 2 bản
     const over = await api('POST', '/library/loans', principal.accessToken, {
@@ -299,29 +336,44 @@ describe('Thư viện trường học', () => {
     });
     assert.equal(errorOf(over.body).code, 'ERR_RULE_VIOLATION');
     // Báo, tạp chí đọc tại chỗ
-    const bao = await api('POST', '/library/loans', principal.accessToken, { reader_id: readers.Binh, copy_codes: [copies.Bao?.[0]] });
+    const bao = await api('POST', '/library/loans', principal.accessToken, {
+      reader_id: readers.Binh,
+      copy_codes: [copies.Bao?.[0]],
+    });
     assert.equal(errorOf(bao.body).code, 'ERR_RULE_VIOLATION');
     // Quá hạn 4 ngày: chặn mượn tiếp, trả bị phạt 4 × 500
     await schoolYear
       .updateTable('library_loans')
       .set({ loaned_on: addDays(vietnamToday, -18), due_on: addDays(vietnamToday, -4) })
       .execute();
-    const blocked = await api('POST', '/library/loans', principal.accessToken, { reader_id: readers.An, copy_codes: [b] });
+    const blocked = await api('POST', '/library/loans', principal.accessToken, {
+      reader_id: readers.An,
+      copy_codes: [b],
+    });
     assert.equal(errorOf(blocked.body).code, 'ERR_RULE_VIOLATION');
     const overdue = await api('GET', '/library/loans?status=overdue', principal.accessToken);
     assert.equal(overdue.body.total, 1);
     const reminded = await api('POST', '/library/loans/remind', principal.accessToken);
     assert.equal(reminded.status, 200, JSON.stringify(reminded.body));
-    assert.equal(((await api('POST', '/library/loans/remind', principal.accessToken)).body as Record<string, number>).loans, 0);
+    assert.equal(
+      ((await api('POST', '/library/loans/remind', principal.accessToken)).body as Record<string, number>).loans,
+      0,
+    );
     const returned = await api('POST', '/library/loans/return', principal.accessToken, { copy_code: a });
     assert.equal(returned.status, 200, JSON.stringify(returned.body));
     assert.equal(returned.body.fine_amount, 2000);
     assert.equal(returned.body.overdue_days, 4);
     // Gia hạn: mượn bản mới, gia hạn một lần, lần hai vượt mức
-    const second = await api('POST', '/library/loans', principal.accessToken, { reader_id: readers.An, copy_codes: [b] });
+    const second = await api('POST', '/library/loans', principal.accessToken, {
+      reader_id: readers.An,
+      copy_codes: [b],
+    });
     const loanId = (second.body.loans as Array<{ id: string }>)[0]?.id ?? '';
     assert.equal((await api('POST', `/library/loans/${loanId}/renew`, principal.accessToken)).status, 200);
-    assert.equal(errorOf((await api('POST', `/library/loans/${loanId}/renew`, principal.accessToken)).body).code, 'ERR_RULE_VIOLATION');
+    assert.equal(
+      errorOf((await api('POST', `/library/loans/${loanId}/renew`, principal.accessToken)).body).code,
+      'ERR_RULE_VIOLATION',
+    );
     // Phụ huynh xem sách của con mình, không xem của con người khác
     const mine = await api('GET', `/library/children/${children.An}/loans`, token('parent'));
     assert.equal(mine.status, 200, JSON.stringify(mine.body));
@@ -332,17 +384,29 @@ describe('Thư viện trường học', () => {
 
   it('CT-22a-5: đặt trước chỉ khi hết bản; trả về thì giữ cho người đầu hàng đợi; người khác không mượn được bản đang giữ', async () => {
     const [x, y] = copies.Truyen ?? [];
-    assert.equal((await api('POST', '/library/loans', principal.accessToken, { reader_id: readers.An, copy_codes: [x] })).status, 201);
-    assert.equal((await api('POST', '/library/loans', principal.accessToken, { reader_id: readers.An, copy_codes: [y] })).status, 201);
+    assert.equal(
+      (await api('POST', '/library/loans', principal.accessToken, { reader_id: readers.An, copy_codes: [x] })).status,
+      201,
+    );
+    assert.equal(
+      (await api('POST', '/library/loans', principal.accessToken, { reader_id: readers.An, copy_codes: [y] })).status,
+      201,
+    );
     // Còn bản ở các bản khác thì không cần đặt: Truyen có 2 bản đều đang mượn nên được đặt
     const reserved = await api('POST', '/library/reservations', principal.accessToken, {
       reader_id: readers.Binh,
       title_id: titles.Truyen,
     });
     assert.equal(reserved.status, 201, JSON.stringify(reserved.body));
-    const duplicate = await api('POST', '/library/reservations', principal.accessToken, { reader_id: readers.Binh, title_id: titles.Truyen });
+    const duplicate = await api('POST', '/library/reservations', principal.accessToken, {
+      reader_id: readers.Binh,
+      title_id: titles.Truyen,
+    });
     assert.equal(errorOf(duplicate.body).code, 'ERR_RULE_VIOLATION');
-    const noNeed = await api('POST', '/library/reservations', principal.accessToken, { reader_id: readers.Binh, title_id: titles.Toan1 });
+    const noNeed = await api('POST', '/library/reservations', principal.accessToken, {
+      reader_id: readers.Binh,
+      title_id: titles.Toan1,
+    });
     assert.equal(errorOf(noNeed.body).code, 'ERR_RULE_VIOLATION');
     const back = await api('POST', '/library/loans/return', principal.accessToken, { copy_code: x });
     assert.equal(back.body.reservation_for, 'Học sinh Binh');
@@ -350,17 +414,32 @@ describe('Thư viện trường học', () => {
     const row = (held.body as unknown as Array<{ status: string; copy_no: string }>)[0];
     assert.equal(row?.status, 'ready');
     assert.equal(row?.copy_no, x);
-    const stolen = await api('POST', '/library/loans', principal.accessToken, { reader_id: readers.Chi, copy_codes: [x] });
+    const stolen = await api('POST', '/library/loans', principal.accessToken, {
+      reader_id: readers.Chi,
+      copy_codes: [x],
+    });
     assert.equal(errorOf(stolen.body).code, 'ERR_RULE_VIOLATION');
     // Người đặt mượn được bản giữ, lượt đặt đóng
-    assert.equal((await api('POST', '/library/loans', principal.accessToken, { reader_id: readers.Binh, copy_codes: [x] })).status, 201);
-    assert.equal(((await api('GET', '/library/reservations', principal.accessToken)).body as unknown as unknown[]).length, 0);
+    assert.equal(
+      (await api('POST', '/library/loans', principal.accessToken, { reader_id: readers.Binh, copy_codes: [x] })).status,
+      201,
+    );
+    assert.equal(
+      ((await api('GET', '/library/reservations', principal.accessToken)).body as unknown as unknown[]).length,
+      0,
+    );
     // Báo mất đánh dấu bản mất
     const loans = await api('GET', '/library/loans?status=open&query=Binh', principal.accessToken);
     const lostId = (loans.body.items as Array<{ id: string }>)[0]?.id ?? '';
-    const lost = await api('POST', `/library/loans/${lostId}/lost`, principal.accessToken, { note: 'Làm mất, đã hẹn bồi thường' });
+    const lost = await api('POST', `/library/loans/${lostId}/lost`, principal.accessToken, {
+      note: 'Làm mất, đã hẹn bồi thường',
+    });
     assert.equal(lost.body.status, 'lost');
-    const condition = await schoolYear.selectFrom('library_copies').select('condition').where('copy_no', '=', x ?? '').executeTakeFirstOrThrow();
+    const condition = await schoolYear
+      .selectFrom('library_copies')
+      .select('condition')
+      .where('copy_no', '=', x ?? '')
+      .executeTakeFirstOrThrow();
     assert.equal(condition.condition, 'lost');
     assert.equal((await api('POST', '/library/loans/return', principal.accessToken, { copy_code: y })).status, 200);
   });
@@ -372,22 +451,41 @@ describe('Thư viện trường học', () => {
       title_ids: [titles.Toan1],
     });
     assert.equal(set.status, 201, JSON.stringify(set.body));
-    const issued = await api('POST', '/library/textbooks/issue', principal.accessToken, { class_id: classes['1A'], set_id: set.body.id });
+    const issued = await api('POST', '/library/textbooks/issue', principal.accessToken, {
+      class_id: classes['1A'],
+      set_id: set.body.id,
+    });
     assert.equal(issued.status, 200, JSON.stringify(issued.body));
     // Lớp 3 học sinh, kho có 3 bản Toan1
     assert.equal(issued.body.issued, 3);
     assert.deepEqual(issued.body.shortages, []);
-    const again = await api('POST', '/library/textbooks/issue', principal.accessToken, { class_id: classes['1A'], set_id: set.body.id });
+    const again = await api('POST', '/library/textbooks/issue', principal.accessToken, {
+      class_id: classes['1A'],
+      set_id: set.body.id,
+    });
     assert.equal(again.body.issued, 0);
-    const wrong = await api('POST', '/library/textbooks/issue', principal.accessToken, { class_id: classes['MAM-1'], set_id: set.body.id });
+    const wrong = await api('POST', '/library/textbooks/issue', principal.accessToken, {
+      class_id: classes['MAM-1'],
+      set_id: set.body.id,
+    });
     assert.equal(errorOf(wrong.body).code, 'ERR_RULE_VIOLATION');
-    const outstanding = await api('GET', `/library/textbooks/outstanding?class_id=${classes['1A']}`, principal.accessToken);
+    const outstanding = await api(
+      'GET',
+      `/library/textbooks/outstanding?class_id=${classes['1A']}`,
+      principal.accessToken,
+    );
     assert.equal((outstanding.body as unknown as unknown[]).length, 3);
     // Sách giáo khoa cấp đầu năm không gia hạn
     const first = (outstanding.body as unknown as Array<{ id: string }>)[0]?.id ?? '';
-    assert.equal(errorOf((await api('POST', `/library/loans/${first}/renew`, principal.accessToken)).body).code, 'ERR_RULE_VIOLATION');
+    assert.equal(
+      errorOf((await api('POST', `/library/loans/${first}/renew`, principal.accessToken)).body).code,
+      'ERR_RULE_VIOLATION',
+    );
     const collected = await api('POST', '/library/loans/return-many', principal.accessToken, {
-      items: (outstanding.body as unknown as Array<{ id: string }>).map((item, index) => ({ loan_id: item.id, condition: index === 0 ? 'damaged' : 'good' })),
+      items: (outstanding.body as unknown as Array<{ id: string }>).map((item, index) => ({
+        loan_id: item.id,
+        condition: index === 0 ? 'damaged' : 'good',
+      })),
     });
     assert.equal(collected.status, 200, JSON.stringify(collected.body));
     assert.equal(collected.body.returned, 3);
@@ -411,7 +509,10 @@ describe('Thư viện trường học', () => {
       .insertInto('class_enrollments')
       .values({ child_id: extra.id, class_id: classes['1A'] ?? '', from_date: vietnamToday })
       .execute();
-    const short = await api('POST', '/library/textbooks/issue', principal.accessToken, { class_id: classes['1A'], set_id: set.body.id });
+    const short = await api('POST', '/library/textbooks/issue', principal.accessToken, {
+      class_id: classes['1A'],
+      set_id: set.body.id,
+    });
     assert.equal(short.body.issued, 2);
     const shortages = short.body.shortages as Array<{ missing: number }>;
     assert.equal(shortages[0]?.missing, 2);
@@ -422,19 +523,38 @@ describe('Thư viện trường học', () => {
     assert.equal(stocktake.status, 201, JSON.stringify(stocktake.body));
     const id = stocktake.body.id as string;
     // Quét 1 bản truyện (bản SH-000005) và 1 bản Toan1 đang cho mượn; không quét các bản còn lại
-    const scanGood = await api('POST', `/library/stocktakes/${id}/scan`, principal.accessToken, { code: ' sh-000005 ' });
+    const scanGood = await api('POST', `/library/stocktakes/${id}/scan`, principal.accessToken, {
+      code: ' sh-000005 ',
+    });
     assert.equal(scanGood.status, 200, JSON.stringify(scanGood.body));
-    assert.equal((await api('POST', `/library/stocktakes/${id}/scan`, principal.accessToken, { code: 'SH-000005' })).body.duplicate, true);
-    assert.equal((await api('POST', `/library/stocktakes/${id}/scan`, principal.accessToken, { code: 'SH-999999' })).status, 404);
-    const early = await api('POST', `/library/stocktakes/${id}/resolve`, principal.accessToken, { copy_ids: [randomUUID()], action: 'lost', reason: 'x' });
+    assert.equal(
+      (await api('POST', `/library/stocktakes/${id}/scan`, principal.accessToken, { code: 'SH-000005' })).body
+        .duplicate,
+      true,
+    );
+    assert.equal(
+      (await api('POST', `/library/stocktakes/${id}/scan`, principal.accessToken, { code: 'SH-999999' })).status,
+      404,
+    );
+    const early = await api('POST', `/library/stocktakes/${id}/resolve`, principal.accessToken, {
+      copy_ids: [randomUUID()],
+      action: 'lost',
+      reason: 'x',
+    });
     assert.equal(errorOf(early.body).code, 'ERR_RULE_VIOLATION');
     const closed = await api('POST', `/library/stocktakes/${id}/close`, principal.accessToken);
     assert.equal(closed.status, 200, JSON.stringify(closed.body));
     const missing = closed.body.missing as Array<{ id: string; copy_no: string }>;
     assert.ok(missing.length >= 1);
-    assert.equal((await api('POST', `/library/stocktakes/${id}/scan`, principal.accessToken, { code: 'SH-000005' })).status, 422);
+    assert.equal(
+      (await api('POST', `/library/stocktakes/${id}/scan`, principal.accessToken, { code: 'SH-000005' })).status,
+      422,
+    );
     const target = missing.find((item) => item.copy_no === copies.Bao?.[0]) ?? missing[0];
-    const bad = await api('POST', `/library/stocktakes/${id}/resolve`, principal.accessToken, { copy_ids: [target?.id], action: 'dispose' });
+    const bad = await api('POST', `/library/stocktakes/${id}/resolve`, principal.accessToken, {
+      copy_ids: [target?.id],
+      action: 'dispose',
+    });
     assert.equal(bad.status, 400);
     const resolved = await api('POST', `/library/stocktakes/${id}/resolve`, principal.accessToken, {
       copy_ids: [target?.id],
@@ -442,13 +562,21 @@ describe('Thư viện trường học', () => {
       reason: 'Sách cũ rách',
     });
     assert.equal(resolved.status, 200, JSON.stringify(resolved.body));
-    const gone = await schoolYear.selectFrom('library_copies').select('condition').where('id', '=', target?.id ?? '').executeTakeFirstOrThrow();
+    const gone = await schoolYear
+      .selectFrom('library_copies')
+      .select('condition')
+      .where('id', '=', target?.id ?? '')
+      .executeTakeFirstOrThrow();
     assert.equal(gone.condition, 'disposed');
     // Báo cáo: có số liệu, chỉ tiêu chưa đặt ngưỡng thì chưa kết luận; đặt ngưỡng thì đạt hoặc không
     const overview = await api('GET', '/library/reports/overview', principal.accessToken);
     assert.equal(overview.status, 200, JSON.stringify(overview.body));
     assert.equal(overview.body.students, 3 + 1);
-    const indicators = overview.body.indicators as Array<{ code: string; value: number | null; passed: boolean | null }>;
+    const indicators = overview.body.indicators as Array<{
+      code: string;
+      value: number | null;
+      passed: boolean | null;
+    }>;
     const textbooks = indicators.find((item) => item.code === 'textbooks_per_student');
     assert.equal(textbooks?.passed, null);
     const settings = await api('GET', '/library/settings', principal.accessToken);
@@ -460,7 +588,12 @@ describe('Thư viện trường học', () => {
     });
     assert.equal(put.status, 200, JSON.stringify(put.body));
     const after = await api('GET', '/library/reports/overview', principal.accessToken);
-    assert.equal((after.body.indicators as Array<{ code: string; passed: boolean | null }>).find((item) => item.code === 'textbooks_per_student')?.passed, false);
+    assert.equal(
+      (after.body.indicators as Array<{ code: string; passed: boolean | null }>).find(
+        (item) => item.code === 'textbooks_per_student',
+      )?.passed,
+      false,
+    );
     assert.equal((await api('GET', '/library/reports/overview', token('teacher'))).status, 403);
     const exported = await api('GET', '/library/reports/export?type=bad', principal.accessToken);
     assert.equal(exported.status, 400);
@@ -472,7 +605,8 @@ describe('Thư viện trường học', () => {
       titles: (await schoolYear.selectFrom('library_titles').select('id').execute()).length,
       readers: (await schoolYear.selectFrom('library_readers').select('id').execute()).length,
       open: (await schoolYear.selectFrom('library_loans').select('id').where('status', '=', 'open').execute()).length,
-      closed: (await schoolYear.selectFrom('library_loans').select('id').where('status', '!=', 'open').execute()).length,
+      closed: (await schoolYear.selectFrom('library_loans').select('id').where('status', '!=', 'open').execute())
+        .length,
     };
     assert.ok(before.open > 0 && before.closed > 0);
     const created = await api('POST', '/academic-years', principal.accessToken, { name: '2027–2028' });
@@ -491,22 +625,38 @@ describe('Thư viện trường học', () => {
       .select('database_name')
       .where('academic_year_id', '=', newYearId)
       .executeTakeFirstOrThrow();
-    const next = createDatabase<SchoolYearDatabase>(replaceDatabaseName(environment.systemDatabaseUrl, registry.database_name));
+    const next = createDatabase<SchoolYearDatabase>(
+      replaceDatabaseName(environment.systemDatabaseUrl, registry.database_name),
+    );
     try {
-      assert.deepEqual(await next.selectFrom('library_categories').select(['id', 'code']).orderBy('code').execute(), before.categories);
+      assert.deepEqual(
+        await next.selectFrom('library_categories').select(['id', 'code']).orderBy('code').execute(),
+        before.categories,
+      );
       assert.equal((await next.selectFrom('library_copies').select('id').execute()).length, before.copies);
       assert.equal((await next.selectFrom('library_titles').select('id').execute()).length, before.titles);
       assert.equal((await next.selectFrom('library_readers').select('id').execute()).length, before.readers);
       assert.equal((await next.selectFrom('library_loans').select('id').execute()).length, before.open);
       const settings = await next.selectFrom('library_settings').select('student_levels').executeTakeFirstOrThrow();
       assert.deepEqual(settings.student_levels, ['TH', 'THCS', 'THPT']);
-      const rule = await next.selectFrom('library_loan_rules').select('max_items').where('reader_kind', '=', 'student').executeTakeFirstOrThrow();
+      const rule = await next
+        .selectFrom('library_loan_rules')
+        .select('max_items')
+        .where('reader_kind', '=', 'student')
+        .executeTakeFirstOrThrow();
       assert.equal(rule.max_items, 2);
       // Năm mới là năm đang dùng: thêm bản sao thì số đăng ký chạy tiếp, không trùng
       const made = await api('POST', `/library/titles/${titles.Truyen}/copies`, principal.accessToken, { quantity: 1 });
       assert.equal(made.status, 201, JSON.stringify(made.body));
-      const maxBefore = Math.max(...Object.values(copies).flat().map((code) => Number(code.slice(3))));
-      assert.equal((made.body as unknown as Array<{ copy_no: string }>)[0]?.copy_no, `SH-${String(maxBefore + 1).padStart(6, '0')}`);
+      const maxBefore = Math.max(
+        ...Object.values(copies)
+          .flat()
+          .map((code) => Number(code.slice(3))),
+      );
+      assert.equal(
+        (made.body as unknown as Array<{ copy_no: string }>)[0]?.copy_no,
+        `SH-${String(maxBefore + 1).padStart(6, '0')}`,
+      );
     } finally {
       await next.destroy();
     }

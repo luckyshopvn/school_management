@@ -38,10 +38,7 @@ export const migration: Migration = {
       )
       .addColumn('updated_by_name', 'text')
       .addColumn('updated_at', 'timestamptz', (column) => column.notNull().defaultTo(sql`now()`))
-      .addCheckConstraint(
-        'library_settings_levels_check',
-        sql.raw(`student_levels <@ array[${SCHOOL_LEVELS}]::text[]`),
-      )
+      .addCheckConstraint('library_settings_levels_check', sql.raw(`student_levels <@ array[${SCHOOL_LEVELS}]::text[]`))
       .execute();
     await sql`insert into library_settings (id) values (1) on conflict do nothing`.execute(database);
 
@@ -51,7 +48,12 @@ export const migration: Migration = {
       .addColumn('max_items', 'integer', (column) => column.notNull().check(sql`max_items between 1 and 100`))
       .addColumn('loan_days', 'integer', (column) => column.notNull().check(sql`loan_days between 1 and 365`))
       .addColumn('max_renewals', 'integer', (column) => column.notNull().check(sql`max_renewals between 0 and 10`))
-      .addColumn('fine_per_day', 'integer', (column) => column.notNull().defaultTo(0).check(sql`fine_per_day >= 0`))
+      .addColumn('fine_per_day', 'integer', (column) =>
+        column
+          .notNull()
+          .defaultTo(0)
+          .check(sql`fine_per_day >= 0`),
+      )
       .addCheckConstraint('library_loan_rules_kind_check', sql`reader_kind in ('staff', 'student')`)
       .execute();
     await sql`insert into library_loan_rules (reader_kind, max_items, loan_days, max_renewals, fine_per_day)
@@ -105,8 +107,16 @@ export const migration: Migration = {
       .addColumn('updated_at', 'timestamptz', (column) => column.notNull().defaultTo(sql`now()`))
       .addCheckConstraint('library_titles_status_check', sql`status in ('active', 'retired')`)
       .execute();
-    await database.schema.createIndex('library_titles_category_index').on('library_titles').column('category_id').execute();
-    await database.schema.createIndex('library_titles_grade_index').on('library_titles').column('grade_level').execute();
+    await database.schema
+      .createIndex('library_titles_category_index')
+      .on('library_titles')
+      .column('category_id')
+      .execute();
+    await database.schema
+      .createIndex('library_titles_grade_index')
+      .on('library_titles')
+      .column('grade_level')
+      .execute();
 
     await database.schema
       .createTable('library_title_files')
@@ -119,7 +129,11 @@ export const migration: Migration = {
       .addColumn('created_by', 'uuid')
       .addColumn('created_at', 'timestamptz', (column) => column.notNull().defaultTo(sql`now()`))
       .execute();
-    await database.schema.createIndex('library_title_files_title_index').on('library_title_files').column('title_id').execute();
+    await database.schema
+      .createIndex('library_title_files_title_index')
+      .on('library_title_files')
+      .column('title_id')
+      .execute();
 
     await database.schema
       .createTable('library_copies')
@@ -184,7 +198,12 @@ export const migration: Migration = {
       .addColumn('renewals', 'integer', (column) => column.notNull().defaultTo(0))
       .addColumn('status', 'text', (column) => column.notNull().defaultTo('open'))
       .addColumn('return_condition', 'text')
-      .addColumn('fine_amount', 'integer', (column) => column.notNull().defaultTo(0).check(sql`fine_amount >= 0`))
+      .addColumn('fine_amount', 'integer', (column) =>
+        column
+          .notNull()
+          .defaultTo(0)
+          .check(sql`fine_amount >= 0`),
+      )
       .addColumn('note', 'text', (column) => column.check(sql`char_length(note) <= 500`))
       .addColumn('loaned_by', 'uuid')
       .addColumn('loaned_by_name', 'text')
@@ -238,7 +257,9 @@ export const migration: Migration = {
       .execute();
     await database.schema
       .createTable('library_textbook_set_titles')
-      .addColumn('set_id', 'uuid', (column) => column.notNull().references('library_textbook_sets.id').onDelete('cascade'))
+      .addColumn('set_id', 'uuid', (column) =>
+        column.notNull().references('library_textbook_sets.id').onDelete('cascade'),
+      )
       .addColumn('title_id', 'uuid', (column) => column.notNull().references('library_titles.id'))
       .addPrimaryKeyConstraint('library_textbook_set_titles_pk', ['set_id', 'title_id'])
       .execute();
