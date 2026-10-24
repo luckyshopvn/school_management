@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.52
+- Phiên bản: 0.53
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,27 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-24 — DT-21 phần 22g2: kiểm tra, đánh giá, phần chấm
+
+#### Công việc đã thực hiện
+
+- Đọc mục 12 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà đề, mã đề, bản chụp câu của 22g1, sổ điểm 21c (quyền nhập, khoá, hạn), bộ dựng PDF (18d), tệp bảng Excel, PDF (16a), công cụ nhập Excel.
+- Cơ sở dữ liệu: tệp năm học `0090`, định danh `0081`. Máy chủ API: hàm thuần chấm phiếu, thống kê câu; bài kiểm tra của lớp, phiếu trả lời, nhập bài, nhập tệp quét, khoá, chuyển sổ điểm qua `recordExamScores` của 21c, báo cáo, xuất Excel, PDF. Cổng quản trị: 8.5, 8.6.
+- Thêm quy tắc BR-188, chức năng P02-69 đến P02-70, quyền PQ-99, màn hình MH-289 đến MH-290, kịch bản CT-940 đến CT-946, tiêu chí AC-798 đến AC-800. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/exam-grading/exam-grading.test.ts` CT-22g2-1 đến CT-22g2-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa (api, database, shared) đạt (shared; database 6/6; api 1047/1047); kiểm thử giao diện `tests/e2e/101-exam-grading.spec.ts` (CT-22g2-7) cùng 96, 98, 02, 03, 58 đạt; toàn bộ kiểm thử giao diện do CI chạy (trên máy: 02, 03, 06, 08, 58, 59, 96, 98, 101 đạt 26/26; 101 rồi 54 đạt 14/14); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 22g2 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12: chấm theo phiếu bằng nhập tay và nhập tệp quét theo mẫu (phương án dự phòng của mục 12), chưa nhận dạng ảnh; đúng sai bốn ý chấm bậc thang mặc định, đổi được theo bài; chuyển điểm chỉ qua sổ điểm 21c; khoá điểm dùng quyền quản lý đề của 22g1; quyền mới `P02.exam.grade`; AI tắt. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-173, `07_QUY_TAC_NGHIEP_VU.md` BR-188, `08_VAI_TRO_NGUOI_DUNG.md` PQ-99, `10_YEU_CAU_CHUC_NANG.md` P02-69 đến P02-70, `11_TIEU_CHI_NGHIEM_THU.md` AC-798 đến AC-800, `14_DAC_TA_GIAO_DIEN.md` MH-289 đến MH-290, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-940 đến CT-946, `23_LICH_SU_PHIEN_BAN.md` 0.121.0.
+
+#### Vấn đề tồn đọng
+
+- Nhận dạng ảnh chụp, ảnh quét phiếu (OMR) ở worker; phiếu trả lời riêng từng mã đề; mẫu phiếu theo Sở khi khảo sát.
+
 
 ### 2026-10-24 — DT-21 phần 21e: học bạ số, khen thưởng, xét lên lớp THCS, THPT
 

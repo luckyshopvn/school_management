@@ -193,6 +193,9 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           leaf('8.2.', 'Ma trận đề', '/exam-matrices'),
           leaf('8.3.', 'Kế hoạch kiểm tra', '/assessment-plans'),
           leaf('8.4.', 'Đề kiểm tra', '/exams'),
+          // Chấm bài, báo cáo kết quả (DT-21 phần 22g2)
+          leaf('8.5.', 'Chấm bài kiểm tra', '/exam-grading'),
+          leaf('8.6.', 'Báo cáo kết quả kiểm tra', '/exam-reports'),
         ]),
       ),
     ],

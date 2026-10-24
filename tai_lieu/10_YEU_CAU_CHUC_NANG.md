@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.88
+- Phiên bản: 1.89
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -122,6 +122,8 @@
 | P02-66 | Khen thưởng cuối năm THCS, THPT (7.8., YCTD-172) | Xem: `P02.assessment.view`; đề nghị: giáo viên chủ nhiệm (`P02.assessment.enter`); duyệt, nạp danh hiệu: `P02.student-record.approve` | Danh hiệu Xuất sắc, Giỏi, đột xuất; đề nghị, duyệt | Học kỳ II đã khoá; đủ điều kiện theo xếp loại, điểm trung bình cả năm; mã tra cứu giấy khen; nhật ký | Bảng khen thưởng của lớp, gợi ý danh hiệu cao nhất đủ điều kiện | BR-187 |
 | P02-67 | Xét lên lớp, hoàn thành chương trình cấp học THCS, THPT (7.8., YCTD-172) | Như P02-66 | Rèn luyện trong hè, kiểm tra lại, kết quả | Cần xếp loại cả năm đã xác nhận; gợi ý lên lớp, hoàn thành cấp học, rèn luyện, ở lại lớp; khối kế tiếp theo 19b | Bảng hoàn thành chương trình của lớp | BR-187 |
 | P02-68 | Học bạ số THCS, THPT (7.8., ứng dụng phụ huynh, YCTD-172) | Lập, nhận xét: giáo viên chủ nhiệm; xác nhận, kí, mở lại: `P02.student-record.approve` kèm quyền xem số định danh | Học bạ (điểm trung bình hai học kỳ, cả năm, xếp loại), nhận xét, kí nội bộ | Lập từ sổ điểm đã khoá; kí in đủ số định danh; phụ huynh chỉ tải bản đã kí; nhật ký | Học bạ PDF, bảng học bạ của lớp | BR-187 |
+| P02-69 | Chấm bài kiểm tra (8.5., YCTD-173) | Chấm: `P02.exam.grade`; khoá: `P02.exam.manage`; chuyển: người nhập điểm của lớp (21c) | Đề đã khoá, lớp, học kỳ, loại điểm, cách chấm; bài làm từng học sinh; tệp quét theo mẫu | Chấm theo đáp án của mã đề; tự luận hai người; khoá; ghi kết quả dùng câu; chuyển sổ điểm | Phiếu trả lời PDF; điểm bài; điểm trong sổ điểm | BR-188 |
+| P02-70 | Báo cáo kết quả kiểm tra (8.6., YCTD-173) | `P02.exam.grade` (lớp mình dạy), `P02.exam.review`, `P02.exam.manage` | Đề, lớp | Thống kê bài đã khoá theo câu, chủ đề, mức nhận thức, lớp, phân bố điểm | Bảng báo cáo; Excel, PDF | BR-188 |
 | P02-61 | Ngân hàng câu hỏi (8.1., YCTD-168) | Soạn: `P02.question.author`; duyệt, chủ đề: `P02.exam.review` | Chủ đề; câu hỏi theo môn, khối, chủ đề, mức, dạng; tệp Excel | Kiểm tra theo dạng câu; gửi, duyệt, trả lại, ngừng dùng; nhập Excel; thống kê | Câu dùng được cho đề; lịch sử dùng | BR-184 |
 | P02-62 | Ma trận đề, bảng đặc tả (8.2., YCTD-168) | Xem: người soạn đề; lập: `P02.exam.review` | Môn, khối, dòng chủ đề × mức × dạng, số câu, điểm, yêu cầu cần đạt; tỉ lệ mẫu, sai số | Tổng hợp, kiểm tổng điểm, tỉ lệ | Ma trận và kết quả kiểm tra | BR-184 |
 | P02-63 | Kế hoạch kiểm tra (8.3., YCTD-168) | Lập: `P02.exam.review`; duyệt: `P02.exam.manage` | Cấp, học kỳ, khối, môn, loại, hình thức, thời gian, ngày | Gửi, duyệt, trả lại; đếm đề; nhắc tiết theo thời khoá biểu | Kế hoạch đã duyệt để giao đề | BR-184 |
