@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.111
+- Phiên bản: 1.112
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -1448,6 +1448,8 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, POST, PATCH | /api/v1/learning-records/award-titles, /defaults, /{id}; /learning-records/classes/{id}/awards; /learning-records/awards/{id}/decide, /certificate (từ YCTD-163) | Danh hiệu (sửa: `P02.student-record.approve`), khen thưởng của lớp kèm gợi ý, đề nghị (`child_id`, `title_id`, `achievement`), duyệt (`approve`, `note`), giấy khen PDF; trái quy tắc trả 422 mã YCTD-163 |
 | GET, PUT, POST, PATCH | /api/v1/learning-records/classes/{id}/completion, /learning-records, /learning-records/prepare; /learning-records/learning-records/{id}, /sign, /reopen, /file; /learning-records/children/{id} (từ YCTD-163) | Hoàn thành chương trình (`entries`: `child_id`, `support_plan`, `support_result`, `support_note`), học bạ của lớp, lập, nhận xét, kí nội bộ, mở lại (`reason`), tải PDF, học bạ và khen thưởng của học sinh (phụ huynh: bản đã kí) |
 | GET | /api/v1/public/student-awards/verify (từ YCTD-163) | Tra cứu công khai mã giấy khen học sinh (`code` 12 kí tự), giới hạn tần suất |
+| GET | /api/v1/primary-reports/enrollment, /assessments, /year-end, /attendance, /{report}/export (từ YCTD-165) | Thống kê Tiểu học (`org_unit_id`; `period_id`, `group` = `class`, `grade`, `school`; `from`, `to`); xuất `format` = `xlsx`, `pdf`; cần `P17.child-statistics.view` |
+| GET, PUT | /api/v1/primary-reports/emis, /{code}, /{code}/values, /{code}/rows, /{code}/export (từ YCTD-165) | Biểu EMIS Tiểu học cấu hình được: danh sách, biểu đã tính, lưu số nhập tay (`rows`: `code`, `values`), thay khung (`rows`: `code`, `label`, `unit`, `kind`, `formula`; cần `P17.report-form.manage`), xuất; biểu đã gửi trả 422 mã YCTD-165 |
 | GET, POST, PUT, DELETE | /api/v1/emulation/decisions, /{id}, /document, /outgoing, /issue, /upper-result; /emulation/awards/{id}/certificate; /emulation/history, /export, /{id}; GET /public/emulation-awards/verify | Quyết định, giấy khen, sổ theo dõi, tra cứu công khai (P09-38, P09-39) |
 | GET, PUT, POST, DELETE | /api/v1/website/settings, /website/settings/images/{purpose}, /website/sample-content, /website/disclosure-categories | Thông tin website, biểu trưng, ảnh đầu trang, nội dung mẫu, nhóm công khai (P14-13, YCTD-144) |
 | GET, POST, PATCH, DELETE | /api/v1/website/domains, /website/domains/{id}, /website/domains/{id}/dns-confirmation | Tên miền (P14-13, YCTD-144) |
@@ -1609,7 +1611,7 @@ Giao kèo sổ đầu bài (DT-20 phần 20d, YCTD-162, BR-174):
 5. `GET /period-attendance/summary` (`class_id`, `from`, `to`) trả `lessons` (số tiết đã ghi) và `students` (`present`, `late`, `absent_excused`, `absent_unexcused`, `absent_days`, `notice_days`, `absent_without_notice_days`, `notice_but_present_days`, `daily_absent_days`).
 6. `GET /children/{id}/period-attendance?month=YYYY-MM` (phụ huynh của học sinh, nhân sự) trả `counts` theo trạng thái và `records` (các tiết không có mặt: `lesson_date`, `period_no`, `subject_name`, `status`, `note`); phụ huynh khác trả 403.
 
-Giao kèo thư viện (DT-22 phần 22a, YCTD-181, BR-181 đến BR-183):
+Giao kèo thư viện (DT-22 phần 22a, YCTD-181, BR-184 đến BR-186):
 
 1. Điểm cuối thư viện cần `P02.library.manage`, riêng tra cứu ấn phẩm, xem thiết lập, `my-loans` cần `P02.library.view` hoặc `manage`; `children/{id}/loans` kiểm tra quan hệ phụ huynh, không cần quyền. Lỗi dữ liệu trả 400; không tìm thấy trả 404; vi phạm quy tắc (thẻ khóa, vượt mức, quá hạn, bản không cho mượn, đặt trước khi còn bản, đợt kiểm kê đã đóng) trả 422 với `rule_code` YCTD-181.
 2. `POST /library/titles/{id}/copies` nhận `quantity` (1 đến 500), `source`, `price`, `acquired_on`, `shelf`; trả mảng `id`, `copy_no`.

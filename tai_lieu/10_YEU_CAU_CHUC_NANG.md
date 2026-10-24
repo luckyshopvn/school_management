@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.84
+- Phiên bản: 1.85
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -124,11 +124,11 @@
 | P02-47 | Chuyên cần theo tiết (7.7., ứng dụng phụ huynh, YCTD-162) | Nhân sự xem được lớp; phụ huynh của học sinh | Lớp, khoảng ngày; con, tháng | Đếm tiết theo trạng thái; đối chiếu báo vắng theo ngày và điểm danh theo ngày | Bảng chuyên cần theo học sinh; điểm danh theo tiết của con | BR-174 |
 | P02-48 | Khen thưởng học sinh cuối năm, đột xuất (YCTD-163) | Đề nghị: giáo viên chủ nhiệm; duyệt, danh hiệu: VT-02, VT-15 (`P02.student-record.approve`) | Danh hiệu, học sinh, thành tích; duyệt hoặc không duyệt kèm lý do | Danh sách khen thưởng, giấy khen có mã tra cứu | 7.8 Khen thưởng, Danh hiệu; trang tra cứu công khai | BR-175 |
 | P02-49 | Hoàn thành chương trình lớp học, chương trình tiểu học; rèn luyện trong hè, kiểm tra lại, lên lớp (YCTD-163) | Giáo viên chủ nhiệm; Ban Giám hiệu | Hình thức, kết quả đánh giá bổ sung, ghi chú | Kết quả hoàn thành, khối năm sau | 7.8 Hoàn thành chương trình | BR-176 |
-| P02-61 | Danh mục ấn phẩm, bản sao thư viện (YCTD-181) | `P02.library.view` xem; `P02.library.manage` ghi | Phân loại, nhan đề, tác giả, nhà xuất bản, năm, ISBN, cấp, khối, kệ; số bản, nguồn, giá; lý do thanh lý; tệp tài liệu số | Cấp số đăng ký cá biệt liên tiếp; tem mã (mã QR); thanh lý; sổ đăng ký cá biệt; ngừng dùng ấn phẩm khi hết bản mượn | Ấn phẩm, bản sao, tem PDF, sổ đăng ký Excel hoặc PDF | BR-181, BR-183 |
-| P02-62 | Thẻ bạn đọc (YCTD-181) | `P02.library.manage` | Cán bộ hoặc học sinh; lý do khóa | Đồng bộ thẻ cho cán bộ, học sinh cấp có bật mượn; khóa khi nghỉ; khóa, mở khóa có lý do; in thẻ | Thẻ bạn đọc, lịch sử mượn | BR-181 |
-| P02-63 | Mượn, trả, gia hạn, đặt trước, nhắc quá hạn (YCTD-181) | `P02.library.manage`; cán bộ xem sách mình mượn; phụ huynh xem sách của con | Số thẻ, mã bản sao, lớp (mượn cho lớp), tình trạng khi trả | Kiểm tra quy định; tính phạt trễ hạn; giữ bản cho người đặt trước; nhắc quá hạn qua thông báo | Lượt mượn, lượt đặt trước, thông báo | BR-181, BR-182 |
-| P02-64 | Phát và thu sách giáo khoa (YCTD-181) | `P02.library.manage` | Bộ sách theo khối; lớp | Phát cho cả lớp, báo đầu sách thiếu; thu hàng loạt kèm tình trạng | Lượt mượn loại sách giáo khoa | BR-183 |
-| P02-65 | Kiểm kê, báo cáo, thiết lập thư viện (YCTD-181) | `P02.library.manage` | Đợt kiểm kê, mã quét; kỳ báo cáo; quy định mượn, cấp có học sinh mượn, ngưỡng chỉ tiêu | Đối chiếu thiếu, thừa, hỏng; xử lý bản thiếu; chỉ tiêu theo chuẩn; xuất Excel, PDF | Biên bản kiểm kê, báo cáo thư viện | BR-183 |
+| P02-61 | Danh mục ấn phẩm, bản sao thư viện (YCTD-181) | `P02.library.view` xem; `P02.library.manage` ghi | Phân loại, nhan đề, tác giả, nhà xuất bản, năm, ISBN, cấp, khối, kệ; số bản, nguồn, giá; lý do thanh lý; tệp tài liệu số | Cấp số đăng ký cá biệt liên tiếp; tem mã (mã QR); thanh lý; sổ đăng ký cá biệt; ngừng dùng ấn phẩm khi hết bản mượn | Ấn phẩm, bản sao, tem PDF, sổ đăng ký Excel hoặc PDF | BR-184, BR-186 |
+| P02-62 | Thẻ bạn đọc (YCTD-181) | `P02.library.manage` | Cán bộ hoặc học sinh; lý do khóa | Đồng bộ thẻ cho cán bộ, học sinh cấp có bật mượn; khóa khi nghỉ; khóa, mở khóa có lý do; in thẻ | Thẻ bạn đọc, lịch sử mượn | BR-184 |
+| P02-63 | Mượn, trả, gia hạn, đặt trước, nhắc quá hạn (YCTD-181) | `P02.library.manage`; cán bộ xem sách mình mượn; phụ huynh xem sách của con | Số thẻ, mã bản sao, lớp (mượn cho lớp), tình trạng khi trả | Kiểm tra quy định; tính phạt trễ hạn; giữ bản cho người đặt trước; nhắc quá hạn qua thông báo | Lượt mượn, lượt đặt trước, thông báo | BR-184, BR-185 |
+| P02-64 | Phát và thu sách giáo khoa (YCTD-181) | `P02.library.manage` | Bộ sách theo khối; lớp | Phát cho cả lớp, báo đầu sách thiếu; thu hàng loạt kèm tình trạng | Lượt mượn loại sách giáo khoa | BR-186 |
+| P02-65 | Kiểm kê, báo cáo, thiết lập thư viện (YCTD-181) | `P02.library.manage` | Đợt kiểm kê, mã quét; kỳ báo cáo; quy định mượn, cấp có học sinh mượn, ngưỡng chỉ tiêu | Đối chiếu thiếu, thừa, hỏng; xử lý bản thiếu; chỉ tiêu theo chuẩn; xuất Excel, PDF | Biên bản kiểm kê, báo cáo thư viện | BR-186 |
 | P02-50 | Học bạ số (YCTD-163) | Lập, nhận xét: giáo viên chủ nhiệm; xác nhận, kí, mở lại: Hiệu trưởng; phụ huynh xem bản đã kí | Lớp; nhận xét; lý do mở lại | Học bạ PDF đã kí nội bộ | 7.8 Học bạ; Học bạ ở ứng dụng phụ huynh | BR-177 |
 | P02-51 | Xếp thời khoá biểu tự động (7.9., YCTD-164) | `P02.timetable.manage` | Cấp; mức quan trọng, giới hạn thời gian, số phương án; quy tắc môn; tiết giáo viên bận | Kiểm tra dữ liệu trước khi xếp; đẩy lần xếp cho tiến trình chạy nền; theo dõi tiến độ, huỷ; lưu phương án | Các phương án có điểm phạt, vi phạm; xem trước theo lớp; bản nháp nguồn máy xếp | BR-178 |
 | P02-52 | Chỉnh tay có kiểm tra ngay (7.4., YCTD-164) | `P02.timetable.manage` | Các ô đang sửa của lớp trong bản nháp | Tính xung đột của bản nếu ghi các ô đó, không ghi | Ô dính xung đột cứng; danh sách xung đột của lớp | BR-178, BR-170 |
@@ -428,6 +428,9 @@
 | P17-28 | Báo cáo giáo dục mầm non cuối năm (2.4 của phân hệ Báo cáo số liệu, G3, YCTD-129) | VT-02, VT-15 (`P17.report.emis` phạm vi toàn trường) | Năm học đang dùng | Lập Biểu 1 lúc cuối năm: năm thẻ như Biểu 1 tại thời điểm xem và thẻ Kết quả giáo dục (6.01 đến 6.04); xuất Excel; gửi lên cấp trên. Từ YCTD-132 ở học kỳ I biểu trống kèm cảnh báo như Sở | Biểu 2.4, tệp Excel | BR-127, BR-104, BR-131 |
 | P17-29 | Thống kê, báo cáo theo cấp học (YCTD-154) | Người có quyền của từng báo cáo | Cấp học (tùy chọn) | Lọc lớp, trẻ theo cấp; 5.1 lớp cấp khác theo khối; chấm công và suất ăn nhóm theo cấp | Ô "Cấp học" ở 5.1, 5.3, chấm công và suất ăn | BR-160, BR-161 |
 | P17-30 | Biểu mẫu riêng Mầm non theo cấp (YCTD-154) | Người có quyền của từng biểu mẫu | Không | EMIS, tăng trưởng, hồ sơ cuối cấp chỉ tính lớp, trẻ cấp Mầm non | Số liệu như trước ở trường Mầm non | BR-161 |
+| P17-31 | Thống kê Tiểu học: sĩ số, kết quả đánh giá, cuối năm, chuyên cần, bán trú (YCTD-165) | Người có `P17.child-statistics.view` | Đơn vị, kỳ đánh giá, gộp theo lớp, khối, trường, khoảng ngày | Bảng thống kê, tệp Excel, PDF | 7.15 các thẻ Sĩ số, Kết quả đánh giá, Cuối năm, Chuyên cần, bán trú | BR-181 |
+| P17-32 | Biểu EMIS Tiểu học: tính, nhập tay, xuất, gửi lên cấp trên (YCTD-165) | Người có `P17.report.emis` | Biểu; số nhập tay | Biểu đã tính, tệp Excel, PDF, trạng thái gửi | 7.15 thẻ EMIS Tiểu học; trang gửi lên cấp trên | BR-182, BR-183 |
+| P17-33 | Sửa khung biểu EMIS (YCTD-165) | VT-02, VT-15 (`P17.report-form.manage`) | Dòng: mã, chỉ tiêu, đơn vị, loại, công thức | Khung biểu mới | 7.15 thẻ EMIS Tiểu học, Sửa khung biểu | BR-182 |
 
 ## 19. Phân hệ P18 — Tuyển dụng
 

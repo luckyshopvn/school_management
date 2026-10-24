@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.47
+- Phiên bản: 0.49
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -20,7 +20,7 @@
 
 - Đọc mục 13 của `32_KE_HOACH_THEO_HE_THONG_SO.md` (kế hoạch DT-22) và mã trên nhánh chính: học sinh, cán bộ, lớp, môn, thông báo, nhật ký xuất, tem QR của thiết bị (`equipment-locations`), kiểm kê thiết bị, kho tệp, chuyển năm học; rà bảng `library_items`, `library_albums` (Mầm non) và `asset_loans` để không dùng nhầm.
 - Cơ sở dữ liệu: tệp năm học `0100`, định danh `0090`. Máy chủ API: danh mục, bản sao, tem, thanh lý, tệp số, sổ đăng ký, thẻ bạn đọc, mượn trả, đặt trước, sách giáo khoa, kiểm kê, báo cáo, chuyển năm học. Cổng quản trị: phân hệ "Thư viện" 7 trang. Ứng dụng giáo viên, phụ huynh.
-- Thêm quy tắc BR-181 đến BR-183, chức năng P02-61 đến P02-65, quyền PQ-97, màn hình MH-277 đến MH-285, kịch bản CT-904 đến CT-913, tiêu chí AC-783 đến AC-786. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/library/library.test.ts` CT-22a-1 đến CT-22a-8 đạt 8/8; trên máy đã chạy kiểm thử đơn vị các gói sửa (thư viện, số phân hệ `system-admin-so`, đường dẫn nhanh, cấp học, chuyển năm học) đạt 52/52; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 81, 82, 84 và `tests/e2e/120-library.spec.ts` (CT-22a-9) đạt; kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
+- Thêm quy tắc BR-184 đến BR-186, chức năng P02-61 đến P02-65, quyền PQ-97, màn hình MH-277 đến MH-285, kịch bản CT-911 đến CT-920, tiêu chí AC-787 đến AC-790. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/library/library.test.ts` CT-22a-1 đến CT-22a-8 đạt 8/8; trên máy đã chạy kiểm thử đơn vị các gói sửa (thư viện, số phân hệ `system-admin-so`, đường dẫn nhanh, cấp học, chuyển năm học) đạt 52/52; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 81, 82, 84 và `tests/e2e/120-library.spec.ts` (CT-22a-9) đạt; kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
 
 #### Quyết định
 
@@ -29,11 +29,34 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-181, `07_QUY_TAC_NGHIEP_VU.md` BR-181 đến BR-183, `08_VAI_TRO_NGUOI_DUNG.md` PQ-97, `10_YEU_CAU_CHUC_NANG.md` P02-61 đến P02-65, `11_TIEU_CHI_NGHIEM_THU.md` AC-783 đến AC-786, `14_DAC_TA_GIAO_DIEN.md` MH-277 đến MH-285, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-904 đến CT-913, `23_LICH_SU_PHIEN_BAN.md` 0.116.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-181, `07_QUY_TAC_NGHIEP_VU.md` BR-184 đến BR-186, `08_VAI_TRO_NGUOI_DUNG.md` PQ-97, `10_YEU_CAU_CHUC_NANG.md` P02-61 đến P02-65, `11_TIEU_CHI_NGHIEM_THU.md` AC-787 đến AC-790, `14_DAC_TA_GIAO_DIEN.md` MH-277 đến MH-285, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-911 đến CT-920, `23_LICH_SU_PHIEN_BAN.md` 0.117.0.
 
 #### Vấn đề tồn đọng
 
 - Đọc văn bản gốc về chuẩn thư viện cơ sở giáo dục phổ thông để nạp ngưỡng chỉ tiêu; nhập Excel danh mục; ghi minh chứng sang 22f; ảnh bìa, ô chọn môn ở giao diện, thẻ đã trả, đã mất ở danh sách lượt mượn.
+
+### 2026-10-24 — DT-20 phần 20f: báo cáo, thống kê và EMIS Tiểu học
+
+#### Công việc đã thực hiện
+
+- Đọc mục 11 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà biểu EMIS Mầm non, luồng gửi lên cấp trên 16a, tham số cấp 19d, thống kê 5.1, 5.3, số liệu của 20b, 20c, 20d, 20e.
+- Cơ sở dữ liệu: tệp hệ thống `0027_create_report_forms` (hai biểu khung Tiểu học), tệp định danh `0074_add_report_form_permission`; số tệp năm học `0083` giữ sẵn không dùng (số nhập tay dùng `emis_report_values`).
+- Máy chủ API: thống kê Tiểu học, xuất tệp; biểu EMIS Tiểu học (tính, nhập tay, sửa khung, xuất, gửi lên cấp trên).
+- Cổng quản trị: 7.15 Báo cáo, thống kê, EMIS Tiểu học.
+- Thêm quy tắc BR-181 đến BR-183, chức năng P17-31 đến P17-33, kịch bản CT-904 đến CT-910, tiêu chí AC-783 đến AC-786. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/primary-reports/primary-reports.test.ts` CT-20f-1 đến CT-20f-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.15 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của Tiểu học của CT-19c-1); kiểm thử đơn vị toàn bộ kho mã đạt 1081/1081 trước khi gộp main lần cuối; sau khi gộp chạy lại các tệp bị ảnh hưởng (primary-reports, working-level, menu-permissions) đạt 18/18; kiểm thử giao diện `tests/e2e/94-primary-reports.spec.ts` (CT-20f-7) đạt; toàn bộ kiểm thử giao diện trên máy chạy các kịch bản 02, 03, 94 đạt 5/5 (trước đó 02, 03, 06, 08, 58, 94 đạt 18/18); e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 20f của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.4. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: biểu EMIS Tiểu học là khung cấu hình được ở cơ sở dữ liệu hệ thống, công thức theo cú pháp đơn giản kiểm khi lưu; nạp hai biểu khung chờ khảo sát Sở; thống kê dùng quyền thống kê học sinh có sẵn.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-165, `07_QUY_TAC_NGHIEP_VU.md` BR-181 đến BR-183, `10_YEU_CAU_CHUC_NANG.md` P17-31 đến P17-33, `11_TIEU_CHI_NGHIEM_THU.md` AC-783 đến AC-786, `14_DAC_TA_GIAO_DIEN.md`, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-904 đến CT-910, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.8. Phiên bản 0.116.0.
+
+#### Vấn đề tồn đọng
+
+- Khảo sát hệ thống của Sở cấp Tiểu học để sửa biểu khung cho khớp (tài liệu 31); thêm biểu mới từ giao diện.
+
 ### 2026-10-24 — Sửa lỗi màn hình bán trú của ứng dụng giáo viên (DT-20 phần 20b, YCTD-159)
 
 #### Công việc đã thực hiện

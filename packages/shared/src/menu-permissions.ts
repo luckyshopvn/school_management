@@ -115,6 +115,7 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/timetable-generator': anyOf('P02.timetable.manage'),
   '/timetable-changes': anyOf('P02.class.manage', 'P02.view', 'P02.edit', 'P02.timetable.manage'),
   '/timetable-reports': anyOf('P02.class.manage', 'P02.view', 'P02.edit', 'P02.timetable.manage'),
+  '/primary-reports': anyOf('P17.child-statistics.view', 'P17.report.emis'),
   // Khai báo tuần: ai xem được thiết lập thì xem, sửa cần quyền quản lý năm học như 2.1 Năm học (DT-16 phần 16e)
   '/school-weeks': anyOf('P01.view', 'P01.academic-year.manage'),
   '/staff': 'P07.staff.view',

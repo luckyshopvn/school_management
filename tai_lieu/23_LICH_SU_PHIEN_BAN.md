@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.42
+- Phiên bản: 0.43
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,17 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.116.0 – 2026-10-24
+### Phiên bản 0.117.0 – 2026-10-24
 
 - Phạm vi thay đổi: DT-22 phần 22a, thư viện trường học (YCTD-181).
 - Chức năng mới: phân hệ "Thư viện" (danh mục ấn phẩm, bản sao có số đăng ký cá biệt và tem mã QR, thanh lý, tệp tài liệu số, sổ đăng ký cá biệt; thẻ bạn đọc cho cán bộ và học sinh; mượn, trả, gia hạn, báo mất, phạt trễ hạn, nhắc quá hạn, đặt trước; phát và thu sách giáo khoa theo bộ sách của khối; kiểm kê và xử lý bản thiếu; báo cáo, chỉ tiêu theo chuẩn thư viện có ngưỡng cấu hình; thiết lập quy định mượn); ứng dụng giáo viên "Sách tôi đang mượn", ứng dụng phụ huynh "Sách thư viện".
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp năm học `0100_create_library` (15 bảng `library_*`); tệp định danh `0090_add_library_permissions`; chuyển năm học chép kho thư viện sang năm mới.
 - Thay đổi API: `/library/*` (xem `17_DAC_TA_API.md`).
-- Kiểm thử: kịch bản CT-904 đến CT-913. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/library/library.test.ts` CT-22a-1 đến CT-22a-8 đạt 8/8; trên máy đã chạy kiểm thử đơn vị các gói sửa (thư viện, số phân hệ `system-admin-so`, đường dẫn nhanh, cấp học, chuyển năm học) đạt 52/52; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 81, 82, 84 và `tests/e2e/120-library.spec.ts` (CT-22a-9) đạt; kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
+- Kiểm thử: kịch bản CT-911 đến CT-920. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/library/library.test.ts` CT-22a-1 đến CT-22a-8 đạt 8/8; trên máy đã chạy kiểm thử đơn vị các gói sửa (thư viện, số phân hệ `system-admin-so`, đường dẫn nhanh, cấp học, chuyển năm học) đạt 52/52; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 81, 82, 84 và `tests/e2e/120-library.spec.ts` (CT-22a-9) đạt; kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
 - Rủi ro: chỉ tiêu theo chuẩn thư viện chưa có ngưỡng mặc định vì chưa đọc văn bản gốc, trường tự nhập; không có thay đổi dữ liệu cũ.
 - Khả năng tương thích: không đổi bảng `library_items`, `library_albums` (kho nội dung Mầm non) và `asset_loans` (mượn thiết bị); trường chỉ có Mầm non chỉ có cán bộ mượn sách.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 22a; chạy phần quay lui của tệp năm học `0100`, định danh `0090`.
+
+### Phiên bản 0.116.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-20 phần 20f, báo cáo, thống kê và EMIS Tiểu học (YCTD-165).
+- Chức năng mới: thống kê sĩ số Tiểu học theo khối; kết quả đánh giá, cuối năm theo lớp, khối, trường; chuyên cần theo tiết và bán trú theo lớp; xuất Excel, PDF; khung biểu EMIS Tiểu học cấu hình được (công thức, nhập tay, sửa khung, gửi lên cấp trên).
+- Lỗi đã sửa: lọc theo danh sách đơn vị dùng mã rỗng chuỗi `''` cho cột uuid gây lỗi hệ thống khi người dùng chỉ được xem một số đơn vị (thống kê Tiểu học khi chọn đơn vị; nề nếp 20b: danh sách điểm, xếp hạng; khoá số liệu 20c: danh sách lớp, khoá mọi lớp), nay dùng uuid rỗng.
+- Thay đổi dữ liệu: tệp hệ thống `0027_create_report_forms`; tệp định danh `0074_add_report_form_permission`.
+- Thay đổi API: `/primary-reports/enrollment`, `/assessments`, `/year-end`, `/attendance`, `/{report}/export`; `/primary-reports/emis`, `/{code}`, `/{code}/values`, `/{code}/rows`, `/{code}/export`; biểu `emis-th-dau-nam`, `emis-th-cuoi-nam` ở `/upper-level-submissions`.
+- Kiểm thử: kịch bản CT-904 đến CT-910. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/primary-reports/primary-reports.test.ts` CT-20f-1 đến CT-20f-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.15 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của Tiểu học của CT-19c-1); kiểm thử đơn vị toàn bộ kho mã đạt 1081/1081 trước khi gộp main lần cuối; sau khi gộp chạy lại các tệp bị ảnh hưởng (primary-reports, working-level, menu-permissions) đạt 18/18; kiểm thử giao diện `tests/e2e/94-primary-reports.spec.ts` (CT-20f-7) đạt; toàn bộ kiểm thử giao diện trên máy chạy các kịch bản 02, 03, 94 đạt 5/5 (trước đó 02, 03, 06, 08, 58, 94 đạt 18/18); e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: biểu khung chưa khớp Sở.
+- Khả năng tương thích: không đổi điểm cuối cũ; trường chỉ có Mầm non thấy như cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 20f; chạy phần quay lui của tệp hệ thống `0027` và tệp định danh `0074`.
 
 ### Phiên bản 0.115.0 – 2026-10-24
 
