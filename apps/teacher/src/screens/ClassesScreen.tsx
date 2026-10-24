@@ -60,6 +60,7 @@ export function ClassesScreen({
   onOpenWork,
   onOpenStocktake,
   onOpenTimetable,
+  onOpenLibrary,
   onOpenClassLog,
 }: {
   onOpen(myClass: MyClass): void;
@@ -80,6 +81,7 @@ export function ClassesScreen({
   onOpenWork(): void;
   onOpenStocktake(): void;
   onOpenTimetable(): void;
+  onOpenLibrary(): void;
   onOpenClassLog(): void;
 }) {
   const session = useSession();
@@ -136,6 +138,8 @@ export function ClassesScreen({
         {(classes ?? []).some((myClass) => hasLevelFeature(myClass.school_level, 'period_timetable')) ? (
           <Button onClick={onOpenTimetable}>Lịch dạy của tôi</Button>
         ) : null}
+        {/* Sách đang mượn ở thư viện trường (DT-22 phần 22a) */}
+        <Button onClick={onOpenLibrary}>Sách tôi đang mượn</Button>
         {/* Sổ đầu bài, điểm danh theo tiết (DT-20 phần 20d) */}
         {(classes ?? []).some((myClass) => hasLevelFeature(myClass.school_level, 'period_attendance')) ? (
           <Button onClick={onOpenClassLog}>Sổ đầu bài</Button>

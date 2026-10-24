@@ -62,6 +62,7 @@ import { migration as createUserPreferences } from './migrations/0065_create_use
 import { migration as addBoardingConductPermissions } from './migrations/0068_add_boarding_conduct_permissions.js';
 import { migration as addTimetablePermission } from './migrations/0069_add_timetable_permission.js';
 import { migration as addAssessmentPermissions } from './migrations/0070_add_assessment_permissions.js';
+import { migration as addLibraryPermissions } from './migrations/0090_add_library_permissions.js';
 import { migration as addClassLogPermission } from './migrations/0071_add_class_log_permission.js';
 import { migration as addStudentRecordPermissions } from './migrations/0072_add_student_record_permissions.js';
 
@@ -130,6 +131,7 @@ export const identityMigrations: Record<string, Migration> = {
   '0068_add_boarding_conduct_permissions': addBoardingConductPermissions,
   '0069_add_timetable_permission': addTimetablePermission,
   '0070_add_assessment_permissions': addAssessmentPermissions,
+  '0090_add_library_permissions': addLibraryPermissions,
   '0071_add_class_log_permission': addClassLogPermission,
   '0072_add_student_record_permissions': addStudentRecordPermissions,
 };

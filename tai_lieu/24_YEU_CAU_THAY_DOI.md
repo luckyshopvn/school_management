@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.45
+- Phiên bản: 0.46
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -117,6 +117,37 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
   - Giáo viên chủ nhiệm chưa có quyền riêng để ký sổ thay Ban giám hiệu;
   - Chưa xuất sổ đầu bài ra PDF, Excel.
 - Kiểm thử cần thực hiện: kịch bản CT-864 đến CT-869 (trong mã kiểm thử là CT-20d-1 đến CT-20d-6); kiểm thử đơn vị mới `apps/api/src/class-logs/class-logs.test.ts`; kiểm thử giao diện mới `tests/e2e/91-class-logs.spec.ts`
+- Trạng thái: Đã triển khai
+
+### YCTD-181: DT-22 phần 22a: thư viện trường học – 2026-10-24
+
+- Lý do: phần 22a của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 13.3, 13.4 (kế hoạch DT-22 ở YCTD-180; phần 22a của kế hoạch chín phần Eric duyệt ngày 2026-10-19). Dùng cấp học (DT-19), môn và khối (20a), học sinh, cán bộ, thông báo, nhật ký xuất đã có. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Cơ sở dữ liệu năm học** (tệp `0100_create_library`): 15 bảng `library_*` (thiết lập, quy định mượn, phân loại, ấn phẩm, tệp số, bản sao, thẻ bạn đọc, lượt mượn, đặt trước, bộ sách giáo khoa, đợt kiểm kê, chỉ tiêu, bộ đếm). Không dùng `library_items`, `library_albums` (kho nội dung Mầm non), `asset_loans` (mượn thiết bị).
+  - **Chọn nơi lưu**: toàn bộ ở cơ sở dữ liệu năm học vì cần khóa ngoại tới học sinh, cán bộ, lớp, môn; mở năm học mới chép danh mục, bản sao, thẻ, lượt mượn đang mở, đặt trước, bộ sách giáo khoa, bộ đếm (bước `library`). Số hệ thống 0040 giữ sẵn nhưng không dùng.
+  - **Quyền mới** (tệp định danh `0090_add_library_permissions`): `P02.library.view` (mọi vai trò nhân sự dùng cổng) và `P02.library.manage` (VT-02, VT-15, VT-03; trường có thủ thư thì gán cho nhóm của thủ thư); phân hệ "Thư viện" ẩn với phụ huynh. Mã quyền trong mã nguồn `schoolLibraryView`, `schoolLibraryManage` (tránh trùng `libraryManage` của kho nội dung Mầm non).
+  - **Danh mục**: nhan đề, tác giả, nhà xuất bản, năm, ISBN (nhập tay, không tra dịch vụ ngoài), phân loại cấu hình được (mặc định sách giáo khoa, sách giáo viên, sách tham khảo, truyện, báo tạp chí, tài liệu số), cấp, khối, kệ; bản sao cấp số đăng ký cá biệt SH-nnnnnn liên tiếp; tem mã QR PDF; thanh lý có lý do; tệp tài liệu số (PDF, ảnh, Word, Excel tối đa 20 MB, 20 tệp mỗi ấn phẩm); sổ đăng ký cá biệt Excel, PDF.
+  - **Bạn đọc**: đồng bộ thẻ cho cán bộ và học sinh đang học ở cấp có bật mượn (mặc định Tiểu học, THCS, THPT; Mầm non chỉ cán bộ), khóa khi nghỉ, khóa và mở khóa có lý do, in thẻ PDF.
+  - **Mượn trả**: quy định theo loại bạn đọc (số bản, số ngày, gia hạn, phạt mỗi ngày); mượn nhiều bản, mượn cho lớp; trả kèm tình trạng, phạt trễ hạn; gia hạn; báo mất; nhắc quá hạn qua thông báo; đặt trước chỉ khi hết bản, giữ bản cho người đặt sớm nhất đến hết ngày giữ chỗ.
+  - **Sách giáo khoa**: bộ sách theo khối; phát cho cả lớp (hạn là hết năm học, báo đầu sách thiếu); thu hàng loạt.
+  - **Kiểm kê**: đợt cả kho hoặc một kệ, quét mã, kết quả thiếu, thừa, hỏng; sau khi đóng đợt xử lý bản thiếu bằng đánh dấu mất hoặc thanh lý.
+  - **Báo cáo**: số liệu kho, mượn theo tháng, lớp, ấn phẩm và bạn đọc tích cực, quá hạn; chỉ tiêu theo chuẩn (sách giáo khoa, tham khảo trên học sinh, sách trên giáo viên, tỉ lệ bạn đọc, số tài liệu số) với ngưỡng cấu hình, để trống đến khi đọc văn bản gốc; xuất Excel, PDF.
+  - **Ứng dụng**: giáo viên "Sách tôi đang mượn"; phụ huynh "Sách thư viện" ở con học cấp có mượn sách (chức năng `library_loans`).
+  - **Cổng quản trị**: phân hệ "Thư viện" 7 mục (1.1 Ấn phẩm và bản sao, 1.2 Bạn đọc, 2.1 Mượn, trả, đặt trước, 2.2 Phát và thu sách giáo khoa, 3.1 Kiểm kê, 3.2 Báo cáo thư viện, 4.1 Quy định mượn và phân loại).
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/school-year/migrations/0100_create_library.ts`, `database/identity/migrations/0090_add_library_permissions.ts`, `schema.ts`, `index.ts`, `database/src/index.ts`); máy chủ API (`library/library-calc.ts`, `library-core.ts`, `library-catalog.ts`, `library-circulation.ts`, `library-reports.ts`, `library-transition.ts`, `application.module.ts`); cổng quản trị (`apps/portal/src/library/`, `router.tsx`, `pages/workspaces.tsx`); ứng dụng giáo viên (`screens/MyLibraryScreen.tsx`, `ClassesScreen.tsx`, `Application.tsx`); ứng dụng phụ huynh (`screens/LibraryPanel.tsx`, `HomeScreen.tsx`); gói dùng chung (`index.ts`, `portal-menu.ts`, `menu-permissions.ts`, `level-features.ts`); kiểm thử (`library.test.ts`, `tests/e2e/120-library.spec.ts`, số phân hệ ở `58-system-admin-full-so.spec.ts`, `system-admin-so.test.ts`).
+- Dữ liệu bị ảnh hưởng: 15 bảng mới, hai quyền mới; không đổi dữ liệu cũ.
+- API bị ảnh hưởng: mới `/library/*` (xem `17_DAC_TA_API.md`).
+- Giao diện bị ảnh hưởng: MH-277 đến MH-285.
+- Quyền bị ảnh hưởng: PQ-97. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
+- Ảnh hưởng chức năng cũ: trường chỉ có Mầm non thấy thêm phân hệ "Thư viện" (cán bộ mượn sách) và nút "Sách tôi đang mượn" ở ứng dụng giáo viên; kho nội dung Mầm non không đổi; số phân hệ ở 1.2 Phân quyền nhóm thành 20.
+- Hạn chế (ghi để làm sau):
+  - Chưa nhập Excel danh mục ấn phẩm;
+  - Chưa ghi kết quả đo chuẩn thư viện làm minh chứng cho 22f (kế hoạch 13.4);
+  - Chưa có ảnh bìa; ô chọn môn của ấn phẩm chưa có trên giao diện (máy chủ nhận `subject_id`);
+  - Danh sách lượt mượn trên giao diện chỉ lọc đang mượn, quá hạn; chưa có thẻ đã trả, đã mất; chưa cấp thẻ lẻ từng người (có đồng bộ thẻ);
+  - Chỉ tiêu theo chuẩn thư viện chưa nạp ngưỡng mặc định (cần đọc văn bản gốc);
+  - Bồi thường sách mất chỉ ghi nhận, không thu tiền.
+- Kiểm thử cần thực hiện: kịch bản CT-904 đến CT-913 (trong mã kiểm thử là CT-22a-1 đến CT-22a-9); kiểm thử đơn vị mới `apps/api/src/library/library.test.ts`; kiểm thử giao diện mới `tests/e2e/120-library.spec.ts`; kiểm thử đang có không sửa kỳ vọng, trừ số phân hệ ở CT-16d-12 (`58-system-admin-full-so.spec.ts`) và `system-admin-so.test.ts` (19 thành 20). Kết quả: kiểm thử đơn vị `apps/api/src/library/library.test.ts` CT-22a-1 đến CT-22a-8 đạt 8/8; trên máy đã chạy kiểm thử đơn vị các gói sửa (thư viện, số phân hệ `system-admin-so`, đường dẫn nhanh, cấp học, chuyển năm học) đạt 52/52; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 81, 82, 84 và `tests/e2e/120-library.spec.ts` (CT-22a-9) đạt; kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
 - Trạng thái: Đã triển khai
 
 ### YCTD-180: Kế hoạch DT-22 thư viện, bồi dưỡng, kho học liệu số (22a, 22e, 22h) – 2026-10-24

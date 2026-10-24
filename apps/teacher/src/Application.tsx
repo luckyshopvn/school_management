@@ -10,6 +10,7 @@ import { LeaveScreen } from './screens/LeaveScreen.js';
 import { MessagesScreen } from './screens/MessagesScreen.js';
 import { MealReportScreen } from './screens/MealReportScreen.js';
 import { BoardingScreen } from './screens/BoardingScreen.js';
+import { MyLibraryScreen } from './screens/MyLibraryScreen.js';
 import { AssessmentScreen } from './screens/AssessmentScreen.js';
 import { ScoreScreen } from './screens/ScoreScreen.js';
 import { PayslipsScreen } from './screens/PayslipsScreen.js';
@@ -50,6 +51,7 @@ function Screens() {
     | { screen: 'work' }
     | { screen: 'stocktake' }
     | { screen: 'timetable' }
+    | { screen: 'library' }
     | { screen: 'class-log' }
   >();
   const back = () => setOpened(undefined);
@@ -110,6 +112,9 @@ function Screens() {
   if (opened?.screen === 'timetable') {
     return <MyTimetableScreen onBack={back} />;
   }
+  if (opened?.screen === 'library') {
+    return <MyLibraryScreen onBack={back} />;
+  }
   if (opened?.screen === 'class-log') {
     return <ClassLogScreen onBack={back} />;
   }
@@ -139,6 +144,7 @@ function Screens() {
       onOpenWork={() => setOpened({ screen: 'work' })}
       onOpenStocktake={() => setOpened({ screen: 'stocktake' })}
       onOpenTimetable={() => setOpened({ screen: 'timetable' })}
+      onOpenLibrary={() => setOpened({ screen: 'library' })}
       onOpenClassLog={() => setOpened({ screen: 'class-log' })}
     />
   );

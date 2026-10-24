@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.96
+- Phiên bản: 1.97
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -635,6 +635,15 @@ Từ YCTD-149 (DT-18 phần 22f), phân hệ "Bảo đảm chất lượng" (kh�
 | MH-267 | 7.9. Xếp thời khoá biểu tự động (YCTD-164, `/timetable-generator`): chọn cấp (nếu nhiều cấp); khối "Xếp tự động" (số lớp, giáo viên, tiết cần xếp, số ô của khung; vấn đề của dữ liệu; nút "Xếp thời khoá biểu"; chọn lần xếp); khối "Lần xếp" (trạng thái, thanh tiến độ, "Huỷ lần xếp", thông báo, vấn đề; bảng "Các phương án": điểm phạt, vi phạm bắt buộc, ràng buộc mềm, "Xem"; xem trước theo lớp, tên bản nháp, áp dụng từ, nút "Tạo bản nháp từ phương án"); khối "Ràng buộc" (ràng buộc bắt buộc, mức 0 đến 10 của năm ràng buộc mềm, giới hạn thời gian, số phương án, "Lưu ràng buộc"); bảng "Quy tắc của môn" (tiết đôi, tránh tiết cuối buổi, tối đa tiết/ngày, phòng riêng, "Lưu quy tắc của môn"); khối "Giáo viên báo bận" (chọn giáo viên, lưới thứ × tiết, "Lưu tiết bận") | `P02.timetable.manage` |
 | MH-268 | 7.10. Dạy thay, đổi tiết (YCTD-164, `/timetable-changes`): biểu mẫu "Ghi dạy thay, đổi tiết" (loại, ngày, lớp, tiết theo thời khoá biểu của ngày, giáo viên dạy thay hoặc đổi với ngày, tiết; lý do; "Ghi thay đổi"); bảng "Danh sách thay đổi" từ hôm nay đến 14 ngày tới (ngày, lớp, tiết, loại, theo thời khoá biểu, thực tế, lý do, "Xoá") | Xem: nhân sự xem được thời khoá biểu; ghi, xoá: `P02.timetable.manage` |
 | MH-269 | 7.11. Báo cáo tiết dạy, dùng phòng, mã QR (YCTD-164, `/timetable-reports`): thẻ "Tiết dạy theo giáo viên" (từ ngày, đến ngày; bảng theo thời khoá biểu, dạy thay, được dạy thay, đổi tiết, thực dạy); thẻ "Dùng phòng" (ngày áp dụng; bảng tiết/tuần, tỉ lệ dùng, số tiết theo thứ, lớp dùng); thẻ "Mã QR tra cứu" (tra cứu theo lớp hoặc giáo viên, "Tạo mã QR", "In mã QR"; các mã kèm ảnh QR, đường dẫn, "Thu hồi") | Báo cáo: nhân sự xem được thời khoá biểu; mã QR: `P02.timetable.manage` |
+| MH-277 | Thư viện 1.1. Ấn phẩm và bản sao (YCTD-181, `/library/titles`): ô tìm theo từ khóa, phân loại, khối; bảng "Danh sách ấn phẩm" (nhan đề, tác giả, số bản, sẵn sàng); biểu mẫu thêm, sửa ấn phẩm; chi tiết ấn phẩm: bảng "Bản sao của ấn phẩm" (số đăng ký, tình trạng, kệ, đang mượn), "Thêm bản sao", thanh lý có lý do, "In tem mã", tệp tài liệu số, "Sổ đăng ký cá biệt" | Xem: `P02.library.view`; ghi: `P02.library.manage` |
+| MH-278 | Thư viện 1.2. Bạn đọc (`/library/readers`): bảng "Danh sách bạn đọc" (loại, số thẻ, lớp, trạng thái, đang mượn, quá hạn); "Đồng bộ thẻ", khóa, mở khóa thẻ kèm lý do, "In thẻ", "Lịch sử mượn" | `P02.library.manage` |
+| MH-279 | Thư viện 2.1. Mượn, trả, đặt trước (`/library/circulation`): thẻ "Mượn" (tìm bạn đọc theo số thẻ hoặc tên, mượn cho lớp, quét mã bản sao, "Cho mượn"), thẻ "Trả" (quét mã, tình trạng khi trả, tiền phạt, "Đã giữ cho …", bảng "Danh sách lượt mượn" có gia hạn, báo mất, "Nhắc quá hạn"), thẻ "Đặt trước" | `P02.library.manage` |
+| MH-280 | Thư viện 2.2. Phát và thu sách giáo khoa (`/library/textbooks`): bộ sách theo khối; chọn lớp, bộ sách, "Phát"; kết quả (đã phát, thiếu đầu sách nào); danh sách sách giáo khoa lớp còn giữ, thu hàng loạt kèm tình trạng | `P02.library.manage` |
+| MH-281 | Thư viện 3.1. Kiểm kê (`/library/stocktakes`): danh sách đợt, tạo đợt (cả kho hoặc một kệ), màn quét mã, kết quả thiếu, thừa, hỏng, đóng đợt, xử lý bản thiếu (đánh dấu mất, thanh lý) | `P02.library.manage` |
+| MH-282 | Thư viện 3.2. Báo cáo thư viện (`/library/reports`): số liệu kho theo phân loại, khối, mượn theo tháng, lớp, ấn phẩm và bạn đọc tích cực, quá hạn; bảng chỉ tiêu theo chuẩn (giá trị, ngưỡng, Đạt, Chưa đạt, Chưa kết luận); xuất Excel, PDF | `P02.library.manage` |
+| MH-283 | Thư viện 4.1. Quy định mượn và phân loại (`/library/settings`): cấp có học sinh mượn, số ngày giữ chỗ, quy định mượn của cán bộ, học sinh, ngưỡng và bật tắt chỉ tiêu, phân loại ấn phẩm (thêm, sửa, cho mượn về hay đọc tại chỗ, ngừng dùng) | `P02.library.manage` |
+| MH-284 | Ứng dụng giáo viên "Sách tôi đang mượn" (YCTD-181): số thẻ, từng bản kèm hạn trả và số ngày quá hạn | Giáo viên |
+| MH-285 | Ứng dụng phụ huynh "Sách thư viện" ở thẻ con học Tiểu học, THCS, THPT (YCTD-181): sách con đang mượn kèm hạn trả | Phụ huynh của học sinh |
 | MH-270 | Trang tra cứu thời khoá biểu (YCTD-164, `/tra-cuu-thoi-khoa-bieu?ma=…`, không cần đăng nhập): tiêu đề theo lớp hoặc giáo viên, bản đang áp dụng, lưới thứ × tiết, danh sách dạy thay, đổi tiết 7 ngày tới; mã sai hoặc đã thu hồi thì báo lỗi | Mọi người có mã |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
@@ -663,6 +672,8 @@ Từ YCTD-160 (DT-20 phần 22c1), nhóm "7. Dạy học Tiểu học" có thêm
 Từ YCTD-164 (DT-20 phần 22c2), nhóm "7. Dạy học Tiểu học" có thêm 7.9 Xếp thời khoá biểu tự động, 7.10 Dạy thay, đổi tiết, 7.11 Báo cáo tiết dạy, dùng phòng, mã QR (MH-267 đến MH-269); trang tra cứu công khai MH-270; lưới sửa của lớp ở 7.4 có khối "Kiểm tra ngay".
 
 Từ YCTD-162 (DT-20 phần 20d), nhóm "7. Dạy học Tiểu học" có thêm 7.6 Sổ đầu bài, 7.7 Chuyên cần theo tiết (MH-265, MH-266).
+
+Từ YCTD-181 (DT-22 phần 22a), phân hệ riêng "Thư viện" (1.1 Ấn phẩm và bản sao, 1.2 Bạn đọc, 2.1 Mượn, trả, đặt trước, 2.2 Phát và thu sách giáo khoa, 3.1 Kiểm kê, 3.2 Báo cáo thư viện, 4.1 Quy định mượn và phân loại; MH-277 đến MH-283); ứng dụng giáo viên có "Sách tôi đang mượn" (MH-284), ứng dụng phụ huynh có "Sách thư viện" ở con học cấp có mượn sách (MH-285).
 
 Từ YCTD-156 (DT-19 phần 19f), không đổi màn hình; bản trình diễn có trường liên cấp (Điểm trường Hoa Mai có Mầm non, Tiểu học, THCS) nên cổng quản trị của bản trình diễn có bộ chọn cấp đang làm việc, ô "Cấp học" ở thống kê, báo cáo, biểu phí và bảng "Cấp học của đơn vị". Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
 

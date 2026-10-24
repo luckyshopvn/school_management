@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.63
+- Phiên bản: 1.64
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -848,6 +848,10 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-767 | Cho giáo viên có tiết trong thời khoá biểu đang áp dụng / Khi mở Sổ đầu bài, ghi tiết, điểm danh, ký sổ / Thì học sinh đã báo vắng mặc định vắng có phép; giáo viên khác, ngày chưa đến, học sinh ngoài lớp bị từ chối; tiết đã ký không sửa (CT-865, CT-866, CT-869; YCTD-162) |
 | AC-768 | Cho sổ của lớp trong tuần / Khi Ban giám hiệu ký sổ tuần, phụ huynh mở Điểm danh theo tiết, nhân sự mở Chuyên cần theo tiết / Thì ký một lần và khoá ghi trong tuần; phụ huynh chỉ thấy con mình; bảng chuyên cần đối chiếu đúng ngày báo vắng (CT-867, CT-868, CT-869; YCTD-162) |
 | AC-769 | Cho lớp có kết quả cuối năm đã xác nhận / Khi đề nghị trước và sau khi khoá kỳ cuối năm, đúng và sai căn cứ, trùng, thiếu thành tích; Hiệu trưởng duyệt / Thì 422 trước khoá; nhận, 422, 400 theo căn cứ; duyệt cấp mã 12 kí tự, giấy khen PDF, tra cứu công khai thấy học sinh (CT-871, CT-876; YCTD-163) |
+| AC-783 | Cho thư viện có ấn phẩm / Khi quản lý thêm bản sao; giáo viên tra cứu, thử thêm ấn phẩm, phụ huynh thử tra cứu / Thì số đăng ký cấp liên tiếp; giáo viên chỉ xem, bị từ chối ghi 403; phụ huynh bị từ chối 403 (CT-905; YCTD-181) |
+| AC-784 | Cho cán bộ và học sinh Tiểu học, một học sinh Mầm non / Khi đồng bộ thẻ, khóa thẻ, mượn nhiều bản, mượn bản đang mượn, báo, tạp chí / Thì thẻ cấp cho đúng đối tượng, không cấp cho Mầm non, thẻ khóa không mượn được, vượt mức, bản đang mượn, sách đọc tại chỗ bị từ chối 422 (CT-906, CT-907; YCTD-181) |
+| AC-785 | Cho bản mượn quá hạn 4 ngày, mức phạt 500 đồng mỗi ngày / Khi mượn tiếp, trả, gia hạn hai lần, đặt trước khi hết bản / Thì chặn mượn tiếp, phạt 2.000 đồng, gia hạn vượt mức bị từ chối, bản trả về giữ cho người đặt trước, người khác không mượn được, báo mất đánh dấu mất, phụ huynh chỉ thấy sách của con mình (CT-907, CT-908; YCTD-181) |
+| AC-786 | Cho lớp Tiểu học 3 học sinh, kho 3 bản sách giáo khoa; một đợt kiểm kê / Khi phát bộ sách, phát lại, phát cho lớp Mầm non, thu hàng loạt, kiểm kê và thanh lý bản thiếu, mở năm học mới / Thì phát 3 bản, không phát trùng, báo thiếu khi thêm học sinh, lớp khác khối bị từ chối, bản thiếu liệt kê đúng và xử lý được sau khi đóng đợt, năm mới giữ phân loại, bản đang mượn, số đăng ký chạy tiếp (CT-909, CT-910, CT-911, CT-912; YCTD-181) |
 | AC-770 | Cho lớp 4 có học sinh hoàn thành và chưa hoàn thành, lớp 5 / Khi ghi kết quả, rèn luyện, kiểm tra lại đạt, chưa đạt / Thì lên khối 5; đang rèn luyện; ở lại lớp; lên lớp; lớp 5 hoàn thành chương trình cấp học (CT-870, CT-872; YCTD-163) |
 | AC-771 | Cho kỳ cuối năm đã khoá / Khi lập học bạ, sửa nhận xét, kí khi chưa và đã đăng ký chứng thư, mở lại / Thì học bạ có kết quả, khen thưởng, hoàn thành; 422 rồi kí nội bộ; đã kí không sửa; mở lại cần lý do; tải tệp ghi nhật ký số định danh (CT-873; YCTD-163) |
 | AC-772 | Cho phụ huynh, phụ huynh khác, năm học mới / Khi xem học bạ, khen thưởng; mở năm học mới / Thì chỉ thấy bản đã kí của con mình, phụ huynh khác 403; học bạ, danh hiệu chép sang, học sinh hoàn thành tiểu học thôi học (CT-874, CT-875; YCTD-163) |
