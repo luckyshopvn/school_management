@@ -104,6 +104,11 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/class-logs': anyOf('P02.class.manage', 'P02.view', 'P02.edit', 'P02.class-log.review'),
   '/period-attendance': anyOf('P02.class.manage', 'P02.view', 'P02.edit', 'P02.class-log.review'),
   '/learning-records': anyOf('P02.assessment.enter', 'P02.assessment.view', 'P02.student-record.approve'),
+  // Kiểm tra, đánh giá phần đề (DT-21 phần 22g1): người soạn câu hỏi, thẩm định, quản lý đề
+  '/question-bank': anyOf('P02.question.author', 'P02.exam.review', 'P02.exam.manage'),
+  '/exam-matrices': anyOf('P02.question.author', 'P02.exam.review', 'P02.exam.manage'),
+  '/assessment-plans': anyOf('P02.question.author', 'P02.exam.review', 'P02.exam.manage'),
+  '/exams': anyOf('P02.question.author', 'P02.exam.review', 'P02.exam.manage'),
   // Khai báo tuần: ai xem được thiết lập thì xem, sửa cần quyền quản lý năm học như 2.1 Năm học (DT-16 phần 16e)
   '/school-weeks': anyOf('P01.view', 'P01.academic-year.manage'),
   '/staff': 'P07.staff.view',

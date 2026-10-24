@@ -60,6 +60,8 @@ const primary = (node: PortalMenuNode): PortalMenuNode => ({ ...node, levels: ['
 // Mục chỉ của Mầm non (DT-19 phần 19c): hồ sơ cuối cấp mầm non, biểu EMIS Mầm non, cân đo theo tháng tuổi, hoàn thành
 // chương trình Mầm non. Cấp khác thêm mục của mình ở DT-20, DT-21 bằng cùng thuộc tính
 const preschool = (node: PortalMenuNode): PortalMenuNode => ({ ...node, levels: ['MN'] });
+// Mục của THCS, THPT (DT-21): nhóm 8 tạm đánh số tiếp sau nhóm 7, đánh lại khi khảo sát hệ thống của Sở cấp THCS, THPT
+const secondary = (node: PortalMenuNode): PortalMenuNode => ({ ...node, levels: ['THCS', 'THPT'] });
 
 export const PORTAL_WORKSPACES: PortalWorkspace[] = [
   {
@@ -166,6 +168,15 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           leaf('7.7.', 'Chuyên cần theo tiết', '/period-attendance'),
           // Học bạ số, khen thưởng, hoàn thành chương trình, lên lớp (DT-20 phần 20e)
           leaf('7.8.', 'Học bạ, khen thưởng, lên lớp', '/learning-records'),
+        ]),
+      ),
+      // Kiểm tra, đánh giá phần đề (DT-21 phần 22g1)
+      secondary(
+        group('8.', 'Kiểm tra, đánh giá', [
+          leaf('8.1.', 'Ngân hàng câu hỏi', '/question-bank'),
+          leaf('8.2.', 'Ma trận đề', '/exam-matrices'),
+          leaf('8.3.', 'Kế hoạch kiểm tra', '/assessment-plans'),
+          leaf('8.4.', 'Đề kiểm tra', '/exams'),
         ]),
       ),
     ],
