@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.84
+- Phiên bản: 1.85
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -129,7 +129,7 @@
 | P02-52 | Chỉnh tay có kiểm tra ngay (7.4., YCTD-164) | `P02.timetable.manage` | Các ô đang sửa của lớp trong bản nháp | Tính xung đột của bản nếu ghi các ô đó, không ghi | Ô dính xung đột cứng; danh sách xung đột của lớp | BR-178, BR-170 |
 | P02-53 | Dạy thay, đổi tiết (7.10., YCTD-164) | Ghi, xoá: `P02.timetable.manage`; xem: nhân sự xem được thời khoá biểu | Ngày, lớp, tiết; giáo viên dạy thay hoặc ngày, tiết đổi; lý do | Kiểm tra tiết có trong bản đang áp dụng, chưa có thay đổi, giáo viên rảnh; ghi một hoặc hai dòng | Tiết thực tế của ngày; danh sách thay đổi | BR-178 |
 | P02-54 | Báo cáo tiết dạy, dùng phòng, mã QR tra cứu (7.11., trang tra cứu, YCTD-164) | Báo cáo: nhân sự xem được thời khoá biểu; mã QR: `P02.timetable.manage`; trang tra cứu: không cần đăng nhập | Khoảng ngày; ngày áp dụng; lớp hoặc giáo viên | Đếm tiết theo thời khoá biểu, dạy thay, được dạy thay, đổi tiết, thực dạy; tiết dùng phòng; tạo, thu hồi mã | Bảng báo cáo; mã QR in được; trang thời khoá biểu và thay đổi 7 ngày tới | BR-178 |
-| P02-66 | Thời khoá biểu THCS, THPT: tiết học nhóm (7.4., YCTD-169) | `P02.timetable.manage` | Cấp THCS, THPT; tiết của lớp có số nhóm; cột Nhóm của tệp Excel | Cùng chức năng thời khoá biểu của Tiểu học (khung giờ, bản nháp, nhập Excel, xung đột, ban hành, máy xếp, dạy thay, báo cáo); thêm tiết học nhóm cùng ô; luật nhóm, tiết đôi, phòng bộ môn | Bản thời khoá biểu có tiết nhóm; thời khoá biểu của con theo tổ hợp môn | BR-184 |
+| P02-66 | Thời khoá biểu THCS, THPT: tiết học nhóm (7.4., YCTD-169) | `P02.timetable.manage` | Cấp THCS, THPT; tiết của lớp có số nhóm; cột Nhóm của tệp Excel | Cùng chức năng thời khoá biểu của Tiểu học (khung giờ, bản nháp, nhập Excel, xung đột, ban hành, máy xếp, dạy thay, báo cáo); thêm tiết học nhóm cùng ô; luật nhóm, tiết đôi, phòng bộ môn | Bản thời khoá biểu có tiết nhóm; thời khoá biểu của con theo tổ hợp môn | BR-187 |
 
 ## 4. Phân hệ P03 — Giảng dạy
 
@@ -424,6 +424,9 @@
 | P17-28 | Báo cáo giáo dục mầm non cuối năm (2.4 của phân hệ Báo cáo số liệu, G3, YCTD-129) | VT-02, VT-15 (`P17.report.emis` phạm vi toàn trường) | Năm học đang dùng | Lập Biểu 1 lúc cuối năm: năm thẻ như Biểu 1 tại thời điểm xem và thẻ Kết quả giáo dục (6.01 đến 6.04); xuất Excel; gửi lên cấp trên. Từ YCTD-132 ở học kỳ I biểu trống kèm cảnh báo như Sở | Biểu 2.4, tệp Excel | BR-127, BR-104, BR-131 |
 | P17-29 | Thống kê, báo cáo theo cấp học (YCTD-154) | Người có quyền của từng báo cáo | Cấp học (tùy chọn) | Lọc lớp, trẻ theo cấp; 5.1 lớp cấp khác theo khối; chấm công và suất ăn nhóm theo cấp | Ô "Cấp học" ở 5.1, 5.3, chấm công và suất ăn | BR-160, BR-161 |
 | P17-30 | Biểu mẫu riêng Mầm non theo cấp (YCTD-154) | Người có quyền của từng biểu mẫu | Không | EMIS, tăng trưởng, hồ sơ cuối cấp chỉ tính lớp, trẻ cấp Mầm non | Số liệu như trước ở trường Mầm non | BR-161 |
+| P17-31 | Thống kê Tiểu học: sĩ số, kết quả đánh giá, cuối năm, chuyên cần, bán trú (YCTD-165) | Người có `P17.child-statistics.view` | Đơn vị, kỳ đánh giá, gộp theo lớp, khối, trường, khoảng ngày | Bảng thống kê, tệp Excel, PDF | 7.15 các thẻ Sĩ số, Kết quả đánh giá, Cuối năm, Chuyên cần, bán trú | BR-181 |
+| P17-32 | Biểu EMIS Tiểu học: tính, nhập tay, xuất, gửi lên cấp trên (YCTD-165) | Người có `P17.report.emis` | Biểu; số nhập tay | Biểu đã tính, tệp Excel, PDF, trạng thái gửi | 7.15 thẻ EMIS Tiểu học; trang gửi lên cấp trên | BR-182, BR-183 |
+| P17-33 | Sửa khung biểu EMIS (YCTD-165) | VT-02, VT-15 (`P17.report-form.manage`) | Dòng: mã, chỉ tiêu, đơn vị, loại, công thức | Khung biểu mới | 7.15 thẻ EMIS Tiểu học, Sửa khung biểu | BR-182 |
 
 ## 19. Phân hệ P18 — Tuyển dụng
 
