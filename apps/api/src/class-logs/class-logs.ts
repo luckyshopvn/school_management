@@ -16,6 +16,7 @@ import { originOf, writeAuditLog, type ChangeOrigin } from '../common/audit-log.
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { isUuid, notFoundError, readOptionalText, type RequestBody } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
+import { TimetableChangesService } from '../timetables/timetable-changes.js';
 import { TimetablesService } from '../timetables/timetables.js';
 
 // Sổ đầu bài và điểm danh theo tiết (DT-20 phần 20d, YCTD-162). Tiết cần ghi lấy từ thời khoá biểu đang áp dụng vào ngày đó
@@ -23,7 +24,7 @@ import { TimetablesService } from '../timetables/timetables.js';
 // dung, nhận xét, xếp loại tiết (A đến D, tùy trường), điểm danh từng học sinh, rồi ký sổ (khoá với giáo viên); không ghi
 // trước ngày dạy; Ban giám hiệu (P02.class-log.review) ký sổ theo tuần, tuần đã ký khoá mọi tiết. Học sinh có báo vắng của
 // ngày (`absence_records`) mặc định "vắng có phép"; điểm danh theo ngày của Mầm non không đổi. Dạy thay, đổi tiết theo ngày
-// là 22c2
+// là 22c2: tiết của một ngày là tiết thực tế sau dạy thay, đổi tiết (người dạy thực tế ghi sổ, YCTD-164)
 export const CLASS_LOG_RULE_CODE = 'YCTD-162';
 type Executor = Kysely<SchoolYearDatabase> | Transaction<SchoolYearDatabase>;
 
@@ -153,6 +154,7 @@ export class ClassLogsService {
   constructor(
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly timetables: TimetablesService,
+    private readonly changes: TimetableChangesService,
     private readonly clock: Clock,
   ) {}
 
@@ -189,15 +191,9 @@ export class ClassLogsService {
     }
   }
 
-  // Tiết của lớp vào một ngày theo thời khoá biểu đang áp dụng của cấp
-  private async plannedLessons(database: Executor, level: SchoolLevelCode, classId: string, date: string) {
-    const versions = await this.timetables.applyingVersions(database, date, level);
-    const lessons = await this.timetables.lessons(
-      database,
-      versions.map((version) => version.id),
-      { classId },
-    );
-    return lessons.filter((lesson) => lesson.weekday === isoWeekday(date));
+  // Tiết của lớp vào một ngày theo thời khoá biểu đang áp dụng, sau dạy thay, đổi tiết của ngày (22c2)
+  private async plannedLessons(database: Executor, _level: SchoolLevelCode, classId: string, date: string) {
+    return (await this.changes.effectiveDay(database, date)).filter((lesson) => lesson.class_id === classId);
   }
 
   private async review(database: Executor, classId: string, weekStart: string) {
@@ -278,14 +274,9 @@ export class ClassLogsService {
   // Lịch dạy hôm nay (hoặc một ngày) của tôi kèm trạng thái sổ đầu bài, cho ứng dụng giáo viên
   async mine(currentUser: CurrentUser, date: string) {
     const { database } = await this.currentSchoolYear.require();
-    const versions = await this.timetables.applyingVersions(database, date);
-    const lessons = (
-      await this.timetables.lessons(
-        database,
-        versions.map((version) => version.id),
-        { teacherUserId: currentUser.id },
-      )
-    ).filter((lesson) => lesson.weekday === isoWeekday(date));
+    const lessons = (await this.changes.effectiveDay(database, date)).filter(
+      (lesson) => lesson.teacher_user_id === currentUser.id,
+    );
     const logs = lessons.length
       ? await database
           .selectFrom('class_logs')

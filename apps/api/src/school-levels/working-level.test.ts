@@ -45,6 +45,10 @@ const PRIMARY_ONLY_PATHS = [
   '/period-attendance',
   // Học bạ, khen thưởng, lên lớp (DT-20 phần 20e)
   '/learning-records',
+  // Máy xếp, dạy thay, đổi tiết, báo cáo (DT-20 phần 22c2)
+  '/timetable-generator',
+  '/timetable-changes',
+  '/timetable-reports',
   // Báo cáo, thống kê, EMIS Tiểu học (DT-20 phần 20f)
   '/primary-reports',
 ];
