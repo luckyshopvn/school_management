@@ -61,6 +61,8 @@ const SECONDARY_ONLY_PATHS = [
   '/exam-matrices',
   '/assessment-plans',
   '/exams',
+  '/exam-grading',
+  '/exam-reports',
 ];
 
 describe('Cây menu và nhãn theo cấp học', () => {

@@ -119,6 +119,9 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/exam-matrices': anyOf('P02.question.author', 'P02.exam.review', 'P02.exam.manage'),
   '/assessment-plans': anyOf('P02.question.author', 'P02.exam.review', 'P02.exam.manage'),
   '/exams': anyOf('P02.question.author', 'P02.exam.review', 'P02.exam.manage'),
+  // Chấm bài kiểm tra, báo cáo kết quả (DT-21 phần 22g2)
+  '/exam-grading': anyOf('P02.exam.grade', 'P02.exam.manage'),
+  '/exam-reports': anyOf('P02.exam.grade', 'P02.exam.review', 'P02.exam.manage'),
   // Khai báo tuần: ai xem được thiết lập thì xem, sửa cần quyền quản lý năm học như 2.1 Năm học (DT-16 phần 16e)
   '/school-weeks': anyOf('P01.view', 'P01.academic-year.manage'),
   '/staff': 'P07.staff.view',
