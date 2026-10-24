@@ -73,7 +73,7 @@ test('CT-22a-9: thêm ấn phẩm, bản sao; đồng bộ thẻ; mượn, trả
 
   await schoolYear
     .insertInto('grade_levels')
-    .values({ code: 'K1', name: 'Khối 1', age_from_months: null, age_to_months: null, school_level: 'TH' })
+    .values({ code: 'T120', name: 'Khối thư viện thử', age_from_months: null, age_to_months: null, school_level: 'TH' })
     .onConflict((conflict) => conflict.column('code').doNothing())
     .execute();
   const classRow = await schoolYear
@@ -83,7 +83,7 @@ test('CT-22a-9: thêm ấn phẩm, bản sao; đồng bộ thẻ; mượn, trả
       academic_year_id: reference.academic_year_id,
       code: `TV-${suffix}`,
       name: `Lớp 1T ${suffix}`,
-      grade_level: 'K1',
+      grade_level: 'T120',
       school_level: 'TH',
       max_size: 30,
     })
@@ -204,5 +204,16 @@ test('CT-22a-9: thêm ấn phẩm, bản sao; đồng bộ thẻ; mượn, trả
     );
   } finally {
     await setPrimaryEnabled(portal, false);
+    // Dọn lớp, học sinh, khối của kịch bản để các kịch bản đếm lớp, khối Tiểu học (82, 84) không bị lệch
+    const readers = schoolYear.selectFrom('library_readers').select('id').where('child_id', '=', child.id);
+    await schoolYear.deleteFrom('library_reservations').where('reader_id', 'in', readers).execute();
+    await schoolYear.deleteFrom('library_loans').where('reader_id', 'in', readers).execute();
+    await schoolYear.deleteFrom('library_readers').where('child_id', '=', child.id).execute();
+    await schoolYear.deleteFrom('child_guardians').where('child_id', '=', child.id).execute();
+    await schoolYear.deleteFrom('class_enrollments').where('child_id', '=', child.id).execute();
+    await schoolYear.deleteFrom('children').where('id', '=', child.id).execute();
+    await schoolYear.deleteFrom('guardians').where('id', '=', guardian.id).execute();
+    await schoolYear.deleteFrom('classes').where('id', '=', classRow.id).execute();
+    await schoolYear.deleteFrom('grade_levels').where('code', '=', 'T120').execute();
   }
 });
