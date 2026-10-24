@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.81
+- Phiên bản: 1.82
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -123,6 +123,10 @@
 | P02-52 | Chỉnh tay có kiểm tra ngay (7.4., YCTD-164) | `P02.timetable.manage` | Các ô đang sửa của lớp trong bản nháp | Tính xung đột của bản nếu ghi các ô đó, không ghi | Ô dính xung đột cứng; danh sách xung đột của lớp | BR-178, BR-170 |
 | P02-53 | Dạy thay, đổi tiết (7.10., YCTD-164) | Ghi, xoá: `P02.timetable.manage`; xem: nhân sự xem được thời khoá biểu | Ngày, lớp, tiết; giáo viên dạy thay hoặc ngày, tiết đổi; lý do | Kiểm tra tiết có trong bản đang áp dụng, chưa có thay đổi, giáo viên rảnh; ghi một hoặc hai dòng | Tiết thực tế của ngày; danh sách thay đổi | BR-178 |
 | P02-54 | Báo cáo tiết dạy, dùng phòng, mã QR tra cứu (7.11., trang tra cứu, YCTD-164) | Báo cáo: nhân sự xem được thời khoá biểu; mã QR: `P02.timetable.manage`; trang tra cứu: không cần đăng nhập | Khoảng ngày; ngày áp dụng; lớp hoặc giáo viên | Đếm tiết theo thời khoá biểu, dạy thay, được dạy thay, đổi tiết, thực dạy; tiết dùng phòng; tạo, thu hồi mã | Bảng báo cáo; mã QR in được; trang thời khoá biểu và thay đổi 7 ngày tới | BR-178 |
+| P02-55 | Ngân hàng câu hỏi (8.1., YCTD-168) | Soạn: `P02.question.author`; duyệt, chủ đề: `P02.exam.review` | Chủ đề; câu hỏi theo môn, khối, chủ đề, mức, dạng; tệp Excel | Kiểm tra theo dạng câu; gửi, duyệt, trả lại, ngừng dùng; nhập Excel; thống kê | Câu dùng được cho đề; lịch sử dùng | BR-179 |
+| P02-56 | Ma trận đề, bảng đặc tả (8.2., YCTD-168) | Xem: người soạn đề; lập: `P02.exam.review` | Môn, khối, dòng chủ đề × mức × dạng, số câu, điểm, yêu cầu cần đạt; tỉ lệ mẫu, sai số | Tổng hợp, kiểm tổng điểm, tỉ lệ | Ma trận và kết quả kiểm tra | BR-179 |
+| P02-57 | Kế hoạch kiểm tra (8.3., YCTD-168) | Lập: `P02.exam.review`; duyệt: `P02.exam.manage` | Cấp, học kỳ, khối, môn, loại, hình thức, thời gian, ngày | Gửi, duyệt, trả lại; đếm đề; nhắc tiết theo thời khoá biểu | Kế hoạch đã duyệt để giao đề | BR-179 |
+| P02-58 | Đề kiểm tra nhiều mã (8.4., YCTD-168) | Giao, khoá: `P02.exam.manage`; soạn: người được giao; thẩm định: người được giao hoặc `P02.exam.manage` | Đề được giao; ma trận; câu thêm tay; số mã đề | Bốc câu theo ma trận, trộn mã đề, gửi, thẩm định, khoá, mở khoá có lý do, ghi lịch sử dùng câu | Đề, đáp án từng mã ra Word, PDF | BR-179 |
 
 ## 4. Phân hệ P03 — Giảng dạy
 

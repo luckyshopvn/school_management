@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số).
-- Phiên bản: 1.48
+- Phiên bản: 1.49
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -894,7 +894,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 | Phần | Đợt | Tiến độ |
 |---|---|---|
 | 21a | 1 | Chưa làm, 20a đã gộp |
-| 22g1 | 1 | Chưa làm, 20a đã gộp |
+| 22g1 | 1 | Đã làm, YCTD-168, phiên bản 0.114.0, PR PRNUM: ngân hàng câu hỏi (nguồn duy nhất, 22h2 tham chiếu), chủ đề, thẩm định, nhập Excel, thống kê; ma trận và bảng đặc tả; kế hoạch kiểm tra; giao đề, bốc câu theo ma trận, đề nhiều mã, thẩm định, khoá đề, xuất Word, PDF (năm học 0085); quyền `P02.question.author`, `P02.exam.review`, `P02.exam.manage` (định danh 0076); nhóm menu 8 "Kiểm tra, đánh giá" cho THCS, THPT; e2e 96 |
 | 21b | 2 | Chưa làm, chờ 21a, 22c2 |
 | 21c | 2 | Chưa làm, chờ 21a (20c đã gộp) |
 | 21d | 3 | Chưa làm, chờ 21b, 20d |

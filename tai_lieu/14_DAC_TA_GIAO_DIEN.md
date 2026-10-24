@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.94
+- Phiên bản: 1.95
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -630,6 +630,10 @@ Từ YCTD-149 (DT-18 phần 22f), phân hệ "Bảo đảm chất lượng" (kh�
 | MH-268 | 7.10. Dạy thay, đổi tiết (YCTD-164, `/timetable-changes`): biểu mẫu "Ghi dạy thay, đổi tiết" (loại, ngày, lớp, tiết theo thời khoá biểu của ngày, giáo viên dạy thay hoặc đổi với ngày, tiết; lý do; "Ghi thay đổi"); bảng "Danh sách thay đổi" từ hôm nay đến 14 ngày tới (ngày, lớp, tiết, loại, theo thời khoá biểu, thực tế, lý do, "Xoá") | Xem: nhân sự xem được thời khoá biểu; ghi, xoá: `P02.timetable.manage` |
 | MH-269 | 7.11. Báo cáo tiết dạy, dùng phòng, mã QR (YCTD-164, `/timetable-reports`): thẻ "Tiết dạy theo giáo viên" (từ ngày, đến ngày; bảng theo thời khoá biểu, dạy thay, được dạy thay, đổi tiết, thực dạy); thẻ "Dùng phòng" (ngày áp dụng; bảng tiết/tuần, tỉ lệ dùng, số tiết theo thứ, lớp dùng); thẻ "Mã QR tra cứu" (tra cứu theo lớp hoặc giáo viên, "Tạo mã QR", "In mã QR"; các mã kèm ảnh QR, đường dẫn, "Thu hồi") | Báo cáo: nhân sự xem được thời khoá biểu; mã QR: `P02.timetable.manage` |
 | MH-270 | Trang tra cứu thời khoá biểu (YCTD-164, `/tra-cuu-thoi-khoa-bieu?ma=…`, không cần đăng nhập): tiêu đề theo lớp hoặc giáo viên, bản đang áp dụng, lưới thứ × tiết, danh sách dạy thay, đổi tiết 7 ngày tới; mã sai hoặc đã thu hồi thì báo lỗi | Mọi người có mã |
+| MH-271 | 8.1. Ngân hàng câu hỏi (YCTD-168, `/question-bank`): chọn cấp (nếu nhiều), môn, khối; khối "Chủ đề" (danh sách, thêm chủ đề); khối "Soạn câu hỏi" (chủ đề, mức nhận thức, dạng, điểm, nội dung, lựa chọn A đến D hoặc ý a đến d, đáp án, hướng dẫn chấm, "Lưu câu hỏi"); bảng "Câu hỏi" (lọc trạng thái, tìm; nội dung, chủ đề, mức, dạng, trạng thái, người soạn; Sửa, Gửi thẩm định, Duyệt, Trả lại, Ngừng dùng); "Thống kê câu dùng được"; "Nhập câu hỏi từ Excel" (Tải mẫu Excel, tệp, Nhập Excel) | Soạn: `P02.question.author`; duyệt: `P02.exam.review` |
+| MH-272 | 8.2. Ma trận đề (YCTD-168, `/exam-matrices`): bảng "Ma trận đề" (tên, khối, số câu, điểm, kiểm tra, Mở); khối "Soạn ma trận" (môn, khối, tên, tỉ lệ bốn mức, bảng dòng: chủ đề, mức, dạng, số câu, điểm mỗi câu, yêu cầu cần đạt, Bỏ; Thêm dòng, Lưu ma trận); "Kiểm tra ma trận" (tổng câu, điểm, tỉ lệ, các điểm lệch) | Xem: người soạn đề; lập: `P02.exam.review` |
+| MH-273 | 8.3. Kế hoạch kiểm tra (YCTD-168, `/assessment-plans`): bảng "Kế hoạch kiểm tra" (học kỳ, khối, môn, loại, hình thức, thời gian, ngày kèm nhắc thời khoá biểu, trạng thái, số đề; Gửi duyệt, Duyệt, Trả lại); khối "Thêm kế hoạch kiểm tra" | Lập: `P02.exam.review`; duyệt: `P02.exam.manage` |
+| MH-274 | 8.4. Đề kiểm tra (YCTD-168, `/exams`): bảng "Đề kiểm tra" (đề, môn, khối, người ra đề, thẩm định, hạn nộp, quá hạn, trạng thái, Mở); khung đề (Bốc câu theo ma trận, Trộn mã đề, Gửi thẩm định; Duyệt đề, Trả lại; Khoá đề, Mở khoá; bảng "Câu của đề" có Bỏ; Thêm câu đã duyệt; mã đề, Tải đề PDF, Word, Tải đáp án PDF, Word); khối "Giao đề" (môn, khối, kế hoạch, ma trận, người ra đề, người thẩm định, tên đề, số mã đề, hạn nộp) | Người được giao; `P02.exam.manage` |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 
@@ -652,6 +656,8 @@ Từ YCTD-163 (DT-20 phần 20e), mục 7.8 "Học bạ, khen thưởng, lên l�
 Từ YCTD-161 (DT-20 phần 20c), mục 7.3 "Đánh giá học sinh" (chỉ hiện khi trường bật Tiểu học): chọn đơn vị, lớp Tiểu học, kỳ đánh giá; thẻ Nhập kết quả (nội dung là một môn của lớp hoặc "Phẩm chất, năng lực"; bảng học sinh với mức đạt, điểm kiểm tra định kỳ khi kỳ có bài kiểm tra, nhận xét gợi ý từ thư viện; ô bị khoá khi người dùng chỉ xem, quá hạn hoặc đã khoá), Nhận xét thường xuyên (học sinh, môn, nội dung; danh sách trong tháng), Tổng hợp cuối kỳ (bảng môn học, bảng phẩm chất, năng lực theo mức, số chưa nhập, điểm theo khoảng), Cuối năm (gợi ý, kết quả xác nhận), Khoá số liệu và Cấu hình (chỉ Ban Giám hiệu: nạp cấu hình mặc định, xem mức, danh mục, bài kiểm tra theo kỳ, sửa hạn nhập). Ứng dụng giáo viên có nút "Đánh giá học sinh" ở lớp Tiểu học (kỳ, môn được phân công, mức, điểm, nhận xét); ứng dụng phụ huynh có "Kết quả đánh giá" ở con Tiểu học. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
 
 Từ YCTD-160 (DT-20 phần 22c1), nhóm "7. Dạy học Tiểu học" có thêm 7.3 Khung giờ tiết học, 7.4 Thời khoá biểu (MH-263, MH-264); trang "Thời khóa biểu" của website trường hiện bảng của từng lớp khi đã có bản ban hành.
+
+Từ YCTD-168 (DT-21 phần 22g1), phân hệ Quản lý giáo dục có nhóm "8. Kiểm tra, đánh giá" chỉ hiện khi trường bật THCS hoặc THPT: 8.1 Ngân hàng câu hỏi, 8.2 Ma trận đề, 8.3 Kế hoạch kiểm tra, 8.4 Đề kiểm tra (MH-271 đến MH-274); số mục tạm, đánh lại khi khảo sát Sở.
 
 Từ YCTD-164 (DT-20 phần 22c2), nhóm "7. Dạy học Tiểu học" có thêm 7.9 Xếp thời khoá biểu tự động, 7.10 Dạy thay, đổi tiết, 7.11 Báo cáo tiết dạy, dùng phòng, mã QR (MH-267 đến MH-269); trang tra cứu công khai MH-270; lưới sửa của lớp ở 7.4 có khối "Kiểm tra ngay".
 

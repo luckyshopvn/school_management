@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.39
+- Phiên bản: 0.40
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.114.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-21 phần 22g1, kiểm tra, đánh giá phần đề (YCTD-168).
+- Chức năng mới: ngân hàng câu hỏi có thẩm định, nhập Excel, thống kê; ma trận và bảng đặc tả; kế hoạch kiểm tra; giao đề, bốc câu theo ma trận, đề nhiều mã, thẩm định, khoá đề; tải đề, đáp án ra Word, PDF.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0085_create_question_bank_and_exams`; tệp định danh `0076_add_exam_permissions`.
+- Thay đổi API: `/question-topics`, `/questions/…`, `/exam-matrices/…`, `/assessment-plans/…`, `/exams/…`.
+- Kiểm thử: kịch bản CT-891 đến CT-899. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/exams/exam-rules.test.ts` CT-22g1-1 đến CT-22g1-4 đạt 4/4, `apps/api/src/exams/exams.test.ts` CT-22g1-5 đến CT-22g1-8 đạt 4/4; kiểm thử đơn vị toàn bộ kho mã chạy trên máy các gói đã sửa: shared đạt, database 6/6, api 1018 ca đạt 1016, hai ca `children.test.ts` (CTC-P02-013, CTC-P02-057) chập chờn khi chạy chung, chạy lại riêng đạt 26/26; kiểm thử giao diện `tests/e2e/96-exam-bank.spec.ts` (CT-22g1-9) đạt; toàn bộ kiểm thử giao diện trên máy chạy 02, 03, 06, 08, 58, 96 đạt 18/18; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: lộ đề trước giờ kiểm tra; đã giới hạn người xem, ghi nhật ký tải.
+- Khả năng tương thích: trường không bật THCS, THPT không đổi hành vi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 22g1; chạy phần quay lui của tệp năm học `0085`, định danh `0076`.
 
 ### Phiên bản 0.113.0 – 2026-10-24
 
