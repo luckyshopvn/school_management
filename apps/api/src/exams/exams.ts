@@ -35,7 +35,6 @@ import {
   OPTION_KEYS,
   pickQuestions,
   QUESTION_TYPE_LABELS,
-  QUESTION_TYPES,
   summarizeMatrix,
   type CognitiveLevel,
   type MatrixRow,
@@ -57,7 +56,6 @@ import {
 export const EXAM_RULE_CODE = 'YCTD-168';
 type Executor = Kysely<SchoolYearDatabase> | Transaction<SchoolYearDatabase>;
 
-const AUTHOR = PERMISSION_CODES.questionAuthor;
 const REVIEW = PERMISSION_CODES.examReview;
 const MANAGE = PERMISSION_CODES.examManage;
 
@@ -251,7 +249,8 @@ export class ExamsService {
     if (filter.subjectId) query = query.where('questions.subject_id', '=', filter.subjectId);
     if (filter.gradeLevelCode) query = query.where('questions.grade_level_code', '=', filter.gradeLevelCode);
     if (filter.topicId) query = query.where('questions.topic_id', '=', filter.topicId);
-    if (filter.cognitiveLevel) query = query.where('questions.cognitive_level', '=', filter.cognitiveLevel as CognitiveLevel);
+    if (filter.cognitiveLevel)
+      query = query.where('questions.cognitive_level', '=', filter.cognitiveLevel as CognitiveLevel);
     if (filter.questionType) query = query.where('questions.question_type', '=', filter.questionType as QuestionType);
     if (filter.status) query = query.where('questions.status', '=', filter.status as 'draft');
     if (filter.search) {
@@ -1533,4 +1532,3 @@ export function answerBlocks(
   });
   return blocks;
 }
-
