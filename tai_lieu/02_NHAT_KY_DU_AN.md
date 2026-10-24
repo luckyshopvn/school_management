@@ -1,6 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
+- Phiên bản: 0.44
 - Phiên bản: 0.43
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
@@ -14,6 +15,25 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-24 — DT-21 phần 21a: nền THCS, THPT
+
+#### Công việc đã thực hiện
+
+- Đọc mục 12 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và mã 20a (`subjects`, `curriculum_subjects`, phân công theo môn, môn tự chọn), cây menu theo cấp, e2e 87.
+- Cơ sở dữ liệu: tệp năm học `0084` (`subjects.option_group`, giá trị `score` của cách đánh giá, tổ hợp môn, tổ hợp học sinh đăng ký, tổ bộ môn); tệp định danh `0075` để trống. Máy chủ API: bộ môn mẫu THCS, THPT, tổ hợp môn, đăng ký và duyệt đổi tổ hợp, tổ bộ môn; chép sang năm học mới. Cổng quản trị: 7.1, 7.2 dùng chung ba cấp, 7.12 Tổ hợp môn, 7.13 Tổ bộ môn, mục "Tổ hợp môn" ở hồ sơ học sinh.
+- Kiểm thử: kiểm thử đơn vị `secondary.test.ts` CT-21a-1 đến CT-21a-5 đạt 5/5 trên nhánh trước khi gộp 20d, 20e, 22c2; sau khi gộp chạy lại được CT-21a-1 và các ca menu CT-19c-1 đến CT-19c-4 (đạt), các ca cần cơ sở dữ liệu chưa chạy lại vì cơ sở dữ liệu định danh dùng chung trên máy đã chạy migration của nhánh khác; typecheck, lint, prettier đạt; e2e CT-21a-6 và e2e toàn bộ do CI chạy, chưa chạy trên máy
+
+#### Quyết định
+
+- Tổ hợp môn mặc định 4 môn lựa chọn thuộc ít nhất 2 nhóm (hằng `COMBINATION_RULE`, cần đối chiếu văn bản gốc); đổi tổ hợp đã duyệt chờ duyệt; duyệt xong môn tự chọn theo tổ hợp; tổ hợp đã có học sinh không đổi môn; nhóm menu 7 đổi tên "Dạy học" dùng chung ba cấp, 7.3 đến 7.5 vẫn chỉ Tiểu học; không thêm quyền mới (dùng quyền danh mục, lớp, hồ sơ học sinh), nên định danh `0075` để trống. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-167, `23_LICH_SU_PHIEN_BAN.md` bản 0.114.0.
+
+#### Vấn đề tồn đọng
+
+- Thời lượng, tên môn THCS, THPT và quy tắc tổ hợp đối chiếu văn bản gốc; khảo sát hệ thống của Sở cấp THCS, THPT khi Eric có tài khoản.
 ### 2026-10-24 — DT-20 phần 22c2: thời khoá biểu, máy xếp
 
 #### Công việc đã thực hiện

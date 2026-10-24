@@ -1,6 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số).
+- Phiên bản: 1.49
 - Phiên bản: 1.48
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã duyệt hướng làm
@@ -893,7 +894,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 
 | Phần | Đợt | Tiến độ |
 |---|---|---|
-| 21a | 1 | Chưa làm, 20a đã gộp |
+| 21a | 1 | Đã làm, YCTD-167, phiên bản 0.114.0: bộ môn mẫu THCS, THPT, nhóm môn lựa chọn (năm học 0084 `subjects.option_group`), tổ hợp môn và đăng ký (đổi thì chờ duyệt), tổ bộ môn, nhóm menu "7. Dạy học" dùng chung ba cấp, 7.12, 7.13; định danh 0075 để trống (không thêm quyền); e2e 95 |
 | 22g1 | 1 | Chưa làm, 20a đã gộp |
 | 21b | 2 | Chưa làm, chờ 21a, 22c2 |
 | 21c | 2 | Chưa làm, chờ 21a (20c đã gộp) |

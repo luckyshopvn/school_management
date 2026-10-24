@@ -62,5 +62,21 @@ export const catalogsTransitionStep: AcademicYearTransitionStep = {
     for (const row of await previous.selectFrom('curriculum_subjects').selectAll().execute()) {
       await next.insertInto('curriculum_subjects').values(row).execute();
     }
+    // Tổ hợp môn và tổ bộ môn (DT-21 phần 21a, YCTD-167) giữ mã định danh; tổ hợp học sinh đăng ký đi cùng hồ sơ học sinh
+    for (const row of await previous.selectFrom('subject_combinations').selectAll().execute()) {
+      await next.insertInto('subject_combinations').values(row).execute();
+    }
+    for (const row of await previous.selectFrom('subject_combination_subjects').selectAll().execute()) {
+      await next.insertInto('subject_combination_subjects').values(row).execute();
+    }
+    for (const row of await previous.selectFrom('subject_teams').selectAll().execute()) {
+      await next.insertInto('subject_teams').values(row).execute();
+    }
+    for (const row of await previous.selectFrom('subject_team_subjects').selectAll().execute()) {
+      await next.insertInto('subject_team_subjects').values(row).execute();
+    }
+    for (const row of await previous.selectFrom('subject_team_members').selectAll().execute()) {
+      await next.insertInto('subject_team_members').values(row).execute();
+    }
   },
 };

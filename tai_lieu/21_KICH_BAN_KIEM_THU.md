@@ -1,6 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
+- Phiên bản: 1.78
 - Phiên bản: 1.77
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
@@ -948,6 +949,12 @@ Ca CT-105 đến CT-550 lần lượt kiểm tra AC-149 đến AC-594. CT-534 đ
 | CT-861 | P02-44 | Nhập kỳ cuối năm; tổng hợp môn Toán; gợi ý; giáo viên Toán xác nhận; chủ nhiệm xác nhận khác gợi ý | T 1, H 1; điểm 9-10: 1, 7-8: 1; An xuất sắc, Bình hoàn thành; 403; lưu cả gợi ý và kết quả | Kiểm thử đơn vị CT-20c-5 đạt ngày 23/10/2026 | Đạt |
 | CT-862 | P02-43, P02-44 | Nhận xét thường xuyên; giáo viên Toán nhận xét Tiếng Việt; phụ huynh xem trước, sau khoá kỳ cuối năm; phụ huynh khác; xác nhận sau khoá | 201; 403; 0 kỳ, 1 nhận xét; có kỳ cuối năm, điểm Toán 9, xuất sắc; 403; 422 | Kiểm thử đơn vị CT-20c-6 đạt ngày 23/10/2026 | Đạt |
 | CT-863 | P02-42 đến P02-44 | Giao diện: nạp cấu hình mặc định; giáo viên nhập Tiếng Việt giữa học kỳ I ở ứng dụng; tổng hợp, khoá; phụ huynh xem | Kỳ có bài kiểm tra Tiếng Việt; đã lưu; điểm 9-10 là 1, đã khoá; thấy mức, điểm, nhận xét | Kiểm thử giao diện `tests/e2e/90-student-assessments.spec.ts` CT-20c-7 đạt ngày 23/10/2026 | Đạt |
+| CT-891 | P02-34, P02-55 | Bộ môn mẫu THCS, THPT theo khối của cấp; nhóm môn lựa chọn; quy tắc tổ hợp; hàm đọc nhóm môn | mã duy nhất, khối K6 đến K9, K10 đến K12; ba nhóm; 4 môn thuộc ít nhất 2 nhóm; nhóm sai 400 | Kiểm thử tự động `apps/api/src/subjects/secondary.test.ts` CT-21a-1 đạt ngày 24/10/2026 | Đạt |
+| CT-892 | P02-34 | Nạp bộ mẫu THCS, THPT: cấp chưa bật; giáo viên nạp; Hiệu trưởng nạp; nạp lại; nhóm môn của Vật lí; sửa nhóm môn | 422; 403; đủ môn, chương trình mặc định, số tiết khối 6 đến 12; không tạo thêm; `natural_science`; nhóm sai 400 | Kiểm thử tự động `apps/api/src/subjects/secondary.test.ts` CT-21a-2 đạt ngày 24/10/2026 | Đạt |
+| CT-893 | P02-55 | Lập tổ hợp: giáo viên; thiếu môn; môn bắt buộc; một nhóm; hợp lệ; trùng mã; sửa mã; đổi môn khi chưa có học sinh | 403; 422; 422; 422; 201; 409; 400; 200 | Kiểm thử tự động `apps/api/src/subjects/secondary.test.ts` CT-21a-3 đạt ngày 24/10/2026 | Đạt |
+| CT-894 | P02-56 | Đăng ký tổ hợp: trẻ Mầm non; giáo viên; đăng ký đầu; đổi; giáo viên duyệt; từ chối; duyệt khi không có đề nghị; duyệt đề nghị; đổi môn tổ hợp đã có học sinh | 422; 403; `approved`; `pending`; 403; trả tổ hợp cũ; 422; `approved`, môn tự chọn theo tổ hợp; 422 | Kiểm thử tự động `apps/api/src/subjects/secondary.test.ts` CT-21a-4 đạt ngày 24/10/2026 | Đạt |
+| CT-895 | P02-57 | Tổ bộ môn: giáo viên; cấp sai; môn khác cấp; tạo; trùng mã; thành viên không phải giáo viên bộ môn; tổ trưởng; tổng tiết; bỏ thành viên | 403; 400; 422; 201; 409; 400; một tổ trưởng; 4 tiết; danh sách rỗng | Kiểm thử tự động `apps/api/src/subjects/secondary.test.ts` CT-21a-5 đạt ngày 24/10/2026 | Đạt |
+| CT-896 | P02-34, P02-55, P02-57 | Giao diện: bật THPT; 7.1 nạp môn mẫu, nhóm môn của Vật lí; 7.6 lập tổ hợp thiếu rồi đủ 4 môn; 7.7 lập tổ Vật lí; tắt THPT | có môn; Khoa học tự nhiên; báo đúng 4 môn rồi thêm; thêm tổ | Kiểm thử e2e `tests/e2e/95-secondary-foundation.spec.ts` CT-21a-6 chưa chạy trên máy (cơ sở dữ liệu định danh dùng chung), do CI chạy ngày 24/10/2026 | Chờ CI |
 | CT-864 | P02-45 | Hàm thứ theo ISO, đầu tuần; dữ liệu tiết: tên bài rỗng, tiết 16, ngày sai dạng, xếp loại E, trạng thái lạ, trùng học sinh | 1, 6, 7; thứ Hai của tuần; 400 các ca sai; tên bài cắt khoảng trắng, xếp loại rỗng thành trống | Kiểm thử tự động `apps/api/src/class-logs/class-logs.test.ts` CT-20d-1 đạt ngày 24/10/2026 | Đạt |
 | CT-865 | P02-45 | Cô dạy Tiếng Việt xem tiết thứ Hai, thứ Ba; mở tiết 1 (một học sinh có báo vắng); mở tiết 5 | Một tiết, chưa ghi; không có tiết; có mặt và vắng có phép kèm lý do; 404 | Kiểm thử tự động `apps/api/src/class-logs/class-logs.test.ts` CT-20d-2 đạt ngày 24/10/2026 | Đạt |
 | CT-866 | P02-45 | Cô dạy Toán ghi tiết 1; ghi ngày chưa đến; học sinh ngoài lớp; tiết 3 không có; ghi, ghi lại; cô khác ký; ký; sửa, ký lại | 403; 422; 400; 422; cùng một dòng, xếp loại B; 403; đã ký; 422; 422 | Kiểm thử tự động `apps/api/src/class-logs/class-logs.test.ts` CT-20d-3 đạt ngày 24/10/2026 | Đạt |

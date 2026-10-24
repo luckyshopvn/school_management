@@ -1,6 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
+- Phiên bản: 0.44
 - Phiên bản: 0.43
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
@@ -11,6 +12,22 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-167: DT-21 phần 21a: nền THCS, THPT – 2026-10-24
+
+- Lý do: phần 21a của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.3, 12.4 (kế hoạch DT-21 ở YCTD-166). Văn bản căn cứ: Chương trình giáo dục phổ thông 2018 (Thông tư 32/2018/TT-BGDĐT), Thông tư 22/2021/TT-BGDĐT; thời lượng và quy tắc tổ hợp trong bộ mẫu là mặc định, chưa đối chiếu toàn văn, trường sửa được. Không đổi hành vi Mầm non, Tiểu học. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi:
+  - **Môn học khối 6 đến 12** (`packages/shared/src/subjects.ts`): bộ mẫu THCS (14 môn, khối 6 đến 9), THPT (17 môn, khối 10 đến 12), chương trình mặc định `CT-THCS-2018`, `CT-THPT-2018`; cách đánh giá thêm `score`; `subjects.option_group` (xã hội, tự nhiên, công nghệ và nghệ thuật). `POST /subjects/templates` nhận cả THCS, THPT.
+  - **Tổ hợp môn THPT** (`apps/api/src/subjects/secondary.ts`): đúng 4 môn lựa chọn thuộc ít nhất 2 nhóm; tổ hợp đã có học sinh không đổi môn. **Đăng ký tổ hợp** của học sinh lớp THPT: đăng ký đầu có hiệu lực ngay, đổi thì chờ `P02.class.manage` duyệt hoặc từ chối; duyệt xong môn tự chọn theo tổ hợp.
+  - **Tổ bộ môn** THCS, THPT: môn cùng cấp, một tổ trưởng, thành viên là giáo viên bộ môn (VT-08) của đơn vị, tổng tiết theo phân công.
+  - **Cổng quản trị:** nhóm menu 7 đổi tên "Dạy học" hiện ở ba cấp (7.1, 7.2 dùng chung, 7.2 có ô chọn cấp); 7.12 Tổ hợp môn (THPT), 7.13 Tổ bộ môn; mục "Tổ hợp môn" ở hồ sơ học sinh. Chuyển năm học chép tổ hợp, tổ bộ môn, tổ hợp đã đăng ký.
+  - Cơ sở dữ liệu: tệp năm học `0084_create_secondary_foundation`; định danh `0075` để trống (không thêm quyền).
+- Thành phần bị ảnh hưởng: `database`, `packages/shared`, `apps/api` (subjects, catalogs, children), `apps/portal`, tài liệu `01`, `02`, `07`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: thêm cột `option_group`, đổi ràng buộc `assessment` của `subjects`; sáu bảng mới; dữ liệu cũ giữ nguyên.
+- API bị ảnh hưởng: thêm `/subject-combinations`, `/children/{id}/subject-combination`, `/subject-teams`; `/subjects` nhận `option_group`, `score`.
+- Giao diện bị ảnh hưởng: nhóm menu 7, 7.2, hồ sơ học sinh; trường chỉ có Mầm non thấy như cũ.
+- Quyền bị ảnh hưởng: không thêm quyền.
+- Ảnh hưởng chức năng cũ: không đổi kỳ vọng kiểm thử cũ trừ danh sách mục chỉ thuộc cấp ở CT-19c-1, CT-19c-2 (thêm 7.12, 7.13); tên nhóm 7 đổi.
+- Kiểm thử cần thực hiện: CT-891 đến CT-896; kiểm thử đơn vị, e2e toàn bộ; typecheck, lint, build.
 ### YCTD-164: DT-20 phần 22c2: thời khoá biểu, máy xếp – 2026-10-24
 
 - Lý do: phần 22c2 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.3, 11.4 (kế hoạch DT-20 ở YCTD-157; phần 22c của kế hoạch DT-22 Eric duyệt ngày 2026-10-19 có máy xếp tự động, nhiều phương án, chỉnh mức quan trọng ràng buộc, chỉnh tay, dạy thay, đổi tiết, báo cáo tiết dạy, dùng phòng, mã QR tra cứu). Xây trên phần khung 22c1 (YCTD-160): khung giờ tiết, bản thời khoá biểu, kiểm tra xung đột, ban hành có phiên bản; môn, số tiết, phân công của 20a (YCTD-158). Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.

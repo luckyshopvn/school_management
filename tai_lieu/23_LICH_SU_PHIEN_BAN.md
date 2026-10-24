@@ -1,6 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
+- Phiên bản: 0.40
 - Phiên bản: 0.39
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
@@ -16,6 +17,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.114.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-21 phần 21a, nền THCS, THPT (YCTD-167).
+- Chức năng mới: bộ môn mẫu THCS (khối 6 đến 9), THPT (khối 10 đến 12) theo Chương trình giáo dục phổ thông 2018; cách đánh giá bằng điểm số; nhóm môn lựa chọn THPT; tổ hợp môn; học sinh đăng ký tổ hợp (đổi thì chờ duyệt); tổ bộ môn; phân công giảng dạy theo môn, môn học dùng chung ba cấp; mục menu 7.12 Tổ hợp môn, 7.13 Tổ bộ môn.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: tệp năm học `0084_create_secondary_foundation`; tệp định danh `0075` để trống (không thêm quyền).
+- Thay đổi API: `/subject-combinations`, `/subject-combinations/{id}/students`, `/children/{id}/subject-combination` (`/approve`, `/reject`), `/subject-teams` (`/members`, `/loads`); `/subjects` nhận `option_group`, `assessment` = `score`.
+- Kiểm thử: kịch bản CT-891 đến CT-896. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/subjects/secondary.test.ts` CT-21a-1 đến CT-21a-5 đạt 5/5 trên nhánh trước khi gộp 20d, 20e, 22c2; sau khi gộp chạy lại được CT-21a-1 và các ca menu CT-19c-1 đến CT-19c-4 (đạt), các ca cần cơ sở dữ liệu chưa chạy lại vì cơ sở dữ liệu định danh dùng chung trên máy đã chạy migration của nhánh khác; typecheck, lint, prettier đạt; e2e CT-21a-6 và e2e toàn bộ do CI chạy, chưa chạy trên máy
+- Rủi ro: số môn, số nhóm của tổ hợp và thời lượng môn là mặc định theo chương trình, cần đối chiếu văn bản gốc; chưa khảo sát hệ thống của Sở cấp THCS, THPT.
+- Khả năng tương thích: trường chỉ có Mầm non hoặc Tiểu học thấy như cũ trừ tên nhóm 7 đổi thành "Dạy học"; môn cũ giữ nguyên, nhóm môn trống.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 21a; chạy phần quay lui của tệp năm học `0084`.
 ### Phiên bản 0.113.0 – 2026-10-24
 
 - Phạm vi thay đổi: DT-20 phần 22c2, thời khoá biểu phần máy xếp (YCTD-164).
