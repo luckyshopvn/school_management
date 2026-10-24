@@ -11,14 +11,17 @@ import {
   type SystemDatabase,
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
-import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_SYSTEM_DATABASE_NAME } from '../e2e-environment.mjs';
 import { openMenu } from './menu.js';
 
 // Kho học liệu số, phần câu hỏi và chia sẻ (DT-22 phần 22h2, YCTD-184), kịch bản CT-22h2-6: câu hỏi của ngân hàng (22g1,
 // chèn thẳng) hiện trong kho, giáo viên thêm vào bộ sưu tập; giáo viên lập rubric, in; Hiệu trưởng nhập gói chia sẻ của trường
 // khác, học liệu vào kho ở trạng thái chờ duyệt. Chạy sau 02-academic-years và 03-org-units. Dữ liệu giả
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
-const system = createDatabase<SystemDatabase>(readConnectionString('system'));
+// Học liệu, bộ sưu tập (22h1) ở cơ sở dữ liệu hệ thống của e2e
+const system = createDatabase<SystemDatabase>(
+  replaceDatabaseName(readConnectionString('system'), E2E_SYSTEM_DATABASE_NAME),
+);
 let schoolYear: ReturnType<typeof createDatabase<SchoolYearDatabase>>;
 
 test.beforeAll(async () => {
