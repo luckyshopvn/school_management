@@ -25,7 +25,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Rủi ro: biểu khung chưa khớp biểu thật của Bộ, Sở cấp THCS, THPT; khi có tài khoản Sở thì khảo sát, sửa dòng, mã số bằng "Sửa khung biểu" và ghi đối chiếu vào tài liệu 31. Phổ điểm, tổng hợp theo giáo viên tính lại từ sổ điểm mỗi lần xem, trường đông học sinh có thể chậm.
 - Chưa làm trong phần này, ghi để làm tiếp: thêm biểu mới từ giao diện; tổng hợp theo giáo viên theo từng học kỳ của từng lớp; thống kê học sinh nội trú tách khỏi bán trú khi có hồ sơ riêng.
 - Kiểm thử cần thực hiện: CT-975 đến CT-979. Kết quả ngày 25/10/2026: kiểm thử đơn vị `apps/api/src/secondary-reports/secondary-reports.test.ts` CT-21g-1 đến CT-21g-4 đạt 4/4; kiểm thử đơn vị liên quan trên máy (báo cáo Tiểu học 20f, quick-links, điều kiện menu, menu theo cấp, gửi lên cấp trên) đạt 31/31, không sửa kỳ vọng (thêm mục 7.18 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của THCS, THPT của CT-19c-1); e2e trên máy 02, 03, 94, 103 đạt; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
-- Trạng thái: Đã triển khai (PR …).
+- Trạng thái: Đã triển khai (PR #159).
 
 ### YCTD-183: DT-22 phần 22h1: kho học liệu số, phần lõi – 2026-10-24
 
