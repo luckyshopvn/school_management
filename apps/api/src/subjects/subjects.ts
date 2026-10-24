@@ -410,7 +410,10 @@ async function findCurriculum(database: Executor, curriculumId: string) {
   return curriculum;
 }
 
-async function readCurriculumSubjects(database: Executor, curriculumId: string): Promise<CurriculumSubjectRow[]> {
+export async function readCurriculumSubjects(
+  database: Executor,
+  curriculumId: string,
+): Promise<CurriculumSubjectRow[]> {
   const rows = await database
     .selectFrom('curriculum_subjects')
     .innerJoin('subjects', 'subjects.id', 'curriculum_subjects.subject_id')

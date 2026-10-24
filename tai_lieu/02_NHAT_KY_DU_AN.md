@@ -36,6 +36,27 @@
 
 - 22h2 chờ 22g1 (DT-21); đọc văn bản gốc (chuẩn thư viện phổ thông, quy chế bồi dưỡng thường xuyên, khung năng lực số, giấy phép học liệu) trước khi làm từng phần; PR này và PR 140 (YCTD-166) cùng sửa đầu `02`, `24`, `index.md` nên phần gộp sau xử lý xung đột và đánh lại số phiên bản tài liệu.
 
+### 2026-10-23 — DT-20 phần 20c: đánh giá học sinh theo Thông tư 27/2020
+
+#### Công việc đã thực hiện
+
+- Đọc mục 11 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và Thông tư 27/2020/TT-BGDĐT; rà môn học, chương trình, phân công theo môn của 20a, lịch học kỳ theo cấp của 19b.
+- Cơ sở dữ liệu: tệp năm học `0079_create_student_assessments`, tệp định danh `0070_add_assessment_permissions`.
+- Máy chủ API: cấu hình đánh giá theo cấp, nạp mặc định; nhập kết quả định kỳ theo phân công, hạn nhập, khoá số liệu; nhận xét thường xuyên; tổng hợp cuối kỳ; gợi ý, xác nhận cuối năm; phụ huynh xem; chuyển cấu hình sang năm học mới.
+- Cổng quản trị: 7.3 Đánh giá học sinh; ứng dụng giáo viên: màn hình đánh giá; ứng dụng phụ huynh: kết quả đánh giá.
+- Thêm quy tắc BR-171 đến BR-173, chức năng P02-42 đến P02-44, kịch bản CT-857 đến CT-863, tiêu chí AC-762 đến AC-765. Kết quả ngày 23/10/2026: kiểm thử đơn vị `apps/api/src/assessments/assessments.test.ts` CT-20c-1 đến CT-20c-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.3 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của Tiểu học của CT-19c-1); kiểm thử đơn vị toàn bộ kho mã đạt 1064/1064; kiểm thử giao diện `tests/e2e/90-student-assessments.spec.ts` (CT-20c-7) đạt; toàn bộ kiểm thử giao diện trước khi gộp 22c1 đạt 160/161 (spec 90 mới đạt; spec 38 nhắc nợ chập chờn, không liên quan), sau khi gộp chạy ở CI; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 20c của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.4. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: mức đạt có hạng để quy tắc cuối năm không phụ thuộc mã; chủ nhiệm nhập môn chưa có giáo viên bộ môn; hạn nhập trống theo ngày kết thúc học kỳ; khoá theo kỳ và lớp; phụ huynh chỉ thấy kỳ đã khoá.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-161, `07_QUY_TAC_NGHIEP_VU.md` BR-171 đến BR-173, `10_YEU_CAU_CHUC_NANG.md` P02-42 đến P02-44, `11_TIEU_CHI_NGHIEM_THU.md` AC-762 đến AC-765, `14_DAC_TA_GIAO_DIEN.md`, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-857 đến CT-863, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.8. Phiên bản 0.110.0.
+
+#### Vấn đề tồn đọng
+
+- Nhập Excel theo mẫu lớp × môn, xuất bảng tổng hợp ra tệp; màn hình sửa thư viện câu nhận xét, mức đạt, danh mục ở cổng (điểm cuối đã có).
 
 ### 2026-10-23 — DT-20 phần 22c1: thời khoá biểu, phần khung
 

@@ -38,6 +38,8 @@ const PRIMARY_ONLY_PATHS = [
   // Thời khoá biểu phần khung (DT-20 phần 22c1)
   '/period-slots',
   '/timetables',
+  // Đánh giá học sinh (DT-20 phần 20c)
+  '/student-assessments',
 ];
 
 describe('Cây menu và nhãn theo cấp học', () => {

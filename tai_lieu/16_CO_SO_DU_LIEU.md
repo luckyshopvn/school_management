@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.100
+- Phiên bản: 1.101
 - Ngày cập nhật: 2026-10-23
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -210,6 +210,16 @@ Ràng buộc duy nhất: `attendance_records` trên bộ đôi trẻ, ngày; `ab
 | conduct_settings (từ YCTD-159) | Cấu hình nề nếp của trường (một dòng) | id = 1, enabled (mặc định chưa bật), base_points (mặc định 100), updated_by_name, updated_at; chuyển sang năm học mới |
 | conduct_criteria (từ YCTD-159) | Tiêu chí nề nếp | id (giữ khi chuyển năm), code (duy nhất), name, kind (`plus`, `minus`), points (1 đến 100), school_level (mặc định TH), order_no, status |
 | conduct_entries (từ YCTD-159) | Điểm nề nếp đã ghi | id, class_id, criterion_id, entry_date, quantity, points (có dấu), note, reported_by (đội cờ đỏ), recorded_by, recorded_by_name, created_at |
+| assessment_levels (từ YCTD-161) | Mức đạt theo cấp, thang (tệp năm học `0079`) | id, school_level, scale (`subject`, `competency`), code, name, rank (1 là cao nhất; duy nhất theo cấp, thang) |
+| competency_items (từ YCTD-161) | Phẩm chất, năng lực theo cấp | id, school_level, group_code (`quality`, `general`, `specific`), code (duy nhất theo cấp), name, order_no, status |
+| assessment_periods (từ YCTD-161) | Kỳ đánh giá định kỳ | id, school_level, code, name, term_type, kind (`mid`, `end`), is_year_end, order_no, entry_deadline (trống là cuối học kỳ) |
+| assessment_tests (từ YCTD-161) | Môn, khối có bài kiểm tra định kỳ của kỳ | period_id, subject_id, grade_level_code (khóa chính) |
+| comment_templates (từ YCTD-161) | Thư viện câu nhận xét | id, school_level, target (`subject`, `competency`, `general`), content, order_no, status |
+| subject_results (từ YCTD-161) | Kết quả định kỳ môn học, hoạt động | id, period_id, class_id, child_id, subject_id (duy nhất theo kỳ, học sinh, môn), level_code, score (1 đến 10), comment, updated_by, updated_by_name, updated_at |
+| competency_results (từ YCTD-161) | Kết quả định kỳ phẩm chất, năng lực | id, period_id, class_id, child_id, item_id (duy nhất theo kỳ, học sinh, mục), level_code, comment, updated_by, updated_by_name, updated_at |
+| regular_comments (từ YCTD-161) | Nhận xét thường xuyên | id, class_id, child_id, subject_id, item_id, comment_date, content, author_id, author_name, created_at |
+| assessment_locks (từ YCTD-161) | Khoá số liệu theo kỳ, lớp | period_id, class_id (khóa chính), locked_by, locked_by_name, locked_at |
+| year_results (từ YCTD-161) | Kết quả cuối năm (hoàn thành chương trình lớp học) | id, class_id, child_id (duy nhất), suggested, result (`excellent`, `good`, `completed`, `not_completed`), note, confirmed_by, confirmed_by_name, confirmed_at |
 | registration_periods | Trạng thái chốt danh sách đăng ký của kỳ theo đơn vị (YCTD-50) | org_unit_id, period_year, period_month (duy nhất cùng đơn vị), status (đang mở hoặc đã chốt), locked_by, locked_at |
 | summer_registrations | Đăng ký học hè theo tháng (P05-13, BR-92) | child_id, org_unit_id, period_year, period_month (duy nhất cùng trẻ), status (đang hiệu lực hoặc đã hủy), source, registered_by, registered_at, cancelled_by, cancelled_at |
 | invoices | Hóa đơn học phí | code (cấp khi phát hành, dạng HD-000001), child_id, org_unit_id, period_year, period_month, invoice_kind (chính, bổ sung hoặc đầu kỳ; mỗi trẻ tối đa một hóa đơn đầu kỳ, YCTD-54), status (nháp hoặc đã phát hành), calculation_run_id, total_amount, basis (số ngày học, số ngày đang học, số ngày có mặt, bậc học, biểu phí), review_flags (dòng cần kiểm tra), due_date, issued_at, issued_by; số đã giảm trừ, điều chỉnh, đã thu tính từ bảng liên quan (YCTD-51) |
