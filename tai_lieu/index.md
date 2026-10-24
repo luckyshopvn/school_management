@@ -33,7 +33,7 @@
 | 21 | [21_KICH_BAN_KIEM_THU.md](21_KICH_BAN_KIEM_THU.md) | Kịch bản kiểm thử | CT-001 đến CT-832 | 10 Kiểm thử | Đã phê duyệt |
 | 22 | [22_BAO_MAT.md](22_BAO_MAT.md) | Bảo mật | BM-01 đến BM-72 | 10 Kiểm thử | Đã phê duyệt |
 | 23 | [23_LICH_SU_PHIEN_BAN.md](23_LICH_SU_PHIEN_BAN.md) | Lịch sử phiên bản | Các phiên bản từ 0.1.0 | 11 Nghiệm thu và phát hành | Đang cập nhật |
-| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-180, đánh giá ảnh hưởng | 12 Vận hành và cải tiến | Đang cập nhật |
+| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-181, đánh giá ảnh hưởng | 12 Vận hành và cải tiến | Đang cập nhật |
 | 25 | [25_QUY_TRINH_NGHIEP_VU/](25_QUY_TRINH_NGHIEP_VU/) | Quy trình nghiệp vụ | Mười đặc tả QT-01 đến QT-10 và phiếu yêu cầu trống | 03 Phân tích nghiệp vụ | Đã phê duyệt |
 | 26 | [26_SO_DO_CHUC_NANG/](26_SO_DO_CHUC_NANG/) | Sơ đồ chức năng gốc | Tám ảnh sơ đồ chức năng do Eric gửi, nguồn đầu vào của bộ tài liệu | 01 Xác định ý tưởng | Tài liệu nguồn |
 | 27 | [27_BO_CA_KIEM_THU_CHI_TIET/](27_BO_CA_KIEM_THU_CHI_TIET/) | Bộ ca kiểm thử chi tiết | Ca kiểm thử chi tiết theo việc N21, mã CTC-..., năm đợt, 453 ca, 6 ca không áp dụng | 10 Kiểm thử | Đã phê duyệt |
@@ -41,7 +41,7 @@
 | 29 | [29_BAO_CAO_KIEM_THU_G2.md](29_BAO_CAO_KIEM_THU_G2.md) | Báo cáo kiểm thử giai đoạn 2 | Kết quả chạy thật sau đợt DT-10, ca chưa chạy và quyết định xử lý, lỗi khi gộp các phần, giới hạn bản 1.1.0 (YCTD-84) | 10 Kiểm thử | Đã đánh giá |
 | 30 | [30_BAO_CAO_KIEM_THU_G3.md](30_BAO_CAO_KIEM_THU_G3.md) | Báo cáo kiểm thử giai đoạn 3 | Kết quả chạy thật sau đợt DT-11, ca chưa chạy và quyết định xử lý, lỗi khi gộp các phần, giới hạn bản 1.2.0 (YCTD-91) | 10 Kiểm thử | Đã đánh giá |
 | 31 | [31_KHAO_SAT_HE_THONG_SO.md](31_KHAO_SAT_HE_THONG_SO.md) | Khảo sát hệ thống của Sở | Chức năng và giao diện của Hệ thống thông tin quản lý giáo dục cấp Trường (Mầm non) của Sở GD&ĐT TP.HCM, đối chiếu và đề xuất bổ sung; nền tảng kỹ thuật trang công khai (REA); khảo sát bổ sung ngày 2026-10-19 (Tuyển sinh đầu cấp, mẫu hồ sơ kí, chỉ tiêu và mã số EMIS, 1.7) và đối chiếu với mã nguồn | 02 Phân tích | Đã khảo sát |
-| 32 | [32_KE_HOACH_THEO_HE_THONG_SO.md](32_KE_HOACH_THEO_HE_THONG_SO.md) | Kế hoạch theo hệ thống của Sở | Đồng bộ chức năng và giao diện theo tài liệu 31: DT-15, DT-16 (đã triển khai), DT-17 (khảo sát bổ sung, năm phần 17a đến 17e, đã triển khai); DT-18 điều hành nhà trường (18a đến 18h, 22b, 22d, 22f, 22i); DT-19 nền đa cấp học (19a đến 19f, kế hoạch); DT-20 Tiểu học kèm 22c thời khoá biểu (20a đến 20f, 22c1, 22c2, kế hoạch); DT-21 THCS và THPT kèm 22g kiểm tra, đánh giá (21a đến 21g, 22g1, 22g2, kế hoạch); DT-22 thư viện, bồi dưỡng, kho học liệu số (22a, 22e, 22h1, 22h2, kế hoạch) | 02 Phân tích | Đã duyệt hướng làm |
+| 32 | [32_KE_HOACH_THEO_HE_THONG_SO.md](32_KE_HOACH_THEO_HE_THONG_SO.md) | Kế hoạch theo hệ thống của Sở | Đồng bộ chức năng và giao diện theo tài liệu 31: DT-15, DT-16 (đã triển khai), DT-17 (khảo sát bổ sung, năm phần 17a đến 17e, đã triển khai); DT-18 điều hành nhà trường (18a đến 18h, 22b, 22d, 22f, 22i); DT-19 nền đa cấp học (19a đến 19f, kế hoạch); DT-20 Tiểu học kèm 22c thời khoá biểu (20a đến 20f, 22c1, 22c2, kế hoạch); DT-21 THCS và THPT kèm 22g kiểm tra, đánh giá (21a đến 21g, 22g1, 22g2, kế hoạch); DT-22 thư viện, bồi dưỡng, kho học liệu số (22a đã triển khai; 22e, 22h1, 22h2 kế hoạch) | 02 Phân tích | Đã duyệt hướng làm |
 
 ## Quy trình nghiệp vụ
 
@@ -78,18 +78,18 @@ Mã quy trình dạng `QT-nn`, đánh số tăng dần, không tái sử dụng 
 | Phân hệ đã xác định | 19 | Từ P01 đến P19; P11 Xe đưa đón đã bỏ |
 | Vai trò đã xác định | 19 | Từ VT-01 đến VT-20, VT-13 đã bỏ; VT-02 Hiệu trưởng và VT-15 Phó Hiệu trưởng hợp thành Ban Giám hiệu |
 | Quy trình nghiệp vụ đã đặc tả | 10 | Đủ mười lăm mục theo khuôn đặc tả |
-| Chức năng đã liệt kê | 279 | 289 mã; P08-05, P11-01 đến P11-07, P17-09, P17-15 đã bỏ |
-| Tiêu chí nghiệm thu đã viết | 768 | Từ AC-01 đến AC-768; AC-498 không áp dụng; AC-42, AC-53 đến AC-57, AC-171 đã bỏ; AC-94 đến AC-134 nằm trong các đặc tả quy trình |
-| Quy tắc nghiệp vụ đã xác định | 174 | Từ BR-01 đến BR-174; BR-27, BR-42, BR-54, BR-55, BR-57 đã bỏ |
+| Chức năng đã liệt kê | 284 | 294 mã; P08-05, P11-01 đến P11-07, P17-09, P17-15 đã bỏ |
+| Tiêu chí nghiệm thu đã viết | 772 | Từ AC-01 đến AC-772; AC-498 không áp dụng; AC-42, AC-53 đến AC-57, AC-171 đã bỏ; AC-94 đến AC-134 nằm trong các đặc tả quy trình |
+| Quy tắc nghiệp vụ đã xác định | 177 | Từ BR-01 đến BR-177; BR-27, BR-42, BR-54, BR-55, BR-57 đã bỏ |
 | Giả định đã ghi nhận | 92 | Từ GD-01 đến GD-92; mọi giả định đã được xác nhận hoặc ghi không còn hiệu lực ngày 09/10/2026 |
 | Câu hỏi mở chờ trả lời | 0 | Đã cấp mã đến Q-156; mọi câu đã được trả lời ngày 09/10/2026 |
-| Bảng dữ liệu dự kiến | 352 | Xem `16_CO_SO_DU_LIEU.md`, đếm lại ngày 2026-10-15 theo tên bảng ở mục 2 đến mục 18 (mỗi tên đếm một lần), đã gồm `user_quick_links` (YCTD-102), tám bảng của YCTD-104, `growth_rounds` (YCTD-105) và `equipment_items`, `equipment_holdings`, `school_profiles` (YCTD-106), `user_grid_settings` (YCTD-107), `feedback` (YCTD-110); tám bảng xe đưa đón và bảng `meal_registrations` đã gỡ |
-| Màn hình dự kiến | 255 | Đếm lại ngày 2026-10-15, cộng MH-142 đến MH-151 và MP-22 (YCTD-134), MH-152 đến MH-157 (YCTD-135), MH-158 đến MH-166 (YCTD-138), MH-167 đến MH-179 (YCTD-139), MH-180 đến MH-186 (YCTD-140), MH-187 đến MH-202 (YCTD-141), MH-203 đến MH-205 và MG-18 (YCTD-143), MH-206 đến MH-215 (YCTD-144), MH-216 đến MH-224 (YCTD-142), MH-225 đến MH-229 (YCTD-145), MH-230 đến MH-235 (YCTD-147), MH-236 đến MH-240 (YCTD-146), MH-241 đến MH-252 (YCTD-148), MH-253 đến MH-257 (YCTD-149): 92 mã MH (MH-01 đến MH-94, MH-64 và MH-66 chưa cấp; MH-65 chạy trong ứng dụng phụ huynh), 17 màn hình ứng dụng giáo viên, 20 màn hình ứng dụng phụ huynh; MG-13, MP-13 đã bỏ |
+| Bảng dữ liệu dự kiến | 367 | Xem `16_CO_SO_DU_LIEU.md`, đếm lại ngày 2026-10-15 theo tên bảng ở mục 2 đến mục 18 (mỗi tên đếm một lần), đã gồm `user_quick_links` (YCTD-102), tám bảng của YCTD-104, `growth_rounds` (YCTD-105) và `equipment_items`, `equipment_holdings`, `school_profiles` (YCTD-106), `user_grid_settings` (YCTD-107), `feedback` (YCTD-110); tám bảng xe đưa đón và bảng `meal_registrations` đã gỡ |
+| Màn hình dự kiến | 264 | Đếm lại ngày 2026-10-15, cộng MH-142 đến MH-151 và MP-22 (YCTD-134), MH-152 đến MH-157 (YCTD-135), MH-158 đến MH-166 (YCTD-138), MH-167 đến MH-179 (YCTD-139), MH-180 đến MH-186 (YCTD-140), MH-187 đến MH-202 (YCTD-141), MH-203 đến MH-205 và MG-18 (YCTD-143), MH-206 đến MH-215 (YCTD-144), MH-216 đến MH-224 (YCTD-142), MH-225 đến MH-229 (YCTD-145), MH-230 đến MH-235 (YCTD-147), MH-236 đến MH-240 (YCTD-146), MH-241 đến MH-252 (YCTD-148), MH-253 đến MH-257 (YCTD-149): 92 mã MH (MH-01 đến MH-94, MH-64 và MH-66 chưa cấp; MH-65 chạy trong ứng dụng phụ huynh), 17 màn hình ứng dụng giáo viên, 20 màn hình ứng dụng phụ huynh; MG-13, MP-13 đã bỏ |
 | Ca kiểm thử khởi đầu | 869 | Từ CT-001 đến CT-869; CT-048, CT-059 đến CT-063, CT-127, CT-454 không áp dụng |
 | Cổng kiểm soát chất lượng | 12 | Từ CG-01 đến CG-12, xem `01_KE_HOACH_TONG_THE.md` |
 | Đợt xây dựng | 12 | Từ DT-00 đến DT-11, xem `01_KE_HOACH_TONG_THE.md` |
 | Rủi ro đã ghi nhận | 14 | Từ RR-01 đến RR-14, xem `01_KE_HOACH_TONG_THE.md` |
-| Yêu cầu thay đổi | 162 | Từ YCTD-01 đến YCTD-180 (YCTD-180 chỉ đổi tài liệu, YCTD-181 đến YCTD-189 giữ sẵn cho DT-22; YCTD-166 chỉ đổi tài liệu, YCTD-161 đến YCTD-165 giữ sẵn cho DT-20; số giữ sẵn của DT-18 ghi khi phần gộp; YCTD-142 gộp sau YCTD-143, YCTD-144; YCTD-156 của 19f ghi khi gộp), xem `24_YEU_CAU_THAY_DOI.md` |
+| Yêu cầu thay đổi | 163 | Từ YCTD-01 đến YCTD-181 (YCTD-180 chỉ đổi tài liệu, YCTD-182 đến YCTD-189 giữ sẵn cho DT-22; YCTD-166 chỉ đổi tài liệu, YCTD-161 đến YCTD-165 giữ sẵn cho DT-20; số giữ sẵn của DT-18 ghi khi phần gộp; YCTD-142 gộp sau YCTD-143, YCTD-144; YCTD-156 của 19f ghi khi gộp), xem `24_YEU_CAU_THAY_DOI.md` |
 
 ## Quyết định đã chốt
 

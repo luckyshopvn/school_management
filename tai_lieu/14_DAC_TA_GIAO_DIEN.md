@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.92
+- Phiên bản: 1.93
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -626,6 +626,15 @@ Từ YCTD-149 (DT-18 phần 22f), phân hệ "Bảo đảm chất lượng" (kh�
 | MH-264 | 7.4. Thời khoá biểu (YCTD-160, `/timetables`): bảng "Bản thời khoá biểu" (tên, áp dụng từ, trạng thái Nháp/Đã ban hành/Đang áp dụng, nguồn, Mở); biểu mẫu "Tạo bản thời khoá biểu" (tên, áp dụng từ ngày, chép từ bản); bản nháp có nút "Kiểm tra xung đột", "Ban hành", "Tải mẫu Excel", ô tệp và "Nhập Excel", "Xoá bản nháp"; ô "Xem theo" (Lớp, Giáo viên, Phòng); lưới thứ × tiết (bản nháp theo lớp mỗi ô chọn môn, dòng số tiết đã xếp theo môn, nút "Ghi thời khoá biểu của lớp"); khối "Xung đột" (Phải sửa, Cảnh báo). Ứng dụng giáo viên: "Lịch dạy của tôi" theo thứ; ứng dụng phụ huynh: nút "Thời khoá biểu" ở thẻ con học cấp phổ thông | Xem: nhân sự xem được lớp; lập, ban hành: `P02.timetable.manage` |
 | MH-265 | 7.6. Sổ đầu bài (YCTD-162, `/class-logs`): ô "Lớp" (lớp cấp phổ thông đang hoạt động), "Ngày trong tuần"; bảng "Các tiết trong tuần" (Ngày, Tiết, Môn, Giáo viên, Tên bài, Vắng, muộn, Trạng thái Chưa ghi/Đã ghi/Đã ký, Xem); khối "Chi tiết tiết dạy" (tên bài, nội dung, nhận xét, xếp loại, học sinh vắng, muộn); ô "Nhận xét của Ban giám hiệu", nút "Ký sổ tuần" hoặc dòng đã ký. Ứng dụng giáo viên: "Sổ đầu bài" (ngày dạy, các tiết trong ngày; biểu mẫu "Ghi tiết dạy": Tên bài, Nội dung, Nhận xét tiết, Xếp loại tiết, điểm danh từng học sinh, nút "Lưu tiết", "Ký sổ") | Xem: nhân sự xem được lớp; ký tuần: `P02.class-log.review`; ghi: giáo viên của tiết |
 | MH-266 | 7.7. Chuyên cần theo tiết (YCTD-162, `/period-attendance`): ô "Lớp", "Từ ngày", "Đến ngày"; số tiết đã ghi sổ; bảng "Chuyên cần theo học sinh" (Có mặt, Đi muộn, Vắng có phép, Vắng không phép, Ngày có vắng, Ngày báo vắng, Vắng không báo, Báo vắng nhưng có mặt). Ứng dụng phụ huynh: nút "Điểm danh theo tiết", "Báo vắng" ở thẻ con học cấp phổ thông | Nhân sự xem được lớp; phụ huynh của học sinh |
+| MH-267 | Thư viện 1.1. Ấn phẩm và bản sao (YCTD-181, `/library/titles`): ô tìm theo từ khóa, phân loại, khối; bảng "Danh sách ấn phẩm" (nhan đề, tác giả, số bản, sẵn sàng); biểu mẫu thêm, sửa ấn phẩm; chi tiết ấn phẩm: bảng "Bản sao của ấn phẩm" (số đăng ký, tình trạng, kệ, đang mượn), "Thêm bản sao", thanh lý có lý do, "In tem mã", tệp tài liệu số, "Sổ đăng ký cá biệt" | Xem: `P02.library.view`; ghi: `P02.library.manage` |
+| MH-268 | Thư viện 1.2. Bạn đọc (`/library/readers`): bảng "Danh sách bạn đọc" (loại, số thẻ, lớp, trạng thái, đang mượn, quá hạn); "Đồng bộ thẻ", khóa, mở khóa thẻ kèm lý do, "In thẻ", "Lịch sử mượn" | `P02.library.manage` |
+| MH-269 | Thư viện 2.1. Mượn, trả, đặt trước (`/library/circulation`): thẻ "Mượn" (tìm bạn đọc theo số thẻ hoặc tên, mượn cho lớp, quét mã bản sao, "Cho mượn"), thẻ "Trả" (quét mã, tình trạng khi trả, tiền phạt, "Đã giữ cho …", bảng "Danh sách lượt mượn" có gia hạn, báo mất, "Nhắc quá hạn"), thẻ "Đặt trước" | `P02.library.manage` |
+| MH-270 | Thư viện 2.2. Phát và thu sách giáo khoa (`/library/textbooks`): bộ sách theo khối; chọn lớp, bộ sách, "Phát"; kết quả (đã phát, thiếu đầu sách nào); danh sách sách giáo khoa lớp còn giữ, thu hàng loạt kèm tình trạng | `P02.library.manage` |
+| MH-271 | Thư viện 3.1. Kiểm kê (`/library/stocktakes`): danh sách đợt, tạo đợt (cả kho hoặc một kệ), màn quét mã, kết quả thiếu, thừa, hỏng, đóng đợt, xử lý bản thiếu (đánh dấu mất, thanh lý) | `P02.library.manage` |
+| MH-272 | Thư viện 3.2. Báo cáo thư viện (`/library/reports`): số liệu kho theo phân loại, khối, mượn theo tháng, lớp, ấn phẩm và bạn đọc tích cực, quá hạn; bảng chỉ tiêu theo chuẩn (giá trị, ngưỡng, Đạt, Chưa đạt, Chưa kết luận); xuất Excel, PDF | `P02.library.manage` |
+| MH-273 | Thư viện 4.1. Quy định mượn và phân loại (`/library/settings`): cấp có học sinh mượn, số ngày giữ chỗ, quy định mượn của cán bộ, học sinh, ngưỡng và bật tắt chỉ tiêu, phân loại ấn phẩm (thêm, sửa, cho mượn về hay đọc tại chỗ, ngừng dùng) | `P02.library.manage` |
+| MH-274 | Ứng dụng giáo viên "Sách tôi đang mượn" (YCTD-181): số thẻ, từng bản kèm hạn trả và số ngày quá hạn | Giáo viên |
+| MH-275 | Ứng dụng phụ huynh "Sách thư viện" ở thẻ con học Tiểu học, THCS, THPT (YCTD-181): sách con đang mượn kèm hạn trả | Phụ huynh của học sinh |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 
@@ -648,6 +657,8 @@ Từ YCTD-161 (DT-20 phần 20c), mục 7.3 "Đánh giá học sinh" (chỉ hi�
 Từ YCTD-160 (DT-20 phần 22c1), nhóm "7. Dạy học Tiểu học" có thêm 7.3 Khung giờ tiết học, 7.4 Thời khoá biểu (MH-263, MH-264); trang "Thời khóa biểu" của website trường hiện bảng của từng lớp khi đã có bản ban hành.
 
 Từ YCTD-162 (DT-20 phần 20d), nhóm "7. Dạy học Tiểu học" có thêm 7.6 Sổ đầu bài, 7.7 Chuyên cần theo tiết (MH-265, MH-266).
+
+Từ YCTD-181 (DT-22 phần 22a), phân hệ riêng "Thư viện" (1.1 Ấn phẩm và bản sao, 1.2 Bạn đọc, 2.1 Mượn, trả, đặt trước, 2.2 Phát và thu sách giáo khoa, 3.1 Kiểm kê, 3.2 Báo cáo thư viện, 4.1 Quy định mượn và phân loại; MH-267 đến MH-273); ứng dụng giáo viên có "Sách tôi đang mượn" (MH-274), ứng dụng phụ huynh có "Sách thư viện" ở con học cấp có mượn sách (MH-275).
 
 Từ YCTD-156 (DT-19 phần 19f), không đổi màn hình; bản trình diễn có trường liên cấp (Điểm trường Hoa Mai có Mầm non, Tiểu học, THCS) nên cổng quản trị của bản trình diễn có bộ chọn cấp đang làm việc, ô "Cấp học" ở thống kê, báo cáo, biểu phí và bảng "Cấp học của đơn vị". Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
 

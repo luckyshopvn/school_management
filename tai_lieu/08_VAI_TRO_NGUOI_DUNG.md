@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.83
+- Phiên bản: 1.84
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -193,6 +193,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-93 | Nền Tiểu học (YCTD-158): không thêm quyền. Môn học, bộ môn mẫu, số tiết theo khối: mọi người đã đăng nhập xem, `P01.catalog.manage` sửa (như khối, chương trình). Phân công giảng dạy theo môn: xem theo phạm vi đơn vị của `P02.view`, `P02.edit`, `P02.class.manage`; phân công, kết thúc cần `P02.class.manage` (như 3.3). Môn tự chọn: xem theo phạm vi `P02.view`, `P02.child.manage`; sửa cần `P02.child.manage` của đơn vị học sinh |
 | PQ-94 | Thời khoá biểu (YCTD-160): quyền mới `P02.timetable.manage` thuộc P02 cho VT-02, VT-15: khai báo khung giờ tiết, tạo, sửa, xoá bản nháp, nhập Excel, ban hành. Xem bản, xung đột, lưới theo lớp, giáo viên, phòng: vai trò nhân sự có `P02.view`, `P02.edit`, `P02.class.manage` hoặc `P02.timetable.manage` (vai trò phụ huynh VT-14 không tính). Khung giờ: mọi người đã đăng nhập xem. Lịch dạy của tôi: mọi giáo viên. Thời khoá biểu của con: phụ huynh của học sinh hoặc nhân sự xem được lớp |
 | PQ-95 | Sổ đầu bài (YCTD-162): quyền mới `P02.class-log.review` thuộc P02 cho VT-02, VT-15: ký sổ đầu bài của lớp theo tuần. Ghi, ký tiết: giáo viên của tiết theo thời khoá biểu đang áp dụng. Xem sổ tuần, chi tiết tiết, chuyên cần theo tiết: vai trò nhân sự có `P02.view`, `P02.edit`, `P02.class.manage` hoặc `P02.timetable.manage` (vai trò phụ huynh VT-14 không tính), người có `P02.class-log.review`, giáo viên được phân công ở lớp. Điểm danh theo tiết của con: phụ huynh của học sinh hoặc nhân sự |
+| PQ-96 | Thư viện trường học (YCTD-181): quyền mới `P02.library.view` (tra cứu danh mục ấn phẩm, xem sách mình đang mượn) cho mọi vai trò nhân sự dùng cổng quản trị (VT-02, VT-15, VT-03 đến VT-12, VT-16, VT-17) và `P02.library.manage` (danh mục, bản sao, thẻ bạn đọc, mượn trả, đặt trước, sách giáo khoa, kiểm kê, thiết lập, báo cáo) cho VT-02, VT-15, VT-03; trường có thủ thư thì gán `P02.library.manage` cho nhóm người dùng của thủ thư ở 1.1. Phân hệ "Thư viện" ẩn với phụ huynh (VT-14) ở 1.2. Phụ huynh xem sách của con ở ứng dụng, máy chủ kiểm tra quan hệ phụ huynh. Người quản lý ngoài toàn trường chỉ thấy bạn đọc, lượt mượn của đơn vị mình |
 
 ## 5. Phân cấp phê duyệt
 

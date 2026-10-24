@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.77
+- Phiên bản: 1.78
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -245,6 +245,9 @@ Bổ sung ngày 2026-10-09 theo yêu cầu tách vai trò Ban Giám hiệu thàn
 | BR-172 | Hạn nhập và khoá số liệu (YCTD-161): hạn là ngày ghi ở kỳ, trống là ngày kết thúc học kỳ theo lịch của cấp; quá hạn chỉ người quản lý sửa; kỳ đã khoá ở lớp thì không ai sửa đến khi mở khoá kèm lý do; phụ huynh chỉ xem kỳ đã khoá |
 | BR-173 | Gợi ý kết quả cuối năm (Điều 9 Thông tư 27/2020, YCTD-161): Hoàn thành xuất sắc khi mọi môn, phẩm chất, năng lực ở mức hạng 1 và bài kiểm tra cuối năm từ 9; Hoàn thành tốt như trên với bài kiểm tra từ 7; Hoàn thành khi không có mức hạng cuối và bài kiểm tra từ 5; còn lại Chưa hoàn thành; thiếu kết quả không gợi ý; giáo viên chủ nhiệm xác nhận |
 | BR-174 | Sổ đầu bài và điểm danh theo tiết (YCTD-162): tiết của sổ đầu bài lấy theo bản thời khoá biểu đang áp dụng của cấp vào ngày dạy (22c1); chỉ giáo viên của tiết ghi, sửa, ký; không ghi trước ngày dạy; ghi lại cùng lớp, ngày, tiết thì sửa bản đã ghi; điểm danh từng học sinh đang học của lớp (có mặt, đi muộn, vắng có phép, vắng không phép), chưa ghi thì mặc định có mặt, có báo vắng của ngày thì mặc định vắng có phép; tiết đã ký không sửa; Ban giám hiệu ký sổ tuần một lần, ký rồi khoá ghi, sửa mọi tiết trong tuần; tổng hợp chuyên cần theo học sinh trong khoảng ngày đếm tiết theo trạng thái, ngày có vắng, ngày phụ huynh báo vắng, ngày vắng không báo, ngày báo vắng nhưng có mặt ở tiết nào đó; phụ huynh chỉ xem điểm danh của con mình |
+| BR-175 | Mượn, trả sách thư viện (YCTD-181): mỗi bạn đọc (cán bộ hoặc học sinh đang học ở cấp có bật mượn sách) một thẻ, thẻ khóa khi người đó nghỉ; chỉ mượn bản tốt, ấn phẩm cho mượn về, đang dùng, chưa có người mượn, không đang giữ chỗ cho người khác; số bản mượn cùng lúc tối đa theo quy định của loại bạn đọc; còn bản quá hạn thì không mượn tiếp; hạn trả = ngày mượn + số ngày của quy định; gia hạn tối đa theo quy định, không gia hạn khi có người đặt trước hoặc với sách giáo khoa cấp đầu năm; trả trễ phạt số ngày trễ nhân mức phạt mỗi ngày (mức 0 là không phạt); trả hỏng hoặc mất đổi tình trạng bản sao, bồi thường chỉ ghi nhận, không thu tiền ở phân hệ này |
+| BR-176 | Đặt trước sách thư viện (YCTD-181): chỉ đặt khi ấn phẩm không còn bản sẵn sàng; mỗi bạn đọc một lượt đặt đang mở cho một ấn phẩm; bản được trả về giữ cho người đặt sớm nhất trong số ngày giữ chỗ của thiết lập (mặc định 3 ngày) và báo cho họ; quá hạn giữ chỗ thì lượt đặt hết hiệu lực, bản chuyển cho người kế tiếp; người đặt mượn bản giữ thì lượt đặt đóng |
+| BR-177 | Sách giáo khoa cấp đầu năm, kiểm kê, thanh lý (YCTD-181): bộ sách theo khối phát cho cả lớp, mỗi học sinh một bản mỗi đầu sách của bộ, hạn là ngày kết thúc năm học, thiếu bản thì phát phần còn đủ và báo đầu sách thiếu; kiểm kê quét bản sao, bản thiếu là bản tốt không đang mượn chưa quét, bản thừa là bản quét được nhưng đang mượn, đã mất hoặc đã thanh lý; chỉ xử lý (đánh dấu mất, thanh lý) bản thiếu của đợt đã đóng; thanh lý cần lý do và bản không đang cho mượn; chỉ tiêu theo chuẩn thư viện có ngưỡng cấu hình, chưa đặt ngưỡng thì chưa kết luận đạt hay chưa đạt |
 
 Danh mục chứng từ áp dụng hạn mức: phiếu chi, phiếu đảo phiếu thu (YCTD-23), phiếu đảo phiếu chi (YCTD-24), đề nghị mua hàng, phiếu điều chỉnh hóa đơn, miễn giảm học phí, bảng lương kỳ, chốt kỳ tài chính. Mức hạn mức cụ thể chưa có, xem Q-22 và Q-112.
 

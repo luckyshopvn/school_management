@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.79
+- Phiên bản: 1.80
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -116,6 +116,11 @@
 | P02-45 | Ghi sổ đầu bài, điểm danh theo tiết (ứng dụng giáo viên, YCTD-162) | Giáo viên của tiết theo thời khoá biểu | Ngày; tiết; tên bài, nội dung, nhận xét, xếp loại; trạng thái từng học sinh | Lấy tiết theo bản đang áp dụng; mặc định có mặt hoặc vắng có phép theo báo vắng; không ghi trước ngày dạy; ký tiết thì khoá; nhật ký | Tiết đã ghi, đã ký; điểm danh theo tiết | BR-174 |
 | P02-46 | Kiểm tra, ký sổ đầu bài theo tuần (7.6., YCTD-162) | Xem: nhân sự xem được lớp; ký: `P02.class-log.review` | Lớp; ngày trong tuần; nhận xét | Liệt kê tiết của tuần theo thời khoá biểu kèm tiết đã ghi, số vắng, muộn; ký một lần mỗi tuần, khoá ghi tiết trong tuần | Sổ tuần; chữ ký Ban giám hiệu | BR-174 |
 | P02-47 | Chuyên cần theo tiết (7.7., ứng dụng phụ huynh, YCTD-162) | Nhân sự xem được lớp; phụ huynh của học sinh | Lớp, khoảng ngày; con, tháng | Đếm tiết theo trạng thái; đối chiếu báo vắng theo ngày và điểm danh theo ngày | Bảng chuyên cần theo học sinh; điểm danh theo tiết của con | BR-174 |
+| P02-48 | Danh mục ấn phẩm, bản sao thư viện (YCTD-181) | `P02.library.view` xem; `P02.library.manage` ghi | Phân loại, nhan đề, tác giả, nhà xuất bản, năm, ISBN, cấp, khối, kệ; số bản, nguồn, giá; lý do thanh lý; tệp tài liệu số | Cấp số đăng ký cá biệt liên tiếp; tem mã (mã QR); thanh lý; sổ đăng ký cá biệt; ngừng dùng ấn phẩm khi hết bản mượn | Ấn phẩm, bản sao, tem PDF, sổ đăng ký Excel hoặc PDF | BR-175, BR-177 |
+| P02-49 | Thẻ bạn đọc (YCTD-181) | `P02.library.manage` | Cán bộ hoặc học sinh; lý do khóa | Đồng bộ thẻ cho cán bộ, học sinh cấp có bật mượn; khóa khi nghỉ; khóa, mở khóa có lý do; in thẻ | Thẻ bạn đọc, lịch sử mượn | BR-175 |
+| P02-50 | Mượn, trả, gia hạn, đặt trước, nhắc quá hạn (YCTD-181) | `P02.library.manage`; cán bộ xem sách mình mượn; phụ huynh xem sách của con | Số thẻ, mã bản sao, lớp (mượn cho lớp), tình trạng khi trả | Kiểm tra quy định; tính phạt trễ hạn; giữ bản cho người đặt trước; nhắc quá hạn qua thông báo | Lượt mượn, lượt đặt trước, thông báo | BR-175, BR-176 |
+| P02-51 | Phát và thu sách giáo khoa (YCTD-181) | `P02.library.manage` | Bộ sách theo khối; lớp | Phát cho cả lớp, báo đầu sách thiếu; thu hàng loạt kèm tình trạng | Lượt mượn loại sách giáo khoa | BR-177 |
+| P02-52 | Kiểm kê, báo cáo, thiết lập thư viện (YCTD-181) | `P02.library.manage` | Đợt kiểm kê, mã quét; kỳ báo cáo; quy định mượn, cấp có học sinh mượn, ngưỡng chỉ tiêu | Đối chiếu thiếu, thừa, hỏng; xử lý bản thiếu; chỉ tiêu theo chuẩn; xuất Excel, PDF | Biên bản kiểm kê, báo cáo thư viện | BR-177 |
 
 ## 4. Phân hệ P03 — Giảng dạy
 

@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.41
+- Phiên bản: 0.42
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,27 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-24 — DT-22 phần 22a: thư viện trường học
+
+#### Công việc đã thực hiện
+
+- Đọc mục 13 của `32_KE_HOACH_THEO_HE_THONG_SO.md` (kế hoạch DT-22) và mã trên nhánh chính: học sinh, cán bộ, lớp, môn, thông báo, nhật ký xuất, tem QR của thiết bị (`equipment-locations`), kiểm kê thiết bị, kho tệp, chuyển năm học; rà bảng `library_items`, `library_albums` (Mầm non) và `asset_loans` để không dùng nhầm.
+- Cơ sở dữ liệu: tệp năm học `0100`, định danh `0090`. Máy chủ API: danh mục, bản sao, tem, thanh lý, tệp số, sổ đăng ký, thẻ bạn đọc, mượn trả, đặt trước, sách giáo khoa, kiểm kê, báo cáo, chuyển năm học. Cổng quản trị: phân hệ "Thư viện" 7 trang. Ứng dụng giáo viên, phụ huynh.
+- Thêm quy tắc BR-175 đến BR-177, chức năng P02-48 đến P02-52, quyền PQ-96, màn hình MH-267 đến MH-275, kịch bản CT-870 đến CT-879, tiêu chí AC-769 đến AC-772. Kết quả ngày 24/10/2026: @@KQ@@
+
+#### Quyết định
+
+- Thực hiện phần 22a của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 13.4. Toàn bộ ở cơ sở dữ liệu năm học (cần khóa ngoại tới học sinh, cán bộ, lớp) và chép sang năm mới; số hệ thống 0040 không dùng; không có vai trò thủ thư cố định, trường gán `P02.library.manage` cho nhóm của thủ thư; chỉ tiêu theo chuẩn để ngưỡng trống đến khi đọc văn bản gốc; không dùng AI, không gọi dịch vụ ngoài. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Khi chạy kiểm thử cục bộ dùng cơ sở dữ liệu định danh riêng `school_identity_22a` vì cơ sở dùng chung đã có tệp của phiên khác; không chạy lệnh migrate toàn bộ lên cơ sở năm học dùng chung.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-181, `07_QUY_TAC_NGHIEP_VU.md` BR-175 đến BR-177, `08_VAI_TRO_NGUOI_DUNG.md` PQ-96, `10_YEU_CAU_CHUC_NANG.md` P02-48 đến P02-52, `11_TIEU_CHI_NGHIEM_THU.md` AC-769 đến AC-772, `14_DAC_TA_GIAO_DIEN.md` MH-267 đến MH-275, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-870 đến CT-879, `23_LICH_SU_PHIEN_BAN.md` 0.112.0.
+
+#### Vấn đề tồn đọng
+
+- Đọc văn bản gốc về chuẩn thư viện cơ sở giáo dục phổ thông để nạp ngưỡng chỉ tiêu; nhập Excel danh mục; ghi minh chứng sang 22f; ảnh bìa, ô chọn môn ở giao diện, thẻ đã trả, đã mất ở danh sách lượt mượn.
 
 ### 2026-10-24 — DT-20 phần 20d: sổ đầu bài và điểm danh theo tiết
 
