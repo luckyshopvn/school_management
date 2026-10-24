@@ -1,8 +1,8 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.50
-- Ngày cập nhật: 2026-10-24
+- Phiên bản: 0.51
+- Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
 
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.126.0 – 2026-10-25
+
+- Phạm vi thay đổi: DT-22 phần 22h2, kho học liệu số phần câu hỏi và chia sẻ (YCTD-184).
+- Chức năng mới: câu hỏi, đề, ma trận của ngân hàng hiện trong kho và trong bộ sưu tập; thống kê sử dụng câu hỏi, chỗ trống chủ đề; rubric; gói chia sẻ liên trường xuất, nhập có kiểm.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0103_create_resource_questions_and_rubrics`; tệp định danh `0093_add_learning_resource_share_permission`.
+- Thay đổi API: `/resource-sharing/…`.
+- Kiểm thử: kịch bản CT-975 đến CT-980. Kết quả ngày 25/10/2026: kiểm thử đơn vị `apps/api/src/learning-resources/resource-sharing.test.ts` CT-22h2-1 đến CT-22h2-5 đạt 5/5; kiểm thử đơn vị các gói đã sửa (api, database, shared) đạt (shared; database 6/6; api 1087/1087); kiểm thử giao diện `tests/e2e/123-resource-sharing.spec.ts` (CT-22h2-6) cùng 02, 03, 06, 08, 58, 96, 122 đạt; toàn bộ kiểm thử giao diện do CI chạy (trên máy: 02, 03, 06, 08, 58, 96, 122 đạt; 123 đạt sau khi sửa CSDL hệ thống của spec); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: lộ học liệu không đủ giấy phép qua gói; đã chặn giấy phép bị chặn, "không rõ", học liệu chưa công bố; học liệu nhập phải duyệt lại.
+- Khả năng tương thích: không đổi hành vi cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 22h2; chạy phần quay lui của tệp năm học `0103`, định danh `0093`.
 
 ### Phiên bản 0.125.0 – 2026-10-24
 

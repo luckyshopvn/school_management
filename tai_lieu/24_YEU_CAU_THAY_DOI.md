@@ -1,8 +1,8 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.54
-- Ngày cập nhật: 2026-10-24
+- Phiên bản: 0.55
+- Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
 ## Quy ước
@@ -10,6 +10,30 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-184: DT-22 phần 22h2: kho học liệu số, câu hỏi và chia sẻ – 2026-10-25
+
+- Lý do: phần 22h2 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 13.4 (kế hoạch DT-22 ở YCTD-180). Bắt đầu khi 22h1 (YCTD-183), 22g1 (YCTD-168) và 22g2 (YCTD-173) đã gộp nên làm đủ cả phần thống kê sử dụng câu hỏi. Không dùng AI. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Phạm vi chốt theo hình dạng thật của 22g1: câu hỏi (`questions`), đề (`exams`), ma trận (`exam_matrices`) ở cơ sở dữ liệu năm học; học liệu, bộ sưu tập của 22h1 ở cơ sở dữ liệu hệ thống. Kho nối bằng khoá tham chiếu, không tạo bảng câu hỏi thứ hai.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Câu hỏi, đề, ma trận trong kho** (Kho học liệu 8.): tìm theo loại, nội dung, mức nhận thức; trạng thái của 22g1; số đề, số bài, độ khó từ lịch sử dùng câu; đường dẫn sang 8.1, 8.2, 8.4 của nhóm "Kiểm tra, đánh giá"; thêm vào bộ sưu tập (bảng năm học `resource_collection_questions`, tệp `0103_create_resource_questions_and_rubrics`).
+  - **Thống kê sử dụng chung**: câu dùng được theo môn, chủ đề, mức nhận thức (số câu, đã dùng, số bài, độ khó); học liệu đã công bố theo môn; chỗ trống chủ đề (chủ đề chưa có học liệu hoặc câu hỏi).
+  - **Rubric** (Kho học liệu 9., bảng `rubrics`): tiêu chí × mức, mô tả, điểm, trọng số; tạo, sửa, nhân bản, in PDF, lưu trữ; nối câu tự luận của ngân hàng. Phiếu học tập có cấu trúc chưa làm vì 22h1 đã có loại "Phiếu học tập" dạng tệp.
+  - **Gói chia sẻ liên trường, bản chạy nội bộ** (Kho học liệu 10., bảng `resource_package_imports`): xuất một bộ sưu tập thành tệp gói nén gzip (bản kê JSON: định dạng, mã gói, tên trường nguồn do trường tự đặt, metadata, mã giấy phép, mã băm và nội dung từng tệp hoặc địa chỉ liên kết); nhập gói của trường khác có kiểm; nhật ký nhập gói. Danh mục chung liên trường thật chờ DT-SaaS.
+  - **Quyền mới** (tệp định danh `0093_add_learning_resource_share_permission`): `P09.learning-resource.share` (VT-02, VT-15) xuất, nhập gói; các phần khác dùng quyền dùng kho của 22h1.
+  - Quy tắc: câu hỏi, đề, ma trận chỉ nằm ở ngân hàng của 22g1, kho hiện và tham chiếu (không sao chép, không luồng duyệt thứ hai, chuyển sang màn hình của ngân hàng); câu dùng được ai dùng kho cũng thấy, câu chưa duyệt chỉ người soạn và người thẩm định đề; đề chỉ người ra đề, người thẩm định, người quản lý đề thấy, kể cả khi nằm trong bộ sưu tập; bộ sưu tập chứa câu hỏi, đề, ma trận bằng tham chiếu theo năm học, chỉ người lập sửa; thống kê sử dụng câu lấy từ lịch sử dùng câu (số đề đã khoá, số bài, độ khó trung bình theo số bài); chỗ trống chủ đề là chủ đề của kho hoặc ngân hàng chưa có học liệu đã công bố hoặc câu dùng được; rubric 2 đến 6 mức điểm tăng dần, 1 đến 20 tiêu chí có trọng số, điểm tối đa là tổng trọng số × điểm mức cao nhất, chỉ nối câu tự luận, người lập sửa, ai thấy thì nhân bản (bản sao cá nhân), người lập hoặc thủ kho lưu trữ; gói chia sẻ chỉ chứa học liệu đã công bố dạng tệp hoặc liên kết, giấy phép không bị chặn, không "chỉ cá nhân", không có người sở hữu hay dữ liệu cá nhân, mỗi tệp có mã băm SHA-256, tối đa 100 MB; nhập gói kiểm định dạng, mã băm, giấy phép theo danh mục của trường, loại trùng theo mã băm hoặc địa chỉ liên kết, học liệu nhập thuộc người nhập, phạm vi toàn trường, gửi duyệt ngay theo luồng của 22h1, ghi nguồn gốc gói; nhật ký nhập gói.
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/school-year/migrations/0103_create_resource_questions_and_rubrics.ts`, `database/identity/migrations/0093_add_learning_resource_share_permission.ts`, `schema.ts`, `index.ts`, `database/src/index.ts`); máy chủ API (`learning-resources/resource-sharing-rules.ts`, `resource-sharing.ts`, `resource-sharing.controller.ts`, `learning-resources.ts` mở `visibleCollection`, `application.module.ts`); cổng quản trị (`learning-resources/ResourceSharingPages.tsx`, `resource-sharing-api.ts`, `router.tsx`); gói dùng chung (`index.ts`, `portal-menu.ts`, `menu-permissions.ts`); tài liệu `01`, `02`, `03`, `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: ba bảng mới ở năm học, một quyền mới; không đổi dữ liệu cũ.
+- API bị ảnh hưởng: mới `GET /resource-sharing/bank`, `GET /resource-sharing/statistics`, `GET, PUT /resource-sharing/collections/{id}/items`, `GET, POST /resource-sharing/rubrics`, `PUT /resource-sharing/rubrics/{id}`, `POST /resource-sharing/rubrics/{id}/clone`, `/archive`, `/restore`, `GET /resource-sharing/rubrics/{id}/print`, `GET /resource-sharing/packages/preview`, `/export`, `/imports`, `POST /resource-sharing/packages/import` (xem `17_DAC_TA_API.md`).
+- Giao diện bị ảnh hưởng: MH-309 đến MH-311.
+- Quyền bị ảnh hưởng: PQ-103. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
+- Ảnh hưởng chức năng cũ: không đổi hành vi 22h1, 22g1; kiểm thử đang có không sửa kỳ vọng.
+- Hạn chế:
+  - Câu hỏi chưa vào gói chia sẻ (gói chỉ chứa học liệu tệp, liên kết); kế hoạch bài dạy tham chiếu không đóng gói;
+  - Câu hỏi, rubric, bộ sưu tập câu hỏi theo năm học như ngân hàng của 22g1;
+  - Danh mục chung liên trường (tìm trên mạng lưới, đồng bộ, xếp hạng) chờ DT-SaaS; AI tắt.
+- Kiểm thử cần thực hiện: kịch bản CT-975 đến CT-980 (trong mã kiểm thử là CT-22h2-1 đến CT-22h2-6); kiểm thử đơn vị mới `apps/api/src/learning-resources/resource-sharing.test.ts`; kiểm thử giao diện mới `tests/e2e/123-resource-sharing.spec.ts`
+- Trạng thái: Đã triển khai
 
 ### YCTD-183: DT-22 phần 22h1: kho học liệu số, phần lõi – 2026-10-24
 

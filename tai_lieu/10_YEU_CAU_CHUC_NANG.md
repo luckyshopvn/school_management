@@ -1,8 +1,8 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.92
-- Ngày cập nhật: 2026-10-24
+- Phiên bản: 1.93
+- Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -303,6 +303,9 @@
 | P09-53 | Bộ sưu tập học liệu (Kho học liệu 4., YCTD-183) | `P09.learning-resource.use` | Tên, phạm vi; danh sách học liệu theo thứ tự | Chỉ học liệu người lập thấy được; chỉ người lập sửa | Bộ sưu tập; tệp Excel danh sách | BR-196 |
 | P09-54 | Báo lỗi học liệu (Kho học liệu 5., YCTD-183) | Báo: `P09.learning-resource.use`; xử lý: `P09.learning-resource.manage` | Loại lỗi, mô tả; kết quả, trả lời, ẩn tạm | Thủ kho xử lý, ẩn tạm học liệu khi cần | Báo lỗi đã xử lý | BR-196 |
 | P09-55 | Thống kê kho, danh mục kho (Kho học liệu 6., 7., YCTD-183) | Thống kê: tổ trưởng (tổ mình), Ban Giám hiệu, thủ kho; danh mục: `P09.learning-resource.manage` | Loại học liệu, giấy phép, chủ đề | Đếm theo môn, khối, loại, giấy phép, tổ, giáo viên; chờ duyệt, quá hạn, giấy phép sắp hết hiệu lực; lượt xem, tải, báo lỗi | Bảng thống kê; danh mục | BR-196 |
+| P09-56 | Câu hỏi, đề trong kho (Kho học liệu 8., YCTD-184) | Người dùng kho; thấy theo quyền 22g1 | Loại, nội dung, mức nhận thức; bộ sưu tập | Tham chiếu ngân hàng 22g1; thêm vào bộ sưu tập; thống kê sử dụng, chỗ trống chủ đề | Danh sách, thống kê | BR-197 |
+| P09-57 | Rubric (Kho học liệu 9., YCTD-184) | Người dùng kho | Tên, mức, điểm, tiêu chí, trọng số, mô tả; câu tự luận | Kiểm, tính điểm tối đa; nhân bản; lưu trữ | Rubric; PDF in | BR-197 |
+| P09-58 | Gói chia sẻ liên trường (Kho học liệu 10., YCTD-184) | `P09.learning-resource.share` | Bộ sưu tập, tên trường nguồn; tệp gói | Lọc học liệu xuất được; đóng gói, mã băm; nhập có kiểm, loại trùng, gửi duyệt | Tệp gói; học liệu chờ duyệt; nhật ký nhập | BR-197 |
 
 ## 11. Phân hệ P10 — Y tế học đường
 

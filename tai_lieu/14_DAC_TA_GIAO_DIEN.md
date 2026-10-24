@@ -1,8 +1,8 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.105
-- Ngày cập nhật: 2026-10-24
+- Phiên bản: 1.106
+- Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -357,6 +357,8 @@ Từ YCTD-182 (DT-22 phần 22e), phân hệ "Hồ sơ chuyên môn" có thêm n
 
 Từ YCTD-183 (DT-22 phần 22h1), phân hệ "Kho học liệu" (khóa `learning-resources`) đứng cuối ô chọn phân hệ, cổng quản trị có 21 phân hệ; phân hệ riêng nên đánh số liên tục (MH-302 đến MH-308).
 
+Từ YCTD-184 (DT-22 phần 22h2), phân hệ "Kho học liệu" thêm 8. Câu hỏi, đề trong kho, 9. Rubric, 10. Gói chia sẻ liên trường (MH-309 đến MH-311).
+
 ## 2. Danh sách màn hình theo kênh
 
 ### 2.1 Cổng quản trị
@@ -645,6 +647,9 @@ Từ YCTD-183 (DT-22 phần 22h1), phân hệ "Kho học liệu" (khóa `learnin
 | MH-306 | Kho học liệu 5. Báo lỗi học liệu (YCTD-183, `/learning-resources/reports`): bảng "Báo lỗi học liệu" (học liệu, loại lỗi, mô tả, người báo, trạng thái, trả lời, "Xử lý"); khối "Xử lý báo lỗi" (trả lời, "Ẩn tạm học liệu", "Đã xử lý", "Không chấp nhận") | Thủ kho xử lý; người khác xem báo lỗi của mình |
 | MH-307 | Kho học liệu 6. Thống kê kho (YCTD-183, `/learning-resources/statistics`): dòng tổng quan (tổng, đã công bố, chờ duyệt, quá hạn, giấy phép sắp hết hiệu lực); bảng theo môn, khối, loại, giấy phép, tổ, đóng góp theo giáo viên; bảng "Lượt xem, tải" kèm số báo lỗi | Tổ trưởng (tổ mình), Ban Giám hiệu, thủ kho |
 | MH-308 | Kho học liệu 7. Danh mục kho (YCTD-183, `/learning-resources/settings`): loại học liệu (ô "Thêm bước Ban Giám hiệu duyệt"); giấy phép (ô "Chặn công bố", biểu mẫu "Thêm giấy phép"); chủ đề (biểu mẫu "Thêm chủ đề") | `P09.learning-resource.manage` |
+| MH-309 | Kho học liệu 8. Câu hỏi, đề trong kho (YCTD-184, `/learning-resources/questions`): loại, tìm, mức nhận thức, "Thêm vào bộ sưu tập"; bảng "Câu hỏi, đề trong kho" (nội dung, môn, khối, chủ đề, mức, đã dùng, trạng thái, "Mở ở ngân hàng", Thêm); "Mục ngân hàng trong bộ sưu tập"; "Thống kê sử dụng câu hỏi" (theo mức nhận thức, chỗ trống chủ đề) | Người dùng kho |
+| MH-310 | Kho học liệu 9. Rubric (YCTD-184, `/learning-resources/rubrics`): bảng "Danh sách rubric" (tên, tiêu chí × mức, điểm tối đa, người lập, trạng thái; Sửa, Nhân bản, In, Lưu trữ); khối "Lập rubric" (tên, mô tả, số mức, tên, điểm từng mức, tiêu chí, trọng số, mô tả từng mức; Thêm tiêu chí, Lưu rubric) | Người dùng kho |
+| MH-311 | Kho học liệu 10. Gói chia sẻ liên trường (YCTD-184, `/learning-resources/packages`): "Xuất gói" (bộ sưu tập, tên trường nguồn, xem trước xuất được, bỏ qua kèm lý do; Xuất gói); "Nhập gói" (tệp gói, Nhập gói, học liệu bỏ qua; "Lịch sử nhập gói") | `P09.learning-resource.share` |
 | MH-277 | 8.1. Ngân hàng câu hỏi (YCTD-168, `/question-bank`): chọn cấp (nếu nhiều), môn, khối; khối "Chủ đề" (danh sách, thêm chủ đề); khối "Soạn câu hỏi" (chủ đề, mức nhận thức, dạng, điểm, nội dung, lựa chọn A đến D hoặc ý a đến d, đáp án, hướng dẫn chấm, "Lưu câu hỏi"); bảng "Câu hỏi" (lọc trạng thái, tìm; nội dung, chủ đề, mức, dạng, trạng thái, người soạn; Sửa, Gửi thẩm định, Duyệt, Trả lại, Ngừng dùng); "Thống kê câu dùng được"; "Nhập câu hỏi từ Excel" (Tải mẫu Excel, tệp, Nhập Excel) | Soạn: `P02.question.author`; duyệt: `P02.exam.review` |
 | MH-278 | 8.2. Ma trận đề (YCTD-168, `/exam-matrices`): bảng "Ma trận đề" (tên, khối, số câu, điểm, kiểm tra, Mở); khối "Soạn ma trận" (môn, khối, tên, tỉ lệ bốn mức, bảng dòng: chủ đề, mức, dạng, số câu, điểm mỗi câu, yêu cầu cần đạt, Bỏ; Thêm dòng, Lưu ma trận); "Kiểm tra ma trận" (tổng câu, điểm, tỉ lệ, các điểm lệch) | Xem: người soạn đề; lập: `P02.exam.review` |
 | MH-279 | 8.3. Kế hoạch kiểm tra (YCTD-168, `/assessment-plans`): bảng "Kế hoạch kiểm tra" (học kỳ, khối, môn, loại, hình thức, thời gian, ngày kèm nhắc thời khoá biểu, trạng thái, số đề; Gửi duyệt, Duyệt, Trả lại); khối "Thêm kế hoạch kiểm tra" | Lập: `P02.exam.review`; duyệt: `P02.exam.manage` |

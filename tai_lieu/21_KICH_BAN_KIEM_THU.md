@@ -1,8 +1,8 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.88
-- Ngày cập nhật: 2026-10-24
+- Phiên bản: 1.89
+- Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -986,6 +986,12 @@ Ca CT-105 đến CT-550 lần lượt kiểm tra AC-149 đến AC-594. CT-534 đ
 | CT-972 | P09-52 | Phạm vi tổ: người cùng tổ, tổ khác; tìm theo từ khoá; tải bản đã công bố; mở liên kết; nộp phiên bản 2 chờ duyệt; người khác tải; tải phiên bản 2; sau khi duyệt; ngừng dùng | thấy, không thấy (404); 2 kết quả; đúng tệp; trả địa chỉ; người khác vẫn tải bản 1, bản 2 là 404; sau duyệt tải bản 2; 3 lượt tải; ngừng dùng thì hết trong kết quả | Kiểm thử tự động `apps/api/src/learning-resources/learning-resources.test.ts` CT-22h1-5 đạt ngày 24/10/2026 | Đạt |
 | CT-973 | P09-53, P09-54, P09-55 | Bộ sưu tập: thêm học liệu không thấy được; thêm hai học liệu; người khác sửa; xuất; báo lỗi bản quyền; thủ kho xử lý kèm ẩn tạm; mở lại; thống kê; tổ trưởng tổ khác xem thống kê | 400; đúng thứ tự; 403; tệp Excel; 201, Việc của tôi của thủ kho; học liệu ẩn khỏi kết quả; đã công bố; 2 đã công bố, 1 báo lỗi; tổng 0 | Kiểm thử tự động `apps/api/src/learning-resources/learning-resources.test.ts` CT-22h1-6 đạt ngày 24/10/2026 | Đạt |
 | CT-974 | P09-50, P09-51, P09-52, P09-53, P09-54, P09-55 | Giao diện: giáo viên thêm học liệu, tải tệp, gửi duyệt; tổ trưởng duyệt; đồng nghiệp tìm, báo lỗi, lập bộ sưu tập; Hiệu trưởng xử lý báo lỗi, xem thống kê | Phiên bản có tên tệp; đã duyệt; kết quả "Đã công bố"; bộ sưu tập có học liệu; báo lỗi có trả lời; bảng lượt xem, tải có học liệu | Kiểm thử giao diện `tests/e2e/122-learning-resources.spec.ts` CT-22h1-7 đạt ngày 24/10/2026 | Đạt |
+| CT-975 | P09-57, P09-58 | Rubric hợp lệ, mức giảm dần, thiếu mô tả, trống; gói đọc lại, mã băm sai, liên kết thiếu địa chỉ, tệp không phải gói, sai định dạng; chỗ trống chủ đề | điểm tối đa 6; 400 các ca sai; báo lỗi mục 2, 3; 400; đúng chủ đề còn trống | Kiểm thử tự động `apps/api/src/learning-resources/resource-sharing.test.ts` CT-22h2-1 đạt ngày 25/10/2026 | Đạt |
+| CT-976 | P09-56 | Phụ huynh xem; người soạn, giáo viên khác xem câu; lọc mức; đề chưa giao; ma trận; bộ sưu tập: người khác sửa, trùng, đúng; người khác xem | 403; 3 câu (có nháp), 2 câu; 1; 0 đề; 1; 403, 400, 3 mục có đường dẫn; không thấy đề; số câu ngân hàng không đổi | Kiểm thử tự động `apps/api/src/learning-resources/resource-sharing.test.ts` CT-22h2-2 đạt ngày 25/10/2026 | Đạt |
+| CT-977 | P09-56 | Thống kê sử dụng câu hỏi theo môn, mức; chỗ trống chủ đề | 2 câu, 2 đã dùng; nhận biết 30 bài độ khó 0,8, vận dụng 10 bài độ khó 0,4; Hình học, Phân số còn trống | Kiểm thử tự động `apps/api/src/learning-resources/resource-sharing.test.ts` CT-22h2-3 đạt ngày 25/10/2026 | Đạt |
+| CT-978 | P09-57 | Rubric: phụ huynh tạo, nối câu không tự luận, tạo, người khác sửa, nhân bản, in, lưu trữ | 403; 400; điểm tối đa 5; 403; bản sao cá nhân; PDF; 403 người khác, người lập lưu trữ được | Kiểm thử tự động `apps/api/src/learning-resources/resource-sharing.test.ts` CT-22h2-4 đạt ngày 25/10/2026 | Đạt |
+| CT-979 | P09-58 | Xuất bộ sưu tập 3 học liệu (1 đã công bố); nhập lại chính gói; nhập gói trường khác (1 tốt, 1 mã băm sai, 1 không rõ giấy phép); giáo viên nhập | 1 xuất được, 2 bỏ qua; gói không có người sở hữu; 0 nhập, trùng; 1 nhập chờ duyệt, ghi nguồn gốc, 2 bỏ qua; 403 | Kiểm thử tự động `apps/api/src/learning-resources/resource-sharing.test.ts` CT-22h2-5 đạt ngày 25/10/2026 | Đạt |
+| CT-980 | P09-56, P09-57, P09-58 | Giao diện: giáo viên tìm câu của ngân hàng, thêm vào bộ sưu tập, lập rubric 2 tiêu chí 3 mức, in; Hiệu trưởng nhập gói | câu dùng được, đường dẫn ngân hàng; mục trong bộ sưu tập; điểm tối đa 6, rubric.pdf; 1 học liệu chờ duyệt, lịch sử nhập | Kiểm thử giao diện `tests/e2e/123-resource-sharing.spec.ts` CT-22h2-6 đạt ngày 25/10/2026 | Đạt |
 | CT-904 | P17-32 | Cú pháp công thức đúng, sai; đếm theo cột với bộ học sinh, lớp mẫu | Phân tích được; báo lỗi; tổng, nữ, dân tộc, nữ dân tộc, khuyết tật đúng; lớp chỉ cột tổng | Kiểm thử đơn vị CT-20f-1 đạt ngày 24/10/2026 | Đạt |
 | CT-905 | P17-31 | Sĩ số: phụ huynh; Hiệu trưởng | 403; khối 4: 1 lớp 2 học sinh 2 buổi/ngày, khối 5: 1 lớp 1 học sinh; toàn trường 3 học sinh, 2 nữ, 1 dân tộc, 1 khuyết tật, 1 bán trú | Kiểm thử đơn vị CT-20f-2 đạt ngày 24/10/2026 | Đạt |
 | CT-906 | P17-31 | Kết quả cuối học kỳ I theo khối, toàn trường; thiếu kỳ | Tiếng Việt khối 4: T 1, H 1, điểm 9-10 1, 5-6 1; toàn trường 3 học sinh; 400 | Kiểm thử đơn vị CT-20f-3 đạt ngày 24/10/2026 | Đạt |
