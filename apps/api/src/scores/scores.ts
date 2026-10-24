@@ -603,6 +603,18 @@ export class ScoresService {
     };
   }
 
+  // Tổng hợp cho các phần khác đọc (học bạ 21e): không kiểm quyền, nơi gọi tự kiểm; lớp phải thuộc THCS, THPT
+  async summariesFor(database: Executor, classId: string, term: RatingTermValue) {
+    const classRow = await this.findClass(database, classId);
+    const config = await readScoreConfig(database, classRow.school_level);
+    return { config, ...(await this.studentSummaries(database, classRow, config, term)) };
+  }
+
+  // Học kỳ II của lớp đã khoá điểm chưa (điều kiện lập học bạ, xét lên lớp, khen thưởng)
+  async isYearLocked(database: Executor, classId: string): Promise<boolean> {
+    return Boolean(await this.lockOf(database, classId, 'second_term'));
+  }
+
   async summary(currentUser: CurrentUser, classId: string, term: RatingTermValue) {
     const { database } = await this.currentSchoolYear.require();
     const classRow = await this.findClass(database, classId);

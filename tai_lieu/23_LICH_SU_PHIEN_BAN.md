@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.41
+- Phiên bản: 0.42
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.116.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-21 phần 21e, học bạ số, khen thưởng, xét lên lớp THCS, THPT (YCTD-172).
+- Chức năng mới: danh hiệu học sinh Xuất sắc, Giỏi theo Thông tư 22/2021 (gợi ý, đề nghị, duyệt, giấy khen có mã tra cứu); xét lên lớp, hoàn thành chương trình cấp học, rèn luyện trong hè, kiểm tra lại theo xếp loại học tập, rèn luyện cả năm; học bạ số có điểm trung bình hai học kỳ, cả năm, xếp loại, kí nội bộ in đủ số định danh kèm kiểm quyền; phụ huynh tải học bạ đã kí; mục 7.8 dùng chung Tiểu học, THCS, THPT.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: tệp năm học `0089_widen_award_basis` (thêm căn cứ danh hiệu THCS, THPT); tệp định danh `0080` để trống (dùng quyền học bạ của 20e, không thêm quyền).
+- Thay đổi API: không thêm điểm cuối; các điểm cuối `/learning-records` nhận lớp THCS, THPT, trả thêm `has_result`, `needs_support`, `year_label`, `learning`, `conduct`.
+- Kiểm thử: kịch bản CT-904 đến CT-909. Kết quả ngày 24/10/2026: kiểm thử đơn vị `learning-records-secondary.test.ts` CT-21e-1 đến CT-21e-5 đạt 5/5; chạy cùng học bạ 20e, sổ điểm 21c, sổ điểm, môn học, đánh giá, menu, cấp học đạt 45/45; typecheck, prettier đạt; e2e 100, 92, 98, 58 và 02, 03, 06, 08 đạt; e2e CT-21e-6 đạt; e2e toàn bộ do CI chạy.
+- Rủi ro: điều kiện danh hiệu Xuất sắc (6 môn từ 9,0), điều kiện lên lớp là mặc định theo Thông tư 22/2021, cần đối chiếu văn bản gốc; mẫu học bạ THCS, THPT là bố cục chung, mẫu của Bộ, Sở khớp khi khảo sát; chưa khảo sát hệ thống của Sở cấp THCS, THPT.
+- Khả năng tương thích: học bạ, khen thưởng, lên lớp Tiểu học không đổi; trường chỉ có Mầm non thấy như cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 21e; chạy phần quay lui của tệp năm học `0089`.
 
 ### Phiên bản 0.115.0 – 2026-10-24
 

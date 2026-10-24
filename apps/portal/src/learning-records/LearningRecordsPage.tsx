@@ -42,8 +42,9 @@ const TAB_LABELS: Record<Tab, string> = {
   titles: 'Danh hiệu',
 };
 const SELECT_CLASS = 'rounded-lg border border-border bg-card px-3 py-2 text-content font-normal';
-const resultLabel = (code: string | null) =>
-  code ? (YEAR_RESULT_LABELS[code as YearResultCode] ?? code) : 'Chưa xác nhận';
+const resultLabel = (row: { year_result: string | null; year_label: string | null }) =>
+  row.year_label ??
+  (row.year_result ? (YEAR_RESULT_LABELS[row.year_result as YearResultCode] ?? row.year_result) : 'Chưa xác nhận');
 
 function AwardsTab({ classId, onSaved }: { classId: string; onSaved(message: string): void }) {
   const queryClient = useQueryClient();
@@ -108,7 +109,7 @@ function AwardsTab({ classId, onSaved }: { classId: string; onSaved(message: str
           {data.rows.map((row) => (
             <tr key={row.child_id} className="border-t border-border align-top">
               <td className="px-2 py-2 font-medium">{row.full_name}</td>
-              <td className="px-2 py-2">{resultLabel(row.year_result)}</td>
+              <td className="px-2 py-2">{resultLabel(row)}</td>
               <td className="px-2 py-2">
                 <ul className="flex flex-col gap-1">
                   {row.awards.map((award) => (
@@ -229,11 +230,11 @@ function CompletionTab({ classId, onSaved }: { classId: string; onSaved(message:
       saveCompletion(
         classId,
         (view.data?.rows ?? [])
-          .filter((row) => row.year_result)
+          .filter((row) => row.has_result)
           .map((row) => ({
             child_id: row.child_id,
-            support_plan: row.year_result === 'not_completed' ? draft[row.child_id]?.plan || null : null,
-            support_result: row.year_result === 'not_completed' ? draft[row.child_id]?.result || null : null,
+            support_plan: row.needs_support ? draft[row.child_id]?.plan || null : null,
+            support_result: row.needs_support ? draft[row.child_id]?.result || null : null,
             support_note: draft[row.child_id]?.note || null,
           })),
       ),
@@ -274,9 +275,9 @@ function CompletionTab({ classId, onSaved }: { classId: string; onSaved(message:
           {data.rows.map((row) => (
             <tr key={row.child_id} className="border-t border-border align-top">
               <td className="px-2 py-2 font-medium">{row.full_name}</td>
-              <td className="px-2 py-2">{resultLabel(row.year_result)}</td>
+              <td className="px-2 py-2">{resultLabel(row)}</td>
               <td className="px-2 py-2">
-                {row.year_result === 'not_completed' ? (
+                {row.needs_support ? (
                   <div className="flex flex-col gap-1">
                     <select
                       aria-label={`Hình thức của ${row.full_name}`}
@@ -479,11 +480,11 @@ function RecordsTab({ classId, onSaved }: { classId: string; onSaved(message: st
   );
 }
 
-function TitlesTab({ onSaved }: { onSaved(message: string): void }) {
+function TitlesTab({ level, onSaved }: { level: string; onSaved(message: string): void }) {
   const queryClient = useQueryClient();
-  const titles = useQuery({ queryKey: ['award-titles'], queryFn: readTitles });
+  const titles = useQuery({ queryKey: ['award-titles', level], queryFn: () => readTitles(level) });
   const defaults = useMutation({
-    mutationFn: loadTitleDefaults,
+    mutationFn: () => loadTitleDefaults(level),
     onSuccess: async (result) => {
       await queryClient.invalidateQueries({ queryKey: ['award-titles'] });
       await queryClient.invalidateQueries({ queryKey: ['class-awards'] });
@@ -495,7 +496,7 @@ function TitlesTab({ onSaved }: { onSaved(message: string): void }) {
       {defaults.error ? <Alert tone="danger">{messageOf(defaults.error)}</Alert> : null}
       <div>
         <Button disabled={defaults.isPending} onClick={() => defaults.mutate()}>
-          Nạp danh hiệu mặc định (Thông tư 27/2020)
+          {level === 'TH' ? 'Nạp danh hiệu mặc định (Thông tư 27/2020)' : 'Nạp danh hiệu mặc định (Thông tư 22/2021)'}
         </Button>
       </div>
       <ul className="flex flex-col gap-1 text-content" aria-label="Danh hiệu khen thưởng">
@@ -523,8 +524,13 @@ export function LearningRecordsPage() {
     queryFn: () => listClasses(orgUnitId ?? ''),
     enabled: orgUnitId !== undefined,
   });
-  const primaryClasses = (classes.data ?? []).filter((item) => item.status === 'active' && item.school_level === 'TH');
+  const primaryClasses = (classes.data ?? []).filter(
+    (item) =>
+      item.status === 'active' &&
+      (item.school_level === 'TH' || item.school_level === 'THCS' || item.school_level === 'THPT'),
+  );
   const selectedClassId = classId || primaryClasses[0]?.id || '';
+  const selectedLevel = primaryClasses.find((item) => item.id === selectedClassId)?.school_level ?? 'TH';
   const tabs = (Object.keys(TAB_LABELS) as Tab[]).filter((code) => canApprove || code !== 'titles');
   return (
     <AppShell>
@@ -561,9 +567,11 @@ export function LearningRecordsPage() {
             </Button>
           ))}
         </div>
-        {classes.data && primaryClasses.length === 0 ? <Alert tone="info">Đơn vị chưa có lớp Tiểu học.</Alert> : null}
+        {classes.data && primaryClasses.length === 0 ? (
+          <Alert tone="info">Đơn vị chưa có lớp Tiểu học, THCS hoặc THPT.</Alert>
+        ) : null}
         <section className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4">
-          {tab === 'titles' ? <TitlesTab onSaved={setToastMessage} /> : null}
+          {tab === 'titles' ? <TitlesTab level={selectedLevel} onSaved={setToastMessage} /> : null}
           {selectedClassId && tab === 'awards' ? (
             <AwardsTab classId={selectedClassId} onSaved={setToastMessage} />
           ) : null}

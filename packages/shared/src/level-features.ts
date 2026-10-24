@@ -37,7 +37,7 @@ export const LEVEL_FEATURES: Record<LevelFeature, readonly SchoolLevelCode[]> = 
   student_assessment: ['TH'],
   period_attendance: ['TH', 'THCS', 'THPT'],
   // Học bạ số, khen thưởng đã duyệt (DT-20 phần 20e): phụ huynh xem, tải học bạ đã kí của con
-  learning_record: ['TH'],
+  learning_record: ['TH', 'THCS', 'THPT'],
   student_scores: ['THCS', 'THPT'],
 };
 
