@@ -165,7 +165,7 @@ test('CT-22c2-14: máy xếp chạy nền, phương án thành bản nháp, ki�
     await preview.getByLabel('Tên bản nháp phương án 1').fill(`TKB máy xếp ${suffix}`);
     await preview.getByLabel('Áp dụng từ phương án 1').fill(plusDays(today, 60));
     await preview.getByRole('button', { name: 'Tạo bản nháp từ phương án 1' }).click();
-    await expect(toast(page, `Đã tạo bản nháp TKB máy xếp ${suffix}`)).toBeVisible();
+    await expect(toast(page, `Đã tạo bản nháp TKB máy xếp ${suffix}; mở 7.4`)).toBeVisible();
 
     // 7.4: bản nháp do máy xếp tạo; chỉnh tay có kiểm tra ngay (cô A đã báo bận thứ Hai tiết 1)
     await openMenu(page, '/timetables');
