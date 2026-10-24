@@ -104,11 +104,16 @@ function LessonForm({ lesson, date, onDone }: { lesson: MyLesson; date: string; 
   const [errorMessage, setErrorMessage] = useState<string>();
   const [busy, setBusy] = useState(false);
 
+  // Effect chạy lại (đổi tiết, chế độ kiểm tra của React) thì bỏ kết quả của lần tải cũ để không ghi đè ô giáo viên đã nhập
   useEffect(() => {
+    let current = true;
     requestJson<LessonDetail>(
       `/api/v1/class-logs/lesson?class_id=${lesson.class_id}&date=${date}&period_no=${lesson.period_no}&group_no=${lesson.group_no}`,
     )
       .then((loaded) => {
+        if (!current) {
+          return;
+        }
         setDetail(loaded);
         setTitle(loaded.log?.lesson_title ?? '');
         setContent(loaded.log?.content ?? '');
@@ -116,7 +121,10 @@ function LessonForm({ lesson, date, onDone }: { lesson: MyLesson; date: string; 
         setRating(loaded.log?.rating ?? '');
         setMarks(Object.fromEntries(loaded.students.map((student) => [student.child_id, student.status])));
       })
-      .catch((error: unknown) => setErrorMessage(messageOf(error)));
+      .catch((error: unknown) => current && setErrorMessage(messageOf(error)));
+    return () => {
+      current = false;
+    };
   }, [lesson, date]);
 
   const save = async (andSign: boolean) => {
