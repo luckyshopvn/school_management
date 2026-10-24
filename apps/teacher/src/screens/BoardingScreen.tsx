@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, ApplicationHeader, Button, TextField } from '@school-management/ui';
 import { ApiError, requestJson } from '../session/api-client.js';
 import type { MyClass } from './ClassesScreen.js';
@@ -30,13 +30,21 @@ export function BoardingScreen({ myClass, onBack }: { myClass: MyClass; onBack()
   const [roster, setRoster] = useState<Roster>();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ text: string; failed: boolean }>();
+  // Đổi ngày khi danh sách của ngày trước chưa tải xong: chỉ nhận kết quả của lần tải mới nhất, kết quả cũ về sau bị bỏ
+  const latest = useRef(0);
 
   const load = useCallback(async () => {
+    const request = ++latest.current;
     try {
-      setRoster(await requestJson<Roster>(`/api/v1/boarding/classes/${myClass.id}/roster?date=${date}`));
+      const loaded = await requestJson<Roster>(`/api/v1/boarding/classes/${myClass.id}/roster?date=${date}`);
+      if (request === latest.current) {
+        setRoster(loaded);
+      }
     } catch (error) {
-      setRoster(undefined);
-      setMessage({ text: messageOf(error), failed: true });
+      if (request === latest.current) {
+        setRoster(undefined);
+        setMessage({ text: messageOf(error), failed: true });
+      }
     }
   }, [myClass.id, date]);
 
