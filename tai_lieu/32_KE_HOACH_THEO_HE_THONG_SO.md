@@ -1051,6 +1051,6 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 | Phần | Đợt | Tiến độ |
 |---|---|---|
 | 22a | 1 | Chưa làm, làm được ngay |
-| 22e | 1 | Đã làm, YCTD-182, phiên bản 0.114.0, PR …: danh mục (hệ thống 0041: định mức 120 tiết, chuyên đề theo ba chương trình, khung năng lực số 6 miền 3 mức theo Thông tư 18/2026), khoá, đăng ký, duyệt tổ và Ban Giám hiệu, kết quả, chứng nhận PDF có mã QR, thu hồi, cấp lại, trang tra cứu công khai (năm học 0101, `staff_certificates` thêm cột), chứng chỉ nhập tay, hồ sơ cá nhân, tổ, trường, năng lực số và gợi ý chuyên đề; nhóm 6 của Hồ sơ chuyên môn; quyền `P09.training.*` (định danh 0091); ứng dụng giáo viên; e2e 121 |
+| 22e | 1 | Đã làm, YCTD-182, phiên bản 0.114.0, PR 145: danh mục (hệ thống 0041: định mức 120 tiết, chuyên đề theo ba chương trình, khung năng lực số 6 miền 3 mức theo Thông tư 18/2026), khoá, đăng ký, duyệt tổ và Ban Giám hiệu, kết quả, chứng nhận PDF có mã QR, thu hồi, cấp lại, trang tra cứu công khai (năm học 0101, `staff_certificates` thêm cột), chứng chỉ nhập tay, hồ sơ cá nhân, tổ, trường, năng lực số và gợi ý chuyên đề; nhóm 6 của Hồ sơ chuyên môn; quyền `P09.training.*` (định danh 0091); ứng dụng giáo viên; e2e 121 |
 | 22h1 | 2 | Chưa làm, bắt đầu khi 22a hoặc 22e gộp |
 | 22h2 | 3 | Chưa làm, chờ 22h1 và 22g1 (DT-21); thống kê sử dụng câu hỏi chờ thêm 22g2 |
