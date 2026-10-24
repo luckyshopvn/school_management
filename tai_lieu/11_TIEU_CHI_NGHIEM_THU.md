@@ -1,8 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.62
-- Phiên bản: 1.61
+- Phiên bản: 1.63
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -842,6 +841,9 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-777 | Cho trường bật THCS, THPT có khối 6 đến 12 / Khi Hiệu trưởng nạp môn mẫu / Thì có môn, chương trình mặc định theo cấp, số tiết khối 6 đến 12, môn lựa chọn THPT chia ba nhóm, nạp lại không trùng; trường chỉ có Mầm non hay Tiểu học thấy như trước, không có mục 7.12, 7.13 (CT-891, CT-892, CT-896; YCTD-167) |
 | AC-778 | Cho THPT có môn lựa chọn / Khi lập tổ hợp môn / Thì phải đúng 4 môn lựa chọn thuộc ít nhất 2 nhóm, mã duy nhất, giáo viên không lập được, tổ hợp đã có học sinh không đổi môn (CT-893, CT-896) |
 | AC-779 | Cho học sinh lớp THPT / Khi đăng ký rồi đổi tổ hợp, duyệt hoặc từ chối / Thì đăng ký đầu có hiệu lực ngay, đổi thì chờ duyệt, từ chối trả về tổ hợp cũ, duyệt thì môn tự chọn theo tổ hợp; học sinh lớp khác cấp bị từ chối; tổ bộ môn có một tổ trưởng và thành viên là giáo viên bộ môn (CT-894, CT-895, CT-896) |
+| AC-780 | Cho lớp THCS có môn của chương trình / Khi giáo viên nhập điểm thường xuyên, giữa kỳ, cuối kỳ / Thì trung bình môn tính theo hệ số 1, 2, 3 và làm tròn một chữ số, môn nhận xét ghi Đạt, Chưa đạt; giáo viên chỉ nhập môn được phân công, điểm sai bị từ chối; lớp Mầm non bị từ chối (CT-897, CT-899; YCTD-170) |
+| AC-781 | Cho điểm đã nhập đủ / Khi tổng hợp học kỳ, cả năm và xác nhận xếp loại / Thì máy gợi ý học tập theo ngưỡng (Tốt, Khá, Đạt, Chưa đạt), cả năm tính từ hai học kỳ, giáo viên chủ nhiệm xác nhận học tập, rèn luyện, giáo viên môn không xác nhận (CT-897, CT-900; YCTD-170) |
+| AC-782 | Cho học kỳ / Khi Hiệu trưởng khoá điểm, mở khoá kèm lý do, và phụ huynh xem / Thì khoá thì không sửa được (kể cả người quản lý), quá hạn thì chỉ người quản lý sửa; phụ huynh chỉ xem học kỳ đã khoá của con mình (CT-901, CT-902, CT-903; YCTD-170) |
 | AC-766 | Cho trường chỉ có Mầm non / Khi nâng cấp lên phiên bản có sổ đầu bài / Thì không có mục mới, điểm danh theo ngày và ứng dụng như trước (CT-864, CT-869; YCTD-162) |
 | AC-767 | Cho giáo viên có tiết trong thời khoá biểu đang áp dụng / Khi mở Sổ đầu bài, ghi tiết, điểm danh, ký sổ / Thì học sinh đã báo vắng mặc định vắng có phép; giáo viên khác, ngày chưa đến, học sinh ngoài lớp bị từ chối; tiết đã ký không sửa (CT-865, CT-866, CT-869; YCTD-162) |
 | AC-768 | Cho sổ của lớp trong tuần / Khi Ban giám hiệu ký sổ tuần, phụ huynh mở Điểm danh theo tiết, nhân sự mở Chuyên cần theo tiết / Thì ký một lần và khoá ghi trong tuần; phụ huynh chỉ thấy con mình; bảng chuyên cần đối chiếu đúng ngày báo vắng (CT-867, CT-868, CT-869; YCTD-162) |

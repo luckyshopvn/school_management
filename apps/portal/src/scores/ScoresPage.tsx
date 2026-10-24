@@ -124,7 +124,12 @@ function EntryTab({ overview, term, onSaved }: { overview: ScoreOverview; term: 
     <section className="flex flex-col gap-3" aria-label="Nhập điểm">
       <label className="flex max-w-sm flex-col gap-2 text-label font-medium text-text">
         Môn
-        <select value={subjectId} onChange={(event) => setSubjectId(event.target.value)} className={SELECT_CLASS}>
+        <select
+          aria-label="Môn"
+          value={subjectId}
+          onChange={(event) => setSubjectId(event.target.value)}
+          className={SELECT_CLASS}
+        >
           {overview.subjects.map((item) => (
             <option key={item.subject_id} value={item.subject_id}>
               {item.subject_name}
@@ -316,7 +321,10 @@ function SummaryTab({ overview, onSaved }: { overview: ScoreOverview; onSaved(m:
   });
   const data = summary.data;
   const patch = (childId: string, change: Partial<{ learning: string; conduct: string; comment: string }>) =>
-    setDrafts((current) => ({ ...current, [childId]: { learning: '', conduct: '', comment: '', ...current[childId], ...change } }));
+    setDrafts((current) => ({
+      ...current,
+      [childId]: { learning: '', conduct: '', comment: '', ...current[childId], ...change },
+    }));
   return (
     <section className="flex flex-col gap-3" aria-label="Tổng hợp, xếp loại">
       <label className="flex max-w-sm flex-col gap-2 text-label font-medium text-text">
