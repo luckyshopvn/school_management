@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.102
+- Phiên bản: 1.103
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -355,7 +355,7 @@ Từ YCTD-149 (DT-18 phần 22f), phân hệ "Bảo đảm chất lượng" (kh�
 
 Từ YCTD-182 (DT-22 phần 22e), phân hệ "Hồ sơ chuyên môn" có thêm nhóm "6. Bồi dưỡng giáo viên" (6.1 đến 6.5, MH-282 đến MH-286); trang công khai "Tra cứu chứng nhận bồi dưỡng" (MH-287).
 
-Từ YCTD-183 (DT-22 phần 22h1), phân hệ "Kho học liệu" (khóa `learning-resources`) đứng cuối ô chọn phân hệ, cổng quản trị có 20 phân hệ; phân hệ riêng nên đánh số liên tục (MH-289 đến MH-295).
+Từ YCTD-183 (DT-22 phần 22h1), phân hệ "Kho học liệu" (khóa `learning-resources`) đứng cuối ô chọn phân hệ, cổng quản trị có 20 phân hệ; phân hệ riêng nên đánh số liên tục (MH-291 đến MH-297).
 
 ## 2. Danh sách màn hình theo kênh
 
@@ -635,13 +635,15 @@ Từ YCTD-183 (DT-22 phần 22h1), phân hệ "Kho học liệu" (khóa `learnin
 | MH-275 | Ứng dụng giáo viên, lớp THCS, THPT: nút "Sổ điểm" ở danh sách lớp mở bảng điểm theo học kỳ, môn mình được phân công (TX, giữa kỳ, cuối kỳ, kết quả Đạt, Chưa đạt), nút "Lưu điểm" |
 | MH-276 | Ứng dụng phụ huynh, con học THCS, THPT: nút "Điểm học tập" hiện điểm các học kỳ đã khoá (điểm từng môn, trung bình, xếp loại học tập, rèn luyện), xếp loại cả năm khi học kỳ II đã khoá |
 | MH-288 | 7.8. Học bạ, khen thưởng, lên lớp cho THCS, THPT (YCTD-172, `/learning-records`): chọn lớp Tiểu học, THCS hoặc THPT; tab "Danh hiệu" nạp danh hiệu mặc định theo Thông tư của cấp (Thông tư 22/2021: Xuất sắc, Giỏi, đột xuất); "Khen thưởng", "Hoàn thành chương trình", "Học bạ" như Tiểu học, cột kết quả cuối năm hiện "Học tập: …; rèn luyện: …" cho THCS, THPT; ứng dụng phụ huynh nút "Học bạ" hiện cho THCS, THPT |
-| MH-289 | Kho học liệu 1. Tìm học liệu (YCTD-183, `/learning-resources`): biểu mẫu "Tìm học liệu" (từ khoá, loại, cấp, môn, "Tìm"); bảng "Kết quả tìm học liệu" (tiêu đề, loại, môn, khối, giấy phép, người đóng góp, trạng thái, "Mở"); khối chi tiết học liệu (metadata, bảng "Phiên bản" có "Tải về" hoặc "Mở liên kết", lượt xem, tải, biểu mẫu "Báo lỗi học liệu") | Người có quyền kho học liệu |
-| MH-290 | Kho học liệu 2. Học liệu của tôi (YCTD-183, `/learning-resources/mine`): bảng "Học liệu của tôi"; khối chi tiết (ô tệp, "Tải tệp lên", địa chỉ, tiêu đề liên kết, "Thêm liên kết", "Gửi duyệt", "Ngừng dùng", lý do bị trả lại, lịch sử duyệt); biểu mẫu "Thêm học liệu" (tiêu đề, loại, phạm vi xem, cấp, khối, môn, chủ đề, từ khoá, tác giả, giấy phép, nơi cấp phép khi cần, nguồn gốc) | Người có quyền kho học liệu |
-| MH-291 | Kho học liệu 3. Duyệt học liệu (YCTD-183, `/learning-resources/review`): bảng "Học liệu chờ duyệt" (học liệu chờ chính người dùng duyệt); khối chi tiết có ô "Ý kiến duyệt", "Duyệt", "Trả lại" | Tổ trưởng, Ban Giám hiệu |
-| MH-292 | Kho học liệu 4. Bộ sưu tập (YCTD-183, `/learning-resources/collections`): bảng "Danh sách bộ sưu tập"; khối bộ sưu tập (danh sách có "Lên", "Xuống", "Bỏ", ô "Thêm học liệu", "Thêm vào bộ sưu tập", "Xoá bộ sưu tập", "Xuất danh sách"); biểu mẫu "Lập bộ sưu tập" (tên, phạm vi chia sẻ) | Người có quyền kho học liệu |
-| MH-293 | Kho học liệu 5. Báo lỗi học liệu (YCTD-183, `/learning-resources/reports`): bảng "Báo lỗi học liệu" (học liệu, loại lỗi, mô tả, người báo, trạng thái, trả lời, "Xử lý"); khối "Xử lý báo lỗi" (trả lời, "Ẩn tạm học liệu", "Đã xử lý", "Không chấp nhận") | Thủ kho xử lý; người khác xem báo lỗi của mình |
-| MH-294 | Kho học liệu 6. Thống kê kho (YCTD-183, `/learning-resources/statistics`): dòng tổng quan (tổng, đã công bố, chờ duyệt, quá hạn, giấy phép sắp hết hiệu lực); bảng theo môn, khối, loại, giấy phép, tổ, đóng góp theo giáo viên; bảng "Lượt xem, tải" kèm số báo lỗi | Tổ trưởng (tổ mình), Ban Giám hiệu, thủ kho |
-| MH-295 | Kho học liệu 7. Danh mục kho (YCTD-183, `/learning-resources/settings`): loại học liệu (ô "Thêm bước Ban Giám hiệu duyệt"); giấy phép (ô "Chặn công bố", biểu mẫu "Thêm giấy phép"); chủ đề (biểu mẫu "Thêm chủ đề") | `P09.learning-resource.manage` |
+| MH-289 | 8.5. Chấm bài kiểm tra (YCTD-173, `/exam-grading`): bảng "Bài kiểm tra của lớp" (đề, lớp, học kỳ, loại điểm, đã chấm, trung bình, trạng thái, Mở); khung bài kiểm tra (Tải phiếu trả lời, Tải mẫu tệp quét, tệp, Nhập tệp quét; Khoá điểm, Mở khoá, Chuyển vào sổ điểm; nhắc các bài chặn khoá; bảng "Bài làm của học sinh": mã đề hoặc vắng, trắc nghiệm, tự luận, tổng, ghi chú, Nhập bài, Sửa bài; khung bài của học sinh: vắng, mã đề, ô đáp án từng câu, điểm tự luận người chấm 1, 2, Lưu bài); khối "Tạo bài kiểm tra của lớp" (đề đã khoá, lớp, học kỳ, loại điểm, lần, chấm đúng sai, học sinh vắng, chấm tự luận hai người, ngưỡng lệch) | `P02.exam.grade`, `P02.exam.manage` |
+| MH-290 | 8.6. Báo cáo kết quả kiểm tra (YCTD-173, `/exam-reports`): chọn đề, lớp; Xuất Excel, Xuất PDF; số bài đã khoá, điểm trung bình; bảng "Kết quả theo câu" (câu, nội dung, dạng, mức, chủ đề, độ khó, độ phân biệt, nên xem lại); "Kết quả theo chủ đề", "Kết quả theo mức nhận thức" (số câu, điểm tối đa, tỉ lệ điểm đạt); "Kết quả theo lớp" (giáo viên, số bài, trung bình, thấp nhất, cao nhất, tỉ lệ từ 5 điểm); "Phân bố điểm" | `P02.exam.grade`, `P02.exam.review`, `P02.exam.manage` |
+| MH-291 | Kho học liệu 1. Tìm học liệu (YCTD-183, `/learning-resources`): biểu mẫu "Tìm học liệu" (từ khoá, loại, cấp, môn, "Tìm"); bảng "Kết quả tìm học liệu" (tiêu đề, loại, môn, khối, giấy phép, người đóng góp, trạng thái, "Mở"); khối chi tiết học liệu (metadata, bảng "Phiên bản" có "Tải về" hoặc "Mở liên kết", lượt xem, tải, biểu mẫu "Báo lỗi học liệu") | Người có quyền kho học liệu |
+| MH-292 | Kho học liệu 2. Học liệu của tôi (YCTD-183, `/learning-resources/mine`): bảng "Học liệu của tôi"; khối chi tiết (ô tệp, "Tải tệp lên", địa chỉ, tiêu đề liên kết, "Thêm liên kết", "Gửi duyệt", "Ngừng dùng", lý do bị trả lại, lịch sử duyệt); biểu mẫu "Thêm học liệu" (tiêu đề, loại, phạm vi xem, cấp, khối, môn, chủ đề, từ khoá, tác giả, giấy phép, nơi cấp phép khi cần, nguồn gốc) | Người có quyền kho học liệu |
+| MH-293 | Kho học liệu 3. Duyệt học liệu (YCTD-183, `/learning-resources/review`): bảng "Học liệu chờ duyệt" (học liệu chờ chính người dùng duyệt); khối chi tiết có ô "Ý kiến duyệt", "Duyệt", "Trả lại" | Tổ trưởng, Ban Giám hiệu |
+| MH-294 | Kho học liệu 4. Bộ sưu tập (YCTD-183, `/learning-resources/collections`): bảng "Danh sách bộ sưu tập"; khối bộ sưu tập (danh sách có "Lên", "Xuống", "Bỏ", ô "Thêm học liệu", "Thêm vào bộ sưu tập", "Xoá bộ sưu tập", "Xuất danh sách"); biểu mẫu "Lập bộ sưu tập" (tên, phạm vi chia sẻ) | Người có quyền kho học liệu |
+| MH-295 | Kho học liệu 5. Báo lỗi học liệu (YCTD-183, `/learning-resources/reports`): bảng "Báo lỗi học liệu" (học liệu, loại lỗi, mô tả, người báo, trạng thái, trả lời, "Xử lý"); khối "Xử lý báo lỗi" (trả lời, "Ẩn tạm học liệu", "Đã xử lý", "Không chấp nhận") | Thủ kho xử lý; người khác xem báo lỗi của mình |
+| MH-296 | Kho học liệu 6. Thống kê kho (YCTD-183, `/learning-resources/statistics`): dòng tổng quan (tổng, đã công bố, chờ duyệt, quá hạn, giấy phép sắp hết hiệu lực); bảng theo môn, khối, loại, giấy phép, tổ, đóng góp theo giáo viên; bảng "Lượt xem, tải" kèm số báo lỗi | Tổ trưởng (tổ mình), Ban Giám hiệu, thủ kho |
+| MH-297 | Kho học liệu 7. Danh mục kho (YCTD-183, `/learning-resources/settings`): loại học liệu (ô "Thêm bước Ban Giám hiệu duyệt"); giấy phép (ô "Chặn công bố", biểu mẫu "Thêm giấy phép"); chủ đề (biểu mẫu "Thêm chủ đề") | `P09.learning-resource.manage` |
 | MH-277 | 8.1. Ngân hàng câu hỏi (YCTD-168, `/question-bank`): chọn cấp (nếu nhiều), môn, khối; khối "Chủ đề" (danh sách, thêm chủ đề); khối "Soạn câu hỏi" (chủ đề, mức nhận thức, dạng, điểm, nội dung, lựa chọn A đến D hoặc ý a đến d, đáp án, hướng dẫn chấm, "Lưu câu hỏi"); bảng "Câu hỏi" (lọc trạng thái, tìm; nội dung, chủ đề, mức, dạng, trạng thái, người soạn; Sửa, Gửi thẩm định, Duyệt, Trả lại, Ngừng dùng); "Thống kê câu dùng được"; "Nhập câu hỏi từ Excel" (Tải mẫu Excel, tệp, Nhập Excel) | Soạn: `P02.question.author`; duyệt: `P02.exam.review` |
 | MH-278 | 8.2. Ma trận đề (YCTD-168, `/exam-matrices`): bảng "Ma trận đề" (tên, khối, số câu, điểm, kiểm tra, Mở); khối "Soạn ma trận" (môn, khối, tên, tỉ lệ bốn mức, bảng dòng: chủ đề, mức, dạng, số câu, điểm mỗi câu, yêu cầu cần đạt, Bỏ; Thêm dòng, Lưu ma trận); "Kiểm tra ma trận" (tổng câu, điểm, tỉ lệ, các điểm lệch) | Xem: người soạn đề; lập: `P02.exam.review` |
 | MH-279 | 8.3. Kế hoạch kiểm tra (YCTD-168, `/assessment-plans`): bảng "Kế hoạch kiểm tra" (học kỳ, khối, môn, loại, hình thức, thời gian, ngày kèm nhắc thời khoá biểu, trạng thái, số đề; Gửi duyệt, Duyệt, Trả lại); khối "Thêm kế hoạch kiểm tra" | Lập: `P02.exam.review`; duyệt: `P02.exam.manage` |
@@ -689,6 +691,8 @@ Từ YCTD-161 (DT-20 phần 20c), mục 7.3 "Đánh giá học sinh" (chỉ hi�
 Từ YCTD-160 (DT-20 phần 22c1), nhóm "7. Dạy học Tiểu học" có thêm 7.3 Khung giờ tiết học, 7.4 Thời khoá biểu (MH-263, MH-264); trang "Thời khóa biểu" của website trường hiện bảng của từng lớp khi đã có bản ban hành.
 
 Từ YCTD-168 (DT-21 phần 22g1), phân hệ Quản lý giáo dục có nhóm "8. Kiểm tra, đánh giá" chỉ hiện khi trường bật THCS hoặc THPT: 8.1 Ngân hàng câu hỏi, 8.2 Ma trận đề, 8.3 Kế hoạch kiểm tra, 8.4 Đề kiểm tra (MH-277 đến MH-280); số mục tạm, đánh lại khi khảo sát Sở.
+
+Từ YCTD-173 (DT-21 phần 22g2), nhóm "8. Kiểm tra, đánh giá" thêm 8.5 Chấm bài kiểm tra, 8.6 Báo cáo kết quả kiểm tra (MH-289 đến MH-290).
 
 Từ YCTD-164 (DT-20 phần 22c2), nhóm "7. Dạy học Tiểu học" có thêm 7.9 Xếp thời khoá biểu tự động, 7.10 Dạy thay, đổi tiết, 7.11 Báo cáo tiết dạy, dùng phòng, mã QR (MH-267 đến MH-269); trang tra cứu công khai MH-270; lưới sửa của lớp ở 7.4 có khối "Kiểm tra ngay".
 

@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.51
+- Phiên bản: 0.52
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -28,16 +28,41 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/system/migrations/0042_create_learning_resources.ts`, `database/school-year/migrations/0102_create_learning_resource_activity.ts`, `database/identity/migrations/0092_add_learning_resource_permissions.ts`, `schema.ts` hệ thống, năm học, `index.ts`, `database/src/index.ts`); máy chủ API (`learning-resources/learning-resources.ts`, `learning-resources/learning-resource-rules.ts`, `learning-resources/learning-resources.controller.ts`, `my-work/my-work-sources.ts`, `application.module.ts`); cổng quản trị (`learning-resources/LearningResourcePages.tsx`, `learning-resources/learning-resources-api.ts`, `router.tsx`, `pages/workspaces.tsx`); gói dùng chung (`learning-resources.ts`, `index.ts`, `portal-menu.ts`, `menu-permissions.ts`, `professional-records.ts`); kiểm thử (`tests/e2e/58-system-admin-full-so.spec.ts` đếm 20 phân hệ); tài liệu `01`, `02`, `03`, `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
 - Dữ liệu bị ảnh hưởng: bảy bảng hệ thống mới (có bộ mặc định loại, giấy phép), ba bảng năm học mới, bốn quyền mới; không đổi dữ liệu cũ.
 - API bị ảnh hưởng: mới `/learning-resources` (tìm, tạo), `/learning-resources/{id}` (xem, sửa), `/files`, `/links`, `/lesson-plans`, `/submit`, `/review`, `/hide`, `/restore`, `/retire`, `/download`, `/reports`; `/learning-resources/catalog`, `/types`, `/licenses`, `/topics`, `/collections`, `/collections/{id}/items`, `/export`, `/learning-resources/reports`, `/reports/{id}/handle`, `/learning-resources/statistics` (xem `17_DAC_TA_API.md`).
-- Giao diện bị ảnh hưởng: MH-289 đến MH-295.
-- Quyền bị ảnh hưởng: PQ-99. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
-- Ảnh hưởng chức năng cũ: ô chọn phân hệ có thêm "Kho học liệu" (cổng quản trị có 20 phân hệ); kiểm thử đang có không sửa kỳ vọng, trừ `58-system-admin-full-so.spec.ts` CT-16d-12 (số phân hệ 19 thành 20).
+- Giao diện bị ảnh hưởng: MH-291 đến MH-297.
+- Quyền bị ảnh hưởng: PQ-100. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
+- Ảnh hưởng chức năng cũ: ô chọn phân hệ có thêm "Kho học liệu" (cổng quản trị có 20 phân hệ); kiểm thử đang có không sửa kỳ vọng, trừ `58-system-admin-full-so.spec.ts` CT-16d-12 và `apps/api/src/system-admin-so.test.ts` CT-16d-3 (số phân hệ 19 thành 20).
 - Hạn chế:
   - Chưa có xem trước PDF, ảnh ngay trên trang (tải về để xem);
   - Kế hoạch bài dạy tham chiếu hiện dạng dữ liệu thô; chưa chọn kế hoạch bài dạy từ danh sách ở giao diện (API có sẵn);
   - Chưa có ứng dụng giáo viên cho kho học liệu (chỉ cổng quản trị);
   - Chưa nhắc hạn duyệt, chưa thông báo khi học liệu bị trả lại (chỉ Việc của tôi);
   - Câu hỏi, đề, rubric, chia sẻ bằng gói tệp làm ở 22h2.
-- Kiểm thử cần thực hiện: kịch bản CT-940 đến CT-946 (trong mã kiểm thử là CT-22h1-1 đến CT-22h1-7); kiểm thử đơn vị mới `apps/api/src/learning-resources/learning-resources.test.ts`; kiểm thử giao diện mới `tests/e2e/122-learning-resources.spec.ts`
+- Kiểm thử cần thực hiện: kịch bản CT-947 đến CT-953 (trong mã kiểm thử là CT-22h1-1 đến CT-22h1-7); kiểm thử đơn vị mới `apps/api/src/learning-resources/learning-resources.test.ts`; kiểm thử giao diện mới `tests/e2e/122-learning-resources.spec.ts`
+- Trạng thái: Đã triển khai
+
+### YCTD-173: DT-21 phần 22g2: kiểm tra, đánh giá, phần chấm – 2026-10-24
+
+- Lý do: phần 22g2 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12 (kế hoạch DT-21 ở YCTD-166). Dùng đề, ngân hàng câu hỏi, ma trận của 22g1 (YCTD-168) và sổ điểm của 21c (YCTD-170). Không dùng AI. Căn cứ: Thông tư 22/2021/TT-BGDĐT (điểm kiểm tra định kỳ, thường xuyên ghi sổ điểm, làm tròn một chữ số thập phân); cách chấm câu đúng sai bốn ý theo bậc 0,1, 0,25, 0,5, 1 phần điểm của câu là cách tính phổ biến của đề thi tốt nghiệp từ 2025, để cấu hình theo bài; độ khó, độ phân biệt theo cách thống kê câu hỏi thông dụng (tỉ lệ điểm đạt; nhóm 27% cao, thấp). Chưa nạp mẫu riêng của văn bản nào, đối chiếu khi khớp Sở. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Bài kiểm tra của lớp** (bảng `exam_sessions`, tệp năm học `0090_create_exam_grading`): một đề đã khoá cho một lớp; học kỳ, loại điểm của sổ điểm (thường xuyên kèm lần, giữa kỳ, cuối kỳ), cách chấm câu đúng sai (bậc thang hoặc tỉ lệ), chấm tự luận hai người và ngưỡng lệch, học sinh vắng (không ghi điểm hoặc ghi 0); trạng thái đang chấm, đã khoá điểm, đã chuyển sổ điểm.
+  - **Phiếu trả lời và chấm theo phiếu** (`exam_sheets`): tải phiếu trả lời PDF của lớp (ô thông tin, mã đề; phần nhiều lựa chọn, đúng sai, trả lời ngắn theo mã đề đầu; tự luận làm giấy riêng); nhập bài tay theo mã đề (đáp án từng câu, điểm tự luận người chấm thứ nhất, thứ hai); nhập tệp kết quả quét theo mẫu Excel kèm danh sách học sinh (mã hệ thống, mã đề, vắng, ô từng câu; ô câu tự luận ghi điểm); có lỗi thì báo theo dòng, không ghi dòng nào; máy chấm theo đáp án của mã đề, lưu điểm trắc nghiệm, tự luận, tổng và kết quả từng câu.
+  - **Khoá điểm, chuyển sổ điểm**: người quản lý khoá điểm, mở khoá có lý do; giáo viên dạy môn của lớp (hoặc người quản lý sổ điểm) xác nhận chuyển điểm vào sổ điểm 21c qua một cửa `recordExamScores` của sổ điểm.
+  - **Báo cáo kết quả** theo đề, tuỳ chọn lớp: từng câu (độ khó, độ phân biệt), câu nên xem lại, chủ đề, mức nhận thức, từng lớp và giáo viên (số bài, trung bình, thấp nhất, cao nhất, tỉ lệ từ 5 điểm), phân bố điểm; xuất Excel, PDF; ghi kết quả dùng câu vào `question_usages` (thêm `attempts`, `difficulty`, `discrimination`).
+  - **Quyền mới** (tệp định danh `0081_add_exam_grading_permission`): `P02.exam.grade` (VT-02, VT-07, VT-08, VT-15, VT-17); khoá điểm dùng `P02.exam.manage`; người có `P02.exam.review` xem báo cáo mọi lớp.
+  - **Trang mới** trong nhóm "8. Kiểm tra, đánh giá" (THCS, THPT): 8.5 Chấm bài kiểm tra, 8.6 Báo cáo kết quả kiểm tra.
+  - Quy tắc: bài kiểm tra của lớp dùng một đề đã khoá đúng cấp, khối, đã trộn mã đề, mỗi đề một lần cho mỗi lớp; giáo viên dạy môn của đề ở lớp (hoặc chủ nhiệm) tạo và chấm, người quản lý tạo cho mọi lớp; nhiều lựa chọn đủ điểm khi chọn đúng tập đáp án; đúng sai bốn ý chấm bậc thang (mặc định) hoặc theo tỉ lệ, câu khác bốn ý theo tỉ lệ; trả lời ngắn so đáp số chấp nhận sau khi bỏ khoảng trắng, không phân biệt hoa thường, dấu phẩy và dấu chấm thập phân như nhau; điểm tự luận không quá điểm câu, chấm hai người lấy trung bình, lệch quá ngưỡng phải xem lại; điểm bài làm tròn một chữ số thập phân; khoá điểm khi mọi học sinh có bài hoặc ghi vắng, không còn bài thiếu điểm tự luận hay cần xem lại; khoá ghi số bài, độ khó, độ phân biệt của từng câu vào lịch sử dùng câu; mở khoá phải ghi lý do, đã chuyển sổ điểm thì không mở; chuyển điểm qua sổ điểm 21c đúng học kỳ, loại điểm, lần, nguồn `exam`, cùng kiểm tra quyền nhập, khoá, hạn của sổ điểm; vắng bỏ qua hoặc ghi 0 theo cấu hình của bài; báo cáo chỉ tính bài kiểm tra đã khoá; câu nên xem lại khi độ khó dưới 0,2 hoặc trên 0,95, hoặc độ phân biệt dưới 0,2 (từ 10 bài).
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/school-year/migrations/0090_create_exam_grading.ts`, `database/identity/migrations/0081_add_exam_grading_permission.ts`, `schema.ts`, `index.ts`, `database/src/index.ts`); máy chủ API (`exam-grading/grading-rules.ts`, `exam-grading/exam-grading.ts`, `exam-grading/exam-grading.controller.ts`, `scores/scores.ts` thêm `recordExamScores`, `application.module.ts`); cổng quản trị (`exam-grading/ExamGradingPage.tsx`, `ExamReportsPage.tsx`, `grading-api.ts`, `router.tsx`); gói dùng chung (`index.ts`, `portal-menu.ts`, `menu-permissions.ts`); kiểm thử (CT-19c-1, CT-19c-2 thêm đường dẫn của THCS, THPT); tài liệu `01`, `02`, `03`, `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: hai bảng mới, ba cột mới của `question_usages`, một quyền mới; điểm chuyển sang ghi vào `score_entries` với nguồn `exam`. Trường chỉ có Mầm non, Tiểu học không thấy mục mới.
+- API bị ảnh hưởng: mới `GET /exam-grading/exams`, `GET /exam-grading/classes`, `GET, POST /exam-grading/sessions`, `GET /exam-grading/sessions/{id}`, `PUT /exam-grading/sessions/{id}/sheets/{childId}`, `GET /exam-grading/sessions/{id}/import-template`, `POST /exam-grading/sessions/{id}/import`, `GET /exam-grading/sessions/{id}/answer-sheet`, `POST /exam-grading/sessions/{id}/lock`, `/unlock`, `/transfer`, `GET /exam-grading/reports/{examId}`, `GET /exam-grading/reports/{examId}/export` (xem `17_DAC_TA_API.md`).
+- Giao diện bị ảnh hưởng: MH-289 đến MH-290.
+- Quyền bị ảnh hưởng: PQ-99. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
+- Ảnh hưởng chức năng cũ: sổ điểm 21c thêm hàm ghi điểm bài kiểm tra, không đổi nhập tay; kiểm thử đang có không sửa kỳ vọng, trừ CT-19c-1, CT-19c-2 (thêm đường dẫn chỉ của THCS, THPT).
+- Hạn chế:
+  - Chưa nhận dạng ảnh chụp, ảnh quét phiếu (OMR) trong máy; phần mềm đọc phiếu xuất tệp theo mẫu rồi nhập vào, hoặc nhập tay;
+  - Phiếu trả lời in theo dạng câu của mã đề đầu (các mã cùng dạng câu theo số câu);
+  - Kiểm tra bù: mở khoá, nhập bài, khoá lại trước khi chuyển; đã chuyển sổ điểm thì sửa ở sổ điểm;
+  - AI tắt (không chấm tự luận bằng AI).
+- Kiểm thử cần thực hiện: kịch bản CT-940 đến CT-946 (trong mã kiểm thử là CT-22g2-1 đến CT-22g2-7); kiểm thử đơn vị mới `apps/api/src/exam-grading/exam-grading.test.ts`; kiểm thử giao diện mới `tests/e2e/101-exam-grading.spec.ts`
 - Trạng thái: Đã triển khai
 
 ### YCTD-172: DT-21 phần 21e: học bạ số, khen thưởng, xét lên lớp THCS, THPT – 2026-10-24

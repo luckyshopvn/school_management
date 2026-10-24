@@ -1,7 +1,7 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.50
+- Phiên bản: 1.51
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -85,7 +85,8 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.114.0 | DT-21 phần 21a: nền THCS, THPT (bộ môn mẫu khối 6 đến 12, tổ hợp môn, đăng ký tổ hợp, tổ bộ môn) | YCTD-167 |
 | 0.115.0 | DT-21 phần 21c: sổ điểm THCS, THPT theo Thông tư 22/2021 (điểm, trung bình, xếp loại, khoá điểm, cấu hình) | YCTD-170 |
 | 0.120.0 | DT-21 phần 21e: học bạ số, khen thưởng, xét lên lớp THCS, THPT (danh hiệu Xuất sắc, Giỏi, lên lớp, hoàn thành cấp học, học bạ có điểm trung bình hai học kỳ) | YCTD-172 |
-| 0.121.0 | DT-22 phần 22h1: kho học liệu số phần lõi (tải lên, liên kết, phiên bản, giấy phép bắt buộc, kiểm duyệt phân luồng, bộ sưu tập, báo lỗi, thống kê) | YCTD-183 |
+| 0.121.0 | DT-21 phần 22g2: kiểm tra, đánh giá phần chấm (phiếu trả lời, nhập bài, tệp quét, chấm tự luận, khoá điểm, chuyển sổ điểm, báo cáo theo câu, chủ đề, mức nhận thức) | YCTD-173 |
+| 0.122.0 | DT-22 phần 22h1: kho học liệu số phần lõi (tải lên, liên kết, phiên bản, giấy phép bắt buộc, kiểm duyệt phân luồng, bộ sưu tập, báo lỗi, thống kê) | YCTD-183 |
 | 0.116.0 | DT-20 phần 20f: báo cáo, thống kê Tiểu học (sĩ số, kết quả đánh giá, cuối năm, chuyên cần, bán trú; xuất Excel, PDF) và khung biểu EMIS Tiểu học cấu hình được | YCTD-165 |
 | 0.117.0 | DT-21 phần 22g1: kiểm tra, đánh giá phần đề (ngân hàng câu hỏi, ma trận, kế hoạch kiểm tra, đề nhiều mã, thẩm định, khoá đề, xuất đề và đáp án) | YCTD-168 |
 | 0.111.0 | DT-20 phần 20d: sổ đầu bài và điểm danh theo tiết (ghi, ký tiết theo thời khoá biểu, Ban giám hiệu ký sổ tuần, phụ huynh xem, tổng hợp chuyên cần) | YCTD-162 |
