@@ -1,8 +1,8 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.72
-- Ngày cập nhật: 2026-10-24
+- Phiên bản: 1.73
+- Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -857,6 +857,9 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-813 | Cho trường đang dùng hệ thống / Khi nâng cấp lên phiên bản có kho học liệu / Thì có thêm phân hệ "Kho học liệu", các phân hệ khác và dữ liệu cũ không đổi (CT-969, CT-974; YCTD-183) |
 | AC-814 | Cho giáo viên thêm học liệu / Khi gửi duyệt / Thì thiếu, bị chặn, không rõ giấy phép hoặc phạm vi cá nhân thì không gửi được; tổ trưởng cùng tổ duyệt thì công bố; liên kết ngoài, video, tài liệu có xin phép thêm bước Ban Giám hiệu; trả lại phải có lý do (CT-968, CT-970, CT-971, CT-974; YCTD-183) |
 | AC-815 | Cho học liệu đã công bố / Khi người khác tìm, tải, đưa vào bộ sưu tập, báo lỗi / Thì chỉ thấy bản đã công bố đúng phạm vi; lượt tải được ghi; thủ kho xử lý báo lỗi, ẩn tạm; thống kê đúng (CT-972, CT-973, CT-974; YCTD-183) |
+| AC-816 | Cho câu hỏi, đề của ngân hàng 22g1 / Khi giáo viên tìm trong kho, thêm vào bộ sưu tập / Thì thấy đúng theo quyền 22g1, có số lần dùng, độ khó; kho không tạo câu hỏi mới; người không được giao đề không thấy đề trong bộ sưu tập (CT-976, CT-977, CT-980; YCTD-184) |
+| AC-817 | Cho rubric / Khi lập, nhân bản, in / Thì điểm tối đa tính đúng, rubric sai bị từ chối, chỉ nối câu tự luận, bản sao là của người nhân bản (CT-975, CT-978, CT-980; YCTD-184) |
+| AC-818 | Cho bộ sưu tập / Khi xuất gói và trường khác nhập gói / Thì gói chỉ có học liệu đã công bố đủ giấy phép, không có dữ liệu cá nhân; tệp hỏng, giấy phép không rõ, học liệu trùng bị bỏ qua; học liệu nhập chờ duyệt, ghi nguồn gốc gói (CT-975, CT-979, CT-980; YCTD-184) |
 | AC-783 | Cho trường có lớp 4, lớp 5 với học sinh nữ dân tộc, khuyết tật, bán trú, lớp 2 buổi/ngày / Khi xem sĩ số; phụ huynh xem / Thì số theo khối và toàn trường đúng; 403 (CT-905, CT-910; YCTD-165) |
 | AC-784 | Cho kết quả kỳ cuối học kỳ I, kết quả cuối năm, hoàn thành, khen thưởng / Khi xem theo khối, toàn trường, theo lớp / Thì số theo mức, điểm theo khoảng, kết quả cuối năm, ở lại lớp, khen thưởng đúng (CT-906, CT-907; YCTD-165) |
 | AC-785 | Cho sổ đầu bài có vắng, ngày đã chốt suất, cắt suất / Khi xem chuyên cần, bán trú; xuất Excel, PDF / Thì số theo lớp đúng; tệp tải được, có nhật ký xuất (CT-908; YCTD-165) |
