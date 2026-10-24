@@ -49,6 +49,9 @@ const EDUCATION_PLAN_ANY = anyOf(
   'P09.education-plan.finalize',
   'P09.education-plan.manage',
 );
+// Hồ sơ bồi dưỡng giáo viên (DT-22 phần 22e)
+const TRAINING_ANY = anyOf('P09.training.use', 'P09.training.review', 'P09.training.manage');
+const TRAINING_OVERSIGHT = anyOf('P09.training.review', 'P09.training.manage');
 // Thi đua, khen thưởng (DT-18 phần 22d)
 const EMULATION_ANY = anyOf('P09.emulation.use', 'P09.emulation.manage', 'P09.emulation.decide');
 const EMULATION_MANAGE = anyOf('P09.emulation.manage', 'P09.emulation.decide');
@@ -283,6 +286,13 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
     'P09.education-plan.finalize',
   ),
   '/education-plan-templates': EDUCATION_PLAN_ANY,
+  // Hồ sơ bồi dưỡng giáo viên (DT-22 phần 22e): giáo viên xem khoá, đăng ký, hồ sơ của mình; tổ trưởng xem tổ mình; Ban Giám
+  // hiệu quản lý
+  '/training/mine': TRAINING_ANY,
+  '/training/courses': TRAINING_ANY,
+  '/training/records': TRAINING_OVERSIGHT,
+  '/training/competency': TRAINING_OVERSIGHT,
+  '/training/settings': 'P09.training.manage',
   '/emulation/campaigns': EMULATION_ANY,
   '/emulation/registrations': EMULATION_ANY,
   '/emulation/nominations': EMULATION_ANY,

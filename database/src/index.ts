@@ -81,6 +81,7 @@ export type {
   IntegrationCredentialConnector,
   DemoAccount,
   PeriodSession,
+  TrainingCatalogStatus,
   SystemDatabase,
 } from '../system/schema.js';
 export type {
@@ -303,6 +304,13 @@ export type {
   TimetableSource,
   ClassLogStatus,
   PeriodAttendanceStatus,
+  StaffCertificateKind,
+  TrainingOrganizerKind,
+  TrainingMode,
+  TrainingCourseStatus,
+  TrainingRegistrationStatus,
+  TrainingResult,
+  CompetencyTerm,
   TimetableVersionStatus,
   TimetableGenerationStatus,
   TimetableChangeKind,

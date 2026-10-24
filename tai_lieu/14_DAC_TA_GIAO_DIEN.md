@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.96
+- Phiên bản: 1.97
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -353,6 +353,8 @@ Từ YCTD-142 (DT-18 phần 18e), phân hệ "Hồ sơ chuyên môn" (khóa `pro
 
 Từ YCTD-149 (DT-18 phần 22f), phân hệ "Bảo đảm chất lượng" (khóa `quality-assurance`) đứng cuối ô chọn phân hệ, cổng quản trị có 19 phân hệ; phân hệ riêng nên đánh số liên tục, tên mục do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11. Mục hiện theo quyền `P09.quality.*` (PQ-89). Mục 1.7 Rà soát thông tin kiểm định CLGD vẫn ở phân hệ Quản lý giáo dục Mầm non như Sở.
 
+Từ YCTD-182 (DT-22 phần 22e), phân hệ "Hồ sơ chuyên môn" có thêm nhóm "6. Bồi dưỡng giáo viên" (6.1 đến 6.5, MH-277 đến MH-281); trang công khai "Tra cứu chứng nhận bồi dưỡng" (MH-282).
+
 ## 2. Danh sách màn hình theo kênh
 
 ### 2.1 Cổng quản trị
@@ -630,6 +632,12 @@ Từ YCTD-149 (DT-18 phần 22f), phân hệ "Bảo đảm chất lượng" (kh�
 | MH-274 | 7.14. Sổ điểm (YCTD-170, `/scores`): chọn đơn vị, lớp THCS, THPT, học kỳ; tab "Nhập điểm" (bảng điểm theo môn: TX1 đến TXn, giữa kỳ, cuối kỳ, trung bình tính ngay, kết quả Đạt, Chưa đạt cho môn nhận xét, nhận xét; nút "Ghi điểm"), "Tổng hợp, xếp loại" (điểm trung bình các môn, gợi ý học tập, ô xếp loại học tập, rèn luyện, nhận xét; nút "Lấy gợi ý học tập", "Ghi xếp loại"), "Khoá điểm" (khoá mọi lớp, mở khoá từng lớp kèm lý do) và "Cấu hình" (hệ số, số tuần, ngưỡng) chỉ cho người có `P02.assessment.manage`; chỉ hiện ở THCS, THPT |
 | MH-275 | Ứng dụng giáo viên, lớp THCS, THPT: nút "Sổ điểm" ở danh sách lớp mở bảng điểm theo học kỳ, môn mình được phân công (TX, giữa kỳ, cuối kỳ, kết quả Đạt, Chưa đạt), nút "Lưu điểm" |
 | MH-276 | Ứng dụng phụ huynh, con học THCS, THPT: nút "Điểm học tập" hiện điểm các học kỳ đã khoá (điểm từng môn, trung bình, xếp loại học tập, rèn luyện), xếp loại cả năm khi học kỳ II đã khoá |
+| MH-277 | 6.1. Bồi dưỡng của tôi (YCTD-182, `/training/mine`): dòng số tiết đã có so với định mức, còn thiếu; khối "Khoá đang mở đăng ký" (nút "Đăng ký"); bảng "Khoá của tôi" (trạng thái, kết quả, tiết ghi nhận, "Huỷ đăng ký"); bảng "Chứng chỉ của tôi" (loại, nơi cấp, ngày cấp, hết hạn, số tiết, mã tra cứu, "Tải chứng nhận", "Xoá"); biểu mẫu "Thêm chứng chỉ"; khối "Năng lực số của tôi" (thẻ kỳ, mức từng miền, "Gửi tự đánh giá", gợi ý bồi dưỡng). Ứng dụng giáo viên: "Bồi dưỡng của tôi" | `P09.training.use` |
+| MH-278 | 6.2. Khoá bồi dưỡng (YCTD-182, `/training/courses`): bảng khoá (tên, chuyên đề, thời gian, số tiết, đăng ký, trạng thái, "Mở"); khối chi tiết khoá (nút "Đóng đăng ký", "Mở lại đăng ký", "Kết thúc khoá", "Cấp chứng nhận", "Tải chứng nhận (PDF)"; bảng "Đăng ký khoá" có "Duyệt", "Không duyệt", ô số buổi có mặt, kết quả, nhận xét, "Thu hồi", "Cấp lại"; nút "Ghi kết quả"); biểu mẫu "Tạo khoá bồi dưỡng" | Xem: người có quyền bồi dưỡng; quản lý: `P09.training.manage`; duyệt tổ: tổ trưởng |
+| MH-279 | 6.3. Hồ sơ bồi dưỡng (YCTD-182, `/training/records`): dòng năm học, định mức, tiến độ kế hoạch; bảng "Hoàn thành định mức theo tổ"; bảng "Hồ sơ bồi dưỡng theo cá nhân" (số khoá đạt, tiết từ khoá, tiết từ chứng chỉ, tổng, còn thiếu, chứng chỉ sắp hết hạn) | Tổ trưởng (tổ mình), Ban Giám hiệu |
+| MH-280 | 6.4. Năng lực số (YCTD-182, `/training/competency`): thẻ kỳ; bảng "Bản đồ năng lực số" (giáo viên × miền, ô dưới ngưỡng tô đỏ nhạt, dòng trung bình, "Xác nhận"); khối xác nhận (mức xác nhận, lý do đổi mức) | Tổ trưởng (tổ mình), Ban Giám hiệu |
+| MH-281 | 6.5. Danh mục bồi dưỡng (YCTD-182, `/training/settings`): căn cứ; khối "Thiết lập" (định mức tiết, ngưỡng gợi ý, đơn vị cấp); bảng, biểu mẫu chuyên đề (chương trình, số tiết, miền gắn kèm, đang dùng hoặc ngừng); khung năng lực số (mức, miền, "Thêm miền") | `P09.training.manage` |
+| MH-282 | Tra cứu chứng nhận bồi dưỡng (YCTD-182, `/tra-cuu-chung-nhan?ma=…`, công khai): ô mã tra cứu, nút "Tra cứu"; khối "Kết quả tra cứu" (còn hiệu lực hoặc đã thu hồi, người được cấp, khoá, đơn vị cấp, ngày cấp, số tiết) | Không cần đăng nhập |
 | MH-265 | 7.6. Sổ đầu bài (YCTD-162, `/class-logs`): ô "Lớp" (lớp cấp phổ thông đang hoạt động), "Ngày trong tuần"; bảng "Các tiết trong tuần" (Ngày, Tiết, Môn, Giáo viên, Tên bài, Vắng, muộn, Trạng thái Chưa ghi/Đã ghi/Đã ký, Xem); khối "Chi tiết tiết dạy" (tên bài, nội dung, nhận xét, xếp loại, học sinh vắng, muộn); ô "Nhận xét của Ban giám hiệu", nút "Ký sổ tuần" hoặc dòng đã ký. Ứng dụng giáo viên: "Sổ đầu bài" (ngày dạy, các tiết trong ngày; biểu mẫu "Ghi tiết dạy": Tên bài, Nội dung, Nhận xét tiết, Xếp loại tiết, điểm danh từng học sinh, nút "Lưu tiết", "Ký sổ") | Xem: nhân sự xem được lớp; ký tuần: `P02.class-log.review`; ghi: giáo viên của tiết |
 | MH-266 | 7.7. Chuyên cần theo tiết (YCTD-162, `/period-attendance`): ô "Lớp", "Từ ngày", "Đến ngày"; số tiết đã ghi sổ; bảng "Chuyên cần theo học sinh" (Có mặt, Đi muộn, Vắng có phép, Vắng không phép, Ngày có vắng, Ngày báo vắng, Vắng không báo, Báo vắng nhưng có mặt). Ứng dụng phụ huynh: nút "Điểm danh theo tiết", "Báo vắng" ở thẻ con học cấp phổ thông | Nhân sự xem được lớp; phụ huynh của học sinh |
 | MH-267 | 7.9. Xếp thời khoá biểu tự động (YCTD-164, `/timetable-generator`): chọn cấp (nếu nhiều cấp); khối "Xếp tự động" (số lớp, giáo viên, tiết cần xếp, số ô của khung; vấn đề của dữ liệu; nút "Xếp thời khoá biểu"; chọn lần xếp); khối "Lần xếp" (trạng thái, thanh tiến độ, "Huỷ lần xếp", thông báo, vấn đề; bảng "Các phương án": điểm phạt, vi phạm bắt buộc, ràng buộc mềm, "Xem"; xem trước theo lớp, tên bản nháp, áp dụng từ, nút "Tạo bản nháp từ phương án"); khối "Ràng buộc" (ràng buộc bắt buộc, mức 0 đến 10 của năm ràng buộc mềm, giới hạn thời gian, số phương án, "Lưu ràng buộc"); bảng "Quy tắc của môn" (tiết đôi, tránh tiết cuối buổi, tối đa tiết/ngày, phòng riêng, "Lưu quy tắc của môn"); khối "Giáo viên báo bận" (chọn giáo viên, lưới thứ × tiết, "Lưu tiết bận") | `P02.timetable.manage` |

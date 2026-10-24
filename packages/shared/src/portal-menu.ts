@@ -531,6 +531,14 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('5.5.', 'Tiến độ duyệt kế hoạch', '/education-plans/progress'),
         leaf('5.6.', 'Thư viện mẫu kế hoạch', '/education-plan-templates'),
       ]),
+      // Hồ sơ bồi dưỡng giáo viên (DT-22 phần 22e) là nhóm mới của phân hệ này như kế hoạch DT-22; chỉ phần quản trị
+      group('6.', 'Bồi dưỡng giáo viên', [
+        leaf('6.1.', 'Bồi dưỡng của tôi', '/training/mine'),
+        leaf('6.2.', 'Khoá bồi dưỡng', '/training/courses'),
+        leaf('6.3.', 'Hồ sơ bồi dưỡng', '/training/records'),
+        leaf('6.4.', 'Năng lực số', '/training/competency'),
+        leaf('6.5.', 'Danh mục bồi dưỡng', '/training/settings'),
+      ]),
     ],
   },
   {

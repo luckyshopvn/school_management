@@ -1202,6 +1202,47 @@ export interface SchoolLevelsTable {
   updated_at: UpdatedTimestamp;
 }
 
+// Danh mục hồ sơ bồi dưỡng giáo viên (DT-22 phần 22e, YCTD-182)
+export type TrainingCatalogStatus = 'active' | 'inactive';
+
+export interface TrainingSettingsTable {
+  id: Generated<number>;
+  annual_required_periods: Generated<number>;
+  competency_gap_level: Generated<number>;
+  certificate_issuer: string | null;
+  legal_basis: string | null;
+  updated_at: Generated<Date>;
+  updated_by: string | null;
+}
+
+export interface DigitalCompetencyDomainsTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  description: string | null;
+  order_no: Generated<number>;
+  status: Generated<TrainingCatalogStatus>;
+  created_at: Generated<Date>;
+}
+
+export interface DigitalCompetencyLevelsTable {
+  level_no: number;
+  name: string;
+  description: string | null;
+}
+
+export interface TrainingTopicsTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  program_no: number;
+  default_periods: Generated<number>;
+  competency_domain_code: string | null;
+  order_no: Generated<number>;
+  status: Generated<TrainingCatalogStatus>;
+  created_at: Generated<Date>;
+}
+
 export interface SystemDatabase {
   academic_years: AcademicYearsTable;
   academic_terms: AcademicTermsTable;
@@ -1209,6 +1250,10 @@ export interface SystemDatabase {
   academic_year_databases: AcademicYearDatabasesTable;
   academic_year_level_settings: AcademicYearLevelSettingsTable;
   period_slots: PeriodSlotsTable;
+  training_settings: TrainingSettingsTable;
+  digital_competency_domains: DigitalCompetencyDomainsTable;
+  digital_competency_levels: DigitalCompetencyLevelsTable;
+  training_topics: TrainingTopicsTable;
   integration_credentials: IntegrationCredentialsTable;
   user_quick_links: UserQuickLinksTable;
   user_grid_settings: UserGridSettingsTable;
