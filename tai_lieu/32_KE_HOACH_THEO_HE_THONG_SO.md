@@ -894,7 +894,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 | Phần | Đợt | Tiến độ |
 |---|---|---|
 | 21a | 1 | Chưa làm, 20a đã gộp |
-| 22g1 | 1 | Đã làm, YCTD-168, phiên bản 0.114.0, PR PRNUM: ngân hàng câu hỏi (nguồn duy nhất, 22h2 tham chiếu), chủ đề, thẩm định, nhập Excel, thống kê; ma trận và bảng đặc tả; kế hoạch kiểm tra; giao đề, bốc câu theo ma trận, đề nhiều mã, thẩm định, khoá đề, xuất Word, PDF (năm học 0085); quyền `P02.question.author`, `P02.exam.review`, `P02.exam.manage` (định danh 0076); nhóm menu 8 "Kiểm tra, đánh giá" cho THCS, THPT; e2e 96 |
+| 22g1 | 1 | Đã làm, YCTD-168, phiên bản 0.114.0, PR 149: ngân hàng câu hỏi (nguồn duy nhất, 22h2 tham chiếu), chủ đề, thẩm định, nhập Excel, thống kê; ma trận và bảng đặc tả; kế hoạch kiểm tra; giao đề, bốc câu theo ma trận, đề nhiều mã, thẩm định, khoá đề, xuất Word, PDF (năm học 0085); quyền `P02.question.author`, `P02.exam.review`, `P02.exam.manage` (định danh 0076); nhóm menu 8 "Kiểm tra, đánh giá" cho THCS, THPT; e2e 96 |
 | 21b | 2 | Chưa làm, chờ 21a, 22c2 |
 | 21c | 2 | Chưa làm, chờ 21a (20c đã gộp) |
 | 21d | 3 | Chưa làm, chờ 21b, 20d |
