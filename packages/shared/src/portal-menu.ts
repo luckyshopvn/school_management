@@ -170,6 +170,8 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           leaf('7.9.', 'Xếp thời khoá biểu tự động', '/timetable-generator'),
           leaf('7.10.', 'Dạy thay, đổi tiết', '/timetable-changes'),
           leaf('7.11.', 'Báo cáo tiết dạy, dùng phòng, mã QR', '/timetable-reports'),
+          // Báo cáo, thống kê, EMIS Tiểu học (DT-20 phần 20f)
+          leaf('7.12.', 'Báo cáo, thống kê, EMIS Tiểu học', '/primary-reports'),
         ]),
       ),
     ],

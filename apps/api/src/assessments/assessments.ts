@@ -899,7 +899,9 @@ export class AssessmentsService {
       .$if(classIds !== null, (query) =>
         query.where('id', 'in', [...(classIds ?? []), '00000000-0000-0000-0000-000000000000']),
       )
-      .$if(!scope.wholeSchool, (query) => query.where('org_unit_id', 'in', [...scope.orgUnitIds, '']))
+      .$if(!scope.wholeSchool, (query) =>
+        query.where('org_unit_id', 'in', [...scope.orgUnitIds, '00000000-0000-0000-0000-000000000000']),
+      )
       .execute();
     if (classIds !== null && classes.length !== classIds.length) {
       throw new ApplicationError('ERR_FORBIDDEN', 'Có lớp không thuộc cấp của kỳ hoặc ngoài phạm vi của bạn');
@@ -960,7 +962,9 @@ export class AssessmentsService {
       ])
       .where('classes.school_level', '=', period.school_level)
       .where('classes.status', '=', 'active')
-      .$if(!scope.wholeSchool, (query) => query.where('classes.org_unit_id', 'in', [...scope.orgUnitIds, '']))
+      .$if(!scope.wholeSchool, (query) =>
+        query.where('classes.org_unit_id', 'in', [...scope.orgUnitIds, '00000000-0000-0000-0000-000000000000']),
+      )
       .orderBy('classes.grade_level')
       .orderBy('classes.name')
       .execute();

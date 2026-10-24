@@ -25,6 +25,7 @@ export * from './level-features.js';
 export * from './subjects.js';
 export * from './assessments.js';
 export * from './student-records.js';
+export * from './primary-reports.js';
 export * from './emulation.js';
 export * from './quality-assurance.js';
 export * from './school-levels.js';
@@ -271,6 +272,7 @@ export const PERMISSION_CODES = {
   assessmentView: 'P02.assessment.view',
   assessmentManage: 'P02.assessment.manage',
   studentRecordApprove: 'P02.student-record.approve',
+  reportFormManage: 'P17.report-form.manage',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -596,6 +598,7 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/timetable-generator',
   '/timetable-changes',
   '/timetable-reports',
+  '/primary-reports',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];

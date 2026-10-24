@@ -49,6 +49,8 @@ const PRIMARY_ONLY_PATHS = [
   '/timetable-generator',
   '/timetable-changes',
   '/timetable-reports',
+  // Báo cáo, thống kê, EMIS Tiểu học (DT-20 phần 20f)
+  '/primary-reports',
 ];
 
 describe('Cây menu và nhãn theo cấp học', () => {

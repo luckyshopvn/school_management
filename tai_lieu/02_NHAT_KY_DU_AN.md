@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.43
+- Phiên bản: 0.44
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,28 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-24 — DT-20 phần 20f: báo cáo, thống kê và EMIS Tiểu học
+
+#### Công việc đã thực hiện
+
+- Đọc mục 11 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà biểu EMIS Mầm non, luồng gửi lên cấp trên 16a, tham số cấp 19d, thống kê 5.1, 5.3, số liệu của 20b, 20c, 20d, 20e.
+- Cơ sở dữ liệu: tệp hệ thống `0027_create_report_forms` (hai biểu khung Tiểu học), tệp định danh `0074_add_report_form_permission`; số tệp năm học `0083` giữ sẵn không dùng (số nhập tay dùng `emis_report_values`).
+- Máy chủ API: thống kê Tiểu học, xuất tệp; biểu EMIS Tiểu học (tính, nhập tay, sửa khung, xuất, gửi lên cấp trên).
+- Cổng quản trị: 7.12 Báo cáo, thống kê, EMIS Tiểu học.
+- Thêm quy tắc BR-179 đến BR-181, chức năng P17-31 đến P17-33, kịch bản CT-891 đến CT-897, tiêu chí AC-777 đến AC-780. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/primary-reports/primary-reports.test.ts` CT-20f-1 đến CT-20f-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.12 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của Tiểu học của CT-19c-1); kiểm thử đơn vị toàn bộ kho mã đạt 1081/1081 trước khi gộp 22c2; sau khi gộp chạy lại các tệp kiểm thử bị ảnh hưởng (primary-reports, working-level, menu-permissions đạt 18/18; boarding, assessments, primary-reports sau khi sửa lọc đơn vị đạt 18/18); kiểm thử giao diện `tests/e2e/94-primary-reports.spec.ts` (CT-20f-7) đạt; toàn bộ kiểm thử giao diện trên máy chạy các kịch bản 02, 03, 06, 08, 58, 94 đạt 18/18 (e2e toàn bộ do CI chạy); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 20f của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.4. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: biểu EMIS Tiểu học là khung cấu hình được ở cơ sở dữ liệu hệ thống, công thức theo cú pháp đơn giản kiểm khi lưu; nạp hai biểu khung chờ khảo sát Sở; thống kê dùng quyền thống kê học sinh có sẵn.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-165, `07_QUY_TAC_NGHIEP_VU.md` BR-179 đến BR-181, `10_YEU_CAU_CHUC_NANG.md` P17-31 đến P17-33, `11_TIEU_CHI_NGHIEM_THU.md` AC-777 đến AC-780, `14_DAC_TA_GIAO_DIEN.md`, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-891 đến CT-897, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.8. Phiên bản 0.114.0.
+
+#### Vấn đề tồn đọng
+
+- Khảo sát hệ thống của Sở cấp Tiểu học để sửa biểu khung cho khớp (tài liệu 31); thêm biểu mới từ giao diện.
 
 ### 2026-10-24 — DT-20 phần 22c2: thời khoá biểu, máy xếp
 

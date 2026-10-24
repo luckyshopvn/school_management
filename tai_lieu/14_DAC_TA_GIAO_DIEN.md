@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.94
+- Phiên bản: 1.95
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -646,6 +646,8 @@ Từ YCTD-155 (DT-19 phần 19e), ứng dụng phụ huynh và ứng dụng giá
 Từ YCTD-159 (DT-20 phần 20b), mục 4.8 "Bán trú" (chọn đơn vị, lớp Tiểu học, ngày; bảng học sinh đăng ký với nút "Cắt suất", "Bỏ cắt suất", ô lý do; "Chốt số suất", ngày đã chốt có "Mở lại ngày đã chốt" kèm lý do) và 4.9 "Nề nếp, thi đua lớp" (thẻ Ghi điểm: lớp, ngày, tiêu chí, số lần, người báo, ghi chú, bảng điểm trong tuần; thẻ Xếp hạng: kỳ tuần, tháng, học kỳ I, II, bảng hạng; thẻ Tiêu chí: thêm, nạp bộ mặc định, ngừng dùng) chỉ hiện khi trường bật Tiểu học. 1.4 Cấu hình trường có thẻ "Nề nếp, thi đua lớp" (bật, điểm nền mỗi tuần). Ứng dụng giáo viên có nút "Bán trú" ở lớp Tiểu học (danh sách ăn, cắt suất, chốt số suất); ứng dụng phụ huynh có "Cắt suất bán trú" ở con Tiểu học (ngày, lý do, danh sách ngày đã cắt, hủy). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
 
 Từ YCTD-158 (DT-20 phần 20a), phân hệ Quản lý giáo dục có nhóm "7. Dạy học Tiểu học" (MH-261, MH-262) chỉ khi làm việc ở cấp Tiểu học hoặc "Tất cả" ở trường có Tiểu học; trường chỉ có Mầm non không thấy nhóm này.
+
+Từ YCTD-165 (DT-20 phần 20f), mục 7.12 "Báo cáo, thống kê, EMIS Tiểu học" (chỉ hiện khi trường bật Tiểu học): chọn đơn vị; thẻ Sĩ số (bảng theo khối và Toàn trường), Kết quả đánh giá (chọn kỳ, gộp theo lớp, khối, toàn trường; bảng môn học, bảng phẩm chất, năng lực), Cuối năm (gộp; kết quả cuối năm, hoàn thành chương trình, khen thưởng), Chuyên cần, bán trú (từ ngày, đến ngày; bảng theo lớp), mỗi thẻ có Xuất Excel, Xuất PDF; thẻ EMIS Tiểu học (chọn biểu, bảng Chỉ tiêu, Mã số, Đơn vị và các cột; ô nhập tay ở dòng nhập tay, Lưu số nhập tay; biểu đã gửi thì khoá; Ban Giám hiệu có Sửa khung biểu: mã dòng, chỉ tiêu, loại, công thức, Thêm dòng, Lưu khung biểu). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
 
 Từ YCTD-163 (DT-20 phần 20e), mục 7.8 "Học bạ, khen thưởng, lên lớp" (chỉ hiện khi trường bật Tiểu học): chọn đơn vị, lớp Tiểu học; thẻ Khen thưởng (học sinh, kết quả cuối năm, khen thưởng đã đề nghị với trạng thái, nút Duyệt, Không duyệt, Giấy khen kèm mã tra cứu; ô danh hiệu có gợi ý, ô thành tích, nút Đề nghị), Hoàn thành chương trình (kết quả cuối năm, hình thức rèn luyện trong hè hoặc kiểm tra lại, đánh giá bổ sung, kết quả và khối năm sau; khoá đến khi kỳ cuối năm đã khoá), Học bạ (Lập học bạ, trạng thái nháp hoặc đã kí, nhận xét của giáo viên chủ nhiệm, Tải PDF, Xác nhận và kí, Mở lại kèm lý do), Danh hiệu (Ban Giám hiệu: nạp danh hiệu mặc định, danh sách). Ứng dụng phụ huynh có nút "Học bạ" ở con Tiểu học (kết quả hoàn thành chương trình, học bạ các năm đã kí, khen thưởng và giấy khen). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
 

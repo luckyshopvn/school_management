@@ -1,7 +1,7 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.42
+- Phiên bản: 1.43
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -85,6 +85,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.111.0 | DT-20 phần 20d: sổ đầu bài và điểm danh theo tiết (ghi, ký tiết theo thời khoá biểu, Ban giám hiệu ký sổ tuần, phụ huynh xem, tổng hợp chuyên cần) | YCTD-162 |
 | 0.112.0 | DT-20 phần 20e: học bạ số (kí nội bộ), khen thưởng cuối năm có giấy khen mã tra cứu, hoàn thành chương trình lớp học, chương trình tiểu học, rèn luyện trong hè, kiểm tra lại, lên lớp; kết chuyển năm học | YCTD-163 |
 | 0.113.0 | DT-20 phần 22c2: máy xếp thời khoá biểu chạy nền (ràng buộc có mức quan trọng, nhiều phương án), chỉnh tay có kiểm tra ngay, dạy thay, đổi tiết, báo cáo tiết dạy, dùng phòng, mã QR tra cứu | YCTD-164 |
+| 0.114.0 | DT-20 phần 20f: báo cáo, thống kê Tiểu học (sĩ số, kết quả đánh giá, cuối năm, chuyên cần, bán trú; xuất Excel, PDF) và khung biểu EMIS Tiểu học cấu hình được | YCTD-165 |
 | 0.83.0 | DT-15 phần 15f3, các phân hệ Bếp – kho, mua hàng; Tương tác – truyền thông; Giảng dạy; Tuyển sinh, tuyển dụng; Báo cáo theo giao diện chung của Sở: tiêu đề đánh số theo menu, 32 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối; nghiệp vụ không đổi (YCTD-115) | 13, 21 | Đã có |
 | 0.81.0 | DT-15 phần 15f2, phân hệ Nhân sự – chấm công, lương theo giao diện chung của Sở: tiêu đề đánh số theo menu, 17 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối, hộp xác nhận xóa; nghiệp vụ không đổi (YCTD-113) | 13, 21 | Đã có |
 | 0.82.0 | DT-15 phần 15f1, phân hệ Tài chính – học phí theo giao diện chung của Sở: tiêu đề đánh số theo menu, 20 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối, hộp xác nhận xóa; nghiệp vụ không đổi (YCTD-114) | 13, 21 | Đã có |

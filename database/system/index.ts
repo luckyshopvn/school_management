@@ -23,6 +23,7 @@ import { migration as createSchoolLevels } from './migrations/0023_create_school
 import { migration as addSchoolLevelCalendar } from './migrations/0024_add_school_level_calendar.js';
 import { migration as backfillSchoolLevels } from './migrations/0025_backfill_school_levels.js';
 import { migration as createPeriodSlots } from './migrations/0026_create_period_slots.js';
+import { migration as createReportForms } from './migrations/0027_create_report_forms.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu hệ thống, theo số thứ tự (QU-01, QĐ-17)
 export const systemMigrations: Record<string, Migration> = {
@@ -50,4 +51,5 @@ export const systemMigrations: Record<string, Migration> = {
   '0024_add_school_level_calendar': addSchoolLevelCalendar,
   '0025_backfill_school_levels': backfillSchoolLevels,
   '0026_create_period_slots': createPeriodSlots,
+  '0027_create_report_forms': createReportForms,
 };

@@ -153,6 +153,7 @@ function legacyVisibility(has: (code: string) => boolean): Partial<Record<Portal
     '/conduct': has('P02.conduct.record') || has('P02.conduct.manage'),
     '/student-assessments': has('P02.assessment.enter') || has('P02.assessment.view') || has('P02.assessment.manage'),
     '/learning-records': has('P02.assessment.enter') || has('P02.assessment.view') || has('P02.student-record.approve'),
+    '/primary-reports': has('P17.child-statistics.view') || has('P17.report.emis'),
     '/student-health': canManageHealth || canViewGrowthReport,
     '/health': canManageHealth || canRecordMedicalEvents,
     '/medicines': canManageMedicines || canAdministerMedication || canApproveMedicinePurchases,

@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.61
+- Phiên bản: 1.62
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -849,6 +849,10 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-774 | Cho các phương án đã xếp / Khi chọn một phương án / Thì tạo bản nháp nguồn máy xếp, sửa tay có kiểm tra ngay, ban hành theo luồng phiên bản; mức quan trọng 0 tắt ràng buộc mềm (CT-878, CT-882, CT-886, CT-887, CT-890; YCTD-164) |
 | AC-775 | Cho bản đang áp dụng / Khi ghi dạy thay, đổi tiết của một ngày / Thì tiết thực tế của ngày đổi, bản ban hành giữ nguyên; giáo viên đang có tiết khác cùng lúc bị chặn; báo cáo tiết dạy tính đúng (CT-888, CT-890; YCTD-164) |
 | AC-776 | Cho mã QR của lớp hoặc giáo viên / Khi người không đăng nhập mở đường dẫn của mã / Thì thấy thời khoá biểu đang áp dụng và thay đổi 7 ngày tới; mã thu hồi thì báo không đúng (CT-889, CT-890; YCTD-164) |
+| AC-777 | Cho trường có lớp 4, lớp 5 với học sinh nữ dân tộc, khuyết tật, bán trú, lớp 2 buổi/ngày / Khi xem sĩ số; phụ huynh xem / Thì số theo khối và toàn trường đúng; 403 (CT-892, CT-897; YCTD-165) |
+| AC-778 | Cho kết quả kỳ cuối học kỳ I, kết quả cuối năm, hoàn thành, khen thưởng / Khi xem theo khối, toàn trường, theo lớp / Thì số theo mức, điểm theo khoảng, kết quả cuối năm, ở lại lớp, khen thưởng đúng (CT-893, CT-894; YCTD-165) |
+| AC-779 | Cho sổ đầu bài có vắng, ngày đã chốt suất, cắt suất / Khi xem chuyên cần, bán trú; xuất Excel, PDF / Thì số theo lớp đúng; tệp tải được, có nhật ký xuất (CT-895; YCTD-165) |
+| AC-780 | Cho biểu EMIS Tiểu học đầu năm / Khi xem, nhập tay đúng và sai dòng, sửa khung với công thức sai, đúng, đánh dấu đã gửi / Thì dòng công thức tính từ dữ liệu, dòng lớp chỉ cột tổng số; 400 khi sai; dòng mới tính được; đã gửi thì nhập tay 422 (CT-891, CT-896, CT-897; YCTD-165) |
 
 ## 20. Chưa xác minh được
 
