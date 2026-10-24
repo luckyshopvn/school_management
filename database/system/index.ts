@@ -26,6 +26,7 @@ import { migration as createPeriodSlots } from './migrations/0026_create_period_
 import { migration as createReportForms } from './migrations/0027_create_report_forms.js';
 import { migration as addSecondaryReportForms } from './migrations/0028_add_secondary_report_forms.js';
 import { migration as createTrainingCatalogs } from './migrations/0041_create_training_catalogs.js';
+import { migration as createLearningResources } from './migrations/0042_create_learning_resources.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu hệ thống, theo số thứ tự (QU-01, QĐ-17)
 export const systemMigrations: Record<string, Migration> = {
@@ -56,4 +57,5 @@ export const systemMigrations: Record<string, Migration> = {
   '0027_create_report_forms': createReportForms,
   '0028_add_secondary_report_forms': addSecondaryReportForms,
   '0041_create_training_catalogs': createTrainingCatalogs,
+  '0042_create_learning_resources': createLearningResources,
 };

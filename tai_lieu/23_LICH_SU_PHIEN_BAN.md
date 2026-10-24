@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.50
+- Phiên bản: 0.51
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,17 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.125.0 – 2026-10-25
+### Phiên bản 0.126.0 – 2026-10-25
 
 - Phạm vi thay đổi: DT-21 phần 21g, báo cáo, thống kê và EMIS THCS, THPT (YCTD-175).
 - Chức năng mới: thống kê sĩ số, tổ hợp, kết quả cuối năm, phổ điểm, theo giáo viên, tổ bộ môn THCS, THPT; xuất Excel, PDF; biểu EMIS THCS, THPT cấu hình được (7.18).
 - Lỗi đã sửa: không.
 - Thay đổi dữ liệu: tệp hệ thống `0028_add_secondary_report_forms`.
 - Thay đổi API: `/secondary-reports/enrollment`, `/results`, `/scores`, `/teachers`, `/{report}/export`; `/secondary-reports/emis` và các đường con như `/primary-reports/emis`; `/primary-reports/emis` chỉ còn biểu Tiểu học.
-- Kiểm thử: kịch bản CT-968 đến CT-972. Kết quả ngày 25/10/2026: kiểm thử đơn vị `apps/api/src/secondary-reports/secondary-reports.test.ts` CT-21g-1 đến CT-21g-4 đạt 4/4; kiểm thử đơn vị liên quan trên máy (báo cáo Tiểu học 20f, quick-links, điều kiện menu, menu theo cấp, gửi lên cấp trên) đạt 31/31, không sửa kỳ vọng (thêm mục 7.18 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của THCS, THPT của CT-19c-1); e2e trên máy 02, 03, 94, 103 đạt; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử: kịch bản CT-975 đến CT-979. Kết quả ngày 25/10/2026: kiểm thử đơn vị `apps/api/src/secondary-reports/secondary-reports.test.ts` CT-21g-1 đến CT-21g-4 đạt 4/4; kiểm thử đơn vị liên quan trên máy (báo cáo Tiểu học 20f, quick-links, điều kiện menu, menu theo cấp, gửi lên cấp trên) đạt 31/31, không sửa kỳ vọng (thêm mục 7.18 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của THCS, THPT của CT-19c-1); e2e trên máy 02, 03, 94, 103 đạt; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Rủi ro: biểu khung chưa khớp Sở.
 - Khả năng tương thích: không đổi điểm cuối cũ; trường chỉ có Mầm non, Tiểu học thấy như cũ.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 21g; chạy phần quay lui của tệp hệ thống `0028`.
+
+### Phiên bản 0.125.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-22 phần 22h1, kho học liệu số phần lõi (YCTD-183).
+- Chức năng mới: phân hệ Kho học liệu; tải tệp, liên kết ngoài, tham chiếu kế hoạch bài dạy, phiên bản; metadata theo cấp, khối, môn, chủ đề; giấy phép bắt buộc; kiểm duyệt phân luồng theo rủi ro; bộ sưu tập; báo lỗi; thống kê; Việc của tôi có nguồn kho học liệu.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp hệ thống `0042_create_learning_resources`; tệp năm học `0102_create_learning_resource_activity`; tệp định danh `0092_add_learning_resource_permissions`.
+- Thay đổi API: `/learning-resources/*`.
+- Kiểm thử: kịch bản CT-968 đến CT-974. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/learning-resources/learning-resources.test.ts` CT-22h1-1 đến CT-22h1-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa đạt 37/37 (kho học liệu, system-admin-so CT-16d-3 đếm 21 phân hệ, quick-links, menu theo cấp, Việc của tôi); kiểm thử giao diện `tests/e2e/122-learning-resources.spec.ts` (CT-22h1-7) đạt; kiểm thử giao diện chạy trên máy 01, 02, 03, 58, 83, 122 đạt 18/18; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: không có thay đổi dữ liệu cũ.
+- Khả năng tương thích: thêm một phân hệ; các phân hệ khác không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 22h1; chạy phần quay lui của tệp hệ thống `0042`, năm học `0102`, định danh `0092` (xoá tệp học liệu ở kho tệp theo tiền tố `learning-resources/`).
 
 ### Phiên bản 0.124.0 – 2026-10-25
 - Phạm vi thay đổi: DT-21 phần 21f, xét tốt nghiệp THCS, THPT và hồ sơ thi (YCTD-174).

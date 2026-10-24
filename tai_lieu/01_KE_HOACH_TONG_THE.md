@@ -1,7 +1,7 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.53
+- Phiên bản: 1.54
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -87,7 +87,8 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.120.0 | DT-21 phần 21e: học bạ số, khen thưởng, xét lên lớp THCS, THPT (danh hiệu Xuất sắc, Giỏi, lên lớp, hoàn thành cấp học, học bạ có điểm trung bình hai học kỳ) | YCTD-172 |
 | 0.121.0 | DT-21 phần 22g2: kiểm tra, đánh giá phần chấm (phiếu trả lời, nhập bài, tệp quét, chấm tự luận, khoá điểm, chuyển sổ điểm, báo cáo theo câu, chủ đề, mức nhận thức) | YCTD-173 |
 | 0.124.0 | DT-21 phần 21f: xét tốt nghiệp THCS, THPT và hồ sơ thi (danh sách đủ điều kiện, hồ sơ dự thi, số báo danh, phòng thi, điểm thi, công nhận, giấy chứng nhận, biên bản, tệp xuất, hồ sơ chuyển cấp) | YCTD-174 |
-| 0.125.0 | DT-21 phần 21g: báo cáo, thống kê THCS, THPT (sĩ số, tổ hợp, kết quả cuối năm, phổ điểm, theo giáo viên, tổ bộ môn) và biểu EMIS THCS, THPT cấu hình được | YCTD-175 |
+| 0.125.0 | DT-22 phần 22h1: kho học liệu số phần lõi (tải lên, liên kết, phiên bản, giấy phép bắt buộc, kiểm duyệt phân luồng, bộ sưu tập, báo lỗi, thống kê) | YCTD-183 |
+| 0.126.0 | DT-21 phần 21g: báo cáo, thống kê THCS, THPT (sĩ số, tổ hợp, kết quả cuối năm, phổ điểm, theo giáo viên, tổ bộ môn) và biểu EMIS THCS, THPT cấu hình được | YCTD-175 |
 | 0.116.0 | DT-20 phần 20f: báo cáo, thống kê Tiểu học (sĩ số, kết quả đánh giá, cuối năm, chuyên cần, bán trú; xuất Excel, PDF) và khung biểu EMIS Tiểu học cấu hình được | YCTD-165 |
 | 0.117.0 | DT-21 phần 22g1: kiểm tra, đánh giá phần đề (ngân hàng câu hỏi, ma trận, kế hoạch kiểm tra, đề nhiều mã, thẩm định, khoá đề, xuất đề và đáp án) | YCTD-168 |
 | 0.111.0 | DT-20 phần 20d: sổ đầu bài và điểm danh theo tiết (ghi, ký tiết theo thời khoá biểu, Ban giám hiệu ký sổ tuần, phụ huynh xem, tổng hợp chuyên cần) | YCTD-162 |

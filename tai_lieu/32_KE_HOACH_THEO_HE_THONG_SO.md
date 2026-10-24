@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số).
-- Phiên bản: 1.59
+- Phiên bản: 1.60
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -901,7 +901,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 | 21e | 3 | Đã làm, YCTD-172, phiên bản 0.120.0: học bạ số, khen thưởng (Xuất sắc, Giỏi), xét lên lớp, hoàn thành cấp học THCS, THPT trên khung 20e (đọc sổ điểm 21c), học bạ có điểm trung bình hai học kỳ, cả năm, kí nội bộ in đủ số định danh kèm kiểm quyền (năm học 0089 căn cứ danh hiệu); định danh 0080 để trống (không thêm quyền); e2e 100 |
 | 22g2 | 4 | Đã làm, YCTD-173, phiên bản 0.121.0, PR 155: bài kiểm tra của lớp từ đề đã khoá; phiếu trả lời PDF; nhập bài tay, nhập tệp quét theo mẫu (chưa nhận dạng ảnh); chấm tự luận hai người; khoá điểm; chuyển sổ điểm 21c qua một cửa; báo cáo theo câu, chủ đề, mức nhận thức, lớp, phân bố điểm, xuất Excel, PDF; ghi kết quả dùng câu (năm học 0090); quyền `P02.exam.grade` (định danh 0081); menu 8.5, 8.6; e2e 101 |
 | 21f | 4 | Đã làm, YCTD-174, phiên bản 0.124.0: kỳ xét tốt nghiệp THCS, THPT, hồ sơ dự thi, số báo danh, phòng thi, điểm thi, công nhận có biên bản hội đồng, giấy chứng nhận, tệp xuất và đánh dấu đã gửi thủ công, hồ sơ chuyển cấp THCS (năm học 0091); hệ thống 0029, định danh 0082 để trống (không thêm quyền); e2e 102 |
-| 21g | 5 | Đã làm (PR …, YCTD-175, phiên bản 0.125.0) |
+| 21g | 5 | Đã làm (PR …, YCTD-175, phiên bản 0.126.0) |
 
 ## 13. DT-22: thư viện, bồi dưỡng, kho học liệu số (22a, 22e, 22h)
 
@@ -1052,5 +1052,5 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 |---|---|---|
 | 22a | 1 | Đã làm, YCTD-181, phiên bản 0.122.0, PR 147: phân hệ Thư viện (danh mục, bản sao có số đăng ký cá biệt và tem QR, thanh lý, tệp số, sổ đăng ký; thẻ bạn đọc; mượn trả, phạt, nhắc quá hạn, đặt trước; phát và thu sách giáo khoa; kiểm kê; báo cáo và chỉ tiêu theo chuẩn có ngưỡng cấu hình; thiết lập), ứng dụng giáo viên, phụ huynh; toàn bộ ở cơ sở dữ liệu năm học (năm học 0100, định danh 0090, hệ thống 0040 không dùng); chưa làm: nhập Excel danh mục, minh chứng sang 22f, ảnh bìa; e2e 120 |
 | 22e | 1 | Đã làm, YCTD-182, phiên bản 0.119.0, PR 145: danh mục (hệ thống 0041: định mức 120 tiết, chuyên đề theo ba chương trình, khung năng lực số 6 miền 3 mức theo Thông tư 18/2026), khoá, đăng ký, duyệt tổ và Ban Giám hiệu, kết quả, chứng nhận PDF có mã QR, thu hồi, cấp lại, trang tra cứu công khai (năm học 0101, `staff_certificates` thêm cột), chứng chỉ nhập tay, hồ sơ cá nhân, tổ, trường, năng lực số và gợi ý chuyên đề; nhóm 6 của Hồ sơ chuyên môn; quyền `P09.training.*` (định danh 0091); ứng dụng giáo viên; e2e 121 |
-| 22h1 | 2 | Chưa làm, bắt đầu khi 22a hoặc 22e gộp |
+| 22h1 | 2 | Đã làm, YCTD-183, phiên bản 0.125.0, PR 156: phân hệ "Kho học liệu" (hệ thống 0042: loại, giấy phép, chủ đề, học liệu, phiên bản tệp, liên kết, tham chiếu kế hoạch bài dạy, bộ sưu tập; năm học 0102: sự kiện duyệt, báo lỗi, lượt xem, tải); giấy phép bắt buộc; kiểm duyệt phân luồng theo rủi ro (tổ trưởng, Ban Giám hiệu); báo lỗi, thủ kho ẩn tạm; thống kê; quyền `P09.learning-resource.*` (định danh 0092); không có bảng câu hỏi; e2e 122 |
 | 22h2 | 3 | Chưa làm, chờ 22h1 và 22g1 (DT-21); thống kê sử dụng câu hỏi chờ thêm 22g2 |

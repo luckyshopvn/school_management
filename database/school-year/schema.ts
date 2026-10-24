@@ -3225,6 +3225,45 @@ export interface DigitalCompetencyScoresTable {
   reason: string | null;
 }
 
+// Phần theo năm học của kho học liệu số (DT-22 phần 22h1, YCTD-183)
+export type LearningResourceAction =
+  'submit' | 'unit_approve' | 'school_approve' | 'return' | 'publish' | 'hide' | 'restore' | 'retire';
+export type LearningResourceReportKind = 'content' | 'file' | 'copyright';
+
+export interface LearningResourceEventsTable {
+  id: Generated<string>;
+  resource_id: string;
+  version_no: number | null;
+  action: LearningResourceAction;
+  note: string | null;
+  actor_user_id: string;
+  actor_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface LearningResourceReportsTable {
+  id: Generated<string>;
+  resource_id: string;
+  resource_title: string;
+  kind: LearningResourceReportKind;
+  description: string;
+  status: Generated<'open' | 'resolved' | 'rejected'>;
+  reporter_user_id: string;
+  reporter_name: string;
+  response: string | null;
+  handled_by_name: string | null;
+  handled_at: Date | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface LearningResourceUsageTable {
+  id: Generated<string>;
+  resource_id: string;
+  kind: 'view' | 'download';
+  user_id: string;
+  created_at: CreatedTimestamp;
+}
+
 export interface StaffBonusDeductionsTable {
   id: Generated<string>;
   staff_id: string;
@@ -6180,6 +6219,9 @@ export interface SchoolYearDatabase {
   training_registrations: TrainingRegistrationsTable;
   digital_competency_assessments: DigitalCompetencyAssessmentsTable;
   digital_competency_scores: DigitalCompetencyScoresTable;
+  learning_resource_events: LearningResourceEventsTable;
+  learning_resource_reports: LearningResourceReportsTable;
+  learning_resource_usage: LearningResourceUsageTable;
   staff_bonus_deductions: StaffBonusDeductionsTable;
   debt_reminders: DebtRemindersTable;
   debt_resolutions: DebtResolutionsTable;

@@ -70,6 +70,7 @@ import { migration as addExamPermissions } from './migrations/0076_add_exam_perm
 import { migration as addSecondaryClassRecordPermissions } from './migrations/0079_add_secondary_class_record_permissions.js';
 import { migration as addExamGradingPermission } from './migrations/0081_add_exam_grading_permission.js';
 import { migration as addTrainingPermissions } from './migrations/0091_add_training_permissions.js';
+import { migration as addLearningResourcePermissions } from './migrations/0092_add_learning_resource_permissions.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu định danh, theo số thứ tự (QU-01)
 export const identityMigrations: Record<string, Migration> = {
@@ -144,4 +145,5 @@ export const identityMigrations: Record<string, Migration> = {
   '0079_add_secondary_class_record_permissions': addSecondaryClassRecordPermissions,
   '0081_add_exam_grading_permission': addExamGradingPermission,
   '0091_add_training_permissions': addTrainingPermissions,
+  '0092_add_learning_resource_permissions': addLearningResourcePermissions,
 };

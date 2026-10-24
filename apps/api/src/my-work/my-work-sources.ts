@@ -22,6 +22,7 @@ import { EducationPlansService } from '../education-plans/education-plans.js';
 import { EmulationCouncilService } from '../emulation/emulation-council.js';
 import { ProfessionalRecordsService } from '../professional-records/professional-records.js';
 import { TrainingService } from '../training/training.js';
+import { LearningResourcesService } from '../learning-resources/learning-resources.js';
 import { LEADER_ROLE, MANAGER_ROLE, TeachingAccess } from '../teaching/teaching-access.js';
 
 // Nguồn việc của Việc của tôi (DT-18 phần 18e, YCTD-142). Mỗi phân hệ cung cấp một nguồn qua giao diện chung MyWorkSource:
@@ -1209,6 +1210,68 @@ export class TrainingWorkSource extends MyWorkSource {
   }
 }
 
+// Kho học liệu số (DT-22 phần 22h1): học liệu chờ tôi duyệt (bước tổ, bước trường), học liệu của tôi bị trả lại, báo lỗi đang
+// mở (thủ kho)
+@Injectable()
+export class LearningResourceWorkSource extends MyWorkSource {
+  readonly code = 'learning_resources' as const;
+  constructor(
+    private readonly resources: LearningResourcesService,
+    private readonly clock: Clock,
+  ) {
+    super();
+  }
+
+  async collect(currentUser: CurrentUser): Promise<MyWorkItem[]> {
+    const codes = [
+      PERMISSION_CODES.learningResourceUse,
+      PERMISSION_CODES.learningResourceReview,
+      PERMISSION_CODES.learningResourceApprove,
+      PERMISSION_CODES.learningResourceManage,
+    ];
+    if (!codes.some((code) => currentUser.hasPermission(code))) {
+      return [];
+    }
+    const now = this.clock.now();
+    const pending = await this.resources.pendingWork(currentUser);
+    return [
+      ...pending.pending.map((row) =>
+        item(now, {
+          source: this.code,
+          kind: row.status === 'pending_unit' ? 'Học liệu chờ tổ duyệt' : 'Học liệu chờ Ban Giám hiệu duyệt',
+          title: `${row.title} – ${row.owner_name}`,
+          detail: null,
+          link: '/learning-resources/review',
+          deadline: null,
+          received_at: row.submitted_at,
+        }),
+      ),
+      ...pending.returned.map((row) =>
+        item(now, {
+          source: this.code,
+          kind: 'Học liệu bị trả lại',
+          title: row.title,
+          detail: row.return_note,
+          link: '/learning-resources/mine',
+          deadline: null,
+          received_at: row.updated_at,
+        }),
+      ),
+      ...pending.reports.map((row) =>
+        item(now, {
+          source: this.code,
+          kind: 'Báo lỗi học liệu chờ xử lý',
+          title: row.resource_title,
+          detail: null,
+          link: '/learning-resources/reports',
+          deadline: null,
+          received_at: row.created_at,
+        }),
+      ),
+    ];
+  }
+}
+
 export const MY_WORK_SOURCE_TYPES = [
   IncomingWorkSource,
   OutgoingWorkSource,
@@ -1223,4 +1286,5 @@ export const MY_WORK_SOURCE_TYPES = [
   FoodSafetyWorkSource,
   EmulationWorkSource,
   TrainingWorkSource,
+  LearningResourceWorkSource,
 ];

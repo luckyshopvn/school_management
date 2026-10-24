@@ -34,6 +34,7 @@ export * from './school-levels.js';
 export * from './level-structure.js';
 export * from './class-records.js';
 export * from './training.js';
+export * from './learning-resources.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -259,6 +260,11 @@ export const PERMISSION_CODES = {
   trainingUse: 'P09.training.use',
   trainingReview: 'P09.training.review',
   trainingManage: 'P09.training.manage',
+  // Kho học liệu số (DT-22 phần 22h1)
+  learningResourceUse: 'P09.learning-resource.use',
+  learningResourceReview: 'P09.learning-resource.review',
+  learningResourceApprove: 'P09.learning-resource.approve',
+  learningResourceManage: 'P09.learning-resource.manage',
   // Cấu hình cấp học của trường ở 1.4 Cấu hình trường (DT-19 phần 19a)
   schoolLevelManage: 'P01.school-level.manage',
   // Lập, nhập, ban hành thời khoá biểu, khung giờ tiết học (DT-20 phần 22c1)
@@ -591,6 +597,14 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/training/records',
   '/training/competency',
   '/training/settings',
+  // Kho học liệu số (DT-22 phần 22h1)
+  '/learning-resources',
+  '/learning-resources/mine',
+  '/learning-resources/review',
+  '/learning-resources/collections',
+  '/learning-resources/reports',
+  '/learning-resources/statistics',
+  '/learning-resources/settings',
   // Thi đua, khen thưởng (DT-18 phần 22d)
   '/emulation/campaigns',
   '/emulation/registrations',
