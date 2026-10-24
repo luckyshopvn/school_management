@@ -1,7 +1,7 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.50
+- Phiên bản: 1.51
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -86,7 +86,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.115.0 | DT-21 phần 21c: sổ điểm THCS, THPT theo Thông tư 22/2021 (điểm, trung bình, xếp loại, khoá điểm, cấu hình) | YCTD-170 |
 | 0.120.0 | DT-21 phần 21e: học bạ số, khen thưởng, xét lên lớp THCS, THPT (danh hiệu Xuất sắc, Giỏi, lên lớp, hoàn thành cấp học, học bạ có điểm trung bình hai học kỳ) | YCTD-172 |
 | 0.121.0 | DT-21 phần 22g2: kiểm tra, đánh giá phần chấm (phiếu trả lời, nhập bài, tệp quét, chấm tự luận, khoá điểm, chuyển sổ điểm, báo cáo theo câu, chủ đề, mức nhận thức) | YCTD-173 |
-| 0.122.0 | DT-21 phần 21f: xét tốt nghiệp THCS, THPT và hồ sơ thi (danh sách đủ điều kiện, hồ sơ dự thi, số báo danh, phòng thi, điểm thi, công nhận, giấy chứng nhận, biên bản, tệp xuất, hồ sơ chuyển cấp) | YCTD-174 |
+| 0.123.0 | DT-21 phần 21f: xét tốt nghiệp THCS, THPT và hồ sơ thi (danh sách đủ điều kiện, hồ sơ dự thi, số báo danh, phòng thi, điểm thi, công nhận, giấy chứng nhận, biên bản, tệp xuất, hồ sơ chuyển cấp) | YCTD-174 |
 | 0.116.0 | DT-20 phần 20f: báo cáo, thống kê Tiểu học (sĩ số, kết quả đánh giá, cuối năm, chuyên cần, bán trú; xuất Excel, PDF) và khung biểu EMIS Tiểu học cấu hình được | YCTD-165 |
 | 0.117.0 | DT-21 phần 22g1: kiểm tra, đánh giá phần đề (ngân hàng câu hỏi, ma trận, kế hoạch kiểm tra, đề nhiều mã, thẩm định, khoá đề, xuất đề và đáp án) | YCTD-168 |
 | 0.111.0 | DT-20 phần 20d: sổ đầu bài và điểm danh theo tiết (ghi, ký tiết theo thời khoá biểu, Ban giám hiệu ký sổ tuần, phụ huynh xem, tổng hợp chuyên cần) | YCTD-162 |
@@ -94,6 +94,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.113.0 | DT-20 phần 22c2: máy xếp thời khoá biểu chạy nền (ràng buộc có mức quan trọng, nhiều phương án), chỉnh tay có kiểm tra ngay, dạy thay, đổi tiết, báo cáo tiết dạy, dùng phòng, mã QR tra cứu | YCTD-164 |
 | 0.118.0 | DT-21 phần 21b: thời khoá biểu THCS, THPT (dùng chung ba cấp, tiết học nhóm, tiết đôi, phòng bộ môn, nhập Excel có nhóm) | YCTD-169 |
 | 0.119.0 | DT-22 phần 22e: hồ sơ bồi dưỡng giáo viên (khoá, đăng ký, kết quả, chứng nhận có mã tra cứu công khai, chứng chỉ, năng lực số) | YCTD-182 |
+| 0.122.0 | DT-22 phần 22a: thư viện trường học (danh mục, bản sao, thẻ bạn đọc, mượn trả, đặt trước, sách giáo khoa, kiểm kê, báo cáo theo chuẩn) | YCTD-181 |
 | 0.83.0 | DT-15 phần 15f3, các phân hệ Bếp – kho, mua hàng; Tương tác – truyền thông; Giảng dạy; Tuyển sinh, tuyển dụng; Báo cáo theo giao diện chung của Sở: tiêu đề đánh số theo menu, 32 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối; nghiệp vụ không đổi (YCTD-115) | 13, 21 | Đã có |
 | 0.81.0 | DT-15 phần 15f2, phân hệ Nhân sự – chấm công, lương theo giao diện chung của Sở: tiêu đề đánh số theo menu, 17 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối, hộp xác nhận xóa; nghiệp vụ không đổi (YCTD-113) | 13, 21 | Đã có |
 | 0.82.0 | DT-15 phần 15f1, phân hệ Tài chính – học phí theo giao diện chung của Sở: tiêu đề đánh số theo menu, 20 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối, hộp xác nhận xóa; nghiệp vụ không đổi (YCTD-114) | 13, 21 | Đã có |

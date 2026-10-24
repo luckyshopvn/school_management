@@ -38,7 +38,7 @@ import {
   type GraduationView,
 } from './graduation-api.js';
 
-// 7.15 Xét tốt nghiệp, hồ sơ thi (DT-21 phần 21f, YCTD-174): kỳ xét (THCS) hoặc kỳ thi tốt nghiệp (THPT) của năm học; danh
+// 7.16 Xét tốt nghiệp, hồ sơ thi (DT-21 phần 21f, YCTD-174): kỳ xét (THCS) hoặc kỳ thi tốt nghiệp (THPT) của năm học; danh
 // sách thí sinh lập từ học sinh khối cuối cấp (điều kiện theo xếp loại cả năm của sổ điểm); THPT thêm bài thi, số báo danh, phòng
 // thi, điểm thi; xét kết quả, công nhận có biên bản hội đồng, giấy chứng nhận; tệp xuất và đánh dấu đã gửi; hồ sơ chuyển cấp
 // THCS. Người có `P02.student-record.approve` toàn trường quản lý, người có quyền xem đánh giá chỉ xem

@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.53
+- Phiên bản: 0.54
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,27 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-24 — DT-22 phần 22a: thư viện trường học
+
+#### Công việc đã thực hiện
+
+- Đọc mục 13 của `32_KE_HOACH_THEO_HE_THONG_SO.md` (kế hoạch DT-22) và mã trên nhánh chính: học sinh, cán bộ, lớp, môn, thông báo, nhật ký xuất, tem QR của thiết bị (`equipment-locations`), kiểm kê thiết bị, kho tệp, chuyển năm học; rà bảng `library_items`, `library_albums` (Mầm non) và `asset_loans` để không dùng nhầm.
+- Cơ sở dữ liệu: tệp năm học `0100`, định danh `0090`. Máy chủ API: danh mục, bản sao, tem, thanh lý, tệp số, sổ đăng ký, thẻ bạn đọc, mượn trả, đặt trước, sách giáo khoa, kiểm kê, báo cáo, chuyển năm học. Cổng quản trị: phân hệ "Thư viện" 7 trang. Ứng dụng giáo viên, phụ huynh.
+- Thêm quy tắc BR-189 đến BR-191, chức năng P02-71 đến P02-75, quyền PQ-100, màn hình MH-291 đến MH-299, kịch bản CT-947 đến CT-956, tiêu chí AC-801 đến AC-804. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/library/library.test.ts` CT-22a-1 đến CT-22a-8 đạt 8/8; trên máy đã chạy kiểm thử đơn vị các gói sửa (thư viện, số phân hệ `system-admin-so`, đường dẫn nhanh, cấp học, chuyển năm học) đạt 52/52; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 81, 82, 84 và `tests/e2e/120-library.spec.ts` (CT-22a-9) đạt; kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
+
+#### Quyết định
+
+- Thực hiện phần 22a của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 13.4. Toàn bộ ở cơ sở dữ liệu năm học (cần khóa ngoại tới học sinh, cán bộ, lớp) và chép sang năm mới; số hệ thống 0040 không dùng; không có vai trò thủ thư cố định, trường gán `P02.library.manage` cho nhóm của thủ thư; chỉ tiêu theo chuẩn để ngưỡng trống đến khi đọc văn bản gốc; không dùng AI, không gọi dịch vụ ngoài. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Khi chạy kiểm thử cục bộ dùng cơ sở dữ liệu định danh riêng `school_identity_22a` vì cơ sở dùng chung đã có tệp của phiên khác; không chạy lệnh migrate toàn bộ lên cơ sở năm học dùng chung.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-181, `07_QUY_TAC_NGHIEP_VU.md` BR-189 đến BR-191, `08_VAI_TRO_NGUOI_DUNG.md` PQ-100, `10_YEU_CAU_CHUC_NANG.md` P02-71 đến P02-75, `11_TIEU_CHI_NGHIEM_THU.md` AC-801 đến AC-804, `14_DAC_TA_GIAO_DIEN.md` MH-291 đến MH-299, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-947 đến CT-956, `23_LICH_SU_PHIEN_BAN.md` 0.122.0.
+
+#### Vấn đề tồn đọng
+
+- Đọc văn bản gốc về chuẩn thư viện cơ sở giáo dục phổ thông để nạp ngưỡng chỉ tiêu; nhập Excel danh mục; ghi minh chứng sang 22f; ảnh bìa, ô chọn môn ở giao diện, thẻ đã trả, đã mất ở danh sách lượt mượn.
 
 ### 2026-10-24 — DT-21 phần 22g2: kiểm tra, đánh giá, phần chấm
 
@@ -36,11 +57,11 @@
 
 ### 2026-10-25 — DT-21 phần 21f: xét tốt nghiệp THCS, THPT và hồ sơ thi
 - Đọc mục 12 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và mã 20e (học bạ), 21c (sổ điểm), 21e (học bạ, lên lớp).
-- Làm hàm xét tốt nghiệp dùng chung, máy chủ `graduation` (kỳ, thí sinh, hồ sơ dự thi, số báo danh, phòng thi, điểm, xét, công nhận, giấy chứng nhận, biên bản, tệp xuất, hồ sơ chuyển cấp), cổng quản trị mục 7.15 và e2e 102.
+- Làm hàm xét tốt nghiệp dùng chung, máy chủ `graduation` (kỳ, thí sinh, hồ sơ dự thi, số báo danh, phòng thi, điểm, xét, công nhận, giấy chứng nhận, biên bản, tệp xuất, hồ sơ chuyển cấp), cổng quản trị mục 7.16 và e2e 102.
 - Cơ sở dữ liệu: tệp năm học `0091`; hệ thống `0029`, định danh `0082` để trống.
 - Kiểm thử: kiểm thử đơn vị `graduation.test.ts` CT-21f-1 đến CT-21f-5 đạt 5/5; chạy cùng menu, cấp học đạt 13/13; typecheck, prettier, eslint đạt; e2e CT-21f-6 (102) do CI chạy cùng e2e toàn bộ; e2e toàn bộ do CI chạy.
 - Dùng quyền sẵn có của đánh giá, học bạ thay vì thêm quyền mới; cấu hình xét (hệ số, điểm đạt, điểm liệt, môn thi) lưu theo cấp và chép sang năm học mới để đổi theo quy chế từng năm; kết nối Sở, Bộ chỉ xuất tệp và đánh dấu thủ công; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-174, `23_LICH_SU_PHIEN_BAN.md` bản 0.122.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-174, `23_LICH_SU_PHIEN_BAN.md` bản 0.123.0.
 - Đối chiếu quy chế thi, xét tốt nghiệp hiện hành (công thức, hệ số, điểm liệt, môn thi) và mẫu giấy chứng nhận, tệp theo Bộ, Sở; nối Sở, Bộ khi có thông tin; khảo sát hệ thống của Sở cấp THCS, THPT.
 
 ### 2026-10-24 — DT-21 phần 21e: học bạ số, khen thưởng, xét lên lớp THCS, THPT

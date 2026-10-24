@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.47
+- Phiên bản: 0.48
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,16 +16,28 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.122.0 – 2026-10-25
+### Phiên bản 0.123.0 – 2026-10-25
 - Phạm vi thay đổi: DT-21 phần 21f, xét tốt nghiệp THCS, THPT và hồ sơ thi (YCTD-174).
-- Chức năng mới: kỳ xét tốt nghiệp theo cấp; danh sách thí sinh từ lớp cuối cấp theo xếp loại cả năm; hồ sơ dự thi (bài thi, miễn thi, ưu tiên, khuyến khích), số báo danh, phòng thi, điểm thi (THPT); xét kết quả theo công thức cấu hình được; công nhận tốt nghiệp có biên bản hội đồng, giấy chứng nhận PDF; tệp xuất, đánh dấu đã gửi thủ công; hồ sơ chuyển cấp THCS; mục 7.15 của cổng quản trị.
+- Chức năng mới: kỳ xét tốt nghiệp theo cấp; danh sách thí sinh từ lớp cuối cấp theo xếp loại cả năm; hồ sơ dự thi (bài thi, miễn thi, ưu tiên, khuyến khích), số báo danh, phòng thi, điểm thi (THPT); xét kết quả theo công thức cấu hình được; công nhận tốt nghiệp có biên bản hội đồng, giấy chứng nhận PDF; tệp xuất, đánh dấu đã gửi thủ công; hồ sơ chuyển cấp THCS; mục 7.16 của cổng quản trị.
 - Lỗi đã sửa: không.
 - Thay đổi dữ liệu: tệp năm học `0091_create_graduation`; cấu hình xét tốt nghiệp chép sang năm học mới; tệp hệ thống `0029`, định danh `0082` để trống (dùng quyền sẵn có).
 - Thay đổi API: nhóm điểm cuối mới `/graduation` (cấu hình, kỳ, thí sinh, phòng, xét, công nhận, biên bản, tệp xuất, hồ sơ chuyển cấp).
-- Kiểm thử: kịch bản CT-947 đến CT-951. Kết quả ngày 25/10/2026: kiểm thử đơn vị `graduation.test.ts` CT-21f-1 đến CT-21f-5 đạt 5/5; chạy cùng menu, cấp học đạt 13/13; typecheck, prettier, eslint đạt; e2e CT-21f-6 (102) do CI chạy cùng e2e toàn bộ.
+- Kiểm thử: kịch bản CT-957 đến CT-961. Kết quả ngày 25/10/2026: kiểm thử đơn vị `graduation.test.ts` CT-21f-1 đến CT-21f-5 đạt 5/5; chạy cùng menu, cấp học đạt 13/13; typecheck, prettier, eslint đạt; e2e CT-21f-6 (102) do CI chạy cùng e2e toàn bộ.
 - Rủi ro: công thức, hệ số, điểm liệt, môn thi là mặc định theo quy chế nhớ, cần đối chiếu văn bản gốc của năm; mẫu giấy chứng nhận, bố cục tệp là bố cục chung, mẫu của Bộ, Sở khớp khi khảo sát; chưa nối Sở, Bộ.
-- Khả năng tương thích: không đổi chức năng cũ; trường chỉ có Mầm non, Tiểu học không thấy mục 7.15.
+- Khả năng tương thích: không đổi chức năng cũ; trường chỉ có Mầm non, Tiểu học không thấy mục 7.16.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 21f; chạy phần quay lui của tệp năm học `0091`.
+
+### Phiên bản 0.122.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-22 phần 22a, thư viện trường học (YCTD-181).
+- Chức năng mới: phân hệ "Thư viện" (danh mục ấn phẩm, bản sao có số đăng ký cá biệt và tem mã QR, thanh lý, tệp tài liệu số, sổ đăng ký cá biệt; thẻ bạn đọc cho cán bộ và học sinh; mượn, trả, gia hạn, báo mất, phạt trễ hạn, nhắc quá hạn, đặt trước; phát và thu sách giáo khoa theo bộ sách của khối; kiểm kê và xử lý bản thiếu; báo cáo, chỉ tiêu theo chuẩn thư viện có ngưỡng cấu hình; thiết lập quy định mượn); ứng dụng giáo viên "Sách tôi đang mượn", ứng dụng phụ huynh "Sách thư viện".
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0100_create_library` (15 bảng `library_*`); tệp định danh `0090_add_library_permissions`; chuyển năm học chép kho thư viện sang năm mới.
+- Thay đổi API: `/library/*` (xem `17_DAC_TA_API.md`).
+- Kiểm thử: kịch bản CT-947 đến CT-956. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/library/library.test.ts` CT-22a-1 đến CT-22a-8 đạt 8/8; trên máy đã chạy kiểm thử đơn vị các gói sửa (thư viện, số phân hệ `system-admin-so`, đường dẫn nhanh, cấp học, chuyển năm học) đạt 52/52; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 81, 82, 84 và `tests/e2e/120-library.spec.ts` (CT-22a-9) đạt; kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
+- Rủi ro: chỉ tiêu theo chuẩn thư viện chưa có ngưỡng mặc định vì chưa đọc văn bản gốc, trường tự nhập; không có thay đổi dữ liệu cũ.
+- Khả năng tương thích: không đổi bảng `library_items`, `library_albums` (kho nội dung Mầm non) và `asset_loans` (mượn thiết bị); trường chỉ có Mầm non chỉ có cán bộ mượn sách.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 22a; chạy phần quay lui của tệp năm học `0100`, định danh `0090`.
 
 ### Phiên bản 0.121.0 – 2026-10-24
 
