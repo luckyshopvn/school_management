@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.83
+- Phiên bản: 1.84
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -119,6 +119,9 @@
 | P02-58 | Nhập điểm theo môn (7.14., ứng dụng giáo viên, YCTD-170) | Xem: người có quyền xem, giáo viên lớp; nhập: `P02.assessment.enter` theo phân công, `P02.assessment.manage` nhập thay | Điểm thường xuyên, giữa kỳ, cuối kỳ, kết quả Đạt, Chưa đạt, nhận xét | Điểm 0 đến 10 một chữ số thập phân; môn nhận xét không nhập điểm; trung bình tính khi đọc; hạn nhập, khoá điểm; nhật ký | Bảng điểm theo môn, trung bình | BR-180 |
 | P02-59 | Tổng hợp, xếp loại, khoá điểm (7.14., YCTD-170) | Xem như P02-58; xác nhận xếp loại: giáo viên chủ nhiệm, `P02.assessment.manage`; khoá, mở khoá: `P02.assessment.manage` | Xếp loại học tập, rèn luyện, nhận xét; khoá, mở khoá theo học kỳ và lớp | Gợi ý xếp loại theo ngưỡng; học kỳ II quyết định xếp loại cả năm; mở khoá kèm lý do; nhật ký | Bảng tổng hợp theo học kỳ, cả năm; khoá điểm | BR-180 |
 | P02-60 | Cấu hình sổ điểm; phụ huynh xem điểm (7.14., ứng dụng phụ huynh, YCTD-170) | Cấu hình: `P02.assessment.manage`; phụ huynh xem điểm đã khoá của con | Hệ số, số tuần, số lần đánh giá thường xuyên, ngưỡng xếp loại | Kiểm tra cấu hình; phụ huynh chỉ xem học kỳ đã khoá | Cấu hình sổ điểm; điểm của con | BR-180 |
+| P02-61 | Khen thưởng cuối năm THCS, THPT (7.8., YCTD-172) | Xem: `P02.assessment.view`; đề nghị: giáo viên chủ nhiệm (`P02.assessment.enter`); duyệt, nạp danh hiệu: `P02.student-record.approve` | Danh hiệu Xuất sắc, Giỏi, đột xuất; đề nghị, duyệt | Học kỳ II đã khoá; đủ điều kiện theo xếp loại, điểm trung bình cả năm; mã tra cứu giấy khen; nhật ký | Bảng khen thưởng của lớp, gợi ý danh hiệu cao nhất đủ điều kiện | BR-181 |
+| P02-62 | Xét lên lớp, hoàn thành chương trình cấp học THCS, THPT (7.8., YCTD-172) | Như P02-61 | Rèn luyện trong hè, kiểm tra lại, kết quả | Cần xếp loại cả năm đã xác nhận; gợi ý lên lớp, hoàn thành cấp học, rèn luyện, ở lại lớp; khối kế tiếp theo 19b | Bảng hoàn thành chương trình của lớp | BR-181 |
+| P02-63 | Học bạ số THCS, THPT (7.8., ứng dụng phụ huynh, YCTD-172) | Lập, nhận xét: giáo viên chủ nhiệm; xác nhận, kí, mở lại: `P02.student-record.approve` kèm quyền xem số định danh | Học bạ (điểm trung bình hai học kỳ, cả năm, xếp loại), nhận xét, kí nội bộ | Lập từ sổ điểm đã khoá; kí in đủ số định danh; phụ huynh chỉ tải bản đã kí; nhật ký | Học bạ PDF, bảng học bạ của lớp | BR-181 |
 | P02-45 | Ghi sổ đầu bài, điểm danh theo tiết (ứng dụng giáo viên, YCTD-162) | Giáo viên của tiết theo thời khoá biểu | Ngày; tiết; tên bài, nội dung, nhận xét, xếp loại; trạng thái từng học sinh | Lấy tiết theo bản đang áp dụng; mặc định có mặt hoặc vắng có phép theo báo vắng; không ghi trước ngày dạy; ký tiết thì khoá; nhật ký | Tiết đã ghi, đã ký; điểm danh theo tiết | BR-174 |
 | P02-46 | Kiểm tra, ký sổ đầu bài theo tuần (7.6., YCTD-162) | Xem: nhân sự xem được lớp; ký: `P02.class-log.review` | Lớp; ngày trong tuần; nhận xét | Liệt kê tiết của tuần theo thời khoá biểu kèm tiết đã ghi, số vắng, muộn; ký một lần mỗi tuần, khoá ghi tiết trong tuần | Sổ tuần; chữ ký Ban giám hiệu | BR-174 |
 | P02-47 | Chuyên cần theo tiết (7.7., ứng dụng phụ huynh, YCTD-162) | Nhân sự xem được lớp; phụ huynh của học sinh | Lớp, khoảng ngày; con, tháng | Đếm tiết theo trạng thái; đối chiếu báo vắng theo ngày và điểm danh theo ngày | Bảng chuyên cần theo học sinh; điểm danh theo tiết của con | BR-174 |

@@ -169,14 +169,14 @@ test('CT-21e-6: khen thưởng, hoàn thành chương trình cấp học, lập 
       .execute();
 
     await openMenu(page, '/learning-records');
+    await page.getByLabel('Đơn vị', { exact: true }).selectOption(reference.org_unit_id);
+    await page.getByRole('combobox', { name: 'Lớp' }).selectOption({ label: className });
     await page.getByRole('tab', { name: 'Danh hiệu' }).click();
     await page.getByRole('button', { name: 'Nạp danh hiệu mặc định (Thông tư 22/2021)' }).click();
     await expect(toast(page, /Đã nạp \d+ danh hiệu mặc định/)).toBeVisible();
     await expect(page.getByRole('list', { name: 'Danh hiệu khen thưởng' })).toContainText('Học sinh Giỏi');
 
     // Khen thưởng: gợi ý Học sinh Xuất sắc, đề nghị rồi duyệt
-    await page.getByLabel('Đơn vị', { exact: true }).selectOption(reference.org_unit_id);
-    await page.getByRole('combobox', { name: 'Lớp' }).selectOption({ label: className });
     await page.getByRole('tab', { name: 'Khen thưởng' }).click();
     await expect(page.getByLabel(`Danh hiệu cho ${childName}`)).toHaveValue(/.+/);
     await page.getByRole('button', { name: `Đề nghị khen thưởng ${childName}` }).click();

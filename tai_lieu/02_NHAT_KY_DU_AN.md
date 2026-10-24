@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.45
+- Phiên bản: 0.46
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,28 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-24 — DT-21 phần 21e: học bạ số, khen thưởng, xét lên lớp THCS, THPT
+
+#### Công việc đã thực hiện
+
+- Đọc mục 12 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và mã 20e (`learning-records`: danh hiệu, khen thưởng, hoàn thành chương trình, học bạ, kí nội bộ, in đủ số định danh kèm kiểm quyền), sổ điểm 21c.
+- Mở rộng khung 20e cho lớp THCS, THPT: kết quả cuối năm đọc từ sổ điểm (học kỳ II đã khoá, xếp loại cả năm); danh hiệu Xuất sắc, Giỏi; xét lên lớp; học bạ có điểm trung bình hai học kỳ, cả năm; cổng quản trị mục 7.8 dùng chung ba cấp; ứng dụng phụ huynh nút Học bạ.
+- Cơ sở dữ liệu: tệp năm học `0089` (căn cứ danh hiệu); tệp định danh `0080` để trống.
+- Kiểm thử: kiểm thử đơn vị `learning-records-secondary.test.ts` CT-21e-1 đến CT-21e-5 đạt 5/5; chạy cùng học bạ 20e, sổ điểm 21c, sổ điểm, môn học, đánh giá, menu, cấp học đạt 45/45; typecheck, prettier đạt; e2e 100, 92, 98, 58 và 02, 03, 06, 08 đạt; e2e CT-21e-6 đạt; e2e toàn bộ do CI chạy.
+
+#### Quyết định
+
+- Dùng lại bảng, điểm cuối, quy trình kí của 20e (rẽ nhánh theo cấp) thay vì làm module riêng để học bạ, khen thưởng, lên lớp của mọi cấp ở một nơi và kí, in số định danh giữ một cách; không thêm quyền; điều kiện danh hiệu, lên lớp là hằng số mặc định theo Thông tư 22/2021; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-172, `23_LICH_SU_PHIEN_BAN.md` bản 0.116.0.
+
+#### Vấn đề tồn đọng
+
+- Đối chiếu toàn văn Thông tư 22/2021 (danh hiệu, lên lớp, mẫu học bạ); mẫu học bạ THCS, THPT khớp mẫu của Bộ, Sở khi khảo sát; khảo sát hệ thống của Sở cấp THCS, THPT khi Eric có tài khoản.
+
 
 ### 2026-10-24 — DT-21 phần 21c: sổ điểm THCS, THPT
 
