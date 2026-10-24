@@ -1,8 +1,8 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.76
-- Ngày cập nhật: 2026-10-23
+- Phiên bản: 1.77
+- Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -244,6 +244,7 @@ Bổ sung ngày 2026-10-09 theo yêu cầu tách vai trò Ban Giám hiệu thàn
 | BR-171 | Quyền nhập đánh giá học sinh (YCTD-161): giáo viên bộ môn được phân công môn của lớp nhập môn đó; giáo viên chủ nhiệm nhập môn chưa có giáo viên bộ môn, phẩm chất, năng lực, kết quả cuối năm; người quản lý đánh giá nhập thay; mức phải có ở thang của cấp; điểm bài kiểm tra là số nguyên 1 đến 10, chỉ ở môn, khối có bài kiểm tra của kỳ |
 | BR-172 | Hạn nhập và khoá số liệu (YCTD-161): hạn là ngày ghi ở kỳ, trống là ngày kết thúc học kỳ theo lịch của cấp; quá hạn chỉ người quản lý sửa; kỳ đã khoá ở lớp thì không ai sửa đến khi mở khoá kèm lý do; phụ huynh chỉ xem kỳ đã khoá |
 | BR-173 | Gợi ý kết quả cuối năm (Điều 9 Thông tư 27/2020, YCTD-161): Hoàn thành xuất sắc khi mọi môn, phẩm chất, năng lực ở mức hạng 1 và bài kiểm tra cuối năm từ 9; Hoàn thành tốt như trên với bài kiểm tra từ 7; Hoàn thành khi không có mức hạng cuối và bài kiểm tra từ 5; còn lại Chưa hoàn thành; thiếu kết quả không gợi ý; giáo viên chủ nhiệm xác nhận |
+| BR-174 | Nền THCS, THPT (YCTD-167): môn học khối 6 đến 12 dùng danh mục môn của BR-166, thêm cách đánh giá bằng điểm số và nhóm môn lựa chọn (xã hội, tự nhiên, công nghệ và nghệ thuật) của THPT. Tổ hợp môn chỉ có ở THPT: đúng 4 môn lựa chọn đang dùng của THPT, thuộc ít nhất 2 nhóm; mã tổ hợp duy nhất; tổ hợp đã có học sinh đăng ký không đổi danh sách môn. Học sinh chỉ đăng ký khi đang học lớp THPT; đăng ký đầu có hiệu lực ngay, đổi tổ hợp đã duyệt thì chờ người có `P02.class.manage` duyệt hoặc từ chối (từ chối trả về tổ hợp đã duyệt), duyệt xong môn tự chọn theo đúng môn của tổ hợp. Tổ bộ môn thuộc THCS hoặc THPT, môn cùng cấp với tổ, mỗi tổ một tổ trưởng, thành viên phải có vai trò giáo viên bộ môn ở đơn vị chọn. Số môn, số nhóm là mặc định theo Chương trình giáo dục phổ thông 2018, đối chiếu văn bản gốc trước khi dùng | Quản trị, Hiệu trưởng | P02-45, P02-46, P02-47 |
 
 Danh mục chứng từ áp dụng hạn mức: phiếu chi, phiếu đảo phiếu thu (YCTD-23), phiếu đảo phiếu chi (YCTD-24), đề nghị mua hàng, phiếu điều chỉnh hóa đơn, miễn giảm học phí, bảng lương kỳ, chốt kỳ tài chính. Mức hạn mức cụ thể chưa có, xem Q-22 và Q-112.
 

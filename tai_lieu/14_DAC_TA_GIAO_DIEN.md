@@ -1,8 +1,8 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.91
-- Ngày cập nhật: 2026-10-23
+- Phiên bản: 1.92
+- Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -624,6 +624,9 @@ Từ YCTD-149 (DT-18 phần 22f), phân hệ "Bảo đảm chất lượng" (kh�
 | MH-262 | 7.2. Phân công giảng dạy theo môn (YCTD-158, `/teaching-assignments`): chọn đơn vị, lớp Tiểu học; bảng môn của lớp (tiết theo chương trình, giáo viên dạy hoặc ô chọn giáo viên bộ môn, ô số tiết phân, nút "Phân công", "Kết thúc"); bảng "Tổng tiết mỗi tuần của giáo viên". Hồ sơ học sinh có khối "Môn tự chọn" (ô chọn các môn tự chọn của khối, nút "Ghi môn tự chọn") khi khối có môn tự chọn | Xem theo phạm vi lớp; `P02.class.manage` phân công; `P02.child.manage` sửa môn tự chọn |
 | MH-263 | 7.3. Khung giờ tiết học (YCTD-160, `/period-slots`): chọn cấp (nếu nhiều cấp); bảng "Các tiết trong ngày" (Tiết, Buổi, Bắt đầu, Kết thúc, Bỏ); nút "Thêm tiết", "Điền khung mẫu Tiểu học", "Ghi khung giờ" | Mọi người xem; `P02.timetable.manage` sửa |
 | MH-264 | 7.4. Thời khoá biểu (YCTD-160, `/timetables`): bảng "Bản thời khoá biểu" (tên, áp dụng từ, trạng thái Nháp/Đã ban hành/Đang áp dụng, nguồn, Mở); biểu mẫu "Tạo bản thời khoá biểu" (tên, áp dụng từ ngày, chép từ bản); bản nháp có nút "Kiểm tra xung đột", "Ban hành", "Tải mẫu Excel", ô tệp và "Nhập Excel", "Xoá bản nháp"; ô "Xem theo" (Lớp, Giáo viên, Phòng); lưới thứ × tiết (bản nháp theo lớp mỗi ô chọn môn, dòng số tiết đã xếp theo môn, nút "Ghi thời khoá biểu của lớp"); khối "Xung đột" (Phải sửa, Cảnh báo). Ứng dụng giáo viên: "Lịch dạy của tôi" theo thứ; ứng dụng phụ huynh: nút "Thời khoá biểu" ở thẻ con học cấp phổ thông | Xem: nhân sự xem được lớp; lập, ban hành: `P02.timetable.manage` |
+| MH-265 | 7.6. Tổ hợp môn (YCTD-167, `/subject-combinations`): bảng "Tổ hợp môn" (mã, tên, môn lựa chọn, số học sinh bấm xem danh sách, trạng thái, nút Ngừng dùng/Dùng lại); biểu mẫu "Thêm tổ hợp môn" chọn 4 môn lựa chọn theo ba nhóm; mọi người xem, người có `P01.catalog.manage` sửa; chỉ hiện ở THPT |
+| MH-266 | 7.7. Tổ bộ môn (YCTD-167, `/subject-teams`): bảng "Tổ bộ môn" (mã, tên, cấp, môn, số thành viên, trạng thái); mở thành viên: danh sách kèm tổ trưởng, tổng tiết mỗi tuần, chọn đơn vị và giáo viên bộ môn để thêm hoặc đặt làm tổ trưởng, bỏ khỏi tổ; biểu mẫu "Thêm tổ bộ môn"; chỉ hiện ở THCS, THPT |
+| MH-267 | Hồ sơ học sinh, mục "Tổ hợp môn" (YCTD-167): hiện khi học sinh đang học lớp THPT; tổ hợp đã đăng ký hoặc đề nghị chờ duyệt, ô chọn tổ hợp, nút "Ghi tổ hợp môn", nút "Duyệt đổi tổ hợp", "Từ chối" cho người có quyền quản lý lớp |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 
@@ -640,6 +643,8 @@ Từ YCTD-155 (DT-19 phần 19e), ứng dụng phụ huynh và ứng dụng giá
 Từ YCTD-159 (DT-20 phần 20b), mục 4.8 "Bán trú" (chọn đơn vị, lớp Tiểu học, ngày; bảng học sinh đăng ký với nút "Cắt suất", "Bỏ cắt suất", ô lý do; "Chốt số suất", ngày đã chốt có "Mở lại ngày đã chốt" kèm lý do) và 4.9 "Nề nếp, thi đua lớp" (thẻ Ghi điểm: lớp, ngày, tiêu chí, số lần, người báo, ghi chú, bảng điểm trong tuần; thẻ Xếp hạng: kỳ tuần, tháng, học kỳ I, II, bảng hạng; thẻ Tiêu chí: thêm, nạp bộ mặc định, ngừng dùng) chỉ hiện khi trường bật Tiểu học. 1.4 Cấu hình trường có thẻ "Nề nếp, thi đua lớp" (bật, điểm nền mỗi tuần). Ứng dụng giáo viên có nút "Bán trú" ở lớp Tiểu học (danh sách ăn, cắt suất, chốt số suất); ứng dụng phụ huynh có "Cắt suất bán trú" ở con Tiểu học (ngày, lý do, danh sách ngày đã cắt, hủy). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
 
 Từ YCTD-158 (DT-20 phần 20a), phân hệ Quản lý giáo dục có nhóm "7. Dạy học Tiểu học" (MH-261, MH-262) chỉ khi làm việc ở cấp Tiểu học hoặc "Tất cả" ở trường có Tiểu học; trường chỉ có Mầm non không thấy nhóm này.
+
+Từ YCTD-167 (DT-21 phần 21a), nhóm 7 đổi tên "7. Dạy học" và hiện ở cả Tiểu học, THCS, THPT: 7.1 Môn học và hoạt động giáo dục, 7.2 Phân công giảng dạy theo môn (có ô chọn cấp khi trường bật nhiều cấp ngoài Mầm non) dùng chung ba cấp; 7.3, 7.4, 7.5 vẫn chỉ ở Tiểu học; 7.6 Tổ hợp môn chỉ ở THPT (MH-265); 7.7 Tổ bộ môn ở THCS, THPT (MH-266).
 
 Từ YCTD-161 (DT-20 phần 20c), mục 7.3 "Đánh giá học sinh" (chỉ hiện khi trường bật Tiểu học): chọn đơn vị, lớp Tiểu học, kỳ đánh giá; thẻ Nhập kết quả (nội dung là một môn của lớp hoặc "Phẩm chất, năng lực"; bảng học sinh với mức đạt, điểm kiểm tra định kỳ khi kỳ có bài kiểm tra, nhận xét gợi ý từ thư viện; ô bị khoá khi người dùng chỉ xem, quá hạn hoặc đã khoá), Nhận xét thường xuyên (học sinh, môn, nội dung; danh sách trong tháng), Tổng hợp cuối kỳ (bảng môn học, bảng phẩm chất, năng lực theo mức, số chưa nhập, điểm theo khoảng), Cuối năm (gợi ý, kết quả xác nhận), Khoá số liệu và Cấu hình (chỉ Ban Giám hiệu: nạp cấu hình mặc định, xem mức, danh mục, bài kiểm tra theo kỳ, sửa hạn nhập). Ứng dụng giáo viên có nút "Đánh giá học sinh" ở lớp Tiểu học (kỳ, môn được phân công, mức, điểm, nhận xét); ứng dụng phụ huynh có "Kết quả đánh giá" ở con Tiểu học. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
 

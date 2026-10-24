@@ -286,6 +286,9 @@ export type {
   FoodSampleForm,
   SubjectAssessment,
   SubjectKind,
+  SubjectOptionGroup,
+  SubjectTeamRole,
+  ChildCombinationStatus,
   TimetableSource,
   TimetableVersionStatus,
 } from '../school-year/schema.js';

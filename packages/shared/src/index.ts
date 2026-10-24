@@ -584,6 +584,9 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/period-slots',
   '/timetables',
   '/student-assessments',
+  // Nền THCS, THPT: tổ hợp môn, tổ bộ môn (DT-21 phần 21a)
+  '/subject-combinations',
+  '/subject-teams',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -877,6 +880,9 @@ export const DATA_GRID_KEYS = [
   // Môn học, phân công giảng dạy theo môn (DT-20 phần 20a)
   'subjects',
   'teaching-assignments',
+  // Tổ hợp môn, tổ bộ môn (DT-21 phần 21a)
+  'subject-combinations',
+  'subject-teams',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

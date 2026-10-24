@@ -16,6 +16,18 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.111.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-21 phần 21a, nền THCS, THPT (YCTD-167).
+- Chức năng mới: bộ môn mẫu THCS (khối 6 đến 9), THPT (khối 10 đến 12) theo Chương trình giáo dục phổ thông 2018; cách đánh giá bằng điểm số; nhóm môn lựa chọn THPT; tổ hợp môn; học sinh đăng ký tổ hợp (đổi thì chờ duyệt); tổ bộ môn; phân công giảng dạy theo môn, môn học dùng chung ba cấp; mục menu 7.6 Tổ hợp môn, 7.7 Tổ bộ môn.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: tệp năm học `0084_create_secondary_foundation`; tệp định danh `0075` để trống (không thêm quyền).
+- Thay đổi API: `/subject-combinations`, `/subject-combinations/{id}/students`, `/children/{id}/subject-combination` (`/approve`, `/reject`), `/subject-teams` (`/members`, `/loads`); `/subjects` nhận `option_group`, `assessment` = `score`.
+- Kiểm thử: kịch bản CT-864 đến CT-869. Kết quả ngày 24/10/2026: __SUMMARY__
+- Rủi ro: số môn, số nhóm của tổ hợp và thời lượng môn là mặc định theo chương trình, cần đối chiếu văn bản gốc; chưa khảo sát hệ thống của Sở cấp THCS, THPT.
+- Khả năng tương thích: trường chỉ có Mầm non hoặc Tiểu học thấy như cũ trừ tên nhóm 7 đổi thành "Dạy học"; môn cũ giữ nguyên, nhóm môn trống.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 21a; chạy phần quay lui của tệp năm học `0084`.
+
 ### Phiên bản 0.110.0 – 2026-10-23
 
 - Phạm vi thay đổi: DT-20 phần 20c, đánh giá học sinh theo Thông tư 27/2020 (YCTD-161).

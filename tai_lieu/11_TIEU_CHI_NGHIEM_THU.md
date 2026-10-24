@@ -1,8 +1,8 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.58
-- Ngày cập nhật: 2026-10-23
+- Phiên bản: 1.59
+- Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -838,6 +838,9 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-763 | Cho lớp 4 có giáo viên chủ nhiệm và giáo viên Toán / Khi mỗi người nhập môn của mình, nhập môn của người khác, nhập điểm ở môn không có bài kiểm tra / Thì nhận; 403; 400 (CT-859; YCTD-161) |
 | AC-764 | Cho kỳ quá hạn hoặc đã khoá / Khi giáo viên, Hiệu trưởng sửa; Hiệu trưởng mở khoá không lý do, có lý do / Thì quá hạn: giáo viên 422, Hiệu trưởng nhận; đã khoá: cả hai 422; mở khoá 400, nhận (CT-860; YCTD-161) |
 | AC-765 | Cho lớp đã nhập kỳ cuối năm / Khi xem tổng hợp, gợi ý cuối năm, phụ huynh xem trước và sau khi khoá / Thì số theo mức, điểm theo khoảng đúng; gợi ý theo Điều 9; phụ huynh chỉ thấy kỳ đã khoá và kết quả cuối năm (CT-857, CT-861, CT-862; YCTD-161) |
+| AC-766 | Cho trường bật THCS, THPT có khối 6 đến 12 / Khi Hiệu trưởng nạp môn mẫu / Thì có môn, chương trình mặc định theo cấp, số tiết khối 6 đến 12, môn lựa chọn THPT chia ba nhóm, nạp lại không trùng; trường chỉ có Mầm non hay Tiểu học thấy như trước, không có mục 7.6, 7.7 (CT-864, CT-865, CT-869; YCTD-167) |
+| AC-767 | Cho THPT có môn lựa chọn / Khi lập tổ hợp môn / Thì phải đúng 4 môn lựa chọn thuộc ít nhất 2 nhóm, mã duy nhất, giáo viên không lập được, tổ hợp đã có học sinh không đổi môn (CT-866, CT-869) |
+| AC-768 | Cho học sinh lớp THPT / Khi đăng ký rồi đổi tổ hợp, duyệt hoặc từ chối / Thì đăng ký đầu có hiệu lực ngay, đổi thì chờ duyệt, từ chối trả về tổ hợp cũ, duyệt thì môn tự chọn theo tổ hợp; học sinh lớp khác cấp bị từ chối; tổ bộ môn có một tổ trưởng và thành viên là giáo viên bộ môn (CT-867, CT-868, CT-869) |
 
 ## 20. Chưa xác minh được
 

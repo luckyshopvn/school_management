@@ -57,6 +57,11 @@ const group = (number: string, label: string, children: PortalMenuNode[]): Porta
 // Mục chỉ của Tiểu học: nhóm 7 (DT-20 phần 20a) tạm đánh số tiếp sau nhóm cuối của Sở, đánh lại khi khảo sát hệ thống của
 // Sở cấp Tiểu học (tài liệu 32 mục 11.1); 4.8 Bán trú, 4.9 Nề nếp, thi đua lớp (phần 20b)
 const primary = (node: PortalMenuNode): PortalMenuNode => ({ ...node, levels: ['TH'] });
+// Mục của THCS, THPT (DT-21 phần 21a): nhóm 7 dùng chung ba cấp; mục riêng cấp THCS, THPT thêm vào nhóm đó
+const secondary = (node: PortalMenuNode, levels: readonly SchoolLevelCode[] = ['THCS', 'THPT']): PortalMenuNode => ({
+  ...node,
+  levels,
+});
 // Mục chỉ của Mầm non (DT-19 phần 19c): hồ sơ cuối cấp mầm non, biểu EMIS Mầm non, cân đo theo tháng tuổi, hoàn thành
 // chương trình Mầm non. Cấp khác thêm mục của mình ở DT-20, DT-21 bằng cùng thuộc tính
 const preschool = (node: PortalMenuNode): PortalMenuNode => ({ ...node, levels: ['MN'] });
@@ -152,16 +157,20 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('6.1.', 'Thực trạng và nhu cầu đầu tư phòng học, nhà công vụ', '/facility-investments'),
         leaf('6.2.', 'Nhập liệu cơ sở vật chất', '/facility-input'),
       ]),
-      primary(
-        group('7.', 'Dạy học Tiểu học', [
+      secondary(
+        group('7.', 'Dạy học', [
           leaf('7.1.', 'Môn học và hoạt động giáo dục', '/subjects'),
           leaf('7.2.', 'Phân công giảng dạy theo môn', '/teaching-assignments'),
-          // Thời khoá biểu phần khung (DT-20 phần 22c1)
-          leaf('7.3.', 'Khung giờ tiết học', '/period-slots'),
-          leaf('7.4.', 'Thời khoá biểu', '/timetables'),
+          // Thời khoá biểu phần khung (DT-20 phần 22c1); THCS, THPT dùng chung ở DT-21 phần 21b
+          primary(leaf('7.3.', 'Khung giờ tiết học', '/period-slots')),
+          primary(leaf('7.4.', 'Thời khoá biểu', '/timetables')),
           // Đánh giá học sinh theo Thông tư 27/2020 (DT-20 phần 20c)
-          leaf('7.5.', 'Đánh giá học sinh', '/student-assessments'),
+          primary(leaf('7.5.', 'Đánh giá học sinh', '/student-assessments')),
+          // Tổ hợp môn (THPT) và tổ bộ môn (DT-21 phần 21a)
+          secondary(leaf('7.6.', 'Tổ hợp môn', '/subject-combinations'), ['THPT']),
+          secondary(leaf('7.7.', 'Tổ bộ môn', '/subject-teams')),
         ]),
+        ['TH', 'THCS', 'THPT'],
       ),
     ],
   },

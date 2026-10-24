@@ -99,6 +99,9 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   // Thời khoá biểu (DT-20 phần 22c1): ai xem được lớp đều xem bản đã ban hành; lập, ban hành cần P02.timetable.manage
   '/period-slots': anyOf('P01.view', 'P02.timetable.manage'),
   '/timetables': anyOf('P02.class.manage', 'P02.view', 'P02.edit', 'P02.timetable.manage'),
+  // Nền THCS, THPT (DT-21 phần 21a): như môn học, sửa cần quyền quản lý danh mục
+  '/subject-combinations': anyOf('P01.view', 'P01.catalog.manage', 'P02.class.manage'),
+  '/subject-teams': anyOf('P01.view', 'P01.catalog.manage', 'P02.class.manage'),
   '/student-assessments': anyOf('P02.assessment.enter', 'P02.assessment.view', 'P02.assessment.manage'),
   // Khai báo tuần: ai xem được thiết lập thì xem, sửa cần quyền quản lý năm học như 2.1 Năm học (DT-16 phần 16e)
   '/school-weeks': anyOf('P01.view', 'P01.academic-year.manage'),
