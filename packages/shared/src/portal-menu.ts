@@ -178,6 +178,8 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           // Tổ hợp môn (THPT) và tổ bộ môn (DT-21 phần 21a)
           secondary(leaf('7.12.', 'Tổ hợp môn', '/subject-combinations'), ['THPT']),
           secondary(leaf('7.13.', 'Tổ bộ môn', '/subject-teams')),
+          // Sổ điểm theo Thông tư 22/2021 (DT-21 phần 21c)
+          secondary(leaf('7.14.', 'Sổ điểm', '/scores')),
         ]),
         ['TH', 'THCS', 'THPT'],
       ),

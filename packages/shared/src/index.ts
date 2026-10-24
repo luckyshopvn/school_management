@@ -24,6 +24,7 @@ export * from './school-level-terms.js';
 export * from './level-features.js';
 export * from './subjects.js';
 export * from './assessments.js';
+export * from './scores.js';
 export * from './student-records.js';
 export * from './emulation.js';
 export * from './quality-assurance.js';
@@ -599,6 +600,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/period-slots',
   '/timetables',
   '/student-assessments',
+  // Sổ điểm THCS, THPT (DT-21 phần 21c)
+  '/scores',
   // Sổ đầu bài, chuyên cần theo tiết (DT-20 phần 20d)
   '/class-logs',
   '/period-attendance',
