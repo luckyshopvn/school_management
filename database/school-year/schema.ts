@@ -244,6 +244,102 @@ export interface ClassLogReviewsTable {
   signed_at: CreatedTimestamp;
 }
 
+// Máy xếp thời khoá biểu, dạy thay, đổi tiết, mã tra cứu (DT-20 phần 22c2, YCTD-164)
+export type TimetableGenerationStatus = 'queued' | 'running' | 'completed' | 'failed' | 'cancelled';
+export type TimetableChangeKind = 'substitute' | 'swap';
+export type TimetableLookupKind = 'class' | 'teacher';
+
+export interface TimetableGeneratorSettingsTable {
+  school_level: SchoolLevelCode;
+  weights: DefaultJson;
+  time_limit_seconds: Generated<number>;
+  variant_count: Generated<number>;
+  updated_by: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface TimetableSubjectRulesTable {
+  subject_id: string;
+  double_period: Generated<boolean>;
+  avoid_last_period: Generated<boolean>;
+  max_per_day: number | null;
+  room_id: string | null;
+  updated_by: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface TimetableTeacherBusyTable {
+  id: Generated<string>;
+  teacher_user_id: string;
+  teacher_name: string;
+  weekday: number;
+  period_no: number;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface TimetableGenerationRunsTable {
+  id: Generated<string>;
+  school_level: SchoolLevelCode;
+  status: ColumnType<TimetableGenerationStatus, TimetableGenerationStatus | undefined, TimetableGenerationStatus>;
+  weights: JsonDocument;
+  time_limit_seconds: number;
+  variant_count: number;
+  percent: Generated<number>;
+  best_score: ColumnType<string | null, number | null | undefined, number | null>;
+  best_hard: number | null;
+  message: string | null;
+  issues: DefaultJson;
+  created_by: string | null;
+  created_by_name: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+  finished_at: Date | null;
+}
+
+export interface TimetableGenerationVariantsTable {
+  id: Generated<string>;
+  run_id: string;
+  variant_no: number;
+  score: ColumnType<string, number, number>;
+  hard_count: number;
+  soft: JsonDocument;
+  violations: JsonDocument;
+  placements: JsonDocument;
+  version_id: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface TimetableChangesTable {
+  id: Generated<string>;
+  change_date: ColumnType<string, string, string>;
+  class_id: string;
+  period_no: number;
+  kind: TimetableChangeKind;
+  pair_id: string | null;
+  subject_id: string;
+  teacher_user_id: string | null;
+  teacher_name: string | null;
+  room_id: string | null;
+  original_subject_id: string | null;
+  original_teacher_user_id: string | null;
+  original_teacher_name: string | null;
+  reason: string | null;
+  created_by: string | null;
+  created_by_name: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface TimetableLookupCodesTable {
+  id: Generated<string>;
+  kind: TimetableLookupKind;
+  target_id: string;
+  target_name: string;
+  code: string;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  revoked_at: Date | null;
+}
 // Môn tự chọn học sinh đăng ký (YCTD-158)
 export interface ChildElectiveSubjectsTable {
   child_id: string;
@@ -5154,6 +5250,13 @@ export interface SchoolYearDatabase {
   class_logs: ClassLogsTable;
   period_attendance: PeriodAttendanceTable;
   class_log_reviews: ClassLogReviewsTable;
+  timetable_generator_settings: TimetableGeneratorSettingsTable;
+  timetable_subject_rules: TimetableSubjectRulesTable;
+  timetable_teacher_busy: TimetableTeacherBusyTable;
+  timetable_generation_runs: TimetableGenerationRunsTable;
+  timetable_generation_variants: TimetableGenerationVariantsTable;
+  timetable_changes: TimetableChangesTable;
+  timetable_lookup_codes: TimetableLookupCodesTable;
   org_unit_levels: OrgUnitLevelsTable;
   classes: ClassesTable;
   class_staff_assignments: ClassStaffAssignmentsTable;

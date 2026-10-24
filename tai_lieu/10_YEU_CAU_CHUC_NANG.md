@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.80
+- Phiên bản: 1.81
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -119,6 +119,10 @@
 | P02-48 | Khen thưởng học sinh cuối năm, đột xuất (YCTD-163) | Đề nghị: giáo viên chủ nhiệm; duyệt, danh hiệu: VT-02, VT-15 (`P02.student-record.approve`) | Danh hiệu, học sinh, thành tích; duyệt hoặc không duyệt kèm lý do | Danh sách khen thưởng, giấy khen có mã tra cứu | 7.8 Khen thưởng, Danh hiệu; trang tra cứu công khai | BR-175 |
 | P02-49 | Hoàn thành chương trình lớp học, chương trình tiểu học; rèn luyện trong hè, kiểm tra lại, lên lớp (YCTD-163) | Giáo viên chủ nhiệm; Ban Giám hiệu | Hình thức, kết quả đánh giá bổ sung, ghi chú | Kết quả hoàn thành, khối năm sau | 7.8 Hoàn thành chương trình | BR-176 |
 | P02-50 | Học bạ số (YCTD-163) | Lập, nhận xét: giáo viên chủ nhiệm; xác nhận, kí, mở lại: Hiệu trưởng; phụ huynh xem bản đã kí | Lớp; nhận xét; lý do mở lại | Học bạ PDF đã kí nội bộ | 7.8 Học bạ; Học bạ ở ứng dụng phụ huynh | BR-177 |
+| P02-51 | Xếp thời khoá biểu tự động (7.9., YCTD-164) | `P02.timetable.manage` | Cấp; mức quan trọng, giới hạn thời gian, số phương án; quy tắc môn; tiết giáo viên bận | Kiểm tra dữ liệu trước khi xếp; đẩy lần xếp cho tiến trình chạy nền; theo dõi tiến độ, huỷ; lưu phương án | Các phương án có điểm phạt, vi phạm; xem trước theo lớp; bản nháp nguồn máy xếp | BR-178 |
+| P02-52 | Chỉnh tay có kiểm tra ngay (7.4., YCTD-164) | `P02.timetable.manage` | Các ô đang sửa của lớp trong bản nháp | Tính xung đột của bản nếu ghi các ô đó, không ghi | Ô dính xung đột cứng; danh sách xung đột của lớp | BR-178, BR-170 |
+| P02-53 | Dạy thay, đổi tiết (7.10., YCTD-164) | Ghi, xoá: `P02.timetable.manage`; xem: nhân sự xem được thời khoá biểu | Ngày, lớp, tiết; giáo viên dạy thay hoặc ngày, tiết đổi; lý do | Kiểm tra tiết có trong bản đang áp dụng, chưa có thay đổi, giáo viên rảnh; ghi một hoặc hai dòng | Tiết thực tế của ngày; danh sách thay đổi | BR-178 |
+| P02-54 | Báo cáo tiết dạy, dùng phòng, mã QR tra cứu (7.11., trang tra cứu, YCTD-164) | Báo cáo: nhân sự xem được thời khoá biểu; mã QR: `P02.timetable.manage`; trang tra cứu: không cần đăng nhập | Khoảng ngày; ngày áp dụng; lớp hoặc giáo viên | Đếm tiết theo thời khoá biểu, dạy thay, được dạy thay, đổi tiết, thực dạy; tiết dùng phòng; tạo, thu hồi mã | Bảng báo cáo; mã QR in được; trang thời khoá biểu và thay đổi 7 ngày tới | BR-178 |
 
 ## 4. Phân hệ P03 — Giảng dạy
 

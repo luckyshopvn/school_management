@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.42
+- Phiên bản: 0.43
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,28 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-24 — DT-20 phần 22c2: thời khoá biểu, máy xếp
+
+#### Công việc đã thực hiện
+
+- Đọc mục 11 của `32_KE_HOACH_THEO_HE_THONG_SO.md`, phần 22c của kế hoạch DT-22, mã 22c1 (bản thời khoá biểu, `findTimetableConflicts`) và 20a (môn, số tiết, phân công); rà tiến trình chạy nền `apps/worker` (mới chỉ nối Redis) và cách đặt tên khóa `cacheKey`.
+- Máy xếp là hàm thuần ở `packages/server`: xếp tham lam rồi tìm kiếm cục bộ kiểu luyện kim, có giới hạn thời gian, nhiều phương án; đo trên dữ liệu thử 30 lớp, 66 giáo viên, khung 5 ngày × 7 tiết lấp kín: điểm phạt 0 trong khoảng 12 giây mỗi phương án.
+- Tiến trình chạy nền nhận việc qua hàng đợi Redis, báo tiến độ, ghi kết quả; máy chủ API dựng đề bài, lưu phương án, tạo bản nháp từ phương án; kiểm tra ngay khi chỉnh tay; dạy thay, đổi tiết; báo cáo; mã QR, trang tra cứu công khai. Tệp năm học `0082`; ảnh Docker `worker`.
+- Thêm quy tắc BR-178, chức năng P02-51 đến P02-54, quyền PQ-96, màn hình MH-267 đến MH-270, kịch bản CT-877 đến CT-890, tiêu chí AC-773 đến AC-776. Kết quả ngày 24/10/2026: kiểm thử đơn vị máy xếp `packages/server/src/timetable-solver.test.ts` CT-22c2-1 đến CT-22c2-6 đạt 6/6, tiến trình chạy nền `apps/worker/src/timetable-generation.test.ts` CT-22c2-7 đạt, máy chủ API `apps/api/src/timetables/timetable-generator.test.ts` CT-22c2-8 đến CT-22c2-13 đạt 6/6; kiểm thử đơn vị toàn bộ kho mã 1067/1067 trước khi gộp 20d, 20e (hai ca chạy lại riêng: `leave.test.ts` lỗi hết bộ nhớ của máy, CT-22c2-12 sửa cách chọn cặp đổi tiết); sau khi gộp 20d, 20e chạy lại toàn kho …; kiểm thử giao diện `tests/e2e/93-timetable-generator.spec.ts` (CT-22c2-14) đạt; toàn bộ kiểm thử giao diện 163/163 trước khi gộp 20d, 20e; sau khi gộp 20d đạt 163/164, ca hỏng 04-accounts do cơ sở dữ liệu định danh riêng của lần chạy trước còn tài khoản trùng tên, không liên quan 22c2; sau khi gộp 20e …; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 22c2 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.4. Máy xếp tự viết (heuristic cộng tìm kiếm cục bộ), không dùng dịch vụ ngoài; tiến trình chạy nền chỉ tính toán qua Redis, không đọc cơ sở dữ liệu; kết quả chỉ là bản nháp; dạy thay, đổi tiết ghi theo ngày, không sửa bản ban hành; mã QR trỏ trang công khai của cổng quản trị theo tên miền đang mở; dùng quyền `P02.timetable.manage` của 22c1, định danh 0073 để trống. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-164, `07_QUY_TAC_NGHIEP_VU.md` BR-178, `08_VAI_TRO_NGUOI_DUNG.md` PQ-96, `10_YEU_CAU_CHUC_NANG.md` P02-51 đến P02-54, `11_TIEU_CHI_NGHIEM_THU.md` AC-773 đến AC-776, `12_KIEN_TRUC_HE_THONG.md` CB-11, `14_DAC_TA_GIAO_DIEN.md` MH-267 đến MH-270, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-877 đến CT-890, `23_LICH_SU_PHIEN_BAN.md` 0.113.0.
+
+#### Vấn đề tồn đọng
+
+- Máy xếp chưa giữ cố định tiết xếp tay, chưa xếp riêng một khối; chưa có định mức tiết giáo viên; dạy thay, đổi tiết chưa gửi thông báo; báo cáo chưa xuất tệp; đo lại chất lượng trên dữ liệu của trường khi có (mục 11.6).
+
 
 ### 2026-10-24 — DT-20 phần 20e: học bạ số, khen thưởng cuối năm, hoàn thành chương trình, lên lớp
 

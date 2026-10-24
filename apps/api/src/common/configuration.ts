@@ -51,6 +51,9 @@ export interface ApiConfiguration {
   // Nhà cung cấp tin nhắn thông báo: 'log' chỉ ghi nhật ký, không dùng được ở môi trường chạy thật; 'esms' là eSMS.vn
   // (YCTD-92). Trống là 'log'
   smsProvider?: SmsProviderSettings;
+  // Redis của hàng đợi máy xếp thời khoá biểu chạy nền (DT-20 phần 22c2); trống thì máy xếp chạy ngay trong máy chủ API (kiểm
+  // thử)
+  redisUrl?: string | null;
 }
 
 type IntegrationConfiguration = Pick<
@@ -149,5 +152,6 @@ export function readConfigurationFromEnvironment(): ApiConfiguration {
     exportJobIntervalSeconds: Number(process.env.EXPORT_JOB_INTERVAL_SECONDS ?? 15),
     ...readIntegrationConfiguration(process.env),
     smsProvider: readSmsProviderSettings(),
+    redisUrl: process.env.REDIS_URL?.trim() || null,
   };
 }

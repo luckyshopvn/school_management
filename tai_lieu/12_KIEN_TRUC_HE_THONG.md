@@ -1,8 +1,8 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, thành phần, xác thực, phân quyền, lưu trữ tệp, ghi nhật ký, giám sát, sao lưu, phục hồi, triển khai.
-- Phiên bản: 1.13
-- Ngày cập nhật: 2026-10-23
+- Phiên bản: 1.14
+- Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -179,6 +179,7 @@ Kênh gửi và loại sự kiện cấu hình được theo đơn vị. Thông 
 | CB-08 | Sao lưu dữ liệu | Hằng ngày | Kèm kiểm tra phục hồi định kỳ hằng tháng |
 | CB-09 | Khóa tài khoản hết hiệu lực | Hằng ngày | Khóa tài khoản kiểm toán viên quá ngày hết hiệu lực (BM-68) và tài khoản không dùng quá số ngày cấu hình (PQ-07) |
 | CB-10 | Mở năm học mới | Theo yêu cầu | Tạo cơ sở dữ liệu năm học, chuyển dữ liệu dùng chung, chuyển cơ sở dữ liệu năm cũ sang chỉ đọc (QĐ-15) |
+| CB-11 | Máy xếp thời khoá biểu | Theo yêu cầu | Tiến trình chạy nền `apps/worker` lấy việc từ hàng đợi Redis, chạy có giới hạn thời gian, ghi tiến độ và kết quả vào Redis; máy chủ API lưu phương án vào cơ sở dữ liệu năm học, định kỳ đọc lần xếp chưa xong; lần xếp không được nhận sau 10 phút thì ghi lỗi (YCTD-164) |
 
 ## 10. Giám sát
 

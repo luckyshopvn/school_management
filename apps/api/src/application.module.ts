@@ -244,6 +244,21 @@ import {
   ClassLogsService,
   PeriodAttendanceController,
 } from './class-logs/class-logs.js';
+import {
+  createGenerationQueue,
+  TimetableGenerationJobs,
+  TimetableGenerationQueue,
+  TimetableGenerationsController,
+  TimetableGeneratorController,
+  TimetableGeneratorService,
+} from './timetables/timetable-generator.js';
+import {
+  TimetableChangesController,
+  TimetableChangesService,
+  TimetableLookupCodesController,
+  TimetableLookupController,
+  TimetableReportsController,
+} from './timetables/timetable-changes.js';
 import { ClassAssignmentsController, ClassesController } from './classes/classes.controller.js';
 import { ClassesService } from './classes/classes.service.js';
 import { ChildScope } from './children/child-scope.js';
@@ -501,6 +516,13 @@ export class ApplicationModule {
         ClassLogsController,
         PeriodAttendanceController,
         ChildPeriodAttendanceController,
+        // Máy xếp thời khoá biểu, dạy thay, đổi tiết, báo cáo, mã tra cứu (DT-20 phần 22c2)
+        TimetableGeneratorController,
+        TimetableGenerationsController,
+        TimetableChangesController,
+        TimetableReportsController,
+        TimetableLookupCodesController,
+        TimetableLookupController,
         ClassesController,
         ClassAssignmentsController,
         ChildrenController,
@@ -729,6 +751,14 @@ export class ApplicationModule {
         TeachingAssignmentsService,
         TimetablesService,
         ClassLogsService,
+        TimetableGeneratorService,
+        TimetableChangesService,
+        TimetableGenerationJobs,
+        {
+          provide: TimetableGenerationQueue,
+          inject: [API_CONFIGURATION],
+          useFactory: (settings: ApiConfiguration) => createGenerationQueue(settings),
+        },
         ClassesService,
         ChildScope,
         ChildrenService,
