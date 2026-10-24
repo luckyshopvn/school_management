@@ -81,6 +81,7 @@ export type {
   IntegrationCredentialConnector,
   DemoAccount,
   PeriodSession,
+  TrainingCatalogStatus,
   SystemDatabase,
 } from '../system/schema.js';
 export type {
@@ -287,6 +288,13 @@ export type {
   SubjectAssessment,
   SubjectKind,
   TimetableSource,
+  StaffCertificateKind,
+  TrainingOrganizerKind,
+  TrainingMode,
+  TrainingCourseStatus,
+  TrainingRegistrationStatus,
+  TrainingResult,
+  CompetencyTerm,
   TimetableVersionStatus,
 } from '../school-year/schema.js';
 export { DEFAULT_TAX_TABLE_ID } from '../school-year/migrations/0022_create_payrolls.js';
