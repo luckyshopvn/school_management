@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.53
+- Phiên bản: 0.54
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,22 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-175: DT-21 phần 21g: báo cáo, thống kê và EMIS THCS, THPT – 2026-10-25
+
+- Lý do: phần 21g của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.4 (đợt 5, phần cuối của DT-21). Căn cứ: Thông tư 22/2021/TT-BGDĐT (xếp loại học tập, rèn luyện; ngưỡng điểm trung bình môn 3,5, 5, 6,5, 8 dùng cho phổ điểm); biểu EMIS THCS, THPT của Bộ, Sở chưa đối chiếu được vì chưa có tài khoản Sở cấp THCS, THPT nên phần này dựng khung cấu hình được, chờ khảo sát (mục 31). Không đổi hành vi Mầm non, Tiểu học: biểu EMIS Tiểu học, mục 7.15 giữ nguyên. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Thống kê THCS, THPT** (`apps/api/src/secondary-reports/`): chọn cấp THCS hoặc THPT; sĩ số theo khối (lớp, học sinh, nữ, dân tộc thiểu số, khuyết tật theo hồ sơ CSDL ngành, nội trú, bán trú) và học sinh theo tổ hợp ở THPT (tổ hợp đang hiệu lực của 21a); kết quả cuối năm theo lớp, khối hoặc toàn trường (xếp loại học tập, rèn luyện cả năm giáo viên chủ nhiệm đã xác nhận ở 21c; học sinh Xuất sắc, Giỏi đã duyệt; lên lớp, hoàn thành cấp học, rèn luyện trong hè, kiểm tra lại, ở lại lớp của 21e; tốt nghiệp đã xác nhận của 21f); phổ điểm trung bình môn theo học kỳ hoặc cả năm của một môn hoặc mọi môn tính điểm (điểm của sổ điểm 21c tính như 21c; khoảng dưới 3,5, 3,5 đến dưới 5, 5 đến dưới 6,5, 6,5 đến dưới 8, từ 8; trung bình; tỉ lệ dưới 5); tổng hợp theo giáo viên (môn, lớp theo phân công giảng dạy đang hiệu lực) và theo tổ bộ môn (tổ có môn): số điểm, trung bình, tỉ lệ từ 5, từ 8. Phạm vi đơn vị như thống kê Tiểu học (quyền `P17.child-statistics.view`); mỗi báo cáo xuất Excel, PDF, ghi nhật ký xuất.
+  - **EMIS THCS, THPT** trên khung biểu cấu hình được của 20f (không thêm bảng): tệp hệ thống `0028` nạp bốn biểu khung (THCS, THPT, mỗi cấp đầu năm và cuối năm: lớp, học sinh theo khối, nội trú, bán trú, một dòng nhập tay; xếp loại học tập, rèn luyện cả năm, Xuất sắc, Giỏi, lên lớp, ở lại lớp, tốt nghiệp, một dòng nhập tay). Công thức cùng cú pháp với Tiểu học, bộ điều kiện theo cấp của biểu: `learning`, `conduct` (`good`, `fair`, `pass`, `fail`), `title` (`excellent`, `good`), `completion`, `combination` (mã tổ hợp), `graduation` (`graduated`, `not_graduated`), `boarding`, `awarded`; điều kiện của cấp này dùng ở cấp kia bị từ chối khi lưu khung. Đường `/primary-reports/emis` chỉ có biểu Tiểu học, `/secondary-reports/emis` chỉ có biểu THCS, THPT. Nhập tay, sửa khung (`P17.report-form.manage`), xuất, gửi lên cấp trên, đánh dấu đã gửi dùng luồng có sẵn (biểu mới đăng ký gửi lên cấp trên lúc khởi động).
+  - **Giao diện:** mục 7.18 "Báo cáo, thống kê, EMIS THCS, THPT" (MH-302, chỉ khi trường bật THCS hoặc THPT): ô Cấp học khi trường bật cả hai, đơn vị; thẻ Sĩ số, Kết quả cuối năm, Phổ điểm, Theo giáo viên, tổ bộ môn (nút Xuất Excel, Xuất PDF), EMIS THCS, THPT (cùng màn hình biểu của 7.15).
+  - Số giữ sẵn tệp năm học `0092`, tệp định danh `0083` không dùng (không thêm bảng năm học, không thêm quyền).
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/system/migrations/0028_add_secondary_report_forms.ts`); gói dùng chung (`primary-reports.ts`: bộ điều kiện theo cấp, số liệu học sinh THCS, THPT, khoảng phổ điểm; `portal-menu.ts`, `menu-permissions.ts`); máy chủ API (`secondary-reports/`, `primary-reports/primary-emis.ts`); cổng quản trị (`secondary-reports/`, `primary-reports/`).
+- Dữ liệu bị ảnh hưởng: tệp hệ thống `0028` thêm bốn biểu và dòng chỉ tiêu vào `report_forms`, `report_form_rows`. Không đổi dữ liệu đang có.
+- Đối chiếu trước, sau chuyển: không chuyển dữ liệu.
+- Rủi ro: biểu khung chưa khớp biểu thật của Bộ, Sở cấp THCS, THPT; khi có tài khoản Sở thì khảo sát, sửa dòng, mã số bằng "Sửa khung biểu" và ghi đối chiếu vào tài liệu 31. Phổ điểm, tổng hợp theo giáo viên tính lại từ sổ điểm mỗi lần xem, trường đông học sinh có thể chậm.
+- Chưa làm trong phần này, ghi để làm tiếp: thêm biểu mới từ giao diện; tổng hợp theo giáo viên theo từng học kỳ của từng lớp; thống kê học sinh nội trú tách khỏi bán trú khi có hồ sơ riêng.
+- Kiểm thử cần thực hiện: CT-968 đến CT-972. Kết quả ngày 25/10/2026: kiểm thử đơn vị `apps/api/src/secondary-reports/secondary-reports.test.ts` CT-21g-1 đến CT-21g-4 đạt 4/4; kiểm thử đơn vị liên quan trên máy (báo cáo Tiểu học 20f, quick-links, điều kiện menu, menu theo cấp, gửi lên cấp trên) đạt 31/31, không sửa kỳ vọng (thêm mục 7.18 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của THCS, THPT của CT-19c-1); e2e trên máy 02, 03, 94, 103 đạt; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Trạng thái: Đã triển khai (PR …).
 
 ### YCTD-171: DT-21 phần 21d: sổ đầu bài, điểm danh theo tiết THCS, THPT; sơ đồ chỗ ngồi; thi đua lớp, sao đỏ – 2026-10-25
 

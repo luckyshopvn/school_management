@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.55
+- Phiên bản: 0.56
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,28 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-25 — DT-21 phần 21g: báo cáo, thống kê và EMIS THCS, THPT
+
+#### Công việc đã thực hiện
+
+- Đọc mục 12 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà khung EMIS, thống kê Tiểu học của 20f, sổ điểm 21c, học bạ, khen thưởng, lên lớp 21e, tốt nghiệp 21f, tổ hợp, tổ bộ môn 21a.
+- Cơ sở dữ liệu: tệp hệ thống `0028_add_secondary_report_forms` (bốn biểu khung); số giữ sẵn tệp năm học `0092`, định danh `0083` không dùng.
+- Máy chủ API: thống kê THCS, THPT, xuất tệp; biểu EMIS theo cấp của biểu trên khung 20f.
+- Cổng quản trị: 7.18 Báo cáo, thống kê, EMIS THCS, THPT.
+- Thêm quy tắc BR-196 đến BR-197, chức năng P17-34 đến P17-35, màn hình MH-302, phân quyền PQ-102, kịch bản CT-968 đến CT-972, tiêu chí AC-813 đến AC-816. Kết quả ngày 25/10/2026: kiểm thử đơn vị `apps/api/src/secondary-reports/secondary-reports.test.ts` CT-21g-1 đến CT-21g-4 đạt 4/4; kiểm thử đơn vị liên quan trên máy (báo cáo Tiểu học 20f, quick-links, điều kiện menu, menu theo cấp, gửi lên cấp trên) đạt 31/31, không sửa kỳ vọng (thêm mục 7.18 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của THCS, THPT của CT-19c-1); e2e trên máy 02, 03, 94, 103 đạt; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 21g của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.4. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: dùng lại khung biểu của 20f, thêm bộ điều kiện theo cấp thay vì bảng mới; biểu khung chờ khảo sát Sở; thống kê dùng quyền thống kê học sinh có sẵn.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-175, `07_QUY_TAC_NGHIEP_VU.md` BR-196 đến BR-197, `08_VAI_TRO_NGUOI_DUNG.md` PQ-102, `10_YEU_CAU_CHUC_NANG.md` P17-34 đến P17-35, `11_TIEU_CHI_NGHIEM_THU.md` AC-813 đến AC-816, `14_DAC_TA_GIAO_DIEN.md` MH-302, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-968 đến CT-972, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.9. Phiên bản 0.125.0.
+
+#### Vấn đề tồn đọng
+
+- Khảo sát hệ thống của Sở cấp THCS, THPT để sửa biểu khung cho khớp (tài liệu 31); thêm biểu mới từ giao diện.
 
 ### 2026-10-25 — DT-21 phần 21d: sổ đầu bài, điểm danh theo tiết THCS, THPT; sơ đồ chỗ ngồi; thi đua lớp, sao đỏ
 

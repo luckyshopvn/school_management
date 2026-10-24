@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.91
+- Phiên bản: 1.92
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -452,6 +452,8 @@
 | P17-31 | Thống kê Tiểu học: sĩ số, kết quả đánh giá, cuối năm, chuyên cần, bán trú (YCTD-165) | Người có `P17.child-statistics.view` | Đơn vị, kỳ đánh giá, gộp theo lớp, khối, trường, khoảng ngày | Bảng thống kê, tệp Excel, PDF | 7.15 các thẻ Sĩ số, Kết quả đánh giá, Cuối năm, Chuyên cần, bán trú | BR-181 |
 | P17-32 | Biểu EMIS Tiểu học: tính, nhập tay, xuất, gửi lên cấp trên (YCTD-165) | Người có `P17.report.emis` | Biểu; số nhập tay | Biểu đã tính, tệp Excel, PDF, trạng thái gửi | 7.15 thẻ EMIS Tiểu học; trang gửi lên cấp trên | BR-182, BR-183 |
 | P17-33 | Sửa khung biểu EMIS (YCTD-165) | VT-02, VT-15 (`P17.report-form.manage`) | Dòng: mã, chỉ tiêu, đơn vị, loại, công thức | Khung biểu mới | 7.15 thẻ EMIS Tiểu học, Sửa khung biểu | BR-182 |
+| P17-34 | Thống kê THCS, THPT: sĩ số, tổ hợp, kết quả cuối năm, phổ điểm, theo giáo viên, tổ bộ môn (YCTD-175) | Người có `P17.child-statistics.view` | Cấp, đơn vị, gộp theo lớp, khối, trường, kỳ, môn | Bảng thống kê, tệp Excel, PDF | 7.18 các thẻ Sĩ số, Kết quả cuối năm, Phổ điểm, Theo giáo viên, tổ bộ môn | BR-196 |
+| P17-35 | Biểu EMIS THCS, THPT: tính, nhập tay, sửa khung, xuất, gửi lên cấp trên (YCTD-175) | Người có `P17.report.emis`; sửa khung `P17.report-form.manage` | Biểu; số nhập tay; dòng, công thức | Biểu đã tính, tệp Excel, PDF, trạng thái gửi | 7.18 thẻ EMIS THCS, THPT; trang gửi lên cấp trên | BR-197 |
 
 ## 19. Phân hệ P18 — Tuyển dụng
 
