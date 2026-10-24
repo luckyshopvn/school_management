@@ -26,6 +26,7 @@ export * from './subjects.js';
 export * from './assessments.js';
 export * from './scores.js';
 export * from './student-records.js';
+export * from './primary-reports.js';
 export * from './emulation.js';
 export * from './quality-assurance.js';
 export * from './school-levels.js';
@@ -272,6 +273,7 @@ export const PERMISSION_CODES = {
   assessmentView: 'P02.assessment.view',
   assessmentManage: 'P02.assessment.manage',
   studentRecordApprove: 'P02.student-record.approve',
+  reportFormManage: 'P17.report-form.manage',
   // Kiểm tra, đánh giá phần đề (DT-21 phần 22g1)
   questionAuthor: 'P02.question.author',
   examReview: 'P02.exam.review',
@@ -606,6 +608,7 @@ export const PORTAL_QUICK_LINK_PATHS = [
   // Nền THCS, THPT: tổ hợp môn, tổ bộ môn (DT-21 phần 21a)
   '/subject-combinations',
   '/subject-teams',
+  '/primary-reports',
   // Kiểm tra, đánh giá phần đề (DT-21 phần 22g1)
   '/question-bank',
   '/exam-matrices',

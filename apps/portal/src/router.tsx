@@ -26,6 +26,7 @@ import { TimetableGeneratorPage } from './timetables/TimetableGeneratorPage.js';
 import { TimetableChangesPage } from './timetables/TimetableChangesPage.js';
 import { TimetableReportsPage } from './timetables/TimetableReportsPage.js';
 import { TimetableLookupPage } from './timetables/TimetableLookupPage.js';
+import { PrimaryReportsPage } from './primary-reports/PrimaryReportsPage.js';
 import { QuestionBankPage } from './exams/QuestionBankPage.js';
 import { ExamMatricesPage } from './exams/ExamMatricesPage.js';
 import { AssessmentPlansPage } from './exams/AssessmentPlansPage.js';
@@ -351,6 +352,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/timetable-changes', component: TimetableChangesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/timetable-reports', component: TimetableReportsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/tra-cuu-thoi-khoa-bieu', component: TimetableLookupPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/primary-reports', component: PrimaryReportsPage }),
   // Kiểm tra, đánh giá phần đề (DT-21 phần 22g1)
   createRoute({ getParentRoute: () => rootRoute, path: '/question-bank', component: QuestionBankPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/exam-matrices', component: ExamMatricesPage }),

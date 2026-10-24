@@ -49,6 +49,8 @@ const PRIMARY_ONLY_PATHS = [
   '/timetable-generator',
   '/timetable-changes',
   '/timetable-reports',
+  // Báo cáo, thống kê, EMIS Tiểu học (DT-20 phần 20f)
+  '/primary-reports',
 ];
 // Mục chỉ của THCS, THPT (DT-21 phần 21a; kiểm tra, đánh giá phần đề 22g1): trường chỉ có Mầm non hay Tiểu học không thấy
 const SECONDARY_ONLY_PATHS = [

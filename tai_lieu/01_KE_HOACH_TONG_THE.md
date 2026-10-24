@@ -1,7 +1,7 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.45
+- Phiên bản: 1.46
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -84,7 +84,8 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.110.0 | DT-20 phần 20c: đánh giá học sinh theo Thông tư 27/2020 (cấu hình theo cấp, nhập theo phân công, nhận xét thường xuyên, tổng hợp cuối kỳ, cuối năm, khoá số liệu, phụ huynh xem) | YCTD-161 |
 | 0.114.0 | DT-21 phần 21a: nền THCS, THPT (bộ môn mẫu khối 6 đến 12, tổ hợp môn, đăng ký tổ hợp, tổ bộ môn) | YCTD-167 |
 | 0.115.0 | DT-21 phần 21c: sổ điểm THCS, THPT theo Thông tư 22/2021 (điểm, trung bình, xếp loại, khoá điểm, cấu hình) | YCTD-170 |
-| 0.116.0 | DT-21 phần 22g1: kiểm tra, đánh giá phần đề (ngân hàng câu hỏi, ma trận, kế hoạch kiểm tra, đề nhiều mã, thẩm định, khoá đề, xuất đề và đáp án) | YCTD-168 |
+| 0.116.0 | DT-20 phần 20f: báo cáo, thống kê Tiểu học (sĩ số, kết quả đánh giá, cuối năm, chuyên cần, bán trú; xuất Excel, PDF) và khung biểu EMIS Tiểu học cấu hình được | YCTD-165 |
+| 0.117.0 | DT-21 phần 22g1: kiểm tra, đánh giá phần đề (ngân hàng câu hỏi, ma trận, kế hoạch kiểm tra, đề nhiều mã, thẩm định, khoá đề, xuất đề và đáp án) | YCTD-168 |
 | 0.111.0 | DT-20 phần 20d: sổ đầu bài và điểm danh theo tiết (ghi, ký tiết theo thời khoá biểu, Ban giám hiệu ký sổ tuần, phụ huynh xem, tổng hợp chuyên cần) | YCTD-162 |
 | 0.112.0 | DT-20 phần 20e: học bạ số (kí nội bộ), khen thưởng cuối năm có giấy khen mã tra cứu, hoàn thành chương trình lớp học, chương trình tiểu học, rèn luyện trong hè, kiểm tra lại, lên lớp; kết chuyển năm học | YCTD-163 |
 | 0.113.0 | DT-20 phần 22c2: máy xếp thời khoá biểu chạy nền (ràng buộc có mức quan trọng, nhiều phương án), chỉnh tay có kiểm tra ngay, dạy thay, đổi tiết, báo cáo tiết dạy, dùng phòng, mã QR tra cứu | YCTD-164 |
