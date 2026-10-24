@@ -16,6 +16,7 @@ import { SubjectsPage } from './subjects/SubjectsPage.js';
 import { TeachingAssignmentsPage } from './subjects/TeachingAssignmentsPage.js';
 import { PeriodSlotsPage } from './timetables/PeriodSlotsPage.js';
 import { TimetablesPage } from './timetables/TimetablesPage.js';
+import { StudentAssessmentsPage } from './assessments/StudentAssessmentsPage.js';
 import { ClassLogsPage, PeriodAttendancePage } from './class-logs/ClassLogsPage.js';
 import { ChildrenPage } from './children/ChildrenPage.js';
 import { StudentMovementsPage } from './children/StudentMovementsPage.js';
@@ -323,6 +324,7 @@ const routeTree = rootRoute.addChildren([
   // Thời khoá biểu phần khung (DT-20 phần 22c1)
   createRoute({ getParentRoute: () => rootRoute, path: '/period-slots', component: PeriodSlotsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/timetables', component: TimetablesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/student-assessments', component: StudentAssessmentsPage }),
   // Sổ đầu bài, chuyên cần theo tiết (DT-20 phần 20d)
   createRoute({ getParentRoute: () => rootRoute, path: '/class-logs', component: ClassLogsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/period-attendance', component: PeriodAttendancePage }),

@@ -4944,6 +4944,124 @@ export interface ConductEntriesTable {
   created_at: CreatedTimestamp;
 }
 
+// Đánh giá học sinh theo Thông tư 27/2020 (DT-20 phần 20c, YCTD-161)
+export type AssessmentScale = 'subject' | 'competency';
+export type CompetencyGroup = 'quality' | 'general' | 'specific';
+export type AssessmentTermType = 'first_term' | 'second_term';
+export type AssessmentPeriodKind = 'mid' | 'end';
+export type CommentTemplateTarget = 'subject' | 'competency' | 'general';
+export type YearResultCode = 'excellent' | 'good' | 'completed' | 'not_completed';
+
+export interface AssessmentLevelsTable {
+  id: Generated<string>;
+  school_level: SchoolLevelCode;
+  scale: AssessmentScale;
+  code: string;
+  name: string;
+  rank: number;
+  created_at: CreatedTimestamp;
+}
+
+export interface CompetencyItemsTable {
+  id: Generated<string>;
+  school_level: SchoolLevelCode;
+  group_code: CompetencyGroup;
+  code: string;
+  name: string;
+  order_no: Generated<number>;
+  status: Generated<CatalogStatus>;
+  created_at: CreatedTimestamp;
+}
+
+export interface AssessmentPeriodsTable {
+  id: Generated<string>;
+  school_level: SchoolLevelCode;
+  code: string;
+  name: string;
+  term_type: AssessmentTermType;
+  kind: AssessmentPeriodKind;
+  is_year_end: Generated<boolean>;
+  order_no: Generated<number>;
+  entry_deadline: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface AssessmentTestsTable {
+  period_id: string;
+  subject_id: string;
+  grade_level_code: string;
+}
+
+export interface CommentTemplatesTable {
+  id: Generated<string>;
+  school_level: SchoolLevelCode;
+  target: CommentTemplateTarget;
+  content: string;
+  order_no: Generated<number>;
+  status: Generated<CatalogStatus>;
+  created_at: CreatedTimestamp;
+}
+
+export interface SubjectResultsTable {
+  id: Generated<string>;
+  period_id: string;
+  class_id: string;
+  child_id: string;
+  subject_id: string;
+  level_code: string | null;
+  score: number | null;
+  comment: string | null;
+  updated_by: string;
+  updated_by_name: string;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface CompetencyResultsTable {
+  id: Generated<string>;
+  period_id: string;
+  class_id: string;
+  child_id: string;
+  item_id: string;
+  level_code: string | null;
+  comment: string | null;
+  updated_by: string;
+  updated_by_name: string;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface RegularCommentsTable {
+  id: Generated<string>;
+  class_id: string;
+  child_id: string;
+  subject_id: string | null;
+  item_id: string | null;
+  comment_date: string;
+  content: string;
+  author_id: string;
+  author_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface AssessmentLocksTable {
+  period_id: string;
+  class_id: string;
+  locked_by: string;
+  locked_by_name: string;
+  locked_at: CreatedTimestamp;
+}
+
+export interface YearResultsTable {
+  id: Generated<string>;
+  class_id: string;
+  child_id: string;
+  suggested: YearResultCode | null;
+  result: YearResultCode;
+  note: string | null;
+  confirmed_by: string;
+  confirmed_by_name: string;
+  confirmed_at: UpdatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -5242,4 +5360,14 @@ export interface SchoolYearDatabase {
   conduct_settings: ConductSettingsTable;
   conduct_criteria: ConductCriteriaTable;
   conduct_entries: ConductEntriesTable;
+  assessment_levels: AssessmentLevelsTable;
+  competency_items: CompetencyItemsTable;
+  assessment_periods: AssessmentPeriodsTable;
+  assessment_tests: AssessmentTestsTable;
+  comment_templates: CommentTemplatesTable;
+  subject_results: SubjectResultsTable;
+  competency_results: CompetencyResultsTable;
+  regular_comments: RegularCommentsTable;
+  assessment_locks: AssessmentLocksTable;
+  year_results: YearResultsTable;
 }

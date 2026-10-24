@@ -75,6 +75,7 @@ import { migration as backfillSchoolLevels } from './migrations/0075_backfill_sc
 import { migration as createSubjects } from './migrations/0076_create_subjects.js';
 import { migration as createBoardingAndConduct } from './migrations/0077_create_boarding_and_conduct.js';
 import { migration as createTimetables } from './migrations/0078_create_timetables.js';
+import { migration as createStudentAssessments } from './migrations/0079_create_student_assessments.js';
 import { migration as createClassLogs } from './migrations/0080_create_class_logs.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
@@ -155,5 +156,6 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0076_create_subjects': createSubjects,
   '0077_create_boarding_and_conduct': createBoardingAndConduct,
   '0078_create_timetables': createTimetables,
+  '0079_create_student_assessments': createStudentAssessments,
   '0080_create_class_logs': createClassLogs,
 };

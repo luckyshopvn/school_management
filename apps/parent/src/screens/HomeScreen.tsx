@@ -18,6 +18,7 @@ import { ServicesPanel } from './ServicesPanel.js';
 import { FinalYearPanel } from './FinalYearPanel.js';
 import { BoardingPanel } from './BoardingPanel.js';
 import { TimetablePanel } from './TimetablePanel.js';
+import { AssessmentPanel } from './AssessmentPanel.js';
 import { PeriodAttendancePanel } from './PeriodAttendancePanel.js';
 import { hasLevelFeature, levelOf } from '@school-management/shared';
 import { useSchoolLevelNames } from './school-levels.js';
@@ -130,6 +131,7 @@ function ChildCard({
     | 'final-year'
     | 'boarding'
     | 'timetable'
+    | 'assessment'
     | 'period-attendance'
   >('none');
   const [attendance, setAttendance] = useState<MonthAttendance>();
@@ -181,6 +183,9 @@ function ChildCard({
         <Button onClick={() => setView(view === 'interactions' ? 'none' : 'interactions')}>Trao đổi</Button>
         <Button onClick={() => setView(view === 'activities' ? 'none' : 'activities')}>Hoạt động</Button>
         <Button onClick={() => setView(view === 'menu' ? 'none' : 'menu')}>Thực đơn</Button>
+        {has('student_assessment') ? (
+          <Button onClick={() => setView(view === 'assessment' ? 'none' : 'assessment')}>Kết quả đánh giá</Button>
+        ) : null}
         {has('boarding_meal') ? (
           <Button onClick={() => setView(view === 'boarding' ? 'none' : 'boarding')}>Cắt suất bán trú</Button>
         ) : null}
@@ -211,6 +216,7 @@ function ChildCard({
       {view === 'final-year' ? <FinalYearPanel child={child} /> : null}
       {view === 'boarding' ? <BoardingPanel child={child} /> : null}
       {view === 'timetable' ? <TimetablePanel child={child} /> : null}
+      {view === 'assessment' ? <AssessmentPanel child={child} /> : null}
       {view === 'period-attendance' ? <PeriodAttendancePanel child={child} month={month} /> : null}
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       {view === 'absence' ? (

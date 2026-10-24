@@ -19,7 +19,7 @@ import {
   signClassLogWeek,
 } from './class-logs-api.js';
 
-// 7.5 Sổ đầu bài, 7.6 Chuyên cần theo tiết (DT-20 phần 20d, YCTD-162): xem sổ đầu bài của lớp theo tuần (tiết theo thời khoá
+// 7.6 Sổ đầu bài, 7.7 Chuyên cần theo tiết (DT-20 phần 20d, YCTD-162): xem sổ đầu bài của lớp theo tuần (tiết theo thời khoá
 // biểu đang áp dụng, tiết đã ghi, số học sinh vắng, đi muộn), mở một tiết xem nội dung và điểm danh; Ban giám hiệu ký sổ tuần.
 // Giáo viên ghi, ký tiết ở ứng dụng giáo viên. Trang chuyên cần tổng hợp theo học sinh, đối chiếu báo vắng theo ngày
 const messageOf = (error: unknown) =>
