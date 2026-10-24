@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.64
+- Phiên bản: 1.65
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -844,9 +844,13 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-780 | Cho lớp THCS có môn của chương trình / Khi giáo viên nhập điểm thường xuyên, giữa kỳ, cuối kỳ / Thì trung bình môn tính theo hệ số 1, 2, 3 và làm tròn một chữ số, môn nhận xét ghi Đạt, Chưa đạt; giáo viên chỉ nhập môn được phân công, điểm sai bị từ chối; lớp Mầm non bị từ chối (CT-897, CT-899; YCTD-170) |
 | AC-781 | Cho điểm đã nhập đủ / Khi tổng hợp học kỳ, cả năm và xác nhận xếp loại / Thì máy gợi ý học tập theo ngưỡng (Tốt, Khá, Đạt, Chưa đạt), cả năm tính từ hai học kỳ, giáo viên chủ nhiệm xác nhận học tập, rèn luyện, giáo viên môn không xác nhận (CT-897, CT-900; YCTD-170) |
 | AC-782 | Cho học kỳ / Khi Hiệu trưởng khoá điểm, mở khoá kèm lý do, và phụ huynh xem / Thì khoá thì không sửa được (kể cả người quản lý), quá hạn thì chỉ người quản lý sửa; phụ huynh chỉ xem học kỳ đã khoá của con mình (CT-901, CT-902, CT-903; YCTD-170) |
-| AC-783 | Cho trường đã có dữ liệu nhân sự, chứng chỉ / Khi nâng cấp lên phiên bản có hồ sơ bồi dưỡng / Thì chứng chỉ cũ vẫn hiện đúng, là loại nhập tay; các phân hệ khác không đổi (CT-904, CT-908; YCTD-182) |
-| AC-784 | Cho khoá trường tổ chức có cấp chứng nhận / Khi giáo viên đăng ký, tổ trưởng, Ban Giám hiệu duyệt, ghi kết quả đạt, cấp chứng nhận / Thì quá hạn, hết chỉ tiêu, tổ khác bị từ chối; người đạt nhận chứng nhận có mã; trang công khai tra theo mã chỉ trả trường tối thiểu, thu hồi thì báo đã thu hồi (CT-906, CT-907, CT-910; YCTD-182) |
-| AC-785 | Cho giáo viên có khoá đạt, chứng chỉ, tự đánh giá năng lực số / Khi xem hồ sơ của tôi, tổ trưởng, Ban Giám hiệu xem hồ sơ, bản đồ năng lực / Thì tổng tiết so định mức, thiếu tiết, sắp hết hạn đúng; miền dưới ngưỡng có gợi ý chuyên đề; xác nhận đổi mức phải có lý do (CT-905, CT-908, CT-909, CT-910; YCTD-182) |
+| AC-783 | Cho trường có lớp 4, lớp 5 với học sinh nữ dân tộc, khuyết tật, bán trú, lớp 2 buổi/ngày / Khi xem sĩ số; phụ huynh xem / Thì số theo khối và toàn trường đúng; 403 (CT-905, CT-910; YCTD-165) |
+| AC-784 | Cho kết quả kỳ cuối học kỳ I, kết quả cuối năm, hoàn thành, khen thưởng / Khi xem theo khối, toàn trường, theo lớp / Thì số theo mức, điểm theo khoảng, kết quả cuối năm, ở lại lớp, khen thưởng đúng (CT-906, CT-907; YCTD-165) |
+| AC-785 | Cho sổ đầu bài có vắng, ngày đã chốt suất, cắt suất / Khi xem chuyên cần, bán trú; xuất Excel, PDF / Thì số theo lớp đúng; tệp tải được, có nhật ký xuất (CT-908; YCTD-165) |
+| AC-786 | Cho biểu EMIS Tiểu học đầu năm / Khi xem, nhập tay đúng và sai dòng, sửa khung với công thức sai, đúng, đánh dấu đã gửi / Thì dòng công thức tính từ dữ liệu, dòng lớp chỉ cột tổng số; 400 khi sai; dòng mới tính được; đã gửi thì nhập tay 422 (CT-904, CT-909, CT-910; YCTD-165) |
+| AC-787 | Cho trường đã có dữ liệu nhân sự, chứng chỉ / Khi nâng cấp lên phiên bản có hồ sơ bồi dưỡng / Thì chứng chỉ cũ vẫn hiện đúng, là loại nhập tay; các phân hệ khác không đổi (CT-911, CT-915; YCTD-182) |
+| AC-788 | Cho khoá trường tổ chức có cấp chứng nhận / Khi giáo viên đăng ký, tổ trưởng, Ban Giám hiệu duyệt, ghi kết quả đạt, cấp chứng nhận / Thì quá hạn, hết chỉ tiêu, tổ khác bị từ chối; người đạt nhận chứng nhận có mã; trang công khai tra theo mã chỉ trả trường tối thiểu, thu hồi thì báo đã thu hồi (CT-913, CT-914, CT-917; YCTD-182) |
+| AC-789 | Cho giáo viên có khoá đạt, chứng chỉ, tự đánh giá năng lực số / Khi xem hồ sơ của tôi, tổ trưởng, Ban Giám hiệu xem hồ sơ, bản đồ năng lực / Thì tổng tiết so định mức, thiếu tiết, sắp hết hạn đúng; miền dưới ngưỡng có gợi ý chuyên đề; xác nhận đổi mức phải có lý do (CT-912, CT-915, CT-916, CT-917; YCTD-182) |
 | AC-766 | Cho trường chỉ có Mầm non / Khi nâng cấp lên phiên bản có sổ đầu bài / Thì không có mục mới, điểm danh theo ngày và ứng dụng như trước (CT-864, CT-869; YCTD-162) |
 | AC-767 | Cho giáo viên có tiết trong thời khoá biểu đang áp dụng / Khi mở Sổ đầu bài, ghi tiết, điểm danh, ký sổ / Thì học sinh đã báo vắng mặc định vắng có phép; giáo viên khác, ngày chưa đến, học sinh ngoài lớp bị từ chối; tiết đã ký không sửa (CT-865, CT-866, CT-869; YCTD-162) |
 | AC-768 | Cho sổ của lớp trong tuần / Khi Ban giám hiệu ký sổ tuần, phụ huynh mở Điểm danh theo tiết, nhân sự mở Chuyên cần theo tiết / Thì ký một lần và khoá ghi trong tuần; phụ huynh chỉ thấy con mình; bảng chuyên cần đối chiếu đúng ngày báo vắng (CT-867, CT-868, CT-869; YCTD-162) |

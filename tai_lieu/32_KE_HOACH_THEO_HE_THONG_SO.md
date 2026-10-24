@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số).
-- Phiên bản: 1.51
+- Phiên bản: 1.52
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -712,7 +712,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 | 20d | 3 | Đã làm, YCTD-162, phiên bản 0.111.0, PR 142: sổ đầu bài theo bản thời khoá biểu đang áp dụng (năm học 0080 `class_logs`), điểm danh theo tiết (`period_attendance`), giáo viên ký tiết, Ban giám hiệu ký sổ tuần (`class_log_reviews`, quyền `P02.class-log.review` định danh 0071); ứng dụng giáo viên Sổ đầu bài, phụ huynh Điểm danh theo tiết; 7.6, 7.7 có tổng hợp chuyên cần đối chiếu báo vắng; điểm danh Mầm non giữ nguyên; e2e 91 |
 | 20e | 3 | Đã làm (PR #144, YCTD-163, phiên bản 0.112.0) |
 | 22c2 | 4 | Đã làm, YCTD-164, phiên bản 0.113.0, PR 143: máy xếp tự viết (xếp tham lam rồi tìm kiếm cục bộ, ràng buộc bắt buộc và năm ràng buộc mềm có mức 0 đến 10, nhiều phương án, giới hạn thời gian) chạy ở `apps/worker` qua hàng đợi Redis; phương án thành bản nháp (năm học 0082); chỉnh tay có kiểm tra ngay; dạy thay, đổi tiết theo ngày (`timetable_changes`, nguồn tiết thực tế cho 20d); báo cáo tiết dạy, dùng phòng; mã QR và trang tra cứu công khai; định danh 0073 để trống; e2e 93. Đo trên dữ liệu thử 30 lớp, 66 giáo viên: điểm phạt 0 trong khoảng 12 giây mỗi phương án nên không phải dừng ở chỉnh tay |
-| 20f | 4 | Chưa làm, chờ 20c, 20e |
+| 20f | 4 | Đã làm (PR #148, YCTD-165, phiên bản 0.116.0) |
 
 
 ## 12. DT-21: THCS và THPT (kèm 22g kiểm tra, đánh giá)
@@ -1051,6 +1051,6 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 | Phần | Đợt | Tiến độ |
 |---|---|---|
 | 22a | 1 | Chưa làm, làm được ngay |
-| 22e | 1 | Đã làm, YCTD-182, phiên bản 0.116.0, PR 145: danh mục (hệ thống 0041: định mức 120 tiết, chuyên đề theo ba chương trình, khung năng lực số 6 miền 3 mức theo Thông tư 18/2026), khoá, đăng ký, duyệt tổ và Ban Giám hiệu, kết quả, chứng nhận PDF có mã QR, thu hồi, cấp lại, trang tra cứu công khai (năm học 0101, `staff_certificates` thêm cột), chứng chỉ nhập tay, hồ sơ cá nhân, tổ, trường, năng lực số và gợi ý chuyên đề; nhóm 6 của Hồ sơ chuyên môn; quyền `P09.training.*` (định danh 0091); ứng dụng giáo viên; e2e 121 |
+| 22e | 1 | Đã làm, YCTD-182, phiên bản 0.117.0, PR 145: danh mục (hệ thống 0041: định mức 120 tiết, chuyên đề theo ba chương trình, khung năng lực số 6 miền 3 mức theo Thông tư 18/2026), khoá, đăng ký, duyệt tổ và Ban Giám hiệu, kết quả, chứng nhận PDF có mã QR, thu hồi, cấp lại, trang tra cứu công khai (năm học 0101, `staff_certificates` thêm cột), chứng chỉ nhập tay, hồ sơ cá nhân, tổ, trường, năng lực số và gợi ý chuyên đề; nhóm 6 của Hồ sơ chuyên môn; quyền `P09.training.*` (định danh 0091); ứng dụng giáo viên; e2e 121 |
 | 22h1 | 2 | Chưa làm, bắt đầu khi 22a hoặc 22e gộp |
 | 22h2 | 3 | Chưa làm, chờ 22h1 và 22g1 (DT-21); thống kê sử dụng câu hỏi chờ thêm 22g2 |

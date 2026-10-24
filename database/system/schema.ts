@@ -1243,6 +1243,33 @@ export interface TrainingTopicsTable {
   created_at: Generated<Date>;
 }
 
+// Khung biểu báo cáo cấu hình được, EMIS Tiểu học (DT-20 phần 20f, YCTD-165)
+export type ReportFormPeriod = 'start_of_year' | 'end_of_year';
+export type ReportFormRowKind = 'heading' | 'formula' | 'manual';
+
+export interface ReportFormsTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  school_level: CalendarSchoolLevel;
+  period: ReportFormPeriod;
+  columns: ColumnType<Array<{ key: string; label: string }>, string, string>;
+  note: string | null;
+  updated_by_name: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ReportFormRowsTable {
+  id: Generated<string>;
+  form_id: string;
+  order_no: number;
+  code: string;
+  label: string;
+  unit: string | null;
+  kind: ReportFormRowKind;
+  formula: string | null;
+}
+
 export interface SystemDatabase {
   academic_years: AcademicYearsTable;
   academic_terms: AcademicTermsTable;
@@ -1250,6 +1277,8 @@ export interface SystemDatabase {
   academic_year_databases: AcademicYearDatabasesTable;
   academic_year_level_settings: AcademicYearLevelSettingsTable;
   period_slots: PeriodSlotsTable;
+  report_forms: ReportFormsTable;
+  report_form_rows: ReportFormRowsTable;
   training_settings: TrainingSettingsTable;
   digital_competency_domains: DigitalCompetencyDomainsTable;
   digital_competency_levels: DigitalCompetencyLevelsTable;
