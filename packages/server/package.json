@@ -7,6 +7,18 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./timetable-solver": {
+      "types": "./dist/timetable-solver.d.ts",
+      "default": "./dist/timetable-solver.js"
+    },
+    "./timetable-generation": {
+      "types": "./dist/timetable-generation.d.ts",
+      "default": "./dist/timetable-generation.js"
+    },
+    "./resource-names": {
+      "types": "./dist/resource-names.d.ts",
+      "default": "./dist/resource-names.js"
     }
   },
   "scripts": {

@@ -18,7 +18,8 @@ export type LevelFeature =
   | 'period_timetable'
   | 'student_assessment'
   // Sổ đầu bài, điểm danh theo tiết (DT-20 phần 20d): lớp, con học cấp phổ thông
-  | 'period_attendance';
+  | 'period_attendance'
+  | 'learning_record';
 
 export const LEVEL_FEATURES: Record<LevelFeature, readonly SchoolLevelCode[]> = {
   daily_attendance: ['MN'],
@@ -33,6 +34,8 @@ export const LEVEL_FEATURES: Record<LevelFeature, readonly SchoolLevelCode[]> = 
   // Đánh giá học sinh theo Thông tư 27/2020 (DT-20 phần 20c): nhập ở ứng dụng giáo viên, phụ huynh xem kết quả đã khoá
   student_assessment: ['TH'],
   period_attendance: ['TH', 'THCS', 'THPT'],
+  // Học bạ số, khen thưởng đã duyệt (DT-20 phần 20e): phụ huynh xem, tải học bạ đã kí của con
+  learning_record: ['TH'],
 };
 
 // Cấp của con hoặc lớp như máy chủ trả; trống (con chưa xếp lớp, máy chủ cũ) là Mầm non như mọi chỗ đọc cấp khác

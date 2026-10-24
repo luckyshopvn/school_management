@@ -169,9 +169,15 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           // Sổ đầu bài, điểm danh theo tiết (DT-20 phần 20d); THCS, THPT dùng chung ở DT-21 phần 21d
           primary(leaf('7.6.', 'Sổ đầu bài', '/class-logs')),
           primary(leaf('7.7.', 'Chuyên cần theo tiết', '/period-attendance')),
+          // Học bạ số, khen thưởng, hoàn thành chương trình, lên lớp (DT-20 phần 20e)
+          primary(leaf('7.8.', 'Học bạ, khen thưởng, lên lớp', '/learning-records')),
+          // Máy xếp, dạy thay, đổi tiết, báo cáo, mã QR (DT-20 phần 22c2)
+          primary(leaf('7.9.', 'Xếp thời khoá biểu tự động', '/timetable-generator')),
+          primary(leaf('7.10.', 'Dạy thay, đổi tiết', '/timetable-changes')),
+          primary(leaf('7.11.', 'Báo cáo tiết dạy, dùng phòng, mã QR', '/timetable-reports')),
           // Tổ hợp môn (THPT) và tổ bộ môn (DT-21 phần 21a)
-          secondary(leaf('7.8.', 'Tổ hợp môn', '/subject-combinations'), ['THPT']),
-          secondary(leaf('7.9.', 'Tổ bộ môn', '/subject-teams')),
+          secondary(leaf('7.12.', 'Tổ hợp môn', '/subject-combinations'), ['THPT']),
+          secondary(leaf('7.13.', 'Tổ bộ môn', '/subject-teams')),
         ]),
         ['TH', 'THCS', 'THPT'],
       ),

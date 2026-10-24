@@ -1,7 +1,8 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.60
+- Phiên bản: 1.62
+- Phiên bản: 1.61
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -838,12 +839,20 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-763 | Cho lớp 4 có giáo viên chủ nhiệm và giáo viên Toán / Khi mỗi người nhập môn của mình, nhập môn của người khác, nhập điểm ở môn không có bài kiểm tra / Thì nhận; 403; 400 (CT-859; YCTD-161) |
 | AC-764 | Cho kỳ quá hạn hoặc đã khoá / Khi giáo viên, Hiệu trưởng sửa; Hiệu trưởng mở khoá không lý do, có lý do / Thì quá hạn: giáo viên 422, Hiệu trưởng nhận; đã khoá: cả hai 422; mở khoá 400, nhận (CT-860; YCTD-161) |
 | AC-765 | Cho lớp đã nhập kỳ cuối năm / Khi xem tổng hợp, gợi ý cuối năm, phụ huynh xem trước và sau khi khoá / Thì số theo mức, điểm theo khoảng đúng; gợi ý theo Điều 9; phụ huynh chỉ thấy kỳ đã khoá và kết quả cuối năm (CT-857, CT-861, CT-862; YCTD-161) |
-| AC-769 | Cho trường bật THCS, THPT có khối 6 đến 12 / Khi Hiệu trưởng nạp môn mẫu / Thì có môn, chương trình mặc định theo cấp, số tiết khối 6 đến 12, môn lựa chọn THPT chia ba nhóm, nạp lại không trùng; trường chỉ có Mầm non hay Tiểu học thấy như trước, không có mục 7.8, 7.9 (CT-870, CT-871, CT-875; YCTD-167) |
-| AC-770 | Cho THPT có môn lựa chọn / Khi lập tổ hợp môn / Thì phải đúng 4 môn lựa chọn thuộc ít nhất 2 nhóm, mã duy nhất, giáo viên không lập được, tổ hợp đã có học sinh không đổi môn (CT-872, CT-875) |
-| AC-771 | Cho học sinh lớp THPT / Khi đăng ký rồi đổi tổ hợp, duyệt hoặc từ chối / Thì đăng ký đầu có hiệu lực ngay, đổi thì chờ duyệt, từ chối trả về tổ hợp cũ, duyệt thì môn tự chọn theo tổ hợp; học sinh lớp khác cấp bị từ chối; tổ bộ môn có một tổ trưởng và thành viên là giáo viên bộ môn (CT-873, CT-874, CT-875) |
+| AC-777 | Cho trường bật THCS, THPT có khối 6 đến 12 / Khi Hiệu trưởng nạp môn mẫu / Thì có môn, chương trình mặc định theo cấp, số tiết khối 6 đến 12, môn lựa chọn THPT chia ba nhóm, nạp lại không trùng; trường chỉ có Mầm non hay Tiểu học thấy như trước, không có mục 7.12, 7.13 (CT-891, CT-892, CT-896; YCTD-167) |
+| AC-778 | Cho THPT có môn lựa chọn / Khi lập tổ hợp môn / Thì phải đúng 4 môn lựa chọn thuộc ít nhất 2 nhóm, mã duy nhất, giáo viên không lập được, tổ hợp đã có học sinh không đổi môn (CT-893, CT-896) |
+| AC-779 | Cho học sinh lớp THPT / Khi đăng ký rồi đổi tổ hợp, duyệt hoặc từ chối / Thì đăng ký đầu có hiệu lực ngay, đổi thì chờ duyệt, từ chối trả về tổ hợp cũ, duyệt thì môn tự chọn theo tổ hợp; học sinh lớp khác cấp bị từ chối; tổ bộ môn có một tổ trưởng và thành viên là giáo viên bộ môn (CT-894, CT-895, CT-896) |
 | AC-766 | Cho trường chỉ có Mầm non / Khi nâng cấp lên phiên bản có sổ đầu bài / Thì không có mục mới, điểm danh theo ngày và ứng dụng như trước (CT-864, CT-869; YCTD-162) |
 | AC-767 | Cho giáo viên có tiết trong thời khoá biểu đang áp dụng / Khi mở Sổ đầu bài, ghi tiết, điểm danh, ký sổ / Thì học sinh đã báo vắng mặc định vắng có phép; giáo viên khác, ngày chưa đến, học sinh ngoài lớp bị từ chối; tiết đã ký không sửa (CT-865, CT-866, CT-869; YCTD-162) |
 | AC-768 | Cho sổ của lớp trong tuần / Khi Ban giám hiệu ký sổ tuần, phụ huynh mở Điểm danh theo tiết, nhân sự mở Chuyên cần theo tiết / Thì ký một lần và khoá ghi trong tuần; phụ huynh chỉ thấy con mình; bảng chuyên cần đối chiếu đúng ngày báo vắng (CT-867, CT-868, CT-869; YCTD-162) |
+| AC-769 | Cho lớp có kết quả cuối năm đã xác nhận / Khi đề nghị trước và sau khi khoá kỳ cuối năm, đúng và sai căn cứ, trùng, thiếu thành tích; Hiệu trưởng duyệt / Thì 422 trước khoá; nhận, 422, 400 theo căn cứ; duyệt cấp mã 12 kí tự, giấy khen PDF, tra cứu công khai thấy học sinh (CT-871, CT-876; YCTD-163) |
+| AC-770 | Cho lớp 4 có học sinh hoàn thành và chưa hoàn thành, lớp 5 / Khi ghi kết quả, rèn luyện, kiểm tra lại đạt, chưa đạt / Thì lên khối 5; đang rèn luyện; ở lại lớp; lên lớp; lớp 5 hoàn thành chương trình cấp học (CT-870, CT-872; YCTD-163) |
+| AC-771 | Cho kỳ cuối năm đã khoá / Khi lập học bạ, sửa nhận xét, kí khi chưa và đã đăng ký chứng thư, mở lại / Thì học bạ có kết quả, khen thưởng, hoàn thành; 422 rồi kí nội bộ; đã kí không sửa; mở lại cần lý do; tải tệp ghi nhật ký số định danh (CT-873; YCTD-163) |
+| AC-772 | Cho phụ huynh, phụ huynh khác, năm học mới / Khi xem học bạ, khen thưởng; mở năm học mới / Thì chỉ thấy bản đã kí của con mình, phụ huynh khác 403; học bạ, danh hiệu chép sang, học sinh hoàn thành tiểu học thôi học (CT-874, CT-875; YCTD-163) |
+| AC-773 | Cho trường có Tiểu học đã khai báo khung giờ, môn, phân công / Khi Hiệu trưởng chạy máy xếp / Thì tiến trình chạy nền xếp trong giới hạn thời gian, báo tiến độ, cho các phương án không vi phạm ràng buộc bắt buộc nếu xếp được; dữ liệu không thể xếp được báo rõ ràng buộc nào bị vi phạm (CT-877, CT-879, CT-880, CT-881, CT-883, CT-886; YCTD-164) |
+| AC-774 | Cho các phương án đã xếp / Khi chọn một phương án / Thì tạo bản nháp nguồn máy xếp, sửa tay có kiểm tra ngay, ban hành theo luồng phiên bản; mức quan trọng 0 tắt ràng buộc mềm (CT-878, CT-882, CT-886, CT-887, CT-890; YCTD-164) |
+| AC-775 | Cho bản đang áp dụng / Khi ghi dạy thay, đổi tiết của một ngày / Thì tiết thực tế của ngày đổi, bản ban hành giữ nguyên; giáo viên đang có tiết khác cùng lúc bị chặn; báo cáo tiết dạy tính đúng (CT-888, CT-890; YCTD-164) |
+| AC-776 | Cho mã QR của lớp hoặc giáo viên / Khi người không đăng nhập mở đường dẫn của mã / Thì thấy thời khoá biểu đang áp dụng và thay đổi 7 ngày tới; mã thu hồi thì báo không đúng (CT-889, CT-890; YCTD-164) |
 
 ## 20. Chưa xác minh được
 

@@ -296,6 +296,102 @@ export interface ClassLogReviewsTable {
   signed_at: CreatedTimestamp;
 }
 
+// Máy xếp thời khoá biểu, dạy thay, đổi tiết, mã tra cứu (DT-20 phần 22c2, YCTD-164)
+export type TimetableGenerationStatus = 'queued' | 'running' | 'completed' | 'failed' | 'cancelled';
+export type TimetableChangeKind = 'substitute' | 'swap';
+export type TimetableLookupKind = 'class' | 'teacher';
+
+export interface TimetableGeneratorSettingsTable {
+  school_level: SchoolLevelCode;
+  weights: DefaultJson;
+  time_limit_seconds: Generated<number>;
+  variant_count: Generated<number>;
+  updated_by: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface TimetableSubjectRulesTable {
+  subject_id: string;
+  double_period: Generated<boolean>;
+  avoid_last_period: Generated<boolean>;
+  max_per_day: number | null;
+  room_id: string | null;
+  updated_by: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface TimetableTeacherBusyTable {
+  id: Generated<string>;
+  teacher_user_id: string;
+  teacher_name: string;
+  weekday: number;
+  period_no: number;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface TimetableGenerationRunsTable {
+  id: Generated<string>;
+  school_level: SchoolLevelCode;
+  status: ColumnType<TimetableGenerationStatus, TimetableGenerationStatus | undefined, TimetableGenerationStatus>;
+  weights: JsonDocument;
+  time_limit_seconds: number;
+  variant_count: number;
+  percent: Generated<number>;
+  best_score: ColumnType<string | null, number | null | undefined, number | null>;
+  best_hard: number | null;
+  message: string | null;
+  issues: DefaultJson;
+  created_by: string | null;
+  created_by_name: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+  finished_at: Date | null;
+}
+
+export interface TimetableGenerationVariantsTable {
+  id: Generated<string>;
+  run_id: string;
+  variant_no: number;
+  score: ColumnType<string, number, number>;
+  hard_count: number;
+  soft: JsonDocument;
+  violations: JsonDocument;
+  placements: JsonDocument;
+  version_id: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface TimetableChangesTable {
+  id: Generated<string>;
+  change_date: ColumnType<string, string, string>;
+  class_id: string;
+  period_no: number;
+  kind: TimetableChangeKind;
+  pair_id: string | null;
+  subject_id: string;
+  teacher_user_id: string | null;
+  teacher_name: string | null;
+  room_id: string | null;
+  original_subject_id: string | null;
+  original_teacher_user_id: string | null;
+  original_teacher_name: string | null;
+  reason: string | null;
+  created_by: string | null;
+  created_by_name: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface TimetableLookupCodesTable {
+  id: Generated<string>;
+  kind: TimetableLookupKind;
+  target_id: string;
+  target_name: string;
+  code: string;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  revoked_at: Date | null;
+}
 // Môn tự chọn học sinh đăng ký (YCTD-158)
 export interface ChildElectiveSubjectsTable {
   child_id: string;
@@ -5114,6 +5210,79 @@ export interface YearResultsTable {
   confirmed_at: UpdatedTimestamp;
 }
 
+// Học bạ số, khen thưởng học sinh, hoàn thành chương trình (DT-20 phần 20e, YCTD-163)
+export type StudentAwardKind = 'year_end' | 'special';
+export type StudentAwardBasis = 'excellent' | 'outstanding';
+export type StudentAwardStatus = 'proposed' | 'approved' | 'rejected';
+export type CompletionOutcome = 'promoted' | 'level_completed' | 'pending_support' | 'retained';
+export type SupportPlan = 'summer_training' | 'retest';
+export type LearningRecordStatus = 'draft' | 'signed';
+
+export interface StudentAwardTitlesTable {
+  id: Generated<string>;
+  school_level: SchoolLevelCode;
+  code: string;
+  name: string;
+  kind: StudentAwardKind;
+  basis: StudentAwardBasis | null;
+  order_no: Generated<number>;
+  status: Generated<CatalogStatus>;
+  created_at: CreatedTimestamp;
+}
+
+export interface StudentAwardsTable {
+  id: Generated<string>;
+  class_id: string;
+  child_id: string;
+  title_id: string;
+  title_name: string;
+  achievement: string | null;
+  status: Generated<StudentAwardStatus>;
+  proposed_by: string;
+  proposed_by_name: string;
+  proposed_at: CreatedTimestamp;
+  decided_by: string | null;
+  decided_by_name: string | null;
+  decided_at: Date | null;
+  decision_note: string | null;
+  lookup_code: string | null;
+}
+
+export interface CompletionResultsTable {
+  id: Generated<string>;
+  class_id: string;
+  child_id: string;
+  grade_level: string;
+  year_result: string;
+  outcome: CompletionOutcome;
+  support_plan: SupportPlan | null;
+  support_result: 'completed' | 'not_completed' | null;
+  support_note: string | null;
+  next_grade_level: string | null;
+  confirmed_by: string;
+  confirmed_by_name: string;
+  confirmed_at: UpdatedTimestamp;
+}
+
+export interface LearningRecordsTable {
+  id: Generated<string>;
+  child_id: string;
+  academic_year_name: string;
+  class_id: string | null;
+  class_name: string;
+  grade_level: string;
+  school_level: SchoolLevelCode;
+  content: ColumnType<Record<string, unknown>, string, string>;
+  homeroom_comment: string | null;
+  status: Generated<LearningRecordStatus>;
+  signed_storage_key: string | null;
+  signed_at: Date | null;
+  signer_name: string | null;
+  signature_method: string | null;
+  prepared_by_name: string;
+  updated_at: UpdatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -5139,6 +5308,13 @@ export interface SchoolYearDatabase {
   class_logs: ClassLogsTable;
   period_attendance: PeriodAttendanceTable;
   class_log_reviews: ClassLogReviewsTable;
+  timetable_generator_settings: TimetableGeneratorSettingsTable;
+  timetable_subject_rules: TimetableSubjectRulesTable;
+  timetable_teacher_busy: TimetableTeacherBusyTable;
+  timetable_generation_runs: TimetableGenerationRunsTable;
+  timetable_generation_variants: TimetableGenerationVariantsTable;
+  timetable_changes: TimetableChangesTable;
+  timetable_lookup_codes: TimetableLookupCodesTable;
   org_unit_levels: OrgUnitLevelsTable;
   classes: ClassesTable;
   class_staff_assignments: ClassStaffAssignmentsTable;
@@ -5428,4 +5604,8 @@ export interface SchoolYearDatabase {
   regular_comments: RegularCommentsTable;
   assessment_locks: AssessmentLocksTable;
   year_results: YearResultsTable;
+  student_award_titles: StudentAwardTitlesTable;
+  student_awards: StudentAwardsTable;
+  completion_results: CompletionResultsTable;
+  learning_records: LearningRecordsTable;
 }
