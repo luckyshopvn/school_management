@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.116
+- Phiên bản: 1.117
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -1438,6 +1438,14 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | POST, DELETE | /api/v1/exams/{id}/generate, /questions, /questions/{questionId}, /variants | Bốc câu theo ma trận (`seed` tùy chọn); thêm, bỏ câu; trộn mã đề (P02-64) |
 | POST | /api/v1/exams/{id}/submit, /review, /lock, /unlock | Gửi thẩm định; duyệt hoặc trả lại; khoá; mở khoá (`reason`) (P02-64) |
 | GET | /api/v1/exams/{id}/export | Tải đề một mã (`part=paper`, `code`) hoặc đáp án (`part=answers`), `format=pdf` hoặc `docx` (P02-64) |
+| GET | /api/v1/exam-grading/exams, /api/v1/exam-grading/classes | Đề đã khoá của cấp; lớp tạo được bài kiểm tra của đề (P02-69, YCTD-173) |
+| GET, POST | /api/v1/exam-grading/sessions | Bài kiểm tra của lớp người dùng xem được (kèm số bài đã chấm, trung bình); tạo (P02-69) |
+| GET | /api/v1/exam-grading/sessions/{id} | Bài kiểm tra kèm mã đề (số câu, dạng, điểm), học sinh và bài làm, `blockers` (P02-69) |
+| PUT | /api/v1/exam-grading/sessions/{id}/sheets/{childId} | Ghi bài làm: `variant_code`, `absent`, `answers`, `essay` (P02-69) |
+| GET, POST | /api/v1/exam-grading/sessions/{id}/import-template, /import | Tệp mẫu kết quả quét kèm học sinh; nhập tệp quét (P02-69) |
+| GET | /api/v1/exam-grading/sessions/{id}/answer-sheet | Phiếu trả lời PDF (P02-69) |
+| POST | /api/v1/exam-grading/sessions/{id}/lock, /unlock, /transfer | Khoá điểm; mở khoá (`reason`); chuyển vào sổ điểm (trả `written`) (P02-69) |
+| GET | /api/v1/exam-grading/reports/{examId}, /export | Báo cáo theo câu, chủ đề, mức, lớp, phân bố điểm (`class_id` tuỳ chọn); xuất `format=xlsx` hoặc `pdf` (P02-70) |
 | GET | /api/v1/public/student-awards/verify (từ YCTD-163) | Tra cứu công khai mã giấy khen học sinh (`code` 12 kí tự), giới hạn tần suất |
 | GET | /api/v1/primary-reports/enrollment, /assessments, /year-end, /attendance, /{report}/export (từ YCTD-165) | Thống kê Tiểu học (`org_unit_id`; `period_id`, `group` = `class`, `grade`, `school`; `from`, `to`); xuất `format` = `xlsx`, `pdf`; cần `P17.child-statistics.view` |
 | GET, PUT | /api/v1/primary-reports/emis, /{code}, /{code}/values, /{code}/rows, /{code}/export (từ YCTD-165) | Biểu EMIS Tiểu học cấu hình được: danh sách, biểu đã tính, lưu số nhập tay (`rows`: `code`, `values`), thay khung (`rows`: `code`, `label`, `unit`, `kind`, `formula`; cần `P17.report-form.manage`), xuất; biểu đã gửi trả 422 mã YCTD-165 |
@@ -1650,6 +1658,14 @@ Giao kèo hồ sơ bồi dưỡng giáo viên (DT-22 phần 22e, YCTD-182, BR-18
 5. `GET /public/training-certificates/verify?code=` trả `code`, `staff_name`, `certificate_name`, `course_name`, `issued_by`, `issued_date`, `periods`, `status` (`valid`, `revoked`); mã sai dạng 400, không thấy 404, quá 60 lần mỗi phút 429.
 6. `GET /training/mine` trả `required_periods`, `total_periods`, `missing_periods`, `registrations`, `certificates` (kèm `expiring_soon`), `competency_gaps`. `GET /training/records` (`department_id` tùy chọn) trả `rows`, `departments`, `plan`.
 7. `PUT /training/competency/mine` nhận `term`, `scores` (`domain_code`, `level`) đủ mọi miền đang dùng; kỳ đã xác nhận trả 422. `POST /training/competency/{id}/confirm` nhận `scores` (`domain_code`, `level`, `reason`); đổi mức không có lý do trả 400.
+
+
+Giao kèo kiểm tra, đánh giá phần chấm (DT-21 phần 22g2, YCTD-173, BR-188):
+
+1. `POST /exam-grading/sessions` nhận `exam_id` (đề đã khoá, đã trộn mã), `class_id` (cùng cấp, khối), `term_type`, `score_kind`, `score_seq` (1 đến 10, chỉ dùng với `regular`), `true_false_rule`, `double_marking`, `mark_tolerance` (0 đến 10), `absent_policy`; sai dạng, lớp khác khối trả 400; đề chưa khoá, lớp đã có bài của đề trả 422 mã YCTD-173; không dạy môn của lớp trả 403.
+2. `PUT /sheets/{childId}`: `answers` là đối tượng số câu → mảng lựa chọn; `essay` là đối tượng mã câu → `first`, `second`; mã đề sai, điểm tự luận ngoài 0 đến điểm câu trả 400; bài kiểm tra đã khoá trả 422.
+3. `POST /import` (tệp `file`, cột Mã hệ thống, Họ và tên, Mã đề, Vắng, Câu 1 đến Câu n) trả `imported`, `errors` (`row`, `column`, `message`); có lỗi thì không ghi.
+4. `POST /lock` (`P02.exam.manage`) còn học sinh chưa có bài, thiếu điểm tự luận, cần xem lại trả 422 kèm tên học sinh. `/transfer` khi chưa khoá hoặc đã chuyển trả 422; quyền, khoá, hạn theo sổ điểm 21c (403, 422 mã YCTD-170).
 
 
 Giao kèo kế hoạch giáo dục (DT-18 phần 22i, YCTD-147, BR-142):

@@ -252,6 +252,8 @@ import {
   TimetableVersionsController,
 } from './timetables/timetables.js';
 import { ExamsService } from './exams/exams.js';
+import { ExamGradingController } from './exam-grading/exam-grading.controller.js';
+import { ExamGradingService } from './exam-grading/exam-grading.js';
 import {
   AssessmentPlansController,
   ExamMatricesController,
@@ -549,6 +551,7 @@ export class ApplicationModule {
         ExamMatricesController,
         AssessmentPlansController,
         ExamsController,
+        ExamGradingController,
         ClassLogsController,
         PeriodAttendanceController,
         ChildPeriodAttendanceController,
@@ -795,6 +798,7 @@ export class ApplicationModule {
         ScoresService,
         TimetablesService,
         ExamsService,
+        ExamGradingService,
         ClassLogsService,
         SeatingService,
         TimetableGeneratorService,

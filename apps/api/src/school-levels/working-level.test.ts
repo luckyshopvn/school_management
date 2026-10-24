@@ -61,6 +61,9 @@ const SECONDARY_ONLY_PATHS = [
   '/exam-matrices',
   '/assessment-plans',
   '/exams',
+  // Chấm bài kiểm tra, báo cáo (DT-21 phần 22g2)
+  '/exam-grading',
+  '/exam-reports',
   // Sơ đồ chỗ ngồi (DT-21 phần 21d)
   '/seating-charts',
 ];

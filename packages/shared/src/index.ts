@@ -287,6 +287,8 @@ export const PERMISSION_CODES = {
   questionAuthor: 'P02.question.author',
   examReview: 'P02.exam.review',
   examManage: 'P02.exam.manage',
+  // Chấm bài kiểm tra (DT-21 phần 22g2)
+  examGrade: 'P02.exam.grade',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -631,6 +633,9 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/exams',
   // Sơ đồ chỗ ngồi (DT-21 phần 21d)
   '/seating-charts',
+  // Chấm bài kiểm tra, báo cáo (DT-21 phần 22g2)
+  '/exam-grading',
+  '/exam-reports',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];

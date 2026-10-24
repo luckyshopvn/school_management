@@ -220,11 +220,11 @@ test('CT-15b-10: 3.3 Phân công phụ trách lớp: liệt kê, thêm mới, k�
   const staff = create.getByRole('region', { name: `Giáo viên lớp ${className}` });
   await staff.getByRole('combobox', { name: /^Giáo viên/ }).selectOption({ label: teacherName });
   await staff.getByRole('button', { name: 'Phân công' }).click();
+  // Lọc theo tên trước khi tìm dòng: lưới phân trang, các spec chạy trước có thể đẩy dòng mới sang trang sau
+  await grid.getByLabel('Tìm theo tên giáo viên').fill(teacherName);
   const assigned = grid.getByRole('row').filter({ hasText: teacherName });
   await expect(assigned).toContainText(className);
   await expect(assigned).toContainText('Điểm trường A1');
-
-  await grid.getByLabel('Tìm theo tên giáo viên').fill(teacherName);
   await expect(grid.getByRole('row').filter({ hasText: 'Mầm 1' })).toHaveCount(0);
   const header = await headerOf(page, grid, /^phan-cong-phu-trach-lop-.*\.xlsx$/);
   expect(header).toEqual(['STT', 'Giáo viên', 'Vai trò trong lớp', 'Môn dạy', 'Lớp', 'Khối', 'Đơn vị', 'Từ ngày']);
