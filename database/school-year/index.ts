@@ -81,6 +81,7 @@ import { migration as createStudentRecords } from './migrations/0081_create_stud
 import { migration as createTimetableGenerator } from './migrations/0082_create_timetable_generator.js';
 import { migration as createSecondaryFoundation } from './migrations/0084_create_secondary_foundation.js';
 import { migration as createScores } from './migrations/0087_create_scores.js';
+import { migration as widenAwardBasis } from './migrations/0089_widen_award_basis.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
@@ -166,4 +167,5 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0082_create_timetable_generator': createTimetableGenerator,
   '0084_create_secondary_foundation': createSecondaryFoundation,
   '0087_create_scores': createScores,
+  '0089_widen_award_basis': widenAwardBasis,
 };
