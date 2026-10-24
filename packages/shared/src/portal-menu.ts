@@ -186,6 +186,15 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         ]),
         ['TH', 'THCS', 'THPT'],
       ),
+      // Kiểm tra, đánh giá phần đề (DT-21 phần 22g1)
+      secondary(
+        group('8.', 'Kiểm tra, đánh giá', [
+          leaf('8.1.', 'Ngân hàng câu hỏi', '/question-bank'),
+          leaf('8.2.', 'Ma trận đề', '/exam-matrices'),
+          leaf('8.3.', 'Kế hoạch kiểm tra', '/assessment-plans'),
+          leaf('8.4.', 'Đề kiểm tra', '/exams'),
+        ]),
+      ),
     ],
   },
   {
