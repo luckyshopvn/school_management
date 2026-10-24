@@ -1,8 +1,8 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.113
-- Ngày cập nhật: 2026-10-24
+- Phiên bản: 1.114
+- Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -252,6 +252,10 @@ Ràng buộc duy nhất: `attendance_records` trên bộ đôi trẻ, ngày; `ab
 | conduct_settings (từ YCTD-159) | Cấu hình nề nếp của trường (một dòng) | id = 1, enabled (mặc định chưa bật), base_points (mặc định 100), updated_by_name, updated_at; chuyển sang năm học mới |
 | conduct_criteria (từ YCTD-159) | Tiêu chí nề nếp | id (giữ khi chuyển năm), code (duy nhất), name, kind (`plus`, `minus`), points (1 đến 100), school_level (mặc định TH), order_no, status |
 | conduct_entries (từ YCTD-159) | Điểm nề nếp đã ghi | id, class_id, criterion_id, entry_date, quantity, points (có dấu), note, reported_by (đội cờ đỏ), recorded_by, recorded_by_name, created_at |
+| class_log_settings (từ YCTD-171) | Quy tắc xếp loại tiết ở sổ đầu bài theo cấp (tệp năm học `0088`) | school_level (khóa chính, `TH`, `THCS`, `THPT`), rating_mode (`off`, `optional`, `required`), rating_labels (JSON A đến D), low_rating_comment, conduct_points (JSON A đến D hoặc trống), updated_by_name, updated_at; `class_logs` thêm group_no (0 là cả lớp, khoá duy nhất lớp, ngày, tiết, nhóm) |
+| seating_charts (từ YCTD-171) | Bản sơ đồ chỗ ngồi của lớp theo ngày áp dụng | id, class_id, subject_id (trống là cả lớp), effective_from, desk_columns, desk_rows, seats_per_desk, note, updated_by, updated_by_name; duy nhất theo lớp, môn, ngày áp dụng |
+| seating_assignments (từ YCTD-171) | Chỗ của học sinh trong bản sơ đồ | chart_id, child_id (khóa chính cùng chart_id), column_no, row_no, seat_no (duy nhất trong bản) |
+| red_star_members (từ YCTD-171) | Đội sao đỏ (học sinh không có tài khoản) | child_id (khóa chính), status, duty, updated_by_name, updated_at; `conduct_entries` thêm reporter_child_id (sao đỏ báo) |
 | assessment_levels (từ YCTD-161) | Mức đạt theo cấp, thang (tệp năm học `0079`) | id, school_level, scale (`subject`, `competency`), code, name, rank (1 là cao nhất; duy nhất theo cấp, thang) |
 | competency_items (từ YCTD-161) | Phẩm chất, năng lực theo cấp | id, school_level, group_code (`quality`, `general`, `specific`), code (duy nhất theo cấp), name, order_no, status |
 | assessment_periods (từ YCTD-161) | Kỳ đánh giá định kỳ | id, school_level, code, name, term_type, kind (`mid`, `end`), is_year_end, order_no, entry_deadline (trống là cuối học kỳ) |

@@ -119,6 +119,7 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/timetable-changes': anyOf('P02.class.manage', 'P02.view', 'P02.edit', 'P02.timetable.manage'),
   '/timetable-reports': anyOf('P02.class.manage', 'P02.view', 'P02.edit', 'P02.timetable.manage'),
   '/primary-reports': anyOf('P17.child-statistics.view', 'P17.report.emis'),
+  '/seating-charts': anyOf('P02.class.manage', 'P02.view', 'P02.edit', 'P02.seating.manage'),
   // Kiểm tra, đánh giá phần đề (DT-21 phần 22g1): người soạn câu hỏi, thẩm định, quản lý đề
   '/question-bank': anyOf('P02.question.author', 'P02.exam.review', 'P02.exam.manage'),
   '/exam-matrices': anyOf('P02.question.author', 'P02.exam.review', 'P02.exam.manage'),

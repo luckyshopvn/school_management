@@ -1,8 +1,8 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.54
-- Ngày cập nhật: 2026-10-24
+- Phiên bản: 0.55
+- Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
 ## Quy ước ghi nhật ký
@@ -13,6 +13,28 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-25 — DT-21 phần 21d: sổ đầu bài, điểm danh theo tiết THCS, THPT; sơ đồ chỗ ngồi; thi đua lớp, sao đỏ
+
+#### Công việc đã thực hiện
+
+- Đọc mục 12 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà sổ đầu bài 20d, nề nếp 20b, tiết nhóm và tổ hợp của 21a, 21b. Sổ đầu bài, nề nếp của DT-20 đã viết theo cấp nên phần này mở menu, thêm tiết nhóm, quy tắc theo cấp, không viết lại.
+- Cơ sở dữ liệu: tệp năm học `0088_create_secondary_class_records`, tệp định danh `0079_add_secondary_class_record_permissions`.
+- Máy chủ API: sổ đầu bài (tiết nhóm, quy tắc xếp loại, xuất tuần, sơ đồ trong chi tiết tiết); sơ đồ chỗ ngồi; nề nếp (tiêu chí mặc định THCS, THPT, đội sao đỏ, sao đỏ báo, điểm tiết).
+- Cổng quản trị: 7.6 (nhóm, xuất, khối quy tắc xếp loại tiết), 7.16 Sơ đồ chỗ ngồi, 4.9 (chọn cấp, thẻ Đội sao đỏ, sao đỏ báo, cột điểm tiết). Ứng dụng giáo viên: sổ đầu bài hiện nhóm, nhãn, quy tắc, sơ đồ.
+- Thêm quy tắc BR-192 đến BR-194, chức năng P02-76 đến P02-78, màn hình MH-300, phân quyền PQ-101, kịch bản CT-957 đến CT-962, tiêu chí AC-805 đến AC-808. Kết quả ngày 25/10/2026: kiểm thử đơn vị `apps/api/src/class-logs/secondary-class-records.test.ts` CT-21d-1 đến CT-21d-5 đạt 5/5; kiểm thử đơn vị các gói đã sửa trên máy (database 6/6, api 1052/1052) đạt, kiểm thử đang có không sửa kỳ vọng (thêm mục 7.16 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của THCS, THPT của CT-19c-1); e2e trên máy 02, 03, 06, 08, 58, 88, 91, 97, 99 đạt; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 21d của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.4. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: tiết nhóm ghi sổ riêng, điểm danh theo tổ hợp; quy tắc xếp loại tiết theo cấp ở cấu hình (Tiểu học giữ như cũ); sơ đồ chỗ ngồi theo lớp, tuỳ trường theo môn; sao đỏ không có tài khoản, giáo viên trực ghi thay, không chấm lớp mình; điểm tiết vào thi đua tuỳ cấp.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-171, `07_QUY_TAC_NGHIEP_VU.md` BR-192 đến BR-194, `08_VAI_TRO_NGUOI_DUNG.md` PQ-101, `10_YEU_CAU_CHUC_NANG.md` P02-76 đến P02-78, `11_TIEU_CHI_NGHIEM_THU.md` AC-805 đến AC-808, `14_DAC_TA_GIAO_DIEN.md` MH-300, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-957 đến CT-962, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.9. Phiên bản 0.123.0.
+
+#### Vấn đề tồn đọng
+
+- Khảo sát hệ thống của Sở cấp THCS, THPT để khớp biểu mẫu sổ đầu bài, số mục menu; sơ đồ chỗ ngồi theo tiết; tài khoản học sinh hạn chế cho sao đỏ nếu Eric yêu cầu.
 
 ### 2026-10-24 — DT-22 phần 22a: thư viện trường học
 

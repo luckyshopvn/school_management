@@ -1,8 +1,8 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.51
-- Ngày cập nhật: 2026-10-24
+- Phiên bản: 1.52
+- Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -94,6 +94,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.118.0 | DT-21 phần 21b: thời khoá biểu THCS, THPT (dùng chung ba cấp, tiết học nhóm, tiết đôi, phòng bộ môn, nhập Excel có nhóm) | YCTD-169 |
 | 0.119.0 | DT-22 phần 22e: hồ sơ bồi dưỡng giáo viên (khoá, đăng ký, kết quả, chứng nhận có mã tra cứu công khai, chứng chỉ, năng lực số) | YCTD-182 |
 | 0.122.0 | DT-22 phần 22a: thư viện trường học (danh mục, bản sao, thẻ bạn đọc, mượn trả, đặt trước, sách giáo khoa, kiểm kê, báo cáo theo chuẩn) | YCTD-181 |
+| 0.123.0 | DT-21 phần 21d: sổ đầu bài, điểm danh theo tiết THCS, THPT (tiết nhóm, quy tắc xếp loại theo cấp, xuất sổ tuần); sơ đồ chỗ ngồi; thi đua lớp, sao đỏ, điểm tiết | YCTD-171 |
 | 0.83.0 | DT-15 phần 15f3, các phân hệ Bếp – kho, mua hàng; Tương tác – truyền thông; Giảng dạy; Tuyển sinh, tuyển dụng; Báo cáo theo giao diện chung của Sở: tiêu đề đánh số theo menu, 32 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối; nghiệp vụ không đổi (YCTD-115) | 13, 21 | Đã có |
 | 0.81.0 | DT-15 phần 15f2, phân hệ Nhân sự – chấm công, lương theo giao diện chung của Sở: tiêu đề đánh số theo menu, 17 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối, hộp xác nhận xóa; nghiệp vụ không đổi (YCTD-113) | 13, 21 | Đã có |
 | 0.82.0 | DT-15 phần 15f1, phân hệ Tài chính – học phí theo giao diện chung của Sở: tiêu đề đánh số theo menu, 20 lưới dữ liệu chung, biểu mẫu Thêm mới theo khối, hộp xác nhận xóa; nghiệp vụ không đổi (YCTD-114) | 13, 21 | Đã có |

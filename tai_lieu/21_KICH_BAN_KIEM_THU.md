@@ -1,8 +1,8 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.86
-- Ngày cập nhật: 2026-10-24
+- Phiên bản: 1.87
+- Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -1006,6 +1006,12 @@ Ca CT-105 đến CT-550 lần lượt kiểm tra AC-149 đến AC-594. CT-534 đ
 | CT-954 | P02-75 | Báo cáo tổng hợp; chỉ tiêu chưa đặt ngưỡng; đặt ngưỡng 10; giáo viên xem báo cáo; loại xuất sai | Số học sinh đúng; chưa kết luận; Chưa đạt; 403; 400 | Kiểm thử tự động `apps/api/src/library/library.test.ts` CT-22a-7 đạt ngày 24/10/2026 | Đạt |
 | CT-955 | P02-71, P02-73 | Mở năm học mới | Phân loại giữ mã, đủ bản sao, ấn phẩm, thẻ, bản đang mượn, quy định mượn; số đăng ký chạy tiếp, không trùng | Kiểm thử tự động `apps/api/src/library/library.test.ts` CT-22a-8 đạt ngày 24/10/2026 | Đạt |
 | CT-956 | P02-71 đến P02-73 | Giao diện: bật Tiểu học; thêm ấn phẩm, hai bản sao; đồng bộ thẻ; cho học sinh mượn, nhận trả; mở báo cáo, thiết lập; ứng dụng giáo viên "Sách tôi đang mượn"; ứng dụng phụ huynh "Sách thư viện"; tắt Tiểu học | Thông báo đúng từng bước; học sinh có trong bảng bạn đọc; phụ huynh thấy con không mượn sách nào | Kiểm thử giao diện `tests/e2e/120-library.spec.ts` CT-22a-9 đạt ngày 24/10/2026 | Đạt |
+| CT-957 | P02-76 đến P02-78 | Quy tắc xếp loại; nhóm của tiết; quy tắc sai; xếp theo tên, xoay vòng, lỗi chỗ; tiêu chí mặc định; điểm tiết; menu theo cấp | Lỗi đúng theo quy tắc; nhóm 0, 2, từ chối 10; 400; chỗ, dãy, bàn đúng, 2 lỗi; tiền tố THPT; 10A 100, 10B 95; menu THCS, THPT có 7.6, 7.7, 4.9, 7.16, Tiểu học không có 7.16, Mầm non không có | Kiểm thử đơn vị CT-21d-1 đạt ngày 25/10/2026 | Đạt |
+| CT-958 | P02-76 | Tiết nhóm Vật lí, Địa lí cùng tiết 2 | Danh sách chỉ học sinh tổ hợp tự nhiên; hai sổ riêng; giáo viên Vật lí ghi nhóm 2: 403; tuần có 1/0, 2/1, 2/2 | Kiểm thử đơn vị CT-21d-2 đạt ngày 25/10/2026 | Đạt |
+| CT-959 | P02-76 | Tiết C không nhận xét; ký chưa xếp loại; sửa quy tắc; xuất tuần | 422 kèm lý do; ký được sau khi bổ sung; giáo viên 403, Ban Giám hiệu 200, Tiểu học giữ; tệp có nhật ký xuất | Kiểm thử đơn vị CT-21d-3 đạt ngày 25/10/2026 | Đạt |
+| CT-960 | P02-77 | Lập, xoay vòng, trùng ngày, học sinh lớp khác, xem tiết, in | 403 giáo viên bộ môn; theo tên; xoay dãy; 422; 400; bản cũ cho ngày trước; PDF | Kiểm thử đơn vị CT-21d-4 đạt ngày 25/10/2026 | Đạt |
+| CT-961 | P02-78 | Sao đỏ: thêm, ghi lớp khác, lớp mình, người ngoài đội, ngừng; xếp hạng | 201; 422; 422; 422 sau ngừng; 10A điểm tiết 2, điểm 101 | Kiểm thử đơn vị CT-21d-5 đạt ngày 25/10/2026 | Đạt |
+| CT-962 | P02-76 đến P02-78 | Giao diện: sơ đồ theo tên, đổi chỗ, lưu, in; giáo viên ký tiết phải xếp loại, C phải nhận xét, thấy sơ đồ; tiết nhóm chỉ học sinh của nhóm; sổ tuần có nhóm, xuất Excel; tiêu chí, sao đỏ, ghi điểm, xếp hạng | Đúng như mô tả; điểm lớp 97, điểm tiết -2 | Kiểm thử giao diện `tests/e2e/99-secondary-class-records.spec.ts` CT-21d-6 đạt ngày 25/10/2026 | Đạt |
 | CT-870 | P02-49 | Kết quả hoàn thành với các bộ kết quả cuối năm, khối cuối cấp, đánh giá bổ sung | Lên lớp, hoàn thành cấp học, đang rèn luyện, ở lại lớp | Kiểm thử đơn vị CT-20e-1 đạt ngày 24/10/2026 | Đạt |
 | CT-871 | P02-48 | Nạp danh hiệu; đề nghị trước khoá; sai căn cứ; giáo viên khác; trùng; thiếu thành tích; duyệt; giấy khen; tra cứu | 403 rồi 3, 0; 422; 422; 403; 422; 400; mã 12 kí tự; PDF cho phụ huynh, 403 phụ huynh khác; tìm thấy | Kiểm thử đơn vị CT-20e-2 đạt ngày 24/10/2026 | Đạt |
 | CT-872 | P02-49 | Gợi ý lớp 4; học sinh hoàn thành có rèn luyện; rèn luyện trong hè; kiểm tra lại chưa đạt, đạt; lớp 5 | Khối sau K5; 400; đang rèn luyện ở K4; ở lại lớp; lên K5; hoàn thành cấp học | Kiểm thử đơn vị CT-20e-3 đạt ngày 24/10/2026 | Đạt |

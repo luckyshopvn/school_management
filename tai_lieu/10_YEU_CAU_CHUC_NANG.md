@@ -1,8 +1,8 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.90
-- Ngày cập nhật: 2026-10-24
+- Phiên bản: 1.91
+- Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -138,6 +138,9 @@
 | P02-73 | Mượn, trả, gia hạn, đặt trước, nhắc quá hạn (YCTD-181) | `P02.library.manage`; cán bộ xem sách mình mượn; phụ huynh xem sách của con | Số thẻ, mã bản sao, lớp (mượn cho lớp), tình trạng khi trả | Kiểm tra quy định; tính phạt trễ hạn; giữ bản cho người đặt trước; nhắc quá hạn qua thông báo | Lượt mượn, lượt đặt trước, thông báo | BR-189, BR-190 |
 | P02-74 | Phát và thu sách giáo khoa (YCTD-181) | `P02.library.manage` | Bộ sách theo khối; lớp | Phát cho cả lớp, báo đầu sách thiếu; thu hàng loạt kèm tình trạng | Lượt mượn loại sách giáo khoa | BR-191 |
 | P02-75 | Kiểm kê, báo cáo, thiết lập thư viện (YCTD-181) | `P02.library.manage` | Đợt kiểm kê, mã quét; kỳ báo cáo; quy định mượn, cấp có học sinh mượn, ngưỡng chỉ tiêu | Đối chiếu thiếu, thừa, hỏng; xử lý bản thiếu; chỉ tiêu theo chuẩn; xuất Excel, PDF | Biên bản kiểm kê, báo cáo thư viện | BR-191 |
+| P02-76 | Sổ đầu bài, điểm danh theo tiết THCS, THPT: tiết nhóm, quy tắc xếp loại tiết theo cấp, xuất sổ tuần (7.6., 7.7., ứng dụng giáo viên, YCTD-171) | Ghi, ký: giáo viên của tiết, nhóm; quy tắc: `P02.class-log.settings`; xem, xuất: như xem sổ đầu bài | Tiết, nhóm, tên bài, nhận xét, xếp loại, điểm danh; quy tắc của cấp | Sổ tuần theo nhóm, tệp Excel, PDF | 7.6 Sổ đầu bài; ứng dụng giáo viên Sổ đầu bài | BR-192 |
+| P02-77 | Sơ đồ chỗ ngồi theo lớp (7.16., YCTD-171) | Sửa: chủ nhiệm lớp, `P02.seating.manage`; xem: như xem sổ đầu bài | Ngày áp dụng, số dãy, bàn, chỗ, môn (tuỳ chọn), cách xếp, chỗ của từng học sinh | Sơ đồ đang dùng, tệp PDF, Excel | 7.16 Sơ đồ chỗ ngồi; chi tiết tiết ở 7.6, ứng dụng giáo viên | BR-193 |
+| P02-78 | Thi đua lớp, sao đỏ THCS, THPT (4.9., YCTD-171) | Đội sao đỏ: `P02.conduct.manage`; ghi điểm: `P02.conduct.record` | Cấp; học sinh, nhiệm vụ; sao đỏ báo | Đội sao đỏ, dòng nề nếp có sao đỏ báo, xếp hạng có điểm tiết | 4.9 Nề nếp, thi đua lớp | BR-194 |
 | P02-50 | Học bạ số (YCTD-163) | Lập, nhận xét: giáo viên chủ nhiệm; xác nhận, kí, mở lại: Hiệu trưởng; phụ huynh xem bản đã kí | Lớp; nhận xét; lý do mở lại | Học bạ PDF đã kí nội bộ | 7.8 Học bạ; Học bạ ở ứng dụng phụ huynh | BR-177 |
 | P02-51 | Xếp thời khoá biểu tự động (7.9., YCTD-164) | `P02.timetable.manage` | Cấp; mức quan trọng, giới hạn thời gian, số phương án; quy tắc môn; tiết giáo viên bận | Kiểm tra dữ liệu trước khi xếp; đẩy lần xếp cho tiến trình chạy nền; theo dõi tiến độ, huỷ; lưu phương án | Các phương án có điểm phạt, vi phạm; xem trước theo lớp; bản nháp nguồn máy xếp | BR-178 |
 | P02-52 | Chỉnh tay có kiểm tra ngay (7.4., YCTD-164) | `P02.timetable.manage` | Các ô đang sửa của lớp trong bản nháp | Tính xung đột của bản nếu ghi các ô đó, không ghi | Ô dính xung đột cứng; danh sách xung đột của lớp | BR-178, BR-170 |
