@@ -269,7 +269,7 @@ export class TimetablesService {
     return after;
   }
 
-  private async schoolDays(level: SchoolLevelCode): Promise<number[]> {
+  async schoolDays(level: SchoolLevelCode): Promise<number[]> {
     const current = await this.currentSchoolYear.require();
     const levelDays = await this.databases.system
       .selectFrom('academic_year_level_settings')
@@ -308,11 +308,11 @@ export class TimetablesService {
     return versions.map((version) => ({ ...version, is_current: applying.get(version.school_level) === version.id }));
   }
 
-  private today(): string {
+  today(): string {
     return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(this.clock.now());
   }
 
-  private async findVersion(database: Executor, versionId: string) {
+  async findVersion(database: Executor, versionId: string) {
     const version = await database
       .selectFrom('timetable_versions')
       .select(VERSION_COLUMNS)
@@ -324,7 +324,7 @@ export class TimetablesService {
     return version;
   }
 
-  private assertDraft(version: { status: string }) {
+  assertDraft(version: { status: string }) {
     if (version.status !== 'draft') {
       throw ruleViolationError(TIMETABLE_RULE_CODE, 'Bản đã ban hành chỉ đọc; tạo bản nháp mới chép từ bản này để sửa');
     }
@@ -480,7 +480,7 @@ export class TimetablesService {
   }
 
   // Giáo viên của môn ở lớp theo phân công giảng dạy theo môn (20a) đang hiệu lực
-  private async assignedTeachers(database: Executor, classIds: string[]) {
+  async assignedTeachers(database: Executor, classIds: string[]) {
     if (classIds.length === 0) {
       return new Map<string, { staff_user_id: string; staff_name: string }>();
     }
@@ -583,9 +583,9 @@ export class TimetablesService {
     return this.conflictsOf(database, version.id, version.school_level);
   }
 
-  private async conflictsOf(database: Executor, versionId: string, level: SchoolLevelCode) {
-    const lessons = await this.lessons(database, [versionId]);
-    const classIds = [...new Set(lessons.map((lesson) => lesson.class_id))];
+  // Số tiết mỗi tuần theo chương trình của khối lớp: lớp → môn → tên môn, số tiết. Dùng cho kiểm tra xung đột và máy xếp
+  // (22c2)
+  async plannedSubjects(database: Executor, classIds: string[], level: SchoolLevelCode) {
     const classes = classIds.length
       ? await database
           .selectFrom('classes')
@@ -628,8 +628,17 @@ export class TimetablesService {
         ),
       );
     }
-    const assigned = await this.assignedTeachers(database, classIds);
-    const inputs: TimetableLessonInput[] = lessons.map((lesson) => ({
+    return planned;
+  }
+
+  // Xung đột của một bản; `replace` thay tiết của một lớp bằng các ô đang sửa (chưa ghi) để kiểm tra ngay khi chỉnh tay (22c2)
+  async conflictsOf(
+    database: Executor,
+    versionId: string,
+    level: SchoolLevelCode,
+    replace?: { classId: string; cells: LessonCellInput[] },
+  ) {
+    const toInput = (lesson: TimetableLessonInput): TimetableLessonInput => ({
       class_id: lesson.class_id,
       class_name: lesson.class_name,
       weekday: lesson.weekday,
@@ -640,13 +649,66 @@ export class TimetablesService {
       teacher_name: lesson.teacher_name,
       room_id: lesson.room_id,
       room_name: lesson.room_name,
-    }));
+    });
+    let inputs = (await this.lessons(database, [versionId])).map(toInput);
+    if (replace) {
+      const classRow = await database
+        .selectFrom('classes')
+        .select(['id', 'name'])
+        .where('id', '=', replace.classId)
+        .executeTakeFirst();
+      if (!classRow) {
+        throw notFoundError('Không tìm thấy lớp', 'class');
+      }
+      const subjectIds = [...new Set(replace.cells.map((cell) => cell.subject_id))];
+      const roomIds = [...new Set(replace.cells.map((cell) => cell.room_id).filter((id): id is string => !!id))];
+      const [subjects, rooms, teachers] = await Promise.all([
+        subjectIds.length
+          ? database.selectFrom('subjects').select(['id', 'name']).where('id', 'in', subjectIds).execute()
+          : [],
+        roomIds.length ? database.selectFrom('rooms').select(['id', 'name']).where('id', 'in', roomIds).execute() : [],
+        this.assignedTeachers(database, [replace.classId]),
+      ]);
+      inputs = [
+        ...inputs.filter((lesson) => lesson.class_id !== replace.classId),
+        ...replace.cells.map((cell) => {
+          const teacher = teachers.get(`${replace.classId}:${cell.subject_id}`);
+          return {
+            class_id: replace.classId,
+            class_name: classRow.name,
+            weekday: cell.weekday,
+            period_no: cell.period_no,
+            subject_id: cell.subject_id,
+            subject_name: subjects.find((subject) => subject.id === cell.subject_id)?.name ?? '',
+            teacher_user_id: teacher?.staff_user_id ?? null,
+            teacher_name: teacher?.staff_name ?? null,
+            room_id: cell.room_id,
+            room_name: rooms.find((room) => room.id === cell.room_id)?.name ?? null,
+          };
+        }),
+      ];
+    }
+    const classIds = [...new Set(inputs.map((lesson) => lesson.class_id))];
+    const planned = await this.plannedSubjects(database, classIds, level);
+    const assigned = await this.assignedTeachers(database, classIds);
+    const busy = await database
+      .selectFrom('timetable_teacher_busy')
+      .select(['teacher_user_id', 'weekday', 'period_no'])
+      .execute();
     return findTimetableConflicts(inputs, {
       periods: (await this.periodSlots(level)).map((slot) => slot.period_no),
       school_days: await this.schoolDays(level),
       planned,
       assigned: new Map([...assigned].map(([key, value]) => [key, value.staff_user_id])),
+      busy: new Set(busy.map((row) => `${row.teacher_user_id}:${row.weekday}:${row.period_no}`)),
     });
+  }
+
+  // Kiểm tra ngay khi chỉnh tay (22c2): xung đột của bản nếu tiết của lớp là các ô đang sửa, chưa ghi
+  async checkClassLessons(versionId: string, classId: string, cells: LessonCellInput[]) {
+    const { database } = await this.currentSchoolYear.require();
+    const version = await this.findVersion(database, versionId);
+    return this.conflictsOf(database, versionId, version.school_level, { classId, cells });
   }
 
   async publish(currentUser: CurrentUser, versionId: string, origin: ChangeOrigin) {
@@ -1044,6 +1106,18 @@ export class TimetableVersionsController {
       parseLessonCells(body),
       originOf(request, currentUser),
     );
+  }
+
+  // Kiểm tra ngay khi chỉnh tay (22c2): xung đột nếu ghi các ô đang sửa của lớp; không ghi gì
+  @Post(':id/classes/:classId/check')
+  @HttpCode(200)
+  @RequirePermission(MANAGE)
+  checkClassLessons(
+    @Param('id', uuidParameter('Mã bản thời khoá biểu không hợp lệ')) versionId: string,
+    @Param('classId', uuidParameter('Mã lớp không hợp lệ')) classId: string,
+    @Body() body: RequestBody,
+  ) {
+    return this.timetables.checkClassLessons(versionId, classId, parseLessonCells(body));
   }
 
   @Get(':id/conflicts')

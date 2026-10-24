@@ -105,6 +105,11 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   // Sổ đầu bài, chuyên cần theo tiết (DT-20 phần 20d): ai xem được lớp đều xem; ký sổ theo tuần cần P02.class-log.review
   '/class-logs': anyOf('P02.class.manage', 'P02.view', 'P02.edit', 'P02.class-log.review'),
   '/period-attendance': anyOf('P02.class.manage', 'P02.view', 'P02.edit', 'P02.class-log.review'),
+  '/learning-records': anyOf('P02.assessment.enter', 'P02.assessment.view', 'P02.student-record.approve'),
+  // Máy xếp chỉ người lập thời khoá biểu; dạy thay, đổi tiết, báo cáo ai xem được thời khoá biểu đều xem (DT-20 phần 22c2)
+  '/timetable-generator': anyOf('P02.timetable.manage'),
+  '/timetable-changes': anyOf('P02.class.manage', 'P02.view', 'P02.edit', 'P02.timetable.manage'),
+  '/timetable-reports': anyOf('P02.class.manage', 'P02.view', 'P02.edit', 'P02.timetable.manage'),
   // Khai báo tuần: ai xem được thiết lập thì xem, sửa cần quyền quản lý năm học như 2.1 Năm học (DT-16 phần 16e)
   '/school-weeks': anyOf('P01.view', 'P01.academic-year.manage'),
   '/staff': 'P07.staff.view',

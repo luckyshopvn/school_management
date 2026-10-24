@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.38
+- Phiên bản: 0.40
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,17 +16,42 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.112.0 – 2026-10-24
+### Phiên bản 0.114.0 – 2026-10-24
 
 - Phạm vi thay đổi: DT-22 phần 22a, thư viện trường học (YCTD-181).
 - Chức năng mới: phân hệ "Thư viện" (danh mục ấn phẩm, bản sao có số đăng ký cá biệt và tem mã QR, thanh lý, tệp tài liệu số, sổ đăng ký cá biệt; thẻ bạn đọc cho cán bộ và học sinh; mượn, trả, gia hạn, báo mất, phạt trễ hạn, nhắc quá hạn, đặt trước; phát và thu sách giáo khoa theo bộ sách của khối; kiểm kê và xử lý bản thiếu; báo cáo, chỉ tiêu theo chuẩn thư viện có ngưỡng cấu hình; thiết lập quy định mượn); ứng dụng giáo viên "Sách tôi đang mượn", ứng dụng phụ huynh "Sách thư viện".
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp năm học `0100_create_library` (15 bảng `library_*`); tệp định danh `0090_add_library_permissions`; chuyển năm học chép kho thư viện sang năm mới.
 - Thay đổi API: `/library/*` (xem `17_DAC_TA_API.md`).
-- Kiểm thử: kịch bản CT-870 đến CT-879. Kết quả ngày 24/10/2026: @@KQ@@
+- Kiểm thử: kịch bản CT-891 đến CT-900. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/library/library.test.ts` CT-22a-1 đến CT-22a-8 đạt 8/8; trên máy đã chạy kiểm thử đơn vị các gói sửa (thư viện, số phân hệ `system-admin-so`, đường dẫn nhanh, cấp học, chuyển năm học) đạt 59/59 và, trước khi gộp 20d, 20e, 22c2, kiểm thử đơn vị toàn bộ kho mã đạt; kiểm thử giao diện chạy trên máy: 02, 03, 58 (số phân hệ 20/20) và `tests/e2e/120-library.spec.ts` (CT-22a-9) đạt 9/9; kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
 - Rủi ro: chỉ tiêu theo chuẩn thư viện chưa có ngưỡng mặc định vì chưa đọc văn bản gốc, trường tự nhập; không có thay đổi dữ liệu cũ.
 - Khả năng tương thích: không đổi bảng `library_items`, `library_albums` (kho nội dung Mầm non) và `asset_loans` (mượn thiết bị); trường chỉ có Mầm non chỉ có cán bộ mượn sách.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 22a; chạy phần quay lui của tệp năm học `0100`, định danh `0090`.
+
+### Phiên bản 0.113.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-20 phần 22c2, thời khoá biểu phần máy xếp (YCTD-164).
+- Chức năng mới: máy xếp chạy nền có giới hạn thời gian, nhiều phương án, mức quan trọng của ràng buộc chỉnh được, quy tắc môn, tiết giáo viên báo bận; phương án thành bản nháp; chỉnh tay có kiểm tra ngay; dạy thay, đổi tiết theo ngày; báo cáo tiết dạy, dùng phòng; mã QR và trang tra cứu công khai.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0082_create_timetable_generator`.
+- Thay đổi API: `/timetable-generator/…`, `/timetable-generations/…`, `/timetable-versions/{id}/classes/{classId}/check`, `/timetable-changes/…`, `/timetable-reports/…`, `/timetable-lookup-codes/…`, `/public/timetable-lookup/{code}`.
+- Triển khai: ảnh Docker mới `worker` và dịch vụ `worker` (chỉ nối Redis); máy chủ API thêm biến `REDIS_URL`.
+- Kiểm thử: kịch bản CT-877 đến CT-890. Kết quả ngày 24/10/2026: kiểm thử đơn vị máy xếp `packages/server/src/timetable-solver.test.ts` CT-22c2-1 đến CT-22c2-6 đạt 6/6, tiến trình chạy nền `apps/worker/src/timetable-generation.test.ts` CT-22c2-7 đạt, máy chủ API `apps/api/src/timetables/timetable-generator.test.ts` CT-22c2-8 đến CT-22c2-13 đạt 6/6; kiểm thử đơn vị toàn bộ kho mã 1067/1067 trước khi gộp 20d, 20e (hai ca chạy lại riêng: `leave.test.ts` lỗi hết bộ nhớ của máy, CT-22c2-12 sửa cách chọn cặp đổi tiết); sau khi gộp 20d, 20e chạy lại toàn kho …; kiểm thử giao diện `tests/e2e/93-timetable-generator.spec.ts` (CT-22c2-14) đạt; toàn bộ kiểm thử giao diện 163/163 trước khi gộp 20d, 20e; sau khi gộp 20d đạt 163/164, ca hỏng 04-accounts do cơ sở dữ liệu định danh riêng của lần chạy trước còn tài khoản trùng tên, không liên quan 22c2; sau khi gộp 20e …; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: máy xếp chạy lâu ở trường lớn; đã giới hạn thời gian và chạy ở tiến trình riêng.
+- Khả năng tương thích: trường chỉ có Mầm non không đổi hành vi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 22c2; chạy phần quay lui của tệp năm học `0082`; bỏ dịch vụ `worker`.
+
+### Phiên bản 0.112.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-20 phần 20e, học bạ số, khen thưởng cuối năm, hoàn thành chương trình, lên lớp (YCTD-163).
+- Chức năng mới: danh hiệu khen thưởng học sinh cấu hình được, đề nghị, duyệt, giấy khen có mã tra cứu; hoàn thành chương trình lớp học, chương trình tiểu học, rèn luyện trong hè, kiểm tra lại, ở lại lớp; học bạ số lập từ kết quả đã khoá, Hiệu trưởng xác nhận và kí nội bộ; phụ huynh xem học bạ đã kí, khen thưởng; kết chuyển học bạ, danh hiệu sang năm học mới.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: tệp năm học `0081_create_student_records`; tệp định danh `0072_add_student_record_permissions`.
+- Thay đổi API: `/learning-records/award-titles` (`/defaults`, `/{id}`); `/learning-records/classes/{id}/awards`, `/completion`, `/learning-records`, `/learning-records/prepare`; `/learning-records/awards/{id}/decide`, `/certificate`; `/learning-records/learning-records/{id}`, `/sign`, `/reopen`, `/file`; `/learning-records/children/{id}`; `/public/student-awards/verify`.
+- Kiểm thử: kịch bản CT-870 đến CT-876. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/learning-records/learning-records.test.ts` CT-20e-1 đến CT-20e-6 đạt 6/6 (gồm mở năm học mới để kiểm kết chuyển); kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.8 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của Tiểu học của CT-19c-1); kiểm thử đơn vị toàn bộ kho mã đạt 1075/1075; kiểm thử giao diện `tests/e2e/92-learning-records.spec.ts` (CT-20e-7) đạt; toàn bộ kiểm thử giao diện ở máy trước khi gộp 20d đạt 161/163 (spec 92 mới đạt; spec 59 chập chờn; spec 89 thời khoá biểu quá thời gian ở máy, đạt ở CI của 20d), CI chạy lại toàn bộ; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: học bạ là bản chốt lúc lập.
+- Khả năng tương thích: không đổi điểm cuối cũ; trường chỉ có Mầm non thấy như cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 20e; chạy phần quay lui của tệp năm học `0081` và tệp định danh `0072`.
 
 ### Phiên bản 0.111.0 – 2026-10-24
 

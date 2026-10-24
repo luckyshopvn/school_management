@@ -20,7 +20,8 @@ export type LevelFeature =
   // Sách thư viện con đang mượn (DT-22 phần 22a): con học cấp có học sinh mượn sách
   | 'library_loans'
   // Sổ đầu bài, điểm danh theo tiết (DT-20 phần 20d): lớp, con học cấp phổ thông
-  | 'period_attendance';
+  | 'period_attendance'
+  | 'learning_record';
 
 export const LEVEL_FEATURES: Record<LevelFeature, readonly SchoolLevelCode[]> = {
   daily_attendance: ['MN'],
@@ -36,6 +37,8 @@ export const LEVEL_FEATURES: Record<LevelFeature, readonly SchoolLevelCode[]> = 
   student_assessment: ['TH'],
   library_loans: ['TH', 'THCS', 'THPT'],
   period_attendance: ['TH', 'THCS', 'THPT'],
+  // Học bạ số, khen thưởng đã duyệt (DT-20 phần 20e): phụ huynh xem, tải học bạ đã kí của con
+  learning_record: ['TH'],
 };
 
 // Cấp của con hoặc lớp như máy chủ trả; trống (con chưa xếp lớp, máy chủ cũ) là Mầm non như mọi chỗ đọc cấp khác
