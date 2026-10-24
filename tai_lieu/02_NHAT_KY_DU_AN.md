@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.47
+- Phiên bản: 0.48
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -35,6 +35,19 @@
 #### Vấn đề tồn đọng
 
 - Khảo sát hệ thống của Sở cấp Tiểu học để sửa biểu khung cho khớp (tài liệu 31); thêm biểu mới từ giao diện.
+
+### 2026-10-24 — Sửa lỗi màn hình bán trú của ứng dụng giáo viên (DT-20 phần 20b, YCTD-159)
+
+#### Công việc đã thực hiện
+
+- Kiểm thử giao diện `tests/e2e/88-boarding-conduct.spec.ts` (CT-20b-7) lỗi trên CI của nhiều PR vào thứ Bảy: màn hình Bán trú của ứng dụng giáo viên hiện "2 học sinh đăng ký bán trú; 2 suất" thay cho "1 suất (đã chốt)". Tái hiện ở máy ngày thứ Bảy 2026-10-24, 19:25.
+- Nguyên nhân: màn hình mở ra tải danh sách ăn của hôm nay, kịch bản đổi sang ngày học gần nhất (thứ Sáu) ngay sau đó; kết quả của lần tải hôm nay về sau ghi đè danh sách của thứ Sáu. Ngày thường hôm nay trùng ngày học nên không lộ. Đây là lỗi của màn hình (người dùng đổi ngày nhanh cũng gặp), không chỉ của kịch bản.
+- Sửa `apps/teacher/src/screens/BoardingScreen.tsx`: chỉ nhận kết quả của lần tải mới nhất, bỏ kết quả cũ về sau. Kịch bản không đổi.
+- Kiểm thử ở máy ngày thứ Bảy, 19:35: các kịch bản 02, 03, 06, 08, 88 đạt 10/10; typecheck, eslint ứng dụng giáo viên đạt; e2e toàn bộ do CI chạy.
+
+#### Quyết định
+
+- Không thêm YCTD mới (sửa lỗi trong phạm vi YCTD-159). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
 
 ### 2026-10-24 — Sửa kiểm thử chập chờn CT-22c2-12 (dạy thay, đổi tiết)
 
