@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
-- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số).
-- Phiên bản: 1.44
+- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số).
+- Phiên bản: 1.45
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -714,6 +714,195 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 | 22c2 | 4 | Chưa làm, chờ 22c1 |
 | 20f | 4 | Chưa làm, chờ 20c, 20e |
 
+
+## 12. DT-21: THCS và THPT (kèm 22g kiểm tra, đánh giá)
+
+### 12.1 Căn cứ và mục tiêu
+
+1. Lộ trình Eric chốt ngày 2026-10-19: DT-18 → DT-19 (nền đa cấp học) → DT-20 (Tiểu học, kèm 22c) → DT-21 (THCS, THPT, kèm 22g) → DT-22 → DT-SaaS. Phạm vi DT-21 theo kế hoạch DT-18: sổ điểm theo Thông tư 22/2021/TT-BGDĐT (đánh giá thường xuyên, giữa kỳ, cuối kỳ; nhận xét và điểm số; xếp loại học lực, rèn luyện); học bạ số; thời khoá biểu môn học; sổ đầu bài; thi đua lớp và sao đỏ; sơ đồ chỗ ngồi; tổ hợp môn (THPT); xét tốt nghiệp và hồ sơ thi; EMIS THCS và THPT. Phần 22g (kiểm tra, đánh giá) thuộc kế hoạch DT-22, xếp vào DT-21 vì nối vào sổ điểm: kế hoạch kiểm tra và phân công ra đề; ma trận và bảng đặc tả; ngân hàng câu hỏi; đề nhiều mã, trộn đề; chấm trắc nghiệm theo phiếu; khoá đề, khoá điểm; báo cáo theo câu, chủ đề, mức nhận thức.
+2. Mục tiêu: trường bật cấp THCS (khối 6 đến 9) hoặc THPT (khối 10 đến 12) dùng được School Management cho nghiệp vụ hằng ngày và cuối năm theo Chương trình giáo dục phổ thông 2018 và Thông tư 22/2021; trường chỉ có Mầm non hoặc Tiểu học không đổi gì.
+3. **Chưa khảo sát hệ thống của Sở cấp THCS, THPT:** Eric chưa có tài khoản trường THCS, THPT trên hệ thống của Sở. DT-21 làm theo văn bản quy phạm và nghiệp vụ chung; màn hình, cột, số mục menu, mẫu biểu EMIS, hồ sơ thi khớp Sở **khảo sát sau** (khi Eric có tài khoản), như đã làm với Mầm non ở DT-15, DT-16 và dự kiến với Tiểu học ở DT-20. Phần nào cần khớp Sở ghi rõ ở 12.4 và để chỗ đổi (danh mục, mẫu biểu cấu hình được) thay vì ghi cứng.
+4. Hiện trạng mã (đọc trên nhánh chính ngày 2026-10-24, sau khi 20a, 20b, 22c1, 20c đã gộp; 20d, 20e, 22c2, 20f của DT-20 đang làm hoặc chưa làm):
+   - **Nền DT-19 dùng lại:** `school_levels`, `SchoolLevelResolver`, tham số `school_level` (19a, 19c); khối `grade_levels` (khối mẫu K1 đến K12 đã có từ 19b, THCS K6 đến K9, THPT K10 đến K12), lớp theo khối, `curricula` mặc định mỗi cấp, học kỳ, tuần, ngày học theo cấp; menu `levels`, nhãn thuật ngữ theo cấp; `LEVEL_FEATURES` cho ứng dụng phụ huynh, giáo viên; biểu phí theo khối; trường liên cấp ở bản trình diễn và lệnh `level-check` (19f).
+   - **DT-20 đã gộp, dùng lại được ngay:** danh mục môn học và hoạt động `subjects`, số tiết theo khối `curriculum_subjects`, phân công giảng dạy theo môn `class_staff_assignments.subject_id`, môn tự chọn của học sinh (20a); nề nếp, thi đua lớp tuỳ trường (20b); khung giờ tiết `period_slots`, bản thời khoá biểu `timetable_versions`, `timetable_lessons`, nhập Excel, hàm `findTimetableConflicts`, ban hành, xem ở cổng, ứng dụng, website (22c1); đánh giá học sinh (20c, `apps/api/src/assessments`): cấu hình theo cấp (thang mức, kỳ đánh giá có hạn nhập theo lịch học kỳ của cấp), nhập theo phân công (giáo viên bộ môn, chủ nhiệm, người quản lý nhập thay), khoá số liệu theo kỳ và lớp, mở khoá từng lớp kèm lý do, nhật ký, phụ huynh xem kỳ đã khoá (`LEVEL_FEATURES.student_assessment`). Các bảng và hàm của 20a, 20b, 22c1 viết theo cấp, không riêng Tiểu học. 20c thì chỉ nhận lớp có kỳ đánh giá của cấp (lớp Mầm non bị từ chối), lưu mức đạt và điểm nguyên 1 đến 10 theo Thông tư 27/2020, nên không chứa được điểm hệ số của Thông tư 22/2021: 21c làm bảng điểm riêng và dùng lại cách phân quyền, hạn nhập, khoá, nhật ký của 20c, không sửa kỳ vọng của 20c.
+   - **DT-20 chưa gộp, DT-21 dựa vào khi gộp:** sổ đầu bài, điểm danh theo tiết (20d); học bạ, khen thưởng, lên lớp (20e); máy xếp, dạy thay (22c2); khung EMIS theo cấp (20f). DT-21 dùng lại khung (khoá số liệu, sổ đầu bài, học bạ, máy xếp, biểu EMIS); dùng lại khung khoá số liệu và phân quyền của 20c; chỗ DT-20 ghi riêng cho Thông tư 27/2020 thì DT-21 thêm bảng và quy tắc cho Thông tư 22/2021, không sửa kỳ vọng của Tiểu học.
+   - **Chưa có:** môn học, số tiết cho khối 6 đến 12; tổ hợp môn, nhóm môn lựa chọn; tổ bộ môn; sổ điểm (điểm thường xuyên, giữa kỳ, cuối kỳ, điểm trung bình môn, xếp loại); học bạ THCS, THPT; sơ đồ chỗ ngồi; sao đỏ; xét lên lớp, xét tốt nghiệp, hồ sơ thi; biểu EMIS THCS, THPT; toàn bộ 22g (kế hoạch kiểm tra, ngân hàng câu hỏi, đề, phiếu trả lời, báo cáo câu hỏi).
+
+### 12.2 Nguyên tắc
+
+- **Không đổi hành vi các cấp đã có:** chức năng mới gắn `levels: ['THCS', 'THPT']` ở menu và `LEVEL_FEATURES` ở ứng dụng; bảng mới có cột cấp hoặc gắn với lớp, khối có cấp. Toàn bộ e2e và kiểm thử đơn vị hiện có (kể cả Mầm non, Tiểu học) vẫn đạt không sửa kỳ vọng. Máy chủ chặn chức năng THCS, THPT ở lớp không thuộc hai cấp đó.
+- **THCS và THPT chung khung, khác danh mục:** môn, tổ hợp, quy tắc xét theo cấp lấy từ danh mục cấu hình theo cấp; mã cấp `THCS` và `THPT` giữ nguyên như 19a.
+- **Đọc cấp qua `SchoolLevelResolver`**; điểm cuối mới nhận tham số `school_level` dùng chung.
+- **Danh mục cấu hình được, có bộ mặc định:** môn học và số tiết, tổ hợp môn, hệ số điểm, số lần đánh giá thường xuyên, thang xếp loại, mẫu nhận xét, mẫu học bạ, tiêu chí thi đua, biểu EMIS nạp mặc định theo văn bản hiện hành, trường sửa được trong phạm vi văn bản cho phép; đổi văn bản hoặc khớp Sở thì sửa danh mục, không sửa mã. Mã môn, mã mức đánh giá, mã xếp loại cố định trong mã.
+- **Văn bản gốc trước phạm vi chi tiết:** mỗi phần đọc toàn văn văn bản căn cứ còn hiệu lực lúc làm (Thông tư 22/2021/TT-BGDĐT về đánh giá học sinh THCS, THPT; Chương trình giáo dục phổ thông 2018; Điều lệ trường trung học; quy chế xét công nhận tốt nghiệp THCS, thi tốt nghiệp THPT; hướng dẫn học bạ số, kiểm tra, đánh giá, ra đề hiện hành), ghi số hiệu, điều khoản vào YCTD của phần; chỗ kế hoạch này tóm tắt chỉ để chia phần. Văn bản có thay thế gần đây (quy chế thi, hệ số điểm, môn thi) kiểm lại trước khi nạp mặc định.
+- **Một nguồn sự thật cho tiết học và điểm:** thời khoá biểu (22c1, mở rộng ở 21b) là nguồn của sổ đầu bài và điểm danh theo tiết; sổ điểm (21c) là nguồn duy nhất của điểm; 22g chấm xong thì **chuyển điểm vào sổ điểm** qua một cửa (giáo viên xác nhận, khoá đề, khoá điểm), không có bảng điểm thứ hai; học bạ (21e) và xét tốt nghiệp (21f) đọc từ điểm đã khoá.
+- **Điểm là dữ liệu nhạy cảm:** quyền nhập theo phân công giảng dạy; sửa điểm sau khoá phải mở khoá có lý do, ghi nhật ký (ai, khi nào, giá trị cũ, giá trị mới); đề, ngân hàng câu hỏi chưa công bố chỉ người được giao và người có quyền xem; tệp đề lưu qua `storageKey`.
+- **Viết sẵn cho đa thuê bao:** không thêm biến `.env` riêng của trường; khóa Redis qua `cacheKey`, tệp qua `storageKey`; bảng mới thuộc cơ sở dữ liệu của trường.
+- **Dữ liệu thật:** không đưa dữ liệu thật của trường, học sinh, giáo viên, đề thi thật vào mã, dữ liệu mẫu, kiểm thử, tài liệu; dữ liệu mẫu THCS, THPT chỉ ở bản trình diễn (18h, 19f).
+- **Chạy trong trường:** chấm phiếu trắc nghiệm, trộn đề, máy xếp thời khoá biểu chạy nền ở `worker`, không gửi dữ liệu ra dịch vụ ngoài; ảnh phiếu chấm không lưu ngoài kho tệp của trường.
+
+### 12.3 Các phần
+
+Số migration giữ sẵn bắt đầu sau DT-20 (DT-20 giữ đến năm học 0083, hệ thống 0027, định danh 0074): năm học 0084, hệ thống 0028, định danh 0075. Phần nào không cần số đã giữ thì để trống, không cho phần khác dùng (kho mã đã bật `allowUnorderedMigrations`). YCTD-166 dành cho chính bản kế hoạch này; YCTD của các phần từ YCTD-167. Spec e2e từ `95-`. DT-20 còn thừa số giữ sẵn (ví dụ 20f để trống hệ thống 0027) thì không dồn sang DT-21.
+
+| Phần | Phạm vi | Đợt | Phụ thuộc | YCTD giữ sẵn | Migration giữ sẵn | e2e giữ sẵn |
+|---|---|---|---|---|---|---|
+| 21a | Nền THCS, THPT: môn học và số tiết khối 6 đến 12 (mở rộng 20a); tổ hợp môn và nhóm môn lựa chọn của THPT, học sinh đăng ký tổ hợp; tổ bộ môn; phân công giảng dạy dùng lại 20a; phân hệ, menu THCS, THPT (khung); ứng dụng | 1 | 20a (đã gộp) | YCTD-167 | Năm học 0084; định danh 0075 | 95 |
+| 22g1 | Kiểm tra, đánh giá, phần đề: kế hoạch kiểm tra và phân công ra đề; ma trận, bảng đặc tả; ngân hàng câu hỏi; tạo đề nhiều mã, trộn đề; khoá đề; xuất đề, đáp án | 1 | 20a (môn), 19b; không cần 21a | YCTD-168 | Năm học 0085; định danh 0076 | 96 |
+| 21b | Thời khoá biểu THCS, THPT: mở rộng 22c1, 22c2 cho môn khối 6 đến 12, tiết đôi, phòng bộ môn, lớp theo tổ hợp, học nhóm; máy xếp, dạy thay dùng lại 22c2 | 2 | 21a, 22c1 (đã gộp), 22c2 | YCTD-169 | Năm học 0086; định danh 0077 | 97 |
+| 21c | Sổ điểm theo Thông tư 22/2021: điểm thường xuyên, giữa kỳ, cuối kỳ, nhận xét; điểm trung bình môn, kỳ, năm; xếp loại học tập, rèn luyện; khoá điểm | 2 | 21a, 20c (đã gộp: khung khoá số liệu, phân quyền) | YCTD-170 | Năm học 0087; định danh 0078 | 98 |
+| 21d | Sổ đầu bài và điểm danh theo tiết cho THCS, THPT; sơ đồ chỗ ngồi; thi đua lớp, sao đỏ | 3 | 21b, 20d, 20b | YCTD-171 | Năm học 0088; định danh 0079 | 99 |
+| 21e | Học bạ số THCS, THPT; khen thưởng cuối năm; xét lên lớp, rèn luyện trong hè, kiểm tra lại; kí | 3 | 21c, 20e | YCTD-172 | Năm học 0089; định danh 0080 | 100 |
+| 22g2 | Kiểm tra, đánh giá, phần chấm: phiếu trả lời trắc nghiệm, chấm theo phiếu; nhập điểm bài tự luận; khoá điểm; chuyển điểm vào sổ điểm; báo cáo theo câu, chủ đề, mức nhận thức | 4 | 22g1, 21c | YCTD-173 | Năm học 0090; định danh 0081 | 101 |
+| 21f | Xét tốt nghiệp THCS, THPT và hồ sơ thi: danh sách đủ điều kiện, hồ sơ dự thi, đăng ký môn thi, phòng thi, biên bản, kết quả; công nhận tốt nghiệp, giấy chứng nhận; hồ sơ chuyển cấp | 4 | 21e | YCTD-174 | Năm học 0091; hệ thống 0029; định danh 0082 | 102 |
+| 21g | Báo cáo, thống kê THCS, THPT và EMIS THCS, THPT (khung biểu cấu hình được, khớp Sở sau khảo sát); tổng hợp kết quả học tập, rèn luyện theo lớp, khối, trường | 5 | 21c, 21e, 21f | YCTD-175 | Năm học 0092; hệ thống 0028; định danh 0083 | 103 |
+
+Đợt làm, mỗi lúc tối đa hai phiên:
+- Đợt 1: 21a và 22g1 (22g1 không cần tổ hợp môn; chỉ dùng môn của 20a và khối, lớp của DT-19). Bắt đầu được ngay vì 20a đã gộp.
+- Đợt 2: 21b và 21c. 21b bắt đầu khi 21a đã gộp; nếu 22c2 chưa gộp thì 21b làm phần khung và nhập Excel, phần máy xếp cho khối 6 đến 12 làm sau khi 22c2 gộp (ghi vào YCTD-169). 21c bắt đầu khi 21a đã gộp;
+- Đợt 3: 21d (khi 21b đã gộp) và 21e (khi 21c đã gộp).
+- Đợt 4: 22g2 (khi 22g1, 21c đã gộp) và 21f (khi 21e đã gộp).
+- Đợt 5: 21g (khi 21c, 21e, 21f đã gộp).
+
+Thứ tự gộp để đánh số tài liệu (phiên bản, CT, AC, BR, MH, PQ, mã chức năng) theo đợt; phần gộp sau đánh lại số tài liệu theo nhánh chính lúc gộp. YCTD, số migration, số e2e giữ sẵn ở bảng trên không đổi theo thứ tự gộp. Hệ thống 0028 giữ cho 21g (danh mục biểu EMIS) dù 21f gộp trước; hệ thống 0029 của 21f chỉ dùng khi cần danh mục kỳ thi, mẫu hồ sơ.
+
+### 12.4 Phạm vi chi tiết
+
+#### 21a. Nền THCS, THPT
+
+- **Môn học và số tiết** (năm học 0084, mở rộng `subjects`, `curriculum_subjects` của 20a): nạp mặc định theo Chương trình giáo dục phổ thông 2018 cho khối 6 đến 9 (môn bắt buộc, hoạt động trải nghiệm hướng nghiệp, nội dung giáo dục địa phương, môn tự chọn) và khối 10 đến 12 (môn bắt buộc, môn học lựa chọn, chuyên đề học tập, hoạt động giáo dục bắt buộc); loại môn: đánh giá bằng nhận xét hay bằng điểm số (khác Tiểu học, theo Thông tư 22/2021); số tiết mỗi tuần, số tiết cả năm theo khối (cần cho số lần đánh giá thường xuyên ở 21c). Thời lượng, tên môn đối chiếu văn bản gốc trước khi nạp.
+- **Tổ hợp môn (THPT):** nhóm môn lựa chọn (khoa học tự nhiên, khoa học xã hội, công nghệ và nghệ thuật), tổ hợp do trường xây dựng từ các nhóm theo quy định (cấu hình được); học sinh đăng ký tổ hợp khi vào lớp 10, đổi tổ hợp có duyệt; lớp gắn tổ hợp hoặc lớp có nhiều tổ hợp (học nhóm, xem 21b); danh sách học sinh theo tổ hợp, theo môn lựa chọn; kiểm tra số môn, chuyên đề theo khung chương trình `curricula`.
+- **Tổ bộ môn:** tổ chuyên môn theo môn (dùng `org_unit_levels`, danh mục phòng ban hiện có nếu hợp; thêm bảng tổ bộ môn nếu không), tổ trưởng, thành viên, số tiết định mức theo chức danh; liên kết với phân công giảng dạy (20a: tổng tiết giáo viên so với định mức).
+- **Phân công giảng dạy:** dùng lại màn hình, nhập Excel của 20a; thêm giáo viên bộ môn dạy nhiều lớp, nhiều khối; kiểm tra một môn của một lớp một giáo viên tại một thời điểm; lớp theo tổ hợp.
+- **Hồ sơ học sinh THCS, THPT:** dùng chung `children`; thêm trường riêng khi cần (tổ hợp đăng ký, diện ưu tiên, dân tộc, khuyết tật học hòa nhập, nội trú, học nghề, ngoại ngữ), mẫu nhập Excel theo cấp đã có ở 19d. Cột, nhãn khớp Sở sau khảo sát.
+- **Phân hệ, menu, ứng dụng:** nhóm menu THCS, THPT gắn `levels` (số mục đánh tạm, đánh lại khi khảo sát Sở); mã chức năng THCS, THPT thêm vào `LEVEL_FEATURES` khi phần tương ứng làm; quyền mới cho danh mục môn khối 6 đến 12, tổ hợp, tổ bộ môn (định danh 0075).
+
+#### 22g1. Kiểm tra, đánh giá: đề
+
+- **Kế hoạch kiểm tra:** kế hoạch theo học kỳ và khối (kiểm tra thường xuyên, giữa kỳ, cuối kỳ; môn, hình thức, thời gian, tuần), duyệt của tổ trưởng, Hiệu trưởng; **phân công ra đề**, thẩm định, hạn nộp; theo dõi tiến độ; lịch kiểm tra tập trung đối chiếu thời khoá biểu 22c1 để tránh trùng tiết ở mức nhắc việc, không tự xếp phòng thi (phòng thi thuộc 21f).
+- **Ma trận, bảng đặc tả:** ma trận đề (nội dung × mức nhận thức nhận biết, thông hiểu, vận dụng, vận dụng cao × dạng câu hỏi trắc nghiệm nhiều lựa chọn, đúng sai, trả lời ngắn, tự luận; số câu, điểm); bảng đặc tả; kiểm tra tổng điểm, tỉ lệ mức nhận thức khớp mẫu của văn bản hiện hành (mẫu cấu hình được vì mẫu theo môn, theo năm có thể đổi).
+- **Ngân hàng câu hỏi:** câu hỏi theo môn, khối, chủ đề (theo chương trình), mức nhận thức, dạng, đáp án, thang điểm, ảnh và công thức đơn giản, trạng thái (nháp, thẩm định, dùng được, ngừng dùng), người soạn, tổ trưởng duyệt; tìm, lọc, nhập từ tệp theo mẫu; thống kê số câu theo chủ đề, mức; lịch sử sử dụng của từng câu (nối báo cáo ở 22g2). Ngân hàng dùng được cho cả Tiểu học khi cần, nhưng DT-21 chỉ bật menu THCS, THPT.
+- **Tạo đề:** từ ma trận bốc câu theo yêu cầu (ngẫu nhiên có điều kiện, không trùng câu đã dùng gần đây theo cấu hình); **nhiều mã đề**, trộn thứ tự câu và đáp án có bảng đối chiếu mã; soạn tay thêm câu tự luận; **khoá đề** (đề đã khoá không sửa, mở khoá có lý do, ghi nhật ký); xuất PDF, Word, đáp án và hướng dẫn chấm; đề chưa công bố ẩn với người không được giao.
+- Quyền mới (định danh 0076).
+
+#### 21b. Thời khoá biểu THCS, THPT
+
+- **Mở rộng 22c1:** khung giờ tiết theo cấp THCS, THPT (sáng, chiều, số tiết, giờ; ngày học theo cấp); thời khoá biểu theo môn, khối 6 đến 12 dùng bảng `timetable_versions`, `timetable_lessons` đã có; nhập Excel mẫu lớp × thứ × tiết; hàm `findTimetableConflicts` dùng chung, thêm quy tắc: tiết đôi, môn thực hành cần phòng bộ môn, giáo viên dạy nhiều lớp, tổ bộ môn.
+- **Lớp theo tổ hợp, học nhóm (THPT):** một lớp có thể tách nhóm học môn lựa chọn khác nhau cùng tiết; ô thời khoá biểu gắn nhóm; học sinh thuộc nhóm theo đăng ký môn của 21a; giáo viên, phòng trùng tiết tính theo nhóm. Nếu hình dạng bảng của 22c1 chưa chứa nhóm thì thêm cột nhóm có giá trị mặc định (lớp nguyên), không đổi dữ liệu Tiểu học.
+- **Máy xếp, dạy thay, báo cáo, mã QR:** dùng lại 22c2; thêm ràng buộc cho THCS, THPT (tiết đôi, buổi, giáo viên dạy nhiều khối, nhóm); nếu 22c2 chưa gộp, 21b làm khung và nhập Excel trước, phần máy xếp làm sau khi 22c2 gộp (12.3).
+- Xem ở cổng quản trị, ứng dụng giáo viên, phụ huynh, website (18f); xuất Excel, PDF.
+
+#### 21c. Sổ điểm theo Thông tư 22/2021
+
+Phạm vi chốt sau khi đọc toàn văn Thông tư 22/2021/TT-BGDĐT; tóm tắt để chia phần (hệ số, số lần đánh giá, thang xếp loại kiểm lại với văn bản trước khi nạp mặc định):
+- **Cấu trúc điểm theo môn, kỳ:** đánh giá thường xuyên (số lần theo số tiết của môn cả năm), giữa kỳ, cuối kỳ; môn đánh giá bằng điểm (thang 10, hệ số theo loại điểm) và môn đánh giá bằng nhận xét (Đạt, Chưa đạt); nhận xét của giáo viên cho từng học sinh; điểm miễn, vắng thi, thi bù (cấu hình được).
+- **Tính điểm:** điểm trung bình môn học kỳ, điểm trung bình môn cả năm, điểm trung bình các môn học kỳ, cả năm (hàm thuần, kiểm thử bằng bảng ví dụ theo từng công thức của Thông tư; làm tròn theo văn bản); chỗ Thông tư cho phép trường quyết định (số lần đánh giá thường xuyên cao hơn mức tối thiểu) là cấu hình.
+- **Xếp loại:** kết quả học tập (Tốt, Khá, Đạt, Chưa đạt) và kết quả rèn luyện (Tốt, Khá, Đạt, Chưa đạt) theo kỳ và cả năm; máy gợi ý theo điều kiện của Thông tư (điều kiện theo điểm môn, số môn đạt, môn đánh giá bằng nhận xét), giáo viên chủ nhiệm xác nhận, rèn luyện do giáo viên chủ nhiệm nhập; danh hiệu học sinh Xuất sắc, Giỏi tính từ xếp loại đã khoá (nối 21e).
+- **Quyền nhập, khoá:** giáo viên bộ môn nhập điểm môn mình dạy ở lớp được phân công (20a); chủ nhiệm nhập rèn luyện, nhận xét chung; **khoá điểm** theo kỳ (Hiệu trưởng khoá, mở khoá có lý do, nhật ký, giá trị cũ và mới); hạn nhập theo lịch học kỳ của cấp (19b); nhập nhanh theo lớp, theo môn, nhập Excel mẫu lớp × môn × loại điểm, báo lỗi theo dòng.
+- **Xem và xuất:** sổ điểm lớp, môn; bảng điểm cá nhân; phụ huynh xem điểm, nhận xét, xếp loại của con ở ứng dụng (mã chức năng mới ở `LEVEL_FEATURES`); xuất Excel, PDF; thông báo khi giáo viên công bố điểm theo kỳ (tuỳ trường, cấu hình).
+- **Nguồn điểm:** mỗi điểm ghi nguồn (nhập tay, nhập Excel, từ 22g2); điểm bài kiểm tra tập trung do 22g2 chuyển vào đúng loại điểm sau khi giáo viên xác nhận.
+
+#### 21d. Sổ đầu bài, điểm danh theo tiết, sơ đồ chỗ ngồi, thi đua lớp, sao đỏ
+
+- **Sổ đầu bài và điểm danh theo tiết:** dùng lại khung 20d cho THCS, THPT (mỗi tiết theo thời khoá biểu đã ban hành sinh một dòng; tên bài, nhận xét tiết, xếp loại tiết, học sinh vắng có phép, không phép, đi muộn; dạy thay, đổi tiết; kí theo tuần); thêm môn theo nhóm của 21b; phụ huynh xem, báo vắng; báo cáo chuyên cần. Phần làm mới là mở khung cho cấp THCS, THPT, quy tắc xếp loại tiết và biểu mẫu cấp.
+- **Sơ đồ chỗ ngồi:** lưới chỗ ngồi theo lớp (số dãy, số hàng, bàn đôi), xếp học sinh vào chỗ bằng kéo thả hoặc xoay vòng theo kỳ, ghi ngày áp dụng; sơ đồ theo tiết hoặc theo môn (tuỳ trường, mặc định theo lớp); in sơ đồ; giáo viên bộ môn xem ở sổ đầu bài.
+- **Thi đua lớp, sao đỏ:** dùng lại 20b (tiêu chí nề nếp theo tuần, ghi điểm cộng trừ theo lớp, tổng hợp, xếp hạng) cho THCS, THPT; đội sao đỏ là học sinh không có tài khoản nên giáo viên trực ghi thay (quyết định ở 12.6); tiêu chí cấp THCS, THPT cấu hình được; không dùng bảng thi đua cán bộ của 22d.
+- Quyền mới (định danh 0079).
+
+#### 21e. Học bạ số, khen thưởng, lên lớp
+
+- **Học bạ số THCS, THPT** theo mẫu hiện hành (đối chiếu văn bản gốc): thông tin học sinh; kết quả học tập từng môn, từng kỳ, cả năm đọc từ sổ điểm đã khoá (21c); xếp loại học tập, rèn luyện; nhận xét của giáo viên chủ nhiệm; xác nhận của Hiệu trưởng; xuất PDF theo mẫu, kí bằng luồng kí nội bộ (16k, 17b), chữ ký số thật để sau; lưu qua các năm học và qua cấp (hồ sơ chuyển cấp từ THCS lên THPT nối 21f); dùng lại khung học bạ của 20e, thêm mẫu cấp.
+- **Khen thưởng cuối năm:** danh hiệu học sinh Xuất sắc, Giỏi, khen thưởng đột xuất, giấy khen có mã tra cứu (dùng lại mẫu của 20e, 22d), duyệt của Hiệu trưởng.
+- **Xét lên lớp:** điều kiện lên lớp, rèn luyện trong hè, kiểm tra lại, ở lại lớp (quy tắc của Thông tư 22/2021, cấu hình được ở chỗ cho phép); lên lớp theo khối kế tiếp (logic 19b); cuối khối 9 và khối 12 chuyển sang xét tốt nghiệp (21f).
+- Phụ huynh xem học bạ, kết quả cuối năm ở ứng dụng.
+
+#### 22g2. Kiểm tra, đánh giá: chấm và báo cáo
+
+- **Phiếu trả lời trắc nghiệm, chấm theo phiếu:** mẫu phiếu (số câu, số đáp án, mã đề, số báo danh) in được; chấm bằng ảnh chụp, tệp quét của phiếu: nhận dạng ô tô, mã đề, số báo danh chạy nền ở `worker` ngay trong trường, người dùng soát các phiếu mờ, tô sai, không đọc được; chấm theo đáp án của mã đề (bảng đối chiếu 22g1); chấm đúng sai, trả lời ngắn theo quy tắc điểm của đề; nhập tay bài trắc nghiệm khi không có ảnh.
+- **Bài tự luận và điểm:** nhập điểm theo câu hoặc theo bài, chấm hai người (cấu hình), tổng hợp điểm bài; **khoá điểm** theo bài kiểm tra; **chuyển điểm vào sổ điểm 21c** đúng loại điểm (thường xuyên, giữa kỳ, cuối kỳ), giáo viên bộ môn xác nhận; học sinh vắng, điểm bù xử lý theo cấu hình.
+- **Báo cáo:** theo câu (tỉ lệ đúng, độ khó, độ phân biệt), theo chủ đề, theo mức nhận thức, theo lớp, giáo viên, đề; phân bố điểm; danh sách câu nên xem lại; ghi kết quả sử dụng vào lịch sử câu hỏi ở ngân hàng (22g1); xuất Excel, PDF.
+- Chưa làm ở DT-21: thi trực tuyến cho học sinh làm bài trên máy (cần giám sát, khác nghiệp vụ; ghi lại để xét sau), chấm tự luận bằng máy.
+- Quyền mới (định danh 0081).
+
+#### 21f. Xét tốt nghiệp và hồ sơ thi
+
+- **Xét công nhận tốt nghiệp THCS** (cuối khối 9) theo quy chế hiện hành: điều kiện (hoàn thành chương trình, xếp loại), danh sách đủ điều kiện, hội đồng xét, biên bản, danh sách được công nhận, giấy chứng nhận tốt nghiệp tạm thời, hồ sơ chuyển cấp lên THPT (nối tuyển sinh đầu cấp 17c, 17d).
+- **Hồ sơ thi tốt nghiệp THPT** (khối 12): hồ sơ dự thi (đăng ký môn thi, đối tượng ưu tiên, khuyến khích, miễn thi), danh sách thí sinh, số báo danh, phòng thi, giám thị, biên bản, nhập kết quả thi, xét công nhận tốt nghiệp theo điểm xét (quy tắc cấu hình theo năm vì quy chế thi thay đổi), giấy chứng nhận tốt nghiệp tạm thời; xuất tệp theo bố cục của Bộ, Sở (bản chạy nội bộ, đánh dấu đã gửi như 16a; đồng bộ thật để sau).
+- **Phòng thi, số báo danh dùng chung:** phần xếp phòng, số báo danh dùng được cho kỳ kiểm tra tập trung của 22g.
+- Cấu hình theo năm: quy chế thi, môn thi, hệ số, điểm khuyến khích đổi hằng năm; danh mục nạp ở hệ thống 0029, người dùng có quyền sửa. Mẫu hồ sơ, bố cục tệp khớp Sở khảo sát sau.
+- Quyền mới (định danh 0082).
+
+#### 21g. Báo cáo, thống kê và EMIS THCS, THPT
+
+- **Thống kê THCS, THPT:** lớp, học sinh theo khối, giới tính, dân tộc, khuyết tật, tổ hợp (THPT), nội trú; kết quả học tập, rèn luyện theo lớp, khối, trường; học sinh Xuất sắc, Giỏi; lên lớp, ở lại lớp; tốt nghiệp (dùng khung tham số cấp của 19d); phổ điểm môn; tổng hợp theo giáo viên, tổ bộ môn.
+- **EMIS THCS, THPT:** khung biểu cấu hình được (danh mục chỉ tiêu, công thức đọc từ dữ liệu), lập, xuất tệp theo bố cục của Bộ, đánh dấu đã gửi; dùng khung 20f của Tiểu học, thêm biểu cấp THCS, THPT. Danh mục biểu ở hệ thống 0028.
+- Gợi ý khảo sát: khi Eric có tài khoản THCS, THPT, khảo sát như mục 31 (màn hình, cột, nút, biểu), ghi đối chiếu vào tài liệu 31, điều chỉnh 21a, 21f, 21g theo kết quả.
+
+### 12.5 Tái dùng và làm mới
+
+| Chức năng | Tái dùng từ | Phải làm mới ở DT-21 |
+|---|---|---|
+| Môn học, số tiết | 20a (`subjects`, `curriculum_subjects`) | Bộ môn khối 6 đến 12, loại đánh giá bằng điểm, môn lựa chọn, chuyên đề |
+| Phân công giảng dạy | 20a (`class_staff_assignments.subject_id`) | Dạy nhiều khối, lớp theo tổ hợp, tổ bộ môn |
+| Thời khoá biểu | 22c1 (khung giờ, bản, tiết, xung đột, ban hành), 22c2 (máy xếp) | Tiết đôi, phòng bộ môn, nhóm theo tổ hợp |
+| Sổ đầu bài, điểm danh theo tiết | 20d | Mẫu và xếp loại tiết cấp THCS, THPT |
+| Điểm, đánh giá | 20c (đã gộp: cách phân quyền theo phân công, hạn nhập theo kỳ, khoá theo kỳ và lớp, nhật ký) | Toàn bộ sổ điểm Thông tư 22/2021 (khác Thông tư 27/2020) |
+| Học bạ, khen thưởng, lên lớp | 20e (khung, kí, mẫu giấy khen) | Mẫu học bạ, danh hiệu, quy tắc lên lớp cấp THCS, THPT |
+| Thi đua lớp, sao đỏ | 20b | Tiêu chí cấp THCS, THPT, xử lý đội sao đỏ |
+| EMIS, thống kê | 19d, 20f | Biểu THCS, THPT |
+| Kí hồ sơ, xuất PDF, nhập Excel | 16k, 17b, 16a | Không (dùng lại) |
+| Kiểm tra, đánh giá (22g), tổ hợp môn, sơ đồ chỗ ngồi, xét tốt nghiệp, hồ sơ thi | không có | Toàn bộ |
+
+### 12.6 Quyết định thiết kế
+
+Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+- **THCS và THPT làm chung một đợt, chung khung:** hai cấp cùng Thông tư 22/2021, cùng khung sổ điểm, học bạ; khác ở danh mục môn, tổ hợp (chỉ THPT), xét tốt nghiệp (THCS xét, THPT thi) và biểu EMIS. Tách phần theo chức năng, không theo cấp, để mỗi phần dùng được cho cả hai cấp.
+- **22g tách hai phần:** 22g1 (đề) độc lập với sổ điểm nên làm sớm, song song với 21a; 22g2 (chấm, báo cáo) cần sổ điểm 21c để chuyển điểm.
+- **Điểm chỉ vào một bảng:** 22g2 không tạo bảng điểm riêng; chuyển vào sổ điểm có ghi nguồn, giáo viên xác nhận.
+- **Thi trực tuyến cho học sinh để lại:** thêm giám sát, tải tập trung, chống gian lận; ngoài phạm vi kế hoạch DT-22 đã duyệt.
+- **Sao đỏ không có tài khoản học sinh ở bản đầu:** giáo viên trực ghi thay như 20b; tài khoản học sinh hạn chế chỉ làm khi Eric yêu cầu.
+- **Chấm phiếu ở trong trường:** nhận dạng phiếu chạy ở `worker`, không dùng dịch vụ ngoài vì ảnh phiếu là dữ liệu học sinh; nếu chất lượng nhận dạng chưa đạt ở ảnh chụp điện thoại thì giữ nhập tay và tệp quét chuẩn (12.7).
+- **Hồ sơ thi chạy nội bộ:** xuất tệp theo bố cục, đánh dấu đã gửi; đồng bộ thật với hệ thống của Sở, Bộ để sau như DT-16, DT-20.
+- **Không làm ở DT-21:** các phần còn lại của DT-22, chữ ký số thật, đồng bộ CSDL ngành thật, thi trực tuyến, chấm tự luận bằng máy, tuyển sinh đầu cấp vào lớp 10 (chỉ nối hồ sơ chuyển cấp).
+
+### 12.7 Rủi ro và cách kiểm
+
+| Rủi ro | Cách kiểm |
+|---|---|
+| Hiểu sai Thông tư 22/2021 (hệ số, số lần đánh giá, làm tròn, điều kiện xếp loại, lên lớp) hoặc dùng văn bản đã hết hiệu lực | Đọc toàn văn trước khi viết phạm vi 21c, 21e; ghi điều khoản vào YCTD; hàm tính thuần, kiểm thử đơn vị bằng bảng ví dụ cho từng công thức; kiểm lại văn bản còn hiệu lực lúc làm |
+| Quy chế tốt nghiệp, thi thay đổi theo năm | Quy tắc xét, môn thi, hệ số cấu hình theo năm ở danh mục hệ thống 0029; mỗi năm chỉ sửa danh mục (21f) |
+| Màn hình, cột, biểu EMIS, hồ sơ thi lệch Sở vì chưa khảo sát | Danh mục, mẫu biểu cấu hình được; số mục menu đánh tạm; khảo sát khi có tài khoản rồi chỉnh (12.1, 12.4) |
+| Sổ điểm lớn, nhiều giáo viên nhập đồng thời, tải chậm | Chỉ mục theo lớp, môn, kỳ; lưu theo ô điểm; kiểm thử tải cỡ 40 lớp, 1.600 học sinh, 12 môn; nhập theo lô |
+| Sửa điểm sau khoá, mất dấu vết | Mở khoá có lý do, nhật ký đủ giá trị cũ, mới; kiểm thử quyền; điểm từ 22g2 ghi nguồn |
+| Chấm phiếu nhận dạng sai, nhất là ảnh chụp điện thoại | Soát các phiếu độ tin cậy thấp; đo trên phiếu mẫu tự sinh (không dùng phiếu thật); chưa đạt thì dừng ở nhập tay và tệp quét chuẩn |
+| Đề, ngân hàng câu hỏi lộ trước giờ thi | Quyền xem theo người được giao; khoá đề; tệp đề qua `storageKey`, tải có ghi nhật ký; kiểm thử quyền |
+| DT-20 chưa gộp khi DT-21 bắt đầu (20d, 20e, 22c2, 20f) | Bảng phụ thuộc 12.3 ghi rõ; phần chờ thì tự làm khung đủ dùng theo cùng hình dạng và hợp nhất khi phần kia gộp, ghi vào YCTD; không chép mã |
+| Thay đổi làm đổi hành vi Mầm non, Tiểu học (menu, thời khoá biểu, sổ đầu bài, môn học) | Mục mới gắn cấp `THCS`, `THPT`; cột thêm có giá trị mặc định; e2e và kiểm thử đơn vị hiện có đạt không sửa kỳ vọng |
+| Hai phần cùng đợt cùng sửa tệp chung (cây menu, `LEVEL_FEATURES`, danh sách migration, quyền, thời khoá biểu) | Số migration giữ sẵn riêng; sửa tệp chung theo kiểu thêm cuối; gộp origin/main trước khi mở PR |
+
+**Cổng kiểm của mỗi phần DT-21:** kiểm thử đơn vị toàn bộ kho mã đạt không sửa kỳ vọng; e2e toàn bộ hiện có đạt cộng e2e mới của phần (chạy riêng, giữ khoá `e2e.lock`, không chạy cùng kiểm thử đơn vị toàn kho); typecheck, lint, build đạt; CI 4/4 xanh; phiên bản phần mềm tăng theo từng phần, riêng bản kế hoạch này (YCTD-166) chỉ đổi tài liệu.
+
+### 12.8 Quy ước chung của DT-21
+
+- Mỗi phần ghi YCTD giữ sẵn ở mục 12.3, cập nhật tài liệu theo quy ước của kho (02, 07, 08, 10, 11, 14, 16, 17, 21, 23, 24, 32, `index.md` khi có thay đổi tương ứng), ghi văn bản căn cứ đã đọc, mở PR, gộp khi mọi kiểm tra CI đạt.
+- Mã mới theo mục 12.2 (đa thuê bao, đọc cấp qua `SchoolLevelResolver`, không đổi hành vi các cấp đã có).
+- Các điểm chi tiết không nêu ở đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 và ghi vào YCTD của từng phần.
+
+### 12.9 Tiến độ
+
+| Phần | Đợt | Tiến độ |
+|---|---|---|
+| 21a | 1 | Chưa làm, 20a đã gộp |
+| 22g1 | 1 | Chưa làm, 20a đã gộp |
+| 21b | 2 | Chưa làm, chờ 21a, 22c2 |
+| 21c | 2 | Chưa làm, chờ 21a (20c đã gộp) |
+| 21d | 3 | Chưa làm, chờ 21b, 20d |
+| 21e | 3 | Chưa làm, chờ 21c, 20e |
+| 22g2 | 4 | Chưa làm, chờ 22g1, 21c |
+| 21f | 4 | Chưa làm, chờ 21e |
+| 21g | 5 | Chưa làm, chờ 21c, 21e, 21f |
+
 ## 13. DT-22: thư viện, bồi dưỡng, kho học liệu số (22a, 22e, 22h)
 
 ### 13.1 Căn cứ và mục tiêu
@@ -757,14 +946,14 @@ Số giữ sẵn bắt đầu **sau dải của DT-21 và chừa khoảng rộng
 | 22a | Thư viện trường học: danh mục ấn phẩm và bản sao, thẻ bạn đọc (cán bộ, học sinh), mượn trả, quá hạn, đặt trước, phát và thu sách giáo khoa, kiểm kê, báo cáo theo chuẩn | 1 | DT-19 (cấp học), 20a (môn, khối); chạy ngay | YCTD-181 | Năm học 0100; hệ thống 0040; định danh 0090 | 120 |
 | 22e | Hồ sơ bồi dưỡng giáo viên: kế hoạch, khoá, đăng ký, kết quả, số tiết; chứng chỉ (mở rộng `staff_certificates`); chứng nhận có mã tra cứu công khai; bản đồ năng lực số. Không làm LMS | 1 | 18e, 18f, hồ sơ nhân sự (đã gộp); chạy ngay | YCTD-182 | Năm học 0101; hệ thống 0041; định danh 0091 | 121 |
 | 22h1 | Kho học liệu số, phần lõi: kho tệp và liên kết, metadata theo cấp, lớp, môn, chủ đề; giấy phép bắt buộc; kiểm duyệt phân luồng; bộ sưu tập; báo lỗi; thống kê | 2 | 18e (luồng duyệt, kho tệp), 20a (môn); không cần 22g1 | YCTD-183 | Năm học 0102; hệ thống 0042; định danh 0092 | 122 |
-| 22h2 | Kho học liệu số, phần câu hỏi và chia sẻ: câu hỏi, đề, ma trận của 22g1 hiện trong kho; rubric; gói chia sẻ liên trường bản chạy nội bộ (xuất, nhập có kiểm) | 3 | 22h1, **22g1 (ngân hàng câu hỏi, YCTD-168) đã gộp** | YCTD-184 | Năm học 0103; định danh 0093 | 123 |
+| 22h2 | Kho học liệu số, phần câu hỏi và chia sẻ: câu hỏi, đề, ma trận của 22g1 hiện trong kho; rubric; gói chia sẻ liên trường bản chạy nội bộ (xuất, nhập có kiểm) | 3 | 22h1, **22g1 (ngân hàng câu hỏi, ma trận, đề; YCTD-168, năm học 0085, định danh 0076, e2e 96) đã gộp**; phần thống kê sử dụng câu hỏi cần thêm **22g2 (chấm, báo cáo; YCTD-173)** | YCTD-184 | Năm học 0103; định danh 0093 | 123 |
 
 Giữ chỗ chưa giao phiên: **YCTD-185** cho thành phần AI riêng (13.5), migration năm học 0104, hệ thống 0043, định danh 0094, e2e `124-`; YCTD-186 đến YCTD-189, năm học 0105 đến 0109, hệ thống 0044 đến 0049, định danh 0095 đến 0099, e2e `125-` đến `129-` dự phòng cho bổ sung của DT-22. Khi thành phần AI được giao phiên thì ghi bản kế hoạch riêng, không sửa mục này.
 
 Đợt làm, mỗi lúc tối đa hai phiên:
 - **Đợt 1: 22a và 22e**, độc lập nhau, làm được ngay, không chờ DT-20, DT-21.
 - **Đợt 2: 22h1.** Chỉ cần kho hồ sơ 18e (đã gộp) nên **bắt đầu ngay khi một trong hai phần đợt 1 gộp**, không chờ cả hai.
-- **Đợt 3: 22h2**, bắt đầu khi 22h1 **và 22g1** (DT-21) đã gộp. Nếu 22g1 gộp trễ thì 22h2 chờ, không tự làm ngân hàng câu hỏi thứ hai, không tạm làm bảng câu hỏi riêng. 22h1 không phụ thuộc 22g1 nên không bị chặn.
+- **Đợt 3: 22h2**, bắt đầu khi 22h1 **và 22g1** (DT-21, đợt 1) đã gộp; phần thống kê sử dụng câu hỏi, mức nhận thức chờ thêm **22g2** (DT-21, đợt 4, ghi kết quả sử dụng vào lịch sử câu hỏi): nếu 22g2 chưa gộp thì 22h2 làm phần còn lại, ghi phần thống kê vào YCTD-184 để làm sau khi 22g2 gộp. Nếu 22g1 gộp trễ thì 22h2 chờ, không tự làm ngân hàng câu hỏi thứ hai, không tạm làm bảng câu hỏi riêng. 22h1 không phụ thuộc 22g1 nên không bị chặn.
 
 Thứ tự gộp để đánh số tài liệu (phiên bản, CT, AC, BR, MH, PQ, mã chức năng) theo đợt: 22a, 22e, 22h1, 22h2; phần gộp sau đánh lại số tài liệu theo nhánh chính lúc gộp. YCTD, số migration, số e2e giữ sẵn ở bảng trên không đổi theo thứ tự gộp.
 
@@ -814,7 +1003,7 @@ Chỉ phần **quản trị**: ghi nhận, theo dõi, cấp chứng nhận. **Kh
 #### 22h2. Kho học liệu số: câu hỏi và chia sẻ
 
 Chỉ bắt đầu khi 22g1 đã gộp; phạm vi dưới đây chốt lại theo hình dạng thật của ngân hàng câu hỏi, ma trận, đề của 22g1 (ghi vào YCTD-184).
-- **Câu hỏi, đề, ma trận trong kho:** kho hiện các đối tượng của 22g1 như một loại học liệu **tham chiếu** (khoá `question_id`, `exam_id`), dùng chung ô tìm kiếm, bộ lọc metadata của kho; bộ sưu tập chứa được câu hỏi và đề. **Không** sao chép câu hỏi, không có luồng duyệt thứ hai: kho đọc trạng thái (nháp, thẩm định, dùng được, ngừng dùng) của 22g1 và chuyển người dùng sang màn hình duyệt của 22g1; thống kê sử dụng câu hỏi lấy từ lịch sử sử dụng của 22g1, 22g2.
+- **Câu hỏi, đề, ma trận trong kho:** kho hiện các đối tượng của 22g1 như một loại học liệu **tham chiếu** (khoá `question_id`, `exam_id`), dùng chung ô tìm kiếm, bộ lọc metadata của kho; bộ sưu tập chứa được câu hỏi và đề. **Không** sao chép câu hỏi, không có luồng duyệt thứ hai: kho đọc trạng thái (nháp, thẩm định, dùng được, ngừng dùng) của 22g1 và chuyển người dùng sang màn hình duyệt của 22g1; thống kê sử dụng câu hỏi lấy từ lịch sử sử dụng của câu hỏi (22g1 tạo đề, 22g2 ghi kết quả chấm vào lịch sử, nên cần 22g2).
 - **Rubric:** mẫu rubric có cấu trúc (tiêu chí × mức, mô tả, điểm), tạo, nhân bản, in; dùng cho bài tự luận, sản phẩm học tập; nối bằng khoá tham chiếu với câu hỏi tự luận của 22g1 khi 22g1 có chỗ nối (chốt lúc làm); phiếu học tập có cấu trúc (tiêu đề, câu hỏi ngắn, in) nếu 22h1 chưa đủ dùng.
 - **Chia sẻ liên trường, bản chạy nội bộ:** **xuất gói** (một bộ sưu tập hoặc nhóm học liệu thành một tệp nén có bản kê: metadata, giấy phép, mã băm từng tệp, tên trường nguồn do trường tự đặt, mã gói; **không có dữ liệu cá nhân** của học sinh hay phụ huynh; học liệu giấy phép "không rõ" hoặc bị chặn không được xuất) và **nhập gói** từ trường khác (kiểm bản kê, mã băm, giấy phép, loại trùng; vào kho ở trạng thái chờ duyệt, qua luồng duyệt của 22h1, ghi nguồn gốc gói). Danh mục chung liên trường thật (tìm trên mạng lưới, đồng bộ, xếp hạng) **chờ DT-SaaS**.
 - **Thống kê sử dụng chung** của kho: học liệu và câu hỏi theo môn, chủ đề, mức nhận thức; chỗ trống chủ đề (chủ đề chưa có học liệu hoặc câu hỏi).
@@ -841,7 +1030,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 | Chuẩn thư viện, quy chế bồi dưỡng, khung năng lực số thay đổi hoặc đã bị thay | Đọc văn bản còn hiệu lực lúc làm; chỉ tiêu, định mức, khung cấu hình được, bộ mặc định ghi số hiệu văn bản; không ghi cứng số liệu |
 | Học liệu vi phạm bản quyền, thiếu giấy phép | Giấy phép bắt buộc mới công bố; báo lỗi nghi vi phạm; ẩn tạm; bộ giấy phép cấu hình; không nội dung có bản quyền trong mã, dữ liệu mẫu, kiểm thử |
 | Lộ dữ liệu học sinh qua lịch sử mượn, gói chia sẻ, tra cứu chứng nhận | Quyền xem theo thủ thư, chủ nhiệm, phụ huynh của con; gói chia sẻ không chứa dữ liệu cá nhân (kiểm thử khoá trường nhạy cảm); điểm cuối công khai chỉ tra theo mã, có giới hạn tần suất, chỉ trả trường tối thiểu |
-| 22h2 bắt đầu khi 22g1 chưa gộp, dẫn tới ngân hàng câu hỏi thứ hai | Bảng 13.3 ghi 22h2 chờ 22g1; không tạo bảng câu hỏi trong DT-22; kiểm thử kho chỉ tham chiếu |
+| 22h2 bắt đầu khi 22g1 chưa gộp, dẫn tới ngân hàng câu hỏi thứ hai | Bảng 13.3 ghi 22h2 chờ 22g1 (và 22g2 cho thống kê sử dụng); không tạo bảng câu hỏi trong DT-22; kiểm thử kho chỉ tham chiếu |
 | Nhầm với `library_items` Mầm non | Tiền tố bảng, tên phân hệ, tên quyền khác; kiểm thử thư viện Mầm non (cho phụ huynh) không đổi |
 | Mở rộng `staff_certificates` làm hỏng dữ liệu, màn hình nhân sự hiện có | Cột thêm nullable; chuyển dữ liệu theo từng bước; e2e nhân sự hiện có đạt không sửa kỳ vọng |
 | Tệp tải lên lớn, định dạng nguy hiểm | Giới hạn định dạng và dung lượng cấu hình; chuẩn hoá tên tệp; xem trước chỉ với định dạng an toàn; dùng `FileStorage` như các nơi khác |
@@ -864,4 +1053,4 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 | 22a | 1 | Chưa làm, làm được ngay |
 | 22e | 1 | Chưa làm, làm được ngay |
 | 22h1 | 2 | Chưa làm, bắt đầu khi 22a hoặc 22e gộp |
-| 22h2 | 3 | Chưa làm, chờ 22h1 và 22g1 (DT-21) |
+| 22h2 | 3 | Chưa làm, chờ 22h1 và 22g1 (DT-21); thống kê sử dụng câu hỏi chờ thêm 22g2 |

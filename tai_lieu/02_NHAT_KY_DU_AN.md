@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.39
+- Phiên bản: 0.40
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -19,7 +19,7 @@
 #### Công việc đã thực hiện
 
 - Đọc bản kế hoạch DT-22 đã được Eric duyệt (các phần còn lại 22a, 22e, 22h), mục 9 (DT-18), 11 (DT-20), 12 (DT-21, PR 140) và mã trên nhánh chính: kho hồ sơ 18e (`professional_*`, `DossierSigner`, `my-work`), `files` và `FileStorage`, giấy khen có mã tra cứu của 22d, `staff_certificates`, `lesson_plans`, `subjects` (20a); rà bảng có tên gần giống (`library_items` của Mầm non, `asset_loans`) để không dùng nhầm.
-- Thêm mục 13 vào `32_KE_HOACH_THEO_HE_THONG_SO.md` (phiên bản 1.44): kế hoạch DT-22 gồm bốn phần 22a, 22e, 22h1, 22h2 chạy ba đợt; phạm vi chi tiết; quyết định thiết kế; rủi ro; bảng tiến độ.
+- Thêm mục 13 vào `32_KE_HOACH_THEO_HE_THONG_SO.md` (phiên bản 1.45): kế hoạch DT-22 gồm bốn phần 22a, 22e, 22h1, 22h2 chạy ba đợt; phạm vi chi tiết; quyết định thiết kế; rủi ro; bảng tiến độ.
 - Ghi YCTD-180 (chỉ đổi tài liệu).
 
 #### Quyết định
@@ -35,6 +35,27 @@
 #### Vấn đề tồn đọng
 
 - 22h2 chờ 22g1 (DT-21); đọc văn bản gốc (chuẩn thư viện phổ thông, quy chế bồi dưỡng thường xuyên, khung năng lực số, giấy phép học liệu) trước khi làm từng phần; PR này và PR 140 (YCTD-166) cùng sửa đầu `02`, `24`, `index.md` nên phần gộp sau xử lý xung đột và đánh lại số phiên bản tài liệu.
+
+### 2026-10-24 — Kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá)
+
+#### Công việc đã thực hiện
+
+- Đọc dòng DT-21 của kế hoạch DT-18 và phần 22g của kế hoạch DT-22; đọc mục 10 (DT-19), mục 11 (DT-20) và mã trên nhánh chính: `subjects`, `curriculum_subjects`, phân công giảng dạy theo môn (20a), nề nếp và thi đua lớp (20b), khung giờ tiết, bản thời khoá biểu, hàm xung đột (22c1), khối K6 đến K12 và `curricula` (19b).
+- Thêm mục 12 vào `32_KE_HOACH_THEO_HE_THONG_SO.md` (phiên bản 1.44): kế hoạch DT-21 gồm chín phần 21a, 22g1, 21b, 21c, 21d, 21e, 22g2, 21f, 21g chạy năm đợt; bảng tái dùng và làm mới; rủi ro, cách kiểm; bảng tiến độ.
+- Ghi YCTD-166 (chỉ đổi tài liệu).
+
+#### Quyết định
+
+- THCS và THPT chung khung, tách phần theo chức năng; tách 22g thành 22g1 (đề, làm sớm) và 22g2 (chấm, chuyển điểm vào sổ điểm 21c, không có bảng điểm thứ hai); thi trực tuyến cho học sinh để lại; hồ sơ thi chạy nội bộ; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Giữ sẵn YCTD-167 đến YCTD-175, migration năm học 0084 đến 0092, hệ thống 0028 và 0029, định danh 0075 đến 0083, e2e `95-` đến `103-`.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-166, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12. Không đổi mã nguồn, không đổi phiên bản phần mềm.
+
+#### Vấn đề tồn đọng
+
+- Khảo sát hệ thống của Sở cấp THCS, THPT khi Eric có tài khoản; đọc toàn văn Thông tư 22/2021/TT-BGDĐT, quy chế xét tốt nghiệp, thi hiện hành trước khi làm 21c, 21e, 21f; 20c, 20d, 20e, 22c2, 20f của DT-20 chưa gộp, các phần DT-21 phụ thuộc ghi ở 12.3.
 
 ### 2026-10-23 — DT-20 phần 20c: đánh giá học sinh theo Thông tư 27/2020
 
