@@ -54,11 +54,18 @@ test('CT-20f-7: sĩ số Tiểu học theo khối, xuất Excel; biểu EMIS Ti�
 }) => {
   test.setTimeout(240_000);
   const suffix = Date.now() % 1_000_000;
-  const reference = await schoolYear
-    .selectFrom('classes')
-    .select(['org_unit_id', 'academic_year_id'])
-    .where('school_level', '=', 'MN')
+  // Chỉ cần năm học đang mở (kịch bản 02) và Trường chính (kịch bản 03) để chạy riêng được
+  const unit = await schoolYear
+    .selectFrom('org_units')
+    .select('id')
+    .where('unit_type', '=', 'truong_chinh')
     .executeTakeFirstOrThrow();
+  const year = await system
+    .selectFrom('academic_years')
+    .select('id')
+    .where('status', '=', 'open')
+    .executeTakeFirstOrThrow();
+  const reference = { org_unit_id: unit.id, academic_year_id: year.id };
   const principal = await createTestUser(identity, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
   await schoolYear
     .insertInto('grade_levels')
