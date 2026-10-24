@@ -27,6 +27,10 @@ import { TimetableChangesPage } from './timetables/TimetableChangesPage.js';
 import { TimetableReportsPage } from './timetables/TimetableReportsPage.js';
 import { TimetableLookupPage } from './timetables/TimetableLookupPage.js';
 import { PrimaryReportsPage } from './primary-reports/PrimaryReportsPage.js';
+import { QuestionBankPage } from './exams/QuestionBankPage.js';
+import { ExamMatricesPage } from './exams/ExamMatricesPage.js';
+import { AssessmentPlansPage } from './exams/AssessmentPlansPage.js';
+import { ExamsPage } from './exams/ExamsPage.js';
 import { ChildrenPage } from './children/ChildrenPage.js';
 import { StudentMovementsPage } from './children/StudentMovementsPage.js';
 import { DefaultPasswordsPage } from './students/DefaultPasswordsPage.js';
@@ -357,6 +361,11 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/timetable-reports', component: TimetableReportsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/tra-cuu-thoi-khoa-bieu', component: TimetableLookupPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/primary-reports', component: PrimaryReportsPage }),
+  // Kiểm tra, đánh giá phần đề (DT-21 phần 22g1)
+  createRoute({ getParentRoute: () => rootRoute, path: '/question-bank', component: QuestionBankPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/exam-matrices', component: ExamMatricesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/assessment-plans', component: AssessmentPlansPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/exams', component: ExamsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/classes', component: ClassesPage }),
   // Trường học, lớp học theo Sở (DT-15 phần 15b, YCTD-111)
   createRoute({ getParentRoute: () => rootRoute, path: '/branches', component: BranchesPage }),

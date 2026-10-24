@@ -165,6 +165,7 @@ export function ReadOnlyGrid({
                       .filter((lesson) => lesson.weekday === day && lesson.period_no === period)
                       .map((lesson) => (
                         <span key={lesson.id} className="block">
+                          {lesson.group_no > 0 ? `Nhóm ${lesson.group_no} · ` : ''}
                           {mode === 'class' ? lesson.subject_name : `${lesson.class_name} · ${lesson.subject_name}`}
                           <span className="block text-label text-text-secondary">
                             {mode === 'teacher'
@@ -184,6 +185,116 @@ export function ReadOnlyGrid({
   );
 }
 
+interface GroupRow {
+  weekday: number;
+  period_no: number;
+  group_no: number;
+  subject_id: string;
+}
+
+// Tiết học nhóm của lớp (THCS, THPT, DT-21 phần 21b): một lớp có thể tách nhóm học môn lựa chọn khác nhau cùng tiết; mỗi
+// dòng là một tiết của một nhóm; tiết cả lớp ở lưới trên không được trùng ô với tiết nhóm
+function GroupRowsEditor({
+  rows,
+  setRows,
+  slots,
+  subjects,
+}: {
+  rows: GroupRow[];
+  setRows(rows: GroupRow[]): void;
+  slots: PeriodSlot[];
+  subjects: Array<{ id: string; name: string }>;
+}) {
+  const update = (index: number, changes: Partial<GroupRow>) =>
+    setRows(rows.map((row, position) => (position === index ? { ...row, ...changes } : row)));
+  return (
+    <section className="flex flex-col gap-2" aria-label="Tiết học nhóm">
+      <h3 className="text-section-title font-semibold text-text">Tiết học nhóm</h3>
+      <p className="text-label text-text-secondary">
+        Dùng cho môn học lựa chọn: các nhóm của lớp học môn khác nhau cùng một tiết. Ô đã có tiết cả lớp ở lưới trên
+        không thêm tiết nhóm được.
+      </p>
+      {rows.map((row, index) => (
+        <div key={index} className="flex flex-wrap items-center gap-2">
+          <select
+            className={FORM_CONTROL_CLASS}
+            aria-label={`Thứ của tiết nhóm ${index + 1}`}
+            value={row.weekday}
+            onChange={(event) => update(index, { weekday: Number(event.target.value) })}
+          >
+            {DAYS.map((day) => (
+              <option key={day} value={day}>
+                {TIMETABLE_WEEKDAY_LABELS[day]}
+              </option>
+            ))}
+          </select>
+          <select
+            className={FORM_CONTROL_CLASS}
+            aria-label={`Tiết của tiết nhóm ${index + 1}`}
+            value={row.period_no}
+            onChange={(event) => update(index, { period_no: Number(event.target.value) })}
+          >
+            {slots.map((slot) => (
+              <option key={slot.period_no} value={slot.period_no}>
+                Tiết {slot.period_no}
+              </option>
+            ))}
+          </select>
+          <select
+            className={FORM_CONTROL_CLASS}
+            aria-label={`Nhóm của tiết nhóm ${index + 1}`}
+            value={row.group_no}
+            onChange={(event) => update(index, { group_no: Number(event.target.value) })}
+          >
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((group) => (
+              <option key={group} value={group}>
+                Nhóm {group}
+              </option>
+            ))}
+          </select>
+          <select
+            className={FORM_CONTROL_CLASS}
+            aria-label={`Môn của tiết nhóm ${index + 1}`}
+            value={row.subject_id}
+            onChange={(event) => update(index, { subject_id: event.target.value })}
+          >
+            <option value="">Chọn môn</option>
+            {subjects.map((subject) => (
+              <option key={subject.id} value={subject.id}>
+                {subject.name}
+              </option>
+            ))}
+          </select>
+          <Button
+            aria-label={`Xóa tiết nhóm ${index + 1}`}
+            onClick={() => setRows(rows.filter((_, position) => position !== index))}
+          >
+            Xóa
+          </Button>
+        </div>
+      ))}
+      <div>
+        <Button
+          disabled={slots.length === 0}
+          onClick={() =>
+            setRows([
+              ...rows,
+              {
+                weekday: 1,
+                period_no: slots[0]?.period_no ?? 1,
+                group_no: Math.min((rows.at(-1)?.group_no ?? 0) + 1, 9),
+                subject_id: '',
+              },
+            ])
+          }
+        >
+          Thêm tiết nhóm
+        </Button>
+      </div>
+    </section>
+  );
+}
+
 // Sửa tiết của một lớp trong bản nháp: mỗi ô chọn một môn của khối lớp theo chương trình
 function ClassEditor({
   versionId,
@@ -191,6 +302,7 @@ function ClassEditor({
   className,
   slots,
   lessons,
+  allowGroups,
   onSaved,
 }: {
   versionId: string;
@@ -198,27 +310,65 @@ function ClassEditor({
   className: string;
   slots: PeriodSlot[];
   lessons: TimetableLesson[];
+  // THCS, THPT: thêm tiết học nhóm (DT-21 phần 21b)
+  allowGroups: boolean;
   onSaved(message: string): void;
 }) {
   const queryClient = useQueryClient();
   const teaching = useQuery({ queryKey: ['class-teaching', classId], queryFn: () => readClassTeaching(classId) });
   const [cells, setCells] = useState<Record<string, string>>({});
+  // Tiết học nhóm: nhiều nhóm cùng ô, mỗi nhóm một môn lựa chọn (21b)
+  const [groupRows, setGroupRows] = useState<GroupRow[]>([]);
   useEffect(() => {
-    setCells(Object.fromEntries(lessons.map((lesson) => [`${lesson.weekday}:${lesson.period_no}`, lesson.subject_id])));
+    setCells(
+      Object.fromEntries(
+        lessons
+          .filter((lesson) => lesson.group_no === 0)
+          .map((lesson) => [`${lesson.weekday}:${lesson.period_no}`, lesson.subject_id]),
+      ),
+    );
+    setGroupRows(
+      lessons
+        .filter((lesson) => lesson.group_no > 0)
+        .map((lesson) => ({
+          weekday: lesson.weekday,
+          period_no: lesson.period_no,
+          group_no: lesson.group_no,
+          subject_id: lesson.subject_id,
+        })),
+    );
   }, [lessons]);
-  const cellInputs = Object.entries(cells)
-    .filter(([, subjectId]) => subjectId)
-    .map(([key, subjectId]) => {
-      const [weekday, period] = key.split(':').map(Number);
-      const existing = lessons.find((lesson) => lesson.weekday === weekday && lesson.period_no === period);
-      return {
-        weekday: weekday ?? 1,
-        period_no: period ?? 1,
-        subject_id: subjectId,
-        room_id: existing?.subject_id === subjectId ? existing.room_id : null,
-      };
-    })
-    .sort((left, right) => left.weekday - right.weekday || left.period_no - right.period_no);
+  const roomOf = (weekday: number, period: number, groupNo: number, subjectId: string) => {
+    const existing = lessons.find(
+      (lesson) => lesson.weekday === weekday && lesson.period_no === period && lesson.group_no === groupNo,
+    );
+    return existing?.subject_id === subjectId ? existing.room_id : null;
+  };
+  const cellInputs = [
+    ...Object.entries(cells)
+      .filter(([, subjectId]) => subjectId)
+      .map(([key, subjectId]) => {
+        const [weekday, period] = key.split(':').map(Number);
+        return {
+          weekday: weekday ?? 1,
+          period_no: period ?? 1,
+          subject_id: subjectId,
+          room_id: roomOf(weekday ?? 1, period ?? 1, 0, subjectId),
+          group_no: 0,
+        };
+      }),
+    ...groupRows
+      .filter((row) => row.subject_id)
+      .map((row) => ({
+        weekday: row.weekday,
+        period_no: row.period_no,
+        subject_id: row.subject_id,
+        room_id: roomOf(row.weekday, row.period_no, row.group_no, row.subject_id),
+        group_no: row.group_no,
+      })),
+  ].sort(
+    (left, right) => left.weekday - right.weekday || left.period_no - right.period_no || left.group_no - right.group_no,
+  );
   const save = useMutation({
     mutationFn: () => saveClassLessons(versionId, classId, cellInputs),
     onSuccess: async () => {
@@ -228,7 +378,13 @@ function ClassEditor({
     },
   });
   const subjects = teaching.data?.subjects ?? [];
-  const counts = (subjectId: string) => Object.values(cells).filter((value) => value === subjectId).length;
+  const counts = (subjectId: string) =>
+    new Set([
+      ...Object.entries(cells)
+        .filter(([, value]) => value === subjectId)
+        .map(([key]) => key),
+      ...groupRows.filter((row) => row.subject_id === subjectId).map((row) => `${row.weekday}:${row.period_no}`),
+    ]).size;
   // Kiểm tra ngay khi chỉnh tay (22c2): gửi các ô đang sửa sau 0,4 giây không gõ thêm, máy chủ trả xung đột nếu ghi
   const [checkedCells, setCheckedCells] = useState<string>();
   const cellsKey = JSON.stringify(cellInputs);
@@ -236,12 +392,16 @@ function ClassEditor({
     cellsKey !==
     JSON.stringify(
       [...lessons]
-        .sort((left, right) => left.weekday - right.weekday || left.period_no - right.period_no)
+        .sort(
+          (left, right) =>
+            left.weekday - right.weekday || left.period_no - right.period_no || left.group_no - right.group_no,
+        )
         .map((lesson) => ({
           weekday: lesson.weekday,
           period_no: lesson.period_no,
           subject_id: lesson.subject_id,
           room_id: lesson.room_id,
+          group_no: lesson.group_no,
         })),
     );
   useEffect(() => {
@@ -311,6 +471,14 @@ function ClassEditor({
           </tbody>
         </table>
       </div>
+      {allowGroups ? (
+        <GroupRowsEditor
+          rows={groupRows}
+          setRows={setGroupRows}
+          slots={slots}
+          subjects={subjects.map((subject) => ({ id: subject.subject_id, name: subject.subject_name }))}
+        />
+      ) : null}
       <ul className="flex flex-wrap gap-3 text-label text-text-secondary" aria-label="Số tiết đã xếp theo môn">
         {subjects.map((subject) => (
           <li key={subject.subject_id}>
@@ -622,6 +790,7 @@ export function TimetablesPage() {
                       className={classes.data?.find((item) => item.id === target)?.name ?? ''}
                       slots={all.data.slots}
                       lessons={filtered}
+                      allowGroups={level === 'THCS' || level === 'THPT'}
                       onSaved={setToastMessage}
                     />
                   ) : (

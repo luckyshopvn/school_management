@@ -161,9 +161,9 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         group('7.', 'Dạy học', [
           leaf('7.1.', 'Môn học và hoạt động giáo dục', '/subjects'),
           leaf('7.2.', 'Phân công giảng dạy theo môn', '/teaching-assignments'),
-          // Thời khoá biểu phần khung (DT-20 phần 22c1); THCS, THPT dùng chung ở DT-21 phần 21b
-          primary(leaf('7.3.', 'Khung giờ tiết học', '/period-slots')),
-          primary(leaf('7.4.', 'Thời khoá biểu', '/timetables')),
+          // Thời khoá biểu phần khung (DT-20 phần 22c1); THCS, THPT dùng chung (DT-21 phần 21b)
+          leaf('7.3.', 'Khung giờ tiết học', '/period-slots'),
+          leaf('7.4.', 'Thời khoá biểu', '/timetables'),
           // Đánh giá học sinh theo Thông tư 27/2020 (DT-20 phần 20c)
           primary(leaf('7.5.', 'Đánh giá học sinh', '/student-assessments')),
           // Sổ đầu bài, điểm danh theo tiết (DT-20 phần 20d); THCS, THPT dùng chung ở DT-21 phần 21d
@@ -172,9 +172,9 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           // Học bạ số, khen thưởng, hoàn thành chương trình, lên lớp (DT-20 phần 20e)
           primary(leaf('7.8.', 'Học bạ, khen thưởng, lên lớp', '/learning-records')),
           // Máy xếp, dạy thay, đổi tiết, báo cáo, mã QR (DT-20 phần 22c2)
-          primary(leaf('7.9.', 'Xếp thời khoá biểu tự động', '/timetable-generator')),
-          primary(leaf('7.10.', 'Dạy thay, đổi tiết', '/timetable-changes')),
-          primary(leaf('7.11.', 'Báo cáo tiết dạy, dùng phòng, mã QR', '/timetable-reports')),
+          leaf('7.9.', 'Xếp thời khoá biểu tự động', '/timetable-generator'),
+          leaf('7.10.', 'Dạy thay, đổi tiết', '/timetable-changes'),
+          leaf('7.11.', 'Báo cáo tiết dạy, dùng phòng, mã QR', '/timetable-reports'),
           // Tổ hợp môn (THPT) và tổ bộ môn (DT-21 phần 21a)
           secondary(leaf('7.12.', 'Tổ hợp môn', '/subject-combinations'), ['THPT']),
           secondary(leaf('7.13.', 'Tổ bộ môn', '/subject-teams')),
@@ -184,6 +184,15 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           primary(leaf('7.15.', 'Báo cáo, thống kê, EMIS Tiểu học', '/primary-reports')),
         ]),
         ['TH', 'THCS', 'THPT'],
+      ),
+      // Kiểm tra, đánh giá phần đề (DT-21 phần 22g1)
+      secondary(
+        group('8.', 'Kiểm tra, đánh giá', [
+          leaf('8.1.', 'Ngân hàng câu hỏi', '/question-bank'),
+          leaf('8.2.', 'Ma trận đề', '/exam-matrices'),
+          leaf('8.3.', 'Kế hoạch kiểm tra', '/assessment-plans'),
+          leaf('8.4.', 'Đề kiểm tra', '/exams'),
+        ]),
       ),
     ],
   },

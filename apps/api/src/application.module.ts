@@ -251,6 +251,14 @@ import {
   TimetablesService,
   TimetableVersionsController,
 } from './timetables/timetables.js';
+import { ExamsService } from './exams/exams.js';
+import {
+  AssessmentPlansController,
+  ExamMatricesController,
+  ExamsController,
+  QuestionsController,
+  QuestionTopicsController,
+} from './exams/exams.controller.js';
 import {
   ChildPeriodAttendanceController,
   ClassLogsController,
@@ -534,6 +542,12 @@ export class ApplicationModule {
         TimetableVersionsController,
         TimetablesController,
         ChildTimetableController,
+        // Kiểm tra, đánh giá phần đề (DT-21 phần 22g1)
+        QuestionTopicsController,
+        QuestionsController,
+        ExamMatricesController,
+        AssessmentPlansController,
+        ExamsController,
         ClassLogsController,
         PeriodAttendanceController,
         ChildPeriodAttendanceController,
@@ -777,6 +791,7 @@ export class ApplicationModule {
         SubjectTeamsService,
         ScoresService,
         TimetablesService,
+        ExamsService,
         ClassLogsService,
         TimetableGeneratorService,
         TimetableChangesService,

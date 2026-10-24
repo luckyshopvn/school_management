@@ -41,7 +41,14 @@ import {
   type RequestBody,
 } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
-import { buildTemplate, MAXIMUM_IMPORT_BYTES, readSheet, type ImportColumn, type RowError } from '../imports/excel.js';
+import {
+  buildTemplate,
+  MAXIMUM_IMPORT_BYTES,
+  readHeaders,
+  readSheet,
+  type ImportColumn,
+  type RowError,
+} from '../imports/excel.js';
 import { findTimetableConflicts, type TimetableConflict, type TimetableLessonInput } from './timetable-rules.js';
 
 // Thời khoá biểu phần khung (DT-20 phần 22c1, YCTD-160): khung giờ tiết học theo cấp (cơ sở dữ liệu hệ thống), bản thời khoá
@@ -80,6 +87,8 @@ export interface LessonCellInput {
   period_no: number;
   subject_id: string;
   room_id: string | null;
+  // 0 là tiết cả lớp, 1 đến 9 là nhóm học (DT-21 phần 21b, YCTD-169)
+  group_no: number;
 }
 
 export function parsePeriodSlots(body: RequestBody): PeriodSlotInput[] {
@@ -149,9 +158,13 @@ export function parseLessonCells(body: RequestBody): LessonCellInput[] {
     if (typeof periodNo !== 'number' || !Number.isInteger(periodNo) || periodNo < 1 || periodNo > 15) {
       errors.push({ field: `${prefix}.period_no`, message: 'Tiết là số nguyên từ 1 đến 15' });
     }
-    const key = `${String(weekday)}:${String(periodNo)}`;
+    const groupNo = item.group_no === undefined || item.group_no === null ? 0 : item.group_no;
+    if (typeof groupNo !== 'number' || !Number.isInteger(groupNo) || groupNo < 0 || groupNo > 9) {
+      errors.push({ field: `${prefix}.group_no`, message: 'Nhóm là số nguyên từ 0 (cả lớp) đến 9' });
+    }
+    const key = `${String(weekday)}:${String(periodNo)}:${String(groupNo)}`;
     if (seen.has(key)) {
-      errors.push({ field: `${prefix}.period_no`, message: 'Một tiết của lớp chỉ một môn' });
+      errors.push({ field: `${prefix}.period_no`, message: 'Một tiết của lớp, của một nhóm chỉ một môn' });
     }
     seen.add(key);
     if (!isUuid(item.subject_id)) {
@@ -165,6 +178,7 @@ export function parseLessonCells(body: RequestBody): LessonCellInput[] {
       period_no: periodNo as number,
       subject_id: item.subject_id as string,
       room_id: (item.room_id as string | null | undefined) ?? null,
+      group_no: groupNo as number,
     };
   });
   if (errors.length > 0) {
@@ -182,6 +196,11 @@ const IMPORT_COLUMNS: ImportColumn[] = [
     key: 'room_code',
     header: 'Mã phòng',
     note: 'Mã phòng ở danh mục phòng của đơn vị của lớp; để trống nếu không xếp phòng',
+  },
+  {
+    key: 'group_no',
+    header: 'Nhóm',
+    note: 'Để trống là tiết cả lớp; số 1 đến 9 là nhóm học môn lựa chọn cùng tiết (THPT)',
   },
 ];
 
@@ -353,7 +372,16 @@ export class TimetablesService {
       if (source) {
         const lessons = await transaction
           .selectFrom('timetable_lessons')
-          .select(['class_id', 'weekday', 'period_no', 'subject_id', 'teacher_user_id', 'teacher_name', 'room_id'])
+          .select([
+            'class_id',
+            'weekday',
+            'period_no',
+            'subject_id',
+            'teacher_user_id',
+            'teacher_name',
+            'room_id',
+            'group_no',
+          ])
           .where('version_id', '=', source.id)
           .execute();
         if (lessons.length > 0) {
@@ -450,6 +478,7 @@ export class TimetablesService {
         'timetable_lessons.teacher_user_id',
         'timetable_lessons.teacher_name',
         'timetable_lessons.room_id',
+        'timetable_lessons.group_no',
         'rooms.name as room_name',
       ])
       .where('timetable_lessons.version_id', 'in', versionIds);
@@ -612,11 +641,12 @@ export class TimetablesService {
             'curriculum_subjects.subject_id',
             'curriculum_subjects.periods_per_week',
             'subjects.name',
+            'subjects.option_group',
           ])
           .where('curriculum_subjects.curriculum_id', 'in', curriculumIds)
           .execute()
       : [];
-    const planned = new Map<string, Map<string, { subject_name: string; periods: number }>>();
+    const planned = new Map<string, Map<string, { subject_name: string; periods: number; elective?: boolean }>>();
     for (const classRow of classes) {
       const curriculumId = classRow.curriculum_id ?? defaultCurriculum?.id;
       planned.set(
@@ -624,7 +654,11 @@ export class TimetablesService {
         new Map(
           planRows
             .filter((row) => row.curriculum_id === curriculumId && row.grade_level_code === classRow.grade_level)
-            .map((row) => [row.subject_id, { subject_name: row.name, periods: Number(row.periods_per_week) }]),
+            .map((row) => [
+              row.subject_id,
+              // Môn học lựa chọn của THPT (21a) do từng nhóm học, không xếp cả lớp
+              { subject_name: row.name, periods: Number(row.periods_per_week), elective: row.option_group !== null },
+            ]),
         ),
       );
     }
@@ -649,6 +683,7 @@ export class TimetablesService {
       teacher_name: lesson.teacher_name,
       room_id: lesson.room_id,
       room_name: lesson.room_name,
+      group_no: lesson.group_no,
     });
     let inputs = (await this.lessons(database, [versionId])).map(toInput);
     if (replace) {
@@ -684,6 +719,7 @@ export class TimetablesService {
             teacher_name: teacher?.staff_name ?? null,
             room_id: cell.room_id,
             room_name: rooms.find((room) => room.id === cell.room_id)?.name ?? null,
+            group_no: cell.group_no,
           };
         }),
       ];
@@ -695,13 +731,38 @@ export class TimetablesService {
       .selectFrom('timetable_teacher_busy')
       .select(['teacher_user_id', 'weekday', 'period_no'])
       .execute();
+    const subjectRules = await this.subjectRulesOf(database, [...new Set(inputs.map((lesson) => lesson.subject_id))]);
     return findTimetableConflicts(inputs, {
       periods: (await this.periodSlots(level)).map((slot) => slot.period_no),
       school_days: await this.schoolDays(level),
       planned,
       assigned: new Map([...assigned].map(([key, value]) => [key, value.staff_user_id])),
       busy: new Set(busy.map((row) => `${row.teacher_user_id}:${row.weekday}:${row.period_no}`)),
+      subject_rules: subjectRules,
     });
+  }
+
+  // Quy tắc xếp của môn (22c2): tiết đôi, phòng bộ môn; môn không có dòng thì không có quy tắc
+  private async subjectRulesOf(database: Executor, subjectIds: string[]) {
+    const rules = new Map<string, { double_period: boolean; room_id: string | null; room_name: string | null }>();
+    if (subjectIds.length === 0) {
+      return rules;
+    }
+    const rows = await database
+      .selectFrom('timetable_subject_rules')
+      .leftJoin('rooms', 'rooms.id', 'timetable_subject_rules.room_id')
+      .select([
+        'timetable_subject_rules.subject_id',
+        'timetable_subject_rules.double_period',
+        'timetable_subject_rules.room_id',
+        'rooms.name as room_name',
+      ])
+      .where('timetable_subject_rules.subject_id', 'in', subjectIds)
+      .execute();
+    for (const row of rows) {
+      rules.set(row.subject_id, { double_period: row.double_period, room_id: row.room_id, room_name: row.room_name });
+    }
+    return rules;
   }
 
   // Kiểm tra ngay khi chỉnh tay (22c2): xung đột của bản nếu tiết của lớp là các ô đang sửa, chưa ghi
@@ -824,7 +885,28 @@ export class TimetablesService {
     if (!child) {
       return { versions: [], slots: {}, lessons: [] };
     }
-    return this.view({ classId: child.class_id });
+    const view = await this.view({ classId: child.class_id });
+    // Tiết nhóm (21b) chỉ hiện nếu môn nằm trong tổ hợp môn của con (21a); con chưa đăng ký tổ hợp chỉ thấy tiết cả lớp
+    if (!view.lessons.some((lesson) => lesson.group_no > 0)) {
+      return view;
+    }
+    // Tổ hợp đang hiệu lực: tổ hợp đã duyệt, hoặc tổ hợp cũ khi đổi tổ hợp còn chờ duyệt
+    const registration = await database
+      .selectFrom('child_subject_combinations')
+      .select(['combination_id', 'previous_combination_id', 'status'])
+      .where('child_id', '=', childId)
+      .executeTakeFirst();
+    const effectiveId =
+      registration?.status === 'approved' ? registration.combination_id : registration?.previous_combination_id;
+    const combination = effectiveId
+      ? await database
+          .selectFrom('subject_combination_subjects')
+          .select('subject_id')
+          .where('combination_id', '=', effectiveId)
+          .execute()
+      : [];
+    const mine = new Set(combination.map((row) => row.subject_id));
+    return { ...view, lessons: view.lessons.filter((lesson) => lesson.group_no === 0 || mine.has(lesson.subject_id)) };
   }
 
   // Tệp mẫu nhập thời khoá biểu kèm danh mục lớp, môn, phòng của cấp
@@ -862,7 +944,15 @@ export class TimetablesService {
     const { database } = await this.currentSchoolYear.require();
     const version = await this.findVersion(database, versionId);
     this.assertDraft(version);
-    const rows = await readSheet(body, IMPORT_COLUMNS);
+    // Cột Nhóm (21b) thêm sau cùng; tệp mẫu cũ không có cột này vẫn nhập được, mọi tiết là tiết cả lớp
+    const hasGroupColumn = (await readHeaders(body)).has('Nhóm');
+    const rows = await readSheet(
+      body,
+      IMPORT_COLUMNS,
+      hasGroupColumn
+        ? undefined
+        : new Set(IMPORT_COLUMNS.filter((column) => column.key !== 'group_no').map((column) => column.key)),
+    );
     const [classes, subjects, rooms] = await Promise.all([
       database
         .selectFrom('classes')
@@ -887,6 +977,12 @@ export class TimetablesService {
       const periodNo = Number(values.period_no);
       const subject = subjects.find((item) => item.code === values.subject_code?.trim());
       const roomCode = values.room_code?.trim() ?? '';
+      const groupText = values.group_no?.trim() ?? '';
+      const groupNo = groupText === '' ? 0 : Number(groupText);
+      if (!Number.isInteger(groupNo) || groupNo < 0 || groupNo > 9) {
+        errors.push({ row: row.row, column: 'Nhóm', message: 'Nhóm để trống hoặc là số từ 1 đến 9' });
+        continue;
+      }
       const room = roomCode
         ? rooms.find((item) => item.code === roomCode && item.org_unit_id === classRow?.org_unit_id)
         : undefined;
@@ -908,15 +1004,15 @@ export class TimetablesService {
       if (!classRow || weekday === null || !subject || (roomCode && !room) || !Number.isInteger(periodNo)) {
         continue;
       }
-      const key = `${classRow.id}:${weekday}:${periodNo}`;
+      const key = `${classRow.id}:${weekday}:${periodNo}:${groupNo}`;
       if (seen.has(key)) {
-        errors.push({ row: row.row, column: 'Tiết', message: 'Lớp đã có môn ở tiết này trong tệp' });
+        errors.push({ row: row.row, column: 'Tiết', message: 'Lớp (nhóm) đã có môn ở tiết này trong tệp' });
         continue;
       }
       seen.add(key);
       byClass.set(classRow.id, [
         ...(byClass.get(classRow.id) ?? []),
-        { weekday, period_no: periodNo, subject_id: subject.id, room_id: room?.id ?? null },
+        { weekday, period_no: periodNo, subject_id: subject.id, room_id: room?.id ?? null, group_no: groupNo },
       ]);
     }
     if (errors.length > 0) {
