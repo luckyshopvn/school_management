@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.85
+- Phiên bản: 1.86
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -195,6 +195,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-95 | Sổ đầu bài (YCTD-162): quyền mới `P02.class-log.review` thuộc P02 cho VT-02, VT-15: ký sổ đầu bài của lớp theo tuần. Ghi, ký tiết: giáo viên của tiết theo thời khoá biểu đang áp dụng. Xem sổ tuần, chi tiết tiết, chuyên cần theo tiết: vai trò nhân sự có `P02.view`, `P02.edit`, `P02.class.manage` hoặc `P02.timetable.manage` (vai trò phụ huynh VT-14 không tính), người có `P02.class-log.review`, giáo viên được phân công ở lớp. Điểm danh theo tiết của con: phụ huynh của học sinh hoặc nhân sự |
 | PQ-96 | Máy xếp thời khoá biểu (YCTD-164): không thêm quyền. `P02.timetable.manage` (VT-02, VT-15): cài đặt ràng buộc, quy tắc môn, tiết bận, chạy, huỷ lần xếp, xem, chọn phương án, kiểm tra ngay khi chỉnh tay, ghi, xoá dạy thay, đổi tiết, tạo, thu hồi mã QR. Xem dạy thay, đổi tiết, tiết thực tế của ngày, báo cáo tiết dạy, dùng phòng: vai trò nhân sự xem được thời khoá biểu (PQ-94). Trang tra cứu theo mã: không cần đăng nhập |
 | PQ-97 | Kiểm tra, đánh giá phần đề (YCTD-168): quyền mới thuộc P02: `P02.question.author` (VT-07, VT-08, VT-17) soạn câu hỏi, soạn đề được giao; `P02.exam.review` (VT-02, VT-15, VT-17) duyệt câu hỏi, lập ma trận, kế hoạch kiểm tra, thẩm định đề; `P02.exam.manage` (VT-02, VT-15) duyệt kế hoạch, giao đề, khoá và mở khoá đề, xem mọi đề. Đề chỉ người ra đề, người thẩm định được giao và người có `P02.exam.manage` xem, tải |
+| PQ-98 | Hồ sơ bồi dưỡng giáo viên (YCTD-182): quyền mới thuộc P09: `P09.training.use` (VT-02, VT-15, VT-03 đến VT-12, VT-16, VT-17: đăng ký khoá, hồ sơ, chứng chỉ của mình, tự đánh giá năng lực số); `P09.training.review` (VT-17: duyệt cấp tổ, xem hồ sơ, xác nhận năng lực số của tổ mình); `P09.training.manage` (VT-02, VT-15: khoá, duyệt cuối, kết quả, chứng nhận, danh mục, hồ sơ toàn trường). Phụ huynh (VT-14) không có. Trang tra cứu chứng nhận không cần đăng nhập |
 
 ## 5. Phân cấp phê duyệt
 

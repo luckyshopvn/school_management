@@ -3037,6 +3037,93 @@ export interface StaffCertificatesTable {
   note: string | null;
   created_by: string;
   created_at: CreatedTimestamp;
+  // Mở rộng của hồ sơ bồi dưỡng (DT-22 phần 22e, YCTD-182): loại, tệp bản sao, khoá, số tiết, mã tra cứu, thu hồi
+  kind: Generated<StaffCertificateKind>;
+  file_id: ColumnType<string | null, string | null | undefined, string | null>;
+  course_id: ColumnType<string | null, string | null | undefined, string | null>;
+  registration_id: ColumnType<string | null, string | null | undefined, string | null>;
+  periods: ColumnType<number | null, number | null | undefined, number | null>;
+  lookup_code: ColumnType<string | null, string | null | undefined, string | null>;
+  revoked_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  revoke_reason: ColumnType<string | null, string | null | undefined, string | null>;
+}
+
+// Hồ sơ bồi dưỡng giáo viên (DT-22 phần 22e, YCTD-182)
+export type StaffCertificateKind = 'manual' | 'course' | 'school';
+export type TrainingOrganizerKind = 'school' | 'external';
+export type TrainingMode = 'in_person' | 'online' | 'self_study';
+export type TrainingCourseStatus = 'open' | 'closed' | 'completed';
+export type TrainingRegistrationStatus = 'pending' | 'team_approved' | 'approved' | 'rejected' | 'cancelled';
+export type TrainingResult = 'passed' | 'failed';
+export type CompetencyTerm = 'term_1' | 'term_2' | 'year';
+
+export interface TrainingCoursesTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  name: string;
+  topic_id: string | null;
+  topic_name: string | null;
+  program_no: number | null;
+  competency_domain_code: string | null;
+  organizer_kind: TrainingOrganizerKind;
+  organizer_name: string | null;
+  mode: Generated<TrainingMode>;
+  location: string | null;
+  start_date: string;
+  end_date: string;
+  periods: number;
+  sessions: Generated<number>;
+  quota: number | null;
+  registration_deadline: string | null;
+  issues_certificate: Generated<boolean>;
+  status: Generated<TrainingCourseStatus>;
+  note: string | null;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface TrainingRegistrationsTable {
+  id: Generated<string>;
+  course_id: string;
+  staff_id: string;
+  staff_name: string;
+  department_id: string | null;
+  status: Generated<TrainingRegistrationStatus>;
+  note: string | null;
+  team_reviewed_by_name: string | null;
+  team_reviewed_at: Date | null;
+  reviewed_by_name: string | null;
+  reviewed_at: Date | null;
+  review_note: string | null;
+  attended_sessions: number | null;
+  result: TrainingResult | null;
+  credited_periods: number | null;
+  result_comment: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface DigitalCompetencyAssessmentsTable {
+  id: Generated<string>;
+  staff_id: string;
+  staff_name: string;
+  department_id: string | null;
+  term: CompetencyTerm;
+  status: Generated<'submitted' | 'confirmed'>;
+  confirmed_by_name: string | null;
+  confirmed_at: Date | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface DigitalCompetencyScoresTable {
+  assessment_id: string;
+  domain_code: string;
+  domain_name: string;
+  self_level: number;
+  confirmed_level: number | null;
+  reason: string | null;
 }
 
 export interface StaffBonusDeductionsTable {
@@ -5748,6 +5835,10 @@ export interface SchoolYearDatabase {
   evaluation_scores: EvaluationScoresTable;
   staff_work_history: StaffWorkHistoryTable;
   staff_certificates: StaffCertificatesTable;
+  training_courses: TrainingCoursesTable;
+  training_registrations: TrainingRegistrationsTable;
+  digital_competency_assessments: DigitalCompetencyAssessmentsTable;
+  digital_competency_scores: DigitalCompetencyScoresTable;
   staff_bonus_deductions: StaffBonusDeductionsTable;
   debt_reminders: DebtRemindersTable;
   debt_resolutions: DebtResolutionsTable;
