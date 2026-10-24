@@ -203,6 +203,8 @@ import { EmulationController, EmulationVerificationController } from './emulatio
 import { EmulationCouncilService } from './emulation/emulation-council.js';
 import { TrainingController, TrainingVerificationController } from './training/training.controller.js';
 import { TrainingService } from './training/training.js';
+import { LearningResourcesController } from './learning-resources/learning-resources.controller.js';
+import { LearningResourcesService } from './learning-resources/learning-resources.js';
 import { EmulationService } from './emulation/emulation.js';
 import { emulationTransitionStep } from './emulation/emulation-transition.js';
 import { QualityAssuranceController } from './quality-assurance/quality-assurance.controller.js';
@@ -492,6 +494,7 @@ export class ApplicationModule {
         EmulationVerificationController,
         TrainingController,
         TrainingVerificationController,
+        LearningResourcesController,
         // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
         QualityAssuranceController,
         MyWorkController,
@@ -971,6 +974,7 @@ export class ApplicationModule {
         EmulationService,
         EmulationCouncilService,
         TrainingService,
+        LearningResourcesService,
         // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
         QualityAssuranceService,
         ...MY_WORK_SOURCE_TYPES,
