@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.45
+- Phiên bản: 0.46
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,17 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.119.0 – 2026-10-24
+### Phiên bản 0.120.0 – 2026-10-24
 
 - Phạm vi thay đổi: DT-21 phần 21e, học bạ số, khen thưởng, xét lên lớp THCS, THPT (YCTD-172).
 - Chức năng mới: danh hiệu học sinh Xuất sắc, Giỏi theo Thông tư 22/2021 (gợi ý, đề nghị, duyệt, giấy khen có mã tra cứu); xét lên lớp, hoàn thành chương trình cấp học, rèn luyện trong hè, kiểm tra lại theo xếp loại học tập, rèn luyện cả năm; học bạ số có điểm trung bình hai học kỳ, cả năm, xếp loại, kí nội bộ in đủ số định danh kèm kiểm quyền; phụ huynh tải học bạ đã kí; mục 7.8 dùng chung Tiểu học, THCS, THPT.
 - Lỗi đã sửa: không.
 - Thay đổi dữ liệu: tệp năm học `0089_widen_award_basis` (thêm căn cứ danh hiệu THCS, THPT); tệp định danh `0080` để trống (dùng quyền học bạ của 20e, không thêm quyền).
 - Thay đổi API: không thêm điểm cuối; các điểm cuối `/learning-records` nhận lớp THCS, THPT, trả thêm `has_result`, `needs_support`, `year_label`, `learning`, `conduct`.
-- Kiểm thử: kịch bản CT-927 đến CT-932. Kết quả ngày 24/10/2026: kiểm thử đơn vị `learning-records-secondary.test.ts` CT-21e-1 đến CT-21e-5 đạt 5/5; chạy cùng học bạ 20e, sổ điểm 21c, sổ điểm, môn học, đánh giá, menu, cấp học đạt 45/45; typecheck, prettier đạt; e2e 100, 92, 98, 58 và 02, 03, 06, 08 đạt; e2e CT-21e-6 đạt; e2e toàn bộ do CI chạy.
+- Kiểm thử: kịch bản CT-934 đến CT-939. Kết quả ngày 24/10/2026: kiểm thử đơn vị `learning-records-secondary.test.ts` CT-21e-1 đến CT-21e-5 đạt 5/5; chạy cùng học bạ 20e, sổ điểm 21c, sổ điểm, môn học, đánh giá, menu, cấp học đạt 45/45; typecheck, prettier đạt; e2e 100, 92, 98, 58 và 02, 03, 06, 08 đạt; e2e CT-21e-6 đạt; e2e toàn bộ do CI chạy.
 - Rủi ro: điều kiện danh hiệu Xuất sắc (6 môn từ 9,0), điều kiện lên lớp là mặc định theo Thông tư 22/2021, cần đối chiếu văn bản gốc; mẫu học bạ THCS, THPT là bố cục chung, mẫu của Bộ, Sở khớp khi khảo sát; chưa khảo sát hệ thống của Sở cấp THCS, THPT.
 - Khả năng tương thích: học bạ, khen thưởng, lên lớp Tiểu học không đổi; trường chỉ có Mầm non thấy như cũ.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 21e; chạy phần quay lui của tệp năm học `0089`.
+### Phiên bản 0.119.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-22 phần 22e, hồ sơ bồi dưỡng giáo viên (YCTD-182).
+- Chức năng mới: danh mục bồi dưỡng (định mức tiết, chuyên đề theo chương trình, khung năng lực số); khoá bồi dưỡng, đăng ký, duyệt hai cấp, kết quả; chứng nhận có mã tra cứu công khai, thu hồi, cấp lại; chứng chỉ nhập tay; hồ sơ bồi dưỡng của tôi, của tổ, của trường; tự đánh giá năng lực số, xác nhận, bản đồ năng lực, gợi ý chuyên đề; ứng dụng giáo viên "Bồi dưỡng của tôi"; Việc của tôi có nguồn bồi dưỡng.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp hệ thống `0041_create_training_catalogs`; tệp năm học `0101_create_training_records` (thêm cột `staff_certificates`); tệp định danh `0091_add_training_permissions`.
+- Thay đổi API: `/training/*`, `/public/training-certificates/verify`.
+- Kiểm thử: kịch bản CT-927 đến CT-933. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/training/training.test.ts` CT-22e-1 đến CT-22e-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa (api, shared, database) đạt 1022/1022 (api 1016, database 6); kiểm thử giao diện `tests/e2e/121-teacher-training.spec.ts` (CT-22e-7) đạt; kiểm thử giao diện chạy trên máy (toàn bộ spec trên nhánh trước khi gộp 20e, 22c2) 161/164; spec 22 (bảng lương) lỗi do spec 121 thêm nhân sự làm từ năm trước vào trường gốc nên bảng lương đòi chốt công tháng trước (BR-43), đã sửa spec 121 cho nhân sự bắt đầu từ hôm nay, chạy lại 02, 03, 121, 21, 22 đạt; spec 04 (lưới Tài khoản), 76 (gói ZIP) lỗi không liên quan 22e; spec 58 đạt; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: cột thêm của `staff_certificates` cho phép trống hoặc có mặc định, dữ liệu cũ vẫn hợp lệ.
+- Khả năng tương thích: không đổi hành vi phần đã có.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 22e; chạy phần quay lui của tệp hệ thống `0041`, năm học `0101`, định danh `0091`.
+
 ### Phiên bản 0.118.0 – 2026-10-24
 
 - Phạm vi thay đổi: DT-21 phần 21b, thời khoá biểu THCS, THPT (YCTD-169).

@@ -108,22 +108,43 @@ export async function createTestUser(
   } = {},
 ): Promise<TestUser> {
   sharedPasswordHash ??= hashPassword(TEST_PASSWORD);
-  const suffix = randomUUID().replaceAll('-', '').slice(0, 12);
-  const phone = `09${randomInt(0, 100_000_000).toString().padStart(8, '0')}`;
-  const username = `kiem_thu_${suffix}`;
-  const user = await database
-    .insertInto('users')
-    .values({
-      full_name: `Người kiểm thử ${suffix}`,
-      phone,
-      username,
-      password_hash: options.usesDefaultPassword ? null : (options.passwordHash ?? (await sharedPasswordHash)),
-      must_change_password: options.mustChangePassword ?? options.usesDefaultPassword ?? false,
-      valid_until: options.validUntil ?? null,
-    })
-    .returning('id')
-    .executeTakeFirstOrThrow();
-  for (const role of options.roles ?? []) {
+  const passwordHash = options.usesDefaultPassword ? null : (options.passwordHash ?? (await sharedPasswordHash));
+  // Số điện thoại ngẫu nhiên đôi khi trùng tài khoản đã có (khoá duy nhất users_phone_key) thì sinh số khác, thử tối đa năm lần
+  for (let attempt = 1; ; attempt += 1) {
+    const suffix = randomUUID().replaceAll('-', '').slice(0, 12);
+    const phone = `09${randomInt(0, 100_000_000).toString().padStart(8, '0')}`;
+    const username = `kiem_thu_${suffix}`;
+    let user: { id: string };
+    try {
+      user = await database
+        .insertInto('users')
+        .values({
+          full_name: `Người kiểm thử ${suffix}`,
+          phone,
+          username,
+          password_hash: passwordHash,
+          must_change_password: options.mustChangePassword ?? options.usesDefaultPassword ?? false,
+          valid_until: options.validUntil ?? null,
+        })
+        .returning('id')
+        .executeTakeFirstOrThrow();
+    } catch (error) {
+      const duplicate = (error as { code?: string }).code === '23505';
+      if (!duplicate || attempt >= 5) {
+        throw error;
+      }
+      continue;
+    }
+    return assignTestRoles(database, { id: user.id, phone, username, password: TEST_PASSWORD }, options.roles ?? []);
+  }
+}
+
+async function assignTestRoles(
+  database: Kysely<IdentityDatabase>,
+  user: TestUser,
+  roles: Array<{ roleCode: string; orgUnitId: string | null }>,
+): Promise<TestUser> {
+  for (const role of roles) {
     const roleRow = await database
       .selectFrom('roles')
       .select('id')
@@ -134,7 +155,7 @@ export async function createTestUser(
       .values({ user_id: user.id, role_id: roleRow.id, org_unit_id: role.orgUnitId })
       .execute();
   }
-  return { id: user.id, phone, username, password: TEST_PASSWORD };
+  return user;
 }
 
 // Kiểm thử giao diện không đọc được tin nhắn thật; dùng để gán mã một lần đã biết cho tài khoản kiểm thử
