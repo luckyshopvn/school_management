@@ -3256,6 +3256,51 @@ export interface LearningResourceReportsTable {
   created_at: CreatedTimestamp;
 }
 
+// Câu hỏi, đề, ma trận trong bộ sưu tập; rubric; nhật ký nhập gói chia sẻ (DT-22 phần 22h2, YCTD-184)
+export type ResourceQuestionItemKind = 'question' | 'exam' | 'matrix';
+
+export interface ResourceCollectionQuestionsTable {
+  collection_id: string;
+  item_kind: ResourceQuestionItemKind;
+  item_id: string;
+  position: number;
+  added_by: string;
+  added_at: CreatedTimestamp;
+}
+
+export interface RubricsTable {
+  id: Generated<string>;
+  name: string;
+  description: string | null;
+  school_level: SchoolLevelCode | null;
+  subject_id: string | null;
+  grade_level_code: string | null;
+  question_id: string | null;
+  levels: JsonDocument;
+  criteria: JsonDocument;
+  max_score: ColumnType<string, number, number>;
+  visibility: ColumnType<'private' | 'school', 'private' | 'school' | undefined, 'private' | 'school'>;
+  status: ColumnType<'active' | 'archived', 'active' | 'archived' | undefined, 'active' | 'archived'>;
+  source_rubric_id: string | null;
+  owner_user_id: string;
+  owner_name: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ResourcePackageImportsTable {
+  id: Generated<string>;
+  package_code: string;
+  source_school: string;
+  package_created_at: Date | null;
+  imported_count: number;
+  skipped: DefaultJson;
+  resource_ids: DefaultJson;
+  imported_by: string;
+  imported_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
 export interface LearningResourceUsageTable {
   id: Generated<string>;
   resource_id: string;
@@ -6222,6 +6267,9 @@ export interface SchoolYearDatabase {
   learning_resource_events: LearningResourceEventsTable;
   learning_resource_reports: LearningResourceReportsTable;
   learning_resource_usage: LearningResourceUsageTable;
+  resource_collection_questions: ResourceCollectionQuestionsTable;
+  rubrics: RubricsTable;
+  resource_package_imports: ResourcePackageImportsTable;
   staff_bonus_deductions: StaffBonusDeductionsTable;
   debt_reminders: DebtRemindersTable;
   debt_resolutions: DebtResolutionsTable;

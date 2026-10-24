@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.120
+- Phiên bản: 1.121
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -1496,6 +1496,13 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, POST, PATCH, PUT, DELETE | /api/v1/learning-resources/collections, /collections/{id}, /collections/{id}/items, /collections/{id}/export | Bộ sưu tập (P09-53) |
 | GET, POST | /api/v1/learning-resources/{id}/reports, /learning-resources/reports, /learning-resources/reports/{id}/handle | Báo lỗi; danh sách; xử lý (P09-54) |
 | GET | /api/v1/learning-resources/statistics | Thống kê kho (P09-55) |
+| GET | /api/v1/resource-sharing/bank | Câu hỏi, đề, ma trận của ngân hàng 22g1 người dùng thấy (`kind`, `q`, `subject_id`, `grade_level_code`, `cognitive_level`), kèm lịch sử dùng, đường dẫn (P09-56, YCTD-184) |
+| GET | /api/v1/resource-sharing/statistics | Thống kê sử dụng câu hỏi, học liệu, chỗ trống chủ đề (P09-56) |
+| GET, PUT | /api/v1/resource-sharing/collections/{id}/items | Câu hỏi, đề, ma trận trong bộ sưu tập; thay danh sách (`items`: `kind`, `id`) (P09-56) |
+| GET, POST, PUT | /api/v1/resource-sharing/rubrics, /rubrics/{id} | Rubric (P09-57) |
+| POST, GET | /api/v1/resource-sharing/rubrics/{id}/clone, /archive, /restore, /print | Nhân bản, lưu trữ, dùng lại, in PDF (P09-57) |
+| GET | /api/v1/resource-sharing/packages/preview, /export, /imports | Xem trước, xuất gói (`collection_id`, `source_school`), lịch sử nhập (P09-58) |
+| POST | /api/v1/resource-sharing/packages/import | Nhập gói (tệp `file`), trả `imported_count`, `skipped`, `resource_ids` (P09-58) |
 | GET, PUT, POST, DELETE | /api/v1/website/settings, /website/settings/images/{purpose}, /website/sample-content, /website/disclosure-categories | Thông tin website, biểu trưng, ảnh đầu trang, nội dung mẫu, nhóm công khai (P14-13, YCTD-144) |
 | GET, POST, PATCH, DELETE | /api/v1/website/domains, /website/domains/{id}, /website/domains/{id}/dns-confirmation | Tên miền (P14-13, YCTD-144) |
 | GET, POST, PUT, DELETE | /api/v1/website/posts, /website/posts/{id}, /submit, /approve, /return, /unpublish, /files, /files/{fileId} | Bài viết, luồng duyệt, tệp (P14-14, YCTD-144) |
@@ -1734,6 +1741,14 @@ Giao kèo kho học liệu số (DT-22 phần 22h1, YCTD-183, BR-196; học li�
 5. `GET /learning-resources/{id}` trả `resource`, `versions` (người khác chỉ thấy bản đã công bố), `events` (chỉ người sở hữu, người duyệt, thủ kho), `views`, `downloads`; học liệu không thấy được trả 404.
 6. `PUT /collections/{id}/items` nhận `resource_ids` theo thứ tự (không trùng, tối đa 500, chỉ học liệu người lập thấy được; sai trả 400; người khác sửa trả 403).
 7. `POST /learning-resources/{id}/reports` nhận `kind` (`content`, `file`, `copyright`), `description`; `POST /learning-resources/reports/{id}/handle` nhận `status` (`resolved`, `rejected`), `response` (bắt buộc), `hide` (ẩn tạm học liệu); báo lỗi đã xử lý trả 422.
+
+
+Giao kèo kho học liệu, câu hỏi và chia sẻ (DT-22 phần 22h2, YCTD-184, BR-197):
+
+1. `GET /resource-sharing/bank` không tạo, không sửa câu hỏi; câu, đề người dùng không thấy theo 22g1 thì không có trong kết quả. Bộ lọc sai trả 400.
+2. `PUT /collections/{id}/items`: chỉ người lập (403); mục trùng, quá 500, không tồn tại hoặc không xem được trả 400.
+3. `POST, PUT /rubrics` nhận `name`, `description`, `school_level`, `subject_id`, `grade_level_code`, `question_id` (câu tự luận), `visibility`, `levels` (2 đến 6, điểm tăng dần), `criteria` (1 đến 20: `name`, `weight`, `descriptors` đủ số mức); sai trả 400; sửa rubric của người khác trả 403.
+4. Gói: tệp gzip chứa JSON `format` = `school-management.resource-package/1`, `package_code`, `source_school`, `created_at`, `items` (metadata, `license_code`, `kind` `file` có `file_name`, `sha256`, `data` base64, hoặc `link` có `url`). Tệp không đọc được, sai định dạng trả 400; học liệu lỗi được bỏ qua kèm lý do. Không có quyền chia sẻ trả 403; bộ sưu tập không có học liệu xuất được trả 422 mã YCTD-184.
 
 
 Giao kèo kế hoạch giáo dục (DT-18 phần 22i, YCTD-147, BR-142):

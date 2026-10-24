@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.93
+- Phiên bản: 1.94
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -303,6 +303,9 @@
 | P09-53 | Bộ sưu tập học liệu (Kho học liệu 4., YCTD-183) | `P09.learning-resource.use` | Tên, phạm vi; danh sách học liệu theo thứ tự | Chỉ học liệu người lập thấy được; chỉ người lập sửa | Bộ sưu tập; tệp Excel danh sách | BR-196 |
 | P09-54 | Báo lỗi học liệu (Kho học liệu 5., YCTD-183) | Báo: `P09.learning-resource.use`; xử lý: `P09.learning-resource.manage` | Loại lỗi, mô tả; kết quả, trả lời, ẩn tạm | Thủ kho xử lý, ẩn tạm học liệu khi cần | Báo lỗi đã xử lý | BR-196 |
 | P09-55 | Thống kê kho, danh mục kho (Kho học liệu 6., 7., YCTD-183) | Thống kê: tổ trưởng (tổ mình), Ban Giám hiệu, thủ kho; danh mục: `P09.learning-resource.manage` | Loại học liệu, giấy phép, chủ đề | Đếm theo môn, khối, loại, giấy phép, tổ, giáo viên; chờ duyệt, quá hạn, giấy phép sắp hết hiệu lực; lượt xem, tải, báo lỗi | Bảng thống kê; danh mục | BR-196 |
+| P09-56 | Câu hỏi, đề trong kho (Kho học liệu 8., YCTD-184) | Người dùng kho; thấy theo quyền 22g1 | Loại, nội dung, mức nhận thức; bộ sưu tập | Tham chiếu ngân hàng 22g1; thêm vào bộ sưu tập; thống kê sử dụng, chỗ trống chủ đề | Danh sách, thống kê | BR-197 |
+| P09-57 | Rubric (Kho học liệu 9., YCTD-184) | Người dùng kho | Tên, mức, điểm, tiêu chí, trọng số, mô tả; câu tự luận | Kiểm, tính điểm tối đa; nhân bản; lưu trữ | Rubric; PDF in | BR-197 |
+| P09-58 | Gói chia sẻ liên trường (Kho học liệu 10., YCTD-184) | `P09.learning-resource.share` | Bộ sưu tập, tên trường nguồn; tệp gói | Lọc học liệu xuất được; đóng gói, mã băm; nhập có kiểm, loại trùng, gửi duyệt | Tệp gói; học liệu chờ duyệt; nhật ký nhập | BR-197 |
 
 ## 11. Phân hệ P10 — Y tế học đường
 
@@ -458,8 +461,8 @@
 | P17-31 | Thống kê Tiểu học: sĩ số, kết quả đánh giá, cuối năm, chuyên cần, bán trú (YCTD-165) | Người có `P17.child-statistics.view` | Đơn vị, kỳ đánh giá, gộp theo lớp, khối, trường, khoảng ngày | Bảng thống kê, tệp Excel, PDF | 7.15 các thẻ Sĩ số, Kết quả đánh giá, Cuối năm, Chuyên cần, bán trú | BR-181 |
 | P17-32 | Biểu EMIS Tiểu học: tính, nhập tay, xuất, gửi lên cấp trên (YCTD-165) | Người có `P17.report.emis` | Biểu; số nhập tay | Biểu đã tính, tệp Excel, PDF, trạng thái gửi | 7.15 thẻ EMIS Tiểu học; trang gửi lên cấp trên | BR-182, BR-183 |
 | P17-33 | Sửa khung biểu EMIS (YCTD-165) | VT-02, VT-15 (`P17.report-form.manage`) | Dòng: mã, chỉ tiêu, đơn vị, loại, công thức | Khung biểu mới | 7.15 thẻ EMIS Tiểu học, Sửa khung biểu | BR-182 |
-| P17-34 | Thống kê THCS, THPT: sĩ số, tổ hợp, kết quả cuối năm, phổ điểm, theo giáo viên, tổ bộ môn (YCTD-175) | Người có `P17.child-statistics.view` | Cấp, đơn vị, gộp theo lớp, khối, trường, kỳ, môn | Bảng thống kê, tệp Excel, PDF | 7.18 các thẻ Sĩ số, Kết quả cuối năm, Phổ điểm, Theo giáo viên, tổ bộ môn | BR-197 |
-| P17-35 | Biểu EMIS THCS, THPT: tính, nhập tay, sửa khung, xuất, gửi lên cấp trên (YCTD-175) | Người có `P17.report.emis`; sửa khung `P17.report-form.manage` | Biểu; số nhập tay; dòng, công thức | Biểu đã tính, tệp Excel, PDF, trạng thái gửi | 7.18 thẻ EMIS THCS, THPT; trang gửi lên cấp trên | BR-198 |
+| P17-34 | Thống kê THCS, THPT: sĩ số, tổ hợp, kết quả cuối năm, phổ điểm, theo giáo viên, tổ bộ môn (YCTD-175) | Người có `P17.child-statistics.view` | Cấp, đơn vị, gộp theo lớp, khối, trường, kỳ, môn | Bảng thống kê, tệp Excel, PDF | 7.18 các thẻ Sĩ số, Kết quả cuối năm, Phổ điểm, Theo giáo viên, tổ bộ môn | BR-198 |
+| P17-35 | Biểu EMIS THCS, THPT: tính, nhập tay, sửa khung, xuất, gửi lên cấp trên (YCTD-175) | Người có `P17.report.emis`; sửa khung `P17.report-form.manage` | Biểu; số nhập tay; dòng, công thức | Biểu đã tính, tệp Excel, PDF, trạng thái gửi | 7.18 thẻ EMIS THCS, THPT; trang gửi lên cấp trên | BR-199 |
 
 ## 19. Phân hệ P18 — Tuyển dụng
 

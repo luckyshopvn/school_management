@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.57
+- Phiên bản: 0.58
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -22,7 +22,7 @@
 - Cơ sở dữ liệu: tệp hệ thống `0028_add_secondary_report_forms` (bốn biểu khung); số giữ sẵn tệp năm học `0092`, định danh `0083` không dùng.
 - Máy chủ API: thống kê THCS, THPT, xuất tệp; biểu EMIS theo cấp của biểu trên khung 20f.
 - Cổng quản trị: 7.18 Báo cáo, thống kê, EMIS THCS, THPT.
-- Thêm quy tắc BR-197 đến BR-198, chức năng P17-34 đến P17-35, màn hình MH-309, phân quyền PQ-103, kịch bản CT-975 đến CT-979, tiêu chí AC-816 đến AC-819. Kết quả ngày 25/10/2026: kiểm thử đơn vị `apps/api/src/secondary-reports/secondary-reports.test.ts` CT-21g-1 đến CT-21g-4 đạt 4/4; kiểm thử đơn vị liên quan trên máy (báo cáo Tiểu học 20f, quick-links, điều kiện menu, menu theo cấp, gửi lên cấp trên) đạt 31/31, không sửa kỳ vọng (thêm mục 7.18 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của THCS, THPT của CT-19c-1); e2e trên máy 02, 03, 94, 103 đạt; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm quy tắc BR-198 đến BR-199, chức năng P17-34 đến P17-35, màn hình MH-312, phân quyền PQ-104, kịch bản CT-981 đến CT-985, tiêu chí AC-819 đến AC-822. Kết quả ngày 25/10/2026: kiểm thử đơn vị `apps/api/src/secondary-reports/secondary-reports.test.ts` CT-21g-1 đến CT-21g-4 đạt 4/4; kiểm thử đơn vị các gói đã sửa trên máy (database 6/6, api 1080/1080) đạt, kiểm thử đang có không sửa kỳ vọng (thêm mục 7.18 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của THCS, THPT của CT-19c-1); e2e trên máy 02, 03, 06, 08, 94, 103, 82, 92 đạt (82, 92 sửa cách chọn để không phụ thuộc dữ liệu của 103; 103 dọn khối 10 tự tạo, đóng lớp thử); e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
@@ -30,11 +30,32 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-175, `07_QUY_TAC_NGHIEP_VU.md` BR-197 đến BR-198, `08_VAI_TRO_NGUOI_DUNG.md` PQ-103, `10_YEU_CAU_CHUC_NANG.md` P17-34 đến P17-35, `11_TIEU_CHI_NGHIEM_THU.md` AC-816 đến AC-819, `14_DAC_TA_GIAO_DIEN.md` MH-309, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-975 đến CT-979, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.9. Phiên bản 0.126.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-175, `07_QUY_TAC_NGHIEP_VU.md` BR-198 đến BR-199, `08_VAI_TRO_NGUOI_DUNG.md` PQ-104, `10_YEU_CAU_CHUC_NANG.md` P17-34 đến P17-35, `11_TIEU_CHI_NGHIEM_THU.md` AC-819 đến AC-822, `14_DAC_TA_GIAO_DIEN.md` MH-312, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-981 đến CT-985, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.9. Phiên bản 0.127.0.
 
 #### Vấn đề tồn đọng
 
 - Khảo sát hệ thống của Sở cấp THCS, THPT để sửa biểu khung cho khớp (tài liệu 31); thêm biểu mới từ giao diện.
+
+### 2026-10-25 — DT-22 phần 22h2: kho học liệu số, câu hỏi và chia sẻ
+
+#### Công việc đã thực hiện
+
+- Đọc mục 13.4 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà kho học liệu 22h1 (hệ thống 0042, năm học 0102), ngân hàng câu hỏi, đề, ma trận của 22g1, lịch sử dùng câu có kết quả chấm của 22g2.
+- Cơ sở dữ liệu: tệp năm học `0103`, định danh `0093`. Máy chủ API: hàm thuần rubric, gói chia sẻ; câu hỏi, đề, ma trận trong kho, bộ sưu tập, thống kê, rubric, xuất, nhập gói. Cổng quản trị: Kho học liệu 8., 9., 10.
+- Thêm quy tắc BR-197, chức năng P09-56 đến P09-58, quyền PQ-103, màn hình MH-309 đến MH-311, kịch bản CT-975 đến CT-980, tiêu chí AC-816 đến AC-818. Kết quả ngày 25/10/2026: kiểm thử đơn vị `apps/api/src/learning-resources/resource-sharing.test.ts` CT-22h2-1 đến CT-22h2-5 đạt 5/5; kiểm thử đơn vị các gói đã sửa (api, database, shared) đạt (shared; database 6/6; api 1087/1087); kiểm thử giao diện `tests/e2e/123-resource-sharing.spec.ts` (CT-22h2-6) cùng 02, 03, 06, 08, 58, 96, 122 đạt; toàn bộ kiểm thử giao diện do CI chạy (trên máy: 02, 03, 06, 08, 58, 96, 122 đạt; 123 đạt sau khi sửa CSDL hệ thống của spec); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 22h2 của mục 13.4: một nguồn sự thật cho câu hỏi (kho chỉ tham chiếu ngân hàng 22g1); bộ sưu tập câu hỏi, rubric ở năm học vì ngân hàng câu hỏi ở năm học; gói chia sẻ là tệp nén gzip có bản kê JSON (không thêm thư viện nén); học liệu nhập đi qua luồng duyệt 22h1; quyền mới `P09.learning-resource.share`; AI tắt. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-184, `07_QUY_TAC_NGHIEP_VU.md` BR-197, `08_VAI_TRO_NGUOI_DUNG.md` PQ-103, `10_YEU_CAU_CHUC_NANG.md` P09-56 đến P09-58, `11_TIEU_CHI_NGHIEM_THU.md` AC-816 đến AC-818, `14_DAC_TA_GIAO_DIEN.md` MH-309 đến MH-311, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-975 đến CT-980, `23_LICH_SU_PHIEN_BAN.md` 0.126.0.
+
+#### Vấn đề tồn đọng
+
+- Câu hỏi trong gói chia sẻ; danh mục chung liên trường (DT-SaaS).
+
 
 ### 2026-10-24 — DT-22 phần 22h1: kho học liệu số, phần lõi
 

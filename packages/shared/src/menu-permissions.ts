@@ -327,6 +327,10 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
     'P09.learning-resource.manage',
   ),
   '/learning-resources/settings': 'P09.learning-resource.manage',
+  // Câu hỏi, đề, ma trận của 22g1 trong kho, rubric, gói chia sẻ liên trường (DT-22 phần 22h2)
+  '/learning-resources/questions': RESOURCE_ANY,
+  '/learning-resources/rubrics': RESOURCE_ANY,
+  '/learning-resources/packages': 'P09.learning-resource.share',
   '/emulation/campaigns': EMULATION_ANY,
   '/emulation/registrations': EMULATION_ANY,
   '/emulation/nominations': EMULATION_ANY,

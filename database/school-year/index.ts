@@ -90,6 +90,7 @@ import { migration as createTrainingRecords } from './migrations/0101_create_tra
 import { migration as widenAwardBasis } from './migrations/0089_widen_award_basis.js';
 import { migration as createGraduation } from './migrations/0091_create_graduation.js';
 import { migration as createLearningResourceActivity } from './migrations/0102_create_learning_resource_activity.js';
+import { migration as createResourceQuestionsAndRubrics } from './migrations/0103_create_resource_questions_and_rubrics.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
@@ -184,4 +185,5 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0089_widen_award_basis': widenAwardBasis,
   '0091_create_graduation': createGraduation,
   '0102_create_learning_resource_activity': createLearningResourceActivity,
+  '0103_create_resource_questions_and_rubrics': createResourceQuestionsAndRubrics,
 };

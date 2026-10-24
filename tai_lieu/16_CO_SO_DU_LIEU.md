@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.116
+- Phiên bản: 1.117
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -452,6 +452,9 @@ Thi đua, khen thưởng (DT-18 phần 22d, YCTD-148). Cơ sở dữ liệu năm
 | learning_resource_events | Sự kiện duyệt học liệu theo năm học (P09-51; YCTD-183, tệp năm học `0102_create_learning_resource_activity`) | resource_id, version_no, action (`submit`, `unit_approve`, `school_approve`, `return`, `publish`, `hide`, `restore`, `retire`), note, actor_user_id, actor_name, created_at |
 | learning_resource_reports | Báo lỗi học liệu (P09-54; YCTD-183) | resource_id, resource_title, kind (`content`, `file`, `copyright`), description, status (`open`, `resolved`, `rejected`), reporter_user_id, reporter_name, response, handled_by_name, handled_at, created_at |
 | learning_resource_usage | Lượt xem, tải học liệu (P09-52, P09-55; YCTD-183) | resource_id, kind (`view`, `download`), user_id, created_at |
+| resource_collection_questions (từ YCTD-184) | Câu hỏi, đề, ma trận của ngân hàng 22g1 trong bộ sưu tập của kho (P09-56, BR-197; tệp năm học `0103_create_resource_questions_and_rubrics`) | collection_id (bộ sưu tập ở hệ thống), item_kind (`question`, `exam`, `matrix`), item_id, position, added_by, added_at; khoá chính theo bộ sưu tập, loại, mã |
+| rubrics (từ YCTD-184) | Rubric (P09-57) | name, description, school_level, subject_id, grade_level_code, question_id (câu tự luận, đặt rỗng khi xoá), levels (JSON: label, score), criteria (JSON: name, weight, descriptors), max_score, visibility (`private`, `school`), status (`active`, `archived`), source_rubric_id, owner_user_id, owner_name, thời điểm |
+| resource_package_imports (từ YCTD-184) | Nhật ký nhập gói chia sẻ (P09-58) | package_code, source_school, package_created_at, imported_count, skipped (JSON), resource_ids (JSON), imported_by, imported_by_name, created_at |
 
 Mở năm học mới chép thư viện mẫu, giữ mã định danh (bỏ liên kết thư mục không có ở năm mới); kế hoạch ở lại năm cũ để sao chép, so sánh.
 
