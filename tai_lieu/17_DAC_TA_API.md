@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.106
+- Phiên bản: 1.107
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -1383,6 +1383,9 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, POST, PUT, PATCH | /api/v1/assessment/config, /defaults, /levels, /items, /items/{id}, /periods/{id}, /periods/{id}/tests, /templates, /templates/{id} (từ YCTD-161) | Cấu hình đánh giá theo `school_level`; đọc: mọi người đã đăng nhập; sửa, nạp mặc định: `P02.assessment.manage` |
 | GET, PUT, POST, DELETE | /api/v1/assessment/classes/{id}, /subjects/{subjectId}, /competencies, /comments, /summary, /year-results; /assessment/comments/{id} (từ YCTD-161) | Tổng quan lớp (kỳ, môn, quyền nhập), bảng nhập theo `period_id`, lưu (`entries`: `child_id`, `level_code`, `score`, `comment`), nhận xét thường xuyên, tổng hợp cuối kỳ, gợi ý và xác nhận cuối năm; quá hạn, đã khoá trả 422 mã YCTD-161 |
 | GET, POST | /api/v1/assessment/locks, /locks/unlock; /assessment/children/{id} (từ YCTD-161) | Khoá kỳ (`period_id`, `class_ids` trống là mọi lớp của cấp trong phạm vi), mở khoá (`reason` bắt buộc); phụ huynh xem kết quả đã khoá của con |
+| GET, POST, PATCH | /api/v1/learning-records/award-titles, /defaults, /{id}; /learning-records/classes/{id}/awards; /learning-records/awards/{id}/decide, /certificate (từ YCTD-163) | Danh hiệu (sửa: `P02.student-record.approve`), khen thưởng của lớp kèm gợi ý, đề nghị (`child_id`, `title_id`, `achievement`), duyệt (`approve`, `note`), giấy khen PDF; trái quy tắc trả 422 mã YCTD-163 |
+| GET, PUT, POST, PATCH | /api/v1/learning-records/classes/{id}/completion, /learning-records, /learning-records/prepare; /learning-records/learning-records/{id}, /sign, /reopen, /file; /learning-records/children/{id} (từ YCTD-163) | Hoàn thành chương trình (`entries`: `child_id`, `support_plan`, `support_result`, `support_note`), học bạ của lớp, lập, nhận xét, kí nội bộ, mở lại (`reason`), tải PDF, học bạ và khen thưởng của học sinh (phụ huynh: bản đã kí) |
+| GET | /api/v1/public/student-awards/verify (từ YCTD-163) | Tra cứu công khai mã giấy khen học sinh (`code` 12 kí tự), giới hạn tần suất |
 | GET, POST, PUT, DELETE | /api/v1/emulation/decisions, /{id}, /document, /outgoing, /issue, /upper-result; /emulation/awards/{id}/certificate; /emulation/history, /export, /{id}; GET /public/emulation-awards/verify | Quyết định, giấy khen, sổ theo dõi, tra cứu công khai (P09-38, P09-39) |
 | GET, PUT, POST, DELETE | /api/v1/website/settings, /website/settings/images/{purpose}, /website/sample-content, /website/disclosure-categories | Thông tin website, biểu trưng, ảnh đầu trang, nội dung mẫu, nhóm công khai (P14-13, YCTD-144) |
 | GET, POST, PATCH, DELETE | /api/v1/website/domains, /website/domains/{id}, /website/domains/{id}/dns-confirmation | Tên miền (P14-13, YCTD-144) |

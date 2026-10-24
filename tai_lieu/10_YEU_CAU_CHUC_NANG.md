@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.79
+- Phiên bản: 1.80
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -116,6 +116,9 @@
 | P02-45 | Ghi sổ đầu bài, điểm danh theo tiết (ứng dụng giáo viên, YCTD-162) | Giáo viên của tiết theo thời khoá biểu | Ngày; tiết; tên bài, nội dung, nhận xét, xếp loại; trạng thái từng học sinh | Lấy tiết theo bản đang áp dụng; mặc định có mặt hoặc vắng có phép theo báo vắng; không ghi trước ngày dạy; ký tiết thì khoá; nhật ký | Tiết đã ghi, đã ký; điểm danh theo tiết | BR-174 |
 | P02-46 | Kiểm tra, ký sổ đầu bài theo tuần (7.6., YCTD-162) | Xem: nhân sự xem được lớp; ký: `P02.class-log.review` | Lớp; ngày trong tuần; nhận xét | Liệt kê tiết của tuần theo thời khoá biểu kèm tiết đã ghi, số vắng, muộn; ký một lần mỗi tuần, khoá ghi tiết trong tuần | Sổ tuần; chữ ký Ban giám hiệu | BR-174 |
 | P02-47 | Chuyên cần theo tiết (7.7., ứng dụng phụ huynh, YCTD-162) | Nhân sự xem được lớp; phụ huynh của học sinh | Lớp, khoảng ngày; con, tháng | Đếm tiết theo trạng thái; đối chiếu báo vắng theo ngày và điểm danh theo ngày | Bảng chuyên cần theo học sinh; điểm danh theo tiết của con | BR-174 |
+| P02-48 | Khen thưởng học sinh cuối năm, đột xuất (YCTD-163) | Đề nghị: giáo viên chủ nhiệm; duyệt, danh hiệu: VT-02, VT-15 (`P02.student-record.approve`) | Danh hiệu, học sinh, thành tích; duyệt hoặc không duyệt kèm lý do | Danh sách khen thưởng, giấy khen có mã tra cứu | 7.8 Khen thưởng, Danh hiệu; trang tra cứu công khai | BR-175 |
+| P02-49 | Hoàn thành chương trình lớp học, chương trình tiểu học; rèn luyện trong hè, kiểm tra lại, lên lớp (YCTD-163) | Giáo viên chủ nhiệm; Ban Giám hiệu | Hình thức, kết quả đánh giá bổ sung, ghi chú | Kết quả hoàn thành, khối năm sau | 7.8 Hoàn thành chương trình | BR-176 |
+| P02-50 | Học bạ số (YCTD-163) | Lập, nhận xét: giáo viên chủ nhiệm; xác nhận, kí, mở lại: Hiệu trưởng; phụ huynh xem bản đã kí | Lớp; nhận xét; lý do mở lại | Học bạ PDF đã kí nội bộ | 7.8 Học bạ; Học bạ ở ứng dụng phụ huynh | BR-177 |
 
 ## 4. Phân hệ P03 — Giảng dạy
 

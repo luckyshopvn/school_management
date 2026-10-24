@@ -5062,6 +5062,79 @@ export interface YearResultsTable {
   confirmed_at: UpdatedTimestamp;
 }
 
+// Học bạ số, khen thưởng học sinh, hoàn thành chương trình (DT-20 phần 20e, YCTD-163)
+export type StudentAwardKind = 'year_end' | 'special';
+export type StudentAwardBasis = 'excellent' | 'outstanding';
+export type StudentAwardStatus = 'proposed' | 'approved' | 'rejected';
+export type CompletionOutcome = 'promoted' | 'level_completed' | 'pending_support' | 'retained';
+export type SupportPlan = 'summer_training' | 'retest';
+export type LearningRecordStatus = 'draft' | 'signed';
+
+export interface StudentAwardTitlesTable {
+  id: Generated<string>;
+  school_level: SchoolLevelCode;
+  code: string;
+  name: string;
+  kind: StudentAwardKind;
+  basis: StudentAwardBasis | null;
+  order_no: Generated<number>;
+  status: Generated<CatalogStatus>;
+  created_at: CreatedTimestamp;
+}
+
+export interface StudentAwardsTable {
+  id: Generated<string>;
+  class_id: string;
+  child_id: string;
+  title_id: string;
+  title_name: string;
+  achievement: string | null;
+  status: Generated<StudentAwardStatus>;
+  proposed_by: string;
+  proposed_by_name: string;
+  proposed_at: CreatedTimestamp;
+  decided_by: string | null;
+  decided_by_name: string | null;
+  decided_at: Date | null;
+  decision_note: string | null;
+  lookup_code: string | null;
+}
+
+export interface CompletionResultsTable {
+  id: Generated<string>;
+  class_id: string;
+  child_id: string;
+  grade_level: string;
+  year_result: string;
+  outcome: CompletionOutcome;
+  support_plan: SupportPlan | null;
+  support_result: 'completed' | 'not_completed' | null;
+  support_note: string | null;
+  next_grade_level: string | null;
+  confirmed_by: string;
+  confirmed_by_name: string;
+  confirmed_at: UpdatedTimestamp;
+}
+
+export interface LearningRecordsTable {
+  id: Generated<string>;
+  child_id: string;
+  academic_year_name: string;
+  class_id: string | null;
+  class_name: string;
+  grade_level: string;
+  school_level: SchoolLevelCode;
+  content: ColumnType<Record<string, unknown>, string, string>;
+  homeroom_comment: string | null;
+  status: Generated<LearningRecordStatus>;
+  signed_storage_key: string | null;
+  signed_at: Date | null;
+  signer_name: string | null;
+  signature_method: string | null;
+  prepared_by_name: string;
+  updated_at: UpdatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
@@ -5370,4 +5443,8 @@ export interface SchoolYearDatabase {
   regular_comments: RegularCommentsTable;
   assessment_locks: AssessmentLocksTable;
   year_results: YearResultsTable;
+  student_award_titles: StudentAwardTitlesTable;
+  student_awards: StudentAwardsTable;
+  completion_results: CompletionResultsTable;
+  learning_records: LearningRecordsTable;
 }

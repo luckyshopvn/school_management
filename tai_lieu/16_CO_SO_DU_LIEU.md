@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.102
+- Phiên bản: 1.103
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -223,6 +223,10 @@ Ràng buộc duy nhất: `attendance_records` trên bộ đôi trẻ, ngày; `ab
 | regular_comments (từ YCTD-161) | Nhận xét thường xuyên | id, class_id, child_id, subject_id, item_id, comment_date, content, author_id, author_name, created_at |
 | assessment_locks (từ YCTD-161) | Khoá số liệu theo kỳ, lớp | period_id, class_id (khóa chính), locked_by, locked_by_name, locked_at |
 | year_results (từ YCTD-161) | Kết quả cuối năm (hoàn thành chương trình lớp học) | id, class_id, child_id (duy nhất), suggested, result (`excellent`, `good`, `completed`, `not_completed`), note, confirmed_by, confirmed_by_name, confirmed_at |
+| student_award_titles (từ YCTD-163) | Danh hiệu khen thưởng học sinh theo cấp (tệp năm học `0081`) | id, school_level, code (duy nhất theo cấp), name, kind (`year_end`, `special`), basis (`excellent`, `outstanding`, trống), order_no, status |
+| student_awards (từ YCTD-163) | Đề nghị, duyệt khen thưởng học sinh | id, class_id, child_id, title_id, title_name, achievement, status (`proposed`, `approved`, `rejected`; không trùng học sinh, danh hiệu khi chưa bị từ chối), proposed_by, proposed_by_name, proposed_at, decided_by, decided_by_name, decided_at, decision_note, lookup_code (duy nhất) |
+| completion_results (từ YCTD-163) | Hoàn thành chương trình, lên lớp | id, class_id, child_id (duy nhất theo lớp), grade_level, year_result, outcome (`promoted`, `level_completed`, `pending_support`, `retained`), support_plan (`summer_training`, `retest`), support_result, support_note, next_grade_level, confirmed_by, confirmed_by_name, confirmed_at |
+| learning_records (từ YCTD-163) | Học bạ theo năm học | id, child_id, academic_year_name (duy nhất theo học sinh), class_id (trống ở học bạ chép từ năm trước), class_name, grade_level, school_level, content (JSON chốt lúc lập), homeroom_comment, status (`draft`, `signed`), signed_storage_key, signed_at, signer_name, signature_method, prepared_by_name, updated_at |
 | registration_periods | Trạng thái chốt danh sách đăng ký của kỳ theo đơn vị (YCTD-50) | org_unit_id, period_year, period_month (duy nhất cùng đơn vị), status (đang mở hoặc đã chốt), locked_by, locked_at |
 | summer_registrations | Đăng ký học hè theo tháng (P05-13, BR-92) | child_id, org_unit_id, period_year, period_month (duy nhất cùng trẻ), status (đang hiệu lực hoặc đã hủy), source, registered_by, registered_at, cancelled_by, cancelled_at |
 | invoices | Hóa đơn học phí | code (cấp khi phát hành, dạng HD-000001), child_id, org_unit_id, period_year, period_month, invoice_kind (chính, bổ sung hoặc đầu kỳ; mỗi trẻ tối đa một hóa đơn đầu kỳ, YCTD-54), status (nháp hoặc đã phát hành), calculation_run_id, total_amount, basis (số ngày học, số ngày đang học, số ngày có mặt, bậc học, biểu phí), review_flags (dòng cần kiểm tra), due_date, issued_at, issued_by; số đã giảm trừ, điều chỉnh, đã thu tính từ bảng liên quan (YCTD-51) |

@@ -43,6 +43,8 @@ const PRIMARY_ONLY_PATHS = [
   // Sổ đầu bài, chuyên cần theo tiết (DT-20 phần 20d)
   '/class-logs',
   '/period-attendance',
+  // Học bạ, khen thưởng, lên lớp (DT-20 phần 20e)
+  '/learning-records',
 ];
 
 describe('Cây menu và nhãn theo cấp học', () => {

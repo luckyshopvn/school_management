@@ -164,6 +164,8 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           // Sổ đầu bài, điểm danh theo tiết (DT-20 phần 20d)
           leaf('7.6.', 'Sổ đầu bài', '/class-logs'),
           leaf('7.7.', 'Chuyên cần theo tiết', '/period-attendance'),
+          // Học bạ số, khen thưởng, hoàn thành chương trình, lên lớp (DT-20 phần 20e)
+          leaf('7.8.', 'Học bạ, khen thưởng, lên lớp', '/learning-records'),
         ]),
       ),
     ],
