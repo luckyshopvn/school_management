@@ -10,6 +10,7 @@ interface Lesson {
   weekday: number;
   period_no: number;
   subject_name: string;
+  group_no?: number;
   teacher_name: string | null;
 }
 
@@ -56,6 +57,7 @@ export function TimetablePanel({ child }: { child: { id: string; full_name: stri
                   <li key={lesson.id}>
                     Tiết {lesson.period_no}
                     {time ? ` (${time.start_time})` : ''}: {lesson.subject_name}
+                    {lesson.group_no ? ` (nhóm ${lesson.group_no})` : ''}
                     {lesson.teacher_name ? ` · ${lesson.teacher_name}` : ''}
                   </li>
                 );

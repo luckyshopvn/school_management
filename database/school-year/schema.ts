@@ -147,7 +147,8 @@ export interface CurriculaTable extends CatalogRecordColumns {
 
 // Môn học và hoạt động giáo dục theo cấp (DT-20 phần 20a, YCTD-158)
 export type SubjectKind = 'subject' | 'activity';
-export type SubjectAssessment = 'comment' | 'comment_and_score';
+export type SubjectAssessment = 'comment' | 'comment_and_score' | 'score';
+export type SubjectOptionGroup = 'social_science' | 'natural_science' | 'technology_arts';
 
 export interface SubjectsTable extends CatalogRecordColumns {
   code: string;
@@ -155,8 +156,128 @@ export interface SubjectsTable extends CatalogRecordColumns {
   school_level: SchoolLevelCode;
   kind: ColumnType<SubjectKind, SubjectKind | undefined, SubjectKind>;
   assessment: ColumnType<SubjectAssessment, SubjectAssessment | undefined, SubjectAssessment>;
+  // Nhóm môn học lựa chọn của THPT (DT-21 phần 21a, YCTD-167)
+  option_group: ColumnType<SubjectOptionGroup | null, SubjectOptionGroup | null | undefined, SubjectOptionGroup | null>;
   order_no: Generated<number>;
   status: Generated<CatalogStatus>;
+}
+
+// Nền THCS, THPT (DT-21 phần 21a, YCTD-167): tổ hợp môn, tổ hợp học sinh đăng ký, tổ bộ môn
+export interface SubjectCombinationsTable extends CatalogRecordColumns {
+  code: string;
+  name: string;
+  school_level: 'THCS' | 'THPT';
+  order_no: Generated<number>;
+  status: Generated<CatalogStatus>;
+}
+
+export interface SubjectCombinationSubjectsTable {
+  combination_id: string;
+  subject_id: string;
+}
+
+export type ChildCombinationStatus = 'pending' | 'approved';
+
+export interface ChildSubjectCombinationsTable {
+  child_id: string;
+  combination_id: string;
+  status: Generated<ChildCombinationStatus>;
+  previous_combination_id: string | null;
+  requested_by: string | null;
+  approved_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface SubjectTeamsTable extends CatalogRecordColumns {
+  code: string;
+  name: string;
+  school_level: 'THCS' | 'THPT';
+  status: Generated<CatalogStatus>;
+}
+
+export interface SubjectTeamSubjectsTable {
+  team_id: string;
+  subject_id: string;
+}
+
+export type SubjectTeamRole = 'head' | 'member';
+
+// Sổ điểm THCS, THPT theo Thông tư 22/2021 (DT-21 phần 21c, YCTD-170)
+export type ScoreTermTypeValue = 'first_term' | 'second_term';
+export type ScoreKindValue = 'regular' | 'mid' | 'final';
+export type ScoreSourceValue = 'manual' | 'import' | 'exam';
+export type RatingTermValue = 'first_term' | 'second_term' | 'year';
+export type RatingValue = 'good' | 'fair' | 'pass' | 'fail';
+
+// Cấu hình sổ điểm của cấp (hệ số, số lần đánh giá thường xuyên, ngưỡng xếp loại) lưu dạng JSON; trống là bộ mặc định
+export interface ScoreConfigsTable {
+  school_level: SchoolLevelCode;
+  config: ColumnType<unknown, string, string>;
+  updated_by: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+// Một điểm: điểm thường xuyên có thứ tự seq (1, 2, ...), giữa kỳ, cuối kỳ seq 1; điểm kiểm tra tập trung của 22g chuyển vào
+// với source = 'exam' (DT-21 phần 22g2)
+export interface ScoreEntriesTable {
+  id: Generated<string>;
+  class_id: string;
+  child_id: string;
+  subject_id: string;
+  term_type: ScoreTermTypeValue;
+  kind: ScoreKindValue;
+  seq: Generated<number>;
+  score: ColumnType<string, string | number, string | number>;
+  source: Generated<ScoreSourceValue>;
+  updated_by: string;
+  updated_by_name: string;
+  updated_at: UpdatedTimestamp;
+}
+
+// Kết quả môn đánh giá bằng nhận xét và nhận xét của giáo viên môn theo học kỳ
+export interface SubjectTermResultsTable {
+  id: Generated<string>;
+  class_id: string;
+  child_id: string;
+  subject_id: string;
+  term_type: ScoreTermTypeValue;
+  result: 'pass' | 'fail' | null;
+  comment: string | null;
+  updated_by: string;
+  updated_by_name: string;
+  updated_at: UpdatedTimestamp;
+}
+
+// Xếp loại học tập, rèn luyện theo học kỳ và cả năm; suggested là gợi ý của máy lúc ghi
+export interface TermRatingsTable {
+  id: Generated<string>;
+  class_id: string;
+  child_id: string;
+  term_type: RatingTermValue;
+  learning_suggested: RatingValue | null;
+  learning: RatingValue | null;
+  conduct: RatingValue | null;
+  comment: string | null;
+  updated_by: string;
+  updated_by_name: string;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ScoreLocksTable {
+  class_id: string;
+  term_type: ScoreTermTypeValue;
+  locked_by: string;
+  locked_by_name: string;
+  locked_at: CreatedTimestamp;
+}
+
+export interface SubjectTeamMembersTable {
+  team_id: string;
+  staff_user_id: string;
+  staff_name: string;
+  role: Generated<SubjectTeamRole>;
+  created_at: CreatedTimestamp;
 }
 
 // Số tiết mỗi tuần của môn theo khối trong một chương trình (YCTD-158); kiểu numeric đọc ra chuỗi
@@ -200,6 +321,8 @@ export interface TimetableLessonsTable {
   teacher_user_id: string | null;
   teacher_name: string | null;
   room_id: string | null;
+  // 0 là tiết cả lớp, 1 đến 9 là nhóm học (DT-21 phần 21b, YCTD-169)
+  group_no: Generated<number>;
   created_at: CreatedTimestamp;
 }
 
@@ -5364,7 +5487,149 @@ export interface LearningRecordsTable {
   updated_at: UpdatedTimestamp;
 }
 
+// Kiểm tra, đánh giá phần đề (DT-21 phần 22g1, YCTD-168)
+export type QuestionStatus = 'draft' | 'review' | 'approved' | 'retired';
+export type CognitiveLevelCode = 'recognition' | 'comprehension' | 'application' | 'high_application';
+export type QuestionTypeCode = 'multiple_choice' | 'true_false' | 'short_answer' | 'essay';
+export type AssessmentPlanStatus = 'draft' | 'submitted' | 'approved' | 'rejected';
+export type ExamStatus = 'draft' | 'submitted' | 'approved' | 'locked';
+
+export interface QuestionTopicsTable {
+  id: Generated<string>;
+  subject_id: string;
+  grade_level_code: string | null;
+  name: string;
+  order_no: Generated<number>;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface QuestionsTable {
+  id: Generated<string>;
+  school_level: SchoolLevelCode;
+  subject_id: string;
+  grade_level_code: string;
+  topic_id: string | null;
+  cognitive_level: CognitiveLevelCode;
+  question_type: QuestionTypeCode;
+  content: string;
+  options: DefaultJson;
+  answer: DefaultJson;
+  guidance: string | null;
+  score: ColumnType<string, number | undefined, number>;
+  status: ColumnType<QuestionStatus, QuestionStatus | undefined, QuestionStatus>;
+  review_note: string | null;
+  author_user_id: string;
+  author_name: string;
+  reviewed_by: string | null;
+  reviewed_by_name: string | null;
+  reviewed_at: Date | null;
+  last_used_at: ColumnType<string | null, string | null | undefined, string | null>;
+  use_count: Generated<number>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface QuestionUsagesTable {
+  id: Generated<string>;
+  question_id: string;
+  exam_id: string;
+  used_on: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface ExamMatricesTable {
+  id: Generated<string>;
+  school_level: SchoolLevelCode;
+  subject_id: string;
+  grade_level_code: string;
+  name: string;
+  total_score: ColumnType<string, number | undefined, number>;
+  target_ratios: JsonDocument;
+  tolerance: ColumnType<string, number | undefined, number>;
+  rows: DefaultJson;
+  status: Generated<'active' | 'inactive'>;
+  created_by: string | null;
+  created_by_name: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface AssessmentPlansTable {
+  id: Generated<string>;
+  school_level: SchoolLevelCode;
+  term: 'HK1' | 'HK2';
+  grade_level_code: string;
+  subject_id: string;
+  kind: 'regular' | 'midterm' | 'final';
+  form: 'written' | 'multiple_choice' | 'mixed' | 'practical' | 'oral';
+  duration_minutes: number;
+  planned_date: string | null;
+  status: ColumnType<AssessmentPlanStatus, AssessmentPlanStatus | undefined, AssessmentPlanStatus>;
+  note: string | null;
+  review_note: string | null;
+  reviewed_by_name: string | null;
+  reviewed_at: Date | null;
+  created_by: string | null;
+  created_by_name: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ExamsTable {
+  id: Generated<string>;
+  plan_id: string | null;
+  matrix_id: string | null;
+  school_level: SchoolLevelCode;
+  subject_id: string;
+  grade_level_code: string;
+  title: string;
+  duration_minutes: Generated<number>;
+  variant_count: Generated<number>;
+  avoid_recent_days: Generated<number>;
+  status: ColumnType<ExamStatus, ExamStatus | undefined, ExamStatus>;
+  author_user_id: string;
+  author_name: string;
+  reviewer_user_id: string | null;
+  reviewer_name: string | null;
+  due_date: string | null;
+  review_note: string | null;
+  submitted_at: Date | null;
+  reviewed_at: Date | null;
+  locked_at: Date | null;
+  locked_by_name: string | null;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ExamQuestionsTable {
+  id: Generated<string>;
+  exam_id: string;
+  question_id: string;
+  order_no: number;
+  score: ColumnType<string, number, number>;
+  snapshot: JsonDocument;
+}
+
+export interface ExamVariantsTable {
+  id: Generated<string>;
+  exam_id: string;
+  code: string;
+  items: JsonDocument;
+  created_at: CreatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
+  question_topics: QuestionTopicsTable;
+  questions: QuestionsTable;
+  question_usages: QuestionUsagesTable;
+  exam_matrices: ExamMatricesTable;
+  assessment_plans: AssessmentPlansTable;
+  exams: ExamsTable;
+  exam_questions: ExamQuestionsTable;
+  exam_variants: ExamVariantsTable;
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
   settings: SettingsTable;
@@ -5378,6 +5643,17 @@ export interface SchoolYearDatabase {
   subjects: SubjectsTable;
   curriculum_subjects: CurriculumSubjectsTable;
   child_elective_subjects: ChildElectiveSubjectsTable;
+  score_configs: ScoreConfigsTable;
+  score_entries: ScoreEntriesTable;
+  subject_term_results: SubjectTermResultsTable;
+  term_ratings: TermRatingsTable;
+  score_locks: ScoreLocksTable;
+  subject_combinations: SubjectCombinationsTable;
+  subject_combination_subjects: SubjectCombinationSubjectsTable;
+  child_subject_combinations: ChildSubjectCombinationsTable;
+  subject_teams: SubjectTeamsTable;
+  subject_team_subjects: SubjectTeamSubjectsTable;
+  subject_team_members: SubjectTeamMembersTable;
   timetable_versions: TimetableVersionsTable;
   timetable_lessons: TimetableLessonsTable;
   class_logs: ClassLogsTable;

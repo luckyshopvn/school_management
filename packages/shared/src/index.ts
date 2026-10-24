@@ -24,7 +24,9 @@ export * from './school-level-terms.js';
 export * from './level-features.js';
 export * from './subjects.js';
 export * from './assessments.js';
+export * from './scores.js';
 export * from './student-records.js';
+export * from './primary-reports.js';
 export * from './emulation.js';
 export * from './quality-assurance.js';
 export * from './school-levels.js';
@@ -282,6 +284,11 @@ export const PERMISSION_CODES = {
   assessmentView: 'P02.assessment.view',
   assessmentManage: 'P02.assessment.manage',
   studentRecordApprove: 'P02.student-record.approve',
+  reportFormManage: 'P17.report-form.manage',
+  // Kiểm tra, đánh giá phần đề (DT-21 phần 22g1)
+  questionAuthor: 'P02.question.author',
+  examReview: 'P02.exam.review',
+  examManage: 'P02.exam.manage',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -613,6 +620,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/period-slots',
   '/timetables',
   '/student-assessments',
+  // Sổ điểm THCS, THPT (DT-21 phần 21c)
+  '/scores',
   // Sổ đầu bài, chuyên cần theo tiết (DT-20 phần 20d)
   '/class-logs',
   '/period-attendance',
@@ -621,6 +630,15 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/timetable-generator',
   '/timetable-changes',
   '/timetable-reports',
+  // Nền THCS, THPT: tổ hợp môn, tổ bộ môn (DT-21 phần 21a)
+  '/subject-combinations',
+  '/subject-teams',
+  '/primary-reports',
+  // Kiểm tra, đánh giá phần đề (DT-21 phần 22g1)
+  '/question-bank',
+  '/exam-matrices',
+  '/assessment-plans',
+  '/exams',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
@@ -914,6 +932,9 @@ export const DATA_GRID_KEYS = [
   // Môn học, phân công giảng dạy theo môn (DT-20 phần 20a)
   'subjects',
   'teaching-assignments',
+  // Tổ hợp môn, tổ bộ môn (DT-21 phần 21a)
+  'subject-combinations',
+  'subject-teams',
 ] as const;
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;

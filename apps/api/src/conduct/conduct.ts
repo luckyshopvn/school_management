@@ -266,7 +266,9 @@ export class ConductService {
       .where('conduct_entries.entry_date', '>=', filter.from)
       .where('conduct_entries.entry_date', '<=', filter.to)
       .$if(filter.classId !== null, (query) => query.where('conduct_entries.class_id', '=', filter.classId ?? ''))
-      .$if(!scope.wholeSchool, (query) => query.where('classes.org_unit_id', 'in', [...scope.orgUnitIds, '']))
+      .$if(!scope.wholeSchool, (query) =>
+        query.where('classes.org_unit_id', 'in', [...scope.orgUnitIds, '00000000-0000-0000-0000-000000000000']),
+      )
       .orderBy('conduct_entries.entry_date', 'desc')
       .orderBy('classes.name')
       .orderBy('conduct_entries.created_at', 'desc')
@@ -417,7 +419,7 @@ export class ConductService {
       .where('school_level', '=', filter.level)
       .$if(filter.orgUnitId !== null, (query) => query.where('org_unit_id', '=', filter.orgUnitId ?? ''))
       .$if(filter.orgUnitId === null && !scope.wholeSchool, (query) =>
-        query.where('org_unit_id', 'in', [...scope.orgUnitIds, '']),
+        query.where('org_unit_id', 'in', [...scope.orgUnitIds, '00000000-0000-0000-0000-000000000000']),
       )
       .$if(filter.gradeLevel !== null, (query) => query.where('grade_level', '=', filter.gradeLevel ?? ''))
       .execute();

@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.44
+- Phiên bản: 0.49
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -28,8 +28,8 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/system/migrations/0041_create_training_catalogs.ts`, `database/school-year/migrations/0101_create_training_records.ts`, `database/identity/migrations/0091_add_training_permissions.ts`, `schema.ts` hệ thống, năm học, `index.ts`, `database/src/index.ts`); máy chủ API (`training/training.ts`, `training/training.controller.ts`, `training/training-documents.ts`, `my-work/my-work-sources.ts`, `application.module.ts`); cổng quản trị (`training/TrainingPages.tsx`, `training/training-api.ts`, `router.tsx`); ứng dụng giáo viên (`screens/TrainingScreen.tsx`, `screens/ClassesScreen.tsx`, `Application.tsx`); gói dùng chung (`training.ts`, `index.ts`, `portal-menu.ts`, `menu-permissions.ts`, `professional-records.ts`); tài liệu `01`, `02`, `03`, `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
 - Dữ liệu bị ảnh hưởng: bốn bảng hệ thống mới có bộ mặc định, bốn bảng năm học mới, tám cột thêm của `staff_certificates` (đều cho phép trống hoặc có mặc định), ba quyền mới; không đổi dữ liệu cũ.
 - API bị ảnh hưởng: mới `/training/catalog`, `/training/settings`, `/training/topics`, `/training/competency-domains`, `/training/courses`, `/training/courses/{id}`, `/registrations`, `/results`, `/certificates`, `/certificates.pdf`, `/training/registrations/{id}/cancel`, `/review`, `/training/certificates`, `/training/certificates/{id}`, `/revoke`, `/reissue`, `/pdf`, `/training/mine`, `/training/records`, `/training/competency`, `/training/competency/mine`, `/training/competency/{id}/confirm`, `/public/training-certificates/verify` (xem `17_DAC_TA_API.md`).
-- Giao diện bị ảnh hưởng: MH-271, MH-272, MH-273, MH-274, MH-275, MH-276; ứng dụng giáo viên.
-- Quyền bị ảnh hưởng: PQ-97. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
+- Giao diện bị ảnh hưởng: MH-282, MH-283, MH-284, MH-285, MH-286, MH-287; ứng dụng giáo viên.
+- Quyền bị ảnh hưởng: PQ-98. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
 - Ảnh hưởng chức năng cũ: không có; phân hệ Hồ sơ chuyên môn thêm một nhóm cuối; kiểm thử đang có không sửa kỳ vọng.
 - Hạn chế:
   - Chưa có khai báo nhu cầu bồi dưỡng riêng của giáo viên, tổ và luồng duyệt kế hoạch bồi dưỡng năm học qua luồng của 18e; khoá là kế hoạch, tiến độ tính theo khoá đã kết thúc;
@@ -37,9 +37,112 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
   - Chưa có điểm danh từng buổi (chỉ ghi số buổi có mặt), chưa nhắc hạn đăng ký qua thông báo;
   - Chưa xuất Excel, PDF báo cáo hồ sơ bồi dưỡng; chưa có biểu đồ mạng nhện (bản đồ năng lực dạng bảng);
   - Chưa nối kết quả bồi dưỡng vào KPI 18d, thi đua 22d.
-- Kiểm thử cần thực hiện: kịch bản CT-891 đến CT-897 (trong mã kiểm thử là CT-22e-1 đến CT-22e-7); kiểm thử đơn vị mới `apps/api/src/training/training.test.ts`; kiểm thử giao diện mới `tests/e2e/121-teacher-training.spec.ts`
+- Kiểm thử cần thực hiện: kịch bản CT-927 đến CT-933 (trong mã kiểm thử là CT-22e-1 đến CT-22e-7); kiểm thử đơn vị mới `apps/api/src/training/training.test.ts`; kiểm thử giao diện mới `tests/e2e/121-teacher-training.spec.ts`
 - Trạng thái: Đã triển khai
 
+### YCTD-168: DT-21 phần 22g1: kiểm tra, đánh giá, phần đề – 2026-10-24
+
+- Lý do: phần 22g1 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.3, 12.4 (kế hoạch DT-21 ở YCTD-166; phần 22g của kế hoạch DT-22 Eric duyệt ngày 2026-10-19). Dùng môn học của 20a (YCTD-158) và khối, cấp của DT-19; không cần 21a. Ngân hàng câu hỏi là nguồn duy nhất, kho học liệu 22h2 tham chiếu. Căn cứ: Thông tư 22/2021/TT-BGDĐT (đánh giá học sinh THCS, THPT: kiểm tra định kỳ giữa kỳ, cuối kỳ; hình thức trắc nghiệm, tự luận, kết hợp); Chương trình giáo dục phổ thông 2018 (chủ đề theo chương trình môn). Bốn mức nhận thức (nhận biết, thông hiểu, vận dụng, vận dụng cao) và bốn dạng câu (nhiều lựa chọn, đúng sai, trả lời ngắn, tự luận) theo cách làm phổ biến của hướng dẫn kiểm tra hiện hành; tỉ lệ mức và mẫu ma trận cấu hình theo từng ma trận, chưa nạp mẫu riêng của văn bản nào, đối chiếu khi khớp Sở. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Ngân hàng câu hỏi** (bảng `question_topics`, `questions`, `question_usages`, tệp năm học `0085_create_question_bank_and_exams`): chủ đề theo môn, khối; câu hỏi theo môn, khối, chủ đề, mức nhận thức, dạng, nội dung (chữ, công thức ghi dạng chữ), lựa chọn và đáp án (nhiều lựa chọn: 2 đến 6 lựa chọn, một hoặc vài đáp án đúng; đúng sai: 2 đến 6 ý, Đ hoặc S từng ý; trả lời ngắn: đáp số chấp nhận; tự luận: hướng dẫn chấm bắt buộc), điểm; gửi thẩm định, duyệt, trả lại có lý do, ngừng dùng; tìm, lọc; nhập Excel theo mẫu (lỗi theo dòng, có lỗi thì không ghi, câu nhập vào là nháp); thống kê câu dùng được theo chủ đề, mức, dạng; lịch sử dùng của từng câu (ghi khi khoá đề, 22g2 ghi thêm kết quả chấm).
+  - **Ma trận và bảng đặc tả** (`exam_matrices`): theo môn, khối; dòng chủ đề × mức × dạng, số câu, điểm mỗi câu, yêu cầu cần đạt; tổng điểm (mặc định 10), tỉ lệ điểm theo mức mẫu (mặc định 40, 30, 20, 10), sai số; máy chủ tổng hợp số câu, điểm, tỉ lệ và báo lệch.
+  - **Kế hoạch kiểm tra** (`assessment_plans`): theo cấp, học kỳ, khối, môn; loại (thường xuyên, giữa kỳ, cuối kỳ), hình thức, thời gian, ngày; tổ trưởng lập, gửi; Ban giám hiệu duyệt hoặc trả lại; số đề đã giao, đã khoá; ngày kiểm tra đối chiếu thời khoá biểu đang áp dụng (22c1) ở mức nhắc việc (số tiết của các lớp khối đó trong ngày), không tự xếp phòng thi.
+  - **Đề kiểm tra** (`exams`, `exam_questions`, `exam_variants`): Ban giám hiệu giao đề (theo kế hoạch đã duyệt hoặc riêng; ma trận, người ra đề, người thẩm định, hạn nộp, số mã đề 1 đến 24, số ngày tránh câu dùng gần đây); người ra đề bốc câu theo ma trận, thêm, bỏ câu, trộn mã đề, gửi thẩm định; người thẩm định duyệt hoặc trả lại; Ban giám hiệu khoá đề, mở khoá có lý do; tải đề từng mã và đáp án các mã (bảng câu × mã, hướng dẫn chấm tự luận) ra Word (.docx) hoặc PDF bằng bộ dựng văn bản sẵn có (18d).
+  - **Quyền mới** (tệp định danh `0076_add_exam_permissions`): `P02.question.author` (VT-07, VT-08, VT-17), `P02.exam.review` (VT-02, VT-15, VT-17), `P02.exam.manage` (VT-02, VT-15).
+  - **Trang mới**, nhóm "8. Kiểm tra, đánh giá" chỉ hiện khi trường bật THCS hoặc THPT (`levels: ['THCS', 'THPT']`, số mục tạm, đánh lại khi khảo sát Sở): 8.1 Ngân hàng câu hỏi, 8.2 Ma trận đề, 8.3 Kế hoạch kiểm tra, 8.4 Đề kiểm tra.
+  - Quy tắc: câu hỏi: nháp, chờ thẩm định, dùng được, ngừng dùng; người soạn sửa câu nháp của mình, người thẩm định sửa câu chưa ngừng dùng (câu đã duyệt sửa thì về nháp); câu dùng được ai soạn đề cũng thấy, câu chưa duyệt chỉ người soạn và người thẩm định thấy; trả lại phải có lý do; ma trận hợp lệ khi tổng điểm bằng tổng điểm của đề và tỉ lệ điểm từng mức lệch mẫu không quá sai số (mặc định 5 điểm phần trăm); bốc câu theo ma trận lấy ngẫu nhiên câu dùng được đúng môn, khối, chủ đề, mức, dạng, không lấy câu đã dùng trong số ngày của đề, thiếu câu thì báo từng dòng và không đổi đề; câu trong đề lưu bản chụp nên sửa câu ở ngân hàng không đổi đề; mã đề 101, 102, ...: mã đầu giữ thứ tự soạn, các mã sau trộn câu trong từng phần và lựa chọn của câu nhiều lựa chọn, đáp án tính lại theo mã; đề đi theo đang soạn, chờ thẩm định, đã thẩm định, đã khoá; khoá đề ghi lịch sử dùng câu, mở khoá phải ghi lý do; đề chỉ người ra đề, người thẩm định, người quản lý xem, mỗi lần tải ghi nhật ký; kế hoạch kiểm tra nháp, chờ duyệt, đã duyệt, trả lại; giao đề theo kế hoạch chỉ khi kế hoạch đã duyệt.
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/school-year/migrations/0085_create_question_bank_and_exams.ts`, `database/identity/migrations/0076_add_exam_permissions.ts`, `schema.ts`, `index.ts`, `database/src/index.ts`); máy chủ API (`exams/exam-rules.ts`, `exams/exam-inputs.ts`, `exams/exams.ts`, `exams/exams.controller.ts`, `application.module.ts`); cổng quản trị (`exams/QuestionBankPage.tsx`, `ExamMatricesPage.tsx`, `AssessmentPlansPage.tsx`, `ExamsPage.tsx`, `exam-filters.tsx`, `exams-api.ts`, `router.tsx`); gói dùng chung (`index.ts`, `portal-menu.ts`, `menu-permissions.ts`); kiểm thử (CT-19c-1, CT-19c-2 thêm danh sách đường dẫn của THCS, THPT); tài liệu `01`, `02`, `03`, `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: tám bảng mới, ba quyền mới; không đổi dữ liệu cũ. Trường chỉ có Mầm non, Tiểu học không thấy mục mới.
+- API bị ảnh hưởng: mới `GET, POST /question-topics`, `GET, POST /questions`, `GET /questions/stats`, `GET /questions/import-template`, `POST /questions/import`, `GET, PUT /questions/{id}`, `POST /questions/{id}/submit`, `/review`, `/retire`, `GET, POST /exam-matrices`, `GET, PUT /exam-matrices/{id}`, `GET, POST /assessment-plans`, `PUT /assessment-plans/{id}`, `POST /assessment-plans/{id}/submit`, `/decide`, `GET, POST /exams`, `GET /exams/staff`, `GET, PATCH /exams/{id}`, `POST /exams/{id}/generate`, `/questions`, `/variants`, `/submit`, `/review`, `/lock`, `/unlock`, `DELETE /exams/{id}/questions/{questionId}`, `GET /exams/{id}/export` (xem `17_DAC_TA_API.md`).
+- Giao diện bị ảnh hưởng: MH-277 đến MH-280.
+- Quyền bị ảnh hưởng: PQ-97. Máy chủ kiểm tra quyền ở mọi yêu cầu (AI-12).
+- Ảnh hưởng chức năng cũ: không đổi hành vi Mầm non, Tiểu học; kiểm thử đang có không sửa kỳ vọng, trừ CT-19c-1, CT-19c-2 (thêm danh sách đường dẫn chỉ của THCS, THPT).
+- Hạn chế:
+  - Câu hỏi chưa có ảnh, công thức dạng ký hiệu toán học (ghi dạng chữ);
+  - Chưa có mẫu ma trận nạp sẵn theo văn bản; tỉ lệ, sai số nhập ở từng ma trận;
+  - Câu đúng sai giữ thứ tự ý khi trộn;
+  - Chưa có chấm, phiếu trả lời, báo cáo theo câu (22g2); tệp đề tạo khi tải, không lưu ở kho tệp;
+  - Môn THCS, THPT dùng danh mục môn chung của 20a; bộ môn mẫu THCS, THPT nạp ở 21a.
+- Kiểm thử cần thực hiện: kịch bản CT-911 đến CT-919 (trong mã kiểm thử là CT-22g1-1 đến CT-22g1-9); kiểm thử đơn vị mới `apps/api/src/exams/exam-rules.test.ts`, `apps/api/src/exams/exams.test.ts`; kiểm thử giao diện mới `tests/e2e/96-exam-bank.spec.ts`
+- Trạng thái: Đã triển khai
+
+### YCTD-165: DT-20 phần 20f: báo cáo, thống kê và EMIS Tiểu học – 2026-10-24
+
+- Lý do: phần 20f của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.4 (đợt 4, phần cuối của DT-20). Văn bản căn cứ: Thông tư 27/2020/TT-BGDĐT (mức đạt, hoàn thành chương trình, khen thưởng dùng ở biểu cuối năm); biểu EMIS Tiểu học của Bộ, Sở chưa đối chiếu được vì chưa có tài khoản Sở cấp Tiểu học nên phần này dựng khung cấu hình được, chờ khảo sát (mục 31). Không đổi hành vi Mầm non: biểu EMIS Mầm non, thống kê 5.1, 5.3 giữ nguyên. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Thống kê Tiểu học** (`apps/api/src/primary-reports/`): sĩ số theo khối (lớp, lớp 2 buổi/ngày, lớp có bán trú, học sinh, nữ, dân tộc thiểu số, khuyết tật theo hồ sơ CSDL ngành, học 2 buổi/ngày, bán trú theo hồ sơ học sinh hoặc lớp); kết quả đánh giá định kỳ của kỳ (20c) theo lớp, khối hoặc toàn trường: số học sinh theo mức của từng môn, điểm kiểm tra theo khoảng 9-10, 7-8, 5-6, dưới 5, phẩm chất, năng lực; cuối năm theo lớp, khối, trường: kết quả cuối năm, chưa xác nhận, hoàn thành chương trình, lên lớp, ở lại lớp, khen thưởng (20c, 20e); chuyên cần theo tiết (20d: tiết đã ghi sổ, có mặt, đi muộn, vắng có phép, không phép) và bán trú (20b: ngày đã chốt suất, suất ăn, lượt cắt suất) theo lớp trong khoảng ngày. Phạm vi là các đơn vị người dùng được xem thống kê học sinh (`P17.child-statistics.view`); chọn đơn vị thì chỉ đơn vị đó. Mỗi báo cáo xuất Excel hoặc PDF, ghi nhật ký xuất.
+  - **Khung biểu EMIS Tiểu học cấu hình được** (tệp hệ thống `0027`): danh mục biểu (mã, tên, cấp, kỳ đầu năm hoặc cuối năm, các cột tách số tổng số, nữ, dân tộc thiểu số, nữ dân tộc thiểu số, khuyết tật) và dòng chỉ tiêu theo thứ tự (đề mục, công thức tính từ dữ liệu, nhập tay). Công thức theo cú pháp `students` hoặc `classes` kèm điều kiện nối dấu chấm (`grade=K1`, `two_sessions`, `boarding`, `awarded`, `year_result=…`, `completion=…`), kiểm khi lưu; dòng lớp chỉ có cột tổng số. Nạp hai biểu khung: EMIS Tiểu học đầu năm (lớp, học sinh theo khối, 2 buổi/ngày, bán trú, một dòng nhập tay), cuối năm (kết quả giáo dục, hoàn thành chương trình, khen thưởng, một dòng nhập tay). Số nhập tay lưu ở `emis_report_values` của năm học như biểu Mầm non (không thêm bảng năm học: số tệp năm học `0083` giữ sẵn không dùng). Xuất Excel, PDF theo bố cục TT, Chỉ tiêu, Mã số, Đơn vị, các cột; gửi lên cấp trên, đánh dấu đã gửi, mở khoá dùng luồng có sẵn của 16a (biểu đã gửi khoá ô nhập tay). Ban Giám hiệu sửa khung (thay cả bộ dòng) cần quyền mới `P17.report-form.manage` (tệp định danh `0074`).
+  - **Giao diện:** cổng quản trị mục 7.15 "Báo cáo, thống kê, EMIS Tiểu học" (chỉ khi trường bật Tiểu học) với các thẻ Sĩ số, Kết quả đánh giá, Cuối năm, Chuyên cần, bán trú (nút Xuất Excel, Xuất PDF), EMIS Tiểu học (chọn biểu, bảng chỉ tiêu, ô nhập tay, Lưu số nhập tay, Sửa khung biểu).
+  - **Sửa lỗi:** lọc theo danh sách đơn vị dùng mã rỗng chuỗi `''` cho cột uuid gây lỗi hệ thống khi người dùng chỉ được xem một số đơn vị (thống kê Tiểu học khi chọn đơn vị; nề nếp 20b: danh sách điểm, xếp hạng; khoá số liệu 20c: danh sách lớp, khoá mọi lớp), nay dùng uuid rỗng; kiểm thử đơn vị thêm trường hợp chọn đơn vị.
+  - **Dùng lại:** tham số cấp, nhóm theo khối của 19d (báo cáo cố định cấp Tiểu học), khung xuất tệp, nhật ký xuất, luồng gửi lên cấp trên của 16a, cách đọc dân tộc, khuyết tật của biểu EMIS Mầm non.
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/system/migrations/0027_create_report_forms.ts`, `database/identity/migrations/0074_add_report_form_permission.ts`, `system/schema.ts`); gói dùng chung (`primary-reports.ts`, `PERMISSION_CODES`, `portal-menu.ts`, `menu-permissions.ts`); máy chủ API (`primary-reports/`); cổng quản trị (`primary-reports/`).
+- Dữ liệu bị ảnh hưởng: tệp hệ thống `0027` thêm `report_forms`, `report_form_rows` và hai biểu khung; tệp định danh `0074` thêm một quyền. Không đổi dữ liệu đang có.
+- Đối chiếu trước, sau chuyển: không chuyển dữ liệu.
+- Rủi ro: biểu khung chưa khớp biểu thật của Bộ, Sở; khi có tài khoản Sở cấp Tiểu học thì khảo sát, sửa dòng, mã số bằng "Sửa khung biểu" (không cần đổi mã) và ghi đối chiếu vào tài liệu 31.
+- Chưa làm trong phần này, ghi để làm tiếp: thêm biểu mới vào danh mục từ giao diện (hiện sửa dòng của biểu có sẵn; biểu thêm bằng tệp thay đổi cấu trúc hệ thống và cần khởi động lại để đăng ký gửi lên cấp trên); cột tách số tuỳ biến ngoài năm cột có sẵn.
+- Kiểm thử cần thực hiện: CT-904 đến CT-910. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/primary-reports/primary-reports.test.ts` CT-20f-1 đến CT-20f-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.15 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của Tiểu học của CT-19c-1); kiểm thử đơn vị toàn bộ kho mã đạt 1081/1081 trước khi gộp main lần cuối; sau khi gộp chạy lại các tệp bị ảnh hưởng (primary-reports, working-level, menu-permissions) đạt 18/18; kiểm thử giao diện `tests/e2e/94-primary-reports.spec.ts` (CT-20f-7) đạt; kiểm thử giao diện trên máy chạy các kịch bản 02, 03, 94 đạt 5/5 (trước đó 02, 03, 06, 08, 58, 94 đạt 18/18); e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Trạng thái: Đã triển khai (PR #148).
+
+### YCTD-170: DT-21 phần 21c: sổ điểm THCS, THPT theo Thông tư 22/2021 – 2026-10-24
+
+- Lý do: phần 21c của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.3, 12.4 (kế hoạch DT-21 ở YCTD-166; nền 21a ở YCTD-167). Văn bản căn cứ: Thông tư 22/2021/TT-BGDĐT (Điều 6 đến 10: đánh giá thường xuyên, giữa kỳ, cuối kỳ, điểm trung bình môn, xếp loại học tập, rèn luyện); hệ số, số lần đánh giá, ngưỡng là mặc định đã nhớ theo văn bản, chưa đối chiếu toàn văn nên để cấu hình. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi:
+  - **Dữ liệu** (tệp năm học `0087_create_scores`): `score_configs` (cấu hình theo cấp), `score_entries` (điểm, ghi nguồn `manual`, `import`, `exam` cho 22g2), `subject_term_results` (kết quả môn nhận xét, nhận xét), `term_ratings` (xếp loại học tập, rèn luyện, gợi ý của máy), `score_locks` (khoá theo học kỳ và lớp). Chuyển năm học chép cấu hình, không chép điểm.
+  - **Tính điểm** (`packages/shared/src/scores.ts`, hàm thuần dùng chung cổng, ứng dụng, 21e, 22g2): trung bình học kỳ hệ số 1, 2, 3, cả năm hệ số 1, 2, làm tròn một chữ số, số lần đánh giá thường xuyên theo số tiết cả năm, gợi ý xếp loại học tập theo ngưỡng cấu hình (môn chủ chốt Toán, Ngữ văn; môn nhận xét Chưa đạt thì Chưa đạt; môn tự chọn không tính).
+  - **Máy chủ API** (`apps/api/src/scores/scores.ts`): cấu hình, bảng điểm theo môn, ghi điểm, tổng hợp học kỳ, cả năm, xác nhận xếp loại, khoá, mở khoá kèm lý do, phụ huynh xem điểm đã khoá. Quyền dùng `P02.assessment.enter/view/manage` của 20c (nhập theo phân công, chủ nhiệm nhập xếp loại, quản lý nhập thay, khoá), nên không thêm quyền, định danh `0078` để trống; hạn nhập là ngày kết thúc học kỳ theo lịch của cấp; xếp loại cả năm theo khoá học kỳ II.
+  - **Giao diện:** cổng quản trị mục 7.14 Sổ điểm (nhập điểm, tổng hợp và xếp loại, khoá điểm, cấu hình); ứng dụng giáo viên "Sổ điểm" (`LEVEL_FEATURES.student_scores`); ứng dụng phụ huynh "Điểm học tập".
+  - Sửa dòng "Phiên bản" thừa ở đầu các tài liệu do gộp bản 21a.
+- Thành phần bị ảnh hưởng: `database`, `packages/shared`, `apps/api` (scores, catalogs), `apps/portal`, `apps/teacher`, `apps/parent`, tài liệu `01`, `02`, `07`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`.
+- Dữ liệu bị ảnh hưởng: năm bảng mới; dữ liệu cũ giữ nguyên.
+- API bị ảnh hưởng: thêm `/scores/...`.
+- Giao diện bị ảnh hưởng: thêm 7.14 cho THCS, THPT; trường chỉ có Mầm non hoặc Tiểu học thấy như cũ.
+- Quyền bị ảnh hưởng: không thêm quyền.
+- Ảnh hưởng chức năng cũ: không đổi kỳ vọng kiểm thử cũ trừ danh sách mục chỉ của THCS, THPT ở CT-19c-1, CT-19c-2 (thêm 7.14).
+- Kiểm thử cần thực hiện: CT-897 đến CT-903; kiểm thử đơn vị các gói đã sửa, e2e 98 và 02, 03, 58; typecheck, lint, build.
+- Trạng thái: Đã triển khai
+
+### YCTD-169: DT-21 phần 21b: thời khoá biểu THCS, THPT – 2026-10-24
+
+- Lý do: phần 21b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.3, 12.4 (kế hoạch DT-21 ở YCTD-166). Dùng thời khoá biểu của 22c1 (YCTD-160), máy xếp, dạy thay, báo cáo của 22c2 (YCTD-164) và tổ hợp môn của 21a (YCTD-167). Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Dùng chung ba cấp**: các bảng, API, trang của 22c1, 22c2 đã theo cấp; chỉ mở menu 7.3, 7.4, 7.9, 7.10, 7.11 cho THCS, THPT (trước chỉ Tiểu học).
+  - **Nhóm học** (tệp năm học `0086_add_timetable_groups`): `timetable_lessons.group_no` (0 là cả lớp, 1 đến 9 là nhóm học môn lựa chọn cùng tiết), khóa duy nhất của tiết thêm nhóm; tiết cũ giữ 0.
+  - **Luật xung đột** (`findTimetableConflicts`): tiết cả lớp cùng ô với tiết nhóm là xung đột cứng `class_group_clash`; giáo viên, phòng trùng tiết tính trên mọi nhóm; cảnh báo `double_period_split` (môn có quy tắc tiết đôi của 22c2 mà các tiết trong ngày không liền nhau), `room_not_subject_room` (môn có phòng bộ môn mà ô không dùng phòng đó); môn học lựa chọn của THPT (có nhóm môn của 21a) không so số tiết cả lớp với chương trình, các nhóm học cùng môn cùng ô tính một tiết.
+  - **Máy xếp**: không xếp cả lớp các môn học lựa chọn của THPT (nhập tay hoặc Excel); phần còn lại dùng nguyên (tiết đôi, phòng bộ môn, buổi, giáo viên dạy nhiều lớp đã có ở 22c2).
+  - **Thời khoá biểu của con** (ứng dụng phụ huynh, `/children/{id}/timetable`): chỉ tiết cả lớp và tiết nhóm có môn nằm trong tổ hợp môn đang hiệu lực của con (tổ hợp đã duyệt, hoặc tổ hợp cũ khi đổi tổ hợp còn chờ duyệt); chưa đăng ký tổ hợp chỉ thấy tiết cả lớp. Nhân sự xem theo lớp thấy mọi nhóm.
+  - **Nhập Excel**: thêm cột Nhóm (trống là cả lớp); tệp mẫu cũ không có cột này vẫn nhập được; chép bản giữ nhóm.
+  - **Dạy thay, đổi tiết**: chỉ áp dụng cho tiết cả lớp; tiết nhóm bị từ chối kèm lý do; tiết của một ngày (`effectiveDay`) giữ từng nhóm.
+  - **Giao diện**: 7.4 có khối "Tiết học nhóm" (Thứ, Tiết, Nhóm, Môn) khi chọn lớp THCS, THPT ở bản nháp; lưới chung ghi nhóm; trang công khai của website, ứng dụng giáo viên, ứng dụng phụ huynh ghi nhóm.
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/school-year/migrations/0086_add_timetable_groups.ts`, `schema.ts`, `index.ts`); máy chủ API (`timetables/timetable-rules.ts`, `timetables.ts`, `timetable-changes.ts`, `timetable-generator.ts`, `website/website-public.ts`); cổng quản trị (`timetables/TimetablesPage.tsx`, `timetables-api.ts`, `timetable-generator-api.ts`); ứng dụng giáo viên (`MyTimetableScreen.tsx`), ứng dụng phụ huynh (`TimetablePanel.tsx`); gói dùng chung (`portal-menu.ts`); kiểm thử (`secondary-timetables.test.ts`, `tests/e2e/97-secondary-timetables.spec.ts`).
+- Dữ liệu bị ảnh hưởng: một cột mới có mặc định 0; không đổi dữ liệu cũ.
+- API bị ảnh hưởng: `group_no` ở tiết (nhận ở `PUT …/lessons`, `POST …/check`; trả ở các điểm cuối xem tiết); cột Nhóm của nhập Excel.
+- Giao diện bị ảnh hưởng: MH-281.
+- Quyền bị ảnh hưởng: không đổi (`P02.timetable.manage`).
+- Ảnh hưởng chức năng cũ: Tiểu học, Mầm non không đổi; `CT-22c1-5` (nhập Excel 5 cột) vẫn đạt vì cột Nhóm không bắt buộc.
+- Hạn chế (ghi để làm sau):
+  - Xếp tự động tiết nhóm chưa có (máy xếp bỏ qua môn học lựa chọn);
+  - Dạy thay, đổi tiết chưa áp dụng cho tiết nhóm;
+  - Định mức tiết của tổ bộ môn (21a) chưa dùng làm cảnh báo khi xếp;
+  - Chưa kiểm tra học sinh của một nhóm có thực sự đăng ký môn của nhóm (chỉ lọc khi xem).
+- Kiểm thử cần thực hiện: kịch bản CT-920 đến CT-926 (trong mã kiểm thử là CT-21b-1 đến CT-21b-7); kiểm thử đơn vị mới `apps/api/src/timetables/secondary-timetables.test.ts`; kiểm thử giao diện mới `tests/e2e/97-secondary-timetables.spec.ts`. Kết quả: kiểm thử đơn vị `apps/api/src/timetables/secondary-timetables.test.ts` CT-21b-1 đến CT-21b-6 đạt 6/6; trên máy đã chạy kiểm thử đơn vị các gói sửa (thời khoá biểu, máy xếp, cấp học, đường dẫn nhanh, sổ đầu bài) đạt 56/56; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 89, 93, 95 và `tests/e2e/97-secondary-timetables.spec.ts` (CT-21b-7); kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
+- Trạng thái: Đã triển khai
+
+### YCTD-167: DT-21 phần 21a: nền THCS, THPT – 2026-10-24
+
+- Lý do: phần 21a của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.3, 12.4 (kế hoạch DT-21 ở YCTD-166). Văn bản căn cứ: Chương trình giáo dục phổ thông 2018 (Thông tư 32/2018/TT-BGDĐT), Thông tư 22/2021/TT-BGDĐT; thời lượng và quy tắc tổ hợp trong bộ mẫu là mặc định, chưa đối chiếu toàn văn, trường sửa được. Không đổi hành vi Mầm non, Tiểu học. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi:
+  - **Môn học khối 6 đến 12** (`packages/shared/src/subjects.ts`): bộ mẫu THCS (14 môn, khối 6 đến 9), THPT (17 môn, khối 10 đến 12), chương trình mặc định `CT-THCS-2018`, `CT-THPT-2018`; cách đánh giá thêm `score`; `subjects.option_group` (xã hội, tự nhiên, công nghệ và nghệ thuật). `POST /subjects/templates` nhận cả THCS, THPT.
+  - **Tổ hợp môn THPT** (`apps/api/src/subjects/secondary.ts`): đúng 4 môn lựa chọn thuộc ít nhất 2 nhóm; tổ hợp đã có học sinh không đổi môn. **Đăng ký tổ hợp** của học sinh lớp THPT: đăng ký đầu có hiệu lực ngay, đổi thì chờ `P02.class.manage` duyệt hoặc từ chối; duyệt xong môn tự chọn theo tổ hợp.
+  - **Tổ bộ môn** THCS, THPT: môn cùng cấp, một tổ trưởng, thành viên là giáo viên bộ môn (VT-08) của đơn vị, tổng tiết theo phân công.
+  - **Cổng quản trị:** nhóm menu 7 đổi tên "Dạy học" hiện ở ba cấp (7.1, 7.2 dùng chung, 7.2 có ô chọn cấp); 7.12 Tổ hợp môn (THPT), 7.13 Tổ bộ môn; mục "Tổ hợp môn" ở hồ sơ học sinh. Chuyển năm học chép tổ hợp, tổ bộ môn, tổ hợp đã đăng ký.
+  - Cơ sở dữ liệu: tệp năm học `0084_create_secondary_foundation`; định danh `0075` để trống (không thêm quyền).
+- Thành phần bị ảnh hưởng: `database`, `packages/shared`, `apps/api` (subjects, catalogs, children), `apps/portal`, tài liệu `01`, `02`, `07`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: thêm cột `option_group`, đổi ràng buộc `assessment` của `subjects`; sáu bảng mới; dữ liệu cũ giữ nguyên.
+- API bị ảnh hưởng: thêm `/subject-combinations`, `/children/{id}/subject-combination`, `/subject-teams`; `/subjects` nhận `option_group`, `score`.
+- Giao diện bị ảnh hưởng: nhóm menu 7, 7.2, hồ sơ học sinh; trường chỉ có Mầm non thấy như cũ.
+- Quyền bị ảnh hưởng: không thêm quyền.
+- Ảnh hưởng chức năng cũ: không đổi kỳ vọng kiểm thử cũ trừ danh sách mục chỉ thuộc cấp ở CT-19c-1, CT-19c-2 (thêm 7.12, 7.13); tên nhóm 7 đổi.
+- Kiểm thử cần thực hiện: CT-891 đến CT-896; kiểm thử đơn vị, e2e toàn bộ; typecheck, lint, build.
 ### YCTD-164: DT-20 phần 22c2: thời khoá biểu, máy xếp – 2026-10-24
 
 - Lý do: phần 22c2 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.3, 11.4 (kế hoạch DT-20 ở YCTD-157; phần 22c của kế hoạch DT-22 Eric duyệt ngày 2026-10-19 có máy xếp tự động, nhiều phương án, chỉnh mức quan trọng ràng buộc, chỉnh tay, dạy thay, đổi tiết, báo cáo tiết dạy, dùng phòng, mã QR tra cứu). Xây trên phần khung 22c1 (YCTD-160): khung giờ tiết, bản thời khoá biểu, kiểm tra xung đột, ban hành có phiên bản; môn, số tiết, phân công của 20a (YCTD-158). Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.

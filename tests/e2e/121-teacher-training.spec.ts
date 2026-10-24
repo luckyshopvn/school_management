@@ -65,7 +65,8 @@ test('CT-22e-7: khoá bồi dưỡng, đăng ký trên ứng dụng, duyệt, k�
         org_unit_id: root.id,
         code: `BD-${suffix}-${index}`,
         full_name: name,
-        start_date: '2025-08-01',
+        // Bắt đầu từ hôm nay: nhân sự làm từ tháng trước thì bảng lương (spec 22, BR-43) đòi chốt công tháng trước của trường
+        start_date: today,
         user_id: user.id,
       })
       .execute();

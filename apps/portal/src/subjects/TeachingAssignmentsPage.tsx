@@ -1,16 +1,17 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { PERMISSION_CODES } from '@school-management/shared';
+import { PERMISSION_CODES, type SchoolLevelCode } from '@school-management/shared';
 import { Alert, Button, FORM_CONTROL_CLASS, Toast } from '@school-management/ui';
 import { AppShell } from '../pages/AppShell.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
+import { useEnabledSchoolLevels } from '../school-levels/enabled-levels.js';
 import { endAssignment, listClasses, listStaff } from '../classes/classes-api.js';
 import { assignSubjectTeacher, listTeacherLoads, readClassTeaching, type ClassTeaching } from './subjects-api.js';
 
-// 7.2 Phân công giảng dạy theo môn (DT-20 phần 20a, YCTD-158): chọn lớp Tiểu học, mỗi môn của khối theo chương trình của lớp
+// 7.2 Phân công giảng dạy theo môn (DT-20 phần 20a, YCTD-158; THCS, THPT dùng chung ở DT-21 phần 21a): chọn cấp, lớp, mỗi môn của khối theo chương trình của lớp
 // có một giáo viên bộ môn (VT-08) và số tiết được phân (trống là số tiết của chương trình); bảng tổng tiết của giáo viên.
 // Ai xem được lớp đều xem; phân công cần quyền quản lý lớp như 3.3 Phân công phụ trách lớp
 const messageOf = (error: unknown) =>
@@ -123,6 +124,12 @@ export function TeachingAssignmentsPage() {
   const unitChoice = useUnitChoice();
   const orgUnitId = unitChoice.selectedId;
   const [classId, setClassId] = useState('');
+  const enabled = useEnabledSchoolLevels();
+  const levels = enabled.levels.filter((item) => item.value !== 'MN');
+  const [chosenLevel, setChosenLevel] = useState<SchoolLevelCode>();
+  const levelOption = levels.find((item) => item.value === chosenLevel) ?? levels[0];
+  const level: SchoolLevelCode = levelOption?.value ?? 'TH';
+  const classLabel = `Lớp ${levelOption?.label ?? 'Tiểu học'}`;
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
   const classes = useQuery({
@@ -130,13 +137,13 @@ export function TeachingAssignmentsPage() {
     queryFn: () => listClasses(orgUnitId ?? ''),
     enabled: Boolean(orgUnitId),
   });
-  const primaryClasses = (classes.data ?? []).filter((item) => item.school_level === 'TH' && item.status === 'active');
+  const levelClasses = (classes.data ?? []).filter((item) => item.school_level === level && item.status === 'active');
   const teaching = useQuery({
     queryKey: ['class-teaching', classId],
     queryFn: () => readClassTeaching(classId),
     enabled: Boolean(classId),
   });
-  const loads = useQuery({ queryKey: ['teacher-loads', 'TH'], queryFn: () => listTeacherLoads('TH') });
+  const loads = useQuery({ queryKey: ['teacher-loads', level], queryFn: () => listTeacherLoads(level) });
   const assignedPeriods = (teaching.data?.subjects ?? []).reduce(
     (sum, row) => sum + (row.assignment?.periods_per_week ?? 0),
     0,
@@ -150,16 +157,36 @@ export function TeachingAssignmentsPage() {
           <div className="max-w-sm">
             <UnitSelect units={unitChoice.units} selectedId={orgUnitId} onSelect={unitChoice.select} />
           </div>
+          {levels.length > 1 ? (
+            <label className="text-label font-medium text-text">
+              Cấp học
+              <select
+                aria-label="Cấp học"
+                className={`mt-2 block ${FORM_CONTROL_CLASS}`}
+                value={level}
+                onChange={(event) => {
+                  setChosenLevel(event.target.value as SchoolLevelCode);
+                  setClassId('');
+                }}
+              >
+                {levels.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
           <label className="text-label font-medium text-text">
-            Lớp Tiểu học
+            {classLabel}
             <select
-              aria-label="Lớp Tiểu học"
+              aria-label={classLabel}
               className={`mt-2 block ${FORM_CONTROL_CLASS}`}
               value={classId}
               onChange={(event) => setClassId(event.target.value)}
             >
               <option value="">Chọn lớp</option>
-              {primaryClasses.map((item) => (
+              {levelClasses.map((item) => (
                 <option key={item.id} value={item.id}>
                   {item.name}
                 </option>
@@ -167,8 +194,8 @@ export function TeachingAssignmentsPage() {
             </select>
           </label>
         </div>
-        {classes.data && primaryClasses.length === 0 ? (
-          <p className="text-content text-text-secondary">Đơn vị chưa có lớp Tiểu học đang hoạt động.</p>
+        {classes.data && levelClasses.length === 0 ? (
+          <p className="text-content text-text-secondary">Đơn vị chưa có lớp của cấp này đang hoạt động.</p>
         ) : null}
         {teaching.error ? <Alert tone="danger">{messageOf(teaching.error)}</Alert> : null}
         {teaching.data ? (
@@ -176,7 +203,7 @@ export function TeachingAssignmentsPage() {
             <p className="text-content">
               {teaching.data.curriculum
                 ? `Chương trình: ${teaching.data.curriculum.name}. Tổng tiết theo chương trình: ${teaching.data.planned_periods}; đã phân: ${assignedPeriods}.`
-                : 'Cấp Tiểu học chưa có chương trình; nạp môn mẫu ở 7.1 Môn học và hoạt động giáo dục.'}
+                : 'Cấp này chưa có chương trình; nạp môn mẫu ở 7.1 Môn học và hoạt động giáo dục.'}
             </p>
             <table className="w-full text-content" aria-label="Môn của lớp">
               <thead className="text-left text-label font-medium text-text-secondary">

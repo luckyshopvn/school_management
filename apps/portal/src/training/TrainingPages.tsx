@@ -453,6 +453,7 @@ function CourseForm({ onSaved }: { onSaved(message: string): void }) {
         </Field>
         <Field label="Chuyên đề">
           <select
+            aria-label="Chuyên đề"
             className={FORM_CONTROL_CLASS}
             value={form.topic_id ?? ''}
             onChange={(event) => {
@@ -476,6 +477,7 @@ function CourseForm({ onSaved }: { onSaved(message: string): void }) {
         </Field>
         <Field label="Đơn vị tổ chức">
           <select
+            aria-label="Đơn vị tổ chức"
             className={FORM_CONTROL_CLASS}
             value={form.organizer_kind}
             onChange={(event) =>
@@ -498,6 +500,7 @@ function CourseForm({ onSaved }: { onSaved(message: string): void }) {
         </Field>
         <Field label="Hình thức">
           <select
+            aria-label="Hình thức"
             className={FORM_CONTROL_CLASS}
             value={form.mode}
             onChange={(event) => setForm({ ...form, mode: event.target.value as TrainingMode })}
@@ -1293,6 +1296,7 @@ export function TrainingSettingsPage() {
           </Field>
           <Field label="Chương trình">
             <select
+              aria-label="Chương trình"
               className={FORM_CONTROL_CLASS}
               value={topic.program_no}
               onChange={(event) => setTopic({ ...topic, program_no: event.target.value })}
@@ -1315,6 +1319,7 @@ export function TrainingSettingsPage() {
           </Field>
           <Field label="Gắn miền năng lực số">
             <select
+              aria-label="Gắn miền năng lực số"
               className={FORM_CONTROL_CLASS}
               value={topic.competency_domain_code}
               onChange={(event) => setTopic({ ...topic, competency_domain_code: event.target.value })}

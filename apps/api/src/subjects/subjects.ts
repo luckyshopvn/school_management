@@ -10,10 +10,12 @@ import {
 import {
   DEFAULT_CURRICULUM_CODES,
   PERMISSION_CODES,
+  SUBJECT_OPTION_GROUPS,
   SUBJECT_TEMPLATES,
   type SchoolLevelCode,
   type SubjectAssessment,
   type SubjectKind,
+  type SubjectOptionGroup,
 } from '@school-management/shared';
 import type { Request } from 'express';
 import type { Kysely, Transaction } from 'kysely';
@@ -50,6 +52,7 @@ export interface Subject {
   school_level: SchoolLevelCode;
   kind: SubjectKind;
   assessment: SubjectAssessment;
+  option_group: SubjectOptionGroup | null;
   order_no: number;
   status: CatalogStatus;
 }
@@ -60,6 +63,7 @@ export interface SubjectInput {
   school_level: SchoolLevelCode;
   kind: SubjectKind;
   assessment: SubjectAssessment;
+  option_group?: SubjectOptionGroup | null;
   order_no: number;
 }
 
@@ -76,9 +80,19 @@ export interface CurriculumSubjectRow extends CurriculumSubjectInput {
   kind: SubjectKind;
 }
 
-const COLUMNS = ['id', 'code', 'name', 'school_level', 'kind', 'assessment', 'order_no', 'status'] as const;
+const COLUMNS = [
+  'id',
+  'code',
+  'name',
+  'school_level',
+  'kind',
+  'assessment',
+  'option_group',
+  'order_no',
+  'status',
+] as const;
 const KINDS: SubjectKind[] = ['subject', 'activity'];
-const ASSESSMENTS: SubjectAssessment[] = ['comment', 'comment_and_score'];
+const ASSESSMENTS: SubjectAssessment[] = ['comment', 'comment_and_score', 'score'];
 
 export function readPeriods(value: unknown, field: string, errors: FieldError[]): number | undefined {
   if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0 || value > 40 || (value * 2) % 1 !== 0) {
@@ -105,6 +119,22 @@ function readChoice<Value extends string>(
   return value as Value;
 }
 
+// Nhóm môn học lựa chọn (THPT): chuỗi rỗng hoặc null là không thuộc nhóm nào
+export function readOptionGroup(body: RequestBody, errors: FieldError[]): SubjectOptionGroup | null | undefined {
+  const value = body?.option_group;
+  if (value === undefined) {
+    return undefined;
+  }
+  if (value === null || value === '') {
+    return null;
+  }
+  if (!SUBJECT_OPTION_GROUPS.includes(value as SubjectOptionGroup)) {
+    errors.push({ field: 'option_group', message: `Nhóm môn là ${SUBJECT_OPTION_GROUPS.join(', ')} hoặc để trống` });
+    return undefined;
+  }
+  return value as SubjectOptionGroup;
+}
+
 export function parseSubjectInput(body: RequestBody): SubjectInput {
   const errors: FieldError[] = [];
   const level = readSchoolLevel(body, 'school_level', errors);
@@ -119,6 +149,10 @@ export function parseSubjectInput(body: RequestBody): SubjectInput {
     assessment: readChoice(body, 'assessment', ASSESSMENTS, errors) ?? 'comment',
     order_no: readInteger(body, 'order_no', errors, { min: 0, max: 999 }) ?? 0,
   };
+  const optionGroup = readOptionGroup(body, errors);
+  if (optionGroup !== undefined) {
+    input.option_group = optionGroup;
+  }
   if (input.code.length > 30) {
     errors.push({ field: 'code', message: 'Mã môn tối đa 30 ký tự' });
   }
@@ -204,7 +238,7 @@ export class SubjectsService {
 
   async update(
     subjectId: string,
-    changes: Partial<Pick<Subject, 'name' | 'kind' | 'assessment' | 'order_no' | 'status'>>,
+    changes: Partial<Pick<Subject, 'name' | 'kind' | 'assessment' | 'option_group' | 'order_no' | 'status'>>,
     origin: ChangeOrigin,
   ): Promise<Subject> {
     const { database } = await this.currentSchoolYear.require();
@@ -234,7 +268,7 @@ export class SubjectsService {
     const templates = SUBJECT_TEMPLATES[level];
     if (templates.length === 0) {
       throw ruleViolationError(SUBJECT_RULE_CODE, 'Cấp này chưa có bộ môn mẫu', [
-        { field: 'school_level', message: 'Bộ môn mẫu hiện chỉ có cho Tiểu học' },
+        { field: 'school_level', message: 'Chọn cấp Tiểu học, THCS hoặc THPT' },
       ]);
     }
     await assertLevelEnabled(this.schoolLevels, level);
@@ -263,6 +297,7 @@ export class SubjectsService {
             school_level: level,
             kind: template.kind,
             assessment: template.assessment,
+            option_group: template.option_group ?? null,
             order_no: template.order_no,
             created_by: origin.actorUserId,
           })
@@ -497,6 +532,7 @@ export class SubjectsController {
       name: body?.name === undefined ? undefined : readRequiredText(body, 'name', errors),
       kind: readChoice(body, 'kind', KINDS, errors),
       assessment: readChoice(body, 'assessment', ASSESSMENTS, errors),
+      option_group: readOptionGroup(body, errors),
       order_no: readInteger(body, 'order_no', errors, { min: 0, max: 999 }),
       status: readStatus(body, errors),
     };

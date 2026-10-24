@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.44
+- Phiên bản: 0.51
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -21,7 +21,7 @@
 - Đọc mục 13 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà `staff_certificates`, mã tra cứu và trang công khai của giấy khen 22d, giới hạn tần suất của điểm cuối công khai, Việc của tôi, phân hệ Hồ sơ chuyên môn; tra văn bản: Thông tư 19/2019/TT-BGDĐT ban hành Quy chế bồi dưỡng thường xuyên giáo viên, cán bộ quản lý cơ sở giáo dục mầm non, phổ thông và giáo viên trung tâm giáo dục thường xuyên (hiệu lực 28/12/2019), sửa đổi bởi Thông tư 17/2022/TT-BGDĐT; chương trình bồi dưỡng thường xuyên giáo viên phổ thông (Thông tư 17/2019/TT-BGDĐT), mầm non (Thông tư 12/2019/TT-BGDĐT) với thời lượng 120 tiết mỗi năm học, ba chương trình mỗi chương trình khoảng 40 tiết; Khung năng lực số đối với giáo viên, cán bộ quản lí theo Thông tư 18/2026/TT-BGDĐT (ban hành 27/03/2026, hiệu lực 12/05/2026): 6 miền, 20 năng lực thành phần, 3 mức Cơ bản, Thành thạo, Nâng cao.
 - Cơ sở dữ liệu: tệp hệ thống `0041`, năm học `0101`, định danh `0091`. Máy chủ API: danh mục, khoá, đăng ký, duyệt hai cấp, kết quả, chứng nhận PDF có mã QR, thu hồi, cấp lại, tra cứu công khai, chứng chỉ nhập tay, hồ sơ theo cá nhân, tổ, trường, năng lực số, nguồn Việc của tôi.
 - Cổng quản trị: nhóm "6. Bồi dưỡng giáo viên" (6.1 đến 6.5), trang "Tra cứu chứng nhận bồi dưỡng". Ứng dụng giáo viên: Bồi dưỡng của tôi.
-- Thêm quy tắc BR-179, chức năng P09-45 đến P09-49, quyền PQ-97, màn hình MH-271 đến MH-276, kịch bản CT-891 đến CT-897, tiêu chí AC-777 đến AC-779. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/training/training.test.ts` CT-22e-1 đến CT-22e-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa (api, shared, database) đạt 1022/1022 (api 1016, database 6); kiểm thử giao diện `tests/e2e/121-teacher-training.spec.ts` (CT-22e-7) đạt; kiểm thử giao diện chạy trên máy (toàn bộ spec trên nhánh trước khi gộp 20e, 22c2) 161/164, trong đó 121, 02, 03, 58 đạt; ba spec lỗi (04 lưới Tài khoản, 22 bảng lương, 76 gói ZIP) không liên quan 22e, 22 và 76 hết thời gian chờ khi máy chạy năm phiên cùng lúc; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm quy tắc BR-186, chức năng P09-45 đến P09-49, quyền PQ-98, màn hình MH-282 đến MH-287, kịch bản CT-927 đến CT-933, tiêu chí AC-792 đến AC-794. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/training/training.test.ts` CT-22e-1 đến CT-22e-6 đạt 6/6; kiểm thử đơn vị các gói đã sửa (api, shared, database) đạt 1022/1022 (api 1016, database 6); kiểm thử giao diện `tests/e2e/121-teacher-training.spec.ts` (CT-22e-7) đạt; kiểm thử giao diện chạy trên máy (toàn bộ spec trên nhánh trước khi gộp 20e, 22c2) 161/164; spec 22 (bảng lương) lỗi do spec 121 thêm nhân sự làm từ năm trước vào trường gốc nên bảng lương đòi chốt công tháng trước (BR-43), đã sửa spec 121 cho nhân sự bắt đầu từ hôm nay, chạy lại 02, 03, 121, 21, 22 đạt; spec 04 (lưới Tài khoản), 76 (gói ZIP) lỗi không liên quan 22e; spec 58 đạt; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
@@ -29,13 +29,138 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-182, `07_QUY_TAC_NGHIEP_VU.md` BR-179, `08_VAI_TRO_NGUOI_DUNG.md` PQ-97, `10_YEU_CAU_CHUC_NANG.md` P09-45 đến P09-49, `11_TIEU_CHI_NGHIEM_THU.md` AC-777 đến AC-779, `14_DAC_TA_GIAO_DIEN.md` MH-271 đến MH-276, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-891 đến CT-897, `23_LICH_SU_PHIEN_BAN.md` 0.114.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-182, `07_QUY_TAC_NGHIEP_VU.md` BR-186, `08_VAI_TRO_NGUOI_DUNG.md` PQ-98, `10_YEU_CAU_CHUC_NANG.md` P09-45 đến P09-49, `11_TIEU_CHI_NGHIEM_THU.md` AC-792 đến AC-794, `14_DAC_TA_GIAO_DIEN.md` MH-282 đến MH-287, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-927 đến CT-933, `23_LICH_SU_PHIEN_BAN.md` 0.119.0.
 
 #### Vấn đề tồn đọng
 
 - Đối chiếu tên 6 miền, 20 năng lực thành phần với toàn văn Thông tư 18/2026/TT-BGDĐT; khai báo nhu cầu và duyệt kế hoạch bồi dưỡng qua luồng 18e; tải tệp bản sao chứng chỉ; xuất báo cáo; nối KPI 18d, thi đua 22d.
 
 
+### 2026-10-24 — DT-21 phần 21b: thời khoá biểu THCS, THPT
+
+#### Công việc đã thực hiện
+
+- Đọc mục 12 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và mã 22c1 (`timetables.ts`, `timetable-rules.ts`), 22c2 (máy xếp, dạy thay, báo cáo), 21a (tổ hợp môn, menu).
+- Cơ sở dữ liệu: tệp năm học `0086`. Máy chủ API: nhóm học, luật xung đột mới, thời khoá biểu của con theo tổ hợp, cột Nhóm khi nhập Excel, máy xếp bỏ qua môn học lựa chọn, dạy thay chỉ cho tiết cả lớp, trang công khai. Cổng quản trị: menu ba cấp, khối "Tiết học nhóm". Ứng dụng giáo viên, phụ huynh ghi nhóm.
+- Thêm quy tắc BR-185, chức năng P02-65, màn hình MH-281, kịch bản CT-920 đến CT-926, tiêu chí AC-791. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/timetables/secondary-timetables.test.ts` CT-21b-1 đến CT-21b-6 đạt 6/6; trên máy đã chạy kiểm thử đơn vị các gói sửa (thời khoá biểu, máy xếp, cấp học, đường dẫn nhanh, sổ đầu bài) đạt 56/56; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 89, 93, 95 và `tests/e2e/97-secondary-timetables.spec.ts` (CT-21b-7); kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
+
+#### Quyết định
+
+- Thực hiện phần 21b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.4. Nhóm học là cột `group_no` của tiết (0 là cả lớp) thay vì bảng nhóm riêng; học sinh thuộc nhóm theo tổ hợp môn của 21a, lọc khi xem; máy xếp không xếp môn học lựa chọn, tiết nhóm nhập tay hoặc Excel; dạy thay, đổi tiết chỉ cho tiết cả lớp. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Khi chạy kiểm thử trên máy dùng cơ sở dữ liệu định danh riêng `school_identity_21b`; chỉ chạy các kịch bản giao diện của phần mình và bị ảnh hưởng; kiểm thử giao diện toàn bộ do CI chạy.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-169, `07_QUY_TAC_NGHIEP_VU.md` BR-185, `10_YEU_CAU_CHUC_NANG.md` P02-65, `11_TIEU_CHI_NGHIEM_THU.md` AC-791, `14_DAC_TA_GIAO_DIEN.md` MH-281, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-920 đến CT-926, `23_LICH_SU_PHIEN_BAN.md` 0.118.0.
+
+#### Vấn đề tồn đọng
+
+- Xếp tự động tiết nhóm; dạy thay, đổi tiết cho tiết nhóm; định mức tiết của tổ bộ môn làm cảnh báo; sổ đầu bài, điểm danh theo tiết cho tiết nhóm thuộc 21d.
+
+### 2026-10-24 — DT-21 phần 22g1: kiểm tra, đánh giá, phần đề
+
+#### Công việc đã thực hiện
+
+- Đọc mục 12 của `32_KE_HOACH_THEO_HE_THONG_SO.md`, phần 22g của kế hoạch DT-22, mục 13 (22h2 tham chiếu ngân hàng câu hỏi); rà môn học (20a), khối, cấp (DT-19), bộ dựng Word, PDF (18d), công cụ nhập Excel (16a), thời khoá biểu (22c1).
+- Cơ sở dữ liệu: tệp năm học `0085`, định danh `0076`. Máy chủ API: hàm thuần của ma trận, bốc câu, trộn đề; ngân hàng câu hỏi, chủ đề, ma trận, kế hoạch, đề; xuất Word, PDF. Cổng quản trị: nhóm 8 "Kiểm tra, đánh giá" (8.1 đến 8.4) cho THCS, THPT.
+- Thêm quy tắc BR-184, chức năng P02-61 đến P02-64, quyền PQ-97, màn hình MH-277 đến MH-280, kịch bản CT-911 đến CT-919, tiêu chí AC-787 đến AC-790. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/exams/exam-rules.test.ts` CT-22g1-1 đến CT-22g1-4 đạt 4/4, `apps/api/src/exams/exams.test.ts` CT-22g1-5 đến CT-22g1-8 đạt 4/4; kiểm thử đơn vị chạy trên máy các gói đã sửa: shared đạt, database 6/6, api 1018 ca đạt 1016, hai ca `children.test.ts` (CTC-P02-013, CTC-P02-057) chập chờn khi chạy chung, chạy lại riêng đạt 26/26; sau khi gộp 21a, 21c, 20f chạy lại `exams`, `working-level` đạt 16/16; kiểm thử giao diện `tests/e2e/96-exam-bank.spec.ts` (CT-22g1-9) đạt; kiểm thử giao diện trên máy chạy 02, 03, 06, 08, 58, 96 đạt 18/18; sau khi gộp 21a, 21c chạy lại 02, 03, 06, 08, 58, 59, 96 đạt 24/24; e2e toàn bộ do CI chạy (đạt 5/5 trước khi gộp 20f); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 22g1 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.4: ngân hàng câu hỏi là nguồn duy nhất; câu trong đề lưu bản chụp; bốn mức nhận thức, bốn dạng câu cố định trong mã, tỉ lệ cấu hình theo ma trận; mã đề đầu giữ thứ tự soạn; ba quyền mới (soạn, thẩm định, quản lý); không dùng AI. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-168, `07_QUY_TAC_NGHIEP_VU.md` BR-184, `08_VAI_TRO_NGUOI_DUNG.md` PQ-97, `10_YEU_CAU_CHUC_NANG.md` P02-61 đến P02-64, `11_TIEU_CHI_NGHIEM_THU.md` AC-787 đến AC-790, `14_DAC_TA_GIAO_DIEN.md` MH-277 đến MH-280, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-911 đến CT-919, `23_LICH_SU_PHIEN_BAN.md` 0.117.0.
+
+#### Vấn đề tồn đọng
+
+- 22g2: phiếu trả lời, chấm, chuyển điểm vào sổ điểm, báo cáo theo câu; 22h2 đọc câu hỏi, ma trận, đề từ đây; ảnh, công thức ký hiệu trong câu hỏi; mẫu ma trận theo văn bản khi khớp Sở.
+
+
+### 2026-10-24 — DT-20 phần 20f: báo cáo, thống kê và EMIS Tiểu học
+
+#### Công việc đã thực hiện
+
+- Đọc mục 11 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà biểu EMIS Mầm non, luồng gửi lên cấp trên 16a, tham số cấp 19d, thống kê 5.1, 5.3, số liệu của 20b, 20c, 20d, 20e.
+- Cơ sở dữ liệu: tệp hệ thống `0027_create_report_forms` (hai biểu khung Tiểu học), tệp định danh `0074_add_report_form_permission`; số tệp năm học `0083` giữ sẵn không dùng (số nhập tay dùng `emis_report_values`).
+- Máy chủ API: thống kê Tiểu học, xuất tệp; biểu EMIS Tiểu học (tính, nhập tay, sửa khung, xuất, gửi lên cấp trên).
+- Cổng quản trị: 7.15 Báo cáo, thống kê, EMIS Tiểu học.
+- Thêm quy tắc BR-181 đến BR-183, chức năng P17-31 đến P17-33, kịch bản CT-904 đến CT-910, tiêu chí AC-783 đến AC-786. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/primary-reports/primary-reports.test.ts` CT-20f-1 đến CT-20f-6 đạt 6/6; kiểm thử đơn vị đang có không sửa kỳ vọng (thêm mục 7.15 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của Tiểu học của CT-19c-1); kiểm thử đơn vị toàn bộ kho mã đạt 1081/1081 trước khi gộp main lần cuối; sau khi gộp chạy lại các tệp bị ảnh hưởng (primary-reports, working-level, menu-permissions) đạt 18/18; kiểm thử giao diện `tests/e2e/94-primary-reports.spec.ts` (CT-20f-7) đạt; kiểm thử giao diện trên máy chạy các kịch bản 02, 03, 94 đạt 5/5 (trước đó 02, 03, 06, 08, 58, 94 đạt 18/18); e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 20f của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.4. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: biểu EMIS Tiểu học là khung cấu hình được ở cơ sở dữ liệu hệ thống, công thức theo cú pháp đơn giản kiểm khi lưu; nạp hai biểu khung chờ khảo sát Sở; thống kê dùng quyền thống kê học sinh có sẵn.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-165, `07_QUY_TAC_NGHIEP_VU.md` BR-181 đến BR-183, `10_YEU_CAU_CHUC_NANG.md` P17-31 đến P17-33, `11_TIEU_CHI_NGHIEM_THU.md` AC-783 đến AC-786, `14_DAC_TA_GIAO_DIEN.md`, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-904 đến CT-910, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 11.8. Phiên bản 0.116.0.
+
+#### Vấn đề tồn đọng
+
+- Khảo sát hệ thống của Sở cấp Tiểu học để sửa biểu khung cho khớp (tài liệu 31); thêm biểu mới từ giao diện.
+
+### 2026-10-24 — Sửa lỗi màn hình bán trú của ứng dụng giáo viên (DT-20 phần 20b, YCTD-159)
+
+#### Công việc đã thực hiện
+
+- Kiểm thử giao diện `tests/e2e/88-boarding-conduct.spec.ts` (CT-20b-7) lỗi trên CI của nhiều PR vào thứ Bảy: màn hình Bán trú của ứng dụng giáo viên hiện "2 học sinh đăng ký bán trú; 2 suất" thay cho "1 suất (đã chốt)". Tái hiện ở máy ngày thứ Bảy 2026-10-24, 19:25.
+- Nguyên nhân: màn hình mở ra tải danh sách ăn của hôm nay, kịch bản đổi sang ngày học gần nhất (thứ Sáu) ngay sau đó; kết quả của lần tải hôm nay về sau ghi đè danh sách của thứ Sáu. Ngày thường hôm nay trùng ngày học nên không lộ. Đây là lỗi của màn hình (người dùng đổi ngày nhanh cũng gặp), không chỉ của kịch bản.
+- Sửa `apps/teacher/src/screens/BoardingScreen.tsx`: chỉ nhận kết quả của lần tải mới nhất, bỏ kết quả cũ về sau. Kịch bản không đổi.
+- Kiểm thử ở máy ngày thứ Bảy, 19:35: các kịch bản 02, 03, 06, 08, 88 đạt 10/10; typecheck, eslint ứng dụng giáo viên đạt; e2e toàn bộ do CI chạy.
+
+#### Quyết định
+
+- Không thêm YCTD mới (sửa lỗi trong phạm vi YCTD-159). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+### 2026-10-24 — Sửa kiểm thử chập chờn CT-22c2-12 (dạy thay, đổi tiết)
+
+#### Công việc đã thực hiện
+
+- Kiểm thử đơn vị CT-22c2-12 (`apps/api/src/timetables/timetable-generator.test.ts`, YCTD-164) hỏng trên CI của PR 145 (đọc `period_no` của giá trị trống) trong khi nhánh chính vẫn đạt. Nguyên nhân: ca kiểm thử chọn trước người dạy thay rồi mới tìm tiết người đó rảnh, và chọn trước một cặp tiết để đổi; với phương án ngẫu nhiên của máy xếp, có ngày mọi tiết của giáo viên 1 đều trùng tiết người dạy thay, hoặc cặp đã chọn vướng giáo viên dạy lớp khác. Không phụ thuộc thứ trong tuần (vòng tìm đã bỏ qua ngày không có tiết).
+- Sửa ca kiểm thử: tìm cùng lúc ngày, tiết và người dạy thay đang rảnh trong 7 ngày tới; tiết trùng dùng để thử chặn dạy thay; đổi tiết thử lần lượt các cặp khác môn của lớp 1B tới cặp đầu tiên máy chủ nhận, các cặp bị chặn phải trả 422. Không đổi mã nghiệp vụ, không đổi kỳ vọng. Chạy lại 15 lần trên máy (ngày thứ Bảy) đều đạt 6/6.
+
+### 2026-10-24 — DT-21 phần 21c: sổ điểm THCS, THPT
+
+#### Công việc đã thực hiện
+
+- Đọc mục 12 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và mã 20c (`assessments`: phân quyền nhập theo phân công, hạn nhập, khoá, nhật ký, phụ huynh xem), 21a (môn THCS, THPT, phân công theo môn).
+- Cơ sở dữ liệu: tệp năm học `0087` (cấu hình, điểm, kết quả môn nhận xét, xếp loại, khoá điểm); tệp định danh `0078` để trống. Gói dùng chung: hàm tính trung bình, xếp loại. Máy chủ API: `/scores`. Cổng quản trị: 7.14 Sổ điểm; ứng dụng giáo viên, ứng dụng phụ huynh.
+- Kiểm thử: kiểm thử đơn vị `apps/api/src/scores/scores.test.ts` CT-21c-1 đến CT-21c-6 đạt 6/6; chạy cùng `secondary.test.ts`, `subjects.test.ts`, `working-level.test.ts`, `menu-permissions.test.ts` đạt 28/28 (đã thêm 7.14 vào danh sách mục chỉ của THCS, THPT ở CT-19c-1, CT-19c-2); typecheck, eslint, prettier đạt; e2e CT-21c-7 đạt; e2e toàn bộ do CI chạy.
+- Sửa dòng "Phiên bản" thừa ở đầu các tài liệu do gộp bản 21a.
+
+#### Quyết định
+
+- Điểm là bảng riêng `score_entries` (không dùng bảng đánh giá Thông tư 27/2020 của 20c vì lưu mức đạt và điểm nguyên); tái dùng quyền, cách phân quyền, khoá của 20c nên không thêm quyền; điểm trung bình tính khi đọc, không lưu; xếp loại học tập gợi ý theo ngưỡng cấu hình, rèn luyện nhập tay; điểm có nguồn `exam` để 22g2 chuyển điểm vào; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-170, `23_LICH_SU_PHIEN_BAN.md` bản 0.115.0.
+
+#### Vấn đề tồn đọng
+
+- Hệ số, số lần đánh giá, ngưỡng xếp loại đối chiếu toàn văn Thông tư 22/2021; quy tắc gợi ý xếp loại rèn luyện; khảo sát hệ thống của Sở cấp THCS, THPT khi Eric có tài khoản.
+
+
+### 2026-10-24 — DT-21 phần 21a: nền THCS, THPT
+
+#### Công việc đã thực hiện
+
+- Đọc mục 12 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và mã 20a (`subjects`, `curriculum_subjects`, phân công theo môn, môn tự chọn), cây menu theo cấp, e2e 87.
+- Cơ sở dữ liệu: tệp năm học `0084` (`subjects.option_group`, giá trị `score` của cách đánh giá, tổ hợp môn, tổ hợp học sinh đăng ký, tổ bộ môn); tệp định danh `0075` để trống. Máy chủ API: bộ môn mẫu THCS, THPT, tổ hợp môn, đăng ký và duyệt đổi tổ hợp, tổ bộ môn; chép sang năm học mới. Cổng quản trị: 7.1, 7.2 dùng chung ba cấp, 7.12 Tổ hợp môn, 7.13 Tổ bộ môn, mục "Tổ hợp môn" ở hồ sơ học sinh.
+- Kiểm thử: kiểm thử đơn vị `secondary.test.ts` CT-21a-1 đến CT-21a-5 đạt 5/5 trên nhánh trước khi gộp 20d, 20e, 22c2; sau khi gộp chạy lại được CT-21a-1 và các ca menu CT-19c-1 đến CT-19c-4 (đạt), các ca cần cơ sở dữ liệu chưa chạy lại vì cơ sở dữ liệu định danh dùng chung trên máy đã chạy migration của nhánh khác; typecheck, lint, prettier đạt; e2e CT-21a-6 và e2e toàn bộ do CI chạy, chưa chạy trên máy
+
+#### Quyết định
+
+- Tổ hợp môn mặc định 4 môn lựa chọn thuộc ít nhất 2 nhóm (hằng `COMBINATION_RULE`, cần đối chiếu văn bản gốc); đổi tổ hợp đã duyệt chờ duyệt; duyệt xong môn tự chọn theo tổ hợp; tổ hợp đã có học sinh không đổi môn; nhóm menu 7 đổi tên "Dạy học" dùng chung ba cấp, 7.3 đến 7.5 vẫn chỉ Tiểu học; không thêm quyền mới (dùng quyền danh mục, lớp, hồ sơ học sinh), nên định danh `0075` để trống. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-167, `23_LICH_SU_PHIEN_BAN.md` bản 0.114.0.
+
+#### Vấn đề tồn đọng
+
+- Thời lượng, tên môn THCS, THPT và quy tắc tổ hợp đối chiếu văn bản gốc; khảo sát hệ thống của Sở cấp THCS, THPT khi Eric có tài khoản.
 ### 2026-10-24 — DT-20 phần 22c2: thời khoá biểu, máy xếp
 
 #### Công việc đã thực hiện

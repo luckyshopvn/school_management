@@ -204,7 +204,7 @@ export const applyVariant = (
 export const checkClassLessons = (
   versionId: string,
   classId: string,
-  lessons: Array<{ weekday: number; period_no: number; subject_id: string; room_id: string | null }>,
+  lessons: Array<{ weekday: number; period_no: number; subject_id: string; room_id: string | null; group_no: number }>,
 ): Promise<TimetableConflict[]> =>
   requestJson(`/api/v1/timetable-versions/${versionId}/classes/${classId}/check`, json('POST', { lessons }));
 

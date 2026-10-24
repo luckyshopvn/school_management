@@ -71,6 +71,8 @@ import {
   LearningRecordsService,
   StudentAwardVerificationController,
 } from './learning-records/learning-records.js';
+import { PrimaryEmisController, PrimaryEmisService } from './primary-reports/primary-emis.js';
+import { PrimaryReportsController, PrimaryReportsService } from './primary-reports/primary-reports.js';
 import { learningRecordsTransitionStep } from './learning-records/learning-records-transition.js';
 import { assessmentTransitionStep } from './assessments/assessment-transition.js';
 import { KitchenMenusController, KitchenMenusService } from './kitchen/kitchen-menus.js';
@@ -226,6 +228,15 @@ import {
 } from './entry-admissions/entry-admission-catalogs.js';
 import { GradeLevelsController, GradeLevelsService } from './catalogs/grade-levels.js';
 import { CurriculaController, CurriculaService } from './catalogs/curricula.js';
+import { ScoresController, ScoresService } from './scores/scores.js';
+import {
+  ChildCombinationsController,
+  ChildCombinationsService,
+  CombinationsController,
+  CombinationsService,
+  SubjectTeamsController,
+  SubjectTeamsService,
+} from './subjects/secondary.js';
 import {
   CurriculumSubjectsController,
   ElectiveSubjectsController,
@@ -242,6 +253,14 @@ import {
   TimetablesService,
   TimetableVersionsController,
 } from './timetables/timetables.js';
+import { ExamsService } from './exams/exams.js';
+import {
+  AssessmentPlansController,
+  ExamMatricesController,
+  ExamsController,
+  QuestionsController,
+  QuestionTopicsController,
+} from './exams/exams.controller.js';
 import {
   ChildPeriodAttendanceController,
   ClassLogsController,
@@ -509,6 +528,8 @@ export class ApplicationModule {
         SchoolSplitsController,
         EmisReportController,
         EmisFormsController,
+        PrimaryReportsController,
+        PrimaryEmisController,
         EmisSendingController,
         GradeLevelsController,
         CurriculaController,
@@ -516,10 +537,20 @@ export class ApplicationModule {
         CurriculumSubjectsController,
         ElectiveSubjectsController,
         TeachingAssignmentsController,
+        CombinationsController,
+        ChildCombinationsController,
+        SubjectTeamsController,
+        ScoresController,
         PeriodSlotsController,
         TimetableVersionsController,
         TimetablesController,
         ChildTimetableController,
+        // Kiểm tra, đánh giá phần đề (DT-21 phần 22g1)
+        QuestionTopicsController,
+        QuestionsController,
+        ExamMatricesController,
+        AssessmentPlansController,
+        ExamsController,
         ClassLogsController,
         PeriodAttendanceController,
         ChildPeriodAttendanceController,
@@ -750,13 +781,20 @@ export class ApplicationModule {
         SchoolSplitsService,
         EmisReportService,
         EmisForms,
+        PrimaryReportsService,
+        PrimaryEmisService,
         EmisSending,
         GradeLevelsService,
         CurriculaService,
         SubjectsService,
         ElectiveSubjectsService,
         TeachingAssignmentsService,
+        CombinationsService,
+        ChildCombinationsService,
+        SubjectTeamsService,
+        ScoresService,
         TimetablesService,
+        ExamsService,
         ClassLogsService,
         TimetableGeneratorService,
         TimetableChangesService,

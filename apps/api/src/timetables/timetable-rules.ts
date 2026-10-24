@@ -4,7 +4,10 @@
 //   ngày học trong tuần của cấp; môn không có trong chương trình của khối lớp;
 // - mềm: số tiết của môn trong tuần khác số tiết của chương trình (thiếu hoặc thừa); tiết chưa có giáo viên; giáo viên của
 //   tiết không phải giáo viên được phân công môn đó ở lớp; giáo viên dạy vào tiết đã báo bận (22c2: máy xếp coi là cứng,
-//   chỉnh tay chỉ cảnh báo để trường tự quyết).
+//   chỉnh tay chỉ cảnh báo để trường tự quyết);
+// - nhóm học (DT-21 phần 21b, YCTD-169): một lớp có thể có nhiều tiết của các nhóm khác nhau cùng ô; tiết cả lớp (nhóm 0)
+//   cùng ô với tiết nhóm là xung đột cứng; giáo viên, phòng trùng tiết tính trên mọi nhóm; môn có quy tắc tiết đôi mà không có
+//   hai tiết liền nhau trong ngày, và môn có phòng bộ môn mà ô không dùng phòng đó là cảnh báo.
 export interface TimetableLessonInput {
   class_id: string;
   class_name: string;
@@ -16,6 +19,8 @@ export interface TimetableLessonInput {
   teacher_name: string | null;
   room_id: string | null;
   room_name: string | null;
+  // 0 hoặc để trống là tiết cả lớp, 1 đến 9 là nhóm học (21b)
+  group_no?: number;
 }
 
 export interface TimetableContext {
@@ -24,11 +29,14 @@ export interface TimetableContext {
   // Ngày học trong tuần của cấp (ISO, 1 là thứ Hai)
   school_days: number[];
   // Số tiết mỗi tuần theo chương trình: lớp → môn → số tiết
-  planned: Map<string, Map<string, { subject_name: string; periods: number }>>;
+  // `elective`: môn học lựa chọn của THPT, học theo nhóm nên không so số tiết cả lớp với chương trình (21b)
+  planned: Map<string, Map<string, { subject_name: string; periods: number; elective?: boolean }>>;
   // Giáo viên được phân công: "lớp:môn" → mã tài khoản giáo viên
   assigned: Map<string, string>;
   // Tiết giáo viên báo bận (22c2): "giáo viên:thứ:tiết"
   busy?: Set<string>;
+  // Quy tắc xếp của môn (22c2): tiết đôi, phòng bộ môn
+  subject_rules?: Map<string, { double_period: boolean; room_id: string | null; room_name: string | null }>;
 }
 
 export interface TimetableConflict {
@@ -42,7 +50,10 @@ export interface TimetableConflict {
     | 'periods_mismatch'
     | 'missing_teacher'
     | 'teacher_not_assigned'
-    | 'teacher_busy';
+    | 'teacher_busy'
+    | 'class_group_clash'
+    | 'double_period_split'
+    | 'room_not_subject_room';
   message: string;
   class_id?: string;
   weekday?: number;
@@ -114,6 +125,23 @@ export function findTimetableConflicts(
     }
   }
   for (const group of bySlot.values()) {
+    const byClass = new Map<string, TimetableLessonInput[]>();
+    for (const lesson of group) {
+      byClass.set(lesson.class_id, [...(byClass.get(lesson.class_id) ?? []), lesson]);
+    }
+    for (const sameClass of byClass.values()) {
+      const first = sameClass[0] as TimetableLessonInput;
+      if (sameClass.length > 1 && sameClass.some((lesson) => (lesson.group_no ?? 0) === 0)) {
+        conflicts.push({
+          severity: 'hard',
+          code: 'class_group_clash',
+          message: `${first.class_name}: ${SLOT(first)} vừa có tiết cả lớp vừa có tiết nhóm (${sameClass.map((lesson) => lesson.subject_name).join(', ')})`,
+          class_id: first.class_id,
+          weekday: first.weekday,
+          period_no: first.period_no,
+        });
+      }
+    }
     const teachers = new Map<string, TimetableLessonInput[]>();
     const rooms = new Map<string, TimetableLessonInput[]>();
     for (const lesson of group) {
@@ -155,11 +183,18 @@ export function findTimetableConflicts(
     classesWithLessons.set(lesson.class_id, lesson.class_name);
   }
   for (const [classId, className] of classesWithLessons) {
-    const counts = new Map<string, number>();
+    // Các nhóm học cùng môn ở cùng ô chỉ tính một tiết
+    const slotsOfSubject = new Map<string, Set<string>>();
     for (const lesson of lessons.filter((item) => item.class_id === classId)) {
-      counts.set(lesson.subject_id, (counts.get(lesson.subject_id) ?? 0) + 1);
+      const slots = slotsOfSubject.get(lesson.subject_id) ?? new Set<string>();
+      slots.add(`${lesson.weekday}:${lesson.period_no}`);
+      slotsOfSubject.set(lesson.subject_id, slots);
     }
+    const counts = new Map([...slotsOfSubject].map(([subjectId, slots]) => [subjectId, slots.size]));
     for (const [subjectId, plan] of context.planned.get(classId) ?? new Map()) {
+      if (plan.elective) {
+        continue;
+      }
       const actual = counts.get(subjectId) ?? 0;
       // Số tiết lẻ (0,5) làm tròn lên: cách tuần một tiết vẫn cần một ô trong bản
       const expected = Math.ceil(plan.periods);
@@ -169,6 +204,58 @@ export function findTimetableConflicts(
           code: 'periods_mismatch',
           message: `${className}: môn ${plan.subject_name} có ${actual} tiết/tuần, chương trình ${plan.periods} tiết`,
           class_id: classId,
+        });
+      }
+    }
+  }
+  conflicts.push(...subjectRuleConflicts(lessons, context));
+  return conflicts;
+}
+
+// Tiết đôi và phòng bộ môn của môn (quy tắc 22c2) áp dụng cho từng lớp, nhóm
+function subjectRuleConflicts(lessons: TimetableLessonInput[], context: TimetableContext): TimetableConflict[] {
+  const rules = context.subject_rules;
+  if (!rules || rules.size === 0) {
+    return [];
+  }
+  const conflicts: TimetableConflict[] = [];
+  const doubleChecked = new Set<string>();
+  for (const lesson of lessons) {
+    const rule = rules.get(lesson.subject_id);
+    if (!rule) {
+      continue;
+    }
+    if (rule.room_id && lesson.room_id !== rule.room_id) {
+      conflicts.push({
+        severity: 'soft',
+        code: 'room_not_subject_room',
+        message: `${lesson.class_name}: ${SLOT(lesson)} môn ${lesson.subject_name} cần học ở phòng ${rule.room_name ?? 'bộ môn'}`,
+        class_id: lesson.class_id,
+        weekday: lesson.weekday,
+        period_no: lesson.period_no,
+      });
+    }
+    if (rule.double_period) {
+      const key = `${lesson.class_id}:${lesson.group_no ?? 0}:${lesson.subject_id}`;
+      if (doubleChecked.has(key)) {
+        continue;
+      }
+      doubleChecked.add(key);
+      const own = lessons.filter(
+        (item) =>
+          item.class_id === lesson.class_id &&
+          (item.group_no ?? 0) === (lesson.group_no ?? 0) &&
+          item.subject_id === lesson.subject_id,
+      );
+      const hasPair = own.some((item) =>
+        own.some((other) => other.weekday === item.weekday && other.period_no === item.period_no + 1),
+      );
+      if (own.length >= 2 && !hasPair) {
+        conflicts.push({
+          severity: 'soft',
+          code: 'double_period_split',
+          message: `${lesson.class_name}: môn ${lesson.subject_name} cần có tiết đôi (hai tiết liền nhau trong ngày) nhưng các tiết đang rời nhau`,
+          class_id: lesson.class_id,
         });
       }
     }

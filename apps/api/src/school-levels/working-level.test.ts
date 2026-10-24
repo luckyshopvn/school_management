@@ -49,6 +49,18 @@ const PRIMARY_ONLY_PATHS = [
   '/timetable-generator',
   '/timetable-changes',
   '/timetable-reports',
+  // Báo cáo, thống kê, EMIS Tiểu học (DT-20 phần 20f)
+  '/primary-reports',
+];
+// Mục chỉ của THCS, THPT (DT-21 phần 21a; kiểm tra, đánh giá phần đề 22g1): trường chỉ có Mầm non hay Tiểu học không thấy
+const SECONDARY_ONLY_PATHS = [
+  '/subject-combinations',
+  '/subject-teams',
+  '/scores',
+  '/question-bank',
+  '/exam-matrices',
+  '/assessment-plans',
+  '/exams',
 ];
 
 describe('Cây menu và nhãn theo cấp học', () => {
@@ -57,15 +69,19 @@ describe('Cây menu và nhãn theo cấp học', () => {
     assert.deepEqual(
       listPortalMenuEntries(preschool).map((entry) => [entry.workspace.key, entry.node.number, entry.node.path]),
       listPortalMenuEntries(PORTAL_WORKSPACES)
-        .filter((entry) => !PRIMARY_ONLY_PATHS.includes(entry.node.path))
+        .filter((entry) => ![...PRIMARY_ONLY_PATHS, ...SECONDARY_ONLY_PATHS].includes(entry.node.path))
         .map((entry) => [entry.workspace.key, entry.node.number, entry.node.path]),
     );
     assert.deepEqual(
       preschool.map((workspace) => workspace.label),
       PORTAL_WORKSPACES.map((workspace) => workspace.label),
     );
-    assert.deepEqual([...portalMenuPathsOutsideLevels(['MN'])].sort(), [...PRIMARY_ONLY_PATHS].sort());
-    assert.equal(portalMenuPathsOutsideLevels(['MN', 'TH']).size, 0);
+    assert.deepEqual(
+      [...portalMenuPathsOutsideLevels(['MN'])].sort(),
+      [...PRIMARY_ONLY_PATHS, ...SECONDARY_ONLY_PATHS].sort(),
+    );
+    assert.deepEqual([...portalMenuPathsOutsideLevels(['MN', 'TH'])].sort(), [...SECONDARY_ONLY_PATHS].sort());
+    assert.equal(portalMenuPathsOutsideLevels(['MN', 'TH', 'THCS', 'THPT']).size, 0);
   });
 
   it('CT-19c-2: cấp khác ẩn mục chỉ của Mầm non, nhóm rỗng bỏ; tên phân hệ theo cấp, nhiều cấp là "Quản lý giáo dục"', () => {
@@ -76,7 +92,10 @@ describe('Cây menu và nhãn theo cấp học', () => {
     }
     assert.ok(paths.includes('/children'));
     assert.ok(paths.includes('/emis/facilities'));
-    assert.deepEqual([...portalMenuPathsOutsideLevels(['TH'])].sort(), [...PRESCHOOL_ONLY_PATHS].sort());
+    assert.deepEqual(
+      [...portalMenuPathsOutsideLevels(['TH'])].sort(),
+      [...PRESCHOOL_ONLY_PATHS, ...SECONDARY_ONLY_PATHS].sort(),
+    );
     const education = (workspaces: typeof primary) => workspaces.find((workspace) => workspace.key === 'education');
     assert.equal(education(primary)?.label, 'Quản lý giáo dục Tiểu học');
     // Nhóm 4.3 Cân nặng, chiều cao bỏ hẳn; số của mục còn lại giữ nguyên số của Sở
