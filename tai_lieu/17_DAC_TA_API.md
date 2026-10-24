@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.112
+- Phiên bản: 1.114
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -1419,6 +1419,20 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, POST | /api/v1/assessment/locks, /locks/unlock; /assessment/children/{id} (từ YCTD-161) | Khoá kỳ (`period_id`, `class_ids` trống là mọi lớp của cấp trong phạm vi), mở khoá (`reason` bắt buộc); phụ huynh xem kết quả đã khoá của con |
 | GET, POST, PATCH | /api/v1/learning-records/award-titles, /defaults, /{id}; /learning-records/classes/{id}/awards; /learning-records/awards/{id}/decide, /certificate (từ YCTD-163) | Danh hiệu (sửa: `P02.student-record.approve`), khen thưởng của lớp kèm gợi ý, đề nghị (`child_id`, `title_id`, `achievement`), duyệt (`approve`, `note`), giấy khen PDF; trái quy tắc trả 422 mã YCTD-163 |
 | GET, PUT, POST, PATCH | /api/v1/learning-records/classes/{id}/completion, /learning-records, /learning-records/prepare; /learning-records/learning-records/{id}, /sign, /reopen, /file; /learning-records/children/{id} (từ YCTD-163) | Hoàn thành chương trình (`entries`: `child_id`, `support_plan`, `support_result`, `support_note`), học bạ của lớp, lập, nhận xét, kí nội bộ, mở lại (`reason`), tải PDF, học bạ và khen thưởng của học sinh (phụ huynh: bản đã kí) |
+| GET, POST | /api/v1/question-topics | Chủ đề theo môn, khối; thêm (`P02.exam.review`) (P02-61, YCTD-168) |
+| GET, POST | /api/v1/questions | Câu hỏi (lọc môn, khối, chủ đề, mức, dạng, trạng thái, tìm); soạn câu nháp (P02-61) |
+| GET | /api/v1/questions/stats, /api/v1/questions/import-template | Thống kê câu dùng được theo chủ đề, mức, dạng; tệp mẫu nhập (P02-61) |
+| POST | /api/v1/questions/import | Nhập câu hỏi từ Excel thành câu nháp (P02-61) |
+| GET, PUT | /api/v1/questions/{id} | Xem, sửa câu hỏi (P02-61) |
+| POST | /api/v1/questions/{id}/submit, /review, /retire | Gửi thẩm định; duyệt hoặc trả lại (`decision`, `note`); ngừng dùng (P02-61) |
+| GET, POST, PUT | /api/v1/exam-matrices, /api/v1/exam-matrices/{id} | Ma trận kèm tổng hợp `summary`, điểm lệch `issues` (P02-62) |
+| GET, POST, PUT | /api/v1/assessment-plans, /api/v1/assessment-plans/{id} | Kế hoạch kiểm tra kèm `exam_count`, `locked_count`, `timetable_note` (P02-63) |
+| POST | /api/v1/assessment-plans/{id}/submit, /decide | Gửi duyệt; duyệt hoặc trả lại (P02-63) |
+| GET, POST | /api/v1/exams, /api/v1/exams/staff | Đề được giao (người quản lý thấy mọi đề); giao đề; người có thể ra đề, thẩm định (P02-64) |
+| GET, PATCH | /api/v1/exams/{id} | Đề kèm câu, mã đề, đáp án từng mã; sửa tên, số mã, ma trận, hạn (P02-64) |
+| POST, DELETE | /api/v1/exams/{id}/generate, /questions, /questions/{questionId}, /variants | Bốc câu theo ma trận (`seed` tùy chọn); thêm, bỏ câu; trộn mã đề (P02-64) |
+| POST | /api/v1/exams/{id}/submit, /review, /lock, /unlock | Gửi thẩm định; duyệt hoặc trả lại; khoá; mở khoá (`reason`) (P02-64) |
+| GET | /api/v1/exams/{id}/export | Tải đề một mã (`part=paper`, `code`) hoặc đáp án (`part=answers`), `format=pdf` hoặc `docx` (P02-64) |
 | GET | /api/v1/public/student-awards/verify (từ YCTD-163) | Tra cứu công khai mã giấy khen học sinh (`code` 12 kí tự), giới hạn tần suất |
 | GET | /api/v1/primary-reports/enrollment, /assessments, /year-end, /attendance, /{report}/export (từ YCTD-165) | Thống kê Tiểu học (`org_unit_id`; `period_id`, `group` = `class`, `grade`, `school`; `from`, `to`); xuất `format` = `xlsx`, `pdf`; cần `P17.child-statistics.view` |
 | GET, PUT | /api/v1/primary-reports/emis, /{code}, /{code}/values, /{code}/rows, /{code}/export (từ YCTD-165) | Biểu EMIS Tiểu học cấu hình được: danh sách, biểu đã tính, lưu số nhập tay (`rows`: `code`, `values`), thay khung (`rows`: `code`, `label`, `unit`, `kind`, `formula`; cần `P17.report-form.manage`), xuất; biểu đã gửi trả 422 mã YCTD-165 |
@@ -1564,7 +1578,7 @@ Giao kèo sổ điểm THCS, THPT (DT-21 phần 21c, YCTD-170, BR-180):
 4. `GET /scores/classes/{id}/summary?term_type=` (`first_term`, `second_term`, `year`) trả `subjects`, `rows` (`subjects` điểm trung bình hoặc kết quả, `suggested`, `learning`, `conduct`, `comment`), `locked`, `can_rate`. `PUT /scores/classes/{id}/ratings` nhận `term_type`, `entries` (`child_id`, `learning`, `conduct` là `good`, `fair`, `pass`, `fail` hoặc trống, `comment`); chỉ giáo viên chủ nhiệm hoặc người quản lý (403); học kỳ đã khoá trả 422 (cả năm theo học kỳ II).
 5. `POST /scores/locks` nhận `term_type`, `school_level`, `class_ids` (tuỳ chọn); trả `locked_class_count`. `GET /scores/locks?term_type=&school_level=` trả trạng thái từng lớp. `POST /scores/locks/unlock` nhận `term_type`, `class_id`, `reason` (3 đến 500 ký tự); lớp chưa khoá trả 422. `GET /scores/children/{id}` chỉ phụ huynh của con (403 nếu không), trả `terms` đã khoá và `year_rating` khi học kỳ II đã khoá.
 
-Giao kèo học bạ, khen thưởng, lên lớp THCS, THPT (DT-21 phần 21e, YCTD-172, BR-184; dùng các điểm cuối `/learning-records` của 20e, không thêm điểm cuối):
+Giao kèo học bạ, khen thưởng, lên lớp THCS, THPT (DT-21 phần 21e, YCTD-172, BR-186; dùng các điểm cuối `/learning-records` của 20e, không thêm điểm cuối):
 
 1. Lớp THCS, THPT dùng cùng điểm cuối với Tiểu học. `GET /learning-records/classes/{id}/awards`, `/completion`, `/learning-records` trả mỗi học sinh thêm `has_result` (đã có kết quả cuối năm đã xác nhận), `needs_support` (học tập hoặc rèn luyện cả năm Chưa đạt), `year_label` ("Học tập: Tốt; rèn luyện: Tốt"; null với Tiểu học), `learning`, `conduct`; `year_result` là null với THCS, THPT.
 2. `year_end_locked` là học kỳ II của lớp đã khoá điểm (sổ điểm, BR-180). Chưa khoá thì đề nghị danh hiệu cuối năm, ghi hoàn thành chương trình, lập học bạ trả 422.
@@ -1580,6 +1594,7 @@ Giao kèo thời khoá biểu (DT-20 phần 22c1, YCTD-160, BR-170):
 4. `GET …/conflicts` trả mảng `severity` (`hard`, `soft`), `code` (`teacher_clash`, `room_clash`, `period_outside_frame`, `day_outside_week`, `subject_outside_curriculum`, `periods_mismatch`, `missing_teacher`, `teacher_not_assigned`), `message`, `class_id`, `weekday`, `period_no`. `POST …/publish` còn xung đột cứng hoặc bản trống trả 422 (`details` liệt kê xung đột).
 5. `POST …/import` (tệp `file`) trả `imported`, `classes`, `errors` (`row`, `column`, `message`); có lỗi thì không ghi.
 6. `GET /timetables` (nhân sự), `/timetables/mine` (giáo viên), `/children/{id}/timetable` (phụ huynh của học sinh, nhân sự) trả `versions` (bản đang áp dụng của từng cấp), `slots` (khung giờ theo cấp), `lessons`.
+7. Từ YCTD-169 (DT-21 phần 21b, BR-185): mỗi tiết có `group_no` (0 là cả lớp, 1 đến 9 là nhóm học môn lựa chọn cùng tiết); `PUT …/lessons` và `POST …/check` nhận `group_no` (bỏ trống là 0), một lớp, một nhóm, một tiết chỉ một môn, nhóm ngoài 0 đến 9 trả 400; các điểm cuối xem tiết (`GET …/lessons`, `/timetables`, `/timetables/mine`) trả `group_no`; `GET /children/{id}/timetable` chỉ trả tiết cả lớp và tiết nhóm có môn nằm trong tổ hợp môn đang hiệu lực của con; `POST …/import` nhận thêm cột Nhóm (trống là cả lớp, tệp không có cột này vẫn nhận); `GET …/conflicts` thêm mã `class_group_clash` (cứng), `double_period_split`, `room_not_subject_room` (mềm); `POST /timetable-changes` với tiết học nhóm trả 422.
 
 
 Giao kèo sổ đầu bài (DT-20 phần 20d, YCTD-162, BR-174):
@@ -1601,6 +1616,16 @@ Giao kèo máy xếp thời khoá biểu (DT-20 phần 22c2, YCTD-164, BR-178):
 5. `POST /timetable-changes` nhận `kind` (`substitute` kèm `teacher_user_id`; `swap` kèm `target_date`, `target_period_no`), `date`, `class_id`, `period_no`, `reason` (tối đa 500 ký tự); tiết không có trong bản đang áp dụng, tiết đã có thay đổi, giáo viên đang có tiết khác cùng lúc trả 422; trả các dòng đã ghi (201). `GET /timetable-changes/day` nhận `date`, `class_id` hoặc `teacher_user_id`; trả tiết kèm `change` (`kind`, `reason`, `original_subject_name`, `original_teacher_user_id`, `original_teacher_name`).
 6. `GET /timetable-reports/teaching` nhận `from`, `to` (tối đa 92 ngày) trả `days`, `teachers` (`planned`, `substitute_taught`, `substituted_away`, `swapped`, `actual`); `GET /timetable-reports/rooms` nhận `date` trả `slot_count`, `rooms` (`periods`, `usage_percent`, `by_weekday`, `classes`).
 7. `POST /timetable-lookup-codes` nhận `kind` (`class`, `teacher`), `target_id`; đã có mã còn hiệu lực thì trả mã đó. `GET /public/timetable-lookup/{code}` không cần đăng nhập, trả `kind`, `target_name`, `versions`, `slots`, `lessons`, `changes`; mã sai hoặc đã thu hồi trả 404.
+
+
+Giao kèo kiểm tra, đánh giá phần đề (DT-21 phần 22g1, YCTD-168, BR-184):
+
+1. `POST, PUT /questions` nhận `school_level` (TH, THCS, THPT), `subject_id`, `grade_level_code`, `topic_id`, `cognitive_level`, `question_type`, `content`, `options` (mảng chữ), `answer` (mảng: khoá đúng; Đ, S từng ý; đáp số), `guidance`, `score` (0 đến 10); sai dạng trả 400; môn, khối khác cấp, chủ đề khác môn trả 400; sửa câu không được phép trả 403.
+2. `POST /questions/{id}/review`, `/assessment-plans/{id}/decide`, `/exams/{id}/review` nhận `decision` (`approve`, `return`) và `note` (bắt buộc khi trả lại); sai trạng thái trả 422 mã YCTD-168.
+3. `POST /questions/import?school_level=` (tệp `file`) trả `imported`, `errors` (`row`, `column`, `message`); có lỗi thì không ghi.
+4. `POST, PUT /exam-matrices` nhận `school_level`, `subject_id`, `grade_level_code`, `name`, `total_score`, `target_ratios` (bốn mức, tổng 100), `tolerance`, `rows`; trả ma trận kèm `summary` (`count`, `score`, `ratios`) và `issues` (`total_score`, `ratio`, `empty`).
+5. `POST /exams` (`P02.exam.manage`) nhận `plan_id` (kế hoạch đã duyệt; môn, khối, thời gian lấy theo kế hoạch) hoặc `school_level`, `subject_id`, `grade_level_code`; `title`, `matrix_id`, `variant_count`, `avoid_recent_days`, `author_user_id`, `reviewer_user_id`, `due_date`. Người không được giao gọi `GET /exams/{id}`, `/export` trả 403.
+6. `POST /exams/{id}/generate` thiếu câu trả 422 kèm `details` từng dòng thiếu; ma trận chưa hợp lệ trả 422. `/submit` khi chưa trộn mã đề trả 422. Đề đã gửi, đã khoá không sửa (422).
 
 
 Giao kèo kế hoạch giáo dục (DT-18 phần 22i, YCTD-147, BR-142):
