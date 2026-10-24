@@ -20,6 +20,7 @@ import { BoardingPanel } from './BoardingPanel.js';
 import { LibraryPanel } from './LibraryPanel.js';
 import { TimetablePanel } from './TimetablePanel.js';
 import { AssessmentPanel } from './AssessmentPanel.js';
+import { PeriodAttendancePanel } from './PeriodAttendancePanel.js';
 import { hasLevelFeature, levelOf } from '@school-management/shared';
 import { useSchoolLevelNames } from './school-levels.js';
 
@@ -133,6 +134,7 @@ function ChildCard({
     | 'timetable'
     | 'assessment'
     | 'library'
+    | 'period-attendance'
   >('none');
   const [attendance, setAttendance] = useState<MonthAttendance>();
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -155,9 +157,12 @@ function ChildCard({
         </span>
       </div>
       <div className="flex flex-wrap gap-2">
+        {/* Báo vắng theo ngày dùng chung cho mọi cấp có điểm danh (DT-20 phần 20d) */}
+        {has('daily_attendance') || has('period_attendance') ? (
+          <Button onClick={() => setView(view === 'absence' ? 'none' : 'absence')}>Báo vắng</Button>
+        ) : null}
         {has('daily_attendance') ? (
           <>
-            <Button onClick={() => setView(view === 'absence' ? 'none' : 'absence')}>Báo vắng</Button>
             <Button
               onClick={() => {
                 setView(view === 'attendance' ? 'none' : 'attendance');
@@ -193,6 +198,11 @@ function ChildCard({
         {has('period_timetable') ? (
           <Button onClick={() => setView(view === 'timetable' ? 'none' : 'timetable')}>Thời khoá biểu</Button>
         ) : null}
+        {has('period_attendance') ? (
+          <Button onClick={() => setView(view === 'period-attendance' ? 'none' : 'period-attendance')}>
+            Điểm danh theo tiết
+          </Button>
+        ) : null}
         {has('final_year_record') ? (
           <Button onClick={() => setView(view === 'final-year' ? 'none' : 'final-year')}>Hồ sơ cuối cấp</Button>
         ) : null}
@@ -213,6 +223,7 @@ function ChildCard({
       {view === 'timetable' ? <TimetablePanel child={child} /> : null}
       {view === 'assessment' ? <AssessmentPanel child={child} /> : null}
       {view === 'library' ? <LibraryPanel child={child} /> : null}
+      {view === 'period-attendance' ? <PeriodAttendancePanel child={child} month={month} /> : null}
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       {view === 'absence' ? (
         <AbsenceForm

@@ -162,6 +162,9 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           leaf('7.4.', 'Thời khoá biểu', '/timetables'),
           // Đánh giá học sinh theo Thông tư 27/2020 (DT-20 phần 20c)
           leaf('7.5.', 'Đánh giá học sinh', '/student-assessments'),
+          // Sổ đầu bài, điểm danh theo tiết (DT-20 phần 20d)
+          leaf('7.6.', 'Sổ đầu bài', '/class-logs'),
+          leaf('7.7.', 'Chuyên cần theo tiết', '/period-attendance'),
         ]),
       ),
     ],

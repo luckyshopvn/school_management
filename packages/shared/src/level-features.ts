@@ -18,7 +18,9 @@ export type LevelFeature =
   | 'period_timetable'
   | 'student_assessment'
   // Sách thư viện con đang mượn (DT-22 phần 22a): con học cấp có học sinh mượn sách
-  | 'library_loans';
+  | 'library_loans'
+  // Sổ đầu bài, điểm danh theo tiết (DT-20 phần 20d): lớp, con học cấp phổ thông
+  | 'period_attendance';
 
 export const LEVEL_FEATURES: Record<LevelFeature, readonly SchoolLevelCode[]> = {
   daily_attendance: ['MN'],
@@ -33,6 +35,7 @@ export const LEVEL_FEATURES: Record<LevelFeature, readonly SchoolLevelCode[]> = 
   // Đánh giá học sinh theo Thông tư 27/2020 (DT-20 phần 20c): nhập ở ứng dụng giáo viên, phụ huynh xem kết quả đã khoá
   student_assessment: ['TH'],
   library_loans: ['TH', 'THCS', 'THPT'],
+  period_attendance: ['TH', 'THCS', 'THPT'],
 };
 
 // Cấp của con hoặc lớp như máy chủ trả; trống (con chưa xếp lớp, máy chủ cũ) là Mầm non như mọi chỗ đọc cấp khác

@@ -77,6 +77,7 @@ import { migration as createBoardingAndConduct } from './migrations/0077_create_
 import { migration as createTimetables } from './migrations/0078_create_timetables.js';
 import { migration as createStudentAssessments } from './migrations/0079_create_student_assessments.js';
 import { migration as createLibrary } from './migrations/0100_create_library.js';
+import { migration as createClassLogs } from './migrations/0080_create_class_logs.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
@@ -158,4 +159,5 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0078_create_timetables': createTimetables,
   '0079_create_student_assessments': createStudentAssessments,
   '0100_create_library': createLibrary,
+  '0080_create_class_logs': createClassLogs,
 };
