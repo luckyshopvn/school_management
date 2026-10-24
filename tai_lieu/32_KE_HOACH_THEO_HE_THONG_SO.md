@@ -897,7 +897,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 | 22g1 | 1 | Đã làm, YCTD-168, phiên bản 0.117.0, PR 149: ngân hàng câu hỏi (nguồn duy nhất, 22h2 tham chiếu), chủ đề, thẩm định, nhập Excel, thống kê; ma trận và bảng đặc tả; kế hoạch kiểm tra; giao đề, bốc câu theo ma trận, đề nhiều mã, thẩm định, khoá đề, xuất Word, PDF (năm học 0085); quyền `P02.question.author`, `P02.exam.review`, `P02.exam.manage` (định danh 0076); nhóm menu 8 "Kiểm tra, đánh giá" cho THCS, THPT; e2e 96 |
 | 21b | 2 | Đã làm, YCTD-169, phiên bản 0.118.0, PR 151: menu thời khoá biểu ba cấp; tiết học nhóm (năm học 0086 `timetable_lessons.group_no`); luật nhóm, tiết đôi, phòng bộ môn; nhập Excel cột Nhóm; thời khoá biểu của con theo tổ hợp môn; máy xếp bỏ qua môn học lựa chọn; dạy thay chỉ cho tiết cả lớp; chưa làm: xếp tự động tiết nhóm, đổi tiết nhóm, định mức tổ bộ môn; e2e 97 |
 | 21c | 2 | Đã làm, YCTD-170, phiên bản 0.115.0: sổ điểm theo Thông tư 22/2021 (năm học 0087 `score_entries`, `subject_term_results`, `term_ratings`, `score_locks`, `score_configs`), trung bình học kỳ, cả năm, gợi ý và xác nhận xếp loại học tập, rèn luyện, khoá điểm, cấu hình theo cấp, mục 7.14, ứng dụng giáo viên, phụ huynh; định danh 0078 để trống (không thêm quyền); e2e 98 |
-| 21d | 3 | Đã làm (PR …, YCTD-171, phiên bản 0.120.0) |
+| 21d | 3 | Đã làm (PR #157, YCTD-171, phiên bản 0.120.0) |
 | 21e | 3 | Chưa làm, chờ 21c, 20e |
 | 22g2 | 4 | Chưa làm, chờ 22g1, 21c |
 | 21f | 4 | Chưa làm, chờ 21e |

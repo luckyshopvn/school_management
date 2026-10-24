@@ -24,7 +24,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Rủi ro: quy tắc xếp loại tiết, tiêu chí, điểm tiết chưa khớp quy định riêng của từng Sở, trường; sửa ở cấu hình, không cần đổi mã. Tiết nhóm của lớp chưa đăng ký tổ hợp hiện cả lớp.
 - Chưa làm trong phần này, ghi để làm tiếp: sơ đồ chỗ ngồi theo tiết (hiện theo lớp hoặc theo môn); tài khoản học sinh hạn chế cho sao đỏ tự ghi (chỉ làm khi Eric yêu cầu, 12.6); biểu mẫu sổ đầu bài khớp Sở sau khảo sát.
 - Kiểm thử cần thực hiện: CT-934 đến CT-939. Kết quả ngày 25/10/2026: kiểm thử đơn vị `apps/api/src/class-logs/secondary-class-records.test.ts` CT-21d-1 đến CT-21d-5 đạt 5/5; kiểm thử đơn vị các gói đã sửa trên máy (database 6/6, api 1052/1052) đạt, kiểm thử đang có không sửa kỳ vọng (thêm mục 7.16 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của THCS, THPT của CT-19c-1); e2e trên máy 02, 03, 06, 08, 58, 88, 91, 97, 99 đạt; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
-- Trạng thái: Đã triển khai (PR …).
+- Trạng thái: Đã triển khai (PR #157).
 
 ### YCTD-182: DT-22 phần 22e: hồ sơ bồi dưỡng giáo viên – 2026-10-24
 
