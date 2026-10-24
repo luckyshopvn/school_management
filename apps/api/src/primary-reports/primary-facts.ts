@@ -27,7 +27,9 @@ export async function loadPrimaryFacts(
     .select(['id', 'name', 'org_unit_id', 'grade_level', 'two_sessions_per_day', 'boarding'])
     .where('school_level', '=', 'TH')
     .where('status', '=', 'active')
-    .$if(orgUnitIds !== null, (query) => query.where('org_unit_id', 'in', [...(orgUnitIds ?? []), '']))
+    .$if(orgUnitIds !== null, (query) =>
+      query.where('org_unit_id', 'in', [...(orgUnitIds ?? []), '00000000-0000-0000-0000-000000000000']),
+    )
     .orderBy('grade_level')
     .orderBy('name')
     .execute();

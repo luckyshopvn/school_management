@@ -268,6 +268,10 @@ describe('Thống kê, EMIS Tiểu học', () => {
       ],
     );
     const totals = report.body.totals as Record<string, number>;
+    // Chọn một đơn vị (lọc theo danh sách đơn vị)
+    const unit = await api('GET', `/primary-reports/enrollment?org_unit_id=${unitId}`, 'principal');
+    assert.equal(unit.status, 200, JSON.stringify(unit.body));
+    assert.equal((unit.body.totals as Record<string, number>).students, 3);
     assert.deepEqual(
       [
         totals.students,
