@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.64
+- Phiên bản: 1.65
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -848,6 +848,10 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-784 | Cho kết quả kỳ cuối học kỳ I, kết quả cuối năm, hoàn thành, khen thưởng / Khi xem theo khối, toàn trường, theo lớp / Thì số theo mức, điểm theo khoảng, kết quả cuối năm, ở lại lớp, khen thưởng đúng (CT-906, CT-907; YCTD-165) |
 | AC-785 | Cho sổ đầu bài có vắng, ngày đã chốt suất, cắt suất / Khi xem chuyên cần, bán trú; xuất Excel, PDF / Thì số theo lớp đúng; tệp tải được, có nhật ký xuất (CT-908; YCTD-165) |
 | AC-786 | Cho biểu EMIS Tiểu học đầu năm / Khi xem, nhập tay đúng và sai dòng, sửa khung với công thức sai, đúng, đánh dấu đã gửi / Thì dòng công thức tính từ dữ liệu, dòng lớp chỉ cột tổng số; 400 khi sai; dòng mới tính được; đã gửi thì nhập tay 422 (CT-904, CT-909, CT-910; YCTD-165) |
+| AC-787 | Cho giáo viên soạn câu hỏi / Khi gửi thẩm định / Thì tổ trưởng duyệt hoặc trả lại có lý do; câu chưa duyệt chỉ người soạn và người thẩm định thấy; nhập Excel có lỗi thì báo theo dòng, không ghi (CT-914, CT-915, CT-919; YCTD-168) |
+| AC-788 | Cho ma trận đề / Khi lưu / Thì máy báo lệch tổng điểm, tỉ lệ mức nhận thức so với mẫu; ma trận hợp lệ mới bốc câu được (CT-911, CT-916, CT-919; YCTD-168) |
+| AC-789 | Cho đề được giao theo kế hoạch đã duyệt / Khi bốc câu theo ma trận và trộn mã / Thì đủ câu đúng chủ đề, mức, dạng, không trùng; thiếu câu báo dòng thiếu; các mã đề khác thứ tự, đáp án đúng theo mã (CT-912, CT-913, CT-917, CT-919; YCTD-168) |
+| AC-790 | Cho đề đã thẩm định / Khi khoá đề / Thì đề không sửa được, lịch sử dùng câu được ghi; mở khoá phải ghi lý do; người không được giao không xem, không tải được đề; mỗi lần tải ghi nhật ký (CT-917, CT-918, CT-919; YCTD-168) |
 | AC-766 | Cho trường chỉ có Mầm non / Khi nâng cấp lên phiên bản có sổ đầu bài / Thì không có mục mới, điểm danh theo ngày và ứng dụng như trước (CT-864, CT-869; YCTD-162) |
 | AC-767 | Cho giáo viên có tiết trong thời khoá biểu đang áp dụng / Khi mở Sổ đầu bài, ghi tiết, điểm danh, ký sổ / Thì học sinh đã báo vắng mặc định vắng có phép; giáo viên khác, ngày chưa đến, học sinh ngoài lớp bị từ chối; tiết đã ký không sửa (CT-865, CT-866, CT-869; YCTD-162) |
 | AC-768 | Cho sổ của lớp trong tuần / Khi Ban giám hiệu ký sổ tuần, phụ huynh mở Điểm danh theo tiết, nhân sự mở Chuyên cần theo tiết / Thì ký một lần và khoá ghi trong tuần; phụ huynh chỉ thấy con mình; bảng chuyên cần đối chiếu đúng ngày báo vắng (CT-867, CT-868, CT-869; YCTD-162) |

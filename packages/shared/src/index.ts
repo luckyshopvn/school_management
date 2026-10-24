@@ -274,6 +274,10 @@ export const PERMISSION_CODES = {
   assessmentManage: 'P02.assessment.manage',
   studentRecordApprove: 'P02.student-record.approve',
   reportFormManage: 'P17.report-form.manage',
+  // Kiểm tra, đánh giá phần đề (DT-21 phần 22g1)
+  questionAuthor: 'P02.question.author',
+  examReview: 'P02.exam.review',
+  examManage: 'P02.exam.manage',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -605,6 +609,11 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/subject-combinations',
   '/subject-teams',
   '/primary-reports',
+  // Kiểm tra, đánh giá phần đề (DT-21 phần 22g1)
+  '/question-bank',
+  '/exam-matrices',
+  '/assessment-plans',
+  '/exams',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];

@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.84
+- Phiên bản: 1.85
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -119,6 +119,10 @@
 | P02-58 | Nhập điểm theo môn (7.14., ứng dụng giáo viên, YCTD-170) | Xem: người có quyền xem, giáo viên lớp; nhập: `P02.assessment.enter` theo phân công, `P02.assessment.manage` nhập thay | Điểm thường xuyên, giữa kỳ, cuối kỳ, kết quả Đạt, Chưa đạt, nhận xét | Điểm 0 đến 10 một chữ số thập phân; môn nhận xét không nhập điểm; trung bình tính khi đọc; hạn nhập, khoá điểm; nhật ký | Bảng điểm theo môn, trung bình | BR-180 |
 | P02-59 | Tổng hợp, xếp loại, khoá điểm (7.14., YCTD-170) | Xem như P02-58; xác nhận xếp loại: giáo viên chủ nhiệm, `P02.assessment.manage`; khoá, mở khoá: `P02.assessment.manage` | Xếp loại học tập, rèn luyện, nhận xét; khoá, mở khoá theo học kỳ và lớp | Gợi ý xếp loại theo ngưỡng; học kỳ II quyết định xếp loại cả năm; mở khoá kèm lý do; nhật ký | Bảng tổng hợp theo học kỳ, cả năm; khoá điểm | BR-180 |
 | P02-60 | Cấu hình sổ điểm; phụ huynh xem điểm (7.14., ứng dụng phụ huynh, YCTD-170) | Cấu hình: `P02.assessment.manage`; phụ huynh xem điểm đã khoá của con | Hệ số, số tuần, số lần đánh giá thường xuyên, ngưỡng xếp loại | Kiểm tra cấu hình; phụ huynh chỉ xem học kỳ đã khoá | Cấu hình sổ điểm; điểm của con | BR-180 |
+| P02-61 | Ngân hàng câu hỏi (8.1., YCTD-168) | Soạn: `P02.question.author`; duyệt, chủ đề: `P02.exam.review` | Chủ đề; câu hỏi theo môn, khối, chủ đề, mức, dạng; tệp Excel | Kiểm tra theo dạng câu; gửi, duyệt, trả lại, ngừng dùng; nhập Excel; thống kê | Câu dùng được cho đề; lịch sử dùng | BR-184 |
+| P02-62 | Ma trận đề, bảng đặc tả (8.2., YCTD-168) | Xem: người soạn đề; lập: `P02.exam.review` | Môn, khối, dòng chủ đề × mức × dạng, số câu, điểm, yêu cầu cần đạt; tỉ lệ mẫu, sai số | Tổng hợp, kiểm tổng điểm, tỉ lệ | Ma trận và kết quả kiểm tra | BR-184 |
+| P02-63 | Kế hoạch kiểm tra (8.3., YCTD-168) | Lập: `P02.exam.review`; duyệt: `P02.exam.manage` | Cấp, học kỳ, khối, môn, loại, hình thức, thời gian, ngày | Gửi, duyệt, trả lại; đếm đề; nhắc tiết theo thời khoá biểu | Kế hoạch đã duyệt để giao đề | BR-184 |
+| P02-64 | Đề kiểm tra nhiều mã (8.4., YCTD-168) | Giao, khoá: `P02.exam.manage`; soạn: người được giao; thẩm định: người được giao hoặc `P02.exam.manage` | Đề được giao; ma trận; câu thêm tay; số mã đề | Bốc câu theo ma trận, trộn mã đề, gửi, thẩm định, khoá, mở khoá có lý do, ghi lịch sử dùng câu | Đề, đáp án từng mã ra Word, PDF | BR-184 |
 | P02-45 | Ghi sổ đầu bài, điểm danh theo tiết (ứng dụng giáo viên, YCTD-162) | Giáo viên của tiết theo thời khoá biểu | Ngày; tiết; tên bài, nội dung, nhận xét, xếp loại; trạng thái từng học sinh | Lấy tiết theo bản đang áp dụng; mặc định có mặt hoặc vắng có phép theo báo vắng; không ghi trước ngày dạy; ký tiết thì khoá; nhật ký | Tiết đã ghi, đã ký; điểm danh theo tiết | BR-174 |
 | P02-46 | Kiểm tra, ký sổ đầu bài theo tuần (7.6., YCTD-162) | Xem: nhân sự xem được lớp; ký: `P02.class-log.review` | Lớp; ngày trong tuần; nhận xét | Liệt kê tiết của tuần theo thời khoá biểu kèm tiết đã ghi, số vắng, muộn; ký một lần mỗi tuần, khoá ghi tiết trong tuần | Sổ tuần; chữ ký Ban giám hiệu | BR-174 |
 | P02-47 | Chuyên cần theo tiết (7.7., ứng dụng phụ huynh, YCTD-162) | Nhân sự xem được lớp; phụ huynh của học sinh | Lớp, khoảng ngày; con, tháng | Đếm tiết theo trạng thái; đối chiếu báo vắng theo ngày và điểm danh theo ngày | Bảng chuyên cần theo học sinh; điểm danh theo tiết của con | BR-174 |
