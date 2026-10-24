@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.46
+- Phiên bản: 0.47
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.121.0 – 2026-10-25
+
+- Phạm vi thay đổi: DT-21 phần 21f, xét tốt nghiệp THCS, THPT và hồ sơ thi (YCTD-174).
+- Chức năng mới: kỳ xét tốt nghiệp theo cấp; danh sách thí sinh từ lớp cuối cấp theo xếp loại cả năm; hồ sơ dự thi (bài thi, miễn thi, ưu tiên, khuyến khích), số báo danh, phòng thi, điểm thi (THPT); xét kết quả theo công thức cấu hình được; công nhận tốt nghiệp có biên bản hội đồng, giấy chứng nhận PDF; tệp xuất, đánh dấu đã gửi thủ công; hồ sơ chuyển cấp THCS; mục 7.15 của cổng quản trị.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: tệp năm học `0091_create_graduation`; cấu hình xét tốt nghiệp chép sang năm học mới; tệp hệ thống `0029`, định danh `0082` để trống (dùng quyền sẵn có).
+- Thay đổi API: nhóm điểm cuối mới `/graduation` (cấu hình, kỳ, thí sinh, phòng, xét, công nhận, biên bản, tệp xuất, hồ sơ chuyển cấp).
+- Kiểm thử: kịch bản CT-940 đến CT-944. Kết quả ngày 25/10/2026: kiểm thử đơn vị `graduation.test.ts` CT-21f-1 đến CT-21f-5 đạt 5/5; chạy cùng menu, cấp học đạt 13/13; typecheck, prettier, eslint đạt; e2e CT-21f-6 (102) do CI chạy cùng e2e toàn bộ.
+- Rủi ro: công thức, hệ số, điểm liệt, môn thi là mặc định theo quy chế nhớ, cần đối chiếu văn bản gốc của năm; mẫu giấy chứng nhận, bố cục tệp là bố cục chung, mẫu của Bộ, Sở khớp khi khảo sát; chưa nối Sở, Bộ.
+- Khả năng tương thích: không đổi chức năng cũ; trường chỉ có Mầm non, Tiểu học không thấy mục 7.15.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 21f; chạy phần quay lui của tệp năm học `0091`.
 
 ### Phiên bản 0.120.0 – 2026-10-24
 

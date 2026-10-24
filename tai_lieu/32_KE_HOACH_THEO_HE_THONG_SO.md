@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số).
-- Phiên bản: 1.55
+- Phiên bản: 1.56
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -900,7 +900,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 | 21d | 3 | Chưa làm, chờ 21b, 20d |
 | 21e | 3 | Đã làm, YCTD-172, phiên bản 0.120.0: học bạ số, khen thưởng (Xuất sắc, Giỏi), xét lên lớp, hoàn thành cấp học THCS, THPT trên khung 20e (đọc sổ điểm 21c), học bạ có điểm trung bình hai học kỳ, cả năm, kí nội bộ in đủ số định danh kèm kiểm quyền (năm học 0089 căn cứ danh hiệu); định danh 0080 để trống (không thêm quyền); e2e 100 |
 | 22g2 | 4 | Chưa làm, chờ 22g1, 21c |
-| 21f | 4 | Chưa làm, chờ 21e |
+| 21f | 4 | Đã làm, YCTD-174, phiên bản 0.121.0: kỳ xét tốt nghiệp THCS, THPT, hồ sơ dự thi, số báo danh, phòng thi, điểm thi, công nhận có biên bản hội đồng, giấy chứng nhận, tệp xuất và đánh dấu đã gửi thủ công, hồ sơ chuyển cấp THCS (năm học 0091); hệ thống 0029, định danh 0082 để trống (không thêm quyền); e2e 102 |
 | 21g | 5 | Chưa làm, chờ 21c, 21e, 21f |
 
 ## 13. DT-22: thư viện, bồi dưỡng, kho học liệu số (22a, 22e, 22h)

@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.88
+- Phiên bản: 1.89
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -122,6 +122,9 @@
 | P02-66 | Khen thưởng cuối năm THCS, THPT (7.8., YCTD-172) | Xem: `P02.assessment.view`; đề nghị: giáo viên chủ nhiệm (`P02.assessment.enter`); duyệt, nạp danh hiệu: `P02.student-record.approve` | Danh hiệu Xuất sắc, Giỏi, đột xuất; đề nghị, duyệt | Học kỳ II đã khoá; đủ điều kiện theo xếp loại, điểm trung bình cả năm; mã tra cứu giấy khen; nhật ký | Bảng khen thưởng của lớp, gợi ý danh hiệu cao nhất đủ điều kiện | BR-187 |
 | P02-67 | Xét lên lớp, hoàn thành chương trình cấp học THCS, THPT (7.8., YCTD-172) | Như P02-66 | Rèn luyện trong hè, kiểm tra lại, kết quả | Cần xếp loại cả năm đã xác nhận; gợi ý lên lớp, hoàn thành cấp học, rèn luyện, ở lại lớp; khối kế tiếp theo 19b | Bảng hoàn thành chương trình của lớp | BR-187 |
 | P02-68 | Học bạ số THCS, THPT (7.8., ứng dụng phụ huynh, YCTD-172) | Lập, nhận xét: giáo viên chủ nhiệm; xác nhận, kí, mở lại: `P02.student-record.approve` kèm quyền xem số định danh | Học bạ (điểm trung bình hai học kỳ, cả năm, xếp loại), nhận xét, kí nội bộ | Lập từ sổ điểm đã khoá; kí in đủ số định danh; phụ huynh chỉ tải bản đã kí; nhật ký | Học bạ PDF, bảng học bạ của lớp | BR-187 |
+| P02-69 | Kỳ xét tốt nghiệp, hồ sơ dự thi THCS, THPT (7.15., YCTD-174) | Xem: `P02.assessment.view`; quản lý: `P02.student-record.approve` toàn trường | Kỳ xét, thí sinh, bài thi, miễn thi, điểm ưu tiên, khuyến khích, số báo danh, phòng thi, điểm thi | Chỉ khối cuối cấp; đủ điều kiện theo xếp loại cả năm; THPT chọn bài thi bắt buộc và tự chọn theo cấu hình; xếp phòng không vượt sức chứa; nhật ký | Danh sách thí sinh, phòng thi, bảng điểm thi | BR-188 |
+| P02-70 | Xét kết quả, công nhận tốt nghiệp, giấy chứng nhận, biên bản (7.15., YCTD-174) | Như P02-69 | Xét, công nhận, số giấy chứng nhận, biên bản hội đồng, biên bản phòng thi, biên bản chấm | Công nhận cần biên bản hội đồng và đủ kết quả; điểm liệt; số giấy chứng nhận không trùng; nhật ký | Giấy chứng nhận PDF, biên bản PDF | BR-188 |
+| P02-71 | Tệp xuất, hồ sơ chuyển cấp THCS (7.15., YCTD-174) | Như P02-69 | Tệp danh sách thí sinh, kết quả (xlsx), đánh dấu đã gửi, hồ sơ chuyển cấp | Chỉ làm bản chạy nội bộ, nối Sở, Bộ ở bước sau; hồ sơ chuyển cấp cần tốt nghiệp và học bạ đã kí | Bảng tệp đã xuất, hồ sơ chuyển cấp | BR-188 |
 | P02-61 | Ngân hàng câu hỏi (8.1., YCTD-168) | Soạn: `P02.question.author`; duyệt, chủ đề: `P02.exam.review` | Chủ đề; câu hỏi theo môn, khối, chủ đề, mức, dạng; tệp Excel | Kiểm tra theo dạng câu; gửi, duyệt, trả lại, ngừng dùng; nhập Excel; thống kê | Câu dùng được cho đề; lịch sử dùng | BR-184 |
 | P02-62 | Ma trận đề, bảng đặc tả (8.2., YCTD-168) | Xem: người soạn đề; lập: `P02.exam.review` | Môn, khối, dòng chủ đề × mức × dạng, số câu, điểm, yêu cầu cần đạt; tỉ lệ mẫu, sai số | Tổng hợp, kiểm tổng điểm, tỉ lệ | Ma trận và kết quả kiểm tra | BR-184 |
 | P02-63 | Kế hoạch kiểm tra (8.3., YCTD-168) | Lập: `P02.exam.review`; duyệt: `P02.exam.manage` | Cấp, học kỳ, khối, môn, loại, hình thức, thời gian, ngày | Gửi, duyệt, trả lại; đếm đề; nhắc tiết theo thời khoá biểu | Kế hoạch đã duyệt để giao đề | BR-184 |

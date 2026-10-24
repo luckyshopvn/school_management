@@ -69,9 +69,6 @@ interface GradeAverages {
   g12: number | null;
 }
 
-const asNumber = (value: string | number | null | undefined) =>
-  value === null || value === undefined ? null : Number(value);
-
 @Injectable()
 export class GraduationService {
   constructor(

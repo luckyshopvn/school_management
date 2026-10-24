@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.84
+- Phiên bản: 1.85
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -967,6 +967,11 @@ Ca CT-105 đến CT-550 lần lượt kiểm tra AC-149 đến AC-594. CT-534 đ
 | CT-937 | P02-68 | Lập học bạ THCS: giáo viên khác; lập; nội dung (điểm Toán 9,5 hai học kỳ, cả năm; môn nhận xét Đạt; xếp loại; khen thưởng; hoàn thành); nhận xét; kí khi chưa có chứng thư; đăng ký chứng thư; giáo viên kí; Hiệu trưởng kí; nhật ký truy cập số định danh | 403; 4 học bạ; đúng; 200; 422; 200; 403; kí nội bộ; có nhật ký | Kiểm thử tự động `apps/api/src/learning-records/learning-records-secondary.test.ts` CT-21e-4 đạt ngày 24/10/2026 | Đạt |
 | CT-938 | P02-68 | Tệp PDF học bạ đã kí; phụ huynh của con; phụ huynh khác; mở lại không lý do; mở lại có lý do; phụ huynh sau khi mở lại | 200, PDF; 200; 403; 400 ở tầng kiểm tra dữ liệu; nháp; 422 | Kiểm thử tự động `apps/api/src/learning-records/learning-records-secondary.test.ts` CT-21e-4, CT-21e-5 đạt ngày 24/10/2026 | Đạt |
 | CT-939 | P02-66, P02-67, P02-68 | Giao diện: bật THCS; nạp môn mẫu; điểm lớp 9 đã khoá; nạp danh hiệu Thông tư 22/2021; khen thưởng gợi ý Xuất sắc, đề nghị, duyệt; hoàn thành chương trình cấp học; lập học bạ; tắt THCS | đã nạp; có Học sinh Giỏi; đã duyệt; Học tập: Tốt; rèn luyện: Tốt, hoàn thành cấp học; đã lập 1 học bạ, Nháp | Kiểm thử e2e `tests/e2e/100-secondary-records.spec.ts` CT-21e-6 đạt ngày 24/10/2026 | Đạt |
+| CT-940 | P02-69, P02-70 | Hàm xét tốt nghiệp: điểm trung bình học bạ, điểm xét (hệ số, ưu tiên, khuyến khích, trần 10), điểm liệt, chưa đạt, điều kiện, số báo danh, chia phòng | đúng công thức; không đạt kèm lý do | Kiểm thử tự động `apps/api/src/graduation/graduation.test.ts` CT-21f-1 đạt ngày 25/10/2026 | Đạt |
+| CT-941 | P02-69 | Kỳ THPT: lập kỳ, danh sách khối 12, bài thi, miễn thi, số báo danh, phòng thi, thiếu sức chứa, quyền | danh sách đúng; số báo danh duy nhất; 422 khi thiếu chỗ; 403 khi không có quyền | Kiểm thử tự động `graduation.test.ts` CT-21f-2 đạt ngày 25/10/2026 | Đạt |
+| CT-942 | P02-70 | Điểm thi, xét kết quả THPT, điểm liệt, thiếu điểm, biên bản, công nhận, số giấy chứng nhận, giấy chứng nhận PDF, kỳ đã công nhận | kết quả đúng; 422 khi thiếu biên bản; số giấy chứng nhận cấp; PDF | Kiểm thử tự động `graduation.test.ts` CT-21f-3, CT-21f-4 đạt ngày 25/10/2026 | Đạt |
+| CT-943 | P02-71 | Kỳ THCS: danh sách, xét, công nhận, tệp xuất, đánh dấu đã gửi, hồ sơ chuyển cấp (có học bạ đã kí và không) | đúng; tệp xlsx; bỏ qua học sinh chưa có học bạ | Kiểm thử tự động `graduation.test.ts` CT-21f-5 đạt ngày 25/10/2026 | Đạt |
+| CT-944 | P02-69, P02-70, P02-71 | Giao diện: bật THCS; tạo kỳ; lập danh sách; xét kết quả; công nhận khi chưa có biên bản; lập biên bản; công nhận; giấy chứng nhận; xuất tệp; tắt THCS | đủ điều kiện; đề xuất; báo cần biên bản; đã công nhận 1 trên 1; số TN-THCS; 1 tệp đã xuất | Kiểm thử e2e `tests/e2e/102-secondary-graduation.spec.ts` CT-21f-6 do CI chạy | Chờ CI |
 | CT-904 | P17-32 | Cú pháp công thức đúng, sai; đếm theo cột với bộ học sinh, lớp mẫu | Phân tích được; báo lỗi; tổng, nữ, dân tộc, nữ dân tộc, khuyết tật đúng; lớp chỉ cột tổng | Kiểm thử đơn vị CT-20f-1 đạt ngày 24/10/2026 | Đạt |
 | CT-905 | P17-31 | Sĩ số: phụ huynh; Hiệu trưởng | 403; khối 4: 1 lớp 2 học sinh 2 buổi/ngày, khối 5: 1 lớp 1 học sinh; toàn trường 3 học sinh, 2 nữ, 1 dân tộc, 1 khuyết tật, 1 bán trú | Kiểm thử đơn vị CT-20f-2 đạt ngày 24/10/2026 | Đạt |
 | CT-906 | P17-31 | Kết quả cuối học kỳ I theo khối, toàn trường; thiếu kỳ | Tiếng Việt khối 4: T 1, H 1, điểm 9-10 1, 5-6 1; toàn trường 3 học sinh; 400 | Kiểm thử đơn vị CT-20f-3 đạt ngày 24/10/2026 | Đạt |

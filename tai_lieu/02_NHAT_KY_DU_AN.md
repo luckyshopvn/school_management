@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.52
+- Phiên bản: 0.53
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,27 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-25 — DT-21 phần 21f: xét tốt nghiệp THCS, THPT và hồ sơ thi
+
+#### Công việc đã thực hiện
+
+- Đọc mục 12 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và mã 20e (học bạ), 21c (sổ điểm), 21e (học bạ, lên lớp).
+- Làm hàm xét tốt nghiệp dùng chung, máy chủ `graduation` (kỳ, thí sinh, hồ sơ dự thi, số báo danh, phòng thi, điểm, xét, công nhận, giấy chứng nhận, biên bản, tệp xuất, hồ sơ chuyển cấp), cổng quản trị mục 7.15 và e2e 102.
+- Cơ sở dữ liệu: tệp năm học `0091`; hệ thống `0029`, định danh `0082` để trống.
+- Kiểm thử: kiểm thử đơn vị `graduation.test.ts` CT-21f-1 đến CT-21f-5 đạt 5/5; chạy cùng menu, cấp học đạt 13/13; typecheck, prettier, eslint đạt; e2e CT-21f-6 (102) do CI chạy cùng e2e toàn bộ; e2e toàn bộ do CI chạy.
+
+#### Quyết định
+
+- Dùng quyền sẵn có của đánh giá, học bạ thay vì thêm quyền mới; cấu hình xét (hệ số, điểm đạt, điểm liệt, môn thi) lưu theo cấp và chép sang năm học mới để đổi theo quy chế từng năm; kết nối Sở, Bộ chỉ xuất tệp và đánh dấu thủ công; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-174, `23_LICH_SU_PHIEN_BAN.md` bản 0.121.0.
+
+#### Vấn đề tồn đọng
+
+- Đối chiếu quy chế thi, xét tốt nghiệp hiện hành (công thức, hệ số, điểm liệt, môn thi) và mẫu giấy chứng nhận, tệp theo Bộ, Sở; nối Sở, Bộ khi có thông tin; khảo sát hệ thống của Sở cấp THCS, THPT.
 
 ### 2026-10-24 — DT-21 phần 21e: học bạ số, khen thưởng, xét lên lớp THCS, THPT
 

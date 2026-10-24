@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.50
+- Phiên bản: 0.51
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,24 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-174: DT-21 phần 21f: xét tốt nghiệp THCS, THPT và hồ sơ thi – 2026-10-25
+
+- Lý do: phần 21f của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12 (kế hoạch DT-21 ở YCTD-166; sổ điểm 21c ở YCTD-170; học bạ, lên lớp 21e ở YCTD-172). Quy chế thi, xét tốt nghiệp nhớ theo văn bản hiện hành, chưa đối chiếu toàn văn nên để cấu hình theo cấp và ghi vào tài liệu. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi:
+  - **Hàm dùng chung** (`packages/shared/src/graduation.ts`): cấu hình mặc định THCS, THPT, điểm trung bình học bạ, điểm xét, điều kiện, số báo danh, chia phòng, kiểm tra cấu hình, nhãn.
+  - **Máy chủ** (`apps/api/src/graduation`): kỳ xét, thí sinh từ lớp cuối cấp (điều kiện từ xếp loại cả năm ở sổ điểm 21c, điểm trung bình lớp 10, 11 từ học bạ 21e), hồ sơ dự thi, số báo danh, phòng thi, điểm thi, xét, công nhận có biên bản hội đồng, số giấy chứng nhận, PDF giấy chứng nhận và biên bản, tệp xlsx, đánh dấu đã gửi, hồ sơ chuyển cấp; dùng quyền sẵn có (`P02.assessment.view`, `P02.student-record.approve`).
+  - **Giao diện:** mục 7.15 Xét tốt nghiệp, hồ sơ thi (chỉ THCS, THPT).
+  - **Dữ liệu:** tệp năm học `0091_create_graduation`; cấu hình theo cấp chép sang năm học mới.
+  - **Kết nối Sở, Bộ:** chỉ làm bản chạy nội bộ (xuất tệp, trạng thái thủ công), để chỗ nối sau.
+- Thành phần bị ảnh hưởng: `database`, `packages/shared`, `apps/api`, `apps/portal`, `tests/e2e`, tài liệu `01`, `02`, `07`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`.
+- Dữ liệu bị ảnh hưởng: thêm chín bảng; dữ liệu cũ giữ nguyên.
+- API bị ảnh hưởng: thêm nhóm `/graduation`; điểm cuối cũ không đổi.
+- Giao diện bị ảnh hưởng: thêm mục 7.15 ở THCS, THPT; cấp khác không đổi.
+- Quyền bị ảnh hưởng: không thêm quyền.
+- Ảnh hưởng chức năng cũ: không đổi kỳ vọng kiểm thử cũ; kiểm thử menu, cấp học thêm đường dẫn `/graduation` vào mục chỉ của THCS, THPT.
+- Kiểm thử cần thực hiện: CT-940 đến CT-944; kiểm thử đơn vị gói xét tốt nghiệp, menu, cấp học; e2e 102 (CI chạy cùng e2e toàn bộ); typecheck, lint, build.
+- Trạng thái: Đã triển khai
 
 ### YCTD-172: DT-21 phần 21e: học bạ số, khen thưởng, xét lên lớp THCS, THPT – 2026-10-24
 
