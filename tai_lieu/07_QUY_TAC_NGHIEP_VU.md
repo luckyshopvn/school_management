@@ -1,8 +1,8 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.76
-- Ngày cập nhật: 2026-10-23
+- Phiên bản: 1.77
+- Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -244,6 +244,7 @@ Bổ sung ngày 2026-10-09 theo yêu cầu tách vai trò Ban Giám hiệu thàn
 | BR-171 | Quyền nhập đánh giá học sinh (YCTD-161): giáo viên bộ môn được phân công môn của lớp nhập môn đó; giáo viên chủ nhiệm nhập môn chưa có giáo viên bộ môn, phẩm chất, năng lực, kết quả cuối năm; người quản lý đánh giá nhập thay; mức phải có ở thang của cấp; điểm bài kiểm tra là số nguyên 1 đến 10, chỉ ở môn, khối có bài kiểm tra của kỳ |
 | BR-172 | Hạn nhập và khoá số liệu (YCTD-161): hạn là ngày ghi ở kỳ, trống là ngày kết thúc học kỳ theo lịch của cấp; quá hạn chỉ người quản lý sửa; kỳ đã khoá ở lớp thì không ai sửa đến khi mở khoá kèm lý do; phụ huynh chỉ xem kỳ đã khoá |
 | BR-173 | Gợi ý kết quả cuối năm (Điều 9 Thông tư 27/2020, YCTD-161): Hoàn thành xuất sắc khi mọi môn, phẩm chất, năng lực ở mức hạng 1 và bài kiểm tra cuối năm từ 9; Hoàn thành tốt như trên với bài kiểm tra từ 7; Hoàn thành khi không có mức hạng cuối và bài kiểm tra từ 5; còn lại Chưa hoàn thành; thiếu kết quả không gợi ý; giáo viên chủ nhiệm xác nhận |
+| BR-174 | Máy xếp thời khoá biểu (YCTD-164): đề bài là lớp đang hoạt động của cấp, môn và số tiết theo chương trình của khối (số lẻ làm tròn lên), giáo viên theo phân công môn ở lớp, khung giờ tiết, ngày học trong tuần, quy tắc môn, tiết giáo viên báo bận; ràng buộc bắt buộc (luôn giữ, mỗi vi phạm 1000 điểm phạt): giáo viên không dạy hai lớp cùng tiết, phòng không dùng cho hai lớp cùng tiết, giáo viên không dạy vào tiết đã báo bận, xếp đủ số tiết của môn; ràng buộc mềm có mức quan trọng 0 (tắt) đến 10, điểm phạt nhân với mức: tiết đôi (môn cần hai tiết liền trong một buổi), môn tránh tiết cuối buổi, rải đều trong tuần (số tiết một ngày của môn không quá mức chia đều hoặc mức trường đặt), giáo viên ít tiết trống giữa buổi, lớp không có tiết trống giữa buổi; mặc định 5, 3, 6, 4, 8; giới hạn thời gian 5 đến 600 giây, 1 đến 5 phương án; mỗi cấp mỗi lúc một lần xếp; kết quả chỉ là bản nháp, chọn phương án thì tạo bản nháp mới nguồn máy xếp rồi ban hành theo BR-170; dạy thay, đổi tiết ghi theo ngày, không sửa bản đã ban hành, giáo viên phải rảnh ở tiết mới, một tiết một thay đổi, đổi tiết là hai tiết của cùng lớp; mã tra cứu ngẫu nhiên 12 ký tự cho lớp hoặc giáo viên, thu hồi được, trang tra cứu chỉ hiện thời khoá biểu đang áp dụng và thay đổi 7 ngày tới |
 
 Danh mục chứng từ áp dụng hạn mức: phiếu chi, phiếu đảo phiếu thu (YCTD-23), phiếu đảo phiếu chi (YCTD-24), đề nghị mua hàng, phiếu điều chỉnh hóa đơn, miễn giảm học phí, bảng lương kỳ, chốt kỳ tài chính. Mức hạn mức cụ thể chưa có, xem Q-22 và Q-112.
 

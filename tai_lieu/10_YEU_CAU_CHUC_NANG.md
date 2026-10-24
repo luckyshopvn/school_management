@@ -1,8 +1,8 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.78
-- Ngày cập nhật: 2026-10-23
+- Phiên bản: 1.79
+- Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -113,6 +113,10 @@
 | P02-42 | Cấu hình đánh giá học sinh theo cấp (YCTD-161) | VT-02, VT-15 (`P02.assessment.manage`) | Mức đạt, phẩm chất, năng lực, kỳ, hạn nhập, bài kiểm tra định kỳ, câu nhận xét; nạp mặc định | Cấu hình của cấp | 7.3, thẻ Cấu hình | BR-172 |
 | P02-43 | Nhập đánh giá học sinh: kết quả định kỳ, nhận xét thường xuyên (YCTD-161) | Giáo viên được phân công (`P02.assessment.enter`); người quản lý nhập thay | Lớp, kỳ, môn hoặc phẩm chất, năng lực; mức, điểm, nhận xét | Kết quả theo kỳ của học sinh | 7.3 Nhập kết quả, Nhận xét thường xuyên; màn hình Đánh giá học sinh ở ứng dụng giáo viên | BR-171, BR-172 |
 | P02-44 | Tổng hợp cuối kỳ, cuối năm, khoá số liệu; phụ huynh xem (YCTD-161) | Xem: `P02.assessment.view`, giáo viên của lớp; xác nhận cuối năm: chủ nhiệm; khoá: `P02.assessment.manage`; phụ huynh | Lớp, kỳ; kết quả cuối năm; lý do mở khoá | Bảng tổng hợp, kết quả cuối năm, trạng thái khoá | 7.3 Tổng hợp cuối kỳ, Cuối năm, Khoá số liệu; Kết quả đánh giá ở ứng dụng phụ huynh | BR-172, BR-173 |
+| P02-45 | Xếp thời khoá biểu tự động (7.6., YCTD-164) | `P02.timetable.manage` | Cấp; mức quan trọng, giới hạn thời gian, số phương án; quy tắc môn; tiết giáo viên bận | Kiểm tra dữ liệu trước khi xếp; đẩy lần xếp cho tiến trình chạy nền; theo dõi tiến độ, huỷ; lưu phương án | Các phương án có điểm phạt, vi phạm; xem trước theo lớp; bản nháp nguồn máy xếp | BR-174 |
+| P02-46 | Chỉnh tay có kiểm tra ngay (7.4., YCTD-164) | `P02.timetable.manage` | Các ô đang sửa của lớp trong bản nháp | Tính xung đột của bản nếu ghi các ô đó, không ghi | Ô dính xung đột cứng; danh sách xung đột của lớp | BR-174, BR-170 |
+| P02-47 | Dạy thay, đổi tiết (7.7., YCTD-164) | Ghi, xoá: `P02.timetable.manage`; xem: nhân sự xem được thời khoá biểu | Ngày, lớp, tiết; giáo viên dạy thay hoặc ngày, tiết đổi; lý do | Kiểm tra tiết có trong bản đang áp dụng, chưa có thay đổi, giáo viên rảnh; ghi một hoặc hai dòng | Tiết thực tế của ngày; danh sách thay đổi | BR-174 |
+| P02-48 | Báo cáo tiết dạy, dùng phòng, mã QR tra cứu (7.8., trang tra cứu, YCTD-164) | Báo cáo: nhân sự xem được thời khoá biểu; mã QR: `P02.timetable.manage`; trang tra cứu: không cần đăng nhập | Khoảng ngày; ngày áp dụng; lớp hoặc giáo viên | Đếm tiết theo thời khoá biểu, dạy thay, được dạy thay, đổi tiết, thực dạy; tiết dùng phòng; tạo, thu hồi mã | Bảng báo cáo; mã QR in được; trang thời khoá biểu và thay đổi 7 ngày tới | BR-174 |
 
 ## 4. Phân hệ P03 — Giảng dạy
 

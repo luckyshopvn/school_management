@@ -1,8 +1,8 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.36
-- Ngày cập nhật: 2026-10-23
+- Phiên bản: 0.37
+- Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
 
@@ -15,6 +15,19 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.111.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-20 phần 22c2, thời khoá biểu phần máy xếp (YCTD-164).
+- Chức năng mới: máy xếp chạy nền có giới hạn thời gian, nhiều phương án, mức quan trọng của ràng buộc chỉnh được, quy tắc môn, tiết giáo viên báo bận; phương án thành bản nháp; chỉnh tay có kiểm tra ngay; dạy thay, đổi tiết theo ngày; báo cáo tiết dạy, dùng phòng; mã QR và trang tra cứu công khai.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0082_create_timetable_generator`.
+- Thay đổi API: `/timetable-generator/…`, `/timetable-generations/…`, `/timetable-versions/{id}/classes/{classId}/check`, `/timetable-changes/…`, `/timetable-reports/…`, `/timetable-lookup-codes/…`, `/public/timetable-lookup/{code}`.
+- Triển khai: ảnh Docker mới `worker` và dịch vụ `worker` (chỉ nối Redis); máy chủ API thêm biến `REDIS_URL`.
+- Kiểm thử: kịch bản CT-864 đến CT-877. Kết quả ngày 24/10/2026: kiểm thử đơn vị máy xếp `packages/server/src/timetable-solver.test.ts` CT-22c2-1 đến CT-22c2-6 đạt 6/6, tiến trình chạy nền `apps/worker/src/timetable-generation.test.ts` CT-22c2-7 đạt, máy chủ API `apps/api/src/timetables/timetable-generator.test.ts` CT-22c2-8 đến CT-22c2-13 đạt 6/6; kiểm thử đơn vị toàn bộ kho mã 1067/1067 (hai ca chạy lại riêng đạt: `leave.test.ts` lỗi hết bộ nhớ của máy, CT-22c2-12 sửa cách chọn cặp đổi tiết); kiểm thử giao diện `tests/e2e/93-timetable-generator.spec.ts` (CT-22c2-14) đạt; toàn bộ kiểm thử giao diện 163/163 (162 ca ở lần chạy đủ, ca 93 chạy lại đạt sau khi sửa bộ chọn thông báo); build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: máy xếp chạy lâu ở trường lớn; đã giới hạn thời gian và chạy ở tiến trình riêng.
+- Khả năng tương thích: trường chỉ có Mầm non không đổi hành vi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 22c2; chạy phần quay lui của tệp năm học `0082`; bỏ dịch vụ `worker`.
 
 ### Phiên bản 0.110.0 – 2026-10-23
 
