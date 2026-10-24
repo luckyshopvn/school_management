@@ -44,6 +44,8 @@ export interface EffectiveLesson {
   teacher_name: string | null;
   room_id: string | null;
   room_name: string | null;
+  // 0 là tiết cả lớp, 1 đến 9 là nhóm học (DT-21 phần 21b); dạy thay, đổi tiết chỉ áp dụng cho tiết cả lớp
+  group_no: number;
   change: {
     id: string;
     kind: 'substitute' | 'swap';
@@ -174,7 +176,7 @@ export class TimetableChangesService {
       .execute();
     const result = new Map<string, EffectiveLesson>();
     for (const lesson of base) {
-      result.set(`${lesson.class_id}:${lesson.period_no}`, {
+      result.set(`${lesson.class_id}:${lesson.period_no}:${lesson.group_no}`, {
         id: lesson.id,
         class_id: lesson.class_id,
         class_name: lesson.class_name,
@@ -186,12 +188,13 @@ export class TimetableChangesService {
         teacher_name: lesson.teacher_name,
         room_id: lesson.room_id,
         room_name: lesson.room_name,
+        group_no: lesson.group_no,
         change: null,
       });
     }
     for (const change of changes) {
-      result.set(`${change.class_id}:${change.period_no}`, {
-        id: result.get(`${change.class_id}:${change.period_no}`)?.id ?? null,
+      result.set(`${change.class_id}:${change.period_no}:0`, {
+        id: result.get(`${change.class_id}:${change.period_no}:0`)?.id ?? null,
         class_id: change.class_id,
         class_name: change.class_name,
         weekday,
@@ -202,6 +205,7 @@ export class TimetableChangesService {
         teacher_name: change.teacher_name,
         room_id: change.room_id,
         room_name: change.room_name,
+        group_no: 0,
         change: {
           id: change.id,
           kind: change.kind,
@@ -291,7 +295,15 @@ export class TimetableChangesService {
 
   private async lessonAt(database: Executor, date: string, classId: string, periodNo: number) {
     const lessons = await this.effectiveDay(database, date);
-    const lesson = lessons.find((item) => item.class_id === classId && item.period_no === periodNo);
+    const lesson = lessons.find(
+      (item) => item.class_id === classId && item.period_no === periodNo && item.group_no === 0,
+    );
+    if (!lesson && lessons.some((item) => item.class_id === classId && item.period_no === periodNo)) {
+      throw ruleViolationError(
+        RULE_CODE,
+        `Tiết ${periodNo} ngày ${date} của lớp là tiết học nhóm; dạy thay, đổi tiết chỉ áp dụng cho tiết cả lớp, sửa tiết nhóm trong bản thời khoá biểu`,
+      );
+    }
     if (!lesson) {
       throw ruleViolationError(
         RULE_CODE,

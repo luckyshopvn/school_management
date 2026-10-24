@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.43
+- Phiên bản: 0.44
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.118.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-21 phần 21b, thời khoá biểu THCS, THPT (YCTD-169).
+- Chức năng mới: khung giờ tiết, thời khoá biểu, máy xếp, dạy thay, báo cáo dùng chung ba cấp Tiểu học, THCS, THPT; tiết học nhóm (một lớp tách nhóm học môn lựa chọn cùng ô); luật xung đột nhóm, tiết đôi, phòng bộ môn; nhập Excel có cột Nhóm; thời khoá biểu của con, trang công khai, ứng dụng giáo viên hiện tiết nhóm theo tổ hợp môn; máy xếp bỏ qua môn học lựa chọn của THPT.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0086_add_timetable_groups` (cột `timetable_lessons.group_no`, khóa duy nhất thêm nhóm).
+- Thay đổi API: `group_no` ở tiết của `/timetable-versions/{id}/classes/{classId}/lessons`, `/check`, `/lessons`, `/timetables`, `/children/{id}/timetable`; cột Nhóm của `/timetable-versions/{id}/import`.
+- Kiểm thử: kịch bản CT-920 đến CT-926. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/timetables/secondary-timetables.test.ts` CT-21b-1 đến CT-21b-6 đạt 6/6; trên máy đã chạy kiểm thử đơn vị các gói sửa (thời khoá biểu, máy xếp, cấp học, đường dẫn nhanh, sổ đầu bài) đạt 56/56; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 89, 93, 95 và `tests/e2e/97-secondary-timetables.spec.ts` (CT-21b-7); kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
+- Rủi ro: dạy thay, đổi tiết chưa áp dụng cho tiết nhóm; xếp tự động tiết nhóm chưa có; không có thay đổi dữ liệu cũ.
+- Khả năng tương thích: tiết cũ có `group_no = 0`, Mầm non, Tiểu học không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 21b; chạy phần quay lui của tệp năm học `0086` (xóa tiết nhóm).
 
 ### Phiên bản 0.117.0 – 2026-10-24
 

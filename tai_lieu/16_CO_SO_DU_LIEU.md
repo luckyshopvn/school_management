@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.108
+- Phiên bản: 1.109
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -78,7 +78,7 @@
 | curricula | Chương trình theo cấp (YCTD-152, tệp năm học `0072`); từ YCTD-152 `grade_levels` có `school_level` (mặc định MN, tháng tuổi bắt buộc chỉ ở MN), `classes` có `school_level` (theo khối), `curriculum_id` | code (duy nhất), name, school_level, grade_level_codes (trống là mọi khối của cấp), is_default (mỗi cấp một), note, status; nạp sẵn CT-GDMN |
 | subjects | Môn học và hoạt động giáo dục theo cấp (P02-34, BR-166; YCTD-158, tệp năm học `0076_create_subjects`) | code (duy nhất), name, school_level, kind (`subject`, `activity`), assessment (`comment`, `comment_and_score`), order_no, status, thời điểm, người tạo |
 | timetable_versions | Bản thời khoá biểu theo cấp (P02-40, BR-170; YCTD-160, tệp năm học `0078_create_timetables`) | school_level, name, effective_from, status (`draft`, `published`), source (`manual`, `import`, `generator`), note, published_at, published_by, published_by_name, thời điểm, người tạo |
-| timetable_lessons | Tiết của lớp trong một bản (P02-40; YCTD-160) | version_id (khóa ngoại, xóa theo), class_id, weekday (1 đến 7, 1 là thứ Hai), period_no, subject_id, teacher_user_id, teacher_name, room_id; duy nhất theo bản, lớp, thứ, tiết |
+| timetable_lessons | Tiết của lớp trong một bản (P02-40; YCTD-160) | version_id (khóa ngoại, xóa theo), class_id, weekday (1 đến 7, 1 là thứ Hai), period_no, subject_id, teacher_user_id, teacher_name, room_id, group_no (0 là cả lớp, 1 đến 9 là nhóm học, mặc định 0; YCTD-169, tệp năm học `0086_add_timetable_groups`); duy nhất theo bản, lớp, thứ, tiết, nhóm |
 | timetable_generator_settings | Cài đặt máy xếp theo cấp (P02-51, BR-178; YCTD-164, tệp năm học `0082_create_timetable_generator`) | school_level (khóa chính), weights (mức 0 đến 10 của ràng buộc mềm), time_limit_seconds (5 đến 600), variant_count (1 đến 5), updated_by, updated_at |
 | timetable_subject_rules | Quy tắc xếp của môn (P02-51; YCTD-164) | subject_id (khóa chính, xóa theo môn), double_period, avoid_last_period, max_per_day (1 đến 10), room_id (phòng riêng), updated_by, updated_at |
 | timetable_teacher_busy | Tiết giáo viên báo bận trong tuần (P02-51; YCTD-164) | teacher_user_id, teacher_name, weekday, period_no, created_by, created_at; duy nhất theo giáo viên, thứ, tiết |

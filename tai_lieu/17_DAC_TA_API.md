@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.112
+- Phiên bản: 1.113
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -1586,6 +1586,7 @@ Giao kèo thời khoá biểu (DT-20 phần 22c1, YCTD-160, BR-170):
 4. `GET …/conflicts` trả mảng `severity` (`hard`, `soft`), `code` (`teacher_clash`, `room_clash`, `period_outside_frame`, `day_outside_week`, `subject_outside_curriculum`, `periods_mismatch`, `missing_teacher`, `teacher_not_assigned`), `message`, `class_id`, `weekday`, `period_no`. `POST …/publish` còn xung đột cứng hoặc bản trống trả 422 (`details` liệt kê xung đột).
 5. `POST …/import` (tệp `file`) trả `imported`, `classes`, `errors` (`row`, `column`, `message`); có lỗi thì không ghi.
 6. `GET /timetables` (nhân sự), `/timetables/mine` (giáo viên), `/children/{id}/timetable` (phụ huynh của học sinh, nhân sự) trả `versions` (bản đang áp dụng của từng cấp), `slots` (khung giờ theo cấp), `lessons`.
+7. Từ YCTD-169 (DT-21 phần 21b, BR-185): mỗi tiết có `group_no` (0 là cả lớp, 1 đến 9 là nhóm học môn lựa chọn cùng tiết); `PUT …/lessons` và `POST …/check` nhận `group_no` (bỏ trống là 0), một lớp, một nhóm, một tiết chỉ một môn, nhóm ngoài 0 đến 9 trả 400; các điểm cuối xem tiết (`GET …/lessons`, `/timetables`, `/timetables/mine`) trả `group_no`; `GET /children/{id}/timetable` chỉ trả tiết cả lớp và tiết nhóm có môn nằm trong tổ hợp môn đang hiệu lực của con; `POST …/import` nhận thêm cột Nhóm (trống là cả lớp, tệp không có cột này vẫn nhận); `GET …/conflicts` thêm mã `class_group_clash` (cứng), `double_period_split`, `room_not_subject_room` (mềm); `POST /timetable-changes` với tiết học nhóm trả 422.
 
 
 Giao kèo sổ đầu bài (DT-20 phần 20d, YCTD-162, BR-174):
