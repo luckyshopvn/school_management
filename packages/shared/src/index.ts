@@ -586,6 +586,7 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/period-slots',
   '/timetables',
   '/student-assessments',
+  '/learning-records',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];

@@ -40,6 +40,8 @@ const PRIMARY_ONLY_PATHS = [
   '/timetables',
   // Đánh giá học sinh (DT-20 phần 20c)
   '/student-assessments',
+  // Học bạ, khen thưởng, lên lớp (DT-20 phần 20e)
+  '/learning-records',
 ];
 
 describe('Cây menu và nhãn theo cấp học', () => {
