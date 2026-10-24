@@ -78,18 +78,18 @@ Mã quy trình dạng `QT-nn`, đánh số tăng dần, không tái sử dụng 
 | Phân hệ đã xác định | 19 | Từ P01 đến P19; P11 Xe đưa đón đã bỏ |
 | Vai trò đã xác định | 19 | Từ VT-01 đến VT-20, VT-13 đã bỏ; VT-02 Hiệu trưởng và VT-15 Phó Hiệu trưởng hợp thành Ban Giám hiệu |
 | Quy trình nghiệp vụ đã đặc tả | 10 | Đủ mười lăm mục theo khuôn đặc tả |
-| Chức năng đã liệt kê | 286 | 296 mã; P08-05, P11-01 đến P11-07, P17-09, P17-15 đã bỏ |
-| Tiêu chí nghiệm thu đã viết | 776 | Từ AC-01 đến AC-776; AC-498 không áp dụng; AC-42, AC-53 đến AC-57, AC-171 đã bỏ; AC-94 đến AC-134 nằm trong các đặc tả quy trình |
-| Quy tắc nghiệp vụ đã xác định | 178 | Từ BR-01 đến BR-178; BR-27, BR-42, BR-54, BR-55, BR-57 đã bỏ |
+| Chức năng đã liệt kê | 290 | 300 mã; P08-05, P11-01 đến P11-07, P17-09, P17-15 đã bỏ |
+| Tiêu chí nghiệm thu đã viết | 787 | Từ AC-01 đến AC-787; AC-498 không áp dụng; AC-42, AC-53 đến AC-57, AC-171 đã bỏ; AC-94 đến AC-134 nằm trong các đặc tả quy trình |
+| Quy tắc nghiệp vụ đã xác định | 184 | Từ BR-01 đến BR-184; BR-27, BR-42, BR-54, BR-55, BR-57 đã bỏ |
 | Giả định đã ghi nhận | 92 | Từ GD-01 đến GD-92; mọi giả định đã được xác nhận hoặc ghi không còn hiệu lực ngày 09/10/2026 |
 | Câu hỏi mở chờ trả lời | 0 | Đã cấp mã đến Q-156; mọi câu đã được trả lời ngày 09/10/2026 |
 | Bảng dữ liệu dự kiến | 359 | Xem `16_CO_SO_DU_LIEU.md`, đếm lại ngày 2026-10-15 theo tên bảng ở mục 2 đến mục 18 (mỗi tên đếm một lần), đã gồm `user_quick_links` (YCTD-102), tám bảng của YCTD-104, `growth_rounds` (YCTD-105) và `equipment_items`, `equipment_holdings`, `school_profiles` (YCTD-106), `user_grid_settings` (YCTD-107), `feedback` (YCTD-110); tám bảng xe đưa đón và bảng `meal_registrations` đã gỡ |
-| Màn hình dự kiến | 259 | Đếm lại ngày 2026-10-15, cộng MH-142 đến MH-151 và MP-22 (YCTD-134), MH-152 đến MH-157 (YCTD-135), MH-158 đến MH-166 (YCTD-138), MH-167 đến MH-179 (YCTD-139), MH-180 đến MH-186 (YCTD-140), MH-187 đến MH-202 (YCTD-141), MH-203 đến MH-205 và MG-18 (YCTD-143), MH-206 đến MH-215 (YCTD-144), MH-216 đến MH-224 (YCTD-142), MH-225 đến MH-229 (YCTD-145), MH-230 đến MH-235 (YCTD-147), MH-236 đến MH-240 (YCTD-146), MH-241 đến MH-252 (YCTD-148), MH-253 đến MH-257 (YCTD-149): 92 mã MH (MH-01 đến MH-94, MH-64 và MH-66 chưa cấp; MH-65 chạy trong ứng dụng phụ huynh), 17 màn hình ứng dụng giáo viên, 20 màn hình ứng dụng phụ huynh; MG-13, MP-13 đã bỏ |
+| Màn hình dự kiến | 263 | Đếm lại ngày 2026-10-15, cộng MH-142 đến MH-151 và MP-22 (YCTD-134), MH-152 đến MH-157 (YCTD-135), MH-158 đến MH-166 (YCTD-138), MH-167 đến MH-179 (YCTD-139), MH-180 đến MH-186 (YCTD-140), MH-187 đến MH-202 (YCTD-141), MH-203 đến MH-205 và MG-18 (YCTD-143), MH-206 đến MH-215 (YCTD-144), MH-216 đến MH-224 (YCTD-142), MH-225 đến MH-229 (YCTD-145), MH-230 đến MH-235 (YCTD-147), MH-236 đến MH-240 (YCTD-146), MH-241 đến MH-252 (YCTD-148), MH-253 đến MH-257 (YCTD-149): 92 mã MH (MH-01 đến MH-94, MH-64 và MH-66 chưa cấp; MH-65 chạy trong ứng dụng phụ huynh), 17 màn hình ứng dụng giáo viên, 20 màn hình ứng dụng phụ huynh; MG-13, MP-13 đã bỏ |
 | Ca kiểm thử khởi đầu | 890 | Từ CT-001 đến CT-890; CT-048, CT-059 đến CT-063, CT-127, CT-454 không áp dụng |
 | Cổng kiểm soát chất lượng | 12 | Từ CG-01 đến CG-12, xem `01_KE_HOACH_TONG_THE.md` |
 | Đợt xây dựng | 12 | Từ DT-00 đến DT-11, xem `01_KE_HOACH_TONG_THE.md` |
 | Rủi ro đã ghi nhận | 14 | Từ RR-01 đến RR-14, xem `01_KE_HOACH_TONG_THE.md` |
-| Yêu cầu thay đổi | 164 | Từ YCTD-01 đến YCTD-180 (YCTD-180 chỉ đổi tài liệu, YCTD-181 đến YCTD-189 giữ sẵn cho DT-22; YCTD-166 chỉ đổi tài liệu, YCTD-161 đến YCTD-165 giữ sẵn cho DT-20; số giữ sẵn của DT-18 ghi khi phần gộp; YCTD-142 gộp sau YCTD-143, YCTD-144; YCTD-156 của 19f ghi khi gộp), xem `24_YEU_CAU_THAY_DOI.md` |
+| Yêu cầu thay đổi | 166 | Từ YCTD-01 đến YCTD-180 (YCTD-180 chỉ đổi tài liệu, YCTD-181 đến YCTD-189 giữ sẵn cho DT-22; YCTD-166 chỉ đổi tài liệu, YCTD-161 đến YCTD-165 giữ sẵn cho DT-20; số giữ sẵn của DT-18 ghi khi phần gộp; YCTD-142 gộp sau YCTD-143, YCTD-144; YCTD-156 của 19f ghi khi gộp), xem `24_YEU_CAU_THAY_DOI.md` |
 
 ## Quyết định đã chốt
 

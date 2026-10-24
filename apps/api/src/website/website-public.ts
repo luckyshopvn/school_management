@@ -507,6 +507,7 @@ ${
             'classes.name as class_name',
             'timetable_lessons.weekday',
             'timetable_lessons.period_no',
+            'timetable_lessons.group_no',
             'subjects.name as subject_name',
             'timetable_lessons.teacher_name',
           ])
@@ -528,12 +529,14 @@ ${
     const tables = classes
       .map(([classId, className]) => {
         const cell = (weekday: number, period: number) => {
-          const lesson = lessons.find(
-            (item) => item.class_id === classId && item.weekday === weekday && item.period_no === period,
-          );
-          return lesson
-            ? `${e(lesson.subject_name)}${lesson.teacher_name ? `<br><span class="meta">${e(lesson.teacher_name)}</span>` : ''}`
-            : '';
+          // Một ô có thể có nhiều tiết khi lớp tách nhóm học môn lựa chọn (THPT, DT-21 phần 21b)
+          return lessons
+            .filter((item) => item.class_id === classId && item.weekday === weekday && item.period_no === period)
+            .map(
+              (lesson) =>
+                `${lesson.group_no > 0 ? `Nhóm ${lesson.group_no}: ` : ''}${e(lesson.subject_name)}${lesson.teacher_name ? `<br><span class="meta">${e(lesson.teacher_name)}</span>` : ''}`,
+            )
+            .join('<hr>');
         };
         const rows = periods
           .map(

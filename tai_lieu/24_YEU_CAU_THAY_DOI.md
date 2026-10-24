@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.45
+- Phiên bản: 0.46
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -27,6 +27,32 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: không thêm quyền.
 - Ảnh hưởng chức năng cũ: không đổi kỳ vọng kiểm thử cũ trừ danh sách mục chỉ của THCS, THPT ở CT-19c-1, CT-19c-2 (thêm 7.14).
 - Kiểm thử cần thực hiện: CT-897 đến CT-903; kiểm thử đơn vị các gói đã sửa, e2e 98 và 02, 03, 58; typecheck, lint, build.
+- Trạng thái: Đã triển khai
+
+### YCTD-169: DT-21 phần 21b: thời khoá biểu THCS, THPT – 2026-10-24
+
+- Lý do: phần 21b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.3, 12.4 (kế hoạch DT-21 ở YCTD-166). Dùng thời khoá biểu của 22c1 (YCTD-160), máy xếp, dạy thay, báo cáo của 22c2 (YCTD-164) và tổ hợp môn của 21a (YCTD-167). Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Dùng chung ba cấp**: các bảng, API, trang của 22c1, 22c2 đã theo cấp; chỉ mở menu 7.3, 7.4, 7.9, 7.10, 7.11 cho THCS, THPT (trước chỉ Tiểu học).
+  - **Nhóm học** (tệp năm học `0086_add_timetable_groups`): `timetable_lessons.group_no` (0 là cả lớp, 1 đến 9 là nhóm học môn lựa chọn cùng tiết), khóa duy nhất của tiết thêm nhóm; tiết cũ giữ 0.
+  - **Luật xung đột** (`findTimetableConflicts`): tiết cả lớp cùng ô với tiết nhóm là xung đột cứng `class_group_clash`; giáo viên, phòng trùng tiết tính trên mọi nhóm; cảnh báo `double_period_split` (môn có quy tắc tiết đôi của 22c2 mà các tiết trong ngày không liền nhau), `room_not_subject_room` (môn có phòng bộ môn mà ô không dùng phòng đó); môn học lựa chọn của THPT (có nhóm môn của 21a) không so số tiết cả lớp với chương trình, các nhóm học cùng môn cùng ô tính một tiết.
+  - **Máy xếp**: không xếp cả lớp các môn học lựa chọn của THPT (nhập tay hoặc Excel); phần còn lại dùng nguyên (tiết đôi, phòng bộ môn, buổi, giáo viên dạy nhiều lớp đã có ở 22c2).
+  - **Thời khoá biểu của con** (ứng dụng phụ huynh, `/children/{id}/timetable`): chỉ tiết cả lớp và tiết nhóm có môn nằm trong tổ hợp môn đang hiệu lực của con (tổ hợp đã duyệt, hoặc tổ hợp cũ khi đổi tổ hợp còn chờ duyệt); chưa đăng ký tổ hợp chỉ thấy tiết cả lớp. Nhân sự xem theo lớp thấy mọi nhóm.
+  - **Nhập Excel**: thêm cột Nhóm (trống là cả lớp); tệp mẫu cũ không có cột này vẫn nhập được; chép bản giữ nhóm.
+  - **Dạy thay, đổi tiết**: chỉ áp dụng cho tiết cả lớp; tiết nhóm bị từ chối kèm lý do; tiết của một ngày (`effectiveDay`) giữ từng nhóm.
+  - **Giao diện**: 7.4 có khối "Tiết học nhóm" (Thứ, Tiết, Nhóm, Môn) khi chọn lớp THCS, THPT ở bản nháp; lưới chung ghi nhóm; trang công khai của website, ứng dụng giáo viên, ứng dụng phụ huynh ghi nhóm.
+- Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/school-year/migrations/0086_add_timetable_groups.ts`, `schema.ts`, `index.ts`); máy chủ API (`timetables/timetable-rules.ts`, `timetables.ts`, `timetable-changes.ts`, `timetable-generator.ts`, `website/website-public.ts`); cổng quản trị (`timetables/TimetablesPage.tsx`, `timetables-api.ts`, `timetable-generator-api.ts`); ứng dụng giáo viên (`MyTimetableScreen.tsx`), ứng dụng phụ huynh (`TimetablePanel.tsx`); gói dùng chung (`portal-menu.ts`); kiểm thử (`secondary-timetables.test.ts`, `tests/e2e/97-secondary-timetables.spec.ts`).
+- Dữ liệu bị ảnh hưởng: một cột mới có mặc định 0; không đổi dữ liệu cũ.
+- API bị ảnh hưởng: `group_no` ở tiết (nhận ở `PUT …/lessons`, `POST …/check`; trả ở các điểm cuối xem tiết); cột Nhóm của nhập Excel.
+- Giao diện bị ảnh hưởng: MH-286.
+- Quyền bị ảnh hưởng: không đổi (`P02.timetable.manage`).
+- Ảnh hưởng chức năng cũ: Tiểu học, Mầm non không đổi; `CT-22c1-5` (nhập Excel 5 cột) vẫn đạt vì cột Nhóm không bắt buộc.
+- Hạn chế (ghi để làm sau):
+  - Xếp tự động tiết nhóm chưa có (máy xếp bỏ qua môn học lựa chọn);
+  - Dạy thay, đổi tiết chưa áp dụng cho tiết nhóm;
+  - Định mức tiết của tổ bộ môn (21a) chưa dùng làm cảnh báo khi xếp;
+  - Chưa kiểm tra học sinh của một nhóm có thực sự đăng ký môn của nhóm (chỉ lọc khi xem).
+- Kiểm thử cần thực hiện: kịch bản CT-914 đến CT-920 (trong mã kiểm thử là CT-21b-1 đến CT-21b-7); kiểm thử đơn vị mới `apps/api/src/timetables/secondary-timetables.test.ts`; kiểm thử giao diện mới `tests/e2e/97-secondary-timetables.spec.ts`. Kết quả: kiểm thử đơn vị `apps/api/src/timetables/secondary-timetables.test.ts` CT-21b-1 đến CT-21b-6 đạt 6/6; trên máy đã chạy kiểm thử đơn vị các gói sửa (thời khoá biểu, máy xếp, cấp học, đường dẫn nhanh, sổ đầu bài) đạt 56/56; kiểm thử giao diện chạy trên máy: 02, 03, 06, 08, 58, 89, 93, 95 và `tests/e2e/97-secondary-timetables.spec.ts` (CT-21b-7); kiểm thử giao diện toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt
 - Trạng thái: Đã triển khai
 
 ### YCTD-167: DT-21 phần 21a: nền THCS, THPT – 2026-10-24

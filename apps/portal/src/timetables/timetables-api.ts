@@ -37,6 +37,8 @@ export interface TimetableLesson {
   teacher_name: string | null;
   room_id: string | null;
   room_name: string | null;
+  // 0 là tiết cả lớp, 1 đến 9 là nhóm học (DT-21 phần 21b)
+  group_no: number;
 }
 
 export interface TimetableConflict {
@@ -83,7 +85,7 @@ export const readVersionLessons = (
 export const saveClassLessons = (
   versionId: string,
   classId: string,
-  lessons: Array<{ weekday: number; period_no: number; subject_id: string; room_id: string | null }>,
+  lessons: Array<{ weekday: number; period_no: number; subject_id: string; room_id: string | null; group_no: number }>,
 ): Promise<TimetableLesson[]> =>
   requestJson(`/api/v1/timetable-versions/${versionId}/classes/${classId}/lessons`, json('PUT', { lessons }));
 export const readConflicts = (id: string): Promise<TimetableConflict[]> =>

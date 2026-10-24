@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.83
+- Phiên bản: 1.84
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -129,6 +129,7 @@
 | P02-52 | Chỉnh tay có kiểm tra ngay (7.4., YCTD-164) | `P02.timetable.manage` | Các ô đang sửa của lớp trong bản nháp | Tính xung đột của bản nếu ghi các ô đó, không ghi | Ô dính xung đột cứng; danh sách xung đột của lớp | BR-178, BR-170 |
 | P02-53 | Dạy thay, đổi tiết (7.10., YCTD-164) | Ghi, xoá: `P02.timetable.manage`; xem: nhân sự xem được thời khoá biểu | Ngày, lớp, tiết; giáo viên dạy thay hoặc ngày, tiết đổi; lý do | Kiểm tra tiết có trong bản đang áp dụng, chưa có thay đổi, giáo viên rảnh; ghi một hoặc hai dòng | Tiết thực tế của ngày; danh sách thay đổi | BR-178 |
 | P02-54 | Báo cáo tiết dạy, dùng phòng, mã QR tra cứu (7.11., trang tra cứu, YCTD-164) | Báo cáo: nhân sự xem được thời khoá biểu; mã QR: `P02.timetable.manage`; trang tra cứu: không cần đăng nhập | Khoảng ngày; ngày áp dụng; lớp hoặc giáo viên | Đếm tiết theo thời khoá biểu, dạy thay, được dạy thay, đổi tiết, thực dạy; tiết dùng phòng; tạo, thu hồi mã | Bảng báo cáo; mã QR in được; trang thời khoá biểu và thay đổi 7 ngày tới | BR-178 |
+| P02-66 | Thời khoá biểu THCS, THPT: tiết học nhóm (7.4., YCTD-169) | `P02.timetable.manage` | Cấp THCS, THPT; tiết của lớp có số nhóm; cột Nhóm của tệp Excel | Cùng chức năng thời khoá biểu của Tiểu học (khung giờ, bản nháp, nhập Excel, xung đột, ban hành, máy xếp, dạy thay, báo cáo); thêm tiết học nhóm cùng ô; luật nhóm, tiết đôi, phòng bộ môn | Bản thời khoá biểu có tiết nhóm; thời khoá biểu của con theo tổ hợp môn | BR-184 |
 
 ## 4. Phân hệ P03 — Giảng dạy
 

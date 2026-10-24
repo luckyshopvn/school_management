@@ -583,7 +583,8 @@ export class TimetableGeneratorService {
     const demands: SolverDemand[] = [];
     for (const classRow of classes) {
       for (const [subjectId, plan] of planned.get(classRow.id) ?? new Map()) {
-        if (plan.periods <= 0) continue;
+        // Môn học lựa chọn của THPT (21a) học theo nhóm: nhập tay hoặc Excel, máy xếp không xếp cả lớp (21b)
+        if (plan.periods <= 0 || plan.elective) continue;
         const teacher = teachers.get(`${classRow.id}:${subjectId}`);
         const rule = rules.find((item) => item.subject_id === subjectId);
         const room = rule?.room_id ? rooms.find((item) => item.id === rule.room_id) : undefined;
