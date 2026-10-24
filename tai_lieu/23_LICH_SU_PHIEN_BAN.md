@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.40
+- Phiên bản: 0.42
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,18 +16,41 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.114.0 – 2026-10-24
+### Phiên bản 0.116.0 – 2026-10-24
 
 - Phạm vi thay đổi: DT-21 phần 22g1, kiểm tra, đánh giá phần đề (YCTD-168).
 - Chức năng mới: ngân hàng câu hỏi có thẩm định, nhập Excel, thống kê; ma trận và bảng đặc tả; kế hoạch kiểm tra; giao đề, bốc câu theo ma trận, đề nhiều mã, thẩm định, khoá đề; tải đề, đáp án ra Word, PDF.
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: tệp năm học `0085_create_question_bank_and_exams`; tệp định danh `0076_add_exam_permissions`.
 - Thay đổi API: `/question-topics`, `/questions/…`, `/exam-matrices/…`, `/assessment-plans/…`, `/exams/…`.
-- Kiểm thử: kịch bản CT-891 đến CT-899. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/exams/exam-rules.test.ts` CT-22g1-1 đến CT-22g1-4 đạt 4/4, `apps/api/src/exams/exams.test.ts` CT-22g1-5 đến CT-22g1-8 đạt 4/4; kiểm thử đơn vị chạy trên máy các gói đã sửa: shared đạt, database 6/6, api 1018 ca đạt 1016, hai ca `children.test.ts` (CTC-P02-013, CTC-P02-057) chập chờn khi chạy chung, chạy lại riêng đạt 26/26; kiểm thử giao diện `tests/e2e/96-exam-bank.spec.ts` (CT-22g1-9) đạt; kiểm thử giao diện trên máy chạy 02, 03, 06, 08, 58, 96 đạt 18/18; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Kiểm thử: kịch bản CT-904 đến CT-912. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/exams/exam-rules.test.ts` CT-22g1-1 đến CT-22g1-4 đạt 4/4, `apps/api/src/exams/exams.test.ts` CT-22g1-5 đến CT-22g1-8 đạt 4/4; kiểm thử đơn vị chạy trên máy các gói đã sửa: shared đạt, database 6/6, api 1018 ca đạt 1016, hai ca `children.test.ts` (CTC-P02-013, CTC-P02-057) chập chờn khi chạy chung, chạy lại riêng đạt 26/26; sau khi gộp 21a, 21c chạy lại `exams`, `working-level` …; kiểm thử giao diện `tests/e2e/96-exam-bank.spec.ts` (CT-22g1-9) đạt; kiểm thử giao diện trên máy chạy 02, 03, 06, 08, 58, 96 đạt 18/18; sau khi gộp 21a, 21c chạy lại 96 …; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 - Rủi ro: lộ đề trước giờ kiểm tra; đã giới hạn người xem, ghi nhật ký tải.
 - Khả năng tương thích: trường không bật THCS, THPT không đổi hành vi.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 22g1; chạy phần quay lui của tệp năm học `0085`, định danh `0076`.
 
+### Phiên bản 0.115.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-21 phần 21c, sổ điểm THCS, THPT theo Thông tư 22/2021 (YCTD-170).
+- Chức năng mới: bảng điểm (đánh giá thường xuyên, giữa kỳ, cuối kỳ, kết quả môn nhận xét), điểm trung bình môn học kỳ, cả năm, gợi ý và xác nhận xếp loại học tập, rèn luyện, khoá điểm theo học kỳ và lớp, cấu hình hệ số, số lần đánh giá, ngưỡng theo cấp; nhập ở cổng quản trị (7.14 Sổ điểm) và ứng dụng giáo viên; phụ huynh xem điểm đã khoá ở ứng dụng phụ huynh.
+- Lỗi đã sửa: dòng "Phiên bản" thừa ở đầu các tài liệu 01, 02, 07, 10, 11, 14, 16, 17, 21, 23, 24, 32 do gộp bản 21a.
+- Thay đổi dữ liệu: tệp năm học `0087_create_scores`; tệp định danh `0078` để trống (dùng quyền đánh giá học sinh `P02.assessment.*` của 20c, không thêm quyền).
+- Thay đổi API: `/scores/config`, `/scores/classes/{id}` (`/subjects/{subjectId}`, `/summary`, `/ratings`), `/scores/locks` (`/unlock`), `/scores/children/{id}`.
+- Kiểm thử: kịch bản CT-897 đến CT-903. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/scores/scores.test.ts` CT-21c-1 đến CT-21c-6 đạt 6/6; chạy cùng `secondary.test.ts`, `subjects.test.ts`, `working-level.test.ts`, `menu-permissions.test.ts` đạt 28/28 (đã thêm 7.14 vào danh sách mục chỉ của THCS, THPT ở CT-19c-1, CT-19c-2); typecheck, eslint, prettier đạt; e2e CT-21c-7 đạt (cùng 02, 03, 06, 08 chạy trước); e2e toàn bộ do CI chạy.
+- Rủi ro: hệ số, số lần đánh giá, ngưỡng xếp loại là mặc định theo Thông tư 22/2021, cần đối chiếu văn bản gốc; xếp loại rèn luyện do giáo viên chủ nhiệm nhập tay (chưa có quy tắc gợi ý); chưa khảo sát hệ thống của Sở cấp THCS, THPT.
+- Khả năng tương thích: trường chỉ có Mầm non hoặc Tiểu học thấy như cũ; bảng đánh giá Thông tư 27/2020 của 20c không đổi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 21c; chạy phần quay lui của tệp năm học `0087`.
+
+### Phiên bản 0.114.0 – 2026-10-24
+
+- Phạm vi thay đổi: DT-21 phần 21a, nền THCS, THPT (YCTD-167).
+- Chức năng mới: bộ môn mẫu THCS (khối 6 đến 9), THPT (khối 10 đến 12) theo Chương trình giáo dục phổ thông 2018; cách đánh giá bằng điểm số; nhóm môn lựa chọn THPT; tổ hợp môn; học sinh đăng ký tổ hợp (đổi thì chờ duyệt); tổ bộ môn; phân công giảng dạy theo môn, môn học dùng chung ba cấp; mục menu 7.12 Tổ hợp môn, 7.13 Tổ bộ môn.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: tệp năm học `0084_create_secondary_foundation`; tệp định danh `0075` để trống (không thêm quyền).
+- Thay đổi API: `/subject-combinations`, `/subject-combinations/{id}/students`, `/children/{id}/subject-combination` (`/approve`, `/reject`), `/subject-teams` (`/members`, `/loads`); `/subjects` nhận `option_group`, `assessment` = `score`.
+- Kiểm thử: kịch bản CT-891 đến CT-896. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/subjects/secondary.test.ts` CT-21a-1 đến CT-21a-5 đạt 5/5 trên nhánh trước khi gộp 20d, 20e, 22c2; sau khi gộp chạy lại được CT-21a-1 và các ca menu CT-19c-1 đến CT-19c-4 (đạt), các ca cần cơ sở dữ liệu chưa chạy lại vì cơ sở dữ liệu định danh dùng chung trên máy đã chạy migration của nhánh khác; typecheck, lint, prettier đạt; e2e CT-21a-6 và e2e toàn bộ do CI chạy, chưa chạy trên máy
+- Rủi ro: số môn, số nhóm của tổ hợp và thời lượng môn là mặc định theo chương trình, cần đối chiếu văn bản gốc; chưa khảo sát hệ thống của Sở cấp THCS, THPT.
+- Khả năng tương thích: trường chỉ có Mầm non hoặc Tiểu học thấy như cũ trừ tên nhóm 7 đổi thành "Dạy học"; môn cũ giữ nguyên, nhóm môn trống.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 21a; chạy phần quay lui của tệp năm học `0084`.
 ### Phiên bản 0.113.0 – 2026-10-24
 
 - Phạm vi thay đổi: DT-20 phần 22c2, thời khoá biểu phần máy xếp (YCTD-164).

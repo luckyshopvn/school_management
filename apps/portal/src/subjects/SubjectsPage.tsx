@@ -4,9 +4,11 @@ import {
   PERMISSION_CODES,
   SUBJECT_ASSESSMENT_LABELS,
   SUBJECT_KIND_LABELS,
+  SUBJECT_OPTION_GROUP_LABELS,
   type SchoolLevelCode,
   type SubjectAssessment,
   type SubjectKind,
+  type SubjectOptionGroup,
 } from '@school-management/shared';
 import { Alert, Button, FORM_CONTROL_CLASS, StatusBadge, Toast } from '@school-management/ui';
 import { AppShell } from '../pages/AppShell.js';
@@ -39,8 +41,18 @@ function SubjectForm({ level, onSaved }: { level: SchoolLevelCode; onSaved(messa
   const [name, setName] = useState('');
   const [kind, setKind] = useState<SubjectKind>('subject');
   const [assessment, setAssessment] = useState<SubjectAssessment>('comment');
+  const [optionGroup, setOptionGroup] = useState<SubjectOptionGroup | ''>('');
   const create = useMutation({
-    mutationFn: () => createSubject({ code, name, school_level: level, kind, assessment, order_no: 100 }),
+    mutationFn: () =>
+      createSubject({
+        code,
+        name,
+        school_level: level,
+        kind,
+        assessment,
+        option_group: optionGroup || null,
+        order_no: 100,
+      }),
     onSuccess: async (subject) => {
       setCode('');
       setName('');
@@ -101,6 +113,23 @@ function SubjectForm({ level, onSaved }: { level: SchoolLevelCode; onSaved(messa
           ))}
         </select>
       </label>
+      {level === 'THPT' ? (
+        <label className="text-label font-medium text-text">
+          Nhóm môn lựa chọn
+          <select
+            className={`mt-2 block ${FORM_CONTROL_CLASS}`}
+            value={optionGroup}
+            onChange={(event) => setOptionGroup(event.target.value as SubjectOptionGroup | '')}
+          >
+            <option value="">Không thuộc nhóm</option>
+            {Object.entries(SUBJECT_OPTION_GROUP_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
       <Button type="submit" variant="primary" disabled={!code || !name || create.isPending}>
         Thêm môn
       </Button>
@@ -147,8 +176,8 @@ function SubjectList({
         ) : null}
       </div>
       <p className="text-label text-text-secondary">
-        Bộ mẫu theo Chương trình giáo dục phổ thông 2018; nhà trường đối chiếu kế hoạch giáo dục của trường rồi sửa. Môn
-        đã có mã giữ nguyên khi nạp lại.
+        Bộ mẫu Tiểu học, THCS, THPT theo Chương trình giáo dục phổ thông 2018; nhà trường đối chiếu kế hoạch giáo dục
+        của trường rồi sửa. Môn đã có mã giữ nguyên khi nạp lại.
       </p>
       {load.error ? <Alert tone="danger">{messageOf(load.error)}</Alert> : null}
       {subjects.error ? <Alert tone="danger">{messageOf(subjects.error)}</Alert> : null}
@@ -159,6 +188,7 @@ function SubjectList({
             <th className="px-3 py-2">Tên môn</th>
             <th className="px-3 py-2">Loại</th>
             <th className="px-3 py-2">Cách đánh giá</th>
+            {level === 'THPT' ? <th className="px-3 py-2">Nhóm môn lựa chọn</th> : null}
             <th className="px-3 py-2">Trạng thái</th>
             {canManage ? <th className="px-3 py-2" /> : null}
           </tr>
@@ -170,6 +200,11 @@ function SubjectList({
               <td className="px-3 py-2">{subject.name}</td>
               <td className="px-3 py-2">{SUBJECT_KIND_LABELS[subject.kind]}</td>
               <td className="px-3 py-2">{SUBJECT_ASSESSMENT_LABELS[subject.assessment]}</td>
+              {level === 'THPT' ? (
+                <td className="px-3 py-2">
+                  {subject.option_group ? SUBJECT_OPTION_GROUP_LABELS[subject.option_group] : ''}
+                </td>
+              ) : null}
               <td className="px-3 py-2">
                 <StatusBadge
                   tone={subject.status === 'active' ? 'success' : 'neutral'}
@@ -187,7 +222,7 @@ function SubjectList({
           ))}
           {subjects.data && subjects.data.length === 0 ? (
             <tr>
-              <td colSpan={6} className="px-3 py-2 text-text-secondary">
+              <td colSpan={7} className="px-3 py-2 text-text-secondary">
                 Chưa có môn nào. Bấm "Nạp môn mẫu" để bắt đầu.
               </td>
             </tr>

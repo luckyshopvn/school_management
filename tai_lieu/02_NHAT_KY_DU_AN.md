@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.44
+- Phiên bản: 0.46
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -20,7 +20,7 @@
 
 - Đọc mục 12 của `32_KE_HOACH_THEO_HE_THONG_SO.md`, phần 22g của kế hoạch DT-22, mục 13 (22h2 tham chiếu ngân hàng câu hỏi); rà môn học (20a), khối, cấp (DT-19), bộ dựng Word, PDF (18d), công cụ nhập Excel (16a), thời khoá biểu (22c1).
 - Cơ sở dữ liệu: tệp năm học `0085`, định danh `0076`. Máy chủ API: hàm thuần của ma trận, bốc câu, trộn đề; ngân hàng câu hỏi, chủ đề, ma trận, kế hoạch, đề; xuất Word, PDF. Cổng quản trị: nhóm 8 "Kiểm tra, đánh giá" (8.1 đến 8.4) cho THCS, THPT.
-- Thêm quy tắc BR-179, chức năng P02-55 đến P02-58, quyền PQ-97, màn hình MH-271 đến MH-274, kịch bản CT-891 đến CT-899, tiêu chí AC-777 đến AC-780. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/exams/exam-rules.test.ts` CT-22g1-1 đến CT-22g1-4 đạt 4/4, `apps/api/src/exams/exams.test.ts` CT-22g1-5 đến CT-22g1-8 đạt 4/4; kiểm thử đơn vị chạy trên máy các gói đã sửa: shared đạt, database 6/6, api 1018 ca đạt 1016, hai ca `children.test.ts` (CTC-P02-013, CTC-P02-057) chập chờn khi chạy chung, chạy lại riêng đạt 26/26; kiểm thử giao diện `tests/e2e/96-exam-bank.spec.ts` (CT-22g1-9) đạt; kiểm thử giao diện trên máy chạy 02, 03, 06, 08, 58, 96 đạt 18/18; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm quy tắc BR-181, chức năng P02-61 đến P02-64, quyền PQ-97, màn hình MH-277 đến MH-280, kịch bản CT-904 đến CT-912, tiêu chí AC-783 đến AC-786. Kết quả ngày 24/10/2026: kiểm thử đơn vị `apps/api/src/exams/exam-rules.test.ts` CT-22g1-1 đến CT-22g1-4 đạt 4/4, `apps/api/src/exams/exams.test.ts` CT-22g1-5 đến CT-22g1-8 đạt 4/4; kiểm thử đơn vị chạy trên máy các gói đã sửa: shared đạt, database 6/6, api 1018 ca đạt 1016, hai ca `children.test.ts` (CTC-P02-013, CTC-P02-057) chập chờn khi chạy chung, chạy lại riêng đạt 26/26; sau khi gộp 21a, 21c chạy lại `exams`, `working-level` …; kiểm thử giao diện `tests/e2e/96-exam-bank.spec.ts` (CT-22g1-9) đạt; kiểm thử giao diện trên máy chạy 02, 03, 06, 08, 58, 96 đạt 18/18; sau khi gộp 21a, 21c chạy lại 96 …; e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
@@ -28,13 +28,54 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-168, `07_QUY_TAC_NGHIEP_VU.md` BR-179, `08_VAI_TRO_NGUOI_DUNG.md` PQ-97, `10_YEU_CAU_CHUC_NANG.md` P02-55 đến P02-58, `11_TIEU_CHI_NGHIEM_THU.md` AC-777 đến AC-780, `14_DAC_TA_GIAO_DIEN.md` MH-271 đến MH-274, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-891 đến CT-899, `23_LICH_SU_PHIEN_BAN.md` 0.114.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-168, `07_QUY_TAC_NGHIEP_VU.md` BR-181, `08_VAI_TRO_NGUOI_DUNG.md` PQ-97, `10_YEU_CAU_CHUC_NANG.md` P02-61 đến P02-64, `11_TIEU_CHI_NGHIEM_THU.md` AC-783 đến AC-786, `14_DAC_TA_GIAO_DIEN.md` MH-277 đến MH-280, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-904 đến CT-912, `23_LICH_SU_PHIEN_BAN.md` 0.116.0.
 
 #### Vấn đề tồn đọng
 
 - 22g2: phiếu trả lời, chấm, chuyển điểm vào sổ điểm, báo cáo theo câu; 22h2 đọc câu hỏi, ma trận, đề từ đây; ảnh, công thức ký hiệu trong câu hỏi; mẫu ma trận theo văn bản khi khớp Sở.
 
 
+### 2026-10-24 — DT-21 phần 21c: sổ điểm THCS, THPT
+
+#### Công việc đã thực hiện
+
+- Đọc mục 12 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và mã 20c (`assessments`: phân quyền nhập theo phân công, hạn nhập, khoá, nhật ký, phụ huynh xem), 21a (môn THCS, THPT, phân công theo môn).
+- Cơ sở dữ liệu: tệp năm học `0087` (cấu hình, điểm, kết quả môn nhận xét, xếp loại, khoá điểm); tệp định danh `0078` để trống. Gói dùng chung: hàm tính trung bình, xếp loại. Máy chủ API: `/scores`. Cổng quản trị: 7.14 Sổ điểm; ứng dụng giáo viên, ứng dụng phụ huynh.
+- Kiểm thử: kiểm thử đơn vị `apps/api/src/scores/scores.test.ts` CT-21c-1 đến CT-21c-6 đạt 6/6; chạy cùng `secondary.test.ts`, `subjects.test.ts`, `working-level.test.ts`, `menu-permissions.test.ts` đạt 28/28 (đã thêm 7.14 vào danh sách mục chỉ của THCS, THPT ở CT-19c-1, CT-19c-2); typecheck, eslint, prettier đạt; e2e CT-21c-7 đạt; e2e toàn bộ do CI chạy.
+- Sửa dòng "Phiên bản" thừa ở đầu các tài liệu do gộp bản 21a.
+
+#### Quyết định
+
+- Điểm là bảng riêng `score_entries` (không dùng bảng đánh giá Thông tư 27/2020 của 20c vì lưu mức đạt và điểm nguyên); tái dùng quyền, cách phân quyền, khoá của 20c nên không thêm quyền; điểm trung bình tính khi đọc, không lưu; xếp loại học tập gợi ý theo ngưỡng cấu hình, rèn luyện nhập tay; điểm có nguồn `exam` để 22g2 chuyển điểm vào; Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-170, `23_LICH_SU_PHIEN_BAN.md` bản 0.115.0.
+
+#### Vấn đề tồn đọng
+
+- Hệ số, số lần đánh giá, ngưỡng xếp loại đối chiếu toàn văn Thông tư 22/2021; quy tắc gợi ý xếp loại rèn luyện; khảo sát hệ thống của Sở cấp THCS, THPT khi Eric có tài khoản.
+
+
+### 2026-10-24 — DT-21 phần 21a: nền THCS, THPT
+
+#### Công việc đã thực hiện
+
+- Đọc mục 12 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và mã 20a (`subjects`, `curriculum_subjects`, phân công theo môn, môn tự chọn), cây menu theo cấp, e2e 87.
+- Cơ sở dữ liệu: tệp năm học `0084` (`subjects.option_group`, giá trị `score` của cách đánh giá, tổ hợp môn, tổ hợp học sinh đăng ký, tổ bộ môn); tệp định danh `0075` để trống. Máy chủ API: bộ môn mẫu THCS, THPT, tổ hợp môn, đăng ký và duyệt đổi tổ hợp, tổ bộ môn; chép sang năm học mới. Cổng quản trị: 7.1, 7.2 dùng chung ba cấp, 7.12 Tổ hợp môn, 7.13 Tổ bộ môn, mục "Tổ hợp môn" ở hồ sơ học sinh.
+- Kiểm thử: kiểm thử đơn vị `secondary.test.ts` CT-21a-1 đến CT-21a-5 đạt 5/5 trên nhánh trước khi gộp 20d, 20e, 22c2; sau khi gộp chạy lại được CT-21a-1 và các ca menu CT-19c-1 đến CT-19c-4 (đạt), các ca cần cơ sở dữ liệu chưa chạy lại vì cơ sở dữ liệu định danh dùng chung trên máy đã chạy migration của nhánh khác; typecheck, lint, prettier đạt; e2e CT-21a-6 và e2e toàn bộ do CI chạy, chưa chạy trên máy
+
+#### Quyết định
+
+- Tổ hợp môn mặc định 4 môn lựa chọn thuộc ít nhất 2 nhóm (hằng `COMBINATION_RULE`, cần đối chiếu văn bản gốc); đổi tổ hợp đã duyệt chờ duyệt; duyệt xong môn tự chọn theo tổ hợp; tổ hợp đã có học sinh không đổi môn; nhóm menu 7 đổi tên "Dạy học" dùng chung ba cấp, 7.3 đến 7.5 vẫn chỉ Tiểu học; không thêm quyền mới (dùng quyền danh mục, lớp, hồ sơ học sinh), nên định danh `0075` để trống. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-167, `23_LICH_SU_PHIEN_BAN.md` bản 0.114.0.
+
+#### Vấn đề tồn đọng
+
+- Thời lượng, tên môn THCS, THPT và quy tắc tổ hợp đối chiếu văn bản gốc; khảo sát hệ thống của Sở cấp THCS, THPT khi Eric có tài khoản.
 ### 2026-10-24 — DT-20 phần 22c2: thời khoá biểu, máy xếp
 
 #### Công việc đã thực hiện
