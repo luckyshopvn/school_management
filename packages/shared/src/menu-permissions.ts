@@ -102,6 +102,8 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   // Nền THCS, THPT (DT-21 phần 21a): như môn học, sửa cần quyền quản lý danh mục
   '/subject-combinations': anyOf('P01.view', 'P01.catalog.manage', 'P02.class.manage'),
   '/subject-teams': anyOf('P01.view', 'P01.catalog.manage', 'P02.class.manage'),
+  // Sổ điểm THCS, THPT (DT-21 phần 21c): dùng quyền đánh giá học sinh như 7.5
+  '/scores': anyOf('P02.assessment.enter', 'P02.assessment.view', 'P02.assessment.manage'),
   '/student-assessments': anyOf('P02.assessment.enter', 'P02.assessment.view', 'P02.assessment.manage'),
   // Sổ đầu bài, chuyên cần theo tiết (DT-20 phần 20d): ai xem được lớp đều xem; ký sổ theo tuần cần P02.class-log.review
   '/class-logs': anyOf('P02.class.manage', 'P02.view', 'P02.edit', 'P02.class-log.review'),

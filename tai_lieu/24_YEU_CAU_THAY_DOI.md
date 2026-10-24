@@ -1,8 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.44
-- Phiên bản: 0.43
+- Phiên bản: 0.45
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đang cập nhật
 
@@ -11,6 +10,24 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-170: DT-21 phần 21c: sổ điểm THCS, THPT theo Thông tư 22/2021 – 2026-10-24
+
+- Lý do: phần 21c của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 12.3, 12.4 (kế hoạch DT-21 ở YCTD-166; nền 21a ở YCTD-167). Văn bản căn cứ: Thông tư 22/2021/TT-BGDĐT (Điều 6 đến 10: đánh giá thường xuyên, giữa kỳ, cuối kỳ, điểm trung bình môn, xếp loại học tập, rèn luyện); hệ số, số lần đánh giá, ngưỡng là mặc định đã nhớ theo văn bản, chưa đối chiếu toàn văn nên để cấu hình. Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi:
+  - **Dữ liệu** (tệp năm học `0087_create_scores`): `score_configs` (cấu hình theo cấp), `score_entries` (điểm, ghi nguồn `manual`, `import`, `exam` cho 22g2), `subject_term_results` (kết quả môn nhận xét, nhận xét), `term_ratings` (xếp loại học tập, rèn luyện, gợi ý của máy), `score_locks` (khoá theo học kỳ và lớp). Chuyển năm học chép cấu hình, không chép điểm.
+  - **Tính điểm** (`packages/shared/src/scores.ts`, hàm thuần dùng chung cổng, ứng dụng, 21e, 22g2): trung bình học kỳ hệ số 1, 2, 3, cả năm hệ số 1, 2, làm tròn một chữ số, số lần đánh giá thường xuyên theo số tiết cả năm, gợi ý xếp loại học tập theo ngưỡng cấu hình (môn chủ chốt Toán, Ngữ văn; môn nhận xét Chưa đạt thì Chưa đạt; môn tự chọn không tính).
+  - **Máy chủ API** (`apps/api/src/scores/scores.ts`): cấu hình, bảng điểm theo môn, ghi điểm, tổng hợp học kỳ, cả năm, xác nhận xếp loại, khoá, mở khoá kèm lý do, phụ huynh xem điểm đã khoá. Quyền dùng `P02.assessment.enter/view/manage` của 20c (nhập theo phân công, chủ nhiệm nhập xếp loại, quản lý nhập thay, khoá), nên không thêm quyền, định danh `0078` để trống; hạn nhập là ngày kết thúc học kỳ theo lịch của cấp; xếp loại cả năm theo khoá học kỳ II.
+  - **Giao diện:** cổng quản trị mục 7.14 Sổ điểm (nhập điểm, tổng hợp và xếp loại, khoá điểm, cấu hình); ứng dụng giáo viên "Sổ điểm" (`LEVEL_FEATURES.student_scores`); ứng dụng phụ huynh "Điểm học tập".
+  - Sửa dòng "Phiên bản" thừa ở đầu các tài liệu do gộp bản 21a.
+- Thành phần bị ảnh hưởng: `database`, `packages/shared`, `apps/api` (scores, catalogs), `apps/portal`, `apps/teacher`, `apps/parent`, tài liệu `01`, `02`, `07`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`.
+- Dữ liệu bị ảnh hưởng: năm bảng mới; dữ liệu cũ giữ nguyên.
+- API bị ảnh hưởng: thêm `/scores/...`.
+- Giao diện bị ảnh hưởng: thêm 7.14 cho THCS, THPT; trường chỉ có Mầm non hoặc Tiểu học thấy như cũ.
+- Quyền bị ảnh hưởng: không thêm quyền.
+- Ảnh hưởng chức năng cũ: không đổi kỳ vọng kiểm thử cũ trừ danh sách mục chỉ của THCS, THPT ở CT-19c-1, CT-19c-2 (thêm 7.14).
+- Kiểm thử cần thực hiện: CT-897 đến CT-903; kiểm thử đơn vị các gói đã sửa, e2e 98 và 02, 03, 58; typecheck, lint, build.
+- Trạng thái: Đã triển khai
 
 ### YCTD-167: DT-21 phần 21a: nền THCS, THPT – 2026-10-24
 

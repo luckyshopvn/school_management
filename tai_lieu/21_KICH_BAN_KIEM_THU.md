@@ -1,8 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.78
-- Phiên bản: 1.77
+- Phiên bản: 1.79
 - Ngày cập nhật: 2026-10-24
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -955,6 +954,13 @@ Ca CT-105 đến CT-550 lần lượt kiểm tra AC-149 đến AC-594. CT-534 đ
 | CT-894 | P02-56 | Đăng ký tổ hợp: trẻ Mầm non; giáo viên; đăng ký đầu; đổi; giáo viên duyệt; từ chối; duyệt khi không có đề nghị; duyệt đề nghị; đổi môn tổ hợp đã có học sinh | 422; 403; `approved`; `pending`; 403; trả tổ hợp cũ; 422; `approved`, môn tự chọn theo tổ hợp; 422 | Kiểm thử tự động `apps/api/src/subjects/secondary.test.ts` CT-21a-4 đạt ngày 24/10/2026 | Đạt |
 | CT-895 | P02-57 | Tổ bộ môn: giáo viên; cấp sai; môn khác cấp; tạo; trùng mã; thành viên không phải giáo viên bộ môn; tổ trưởng; tổng tiết; bỏ thành viên | 403; 400; 422; 201; 409; 400; một tổ trưởng; 4 tiết; danh sách rỗng | Kiểm thử tự động `apps/api/src/subjects/secondary.test.ts` CT-21a-5 đạt ngày 24/10/2026 | Đạt |
 | CT-896 | P02-34, P02-55, P02-57 | Giao diện: bật THPT; 7.1 nạp môn mẫu, nhóm môn của Vật lí; 7.6 lập tổ hợp thiếu rồi đủ 4 môn; 7.7 lập tổ Vật lí; tắt THPT | có môn; Khoa học tự nhiên; báo đúng 4 môn rồi thêm; thêm tổ | Kiểm thử e2e `tests/e2e/95-secondary-foundation.spec.ts` CT-21a-6 chưa chạy trên máy (cơ sở dữ liệu định danh dùng chung), do CI chạy ngày 24/10/2026 | Chờ CI |
+| CT-897 | P02-58, P02-59 | Hàm tính điểm: trung bình học kỳ hệ số 1, 2, 3; cả năm; làm tròn; số lần đánh giá thường xuyên; điểm hợp lệ; gợi ý xếp loại (Tốt, Khá, Đạt, Chưa đạt, môn dưới ngưỡng, môn chủ chốt, thiếu điểm, môn nhận xét); kiểm tra cấu hình | 7,9; 10; 6,4; 6,6; 8,7; 6,8; null khi thiếu; các mức theo ngưỡng | Kiểm thử tự động `apps/api/src/scores/scores.test.ts` CT-21c-1 đạt ngày 24/10/2026 | Đạt |
+| CT-898 | P02-60 | Cấu hình sổ điểm: mặc định; cấp Tiểu học; giáo viên sửa; cấu hình sai; lưu rồi đọc lại | hệ số 1, 2, 3; 400; 403; 400; 200 | Kiểm thử tự động `apps/api/src/scores/scores.test.ts` CT-21c-2 đạt ngày 24/10/2026 | Đạt |
+| CT-899 | P02-58 | Nhập điểm: quyền theo phân công; lớp Mầm non; giáo viên khác; môn khác; điểm sai; học sinh lạ; môn nhận xét có điểm; môn tính điểm có kết quả; tính trung bình; xoá điểm; xem môn khác | 403; 422; 403; 403; 400; 400; 400; 400; 7,9; chưa có trung bình; không sửa được | Kiểm thử tự động `apps/api/src/scores/scores.test.ts` CT-21c-3 đạt ngày 24/10/2026 | Đạt |
+| CT-900 | P02-59 | Tổng hợp học kỳ, cả năm; gợi ý Tốt, Đạt; thiếu học kỳ II; giáo viên môn xác nhận; mức sai; chủ nhiệm xác nhận; cả năm | Tốt, Đạt; 8,8; null; 403; 400; lưu cả gợi ý và xác nhận | Kiểm thử tự động `apps/api/src/scores/scores.test.ts` CT-21c-4 đạt ngày 24/10/2026 | Đạt |
+| CT-901 | P02-59 | Khoá điểm: giáo viên khoá; thiếu cấp; khoá; sửa khi khoá (giáo viên, quản lý); học kỳ II; xếp loại khi khoá; trạng thái; mở khoá (giáo viên, lý do ngắn, hợp lệ, lặp lại); quá hạn | 403; 400; 200; 422; 200; 422; đã khoá; 403; 400; 200; 422; giáo viên 422, quản lý 200; nhật ký tạo, xoá | Kiểm thử tự động `apps/api/src/scores/scores.test.ts` CT-21c-5 đạt ngày 24/10/2026 | Đạt |
+| CT-902 | P02-60 | Phụ huynh: trước khi khoá; phụ huynh khác; sau khi khoá | không có học kỳ; 403; học kỳ I, trung bình 8,8, xếp loại Tốt, chưa có xếp loại cả năm | Kiểm thử tự động `apps/api/src/scores/scores.test.ts` CT-21c-6 đạt ngày 24/10/2026 | Đạt |
+| CT-903 | P02-58, P02-59 | Giao diện: bật THCS; nạp môn mẫu; 7.14 chọn lớp, môn Toán, nhập TX1 8, TX2 9, giữa kỳ 7, cuối kỳ 8; ghi, tải lại; khoá điểm; mở khoá kèm lý do; tắt THCS | trung bình 7,9; giữ điểm; đã khoá; chưa khoá | Kiểm thử e2e `tests/e2e/98-secondary-scores.spec.ts` CT-21c-7 đạt ngày 24/10/2026 | Đạt |
 | CT-864 | P02-45 | Hàm thứ theo ISO, đầu tuần; dữ liệu tiết: tên bài rỗng, tiết 16, ngày sai dạng, xếp loại E, trạng thái lạ, trùng học sinh | 1, 6, 7; thứ Hai của tuần; 400 các ca sai; tên bài cắt khoảng trắng, xếp loại rỗng thành trống | Kiểm thử tự động `apps/api/src/class-logs/class-logs.test.ts` CT-20d-1 đạt ngày 24/10/2026 | Đạt |
 | CT-865 | P02-45 | Cô dạy Tiếng Việt xem tiết thứ Hai, thứ Ba; mở tiết 1 (một học sinh có báo vắng); mở tiết 5 | Một tiết, chưa ghi; không có tiết; có mặt và vắng có phép kèm lý do; 404 | Kiểm thử tự động `apps/api/src/class-logs/class-logs.test.ts` CT-20d-2 đạt ngày 24/10/2026 | Đạt |
 | CT-866 | P02-45 | Cô dạy Toán ghi tiết 1; ghi ngày chưa đến; học sinh ngoài lớp; tiết 3 không có; ghi, ghi lại; cô khác ký; ký; sửa, ký lại | 403; 422; 400; 422; cùng một dòng, xếp loại B; 403; đã ký; 422; 422 | Kiểm thử tự động `apps/api/src/class-logs/class-logs.test.ts` CT-20d-3 đạt ngày 24/10/2026 | Đạt |
