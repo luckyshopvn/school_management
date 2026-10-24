@@ -896,7 +896,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 |---|---|---|
 | 21a | 1 | Đã làm, YCTD-167, phiên bản 0.114.0: bộ môn mẫu THCS, THPT, nhóm môn lựa chọn (năm học 0084 `subjects.option_group`), tổ hợp môn và đăng ký (đổi thì chờ duyệt), tổ bộ môn, nhóm menu "7. Dạy học" dùng chung ba cấp, 7.12, 7.13; định danh 0075 để trống (không thêm quyền); e2e 95 |
 | 22g1 | 1 | Chưa làm, 20a đã gộp |
-| 21b | 2 | Đã làm, YCTD-169, phiên bản 0.115.0, PR @@PR@@: menu thời khoá biểu ba cấp; tiết học nhóm (năm học 0086 `timetable_lessons.group_no`); luật nhóm, tiết đôi, phòng bộ môn; nhập Excel cột Nhóm; thời khoá biểu của con theo tổ hợp môn; máy xếp bỏ qua môn học lựa chọn; dạy thay chỉ cho tiết cả lớp; chưa làm: xếp tự động tiết nhóm, đổi tiết nhóm, định mức tổ bộ môn; e2e 97 |
+| 21b | 2 | Đã làm, YCTD-169, phiên bản 0.115.0, PR 151: menu thời khoá biểu ba cấp; tiết học nhóm (năm học 0086 `timetable_lessons.group_no`); luật nhóm, tiết đôi, phòng bộ môn; nhập Excel cột Nhóm; thời khoá biểu của con theo tổ hợp môn; máy xếp bỏ qua môn học lựa chọn; dạy thay chỉ cho tiết cả lớp; chưa làm: xếp tự động tiết nhóm, đổi tiết nhóm, định mức tổ bộ môn; e2e 97 |
 | 21c | 2 | Chưa làm, chờ 21a (20c đã gộp) |
 | 21d | 3 | Chưa làm, chờ 21b, 20d |
 | 21e | 3 | Chưa làm, chờ 21c, 20e |
