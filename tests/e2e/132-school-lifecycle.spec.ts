@@ -6,7 +6,7 @@ import {
   readTenancyConfiguration,
   TenancyRuntime,
 } from '@school-management/database';
-import { createPlatformOperator } from '@school-management/identity/testing';
+import { createPlatformOperatorWithTotp, operatorOtp } from '@school-management/identity/testing';
 import {
   E2E_CONSOLE_HOST,
   E2E_MULTI_CONSOLE_PORT,
@@ -21,11 +21,12 @@ import { expect, test } from './fixtures.js';
 // phục vụ lại. Chỉ chạy ở dự án nhiều trường; dữ liệu giả hoàn toàn
 const IDENTITY = `http://127.0.0.1:${E2E_MULTI_IDENTITY_PORT}`;
 const CODE = 'gamma';
-const PASSWORD = 'MatKhau2026';
+const PASSWORD = 'MatKhauVanHanh2026';
 const ADMIN_PASSWORD = 'QuanTri2026';
 const operatorLogin = `van-hanh-${Math.random().toString(36).slice(2, 8)}`;
 
 let runtime: TenancyRuntime;
+let operator: Awaited<ReturnType<typeof createPlatformOperatorWithTotp>>;
 
 // Gỡ trường gamma của lần chạy trước (lần thử lại ở CI) để bước setup tạo lại được
 async function removeGamma(): Promise<void> {
@@ -48,7 +49,7 @@ test.beforeAll(async () => {
   }
   runtime = new TenancyRuntime(configuration);
   await removeGamma();
-  await createPlatformOperator(runtime.platform, {
+  operator = await createPlatformOperatorWithTotp(runtime.platform, runtime.configuration.masterKey, {
     login: operatorLogin,
     fullName: 'Người vận hành giả',
     password: PASSWORD,
@@ -78,6 +79,9 @@ test('Khởi tạo trường ở cổng nền tảng, kích hoạt quản trị 
   await consolePage.goto('/');
   await consolePage.getByLabel('Tên đăng nhập').fill(operatorLogin);
   await consolePage.getByLabel('Mật khẩu').fill(PASSWORD);
+  await consolePage
+    .getByLabel('Mã xác thực hai lớp')
+    .fill(await operatorOtp(runtime.platform, operator.id, operator.secret));
   await consolePage.getByRole('button', { name: 'Đăng nhập' }).click();
   await consolePage.getByRole('navigation', { name: 'Menu' }).getByRole('button', { name: 'Trường' }).click();
   await expect(consolePage.getByRole('row', { name: /alpha/ })).toBeVisible();

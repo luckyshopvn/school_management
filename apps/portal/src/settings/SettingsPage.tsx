@@ -440,12 +440,14 @@ function LoginSecuritySettings({ onSaved }: { onSaved(message: string): void }) 
   const [threshold, setThreshold] = useState('');
   const [historyCount, setHistoryCount] = useState('');
   const [captchaAlways, setCaptchaAlways] = useState(false);
+  const [totpEnabled, setTotpEnabled] = useState(false);
   const [hotline, setHotline] = useState('');
   useEffect(() => {
     if (settings.data) {
       setThreshold(String(settings.data.captcha_failure_threshold));
       setHistoryCount(String(settings.data.password_history_count));
       setCaptchaAlways(settings.data.captcha_always);
+      setTotpEnabled(settings.data.totp_enabled);
       setHotline(settings.data.login_hotline ?? '');
     }
   }, [settings.data]);
@@ -455,6 +457,7 @@ function LoginSecuritySettings({ onSaved }: { onSaved(message: string): void }) 
         captcha_failure_threshold: Number(threshold),
         password_history_count: Number(historyCount),
         captcha_always: captchaAlways,
+        totp_enabled: totpEnabled,
         login_hotline: hotline,
       }),
     onSuccess: async () => {
@@ -500,6 +503,10 @@ function LoginSecuritySettings({ onSaved }: { onSaved(message: string): void }) 
         <label className="flex items-center gap-2 self-end pb-2 text-label text-text">
           <input type="checkbox" checked={captchaAlways} onChange={(event) => setCaptchaAlways(event.target.checked)} />
           Luôn hiện mã xác nhận ở trang đăng nhập
+        </label>
+        <label className="flex items-center gap-2 pb-2 text-label text-text">
+          <input type="checkbox" checked={totpEnabled} onChange={(event) => setTotpEnabled(event.target.checked)} />
+          Cho phép xác thực hai lớp (mỗi người tự đăng ký bằng ứng dụng xác thực ở Hồ sơ của tôi)
         </label>
       </div>
       <div>

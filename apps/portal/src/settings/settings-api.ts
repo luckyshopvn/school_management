@@ -43,6 +43,8 @@ export interface IdentitySettings {
   captcha_always: boolean;
   password_history_count: number;
   login_hotline: string | null;
+  // Cho phép người dùng của trường tự đăng ký xác thực hai lớp (DT-SaaS phần S8b); mặc định tắt
+  totp_enabled: boolean;
 }
 
 export type IdentitySettingsChanges = Partial<Omit<IdentitySettings, 'parent_default_password_configured'>> & {

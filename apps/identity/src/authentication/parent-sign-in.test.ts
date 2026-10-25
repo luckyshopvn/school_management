@@ -355,10 +355,10 @@ describe('Dịch vụ định danh: mật khẩu mặc định và mã một l�
     it('BM-71, YCTD-43: mỗi kênh một cookie; phiên cổng quản trị không làm mới được ở kênh phụ huynh', async () => {
       const parent = await createParent(false);
       const signedIn = await login(parent.phone, TEST_PASSWORD);
-      assert.match(signedIn.setCookie ?? '', /^refresh_token_parent=/);
+      assert.match(signedIn.setCookie ?? '', /^__Secure-refresh_token_parent=/);
       const portalUser = await createTestUser(context.database, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
       const portal = await login(portalUser.phone, portalUser.password, 'portal');
-      assert.match(portal.setCookie ?? '', /^refresh_token=/);
+      assert.match(portal.setCookie ?? '', /^__Secure-refresh_token=/);
       const crossed = await postJson(
         `${context.baseUrl}/auth/refresh`,
         { channel: 'parent' },

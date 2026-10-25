@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.112
+- Phiên bản: 1.113
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -690,6 +690,9 @@ Từ YCTD-184 (DT-22 phần 22h2), phân hệ "Kho học liệu" thêm 8. Câu h
 | MH-322 | Thương hiệu của trường (YCTD-195, cùng trang): tên hiển thị, màu chủ đạo, ghi chú biểu trưng lấy từ Cấu hình website, nút Lưu thương hiệu | Hiệu trưởng (VT-02) |
 | MH-323 | Cổng vận hành nền tảng: Gói dịch vụ (YCTD-194, mục menu "Gói dịch vụ"): bảng gói (mã, tên, phân hệ, giới hạn học sinh, dung lượng, cấp học, cách tính phí, đơn giá, trạng thái) kèm biểu mẫu thêm, sửa (chọn phân hệ, cách tính phí theo học sinh, theo trường, theo phân hệ); bảng trường (mã, trạng thái, gói hiện hành, hạn dùng thử, hạn đã trả phí) kèm gán gói, đặt hạn, đổi trạng thái; nút Chạy chuyển trạng thái hiện số trường đổi và số nhắc hạn | Người vận hành nền tảng |
 | MH-324 | Cổng: gói dịch vụ của trường (YCTD-194): ô Phân hệ chỉ liệt kê phân hệ trong gói; dải báo "Chế độ chỉ đọc" (vai trò alert) khi trường chỉ đọc; dải nhắc hạn gói khi còn từ 15 ngày trở xuống | Mọi người dùng của trường |
+| MH-325 | Đăng nhập có mã xác thực hai lớp (YCTD-201, MH-47 mở rộng): sau khi nhập đúng mật khẩu, nếu tài khoản đã bật xác thực hai lớp thì hiện ô "Mã xác thực hai lớp (hoặc mã khôi phục)" (cổng quản trị và ứng dụng giáo viên); cổng vận hành nền tảng luôn có ô này | Người dùng đã bật xác thực hai lớp; người vận hành nền tảng |
+| MH-326 | Xác thực hai lớp ở Hồ sơ của tôi (YCTD-201): hiện khi trường đã bật; Bật xác thực hai lớp hiện khóa và địa chỉ cấu hình, ô nhập mã 6 số, Xác nhận và bật, hiện mã khôi phục một lần; khi đang bật có số mã khôi phục còn lại và ô tắt bằng mã | Người dùng của trường |
+| MH-327 | Cấu hình bảo mật theo trường (YCTD-201, ở Cấu hình hệ thống): ô Cho phép xác thực hai lớp (khối Đăng nhập và bảo mật) và ba ô chính sách mật khẩu (độ dài tối thiểu, số lần nhập sai, số phút tạm khóa) ở Chính sách mật khẩu | Hiệu trưởng, quản trị |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 

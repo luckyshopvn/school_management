@@ -275,6 +275,22 @@ export interface SchoolKeyRotationsTable {
   error: string | null;
 }
 
+// Xác thực hai lớp của tài khoản vận hành nền tảng (DT-SaaS phần S8b, YCTD-201)
+export interface PlatformOperatorTotpTable {
+  operator_id: string;
+  secret_encrypted: string;
+  last_step: ColumnType<string | null, number | string | null | undefined, number | string | null>;
+  created_at: CreatedTimestamp;
+}
+
+export interface PlatformOperatorRecoveryCodesTable {
+  id: Generated<string>;
+  operator_id: string;
+  code_hash: string;
+  used_at: Date | null;
+  created_at: CreatedTimestamp;
+}
+
 export interface SchedulerStateTable {
   school_id: string;
   job: string;
@@ -328,5 +344,7 @@ export interface PlatformDatabase {
   school_hosting: SchoolHostingTable;
   scheduler_state: SchedulerStateTable;
   school_key_rotations: SchoolKeyRotationsTable;
+  platform_operator_totp: PlatformOperatorTotpTable;
+  platform_operator_recovery_codes: PlatformOperatorRecoveryCodesTable;
   backup_runs: BackupRunsTable;
 }

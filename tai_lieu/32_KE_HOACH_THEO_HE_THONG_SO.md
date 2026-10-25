@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành).
-- Phiên bản: 1.71
+- Phiên bản: 1.72
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -1496,7 +1496,7 @@ Các lớp kiểm thử:
 | S5b | 4 | Chưa làm, YCTD-196; bắt đầu khi S5a, S3, S1b gộp |
 | S4 | 3 | Chưa làm, YCTD-197; bắt đầu khi S2, S5a gộp |
 | S7b | 4 | Đã làm, YCTD-199, phiên bản 0.135.0, PR 171: bảng nền tảng `backup_runs` (0070); sao lưu logic theo từng trường ở cả hai bố cục (`.sbak` mã hóa AES-256-GCM, phạm vi `all` hằng ngày, `active` hằng giờ), khôi phục vào chính trường hoặc thành trường mới, diễn tập khôi phục tự động hằng tháng, chuyển trường sang cụm khác (`platform backup-school`, `verify-backup`, `restore-school`, `restore-drill`, `move-school`); bộ nạp bằng vai trò của trường, mỗi bảng một giao dịch (relayout của S9 dùng chung); khôi phục về một thời điểm bằng WAL-G (`compose.pitr.yml`, `docker/postgres-walg`, `pitr-extract-school.sh`, `PITR.md` kèm RPO, RTO); hồ sơ thử nghiệm ghi giới hạn Neon, Supabase và mẫu GitHub Actions; e2e spec 137; chưa làm: thử tải 50 trường, cảnh báo ở S4, kiểm tay WAL-G trên staging |
-| S8b | 4 | Chưa làm, YCTD-201; bắt đầu khi S1a, S2, S3 gộp |
+| S8b | 4 | Đã làm, YCTD-201, phiên bản 0.136.0, PR 173: xác thực hai lớp TOTP (bắt buộc cho tài khoản vận hành nền tảng, tuỳ chọn theo trường cho người dùng trường; nền tảng 0080, 0081, định danh 0101, 0102), chính sách mật khẩu và khóa tạm theo trường, tiêu đề bảo mật, cookie `__Secure-`, xoay khóa ký hai pha, quét bí mật và thành phần phụ thuộc ở CI, danh sách kiểm ASVS; chưa làm: kiểm thử xâm nhập bên ngoài (Eric thuê), xác thực hai lớp cho ứng dụng phụ huynh |
 | S6 | 5 | Chưa làm, YCTD-202; **đợt 5, Eric đã duyệt ngày 2026-10-25**; bắt đầu khi S1a, S4, S8b gộp |
 
 ### 14.11 Giả định chưa chốt, làm cấu hình được

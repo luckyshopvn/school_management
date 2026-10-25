@@ -7,6 +7,7 @@ import {
   createSchoolReadOnlyMiddleware,
   createTenantMiddleware,
   ErrorFilter,
+  securityHeaders,
   isApiWriteAllowedWhenReadOnly,
   SystemClock,
 } from '@school-management/server';
@@ -36,6 +37,8 @@ export async function createApplication(
     ApplicationModule.register(configuration, options.clock ?? new SystemClock(), options),
     { logger: ['error', 'warn'] },
   );
+  // Tiêu đề bảo mật (DT-SaaS phần S8b), đặt trước mọi lớp trung gian khác
+  application.use(securityHeaders());
   const tenancy = options.tenancy ?? null;
   if (tenancy) {
     // Gọi nội bộ giữa máy chủ API và dịch vụ định danh dùng địa chỉ nội bộ, không phải tên miền của trường: khi tên miền không
@@ -47,7 +50,11 @@ export async function createApplication(
         hostSource: tenancy.configuration.hostSource,
         isTenantFreePath: (path) => TENANT_FREE_PATHS.has(path),
         ...(tenancy.configuration.edgeSecret ? { edgeSecret: tenancy.configuration.edgeSecret } : {}),
-        resolveByToken: tenancy.tokenTenantResolver(configuration.tokenPublicKeyPem, () => clock.now()),
+        resolveByToken: tenancy.tokenTenantResolver(
+          configuration.tokenPublicKeyPem,
+          () => clock.now(),
+          configuration.tokenPreviousPublicKeyPem ?? null,
+        ),
       }),
     );
     // Trường quá hạn ở chế độ chỉ đọc: chặn yêu cầu ghi (DT-SaaS phần S5a)

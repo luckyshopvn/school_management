@@ -112,11 +112,20 @@ export async function fetchWithSession(path: string): Promise<Response> {
   return attempt();
 }
 
-export async function loginWithPassword(loginIdentifier: string, password: string): Promise<TokenResponse> {
+export async function loginWithPassword(
+  loginIdentifier: string,
+  password: string,
+  otpCode?: string,
+): Promise<TokenResponse> {
   return remember(
     await send<TokenResponse>('/api/v1/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ login: loginIdentifier, password, channel: 'teacher' }),
+      body: JSON.stringify({
+        login: loginIdentifier,
+        password,
+        channel: 'teacher',
+        ...(otpCode ? { otp_code: otpCode } : {}),
+      }),
     }),
   );
 }

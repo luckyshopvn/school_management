@@ -5,10 +5,13 @@ import type { SessionChannel } from '@school-management/database';
 
 // Mã làm mới gửi cho trình duyệt bằng cookie httpOnly, SameSite=Strict, Secure (BM-71).
 // Mỗi kênh một cookie riêng vì ba kênh dùng chung tên miền (Q-118); không thì đăng nhập kênh này đè phiên kênh kia
+// Tiền tố __Secure- (DT-SaaS phần S8b): trình duyệt chỉ nhận cookie này khi có thuộc tính Secure và đến từ trang an toàn, nên một trang
+// không an toàn (hoặc tên miền anh em bị chiếm) không đặt đè được mã làm mới
+export const SECURE_COOKIE_PREFIX = '__Secure-';
 const REFRESH_TOKEN_COOKIE_NAMES: Record<SessionChannel, string> = {
-  portal: 'refresh_token',
-  teacher: 'refresh_token_teacher',
-  parent: 'refresh_token_parent',
+  portal: SECURE_COOKIE_PREFIX + 'refresh_token',
+  teacher: SECURE_COOKIE_PREFIX + 'refresh_token_teacher',
+  parent: SECURE_COOKIE_PREFIX + 'refresh_token_parent',
 };
 const COOKIE_PATH = `${API_VERSION_PREFIX}/auth`;
 

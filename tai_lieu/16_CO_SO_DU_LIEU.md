@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.122
+- Phiên bản: 1.123
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -752,6 +752,17 @@ Từ YCTD-203 (tệp nền tảng `0100_add_database_login_name`), bảng `schoo
 | backup_runs (từ YCTD-199) | Mỗi lần sao lưu, khôi phục, diễn tập khôi phục, chuyển cụm của một trường ở cơ sở dữ liệu nền tảng (BR-217, BR-218; tệp nền tảng `0070_create_backup_runs`, khối 0070 đến 0079 của S7b) | id, school_id (khóa ngoại `schools`, đặt rỗng khi trường bị xóa), school_code, kind (`backup`, `restore`, `drill`, `cluster-move`), status (`running`, `done`, `failed`), file_name (đường dẫn tương đối `<mã>/<thời điểm>-<phạm vi>.sbak`), file_bytes, file_sha256, databases, tables, rows, details (JSON: phạm vi, chế độ khôi phục, trường nguồn, cụm đích, `duration_ms`), error, actor_type, actor_id, started_at, finished_at; chỉ mục (school_code, kind, started_at) |
 
 Tệp sao lưu `.sbak` không nằm trong cơ sở dữ liệu: đầu tệp `SMBK1`, muối 16 byte, IV 12 byte, nội dung (dòng JSON nén gzip, mã hóa AES-256-GCM), mã xác thực 16 byte ở cuối.
+
+## 18C. Xác thực hai lớp (DT-SaaS phần S8b, YCTD-201)
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| platform_operator_totp (từ YCTD-201) | Khóa TOTP của tài khoản vận hành nền tảng, ở cơ sở dữ liệu nền tảng (BR-219; nền tảng `0080_create_operator_totp`, khối 0080 đến 0089 của S8b) | operator_id (khóa chính, xóa theo), secret_encrypted (mã hóa bằng khóa gốc, được bọc lại khi đổi khóa gốc), last_step, created_at |
+| platform_operator_recovery_codes (từ YCTD-201) | Mã khôi phục dùng một lần của tài khoản vận hành (nền tảng `0081`) | id, operator_id, code_hash (băm), used_at; duy nhất (operator_id, code_hash) |
+| user_totp (từ YCTD-201) | Khóa TOTP của người dùng trường, ở cơ sở dữ liệu định danh của trường (BR-219; định danh `0101_create_user_totp`) | user_id (duy nhất, xóa theo), secret_encrypted (mã hóa bằng khóa mã hóa của trường, được mã hóa lại khi đổi khóa dữ liệu trẻ), confirmed_at (null là đăng ký dở), last_step |
+| user_recovery_codes (từ YCTD-201) | Mã khôi phục dùng một lần của người dùng trường (định danh `0102`) | id, user_id, code_hash (băm), used_at |
+
+Chính sách theo trường không có bảng riêng: ba mục mới (`password_min_length`, `login_max_failed_attempts`, `login_lock_minutes`) và `totp_enabled` nằm ở `identity_settings` của cơ sở dữ liệu định danh của trường cùng các mục chính sách mật khẩu đã có (BR-220); hệ thống 0054 giữ trống vì dịch vụ định danh là nơi dùng.
 
 ## 19. Quan hệ chính giữa các bảng
 

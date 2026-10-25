@@ -29,14 +29,16 @@ async function readError(response: Response): Promise<PlatformApiError> {
   return new PlatformApiError(response.status, message);
 }
 
+// Xác thực hai lớp bắt buộc (DT-SaaS phần S8b): mã TOTP 6 số hoặc mã khôi phục gửi kèm
 export async function loginOperator(
   login: string,
   password: string,
+  otpCode: string,
 ): Promise<{ accessToken: string; operator: Operator }> {
   const response = await fetch('/api/v1/auth/platform/login', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ login, password }),
+    body: JSON.stringify({ login, password, otp_code: otpCode }),
   });
   if (!response.ok) {
     throw await readError(response);

@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.66
+- Phiên bản: 0.67
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,24 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-201: DT-SaaS phần S8b: bảo mật mã – 2026-10-25
+
+- Lý do: phần S8b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.3, 14.5, 14.9 (GD-97); mở khóa sau S1a, S2, S3.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ kế hoạch chưa chốt):
+  - **Xác thực hai lớp:** `totp.ts` (RFC 6238, mã khôi phục); người dùng trường tuỳ chọn theo trường (`totp_enabled` mặc định tắt, YCTD-31 giữ nguyên) với `TotpService`, `/auth/totp/*`, ô mã ở đăng nhập cổng quản trị và ứng dụng giáo viên, khối đăng ký ở Hồ sơ của tôi; tài khoản vận hành nền tảng bắt buộc (`platform_operator_totp`), tạo và cấp lại khóa bằng `create-platform-operator`, `reset-operator-totp`.
+  - **Chính sách theo trường:** thêm `password_min_length`, `login_max_failed_attempts`, `login_lock_minutes` vào chính sách mật khẩu đã có (DT-15); tài khoản vận hành tối thiểu 12 ký tự.
+  - **Rà bảo mật:** `securityHeaders()` dùng ở máy chủ API và dịch vụ định danh, Caddy thêm `includeSubDomains` và quyền cảm biến; cookie mã làm mới `__Secure-`; `AccessTokenVerifier` nhận thêm khóa cũ (`TOKEN_PREVIOUS_PUBLIC_KEY`); quy trình xoay khóa ký ở `22_BAO_MAT.md` mục 10A; `rotateChildKeys` gồm cơ sở dữ liệu định danh, `rewrapMasterKey` gồm khóa TOTP vận hành.
+  - **CI:** `tests/tenancy/secret-scan.test.mjs` (chạy trong `pnpm test`) và việc `quet-phu-thuoc` (`pnpm audit`, không chặn gộp).
+  - **Chưa làm ở phần này (ghi rõ):** kiểm thử xâm nhập bên ngoài (Eric thuê; danh sách ASVS đã lập); bắt buộc xác thực hai lớp cho quản trị trường (chỉ tuỳ chọn, theo GD-97); nhật ký truy cập dữ liệu trẻ riêng theo trường (nhật ký thay đổi của trường đã có); xác thực hai lớp cho ứng dụng phụ huynh.
+- Thành phần bị ảnh hưởng: `packages/server`, `database`, `apps/identity`, `apps/api`, `apps/portal`, `apps/teacher`, `apps/platform`, `deploy/caddy`, `.github/workflows`, `tests`; tài liệu `01`, `02`, `03`, `07`, `10`, `11`, `12`, `14`, `16`, `17`, `21`, `22`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: bốn bảng mới nói trên; không đổi bảng hiện có.
+- API bị ảnh hưởng: thêm `/auth/totp/*`, `otp_code`, `totp_enabled`, ba mục chính sách; chế độ không bật xác thực hai lớp không đổi.
+- Giao diện bị ảnh hưởng: MH-325 đến MH-327.
+- Quyền bị ảnh hưởng: không thêm quyền (đặt lại hộ dùng quyền quản lý tài khoản, bật theo trường dùng quyền cấu hình).
+- Ảnh hưởng chức năng cũ: tài khoản vận hành tạo trước đó phải được cấp khóa TOTP; mọi người dùng đăng nhập lại một lần vì tên cookie đổi; ngoài ra không.
+- Kiểm thử cần thực hiện: kiểm thử đơn vị `packages/server`, `database`, `apps/identity`, `apps/api`; kiểm tĩnh và quét bí mật; ma trận cách ly; e2e spec 138 ở dự án nhiều trường, các spec đăng nhập, spec 132, 140 ở dự án nhiều trường và một trường; CI chạy toàn bộ e2e.
+- Trạng thái: Đã triển khai (PR 173)
 
 ### YCTD-199: DT-SaaS phần S7b: vận hành nhiều trường (sao lưu, khôi phục, chuyển cụm theo trường) – 2026-10-25
 

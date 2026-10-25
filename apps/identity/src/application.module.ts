@@ -10,6 +10,7 @@ import { StaffAccountsService } from './accounts/staff-accounts.service.js';
 import { IdentitySettingsController } from './settings/identity-settings.controller.js';
 import { IdentitySettingsService } from './settings/identity-settings.service.js';
 import { AccessTokenGuard } from './authentication/access-token.guard.js';
+import { TotpService } from './authentication/totp.service.js';
 import { AuthenticationController } from './authentication/authentication.controller.js';
 import { AuthenticationService } from './authentication/authentication.service.js';
 import { LoginRateLimiter } from './authentication/login-rate-limiter.js';
@@ -67,6 +68,7 @@ export class ApplicationModule {
         LoginRateLimiter,
         AuthenticationService,
         ImpersonationService,
+        TotpService,
         IdentityDataExportService,
         OneTimeCodeService,
         CaptchaService,
